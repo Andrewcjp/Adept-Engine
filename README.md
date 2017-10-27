@@ -17,13 +17,17 @@ Both Renderers Support:
 
 Diffuse Lighting, 
 Texture Mapping, 
-Shadows mapping (static and dynamic)
+Shadow mapping (static and dynamic),
+Super Scaling
 
 OpenGL Supports:
 
 UI Rendering, 
 Text Rendering, 
 Grass system (instanced Rendering), 
-Particle system, 
+Particle system (CPU), 
 Parallax Mapping, 
-Normal Mapping
+Normal Mapping,
+Deferred Rendering, 
+FXAA,
+
