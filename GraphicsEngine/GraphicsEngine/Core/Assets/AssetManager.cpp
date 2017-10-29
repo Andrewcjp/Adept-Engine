@@ -1,0 +1,358 @@
+#include "stdafx.h"
+#include "AssetManager.h"
+#include "RHI/Shader.h"
+#include "RHI/ShaderProgramBase.h"
+#include <iostream>
+#include <ios>
+#include <stdio.h>
+#include <fstream>
+#include <string>
+#include <string>
+#include <iostream>
+#include <filesystem>
+#include <experimental/filesystem>
+#include <iomanip>
+#include "Core/Engine.h"
+#include <SOIL.h>
+#include "../Utils/StringUtil.h"
+void AssetManager::LoadFromShaderDir()
+{
+	std::string path = ShaderAssetPath;
+	for (auto & p : std::experimental::filesystem::directory_iterator(path))
+	{
+		LoadFileWithInclude(p.path().filename().string());
+	}
+}
+void AssetManager::LoadTexturesFromDir()
+{
+	std::string path = TextureAssetPath;
+	for (auto & p : std::experimental::filesystem::directory_iterator(path))
+	{
+		if ((p.path().filename().string().find("tga") != -1) || (p.path().filename().string().find(".") == -1))
+		{
+			continue;
+		}
+		TextureAsset t;
+		GetTextureAsset(p.path().string(), t);
+	}
+}
+bool AssetManager::FileExists(std::string filename)
+{
+	struct stat fileInfo;
+	return stat(filename.c_str(), &fileInfo) == 0;
+}
+bool AssetManager::LoadTextureAsset()
+{
+	if (FileExists(TextureCooked) == false)
+	{
+		return false;
+	}
+	int datalength = 8;
+	char * attribdata = new char[datalength];//two points of data
+
+	std::ifstream ifp(TextureCooked, std::ios::in | std::ios::binary);
+	ifp.read(reinterpret_cast<char*>(attribdata), datalength * sizeof(char));
+	std::string data = attribdata;
+	int count = std::stoi(data);
+	for (int i = 0; i < count; i++)
+	{
+		TextureAsset Target;
+		ifp.read(reinterpret_cast<char*>(&Target), sizeof(TextureAsset));
+	/*	char* name = "";
+		ifp.read((char*)(name), (Target.NameSize * sizeof(char)));*/
+		//Target.name = name;
+		ifp.read((char*)(Target.image), (Target.ByteSize));
+		TextureAssetsMap.emplace(Target.name, Target);
+	}
+	ifp.close();
+	return true;
+}
+void AssetManager::CookTextureAsset()
+{
+	std::ofstream ofp(TextureCooked, std::ios::out | std::ios::binary);
+	std::stringstream stream;
+	stream << std::setfill('0') << std::setw(8) << (TextureAssetsMap.size());// << "|" << std::setfill('0') << std::setw(8) << (0);
+	std::string data = stream.str();
+	ofp.write((const char*)(data.c_str()), data.length());
+	for (std::map<std::string, TextureAsset>::iterator it = TextureAssetsMap.begin(); it != TextureAssetsMap.end(); ++it)
+	{
+		/*	TextureAsset Target;
+			GetTextureAsset("../asset/texture/grasshillalbedo.png", Target);*/
+		ofp.write((const char*)(&it->second), sizeof(TextureAsset));
+		//ofp.write((const char*)(it->second.name.data()), sizeof(it->second));
+		ofp.write((const char*)(it->second.image), (it->second.ByteSize));
+	}
+	/*TextureAsset Target;
+	GetTextureAsset("../asset/texture/grasshillalbedo.png", Target);
+	ofp.write((const char*)(&Target), sizeof(TextureAsset));
+	ofp.write((const char*)(Target.image), (Target.ByteSize));*/
+	ofp.close();
+	//ofp.write(reinterpret_cast<const char*>(&ShaderSourceMap), ShaderSourceMap.size() * sizeof(Vertex));
+}
+void AssetManager::ExportCookedShaders()
+{
+	std::ofstream myfile(ShaderCookedName);
+	if (myfile.is_open())
+	{
+		for (std::map<std::string, std::string>::iterator it = ShaderSourceMap.begin(); it != ShaderSourceMap.end(); ++it)
+		{
+			//std::cout << it->first << " => " << it->second << '\n';
+			std::string data = "";
+			data.append(it->first);
+			data.append("|\n");
+			data.append(it->second);
+			data.append("¬\n");
+			myfile.write(data.c_str(), data.length());
+		}
+	}
+	myfile.close();
+}
+void AssetManager::LoadCookedShaders()
+{
+	std::ifstream myfile(ShaderCookedName);
+	std::string file;
+	if (myfile.is_open())
+	{
+		std::string line;
+		std::string shaderSource;
+		std::string Key;
+		while (std::getline(myfile, line))
+		{
+			if (line.find("¬") != -1)
+			{
+				std::string Shader = shaderSource;
+				ShaderSourceMap.emplace(Key, Shader);
+				shaderSource = "";
+				Key = "";
+				/*Shader.erase(0, Key.length());*/
+				continue;
+			}
+			size_t target = line.find("|");
+			if (target == -1)
+			{
+				shaderSource.append(line);
+				shaderSource.append("\n");
+				continue;
+			}
+			else
+			{
+				Key = line;
+				StringUtils::RemoveChar(Key, "|");
+				StringUtils::RemoveChar(Key, "¬");
+			}
+
+
+		}
+		myfile.close();
+	}
+}
+//todo: Unload Shaders To save memory
+//and wrap the code to recreate when reqeusted
+//todo: iamge/mesh writing data
+//linked list of nodes written to disk binary
+//each node stores string of id and size of data.
+AssetManager* AssetManager::instance = nullptr;
+void AssetManager::StartAssetManager()
+{
+	if (instance == nullptr)
+	{
+		instance = new AssetManager();
+	}
+}
+AssetManager::AssetManager()
+{
+	StartTime = (float)get_nanos();
+	ShaderAssetPath = AssetRootPath;
+	ShaderAssetPath.append("shader/glsl/");
+	TextureAssetPath = AssetRootPath;
+	TextureAssetPath.append("texture/");
+	ShaderCookedName = "../asset/CookedShaders.txt";
+	//if (PreLoadTextShaders)
+	//{
+	//	if (FileExists(ShaderCookedName))
+	//	{
+	//		//LoadCookedShaders();
+	//	}
+	//	else
+	//	{
+	//		ExportCookedShaders();
+	//	}
+	//}
+	LoadFromShaderDir();
+	/*LoadTexturesFromDir();
+	CookTextureAsset();
+	LoadTextureAsset();*/
+	//if (UseCookedtextures)
+	//{
+	//	if (!LoadTextureAsset())
+	//	{
+	//		LoadTexturesFromDir();
+	//		CookTextureAsset();
+	//	}
+	//}
+	LoadTexturesFromDir();
+	/*CookTextureAsset();
+	LoadTextureAsset();*/
+	std::cout << "Shaders Loaded in " << ((get_nanos() - StartTime) / 1e6f) << "ms " << std::endl;
+	std::cout << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << std::endl;
+}
+
+
+AssetManager::~AssetManager()
+{
+}
+
+bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset)
+{
+	if (HasCookedData)
+	{
+
+	}
+	else
+	{
+		if (ShaderSourceMap.find(path) == ShaderSourceMap.end())
+		{
+			TextureAsset newasset;
+			unsigned char* image = SOIL_load_image(path.c_str(), &newasset.Width, &newasset.Height, &newasset.Nchannels, SOIL_LOAD_RGBA);
+			if (image == nullptr)
+			{
+				/*	printf("Load texture Error %s\n", path);*/
+				std::cout << "Load texture Error " << path << std::endl;
+				return false;
+			}
+			newasset.image = image;
+			newasset.ByteSize = (newasset.Width* newasset.Height) *(newasset.Nchannels * sizeof(unsigned char));
+			LoadedAssetSize += newasset.ByteSize;
+			newasset.name = path;
+			newasset.NameSize = path.length();
+			TextureAssetsMap.emplace(path, newasset);
+			asset = TextureAssetsMap.at(path);
+		}
+		else
+		{
+			asset = TextureAssetsMap.at(path);
+			return true;
+		}
+		return true;
+	}
+	return false;
+}
+size_t AssetManager::GetShaderAsset(std::string name, char ** buffer)
+{
+	if (instance != nullptr)
+	{
+		return instance->ReadShader(name, buffer);
+	}
+	return 0;
+}
+size_t AssetManager::ReadShader(std::string name, char ** buffer)
+{
+	std::string NamePath(ShaderAssetPath);
+	NamePath.append(name);
+
+	return TextFileBufferedRead(NamePath, buffer);
+}
+std::string AssetManager::LoadFileWithInclude(std::string name)
+{
+	std::string  output;
+	if (ShaderSourceMap.find(name) == ShaderSourceMap.end())
+	{
+		output = LoadShaderIncludeFile(name, 0);
+		ShaderSourceMap.emplace(name, output);
+	}
+	else
+	{
+		output = ShaderSourceMap.at(name);
+	}
+	return output;
+}
+
+
+std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
+{
+	std::string file;
+	limit++;
+	if (limit > 2)
+	{
+		return file;
+	}
+	std::string pathname = name;
+	if (limit > 0)
+	{
+		pathname = ShaderAssetPath;
+		pathname.append(name);
+	}
+	//	pathname.append(name);*/
+	std::ifstream myfile(pathname);
+	if (myfile.is_open())
+	{
+		std::string line;
+		while (std::getline(myfile, line))
+		{
+			///*	if (line.find("/*") != -1 || line.find("*/") != -1|| line.find("//") != -1)
+			//	{
+			//		continue;
+			//	}*/
+			if (line.find("#") != -1)
+			{
+				size_t targetnum = line.find(includeText);
+
+				if (targetnum != -1)
+				{
+					line.erase(targetnum, includeLength);
+					StringUtils::RemoveChar(line, "\"");
+					StringUtils::RemoveChar(line, "\"");
+					file.append(LoadShaderIncludeFile(line.c_str(), limit));
+				}
+				else
+				{
+					file.append(line);
+				}
+			}
+			else
+			{
+				file.append(line);
+			}
+			file.append(" \n");
+		}
+		myfile.close();
+	}
+	else
+	{
+		std::cout << "failed to load " << pathname << std::endl;
+	}
+	return file;
+}
+size_t AssetManager::TextFileBufferedRead(std::string name, char** buffer)
+{
+
+	//std::string filename(file);
+	std::wstring newfile((int)name.size(), 0);
+	MultiByteToWideChar(CP_UTF8, 0, &name[0], (int)name.size(), &newfile[0], (int)name.size());
+	LPCWSTR filename = newfile.c_str();
+	FILE *pfile = NULL;
+	*buffer = NULL;
+	size_t count = 0;
+
+	if (filename == NULL) return 0;
+
+	_wfopen_s(&pfile, filename, L"rt");
+
+	if (!pfile) return 0;
+
+	fseek(pfile, 0, SEEK_END);
+	count = ftell(pfile);
+	rewind(pfile);
+
+	if (count > 0)
+	{
+		*buffer = new char[count + 1];
+
+		count = (fread(*buffer, sizeof(char), count, pfile));
+		(*buffer)[count] = '\0';
+	}
+
+	fclose(pfile);
+
+	return count;
+}

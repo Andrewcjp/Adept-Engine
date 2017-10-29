@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/GraphicsEngine/.vs
+/GraphicsEngine/TestGame/x64
+/GraphicsEngine/GraphicsEngine/lib/32
+/GraphicsEngine/GraphicsEngine/OLD

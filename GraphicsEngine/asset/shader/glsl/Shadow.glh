@@ -1,0 +1,66 @@
+int MaxShadowDistance = 100;
+uniform samplerCube shadowcubemap;
+uniform samplerCube shadowcubemap2;
+uniform sampler2D shadowdirmap;
+uniform sampler2D shadowdirma2;
+uniform sampler2D shadowdirmap3;
+uniform sampler2D shadowdirmap4;
+
+vec3 gridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1, 1), vec3(1, -1, 1), vec3(-1, -1, 1), vec3(-1, 1, 1), 
+   vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1, 0), vec3(1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
+   vec3(1, 0, 1), vec3(-1, 0, 1), vec3(1, 0, -1), vec3(-1, 0, -1),
+   vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1)
+);
+
+
+float ShadowCalculationCube(const vec3 fragPos,Light lpos){
+    // Get vector between fragment position and light position
+    vec3 fragToLight = fragPos - lpos.position;
+	
+    float currentDepth = length(fragToLight);
+	if(currentDepth > MaxShadowDistance){
+	//	return 0.0f;
+	}
+    float shadow = 0.0f;
+    float bias = 0.09f;
+    int samples = 20;
+    float viewDistance = length(viewPos - fragPos);
+    float diskRadius = (1.0f + (viewDistance / far_plane)) / 25.0f;
+    for(int i = 0; i < samples; ++i)
+    {
+		float closestDepth = 0;
+		if(lpos.ShadowID == 0){
+		 closestDepth = texture(shadowcubemap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+		}else if(lpos.ShadowID == 1){
+		 closestDepth = texture(shadowcubemap2, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+		}
+		
+        closestDepth *= far_plane;   
+        if(currentDepth - bias > closestDepth)
+            shadow += 1.0f;
+    }
+    shadow /= float(samples);//average of samples
+	//cleanup the low shadow areas
+	if(shadow < 0.25f){
+		return 0.0f;
+	}
+    return shadow;
+}
+
+float ShadowCalculationDir(const vec3 fragPos, Light lpos){
+     vec3 fragToLight = lpos.Direction;//fragPos - lpos.position;
+//	vec3 fragToLight = fragPos - allLights[0].position;
+     float currentDepth = fragPos.z;//length(fragToLight);
+	 vec2 coords = fragPos.xy;
+
+	
+	//float closestDepth = texture(shadowdirmap,fragToLight.xy).r;
+	if(texture( shadowdirmap, fragPos.xy ).z  <  fragPos.z){
+		return 1.0f;
+	}
+    return 0.0f;
+
+}

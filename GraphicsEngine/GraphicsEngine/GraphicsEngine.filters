@@ -1,0 +1,624 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{6a7bbf5e-e477-4f7f-b32f-11c6cff35544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Structure">
+      <UniqueIdentifier>{69248f87-fd36-402b-a66d-2b64def42dee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Physics">
+      <UniqueIdentifier>{1928085b-1052-4f0f-bdf5-02ea28e5bd40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderers">
+      <UniqueIdentifier>{3c892877-8d44-4e94-9958-25a3dd3affd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering">
+      <UniqueIdentifier>{16be4030-74a1-4c9e-bacf-4cb927fea85e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\Shaders">
+      <UniqueIdentifier>{7f9e688c-e111-48d0-ba28-18d0b460ae6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\Lighting">
+      <UniqueIdentifier>{0abc8466-7ff6-4b93-ad90-b95893b9b4da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\Geometry">
+      <UniqueIdentifier>{81ee38b4-9aec-41aa-aa54-465cff59c315}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\FrameBuffers">
+      <UniqueIdentifier>{70083322-534b-41be-8814-ede3e7fc6c3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\Core">
+      <UniqueIdentifier>{66301f9b-0df9-47e2-bacc-311f4e031ac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\D3D11">
+      <UniqueIdentifier>{e199cba2-4f62-4353-b285-6c8dde5d5a48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\OpenGL">
+      <UniqueIdentifier>{5cdf8a22-3f80-47bf-887d-af16ea88db24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\Shaders\ShaderPrograms">
+      <UniqueIdentifier>{c8bb04b1-5899-402f-b732-0579fef4f610}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Editor">
+      <UniqueIdentifier>{ad255f40-ee9b-4579-866e-58355e2bc25f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\UI">
+      <UniqueIdentifier>{fadc4617-aa72-41a3-8be1-7dba7b0b1a33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Rendering\RHI">
+      <UniqueIdentifier>{c9e33b7f-bea8-465b-8730-54160b085c72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Game">
+      <UniqueIdentifier>{81fbc60a-074c-430e-9192-f58ce950200a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D3D11\D3D11Cube.h">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11\D3D11Mesh.h">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11\D3D11Shader.h">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11\D3D11Texture.h">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11\D3D11Window.h">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OGLCube.h">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OGLMesh.h">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OGLShader.h">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OGLTexture.h">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OGLWindow.h">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseApplication.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineGlobals.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIManager.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorWindow.h">
+      <Filter>Engine\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedHeader.h" />
+    <ClInclude Include="stdafx.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\CollisionRect.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIWidget.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIListBox.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UILabel.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIGraph.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIEditField.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIButton.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIBox.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11\D3D11FrameBuffer.h">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11\D3D11Plane.h">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\ShaderPBR.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_Deferred.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_Depth.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_Grass.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_Main.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_Particle.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_Querry.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_Skybox.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_SSAO.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_Water.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Shader_WDeferred.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\ShaderOutput.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\ShaderBase.h">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\Shader.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorObjectSelector.h" />
+    <ClInclude Include="Editor\EditorGizmos.h">
+      <Filter>Engine\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhxRigidBody.h">
+      <Filter>Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsEngine.h">
+      <Filter>Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysxEngine.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\RigidBody.h">
+      <Filter>Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\LineDrawer.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Renderers\DeferredRenderer.h">
+      <Filter>Engine\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Renderers\ForwardRenderer.h">
+      <Filter>Engine\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\Camera.h">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\FrameBuffer.h">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\GPUStateCache.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\Light.h">
+      <Filter>Engine\Rendering\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\Material.h">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\Mesh.h">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\ShadowRenderer.h">
+      <Filter>Engine\Rendering\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Shaders\Text_Shader.h">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\TextRenderer.h">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\BaseTexture.h">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Inspector.h">
+      <Filter>Engine\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\IInspectable.h">
+      <Filter>Engine\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\DebugLineDrawer.h" />
+    <ClInclude Include="OpenGL\OGLShaderProgram.h">
+      <Filter>Engine\Rendering\Shaders\ShaderPrograms</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OGLFrameBuffer.h">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OGLPlane.h">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\ShaderProgramBase.h">
+      <Filter>Engine\Rendering\Shaders\ShaderPrograms</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RHI.h">
+      <Filter>Engine\Rendering\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="RHI\RenderWindow.h">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Renderers\RenderEngine.h">
+      <Filter>Engine\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\GrassPatch.h">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\ParticleSystem.h">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\Renderable.h">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\Vertex.h">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="OLD\FrameBufferSSAO.h">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="OLD\FrameBuffer_Depth.h">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="OLD\FrameBuffer_gDeferred.h">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Assets\AssetManager.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Assets\ImageIO.h">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Assets\ImageLoader.h">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Assets\MeshCooker.h">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Assets\OBJFileReader.h">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Assets\Scene.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Assets\SceneSerialiser.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Components\CameraComponent.h" />
+    <ClInclude Include="Core\Components\Component.h" />
+    <ClInclude Include="Core\Components\LightComponent.h" />
+    <ClInclude Include="Core\Performance\PerfManager.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Engine.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Game.h">
+      <Filter>Engine\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\GameObject.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Input.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Transform.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Utils.h">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Core\Triangle.h" />
+    <ClInclude Include="EngineHeader.h" />
+    <ClInclude Include="Core\Components\GrassPatchComponent.h" />
+    <ClInclude Include="Core\Components\ParticleSystemComponent.h" />
+    <ClInclude Include="Core\Components\MeshRendererComponent.h" />
+    <ClInclude Include="Core\Components\RigidbodyComponent.h" />
+    <ClInclude Include="UI\UIDrawBatcher.h" />
+    <ClInclude Include="UI\DebugConsole.h" />
+    <ClInclude Include="Core\Utils\StringUtil.h" />
+    <ClInclude Include="Rendering\Renderers\RenderSettings.h" />
+    <ClInclude Include="UI\UIDropDown.h" />
+    <ClInclude Include="UI\Layout.h" />
+    <ClInclude Include="UI\UIPanel.h" />
+    <ClInclude Include="GraphicsEngine.h">
+      <Filter>Engine\Structure</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="OpenGL\OGLCube.cpp">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\OGLMesh.cpp">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\OGLShader.cpp">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\OGLTexture.cpp">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\OGLWindow.cpp">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11\D3D11Cube.cpp">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11\D3D11Mesh.cpp">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11\D3D11Shader.cpp">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11\D3D11Texture.cpp">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11\D3D11Window.cpp">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseApplication.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIManager.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditorWindow.cpp">
+      <Filter>Engine\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\CollisionRect.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIWidget.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIListBox.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UILabel.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIGraph.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIEditField.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIButton.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIBox.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11\D3D11FrameBuffer.cpp">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11\D3D11Plane.cpp">
+      <Filter>Engine\Rendering\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_Deferred.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_Depth.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_Grass.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_Main.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_Particle.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_Querry.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_Skybox.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_SSAO.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_Water.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Shader_WDeferred.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\ShaderOutput.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\ShaderPBR.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\Shader.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditorObjectSelector.cpp" />
+    <ClCompile Include="Editor\EditorGizmos.cpp">
+      <Filter>Engine\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhxRigidBody.cpp">
+      <Filter>Engine\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsEngine.cpp">
+      <Filter>Engine\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysxEngine.cpp">
+      <Filter>Engine\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\RigidBody.cpp">
+      <Filter>Engine\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\LineDrawer.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Renderers\DeferredRenderer.cpp">
+      <Filter>Engine\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Renderers\ForwardRenderer.cpp">
+      <Filter>Engine\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\Camera.cpp">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\FrameBuffer.cpp">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\GPUStateCache.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\Light.cpp">
+      <Filter>Engine\Rendering\Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\Material.cpp">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\Mesh.cpp">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\ShadowRenderer.cpp">
+      <Filter>Engine\Rendering\Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Shaders\Text_Shader.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\TextRenderer.cpp">
+      <Filter>Engine\Rendering\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Inspector.cpp">
+      <Filter>Engine\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\IInspectable.cpp">
+      <Filter>Engine\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\DebugLineDrawer.cpp" />
+    <ClCompile Include="OpenGL\OGLFrameBuffer.cpp">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\OGLPlane.cpp">
+      <Filter>Engine\Rendering\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\OGLShaderProgram.cpp">
+      <Filter>Engine\Rendering\Shaders\ShaderPrograms</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\ShaderProgramBase.cpp">
+      <Filter>Engine\Rendering\Shaders\ShaderPrograms</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\RHI.cpp">
+      <Filter>Engine\Rendering\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="RHI\RenderWindow.cpp">
+      <Filter>Engine\Rendering\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Renderers\RenderEngine.cpp">
+      <Filter>Engine\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\GrassPatch.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\ParticleSystem.cpp">
+      <Filter>Engine\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="OLD\FrameBuffer_Depth.cpp">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClCompile>
+    <ClCompile Include="OLD\FrameBuffer_gDeferred.cpp">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClCompile>
+    <ClCompile Include="OLD\FrameBufferSSAO.cpp">
+      <Filter>Engine\Rendering\FrameBuffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Assets\AssetManager.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Assets\ImageIO.cpp">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Assets\ImageLoader.cpp">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Assets\MeshCooker.cpp">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Assets\OBJFileReader.cpp">
+      <Filter>Engine\Rendering\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Assets\Scene.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Assets\SceneSerialiser.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Components\CameraComponent.cpp" />
+    <ClCompile Include="Core\Components\Component.cpp" />
+    <ClCompile Include="Core\Components\LightComponent.cpp" />
+    <ClCompile Include="Core\Performance\PerfManager.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Engine.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Game.cpp">
+      <Filter>Engine\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\GameObject.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Input.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Core\Triangle.cpp" />
+    <ClCompile Include="Core\Components\GrassPatchComponent.cpp" />
+    <ClCompile Include="Core\Components\ParticleSystemComponent.cpp" />
+    <ClCompile Include="Core\Components\MeshRendererComponent.cpp" />
+    <ClCompile Include="Core\Components\RigidbodyComponent.cpp" />
+    <ClCompile Include="UI\UIDrawBatcher.cpp" />
+    <ClCompile Include="UI\DebugConsole.cpp" />
+    <ClCompile Include="Rendering\Renderers\RenderSettings.cpp" />
+    <ClCompile Include="UI\UIDropDown.cpp" />
+    <ClCompile Include="UI\UIPanel.cpp" />
+    <ClCompile Include="GraphicsEngine.cpp">
+      <Filter>Engine\Structure</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="GraphicsEngine.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
