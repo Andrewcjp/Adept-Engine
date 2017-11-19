@@ -6,6 +6,7 @@
 #include "Editor/IInspectable.h"
 #include "physx\PxShape.h"
 #include "physx\PxRigidStatic.h"
+#include "rapidjson\document.h"
 class Component;
 class RigidBody;
 class MeshRendererComponent;
@@ -16,14 +17,16 @@ public:
 	enum EMoblity { Static, Dynamic };
 	GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
 	~GameObject();
-	
+
 	inline Transform* GetTransform()
 	{
 		return m_transform;
 	}
+	class Scene* GetScene();
+	void Internal_SetScene(Scene* scene);
 
-	
-	
+
+
 	[[deprecated("Use Mesh Comps")]]
 	inline void SetMesh(Renderable* newmesh)
 	{
@@ -37,8 +40,8 @@ public:
 	//todo: Depricate
 	void Render(bool ignore = false);
 	bool CheckCulled(float Distance, float angle);
-	
-	
+
+
 	//getters
 	[[deprecated("Use Mesh Comps")]]
 	void SetMaterial(Material* m)
@@ -46,7 +49,7 @@ public:
 		m_mat = m;
 	}
 	Material* GetMat();
-	
+
 	std::string GetName() { return Name; }
 	void SetName(std::string name) { Name = name; }
 	bool GetReflection() { return IsReflective; }
@@ -61,32 +64,35 @@ public:
 	}
 	bool HasCached = false;
 	RigidBody* actor;
-
+	void EditorUpdate();
 	//Editor only
 	physx::PxRigidStatic* SelectionShape;
-	void AttachComponent(Component* Component);
+	Component* AttachComponent(Component* Component);
 	std::vector<Component*> GetComponents();
 	template<class T>
 	T* GetComponent();
-
+	void CopyPtrs(GameObject* newObject);
+	void SerialiseGameObject(rapidjson::Value& v);
+	void DeserialiseGameObject(rapidjson::Value& v);
 private:
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 
 	int ObjectID = 0;
 	std::string Name;
 	float OtherData = 0;
-	Renderable* m_mesh;
-	Transform* m_transform;
-	Material* m_mat;
+	Renderable* m_mesh = nullptr;
+	Transform* m_transform = nullptr;
+	Material* m_mat = nullptr;
 	bool IsReflective = false;
 	EMoblity Mobilty;
 	std::vector<Component*> m_Components;
-	MeshRendererComponent* m_MeshRenderer;
-	GameObject* mParent;
+	MeshRendererComponent* m_MeshRenderer = nullptr;
+	GameObject* mParent = nullptr;
 	std::vector<GameObject*> Children;
 	// Inherited via IInspectable
 	virtual std::vector<Inspector::InspectorProperyGroup> GetInspectorFields() override;
-
+	Scene* OwnerScene;
+	const char * ComponentArrayKey = "Components";
 };
 
 template<class T>

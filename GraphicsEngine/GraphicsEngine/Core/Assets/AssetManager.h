@@ -41,11 +41,11 @@ public:
 	bool GetTextureAsset(std::string path, TextureAsset &asset);
 	static size_t GetShaderAsset(std::string name, char ** buffer);
 	std::string LoadFileWithInclude(std::string name);
-	
+	std::string TextureAssetPath = "../asset/shader/glsl/";
 private:
 	const std::string AssetRootPath = "../asset/";
 	std::string ShaderAssetPath = "../asset/shader/glsl/";	
-	std::string TextureAssetPath = "../asset/shader/glsl/";
+	
 	bool HasCookedData = false;
 	size_t ReadShader(std::string path, char ** buffer);
 

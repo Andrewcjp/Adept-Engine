@@ -10,26 +10,28 @@
 
 class D3D11Texture : public BaseTexture
 {
-	public:
-		ID3D11ShaderResourceView*		m_textureRV;
-		bool tga = false;
-	public:
-										D3D11Texture();
-		virtual							~D3D11Texture();
-		D3D11Texture(const char* path,bool tga);
+public:
+	ID3D11ShaderResourceView*		m_textureRV;
+	bool tga = false;
+private:
+	
+public:
+	D3D11Texture();
+	virtual							~D3D11Texture();
+	D3D11Texture(const char* path, bool tga);
 
-		virtual void					CreateTextureFromFile(ID3D11Device* pDevice, const char* filename);
-		virtual void					CreateTextureFromData(void* data, int type, int width, int height, int bits)override;
+	virtual void					CreateTextureFromFile(ID3D11Device* pDevice, const char* filename);
+	virtual void					CreateTextureFromData(void* data, int type, int width, int height, int bits)override;
 
-		virtual void					CreateTextureAsRenderTarget(int width, int height);
-		
-		virtual void					CreateTextureAsDepthTarget(int width, int height);
-		virtual void					FreeTexture();
+	virtual void					CreateTextureAsRenderTarget(int width, int height);
 
-		// Inherited via BaseTexture
-		virtual void Bind(int unit) override;
-		virtual void SetTextureID(int id) override;
-		virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) override;
+	virtual void					CreateTextureAsDepthTarget(int width, int height);
+	virtual void					FreeTexture();
+
+	// Inherited via BaseTexture
+	virtual void Bind(int unit) override;
+	virtual void SetTextureID(int id) override;
+	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) override;
 };
 
 #endif

@@ -36,11 +36,13 @@ public:
 	virtual void DestoryRenderWindow() = 0;
 	virtual void SetRenderSettings(RenderSettings settings);
 	virtual void SetScene(Scene* sc);
+	virtual void SetEditorCamera(class Editor_Camera* cam);
 protected:
-	const size_t MaxPhysicsObjects = 1000;
+	const size_t MaxPhysicsObjects = 1000; 
 	int			m_width;
 	int			m_height;
 	RenderSettings settings;
 	Scene* mainscene;
+	 Editor_Camera* EditorCam;
 };
 

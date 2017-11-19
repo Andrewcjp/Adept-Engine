@@ -10,10 +10,18 @@
 #endif
 #include "RHI/RHI.h"
 #include "Editor/EditorWindow.h"
+#include "Components\CompoenentRegistry.h"
 PhysicsEngine* Engine::PhysEngine = NULL;
+PhysxEngine* Engine::PPhysxEngine = NULL;
+
+CompoenentRegistry* Engine::CompRegistry = nullptr;
 #include "Core/Assets/AssetManager.h"
 #include "Game.h"
+#include "Shlwapi.h"
+#include "../D3D12/D3D12Window.h"
+#pragma comment(lib, "shlwapi.lib")
 float Engine::StartTime = 0;
+Game* Engine::mgame = nullptr;
 EditorWindow * Engine::GetEditorWindow()
 {
 	return reinterpret_cast<EditorWindow*>(m_appwnd);
@@ -23,6 +31,8 @@ std::string Engine::GetRootDir()
 {
 	wchar_t buffer[MAX_PATH];
 	int bytes = GetModuleFileName(NULL, buffer, MAX_PATH);
+	PathRemoveFileSpec(buffer);
+	PathCombine(buffer, buffer, L"..");
 	std::wstring ws(buffer);
 	return std::string(ws.begin(), ws.end());
 }
@@ -33,7 +43,8 @@ Engine::Engine()
 	std::cout << "Starting In " << GetRootDir() << std::endl;
 	std::cout << "Loading Engine v0.1" << std::endl;
 #if PHYSX_ENABLED
-	PhysEngine = new PhysxEngine();
+	PPhysxEngine = new PhysxEngine();
+	PhysEngine = PPhysxEngine;
 #else
 	PhysEngine = new PhysicsEngine();
 	std::cout << "WARNING: Physx Disabled" << std::endl;
@@ -43,6 +54,8 @@ Engine::Engine()
 		PhysEngine->initPhysics(false);
 	}
 	AssetManager::StartAssetManager();
+	CompRegistry = new CompoenentRegistry();
+
 }
 
 
@@ -66,8 +79,20 @@ void Engine::CreateApplication(HINSTANCE hinst, LPSTR args, int nCmdShow)
 			std::cout << "Starting in Deferred Rendering mode" << std::endl;
 			Deferredmode = true;
 		}
+		if (input.compare("-fullscreen") == 0)
+		{
+			FullScreen = true;
+		}
 	}
-	CreateApplicationWindow(1280, 720, ERenderSystemType::RenderSystemOGL);
+	if (FullScreen)
+	{
+		//CreateApplicationWindow(1920, 1080, ERenderSystemType::RenderSystemOGL);
+	}
+	else
+	{
+		CreateApplicationWindow(1280, 720, ERenderSystemType::RenderSystemD3D12);
+	}
+
 
 }
 void Engine::SetContextData(HGLRC hglrc, HWND hwnd, HDC hdc)
@@ -80,6 +105,12 @@ void Engine::SetContextData(HGLRC hglrc, HWND hwnd, HDC hdc)
 void Engine::SetGame(Game * game)
 {
 	mgame = game;
+	CompRegistry->RegisterExtraComponents(game->GetECR());
+}
+
+Game * Engine::GetGame()
+{
+	return mgame;
 }
 
 void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType type)
@@ -96,7 +127,7 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 #if BUILD_D3D11
 			RHI::InitRHI(RenderSystemD3D11);
 			m_appwnd = new D3D11Window();
-			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height);
+			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
 #else
 			isWindowVaild = false;
 #endif
@@ -112,10 +143,16 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 			m_appwnd = new OGLWindow(Deferredmode);
 #endif 
 
-			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height);
+			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
 #else 
 			isWindowVaild = false;
 #endif			
+		}
+		else if (type == RenderSystemD3D12)
+		{
+			RHI::InitRHI(RenderSystemD3D12);
+			m_appwnd = new D3D12Window();
+			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
 		}
 		if (!isWindowVaild)
 		{
@@ -135,7 +172,10 @@ void Engine::setVSync(bool sync)
 	PFNWGLSWAPINTERVALPROC wglSwapIntervalEXT = 0;
 
 	const char *extensions = (char*)glGetString(GL_EXTENSIONS);
-
+	if (extensions == nullptr)
+	{
+		return;
+	}
 	if (strstr(extensions, "WGL_EXT_swap_control") == 0)
 	{
 		std::cout << "WGL_EXT_swap_control Not Avalible" << std::endl;

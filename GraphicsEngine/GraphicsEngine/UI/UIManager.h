@@ -35,6 +35,7 @@ public:
 	void MouseClick(int x, int y);
 	void MouseClickUp(int x, int y);
 	void InitGameobjectList(std::vector<GameObject*>* gos);
+	void UpdateGameObjectList(std::vector<GameObject*>* gos);
 	void RefreshGameObjectList();
 	int GetWidth()
 	{

@@ -8,6 +8,7 @@
 #include "RHI/RHI.h"
 #include <iostream>
 #include <intrin.h>
+#include "../Core/Engine.h"
 D3D11ShaderProgram::~D3D11ShaderProgram()
 {
 	DeleteShaderProgram();
@@ -25,7 +26,8 @@ inline bool exists_test3(const std::string& name)
 EShaderError D3D11ShaderProgram::AttachAndCompileShaderFromFile(const char* shadername, EShaderType type)
 {
 	//convert to LPC 
-	std::string path = "../asset/shader/hlsl/";
+	std::string path = Engine::GetRootDir();
+	path.append("\\asset\\shader\\hlsl\\");
 	std::string name = shadername;
 	path.append(name);
 	path.append(".hlsl");

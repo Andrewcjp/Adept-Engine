@@ -8,19 +8,23 @@
 DebugLineDrawer* DebugLineDrawer::instance = nullptr;
 DebugLineDrawer::DebugLineDrawer()
 {
-	m_TextShader = new OGLShaderProgram();
-	m_TextShader->CreateShaderProgram();
-	m_TextShader->AttachAndCompileShaderFromFile("Debugline_vs", SHADER_VERTEX);
-	m_TextShader->AttachAndCompileShaderFromFile("Debugline_fs", SHADER_FRAGMENT);
+	if (RHI::GetType() == RenderSystemOGL)
+	{
+		m_TextShader = new OGLShaderProgram();
+		m_TextShader->CreateShaderProgram();
+		m_TextShader->AttachAndCompileShaderFromFile("Debugline_vs", SHADER_VERTEX);
+		m_TextShader->AttachAndCompileShaderFromFile("Debugline_fs", SHADER_FRAGMENT);
 
-	m_TextShader->BindAttributeLocation(0, "vertex");
+		m_TextShader->BindAttributeLocation(0, "vertex");
 
-	m_TextShader->BuildShaderProgram();
-	m_TextShader->ActivateShaderProgram();
-	//	texture = RHI::CreateTexture("../asset/texture/UI/window.png");
-	glGenBuffers(1, &quad_vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	instance = this;
+		m_TextShader->BuildShaderProgram();
+		m_TextShader->ActivateShaderProgram();
+
+		//	texture = RHI::CreateTexture("../asset/texture/UI/window.png");
+		glGenBuffers(1, &quad_vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		instance = this;
+	}
 }
 
 
@@ -105,7 +109,7 @@ void DebugLineDrawer::RenderLines(glm::mat4 matrix)
 			size,                  // stride
 			(void*)(3 * sizeof(GLfloat))            // array buffer offset
 		);
-		
+
 		glEnableVertexAttribArray(1);
 		// Draw the triangles !
 		glDrawArrays(GL_LINES, 0, (GLsizei)(Lines.size() * 2)); // 2*3 indices starting at 0 -> 2 triangles

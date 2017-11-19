@@ -25,11 +25,11 @@ void UIButton::MouseMove(int x, int y)
 	{
 		WasSelected = true;
 		UIManager::UpdateBatches();
-		Colour = glm::vec3(1, 0, 0);
+		Colour = Hovercolour;
 	}
 	else
-	{		
-		Colour = glm::vec3(0.5f);
+	{
+		Colour = IsActiveSelect ? SelectedColour : NormalColour;
 		if (WasSelected)
 		{
 			UIManager::UpdateBatches();
@@ -51,7 +51,7 @@ void UIButton::ResizeView(int w, int h, int x, int y)
 	UIBox::ResizeView(w, h, x, y);
 	if (Label != nullptr)
 	{
-		Label->ResizeView(w, h/2, x, y);
+		Label->ResizeView(w, h / 2, x, y);
 	}
 
 	Rect = CollisionRect(w, h, x, y);
@@ -65,4 +65,11 @@ void UIButton::UpdateScaled()
 void UIButton::SetText(std::string  t)
 {
 	Label->SetText(t);
+}
+
+void UIButton::SetSelected( bool t)
+{
+	IsActiveSelect = t;
+	Colour = IsActiveSelect ? SelectedColour : NormalColour;
+	UIManager::UpdateBatches();
 }

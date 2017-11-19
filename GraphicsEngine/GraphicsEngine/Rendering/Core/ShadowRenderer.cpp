@@ -35,9 +35,13 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, st
 
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
-			if (ShadowObjects[i]->GetMat() != nullptr && ShadowObjects[i]->GetMat()->GetDoesShadow() == false)
+			if (ShadowObjects[i]->GetMat() == nullptr )
 			{
 				//object should not be rendered to the depth map
+				continue;
+			}
+			if (ShadowObjects[i]->GetMat()->GetDoesShadow() == false)
+			{
 				continue;
 			}
 
@@ -56,7 +60,14 @@ void ShadowRenderer::BindShadowMaps()
 		ShadowShaders[SNum]->BindShadowmmap();
 	}
 }
-
+void ShadowRenderer::ClearShadowLights()
+{
+	for (size_t SNum = 0; SNum < ShadowShaders.size(); SNum++)
+	{
+		delete ShadowShaders[SNum];
+	}
+	ShadowShaders.clear();
+}
 
 
 void ShadowRenderer::InitShadows(std::vector<Light*> lights)
@@ -97,7 +108,6 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		}
 		else
 		{
-			//std::cout << "HMM" << std::endl;
 			ShadowShaders.push_back(new Shader_Depth(lights[i], false));
 		}
 	}

@@ -2,6 +2,11 @@
 #include "Physics/RigidBody.h"
 #include "RHI/RHI.h"
 #include "Components\MeshRendererComponent.h"
+#include "../Core/Assets/Scene.h"
+//#include "Assets\SerialHelpers.h"
+#include "Assets\SceneJSerialiser.h"
+#include "include\glm\gtx\quaternion.hpp"
+#include "Components\CompoenentRegistry.h"
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
 {
 	Name = name;
@@ -34,6 +39,14 @@ GameObject::~GameObject()
 	}
 	delete m_transform;
 }
+Scene * GameObject::GetScene()
+{
+	return OwnerScene;
+}
+void GameObject::Internal_SetScene(Scene * scene)
+{
+	OwnerScene = scene;
+}
 bool  GameObject::CheckCulled(float Distance, float angle)
 {
 	if (Distance > 250)
@@ -62,11 +75,6 @@ void GameObject::Render(bool ignoremat)
 
 void GameObject::FixedUpdate(float delta)
 {
-	if (actor != nullptr)
-	{
-		m_transform->SetPos(actor->GetPosition());
-		m_transform->SetQrot(actor->GetRotation());
-	}
 	if (SelectionShape != nullptr)
 	{
 		//SelectionShape->
@@ -82,12 +90,21 @@ void GameObject::FixedUpdate(float delta)
 
 void GameObject::Update(float delta)
 {
+	bool changed = m_transform->IsChanged();
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		if (m_Components[i]->DoesUpdate)
 		{
 			m_Components[i]->Update(delta);
+			if (changed)
+			{
+				m_Components[i]->OnTransformUpdate();//todo:optmize Transform move!
+			}
 		}
+	}
+	if (changed)
+	{
+		m_transform->Update();
 	}
 }
 
@@ -99,9 +116,27 @@ void GameObject::BeginPlay()
 	}
 }
 
-void GameObject::AttachComponent(Component * Component)
+void GameObject::EditorUpdate()
 {
-	MeshRendererComponent* Renderer = static_cast<MeshRendererComponent*>(Component);
+	bool changed = m_transform->IsChanged();
+	if (changed)
+	{
+		for (int i = 0; i < m_Components.size(); i++)
+		{
+			m_Components[i]->OnTransformUpdate();
+		}
+		GetScene()->StaticSceneNeedsUpdate = true;
+		m_transform->Update();
+	}
+}
+
+Component* GameObject::AttachComponent(Component * Component)
+{
+	if (Component == nullptr)
+	{
+		return nullptr;
+	}
+	MeshRendererComponent* Renderer = dynamic_cast<MeshRendererComponent*>(Component);
 	if (Renderer != nullptr)
 	{
 		m_MeshRenderer = Renderer;
@@ -110,11 +145,22 @@ void GameObject::AttachComponent(Component * Component)
 	{
 		m_Components.push_back(Component);
 	}
+	Component->Internal_SetOwner(this);
+	return Component;
 }
 
 std::vector<Component*> GameObject::GetComponents()
 {
 	return m_Components;
+}
+
+void GameObject::CopyPtrs(GameObject * newObject)
+{
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		//Component* comp = new Component(m_Components[i]);
+		//todo Copy ptrs!
+	}
 }
 
 std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
@@ -135,4 +181,81 @@ std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
 		m_Components[i]->GetInspectorProps(test);
 	}
 	return test;
+}
+
+void GameObject::SerialiseGameObject(rapidjson::Value& v)
+{
+	SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "Name", Name);
+	SerialHelpers::addVector(v, *SceneJSerialiser::jallocator, "Pos", GetTransform()->GetPos());
+	SerialHelpers::addVector(v, *SceneJSerialiser::jallocator, "Rot", glm::eulerAngles(GetTransform()->GetQuatRot()));
+	SerialHelpers::addVector(v, *SceneJSerialiser::jallocator, "Scale", GetTransform()->GetScale());
+	rapidjson::Value comp(rapidjson::kArrayType);
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		rapidjson::Value jsv(rapidjson::kObjectType);
+		m_Components[i]->Serialise(jsv);
+		comp.PushBack(jsv, *SceneJSerialiser::jallocator);
+	}
+	SerialHelpers::addJsonValue(v, *SceneJSerialiser::jallocator, ComponentArrayKey, comp);
+}
+
+void GameObject::DeserialiseGameObject(rapidjson::Value & v)
+{
+	for (auto& it = v.MemberBegin(); it != v.MemberEnd(); it++)
+	{
+		std::string key = (it->name.GetString());
+		if (key == "Name")
+		{
+			SetName(it->value.GetString());
+		}
+		if (key == "Pos")
+		{
+			glm::vec3 pos;
+			if (SerialHelpers::getFloatVec<3>(it->value, "Pos", &pos[0]))
+			{
+				GetTransform()->SetPos(pos);
+			}
+		}
+		if (key == "Rot")
+		{
+			glm::vec3 rot;
+			if (SerialHelpers::getFloatVec<3>(it->value, "Rot", &rot[0]))
+			{
+				glm::quat newrot = glm::toQuat(glm::orientate3(rot));
+				GetTransform()->SetQrot(newrot);
+			}
+		}
+		if (key == "Scale")
+		{
+			glm::vec3 scale;
+			if (SerialHelpers::getFloatVec<3>(it->value, "Scale", &scale[0]))
+			{
+				GetTransform()->SetScale(scale);
+			}
+		}
+		if (key == "Components")
+		{
+			//foreach component
+			auto t = it->value.GetArray();
+			t.begin();
+			for (unsigned int i = 0; i < t.Size(); i++)
+			{
+				Component* newc = nullptr;
+				rapidjson::Value*  cv = &t[i];
+				for (auto& cit = cv->MemberBegin(); cit != cv->MemberEnd(); cit++)
+				{
+					//read the first part of the object for the components ID
+					if (cit->name == "Type")
+					{
+						newc = CompoenentRegistry::CreateBaseComponent((CompoenentRegistry::BaseComponentTypes)cit->value.GetInt());
+					}
+				}
+				if (newc != nullptr)
+				{
+					newc->Deserialise(*cv);
+					AttachComponent(newc);
+				}
+			}
+		}
+	}
 }

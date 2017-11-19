@@ -55,9 +55,9 @@ void UIListBox::ResizeView(int w, int h, int x, int y)
 {
 	UIWidget::ResizeView(w, h, x, y);
 	Background->ResizeView(w, h, X, Y);
-	
+
 	TitleLabel->ResizeView(w, 10, X, Y + mheight - 20);
-	UIUtils::ArrangeHorizontal(w, h - 40, x, y, items, 0.05f, 1);
+	UIUtils::ArrangeHorizontal(w - Edgespace, h - 40, x + Edgespace / 2, y, items, 0.05f, 0, 20);
 	//UIUtils::ArrangeGrid(w, h - 40, x, y, items, 5);
 }
 void UIListBox::UpdateScaled()
@@ -74,20 +74,27 @@ void UIListBox::RemoveAll()
 	{
 		delete items[i];
 	}
+	CurrentCount = 0;
 	items.clear();
 }
-void UIListBox::Select(int i)
+void UIListBox::Select(int inex)
 {
-	SelectedCurrent = i;
+	SelectedCurrent = inex;
 	SelectionChanged(SelectedCurrent);
+	for (int i = 0; i < items.size(); i++)
+	{
+		items[i]->SetSelected(i == SelectedCurrent);
+	}
 }
 void UIListBox::AddItem(std::string name)
 {
 	UIButton* button = new UIButton(mwidth - Edgespace, ItemHeight, Edgespace / 2, (Y + mheight) - (TitleHeight + (CurrentCount + 1) * Spacing));
 	//button->GetLabel()->TextScale = 0.3f;
-	button->SetText(name);	
+	button->SetText(name);
 	button->AligmentStruct.SizeMax = 0.03f;
 	button->BindTarget(std::bind(&UIListBox::Select, this, CurrentCount));
+	button->BackgoundColour = Background->Colour;
+	button->Colour = Background->Colour;
 	items.push_back(button);
 	CurrentCount++;
 }

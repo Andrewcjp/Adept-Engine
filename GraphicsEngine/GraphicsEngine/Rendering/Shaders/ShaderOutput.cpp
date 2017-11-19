@@ -29,11 +29,12 @@ ShaderOutput::ShaderOutput(int width, int height)
 		glUniform1f(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_fxaaReduceMin"), 1.0 / 128.0);
 		glUniform1f(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_fxaaReduceMul"), 1.0 / 8.0);
 		glUniform3fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_inverseFilterTextureSize"), 1, glm::value_ptr(glm::vec3(1.0 / (float)width, 1.0 / (float)height, 0.0)));
+		glGenBuffers(1, &quad_vertexbuffer);
 #if WITH_EDITOR
-		float h = 1.2f;
+		/*float h = 1.2f;
 		float w = 1.2f;
 		float xpos = -(w / 2.0f);
-		float ypos = -(h / 2.0f)+0.1f;
+		float ypos = -(h / 2.0f) + 0.1f;
 		static const GLfloat g_quad_vertex_buffer_data[] = {
 			xpos,     ypos + h,   0.0 ,
 			xpos,     ypos,      0.0 ,
@@ -42,32 +43,37 @@ ShaderOutput::ShaderOutput(int width, int height)
 			xpos,     ypos + h,   0.0 ,
 			xpos + w, ypos,       0.0 ,
 			xpos + w , ypos + h,  0.0 ,
-			/*Scale, YScale, 0.0f,
-			Scale, Scale, 0.0f,
-			Scale,  Scale, 0.0f,
-
-			Scale,  YScale, 0.0f,
-			Scale, -Scale, 0.0f,
-			Scale,  YScale, 0.0f,*/
-		};
+		};*/
+		SetFullScreen(false);
 #else
-		const float Scale = 1.0f;
-		static const GLfloat g_quad_vertex_buffer_data[] = {
-			Scale, Scale, 0.0f,
-			Scale, Scale, 0.0f,
-			Scale,  Scale, 0.0f,
+		/*	const float Scale = 1.0f;
+			static const GLfloat g_quad_vertex_buffer_data[] = {
+				Scale, Scale, 0.0f,0.0f,
+				Scale, Scale, 0.0f,0.0f,
+				Scale,  Scale, 0.0f,0.0f,
 
-			Scale,  Scale, 0.0f,
-			Scale, -Scale, 0.0f,
-			Scale,  Scale, 0.0f,
+				Scale,  Scale, 0.0f,0.0f,
+				Scale, -Scale, 0.0f,0.0f,
+				Scale,  Scale, 0.0f,0.0f,
+			};*/
+		static const GLfloat g_quad_vertex_buffer_data[] = {
+			-1.0f, -1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,
+			-1.0f,  1.0f, 0.0f,
+			-1.0f,  1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,
+			1.0f,  1.0f, 0.0f,
 		};
+		SetFullScreen(true);
 #endif
-		glGenBuffers(1, &quad_vertexbuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
-#endif
+		
+		/*glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);*/
+		
+
 	}
-	else if (RHI::GetType() == RenderSystemD3D11)
+#endif
+	if (RHI::GetType() == RenderSystemD3D11)
 	{
 #if BUILD_D3D11
 		OutputCube = new D3D11Cube((D3D11ShaderProgram*)m_Shader);
@@ -89,6 +95,42 @@ void ShaderOutput::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Ligh
 {
 }
 
+
+void ShaderOutput::SetFullScreen(bool state)
+{	
+	if (state)
+	{
+		static const GLfloat g_quad_vertex_buffer_data[] = {
+			-1.0f, -1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,
+			-1.0f,  1.0f, 0.0f,
+			-1.0f,  1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,
+			1.0f,  1.0f, 0.0f,
+		};
+		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+	}
+	else
+	{
+		float h = 1.2f;
+		float w = 1.2f;
+		float xpos = -(w / 2.0f);
+		float ypos = -(h / 2.0f) + 0.1f;
+		static const GLfloat g_quad_vertex_buffer_data[] = {
+			xpos,     ypos + h,   0.0 ,
+			xpos,     ypos,      0.0 ,
+			xpos + w, ypos,       0.0 ,
+
+			xpos,     ypos + h,   0.0 ,
+			xpos + w, ypos,       0.0 ,
+			xpos + w , ypos + h,  0.0 ,
+		};
+		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+	}
+
+}
 void ShaderOutput::RenderPlane()
 {
 

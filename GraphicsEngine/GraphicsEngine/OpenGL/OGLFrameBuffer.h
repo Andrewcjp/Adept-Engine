@@ -22,6 +22,9 @@ public:
 
 	// Inherited via FrameBuffer
 	virtual void ClearBuffer() override;
+	int Samples = 4;
+	bool MultiSample = false;
+	GLuint multisampledFBO;
 
 };
 

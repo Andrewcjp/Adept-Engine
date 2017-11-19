@@ -37,3 +37,8 @@ void PhysicsEngine::cleanupPhysics(bool interactive)
 {
 }
 
+RigidBody * PhysicsEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
+{
+	return nullptr;
+}
+

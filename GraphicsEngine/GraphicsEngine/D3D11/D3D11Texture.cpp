@@ -5,6 +5,7 @@
 #include "../Core/Assets/ImageIO.h"
 #include "D3D11Texture.h"
 #include "../Core/Assets/ImageLoader.h"
+#include "../Core/Engine.h"
 D3D11Texture::D3D11Texture()
 {
 	m_textureRV = NULL;
@@ -18,7 +19,10 @@ D3D11Texture::~D3D11Texture()
 D3D11Texture::D3D11Texture(const char * path, bool tga)
 {
 	this->tga = tga;
-	CreateTextureFromFile(RHI::GetD3DDevice(), path);
+	std::string rpath = Engine::GetRootDir();
+	rpath.append("\\asset\\texture\\");
+	rpath.append(path);
+	CreateTextureFromFile(RHI::GetD3DDevice(), rpath.c_str());
 }
 
 void D3D11Texture::CreateTextureFromFile(ID3D11Device* pDevice, const char* filename)
@@ -33,7 +37,7 @@ void D3D11Texture::CreateTextureFromFile(ID3D11Device* pDevice, const char* file
 	unsigned char *buffer = NULL;
 	int width;
 	int height;
-	int bpp;
+	int bpp = 0;
 	int nChannels;
 	if (tga)
 	{
@@ -45,6 +49,7 @@ void D3D11Texture::CreateTextureFromFile(ID3D11Device* pDevice, const char* file
 	else
 	{
 		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, filename);
+		
 	}
 
 	if (buffer == NULL)//this shouldn't happen, but let's do it anyway.
@@ -61,8 +66,10 @@ void D3D11Texture::CreateTextureFromData(void* data, int type, int width, int he
 {
 	D3D11_SUBRESOURCE_DATA initdata;
 	ZeroMemory(&initdata, sizeof(initdata));
-
+	nChannels = 4;//soil returns the non padded channel count
 	initdata.SysMemPitch = sizeof(unsigned char)*nChannels*width;
+
+
 	initdata.pSysMem = data;
 
 	D3D11_TEXTURE2D_DESC desc;
@@ -71,14 +78,14 @@ void D3D11Texture::CreateTextureFromData(void* data, int type, int width, int he
 	desc.Height = height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	if (nChannels == 3)
+	/*if (nChannels == 3)
 	{
 		desc.Format = DXGI_FORMAT_BC1_UNORM_SRGB;
 	}
 	else if (nChannels == 4)
-	{
+	{*/
 		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	}
+//	}
 
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;

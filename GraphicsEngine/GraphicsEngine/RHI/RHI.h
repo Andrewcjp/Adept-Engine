@@ -2,12 +2,13 @@
 #include "EngineGlobals.h"
 #include <Windows.h>
 #include <d3d11_1.h>
+#include <d3d12.h>
 #include <DirectXMath.h>
 #include "../Rendering/Core/FrameBuffer.h"
 #ifdef _DEBUG
 #define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){  __debugbreak();}
 #else 
-#define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){ /*todo Error loging*/  }
+#define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){ printf("D3D ensure failed: %d");  }
 #endif
 using namespace DirectX;
 class BaseTexture;

@@ -9,4 +9,5 @@ public:
 	virtual void SetTextureID(int id) = 0;
 	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) = 0;
 	virtual void					CreateTextureFromData(void* data, int type, int width, int height, int bits) = 0;
+	const char * AssetName = "";
 };

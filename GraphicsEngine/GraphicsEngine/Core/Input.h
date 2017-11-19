@@ -40,6 +40,7 @@ public:
 	RenderEngine* Renderer;
 	static bool GetKeyDown(int c);
 	static HCURSOR Cursor;
+	static glm::vec2 GetMouseInputAsAxis();
 private:
 	bool Querry = false;
 	bool FxAA = true;
@@ -55,7 +56,7 @@ private:
 	int currentshape = 0;
 	bool IsTidleDown = false;
 	float currentmoveamt = 1;
-	
+	glm::vec2 MouseAxis;
 	std::map<int, bool> KeyMap;
 };
 

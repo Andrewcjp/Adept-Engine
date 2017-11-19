@@ -114,7 +114,7 @@ void SceneSerialiser::AddDataToScene(Scene* scene, DataS d)
 }
 
 
-void SceneSerialiser::load(std::string filename)
+void SceneSerialiser::LoadFromFile(std::string filename,Scene* scene)
 {
 	std::ifstream file(filename);
 	std::string temp;
@@ -124,7 +124,7 @@ void SceneSerialiser::load(std::string filename)
 		if (temp.find('|') != std::string::npos)
 		{
 			Data d = DeserialiseLine(temp);
-			AddDataToScene(sceneptr, d);
+			AddDataToScene(scene, d);
 			std::cout << d.name << " " << d.id << " " << d.position.x << " " << d.position.y << " " << d.position.z << std::endl;
 		}
 

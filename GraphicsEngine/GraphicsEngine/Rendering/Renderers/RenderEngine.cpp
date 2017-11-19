@@ -14,3 +14,8 @@ void RenderEngine::SetScene(Scene * sc)
 {
 	mainscene = sc;
 }
+
+void RenderEngine::SetEditorCamera(Editor_Camera * cam)
+{
+	EditorCam = cam;
+}

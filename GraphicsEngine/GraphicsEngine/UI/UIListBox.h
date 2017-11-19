@@ -24,7 +24,7 @@ public:
 
 	std::function<void(int t)> SelectionChanged;
 private:
-	std::vector<UIWidget*> items;
+	std::vector<UIButton*> items;
 	int SelectedCurrent = 0;
 	int CurrentCount = 0;
 	int TitleHeight = 20;

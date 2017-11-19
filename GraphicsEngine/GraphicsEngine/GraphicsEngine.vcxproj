@@ -30,7 +30,7 @@
     <ProjectGuid>{7DE4DFA9-E22E-4143-B836-C0095E387C68}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>GraphicsEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
     <ProjectName>GraphicsEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -238,6 +238,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="Core\Assets\SerialHelpers.h" />
+    <ClInclude Include="Core\Components\ColliderComponent.h" />
+    <ClInclude Include="Core\Components\CompoenentRegistry.h" />
+    <ClInclude Include="Core\Utils\WindowsHelper.h" />
+    <ClInclude Include="D3D12\D3D12Mesh.h" />
+    <ClInclude Include="D3D12\D3D12Shader.h" />
+    <ClInclude Include="D3D12\D3D12Texture.h" />
+    <ClInclude Include="D3D12\D3D12Window.h" />
+    <ClInclude Include="D3D12\D3D12RHI.h" />
+    <ClInclude Include="Editor\Editor_Camera.h" />
+    <ClInclude Include="Core\Components\ExtraComponentRegister.h" />
+    <ClInclude Include="Core\Components\MeshColliderComponent.h" />
+    <ClInclude Include="Core\Assets\SceneJSerialiser.h" />
     <ClInclude Include="UI\UIPanel.h" />
     <ClInclude Include="UI\Layout.h" />
     <ClInclude Include="Rendering\Renderers\RenderSettings.h" />
@@ -349,10 +362,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="Core\Assets\SerialHelpers.cpp" />
+    <ClCompile Include="Core\Components\ColliderComponent.cpp" />
+    <ClCompile Include="Core\Components\CompoenentRegistry.cpp" />
     <ClCompile Include="Core\Components\GrassPatchComponent.cpp" />
     <ClCompile Include="Core\Components\ParticleSystemComponent.cpp" />
     <ClCompile Include="Core\Components\MeshRendererComponent.cpp" />
+    <ClCompile Include="Core\Transform.cpp" />
+    <ClCompile Include="Core\Utils\WindowsHelper.cpp" />
+    <ClCompile Include="D3D12\D3D12Mesh.cpp" />
+    <ClCompile Include="D3D12\D3D12Shader.cpp" />
+    <ClCompile Include="D3D12\D3D12Texture.cpp" />
+    <ClCompile Include="D3D12\D3D12Window.cpp" />
+    <ClCompile Include="D3D12\D3D12RHI.cpp" />
+    <ClCompile Include="Editor\Editor_Camera.cpp" />
+    <ClCompile Include="Core\Components\ExtraComponentRegister.cpp" />
+    <ClCompile Include="Core\Components\MeshColliderComponent.cpp" />
     <ClCompile Include="Rendering\Renderers\RenderSettings.cpp" />
+    <ClCompile Include="Core\Assets\SceneJSerialiser.cpp" />
     <ClCompile Include="UI\UIPanel.cpp" />
     <ClCompile Include="UI\UIDropDown.cpp" />
     <ClCompile Include="UI\DebugConsole.cpp" />

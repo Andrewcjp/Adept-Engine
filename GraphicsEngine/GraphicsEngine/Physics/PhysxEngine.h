@@ -33,6 +33,7 @@ public:
 	std::vector<RigidBody*> createStack(const glm::vec3 & t, int size, float halfExtent)override ;
 
 	RigidBody *FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale/*, PxGeometryType::Enum type*/)override;
+	RigidBody * CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale) override;
 	bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene);
 	bool RayCastEditorScene(glm::vec3 startpos, glm::vec3 direction, float distance, PxRaycastBuffer * outhit);
 	bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)override;
@@ -60,7 +61,14 @@ public:
 		return physx::PxVec3(val.x, val.y, val.z);
 	}
 
-
+	PxPhysics* GetGPhysics()
+	{
+		return gPhysics;
+	}
+	PxMaterial* GetDefaultMaterial()
+	{
+		return gMaterial;
+	}
 private:
 
 	PxDefaultAllocator		gAllocator;

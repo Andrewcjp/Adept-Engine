@@ -1,6 +1,6 @@
 #ifndef __SHADERGL_H__
 #define __SHADERGL_H__
-#include <Windows.h>
+
 #include "../RHI/ShaderBase.h"
 #include "../Rendering/Core/Camera.h"
 #include "Core/Transform.h"

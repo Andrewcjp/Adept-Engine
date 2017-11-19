@@ -9,6 +9,8 @@
 #define NO_GEN_CONTEXT 0
 #define BUILD_D3D11 1
 #define BUILD_OPENGL 1
+#define BUILD_D3D12 0
+#define BUILD_Vulkan 0
 
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0

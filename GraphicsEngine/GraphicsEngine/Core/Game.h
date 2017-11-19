@@ -9,7 +9,11 @@ public:
 	virtual void EndPlay();
 	float GetTickRate();
 	void SetTickRate(float NewRate);
+	class ExtraComponentRegister* GetECR();
+protected:
+	ExtraComponentRegister* ECR;
 private:
 	float TickRate = 60.0f;
+	
 };
 

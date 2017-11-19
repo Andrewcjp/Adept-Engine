@@ -2,6 +2,7 @@
 #include "UIGraph.h"
 #include "LineDrawer.h"
 #include "Editor\EditorWindow.h"
+#include "../Core/Performance/PerfManager.h"
 UIGraph::UIGraph(LineDrawer* linebatch, int w, int h, int x, int y) :UIWidget(w, h, x, y)
 {
 	LineBatcher = linebatch;
@@ -50,13 +51,6 @@ void UIGraph::UpdateData()
 		return;
 	}
 	CurrentFrameCounter = FramesPerSample;
-	//for each points
-	float value = 10;
-	//frame graph ness
-	value = 5 + EditorWindow::GetFrameTime()*2.5f;
-	AddPoint(points, EditorWindow::GetFrameTime()*2.5f);
-	AddPoint(Secondpoints, EditorWindow::GetCPUTime()*2.5f);
-	//	test += 1;
-	/*value = mheight/2 + sin(test * 0.1f) * 10;*/
-
+	AddPoint(points, PerfManager::GetGPUTime()*2.5f);
+	AddPoint(Secondpoints, PerfManager::GetCPUTime()*2.5f);
 }

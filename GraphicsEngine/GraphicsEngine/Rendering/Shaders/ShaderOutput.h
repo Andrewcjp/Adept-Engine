@@ -14,7 +14,7 @@ public:
 	
 	void RenderPlane();
 	void SetFXAA(bool state);
-
+	void SetFullScreen(bool state);
 private:
 	struct ConstantBuffer
 	{
@@ -24,6 +24,8 @@ private:
 	};
 	void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
 	void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights) override;
+
+	
 	
 	int						m_uniform_model;
 	int						m_uniform_View;

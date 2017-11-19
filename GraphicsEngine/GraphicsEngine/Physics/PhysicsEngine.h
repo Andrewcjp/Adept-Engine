@@ -24,7 +24,7 @@ public:
 	virtual void initPhysics(bool interactive);
 	virtual void stepPhysics(bool interactive, float Deltatime);
 	virtual void cleanupPhysics(bool interactive);
-	
+	virtual RigidBody* CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale);
 private:
 
 

@@ -33,7 +33,6 @@ void OGLFrameBuffer::CreateBuffer()
 		{
 			BufferTexture->CreateRenderCubeMap(m_width, m_height);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, BufferTexture->m_syshandle);
-
 		}
 		else
 		{

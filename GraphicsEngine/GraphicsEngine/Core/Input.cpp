@@ -42,9 +42,9 @@ void Input::CreateStackAtPoint()
 	for (size_t i = 0; i < objs.size(); i++)
 	{
 		GameObject* go = new GameObject();
-		Material* mat = new Material(new OGLTexture("../asset/texture/bricks2.jpg"));
+		Material* mat = new Material(new OGLTexture("bricks2.jpg"));
 
-		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/cubeuv.obj", nullptr), mat));
+		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("cubeuv.obj", nullptr), mat));
 		/*go->SetMaterial(mat);
 		go->SetMesh(new OGLMesh(L"../asset/models/cubeuv.obj"));*/
 
@@ -53,21 +53,21 @@ void Input::CreateStackAtPoint()
 		go->GetTransform()->SetScale(glm::vec3(scale));
 
 		go->actor = objs[i];
-		ogwindow->AddPhysObj(go);
+		//		ogwindow->AddPhysObj(go);
 	}
 }
 
 void Input::FireAtScene()
 {
 	GameObject* go = new GameObject();
-	Material* mat = new Material(new OGLTexture("../asset/texture/bricks2.jpg"));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/TherealSpherer.obj", nullptr), mat));
+	Material* mat = new Material(new OGLTexture("bricks2.jpg"));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("TherealSpherer.obj", nullptr), mat));
 	go->GetTransform()->SetPos(MainCam->GetPosition());
 	float scale = 0.5;
 	go->GetTransform()->SetScale(glm::vec3(scale));
 
 	go->actor = Engine::PhysEngine->FirePrimitiveAtScene(MainCam->GetPosition() + MainCam->GetForward() * 2, MainCam->GetForward() * CurrentForce, scale);
-	ogwindow->AddPhysObj(go);
+	//	ogwindow->AddPhysObj(go);
 
 }
 void Input::Clear()
@@ -92,46 +92,49 @@ void Input::ProcessInput(const float delatime)
 			//}
 			return;
 		}
-		float movespeed = 100;
-		if (GetKeyState(VK_LSHIFT) & 0x8000)
-		{
-			// Right ALT key is down.
-			movespeed = 1000;
-		}
-		else
-		{
-			movespeed = 100;
-		}
-		if (GetKeyState(87) & 0x8000)
-		{
-			// Right ALT key is down.
-			MainCam->MoveForward(movespeed*delatime);
-		}
-		if (GetKeyState(83) & 0x8000)
-		{
-			// Right ALT key is down.
-			MainCam->MoveForward(-movespeed*delatime);
-		}
-		if (GetKeyState(65) & 0x8000)
-		{
-			// Right ALT key is down.
-			MainCam->MoveRight(movespeed*delatime);
-		}
-		if (GetKeyState(68) & 0x8000)
-		{
-			// Right ALT key is down.
-			MainCam->MoveRight(-movespeed*delatime);
-		}
-		if (GetKeyState(69) & 0x8000)
-		{
-			// Right ALT key is down.
-			MainCam->MoveUp(movespeed*delatime);
-		}
-		if (GetKeyState(81) & 0x8000)
-		{
-			// Right ALT key is down.
-			MainCam->MoveUp(-movespeed*delatime);
-		}
+		//if (RHI::GetType() == RenderSystemD3D11)
+		//{
+		//	float movespeed = 100;
+		//	if (GetKeyState(VK_LSHIFT) & 0x8000)
+		//	{
+		//		// Right ALT key is down.
+		//		movespeed = 1000;
+		//	}
+		//	else
+		//	{
+		//		movespeed = 100;
+		//	}
+		//	if (GetKeyState(87) & 0x8000)
+		//	{
+		//		// Right ALT key is down.
+		//		MainCam->MoveForward(movespeed*delatime);
+		//	}
+		//	if (GetKeyState(83) & 0x8000)
+		//	{
+		//		// Right ALT key is down.
+		//		MainCam->MoveForward(-movespeed*delatime);
+		//	}
+		//	if (GetKeyState(65) & 0x8000)
+		//	{
+		//		// Right ALT key is down.
+		//		MainCam->MoveRight(movespeed*delatime);
+		//	}
+		//	if (GetKeyState(68) & 0x8000)
+		//	{
+		//		// Right ALT key is down.
+		//		MainCam->MoveRight(-movespeed*delatime);
+		//	}
+		//	if (GetKeyState(69) & 0x8000)
+		//	{
+		//		// Right ALT key is down.
+		//		MainCam->MoveUp(movespeed*delatime);
+		//	}
+		//	if (GetKeyState(81) & 0x8000)
+		//	{
+		//		// Right ALT key is down.
+		//		MainCam->MoveUp(-movespeed*delatime);
+		//	}
+		//}
 	}
 }
 
@@ -164,7 +167,6 @@ BOOL Input::MouseMove(int x, int y, double deltatime)
 {
 	if (MouseLookActive)
 	{
-		float sens = 1 / 1000.0f;
 		int height, width = 0;
 		GetDesktopResolution(height, width, m_hwnd);
 		int halfheight = (height / 2);
@@ -173,12 +175,25 @@ BOOL Input::MouseMove(int x, int y, double deltatime)
 		POINT pt;
 		GetCursorPos(&pt);
 		ScreenToClient(m_hwnd, &pt);
-		MainCam->RotateY(((halfheight)-pt.x)*sens);
-		MainCam->Pitch((-((halfwidth)-pt.y)*sens));
+		MouseAxis.x = (float)((halfheight)-(int)pt.x);
+		MouseAxis.y = (float)(-((halfwidth)-(int)pt.y));
+		if (RHI::GetType() == RenderSystemD3D11)
+		{
+			/*if (MainCam)
+			{
+				float sens = 1 / 1000.0f;
+				MainCam->RotateY(((halfheight)-pt.x)*sens);
+				MainCam->Pitch((-((halfwidth)-pt.y)*sens));
+			}*/
+		}
 		pt.x = halfheight;
 		pt.y = halfwidth;
 		ClientToScreen(m_hwnd, &pt);
 		SetCursorPos(pt.x, pt.y);
+	}
+	else
+	{
+		MouseAxis = glm::vec2(0);
 	}
 	return TRUE;
 }
@@ -219,6 +234,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 			{
 				OpenGlwindow->ShowHud = true;
 			}
+			OpenGlwindow->GetCurrentRenderer()->GetFilterShader()->SetFullScreen(!OpenGlwindow->ShowHud);
 		}
 		break;
 	case VK_F2:
@@ -396,5 +412,14 @@ bool Input::GetKeyDown(int c)
 
 	}
 	return false;
+}
+
+glm::vec2 Input::GetMouseInputAsAxis()
+{
+	if (instance != nullptr)
+	{
+		return instance->MouseAxis;
+	}
+	return glm::vec2();
 }
 

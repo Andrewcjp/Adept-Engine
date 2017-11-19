@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{9976D62E-98D2-4B40-84A0-4D0B678110E2}</ProjectGuid>
     <RootNamespace>TestGame</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -119,16 +119,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GFXiiFramework\GFXiiFramework.vcxproj">
+    <ProjectReference Include="..\GraphicsEngine\GraphicsEngine.vcxproj">
       <Project>{7de4dfa9-e22e-4143-b836-c0095e387c68}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="TestGame.cpp" />
+    <ClCompile Include="TGComp.cpp" />
+    <ClCompile Include="TGExtraComponentRegister.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestGame.h" />
+    <ClInclude Include="TGComp.h" />
+    <ClInclude Include="TGExtraComponentRegister.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
