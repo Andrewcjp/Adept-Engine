@@ -71,13 +71,17 @@ BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args,
 		s_oglapp->MyRegisterClass(hinst);
 		s_oglapp->m_engine->SetHInstWindow(hinst);
 		//Now create an OGLWindow for this application
-		s_oglapp->m_engine->CreateApplication(hinst, args, nshow);
 		s_oglapp->m_engine->SetGame(new TestGame());
+		s_oglapp->m_engine->CreateApplication(hinst, args, nshow);
+		
 	}
 
 	return s_oglapp;
 }
-
+HWND BaseApplication::GetHWND()
+{
+	return s_oglapp->GetApplicationWindow()->GetHWND();
+}
 void BaseApplication::DestroyApplication()
 {
 	if (s_oglapp)
@@ -141,8 +145,8 @@ void BaseApplication::AddMenus(HWND hwnd)
 	HMENU hMenubar = CreateMenu();
 	hMenu = CreateMenu();
 	//file menu
-	AppendMenuW(hMenu, MF_STRING, 5, L"&fe 11");
-	AppendMenuW(hMenu, MF_STRING, 6, L"&wer");
+	AppendMenuW(hMenu, MF_STRING, 5, L"&Save Scene");
+	AppendMenuW(hMenu, MF_STRING, 6, L"&Load Scene");
 	AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
 	AppendMenuW(hMenu, MF_STRING, IDM_FILE_QUIT, L"&Quit");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");

@@ -17,6 +17,15 @@ public:
 	static void EndTimer(const char * countername);
 	float GetTimerValue(const char * countername);
 	std::string GetAllTimers();
+	void StartGPUTimer();
+	void EndGPUTimer();
+	void StartCPUTimer();
+	void EndCPUTimer();
+	void StartFrameTimer();
+	void EndFrameTimer();
+	static float GetGPUTime();
+	static float GetCPUTime();
+	static float GetDeltaTime();
 private:
 	void InStartTimer(const char * countername);
 	void InEndTimer(const char * countername);
@@ -34,6 +43,14 @@ private:
 	int NextId = 0;
 	float TimeMS = 1e6f;
 	static bool PerfActive;
+	float FrameTime = 0;
+	float CPUTime = 0;
+	float GPUTime = 0;
+	GLint stopTimerAvailable = 0;
+	bool WaitGPUTimerQuerry = false;
+	unsigned int queryID[2];
+	long FrameStart = 0;
+	long CPUstart = 0;
 	//GPU Bottleneck,2809,simexp,raw,KEPLER_CPU,GRAPHICS,GPU,Bottleneck,UINT64,"Counter ID for GPU bottleneck"
 };
 

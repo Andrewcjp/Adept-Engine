@@ -24,6 +24,10 @@ public:
 	void SetIntesity(float value) {
 		m_intesity = value;
 	}
+	void SetLightType(LightType value)
+	{
+		m_type = value;
+	}
 	void SetShadow(bool state) {
 		DoesShadow = state;
 	}
@@ -35,6 +39,10 @@ public:
 	int GetShadowId() const { return ShadowId; }
 	int DirectionalShadowid = -1;
 	glm::vec3 GetDirection()const { return m_direction; }
+	float GetIntesity()
+	{
+		return m_intesity;
+	}
 private:
 	float m_intesity = 10;
 	glm::vec3 m_position = glm::vec3(0, 0, 0);

@@ -20,10 +20,11 @@ class Engine
 public:
 
 	EditorWindow* GetEditorWindow();
-
+	static class CompoenentRegistry* CompRegistry;
 	static PhysicsEngine*		PhysEngine;
+	static class PhysxEngine* PPhysxEngine;
 	bool						isWindowVaild = false;
-	std::string GetRootDir();
+	static std::string GetRootDir();
 	Engine();
 	~Engine();
 	void Destory();
@@ -44,8 +45,9 @@ public:
 	RenderWindow*				m_appwnd = nullptr;
 	static float StartTime;
 
-	void SetGame(Game* game);
-
+	static void SetGame(Game* game);
+	static Game* GetGame();
+	HWND mhwnd;
 private:
 	
 	ERenderSystemType CurrentRenderSystem;
@@ -53,10 +55,11 @@ private:
 	int mwidth, mheight;
 	bool IsDeferedmode = false;
 	bool Deferredmode = false;
+	bool FullScreen = false;
 	HGLRC mhglrc;
-	HWND mhwnd;
+	
 	HDC mhdc;
-	Game* mgame = nullptr;
+	static Game* mgame;
 
 };
 

@@ -2,6 +2,7 @@
 
 #include "RHI/BaseTexture.h"
 #include "include\glm\glm.hpp"
+#include <string>
 //This is an abstract class
 //It cannot be instantiated without being inherited by a concrete class
 class Renderable
@@ -15,7 +16,7 @@ class Renderable
 								Renderable() { m_tex = 0; }
 		virtual void			Render() = 0;
 		virtual ~Renderable() {}
-		
+		std::string AssetName = "";
 		inline void				SetTexture( BaseTexture* tex )
 		{
 			m_tex = tex;

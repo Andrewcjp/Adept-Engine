@@ -1,7 +1,5 @@
 #include "Game.h"
 
-
-
 Game::Game()
 {
 }
@@ -34,4 +32,8 @@ float Game::GetTickRate()
 void Game::SetTickRate(float NewRate)
 {
 	TickRate = NewRate;
+}
+ExtraComponentRegister * Game::GetECR()
+{
+	return ECR;
 }

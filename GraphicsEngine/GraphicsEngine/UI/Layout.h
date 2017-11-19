@@ -5,23 +5,22 @@
 namespace UIUtils
 {
 	//todo min size with widget value
-	static void ArrangeHorizontal(int w, int h, int x, int y, std::vector<UIWidget*> &widgets,float MinHeight = -1, int Gap = 0)
+	template <class T>
+	static void ArrangeHorizontal(int w, int h, int x, int y, std::vector<T*> &widgets, float MinHeight = -1, int Gap = 0, int MaxHeight = -1)
 	{
 		if (widgets.size() > 0)
 		{
-			int YStride = h / (int)widgets.size();
-			/*if (YStride > UIManager::GetScaledHeight(MinHeight))
-			{
-				YStride = UIManager::GetScaledHeight(MinHeight);
-			}*/
-			
-			int Currenty = (y) + h;
+			int Currenty = (y)+h;
 			for (int i = 0; i < widgets.size(); i++)
 			{
-				Currenty -= UIManager::GetScaledHeight(widgets[i]->AligmentStruct.SizeMax) + Gap;
 				int height = UIManager::GetScaledHeight(widgets[i]->AligmentStruct.SizeMax);
+				if (MaxHeight != -1 && height > MaxHeight)
+				{
+					height = MaxHeight;
+				}
+				Currenty -= height + Gap;
 				widgets[i]->ResizeView(w, height, x, Currenty);
-				
+
 			}
 		}
 	}
@@ -53,7 +52,7 @@ namespace UIUtils
 			{
 				YStride = UIManager::GetScaledHeight(MinSize);
 			}
-			
+
 			int Xstride = w / (int)widgets.size();
 			if (Xstride > UIManager::GetScaledWidth(MinSize))
 			{

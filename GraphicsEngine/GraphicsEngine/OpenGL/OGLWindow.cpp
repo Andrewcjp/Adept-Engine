@@ -118,7 +118,7 @@ void OGLWindow::SetFullScreenState(bool state)
 		}
 	}
 }
-bool OGLWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height)
+bool OGLWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
 {
 	if (IsFullscreen)
 	{
@@ -442,4 +442,6 @@ BOOL OGLWindow::KeyDown(WPARAM key)
 	input->ProcessKeyDown(key);
 	return TRUE;
 }
+
+
 

@@ -46,6 +46,7 @@ void RHI::DestoryRHI()
 
 BaseTexture * RHI::CreateTexture(const char * path, bool istga)
 {
+
 	switch (instance->currentsystem)
 	{
 	case RenderSystemOGL:
@@ -103,19 +104,21 @@ BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, vo
 
 Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool UseMesh)
 {
-
+	std::string accpath = Engine::GetRootDir();
+	accpath.append("\\asset\\models\\");
+	accpath.append(path);
 	switch (instance->currentsystem)
 	{
 	case RenderSystemOGL:
 		if (UseMesh)
 		{
-			return new Mesh(path);
+			return new Mesh(accpath);
 		}
-		return new OGLMesh(path);
+		return new OGLMesh(accpath, path);
 		break;
 #if BUILD_D3D11
 	case RenderSystemD3D11:
-		return new D3D11Mesh(path, program);
+		return new D3D11Mesh(accpath.c_str(), program);
 		break;
 #endif
 	}
@@ -303,6 +306,55 @@ BOOL RHI::DestroyOGLContext(HWND hwnd)
 	m_hdc = NULL;
 	return TRUE;
 }
+#define MAJOR 3
+#define MINOR 3
+#define WGL_CONTEXT_MAJOR_VERSION_ARB           0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB           0x2092
+#define WGL_CONTEXT_PROFILE_MASK_ARB			0x9126
+#define	WGL_CONTEXT_CORE_PROFILE_BIT_ARB	0x00000001
+int attriblist[] = { WGL_CONTEXT_MAJOR_VERSION_ARB, MAJOR, WGL_CONTEXT_MINOR_VERSION_ARB, MINOR, WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB, 0, 0 };
+
+HGLRC wglCreateContextAttribsARB(HDC hDC, HGLRC hShareContext, const int *attribList)
+{
+	typedef HGLRC(APIENTRY * PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC hDC, HGLRC hShareContext, const int *attribList);
+	static PFNWGLCREATECONTEXTATTRIBSARBPROC pfnCreateContextAttribsARB = 0;
+
+	HGLRC hContext = 0;
+	HGLRC hCurrentContext = wglGetCurrentContext();
+
+	if (!hCurrentContext)
+	{
+		if (!(hCurrentContext = wglCreateContext(hDC)))
+			return 0;
+
+		if (!wglMakeCurrent(hDC, hCurrentContext))
+		{
+			wglDeleteContext(hCurrentContext);
+			return 0;
+		}
+
+		pfnCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+
+		if (pfnCreateContextAttribsARB)
+			hContext = pfnCreateContextAttribsARB(hDC, hShareContext, attribList);
+
+		wglMakeCurrent(hDC, 0);
+		wglDeleteContext(hCurrentContext);
+	}
+	else
+	{
+		if (!wglMakeCurrent(hDC, hCurrentContext))
+			return 0;
+
+		pfnCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+		if (pfnCreateContextAttribsARB)
+			hContext = pfnCreateContextAttribsARB(hDC, hShareContext, attribList);
+	}
+
+	return hContext;
+}
+
+#define USEALTCONTEXT 0
 HGLRC RHI::CreateOGLContext(HDC hdc)
 {
 	unsigned int pixelformat;
@@ -335,18 +387,26 @@ HGLRC RHI::CreateOGLContext(HDC hdc)
 	{
 		return 0;
 	}
-	
+
 
 	if (!SetPixelFormat(hdc, pixelformat, &pfd))
 	{
 		return 0;
 	}
 
+#if USEALTCONTEXT
+
+
+	if (!(hglrc = wglCreateContextAttribsARB(hdc, 0, attriblist)))
+	{
+		return 0;
+	}
+#else
 	if (!(hglrc = wglCreateContext(hdc)))
 	{
 		return 0;
 	}
-
+#endif
 	if (!wglMakeCurrent(hdc, hglrc))
 	{
 		return 0;

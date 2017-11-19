@@ -1,11 +1,11 @@
 #include "GrassPatch.h"
 #include "GPUStateCache.h"
-
+#include "../RHI/RHI.h"
 
 GrassPatch::GrassPatch()
 {
-	m_grassmesh = new OGLMesh(L"../asset/models/Grass.obj");
-	m_tex = new OGLTexture("../asset/texture/billboardgrass0002.png");
+	m_grassmesh = RHI::CreateMesh(("Grass.obj"), nullptr);
+	m_tex = new OGLTexture("billboardgrass0002.png");
 	Shader = new Shader_Grass();
 	m_transfrom = new Transform();
 	m_transfrom->SetPos(glm::vec3(30, 0, 0));
@@ -56,7 +56,7 @@ void GrassPatch::UpdateUniforms(Camera* c, std::vector<Light*> lights, float del
 }
 void GrassPatch::BindExtraData()
 {
-	glBindVertexArray(m_grassmesh->GetVao());
+	glBindVertexArray(((OGLMesh*)m_grassmesh)->GetVao());
 	glGenBuffers(1, &PositionsBuffer);
 
 	glBindBuffer(GL_ARRAY_BUFFER, PositionsBuffer);
@@ -90,7 +90,7 @@ void GrassPatch::Render()
 	glEnableVertexAttribArray(5);
 	glVertexAttribDivisor(5, 1);
 
-	m_grassmesh->RenderInstance(static_cast<int>(transforms.size()));
+	((OGLMesh*)m_grassmesh)->RenderInstance(static_cast<int>(transforms.size()));
 	glDisableVertexAttribArray(5);
 	//	glDisableVertexAttribArray(7);
 
@@ -134,7 +134,7 @@ void GrassPatch::UpdateAnimation(float dt)
 		}
 		else
 		{
-			
+
 			//rotations[i] = glm::eulerAngleYXZ(rotationvec.x, rotationvec.y, rotationvec.z);
 			rotations[i] = glm::toMat4(glm::quat(glm::radians(glm::vec3(Rotationamt*sinf(currentangle + (offsets[i])), 1, 0))));
 			currentangle -= Speed*dt;

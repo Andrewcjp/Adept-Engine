@@ -15,7 +15,7 @@ public:
 	void StreamDataToGPU();
 	void UpdateAnimation(float t);
 private:
-	OGLMesh* m_grassmesh;
+	Renderable* m_grassmesh;
 	OGLTexture* m_tex;
 	Shader_Grass* Shader;
 	std::vector<glm::vec2> transforms;

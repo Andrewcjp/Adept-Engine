@@ -11,7 +11,8 @@ Uses:
 Text Using FreeType, 
 GLM for maths, 
 GLEW, 
-Physics using Nvidia's PhysX
+Physics using Nvidia's PhysX,
+Serialization using RapidJson. 
 
 Both Renderers Support:
 

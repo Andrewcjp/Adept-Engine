@@ -4,9 +4,12 @@
 #include "glm\glm.hpp"
 D3D11FrameBuffer::~D3D11FrameBuffer()
 {
-	View->Release();
-	depthStencil->Release();
-	DepthView->Release();
+	if (View != nullptr)
+	{
+		View->Release();
+		depthStencil->Release();
+		DepthView->Release();
+	}
 }
 
 void D3D11FrameBuffer::CreateBuffer()

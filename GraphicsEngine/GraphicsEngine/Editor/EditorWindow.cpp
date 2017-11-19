@@ -17,16 +17,19 @@
 #include "Core/Assets/AssetManager.h"
 #include "EditorObjectSelector.h"
 #include "Rendering/Core/DebugLineDrawer.h"
-#include "../Core/Components/MeshRendererComponent.h"
+#include "../Core/Assets/SceneJSerialiser.h"
 #include "../Core/Assets/AssetManager.h"
 #include "../Core/Utils/StringUtil.h"
+#include "../Core/Assets/SceneSerialiser.h"
+#include "../Core/Utils/WindowsHelper.h"
+#include "../Core/Game.h"
+#include "../Editor/Editor_Camera.h"
 
 UIWidget* EditorWindow::CurrentContext;
 EditorWindow* EditorWindow::instance;
 EditorWindow::EditorWindow(bool Isdef)
 {
 	IsDeferredMode = Isdef;
-	m_euler[0] = m_euler[1] = m_euler[2] = 0.0f;
 	instance = this;
 }
 
@@ -35,24 +38,6 @@ EditorWindow::~EditorWindow()
 	//vectors will clean up after them selves
 	//Clean up the renderable
 	delete CurrentScene;
-}
-
-float EditorWindow::GetFrameTime()
-{
-	if (instance != nullptr)
-	{
-		return (float)instance->avgtime * 1000.0f;
-	}
-	return 0;
-}
-
-float EditorWindow::GetCPUTime()
-{
-	if (instance != nullptr)
-	{
-		return instance->CPUTime;
-	}
-	return 0;
 }
 
 bool EditorWindow::ProcessDebugCommand(std::string command)
@@ -90,8 +75,29 @@ bool EditorWindow::ProcessDebugCommand(std::string command)
 			instance->Renderer->SetRenderSettings(instance->CurrentRenderSettings);
 			return true;
 		}
+		else if (command.find("vtest") != -1)
+		{
+		/*	instance->CurrentRenderSettings.CurrentAAMode = (instance->CurrentRenderSettings.CurrentAAMode == AAMode::FXAA) ? AAMode::NONE : AAMode::FXAA;
+			instance->Renderer->SetRenderSettings(instance->CurrentRenderSettings);*/
+			ForwardRenderer* r = (ForwardRenderer*)instance->Renderer;
+			r->UseQuerry = r->UseQuerry ? false : true;
+			return true;
+		}
 	}
 	return false;
+}
+
+Scene * EditorWindow::GetCurrentScene()
+{
+	if (instance != nullptr)
+	{
+		if (instance->IsPlayingScene)
+		{
+			return instance->CurrentPlayScene;
+		}
+		return instance->CurrentScene;
+	}
+	return nullptr;
 }
 
 void EditorWindow::SetContext(UIWidget * target)
@@ -99,11 +105,18 @@ void EditorWindow::SetContext(UIWidget * target)
 	CurrentContext = target;
 }
 
+float EditorWindow::GetDeltaTime()
+{
+	if (instance != nullptr)
+	{
+		return instance->deltatime;
+	}
+	return 0;
+}
+
 EditorWindow::EditorWindow(HINSTANCE hInstance, int width, int height)
 {
-	//InitWindow(hInstance, width, height);
 	instance = this;
-	m_euler[0] = m_euler[1] = m_euler[2] = 0.0f;
 }
 
 void EditorWindow::DestroyRenderWindow()
@@ -118,64 +131,51 @@ void EditorWindow::DestroyRenderWindow()
 	m_hwnd = NULL;
 	m_hdc = NULL;
 }
-//
-//int DisplayConfirmSaveAsMessageBox()
-//{
-//	int msgboxID = MessageBox(
-//		NULL,
-//		L"temp.txt already exists.\nDo you want to replace it?",
-//		L"Confirm Save As",
-//		MB_ICONEXCLAMATION | MB_YESNO
-//	);
-//
-//	if (msgboxID == IDYES)
-//	{
-//
-//	}
-//
-//	return msgboxID;
-//}
-
-void EditorWindow::SwitchFullScreen(HINSTANCE hInstance)
+void ChangeDisplayMode(int width, int height)
 {
-	if (IsFullscreen)
+	//int width = 1920;
+	//int height = 1080;
+	//HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_POPUP,
+	//	0, 0, width, height, nullptr, nullptr, hInstance, nullptr);
+	///*HWND hWnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
+	//L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+	//0, 0, 150, 150, NULL, NULL, hInstance, NULL);*/
+	//ShowWindow(hWnd, 0);
+	if (true)
 	{
-		IsFullscreen = false;
-		m_hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-			L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-			0, 0, m_width, m_height, NULL, NULL, hInstance, NULL);
+		DEVMODE dmScreenSettings;
+		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+		EnumDisplaySettings(NULL, 0, &dmScreenSettings);
+		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+		dmScreenSettings.dmPelsWidth = width;
+		dmScreenSettings.dmPelsHeight = height;
+		dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+
+		// Try To Set Selected Mode And Get Results.
+		LONG result = ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
+		if (result != DISP_CHANGE_SUCCESSFUL)
+		{
+			__debugbreak();
+		}
 	}
+
+}
+bool EditorWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
+{
+
+	if (Fullscreen)
+	{
+		ChangeDisplayMode(width, height);
+		m_hwnd = CreateWindowEx(NULL,
+			L"RenderWindow", L"OGLWindow", WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+			0, 0, width, height, NULL, NULL, hInstance, NULL);
+	}
+
 	else
 	{
 		m_hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
 			L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-			0, 0, m_width, m_height, NULL, NULL, hInstance, NULL);
-	}
-}
-//HWND CreateFullscreenWindow(HWND hwnd, HINSTANCE hInstance)
-//{
-//	HMONITOR hmon = MonitorFromWindow(hwnd,
-//		MONITOR_DEFAULTTONEAREST);
-//	MONITORINFO mi = { sizeof(mi) };
-//	if (!GetMonitorInfo(hmon, &mi)) return NULL;
-//	return CreateWindow(TEXT("static"),
-//		TEXT("something interesting might go here"),
-//		WS_POPUP | WS_VISIBLE,
-//		mi.rcMonitor.left,
-//		mi.rcMonitor.top,
-//		mi.rcMonitor.right - mi.rcMonitor.left,
-//		mi.rcMonitor.bottom - mi.rcMonitor.top,
-//		hwnd, NULL, hInstance, 0);
-//}
-bool EditorWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height)
-{
-
-	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-		L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-		0, 0, width, height, NULL, NULL, hInstance, NULL);
-	if (IsFullscreen)
-	{
-		//m_hwnd = CreateFullscreenWindow(m_hwnd, hInstance);
+			0, 0, width, height, NULL, NULL, hInstance, NULL);
 	}
 	m_hInstance = hInstance;
 	RHI::InialiseContext(m_hwnd, width, height);
@@ -187,7 +187,7 @@ BOOL EditorWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int he
 	m_hdc = hdc;
 	m_hwnd = hwnd;
 	m_hglrc = hglrc;
-	PerfManager::StartPerfManager();
+
 	glewInit();
 #if !NO_GEN_CONTEXT
 	if (RHI::GetType() == ERenderSystemType::RenderSystemOGL)
@@ -212,143 +212,26 @@ BOOL EditorWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int he
 	{
 		Renderer = new ForwardRenderer(width, height);
 	}
+	SceneFileLoader = new SceneSerialiser();
 	CurrentScene = new Scene();
-	CurrentScene->LoadDefault();
-	Renderer->SetScene(CurrentScene);
 	Renderer->InitOGL();
-
-	Light* l = new Light(glm::vec3(0, 10, 20), 150, Light::Point, glm::vec3(1, 1, 1));
-
-	//l->SetShadow(false);
-	Renderer->AddLight(l);
-	l = new Light(glm::vec3(30, 75, 50), 0.5, Light::Directional, glm::vec3(1, 1, 1));
-	l->SetDirection(l->GetPosition());
-	l->SetShadow(false);
-	Renderer->AddLight(l);
-	const int Girdsize = 5;
-	glm::vec3 startpos = glm::vec3(0, 20, 50);
-	/*const float spacing = 5;
-	for (int x = 0; x < Girdsize; x++)
-	{
-		for (int y = 0; y < Girdsize; y++)
-		{
-			Light* l = new Light(glm::vec3(startpos.x + (x*spacing), 50, startpos.z + (y*spacing)), 2500, Light::Point);
-			Renderer->AddLight(l);
-		}
-	}*/
-	//Lights.push_back(new Light(glm::vec3(-15, 10, 0), 150, glm::vec3(0, 1, 0), Light::Spot, false));
+	CurrentScene->LoadDefault(Renderer, IsDeferredMode);
+	Renderer->SetScene(CurrentScene);
 	Renderer->Init();
-
-	GameObject* go = new GameObject("House");
-
-	Material* newmat = new Material(RHI::CreateTexture("../asset/texture/house_diffuse.tga", true));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/house.obj", Renderer->GetMainShader()->GetShaderProgram()), newmat));
-
-	//	go->SetMaterial(newmat);
-	//	go->SetMesh(RHI::CreateMesh("../asset/models/house.obj", Renderer->GetMainShader()->GetShaderProgram()));
-		//	m_mesh->position = glm::vec3(0, 0, -10);
-	go->GetTransform()->SetPos(glm::vec3(7, 0, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	//	Objects.push_back(go);
-	Renderer->AddGo(go);
-
-	go = new GameObject("Terrain");
-
-
-	Material* mat = new Material(RHI::CreateTexture("../asset/texture/grasshillalbedo.png"));
-	//mat->NormalMap = new OGLTexture("../asset/texture/Normal.tga");
-	//	mat->DisplacementMap = new OGLTexture("../asset/texture/bricks2_disp.jpg");
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/terrainmk2.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-
-	//go->SetMaterial(mat);
-	//go->SetMesh(RHI::CreateMesh("../asset/models/terrainmk2.obj", Renderer->GetMainShader()->GetShaderProgram()));
-	//	go->GetMat()->SetShadow(false);
-		//	m_mesh->position = glm::vec3(0, 0, -10);
-	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(2));
-	//slow
-	Renderer->AddGo(go);
-
-
-
-	go = new GameObject("Plane");
-	mat = new Material(RHI::CreateTexture("../asset/texture/bricks2.jpg"));
-	mat->NormalMap = RHI::CreateTexture("../asset/texture/bricks2_normal.jpg");
-	mat->DisplacementMap = RHI::CreateTexture("../asset/texture/bricks2_disp.jpg");
-
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-	//go->GetMat()->SetShadow(false);
-	go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(0.5));
-
-	Renderer->AddGo(go);
-	if (IsDeferredMode == false)
-	{
-		go = new GameObject("Fence");
-		mat = new Material(RHI::CreateTexture("../asset/texture/fence.png"));
-		mat->SetShadow(false);
-		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-		//		go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
-				//go->GetMat()->SetShadow(false);
-		go->GetTransform()->SetPos(glm::vec3(-10, 1, -6));
-		go->GetTransform()->SetEulerRot(glm::vec3(90, -90, 0));
-		go->GetTransform()->SetScale(glm::vec3(0.1f));
-
-		Renderer->AddGo(go);
-	}
-
-
-	go = new GameObject("Static Water");
-	mat = new Material(RHI::CreateTexture("../asset/texture/Water fallback.jpg"));
-	mat->NormalMap = RHI::CreateTexture("../asset/texture/IKT4l.jpg");
-
-	//go->SetMaterial(mat);
-//	go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-	//go->GetMat()->SetShadow(false);
-	go->GetTransform()->SetPos(glm::vec3(-37, -2, -20));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(2));
-
-	Renderer->AddGo(go);
-	if (IsDeferredMode == false)
-	{
-		go = new GameObject("Water");
-
-		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture());
-		mat->NormalMap = RHI::CreateTexture("../asset/texture/IKT4l.jpg");
-
-		//go->SetMaterial(mat);
-		//go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
-		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-		//go->GetMat()->SetShadow(false);
-		go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
-		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-		go->GetTransform()->SetScale(glm::vec3(2));
-		go->SetReflection(true);
-		Camera* c = new Camera(go->GetTransform()->GetPos(), 90.0f, static_cast<float>(m_width / m_height), 0.1f, 100.0f);
-		c->Pitch(-90);
-		c->SetUpAndForward(glm::vec3(0, 1.0, 0), glm::vec3(0, 0, 1.0));
-		Renderer->SetReflectionCamera(c);
-		Renderer->AddGo(go);
-	}
-
-	//	textrender = std::make_unique<TextRenderer>(m_width, m_height);
+	EditorCamera = new Editor_Camera();
+	Renderer->SetEditorCamera(EditorCamera);
 	if (LoadText)
 	{
 		UI = std::make_unique<UIManager>(m_width, m_height);
 		UI->InitGameobjectList(CurrentScene->GetObjects());
 	}
-	input = std::make_unique<Input>(Renderer->GetMainCam(), nullptr, m_hwnd, this);
+	input = std::make_unique<Input>(nullptr, nullptr, m_hwnd, this);
 	input->main = dynamic_cast<Shader_Main*>(Renderer->GetMainShader());
 	input->Renderer = Renderer;
 	input->Filters = Renderer->GetFilterShader();
 	input->Cursor = CopyCursor(LoadCursor(NULL, IDC_ARROW));
-	input->Cursor  = SetCursor(input->Cursor);
+	input->Cursor = SetCursor(input->Cursor);
 	gizmos = new EditorGizmos();
-	//gizmos->SetTarget(Renderer->GetObjects()[2]);
 	fprintf(stdout, "Scene initalised\n");
 
 	startms = static_cast<float>(clock() / CLOCKS_PER_SEC);
@@ -361,11 +244,50 @@ BOOL EditorWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int he
 	selector->init();
 	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());
 	dLineDrawer = new DebugLineDrawer();
-	CurrentScene->StartScene();
-	glGenQueries(1, &query);
+	PerfManager::StartPerfManager();
+	Saver = new SceneJSerialiser();
+	Saver->SaveScene(CurrentScene);
 	return TRUE;
 }
 
+void EditorWindow::EnterPlayMode()
+{
+	std::cout << "Entering play mode" << std::endl;
+	Engine::GetGame()->BeginPlay();
+	IsPlayingScene = true;
+	if (CurrentPlayScene != nullptr)
+	{
+		delete CurrentPlayScene;
+	}
+	CurrentPlayScene = new Scene();
+	//CurrentScene->CopyScene(CurrentPlayScene);
+	CurrentPlayScene->LoadDefault(Renderer, false);
+	Renderer->SetScene(CurrentPlayScene);
+	CurrentPlayScene->StartScene();
+	EditorCamera->SetEnabled(false);
+}
+void EditorWindow::ExitPlayMode()
+{
+	std::cout << "Exiting play mode" << std::endl;
+	Renderer->SetScene(CurrentScene);
+	EditorCamera->SetEnabled(true);
+}
+int EditorWindow::GetWidth()
+{
+	if (instance != nullptr)
+	{
+		return instance->m_width;
+	}
+	return 0;
+}
+int EditorWindow::GetHeight()
+{
+	if (instance != nullptr)
+	{
+		return instance->m_height;
+	}
+	return 0;
+}
 void EditorWindow::RenderText()
 {
 	if (!ShowText)
@@ -376,7 +298,9 @@ void EditorWindow::RenderText()
 	stream << (currenfps) << std::fixed << std::setprecision(1) << " " << (avgtime * 1000) << "ms ";
 	if (ExtendedPerformanceStats)
 	{
-		stream << "CPU " << std::setprecision(4) << CPUTime << "ms " << std::setprecision(1);
+		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
+		stream << "CPU " << std::setprecision(4) << PerfManager::GetCPUTime() << "ms ";
+		//	stream << "Frame :" << PerfManager::GetDeltaTime()*1000.0f << "ms ";
 		if (PerfManager::Instance != nullptr)
 		{
 			stream << PerfManager::Instance->GetAllTimers();
@@ -417,38 +341,56 @@ void EditorWindow::Update()
 		}
 	}
 }
+inline void EditorWindow::SetDeferredState(bool state)
+{
+	IsDeferredMode = state;
+}
 void EditorWindow::Render()
 {
-
-	deltatime = (float)(get_nanos() - lasttime) / 1.0e9f;//in ms
-	lasttime = get_nanos();
-	FinalTime = get_nanos();
+	if (PerfManager::Instance != nullptr)
+	{
+		deltatime = PerfManager::GetDeltaTime();
+		PerfManager::Instance->StartCPUTimer();
+		PerfManager::Instance->StartFrameTimer();
+	}
 	accumrendertime += deltatime;
 	input->ProcessInput((deltatime));
 	input->ProcessQue();
+	//editor Functions
 	Update();
-	float targettime = (1.0f / 61.0f);
-	if ((accumrendertime) < targettime)
-	{
-		//return;
-	}
-	accumrendertime = 0;
+	EditorCamera->Update(deltatime);
 
-	//	PerfManager::StartTimer("Scene Update");
-	CurrentScene->UpdateScene(deltatime);
-	//	PerfManager::EndTimer("Scene Update");
+	//float targettime = (1.0f / 61.0f);
+	//if ((accumrendertime) < targettime)
+	//{
+	//	//return;
+	//}
+	//accumrendertime = 0;
+	if (IsPlayingScene)
+	{
+		//PerfManager::StartTimer("Scene Update");
+		CurrentPlayScene->UpdateScene(deltatime);
+		//PerfManager::EndTimer("Scene Update");
+	}
+	else
+	{
+		CurrentScene->EditorUpdateScene();
+	}
 
 	//lock the simulation rate to 60hz
 	//this prevents physx being framerate depenent.
 	float TickRate = 1.0f / 60.0f;
 	if (accumilatePhysxdeltatime > TickRate)
 	{
-		PerfManager::StartTimer("Tick");
 		accumilatePhysxdeltatime = 0;
-		Engine::PhysEngine->stepPhysics(false, TickRate);
-		CurrentScene->FixedUpdateScene(TickRate);
-		Renderer->FixedUpdatePhysx(TickRate);
-		PerfManager::EndTimer("Tick");
+		if (IsPlayingScene)
+		{
+			PerfManager::StartTimer("FTick");
+			Engine::PhysEngine->stepPhysics(false, TickRate);
+			CurrentPlayScene->FixedUpdateScene(TickRate);
+			Renderer->FixedUpdatePhysx(TickRate);
+			PerfManager::EndTimer("FTick");
+		}
 	}
 	timesincestat = (((float)(clock()) / CLOCKS_PER_SEC));//in s
 	if (timesincestat > fpsnexttime)
@@ -467,12 +409,17 @@ void EditorWindow::Render()
 	{
 		std::cout << deltatime << " exceded one" << std::endl;
 	}
-	PerfManager::StartTimer("GPU");
+	if (PerfManager::Instance != nullptr)
+	{
+		PerfManager::Instance->StartGPUTimer();
+	}
 	Renderer->Render();
 	dLineDrawer->GenerateLines();
-	dLineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
+	if (Renderer->GetMainCam() != nullptr)
+	{
+		dLineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
+	}
 	Renderer->FinaliseRender();
-	PerfManager::EndTimer("GPU");
 	if (input->Selectedobject != nullptr)
 	{
 		gizmos->SetTarget(input->Selectedobject);
@@ -490,17 +437,29 @@ void EditorWindow::Render()
 		RenderText();
 	}
 	PerfManager::EndTimer("UI");
+	if (PerfManager::Instance != nullptr)
+	{
+		PerfManager::Instance->EndGPUTimer();
+	}
+
 	accumilatePhysxdeltatime += deltatime;
 	framecount++;
-	CPUTime = (float)((get_nanos() - FinalTime) / 1e6f);//in ms
+	//	CPUTime = (float)((get_nanos() - FinalTime) / 1e6f);//in ms
+	if (PerfManager::Instance != nullptr)
+	{
+		PerfManager::Instance->EndCPUTimer();
+	}
 #if !NO_GEN_CONTEXT
 	RHI::RHISwapBuffers();
 	//	SwapBuffers(m_hdc);
 #endif
+
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->SampleNVCounters();
+		PerfManager::Instance->EndFrameTimer();
 	}
+
 	if (Once)
 	{
 		std::cout << "Engine Loaded in " << fabs((get_nanos() - Engine::StartTime) / 1e6f) << "ms " << std::endl;
@@ -526,20 +485,28 @@ void EditorWindow::Resize(int width, int height)
 	return;
 }
 
+inline RenderEngine * EditorWindow::GetCurrentRenderer()
+{
+	return Renderer;
+}
+
 BOOL EditorWindow::MouseLBDown(int x, int y)
 {
-	if (selector != nullptr && (!UI->IsUIBlocking()))
-	{
-		GameObject* target = selector->RayCastScene(x, y, Renderer->GetMainCam(), Renderer->GetObjects());
-		if (target != nullptr)
-		{
-			std::cout << "target " << target->GetName() << std::endl;
-			input->Selectedobject = target;
-		}
-	}
 	if (UI != nullptr)
 	{
-		UI->MouseClick(x, y);
+		if (selector != nullptr && (!UI->IsUIBlocking()))
+		{
+			GameObject* target = selector->RayCastScene(x, y, Renderer->GetMainCam(), Renderer->GetObjects());
+			if (target != nullptr)
+			{
+				std::cout << "target " << target->GetName() << std::endl;
+				input->Selectedobject = target;
+			}
+		}
+		if (UI != nullptr)
+		{
+			UI->MouseClick(x, y);
+		}
 	}
 	return TRUE;
 }
@@ -555,16 +522,31 @@ BOOL EditorWindow::MouseLBUp(int x, int y)
 
 BOOL EditorWindow::MouseRBDown(int x, int y)
 {
-	if (!UI->IsUIBlocking())
+	if (UI != nullptr)
+	{
+		if (!UI->IsUIBlocking())
+		{
+			input->MouseLBDown(x, y);
+		}
+	}
+	else
 	{
 		input->MouseLBDown(x, y);
 	}
+
 	return 0;
 }
 
 BOOL EditorWindow::MouseRBUp(int x, int y)
 {
-	if (!UI->IsUIBlocking())
+	if (UI)
+	{
+		if (!UI->IsUIBlocking())
+		{
+			input->MouseLBUp(x, y);
+		}
+	}
+	else
 	{
 		input->MouseLBUp(x, y);
 	}
@@ -593,5 +575,31 @@ BOOL EditorWindow::KeyDown(WPARAM key)
 		input->ProcessKeyDown(key);
 	}
 	return TRUE;
+}
+
+void EditorWindow::ProcessMenu(WORD command)
+{
+
+	switch (command)
+	{
+	case 4://add gameobject
+
+		break;
+	case 5://Save Scene
+		Saver->SaveScene(CurrentScene);
+		break;
+	case 6://Load Scene
+		Renderer->SetScene(nullptr);
+		delete CurrentScene;
+		CurrentScene = new Scene();
+		Saver->LoadScene(CurrentScene);
+		Renderer->SetScene(CurrentScene);
+		UI->UpdateGameObjectList(CurrentScene->GetObjects());
+		UI->RefreshGameObjectList();
+		break;
+	default:
+		break;
+	}
+
 }
 

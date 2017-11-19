@@ -9,9 +9,9 @@ class Scene;//foward decare scene
 class SceneSerialiser
 {
 public:
-	SceneSerialiser(Scene* ptr) { sceneptr = ptr; }
+	SceneSerialiser() { }
 	~SceneSerialiser();
-	void load(std::string c);
+	void LoadFromFile(std::string filename, Scene * scene);
 private:
 	typedef struct Data
 	{
@@ -29,9 +29,7 @@ private:
 	std::vector<std::string> split(const std::string & s, char delim);
 	glm::vec3 StringToVector3(std::string input);
 	DataS DeserialiseLine(std::string line);
-
-	void AddDataToScene(Scene * scene, DataS Data);
-	Scene* sceneptr;
+	void AddDataToScene(Scene * scene, DataS Data);		
 	template<typename Out>
 	void tsplit(const std::string & s, char delim, Out result);
 

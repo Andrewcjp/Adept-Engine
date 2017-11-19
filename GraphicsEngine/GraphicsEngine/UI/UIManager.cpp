@@ -16,6 +16,7 @@
 #include "UIDrawBatcher.h"
 #include "DebugConsole.h"
 #include "../Editor/Inspector.h"
+#include "../Editor/EditorWindow.h"
 UIManager* UIManager::instance = nullptr;
 UIManager::UIManager()
 {
@@ -53,17 +54,16 @@ UIManager::UIManager(int w, int h)
 	//b = new UIBox(GetScaledWidth(0.15), GetScaledHeight(0.85), w- GetScaledWidth(0.15), GetScaledHeight(0.15));
 	//b->Colour = glm::vec3(0.6);
 	//AddWidget(b);
-	//UIButton* button = new UIButton(200, 50, 0, 500);
-	//button->BindTarget(std::bind(&UIManager::Test, this));
-	//button->Colour = glm::vec3(0, 1, 0);
-	//button->SetText("ertert");
-
-	//UILabel* label = new UILabel("Test", 0, 0, 0, 600);
-	//AddWidget(label);
-	//UIEditField* test = new UIEditField(m_width, GetScaledHeight(0.2f), 0, 0);
-	//test->SetScaled(0.15f, 0.05f, 0.85f, 0.7f);
-	//AddWidget(test);
-
+	UIButton* button = new UIButton(200, 50, 0, 500);
+	button->SetScaled(0.05f, 0.075f, 0.5f - 0.05f, 1.0f - (TopHeight));
+	button->BindTarget(std::bind(&EditorWindow::EnterPlayMode, EditorWindow::GetInstance()));
+	button->SetText("Play");
+	AddWidget(button);
+	button = new UIButton(200, 50, 0, 500);
+	button->SetScaled(0.05f, 0.075f, 0.5f, 1.0f - (TopHeight));
+	button->BindTarget(std::bind(&EditorWindow::ExitPlayMode, EditorWindow::GetInstance()));
+	button->SetText("Stop ");
+	AddWidget(button);
 	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
 	wid->SetScaled(1.0f, 0.05f, 0.0f, 0.3f);
 	AddWidget(wid);
@@ -193,6 +193,10 @@ void UIManager::InitGameobjectList(std::vector<GameObject*>*gos)
 	box = new UIListBox(GetScaledWidth(0.15f), GetScaledHeight(.8f), 0, GetScaledHeight(0.2f));
 	AddWidget(box);
 	RefreshGameObjectList();
+}
+void UIManager::UpdateGameObjectList(std::vector<GameObject*>*gos)
+{
+	GameObjectsPtr = gos;
 }
 
 void UIManager::RefreshGameObjectList()

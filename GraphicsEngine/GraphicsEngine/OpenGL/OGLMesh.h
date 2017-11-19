@@ -16,6 +16,7 @@ public:
 	unsigned int GetVao() { return m_vao; }
 	OGLMesh();
 	OGLMesh(LPCWSTR filename);
+	OGLMesh(std::string filename, const char * name);
 	OGLMesh(std::string filename);
 	~OGLMesh();
 

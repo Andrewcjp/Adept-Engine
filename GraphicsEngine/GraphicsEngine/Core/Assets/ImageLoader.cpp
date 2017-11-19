@@ -15,13 +15,12 @@ ImageLoader::~ImageLoader()
 GLuint ImageLoader::loadsplitCubeMap(std::string path)
 {
 	std::vector<const GLchar*> faces;
-
-	faces.push_back("../asset/texture/right.jpg");
-	faces.push_back("../asset/texture/left.jpg");
-	faces.push_back("../asset/texture/top.jpg");
-	faces.push_back("../asset/texture/bottom.jpg");
-	faces.push_back("../asset/texture/back.jpg");
-	faces.push_back("../asset/texture/front.jpg");
+	faces.push_back("right.jpg");
+	faces.push_back("left.jpg");
+	faces.push_back("top.jpg");
+	faces.push_back("bottom.jpg");
+	faces.push_back("back.jpg");
+	faces.push_back("front.jpg");
 
 	GLuint textureID;
 	glGenTextures(1, &textureID);
@@ -33,7 +32,9 @@ GLuint ImageLoader::loadsplitCubeMap(std::string path)
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	for (GLuint i = 0; i < faces.size(); i++)
 	{
-		image = SOIL_load_image(faces[i], &width, &height, 0, SOIL_LOAD_RGB);
+		std::string facepath = AssetManager::instance->TextureAssetPath;
+		facepath.append(faces[i]);
+		image = SOIL_load_image(facepath.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
 			GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image
@@ -81,6 +82,7 @@ GLuint ImageLoader::LoadImageFile(std::string path)
 	TextureAsset Image;
 	if (!AssetManager::instance->GetTextureAsset(path, Image))
 	{
+		//__debugbreak();
 		return -1;
 	}
 	glTexImage2D(

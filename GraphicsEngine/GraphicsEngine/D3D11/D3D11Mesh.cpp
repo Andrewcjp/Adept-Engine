@@ -7,6 +7,7 @@
 #include "Core/Assets/OBJFileReader.h"
 #include "glm\glm.hpp"
 #include "RHI/RHI.h"
+#include "../Core/Engine.h"
 D3D11Mesh::D3D11Mesh()
 {
 
@@ -18,6 +19,9 @@ D3D11Mesh::D3D11Mesh()
 //}
 D3D11Mesh::D3D11Mesh(const char* file, ShaderProgramBase * shader)
 {
+	/*std::string path = Engine::GetRootDir();
+	path.append("\\asset\\models\\");
+	path.append(file);	*/
 	D3D11ShaderProgram* s = dynamic_cast<D3D11ShaderProgram*>(shader);
 	pContext = s->GetContext();
 	std::string filename(file);

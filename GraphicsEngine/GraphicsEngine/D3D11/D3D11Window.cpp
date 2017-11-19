@@ -4,6 +4,7 @@
 #include "RHI/RHI.h"
 #include "../Core/Engine.h" 
 #include "../Core/Components/MeshRendererComponent.h"
+#include "../Rendering/Shaders/Shader_Main.h"
 D3D11Window::D3D11Window()
 {
 	m_shaderProgram = NULL;
@@ -37,11 +38,12 @@ BOOL D3D11Window::InitD3DDevice(HWND hWnd)
 	m_shaderProgram->AttachAndCompileShaderFromFile("Main_fs", SHADER_FRAGMENT);
 
 
+	
 
-	m_mesh = new D3D11Mesh("../asset/models/house.obj", m_shaderProgram);
+	m_mesh = RHI::CreateMesh("house.obj", m_shaderProgram);
 	/*m_texture = new D3D11Texture();
 	m_texture->CreateTextureFromFile( m_dxDev, "../asset/texture/house_diffuse.tga" );*/
-	m_texture = RHI::CreateTexture("../asset/texture/house_diffuse.tga", true);
+	m_texture = RHI::CreateTexture("house_diffuse.tga", true);
 	m_mesh->SetTexture(m_texture);
 
 	Framebuffer = new D3D11FrameBuffer(m_width, m_height, 1);
@@ -50,7 +52,7 @@ BOOL D3D11Window::InitD3DDevice(HWND hWnd)
 	m_output->AttachAndCompileShaderFromFile("Pass_vs", SHADER_VERTEX);
 	m_output->AttachAndCompileShaderFromFile("Pass_fs", SHADER_FRAGMENT);
 	//plane = new D3D11Mesh("../asset/models/RenderPlane.obj", m_output);
-	plane = new D3D11Mesh("../asset/models/RenderPlane.obj", m_output);
+	plane = (D3D11Mesh*)RHI::CreateMesh("RenderPlane.obj", m_shaderProgram);// new D3D11Mesh("RenderPlane.obj", m_output);
 	cube = new D3D11Plane(m_output);
 	acube = new D3D11Cube(m_output);
 	out = new ShaderOutput(m_width, m_height);
@@ -58,22 +60,22 @@ BOOL D3D11Window::InitD3DDevice(HWND hWnd)
 	testgo = new GameObject("Terrain");
 
 
-	Material* mat = new Material(RHI::CreateTexture("../asset/texture/grasshillalbedo.png"));
+	Material* mat = new Material(RHI::CreateTexture("house_diffuse.tga"));
 	//mat->NormalMap = new OGLTexture("../asset/texture/Normal.tga");
 	//	mat->DisplacementMap = new OGLTexture("../asset/texture/bricks2_disp.jpg");
-	testgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/terrainmk2.obj", m_shaderProgram), mat));
+	testgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("terrainmk2.obj", m_shaderProgram), mat));
 //	testgo->SetMaterial(mat);
 //	testgo->SetMesh(RHI::CreateMesh("../asset/models/terrainmk2.obj", m_shaderProgram));
 	//	go->GetMat()->SetShadow(false);
 	//	m_mesh->position = glm::vec3(0, 0, -10);
-	testgo->GetTransform()->SetPos(glm::vec3(0, 0, 0));
-	testgo->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	testgo->GetTransform()->SetPos(glm::vec3(10, 0, 0));
+	testgo->GetTransform()->SetEulerRot(glm::vec3(0,45, 0));
 	testgo->GetTransform()->SetScale(glm::vec3(2));
-
+	Objects.push_back(testgo);
 	shadow = new GameObject("cube");
-	testgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/house.obj", m_shaderProgram), new Material(RHI::CreateTexture("../asset/texture/house_diffuse.tga", true))));
+	shadow->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("house.obj", m_shaderProgram), new Material(RHI::CreateTexture("house_diffuse.tga", true))));
 	
-	shadow->GetTransform()->SetPos(glm::vec3(0, 0, 0));
+	shadow->GetTransform()->SetPos(glm::vec3(0, 10, 0));
 	shadow->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	shadow->GetTransform()->SetScale(glm::vec3(2));
 	Objects.push_back(shadow);
@@ -95,7 +97,7 @@ BOOL D3D11Window::DestroyD3DDevice()
 	return TRUE;
 }
 
-bool D3D11Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height)
+bool D3D11Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
 {
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
 		L"RenderWindow", L"D3D11Window", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -117,6 +119,7 @@ bool D3D11Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height)
 	Lights.push_back(l);
 	Shadows->InitShadows(Lights);
 	depthtestshader = new Shader_Depth(l,false);
+	mainshader = new Shader_Main();
 	FrameRateTarget = 120.0f;
 	Targettime = 1.0f / (FrameRateTarget*1.1f);
 	return TRUE;
@@ -178,30 +181,38 @@ void D3D11Window::Render()
 	//----------------------------------------------------
 
 	//depthtestshader->SetShaderActive();
-	Shadows->RenderShadowMaps(m_Cam, Lights, Objects);
+	//Shadows->RenderShadowMaps(m_Cam, Lights, Objects);
 	//dephtestbuffer->BindBufferAsRenderTarget();
 	//dephtestbuffer->ClearBuffer();
 	//m_mesh->Render();
 	//testgo->Render();
-	//---------------------------------
-	m_cbuffer.m_worldMat = m_world;
-	m_cbuffer.m_viewMat = m_view;
-	m_cbuffer.m_projection = m_Cam->GetProjection();
-	RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &m_cbuffer, 0, 0);
-	RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
-	//------------------------
+	////---------------------------------
+	//m_cbuffer.m_worldMat = m_world;
+	//m_cbuffer.m_viewMat = m_view;
+	//m_cbuffer.m_projection = m_Cam->GetProjection();
+	//RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &m_cbuffer, 0, 0);
+	//RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
+	////------------------------
+
+	//m_shaderProgram->ActivateShaderProgram();
+	////Shadows->BindShadowMaps();
+	//m_texture->Bind(0);
+	//
+	//m_mesh->Render();
+
+	//m_cbuffer.m_worldMat = testgo->GetTransform()->GetModel();
+	//RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &m_cbuffer, 0, 0);
+	//RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
+	//testgo->Render();
 	Framebuffer->BindBufferAsRenderTarget();
 	Framebuffer->ClearBuffer();
-	m_shaderProgram->ActivateShaderProgram();
-	//Shadows->BindShadowMaps();
-	m_texture->Bind(0);
-	
-	m_mesh->Render();
+	for (int i = 0; i < Objects.size(); i++)
+	{
+		mainshader->SetShaderActive();
+		mainshader->UpdateUniforms(Objects[i]->GetTransform(), m_Cam, Lights);
+		Objects[i]->Render();
+	}
 
-	m_cbuffer.m_worldMat = testgo->GetTransform()->GetModel();
-	RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &m_cbuffer, 0, 0);
-	RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
-	testgo->Render();
 
 	RHI::BindScreenRenderTarget(m_width, m_height);
 	out->SetShaderActive();	
@@ -287,7 +298,5 @@ BOOL D3D11Window::MouseRBUp(int x, int y)
 {
 	return 0;
 }
-void D3D11Window::AddPhysObj(GameObject * go)
-{
-}
+
 #endif

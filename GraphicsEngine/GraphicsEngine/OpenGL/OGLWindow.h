@@ -83,7 +83,7 @@ public:
 	bool IsFullscreen = false;
 	void SwitchFullScreen(HINSTANCE hInstance);
 	void SetFullScreenState(bool state);
-	bool CreateRenderWindow(HINSTANCE hInstance, int width, int height);
+	bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen = false);
 	BOOL InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height);
 
 	void RenderText();
@@ -93,10 +93,7 @@ public:
 	}
 	bool ShowHud = true;
 	bool ExtendedPerformanceStats = false;
-	void AddPhysObj(GameObject* go)override
-	{
-		Renderer->AddPhysObj(go);
-	}
+	
 
 	void		Render();
 	void		Resize(int width, int height);
@@ -113,5 +110,8 @@ public:
 	BOOL		MouseRBUp(int x, int y);
 	BOOL		MouseMove(int x, int y);
 	BOOL KeyDown(WPARAM key);
+
+
+	
 
 };

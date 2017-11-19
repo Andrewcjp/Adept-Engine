@@ -4,6 +4,7 @@
 
 TestGame::TestGame()
 {
+	ECR = new TGExtraComponentRegister();
 }
 
 

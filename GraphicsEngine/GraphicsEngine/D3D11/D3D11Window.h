@@ -21,7 +21,7 @@ using namespace DirectX;
 #include "Rendering/Shaders/ShaderOutput.h"
 #include "../Rendering/Core/ShadowRenderer.h"
 #include "../Rendering/Core/Light.h"
-__declspec(align(16)) class D3D11Window : public RenderWindow
+/*__declspec(align(16))*/ class D3D11Window : public RenderWindow
 {
 	private:
 		struct ConstantBuffer
@@ -61,6 +61,7 @@ __declspec(align(16)) class D3D11Window : public RenderWindow
 		GameObject* shadow = nullptr;
 		ShadowRenderer* Shadows = nullptr;
 		Shader_Depth*	depthtestshader = nullptr;
+		Shader_Main*	mainshader = nullptr;
 		FrameBuffer* dephtestbuffer;
 		std::vector<Light*> Lights;
 		std::vector<GameObject*> Objects;
@@ -80,7 +81,7 @@ protected:
 					D3D11Window(HINSTANCE hInstance, int width, int height);
 					~D3D11Window();
 
-		virtual bool CreateRenderWindow(HINSTANCE hInstance, int width, int height) override;
+		virtual bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen = false) override;
 		void		Render();
 		void		Resize( int width, int height );
 		void		DestroyRenderWindow();
@@ -113,6 +114,6 @@ protected:
 		virtual BOOL MouseRBUp(int x, int y) override;
 
 		// Inherited via RenderWindow
-		virtual void AddPhysObj(GameObject * go) override;
+		
 };
 #endif

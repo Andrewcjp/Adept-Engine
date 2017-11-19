@@ -2,11 +2,11 @@
 #include "OpenGL/OGLShaderProgram.h"
 #include "RHI/RHI.h"
 #include "Core/Components/MeshRendererComponent.h"
-
+#include "../Editor/Editor_Camera.h"
+#include "../EngineGlobals.h"
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 	FrameBufferRatio = 1;
-
 	if (RHI::GetType() == RenderSystemD3D11)
 	{
 		LoadGrass = false;
@@ -21,13 +21,6 @@ ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, hei
 		LoadParticles = true;
 		RenderParticles = false;
 	}
-
-	//#ifdef _DEBUG
-	//		/*LoadGrass = false;
-	//		RenderGrass = false;*/
-	//		LoadParticles = false;
-	//		RenderParticles = false;
-	//#endif
 }
 void ForwardRenderer::RunQuery()
 {
@@ -82,10 +75,34 @@ ForwardRenderer::~ForwardRenderer()
 
 void ForwardRenderer::Render()
 {
-	if (Objects == nullptr || Objects->size() == 0)
+	if (Objects == nullptr)
 	{
 		return;
 	}
+	if (Objects->size() == 0)
+	{
+		return;
+	}
+	if (MainCamera == nullptr)
+	{
+		return;
+	}
+#if WITH_EDITOR
+	if (EditorCam->GetEnabled())
+	{
+		if (MainCamera != EditorCam->GetCamera())
+		{
+			MainCamera = EditorCam->GetCamera();
+		}
+	}
+	else
+	{
+		if (MainCamera == EditorCam->GetCamera())
+		{
+			MainCamera = mainscene->GetCurrentRenderCamera();
+		}
+	}
+#endif
 	ShadowPass();
 	RHI::ClearColour();
 	RHI::ClearDepth();
@@ -98,7 +115,7 @@ void ForwardRenderer::Render()
 	RHI::ClearDepth();
 
 	MainPass();
-	RenderSkybox();	
+	RenderSkybox();
 }
 inline std::vector<GameObject*> ForwardRenderer::InGetObj()
 {
@@ -116,7 +133,7 @@ void ForwardRenderer::Init()
 	shadowrender->InitShadows((*Lights));
 	GPUStateCache::Create();
 	skybox = new GameObject();
-	skybox->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("../asset/models/skybox.obj", GetMainShader()->GetShaderProgram(), true), nullptr));
+	skybox->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("skybox.obj", GetMainShader()->GetShaderProgram(), true), nullptr));
 	if (LoadGrass)
 	{
 		grasstest = std::make_unique<GrassPatch>();
@@ -152,11 +169,15 @@ void ForwardRenderer::ReflectionPass()
 
 	for (size_t i = 0; i < (InGetObj()).size(); i++)
 	{
-		if ((InGetObj())[i]->GetReflection() == true)
+		if ((InGetObj())[i]->GetReflection())
 		{
 			continue;
 		}
-		if ((InGetObj())[i]->UseDefaultShader == false)
+		if (InGetObj()[i]->GetMat() == nullptr)
+		{
+			continue;
+		}
+		if (!(InGetObj())[i]->UseDefaultShader)
 		{
 			grassshader->SetShaderActive();
 			grassshader->UpdateUniforms((InGetObj())[i]->GetTransform(), RefelctionCamera, (*Lights));
@@ -165,7 +186,10 @@ void ForwardRenderer::ReflectionPass()
 			mainshader->SetShaderActive();
 			continue;
 		}
-		mainshader->SetNormalState(((InGetObj())[i]->GetMat()->NormalMap != nullptr), ((InGetObj())[i]->GetMat()->DisplacementMap != nullptr), ((InGetObj())[i]->GetReflection() == true));//this enables non normal mapped surfaces not to be black
+		if (InGetObj()[i]->GetMat() != nullptr)
+		{
+			mainshader->SetNormalState(((InGetObj())[i]->GetMat()->NormalMap != nullptr), ((InGetObj())[i]->GetMat()->DisplacementMap != nullptr), ((InGetObj())[i]->GetReflection() == true));//this enables non normal mapped surfaces not to be black
+		}
 
 		mainshader->UpdateUniforms((InGetObj())[i]->GetTransform(), RefelctionCamera, (*Lights));
 		(InGetObj())[i]->Render();
@@ -187,20 +211,29 @@ void ForwardRenderer::MainPass()
 {
 	if (RHI::GetType() == RenderSystemOGL)
 	{
-	//	RunQuery();
+		if (UseQuerry)
+		{
+			RunQuery();
+		}
 	}
+	if (mainscene->StaticSceneNeedsUpdate)
+	{
+
+		shadowrender->Renderered = false;
+	}
+	mainshader->RefreshLights();
 	FilterBuffer->BindBufferAsRenderTarget();
 	RHI::ClearColour();
 	RHI::ClearDepth();
 	RenderSkybox();
-
+	FilterBuffer->ClearBuffer();
 	mainshader->currentnumber += 0.1f* deltatime;
 	mainshader->SetShaderActive();
 	shadowrender->BindShadowMaps();
 	int count = 0;
 	for (size_t i = 0; i < (InGetObj()).size(); i++)
 	{
-		if (false)
+		if (UseQuerry)
 		{
 			GLuint passed = INT_MAX;
 			GLuint available = 0;
@@ -220,6 +253,10 @@ void ForwardRenderer::MainPass()
 				continue;
 			}
 		}
+		if (InGetObj()[i]->GetMat() == nullptr)
+		{
+			continue;
+		}
 		if ((InGetObj())[i]->UseDefaultShader == false)
 		{
 			grassshader->SetShaderActive();
@@ -229,8 +266,11 @@ void ForwardRenderer::MainPass()
 			mainshader->SetShaderActive();
 			continue;
 		}
-		//	itemsrender++;
-		mainshader->SetNormalState(((InGetObj())[i]->GetMat()->NormalMap != nullptr), ((InGetObj())[i]->GetMat()->DisplacementMap != nullptr), ((InGetObj())[i]->GetReflection() == true));//this enables non normal mapped surfaces not to be black
+		if (InGetObj()[i]->GetMat() != nullptr)
+		{
+			//	itemsrender++;
+			mainshader->SetNormalState(((InGetObj())[i]->GetMat()->NormalMap != nullptr), ((InGetObj())[i]->GetMat()->DisplacementMap != nullptr), ((InGetObj())[i]->GetReflection() == true));//this enables non normal mapped surfaces not to be black
+		}
 		if ((InGetObj())[i]->GetReflection())
 		{
 			mainshader->ISWATER = true;
@@ -284,12 +324,13 @@ void ForwardRenderer::RenderFitlerBufferOutput()
 	RHI::ClearColour();
 	RHI::ClearDepth();
 	outshader->SetShaderActive();
+	outshader->UpdateUniforms(nullptr, MainCamera);
 	FilterBuffer->BindToTextureUnit(0);
 	outshader->RenderPlane();
 }
 void ForwardRenderer::InitOGL()
 {
-	MainCamera = new Camera(glm::vec3(0, 2, 0), 75.0f, static_cast<float>(m_width / m_height), 0.1f, 1000.0f);
+	//	MainCamera = new Camera(glm::vec3(0, 2, 0), 75.0f, static_cast<float>(m_width / m_height), 0.1f, 1000.0f);
 
 	RHI::InitRenderState();
 	mainshader = new Shader_Main();
@@ -310,6 +351,38 @@ void ForwardRenderer::InitOGL()
 		grassshader = new Shader_Grass();
 	}
 	skyboxShader = std::make_unique<Shader_Skybox>();
+}
+
+void ForwardRenderer::SetScene(Scene * sc)
+{
+	RenderEngine::SetScene(sc);
+	if (sc == nullptr)
+	{
+		MainCamera = nullptr;
+		Lights = nullptr;
+		Objects = nullptr;
+		shadowrender->ClearShadowLights();
+		return;
+	}
+	Lights = mainscene->GetLights();
+	(Objects) = (mainscene->GetObjects());
+	mainshader->RefreshLights();
+	if (shadowrender != nullptr)
+	{
+		shadowrender->InitShadows(*Lights);
+	}
+	if (shadowrender != nullptr)
+	{
+		shadowrender->Renderered = false;
+	}
+	if (sc == nullptr)
+	{
+		MainCamera = nullptr;
+	}
+	else
+	{
+		MainCamera = mainscene->GetCurrentRenderCamera();
+	}
 }
 
 void ForwardRenderer::SetRenderSettings(RenderSettings set)

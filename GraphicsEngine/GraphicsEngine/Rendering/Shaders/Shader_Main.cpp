@@ -173,9 +173,9 @@ void Shader_Main::UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*>
 	glUniform1i(m_IsMapUniform, 0);
 	if (!Once)
 	{
-
 		for (int i = 0; i < lights.size(); i++)
 		{
+			//todo: improve this!
 			glUniform3f(glGetUniformLocation(m_Shader->GetProgramHandle(), ("allLights[" + std::to_string(i) + "].position").c_str()), lights[i]->GetPosition().x, lights[i]->GetPosition().y, lights[i]->GetPosition().z);
 			glUniform3f(glGetUniformLocation(m_Shader->GetProgramHandle(), ("allLights[" + std::to_string(i) + "].Color").c_str()), lights[i]->GetColor().x, lights[i]->GetColor().y, lights[i]->GetColor().z);
 			glUniform3fv(glGetUniformLocation(m_Shader->GetProgramHandle(), ("allLights[" + std::to_string(i) + "].Direction").c_str()), 1, glm::value_ptr(lights[i]->GetDirection()));
@@ -219,7 +219,7 @@ void Shader_Main::UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*>
 void Shader_Main::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
 {
 	//UBuffer
-	//UBuffer.M = t->GetModel();
+	UBuffer.M = t->GetModel();
 	UBuffer.V = c->GetView();
 	UBuffer.P = c->GetProjection();
 	RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &UBuffer, 0, 0);

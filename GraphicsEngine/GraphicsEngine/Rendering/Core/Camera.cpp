@@ -1,12 +1,50 @@
 #include "Camera.h"
 #include "Core/Transform.h"
 
+Camera::Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar, bool LH)
+{
+	UseLeftHanded = LH;
+	UseLeftHanded = (RHI::GetType() == RenderSystemD3D11);
+	this->m_pos = pos;
+	this->forward = glm::vec3(0.0f, 0.0f, 1.0f);
+	this->up = glm::vec3(0.0f, 1.0f, 0.0f);
+	this->zNear = zNear;
+	ZFar = zFar;
+	this->fov = fov;
+	if (UseLeftHanded)
+	{
+		this->projection = glm::perspectiveLH(glm::radians(fov), aspect, zNear, zFar);
+	}
+	else
+	{
+		this->projection = glm::perspective(glm::radians(fov), aspect, zNear, zFar);
+	}
+}
+
 //TODO: Deltatime
 glm::mat4 Camera::GetViewProjection()
 {
 	/*printf("%f  %f  %f  zn", forward.x, forward.y, forward.z);
 	system("cls");*/
 	return projection * GetView();
+}
+
+void Camera::UpdateProjection(float aspect)
+{
+	if (UseLeftHanded)
+	{
+		this->projection = glm::perspectiveLH(glm::radians(fov), aspect, zNear, ZFar);
+	}
+	else
+	{
+		this->projection = glm::perspective(glm::radians(fov), aspect, zNear, ZFar);
+	}
+}
+
+void Camera::SetUpAndForward(glm::vec3 fward, glm::vec3 uup)
+{
+	this->forward = fward;
+	this->up = uup;
 }
 
 glm::mat4 Camera::GetView()

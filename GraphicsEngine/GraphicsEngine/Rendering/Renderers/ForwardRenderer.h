@@ -59,6 +59,7 @@ public:
 	{
 		return *mainscene->GetObjects();
 	}
+	void SetScene(Scene * sc) override;
 
 	float deltatime = 1;
 	clock_t tstart;
@@ -106,7 +107,7 @@ public:
 	ShaderOutput* outshader;
 	bool RenderParticles = true;
 	bool RenderGrass = true;
-
+	bool UseQuerry = false;
 	void SetRenderSettings(RenderSettings settings) override;
 private:
 	FrameBuffer* FilterBuffer;
@@ -119,7 +120,7 @@ private:
 	Camera*     MainCamera;
 	std::vector<Light*>* Lights;
 	float FrameBufferRatio = 1;
-
+	
 	GameObject* skybox;
 	GameObject* playerGO;
 	ShadowRenderer* shadowrender;

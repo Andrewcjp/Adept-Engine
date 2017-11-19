@@ -20,8 +20,12 @@ public:
 		Target = t;
 	}
 	void SetText(std::string t);
-
+	glm::vec3 NormalColour = glm::vec3(0.5f);
+	glm::vec3 Hovercolour  = glm::vec3(1, 0, 0);
+	glm::vec3 SelectedColour = glm::vec3(0, 0, 0.5f);
+	void SetSelected(bool state);
 private:
+	bool IsActiveSelect = false;
 	bool WasSelected = false;
 	char* MText = "Button";
 	CollisionRect Rect;

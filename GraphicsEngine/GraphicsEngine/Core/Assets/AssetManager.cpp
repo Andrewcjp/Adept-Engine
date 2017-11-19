@@ -49,7 +49,6 @@ bool AssetManager::LoadTextureAsset()
 	}
 	int datalength = 8;
 	char * attribdata = new char[datalength];//two points of data
-
 	std::ifstream ifp(TextureCooked, std::ios::in | std::ios::binary);
 	ifp.read(reinterpret_cast<char*>(attribdata), datalength * sizeof(char));
 	std::string data = attribdata;
@@ -58,9 +57,6 @@ bool AssetManager::LoadTextureAsset()
 	{
 		TextureAsset Target;
 		ifp.read(reinterpret_cast<char*>(&Target), sizeof(TextureAsset));
-	/*	char* name = "";
-		ifp.read((char*)(name), (Target.NameSize * sizeof(char)));*/
-		//Target.name = name;
 		ifp.read((char*)(Target.image), (Target.ByteSize));
 		TextureAssetsMap.emplace(Target.name, Target);
 	}
@@ -162,11 +158,15 @@ void AssetManager::StartAssetManager()
 AssetManager::AssetManager()
 {
 	StartTime = (float)get_nanos();
-	ShaderAssetPath = AssetRootPath;
+	std::string path = Engine::GetRootDir();	
+	path.append("\\asset\\");
+	/*StringUtils::RemoveChar(path, "|");*/
+	ShaderAssetPath = path;
 	ShaderAssetPath.append("shader/glsl/");
-	TextureAssetPath = AssetRootPath;
-	TextureAssetPath.append("texture/");
+	TextureAssetPath = path;
+	TextureAssetPath.append("texture\\");
 	ShaderCookedName = "../asset/CookedShaders.txt";
+	//std::cout << "Asset path" << AssetRootPath << std::endl;
 	//if (PreLoadTextShaders)
 	//{
 	//	if (FileExists(ShaderCookedName))
@@ -191,8 +191,7 @@ AssetManager::AssetManager()
 	//	}
 	//}
 	LoadTexturesFromDir();
-	/*CookTextureAsset();
-	LoadTextureAsset();*/
+
 	std::cout << "Shaders Loaded in " << ((get_nanos() - StartTime) / 1e6f) << "ms " << std::endl;
 	std::cout << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << std::endl;
 }
@@ -210,7 +209,7 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset)
 	}
 	else
 	{
-		if (ShaderSourceMap.find(path) == ShaderSourceMap.end())
+		if (TextureAssetsMap.find(path) == TextureAssetsMap.end())
 		{
 			TextureAsset newasset;
 			unsigned char* image = SOIL_load_image(path.c_str(), &newasset.Width, &newasset.Height, &newasset.Nchannels, SOIL_LOAD_RGBA);
@@ -223,6 +222,7 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset)
 			newasset.image = image;
 			newasset.ByteSize = (newasset.Width* newasset.Height) *(newasset.Nchannels * sizeof(unsigned char));
 			LoadedAssetSize += newasset.ByteSize;
+			StringUtils::RemoveChar(path, TextureAssetPath);
 			newasset.name = path;
 			newasset.NameSize = path.length();
 			TextureAssetsMap.emplace(path, newasset);
@@ -282,7 +282,6 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 		pathname = ShaderAssetPath;
 		pathname.append(name);
 	}
-	//	pathname.append(name);*/
 	std::ifstream myfile(pathname);
 	if (myfile.is_open())
 	{

@@ -4,6 +4,7 @@
 #include "Core/Assets/ImageLoader.h"
 #include "../Rendering/Core/GPUStateCache.h"
 #include "glm\glm.hpp"
+#include "../Core/Engine.h"
 OGLTexture::OGLTexture()
 {
 	m_syshandle = m_apphandle = -1;
@@ -12,6 +13,7 @@ OGLTexture::OGLTexture()
 OGLTexture::OGLTexture(const char* path, bool istga)
 {
 	Name = path;
+	AssetName = Name.c_str();
 	GLuint out;
 	if (ImageLoader::instance->CheckIfLoaded(path, &out))
 	{
@@ -21,7 +23,10 @@ OGLTexture::OGLTexture(const char* path, bool istga)
 
 	if (istga)
 	{
-		CreateTextureFromFile(path);
+		std::string rpath = Engine::GetRootDir();
+		rpath.append("\\asset\\texture\\");
+		rpath.append(path);
+		CreateTextureFromFile(rpath.c_str());
 	}
 	else
 	{

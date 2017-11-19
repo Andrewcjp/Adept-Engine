@@ -3,7 +3,7 @@
 
 ParticleSystem::ParticleSystem()
 {
-	texture = new OGLTexture("../asset/texture/smoke.png");
+	texture = new OGLTexture("smoke.png");
 	shader = new Shader_Particle();
 	static const GLfloat plane_positions[] = {
 		-0.5f, -0.5f, 0.0f,

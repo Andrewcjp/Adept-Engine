@@ -30,6 +30,7 @@ class BaseApplication
 		HINSTANCE					m_hInst;
 		bool						isWindowVaild = false;
 		static BaseApplication*		CreateApplication(HINSTANCE hInst, LPSTR args, int nshow);
+		static HWND GetHWND();
 		static void					DestroyApplication();
 		static BaseApplication*		GetApplication();
 

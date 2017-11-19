@@ -161,6 +161,10 @@ RigidBody * PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velo
 {
 	return new PhxRigidBody(FirePrimitiveAtScene(position, velocity, scale, PxGeometryType::eSPHERE));
 }
+RigidBody* PhysxEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
+{
+	return new PhxRigidBody(CreateActor(GLMtoPXvec3(position), scale, PxGeometryType::eSPHERE));
+}
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {
 	return RayCastScene(startpos, direction, distance, hit, false);

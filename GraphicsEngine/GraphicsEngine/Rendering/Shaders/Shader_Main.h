@@ -27,7 +27,7 @@ public:
 	void SetShadowVis();
 	void SetFullBright();
 	void SetNormalState(bool t, bool dispstate, bool refelction);
-
+	void RefreshLights() { Once = false; };
 	void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights) override;
 	bool ISWATER = false;
 	float currentnumber = 0;

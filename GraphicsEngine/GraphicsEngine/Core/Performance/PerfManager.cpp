@@ -8,6 +8,7 @@
 #endif
 #include <iomanip>
 #include <time.h>
+#include "../RHI/RHI.h"
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 void PerfManager::StartPerfManager()
@@ -26,6 +27,10 @@ static long get_nanos(void)
 PerfManager::PerfManager()
 {
 	//OGLMem = "gpu_idle";
+	if (RHI::GetType() == RenderSystemOGL)
+	{
+		glGenQueries(2, queryID);
+	}
 }
 
 
@@ -82,7 +87,7 @@ std::string PerfManager::GetCounterData()
 	std::stringstream stream;
 	float ToMB = (1.0f / 1000000.0f);
 	stream << "Draw calls " << PerfManager::Instance->GetValue(OGLBatch) << " Idle " /*<< std::fixed << std::setprecision(1)*/ << PerfManager::Instance->GetValue(OGLMem)*ToMB;
-		//<< "MB (" << PerfManager::Instance->GetValue(OGLTextureMem)*ToMB << "MB) ";
+	//<< "MB (" << PerfManager::Instance->GetValue(OGLTextureMem)*ToMB << "MB) ";
 
 	std::string out = stream.str();
 	return out;
@@ -106,9 +111,6 @@ uint64_t PerfManager::GetValue(const char * countername)
 	//{
 	//	__debugbreak();
 	//}
-
-
-
 	if ((nvResult = GetNvPmApi()->GetCounterValueUint64(hNVPMContext, id, 0, &value, &cycles, &overflow)) != NVPM_OK)
 	{
 		//__debugbreak();
@@ -149,7 +151,7 @@ int PerfManager::GetTimerIDByName(std::string name)
 }
 std::string PerfManager::GetTimerName(int id)
 {
-	for (std::map<std::string,int >::iterator it = TimerIDs.begin(); it != TimerIDs.end(); ++it)
+	for (std::map<std::string, int >::iterator it = TimerIDs.begin(); it != TimerIDs.end(); ++it)
 	{
 		if (it->second == id)
 		{
@@ -195,10 +197,92 @@ float PerfManager::GetTimerValue(const char * countername)
 std::string PerfManager::GetAllTimers()
 {
 	std::stringstream stream;
-	stream << std::fixed << std::setprecision(3)<<"Stats: ";
-	for (std::map<int,float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
-	{		
+	stream << std::fixed << std::setprecision(3) << "Stats: ";
+	for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
+	{
 		stream << GetTimerName(it->first) << ": " << it->second << "ms ";
 	}
 	return stream.str();
+}
+void PerfManager::StartGPUTimer()
+{
+	if (RHI::GetType() == RenderSystemOGL)
+	{
+		if (!WaitGPUTimerQuerry)
+		{
+			glQueryCounter(queryID[0], GL_TIMESTAMP);
+		}
+	}
+}
+void PerfManager::EndGPUTimer()
+{
+	if (RHI::GetType() == RenderSystemOGL)
+	{
+		if (!WaitGPUTimerQuerry)
+		{
+			glQueryCounter(queryID[1], GL_TIMESTAMP);
+			WaitGPUTimerQuerry = true;
+		}
+		if (WaitGPUTimerQuerry)
+		{
+			glGetQueryObjectiv(queryID[1],
+				GL_QUERY_RESULT_AVAILABLE,
+				&stopTimerAvailable);
+		}
+
+		if (stopTimerAvailable)
+		{
+			GLuint64 startTime, stopTime;
+			glGetQueryObjectui64v(queryID[0], GL_QUERY_RESULT, &startTime);
+			glGetQueryObjectui64v(queryID[1], GL_QUERY_RESULT, &stopTime);
+			GPUTime = ((stopTime - startTime) / 1000000.0f);
+			WaitGPUTimerQuerry = false;
+		}
+	}
+}
+
+void PerfManager::StartCPUTimer()
+{
+	CPUstart = get_nanos();
+}
+
+void PerfManager::EndCPUTimer()
+{
+	CPUTime = (float)((get_nanos() - CPUstart) / 1e6f);//in ms
+}
+
+void PerfManager::StartFrameTimer()
+{
+	FrameStart = get_nanos();
+}
+
+void PerfManager::EndFrameTimer()
+{
+	FrameTime = (float)((get_nanos() - FrameStart) / 1e9f);//in ms
+}
+
+float PerfManager::GetGPUTime()
+{
+	if (Instance != nullptr)
+	{
+		return Instance->GPUTime;
+	}
+	return 0.0f;
+}
+float PerfManager::GetCPUTime()
+{
+	if (Instance != nullptr)
+	{
+		return Instance->CPUTime;
+	}
+	return 0;
+}
+
+float PerfManager::GetDeltaTime()
+{
+	if (Instance != nullptr)
+	{
+		return Instance->FrameTime;
+	}
+	return 0;
 }

@@ -15,6 +15,7 @@ public:
 	const int MAX_DIRECTIONAL_SHADOWS = 4;
 	void RenderShadowMaps(Camera * c, std::vector<Light*> lights, std::vector<GameObject*>& ShadowObjects);
 	void BindShadowMaps();
+	void ClearShadowLights();
 	void InitShadows(std::vector<Light*> lights);
 	bool UseCache = true;
 	bool Renderered = false;

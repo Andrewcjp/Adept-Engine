@@ -19,5 +19,9 @@ namespace StringUtils
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 		return converter.from_bytes(target);
 	}
-
+	static std::string ConvertWideToString(std::wstring target)
+	{
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		return converter.to_bytes(target);
+	}
 }

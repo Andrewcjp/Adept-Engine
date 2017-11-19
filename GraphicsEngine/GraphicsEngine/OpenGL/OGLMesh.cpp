@@ -13,11 +13,13 @@ OGLMesh::OGLMesh()
 
 OGLMesh::OGLMesh(LPCWSTR filename)
 {
+	
 	LoadAndBuildMeshFromOBJFile(filename);
 }
 
-OGLMesh::OGLMesh(std::string filename)
+OGLMesh::OGLMesh(std::string filename,const char* name)
 {
+	AssetName = name;
 	std::wstring newfile((int)filename.size(),0);
 	MultiByteToWideChar(CP_UTF8, 0, &filename[0], (int)filename.size(), &newfile[0], (int)filename.size());
 	LoadAndBuildMeshFromOBJFile(newfile.c_str());

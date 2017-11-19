@@ -3,7 +3,7 @@
 #include <GLEW\GL\glew.h>
 #include "../Core/Assets/AssetManager.h"
 #include "OGLShader.h"
-
+#include "../Core/Utils/WindowsHelper.h"
 #include "../Core/Utils/StringUtil.h"
 
 OGLShader::OGLShader()
@@ -63,11 +63,6 @@ EShaderError OGLShader::CreateShaderFromSourceFile(const char * filename, EShade
 	//size_t length = TextFileBufferedRead(path, &source);
 	//std::string length = AssetManager::GetShaderAsset(path, &source);
 	std::string data = AssetManager::instance->LoadFileWithInclude(path);
-	//char* include;
-	//int inc = TextFileBufferedRead(filename2, &include);
-	//char* output = new char[(inc + length)];
-	//memcpy(output, source, length);
-	//memcpy((&output + length), include, inc);
 
 	//upload the source code to the shader program
 	if (data.length() > 0)
@@ -100,12 +95,7 @@ EShaderError OGLShader::CreateShaderFromSourceFile(const char * filename, EShade
 		Log.append(filename);
 		Log.append("\n");
 		Log.append(log);
-		MessageBox(
-			NULL,
-			StringUtils::ConvertStringToWide(Log).c_str(),
-			L"Shader Compile Error",
-			MB_ICONERROR
-		);
+		WindowsHelpers::DisplayMessageBox("Shader Complie Error", Log);
 		delete[] log;
 	}
 	else

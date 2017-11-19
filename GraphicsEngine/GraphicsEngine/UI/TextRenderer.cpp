@@ -4,6 +4,7 @@
 #include "Rendering/Shaders/Text_Shader.h"
 #include <algorithm>
 #include <cstring>
+#include "../Core/Engine.h"
 #include "../Rendering/Core/GPUStateCache.h"
 TextRenderer* TextRenderer::instance = nullptr;
 TextRenderer::TextRenderer(int width, int height)
@@ -22,6 +23,7 @@ TextRenderer::TextRenderer(int width, int height)
 struct atlas
 {
 	GLuint tex;		// texture object
+	BaseTexture* Texture;
 	GLint uniform_tex;
 	unsigned int w;			// width of texture in pixels
 	unsigned int h;			// height of texture in pixels
@@ -75,25 +77,32 @@ struct atlas
 		w = std::max(w, roww);
 		h += rowh;
 
-		/* Create a texture that will be used to hold all ASCII glyphs */
-		glActiveTexture(GL_TEXTURE0);
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glUniform1i(uniform_tex, 0);
+		if (RHI::GetType() == RenderSystemOGL)
+		{
+			Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::Text);
+			/* Create a texture that will be used to hold all ASCII glyphs */
+			glActiveTexture(GL_TEXTURE0);
+			glGenTextures(1, &tex);
+			glBindTexture(GL_TEXTURE_2D, tex);
+			glUniform1i(uniform_tex, 0);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
-		/* We require 1 byte alignment when uploading texture data */
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			/* We require 1 byte alignment when uploading texture data */
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		/* Clamping to edges is important to prevent artifacts when scaling */
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			/* Clamping to edges is important to prevent artifacts when scaling */
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		/* Linear filtering usually looks best for text */
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			/* Linear filtering usually looks best for text */
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
+		else if (RHI::GetType() == RenderSystemD3D11)
+		{
 
+		}
 		/* Paste all glyph bitmaps into the texture, remembering the offset */
 		int ox = 0;
 		int oy = 0;
@@ -304,7 +313,9 @@ void TextRenderer::LoadText()
 	{
 		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 	}
-	if (FT_New_Face(ft, "../asset/fonts/arial.ttf", 0, &face))
+	std::string fontpath = Engine::GetRootDir();
+	fontpath.append("\\asset\\fonts\\arial.ttf");
+	if (FT_New_Face(ft, fontpath.c_str(), 0, &face))
 	{
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 	}
