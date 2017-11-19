@@ -8,4 +8,5 @@
 /GraphicsEngine/GraphicsEngine/OLD
 /GraphicsEngine/GraphicsEngine/x64
 /GraphicsEngine/x64/utils
-/GraphicsEngine/x64
+/GraphicsEngine/x64/Release
+/GraphicsEngine/x64/Debug
