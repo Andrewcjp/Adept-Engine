@@ -1,10 +1,27 @@
 #include "stdafx.h"
 #include "D3D12Texture.h"
 #include "D3D12RHI.h"
-
+#include "../Core/Assets/ImageIO.h"
+#include "../Core/Engine.h"
 D3D12Texture::D3D12Texture()
 {
+#if 1
+	unsigned char *buffer = NULL;
+	int width;
+	int height;
+	int bpp = 0;
+	int nChannels;
+	std::string rpath = Engine::GetRootDir();
+	rpath.append("\\asset\\texture\\");
+	rpath.append("house_diffuse.tga");
+	if (ImageIO::LoadTGA(rpath.c_str(), &buffer, &width, &height, &bpp, &nChannels) != E_IMAGEIO_SUCCESS)
+	{
+		return;
+	}
+	CreateTextureFromData(buffer, 0, width, height, 4);
+#else
 	CreateTextureFromData(GenerateCheckerBoardTextureData(), 0, TextureWidth, TextureHeight, TexturePixelSize);
+#endif
 }
 
 
@@ -93,8 +110,8 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		D3D12_RESOURCE_DESC textureDesc = {};
 		textureDesc.MipLevels = 1;
 		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		textureDesc.Width = TextureWidth;
-		textureDesc.Height = TextureHeight;
+		textureDesc.Width = width;
+		textureDesc.Height = height;
 		textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 		textureDesc.DepthOrArraySize = 1;
 		textureDesc.SampleDesc.Count = 1;
@@ -126,8 +143,8 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		D3D12_SUBRESOURCE_DATA textureData = {};
 		textureData.pData = data;
-		textureData.RowPitch = TextureWidth * TexturePixelSize;
-		textureData.SlicePitch = textureData.RowPitch * TextureHeight;
+		textureData.RowPitch = width * bits;
+		textureData.SlicePitch = textureData.RowPitch * height;
 
 		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_texture, textureUploadHeap, 0, 0, 1, &textureData);
 		D3D12RHI::Instance->m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));

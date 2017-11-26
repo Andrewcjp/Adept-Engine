@@ -2,12 +2,12 @@
 #include "../RHI/Shader.h"
 
 #include <string>
-typedef struct _ConstBuffer
-{
-	glm::mat4 M;
-	glm::mat4 V;
-	glm::mat4 P;
-}ConstBuffer;
+//typedef struct _ConstBuffer
+//{
+//	glm::mat4 M;
+//	glm::mat4 V;
+//	glm::mat4 P;
+//}ConstBuffer;
 typedef struct _LightUniformBuffer
 {
 	glm::vec3 position;
@@ -48,7 +48,7 @@ private:
 	bool shadowvisstate = false;
 	bool vistate = false;
 	bool enabledFullBright = false;
-	ConstBuffer UBuffer;
+	_MVPStruct UBuffer;
 	LightUniformBuffer LightBuffer;
 	const int CurrentLightcount = 10;
 	LightUniformBuffer* LightBuffers = nullptr;

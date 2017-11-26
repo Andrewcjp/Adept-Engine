@@ -19,6 +19,7 @@ public:
 private:
 	int TextureWidth = 100;
 	int TextureHeight = 100;
+
 	static const UINT TexturePixelSize = 4;
 	UINT8* GenerateCheckerBoardTextureData();
 

@@ -194,7 +194,7 @@ void Shader_Main::UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*>
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 		GPUStateCache::UpdateCurrentUniformBuffer(ubo);
 	}
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(ConstBuffer), &UBuffer, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(MVPStruct), &UBuffer, GL_DYNAMIC_DRAW);
 	//glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	//glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);

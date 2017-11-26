@@ -13,9 +13,12 @@
 #include "d3d12Shader.h"
 #include "D3D12Mesh.h"
 #include "D3D12Texture.h"
+
 class D3D12RHI
 {
 public:
+
+
 	static D3D12RHI* Instance;
 	D3D12RHI();
 	~D3D12RHI();
@@ -24,12 +27,14 @@ public:
 	void OnRender();
 	void OnDestroy();
 	void ClearRenderTarget(ID3D12GraphicsCommandList * List);
+	void RenderToScreen(ID3D12GraphicsCommandList * list);
 	void LoadPipeLine();
 	void LoadAssets();
-	struct SceneConstantBuffer
+	void InitliseDefaults();
+	/*struct SceneConstantBuffer
 	{
 		DirectX::XMFLOAT4 offset;
-	};
+	};*/
 	int TextureWidth = 100;
 	int TextureHeight = 100;
 	static const UINT TexturePixelSize = 4;	// The number of bytes used to represent a pixel in the texture.
@@ -50,15 +55,16 @@ public:
 	ID3D12CommandQueue* m_commandQueue;
 	ID3D12RootSignature* m_rootSignature;
 	ID3D12DescriptorHeap* m_rtvHeap;
-	ID3D12PipelineState* m_pipelineState;
+	ID3D12DescriptorHeap* m_dsvHeap;
+	//ID3D12PipelineState* m_pipelineState;
 	ID3D12GraphicsCommandList* m_commandList;
 	ID3D12GraphicsCommandList* m_SetupCommandList;
 	UINT m_rtvDescriptorSize;
+	ID3D12Resource * m_depthStencil;
 
-
-
+		
 	ID3D12Resource* m_constantBuffer;
-	SceneConstantBuffer m_constantBufferData;
+	D3D12Shader::SceneConstantBuffer m_constantBufferData;
 	UINT8* m_pCbvDataBegin;
 	ID3D12DescriptorHeap* m_cbvHeap;
 
@@ -74,11 +80,19 @@ public:
 	ID3D12Fence* m_fence;
 	UINT64 m_fenceValue;
 	UINT64 m_fenceValues[FrameCount];
-
+	D3D12Shader::PiplineShader m_MainShaderPiplineShader;
 
 	int m_width = 100;
 	int m_height = 100;
 	float m_aspectRatio = 0.0f;
+	static ID3D12Device* GetDevice()
+	{
+		if (Instance != nullptr)
+		{
+			return Instance->m_device;
+		}
+		return nullptr;
+	}
 };
 //helper functions!
 static inline void ThrowIfFailed(HRESULT hr)

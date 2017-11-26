@@ -12,6 +12,7 @@
 struct PSInput
 {
 	float4 position : SV_POSITION;
+	float4 Normal :NORMAL0;
 	float2 uv : TEXCOORD;
 };
 
@@ -21,15 +22,24 @@ SamplerState g_sampler : register(s0);
 cbuffer SceneConstantBuffer : register(b0)
 {
 	float4 offset;
+	row_major matrix Model;
+	row_major matrix View;
+	row_major matrix Projection;
+	
 };
 
 
-PSInput VSMain(float4 position : POSITION, float4 uv : TEXCOORD)
+PSInput VSMain(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TEXCOORD)
 {
 	PSInput result;
-
-	result.position = position  + offset;
-	result.uv = uv;
+	float4 final_pos = position;
+	final_pos.w = 1.0f;
+	final_pos = mul(position, Model);
+	final_pos = mul(final_pos, View);
+	final_pos = mul(final_pos, Projection);
+	result.position = final_pos;
+	result.uv = uv.xy;
+	result.Normal = normal;
 
 	return result;
 }
