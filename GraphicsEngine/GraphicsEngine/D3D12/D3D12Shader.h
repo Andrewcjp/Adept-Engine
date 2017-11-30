@@ -4,12 +4,12 @@
 #include <d3dcompiler.h>
 #include "glm\glm.hpp"
 #include <DirectXMath.h>
+#include "../EngineGlobals.h"
 class D3D12Shader : public ShaderProgramBase
 {
 public:
-	struct SceneConstantBuffer
+	/*__declspec(align(256))*/ struct SceneConstantBuffer//CBV need to be 256 aligned
 	{
-		DirectX::XMFLOAT4 offset;
 		glm::mat4 M;
 		glm::mat4 V;
 		glm::mat4 P;
@@ -33,7 +33,7 @@ public:
 	virtual void SetUniform1UInt(unsigned int value, const char * param) override;
 	virtual void SetAttrib4Float(float f1, float f2, float f3, float f4, const char * param) override;
 	virtual void BindAttributeLocation(int index, const char * param_name) override;
-	ID3D12GraphicsCommandList* CreateCommandList();
+
 	inline ID3DBlob*			GetVSBlob()
 	{
 		return m_vsBlob;
@@ -45,10 +45,10 @@ public:
 	}
 	PiplineShader CreatePipelineShader(D3D12_INPUT_ELEMENT_DESC* inputDisc,  int DescCount, ID3DBlob* vsBlob, ID3DBlob* fsBlob);
 	void PushCBVToGPU(ID3D12GraphicsCommandList* list,int offset = 0);
-	void UpdateCBV(SceneConstantBuffer buffer, int offset = 0);
+	void UpdateCBV(SceneConstantBuffer &buffer, int offset = 0);
 	void InitCBV();
-	
-
+	CommandListDef* CreateShaderCommandList();
+	ID3D12CommandAllocator* GetCommandAllocator();
 	ID3DBlob*					m_vsBlob;
 	ID3DBlob*					m_fsBlob;
 	PiplineShader m_Shader;
@@ -56,10 +56,12 @@ private:
 	int							m_shaderCount;
 	int							InitalBufferCount = 50;
 	int							CB_Size;
-	
+	class D3D12CBV* CBV;
 	ID3D12Resource* m_constantBuffer;
 	SceneConstantBuffer m_constantBufferData;
 	UINT8* m_pCbvDataBegin;
 	ID3D12DescriptorHeap* m_cbvHeap;
+	ID3D12CommandAllocator* m_commandAllocator;
+
 };
 

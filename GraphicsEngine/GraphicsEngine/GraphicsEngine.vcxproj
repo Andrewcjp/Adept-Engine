@@ -242,6 +242,8 @@
     <ClInclude Include="Core\Components\ColliderComponent.h" />
     <ClInclude Include="Core\Components\CompoenentRegistry.h" />
     <ClInclude Include="Core\Utils\WindowsHelper.h" />
+    <ClInclude Include="D3D12\D3D12CBV.h" />
+    <ClInclude Include="D3D12\D3D12Framebuffer.h" />
     <ClInclude Include="D3D12\D3D12Mesh.h" />
     <ClInclude Include="D3D12\D3D12Shader.h" />
     <ClInclude Include="D3D12\D3D12Texture.h" />
@@ -370,6 +372,8 @@
     <ClCompile Include="Core\Components\MeshRendererComponent.cpp" />
     <ClCompile Include="Core\Transform.cpp" />
     <ClCompile Include="Core\Utils\WindowsHelper.cpp" />
+    <ClCompile Include="D3D12\D3D12CBV.cpp" />
+    <ClCompile Include="D3D12\D3D12Framebuffer.cpp" />
     <ClCompile Include="D3D12\D3D12Mesh.cpp" />
     <ClCompile Include="D3D12\D3D12Shader.cpp" />
     <ClCompile Include="D3D12\D3D12Texture.cpp" />

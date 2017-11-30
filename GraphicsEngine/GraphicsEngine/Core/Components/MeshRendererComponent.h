@@ -6,23 +6,27 @@ class MeshRendererComponent :
 	public Component
 {
 public:
-	
+
 	MeshRendererComponent();
 	MeshRendererComponent(Renderable * Mesh, Material * materal);
 	virtual ~MeshRendererComponent();
 	void SetUpMesh(Renderable * Mesh, Material * materal);
+	void Render(bool DepthOnly, CommandListDef * list = nullptr);
 	void Render(bool DepthOnly);
 	Material* GetMaterial();
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props);
-
+	Renderable* GetMesh()
+	{
+		return m_mesh;
+	}
 private:
 	Renderable* m_mesh;
 	Material* m_mat;
-	
+
 	// Inherited via Component
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
-	
+
 
 	// Inherited via Component
 	virtual void InitComponent() override;

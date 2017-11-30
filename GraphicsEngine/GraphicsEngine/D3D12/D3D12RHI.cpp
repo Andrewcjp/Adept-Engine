@@ -153,7 +153,7 @@ void D3D12RHI::LoadPipeLine()
 void D3D12RHI::LoadAssets()
 {
 
-	
+
 	ID3DBlob* vertexShader;
 	ID3DBlob* pixelShader;
 	// Create the pipeline state, which includes compiling and loading shaders.
@@ -201,8 +201,11 @@ void D3D12RHI::LoadAssets()
 
 	testshader->m_Shader = testshader->CreatePipelineShader(inputElementDescs, _countof(inputElementDescs), vertexShader, pixelShader);
 	testshader->InitCBV();
+
 	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_SetupCommandList)));
+
 	texture = new D3D12Texture();
+	OtherTex = new D3D12Texture("bricks2.jpg");
 
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
@@ -237,9 +240,9 @@ void D3D12RHI::LoadAssets()
 	m_constantBufferData.V = glm::lookAtLH(eye, at, up);
 
 	//exec setup command list
-	ThrowIfFailed(m_SetupCommandList->Close());
-	ID3D12CommandList* ppCommandLists[] = { m_SetupCommandList };
-	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	//ThrowIfFailed(m_SetupCommandList->Close());
+	//ID3D12CommandList* ppCommandLists[] = { m_SetupCommandList };
+	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	// Create synchronization objects and wait until assets have been uploaded to the GPU.
 	{
 		ThrowIfFailed(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
@@ -258,30 +261,30 @@ void D3D12RHI::LoadAssets()
 		// complete before continuing.
 		WaitForGpu();
 	}
-	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_commandList)));
-	ThrowIfFailed(m_commandList->Close());
+
+}
+
+void D3D12RHI::ExecSetUpList()
+{
+	ThrowIfFailed(m_SetupCommandList->Close());
+	ID3D12CommandList* ppCommandLists[] = { m_SetupCommandList };
+	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+
+	/*ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_commandList)));
+	ThrowIfFailed(m_commandList->Close());*/
 }
 void D3D12RHI::InitliseDefaults()
 {
 
 }
-void D3D12RHI::OnRender()
+void D3D12RHI::ExecList(CommandListDef* list)
 {
-	const float translationSpeed = 0.001f;
-	const float offsetBounds = 1.25f;
-
-	//m_constantBufferData.offset.x += translationSpeed;
-	//if (m_constantBufferData.offset.x > offsetBounds)
-	//{
-	//	m_constantBufferData.offset.x = -offsetBounds;
-	//}
-	////	memcpy(m_pCbvDataBegin, &m_constantBufferData, sizeof(m_constantBufferData));
-
-	//testshader->UpdateCBV(m_constantBufferData);
-
-	// Record all the commands we need to render the scene into the command list.
-	PopulateCommandList();
-
+	ID3D12CommandList* ppCommandLists[] = { list };
+	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+}
+void D3D12RHI::PresentFrame()
+{
 	// Execute the command list.
 	ID3D12CommandList* ppCommandLists[] = { m_commandList };
 	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -300,13 +303,13 @@ void D3D12RHI::OnDestroy()
 
 	CloseHandle(m_fenceEvent);
 }
-void D3D12RHI::ClearRenderTarget(ID3D12GraphicsCommandList* List)
+void D3D12RHI::ClearRenderTarget(ID3D12GraphicsCommandList* MainList)
 {
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	List->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	List->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	MainList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+	MainList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 
 }
@@ -316,53 +319,69 @@ void D3D12RHI::RenderToScreen(ID3D12GraphicsCommandList* list)
 	list->RSSetScissorRects(1, &m_scissorRect);
 }
 
-void D3D12RHI::PopulateCommandList()
+void D3D12RHI::PreFrameSetUp(ID3D12GraphicsCommandList* list, D3D12Shader* Shader)
 {
 	// Command list allocators can only be reset when the associated 
 	// command lists have finished execution on the GPU; apps should use 
 	// fences to determine GPU execution progress.
-	ThrowIfFailed(m_commandAllocator->Reset());
+	ThrowIfFailed(Shader->GetCommandAllocator()->Reset());
 
 	// However, when ExecuteCommandList() is called on a particular command 
 	// list, that command list can then be reset at any time and must be before 
 	// re-recording.
-	ThrowIfFailed(m_commandList->Reset(m_commandAllocator, testshader->m_Shader.m_pipelineState));
-
-	//CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	//m_commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0, nullptr);
+	ThrowIfFailed(list->Reset(Shader->GetCommandAllocator(), Shader->m_Shader.m_pipelineState));
 
 	// Set necessary state.
-	m_commandList->SetGraphicsRootSignature(testshader->m_Shader.m_rootSignature);
+	list->SetGraphicsRootSignature(Shader->m_Shader.m_rootSignature);
+	
 
-
-
-	RenderToScreen(m_commandList);
+	//m_constantBufferData.M = glm::translate(glm::vec3(0, -5, 0));
+	//testshader->UpdateCBV(m_constantBufferData);
+	//testshader->PushCBVToGPU(m_commandList, 0);
+}
+void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
+{
+	RenderToScreen(list);
 	// Indicate that the back buffer will be used as a render target.
-	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-
-	ClearRenderTarget(m_commandList);
-	// Record commands.
-	texture->Bind(m_commandList);
-
-	m_constantBufferData.M = glm::translate(glm::vec3(0, 0, 0));
-	testshader->UpdateCBV(m_constantBufferData);
-	testshader->PushCBVToGPU(m_commandList, 0);
-	testmesh->Render(m_commandList);
-
-	texture->Bind(m_commandList);
-	m_constantBufferData.M = glm::translate(glm::vec3(0, 5, 0));
-	testshader->UpdateCBV(m_constantBufferData, 1);
-	testshader->PushCBVToGPU(m_commandList,1);
-	testmesh->Render(m_commandList);
-	// Indicate that the back buffer will now be used to present.
-	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-	ThrowIfFailed(m_commandList->Close());
+	list->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
+void D3D12RHI::PopulateCommandList()
+{
+	//PreFrameSetUp(m_commandList);
 
+	//ClearRenderTarget(m_commandList);
+	// Record commands.
+	//texture->Bind(m_commandList);
+	//m_constantBufferData.M = glm::translate(glm::vec3(0, -5, 0));
+	//testshader->UpdateCBV(m_constantBufferData);
+	//testshader->PushCBVToGPU(m_commandList, 0);
+	//testmesh->Render(m_commandList);
+
+
+//	texture->Bind(m_commandList);
+	m_constantBufferData.M = glm::translate(glm::vec3(0, 0, 0));
+	testshader->UpdateCBV(m_constantBufferData, 1);
+	testshader->PushCBVToGPU(m_commandList, 1);
+	testmesh->Render(m_commandList);
+
+	OtherTex->Bind(m_commandList);
+	m_constantBufferData.M = glm::translate(glm::vec3(0, 5, 0));
+	testshader->UpdateCBV(m_constantBufferData, 2);
+	testshader->PushCBVToGPU(m_commandList, 2);
+	testmesh->Render(m_commandList);
+
+
+}
+void D3D12RHI::PostFrame(ID3D12GraphicsCommandList* list)
+{
+	// Indicate that the back buffer will now be used to present.
+	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+	ThrowIfFailed(list->Close());
+}
 void D3D12RHI::WaitForPreviousFrame()
 {
 	// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE.

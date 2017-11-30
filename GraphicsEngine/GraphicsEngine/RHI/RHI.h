@@ -10,6 +10,7 @@
 #else 
 #define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){ printf("D3D ensure failed: %d");  }
 #endif
+
 using namespace DirectX;
 class BaseTexture;
 class Renderable;

@@ -31,7 +31,7 @@ void D3D11FrameBuffer::BindToTextureUnit(int unit)
 	RHI::GetD3DContext()->PSSetShaderResources(0, 1, &shaderview);
 }
 
-void D3D11FrameBuffer::BindBufferAsRenderTarget()
+void D3D11FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 {
 	//improtant
 	D3D11_VIEWPORT viewport;
@@ -56,7 +56,7 @@ void D3D11FrameBuffer::UnBind()
 	RHI::GetD3DContext()->PSSetShaderResources(0, 1, tab);
 }
 
-void D3D11FrameBuffer::ClearBuffer()
+void D3D11FrameBuffer::ClearBuffer(CommandListDef * list)
 {
 	float clearcolour[4] = { 0.0f, 0.5f, 0.0f, 1.0f };
 	if (View != nullptr)

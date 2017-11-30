@@ -37,7 +37,7 @@ D3D11Mesh::~D3D11Mesh()
 	if (m_vertexBuffer) m_vertexBuffer->Release();
 }
 
-void D3D11Mesh::Render()
+void D3D11Mesh::Render(CommandListDef* list)
 {
 	/*ID3D11DeviceContext* pContext = m_shader->GetContext();
 	ID3D11ShaderResourceView* ptexRv = dynamic_cast<D3D11Texture*>(m_tex)->m_textureRV;*/

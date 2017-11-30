@@ -24,7 +24,7 @@ class D3D11Mesh :	public Renderable
 
 		void LoadAndBuildMeshFromOBJFile(LPCWSTR filename, D3D11ShaderProgram* shader);
 
-		void Render();
+		void Render(CommandListDef* list = nullptr);
 
 		void Render(ID3D11DeviceContext * pContext);
 

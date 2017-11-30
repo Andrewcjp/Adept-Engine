@@ -10,7 +10,7 @@ class Transform;
 class Camera
 {
 public:
-	Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar, bool LH = false);
+	Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar);
 	bool UseLeftHanded = false;
 	float maxz = 50;
 	float zNear = 0.0f;

@@ -28,6 +28,6 @@ class D3D11Cube : public Renderable
 						D3D11Cube(D3D11ShaderProgram* shader);
 						~D3D11Cube();
 		
-		void			Render();
+		void			Render(CommandListDef* list = nullptr);
 };
 #endif

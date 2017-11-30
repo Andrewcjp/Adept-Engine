@@ -69,7 +69,7 @@ void OGLFrameBuffer::BindToTextureUnit(int unit)
 	GPUStateCache::UpdateUnitState(unit, BufferTexture->m_syshandle);
 }
 
-void OGLFrameBuffer::BindBufferAsRenderTarget()
+void OGLFrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 {
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBuffer);
 	glViewport(0, 0, m_width, m_height);
@@ -80,7 +80,7 @@ void OGLFrameBuffer::UnBind()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void OGLFrameBuffer::ClearBuffer()
+void OGLFrameBuffer::ClearBuffer(CommandListDef * list)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

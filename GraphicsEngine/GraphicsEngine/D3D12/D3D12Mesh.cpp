@@ -5,7 +5,15 @@
 #include "../Core/Assets/OBJFileReader.h"
 D3D12Mesh::D3D12Mesh()
 {
-	CreateVertexBuffer();
+	CreateVertexBuffer(L"C:\\Users\\AANdr\\Dropbox\\Engine\\Engine\\Repo\\GraphicsEngine\\x64\\asset\\models\\House.obj");
+}
+
+D3D12Mesh::D3D12Mesh(const char * file)
+{
+	std::string filename = file;
+	std::wstring newfile((int)filename.size(), 0);
+	MultiByteToWideChar(CP_UTF8, 0, &filename[0], (int)filename.size(), &newfile[0], (int)filename.size());
+	CreateVertexBuffer(newfile.c_str());
 }
 
 
@@ -13,17 +21,14 @@ D3D12Mesh::~D3D12Mesh()
 {
 }
 
-void D3D12Mesh::Render()
-{
 
-}
-void D3D12Mesh::Render(ID3D12GraphicsCommandList * list)
+void D3D12Mesh::Render(CommandListDef * list)
 {
 	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	list->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 	list->DrawInstanced(m_numtriangles*3, 1, 0, 0);
 }
-void D3D12Mesh::CreateVertexBuffer()
+void D3D12Mesh::CreateVertexBuffer(LPCWSTR name)
 {
 #define tri 0
 	// Create the vertex buffer.
@@ -41,7 +46,8 @@ void D3D12Mesh::CreateVertexBuffer()
 		m_numtriangles = 1;
 #else
 		Triangle* mesh;
-		m_numtriangles = importOBJMesh(L"C:\\Users\\AANdr\\Dropbox\\Engine\\Engine\\Repo\\GraphicsEngine\\x64\\asset\\models\\House.obj", &mesh);
+		//L"C:\\Users\\AANdr\\Dropbox\\Engine\\Engine\\Repo\\GraphicsEngine\\x64\\asset\\models\\House.obj"
+		m_numtriangles = importOBJMesh(name, &mesh);
 		const UINT vertexBufferSize = sizeof(OGLVertex)*m_numtriangles * 3;
 #endif
 		

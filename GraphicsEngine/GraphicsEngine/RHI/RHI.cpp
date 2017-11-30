@@ -16,6 +16,10 @@
 #include "D3D11/D3D11FrameBuffer.h"
 #include "../Rendering/Core/GPUStateCache.h"
 #include "../Core/Engine.h"
+#include "../D3D12/D3D12Texture.h"
+#include "../D3D12/D3D12Mesh.h"
+#include "../D3D12/D3D12Shader.h"
+#include "../D3D12/D3D12Framebuffer.h"
 RHI* RHI::instance = nullptr;
 RHI::RHI()
 {
@@ -55,6 +59,11 @@ BaseTexture * RHI::CreateTexture(const char * path, bool istga)
 #if BUILD_D3D11
 	case RenderSystemD3D11:
 		return new D3D11Texture(path, istga);
+		break;
+#endif
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		return new D3D12Texture(path);
 		break;
 #endif
 	}
@@ -121,6 +130,11 @@ Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool
 		return new D3D11Mesh(accpath.c_str(), program);
 		break;
 #endif
+#if BUILD_D3D11
+	case RenderSystemD3D12:
+		return new D3D12Mesh(accpath.c_str());
+		break;
+#endif
 	}
 	return nullptr;
 }
@@ -135,6 +149,11 @@ FrameBuffer * RHI::CreateFrameBuffer(int width, int height, float ratio, FrameBu
 #if BUILD_D3D11
 	case RenderSystemD3D11:
 		return new D3D11FrameBuffer(width, height, ratio, type);
+		break;
+#endif
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		return new D3D12FrameBuffer(width, height, ratio, type);
 		break;
 #endif
 	}
@@ -152,6 +171,11 @@ ShaderProgramBase * RHI::CreateShaderProgam()
 #if BUILD_D3D11
 	case RenderSystemD3D11:
 		return new D3D11ShaderProgram(instance->m_dxDev, instance->m_dxContext);
+		break;
+#endif
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		return new D3D12Shader();
 		break;
 #endif
 	}

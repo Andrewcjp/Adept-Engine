@@ -7,8 +7,17 @@ void Shader_Depth::INIT()
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->CreateShaderProgram();
-	m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("depthbasic_fs", SHADER_FRAGMENT);
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs_12", SHADER_VERTEX);
+		m_Shader->AttachAndCompileShaderFromFile("depthbasic_fs_12", SHADER_FRAGMENT);
+	}
+	else
+	{
+		m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs", SHADER_VERTEX);
+		m_Shader->AttachAndCompileShaderFromFile("depthbasic_fs", SHADER_FRAGMENT);
+	}
+
 	if (LoadGeomShader)
 	{
 		m_Shader->AttachAndCompileShaderFromFile("depthbasic_geo", SHADER_GEOMETRY);

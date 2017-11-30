@@ -111,7 +111,7 @@ void D3D11Cube::InitUnitCube(D3D11ShaderProgram* shader)
 	pDevice->CreateBuffer( &bd, &initData, &m_indexBuffer );
 }
 	
-void D3D11Cube::Render()
+void D3D11Cube::Render(CommandListDef* list)
 {
 	ID3D11DeviceContext* pContext = m_shader->GetContext();
 	//ID3D11ShaderResourceView* ptexRv = dynamic_cast<D3D11Texture*>(m_tex)->m_textureRV;

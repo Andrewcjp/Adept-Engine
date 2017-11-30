@@ -20,7 +20,8 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &Indexbuffer);
 }
 
-void Mesh::Render()
+
+void Mesh::Render(CommandListDef * list)
 {
 
 

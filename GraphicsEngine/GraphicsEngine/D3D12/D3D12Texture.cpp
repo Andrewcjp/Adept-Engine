@@ -3,7 +3,12 @@
 #include "D3D12RHI.h"
 #include "../Core/Assets/ImageIO.h"
 #include "../Core/Engine.h"
-D3D12Texture::D3D12Texture()
+#include "../Core/Assets/ImageLoader.h"
+D3D12Texture::D3D12Texture() :D3D12Texture("house_diffuse.tga")
+{
+
+}
+D3D12Texture::D3D12Texture(std::string name)
 {
 #if 1
 	unsigned char *buffer = NULL;
@@ -13,11 +18,20 @@ D3D12Texture::D3D12Texture()
 	int nChannels;
 	std::string rpath = Engine::GetRootDir();
 	rpath.append("\\asset\\texture\\");
-	rpath.append("house_diffuse.tga");
-	if (ImageIO::LoadTGA(rpath.c_str(), &buffer, &width, &height, &bpp, &nChannels) != E_IMAGEIO_SUCCESS)
+	rpath.append(name.c_str());
+	//rpath.append("house_diffuse.tga");
+	if (rpath.find(".tga") == -1)
 	{
-		return;
+		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, rpath.c_str());
 	}
+	else
+	{
+		if (ImageIO::LoadTGA(rpath.c_str(), &buffer, &width, &height, &bpp, &nChannels) != E_IMAGEIO_SUCCESS)
+		{
+			return;
+		}
+	}
+
 	CreateTextureFromData(buffer, 0, width, height, 4);
 #else
 	CreateTextureFromData(GenerateCheckerBoardTextureData(), 0, TextureWidth, TextureHeight, TexturePixelSize);
@@ -74,7 +88,7 @@ void D3D12Texture::Bind(int unit)
 {
 
 }
-void D3D12Texture::Bind(ID3D12GraphicsCommandList* list)
+void D3D12Texture::Bind(CommandListDef* list)
 {
 	ID3D12DescriptorHeap* ppHeaps[] = { m_srvHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);

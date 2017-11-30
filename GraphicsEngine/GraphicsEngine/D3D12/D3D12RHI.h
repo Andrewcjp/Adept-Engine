@@ -24,13 +24,17 @@ public:
 	~D3D12RHI();
 	void InitContext();
 	void DestroyContext();
-	void OnRender();
+	void PresentFrame();
 	void OnDestroy();
-	void ClearRenderTarget(ID3D12GraphicsCommandList * List);
+	void ClearRenderTarget(ID3D12GraphicsCommandList * MainList);
 	void RenderToScreen(ID3D12GraphicsCommandList * list);
+	void PreFrameSetUp(ID3D12GraphicsCommandList * list, D3D12Shader * Shader);
+	void PreFrameSwap(ID3D12GraphicsCommandList* list);
 	void LoadPipeLine();
 	void LoadAssets();
+	void ExecSetUpList();
 	void InitliseDefaults();
+	void ExecList(CommandListDef * list);
 	/*struct SceneConstantBuffer
 	{
 		DirectX::XMFLOAT4 offset;
@@ -41,6 +45,7 @@ public:
 	D3D12Shader* testshader;
 	D3D12Mesh* testmesh;
 	void PopulateCommandList();
+	void PostFrame(ID3D12GraphicsCommandList * list);
 	void WaitForPreviousFrame();
 	void WaitForGpu();
 	void MoveToNextFrame();
@@ -69,6 +74,7 @@ public:
 	ID3D12DescriptorHeap* m_cbvHeap;
 
 	D3D12Texture* texture;
+	D3D12Texture* OtherTex;
 	//ID3D12DescriptorHeap* m_srvHeap;
 	//ID3D12Resource* m_texture;
 	/*ID3D12Resource* m_vertexBuffer;

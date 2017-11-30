@@ -59,20 +59,31 @@ bool  GameObject::CheckCulled(float Distance, float angle)
 	}
 	return false;
 }
-void GameObject::Render(bool ignoremat)
-{
-	/*if (m_mat != NULL && ignoremat == false)
-	{
-		m_mat->SetMaterialActive();
-	}
 
-	m_mesh->Render();*/
+//temp
+
+Renderable * GameObject::GetMesh()
+{
 	if (m_MeshRenderer != nullptr)
 	{
-		m_MeshRenderer->Render(ignoremat);
+		return m_MeshRenderer->GetMesh();
+	}
+	return nullptr;
+}
+void GameObject::Render(bool ignoremat)
+{
+	if (m_MeshRenderer != nullptr)
+	{
+		m_MeshRenderer->Render(ignoremat, nullptr);
 	}
 }
-
+void GameObject::Render(bool ignoremat, CommandListDef* list)
+{
+	if (m_MeshRenderer != nullptr)
+	{
+		m_MeshRenderer->Render(ignoremat, list);
+	}
+}
 void GameObject::FixedUpdate(float delta)
 {
 	if (SelectionShape != nullptr)

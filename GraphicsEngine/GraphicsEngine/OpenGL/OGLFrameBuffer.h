@@ -15,13 +15,13 @@ public:
 
 	void BindToTextureUnit(int unit) override;
 
-	void BindBufferAsRenderTarget() override;
+	void BindBufferAsRenderTarget(CommandListDef * list = nullptr) override;
 
 	void UnBind() override;
 
 
 	// Inherited via FrameBuffer
-	virtual void ClearBuffer() override;
+	virtual void ClearBuffer(CommandListDef * list = nullptr) override;
 	int Samples = 4;
 	bool MultiSample = false;
 	GLuint multisampledFBO;

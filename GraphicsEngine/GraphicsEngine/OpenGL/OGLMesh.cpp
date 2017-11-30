@@ -31,7 +31,7 @@ OGLMesh::~OGLMesh()
 	glDeleteBuffers(1, &m_vbo_verts);
 }
 
-void OGLMesh::Render()
+void OGLMesh::Render(CommandListDef* list)
 {
 	/*unsigned int texHandle = dynamic_cast<OGLTexture*>(m_tex)->m_syshandle;
 	//texture now handled elseware

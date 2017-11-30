@@ -2,15 +2,18 @@
 #include "../RHI/BaseTexture.h"
 #include <d3d12.h>
 #include <vector>
+
+#include "../EngineGlobals.h"
 class D3D12Texture :
 	public BaseTexture
 {
 public:
 	D3D12Texture();
+	D3D12Texture(std::string name);
 	~D3D12Texture();
 	void CreateTexture();
 	virtual void Bind(int unit) override;
-	void Bind(ID3D12GraphicsCommandList * list);
+	void Bind(CommandListDef * list) override;
 	virtual void FreeTexture() override;
 	virtual void SetTextureID(int id) override;
 	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) override;

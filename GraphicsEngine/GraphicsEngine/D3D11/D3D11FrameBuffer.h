@@ -16,9 +16,9 @@ public:
 	void CreateBuffer();
 	// Inherited via FrameBuffer
 	virtual void BindToTextureUnit(int unit = 0) override;
-	virtual void BindBufferAsRenderTarget() override;
+	virtual void BindBufferAsRenderTarget(CommandListDef * list = nullptr) override;
 	virtual void UnBind() override;
-	void ClearBuffer()override;
+	void ClearBuffer(CommandListDef * list = nullptr)override;
 	void CreateDepth();
 	void CreateRenderDepth();
 private:

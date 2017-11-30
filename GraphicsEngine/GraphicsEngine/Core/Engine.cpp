@@ -90,7 +90,7 @@ void Engine::CreateApplication(HINSTANCE hinst, LPSTR args, int nCmdShow)
 	}
 	else
 	{
-		CreateApplicationWindow(1280, 720, ERenderSystemType::RenderSystemD3D12);
+		CreateApplicationWindow(1280, 720,(0) ? ERenderSystemType::RenderSystemD3D12: ERenderSystemType::RenderSystemOGL);
 	}
 
 

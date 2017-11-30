@@ -29,13 +29,13 @@ void MeshRendererComponent::SetUpMesh(Renderable * Mesh, Material * materal)
 	m_mat = materal;
 }
 
-void MeshRendererComponent::Render(bool DepthOnly)
+void MeshRendererComponent::Render(bool DepthOnly, CommandListDef* list)
 {
 	if (m_mat != nullptr && DepthOnly == false)
 	{
-		m_mat->SetMaterialActive();
+		m_mat->SetMaterialActive(list);
 	}
-	m_mesh->Render();
+	m_mesh->Render(list);
 }
 
 Material *MeshRendererComponent::GetMaterial()
@@ -103,7 +103,7 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 		{
 			std::string path = (it->value.GetString());
 			if (path.length() != 0)
-			{				
+			{
 				if (m_mat != nullptr)
 				{
 					m_mat->NormalMap = RHI::CreateTexture(path.c_str());

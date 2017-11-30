@@ -1,0 +1,57 @@
+#include "stdafx.h"
+#include "D3D12CBV.h"
+#include "D3D12RHI.h"
+
+D3D12CBV::D3D12CBV()
+{
+}
+
+
+D3D12CBV::~D3D12CBV()
+{
+}
+void D3D12CBV::SetDescriptorHeaps(CommandListDef* list)
+{
+	//assert(offset < InitalBufferCount && "Out of Buffers");
+	ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap };
+	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+	
+}
+void D3D12CBV::SetGpuView(CommandListDef * list, int offset, ShaderRegisterSlot slot)
+{
+	CD3DX12_GPU_DESCRIPTOR_HANDLE  cbvSrvHandle(m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
+	list->SetGraphicsRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));
+}
+
+void D3D12CBV::InitCBV(int StructSize, int Elementcount)
+{
+	InitalBufferCount = Elementcount;
+	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
+	cbvHeapDesc.NumDescriptors = 1;
+	cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap)));
+
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(InitalBufferCount * 256),//1024 * 64
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&m_constantBuffer)));
+
+	// Describe and create a constant buffer view.
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
+	//int test = sizeof(SceneConstantBuffer);
+	CB_Size = (StructSize + 255) & ~255;
+	cbvDesc.SizeInBytes = CB_Size;	// CB size is required to be 256-byte aligned.
+	D3D12RHI::GetDevice()->CreateConstantBufferView(&cbvDesc, m_cbvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	// Map and initialize the constant buffer. We don't unmap this until the
+	// app closes. Keeping things mapped for the lifetime of the resource is okay.
+	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
+	ThrowIfFailed(m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
+	//memcpy(m_pCbvDataBegin, &m_constantBufferData, sizeof(m_constantBufferData));
+}

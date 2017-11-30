@@ -26,7 +26,7 @@ public:
 	D3D11Plane(D3D11ShaderProgram* shader);
 	~D3D11Plane();
 
-	void			Render();
+	void			Render(CommandListDef* list = nullptr);
 };
 
 #endif

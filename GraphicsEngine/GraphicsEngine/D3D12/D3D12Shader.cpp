@@ -3,8 +3,10 @@
 #include "../Core/Engine.h"
 #include <iostream>
 #include "D3D12RHI.h"
+#include "D3D12CBV.h"
 D3D12Shader::D3D12Shader()
 {
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 }
 
 
@@ -59,13 +61,13 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 
 	if (type == SHADER_VERTEX)
 	{
-		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "vs_4_0",
+		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "vs_5_0",
 			compileFlags, 0, &m_vsBlob, &pErrorBlob);
 
 	}
 	else if (type == SHADER_FRAGMENT)
 	{
-		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "ps_4_0",
+		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "ps_5_0",
 			compileFlags, 0, &m_fsBlob, &pErrorBlob);
 	}
 
@@ -115,7 +117,7 @@ void D3D12Shader::ActivateShaderProgram()
 }
 void D3D12Shader::ActivateShaderProgram(ID3D12GraphicsCommandList* list)
 {
-	ThrowIfFailed(list->Reset(D3D12RHI::Instance->m_commandAllocator, m_Shader.m_pipelineState));
+	ThrowIfFailed(list->Reset(m_commandAllocator, m_Shader.m_pipelineState));
 }
 void D3D12Shader::DeactivateShaderProgram()
 {
@@ -132,12 +134,12 @@ void D3D12Shader::SetAttrib4Float(float f1, float f2, float f3, float f4, const 
 void D3D12Shader::BindAttributeLocation(int index, const char * param_name)
 {
 }
-ID3D12GraphicsCommandList* D3D12Shader::CreateCommandList()
-{
-	ID3D12GraphicsCommandList* List;
-	ThrowIfFailed(D3D12RHI::Instance->m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12RHI::Instance->m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&List)));
-	return  List;
-}
+//ID3D12GraphicsCommandList* D3D12Shader::CreateCommandList()
+//{
+//	ID3D12GraphicsCommandList* List;
+//	ThrowIfFailed(D3D12RHI::Instance->m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12RHI::Instance->m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&List)));
+//	return  List;
+//}
 D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ID3DBlob * vsBlob, ID3DBlob * fsBlob)
 {
 	PiplineShader output;
@@ -153,12 +155,16 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT
 
 	CD3DX12_DESCRIPTOR_RANGE1 ranges[2];
 	ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-	ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+	ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 4, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
 
-	CD3DX12_ROOT_PARAMETER1 rootParameters[2];
+	CD3DX12_ROOT_PARAMETER1 rootParameters[5];
 	rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_PIXEL);
 	//	rootParameters[1].InitAsDescriptorTable(1, &ranges[1], D3D12_SHADER_VISIBILITY_VERTEX);
 	rootParameters[1].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+	rootParameters[2].InitAsConstantBufferView(1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+	rootParameters[3].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+	rootParameters[4].InitAsDescriptorTable(1, &ranges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+	//rootParameters[3].InitAsShaderResourceView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
@@ -181,7 +187,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT
 	sampler.RegisterSpace = 0;
 	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(2, rootParameters, 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 	/*	rootSignatureDesc.Init_1_1(1, &rootParameters[0], 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 	rootSignatureDesc.Init_1_1(1, &rootParameters[1], 0, nullptr, rootSignatureFlags);*/
 	ID3DBlob* signature;
@@ -221,45 +227,38 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT
 
 void D3D12Shader::PushCBVToGPU(ID3D12GraphicsCommandList * list, int offset)
 {
-	assert(offset > InitalBufferCount && "Out of Buffers");
-	ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap };
-	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
-	CD3DX12_GPU_DESCRIPTOR_HANDLE  cbvSrvHandle(m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
-	list->SetGraphicsRootConstantBufferView(1, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));
+	CBV->SetDescriptorHeaps(list);
+	CBV->SetGpuView(list, offset);
 }
-void D3D12Shader::UpdateCBV(SceneConstantBuffer buffer, int offset)
+void D3D12Shader::UpdateCBV(SceneConstantBuffer& buffer, int offset)
 {
-	
-	memcpy(m_pCbvDataBegin + (offset * CB_Size), &buffer, sizeof(buffer));
+	CBV->UpdateCBV(buffer, offset);
 }
 void D3D12Shader::InitCBV()
 {
-	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-	cbvHeapDesc.NumDescriptors = 1;
-	cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap)));
+	CBV = new D3D12CBV();
+	CBV->InitCBV(sizeof(SceneConstantBuffer), 10);
+}
 
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(InitalBufferCount * 256),//1024 * 64
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&m_constantBuffer)));
+CommandListDef * D3D12Shader::CreateShaderCommandList()
+{
+	if (m_Shader.m_pipelineState == nullptr)
+	{
+		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		};
+		m_Shader = CreatePipelineShader(inputElementDescs, _countof(inputElementDescs), m_vsBlob, m_fsBlob);
+	}
+	CommandListDef* newlist = nullptr;
+	ThrowIfFailed(D3D12RHI::Instance->m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
+	ThrowIfFailed(newlist->Close());
+	return newlist;
+}
 
-	// Describe and create a constant buffer view.
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
-	CB_Size = (sizeof(SceneConstantBuffer) + 255) & ~255;
-	cbvDesc.SizeInBytes = CB_Size;	// CB size is required to be 256-byte aligned.
-	D3D12RHI::GetDevice()->CreateConstantBufferView(&cbvDesc, m_cbvHeap->GetCPUDescriptorHandleForHeapStart());
-
-	// Map and initialize the constant buffer. We don't unmap this until the
-	// app closes. Keeping things mapped for the lifetime of the resource is okay.
-	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
-	ThrowIfFailed(m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
-	memcpy(m_pCbvDataBegin, &m_constantBufferData, sizeof(m_constantBufferData));
-	//map a range of buffers to 
+ID3D12CommandAllocator* D3D12Shader::GetCommandAllocator()
+{
+	return m_commandAllocator;
 }

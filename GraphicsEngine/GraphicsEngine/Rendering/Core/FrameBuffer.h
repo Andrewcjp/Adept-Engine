@@ -2,6 +2,7 @@
 #include <GLEW\GL\glew.h>
 #include "OpenGL\OGLTexture.h"
 #include <iostream>
+#include "../EngineGlobals.h"
 class FrameBuffer
 {
 public:
@@ -12,12 +13,12 @@ public:
 	
 	virtual ~FrameBuffer();
 	virtual void BindToTextureUnit(int unit = 0) = 0;
-	virtual void BindBufferAsRenderTarget() = 0;
+	virtual void BindBufferAsRenderTarget(CommandListDef* list = nullptr) = 0;
 	int GetWidth() const { return m_width; }
 	int GetHeight() const { return m_height; }
 	virtual void UnBind() = 0;
 	OGLTexture* GetRenderTexture() { return BufferTexture; }
-	virtual void ClearBuffer() = 0;
+	virtual void ClearBuffer(CommandListDef* list = nullptr) = 0;
 protected:
 	virtual void Cleanup();
 	FrameBufferType m_ftype;

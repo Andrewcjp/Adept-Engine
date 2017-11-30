@@ -9,6 +9,7 @@ public:
 
 	}
 	~Material();
+	void SetMaterialActive(CommandListDef * list = nullptr);
 	BaseTexture* Diffusetexture;
 	BaseTexture* Metallictex;
 	BaseTexture* glosstex;

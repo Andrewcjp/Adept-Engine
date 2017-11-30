@@ -22,7 +22,7 @@ public:
 
 	void LoadAndBuildMeshFromOBJFile(LPCWSTR filename);
 
-	void Render();
+	void Render(CommandListDef* list = nullptr);
 
 	void RenderInstance(int number);
 

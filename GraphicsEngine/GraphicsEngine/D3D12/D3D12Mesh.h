@@ -2,16 +2,18 @@
 #include "../Rendering/Core/Renderable.h"
 #include <DirectXMath.h>
 #include <d3d12.h>
+#include "../EngineGlobals.h"
 class D3D12Mesh :public Renderable
 {
 public:
 	D3D12Mesh();
+	D3D12Mesh(const char* file);
 	virtual ~D3D12Mesh();
 
 	// Inherited via Renderable
-	virtual void Render() override;
-	void Render(ID3D12GraphicsCommandList* list);
-	void CreateVertexBuffer();
+	//virtual void Render(CommandListDef* list = nullptr) override;
+	void Render(CommandListDef* list)override;
+	void CreateVertexBuffer(LPCWSTR name);
 private:
 	struct Vertex
 	{

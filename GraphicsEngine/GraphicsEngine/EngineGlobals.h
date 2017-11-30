@@ -9,7 +9,7 @@
 #define NO_GEN_CONTEXT 0
 #define BUILD_D3D11 1
 #define BUILD_OPENGL 1
-#define BUILD_D3D12 0
+#define BUILD_D3D12 1
 #define BUILD_Vulkan 0
 
 #ifdef BUILD_GAME
@@ -24,7 +24,11 @@ enum ERenderSystemType
 	RenderSystemD3D12,
 	RenderSystemVulkan
 };
+#if BUILD_D3D12
+#define NAME_D3D12_OBJECT(x) SetName(x, L#x)
+typedef struct ID3D12GraphicsCommandList CommandListDef;
 
+#endif
 /*
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "glew32.lib")

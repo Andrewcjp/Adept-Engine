@@ -14,7 +14,7 @@ public:
 	Mesh();
 	Mesh(std::string filename);
 	~Mesh();
-	void Render() override;
+	void Render(CommandListDef* list = nullptr) override;
 	void Init(Vertex * verts, int vertsize, int * Indicies, int indexsize);
 	void LoadMeshFromFile(std::string filename);
 private:

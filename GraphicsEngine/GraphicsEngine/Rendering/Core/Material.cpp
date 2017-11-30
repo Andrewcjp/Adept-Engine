@@ -20,12 +20,20 @@ Material::~Material()
 	}
 }
 
-void Material::SetMaterialActive()
+void Material::SetMaterialActive(CommandListDef* list)
 {
 	
 	if (Diffusetexture != nullptr)
 	{
-		Diffusetexture->Bind(ALBEDOMAP);
+		if (list != nullptr)
+		{
+			Diffusetexture->Bind(list);
+		}
+		else
+		{
+			Diffusetexture->Bind(ALBEDOMAP);
+		}
+		
 	}
 	if (NormalMap != nullptr)
 	{

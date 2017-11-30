@@ -39,8 +39,10 @@ public:
 	void BeginPlay();
 	//todo: Depricate
 	void Render(bool ignore = false);
+	void Render(bool ignoremat, CommandListDef * list);
 	bool CheckCulled(float Distance, float angle);
-
+	//temp
+	Renderable* GetMesh();
 
 	//getters
 	[[deprecated("Use Mesh Comps")]]

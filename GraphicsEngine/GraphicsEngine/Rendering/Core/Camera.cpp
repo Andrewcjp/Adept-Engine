@@ -1,10 +1,9 @@
 #include "Camera.h"
 #include "Core/Transform.h"
 
-Camera::Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar, bool LH)
+Camera::Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar)
 {
-	UseLeftHanded = LH;
-	UseLeftHanded = (RHI::GetType() == RenderSystemD3D11);
+	UseLeftHanded = (RHI::GetType() == RenderSystemD3D11 || RHI::GetType() == RenderSystemD3D12);
 	this->m_pos = pos;
 	this->forward = glm::vec3(0.0f, 0.0f, 1.0f);
 	this->up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -21,11 +20,8 @@ Camera::Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar, 
 	}
 }
 
-//TODO: Deltatime
 glm::mat4 Camera::GetViewProjection()
 {
-	/*printf("%f  %f  %f  zn", forward.x, forward.y, forward.z);
-	system("cls");*/
 	return projection * GetView();
 }
 
@@ -56,9 +52,7 @@ glm::mat4 Camera::GetView()
 	if (linkedtransform != nullptr && isfree == false)
 	{
 		//	rotMat *= glm::toMat4(linkedtransform->GetQuatRot());//apply the transform rotation
-	}
-	//forward = TransformDirection(glm::vec3(1, 0, 0), rotMat);
-	//up = TransformDirection(glm::vec3(0, 1, 0), rotMat);
+	}	
 	glm::mat4 output;
 	if (UseLeftHanded)
 	{
@@ -68,11 +62,7 @@ glm::mat4 Camera::GetView()
 	{
 		output = glm::lookAt(GetPosition(), GetPosition() + forward, up);
 	}
-
-	//	output *= glm::toMat4(linkedtransform->GetQuatRot());
-		//	output *= glm::translate(m_pos);
-	//std::cout << glm::to_string(output) << std::endl;
-	return output;//glm::lookAt(glm::vec3(10,10,0), glm::vec3(0,0,0),glm::vec3(0,1,0));
+	return output;
 }
 glm::vec3 Camera::GetPosition()
 {

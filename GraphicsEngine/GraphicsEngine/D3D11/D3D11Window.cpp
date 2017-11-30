@@ -110,7 +110,7 @@ bool D3D11Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height,
 	m_height = height;
 
 	InitD3DDevice(m_hwnd);
-	m_Cam = new Camera(glm::vec3(0, 0, -10.0f), 70.0f, static_cast<float>(width / height), 0.1f, 1000.0f, true);
+	m_Cam = new Camera(glm::vec3(0, 0, -10.0f), 70.0f, static_cast<float>(width / height), 0.1f, 1000.0f);
 	m_input = new Input(m_Cam, NULL, m_hwnd, NULL);
 	Shadows = new ShadowRenderer();
 	dephtestbuffer = new D3D11FrameBuffer(1024, 1024, 1, FrameBuffer::Depth);

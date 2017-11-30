@@ -115,7 +115,7 @@ void D3D11Plane::InitUnitCube(D3D11ShaderProgram* shader)
 	//	pDevice->CreateBuffer(&bd, &initData, &m_indexBuffer);
 }
 
-void D3D11Plane::Render()
+void D3D11Plane::Render(CommandListDef* list)
 {
 	ID3D11DeviceContext* pContext = m_shader->GetContext();
 	//ID3D11ShaderResourceView* ptexRv = dynamic_cast<D3D11Texture*>(m_tex)->m_textureRV;

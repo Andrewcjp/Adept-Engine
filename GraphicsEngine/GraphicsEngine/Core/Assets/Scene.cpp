@@ -214,6 +214,7 @@ void Scene::RemoveLight(Light * Light)
 {
 	if (Lights.size() > 1)
 	{
+		//todo error!
 		Lights.erase(std::remove(Lights.begin(), Lights.end(), Light));
 	}
 	else

@@ -1,7 +1,7 @@
 #include "Shader_Main.h"
 #include "RHI/RHI.h"
 #include "../Rendering/Core/GPUStateCache.h"
-
+#include "../D3D12/D3D12CBV.h"
 Shader_Main::Shader_Main()
 {
 	//Initialise OGL shader
@@ -10,8 +10,17 @@ Shader_Main::Shader_Main()
 	m_Shader->CreateShaderProgram();
 	//m_Shader->AttachAndCompileShaderFromFile(L"../asset/shader/glsl/PBR.vert", SHADER_VERTEX);
 	//m_Shader->AttachAndCompileShaderFromFile(L"../asset/shader/glsl/PBR.frag", SHADER_FRAGMENT);
-	m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Main_fs", SHADER_FRAGMENT);
+
+	if (RHI::GetType() != RenderSystemD3D12)
+	{
+		m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);
+		m_Shader->AttachAndCompileShaderFromFile("Main_fs", SHADER_FRAGMENT);
+	}
+	else
+	{
+		m_Shader->AttachAndCompileShaderFromFile("Main_vs_12", SHADER_VERTEX);
+		m_Shader->AttachAndCompileShaderFromFile("Main_fs_12", SHADER_FRAGMENT);
+	}
 
 	m_Shader->BindAttributeLocation(0, "pos");
 	m_Shader->BindAttributeLocation(1, "Normal");
@@ -55,7 +64,21 @@ Shader_Main::Shader_Main()
 		////glNamedBufferData(ubo, sizeof(ConstBuffer), nullptr, GL_DYNAMIC_DRAW);
 		//glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
-	LightBuffers = new LightUniformBuffer[CurrentLightcount];
+	//LightBuffers = new LightUniformBuffer[CurrentLightcount];
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		for (int i = 0; i < MaxConstant; i++)
+		{
+			SceneBuffer.push_back(D3D12Shader::SceneConstantBuffer());
+		}
+		LightsBuffer.resize(4);
+		((D3D12Shader*)m_Shader)->InitCBV();
+		//((D3D12Shader*)m_Shader)->
+		LightCBV = new D3D12CBV();
+		LightCBV->InitCBV(sizeof(LightUniformBuffer), 4);
+		MVCBV = new D3D12CBV();
+		MVCBV->InitCBV(sizeof(MVBuffer), 1);
+	}
 }
 //NormalMap
 
@@ -224,4 +247,79 @@ void Shader_Main::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Lig
 	UBuffer.P = c->GetProjection();
 	RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &UBuffer, 0, 0);
 	RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
+}
+
+void Shader_Main::UpdateD3D12Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+{
+	//not used as Buffers are better!
+	// joking!
+	/*m_constantBufferData.M = t->GetModel();
+	m_constantBufferData.V = c->GetView();
+	m_constantBufferData.P = c->GetProjection();*/
+}
+
+void Shader_Main::ClearBuffer()
+{
+	SceneBuffer.empty();
+}
+void Shader_Main::UpdateCBV()
+{
+	for (int i = 0; i < MaxConstant; i++)
+	{
+		((D3D12Shader*)m_Shader)->UpdateCBV(SceneBuffer[i], i);
+	}
+}
+void Shader_Main::UpdateUnformBufferEntry(D3D12Shader::SceneConstantBuffer &bufer, int index)
+{
+	if (index < MaxConstant)
+	{
+		SceneBuffer[index] = bufer;
+	}
+}
+void Shader_Main::SetActiveIndex(CommandListDef* list, int index)
+{
+	MVCBV->SetDescriptorHeaps(list);
+
+	((D3D12Shader*)m_Shader)->PushCBVToGPU(list, index);
+}
+void Shader_Main::UpdateMV(Camera * c)
+{
+	MV_Buffer.V = c->GetView();
+	MV_Buffer.P = c->GetProjection();
+	MVCBV->UpdateCBV(MV_Buffer, 0);
+}
+D3D12Shader::SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(Transform * t, Camera * c)
+{
+	D3D12Shader::SceneConstantBuffer m_constantBufferData;
+	m_constantBufferData.M = t->GetModel();
+	m_constantBufferData.P = c->GetProjection();
+	m_constantBufferData.V = c->GetView();
+	//temp
+	/*MV_Buffer.V = c->GetView();
+	MV_Buffer.P = c->GetProjection();*/
+	//used in the prepare stage for this frame!
+	return m_constantBufferData;
+}
+void Shader_Main::BindLightsBuffer(CommandListDef*  list)
+{
+	LightCBV->SetDescriptorHeaps(list);
+	LightCBV->SetGpuView(list, 0, D3D12CBV::LightCBV);
+
+	MVCBV->SetDescriptorHeaps(list);
+	MVCBV->SetGpuView(list, 0, D3D12CBV::MPCBV);
+}
+void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
+{
+	for (int i = 0; i < lights.size(); i++)
+	{
+		LightUniformBuffer newitem;
+		newitem.position = glm::vec3(0, 0, 0);
+		newitem.color = lights[i]->GetColor();
+		newitem.Direction = glm::vec3(0, 0, 0) - lights[i]->GetPosition();
+		LightsBuffer[i] = newitem;
+	}
+	for (int i = 0; i < LightsBuffer.size(); i++)
+	{
+		LightCBV->UpdateCBV(LightsBuffer[i], i);
+	}
 }
