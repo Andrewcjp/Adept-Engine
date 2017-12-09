@@ -77,8 +77,8 @@ bool EditorWindow::ProcessDebugCommand(std::string command)
 		}
 		else if (command.find("vtest") != -1)
 		{
-		/*	instance->CurrentRenderSettings.CurrentAAMode = (instance->CurrentRenderSettings.CurrentAAMode == AAMode::FXAA) ? AAMode::NONE : AAMode::FXAA;
-			instance->Renderer->SetRenderSettings(instance->CurrentRenderSettings);*/
+			/*	instance->CurrentRenderSettings.CurrentAAMode = (instance->CurrentRenderSettings.CurrentAAMode == AAMode::FXAA) ? AAMode::NONE : AAMode::FXAA;
+				instance->Renderer->SetRenderSettings(instance->CurrentRenderSettings);*/
 			ForwardRenderer* r = (ForwardRenderer*)instance->Renderer;
 			r->UseQuerry = r->UseQuerry ? false : true;
 			return true;
@@ -121,6 +121,11 @@ EditorWindow::EditorWindow(HINSTANCE hInstance, int width, int height)
 
 void EditorWindow::DestroyRenderWindow()
 {
+	if (DidPhsyx)
+	{
+		WaitForSingleObject(ThreadComplete, INFINITE);//ensure physx by end of frame
+		DidPhsyx = false;
+	}
 	Renderer->DestoryRenderWindow();
 	delete Renderer;
 	UI.reset();
@@ -133,14 +138,6 @@ void EditorWindow::DestroyRenderWindow()
 }
 void ChangeDisplayMode(int width, int height)
 {
-	//int width = 1920;
-	//int height = 1080;
-	//HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_POPUP,
-	//	0, 0, width, height, nullptr, nullptr, hInstance, nullptr);
-	///*HWND hWnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-	//L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-	//0, 0, 150, 150, NULL, NULL, hInstance, NULL);*/
-	//ShowWindow(hWnd, 0);
 	if (true)
 	{
 		DEVMODE dmScreenSettings;
@@ -182,12 +179,41 @@ bool EditorWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height
 	InitWindow(m_hglrc, m_hwnd, m_hdc, width, height);
 	return true;
 }
+
+int EditorWindow::PhysicsThreadLoop()
+{
+	while (true)
+	{
+		WaitForSingleObject(ThreadStart, INFINITE);
+		float TickRate = 1.0f / 60.0f;
+		if (IsPlayingScene)
+		{
+			PerfManager::StartTimer("FTick");
+			Engine::PhysEngine->stepPhysics(false, TickRate);
+			CurrentPlayScene->FixedUpdateScene(TickRate);
+			Renderer->FixedUpdatePhysx(TickRate);//hmmm
+			PerfManager::EndTimer("FTick");
+		}
+
+		Sleep(10);
+		SetEvent(ThreadComplete);
+	}
+	return 0;
+}
+DWORD EditorWindow::RunPhysicsThreadLoop(void * pthis)
+{
+	return ((EditorWindow*)(pthis))->PhysicsThreadLoop();
+}
 BOOL EditorWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height)
 {
 	m_hdc = hdc;
 	m_hwnd = hwnd;
 	m_hglrc = hglrc;
-
+#if USE_THREADING
+	ThreadComplete = CreateEvent(NULL, false, false, L"");
+	ThreadStart = CreateEvent(NULL, false, false, L"");
+	RenderThread = CreateThread(NULL, 0, (unsigned long(__stdcall *)(void *))this->RunPhysicsThreadLoop, this, 0, NULL);
+#endif
 	glewInit();
 #if !NO_GEN_CONTEXT
 	if (RHI::GetType() == ERenderSystemType::RenderSystemOGL)
@@ -195,7 +221,7 @@ BOOL EditorWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int he
 		Engine::setVSync(false);
 	}
 #endif
-	if (RHI::GetType() == RenderSystemD3D11)
+	if (RHI::GetType() == RenderSystemD3D11 || RHI::GetType() == RenderSystemD3D12)
 	{
 		ShowHud = false;
 		LoadText = false;
@@ -345,6 +371,13 @@ inline void EditorWindow::SetDeferredState(bool state)
 {
 	IsDeferredMode = state;
 }
+void EditorWindow::PrePhysicsUpdate()
+{
+
+}
+void EditorWindow::DuringPhysicsUpdate()
+{
+}
 void EditorWindow::Render()
 {
 	if (PerfManager::Instance != nullptr)
@@ -366,6 +399,33 @@ void EditorWindow::Render()
 	//	//return;
 	//}
 	//accumrendertime = 0;
+
+
+	//lock the simulation rate to 60hz
+	//this prevents physx being framerate depenent.
+	float TickRate = 1.0f / 60.0f;
+	if (accumilatePhysxdeltatime > TickRate)
+	{
+		accumilatePhysxdeltatime = 0;
+		if (IsPlayingScene)
+		{
+#if USE_THREADING
+			SetEvent(ThreadStart);
+			DuringPhysicsUpdate();
+			DidPhsyx = true;
+			//we can access the physx Scene While it is running
+		//	WaitForSingleObject(ThreadComplete, INFINITE);
+
+#else
+			PerfManager::StartTimer("FTick");
+			Engine::PhysEngine->stepPhysics(false, TickRate);
+			CurrentPlayScene->FixedUpdateScene(TickRate);
+			Renderer->FixedUpdatePhysx(TickRate);
+			PerfManager::EndTimer("FTick");
+#endif
+		}
+	}
+
 	if (IsPlayingScene)
 	{
 		//PerfManager::StartTimer("Scene Update");
@@ -377,21 +437,7 @@ void EditorWindow::Render()
 		CurrentScene->EditorUpdateScene();
 	}
 
-	//lock the simulation rate to 60hz
-	//this prevents physx being framerate depenent.
-	float TickRate = 1.0f / 60.0f;
-	if (accumilatePhysxdeltatime > TickRate)
-	{
-		accumilatePhysxdeltatime = 0;
-		if (IsPlayingScene)
-		{
-			PerfManager::StartTimer("FTick");
-			Engine::PhysEngine->stepPhysics(false, TickRate);
-			CurrentPlayScene->FixedUpdateScene(TickRate);
-			Renderer->FixedUpdatePhysx(TickRate);
-			PerfManager::EndTimer("FTick");
-		}
-	}
+
 	timesincestat = (((float)(clock()) / CLOCKS_PER_SEC));//in s
 	if (timesincestat > fpsnexttime)
 	{
@@ -414,22 +460,29 @@ void EditorWindow::Render()
 		PerfManager::Instance->StartGPUTimer();
 	}
 	Renderer->Render();
-	dLineDrawer->GenerateLines();
-	if (Renderer->GetMainCam() != nullptr)
+	if (RHI::GetType() == RenderSystemOGL)
 	{
-		dLineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
-	}
+		dLineDrawer->GenerateLines();
+		if (Renderer->GetMainCam() != nullptr)
+		{
+			dLineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
+		}
+	}	
 	Renderer->FinaliseRender();
 	if (input->Selectedobject != nullptr)
 	{
 		gizmos->SetTarget(input->Selectedobject);
 		gizmos->RenderGizmos(dLineDrawer);
-		UI->GetInspector()->SetSelectedObject(input->Selectedobject);
+		if (UI != nullptr)
+		{
+			UI->GetInspector()->SetSelectedObject(input->Selectedobject);
+		}
 	}
 
 	PerfManager::StartTimer("UI");
 	if (UI != nullptr && ShowHud && LoadText)
 	{
+		UI->UpdateWidgets();
 		UI->RenderWidgets();
 	}
 	if (LoadText)
@@ -441,17 +494,19 @@ void EditorWindow::Render()
 	{
 		PerfManager::Instance->EndGPUTimer();
 	}
-
 	accumilatePhysxdeltatime += deltatime;
 	framecount++;
-	//	CPUTime = (float)((get_nanos() - FinalTime) / 1e6f);//in ms
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->EndCPUTimer();
 	}
+	if (DidPhsyx)
+	{
+		WaitForSingleObject(ThreadComplete, INFINITE);//ensure physx by end of frame
+		DidPhsyx = false;
+	}
 #if !NO_GEN_CONTEXT
 	RHI::RHISwapBuffers();
-	//	SwapBuffers(m_hdc);
 #endif
 
 	if (PerfManager::Instance != nullptr)
@@ -472,7 +527,6 @@ void EditorWindow::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	//	glViewport(0, 0, width, height);
 	if (UI != nullptr)
 	{
 		UI->UpdateSize(width, height);

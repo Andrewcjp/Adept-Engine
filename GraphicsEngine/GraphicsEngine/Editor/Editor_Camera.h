@@ -3,7 +3,7 @@
 class Editor_Camera
 {
 public:
-	Editor_Camera();
+	Editor_Camera(Camera* cam = nullptr);
 	~Editor_Camera();
 	void Update(float t);
 	bool GetEnabled() { return IsActive; }

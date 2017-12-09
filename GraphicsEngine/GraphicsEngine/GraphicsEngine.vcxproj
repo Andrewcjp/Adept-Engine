@@ -136,7 +136,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX ;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(projectdir)include/freetype2;$(solutiondir)TestGame;$(projectdir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(projectdir)include/freetype2;$(solutiondir)TestGame;$(projectdir)include/magick;$(projectdir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -242,6 +242,8 @@
     <ClInclude Include="Core\Components\ColliderComponent.h" />
     <ClInclude Include="Core\Components\CompoenentRegistry.h" />
     <ClInclude Include="Core\Utils\WindowsHelper.h" />
+    <ClInclude Include="D3D12\D3D12Helpers.h" />
+    <ClInclude Include="D3D12\D3D12Plane.h" />
     <ClInclude Include="D3D12\D3D12CBV.h" />
     <ClInclude Include="D3D12\D3D12Framebuffer.h" />
     <ClInclude Include="D3D12\D3D12Mesh.h" />
@@ -372,6 +374,8 @@
     <ClCompile Include="Core\Components\MeshRendererComponent.cpp" />
     <ClCompile Include="Core\Transform.cpp" />
     <ClCompile Include="Core\Utils\WindowsHelper.cpp" />
+    <ClCompile Include="D3D12\D3D12Helpers.cpp" />
+    <ClCompile Include="D3D12\D3D12Plane.cpp" />
     <ClCompile Include="D3D12\D3D12CBV.cpp" />
     <ClCompile Include="D3D12\D3D12Framebuffer.cpp" />
     <ClCompile Include="D3D12\D3D12Mesh.cpp" />

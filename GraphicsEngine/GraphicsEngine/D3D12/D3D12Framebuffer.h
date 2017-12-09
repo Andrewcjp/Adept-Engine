@@ -30,8 +30,11 @@ private:
 	ID3D12DescriptorHeap* m_dsvHeap;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthHandle;
 	ID3D12DescriptorHeap* m_srvHeap;
+	ID3D12DescriptorHeap* m_nullHeap;
 	ID3D12Resource * m_depthStencil;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE NullHandle;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
+	bool once = false;
 };
 

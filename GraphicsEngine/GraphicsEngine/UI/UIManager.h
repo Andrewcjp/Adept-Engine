@@ -30,6 +30,7 @@ public:
 	void UpdateSize(int width, int height);
 	void AddWidget(UIWidget* widget);
 	static void UpdateBatches();
+	void UpdateWidgets();
 	void RenderWidgets();
 	void MouseMove(int x, int y);
 	void MouseClick(int x, int y);

@@ -1,6 +1,7 @@
 #include "ShadowRenderer.h"
 #include "RHI/RHI.h"
-
+#include "../Rendering/Shaders/Shader_Main.h"
+#include "../D3D12/D3D12RHI.h"
 ShadowRenderer::ShadowRenderer()
 {
 
@@ -15,49 +16,63 @@ ShadowRenderer::~ShadowRenderer()
 	}
 }
 
-void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, std::vector<GameObject*>& ShadowObjects)
+void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, std::vector<GameObject*>& ShadowObjects, CommandListDef* list, Shader_Main* mainshader)
 {
-	if (UseCache)
-	{
-		if (Renderered)
-		{
-			return;
-		}
-		else
-		{
-			Renderered = true;
-		}
-	}
+	//if (UseCache)
+	//{
+	//	if (Renderered)
+	//	{
+	//		return;
+	//	}
+	//	else
+	//	{
+	//		Renderered = true;
+	//	}
+	//}
+
 	for (size_t SNum = 0; SNum < ShadowShaders.size(); SNum++)
 	{
-		ShadowShaders[SNum]->SetShaderActive();
-		//ShadowShaders[SNum]->shadowbuffer->ClearBuffer();
+		ShadowShaders[SNum]->SetShaderActive(list);
+		if (RHI::GetType() != RenderSystemD3D12)
+		{
+			ShadowShaders[SNum]->shadowbuffer->ClearBuffer();
+		}
 
+		mainshader->UpdateMV(ShadowShaders[0]->targetlight->DirView, ShadowShaders[0]->targetlight->Projection);
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
-			if (ShadowObjects[i]->GetMat() == nullptr )
+			if (ShadowObjects[i]->GetMat() == nullptr)
 			{
 				//object should not be rendered to the depth map
 				continue;
 			}
+
 			if (ShadowObjects[i]->GetMat()->GetDoesShadow() == false)
 			{
 				continue;
 			}
+			if (RHI::GetType() != RenderSystemD3D12)
+			{
+				ShadowShaders[SNum]->UpdateUniforms(ShadowObjects[i]->GetTransform(), c, lights);
+				ShadowObjects[i]->Render(true, list);
+			}
+			else
+			{
+				mainshader->SetActiveIndex(list, i);				
+				ShadowObjects[i]->Render(false, list);
+			}
 
-			ShadowShaders[SNum]->UpdateUniforms(ShadowObjects[i]->GetTransform(), c, lights);
-			ShadowObjects[i]->Render(true);
 		}
 		ShadowShaders[SNum]->shadowbuffer->UnBind();
 	}
 
 }
 
-void ShadowRenderer::BindShadowMaps()
+void ShadowRenderer::BindShadowMaps(CommandListDef* list)
 {
 	for (size_t SNum = 0; SNum < ShadowShaders.size(); SNum++)
 	{
-		ShadowShaders[SNum]->BindShadowmmap();
+		ShadowShaders[SNum]->BindShadowmmap(list);
 	}
 }
 void ShadowRenderer::ClearShadowLights()
@@ -111,4 +126,18 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			ShadowShaders.push_back(new Shader_Depth(lights[i], false));
 		}
 	}
+}
+
+CommandListDef * ShadowRenderer::CreateShaderCommandList()
+{
+	if (ShadowShaders.size() > 0)
+	{
+		return ((D3D12Shader*)ShadowShaders[0]->GetShaderProgram())->CreateShaderCommandList();
+	}
+	return nullptr;
+}
+
+void ShadowRenderer::ResetCommandList(CommandListDef * list)
+{
+	D3D12RHI::PreFrameSetUp(list, (D3D12Shader*)ShadowShaders[0]->GetShaderProgram());
 }

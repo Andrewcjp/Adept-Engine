@@ -25,10 +25,11 @@ public:
 		SHADOW_HEIGHT = height;
 	}
 	void SetShaderActive() override;
+	void SetShaderActive(CommandListDef* List);
 	int m_Model, m_farplane, m_lightpos = 0;
 	int depthCubemap;
 	int m_ShadowBuffer;
-	void BindShadowmmap();
+	void BindShadowmmap(CommandListDef* List);
 	bool LoadGeomShader = true;
 	OGLTexture* CubeMaptex;
 	FrameBuffer* shadowbuffer;

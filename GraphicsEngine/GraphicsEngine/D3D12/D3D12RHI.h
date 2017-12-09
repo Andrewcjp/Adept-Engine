@@ -18,17 +18,17 @@ class D3D12RHI
 {
 public:
 
-
+	std::vector<CommandListDef*> Lists;
 	static D3D12RHI* Instance;
 	D3D12RHI();
 	~D3D12RHI();
 	void InitContext();
 	void DestroyContext();
-	void PresentFrame();
+	void PresentFrame(CommandListDef* List);
 	void OnDestroy();
 	void ClearRenderTarget(ID3D12GraphicsCommandList * MainList);
 	void RenderToScreen(ID3D12GraphicsCommandList * list);
-	void PreFrameSetUp(ID3D12GraphicsCommandList * list, D3D12Shader * Shader);
+	static void PreFrameSetUp(ID3D12GraphicsCommandList * list, D3D12Shader * Shader);
 	void PreFrameSwap(ID3D12GraphicsCommandList* list);
 	void LoadPipeLine();
 	void LoadAssets();
@@ -50,7 +50,7 @@ public:
 	void WaitForGpu();
 	void MoveToNextFrame();
 	//ptr
-	static const int FrameCount = 2;
+	static const int FrameCount = 3;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;
@@ -63,11 +63,12 @@ public:
 	ID3D12DescriptorHeap* m_dsvHeap;
 	//ID3D12PipelineState* m_pipelineState;
 	ID3D12GraphicsCommandList* m_commandList;
+	ID3D12GraphicsCommandList* Shadowlist;
 	ID3D12GraphicsCommandList* m_SetupCommandList;
 	UINT m_rtvDescriptorSize;
 	ID3D12Resource * m_depthStencil;
 
-		
+	ID3D12DescriptorHeap* BaseTextureHeap;
 	ID3D12Resource* m_constantBuffer;
 	D3D12Shader::SceneConstantBuffer m_constantBufferData;
 	UINT8* m_pCbvDataBegin;
@@ -85,9 +86,11 @@ public:
 	HANDLE m_fenceEvent;
 	ID3D12Fence* m_fence;
 	UINT64 m_fenceValue;
+	UINT64 M_ShadowFence = 0;
+	ID3D12Fence* pShadowFence;
 	UINT64 m_fenceValues[FrameCount];
 	D3D12Shader::PiplineShader m_MainShaderPiplineShader;
-
+//	HANDLE ShadowExechandle;
 	int m_width = 100;
 	int m_height = 100;
 	float m_aspectRatio = 0.0f;

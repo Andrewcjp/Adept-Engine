@@ -63,6 +63,7 @@ LineDrawer::~LineDrawer()
 //Verts.push_back(Lines[i].colour.z);
 void LineDrawer::GenerateLines()
 {
+
 	if (LineCount == 0)
 	{
 		return;
@@ -130,7 +131,8 @@ void LineDrawer::RenderLines()
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
 	}
-	ClearLines();//bin all lines rendered this frame.
+	//bin all lines rendered this frame.
+	ClearLines();
 }
 
 void LineDrawer::ClearLines()

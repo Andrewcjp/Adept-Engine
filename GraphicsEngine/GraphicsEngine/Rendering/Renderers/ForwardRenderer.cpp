@@ -4,6 +4,7 @@
 #include "Core/Components/MeshRendererComponent.h"
 #include "../Editor/Editor_Camera.h"
 #include "../EngineGlobals.h"
+#include "../D3D12/D3D12Plane.h"
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 	FrameBufferRatio = 1;
@@ -20,6 +21,20 @@ ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, hei
 		RenderGrass = true;
 		LoadParticles = true;
 		RenderParticles = false;
+	}
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		LoadGrass = false;
+		RenderGrass = false;
+		LoadParticles = false;
+		RenderParticles = false;
+		DRHI = new D3D12RHI();
+		DRHI->m_height = m_height;
+		DRHI->m_width = m_width;
+		DRHI->m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+		DRHI->LoadPipeLine();
+		DRHI->LoadAssets();
+		debugplane = new D3D12Plane(1);
 	}
 }
 void ForwardRenderer::RunQuery()
@@ -109,7 +124,7 @@ void ForwardRenderer::Render()
 	RenderSkybox();
 	if (RenderedReflection == false)
 	{
-		ReflectionPass();
+		//ReflectionPass();
 	}
 	RHI::ClearColour();
 	RHI::ClearDepth();
@@ -131,6 +146,10 @@ void ForwardRenderer::Init()
 	(Objects) = (mainscene->GetObjects());
 	shadowrender = new ShadowRenderer();
 	shadowrender->InitShadows((*Lights));
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		ShadowList = shadowrender->CreateShaderCommandList();
+	}
 	GPUStateCache::Create();
 	skybox = new GameObject();
 	skybox->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("skybox.obj", GetMainShader()->GetShaderProgram(), true), nullptr));
@@ -200,13 +219,40 @@ void ForwardRenderer::ReflectionPass()
 
 void ForwardRenderer::ShadowPass()
 {
-	shadowrender->RenderShadowMaps(MainCamera, (*Lights), (InGetObj()));
+	shadowrender->ResetCommandList(ShadowList);
+	mainshader->BindLightsBuffer(ShadowList);
+
+	shadowrender->RenderShadowMaps(MainCamera, (*Lights), (InGetObj()), ShadowList, mainshader);
+
+	if (ShadowList != nullptr)
+	{
+		ShadowList->Close();
+		DRHI->ExecList(ShadowList);
+	}
+
 }
 void ForwardRenderer::BindAsRenderTarget()
 {
 	RHI::BindScreenRenderTarget(m_width, m_height);
 }
-
+void ForwardRenderer::PrepareData()
+{
+	for (size_t i = 0; i < (InGetObj()).size(); i++)
+	{
+		mainshader->UpdateUnformBufferEntry(mainshader->CreateUnformBufferEntry(InGetObj()[i]->GetTransform(), MainCamera), (int)i);
+	}
+}
+void ForwardRenderer::RenderDebugPlane()
+{
+#if !(_DEBUG)
+	return;
+#else
+	return;
+#endif
+	MainList->SetGraphicsRootSignature(((D3D12Shader*)outshader->GetShaderProgram())->m_Shader.m_rootSignature);
+	MainList->SetPipelineState(((D3D12Shader*)outshader->GetShaderProgram())->m_Shader.m_pipelineState);
+	debugplane->Render(MainList);
+}
 void ForwardRenderer::MainPass()
 {
 	if (RHI::GetType() == RenderSystemOGL)
@@ -216,10 +262,25 @@ void ForwardRenderer::MainPass()
 			RunQuery();
 		}
 	}
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		if (once)
+		{
+			DRHI->ExecSetUpList();
+			once = false;
+		}
+	}
 	if (mainscene->StaticSceneNeedsUpdate)
 	{
 
 		shadowrender->Renderered = false;
+	}
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		PrepareData();
+		DRHI->PreFrameSetUp(MainList, ((D3D12Shader*)mainshader->GetShaderProgram()));
+		DRHI->PreFrameSwap(MainList);
+		DRHI->ClearRenderTarget(MainList);
 	}
 	mainshader->RefreshLights();
 	FilterBuffer->BindBufferAsRenderTarget();
@@ -229,28 +290,38 @@ void ForwardRenderer::MainPass()
 	FilterBuffer->ClearBuffer();
 	mainshader->currentnumber += 0.1f* deltatime;
 	mainshader->SetShaderActive();
-	shadowrender->BindShadowMaps();
+	shadowrender->BindShadowMaps(MainList);
 	int count = 0;
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		mainshader->UpdateCBV();
+		mainshader->UpdateLightBuffer(*Lights);
+		mainshader->BindLightsBuffer(MainList);
+		mainshader->UpdateMV(MainCamera);
+	}
 	for (size_t i = 0; i < (InGetObj()).size(); i++)
 	{
-		if (UseQuerry)
+		if (RHI::GetType() == RenderSystemOGL)
 		{
-			GLuint passed = INT_MAX;
-			GLuint available = 0;
-			glGetQueryObjectuiv((InGetObj())[i]->Querry, GL_QUERY_RESULT_AVAILABLE, &available);
-			if (available)
+			if (UseQuerry)
 			{
-				passed = 0;
-				glGetQueryObjectuiv((InGetObj())[i]->Querry, GL_QUERY_RESULT, &passed);
-				(InGetObj())[i]->Occluded = (passed == 0);
-				(InGetObj())[i]->QuerryWait = false;
-			}
+				GLuint passed = INT_MAX;
+				GLuint available = 0;
+				glGetQueryObjectuiv((InGetObj())[i]->Querry, GL_QUERY_RESULT_AVAILABLE, &available);
+				if (available)
+				{
+					passed = 0;
+					glGetQueryObjectuiv((InGetObj())[i]->Querry, GL_QUERY_RESULT, &passed);
+					(InGetObj())[i]->Occluded = (passed == 0);
+					(InGetObj())[i]->QuerryWait = false;
+				}
 
-			if ((InGetObj())[i]->Occluded)
-			{
-				count++;
-				//  printf("culled %s\n ", Objects[i]->GetName());
-				continue;
+				if ((InGetObj())[i]->Occluded)
+				{
+					count++;
+					//  printf("culled %s\n ", Objects[i]->GetName());
+					continue;
+				}
 			}
 		}
 		if (InGetObj()[i]->GetMat() == nullptr)
@@ -279,8 +350,15 @@ void ForwardRenderer::MainPass()
 		{
 			mainshader->ISWATER = false;
 		}
-		mainshader->UpdateUniforms((InGetObj())[i]->GetTransform(), MainCamera, (*Lights));
-		(InGetObj())[i]->Render();
+		if (RHI::GetType() != RenderSystemD3D12)
+		{
+			mainshader->UpdateUniforms((InGetObj())[i]->GetTransform(), MainCamera, (*Lights));
+		}
+		else
+		{
+			mainshader->SetActiveIndex(MainList, (int)i);
+		}
+		(InGetObj())[i]->Render(false, MainList);
 	}
 
 	for (size_t i = 0; i < PhysicsObjects.size(); i++)
@@ -306,11 +384,20 @@ void ForwardRenderer::MainPass()
 		particlesys->UpdateUniforms(NULL, MainCamera, (*Lights));
 		particlesys->Render();
 	}
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		RenderDebugPlane();
+		DRHI->PostFrame(MainList);
+		DRHI->PresentFrame(MainList);
+	}
 }
 
 void ForwardRenderer::RenderSkybox(bool ismain)
 {
-
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		return;
+	}
 	skyboxShader->SetShaderActive();
 	skyboxShader->UpdateUniforms(nullptr, (ismain ? MainCamera : RefelctionCamera));
 
@@ -351,6 +438,12 @@ void ForwardRenderer::InitOGL()
 		grassshader = new Shader_Grass();
 	}
 	skyboxShader = std::make_unique<Shader_Skybox>();
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		MainList = ((D3D12Shader*)mainshader->GetShaderProgram())->CreateShaderCommandList();
+	}
+	//ShadowList = shadowrender->CreateShaderCommandList();
+
 }
 
 void ForwardRenderer::SetScene(Scene * sc)
@@ -414,6 +507,7 @@ ShaderOutput * ForwardRenderer::GetFilterShader()
 
 void ForwardRenderer::DestoryRenderWindow()
 {
+
 	for (int i = 0; i < (InGetObj()).size(); i++)
 	{
 		delete (InGetObj())[i];

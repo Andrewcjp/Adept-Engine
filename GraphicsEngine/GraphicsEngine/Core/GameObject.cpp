@@ -79,6 +79,7 @@ void GameObject::Render(bool ignoremat)
 }
 void GameObject::Render(bool ignoremat, CommandListDef* list)
 {
+	
 	if (m_MeshRenderer != nullptr)
 	{
 		m_MeshRenderer->Render(ignoremat, list);

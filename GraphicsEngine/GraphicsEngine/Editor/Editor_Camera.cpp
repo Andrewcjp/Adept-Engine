@@ -2,11 +2,18 @@
 #include "Editor_Camera.h"
 #include "../Core/Input.h"
 
-Editor_Camera::Editor_Camera()
+Editor_Camera::Editor_Camera(Camera* cam)
 {
-	MainCam = new Camera(glm::vec3(0, 10, 0), 75.0f, 1.77f, 0.1f, 1000.0f);
+	if (cam == nullptr)
+	{
+		MainCam = new Camera(glm::vec3(0, 10, 0), 75.0f, 1.77f, 0.1f, 1000.0f);
+	}
+	else
+	{
+		MainCam = cam;
+	}
 	IsActive = true;
-	sensitvity = 1.0 / 1000.0f;
+	sensitvity = 1.0f / 1000.0f;
 }
 
 

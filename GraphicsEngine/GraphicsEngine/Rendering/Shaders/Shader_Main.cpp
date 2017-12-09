@@ -64,31 +64,27 @@ Shader_Main::Shader_Main()
 		////glNamedBufferData(ubo, sizeof(ConstBuffer), nullptr, GL_DYNAMIC_DRAW);
 		//glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
-	//LightBuffers = new LightUniformBuffer[CurrentLightcount];
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
 		for (int i = 0; i < MaxConstant; i++)
 		{
 			SceneBuffer.push_back(D3D12Shader::SceneConstantBuffer());
 		}
-		LightsBuffer.resize(4);
+
 		((D3D12Shader*)m_Shader)->InitCBV();
 		//((D3D12Shader*)m_Shader)->
 		LightCBV = new D3D12CBV();
-		LightCBV->InitCBV(sizeof(LightUniformBuffer), 4);
+		LightCBV->InitCBV(sizeof(LightBuffer), 1);
 		MVCBV = new D3D12CBV();
 		MVCBV->InitCBV(sizeof(MVBuffer), 1);
 	}
 }
-//NormalMap
-
 Shader_Main::~Shader_Main()
 {
 
 }
 void Shader_Main::SetNormalVis()
 {
-	//	std::cout << "hi "<<state << std::endl;
 	if (vistate)
 	{
 		vistate = false;
@@ -218,25 +214,6 @@ void Shader_Main::UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*>
 		GPUStateCache::UpdateCurrentUniformBuffer(ubo);
 	}
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(MVPStruct), &UBuffer, GL_DYNAMIC_DRAW);
-	//glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	//glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
-	//glNamedBufferStorage(ubo, sizeof(ConstBuffer), &UBuffer, GL_MAP_READ_BIT);
-	//glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	//glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-	//GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_WRITE);
-	//ConstBuffer Testptr;
-	//memcpy(&Testptr, p, sizeof(ConstBuffer));
-	////ConstBuffer test = reinterpret_cast<ConstBuffer>(Testptr);
-	//glUnmapBuffer(GL_UNIFORM_BUFFER);
-
-	/*GLenum error = glGetError();
-	if (error != GL_NO_ERROR)
-	{
-		std::cout << glewGetErrorString(error) << std::endl;
-	}*/
-
 }
 
 void Shader_Main::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
@@ -251,11 +228,6 @@ void Shader_Main::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Lig
 
 void Shader_Main::UpdateD3D12Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
 {
-	//not used as Buffers are better!
-	// joking!
-	/*m_constantBufferData.M = t->GetModel();
-	m_constantBufferData.V = c->GetView();
-	m_constantBufferData.P = c->GetProjection();*/
 }
 
 void Shader_Main::ClearBuffer()
@@ -288,12 +260,18 @@ void Shader_Main::UpdateMV(Camera * c)
 	MV_Buffer.P = c->GetProjection();
 	MVCBV->UpdateCBV(MV_Buffer, 0);
 }
+void Shader_Main::UpdateMV(glm::mat4 View, glm::mat4 Projection)
+{
+	MV_Buffer.V = View;
+	MV_Buffer.P = Projection;
+	MVCBV->UpdateCBV(MV_Buffer, 0);
+}
 D3D12Shader::SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(Transform * t, Camera * c)
 {
 	D3D12Shader::SceneConstantBuffer m_constantBufferData;
 	m_constantBufferData.M = t->GetModel();
-	m_constantBufferData.P = c->GetProjection();
-	m_constantBufferData.V = c->GetView();
+	//m_constantBufferData.P = c->GetProjection();
+	//m_constantBufferData.V = c->GetView();
 	//temp
 	/*MV_Buffer.V = c->GetView();
 	MV_Buffer.P = c->GetProjection();*/
@@ -313,13 +291,19 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 	for (int i = 0; i < lights.size(); i++)
 	{
 		LightUniformBuffer newitem;
-		newitem.position = glm::vec3(0, 0, 0);
+		newitem.position = lights[i]->GetPosition();
 		newitem.color = lights[i]->GetColor();
-		newitem.Direction = glm::vec3(0, 0, 0) - lights[i]->GetPosition();
-		LightsBuffer[i] = newitem;
+		newitem.Direction = glm::vec3(0, -1, 0);//lights[i]->GetDirection();
+		glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
+		//LightView = glm::inverse(LightView);
+		float size = 100.0f;
+		//todo calc this right
+		glm::mat4 proj = glm::orthoLH<float>(-size, size, -size, size, 0.0f, size);
+		lights[i]->Projection = proj;
+		lights[i]->DirView = LightView;
+		newitem.LightVP = proj*LightView;
+
+		LightsBuffer.Light[i] = newitem;
 	}
-	for (int i = 0; i < LightsBuffer.size(); i++)
-	{
-		LightCBV->UpdateCBV(LightsBuffer[i], i);
-	}
+	LightCBV->UpdateCBV(LightsBuffer, 0);
 }

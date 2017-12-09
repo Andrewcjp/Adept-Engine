@@ -8,9 +8,17 @@ ShaderOutput::ShaderOutput(int width, int height)
 	m_Shader = RHI::CreateShaderProgam();
 
 	m_Shader->CreateShaderProgram();
-	m_Shader->AttachAndCompileShaderFromFile("Pass_vs", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Pass_fs", SHADER_FRAGMENT);
+	if (RHI::GetType() == RenderSystemD3D12)
+	{
+		m_Shader->AttachAndCompileShaderFromFile("Pass_vs_12", SHADER_VERTEX);
+		m_Shader->AttachAndCompileShaderFromFile("Pass_fs_12", SHADER_FRAGMENT);
+	}
+	else
+	{
 
+		m_Shader->AttachAndCompileShaderFromFile("Pass_vs", SHADER_VERTEX);
+		m_Shader->AttachAndCompileShaderFromFile("Pass_fs", SHADER_FRAGMENT);
+	}
 	m_Shader->BindAttributeLocation(0, "pos");
 	m_Shader->BindAttributeLocation(1, "Normal");
 	m_Shader->BindAttributeLocation(2, "texCoords");

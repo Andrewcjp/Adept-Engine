@@ -3,6 +3,7 @@
 #include "OpenGL/OGLFrameBuffer.h"
 #include "D3D11\D3D11Shader.h"
 #include "glm\glm.hpp"
+#include"../D3D12/D3D12Framebuffer.h"
 void Shader_Depth::INIT()
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -131,17 +132,28 @@ void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Ligh
 
 void Shader_Depth::SetShaderActive()
 {
-	m_Shader->ActivateShaderProgram();
-
-	shadowbuffer->BindBufferAsRenderTarget();
-	shadowbuffer->ClearBuffer();
 }
 
-void Shader_Depth::BindShadowmmap()
+void Shader_Depth::SetShaderActive(CommandListDef* List)
+{
+	m_Shader->ActivateShaderProgram();
+
+	shadowbuffer->BindBufferAsRenderTarget(List);
+	shadowbuffer->ClearBuffer(List);
+}
+
+void Shader_Depth::BindShadowmmap(CommandListDef* List)
 {
 	if (LoadGeomShader == false)
 	{
-		shadowbuffer->BindToTextureUnit(0/*SHADOWDIRMAP1*/);
+		if (RHI::GetType() != RenderSystemD3D12)
+		{
+			shadowbuffer->BindToTextureUnit(SHADOWDIRMAP1);
+		}
+		else
+		{
+			((D3D12FrameBuffer*)shadowbuffer)->BindBufferToTexture(List);
+		}
 		//printf("bind");
 	}
 	else

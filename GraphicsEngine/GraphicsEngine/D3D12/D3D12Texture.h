@@ -9,6 +9,9 @@ class D3D12Texture :
 {
 public:
 	D3D12Texture();
+	unsigned char * GenerateMip(int & startwidth, int & startheight, int bpp, unsigned char * StartData, int & mipsize, float ratio = 2.0f);
+	
+	unsigned char * GenerateMips(int count, int StartWidth, int StartHeight, unsigned char * startdata);
 	D3D12Texture(std::string name);
 	~D3D12Texture();
 	void CreateTexture();
@@ -22,12 +25,12 @@ public:
 private:
 	int TextureWidth = 100;
 	int TextureHeight = 100;
-
+	D3D12_SUBRESOURCE_DATA Texturedatarray[9];
 	static const UINT TexturePixelSize = 4;
 	UINT8* GenerateCheckerBoardTextureData();
-
+	int Miplevels = 2;
 	ID3D12Resource* m_texture;
-
+	std::string TextureName;
 	// Inherited via BaseTexture
 	
 };

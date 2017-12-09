@@ -9,6 +9,7 @@
 //	glm::mat4 P;
 //}ConstBuffer;
 #include "../D3D12/D3D12Shader.h"
+#define MAX_LIGHTS 4
 typedef struct _LightUniformBuffer
 {
 	
@@ -17,15 +18,22 @@ typedef struct _LightUniformBuffer
 	glm::vec3 color;
 	float t2;
 	glm::vec3 Direction;
+	float t3;
+	glm::mat4 LightVP;
 	int type;//type 1 == point, type 0 == directional, tpye 2 == spot
 	int ShadowID;
 	int DirShadowID;
 	int HasShadow;
+	
 }LightUniformBuffer;
 struct MVBuffer
 {
 	glm::mat4 V;
 	glm::mat4 P;
+};
+struct LightBufferW
+{
+	LightUniformBuffer Light[MAX_LIGHTS];
 };
 class Shader_Main :public Shader
 {
@@ -47,6 +55,8 @@ public:
 	void SetActiveIndex(CommandListDef * list, int index);
 
 	void UpdateMV(Camera * c);
+
+	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 
 	D3D12Shader::SceneConstantBuffer CreateUnformBufferEntry(Transform* t, Camera* c);
 	void BindLightsBuffer(CommandListDef * list);
@@ -74,7 +84,7 @@ private:
 	bool Once = false;
 	//todo move to shader
 	GLuint ubo = 0;
-	int MaxConstant =10;
+	int MaxConstant =25;
 	GLuint Buffer;
 	std::vector<D3D12Shader::SceneConstantBuffer> SceneBuffer;
 	//information for all the lights in the scene currently
@@ -82,7 +92,8 @@ private:
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
 	class D3D12CBV* MVCBV;
 	struct MVBuffer MV_Buffer;
-	std::vector<LightUniformBuffer> LightsBuffer;
+//	std::vector<LightUniformBuffer> LightsBuffer;
+	LightBufferW LightsBuffer;
 	// Inherited via Shader
 	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
 	virtual void UpdateD3D12Uniforms(Transform* t, Camera* c, std::vector<Light*> lights) override;

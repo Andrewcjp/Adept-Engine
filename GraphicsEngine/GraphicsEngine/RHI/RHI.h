@@ -8,7 +8,7 @@
 #ifdef _DEBUG
 #define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){  __debugbreak();}
 #else 
-#define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){ printf("D3D ensure failed: %d");  }
+#define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){ printf("D3D ensure failed: %d",hr);  }
 #endif
 
 using namespace DirectX;

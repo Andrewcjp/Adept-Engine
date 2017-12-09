@@ -13,6 +13,7 @@ public:
 	virtual BOOL InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height) override;
 	void PrepareRenderData();
 	void ShadowPass();
+	void RenderPlane();
 	virtual void Render() override;
 	virtual void Resize(int width, int height) override;
 	virtual void DestroyRenderWindow() override;
@@ -33,7 +34,13 @@ private:
 	class Shader_Depth* Depthshader;
 	class Light* light;
 	class D3D12FrameBuffer* ddepth;
+	class Editor_Camera* EditorCam;
+	class Input* input;
+	class ShadowRenderer* ShadowR;
+	class D3D12Plane* debugplane;
+	class ShaderOutput* output;
 	CommandListDef* MainList;
 	CommandListDef* ShadowList;
+	std::vector<Light*> Lights;
 };
 

@@ -47,6 +47,7 @@ public:
 	void PushCBVToGPU(ID3D12GraphicsCommandList* list,int offset = 0);
 	void UpdateCBV(SceneConstantBuffer &buffer, int offset = 0);
 	void InitCBV();
+	void Init();
 	CommandListDef* CreateShaderCommandList();
 	ID3D12CommandAllocator* GetCommandAllocator();
 	ID3DBlob*					m_vsBlob;
@@ -62,6 +63,7 @@ private:
 	UINT8* m_pCbvDataBegin;
 	ID3D12DescriptorHeap* m_cbvHeap;
 	ID3D12CommandAllocator* m_commandAllocator;
+	ID3D12DescriptorHeap* m_samplerHeap;
 
 };
 

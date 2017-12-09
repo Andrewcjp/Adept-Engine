@@ -139,14 +139,19 @@ void UIManager::UpdateBatches()
 		instance->UpdateSize(instance->m_width, instance->m_height);
 	}
 }
-void UIManager::RenderWidgets()
+void UIManager::UpdateWidgets()
 {
-
-	//todo: move to not run every frame?
 	for (int i = 0; i < widgets.size(); i++)
 	{
 		widgets[i]->UpdateData();
 	}
+	
+}
+void UIManager::RenderWidgets()
+{
+
+	//todo: move to not run every frame?
+	
 	DrawBatcher->RenderBatches();
 	for (int i = 0; i < widgets.size(); i++)
 	{
@@ -158,6 +163,8 @@ void UIManager::RenderWidgets()
 	//	PerfManager::StartTimer("Line");
 	LineBatcher->GenerateLines();
 	LineBatcher->RenderLines();
+	
+
 	//	PerfManager::EndTimer("Line");
 
 

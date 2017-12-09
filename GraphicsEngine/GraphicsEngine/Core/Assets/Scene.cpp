@@ -84,22 +84,27 @@ void Scene::LoadDefault(RenderEngine* Renderer, bool IsDeferredMode)
 	go->AttachComponent(new CameraComponent());
 	AddGameobjectToScene(go);
 
-	go = new GameObject("LightTest");
-	go->GetTransform()->SetPos(glm::vec3(0, 10, 20));
-	LightComponent* lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(true);
-	lc->Internal_GetLightPtr()->SetShadowId(0);
-	lc->SetIntensity(100);
-	AddGameobjectToScene(go);
+	//go = new GameObject("LightTest");
+	//go->GetTransform()->SetPos(glm::vec3(0, 10, 20));
+	//LightComponent* lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	//lc->SetShadow(false);
+	//lc->Internal_GetLightPtr()->SetShadowId(0);
+	//lc->SetIntensity(100);
+	//AddGameobjectToScene(go);
 
 	go = new GameObject("Dir Light");
-	go->GetTransform()->SetPos(glm::vec3(0, 50, 20));
+	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
 	go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
-	lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(false);
+	LightComponent * lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	lc->SetShadow(true);
 	lc->SetLightType(Light::Directional);
 	lc->SetIntensity(0.1f);
 	AddGameobjectToScene(go);
+
+
+
+
+
 
 	/*go = new GameObject("TG Test");
 	go->AttachComponent(CompoenentRegistry::CreateAdditonalComponent(1));
@@ -220,7 +225,7 @@ void Scene::RemoveLight(Light * Light)
 	else
 	{
 		Lights.empty();
-	}	
+	}
 }
 void Scene::RemoveGameObject(GameObject* object)
 {
@@ -238,7 +243,7 @@ void Scene::CopyScene(Scene* newscene)
 	for (int i = 0; i < SceneObjects.size(); i++)
 	{
 		GameObject* go = new GameObject(*SceneObjects[i]);
-		newscene->AddGameobjectToScene(go);		
+		newscene->AddGameobjectToScene(go);
 	}
 
 }

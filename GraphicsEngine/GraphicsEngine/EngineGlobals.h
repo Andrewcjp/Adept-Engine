@@ -24,10 +24,15 @@ enum ERenderSystemType
 	RenderSystemD3D12,
 	RenderSystemVulkan
 };
+
+
+
+
 #if BUILD_D3D12
 #define NAME_D3D12_OBJECT(x) SetName(x, L#x)
 typedef struct ID3D12GraphicsCommandList CommandListDef;
-
+#else 
+typedef struct Stub{} CommandListDef;
 #endif
 /*
 #pragma comment(lib, "winmm.lib")

@@ -4,12 +4,136 @@
 #include "../Core/Assets/ImageIO.h"
 #include "../Core/Engine.h"
 #include "../Core/Assets/ImageLoader.h"
+#include "CImg.h"
+#include <iostream>
+inline bool exists_test3(const std::string& name)
+{
+	struct stat buffer;
+	if ((stat(name.c_str(), &buffer) == 0))
+	{
+		return true;
+	}
+	std::cout << "File Does not exist " << name.c_str() << std::endl;
+	return false;
+}
 D3D12Texture::D3D12Texture() :D3D12Texture("house_diffuse.tga")
 {
+}
 
+unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int bpp, unsigned char * StartData, int&mipsize, float ratio)
+{
+	std::string rpath = Engine::GetRootDir();
+	rpath.append("\\asset\\output\\");
+	rpath.append(TextureName);
+	rpath.append("_mip_");
+
+	int width = (int)(startwidth / ratio);
+	int height = (int)(startheight / ratio);
+	rpath.append(std::to_string(width));
+
+	unsigned char *buffer = NULL;
+	mipsize = (width*height*bpp);
+	buffer = new unsigned char[mipsize];
+	int stride = 4;
+	int Sourcex = 0;
+	int sourcey = 0;
+	int nChannels = 0;
+	float x_ratio = ((float)(startwidth - 1)) / width;
+	float y_ratio = ((float)(startheight - 1)) / height;
+	rpath.append(".bmp");
+	if (exists_test3(rpath))
+	{
+		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, rpath.c_str());
+	}
+	else
+	{
+
+		for (int x = 0; x < width*stride; x += stride)
+		{
+			for (int y = 0; y < height*stride; y += stride)
+			{
+				int y2 = (int)(y * ratio);
+				int x2 = (int)(x * ratio);
+				Sourcex = x2;
+				sourcey = y2;
+				glm::vec4 output;
+#if 1
+				glm::vec4 pixelA = glm::vec4(StartData[Sourcex + sourcey*startwidth], StartData[Sourcex + 1 + sourcey*startwidth], StartData[Sourcex + 2 + sourcey*startwidth], StartData[Sourcex + 3 + sourcey*startwidth]);
+				glm::vec4 pixelB = glm::vec4(StartData[Sourcex + 4 + sourcey*startwidth], StartData[Sourcex + 4 + 1 + sourcey*startwidth], StartData[Sourcex + 4 + 2 + sourcey*startwidth], StartData[Sourcex + 4 + 3 + sourcey*startwidth]);
+				int Targety = y2 + 1;
+				glm::vec4 pixelC = glm::vec4(StartData[Sourcex + Targety*startwidth], StartData[Sourcex + 1 + Targety*startwidth], StartData[Sourcex + 2 + Targety*startwidth], StartData[Sourcex + 3 + Targety*startwidth]);
+				glm::vec4 pixelD = glm::vec4(StartData[Sourcex + 4 + Targety*startwidth], StartData[Sourcex + 4 + 1 + Targety*startwidth], StartData[Sourcex + 4 + 2 + Targety*startwidth], StartData[Sourcex + 4 + 3 + Targety*startwidth]);
+				float xdiff = (x_ratio*x) - (x_ratio*x);
+				float ydiff = (y_ratio*y) - (y_ratio*y);
+				output = (pixelA*(1 - xdiff)*(1 - ydiff)) + (pixelB * (xdiff)*(1 - ydiff)) +
+					(pixelC*(ydiff)*(1 - xdiff)) + (pixelD * (xdiff*ydiff));
+#else
+				glm::vec4 nearn = glm::vec4(StartData[(y2 *startwidth) + x2], StartData[(y2 *startwidth) + 1 + x2], StartData[(y2 *startwidth) + 2 + x2], StartData[(y2 *startwidth) + 3 + x2]);
+				output = nearn;
+#endif
+
+				buffer[x + (y*width)] = (unsigned char)output.r;
+				buffer[x + 1 + (y*width)] = (unsigned char)output.g;
+				buffer[x + 2 + (y*width)] = (unsigned char)output.b;
+				buffer[x + 3 + (y*width)] = (unsigned char)output.a;
+			}
+		}
+		if (startheight != 2048)
+		{
+			SOIL_save_image(rpath.c_str(), SOIL_SAVE_TYPE_BMP, width, height, 4, buffer);
+		}
+	}
+	startheight = height;
+	startwidth = width;
+	return buffer;
+}
+struct Mipdata
+{
+	unsigned char* data;
+	int size = 0;
+};
+
+unsigned char* D3D12Texture::GenerateMips(int count, int StartWidth, int StartHeight, unsigned char* startdata)
+{
+	int bpp = 4;
+	int mipwidth = StartWidth;
+	int mipheight = StartHeight;
+	int mip0size = (StartWidth * StartHeight*bpp);
+	int totalsize = mip0size;
+	std::vector<Mipdata> Mips;
+	unsigned char* output = startdata;
+	for (int i = 0; i < count; i++)
+	{
+		if (mipwidth == 1 && mipheight == 1)
+		{
+			Miplevels = i;
+			break;
+		}
+		int mipsize = 0;
+		output = GenerateMip(mipwidth, mipheight, bpp, output, mipsize);
+
+		totalsize += mipsize;
+		Mipdata data;
+		data.data = output;
+		data.size = mipsize;
+		Mips.push_back(data);
+		Texturedatarray[i + 1].RowPitch = (mipwidth)* bpp;
+		Texturedatarray[i + 1].SlicePitch = Texturedatarray[i + 1].RowPitch * (mipheight);
+	}
+	unsigned char*  finalbuffer = new unsigned char[totalsize];
+	int Lastoffset = mip0size;
+	memcpy(finalbuffer, startdata, mip0size);
+	for (int i = 0; i < Mips.size(); i++)
+	{
+		memcpy((void*)(finalbuffer + Lastoffset), Mips[i].data, Mips[i].size);
+		Texturedatarray[i + 1].pData = (finalbuffer + Lastoffset);
+		Lastoffset += Mips[i].size;
+	}
+	return finalbuffer;
 }
 D3D12Texture::D3D12Texture(std::string name)
 {
+	Miplevels = 9;
 #if 1
 	unsigned char *buffer = NULL;
 	int width;
@@ -19,10 +143,11 @@ D3D12Texture::D3D12Texture(std::string name)
 	std::string rpath = Engine::GetRootDir();
 	rpath.append("\\asset\\texture\\");
 	rpath.append(name.c_str());
-	//rpath.append("house_diffuse.tga");
+	TextureName = name;
 	if (rpath.find(".tga") == -1)
 	{
 		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, rpath.c_str());
+
 	}
 	else
 	{
@@ -30,9 +155,11 @@ D3D12Texture::D3D12Texture(std::string name)
 		{
 			return;
 		}
+		Miplevels = 1;
 	}
 
-	CreateTextureFromData(buffer, 0, width, height, 4);
+	unsigned char*  finalbuffer = GenerateMips(Miplevels - 1, width, height, buffer);
+	CreateTextureFromData(finalbuffer, 0, width, height, 4);
 #else
 	CreateTextureFromData(GenerateCheckerBoardTextureData(), 0, TextureWidth, TextureHeight, TexturePixelSize);
 #endif
@@ -114,15 +241,17 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(D3D12RHI::Instance->m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
-
+	D3D12RHI::Instance->BaseTextureHeap = m_srvHeap;
+	m_srvHeap->SetName(L"Texture SRV");
 
 	ID3D12Resource* textureUploadHeap;
 
 	// Create the texture.
 	{
+
 		// Describe and create a Texture2D.
 		D3D12_RESOURCE_DESC textureDesc = {};
-		textureDesc.MipLevels = 1;
+		textureDesc.MipLevels = Miplevels;
 		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		textureDesc.Width = width;
 		textureDesc.Height = height;
@@ -140,7 +269,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 			nullptr,
 			IID_PPV_ARGS(&m_texture)));
 
-		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, 1);
+		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, Miplevels);
 
 		// Create the GPU upload buffer.
 		ThrowIfFailed(D3D12RHI::Instance->m_device->CreateCommittedResource(
@@ -157,10 +286,13 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		D3D12_SUBRESOURCE_DATA textureData = {};
 		textureData.pData = data;
+		//append data!
 		textureData.RowPitch = width * bits;
 		textureData.SlicePitch = textureData.RowPitch * height;
-
-		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_texture, textureUploadHeap, 0, 0, 1, &textureData);
+		
+		//array
+		Texturedatarray[0] = textureData;
+		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_texture, textureUploadHeap, 0, 0, Miplevels, &Texturedatarray[0]);
 		D3D12RHI::Instance->m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 		// Describe and create a SRV for the texture.
@@ -168,7 +300,8 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Format = textureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MipLevels = Miplevels;
+		srvDesc.Texture2D.MostDetailedMip = 0;
 		D3D12RHI::Instance->m_device->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 }

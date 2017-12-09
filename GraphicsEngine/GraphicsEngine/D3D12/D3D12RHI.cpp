@@ -194,13 +194,13 @@ void D3D12RHI::LoadAssets()
 	};
 
 
-	testmesh = new D3D12Mesh();
+	//testmesh = new D3D12Mesh();
 	testshader = new D3D12Shader();
 	testshader->m_vsBlob = vertexShader;
 	testshader->m_fsBlob = pixelShader;
 
 	testshader->m_Shader = testshader->CreatePipelineShader(inputElementDescs, _countof(inputElementDescs), vertexShader, pixelShader);
-	testshader->InitCBV();
+	//testshader->InitCBV();
 
 	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_SetupCommandList)));
 
@@ -248,8 +248,9 @@ void D3D12RHI::LoadAssets()
 		ThrowIfFailed(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 		m_fenceValues[m_frameIndex]++;
 		//	m_fenceValue = 1;
+		ThrowIfFailed(m_device->CreateFence(M_ShadowFence, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pShadowFence)));
 
-			// Create an event handle to use for frame synchronization.
+		// Create an event handle to use for frame synchronization.
 		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		if (m_fenceEvent == nullptr)
 		{
@@ -280,20 +281,41 @@ void D3D12RHI::InitliseDefaults()
 }
 void D3D12RHI::ExecList(CommandListDef* list)
 {
+	
+	if (list == nullptr)
+	{
+		printf("List is Nullptr\n");
+		return;
+	}
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	ThrowIfFailed( m_commandQueue->Signal(pShadowFence, M_ShadowFence));	//set the value for exec complition
+	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	ThrowIfFailed(pShadowFence->SetEventOnCompletion(M_ShadowFence, EventHandle));//set the wait for the value complition
+	WaitForSingleObject(EventHandle, INFINITE);//we need to wait to start the next queue!
+	M_ShadowFence++;	
+	//change it!
+	//m_commandQueue->Wait(pShadowFence, M_ShadowFence);
+	//M_ShadowFence++;
 }
-void D3D12RHI::PresentFrame()
+void D3D12RHI::PresentFrame(CommandListDef* List)
 {
+	
 	// Execute the command list.
-	ID3D12CommandList* ppCommandLists[] = { m_commandList };
-	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	//ID3D12CommandList* ppCommandLists[] = { List };
+	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
+	ExecList(List);
+
+
+	//m_commandQueue->Wait()
 	// Present the frame.
 	ThrowIfFailed(m_swapChain->Present(1, 0));
 
+	//WaitForPreviousFrame();
 	MoveToNextFrame();
 	WaitForGpu();
+	//WaitForGpu();
 }
 void D3D12RHI::OnDestroy()
 {
@@ -333,7 +355,7 @@ void D3D12RHI::PreFrameSetUp(ID3D12GraphicsCommandList* list, D3D12Shader* Shade
 
 	// Set necessary state.
 	list->SetGraphicsRootSignature(Shader->m_Shader.m_rootSignature);
-	
+
 
 	//m_constantBufferData.M = glm::translate(glm::vec3(0, -5, 0));
 	//testshader->UpdateCBV(m_constantBufferData);
@@ -350,6 +372,7 @@ void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
 }
 void D3D12RHI::PopulateCommandList()
 {
+	return;
 	//PreFrameSetUp(m_commandList);
 
 	//ClearRenderTarget(m_commandList);

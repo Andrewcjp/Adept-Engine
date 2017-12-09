@@ -10,7 +10,7 @@
 #include "Core/GameObject.h"
 #include "../Rendering/Core/Light.h"
 
-
+#include "../D3D12/D3D12RHI.h"
 #include "../Rendering/Core/Material.h"
 #include "RHI/Shader.h"
 #include "Rendering\Shaders\Shader_Main.h"
@@ -31,6 +31,7 @@
 #include "Rendering\Shaders\Shader_Skybox.h"
 #include "OpenGL/OGLFrameBuffer.h"
 #include "../Core/Performance/PerfManager.h"
+#include "../EngineGlobals.h"
 class OGLShaderProgram;
 class ForwardRenderer : public RenderEngine
 {
@@ -50,7 +51,8 @@ public:
 	void ReflectionPass();
 	void ShadowPass();
 	void BindAsRenderTarget();
-
+	void PrepareData();
+	void RenderDebugPlane();
 	void MainPass();
 	void RenderSkybox(bool ismain = true);
 	void RenderFitlerBufferOutput();
@@ -110,10 +112,15 @@ public:
 	bool UseQuerry = false;
 	void SetRenderSettings(RenderSettings settings) override;
 private:
+#if BUILD_D3D12
+	CommandListDef* MainList;
+	CommandListDef* ShadowList;
+#endif
 	FrameBuffer* FilterBuffer;
 	std::unique_ptr<ParticleSystem> particlesys;
 	std::unique_ptr<GrassPatch>  grasstest;
 	std::vector<GameObject*>* Objects;
+	class D3D12Plane* debugplane;
 	//std::vector<GameObject*> ob;
 	std::vector<GameObject*> PhysicsObjects;
 	//TextRenderer
@@ -124,7 +131,7 @@ private:
 	GameObject* skybox;
 	GameObject* playerGO;
 	ShadowRenderer* shadowrender;
-
+	D3D12RHI * DRHI;
 	Shader_Main* mainshader;
 	Shader_Grass* grassshader;
 	Shader_Water* Watershader;
@@ -152,7 +159,7 @@ private:
 
 	// Inherited via RenderEngine
 	virtual ShaderOutput * GetFilterShader() override;
-
+	bool once = true;
 
 	// Inherited via RenderEngine
 	virtual void DestoryRenderWindow() override;

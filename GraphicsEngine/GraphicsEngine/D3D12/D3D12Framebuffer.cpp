@@ -47,25 +47,37 @@ void D3D12FrameBuffer::CreateDepth()
 		//NAME_D3D12_OBJECT(m_depthStencil);
 		DepthHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 		D3D12RHI::GetDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, DepthHandle);
+		m_depthStencil->SetName(L"Shadow Stencil");
 	}
 	if (m_ftype == Depth)
 	{
 
 		//todo look at usage of heaps?
 		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-		srvHeapDesc.NumDescriptors = 2;
+		srvHeapDesc.NumDescriptors = 1;
 		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		ThrowIfFailed(D3D12RHI::Instance->m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
 
 
-
+		/*m_srvHeap->SetName(L"Depth SRV");*/
 		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 		shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		shadowSrvDesc.Texture2D.MipLevels = 1;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		D3D12RHI::GetDevice()->CreateShaderResourceView(m_depthStencil, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+		m_srvHeap->SetName(L"Shadow SRV heap");
+
+		//ThrowIfFailed(D3D12RHI::Instance->m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_nullHeap)));
+		//NullHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_nullHeap->GetGPUDescriptorHandleForHeapStart());
+		//D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, m_nullHeap->GetCPUDescriptorHandleForHeapStart());
+
+		//const UINT cbvSrvDescriptorSize = D3D12RHI::GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		//CD3DX12_CPU_DESCRIPTOR_HANDLE null(m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+		//null.Offset(1, cbvSrvDescriptorSize);
+		//D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, null);
+
 	}
 }
 D3D12FrameBuffer::~D3D12FrameBuffer()
@@ -78,15 +90,30 @@ void D3D12FrameBuffer::BindToTextureUnit(int unit)
 
 void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list)
 {
+	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	//list->SetGraphicsRootDescriptorTable(2, m_depthStencil->GetGPUVirtualAddress());
 	ID3D12DescriptorHeap* ppHeaps[] = { m_srvHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	list->SetGraphicsRootDescriptorTable(4, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+
 	//list->SetGraphicsRootShaderResourceView(3,m_depthStencil->GetGPUVirtualAddress());
 }
 
 void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 {
+	if (m_dsvHeap == nullptr)
+	{
+		return;
+	}
+	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	if (once)
+	{
+		list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_depthStencil, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	}
+	else
+	{
+		once = true;
+	}
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -97,10 +124,16 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 
 void D3D12FrameBuffer::UnBind(CommandListDef * list)
 {
-	const UINT cbvSrvDescriptorSize = D3D12RHI::GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	CD3DX12_GPU_DESCRIPTOR_HANDLE null(m_srvHeap->GetGPUDescriptorHandleForHeapStart());
-	null.Offset(1, cbvSrvDescriptorSize);
-	//list->SetGraphicsRootDescriptorTable(0, null);
+
+	//
+	//const UINT cbvSrvDescriptorSize = D3D12RHI::GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	//CD3DX12_GPU_DESCRIPTOR_HANDLE null(m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+	//null.Offset(1, cbvSrvDescriptorSize);
+	//D3D12RHI::GetDevice()->CreateShaderResourceView(NULL, );
+	ID3D12DescriptorHeap* ppHeaps[] = { m_nullHeap};
+	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+	list->SetGraphicsRootDescriptorTable(4, m_nullHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
 void D3D12FrameBuffer::ClearBuffer(CommandListDef * list)

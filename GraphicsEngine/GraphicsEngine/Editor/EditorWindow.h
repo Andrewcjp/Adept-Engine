@@ -28,7 +28,7 @@ class UIEditField;
 class EditorObjectSelector;
 class DebugLineDrawer;
 class SceneSerialiser;
-
+#define USE_THREADING  1
 class EditorWindow : public RenderWindow
 {
 
@@ -41,6 +41,12 @@ private:
 	int			m_width;
 	int			m_height;
 	static EditorWindow* instance;
+	bool DidPhsyx = false;
+	//threading
+	HANDLE RenderThread;
+	HANDLE ThreadStart;
+	HANDLE ThreadComplete;
+
 	//timers
 	float startms = 0;
 	float deltatime = 1;
@@ -91,6 +97,8 @@ public:
 	virtual ~EditorWindow();
 	static bool ProcessDebugCommand(std::string command);
 	bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen);
+	int PhysicsThreadLoop();
+	static DWORD RunPhysicsThreadLoop(void* pthis);
 	BOOL InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height);
 	void EnterPlayMode();
 	void ExitPlayMode();
@@ -99,6 +107,10 @@ public:
 	void RenderText();
 	void Update();
 	void SetDeferredState(bool state);
+
+	void PrePhysicsUpdate();
+
+	void DuringPhysicsUpdate();
 
 	
 
