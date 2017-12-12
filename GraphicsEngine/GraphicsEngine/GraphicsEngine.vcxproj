@@ -131,21 +131,24 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX ;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(projectdir)include/freetype2;$(solutiondir)TestGame;$(projectdir)include/magick;$(projectdir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>winmm.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PxPvdSDKDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;PxFoundationDEBUG_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib\64\;$(ProjectDir)lib\64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -255,6 +258,8 @@
     <ClInclude Include="Core\Components\ExtraComponentRegister.h" />
     <ClInclude Include="Core\Components\MeshColliderComponent.h" />
     <ClInclude Include="Core\Assets\SceneJSerialiser.h" />
+    <ClInclude Include="UI\UIAssetManager.h" />
+    <ClInclude Include="UI\UIPopoutbox.h" />
     <ClInclude Include="UI\UIPanel.h" />
     <ClInclude Include="UI\Layout.h" />
     <ClInclude Include="Rendering\Renderers\RenderSettings.h" />
@@ -346,7 +351,7 @@
     <ClInclude Include="Rendering\Shaders\Shader_Particle.h" />
     <ClInclude Include="Rendering\Shaders\Shader_Querry.h" />
     <ClInclude Include="Rendering\Shaders\Shader_SSAO.h" />
-    <ClInclude Include="Rendering\Shaders\Shader_Water.h" />
+    <ClInclude Include="OLD\Shader_Water.h" />
     <ClInclude Include="Rendering\Shaders\Shader_WDeferred.h" />
     <ClInclude Include="Rendering\Core\ShadowRenderer.h" />
     <ClInclude Include="targetver.h" />
@@ -388,6 +393,8 @@
     <ClCompile Include="Core\Components\MeshColliderComponent.cpp" />
     <ClCompile Include="Rendering\Renderers\RenderSettings.cpp" />
     <ClCompile Include="Core\Assets\SceneJSerialiser.cpp" />
+    <ClCompile Include="UI\UIAssetManager.cpp" />
+    <ClCompile Include="UI\UIPopoutbox.cpp" />
     <ClCompile Include="UI\UIPanel.cpp" />
     <ClCompile Include="UI\UIDropDown.cpp" />
     <ClCompile Include="UI\DebugConsole.cpp" />
@@ -470,7 +477,7 @@
     <ClCompile Include="Rendering\Shaders\Shader_Particle.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_Querry.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_SSAO.cpp" />
-    <ClCompile Include="Rendering\Shaders\Shader_Water.cpp" />
+    <ClCompile Include="OLD\Shader_Water.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_WDeferred.cpp" />
     <ClCompile Include="Rendering\Core\ShadowRenderer.cpp" />
     <ClCompile Include="UI\TextRenderer.cpp" />

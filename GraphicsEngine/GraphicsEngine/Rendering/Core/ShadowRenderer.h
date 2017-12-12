@@ -13,7 +13,7 @@ public:
 	~ShadowRenderer();
 	const int MAX_POINT_SHADOWS = 2;
 	const int MAX_DIRECTIONAL_SHADOWS = 4;
-	void RenderShadowMaps(Camera * c, std::vector<Light*> lights, std::vector<GameObject*>& ShadowObjects,CommandListDef* list = nullptr, class Shader_Main* mainshader = nullptr);
+	void RenderShadowMaps(Camera * c, std::vector<Light*> lights, const std::vector<GameObject*>& ShadowObjects,CommandListDef* list = nullptr, class Shader_Main* mainshader = nullptr);
 	void BindShadowMaps(CommandListDef* list = nullptr);
 	void ClearShadowLights();
 	void InitShadows(std::vector<Light*> lights);

@@ -5,6 +5,7 @@
 #include "../Core/Engine.h" 
 #include "../Core/Components/MeshRendererComponent.h"
 #include "../Rendering/Shaders/Shader_Main.h"
+#include "../Core/Performance/PerfManager.h"
 D3D11Window::D3D11Window()
 {
 	m_shaderProgram = NULL;
@@ -130,8 +131,8 @@ XMVECTOR todxvec(glm::vec3 v)
 }
 void D3D11Window::Render()
 {
-	deltatime = (float)(get_nanos() - lasttime) / 1.0e9f;//in ms
-	lasttime = get_nanos();
+	deltatime = (float)(PerfManager::get_nanos() - lasttime) / 1.0e9f;//in ms
+	lasttime = PerfManager::get_nanos();
 	m_input->ProcessInput(deltatime);
 	Acculilatedtime += deltatime;
 	if (Targettime > Acculilatedtime)
@@ -297,6 +298,10 @@ BOOL D3D11Window::MouseRBDown(int x, int y)
 BOOL D3D11Window::MouseRBUp(int x, int y)
 {
 	return 0;
+}
+
+void D3D11Window::ProcessMenu(WORD command)
+{
 }
 
 #endif

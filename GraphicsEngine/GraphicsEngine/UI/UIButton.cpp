@@ -6,6 +6,7 @@ UIButton::UIButton(int w, int h, int x, int y) : UIBox(w, h, x, y)
 	Init();
 	Label = new UILabel(MText, 1, 0, x, y);
 	Colour = glm::vec3(0.5f);
+	Priority = 2;//buttons need to draw on top of panels
 }
 UIButton::~UIButton()
 {
@@ -59,7 +60,6 @@ void UIButton::ResizeView(int w, int h, int x, int y)
 void UIButton::UpdateScaled()
 {
 	UIBox::UpdateScaled();
-	//Rect = CollisionRect(mwidth, mheight, X, Y);
 }
 
 void UIButton::SetText(std::string  t)

@@ -44,7 +44,7 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 	RightRect = CollisionRect(WidthOfCollisonRects * 2, h, x + (w - WidthOfCollisonRects), y);
 	GLfloat xpos = (GLfloat)x;
 	GLfloat ypos = (GLfloat)y;
-	float value = 1;
+
 	
 
 	//GLfloat vertices[] = {
@@ -119,7 +119,7 @@ void UIBox::MouseClick(int x, int y)
 		}
 	}
 }
-void UIBox::MouseClickUp(int x, int y)
+void UIBox::MouseClickUp(int , int )
 {
 	if (Resizeable)
 	{
@@ -128,7 +128,7 @@ void UIBox::MouseClickUp(int x, int y)
 }
 void UIBox::Render()
 {
-	return;
+#if !USE_BATCHED_DRAW
 	//old slow way
 	//glDisable(GL_BLEND);
 
@@ -164,5 +164,5 @@ void UIBox::Render()
 	glDrawArrays(GL_TRIANGLES, 0, 12); // 2*3 indices starting at 0 -> 2 triangles
 
 	glDisableVertexAttribArray(0);
-
+#endif
 }

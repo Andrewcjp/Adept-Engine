@@ -140,7 +140,7 @@ void LineDrawer::ClearLines()
 	LineCount = 0;
 }
 
-void LineDrawer::AddLine(glm::vec2 Start, glm::vec2 end, glm::vec3 colour, float thickness)
+void LineDrawer::AddLine(glm::vec2 Start, glm::vec2 end, glm::vec3 colour, float)
 {
 	Line l;
 	l.startpos = Start;

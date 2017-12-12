@@ -38,6 +38,6 @@ public:
 	virtual BOOL		MouseRBUp(int x, int y) = 0;
 	virtual BOOL		MouseMove(int x, int y) = 0;
 	virtual BOOL KeyDown(WPARAM key) = 0;
-	virtual void ProcessMenu(WORD command) {}
+	virtual void ProcessMenu(WORD command) = 0;
 
 };

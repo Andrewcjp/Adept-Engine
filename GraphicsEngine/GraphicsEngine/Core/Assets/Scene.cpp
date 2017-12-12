@@ -7,15 +7,10 @@
 #include "../Components/CompoenentRegistry.h"
 #include "../Components/RigidbodyComponent.h"
 Scene::Scene()
-{
-	//	serialiser = new SceneSerialiser();
-		//serialiser->load("../asset/scene/Data.txt");
-}
-
+{}
 
 Scene::~Scene()
-{
-}
+{}
 
 void Scene::UpdateScene(float deltatime)
 {
@@ -96,27 +91,17 @@ void Scene::LoadDefault(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
 	go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
 	LightComponent * lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(true);
+	lc->SetShadow(false);
 	lc->SetLightType(Light::Directional);
 	lc->SetIntensity(0.1f);
 	AddGameobjectToScene(go);
 
 
-
-
-
-
 	/*go = new GameObject("TG Test");
 	go->AttachComponent(CompoenentRegistry::CreateAdditonalComponent(1));
 	AddGameobjectToScene(go);*/
-	//Light* l = new Light(glm::vec3(0, 10, 20), 150, Light::Point, glm::vec3(1, 1, 1));
 
-	////l->SetShadow(false);
-	//Renderer->AddLight(l);
-	//l = new Light(glm::vec3(30, 75, 50), 0.5, Light::Directional, glm::vec3(1, 1, 1));
-	//l->SetDirection(l->GetPosition());
-	//l->SetShadow(false);
-	//Renderer->AddLight(l);
+
 	go = new GameObject("Plane");
 	mat = new Material(RHI::CreateTexture("bricks2.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
@@ -135,7 +120,6 @@ void Scene::LoadDefault(RenderEngine* Renderer, bool IsDeferredMode)
 	mat->DisplacementMap = RHI::CreateTexture("bricks2_disp.jpg");
 
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-	//go->GetMat()->SetShadow(false);
 	go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(0.5));
@@ -157,11 +141,7 @@ void Scene::LoadDefault(RenderEngine* Renderer, bool IsDeferredMode)
 	go = new GameObject("Static Water");
 	mat = new Material(RHI::CreateTexture("Water fallback.jpg"));
 	mat->NormalMap = RHI::CreateTexture("IKT4l.jpg");
-
-	//go->SetMaterial(mat);
-	//	go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-	//go->GetMat()->SetShadow(false);
 	go->GetTransform()->SetPos(glm::vec3(-37, -2, -20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
@@ -173,16 +153,11 @@ void Scene::LoadDefault(RenderEngine* Renderer, bool IsDeferredMode)
 
 		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture());
 		mat->NormalMap = RHI::CreateTexture("IKT4l.jpg");
-
-		//go->SetMaterial(mat);
-		//go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
 		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-		//go->GetMat()->SetShadow(false);
 		go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
 		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 		go->GetTransform()->SetScale(glm::vec3(2));
 		go->SetReflection(true);
-		//todo:
 		Camera* c = new Camera(go->GetTransform()->GetPos(), 90.0f, static_cast<float>(512 / 512), 0.1f, 100.0f);
 		c->Pitch(-90);
 		c->SetUpAndForward(glm::vec3(0, 1.0, 0), glm::vec3(0, 0, 1.0));

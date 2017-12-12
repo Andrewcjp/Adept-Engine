@@ -49,7 +49,7 @@ Shader_Main::Shader_Main()
 		m_MV33 = glGetUniformLocation(m_Shader->GetProgramHandle(), "MV3x3");
 		IsReflect = glGetUniformLocation(m_Shader->GetProgramHandle(), "IsReft");
 
-		unsigned int block_index = glGetUniformBlockIndex(m_Shader->GetProgramHandle(), "UBuffer");
+//		unsigned int block_index = glGetUniformBlockIndex(m_Shader->GetProgramHandle(), "UBuffer");
 		GLuint binding_point_index = 1;
 		glGenBuffers(1, &ubo);
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
@@ -226,9 +226,7 @@ void Shader_Main::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Lig
 	RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
 }
 
-void Shader_Main::UpdateD3D12Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
-{
-}
+
 
 void Shader_Main::ClearBuffer()
 {
@@ -241,7 +239,7 @@ void Shader_Main::UpdateCBV()
 		((D3D12Shader*)m_Shader)->UpdateCBV(SceneBuffer[i], i);
 	}
 }
-void Shader_Main::UpdateUnformBufferEntry(D3D12Shader::SceneConstantBuffer &bufer, int index)
+void Shader_Main::UpdateUnformBufferEntry(const D3D12Shader::SceneConstantBuffer &bufer, int index)
 {
 	if (index < MaxConstant)
 	{
@@ -266,15 +264,10 @@ void Shader_Main::UpdateMV(glm::mat4 View, glm::mat4 Projection)
 	MV_Buffer.P = Projection;
 	MVCBV->UpdateCBV(MV_Buffer, 0);
 }
-D3D12Shader::SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(Transform * t, Camera * c)
+D3D12Shader::SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(Transform * t)
 {
 	D3D12Shader::SceneConstantBuffer m_constantBufferData;
 	m_constantBufferData.M = t->GetModel();
-	//m_constantBufferData.P = c->GetProjection();
-	//m_constantBufferData.V = c->GetView();
-	//temp
-	/*MV_Buffer.V = c->GetView();
-	MV_Buffer.P = c->GetProjection();*/
 	//used in the prepare stage for this frame!
 	return m_constantBufferData;
 }

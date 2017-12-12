@@ -219,11 +219,12 @@ void ForwardRenderer::ReflectionPass()
 
 void ForwardRenderer::ShadowPass()
 {
-	shadowrender->ResetCommandList(ShadowList);
-	mainshader->BindLightsBuffer(ShadowList);
-
+	if (ShadowList != nullptr)
+	{
+		shadowrender->ResetCommandList(ShadowList);
+		mainshader->BindLightsBuffer(ShadowList);
+	}
 	shadowrender->RenderShadowMaps(MainCamera, (*Lights), (InGetObj()), ShadowList, mainshader);
-
 	if (ShadowList != nullptr)
 	{
 		ShadowList->Close();
@@ -239,19 +240,17 @@ void ForwardRenderer::PrepareData()
 {
 	for (size_t i = 0; i < (InGetObj()).size(); i++)
 	{
-		mainshader->UpdateUnformBufferEntry(mainshader->CreateUnformBufferEntry(InGetObj()[i]->GetTransform(), MainCamera), (int)i);
+		mainshader->UpdateUnformBufferEntry(mainshader->CreateUnformBufferEntry(InGetObj()[i]->GetTransform()), (int)i);
 	}
 }
 void ForwardRenderer::RenderDebugPlane()
 {
-#if !(_DEBUG)
-	return;
-#else
-	return;
-#endif
+#if (_DEBUG) && 0
 	MainList->SetGraphicsRootSignature(((D3D12Shader*)outshader->GetShaderProgram())->m_Shader.m_rootSignature);
 	MainList->SetPipelineState(((D3D12Shader*)outshader->GetShaderProgram())->m_Shader.m_pipelineState);
 	debugplane->Render(MainList);
+#endif
+	
 }
 void ForwardRenderer::MainPass()
 {

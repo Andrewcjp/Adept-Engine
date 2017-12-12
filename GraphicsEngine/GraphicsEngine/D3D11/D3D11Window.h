@@ -21,7 +21,7 @@ using namespace DirectX;
 #include "Rendering/Shaders/ShaderOutput.h"
 #include "../Rendering/Core/ShadowRenderer.h"
 #include "../Rendering/Core/Light.h"
-/*__declspec(align(16))*/ class D3D11Window : public RenderWindow
+ class D3D11Window : public RenderWindow
 {
 	private:
 		struct ConstantBuffer
@@ -37,15 +37,7 @@ using namespace DirectX;
 		glm::mat4					m_view;
 		glm::mat4					m_proj;
 		float						m_euler[3];
-		
-		//ID3D11Device				*m_dxDev;
-		//ID3D11DeviceContext			*m_dxContext;
-		//ID3D11RenderTargetView		*m_backbuffer;
-		//ID3D11Texture2D				*m_depthStencil;
-		//ID3D11DepthStencilView		*m_depthStencilView;
-		//ID3D11SamplerState			*m_texSamplerDefaultState;
-		//IDXGISwapChain				*m_swapChain;
-		//ID3D11Buffer				*m_constantBuffer;
+
 		D3D11ShaderProgram			*m_shaderProgram;
 		D3D11ShaderProgram			*m_output;
 		Renderable					*m_mesh;
@@ -115,5 +107,9 @@ protected:
 
 		// Inherited via RenderWindow
 		
+
+		// Inherited via RenderWindow
+		virtual void ProcessMenu(WORD command) override;
+
 };
 #endif

@@ -6,7 +6,7 @@ PhysxEngine::~PhysxEngine()
 {
 }
 
-void PhysxEngine::initPhysics(bool interactive)
+void PhysxEngine::initPhysics(bool)
 {
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 
@@ -163,6 +163,7 @@ RigidBody * PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velo
 }
 RigidBody* PhysxEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
 {
+	PX_UNUSED(velocity);
 	return new PhxRigidBody(CreateActor(GLMtoPXvec3(position), scale, PxGeometryType::eSPHERE));
 }
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)

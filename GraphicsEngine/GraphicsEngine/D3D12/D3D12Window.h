@@ -42,5 +42,8 @@ private:
 	CommandListDef* MainList;
 	CommandListDef* ShadowList;
 	std::vector<Light*> Lights;
+
+	// Inherited via RenderWindow
+	virtual void ProcessMenu(WORD command) override;
 };
 

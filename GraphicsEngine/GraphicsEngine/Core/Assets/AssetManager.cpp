@@ -15,6 +15,7 @@
 #include "Core/Engine.h"
 #include <SOIL.h>
 #include "../Utils/StringUtil.h"
+#include "../Core/Performance/PerfManager.h"
 void AssetManager::LoadFromShaderDir()
 {
 	std::string path = ShaderAssetPath;
@@ -157,7 +158,7 @@ void AssetManager::StartAssetManager()
 }
 AssetManager::AssetManager()
 {
-	StartTime = (float)get_nanos();
+	StartTime = (float)PerfManager::get_nanos();
 	std::string path = Engine::GetRootDir();	
 	path.append("\\asset\\");
 	/*StringUtils::RemoveChar(path, "|");*/
@@ -192,7 +193,7 @@ AssetManager::AssetManager()
 	//}
 	LoadTexturesFromDir();
 
-	std::cout << "Shaders Loaded in " << ((get_nanos() - StartTime) / 1e6f) << "ms " << std::endl;
+	std::cout << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << std::endl;
 	std::cout << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << std::endl;
 }
 

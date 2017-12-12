@@ -25,7 +25,9 @@ enum ERenderSystemType
 	RenderSystemVulkan
 };
 
-
+template <class T>
+void UNUSED_PARAM(T const&)
+{}
 
 
 #if BUILD_D3D12

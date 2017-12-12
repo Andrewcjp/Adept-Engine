@@ -17,6 +17,9 @@
 #include "DebugConsole.h"
 #include "../Editor/Inspector.h"
 #include "../Editor/EditorWindow.h"
+#include "../EngineGlobals.h"
+#include "UIPopoutbox.h"
+#include "UIAssetManager.h"
 UIManager* UIManager::instance = nullptr;
 UIManager::UIManager()
 {
@@ -32,12 +35,14 @@ UIManager::UIManager(int w, int h)
 	DrawBatcher = new UIDrawBatcher();
 	Initalise(w, h);
 	instance = this;
+#if WITH_EDITOR
+	InitEditorUI();
+#endif
+}
+void UIManager::InitEditorUI()
+{
 
-
-	bottom = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
-	bottom->SetScaled(1.0f - RightWidth, BottomHeight);
-	AddWidget(bottom);
-
+	BottomHeight = 0.25f;
 	UIBox* TOP = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
 	AddWidget(TOP);
@@ -51,9 +56,6 @@ UIManager::UIManager(int w, int h)
 	AddWidget(inspector);
 
 	ViewportRect = CollisionRect(GetScaledWidth(0.70f), GetScaledHeight(0.70f), 0, 0);
-	//b = new UIBox(GetScaledWidth(0.15), GetScaledHeight(0.85), w- GetScaledWidth(0.15), GetScaledHeight(0.15));
-	//b->Colour = glm::vec3(0.6);
-	//AddWidget(b);
 	UIButton* button = new UIButton(200, 50, 0, 500);
 	button->SetScaled(0.05f, 0.075f, 0.5f - 0.05f, 1.0f - (TopHeight));
 	button->BindTarget(std::bind(&EditorWindow::EnterPlayMode, EditorWindow::GetInstance()));
@@ -62,17 +64,20 @@ UIManager::UIManager(int w, int h)
 	button = new UIButton(200, 50, 0, 500);
 	button->SetScaled(0.05f, 0.075f, 0.5f, 1.0f - (TopHeight));
 	button->BindTarget(std::bind(&EditorWindow::ExitPlayMode, EditorWindow::GetInstance()));
-	button->SetText("Stop ");
+	button->SetText("Stop");
 	AddWidget(button);
+	testbox = new UIPopoutbox(100, 300, 250, 150);
+	testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
+	AddWidget(testbox);
 	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
 	wid->SetScaled(1.0f, 0.05f, 0.0f, 0.3f);
 	AddWidget(wid);
-
-	//AddWidget(button);
-}
-void UIManager::Test()
-{
-	//__debugbreak();
+	//bottom = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
+	//bottom->SetScaled(1.0f - RightWidth, BottomHeight);/
+	//AddWidget(bottom);
+	AssetManager = new UIAssetManager();
+	AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
+	AddWidget(AssetManager);
 }
 
 UIManager::~UIManager()
@@ -115,21 +120,28 @@ void UIManager::UpdateSize(int width, int height)
 	m_width = width;
 	m_height = height;
 	ViewportRect = CollisionRect(GetScaledWidth(0.70f), GetScaledHeight(0.70f), 0, 0);
-	for (int i = 0; i < widgets.size(); i++)
+
+	struct less_than_key
 	{
-		//widgets[i]->SetWindowDim(m_width, m_height);
+		bool operator() (UIWidget* struct1, UIWidget* struct2)
+		{
+			return (struct1->Priority > struct2->Priority);
+		}
+	};
+
+	//seems operator overloading is broken here for some reason
+	std::sort(widgets.begin(), widgets.end(), less_than_key());
+	for (int i = (int)widgets.size() - 1; i >= 0; i--)
+	{
 		widgets[i]->UpdateScaled();
 	}
-	//	box->UpdateScaled();
-	//	box->ResizeView(GetScaledWidth(0.15f), GetScaledHeight(.6f), 0, GetScaledHeight(0.2f));
-		/*bottom->ResizeView(m_width, GetScaledHeight(0.2), 0, 0);*/
+
 	textrender->UpdateSize(width, height);
 	DrawBatcher->SendToGPU();
 }
 
 void UIManager::AddWidget(UIWidget * widget)
 {
-	//widget->SetWindowDim(m_width, m_height);
 	widgets.push_back(widget);
 }
 void UIManager::UpdateBatches()
@@ -145,13 +157,11 @@ void UIManager::UpdateWidgets()
 	{
 		widgets[i]->UpdateData();
 	}
-	
+
 }
 void UIManager::RenderWidgets()
 {
-
 	//todo: move to not run every frame?
-	
 	DrawBatcher->RenderBatches();
 	for (int i = 0; i < widgets.size(); i++)
 	{
@@ -160,12 +170,14 @@ void UIManager::RenderWidgets()
 			widgets[i]->Render();
 		}
 	}
-	//	PerfManager::StartTimer("Line");
+#if UISTATS
+	PerfManager::StartTimer("Line");
+#endif
 	LineBatcher->GenerateLines();
 	LineBatcher->RenderLines();
-	
-
-	//	PerfManager::EndTimer("Line");
+#if UISTATS
+	PerfManager::EndTimer("Line");
+#endif
 
 
 }
@@ -211,7 +223,6 @@ void UIManager::RefreshGameObjectList()
 	if (box != nullptr && GameObjectsPtr != nullptr)
 	{
 		box->RemoveAll();
-		//	box->SetScaled(LeftWidth, 0.70f, 0.0f, 0.15f);
 		box->SetScaled(LeftWidth, 1.0f - (BottomHeight + TopHeight), 0.0, BottomHeight);
 		using std::placeholders::_1;
 		box->SelectionChanged = std::bind(&Input::SetSelectedObject, _1);

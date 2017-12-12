@@ -32,7 +32,7 @@ Shader_Particle::Shader_Particle()
 Shader_Particle::~Shader_Particle()
 {
 }
-void Shader_Particle::UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights)
+void Shader_Particle::UpdateOGLUniforms(Transform* , Camera* c, std::vector<Light*> lights)
 {
 	glUniformMatrix4fv(VP, 1, GL_FALSE, &c->GetViewProjection()[0][0]);
 	glUniform3fv(CameraRight_worldspace, 1, glm::value_ptr(c->GetRight()));
@@ -40,6 +40,6 @@ void Shader_Particle::UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Lig
 
 }
 
-void Shader_Particle::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Particle::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }

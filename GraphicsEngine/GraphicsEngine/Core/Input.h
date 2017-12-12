@@ -22,13 +22,10 @@ public:
 
 	void FireAtScene();
 	void Clear();
-	void ProcessInput(const float delatime);
-	BOOL		MouseLBDown(int x, int y);
-	BOOL		MouseLBUp(int x, int y);
-	BOOL MouseMove(int x, int y, double deltatime);
+
 	static void SetSelectedObject(int index);
 	void ProcessQue();
-	BOOL		ProcessKeyDown(WPARAM key);
+
 	Shader_Main * main;
 	ShaderOutput * Filters;
 	float GetForce() { return CurrentForce / 10000; }
@@ -38,9 +35,19 @@ public:
 	int currentObjectIndex = 0;
 	static void Test(Input*in);
 	RenderEngine* Renderer;
+
+
+	//input processing
 	static bool GetKeyDown(int c);
+	static bool GetKey(char c);
+	static bool GetVKey(short key);
 	static HCURSOR Cursor;
 	static glm::vec2 GetMouseInputAsAxis();
+	void   ProcessInput(const float delatime);
+	BOOL   MouseLBDown(int x, int y);
+	BOOL   MouseLBUp(int x, int y);
+	BOOL   MouseMove(int x, int y, double deltatime);
+	BOOL   ProcessKeyDown(WPARAM key);
 private:
 	bool Querry = false;
 	bool FxAA = true;
@@ -58,13 +65,16 @@ private:
 	float currentmoveamt = 1;
 	glm::vec2 MouseAxis;
 	std::map<int, bool> KeyMap;
+	HKL Layout;
+	bool IsActiveWindow = false;
 };
 
-class InputEvent {
+class InputEvent
+{
 public:
 	InputEvent(Input* in) { input = in; }
 	~InputEvent() {}
-	void(* Func)(Input*);
+	void(*Func)(Input*);
 	Input* input;
 	void FOO() {}
 };

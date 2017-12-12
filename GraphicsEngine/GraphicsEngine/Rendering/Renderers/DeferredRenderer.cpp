@@ -226,7 +226,7 @@ std::vector<GameObject*> DeferredRenderer::GetObjects()
 
 
 
-void DeferredRenderer::SetReflectionCamera(Camera * c)
+void DeferredRenderer::SetReflectionCamera(Camera * )
 {
 }
 

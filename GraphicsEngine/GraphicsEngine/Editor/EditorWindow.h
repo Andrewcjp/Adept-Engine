@@ -3,31 +3,26 @@
 #include "RHI/RenderWindow.h"
 
 #include <vector>
-
-#include "Core/Transform.h"
-#include "Core/GameObject.h"
-#include "../Rendering/Core/Light.h"
-
 #include <ctime>
 #include <time.h>
 #include <GLEW\GL\glew.h>
-
-#include "Core/Input.h"
 #include <memory>
-#include "Core/Input.h"
-#include "UI/TextRenderer.h"
 
-#include "OpenGL\OGLTexture.h"
+
+#include "Core/Transform.h"
+#include "Core/GameObject.h"
+#include "Core/Input.h"
 #include "../Rendering/Core/Material.h"
 #include "../Rendering/Renderers/ForwardRenderer.h"
 #include "../Rendering/Renderers/DeferredRenderer.h"
-#include "UI\UIManager.h"
+#include "UI/TextRenderer.h"
 #include "../Rendering/Renderers/RenderSettings.h"
 class EditorGizmos;
 class UIEditField;
 class EditorObjectSelector;
 class DebugLineDrawer;
 class SceneSerialiser;
+class UIManager;
 #define USE_THREADING  1
 class EditorWindow : public RenderWindow
 {
@@ -79,6 +74,8 @@ private:
 	SceneSerialiser* SceneFileLoader;
 	class Editor_Camera* EditorCamera;
 	class SceneJSerialiser* Saver;
+
+	float TickRate = 1.0f / 120.0f;
 public:
 	bool ShowHud = true;
 	bool ShowText = true;

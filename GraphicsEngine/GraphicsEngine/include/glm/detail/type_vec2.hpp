@@ -12,6 +12,7 @@
 #	endif
 #endif //GLM_SWIZZLE
 #include <cstddef>
+#pragma warning (push,3)
 
 namespace glm
 {
@@ -383,3 +384,4 @@ namespace glm
 #ifndef GLM_EXTERNAL_TEMPLATE
 #include "type_vec2.inl"
 #endif//GLM_EXTERNAL_TEMPLATE
+#pragma warning (pop)

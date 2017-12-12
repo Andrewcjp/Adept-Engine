@@ -17,7 +17,7 @@ void UILabel::Render()
 {
 	if (TextRenderer::instance != nullptr)
 	{
-		TextRenderer::instance->RenderFromAtlas(MText, (float)X +10/*+ (mwidth / 2)*/, (float)Y + ((mheight / 2.0f) - (TextScale * 10)), TextScale);
+		TextRenderer::instance->RenderFromAtlas(MText, (float)X +10/*+ (mwidth / 2)*/, (float)Y + ((mheight / 2.0f) - (TextScale )), TextScale);
 	}
 }
 

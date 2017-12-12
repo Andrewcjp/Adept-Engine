@@ -51,14 +51,14 @@ public:
 	bool IsPhysics = false;
 	void ClearBuffer();
 	void UpdateCBV();
-	void UpdateUnformBufferEntry(D3D12Shader::SceneConstantBuffer &bufer, int index);
+	void UpdateUnformBufferEntry(const D3D12Shader::SceneConstantBuffer &bufer, int index);
 	void SetActiveIndex(CommandListDef * list, int index);
 
 	void UpdateMV(Camera * c);
 
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 
-	D3D12Shader::SceneConstantBuffer CreateUnformBufferEntry(Transform* t, Camera* c);
+	D3D12Shader::SceneConstantBuffer CreateUnformBufferEntry(Transform* t);
 	void BindLightsBuffer(CommandListDef * list);
 	void UpdateLightBuffer(std::vector<Light*> lights);
 private:
@@ -96,7 +96,6 @@ private:
 	LightBufferW LightsBuffer;
 	// Inherited via Shader
 	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
-	virtual void UpdateD3D12Uniforms(Transform* t, Camera* c, std::vector<Light*> lights) override;
 
 };
 

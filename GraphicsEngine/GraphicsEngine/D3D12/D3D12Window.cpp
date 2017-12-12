@@ -24,6 +24,7 @@ D3D12Window::~D3D12Window()
 
 bool D3D12Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
 {
+	UNUSED_PARAM(Fullscreen);
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
 		L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		0, 0, width, height, NULL, NULL, hInstance, NULL);
@@ -31,7 +32,7 @@ bool D3D12Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height,
 	return true;
 }
 
-BOOL D3D12Window::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height)
+BOOL D3D12Window::InitWindow(HGLRC, HWND, HDC, int width, int height)
 {
 
 	m_width = width;
@@ -81,8 +82,8 @@ BOOL D3D12Window::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int hei
 }
 void D3D12Window::PrepareRenderData()
 {
-	mainshader->UpdateUnformBufferEntry(mainshader->CreateUnformBufferEntry(Testobj->GetTransform(), cam), 0);
-	mainshader->UpdateUnformBufferEntry(mainshader->CreateUnformBufferEntry(Testobj2->GetTransform(), cam), 1);
+	mainshader->UpdateUnformBufferEntry(mainshader->CreateUnformBufferEntry(Testobj->GetTransform()), 0);
+	mainshader->UpdateUnformBufferEntry(mainshader->CreateUnformBufferEntry(Testobj2->GetTransform()), 1);
 }
 bool once = true;
 void D3D12Window::ShadowPass()
@@ -159,23 +160,25 @@ void D3D12Window::DestroyRenderWindow()
 
 BOOL D3D12Window::MouseLBDown(int x, int y)
 {
-	input->MouseLBDown(x, y);
+	
 	return 0;
 }
 
 BOOL D3D12Window::MouseLBUp(int x, int y)
 {
-	input->MouseLBUp(x, y);
+	
 	return 0;
 }
 
 BOOL D3D12Window::MouseRBDown(int x, int y)
 {
+	input->MouseLBDown(x, y);
 	return 0;
 }
 
 BOOL D3D12Window::MouseRBUp(int x, int y)
 {
+	input->MouseLBUp(x, y);
 	return 0;
 }
 
@@ -188,4 +191,8 @@ BOOL D3D12Window::MouseMove(int x, int y)
 BOOL D3D12Window::KeyDown(WPARAM key)
 {
 	return 0;
+}
+
+void D3D12Window::ProcessMenu(WORD command)
+{
 }

@@ -102,9 +102,9 @@ void UIEditField::ResizeView(int w, int h, int x, int y)
 	UIBox::ResizeView(w, h, x, y);
 	Namelabel->TextScale = 0.3f;
 	Textlabel->TextScale = 0.3f;
-	Namelabel->ResizeView(w / 3, h, x, y);
+	Namelabel->ResizeView(w / 3, h / 2, x, y);
 	int gap = 25;
-	Textlabel->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
+	Textlabel->ResizeView(((w / 3) * 2) - gap, h / 2.0, x + (w / 3) + gap, y);
 	TextBox->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
 	Rect = CollisionRect(w, h, x, y);
 }
@@ -173,10 +173,10 @@ void UIEditField::ProcessKeyDown(WPARAM key)
 	else if (key != 0)
 	{
 
-		char c = MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
+		char c = (char)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
 		if (!(GetKeyState(VK_LSHIFT) & 0x8000) && !(GetKeyState(VK_RSHIFT) & 0x8000))
 		{
-			c = std::tolower(c);
+			c = (char)std::tolower(c);
 		}
 		if (CheckValidInput(c))
 		{

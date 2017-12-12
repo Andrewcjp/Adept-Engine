@@ -100,7 +100,7 @@ void SceneSerialiser::AddDataToScene(Scene* scene, DataS d)
 	{
 		//go->SetMesh(new Mesh(("../asset/models/" + d.MeshName).c_str()));
 	}
-	Material* mat = new Material(new OGLTexture(("../asset/texture/" + d.TextureName).c_str()));
+//	Material* mat = new Material(new OGLTexture(("../asset/texture/" + d.TextureName).c_str()));
 	//mat->NormalMap = new OGLTexture("../asset/texture/pbr/rusted_iron/normal.png");
 	//go->SetMaterial(mat);
 	go->GetTransform()->SetScale(d.scale);

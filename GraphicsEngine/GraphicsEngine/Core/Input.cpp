@@ -22,6 +22,7 @@ Input::Input(Camera* c, GameObject* playergo, HWND window, RenderWindow* wind)
 	m_hwnd = window;
 	ogwindow = wind;
 	OpenGlwindow = reinterpret_cast<EditorWindow*>(wind);
+	Layout = GetKeyboardLayout(0);
 
 }
 
@@ -77,7 +78,7 @@ void Input::Clear()
 }
 void Input::ProcessInput(const float delatime)
 {
-
+	IsActiveWindow = (m_hwnd == GetActiveWindow());
 	if (EditorWindow::CurrentContext != nullptr)
 	{
 		return;//block input!
@@ -92,49 +93,10 @@ void Input::ProcessInput(const float delatime)
 			//}
 			return;
 		}
-		//if (RHI::GetType() == RenderSystemD3D11)
-		//{
-		//	float movespeed = 100;
-		//	if (GetKeyState(VK_LSHIFT) & 0x8000)
-		//	{
-		//		// Right ALT key is down.
-		//		movespeed = 1000;
-		//	}
-		//	else
-		//	{
-		//		movespeed = 100;
-		//	}
-		//	if (GetKeyState(87) & 0x8000)
-		//	{
-		//		// Right ALT key is down.
-		//		MainCam->MoveForward(movespeed*delatime);
-		//	}
-		//	if (GetKeyState(83) & 0x8000)
-		//	{
-		//		// Right ALT key is down.
-		//		MainCam->MoveForward(-movespeed*delatime);
-		//	}
-		//	if (GetKeyState(65) & 0x8000)
-		//	{
-		//		// Right ALT key is down.
-		//		MainCam->MoveRight(movespeed*delatime);
-		//	}
-		//	if (GetKeyState(68) & 0x8000)
-		//	{
-		//		// Right ALT key is down.
-		//		MainCam->MoveRight(-movespeed*delatime);
-		//	}
-		//	if (GetKeyState(69) & 0x8000)
-		//	{
-		//		// Right ALT key is down.
-		//		MainCam->MoveUp(movespeed*delatime);
-		//	}
-		//	if (GetKeyState(81) & 0x8000)
-		//	{
-		//		// Right ALT key is down.
-		//		MainCam->MoveUp(-movespeed*delatime);
-		//	}
-		//}
+	}
+	if (GetKey('w'))
+	{
+
 	}
 }
 
@@ -400,20 +362,35 @@ bool Input::GetKeyDown(int c)
 		{
 			return instance->KeyMap.at((int)c);
 		}
-		//if (GetKeyState(c) & 0x8000)
-		//{
-		//	// Right ALT key is down.
-		//	return true;
-		//}
-		/*if (c == '`')
-		{
-			return instance->IsTidleDown;
-		}*/
-
 	}
 	return false;
 }
-
+bool Input::GetKey(char c)
+{
+	if (instance == nullptr)
+	{
+		return false;
+	}	
+	short key = VkKeyScanEx(c, instance->Layout);
+	return GetVKey(key);	
+}
+bool Input::GetVKey(short key)
+{
+	if (instance == nullptr)
+	{
+		return false;
+	}
+	if (!instance->IsActiveWindow)
+	{
+		return false;
+	}
+	if (GetKeyState(key) & 0x8000)
+	{
+		return true;
+	}
+	
+	return false;
+}
 glm::vec2 Input::GetMouseInputAsAxis()
 {
 	if (instance != nullptr)

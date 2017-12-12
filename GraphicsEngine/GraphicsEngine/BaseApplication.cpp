@@ -97,7 +97,7 @@ BaseApplication* BaseApplication::GetApplication()
 
 int BaseApplication::Run()
 {
-	MSG msg;
+	MSG msg = MSG();
 
 	while (!m_terminate)
 	{

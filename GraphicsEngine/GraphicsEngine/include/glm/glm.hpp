@@ -52,7 +52,7 @@
 #include "detail/_fixes.hpp"
 
 #pragma once
-
+#pragma warning (push,3)
 #include <cmath>
 #include <climits>
 #include <cfloat>
@@ -86,3 +86,4 @@
 #include "matrix.hpp"
 #include "vector_relational.hpp"
 #include "integer.hpp"
+#pragma warning (pop)

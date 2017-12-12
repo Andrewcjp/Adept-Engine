@@ -15,9 +15,9 @@ public:
 	glm::mat4 GetTransFormView();
 	///------------------------------------------------------
 	//setters	
-	void SetPos(glm::vec3& pos);
-	void SetEulerRot(glm::vec3& rot);
-	void SetScale(glm::vec3& scale);
+	void SetPos(const glm::vec3& pos);
+	void SetEulerRot(const glm::vec3& rot);
+	void SetScale(const glm::vec3& scale);
 	void AddRotation(glm::vec3& rot);
 	void RotateAboutAxis(glm::vec3& axis, float amt);
 	void SetQrot(glm::quat& val);
@@ -31,7 +31,7 @@ public:
 	glm::vec3 GetForward();
 	glm::vec3 GetUp();
 	glm::vec3 TransfromToLocalSpace(glm::vec3& direction);
-	glm::vec3 TransformDirection(glm::vec3& pDirection, glm::mat4& pMatrix);
+	glm::vec3 TransformDirection(const glm::vec3& pDirection, const  glm::mat4& pMatrix);
 	glm::quat GetQuatRot()const;
 	Transform* GetParent()const;
 	bool IsChanged();

@@ -27,21 +27,10 @@ void D3D12Plane::Render(CommandListDef * list)
 }
 void D3D12Plane::CreateVertexBuffer()
 {
-#define tri 0
+
 	// Create the vertex buffer.
 	{
-#if tri
-		float m_aspectRatio = 1.7f;
-		//// Define the geometry for a triangle.
-		Vertex triangleVertices[] =
-		{
-			{ { 0.0f, 0.25f * m_aspectRatio, 0.0f },{ 0.5f, 0.0f } },
-			{ { 0.25f, -0.25f * m_aspectRatio, 0.0f },{ 1.0f, 1.0f } },
-			{ { -0.25f, -0.25f * m_aspectRatio, 0.0f },{ 0.0f, 1.0f } }
-		};
-		const UINT vertexBufferSize = sizeof(triangleVertices);
-		m_numtriangles = 1;
-#else
+
 		float h = 5;
 		float w = 5;
 		float xoff = -5;
@@ -81,12 +70,7 @@ void D3D12Plane::CreateVertexBuffer()
 			a,b
 		};
 
-		Triangle* mesh = nullptr;
-		//L"C:\\Users\\AANdr\\Dropbox\\Engine\\Engine\\Repo\\GraphicsEngine\\x64\\asset\\models\\House.obj"
-	//	m_numtriangles = importOBJMesh(name, &mesh);
-		const UINT vertexBufferSize = sizeof(tris);//(sizeof(float)*(4 * 6) * 2 * 3);
-#endif
-
+		const UINT vertexBufferSize = sizeof(tris);
 
 		// Note: using upload heaps to transfer static data like vert buffers is not 
 		// recommended. Every time the GPU needs it, the upload heap will be marshalled 
@@ -104,21 +88,14 @@ void D3D12Plane::CreateVertexBuffer()
 		UINT8* pVertexDataBegin;
 		CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
 		ThrowIfFailed(m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
-#if tri
-		memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-#else
+
 		memcpy(pVertexDataBegin, tris, vertexBufferSize);
-#endif
 		m_vertexBuffer->Unmap(0, nullptr);
 
 		// Initialize the vertex buffer view.
 		m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-#if tri
-		m_vertexBufferView.StrideInBytes = sizeof(Vertex);
-#else
-
+		
 		m_vertexBufferView.StrideInBytes = sizeof(OGLVertex);//four floats per vertex
-#endif
 		m_vertexBufferView.SizeInBytes = vertexBufferSize;
 	}
 }

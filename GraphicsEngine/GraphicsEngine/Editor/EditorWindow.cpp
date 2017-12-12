@@ -24,6 +24,9 @@
 #include "../Core/Utils/WindowsHelper.h"
 #include "../Core/Game.h"
 #include "../Editor/Editor_Camera.h"
+#include "UI\UIManager.h"
+
+
 
 UIWidget* EditorWindow::CurrentContext;
 EditorWindow* EditorWindow::instance;
@@ -185,7 +188,7 @@ int EditorWindow::PhysicsThreadLoop()
 	while (true)
 	{
 		WaitForSingleObject(ThreadStart, INFINITE);
-		float TickRate = 1.0f / 60.0f;
+		
 		if (IsPlayingScene)
 		{
 			PerfManager::StartTimer("FTick");
@@ -195,7 +198,7 @@ int EditorWindow::PhysicsThreadLoop()
 			PerfManager::EndTimer("FTick");
 		}
 
-		Sleep(10);
+		//Sleep(10);
 		SetEvent(ThreadComplete);
 	}
 	return 0;
@@ -230,6 +233,7 @@ BOOL EditorWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int he
 	ImageLoader::StartLoader();
 	m_width = width;
 	m_height = height;
+//	IsDeferredMode = true;
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(width, height);
@@ -403,7 +407,6 @@ void EditorWindow::Render()
 
 	//lock the simulation rate to 60hz
 	//this prevents physx being framerate depenent.
-	float TickRate = 1.0f / 60.0f;
 	if (accumilatePhysxdeltatime > TickRate)
 	{
 		accumilatePhysxdeltatime = 0;
@@ -490,6 +493,7 @@ void EditorWindow::Render()
 		RenderText();
 	}
 	PerfManager::EndTimer("UI");
+
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->EndGPUTimer();
@@ -517,7 +521,7 @@ void EditorWindow::Render()
 
 	if (Once)
 	{
-		std::cout << "Engine Loaded in " << fabs((get_nanos() - Engine::StartTime) / 1e6f) << "ms " << std::endl;
+		std::cout << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << std::endl;
 		Once = false;
 	}
 	input->Clear();//clear key states

@@ -4,7 +4,7 @@
 #include "glm/fwd.hpp"
 #include <vector>
 #include "CollisionRect.h"
-
+#define UISTATS 0
 class TextRenderer;
 class UIWidget;
 class GameObject;
@@ -13,14 +13,16 @@ class UIBox;
 class LineDrawer;
 class UIDrawBatcher;
 class UIGraph;
+class UIPopoutbox;
 class Inspector;
+class UIAssetManager;
 class UIManager
 {
 public:
 	static UIManager* instance;
 	UIManager();
 	UIManager(int w, int h);
-	void Test();
+	void InitEditorUI();
 	~UIManager();
 	void Initalise(int width, int height);
 	Inspector * GetInspector();
@@ -76,6 +78,8 @@ private:
 	LineDrawer* LineBatcher;
 	UIDrawBatcher* DrawBatcher;
 	CollisionRect ViewportRect;
+	UIPopoutbox* testbox;
+	UIAssetManager* AssetManager;
 	bool Blocking = false;
 	Inspector* inspector;
 	std::vector<GameObject*>* GameObjectsPtr;

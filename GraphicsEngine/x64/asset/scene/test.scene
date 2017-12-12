@@ -20,8 +20,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "",
-                    "MatDiffuse": ""
+                    "MeshName": "house.obj",
+                    "MatDiffuse": "house_diffuse.tga"
                 }
             ]
         },
@@ -45,8 +45,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "",
-                    "MatDiffuse": ""
+                    "MeshName": "terrainmk2.obj",
+                    "MatDiffuse": "grasshillalbedo.png"
                 }
             ]
         },
@@ -95,7 +95,7 @@
                     "Type": 0,
                     "Intensity": 0.10000000149011612,
                     "LightType": 0,
-                    "LightShadow": true
+                    "LightShadow": false
                 }
             ]
         },
@@ -119,8 +119,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "",
-                    "MatDiffuse": ""
+                    "MeshName": "Plane.obj",
+                    "MatDiffuse": "bricks2.jpg"
                 },
                 {}
             ]
@@ -145,9 +145,9 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "",
-                    "MatDiffuse": "",
-                    "MatNormal": ""
+                    "MeshName": "Plane.obj",
+                    "MatDiffuse": "bricks2.jpg",
+                    "MatNormal": "bricks2_normal.jpg"
                 }
             ]
         },
@@ -171,8 +171,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "",
-                    "MatDiffuse": ""
+                    "MeshName": "Plane.obj",
+                    "MatDiffuse": "fence.png"
                 }
             ]
         },
@@ -196,9 +196,9 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "",
-                    "MatDiffuse": "",
-                    "MatNormal": ""
+                    "MeshName": "Plane.obj",
+                    "MatDiffuse": "Water fallback.jpg",
+                    "MatNormal": "IKT4l.jpg"
                 }
             ]
         },
@@ -222,8 +222,9 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "",
-                    "MatNormal": ""
+                    "MeshName": "Plane.obj",
+                    "MatDiffuse": "",
+                    "MatNormal": "IKT4l.jpg"
                 }
             ]
         }

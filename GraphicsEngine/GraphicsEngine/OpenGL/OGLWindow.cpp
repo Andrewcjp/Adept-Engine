@@ -14,6 +14,7 @@
 #include "UI\UIManager.h"
 #include "RHI/RHI.h"
 #include "Editor/EditorGizmos.h"
+#include "../Core/Performance/PerfManager.h"
 //#include "Utils.h"
 OGLWindow::OGLWindow(bool Isdef)
 {
@@ -27,8 +28,9 @@ OGLWindow::~OGLWindow()
 	//Clean up the renderable
 }
 
-OGLWindow::OGLWindow(HINSTANCE hInstance, int width, int height)
+OGLWindow::OGLWindow(HINSTANCE, int , int )
 {
+
 }
 
 void OGLWindow::DestroyRenderWindow()
@@ -120,7 +122,7 @@ void OGLWindow::SetFullScreenState(bool state)
 }
 bool OGLWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
 {
-	if (IsFullscreen)
+	if (Fullscreen)
 	{
 		//m_hwnd = CreateFullscreenWindow(m_hwnd, hInstance);
 		m_hwnd = CreateWindowEx(NULL,
@@ -175,20 +177,12 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 	Renderer->AddLight(l);
 	const int Girdsize = 5;
 	glm::vec3 startpos = glm::vec3(0, 20, 50);
-	/*const float spacing = 5;
-	for (int x = 0; x < Girdsize; x++)
-	{
-		for (int y = 0; y < Girdsize; y++)
-		{
-			Light* l = new Light(glm::vec3(startpos.x + (x*spacing), 50, startpos.z + (y*spacing)), 2500, Light::Point);
-			Renderer->AddLight(l);
-		}
-	}*/
+
 	//	Lights.push_back(new Light(glm::vec3(-15, 10, 0), 150, glm::vec3(0, 1, 0), Light::p, false));
 	Renderer->Init();
 
 	GameObject* go = new GameObject("House");
-	Material* newmat = new Material(RHI::CreateTexture("../asset/texture/house_diffuse.tga", true));
+//	Material* newmat = new Material(RHI::CreateTexture("../asset/texture/house_diffuse.tga", true));
 //	go->SetMaterial(newmat);
 //	go->SetMesh(RHI::CreateMesh("../asset/models/house.obj", Renderer->GetMainShader()->GetShaderProgram()));
 	//	m_mesh->position = glm::vec3(0, 0, -10);
@@ -331,8 +325,8 @@ void OGLWindow::RenderText()
 
 void OGLWindow::Render()
 {
-	deltatime = (float)(get_nanos() - lasttime) / 1.0e9f;//in ms
-	lasttime = get_nanos();
+	deltatime = (float)(PerfManager::get_nanos() - lasttime) / 1.0e9f;//in ms
+	lasttime = PerfManager::get_nanos();
 
 	input->ProcessInput((deltatime));
 	input->ProcessQue();
@@ -344,10 +338,10 @@ void OGLWindow::Render()
 	}
 	accumrendertime = 0;
 	//excute a linked fixed update.
-	physxtime = get_nanos();
+	physxtime = PerfManager::get_nanos();
 	//slow?
 	Renderer->FixedUpdatePhysx(deltatime);
-	physxtime = (get_nanos() - physxtime) / 1e9;
+	physxtime = (PerfManager::get_nanos() - physxtime) / 1e9;
 	//lock the physx simulation rate to 300HZ
 	//this prevents physx being framerate depenent.
 	float TickRate = 1.0f / 60.0f;
@@ -374,7 +368,7 @@ void OGLWindow::Render()
 	{
 		std::cout << deltatime << " exceded one" << std::endl;
 	}
-	FinalTime = get_nanos();
+	FinalTime = PerfManager::get_nanos();
 
 	Renderer->Render();
 	if (ShowHud)
@@ -383,7 +377,7 @@ void OGLWindow::Render()
 		RenderText();
 	}
 	//gizmos->RenderGizmos();
-	RenderTime = (double)(get_nanos() - FinalTime) / 1e6;//in seconds
+	RenderTime = (double)(PerfManager::get_nanos() - FinalTime) / 1e6;//in seconds
 	accumilatePhysxdeltatime += deltatime;
 	framecount++;
 #if !NO_GEN_CONTEXT

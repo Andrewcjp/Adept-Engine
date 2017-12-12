@@ -31,12 +31,8 @@ OGLMesh::~OGLMesh()
 	glDeleteBuffers(1, &m_vbo_verts);
 }
 
-void OGLMesh::Render(CommandListDef* list)
+void OGLMesh::Render(CommandListDef*)
 {
-	/*unsigned int texHandle = dynamic_cast<OGLTexture*>(m_tex)->m_syshandle;
-	//texture now handled elseware
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texHandle);*/
 
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo_verts);
@@ -61,7 +57,6 @@ void OGLMesh::LoadAndBuildMeshFromOBJFile(LPCWSTR filename)
 	Triangle* mesh;
 
 	m_numtriangles = importOBJMesh(filename, &mesh);
-	size_t stride = sizeof(OGLVertex);
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);

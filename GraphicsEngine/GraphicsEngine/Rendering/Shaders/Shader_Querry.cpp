@@ -32,6 +32,6 @@ void Shader_Querry::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Lig
 	glUniformMatrix4fv(m_UniformMVP, 1, GL_FALSE, &t->GetMVP(c)[0][0]);
 }
 
-void Shader_Querry::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Querry::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }

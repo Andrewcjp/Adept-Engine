@@ -9,12 +9,12 @@ class RenderWindow;
 class PhysicsEngine;
 class EditorWindow;
 class Game;
-static long get_nanos(void)
-{
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
-	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec;
-}
+//static long get_nanos(void)
+//{
+//	struct timespec ts;
+//	timespec_get(&ts, TIME_UTC);
+//	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec;
+//}
 class Engine
 {
 public:

@@ -39,7 +39,7 @@ std::string Engine::GetRootDir()
 
 Engine::Engine()
 {
-	StartTime = (float)get_nanos();
+	StartTime = (float)PerfManager::get_nanos();
 	std::cout << "Starting In " << GetRootDir() << std::endl;
 	std::cout << "Loading Engine v0.1" << std::endl;
 #if PHYSX_ENABLED
@@ -68,7 +68,7 @@ void Engine::Destory()
 	PhysEngine->cleanupPhysics(false);
 }
 
-//
+
 void Engine::CreateApplication(HINSTANCE hinst, LPSTR args, int nCmdShow)
 {
 	if (nCmdShow > 0)
@@ -136,7 +136,11 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 		else if (type == RenderSystemOGL)
 		{
 #if BUILD_OPENGL
+#if 1
+			RHI::InitRHI(RenderSystemOGL);
+#else 
 			RHI::InitRHI(RenderSystemD3D12);
+#endif
 #if WITH_EDITOR
 			m_appwnd = new EditorWindow(Deferredmode);
 #else 

@@ -16,7 +16,7 @@ ShadowRenderer::~ShadowRenderer()
 	}
 }
 
-void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, std::vector<GameObject*>& ShadowObjects, CommandListDef* list, Shader_Main* mainshader)
+void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, const std::vector<GameObject*>& ShadowObjects, CommandListDef* list, Shader_Main* mainshader)
 {
 	//if (UseCache)
 	//{
@@ -38,7 +38,10 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, st
 			ShadowShaders[SNum]->shadowbuffer->ClearBuffer();
 		}
 
-		mainshader->UpdateMV(ShadowShaders[0]->targetlight->DirView, ShadowShaders[0]->targetlight->Projection);
+		if (RHI::GetType() == RenderSystemD3D12)
+		{
+			mainshader->UpdateMV(ShadowShaders[0]->targetlight->DirView, ShadowShaders[0]->targetlight->Projection);
+		}
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
 			if (ShadowObjects[i]->GetMat() == nullptr)
@@ -58,7 +61,7 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, st
 			}
 			else
 			{
-				mainshader->SetActiveIndex(list, i);				
+				mainshader->SetActiveIndex(list, (int)i);				
 				ShadowObjects[i]->Render(false, list);
 			}
 

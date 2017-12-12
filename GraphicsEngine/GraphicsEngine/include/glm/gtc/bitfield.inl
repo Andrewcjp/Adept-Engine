@@ -2,7 +2,7 @@
 /// @file glm/gtc/bitfield.inl
 
 #include "../simd/integer.h"
-
+#pragma warning (push,3)
 namespace glm{
 namespace detail
 {
@@ -513,3 +513,4 @@ namespace detail
 		return detail::bitfieldInterleave<uint16, uint64>(x, y, z, w);
 	}
 }//namespace glm
+#pragma warning( pop)

@@ -13,7 +13,7 @@
 #define __D3DX12_H__
 
 #include "d3d12.h"
-
+#pragma warning (push,3)
 #if defined( __cplusplus )
 
 struct CD3DX12_DEFAULT {};
@@ -2695,7 +2695,7 @@ inline HRESULT D3DX12ParsePipelineStream(const D3D12_PIPELINE_STATE_STREAM_DESC&
 
 
 #endif // defined( __cplusplus )
-
+#pragma warning (pop)
 #endif //__D3DX12_H__
 
 

@@ -24,47 +24,43 @@ Editor_Camera::~Editor_Camera()
 
 void Editor_Camera::Update(float delatime)
 {
-	float movespeed = 100;
-	if (GetKeyState(VK_LSHIFT) & 0x8000)
+	if (Input::GetVKey(VK_RBUTTON))
 	{
-		// Right ALT key is down.
-		movespeed = 1000;
+		float movespeed = 100;
+		if (Input::GetVKey(VK_LSHIFT))
+		{
+			movespeed = 1000;
+		}
+		else
+		{
+			movespeed = 100;
+		}
+		if (Input::GetKey('w'))
+		{
+			MainCam->MoveForward(movespeed*delatime);
+		}
+		if (Input::GetKey('s'))
+		{
+			MainCam->MoveForward(-movespeed*delatime);
+		}
+		if (Input::GetKey('a'))
+		{
+			MainCam->MoveRight(movespeed*delatime);
+		}
+		if (Input::GetKey('d'))
+		{
+			MainCam->MoveRight(-movespeed*delatime);
+		}
+		if (Input::GetKey('e'))
+		{
+			MainCam->MoveUp(movespeed*delatime);
+		}
+		if (Input::GetKey('q'))
+		{
+			MainCam->MoveUp(-movespeed*delatime);
+		}
+		glm::vec2 axis = Input::GetMouseInputAsAxis();
+		MainCam->RotateY(axis.x*sensitvity);
+		MainCam->Pitch(axis.y*sensitvity);
 	}
-	else
-	{
-		movespeed = 100;
-	}
-	if (GetKeyState(87) & 0x8000)
-	{
-		// Right ALT key is down.
-		MainCam->MoveForward(movespeed*delatime);
-	}
-	if (GetKeyState(83) & 0x8000)
-	{
-		// Right ALT key is down.
-		MainCam->MoveForward(-movespeed*delatime);
-	}
-	if (GetKeyState(65) & 0x8000)
-	{
-		// Right ALT key is down.
-		MainCam->MoveRight(movespeed*delatime);
-	}
-	if (GetKeyState(68) & 0x8000)
-	{
-		// Right ALT key is down.
-		MainCam->MoveRight(-movespeed*delatime);
-	}
-	if (GetKeyState(69) & 0x8000)
-	{
-		// Right ALT key is down.
-		MainCam->MoveUp(movespeed*delatime);
-	}
-	if (GetKeyState(81) & 0x8000)
-	{
-		// Right ALT key is down.
-		MainCam->MoveUp(-movespeed*delatime);
-	}
-	glm::vec2 axis = Input::GetMouseInputAsAxis();
-	MainCam->RotateY(axis.x*sensitvity);
-	MainCam->Pitch(axis.y*sensitvity);
 }

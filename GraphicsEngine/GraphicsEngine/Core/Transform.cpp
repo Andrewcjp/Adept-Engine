@@ -16,14 +16,14 @@ glm::vec3 Transform::GetForward()
 glm::vec3 Transform::GetUp()
 {
 	return TransformDirection(glm::vec3(0, 1, 0), GetModel());
-}
+} 
 
 glm::vec3 Transform::TransfromToLocalSpace(glm::vec3 & direction)
 {
 	return TransformDirection(direction, GetModel());
 }
 
-glm::vec3 Transform::TransformDirection(glm::vec3 & pDirection, glm::mat4 & pMatrix)
+glm::vec3 Transform::TransformDirection(const  glm::vec3 & pDirection, const  glm::mat4 & pMatrix)
 {
 	return glm::normalize(glm::vec3(pMatrix * glm::vec4(pDirection, 0.0f)));
 }
@@ -91,21 +91,21 @@ glm::mat4 Transform::GetTransFormView()
 ///------------------------------------------------------
 //setters	
 
-void Transform::SetPos(glm::vec3 & pos)
+void Transform::SetPos(const glm::vec3 & pos)
 {
 	UpdateModel = true;
 	oldpos = _pos;
 	_pos = pos;
 }
 
-void Transform::SetEulerRot(glm::vec3 & rot)
+void Transform::SetEulerRot(const glm::vec3 & rot)
 {
 	UpdateModel = true;
 	oldqrot = this->_qrot;
 	this->_qrot = glm::quat(glm::radians(rot));
 }
 
-void Transform::SetScale(glm::vec3 & scale)
+void Transform::SetScale(const glm::vec3 & scale)
 {
 	UpdateModel = true;
 	this->oldscale = this->_scale;

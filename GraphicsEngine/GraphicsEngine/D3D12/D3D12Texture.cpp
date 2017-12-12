@@ -4,7 +4,6 @@
 #include "../Core/Assets/ImageIO.h"
 #include "../Core/Engine.h"
 #include "../Core/Assets/ImageLoader.h"
-#include "CImg.h"
 #include <iostream>
 inline bool exists_test3(const std::string& name)
 {

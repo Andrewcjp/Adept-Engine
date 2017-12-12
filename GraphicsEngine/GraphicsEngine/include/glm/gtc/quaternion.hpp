@@ -24,7 +24,7 @@
 #if GLM_MESSAGES == GLM_MESSAGES_ENABLED && !defined(GLM_EXT_INCLUDED)
 #	pragma message("GLM: GLM_GTC_quaternion extension included")
 #endif
-
+#pragma warning (push,3)
 namespace glm
 {
 	/// @addtogroup gtc_quaternion
@@ -395,3 +395,4 @@ namespace glm
 } //namespace glm
 
 #include "quaternion.inl"
+#pragma warning (pop)

@@ -18,7 +18,6 @@
 #include "Rendering\Shaders\Shader_Grass.h"
 #include "Rendering\Shaders\Shader_Querry.h"
 #include "Core/Assets/Scene.h"
-#include "Rendering\Shaders\Shader_Water.h"
 #include "OpenGL/OGLPlane.h"
 #include "Rendering\Shaders\ShaderOutput.h"
 #include "../Rendering/Core/FrameBuffer.h"
@@ -134,7 +133,6 @@ private:
 	D3D12RHI * DRHI;
 	Shader_Main* mainshader;
 	Shader_Grass* grassshader;
-	Shader_Water* Watershader;
 	Shader* QuerryShader;
 	GameObject* testGrassobject;
 	std::unique_ptr<Shader_Skybox> skyboxShader;

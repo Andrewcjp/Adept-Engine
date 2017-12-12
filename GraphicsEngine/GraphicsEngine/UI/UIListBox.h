@@ -31,6 +31,8 @@ private:
 	int ItemHeight = 20;
 	int Spacing = ItemHeight + 6;
 	int Edgespace = 5;
+	float CurrentScroll = 0;
+	bool ShowScrollBar = false;
 	UIBox* Background;
 	UILabel* TitleLabel;
 };

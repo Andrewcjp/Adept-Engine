@@ -21,6 +21,9 @@ Text_Shader::~Text_Shader()
 
 void Text_Shader::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
 {
+	UNUSED_PARAM(c);
+	UNUSED_PARAM(t);
+
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(Width), 0.0f, static_cast<GLfloat>(Height));
 	glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -29,6 +32,6 @@ void Text_Shader::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light
 
 }
 
-void Text_Shader::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Text_Shader::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }

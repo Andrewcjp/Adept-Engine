@@ -12,7 +12,7 @@
 #	endif
 #endif //GLM_SWIZZLE
 #include <cstddef>
-
+#pragma warning (push,3)
 namespace glm
 {
 	template <typename T, precision P = defaultp>
@@ -449,3 +449,4 @@ namespace glm
 #ifndef GLM_EXTERNAL_TEMPLATE
 #include "type_vec4.inl"
 #endif//GLM_EXTERNAL_TEMPLATE
+#pragma warning (pop)

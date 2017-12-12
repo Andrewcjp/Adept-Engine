@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "UIGraph.h"
 #include "LineDrawer.h"
-#include "Editor\EditorWindow.h"
 #include "../Core/Performance/PerfManager.h"
 UIGraph::UIGraph(LineDrawer* linebatch, int w, int h, int x, int y) :UIWidget(w, h, x, y)
 {

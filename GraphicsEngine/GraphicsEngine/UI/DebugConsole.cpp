@@ -16,6 +16,7 @@ DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 	EditField->SetEnabled(false);
 	LastText = ">";
 	LastCommand = ">";
+	Priority = 10;
 }
 
 

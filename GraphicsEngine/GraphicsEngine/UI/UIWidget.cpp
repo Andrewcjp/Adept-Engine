@@ -41,15 +41,15 @@ void UIWidget::UpdateScaled()
 void UIWidget::UpdateData()
 {
 }
-void UIWidget::MouseMove(int x, int y)
+void UIWidget::MouseMove(int, int)
 {
 }
 
-void UIWidget::MouseClick(int x, int y)
+void UIWidget::MouseClick(int, int)
 {
 }
 
-void UIWidget::MouseClickUp(int x, int y)
+void UIWidget::MouseClickUp(int, int)
 {
 }
 
@@ -57,6 +57,17 @@ void UIWidget::PostBatchRender()
 {
 }
 
-void UIWidget::ProcessKeyDown(UINT_PTR key)
+void UIWidget::ProcessKeyDown(UINT_PTR)
 {
 }
+
+void UIWidget::SetEnabled(bool state)
+{
+	UIManager::UpdateBatches();
+	IsActive = state;
+}
+bool UIWidget::operator<(UIWidget* that) const
+{
+	return (this->Priority > that->Priority);
+}
+

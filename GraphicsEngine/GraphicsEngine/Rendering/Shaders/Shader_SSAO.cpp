@@ -86,7 +86,7 @@ void Shader_SSAO::RenderPlane()
 	glDisableVertexAttribArray(0);
 }
 
-void Shader_SSAO::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_SSAO::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*> lights)
 {
 	noisetex->Bind(NoiseTextureUnit);
 	glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, &c->GetProjection()[0][0]);
@@ -104,6 +104,6 @@ void Shader_SSAO::Resize(int width, int height)
 	mheight = height;
 }
 
-void Shader_SSAO::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_SSAO::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }

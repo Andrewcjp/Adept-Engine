@@ -39,46 +39,11 @@ ShaderOutput::ShaderOutput(int width, int height)
 		glUniform3fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_inverseFilterTextureSize"), 1, glm::value_ptr(glm::vec3(1.0 / (float)width, 1.0 / (float)height, 0.0)));
 		glGenBuffers(1, &quad_vertexbuffer);
 #if WITH_EDITOR
-		/*float h = 1.2f;
-		float w = 1.2f;
-		float xpos = -(w / 2.0f);
-		float ypos = -(h / 2.0f) + 0.1f;
-		static const GLfloat g_quad_vertex_buffer_data[] = {
-			xpos,     ypos + h,   0.0 ,
-			xpos,     ypos,      0.0 ,
-			xpos + w, ypos,       0.0 ,
-
-			xpos,     ypos + h,   0.0 ,
-			xpos + w, ypos,       0.0 ,
-			xpos + w , ypos + h,  0.0 ,
-		};*/
 		SetFullScreen(false);
-#else
-		/*	const float Scale = 1.0f;
-			static const GLfloat g_quad_vertex_buffer_data[] = {
-				Scale, Scale, 0.0f,0.0f,
-				Scale, Scale, 0.0f,0.0f,
-				Scale,  Scale, 0.0f,0.0f,
-
-				Scale,  Scale, 0.0f,0.0f,
-				Scale, -Scale, 0.0f,0.0f,
-				Scale,  Scale, 0.0f,0.0f,
-			};*/
-		static const GLfloat g_quad_vertex_buffer_data[] = {
-			-1.0f, -1.0f, 0.0f,
-			1.0f, -1.0f, 0.0f,
-			-1.0f,  1.0f, 0.0f,
-			-1.0f,  1.0f, 0.0f,
-			1.0f, -1.0f, 0.0f,
-			1.0f,  1.0f, 0.0f,
-		};
+#else	
 		SetFullScreen(true);
 #endif
 		
-		/*glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);*/
-		
-
 	}
 #endif
 	if (RHI::GetType() == RenderSystemD3D11)

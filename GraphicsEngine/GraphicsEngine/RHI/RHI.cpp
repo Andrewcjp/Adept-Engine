@@ -20,6 +20,7 @@
 #include "../D3D12/D3D12Mesh.h"
 #include "../D3D12/D3D12Shader.h"
 #include "../D3D12/D3D12Framebuffer.h"
+#include "../Core/Performance/PerfManager.h"
 RHI* RHI::instance = nullptr;
 RHI::RHI()
 {
@@ -256,7 +257,6 @@ void RHI::BindScreenRenderTarget(int width, int height)
 		viewport.MaxDepth = 1.0f;
 		viewport.MinDepth = 0.0f;
 
-		float aspectratio = (float)width / (float)height;
 		RHI::GetD3DContext()->RSSetViewports(1, &viewport);
 		break;
 #endif
@@ -406,7 +406,7 @@ HGLRC RHI::CreateOGLContext(HDC hdc)
 		0, 0, 0										// Layer Masks Ignored
 	};
 
-	long time = get_nanos();
+	long time = PerfManager::get_nanos();
 	if (!(pixelformat = ChoosePixelFormat(hdc, &pfd)))
 	{
 		return 0;
@@ -435,7 +435,7 @@ HGLRC RHI::CreateOGLContext(HDC hdc)
 	{
 		return 0;
 	}
-	std::cout << "ChoosePixelFormat took " << fabs(((float)(get_nanos() - time)) / 1e6f) << "ms " << std::endl;
+	std::cout << "ChoosePixelFormat took " << fabs(((float)(PerfManager::get_nanos() - time)) / 1e6f) << "ms " << std::endl;
 	std::cout << "OGL Context Created" << std::endl;
 	//MessageBoxA(0, (char*)glGetString(GL_VERSION), "OPENGL VERSION", 0);
 	return hglrc;
@@ -492,7 +492,7 @@ void RHI::ResizeContext(int width, int height)
 	viewport.MaxDepth = 1.0f;
 	viewport.MinDepth = 0.0f;
 
-	float aspectratio = (float)width / (float)height;
+
 	RHI::GetD3DContext()->RSSetViewports(1, &viewport);
 }
 BOOL RHI::InitD3DDevice(HWND hWnd, int w, int h)

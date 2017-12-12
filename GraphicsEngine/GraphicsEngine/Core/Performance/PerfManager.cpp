@@ -11,6 +11,12 @@
 #include "../RHI/RHI.h"
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
+long PerfManager::get_nanos()
+{
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec;
+}
 void PerfManager::StartPerfManager()
 {
 	if (Instance == nullptr)
@@ -18,15 +24,9 @@ void PerfManager::StartPerfManager()
 		Instance = new PerfManager();
 	}
 }
-static long get_nanos(void)
-{
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
-	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec;
-}
+
 PerfManager::PerfManager()
 {
-	//OGLMem = "gpu_idle";
 	if (RHI::GetType() == RenderSystemOGL)
 	{
 		glGenQueries(2, queryID);

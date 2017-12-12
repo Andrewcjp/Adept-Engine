@@ -156,9 +156,9 @@ TextRenderer::~TextRenderer()
 	delete textat;
 	for (int i = 0; i < Characters.size(); i++)
 	{
-		if (Characters[i].Texture != nullptr)
+		if (Characters[(const char)i].Texture != nullptr)
 		{
-			Characters[i].Texture->FreeTexture();
+			Characters[(const char)i].Texture->FreeTexture();
 		}
 	}
 }

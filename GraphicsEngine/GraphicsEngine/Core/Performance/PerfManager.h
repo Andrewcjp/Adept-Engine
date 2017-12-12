@@ -1,9 +1,13 @@
 #pragma once
 #include <map>
 #define BUILD_WITH_NVPERFKIT 0
+#include <iomanip>
+#include <time.h>
+
 class PerfManager
 {
 public:
+	static long get_nanos();
 	static PerfManager* Instance;
 	static void StartPerfManager();
 	PerfManager();

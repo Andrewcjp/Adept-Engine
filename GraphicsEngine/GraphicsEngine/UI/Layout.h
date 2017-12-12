@@ -2,12 +2,14 @@
 #include <vector>
 #include "UIWidget.h"
 #include "UIManager.h"
+#include "../EngineGlobals.h"
 namespace UIUtils
 {
 	//todo min size with widget value
 	template <class T>
 	static void ArrangeHorizontal(int w, int h, int x, int y, std::vector<T*> &widgets, float MinHeight = -1, int Gap = 0, int MaxHeight = -1)
 	{
+		UNUSED_PARAM(MinHeight);
 		if (widgets.size() > 0)
 		{
 			int Currenty = (y)+h;
