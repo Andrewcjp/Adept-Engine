@@ -222,8 +222,10 @@ void Shader_Main::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Lig
 	UBuffer.M = t->GetModel();
 	UBuffer.V = c->GetView();
 	UBuffer.P = c->GetProjection();
+#if BUILD_D3D11
 	RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &UBuffer, 0, 0);
 	RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
+#endif
 }
 
 

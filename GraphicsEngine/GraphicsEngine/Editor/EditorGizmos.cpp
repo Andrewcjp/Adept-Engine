@@ -49,7 +49,6 @@ void EditorGizmos::RenderGizmos(DebugLineDrawer* lien)
 	GLenum result = glGetError();
 	if (result != GL_NO_ERROR)
 	{
-		const GLubyte * d = glewGetErrorString(result);
 		//__debugbreak();
 	}
 	//	GLbegin(GL_LINES);

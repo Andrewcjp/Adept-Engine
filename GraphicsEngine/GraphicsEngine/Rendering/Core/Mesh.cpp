@@ -21,7 +21,7 @@ Mesh::~Mesh()
 }
 
 
-void Mesh::Render(CommandListDef * list)
+void Mesh::Render(CommandListDef * )
 {
 
 
@@ -51,7 +51,7 @@ void Mesh::Init(Vertex* verts, int vertsize, int* Indicies, int indexsize)
 	m_Indicies = Indicies;
 	m_indexsize = indexsize;
 	m_vertsize = vertsize;
-	GLuint VertexArrayID;
+	//GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 

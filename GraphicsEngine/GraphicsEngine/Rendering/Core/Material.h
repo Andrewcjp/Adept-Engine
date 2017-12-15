@@ -1,13 +1,15 @@
 #pragma once
 #include "RHI/BaseTexture.h"
-//#include <GLEW\GL\glew.h>
 class Material
 {
 public:
-	Material(BaseTexture* Diff) {
-		Diffusetexture = Diff;
-
-	}
+	struct MaterialProperties
+	{
+		bool UseMainShader = true;
+		bool IsReflective = false;
+		bool DoesShadow = true;
+	};
+	Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
 	~Material();
 	void SetMaterialActive(CommandListDef * list = nullptr);
 	BaseTexture* Diffusetexture;
@@ -15,14 +17,10 @@ public:
 	BaseTexture* glosstex;
 	BaseTexture* NormalMap;
 	BaseTexture* DisplacementMap;
-	void SetMaterialActive();
-	void SetShadow(bool state) {
-		DoesShadow = state;
-	}
-	bool GetDoesShadow() {
-		return DoesShadow;
-	}
+	void SetShadow(bool state);
+	bool GetDoesShadow();
+	const MaterialProperties* GetProperties();
 private:
-	bool DoesShadow = true;
+	MaterialProperties Properties;
 };
 

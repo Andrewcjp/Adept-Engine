@@ -38,7 +38,7 @@ EShaderError OGLShader::CreateShaderFromSourceFile(const char * filename, EShade
 		return SHADER_ERROR_CREATE;
 
 	GLhandleARB shaderhandle;
-	GLenum shadertype;
+	GLenum shadertype = SHADER_UNDEFINED;
 
 	switch (type)
 	{
@@ -57,9 +57,6 @@ EShaderError OGLShader::CreateShaderFromSourceFile(const char * filename, EShade
 	}
 
 	m_shaderInternal._syshandle = shaderhandle;	//store the shader handle.
-
-	//TODO: try using AUTO_PTR here?
-
 	//size_t length = TextFileBufferedRead(path, &source);
 	//std::string length = AssetManager::GetShaderAsset(path, &source);
 	std::string data = AssetManager::instance->LoadFileWithInclude(path);

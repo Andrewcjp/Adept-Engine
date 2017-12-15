@@ -7,7 +7,7 @@
 
 #define BUILD_WINDOW_ENGINE 1
 #define NO_GEN_CONTEXT 0
-#define BUILD_D3D11 1
+#define BUILD_D3D11 0
 #define BUILD_OPENGL 1
 #define BUILD_D3D12 1
 #define BUILD_Vulkan 0

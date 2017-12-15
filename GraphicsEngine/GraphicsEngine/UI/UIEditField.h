@@ -34,6 +34,7 @@ private:
 	std::string DisplayText;
 	bool IsEditing = false;
 	void* Valueptr;
+	bool Enabled = true;
 
 };
 

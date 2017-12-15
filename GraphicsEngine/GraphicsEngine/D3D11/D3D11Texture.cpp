@@ -25,7 +25,7 @@ D3D11Texture::D3D11Texture(const char * path, bool tga)
 	CreateTextureFromFile(RHI::GetD3DDevice(), rpath.c_str());
 }
 
-void D3D11Texture::CreateTextureFromFile(ID3D11Device* pDevice, const char* filename)
+void D3D11Texture::CreateTextureFromFile(ID3D11Device* , const char* filename)
 {
 	//N.B. Limitation here, the default implementation here only loads texture in R8G8B8A8 format 
 	//make sure your image file also contains an alpha channel.
@@ -62,7 +62,7 @@ void D3D11Texture::CreateTextureFromFile(ID3D11Device* pDevice, const char* file
 	free(buffer);
 }
 
-void D3D11Texture::CreateTextureFromData(void* data, int type, int width, int height, int nChannels)
+void D3D11Texture::CreateTextureFromData(void* data, int , int width, int height, int nChannels)
 {
 	D3D11_SUBRESOURCE_DATA initdata;
 	ZeroMemory(&initdata, sizeof(initdata));
@@ -120,12 +120,12 @@ void D3D11Texture::CreateTextureFromData(void* data, int type, int width, int he
 	}
 }
 
-void D3D11Texture::CreateTextureAsRenderTarget(int width, int height)
+void D3D11Texture::CreateTextureAsRenderTarget(int , int )
 {
 
 }
 
-void D3D11Texture::CreateTextureAsDepthTarget(int width, int height)
+void D3D11Texture::CreateTextureAsDepthTarget(int , int )
 {
 
 }
@@ -143,10 +143,10 @@ void D3D11Texture::Bind(int unit)
 	RHI::GetD3DContext()->PSSetSamplers(unit, 1, &RHI::instance->m_texSamplerDefaultState);
 	RHI::GetD3DContext()->PSSetShaderResources(unit, 1, &m_textureRV);
 }
-void D3D11Texture::SetTextureID(int id)
+void D3D11Texture::SetTextureID(int )
 {
 }
-void D3D11Texture::CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha)
+void D3D11Texture::CreateTextureAsRenderTarget(int , int , bool , bool )
 {
 }
 #endif

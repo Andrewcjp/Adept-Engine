@@ -28,7 +28,7 @@ OGLWindow::~OGLWindow()
 	//Clean up the renderable
 }
 
-OGLWindow::OGLWindow(HINSTANCE, int , int )
+OGLWindow::OGLWindow(HINSTANCE, int, int)
 {
 
 }
@@ -182,10 +182,10 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 	Renderer->Init();
 
 	GameObject* go = new GameObject("House");
-//	Material* newmat = new Material(RHI::CreateTexture("../asset/texture/house_diffuse.tga", true));
-//	go->SetMaterial(newmat);
-//	go->SetMesh(RHI::CreateMesh("../asset/models/house.obj", Renderer->GetMainShader()->GetShaderProgram()));
-	//	m_mesh->position = glm::vec3(0, 0, -10);
+	//	Material* newmat = new Material(RHI::CreateTexture("../asset/texture/house_diffuse.tga", true));
+	//	go->SetMaterial(newmat);
+	//	go->SetMesh(RHI::CreateMesh("../asset/models/house.obj", Renderer->GetMainShader()->GetShaderProgram()));
+		//	m_mesh->position = glm::vec3(0, 0, -10);
 	go->GetTransform()->SetPos(glm::vec3(7, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	//	Objects.push_back(go);
@@ -227,9 +227,9 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 		go = new GameObject("Fence");
 		mat = new Material(RHI::CreateTexture("../asset/texture/fence.png"));
 		mat->SetShadow(false);
-//		go->SetMaterial(mat);
-	//	go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
-		//go->GetMat()->SetShadow(false);
+		//		go->SetMaterial(mat);
+			//	go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
+				//go->GetMat()->SetShadow(false);
 		go->GetTransform()->SetPos(glm::vec3(-10, 1, -6));
 		go->GetTransform()->SetEulerRot(glm::vec3(90, -90, 0));
 		go->GetTransform()->SetScale(glm::vec3(0.1f));
@@ -242,9 +242,9 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 	mat = new Material(RHI::CreateTexture("../asset/texture/Water fallback.jpg"));
 	mat->NormalMap = RHI::CreateTexture("../asset/texture/IKT4l.jpg");
 
-//	go->SetMaterial(mat);
-	//go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
-	//go->GetMat()->SetShadow(false);
+	//	go->SetMaterial(mat);
+		//go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
+		//go->GetMat()->SetShadow(false);
 	go->GetTransform()->SetPos(glm::vec3(-37, -2, -20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
@@ -254,16 +254,14 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 	{
 		go = new GameObject("Water");
 
-		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture());
+		Material::MaterialProperties props;
+		props.DoesShadow = false;
+		props.IsReflective = true;
+		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture(), props);
 		mat->NormalMap = RHI::CreateTexture("../asset/texture/IKT4l.jpg");
-
-//		go->SetMaterial(mat);
-	//	go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
-		//go->GetMat()->SetShadow(false);
 		go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
 		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 		go->GetTransform()->SetScale(glm::vec3(2));
-		go->SetReflection(true);
 		Camera* c = new Camera(go->GetTransform()->GetPos(), 90.0f, static_cast<float>(m_width / m_height), 0.1f, 100.0f);
 		c->Pitch(-90);
 		c->SetUpAndForward(glm::vec3(0, 1.0, 0), glm::vec3(0, 0, 1.0));

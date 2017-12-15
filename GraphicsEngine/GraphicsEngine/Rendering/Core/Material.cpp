@@ -4,6 +4,12 @@
 #include "../RHI/Shader.h"
 
 
+Material::Material(BaseTexture * Diff, MaterialProperties props)
+{
+	Diffusetexture = Diff;
+	Properties = props;
+}
+
 Material::~Material()
 {
 	if (Diffusetexture != nullptr)
@@ -44,4 +50,19 @@ void Material::SetMaterialActive(CommandListDef* list)
 		DisplacementMap->Bind(DISPMAP);
 	}
 	//Todo: Add Other Textures As Needed.
+}
+
+void Material::SetShadow(bool state)
+{
+	Properties.DoesShadow = state;
+}
+
+bool Material::GetDoesShadow()
+{
+	return Properties.DoesShadow;
+}
+
+const Material::MaterialProperties* Material::GetProperties()
+{
+	return &Properties;
 }

@@ -12,6 +12,7 @@ public:
 		Float,
 		String,
 		Other,
+		Label
 	};
 	struct InspectorPropery
 	{

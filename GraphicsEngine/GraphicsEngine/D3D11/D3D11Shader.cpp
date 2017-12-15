@@ -123,13 +123,13 @@ void D3D11ShaderProgram::CreateShaderProgram()
 void D3D11ShaderProgram::BuildShaderProgram()
 {
 }
-void D3D11ShaderProgram::SetUniform1UInt(unsigned int value, const char * param)
+void D3D11ShaderProgram::SetUniform1UInt(unsigned int , const char * )
 {
 }
-void D3D11ShaderProgram::SetAttrib4Float(float f1, float f2, float f3, float f4, const char * param)
+void D3D11ShaderProgram::SetAttrib4Float(float , float , float , float , const char * )
 {
 }
-void D3D11ShaderProgram::BindAttributeLocation(int index, const char * param_name)
+void D3D11ShaderProgram::BindAttributeLocation(int , const char * )
 {
 }
 #endif

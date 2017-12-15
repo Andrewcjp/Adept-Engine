@@ -54,7 +54,7 @@ void ErrorExit(LPTSTR lpszFunction)
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
+	HINSTANCE ,
 	LPSTR    lpCmdLine,
 	int       nCmdShow)
 {

@@ -40,6 +40,6 @@ void Shader_Grass::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Ligh
 	//glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projMatrix"), 1, GL_FALSE, &c->GetProjection()[0][0]);
 }
 
-void Shader_Grass::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Grass::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }

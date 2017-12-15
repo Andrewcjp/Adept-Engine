@@ -30,7 +30,7 @@ EditorWindow * Engine::GetEditorWindow()
 std::string Engine::GetRootDir()
 {
 	wchar_t buffer[MAX_PATH];
-	int bytes = GetModuleFileName(NULL, buffer, MAX_PATH);
+	GetModuleFileName(NULL, buffer, MAX_PATH);
 	PathRemoveFileSpec(buffer);
 	PathCombine(buffer, buffer, L"..");
 	std::wstring ws(buffer);
@@ -69,7 +69,7 @@ void Engine::Destory()
 }
 
 
-void Engine::CreateApplication(HINSTANCE hinst, LPSTR args, int nCmdShow)
+void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 {
 	if (nCmdShow > 0)
 	{

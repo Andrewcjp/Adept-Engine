@@ -9,7 +9,6 @@ namespace StringUtils
 		size_t targetnum = target.find(charater);
 		if (targetnum != -1)
 		{
-			//todo: check this still work correctly
 			target.erase(targetnum, charater.length());
 		}
 	}

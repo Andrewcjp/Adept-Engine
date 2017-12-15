@@ -385,16 +385,16 @@ void D3D12RHI::PopulateCommandList()
 
 
 //	texture->Bind(m_commandList);
-	m_constantBufferData.M = glm::translate(glm::vec3(0, 0, 0));
-	testshader->UpdateCBV(m_constantBufferData, 1);
-	testshader->PushCBVToGPU(m_commandList, 1);
-	testmesh->Render(m_commandList);
+	//m_constantBufferData.M = glm::translate(glm::vec3(0, 0, 0));
+	//testshader->UpdateCBV(m_constantBufferData, 1);
+	//testshader->PushCBVToGPU(m_commandList, 1);
+	//testmesh->Render(m_commandList);
 
-	OtherTex->Bind(m_commandList);
-	m_constantBufferData.M = glm::translate(glm::vec3(0, 5, 0));
-	testshader->UpdateCBV(m_constantBufferData, 2);
-	testshader->PushCBVToGPU(m_commandList, 2);
-	testmesh->Render(m_commandList);
+	//OtherTex->Bind(m_commandList);
+	//m_constantBufferData.M = glm::translate(glm::vec3(0, 5, 0));
+	//testshader->UpdateCBV(m_constantBufferData, 2);
+	//testshader->PushCBVToGPU(m_commandList, 2);
+	//testmesh->Render(m_commandList);
 
 
 }

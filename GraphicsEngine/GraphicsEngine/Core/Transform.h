@@ -20,9 +20,9 @@ public:
 	void SetScale(const glm::vec3& scale);
 	void AddRotation(glm::vec3& rot);
 	void RotateAboutAxis(glm::vec3& axis, float amt);
-	void SetQrot(glm::quat& val);
+	void SetQrot(const glm::quat& val);
 	void SetParent(Transform* Parent);
-	void TranslatePos(glm::vec3 & pos);
+	void TranslatePos(const glm::vec3 & pos);
 	///------------------------------------------------------
 	//getters
 	glm::vec3 GetPos() const { return _pos; }

@@ -35,7 +35,7 @@ void LightComponent::BeginPlay()
 {
 }
 
-void LightComponent::Update(float delta)
+void LightComponent::Update(float )
 {
 }
 
@@ -54,7 +54,7 @@ void LightComponent::SetShadow(bool Shadow)
 	MLight->SetShadow(Shadow);
 }
 
-void LightComponent::SetLightColour(glm::vec3 colour)
+void LightComponent::SetLightColour(glm::vec3 )
 {
 }
 
@@ -79,10 +79,10 @@ void LightComponent::Serialise(rapidjson::Value & v)
 	SerialHelpers::addLiteral(v, *SceneJSerialiser::jallocator, "Intensity", MLight->GetIntesity());
 	SerialHelpers::addLiteral(v, *SceneJSerialiser::jallocator, "LightType", MLight->GetType());
 	SerialHelpers::addBool(v, *SceneJSerialiser::jallocator, "LightShadow", MLight->GetDoesShadow());
-	//todo
+
 }
 
-void LightComponent::Deserialise(rapidjson::Value & v)
+void LightComponent::Deserialise( rapidjson::Value & v)
 {
 	for (auto& it = v.MemberBegin(); it != v.MemberEnd(); it++)
 	{

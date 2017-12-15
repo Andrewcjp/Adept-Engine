@@ -266,17 +266,22 @@ void RHI::BindScreenRenderTarget(int width, int height)
 
 bool RHI::InialiseContext(HWND m_hwnd, int w, int h)
 {
+	if (!m_hwnd)
+	{
+		return false;
+	}
 	switch (instance->currentsystem)
 	{
+#if BUILD_OPENGL
 	case RenderSystemOGL:
-		if (!m_hwnd)
-			return FALSE;
-
 		instance->m_hdc = GetDC(m_hwnd);
-
-		if (!(instance->m_hglrc = instance->CreateOGLContext(instance->m_hdc)))
-			return FALSE;
+		instance->m_hglrc = instance->CreateOGLContext(instance->m_hdc);
+		if (instance->m_hglrc == nullptr)
+		{
+			return false;
+		}
 		break;
+#endif
 #if BUILD_D3D11
 	case RenderSystemD3D11:
 		instance->InitD3DDevice(m_hwnd, w, h);
@@ -330,6 +335,7 @@ BOOL RHI::DestroyOGLContext(HWND hwnd)
 	m_hdc = NULL;
 	return TRUE;
 }
+#if BUILD_OPENGL
 #define MAJOR 3
 #define MINOR 3
 #define WGL_CONTEXT_MAJOR_VERSION_ARB           0x2091
@@ -440,6 +446,7 @@ HGLRC RHI::CreateOGLContext(HDC hdc)
 	//MessageBoxA(0, (char*)glGetString(GL_VERSION), "OPENGL VERSION", 0);
 	return hglrc;
 }
+#endif
 #if BUILD_D3D11
 void RHI::CreateDepth()
 {
@@ -499,6 +506,7 @@ BOOL RHI::InitD3DDevice(HWND hWnd, int w, int h)
 {
 	mwidth = w;
 	mheight = h;
+
 	DXGI_SWAP_CHAIN_DESC dxscd;
 
 	ZeroMemory(&dxscd, sizeof(DXGI_SWAP_CHAIN_DESC));
@@ -579,6 +587,7 @@ BOOL RHI::InitD3DDevice(HWND hWnd, int w, int h)
 }
 BOOL RHI::DestroyD3DDevice()
 {
+
 	m_swapChain->Release();
 	m_backbuffer->Release();
 	m_depthStencil->Release();

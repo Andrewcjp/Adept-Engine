@@ -7,7 +7,7 @@
 #include "../Core/Engine.h"
 OGLTexture::OGLTexture()
 {
-	m_syshandle = m_apphandle = -1;
+	m_syshandle = m_apphandle = (unsigned int)-1;
 }
 
 OGLTexture::OGLTexture(const char* path, bool istga)
@@ -134,7 +134,7 @@ void OGLTexture::CreateTextureAsRenderTarget(int width, int height, bool depthon
 
 }
 
-void OGLTexture::GenerateNoiseTex(float noiseSize)
+void OGLTexture::GenerateNoiseTex(float )
 {
 	std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // random floats between 0.0 - 1.0
 	std::default_random_engine generator;
@@ -217,7 +217,7 @@ void OGLTexture::FreeTexture()
 	{
 		
 		glDeleteTextures(1, &m_syshandle);
-		m_syshandle = -1;
-		m_apphandle = -1;
+		m_syshandle = (unsigned int)-1;
+		m_apphandle = (unsigned int)-1;
 	}
 }

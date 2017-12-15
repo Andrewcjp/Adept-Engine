@@ -49,7 +49,7 @@ Shader_Deferred::~Shader_Deferred()
 {
 }
 
-void Shader_Deferred::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Deferred::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*> lights)
 {
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "numLights"), static_cast<GLuint>(lights.size()));
 	glUniform1f(glGetUniformLocation(m_Shader->GetProgramHandle(), "far_plane"), static_cast<GLfloat>(ShadowFarPlane));
@@ -84,6 +84,6 @@ void Shader_Deferred::RenderPlane()
 	glDisableVertexAttribArray(0);
 }
 
-void Shader_Deferred::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Deferred::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }

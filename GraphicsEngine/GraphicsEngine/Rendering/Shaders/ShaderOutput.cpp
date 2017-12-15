@@ -64,7 +64,7 @@ void ShaderOutput::Resize(int width, int height)
 ShaderOutput::~ShaderOutput()
 {
 }
-void ShaderOutput::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void ShaderOutput::UpdateOGLUniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }
 
@@ -143,11 +143,13 @@ void ShaderOutput::SetFXAA(bool state)
 	fxxastate = state;
 }
 
-void ShaderOutput::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void ShaderOutput::UpdateD3D11Uniforms(Transform * , Camera * c, std::vector<Light*> lights)
 {
 	m_cbuffer.m_worldMat = glm::mat4();
 	m_cbuffer.m_viewMat = c->GetView();
 	m_cbuffer.m_projection = c->GetProjection();
+#if BUILD_D3D11
 	RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &m_cbuffer, 0, 0);
 	RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
+#endif
 }

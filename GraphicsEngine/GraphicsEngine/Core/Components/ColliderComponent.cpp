@@ -21,7 +21,7 @@ void ColliderComponent::BeginPlay()
 {
 }
 
-void ColliderComponent::Update(float delta)
+void ColliderComponent::Update(float )
 {
 }
 

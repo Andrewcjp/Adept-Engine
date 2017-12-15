@@ -52,7 +52,7 @@ glm::mat4 Camera::GetView()
 	if (linkedtransform != nullptr && isfree == false)
 	{
 		//	rotMat *= glm::toMat4(linkedtransform->GetQuatRot());//apply the transform rotation
-	}	
+	}
 	glm::mat4 output;
 	if (UseLeftHanded)
 	{
@@ -74,7 +74,7 @@ glm::vec3 Camera::GetPosition()
 }
 void Camera::MoveForward(float amt)
 {
-	m_pos += forward *amt*m_movespeed;
+	m_pos += forward * amt*m_movespeed;
 }
 
 void Camera::MoveRight(float amt)
@@ -116,10 +116,10 @@ void Camera::qRotateY(float angle)
 	euler.x = 0;
 	qrot *= glm::quat(euler);
 }
-//Depricated
+
 void Camera::RotateY(float angle)
 {
-	//std::cout << "RotateY by :" << angle << std::endl;
+
 	static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
 	if (UseLeftHanded)
 	{
@@ -166,4 +166,33 @@ void Camera::SetMouseRotation(float x, float y)
 
 	// Up vector
 	up = glm::cross(right, forward);
+}
+void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outrayDirection, glm::vec3&  outRayorign)
+{
+	glm::mat4 inverseVP = glm::inverse(GetProjection() * GetView());
+
+	//#if OGRE_NO_VIEWPORT_ORIENTATIONMODE == 0
+	//	// We need to convert screen point to our oriented viewport (temp solution)
+	//	Real tX = screenX; Real a = getOrientationMode() * Math::HALF_PI;
+	//	screenX = Math::Cos(a) * (tX - 0.5f) + Math::Sin(a) * (screenY - 0.5f) + 0.5f;
+	//	screenY = Math::Sin(a) * (tX - 0.5f) + Math::Cos(a) * (screenY - 0.5f) + 0.5f;
+	//	if ((int)getOrientationMode() & 1) screenY = 1.f - screenY;
+	//#endif
+
+	float nx = (2.0f * screenX) - 1.0f;
+	float ny = 1.0f - (2.0f * screenY);
+	glm::vec4 nearPoint(nx, ny, -1.f, 0);
+	// Use midPoint rather than far point to avoid issues with infinite projection
+	glm::vec4  midPoint(nx, ny, 0.0f, 0);
+	
+	// Get ray origin and ray target on near plane in world space
+	glm::vec4  rayOrigin, rayTarget;
+
+	rayOrigin = inverseVP * nearPoint;
+	rayTarget = inverseVP * midPoint;
+	outrayDirection = rayTarget;
+	//glm::normalize(outrayDirection);
+	outRayorign = rayOrigin;
+	/*outRay->setOrigin(rayOrigin);
+	outRay->setDirection(rayDirection);*/
 }

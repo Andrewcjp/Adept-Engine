@@ -13,6 +13,8 @@ UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 	TextBox->BackgoundColour = glm::vec3(0);
 	TextBox->Colour = glm::vec3(0.3f);
 	Rect = CollisionRect(w, h, x, y);
+	Enabled = true;
+
 }
 
 UIEditField::UIEditField(Inspector::ValueType type, std::string name, void *valueptr) : UIEditField(0, 0, 0, 0)
@@ -38,19 +40,20 @@ void UIEditField::SetLabel(std::string lavel)
 
 void UIEditField::MouseMove(int x, int y)
 {
+	if (!Enabled)
+	{
+		return;
+	}
 	if (Rect.Contains(x, y))
 	{
 		UIManager::UpdateBatches();
 		WasSelected = true;
-		/*Colour = glm::vec3(1, 0, 0);
-		TextBox->Colour = Colour;*/
 		Input::Cursor = LoadCursor(NULL, IDC_IBEAM);
 		Input::Cursor = SetCursor(Input::Cursor);
+
 	}
 	else
 	{
-		/*Colour = colour;
-		TextBox->Colour = Colour;*/
 		if (WasSelected)
 		{
 			//works currently but might leak resources;
@@ -92,7 +95,10 @@ void UIEditField::MouseClick(int x, int y)
 void UIEditField::Render()
 {
 	UIBox::Render();
-	TextBox->Render();
+	if (FilterType != Inspector::Label)
+	{
+		TextBox->Render();
+	}
 	Namelabel->Render();
 	Textlabel->Render();
 }
@@ -104,9 +110,16 @@ void UIEditField::ResizeView(int w, int h, int x, int y)
 	Textlabel->TextScale = 0.3f;
 	Namelabel->ResizeView(w / 3, h / 2, x, y);
 	int gap = 25;
-	Textlabel->ResizeView(((w / 3) * 2) - gap, h / 2.0, x + (w / 3) + gap, y);
-	TextBox->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
-	Rect = CollisionRect(w, h, x, y);
+	Textlabel->ResizeView(((w / 3) * 2) - gap, h / 2, x + (w / 3) + gap, y);
+	if (FilterType != Inspector::Label)
+	{
+		TextBox->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
+	}
+	else
+	{
+		Enabled = false;
+	}
+	Rect = CollisionRect(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
 }
 
 void UIEditField::SendValue()
@@ -127,6 +140,10 @@ void UIEditField::SendValue()
 
 void UIEditField::ProcessKeyDown(WPARAM key)
 {
+	if (!Enabled)
+	{
+		return;
+	}
 	if (key == VK_DELETE)
 	{
 		nextext = "";

@@ -10,10 +10,6 @@
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
 {
 	Name = name;
-
-	/*void* ptr = (void*)(&Name);
-	std::string* test = (std::string*)ptr;
-	*test = "enjrgne4";*/
 	ObjectID = oid;
 	Mobilty = stat;
 	m_transform = new Transform();
@@ -31,6 +27,22 @@ Material* GameObject::GetMat()
 	}
 	return nullptr;
 }
+bool GameObject::GetReflection()
+{
+	if (m_MeshRenderer != nullptr)
+	{
+		return m_MeshRenderer->GetMaterial()->GetProperties()->IsReflective;
+	}
+	return false;
+}
+bool GameObject::GetDoesUseMainShader()
+{
+	if (m_MeshRenderer != nullptr)
+	{
+		return m_MeshRenderer->GetMaterial()->GetProperties()->UseMainShader;
+	}
+	return false;
+}
 GameObject::~GameObject()
 {
 	for (int i = 0; i < m_Components.size(); i++)
@@ -38,6 +50,10 @@ GameObject::~GameObject()
 		delete m_Components[i];
 	}
 	delete m_transform;
+}
+Transform * GameObject::GetTransform()
+{
+	return m_transform;
 }
 Scene * GameObject::GetScene()
 {
@@ -60,8 +76,6 @@ bool  GameObject::CheckCulled(float Distance, float angle)
 	return false;
 }
 
-//temp
-
 Renderable * GameObject::GetMesh()
 {
 	if (m_MeshRenderer != nullptr)
@@ -79,7 +93,7 @@ void GameObject::Render(bool ignoremat)
 }
 void GameObject::Render(bool ignoremat, CommandListDef* list)
 {
-	
+
 	if (m_MeshRenderer != nullptr)
 	{
 		m_MeshRenderer->Render(ignoremat, list);
@@ -87,10 +101,7 @@ void GameObject::Render(bool ignoremat, CommandListDef* list)
 }
 void GameObject::FixedUpdate(float delta)
 {
-	if (SelectionShape != nullptr)
-	{
-		//SelectionShape->
-	}
+	
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		if (m_Components[i]->DoesFixedUpdate)
@@ -118,6 +129,10 @@ void GameObject::Update(float delta)
 	{
 		m_transform->Update();
 	}
+	if (SelectionShape != nullptr)
+	{
+		//SelectionShape->
+	}
 }
 
 void GameObject::BeginPlay()
@@ -126,6 +141,11 @@ void GameObject::BeginPlay()
 	{
 		m_Components[i]->BeginPlay();
 	}
+}
+
+GameObject::EMoblity GameObject::GetMobility()
+{
+	return Mobilty;
 }
 
 void GameObject::EditorUpdate()
@@ -166,7 +186,7 @@ std::vector<Component*> GameObject::GetComponents()
 	return m_Components;
 }
 
-void GameObject::CopyPtrs(GameObject * newObject)
+void GameObject::CopyPtrs(GameObject *)
 {
 	for (int i = 0; i < m_Components.size(); i++)
 	{
@@ -179,14 +199,9 @@ std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
 {
 	std::vector<Inspector::InspectorProperyGroup> test;
 	Inspector::InspectorProperyGroup RootGroup = Inspector::CreatePropertyGroup("GameObject");
-
-	//Inspector::InspectorPropery NameProp;
-	//NameProp.name = "Name";
-	//NameProp.type = Inspector::String;
-	//NameProp.ValuePtr = &Name;
-	//test.push_back(NameProp);
 	RootGroup.SubProps.push_back(Inspector::CreateProperty("Test Float", Inspector::Float, nullptr));
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Test Float", Inspector::Int, nullptr));
+//	RootGroup.SubProps.push_back(Inspector::CreateProperty("Test Float", Inspector::Int, nullptr));
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Test label", Inspector::Label, nullptr));
 	test.push_back(RootGroup);
 	for (int i = 0; i < m_Components.size(); i++)
 	{

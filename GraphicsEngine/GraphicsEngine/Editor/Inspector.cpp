@@ -118,6 +118,7 @@ void Inspector::CreateEditor()
 			case Int:
 			case Float:
 			case String:
+			case Label:
 				newwidget = new UIEditField(Fields[i].SubProps[j].type, Fields[i].SubProps[j].name, Fields[i].SubProps[j].ValuePtr);
 				break;
 			default:

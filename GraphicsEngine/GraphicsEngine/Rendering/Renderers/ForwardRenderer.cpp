@@ -196,7 +196,7 @@ void ForwardRenderer::ReflectionPass()
 		{
 			continue;
 		}
-		if (!(InGetObj())[i]->UseDefaultShader)
+		if (!(InGetObj())[i]->GetDoesUseMainShader())
 		{
 			grassshader->SetShaderActive();
 			grassshader->UpdateUniforms((InGetObj())[i]->GetTransform(), RefelctionCamera, (*Lights));
@@ -327,7 +327,7 @@ void ForwardRenderer::MainPass()
 		{
 			continue;
 		}
-		if ((InGetObj())[i]->UseDefaultShader == false)
+		if (!(InGetObj())[i]->GetDoesUseMainShader())
 		{
 			grassshader->SetShaderActive();
 			grassshader->UpdateUniforms((InGetObj())[i]->GetTransform(), MainCamera, (*Lights));

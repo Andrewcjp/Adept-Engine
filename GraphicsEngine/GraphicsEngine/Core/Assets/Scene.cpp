@@ -151,13 +151,15 @@ void Scene::LoadDefault(RenderEngine* Renderer, bool IsDeferredMode)
 	{
 		go = new GameObject("Water");
 
-		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture());
+		Material::MaterialProperties props;
+		props.DoesShadow = false;
+		props.IsReflective = true;
+		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture(), props);
 		mat->NormalMap = RHI::CreateTexture("IKT4l.jpg");
 		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
 		go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
 		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 		go->GetTransform()->SetScale(glm::vec3(2));
-		go->SetReflection(true);
 		Camera* c = new Camera(go->GetTransform()->GetPos(), 90.0f, static_cast<float>(512 / 512), 0.1f, 100.0f);
 		c->Pitch(-90);
 		c->SetUpAndForward(glm::vec3(0, 1.0, 0), glm::vec3(0, 0, 1.0));

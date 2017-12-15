@@ -64,7 +64,7 @@ Shader_Depth::~Shader_Depth()
 	delete CubeMaptex;
 }
 
-void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera * , std::vector<Light*> lights)
 {
 	Light* light;
 	if (targetlight != nullptr)
@@ -172,18 +172,10 @@ void Shader_Depth::BindShadowmmap(CommandListDef* List)
 	//	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowbuffer->GetRenderTexture()->m_syshandle);
 }
 
-void Shader_Depth::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Depth::UpdateD3D11Uniforms(Transform * t, Camera * , std::vector<Light*> lights)
 {
 #if BUILD_D3D11
-	D3D11ShaderProgram* prog = (D3D11ShaderProgram*)m_Shader;
-	//m_cbuffer.m_worldMat = m_world;
-	//m_cbuffer.m_viewMat = m_view;
-	//m_cbuffer.m_projection = c->GetProjection();
 	glm::mat4 shadowProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, znear, zfar);
-	////glm::mat4 lightview = glm::lookAt(light->GetPosition(), light->GetPosition() + light->GetDirection(), glm::vec3(0, 1, 0));//hmm not quite right
-	//glm::vec3 right = glm::cross(lights[0]->GetDirection(), glm::vec3(0, 1, 0));
-	//glm::vec3 up = glm::normalize(glm::cross(glm::normalize(right), lights[0]->GetDirection()));
-	//glm::mat4 lightview = glm::lookAt(lights[0]->GetPosition(), glm::vec3(0, 0, 0), up);//hmm not quite right
 
 	glm::vec3 at = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -194,6 +186,5 @@ void Shader_Depth::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Li
 	m_cbuffer.m_worldMat = t->GetModel();
 	RHI::GetD3DContext()->UpdateSubresource(RHI::instance->m_constantBuffer, 0, NULL, &m_cbuffer, 0, 0);
 	RHI::GetD3DContext()->VSSetConstantBuffers(0, 1, &RHI::instance->m_constantBuffer);
-	//prog->SetUniform1UInt
 #endif
 }

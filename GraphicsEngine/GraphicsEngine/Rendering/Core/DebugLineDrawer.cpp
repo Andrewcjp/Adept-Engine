@@ -78,8 +78,6 @@ void DebugLineDrawer::RenderLines(glm::mat4 matrix)
 {
 	if (VertsOnGPU != 0)
 	{
-		//todo: renderer;
-	//	glDisable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 		m_TextShader->ActivateShaderProgram();
 

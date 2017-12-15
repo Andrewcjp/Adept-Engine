@@ -25,7 +25,7 @@ Shader_Skybox::~Shader_Skybox()
 	glDeleteTextures(1, &SkyboxTexture);
 }
 
-void Shader_Skybox::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Skybox::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*> lights)
 {
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxTexture);
@@ -42,6 +42,6 @@ void Shader_Skybox::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Lig
 	glDepthFunc(GL_LEQUAL);
 }
 
-void Shader_Skybox::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader_Skybox::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }

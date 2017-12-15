@@ -12,22 +12,14 @@ D3D11Mesh::D3D11Mesh()
 {
 
 }
-//D3D11Mesh::D3D11Mesh(LPCWSTR filename, D3D11ShaderProgram* shader)
-//{
-//	pContext = shader->GetContext();
-//	LoadAndBuildMeshFromOBJFile(filename, shader);
-//}
+
 D3D11Mesh::D3D11Mesh(const char* file, ShaderProgramBase * shader)
 {
-	/*std::string path = Engine::GetRootDir();
-	path.append("\\asset\\models\\");
-	path.append(file);	*/
-	D3D11ShaderProgram* s = dynamic_cast<D3D11ShaderProgram*>(shader);
-	pContext = s->GetContext();
+
 	std::string filename(file);
 	std::wstring newfile((int)filename.size(), 0);
 	MultiByteToWideChar(CP_UTF8, 0, &filename[0], (int)filename.size(), &newfile[0], (int)filename.size());
-	LoadAndBuildMeshFromOBJFile(newfile.c_str(), s);
+	LoadAndBuildMeshFromOBJFile(newfile.c_str(), (D3D11ShaderProgram*)shader);
 }
 
 D3D11Mesh::~D3D11Mesh()
@@ -37,7 +29,7 @@ D3D11Mesh::~D3D11Mesh()
 	if (m_vertexBuffer) m_vertexBuffer->Release();
 }
 
-void D3D11Mesh::Render(CommandListDef* list)
+void D3D11Mesh::Render(CommandListDef*)
 {
 	/*ID3D11DeviceContext* pContext = m_shader->GetContext();
 	ID3D11ShaderResourceView* ptexRv = dynamic_cast<D3D11Texture*>(m_tex)->m_textureRV;*/
@@ -51,7 +43,7 @@ void D3D11Mesh::Render(CommandListDef* list)
 
 	//pContext->PSSetShaderResources(0, 1, &ptexRv);
 
-	RHI::GetD3DContext()->Draw(m_numtriangles*3, 0);
+	RHI::GetD3DContext()->Draw(m_numtriangles * 3, 0);
 }
 void D3D11Mesh::Render(ID3D11DeviceContext* pContext)
 {
@@ -83,21 +75,21 @@ void D3D11Mesh::LoadAndBuildMeshFromOBJFile(LPCWSTR filename, D3D11ShaderProgram
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 2*offset, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 2 * offset, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	
-	ID3D11Device* pDevice = shader->GetDevice();
-	
+
+
+
 	ID3DBlob* pVSBlob = shader->GetVSBlob();
 
 	HRESULT hr = RHI::GetD3DDevice()->CreateInputLayout(vertlayout, ARRAYSIZE(vertlayout), pVSBlob->GetBufferPointer(),
 		pVSBlob->GetBufferSize(), &m_vertexLayout);
-
+	assert(hr == S_OK);
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(OGLVertex)*m_numtriangles*3;
+	bd.ByteWidth = sizeof(OGLVertex)*m_numtriangles * 3;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 
@@ -107,6 +99,6 @@ void D3D11Mesh::LoadAndBuildMeshFromOBJFile(LPCWSTR filename, D3D11ShaderProgram
 
 	RHI::GetD3DDevice()->CreateBuffer(&bd, &initData, &m_vertexBuffer);
 
-	delete [] mesh;
+	delete[] mesh;
 }
 #endif

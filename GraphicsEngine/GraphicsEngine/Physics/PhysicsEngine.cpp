@@ -3,15 +3,15 @@
 
 
 
-std::vector<RigidBody*> PhysicsEngine::createStack(const glm::vec3 & t, int size, float halfExtent)
+std::vector<RigidBody*> PhysicsEngine::createStack(const glm::vec3 &, int, float)
 {
 	return std::vector<RigidBody*>();
 }
-RigidBody * PhysicsEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale)
+RigidBody * PhysicsEngine::FirePrimitiveAtScene(glm::vec3, glm::vec3, float)
 {
 	return nullptr;
 }
-bool PhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * hit)
+bool PhysicsEngine::RayCastScene(glm::vec3, glm::vec3, float, RayHit *hit)
 {
 	hit = nullptr;
 	return false;
@@ -25,19 +25,19 @@ PhysicsEngine::~PhysicsEngine()
 {
 }
 
-void PhysicsEngine::initPhysics(bool interactive)
+void PhysicsEngine::initPhysics(bool)
 {
 }
 
-void PhysicsEngine::stepPhysics(bool interactive, float Deltatime)
+void PhysicsEngine::stepPhysics(bool, float)
 {
 }
 
-void PhysicsEngine::cleanupPhysics(bool interactive)
+void PhysicsEngine::cleanupPhysics(bool)
 {
 }
 
-RigidBody * PhysicsEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
+RigidBody * PhysicsEngine::CreatePrimitiveRigidBody(glm::vec3, glm::vec3, float)
 {
 	return nullptr;
 }

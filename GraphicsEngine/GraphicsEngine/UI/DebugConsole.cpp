@@ -52,7 +52,6 @@ void DebugConsole::ResizeView(int w, int h, int x, int y)
 }
 void DebugConsole::ExecCommand(std::string command)
 {
-
 	if (!EditorWindow::ProcessDebugCommand(command))
 	{
 		if (command.find("showgraph") != -1)

@@ -53,7 +53,6 @@ private:
 	std::string LoadShaderIncludeFile(std::string name, int limit);
 	size_t TextFileBufferedRead(std::string name, char ** buffer);
 	bool UseIncluderToLoadOGLShaders = true;
-	const char * path = "../";
 	const char * includeText = "#include";
 	int	 includeLength = 9;
 	std::map<std::string, std::string> ShaderSourceMap;
@@ -66,6 +65,5 @@ private:
 	std::string TextureCooked = "../asset/TextureCooked.bin";
 	float StartTime = 0;
 	size_t LoadedAssetSize = 0;
-	//std::map
 };
 

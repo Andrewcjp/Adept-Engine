@@ -13,7 +13,7 @@ D3D11Window::D3D11Window()
 	m_euler[0] = m_euler[1] = m_euler[2] = 0.0f;
 }
 
-D3D11Window::D3D11Window(HINSTANCE hInstance, int width, int height)
+D3D11Window::D3D11Window(HINSTANCE , int , int )
 {
 	//InitWindow(hInstance, width, height);	
 	m_euler[0] = m_euler[1] = m_euler[2] = 0.0f;
@@ -98,7 +98,7 @@ BOOL D3D11Window::DestroyD3DDevice()
 	return TRUE;
 }
 
-bool D3D11Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
+bool D3D11Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool )
 {
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
 		L"RenderWindow", L"D3D11Window", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -143,7 +143,7 @@ void D3D11Window::Render()
 	{
 		Acculilatedtime = 0;
 	}
-	Renderable* pRenderable = static_cast<Renderable*>(m_mesh);
+	
 
 	float clearcolour[4] = { 0.0f, 0.0f, 0.2f, 1.0f };
 
@@ -278,29 +278,29 @@ BOOL D3D11Window::KeyDown(WPARAM key)
 	return 0;
 }
 
-BOOL D3D11Window::KeyUp(WPARAM key)
+BOOL D3D11Window::KeyUp(WPARAM )
 {
 	return 0;
 }
 
-BOOL D3D11Window::KeyHeld(WPARAM key)
+BOOL D3D11Window::KeyHeld(WPARAM )
 {
 	return 0;
 }
-BOOL D3D11Window::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height)
+BOOL D3D11Window::InitWindow(HGLRC , HWND , HDC , int , int )
 {
 	return 0;
 }
-BOOL D3D11Window::MouseRBDown(int x, int y)
+BOOL D3D11Window::MouseRBDown(int , int )
 {
 	return 0;
 }
-BOOL D3D11Window::MouseRBUp(int x, int y)
+BOOL D3D11Window::MouseRBUp(int , int )
 {
 	return 0;
 }
 
-void D3D11Window::ProcessMenu(WORD command)
+void D3D11Window::ProcessMenu(WORD )
 {
 }
 

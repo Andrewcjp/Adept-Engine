@@ -52,8 +52,6 @@ ShaderPBR::~ShaderPBR()
 
 void ShaderPBR::UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights)
 {
-	
-	Light* light = lights[0];
 
 	glUniformMatrix4fv(m_UniformMVP, 1, GL_FALSE, &c->GetProjection()[0][0]);
 	glUniformMatrix4fv(m_uniform_View, 1, GL_FALSE, &c->GetView()[0][0]);
@@ -74,6 +72,6 @@ void ShaderPBR::UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> l
 	}
 }
 
-void ShaderPBR::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void ShaderPBR::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }

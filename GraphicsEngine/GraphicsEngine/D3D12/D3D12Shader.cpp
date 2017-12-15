@@ -115,15 +115,15 @@ void D3D12Shader::DeactivateShaderProgram()
 {
 }
 
-void D3D12Shader::SetUniform1UInt(unsigned int value, const char * param)
+void D3D12Shader::SetUniform1UInt(unsigned int, const char *)
 {
 }
 
-void D3D12Shader::SetAttrib4Float(float f1, float f2, float f3, float f4, const char * param)
+void D3D12Shader::SetAttrib4Float(float, float, float, float, const char *)
 {
 }
 
-void D3D12Shader::BindAttributeLocation(int index, const char * param_name)
+void D3D12Shader::BindAttributeLocation(int, const char *)
 {
 }
 D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ID3DBlob * vsBlob, ID3DBlob * fsBlob)

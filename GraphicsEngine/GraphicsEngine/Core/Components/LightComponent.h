@@ -24,7 +24,7 @@ private:
 	bool DefaultShadow = false;
 	// Inherited via Component
 	virtual void Serialise(rapidjson::Value & v) override;
-	virtual void Deserialise(rapidjson::Value & v) override;
+	virtual void Deserialise( rapidjson::Value & v) override;
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
 };
 

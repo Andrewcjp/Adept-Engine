@@ -117,7 +117,7 @@ float EditorWindow::GetDeltaTime()
 	return 0;
 }
 
-EditorWindow::EditorWindow(HINSTANCE hInstance, int width, int height)
+EditorWindow::EditorWindow(HINSTANCE , int , int )
 {
 	instance = this;
 }

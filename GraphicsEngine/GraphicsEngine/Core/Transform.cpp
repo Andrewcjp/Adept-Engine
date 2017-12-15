@@ -122,7 +122,7 @@ void Transform::RotateAboutAxis(glm::vec3 & axis, float amt)
 	this->_qrot *= glm::angleAxis((amt), glm::normalize(axis));
 }
 
-void Transform::SetQrot(glm::quat & val)
+void Transform::SetQrot(const glm::quat & val)
 {
 	UpdateModel = true;
 	_qrot = val;
@@ -134,7 +134,7 @@ void Transform::SetParent(Transform * Parent)
 	parent = Parent;
 }
 
-void Transform::TranslatePos(glm::vec3 & pos)
+void Transform::TranslatePos(const glm::vec3 & pos)
 {
 	UpdateModel = true;
 	_pos += pos;

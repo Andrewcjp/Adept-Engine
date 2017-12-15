@@ -32,7 +32,7 @@ namespace SerialHelpers
 
 
 	template<uint32_t VecSize>
-	bool getFloatVec(const rapidjson::Value& jsonVal, const std::string& desc, float vec[VecSize])
+	bool getFloatVec(const rapidjson::Value& jsonVal, const std::string& , float vec[VecSize])
 	{
 		if (jsonVal.IsArray() == false)
 		{

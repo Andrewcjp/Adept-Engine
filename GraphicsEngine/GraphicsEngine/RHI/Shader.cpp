@@ -25,7 +25,7 @@ void Shader::UpdateUniforms(Transform * t, Camera * c, std::vector<Light*> light
 
 }
 
-void Shader::UpdateD3D12Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)
+void Shader::UpdateD3D12Uniforms(Transform * , Camera * , std::vector<Light*> lights)
 {
 }
 

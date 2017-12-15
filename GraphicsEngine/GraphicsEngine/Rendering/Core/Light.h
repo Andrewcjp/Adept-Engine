@@ -31,7 +31,7 @@ public:
 	void SetShadow(bool state) {
 		DoesShadow = state;
 	}
-	void SetDirection(glm::vec3 &value) {
+	void SetDirection(const glm::vec3 &value) {
 		m_direction = glm::normalize(value);
 	}
 	bool GetDoesShadow() const { return DoesShadow; }

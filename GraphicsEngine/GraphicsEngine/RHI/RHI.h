@@ -49,6 +49,8 @@ public:
 	{
 		return instance->currentsystem;
 	}
+	static void ResizeContext(int width, int height);
+#if BUILD_D3D11
 	static ID3D11Device* GetD3DDevice()
 	{
 		return instance->m_dxDev;
@@ -57,8 +59,8 @@ public:
 	{
 		return instance->m_dxContext;
 	}
-	static void ResizeContext(int width, int height);
 	//todo: clean
+
 	ID3D11SamplerState			*m_texSamplerDefaultState;
 	ID3D11SamplerState			*m_texSamplerFBState;
 	ID3D11Device				*m_dxDev;
@@ -69,7 +71,7 @@ public:
 
 	IDXGISwapChain				*m_swapChain;
 	ID3D11Buffer				*m_constantBuffer;
-
+#endif
 private:
 	BOOL DestroyOGLContext(HWND h);
 	HGLRC CreateOGLContext(HDC hdc);

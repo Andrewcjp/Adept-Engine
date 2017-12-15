@@ -34,6 +34,7 @@ public:
 	void qRotateY(float angle);
 	void eRotateY(float angle);
 	void SetMouseRotation(float x, float y);
+	void GetRayAtScreenPos(float screenX, float screenY, glm::vec3 & outrayDirection, glm::vec3 & outRayorign);
 	glm::vec3 TransformDirection(glm::vec3 pDirection, glm::mat4 pMatrix) {
 		return glm::normalize(glm::vec3(pMatrix * glm::vec4(pDirection, 0.0f)));
 	}

@@ -76,7 +76,7 @@ void Input::Clear()
 	KeyMap.clear();
 	IsTidleDown = false;
 }
-void Input::ProcessInput(const float delatime)
+void Input::ProcessInput(const float )
 {
 	IsActiveWindow = (m_hwnd == GetActiveWindow());
 	if (EditorWindow::CurrentContext != nullptr)
@@ -100,14 +100,14 @@ void Input::ProcessInput(const float delatime)
 	}
 }
 
-BOOL Input::MouseLBDown(int x, int y)
+BOOL Input::MouseLBDown(int , int )
 {
 	MouseLookActive = true;
 	ShowCursor(false);
 	return TRUE;
 }
 
-BOOL Input::MouseLBUp(int x, int y)
+BOOL Input::MouseLBUp(int , int )
 {
 	MouseLookActive = false;
 	ShowCursor(true);
@@ -125,7 +125,7 @@ void GetDesktopResolution(int& horizontal, int& vertical, HWND window)
 	horizontal = desktop.right - desktop.left;
 	vertical = desktop.bottom - desktop.top;
 }
-BOOL Input::MouseMove(int x, int y, double deltatime)
+BOOL Input::MouseMove(int , int , double )
 {
 	if (MouseLookActive)
 	{
@@ -332,7 +332,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 		}
 		break;
 	default:
-		char c = MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
+		char c = (UINT)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
 		switch (c)
 		{
 		case '`'://w

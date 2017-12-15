@@ -15,7 +15,7 @@ class D3D11Mesh :	public Renderable
 		ID3D11Buffer*				m_vertexBuffer;
 		ID3D11Buffer*				m_indexBuffer;
 		int							m_numtriangles;
-		ID3D11DeviceContext* pContext;
+
 	public:
 		D3D11Mesh();
 	//	D3D11Mesh(LPCWSTR filename, D3D11ShaderProgram * shader);

@@ -54,7 +54,7 @@ void MeshRendererComponent::BeginPlay()
 {
 }
 
-void MeshRendererComponent::Update(float delta)
+void MeshRendererComponent::Update(float )
 {
 }
 
@@ -87,7 +87,7 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 			std::string path = (it->value.GetString());
 			if (path.length() != 0)
 			{
-				//todo: handle this case for D3D11
+				//this is not handled for D3D11
 				m_mesh = RHI::CreateMesh(path.c_str(), nullptr);
 			}
 		}

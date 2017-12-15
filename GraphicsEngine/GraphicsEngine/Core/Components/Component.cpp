@@ -17,14 +17,12 @@ void Component::InitComponent()
 {
 }
 
-void Component::FixedUpdate(float delta)
+void Component::FixedUpdate(float )
 {
 }
 
-void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props)
+void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &)
 {
-	//todo:
-	//	return std::vector<Inspector::InspectorPropery>();
 }
 
 GameObject * Component::GetOwner()

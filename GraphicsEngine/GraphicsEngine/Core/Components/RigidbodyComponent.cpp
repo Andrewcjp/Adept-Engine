@@ -38,10 +38,10 @@ void RigidbodyComponent::InitComponent()
 	}
 }
 
-void RigidbodyComponent::Serialise(rapidjson::Value & v)
+void RigidbodyComponent::Serialise(rapidjson::Value &)
 {
 }
 
-void RigidbodyComponent::Deserialise(rapidjson::Value & v)
+void RigidbodyComponent::Deserialise(rapidjson::Value &)
 {
 }

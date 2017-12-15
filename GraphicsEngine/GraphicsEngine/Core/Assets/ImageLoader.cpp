@@ -83,7 +83,7 @@ GLuint ImageLoader::LoadImageFile(std::string path)
 	if (!AssetManager::instance->GetTextureAsset(path, Image))
 	{
 		//__debugbreak();
-		return -1;
+		return (GLuint)-1;
 	}
 	glTexImage2D(
 		GL_TEXTURE_2D, 0, GL_RGBA8, Image.Width, Image.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Image.image

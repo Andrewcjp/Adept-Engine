@@ -32,7 +32,7 @@ void CameraComponent::BeginPlay()
 {
 }
 
-void CameraComponent::Update(float delta)
+void CameraComponent::Update(float )
 {
 }
 
@@ -41,7 +41,7 @@ void CameraComponent::Serialise(rapidjson::Value & v)
 	Component::Serialise(v);
 }
 
-void CameraComponent::Deserialise(rapidjson::Value & v)
+void CameraComponent::Deserialise(rapidjson::Value & )
 {
 }
 void CameraComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
