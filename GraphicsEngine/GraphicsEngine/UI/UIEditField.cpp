@@ -24,14 +24,13 @@ UIEditField::UIEditField(Inspector::ValueType type, std::string name, void *valu
 	Valueptr = valueptr;
 	if (Valueptr != nullptr)
 	{
-		nextext = *((std::string*)Valueptr);
+		GetValueText(nextext);
 	}
 	Textlabel->SetText(nextext);
 }
 
 UIEditField::~UIEditField()
-{
-}
+{}
 
 void UIEditField::SetLabel(std::string lavel)
 {
@@ -65,27 +64,35 @@ void UIEditField::MouseMove(int x, int y)
 	}
 
 }
-
+void UIEditField::GetValueText(std::string & string)
+{
+	if (FilterType == Inspector::Float)
+	{
+		float t = *((float*)Valueptr);
+		string = std::to_string(t);
+	}
+}
 void UIEditField::MouseClick(int x, int y)
 {
 	if (Rect.Contains(x, y))
 	{
-		EditorWindow::SetContext(this);
+		UIManager::SetCurrentcontext(this);
 		nextext = Textlabel->GetText();
 		LastText = Textlabel->GetText();
 		IsEditing = true;
 		if (Valueptr != nullptr)
 		{
-			nextext = *((std::string*)Valueptr);
+			//nextext = *((std::string*)Valueptr);
+			GetValueText(nextext);
 		}
 		ProcessKeyDown(0);
 	}
 	else
 	{
-		if (EditorWindow::CurrentContext == this)
+		if (UIManager::GetCurrentContext() == this)
 		{
 			//if we are set un set us!
-			EditorWindow::SetContext(nullptr);
+			UIManager::SetCurrentcontext(nullptr);
 			//	Textlabel->SetText(nextext);
 			IsEditing = false;
 		}
@@ -134,6 +141,12 @@ void UIEditField::SendValue()
 			//Target.append(nextext);
 			*((std::string*)Valueptr) = nextext;
 		}
+		if (FilterType == Inspector::ValueType::Float)
+		{
+			float out = (float)atof(nextext.c_str());
+
+			*((float*)Valueptr) = out;
+		}
 		UIManager::instance->RefreshGameObjectList();
 	}
 }
@@ -175,7 +188,7 @@ void UIEditField::ProcessKeyDown(WPARAM key)
 	}
 	else  if (key == VK_RETURN)
 	{
-		EditorWindow::SetContext(nullptr);
+		UIManager::SetCurrentcontext(nullptr);
 		Textlabel->SetText(nextext);
 		IsEditing = false;
 		SendValue();
@@ -185,7 +198,7 @@ void UIEditField::ProcessKeyDown(WPARAM key)
 		nextext = LastText;
 		IsEditing = false;
 		Textlabel->SetText(nextext);
-		EditorWindow::SetContext(nullptr);
+		UIManager::SetCurrentcontext(nullptr);
 	}
 	else if (key != 0)
 	{

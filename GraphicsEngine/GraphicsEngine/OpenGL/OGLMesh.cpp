@@ -1,4 +1,4 @@
-#include <Windows.h>
+
 #include "OGLMesh.h"
 #include "Rendering/Core/Triangle.h"
 #include "../Core/Assets/OBJFileReader.h"

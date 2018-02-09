@@ -35,7 +35,10 @@ void MeshRendererComponent::Render(bool DepthOnly, CommandListDef* list)
 	{
 		m_mat->SetMaterialActive(list);
 	}
-	m_mesh->Render(list);
+	if (m_mesh != nullptr)
+	{
+		m_mesh->Render(list);
+	}
 }
 
 Material *MeshRendererComponent::GetMaterial()
@@ -51,30 +54,29 @@ void MeshRendererComponent::GetInspectorProps(std::vector<Inspector::InspectorPr
 }
 
 void MeshRendererComponent::BeginPlay()
-{
-}
+{}
 
-void MeshRendererComponent::Update(float )
-{
-}
+void MeshRendererComponent::Update(float)
+{}
 
 void MeshRendererComponent::InitComponent()
-{
-}
+{}
 
 void MeshRendererComponent::Serialise(rapidjson::Value & v)
 {
 	Component::Serialise(v);
 	SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MeshName", m_mesh->AssetName);
-	if (m_mat->Diffusetexture)
+	if (m_mat != nullptr)
 	{
-		SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatDiffuse", m_mat->Diffusetexture->AssetName);
-	}
-	if (m_mat->NormalMap)
-	{
-		SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatNormal", m_mat->NormalMap->AssetName);
-	}
-	//todo:
+		if (m_mat->Diffusetexture)
+		{
+			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatDiffuse", m_mat->Diffusetexture->AssetName);
+		}
+		if (m_mat->NormalMap)
+		{
+			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatNormal", m_mat->NormalMap->AssetName);
+		}
+	}	//todo:
 }
 
 void MeshRendererComponent::Deserialise(rapidjson::Value & v)

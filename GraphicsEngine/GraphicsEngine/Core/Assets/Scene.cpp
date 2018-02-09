@@ -79,33 +79,26 @@ void Scene::LoadDefault(RenderEngine* Renderer, bool IsDeferredMode)
 	go->AttachComponent(new CameraComponent());
 	AddGameobjectToScene(go);
 
-	//go = new GameObject("LightTest");
-	//go->GetTransform()->SetPos(glm::vec3(0, 10, 20));
-	//LightComponent* lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	//lc->SetShadow(false);
-	//lc->Internal_GetLightPtr()->SetShadowId(0);
-	//lc->SetIntensity(100);
-	//AddGameobjectToScene(go);
+	go = new GameObject("LightTest");
+	go->GetTransform()->SetPos(glm::vec3(0, 10, 20));
+	LightComponent* lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	lc->SetShadow(true);
+	lc->Internal_GetLightPtr()->SetShadowId(0);
+	lc->SetIntensity(100);
+	AddGameobjectToScene(go);
 
 	go = new GameObject("Dir Light");
 	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
 	go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
-	LightComponent * lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(false);
+	/*LightComponent **/ lc = (LightComponent*)go->AttachComponent(new LightComponent());
+//	lc->SetShadow(true);
 	lc->SetLightType(Light::Directional);
 	lc->SetIntensity(0.1f);
 	AddGameobjectToScene(go);
 
-
-	/*go = new GameObject("TG Test");
-	go->AttachComponent(CompoenentRegistry::CreateAdditonalComponent(1));
-	AddGameobjectToScene(go);*/
-
-
 	go = new GameObject("Plane");
 	mat = new Material(RHI::CreateTexture("bricks2.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-	//go->GetMat()->SetShadow(false);
 	go->GetTransform()->SetPos(glm::vec3(0, 20, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(0.5));

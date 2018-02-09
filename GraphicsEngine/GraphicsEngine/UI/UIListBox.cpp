@@ -79,7 +79,10 @@ void UIListBox::RemoveAll()
 void UIListBox::Select(int inex)
 {
 	SelectedCurrent = inex;
-	SelectionChanged(SelectedCurrent);
+	if (SelectionChanged)
+	{
+		SelectionChanged(SelectedCurrent);
+	}
 	for (int i = 0; i < items.size(); i++)
 	{
 		items[i]->SetSelected(i == SelectedCurrent);

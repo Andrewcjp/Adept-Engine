@@ -48,7 +48,7 @@ void D3D12Mesh::CreateVertexBuffer(LPCWSTR name)
 		// recommended. Every time the GPU needs it, the upload heap will be marshalled 
 		// over. Please read up on Default Heap usage. An upload heap is used here for 
 		// code simplicity and because there are very few verts to actually transfer.
-		ThrowIfFailed(D3D12RHI::Instance->m_device->CreateCommittedResource(
+		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),

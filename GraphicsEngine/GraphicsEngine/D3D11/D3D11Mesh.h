@@ -1,7 +1,7 @@
 #pragma once
 #include "EngineGlobals.h"
 #if BUILD_D3D11
-#include <Windows.h>
+
 #include "../Rendering/Core/Renderable.h"
 #include "Rendering/Core/Triangle.h"
 #include "D3D11Shader.h"

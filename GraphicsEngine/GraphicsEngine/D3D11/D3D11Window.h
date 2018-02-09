@@ -1,8 +1,8 @@
 #pragma once
 #include "EngineGlobals.h"
 #if BUILD_D3D11
-#include <Windows.h>
-#include <WindowsX.h>
+
+//#include <WindowsX.h>
 #include <d3d11_1.h>
 #include <DirectXMath.h>
 #include "RHI/RenderWindow.h"
@@ -99,7 +99,7 @@ protected:
 
 		// Inherited via RenderWindow
 		
-		virtual BOOL InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height) override;
+	
 
 		// Inherited via RenderWindow
 		virtual BOOL MouseRBDown(int x, int y) override;

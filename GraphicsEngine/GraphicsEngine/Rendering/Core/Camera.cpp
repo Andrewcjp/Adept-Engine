@@ -27,6 +27,10 @@ glm::mat4 Camera::GetViewProjection()
 
 void Camera::UpdateProjection(float aspect)
 {
+	if (isnan(aspect)) 
+	{
+		return;
+	}
 	if (UseLeftHanded)
 	{
 		this->projection = glm::perspectiveLH(glm::radians(fov), aspect, zNear, ZFar);
@@ -125,10 +129,10 @@ void Camera::RotateY(float angle)
 	{
 		angle = -angle;
 	}
-	glm::mat4 rotation = glm::rotate(angle, UP);
+	glm::mat4 irotation = glm::rotate(angle, UP);
 
-	forward = glm::vec3(glm::normalize(rotation * glm::vec4(forward, 0.0)));
-	up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
+	forward = glm::vec3(glm::normalize(irotation * glm::vec4(forward, 0.0)));
+	up = glm::vec3(glm::normalize(irotation * glm::vec4(up, 0.0)));
 }
 void Camera::ePitch(float angle)
 {
@@ -184,7 +188,7 @@ void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outra
 	glm::vec4 nearPoint(nx, ny, -1.f, 0);
 	// Use midPoint rather than far point to avoid issues with infinite projection
 	glm::vec4  midPoint(nx, ny, 0.0f, 0);
-	
+
 	// Get ray origin and ray target on near plane in world space
 	glm::vec4  rayOrigin, rayTarget;
 

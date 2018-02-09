@@ -1,6 +1,6 @@
 #include "EngineGlobals.h"
 #if BUILD_D3D11
-#include <windows.h>
+
 #include "../RHI/RHI.h"
 #include "../Core/Assets/ImageIO.h"
 #include "D3D11Texture.h"

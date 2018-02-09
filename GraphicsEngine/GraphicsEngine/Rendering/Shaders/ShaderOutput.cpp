@@ -43,7 +43,7 @@ ShaderOutput::ShaderOutput(int width, int height)
 #else	
 		SetFullScreen(true);
 #endif
-		
+
 	}
 #endif
 	if (RHI::GetType() == RenderSystemD3D11)
@@ -64,13 +64,17 @@ void ShaderOutput::Resize(int width, int height)
 ShaderOutput::~ShaderOutput()
 {
 }
-void ShaderOutput::UpdateOGLUniforms(Transform * , Camera * , std::vector<Light*> lights)
+void ShaderOutput::UpdateOGLUniforms(Transform *, Camera *, std::vector<Light*> lights)
 {
 }
 
 
 void ShaderOutput::SetFullScreen(bool state)
-{	
+{
+	if (RHI::GetType() != RenderSystemOGL) 
+	{
+		return;
+	}
 	if (state)
 	{
 		static const GLfloat g_quad_vertex_buffer_data[] = {
@@ -143,7 +147,7 @@ void ShaderOutput::SetFXAA(bool state)
 	fxxastate = state;
 }
 
-void ShaderOutput::UpdateD3D11Uniforms(Transform * , Camera * c, std::vector<Light*> lights)
+void ShaderOutput::UpdateD3D11Uniforms(Transform *, Camera * c, std::vector<Light*> lights)
 {
 	m_cbuffer.m_worldMat = glm::mat4();
 	m_cbuffer.m_viewMat = c->GetView();

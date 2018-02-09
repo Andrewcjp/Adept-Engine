@@ -4,6 +4,7 @@
 #include "glm/fwd.hpp"
 #include <vector>
 #include "CollisionRect.h"
+#include <functional>
 #define UISTATS 0
 class TextRenderer;
 class UIWidget;
@@ -20,9 +21,13 @@ class UIManager
 {
 public:
 	static UIManager* instance;
+
 	UIManager();
 	UIManager(int w, int h);
 	void InitEditorUI();
+	//void CreateDropDown(std::vector<std::string>& options, int x, int y, std::function<void(int)> Callback);
+	void CreateDropDown(std::vector<std::string>& options, float width, float height, float x, float y, std::function<void(int)> Callback);
+	void AlertBox(std::string MSg);
 	~UIManager();
 	void Initalise(int width, int height);
 	Inspector * GetInspector();
@@ -40,28 +45,16 @@ public:
 	void InitGameobjectList(std::vector<GameObject*>* gos);
 	void UpdateGameObjectList(std::vector<GameObject*>* gos);
 	void RefreshGameObjectList();
-	int GetWidth()
-	{
-		return m_width;
-	}
-	int GetHeight()
-	{ 
-		return m_height;
-	}
-	static int GetScaledWidth(float PC)
-	{
-		return (int)rint(PC *(instance->GetWidth()));
-	}
-	static int GetScaledHeight(float PC)
-	{
-		return (int)rint(PC *(instance->GetHeight()));
-	}
+	int GetWidth();
+	int GetHeight();
+	static int GetScaledWidth(float PC);
+	static int GetScaledHeight(float PC);
 	UIGraph* Graph;
-	bool IsUIBlocking()
-	{
-		return Blocking;
-	}
+	bool IsUIBlocking();
+	static UIWidget* GetCurrentContext();;
+	static void SetCurrentcontext(UIWidget* widget);
 private:
+	static UIWidget* CurrentContext;
 	float BottomHeight = 0.2f;
 	float TopHeight = 0.2f;
 	float RightWidth = 0.15f;

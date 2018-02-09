@@ -6,11 +6,13 @@ class UIBox;
 class Inspector : public UIWidget
 {
 public:
+	
 	enum ValueType
 	{
 		Int,
 		Float,
 		String,
+		Vector,
 		Other,
 		Label
 	};
@@ -37,9 +39,12 @@ public:
 	void MouseClick(int x, int y);
 	void MouseClickUp(int x, int y);
 	void AddComponent();
+	static void AddComponentCallback(int i);
 private:
+	static Inspector* Instance;
 	void CreateEditor();
 	IInspectable* target;
+	class UIButton* button;
 	std::vector<UIWidget*> SubWidgets;
 	UIBox* Backgroundbox;
 };

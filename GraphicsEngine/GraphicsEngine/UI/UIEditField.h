@@ -13,6 +13,7 @@ public:
 	~UIEditField();
 	void SetLabel(std::string lavel);
 	void MouseMove(int x, int y) override;
+	void GetValueText(std::string & string);
 	void MouseClick(int x, int y) override;
 	// Inherited via UIWidget
 	virtual void Render() override;

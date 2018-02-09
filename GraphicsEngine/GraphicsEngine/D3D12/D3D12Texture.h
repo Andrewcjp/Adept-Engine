@@ -22,13 +22,14 @@ public:
 	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) override;
 	virtual void CreateTextureFromData(void * data, int type, int width, int height, int bits) override;
 	ID3D12DescriptorHeap* m_srvHeap;
+	static float MipCreationTime;
 private:
 	int TextureWidth = 100;
 	int TextureHeight = 100;
 	D3D12_SUBRESOURCE_DATA Texturedatarray[9];
 	static const UINT TexturePixelSize = 4;
 	UINT8* GenerateCheckerBoardTextureData();
-	int Miplevels = 2;
+	UINT16 Miplevels = 2;
 	ID3D12Resource* m_texture;
 	std::string TextureName;
 	// Inherited via BaseTexture

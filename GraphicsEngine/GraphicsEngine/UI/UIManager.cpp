@@ -20,10 +20,12 @@
 #include "../EngineGlobals.h"
 #include "UIPopoutbox.h"
 #include "UIAssetManager.h"
+#include "UIDropDown.h"
+
 UIManager* UIManager::instance = nullptr;
+UIWidget* UIManager::CurrentContext = nullptr;
 UIManager::UIManager()
-{
-}
+{}
 
 UIManager::UIManager(int w, int h)
 {
@@ -66,20 +68,60 @@ void UIManager::InitEditorUI()
 	button->BindTarget(std::bind(&EditorWindow::ExitPlayMode, EditorWindow::GetInstance()));
 	button->SetText("Stop");
 	AddWidget(button);
-	testbox = new UIPopoutbox(100, 300, 250, 150);
-	testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
-	AddWidget(testbox);
+	//testbox = new UIPopoutbox(100, 300, 250, 150);
+	//testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
+	//AddWidget(testbox);
 	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
 	wid->SetScaled(1.0f, 0.05f, 0.0f, 0.3f);
 	AddWidget(wid);
+#if 0
+	UIDropDown * testbox3 = new UIDropDown(100, 300, 250, 150);
+	testbox3->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
+	testbox3->AddItem("ke2rjt");
+	testbox3->AddItem("kerjt");
+	testbox3->AddItem("ke3rjt");
+
+	AddWidget(testbox3);
+#endif
+	//std::vector<std::string> ops;
+	//ops.push_back("2");
+	//ops.push_back("3");
+	//ops.push_back("fasf");
+	//CreateDropDown(ops, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2), std::bind(&EditorWindow::ExitPlayMode, EditorWindow::GetInstance()));
 	//bottom = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	//bottom->SetScaled(1.0f - RightWidth, BottomHeight);/
 	//AddWidget(bottom);
-	AssetManager = new UIAssetManager();
+	/*AssetManager = new UIAssetManager();
 	AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
-	AddWidget(AssetManager);
+	AddWidget(AssetManager);*/
 }
 
+void UIManager::CreateDropDown(std::vector<std::string> &options,float width,float height,float x, float y, std::function<void(int)> Callback)
+{
+	UIListBox * testbox3 = new UIListBox(100, 300, 250, 150); //new UIDropDown(100, 300, x, y);
+	testbox3->Priority = 10;
+	testbox3->SetScaled(width, height * 2, x, y);
+
+	for (int i = 0; i < options.size(); i++)
+	{
+		testbox3->AddItem(options[i]);
+	}
+	if (Callback)
+	{
+		testbox3->SelectionChanged = Callback;
+	}
+	AddWidget(testbox3);
+	testbox3->UpdateScaled();
+	//UIManager::UpdateBatches();
+}
+void UIManager::AlertBox(std::string MSg)
+{
+	UIPopoutbox* testbox = new UIPopoutbox(100, 300, 250, 150);
+	testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
+	testbox->SetText(MSg);
+	AddWidget(testbox);
+	UIManager::UpdateBatches();
+}
 UIManager::~UIManager()
 {
 	textrender.reset();
@@ -181,7 +223,7 @@ void UIManager::RenderWidgets()
 
 
 }
-
+//todo: prevent issue with adding while itoring!
 void UIManager::MouseMove(int x, int y)
 {
 	for (int i = 0; i < widgets.size(); i++)
@@ -193,7 +235,7 @@ void UIManager::MouseMove(int x, int y)
 
 void UIManager::MouseClick(int x, int y)
 {
-	for (int i = 0; i < widgets.size(); i++)
+	for (int i = widgets.size() - 1; i >= 0; i--)
 	{
 		widgets[i]->MouseClick(x, y);
 	}
@@ -228,9 +270,52 @@ void UIManager::RefreshGameObjectList()
 		box->SelectionChanged = std::bind(&Input::SetSelectedObject, _1);
 		for (int i = 0; i < (*(GameObjectsPtr)).size(); i++)
 		{
+			(*GameObjectsPtr)[i]->PostChangeProperties();
 			box->AddItem((*(GameObjectsPtr))[i]->GetName().c_str());
 		}
 		UpdateBatches();
+	}
+}
+
+int UIManager::GetWidth()
+{
+	return m_width;
+}
+
+int UIManager::GetHeight()
+{
+	return m_height;
+}
+
+int UIManager::GetScaledWidth(float PC)
+{
+	return (int)rint(PC *(instance->GetWidth()));
+}
+
+int UIManager::GetScaledHeight(float PC)
+{
+	return (int)rint(PC *(instance->GetHeight()));
+}
+
+bool UIManager::IsUIBlocking()
+{
+	return Blocking;
+}
+
+UIWidget * UIManager::GetCurrentContext()
+{
+	if (instance != nullptr)
+	{
+		return instance->CurrentContext;
+	}
+	return nullptr;
+}
+
+void UIManager::SetCurrentcontext(UIWidget * widget)
+{
+	if (instance != nullptr)
+	{
+		instance->CurrentContext = widget;
 	}
 }
 

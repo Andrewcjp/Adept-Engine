@@ -7,11 +7,11 @@
 
 #define BUILD_WINDOW_ENGINE 1
 #define NO_GEN_CONTEXT 0
-#define BUILD_D3D11 0
+#define BUILD_D3D11 1
 #define BUILD_OPENGL 1
 #define BUILD_D3D12 1
 #define BUILD_Vulkan 0
-
+#pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0
 #else
@@ -34,7 +34,7 @@ void UNUSED_PARAM(T const&)
 #define NAME_D3D12_OBJECT(x) SetName(x, L#x)
 typedef struct ID3D12GraphicsCommandList CommandListDef;
 #else 
-typedef struct Stub{} CommandListDef;
+typedef struct Stub {} CommandListDef;
 #endif
 /*
 #pragma comment(lib, "winmm.lib")

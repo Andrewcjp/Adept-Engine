@@ -4,6 +4,7 @@ enum AAMode
 	NONE,
 	FXAA,
 	MSAA,
+	SMAA,
 };
 struct RenderSettings
 {

@@ -26,6 +26,7 @@ void Editor_Camera::Update(float delatime)
 {
 	if (Input::GetVKey(VK_RBUTTON))
 	{
+		Input::instance->LockCursor(true);
 		float movespeed = 100;
 		if (Input::GetVKey(VK_LSHIFT))
 		{
@@ -62,5 +63,11 @@ void Editor_Camera::Update(float delatime)
 		glm::vec2 axis = Input::GetMouseInputAsAxis();
 		MainCam->RotateY(axis.x*sensitvity);
 		MainCam->Pitch(axis.y*sensitvity);
+		
+	}
+	else
+	{
+		Input::instance->LockCursor(false);
+
 	}
 }

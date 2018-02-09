@@ -74,7 +74,10 @@ class ShaderBase
 		{
 			return m_shaderInternal._syshandle;
 		}
-		
+		ShaderInternal GetShaderInternal()
+		{
+			return m_shaderInternal;
+		}
 		virtual void					SetShaderOwnerProgram(ShaderProgramHandle handle) = 0;
 
 		virtual EShaderError CreateShaderFromSourceFile(const char * filename, EShaderType type) = 0;

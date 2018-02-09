@@ -9,20 +9,12 @@
 #include <iostream>
 #include <intrin.h>
 #include "../Core/Engine.h"
+#include "../Core/Utils/FileUtils.h"
 D3D11ShaderProgram::~D3D11ShaderProgram()
 {
 	DeleteShaderProgram();
 }
-inline bool exists_test3(const std::string& name)
-{
-	struct stat buffer;
-	if ((stat(name.c_str(), &buffer) == 0))
-	{
-		return true;
-	}
-	std::cout << "File Does not exist " << name.c_str() << std::endl;
-	return false;
-}
+
 EShaderError D3D11ShaderProgram::AttachAndCompileShaderFromFile(const char* shadername, EShaderType type)
 {
 	//convert to LPC 
@@ -31,7 +23,7 @@ EShaderError D3D11ShaderProgram::AttachAndCompileShaderFromFile(const char* shad
 	std::string name = shadername;
 	path.append(name);
 	path.append(".hlsl");
-	if (!exists_test3(path))
+	if (!FileUtils::exists_test3(path))
 	{
 		//std::cout << " File Does not exist" << path.c_str() << std::endl;
 #ifdef  _DEBUG

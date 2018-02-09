@@ -8,18 +8,24 @@
 #include "../UI/UIButton.h"
 #include "../UI/Layout.h"
 #include "../UI/UIPanel.h"
+#include "../Core/Components/CompoenentRegistry.h"
+#include "../Core/GameObject.h"
+Inspector* Inspector::Instance = nullptr;
 Inspector::Inspector(int w, int h, int x, int y)
 	:UIWidget(w, h, x, y)
 {
 	Backgroundbox = new UIBox(w, h, x, y);
 	//Backgroundbox->BackgoundColour = glm::vec3(0);
 	CreateEditor();
+	assert(Instance == nullptr);
+
+	Instance = this;
+
 }
 
 
 Inspector::~Inspector()
-{
-}
+{}
 
 void Inspector::SetSelectedObject(IInspectable * newTarget)
 {
@@ -90,6 +96,32 @@ void Inspector::MouseClickUp(int x, int y)
 void Inspector::AddComponent()
 {
 	//__debugbreak();
+	std::vector<std::string> ops;
+	for (int i = 0; i < CompoenentRegistry::Instance->GetCount(); i++)
+	{
+		ops.push_back(CompoenentRegistry::Instance->GetNameById(i));
+	}
+
+	using std::placeholders::_1;
+	UIManager::instance->CreateDropDown(ops, WidthScale, 0.2f, XoffsetScale, YoffsetScale, std::bind(&Inspector::AddComponentCallback, _1));
+}
+
+void Inspector::AddComponentCallback(int i)
+{
+	//__debugbreak();
+	//close dropdown
+	if (Instance != nullptr)
+	{
+		if (Instance->target != nullptr)
+		{
+			GameObject* t = (GameObject*)Instance->target;
+			if (t != nullptr)
+			{
+				t->AttachComponent(CompoenentRegistry::CreateBaseComponent(CompoenentRegistry::BaseComponentTypes(i)));
+				Instance->CreateEditor();
+			}
+		}
+	}
 }
 void Inspector::CreateEditor()
 {
@@ -108,8 +140,8 @@ void Inspector::CreateEditor()
 	std::vector<Inspector::InspectorProperyGroup> Fields = target->GetInspectorFields();
 	for (int i = 0; i < Fields.size(); i++)
 	{
-		UIPanel* Panel = new UIPanel(0,0,0,0);
-		
+		UIPanel* Panel = new UIPanel(0, 0, 0, 0);
+
 		for (int j = 0; j < Fields[i].SubProps.size(); j++)
 		{
 			UIWidget* newwidget = nullptr;
@@ -118,6 +150,7 @@ void Inspector::CreateEditor()
 			case Int:
 			case Float:
 			case String:
+			case Vector:
 			case Label:
 				newwidget = new UIEditField(Fields[i].SubProps[j].type, Fields[i].SubProps[j].name, Fields[i].SubProps[j].ValuePtr);
 				break;
@@ -132,9 +165,9 @@ void Inspector::CreateEditor()
 		}
 		Panel->SetTitle(Fields[i].name);
 		SubWidgets.push_back(Panel);
-		
+
 	}
-	UIButton* button = new UIButton(mwidth, 30, 0, 0);
+	button = new UIButton(mwidth, 30, 0, 0);
 	button->SetText("Add Component");
 	button->BindTarget(std::bind(&Inspector::AddComponent, this));
 	SubWidgets.push_back(button);

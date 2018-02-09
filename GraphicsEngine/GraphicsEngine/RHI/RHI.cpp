@@ -29,8 +29,7 @@ RHI::RHI()
 
 
 RHI::~RHI()
-{
-}
+{}
 
 void RHI::InitRHI(ERenderSystemType e)
 {
@@ -131,7 +130,7 @@ Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool
 		return new D3D11Mesh(accpath.c_str(), program);
 		break;
 #endif
-#if BUILD_D3D11
+#if BUILD_D3D12
 	case RenderSystemD3D12:
 		return new D3D12Mesh(accpath.c_str());
 		break;
@@ -354,8 +353,11 @@ HGLRC wglCreateContextAttribsARB(HDC hDC, HGLRC hShareContext, const int *attrib
 
 	if (!hCurrentContext)
 	{
-		if (!(hCurrentContext = wglCreateContext(hDC)))
+		hCurrentContext = wglCreateContext(hDC);
+		if (hCurrentContext == nullptr)
+		{
 			return 0;
+		}
 
 		if (!wglMakeCurrent(hDC, hCurrentContext))
 		{

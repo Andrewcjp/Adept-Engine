@@ -67,7 +67,7 @@ BOOL D3D12Window::InitWindow(HGLRC, HWND, HDC, int width, int height)
 	int shadowmapsize = 512;
 	ddepth = (D3D12FrameBuffer*)RHI::CreateFrameBuffer(shadowmapsize, shadowmapsize, 1, FrameBuffer::Depth);
 	Depthshader = new Shader_Depth(light);
-	ShadowList = ((D3D12Shader*)Depthshader->GetShaderProgram())->CreateShaderCommandList();
+	ShadowList = ((D3D12Shader*)Depthshader->GetShaderProgram())->CreateShaderCommandList(1);
 	ShadowList->SetName(L"ShadowList");
 	//NAME_D3D12_OBJECT(ShadowList);
 	ShadowR = new ShadowRenderer();

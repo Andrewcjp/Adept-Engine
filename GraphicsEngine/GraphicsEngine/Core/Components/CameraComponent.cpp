@@ -11,20 +11,16 @@ CameraComponent::CameraComponent()
 void CameraComponent::InitComponent()
 {
 	MCamera = new Camera(GetOwner()->GetTransform()->GetPos(), 75.0f, 1.77f, 0.1f, 1000.0f);
-#if WITH_EDITOR
-	EditorWindow::GetCurrentScene()->AddCamera(MCamera);
-#else
-	//todo: this!
-#endif
-}
 
+}
+void CameraComponent::SceneInitComponent()
+{
+	GetOwner()->GetScene()->AddCamera(MCamera);
+}
 CameraComponent::~CameraComponent()
 {
-#if WITH_EDITOR
-	EditorWindow::GetCurrentScene()->RemoveCamera(MCamera);
-#else
-	//todo: this!
-#endif
+
+	GetOwner()->GetScene()->RemoveCamera(MCamera);
 	delete MCamera;
 }
 
@@ -34,6 +30,11 @@ void CameraComponent::BeginPlay()
 
 void CameraComponent::Update(float )
 {
+}
+
+Camera * CameraComponent::GetMainCamera()
+{
+	return BaseWindow::GetCurrentCamera();
 }
 
 void CameraComponent::Serialise(rapidjson::Value & v)

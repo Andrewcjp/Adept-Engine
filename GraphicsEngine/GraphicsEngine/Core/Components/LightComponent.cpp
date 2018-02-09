@@ -14,10 +14,9 @@ LightComponent::LightComponent() :Component()
 
 LightComponent::~LightComponent()
 {
-#if WITH_EDITOR
-	EditorWindow::GetCurrentScene()->RemoveLight(MLight);
-#else
-#endif
+
+	GetOwner()->GetScene()->RemoveLight(MLight);
+
 	delete MLight;
 }
 
@@ -25,19 +24,14 @@ void LightComponent::InitComponent()
 {
 	MLight = new Light(GetOwner()->GetTransform()->GetPos(), DefaultIntesity, DefaultType, glm::vec3(1), DefaultShadow);
 	MLight->SetDirection(GetOwner()->GetTransform()->GetForward());
-#if WITH_EDITOR
-	EditorWindow::GetCurrentScene()->AddLight(MLight);
-#else
-#endif
+	
 }
 
 void LightComponent::BeginPlay()
-{
-}
+{}
 
-void LightComponent::Update(float )
-{
-}
+void LightComponent::Update(float)
+{}
 
 void LightComponent::SetLightType(Light::LightType type)
 {
@@ -54,9 +48,8 @@ void LightComponent::SetShadow(bool Shadow)
 	MLight->SetShadow(Shadow);
 }
 
-void LightComponent::SetLightColour(glm::vec3 )
-{
-}
+void LightComponent::SetLightColour(glm::vec3)
+{}
 
 Light * LightComponent::Internal_GetLightPtr()
 {
@@ -73,6 +66,11 @@ void LightComponent::OnTransformUpdate()
 	}
 }
 
+void LightComponent::SceneInitComponent()
+{
+	GetOwner()->GetScene()->AddLight(MLight);
+}
+
 void LightComponent::Serialise(rapidjson::Value & v)
 {
 	Component::Serialise(v);
@@ -82,7 +80,7 @@ void LightComponent::Serialise(rapidjson::Value & v)
 
 }
 
-void LightComponent::Deserialise( rapidjson::Value & v)
+void LightComponent::Deserialise(rapidjson::Value & v)
 {
 	for (auto& it = v.MemberBegin(); it != v.MemberEnd(); it++)
 	{

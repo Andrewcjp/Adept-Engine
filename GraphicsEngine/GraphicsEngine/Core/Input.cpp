@@ -1,5 +1,5 @@
 #include "Input.h"
-#include "OpenGL\OGLWindow.h"
+//#include <Windows.h>
 #include "RHI/RenderWindow.h"
 #include "Physics/PhysicsEngine.h"
 #include "Physics/RigidBody.h"
@@ -12,6 +12,7 @@
 #include "Rendering/Renderers/RenderEngine.h"
 #include "Editor\EditorWindow.h"
 #include "Components\MeshRendererComponent.h"
+#include "../UI/UIManager.h"
 Input* Input::instance = nullptr;
 HCURSOR Input::Cursor = NULL;
 Input::Input(Camera* c, GameObject* playergo, HWND window, RenderWindow* wind)
@@ -26,51 +27,11 @@ Input::Input(Camera* c, GameObject* playergo, HWND window, RenderWindow* wind)
 
 }
 
-
 Input::~Input()
 {
 	DestroyCursor(Cursor);
 }
-void Input::CreateStackAtPoint()
-{
-	RayHit hit;
-	if (Engine::PhysEngine->RayCastScene(MainCam->GetPosition(), MainCam->GetForward(), 100, &hit) == false)
-	{
-		return;
-	}
-	std::vector<RigidBody*> objs = Engine::PhysEngine->createStack(hit.position, 5, 0.5);
 
-	for (size_t i = 0; i < objs.size(); i++)
-	{
-		GameObject* go = new GameObject();
-		Material* mat = new Material(new OGLTexture("bricks2.jpg"));
-
-		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("cubeuv.obj", nullptr), mat));
-		/*go->SetMaterial(mat);
-		go->SetMesh(new OGLMesh(L"../asset/models/cubeuv.obj"));*/
-
-		go->GetTransform()->SetPos(objs[i]->GetPosition());
-		float scale = 0.5;
-		go->GetTransform()->SetScale(glm::vec3(scale));
-
-		go->actor = objs[i];
-		//		ogwindow->AddPhysObj(go);
-	}
-}
-
-void Input::FireAtScene()
-{
-	GameObject* go = new GameObject();
-	Material* mat = new Material(new OGLTexture("bricks2.jpg"));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("TherealSpherer.obj", nullptr), mat));
-	go->GetTransform()->SetPos(MainCam->GetPosition());
-	float scale = 0.5;
-	go->GetTransform()->SetScale(glm::vec3(scale));
-
-	go->actor = Engine::PhysEngine->FirePrimitiveAtScene(MainCam->GetPosition() + MainCam->GetForward() * 2, MainCam->GetForward() * CurrentForce, scale);
-	//	ogwindow->AddPhysObj(go);
-
-}
 void Input::Clear()
 {
 	KeyMap.clear();
@@ -79,37 +40,20 @@ void Input::Clear()
 void Input::ProcessInput(const float )
 {
 	IsActiveWindow = (m_hwnd == GetActiveWindow());
-	if (EditorWindow::CurrentContext != nullptr)
+	if (UIManager::GetCurrentContext() != nullptr)
 	{
 		return;//block input!
-	}
-	if (FreeCamMode)
-	{
-		if (GetKeyState(VK_CONTROL) & 0x8000)
-		{
-			//if (GetKeyState('S') & 0x8000)
-			//{
-			////	__debugbreak();
-			//}
-			return;
-		}
-	}
-	if (GetKey('w'))
-	{
-
 	}
 }
 
 BOOL Input::MouseLBDown(int , int )
 {
-	MouseLookActive = true;
 	ShowCursor(false);
 	return TRUE;
 }
 
 BOOL Input::MouseLBUp(int , int )
 {
-	MouseLookActive = false;
 	ShowCursor(true);
 	return TRUE;
 }
@@ -127,8 +71,7 @@ void GetDesktopResolution(int& horizontal, int& vertical, HWND window)
 }
 BOOL Input::MouseMove(int , int , double )
 {
-	if (MouseLookActive)
-	{
+	
 		int height, width = 0;
 		GetDesktopResolution(height, width, m_hwnd);
 		int halfheight = (height / 2);
@@ -139,24 +82,14 @@ BOOL Input::MouseMove(int , int , double )
 		ScreenToClient(m_hwnd, &pt);
 		MouseAxis.x = (float)((halfheight)-(int)pt.x);
 		MouseAxis.y = (float)(-((halfwidth)-(int)pt.y));
-		if (RHI::GetType() == RenderSystemD3D11)
-		{
-			/*if (MainCam)
-			{
-				float sens = 1 / 1000.0f;
-				MainCam->RotateY(((halfheight)-pt.x)*sens);
-				MainCam->Pitch((-((halfwidth)-pt.y)*sens));
-			}*/
-		}
 		pt.x = halfheight;
 		pt.y = halfwidth;
 		ClientToScreen(m_hwnd, &pt);
-		SetCursorPos(pt.x, pt.y);
-	}
-	else
-	{
-		MouseAxis = glm::vec2(0);
-	}
+		CentrePoint = pt;
+		if (LockMouse)
+		{
+			SetCursorPos(pt.x, pt.y);
+		}
 	return TRUE;
 }
 void Input::SetSelectedObject(int index)
@@ -264,13 +197,11 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 	case VK_TAB:
 		break;
 	case VK_SPACE:
-		FireAtScene();
 		break;
 	case VK_DOWN:
-		CreateStackAtPoint();
+		
 		break;
 	case VK_LEFT:
-		CurrentForce -= 1000;
 		break;
 	case VK_NUMPAD0:
 		currentObjectIndex++;
@@ -325,11 +256,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 		}
 		break;
 	case VK_RIGHT:
-		CurrentForce += 1000;
-		if (CurrentForce < 1000)
-		{
-			CurrentForce = 1000;
-		}
+		
 		break;
 	default:
 		char c = (UINT)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
@@ -349,6 +276,16 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 	return TRUE;
 }
 
+void Input::LockCursor(bool state)
+{
+//	ShowCursor(!state);
+	if (state)
+	{
+		SetCursorPos(CentrePoint.x, CentrePoint.y);
+	}
+	LockMouse = state;
+}
+
 void Input::Test(Input * in)
 {
 	in->main->SetNormalVis();
@@ -365,6 +302,7 @@ bool Input::GetKeyDown(int c)
 	}
 	return false;
 }
+
 bool Input::GetKey(char c)
 {
 	if (instance == nullptr)
@@ -374,6 +312,7 @@ bool Input::GetKey(char c)
 	short key = VkKeyScanEx(c, instance->Layout);
 	return GetVKey(key);	
 }
+
 bool Input::GetVKey(short key)
 {
 	if (instance == nullptr)
@@ -391,6 +330,7 @@ bool Input::GetVKey(short key)
 	
 	return false;
 }
+
 glm::vec2 Input::GetMouseInputAsAxis()
 {
 	if (instance != nullptr)

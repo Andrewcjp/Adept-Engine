@@ -124,12 +124,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PhysicsThrowerComponent.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="TestGame.cpp" />
     <ClCompile Include="TGComp.cpp" />
     <ClCompile Include="TGExtraComponentRegister.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PhysicsThrowerComponent.h" />
     <ClInclude Include="TestGame.h" />
     <ClInclude Include="TGComp.h" />
     <ClInclude Include="TGExtraComponentRegister.h" />

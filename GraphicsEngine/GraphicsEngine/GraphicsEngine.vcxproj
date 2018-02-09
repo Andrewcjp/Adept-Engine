@@ -132,7 +132,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX ;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
@@ -241,6 +241,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="Core\BaseWindow.h" />
     <ClInclude Include="Core\Assets\SerialHelpers.h" />
     <ClInclude Include="Core\Components\ColliderComponent.h" />
     <ClInclude Include="Core\Components\CompoenentRegistry.h" />
@@ -258,6 +259,8 @@
     <ClInclude Include="Core\Components\ExtraComponentRegister.h" />
     <ClInclude Include="Core\Components\MeshColliderComponent.h" />
     <ClInclude Include="Core\Assets\SceneJSerialiser.h" />
+    <ClInclude Include="Core\GameWindow.h" />
+    <ClInclude Include="Core\Utils\FileUtils.h" />
     <ClInclude Include="UI\UIAssetManager.h" />
     <ClInclude Include="UI\UIPopoutbox.h" />
     <ClInclude Include="UI\UIPanel.h" />
@@ -328,7 +331,7 @@
     <ClInclude Include="OpenGL\OGLMesh.h" />
     <ClInclude Include="OpenGL\OGLShader.h" />
     <ClInclude Include="OpenGL\OGLTexture.h" />
-    <ClInclude Include="OpenGL\OGLWindow.h" />
+    <ClInclude Include="Development\Windows\OGLWindow.h" />
     <ClInclude Include="Rendering\Core\ParticleSystem.h" />
     <ClInclude Include="Physics\PhxRigidBody.h" />
     <ClInclude Include="Physics\PhysicsEngine.h" />
@@ -371,6 +374,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="Core\BaseWindow.cpp" />
     <ClCompile Include="Core\Assets\SerialHelpers.cpp" />
     <ClCompile Include="Core\Components\ColliderComponent.cpp" />
     <ClCompile Include="Core\Components\CompoenentRegistry.cpp" />
@@ -378,6 +382,7 @@
     <ClCompile Include="Core\Components\ParticleSystemComponent.cpp" />
     <ClCompile Include="Core\Components\MeshRendererComponent.cpp" />
     <ClCompile Include="Core\Transform.cpp" />
+    <ClCompile Include="Core\Utils\FileUtils.cpp" />
     <ClCompile Include="Core\Utils\WindowsHelper.cpp" />
     <ClCompile Include="D3D12\D3D12Helpers.cpp" />
     <ClCompile Include="D3D12\D3D12Plane.cpp" />
@@ -391,6 +396,7 @@
     <ClCompile Include="Editor\Editor_Camera.cpp" />
     <ClCompile Include="Core\Components\ExtraComponentRegister.cpp" />
     <ClCompile Include="Core\Components\MeshColliderComponent.cpp" />
+    <ClCompile Include="Core\GameWindow.cpp" />
     <ClCompile Include="Rendering\Renderers\RenderSettings.cpp" />
     <ClCompile Include="Core\Assets\SceneJSerialiser.cpp" />
     <ClCompile Include="UI\UIAssetManager.cpp" />
@@ -458,7 +464,7 @@
     <ClCompile Include="OpenGL\OGLMesh.cpp" />
     <ClCompile Include="OpenGL\OGLShader.cpp" />
     <ClCompile Include="OpenGL\OGLTexture.cpp" />
-    <ClCompile Include="OpenGL\OGLWindow.cpp" />
+    <ClCompile Include="Development\Windows\OGLWindow.cpp" />
     <ClCompile Include="Rendering\Core\ParticleSystem.cpp" />
     <ClCompile Include="Physics\PhxRigidBody.cpp" />
     <ClCompile Include="Physics\PhysicsEngine.cpp" />

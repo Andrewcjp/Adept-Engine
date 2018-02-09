@@ -5,6 +5,7 @@
 class Component
 {
 public:
+
 	Component();
 	virtual ~Component();
 	virtual void InitComponent() = 0;
@@ -19,6 +20,7 @@ public:
 	virtual void OnTransformUpdate();
 	virtual void Serialise(rapidjson::Value& v);
 	virtual void Deserialise(rapidjson::Value& v) = 0;
+	virtual void SceneInitComponent() {};
 protected:
 	int TypeID = -1;
 private:

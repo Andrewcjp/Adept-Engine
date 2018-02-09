@@ -1,6 +1,6 @@
 #pragma once
 #include "include\glm\fwd.hpp"
-#include <Windows.h>
+#include <windows.h>
 #include <queue>
 #include <map>
 class Shader_Main;
@@ -18,9 +18,6 @@ public:
 	static Input* instance;
 	Input(Camera * c, GameObject * playergo, HWND window, RenderWindow* wind);
 	~Input();
-	void CreateStackAtPoint();
-
-	void FireAtScene();
 	void Clear();
 
 	static void SetSelectedObject(int index);
@@ -28,8 +25,8 @@ public:
 
 	Shader_Main * main;
 	ShaderOutput * Filters;
-	float GetForce() { return CurrentForce / 10000; }
-	int GetShape() { return currentshape; }
+
+
 	GameObject* Selectedobject = nullptr;
 	std::queue<InputEvent*> Inputque;
 	int currentObjectIndex = 0;
@@ -48,25 +45,24 @@ public:
 	BOOL   MouseLBUp(int x, int y);
 	BOOL   MouseMove(int x, int y, double deltatime);
 	BOOL   ProcessKeyDown(WPARAM key);
+	void   LockCursor(bool state);
 private:
 	bool Querry = false;
 	bool FxAA = true;
 	HWND m_hwnd;
-	bool FreeCamMode = true;
-	bool MouseLookActive = false;
+	bool LockMouse = true;
 	bool MSAAactive = false;
 	Camera* MainCam;
 	GameObject* playerGO;
 	RenderWindow* ogwindow;
-	EditorWindow* OpenGlwindow;
-	float CurrentForce = 10000;
-	int currentshape = 0;
+	EditorWindow* OpenGlwindow;	
 	bool IsTidleDown = false;
-	float currentmoveamt = 1;
+	float currentmoveamt = 1.0f;//editor Movemnt
 	glm::vec2 MouseAxis;
 	std::map<int, bool> KeyMap;
 	HKL Layout;
 	bool IsActiveWindow = false;
+	POINT CentrePoint;
 };
 
 class InputEvent

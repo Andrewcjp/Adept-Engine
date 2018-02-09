@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Windows.h>
 #include "../Rendering/Core/Renderable.h"
 #include "Rendering/Core/Triangle.h"
-
+#include <windows.h>
 
 class OGLMesh : public Renderable
 {

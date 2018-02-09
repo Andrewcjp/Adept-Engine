@@ -27,7 +27,8 @@ public:
 private:
 	bool IsActiveSelect = false;
 	bool WasSelected = false;
-	char* MText = "Button";
+	std::string Labelstring = "Button";
+
 	CollisionRect Rect;
 	std::function<void()> Target;
 	UILabel* Label;

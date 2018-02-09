@@ -4,6 +4,7 @@
 #include <iostream>
 #include "D3D12RHI.h"
 #include "D3D12CBV.h"
+#include "../Core/Utils/FileUtils.h"
 D3D12Shader::D3D12Shader()
 {
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
@@ -17,16 +18,7 @@ D3D12Shader::~D3D12Shader()
 void D3D12Shader::CreateShaderProgram()
 {
 }
-inline bool exists_test3(const std::string& name)
-{
-	struct stat buffer;
-	if ((stat(name.c_str(), &buffer) == 0))
-	{
-		return true;
-	}
-	std::cout << "File Does not exist " << name.c_str() << std::endl;
-	return false;
-}
+
 EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type)
 {
 	//convert to LPC 
@@ -35,7 +27,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	std::string name = shadername;
 	path.append(name);
 	path.append(".hlsl");
-	if (!exists_test3(path))
+	if (!FileUtils::exists_test3(path))
 	{
 		//std::cout << " File Does not exist" << path.c_str() << std::endl;
 #ifdef  _DEBUG
@@ -134,7 +126,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT
 	// This is the highest version the sample supports. If CheckFeatureSupport succeeds, the HighestVersion returned will not be greater than this.
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
 
-	if (FAILED(D3D12RHI::Instance->m_device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+	if (FAILED(D3D12RHI::Instance->m_Primarydevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
 	{
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
@@ -191,7 +183,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT
 	ID3DBlob* signature;
 	ID3DBlob* error;
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
-	ThrowIfFailed(D3D12RHI::Instance->m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
+	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 
 
 	// Describe and create the graphics pipeline state object (PSO).
@@ -213,7 +205,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(D3D12RHI::Instance->m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
+	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
 
 	return output;
 }
@@ -245,11 +237,17 @@ void D3D12Shader::Init()
 		m_Shader = CreatePipelineShader(inputElementDescs, _countof(inputElementDescs), m_vsBlob, m_fsBlob);
 	}
 }
-CommandListDef * D3D12Shader::CreateShaderCommandList()
+CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
 {
 	Init();
 	CommandListDef* newlist = nullptr;
-	ThrowIfFailed(D3D12RHI::Instance->m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
+	if (device == 0 || D3D12RHI::Instance->m_Secondarydevice == nullptr) {
+		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
+	}
+	else 
+	{
+		ThrowIfFailed(D3D12RHI::Instance->m_Secondarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
+	}
 	ThrowIfFailed(newlist->Close());
 	return newlist;
 }

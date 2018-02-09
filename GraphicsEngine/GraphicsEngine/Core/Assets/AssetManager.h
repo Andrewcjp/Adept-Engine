@@ -24,6 +24,17 @@ struct TextureAsset
 	size_t NameSize;
 	unsigned char* image;
 };
+#include <d3d12.h>
+struct ShaderAsset
+{
+	std::string Name;
+	//rendersystem?
+	union
+	{
+		int id;
+		ID3DBlob* blob;
+	};
+};
 class AssetManager
 {
 public:
@@ -42,6 +53,7 @@ public:
 	static size_t GetShaderAsset(std::string name, char ** buffer);
 	std::string LoadFileWithInclude(std::string name);
 	std::string TextureAssetPath = "../asset/shader/glsl/";
+	bool GetShaderAsset(std::string path, ShaderAsset &asset);
 private:
 	const std::string AssetRootPath = "../asset/";
 	std::string ShaderAssetPath = "../asset/shader/glsl/";	
@@ -57,6 +69,7 @@ private:
 	int	 includeLength = 9;
 	std::map<std::string, std::string> ShaderSourceMap;
 	std::map<std::string, TextureAsset> TextureAssetsMap;
+	std::map<std::string, ShaderAsset> ShaderMap;
 	bool PreLoadTextShaders = false;
 	bool UseCookedShaders = false;
 	bool CookShaders = true;

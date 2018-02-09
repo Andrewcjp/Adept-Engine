@@ -39,11 +39,12 @@ public:
 	int Priority = 0;
 	bool operator<(UIWidget* that) const;
 
-protected:
+
 	float WidthScale = 0;
 	float HeightScale = 0;
 	float XoffsetScale = 0;
 	float YoffsetScale = 0;
+protected:
 	float TextDefaultScale = 0.3f;
 	bool IsActive = true;
 private:

@@ -10,7 +10,7 @@ public:
 
 	// Inherited via RenderWindow
 	virtual bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen = false) override;
-	virtual BOOL InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height) override;
+	virtual BOOL InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height) ;
 	void PrepareRenderData();
 	void ShadowPass();
 	void RenderPlane();

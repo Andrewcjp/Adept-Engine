@@ -27,8 +27,6 @@ public:
 	void Update(float delta);
 	void BeginPlay();
 
-	//todo: Depricate
-//	[[deprecated("Use Mesh Comps")]]
 	void Render(bool ignore = false);
 	void Render(bool ignoremat, CommandListDef * list);
 	bool CheckCulled(float Distance, float angle);
@@ -65,12 +63,14 @@ public:
 	void CopyPtrs(GameObject* newObject);
 	void SerialiseGameObject(rapidjson::Value& v);
 	void DeserialiseGameObject(rapidjson::Value& v);
+	void PostChangeProperties();
 private:
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 
 	int ObjectID = 0;
 	std::string Name;
-	
+	glm::vec3 PositionDummy;
+
 	Transform* m_transform = nullptr;
 	EMoblity Mobilty;
 	std::vector<Component*> m_Components;

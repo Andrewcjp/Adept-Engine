@@ -48,7 +48,7 @@ public:
 	void UpdateCBV(SceneConstantBuffer &buffer, int offset = 0);
 	void InitCBV();
 	void Init();
-	CommandListDef* CreateShaderCommandList();
+	CommandListDef* CreateShaderCommandList(int device = 0);
 	ID3D12CommandAllocator* GetCommandAllocator();
 	ID3DBlob*					m_vsBlob;
 	ID3DBlob*					m_fsBlob;

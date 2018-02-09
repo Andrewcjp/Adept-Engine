@@ -17,6 +17,7 @@ public:
 	void SetLightColour(glm::vec3 colour);
 	Light* Internal_GetLightPtr();
 	void OnTransformUpdate() override;
+	void SceneInitComponent() override final;
 private:
 	Light* MLight;
 	float DefaultIntesity = 10.0;

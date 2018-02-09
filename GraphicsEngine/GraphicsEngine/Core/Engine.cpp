@@ -1,5 +1,6 @@
 #include "Engine.h"
-#include "OpenGL/OGLWindow.h"
+//#include "OpenGL/OGLWindow.h"
+#include "GameWindow.h"
 #include "D3D11/D3D11Window.h"
 #include "Resource.h"
 #include "EngineGlobals.h"
@@ -13,7 +14,7 @@
 #include "Components\CompoenentRegistry.h"
 PhysicsEngine* Engine::PhysEngine = NULL;
 PhysxEngine* Engine::PPhysxEngine = NULL;
-
+#include "BaseWindow.h"
 CompoenentRegistry* Engine::CompRegistry = nullptr;
 #include "Core/Assets/AssetManager.h"
 #include "Game.h"
@@ -143,8 +144,9 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 #endif
 #if WITH_EDITOR
 			m_appwnd = new EditorWindow(Deferredmode);
+			//m_appwnd = new BaseWindow(/*Deferredmode*/);
 #else 
-			m_appwnd = new OGLWindow(Deferredmode);
+			m_appwnd = new GameWindow(/*Deferredmode*/);
 #endif 
 
 			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);

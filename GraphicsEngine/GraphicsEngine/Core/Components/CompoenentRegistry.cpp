@@ -9,13 +9,17 @@ CompoenentRegistry* CompoenentRegistry::Instance = nullptr;
 CompoenentRegistry::CompoenentRegistry()
 {
 	Instance = this;
+	RegisterComponent("Camera", BaseComponentTypes::CameraComp);
+	RegisterComponent("Light", BaseComponentTypes::LightComp);
 }
 
 
 CompoenentRegistry::~CompoenentRegistry()
+{}
+void CompoenentRegistry::RegisterComponent(std::string name, int id)
 {
+	ComponentNameMap.emplace(id, name);
 }
-
 Component* CompoenentRegistry::CreateAdditonalComponent(int id)
 {
 	if (Instance && Instance->ECR)
@@ -60,4 +64,18 @@ void CompoenentRegistry::RegisterExtraComponents(ExtraComponentRegister * Ecr)
 		ECR = Ecr;
 		AdditonalGameComponents = ECR->GetExtraCompIds();
 	}
+}
+
+std::string CompoenentRegistry::GetNameById(int id)
+{
+	if (ComponentNameMap.find(id) != ComponentNameMap.end())
+	{
+		return ComponentNameMap.at(id);
+	}
+	return "UnNamed";
+}
+
+int CompoenentRegistry::GetCount()
+{
+	return BaseComponentTypes::Limit + 1;
 }

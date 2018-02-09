@@ -5,16 +5,10 @@
 #include "../Core/Engine.h"
 #include "../Core/Assets/ImageLoader.h"
 #include <iostream>
-inline bool exists_test3(const std::string& name)
-{
-	struct stat buffer;
-	if ((stat(name.c_str(), &buffer) == 0))
-	{
-		return true;
-	}
-	std::cout << "File Does not exist " << name.c_str() << std::endl;
-	return false;
-}
+#include "../Core/Performance/PerfManager.h"
+#include "../Core/Utils/FileUtils.h"
+float D3D12Texture::MipCreationTime = 0;
+
 D3D12Texture::D3D12Texture() :D3D12Texture("house_diffuse.tga")
 {
 }
@@ -40,7 +34,7 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 	float x_ratio = ((float)(startwidth - 1)) / width;
 	float y_ratio = ((float)(startheight - 1)) / height;
 	rpath.append(".bmp");
-	if (exists_test3(rpath))
+	if (FileUtils::exists_test3(rpath))
 	{
 		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, rpath.c_str());
 	}
@@ -57,11 +51,11 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 				sourcey = y2;
 				glm::vec4 output;
 #if 1
-				glm::vec4 pixelA = glm::vec4(StartData[Sourcex + sourcey*startwidth], StartData[Sourcex + 1 + sourcey*startwidth], StartData[Sourcex + 2 + sourcey*startwidth], StartData[Sourcex + 3 + sourcey*startwidth]);
-				glm::vec4 pixelB = glm::vec4(StartData[Sourcex + 4 + sourcey*startwidth], StartData[Sourcex + 4 + 1 + sourcey*startwidth], StartData[Sourcex + 4 + 2 + sourcey*startwidth], StartData[Sourcex + 4 + 3 + sourcey*startwidth]);
+				glm::vec4 pixelA = glm::vec4(StartData[Sourcex + sourcey * startwidth], StartData[Sourcex + 1 + sourcey * startwidth], StartData[Sourcex + 2 + sourcey * startwidth], StartData[Sourcex + 3 + sourcey * startwidth]);
+				glm::vec4 pixelB = glm::vec4(StartData[Sourcex + 4 + sourcey * startwidth], StartData[Sourcex + 4 + 1 + sourcey * startwidth], StartData[Sourcex + 4 + 2 + sourcey * startwidth], StartData[Sourcex + 4 + 3 + sourcey * startwidth]);
 				int Targety = y2 + 1;
-				glm::vec4 pixelC = glm::vec4(StartData[Sourcex + Targety*startwidth], StartData[Sourcex + 1 + Targety*startwidth], StartData[Sourcex + 2 + Targety*startwidth], StartData[Sourcex + 3 + Targety*startwidth]);
-				glm::vec4 pixelD = glm::vec4(StartData[Sourcex + 4 + Targety*startwidth], StartData[Sourcex + 4 + 1 + Targety*startwidth], StartData[Sourcex + 4 + 2 + Targety*startwidth], StartData[Sourcex + 4 + 3 + Targety*startwidth]);
+				glm::vec4 pixelC = glm::vec4(StartData[Sourcex + Targety * startwidth], StartData[Sourcex + 1 + Targety * startwidth], StartData[Sourcex + 2 + Targety * startwidth], StartData[Sourcex + 3 + Targety * startwidth]);
+				glm::vec4 pixelD = glm::vec4(StartData[Sourcex + 4 + Targety * startwidth], StartData[Sourcex + 4 + 1 + Targety * startwidth], StartData[Sourcex + 4 + 2 + Targety * startwidth], StartData[Sourcex + 4 + 3 + Targety * startwidth]);
 				float xdiff = (x_ratio*x) - (x_ratio*x);
 				float ydiff = (y_ratio*y) - (y_ratio*y);
 				output = (pixelA*(1 - xdiff)*(1 - ydiff)) + (pixelB * (xdiff)*(1 - ydiff)) +
@@ -94,6 +88,7 @@ struct Mipdata
 
 unsigned char* D3D12Texture::GenerateMips(int count, int StartWidth, int StartHeight, unsigned char* startdata)
 {
+	long StartTime = PerfManager::get_nanos();
 	int bpp = 4;
 	int mipwidth = StartWidth;
 	int mipheight = StartHeight;
@@ -128,6 +123,8 @@ unsigned char* D3D12Texture::GenerateMips(int count, int StartWidth, int StartHe
 		Texturedatarray[i + 1].pData = (finalbuffer + Lastoffset);
 		Lastoffset += Mips[i].size;
 	}
+	long endtime = PerfManager::get_nanos();
+	MipCreationTime += ((float)(endtime - StartTime ) / 1e6f);
 	return finalbuffer;
 }
 D3D12Texture::D3D12Texture(std::string name)
@@ -239,7 +236,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	ThrowIfFailed(D3D12RHI::Instance->m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
+	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
 	D3D12RHI::Instance->BaseTextureHeap = m_srvHeap;
 	m_srvHeap->SetName(L"Texture SRV");
 
@@ -260,7 +257,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
-		ThrowIfFailed(D3D12RHI::Instance->m_device->CreateCommittedResource(
+		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&textureDesc,
@@ -271,7 +268,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, Miplevels);
 
 		// Create the GPU upload buffer.
-		ThrowIfFailed(D3D12RHI::Instance->m_device->CreateCommittedResource(
+		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
@@ -288,7 +285,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		//append data!
 		textureData.RowPitch = width * bits;
 		textureData.SlicePitch = textureData.RowPitch * height;
-		
+
 		//array
 		Texturedatarray[0] = textureData;
 		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_texture, textureUploadHeap, 0, 0, Miplevels, &Texturedatarray[0]);
@@ -301,6 +298,6 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = Miplevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		D3D12RHI::Instance->m_device->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+		D3D12RHI::Instance->m_Primarydevice->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 }

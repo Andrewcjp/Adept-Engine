@@ -27,14 +27,16 @@ public:
 	virtual void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights) = 0;
 	virtual void UpdateD3D11Uniforms(Transform* t, Camera* c, std::vector<Light*> lights) = 0;
 	virtual void UpdateD3D12Uniforms(Transform* t, Camera* c, std::vector<Light*> lights);
-	virtual void SetShaderActive() {
+	virtual void SetShaderActive()
+	{
 		if (m_Shader != nullptr)
 		{
 			m_Shader->ActivateShaderProgram();
 		}
-		
+
 	}
-	ShaderProgramHandle GetShaderID() {
+	ShaderProgramHandle GetShaderID()
+	{
 		return m_Shader->GetProgramHandle();
 	}
 	ShaderProgramBase* GetShaderProgram()
@@ -42,9 +44,9 @@ public:
 		return m_Shader;
 	}
 	const int ShadowFarPlane = 500;
-	
+	virtual bool SupportsAPI(ERenderSystemType Type);
 protected:
-	ShaderProgramBase* m_Shader;
+	ShaderProgramBase * m_Shader;
 
 };
 

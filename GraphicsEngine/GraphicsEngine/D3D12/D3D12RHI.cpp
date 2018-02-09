@@ -22,6 +22,7 @@ void D3D12RHI::InitContext()
 void D3D12RHI::DestroyContext()
 {
 }
+
 void EnableShaderBasedValidation()
 {
 	ID3D12Debug* spDebugController0;
@@ -32,7 +33,7 @@ void EnableShaderBasedValidation()
 }
 void D3D12RHI::LoadPipeLine()
 {
-	//	EnableShaderBasedValidation();
+	EnableShaderBasedValidation();
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	UINT dxgiFactoryFlags = 0;
@@ -61,7 +62,7 @@ void D3D12RHI::LoadPipeLine()
 		ThrowIfFailed(D3D12CreateDevice(
 			warpAdapter,
 			D3D_FEATURE_LEVEL_11_0,
-			IID_PPV_ARGS(&m_device)
+			IID_PPV_ARGS(&m_Primarydevice)
 		));
 	}
 	else
@@ -72,16 +73,29 @@ void D3D12RHI::LoadPipeLine()
 		ThrowIfFailed(D3D12CreateDevice(
 			hardwareAdapter,
 			D3D_FEATURE_LEVEL_11_0,
-			IID_PPV_ARGS(&m_device)
+			IID_PPV_ARGS(&m_Primarydevice)
 		));
 	}
+	if (false) {
 
+
+		IDXGIAdapter1* shardwareAdapter;
+		ThrowIfFailed(factory->EnumAdapters1(1, &shardwareAdapter));
+		//GetHardwareAdapter(factory, &shardwareAdapter);
+
+		ThrowIfFailed(D3D12CreateDevice(
+			shardwareAdapter,
+			D3D_FEATURE_LEVEL_11_0,
+			IID_PPV_ARGS(&m_Secondarydevice)
+		));
+
+	}
 	// Describe and create the command queue.
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-	ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
+	ThrowIfFailed(m_Primarydevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
 
 	// Describe and create the swap chain.
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
@@ -116,16 +130,16 @@ void D3D12RHI::LoadPipeLine()
 		rtvHeapDesc.NumDescriptors = FrameCount;
 		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+		ThrowIfFailed(m_Primarydevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
 
-		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		m_rtvDescriptorSize = m_Primarydevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 		dsvHeapDesc.NumDescriptors = 1;
 		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(m_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
-		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		ThrowIfFailed(m_Primarydevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
+		m_rtvDescriptorSize = m_Primarydevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 		//assert(result == S_OK && "ERROR CREATING THE DSV HEAP");
 		//CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -142,12 +156,12 @@ void D3D12RHI::LoadPipeLine()
 		for (UINT n = 0; n < FrameCount; n++)
 		{
 			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
-			m_device->CreateRenderTargetView(m_renderTargets[n], nullptr, rtvHandle);
+			m_Primarydevice->CreateRenderTargetView(m_renderTargets[n], nullptr, rtvHandle);
 			rtvHandle.Offset(1, m_rtvDescriptorSize);
 		}
 	}
 
-	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+	ThrowIfFailed(m_Primarydevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 }
 
 void D3D12RHI::LoadAssets()
@@ -202,7 +216,7 @@ void D3D12RHI::LoadAssets()
 	testshader->m_Shader = testshader->CreatePipelineShader(inputElementDescs, _countof(inputElementDescs), vertexShader, pixelShader);
 	//testshader->InitCBV();
 
-	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_SetupCommandList)));
+	ThrowIfFailed(m_Primarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_SetupCommandList)));
 
 	texture = new D3D12Texture();
 	OtherTex = new D3D12Texture("bricks2.jpg");
@@ -218,7 +232,7 @@ void D3D12RHI::LoadAssets()
 		depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
 		depthOptimizedClearValue.DepthStencil.Stencil = 0;
 
-		ThrowIfFailed(m_device->CreateCommittedResource(
+		ThrowIfFailed(m_Primarydevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
@@ -229,7 +243,7 @@ void D3D12RHI::LoadAssets()
 
 		//NAME_D3D12_OBJECT(m_depthStencil);
 
-		m_device->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+		m_Primarydevice->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 	//	m_constantBufferData.M = glm::translate(glm::vec3(-10,0,-10));
 	m_constantBufferData.P = glm::perspectiveLH(glm::radians(70.0f), 1.77f, 0.1f, 1000.0f);
@@ -245,10 +259,10 @@ void D3D12RHI::LoadAssets()
 	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	// Create synchronization objects and wait until assets have been uploaded to the GPU.
 	{
-		ThrowIfFailed(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+		ThrowIfFailed(m_Primarydevice->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 		m_fenceValues[m_frameIndex]++;
 		//	m_fenceValue = 1;
-		ThrowIfFailed(m_device->CreateFence(M_ShadowFence, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pShadowFence)));
+		ThrowIfFailed(m_Primarydevice->CreateFence(M_ShadowFence, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pShadowFence)));
 
 		// Create an event handle to use for frame synchronization.
 		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -281,7 +295,7 @@ void D3D12RHI::InitliseDefaults()
 }
 void D3D12RHI::ExecList(CommandListDef* list)
 {
-	
+
 	if (list == nullptr)
 	{
 		printf("List is Nullptr\n");
@@ -289,18 +303,18 @@ void D3D12RHI::ExecList(CommandListDef* list)
 	}
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	ThrowIfFailed( m_commandQueue->Signal(pShadowFence, M_ShadowFence));	//set the value for exec complition
+	ThrowIfFailed(m_commandQueue->Signal(pShadowFence, M_ShadowFence));	//set the value for exec complition
 	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	ThrowIfFailed(pShadowFence->SetEventOnCompletion(M_ShadowFence, EventHandle));//set the wait for the value complition
 	WaitForSingleObject(EventHandle, INFINITE);//we need to wait to start the next queue!
-	M_ShadowFence++;	
+	M_ShadowFence++;
 	//change it!
 	//m_commandQueue->Wait(pShadowFence, M_ShadowFence);
 	//M_ShadowFence++;
 }
 void D3D12RHI::PresentFrame(CommandListDef* List)
 {
-	
+
 	// Execute the command list.
 	//ID3D12CommandList* ppCommandLists[] = { List };
 	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);

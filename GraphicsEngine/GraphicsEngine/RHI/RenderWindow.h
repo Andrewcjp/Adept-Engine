@@ -18,7 +18,7 @@ public:
 
 	//	virtual BOOL		InitWindow(HINSTANCE hInstance, int width, int height) = 0;
 	virtual bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen = false) =0;
-	virtual BOOL InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height)=0;
+	/*virtual BOOL InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int height)=0;*/
 	virtual void		Render() = 0;
 	virtual void		Resize(int width, int height) = 0;
 

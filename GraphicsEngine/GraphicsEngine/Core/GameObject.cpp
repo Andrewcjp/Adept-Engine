@@ -53,6 +53,7 @@ GameObject::~GameObject()
 }
 Transform * GameObject::GetTransform()
 {
+	
 	return m_transform;
 }
 Scene * GameObject::GetScene()
@@ -62,6 +63,11 @@ Scene * GameObject::GetScene()
 void GameObject::Internal_SetScene(Scene * scene)
 {
 	OwnerScene = scene;
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components[i]->SceneInitComponent();
+	}
+	PositionDummy = GetTransform()->GetPos();
 }
 bool  GameObject::CheckCulled(float Distance, float angle)
 {
@@ -150,6 +156,8 @@ GameObject::EMoblity GameObject::GetMobility()
 
 void GameObject::EditorUpdate()
 {
+
+
 	bool changed = m_transform->IsChanged();
 	if (changed)
 	{
@@ -199,9 +207,12 @@ std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
 {
 	std::vector<Inspector::InspectorProperyGroup> test;
 	Inspector::InspectorProperyGroup RootGroup = Inspector::CreatePropertyGroup("GameObject");
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Test Float", Inspector::Float, nullptr));
-//	RootGroup.SubProps.push_back(Inspector::CreateProperty("Test Float", Inspector::Int, nullptr));
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Test label", Inspector::Label, nullptr));
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Name", Inspector::String, &Name));
+	test.push_back(RootGroup);
+	RootGroup = Inspector::CreatePropertyGroup("Transform");
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position x", Inspector::Float, &PositionDummy.x));
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position y", Inspector::Float, &PositionDummy.y));
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position z", Inspector::Float, &PositionDummy.z));
 	test.push_back(RootGroup);
 	for (int i = 0; i < m_Components.size(); i++)
 	{
@@ -285,4 +296,9 @@ void GameObject::DeserialiseGameObject(rapidjson::Value & v)
 			}
 		}
 	}
+}
+//called when the editor updates a value
+void GameObject::PostChangeProperties()
+{
+	GetTransform()->SetPos(PositionDummy);
 }

@@ -16,6 +16,7 @@
 #include <SOIL.h>
 #include "../Utils/StringUtil.h"
 #include "../Core/Performance/PerfManager.h"
+#include <d3d12.h>
 void AssetManager::LoadFromShaderDir()
 {
 	std::string path = ShaderAssetPath;
@@ -266,6 +267,11 @@ std::string AssetManager::LoadFileWithInclude(std::string name)
 		output = ShaderSourceMap.at(name);
 	}
 	return output;
+}
+
+bool AssetManager::GetShaderAsset(std::string path, ShaderAsset & asset)
+{
+	return false;
 }
 
 

@@ -3,6 +3,7 @@
 #include "../GameObject.h"
 #include "../Assets/SerialHelpers.h"
 #include "../Assets/SceneJSerialiser.h"
+
 Component::Component()
 {
 	TypeID = -1;
@@ -21,8 +22,11 @@ void Component::FixedUpdate(float )
 {
 }
 
-void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &)
+void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props)
 {
+	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Component");
+	//group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Float, nullptr));
+	props.push_back(group);
 }
 
 GameObject * Component::GetOwner()

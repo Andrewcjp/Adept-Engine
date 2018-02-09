@@ -1,19 +1,21 @@
 #pragma once
 #include "Component.h"
-
+class Camera;
 class CameraComponent :
 	public Component
 {
 public:
 	CameraComponent();
 	void InitComponent() override final;
+	void SceneInitComponent() override final;
 	~CameraComponent();
 
 	// Inherited via Component
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
+	static Camera* GetMainCamera();
 private:
-	class Camera* MCamera;
+	Camera* MCamera;
 
 
 	// Inherited via Component

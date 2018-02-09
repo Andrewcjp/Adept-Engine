@@ -103,7 +103,8 @@ void ForwardRenderer::Render()
 		return;
 	}
 #if WITH_EDITOR
-	if (EditorCam->GetEnabled())
+	//todo!
+	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
 		if (MainCamera != EditorCam->GetCamera())
 		{
@@ -112,10 +113,10 @@ void ForwardRenderer::Render()
 	}
 	else
 	{
-		if (MainCamera == EditorCam->GetCamera())
+		/*if (MainCamera == EditorCam->GetCamera())
 		{
 			MainCamera = mainscene->GetCurrentRenderCamera();
-		}
+		}*/
 	}
 #endif
 	ShadowPass();

@@ -287,10 +287,7 @@ BOOL D3D11Window::KeyHeld(WPARAM )
 {
 	return 0;
 }
-BOOL D3D11Window::InitWindow(HGLRC , HWND , HDC , int , int )
-{
-	return 0;
-}
+
 BOOL D3D11Window::MouseRBDown(int , int )
 {
 	return 0;

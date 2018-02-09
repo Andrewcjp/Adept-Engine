@@ -124,7 +124,7 @@ void DebugLineDrawer::ClearLines()
 	{
 		if (Lines[i].Time > 0)
 		{
-			Lines[i].Time -= EditorWindow::GetDeltaTime();
+			Lines[i].Time -= PerfManager::GetDeltaTime();
 		}
 		else
 		{

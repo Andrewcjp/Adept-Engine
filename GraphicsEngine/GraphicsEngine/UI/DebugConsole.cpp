@@ -30,7 +30,7 @@ void DebugConsole::Render()
 	if (Input::GetKeyDown('`'))
 	{
 		IsOpen = true;
-		EditorWindow::SetContext(this);
+		UIManager::SetCurrentcontext(this);
 
 		nextext = ">";
 		EditField->SetEnabled(IsOpen);
@@ -52,14 +52,13 @@ void DebugConsole::ResizeView(int w, int h, int x, int y)
 }
 void DebugConsole::ExecCommand(std::string command)
 {
-	if (!EditorWindow::ProcessDebugCommand(command))
+	if (!BaseWindow::ProcessDebugCommand(command))
 	{
 		if (command.find("showgraph") != -1)
 		{
 			if (UIManager::instance)
 			{
 				UIManager::instance->Graph->SetEnabled(!UIManager::instance->Graph->GetEnabled());
-				//UIManager::UpdateBatches();
 			}
 		}
 	}
@@ -74,7 +73,7 @@ void DebugConsole::Close()
 	nextext = ">";
 	LastText = ">";
 	Textlabel->SetText(nextext);
-	EditorWindow::SetContext(nullptr);
+	UIManager::SetCurrentcontext(nullptr);
 }
 void DebugConsole::ProcessKeyDown(UINT_PTR key)
 {
@@ -84,13 +83,13 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 	}
 	else if (key == VK_RETURN)
 	{
-		EditorWindow::SetContext(nullptr);
+		UIManager::SetCurrentcontext(nullptr);
 		ExecCommand(nextext);
 	}
 	else if (key == VK_ESCAPE)
 	{
 		nextext = LastText;
-		EditorWindow::SetContext(nullptr);
+		UIManager::SetCurrentcontext(nullptr);
 		Close();
 	}
 	else if (key == VK_BACK)
@@ -106,12 +105,12 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 	}
 	else
 	{
-		char c = MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
+		char c = (char)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
 		if (c == '`')
 		{
 			Close();
 		}
-		nextext.append(1, std::tolower(c));
+		nextext.append(1,(char)std::tolower(c));
 	}
 	//todo: Cursour Movement
 	Textlabel->SetText(nextext);
