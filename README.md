@@ -1,8 +1,10 @@
 # Graphics Engine
 
-A Cross Api Game engine currently supporting:
+A Work In progress Cross Api Game engine currently supporting:
 
-D3D11 
+D3D11
+
+D3D12
 
 OpenGL 4.5
 
@@ -14,7 +16,7 @@ GLEW,
 Physics using Nvidia's PhysX,
 Serialization using RapidJson. 
 
-Both Renderers Support:
+D3D11 & OpenGL Renderers Support:
 
 Diffuse Lighting, 
 Texture Mapping, 
