@@ -48,11 +48,16 @@ public:
 	void UpdateCBV(SceneConstantBuffer &buffer, int offset = 0);
 	void InitCBV();
 	void Init();
+	void CreateComputePipelineShader();
 	CommandListDef* CreateShaderCommandList(int device = 0);
 	ID3D12CommandAllocator* GetCommandAllocator();
+	void ResetList(ID3D12GraphicsCommandList * list);
+	void SetInputDesc(D3D12_INPUT_ELEMENT_DESC * desc, int size);
 	ID3DBlob*					m_vsBlob;
 	ID3DBlob*					m_fsBlob;
+	ID3DBlob*					m_csBlob;
 	PiplineShader m_Shader;
+	bool DepthTest = true;
 private:
 	int							m_shaderCount;
 	int							InitalBufferCount = 50;
@@ -64,6 +69,8 @@ private:
 	ID3D12DescriptorHeap* m_cbvHeap;
 	ID3D12CommandAllocator* m_commandAllocator;
 	ID3D12DescriptorHeap* m_samplerHeap;
+	D3D12_INPUT_ELEMENT_DESC* InputDesc = nullptr;
+	int Length = 3; 
 
 };
 

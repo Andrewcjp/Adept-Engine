@@ -24,13 +24,17 @@ public:
 	~D3D12RHI();
 	void InitContext();
 	void DestroyContext();
-	void PresentFrame(CommandListDef* List);
+	void PresentFrame();
 	void OnDestroy();
 	void ClearRenderTarget(ID3D12GraphicsCommandList * MainList);
 	void RenderToScreen(ID3D12GraphicsCommandList * list);
 	static void PreFrameSetUp(ID3D12GraphicsCommandList * list, D3D12Shader * Shader);
 	void PreFrameSwap(ID3D12GraphicsCommandList* list);
+	void SetScreenRenderTaget(ID3D12GraphicsCommandList * list);
+	D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
+	void DisplayDeviceDebug();
 	void LoadPipeLine();
+	void InitMipmaps();
 	void LoadAssets();
 	void ExecSetUpList();
 	void InitliseDefaults();
@@ -44,7 +48,6 @@ public:
 	static const UINT TexturePixelSize = 4;	// The number of bytes used to represent a pixel in the texture.
 	D3D12Shader* testshader;
 	D3D12Mesh* testmesh;
-	void PopulateCommandList();
 	void PostFrame(ID3D12GraphicsCommandList * list);
 	void WaitForPreviousFrame();
 	void WaitForGpu();
@@ -95,6 +98,8 @@ public:
 	int m_width = 100;
 	int m_height = 100;
 	float m_aspectRatio = 0.0f;
+	bool HasSetup = false;
+	int count = 0;
 	static ID3D12Device* GetDevice()
 	{
 		if (Instance != nullptr)
@@ -103,6 +108,7 @@ public:
 		}
 		return nullptr;
 	}
+	class ShaderMipMap* MipmapShader = nullptr;
 };
 //helper functions!
 static inline void ThrowIfFailed(HRESULT hr)
@@ -111,6 +117,6 @@ static inline void ThrowIfFailed(HRESULT hr)
 	{
 		__debugbreak();
 		throw std::exception();
-	}
+	} 
 }
 void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);

@@ -14,6 +14,7 @@
 class Shader
 {
 public:
+	//todo: migrate to New system
 	typedef struct _MVPStruct
 	{
 		glm::mat4 M;
@@ -24,8 +25,8 @@ public:
 	virtual ~Shader();
 
 	void UpdateUniforms(Transform* t, Camera* c, std::vector<Light*> lights = std::vector<Light*>());
-	virtual void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights) = 0;
-	virtual void UpdateD3D11Uniforms(Transform* t, Camera* c, std::vector<Light*> lights) = 0;
+	virtual void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights) {};
+	virtual void UpdateD3D11Uniforms(Transform* t, Camera* c, std::vector<Light*> lights) {};
 	virtual void UpdateD3D12Uniforms(Transform* t, Camera* c, std::vector<Light*> lights);
 	virtual void SetShaderActive()
 	{

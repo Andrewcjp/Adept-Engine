@@ -85,8 +85,7 @@ void ForwardRenderer::Resize(int width, int height)
 }
 
 ForwardRenderer::~ForwardRenderer()
-{
-}
+{}
 
 void ForwardRenderer::Render()
 {
@@ -133,9 +132,13 @@ void ForwardRenderer::Render()
 	MainPass();
 	RenderSkybox();
 }
-inline std::vector<GameObject*> ForwardRenderer::InGetObj()
+std::vector<GameObject*> ForwardRenderer::InGetObj()
 {
 	return (*Objects);
+}
+void ForwardRenderer::UpdateDeltaTime(float value)
+{
+	deltatime = value;
 }
 void ForwardRenderer::Init()
 {
@@ -251,7 +254,7 @@ void ForwardRenderer::RenderDebugPlane()
 	MainList->SetPipelineState(((D3D12Shader*)outshader->GetShaderProgram())->m_Shader.m_pipelineState);
 	debugplane->Render(MainList);
 #endif
-	
+
 }
 void ForwardRenderer::MainPass()
 {
@@ -388,7 +391,8 @@ void ForwardRenderer::MainPass()
 	{
 		RenderDebugPlane();
 		DRHI->PostFrame(MainList);
-		DRHI->PresentFrame(MainList);
+		DRHI->ExecList(MainList);
+
 	}
 }
 
@@ -446,6 +450,11 @@ void ForwardRenderer::InitOGL()
 
 }
 
+std::vector<GameObject*> ForwardRenderer::GetObjects()
+{
+	return *mainscene->GetObjects();
+}
+
 void ForwardRenderer::SetScene(Scene * sc)
 {
 	RenderEngine::SetScene(sc);
@@ -475,6 +484,49 @@ void ForwardRenderer::SetScene(Scene * sc)
 	else
 	{
 		MainCamera = mainscene->GetCurrentRenderCamera();
+	}
+}
+
+Camera * ForwardRenderer::GetMainCam()
+{
+	return MainCamera;
+}
+
+void ForwardRenderer::AddGo(GameObject * g)
+{
+	mainscene->AddGameobjectToScene(g);
+	//1		ob.push_back(g);
+}
+
+void ForwardRenderer::AddPhysObj(GameObject * go)
+{
+	if (PhysicsObjects.size() >= MaxPhysicsObjects)
+	{
+		PhysicsObjects.erase(PhysicsObjects.begin());
+	}
+	PhysicsObjects.push_back(go);
+
+}
+
+void ForwardRenderer::AddLight(Light * l)
+{
+	mainscene->GetLights()->push_back(l);
+	//	Lights.push_back(l);
+}
+
+void ForwardRenderer::FixedUpdatePhysx(float dtime)
+{
+	deltatime = dtime;
+	//todo: Move to Compoenent;
+	//todo: Update Objects
+	if (RenderGrass)
+	{
+		grasstest->UpdateAnimation(deltatime);
+	}
+	if (LoadParticles && RenderParticles)
+	{
+		particlesys->Add(deltatime);
+		particlesys->Simulate(deltatime, MainCamera->GetPosition());
 	}
 }
 

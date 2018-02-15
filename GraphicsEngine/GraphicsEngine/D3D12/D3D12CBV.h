@@ -19,7 +19,7 @@ public:
 	{
 		memcpy(m_pCbvDataBegin + (offset * CB_Size), &buffer, sizeof(buffer));
 	}
-	void InitCBV(int StructSize,int Elementcount);
+	void InitCBV(int StructSize,int Elementcount = 1);
 private:
 	ID3D12Resource* m_constantBuffer;
 	UINT8* m_pCbvDataBegin;

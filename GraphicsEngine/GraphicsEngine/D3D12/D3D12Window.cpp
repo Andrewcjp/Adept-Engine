@@ -144,7 +144,7 @@ void D3D12Window::Render()
 
 	RenderPlane();
 	RHITest->PostFrame(RHITest->m_commandList);
-	RHITest->PresentFrame(MainList);
+	RHITest->PresentFrame();
 }
 
 void D3D12Window::Resize(int width, int height)

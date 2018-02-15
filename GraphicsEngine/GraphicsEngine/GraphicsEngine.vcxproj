@@ -261,6 +261,9 @@
     <ClInclude Include="Core\Assets\SceneJSerialiser.h" />
     <ClInclude Include="Core\GameWindow.h" />
     <ClInclude Include="Core\Utils\FileUtils.h" />
+    <ClInclude Include="Core\EngineTypes.h" />
+    <ClInclude Include="Rendering\Shaders\Shader_UIBatch.h" />
+    <ClInclude Include="Rendering\Shaders\ShaderMipMap.h" />
     <ClInclude Include="UI\UIAssetManager.h" />
     <ClInclude Include="UI\UIPopoutbox.h" />
     <ClInclude Include="UI\UIPanel.h" />
@@ -399,6 +402,8 @@
     <ClCompile Include="Core\GameWindow.cpp" />
     <ClCompile Include="Rendering\Renderers\RenderSettings.cpp" />
     <ClCompile Include="Core\Assets\SceneJSerialiser.cpp" />
+    <ClCompile Include="Rendering\Shaders\Shader_UIBatch.cpp" />
+    <ClCompile Include="Rendering\Shaders\ShaderMipMap.cpp" />
     <ClCompile Include="UI\UIAssetManager.cpp" />
     <ClCompile Include="UI\UIPopoutbox.cpp" />
     <ClCompile Include="UI\UIPanel.cpp" />

@@ -10,6 +10,7 @@
 #include "../UI/UIPanel.h"
 #include "../Core/Components/CompoenentRegistry.h"
 #include "../Core/GameObject.h"
+#include "../Core/Components/Component.h"
 Inspector* Inspector::Instance = nullptr;
 Inspector::Inspector(int w, int h, int x, int y)
 	:UIWidget(w, h, x, y)
@@ -117,11 +118,17 @@ void Inspector::AddComponentCallback(int i)
 			GameObject* t = (GameObject*)Instance->target;
 			if (t != nullptr)
 			{
-				t->AttachComponent(CompoenentRegistry::CreateBaseComponent(CompoenentRegistry::BaseComponentTypes(i)));
-				Instance->CreateEditor();
+				Component* comp = CompoenentRegistry::CreateBaseComponent(CompoenentRegistry::BaseComponentTypes(i));
+				if (comp != nullptr)
+				{
+					t->AttachComponent(comp);
+					comp->SceneInitComponent();
+					Instance->CreateEditor();
+				}
 			}
 		}
 	}
+	UIManager::CloseDropDown();
 }
 void Inspector::CreateEditor()
 {
@@ -152,6 +159,7 @@ void Inspector::CreateEditor()
 			case String:
 			case Vector:
 			case Label:
+			case Bool:
 				newwidget = new UIEditField(Fields[i].SubProps[j].type, Fields[i].SubProps[j].name, Fields[i].SubProps[j].ValuePtr);
 				break;
 			default:

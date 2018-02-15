@@ -5,19 +5,26 @@
 #include "D3D12RHI.h"
 #include "D3D12CBV.h"
 #include "../Core/Utils/FileUtils.h"
+#include "../Core/Utils/StringUtil.h"
+#include "../Core/Utils/WindowsHelper.h"
 D3D12Shader::D3D12Shader()
 {
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+	//D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+	//{
+	//{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	//{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	//{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	//};
+	//InputDesc = inputElementDescs;
 }
 
 
 D3D12Shader::~D3D12Shader()
-{
-}
+{}
 
 void D3D12Shader::CreateShaderProgram()
-{
-}
+{}
 
 EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type)
 {
@@ -35,7 +42,10 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #endif
 		return SHADER_ERROR_NOFILE;
 	}
-
+	if (type == SHADER_COMPUTE)
+	{
+		IsCompute = true;
+	}
 
 	std::wstring newfile((int)path.size(), 0);
 	MultiByteToWideChar(CP_UTF8, 0, &path[0], (int)path.size(), &newfile[0], (int)path.size());
@@ -62,6 +72,11 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "ps_5_0",
 			compileFlags, 0, &m_fsBlob, &pErrorBlob);
 	}
+	else if (type == SHADER_COMPUTE)
+	{
+		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "cs_5_0",
+			compileFlags, 0, &m_csBlob, &pErrorBlob);
+	}
 
 	if (FAILED(hr))
 	{
@@ -69,7 +84,11 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		{
 			fprintf(stdout, "Shader output: %s\n",
 				reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
-
+			std::string Log = "Shader: ";
+			Log.append(StringUtils::ConvertWideToString(filename));
+			Log.append("\n");
+			Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+			WindowsHelpers::DisplayMessageBox("Shader Complie Error", Log);
 			pErrorBlob->Release();
 		}
 		//D3DEnsure(hr);
@@ -93,31 +112,25 @@ void D3D12Shader::BuildShaderProgram()
 }
 
 void D3D12Shader::DeleteShaderProgram()
-{
-}
+{}
 
 void D3D12Shader::ActivateShaderProgram()
-{
-}
+{}
 void D3D12Shader::ActivateShaderProgram(ID3D12GraphicsCommandList* list)
 {
 	ThrowIfFailed(list->Reset(m_commandAllocator, m_Shader.m_pipelineState));
 }
 void D3D12Shader::DeactivateShaderProgram()
-{
-}
+{}
 
 void D3D12Shader::SetUniform1UInt(unsigned int, const char *)
-{
-}
+{}
 
 void D3D12Shader::SetAttrib4Float(float, float, float, float, const char *)
-{
-}
+{}
 
 void D3D12Shader::BindAttributeLocation(int, const char *)
-{
-}
+{}
 D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ID3DBlob * vsBlob, ID3DBlob * fsBlob)
 {
 	PiplineShader output;
@@ -191,13 +204,15 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT
 	psoDesc.InputLayout.pInputElementDescs = inputDisc;
 	psoDesc.InputLayout.NumElements = DescCount;
 	psoDesc.pRootSignature = output.m_rootSignature;
+
 	psoDesc.VS = CD3DX12_SHADER_BYTECODE(vsBlob);
 	psoDesc.PS = CD3DX12_SHADER_BYTECODE(fsBlob);
+
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState.DepthEnable = true;
+	psoDesc.DepthStencilState.DepthEnable = DepthTest;
 	psoDesc.DepthStencilState.StencilEnable = FALSE;
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -226,7 +241,7 @@ void D3D12Shader::InitCBV()
 }
 void D3D12Shader::Init()
 {
-	if (m_Shader.m_pipelineState == nullptr)
+	if (m_Shader.m_pipelineState == nullptr && !IsCompute)
 	{
 		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
 		{
@@ -234,17 +249,35 @@ void D3D12Shader::Init()
 			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
-		m_Shader = CreatePipelineShader(inputElementDescs, _countof(inputElementDescs), m_vsBlob, m_fsBlob);
+		if (InputDesc == nullptr)
+		{
+			InputDesc = inputElementDescs;
+		}
+		m_Shader = CreatePipelineShader(InputDesc, Length, m_vsBlob, m_fsBlob);
 	}
+	if (IsCompute)
+	{
+		CreateComputePipelineShader();
+	}
+}
+
+void D3D12Shader::CreateComputePipelineShader()
+{
+	/*D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
+	computePsoDesc.pRootSignature = m_computeRootSignature.Get();
+	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(computeShader.Get());
+
+	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_computeState)));*/
 }
 CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
 {
 	Init();
 	CommandListDef* newlist = nullptr;
-	if (device == 0 || D3D12RHI::Instance->m_Secondarydevice == nullptr) {
+	if (device == 0 || D3D12RHI::Instance->m_Secondarydevice == nullptr)
+	{
 		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
 	}
-	else 
+	else
 	{
 		ThrowIfFailed(D3D12RHI::Instance->m_Secondarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
 	}
@@ -255,4 +288,30 @@ CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
 ID3D12CommandAllocator* D3D12Shader::GetCommandAllocator()
 {
 	return m_commandAllocator;
+}
+
+void D3D12Shader::ResetList(ID3D12GraphicsCommandList* list)
+{
+	// Command list allocators can only be reset when the associated 
+	// command lists have finished execution on the GPU; apps should use 
+	// fences to determine GPU execution progress.
+	ThrowIfFailed(GetCommandAllocator()->Reset());
+
+	// However, when ExecuteCommandList() is called on a particular command 
+	// list, that command list can then be reset at any time and must be before 
+	// re-recording.
+	ThrowIfFailed(list->Reset(GetCommandAllocator(), m_Shader.m_pipelineState));
+
+	// Set necessary state.
+	list->SetGraphicsRootSignature(m_Shader.m_rootSignature);
+
+
+	//m_constantBufferData.M = glm::translate(glm::vec3(0, -5, 0));
+	//testshader->UpdateCBV(m_constantBufferData);
+	//testshader->PushCBVToGPU(m_commandList, 0);
+}
+void D3D12Shader::SetInputDesc(D3D12_INPUT_ELEMENT_DESC * desc, int size)
+{
+	InputDesc = desc;
+	Length = size;
 }

@@ -6,14 +6,16 @@ class UIBox;
 class Inspector : public UIWidget
 {
 public:
-	
+
 	enum ValueType
 	{
 		Int,
 		Float,
 		String,
 		Vector,
-		Other,
+		Bool,
+		Slider,
+		Colour,
 		Label
 	};
 	struct InspectorPropery

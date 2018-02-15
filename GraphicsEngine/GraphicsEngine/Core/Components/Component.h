@@ -21,6 +21,7 @@ public:
 	virtual void Serialise(rapidjson::Value& v);
 	virtual void Deserialise(rapidjson::Value& v) = 0;
 	virtual void SceneInitComponent() {};
+	virtual void PostChangeProperties() {};
 protected:
 	int TypeID = -1;
 private:

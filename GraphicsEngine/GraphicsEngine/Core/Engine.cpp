@@ -137,14 +137,13 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 		else if (type == RenderSystemOGL)
 		{
 #if BUILD_OPENGL
-#if 1
+#if 0
 			RHI::InitRHI(RenderSystemOGL);
 #else 
 			RHI::InitRHI(RenderSystemD3D12);
 #endif
 #if WITH_EDITOR
 			m_appwnd = new EditorWindow(Deferredmode);
-			//m_appwnd = new BaseWindow(/*Deferredmode*/);
 #else 
 			m_appwnd = new GameWindow(/*Deferredmode*/);
 #endif 

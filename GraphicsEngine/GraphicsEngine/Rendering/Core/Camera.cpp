@@ -27,7 +27,7 @@ glm::mat4 Camera::GetViewProjection()
 
 void Camera::UpdateProjection(float aspect)
 {
-	if (isnan(aspect)) 
+	if (isnan(aspect))
 	{
 		return;
 	}
@@ -171,32 +171,63 @@ void Camera::SetMouseRotation(float x, float y)
 	// Up vector
 	up = glm::cross(right, forward);
 }
+#include "../Editor/EditorWindow.h"
 void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outrayDirection, glm::vec3&  outRayorign)
 {
-	glm::mat4 inverseVP = glm::inverse(GetProjection() * GetView());
+	float x = (2.0f * screenX) / EditorWindow::GetWidth() - 1.0f;
+	float y = 1.0f - (2.0f * screenY) / EditorWindow::GetHeight();
 
-	//#if OGRE_NO_VIEWPORT_ORIENTATIONMODE == 0
-	//	// We need to convert screen point to our oriented viewport (temp solution)
-	//	Real tX = screenX; Real a = getOrientationMode() * Math::HALF_PI;
-	//	screenX = Math::Cos(a) * (tX - 0.5f) + Math::Sin(a) * (screenY - 0.5f) + 0.5f;
-	//	screenY = Math::Sin(a) * (tX - 0.5f) + Math::Cos(a) * (screenY - 0.5f) + 0.5f;
-	//	if ((int)getOrientationMode() & 1) screenY = 1.f - screenY;
-	//#endif
+	float z = 1.0f;
+	glm::vec3 ray_nds = glm::vec3(x, y, z);
+	glm::vec4 ray_clip = glm::vec4(ray_nds.xy, -1.0, 1.0);
+	glm::vec4 ray_eye = glm::inverse(projection) * ray_clip;
+	ray_eye = glm::vec4(ray_eye.xy, -1.0, 0.0);
 
-	float nx = (2.0f * screenX) - 1.0f;
-	float ny = 1.0f - (2.0f * screenY);
-	glm::vec4 nearPoint(nx, ny, -1.f, 0);
-	// Use midPoint rather than far point to avoid issues with infinite projection
-	glm::vec4  midPoint(nx, ny, 0.0f, 0);
+	glm::vec3 ray_wor = (glm::inverse(GetView()) * ray_eye).xyz;
+	// don't forget to normalise the vector at some point
+	ray_wor = glm::normalize(ray_wor);
 
-	// Get ray origin and ray target on near plane in world space
-	glm::vec4  rayOrigin, rayTarget;
-
-	rayOrigin = inverseVP * nearPoint;
-	rayTarget = inverseVP * midPoint;
-	outrayDirection = rayTarget;
-	//glm::normalize(outrayDirection);
-	outRayorign = rayOrigin;
-	/*outRay->setOrigin(rayOrigin);
-	outRay->setDirection(rayDirection);*/
+	outrayDirection = ray_wor;
+	outRayorign = GetPosition();
 }
+glm::vec3  Camera::ScreenPointToWorld(float screenX, float screenY)
+{
+
+	/*double x = 2.0 * screenX / EditorWindow::GetWidth() - 1;
+	double y = -2.0 * screenY / EditorWindow::GetHeight() + 1;*/
+	float x = (2.0f * screenX) / EditorWindow::GetWidth() - 1.0f;
+	float y = 1.0f - (2.0f * screenY) / EditorWindow::GetHeight();
+
+	glm::mat4x4 viewProjectionInverse = glm::inverse(projection *
+		GetView());
+
+	glm::vec3 point3D = glm::vec3(x, y, 0.0f);
+	return viewProjectionInverse * glm::vec4(point3D.xyz, 0.0f);
+}
+//old
+//glm::mat4 inverseVP = glm::inverse(GetProjection() * GetView());
+//
+////#if OGRE_NO_VIEWPORT_ORIENTATIONMODE == 0
+////	// We need to convert screen point to our oriented viewport (temp solution)
+////	Real tX = screenX; Real a = getOrientationMode() * Math::HALF_PI;
+////	screenX = Math::Cos(a) * (tX - 0.5f) + Math::Sin(a) * (screenY - 0.5f) + 0.5f;
+////	screenY = Math::Sin(a) * (tX - 0.5f) + Math::Cos(a) * (screenY - 0.5f) + 0.5f;
+////	if ((int)getOrientationMode() & 1) screenY = 1.f - screenY;
+////#endif
+//
+//float nx = (2.0f * screenX) - 1.0f;
+//float ny = 1.0f - (2.0f * screenY);
+//glm::vec4 nearPoint(nx, ny, -1.f, 0);
+//// Use midPoint rather than far point to avoid issues with infinite projection
+//glm::vec4  midPoint(nx, ny, 0.0f, 0);
+//
+//// Get ray origin and ray target on near plane in world space
+//glm::vec4  rayOrigin, rayTarget;
+//
+//rayOrigin = inverseVP * nearPoint;
+//rayTarget = inverseVP * midPoint;
+//outrayDirection = rayTarget;
+////glm::normalize(outrayDirection);
+//outRayorign = rayOrigin;
+///*outRay->setOrigin(rayOrigin);
+//outRay->setDirection(rayDirection); */

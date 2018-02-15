@@ -9,12 +9,12 @@ TGExtraComponentRegister::TGExtraComponentRegister()
 
 
 TGExtraComponentRegister::~TGExtraComponentRegister()
-{
-}
+{}
 
 Component * TGExtraComponentRegister::CreateExtraComponent(int id)
 {
-	if (id == 1)
+	return new TGComp();
+	if (id == 0)
 	{
 		return new TGComp();
 	}

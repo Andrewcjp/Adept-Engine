@@ -43,7 +43,10 @@ void UIButton::MouseClick(int x, int y)
 {
 	if (Rect.Contains(x, y))
 	{
-		Target();
+		if (Target)
+		{
+			Target();
+		}
 	}
 }
 

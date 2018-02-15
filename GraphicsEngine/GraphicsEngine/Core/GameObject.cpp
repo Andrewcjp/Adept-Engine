@@ -301,4 +301,8 @@ void GameObject::DeserialiseGameObject(rapidjson::Value & v)
 void GameObject::PostChangeProperties()
 {
 	GetTransform()->SetPos(PositionDummy);
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components[i]->PostChangeProperties();
+	}
 }

@@ -25,6 +25,7 @@ private:
 	UILabel* Namelabel;
 	UILabel* Textlabel;
 	UIBox* TextBox;
+	UIButton* Toggle;
 	glm::vec3 colour = glm::vec3(0.8f);
 	CollisionRect Rect;
 	std::string nextext;
@@ -36,6 +37,7 @@ private:
 	bool IsEditing = false;
 	void* Valueptr;
 	bool Enabled = true;
+
 
 };
 

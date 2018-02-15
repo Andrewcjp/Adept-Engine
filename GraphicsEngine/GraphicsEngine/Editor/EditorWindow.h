@@ -3,20 +3,7 @@
 #include "RHI/RenderWindow.h"
 
 #include <vector>
-//#include <ctime>
-//#include <time.h>
-//#include <GLEW\GL\glew.h>
-//#include <memory>
-//
 #include "Core/BaseWindow.h"
-//#include "Core/Transform.h"
-//#include "Core/GameObject.h"
-//#include "Core/Input.h"
-//#include "../Rendering/Core/Material.h"
-//#include "../Rendering/Renderers/ForwardRenderer.h"
-//#include "../Rendering/Renderers/DeferredRenderer.h"
-//#include "UI/TextRenderer.h"
-//#include "../Rendering/Renderers/RenderSettings.h"
 class EditorGizmos;
 class UIEditField;
 class EditorObjectSelector;
@@ -40,13 +27,17 @@ public:
 	virtual ~EditorWindow();
 	void EnterPlayMode();
 	void ExitPlayMode();
+
+	BOOL MouseLBDown(int x, int y) override;
 protected:
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
 	void FixedUpdate() override;
+	void LoadScene();
 	void ProcessMenu(WORD command) override;
 	void WindowUI() override;
 	void Update() override;
+	void SaveScene();
 	void SetDeferredState(bool state);
 private:
 	static EditorWindow* instance;
@@ -55,7 +46,8 @@ private:
 	EditorObjectSelector* selector;
 	Scene* CurrentPlayScene;
 	bool IsPlayingScene = false;
-
+	int statcount = 0;
+	int currentmemeory = 0;
 	class Editor_Camera* EditorCamera;
 	class SceneJSerialiser* Saver;
 

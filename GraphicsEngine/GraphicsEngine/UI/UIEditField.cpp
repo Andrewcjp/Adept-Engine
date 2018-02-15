@@ -4,14 +4,13 @@
 #include "Editor/EditorWindow.h"
 #include <cctype>
 #include "UIManager.h"
+#include "UIButton.h"
 UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 {
 	Colour = colour;
 	Namelabel = new UILabel("name ", w / 2, h, x, y);
 	Textlabel = new UILabel(" data", w / 2, h, x + w / 2, y);
-	TextBox = new UIBox(w / 2, h, x + w / 2, y);
-	TextBox->BackgoundColour = glm::vec3(0);
-	TextBox->Colour = glm::vec3(0.3f);
+
 	Rect = CollisionRect(w, h, x, y);
 	Enabled = true;
 
@@ -22,11 +21,35 @@ UIEditField::UIEditField(Inspector::ValueType type, std::string name, void *valu
 	FilterType = type;
 	Namelabel->SetText(name);
 	Valueptr = valueptr;
+	
+	if (type == Inspector::ValueType::Bool)
+	{
+		Textlabel->SetEnabled(false);
+
+	}
+	else
+	{
+		Textlabel->SetText(nextext);
+	}
+
+	if (FilterType != Inspector::ValueType::Bool)
+	{
+		TextBox = new UIBox(0, 0, 0, 0);
+
+		TextBox->BackgoundColour = glm::vec3(0);
+		TextBox->Colour = glm::vec3(0.3f);
+	}
+	else if (FilterType == Inspector::ValueType::Bool)
+	{
+		Toggle = new UIButton(0, 0, 0, 0);
+		Toggle->BackgoundColour = glm::vec3(0);
+		Toggle->Colour = glm::vec3(0.3f);
+		Toggle->BindTarget(std::bind(&UIEditField::SendValue, this));
+	}
 	if (Valueptr != nullptr)
 	{
 		GetValueText(nextext);
 	}
-	Textlabel->SetText(nextext);
 }
 
 UIEditField::~UIEditField()
@@ -41,6 +64,11 @@ void UIEditField::MouseMove(int x, int y)
 {
 	if (!Enabled)
 	{
+		return;
+	}
+	if (FilterType == Inspector::ValueType::Bool)
+	{
+		Toggle->MouseMove(x, y);
 		return;
 	}
 	if (Rect.Contains(x, y))
@@ -66,14 +94,23 @@ void UIEditField::MouseMove(int x, int y)
 }
 void UIEditField::GetValueText(std::string & string)
 {
-	if (FilterType == Inspector::Float)
+	if (FilterType == Inspector::ValueType::Float)
 	{
 		float t = *((float*)Valueptr);
 		string = std::to_string(t);
 	}
+	if (FilterType == Inspector::ValueType::Bool)
+	{
+		Toggle->SetText(*((bool*)(Valueptr)) ? "True " : "False");
+	}
 }
 void UIEditField::MouseClick(int x, int y)
 {
+	if (FilterType == Inspector::ValueType::Bool)
+	{
+		Toggle->MouseClick(x, y);
+		return;
+	}
 	if (Rect.Contains(x, y))
 	{
 		UIManager::SetCurrentcontext(this);
@@ -102,12 +139,17 @@ void UIEditField::MouseClick(int x, int y)
 void UIEditField::Render()
 {
 	UIBox::Render();
-	if (FilterType != Inspector::Label)
+	if (FilterType != Inspector::ValueType::Label && FilterType != Inspector::ValueType::Bool)
 	{
 		TextBox->Render();
+		Textlabel->Render();
+	}
+	if (FilterType == Inspector::ValueType::Bool)
+	{
+		Toggle->Render();
 	}
 	Namelabel->Render();
-	Textlabel->Render();
+
 }
 
 void UIEditField::ResizeView(int w, int h, int x, int y)
@@ -118,7 +160,11 @@ void UIEditField::ResizeView(int w, int h, int x, int y)
 	Namelabel->ResizeView(w / 3, h / 2, x, y);
 	int gap = 25;
 	Textlabel->ResizeView(((w / 3) * 2) - gap, h / 2, x + (w / 3) + gap, y);
-	if (FilterType != Inspector::Label)
+	if (FilterType == Inspector::ValueType::Bool)
+	{
+		Toggle->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
+	}
+	if (TextBox != nullptr && FilterType != Inspector::Label)
 	{
 		TextBox->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
 	}
@@ -146,6 +192,11 @@ void UIEditField::SendValue()
 			float out = (float)atof(nextext.c_str());
 
 			*((float*)Valueptr) = out;
+		}
+		if (FilterType == Inspector::ValueType::Bool)
+		{
+			*((bool*)(Valueptr)) = !*((bool*)(Valueptr));
+			Toggle->SetText(*((bool*)(Valueptr)) ? "True" : "False");
 		}
 		UIManager::instance->RefreshGameObjectList();
 	}

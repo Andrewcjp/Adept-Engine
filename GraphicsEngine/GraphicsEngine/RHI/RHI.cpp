@@ -21,6 +21,7 @@
 #include "../D3D12/D3D12Shader.h"
 #include "../D3D12/D3D12Framebuffer.h"
 #include "../Core/Performance/PerfManager.h"
+#include "../D3D12/D3D12RHI.h"
 RHI* RHI::instance = nullptr;
 RHI::RHI()
 {
@@ -302,6 +303,12 @@ void RHI::RHISwapBuffers()
 		instance->m_swapChain->Present(0, 0);
 		break;
 #endif
+	case RenderSystemD3D12:
+		if (D3D12RHI::Instance != nullptr)
+		{
+			D3D12RHI::Instance->PresentFrame();
+		}
+		break;
 	}
 }
 void RHI::DestoryContext(HWND hwnd)
@@ -481,6 +488,14 @@ void RHI::CreateDepth()
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 	result = m_dxDev->CreateDepthStencilView(m_depthStencil, &descDSV, &m_depthStencilView);
+}
+bool RHI::IsOpenGL()
+{
+	return (GetType() == RenderSystemOGL);
+}
+bool RHI::IsD3D12()
+{
+	return (GetType() == RenderSystemD3D12);
 }
 void RHI::ResizeContext(int width, int height)
 {

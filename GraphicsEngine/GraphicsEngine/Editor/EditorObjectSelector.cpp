@@ -6,6 +6,7 @@
 #include "EditorWindow.h"
 #include "../Rendering/Core/DebugLineDrawer.h"
 #include "../Rendering/Core/Camera.h"
+#include "../Core/EngineTypes.h"
 EditorObjectSelector::EditorObjectSelector()
 {
 	pengine = (PhysxEngine*)Engine::PhysEngine;
@@ -13,8 +14,7 @@ EditorObjectSelector::EditorObjectSelector()
 
 
 EditorObjectSelector::~EditorObjectSelector()
-{
-}
+{}
 
 void EditorObjectSelector::init()
 {
@@ -29,17 +29,19 @@ void EditorObjectSelector::LinkPhysxBodysToGameObjects(const std::vector<GameObj
 }
 GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const std::vector<GameObject*>& objects)
 {
-	//campos;
-	PxRaycastBuffer hit;
-	/*campos.x += (x - (2 / EditorWindow::GetWidth())) / 1000;
-	campos.y += (y - (2 / EditorWindow::GetHeight())) / 1000;*/
 
+	PxRaycastBuffer hit;
 	glm::vec3 camforward = glm::vec4(cam->GetForward(), 1.0f);// *cam->GetProjection();
 	glm::vec3 origin;
-	glm::vec3 dir;
-	cam->GetRayAtScreenPos(((float)x / (float)EditorWindow::GetWidth()), ((float)y / (float)EditorWindow::GetHeight()), dir, origin);
-//	origin = cam->GetPosition();
-	DebugLineDrawer::instance->AddLine(origin, origin + dir * 1000, glm::vec3(1, 0, 0), 10);
+	glm::vec3 dir = cam->GetForward();
+
+	cam->GetRayAtScreenPos(((float)x), ((float)y), dir, origin);
+	//cam->GetRayAtScreenPos(((float)x / (float)EditorWindow::GetWidth()), ((float)y / (float)EditorWindow::GetHeight()), dir, origin);
+	//origin = /*cam->GetPosition() +*/ cam->ScreenPointToWorld(x, y);
+	if (DebugLineDrawer::instance != nullptr)
+	{
+		DebugLineDrawer::instance->AddLine(origin, origin + dir * 1000, Colours::RED, 10);
+	}
 	if (pengine->RayCastEditorScene(origin, glm::normalize(dir), 50, &hit))
 	{
 		for (int i = 0; i < objects.size(); i++)

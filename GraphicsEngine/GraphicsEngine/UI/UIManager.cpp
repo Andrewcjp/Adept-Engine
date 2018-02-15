@@ -91,12 +91,13 @@ void UIManager::InitEditorUI()
 	//bottom = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	//bottom->SetScaled(1.0f - RightWidth, BottomHeight);/
 	//AddWidget(bottom);
-	/*AssetManager = new UIAssetManager();
+	AssetManager = new UIAssetManager();
 	AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
-	AddWidget(AssetManager);*/
+	AddWidget(AssetManager);
+	UpdateBatches();
 }
 
-void UIManager::CreateDropDown(std::vector<std::string> &options,float width,float height,float x, float y, std::function<void(int)> Callback)
+void UIManager::CreateDropDown(std::vector<std::string> &options, float width, float height, float x, float y, std::function<void(int)> Callback)
 {
 	UIListBox * testbox3 = new UIListBox(100, 300, 250, 150); //new UIDropDown(100, 300, x, y);
 	testbox3->Priority = 10;
@@ -112,6 +113,7 @@ void UIManager::CreateDropDown(std::vector<std::string> &options,float width,flo
 	}
 	AddWidget(testbox3);
 	testbox3->UpdateScaled();
+	instance->DropdownCurrent = testbox3;
 	//UIManager::UpdateBatches();
 }
 void UIManager::AlertBox(std::string MSg)
@@ -161,7 +163,7 @@ void UIManager::UpdateSize(int width, int height)
 	DrawBatcher->ClearVertArray();
 	m_width = width;
 	m_height = height;
-	ViewportRect = CollisionRect(GetScaledWidth(0.70f), GetScaledHeight(0.70f), 0, 0);
+	ViewportRect = CollisionRect(GetScaledWidth(0.70f), GetScaledHeight(0.70f), GetScaledWidth(LeftWidth), GetScaledHeight(BottomHeight));
 
 	struct less_than_key
 	{
@@ -220,7 +222,8 @@ void UIManager::RenderWidgets()
 #if UISTATS
 	PerfManager::EndTimer("Line");
 #endif
-
+	//todo: GC?
+	CleanUpWidgets();
 
 }
 //todo: prevent issue with adding while itoring!
@@ -228,23 +231,32 @@ void UIManager::MouseMove(int x, int y)
 {
 	for (int i = 0; i < widgets.size(); i++)
 	{
-		widgets[i]->MouseMove(x, y);
+		if (!widgets[i]->IsPendingKill)
+		{
+			widgets[i]->MouseMove(x, y);
+		}
 	}
 	Blocking = !(ViewportRect.Contains(x, y));
 }
 
 void UIManager::MouseClick(int x, int y)
 {
-	for (int i = widgets.size() - 1; i >= 0; i--)
+	for (int i = (int)widgets.size() - 1; i >= 0; i--)
 	{
-		widgets[i]->MouseClick(x, y);
+		if (!widgets[i]->IsPendingKill)
+		{
+			widgets[i]->MouseClick(x, y);
+		}
 	}
 }
 void UIManager::MouseClickUp(int x, int y)
 {
 	for (int i = 0; i < widgets.size(); i++)
 	{
-		widgets[i]->MouseClickUp(x, y);
+		if (!widgets[i]->IsPendingKill)
+		{
+			widgets[i]->MouseClickUp(x, y);
+		}
 	}
 }
 
@@ -316,6 +328,40 @@ void UIManager::SetCurrentcontext(UIWidget * widget)
 	if (instance != nullptr)
 	{
 		instance->CurrentContext = widget;
+	}
+}
+void UIManager::RemoveWidget(UIWidget* widget)
+{
+	widget->IsPendingKill = true;
+	WidgetsToRemove.push_back(widget);
+}
+
+void UIManager::CleanUpWidgets()
+{
+	if (WidgetsToRemove.empty())
+	{
+		return;
+	}
+	for (int i = 0; i < WidgetsToRemove.size(); i++)
+	{
+		for (int x = 0; x < widgets.size(); x++)
+		{
+			if (widgets[x] == WidgetsToRemove[i])//todo: perfromance of this?
+			{
+				widgets.erase(widgets.begin() + x);
+				break;
+			}
+		}
+		delete WidgetsToRemove[i];//delete and dont realloc?
+	}
+	WidgetsToRemove.clear();
+	UpdateBatches();
+}
+void UIManager::CloseDropDown()
+{
+	if (instance != nullptr && instance->DropdownCurrent != nullptr)
+	{
+		instance->RemoveWidget(instance->DropdownCurrent);
 	}
 }
 

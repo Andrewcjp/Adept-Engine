@@ -12,27 +12,6 @@ UIBox::UIBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 }
 void UIBox::Init()
 {
-	m_TextShader = new OGLShaderProgram();
-	m_TextShader->CreateShaderProgram();
-	m_TextShader->AttachAndCompileShaderFromFile("UI_vs", SHADER_VERTEX);
-	m_TextShader->AttachAndCompileShaderFromFile("UI_fs", SHADER_FRAGMENT);
-
-	m_TextShader->BindAttributeLocation(0, "vertex");
-
-	m_TextShader->BuildShaderProgram();
-	m_TextShader->ActivateShaderProgram();
-	//texture = RHI::CreateTexture("../asset/texture/UI/PanelTex.png");
-	glGenBuffers(1, &quad_vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	/*if (texture != nullptr)
-	{
-		Colour = glm::vec3(1.0f);
-	}
-	else
-	{
-		Colour = BackgoundColour;
-	}*/
-
 	ResizeView(mwidth, mheight, X, Y);
 }
 void UIBox::ResizeView(int w, int h, int x, int y)
@@ -45,7 +24,7 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 	GLfloat xpos = (GLfloat)x;
 	GLfloat ypos = (GLfloat)y;
 
-	
+
 
 	//GLfloat vertices[] = {
 	//	xpos,     ypos + h,   value ,value ,
@@ -70,7 +49,7 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	if (UIDrawBatcher::instance != nullptr)
 	{
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos, ypos + h), true,Colour,BackgoundColour);
+		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
 		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos, ypos), true, Colour, BackgoundColour);
 		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
 
@@ -119,7 +98,7 @@ void UIBox::MouseClick(int x, int y)
 		}
 	}
 }
-void UIBox::MouseClickUp(int , int )
+void UIBox::MouseClickUp(int, int)
 {
 	if (Resizeable)
 	{

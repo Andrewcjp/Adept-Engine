@@ -117,14 +117,22 @@ void EditorWindow::ExitPlayMode()
 	IsRunning = false;
 }
 
+BOOL EditorWindow::MouseLBDown(int x, int y)
+{
+	BaseWindow::MouseLBDown(x, y);
+	if (input != nullptr && UI != nullptr && !UI->IsUIBlocking())
+	{
+		input->Selectedobject = selector->RayCastScene(x, y, EditorCamera->GetCamera(), *CurrentScene->GetObjects());
+	}
+	return 0;
+}
+
 void EditorWindow::SetDeferredState(bool state)
 {
 	IsDeferredMode = state;
 }
 void EditorWindow::PrePhysicsUpdate()
-{
-
-}
+{}
 void EditorWindow::DuringPhysicsUpdate()
 {}
 void EditorWindow::FixedUpdate()
@@ -137,8 +145,10 @@ void EditorWindow::FixedUpdate()
 void EditorWindow::Update()
 {
 	EditorCamera->Update(DeltaTime);
+
 	if (input->Selectedobject != nullptr)
 	{
+		gizmos->Update(0);
 		gizmos->SetTarget(input->Selectedobject);
 		gizmos->RenderGizmos(dLineDrawer);
 		if (UI != nullptr)
@@ -156,30 +166,43 @@ void EditorWindow::Update()
 	{
 		CurrentScene->EditorUpdateScene();
 	}
-
+	if (GetKeyState(VK_CONTROL) & 0x8000)
+	{
+		if (GetKeyState('S') & 0x8000)
+		{
+			Saver->SaveScene(CurrentScene);
+		}
+	}
 }
-
+void EditorWindow::SaveScene()
+{
+	Saver->SaveScene(CurrentScene);
+}
+void EditorWindow::LoadScene()
+{
+	Renderer->SetScene(nullptr);
+	delete CurrentScene;
+	CurrentScene = new Scene();
+	Saver->LoadScene(CurrentScene);
+	Renderer->SetScene(CurrentScene);
+	UI->UpdateGameObjectList(CurrentScene->GetObjects());
+	UI->RefreshGameObjectList();
+	UI->AlertBox("Scene Loaded");
+}
 void EditorWindow::ProcessMenu(WORD command)
 {
 	switch (command)
 	{
 	case 4://add gameobject
-
+		CurrentScene->AddGameobjectToScene(new GameObject());
 		UI->UpdateGameObjectList(CurrentScene->GetObjects());
 		UI->RefreshGameObjectList();
 		break;
 	case 5://Save Scene
-		Saver->SaveScene(CurrentScene);
+		SaveScene();
 		break;
 	case 6://Load Scene
-		Renderer->SetScene(nullptr);
-		delete CurrentScene;
-		CurrentScene = new Scene();
-		Saver->LoadScene(CurrentScene);
-		Renderer->SetScene(CurrentScene);
-		UI->UpdateGameObjectList(CurrentScene->GetObjects());
-		UI->RefreshGameObjectList();
-		UI->AlertBox("Scene Loaded");
+		LoadScene();
 		break;
 	}
 }
@@ -199,6 +222,10 @@ void EditorWindow::WindowUI()
 
 	std::string go = "";
 	std::string goname = "";
+	/*if (UI->IsUIBlocking())
+	{
+		stream << "Blocking  "; 
+	}*/
 	if (input->Selectedobject != nullptr)
 	{
 		go = glm::to_string(input->Selectedobject->GetTransform()->GetPos());
@@ -206,5 +233,20 @@ void EditorWindow::WindowUI()
 	}
 	stream << (input->currentObjectIndex) << " Obj " << goname << " Position " << go << std::setprecision(3);
 	UI->RenderTextToScreen(3, stream.str());
+
+	stream.str("");
+	statcount++;
+	
+	int totalmem;
+	int freemem = 0;
+	if (statcount > 40)
+	{
+		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &totalmem);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freemem);
+		currentmemeory = totalmem - freemem;
+		statcount = 0;
+	}
+	stream << "Current memeory " << (float)(currentmemeory) / 1024.0f << "Mb ";
+	UI->RenderTextToScreen(4, stream.str());
 }
 

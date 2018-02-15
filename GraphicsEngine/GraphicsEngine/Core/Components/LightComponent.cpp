@@ -24,7 +24,7 @@ void LightComponent::InitComponent()
 {
 	MLight = new Light(GetOwner()->GetTransform()->GetPos(), DefaultIntesity, DefaultType, glm::vec3(1), DefaultShadow);
 	MLight->SetDirection(GetOwner()->GetTransform()->GetForward());
-	
+
 }
 
 void LightComponent::BeginPlay()
@@ -49,7 +49,9 @@ void LightComponent::SetShadow(bool Shadow)
 }
 
 void LightComponent::SetLightColour(glm::vec3)
-{}
+{
+
+}
 
 Light * LightComponent::Internal_GetLightPtr()
 {
@@ -69,6 +71,12 @@ void LightComponent::OnTransformUpdate()
 void LightComponent::SceneInitComponent()
 {
 	GetOwner()->GetScene()->AddLight(MLight);
+	Shadow = MLight->GetDoesShadow();
+}
+
+void LightComponent::PostChangeProperties()
+{
+	SetShadow(Shadow);
 }
 
 void LightComponent::Serialise(rapidjson::Value & v)
@@ -105,6 +113,6 @@ void LightComponent::Deserialise(rapidjson::Value & v)
 void LightComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
-	//group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Float, nullptr));
+	group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Bool, &Shadow));
 	props.push_back(group);
 }

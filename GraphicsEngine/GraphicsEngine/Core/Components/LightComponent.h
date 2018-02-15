@@ -18,11 +18,13 @@ public:
 	Light* Internal_GetLightPtr();
 	void OnTransformUpdate() override;
 	void SceneInitComponent() override final;
+	void PostChangeProperties() override;
 private:
 	Light* MLight;
 	float DefaultIntesity = 10.0;
 	Light::LightType DefaultType = Light::Point;
 	bool DefaultShadow = false;
+	bool Shadow = false;
 	// Inherited via Component
 	virtual void Serialise(rapidjson::Value & v) override;
 	virtual void Deserialise( rapidjson::Value & v) override;

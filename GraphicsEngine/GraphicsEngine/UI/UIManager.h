@@ -53,7 +53,12 @@ public:
 	bool IsUIBlocking();
 	static UIWidget* GetCurrentContext();;
 	static void SetCurrentcontext(UIWidget* widget);
+	void RemoveWidget(UIWidget * widget);
+	void CleanUpWidgets();
+	static void CloseDropDown();
 private:
+	UIWidget * DropdownCurrent = nullptr;
+	std::vector<UIWidget*> WidgetsToRemove;//todo: use queue? and handle large deletes?
 	static UIWidget* CurrentContext;
 	float BottomHeight = 0.2f;
 	float TopHeight = 0.2f;

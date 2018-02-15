@@ -123,7 +123,15 @@ void BaseWindow::InitilseWindow()
 	{
 		PerfManager::Instance->SampleNVCounters();
 	}
-	dLineDrawer = new DebugLineDrawer();
+	if (RHI::GetType() == RenderSystemOGL)
+	{
+		dLineDrawer = new DebugLineDrawer();
+	}
+	else
+	{
+		/*LoadText = false;
+		ShowText = false;*/
+	}
 	PerfManager::StartPerfManager();
 }
 void BaseWindow::FixedUpdate()
@@ -164,7 +172,7 @@ void BaseWindow::Render()
 		//	WaitForSingleObject(ThreadComplete, INFINITE);
 
 #else
-		
+
 		PerfManager::StartTimer("FTick");
 		Engine::PhysEngine->stepPhysics(false, TickRate);
 		if (ShouldTickScene)
@@ -342,7 +350,7 @@ void BaseWindow::DestroyRenderWindow()
 	delete input;
 	delete UI;
 	Renderer->DestoryRenderWindow();
-	delete Renderer;	
+	delete Renderer;
 	RHI::DestoryContext(m_hwnd);
 	DestroyWindow(m_hwnd);
 	m_hwnd = NULL;

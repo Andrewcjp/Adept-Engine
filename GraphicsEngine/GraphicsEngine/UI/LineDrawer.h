@@ -15,23 +15,20 @@ class LineDrawer
 {
 public:
 	LineDrawer();
+	void InitOGL();
 	~LineDrawer();
 	void GenerateLines();
 	void RenderLines();
+	void RenderLines_OpenGL();
 	void ClearLines();
 
 	void AddLine(glm::vec2 Start, glm::vec2 end,glm::vec3 colour , float thickness = 0);
 private:
 	GLuint	quad_vertexbuffer;
 	OGLShaderProgram * m_TextShader;
-	
-#if 0
-	std::vector<Line> Lines;
-	std::vector<GLfloat> Verts;
-#else
 	Line* Lines;
 	GLfloat* Verts;
-#endif
+
 	size_t VertsOnGPU = 0;
 	size_t LineCount = 0;
 	size_t CurrentAllocateLines = 50;

@@ -5,6 +5,7 @@
 #include "glm\glm.hpp"
 #include "include\glm\gtx\transform.hpp"
 D3D12RHI* D3D12RHI::Instance = nullptr;
+#include "../Rendering/Shaders/ShaderMipMap.h"
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
@@ -12,16 +13,13 @@ D3D12RHI::D3D12RHI()
 
 
 D3D12RHI::~D3D12RHI()
-{
-}
+{}
 
 void D3D12RHI::InitContext()
-{
-}
+{}
 
 void D3D12RHI::DestroyContext()
-{
-}
+{}
 
 void EnableShaderBasedValidation()
 {
@@ -31,9 +29,66 @@ void EnableShaderBasedValidation()
 	(spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1)));
 	spDebugController1->SetEnableGPUBasedValidation(true);
 }
+void CheckFeatures(ID3D12Device* pDevice)
+{
+	D3D12_FEATURE_DATA_D3D12_OPTIONS FeatureData;
+	ZeroMemory(&FeatureData, sizeof(FeatureData));
+	HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &FeatureData, sizeof(FeatureData));
+	if (SUCCEEDED(hr))
+	{
+		// TypedUAVLoadAdditionalFormats contains a Boolean that tells you whether the feature is supported or not
+	/*	if (FeatureData.TypedUAVLoadAdditionalFormats)
+		{*/
+			// Can assume “all-or-nothing” subset is supported (e.g. R32G32B32A32_FLOAT)
+			// Cannot assume other formats are supported, so we check:
+			D3D12_FEATURE_DATA_FORMAT_SUPPORT FormatSupport = { DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_FORMAT_SUPPORT1_NONE, D3D12_FORMAT_SUPPORT2_NONE };
+			hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &FormatSupport, sizeof(FormatSupport));
+			if (SUCCEEDED(hr) && (FormatSupport.Support2 & D3D12_FORMAT_SUPPORT2_UAV_TYPED_STORE) != 0)
+			{
+				// DXGI_FORMAT_R32G32_FLOAT supports UAV Typed Load!
+				//__debugbreak();
+			}
+		//}
+	}
+}
+D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
+{
+	D3D12_FEATURE_DATA_FEATURE_LEVELS FeatureData;
+	ZeroMemory(&FeatureData, sizeof(FeatureData));
+	D3D_FEATURE_LEVEL FeatureLevelsList[] = {
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_12_0,
+		D3D_FEATURE_LEVEL_12_1,
+	};
+	FeatureData.pFeatureLevelsRequested = FeatureLevelsList;
+	FeatureData.NumFeatureLevels = 1;
+	HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &FeatureData, sizeof(FeatureData));
+	if (SUCCEEDED(hr))
+	{
+		return FeatureData.MaxSupportedFeatureLevel;
+	}
+	return D3D_FEATURE_LEVEL_11_0;
+}
+void D3D12RHI::DisplayDeviceDebug()
+{
+	IDXGIFactory4* pFactory;
+	CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pFactory);
+
+	IDXGIAdapter3* adapter;
+	pFactory->EnumAdapters(0, reinterpret_cast<IDXGIAdapter**>(&adapter));
+	
+	DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
+	adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
+
+	size_t usedVRAM  = videoMemoryInfo.CurrentUsage / 1024 / 1024;
+	size_t totalVRAM = videoMemoryInfo.Budget / 1024 / 1024;
+	std::cout << "Primary Adaptor Has " << usedVRAM << "MB / "<< totalVRAM <<"MB"<< std::endl;
+
+}
 void D3D12RHI::LoadPipeLine()
 {
-	EnableShaderBasedValidation();
+	//EnableShaderBasedValidation();
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	UINT dxgiFactoryFlags = 0;
@@ -61,7 +116,7 @@ void D3D12RHI::LoadPipeLine()
 
 		ThrowIfFailed(D3D12CreateDevice(
 			warpAdapter,
-			D3D_FEATURE_LEVEL_11_0,
+			D3D_FEATURE_LEVEL_11_1,
 			IID_PPV_ARGS(&m_Primarydevice)
 		));
 	}
@@ -69,14 +124,16 @@ void D3D12RHI::LoadPipeLine()
 	{
 		IDXGIAdapter1* hardwareAdapter;
 		GetHardwareAdapter(factory, &hardwareAdapter);
-
+		
 		ThrowIfFailed(D3D12CreateDevice(
 			hardwareAdapter,
 			D3D_FEATURE_LEVEL_11_0,
 			IID_PPV_ARGS(&m_Primarydevice)
 		));
 	}
-	if (false) {
+	GetMaxSupportedFeatureLevel(m_Primarydevice);
+	if (false)
+	{
 
 
 		IDXGIAdapter1* shardwareAdapter;
@@ -96,7 +153,7 @@ void D3D12RHI::LoadPipeLine()
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 	ThrowIfFailed(m_Primarydevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
-
+	DisplayDeviceDebug();
 	// Describe and create the swap chain.
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 	swapChainDesc.BufferCount = FrameCount;
@@ -106,7 +163,7 @@ void D3D12RHI::LoadPipeLine()
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.SampleDesc.Count = 1;
-
+	CheckFeatures(m_Primarydevice);
 	IDXGISwapChain1* swapChain;
 	ThrowIfFailed(factory->CreateSwapChainForHwnd(
 		m_commandQueue,		// Swap chain needs the queue so that it can force a flush on it.
@@ -164,10 +221,15 @@ void D3D12RHI::LoadPipeLine()
 	ThrowIfFailed(m_Primarydevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 }
 
+void D3D12RHI::InitMipmaps()
+{
+	MipmapShader = new ShaderMipMap();
+
+}
 void D3D12RHI::LoadAssets()
 {
 
-
+#if 1
 	ID3DBlob* vertexShader;
 	ID3DBlob* pixelShader;
 	// Create the pipeline state, which includes compiling and loading shaders.
@@ -220,7 +282,7 @@ void D3D12RHI::LoadAssets()
 
 	texture = new D3D12Texture();
 	OtherTex = new D3D12Texture("bricks2.jpg");
-
+#endif
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
 		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -276,7 +338,7 @@ void D3D12RHI::LoadAssets()
 		// complete before continuing.
 		WaitForGpu();
 	}
-
+	InitMipmaps();
 }
 
 void D3D12RHI::ExecSetUpList()
@@ -312,14 +374,14 @@ void D3D12RHI::ExecList(CommandListDef* list)
 	//m_commandQueue->Wait(pShadowFence, M_ShadowFence);
 	//M_ShadowFence++;
 }
-void D3D12RHI::PresentFrame(CommandListDef* List)
+void D3D12RHI::PresentFrame()
 {
 
 	// Execute the command list.
 	//ID3D12CommandList* ppCommandLists[] = { List };
 	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-	ExecList(List);
+	/*ExecList(List);*/
 
 
 	//m_commandQueue->Wait()
@@ -329,6 +391,11 @@ void D3D12RHI::PresentFrame(CommandListDef* List)
 	//WaitForPreviousFrame();
 	MoveToNextFrame();
 	WaitForGpu();
+	count++;
+	if (count > 2)
+	{
+		HasSetup = true;
+	}
 	//WaitForGpu();
 }
 void D3D12RHI::OnDestroy()
@@ -380,38 +447,16 @@ void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
 	RenderToScreen(list);
 	// Indicate that the back buffer will be used as a render target.
 	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	SetScreenRenderTaget(list);
+
+}
+void D3D12RHI::SetScreenRenderTaget(ID3D12GraphicsCommandList* list)
+{
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	list->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
-void D3D12RHI::PopulateCommandList()
-{
-	return;
-	//PreFrameSetUp(m_commandList);
 
-	//ClearRenderTarget(m_commandList);
-	// Record commands.
-	//texture->Bind(m_commandList);
-	//m_constantBufferData.M = glm::translate(glm::vec3(0, -5, 0));
-	//testshader->UpdateCBV(m_constantBufferData);
-	//testshader->PushCBVToGPU(m_commandList, 0);
-	//testmesh->Render(m_commandList);
-
-
-//	texture->Bind(m_commandList);
-	//m_constantBufferData.M = glm::translate(glm::vec3(0, 0, 0));
-	//testshader->UpdateCBV(m_constantBufferData, 1);
-	//testshader->PushCBVToGPU(m_commandList, 1);
-	//testmesh->Render(m_commandList);
-
-	//OtherTex->Bind(m_commandList);
-	//m_constantBufferData.M = glm::translate(glm::vec3(0, 5, 0));
-	//testshader->UpdateCBV(m_constantBufferData, 2);
-	//testshader->PushCBVToGPU(m_commandList, 2);
-	//testmesh->Render(m_commandList);
-
-
-}
 void D3D12RHI::PostFrame(ID3D12GraphicsCommandList* list)
 {
 	// Indicate that the back buffer will now be used to present.

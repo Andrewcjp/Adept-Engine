@@ -42,10 +42,7 @@ public:
 	~ForwardRenderer();
 	void Render() override;
 	std::vector<GameObject*> InGetObj();
-	void UpdateDeltaTime(float value)
-	{
-		deltatime = value;
-	}
+	void UpdateDeltaTime(float value);
 	void Init()override;
 	void ReflectionPass();
 	void ShadowPass();
@@ -53,56 +50,21 @@ public:
 	void PrepareData();
 	void RenderDebugPlane();
 	void MainPass();
+
 	void RenderSkybox(bool ismain = true);
 	void RenderFitlerBufferOutput();
 	void InitOGL()override;
-	virtual std::vector<GameObject*> GetObjects() override
-	{
-		return *mainscene->GetObjects();
-	}
+	virtual std::vector<GameObject*> GetObjects() override;
 	void SetScene(Scene * sc) override;
 
 	float deltatime = 1;
 	clock_t tstart;
 
-	Camera* GetMainCam() override
-	{
-		return MainCamera;
-	}
-	void AddGo(GameObject* g)override
-	{
-		mainscene->AddGameobjectToScene(g);
-//1		ob.push_back(g);
-	}
-	void AddPhysObj(GameObject* go) override
-	{
-		if (PhysicsObjects.size() >= MaxPhysicsObjects)
-		{
-			PhysicsObjects.erase(PhysicsObjects.begin());
-		}
-		PhysicsObjects.push_back(go);
-
-	}
-	void AddLight(Light* l) override
-	{
-		mainscene->GetLights()->push_back(l);
-		//	Lights.push_back(l);
-	}
-	void FixedUpdatePhysx(float dtime) override
-	{
-		deltatime = dtime;
-		//todo: Move to Compoenent;
-		//todo: Update Objects
-		if (RenderGrass)
-		{
-			grasstest->UpdateAnimation(deltatime);
-		}
-		if (LoadParticles && RenderParticles)
-		{
-			particlesys->Add(deltatime);
-			particlesys->Simulate(deltatime, MainCamera->GetPosition());
-		}
-	}
+	Camera* GetMainCam() override;
+	void AddGo(GameObject* g)override;
+	void AddPhysObj(GameObject* go) override;
+	void AddLight(Light* l) override;
+	void FixedUpdatePhysx(float dtime) override;
 	Camera* RefelctionCamera;
 	FrameBuffer* RelfectionBuffer;
 	ShaderOutput* outshader;
@@ -126,7 +88,7 @@ private:
 	Camera*     MainCamera;
 	std::vector<Light*>* Lights;
 	float FrameBufferRatio = 1;
-	
+
 	GameObject* skybox;
 	GameObject* playerGO;
 	ShadowRenderer* shadowrender;

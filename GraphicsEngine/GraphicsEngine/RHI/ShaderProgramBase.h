@@ -8,7 +8,7 @@ protected:
 	ShaderProgramHandle			m_systemHandle; //handle assigned by opengl;
 	ShaderBase*					m_shaders[MAX_NUM_SHADER_PER_PROGRAM];
 	int							m_shaderCount;
-
+	bool						IsCompute = false;
 public:
 	ShaderProgramBase()
 	{

@@ -15,10 +15,17 @@ TextRenderer::TextRenderer(int width, int height)
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	LoadAsAtlas = true;
-	LoadText();
-	instance = this;
-}
 
+	instance = this;
+	if (RHI::IsOpenGL())
+	{
+		LoadText();
+	}
+
+}
+#include "../Core/Utils/FileUtils.h"
+#include "../Core/Assets/ImageIO.h"
+#include "SOIL.h"
 #define MAXWIDTH 1024
 struct atlas
 {
@@ -56,7 +63,7 @@ struct atlas
 		memset(c, 0, sizeof c);
 
 		/* Find minimum size for a texture holding all visible ASCII characters */
-		for (int i = 32; i < 128; i++)
+		for (int i = 0; i < 128; i++)
 		{
 			if (FT_Load_Char(face, i, FT_LOAD_RENDER))
 			{
@@ -99,7 +106,7 @@ struct atlas
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
-		else if (RHI::GetType() == RenderSystemD3D11)
+		else if (RHI::GetType() == RenderSystemD3D12)
 		{
 
 		}
@@ -108,8 +115,9 @@ struct atlas
 		int oy = 0;
 
 		rowh = 0;
-
-		for (int i = 32; i < 128; i++)
+		unsigned char* FinalData = new unsigned char[w*h];
+		int soff = 0;
+		for (int i = 0; i < 128; i++)
 		{
 			if (FT_Load_Char(face, i, FT_LOAD_RENDER))
 			{
@@ -124,7 +132,19 @@ struct atlas
 				ox = 0;
 			}
 
+			//glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+#if 1
 			glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+#else
+			int offset = ((ox + oy * h));
+			
+			memcpy((FinalData + soff), g->bitmap.buffer, (g->bitmap.width * g->bitmap.rows));
+			if (i == 65)
+			{
+				SOIL_save_image("C:\\Users\\AANdr\\Dropbox\\Engine\\c.bmp", SOIL_SAVE_TYPE_BMP, g->bitmap.width, g->bitmap.rows, 1, (FinalData + soff));
+			}
+			soff += (g->bitmap.width * g->bitmap.rows);
+#endif
 			c[i].ax = (float)(g->advance.x >> 6);
 			c[i].ay = (float)(g->advance.y >> 6);
 
@@ -141,6 +161,9 @@ struct atlas
 			ox += g->bitmap.width + 1;
 		}
 
+	//	SOIL_save_image("C:\\Users\\AANdr\\Dropbox\\Engine\\t.bmp", SOIL_SAVE_TYPE_BMP, w, h, 1, FinalData);
+
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, FinalData);
 		fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
 	}
 
@@ -152,7 +175,10 @@ struct atlas
 
 TextRenderer::~TextRenderer()
 {
-	glDeleteBuffers(1, &TextVBO);
+	if (RHI::IsOpenGL())
+	{
+		glDeleteBuffers(1, &TextVBO);
+	}
 	delete textat;
 	for (int i = 0; i < Characters.size(); i++)
 	{
@@ -164,6 +190,10 @@ TextRenderer::~TextRenderer()
 }
 void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
 {
+	if (!RHI::IsOpenGL())
+	{
+		return;
+	}
 	m_TextShader->SetShaderActive();
 	m_TextShader->Colour = color;
 	m_TextShader->Height = m_height;
@@ -228,6 +258,10 @@ struct point
 };
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color)
 {
+	if (!RHI::IsOpenGL())
+	{
+		return;
+	}
 	m_TextShader->SetShaderActive();
 	m_TextShader->Colour = color;
 	m_TextShader->Height = m_height;

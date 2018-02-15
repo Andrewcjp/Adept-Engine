@@ -11,7 +11,7 @@ out vec3 FrontColour;
 out vec3 BackColour;
 void main()
 {
-    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
+   gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
    FrontColour = FrontCol;
    BackColour = BackCol;
    UseBack = back;

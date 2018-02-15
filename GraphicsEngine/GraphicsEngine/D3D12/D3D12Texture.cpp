@@ -8,7 +8,7 @@
 #include "../Core/Performance/PerfManager.h"
 #include "../Core/Utils/FileUtils.h"
 float D3D12Texture::MipCreationTime = 0;
-
+#include "../Core/Utils/StringUtil.h"
 D3D12Texture::D3D12Texture() :D3D12Texture("house_diffuse.tga")
 {
 }
@@ -16,7 +16,11 @@ D3D12Texture::D3D12Texture() :D3D12Texture("house_diffuse.tga")
 unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int bpp, unsigned char * StartData, int&mipsize, float ratio)
 {
 	std::string rpath = Engine::GetRootDir();
-	rpath.append("\\asset\\output\\");
+	rpath.append("\\asset\\DerivedDataCache\\");
+	if (!FileUtils::exists_test3(rpath))
+	{
+		FileUtils::TryCreateDirectory(rpath);
+	}
 	rpath.append(TextureName);
 	rpath.append("_mip_");
 
@@ -251,7 +255,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		textureDesc.Width = width;
 		textureDesc.Height = height;
-		textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		textureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		textureDesc.DepthOrArraySize = 1;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.SampleDesc.Quality = 0;
@@ -301,3 +305,9 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		D3D12RHI::Instance->m_Primarydevice->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 }
+//_mipMapTextures is an array containing texture objects that need mipmaps to be generated. It needs a texture resource with mipmaps in D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE state.
+//Textures are expected to be POT and in a format supporting unordered access, as well as the D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS set during creation.
+//_device is the ID3D12Device
+//GetNewCommandList() is supposed to return a new command list in recording state
+//SubmitCommandList(commandList) is supposed to submit the command list to the command queue
+//_mipMapComputeShader is an ID3DBlob of the compiled mipmap compute shader

@@ -6,70 +6,46 @@
 #include "UI\UIManager.h"
 LineDrawer::LineDrawer()
 {
+	if (RHI::IsOpenGL())
+	{
+		InitOGL();
+	}
+
+	//todo: memeory
+	CurrentAllocateLines = 75;
+	Lines = new Line[CurrentAllocateLines];
+	Verts = new float[CurrentAllocateLines * 10];
+}
+void LineDrawer::InitOGL()
+{
 	m_TextShader = new OGLShaderProgram();
 	m_TextShader->CreateShaderProgram();
 	m_TextShader->AttachAndCompileShaderFromFile("line_vs", SHADER_VERTEX);
 	m_TextShader->AttachAndCompileShaderFromFile("line_fs", SHADER_FRAGMENT);
-
 	m_TextShader->BindAttributeLocation(0, "vertex");
-
 	m_TextShader->BuildShaderProgram();
 	m_TextShader->ActivateShaderProgram();
-	//	texture = RHI::CreateTexture("../asset/texture/UI/window.png");
 	glGenBuffers(1, &quad_vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	//glBufferStorage(GL_ARRAY_BUFFER, sizeof(GLfloat) * CurrentAllocateLines * 10, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * CurrentAllocateLines * 10, NULL, GL_STREAM_DRAW);
-	//Line l;
-	//l.startpos = glm::vec3(100.0f, 100.0f, 0);
-	//l.endpos = glm::vec3(500, 500, 0);
-	//Lines.push_back(l);
-	//l.startpos = glm::vec3(10, 100.0f, 0);
-	//l.endpos = glm::vec3(10, 500, 0);
-	//Lines.push_back(l);
-	//GenerateLines();
-	//todo: memeory
-	CurrentAllocateLines = 75;
-#if 0
-	Lines.resize(CurrentAllocateLines);
-	Verts.resize(CurrentAllocateLines * 10);
-#else
-	Lines = new Line[CurrentAllocateLines];
-	Verts = new float[CurrentAllocateLines * 10];
-	//using a normal array saves
-	//.300 MS
-	//to 
-	//0.022ms
-#endif
 }
-
 
 LineDrawer::~LineDrawer()
 {
-	/*delete Lines;
-	delete Verts;*/
-	glDeleteBuffers(1, &quad_vertexbuffer);
+	delete Lines;
+	delete Verts;
+	if (RHI::IsOpenGL())
+	{
+		glDeleteBuffers(1, &quad_vertexbuffer);
+	}
 }
-//Verts[vertindex] = (Lines[i].startpos.x);
-//Verts.push_back(Lines[i].startpos.y);
-//Verts.push_back(Lines[i].colour.x);
-//Verts.push_back(Lines[i].colour.y);
-//Verts.push_back(Lines[i].colour.z);
-//
-//Verts.push_back(Lines[i].endpos.x);
-//Verts.push_back(Lines[i].endpos.y);
-//Verts.push_back(Lines[i].colour.x);
-//Verts.push_back(Lines[i].colour.y);
-//Verts.push_back(Lines[i].colour.z);
+
 void LineDrawer::GenerateLines()
 {
-
 	if (LineCount == 0)
 	{
 		return;
 	}
-	//Verts.reserve(Lines.size() * 10);
-	//Verts.resize(Lines.size() * 10);
 	vertindex = 0;
 	for (int i = 0; i < LineCount; i++)
 	{
@@ -87,9 +63,18 @@ void LineDrawer::GenerateLines()
 		vertindex += 5;
 	}
 	VertsOnGPU = vertindex;
-	
+
 }//use one array?
 void LineDrawer::RenderLines()
+{
+	if (RHI::IsOpenGL())
+	{
+		RenderLines_OpenGL();
+	}
+	//bin all lines rendered this frame.
+	ClearLines();
+}
+void LineDrawer::RenderLines_OpenGL()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertindex, NULL, GL_STREAM_DRAW);
@@ -105,7 +90,7 @@ void LineDrawer::RenderLines()
 		//glUniform3f(glGetUniformLocation(m_TextShader->GetProgramHandle(), "textColor"), Colour.x, Colour.y, Colour.z);
 
 		GLsizei size = (5 * sizeof(GLfloat));
-	//	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		//	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 		glVertexAttribPointer(
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 			2,                  // size 2items
@@ -131,10 +116,7 @@ void LineDrawer::RenderLines()
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
 	}
-	//bin all lines rendered this frame.
-	ClearLines();
 }
-
 void LineDrawer::ClearLines()
 {
 	LineCount = 0;

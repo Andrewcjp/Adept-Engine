@@ -49,6 +49,8 @@ public:
 	{
 		return instance->currentsystem;
 	}
+	static bool IsOpenGL();
+	static bool IsD3D12();
 	static void ResizeContext(int width, int height);
 #if BUILD_D3D11
 	static ID3D11Device* GetD3DDevice()

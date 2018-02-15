@@ -32,7 +32,11 @@ Component* CompoenentRegistry::CreateBaseComponent(BaseComponentTypes id)
 {
 	if (Instance)
 	{
-		return Instance->Internal_CreateBaseComponent(id);
+		if (id < BaseComponentTypes::Limit)
+		{
+			return Instance->Internal_CreateBaseComponent(id);
+		}
+		return Instance->Internal_CreateAdditonalComponent(id - (BaseComponentTypes::Limit + 1));//translate the ID to GameLocal space
 	}
 	return nullptr;
 }
@@ -59,7 +63,7 @@ Component* CompoenentRegistry::Internal_CreateAdditonalComponent(int id)
 
 void CompoenentRegistry::RegisterExtraComponents(ExtraComponentRegister * Ecr)
 {
-	if (ECR)
+	if (Ecr != nullptr)
 	{
 		ECR = Ecr;
 		AdditonalGameComponents = ECR->GetExtraCompIds();
@@ -77,5 +81,5 @@ std::string CompoenentRegistry::GetNameById(int id)
 
 int CompoenentRegistry::GetCount()
 {
-	return BaseComponentTypes::Limit + 1;
+	return BaseComponentTypes::Limit + 2;
 }

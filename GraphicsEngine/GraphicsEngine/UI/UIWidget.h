@@ -44,6 +44,7 @@ public:
 	float HeightScale = 0;
 	float XoffsetScale = 0;
 	float YoffsetScale = 0;
+	bool IsPendingKill = false;
 protected:
 	float TextDefaultScale = 0.3f;
 	bool IsActive = true;
