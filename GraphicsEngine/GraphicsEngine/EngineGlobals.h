@@ -1,16 +1,13 @@
 #pragma once
-#ifdef _DEBUG
 #define PHYSX_ENABLED 1
-#else
-#define PHYSX_ENABLED 1
-#endif
-
 #define BUILD_WINDOW_ENGINE 1
 #define NO_GEN_CONTEXT 0
+
 #define BUILD_D3D11 1
 #define BUILD_OPENGL 1
 #define BUILD_D3D12 1
 #define BUILD_Vulkan 0
+
 #pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0

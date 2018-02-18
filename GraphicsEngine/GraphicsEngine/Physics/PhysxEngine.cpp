@@ -5,15 +5,15 @@
 PhysxEngine::~PhysxEngine()
 {
 }
-
+#define ENABLEPVD !(NDEBUG)
 void PhysxEngine::initPhysics(bool)
 {
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
-
+#if ENABLEPVD
 	gPvd = PxCreatePvd(*gFoundation);
 	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
-
+#endif
 	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -24,6 +24,7 @@ void PhysxEngine::initPhysics(bool)
 	gScene = gPhysics->createScene(sceneDesc);
 
 	gEdtiorScene = gPhysics->createScene(sceneDesc);
+#if ENABLEPVD
 	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
 	if (pvdClient)
 	{
@@ -31,6 +32,7 @@ void PhysxEngine::initPhysics(bool)
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
+#endif
 	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 
 	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
@@ -68,10 +70,11 @@ void PhysxEngine::cleanupPhysics(bool interactive)
 	gEdtiorScene->release();
 	gDispatcher->release();
 	gPhysics->release();
+#if ENABLEPVD
 	PxPvdTransport* transport = gPvd->getTransport();
 	gPvd->release();
 	transport->release();
-
+#endif
 	gFoundation->release();
 
 	printf("SnippetHelloWorld done.\n");

@@ -10,7 +10,8 @@ EditorGizmos::EditorGizmos()
 
 
 EditorGizmos::~EditorGizmos()
-{}
+{
+}
 void EditorGizmos::UpdateAxis(float amt, Axis axis)
 {
 	glm::vec3 newpos = target->GetTransform()->GetPos();
@@ -30,6 +31,7 @@ void EditorGizmos::UpdateAxis(float amt, Axis axis)
 
 }
 //todo: axis rotations relative to view etc.
+//todo: axis hit boxes?
 void EditorGizmos::UpdateAxis(float amt)
 {
 
@@ -45,7 +47,6 @@ void EditorGizmos::UpdateAxis(float amt)
 	{
 		UpdateAxis(amt, AxisZ);
 	}
-
 }
 void EditorGizmos::Update(float deltatime)
 {
@@ -53,9 +54,18 @@ void EditorGizmos::Update(float deltatime)
 	{
 		if (target != nullptr && DidFirst)
 		{
-			UpdateAxis((float)(YStartPos - Input::GetMouseInputAsAxis().y)*Scale);
+			if (Input::GetKey('z'))
+			{
+				UpdateAxis((float)(XStartPos - Input::GetMouseInputAsAxis().x)*Scale);
+			}
+			else
+			{
+				UpdateAxis((float)(YStartPos - Input::GetMouseInputAsAxis().y)*Scale);
+			}
+			
 		}
 		YStartPos = Input::GetMouseInputAsAxis().y;
+		XStartPos = Input::GetMouseInputAsAxis().x;
 		DidFirst = true;
 	}
 	else

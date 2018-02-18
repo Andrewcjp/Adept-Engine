@@ -6,10 +6,8 @@ class SceneJSerialiser
 public:
 	SceneJSerialiser();
 	~SceneJSerialiser();
-	void SaveScene(class Scene* target);
-
-	void LoadScene(Scene * target);
-
+	void SaveScene(class Scene * target, std::string path);
+	void LoadScene(Scene * target, std::string path);
 	static	rapidjson::Document::AllocatorType* jallocator;
 private:
 	rapidjson::Document doc;

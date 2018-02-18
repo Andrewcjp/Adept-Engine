@@ -76,6 +76,10 @@ void MeshRendererComponent::Serialise(rapidjson::Value & v)
 		{
 			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatNormal", m_mat->NormalMap->AssetName);
 		}
+		if (m_mat->DisplacementMap)
+		{
+			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "DisplacementMap", m_mat->NormalMap->AssetName);
+		}
 	}	//todo:
 }
 
@@ -109,6 +113,17 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 				if (m_mat != nullptr)
 				{
 					m_mat->NormalMap = RHI::CreateTexture(path.c_str());
+				}
+			}
+		}
+		if (key == "DisplacementMap")
+		{
+			std::string path = (it->value.GetString());
+			if (path.length() != 0)
+			{
+				if (m_mat != nullptr)
+				{
+					m_mat->DisplacementMap = RHI::CreateTexture(path.c_str());
 				}
 			}
 		}

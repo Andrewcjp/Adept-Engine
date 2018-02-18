@@ -42,7 +42,7 @@ GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const
 	{
 		DebugLineDrawer::instance->AddLine(origin, origin + dir * 1000, Colours::RED, 10);
 	}
-	if (pengine->RayCastEditorScene(origin, glm::normalize(dir), 50, &hit))
+	if (pengine->RayCastEditorScene(origin, glm::normalize(dir), 250, &hit))
 	{
 		for (int i = 0; i < objects.size(); i++)
 		{

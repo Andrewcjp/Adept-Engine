@@ -58,6 +58,13 @@ public:
 	ID3DBlob*					m_csBlob;
 	PiplineShader m_Shader;
 	bool DepthTest = true;
+	enum ComputeRootParameters : UINT32
+	{
+		ComputeRootCBV = 0,
+		ComputeRootSRVTable,
+		ComputeRootUAVTable,
+		ComputeRootParametersCount
+	};
 private:
 	int							m_shaderCount;
 	int							InitalBufferCount = 50;

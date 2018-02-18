@@ -18,7 +18,7 @@ SceneJSerialiser::~SceneJSerialiser()
 {
 }
 
-void SceneJSerialiser::SaveScene(Scene* target)
+void SceneJSerialiser::SaveScene(Scene* target, std::string path)
 {
 	jallocator = &doc.GetAllocator();
 	SerialiseObjects(target);
@@ -26,12 +26,12 @@ void SceneJSerialiser::SaveScene(Scene* target)
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
 	doc.Accept(writer);    // Accept() traverses the DOM and generates Handler events.
 	//puts(sb.GetString());
-	WriteToFile(testpath,sb.GetString());
+	WriteToFile(path,sb.GetString());
 	//write
 }
-void SceneJSerialiser::LoadScene(Scene* target)
+void SceneJSerialiser::LoadScene(Scene* target,std::string path)
 {
-	std::string data = GetFile(testpath);
+	std::string data = GetFile(path);
 	rapidjson::StringStream JStream(data.c_str());
 	doc.ParseStream(JStream);
 	DeserialiseObjects(target);

@@ -39,15 +39,15 @@ void CheckFeatures(ID3D12Device* pDevice)
 		// TypedUAVLoadAdditionalFormats contains a Boolean that tells you whether the feature is supported or not
 	/*	if (FeatureData.TypedUAVLoadAdditionalFormats)
 		{*/
-			// Can assume “all-or-nothing” subset is supported (e.g. R32G32B32A32_FLOAT)
-			// Cannot assume other formats are supported, so we check:
-			D3D12_FEATURE_DATA_FORMAT_SUPPORT FormatSupport = { DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_FORMAT_SUPPORT1_NONE, D3D12_FORMAT_SUPPORT2_NONE };
-			hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &FormatSupport, sizeof(FormatSupport));
-			if (SUCCEEDED(hr) && (FormatSupport.Support2 & D3D12_FORMAT_SUPPORT2_UAV_TYPED_STORE) != 0)
-			{
-				// DXGI_FORMAT_R32G32_FLOAT supports UAV Typed Load!
-				//__debugbreak();
-			}
+		// Can assume “all-or-nothing” subset is supported (e.g. R32G32B32A32_FLOAT)
+		// Cannot assume other formats are supported, so we check:
+		D3D12_FEATURE_DATA_FORMAT_SUPPORT FormatSupport = { DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_FORMAT_SUPPORT1_NONE, D3D12_FORMAT_SUPPORT2_NONE };
+		hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &FormatSupport, sizeof(FormatSupport));
+		if (SUCCEEDED(hr) && (FormatSupport.Support2 & D3D12_FORMAT_SUPPORT2_UAV_TYPED_STORE) != 0)
+		{
+			// DXGI_FORMAT_R32G32_FLOAT supports UAV Typed Load!
+			//__debugbreak();
+		}
 		//}
 	}
 }
@@ -77,13 +77,13 @@ void D3D12RHI::DisplayDeviceDebug()
 
 	IDXGIAdapter3* adapter;
 	pFactory->EnumAdapters(0, reinterpret_cast<IDXGIAdapter**>(&adapter));
-	
+
 	DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
 	adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
 
-	size_t usedVRAM  = videoMemoryInfo.CurrentUsage / 1024 / 1024;
+	size_t usedVRAM = videoMemoryInfo.CurrentUsage / 1024 / 1024;
 	size_t totalVRAM = videoMemoryInfo.Budget / 1024 / 1024;
-	std::cout << "Primary Adaptor Has " << usedVRAM << "MB / "<< totalVRAM <<"MB"<< std::endl;
+	std::cout << "Primary Adaptor Has " << usedVRAM << "MB / " << totalVRAM << "MB" << std::endl;
 
 }
 void D3D12RHI::LoadPipeLine()
@@ -124,7 +124,7 @@ void D3D12RHI::LoadPipeLine()
 	{
 		IDXGIAdapter1* hardwareAdapter;
 		GetHardwareAdapter(factory, &hardwareAdapter);
-		
+
 		ThrowIfFailed(D3D12CreateDevice(
 			hardwareAdapter,
 			D3D_FEATURE_LEVEL_11_0,
@@ -160,6 +160,7 @@ void D3D12RHI::LoadPipeLine()
 	swapChainDesc.Width = m_width;
 	swapChainDesc.Height = m_height;
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.SampleDesc.Count = 1;
@@ -214,8 +215,11 @@ void D3D12RHI::LoadPipeLine()
 		{
 			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
 			m_Primarydevice->CreateRenderTargetView(m_renderTargets[n], nullptr, rtvHandle);
+			
 			rtvHandle.Offset(1, m_rtvDescriptorSize);
 		}
+		NAME_D3D12_OBJECT(m_renderTargets[1]);
+		NAME_D3D12_OBJECT(m_renderTargets[0]);
 	}
 
 	ThrowIfFailed(m_Primarydevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
@@ -223,12 +227,32 @@ void D3D12RHI::LoadPipeLine()
 
 void D3D12RHI::InitMipmaps()
 {
+#if USEGPUTOGENMIPS
 	MipmapShader = new ShaderMipMap();
-
+#endif
 }
 void D3D12RHI::LoadAssets()
 {
 
+	{
+		ThrowIfFailed(m_Primarydevice->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+		m_fenceValues[m_frameIndex]++;
+		//	m_fenceValue = 1;
+		
+
+		// Create an event handle to use for frame synchronization.
+		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		if (m_fenceEvent == nullptr)
+		{
+			ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+		}
+		ThrowIfFailed(m_Primarydevice->CreateFence(M_ShadowFence, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pShadowFence)));
+		// Wait for the command list to execute; we are reusing the same command 
+		// list in our main loop but for now, we just want to wait for setup to 
+		// complete before continuing.
+
+	}
+	InitMipmaps();
 #if 1
 	ID3DBlob* vertexShader;
 	ID3DBlob* pixelShader;
@@ -283,7 +307,8 @@ void D3D12RHI::LoadAssets()
 	texture = new D3D12Texture();
 	OtherTex = new D3D12Texture("bricks2.jpg");
 #endif
-	{
+
+	{//create the depth stencil for the screen
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
 		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
@@ -303,53 +328,34 @@ void D3D12RHI::LoadAssets()
 			IID_PPV_ARGS(&m_depthStencil)
 		));
 
-		//NAME_D3D12_OBJECT(m_depthStencil);
+		NAME_D3D12_OBJECT(m_depthStencil);
 
 		m_Primarydevice->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
-	//	m_constantBufferData.M = glm::translate(glm::vec3(-10,0,-10));
-	m_constantBufferData.P = glm::perspectiveLH(glm::radians(70.0f), 1.77f, 0.1f, 1000.0f);
-	glm::vec3 eye = glm::vec3(0.0f, 10.0f, -10.0f);
-	glm::vec3 at = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	//m_view = glm::lookAtLH(Lights[0]->GetPosition(), at, up);
-	m_constantBufferData.V = glm::lookAtLH(eye, at, up);
 
 	//exec setup command list
 	//ThrowIfFailed(m_SetupCommandList->Close());
 	//ID3D12CommandList* ppCommandLists[] = { m_SetupCommandList };
 	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	// Create synchronization objects and wait until assets have been uploaded to the GPU.
-	{
-		ThrowIfFailed(m_Primarydevice->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-		m_fenceValues[m_frameIndex]++;
-		//	m_fenceValue = 1;
-		ThrowIfFailed(m_Primarydevice->CreateFence(M_ShadowFence, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pShadowFence)));
 
-		// Create an event handle to use for frame synchronization.
-		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		if (m_fenceEvent == nullptr)
-		{
-			ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
-		}
+	//WaitForGpu();
 
-		// Wait for the command list to execute; we are reusing the same command 
-		// list in our main loop but for now, we just want to wait for setup to 
-		// complete before continuing.
-		WaitForGpu();
-	}
-	InitMipmaps();
+	//m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	//m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[1], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+//	m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 }
 
 void D3D12RHI::ExecSetUpList()
 {
 	ThrowIfFailed(m_SetupCommandList->Close());
-	ID3D12CommandList* ppCommandLists[] = { m_SetupCommandList };
-	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-
-	/*ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_commandList)));
-	ThrowIfFailed(m_commandList->Close());*/
+	//ID3D12CommandList* ppCommandLists[] = { m_SetupCommandList };
+	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	ExecList(m_SetupCommandList);
+	WaitForGpu();
+	//	MipmapShader->GenAllmips();
+		/*ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_commandList)));
+		ThrowIfFailed(m_commandList->Close());*/
 }
 void D3D12RHI::InitliseDefaults()
 {
@@ -369,22 +375,19 @@ void D3D12RHI::ExecList(CommandListDef* list)
 	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	ThrowIfFailed(pShadowFence->SetEventOnCompletion(M_ShadowFence, EventHandle));//set the wait for the value complition
 	WaitForSingleObject(EventHandle, INFINITE);//we need to wait to start the next queue!
-	M_ShadowFence++;
+	M_ShadowFence ++;
 	//change it!
 	//m_commandQueue->Wait(pShadowFence, M_ShadowFence);
 	//M_ShadowFence++;
 }
 void D3D12RHI::PresentFrame()
 {
-
-	// Execute the command list.
-	//ID3D12CommandList* ppCommandLists[] = { List };
-	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-	/*ExecList(List);*/
-
-
-	//m_commandQueue->Wait()
+#if USEGPUTOGENMIPS
+	if (count == 1)
+	{
+		MipmapShader->GenAllmips();
+	}
+#endif
 	// Present the frame.
 	ThrowIfFailed(m_swapChain->Present(1, 0));
 
@@ -436,17 +439,13 @@ void D3D12RHI::PreFrameSetUp(ID3D12GraphicsCommandList* list, D3D12Shader* Shade
 
 	// Set necessary state.
 	list->SetGraphicsRootSignature(Shader->m_Shader.m_rootSignature);
-
-
-	//m_constantBufferData.M = glm::translate(glm::vec3(0, -5, 0));
-	//testshader->UpdateCBV(m_constantBufferData);
-	//testshader->PushCBVToGPU(m_commandList, 0);
 }
 void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
 {
 	RenderToScreen(list);
 	// Indicate that the back buffer will be used as a render target.
-	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
+
 	SetScreenRenderTaget(list);
 
 }
@@ -460,7 +459,7 @@ void D3D12RHI::SetScreenRenderTaget(ID3D12GraphicsCommandList* list)
 void D3D12RHI::PostFrame(ID3D12GraphicsCommandList* list)
 {
 	// Indicate that the back buffer will now be used to present.
-	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
 
 	ThrowIfFailed(list->Close());
 }

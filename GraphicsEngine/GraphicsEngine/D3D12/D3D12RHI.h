@@ -13,7 +13,17 @@
 #include "d3d12Shader.h"
 #include "D3D12Mesh.h"
 #include "D3D12Texture.h"
-
+#if defined(_DEBUG)
+inline void SetName(ID3D12Object* pObject, LPCWSTR name)
+{
+	pObject->SetName(name);
+}
+#else
+inline void SetName(ID3D12Object*, LPCWSTR)
+{}
+#endif
+#define NAME_D3D12_OBJECT(x) SetName(x, L#x)
+#define USEGPUTOGENMIPS 0
 class D3D12RHI
 {
 public:
@@ -53,7 +63,7 @@ public:
 	void WaitForGpu();
 	void MoveToNextFrame();
 	//ptr
-	static const int FrameCount = 3;
+	static const int FrameCount = 2;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;

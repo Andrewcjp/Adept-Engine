@@ -8,6 +8,7 @@ TestGame::TestGame()
 	if (CompoenentRegistry::Instance != nullptr)
 	{
 		CompoenentRegistry::Instance->RegisterComponent("TGcomp", CompoenentRegistry::Limit + 1);
+		CompoenentRegistry::Instance->RegisterComponent("PhysicsThrower", CompoenentRegistry::Limit + 2);
 	}
 }
 

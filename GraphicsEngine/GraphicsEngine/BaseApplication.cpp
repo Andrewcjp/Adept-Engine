@@ -17,7 +17,7 @@
 BaseApplication* BaseApplication::s_oglapp = nullptr;
 #pragma comment(lib, "winmm.lib")
 BaseApplication::BaseApplication()
-{
+{ 
 	m_appwnd = NULL;
 	m_hInst = 0;
 	m_terminate = false;
@@ -142,6 +142,7 @@ void BaseApplication::AddMenus(HWND hwnd)
 
 	HMENU hMenu;
 	HMENU hGOMenu = CreateMenu();
+	HMENU hdebugMenu = CreateMenu();
 	HMENU hRenderMenu = CreateMenu();
 	HMENU hMenubar = CreateMenu();
 	hMenu = CreateMenu();
@@ -159,6 +160,8 @@ void BaseApplication::AddMenus(HWND hwnd)
 	//Gameobject menu
 	AppendMenuW(hGOMenu, MF_STRING, 4, L"&Add GameObject ");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hGOMenu, L"&GameObjects");
+	AppendMenuW(hdebugMenu, MF_STRING, 10, L"&Load DebugScene ");
+	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hdebugMenu, L"&DEBUG");
 	SetMenu(hwnd, hMenubar);
 }
 

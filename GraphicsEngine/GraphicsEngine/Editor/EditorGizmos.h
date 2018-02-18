@@ -24,6 +24,7 @@ private:
 	GameObject* target;
 	float HandleLength = 10;
 	int YStartPos = 0;
+	int XStartPos = 0;
 	float Scale = 0.1f;
 	glm::vec3 StartPos;
 	bool DidFirst = false;

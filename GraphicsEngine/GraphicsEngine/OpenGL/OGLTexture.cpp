@@ -24,7 +24,6 @@ OGLTexture::OGLTexture(const char* path, bool istga)
 	if (istga)
 	{
 		std::string rpath = Engine::GetRootDir();
-		rpath.append("\\asset\\texture\\");
 		rpath.append(path);
 		CreateTextureFromFile(rpath.c_str());
 	}

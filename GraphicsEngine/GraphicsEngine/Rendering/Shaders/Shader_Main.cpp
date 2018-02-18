@@ -287,7 +287,7 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 	{
 		LightUniformBuffer newitem;
 		newitem.position = lights[i]->GetPosition();
-		newitem.color = lights[i]->GetColor();
+		newitem.color = glm::vec3(lights[i]->GetColor());
 		newitem.Direction = glm::vec3(0, -1, 0);//lights[i]->GetDirection();
 		glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
 		//LightView = glm::inverse(LightView);

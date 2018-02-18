@@ -36,7 +36,7 @@ bool WindowsHelpers::DisplayOpenFileDialog(std::string StartDir, std::string Fil
 	return false;
 }
 
-bool WindowsHelpers::DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string& outData)
+bool WindowsHelpers::DisplaySaveFileDialog(std::string StartDir, std::string Filter,std::string Extenstion, std::string& outData)
 {
 	TCHAR*FileName = new TCHAR[MAX_PATH];
 	OPENFILENAME ofn;
@@ -48,7 +48,7 @@ bool WindowsHelpers::DisplaySaveFileDialog(std::string StartDir, std::string Fil
 	std::wstring t = StringUtils::ConvertStringToWide(StartDir);
 	ofn.lpstrInitialDir = t.c_str();
 	ofn.lpstrFile = FileName;
-	ofn.lpstrFile[0] = '\0';
+	ofn.lpstrFile[0] = '\0';	
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = L"Select a File";
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
@@ -56,6 +56,10 @@ bool WindowsHelpers::DisplaySaveFileDialog(std::string StartDir, std::string Fil
 	if (GetSaveFileName(&ofn))
 	{
 		outData = StringUtils::ConvertWideToString((wchar_t*)(FileName));
+		if (ofn.nFileExtension == 0)
+		{
+			outData.append(Extenstion);
+		}
 		return true;
 	}
 	return false;

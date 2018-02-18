@@ -82,8 +82,9 @@ float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld)
 	return dot(vBilinearWeights, vShadowTests);
 }
 
-float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 vLightDir, float4 vLightColor, float4 vFalloffs, float3 vPosWorld, float3 vPerPixelNormal)
+float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 vLightDir, float3 vLightColor, float4 vFalloffs, float3 vPosWorld, float3 vPerPixelNormal)
 {
+
 	float diffu = max(dot(vPerPixelNormal, vLightDir), 0.0);//diffuse
 	float spec = 0.0f;
 	float3 viewPos = float3(0, 0, 0);
@@ -93,9 +94,8 @@ float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 v
 		float3 reflectDir = reflect(-lightdir, normal);
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);*/
 	}
-
-	return float4(MaterialDiffuseColor * diffu, 1.0)*vLightColor;// +(MaterialSpecularColor*spec);
-//	return vLightColor * fNDotL;// *fDistFalloff;// *fAngleFalloff;// *fDistFalloff;// *fAngleFalloff;
+	MaterialDiffuseColor *= vLightColor;
+	return  float4(MaterialDiffuseColor * diffu, 1.0);// +(MaterialSpecularColor*spec);
 }
 float4 main(PSInput input) : SV_TARGET
 {
@@ -105,13 +105,14 @@ float4 main(PSInput input) : SV_TARGET
 	// output *= float4(lights[0].color, 1.03);
 	float4 falloff = (0, 1000, 0.0f, 10.0f);
 	//output = float4(1, 1, 1, 1);
-	// output = CalcLightingColor(texturecolour,lights[0].LPosition, -lights[0].Direction, float4(lights[0].color,1), falloff, input.WorldPos.xyz, input.Normal.xyz);
+	 output = CalcLightingColor(texturecolour,lights[0].LPosition, -lights[0].Direction, lights[0].color, falloff, input.WorldPos.xyz, input.Normal.xyz);
+	float4  ambeint = float4(texturecolour,1.0) * float4(0.1f, 0.1f, 0.1f, 0.1f);
 	 //  output += texturecolour*0.1f;
 	   // return float4(GetShadow(input.WorldPos), GetShadow(input.WorldPos), GetShadow(input.WorldPos), 1.0);
 	   //return output *1.0 - GetShadow(input.WorldPos);
-
-
-	 return output *CalcUnshadowedAmountPCF2x2(0, input.WorldPos);
+	 float4 GammaCorrected = ambeint + pow(output, float4(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
+	
+	 return GammaCorrected * CalcUnshadowedAmountPCF2x2(0, input.WorldPos);
 }
 
 

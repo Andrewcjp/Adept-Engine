@@ -87,7 +87,6 @@ void EditorWindow::PostInitWindow(int w, int h)
 	selector->init();
 	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());
 	Saver = new SceneJSerialiser();
-	//Saver->SaveScene(CurrentScene);
 }
 
 void EditorWindow::EnterPlayMode()
@@ -99,11 +98,15 @@ void EditorWindow::EnterPlayMode()
 	{
 		delete CurrentPlayScene;
 	}
+#if PLAYMODE_USE_SAVED
+	SaveScene();
 	CurrentPlayScene = new Scene();
+	Saver->LoadScene(CurrentPlayScene, CurrentSceneSavePath);
 	//CurrentScene->CopyScene(CurrentPlayScene);
-	CurrentPlayScene->LoadDefault(Renderer, false);
+	//CurrentPlayScene->LoadExampleScene(Renderer, false);
 	Renderer->SetScene(CurrentPlayScene);
 	CurrentPlayScene->StartScene();
+#endif
 	EditorCamera->SetEnabled(false);
 	IsRunning = true;
 
@@ -132,9 +135,11 @@ void EditorWindow::SetDeferredState(bool state)
 	IsDeferredMode = state;
 }
 void EditorWindow::PrePhysicsUpdate()
-{}
+{
+}
 void EditorWindow::DuringPhysicsUpdate()
-{}
+{
+}
 void EditorWindow::FixedUpdate()
 {
 	if (IsPlayingScene)
@@ -170,31 +175,60 @@ void EditorWindow::Update()
 	{
 		if (GetKeyState('S') & 0x8000)
 		{
-			Saver->SaveScene(CurrentScene);
+			SaveScene();
 		}
 	}
 }
 void EditorWindow::SaveScene()
 {
-	Saver->SaveScene(CurrentScene);
+	if (CurrentSceneSavePath.length() == 0)
+	{
+		std::string Startdir = Engine::GetRootDir();
+		Startdir.append("\\asset\\scene\\");
+		using namespace std::string_literals;
+		std::string Output;
+		if (WindowsHelpers::DisplaySaveFileDialog(Startdir, "Scene Files\0*.scene\0"s, ".scene", Output))
+		{
+			CurrentSceneSavePath = Output;
+			Saver->SaveScene(CurrentScene, CurrentSceneSavePath);
+		}
+	}
+	else
+	{
+		Saver->SaveScene(CurrentScene, CurrentSceneSavePath);
+	}
 }
+
 void EditorWindow::LoadScene()
 {
-	Renderer->SetScene(nullptr);
-	delete CurrentScene;
-	CurrentScene = new Scene();
-	Saver->LoadScene(CurrentScene);
-	Renderer->SetScene(CurrentScene);
+	std::string Output;
+	std::string Startdir = Engine::GetRootDir();
+	Startdir.append("\\asset\\scene\\");
+	using namespace std::string_literals;
+	if (WindowsHelpers::DisplayOpenFileDialog(Startdir, "Scene Files\0*.scene\0"s, Output))
+	{
+		CurrentSceneSavePath = Output;
+		Renderer->SetScene(nullptr);
+		delete CurrentScene;
+		CurrentScene = new Scene();
+		Saver->LoadScene(CurrentScene, Output);
+		Renderer->SetScene(CurrentScene);
+		RefreshScene();
+		UI->AlertBox("Scene Loaded");
+	}
+}
+void EditorWindow::RefreshScene()
+{
+	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());
 	UI->UpdateGameObjectList(CurrentScene->GetObjects());
 	UI->RefreshGameObjectList();
-	UI->AlertBox("Scene Loaded");
 }
 void EditorWindow::ProcessMenu(WORD command)
 {
 	switch (command)
 	{
 	case 4://add gameobject
-		CurrentScene->AddGameobjectToScene(new GameObject());
+		CurrentScene->AddGameobjectToScene(new GameObject("New GameObject"));
 		UI->UpdateGameObjectList(CurrentScene->GetObjects());
 		UI->RefreshGameObjectList();
 		break;
@@ -204,9 +238,14 @@ void EditorWindow::ProcessMenu(WORD command)
 	case 6://Load Scene
 		LoadScene();
 		break;
+	case 10://debug load example
+		CurrentScene->LoadExampleScene(Renderer, false);
+		Renderer->SetScene(CurrentScene);
+		RefreshScene();
+		CurrentSceneSavePath.clear();
+		break;
 	}
 }
-
 void EditorWindow::WindowUI()
 {
 	std::stringstream stream;
@@ -224,7 +263,7 @@ void EditorWindow::WindowUI()
 	std::string goname = "";
 	/*if (UI->IsUIBlocking())
 	{
-		stream << "Blocking  "; 
+		stream << "Blocking  ";
 	}*/
 	if (input->Selectedobject != nullptr)
 	{
@@ -236,7 +275,7 @@ void EditorWindow::WindowUI()
 
 	stream.str("");
 	statcount++;
-	
+#if 0
 	int totalmem;
 	int freemem = 0;
 	if (statcount > 40)
@@ -248,5 +287,6 @@ void EditorWindow::WindowUI()
 	}
 	stream << "Current memeory " << (float)(currentmemeory) / 1024.0f << "Mb ";
 	UI->RenderTextToScreen(4, stream.str());
+#endif
 }
 

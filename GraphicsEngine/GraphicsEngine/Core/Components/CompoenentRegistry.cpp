@@ -13,9 +13,9 @@ CompoenentRegistry::CompoenentRegistry()
 	RegisterComponent("Light", BaseComponentTypes::LightComp);
 }
 
-
 CompoenentRegistry::~CompoenentRegistry()
-{}
+{
+}
 void CompoenentRegistry::RegisterComponent(std::string name, int id)
 {
 	ComponentNameMap.emplace(id, name);
@@ -81,5 +81,5 @@ std::string CompoenentRegistry::GetNameById(int id)
 
 int CompoenentRegistry::GetCount()
 {
-	return BaseComponentTypes::Limit + 2;
+	return BaseComponentTypes::Limit + 3;
 }

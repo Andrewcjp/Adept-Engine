@@ -51,11 +51,13 @@ protected:
 	class SceneSerialiser* SceneFileLoader;
 	class Editor_Camera* EditorCamera;
 	class SceneJSerialiser* Saver;
+	
 	float DeltaTime = 0.0f;
 	const float TickRate = 1.0f / 120.0f;
 	virtual void WindowUI() {};
 	bool IsRunning = false;
 	bool ShouldTickScene = false;
+	int FrameRateLimit =0;
 private:
 	void PostFrameOne();
 	void RenderText();
@@ -72,6 +74,7 @@ private:
 	bool ShowHud = true;
 	bool ShowText = true;	
 	float accumrendertime = 0.0f;
+	float AccumTickTime = 0.0f;
 
 	
 

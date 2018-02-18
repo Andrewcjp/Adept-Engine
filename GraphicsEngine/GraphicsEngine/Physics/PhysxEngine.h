@@ -2,9 +2,7 @@
 #include "EngineGlobals.h"
 #if PHYSX_ENABLED
 #include "PhysicsEngine.h"
-//#include "include\physx\PxPhysicsAPI.h"
 #include <include/physx/PxPhysicsAPI.h>
-
 #include "include/physx/foundation/PxSimpleTypes.h"
 #include "include\glm\glm.hpp"
 #include <iostream>

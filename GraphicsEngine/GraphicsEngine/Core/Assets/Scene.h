@@ -16,7 +16,8 @@ public:
 	void CopyScene(Scene * newscene);
 	std::vector<GameObject*>* GetObjects() { return &SceneObjects; }
 	void StartScene();
-	void LoadDefault(RenderEngine * Renderer, bool IsDeferredMode);
+	void LoadDefault();
+	void LoadExampleScene(RenderEngine * Renderer, bool IsDeferredMode);
 	std::vector<Light*>* GetLights() { return &Lights; }
 	Camera* GetCurrentRenderCamera() { return CurrentCamera; }
 	void AddCamera(Camera* cam) { Cameras.emplace_back(cam); CurrentCamera = cam; }//todo: Camera priority

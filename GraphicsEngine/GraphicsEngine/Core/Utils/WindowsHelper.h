@@ -4,7 +4,7 @@ namespace WindowsHelpers
 {
 	void DisplayMessageBox(std::string title, std::string message);
 	bool DisplayOpenFileDialog(std::string StartDir, std::string Filter, std::string & outData);
-	bool DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string & outData);
+	bool DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string Extenstion, std::string & outData);
 }
 //int DisplayConfirmSaveAsMessageBox()
 //{

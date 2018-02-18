@@ -137,7 +137,7 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 		else if (type == RenderSystemOGL)
 		{
 #if BUILD_OPENGL
-#if 0
+#if 1
 			RHI::InitRHI(RenderSystemOGL);
 #else 
 			RHI::InitRHI(RenderSystemD3D12);

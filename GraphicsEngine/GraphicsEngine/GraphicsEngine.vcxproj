@@ -241,6 +241,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="Packaging\Cooker.h" />
     <ClInclude Include="Core\BaseWindow.h" />
     <ClInclude Include="Core\Assets\SerialHelpers.h" />
     <ClInclude Include="Core\Components\ColliderComponent.h" />
@@ -377,6 +378,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="Packaging\Cooker.cpp" />
     <ClCompile Include="Core\BaseWindow.cpp" />
     <ClCompile Include="Core\Assets\SerialHelpers.cpp" />
     <ClCompile Include="Core\Components\ColliderComponent.cpp" />

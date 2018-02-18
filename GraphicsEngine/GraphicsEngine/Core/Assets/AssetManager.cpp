@@ -30,7 +30,7 @@ void AssetManager::LoadTexturesFromDir()
 	std::string path = TextureAssetPath;
 	for (auto & p : std::experimental::filesystem::directory_iterator(path))
 	{
-		if ((p.path().filename().string().find("tga") != -1) || (p.path().filename().string().find(".") == -1))
+		if (/*(p.path().filename().string().find("tga") != -1) || */(p.path().filename().string().find(".") == -1))
 		{
 			continue;
 		}
@@ -202,7 +202,7 @@ AssetManager::AssetManager()
 AssetManager::~AssetManager()
 {
 }
-
+#include "ImageIO.h"
 bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset)
 {
 	if (HasCookedData)
@@ -214,17 +214,25 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset)
 		if (TextureAssetsMap.find(path) == TextureAssetsMap.end())
 		{
 			TextureAsset newasset;
-			unsigned char* image = SOIL_load_image(path.c_str(), &newasset.Width, &newasset.Height, &newasset.Nchannels, SOIL_LOAD_RGBA);
+			unsigned char* image = nullptr;
+			if (path.find(".tga") != -1)
+			{
+				int bpp = 0;
+				ImageIO::LoadTGA(path.c_str(), &image, &newasset.Width, &newasset.Height, &bpp, &newasset.Nchannels);
+			}
+			else
+			{
+				image = SOIL_load_image(path.c_str(), &newasset.Width, &newasset.Height, &newasset.Nchannels, SOIL_LOAD_RGBA);
+			}
 			if (image == nullptr)
 			{
-				/*	printf("Load texture Error %s\n", path);*/
 				std::cout << "Load texture Error " << path << std::endl;
 				return false;
 			}
 			newasset.image = image;
 			newasset.ByteSize = (newasset.Width* newasset.Height) *(newasset.Nchannels * sizeof(unsigned char));
 			LoadedAssetSize += newasset.ByteSize;
-			StringUtils::RemoveChar(path, TextureAssetPath);
+			StringUtils::RemoveChar(path, Engine::GetRootDir());
 			newasset.name = path;
 			newasset.NameSize = path.length();
 			TextureAssetsMap.emplace(path, newasset);

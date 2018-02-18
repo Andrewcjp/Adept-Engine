@@ -263,11 +263,49 @@ void D3D12Shader::Init()
 
 void D3D12Shader::CreateComputePipelineShader()
 {
-	/*D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
-	computePsoDesc.pRootSignature = m_computeRootSignature.Get();
-	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(computeShader.Get());
+	
+	// Compute root signature.
+	{
 
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_computeState)));*/
+		//The compute shader expects 2 floats, the source texture and the destination texture
+		CD3DX12_DESCRIPTOR_RANGE srvCbvRanges[2];
+		CD3DX12_ROOT_PARAMETER rootParameters[3];
+		srvCbvRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+		srvCbvRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
+		rootParameters[0].InitAsConstants(2, 0);
+		rootParameters[1].InitAsDescriptorTable(1, &srvCbvRanges[0]);
+		rootParameters[2].InitAsDescriptorTable(1, &srvCbvRanges[1]);
+
+		//Static sampler used to get the linearly interpolated color for the mipmaps
+		D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		samplerDesc.MipLODBias = 0.0f;
+		samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		samplerDesc.MinLOD = 0.0f;
+		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+		samplerDesc.MaxAnisotropy = 0;
+		samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+		samplerDesc.ShaderRegister = 0;
+		samplerDesc.RegisterSpace = 0;
+		samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+		CD3DX12_ROOT_SIGNATURE_DESC computeRootSignatureDesc;
+		//computeRootSignatureDesc.Init(_countof(rootParameters), rootParameters, 0, nullptr);
+
+		ID3DBlob* signature;
+		ID3DBlob* error;
+		computeRootSignatureDesc.Init(_countof(rootParameters), rootParameters, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		ThrowIfFailed(D3D12SerializeRootSignature(&computeRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
+		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_Shader.m_rootSignature)));
+		NAME_D3D12_OBJECT(m_Shader.m_rootSignature);
+	}
+	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
+	computePsoDesc.pRootSignature = m_Shader.m_rootSignature;
+	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(m_csBlob);
+	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_Shader.m_pipelineState)));
 }
 CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
 {

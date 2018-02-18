@@ -10,6 +10,7 @@ class EditorObjectSelector;
 class DebugLineDrawer;
 class SceneSerialiser;
 class UIManager;
+#define PLAYMODE_USE_SAVED 1
 class EditorWindow : public BaseWindow
 {
 
@@ -34,6 +35,7 @@ protected:
 	void DuringPhysicsUpdate();
 	void FixedUpdate() override;
 	void LoadScene();
+	void RefreshScene();
 	void ProcessMenu(WORD command) override;
 	void WindowUI() override;
 	void Update() override;
@@ -50,6 +52,7 @@ private:
 	int currentmemeory = 0;
 	class Editor_Camera* EditorCamera;
 	class SceneJSerialiser* Saver;
+	std::string CurrentSceneSavePath;
 
 
 };

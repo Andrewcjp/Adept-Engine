@@ -35,23 +35,27 @@ PerfManager::PerfManager()
 
 
 PerfManager::~PerfManager()
-{}
+{
+}
 
 
 void PerfManager::StartTimer(const char * countername)
 {
-
+#if	STATS
 	if (Instance != nullptr && PerfActive)
 	{
 		Instance->InStartTimer(countername);
 	}
+#endif
 }
 void PerfManager::EndTimer(const char * countername)
 {
+#if STATS
 	if (Instance != nullptr&& PerfActive)
 	{
 		Instance->InEndTimer(countername);
 	}
+#endif
 }
 int PerfManager::GetTimerIDByName(std::string name)
 {
@@ -64,6 +68,7 @@ int PerfManager::GetTimerIDByName(std::string name)
 }
 std::string PerfManager::GetTimerName(int id)
 {
+#if STATS
 	for (std::map<std::string, int >::iterator it = TimerIDs.begin(); it != TimerIDs.end(); ++it)
 	{
 		if (it->second == id)
@@ -71,6 +76,7 @@ std::string PerfManager::GetTimerName(int id)
 			return it->first;
 		}
 	}
+#endif
 	return std::string();
 }
 

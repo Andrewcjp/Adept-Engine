@@ -13,6 +13,7 @@ public:
 	
 	unsigned char * GenerateMips(int count, int StartWidth, int StartHeight, unsigned char * startdata);
 	D3D12Texture(std::string name);
+	D3D12Texture(std::string name,bool GenMips);
 	~D3D12Texture();
 	void CreateTexture();
 	virtual void Bind(int unit) override;
@@ -23,13 +24,21 @@ public:
 	virtual void CreateTextureFromData(void * data, int type, int width, int height, int bits) override;
 	ID3D12DescriptorHeap* m_srvHeap;
 	static float MipCreationTime;
+	ID3D12Resource* GetResource()
+	{
+		return m_texture;
+	}
+	int width = 0;
+	int height = 0;
+	UINT16 Miplevels = 7;
 private:
 	int TextureWidth = 100;
 	int TextureHeight = 100;
 	D3D12_SUBRESOURCE_DATA Texturedatarray[9];
 	static const UINT TexturePixelSize = 4;
 	UINT8* GenerateCheckerBoardTextureData();
-	UINT16 Miplevels = 2;
+	
+	int	MipLevelsReadyNow = 1;
 	ID3D12Resource* m_texture;
 	std::string TextureName;
 	// Inherited via BaseTexture

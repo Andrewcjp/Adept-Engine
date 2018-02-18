@@ -9,9 +9,9 @@
 #include "../Core/Utils/FileUtils.h"
 float D3D12Texture::MipCreationTime = 0;
 #include "../Core/Utils/StringUtil.h"
+#include "../Rendering/Shaders/ShaderMipMap.h"
 D3D12Texture::D3D12Texture() :D3D12Texture("house_diffuse.tga")
-{
-}
+{}
 
 unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int bpp, unsigned char * StartData, int&mipsize, float ratio)
 {
@@ -128,16 +128,14 @@ unsigned char* D3D12Texture::GenerateMips(int count, int StartWidth, int StartHe
 		Lastoffset += Mips[i].size;
 	}
 	long endtime = PerfManager::get_nanos();
-	MipCreationTime += ((float)(endtime - StartTime ) / 1e6f);
+	MipCreationTime += ((float)(endtime - StartTime) / 1e6f);
 	return finalbuffer;
 }
 D3D12Texture::D3D12Texture(std::string name)
 {
-	Miplevels = 9;
+	//Miplevels = 1;
 #if 1
 	unsigned char *buffer = NULL;
-	int width;
-	int height;
 	int bpp = 0;
 	int nChannels;
 	std::string rpath = Engine::GetRootDir();
@@ -147,7 +145,6 @@ D3D12Texture::D3D12Texture(std::string name)
 	if (rpath.find(".tga") == -1)
 	{
 		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, rpath.c_str());
-
 	}
 	else
 	{
@@ -157,18 +154,26 @@ D3D12Texture::D3D12Texture(std::string name)
 		}
 		Miplevels = 1;
 	}
-
+#if USEGPUTOGENMIPS
+	unsigned char*  finalbuffer = buffer;
+#else
 	unsigned char*  finalbuffer = GenerateMips(Miplevels - 1, width, height, buffer);
+	MipLevelsReadyNow = Miplevels;
+#endif
 	CreateTextureFromData(finalbuffer, 0, width, height, 4);
 #else
 	CreateTextureFromData(GenerateCheckerBoardTextureData(), 0, TextureWidth, TextureHeight, TexturePixelSize);
 #endif
 }
 
+D3D12Texture::D3D12Texture(std::string name, bool GenMips)
+{
+
+}
+
 
 D3D12Texture::~D3D12Texture()
-{
-}
+{}
 void D3D12Texture::CreateTexture()
 {
 
@@ -223,16 +228,13 @@ void D3D12Texture::Bind(CommandListDef* list)
 }
 
 void D3D12Texture::FreeTexture()
-{
-}
+{}
 
 void D3D12Texture::SetTextureID(int id)
-{
-}
+{}
 
 void D3D12Texture::CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha)
-{
-}
+{}
 
 void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int height, int bits)
 {
@@ -292,7 +294,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		//array
 		Texturedatarray[0] = textureData;
-		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_texture, textureUploadHeap, 0, 0, Miplevels, &Texturedatarray[0]);
+		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_texture, textureUploadHeap, 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
 		D3D12RHI::Instance->m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 		// Describe and create a SRV for the texture.
@@ -304,6 +306,16 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		D3D12RHI::Instance->m_Primarydevice->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
+	{
+
+		//gen mips
+	//	D3D12RHI::Instance->MipmapShader->Simulate(this);
+#if	USEGPUTOGENMIPS
+		D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
+#endif
+	}
+
+
 }
 //_mipMapTextures is an array containing texture objects that need mipmaps to be generated. It needs a texture resource with mipmaps in D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE state.
 //Textures are expected to be POT and in a format supporting unordered access, as well as the D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS set during creation.

@@ -3,7 +3,7 @@
 #define BUILD_WITH_NVPERFKIT 0
 #include <iomanip>
 #include <time.h>
-
+#define STATS 1
 class PerfManager
 {
 public:
@@ -51,7 +51,7 @@ private:
 	int NextId = 0;
 	const float TimeMS = 1e6f;
 	static bool PerfActive;
-	float FrameTime = 0;
+	float FrameTime = 7.0f;
 	float CPUTime = 0;
 	float GPUTime = 0;
 	GLint stopTimerAvailable = 0;

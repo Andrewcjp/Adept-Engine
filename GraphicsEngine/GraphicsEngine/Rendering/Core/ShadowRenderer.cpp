@@ -98,6 +98,12 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		{
 			continue;
 		}
+		if (lights[i]->GetType() == Light::Point && RHI::IsD3D12())
+		{
+			std::cout << "IsD3D12 does not support Point Shadows" << std::endl;
+			lights[i]->SetShadow(false);
+			continue;
+		}
 		if (lights[i]->GetType() == Light::Directional)
 		{
 			if (lastdirshadow + 1 > MAX_DIRECTIONAL_SHADOWS)

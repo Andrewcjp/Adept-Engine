@@ -21,7 +21,8 @@ BaseWindow::BaseWindow()
 
 
 BaseWindow::~BaseWindow()
-{}
+{
+}
 bool BaseWindow::ChangeDisplayMode(int width, int height)
 {
 
@@ -101,8 +102,8 @@ void BaseWindow::InitilseWindow()
 	SceneFileLoader = new SceneSerialiser();
 	CurrentScene = new Scene();
 	Renderer->InitOGL();
-
-	CurrentScene->LoadDefault(Renderer, IsDeferredMode);
+	CurrentScene->LoadDefault();
+	//CurrentScene->LoadExampleScene(Renderer, IsDeferredMode);
 
 	Renderer->SetScene(CurrentScene);
 	Renderer->Init();
@@ -148,22 +149,27 @@ void BaseWindow::Render()
 		PerfManager::Instance->StartFrameTimer();
 	}
 	accumrendertime += DeltaTime;
+	AccumTickTime += DeltaTime;
 	input->ProcessInput(DeltaTime);
 	input->ProcessQue();
-
-	//float targettime = (1.0f / 61.0f);
-	//if ((accumrendertime) < targettime)
-	//{
-	//	//return;
-	//}
-	//accumrendertime = 0;
+	if (FrameRateLimit != 0)
+	{
+		float targettime = (1.0f / FrameRateLimit);
+		if ((accumrendertime) < targettime)
+		{
+			PerfManager::Instance->EndFrameTimer();
+			input->Clear();
+			return;
+		}
+		accumrendertime = 0;
+	}
 
 
 	//lock the simulation rate to TickRate
 	//this prevents physx being framerate depenent.
-	if (accumrendertime > TickRate && IsRunning)
+	if (AccumTickTime > TickRate && IsRunning)
 	{
-		accumrendertime = 0;
+		AccumTickTime = 0;
 #if USE_PHYSX_THREADING
 		SetEvent(ThreadStart);
 		DuringPhysicsUpdate();
@@ -288,10 +294,14 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 		}
 		else if (command.find("renderscale") != -1)
 		{
-			StringUtils::RemoveChar(command, ">renderscale ");
-			Instance->CurrentRenderSettings.RenderScale = glm::clamp(stof(command), 0.1f, 5.0f);
-			Instance->Renderer->SetRenderSettings(Instance->CurrentRenderSettings);
-			Instance->Resize(Instance->m_width, Instance->m_height);
+			StringUtils::RemoveChar(command, ">renderscale");
+			StringUtils::RemoveChar(command, " ");
+			if (command.length() > 0)
+			{
+				Instance->CurrentRenderSettings.RenderScale = glm::clamp(stof(command), 0.1f, 5.0f);
+				Instance->Renderer->SetRenderSettings(Instance->CurrentRenderSettings);
+				Instance->Resize(Instance->m_width, Instance->m_height);
+			}
 			return true;
 		}
 		else if (command.find("fxaa") != -1)
@@ -431,7 +441,8 @@ BOOL BaseWindow::KeyDown(WPARAM key)
 }
 
 void BaseWindow::ProcessMenu(WORD command)
-{}
+{
+}
 
 //getters
 int BaseWindow::GetWidth()
