@@ -23,7 +23,7 @@ inline void SetName(ID3D12Object*, LPCWSTR)
 {}
 #endif
 #define NAME_D3D12_OBJECT(x) SetName(x, L#x)
-#define USEGPUTOGENMIPS 0
+#define USEGPUTOGENMIPS 1
 class D3D12RHI
 {
 public:

@@ -305,7 +305,7 @@ void D3D12RHI::LoadAssets()
 	ThrowIfFailed(m_Primarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_SetupCommandList)));
 
 	texture = new D3D12Texture();
-	OtherTex = new D3D12Texture("bricks2.jpg");
+	OtherTex = new D3D12Texture("\\asset\\texture\\bricks2.jpg");
 #endif
 
 	{//create the depth stencil for the screen

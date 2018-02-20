@@ -5,7 +5,7 @@ UIButton::UIButton(int w, int h, int x, int y) : UIBox(w, h, x, y)
 {
 	Init();
 	Label = new UILabel(Labelstring, 1, 0, x, y);
-	Colour = glm::vec3(0.5f);
+	Colour = NormalColour;
 	Priority = 2;//buttons need to draw on top of panels
 }
 UIButton::~UIButton()

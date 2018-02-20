@@ -87,6 +87,11 @@ void EditorWindow::PostInitWindow(int w, int h)
 	selector->init();
 	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());
 	Saver = new SceneJSerialiser();
+	if (RHI::IsD3D12())
+	{
+		CurrentScene->LoadExampleScene(Renderer, false);
+		RefreshScene();
+	}
 }
 
 void EditorWindow::EnterPlayMode()

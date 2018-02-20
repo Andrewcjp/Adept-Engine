@@ -20,11 +20,11 @@ ShaderMipMap::~ShaderMipMap()
 {}
 void ShaderMipMap::GenAllmips()
 {
-	Simulate(Targets[3]);
-	/*for (int i = 0; i < Targets.size(); i++)
+//	Simulate(Targets[3]);
+	for (int i = 0; i < Targets.size(); i++)
 	{
 		Simulate(Targets[i]);
-	}*/
+	}
 }
 void ShaderMipMap::Simulate(D3D12Texture* tex)
 {
@@ -56,7 +56,7 @@ void ShaderMipMap::Simulate(D3D12Texture* tex)
 	pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(tex->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 	CD3DX12_CPU_DESCRIPTOR_HANDLE currentCPUHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), 0, descriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE currentGPUHandle(descriptorHeap->GetGPUDescriptorHandleForHeapStart(), 0, descriptorSize);
-	for (uint32_t TopMip = 0; TopMip < tex->Miplevels - 1; TopMip++)
+	for (uint32_t TopMip = 0; TopMip < (tex->Miplevels - 1); TopMip++)
 	{
 		uint32_t dstWidth = std::max(tex->width >> (TopMip + 1), 1);
 		uint32_t dstHeight = std::max(tex->height >> (TopMip + 1), 1);
@@ -72,7 +72,8 @@ void ShaderMipMap::Simulate(D3D12Texture* tex)
 		//Create unordered access view for the destination texture in the descriptor heap
 		destTextureUAVDesc.Format = tex->GetResource()->GetDesc().Format;
 		destTextureUAVDesc.Texture2D.MipSlice = TopMip+1;
-		D3D12RHI::GetDevice()->CreateUnorderedAccessView(tex->GetResource(), nullptr, &destTextureUAVDesc, currentCPUHandle);
+		ID3D12Resource* UAV = nullptr;
+		D3D12RHI::GetDevice()->CreateUnorderedAccessView(tex->GetResource(), UAV, &destTextureUAVDesc, currentCPUHandle);
 		currentCPUHandle.Offset(1, descriptorSize);
 
 		//Pass the destination texture pixel size to the shader as constants
@@ -103,6 +104,8 @@ void ShaderMipMap::Simulate(D3D12Texture* tex)
 
 		//Dispatch the compute shader with one thread per 8x8 pixels
 		pCommandList->Dispatch(std::max(dstWidth / 8, 1u), std::max(dstHeight / 8, 1u), 1);
+		//ensure Completion
+		pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(UAV));
 	}
 
 	//pCommandList->Dispatch(8, 8, 1);

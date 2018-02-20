@@ -21,6 +21,8 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 	{
 		FileUtils::TryCreateDirectory(rpath);
 	}
+	//todo Proper DDC
+	StringUtils::RemoveChar(TextureName, "\\asset\\texture\\");
 	rpath.append(TextureName);
 	rpath.append("_mip_");
 
@@ -139,7 +141,7 @@ D3D12Texture::D3D12Texture(std::string name)
 	int bpp = 0;
 	int nChannels;
 	std::string rpath = Engine::GetRootDir();
-	rpath.append("\\asset\\texture\\");
+	/*rpath.append("\\asset\\texture\\");*/
 	rpath.append(name.c_str());
 	TextureName = name;
 	if (rpath.find(".tga") == -1)
@@ -157,6 +159,10 @@ D3D12Texture::D3D12Texture(std::string name)
 #if USEGPUTOGENMIPS
 	unsigned char*  finalbuffer = buffer;
 #else
+	if (width == 0 || height == 0)
+	{
+		return;
+	}
 	unsigned char*  finalbuffer = GenerateMips(Miplevels - 1, width, height, buffer);
 	MipLevelsReadyNow = Miplevels;
 #endif

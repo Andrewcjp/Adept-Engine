@@ -69,7 +69,7 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 
 UIBox::~UIBox()
 {
-	glDeleteBuffers(1, &quad_vertexbuffer);
+	//glDeleteBuffers(1, &quad_vertexbuffer);
 	delete texture;
 }
 

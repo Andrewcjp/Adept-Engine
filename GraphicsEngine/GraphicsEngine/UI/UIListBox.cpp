@@ -96,7 +96,6 @@ void UIListBox::AddItem(std::string name)
 	button->AligmentStruct.SizeMax = 0.03f;
 	button->BindTarget(std::bind(&UIListBox::Select, this, CurrentCount));
 	button->BackgoundColour = Background->Colour;
-	button->Colour = Background->Colour;
 	items.push_back(button);
 	CurrentCount++;
 }
