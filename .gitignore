@@ -10,7 +10,17 @@
 /GraphicsEngine/x64/utils
 /GraphicsEngine/x64/Release
 /GraphicsEngine/x64/Debug
+/GraphicsEngine/x64/utils
 /GraphicsEngine/x64/asset/output
 /GraphicsEngine/x64/asset/DerivedDataCache
 /RunGource.bat
 /GraphicsEngine/x64/asset/scene/asd.scene
+/gorucetoMp4.bat
+/RunGourceToFile - Copy.bat
+/RunGourceToFile.bat
+/GraphicsEngine/GraphicsEngine/lib/64/Debug/TestGame.lib
+/GraphicsEngine/GraphicsEngine/lib/64/Debug/TestGame.pdb
+/GraphicsEngine/GraphicsEngine/lib/64/Release/TestGame.lib
+/GraphicsEngine/GraphicsEngine/lib/64/Release/TestGame.pdb
+/GraphicsEngine/GraphicsEngine/lib/64/Debug/TestGame.pdb
+/GraphicsEngine/Build

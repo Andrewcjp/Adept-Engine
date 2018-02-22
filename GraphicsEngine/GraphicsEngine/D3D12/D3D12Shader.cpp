@@ -63,6 +63,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 
 	if (type == SHADER_VERTEX)
 	{
+		//todo: To d3dcomplie with text
 		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "vs_5_0",
 			compileFlags, 0, &m_vsBlob, &pErrorBlob);
 

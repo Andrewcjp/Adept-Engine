@@ -22,6 +22,7 @@ public:
 private:
 	Light* MLight;
 	float DefaultIntesity = 10.0;
+	float intensity = 0;
 	Light::LightType DefaultType = Light::Point;
 	bool DefaultShadow = false;
 	bool Shadow = false;

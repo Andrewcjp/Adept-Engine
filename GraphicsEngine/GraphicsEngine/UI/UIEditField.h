@@ -15,12 +15,14 @@ public:
 	void MouseMove(int x, int y) override;
 	void GetValueText(std::string & string);
 	void MouseClick(int x, int y) override;
+	void MouseClickUp(int x, int y) override;
 	// Inherited via UIWidget
-	virtual void Render() override;
+	void Render() override;
 	void ResizeView(int w, int h, int x, int y) override;
 	void ProcessKeyDown(UINT_PTR key)override;
 	void SendValue();
 	bool CheckValidInput(char c);
+	
 private:
 	UILabel* Namelabel;
 	UILabel* Textlabel;
@@ -28,6 +30,7 @@ private:
 	UIButton* Toggle;
 	glm::vec3 colour = glm::vec3(0.8f);
 	CollisionRect Rect;
+	CollisionRect ValueDrawChangeRect;
 	std::string nextext;
 	std::string LastText;
 	bool WasSelected = false;
@@ -37,7 +40,11 @@ private:
 	bool IsEditing = false;
 	void* Valueptr;
 	bool Enabled = true;
-
+	bool SupportsScroll = true;
+	bool Scrolling = false;
+	int startx = 0;
+	float StartValue = 0.0f;
+	float ScrollScale = 0.0001f;
 
 };
 

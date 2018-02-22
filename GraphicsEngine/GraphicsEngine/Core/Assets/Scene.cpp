@@ -102,7 +102,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	LightComponent * lc = (LightComponent*)go->AttachComponent(new LightComponent());
 //	lc->SetShadow(true);
 	lc->SetLightType(Light::Directional);
-	lc->SetIntensity(0.3f);
+	lc->SetIntensity(1.3f);
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Plane");

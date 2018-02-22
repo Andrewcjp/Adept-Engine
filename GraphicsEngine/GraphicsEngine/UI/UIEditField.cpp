@@ -21,7 +21,7 @@ UIEditField::UIEditField(Inspector::ValueType type, std::string name, void *valu
 	FilterType = type;
 	Namelabel->SetText(name);
 	Valueptr = valueptr;
-	
+
 	if (type == Inspector::ValueType::Bool)
 	{
 		Textlabel->SetEnabled(false);
@@ -36,24 +36,27 @@ UIEditField::UIEditField(Inspector::ValueType type, std::string name, void *valu
 	{
 		TextBox = new UIBox(0, 0, 0, 0);
 
-		TextBox->BackgoundColour = glm::vec3(0);
-		TextBox->Colour = glm::vec3(0.3f);
+		TextBox->BackgoundColour = glm::vec3(0.25f);
+		TextBox->Colour = glm::vec3(0.7f);
 	}
 	else if (FilterType == Inspector::ValueType::Bool)
 	{
 		Toggle = new UIButton(0, 0, 0, 0);
-		Toggle->BackgoundColour = glm::vec3(0);
-		Toggle->Colour = glm::vec3(0.3f);
+		Toggle->BackgoundColour = glm::vec3(0.25f);
+		Toggle->Colour = glm::vec3(0.7f);
 		Toggle->BindTarget(std::bind(&UIEditField::SendValue, this));
 	}
+	SupportsScroll = (FilterType == Inspector::ValueType::Float);//todo: int
 	if (Valueptr != nullptr)
 	{
 		GetValueText(nextext);
+		Textlabel->SetText(nextext);
 	}
 }
 
 UIEditField::~UIEditField()
-{}
+{
+}
 
 void UIEditField::SetLabel(std::string lavel)
 {
@@ -65,6 +68,21 @@ void UIEditField::MouseMove(int x, int y)
 	if (!Enabled)
 	{
 		return;
+	}
+	if (Scrolling)
+	{
+		if (Valueptr == nullptr)
+		{
+			Scrolling = false;
+		}
+		else
+		{
+			*((float*)Valueptr) = StartValue + ((startx - x)*ScrollScale);
+			GetValueText(nextext);
+			Textlabel->SetText(nextext);
+			SendValue();
+			return;
+		}
 	}
 	if (FilterType == Inspector::ValueType::Bool)
 	{
@@ -90,6 +108,7 @@ void UIEditField::MouseMove(int x, int y)
 			WasSelected = false;
 		}
 	}
+
 
 }
 void UIEditField::GetValueText(std::string & string)
@@ -134,6 +153,24 @@ void UIEditField::MouseClick(int x, int y)
 			IsEditing = false;
 		}
 	}
+	if (ValueDrawChangeRect.Contains(x, y))
+	{
+		//__debugbreak();
+		if (Valueptr != nullptr)
+		{
+			if (FilterType == Inspector::ValueType::Float)
+			{
+				Scrolling = true;
+				startx = x;
+				StartValue = *((float*)Valueptr);
+			}
+		}
+	}
+}
+
+void UIEditField::MouseClickUp(int x, int y)
+{
+	Scrolling = false;
 }
 
 void UIEditField::Render()
@@ -154,7 +191,7 @@ void UIEditField::Render()
 
 void UIEditField::ResizeView(int w, int h, int x, int y)
 {
-	UIBox::ResizeView(w, h, x, y);
+	//UIBox::ResizeView(w, h, x, y);
 	Namelabel->TextScale = 0.3f;
 	Textlabel->TextScale = 0.3f;
 	Namelabel->ResizeView(w / 3, h / 2, x, y);
@@ -173,6 +210,7 @@ void UIEditField::ResizeView(int w, int h, int x, int y)
 		Enabled = false;
 	}
 	Rect = CollisionRect(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
+	ValueDrawChangeRect = CollisionRect(w / 3, h, x, y);
 }
 
 void UIEditField::SendValue()

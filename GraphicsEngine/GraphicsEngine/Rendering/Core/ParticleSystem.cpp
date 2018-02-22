@@ -164,10 +164,7 @@ void ParticleSystem::SortParticles()
 	{
 		StartParticle = 0;
 	}
-
 	std::sort(&Particles[0], &Particles[MaxParticles]);
-
-
 }
 void ParticleSystem::Init()
 {

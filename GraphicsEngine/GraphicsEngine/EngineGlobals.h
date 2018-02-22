@@ -7,12 +7,14 @@
 #define BUILD_OPENGL 1
 #define BUILD_D3D12 1
 #define BUILD_Vulkan 0
-
+#define DOCHECK 1
 #pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0
+#define BUILD_PACKAGE 1
 #else
 #define WITH_EDITOR 1
+#define BUILD_PACKAGE 0
 #endif
 enum ERenderSystemType
 {
@@ -32,6 +34,16 @@ void UNUSED_PARAM(T const&)
 typedef struct ID3D12GraphicsCommandList CommandListDef;
 #else 
 typedef struct Stub {} CommandListDef;
+#endif
+
+
+//Asserts
+#if DOCHECK
+#define ensure(condition) if(!condition){WindowsHelpers::DisplayMessageBox("Error", "Ensure Failed \n" #condition); exit(1359);}
+#define check(condition) if(!condition){WindowsHelpers::DisplayMessageBox("Error", "Assert Failed \n" #condition);}
+#else
+#define check(condition);
+#define ensure(condition);
 #endif
 /*
 #pragma comment(lib, "winmm.lib")

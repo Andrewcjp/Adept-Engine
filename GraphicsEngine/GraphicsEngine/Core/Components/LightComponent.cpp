@@ -41,6 +41,7 @@ void LightComponent::SetLightType(Light::LightType type)
 void LightComponent::SetIntensity(float amt)
 {
 	MLight->SetIntesity(amt);
+	intensity = amt;
 }
 
 void LightComponent::SetShadow(bool Shadow)
@@ -72,11 +73,13 @@ void LightComponent::SceneInitComponent()
 {
 	GetOwner()->GetScene()->AddLight(MLight);
 	Shadow = MLight->GetDoesShadow();
+
 }
 
 void LightComponent::PostChangeProperties()
 {
 	SetShadow(Shadow);
+	SetIntensity(intensity);
 }
 
 void LightComponent::Serialise(rapidjson::Value & v)
@@ -114,5 +117,6 @@ void LightComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGr
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
 	group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Bool, &Shadow));
+	group.SubProps.push_back(Inspector::CreateProperty("Intensity", Inspector::Float, &intensity));
 	props.push_back(group);
 }

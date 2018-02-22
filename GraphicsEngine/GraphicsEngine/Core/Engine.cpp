@@ -20,6 +20,9 @@ CompoenentRegistry* Engine::CompRegistry = nullptr;
 #include "Game.h"
 #include "Shlwapi.h"
 #include "../D3D12/D3D12Window.h"
+#include "../Packaging/Cooker.h"
+#include "../Core/Utils/FileUtils.h"
+#include "../Core/Utils/WindowsHelper.h"
 #pragma comment(lib, "shlwapi.lib")
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
@@ -33,7 +36,9 @@ std::string Engine::GetRootDir()
 	wchar_t buffer[MAX_PATH];
 	GetModuleFileName(NULL, buffer, MAX_PATH);
 	PathRemoveFileSpec(buffer);
+#if !BUILD_PACKAGE 
 	PathCombine(buffer, buffer, L"..");
+#endif
 	std::wstring ws(buffer);
 	return std::string(ws.begin(), ws.end());
 }
@@ -43,6 +48,17 @@ Engine::Engine()
 	StartTime = (float)PerfManager::get_nanos();
 	std::cout << "Starting In " << GetRootDir() << std::endl;
 	std::cout << "Loading Engine v0.1" << std::endl;
+#if BUILD_PACKAGE
+	std::string assetpath = GetRootDir();
+	assetpath.append("\\asset\\");
+	if (!FileUtils::exists_test3(assetpath))
+	{
+		WindowsHelpers::DisplayMessageBox("Error", " Asset Folder Not Found ");
+		exit(-1);
+	}
+#endif
+	Cooker* cook = new Cooker();
+	cook->CopyToOutput();
 #if PHYSX_ENABLED
 	PPhysxEngine = new PhysxEngine();
 	PhysEngine = PPhysxEngine;
@@ -137,7 +153,7 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 		else if (type == RenderSystemOGL)
 		{
 #if BUILD_OPENGL
-#if 1
+#if 0
 			RHI::InitRHI(RenderSystemOGL);
 #else 
 			RHI::InitRHI(RenderSystemD3D12);

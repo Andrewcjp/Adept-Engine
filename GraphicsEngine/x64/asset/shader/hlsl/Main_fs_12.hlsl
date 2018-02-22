@@ -110,7 +110,7 @@ float4 main(PSInput input) : SV_TARGET
 	 //  output += texturecolour*0.1f;
 	   // return float4(GetShadow(input.WorldPos), GetShadow(input.WorldPos), GetShadow(input.WorldPos), 1.0);
 	   //return output *1.0 - GetShadow(input.WorldPos);
-	 float4 GammaCorrected = ambeint + pow(output, float4(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
+	float4 GammaCorrected = ambeint + output;// pow(output, float4(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
 	
 	 return GammaCorrected * CalcUnshadowedAmountPCF2x2(0, input.WorldPos);
 }

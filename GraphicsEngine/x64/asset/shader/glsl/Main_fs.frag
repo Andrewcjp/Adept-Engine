@@ -117,7 +117,7 @@ void main()
     }
 	linearColor = clamp(linearColor,0,1);
 	
-	 vec3 colorGammaCorrected = pow(linearColor, vec3(1.0f/2.2f));//apply gamma correction
+	 vec3 colorGammaCorrected = linearColor;//pow(linearColor, vec3(1.0f/2.2f));//apply gamma correction
     vec3 color = 		
 		MaterialAmbientColor + colorGammaCorrected;
 	vec4 eyespacepos = view * vec4(WorldPos,1.0f);
