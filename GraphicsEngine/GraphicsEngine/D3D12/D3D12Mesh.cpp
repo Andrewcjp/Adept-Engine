@@ -4,6 +4,7 @@
 #include "Rendering/Core/Triangle.h"
 #include "../Core/Assets/OBJFileReader.h"
 #include "../RHI/RHI.h"
+
 D3D12Mesh::D3D12Mesh()
 {
 	CreateVertexBuffer(L"C:\\Users\\AANdr\\Dropbox\\Engine\\Engine\\Repo\\GraphicsEngine\\x64\\asset\\models\\House.obj");
@@ -12,6 +13,7 @@ D3D12Mesh::D3D12Mesh()
 D3D12Mesh::D3D12Mesh(const char * file)
 {
 	std::string filename = file;
+	
 	std::wstring newfile((int)filename.size(), 0);
 	MultiByteToWideChar(CP_UTF8, 0, &filename[0], (int)filename.size(), &newfile[0], (int)filename.size());
 	CreateVertexBuffer(newfile.c_str());
@@ -39,7 +41,7 @@ void D3D12Mesh::CreateVertexBuffer(LPCWSTR name)
 
 	// Create the vertex buffer.
 	{
-
+		
 		Triangle* mesh;
 		m_numtriangles = importOBJMesh(name, &mesh);
 		const UINT vertexBufferSize = sizeof(OGLVertex)*m_numtriangles * 3;

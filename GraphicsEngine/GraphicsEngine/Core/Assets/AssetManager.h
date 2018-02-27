@@ -7,7 +7,7 @@ enum AssetType
 {
 	Texture,
 	Shader,
-	Mesh
+	Meshr
 };
 struct Asset
 {
@@ -49,11 +49,16 @@ public:
 	static AssetManager* instance;
 	AssetManager();
 	~AssetManager();
-	bool GetTextureAsset(std::string path, TextureAsset &asset);
+
+	bool GetTextureAsset(std::string path, TextureAsset & asset, bool ABSPath = false);
 	static size_t GetShaderAsset(std::string name, char ** buffer);
 	std::string LoadFileWithInclude(std::string name);
 	std::string TextureAssetPath = "../asset/shader/glsl/";
 	bool GetShaderAsset(std::string path, ShaderAsset &asset);
+	std::map<std::string, TextureAsset>* GetTextureMap() { return &TextureAssetsMap; }
+	std::map<std::string, std::string>* GetMeshMap() { return &MeshFileMap; }
+	const std::string ShaderCookedFile = "\\asset\\Cooked\\Shader\\glsl\\CookedShaders.txt";
+	static void RegisterMeshAssetLoad(std::string name);
 private:
 	const std::string AssetRootPath = "../asset/";
 	std::string ShaderAssetPath = "../asset/shader/glsl/";	
@@ -70,13 +75,15 @@ private:
 	std::map<std::string, std::string> ShaderSourceMap;
 	std::map<std::string, TextureAsset> TextureAssetsMap;
 	std::map<std::string, ShaderAsset> ShaderMap;
-	bool PreLoadTextShaders = false;
+	std::map<std::string, std::string> MeshFileMap;
+	bool PreLoadTextShaders = true;
 	bool UseCookedShaders = false;
 	bool CookShaders = true;
 	bool UseCookedtextures = true;
-	std::string ShaderCookedName = "../asset/Cooked/Shader/glsl/CookedShaders.txt";
+	
 	std::string TextureCooked = "../asset/TextureCooked.bin";
 	float StartTime = 0;
 	size_t LoadedAssetSize = 0;
+	std::string FileSplit = "|FileStart|";
 };
 

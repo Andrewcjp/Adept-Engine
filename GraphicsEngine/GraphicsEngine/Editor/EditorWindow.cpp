@@ -176,9 +176,9 @@ void EditorWindow::Update()
 	{
 		CurrentScene->EditorUpdateScene();
 	}
-	if (GetKeyState(VK_CONTROL) & 0x8000)
+	if (input->GetVKey(VK_CONTROL))
 	{
-		if (GetKeyState('S') & 0x8000)
+		if (input->GetKeyDown('S'))
 		{
 			SaveScene();
 		}
@@ -248,6 +248,9 @@ void EditorWindow::ProcessMenu(WORD command)
 		Renderer->SetScene(CurrentScene);
 		RefreshScene();
 		CurrentSceneSavePath.clear();
+		break;
+	case 11:
+		Engine::RunCook();
 		break;
 	}
 }

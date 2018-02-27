@@ -1,4 +1,4 @@
-Debugline_fs.frag|
+Debugline_fs.frag|FileStart|
 #version 330 core 
  
 out vec4 color; 
@@ -11,7 +11,7 @@ void main()
    color = vec4(colr, 1.0); 
 }   
 ¬
-Debugline_vs.vert|
+Debugline_vs.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec3 vertex; // vec2 pos & vec2 texure coods 
 layout (location = 1) in vec3 col; 
@@ -26,7 +26,7 @@ void main()
 	colr = col; 
 }   
 ¬
-Deferred.frag|
+Deferred.frag|FileStart|
 #version 330 core 
 out vec4 FragColor; 
 in vec2 TexCoords; 
@@ -197,7 +197,7 @@ void main()
     FragColor = vec4(colorGammaCorrected, 1.0); 
 } 
 ¬
-Deferred.vert|
+Deferred.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec3 pos; 
 layout (location = 1) in vec3 normal; 
@@ -212,7 +212,7 @@ void main(){
     gl_Position =  vec4(pos, 1.0);	 
 } 
 ¬
-DeferredWrite.frag|
+DeferredWrite.frag|FileStart|
 #version 330 core 
 layout (location = 0) out vec3 gPosition; 
 layout (location = 1) out vec3 gNormal; 
@@ -257,7 +257,7 @@ void main()
 	gAlbedoSpec.a = 0.1; 
 }   
 ¬
-DeferredWrite.vert|
+DeferredWrite.vert|FileStart|
 #version 420 core 
 layout (location = 0) in vec3 pos; 
 layout (location = 1) in vec3 normal; 
@@ -300,7 +300,7 @@ void main(){
 	 
 } 
 ¬
-Grass.frag|
+Grass.frag|FileStart|
 #version 330 
  
 in vec2 vTexCoord; 
@@ -339,7 +339,7 @@ void main()
 	//outputColor.a = 1.0f; 
 } 
 ¬
-Grass.geo|
+Grass.geo|FileStart|
 #version 330 
  
 layout(points) in; 
@@ -469,7 +469,7 @@ void main()
  
 } 
 ¬
-Grass.vert|
+Grass.vert|FileStart|
 #version 450 
  
 layout (location = 0) in vec3 inPosition; 
@@ -519,7 +519,7 @@ void main()
  
 } 
 ¬
-Lighting.glh|
+Lighting.glh|FileStart|
  
 #define MAX_LIGHTS 5 
 uniform int numLights; 
@@ -548,7 +548,7 @@ vec3 CalculateColour(vec3 normal,vec3 lightdir,vec3 MaterialDiffuseColor,vec3 Ma
  
  
 ¬
-Main_fs.frag|
+Main_fs.frag|FileStart|
 #version 420 core 
  
  
@@ -842,7 +842,7 @@ float GetFogAmt(const float dist){
  
  
 ¬
-Main_vs.vert|
+Main_vs.vert|FileStart|
 #version 420 core 
 layout (location = 0) in vec3 pos; 
 layout (location = 1) in vec3 normal; 
@@ -900,7 +900,7 @@ tangentdbg = vertexTangent_modelspace;
 	 
 } 
 ¬
-PBR.frag|
+PBR.frag|FileStart|
 #version 330 core 
 uniform samplerCube shadowcubemap; 
 out vec4 FragColor; 
@@ -1123,7 +1123,7 @@ void main()
 	 
 } 
 ¬
-PBR.glh|
+PBR.glh|FileStart|
 const float PI = 3.14159265359; 
  
 float DistributionGGX(vec3 N, vec3 H, float roughness) 
@@ -1166,7 +1166,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
 } 
 ¬
-PBR.vert|
+PBR.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec3 pos; 
 layout (location = 1) in vec3 normal; 
@@ -1207,7 +1207,7 @@ void main()
 	 
 } 
 ¬
-Particle.frag|
+Particle.frag|FileStart|
 #version 330 core 
  
 // Interpolated values from the vertex shaders 
@@ -1230,7 +1230,7 @@ void main(){
  
 } 
 ¬
-Particle.vert|
+Particle.vert|FileStart|
 #version 330 core 
  
 // Input vertex data, different for all executions of this shader. 
@@ -1265,7 +1265,7 @@ void main()
 	particlecolor = color; 
 } 
 ¬
-Pass_fs.frag|
+Pass_fs.frag|FileStart|
 //FXAA  
 // adapted from http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf 
  
@@ -1340,7 +1340,7 @@ void main()
 	  
 } 
 ¬
-Pass_vs.vert|
+Pass_vs.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec3 pos; 
 layout (location = 2) in vec2 texCoords; 
@@ -1355,7 +1355,7 @@ void main()
 	 
 } 
 ¬
-Querry.frag|
+Querry.frag|FileStart|
 #version 420 core 
  
 out vec4 FragColor; 
@@ -1371,7 +1371,7 @@ void main()
  
  
 ¬
-Querry.vert|
+Querry.vert|FileStart|
 #version 420 core 
 layout (location = 0) in vec3 pos; 
 layout (location = 1) in vec3 normal; 
@@ -1389,7 +1389,7 @@ void main()
 	 
 } 
 ¬
-SSAO.Frag|
+SSAO.Frag|FileStart|
 #version 330 core 
 out float FragColor; 
 in vec2 TexCoords; 
@@ -1442,7 +1442,7 @@ void main()
 	FragColor = occlusion;    
 } 
 ¬
-SSAO.vert|
+SSAO.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec3 pos; 
 layout (location = 1) in vec3 normal; 
@@ -1456,7 +1456,7 @@ void main(){
     gl_Position =  vec4(pos, 1.0);	 
 } 
 ¬
-Shadow.glh|
+Shadow.glh|FileStart|
 int MaxShadowDistance = 100; 
 uniform samplerCube shadowcubemap; 
 uniform samplerCube shadowcubemap2; 
@@ -1524,7 +1524,7 @@ float ShadowCalculationDir(const vec3 fragPos, Light lpos){
  
 } 
 ¬
-UI_Batch_fs.frag|
+UI_Batch_fs.frag|FileStart|
 #version 330 core 
  
 out vec4 color; 
@@ -1544,7 +1544,7 @@ void main()
 //color = vec4(1,1,1,1); 
 }   
 ¬
-UI_Batch_vs.vert|
+UI_Batch_vs.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec2 vertex; // vec2 pos & vec2 texure coods 
 layout (location = 1) in int back; 
@@ -1564,7 +1564,7 @@ void main()
    UseBack = back; 
 }   
 ¬
-UI_fs.frag|
+UI_fs.frag|FileStart|
 #version 330 core 
 in vec2 TexCoords; 
 out vec4 color; 
@@ -1586,7 +1586,7 @@ void main()
 	//color = vec4(TexCoords,0,0); 
 }   
 ¬
-UI_vs.vert|
+UI_vs.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec4 vertex; // vec2 pos & vec2 texure coods 
 out vec2 TexCoords; 
@@ -1600,7 +1600,7 @@ void main()
    // TexCoords = vertex.zw; 
 }   
 ¬
-depthbasic_fs.frag|
+depthbasic_fs.frag|FileStart|
 #version 430 
  
 in vec4 FragPos; 
@@ -1626,7 +1626,7 @@ void main()
 	 
 }   
 ¬
-depthbasic_geo.geo|
+depthbasic_geo.geo|FileStart|
 #version 330 core 
 layout (triangles) in; 
 layout (triangle_strip, max_vertices=18) out; 
@@ -1650,7 +1650,7 @@ void main()
     } 
 }   
 ¬
-depthbasic_vs.vert|
+depthbasic_vs.vert|FileStart|
 #version 430 
  
 layout (location = 0) uniform mat4 modelview;	//modelview matrix 
@@ -1680,7 +1680,7 @@ void main()
  
 } 
 ¬
-line_fs.frag|
+line_fs.frag|FileStart|
 #version 330 core 
  
 out vec4 color; 
@@ -1694,7 +1694,7 @@ void main()
    color = vec4(colr, 1.0); 
 }   
 ¬
-line_vs.vert|
+line_vs.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec2 vertex; // vec2 pos & vec2 texure coods 
 layout (location = 1) in vec3 col; 
@@ -1709,7 +1709,7 @@ void main()
 	colr = col; 
 }   
 ¬
-skybox.frag|
+skybox.frag|FileStart|
 #version 330 core 
 in vec3 TexCoords; 
 out vec4 color; 
@@ -1721,7 +1721,7 @@ void main()
     color = texture(skybox, TexCoords)*1.5f; 
 } 
 ¬
-skybox.vert|
+skybox.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec3 position; 
 out vec3 TexCoords; 
@@ -1737,7 +1737,7 @@ void main()
     TexCoords = normalize(position.xyz); 
 }   
 ¬
-text_fs.frag|
+text_fs.frag|FileStart|
 #version 330 core 
 in vec2 TexCoords; 
 out vec4 color; 
@@ -1752,7 +1752,7 @@ void main()
     color = texture(text, TexCoords);//vec4(textColor, 1.0) * sampled; 
 }   
 ¬
-text_fs_Atlas.frag|
+text_fs_Atlas.frag|FileStart|
 #version 330 core 
 in vec2 TexCoords; 
 out vec4 color; 
@@ -1767,7 +1767,7 @@ void main()
  
 }   
 ¬
-text_vs.vert|
+text_vs.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec4 vertex; // vec2 pos & vec2 texure coods 
 out vec2 TexCoords; 
@@ -1780,7 +1780,7 @@ void main()
     TexCoords = vertex.zw; 
 }   
 ¬
-text_vs_Atlas.vert|
+text_vs_Atlas.vert|FileStart|
 #version 330 core 
 layout (location = 0) in vec4 vertex; // vec2 pos & vec2 texure coods 
 out vec2 TexCoords; 

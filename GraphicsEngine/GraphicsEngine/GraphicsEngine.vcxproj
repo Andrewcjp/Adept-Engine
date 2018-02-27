@@ -339,7 +339,6 @@
     <ClInclude Include="Rendering\Core\ParticleSystem.h" />
     <ClInclude Include="Physics\PhxRigidBody.h" />
     <ClInclude Include="Physics\PhysicsEngine.h" />
-    <ClInclude Include="Physics\PhysxEngine.h" />
     <ClInclude Include="Rendering\Core\Renderable.h" />
     <ClInclude Include="Rendering\Renderers\RenderEngine.h" />
     <ClInclude Include="RHI\RenderWindow.h" />
@@ -475,7 +474,6 @@
     <ClCompile Include="Rendering\Core\ParticleSystem.cpp" />
     <ClCompile Include="Physics\PhxRigidBody.cpp" />
     <ClCompile Include="Physics\PhysicsEngine.cpp" />
-    <ClCompile Include="Physics\PhysxEngine.cpp" />
     <ClCompile Include="Rendering\Renderers\RenderEngine.cpp" />
     <ClCompile Include="Physics\RigidBody.cpp" />
     <ClCompile Include="Core\Assets\Scene.cpp" />

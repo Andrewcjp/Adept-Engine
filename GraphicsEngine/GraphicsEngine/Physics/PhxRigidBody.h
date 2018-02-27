@@ -1,6 +1,6 @@
 #pragma once
 #include "RigidBody.h"
-#if PHYSX_ENABLED
+#if 0
 
 #include "physx\PxPhysicsAPI.h"
 

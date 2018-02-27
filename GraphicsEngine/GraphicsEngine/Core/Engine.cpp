@@ -1,21 +1,13 @@
 #include "Engine.h"
-//#include "OpenGL/OGLWindow.h"
 #include "GameWindow.h"
 #include "D3D11/D3D11Window.h"
 #include "Resource.h"
 #include "EngineGlobals.h"
 #include "Physics/PhysicsEngine.h"
-#include <Windows.h>
-#if PHYSX_ENABLED
-#include "Physics/PhysxEngine.h"
-#endif
 #include "RHI/RHI.h"
 #include "Editor/EditorWindow.h"
 #include "Components\CompoenentRegistry.h"
-PhysicsEngine* Engine::PhysEngine = NULL;
-PhysxEngine* Engine::PPhysxEngine = NULL;
 #include "BaseWindow.h"
-CompoenentRegistry* Engine::CompRegistry = nullptr;
 #include "Core/Assets/AssetManager.h"
 #include "Game.h"
 #include "Shlwapi.h"
@@ -26,10 +18,13 @@ CompoenentRegistry* Engine::CompRegistry = nullptr;
 #pragma comment(lib, "shlwapi.lib")
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
-EditorWindow * Engine::GetEditorWindow()
-{
-	return reinterpret_cast<EditorWindow*>(m_appwnd);
-}
+CompoenentRegistry* Engine::CompRegistry = nullptr;
+PhysicsEngine* Engine::PhysEngine = NULL;
+#ifdef BUILD_GAME
+#define UseDevelopmentWindows 0
+#else
+#define UseDevelopmentWindows 1
+#endif
 
 std::string Engine::GetRootDir()
 {
@@ -57,18 +52,16 @@ Engine::Engine()
 		exit(-1);
 	}
 #endif
-	Cooker* cook = new Cooker();
-	cook->CopyToOutput();
+
 #if PHYSX_ENABLED
-	PPhysxEngine = new PhysxEngine();
-	PhysEngine = PPhysxEngine;
+	PhysEngine = new PhysicsEngine();
 #else
 	PhysEngine = new PhysicsEngine();
 	std::cout << "WARNING: Physx Disabled" << std::endl;
 #endif
 	if (PhysEngine != nullptr)
 	{
-		PhysEngine->initPhysics(false);
+		PhysEngine->initPhysics();
 	}
 	AssetManager::StartAssetManager();
 	CompRegistry = new CompoenentRegistry();
@@ -82,7 +75,22 @@ Engine::~Engine()
 }
 void Engine::Destory()
 {
-	PhysEngine->cleanupPhysics(false);
+	PhysEngine->cleanupPhysics();
+}
+
+void Engine::SetHInstWindow(HINSTANCE inst)
+{
+	m_hInst = inst;
+}
+
+RenderWindow * Engine::GetWindow()
+{
+	return m_appwnd;
+}
+
+ERenderSystemType Engine::GetCurrentSystem()
+{
+	return CurrentRenderSystem;
 }
 
 
@@ -100,6 +108,29 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 		{
 			FullScreen = true;
 		}
+		if (input.compare("-cook") == 0)
+		{
+			std::cout << "Starting Cook" << std::endl;
+			ShouldRunCook = true;
+		}
+
+
+		if (input.compare("-ForceAPI OGL") == 0)
+		{
+			ForcedRenderSystem = RenderSystemOGL;
+			std::cout << "Forcing RenderSystemOGL" << std::endl;
+		}
+		else if (input.compare("-ForceAPI D3D12") == 0)
+		{
+			ForcedRenderSystem = RenderSystemD3D12;
+			std::cout << "Forcing RenderSystemD3D12" << std::endl;
+		}
+
+	}
+	if (ShouldRunCook)
+	{
+		RunCook();
+		exit(0);//todo: proper exit
 	}
 	if (FullScreen)
 	{
@@ -107,16 +138,15 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 	}
 	else
 	{
-		CreateApplicationWindow(1280, 720,(0) ? ERenderSystemType::RenderSystemD3D12: ERenderSystemType::RenderSystemOGL);
+		CreateApplicationWindow(1280, 720, (0) ? ERenderSystemType::RenderSystemD3D12 : ERenderSystemType::RenderSystemOGL);
 	}
 
-
 }
-void Engine::SetContextData(HGLRC hglrc, HWND hwnd, HDC hdc)
+void Engine::RunCook()
 {
-	mhglrc = hglrc;
-	mhwnd = hwnd;
-	mhdc = hdc;
+	Cooker* cook = new Cooker(AssetManager::instance);
+	cook->CopyToOutput();
+	delete cook;
 }
 
 void Engine::SetGame(Game * game)
@@ -138,7 +168,38 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 		mwidth = width;
 		mheight = height;
 		CurrentRenderSystem = type;
-		if (type == RenderSystemD3D11)
+#if UseDevelopmentWindows
+		if (type == RenderSystemOGL)
+		{
+#endif
+			if (ForcedRenderSystem == ERenderSystemType::Limit)
+			{
+#if 0
+				RHI::InitRHI(RenderSystemOGL);
+#else 
+				RHI::InitRHI(RenderSystemD3D12);
+#endif
+			}
+			else
+			{
+				RHI::InitRHI(ForcedRenderSystem);
+			}
+#if WITH_EDITOR
+			m_appwnd = new EditorWindow(Deferredmode);
+#else 
+			m_appwnd = new GameWindow(/*Deferredmode*/);
+#endif 
+			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
+
+#if UseDevelopmentWindows
+		}
+		else if (type == RenderSystemD3D12)
+		{
+			RHI::InitRHI(RenderSystemD3D12);
+			m_appwnd = new D3D12Window();
+			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
+		}
+		else if (type == RenderSystemD3D11)
 		{
 
 #if BUILD_D3D11
@@ -148,33 +209,8 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 #else
 			isWindowVaild = false;
 #endif
-
 		}
-		else if (type == RenderSystemOGL)
-		{
-#if BUILD_OPENGL
-#if 0
-			RHI::InitRHI(RenderSystemOGL);
-#else 
-			RHI::InitRHI(RenderSystemD3D12);
 #endif
-#if WITH_EDITOR
-			m_appwnd = new EditorWindow(Deferredmode);
-#else 
-			m_appwnd = new GameWindow(/*Deferredmode*/);
-#endif 
-
-			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
-#else 
-			isWindowVaild = false;
-#endif			
-		}
-		else if (type == RenderSystemD3D12)
-		{
-			RHI::InitRHI(RenderSystemD3D12);
-			m_appwnd = new D3D12Window();
-			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
-		}
 		if (!isWindowVaild)
 		{
 			std::cout << "Fatal Error: Window Invalid" << std::endl;

@@ -67,18 +67,7 @@ GLuint ImageLoader::LoadImageFile(std::string path)
 	GLuint textureID;
 	glGenTextures(1, &textureID);
 	glActiveTexture(GL_TEXTURE0);
-
-	//int width, height;
-//	unsigned char* image;
-
 	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	////image = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGBA);
-	//if (image == nullptr)
-	//{
-	//	printf("Load texture Error %s\n", path.c_str());
-	//	return -1;
-	//}
 	TextureAsset Image;
 	if (!AssetManager::instance->GetTextureAsset(path, Image))
 	{

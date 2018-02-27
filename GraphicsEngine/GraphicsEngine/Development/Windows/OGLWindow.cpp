@@ -346,7 +346,7 @@ void OGLWindow::Render()
 	if (accumilatePhysxdeltatime > TickRate)
 	{
 		accumilatePhysxdeltatime = 0;
-		Engine::PhysEngine->stepPhysics(false, TickRate);
+		Engine::PhysEngine->stepPhysics(TickRate);
 	}
 
 	timesincestat = (((float)(clock()) / CLOCKS_PER_SEC));//in s

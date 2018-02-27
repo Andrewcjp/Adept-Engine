@@ -42,7 +42,10 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 	rpath.append(".bmp");
 	if (FileUtils::exists_test3(rpath))
 	{
-		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, rpath.c_str());
+		if (ImageIO::LoadTexture2D(rpath.c_str(), &buffer, &width, &height, &nChannels) != E_IMAGEIO_SUCCESS)
+		{
+			return buffer;
+		}
 	}
 	else
 	{
@@ -146,7 +149,11 @@ D3D12Texture::D3D12Texture(std::string name)
 	TextureName = name;
 	if (rpath.find(".tga") == -1)
 	{
-		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, rpath.c_str());
+		//buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, rpath.c_str());
+		if (ImageIO::LoadTexture2D(rpath.c_str(), &buffer, &width, &height, &nChannels) != E_IMAGEIO_SUCCESS)
+		{
+			return;
+		}
 	}
 	else
 	{

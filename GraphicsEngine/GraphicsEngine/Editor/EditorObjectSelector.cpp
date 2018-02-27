@@ -2,14 +2,14 @@
 #include "EditorObjectSelector.h"
 #include "../Core/GameObject.h"
 #include "../Core/Engine.h"
-#include "../Physics/PhysxEngine.h"
+#include "../Physics/PhysicsEngine.h"
 #include "EditorWindow.h"
 #include "../Rendering/Core/DebugLineDrawer.h"
 #include "../Rendering/Core/Camera.h"
 #include "../Core/EngineTypes.h"
 EditorObjectSelector::EditorObjectSelector()
 {
-	pengine = (PhysxEngine*)Engine::PhysEngine;
+	pengine = Engine::PhysEngine;
 }
 
 
@@ -30,7 +30,7 @@ void EditorObjectSelector::LinkPhysxBodysToGameObjects(const std::vector<GameObj
 GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const std::vector<GameObject*>& objects)
 {
 
-	PxRaycastBuffer hit;
+	physx::PxRaycastBuffer hit;
 	glm::vec3 camforward = glm::vec4(cam->GetForward(), 1.0f);// *cam->GetProjection();
 	glm::vec3 origin;
 	glm::vec3 dir = cam->GetForward();

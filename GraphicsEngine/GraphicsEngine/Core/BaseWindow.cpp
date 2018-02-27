@@ -11,6 +11,7 @@
 #include "../Core/Input.h"
 #include "../Physics/PhysicsEngine.h"
 #include "../Core/Utils/StringUtil.h"
+#include "../Core/Assets/SceneJSerialiser.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 
 BaseWindow::BaseWindow()
@@ -99,12 +100,9 @@ void BaseWindow::InitilseWindow()
 	{
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
-	SceneFileLoader = new SceneSerialiser();
 	CurrentScene = new Scene();
 	Renderer->InitOGL();
 	CurrentScene->LoadDefault();
-	//CurrentScene->LoadExampleScene(Renderer, IsDeferredMode);
-
 	Renderer->SetScene(CurrentScene);
 	Renderer->Init();
 	if (LoadText)
@@ -180,7 +178,7 @@ void BaseWindow::Render()
 #else
 
 		PerfManager::StartTimer("FTick");
-		Engine::PhysEngine->stepPhysics(false, TickRate);
+		Engine::PhysEngine->stepPhysics(TickRate);
 		if (ShouldTickScene)
 		{
 			CurrentScene->FixedUpdateScene(TickRate);
@@ -328,6 +326,17 @@ Camera * BaseWindow::GetCurrentCamera()
 
 	}
 	return nullptr;
+}
+
+void BaseWindow::LoadScene(std::string RelativePath)
+{
+	std::string Startdir = Engine::GetRootDir();
+	Startdir.append(RelativePath);
+	Renderer->SetScene(nullptr);
+	delete CurrentScene;
+	CurrentScene = new Scene();
+	Saver->LoadScene(CurrentScene, Startdir);
+	Renderer->SetScene(CurrentScene);
 }
 
 void BaseWindow::PostFrameOne()

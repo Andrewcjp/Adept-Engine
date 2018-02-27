@@ -10,9 +10,6 @@
 #include "TestGame.h"
 #include "Physics\PhysicsEngine.h"
 #include "Core\Engine.h"
-#if PHYSX_ENABLED
-#include "Physics\PhysxEngine.h"
-#endif
 #define TARGET_RESOLUTION 1         // 1-millisecond target resolution
 BaseApplication* BaseApplication::s_oglapp = nullptr;
 #pragma comment(lib, "winmm.lib")
@@ -161,6 +158,7 @@ void BaseApplication::AddMenus(HWND hwnd)
 	AppendMenuW(hGOMenu, MF_STRING, 4, L"&Add GameObject ");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hGOMenu, L"&GameObjects");
 	AppendMenuW(hdebugMenu, MF_STRING, 10, L"&Load DebugScene ");
+	AppendMenuW(hdebugMenu, MF_STRING, 11, L"&Run Cook ");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hdebugMenu, L"&DEBUG");
 	SetMenu(hwnd, hMenubar);
 }

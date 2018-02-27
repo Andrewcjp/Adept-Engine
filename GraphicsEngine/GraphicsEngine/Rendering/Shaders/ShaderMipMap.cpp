@@ -20,13 +20,12 @@ ShaderMipMap::~ShaderMipMap()
 {}
 void ShaderMipMap::GenAllmips()
 {
-//	Simulate(Targets[3]);
 	for (int i = 0; i < Targets.size(); i++)
 	{
-		Simulate(Targets[i]);
+		GenerateMipsForTexture(Targets[i]);
 	}
 }
-void ShaderMipMap::Simulate(D3D12Texture* tex)
+void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex)
 {
 	int requiredHeapSize = tex->Miplevels;
 	D3D12Shader* shader = (D3D12Shader*)m_Shader;

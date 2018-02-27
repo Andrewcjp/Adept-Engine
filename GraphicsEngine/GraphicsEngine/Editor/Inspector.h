@@ -3,6 +3,7 @@
 #include <vector>
 class IInspectable;
 class UIBox;
+#include <functional>
 class Inspector : public UIWidget
 {
 public:
@@ -17,6 +18,55 @@ public:
 		Slider,
 		Colour,
 		Label
+	};
+	struct PType
+	{
+		ValueType type;
+		union 
+		{
+			float fvalue;
+			int ivalue;
+		};
+		union  
+		{
+			std::function<float()> fTarget;
+			std::function<int()> iTarget;
+		};
+		~PType() {};
+		PType() {};
+		PType(PType&) {};
+		PType operator=(PType t)
+		{
+			t.fTarget = fTarget;
+			t.iTarget = iTarget;
+			return t;
+		}
+
+	};
+	struct PropertyField
+	{
+		
+		PropertyField(ValueType t, PType ptype)
+		{
+			type = t;
+			currentptype = ptype;
+		}
+		PType currentptype;
+		ValueType type;
+		PType GetValue()
+		{
+			if (currentptype.fTarget)
+			{
+				currentptype.fTarget();
+			}
+			return PType();
+		};
+		bool SetValue(PType value)
+		{
+
+		};
+		class GameObject* ParentObject  = nullptr;
+		~PropertyField() {};
 	};
 	struct InspectorPropery
 	{
@@ -45,6 +95,7 @@ public:
 private:
 	static Inspector* Instance;
 	void CreateEditor();
+	float ItemHeight = 0.02f;
 	IInspectable* target;
 	class UIButton* button;
 	std::vector<UIWidget*> SubWidgets;

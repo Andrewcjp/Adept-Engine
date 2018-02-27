@@ -35,7 +35,7 @@ void AssetManager::LoadTexturesFromDir()
 			continue;
 		}
 		TextureAsset t;
-		GetTextureAsset(p.path().string(), t);
+		GetTextureAsset(p.path().string(), t,true);
 	}
 }
 bool AssetManager::FileExists(std::string filename)
@@ -87,9 +87,13 @@ void AssetManager::CookTextureAsset()
 	ofp.close();
 	//ofp.write(reinterpret_cast<const char*>(&ShaderSourceMap), ShaderSourceMap.size() * sizeof(Vertex));
 }
+#include "../Core/Utils/FileUtils.h"
 void AssetManager::ExportCookedShaders()
 {
-	std::ofstream myfile(ShaderCookedName);
+	std::string dirtarget = ShaderCookedFile;
+	StringUtils::RemoveChar(dirtarget, "CookedShaders.txt");
+	FileUtils::CreateDirectoryFromFullPath(Engine::GetRootDir(), dirtarget, true);
+	std::ofstream myfile(Engine::GetRootDir()+ShaderCookedFile);
 	if (myfile.is_open())
 	{
 		for (std::map<std::string, std::string>::iterator it = ShaderSourceMap.begin(); it != ShaderSourceMap.end(); ++it)
@@ -97,7 +101,7 @@ void AssetManager::ExportCookedShaders()
 			//std::cout << it->first << " => " << it->second << '\n';
 			std::string data = "";
 			data.append(it->first);
-			data.append("|\n");
+			data.append(FileSplit+"\n");
 			data.append(it->second);
 			data.append("¬\n");
 			myfile.write(data.c_str(), data.length());
@@ -107,7 +111,7 @@ void AssetManager::ExportCookedShaders()
 }
 void AssetManager::LoadCookedShaders()
 {
-	std::ifstream myfile(ShaderCookedName);
+	std::ifstream myfile(Engine::GetRootDir()+ShaderCookedFile);
 	std::string file;
 	if (myfile.is_open())
 	{
@@ -122,10 +126,9 @@ void AssetManager::LoadCookedShaders()
 				ShaderSourceMap.emplace(Key, Shader);
 				shaderSource = "";
 				Key = "";
-				/*Shader.erase(0, Key.length());*/
 				continue;
 			}
-			size_t target = line.find("|");
+			size_t target = line.find(FileSplit);
 			if (target == -1)
 			{
 				shaderSource.append(line);
@@ -135,7 +138,7 @@ void AssetManager::LoadCookedShaders()
 			else
 			{
 				Key = line;
-				StringUtils::RemoveChar(Key, "|");
+				StringUtils::RemoveChar(Key, FileSplit);
 				StringUtils::RemoveChar(Key, "¬");
 			}
 
@@ -164,46 +167,35 @@ AssetManager::AssetManager()
 	path.append("\\asset\\");
 	/*StringUtils::RemoveChar(path, "|");*/
 	ShaderAssetPath = path;
-	ShaderAssetPath.append("shader/glsl/");
+	ShaderAssetPath.append("shader\\glsl\\");
 	TextureAssetPath = path;
 	TextureAssetPath.append("texture\\");
-	ShaderCookedName = "../asset/CookedShaders.txt";
-	//std::cout << "Asset path" << AssetRootPath << std::endl;
-	//if (PreLoadTextShaders)
-	//{
-	//	if (FileExists(ShaderCookedName))
-	//	{
-	//		//LoadCookedShaders();
-	//	}
-	//	else
-	//	{
-	//		ExportCookedShaders();
-	//	}
-	//}
 	LoadFromShaderDir();
-	/*LoadTexturesFromDir();
-	CookTextureAsset();
-	LoadTextureAsset();*/
-	//if (UseCookedtextures)
-	//{
-	//	if (!LoadTextureAsset())
-	//	{
-	//		LoadTexturesFromDir();
-	//		CookTextureAsset();
-	//	}
-	//}
+#if BUILD_PACKAGE
+	if (PreLoadTextShaders)
+	{
+		if (FileExists(Engine::GetRootDir() + ShaderCookedFile))
+		{
+			LoadCookedShaders();
+		}
+		else
+		{
+			ExportCookedShaders();
+		}
+	}
 	LoadTexturesFromDir();
-
+#else
+	//LoadCookedShaders();
+	ExportCookedShaders();
+#endif
 	std::cout << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << std::endl;
 	std::cout << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << std::endl;
 }
-
-
 AssetManager::~AssetManager()
 {
 }
 #include "ImageIO.h"
-bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset)
+bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset,bool ABSPath)
 {
 	if (HasCookedData)
 	{
@@ -215,26 +207,36 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset)
 		{
 			TextureAsset newasset;
 			unsigned char* image = nullptr;
-			if (path.find(".tga") != -1)
+			std::string fullpath = "";
+			if (ABSPath)
 			{
-				int bpp = 0;
-				ImageIO::LoadTGA(path.c_str(), &image, &newasset.Width, &newasset.Height, &bpp, &newasset.Nchannels);
+				fullpath = path;
 			}
 			else
 			{
-				image = SOIL_load_image(path.c_str(), &newasset.Width, &newasset.Height, &newasset.Nchannels, SOIL_LOAD_RGBA);
+				fullpath = Engine::GetRootDir();
+				fullpath.append(path);
+			}
+			if (fullpath.find(".tga") != -1)
+			{
+				int bpp = 0;
+				ImageIO::LoadTGA(fullpath.c_str(), &image, &newasset.Width, &newasset.Height, &bpp, &newasset.Nchannels);
+			}
+			else
+			{
+				image = SOIL_load_image(fullpath.c_str(), &newasset.Width, &newasset.Height, &newasset.Nchannels, SOIL_LOAD_RGBA);
 			}
 			if (image == nullptr)
 			{
-				std::cout << "Load texture Error " << path << std::endl;
+				std::cout << "Load texture Error " << fullpath << std::endl;
 				return false;
 			}
 			newasset.image = image;
 			newasset.ByteSize = (newasset.Width* newasset.Height) *(newasset.Nchannels * sizeof(unsigned char));
 			LoadedAssetSize += newasset.ByteSize;
-			StringUtils::RemoveChar(path, Engine::GetRootDir());
-			newasset.name = path;
-			newasset.NameSize = path.length();
+			StringUtils::RemoveChar(fullpath, Engine::GetRootDir());
+			newasset.name = fullpath;
+			newasset.NameSize = fullpath.length();
 			TextureAssetsMap.emplace(path, newasset);
 			asset = TextureAssetsMap.at(path);
 		}
@@ -280,6 +282,17 @@ std::string AssetManager::LoadFileWithInclude(std::string name)
 bool AssetManager::GetShaderAsset(std::string path, ShaderAsset & asset)
 {
 	return false;
+}
+
+void AssetManager::RegisterMeshAssetLoad(std::string name)
+{
+	if (instance)
+	{
+		if (instance->MeshFileMap.find(name) == instance->MeshFileMap.end())
+		{
+			instance->MeshFileMap.emplace(name, name);
+		}	
+	}
 }
 
 

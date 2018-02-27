@@ -21,7 +21,8 @@ enum ERenderSystemType
 	RenderSystemD3D11,
 	RenderSystemOGL,
 	RenderSystemD3D12,
-	RenderSystemVulkan
+	RenderSystemVulkan,
+	Limit
 };
 
 template <class T>

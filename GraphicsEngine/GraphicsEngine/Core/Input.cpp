@@ -295,6 +295,7 @@ bool Input::GetKeyDown(int c)
 {
 	if (instance != nullptr)
 	{
+		//todo: use array of keys?
 		if (instance->KeyMap.find((int)c) != instance->KeyMap.end())
 		{
 			return instance->KeyMap.at((int)c);

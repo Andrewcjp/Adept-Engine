@@ -22,6 +22,8 @@
 #include "../D3D12/D3D12Framebuffer.h"
 #include "../Core/Performance/PerfManager.h"
 #include "../D3D12/D3D12RHI.h"
+#include "../Core/Assets/AssetManager.h"
+#include "../Rendering/Core/Mesh.h"
 RHI* RHI::instance = nullptr;
 RHI::RHI()
 {
@@ -114,9 +116,12 @@ BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, vo
 
 Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool UseMesh)
 {
+	///todo asset paths
 	std::string accpath = Engine::GetRootDir();
-	accpath.append("\\asset\\models\\");
-	accpath.append(path);
+	std::string apath = ("\\asset\\models\\");
+	apath.append(path);
+	accpath.append(apath);
+	AssetManager::RegisterMeshAssetLoad(apath);
 	switch (instance->currentsystem)
 	{
 	case RenderSystemOGL:

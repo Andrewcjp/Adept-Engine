@@ -1,5 +1,5 @@
 #include "PhxRigidBody.h"
-#if	PHYSX_ENABLED
+#if	0
 
 
 PhxRigidBody::PhxRigidBody()

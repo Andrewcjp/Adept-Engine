@@ -6,5 +6,11 @@ public:
 	GameWindow();
 	virtual ~GameWindow();
 	void PostInitWindow(int width, int height)override;
+	struct PlayerSettings
+	{
+		std::string StartLevelName;
+	};
+private:
+	PlayerSettings CurrentSettings;
 };
 

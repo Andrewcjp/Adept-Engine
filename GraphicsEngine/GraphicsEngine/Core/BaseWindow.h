@@ -48,7 +48,6 @@ protected:
 	class DebugLineDrawer* dLineDrawer;
 	class Scene* CurrentScene;
 	RenderSettings CurrentRenderSettings;
-	class SceneSerialiser* SceneFileLoader;
 	class Editor_Camera* EditorCamera;
 	class SceneJSerialiser* Saver;
 	
@@ -58,6 +57,7 @@ protected:
 	bool IsRunning = false;
 	bool ShouldTickScene = false;
 	int FrameRateLimit =0;
+	void LoadScene(std::string RelativePath);
 private:
 	void PostFrameOne();
 	void RenderText();

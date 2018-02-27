@@ -167,7 +167,7 @@ void Inspector::CreateEditor()
 			}
 			if (newwidget != nullptr)
 			{
-				newwidget->AligmentStruct.SizeMax = 0.03f;
+				newwidget->AligmentStruct.SizeMax = ItemHeight;
 				Panel->AddSubWidget(newwidget);
 			}
 		}

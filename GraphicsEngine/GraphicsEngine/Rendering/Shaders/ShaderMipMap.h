@@ -8,7 +8,7 @@ public:
 	ShaderMipMap();
 	virtual ~ShaderMipMap();
 	void GenAllmips();
-	void Simulate( D3D12Texture* tex);
+	void GenerateMipsForTexture( D3D12Texture* tex);
 	ID3D12GraphicsCommandList* pCommandList = nullptr;
 	std::vector<D3D12Texture*> Targets;
 };

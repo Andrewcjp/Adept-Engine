@@ -48,8 +48,11 @@ void D3D11Texture::CreateTextureFromFile(ID3D11Device* , const char* filename)
 	}
 	else
 	{
-		buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, filename);
-		
+		if (ImageIO::LoadTexture2D(filename, &buffer, &width, &height, &nChannels) != E_IMAGEIO_SUCCESS)
+		{
+			return;
+		}
+		/*buffer = ImageLoader::instance->LoadSOILFile(&width, &height, &nChannels, filename);*/		
 	}
 
 	if (buffer == NULL)//this shouldn't happen, but let's do it anyway.

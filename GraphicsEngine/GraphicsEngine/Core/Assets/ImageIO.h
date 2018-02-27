@@ -16,6 +16,9 @@ class ImageIO
 		static EImageIOStatus LoadUncompressedTGA(unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels, FILE* pf); 
 	public:
 		static EImageIOStatus LoadTGA(const char* filename, unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels);
+		static EImageIOStatus LoadTexture2D(const char * filename, unsigned char ** buffer, int * width, int * height,int * nchan);
+		static EImageIOStatus LoadTextureCubeMap(const char * filename, unsigned char ** buffer, int * width, int * height);
+		
 };
 
 #endif

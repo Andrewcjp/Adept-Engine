@@ -6,6 +6,7 @@
 #include <fstream>
 #include "rapidjson\prettywriter.h"
 #include "../Engine.h"
+#include "../Core/Utils/FileUtils.h"
 rapidjson::Document::AllocatorType* SceneJSerialiser::jallocator = nullptr;
 SceneJSerialiser::SceneJSerialiser()
 {
@@ -31,6 +32,10 @@ void SceneJSerialiser::SaveScene(Scene* target, std::string path)
 }
 void SceneJSerialiser::LoadScene(Scene* target,std::string path)
 {
+	if (!FileUtils::exists_test3(path))
+	{
+		return;
+	}
 	std::string data = GetFile(path);
 	rapidjson::StringStream JStream(data.c_str());
 	doc.ParseStream(JStream);

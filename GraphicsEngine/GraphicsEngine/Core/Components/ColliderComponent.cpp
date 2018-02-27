@@ -1,7 +1,7 @@
 //#include "stdafx.h"
 #include "ColliderComponent.h"
 #include "../Engine.h"
-#include "../Physics/PhysxEngine.h"
+#include "../Physics/PhysicsEngine.h"
 
 ColliderComponent::ColliderComponent()
 {
@@ -34,12 +34,12 @@ void ColliderComponent::CreateShape()
 	switch (CollisionShapeType)
 	{
 	case Box:
-		CollisionShape = Engine::PPhysxEngine->GetGPhysics()->createShape(PxBoxGeometry(BoxHalfExtent, BoxHalfExtent, BoxHalfExtent),
-			*(Engine::PPhysxEngine->GetDefaultMaterial()));
+		CollisionShape = Engine::PhysEngine->GetGPhysics()->createShape(physx::PxBoxGeometry(BoxHalfExtent, BoxHalfExtent, BoxHalfExtent),
+			*(Engine::PhysEngine->GetDefaultMaterial()));
 		break;
 	case Sphere:
-		CollisionShape = Engine::PPhysxEngine->GetGPhysics()->createShape(PxSphereGeometry(Radius),
-			*(Engine::PPhysxEngine->GetDefaultMaterial()));
+		CollisionShape = Engine::PhysEngine->GetGPhysics()->createShape(physx::PxSphereGeometry(Radius),
+			*(Engine::PhysEngine->GetDefaultMaterial()));
 		break;
 	}
 	InitalisedCollisionShapeType = CollisionShapeType;
