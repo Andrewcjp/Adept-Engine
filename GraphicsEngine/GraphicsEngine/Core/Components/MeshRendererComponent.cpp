@@ -4,6 +4,7 @@
 #include "../Assets/SerialHelpers.h"
 #include "../Assets/SceneJSerialiser.h"
 #include "../RHI/RHI.h"
+#include "../RHI/RHICommandList.h"
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
@@ -30,6 +31,17 @@ void MeshRendererComponent::SetUpMesh(Renderable * Mesh, Material * materal)
 }
 
 void MeshRendererComponent::Render(bool DepthOnly, CommandListDef* list)
+{
+	if (m_mat != nullptr && DepthOnly == false)
+	{
+		m_mat->SetMaterialActive(list);
+	}
+	if (m_mesh != nullptr)
+	{
+		//m_mesh->Render(list);
+	}
+}
+void MeshRendererComponent::Render(bool DepthOnly, RHICommandList* list)
 {
 	if (m_mat != nullptr && DepthOnly == false)
 	{

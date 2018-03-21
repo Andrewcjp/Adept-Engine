@@ -31,7 +31,7 @@ OGLMesh::~OGLMesh()
 	glDeleteBuffers(1, &m_vbo_verts);
 }
 
-void OGLMesh::Render(CommandListDef*)
+void OGLMesh::Render(RHICommandList*)
 {
 
 	glBindVertexArray(m_vao);

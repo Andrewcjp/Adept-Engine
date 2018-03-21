@@ -15,8 +15,6 @@ class EditorWindow : public BaseWindow
 {
 
 public:
-	bool ShowHud = true;
-	bool ShowText = true;
 	bool LoadText = true;
 	bool ExtendedPerformanceStats = true;
 
@@ -53,6 +51,4 @@ private:
 	class Editor_Camera* EditorCamera;
 	class SceneJSerialiser* Saver;
 	std::string CurrentSceneSavePath;
-
-
 };

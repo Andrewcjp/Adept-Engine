@@ -44,7 +44,7 @@ bool MeshCooker::LoadMeshFile(const char * filename,Mesh* meshobject)
 
 	//printf("Reading  %d length vertex one has positon %f %f\n", verts.size(), verts[0].GetPos()->x, verts[0].GetPos()->y);
 	delete attribdata;
-	meshobject->Init(&verts[0], static_cast<int>(verts.size()), (int*)&indices[0], static_cast<int>(indices.size()));
+	//meshobject->Init(&verts[0], static_cast<int>(verts.size()), (int*)&indices[0], static_cast<int>(indices.size()));
 	return true;
 }
 

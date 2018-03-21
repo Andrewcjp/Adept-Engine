@@ -12,7 +12,8 @@ public:
 	virtual ~MeshRendererComponent();
 	void SetUpMesh(Renderable * Mesh, Material * materal);
 	void Render(bool DepthOnly, CommandListDef * list = nullptr);
-	void Render(bool DepthOnly);
+	void Render(bool DepthOnly,class RHICommandList * list);
+	/*void Render(bool DepthOnly);*/
 	Material* GetMaterial();
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props) override final;
 	Renderable* GetMesh()

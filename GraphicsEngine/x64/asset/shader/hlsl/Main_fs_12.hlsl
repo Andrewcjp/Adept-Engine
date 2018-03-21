@@ -27,7 +27,7 @@ struct PSInput
 
 Texture2D g_texture : register(t0);
 
-Texture2D g_Shadow_texture : register(t4);
+Texture2D g_Shadow_texture : register(t1);
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
 float GetShadow(float4 pos)
@@ -61,8 +61,8 @@ float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld)
 	// Depth bias to avoid pixel self-shadowing.
 	float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS;
 
-	// Find sub-pixel weights.
-	float2 vShadowMapDims = float2(2048, 2048); // need to keep in sync with .cpp file
+	// Find sub-pixel weights.//todo: shader define!
+	float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file
 	float size = 1.0f;
 	float4 vSubPixelCoords = float4(size, size, size, size);
 	vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord);
@@ -95,24 +95,25 @@ float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 v
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);*/
 	}
 	MaterialDiffuseColor *= vLightColor;
+
 	return  float4(MaterialDiffuseColor * diffu, 1.0);// +(MaterialSpecularColor*spec);
+
+
 }
 float4 main(PSInput input) : SV_TARGET
 {
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv);
 	float4 output = float4(texturecolour.xyz,1);
-
-	// output *= float4(lights[0].color, 1.03);
 	float4 falloff = (0, 1000, 0.0f, 10.0f);
-	//output = float4(1, 1, 1, 1);
-	 output = CalcLightingColor(texturecolour,lights[0].LPosition, -lights[0].Direction, lights[0].color, falloff, input.WorldPos.xyz, input.Normal.xyz);
-	float4  ambeint = float4(texturecolour,1.0) * float4(0.1f, 0.1f, 0.1f, 0.1f);
-	 //  output += texturecolour*0.1f;
-	   // return float4(GetShadow(input.WorldPos), GetShadow(input.WorldPos), GetShadow(input.WorldPos), 1.0);
-	   //return output *1.0 - GetShadow(input.WorldPos);
-	float4 GammaCorrected = ambeint + output;// pow(output, float4(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
-	
-	 return GammaCorrected * CalcUnshadowedAmountPCF2x2(0, input.WorldPos);
+
+	output = CalcLightingColor(texturecolour,lights[0].LPosition, -lights[0].Direction, lights[0].color, falloff, input.WorldPos.xyz, input.Normal.xyz);
+	float AbFactor = 0.2f;
+	float4 ambeint = float4(texturecolour,1.0) * float4(AbFactor, AbFactor, AbFactor, AbFactor);
+	float Shadow = CalcUnshadowedAmountPCF2x2(0, input.WorldPos);
+	float4 GammaCorrected = ambeint + (output*Shadow);// pow(output, float4(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
+	float gamma = 1.0f / 2.2f;
+//	GammaCorrected = pow(GammaCorrected, float4(gamma, gamma, gamma, gamma));
+	return GammaCorrected;
 }
 
 

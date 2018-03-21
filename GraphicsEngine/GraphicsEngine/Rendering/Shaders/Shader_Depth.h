@@ -30,6 +30,7 @@ public:
 	int depthCubemap;
 	int m_ShadowBuffer;
 	void BindShadowmmap(CommandListDef* List);
+	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	bool LoadGeomShader = true;
 	OGLTexture* CubeMaptex;
 	FrameBuffer* shadowbuffer;

@@ -10,11 +10,12 @@ class Shader_UIBatch :
 public:
 	Shader_UIBatch();
 	virtual ~Shader_UIBatch();
-	void PushTOGPU(CommandListDef * list);
+	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;	
+	void PushTOGPU(RHICommandList * list);
+	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	void UpdateUniforms(glm::mat4x4 Proj);
-	class D3D12Shader* GetD3D12Shader();
 private:   
 	UnifromData data;
-	class D3D12CBV* CBV;
+	RHIBuffer* UniformBuffer = nullptr;
 };
 

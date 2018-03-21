@@ -15,7 +15,7 @@ class Renderable
 
 		//this is a pure virtual function
 								Renderable() { m_tex = 0; }
-		virtual void			Render(CommandListDef* list = nullptr) = 0;
+		virtual void			Render(class RHICommandList* list = nullptr) = 0;
 		virtual ~Renderable() {}
 		std::string AssetName = "";
 		inline void				SetTexture( BaseTexture* tex )

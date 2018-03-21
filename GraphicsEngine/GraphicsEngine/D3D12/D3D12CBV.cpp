@@ -19,7 +19,7 @@ void D3D12CBV::SetDescriptorHeaps(CommandListDef* list)
 
 	
 }
-void D3D12CBV::SetGpuView(CommandListDef * list, int offset, ShaderRegisterSlot slot)
+void D3D12CBV::SetGpuView(CommandListDef * list, int offset, int slot)
 {
 	CD3DX12_GPU_DESCRIPTOR_HANDLE  cbvSrvHandle(m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
 	list->SetGraphicsRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));

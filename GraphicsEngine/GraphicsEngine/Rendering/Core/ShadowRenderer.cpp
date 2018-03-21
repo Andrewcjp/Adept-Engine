@@ -2,9 +2,12 @@
 #include "RHI/RHI.h"
 #include "../Rendering/Shaders/Shader_Main.h"
 #include "../D3D12/D3D12RHI.h"
+#include "../Rendering/Core/FrameBuffer.h"
 ShadowRenderer::ShadowRenderer()
 {
-
+	DirectionalLightShader = new Shader_Depth(nullptr);
+	int shadowwidth = 1024;
+	DirectionalLightBuffer = RHI::CreateFrameBuffer(shadowwidth, shadowwidth, 1, FrameBuffer::Depth);
 }
 
 
@@ -16,7 +19,7 @@ ShadowRenderer::~ShadowRenderer()
 	}
 }
 
-void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, const std::vector<GameObject*>& ShadowObjects, CommandListDef* list, Shader_Main* mainshader)
+void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, const std::vector<GameObject*>& ShadowObjects, RHICommandList* list, Shader_Main* mainshader)
 {
 	//if (UseCache)
 	//{
@@ -29,18 +32,24 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, co
 	//		Renderered = true;
 	//	}
 	//}
+	//todo: refactor!
 
-	for (size_t SNum = 0; SNum < ShadowShaders.size(); SNum++)
+	//list->ResetList();
+
+	for (size_t SNum = 0; SNum < ShadowingLights.size(); SNum++)
 	{
-		ShadowShaders[SNum]->SetShaderActive(list);
-		if (RHI::GetType() != RenderSystemD3D12)
+		if (SNum >= 1)
 		{
-			ShadowShaders[SNum]->shadowbuffer->ClearBuffer();
+			continue;
 		}
-
+		
+		list->SetRenderTarget(DirectionalLightBuffer);
+		list->ClearFrameBuffer(DirectionalLightBuffer);
 		if (RHI::GetType() == RenderSystemD3D12)
 		{
-			mainshader->UpdateMV(ShadowShaders[0]->targetlight->DirView, ShadowShaders[0]->targetlight->Projection);
+			//mainshader->UpdateMV(ShadowingLights[SNum]->DirView, c->GetProjection());
+			mainshader->UpdateMV(ShadowingLights[SNum]->DirView, ShadowingLights[SNum]->Projection);
+			//c->OverrideVP()
 		}
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
@@ -49,47 +58,41 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, co
 				//object should not be rendered to the depth map
 				continue;
 			}
-
 			if (ShadowObjects[i]->GetMat()->GetDoesShadow() == false)
 			{
 				continue;
 			}
-			if (RHI::GetType() != RenderSystemD3D12)
+			/*if (RHI::GetType() != RenderSystemD3D12)
 			{
 				ShadowShaders[SNum]->UpdateUniforms(ShadowObjects[i]->GetTransform(), c, lights);
 				ShadowObjects[i]->Render(true, list);
 			}
 			else
-			{
-				mainshader->SetActiveIndex(list, (int)i);				
-				ShadowObjects[i]->Render(false, list);
-			}
+			{*/
+				mainshader->SetActiveIndex(list, (int)i);
+				ShadowObjects[i]->Render(true, list);
+			//}
 
 		}
-		ShadowShaders[SNum]->shadowbuffer->UnBind();
+		list->SetRenderTarget(nullptr);
 	}
 
 }
 
-void ShadowRenderer::BindShadowMaps(CommandListDef* list)
+void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
-	for (size_t SNum = 0; SNum < ShadowShaders.size(); SNum++)
-	{
-		ShadowShaders[SNum]->BindShadowmmap(list);
-	}
+	list->SetFrameBufferTexture(DirectionalLightBuffer, 4);
 }
 void ShadowRenderer::ClearShadowLights()
 {
-	for (size_t SNum = 0; SNum < ShadowShaders.size(); SNum++)
-	{
-		delete ShadowShaders[SNum];
-	}
-	ShadowShaders.clear();
+	ShadowingLights.clear();
 }
 
 
-void ShadowRenderer::InitShadows(std::vector<Light*> lights)
+void ShadowRenderer::InitShadows(std::vector<Light*> lights, RHICommandList* list)
 {
+	ClearShadowLights();
+	
 	int lastpointshadow = 0;
 	int lastdirshadow = 0;
 	for (size_t i = 0; i < lights.size(); i++)
@@ -126,15 +129,18 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			lights[i]->SetShadowId(lastpointshadow);
 			lastpointshadow++;
 		}
-		if (lights[i]->GetType() == Light::Point)
+		ShadowingLights.push_back(lights[i]);
+		/*if (lights[i]->GetType() == Light::Point)
 		{
 			ShadowShaders.push_back(new Shader_Depth(lights[i], true));
 		}
 		else
 		{
 			ShadowShaders.push_back(new Shader_Depth(lights[i], false));
-		}
+		}*/
 	}
+
+	list->CreatePipelineState(DirectionalLightShader);
 }
 
 CommandListDef * ShadowRenderer::CreateShaderCommandList()

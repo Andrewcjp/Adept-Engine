@@ -45,15 +45,15 @@ BOOL D3D12Window::InitWindow(HGLRC, HWND, HDC, int width, int height)
 	RHITest->LoadAssets();
 	mainshader = new Shader_Main();
 
-	Testtexture = RHI::CreateTexture("house_diffuse.tga");
+	Testtexture = RHI::CreateTexture("\\asset\\texture\\house_diffuse.tga");
 	Testobj = new GameObject();
-	Material* newmat = new Material(RHI::CreateTexture("grasshillalbedo.png", false));
+	Material* newmat = new Material(RHI::CreateTexture("\\asset\\texture\\grasshillalbedo.png", false));
 	Testobj->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("terrainmk2.obj", nullptr), newmat));
 	Testobj->GetTransform()->SetPos(glm::vec3(20, 0, 0));
 	Testobj->GetTransform()->SetScale(glm::vec3(10));
 	Testobj->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	Testobj2 = new GameObject();
-	newmat = new Material(RHI::CreateTexture("house_diffuse.tga", true));
+	newmat = new Material(RHI::CreateTexture("\\asset\\texture\\house_diffuse.tga", true));
 	Testobj2->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("house.obj", nullptr), newmat));
 	Testobj2->GetTransform()->SetPos(glm::vec3(0, 2, 0));
 	Testobj2->GetTransform()->SetEulerRot(glm::vec3(0, 45, 0));
@@ -73,7 +73,7 @@ BOOL D3D12Window::InitWindow(HGLRC, HWND, HDC, int width, int height)
 	ShadowR = new ShadowRenderer();
 	debugplane = new D3D12Plane(1);
 	Lights.push_back(new Light(TestShadowcam->GetPosition(), 1, Light::Directional));
-	ShadowR->InitShadows(Lights);
+//	ShadowR->InitShadows(Lights);
 	input = new Input(cam, nullptr, m_hwnd, this);
 	mainshader->UpdateLightBuffer(Lights);
 	output = new ShaderOutput(1280, 720);
@@ -103,7 +103,7 @@ void D3D12Window::ShadowPass()
 	std::vector<GameObject*> sh;
 	sh.push_back(Testobj2);
 	//mainshader->UpdateMV(Lights[0]->DirView, Lights[0]->Projection);
-	ShadowR->RenderShadowMaps(nullptr, Lights, sh, ShadowList, mainshader);
+//	ShadowR->RenderShadowMaps(nullptr, Lights, sh, ShadowList, mainshader);
 
 	ShadowList->Close();
 
@@ -116,7 +116,7 @@ void D3D12Window::RenderPlane()
 #endif
 	MainList->SetGraphicsRootSignature(((D3D12Shader*)output->GetShaderProgram())->m_Shader.m_rootSignature);
 	MainList->SetPipelineState(((D3D12Shader*)output->GetShaderProgram())->m_Shader.m_pipelineState);
-	debugplane->Render(MainList);
+	//debugplane->Render(MainList);
 }
 void D3D12Window::Render()
 {
@@ -134,11 +134,11 @@ void D3D12Window::Render()
 	mainshader->UpdateMV(cam);
 	//copy to gpu
 
-	ShadowR->BindShadowMaps(MainList);
-	mainshader->SetActiveIndex(RHITest->m_commandList, 0);
+///	ShadowR->BindShadowMaps(MainList);
+//	mainshader->SetActiveIndex(RHITest->m_commandList, 0);
 	Testobj->Render(false, RHITest->m_commandList);
 
-	mainshader->SetActiveIndex(RHITest->m_commandList, 1);
+//	mainshader->SetActiveIndex(RHITest->m_commandList, 1);
 	Testobj2->Render(false, RHITest->m_commandList);
 
 

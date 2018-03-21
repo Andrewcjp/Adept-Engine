@@ -94,7 +94,7 @@ void GameObject::Render(bool ignoremat)
 {
 	if (m_MeshRenderer != nullptr)
 	{
-		m_MeshRenderer->Render(ignoremat, nullptr);
+	//	m_MeshRenderer->Render(ignoremat, nullptr);
 	}
 }
 void GameObject::Render(bool ignoremat, CommandListDef* list)
@@ -105,9 +105,15 @@ void GameObject::Render(bool ignoremat, CommandListDef* list)
 		m_MeshRenderer->Render(ignoremat, list);
 	}
 }
+void GameObject::Render(bool ignoremat,RHICommandList * list)
+{
+	if (m_MeshRenderer != nullptr)
+	{
+		m_MeshRenderer->Render(ignoremat, list);
+	}
+}
 void GameObject::FixedUpdate(float delta)
 {
-	
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		if (m_Components[i]->DoesFixedUpdate)

@@ -11,7 +11,7 @@ public:
 
 	// Inherited via Renderable
 	//virtual void Render(CommandListDef* list = nullptr) override;
-	void Render(CommandListDef* list)override;
+	void Render(RHICommandList* list)override;
 	void CreateVertexBuffer();
 private:
 	struct Vertex

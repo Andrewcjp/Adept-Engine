@@ -18,6 +18,7 @@ public:
 	void CreateTexture();
 	virtual void Bind(int unit) override;
 	void Bind(CommandListDef * list) override;
+	void BindToSlot(CommandListDef * list, int slot);
 	virtual void FreeTexture() override;
 	virtual void SetTextureID(int id) override;
 	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) override;
@@ -30,7 +31,7 @@ public:
 	}
 	int width = 0;
 	int height = 0;
-	UINT16 Miplevels = 7;
+	UINT16 Miplevels = 6;
 private:
 	int TextureWidth = 100;
 	int TextureHeight = 100;

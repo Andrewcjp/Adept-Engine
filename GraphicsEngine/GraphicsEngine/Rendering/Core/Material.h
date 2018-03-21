@@ -12,6 +12,7 @@ public:
 	Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
 	~Material();
 	void SetMaterialActive(CommandListDef * list = nullptr);
+	void SetMaterialActive(class RHICommandList * list);
 	BaseTexture* Diffusetexture;
 	BaseTexture* Metallictex;
 	BaseTexture* glosstex;

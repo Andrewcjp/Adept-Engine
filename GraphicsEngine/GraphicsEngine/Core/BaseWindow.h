@@ -30,6 +30,8 @@ public:
 
 	static bool ProcessDebugCommand(std::string command);
 	static Camera* GetCurrentCamera();
+	bool ShowHud = true;
+	bool ShowText = true;
 protected:
 
 	//callbacks
@@ -58,6 +60,7 @@ protected:
 	bool ShouldTickScene = false;
 	int FrameRateLimit =0;
 	void LoadScene(std::string RelativePath);
+
 private:
 	void PostFrameOne();
 	void RenderText();
@@ -71,8 +74,8 @@ private:
 	bool IsDeferredMode = false;
 	bool LoadText = true;
 	bool Once = true;
-	bool ShowHud = true;
-	bool ShowText = true;	
+
+	
 	float accumrendertime = 0.0f;
 	float AccumTickTime = 0.0f;
 

@@ -3,11 +3,11 @@
 #define BUILD_WINDOW_ENGINE 1
 #define NO_GEN_CONTEXT 0
 
-#define BUILD_D3D11 1
+#define BUILD_D3D11 0
 #define BUILD_OPENGL 1
 #define BUILD_D3D12 1
 #define BUILD_Vulkan 0
-#define DOCHECK 1
+//#define DOCHECK 1
 #pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0
@@ -28,7 +28,7 @@ enum ERenderSystemType
 template <class T>
 void UNUSED_PARAM(T const&)
 {}
-
+#include "Core\Asserts.h"
 
 #if BUILD_D3D12
 #define NAME_D3D12_OBJECT(x) SetName(x, L#x)
@@ -39,13 +39,7 @@ typedef struct Stub {} CommandListDef;
 
 
 //Asserts
-#if DOCHECK
-#define ensure(condition) if(!condition){WindowsHelpers::DisplayMessageBox("Error", "Ensure Failed \n" #condition); exit(1359);}
-#define check(condition) if(!condition){WindowsHelpers::DisplayMessageBox("Error", "Assert Failed \n" #condition);}
-#else
-#define check(condition);
-#define ensure(condition);
-#endif
+
 /*
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "glew32.lib")

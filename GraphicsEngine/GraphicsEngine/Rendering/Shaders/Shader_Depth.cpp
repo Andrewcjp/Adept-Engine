@@ -1,9 +1,7 @@
 #include "Shader_Depth.h"
 #include "RHI/RHI.h"
-#include "OpenGL/OGLFrameBuffer.h"
-#include "D3D11\D3D11Shader.h"
 #include "glm\glm.hpp"
-#include"../D3D12/D3D12Framebuffer.h"
+#include "Shader_Main.h"
 void Shader_Depth::INIT()
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -152,7 +150,7 @@ void Shader_Depth::BindShadowmmap(CommandListDef* List)
 		}
 		else
 		{
-			((D3D12FrameBuffer*)shadowbuffer)->BindBufferToTexture(List);
+			//((D3D12FrameBuffer*)shadowbuffer)->BindBufferToTexture(List,0);
 		}
 		//printf("bind");
 	}
@@ -171,7 +169,12 @@ void Shader_Depth::BindShadowmmap(CommandListDef* List)
 	//	glActiveTexture(GL_TEXTURE1);
 	//	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowbuffer->GetRenderTexture()->m_syshandle);
 }
-
+std::vector<Shader::ShaderParameter> Shader_Depth::GetShaderParameters()
+{
+	std::vector<Shader::ShaderParameter> Output;
+	Shader_Main::GetMainShaderSig(Output);
+	return Output;
+}
 void Shader_Depth::UpdateD3D11Uniforms(Transform * t, Camera * , std::vector<Light*> lights)
 {
 #if BUILD_D3D11

@@ -21,7 +21,7 @@ public:
 
 	void LoadAndBuildMeshFromOBJFile(LPCWSTR filename);
 
-	void Render(CommandListDef* list = nullptr);
+	void Render(RHICommandList* list = nullptr);
 
 	void RenderInstance(int number);
 

@@ -72,6 +72,13 @@ void ForwardRenderer::Resize(int width, int height)
 	{
 		glViewport(0, 0, width, height);
 	}
+	if (RHI::IsD3D12())
+	{
+		if (DRHI)
+		{
+			DRHI->ResizeSwapChain(width, height);
+		}
+	}
 	outshader->Resize(width, height);
 	if (FilterBuffer != nullptr)
 	{
@@ -149,11 +156,13 @@ void ForwardRenderer::Init()
 	Lights = mainscene->GetLights();
 	(Objects) = (mainscene->GetObjects());
 	shadowrender = new ShadowRenderer();
-	shadowrender->InitShadows((*Lights));
+
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
 		ShadowList = shadowrender->CreateShaderCommandList();
 	}
+	ShadowCMDList = RHI::CreateCommandList();
+	shadowrender->InitShadows((*Lights), ShadowCMDList);
 	GPUStateCache::Create();
 	skybox = new GameObject();
 	skybox->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("skybox.obj", GetMainShader()->GetShaderProgram(), true), nullptr));
@@ -161,7 +170,7 @@ void ForwardRenderer::Init()
 	{
 		grasstest = std::make_unique<GrassPatch>();
 	}
-
+	TESTINIT();
 }
 void ForwardRenderer::ReflectionPass()
 {
@@ -188,7 +197,7 @@ void ForwardRenderer::ReflectionPass()
 
 
 	mainshader->SetShaderActive();
-	shadowrender->BindShadowMaps();
+	//	shadowrender->BindShadowMaps();
 
 	for (size_t i = 0; i < (InGetObj()).size(); i++)
 	{
@@ -223,12 +232,15 @@ void ForwardRenderer::ReflectionPass()
 
 void ForwardRenderer::ShadowPass()
 {
+	return;
 	if (ShadowList != nullptr)
 	{
 		shadowrender->ResetCommandList(ShadowList);
 		mainshader->BindLightsBuffer(ShadowList);
 	}
-	shadowrender->RenderShadowMaps(MainCamera, (*Lights), (InGetObj()), ShadowList, mainshader);
+	//ShadowCMDList->ClearScreen();
+
+	shadowrender->RenderShadowMaps(MainCamera, (*Lights), (InGetObj()), ShadowCMDList, mainshader);
 	if (ShadowList != nullptr)
 	{
 		ShadowList->Close();
@@ -258,6 +270,7 @@ void ForwardRenderer::RenderDebugPlane()
 }
 void ForwardRenderer::MainPass()
 {
+
 	if (RHI::GetType() == RenderSystemOGL)
 	{
 		if (UseQuerry)
@@ -275,9 +288,17 @@ void ForwardRenderer::MainPass()
 	}
 	if (mainscene->StaticSceneNeedsUpdate)
 	{
-
+		shadowrender->InitShadows(*Lights, ShadowCMDList);
 		shadowrender->Renderered = false;
 	}
+	PrepareData();
+	TEST();
+	return;
+
+
+
+
+
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
 		PrepareData();
@@ -293,7 +314,7 @@ void ForwardRenderer::MainPass()
 	FilterBuffer->ClearBuffer();
 	mainshader->currentnumber += 0.1f* deltatime;
 	mainshader->SetShaderActive();
-	shadowrender->BindShadowMaps(MainList);
+	///	shadowrender->BindShadowMaps(MainList);
 	int count = 0;
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
@@ -304,29 +325,6 @@ void ForwardRenderer::MainPass()
 	}
 	for (size_t i = 0; i < (InGetObj()).size(); i++)
 	{
-		if (RHI::GetType() == RenderSystemOGL)
-		{
-			if (UseQuerry)
-			{
-				GLuint passed = INT_MAX;
-				GLuint available = 0;
-				glGetQueryObjectuiv((InGetObj())[i]->Querry, GL_QUERY_RESULT_AVAILABLE, &available);
-				if (available)
-				{
-					passed = 0;
-					glGetQueryObjectuiv((InGetObj())[i]->Querry, GL_QUERY_RESULT, &passed);
-					(InGetObj())[i]->Occluded = (passed == 0);
-					(InGetObj())[i]->QuerryWait = false;
-				}
-
-				if ((InGetObj())[i]->Occluded)
-				{
-					count++;
-					//  printf("culled %s\n ", Objects[i]->GetName());
-					continue;
-				}
-			}
-		}
 		if (InGetObj()[i]->GetMat() == nullptr)
 		{
 			continue;
@@ -359,7 +357,7 @@ void ForwardRenderer::MainPass()
 		}
 		else
 		{
-			mainshader->SetActiveIndex(MainList, (int)i);
+			//mainshader->SetActiveIndex(MainList, (int)i);
 		}
 		(InGetObj())[i]->Render(false, MainList);
 	}
@@ -391,9 +389,10 @@ void ForwardRenderer::MainPass()
 	{
 		RenderDebugPlane();
 		DRHI->PostFrame(MainList);
-		DRHI->ExecList(MainList);
-
+		/*MainList->Close();*/
+		DRHI->ExecList(MainList, false);
 	}
+
 }
 
 void ForwardRenderer::RenderSkybox(bool ismain)
@@ -444,10 +443,8 @@ void ForwardRenderer::InitOGL()
 	skyboxShader = std::make_unique<Shader_Skybox>();
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
-		MainList = ((D3D12Shader*)mainshader->GetShaderProgram())->CreateShaderCommandList();
+		//MainList = ((D3D12Shader*)mainshader->GetShaderProgram())->CreateShaderCommandList();
 	}
-	//ShadowList = shadowrender->CreateShaderCommandList();
-
 }
 
 std::vector<GameObject*> ForwardRenderer::GetObjects()
@@ -471,7 +468,7 @@ void ForwardRenderer::SetScene(Scene * sc)
 	mainshader->RefreshLights();
 	if (shadowrender != nullptr)
 	{
-		shadowrender->InitShadows(*Lights);
+		shadowrender->InitShadows(*Lights, ShadowCMDList);
 	}
 	if (shadowrender != nullptr)
 	{
@@ -485,6 +482,61 @@ void ForwardRenderer::SetScene(Scene * sc)
 	{
 		MainCamera = mainscene->GetCurrentRenderCamera();
 	}
+}
+#include "../Core/Engine.h"
+void ForwardRenderer::TESTINIT()
+{
+
+	cmlist = RHI::CreateCommandList();	 
+	vertexbuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
+	vertexbuffer->CreateVertexBufferFromFile(Engine::GetRootDir() + "\\asset\\models\\terrainmk2.obj");
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+	{
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+	cmlist->SetVertexFormat(inputElementDescs, 3);
+
+	texturetest = RHI::CreateTexture("\\asset\\texture\\grasshillalbedo.png");
+	cmlist->SetTexture(texturetest, 0);
+	//finally init the pipeline!
+	cmlist->CreatePipelineState(mainshader);
+	shadowrender->InitShadows((*Lights), ShadowCMDList);
+}
+
+void ForwardRenderer::TEST()
+{
+	cmlist->ResetList();
+
+	MVBuffer buffer;
+	buffer.P = MainCamera->GetProjection();
+	buffer.V = MainCamera->GetView();
+	mainshader->UpdateMV(MainCamera);
+	mainshader->UpdateLightBuffer(*Lights);
+	
+	mainshader->BindLightsBuffer(cmlist);
+	mainshader->UpdateCBV();
+	if (true)
+	{
+		
+		ShadowCMDList->ResetList();
+		mainshader->BindLightsBuffer(ShadowCMDList);
+
+		shadowrender->RenderShadowMaps(MainCamera, (*Lights), (*Objects), ShadowCMDList, mainshader);
+		ShadowCMDList->Execute();
+
+		shadowrender->BindShadowMapsToTextures(cmlist);
+	}
+	mainshader->UpdateMV(MainCamera);
+	cmlist->ClearScreen();
+	cmlist->SetScreenBackBufferAsRT();
+	for (size_t i = 0; i < (*Objects).size(); i++)
+	{
+		mainshader->SetActiveIndex(cmlist, i);
+		(*Objects)[i]->Render(false, cmlist);
+	}
+	cmlist->Execute();
 }
 
 Camera * ForwardRenderer::GetMainCam()

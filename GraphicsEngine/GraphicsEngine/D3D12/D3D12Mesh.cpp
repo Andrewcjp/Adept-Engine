@@ -4,19 +4,12 @@
 #include "Rendering/Core/Triangle.h"
 #include "../Core/Assets/OBJFileReader.h"
 #include "../RHI/RHI.h"
+#include "../Core/Utils/StringUtil.h"
 
-D3D12Mesh::D3D12Mesh()
-{
-	CreateVertexBuffer(L"C:\\Users\\AANdr\\Dropbox\\Engine\\Engine\\Repo\\GraphicsEngine\\x64\\asset\\models\\House.obj");
-}
 
 D3D12Mesh::D3D12Mesh(const char * file)
 {
-	std::string filename = file;
-	
-	std::wstring newfile((int)filename.size(), 0);
-	MultiByteToWideChar(CP_UTF8, 0, &filename[0], (int)filename.size(), &newfile[0], (int)filename.size());
-	CreateVertexBuffer(newfile.c_str());
+	CreateVertexBuffer(StringUtils::ConvertStringToWide(file).c_str());
 }
 
 
@@ -25,16 +18,16 @@ D3D12Mesh::~D3D12Mesh()
 }
 
 
-void D3D12Mesh::Render(CommandListDef * list)
+void D3D12Mesh::Render(RHICommandList * list)
 {
 	if (list == nullptr && RHI::GetType() == RenderSystemD3D12)
 	{
 		printf("Error Null List\n");
 		return;
 	}
-	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	list->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-	list->DrawInstanced(m_numtriangles*3, 1, 0, 0);
+	/*list->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);	
+	list->DrawInstanced(m_numtriangles*3, 1, 0, 0);*/
 }
 void D3D12Mesh::CreateVertexBuffer(LPCWSTR name)
 {

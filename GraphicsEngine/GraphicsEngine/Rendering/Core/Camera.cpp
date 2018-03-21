@@ -49,6 +49,10 @@ void Camera::SetUpAndForward(glm::vec3 fward, glm::vec3 uup)
 
 glm::mat4 Camera::GetView()
 {
+	if (Override)
+	{
+		return oVioew;
+	}
 	glm::mat4 rotX = glm::rotate(rotation.x, glm::vec3(1.0, 0.0, 0.0));
 	glm::mat4 rotY = glm::rotate(rotation.y, glm::vec3(0.0, 1.0, 0.0));
 	glm::mat4 rotZ = glm::rotate(rotation.z, glm::vec3(0.0, 0.0, 1.0));

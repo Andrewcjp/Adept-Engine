@@ -98,9 +98,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	go = new GameObject("Dir Light");
 	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
-	go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(45, 0, 0));
 	LightComponent * lc = (LightComponent*)go->AttachComponent(new LightComponent());
-//	lc->SetShadow(true);
+	lc->SetShadow(true);
 	lc->SetLightType(Light::Directional);
 	lc->SetIntensity(1.3f);
 	AddGameobjectToScene(go);

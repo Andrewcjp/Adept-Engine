@@ -29,6 +29,7 @@ public:
 
 	void Render(bool ignore = false);
 	void Render(bool ignoremat, CommandListDef * list);
+	void Render(bool ignoremat, RHICommandList* list);
 	bool CheckCulled(float Distance, float angle);
 	EMoblity GetMobility();
 

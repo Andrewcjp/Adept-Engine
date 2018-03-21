@@ -10,47 +10,25 @@ UIDrawBatcher::UIDrawBatcher()
 {
 	instance = this;
 	Shader = new Shader_UIBatch();
-	if (RHI::IsOpenGL())
+	InitD3D12();
+	/*if (RHI::IsOpenGL())
 	{
 		InitOGL();
 	}
 	else if (RHI::IsD3D12())
 	{
 		InitD3D12();
-	}
+	}*/
 }
-void UIDrawBatcher::InitOGL()
-{
-	glGenBuffers(1, &quad_vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-}
+
 void UIDrawBatcher::InitD3D12()
 {
-	// Create the vertex buffer.
-
-
+	commandlist = RHI::CreateCommandList();
+	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
 	const UINT vertexBufferSize = sizeof(UIVertex) * 500;//mazsize
-
-	// Note: using upload heaps to transfer static data like vert buffers is not 
-	// recommended. Every time the GPU needs it, the upload heap will be marshalled 
-	// over. Please read up on Default Heap usage. An upload heap is used here for 
-	// code simplicity and because there are very few verts to actually transfer.
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&m_vertexBuffer)));
-
-	// Initialize the vertex buffer view.
-	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-	m_vertexBufferView.StrideInBytes = sizeof(UIVertex);
-	m_vertexBufferView.SizeInBytes = vertexBufferSize;
-	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("UI Vertex Buffer").c_str());
-	UIList = Shader->GetD3D12Shader()->CreateShaderCommandList();
-	UIList->SetName(StringUtils::ConvertStringToWide("UIList").c_str());
-
+	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize);
+	commandlist->SetPipelineState(PipeLineState{ false , false});
+	commandlist->CreatePipelineState(Shader);
 }
 void UIDrawBatcher::ReallocBuffer(int NewSize)
 {
@@ -58,16 +36,9 @@ void UIDrawBatcher::ReallocBuffer(int NewSize)
 }
 void UIDrawBatcher::SendToGPU_D3D12()
 {
-	// Copy the triangle data to the vertex buffer.
-	UINT8* pVertexDataBegin;
-	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
-	ThrowIfFailed(m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
-
-	memcpy(pVertexDataBegin, &BatchedVerts[0], sizeof(UIVertex)*BatchedVerts.size());
-	m_vertexBuffer->Unmap(0, nullptr);
-
-
+	VertexBuffer->UpdateVertexBuffer(&BatchedVerts[0], sizeof(UIVertex)*BatchedVerts.size());
 }
+
 UIDrawBatcher::~UIDrawBatcher()
 {
 	BatchedVerts.empty();
@@ -99,21 +70,15 @@ void UIDrawBatcher::SendToGPU()
 	{
 		return;
 	}
-	if (RHI::IsOpenGL())
+	/*if (RHI::IsOpenGL())
 	{
 		SendToGPU_OpenGL();
 	}
 	if (RHI::IsD3D12())
-	{
+	{*/
 		SendToGPU_D3D12();
-	}
+	//}
 }
-void UIDrawBatcher::SendToGPU_OpenGL()
-{
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(UIVertex)*BatchedVerts.size(), &BatchedVerts[0], GL_DYNAMIC_DRAW);
-}
-
 
 void UIDrawBatcher::RenderBatches()
 {
@@ -124,9 +89,10 @@ void UIDrawBatcher::RenderBatches()
 	Shader->SetShaderActive();
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(UIManager::instance->GetWidth()), 0.0f, static_cast<GLfloat>(UIManager::instance->GetHeight()));
 	Shader->UpdateUniforms(projection);
+	
 	if (RHI::IsOpenGL())
 	{
-		RenderBatches_OpenGL();
+		RenderBatches_D3D12();
 	}
 	else if (RHI::IsD3D12())
 	{
@@ -138,27 +104,29 @@ void UIDrawBatcher::RenderBatches()
 }
 void UIDrawBatcher::RenderBatches_D3D12()
 {
-	Shader->SetShaderActive();
-	Shader->GetD3D12Shader()->ResetList(UIList);
-	D3D12RHI::Instance->SetScreenRenderTaget(UIList);
-	D3D12RHI::Instance->RenderToScreen(UIList);
-	Shader->PushTOGPU(UIList);
-	Render(UIList);
-	D3D12RHI::Instance->ExecList(UIList);
-
+	commandlist->ResetList();
+	commandlist->SetScreenBackBufferAsRT();
+	Shader->PushTOGPU(commandlist);
+	Render(commandlist);
+	commandlist->Execute();
 }
-void UIDrawBatcher::Render(CommandListDef * list)
+void UIDrawBatcher::Render(RHICommandList * list)
 {
-	if (list == nullptr && RHI::GetType() == RenderSystemD3D12)
-	{
-		printf("Error Null List\n");
-		return;
-	}
-	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	list->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-	list->DrawInstanced((int)BatchedVerts.size(), 1, 0, 0);
-	list->Close();
+	list->SetVertexBuffer(VertexBuffer);
+	list->DrawPrimitive((int)BatchedVerts.size(), 1, 0, 0);
 }
+
+void UIDrawBatcher::InitOGL()
+{
+	glGenBuffers(1, &quad_vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+}
+void UIDrawBatcher::SendToGPU_OpenGL()
+{
+	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(UIVertex)*BatchedVerts.size(), &BatchedVerts[0], GL_DYNAMIC_DRAW);
+}
+
 void UIDrawBatcher::RenderBatches_OpenGL()
 {
 	glVertexAttribDivisor(0, 0);

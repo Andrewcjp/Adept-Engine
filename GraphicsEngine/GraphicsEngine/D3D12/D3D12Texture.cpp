@@ -10,7 +10,7 @@
 float D3D12Texture::MipCreationTime = 0;
 #include "../Core/Utils/StringUtil.h"
 #include "../Rendering/Shaders/ShaderMipMap.h"
-D3D12Texture::D3D12Texture() :D3D12Texture("house_diffuse.tga")
+D3D12Texture::D3D12Texture() :D3D12Texture("\\asset\\texture\\house_diffuse.tga")
 {}
 
 unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int bpp, unsigned char * StartData, int&mipsize, float ratio)
@@ -239,7 +239,12 @@ void D3D12Texture::Bind(CommandListDef* list)
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	list->SetGraphicsRootDescriptorTable(0, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
 }
-
+void D3D12Texture::BindToSlot(CommandListDef* list, int slot)
+{
+	ID3D12DescriptorHeap* ppHeaps[] = { m_srvHeap };
+	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+	list->SetGraphicsRootDescriptorTable(slot, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+}
 void D3D12Texture::FreeTexture()
 {}
 
@@ -312,17 +317,18 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		// Describe and create a SRV for the texture.
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Format = textureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = Miplevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		D3D12RHI::Instance->m_Primarydevice->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+
+		(D3D12RHI::Instance->m_Primarydevice->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart()));
 	}
 	{
 
 		//gen mips
-	//	D3D12RHI::Instance->MipmapShader->Simulate(this);
 #if	USEGPUTOGENMIPS
 		D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
 #endif
@@ -330,9 +336,3 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 
 }
-//_mipMapTextures is an array containing texture objects that need mipmaps to be generated. It needs a texture resource with mipmaps in D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE state.
-//Textures are expected to be POT and in a format supporting unordered access, as well as the D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS set during creation.
-//_device is the ID3D12Device
-//GetNewCommandList() is supposed to return a new command list in recording state
-//SubmitCommandList(commandList) is supposed to submit the command list to the command queue
-//_mipMapComputeShader is an ID3DBlob of the compiled mipmap compute shader

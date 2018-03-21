@@ -3,7 +3,6 @@
 #include "../EngineGlobals.h"
 #include <d3d12.h>
 #include "d3dx12.h"
-//#include <DXGI1_4.h>
 class D3D12FrameBuffer
 	:public FrameBuffer
 {
@@ -14,11 +13,9 @@ public:
 	void CreateBuffer();
 	void CreateDepth();
 	~D3D12FrameBuffer();
-
-
 	// Inherited via FrameBuffer
 	virtual void BindToTextureUnit(int unit = 0) override;
-	void BindBufferToTexture(CommandListDef * list = nullptr);
+	void BindBufferToTexture(CommandListDef * list,int slot);
 	virtual void BindBufferAsRenderTarget(CommandListDef * list = nullptr) override;
 
 	void UnBind(CommandListDef * list);

@@ -60,7 +60,7 @@ void D3D12FrameBuffer::CreateDepth()
 		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
 
 
-		/*m_srvHeap->SetName(L"Depth SRV");*/
+		m_srvHeap->SetName(L"Depth SRV");
 		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 		shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -69,9 +69,9 @@ void D3D12FrameBuffer::CreateDepth()
 		D3D12RHI::GetDevice()->CreateShaderResourceView(m_depthStencil, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 		m_srvHeap->SetName(L"Shadow SRV heap");
 
-		//ThrowIfFailed(D3D12RHI::Instance->m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_nullHeap)));
-		//NullHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_nullHeap->GetGPUDescriptorHandleForHeapStart());
-		//D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, m_nullHeap->GetCPUDescriptorHandleForHeapStart());
+		ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_nullHeap)));
+		NullHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_nullHeap->GetGPUDescriptorHandleForHeapStart());
+		D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, m_nullHeap->GetCPUDescriptorHandleForHeapStart());
 
 		//const UINT cbvSrvDescriptorSize = D3D12RHI::GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		//CD3DX12_CPU_DESCRIPTOR_HANDLE null(m_srvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -81,14 +81,12 @@ void D3D12FrameBuffer::CreateDepth()
 	}
 }
 D3D12FrameBuffer::~D3D12FrameBuffer()
-{
-}
+{}
 
 void D3D12FrameBuffer::BindToTextureUnit(int unit)
-{
-}
+{}
 
-void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list)
+void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot)
 {
 	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	//list->SetGraphicsRootDescriptorTable(2, m_depthStencil->GetGPUVirtualAddress());
@@ -114,12 +112,14 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 	{
 		once = true;
 	}
+	/*if(once)
+	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_depthStencil, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE));*/
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
-	list->OMSetRenderTargets(0, nullptr, FALSE, &dsvHandle);
+	list->OMSetRenderTargets(0, nullptr, false, &dsvHandle);
 }
 
 void D3D12FrameBuffer::UnBind(CommandListDef * list)
@@ -130,10 +130,11 @@ void D3D12FrameBuffer::UnBind(CommandListDef * list)
 	//CD3DX12_GPU_DESCRIPTOR_HANDLE null(m_srvHeap->GetGPUDescriptorHandleForHeapStart());
 	//null.Offset(1, cbvSrvDescriptorSize);
 	//D3D12RHI::GetDevice()->CreateShaderResourceView(NULL, );
-	ID3D12DescriptorHeap* ppHeaps[] = { m_nullHeap};
+	ID3D12DescriptorHeap* ppHeaps[] = { m_nullHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 	list->SetGraphicsRootDescriptorTable(4, m_nullHeap->GetGPUDescriptorHandleForHeapStart());
+	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 }
 
 void D3D12FrameBuffer::ClearBuffer(CommandListDef * list)

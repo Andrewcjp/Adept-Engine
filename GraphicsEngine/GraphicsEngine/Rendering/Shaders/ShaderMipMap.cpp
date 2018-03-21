@@ -106,11 +106,16 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex)
 		//ensure Completion
 		pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(UAV));
 	}
-
-	//pCommandList->Dispatch(8, 8, 1);
 	pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(tex->GetResource(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 	pCommandList->Close();
 
 	D3D12RHI::Instance->ExecList(pCommandList);
+}
+
+std::vector<Shader::ShaderParameter> ShaderMipMap::GetShaderParameters()
+{
+	std::vector<Shader::ShaderParameter> Output;
+	
+	return Output;
 }

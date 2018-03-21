@@ -10,6 +10,7 @@
 //}ConstBuffer;
 #include "../D3D12/D3D12Shader.h"
 #define MAX_LIGHTS 4
+#include "../RHI/RHICommandList.h"
 typedef struct _LightUniformBuffer
 {
 	
@@ -52,8 +53,9 @@ public:
 	void ClearBuffer();
 	void UpdateCBV();
 	void UpdateUnformBufferEntry(const D3D12Shader::SceneConstantBuffer &bufer, int index);
-	void SetActiveIndex(CommandListDef * list, int index);
-
+	void SetActiveIndex(class RHICommandList * list, int index);
+	static void GetMainShaderSig(std::vector<Shader::ShaderParameter>& out);
+	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	void UpdateMV(Camera * c);
 
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
@@ -61,6 +63,7 @@ public:
 	D3D12Shader::SceneConstantBuffer CreateUnformBufferEntry(Transform* t);
 	void BindLightsBuffer(CommandListDef * list);
 	void UpdateLightBuffer(std::vector<Light*> lights);
+	void BindLightsBuffer(RHICommandList * list);
 private:
 	int						m_uniform_model;
 	int						m_uniform_View;
@@ -89,6 +92,9 @@ private:
 	std::vector<D3D12Shader::SceneConstantBuffer> SceneBuffer;
 	//information for all the lights in the scene currently
 	class D3D12CBV* LightCBV;
+	RHIBuffer* CLightBuffer;
+	RHIBuffer* CMVBuffer = nullptr;
+	RHIBuffer* GameObjectTransformBuffer = nullptr;
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
 	class D3D12CBV* MVCBV;
 	struct MVBuffer MV_Buffer;

@@ -13,15 +13,19 @@ public:
 	D3D12CBV();
 	~D3D12CBV();
 	void SetDescriptorHeaps(CommandListDef * list);
-	void SetGpuView(CommandListDef* list, int offset, ShaderRegisterSlot slot = MainCBV);
+	void SetGpuView(CommandListDef* list, int offset, int slot = MainCBV);
 	template<typename  T>
 	void UpdateCBV(T& buffer, int offset)
 	{
 		memcpy(m_pCbvDataBegin + (offset * CB_Size), &buffer, sizeof(buffer));
 	}
-	void InitCBV(int StructSize,int Elementcount = 1);
+	void UpdateCBV(void* buffer, int offset, int size)
+	{
+		memcpy(m_pCbvDataBegin + (offset * CB_Size), buffer, size);
+	}
+	void InitCBV(int StructSize, int Elementcount = 1);
 private:
-	ID3D12Resource* m_constantBuffer;
+	ID3D12Resource * m_constantBuffer;
 	UINT8* m_pCbvDataBegin;
 	ID3D12DescriptorHeap* m_cbvHeap;
 	int InitalBufferCount = 10;

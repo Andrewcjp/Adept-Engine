@@ -113,8 +113,6 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 			std::cout << "Starting Cook" << std::endl;
 			ShouldRunCook = true;
 		}
-
-
 		if (input.compare("-ForceAPI OGL") == 0)
 		{
 			ForcedRenderSystem = RenderSystemOGL;
@@ -125,7 +123,6 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 			ForcedRenderSystem = RenderSystemD3D12;
 			std::cout << "Forcing RenderSystemD3D12" << std::endl;
 		}
-
 	}
 	if (ShouldRunCook)
 	{
@@ -134,13 +131,12 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 	}
 	if (FullScreen)
 	{
-		//CreateApplicationWindow(1920, 1080, ERenderSystemType::RenderSystemOGL);
+		CreateApplicationWindow(1920, 1080, ERenderSystemType::RenderSystemOGL);
 	}
 	else
 	{
-		CreateApplicationWindow(1280, 720, (0) ? ERenderSystemType::RenderSystemD3D12 : ERenderSystemType::RenderSystemOGL);
+		CreateApplicationWindow(1280, 720, ERenderSystemType::RenderSystemOGL);
 	}
-
 }
 void Engine::RunCook()
 {
@@ -164,10 +160,10 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 {
 	if (m_appwnd == nullptr)
 	{
-
 		mwidth = width;
 		mheight = height;
 		CurrentRenderSystem = type;
+
 #if UseDevelopmentWindows
 		if (type == RenderSystemOGL)
 		{

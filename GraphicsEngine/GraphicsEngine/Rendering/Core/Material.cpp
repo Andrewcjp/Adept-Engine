@@ -2,7 +2,7 @@
 #include <iostream>
 #include "GPUStateCache.h"
 #include "../RHI/Shader.h"
-
+#include "../RHI/RHICommandList.h"
 
 Material::Material(BaseTexture * Diff, MaterialProperties props)
 {
@@ -51,7 +51,22 @@ void Material::SetMaterialActive(CommandListDef* list)
 	}
 	//Todo: Add Other Textures As Needed.
 }
-
+void Material::SetMaterialActive(RHICommandList* list)
+{
+	if (Diffusetexture != nullptr)
+	{
+		list->SetTexture(Diffusetexture, ALBEDOMAP);
+	}
+	if (NormalMap != nullptr)
+	{
+		//list->SetTexture(NormalMap, NORMALMAP);
+	}
+	if (DisplacementMap != nullptr)
+	{
+		//list->SetTexture(DisplacementMap, DISPMAP);
+	}
+	//Todo: Add Other Textures As Needed.
+}
 void Material::SetShadow(bool state)
 {
 	Properties.DoesShadow = state;

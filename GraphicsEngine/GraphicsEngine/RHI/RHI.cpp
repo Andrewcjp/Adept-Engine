@@ -9,26 +9,32 @@
 #include "ShaderProgramBase.h"
 #include "OpenGL/OGLShaderProgram.h"
 #include <GLEW\GL\glew.h>
+#include "../Core/Performance/PerfManager.h"
+#include "../Core/Assets/AssetManager.h"
+#include "../Rendering/Core/Mesh.h"
+#if BUILD_D3D11
 #include "D3D11\D3D11Mesh.h"
 #include "D3D11\D3D11Shader.h"
+#include "D3D11/D3D11FrameBuffer.h"
+#endif
 #include "D3D11\D3D11Texture.h"
 #include "OpenGL/OGLFrameBuffer.h"
-#include "D3D11/D3D11FrameBuffer.h"
 #include "../Rendering/Core/GPUStateCache.h"
 #include "../Core/Engine.h"
+#include "RHICommandList.h"
+#if BUILD_D3D12
 #include "../D3D12/D3D12Texture.h"
 #include "../D3D12/D3D12Mesh.h"
 #include "../D3D12/D3D12Shader.h"
 #include "../D3D12/D3D12Framebuffer.h"
-#include "../Core/Performance/PerfManager.h"
 #include "../D3D12/D3D12RHI.h"
-#include "../Core/Assets/AssetManager.h"
-#include "../Rendering/Core/Mesh.h"
+#include "../D3D12/D3D12CommandList.h"
+
+#endif
+#include "../OpenGL/OGLCommandList.h"
 RHI* RHI::instance = nullptr;
 RHI::RHI()
-{
-	DebugD3D11 = false;
-}
+{}
 
 
 RHI::~RHI()
@@ -41,6 +47,56 @@ void RHI::InitRHI(ERenderSystemType e)
 		instance = new RHI();
 	}
 	instance->currentsystem = e;
+}
+
+ERenderSystemType RHI::GetType()
+{
+	return instance->currentsystem;
+}
+
+bool RHI::IsOpenGL()
+{
+	return (GetType() == RenderSystemOGL);
+}
+
+bool RHI::IsD3D12()
+{
+	return (GetType() == RenderSystemD3D12);
+}
+bool RHI::SupportsThreading()
+{
+	return (GetType() == RenderSystemD3D12) || (GetType() == RenderSystemVulkan);
+}
+RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type)
+{
+	switch (instance->currentsystem)
+	{
+	case RenderSystemOGL:
+		return new OGLBuffer(type);
+		break;
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		return new D3D12Buffer(type);
+		break;
+#endif
+	}
+	return nullptr;
+}
+
+RHICommandList * RHI::CreateCommandList()
+{
+	switch (instance->currentsystem)
+	{
+	case RenderSystemOGL:
+		return new OGLCommandList();
+		break;
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		return new D3D12CommandList();
+		break;
+#endif
+	}
+	return nullptr;
 }
 
 void RHI::DestoryRHI()
@@ -93,6 +149,7 @@ void RHI::UnBindUnit(int unit)
 #endif
 	}
 }
+
 BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, void * data, TextureType type)
 {
 	BaseTexture* newtex = nullptr;
@@ -122,6 +179,8 @@ Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool
 	apath.append(path);
 	accpath.append(apath);
 	AssetManager::RegisterMeshAssetLoad(apath);
+	return new Mesh(accpath);
+
 	switch (instance->currentsystem)
 	{
 	case RenderSystemOGL:
@@ -461,6 +520,7 @@ HGLRC RHI::CreateOGLContext(HDC hdc)
 	return hglrc;
 }
 #endif
+
 #if BUILD_D3D11
 void RHI::CreateDepth()
 {
@@ -493,14 +553,6 @@ void RHI::CreateDepth()
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 	result = m_dxDev->CreateDepthStencilView(m_depthStencil, &descDSV, &m_depthStencilView);
-}
-bool RHI::IsOpenGL()
-{
-	return (GetType() == RenderSystemOGL);
-}
-bool RHI::IsD3D12()
-{
-	return (GetType() == RenderSystemD3D12);
 }
 void RHI::ResizeContext(int width, int height)
 {

@@ -18,7 +18,8 @@ public:
 	float fov = 70.0f;
 	glm::mat4 GetViewProjection();
 	void UpdateProjection(float aspect);
-	glm::mat4 GetProjection() {
+	glm::mat4 GetProjection()
+	{
 		return projection;
 	}
 	void SetUpAndForward(glm::vec3 fward, glm::vec3 uup);
@@ -37,29 +38,42 @@ public:
 	void GetRayAtScreenPos(float screenX, float screenY, glm::vec3 & outrayDirection, glm::vec3 & outRayorign);
 	glm::vec3 ScreenPointToWorld(float screenx, float screeny);
 	void ScreenPointToWorld(float screenX, float screenY, glm::vec3 & outRayorign);
-	glm::vec3 TransformDirection(glm::vec3 pDirection, glm::mat4 pMatrix) {
+	glm::vec3 TransformDirection(glm::vec3 pDirection, glm::mat4 pMatrix)
+	{
 		return glm::normalize(glm::vec3(pMatrix * glm::vec4(pDirection, 0.0f)));
 	}
-	void LinkToTransform(Transform* t) {
+	void LinkToTransform(Transform* t)
+	{
 		linkedtransform = t;
 	}
-	void SetPos(glm::vec3 value) {
+	void SetPos(glm::vec3 value)
+	{
 		m_pos = value;
 	}
-	glm::vec3 GetRight() {
+	glm::vec3 GetRight()
+	{
 		return glm::normalize(glm::cross(up, forward));
 	}
-	glm::vec3 GetUp() {
+	glm::vec3 GetUp()
+	{
 		return up;
 	}
-	glm::vec3 GetForward() {
+	glm::vec3 GetForward()
+	{
 		return forward;
 	}
 	bool RenderMainPass = false;
 	bool isfree = false;
+	void OverrideVP(glm::mat4 v, glm::mat4 p)
+	{
+		Override = true;
+		projection = p;
+		oVioew = v;
+	}
 protected:
 
 private:
+	bool Override = false;
 	glm::mat4 projection;
 	glm::vec3 m_pos;
 	glm::vec3 forward;
@@ -68,5 +82,7 @@ private:
 	glm::vec3 rotation;
 	float m_movespeed = 0.1f;
 	Transform* linkedtransform;
+	//debug
+	glm::mat4 oVioew;
 };
 

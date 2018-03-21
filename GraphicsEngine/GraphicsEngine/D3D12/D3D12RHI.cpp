@@ -134,8 +134,6 @@ void D3D12RHI::LoadPipeLine()
 	GetMaxSupportedFeatureLevel(m_Primarydevice);
 	if (false)
 	{
-
-
 		IDXGIAdapter1* shardwareAdapter;
 		ThrowIfFailed(factory->EnumAdapters1(1, &shardwareAdapter));
 		//GetHardwareAdapter(factory, &shardwareAdapter);
@@ -205,7 +203,13 @@ void D3D12RHI::LoadPipeLine()
 
 	}
 
+	CreaterSwapChainRTs();
 
+
+	ThrowIfFailed(m_Primarydevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+}
+void D3D12RHI::CreaterSwapChainRTs()
+{
 	// Create frame resources.
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -215,21 +219,70 @@ void D3D12RHI::LoadPipeLine()
 		{
 			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
 			m_Primarydevice->CreateRenderTargetView(m_renderTargets[n], nullptr, rtvHandle);
-			
+
 			rtvHandle.Offset(1, m_rtvDescriptorSize);
 		}
 		NAME_D3D12_OBJECT(m_renderTargets[1]);
 		NAME_D3D12_OBJECT(m_renderTargets[0]);
 	}
-
-	ThrowIfFailed(m_Primarydevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 }
-
 void D3D12RHI::InitMipmaps()
 {
 #if USEGPUTOGENMIPS
 	MipmapShader = new ShaderMipMap();
 #endif
+}
+void D3D12RHI::InternalResizeSwapChain(int x, int y)
+{
+	if (m_swapChain != nullptr && HasSetup)
+	{
+		for (UINT n = 0; n < FrameCount; n++)
+		{
+			m_renderTargets[n]->Release();
+		}
+		m_depthStencil->Release();
+		ThrowIfFailed(m_swapChain->ResizeBuffers(FrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+		CreaterSwapChainRTs();
+		m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(x), static_cast<float>(y));
+		m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(x), static_cast<LONG>(y));
+		CreateDepthStencil(x, y);
+		RequestedResize = false;
+	}
+}
+void D3D12RHI::ResizeSwapChain(int x, int y)
+{
+	if (m_swapChain != nullptr && HasSetup)
+	{
+		RequestedResize = true;
+		newwidth = x;
+		newheight = y;
+	}
+}
+
+void D3D12RHI::CreateDepthStencil(int width, int height)
+{//create the depth stencil for the screen
+	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+	depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
+	depthOptimizedClearValue.DepthStencil.Stencil = 0;
+
+	ThrowIfFailed(m_Primarydevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthOptimizedClearValue,
+		IID_PPV_ARGS(&m_depthStencil)
+	));
+
+	NAME_D3D12_OBJECT(m_depthStencil);
+
+	m_Primarydevice->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 void D3D12RHI::LoadAssets()
 {
@@ -238,7 +291,7 @@ void D3D12RHI::LoadAssets()
 		ThrowIfFailed(m_Primarydevice->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 		m_fenceValues[m_frameIndex]++;
 		//	m_fenceValue = 1;
-		
+
 
 		// Create an event handle to use for frame synchronization.
 		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -299,51 +352,19 @@ void D3D12RHI::LoadAssets()
 	testshader->m_vsBlob = vertexShader;
 	testshader->m_fsBlob = pixelShader;
 
-	testshader->m_Shader = testshader->CreatePipelineShader(inputElementDescs, _countof(inputElementDescs), vertexShader, pixelShader);
+	testshader->m_Shader = testshader->CreatePipelineShader(inputElementDescs, _countof(inputElementDescs), vertexShader, pixelShader, true);
 	//testshader->InitCBV();
 
 	ThrowIfFailed(m_Primarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, testshader->m_Shader.m_pipelineState, IID_PPV_ARGS(&m_SetupCommandList)));
 
 	texture = new D3D12Texture();
-	OtherTex = new D3D12Texture("\\asset\\texture\\bricks2.jpg");
+	//OtherTex = new D3D12Texture("\\asset\\texture\\bricks2.jpg");
 #endif
+	CreateDepthStencil(m_width, m_height);
 
-	{//create the depth stencil for the screen
-		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
-		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
-		depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-		D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-		depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-		depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
-		depthOptimizedClearValue.DepthStencil.Stencil = 0;
+	m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
 
-		ThrowIfFailed(m_Primarydevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
-			D3D12_RESOURCE_STATE_DEPTH_WRITE,
-			&depthOptimizedClearValue,
-			IID_PPV_ARGS(&m_depthStencil)
-		));
-
-		NAME_D3D12_OBJECT(m_depthStencil);
-
-		m_Primarydevice->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	}
-
-	//exec setup command list
-	//ThrowIfFailed(m_SetupCommandList->Close());
-	//ID3D12CommandList* ppCommandLists[] = { m_SetupCommandList };
-	//m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	// Create synchronization objects and wait until assets have been uploaded to the GPU.
-
-	//WaitForGpu();
-
-	//m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-	//m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[1], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-//	m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 }
 
 void D3D12RHI::ExecSetUpList()
@@ -361,9 +382,12 @@ void D3D12RHI::InitliseDefaults()
 {
 
 }
-void D3D12RHI::ExecList(CommandListDef* list)
+void D3D12RHI::ExecList(CommandListDef* list, bool IsFinal)
 {
-
+	if (IsFinal)
+	{
+		//PostFrame(list);
+	}
 	if (list == nullptr)
 	{
 		printf("List is Nullptr\n");
@@ -375,10 +399,24 @@ void D3D12RHI::ExecList(CommandListDef* list)
 	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	ThrowIfFailed(pShadowFence->SetEventOnCompletion(M_ShadowFence, EventHandle));//set the wait for the value complition
 	WaitForSingleObject(EventHandle, INFINITE);//we need to wait to start the next queue!
-	M_ShadowFence ++;
+	M_ShadowFence++;
 	//change it!
 	//m_commandQueue->Wait(pShadowFence, M_ShadowFence);
 	//M_ShadowFence++;
+}
+void D3D12RHI::TransitionBuffers(bool In)
+{
+	m_SetupCommandList->Reset(m_commandAllocator, testshader->m_Shader.m_pipelineState);
+	if (In)
+	{
+		m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	}
+	else
+	{
+		m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	}
+	m_SetupCommandList->Close();
+	ExecList(m_SetupCommandList);
 }
 void D3D12RHI::PresentFrame()
 {
@@ -388,9 +426,14 @@ void D3D12RHI::PresentFrame()
 		MipmapShader->GenAllmips();
 	}
 #endif
+	TransitionBuffers(false);
 	// Present the frame.
-	ThrowIfFailed(m_swapChain->Present(1, 0));
-
+	ThrowIfFailed(m_swapChain->Present(0, 0));
+	if (RequestedResize)
+	{
+		InternalResizeSwapChain(newwidth, newheight);
+	}
+	m_commandAllocator->Reset();
 	//WaitForPreviousFrame();
 	MoveToNextFrame();
 	WaitForGpu();
@@ -444,8 +487,8 @@ void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
 {
 	RenderToScreen(list);
 	// Indicate that the back buffer will be used as a render target.
-	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
-
+	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
+	TransitionBuffers(true);
 	SetScreenRenderTaget(list);
 
 }

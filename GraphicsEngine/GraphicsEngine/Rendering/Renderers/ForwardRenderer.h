@@ -31,6 +31,10 @@
 #include "OpenGL/OGLFrameBuffer.h"
 #include "../Core/Performance/PerfManager.h"
 #include "../EngineGlobals.h"
+
+
+#include "../D3D12/D3D12CommandList.h"
+#include "../RHI/RHICommandList.h"
 class OGLShaderProgram;
 class ForwardRenderer : public RenderEngine
 {
@@ -57,9 +61,11 @@ public:
 	virtual std::vector<GameObject*> GetObjects() override;
 	void SetScene(Scene * sc) override;
 
+	void TESTINIT();
+
 	float deltatime = 1;
 	clock_t tstart;
-
+	void TEST();
 	Camera* GetMainCam() override;
 	void AddGo(GameObject* g)override;
 	void AddPhysObj(GameObject* go) override;
@@ -128,6 +134,9 @@ private:
 
 	// Inherited via RenderEngine
 	virtual void FinaliseRender() override;
-
+	RHICommandList* cmlist;
+	RHICommandList* ShadowCMDList = nullptr;
+	RHIBuffer* vertexbuffer;
+	BaseTexture* texturetest;
 };
 

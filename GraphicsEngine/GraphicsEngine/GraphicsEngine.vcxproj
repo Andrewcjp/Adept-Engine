@@ -240,7 +240,10 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="D3D12\D3D12CommandList.h" />
+    <ClInclude Include="OpenGL\OGLCommandList.h" />
     <ClInclude Include="Packaging\Cooker.h" />
     <ClInclude Include="Core\BaseWindow.h" />
     <ClInclude Include="Core\Assets\SerialHelpers.h" />
@@ -265,6 +268,7 @@
     <ClInclude Include="Core\EngineTypes.h" />
     <ClInclude Include="Rendering\Shaders\Shader_UIBatch.h" />
     <ClInclude Include="Rendering\Shaders\ShaderMipMap.h" />
+    <ClInclude Include="RHI\RHICommandList.h" />
     <ClInclude Include="UI\UIAssetManager.h" />
     <ClInclude Include="UI\UIPopoutbox.h" />
     <ClInclude Include="UI\UIPanel.h" />
@@ -377,6 +381,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="D3D12\D3D12CommandList.cpp" />
+    <ClCompile Include="OpenGL\OGLCommandList.cpp" />
     <ClCompile Include="Packaging\Cooker.cpp" />
     <ClCompile Include="Core\BaseWindow.cpp" />
     <ClCompile Include="Core\Assets\SerialHelpers.cpp" />
@@ -405,6 +411,7 @@
     <ClCompile Include="Core\Assets\SceneJSerialiser.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_UIBatch.cpp" />
     <ClCompile Include="Rendering\Shaders\ShaderMipMap.cpp" />
+    <ClCompile Include="RHI\RHICommandList.cpp" />
     <ClCompile Include="UI\UIAssetManager.cpp" />
     <ClCompile Include="UI\UIPopoutbox.cpp" />
     <ClCompile Include="UI\UIPanel.cpp" />

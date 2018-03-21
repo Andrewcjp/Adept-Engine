@@ -1,29 +1,19 @@
 #pragma once
 
-#include <include/assimp/Importer.hpp>
-#include <include/assimp/scene.h>
-#include <include/assimp/postprocess.h>
 #include <iostream>
 #include <vector>
 #include "Vertex.h"
-#include <GLEW\GL\glew.h>
 #include "Renderable.h"
+#include "../RHI/RHICommandList.h"
 class Mesh :public Renderable
 {
 public:
 	Mesh();
 	Mesh(std::string filename);
 	~Mesh();
-	void Render(CommandListDef* list = nullptr) override;
-	void Init(Vertex * verts, int vertsize, int * Indicies, int indexsize);
+	void Render(RHICommandList* list) override;	
 	void LoadMeshFromFile(std::string filename);
 private:
-	GLuint Indexbuffer;
-	GLuint vertexbuffer;
-	GLuint VertexArrayID;
-	Vertex* m_verts;
-	int* m_Indicies;
-	int m_vertsize;
-	int m_indexsize;
+	RHIBuffer* VertexBuffer = nullptr;
 };
 

@@ -75,6 +75,7 @@ EditorWindow::EditorWindow(HINSTANCE, int, int)
 
 void EditorWindow::PostInitWindow(int w, int h)
 {
+	std::cout << "Loading Editor v0.01" << std::endl;
 	EditorCamera = new Editor_Camera();
 	Renderer->SetEditorCamera(EditorCamera);
 	if (UI != nullptr)

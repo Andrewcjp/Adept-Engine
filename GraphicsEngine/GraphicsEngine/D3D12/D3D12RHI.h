@@ -44,11 +44,16 @@ public:
 	D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	void DisplayDeviceDebug();
 	void LoadPipeLine();
+	void CreaterSwapChainRTs();
 	void InitMipmaps();
+	void InternalResizeSwapChain(int x, int y);
+	void ResizeSwapChain(int x, int y);
+	void CreateDepthStencil(int width, int height);
 	void LoadAssets();
 	void ExecSetUpList();
 	void InitliseDefaults();
-	void ExecList(CommandListDef * list);
+	void ExecList(CommandListDef * list,bool IsFinal = false);
+	void TransitionBuffers(bool In);
 	/*struct SceneConstantBuffer
 	{
 		DirectX::XMFLOAT4 offset;
@@ -81,7 +86,9 @@ public:
 	ID3D12GraphicsCommandList* m_SetupCommandList;
 	UINT m_rtvDescriptorSize;
 	ID3D12Resource * m_depthStencil;
-
+	bool RequestedResize = false;
+	int newwidth = 0;
+	int newheight = 0;
 	ID3D12DescriptorHeap* BaseTextureHeap;
 	ID3D12Resource* m_constantBuffer;
 	D3D12Shader::SceneConstantBuffer m_constantBufferData;
@@ -90,11 +97,6 @@ public:
 
 	D3D12Texture* texture;
 	D3D12Texture* OtherTex;
-	//ID3D12DescriptorHeap* m_srvHeap;
-	//ID3D12Resource* m_texture;
-	/*ID3D12Resource* m_vertexBuffer;
-	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-*/
 // Synchronization objects.
 	UINT m_frameIndex;
 	HANDLE m_fenceEvent;
@@ -105,6 +107,7 @@ public:
 	UINT64 m_fenceValues[FrameCount];
 	D3D12Shader::PiplineShader m_MainShaderPiplineShader;
 //	HANDLE ShadowExechandle;
+
 	int m_width = 100;
 	int m_height = 100;
 	float m_aspectRatio = 0.0f;

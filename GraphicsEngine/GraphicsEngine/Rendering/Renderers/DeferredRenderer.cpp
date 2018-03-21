@@ -12,14 +12,14 @@ void DeferredRenderer::Render()
 	GeometryPass();
 	//SSAOPass();
 
-	shadower->BindShadowMaps();
+//	shadower->BindShadowMaps();
 	LightingPass();
 	RenderFitlerBufferOutput();
 }
 
 void DeferredRenderer::Init()
 {
-	shadower->InitShadows(Lights);
+//	shadower->InitShadows(Lights);
 
 }
 
@@ -41,7 +41,7 @@ void DeferredRenderer::InitOGL()
 	SSAOShader = new Shader_SSAO();
 	//init skybox
 	skybox = new GameObject();
-	skybox->AttachComponent(new MeshRendererComponent(new Mesh("../asset/models/skybox.obj"), nullptr));
+	//skybox->AttachComponent(new MeshRendererComponent(new Mesh("../asset/models/skybox.obj"), nullptr));*/
 //	skybox->SetMesh(new Mesh("../asset/models/skybox.obj"));
 	SkyboxTexture = ImageLoader::instance->loadsplitCubeMap("heh");
 	SkyboxShader = new OGLShaderProgram();
@@ -165,7 +165,7 @@ void DeferredRenderer::SSAOPass()
 void DeferredRenderer::LightingPass()
 {
 	FilterBuffer->BindBufferAsRenderTarget();
-	shadower->BindShadowMaps();
+//	shadower->BindShadowMaps();
 	DeferredFrameBuffer->BindToTextureUnit();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	SSAOBuffer->BindToTextureUnit(6);

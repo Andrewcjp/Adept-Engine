@@ -23,19 +23,22 @@ public:
 	void SendToGPU_D3D12();
 	void RenderBatches_OpenGL();
 	void RenderBatches_D3D12();
-	void Render(CommandListDef * list);
+	void Render(RHICommandList * list);
 	void RenderBatches();
 	void AddVertex(glm::vec2 pos, bool Back, glm::vec3 frontcol = glm::vec3(1,1,1), glm::vec3 backcol = glm::vec3(0));
 	void ClearVertArray();
 	void CleanUp();
 private:
-	std::vector<UIVertex> BatchedVerts;
+	
 	GLuint	quad_vertexbuffer;
+
 	OGLShaderProgram * m_TextShader;
 	class Shader_UIBatch* Shader;
+
 	int UIMin = 300;
-	ID3D12Resource* m_vertexBuffer;
-	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-	CommandListDef* UIList;
+	std::vector<UIVertex> BatchedVerts;
+	RHIBuffer* VertexBuffer = nullptr;
+	RHICommandList* commandlist = nullptr;
+
 };
 

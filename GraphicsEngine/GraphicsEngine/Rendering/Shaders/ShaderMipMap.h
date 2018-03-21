@@ -11,5 +11,6 @@ public:
 	void GenerateMipsForTexture( D3D12Texture* tex);
 	ID3D12GraphicsCommandList* pCommandList = nullptr;
 	std::vector<D3D12Texture*> Targets;
+	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 };
 
