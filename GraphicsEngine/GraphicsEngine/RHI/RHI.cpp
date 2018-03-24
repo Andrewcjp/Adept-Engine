@@ -328,7 +328,7 @@ void RHI::BindScreenRenderTarget(int width, int height)
 
 }
 
-bool RHI::InialiseContext(HWND m_hwnd, int w, int h)
+bool RHI::InitialiseContext(HWND m_hwnd, int w, int h)
 {
 	if (!m_hwnd)
 	{
@@ -344,6 +344,16 @@ bool RHI::InialiseContext(HWND m_hwnd, int w, int h)
 		{
 			return false;
 		}
+		break;
+#endif
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		instance->D3D12Rhi = new D3D12RHI();
+		instance->D3D12Rhi->m_height = w;
+		instance->D3D12Rhi->m_width = h;
+		instance->D3D12Rhi->m_aspectRatio = static_cast<float>(w) / static_cast<float>(h);
+		instance->D3D12Rhi->LoadPipeLine();
+		instance->D3D12Rhi->LoadAssets();
 		break;
 #endif
 #if BUILD_D3D11
@@ -373,7 +383,7 @@ void RHI::RHISwapBuffers()
 			D3D12RHI::Instance->PresentFrame();
 		}
 		break;
-	}
+}
 }
 void RHI::DestoryContext(HWND hwnd)
 {
@@ -382,13 +392,16 @@ void RHI::DestoryContext(HWND hwnd)
 	case RenderSystemOGL:
 		instance->DestroyOGLContext(hwnd);
 		break;
+	case RenderSystemD3D12:
+		instance->D3D12Rhi->DestroyContext();
+		break;
 #if BUILD_D3D11
 	case RenderSystemD3D11:
 		instance->DestroyD3DDevice();
 		break;
 #endif
 
-	}
+}
 }
 
 BOOL RHI::DestroyOGLContext(HWND hwnd)

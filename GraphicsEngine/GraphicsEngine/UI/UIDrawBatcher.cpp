@@ -115,7 +115,7 @@ void UIDrawBatcher::Render(RHICommandList * list)
 	list->SetVertexBuffer(VertexBuffer);
 	list->DrawPrimitive((int)BatchedVerts.size(), 1, 0, 0);
 }
-
+#if BUILD_OPENGL
 void UIDrawBatcher::InitOGL()
 {
 	glGenBuffers(1, &quad_vertexbuffer);
@@ -182,3 +182,4 @@ void UIDrawBatcher::RenderBatches_OpenGL()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
 }
+#endif

@@ -1,17 +1,8 @@
 #pragma once
 #include "EngineGlobals.h"
 #include <Windows.h>
-//#include <d3d11_1.h>
-//#include <d3d12.h>
-//#include <DirectXMath.h>
 #include "../Rendering/Core/FrameBuffer.h"
-#ifdef _DEBUG
-#define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){  __debugbreak();}
-#else 
-#define D3DEnsure(hr) if(((HRESULT)(hr)) < 0){ printf("D3D ensure failed: %d",hr);  }
-#endif
 #include "RHICommandList.h"
-//using namespace DirectX;
 class BaseTexture;
 class Renderable;
 class ShaderProgramBase;
@@ -41,7 +32,7 @@ public:
 	static void InitRenderState();
 	static void SetDepthMaskState(bool state);
 	static void BindScreenRenderTarget(int mwidth, int height);
-	static bool InialiseContext(HWND m_hwnd, int w, int h);
+	static bool InitialiseContext(HWND m_hwnd, int w, int h);
 	static void RHISwapBuffers();
 	static void DestoryContext(HWND hwnd);
 	static ERenderSystemType GetType();
@@ -88,7 +79,7 @@ private:
 	int mwidth = 0;
 	int mheight = 0;
 #endif
-
+	class D3D12RHI* D3D12Rhi = nullptr;
 	
 };
 

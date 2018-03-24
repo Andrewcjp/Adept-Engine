@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "D3D12Window.h"
+#if 0
 #include "../Rendering/Shaders/Shader_Main.h"
 #include "../RHI/BaseTexture.h"
 #include "../Core/GameObject.h"
@@ -196,3 +197,4 @@ BOOL D3D12Window::KeyDown(WPARAM key)
 void D3D12Window::ProcessMenu(WORD command)
 {
 }
+#endif

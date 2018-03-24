@@ -2,6 +2,7 @@
 #include "../RHI/RenderWindow.h"
 #include "../D3D12/D3D12RHI.h"
 #include "../EngineGlobals.h"
+#if 0
 class D3D12Window : public RenderWindow
 {
 public:
@@ -47,3 +48,4 @@ private:
 	virtual void ProcessMenu(WORD command) override;
 };
 
+#endif

@@ -43,8 +43,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "house.obj",
-                    "MatDiffuse": "\\asset\\texture\\house_diffuse.tga"
+                    "MeshName": "",
+                    "MatDiffuse": ""
                 }
             ]
         },
@@ -68,8 +68,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "terrainmk2.obj",
-                    "MatDiffuse": "\\asset\\texture\\grasshillalbedo.png"
+                    "MeshName": "",
+                    "MatDiffuse": ""
                 }
             ]
         },
@@ -104,8 +104,8 @@
                 1.0
             ],
             "Rot": [
-                -1.5707963705062867,
-                0.0,
+                0.7853982448577881,
+                -0.0,
                 0.0
             ],
             "Scale": [
@@ -118,7 +118,7 @@
                     "Type": 0,
                     "Intensity": 1.2999999523162842,
                     "LightType": 0,
-                    "LightShadow": false
+                    "LightShadow": true
                 }
             ]
         },
@@ -142,8 +142,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "Plane.obj",
-                    "MatDiffuse": "\\asset\\texture\\bricks2.jpg"
+                    "MeshName": "",
+                    "MatDiffuse": ""
                 },
                 {}
             ]
@@ -168,10 +168,10 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "Plane.obj",
-                    "MatDiffuse": "\\asset\\texture\\bricks2.jpg",
-                    "MatNormal": "\\asset\\texture\\bricks2_normal.jpg",
-                    "DisplacementMap": "\\asset\\texture\\bricks2_normal.jpg"
+                    "MeshName": "",
+                    "MatDiffuse": "",
+                    "MatNormal": "",
+                    "DisplacementMap": ""
                 }
             ]
         },
@@ -195,8 +195,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "Plane.obj",
-                    "MatDiffuse": "\\asset\\texture\\fence.png"
+                    "MeshName": "",
+                    "MatDiffuse": ""
                 }
             ]
         },
@@ -220,9 +220,9 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "Plane.obj",
-                    "MatDiffuse": "\\asset\\texture\\Water fallback.jpg",
-                    "MatNormal": "\\asset\\texture\\IKT4l.jpg"
+                    "MeshName": "",
+                    "MatDiffuse": "",
+                    "MatNormal": ""
                 }
             ]
         },
@@ -246,9 +246,8 @@
             "Components": [
                 {
                     "Type": 4,
-                    "MeshName": "Plane.obj",
-                    "MatDiffuse": "",
-                    "MatNormal": "\\asset\\texture\\IKT4l.jpg"
+                    "MeshName": "",
+                    "MatNormal": ""
                 }
             ]
         }

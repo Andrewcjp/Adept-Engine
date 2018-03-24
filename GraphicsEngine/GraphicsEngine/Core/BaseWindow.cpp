@@ -23,6 +23,7 @@ BaseWindow::BaseWindow()
 
 BaseWindow::~BaseWindow()
 {
+
 }
 bool BaseWindow::ChangeDisplayMode(int width, int height)
 {
@@ -66,7 +67,7 @@ bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, 
 			0, 0, width, height, NULL, NULL, hInstance, NULL);
 	}
 	m_hInstance = hInstance;
-	RHI::InialiseContext(m_hwnd, width, height);
+	RHI::InitialiseContext(m_hwnd, width, height);
 	m_height = height;
 	m_width = width;
 
@@ -99,11 +100,11 @@ void BaseWindow::InitilseWindow()
 	{
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
+	Renderer->Init();
 	CurrentScene = new Scene();
-	Renderer->InitOGL();
 	CurrentScene->LoadDefault();
 	Renderer->SetScene(CurrentScene);
-	Renderer->Init();
+
 	if (LoadText)
 	{
 		UI = new UIManager(m_width, m_height);
@@ -449,8 +450,7 @@ BOOL BaseWindow::KeyDown(WPARAM key)
 }
 
 void BaseWindow::ProcessMenu(WORD command)
-{
-}
+{}
 
 //getters
 int BaseWindow::GetWidth()

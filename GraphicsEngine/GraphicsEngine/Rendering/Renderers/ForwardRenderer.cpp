@@ -4,7 +4,12 @@
 #include "Core/Components/MeshRendererComponent.h"
 #include "../Editor/Editor_Camera.h"
 #include "../EngineGlobals.h"
+
+#include "../Core/Engine.h"
+#define USED3D12DebugP 0
+#if USED3D12DebugP
 #include "../D3D12/D3D12Plane.h"
+#endif
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 	FrameBufferRatio = 1;
@@ -28,13 +33,9 @@ ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, hei
 		RenderGrass = false;
 		LoadParticles = false;
 		RenderParticles = false;
-		DRHI = new D3D12RHI();
-		DRHI->m_height = m_height;
-		DRHI->m_width = m_width;
-		DRHI->m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
-		DRHI->LoadPipeLine();
-		DRHI->LoadAssets();
+#if USED3D12DebugP
 		debugplane = new D3D12Plane(1);
+#endif
 	}
 }
 void ForwardRenderer::RunQuery()
@@ -149,6 +150,24 @@ void ForwardRenderer::UpdateDeltaTime(float value)
 }
 void ForwardRenderer::Init()
 {
+	RHI::InitRenderState();
+	mainshader = new Shader_Main();
+	if (RHI::GetType() == RenderSystemOGL)
+	{
+		QuerryShader = new Shader_Querry();
+	}
+	FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, FrameBufferRatio);
+	outshader = new ShaderOutput(FilterBuffer->GetWidth(), FilterBuffer->GetHeight());
+	RelfectionBuffer = RHI::CreateFrameBuffer(ReflectionBufferWidth, ReflectionBufferHeight);
+	if (LoadParticles)
+	{
+		particlesys = std::make_unique<ParticleSystem>();
+	}
+	if (LoadGrass)
+	{
+		grassshader = new Shader_Grass();
+	}
+	skyboxShader = std::make_unique<Shader_Skybox>();
 	if (mainscene == nullptr)
 	{
 		mainscene = new Scene();
@@ -156,22 +175,19 @@ void ForwardRenderer::Init()
 	Lights = mainscene->GetLights();
 	(Objects) = (mainscene->GetObjects());
 	shadowrender = new ShadowRenderer();
-
-	if (RHI::GetType() == RenderSystemD3D12)
-	{
-		ShadowList = shadowrender->CreateShaderCommandList();
-	}
 	ShadowCMDList = RHI::CreateCommandList();
 	shadowrender->InitShadows((*Lights), ShadowCMDList);
 	GPUStateCache::Create();
-	skybox = new GameObject();
-	skybox->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("skybox.obj", GetMainShader()->GetShaderProgram(), true), nullptr));
+
+	/*skybox = new GameObject();
+	skybox->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("skybox.obj", GetMainShader()->GetShaderProgram(), true), nullptr));*/
 	if (LoadGrass)
 	{
 		grasstest = std::make_unique<GrassPatch>();
 	}
 	TESTINIT();
 }
+
 void ForwardRenderer::ReflectionPass()
 {
 	if (RefelctionCamera == nullptr)
@@ -233,19 +249,19 @@ void ForwardRenderer::ReflectionPass()
 void ForwardRenderer::ShadowPass()
 {
 	return;
-	if (ShadowList != nullptr)
-	{
-		shadowrender->ResetCommandList(ShadowList);
-		mainshader->BindLightsBuffer(ShadowList);
-	}
-	//ShadowCMDList->ClearScreen();
+	//if (ShadowList != nullptr)
+	//{
+	//	shadowrender->ResetCommandList(ShadowList);
+	//	mainshader->BindLightsBuffer(ShadowList);
+	//}
+	////ShadowCMDList->ClearScreen();
 
-	shadowrender->RenderShadowMaps(MainCamera, (*Lights), (InGetObj()), ShadowCMDList, mainshader);
-	if (ShadowList != nullptr)
-	{
-		ShadowList->Close();
-		DRHI->ExecList(ShadowList);
-	}
+	//shadowrender->RenderShadowMaps(MainCamera, (*Lights), (InGetObj()), ShadowCMDList, mainshader);
+	//if (ShadowList != nullptr)
+	//{
+	//	ShadowList->Close();
+	//	DRHI->ExecList(ShadowList);
+	//}
 
 }
 void ForwardRenderer::BindAsRenderTarget()
@@ -261,7 +277,7 @@ void ForwardRenderer::PrepareData()
 }
 void ForwardRenderer::RenderDebugPlane()
 {
-#if (_DEBUG) && 0
+#if (_DEBUG) && USED3D12DebugP
 	MainList->SetGraphicsRootSignature(((D3D12Shader*)outshader->GetShaderProgram())->m_Shader.m_rootSignature);
 	MainList->SetPipelineState(((D3D12Shader*)outshader->GetShaderProgram())->m_Shader.m_pipelineState);
 	debugplane->Render(MainList);
@@ -282,7 +298,8 @@ void ForwardRenderer::MainPass()
 	{
 		if (once)
 		{
-			DRHI->ExecSetUpList();
+			/*DRHI->ExecSetUpList();*/
+			D3D12RHI::Instance->ExecSetUpList();
 			once = false;
 		}
 	}
@@ -295,10 +312,7 @@ void ForwardRenderer::MainPass()
 	TEST();
 	return;
 
-
-
-
-
+#if 0
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
 		PrepareData();
@@ -392,6 +406,7 @@ void ForwardRenderer::MainPass()
 		/*MainList->Close();*/
 		DRHI->ExecList(MainList, false);
 	}
+#endif
 
 }
 
@@ -417,34 +432,6 @@ void ForwardRenderer::RenderFitlerBufferOutput()
 	outshader->UpdateUniforms(nullptr, MainCamera);
 	FilterBuffer->BindToTextureUnit(0);
 	outshader->RenderPlane();
-}
-void ForwardRenderer::InitOGL()
-{
-	//	MainCamera = new Camera(glm::vec3(0, 2, 0), 75.0f, static_cast<float>(m_width / m_height), 0.1f, 1000.0f);
-
-	RHI::InitRenderState();
-	mainshader = new Shader_Main();
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-		QuerryShader = new Shader_Querry();
-	}
-
-	FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, FrameBufferRatio);
-	outshader = new ShaderOutput(FilterBuffer->GetWidth(), FilterBuffer->GetHeight());
-	RelfectionBuffer = RHI::CreateFrameBuffer(ReflectionBufferWidth, ReflectionBufferHeight);
-	if (LoadParticles)
-	{
-		particlesys = std::make_unique<ParticleSystem>();
-	}
-	if (LoadGrass)
-	{
-		grassshader = new Shader_Grass();
-	}
-	skyboxShader = std::make_unique<Shader_Skybox>();
-	if (RHI::GetType() == RenderSystemD3D12)
-	{
-		//MainList = ((D3D12Shader*)mainshader->GetShaderProgram())->CreateShaderCommandList();
-	}
 }
 
 std::vector<GameObject*> ForwardRenderer::GetObjects()
@@ -483,31 +470,18 @@ void ForwardRenderer::SetScene(Scene * sc)
 		MainCamera = mainscene->GetCurrentRenderCamera();
 	}
 }
-#include "../Core/Engine.h"
+
 void ForwardRenderer::TESTINIT()
 {
-
-	cmlist = RHI::CreateCommandList();	 
-	vertexbuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
-	vertexbuffer->CreateVertexBufferFromFile(Engine::GetRootDir() + "\\asset\\models\\terrainmk2.obj");
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
-	{
-	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-	};
-	cmlist->SetVertexFormat(inputElementDescs, 3);
-
-	texturetest = RHI::CreateTexture("\\asset\\texture\\grasshillalbedo.png");
-	cmlist->SetTexture(texturetest, 0);
+	MainCommandList = RHI::CreateCommandList();	 
 	//finally init the pipeline!
-	cmlist->CreatePipelineState(mainshader);
+	MainCommandList->CreatePipelineState(mainshader);
 	shadowrender->InitShadows((*Lights), ShadowCMDList);
 }
 
 void ForwardRenderer::TEST()
 {
-	cmlist->ResetList();
+	MainCommandList->ResetList();
 
 	MVBuffer buffer;
 	buffer.P = MainCamera->GetProjection();
@@ -515,7 +489,7 @@ void ForwardRenderer::TEST()
 	mainshader->UpdateMV(MainCamera);
 	mainshader->UpdateLightBuffer(*Lights);
 	
-	mainshader->BindLightsBuffer(cmlist);
+	mainshader->BindLightsBuffer(MainCommandList);
 	mainshader->UpdateCBV();
 	if (true)
 	{
@@ -526,17 +500,17 @@ void ForwardRenderer::TEST()
 		shadowrender->RenderShadowMaps(MainCamera, (*Lights), (*Objects), ShadowCMDList, mainshader);
 		ShadowCMDList->Execute();
 
-		shadowrender->BindShadowMapsToTextures(cmlist);
+		shadowrender->BindShadowMapsToTextures(MainCommandList);
 	}
 	mainshader->UpdateMV(MainCamera);
-	cmlist->ClearScreen();
-	cmlist->SetScreenBackBufferAsRT();
+	MainCommandList->ClearScreen();
+	MainCommandList->SetScreenBackBufferAsRT();
 	for (size_t i = 0; i < (*Objects).size(); i++)
 	{
-		mainshader->SetActiveIndex(cmlist, i);
-		(*Objects)[i]->Render(false, cmlist);
+		mainshader->SetActiveIndex(MainCommandList, i);
+		(*Objects)[i]->Render(false, MainCommandList);
 	}
-	cmlist->Execute();
+	MainCommandList->Execute();
 }
 
 Camera * ForwardRenderer::GetMainCam()
@@ -547,23 +521,11 @@ Camera * ForwardRenderer::GetMainCam()
 void ForwardRenderer::AddGo(GameObject * g)
 {
 	mainscene->AddGameobjectToScene(g);
-	//1		ob.push_back(g);
-}
-
-void ForwardRenderer::AddPhysObj(GameObject * go)
-{
-	if (PhysicsObjects.size() >= MaxPhysicsObjects)
-	{
-		PhysicsObjects.erase(PhysicsObjects.begin());
-	}
-	PhysicsObjects.push_back(go);
-
 }
 
 void ForwardRenderer::AddLight(Light * l)
 {
 	mainscene->GetLights()->push_back(l);
-	//	Lights.push_back(l);
 }
 
 void ForwardRenderer::FixedUpdatePhysx(float dtime)

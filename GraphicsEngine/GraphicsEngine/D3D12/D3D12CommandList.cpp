@@ -95,12 +95,6 @@ void D3D12CommandList::SetPipelineState(PipeLineState state)
 	Currentpipestate = state;
 }
 
-void D3D12CommandList::SetVertexFormat(void * inputDisc, int elementcount)
-{
-	VertexDesc = (D3D12_INPUT_ELEMENT_DESC*)inputDisc;
-	VertexDesc_ElementCount = elementcount;
-}
-
 void D3D12CommandList::CreateCommandList()
 {
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
@@ -205,7 +199,7 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize)
 	// recommended. Every time the GPU needs it, the upload heap will be marshalled 
 	// over. Please read up on Default Heap usage. An upload heap is used here for 
 	// code simplicity and because there are very few verts to actually transfer.
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommittedResource(
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),

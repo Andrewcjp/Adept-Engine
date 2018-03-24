@@ -17,14 +17,12 @@ public:
 
 	void SSAOPass();
 	void Init()override;
-	void InitOGL()override;
 	DeferredRenderer(int width, int height) :RenderEngine(width, height) {}
 	~DeferredRenderer();
 
 	// Inherited via RenderEngine
 	virtual Camera * GetMainCam() override;
 	virtual void AddGo(GameObject * g) override;
-	virtual void AddPhysObj(GameObject * go) override;
 	virtual void AddLight(Light * l) override;
 	virtual void FixedUpdatePhysx(float dtime) override;
 	void GeometryPass();
@@ -41,7 +39,6 @@ private:
 	Shader_Deferred* DeferredShader;
 	std::vector<GameObject*> Objects;
 	std::vector<Light*> Lights;
-	std::vector<GameObject*>PhysicsObjects;
 	ShadowRenderer* shadower;
 	FrameBufferSSAO* SSAOBuffer;
 	Shader_SSAO*	SSAOShader;

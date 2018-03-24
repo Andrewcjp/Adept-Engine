@@ -72,7 +72,6 @@ public:
 	virtual void SetVertexBuffer(RHIBuffer* buffer) = 0;
 	virtual void CreatePipelineState(class Shader* shader) = 0;
 	virtual void SetPipelineState(PipeLineState state) = 0;
-	virtual void SetVertexFormat(void* inputDisc, int elementcount) = 0;
 	//virtual void SetConstantBuffer(RHIBuffer* buffer) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) = 0;

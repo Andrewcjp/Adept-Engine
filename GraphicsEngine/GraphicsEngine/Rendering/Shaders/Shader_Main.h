@@ -1,14 +1,6 @@
 #pragma once
 #include "../RHI/Shader.h"
-
 #include <string>
-//typedef struct _ConstBuffer
-//{
-//	glm::mat4 M;
-//	glm::mat4 V;
-//	glm::mat4 P;
-//}ConstBuffer;
-#include "../D3D12/D3D12Shader.h"
 #define MAX_LIGHTS 4
 #include "../RHI/RHICommandList.h"
 typedef struct _LightUniformBuffer
@@ -36,6 +28,12 @@ struct LightBufferW
 {
 	LightUniformBuffer Light[MAX_LIGHTS];
 };
+struct SceneConstantBuffer//CBV need to be 256 aligned
+{
+	glm::mat4 M;
+	glm::mat4 V;
+	glm::mat4 P;
+};
 class Shader_Main :public Shader
 {
 public:
@@ -52,18 +50,16 @@ public:
 	bool IsPhysics = false;
 	void ClearBuffer();
 	void UpdateCBV();
-	void UpdateUnformBufferEntry(const D3D12Shader::SceneConstantBuffer &bufer, int index);
+	void UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int index);
 	void SetActiveIndex(class RHICommandList * list, int index);
 	static void GetMainShaderSig(std::vector<Shader::ShaderParameter>& out);
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	void UpdateMV(Camera * c);
-
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
-
-	D3D12Shader::SceneConstantBuffer CreateUnformBufferEntry(Transform* t);
-	void BindLightsBuffer(CommandListDef * list);
+	SceneConstantBuffer CreateUnformBufferEntry(Transform* t);
 	void UpdateLightBuffer(std::vector<Light*> lights);
 	void BindLightsBuffer(RHICommandList * list);
+	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 private:
 	int						m_uniform_model;
 	int						m_uniform_View;
@@ -89,16 +85,14 @@ private:
 	GLuint ubo = 0;
 	int MaxConstant =25;
 	GLuint Buffer;
-	std::vector<D3D12Shader::SceneConstantBuffer> SceneBuffer;
+	std::vector<SceneConstantBuffer> SceneBuffer;
 	//information for all the lights in the scene currently
-	class D3D12CBV* LightCBV;
+
 	RHIBuffer* CLightBuffer;
 	RHIBuffer* CMVBuffer = nullptr;
 	RHIBuffer* GameObjectTransformBuffer = nullptr;
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
-	class D3D12CBV* MVCBV;
 	struct MVBuffer MV_Buffer;
-//	std::vector<LightUniformBuffer> LightsBuffer;
 	LightBufferW LightsBuffer;
 	// Inherited via Shader
 	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;

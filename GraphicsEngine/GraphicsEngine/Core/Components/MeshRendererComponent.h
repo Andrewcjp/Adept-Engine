@@ -21,8 +21,8 @@ public:
 		return m_mesh;
 	}
 private:
-	Renderable* m_mesh;
-	Material* m_mat;
+	Renderable* m_mesh = nullptr;
+	Material* m_mat = nullptr;
 
 	// Inherited via Component
 	virtual void BeginPlay() override;

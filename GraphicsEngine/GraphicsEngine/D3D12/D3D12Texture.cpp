@@ -260,7 +260,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
 	D3D12RHI::Instance->BaseTextureHeap = m_srvHeap;
 	m_srvHeap->SetName(L"Texture SRV");
 
@@ -281,7 +281,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
-		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommittedResource(
+		ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&textureDesc,
@@ -292,7 +292,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, Miplevels);
 
 		// Create the GPU upload buffer.
-		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommittedResource(
+		ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
@@ -324,7 +324,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		srvDesc.Texture2D.MipLevels = Miplevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 
-		(D3D12RHI::Instance->m_Primarydevice->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart()));
+		(D3D12RHI::GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart()));
 	}
 	{
 

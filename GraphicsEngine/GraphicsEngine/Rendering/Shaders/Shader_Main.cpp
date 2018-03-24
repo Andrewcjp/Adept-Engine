@@ -25,6 +25,7 @@ Shader_Main::Shader_Main()
 
 	//	m_Shader->BuildShaderProgram();
 	m_Shader->ActivateShaderProgram();
+
 	if (RHI::GetType() == RenderSystemOGL)
 	{
 		m_uniform_model = glGetUniformLocation(m_Shader->GetProgramHandle(), "model");
@@ -64,18 +65,12 @@ Shader_Main::Shader_Main()
 
 	for (int i = 0; i < MaxConstant; i++)
 	{
-		SceneBuffer.push_back(D3D12Shader::SceneConstantBuffer());
+		SceneBuffer.push_back(SceneConstantBuffer());
 	}
 
-	/*((D3D12Shader*)m_Shader)->InitCBV();*/
-	//((D3D12Shader*)m_Shader)->
-	//LightCBV = new D3D12CBV();
-	//LightCBV->InitCBV(sizeof(LightBuffer), 1);
-	//MVCBV = new D3D12CBV();
-	//MVCBV->InitCBV(sizeof(MVBuffer), 1);
 
 	GameObjectTransformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
-	GameObjectTransformBuffer->CreateConstantBuffer(sizeof(D3D12Shader::SceneConstantBuffer), MaxConstant);
+	GameObjectTransformBuffer->CreateConstantBuffer(sizeof(SceneConstantBuffer), MaxConstant);
 	CLightBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	CLightBuffer->CreateConstantBuffer(sizeof(LightBuffer), 1);
 	CMVBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
@@ -84,6 +79,15 @@ Shader_Main::Shader_Main()
 Shader_Main::~Shader_Main()
 {
 
+}
+std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
+{
+	std::vector<Shader::VertexElementDESC> out;
+	out.push_back(VertexElementDESC{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+
+	return out;
 }
 void Shader_Main::SetNormalVis()
 {
@@ -230,21 +234,19 @@ void Shader_Main::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Lig
 #endif
 }
 
-
-
 void Shader_Main::ClearBuffer()
 {
 	SceneBuffer.empty();
 }
+
 void Shader_Main::UpdateCBV()
 {
 	for (int i = 0; i < MaxConstant; i++)
 	{
-		/*((D3D12Shader*)m_Shader)->UpdateCBV(SceneBuffer[i], i);*/
 		GameObjectTransformBuffer->UpdateConstantBuffer(&SceneBuffer[i], i);
 	}
 }
-void Shader_Main::UpdateUnformBufferEntry(const D3D12Shader::SceneConstantBuffer &bufer, int index)
+void Shader_Main::UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int index)
 {
 	if (index < MaxConstant)
 	{
@@ -264,39 +266,36 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	out[3] = ShaderParameter(ShaderParamType::CBV, 3, 2);
 	out[4] = ShaderParameter(ShaderParamType::SRV, 4, 1);
 }
+
 std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> Output;
 	GetMainShaderSig(Output);
 	return Output;
 }
+
 void Shader_Main::UpdateMV(Camera * c)
 {
 	MV_Buffer.V = c->GetView();
 	MV_Buffer.P = c->GetProjection();
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
 }
+
 void Shader_Main::UpdateMV(glm::mat4 View, glm::mat4 Projection)
 {
 	MV_Buffer.V = View;
 	MV_Buffer.P = Projection;
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
 }
-D3D12Shader::SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(Transform * t)
+
+SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(Transform * t)
 {
-	D3D12Shader::SceneConstantBuffer m_constantBufferData;
+	SceneConstantBuffer m_constantBufferData;
 	m_constantBufferData.M = t->GetModel();
 	//used in the prepare stage for this frame!
 	return m_constantBufferData;
 }
-void Shader_Main::BindLightsBuffer(CommandListDef*  list)
-{
-	LightCBV->SetDescriptorHeaps(list);
-	LightCBV->SetGpuView(list, 0, D3D12CBV::LightCBV);
 
-	MVCBV->SetDescriptorHeaps(list);
-	MVCBV->SetGpuView(list, 0, D3D12CBV::MPCBV);
-}
 void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 {
 	for (int i = 0; i < lights.size(); i++)
@@ -310,10 +309,7 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 			glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
 			glm::vec3 position = glm::vec3(0, 10, 5);
 			LightView = glm::lookAtLH<float>(position, position + newitem.Direction, glm::vec3(0, 0, 1));//world up
-			//LightView = glm::inverse(LightView);
 			float size = 100.0f;
-			//todo calc this right
-
 			glm::mat4 proj;
 			if (lights[i]->GetType() == Light::Spot)
 			{
@@ -332,6 +328,7 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 	}
 	CLightBuffer->UpdateConstantBuffer(&LightsBuffer, 0);
 }
+
 void Shader_Main::BindLightsBuffer(RHICommandList*  list)
 {
 	list->SetConstantBufferView(CLightBuffer, 0, D3D12CBV::LightCBV);

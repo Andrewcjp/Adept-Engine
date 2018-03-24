@@ -28,7 +28,6 @@ void StripD3dShader(ID3DBlob** blob)
 	}
 	UINT stripflags = D3DCOMPILER_STRIP_REFLECTION_DATA | D3DCOMPILER_STRIP_DEBUG_INFO | D3DCOMPILER_STRIP_TEST_BLOBS;
 	D3DStripShader(*blob, (*blob)->GetBufferSize(), stripflags, blob);
-
 }
 EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type)
 {
@@ -61,8 +60,12 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #if defined(_DEBUG)
 	// Enable better shader debugging with the graphics debugging tools.
 	UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else 
+#if BUILD_SHIPPING
+	UINT compileFlags = D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND;
 #else
-	UINT compileFlags = 0;
+	UINT compileFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_OPTIMIZATION_LEVEL0;
+#endif
 #endif
 
 	if (type == SHADER_VERTEX)
@@ -84,7 +87,11 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "cs_5_0",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
 	}
-
+	else if (type == SHADER_GEOMETRY)
+	{
+		/*	hr = D3DCompileFromFile(filename, NULL, NULL, "main", "gs_5_0",
+				compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);*/
+	}
 
 	if (FAILED(hr))
 	{
@@ -133,20 +140,13 @@ void D3D12Shader::ActivateShaderProgram(ID3D12GraphicsCommandList* list)
 void D3D12Shader::DeactivateShaderProgram()
 {}
 
-
-D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ID3DBlob * vsBlob, ID3DBlob * fsBlob, bool Depthtest)
-{
-	ShaderBlobs t{ vsBlob, fsBlob };
-	return CreatePipelineShader(output, inputDisc, DescCount,&t , PipeLineState{ Depthtest });
-
-}
 D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest)
 {
 	ensure(blobs->vsBlob != nullptr);
 	ensure(blobs->fsBlob != nullptr);
 
 	// Describe and create the graphics pipeline state object (PSO).
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {0};
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = { 0 };
 	psoDesc.InputLayout.pInputElementDescs = inputDisc;
 	psoDesc.InputLayout.NumElements = DescCount;
 	psoDesc.pRootSignature = output.m_rootSignature;
@@ -168,7 +168,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
 
 	return output;
 }
@@ -178,69 +178,8 @@ D3D12Shader::ShaderBlobs * D3D12Shader::GetShaderBlobs()
 	return &mBlolbs;
 }
 
-D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ID3DBlob * vsBlob, ID3DBlob * fsBlob, bool Depthtest)
-{
-	PiplineShader output = PiplineShader();
-	//CreateRootSig(output);
-	CreateDefaultRootSig(output);
-
-	// Describe and create the graphics pipeline state object (PSO).
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-	psoDesc.InputLayout.pInputElementDescs = inputDisc;
-	psoDesc.InputLayout.NumElements = DescCount;
-	psoDesc.pRootSignature = output.m_rootSignature;
-
-	psoDesc.VS = CD3DX12_SHADER_BYTECODE(vsBlob);
-	psoDesc.PS = CD3DX12_SHADER_BYTECODE(fsBlob);
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState.DepthEnable = Depthtest;
-	psoDesc.DepthStencilState.StencilEnable = FALSE;
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	psoDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
-
-	return output;
-}
-
-
-
-void D3D12Shader::PushCBVToGPU(ID3D12GraphicsCommandList * list, int offset)
-{
-	CBV->SetDescriptorHeaps(list);
-	CBV->SetGpuView(list, offset);
-}
-void D3D12Shader::UpdateCBV(SceneConstantBuffer& buffer, int offset)
-{
-	CBV->UpdateCBV(buffer, offset);
-}
-void D3D12Shader::InitCBV()
-{
-	CBV = new D3D12CBV();
-	CBV->InitCBV(sizeof(SceneConstantBuffer), 10);
-}
 void D3D12Shader::Init()
 {
-	if (m_Shader.m_pipelineState == nullptr && !IsCompute)
-	{
-		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-		};
-		if (InputDesc == nullptr)
-		{
-			InputDesc = inputElementDescs;
-		}
-		m_Shader = CreatePipelineShader(InputDesc, Length, m_vsBlob, m_fsBlob, DepthTest);
-	}
 	if (IsCompute)
 	{
 		CreateComputePipelineShader();
@@ -285,26 +224,19 @@ void D3D12Shader::CreateComputePipelineShader()
 		ID3DBlob* error;
 		computeRootSignatureDesc.Init(_countof(rootParameters), rootParameters, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 		ThrowIfFailed(D3D12SerializeRootSignature(&computeRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
-		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_Shader.m_rootSignature)));
+		ThrowIfFailed(D3D12RHI::GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_Shader.m_rootSignature)));
 		NAME_D3D12_OBJECT(m_Shader.m_rootSignature);
 	}
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
 	computePsoDesc.pRootSignature = m_Shader.m_rootSignature;
 	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(mBlolbs.csBlob);
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_Shader.m_pipelineState)));
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_Shader.m_pipelineState)));
 }
 CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
 {
 	Init();
 	CommandListDef* newlist = nullptr;
-	if (device == 0 || D3D12RHI::Instance->m_Secondarydevice == nullptr)
-	{
-		ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
-	}
-	else
-	{
-		ThrowIfFailed(D3D12RHI::Instance->m_Secondarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
-	}
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
 	ThrowIfFailed(newlist->Close());
 	return newlist;
 }
@@ -329,16 +261,8 @@ void D3D12Shader::ResetList(ID3D12GraphicsCommandList* list)
 	// Set necessary state.
 	list->SetGraphicsRootSignature(m_Shader.m_rootSignature);
 
+}
 
-	//m_constantBufferData.M = glm::translate(glm::vec3(0, -5, 0));
-	//testshader->UpdateCBV(m_constantBufferData);
-	//testshader->PushCBVToGPU(m_commandList, 0);
-}
-void D3D12Shader::SetInputDesc(D3D12_INPUT_ELEMENT_DESC * desc, int size)
-{
-	InputDesc = desc;
-	Length = size;
-}
 D3D12_INPUT_ELEMENT_DESC D3D12Shader::ConvertVertexFormat(Shader::VertexElementDESC* desc)
 {
 	D3D12_INPUT_ELEMENT_DESC output;
@@ -351,6 +275,11 @@ D3D12_INPUT_ELEMENT_DESC D3D12Shader::ConvertVertexFormat(Shader::VertexElementD
 	//identical!
 	output.InputSlotClass = (D3D12_INPUT_CLASSIFICATION)(int)desc->InputSlotClass;
 	return output;
+}
+
+D3D12Shader::PiplineShader * D3D12Shader::GetPipelineShader()
+{
+	return &m_Shader;
 }
 
 bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, D3D12_INPUT_ELEMENT_DESC ** Data, int * length)
@@ -371,7 +300,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	// This is the highest version the sample supports. If CheckFeatureSupport succeeds, the HighestVersion returned will not be greater than this.
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
 
-	if (FAILED(D3D12RHI::Instance->m_Primarydevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+	if (FAILED(D3D12RHI::GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
 	{
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
@@ -450,7 +379,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	ID3DBlob* signature;
 	ID3DBlob* error;
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 }
 
 
@@ -461,7 +390,7 @@ void D3D12Shader::CreateDefaultRootSig(D3D12Shader::PiplineShader &output)
 	// This is the highest version the sample supports. If CheckFeatureSupport succeeds, the HighestVersion returned will not be greater than this.
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
 
-	if (FAILED(D3D12RHI::Instance->m_Primarydevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+	if (FAILED(D3D12RHI::GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
 	{
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
@@ -518,5 +447,5 @@ void D3D12Shader::CreateDefaultRootSig(D3D12Shader::PiplineShader &output)
 	ID3DBlob* signature;
 	ID3DBlob* error;
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
-	ThrowIfFailed(D3D12RHI::Instance->m_Primarydevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 }

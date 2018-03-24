@@ -1,5 +1,4 @@
 #include "UIBox.h"
-#include "OpenGL/OGLShaderProgram.h"
 #include "glm\glm.hpp"
 #include "../UI/UIManager.h"
 #include "RHI/BaseTexture.h"
@@ -24,29 +23,6 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 	GLfloat xpos = (GLfloat)x;
 	GLfloat ypos = (GLfloat)y;
 
-
-
-	//GLfloat vertices[] = {
-	//	xpos,     ypos + h,   value ,value ,
-	//	xpos,     ypos,      value ,value,
-	//	xpos + w, ypos,       value ,value ,
-
-	//	xpos,     ypos + h,   value ,value,
-	//	xpos + w, ypos,       value ,value ,
-	//	xpos + w , ypos + h,  value ,value,
-
-	//		 xpos + gap,     ypos + h - gap,   0.0 ,0.0 ,
-	//		 xpos + gap,     ypos + gap,      0.0 ,0.0,
-	//		 xpos + w - gap, ypos + gap,       0.0 ,0 ,
-
-	//		 xpos + gap,     ypos + h - gap,   0.0 ,0.0,
-	//		 xpos + w - gap, ypos + gap,       0.0 ,0.0 ,
-	//		 xpos + w - gap, ypos + h - gap,  0.0 ,0.0
-
-
-	//};
-	//glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	if (UIDrawBatcher::instance != nullptr)
 	{
 		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
@@ -68,8 +44,7 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 }
 
 UIBox::~UIBox()
-{
-	//glDeleteBuffers(1, &quad_vertexbuffer);
+{	
 	delete texture;
 }
 

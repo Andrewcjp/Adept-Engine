@@ -46,8 +46,8 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex)
 	shader->ResetList(pCommandList);
 
 
-	pCommandList->SetPipelineState(shader->m_Shader.m_pipelineState);
-	pCommandList->SetComputeRootSignature(shader->m_Shader.m_rootSignature);
+	pCommandList->SetPipelineState(shader->GetPipelineShader()->m_pipelineState);
+	pCommandList->SetComputeRootSignature(shader->GetPipelineShader()->m_rootSignature);
 	pCommandList->SetDescriptorHeaps(1, &descriptorHeap);
 
 

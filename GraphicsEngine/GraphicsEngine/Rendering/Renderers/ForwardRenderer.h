@@ -57,7 +57,6 @@ public:
 
 	void RenderSkybox(bool ismain = true);
 	void RenderFitlerBufferOutput();
-	void InitOGL()override;
 	virtual std::vector<GameObject*> GetObjects() override;
 	void SetScene(Scene * sc) override;
 
@@ -68,7 +67,7 @@ public:
 	void TEST();
 	Camera* GetMainCam() override;
 	void AddGo(GameObject* g)override;
-	void AddPhysObj(GameObject* go) override;
+
 	void AddLight(Light* l) override;
 	void FixedUpdatePhysx(float dtime) override;
 	Camera* RefelctionCamera;
@@ -125,18 +124,15 @@ private:
 
 	// Inherited via RenderEngine
 	virtual ShaderOutput * GetFilterShader() override;
-	bool once = true;
-
-	// Inherited via RenderEngine
+	
 	virtual void DestoryRenderWindow() override;
 
 
 
 	// Inherited via RenderEngine
 	virtual void FinaliseRender() override;
-	RHICommandList* cmlist;
+	RHICommandList* MainCommandList;
 	RHICommandList* ShadowCMDList = nullptr;
-	RHIBuffer* vertexbuffer;
-	BaseTexture* texturetest;
+	bool once = true;
 };
 

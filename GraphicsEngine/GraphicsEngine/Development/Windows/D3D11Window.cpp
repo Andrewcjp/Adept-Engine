@@ -31,7 +31,7 @@ D3D11Window::~D3D11Window()
 
 BOOL D3D11Window::InitD3DDevice(HWND hWnd)
 {
-	RHI::InialiseContext(hWnd, m_width, m_height);
+	RHI::InitialiseContext(hWnd, m_width, m_height);
 	//Init shader
 	//m_shaderProgram = new D3D11ShaderProgram(m_dxDev, m_dxContext);
 	m_shaderProgram = (D3D11ShaderProgram*)RHI::CreateShaderProgam();

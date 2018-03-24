@@ -13,11 +13,11 @@ public:
 	~Material();
 	void SetMaterialActive(CommandListDef * list = nullptr);
 	void SetMaterialActive(class RHICommandList * list);
-	BaseTexture* Diffusetexture;
-	BaseTexture* Metallictex;
-	BaseTexture* glosstex;
-	BaseTexture* NormalMap;
-	BaseTexture* DisplacementMap;
+	BaseTexture* Diffusetexture = nullptr;
+	BaseTexture* Metallictex = nullptr;
+	BaseTexture* glosstex = nullptr;
+	BaseTexture* NormalMap = nullptr;
+	BaseTexture* DisplacementMap = nullptr;
 	void SetShadow(bool state);
 	bool GetDoesShadow();
 	const MaterialProperties* GetProperties();

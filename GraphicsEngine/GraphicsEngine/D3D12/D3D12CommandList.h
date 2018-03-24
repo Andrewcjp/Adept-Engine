@@ -18,8 +18,7 @@ public:
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void CreatePipelineState(class Shader * shader) override;
 	virtual void SetPipelineState(PipeLineState state) override;
-	virtual void SetVertexFormat(void* inputDisc, int elementcount) override;
-	//virtual void SetConstantBuffer(RHIBuffer * buffer) override;
+
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetTexture(class BaseTexture * texture, int slot) override;
@@ -72,7 +71,7 @@ public:
 	virtual void UpdateVertexBuffer(void* data, int length) override;
 private:
 	ID3D12Resource * m_vertexBuffer;
-	D3D12CBV* CBV = nullptr;
+	class D3D12CBV* CBV = nullptr;
 	int cpusize = 0;
 };
 class D3D12RHIUAV : public RHIUAV

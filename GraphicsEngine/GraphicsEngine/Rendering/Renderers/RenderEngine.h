@@ -20,10 +20,8 @@ public:
 	virtual void Render() = 0;
 	virtual void FinaliseRender() = 0;
 	virtual void Init() = 0;
-	virtual void InitOGL() = 0;
 	virtual Camera* GetMainCam() = 0;
 	virtual void AddGo(GameObject* g) = 0;
-	virtual void AddPhysObj(GameObject* go) = 0;
 	virtual void AddLight(Light* l) = 0;
 	virtual void FixedUpdatePhysx(float dtime) = 0;
 	virtual void Resize(int width, int height) = 0;
@@ -38,11 +36,10 @@ public:
 	virtual void SetScene(Scene* sc);
 	virtual void SetEditorCamera(class Editor_Camera* cam);
 protected:
-	const size_t MaxPhysicsObjects = 1000; 
 	int			m_width;
 	int			m_height;
 	RenderSettings settings;
 	Scene* mainscene;
-	 Editor_Camera* EditorCam;
+	Editor_Camera* EditorCam;
 };
 

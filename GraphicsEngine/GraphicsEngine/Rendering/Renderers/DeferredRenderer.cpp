@@ -19,12 +19,6 @@ void DeferredRenderer::Render()
 
 void DeferredRenderer::Init()
 {
-//	shadower->InitShadows(Lights);
-
-}
-
-void DeferredRenderer::InitOGL()
-{
 	GPUStateCache::Create();
 	MainCamera = new Camera(glm::vec3(0, 2, 0), 90.0f, static_cast<float>(m_width / m_height), 0.1f, 1000.0f);
 	DeferredWriteShader = new Shader_WDeferred();
@@ -72,14 +66,6 @@ void DeferredRenderer::AddGo(GameObject * g)
 	Objects.push_back(g);
 }
 
-void DeferredRenderer::AddPhysObj(GameObject * go)
-{
-	if (PhysicsObjects.size() >= MaxPhysicsObjects)
-	{
-		PhysicsObjects.erase(PhysicsObjects.begin());
-	}
-	PhysicsObjects.push_back(go);
-}
 
 void DeferredRenderer::AddLight(Light * l)
 {
@@ -89,10 +75,10 @@ void DeferredRenderer::AddLight(Light * l)
 void DeferredRenderer::FixedUpdatePhysx(float dtime)
 {
 	//deltatime = dtime;
-	for (size_t i = 0; i < PhysicsObjects.size(); i++)
+	/*for (size_t i = 0; i < PhysicsObjects.size(); i++)
 	{
 		PhysicsObjects[i]->FixedUpdate(dtime);
-	}
+	}*/
 
 }
 
@@ -111,22 +97,9 @@ void DeferredRenderer::GeometryPass()
 		DeferredWriteShader->SetNormalState(Objects[i]->GetMat()->NormalMap != nullptr);
 		Objects[i]->Render();
 	}
-	for (size_t i = 0; i < PhysicsObjects.size(); i++)
-	{
-		float distance = (fabs(glm::length(PhysicsObjects[i]->GetTransform()->GetPos() - MainCamera->GetPosition())));
-		if (PhysicsObjects[i]->CheckCulled(distance, glm::angle(PhysicsObjects[i]->GetTransform()->GetPos(), MainCamera->GetForward())))
-		{
-			continue;
-		}
-		//	itemsrender++;
-		DeferredWriteShader->SetNormalState((PhysicsObjects[i]->GetMat()->NormalMap != nullptr));
-		//this enables non normal mapped surfaces not to be black
-		DeferredWriteShader->UpdateUniforms(PhysicsObjects[i]->GetTransform(), MainCamera, Lights);
-		PhysicsObjects[i]->Render();
-	}
+
 	RenderSkybox(true);
 	DeferredFrameBuffer->UnBind();
-	//glDisable(GL_BLEND);
 }
 void DeferredRenderer::RenderSkybox(bool ismain)
 {

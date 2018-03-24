@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "GameWindow.h"
-#include "D3D11/D3D11Window.h"
+
 #include "Resource.h"
 #include "EngineGlobals.h"
 #include "Physics/PhysicsEngine.h"
@@ -11,7 +11,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "Game.h"
 #include "Shlwapi.h"
-#include "../D3D12/D3D12Window.h"
+
 #include "../Packaging/Cooker.h"
 #include "../Core/Utils/FileUtils.h"
 #include "../Core/Utils/WindowsHelper.h"
@@ -23,9 +23,12 @@ PhysicsEngine* Engine::PhysEngine = NULL;
 #ifdef BUILD_GAME
 #define UseDevelopmentWindows 0
 #else
-#define UseDevelopmentWindows 1
+#define UseDevelopmentWindows 0
 #endif
-
+#if UseDevelopmentWindows
+#include "../D3D12/D3D12Window.h"
+#include "D3D11/D3D11Window.h"
+#endif
 std::string Engine::GetRootDir()
 {
 	wchar_t buffer[MAX_PATH];

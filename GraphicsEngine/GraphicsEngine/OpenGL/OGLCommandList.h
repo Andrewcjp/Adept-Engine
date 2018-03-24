@@ -16,7 +16,6 @@ public:
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void CreatePipelineState(class Shader * shader) override;
-	virtual void SetVertexFormat(void * inputDisc, int elementcount) override;
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetTexture(BaseTexture * texture, int slot) override;

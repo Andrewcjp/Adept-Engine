@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 #include "RHI/RenderWindow.h"
 
 #include <vector>
@@ -119,3 +119,4 @@ public:
 	virtual void ProcessMenu(WORD command) override;
 
 };
+#endif

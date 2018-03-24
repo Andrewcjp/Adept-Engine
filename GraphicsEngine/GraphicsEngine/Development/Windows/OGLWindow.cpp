@@ -1,4 +1,5 @@
 #include "OGLWindow.h"
+#if 0
 #include "Resource.h"
 //#include "Matrix4x4.h"
 //#include "Vector4.h"
@@ -135,7 +136,7 @@ bool OGLWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, b
 			L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 			0, 0, width, height, NULL, NULL, hInstance, NULL);
 	}
-	RHI::InialiseContext(m_hwnd, width, height);
+	RHI::InitialiseContext(m_hwnd, width, height);
 	InitWindow(m_hglrc, m_hwnd, m_hdc, width, height);
 	return true;
 }
@@ -165,7 +166,7 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 		Renderer = new ForwardRenderer(width, height);
 	}
 
-	Renderer->InitOGL();
+//	Renderer->InitOGL();
 
 
 	//shadowrender = new ShadowRenderer();
@@ -441,3 +442,4 @@ void OGLWindow::ProcessMenu(WORD command)
 
 
 
+#endif

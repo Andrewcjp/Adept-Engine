@@ -242,7 +242,9 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="D3D12\D3D12MemoryManager.h" />
     <ClInclude Include="D3D12\D3D12CommandList.h" />
+    <ClInclude Include="D3D12\DescriptorHeap.h" />
     <ClInclude Include="OpenGL\OGLCommandList.h" />
     <ClInclude Include="Packaging\Cooker.h" />
     <ClInclude Include="Core\BaseWindow.h" />
@@ -257,7 +259,7 @@
     <ClInclude Include="D3D12\D3D12Mesh.h" />
     <ClInclude Include="D3D12\D3D12Shader.h" />
     <ClInclude Include="D3D12\D3D12Texture.h" />
-    <ClInclude Include="D3D12\D3D12Window.h" />
+    <ClInclude Include="Development\Windows\D3D12Window.h" />
     <ClInclude Include="D3D12\D3D12RHI.h" />
     <ClInclude Include="Editor\Editor_Camera.h" />
     <ClInclude Include="Core\Components\ExtraComponentRegister.h" />
@@ -266,6 +268,8 @@
     <ClInclude Include="Core\GameWindow.h" />
     <ClInclude Include="Core\Utils\FileUtils.h" />
     <ClInclude Include="Core\EngineTypes.h" />
+    <ClInclude Include="Rendering\PostProcessing\PostProcessEffectBase.h" />
+    <ClInclude Include="Rendering\PostProcessing\PostProcessing.h" />
     <ClInclude Include="Rendering\Shaders\Shader_UIBatch.h" />
     <ClInclude Include="Rendering\Shaders\ShaderMipMap.h" />
     <ClInclude Include="RHI\RHICommandList.h" />
@@ -298,7 +302,7 @@
     <ClInclude Include="D3D11\D3D11Mesh.h" />
     <ClInclude Include="D3D11\D3D11Shader.h" />
     <ClInclude Include="D3D11\D3D11Texture.h" />
-    <ClInclude Include="D3D11\D3D11Window.h" />
+    <ClInclude Include="Development\Windows\D3D11Window.h" />
     <ClInclude Include="Rendering\Renderers\DeferredRenderer.h" />
     <ClInclude Include="Editor\EditorGizmos.h" />
     <ClInclude Include="Editor\EditorWindow.h" />
@@ -381,7 +385,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="D3D12\D3D12MemoryManager.cpp" />
     <ClCompile Include="D3D12\D3D12CommandList.cpp" />
+    <ClCompile Include="D3D12\DescriptorHeap.cpp" />
     <ClCompile Include="OpenGL\OGLCommandList.cpp" />
     <ClCompile Include="Packaging\Cooker.cpp" />
     <ClCompile Include="Core\BaseWindow.cpp" />
@@ -401,12 +407,14 @@
     <ClCompile Include="D3D12\D3D12Mesh.cpp" />
     <ClCompile Include="D3D12\D3D12Shader.cpp" />
     <ClCompile Include="D3D12\D3D12Texture.cpp" />
-    <ClCompile Include="D3D12\D3D12Window.cpp" />
+    <ClCompile Include="Development\Windows\D3D12Window.cpp" />
     <ClCompile Include="D3D12\D3D12RHI.cpp" />
     <ClCompile Include="Editor\Editor_Camera.cpp" />
     <ClCompile Include="Core\Components\ExtraComponentRegister.cpp" />
     <ClCompile Include="Core\Components\MeshColliderComponent.cpp" />
     <ClCompile Include="Core\GameWindow.cpp" />
+    <ClCompile Include="Rendering\PostProcessing\PostProcessEffectBase.cpp" />
+    <ClCompile Include="Rendering\PostProcessing\PostProcessing.cpp" />
     <ClCompile Include="Rendering\Renderers\RenderSettings.cpp" />
     <ClCompile Include="Core\Assets\SceneJSerialiser.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_UIBatch.cpp" />
@@ -433,7 +441,7 @@
     <ClCompile Include="D3D11\D3D11Mesh.cpp" />
     <ClCompile Include="D3D11\D3D11Shader.cpp" />
     <ClCompile Include="D3D11\D3D11Texture.cpp" />
-    <ClCompile Include="D3D11\D3D11Window.cpp" />
+    <ClCompile Include="Development\Windows\D3D11Window.cpp" />
     <ClCompile Include="Rendering\Renderers\DeferredRenderer.cpp" />
     <ClCompile Include="Editor\EditorGizmos.cpp" />
     <ClCompile Include="Editor\EditorWindow.cpp" />

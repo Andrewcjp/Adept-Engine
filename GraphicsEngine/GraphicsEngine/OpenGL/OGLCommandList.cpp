@@ -119,11 +119,6 @@ void OGLCommandList::CreatePipelineState(Shader * shader)
 
 }
 
-void OGLCommandList::SetVertexFormat(void * inputDisc, int elementcount)
-{}
-
-
-
 void OGLCommandList::UpdateConstantBuffer(void * data, int offset)
 {}
 
@@ -140,6 +135,7 @@ void OGLCommandList::SetScreenBackBufferAsRT()
 
 void OGLCommandList::ClearScreen()
 {
+	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
