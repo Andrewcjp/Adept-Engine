@@ -65,7 +65,7 @@ void Scene::LoadDefault()
 void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 {
 	GameObject* go = new GameObject("House");
-
+	LightComponent* lc = nullptr;
 	Material* newmat = new Material(RHI::CreateTexture("\\asset\\texture\\house_diffuse.tga", true));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("house.obj", Renderer->GetMainShader()->GetShaderProgram()), newmat));
 	go->GetTransform()->SetPos(glm::vec3(7, 0, 0));
@@ -90,19 +90,37 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	//go = new GameObject("LightTest");
 	//go->GetTransform()->SetPos(glm::vec3(0, 10, 20));
-	//LightComponent* lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	//lc = (LightComponent*)go->AttachComponent(new LightComponent());
 	//lc->SetShadow(true);
 	//lc->Internal_GetLightPtr()->SetShadowId(0);
 	//lc->SetIntensity(100);
 	//AddGameobjectToScene(go);
 
+	//go = new GameObject("Dir Light");
+	//go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
+	//go->GetTransform()->SetEulerRot(glm::vec3(45, 0, 0));
+	//lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	//lc->SetShadow(true);
+	//lc->SetLightType(Light::Directional);
+	//lc->SetIntensity(1.3f);
+	//AddGameobjectToScene(go);
+
 	go = new GameObject("Dir Light");
-	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
-	go->GetTransform()->SetEulerRot(glm::vec3(45, 0, 0));
-	LightComponent * lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(true);
-	lc->SetLightType(Light::Directional);
-	lc->SetIntensity(1.3f);
+	go->GetTransform()->SetPos(glm::vec3(0, 5, 20));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	lc->SetShadow(false);
+	lc->SetLightType(Light::Point);
+	lc->SetIntensity(1.0f);
+	AddGameobjectToScene(go);
+
+	go = new GameObject("Dir Light");
+	go->GetTransform()->SetPos(glm::vec3(20, 5, 20));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	lc->SetShadow(false);
+	lc->SetLightType(Light::Point);
+	lc->SetIntensity(2.0f);
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Plane");

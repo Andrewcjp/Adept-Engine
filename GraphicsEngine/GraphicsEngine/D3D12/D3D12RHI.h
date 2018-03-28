@@ -90,7 +90,7 @@ private:
 	UINT64 m_fenceValues[FrameCount];
 	D3D12Shader::PiplineShader m_MainShaderPiplineShader;
 	//	HANDLE ShadowExechandle;
-
+	ID3D12Debug* debugController;
 	HANDLE m_VideoMemoryBudgetChange;
 	DWORD m_BudgetNotificationCookie;
 	int count = 0;

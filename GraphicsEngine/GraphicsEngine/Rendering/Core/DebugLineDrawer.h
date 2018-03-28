@@ -22,7 +22,9 @@ public:
 	void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float thickness = 0);
 private:
 	std::vector<WLine> Lines;
+#if BUILD_OPENGL
 	GLuint	quad_vertexbuffer;
+#endif
 	OGLShaderProgram * m_TextShader;
 	size_t VertsOnGPU = 0;
 };

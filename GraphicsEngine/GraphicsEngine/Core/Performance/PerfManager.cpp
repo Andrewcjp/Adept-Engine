@@ -158,6 +158,7 @@ void PerfManager::StartGPUTimer()
 }
 void PerfManager::EndGPUTimer()
 {
+#if BUILD_OPENGL
 	if (RHI::GetType() == RenderSystemOGL)
 	{
 		if (!WaitGPUTimerQuerry)
@@ -181,6 +182,7 @@ void PerfManager::EndGPUTimer()
 			WaitGPUTimerQuerry = false;
 		}
 	}
+#endif
 }
 
 void PerfManager::StartCPUTimer()

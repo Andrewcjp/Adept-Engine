@@ -1,5 +1,7 @@
 #pragma once
 #include "../RHI/RHICommandList.h"
+#include "../EngineGlobals.h"
+#if BUILD_OPENGL
 class OGLCommandList :
 	public RHICommandList
 {
@@ -53,3 +55,4 @@ public:
 
 
 };
+#endif

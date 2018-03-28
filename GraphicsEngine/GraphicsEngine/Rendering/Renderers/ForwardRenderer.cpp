@@ -188,63 +188,6 @@ void ForwardRenderer::Init()
 	TESTINIT();
 }
 
-void ForwardRenderer::ReflectionPass()
-{
-	if (RefelctionCamera == nullptr)
-	{
-		return;
-	}
-	bool shouldExec = false;
-	for (size_t i = 0; i < (InGetObj()).size(); i++)
-	{
-		if ((InGetObj())[i]->GetReflection() == true && !(InGetObj())[i]->Occluded)
-		{
-			shouldExec = true;
-			continue;
-		}
-	}
-	if (!shouldExec)
-	{
-		return;
-	}
-	RelfectionBuffer->BindBufferAsRenderTarget();
-	RHI::ClearColour();
-	RHI::ClearDepth();
-
-
-	mainshader->SetShaderActive();
-	//	shadowrender->BindShadowMaps();
-
-	for (size_t i = 0; i < (InGetObj()).size(); i++)
-	{
-		if ((InGetObj())[i]->GetReflection())
-		{
-			continue;
-		}
-		if (InGetObj()[i]->GetMat() == nullptr)
-		{
-			continue;
-		}
-		if (!(InGetObj())[i]->GetDoesUseMainShader())
-		{
-			grassshader->SetShaderActive();
-			grassshader->UpdateUniforms((InGetObj())[i]->GetTransform(), RefelctionCamera, (*Lights));
-			(InGetObj())[i]->Render();
-
-			mainshader->SetShaderActive();
-			continue;
-		}
-		if (InGetObj()[i]->GetMat() != nullptr)
-		{
-			mainshader->SetNormalState(((InGetObj())[i]->GetMat()->NormalMap != nullptr), ((InGetObj())[i]->GetMat()->DisplacementMap != nullptr), ((InGetObj())[i]->GetReflection() == true));//this enables non normal mapped surfaces not to be black
-		}
-
-		mainshader->UpdateUniforms((InGetObj())[i]->GetTransform(), RefelctionCamera, (*Lights));
-		(InGetObj())[i]->Render();
-	}
-	RenderSkybox(false);
-	RelfectionBuffer->UnBind();
-}
 
 void ForwardRenderer::ShadowPass()
 {
@@ -303,111 +246,43 @@ void ForwardRenderer::MainPass()
 			once = false;
 		}
 	}
+
 	if (mainscene->StaticSceneNeedsUpdate)
 	{
 		shadowrender->InitShadows(*Lights, ShadowCMDList);
 		shadowrender->Renderered = false;
 	}
 	PrepareData();
-	TEST();
-	return;
+	MainCommandList->ResetList();
 
-#if 0
-	if (RHI::GetType() == RenderSystemD3D12)
-	{
-		PrepareData();
-		DRHI->PreFrameSetUp(MainList, ((D3D12Shader*)mainshader->GetShaderProgram()));
-		DRHI->PreFrameSwap(MainList);
-		DRHI->ClearRenderTarget(MainList);
-	}
-	mainshader->RefreshLights();
-	FilterBuffer->BindBufferAsRenderTarget();
-	RHI::ClearColour();
-	RHI::ClearDepth();
-	RenderSkybox();
-	FilterBuffer->ClearBuffer();
-	mainshader->currentnumber += 0.1f* deltatime;
-	mainshader->SetShaderActive();
-	///	shadowrender->BindShadowMaps(MainList);
-	int count = 0;
-	if (RHI::GetType() == RenderSystemD3D12)
-	{
-		mainshader->UpdateCBV();
-		mainshader->UpdateLightBuffer(*Lights);
-		mainshader->BindLightsBuffer(MainList);
-		mainshader->UpdateMV(MainCamera);
-	}
-	for (size_t i = 0; i < (InGetObj()).size(); i++)
-	{
-		if (InGetObj()[i]->GetMat() == nullptr)
-		{
-			continue;
-		}
-		if (!(InGetObj())[i]->GetDoesUseMainShader())
-		{
-			grassshader->SetShaderActive();
-			grassshader->UpdateUniforms((InGetObj())[i]->GetTransform(), MainCamera, (*Lights));
-			(InGetObj())[i]->Render();
-			//	itemsrender++;
-			mainshader->SetShaderActive();
-			continue;
-		}
-		if (InGetObj()[i]->GetMat() != nullptr)
-		{
-			//	itemsrender++;
-			mainshader->SetNormalState(((InGetObj())[i]->GetMat()->NormalMap != nullptr), ((InGetObj())[i]->GetMat()->DisplacementMap != nullptr), ((InGetObj())[i]->GetReflection() == true));//this enables non normal mapped surfaces not to be black
-		}
-		if ((InGetObj())[i]->GetReflection())
-		{
-			mainshader->ISWATER = true;
-		}
-		else
-		{
-			mainshader->ISWATER = false;
-		}
-		if (RHI::GetType() != RenderSystemD3D12)
-		{
-			mainshader->UpdateUniforms((InGetObj())[i]->GetTransform(), MainCamera, (*Lights));
-		}
-		else
-		{
-			//mainshader->SetActiveIndex(MainList, (int)i);
-		}
-		(InGetObj())[i]->Render(false, MainList);
-	}
+	MVBuffer buffer;
+	buffer.P = MainCamera->GetProjection();
+	buffer.V = MainCamera->GetView();
+	mainshader->UpdateMV(MainCamera);
+	mainshader->UpdateLightBuffer(*Lights);
 
-	for (size_t i = 0; i < PhysicsObjects.size(); i++)
+	mainshader->BindLightsBuffer(MainCommandList);
+	mainshader->UpdateCBV();
+	if (true)
 	{
-		float distance = (fabs(glm::length(PhysicsObjects[i]->GetTransform()->GetPos() - MainCamera->GetPosition())));
-		if (PhysicsObjects[i]->CheckCulled(distance, glm::angle(PhysicsObjects[i]->GetTransform()->GetPos(), MainCamera->GetForward())))
-		{
-			continue;
-		}
-		//	itemsrender++;
-		mainshader->SetNormalState((PhysicsObjects[i]->GetMat()->NormalMap != nullptr), (PhysicsObjects[i]->GetMat()->DisplacementMap != nullptr), (PhysicsObjects[i]->GetReflection() == true));
-		//this enables non normal mapped surfaces not to be black
-		mainshader->UpdateUniforms(PhysicsObjects[i]->GetTransform(), MainCamera, (*Lights));
-		PhysicsObjects[i]->Render();
-	}
-	if (RenderGrass)
-	{
-		grasstest->UpdateUniforms(MainCamera, (*Lights), static_cast<float>(deltatime));
-		grasstest->Render();
-	}
-	if (RenderParticles)
-	{
-		particlesys->UpdateUniforms(NULL, MainCamera, (*Lights));
-		particlesys->Render();
-	}
-	if (RHI::GetType() == RenderSystemD3D12)
-	{
-		RenderDebugPlane();
-		DRHI->PostFrame(MainList);
-		/*MainList->Close();*/
-		DRHI->ExecList(MainList, false);
-	}
-#endif
 
+		ShadowCMDList->ResetList();
+		mainshader->BindLightsBuffer(ShadowCMDList);
+
+		shadowrender->RenderShadowMaps(MainCamera, (*Lights), (*Objects), ShadowCMDList, mainshader);
+		ShadowCMDList->Execute();
+
+		shadowrender->BindShadowMapsToTextures(MainCommandList);
+	}
+	mainshader->UpdateMV(MainCamera);
+	MainCommandList->ClearScreen();
+	MainCommandList->SetScreenBackBufferAsRT();
+	for (size_t i = 0; i < (*Objects).size(); i++)
+	{
+		mainshader->SetActiveIndex(MainCommandList, i);
+		(*Objects)[i]->Render(false, MainCommandList);
+	}
+	MainCommandList->Execute();
 }
 
 void ForwardRenderer::RenderSkybox(bool ismain)
@@ -479,39 +354,6 @@ void ForwardRenderer::TESTINIT()
 	shadowrender->InitShadows((*Lights), ShadowCMDList);
 }
 
-void ForwardRenderer::TEST()
-{
-	MainCommandList->ResetList();
-
-	MVBuffer buffer;
-	buffer.P = MainCamera->GetProjection();
-	buffer.V = MainCamera->GetView();
-	mainshader->UpdateMV(MainCamera);
-	mainshader->UpdateLightBuffer(*Lights);
-	
-	mainshader->BindLightsBuffer(MainCommandList);
-	mainshader->UpdateCBV();
-	if (true)
-	{
-		
-		ShadowCMDList->ResetList();
-		mainshader->BindLightsBuffer(ShadowCMDList);
-
-		shadowrender->RenderShadowMaps(MainCamera, (*Lights), (*Objects), ShadowCMDList, mainshader);
-		ShadowCMDList->Execute();
-
-		shadowrender->BindShadowMapsToTextures(MainCommandList);
-	}
-	mainshader->UpdateMV(MainCamera);
-	MainCommandList->ClearScreen();
-	MainCommandList->SetScreenBackBufferAsRT();
-	for (size_t i = 0; i < (*Objects).size(); i++)
-	{
-		mainshader->SetActiveIndex(MainCommandList, i);
-		(*Objects)[i]->Render(false, MainCommandList);
-	}
-	MainCommandList->Execute();
-}
 
 Camera * ForwardRenderer::GetMainCam()
 {

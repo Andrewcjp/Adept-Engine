@@ -31,6 +31,15 @@
 #include "../D3D12/D3D12CommandList.h"
 
 #endif
+
+
+#if BUILD_VULKAN
+#include "../Vulkan/VKanRHI.h"
+#include "../Vulkan/VKanCommandlist.h"
+#include "../Vulkan/VKanFramebuffer.h"
+#include "../Vulkan/VKanShader.h"
+#include "../Vulkan/VKanTexture.h"
+#endif
 #include "../OpenGL/OGLCommandList.h"
 RHI* RHI::instance = nullptr;
 RHI::RHI()
@@ -71,12 +80,19 @@ RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type)
 {
 	switch (instance->currentsystem)
 	{
+#if BUILD_OPENGL
 	case RenderSystemOGL:
 		return new OGLBuffer(type);
 		break;
+#endif
 #if BUILD_D3D12
 	case RenderSystemD3D12:
 		return new D3D12Buffer(type);
+		break;
+#endif
+#if BUILD_D3D12
+	case RenderSystemVulkan:
+		return new VKanBuffer(type);
 		break;
 #endif
 	}
@@ -87,12 +103,19 @@ RHICommandList * RHI::CreateCommandList()
 {
 	switch (instance->currentsystem)
 	{
+#if BUILD_OPENGL
 	case RenderSystemOGL:
 		return new OGLCommandList();
 		break;
+#endif
 #if BUILD_D3D12
 	case RenderSystemD3D12:
 		return new D3D12CommandList();
+		break;
+#endif
+#if BUILD_VULKAN
+	case RenderSystemVulkan:
+		return new VKanCommandlist();
 		break;
 #endif
 	}
@@ -354,6 +377,13 @@ bool RHI::InitialiseContext(HWND m_hwnd, int w, int h)
 		instance->D3D12Rhi->m_aspectRatio = static_cast<float>(w) / static_cast<float>(h);
 		instance->D3D12Rhi->LoadPipeLine();
 		instance->D3D12Rhi->LoadAssets();
+		break;
+#endif
+#if BUILD_VULKAN
+	case RenderSystemVulkan:
+		instance->VulkanRHI = new VKanRHI(instance->m_hinst);
+		instance->VulkanRHI->win32HWND = m_hwnd;
+		instance->VulkanRHI->InitContext();
 		break;
 #endif
 #if BUILD_D3D11

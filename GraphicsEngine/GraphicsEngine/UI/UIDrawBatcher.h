@@ -28,7 +28,6 @@ public:
 	void ClearVertArray();
 	void CleanUp();
 private:	
-	GLuint	quad_vertexbuffer;
 	class Shader_UIBatch* Shader;
 	int UIMin = 300;
 	std::vector<UIVertex> BatchedVerts;

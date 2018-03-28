@@ -145,7 +145,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PxPvdSDKDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;PxFoundationDEBUG_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;vulkan-1.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PxPvdSDKDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;PxFoundationDEBUG_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib\64\;$(ProjectDir)lib\64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -382,6 +382,11 @@
     <ClInclude Include="UI\UIManager.h" />
     <ClInclude Include="Core\Utils.h" />
     <ClInclude Include="Rendering\Core\Vertex.h" />
+    <ClInclude Include="Vulkan\VKanCommandlist.h" />
+    <ClInclude Include="Vulkan\VKanFramebuffer.h" />
+    <ClInclude Include="Vulkan\VKanRHI.h" />
+    <ClInclude Include="Vulkan\VKanShader.h" />
+    <ClInclude Include="Vulkan\VKanTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
@@ -516,6 +521,11 @@
     <ClCompile Include="UI\UIListBox.cpp" />
     <ClCompile Include="UI\UIWidget.cpp" />
     <ClCompile Include="UI\UIManager.cpp" />
+    <ClCompile Include="Vulkan\VKanCommandlist.cpp" />
+    <ClCompile Include="Vulkan\VKanFramebuffer.cpp" />
+    <ClCompile Include="Vulkan\VKanRHI.cpp" />
+    <ClCompile Include="Vulkan\VKanShader.cpp" />
+    <ClCompile Include="Vulkan\VKanTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="GraphicsEngine.ico" />

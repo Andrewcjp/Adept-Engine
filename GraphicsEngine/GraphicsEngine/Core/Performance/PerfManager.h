@@ -54,7 +54,9 @@ private:
 	float FrameTime = 7.0f;
 	float CPUTime = 0;
 	float GPUTime = 0;
+#if BUILD_OPENGL
 	GLint stopTimerAvailable = 0;
+#endif
 	bool WaitGPUTimerQuerry = false;
 	unsigned int queryID[2];
 	long FrameStart = 0;

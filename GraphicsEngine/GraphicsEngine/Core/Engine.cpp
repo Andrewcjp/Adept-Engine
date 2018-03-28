@@ -11,7 +11,6 @@
 #include "Core/Assets/AssetManager.h"
 #include "Game.h"
 #include "Shlwapi.h"
-
 #include "../Packaging/Cooker.h"
 #include "../Core/Utils/FileUtils.h"
 #include "../Core/Utils/WindowsHelper.h"
@@ -28,6 +27,11 @@ PhysicsEngine* Engine::PhysEngine = NULL;
 #if UseDevelopmentWindows
 #include "../D3D12/D3D12Window.h"
 #include "D3D11/D3D11Window.h"
+#endif
+
+#if BUILD_OPENGL
+#include <GLEW\GL\glew.h>
+#include <gl/glu.h>
 #endif
 std::string Engine::GetRootDir()
 {
@@ -174,9 +178,9 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 			if (ForcedRenderSystem == ERenderSystemType::Limit)
 			{
 #if 0
-				RHI::InitRHI(RenderSystemOGL);
+				RHI::InitRHI(RenderSystemVulkan);
 #else 
-				RHI::InitRHI(RenderSystemD3D12);
+				RHI::InitRHI(RenderSystemD3D12);				
 #endif
 			}
 			else

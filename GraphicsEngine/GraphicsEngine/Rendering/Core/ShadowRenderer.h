@@ -11,9 +11,12 @@ class ShadowRenderer
 public:
 	ShadowRenderer();
 	~ShadowRenderer();
+	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj);
 	const int MAX_POINT_SHADOWS = 2;
 	const int MAX_DIRECTIONAL_SHADOWS = 4;
 	void RenderShadowMaps(Camera * c, std::vector<Light*> lights, const std::vector<GameObject*>& ShadowObjects, RHICommandList* list = nullptr, class Shader_Main* mainshader = nullptr);
+	void RenderPointShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject*>& ShadowObjects);
+	void RenderDirectionalShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject *> & ShadowObjects);
 	void BindShadowMapsToTextures(RHICommandList* list);
 	void ClearShadowLights();
 	void InitShadows(std::vector<Light*> lights, RHICommandList* list);
@@ -25,12 +28,15 @@ public:
 private:
 
 	std::vector<Shader_Depth*> ShadowShaders;
-	std::vector<Light*> ShadowingLights;
+	std::vector<Light*> ShadowingDirectionalLights;
+	std::vector<Light*> ShadowingPointLights;
 	Shader_Depth* PointLightShader = nullptr;
 	Shader_Depth* DirectionalLightShader = nullptr;
-
+	RHIBuffer* GeometryProjections;
 	//todo: to arrays!
 	FrameBuffer* PointLightBuffer;
 	FrameBuffer* DirectionalLightBuffer;
+	FrameBuffer* DirectionalLightBuffer2;
+	bool UseDir2 = false;
 };
 

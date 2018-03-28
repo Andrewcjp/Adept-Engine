@@ -20,9 +20,10 @@ DebugLineDrawer::DebugLineDrawer()
 		m_TextShader->BuildShaderProgram();
 		m_TextShader->ActivateShaderProgram();
 
-		//	texture = RHI::CreateTexture("../asset/texture/UI/window.png");
+#if BUILD_OPENGL
 		glGenBuffers(1, &quad_vertexbuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+#endif
 		instance = this;
 	}
 }
@@ -30,7 +31,9 @@ DebugLineDrawer::DebugLineDrawer()
 
 DebugLineDrawer::~DebugLineDrawer()
 {
+#if BUILD_OPENGL
 	glDeleteBuffers(1, &quad_vertexbuffer);
+#endif
 }
 
 void DebugLineDrawer::GenerateLines()
@@ -70,12 +73,15 @@ void DebugLineDrawer::GenerateLines()
 		//Verts.push_back(vertices);
 	}
 	VertsOnGPU = Verts.size();
+#if BUILD_OPENGL
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * Verts.size(), &Verts[0], GL_DYNAMIC_DRAW);
+#endif
 }
 
 void DebugLineDrawer::RenderLines(glm::mat4 matrix)
 {
+#if BUILD_OPENGL
 	if (VertsOnGPU != 0)
 	{
 		glDisable(GL_BLEND);
@@ -115,6 +121,7 @@ void DebugLineDrawer::RenderLines(glm::mat4 matrix)
 		glDisableVertexAttribArray(0);
 		glEnable(GL_DEPTH_TEST);
 	}
+#endif
 	ClearLines();//bin all lines rendered this frame.
 }
 

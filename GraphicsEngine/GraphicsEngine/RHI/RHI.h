@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include "../Rendering/Core/FrameBuffer.h"
 #include "RHICommandList.h"
+//todo: refactor!
+//like seriuously this is bad!
 class BaseTexture;
 class Renderable;
 class ShaderProgramBase;
@@ -62,6 +64,7 @@ public:
 	IDXGISwapChain				*m_swapChain;
 	ID3D11Buffer				*m_constantBuffer;
 #endif
+	HINSTANCE m_hinst;
 private:
 	BOOL DestroyOGLContext(HWND h);
 	HGLRC CreateOGLContext(HDC hdc);
@@ -69,6 +72,7 @@ private:
 	BOOL InitD3DDevice(HWND hWnd, int w, int h);
 	BOOL DestroyD3DDevice();
 	ERenderSystemType currentsystem;
+	
 	//----------------------------------
 	//opengl only
 	HDC			m_hdc;
@@ -80,6 +84,7 @@ private:
 	int mheight = 0;
 #endif
 	class D3D12RHI* D3D12Rhi = nullptr;
+	class VKanRHI* VulkanRHI = nullptr;
 	
 };
 

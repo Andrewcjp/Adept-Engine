@@ -89,8 +89,8 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	}
 	else if (type == SHADER_GEOMETRY)
 	{
-		/*	hr = D3DCompileFromFile(filename, NULL, NULL, "main", "gs_5_0",
-				compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);*/
+		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "gs_5_0",
+				compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
 	}
 
 	if (FAILED(hr))

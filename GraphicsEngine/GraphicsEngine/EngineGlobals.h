@@ -4,9 +4,9 @@
 #define NO_GEN_CONTEXT 0
 
 #define BUILD_D3D11 0
-#define BUILD_OPENGL 1
+#define BUILD_OPENGL 0
 #define BUILD_D3D12 1
-#define BUILD_Vulkan 0
+#define BUILD_VULKAN 1
 
 
 #define BUILD_SHIPPING 0

@@ -72,7 +72,7 @@ Shader_Main::Shader_Main()
 	GameObjectTransformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	GameObjectTransformBuffer->CreateConstantBuffer(sizeof(SceneConstantBuffer), MaxConstant);
 	CLightBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
-	CLightBuffer->CreateConstantBuffer(sizeof(LightBuffer), 1);
+	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1);
 	CMVBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), 1);
 }
@@ -259,12 +259,14 @@ void Shader_Main::SetActiveIndex(RHICommandList* list, int index)
 }
 void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 {
-	out.resize(5);
+	out.resize(6);
 	out[0] = ShaderParameter(ShaderParamType::SRV, 0, 0);
 	out[1] = ShaderParameter(ShaderParamType::CBV, 1, 0);
 	out[2] = ShaderParameter(ShaderParamType::CBV, 2, 1);
 	out[3] = ShaderParameter(ShaderParamType::CBV, 3, 2);
+	//two shadows
 	out[4] = ShaderParameter(ShaderParamType::SRV, 4, 1);
+	out[5] = ShaderParameter(ShaderParamType::SRV, 5, 2);
 }
 
 std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
@@ -304,10 +306,13 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 		newitem.position = lights[i]->GetPosition();
 		newitem.color = glm::vec3(lights[i]->GetColor());
 		newitem.Direction = lights[i]->GetDirection();
+		newitem.type = lights[i]->GetType();
+		newitem.HasShadow = lights[i]->GetDoesShadow();
 		if (lights[i]->GetType() == Light::Directional || lights[i]->GetType() == Light::Spot)
 		{
 			glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
-			glm::vec3 position = glm::vec3(0, 10, 5);
+			glm::vec3 position = glm::vec3(0, 20, 50);
+			//position = lights[i]->GetPosition();
 			LightView = glm::lookAtLH<float>(position, position + newitem.Direction, glm::vec3(0, 0, 1));//world up
 			float size = 100.0f;
 			glm::mat4 proj;

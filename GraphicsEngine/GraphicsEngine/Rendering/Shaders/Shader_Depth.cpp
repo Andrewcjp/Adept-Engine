@@ -48,10 +48,9 @@ void Shader_Depth::INIT()
 	shadowbuffer->UnBind();
 }
 
-Shader_Depth::Shader_Depth(Light* l, bool LoadGeo)
+Shader_Depth::Shader_Depth( bool LoadGeo)
 {
 	LoadGeomShader = LoadGeo;
-	targetlight = l;
 	INIT();
 }
 

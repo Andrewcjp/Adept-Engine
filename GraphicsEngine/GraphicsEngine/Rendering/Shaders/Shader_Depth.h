@@ -17,7 +17,7 @@ public:
 	int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 	
 	void INIT();
-	Shader_Depth(Light* targetlight,bool LoadGeo = true);
+	Shader_Depth(bool LoadGeo);
 	~Shader_Depth();
 	void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights);
 	void SetShadowRes(int width, int height) {
@@ -36,6 +36,7 @@ public:
 	FrameBuffer* shadowbuffer;
 	Light* targetlight;
 	ConstantBuffer				m_cbuffer;
+	
 	// Inherited via Shader
 	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
 private:

@@ -12,7 +12,7 @@ typedef struct _LightUniformBuffer
 	float t2;
 	glm::vec3 Direction;
 	float t3;
-	glm::mat4 LightVP;
+	glm::mat4x4 LightVP;
 	int type;//type 1 == point, type 0 == directional, tpye 2 == spot
 	int ShadowID;
 	int DirShadowID;
@@ -24,10 +24,12 @@ struct MVBuffer
 	glm::mat4 V;
 	glm::mat4 P;
 };
+
 struct LightBufferW
 {
 	LightUniformBuffer Light[MAX_LIGHTS];
 };
+
 struct SceneConstantBuffer//CBV need to be 256 aligned
 {
 	glm::mat4 M;

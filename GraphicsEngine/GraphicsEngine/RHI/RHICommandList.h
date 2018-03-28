@@ -84,7 +84,7 @@ public:
 	virtual void SetUAVParamter() {};
 	virtual void UAVBarrier(RHIUAV* target) = 0;
 	//Set Shader Params?
-	//For validiotn on D3d12 Side But needed for opengl Using reflections!
+	//For validiotn on D3d12 Side 
 
 protected:
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!

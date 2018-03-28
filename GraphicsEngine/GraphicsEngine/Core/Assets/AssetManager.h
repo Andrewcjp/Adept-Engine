@@ -3,17 +3,8 @@
 #include <string>
 class BaseTexture;
 class ShaderProgramBase;
-enum AssetType
-{
-	Texture,
-	Shader,
-	Meshr
-};
-struct Asset
-{
-	AssetType type;
-	void* DataPtr;
-};
+
+
 struct TextureAsset
 {
 	int Nchannels;
@@ -38,6 +29,17 @@ struct ShaderAsset
 class AssetManager
 {
 public:
+	enum AssetType
+	{
+		Texture,
+		Shader,
+		Meshr
+	};
+	struct Asset
+	{
+		AssetType type;
+		void* DataPtr;
+	};
 	void LoadFromShaderDir();
 	void LoadTexturesFromDir();
 	bool FileExists(std::string filename);

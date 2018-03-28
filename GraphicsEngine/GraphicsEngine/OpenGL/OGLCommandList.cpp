@@ -6,6 +6,7 @@
 #include "OGLFrameBuffer.h"
 #include "OGLShaderProgram.h"
 #include "../RHI/Shader.h"
+#if BUILD_OPENGL
 OGLCommandList::OGLCommandList()
 {}
 
@@ -289,3 +290,4 @@ void OGLBuffer::UpdateVertexBuffer(void * data, int length)
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo_verts);
 	glBufferData(GL_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
 }
+#endif

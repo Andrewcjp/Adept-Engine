@@ -11,6 +11,7 @@ public:
 		CreateBuffer();
 	}
 	void CreateBuffer();
+	void CreateCubeDepth();
 	void CreateDepth();
 	~D3D12FrameBuffer();
 	// Inherited via FrameBuffer
@@ -33,5 +34,6 @@ private:
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	bool once = false;
+	int lastboundslot = 0;
 };
 

@@ -67,6 +67,7 @@ bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, 
 			0, 0, width, height, NULL, NULL, hInstance, NULL);
 	}
 	m_hInstance = hInstance;
+	RHI::instance->m_hinst = hInstance;
 	RHI::InitialiseContext(m_hwnd, width, height);
 	m_height = height;
 	m_width = width;
