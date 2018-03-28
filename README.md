@@ -2,11 +2,9 @@
 
 A Work In progress Cross Api Game engine currently supporting:
 
-D3D11
-
 D3D12
 
-OpenGL 4.5
+Vulkan
 
 Uses:
 
@@ -16,15 +14,16 @@ GLEW,
 Physics using Nvidia's PhysX,
 Serialization using RapidJson. 
 
-D3D11 & OpenGL Renderers Support:
+D3D12 Renderer Supports:
 
 Diffuse Lighting, 
 Texture Mapping, 
 Shadow mapping (static and dynamic),
+
+
+
+In progress:
 Super Scaling
-
-OpenGL Supports:
-
 UI Rendering, 
 Text Rendering, 
 Grass system (instanced Rendering), 
