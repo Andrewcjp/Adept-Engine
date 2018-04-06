@@ -16,7 +16,7 @@ public:
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
 	virtual void Execute() override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
-	virtual void CreatePipelineState(class Shader * shader) override;
+	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
 	virtual void SetPipelineState(PipeLineState state) override;
 
 	virtual void UpdateConstantBuffer(void * data, int offset) override;

@@ -27,7 +27,7 @@ private:
 	CollisionRect RightRect;
 	GLuint	quad_vertexbuffer;
 	OGLShaderProgram * m_TextShader;
-	BaseTexture* texture;
+	BaseTexture* texture = nullptr;
 	float EdgeGap = 2.0f;
 };
 

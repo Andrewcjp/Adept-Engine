@@ -6,15 +6,16 @@ class ShaderOutput :public Shader
 {
 public:
 
-	ShaderOutput(int width, int height);
+	ShaderOutput(int width = 1, int height = 1);
 	void Resize(int width, int height);
-	void ResizeView(float t);
 	~ShaderOutput();
 
 	
 	void RenderPlane();
 	void SetFXAA(bool state);
 	void SetFullScreen(bool state);
+	std::vector<ShaderParameter> GetShaderParameters() override;
+	std::vector<VertexElementDESC> GetVertexFormat() override;
 private:
 	struct ConstantBuffer
 	{

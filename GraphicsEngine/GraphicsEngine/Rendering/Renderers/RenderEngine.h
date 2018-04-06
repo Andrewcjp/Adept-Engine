@@ -39,7 +39,7 @@ protected:
 	int			m_width;
 	int			m_height;
 	RenderSettings settings;
-	Scene* mainscene;
-	Editor_Camera* EditorCam;
+	Scene* mainscene = nullptr;    
+	Editor_Camera* EditorCam = nullptr;
 };
 

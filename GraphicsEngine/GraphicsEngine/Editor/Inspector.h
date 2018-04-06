@@ -96,7 +96,7 @@ private:
 	static Inspector* Instance;
 	void CreateEditor();
 	float ItemHeight = 0.02f;
-	IInspectable* target;
+	IInspectable* target = nullptr;
 	class UIButton* button;
 	std::vector<UIWidget*> SubWidgets;
 	UIBox* Backgroundbox;

@@ -133,7 +133,7 @@ struct atlas
 			}
 
 			//glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-#if 1
+#if 0
 			glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 #else
 			int offset = ((ox + oy * h));
@@ -179,7 +179,7 @@ TextRenderer::~TextRenderer()
 	{
 		glDeleteBuffers(1, &TextVBO);
 	}
-	delete textat;
+//	delete textat;
 	for (int i = 0; i < Characters.size(); i++)
 	{
 		if (Characters[(const char)i].Texture != nullptr)

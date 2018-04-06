@@ -58,7 +58,7 @@ Shader_Depth::Shader_Depth( bool LoadGeo)
 Shader_Depth::~Shader_Depth()
 {
 	delete shadowbuffer;
-	delete CubeMaptex;
+//	delete CubeMaptex;
 }
 
 void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera * , std::vector<Light*> lights)

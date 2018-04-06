@@ -1,16 +1,15 @@
 #pragma once
 #include "RenderEngine.h"
 
-
-#include "OpenGL/OGLShader.h"
-
 #include <vector>
 #include "../Rendering/Core/Camera.h"
 #include "Core/Transform.h"
 #include "Core/GameObject.h"
 #include "../Rendering/Core/Light.h"
-
+#include "OpenGL/OGLPlane.h"
+#include "OpenGL/OGLShader.h"
 #include "../D3D12/D3D12RHI.h"
+
 #include "../Rendering/Core/Material.h"
 #include "RHI/Shader.h"
 #include "Rendering\Shaders\Shader_Main.h"
@@ -18,7 +17,7 @@
 #include "Rendering\Shaders\Shader_Grass.h"
 #include "Rendering\Shaders\Shader_Querry.h"
 #include "Core/Assets/Scene.h"
-#include "OpenGL/OGLPlane.h"
+
 #include "Rendering\Shaders\ShaderOutput.h"
 #include "../Rendering/Core/FrameBuffer.h"
 #include "../Rendering/Core/ParticleSystem.h"
@@ -31,9 +30,6 @@
 #include "OpenGL/OGLFrameBuffer.h"
 #include "../Core/Performance/PerfManager.h"
 #include "../EngineGlobals.h"
-
-
-#include "../D3D12/D3D12CommandList.h"
 #include "../RHI/RHICommandList.h"
 class OGLShaderProgram;
 class ForwardRenderer : public RenderEngine
@@ -64,7 +60,6 @@ public:
 
 	float deltatime = 1;
 	clock_t tstart;
-	void TEST();
 	Camera* GetMainCam() override;
 	void AddGo(GameObject* g)override;
 
@@ -79,35 +74,35 @@ public:
 	void SetRenderSettings(RenderSettings settings) override;
 private:
 #if BUILD_D3D12
-	CommandListDef* MainList;
-	CommandListDef* ShadowList;
+	CommandListDef* MainList = nullptr;
+	CommandListDef* ShadowList = nullptr;
 #endif
-	FrameBuffer* FilterBuffer;
+	FrameBuffer* FilterBuffer = nullptr;
 	std::unique_ptr<ParticleSystem> particlesys;
 	std::unique_ptr<GrassPatch>  grasstest;
 	std::vector<GameObject*>* Objects;
-	class D3D12Plane* debugplane;
+	class D3D12Plane* debugplane = nullptr;
 	//std::vector<GameObject*> ob;
 	std::vector<GameObject*> PhysicsObjects;
 	//TextRenderer
-	Camera*     MainCamera;
+	Camera*     MainCamera = nullptr;
 	std::vector<Light*>* Lights;
 	float FrameBufferRatio = 1;
 
-	GameObject* skybox;
-	GameObject* playerGO;
+	GameObject* skybox = nullptr;
+	GameObject* playerGO = nullptr;
 	ShadowRenderer* shadowrender;
-	D3D12RHI * DRHI;
-	Shader_Main* mainshader;
-	Shader_Grass* grassshader;
-	Shader* QuerryShader;
-	GameObject* testGrassobject;
+	D3D12RHI * DRHI = nullptr;
+	Shader_Main* mainshader = nullptr;
+	Shader_Grass* grassshader = nullptr;
+	Shader* QuerryShader = nullptr;
+	GameObject* testGrassobject = nullptr;
 	std::unique_ptr<Shader_Skybox> skyboxShader;
 	bool RenderedReflection = false;
 	bool LoadGrass = true;
 
 	bool LoadParticles = true;
-
+	class PostProcessing* Post = nullptr;
 
 	int ReflectionBufferWidth = 512;
 	int ReflectionBufferHeight = 512;

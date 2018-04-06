@@ -11,17 +11,21 @@ public:
 	~D3D12Shader();
 	struct ShaderBlobs
 	{
-		ID3DBlob*					vsBlob;
-		ID3DBlob*					fsBlob;
-		ID3DBlob*					csBlob;
-		ID3DBlob*					gsBlob;
+		ID3DBlob*					vsBlob = nullptr;
+		ID3DBlob*					fsBlob = nullptr;
+		ID3DBlob*					csBlob = nullptr;
+		ID3DBlob*					gsBlob = nullptr;
 	};
 	struct PiplineShader
 	{
-		ID3D12PipelineState* m_pipelineState;
-		ID3D12RootSignature* m_rootSignature;
+		ID3D12PipelineState* m_pipelineState = nullptr;
+		ID3D12RootSignature* m_rootSignature = nullptr; 
 	};
-
+	struct PipeRenderTargetDesc
+	{
+		DXGI_FORMAT RTVFormats[8];
+		DXGI_FORMAT DSVFormat = DXGI_FORMAT_UNKNOWN;
+	};
 	// Inherited via ShaderProgramBase
 	virtual void CreateShaderProgram() override;
 	virtual EShaderError AttachAndCompileShaderFromFile(const char * filename, EShaderType type) override;
@@ -30,7 +34,7 @@ public:
 	virtual void ActivateShaderProgram() override;
 	void ActivateShaderProgram(ID3D12GraphicsCommandList * list);
 	virtual void DeactivateShaderProgram() override;
-	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest);
+	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD);
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
 	static void CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Parms);

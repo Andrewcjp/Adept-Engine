@@ -44,7 +44,7 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 }
 
 UIBox::~UIBox()
-{	
+{	 
 	delete texture;
 }
 

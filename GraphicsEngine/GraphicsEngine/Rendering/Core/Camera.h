@@ -81,7 +81,7 @@ private:
 	glm::quat qrot;
 	glm::vec3 rotation;
 	float m_movespeed = 0.1f;
-	Transform* linkedtransform;
+	Transform* linkedtransform = nullptr;
 	//debug
 	glm::mat4 oVioew;
 };

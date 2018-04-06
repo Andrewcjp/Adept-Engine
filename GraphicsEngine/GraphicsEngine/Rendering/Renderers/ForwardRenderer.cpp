@@ -4,7 +4,7 @@
 #include "Core/Components/MeshRendererComponent.h"
 #include "../Editor/Editor_Camera.h"
 #include "../EngineGlobals.h"
-
+#include "../PostProcessing/PostProcessing.h"
 #include "../Core/Engine.h"
 #define USED3D12DebugP 0
 #if USED3D12DebugP
@@ -80,12 +80,12 @@ void ForwardRenderer::Resize(int width, int height)
 			DRHI->ResizeSwapChain(width, height);
 		}
 	}
-	outshader->Resize(width, height);
-	if (FilterBuffer != nullptr)
+	//outshader->Resize(width, height);
+	/*if (FilterBuffer != nullptr)
 	{
 		delete FilterBuffer;
 		FilterBuffer = RHI::CreateFrameBuffer(width, height, FrameBufferRatio);
-	}
+	}*/
 	if (MainCamera != nullptr)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);
@@ -157,8 +157,9 @@ void ForwardRenderer::Init()
 		QuerryShader = new Shader_Querry();
 	}
 	FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, FrameBufferRatio);
-	outshader = new ShaderOutput(FilterBuffer->GetWidth(), FilterBuffer->GetHeight());
-	RelfectionBuffer = RHI::CreateFrameBuffer(ReflectionBufferWidth, ReflectionBufferHeight);
+	//outshader = new ShaderOutput(FilterBuffer->GetWidth(), FilterBuffer->GetHeight());
+	outshader = nullptr;
+	//RelfectionBuffer = RHI::CreateFrameBuffer(ReflectionBufferWidth, ReflectionBufferHeight);
 	if (LoadParticles)
 	{
 		particlesys = std::make_unique<ParticleSystem>();
@@ -254,7 +255,7 @@ void ForwardRenderer::MainPass()
 	}
 	PrepareData();
 	MainCommandList->ResetList();
-
+	MainCommandList->ClearScreen();
 	MVBuffer buffer;
 	buffer.P = MainCamera->GetProjection();
 	buffer.V = MainCamera->GetView();
@@ -275,14 +276,19 @@ void ForwardRenderer::MainPass()
 		shadowrender->BindShadowMapsToTextures(MainCommandList);
 	}
 	mainshader->UpdateMV(MainCamera);
-	MainCommandList->ClearScreen();
-	MainCommandList->SetScreenBackBufferAsRT();
+	MainCommandList->SetRenderTarget(FilterBuffer);
+	MainCommandList->ClearFrameBuffer(FilterBuffer);
+	/*
+	MainCommandList->SetScreenBackBufferAsRT();*/
 	for (size_t i = 0; i < (*Objects).size(); i++)
 	{
 		mainshader->SetActiveIndex(MainCommandList, i);
 		(*Objects)[i]->Render(false, MainCommandList);
 	}
+	MainCommandList->SetRenderTarget(nullptr);
 	MainCommandList->Execute();
+
+	Post->ExecPPStack(FilterBuffer);
 }
 
 void ForwardRenderer::RenderSkybox(bool ismain)
@@ -303,10 +309,10 @@ void ForwardRenderer::RenderFitlerBufferOutput()
 	BindAsRenderTarget();
 	RHI::ClearColour();
 	RHI::ClearDepth();
-	outshader->SetShaderActive();
-	outshader->UpdateUniforms(nullptr, MainCamera);
-	FilterBuffer->BindToTextureUnit(0);
-	outshader->RenderPlane();
+	/*outshader->SetShaderActive();
+	outshader->UpdateUniforms(nullptr, MainCamera);*/
+	//FilterBuffer->BindToTextureUnit(0);
+	/*outshader->RenderPlane();*/
 }
 
 std::vector<GameObject*> ForwardRenderer::GetObjects()
@@ -352,6 +358,8 @@ void ForwardRenderer::TESTINIT()
 	//finally init the pipeline!
 	MainCommandList->CreatePipelineState(mainshader);
 	shadowrender->InitShadows((*Lights), ShadowCMDList);
+	Post = new PostProcessing();
+	Post->Init();
 }
 
 
@@ -400,7 +408,7 @@ Shader_Main * ForwardRenderer::GetMainShader()
 
 void ForwardRenderer::SetReflectionCamera(Camera * c)
 {
-	RefelctionCamera = c;
+	RefelctionCamera = c; 
 }
 
 FrameBuffer * ForwardRenderer::GetReflectionBuffer()
@@ -425,12 +433,12 @@ void ForwardRenderer::DestoryRenderWindow()
 	delete mainshader;
 	delete QuerryShader;
 	delete grassshader;
-	delete FilterBuffer;
+	/*delete FilterBuffer;*/
 	delete outshader;
 	particlesys.reset();
 	skyboxShader.reset();
 	delete shadowrender;
-	delete RelfectionBuffer;
+	//delete RelfectionBuffer;
 }
 
 void ForwardRenderer::FinaliseRender()

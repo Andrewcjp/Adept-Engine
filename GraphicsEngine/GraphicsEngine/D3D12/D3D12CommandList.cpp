@@ -77,7 +77,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 	CurrentGraphicsList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
 }
 
-void D3D12CommandList::CreatePipelineState(Shader * shader)
+void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
 	ensure((shader->GetShaderParameters().size() > 0));
@@ -85,7 +85,10 @@ void D3D12CommandList::CreatePipelineState(Shader * shader)
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
 	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters());
-	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate);
+	D3D12Shader::PipeRenderTargetDesc PRTD = {};
+	PRTD.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	PRTD.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD);
 
 	CreateCommandList();
 }
@@ -132,7 +135,6 @@ void D3D12CommandList::ClearScreen()
 
 void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot)
 {
-
 	((D3D12FrameBuffer*)buffer)->BindBufferToTexture(CurrentGraphicsList, slot);
 }
 

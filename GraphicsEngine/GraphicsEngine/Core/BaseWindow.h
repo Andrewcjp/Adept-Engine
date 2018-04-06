@@ -44,14 +44,14 @@ protected:
 	virtual void Update() {};
 	bool ChangeDisplayMode(int width, int height);
 	//Sub Modules
-	class RenderEngine * Renderer;
-	class Input* input;
-	class UIManager* UI;
-	class DebugLineDrawer* dLineDrawer;
-	class Scene* CurrentScene;
+	class RenderEngine * Renderer = nullptr;
+	class Input* input = nullptr;
+	class UIManager* UI = nullptr;
+	class DebugLineDrawer* dLineDrawer = nullptr;
+	class Scene* CurrentScene = nullptr;
 	RenderSettings CurrentRenderSettings;
-	class Editor_Camera* EditorCamera;
-	class SceneJSerialiser* Saver;
+	class Editor_Camera* EditorCamera = nullptr;
+	class SceneJSerialiser* Saver = nullptr;
 	
 	float DeltaTime = 0.0f;
 	const float TickRate = 1.0f / 120.0f;

@@ -72,12 +72,13 @@ public:
 	virtual void SetShaderActive();
 	ShaderProgramHandle GetShaderID();
 	ShaderProgramBase* GetShaderProgram();
-	virtual std::vector<ShaderParameter> GetShaderParameters();
+
 	const int ShadowFarPlane = 500;
 	virtual bool SupportsAPI(ERenderSystemType Type);
+	virtual std::vector<ShaderParameter> GetShaderParameters();
 	virtual std::vector<VertexElementDESC> GetVertexFormat();
 protected:
-	ShaderProgramBase * m_Shader;
+	ShaderProgramBase * m_Shader = nullptr;
 
 };
 

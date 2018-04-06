@@ -12,8 +12,9 @@ public:
 	}
 	void CreateBuffer();
 	void CreateCubeDepth();
+	void CreateColour();
 	void CreateDepth();
-	~D3D12FrameBuffer();
+	virtual ~D3D12FrameBuffer();
 	// Inherited via FrameBuffer
 	virtual void BindToTextureUnit(int unit = 0) override;
 	void BindBufferToTexture(CommandListDef * list,int slot);
@@ -25,15 +26,21 @@ public:
 
 	virtual void ClearBuffer(CommandListDef * list = nullptr) override;
 private:
-	ID3D12DescriptorHeap* m_dsvHeap;
+	
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthHandle;
-	ID3D12DescriptorHeap* m_srvHeap;
-	ID3D12DescriptorHeap* m_nullHeap;
-	ID3D12Resource * m_depthStencil;
+	D3D12_CPU_DESCRIPTOR_HANDLE RTHandle;
+	ID3D12DescriptorHeap* m_dsvHeap = nullptr;
+	ID3D12DescriptorHeap* m_srvHeap = nullptr;
+	ID3D12DescriptorHeap* m_nullHeap = nullptr;
+	ID3D12Resource * m_depthStencil = nullptr;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE NullHandle;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
+
+	ID3D12Resource * m_RenderTarget = nullptr;
+	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	bool once = false;
 	int lastboundslot = 0;
+	const float clearColor[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
 };
 

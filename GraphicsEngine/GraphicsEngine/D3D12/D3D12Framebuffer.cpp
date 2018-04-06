@@ -8,8 +8,8 @@ void D3D12FrameBuffer::CreateBuffer()
 {
 	if (m_ftype == ColourDepth)
 	{
-		//CreateColour();
-	//	CreateRenderDepth();
+		CreateDepth();
+		CreateColour();
 	}
 	else if (m_ftype == Depth)
 	{
@@ -56,7 +56,7 @@ void D3D12FrameBuffer::CreateCubeDepth()
 */
 
 
-	//todo look at usage of heaps?
+//todo look at usage of heaps?
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -82,6 +82,46 @@ void D3D12FrameBuffer::CreateCubeDepth()
 	//null.Offset(1, cbvSrvDescriptorSize);
 	//D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, null);
 
+
+}
+void D3D12FrameBuffer::CreateColour()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+	rtvHeapDesc.NumDescriptors = 1;
+	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+	D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
+	renderTargetViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+	depthOptimizedClearValue.Format = renderTargetViewDesc.Format;
+	depthOptimizedClearValue.Color[0] = clearColor[0];
+	depthOptimizedClearValue.Color[1] = clearColor[1];
+	depthOptimizedClearValue.Color[2] = clearColor[2];
+	depthOptimizedClearValue.Color[3] = clearColor[3];
+
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Tex2D(renderTargetViewDesc.Format, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		&depthOptimizedClearValue,
+		IID_PPV_ARGS(&m_RenderTarget)
+	));
+
+
+
+
+	D3D12RHI::GetDevice()->CreateRenderTargetView(m_RenderTarget, &renderTargetViewDesc, m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
+	shadowSrvDesc.Format = renderTargetViewDesc.Format;
+	shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	shadowSrvDesc.Texture2D.MipLevels = 1;
+	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	D3D12RHI::GetDevice()->CreateShaderResourceView(m_RenderTarget, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 
 }
 void D3D12FrameBuffer::CreateDepth()
@@ -115,20 +155,19 @@ void D3D12FrameBuffer::CreateDepth()
 		//NAME_D3D12_OBJECT(m_depthStencil);
 		DepthHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 		D3D12RHI::GetDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, DepthHandle);
-		m_depthStencil->SetName(L"Shadow Stencil");
+		m_depthStencil->SetName(L"FrameBuffer Stencil");
 	}
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.NumDescriptors = 1;
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
+	m_srvHeap->SetName(L"Depth SRV");
 	if (m_ftype == Depth)
 	{
 
-		//todo look at usage of heaps?
-		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-		srvHeapDesc.NumDescriptors = 1;
-		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
+		//todo look at usage of heaps?	
 
-
-		m_srvHeap->SetName(L"Depth SRV");
 		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 		shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -141,15 +180,18 @@ void D3D12FrameBuffer::CreateDepth()
 		NullHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_nullHeap->GetGPUDescriptorHandleForHeapStart());
 		D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, m_nullHeap->GetCPUDescriptorHandleForHeapStart());
 
-		//const UINT cbvSrvDescriptorSize = D3D12RHI::GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		//CD3DX12_CPU_DESCRIPTOR_HANDLE null(m_srvHeap->GetCPUDescriptorHandleForHeapStart());
-		//null.Offset(1, cbvSrvDescriptorSize);
-		//D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, null);
-
 	}
 }
 D3D12FrameBuffer::~D3D12FrameBuffer()
-{}
+{
+	if (m_ftype == FrameBufferType::Depth)
+	{
+		m_depthStencil->Release();
+		m_nullHeap->Release();
+		m_dsvHeap->Release();
+		m_srvHeap->Release();
+	}
+}
 
 void D3D12FrameBuffer::BindToTextureUnit(int unit)
 {}
@@ -165,6 +207,10 @@ void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot)
 	{
 		list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	}
+	if (m_ftype == ColourDepth)
+	{
+		list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RenderTarget,  D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	}
 	//list->SetGraphicsRootDescriptorTable(2, m_depthStencil->GetGPUVirtualAddress());
 	ID3D12DescriptorHeap* ppHeaps[] = { m_srvHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -178,7 +224,7 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 		return;
 	}
 	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-	if (once) 
+	if (once)
 	{
 		if (m_ftype == Depth)
 		{
@@ -189,14 +235,26 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 	{
 		once = true;
 	}
-	/*if(once)
-	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_depthStencil, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE));*/
+
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
-	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
-	list->OMSetRenderTargets(0, nullptr, false, &dsvHandle);
+	if (m_ftype == ColourDepth && m_RenderTarget != nullptr)
+	{
+		list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RenderTarget, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	}
+	if (m_ftype == Depth)
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+		list->OMSetRenderTargets(0, nullptr, false, &dsvHandle);
+	}
+	else if (m_ftype == ColourDepth)
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+		list->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
+	}
 }
 
 void D3D12FrameBuffer::UnBind(CommandListDef * list)
@@ -219,10 +277,17 @@ void D3D12FrameBuffer::UnBind(CommandListDef * list)
 
 void D3D12FrameBuffer::ClearBuffer(CommandListDef * list)
 {
-	if (m_ftype == Depth)
+	if (m_ftype == Depth || m_ftype == ColourDepth)
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 		list->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	}
+
+	if (m_ftype == ColourDepth)
+	{
+		
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+		list->ClearRenderTargetView(rtHandle, clearColor, 0, nullptr);
 	}
 }
 

@@ -31,6 +31,7 @@ private:
 
 	CollisionRect Rect;
 	std::function<void()> Target;
-	UILabel* Label;
+	UILabel* Label = nullptr;                   
+
 };
 

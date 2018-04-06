@@ -46,10 +46,10 @@ private:
 	glm::vec3 _scale;
 	glm::quat _qrot;
 	glm::mat4 parentMatrix;
-	Transform* parent;
+	Transform* parent = nullptr;
 
-	glm::vec3 oldpos;
-	glm::vec3 oldscale;
-	glm::quat oldqrot;
+	glm::vec3 oldpos =  glm::vec3();
+	glm::vec3 oldscale = glm::vec3();
+	glm::quat oldqrot = glm::vec3();
 };
 

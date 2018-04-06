@@ -27,7 +27,7 @@ void UIButton::MouseMove(int x, int y)
 		WasSelected = true;
 		UIManager::UpdateBatches();
 		Colour = Hovercolour;
-	}
+	} 
 	else
 	{
 		Colour = IsActiveSelect ? SelectedColour : NormalColour;

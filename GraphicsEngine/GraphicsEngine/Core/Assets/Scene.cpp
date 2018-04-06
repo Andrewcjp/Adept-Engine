@@ -95,16 +95,27 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//lc->Internal_GetLightPtr()->SetShadowId(0);
 	//lc->SetIntensity(100);
 	//AddGameobjectToScene(go);
+#if 0
+	go = new GameObject("Dir Light");
+	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
+	go->GetTransform()->SetEulerRot(glm::vec3(45, 0, 0));
+	lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	lc->SetShadow(true);
+	lc->SetLightType(Light::Directional);
+	lc->SetIntensity(1.3f);
+	AddGameobjectToScene(go);
 
-	//go = new GameObject("Dir Light");
-	//go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
-	//go->GetTransform()->SetEulerRot(glm::vec3(45, 0, 0));
-	//lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	//lc->SetShadow(true);
-	//lc->SetLightType(Light::Directional);
-	//lc->SetIntensity(1.3f);
-	//AddGameobjectToScene(go);
+	go = new GameObject("Dir Light");
+	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
+	go->GetTransform()->SetEulerRot(glm::vec3(50, 0, 0));
+	lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	lc->SetShadow(true);
+	lc->SetLightType(Light::Directional);
+	lc->SetIntensity(1.3f);
+	AddGameobjectToScene(go);
+#endif
 
+#if 1
 	go = new GameObject("Dir Light");
 	go->GetTransform()->SetPos(glm::vec3(0, 5, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -122,6 +133,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	lc->SetLightType(Light::Point);
 	lc->SetIntensity(2.0f);
 	AddGameobjectToScene(go);
+#endif
 
 	go = new GameObject("Plane");
 	mat = new Material(RHI::CreateTexture("\\asset\\texture\\bricks2.jpg"));
@@ -169,7 +181,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 	if (IsDeferredMode == false)
 	{
-		go = new GameObject("Water");
+		/*go = new GameObject("Water");
 
 		Material::MaterialProperties props;
 		props.DoesShadow = false;
@@ -184,7 +196,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		c->Pitch(-90);
 		c->SetUpAndForward(glm::vec3(0, 1.0, 0), glm::vec3(0, 0, 1.0));
 		Renderer->SetReflectionCamera(c);
-		AddGameobjectToScene(go);
+		AddGameobjectToScene(go);*/
 	}
 	StaticSceneNeedsUpdate = true;
 }

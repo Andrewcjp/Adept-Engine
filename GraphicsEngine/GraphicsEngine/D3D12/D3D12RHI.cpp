@@ -102,7 +102,7 @@ void D3D12RHI::LoadPipeLine()
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	UINT dxgiFactoryFlags = 0;
-#if defined(_DEBUG)
+#if defined(_DEBUG) //nsight needs this off
 	// Enable the debug layer (requires the Graphics Tools "optional feature").
 	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
 	{
@@ -308,7 +308,7 @@ void D3D12RHI::LoadAssets()
 		//	m_fenceValue = 1;
 
 
-		// Create an event handle to use for frame synchronization.
+		// Create an event handle to use for frame synchronization
 		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		if (m_fenceEvent == nullptr)
 		{
@@ -325,6 +325,7 @@ void D3D12RHI::LoadAssets()
 	ThrowIfFailed(m_Primarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
 	m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
+	
 }
 
 void D3D12RHI::ExecSetUpList()
@@ -354,6 +355,7 @@ void D3D12RHI::ExecList(CommandListDef* list, bool IsFinal)
 void D3D12RHI::TransitionBuffers(bool In)
 {
 	m_SetupCommandList->Reset(m_commandAllocator, nullptr);
+	
 	if (In)
 	{
 		m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
@@ -362,8 +364,11 @@ void D3D12RHI::TransitionBuffers(bool In)
 	{
 		m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	}
+
 	m_SetupCommandList->Close();
 	ExecList(m_SetupCommandList);
+
+
 }
 void D3D12RHI::PresentFrame()
 {
@@ -377,6 +382,7 @@ void D3D12RHI::PresentFrame()
 	if (count == 1)
 	{
 		MipmapShader->GenAllmips();
+		
 	}
 #endif
 	TransitionBuffers(false);
@@ -389,6 +395,10 @@ void D3D12RHI::PresentFrame()
 	m_commandAllocator->Reset();
 	//WaitForPreviousFrame();
 	MoveToNextFrame();
+	if (count == 0)
+	{
+		TransitionBuffers(true);
+	}
 	WaitForGpu();
 	count++;
 	if (count > 2)

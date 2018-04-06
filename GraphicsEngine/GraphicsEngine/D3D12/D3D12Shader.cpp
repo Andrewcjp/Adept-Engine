@@ -64,7 +64,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #if BUILD_SHIPPING
 	UINT compileFlags = D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND;
 #else
-	UINT compileFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_OPTIMIZATION_LEVEL0;
+	UINT compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL0;//| D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS ;
 #endif
 #endif
 
@@ -140,7 +140,7 @@ void D3D12Shader::ActivateShaderProgram(ID3D12GraphicsCommandList* list)
 void D3D12Shader::DeactivateShaderProgram()
 {}
 
-D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest)
+D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD)
 {
 	ensure(blobs->vsBlob != nullptr);
 	ensure(blobs->fsBlob != nullptr);
@@ -153,9 +153,9 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	psoDesc.VS = CD3DX12_SHADER_BYTECODE(blobs->vsBlob);
 	psoDesc.PS = CD3DX12_SHADER_BYTECODE(blobs->fsBlob);
 	if (blobs->gsBlob != nullptr)
-	{
+	{ 
 		psoDesc.GS = CD3DX12_SHADER_BYTECODE(blobs->gsBlob);
-	}
+	} 
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.RasterizerState.CullMode = Depthtest.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -165,9 +165,17 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
+
+	for (int i = 0; i < 8; i++)
+	{
+		psoDesc.RTVFormats[i] = PRTD.RTVFormats[i];
+	}
+	psoDesc.DSVFormat = PRTD.DSVFormat;
+	//psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	//psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+
+	//todo: Driver Crash Here!
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
 
 	return output;

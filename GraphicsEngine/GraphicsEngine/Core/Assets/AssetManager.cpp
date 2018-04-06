@@ -30,7 +30,7 @@ void AssetManager::LoadTexturesFromDir()
 	std::string path = TextureAssetPath;
 	for (auto & p : std::experimental::filesystem::directory_iterator(path))
 	{
-		if (/*(p.path().filename().string().find("tga") != -1) || */(p.path().filename().string().find(".") == -1))
+		if ((p.path().filename().string().find(".") == -1))
 		{
 			continue;
 		}
@@ -38,7 +38,7 @@ void AssetManager::LoadTexturesFromDir()
 		GetTextureAsset(p.path().string(), t,true);
 	}
 }
-bool AssetManager::FileExists(std::string filename)
+bool AssetManager::FileExists(std::string filename) 
 {
 	struct stat fileInfo;
 	return stat(filename.c_str(), &fileInfo) == 0;

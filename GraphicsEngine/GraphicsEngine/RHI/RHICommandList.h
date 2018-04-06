@@ -70,7 +70,8 @@ public:
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;
 	virtual void SetVertexBuffer(RHIBuffer* buffer) = 0;
-	virtual void CreatePipelineState(class Shader* shader) = 0;
+	//If frame buffer is null the screen will be the render target!
+	virtual void CreatePipelineState(class Shader* shader,class FrameBuffer* Buffer = nullptr) = 0;
 	virtual void SetPipelineState(PipeLineState state) = 0;
 	//virtual void SetConstantBuffer(RHIBuffer* buffer) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;

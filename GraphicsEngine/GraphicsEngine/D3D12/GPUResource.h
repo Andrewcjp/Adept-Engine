@@ -1,0 +1,44 @@
+#pragma once
+#include "D3D12RHI.h"
+#include <vector>
+
+#define _KB(x) (x * 1024)
+#define _MB(x) (x * 1024 * 1024)
+
+#define TILE_SIZE _KB(64)
+#define MAX_HEAP_SIZE _MB(16)
+
+struct GPUMemoryBlock
+{
+	std::vector<ID3D12Heap*> Heaps;
+};
+
+
+class GPUResource
+{
+public:
+	enum eResourceState
+	{
+		Resident,
+		Tranfering,
+		DestructQueued,
+		Evicted
+	};
+	GPUResource();
+	~GPUResource();
+
+	void CreateHeap();
+
+
+
+	void Evict();
+	void MakeResident();
+	bool IsResident();
+	eResourceState GetState();
+private:
+	eResourceState currentState;
+	ID3D12Resource* resource = nullptr;
+
+	GPUMemoryBlock Block;
+};
+

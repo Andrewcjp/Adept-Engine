@@ -37,7 +37,7 @@ Transform * Transform::GetParent() const
 {
 	return parent;
 }
-
+     
 bool Transform::IsChanged()
 {
 	if (oldpos != _pos)

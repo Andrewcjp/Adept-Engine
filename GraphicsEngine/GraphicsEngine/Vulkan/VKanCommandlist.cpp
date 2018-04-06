@@ -30,7 +30,7 @@ void VKanCommandlist::DrawIndexedPrimitive(int IndexCountPerInstance, int Instan
 void VKanCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 {}
 
-void VKanCommandlist::CreatePipelineState(Shader * shader)
+void VKanCommandlist::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {}
 
 void VKanCommandlist::SetPipelineState(PipeLineState state)

@@ -92,9 +92,9 @@
     <LibraryPath>$(ProjectDir)\lib;$(ProjectDir)\lib\32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(ProjectDir)\lib\64;$(ProjectDir)\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir);$(IncludePath);$(ProjectDir)\lib</IncludePath>
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -135,20 +135,21 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX ;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(projectdir)include/freetype2;$(solutiondir)TestGame;$(projectdir)include/magick;$(projectdir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>$(projectdir)include/freetype2;$(solutiondir)TestGame;$(projectdir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeaderFile>Stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>winmm.lib;vulkan-1.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PxPvdSDKDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;PxFoundationDEBUG_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib\64\;$(ProjectDir)lib\64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -203,7 +204,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib\64;$(ProjectDir)\lib\64\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;PxPvdSDKCHECKED_x64.lib;PhysX3CookingCHECKED_x64.lib;PhysX3CharacterKinematicCHECKED_x64.lib;PxTaskCHECKED_x64.lib;SceneQueryCHECKED.lib;SimulationControllerCHECKED.lib;PxFoundationCHECKED_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;vulkan-1.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;PxPvdSDKCHECKED_x64.lib;PhysX3CookingCHECKED_x64.lib;PhysX3CharacterKinematicCHECKED_x64.lib;PxTaskCHECKED_x64.lib;SceneQueryCHECKED.lib;SimulationControllerCHECKED.lib;PxFoundationCHECKED_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -242,9 +243,13 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="D3D12\D3D12Heap.h" />
     <ClInclude Include="D3D12\D3D12MemoryManager.h" />
     <ClInclude Include="D3D12\D3D12CommandList.h" />
+    <ClInclude Include="D3D12\d3dx12Residency.h" />
     <ClInclude Include="D3D12\DescriptorHeap.h" />
+    <ClInclude Include="Core\Utils\MemoryUtils.h" />
+    <ClInclude Include="D3D12\GPUResource.h" />
     <ClInclude Include="OpenGL\OGLCommandList.h" />
     <ClInclude Include="Packaging\Cooker.h" />
     <ClInclude Include="Core\BaseWindow.h" />
@@ -268,6 +273,7 @@
     <ClInclude Include="Core\GameWindow.h" />
     <ClInclude Include="Core\Utils\FileUtils.h" />
     <ClInclude Include="Core\EngineTypes.h" />
+    <ClInclude Include="Stdafx.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffectBase.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessing.h" />
     <ClInclude Include="Rendering\Shaders\Shader_UIBatch.h" />
@@ -317,7 +323,6 @@
     <ClInclude Include="RHI\ShaderProgramBase.h" />
     <ClInclude Include="Rendering\Shaders\Shader_Skybox.h" />
     <ClInclude Include="SharedHeader.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="Core\Assets\AssetManager.h" />
     <ClInclude Include="Core\Engine.h" />
     <ClInclude Include="EngineGlobals.h" />
@@ -390,9 +395,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="D3D12\D3D12Heap.cpp" />
     <ClCompile Include="D3D12\D3D12MemoryManager.cpp" />
     <ClCompile Include="D3D12\D3D12CommandList.cpp" />
     <ClCompile Include="D3D12\DescriptorHeap.cpp" />
+    <ClCompile Include="Core\Utils\MemoryUtils.cpp" />
+    <ClCompile Include="D3D12\GPUResource.cpp" />
     <ClCompile Include="OpenGL\OGLCommandList.cpp" />
     <ClCompile Include="Packaging\Cooker.cpp" />
     <ClCompile Include="Core\BaseWindow.cpp" />
@@ -418,6 +426,10 @@
     <ClCompile Include="Core\Components\ExtraComponentRegister.cpp" />
     <ClCompile Include="Core\Components\MeshColliderComponent.cpp" />
     <ClCompile Include="Core\GameWindow.cpp" />
+    <ClCompile Include="Stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffectBase.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessing.cpp" />
     <ClCompile Include="Rendering\Renderers\RenderSettings.cpp" />
@@ -461,11 +473,6 @@
     <ClCompile Include="RHI\RHI.cpp" />
     <ClCompile Include="RHI\ShaderProgramBase.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_Skybox.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Core\Assets\AssetManager.cpp" />
     <ClCompile Include="Core\Engine.cpp" />
     <ClCompile Include="Rendering\Renderers\ForwardRenderer.cpp" />

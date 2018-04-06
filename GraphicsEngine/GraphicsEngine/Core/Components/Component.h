@@ -25,7 +25,7 @@ public:
 protected:
 	int TypeID = -1;
 private:
-	GameObject* Owner;
+	GameObject* Owner = nullptr;
 	
 };
 

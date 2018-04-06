@@ -28,31 +28,7 @@ ShaderOutput::ShaderOutput(int width, int height)
 	m_Shader->ActivateShaderProgram();
 	mwidth = width;
 	mheight = height;
-#if BUILD_OPENGL
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-		glBindFragDataLocation(m_Shader->GetProgramHandle(), 0, "FragColor");
-		glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_filterTexture"), 0);
-		glUniform1f(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_fxaaSpanMax"), 16.0);
-		glUniform1f(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_fxaaReduceMin"), 1.0 / 128.0);
-		glUniform1f(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_fxaaReduceMul"), 1.0 / 8.0);
-		glUniform3fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "R_inverseFilterTextureSize"), 1, glm::value_ptr(glm::vec3(1.0 / (float)width, 1.0 / (float)height, 0.0)));
-		glGenBuffers(1, &quad_vertexbuffer);
-#if WITH_EDITOR
-		SetFullScreen(false);
-#else	
-		SetFullScreen(true);
-#endif
 
-	}
-#endif
-	if (RHI::GetType() == RenderSystemD3D11)
-	{
-#if BUILD_D3D11
-		OutputCube = new D3D11Cube((D3D11ShaderProgram*)m_Shader);
-#endif
-	}
-	SetFXAA(true);
 }
 
 void ShaderOutput::Resize(int width, int height)
@@ -107,6 +83,18 @@ void ShaderOutput::SetFullScreen(bool state)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
 	}
 
+}
+std::vector<Shader::ShaderParameter> ShaderOutput::GetShaderParameters()
+{
+	std::vector<Shader::ShaderParameter> out;
+	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
+	return out;
+}
+std::vector<Shader::VertexElementDESC> ShaderOutput::GetVertexFormat()
+{
+	std::vector<VertexElementDESC> out;
+	out.push_back(VertexElementDESC{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	return out;
 }
 void ShaderOutput::RenderPlane()
 {
