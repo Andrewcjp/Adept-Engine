@@ -35,6 +35,7 @@ public:
 private:
 	void CreateCommandList();
 	ID3D12GraphicsCommandList * CurrentGraphicsList = nullptr;
+	bool IsOpen = false;
 	//struct PiplineShader
 	//{
 	//	ID3D12PipelineState* m_pipelineState;

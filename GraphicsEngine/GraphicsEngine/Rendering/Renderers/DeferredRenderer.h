@@ -33,14 +33,14 @@ public:
 private:
 	ShaderOutput* outshader;
 	FrameBuffer* FilterBuffer;
-	FrameBuffer_gDeferred* DeferredFrameBuffer;
+
 	Camera* MainCamera;
 	Shader_WDeferred* DeferredWriteShader;
 	Shader_Deferred* DeferredShader;
 	std::vector<GameObject*> Objects;
 	std::vector<Light*> Lights;
 	ShadowRenderer* shadower;
-	FrameBufferSSAO* SSAOBuffer;
+	/*FrameBufferSSAO* SSAOBuffer;*/
 	Shader_SSAO*	SSAOShader;
 	GameObject* skybox;
 	GLuint SkyboxTexture;

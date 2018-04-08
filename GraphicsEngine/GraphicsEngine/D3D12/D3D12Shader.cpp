@@ -12,6 +12,7 @@
 D3D12Shader::D3D12Shader()
 {
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+
 }
 
 
@@ -28,6 +29,19 @@ void StripD3dShader(ID3DBlob** blob)
 	}
 	UINT stripflags = D3DCOMPILER_STRIP_REFLECTION_DATA | D3DCOMPILER_STRIP_DEBUG_INFO | D3DCOMPILER_STRIP_TEST_BLOBS;
 	D3DStripShader(*blob, (*blob)->GetBufferSize(), stripflags, blob);
+}
+D3D_SHADER_MACRO* D3D12Shader::ParseDefines()
+{
+	D3D_SHADER_MACRO* out = new D3D_SHADER_MACRO[Defines.size() + 1];
+	for (int i = 0; i < Defines.size(); i++)//array is set up as Name, Value
+	{
+		out[i].Name = Defines[i].Name.c_str();
+		out[i].Definition = Defines[i].Value.c_str();
+	}
+	int last = Defines.size();
+	out[last].Definition = NULL;
+	out[last].Name = NULL;
+	return out;
 }
 EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type)
 {
@@ -67,30 +81,30 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	UINT compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL0;//| D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS ;
 #endif
 #endif
-
+	D3D_SHADER_MACRO* defines = ParseDefines();
 	if (type == SHADER_VERTEX)
 	{
 		//todo: To d3dcomplie with text
-		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "vs_5_0",
+		hr = D3DCompileFromFile(filename, defines, NULL, "main", "vs_5_0",
 			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
 		StripD3dShader(&mBlolbs.vsBlob);
 
 	}
 	else if (type == SHADER_FRAGMENT)
 	{
-		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "ps_5_0",
+		hr = D3DCompileFromFile(filename, defines, NULL, "main", "ps_5_0",
 			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
 		StripD3dShader(&mBlolbs.fsBlob);
 	}
 	else if (type == SHADER_COMPUTE)
 	{
-		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "cs_5_0",
+		hr = D3DCompileFromFile(filename, defines, NULL, "main", "cs_5_0",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
 	}
 	else if (type == SHADER_GEOMETRY)
 	{
-		hr = D3DCompileFromFile(filename, NULL, NULL, "main", "gs_5_0",
-				compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
+		hr = D3DCompileFromFile(filename, defines, NULL, "main", "gs_5_0",
+			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
 	}
 
 	if (FAILED(hr))
@@ -153,18 +167,38 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	psoDesc.VS = CD3DX12_SHADER_BYTECODE(blobs->vsBlob);
 	psoDesc.PS = CD3DX12_SHADER_BYTECODE(blobs->fsBlob);
 	if (blobs->gsBlob != nullptr)
-	{ 
+	{
 		psoDesc.GS = CD3DX12_SHADER_BYTECODE(blobs->gsBlob);
-	} 
+	}
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.RasterizerState.CullMode = Depthtest.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	if (Depthtest.Blending)
+	{
+		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.BlendState.AlphaToCoverageEnable = true;
+		psoDesc.BlendState.IndependentBlendEnable = FALSE;
+		psoDesc.BlendState.RenderTarget[0].BlendEnable = TRUE;
+
+		//psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		//psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+		//psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+
+		//psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+		//psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+		//psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_SUBTRACT;
+
+		//psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_GREEN;
+	}
+	else
+	{
+		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	}
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState.DepthEnable = Depthtest.DepthTest;
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	psoDesc.NumRenderTargets = 1;
+	psoDesc.NumRenderTargets = PRTD.NumRenderTargets;
 	psoDesc.SampleDesc.Count = 1;
 
 	for (int i = 0; i < 8; i++)
@@ -172,9 +206,6 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 		psoDesc.RTVFormats[i] = PRTD.RTVFormats[i];
 	}
 	psoDesc.DSVFormat = PRTD.DSVFormat;
-	//psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	//psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
 	//todo: Driver Crash Here!
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
 
@@ -315,7 +346,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 
 	//cbvs will be InitAsConstantBufferView
 	//srvs and UAvs will be in Ranges
-
+	//todo fix this!
 	CD3DX12_ROOT_PARAMETER1* rootParameters;
 	rootParameters = new CD3DX12_ROOT_PARAMETER1[Params.size()];
 	int RangeNumber = 0;
@@ -330,7 +361,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	CD3DX12_DESCRIPTOR_RANGE1* ranges = nullptr;
 	if (RangeNumber > 0)
 	{
-		ranges = new CD3DX12_DESCRIPTOR_RANGE1[RangeNumber];
+		ranges = new CD3DX12_DESCRIPTOR_RANGE1[Params.size()];
 	}
 	for (int i = 0; i < Params.size(); i++)
 	{
@@ -338,7 +369,6 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 		{
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_PIXEL);
-
 		}
 		else if (Params[i].Type == Shader::ShaderParamType::CBV)
 		{
@@ -353,7 +383,8 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
-	D3D12_STATIC_SAMPLER_DESC samplers[2];
+#define NUMSamples 3
+	D3D12_STATIC_SAMPLER_DESC samplers[NUMSamples];
 
 	D3D12_STATIC_SAMPLER_DESC sampler = {};
 	//	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -382,12 +413,23 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	sampler.RegisterSpace = 0;
 	samplers[1] = sampler;
 
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(Params.size(), rootParameters, 2, &samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.ShaderRegister = 2;
+	sampler.RegisterSpace = 0;
+	samplers[2] = sampler;
+
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(Params.size(), rootParameters, NUMSamples, &samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ID3DBlob* signature;
 	ID3DBlob* error;
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
+	std::wstring name = L"Root sig Length = ";
+	name.append(std::to_wstring(Params.size()));
+	output.m_rootSignature->SetName(name.c_str());
 }
 
 

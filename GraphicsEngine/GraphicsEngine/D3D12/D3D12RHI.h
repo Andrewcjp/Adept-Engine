@@ -95,7 +95,7 @@ private:
 	DWORD m_BudgetNotificationCookie;
 	int count = 0;
 	
-	
+	class GPUResource* m_RenderTargetResources[FrameCount];
 };
 //helper functions!
 static inline void ThrowIfFailed(HRESULT hr)

@@ -10,7 +10,8 @@ struct VS_OUTPUT
 	float2 uv : TEXCOORD0;
 };
 
-VS_OUTPUT main(float4 pos : POSITION, float2 uv : TEXCOORD0)
+
+VS_OUTPUT main(float4 pos : POSITION)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 	output.pos = mul( float4(pos.x, pos.y, 0.0, 1.0), projection);

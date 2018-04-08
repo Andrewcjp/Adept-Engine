@@ -2,6 +2,7 @@
 #include "ShaderMipMap.h"
 #include "d3dx12.h"
 #include "../D3D12/D3D12RHI.h"
+#include <algorithm>
 ShaderMipMap::ShaderMipMap()
 {
 	m_Shader = RHI::CreateShaderProgam();

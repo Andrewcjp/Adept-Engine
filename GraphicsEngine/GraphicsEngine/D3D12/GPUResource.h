@@ -25,6 +25,8 @@ public:
 		Evicted
 	};
 	GPUResource();
+	GPUResource(ID3D12Resource * Target);
+	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState);
 	~GPUResource();
 
 	void CreateHeap();
@@ -35,10 +37,13 @@ public:
 	void MakeResident();
 	bool IsResident();
 	eResourceState GetState();
+	void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
+	D3D12_RESOURCE_STATES GetCurrentState();
+
 private:
 	eResourceState currentState;
 	ID3D12Resource* resource = nullptr;
-
+	D3D12_RESOURCE_STATES CurrentResourceState = {};
 	GPUMemoryBlock Block;
 };
 

@@ -29,7 +29,7 @@ PerfManager::PerfManager()
 {
 	if (RHI::GetType() == RenderSystemOGL)
 	{
-		glGenQueries(2, queryID);
+//		glGenQueries(2, queryID);
 	}
 }
 
@@ -152,7 +152,7 @@ void PerfManager::StartGPUTimer()
 	{
 		if (!WaitGPUTimerQuerry)
 		{
-			glQueryCounter(queryID[0], GL_TIMESTAMP);
+////			glQueryCounter(queryID[0], GL_TIMESTAMP);
 		}
 	}
 }

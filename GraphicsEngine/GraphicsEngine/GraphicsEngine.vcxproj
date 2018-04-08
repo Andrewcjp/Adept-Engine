@@ -328,9 +328,6 @@
     <ClInclude Include="EngineGlobals.h" />
     <ClInclude Include="Rendering\Renderers\ForwardRenderer.h" />
     <ClInclude Include="Rendering\Core\FrameBuffer.h" />
-    <ClInclude Include="OLD\FrameBufferSSAO.h" />
-    <ClInclude Include="OLD\FrameBuffer_Depth.h" />
-    <ClInclude Include="OLD\FrameBuffer_gDeferred.h" />
     <ClInclude Include="Core\GameObject.h" />
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="Rendering\Core\GPUStateCache.h" />
@@ -370,7 +367,6 @@
     <ClInclude Include="Rendering\Shaders\Shader_Particle.h" />
     <ClInclude Include="Rendering\Shaders\Shader_Querry.h" />
     <ClInclude Include="Rendering\Shaders\Shader_SSAO.h" />
-    <ClInclude Include="OLD\Shader_Water.h" />
     <ClInclude Include="Rendering\Shaders\Shader_WDeferred.h" />
     <ClInclude Include="Rendering\Core\ShadowRenderer.h" />
     <ClInclude Include="targetver.h" />
@@ -477,9 +473,6 @@
     <ClCompile Include="Core\Engine.cpp" />
     <ClCompile Include="Rendering\Renderers\ForwardRenderer.cpp" />
     <ClCompile Include="Rendering\Core\FrameBuffer.cpp" />
-    <ClCompile Include="OLD\FrameBufferSSAO.cpp" />
-    <ClCompile Include="OLD\FrameBuffer_Depth.cpp" />
-    <ClCompile Include="OLD\FrameBuffer_gDeferred.cpp" />
     <ClCompile Include="Core\GameObject.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="Rendering\Core\GPUStateCache.cpp" />
@@ -515,7 +508,6 @@
     <ClCompile Include="Rendering\Shaders\Shader_Particle.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_Querry.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_SSAO.cpp" />
-    <ClCompile Include="OLD\Shader_Water.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_WDeferred.cpp" />
     <ClCompile Include="Rendering\Core\ShadowRenderer.cpp" />
     <ClCompile Include="UI\TextRenderer.cpp" />

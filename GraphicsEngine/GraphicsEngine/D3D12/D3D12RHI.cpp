@@ -6,6 +6,7 @@
 #include "include\glm\gtx\transform.hpp"
 D3D12RHI* D3D12RHI::Instance = nullptr;
 #include "../Rendering/Shaders/ShaderMipMap.h"
+#include "GPUResource.h"
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
@@ -22,7 +23,7 @@ void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
-	WaitForGpu();	
+	WaitForGpu();
 	pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
 	ReleaseSwapRTs();
 	m_commandAllocator->Release();
@@ -106,7 +107,7 @@ void D3D12RHI::LoadPipeLine()
 	// Enable the debug layer (requires the Graphics Tools "optional feature").
 	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
 	{
-		
+
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
@@ -227,11 +228,12 @@ void D3D12RHI::CreateSwapChainRTs()
 		{
 			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
 			m_Primarydevice->CreateRenderTargetView(m_renderTargets[n], nullptr, rtvHandle);
-
+			m_RenderTargetResources[n] = new GPUResource(m_renderTargets[n], D3D12_RESOURCE_STATE_PRESENT);
 			rtvHandle.Offset(1, m_rtvDescriptorSize);
 		}
 		NAME_D3D12_OBJECT(m_renderTargets[1]);
 		NAME_D3D12_OBJECT(m_renderTargets[0]);
+
 	}
 }
 
@@ -260,6 +262,7 @@ void D3D12RHI::ReleaseSwapRTs()
 	for (UINT n = 0; n < FrameCount; n++)
 	{
 		m_renderTargets[n]->Release();
+		delete m_RenderTargetResources[n];
 	}
 	m_depthStencil->Release();
 }
@@ -324,8 +327,8 @@ void D3D12RHI::LoadAssets()
 
 	ThrowIfFailed(m_Primarydevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
-	m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
-	
+	//m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
+
 }
 
 void D3D12RHI::ExecSetUpList()
@@ -355,7 +358,7 @@ void D3D12RHI::ExecList(CommandListDef* list, bool IsFinal)
 void D3D12RHI::TransitionBuffers(bool In)
 {
 	m_SetupCommandList->Reset(m_commandAllocator, nullptr);
-	
+
 	if (In)
 	{
 		m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
@@ -367,11 +370,19 @@ void D3D12RHI::TransitionBuffers(bool In)
 
 	m_SetupCommandList->Close();
 	ExecList(m_SetupCommandList);
-
-
 }
 void D3D12RHI::PresentFrame()
 {
+
+	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
+	{
+		m_SetupCommandList->Reset(m_commandAllocator, nullptr);
+		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
+
+		m_SetupCommandList->Close();
+		ExecList(m_SetupCommandList);
+	}
+
 	//testing
 	if (m_BudgetNotificationCookie == 1)
 	{
@@ -382,10 +393,10 @@ void D3D12RHI::PresentFrame()
 	if (count == 1)
 	{
 		MipmapShader->GenAllmips();
-		
+
 	}
 #endif
-	TransitionBuffers(false);
+	//TransitionBuffers(false);
 	// Present the frame.
 	ThrowIfFailed(m_swapChain->Present(0, 0));
 	if (RequestedResize)
@@ -397,7 +408,7 @@ void D3D12RHI::PresentFrame()
 	MoveToNextFrame();
 	if (count == 0)
 	{
-		TransitionBuffers(true);
+		//TransitionBuffers(true);
 	}
 	WaitForGpu();
 	count++;
@@ -444,7 +455,7 @@ void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
 	RenderToScreen(list);
 	// Indicate that the back buffer will be used as a render target.
 	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
-	TransitionBuffers(true);
+	//TransitionBuffers(true);
 	SetScreenRenderTaget(list);
 
 }
@@ -453,12 +464,13 @@ void D3D12RHI::SetScreenRenderTaget(ID3D12GraphicsCommandList* list)
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	list->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+	m_RenderTargetResources[m_frameIndex]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
 }
 
 void D3D12RHI::PostFrame(ID3D12GraphicsCommandList* list)
 {
 	// Indicate that the back buffer will now be used to present.
-	list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
+	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
 
 	ThrowIfFailed(list->Close());
 }

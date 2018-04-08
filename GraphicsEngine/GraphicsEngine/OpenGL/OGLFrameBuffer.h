@@ -1,5 +1,6 @@
 #pragma once
 #include "../Rendering/Core/FrameBuffer.h"
+#if BUILD_OPENGL
 class OGLFrameBuffer :
 	public FrameBuffer
 {
@@ -24,7 +25,7 @@ public:
 	virtual void ClearBuffer(CommandListDef * list = nullptr) override;
 	int Samples = 4;
 	bool MultiSample = false;
-	GLuint multisampledFBO;
 
 };
+#endif
 

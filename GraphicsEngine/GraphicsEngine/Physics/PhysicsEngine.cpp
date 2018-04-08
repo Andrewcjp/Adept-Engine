@@ -3,6 +3,7 @@
 #include <thread>
 #include "Core/GameObject.h"
 #define ENABLEPVD !(NDEBUG)
+#include <algorithm>
 using namespace physx;
 void PhysicsEngine::initPhysics()
 {

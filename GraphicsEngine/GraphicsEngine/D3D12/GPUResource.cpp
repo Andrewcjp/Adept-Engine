@@ -1,11 +1,18 @@
 #include "stdafx.h"
 #include "GPUResource.h"
-
+#include <algorithm>
 
 GPUResource::GPUResource()
 {}
-
-
+GPUResource::GPUResource(ID3D12Resource* Target)
+{
+	resource = Target;
+}
+GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState)
+{
+	resource = Target;
+	CurrentResourceState = InitalState;
+}
 GPUResource::~GPUResource()
 {}
 
@@ -60,4 +67,17 @@ bool GPUResource::IsResident()
 GPUResource::eResourceState GPUResource::GetState()
 {
 	return currentState;
+}
+void GPUResource::SetResourceState(ID3D12GraphicsCommandList* List ,D3D12_RESOURCE_STATES newstate)
+{
+	if (newstate != CurrentResourceState)
+	{
+		List->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
+		CurrentResourceState = newstate;
+	}	
+}
+
+D3D12_RESOURCE_STATES GPUResource::GetCurrentState()
+{
+	return CurrentResourceState;
 }

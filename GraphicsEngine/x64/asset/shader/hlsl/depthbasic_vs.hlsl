@@ -8,8 +8,6 @@ cbuffer ConstantBuffer : register(b0)
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
-	float4 normal : NORMAL0;
-	float3 uv : TEXCOORD0;
 };
 
 

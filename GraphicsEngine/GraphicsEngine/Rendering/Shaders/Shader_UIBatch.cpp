@@ -14,7 +14,7 @@ Shader_UIBatch::Shader_UIBatch()
 	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_fs", SHADER_FRAGMENT);
 	m_Shader->BuildShaderProgram();
 	UniformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
-	UniformBuffer->CreateConstantBuffer(sizeof(UnifromData),1);
+	UniformBuffer->CreateConstantBuffer(sizeof(UnifromData), 1);
 }
 std::vector<Shader::VertexElementDESC> Shader_UIBatch::GetVertexFormat()
 {
@@ -34,7 +34,6 @@ Shader_UIBatch::~Shader_UIBatch()
 void Shader_UIBatch::PushTOGPU(RHICommandList* list)
 {
 	list->SetConstantBufferView(UniformBuffer, 0, 1);
-	//glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(data.Proj));
 }
 
 std::vector<Shader::ShaderParameter> Shader_UIBatch::GetShaderParameters()
@@ -46,14 +45,7 @@ std::vector<Shader::ShaderParameter> Shader_UIBatch::GetShaderParameters()
 
 void Shader_UIBatch::UpdateUniforms(glm::mat4x4 Proj)
 {
-	if (RHI::IsD3D12())
-	{
-		data.Proj = Proj;
-		UniformBuffer->UpdateConstantBuffer(&data, 0);
-	}
-	else if (RHI::IsOpenGL())
-	{
-		glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(Proj));
-	}
+	data.Proj = Proj;
+	UniformBuffer->UpdateConstantBuffer(&data, 0);
 }
 

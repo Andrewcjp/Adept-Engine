@@ -5,6 +5,7 @@
 #include "../D3D12/D3D12RHI.h"
 #include "../D3D12/D3D12Shader.h"
 #include "../Core/Utils/StringUtil.h"
+#include <algorithm>
 UIDrawBatcher* UIDrawBatcher::instance = nullptr;
 UIDrawBatcher::UIDrawBatcher()
 {

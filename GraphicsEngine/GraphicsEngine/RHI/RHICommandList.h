@@ -54,6 +54,7 @@ struct PipeLineState
 {
 	bool DepthTest = true;
 	bool Cull = true;
+	bool Blending = false;
 };
 class FrameBuffer;
 class RHICommandList

@@ -75,9 +75,9 @@ void ForwardRenderer::Resize(int width, int height)
 	}
 	if (RHI::IsD3D12())
 	{
-		if (DRHI)
+		if (D3D12RHI::Instance)
 		{
-			DRHI->ResizeSwapChain(width, height);
+			D3D12RHI::Instance->ResizeSwapChain(width, height);
 		}
 	}
 	//outshader->Resize(width, height);
@@ -255,6 +255,7 @@ void ForwardRenderer::MainPass()
 	}
 	PrepareData();
 	MainCommandList->ResetList();
+	MainCommandList->SetScreenBackBufferAsRT();
 	MainCommandList->ClearScreen();
 	MVBuffer buffer;
 	buffer.P = MainCamera->GetProjection();
@@ -437,7 +438,7 @@ void ForwardRenderer::DestoryRenderWindow()
 	delete outshader;
 	particlesys.reset();
 	skyboxShader.reset();
-	delete shadowrender;
+//	delete shadowrender;
 	//delete RelfectionBuffer;
 }
 

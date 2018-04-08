@@ -190,6 +190,11 @@ BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, vo
 		return newtex;
 		break;
 #endif
+	case RenderSystemD3D12:
+		newtex = new D3D12Texture();
+		//newtex->CreateTextureFromData(data, type, with, height, nChannels);
+		return newtex;
+		break;
 	}
 	return nullptr;
 }
@@ -231,9 +236,11 @@ FrameBuffer * RHI::CreateFrameBuffer(int width, int height, float ratio, FrameBu
 {
 	switch (instance->currentsystem)
 	{
+#if BUILD_OPENGL
 	case RenderSystemOGL:
 		return new OGLFrameBuffer(width, height, ratio, type);
 		break;
+#endif
 #if BUILD_D3D11
 	case RenderSystemD3D11:
 		return new D3D11FrameBuffer(width, height, ratio, type);
@@ -241,7 +248,9 @@ FrameBuffer * RHI::CreateFrameBuffer(int width, int height, float ratio, FrameBu
 #endif
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		return new D3D12FrameBuffer(width, height, ratio, type);
+		D3D12FrameBuffer * ptr = new D3D12FrameBuffer(width, height, ratio, type);
+		ptr->InitBuffer();
+		return ptr;
 		break;
 #endif
 	}

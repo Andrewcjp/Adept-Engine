@@ -88,13 +88,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->AttachComponent(new CameraComponent());
 	AddGameobjectToScene(go);
 
-	//go = new GameObject("LightTest");
-	//go->GetTransform()->SetPos(glm::vec3(0, 10, 20));
-	//lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	//lc->SetShadow(true);
-	//lc->Internal_GetLightPtr()->SetShadowId(0);
-	//lc->SetIntensity(100);
-	//AddGameobjectToScene(go);
 #if 0
 	go = new GameObject("Dir Light");
 	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
@@ -116,7 +109,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #endif
 
 #if 1
-	go = new GameObject("Dir Light");
+	go = new GameObject("Point Light");
 	go->GetTransform()->SetPos(glm::vec3(0, 5, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	lc = (LightComponent*)go->AttachComponent(new LightComponent());
@@ -125,7 +118,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	lc->SetIntensity(1.0f);
 	AddGameobjectToScene(go);
 
-	go = new GameObject("Dir Light");
+	go = new GameObject("Point Light");
 	go->GetTransform()->SetPos(glm::vec3(20, 5, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	lc = (LightComponent*)go->AttachComponent(new LightComponent());

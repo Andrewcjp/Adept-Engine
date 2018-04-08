@@ -28,13 +28,13 @@ private:
 
 	Shader_Depth* PointLightShader = nullptr;
 	Shader_Depth* DirectionalLightShader = nullptr;
-	RHIBuffer* GeometryProjections;
-	//todo: to arrays!
-	FrameBuffer* PointLightBuffer;
-	FrameBuffer* DirectionalLightBuffer;
-	FrameBuffer* DirectionalLightBuffer2;
-	std::vector<FrameBuffer*> DirectionalLightBuffers;
+	RHIBuffer* GeometryProjections = nullptr;
 
+	//todo: to arrays!
+	FrameBuffer* PointLightBuffer = nullptr;
+	FrameBuffer* DirectionalLightBuffer = nullptr;
+	std::vector<FrameBuffer*> DirectionalLightBuffers;
+	RHICommandList* PointShadowList = nullptr;
 
 	bool UseDir2 = false;
 };

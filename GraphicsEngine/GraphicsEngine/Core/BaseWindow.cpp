@@ -12,6 +12,7 @@
 #include "../Physics/PhysicsEngine.h"
 #include "../Core/Utils/StringUtil.h"
 #include "../Core/Assets/SceneJSerialiser.h"
+#include "../UI/TextRenderer.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 
 BaseWindow::BaseWindow()
@@ -221,7 +222,7 @@ void BaseWindow::Render()
 		UI->RenderWidgets();
 	}
 	if (LoadText)
-	{
+	{		
 		RenderText();
 		WindowUI();
 	}

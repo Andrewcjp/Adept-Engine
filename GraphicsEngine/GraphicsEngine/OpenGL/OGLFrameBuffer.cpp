@@ -1,5 +1,6 @@
 #include "OGLFrameBuffer.h"
 #include "../Rendering/Core/GPUStateCache.h"
+#if BUILD_OPENGL
 OGLFrameBuffer::~OGLFrameBuffer()
 {
 	Cleanup();
@@ -84,3 +85,4 @@ void OGLFrameBuffer::ClearBuffer(CommandListDef * )
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+#endif

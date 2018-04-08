@@ -153,7 +153,47 @@ float4 main(PSInput input) : SV_TARGET
 }
 
 
+float ShadowCalculationCube(const float3 fragPos, Light lpos)
+{
+	// Get vector between fragment position and light position
+	float3 fragToLight = fragPos - lpos.LPosition;
 
+	float currentDepth = length(fragToLight);
+	//if (currentDepth > MaxShadowDistance)
+	//{
+	//	//	return 0.0f;
+	//}
+	float shadow = 0.0f;
+	float bias = 0.09f;
+	int samples = 1;
+	/*float viewDistance = length(viewPos - fragPos);
+	float diskRadius = (1.0f + (viewDistance / far_plane)) / 25.0f;*/
+	float far_plane = 100.0f;
+	for (int i = 0; i < samples; ++i)
+	{
+		float closestDepth = 0;
+		if (lpos.ShadowID == 0)
+		{
+			closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, fragToLight).r;
+			//closestDepth = texture(shadowcubemap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+		}
+		/*else if (lpos.ShadowID == 1)
+		{
+			closestDepth = texture(shadowcubemap2, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+		}*/
+
+		closestDepth *= far_plane;
+		if (currentDepth - bias > closestDepth)
+			shadow += 1.0f;
+	}
+	shadow /= float(samples);//average of samples
+							 //cleanup the low shadow areas
+	if (shadow < 0.25f)
+	{
+		return 0.0f;
+	}
+	return shadow;
+}
 
 
 

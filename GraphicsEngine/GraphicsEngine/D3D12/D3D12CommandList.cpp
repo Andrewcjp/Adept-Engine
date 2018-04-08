@@ -32,7 +32,7 @@ D3D12CommandList::~D3D12CommandList()
 void D3D12CommandList::ResetList()
 {
 	ThrowIfFailed(m_commandAllocator->Reset());
-
+	IsOpen = true;
 	/*ThrowIfFailed(CurrentGraphicsList->Close());*/
 	ThrowIfFailed(CurrentGraphicsList->Reset(m_commandAllocator, CurrentPipelinestate.m_pipelineState));
 	CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
@@ -43,6 +43,7 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
 	if (target == nullptr)
 	{
 		CurrentRenderTarget->UnBind(CurrentGraphicsList);
+		CurrentRenderTarget = nullptr;
 	}
 	else
 	{
@@ -53,6 +54,7 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
 
 void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
+	ensure(IsOpen);
 	CurrentGraphicsList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	CurrentGraphicsList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 }
@@ -69,6 +71,7 @@ void D3D12CommandList::Execute()
 {
 	ThrowIfFailed(CurrentGraphicsList->Close());
 	D3D12RHI::Instance->ExecList(CurrentGraphicsList);
+	IsOpen = false;
 }
 
 void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
@@ -80,16 +83,25 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
+	D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
 	ensure((shader->GetShaderParameters().size() > 0));
 	ensure((shader->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
 	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters());
-	D3D12Shader::PipeRenderTargetDesc PRTD = {};
-	PRTD.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	PRTD.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD);
 
+	D3D12Shader::PipeRenderTargetDesc PRTD = {};
+	if (Buffer == nullptr)
+	{
+		PRTD.NumRenderTargets = 1;
+		PRTD.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		PRTD.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	}
+	else
+	{
+		PRTD = dbuffer->GetPiplineRenderDesc();
+	}
+	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD);
 	CreateCommandList();
 }
 
@@ -109,20 +121,19 @@ void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 {
 	((D3D12FrameBuffer*)buffer)->ClearBuffer(CurrentGraphicsList);
 }
-
+//todo: move to gpuresrouce!
 void D3D12CommandList::UAVBarrier(RHIUAV * target)
 {
 	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;
 	CurrentGraphicsList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->m_UAV));
 }
 
-
-
 void D3D12CommandList::SetScreenBackBufferAsRT()
 {
 	if (CurrentRenderTarget != nullptr)
 	{
 		CurrentRenderTarget->UnBind(CurrentGraphicsList);
+		CurrentRenderTarget = nullptr;
 	}
 	D3D12RHI::Instance->SetScreenRenderTaget(CurrentGraphicsList);
 	D3D12RHI::Instance->RenderToScreen(CurrentGraphicsList);

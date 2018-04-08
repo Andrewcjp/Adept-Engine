@@ -10,7 +10,8 @@
 float D3D12Texture::MipCreationTime = 0;
 #include "../Core/Utils/StringUtil.h"
 #include "../Rendering/Shaders/ShaderMipMap.h"
-D3D12Texture::D3D12Texture() :D3D12Texture("\\asset\\texture\\house_diffuse.tga")
+#include "GPUResource.h"
+D3D12Texture::D3D12Texture()
 {}
 
 unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int bpp, unsigned char * StartData, int&mipsize, float ratio)
@@ -271,8 +272,19 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		// Describe and create a Texture2D.
 		D3D12_RESOURCE_DESC textureDesc = {};
+	
+		if (type == RHI::TextureType::Text)
+		{
+			textureDesc.Format = DXGI_FORMAT_R8_UNORM;
+			Miplevels = 1;
+			MipLevelsReadyNow = 1;
+			textureDesc.Alignment = 0;
+		}
+		else
+		{
+			textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		}
 		textureDesc.MipLevels = Miplevels;
-		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		textureDesc.Width = width;
 		textureDesc.Height = height;
 		textureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
@@ -280,7 +292,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-
+		
 		ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
@@ -330,7 +342,10 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		//gen mips
 #if	USEGPUTOGENMIPS
-		D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
+		if (type != RHI::TextureType::Text)
+		{
+			D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
+		}
 #endif
 	}
 

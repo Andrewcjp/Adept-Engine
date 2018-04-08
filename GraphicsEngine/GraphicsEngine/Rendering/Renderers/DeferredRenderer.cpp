@@ -23,7 +23,7 @@ void DeferredRenderer::Init()
 	MainCamera = new Camera(glm::vec3(0, 2, 0), 90.0f, static_cast<float>(m_width / m_height), 0.1f, 1000.0f);
 	DeferredWriteShader = new Shader_WDeferred();
 	DeferredShader = new Shader_Deferred();
-	DeferredFrameBuffer = new FrameBuffer_gDeferred(m_width, m_height);
+	// = new FrameBuffer_gDeferred(m_width, m_height);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_STENCIL);
@@ -31,7 +31,7 @@ void DeferredRenderer::Init()
 	glClearColor(0, 0, 0, 0);
 	//glEnable(GL_BLEND);
 	shadower = new ShadowRenderer();
-	SSAOBuffer = new FrameBufferSSAO(m_width, m_height);
+	//SSAOBuffer = new FrameBufferSSAO(m_width, m_height);
 	SSAOShader = new Shader_SSAO();
 	//init skybox
 	skybox = new GameObject();
@@ -84,7 +84,7 @@ void DeferredRenderer::FixedUpdatePhysx(float dtime)
 
 void DeferredRenderer::GeometryPass()
 {
-	DeferredFrameBuffer->BindBufferAsRenderTarget();
+	//->BindBufferAsRenderTarget();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	DeferredWriteShader->SetShaderActive();
 	for (size_t i = 0; i < Objects.size(); i++)
@@ -99,7 +99,7 @@ void DeferredRenderer::GeometryPass()
 	}
 
 	RenderSkybox(true);
-	DeferredFrameBuffer->UnBind();
+	//->UnBind();
 }
 void DeferredRenderer::RenderSkybox(bool ismain)
 {
@@ -127,25 +127,25 @@ void DeferredRenderer::RenderSkybox(bool ismain)
 }
 void DeferredRenderer::SSAOPass()
 {
-	SSAOBuffer->BindBufferAsRenderTarget();
+	//SSAOBuffer->BindBufferAsRenderTarget();
 	glClear(GL_COLOR_BUFFER_BIT);
-	DeferredFrameBuffer->BindToTextureUnit();
+	//->BindToTextureUnit();
 	SSAOShader->SetShaderActive();
 	SSAOShader->UpdateUniforms(nullptr, MainCamera, Lights);
 	SSAOShader->RenderPlane();
-	SSAOBuffer->UnBind();
+	//SSAOBuffer->UnBind();
 }
 void DeferredRenderer::LightingPass()
 {
 	FilterBuffer->BindBufferAsRenderTarget();
 //	shadower->BindShadowMaps();
-	DeferredFrameBuffer->BindToTextureUnit();
+	//->BindToTextureUnit();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	SSAOBuffer->BindToTextureUnit(6);
+	//SSAOBuffer->BindToTextureUnit(6);
 	DeferredShader->SetShaderActive();
 	DeferredShader->UpdateUniforms(nullptr, MainCamera, Lights);
 	DeferredShader->RenderPlane();
-	DeferredFrameBuffer->UnbindTextures();
+	//->UnbindTextures();
 	FilterBuffer->UnBind();
 	//glEnable(GL_BLEND);
 	//RenderSkybox(true);
@@ -174,17 +174,17 @@ void DeferredRenderer::Resize(int width, int height)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);
 	}
-	if (DeferredFrameBuffer != nullptr)
-	{
-		delete DeferredFrameBuffer;
-		delete SSAOBuffer;
-		delete FilterBuffer;		
-		DeferredFrameBuffer = new FrameBuffer_gDeferred(width, height);
-		SSAOBuffer = new FrameBufferSSAO(width, height);
-		FilterBuffer = RHI::CreateFrameBuffer(width, height);
-		outshader->Resize(width, height);
-		SSAOShader->Resize(width, height);
-	}
+	//if (// != nullptr)
+	//{
+	//	delete //;
+	//	delete //SSAOBuffer;
+	//	delete FilterBuffer;		
+	//	// = new FrameBuffer_gDeferred(width, height);
+	//	//SSAOBuffer = new FrameBufferSSAO(width, height);
+	//	FilterBuffer = RHI::CreateFrameBuffer(width, height);
+	//	outshader->Resize(width, height);
+	//	SSAOShader->Resize(width, height);
+	//}
 }
 
 Shader * DeferredRenderer::GetMainShader()

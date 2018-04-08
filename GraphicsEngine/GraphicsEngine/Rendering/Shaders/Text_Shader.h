@@ -5,6 +5,9 @@ class Text_Shader :
 {
 public:
 	Text_Shader();
+	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	void Update(RHICommandList * lsit);
 	virtual ~Text_Shader();
 
 	// Inherited via Shader
@@ -13,5 +16,13 @@ public:
 	glm::vec3 Colour;
 	int Width = 0;
 	int Height = 0;
+	struct ShaderData
+	{
+		glm::mat4 proj;
+		glm::vec3 Colour;
+	};
+private:
+	RHIBuffer * CBV = nullptr;
+	ShaderData Data;
 };
 

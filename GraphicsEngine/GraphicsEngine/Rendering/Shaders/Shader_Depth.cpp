@@ -6,23 +6,19 @@ void Shader_Depth::INIT()
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->CreateShaderProgram();
+	if (!LoadGeomShader)
+	{
+		m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", "1"));
+	}
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
 		m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs_12", SHADER_VERTEX);
+		if (LoadGeomShader)
+		{
+			m_Shader->AttachAndCompileShaderFromFile("depthbasic_geo", SHADER_GEOMETRY);
+		}
 		m_Shader->AttachAndCompileShaderFromFile("depthbasic_fs_12", SHADER_FRAGMENT);
-	}
-	else
-	{
-		m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs", SHADER_VERTEX);
-		m_Shader->AttachAndCompileShaderFromFile("depthbasic_fs", SHADER_FRAGMENT);
-	}
-
-	if (LoadGeomShader)
-	{
-		m_Shader->AttachAndCompileShaderFromFile("depthbasic_geo", SHADER_GEOMETRY);
-		//		std::cout << LoadGeomShader << " is wrong" << std::endl;
-	}
-
+	}	
 	m_Shader->BindAttributeLocation(0, "position");
 
 	m_Shader->BuildShaderProgram();
@@ -48,7 +44,7 @@ void Shader_Depth::INIT()
 	shadowbuffer->UnBind();
 }
 
-Shader_Depth::Shader_Depth( bool LoadGeo)
+Shader_Depth::Shader_Depth(bool LoadGeo)
 {
 	LoadGeomShader = LoadGeo;
 	INIT();
@@ -58,10 +54,10 @@ Shader_Depth::Shader_Depth( bool LoadGeo)
 Shader_Depth::~Shader_Depth()
 {
 	delete shadowbuffer;
-//	delete CubeMaptex;
+	//	delete CubeMaptex;
 }
 
-void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera * , std::vector<Light*> lights)
+void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera *, std::vector<Light*> lights)
 {
 	Light* light;
 	if (targetlight != nullptr)
@@ -128,8 +124,7 @@ void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera * , std::vector<Light
 }
 
 void Shader_Depth::SetShaderActive()
-{
-}
+{}
 
 void Shader_Depth::SetShaderActive(CommandListDef* List)
 {
@@ -171,10 +166,15 @@ void Shader_Depth::BindShadowmmap(CommandListDef* List)
 std::vector<Shader::ShaderParameter> Shader_Depth::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> Output;
+
+	//Output.resize(3);
+	//Output[0] = ShaderParameter(ShaderParamType::CBV, 0, 0);
+	//Output[1] = ShaderParameter(ShaderParamType::CBV, 1, 1);
+	//Output[2] = ShaderParameter(ShaderParamType::CBV, 2, 2);
 	Shader_Main::GetMainShaderSig(Output);
 	return Output;
 }
-void Shader_Depth::UpdateD3D11Uniforms(Transform * t, Camera * , std::vector<Light*> lights)
+void Shader_Depth::UpdateD3D11Uniforms(Transform * t, Camera *, std::vector<Light*> lights)
 {
 #if BUILD_D3D11
 	glm::mat4 shadowProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, znear, zfar);

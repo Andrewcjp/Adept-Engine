@@ -25,9 +25,11 @@ public:
 	{
 		DXGI_FORMAT RTVFormats[8];
 		DXGI_FORMAT DSVFormat = DXGI_FORMAT_UNKNOWN;
+		int NumRenderTargets = 1;
 	};
 	// Inherited via ShaderProgramBase
 	virtual void CreateShaderProgram() override;
+	D3D_SHADER_MACRO * ParseDefines();
 	virtual EShaderError AttachAndCompileShaderFromFile(const char * filename, EShaderType type) override;
 	virtual void BuildShaderProgram() override;
 	virtual void DeleteShaderProgram() override;
