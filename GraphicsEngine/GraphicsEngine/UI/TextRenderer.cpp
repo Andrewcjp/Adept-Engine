@@ -243,7 +243,7 @@ void TextRenderer::LoadText()
 {
 
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
-	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 4 * 6 * 150);//max text length?
+	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 4 * 6 * 150,RHIBuffer::BufferAccessType::Dynamic);//max text length?
 	TextCommandList = RHI::CreateCommandList();
 	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });
 	TextCommandList->CreatePipelineState(m_TextShader);

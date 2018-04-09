@@ -332,8 +332,8 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 		if (lights[i]->GetType() == Light::Point)
 		{
 			float znear = 1;
-			float zfar = 500;
-			glm::mat4 proj = glm::perspective<float>(glm::radians(90.0f), 1.0f, znear, zfar);
+			float zfar = 500.0f;
+			glm::mat4 proj = glm::perspectiveRH<float>(glm::radians(90.0f), 1.0f, znear, zfar);
 			lights[i]->Projection = proj;
 		}
 		LightsBuffer.Light[i] = newitem;

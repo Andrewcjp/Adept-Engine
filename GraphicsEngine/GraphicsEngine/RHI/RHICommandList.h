@@ -14,11 +14,18 @@ public:
 	{
 		CurrentBufferType = type;
 	}
+	enum BufferAccessType
+	{
+		Static,
+		Dynamic
+	};
 	virtual void CreateVertexBufferFromFile(std::string name) = 0;
-	virtual void CreateVertexBuffer(int Stride,int ByteSize) = 0;
+	virtual void CreateVertexBuffer(int Stride,int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) = 0;
+	virtual void CreateIndexBuffer(int Stride, int ByteSize) = 0;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
 	virtual void UpdateVertexBuffer(void* data, int length) =0;
+	virtual void UpdateIndexBuffer(void* data, int length) = 0;
 	virtual ~RHIBuffer() {}
 	int GetVertexCount() { return VertexCount; }
 protected:
@@ -71,6 +78,7 @@ public:
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;
 	virtual void SetVertexBuffer(RHIBuffer* buffer) = 0;
+	virtual void SetIndexBuffer(RHIBuffer* buffer) = 0;
 	//If frame buffer is null the screen will be the render target!
 	virtual void CreatePipelineState(class Shader* shader,class FrameBuffer* Buffer = nullptr) = 0;
 	virtual void SetPipelineState(PipeLineState state) = 0;

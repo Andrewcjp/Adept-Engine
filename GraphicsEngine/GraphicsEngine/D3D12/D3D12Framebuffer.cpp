@@ -60,9 +60,11 @@ void D3D12FrameBuffer::CreateCubeDepth()
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-	shadowSrvDesc.Texture3D.MipLevels = 1;
+	shadowSrvDesc.Texture2D.MipLevels = 1;
+	shadowSrvDesc.Texture2DArray.ArraySize = CUBE_SIDES;
+	shadowSrvDesc.Texture2DArray.MipLevels = 1;
 	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	D3D12RHI::GetDevice()->CreateShaderResourceView(m_depthStencil, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+	D3D12RHI::GetDevice()->CreateShaderResourceView(m_RenderTarget, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 	m_srvHeap->SetName(L"Shadow 3d  SRV heap");
 
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_nullHeap)));

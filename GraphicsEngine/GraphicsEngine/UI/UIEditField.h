@@ -24,10 +24,10 @@ public:
 	bool CheckValidInput(char c);
 	
 private:
-	UILabel* Namelabel;
-	UILabel* Textlabel;
-	UIBox* TextBox;
-	UIButton* Toggle;
+	UILabel* Namelabel = nullptr;
+	UILabel* Textlabel = nullptr;
+	UIBox* TextBox = nullptr;
+	UIButton* Toggle = nullptr;
 	glm::vec3 colour = glm::vec3(0.8f);
 	CollisionRect Rect;
 	CollisionRect ValueDrawChangeRect;

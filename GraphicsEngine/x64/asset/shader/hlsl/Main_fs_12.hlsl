@@ -33,7 +33,7 @@ Texture2D g_texture : register(t0);
 
 Texture2D g_Shadow_texture : register(t1);
 //Texture2D g_Shadow_texture2 : register(t2);
-Texture3D g_Shadow_texture2 : register(t2);
+TextureCube g_Shadow_texture2 : register(t2);
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
 float GetShadow(float4 pos)
@@ -115,6 +115,7 @@ float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 v
 
 
 }
+float ShadowCalculationCube(const float3 fragPos, Light lpos);
 float4 main(PSInput input) : SV_TARGET
 {
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv);
@@ -136,10 +137,15 @@ float4 main(PSInput input) : SV_TARGET
 			}*/
 		}
 		float4 colour = CalcLightingColor(texturecolour, lights[i].LPosition, dir, lights[i].color, falloff, input.WorldPos.xyz, normalize( input.Normal.xyz))* attenuation;
-		if (lights[i].HasShadow)
+		if (lights[i].HasShadow && lights[i].type == 0)
 		{
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos);
 		}
+		/*if (lights[i].HasShadow && lights[i].type == 0)
+		{
+			colour = ShadowCalculationCube( input.WorldPos, lights[i]);
+		}*/
+		//colour = 1.0f - ShadowCalculationCube(input.WorldPos, lights[0]);
 		output += colour;
 	}
 	// output = float4(lights[1].color * 10, 1.0);
@@ -156,7 +162,7 @@ float4 main(PSInput input) : SV_TARGET
 float ShadowCalculationCube(const float3 fragPos, Light lpos)
 {
 	// Get vector between fragment position and light position
-	float3 fragToLight = fragPos - lpos.LPosition;
+	float3 fragToLight = fragPos - float3(0, 5, 20);// lpos.LPosition;
 
 	float currentDepth = length(fragToLight);
 	//if (currentDepth > MaxShadowDistance)
@@ -164,35 +170,28 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos)
 	//	//	return 0.0f;
 	//}
 	float shadow = 0.0f;
-	float bias = 0.09f;
+	float bias = 0.01f;
 	int samples = 1;
 	/*float viewDistance = length(viewPos - fragPos);
 	float diskRadius = (1.0f + (viewDistance / far_plane)) / 25.0f;*/
-	float far_plane = 100.0f;
-	for (int i = 0; i < samples; ++i)
-	{
-		float closestDepth = 0;
-		if (lpos.ShadowID == 0)
-		{
-			closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, fragToLight).r;
-			//closestDepth = texture(shadowcubemap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
-		}
-		/*else if (lpos.ShadowID == 1)
-		{
-			closestDepth = texture(shadowcubemap2, fragToLight + gridSamplingDisk[i] * diskRadius).r;
-		}*/
+	float far_plane = 500.0f;
 
-		closestDepth *= far_plane;
-		if (currentDepth - bias > closestDepth)
-			shadow += 1.0f;
+	float closestDepth = 0;
+	closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, fragToLight).r;
+
+	closestDepth *= far_plane;
+	if (currentDepth - bias > closestDepth)
+	{
+		return 1.0f;
 	}
-	shadow /= float(samples);//average of samples
-							 //cleanup the low shadow areas
-	if (shadow < 0.25f)
+	
+	//shadow /= float(samples);//average of samples
+	//						 //cleanup the low shadow areas
+	/*if (shadow < 0.25f)
 	{
 		return 0.0f;
-	}
-	return shadow;
+	}*/
+	return 0.0f;
 }
 
 

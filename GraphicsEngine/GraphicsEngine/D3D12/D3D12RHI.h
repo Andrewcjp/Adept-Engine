@@ -38,6 +38,8 @@ public:
 	void SetScreenRenderTaget(ID3D12GraphicsCommandList * list);
 	D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	void DisplayDeviceDebug();
+	std::string GetMemory();
+	void SampleVideoMemoryInfo();
 	void LoadPipeLine();
 	void CreateSwapChainRTs();
 	void InitMipmaps();
@@ -47,6 +49,7 @@ public:
 	void CreateDepthStencil(int width, int height);
 	void LoadAssets();
 	void ExecSetUpList();
+	void AddUploadToUsed(ID3D12Resource * Target);
 	void ExecList(CommandListDef * list, bool IsFinal = false);
 	void TransitionBuffers(bool In);
 	void PostFrame(ID3D12GraphicsCommandList * list);
@@ -94,8 +97,16 @@ private:
 	HANDLE m_VideoMemoryBudgetChange;
 	DWORD m_BudgetNotificationCookie;
 	int count = 0;
-	
+	//todo : Better!
+	std::vector<ID3D12Resource *> UsedUploadHeaps;
 	class GPUResource* m_RenderTargetResources[FrameCount];
+	size_t usedVRAM = 0;
+	size_t totalVRAM = 0;
+	int PerfCounter = 0;
+
+
+	bool Omce = false;
+	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 };
 //helper functions!
 static inline void ThrowIfFailed(HRESULT hr)

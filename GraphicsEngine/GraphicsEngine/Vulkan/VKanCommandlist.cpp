@@ -60,11 +60,13 @@ void VKanCommandlist::ClearFrameBuffer(FrameBuffer * buffer)
 void VKanCommandlist::UAVBarrier(RHIUAV * target)
 {}
 
+void VKanCommandlist::SetIndexBuffer(RHIBuffer * buffer)
+{}
+
 void VKanBuffer::CreateVertexBufferFromFile(std::string name)
 {}
 
-void VKanBuffer::CreateVertexBuffer(int Stride, int ByteSize)
-{}
+
 
 void VKanBuffer::CreateConstantBuffer(int StructSize, int Elementcount)
 {}
@@ -73,4 +75,13 @@ void VKanBuffer::UpdateConstantBuffer(void * data, int offset)
 {}
 
 void VKanBuffer::UpdateVertexBuffer(void * data, int length)
+{}
+
+void VKanBuffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype)
+{}
+
+void VKanBuffer::CreateIndexBuffer(int Stride, int ByteSize)
+{}
+
+void VKanBuffer::UpdateIndexBuffer(void * data, int length)
 {}

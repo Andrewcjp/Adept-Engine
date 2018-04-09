@@ -26,6 +26,9 @@ public:
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(RHIUAV * target) override;
+
+	// Inherited via RHICommandList
+	virtual void SetIndexBuffer(RHIBuffer * buffer) override;
 };
 
 class VKanBuffer : public RHIBuffer
@@ -35,8 +38,12 @@ public:
 	virtual ~VKanBuffer() {};
 	// Inherited via RHIBuffer
 	virtual void CreateVertexBufferFromFile(std::string name) override;
-	virtual void CreateVertexBuffer(int Stride, int ByteSize) override;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount) override;
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void UpdateVertexBuffer(void * data, int length) override;
+
+	// Inherited via RHIBuffer
+	virtual void CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) override;
+	virtual void CreateIndexBuffer(int Stride, int ByteSize) override;
+	virtual void UpdateIndexBuffer(void * data, int length) override;
 };

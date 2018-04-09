@@ -222,7 +222,7 @@ void BaseWindow::Render()
 		UI->RenderWidgets();
 	}
 	if (LoadText)
-	{		
+	{
 		RenderText();
 		WindowUI();
 	}
@@ -497,6 +497,14 @@ void BaseWindow::RenderText()
 		}
 	}
 	UI->RenderTextToScreen(1, stream.str());
+	stream.str("");
+	if (D3D12RHI::Instance != nullptr)
+	{
+		stream << D3D12RHI::Instance->GetMemory();
+		UI->RenderTextToScreen(2, stream.str());
+	}
+
+
 }
 #if USE_PHYSX_THREADING
 int EditorWindow::PhysicsThreadLoop()
@@ -516,7 +524,7 @@ int EditorWindow::PhysicsThreadLoop()
 
 		//Sleep(10);
 		SetEvent(ThreadComplete);
-	}
+}
 	return 0;
 }
 #endif

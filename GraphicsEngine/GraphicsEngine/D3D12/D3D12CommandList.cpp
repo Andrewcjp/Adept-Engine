@@ -80,6 +80,12 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 	CurrentGraphicsList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
 }
 
+void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
+{
+	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
+	CurrentGraphicsList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
+}
+
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
@@ -187,14 +193,7 @@ void D3D12Buffer::CreateVertexBufferFromFile(std::string name)
 	UpdateVertexBuffer(mesh, vertexBufferSize);
 }
 
-void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
-{
-	UINT8* pVertexDataBegin;
-	MapBuffer(reinterpret_cast<void**>(&pVertexDataBegin));
 
-	memcpy(pVertexDataBegin, data, length);
-	UnMap();
-}
 
 void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
 {
@@ -203,15 +202,84 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
 	cpusize = StructSize;
 }
 
-void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize)
+void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype)
 {
-	// Create the vertex buffer.
-	const int vertexBufferSize = ByteSize;//mazsize
+	
+	BufferAccesstype = Accesstype;
+	/*BufferAccesstype = BufferAccessType::Dynamic;*/
+	if (BufferAccesstype == BufferAccessType::Dynamic)
+	{
+		CreateDynamicBuffer(Stride, ByteSize);
+	}
+	else if (BufferAccesstype == BufferAccessType::Static)
+	{
+		CreateStaticBuffer(Stride, ByteSize);
+	}
 
-	// Note: using upload heaps to transfer static data like vert buffers is not 
-	// recommended. Every time the GPU needs it, the upload heap will be marshalled 
-	// over. Please read up on Default Heap usage. An upload heap is used here for 
-	// code simplicity and because there are very few verts to actually transfer.
+}
+void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
+{
+	if (BufferAccesstype == BufferAccessType::Dynamic)
+	{
+		UINT8* pVertexDataBegin;
+		MapBuffer(reinterpret_cast<void**>(&pVertexDataBegin));
+
+		memcpy(pVertexDataBegin, data, length);
+		UnMap();
+	}
+	else
+	{
+		ensure(!UploadComplete && "Uploading More than once to a GPU only buffer is not allowed!");
+		// store vertex buffer in upload heap
+		D3D12_SUBRESOURCE_DATA Data = {};
+		Data.pData = reinterpret_cast<BYTE*>(data); // pointer to our index array
+		Data.RowPitch = vertexBufferSize; // size of all our index buffer
+		Data.SlicePitch = vertexBufferSize; // also the size of our index buffer
+
+											// we are now creating a command with the command list to copy the data from
+											// the upload heap to the default heap
+		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_vertexBuffer, m_UploadBuffer, 0, 0, 1, &Data);
+
+		// transition the vertex buffer data from copy destination state to vertex buffer state
+		D3D12RHI::Instance->m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		UploadComplete = true;
+		D3D12RHI::Instance->AddUploadToUsed(m_UploadBuffer);
+	}
+}
+void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
+{
+	const int vertexBufferSize = ByteSize;//mazsize
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), // a default heap
+		D3D12_HEAP_FLAG_NONE, // no flags
+		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), // resource description for a buffer
+		D3D12_RESOURCE_STATE_COPY_DEST, // start in the copy destination state
+		nullptr, // optimized clear value must be null for this type of resource
+		IID_PPV_ARGS(&m_vertexBuffer)));
+
+	// we can give resource heaps a name so when we debug with the graphics debugger we know what resource we are looking at
+	m_vertexBuffer->SetName(L"Index Buffer Resource Heap");
+
+	// create upload heap to upload index buffer
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
+		D3D12_HEAP_FLAG_NONE, // no flags
+		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), // resource description for a buffer
+		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
+		nullptr,
+		IID_PPV_ARGS(&m_UploadBuffer)));
+	m_UploadBuffer->SetName(L"Index Buffer Upload Resource Heap");
+	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+	m_vertexBufferView.StrideInBytes = Stride;
+	m_vertexBufferView.SizeInBytes = vertexBufferSize;
+	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
+}
+void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
+{
+	//This Vertex Buffer Will Have Data Changed Every frame so no need to transiton to only gpu.
+	// Create the vertex buffer.
+	vertexBufferSize = ByteSize;//mazsize
+
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
@@ -225,7 +293,6 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize)
 	m_vertexBufferView.StrideInBytes = Stride;
 	m_vertexBufferView.SizeInBytes = vertexBufferSize;
 	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
-
 }
 
 void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
@@ -237,6 +304,34 @@ void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* l
 {
 	CBV->SetDescriptorHeaps(list);//D3D12CBV::MPCBV
 	CBV->SetGpuView(list, offset, Register);//todo: handle Offset!
+}
+
+void D3D12Buffer::UpdateIndexBuffer(void * data, int length)
+{
+	UINT8* pIndexDataBegin;
+	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
+	ThrowIfFailed(m_indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)));
+	memcpy(pIndexDataBegin, data, length);
+	m_indexBuffer->Unmap(0, nullptr);
+}
+
+void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
+{
+	const int vertexBufferSize = ByteSize;
+
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&m_indexBuffer)));
+
+	// Initialize the vertex buffer view.
+	m_IndexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
+	m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	m_IndexBufferView.SizeInBytes = vertexBufferSize;
+	m_indexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
 }
 
 void D3D12Buffer::MapBuffer(void ** Data)

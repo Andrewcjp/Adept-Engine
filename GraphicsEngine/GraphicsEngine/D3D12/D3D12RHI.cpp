@@ -83,6 +83,25 @@ D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
 }
 void D3D12RHI::DisplayDeviceDebug()
 {
+	std::cout << "Primary Adaptor Has " << GetMemory() << std::endl;
+}
+std::string D3D12RHI::GetMemory()
+{
+	if (PerfCounter > 60 || !HasSetup)
+	{
+		PerfCounter = 0;
+		SampleVideoMemoryInfo();
+	}
+	//std::cout << "Primary Adaptor Has " << usedVRAM << "MB / " << totalVRAM << "MB" << std::endl;
+	std::string output = "VMEM: ";
+	output.append(std::to_string(usedVRAM));
+	output.append("MB / ");
+	output.append(std::to_string(totalVRAM));
+	output.append("MB");
+	return output;
+}
+void D3D12RHI::SampleVideoMemoryInfo()
+{
 	IDXGIFactory4* pFactory;
 	CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pFactory);
 
@@ -92,10 +111,8 @@ void D3D12RHI::DisplayDeviceDebug()
 	DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
 	adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
 
-	size_t usedVRAM = videoMemoryInfo.CurrentUsage / 1024 / 1024;
-	size_t totalVRAM = videoMemoryInfo.Budget / 1024 / 1024;
-	std::cout << "Primary Adaptor Has " << usedVRAM << "MB / " << totalVRAM << "MB" << std::endl;
-
+	usedVRAM = videoMemoryInfo.CurrentUsage / 1024 / 1024;
+	totalVRAM = videoMemoryInfo.Budget / 1024 / 1024;
 }
 void D3D12RHI::LoadPipeLine()
 {
@@ -336,21 +353,38 @@ void D3D12RHI::ExecSetUpList()
 	ThrowIfFailed(m_SetupCommandList->Close());
 	ExecList(m_SetupCommandList);
 	WaitForGpu();
+	for (int i = 0; i < UsedUploadHeaps.size(); i++)
+	{
+		UsedUploadHeaps[i]->Release();
+	}
+	UsedUploadHeaps.clear();
 }
-
+void D3D12RHI::AddUploadToUsed(ID3D12Resource* Target)
+{
+	UsedUploadHeaps.push_back(Target);
+}
 void D3D12RHI::ExecList(CommandListDef* list, bool IsFinal)
 {
-	if (IsFinal)
+#define USENORMALBLOCKING 1
+#if !USENORMALBLOCKING
+	if (Omce)
 	{
-		//PostFrame(list);
+		WaitForSingleObject(EventHandle, INFINITE);//we need to wait to start the next queue!
+		M_ShadowFence++;
+		
 	}
+	Omce = true;
+#endif
+
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	ThrowIfFailed(m_commandQueue->Signal(pShadowFence, M_ShadowFence));	//set the value for exec complition
-	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	ThrowIfFailed(pShadowFence->SetEventOnCompletion(M_ShadowFence, EventHandle));//set the wait for the value complition
+
+#if USENORMALBLOCKING
 	WaitForSingleObject(EventHandle, INFINITE);//we need to wait to start the next queue!
 	M_ShadowFence++;
+#endif
 	//change it!
 	//m_commandQueue->Wait(pShadowFence, M_ShadowFence);
 	//M_ShadowFence++;
@@ -373,7 +407,7 @@ void D3D12RHI::TransitionBuffers(bool In)
 }
 void D3D12RHI::PresentFrame()
 {
-
+	PerfCounter++;
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(m_commandAllocator, nullptr);

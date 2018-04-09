@@ -117,23 +117,3 @@ void OGLShaderProgram::DeactivateShaderProgram()
 		glUseProgram(0);
 }
 
-void OGLShaderProgram::SetUniform1UInt(unsigned int value, const char* param)
-{
-	int param_loc = glGetUniformLocationARB(m_systemHandle, param);
-
-	glUniform1iARB(param_loc, value);
-}
-
-void OGLShaderProgram::SetAttrib4Float(float f1, float f2, float f3, float f4, const char* param)
-{
-	int param_loc = glGetAttribLocationARB(m_systemHandle, param);
-
-	glVertexAttrib4fARB(param_loc, f1, f2, f3, f4);
-}
-
-void OGLShaderProgram::BindAttributeLocation(int index, const char* param_name)
-{
-	glBindAttribLocation(m_systemHandle, index, param_name);
-}
-
-

@@ -12,6 +12,7 @@ struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
 	uint slice : SV_RenderTargetArrayIndex;
+	float3 LightPos: NORMAL0;
 };
 
 
@@ -24,5 +25,6 @@ VS_OUTPUT main(float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXCO
 	final_pos = mul(final_pos, Projection);
 #endif
 	output.pos = final_pos;
+	output.LightPos = float3(0, 5, 20);
 	return output;
 }

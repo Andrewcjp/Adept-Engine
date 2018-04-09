@@ -27,7 +27,7 @@ void UIDrawBatcher::InitD3D12()
 	commandlist = RHI::CreateCommandList();
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
 	const UINT vertexBufferSize = sizeof(UIVertex) * 500;//mazsize
-	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize);
+	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize,RHIBuffer::BufferAccessType::Dynamic);
 	commandlist->SetPipelineState(PipeLineState{ false , false});
 	commandlist->CreatePipelineState(Shader);
 }

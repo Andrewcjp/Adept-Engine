@@ -5,11 +5,20 @@ struct GSOutput
 {
 	float4 Pos : SV_Position;
 	uint slice : SV_RenderTargetArrayIndex;
+	float3 LightPos: NORMAL0;
 };
 
 float4 main(GSOutput input) : SV_Target
 {
+#if DIRECTIONAL
 	return float4(1,1,1,1);
+#else
+	float Farplane = 500.0f;
+	float LightDistance = length(input.Pos.xyz - input.LightPos);
+	LightDistance = LightDistance / Farplane;
+	return float4(LightDistance, LightDistance, LightDistance, LightDistance);
+
+#endif
 }
 
 
