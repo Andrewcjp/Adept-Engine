@@ -3,22 +3,22 @@
 #include "D3D12RHI.h"
 #include "GPUResource.h"
 #define CUBE_SIDES 6
-
+#include "../RHI/DeviceContext.h"
 void D3D12FrameBuffer::CreateCubeDepth()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 	dsvHeapDesc.NumDescriptors = CUBE_SIDES+1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
 
 	RTVformat = DXGI_FORMAT_R32_FLOAT;
 	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
 	depthOptimizedClearValue.Format = DXGI_FORMAT_R32_FLOAT;
 	depthOptimizedClearValue.Color[0] = CubeDepthclearColor[0];
-	descriptorSize = D3D12RHI::GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	descriptorSize = CurrentDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32_FLOAT, m_width, m_height, 6, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
@@ -37,14 +37,15 @@ void D3D12FrameBuffer::CreateCubeDepth()
 	renderTargetViewDesc.Texture2DArray.ArraySize = CUBE_SIDES;
 	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
 
-	D3D12RHI::GetDevice()->CreateRenderTargetView(m_RenderTarget, &renderTargetViewDesc, m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+	CurrentDevice->GetDevice()->CreateRenderTargetView(m_RenderTarget, &renderTargetViewDesc, m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 	renderTargetViewDesc.Texture2DArray.ArraySize = 1;
 	for (int i = 0; i < CUBE_SIDES; i++)
 	{	
 		renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
 		renderTargetViewDesc.Texture2DArray.ArraySize = 1;
 		CD3DX12_CPU_DESCRIPTOR_HANDLE currentCPUHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), i+1, descriptorSize);
-		D3D12RHI::GetDevice()->CreateRenderTargetView(m_RenderTarget, &renderTargetViewDesc, currentCPUHandle);
+		CurrentDevice->GetDevice()->CreateRenderTargetView(m_RenderTarget, &renderTargetViewDesc, currentCPUHandle);
+		//might be a read over end issue here
 	}
 
 	
@@ -53,7 +54,7 @@ void D3D12FrameBuffer::CreateCubeDepth()
 	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
 
 
 	m_srvHeap->SetName(L"Depth SRV");
@@ -64,12 +65,12 @@ void D3D12FrameBuffer::CreateCubeDepth()
 	shadowSrvDesc.Texture2DArray.ArraySize = CUBE_SIDES;
 	shadowSrvDesc.Texture2DArray.MipLevels = 1;
 	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	D3D12RHI::GetDevice()->CreateShaderResourceView(m_RenderTarget, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+	CurrentDevice->GetDevice()->CreateShaderResourceView(m_RenderTarget, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 	m_srvHeap->SetName(L"Shadow 3d  SRV heap");
 
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_nullHeap)));
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_nullHeap)));
 	NullHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_nullHeap->GetGPUDescriptorHandleForHeapStart());
-	D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, m_nullHeap->GetCPUDescriptorHandleForHeapStart());
+	CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, m_nullHeap->GetCPUDescriptorHandleForHeapStart());
 }
 void D3D12FrameBuffer::CreateColour()
 {
@@ -79,7 +80,7 @@ void D3D12FrameBuffer::CreateColour()
 	rtvHeapDesc.NumDescriptors = 1;
 	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
 	D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
 	renderTargetViewDesc.Format = RTVformat;
 	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
@@ -91,7 +92,7 @@ void D3D12FrameBuffer::CreateColour()
 	depthOptimizedClearValue.Color[2] = clearColor[2];
 	depthOptimizedClearValue.Color[3] = clearColor[3];
 
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Tex2D(renderTargetViewDesc.Format, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
@@ -101,14 +102,14 @@ void D3D12FrameBuffer::CreateColour()
 	));
 
 	RenderTarget = new GPUResource(m_RenderTarget, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	D3D12RHI::GetDevice()->CreateRenderTargetView(m_RenderTarget, &renderTargetViewDesc, m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+	CurrentDevice->GetDevice()->CreateRenderTargetView(m_RenderTarget, &renderTargetViewDesc, m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 	CreateSRV();
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	shadowSrvDesc.Format = renderTargetViewDesc.Format;
 	shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	shadowSrvDesc.Texture2D.MipLevels = 1;
 	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	D3D12RHI::GetDevice()->CreateShaderResourceView(m_RenderTarget, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+	CurrentDevice->GetDevice()->CreateShaderResourceView(m_RenderTarget, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 
 }
 void D3D12FrameBuffer::CreateSRV()
@@ -119,11 +120,11 @@ void D3D12FrameBuffer::CreateSRV()
 		srvHeapDesc.NumDescriptors = 1;
 		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
+		ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
 		m_srvHeap->SetName(L"Depth SRV");
 		if (m_ftype == Depth)
 		{
-			ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_nullHeap)));
+			ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_nullHeap)));
 			NullHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_nullHeap->GetGPUDescriptorHandleForHeapStart());
 		}
 	}
@@ -135,7 +136,7 @@ void D3D12FrameBuffer::CreateDepth()
 	dsvHeapDesc.NumDescriptors = 1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
 	//m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
@@ -148,7 +149,7 @@ void D3D12FrameBuffer::CreateDepth()
 		depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
 		depthOptimizedClearValue.DepthStencil.Stencil = 0;
 
-		ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+		ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Tex2D(Depthformat, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
@@ -159,7 +160,7 @@ void D3D12FrameBuffer::CreateDepth()
 		DepthStencil = new GPUResource(m_depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		//NAME_D3D12_OBJECT(m_depthStencil);
 		DepthHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
-		D3D12RHI::GetDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, DepthHandle);
+		CurrentDevice->GetDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, DepthHandle);
 		m_depthStencil->SetName(L"FrameBuffer Stencil");
 	}
 	CreateSRV();
@@ -173,10 +174,10 @@ void D3D12FrameBuffer::CreateDepth()
 		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		shadowSrvDesc.Texture2D.MipLevels = 1;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		D3D12RHI::GetDevice()->CreateShaderResourceView(m_depthStencil, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+		CurrentDevice->GetDevice()->CreateShaderResourceView(m_depthStencil, &shadowSrvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 		m_srvHeap->SetName(L"Shadow SRV heap");
 
-		D3D12RHI::GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, m_nullHeap->GetCPUDescriptorHandleForHeapStart());
+		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, m_nullHeap->GetCPUDescriptorHandleForHeapStart());
 
 	}
 }

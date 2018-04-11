@@ -19,19 +19,35 @@ ShaderMipMap::ShaderMipMap()
 
 ShaderMipMap::~ShaderMipMap()
 {}
-void ShaderMipMap::GenAllmips()
+void ShaderMipMap::GenAllmips(int limit)
 {
+	int count = 0;
 	for (int i = 0; i < Targets.size(); i++)
 	{
-		GenerateMipsForTexture(Targets[i]);
+		if (count > limit)
+		{
+			break;
+		}
+		if (Targets[i] == nullptr)
+		{
+			continue;
+		}		
+		if (Targets[i]->Miplevels == Targets[i]->MipLevelsReadyNow)
+		{
+			Targets[i] = nullptr;
+			continue;
+		}
+		GenerateMipsForTexture(Targets[i], 1);
+		//if complete		
+		count++;
 	}
 }
-void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex)
+void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex,int maxcount )
 {
 	int requiredHeapSize = tex->Miplevels;
 	D3D12Shader* shader = (D3D12Shader*)m_Shader;
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 2 *requiredHeapSize;
+	heapDesc.NumDescriptors = 2 * requiredHeapSize;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ID3D12DescriptorHeap *descriptorHeap;
@@ -56,8 +72,11 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex)
 	pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(tex->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 	CD3DX12_CPU_DESCRIPTOR_HANDLE currentCPUHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), 0, descriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE currentGPUHandle(descriptorHeap->GetGPUDescriptorHandleForHeapStart(), 0, descriptorSize);
-	for (uint32_t TopMip = 0; TopMip < (tex->Miplevels - 1); TopMip++)
+	int CurrentTopMip = tex->MipLevelsReadyNow;
+	int target =  std::min((CurrentTopMip + maxcount), (tex->Miplevels - 1));
+	for (uint32_t TopMip = (CurrentTopMip-1); TopMip < target; TopMip++)
 	{
+		CurrentTopMip = TopMip+1;
 		uint32_t dstWidth = std::max(tex->width >> (TopMip + 1), 1);
 		uint32_t dstHeight = std::max(tex->height >> (TopMip + 1), 1);
 
@@ -71,7 +90,7 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex)
 
 		//Create unordered access view for the destination texture in the descriptor heap
 		destTextureUAVDesc.Format = tex->GetResource()->GetDesc().Format;
-		destTextureUAVDesc.Texture2D.MipSlice = TopMip+1;
+		destTextureUAVDesc.Texture2D.MipSlice = TopMip + 1;
 		ID3D12Resource* UAV = nullptr;
 		D3D12RHI::GetDevice()->CreateUnorderedAccessView(tex->GetResource(), UAV, &destTextureUAVDesc, currentCPUHandle);
 		currentCPUHandle.Offset(1, descriptorSize);
@@ -112,11 +131,13 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex)
 	pCommandList->Close();
 
 	D3D12RHI::Instance->ExecList(pCommandList);
+	tex->MipLevelsReadyNow = CurrentTopMip+1;
+	tex->UpdateSRV();
 }
 
 std::vector<Shader::ShaderParameter> ShaderMipMap::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> Output;
-	
+
 	return Output;
 }

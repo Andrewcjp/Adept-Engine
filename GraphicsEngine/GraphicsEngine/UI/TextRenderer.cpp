@@ -18,6 +18,7 @@ TextRenderer::TextRenderer(int width, int height)
 	LoadAsAtlas = true;
 	LoadText();
 	instance = this;
+	coords.reserve(100 * 6);
 }
 #include "../Core/Utils/FileUtils.h"
 #include "../Core/Assets/ImageIO.h"
@@ -158,13 +159,7 @@ TextRenderer::~TextRenderer()
 		}
 	}
 }
-struct point
-{
-	GLfloat x;
-	GLfloat y;
-	GLfloat s;
-	GLfloat t;
-};
+
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color)
 {
 	Reset();
@@ -178,7 +173,11 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	const uint8_t *p;
 	attribute_coord = 0;
 	atlas* a = textat;
-	point* coords = new point[6 * text.length()];
+	int TargetDatalength = 6 * text.length();
+	if (coords.size() < TargetDatalength)
+	{
+		coords.resize(TargetDatalength);
+	}
 	int c = 0;
 
 	/* Loop through all characters */
@@ -221,13 +220,13 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 			x2 + w, -y2 - h, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty + a->c[*p].bh / a->h
 		};
 	}
-	VertexBuffer->UpdateVertexBuffer(coords, sizeof(point)*(text.length() * 6));
+	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(text.length() * 6));
 	TextCommandList->SetVertexBuffer(VertexBuffer);
 	TextCommandList->SetTexture(textat->Texture, 0);
 	TextCommandList->DrawPrimitive(c, 1, 0, 0);
 	///* Draw all the character on the screen in one go */
 	Finish();
-	delete[] coords;
+	
 }
 void TextRenderer::Finish()
 {

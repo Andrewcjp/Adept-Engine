@@ -204,6 +204,7 @@ void BaseWindow::Render()
 	{
 		PerfManager::Instance->StartGPUTimer();
 	}
+	PerfManager::StartTimer("Render");
 	Renderer->Render();
 	if (RHI::GetType() == RenderSystemOGL)
 	{
@@ -214,7 +215,7 @@ void BaseWindow::Render()
 		}
 	}
 	Renderer->FinaliseRender();
-
+	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
 	if (UI != nullptr && ShowHud && LoadText)
 	{
@@ -482,6 +483,7 @@ void BaseWindow::RenderText()
 	{
 		return;
 	}
+//	TextRenderer::instance->Reset();
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(1);
 	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
@@ -489,7 +491,6 @@ void BaseWindow::RenderText()
 	{
 		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 		stream << "CPU " << std::setprecision(4) << PerfManager::GetCPUTime() << "ms ";
-		//	stream << "Frame :" << PerfManager::GetDeltaTime()*1000.0f << "ms ";
 		if (PerfManager::Instance != nullptr)
 		{
 			stream << PerfManager::Instance->GetAllTimers();
@@ -503,7 +504,7 @@ void BaseWindow::RenderText()
 		stream << D3D12RHI::Instance->GetMemory();
 		UI->RenderTextToScreen(2, stream.str());
 	}
-
+	//TextRenderer::instance->Finish();
 
 }
 #if USE_PHYSX_THREADING

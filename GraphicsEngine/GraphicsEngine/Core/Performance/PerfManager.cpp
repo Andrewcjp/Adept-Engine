@@ -27,10 +27,7 @@ void PerfManager::StartPerfManager()
 
 PerfManager::PerfManager()
 {
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-//		glGenQueries(2, queryID);
-	}
+	ShowAllStats = true;
 }
 
 
@@ -82,6 +79,10 @@ std::string PerfManager::GetTimerName(int id)
 
 void PerfManager::InStartTimer(const char * countername)
 {
+	if (!Capture)
+	{
+		return;
+	}
 	int targetTimer = GetTimerIDByName(countername);
 	if (Timers.find(targetTimer) != Timers.end())
 	{
@@ -96,6 +97,10 @@ void PerfManager::InStartTimer(const char * countername)
 
 void PerfManager::InEndTimer(const char * countername)
 {
+	if (!Capture)
+	{
+		return;
+	}
 	int targetTimer = GetTimerIDByName(countername);
 	if (Timers.find(targetTimer) != Timers.end())
 	{
@@ -193,6 +198,17 @@ void PerfManager::StartCPUTimer()
 void PerfManager::EndCPUTimer()
 {
 	CPUTime = (float)((get_nanos() - CPUstart) / 1e6f);//in ms
+	StatAccum += CPUTime;
+	
+	if (StatAccum > StatsUpdateSpeed)
+	{
+		Capture = true;
+		StatAccum = 0.0f;
+	}
+	else
+	{
+		Capture = false;
+	}	
 }
 
 void PerfManager::StartFrameTimer()

@@ -76,6 +76,10 @@ bool RHI::SupportsThreading()
 {
 	return (GetType() == RenderSystemD3D12) || (GetType() == RenderSystemVulkan);
 }
+bool RHI::SupportsExplictMultiAdaptor()
+{
+	return (GetType() == RenderSystemD3D12);
+}
 RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type)
 {
 	switch (instance->currentsystem)
@@ -130,22 +134,17 @@ void RHI::DestoryRHI()
 	}
 }
 
-BaseTexture * RHI::CreateTexture(const char * path, bool istga)
+BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 {
-
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
 	switch (instance->currentsystem)
 	{
-	case RenderSystemOGL:
-		return new OGLTexture(path, istga);
-		break;
-#if BUILD_D3D11
-	case RenderSystemD3D11:
-		return new D3D11Texture(path, istga);
-		break;
-#endif
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		return new D3D12Texture(path);
+		return new D3D12Texture(path, Device);
 		break;
 #endif
 	}
@@ -183,13 +182,6 @@ BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, vo
 		newtex->CreateTextureFromData(data, type, with, height, nChannels);
 		return newtex;
 		break;
-#if BUILD_D3D11
-	case RenderSystemD3D11:
-		newtex = new D3D11Texture();
-		newtex->CreateTextureFromData(data, type, with, height, nChannels);
-		return newtex;
-		break;
-#endif
 	case RenderSystemD3D12:
 		newtex = new D3D12Texture();
 		//newtex->CreateTextureFromData(data, type, with, height, nChannels);
@@ -218,11 +210,6 @@ Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool
 		}
 		return new OGLMesh(accpath, path);
 		break;
-#if BUILD_D3D11
-	case RenderSystemD3D11:
-		return new D3D11Mesh(accpath.c_str(), program);
-		break;
-#endif
 #if BUILD_D3D12
 	case RenderSystemD3D12:
 		return new D3D12Mesh(accpath.c_str());
@@ -232,7 +219,7 @@ Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool
 	return nullptr;
 }
 
-FrameBuffer * RHI::CreateFrameBuffer(int width, int height, float ratio, FrameBuffer::FrameBufferType type)
+FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Device, float ratio, FrameBuffer::FrameBufferType type)
 {
 	switch (instance->currentsystem)
 	{
@@ -241,14 +228,13 @@ FrameBuffer * RHI::CreateFrameBuffer(int width, int height, float ratio, FrameBu
 		return new OGLFrameBuffer(width, height, ratio, type);
 		break;
 #endif
-#if BUILD_D3D11
-	case RenderSystemD3D11:
-		return new D3D11FrameBuffer(width, height, ratio, type);
-		break;
-#endif
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		D3D12FrameBuffer * ptr = new D3D12FrameBuffer(width, height, ratio, type);
+		if (Device == nullptr)
+		{
+			Device = D3D12RHI::GetDefaultDevice();
+		}
+		D3D12FrameBuffer * ptr = new D3D12FrameBuffer(width, height, Device, ratio, type);
 		ptr->InitBuffer();
 		return ptr;
 		break;
@@ -279,58 +265,9 @@ ShaderProgramBase * RHI::CreateShaderProgam()
 	return nullptr;
 }
 
-void RHI::ClearColour()
-{
-	switch (instance->currentsystem)
-	{
-	case RenderSystemOGL:
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		break;
-#if BUILD_D3D11
-	case RenderSystemD3D11:
-		float clearcolour[4] = { 0.0f, 0.0f, 0.2f, 1.0f };
-		GetD3DContext()->ClearRenderTargetView(instance->m_backbuffer, clearcolour);
-		GetD3DContext()->ClearDepthStencilView(instance->m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0, 0);
-		break;
-#endif
-	}
-}
 
-void RHI::ClearDepth()
-{
-	switch (instance->currentsystem)
-	{
-	case RenderSystemOGL:
-		glClear(GL_DEPTH_BUFFER_BIT);
-		break;
-	}
-}
 
-void RHI::InitRenderState()
-{
-	switch (instance->currentsystem)
-	{
-	case RenderSystemOGL:
-		glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 
-		glDepthMask(GL_TRUE);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_STENCIL);
-		glEnable(GL_MULTISAMPLE);
-		break;
-	}
-
-}
-
-void RHI::SetDepthMaskState(bool state)
-{
-	switch (instance->currentsystem)
-	{
-	case RenderSystemOGL:
-		glDepthMask(state ? GL_TRUE : GL_FALSE);
-		break;
-	}
-}
 
 void RHI::BindScreenRenderTarget(int width, int height)
 {
@@ -408,41 +345,25 @@ void RHI::RHISwapBuffers()
 {
 	switch (instance->currentsystem)
 	{
-	case RenderSystemOGL:
-		SwapBuffers(instance->m_hdc);
-		break;
-#if BUILD_D3D11
-	case RenderSystemD3D11:
-		instance->m_swapChain->Present(0, 0);
-		break;
-#endif
 	case RenderSystemD3D12:
 		if (D3D12RHI::Instance != nullptr)
 		{
 			D3D12RHI::Instance->PresentFrame();
 		}
 		break;
-}
+	}
 }
 void RHI::DestoryContext(HWND hwnd)
 {
 	switch (instance->currentsystem)
 	{
-	case RenderSystemOGL:
-		instance->DestroyOGLContext(hwnd);
-		break;
+
 	case RenderSystemD3D12:
 		instance->D3D12Rhi->DestroyContext();
 		break;
-#if BUILD_D3D11
-	case RenderSystemD3D11:
-		instance->DestroyD3DDevice();
-		break;
-#endif
-
+	}
 }
-}
-
+#if BUILD_OPENGL
 BOOL RHI::DestroyOGLContext(HWND hwnd)
 {
 	if (m_hglrc)
@@ -457,7 +378,7 @@ BOOL RHI::DestroyOGLContext(HWND hwnd)
 	m_hdc = NULL;
 	return TRUE;
 }
-#if BUILD_OPENGL
+
 #define MAJOR 3
 #define MINOR 3
 #define WGL_CONTEXT_MAJOR_VERSION_ARB           0x2091

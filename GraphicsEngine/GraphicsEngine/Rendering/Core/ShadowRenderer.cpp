@@ -11,9 +11,9 @@ ShadowRenderer::ShadowRenderer()
 	int shadowwidth = 1024;
 	for (int i = 0; i < MAX_DIRECTIONAL_SHADOWS; i++)
 	{
-		DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, 1, FrameBuffer::Depth));
+		DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth,nullptr, 1, FrameBuffer::Depth));
 	}
-	PointLightBuffer = RHI::CreateFrameBuffer(shadowwidth, shadowwidth, 1, FrameBuffer::CubeDepth);
+	PointLightBuffer = RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::CubeDepth);
 	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4)*6,1);
 	PointShadowList = RHI::CreateCommandList();

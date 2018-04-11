@@ -243,6 +243,7 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="D3D12\D3D12TimeManager.h" />
     <ClInclude Include="D3D12\D3D12Heap.h" />
     <ClInclude Include="D3D12\D3D12MemoryManager.h" />
     <ClInclude Include="D3D12\D3D12CommandList.h" />
@@ -250,6 +251,7 @@
     <ClInclude Include="D3D12\DescriptorHeap.h" />
     <ClInclude Include="Core\Utils\MemoryUtils.h" />
     <ClInclude Include="D3D12\GPUResource.h" />
+    <ClInclude Include="RHI\DeviceContext.h" />
     <ClInclude Include="OpenGL\OGLCommandList.h" />
     <ClInclude Include="Packaging\Cooker.h" />
     <ClInclude Include="Core\BaseWindow.h" />
@@ -391,12 +393,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="D3D12\D3D12TimeManager.cpp" />
     <ClCompile Include="D3D12\D3D12Heap.cpp" />
     <ClCompile Include="D3D12\D3D12MemoryManager.cpp" />
     <ClCompile Include="D3D12\D3D12CommandList.cpp" />
     <ClCompile Include="D3D12\DescriptorHeap.cpp" />
     <ClCompile Include="Core\Utils\MemoryUtils.cpp" />
     <ClCompile Include="D3D12\GPUResource.cpp" />
+    <ClCompile Include="RHI\DeviceContext.cpp" />
     <ClCompile Include="OpenGL\OGLCommandList.cpp" />
     <ClCompile Include="Packaging\Cooker.cpp" />
     <ClCompile Include="Core\BaseWindow.cpp" />

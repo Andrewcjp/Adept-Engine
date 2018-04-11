@@ -8,9 +8,10 @@ class D3D12FrameBuffer
 	:public FrameBuffer
 {
 public:
-	D3D12FrameBuffer(int width, int height, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBufferType::ColourDepth) :FrameBuffer(width, height, ratio, type) {}
-
-	
+	D3D12FrameBuffer(int width, int height, class DeviceContext* device, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBufferType::ColourDepth) :FrameBuffer(width, height, ratio, type)
+	{
+		CurrentDevice = device;
+	}
 	virtual ~D3D12FrameBuffer();
 	// Inherited via FrameBuffer
 	virtual void BindToTextureUnit(int unit = 0) override;
@@ -43,7 +44,7 @@ private:
 	const float clearColor[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	const float CubeDepthclearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT descriptorSize = 0;
-
+	class DeviceContext* CurrentDevice = nullptr;
 	class GPUResource* DepthStencil = nullptr;
 	class GPUResource* RenderTarget = nullptr;
 

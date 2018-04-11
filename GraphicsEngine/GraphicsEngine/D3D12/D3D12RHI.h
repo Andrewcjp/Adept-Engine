@@ -6,11 +6,13 @@
 #include <DXGI1_4.h>
 #include "d3dx12.h"
 #include <vector>
+
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #include "d3d12Shader.h"
 #include "D3D12Mesh.h"
 #include "D3D12Texture.h"
+
 #if defined(_DEBUG)
 inline void SetName(ID3D12Object* pObject, LPCWSTR name)
 {
@@ -39,7 +41,6 @@ public:
 	D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	void DisplayDeviceDebug();
 	std::string GetMemory();
-	void SampleVideoMemoryInfo();
 	void LoadPipeLine();
 	void CreateSwapChainRTs();
 	void InitMipmaps();
@@ -49,9 +50,9 @@ public:
 	void CreateDepthStencil(int width, int height);
 	void LoadAssets();
 	void ExecSetUpList();
+	void ReleaseUploadHeap();
 	void AddUploadToUsed(ID3D12Resource * Target);
-	void ExecList(CommandListDef * list, bool IsFinal = false);
-	void TransitionBuffers(bool In);
+	void ExecList(CommandListDef * list, bool block = false);
 	void PostFrame(ID3D12GraphicsCommandList * list);
 	void WaitForPreviousFrame();
 	void WaitForGpu();
@@ -64,16 +65,25 @@ public:
 	bool HasSetup = false;
 	class ShaderMipMap* MipmapShader = nullptr;
 	ID3D12DescriptorHeap* BaseTextureHeap;
+	ID3D12CommandQueue* GetCommandQueue();
+	
+
+	static DeviceContext* GetDefaultDevice();
 private:
+	class	DeviceContext* PrimaryDevice = nullptr;
+	class	DeviceContext* SecondaryDevice = nullptr;
 	static const int FrameCount = 2;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;
-	ID3D12Device* m_Primarydevice;
-	ID3D12Device* m_Secondarydevice;
+
 	ID3D12Resource* m_renderTargets[FrameCount];
-	ID3D12CommandAllocator* m_commandAllocator;
-	ID3D12CommandQueue* m_commandQueue;
+
+
+
+	D3D12Texture* Test = nullptr;
+	class FrameBuffer* testbuffer = nullptr;
+	class FrameBuffer* testbuffer2 = nullptr;
 	ID3D12DescriptorHeap* m_rtvHeap;
 	ID3D12DescriptorHeap* m_dsvHeap;
 	UINT m_rtvDescriptorSize;
@@ -81,8 +91,10 @@ private:
 	bool RequestedResize = false;
 	int newwidth = 0;
 	int newheight = 0;
+	UINT64 StartGPUTime = 0; 
+	UINT64 EndGPUTime = 0;
+	UINT64 Fq = 0;
 	
-	IDXGIAdapter3* pDXGIAdapter = nullptr;
 	// Synchronization objects.
 	UINT m_frameIndex;
 	HANDLE m_fenceEvent;
@@ -91,7 +103,7 @@ private:
 	UINT64 M_ShadowFence = 0;
 	ID3D12Fence* pShadowFence;
 	UINT64 m_fenceValues[FrameCount];
-	D3D12Shader::PiplineShader m_MainShaderPiplineShader;
+
 	//	HANDLE ShadowExechandle;
 	ID3D12Debug* debugController;
 	HANDLE m_VideoMemoryBudgetChange;

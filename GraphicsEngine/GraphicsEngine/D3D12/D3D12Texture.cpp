@@ -11,8 +11,19 @@ float D3D12Texture::MipCreationTime = 0;
 #include "../Core/Utils/StringUtil.h"
 #include "../Rendering/Shaders/ShaderMipMap.h"
 #include "GPUResource.h"
-D3D12Texture::D3D12Texture()
-{}
+#include "../RHI/DeviceContext.h"
+D3D12Texture::D3D12Texture( DeviceContext* inDevice)
+{
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
+	else
+	{
+		Device = inDevice;
+	}
+	
+}
 
 unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int bpp, unsigned char * StartData, int&mipsize, float ratio)
 {
@@ -137,7 +148,7 @@ unsigned char* D3D12Texture::GenerateMips(int count, int StartWidth, int StartHe
 	MipCreationTime += ((float)(endtime - StartTime) / 1e6f);
 	return finalbuffer;
 }
-D3D12Texture::D3D12Texture(std::string name)
+void D3D12Texture::CLoad(std::string name)
 {
 	//Miplevels = 1;
 #if 1
@@ -180,9 +191,10 @@ D3D12Texture::D3D12Texture(std::string name)
 #endif
 }
 
-D3D12Texture::D3D12Texture(std::string name, bool GenMips)
+D3D12Texture::D3D12Texture(std::string name, DeviceContext* inDevice)
 {
-
+	Device = inDevice;
+	CLoad(name);
 }
 
 
@@ -261,7 +273,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
+	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
 	D3D12RHI::Instance->BaseTextureHeap = m_srvHeap;
 	m_srvHeap->SetName(L"Texture SRV");
 
@@ -272,7 +284,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		// Describe and create a Texture2D.
 		D3D12_RESOURCE_DESC textureDesc = {};
-	
+
 		if (type == RHI::TextureType::Text)
 		{
 			textureDesc.Format = DXGI_FORMAT_R8_UNORM;
@@ -284,7 +296,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		{
 			textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		}
-		textureDesc.MipLevels = Miplevels;
+		textureDesc.MipLevels = Miplevels;// Miplevels;
 		textureDesc.Width = width;
 		textureDesc.Height = height;
 		textureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
@@ -292,8 +304,8 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		
-		ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+		format = textureDesc.Format;
+		ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
 			&textureDesc,
@@ -301,10 +313,10 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 			nullptr,
 			IID_PPV_ARGS(&m_texture)));
 
-		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, Miplevels);
+		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, MipLevelsReadyNow);
 
 		// Create the GPU upload buffer.
-		ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+		ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
@@ -328,15 +340,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		D3D12RHI::Instance->m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 		// Describe and create a SRV for the texture.
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Format = textureDesc.Format;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = Miplevels;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-
-		(D3D12RHI::GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart()));
+		UpdateSRV();
 	}
 	{
 
@@ -350,4 +354,16 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	}
 
 
+}
+void D3D12Texture::UpdateSRV()
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = MipLevelsReadyNow;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+
+	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 }

@@ -127,15 +127,8 @@ void ForwardRenderer::Render()
 	}
 #endif
 	ShadowPass();
-	RHI::ClearColour();
-	RHI::ClearDepth();
+
 	RenderSkybox();
-	if (RenderedReflection == false)
-	{
-		//ReflectionPass();
-	}
-	RHI::ClearColour();
-	RHI::ClearDepth();
 
 	MainPass();
 	RenderSkybox();
@@ -150,13 +143,12 @@ void ForwardRenderer::UpdateDeltaTime(float value)
 }
 void ForwardRenderer::Init()
 {
-	RHI::InitRenderState();
 	mainshader = new Shader_Main();
 	if (RHI::GetType() == RenderSystemOGL)
 	{
 		QuerryShader = new Shader_Querry();
 	}
-	FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, FrameBufferRatio);
+	FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height,nullptr, FrameBufferRatio);
 	//outshader = new ShaderOutput(FilterBuffer->GetWidth(), FilterBuffer->GetHeight());
 	outshader = nullptr;
 	//RelfectionBuffer = RHI::CreateFrameBuffer(ReflectionBufferWidth, ReflectionBufferHeight);
@@ -252,22 +244,21 @@ void ForwardRenderer::MainPass()
 	{
 		shadowrender->InitShadows(*Lights, ShadowCMDList);
 		shadowrender->Renderered = false;
+		mainshader->UpdateLightBuffer(*Lights);
+		PrepareData();
+		mainshader->UpdateCBV();
 	}
-	PrepareData();
+	
 	MainCommandList->ResetList();
 	MainCommandList->SetScreenBackBufferAsRT();
 	MainCommandList->ClearScreen();
-	MVBuffer buffer;
-	buffer.P = MainCamera->GetProjection();
-	buffer.V = MainCamera->GetView();
-	mainshader->UpdateMV(MainCamera);
-	mainshader->UpdateLightBuffer(*Lights);
 
+	mainshader->UpdateMV(MainCamera);
+	
 	mainshader->BindLightsBuffer(MainCommandList);
-	mainshader->UpdateCBV();
+	
 	if (true)
 	{
-
 		ShadowCMDList->ResetList();
 		mainshader->BindLightsBuffer(ShadowCMDList);
 
@@ -302,14 +293,13 @@ void ForwardRenderer::RenderSkybox(bool ismain)
 	skyboxShader->UpdateUniforms(nullptr, (ismain ? MainCamera : RefelctionCamera));
 
 	skybox->Render();
-	RHI::SetDepthMaskState(true);
+	
 
 }
 void ForwardRenderer::RenderFitlerBufferOutput()
 {
 	BindAsRenderTarget();
-	RHI::ClearColour();
-	RHI::ClearDepth();
+
 	/*outshader->SetShaderActive();
 	outshader->UpdateUniforms(nullptr, MainCamera);*/
 	//FilterBuffer->BindToTextureUnit(0);

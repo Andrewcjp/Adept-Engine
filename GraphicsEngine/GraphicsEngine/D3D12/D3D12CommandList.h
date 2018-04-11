@@ -29,19 +29,11 @@ public:
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
-
-
-
-
+	
 private:
 	void CreateCommandList();
 	ID3D12GraphicsCommandList * CurrentGraphicsList = nullptr;
 	bool IsOpen = false;
-	//struct PiplineShader
-	//{
-	//	ID3D12PipelineState* m_pipelineState;
-	//	ID3D12RootSignature* m_rootSignature;
-	//};
 	D3D12Shader::PiplineShader				CurrentPipelinestate;
 	ID3D12CommandAllocator* m_commandAllocator;
 	ID3DBlob*					m_vsBlob;
@@ -54,7 +46,7 @@ private:
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	PipeLineState Currentpipestate;
 	// Inherited via RHICommandList
-
+	class	DeviceContext* Device = nullptr;
 };
 
 class D3D12Buffer : public RHIBuffer

@@ -7,8 +7,8 @@ class ShaderMipMap :
 public:
 	ShaderMipMap();
 	virtual ~ShaderMipMap();
-	void GenAllmips();
-	void GenerateMipsForTexture( D3D12Texture* tex);
+	void GenAllmips(int limit);
+	void GenerateMipsForTexture( D3D12Texture* tex, int maxcount);
 	ID3D12GraphicsCommandList* pCommandList = nullptr;
 	std::vector<D3D12Texture*> Targets;
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;

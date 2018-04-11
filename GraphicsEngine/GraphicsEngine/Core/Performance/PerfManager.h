@@ -69,6 +69,9 @@ private:
 	float AVGFrameTime = 0;
 	float FrameTimeAccum = 0.0;
 	
+	float StatsUpdateSpeed = 100.0f;
+	float StatAccum = 0;
+	bool Capture = true;
 	//GPU Bottleneck,2809,simexp,raw,KEPLER_CPU,GRAPHICS,GPU,Bottleneck,UINT64,"Counter ID for GPU bottleneck"
 };
 

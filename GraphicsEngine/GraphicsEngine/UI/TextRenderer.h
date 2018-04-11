@@ -39,6 +39,7 @@ public:
 		m_height = height;
 	}
 private:
+	int TextDataLength = 0;
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;
 	std::map<char, Character> Characters;
@@ -53,5 +54,13 @@ private:
 	RHIBuffer* VertexBuffer = nullptr;
 	RHICommandList* TextCommandList = nullptr;
 	float ScaleFactor = 1.0f;
+	struct point
+	{
+		float x;
+		float y;
+		float s;
+		float t;
+	};
+	std::vector<point> coords;
 };
 

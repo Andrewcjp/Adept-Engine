@@ -268,22 +268,22 @@ void EditorWindow::WindowUI()
 	//UI->RenderTextToScreen(2, stream.str());
 	//stream.str("");
 
-	std::string go = "";
-	std::string goname = "";
-	/*if (UI->IsUIBlocking())
-	{
-		stream << "Blocking  ";
-	}*/
-	if (input->Selectedobject != nullptr)
-	{
-		go = glm::to_string(input->Selectedobject->GetTransform()->GetPos());
-		goname = input->Selectedobject->GetName();
-	}
-	stream << (input->currentObjectIndex) << " Obj " << goname << " Position " << go << std::setprecision(3);
-	UI->RenderTextToScreen(3, stream.str());
+	//std::string go = "";
+	//std::string goname = "";
+	///*if (UI->IsUIBlocking())
+	//{
+	//	stream << "Blocking  ";
+	//}*/
+	//if (input->Selectedobject != nullptr)
+	//{
+	//	go = glm::to_string(input->Selectedobject->GetTransform()->GetPos());
+	//	goname = input->Selectedobject->GetName();
+	//}
+	//stream << (input->currentObjectIndex) << " Obj " << goname << " Position " << go << std::setprecision(3);
+	//UI->RenderTextToScreen(3, stream.str());
 
-	stream.str("");
-	statcount++;
+	//stream.str("");
+	//statcount++;
 #if 0
 	int totalmem;
 	int freemem = 0;

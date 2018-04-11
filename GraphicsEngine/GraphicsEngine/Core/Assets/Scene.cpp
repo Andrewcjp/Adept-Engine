@@ -66,7 +66,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 {
 	GameObject* go = new GameObject("House");
 	LightComponent* lc = nullptr;
-	Material* newmat = new Material(RHI::CreateTexture("\\asset\\texture\\house_diffuse.tga", true));
+	Material* newmat = new Material(RHI::CreateTexture("\\asset\\texture\\house_diffuse.tga"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("house.obj", Renderer->GetMainShader()->GetShaderProgram()), newmat));
 	go->GetTransform()->SetPos(glm::vec3(7, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));

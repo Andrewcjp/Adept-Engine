@@ -10,6 +10,7 @@
 #include "../RHI/Shader.h"
 #include "../RHI/BaseTexture.h"
 #include "D3D12Framebuffer.h"
+#include "../RHI/DeviceContext.h"
 D3D12CommandList::D3D12CommandList()
 {
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
@@ -33,7 +34,6 @@ void D3D12CommandList::ResetList()
 {
 	ThrowIfFailed(m_commandAllocator->Reset());
 	IsOpen = true;
-	/*ThrowIfFailed(CurrentGraphicsList->Close());*/
 	ThrowIfFailed(CurrentGraphicsList->Reset(m_commandAllocator, CurrentPipelinestate.m_pipelineState));
 	CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
 }
@@ -71,6 +71,7 @@ void D3D12CommandList::Execute()
 {
 	ThrowIfFailed(CurrentGraphicsList->Close());
 	D3D12RHI::Instance->ExecList(CurrentGraphicsList);
+
 	IsOpen = false;
 }
 
@@ -353,7 +354,7 @@ void D3D12Buffer::UnMap()
 
 void D3D12RHITexture::CreateTextureFromFile(std::string name)
 {
-	tmptext = new D3D12Texture(name);
+	tmptext = new D3D12Texture(name,nullptr);
 }
 
 void D3D12RHITexture::BindToSlot(ID3D12GraphicsCommandList * list, int slot)
