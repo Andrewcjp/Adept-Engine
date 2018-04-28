@@ -29,9 +29,7 @@ public:
 	static BaseTexture* CreateTextureWithData(int with, int height,int nChannels, void * data, TextureType type = Normal);
 	static Renderable * CreateMesh(const char * path, ShaderProgramBase* program, bool UseMesh = false);
 	static FrameBuffer* CreateFrameBuffer(int width, int height, DeviceContext* Device = nullptr, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBuffer::FrameBufferType::ColourDepth);
-	static ShaderProgramBase* CreateShaderProgam();
-
-
+	static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 
 	static void BindScreenRenderTarget(int mwidth, int height);
 	static bool InitialiseContext(HWND m_hwnd, int w, int h);
@@ -43,7 +41,7 @@ public:
 	static bool SupportsThreading();
 	bool SupportsExplictMultiAdaptor();
 	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type);
-	static RHICommandList* CreateCommandList();
+	static RHICommandList* CreateCommandList(DeviceContext* Device = nullptr);
 	HINSTANCE m_hinst;
 private:
 

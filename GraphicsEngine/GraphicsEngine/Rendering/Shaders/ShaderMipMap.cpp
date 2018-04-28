@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ShaderMipMap.h"
 #include "d3dx12.h"
-#include "../D3D12/D3D12RHI.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include <algorithm>
 ShaderMipMap::ShaderMipMap()
 {
@@ -22,7 +22,7 @@ ShaderMipMap::~ShaderMipMap()
 void ShaderMipMap::GenAllmips(int limit)
 {
 	int count = 0;
-	for (int i = 0; i < Targets.size(); i++)
+	for (int i = Targets.size()-1; i >= 0; i--)
 	{
 		if (count > limit)
 		{
@@ -30,11 +30,13 @@ void ShaderMipMap::GenAllmips(int limit)
 		}
 		if (Targets[i] == nullptr)
 		{
+			Targets.erase(Targets.begin() + i);
 			continue;
-		}		
+		}
 		if (Targets[i]->Miplevels == Targets[i]->MipLevelsReadyNow)
 		{
 			Targets[i] = nullptr;
+			Targets.erase(Targets.begin() + i);
 			continue;
 		}
 		GenerateMipsForTexture(Targets[i], 1);
@@ -42,7 +44,7 @@ void ShaderMipMap::GenAllmips(int limit)
 		count++;
 	}
 }
-void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex,int maxcount )
+void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex, int maxcount)
 {
 	int requiredHeapSize = tex->Miplevels;
 	D3D12Shader* shader = (D3D12Shader*)m_Shader;
@@ -51,7 +53,7 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex,int maxcount )
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ID3D12DescriptorHeap *descriptorHeap;
-	D3D12RHI::GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap));
+	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));
 	UINT descriptorSize = D3D12RHI::GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	D3D12_SHADER_RESOURCE_VIEW_DESC srcTextureSRVDesc = {};
 	srcTextureSRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -73,10 +75,10 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex,int maxcount )
 	CD3DX12_CPU_DESCRIPTOR_HANDLE currentCPUHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), 0, descriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE currentGPUHandle(descriptorHeap->GetGPUDescriptorHandleForHeapStart(), 0, descriptorSize);
 	int CurrentTopMip = tex->MipLevelsReadyNow;
-	int target =  std::min((CurrentTopMip + maxcount), (tex->Miplevels - 1));
-	for (uint32_t TopMip = (CurrentTopMip-1); TopMip < target; TopMip++)
+	int target = std::min((CurrentTopMip + maxcount), (tex->Miplevels - 1));
+	for (uint32_t TopMip = (CurrentTopMip - 1); TopMip < target; TopMip++)
 	{
-		CurrentTopMip = TopMip+1;
+		CurrentTopMip = TopMip + 1;
 		uint32_t dstWidth = std::max(tex->width >> (TopMip + 1), 1);
 		uint32_t dstHeight = std::max(tex->height >> (TopMip + 1), 1);
 
@@ -131,7 +133,7 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex,int maxcount )
 	pCommandList->Close();
 
 	D3D12RHI::Instance->ExecList(pCommandList);
-	tex->MipLevelsReadyNow = CurrentTopMip+1;
+	tex->MipLevelsReadyNow = CurrentTopMip + 1;
 	tex->UpdateSRV();
 }
 

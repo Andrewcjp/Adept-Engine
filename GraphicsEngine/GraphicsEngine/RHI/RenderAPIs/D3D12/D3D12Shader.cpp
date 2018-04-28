@@ -9,10 +9,10 @@
 #include "../Core/Utils/WindowsHelper.h"
 #include "../Core/Asserts.h"
 #include <d3dcompiler.h>
-D3D12Shader::D3D12Shader()
+D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
+	CurrentDevice = Device;
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
-
 }
 
 
@@ -53,7 +53,6 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	path.append(".hlsl");
 	if (!FileUtils::exists_test3(path))
 	{
-		//std::cout << " File Does not exist" << path.c_str() << std::endl;
 #ifdef  _DEBUG
 		__debugbreak();
 #endif
@@ -138,19 +137,13 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 }
 
 void D3D12Shader::BuildShaderProgram()
-{
-	/*Init();*/
-}
+{}
 
 void D3D12Shader::DeleteShaderProgram()
 {}
 
 void D3D12Shader::ActivateShaderProgram()
 {}
-void D3D12Shader::ActivateShaderProgram(ID3D12GraphicsCommandList* list)
-{
-	ThrowIfFailed(list->Reset(m_commandAllocator, m_Shader.m_pipelineState));
-}
 void D3D12Shader::DeactivateShaderProgram()
 {}
 

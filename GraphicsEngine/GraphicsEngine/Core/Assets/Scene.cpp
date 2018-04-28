@@ -74,6 +74,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	go = new GameObject("Terrain");
 	Material* mat = new Material(RHI::CreateTexture("\\asset\\texture\\grasshillalbedo.png"));
+//	Material* mat = new Material(RHI::CreateTexture("\\asset\\texture\\T_GridSmall_01_D.png"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("terrainmk2.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -135,9 +136,8 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(0.5));
 	go->AttachComponent(new RigidbodyComponent());
+
 	AddGameobjectToScene(go);
-
-
 
 	go = new GameObject("Plane");
 	mat = new Material(RHI::CreateTexture("\\asset\\texture\\bricks2.jpg"));
@@ -160,8 +160,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetScale(glm::vec3(0.1f));
 
 	AddGameobjectToScene(go);
-
-
 
 	go = new GameObject("Static Water");
 	mat = new Material(RHI::CreateTexture("\\asset\\texture\\Water fallback.jpg"));

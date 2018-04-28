@@ -38,24 +38,7 @@ public:
 	RHIUAV(class BaseTexture* Target)
 	{}	
 };
-class RHITexture
-{
-public :
-	enum TextureType
-	{
-		Standard,
-		Cubemap,
-		Normal
-	};
-	RHITexture(TextureType type = TextureType::Standard) {
-		CurrentType = type;
-	}
-	virtual ~RHITexture() {}
-	virtual void CreateTextureFromFile(std::string name) = 0;
 
-protected:
-	TextureType CurrentType;
-};
 
 struct PipeLineState
 {

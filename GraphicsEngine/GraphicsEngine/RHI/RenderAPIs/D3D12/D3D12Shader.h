@@ -7,7 +7,7 @@
 class D3D12Shader : public ShaderProgramBase
 {
 public:
-	D3D12Shader();
+	D3D12Shader(DeviceContext* Device);
 	~D3D12Shader();
 	struct ShaderBlobs
 	{
@@ -27,15 +27,20 @@ public:
 		DXGI_FORMAT DSVFormat = DXGI_FORMAT_UNKNOWN;
 		int NumRenderTargets = 1;
 	};
-	// Inherited via ShaderProgramBase
-	virtual void CreateShaderProgram() override;
-	D3D_SHADER_MACRO * ParseDefines();
+	enum ComputeRootParameters : UINT32
+	{
+		ComputeRootCBV = 0,
+		ComputeRootSRVTable,
+		ComputeRootUAVTable,
+		ComputeRootParametersCount
+	};
+
 	virtual EShaderError AttachAndCompileShaderFromFile(const char * filename, EShaderType type) override;
 	virtual void BuildShaderProgram() override;
 	virtual void DeleteShaderProgram() override;
 	virtual void ActivateShaderProgram() override;
-	void ActivateShaderProgram(ID3D12GraphicsCommandList * list);
 	virtual void DeactivateShaderProgram() override;
+
 	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD);
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
@@ -45,24 +50,23 @@ public:
 	void CreateComputePipelineShader();
 	CommandListDef* CreateShaderCommandList(int device = 0);
 	ID3D12CommandAllocator* GetCommandAllocator();
-	void ResetList(ID3D12GraphicsCommandList * list);
+
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);
-	enum ComputeRootParameters : UINT32
-	{
-		ComputeRootCBV = 0,
-		ComputeRootSRVTable,
-		ComputeRootUAVTable,
-		ComputeRootParametersCount
-	};
 
-	
+
+	virtual void CreateShaderProgram() override;
 	PiplineShader* GetPipelineShader();
-private:
 
+
+	void ResetList(ID3D12GraphicsCommandList * list);
+private:
+	D3D_SHADER_MACRO * ParseDefines();
+
+
+	DeviceContext* CurrentDevice = nullptr;
 	PiplineShader m_Shader;	
 	ID3D12CommandAllocator* m_commandAllocator = nullptr;
 	ID3D12DescriptorHeap* m_samplerHeap = nullptr;
 	ShaderBlobs mBlolbs;
-
 };
 

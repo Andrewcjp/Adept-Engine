@@ -27,30 +27,17 @@ public:
 	~TextRenderer();
 
 	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1));
-
 	void Finish();
-
 	void Reset();
-
 	void LoadText();
-	void UpdateSize(int width, int height)
-	{
-		m_width = width;
-		m_height = height;
-	}
+	void UpdateSize(int width, int height);
 private:
 	int TextDataLength = 0;
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;
-	std::map<char, Character> Characters;
 	FT_Library ft;
 	FT_Face face;
-	GLuint TExtVAO;
-	GLuint TextVBO;
-	BaseTexture* Atlas;
-	atlas* textat;
-	GLint attribute_coord;
-	bool LoadAsAtlas = false;
+	atlas* TextAtlas;
 	RHIBuffer* VertexBuffer = nullptr;
 	RHICommandList* TextCommandList = nullptr;
 	float ScaleFactor = 1.0f;

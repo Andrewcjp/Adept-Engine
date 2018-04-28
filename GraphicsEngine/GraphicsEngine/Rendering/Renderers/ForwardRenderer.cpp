@@ -1,12 +1,10 @@
 #include "ForwardRenderer.h"
-#include "OpenGL/OGLShaderProgram.h"
 #include "RHI/RHI.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "../Editor/Editor_Camera.h"
 #include "../EngineGlobals.h"
 #include "../PostProcessing/PostProcessing.h"
 #include "../Core/Engine.h"
-#define USED3D12DebugP 0
 #if USED3D12DebugP
 #include "../D3D12/D3D12Plane.h"
 #endif
@@ -39,40 +37,12 @@ ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, hei
 	}
 }
 void ForwardRenderer::RunQuery()
-{
-	glColorMask(false, false, false, false);
-	glDepthMask(GL_FALSE);
-
-	QuerryShader->SetShaderActive();
-	for (size_t i = 0; i < Objects->size(); i++)
-	{
-		if ((InGetObj())[i]->QuerryWait)
-		{
-			continue;
-		}
-
-		QuerryShader->UpdateUniforms((InGetObj())[i]->GetTransform(), MainCamera, (*Lights));
-		//QuerryShader->SetNormalState((Objects[i]->GetMat()->NormalMap != nullptr), (Objects[i]->GetMat()->DisplacementMap != nullptr), (Objects[i]->GetReflection() == true));//this enables 
-		glBeginQuery(GL_SAMPLES_PASSED, (InGetObj())[i]->Querry);
-		// Every pixel that passes the depth test now gets added to the result
-		(InGetObj())[i]->Render();
-		glEndQuery(GL_SAMPLES_PASSED);
-		(InGetObj())[i]->QuerryWait = true;
-		int iSamplesPassed = 0;
-		glGetQueryObjectiv((InGetObj())[i]->Querry, GL_QUERY_RESULT, &iSamplesPassed);
-		(InGetObj())[i]->Occluded = (iSamplesPassed == 0);
-	}
-	glColorMask(true, true, true, true);
-	glDepthMask(GL_TRUE);
+{	
 }
 void ForwardRenderer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-		glViewport(0, 0, width, height);
-	}
 	if (RHI::IsD3D12())
 	{
 		if (D3D12RHI::Instance)
@@ -234,7 +204,6 @@ void ForwardRenderer::MainPass()
 	{
 		if (once)
 		{
-			/*DRHI->ExecSetUpList();*/
 			D3D12RHI::Instance->ExecSetUpList();
 			once = false;
 		}
@@ -270,8 +239,6 @@ void ForwardRenderer::MainPass()
 	mainshader->UpdateMV(MainCamera);
 	MainCommandList->SetRenderTarget(FilterBuffer);
 	MainCommandList->ClearFrameBuffer(FilterBuffer);
-	/*
-	MainCommandList->SetScreenBackBufferAsRT();*/
 	for (size_t i = 0; i < (*Objects).size(); i++)
 	{
 		mainshader->SetActiveIndex(MainCommandList, i);

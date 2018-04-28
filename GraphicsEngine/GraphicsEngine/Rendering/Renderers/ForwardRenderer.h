@@ -8,7 +8,7 @@
 #include "../Rendering/Core/Light.h"
 #include "OpenGL/OGLPlane.h"
 #include "OpenGL/OGLShader.h"
-#include "../D3D12/D3D12RHI.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 
 #include "../Rendering/Core/Material.h"
 #include "RHI/Shader.h"
@@ -31,7 +31,7 @@
 #include "../Core/Performance/PerfManager.h"
 #include "../EngineGlobals.h"
 #include "../RHI/RHICommandList.h"
-class OGLShaderProgram;
+#define USED3D12DebugP 0
 class ForwardRenderer : public RenderEngine
 {
 public:
@@ -44,7 +44,6 @@ public:
 	std::vector<GameObject*> InGetObj();
 	void UpdateDeltaTime(float value);
 	void Init()override;
-	void ReflectionPass();
 	void ShadowPass();
 	void BindAsRenderTarget();
 	void PrepareData();
@@ -73,26 +72,18 @@ public:
 	bool UseQuerry = false;
 	void SetRenderSettings(RenderSettings settings) override;
 private:
-#if BUILD_D3D12
-	CommandListDef* MainList = nullptr;
-	CommandListDef* ShadowList = nullptr;
-#endif
 	FrameBuffer* FilterBuffer = nullptr;
 	std::unique_ptr<ParticleSystem> particlesys;
 	std::unique_ptr<GrassPatch>  grasstest;
 	std::vector<GameObject*>* Objects;
-	class D3D12Plane* debugplane = nullptr;
-	//std::vector<GameObject*> ob;
+
 	std::vector<GameObject*> PhysicsObjects;
-	//TextRenderer
 	Camera*     MainCamera = nullptr;
 	std::vector<Light*>* Lights;
 	float FrameBufferRatio = 1;
 
 	GameObject* skybox = nullptr;
-	GameObject* playerGO = nullptr;
 	ShadowRenderer* shadowrender;
-	D3D12RHI * DRHI = nullptr;
 	Shader_Main* mainshader = nullptr;
 	Shader_Grass* grassshader = nullptr;
 	Shader* QuerryShader = nullptr;
@@ -107,27 +98,20 @@ private:
 	int ReflectionBufferWidth = 512;
 	int ReflectionBufferHeight = 512;
 	// Inherited via RenderEngine
-	virtual Shader_Main * GetMainShader() override;
-
-	// Inherited via RenderEngine
+	virtual Shader_Main * GetMainShader() override;	
 	virtual void SetReflectionCamera(Camera * c) override;
-
-
-	// Inherited via RenderEngine
 	virtual FrameBuffer * GetReflectionBuffer() override;
-
-
-	// Inherited via RenderEngine
-	virtual ShaderOutput * GetFilterShader() override;
-	
+	virtual ShaderOutput * GetFilterShader() override;	
 	virtual void DestoryRenderWindow() override;
-
-
 
 	// Inherited via RenderEngine
 	virtual void FinaliseRender() override;
 	RHICommandList* MainCommandList;
 	RHICommandList* ShadowCMDList = nullptr;
 	bool once = true;
+	//debug
+#if USED3D12DebugP
+	class D3D12Plane* debugplane = nullptr;
+#endif
 };
 

@@ -10,7 +10,6 @@
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #include "d3d12Shader.h"
-#include "D3D12Mesh.h"
 #include "D3D12Texture.h"
 
 #if defined(_DEBUG)
@@ -76,11 +75,8 @@ private:
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;
-
 	ID3D12Resource* m_renderTargets[FrameCount];
-
-
-
+	
 	D3D12Texture* Test = nullptr;
 	class FrameBuffer* testbuffer = nullptr;
 	class FrameBuffer* testbuffer2 = nullptr;

@@ -39,14 +39,18 @@ struct SceneConstantBuffer//CBV need to be 256 aligned
 class Shader_Main :public Shader
 {
 public:
+	enum ShaderRegisterSlot
+	{
+		MainCBV = 1,
+		LightCBV = 2,
+		MPCBV = 3
+	};
 	Shader_Main();
 	~Shader_Main();
 	void SetNormalVis();
 	void SetShadowVis();
 	void SetFullBright();
-	void SetNormalState(bool t, bool dispstate, bool refelction);
 	void RefreshLights() { Once = false; };
-	void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights) override;
 	bool ISWATER = false;
 	float currentnumber = 0;
 	bool IsPhysics = false;
@@ -63,18 +67,7 @@ public:
 	void BindLightsBuffer(RHICommandList * list);
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 private:
-	int						m_uniform_model;
-	int						m_uniform_View;
-	int                     m_uniform_texture;
-	int						m_UniformMVP;
-	int						m_texDefaultSampler;
-	int						m_uniform_LightNumber;
-	int						m_DepthTexture;
-	int						Uniform_Cam_Pos;
-	int						m_IsMapUniform;
-	int						m_FarPlane;
-	int						m_MV33;
-	int						IsReflect;
+	
 	bool shadowvisstate = false;
 	bool vistate = false;
 	bool enabledFullBright = false;
@@ -84,7 +77,7 @@ private:
 	//LightUniformBuffer* LightBuffers = nullptr;
 	bool Once = false;
 	//todo move to shader
-	GLuint ubo = 0;
+	
 	int MaxConstant =25;
 	GLuint Buffer;
 	std::vector<SceneConstantBuffer> SceneBuffer;
@@ -96,8 +89,7 @@ private:
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
 	struct MVBuffer MV_Buffer;
 	LightBufferW LightsBuffer;
-	// Inherited via Shader
-	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
+
 
 };
 

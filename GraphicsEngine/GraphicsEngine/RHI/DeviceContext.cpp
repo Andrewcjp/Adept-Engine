@@ -24,25 +24,23 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter)
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
-
+	
 	// Describe and create the command queue.
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
+	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_commandAllocator)));
 
-	ThrowIfFailed(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 
-	ThrowIfFailed(GetDevice()->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-	m_fenceValue++;
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
+	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
 
-	// Create an event handle to use for frame synchronization
-	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-	if (m_fenceEvent == nullptr)
-	{
-		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
-	}
+	GraphicsQueueSync.Init(GetDevice());
+	CopyQueueSync.Init(GetDevice());
+
 }
 
 ID3D12Device * DeviceContext::GetDevice()
@@ -91,37 +89,6 @@ void DeviceContext::DestoryDevice()
 }
 void DeviceContext::WaitForGpu()
 {
-	// Schedule a Signal command in the queue.
-	ThrowIfFailed(m_commandQueue->Signal(m_fence, m_fenceValue));
-
-	// Wait until the fence has been processed.
-	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-	if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_OBJECT_0)
-	{
-		// Increment the fence value for the current frame.
-		m_fenceValue++;
-	}
+	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 }
 
-void DeviceContext::StartWaitForGpuHandle()
-{
-	// Schedule a Signal command in the queue.
-	ThrowIfFailed(m_commandQueue->Signal(m_fence, m_fenceValue));
-
-	// Wait until the fence has been processed.
-	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-	Wait = true;
-}
-
-void DeviceContext::EndWaitForGpuHandle()
-{
-	if (!Wait)
-	{
-		return;
-	}
-	if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_OBJECT_0)
-	{
-		// Increment the fence value for the current frame.
-		m_fenceValue++;
-	}
-}

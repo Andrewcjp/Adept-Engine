@@ -380,15 +380,10 @@ void D3D12RHI::ExecList(CommandListDef* list, bool Block)
 
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	if (Block)
-	{
-		PrimaryDevice->WaitForGpu();
-	}
-	else
-	{
-		PrimaryDevice->StartWaitForGpuHandle();
-		PrimaryDevice->EndWaitForGpuHandle();
-	}
+
+	PrimaryDevice->WaitForGpu();
+
+
 }
 
 void D3D12RHI::PresentFrame()
@@ -417,7 +412,7 @@ void D3D12RHI::PresentFrame()
 #endif
 
 
-	ThrowIfFailed(m_swapChain->Present(1, 0));
+	ThrowIfFailed(m_swapChain->Present(0, 0));
 	if (RequestedResize)
 	{
 		InternalResizeSwapChain(newwidth, newheight);

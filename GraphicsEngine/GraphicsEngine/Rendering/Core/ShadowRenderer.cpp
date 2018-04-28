@@ -1,7 +1,7 @@
 #include "ShadowRenderer.h"
 #include "RHI/RHI.h"
 #include "../Rendering/Shaders/Shader_Main.h"
-#include "../D3D12/D3D12RHI.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../Rendering/Core/FrameBuffer.h"
 #include "../Core/Utils/MemoryUtils.h"
 ShadowRenderer::ShadowRenderer()

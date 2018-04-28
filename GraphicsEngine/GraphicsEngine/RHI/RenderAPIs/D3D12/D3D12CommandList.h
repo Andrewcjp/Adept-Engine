@@ -5,7 +5,7 @@
 class D3D12CommandList : public RHICommandList
 {
 public:
-	D3D12CommandList();
+	D3D12CommandList(DeviceContext* Device);
 	~D3D12CommandList();
 
 	// Inherited via RHICommandList
@@ -31,7 +31,13 @@ public:
 	virtual void UAVBarrier(class RHIUAV* target) override;
 	
 private:
-	void CreateCommandList();
+	enum ECommandListType
+	{
+		Graphics,
+		Compute,
+		Copy
+	};
+	void CreateCommandList(ECommandListType listype = ECommandListType::Graphics);
 	ID3D12GraphicsCommandList * CurrentGraphicsList = nullptr;
 	bool IsOpen = false;
 	D3D12Shader::PiplineShader				CurrentPipelinestate;
@@ -52,7 +58,7 @@ private:
 class D3D12Buffer : public RHIBuffer
 {
 public:
-	D3D12Buffer(RHIBuffer::BufferType type);
+	D3D12Buffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
 	virtual ~D3D12Buffer();
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 	virtual void CreateVertexBufferFromFile(std::string name) override;
@@ -77,6 +83,7 @@ private:
 	int cpusize = 0;
 	bool UploadComplete = false;
 	int vertexBufferSize = 0;
+	DeviceContext* Device = nullptr;
 };
 class D3D12RHIUAV : public RHIUAV
 {
@@ -88,18 +95,4 @@ public:
 
 	ID3D12Resource * m_UAV;
 	class D3D12Texture * TargetTexture;
-};
-class D3D12RHITexture : public RHITexture
-{
-
-public:
-	D3D12RHITexture(RHITexture::TextureType type = RHITexture::TextureType::Standard) :RHITexture(type)
-	{
-
-	}
-	~D3D12RHITexture() {};
-	virtual void CreateTextureFromFile(std::string name) override;
-	void BindToSlot(ID3D12GraphicsCommandList* list, int slot);
-private:
-	class	D3D12Texture * tmptext = nullptr;
 };

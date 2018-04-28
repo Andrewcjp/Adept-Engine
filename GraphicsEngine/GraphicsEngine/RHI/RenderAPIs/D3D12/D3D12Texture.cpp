@@ -364,6 +364,13 @@ void D3D12Texture::UpdateSRV()
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = MipLevelsReadyNow;
 	srvDesc.Texture2D.MostDetailedMip = 0;
-
+#if 0
+	//test for streaming data like mips of disc!
+	if (MipLevelsReadyNow == 6)
+	{
+		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow- 5;
+		srvDesc.Texture2D.MostDetailedMip = 5;
+	}
+#endif
 	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 }

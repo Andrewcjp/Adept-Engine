@@ -11,11 +11,12 @@
 #include "../RHI/BaseTexture.h"
 #include "D3D12Framebuffer.h"
 #include "../RHI/DeviceContext.h"
-D3D12CommandList::D3D12CommandList()
-{
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
-}
 
+D3D12CommandList::D3D12CommandList(DeviceContext * inDevice)
+{
+	Device = inDevice;
+	ThrowIfFailed(Device->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+}
 
 D3D12CommandList::~D3D12CommandList()
 {
@@ -89,6 +90,14 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
+	if (CurrentPipelinestate.m_pipelineState != nullptr )
+	{
+		CurrentPipelinestate.m_pipelineState->Release();
+	}
+	if (CurrentPipelinestate.m_rootSignature != nullptr)
+	{
+		CurrentPipelinestate.m_rootSignature->Release();
+	}
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
 	D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
 	ensure((shader->GetShaderParameters().size() > 0));
@@ -109,7 +118,11 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 		PRTD = dbuffer->GetPiplineRenderDesc();
 	}
 	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD);
-	CreateCommandList();
+	if (CurrentGraphicsList == nullptr)
+	{
+		//todo: ensure a gaphics shader is not used a compute piplne!
+		CreateCommandList();
+	}
 }
 
 void D3D12CommandList::SetPipelineState(PipeLineState state)
@@ -117,11 +130,27 @@ void D3D12CommandList::SetPipelineState(PipeLineState state)
 	Currentpipestate = state;
 }
 
-void D3D12CommandList::CreateCommandList()
+
+
+void D3D12CommandList::CreateCommandList(ECommandListType listype)
 {
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
-	CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
-	ThrowIfFailed(CurrentGraphicsList->Close());
+	if (listype == ECommandListType::Graphics)
+	{
+		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
+		CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
+		ThrowIfFailed(CurrentGraphicsList->Close());
+	}
+	else if (listype == ECommandListType::Compute)
+	{
+		//todo: aloccators?
+		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator, CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
+		CurrentGraphicsList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
+		ThrowIfFailed(CurrentGraphicsList->Close());
+	}
+	else if (listype == ECommandListType::Copy)
+	{
+
+	}
 }
 
 void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
@@ -176,9 +205,14 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 	((D3D12Buffer*)buffer)->SetConstantBufferView(offset, CurrentGraphicsList, Register);
 }
 
-D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type) :RHIBuffer(type)
-{
 
+
+D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :RHIBuffer(type)
+{
+	if (inDevice == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
 }
 
 D3D12Buffer::~D3D12Buffer()
@@ -189,7 +223,7 @@ void D3D12Buffer::CreateVertexBufferFromFile(std::string name)
 	Triangle* mesh;
 	int m_numtriangles = importOBJMesh(StringUtils::ConvertStringToWide(name).c_str(), &mesh);
 	const int vertexBufferSize = sizeof(OGLVertex)*m_numtriangles * 3;
-	CreateVertexBuffer(sizeof(OGLVertex), vertexBufferSize);
+	CreateVertexBuffer(sizeof(OGLVertex), vertexBufferSize,RHIBuffer::BufferAccessType::Dynamic);
 	VertexCount = m_numtriangles * 3;
 	UpdateVertexBuffer(mesh, vertexBufferSize);
 }
@@ -205,7 +239,7 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
 
 void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype)
 {
-	
+
 	BufferAccesstype = Accesstype;
 	/*BufferAccesstype = BufferAccessType::Dynamic;*/
 	if (BufferAccesstype == BufferAccessType::Dynamic)
@@ -250,7 +284,7 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
 void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
 {
 	const int vertexBufferSize = ByteSize;//mazsize
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), // a default heap
 		D3D12_HEAP_FLAG_NONE, // no flags
 		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), // resource description for a buffer
@@ -262,7 +296,7 @@ void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
 	m_vertexBuffer->SetName(L"Index Buffer Resource Heap");
 
 	// create upload heap to upload index buffer
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
 		D3D12_HEAP_FLAG_NONE, // no flags
 		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), // resource description for a buffer
@@ -281,7 +315,7 @@ void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
 	// Create the vertex buffer.
 	vertexBufferSize = ByteSize;//mazsize
 
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
@@ -320,7 +354,7 @@ void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 {
 	const int vertexBufferSize = ByteSize;
 
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
@@ -337,14 +371,8 @@ void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 
 void D3D12Buffer::MapBuffer(void ** Data)
 {
-	// Copy the triangle data to the vertex buffer.
-//	UINT8* pVertexDataBegin;
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
 	ThrowIfFailed(m_vertexBuffer->Map(0, &readRange, Data));
-
-	//	memcpy(pVertexDataBegin, &BatchedVerts[0], sizeof(UIVertex)*BatchedVerts.size());
-		//m_vertexBuffer->Unmap(0, nullptr);
-
 }
 
 void D3D12Buffer::UnMap()
@@ -352,12 +380,3 @@ void D3D12Buffer::UnMap()
 	m_vertexBuffer->Unmap(0, nullptr);
 }
 
-void D3D12RHITexture::CreateTextureFromFile(std::string name)
-{
-	tmptext = new D3D12Texture(name,nullptr);
-}
-
-void D3D12RHITexture::BindToSlot(ID3D12GraphicsCommandList * list, int slot)
-{
-	tmptext->Bind(list);
-}

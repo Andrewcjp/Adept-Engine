@@ -5,8 +5,9 @@
 #include <algorithm>
 #include <cstring>
 #include "../Core/Engine.h"
-#include "../Rendering/Core/GPUStateCache.h"
 #include "../RHI/BaseTexture.h"
+#include "../Core/Utils/FileUtils.h"
+#define MAXWIDTH 1024
 TextRenderer* TextRenderer::instance = nullptr;
 TextRenderer::TextRenderer(int width, int height)
 {
@@ -15,20 +16,13 @@ TextRenderer::TextRenderer(int width, int height)
 	m_TextShader = new Text_Shader();
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
-	LoadAsAtlas = true;
 	LoadText();
 	instance = this;
 	coords.reserve(100 * 6);
 }
-#include "../Core/Utils/FileUtils.h"
-#include "../Core/Assets/ImageIO.h"
-#include "SOIL.h"
-#define MAXWIDTH 1024
 struct atlas
 {
-	GLuint tex;		// texture object
-	BaseTexture* Texture;
-	GLint uniform_tex;
+	BaseTexture* Texture;	
 	unsigned int w;			// width of texture in pixels
 	unsigned int h;			// height of texture in pixels
 
@@ -88,7 +82,7 @@ struct atlas
 
 		rowh = 0;
 		unsigned char* FinalData = new unsigned char[w*h];
-		for (int i = 0; i < w*h; i++)
+		for (unsigned int i = 0; i < w*h; i++)
 		{
 			FinalData[i] = '\0';
 		}
@@ -108,10 +102,7 @@ struct atlas
 				ox = 0;
 			}
 
-
 			int offset = ((ox + oy * h));
-
-			//memcpy((FinalData + offset), g->bitmap.buffer, (g->bitmap.width * g->bitmap.rows));
 			//scan into texture
 			int lastoff = 0;
 			for (int suby = 0; suby < g->bitmap.rows; suby++)
@@ -119,7 +110,7 @@ struct atlas
 				int neo = ((ox + (oy + suby)*w));
 				memcpy((FinalData + neo), g->bitmap.buffer + (suby*g->bitmap.width), (g->bitmap.width));
 				lastoff = neo;
-			}		
+			}
 
 			c[i].ax = (float)(g->advance.x >> 6);
 			c[i].ay = (float)(g->advance.y >> 6);
@@ -137,27 +128,19 @@ struct atlas
 			ox += g->bitmap.width + 1;
 		}
 		Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
-		//SOIL_save_image("C:\\Users\\AANdr\\Dropbox\\Engine\\t.bmp", SOIL_SAVE_TYPE_BMP, w, h, 1, FinalData);
 
 		printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
 	}
 
 	~atlas()
 	{
-		glDeleteTextures(1, &tex);
+		delete Texture;
 	}
 };
 
 TextRenderer::~TextRenderer()
 {
-	//	delete textat;
-	for (int i = 0; i < Characters.size(); i++)
-	{
-		if (Characters[(const char)i].Texture != nullptr)
-		{
-			Characters[(const char)i].Texture->FreeTexture();
-		}
-	}
+	delete TextAtlas;
 }
 
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color)
@@ -171,9 +154,8 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	TextCommandList->SetScreenBackBufferAsRT();
 	m_TextShader->Update(TextCommandList);
 	const uint8_t *p;
-	attribute_coord = 0;
-	atlas* a = textat;
-	int TargetDatalength = 6 * text.length();
+	atlas* a = TextAtlas;
+	unsigned int TargetDatalength = 6 * text.length();
 	if (coords.size() < TargetDatalength)
 	{
 		coords.resize(TargetDatalength);
@@ -222,35 +204,27 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	}
 	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(text.length() * 6));
 	TextCommandList->SetVertexBuffer(VertexBuffer);
-	TextCommandList->SetTexture(textat->Texture, 0);
+	TextCommandList->SetTexture(TextAtlas->Texture, 0);
 	TextCommandList->DrawPrimitive(c, 1, 0, 0);
 	///* Draw all the character on the screen in one go */
 	Finish();
-	
+
 }
 void TextRenderer::Finish()
 {
 	TextCommandList->Execute();
-	//not great 
-
 }
 void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();
 }
 void TextRenderer::LoadText()
-{
-
+{	
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
-	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 4 * 6 * 150,RHIBuffer::BufferAccessType::Dynamic);//max text length?
+	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 4 * 6 * 150, RHIBuffer::BufferAccessType::Dynamic);//max text length?
 	TextCommandList = RHI::CreateCommandList();
 	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });
 	TextCommandList->CreatePipelineState(m_TextShader);
-
-	/*glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
-	//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
-	//glUniformMatrix4fv(glGetUniformLocation(m_TextShader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 	if (FT_Init_FreeType(&ft))
 	{
@@ -264,61 +238,21 @@ void TextRenderer::LoadText()
 	}
 	float scale = 2;
 	int facesize = 48 * scale;//48
-	ScaleFactor = 1 / scale;
+	ScaleFactor = (float)1 / scale;
 	FT_Set_Pixel_Sizes(face, 0, facesize);
-	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 	// Load first 128 characters of ASCII set
 	//Freetype is awesome!
-	//we dont need every char right now so dont bother with the firwst 3
-
-	if (LoadAsAtlas)
-	{
-		textat = new atlas(face, facesize);
-	}
-	else
-	{
-		for (GLubyte c = 0; c < 128; c++)
-		{
-			// Load character glyph 
-			if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-			{
-				std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-				continue;
-			}
-			if (LoadAsAtlas)
-			{
-				if (face->glyph->bitmap.buffer == nullptr)
-				{
-					continue;
-				}
-
-			}
-			else
-			{
-				// Now store character for later use
-				Character character = {
-					RHI::CreateTextureWithData(face->glyph->bitmap.width,face->glyph->bitmap.rows,1,face->glyph->bitmap.buffer,RHI::Text),
-					glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-					glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-					static_cast<GLuint>(face->glyph->advance.x)
-				};
-				Characters.insert(std::pair<GLchar, Character>(c, character));
-			}
-		}
-	}
-	//glBindTexture(GL_TEXTURE_2D, 0);
+	TextAtlas = new atlas(face, facesize);
 	// Destroy FreeType once we're finished
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
 	//Say thanks you to Free type for being very useful
 
-	//glGenVertexArrays(1, &TExtVAO);
-	//glGenBuffers(1, &TextVBO);
-	//glBindVertexArray(TExtVAO);
-	//glBindBuffer(GL_ARRAY_BUFFER, TextVBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);//Bind a DYNAMIC_DRAW buffer so that we can send our two vec2's when rendering text
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);//Pointor to a vec4 which we will us as two vec2's
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindVertexArray(0);
+}
+
+void TextRenderer::UpdateSize(int width, int height)
+{
+	m_width = width;
+	m_height = height;
 }
