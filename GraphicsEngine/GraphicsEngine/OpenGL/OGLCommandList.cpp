@@ -120,7 +120,7 @@ void OGLCommandList::CreatePipelineState(Shader * shader)
 
 }
 
-void OGLCommandList::UpdateConstantBuffer(void * data, int offset)
+void OGLCommandList::UpdateConstantBuffer(void * Array, int offset)
 {}
 
 void OGLCommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
@@ -262,7 +262,7 @@ void OGLBuffer::CreateConstantBuffer(int StructSize, int Elementcount)
 	mStructSize = StructSize;
 }
 
-void OGLBuffer::UpdateConstantBuffer(void * data, int offset)
+void OGLBuffer::UpdateConstantBuffer(void * Array, int offset)
 {
 	/*if (!GPUStateCache::CheckCurrentUniformBuffer(ubo))
 	{		
@@ -270,7 +270,7 @@ void OGLBuffer::UpdateConstantBuffer(void * data, int offset)
 	}*/
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	//glBufferData(GL_UNIFORM_BUFFER, mStructSize*offset, &UBuffer, GL_DYNAMIC_DRAW);
-	glBufferSubData(GL_UNIFORM_BUFFER, mStructSize*offset, mStructSize, data);
+	glBufferSubData(GL_UNIFORM_BUFFER, mStructSize*offset, mStructSize, Array);
 
 }
 
@@ -285,9 +285,9 @@ void OGLBuffer::CreateVertexBuffer(int Stride, int ByteSize)
 	}
 
 
-void OGLBuffer::UpdateVertexBuffer(void * data, int length)
+void OGLBuffer::UpdateVertexBuffer(void * Array, int length)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo_verts);
-	glBufferData(GL_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, length, Array, GL_STATIC_DRAW);
 }
 #endif

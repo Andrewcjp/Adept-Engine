@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <time.h>
 #include "../RHI/RHI.h"
+
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()
@@ -199,7 +200,7 @@ void PerfManager::EndCPUTimer()
 {
 	CPUTime = (float)((get_nanos() - CPUstart) / 1e6f);//in ms
 	StatAccum += CPUTime;
-	
+	CPUAVG.Add(CPUTime);
 	if (StatAccum > StatsUpdateSpeed)
 	{
 		Capture = true;
@@ -220,9 +221,18 @@ void PerfManager::EndFrameTimer()
 {
 	FrameTime = (float)((get_nanos() - FrameStart) / 1e9f);//in s
 }
-
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 float PerfManager::GetGPUTime()
 {
+
+	if (RHI::IsD3D12())
+	{
+		//remove me!
+		if (D3D12TimeManager::Instance)
+		{
+			return D3D12TimeManager::Instance->AVGgpuTimeMS;
+		}
+	}
 	if (Instance != nullptr)
 	{
 		return Instance->GPUTime;
@@ -233,7 +243,7 @@ float PerfManager::GetCPUTime()
 {
 	if (Instance != nullptr)
 	{
-		return Instance->CPUTime;
+		return Instance->CPUAVG.GetCurrentAverage();//Instance->CPUTime;
 	}
 	return 0;
 }

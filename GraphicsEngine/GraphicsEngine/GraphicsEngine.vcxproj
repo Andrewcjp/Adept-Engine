@@ -142,6 +142,8 @@
       <LanguageStandard>stdcpp14</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeaderFile>Stdafx.h</PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -197,6 +199,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -243,6 +246,7 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="Core\Utils\MovingAverage.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12Heap.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12MemoryManager.h" />
@@ -391,6 +395,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="Core\Utils\MovingAverage.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12Heap.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12MemoryManager.cpp" />

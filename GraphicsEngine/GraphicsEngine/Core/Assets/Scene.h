@@ -29,8 +29,8 @@ public:
 private:
 	std::vector<GameObject*> SceneObjects;	
 	std::vector<Light*> Lights;
-	SceneSerialiser* serialiser;
+	SceneSerialiser* serialiser = nullptr;
 	std::vector<Camera*> Cameras;
-	Camera* CurrentCamera;
+	Camera* CurrentCamera = nullptr;
 };
 

@@ -5,6 +5,7 @@
 #include "../EngineGlobals.h"
 #include "../PostProcessing/PostProcessing.h"
 #include "../Core/Engine.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #if USED3D12DebugP
 #include "../D3D12/D3D12Plane.h"
 #endif
@@ -219,14 +220,15 @@ void ForwardRenderer::MainPass()
 	}
 	
 	MainCommandList->ResetList();
+	
+	D3D12TimeManager::Instance->StartTimer(MainCommandList);
 	MainCommandList->SetScreenBackBufferAsRT();
-	MainCommandList->ClearScreen();
-
+	MainCommandList->ClearScreen();	
 	mainshader->UpdateMV(MainCamera);
 	
 	mainshader->BindLightsBuffer(MainCommandList);
 	
-	if (true)
+	if (false)
 	{
 		ShadowCMDList->ResetList();
 		mainshader->BindLightsBuffer(ShadowCMDList);
@@ -245,6 +247,7 @@ void ForwardRenderer::MainPass()
 		(*Objects)[i]->Render(false, MainCommandList);
 	}
 	MainCommandList->SetRenderTarget(nullptr);
+	//D3D12TimeManager::Instance->EndTimer(MainCommandList);
 	MainCommandList->Execute();
 
 	Post->ExecPPStack(FilterBuffer);

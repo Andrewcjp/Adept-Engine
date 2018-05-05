@@ -171,7 +171,7 @@ void D3D12CommandList::SetScreenBackBufferAsRT()
 		CurrentRenderTarget->UnBind(CurrentGraphicsList);
 		CurrentRenderTarget = nullptr;
 	}
-	D3D12RHI::Instance->SetScreenRenderTaget(CurrentGraphicsList);
+	D3D12RHI::Instance->SetScreenRenderTarget(CurrentGraphicsList);
 	D3D12RHI::Instance->RenderToScreen(CurrentGraphicsList);
 }
 

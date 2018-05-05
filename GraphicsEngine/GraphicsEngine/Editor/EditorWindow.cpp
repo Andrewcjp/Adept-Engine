@@ -72,7 +72,6 @@ EditorWindow::EditorWindow(HINSTANCE, int, int)
 	instance = this;
 }
 
-
 void EditorWindow::PostInitWindow(int w, int h)
 {
 	std::cout << "Loading Editor v0.01" << std::endl;
@@ -117,6 +116,7 @@ void EditorWindow::EnterPlayMode()
 	IsRunning = true;
 
 }
+
 void EditorWindow::ExitPlayMode()
 {
 	std::cout << "Exiting play mode" << std::endl;
@@ -140,12 +140,15 @@ void EditorWindow::SetDeferredState(bool state)
 {
 	IsDeferredMode = state;
 }
+
 void EditorWindow::PrePhysicsUpdate()
 {
 }
+
 void EditorWindow::DuringPhysicsUpdate()
 {
 }
+
 void EditorWindow::FixedUpdate()
 {
 	if (IsPlayingScene)
@@ -153,6 +156,7 @@ void EditorWindow::FixedUpdate()
 		CurrentPlayScene->FixedUpdateScene(TickRate);
 	}
 }
+
 void EditorWindow::Update()
 {
 	EditorCamera->Update(DeltaTime);
@@ -185,6 +189,7 @@ void EditorWindow::Update()
 		}
 	}
 }
+
 void EditorWindow::SaveScene()
 {
 	if (CurrentSceneSavePath.length() == 0)
@@ -223,12 +228,14 @@ void EditorWindow::LoadScene()
 		UI->AlertBox("Scene Loaded");
 	}
 }
+
 void EditorWindow::RefreshScene()
 {
 	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());
 	UI->UpdateGameObjectList(CurrentScene->GetObjects());
 	UI->RefreshGameObjectList();
 }
+
 void EditorWindow::ProcessMenu(WORD command)
 {
 	switch (command)
@@ -255,47 +262,9 @@ void EditorWindow::ProcessMenu(WORD command)
 		break;
 	}
 }
+
 void EditorWindow::WindowUI()
 {
-	std::stringstream stream;
-	//todo: Move to Game
-	//std::string shape = "Box";
-	//if (input->GetShape() == 1)
-	//{
-	//	shape = "Sphere";
-	//}
-	//stream << "Current force " << (input->GetForce()) << std::setprecision(6) << " Shape = " << shape;
-	//UI->RenderTextToScreen(2, stream.str());
-	//stream.str("");
-
-	//std::string go = "";
-	//std::string goname = "";
-	///*if (UI->IsUIBlocking())
-	//{
-	//	stream << "Blocking  ";
-	//}*/
-	//if (input->Selectedobject != nullptr)
-	//{
-	//	go = glm::to_string(input->Selectedobject->GetTransform()->GetPos());
-	//	goname = input->Selectedobject->GetName();
-	//}
-	//stream << (input->currentObjectIndex) << " Obj " << goname << " Position " << go << std::setprecision(3);
-	//UI->RenderTextToScreen(3, stream.str());
-
-	//stream.str("");
-	//statcount++;
-#if 0
-	int totalmem;
-	int freemem = 0;
-	if (statcount > 40)
-	{
-		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &totalmem);
-		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &freemem);
-		currentmemeory = totalmem - freemem;
-		statcount = 0;
-	}
-	stream << "Current memeory " << (float)(currentmemeory) / 1024.0f << "Mb ";
-	UI->RenderTextToScreen(4, stream.str());
-#endif
+	
 }
 

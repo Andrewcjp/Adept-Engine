@@ -32,6 +32,7 @@ public:
 	static Camera* GetCurrentCamera();
 	bool ShowHud = true;
 	bool ShowText = true;
+	bool ExtendedPerformanceStats = true;
 protected:
 
 	//callbacks

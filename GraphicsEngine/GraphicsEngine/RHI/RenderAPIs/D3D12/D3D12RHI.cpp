@@ -9,6 +9,7 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 #include "GPUResource.h"
 #include "../RHI/DeviceContext.h"
 #include "../RHI/RHI.h"
+#include "D3D12TimeManager.h"
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
@@ -292,7 +293,7 @@ void D3D12RHI::ReleaseSwapRTs()
 }
 void D3D12RHI::ResizeSwapChain(int x, int y)
 {
-	if (m_swapChain != nullptr && HasSetup)
+	if (m_swapChain != nullptr /*&& HasSetup*/)//todo: this check?
 	{
 		RequestedResize = true;
 		newwidth = x;
@@ -351,8 +352,7 @@ void D3D12RHI::LoadAssets()
 
 	ThrowIfFailed(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, PrimaryDevice->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
-	//m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[0], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
-
+	D3D12TimeManager::Initialize(PrimaryDevice);
 }
 
 void D3D12RHI::ExecSetUpList()
@@ -362,6 +362,7 @@ void D3D12RHI::ExecSetUpList()
 	WaitForGpu();
 	ReleaseUploadHeap();
 }
+
 void D3D12RHI::ReleaseUploadHeap()
 {
 	for (int i = 0; i < UsedUploadHeaps.size(); i++)
@@ -371,19 +372,17 @@ void D3D12RHI::ReleaseUploadHeap()
 	UsedUploadHeaps.clear();
 
 }
+
 void D3D12RHI::AddUploadToUsed(ID3D12Resource* Target)
 {
 	UsedUploadHeaps.push_back(Target);
 }
+
 void D3D12RHI::ExecList(CommandListDef* list, bool Block)
 {
-
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
 	PrimaryDevice->WaitForGpu();
-
-
 }
 
 void D3D12RHI::PresentFrame()
@@ -393,7 +392,7 @@ void D3D12RHI::PresentFrame()
 	{
 		m_SetupCommandList->Reset(PrimaryDevice->GetCommandAllocator(), nullptr);
 		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
-
+		D3D12TimeManager::Instance->EndTimer(m_SetupCommandList);
 		m_SetupCommandList->Close();
 		ExecList(m_SetupCommandList);
 	}
@@ -405,9 +404,9 @@ void D3D12RHI::PresentFrame()
 		std::cout << "Memory Budget Changed" << std::endl;
 	}
 #if USEGPUTOGENMIPS
-	if (count % 100 == 0)
+	if (count % 10 == 0)
 	{
-		MipmapShader->GenAllmips(1);
+		MipmapShader->GenAllmips(100);
 	}
 #endif
 
@@ -428,7 +427,10 @@ void D3D12RHI::PresentFrame()
 	{
 		HasSetup = true;
 	}
-
+	if (D3D12TimeManager::Instance)
+	{
+		D3D12TimeManager::Instance->UpdateTimers();
+	}
 }
 
 void D3D12RHI::ClearRenderTarget(ID3D12GraphicsCommandList* MainList)
@@ -465,10 +467,10 @@ void D3D12RHI::PreFrameSetUp(ID3D12GraphicsCommandList* list, D3D12Shader* Shade
 void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
 {
 	RenderToScreen(list);
-	SetScreenRenderTaget(list);
+	SetScreenRenderTarget(list);
 
 }
-void D3D12RHI::SetScreenRenderTaget(ID3D12GraphicsCommandList* list)
+void D3D12RHI::SetScreenRenderTarget(ID3D12GraphicsCommandList* list)
 {
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());

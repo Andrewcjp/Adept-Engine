@@ -84,11 +84,49 @@ void DeviceContext::DestoryDevice()
 	m_commandAllocator->Release();
 	m_commandAllocator = nullptr;
 	m_commandQueue->Release();
-	m_commandQueue = nullptr;
-	
+	m_commandQueue = nullptr;	
 }
+
 void DeviceContext::WaitForGpu()
 {
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 }
 
+GPUSyncPoint::~GPUSyncPoint()
+{
+	if (m_fence)
+	{
+		m_fence->Release();
+		m_fence = nullptr;
+	}
+}
+
+void GPUSyncPoint::Init(ID3D12Device * device)
+{
+	//Fence types
+	//  D3D12_FENCE_FLAG_NONE
+	//  D3D12_FENCE_FLAG_SHARED
+	//	D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER
+	//	D3D12_FENCE_FLAG_NON_MONITORED
+	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+	m_fenceEvent = CreateEvent(nullptr, false,false, nullptr);
+	if (m_fenceEvent == nullptr)
+	{
+		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+	}
+	m_fenceValue++;
+}
+
+void GPUSyncPoint::CreateSyncPoint(ID3D12CommandQueue * queue)
+{
+	// Schedule a Signal command in the queue.
+	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
+
+	// Wait until the fence has been processed.
+	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+	if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_OBJECT_0)
+	{
+		// Increment the fence value for the current frame.
+		m_fenceValue++;
+	}
+}

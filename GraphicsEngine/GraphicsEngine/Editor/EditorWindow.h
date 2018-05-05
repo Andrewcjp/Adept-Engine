@@ -15,9 +15,6 @@ class EditorWindow : public BaseWindow
 {
 
 public:
-	bool LoadText = true;
-	bool ExtendedPerformanceStats = true;
-
 	void PostInitWindow(int w, int h) override;
 	static Scene* GetCurrentScene();
 	static EditorWindow* GetInstance() { return instance; }

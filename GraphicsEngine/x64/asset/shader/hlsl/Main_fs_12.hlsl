@@ -55,46 +55,46 @@ float GetShadow(float4 pos)
 float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld)
 {
 	// Compute pixel position in light space.
-	float4 vLightSpacePos = vPosWorld;
-	vLightSpacePos = mul(vLightSpacePos, lights[lightid].LightVP);
+float4 vLightSpacePos = vPosWorld;
+vLightSpacePos = mul(vLightSpacePos, lights[lightid].LightVP);
 
-	vLightSpacePos.xyz /= vLightSpacePos.w;
+vLightSpacePos.xyz /= vLightSpacePos.w;
 
-	// Translate from homogeneous coords to texture coords.
-	float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f;
-	vShadowTexCoord.y = 1.0f - vShadowTexCoord.y;
+// Translate from homogeneous coords to texture coords.
+float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f;
+vShadowTexCoord.y = 1.0f - vShadowTexCoord.y;
 
-	// Depth bias to avoid pixel self-shadowing.
-	float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS;
+// Depth bias to avoid pixel self-shadowing.
+float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS;
 
-	// Find sub-pixel weights.//todo: shader define!
-	float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file
-	float size = 1.0f;
-	float4 vSubPixelCoords = float4(size, size, size, size);
-	vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord);
-	vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy;
-	float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy;
+// Find sub-pixel weights.//todo: shader define!
+float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file
+float size = 1.0f;
+float4 vSubPixelCoords = float4(size, size, size, size);
+vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord);
+vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy;
+float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy;
 
-	// 2x2 percentage closer filtering.
-	float2 vTexelUnits = 1.0f / vShadowMapDims;
-	float4 vShadowDepths;
-	if (lightid == 0)
-	{
-		vShadowDepths.x = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord);
-		vShadowDepths.y = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
-		vShadowDepths.z = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
-		vShadowDepths.w = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);
-	}
-	else
-	{
-		/*vShadowDepths.x = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord);
-		vShadowDepths.y = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
-		vShadowDepths.z = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
-		vShadowDepths.w = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);*/
-	}
-	// What weighted fraction of the 4 samples are nearer to the light than this pixel?
-	float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f;
-	return dot(vBilinearWeights, vShadowTests);
+// 2x2 percentage closer filtering.
+float2 vTexelUnits = 1.0f / vShadowMapDims;
+float4 vShadowDepths;
+if (lightid == 0)
+{
+	vShadowDepths.x = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord);
+	vShadowDepths.y = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
+	vShadowDepths.z = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
+	vShadowDepths.w = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);
+}
+else
+{
+	/*vShadowDepths.x = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord);
+	vShadowDepths.y = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
+	vShadowDepths.z = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
+	vShadowDepths.w = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);*/
+}
+// What weighted fraction of the 4 samples are nearer to the light than this pixel?
+float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f;
+return dot(vBilinearWeights, vShadowTests);
 }
 
 float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 vLightDir, float3 vLightColor, float4 vFalloffs, float3 vPosWorld, float3 vPerPixelNormal)
@@ -110,7 +110,7 @@ float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 v
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);*/
 	}
 	MaterialDiffuseColor *= vLightColor;
-	
+
 	return  float4(MaterialDiffuseColor * diffu, 1.0);// +(MaterialSpecularColor*spec);
 
 
@@ -121,8 +121,8 @@ float4 main(PSInput input) : SV_TARGET
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv);
 	float4 output = float4(0, 0, 0, 0);// float4(texturecolour.xyz, 1);
 	float4 falloff = (0, 1000, 0.0f, 10.0f);
-	for (int i = 0; i < MAX_LIGHT;i ++)
-	{		 
+	for (int i = 0; i < MAX_LIGHT; i++)
+	{
 		float3 dir = -lights[i].Direction;
 		float attenuation = 1;
 		if (lights[i].type == 1)
@@ -130,13 +130,13 @@ float4 main(PSInput input) : SV_TARGET
 			float distanceToLight = length(lights[i].LPosition - input.WorldPos);
 			dir = normalize(lights[i].LPosition - input.WorldPos);
 			//float Attuation = (distance*distance);
-			attenuation = 1.0 / (1.0 +0.001 * pow(distanceToLight, 2));
+			attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2));
 			/*if (distanceToLight > 30)
 			{
 				continue;
 			}*/
 		}
-		float4 colour = CalcLightingColor(texturecolour, lights[i].LPosition, dir, lights[i].color, falloff, input.WorldPos.xyz, normalize( input.Normal.xyz))* attenuation;
+		float4 colour = CalcLightingColor(texturecolour, lights[i].LPosition, dir, lights[i].color, falloff, input.WorldPos.xyz, normalize(input.Normal.xyz))* attenuation;
 		if (lights[i].HasShadow && lights[i].type == 0)
 		{
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos);
@@ -154,7 +154,7 @@ float4 main(PSInput input) : SV_TARGET
 	float Shadow = CalcUnshadowedAmountPCF2x2(0, input.WorldPos);
 	float4 GammaCorrected = ambeint + (output);// pow(output, float4(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
 	float gamma = 1.0f / 2.2f;
-//	GammaCorrected = pow(GammaCorrected, float4(gamma, gamma, gamma, gamma));
+	//	GammaCorrected = pow(GammaCorrected, float4(gamma, gamma, gamma, gamma));
 	return GammaCorrected;
 }
 

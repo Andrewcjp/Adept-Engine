@@ -483,28 +483,29 @@ void BaseWindow::RenderText()
 	{
 		return;
 	}
-//	TextRenderer::instance->Reset();
 	std::stringstream stream;
-	stream << std::fixed << std::setprecision(1);
+	stream << std::fixed << std::setprecision(2);
 	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
-	if (true/*ExtendedPerformanceStats*/)
+	stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
+	if (ExtendedPerformanceStats)
 	{
-		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
-		stream << "CPU " << std::setprecision(4) << PerfManager::GetCPUTime() << "ms ";
+		
+		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
 		if (PerfManager::Instance != nullptr)
 		{
 			stream << PerfManager::Instance->GetAllTimers();
 			stream << PerfManager::Instance->GetCounterData();
 		}
 	}
+	TextRenderer::instance->Reset();
 	UI->RenderTextToScreen(1, stream.str());
 	stream.str("");
-	if (D3D12RHI::Instance != nullptr)
+	if (D3D12RHI::Instance != nullptr && ExtendedPerformanceStats)
 	{
 		stream << D3D12RHI::Instance->GetMemory();
 		UI->RenderTextToScreen(2, stream.str());
 	}
-	//TextRenderer::instance->Finish();
+	TextRenderer::instance->Finish();
 
 }
 #if USE_PHYSX_THREADING

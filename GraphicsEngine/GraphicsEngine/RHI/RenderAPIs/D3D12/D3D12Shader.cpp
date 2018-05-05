@@ -38,7 +38,7 @@ D3D_SHADER_MACRO* D3D12Shader::ParseDefines()
 		out[i].Name = Defines[i].Name.c_str();
 		out[i].Definition = Defines[i].Value.c_str();
 	}
-	int last = Defines.size();
+	int last = (int)Defines.size();
 	out[last].Definition = NULL;
 	out[last].Name = NULL;
 	return out;
@@ -386,7 +386,6 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	sampler.MipLODBias = 0;
-
 	sampler.MaxAnisotropy = 0;
 	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
 	sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;

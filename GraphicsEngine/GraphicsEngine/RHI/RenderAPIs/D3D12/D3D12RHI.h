@@ -36,7 +36,7 @@ public:
 	void RenderToScreen(ID3D12GraphicsCommandList * list);
 	static void PreFrameSetUp(ID3D12GraphicsCommandList * list, D3D12Shader * Shader);
 	void PreFrameSwap(ID3D12GraphicsCommandList* list);
-	void SetScreenRenderTaget(ID3D12GraphicsCommandList * list);
+	void SetScreenRenderTarget(ID3D12GraphicsCommandList * list);
 	D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	void DisplayDeviceDebug();
 	std::string GetMemory();
@@ -71,7 +71,7 @@ public:
 private:
 	class	DeviceContext* PrimaryDevice = nullptr;
 	class	DeviceContext* SecondaryDevice = nullptr;
-	static const int FrameCount = 2;
+	static const int FrameCount = 3;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;

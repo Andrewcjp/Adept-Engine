@@ -143,9 +143,13 @@ TextRenderer::~TextRenderer()
 	delete TextAtlas;
 }
 
-void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color)
+void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color,bool reset/* = true*/)
 {
-	Reset();
+	reset = false;
+	if (reset)
+	{
+		Reset();
+	}
 	m_TextShader->SetShaderActive();
 	m_TextShader->Colour = color;
 	m_TextShader->Height = m_height;
@@ -156,11 +160,12 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	const uint8_t *p;
 	atlas* a = TextAtlas;
 	unsigned int TargetDatalength = 6 * text.length();
-	if (coords.size() < TargetDatalength)
+	if (coords.size() < currentsize + TargetDatalength)
 	{
-		coords.resize(TargetDatalength);
+		coords.resize(currentsize + TargetDatalength);
+		ensure(MAX_BUFFER_SIZE > (coords.size() / 6));
 	}
-	int c = 0;
+	int c = currentsize;
 
 	/* Loop through all characters */
 	for (p = (const uint8_t *)text.c_str(); *p; p++)
@@ -177,10 +182,14 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 
 		/* Skip glyphs that have no pixels */
 		if (!w || !h)
+		{
 			continue;
+		}
 
 		coords[c++] =
-		{ x2, -y2, a->c[*p].tx, a->c[*p].ty };
+		{ 
+			x2, -y2, a->c[*p].tx, a->c[*p].ty
+		};
 		coords[c++] =
 		{
 			x2 + w, -y2, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty
@@ -201,27 +210,42 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		{
 			x2 + w, -y2 - h, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty + a->c[*p].bh / a->h
 		};
+		currentsize+=6;
 	}
-	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(text.length() * 6));
+	if (reset)
+	{
+		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(text.length() * 6));
+	}
+	else
+	{
+		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
+	}
+	
 	TextCommandList->SetVertexBuffer(VertexBuffer);
 	TextCommandList->SetTexture(TextAtlas->Texture, 0);
 	TextCommandList->DrawPrimitive(c, 1, 0, 0);
+	
 	///* Draw all the character on the screen in one go */
-	Finish();
+	if (reset)
+	{
+		Finish();
+	}
 
 }
 void TextRenderer::Finish()
 {
 	TextCommandList->Execute();
+	currentsize = 0;
 }
 void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();
+	currentsize = 0;
 }
 void TextRenderer::LoadText()
 {	
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
-	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 4 * 6 * 150, RHIBuffer::BufferAccessType::Dynamic);//max text length?
+	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, (sizeof(float) * 4 * 6) * MAX_BUFFER_SIZE, RHIBuffer::BufferAccessType::Dynamic);//max text length?
 	TextCommandList = RHI::CreateCommandList();
 	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });
 	TextCommandList->CreatePipelineState(m_TextShader);
@@ -255,4 +279,9 @@ void TextRenderer::UpdateSize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
+	if (m_TextShader != nullptr)
+	{
+		m_TextShader->Height = m_height;
+		m_TextShader->Width = m_width;
+	}
 }

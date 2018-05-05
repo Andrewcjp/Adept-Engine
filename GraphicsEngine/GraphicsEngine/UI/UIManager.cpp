@@ -150,12 +150,12 @@ void UIManager::RenderTextToScreen(int id, std::string text)
 
 void UIManager::RenderTextToScreen(int id, std::string text, glm::vec3 colour)
 {
-	textrender->RenderFromAtlas(text, XSpacing, static_cast<float>(m_height - (YHeight*id)), 0.5f, colour);
+	textrender->RenderFromAtlas(text, XSpacing, static_cast<float>(m_height - (YHeight*id)), 0.5f, colour,false);
 }
 
 void UIManager::RenderTextToScreen(std::string text, float x, float y, float scale, glm::vec3 colour)
 {
-	textrender->RenderFromAtlas(text, x, y, scale, colour);
+	textrender->RenderFromAtlas(text, x, y, scale, colour,false);
 }
 
 void UIManager::UpdateSize(int width, int height)
@@ -207,6 +207,7 @@ void UIManager::RenderWidgets()
 {
 	//todo: move to not run every frame?
 	DrawBatcher->RenderBatches();
+	textrender->Reset();
 	for (int i = 0; i < widgets.size(); i++)
 	{
 		if (widgets[i]->GetEnabled())
@@ -214,6 +215,7 @@ void UIManager::RenderWidgets()
 			widgets[i]->Render();
 		}
 	}
+	textrender->Finish();
 #if UISTATS
 	PerfManager::StartTimer("Line");
 #endif

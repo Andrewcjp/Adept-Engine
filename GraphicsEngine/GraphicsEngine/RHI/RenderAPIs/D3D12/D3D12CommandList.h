@@ -29,7 +29,7 @@ public:
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
-	
+	ID3D12GraphicsCommandList* GetCommandList() { return CurrentGraphicsList; }
 private:
 	enum ECommandListType
 	{

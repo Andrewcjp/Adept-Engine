@@ -18,7 +18,7 @@ public:
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void CreatePipelineState(class Shader * shader) override;
-	virtual void UpdateConstantBuffer(void * data, int offset) override;
+	virtual void UpdateConstantBuffer(void * Array, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetTexture(BaseTexture * texture, int slot) override;
 	virtual void SetScreenBackBufferAsRT() override;
@@ -43,9 +43,9 @@ public:
 	// Inherited via RHIBuffer
 	virtual void CreateVertexBufferFromFile(std::string name) override;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount) override;
-	virtual void UpdateConstantBuffer(void * data, int offset) override;
+	virtual void UpdateConstantBuffer(void * Array, int offset) override;
 	virtual void CreateVertexBuffer(int Stride, int ByteSize) override;
-	virtual void UpdateVertexBuffer(void * data, int length) override;
+	virtual void UpdateVertexBuffer(void * Array, int length) override;
 
 	GLuint m_vao = 0;
 	GLuint m_vbo_verts = 0;

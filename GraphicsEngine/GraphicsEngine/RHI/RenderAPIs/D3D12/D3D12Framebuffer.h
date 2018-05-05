@@ -47,7 +47,5 @@ private:
 	class DeviceContext* CurrentDevice = nullptr;
 	class GPUResource* DepthStencil = nullptr;
 	class GPUResource* RenderTarget = nullptr;
-
-	//ID3D12Resource* CubemapRTs[6];
 };
 

@@ -17,6 +17,7 @@
 #include "../Utils/StringUtil.h"
 #include "../Core/Performance/PerfManager.h"
 #include <d3d12.h>
+#include "../Core/Utils/FileUtils.h"
 void AssetManager::LoadFromShaderDir()
 {
 	std::string path = ShaderAssetPath;
@@ -87,7 +88,7 @@ void AssetManager::CookTextureAsset()
 	ofp.close();
 	//ofp.write(reinterpret_cast<const char*>(&ShaderSourceMap), ShaderSourceMap.size() * sizeof(Vertex));
 }
-#include "../Core/Utils/FileUtils.h"
+
 void AssetManager::ExportCookedShaders()
 {
 	std::string dirtarget = ShaderCookedFile;

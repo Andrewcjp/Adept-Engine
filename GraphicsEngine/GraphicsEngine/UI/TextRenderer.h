@@ -26,7 +26,7 @@ public:
 	TextRenderer(int width, int height);
 	~TextRenderer();
 
-	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1));
+	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1),bool Reset = true);
 	void Finish();
 	void Reset();
 	void LoadText();
@@ -48,6 +48,9 @@ private:
 		float s;
 		float t;
 	};
+
 	std::vector<point> coords;
+	int currentsize = 0;
+	const int MAX_BUFFER_SIZE = 350;
 };
 

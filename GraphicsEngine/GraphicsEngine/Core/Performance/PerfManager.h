@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <time.h>
 #define STATS 1
+#include "../Core/Utils/MovingAverage.h"
 class PerfManager
 {
 public:
@@ -72,6 +73,7 @@ private:
 	float StatsUpdateSpeed = 100.0f;
 	float StatAccum = 0;
 	bool Capture = true;
+	MovingAverage CPUAVG = MovingAverage(50);
 	//GPU Bottleneck,2809,simexp,raw,KEPLER_CPU,GRAPHICS,GPU,Bottleneck,UINT64,"Counter ID for GPU bottleneck"
 };
 
