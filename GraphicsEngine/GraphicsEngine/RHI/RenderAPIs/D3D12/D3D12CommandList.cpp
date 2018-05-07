@@ -48,7 +48,9 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
 	}
 	else
 	{
+		
 		CurrentRenderTarget = (D3D12FrameBuffer*)target;
+		ensure(CurrentRenderTarget->CheckDevice(Device->GetDeviceIndex()));
 		CurrentRenderTarget->BindBufferAsRenderTarget(CurrentGraphicsList);
 	}
 }
@@ -71,20 +73,22 @@ void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float
 void D3D12CommandList::Execute()
 {
 	ThrowIfFailed(CurrentGraphicsList->Close());
-	D3D12RHI::Instance->ExecList(CurrentGraphicsList);
-
+	//D3D12RHI::Instance->ExecList(CurrentGraphicsList);
+	Device->ExecuteCommandList(CurrentGraphicsList);
 	IsOpen = false;
 }
 
 void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 {
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
+	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	CurrentGraphicsList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
 }
 
 void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 {
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
+	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	CurrentGraphicsList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
 }
 
@@ -104,7 +108,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	ensure((shader->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
-	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters());
+	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters(),Device);
 
 	D3D12Shader::PipeRenderTargetDesc PRTD = {};
 	if (Buffer == nullptr)
@@ -117,7 +121,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	{
 		PRTD = dbuffer->GetPiplineRenderDesc();
 	}
-	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD);
+	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD,Device);
 	if (CurrentGraphicsList == nullptr)
 	{
 		//todo: ensure a gaphics shader is not used a compute piplne!
@@ -171,6 +175,7 @@ void D3D12CommandList::SetScreenBackBufferAsRT()
 		CurrentRenderTarget->UnBind(CurrentGraphicsList);
 		CurrentRenderTarget = nullptr;
 	}
+	ensureMsgf(Device->GetDeviceIndex() == 0,"Only the Primary Device Is allowed to write to the backbuffer");
 	D3D12RHI::Instance->SetScreenRenderTarget(CurrentGraphicsList);
 	D3D12RHI::Instance->RenderToScreen(CurrentGraphicsList);
 }
@@ -182,15 +187,18 @@ void D3D12CommandList::ClearScreen()
 
 void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot)
 {
-	((D3D12FrameBuffer*)buffer)->BindBufferToTexture(CurrentGraphicsList, slot);
+	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
+	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
+	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot);
 }
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 {
-	Texsture = (D3D12Texture*)texture;
+	Texture = (D3D12Texture*)texture;
+	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()),"Attempted to Bind texture that is not on this device");
 	if (CurrentGraphicsList != nullptr)
 	{
-		Texsture->BindToSlot(CurrentGraphicsList, slot);
+		Texture->BindToSlot(CurrentGraphicsList, slot);
 	}
 }
 
@@ -213,6 +221,10 @@ D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :
 	{
 		Device = D3D12RHI::GetDefaultDevice();
 	}
+	else
+	{
+		Device = inDevice;
+	}
 }
 
 D3D12Buffer::~D3D12Buffer()
@@ -232,7 +244,7 @@ void D3D12Buffer::CreateVertexBufferFromFile(std::string name)
 
 void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
 {
-	CBV = new D3D12CBV();
+	CBV = new D3D12CBV(Device);
 	CBV->InitCBV(StructSize, Elementcount);
 	cpusize = StructSize;
 }
@@ -280,6 +292,14 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
 		UploadComplete = true;
 		D3D12RHI::Instance->AddUploadToUsed(m_UploadBuffer);
 	}
+}
+bool D3D12Buffer::CheckDevice(int index)
+{
+	if (Device != nullptr)
+	{
+		return (Device->GetDeviceIndex() == index);
+	}
+	return false;
 }
 void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
 {

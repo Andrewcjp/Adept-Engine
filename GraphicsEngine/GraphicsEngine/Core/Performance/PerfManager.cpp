@@ -93,6 +93,7 @@ void PerfManager::InStartTimer(const char * countername)
 	{
 		Timers.emplace(targetTimer, 0.0f);
 		TimerOutput.emplace(targetTimer, 0.0f);
+		AVGTimers.emplace(targetTimer, new MovingAverage(AvgCount));
 	}
 }
 
@@ -107,6 +108,7 @@ void PerfManager::InEndTimer(const char * countername)
 	{
 		Timers.at(targetTimer) = (float)((get_nanos() - Timers.at(targetTimer)) / TimeMS);;//in ms;
 		TimerOutput.at(targetTimer) = Timers.at(targetTimer);
+		AVGTimers.at(targetTimer)->Add(Timers.at(targetTimer));
 	}
 }
 
@@ -144,10 +146,17 @@ std::string PerfManager::GetAllTimers()
 	if (ShowAllStats)
 	{
 		stream << std::fixed << std::setprecision(3) << "Stats: ";
+#if 0
 		for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
 		{
 			stream << GetTimerName(it->first) << ": " << it->second << "ms ";
 		}
+#else
+		for (std::map<int, MovingAverage*>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+		{
+			stream << GetTimerName(it->first) << ": " << it->second->GetCurrentAverage() << "ms ";
+		}
+#endif
 	}
 
 	return stream.str();

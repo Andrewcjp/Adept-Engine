@@ -41,10 +41,10 @@ public:
 	virtual void ActivateShaderProgram() override;
 	virtual void DeactivateShaderProgram() override;
 
-	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD);
+	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD, DeviceContext* context);
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
-	static void CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Parms);
+	static void CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Parms, DeviceContext* context);
 	static void CreateDefaultRootSig(D3D12Shader::PiplineShader & output);
 	void Init();
 	void CreateComputePipelineShader();

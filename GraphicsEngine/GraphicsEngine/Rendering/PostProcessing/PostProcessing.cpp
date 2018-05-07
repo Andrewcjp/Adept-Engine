@@ -1,9 +1,12 @@
 #include "stdafx.h"
 #include "PostProcessing.h"
-
-
+#include "PP_CompostPass.h"
+#include "PP_ColourCorrect.h"
+PostProcessing* PostProcessing::Instance = nullptr;
 PostProcessing::PostProcessing()
-{}
+{
+	Instance = this;
+}
 
 
 PostProcessing::~PostProcessing()
@@ -20,14 +23,30 @@ void PostProcessing::ExecPPStack( FrameBuffer* targetbuffer)
 	{
 		Effects[i]->RunPass(list,targetbuffer);
 	}*/
-	TestEffct->RunPass(TestEffct->cmdlist, targetbuffer);
-	
+	//called to post porcess the final rendered scene
+	ColourCorrect->RunPass(ColourCorrect->cmdlist, targetbuffer);
 }
-
+void PostProcessing::ExecPPStackFinal(FrameBuffer* targetbuffer)
+{
+	//called as final pass
+	if (Needscompost)
+	{
+		TestEffct->RunPass(TestEffct->cmdlist, targetbuffer);
+	}
+}
 void PostProcessing::Init()
 {
-	TestEffct = new PostProcessEffectBase();
+	TestEffct = new PP_CompostPass();
 	TestEffct->SetUpData();
-	TestEffct->InitEffect();
-	
+	TestEffct->InitEffect();	
+
+	ColourCorrect = new PP_ColourCorrect();
+	ColourCorrect->SetUpData();
+	ColourCorrect->InitEffect();
+}
+
+void PostProcessing::AddCompostPass(FrameBuffer * buffer)
+{
+	TestEffct->SetInputFrameBuffer(buffer);
+	Needscompost = true;
 }

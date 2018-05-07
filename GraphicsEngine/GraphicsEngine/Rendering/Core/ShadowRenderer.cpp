@@ -14,7 +14,7 @@ ShadowRenderer::ShadowRenderer()
 		DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth,nullptr, 1, FrameBuffer::Depth));
 	}
 	PointLightBuffer = RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::CubeDepth);
-	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant);
+	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant,nullptr);
 	GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4)*6,1);
 	PointShadowList = RHI::CreateCommandList();
 }

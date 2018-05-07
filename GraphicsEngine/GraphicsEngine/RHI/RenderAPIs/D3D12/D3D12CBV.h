@@ -10,7 +10,7 @@ public:
 		LightCBV = 2,
 		MPCBV = 3
 	};
-	D3D12CBV();
+	D3D12CBV(class DeviceContext* Device);
 	~D3D12CBV();
 	void SetDescriptorHeaps(CommandListDef * list);
 	void SetGpuView(CommandListDef* list, int offset, int slot = MainCBV);
@@ -30,5 +30,6 @@ private:
 	ID3D12DescriptorHeap* m_cbvHeap;
 	int InitalBufferCount = 10;
 	int CB_Size = 0;
+	DeviceContext* Device = nullptr;
 };
 

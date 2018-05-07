@@ -12,6 +12,7 @@
 #include "d3d12Shader.h"
 #include "D3D12Texture.h"
 
+
 #if defined(_DEBUG)
 inline void SetName(ID3D12Object* pObject, LPCWSTR name)
 {
@@ -65,9 +66,11 @@ public:
 	class ShaderMipMap* MipmapShader = nullptr;
 	ID3D12DescriptorHeap* BaseTextureHeap;
 	ID3D12CommandQueue* GetCommandQueue();
-	
+	static DeviceContext* GetDeviceContext(int index = 0);
 
 	static DeviceContext* GetDefaultDevice();
+
+	void AddLinkedFrameBuffer(FrameBuffer* target);
 private:
 	class	DeviceContext* PrimaryDevice = nullptr;
 	class	DeviceContext* SecondaryDevice = nullptr;
@@ -111,7 +114,7 @@ private:
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;
 	int PerfCounter = 0;
-
+	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;
 
 	bool Omce = false;
 	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);

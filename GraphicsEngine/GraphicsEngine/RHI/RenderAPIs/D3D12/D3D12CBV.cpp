@@ -2,9 +2,15 @@
 #include "D3D12CBV.h"
 #include "D3D12RHI.h"
 #include "EngineGlobals.h"
+#include "../RHI/DeviceContext.h"
 #if BUILD_D3D12
-D3D12CBV::D3D12CBV()
+D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 {
+	Device = inDevice;
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDeviceContext();
+	}
 }
 
 
@@ -33,10 +39,10 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 	cbvHeapDesc.NumDescriptors = 1;
 	cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap)));
+	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap)));
 
 	CB_Size = (StructSize + 255) & ~255;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(InitalBufferCount * CB_Size),//1024 * 64
@@ -49,7 +55,7 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 	cbvDesc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
 	
 	cbvDesc.SizeInBytes = CB_Size;	// CB size is required to be 256-byte aligned.
-	D3D12RHI::GetDevice()->CreateConstantBufferView(&cbvDesc, m_cbvHeap->GetCPUDescriptorHandleForHeapStart());
+	Device->GetDevice()->CreateConstantBufferView(&cbvDesc, m_cbvHeap->GetCPUDescriptorHandleForHeapStart());
 
 	// Map and initialize the constant buffer. We don't unmap this until the
 	// app closes. Keeping things mapped for the lifetime of the resource is okay.

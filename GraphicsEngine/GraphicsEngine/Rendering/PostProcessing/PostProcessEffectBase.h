@@ -6,15 +6,20 @@ class PostProcessEffectBase
 public:
 	PostProcessEffectBase();
 	~PostProcessEffectBase();
-	void InitEffect();
+	
 	void RunPass(RHICommandList * list, FrameBuffer * InputTexture);
 	void SetUpData();
-	void TestOutput();
 	void RenderScreenQuad(RHICommandList* list);
 	RHICommandList* cmdlist = nullptr;
+	virtual void InitEffect();
+protected:
+
+	virtual void ExecPass(RHICommandList * list, FrameBuffer * InputTexture) =0;
+	virtual void PostSetUpData() = 0;
+	virtual void PostInitEffect() = 0;
 private:
 	RHIBuffer * VertexBuffer = nullptr;
-	ShaderOutput*  CurrentShader = nullptr;
+	
 	
 };
 

@@ -20,7 +20,7 @@ private:
 	float * Array;
 	float Sum;
 	float Average;
-	unsigned short Index;
+	int Index;
 	bool FilterComplete;
 	void init();
 };

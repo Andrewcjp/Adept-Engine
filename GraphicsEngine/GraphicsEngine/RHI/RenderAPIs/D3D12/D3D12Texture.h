@@ -36,6 +36,7 @@ public:
 	int height = 0;
 	UINT16 Miplevels = 6;
 	int	MipLevelsReadyNow = 1;
+	bool CheckDevice(int index);
 private:
 	int TextureWidth = 100;
 	int TextureHeight = 100;

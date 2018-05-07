@@ -18,6 +18,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	//return float4(Colour,1.0);
 	//float sampled = texColour.Sample(defaultSampler, input.uv).rgba;
 	//return texColour.Sample(defaultSampler, input.uv).rgba;// float4(sampled, sampled, sampled, sampled);
-	float4 sampled = float4(1.0,1.0,1.0,texColour.Sample(defaultSampler, input.uv).r);
-	return float4(Colour,1.0)*sampled;
+	const float SampledValue = texColour.Sample(defaultSampler, input.uv).r;
+	float4 sampled = float4(1.0,1.0,1.0, SampledValue);
+	return float4(Colour, SampledValue);
 }

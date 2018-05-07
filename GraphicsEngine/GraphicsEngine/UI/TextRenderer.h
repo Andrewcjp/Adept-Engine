@@ -26,12 +26,15 @@ public:
 	TextRenderer(int width, int height);
 	~TextRenderer();
 
-	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1),bool Reset = true);
+	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1),bool Reset = false);
 	void Finish();
 	void Reset();
 	void LoadText();
 	void UpdateSize(int width, int height);
+	void NotifyFrameEnd();
 private:
+	bool RunOnSecondDevice = false;
+	bool UseFrameBuffer = false;
 	int TextDataLength = 0;
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;
@@ -40,6 +43,8 @@ private:
 	atlas* TextAtlas;
 	RHIBuffer* VertexBuffer = nullptr;
 	RHICommandList* TextCommandList = nullptr;
+	//when run on second gpu
+	FrameBuffer* Renderbuffer = nullptr;
 	float ScaleFactor = 1.0f;
 	struct point
 	{
@@ -52,5 +57,6 @@ private:
 	std::vector<point> coords;
 	int currentsize = 0;
 	const int MAX_BUFFER_SIZE = 350;
+	bool NeedsClearRT = true;
 };
 

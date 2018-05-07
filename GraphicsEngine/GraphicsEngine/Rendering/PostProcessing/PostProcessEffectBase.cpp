@@ -19,31 +19,22 @@ void PostProcessEffectBase::SetUpData()
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 
 	//test
-
-	CurrentShader = new ShaderOutput(10,1);
-	cmdlist = RHI::CreateCommandList();
-
+	PostSetUpData();
 }
-void PostProcessEffectBase::TestOutput()
-{
 
-}
 
 PostProcessEffectBase::~PostProcessEffectBase()
 {}
 
 void PostProcessEffectBase::InitEffect()
 {
-	cmdlist->SetPipelineState(PipeLineState{ false,false });
-	cmdlist->CreatePipelineState(CurrentShader);
+	PostInitEffect();
 }
 void PostProcessEffectBase::RunPass(RHICommandList * list,FrameBuffer* InputTexture)
 {
 	list->ResetList();
 	
-	list->SetScreenBackBufferAsRT();
-	list->SetFrameBufferTexture(InputTexture, 0);
-	RenderScreenQuad(list);
+	ExecPass(list, InputTexture);
 	list->Execute();
 }
 
@@ -54,4 +45,11 @@ void PostProcessEffectBase::RenderScreenQuad(RHICommandList * list)
 	list->DrawPrimitive(6, 1, 0, 0);
 
 }
+
+//void PostProcessEffectBase::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
+//{
+//	/*list->SetScreenBackBufferAsRT();
+//	list->SetFrameBufferTexture(InputTexture, 0);
+//	RenderScreenQuad(list);*/
+//}
 

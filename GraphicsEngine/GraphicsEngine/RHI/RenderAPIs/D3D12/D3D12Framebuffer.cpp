@@ -76,21 +76,24 @@ void D3D12FrameBuffer::CreateColour()
 {
 	RTVformat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-	rtvHeapDesc.NumDescriptors = 1;
-	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+	if (m_rtvHeap == nullptr)
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+		rtvHeapDesc.NumDescriptors = 1;
+		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+	}
 	D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
 	renderTargetViewDesc.Format = RTVformat;
 	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
 	depthOptimizedClearValue.Format = renderTargetViewDesc.Format;
-	depthOptimizedClearValue.Color[0] = clearColor[0];
-	depthOptimizedClearValue.Color[1] = clearColor[1];
-	depthOptimizedClearValue.Color[2] = clearColor[2];
-	depthOptimizedClearValue.Color[3] = clearColor[3];
+	depthOptimizedClearValue.Color[0] = BufferClearColour.r;
+	depthOptimizedClearValue.Color[1] = BufferClearColour.g;
+	depthOptimizedClearValue.Color[2] = BufferClearColour.b;
+	depthOptimizedClearValue.Color[3] = BufferClearColour.a;
 
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
@@ -132,11 +135,14 @@ void D3D12FrameBuffer::CreateSRV()
 void D3D12FrameBuffer::CreateDepth()
 {
 	Depthformat = DXGI_FORMAT_D32_FLOAT;
-	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-	dsvHeapDesc.NumDescriptors = 1;
-	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
+	if (m_dsvHeap == nullptr)
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+		dsvHeapDesc.NumDescriptors = 1;
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		ThrowIfFailed(CurrentDevice->GetDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
+	}
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
 		depthStencilDesc.Format = Depthformat;
@@ -167,7 +173,7 @@ void D3D12FrameBuffer::CreateDepth()
 	{
 
 		//todo look at usage of heaps?	
-
+		//todo: resize might leak descritpors?
 		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 		shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -180,6 +186,43 @@ void D3D12FrameBuffer::CreateDepth()
 
 	}
 }
+bool D3D12FrameBuffer::CheckDevice(int index)
+{
+	if (CurrentDevice != nullptr)
+	{
+		return (CurrentDevice->GetDeviceIndex() == index);
+	}
+	return false;
+}
+
+void D3D12FrameBuffer::Resize(int width, int height)
+{
+	m_width = width;
+	m_height = height;
+	//todo: ensure not in use!
+	if (m_ftype == FrameBufferType::ColourDepth)
+	{
+		m_depthStencil->Release();
+		delete DepthStencil;
+		CreateDepth();
+
+		
+		m_RenderTarget->Release();
+		delete RenderTarget;
+		CreateColour();
+	}
+}
+
+void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
+{
+
+}
+
+void D3D12FrameBuffer::CopyToDevice(DeviceContext * device)
+{
+
+}
+
 D3D12FrameBuffer::~D3D12FrameBuffer()
 {
 	if (m_ftype == FrameBufferType::Depth)
@@ -272,7 +315,7 @@ void D3D12FrameBuffer::ClearBuffer(CommandListDef * list)
 	if (m_ftype == ColourDepth)
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-		list->ClearRenderTargetView(rtHandle, clearColor, 0, nullptr);
+		list->ClearRenderTargetView(rtHandle, &BufferClearColour[0], 0, nullptr);
 	}
 	if (m_ftype == CubeDepth)
 	{

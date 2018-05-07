@@ -139,6 +139,7 @@ void BaseWindow::FixedUpdate()
 {
 
 }
+#include "../Rendering/PostProcessing/PostProcessing.h"
 void BaseWindow::Render()
 {
 	PreRender();
@@ -224,10 +225,17 @@ void BaseWindow::Render()
 	}
 	if (LoadText)
 	{
+		PerfManager::StartTimer("TEXT");
 		RenderText();
 		WindowUI();
+		PerfManager::EndTimer("TEXT");
 	}
 	PerfManager::EndTimer("UI");
+	
+	if (PostProcessing::Instance)
+	{
+		PostProcessing::Instance->ExecPPStackFinal(nullptr);
+	}
 
 	if (PerfManager::Instance != nullptr)
 	{
@@ -257,6 +265,10 @@ void BaseWindow::Render()
 	}
 	input->Clear();//clear key states
 	PostRender();
+	if (TextRenderer::instance != nullptr)
+	{
+		TextRenderer::instance->NotifyFrameEnd();
+	}	
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->EndCPUTimer();

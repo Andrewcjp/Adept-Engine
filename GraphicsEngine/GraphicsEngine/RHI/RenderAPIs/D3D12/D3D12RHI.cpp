@@ -141,14 +141,20 @@ void D3D12RHI::LoadPipeLine()
 		IDXGIAdapter* warpAdapter;
 		ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
 		SecondaryDevice = new DeviceContext();
-		SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter);
+		SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter,1);
 
-#if 0
+#if 1
 		//testing warp adaptor
-		testbuffer = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
+		/*for (int i = 0; i < 3; i++)
+		{
+			testbuffer = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
+		}*/	
 
-		testbuffer2 = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
-		//Test = new D3D12Texture("\\asset\\texture\\grasshillalbedo.png", SecondaryDevice);
+		//testbuffer2 = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
+		for (int i = 0; i < 3; i++)
+		{
+			Test = new D3D12Texture("\\asset\\texture\\grasshillalbedo.png", SecondaryDevice);
+		}	
 
 #endif
 	}
@@ -157,7 +163,7 @@ void D3D12RHI::LoadPipeLine()
 	GetHardwareAdapter(factory, &hardwareAdapter);
 
 
-	PrimaryDevice->CreateDeviceFromAdaptor(hardwareAdapter);
+	PrimaryDevice->CreateDeviceFromAdaptor(hardwareAdapter,0);
 	//ThrowIfFailed(D3D12CreateDevice(
 	//	hardwareAdapter,
 	//	D3D_FEATURE_LEVEL_11_0,
@@ -279,6 +285,10 @@ void D3D12RHI::InternalResizeSwapChain(int x, int y)
 		m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(x), static_cast<float>(y));
 		m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(x), static_cast<LONG>(y));
 		CreateDepthStencil(x, y);
+		for (int i = 0; i < FrameBuffersLinkedToSwapChain.size(); i++)
+		{
+			FrameBuffersLinkedToSwapChain[i]->Resize(x,y);			
+		}
 		RequestedResize = false;
 	}
 }
@@ -358,7 +368,12 @@ void D3D12RHI::LoadAssets()
 void D3D12RHI::ExecSetUpList()
 {
 	ThrowIfFailed(m_SetupCommandList->Close());
-	ExecList(m_SetupCommandList);
+	ExecList(m_SetupCommandList);//todo: move this!
+	PrimaryDevice->UpdateCopyEngine();
+	if (SecondaryDevice != nullptr)
+	{
+		SecondaryDevice->UpdateCopyEngine();
+	}
 	WaitForGpu();
 	ReleaseUploadHeap();
 }
@@ -396,7 +411,7 @@ void D3D12RHI::PresentFrame()
 		m_SetupCommandList->Close();
 		ExecList(m_SetupCommandList);
 	}
-
+	
 	//testing
 	if (m_BudgetNotificationCookie == 1)
 	{
@@ -416,9 +431,15 @@ void D3D12RHI::PresentFrame()
 	{
 		InternalResizeSwapChain(newwidth, newheight);
 	}
-
+	//all exectuion this frame has finished 
+	//so all resources should be in the correct state!
+	PrimaryDevice->UpdateCopyEngine();
 	PrimaryDevice->GetCommandAllocator()->Reset();
-
+	if (SecondaryDevice != nullptr)
+	{
+		SecondaryDevice->UpdateCopyEngine();
+		SecondaryDevice->GetCommandAllocator()->Reset();
+	}
 	MoveToNextFrame();
 
 	WaitForGpu();
@@ -526,6 +547,22 @@ ID3D12CommandQueue * D3D12RHI::GetCommandQueue()
 	return PrimaryDevice->GetCommandQueue();
 }
 
+DeviceContext * D3D12RHI::GetDeviceContext(int index)
+{
+	if (Instance != nullptr)
+	{
+		if (index == 0)
+		{
+			return Instance->PrimaryDevice;
+		}
+		else if (index == 1)
+		{
+			return Instance->SecondaryDevice;
+		}
+	}
+	return nullptr;
+}
+
 DeviceContext * D3D12RHI::GetDefaultDevice()
 {
 	if (Instance != nullptr)
@@ -533,6 +570,11 @@ DeviceContext * D3D12RHI::GetDefaultDevice()
 		return Instance->PrimaryDevice;
 	}
 	return nullptr;
+}
+
+void D3D12RHI::AddLinkedFrameBuffer(FrameBuffer * target)
+{
+	FrameBuffersLinkedToSwapChain.push_back(target);
 }
 
 void D3D12RHI::WaitForPreviousFrame()

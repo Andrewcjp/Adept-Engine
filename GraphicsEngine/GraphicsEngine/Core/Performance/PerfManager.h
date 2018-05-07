@@ -49,6 +49,7 @@ private:
 	std::map<int, float> Timers;
 	std::map< std::string, int> TimerIDs;
 	std::map<int, float> TimerOutput;
+	std::map<int, MovingAverage*> AVGTimers;
 	int NextId = 0;
 	const float TimeMS = 1e6f;
 	static bool PerfActive;
@@ -70,7 +71,8 @@ private:
 	float AVGFrameTime = 0;
 	float FrameTimeAccum = 0.0;
 	
-	float StatsUpdateSpeed = 100.0f;
+	const float StatsUpdateSpeed = 25.0f;
+	const int AvgCount = 50;
 	float StatAccum = 0;
 	bool Capture = true;
 	MovingAverage CPUAVG = MovingAverage(50);

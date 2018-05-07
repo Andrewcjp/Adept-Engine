@@ -13,8 +13,9 @@ FrameBuffer::~FrameBuffer()
 	Cleanup();
 }
 
-void FrameBuffer::InitBuffer()
+void FrameBuffer::InitBuffer(glm::vec4 clearColour)
 {
+	BufferClearColour = clearColour;
 	switch (m_ftype)
 	{
 	case ColourDepth:
@@ -41,6 +42,24 @@ void FrameBuffer::CreateDepth()
 {}
 
 void FrameBuffer::CreateGBuffer()
+{}
+
+DeviceContext * FrameBuffer::GetDevice()
+{
+	return CurrentDevice;
+}
+
+FrameBuffer::FrameBufferType FrameBuffer::GetType()
+{
+	return m_ftype;
+}
+
+glm::vec4 FrameBuffer::GetClearColour()
+{
+	return BufferClearColour;
+}
+
+void FrameBuffer::Resize(int width, int height)
 {}
 
 void FrameBuffer::Cleanup()

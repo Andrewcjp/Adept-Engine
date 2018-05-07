@@ -14,7 +14,7 @@ float D3D12Texture::MipCreationTime = 0;
 #include "../RHI/DeviceContext.h"
 D3D12Texture::D3D12Texture( DeviceContext* inDevice)
 {
-	if (Device == nullptr)
+	if (inDevice == nullptr)
 	{
 		Device = D3D12RHI::GetDefaultDevice();
 	}
@@ -205,6 +205,14 @@ void D3D12Texture::CreateTexture()
 
 
 }
+bool D3D12Texture::CheckDevice(int index)
+{
+	if (Device != nullptr)
+	{
+		return (Device->GetDeviceIndex() == index);
+	}
+	return false;
+}
 UINT8* D3D12Texture::GenerateCheckerBoardTextureData()
 {
 	const UINT rowPitch = TextureWidth * TexturePixelSize;
@@ -274,7 +282,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
-	D3D12RHI::Instance->BaseTextureHeap = m_srvHeap;
+	//D3D12RHI::Instance->BaseTextureHeap = m_srvHeap;//todo: move this!
 	m_srvHeap->SetName(L"Texture SRV");
 
 	ID3D12Resource* textureUploadHeap;
@@ -336,9 +344,9 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		//array
 		Texturedatarray[0] = textureData;
-		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_texture, textureUploadHeap, 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
-		D3D12RHI::Instance->m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
-
+		UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
+		Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		Device->NotifyWorkForCopyEngine();
 		// Describe and create a SRV for the texture.
 		UpdateSRV();
 	}
@@ -346,7 +354,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 		//gen mips
 #if	USEGPUTOGENMIPS
-		if (type != RHI::TextureType::Text)
+		if (type != RHI::TextureType::Text && D3D12RHI::Instance->MipmapShader != nullptr)
 		{
 			D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
 		}

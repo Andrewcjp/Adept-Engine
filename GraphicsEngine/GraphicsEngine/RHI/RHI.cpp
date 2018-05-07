@@ -70,7 +70,7 @@ bool RHI::SupportsExplictMultiAdaptor()
 {
 	return (GetType() == RenderSystemD3D12);
 }
-RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type)
+RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device )
 {
 	switch (instance->currentsystem)
 	{
@@ -81,7 +81,7 @@ RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type)
 #endif
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		return new D3D12Buffer(type);
+		return new D3D12Buffer(type, Device);
 		break;
 #endif
 #if BUILD_VULKAN
@@ -148,18 +148,18 @@ void RHI::UnBindUnit(int unit)
 {
 }
 
-BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, void * data, TextureType type)
+BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device)
 {
 	BaseTexture* newtex = nullptr;
 	switch (instance->currentsystem)
 	{
-	case RenderSystemOGL:
+	/*case RenderSystemOGL:
 		newtex = new OGLTexture();
 		newtex->CreateTextureFromData(data, type, with, height, nChannels);
 		return newtex;
-		break;
+		break;*/
 	case RenderSystemD3D12:
-		newtex = new D3D12Texture();
+		newtex = new D3D12Texture(Device);
 		//newtex->CreateTextureFromData(data, type, with, height, nChannels);
 		return newtex;
 		break;
@@ -195,7 +195,7 @@ Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool
 	return nullptr;
 }
 
-FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Device, float ratio, FrameBuffer::FrameBufferType type)
+FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Device, float ratio, FrameBuffer::FrameBufferType type,glm::vec4 clearcolour)
 {
 	switch (instance->currentsystem)
 	{
@@ -211,7 +211,7 @@ FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Devic
 			Device = D3D12RHI::GetDefaultDevice();
 		}
 		D3D12FrameBuffer * ptr = new D3D12FrameBuffer(width, height, Device, ratio, type);
-		ptr->InitBuffer();
+		ptr->InitBuffer(clearcolour);
 		return ptr;
 		break;
 #endif
@@ -219,7 +219,14 @@ FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Devic
 	return nullptr;
 
 }
-
+DeviceContext* RHI::GetDeviceContext(int index)
+{
+	if (IsD3D12())
+	{
+		return D3D12RHI::GetDeviceContext(index);
+	}
+	return nullptr;
+}
 ShaderProgramBase * RHI::CreateShaderProgam(DeviceContext* Device)
 {
 	switch (instance->currentsystem)

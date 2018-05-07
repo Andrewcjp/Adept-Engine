@@ -25,6 +25,12 @@ public:
 	void		 CreateColour() override;
 	void		 CreateSRV();
 	void		 CreateDepth() override;
+	
+	bool CheckDevice(int index);
+	void Resize(int width, int height) override;
+	void SetupCopyToDevice(DeviceContext* device);
+	void CopyToDevice(DeviceContext* device);
+	
 private:
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE RTHandle;
@@ -41,11 +47,12 @@ private:
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	bool once = false;
 	int lastboundslot = 0;
-	const float clearColor[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
+	//const float clearColor[4] = { 0.0f, 0.2f, 0.4f, 0.0f};
 	const float CubeDepthclearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT descriptorSize = 0;
-	class DeviceContext* CurrentDevice = nullptr;
+	
 	class GPUResource* DepthStencil = nullptr;
 	class GPUResource* RenderTarget = nullptr;
+	
 };
 

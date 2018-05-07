@@ -4,7 +4,7 @@ class Text_Shader :
 	public Shader
 {
 public:
-	Text_Shader();
+	Text_Shader(class DeviceContext* context);
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 	void Update(RHICommandList * lsit);

@@ -247,6 +247,8 @@
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
     <ClInclude Include="Core\Utils\MovingAverage.h" />
+    <ClInclude Include="Rendering\PostProcessing\PP_ColourCorrect.h" />
+    <ClInclude Include="Rendering\PostProcessing\PP_CompostPass.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12Heap.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12MemoryManager.h" />
@@ -278,6 +280,8 @@
     <ClInclude Include="Core\GameWindow.h" />
     <ClInclude Include="Core\Utils\FileUtils.h" />
     <ClInclude Include="Core\EngineTypes.h" />
+    <ClInclude Include="Rendering\Shaders\Shader_Compost.h" />
+    <ClInclude Include="Rendering\Shaders\Shader_ColourCorrect.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffectBase.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessing.h" />
@@ -396,6 +400,8 @@
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
     <ClCompile Include="Core\Utils\MovingAverage.cpp" />
+    <ClCompile Include="Rendering\PostProcessing\PP_ColourCorrect.cpp" />
+    <ClCompile Include="Rendering\PostProcessing\PP_CompostPass.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12Heap.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12MemoryManager.cpp" />
@@ -428,6 +434,8 @@
     <ClCompile Include="Core\Components\ExtraComponentRegister.cpp" />
     <ClCompile Include="Core\Components\MeshColliderComponent.cpp" />
     <ClCompile Include="Core\GameWindow.cpp" />
+    <ClCompile Include="Rendering\Shaders\Shader_Compost.cpp" />
+    <ClCompile Include="Rendering\Shaders\Shader_ColourCorrect.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

@@ -9,11 +9,13 @@
 #include "../Core/Utils/FileUtils.h"
 #define MAXWIDTH 1024
 TextRenderer* TextRenderer::instance = nullptr;
+#include "../Rendering/PostProcessing/PostProcessing.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 TextRenderer::TextRenderer(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	m_TextShader = new Text_Shader();
+	m_TextShader = new Text_Shader(D3D12RHI::GetDeviceContext(RunOnSecondDevice));
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	LoadText();
@@ -41,7 +43,7 @@ struct atlas
 		float ty;	// y offset of glyph in texture coordinates
 	} c[128];		// character information
 
-	atlas(FT_Face face, int height)
+	atlas(FT_Face face, int height,bool RunOnSecondDevice)
 	{
 		FT_Set_Pixel_Sizes(face, 0, height);
 		FT_GlyphSlot g = face->glyph;
@@ -74,8 +76,7 @@ struct atlas
 
 		w = std::max(w, roww);
 		h += rowh;
-		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::Text);
-
+		
 		/* Paste all glyph bitmaps into the texture, remembering the offset */
 		int ox = 0;
 		int oy = 0;
@@ -127,6 +128,14 @@ struct atlas
 			rowh = std::max(rowh, (unsigned int)g->bitmap.rows);
 			ox += g->bitmap.width + 1;
 		}
+		if (RunOnSecondDevice)
+		{
+			Texture = RHI::CreateTextureWithData(w, h, 1, NULL, D3D12RHI::GetDeviceContext(1));
+		}
+		else
+		{
+			Texture = RHI::CreateTextureWithData(w, h, 1, NULL, D3D12RHI::GetDeviceContext(0));
+		}
 		Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
 
 		printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
@@ -145,7 +154,6 @@ TextRenderer::~TextRenderer()
 
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color,bool reset/* = true*/)
 {
-	reset = false;
 	if (reset)
 	{
 		Reset();
@@ -155,7 +163,20 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	scale = scale * ScaleFactor;
-	TextCommandList->SetScreenBackBufferAsRT();
+	if (UseFrameBuffer)
+	{
+		TextCommandList->SetRenderTarget(Renderbuffer);
+		if (NeedsClearRT)
+		{
+			TextCommandList->ClearFrameBuffer(Renderbuffer);
+			NeedsClearRT = false;
+		}	
+	}
+	else
+	{
+		TextCommandList->SetScreenBackBufferAsRT();
+	}
+	
 	m_TextShader->Update(TextCommandList);
 	const uint8_t *p;
 	atlas* a = TextAtlas;
@@ -244,11 +265,21 @@ void TextRenderer::Reset()
 }
 void TextRenderer::LoadText()
 {	
-	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
+	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, D3D12RHI::GetDeviceContext(RunOnSecondDevice));
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, (sizeof(float) * 4 * 6) * MAX_BUFFER_SIZE, RHIBuffer::BufferAccessType::Dynamic);//max text length?
-	TextCommandList = RHI::CreateCommandList();
+
+	TextCommandList = RHI::CreateCommandList(D3D12RHI::GetDeviceContext(RunOnSecondDevice));
 	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });
 	TextCommandList->CreatePipelineState(m_TextShader);
+	if (UseFrameBuffer)
+	{
+		Renderbuffer = RHI::CreateFrameBuffer(1280, 720, D3D12RHI::GetDeviceContext(RunOnSecondDevice), 1.0f, FrameBuffer::ColourDepth, glm::vec4(0.0f, 0.2f, 0.4f, 0.0f));
+		PostProcessing::Instance->AddCompostPass(Renderbuffer);
+		if (D3D12RHI::Instance)
+		{
+			D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);
+		}
+	}
 
 	if (FT_Init_FreeType(&ft))
 	{
@@ -267,7 +298,7 @@ void TextRenderer::LoadText()
 
 	// Load first 128 characters of ASCII set
 	//Freetype is awesome!
-	TextAtlas = new atlas(face, facesize);
+	TextAtlas = new atlas(face, facesize, RunOnSecondDevice);
 	// Destroy FreeType once we're finished
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
@@ -285,3 +316,10 @@ void TextRenderer::UpdateSize(int width, int height)
 		m_TextShader->Width = m_width;
 	}
 }
+
+void TextRenderer::NotifyFrameEnd()
+{
+	NeedsClearRT = true;
+}
+
+

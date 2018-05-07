@@ -8,6 +8,7 @@
 #include "../Core/Utils/StringUtil.h"
 #include "../Core/Utils/WindowsHelper.h"
 #include "../Core/Asserts.h"
+#include "../RHI/DeviceContext.h"
 #include <d3dcompiler.h>
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
@@ -147,11 +148,15 @@ void D3D12Shader::ActivateShaderProgram()
 void D3D12Shader::DeactivateShaderProgram()
 {}
 
-D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD)
+D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, 
+	PipeRenderTargetDesc PRTD, DeviceContext* context)
 {
 	ensure(blobs->vsBlob != nullptr);
 	ensure(blobs->fsBlob != nullptr);
-
+	if (context == nullptr)
+	{
+		context = D3D12RHI::GetDeviceContext(0);
+	}
 	// Describe and create the graphics pipeline state object (PSO).
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = { 0 };
 	psoDesc.InputLayout.pInputElementDescs = inputDisc;
@@ -200,7 +205,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	}
 	psoDesc.DSVFormat = PRTD.DSVFormat;
 	//todo: Driver Crash Here!
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
+	ThrowIfFailed(context->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
 
 	return output;
 }
@@ -256,19 +261,19 @@ void D3D12Shader::CreateComputePipelineShader()
 		ID3DBlob* error;
 		computeRootSignatureDesc.Init(_countof(rootParameters), rootParameters, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 		ThrowIfFailed(D3D12SerializeRootSignature(&computeRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
-		ThrowIfFailed(D3D12RHI::GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_Shader.m_rootSignature)));
+		ThrowIfFailed(CurrentDevice->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_Shader.m_rootSignature)));
 		NAME_D3D12_OBJECT(m_Shader.m_rootSignature);
 	}
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
 	computePsoDesc.pRootSignature = m_Shader.m_rootSignature;
 	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(mBlolbs.csBlob);
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_Shader.m_pipelineState)));
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_Shader.m_pipelineState)));
 }
 CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
 {
 	Init();
 	CommandListDef* newlist = nullptr;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
 	ThrowIfFailed(newlist->Close());
 	return newlist;
 }
@@ -325,14 +330,14 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 	}
 	return true;
 }
-void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Params)
+void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Params,DeviceContext* context)
 {
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
 
 	// This is the highest version the sample supports. If CheckFeatureSupport succeeds, the HighestVersion returned will not be greater than this.
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
 
-	if (FAILED(D3D12RHI::GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+	if (FAILED(context->GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
 	{
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
@@ -418,7 +423,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	ID3DBlob* signature;
 	ID3DBlob* error;
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
+	ThrowIfFailed(context->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 	std::wstring name = L"Root sig Length = ";
 	name.append(std::to_wstring(Params.size()));
 	output.m_rootSignature->SetName(name.c_str());

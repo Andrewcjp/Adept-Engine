@@ -9,7 +9,7 @@ DeviceContext::DeviceContext()
 DeviceContext::~DeviceContext()
 {}
 
-void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter)
+void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	ThrowIfFailed(D3D12CreateDevice(
@@ -18,7 +18,7 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter)
 		IID_PPV_ARGS(&m_Device)
 	));
 	
-
+	DeviceIndex = index;
 	//GetMaxSupportedFeatureLevel(m_Primarydevice);
 
 #if 0
@@ -34,13 +34,17 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter)
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_commandAllocator)));
 
 
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
-
+	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_CopyCommandAllocator,nullptr, IID_PPV_ARGS(&m_CopyList)));
 	GraphicsQueueSync.Init(GetDevice());
 	CopyQueueSync.Init(GetDevice());
 
+
+	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
+	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
+	//todo: validate the device capablities 
 }
 
 ID3D12Device * DeviceContext::GetDevice()
@@ -90,6 +94,48 @@ void DeviceContext::DestoryDevice()
 void DeviceContext::WaitForGpu()
 {
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
+}
+
+ID3D12GraphicsCommandList * DeviceContext::GetCopyList()
+{
+	return m_CopyList;
+}
+
+void DeviceContext::NotifyWorkForCopyEngine()
+{
+	CopyEngineHasWork = true;
+}
+
+void DeviceContext::UpdateCopyEngine()
+{
+	if (CopyEngineHasWork)
+	{
+		ThrowIfFailed(m_CopyList->Close());
+		ExecuteCopyCommandList(m_CopyList);
+		ThrowIfFailed(m_CopyCommandAllocator->Reset());
+		ThrowIfFailed(m_CopyList->Reset(m_CopyCommandAllocator, nullptr));
+		CopyEngineHasWork = false;
+	}
+}
+
+
+void DeviceContext::ExecuteCopyCommandList(ID3D12GraphicsCommandList * list)
+{
+	ID3D12CommandList* ppCommandLists[] = { list };
+	m_CopyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);	
+}
+
+void DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
+{
+	ID3D12CommandList* ppCommandLists[] = { list };
+	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	WaitForGpu();
+}
+
+int DeviceContext::GetDeviceIndex()
+{
+	return DeviceIndex;
 }
 
 GPUSyncPoint::~GPUSyncPoint()

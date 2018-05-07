@@ -22,7 +22,7 @@ public:
 	DeviceContext();
 	~DeviceContext();
 
-	void CreateDeviceFromAdaptor(IDXGIAdapter1* adapter);
+	void CreateDeviceFromAdaptor(IDXGIAdapter1* adapter, int index);
 	ID3D12Device* GetDevice();
 	ID3D12CommandAllocator* GetCommandAllocator();
 	ID3D12CommandQueue* GetCommandQueue();
@@ -31,8 +31,14 @@ public:
 	std::string GetMemoryReport();
 	void DestoryDevice();
 	void WaitForGpu();
-
+	ID3D12GraphicsCommandList* GetCopyList();
+	void NotifyWorkForCopyEngine();
+	void UpdateCopyEngine();
+	void ExecuteCopyCommandList(ID3D12GraphicsCommandList * list);
+	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
+	int GetDeviceIndex();
 private:	
+	int DeviceIndex = 0;
 	//Device Data
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;
 	ID3D12Device* m_Device = nullptr;
@@ -53,5 +59,8 @@ private:
 	GPUSyncPoint GraphicsQueueSync;
 	GPUSyncPoint CopyQueueSync;
 	GPUSyncPoint ComputeQueueSync;
+
+	//copy queue management 
+	bool CopyEngineHasWork = false;
 };
 

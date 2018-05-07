@@ -48,7 +48,7 @@ private:
 	D3D12_INPUT_ELEMENT_DESC* VertexDesc = nullptr;
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
-	class D3D12Texture* Texsture = nullptr;
+	class D3D12Texture* Texture = nullptr;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	PipeLineState Currentpipestate;
 	// Inherited via RHICommandList
@@ -74,6 +74,7 @@ public:
 	void UnMap();
 	virtual void UpdateVertexBuffer(void* data, int length) override;
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
+	bool CheckDevice(int index);
 private:
 	BufferAccessType BufferAccesstype;
 	ID3D12Resource * m_vertexBuffer;
