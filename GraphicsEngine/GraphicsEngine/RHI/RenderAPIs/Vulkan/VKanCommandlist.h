@@ -29,6 +29,9 @@ public:
 
 	// Inherited via RHICommandList
 	virtual void SetIndexBuffer(RHIBuffer * buffer) override;
+
+	// Inherited via RHICommandList
+	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
 };
 
 class VKanBuffer : public RHIBuffer
@@ -36,8 +39,7 @@ class VKanBuffer : public RHIBuffer
 public:
 	VKanBuffer(RHIBuffer::BufferType type) :RHIBuffer(type) {}
 	virtual ~VKanBuffer() {};
-	// Inherited via RHIBuffer
-	virtual void CreateVertexBufferFromFile(std::string name) override;
+	// Inherited via RHIBuffer	
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount) override;
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void UpdateVertexBuffer(void * data, int length) override;

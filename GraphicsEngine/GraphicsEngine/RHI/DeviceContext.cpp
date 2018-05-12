@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "DeviceContext.h"
-
-
+#include "../Core/Asserts.h"
+#include "RenderAPIs/D3D12/D3D12Helpers.h"
 DeviceContext::DeviceContext()
 {}
 
@@ -11,15 +11,31 @@ DeviceContext::~DeviceContext()
 
 void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
+	
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
-	ThrowIfFailed(D3D12CreateDevice(
+	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
 		IID_PPV_ARGS(&m_Device)
-	));
-	
+	);		
+	ensureMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
+	ThrowIfFailed(result);
+
+	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);	
+	if (MaxLevel != D3D_FEATURE_LEVEL_11_0)
+	{
+		m_Device->Release();
+		ThrowIfFailed(D3D12CreateDevice(
+			pDXGIAdapter,
+			MaxLevel,
+			IID_PPV_ARGS(&m_Device)
+		));
+	}
+	if (LogDeviceDebug)
+	{
+		std::cout << "Device Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel) << std::endl;
+	}
 	DeviceIndex = index;
-	//GetMaxSupportedFeatureLevel(m_Primarydevice);
 
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);

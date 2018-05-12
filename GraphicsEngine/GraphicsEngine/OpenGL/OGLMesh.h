@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Rendering/Core/Renderable.h"
-#include "Rendering/Core/Triangle.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 #include <windows.h>
 
 class OGLMesh : public Renderable

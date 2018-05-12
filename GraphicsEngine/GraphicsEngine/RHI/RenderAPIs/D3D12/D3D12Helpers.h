@@ -3,9 +3,8 @@
 class D3D12Helpers
 {
 public:
-	D3D12Helpers();
-	~D3D12Helpers();
-	void GenerateMips();
 
+	static std::string StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel);
+	static std::string DXErrorCodeToString(HRESULT result);
 };
 

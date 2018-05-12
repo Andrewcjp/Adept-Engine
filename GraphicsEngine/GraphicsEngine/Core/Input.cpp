@@ -37,7 +37,7 @@ void Input::Clear()
 	KeyMap.clear();
 	IsTidleDown = false;
 }
-void Input::ProcessInput(const float )
+void Input::ProcessInput(const float)
 {
 	IsActiveWindow = (m_hwnd == GetActiveWindow());
 	if (UIManager::GetCurrentContext() != nullptr)
@@ -46,13 +46,13 @@ void Input::ProcessInput(const float )
 	}
 }
 
-BOOL Input::MouseLBDown(int , int )
+BOOL Input::MouseLBDown(int, int)
 {
 	ShowCursor(false);
 	return TRUE;
 }
 
-BOOL Input::MouseLBUp(int , int )
+BOOL Input::MouseLBUp(int, int)
 {
 	ShowCursor(true);
 	return TRUE;
@@ -69,27 +69,27 @@ void GetDesktopResolution(int& horizontal, int& vertical, HWND window)
 	horizontal = desktop.right - desktop.left;
 	vertical = desktop.bottom - desktop.top;
 }
-BOOL Input::MouseMove(int , int , double )
+BOOL Input::MouseMove(int, int, double)
 {
-	
-		int height, width = 0;
-		GetDesktopResolution(height, width, m_hwnd);
-		int halfheight = (height / 2);
-		int halfwidth = (width / 2);
 
-		POINT pt;
-		GetCursorPos(&pt);
-		ScreenToClient(m_hwnd, &pt);
-		MouseAxis.x = (float)((halfheight)-(int)pt.x);
-		MouseAxis.y = (float)(-((halfwidth)-(int)pt.y));
-		pt.x = halfheight;
-		pt.y = halfwidth;
-		ClientToScreen(m_hwnd, &pt);
-		CentrePoint = pt;
-		if (LockMouse)
-		{
-			SetCursorPos(pt.x, pt.y);
-		}
+	int height, width = 0;
+	GetDesktopResolution(height, width, m_hwnd);
+	int halfheight = (height / 2);
+	int halfwidth = (width / 2);
+
+	POINT pt;
+	GetCursorPos(&pt);
+	ScreenToClient(m_hwnd, &pt);
+	MouseAxis.x = (float)((halfheight)-(int)pt.x);
+	MouseAxis.y = (float)(-((halfwidth)-(int)pt.y));
+	pt.x = halfheight;
+	pt.y = halfwidth;
+	ClientToScreen(m_hwnd, &pt);
+	CentrePoint = pt;
+	if (LockMouse)
+	{
+		SetCursorPos(pt.x, pt.y);
+	}
 	return TRUE;
 }
 void Input::SetSelectedObject(int index)
@@ -199,7 +199,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 	case VK_SPACE:
 		break;
 	case VK_DOWN:
-		
+
 		break;
 	case VK_LEFT:
 		break;
@@ -256,7 +256,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 		}
 		break;
 	case VK_RIGHT:
-		
+
 		break;
 	default:
 		char c = (UINT)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
@@ -278,7 +278,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 
 void Input::LockCursor(bool state)
 {
-//	ShowCursor(!state);
+	//	ShowCursor(!state);
 	if (state)
 	{
 		SetCursorPos(CentrePoint.x, CentrePoint.y);
@@ -309,9 +309,9 @@ bool Input::GetKey(char c)
 	if (instance == nullptr)
 	{
 		return false;
-	}	
+	}
 	short key = VkKeyScanEx(c, instance->Layout);
-	return GetVKey(key);	
+	return GetVKey(key);
 }
 
 bool Input::GetVKey(short key)
@@ -328,7 +328,7 @@ bool Input::GetVKey(short key)
 	{
 		return true;
 	}
-	
+
 	return false;
 }
 

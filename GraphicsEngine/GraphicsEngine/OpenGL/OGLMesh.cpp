@@ -1,11 +1,11 @@
 
 #include "OGLMesh.h"
-#include "Rendering/Core/Triangle.h"
-#include "../Core/Assets/OBJFileReader.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 #include "OGLTexture.h"
 #include <GLEW\GL\glew.h>
 #include <iostream>
 #include <string>
+#if BUILD_OPENGL
 OGLMesh::OGLMesh()
 {
 
@@ -87,3 +87,4 @@ void OGLMesh::LoadAndBuildMeshFromOBJFile(LPCWSTR filename)
 	delete[] mesh;
 	std::cout << "Loaded Mesh " << std::endl;
 }
+#endif

@@ -22,131 +22,8 @@ TextRenderer::TextRenderer(int width, int height)
 	instance = this;
 	coords.reserve(100 * 6);
 }
-struct atlas
-{
-	BaseTexture* Texture;	
-	unsigned int w;			// width of texture in pixels
-	unsigned int h;			// height of texture in pixels
 
-	struct
-	{
-		float ax;	// advance.x
-		float ay;	// advance.y
-
-		float bw;	// bitmap.width;
-		float bh;	// bitmap.height;
-
-		float bl;	// bitmap_left;
-		float bt;	// bitmap_top;
-
-		float tx;	// x offset of glyph in texture coordinates
-		float ty;	// y offset of glyph in texture coordinates
-	} c[128];		// character information
-
-	atlas(FT_Face face, int height,bool RunOnSecondDevice)
-	{
-		FT_Set_Pixel_Sizes(face, 0, height);
-		FT_GlyphSlot g = face->glyph;
-
-		unsigned int roww = 0;
-		unsigned int rowh = 0;
-		w = 0;
-		h = 0;
-
-		memset(c, 0, sizeof c);
-
-		/* Find minimum size for a texture holding all visible ASCII characters */
-		for (int i = 0; i < 128; i++)
-		{
-			if (FT_Load_Char(face, i, FT_LOAD_RENDER))
-			{
-				fprintf(stderr, "Loading character %c failed!\n", i);
-				continue;
-			}
-			if (roww + g->bitmap.width + 1 >= MAXWIDTH)
-			{
-				w = std::max(w, roww);
-				h += rowh;
-				roww = 0;
-				rowh = 0;
-			}
-			roww += g->bitmap.width + 1;
-			rowh = std::max(rowh, (unsigned int)g->bitmap.rows);
-		}
-
-		w = std::max(w, roww);
-		h += rowh;
-		
-		/* Paste all glyph bitmaps into the texture, remembering the offset */
-		int ox = 0;
-		int oy = 0;
-
-		rowh = 0;
-		unsigned char* FinalData = new unsigned char[w*h];
-		for (unsigned int i = 0; i < w*h; i++)
-		{
-			FinalData[i] = '\0';
-		}
-		int soff = 0;
-		for (int i = 0; i < 128; i++)
-		{
-			if (FT_Load_Char(face, i, FT_LOAD_RENDER))
-			{
-				fprintf(stderr, "Loading character %c failed!\n", i);
-				continue;
-			}
-
-			if (ox + g->bitmap.width + 1 >= MAXWIDTH)
-			{
-				oy += rowh;
-				rowh = 0;
-				ox = 0;
-			}
-
-			int offset = ((ox + oy * h));
-			//scan into texture
-			int lastoff = 0;
-			for (int suby = 0; suby < g->bitmap.rows; suby++)
-			{
-				int neo = ((ox + (oy + suby)*w));
-				memcpy((FinalData + neo), g->bitmap.buffer + (suby*g->bitmap.width), (g->bitmap.width));
-				lastoff = neo;
-			}
-
-			c[i].ax = (float)(g->advance.x >> 6);
-			c[i].ay = (float)(g->advance.y >> 6);
-
-			c[i].bw = (float)g->bitmap.width;
-			c[i].bh = (float)g->bitmap.rows;
-
-			c[i].bl = (float)g->bitmap_left;
-			c[i].bt = (float)g->bitmap_top;
-
-			c[i].tx = ox / (float)w;
-			c[i].ty = oy / (float)h;
-
-			rowh = std::max(rowh, (unsigned int)g->bitmap.rows);
-			ox += g->bitmap.width + 1;
-		}
-		if (RunOnSecondDevice)
-		{
-			Texture = RHI::CreateTextureWithData(w, h, 1, NULL, D3D12RHI::GetDeviceContext(1));
-		}
-		else
-		{
-			Texture = RHI::CreateTextureWithData(w, h, 1, NULL, D3D12RHI::GetDeviceContext(0));
-		}
-		Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
-
-		printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
-	}
-
-	~atlas()
-	{
-		delete Texture;
-	}
-};
-
+	
 TextRenderer::~TextRenderer()
 {
 	delete TextAtlas;
@@ -322,4 +199,106 @@ void TextRenderer::NotifyFrameEnd()
 	NeedsClearRT = true;
 }
 
+TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
+{
 
+	FT_Set_Pixel_Sizes(face, 0, height);
+	FT_GlyphSlot g = face->glyph;
+
+	unsigned int roww = 0;
+	unsigned int rowh = 0;
+	w = 0;
+	h = 0;
+
+	memset(c, 0, sizeof c);
+
+	/* Find minimum size for a texture holding all visible ASCII characters */
+	for (int i = 0; i < 128; i++)
+	{
+		if (FT_Load_Char(face, i, FT_LOAD_RENDER))
+		{
+			fprintf(stderr, "Loading character %c failed!\n", i);
+			continue;
+		}
+		if (roww + g->bitmap.width + 1 >= MAXWIDTH)
+		{
+			w = std::max(w, roww);
+			h += rowh;
+			roww = 0;
+			rowh = 0;
+		}
+		roww += g->bitmap.width + 1;
+		rowh = std::max(rowh, (unsigned int)g->bitmap.rows);
+	}
+
+	w = std::max(w, roww);
+	h += rowh;
+
+	/* Paste all glyph bitmaps into the texture, remembering the offset */
+	int ox = 0;
+	int oy = 0;
+
+	rowh = 0;
+	unsigned char* FinalData = new unsigned char[w*h];
+	for (unsigned int i = 0; i < w*h; i++)
+	{
+		FinalData[i] = '\0';
+	}
+	int soff = 0;
+	for (int i = 0; i < 128; i++)
+	{
+		if (FT_Load_Char(face, i, FT_LOAD_RENDER))
+		{
+			fprintf(stderr, "Loading character %c failed!\n", i);
+			continue;
+		}
+
+		if (ox + g->bitmap.width + 1 >= MAXWIDTH)
+		{
+			oy += rowh;
+			rowh = 0;
+			ox = 0;
+		}
+
+		int offset = ((ox + oy * h));
+		//scan into texture
+		int lastoff = 0;
+		for (int suby = 0; suby < g->bitmap.rows; suby++)
+		{
+			int neo = ((ox + (oy + suby)*w));
+			memcpy((FinalData + neo), g->bitmap.buffer + (suby*g->bitmap.width), (g->bitmap.width));
+			lastoff = neo;
+		}
+
+		c[i].ax = (float)(g->advance.x >> 6);
+		c[i].ay = (float)(g->advance.y >> 6);
+
+		c[i].bw = (float)g->bitmap.width;
+		c[i].bh = (float)g->bitmap.rows;
+
+		c[i].bl = (float)g->bitmap_left;
+		c[i].bt = (float)g->bitmap_top;
+
+		c[i].tx = ox / (float)w;
+		c[i].ty = oy / (float)h;
+
+		rowh = std::max(rowh, (unsigned int)g->bitmap.rows);
+		ox += g->bitmap.width + 1;
+	}
+	if (RunOnSecondDevice)
+	{
+		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, D3D12RHI::GetDeviceContext(1));
+	}
+	else
+	{
+		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, D3D12RHI::GetDeviceContext(0));
+	}
+	Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
+
+	printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
+}
+
+TextRenderer::atlas::~atlas()
+{
+	delete Texture;
+}

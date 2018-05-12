@@ -14,7 +14,7 @@
 #pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0
-#define BUILD_PACKAGE 1
+#define BUILD_PACKAGE 0
 #else
 #define WITH_EDITOR 1
 #define BUILD_PACKAGE 0

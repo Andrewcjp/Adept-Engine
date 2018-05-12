@@ -47,7 +47,7 @@ void EnableShaderBasedValidation()
 	(spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1)));
 	spDebugController1->SetEnableGPUBasedValidation(true);
 }
-void CheckFeatures(ID3D12Device* pDevice)
+void D3D12RHI::CheckFeatures(ID3D12Device* pDevice)
 {
 	D3D12_FEATURE_DATA_D3D12_OPTIONS FeatureData;
 	ZeroMemory(&FeatureData, sizeof(FeatureData));
@@ -151,10 +151,10 @@ void D3D12RHI::LoadPipeLine()
 		}*/	
 
 		//testbuffer2 = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
-		for (int i = 0; i < 3; i++)
+		/*for (int i = 0; i < 3; i++)
 		{
 			Test = new D3D12Texture("\\asset\\texture\\grasshillalbedo.png", SecondaryDevice);
-		}	
+		}	*/
 
 #endif
 	}

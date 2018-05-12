@@ -133,6 +133,7 @@ void BaseWindow::InitilseWindow()
 		/*LoadText = false;
 		ShowText = false;*/
 	}
+	Saver = new SceneJSerialiser();
 	PerfManager::StartPerfManager();
 }
 void BaseWindow::FixedUpdate()
@@ -231,7 +232,7 @@ void BaseWindow::Render()
 		PerfManager::EndTimer("TEXT");
 	}
 	PerfManager::EndTimer("UI");
-	
+
 	if (PostProcessing::Instance)
 	{
 		PostProcessing::Instance->ExecPPStackFinal(nullptr);
@@ -268,7 +269,7 @@ void BaseWindow::Render()
 	if (TextRenderer::instance != nullptr)
 	{
 		TextRenderer::instance->NotifyFrameEnd();
-	}	
+	}
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->EndCPUTimer();
@@ -350,7 +351,10 @@ void BaseWindow::LoadScene(std::string RelativePath)
 	Renderer->SetScene(nullptr);
 	delete CurrentScene;
 	CurrentScene = new Scene();
-	Saver->LoadScene(CurrentScene, Startdir);
+	if (Saver)
+	{
+		Saver->LoadScene(CurrentScene, Startdir);
+	}
 	Renderer->SetScene(CurrentScene);
 }
 
@@ -501,7 +505,7 @@ void BaseWindow::RenderText()
 	stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 	if (ExtendedPerformanceStats)
 	{
-		
+
 		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
 		if (PerfManager::Instance != nullptr)
 		{

@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "D3D12CommandList.h"
 #include "D3D12RHI.h"
-#include "Rendering/Core/Triangle.h"
-#include "../Core/Assets/OBJFileReader.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 #include "../Core/Utils/StringUtil.h"
 #include "D3D12CBV.h"
 #include "../EngineGlobals.h"
@@ -41,6 +40,7 @@ void D3D12CommandList::ResetList()
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
 {
+	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
 	{
 		CurrentRenderTarget->UnBind(CurrentGraphicsList);
@@ -58,16 +58,20 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
 void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
 	ensure(IsOpen);
+	ensure(ListType == ECommandListType::Graphics);
 	CurrentGraphicsList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	CurrentGraphicsList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 }
 
 void D3D12CommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
-{}
+{
+	ensure(ListType == ECommandListType::Graphics);
+}
 
 void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
 {
 	//D3D12RHI::Instance->RenderToScreen(CurrentGraphicsList);
+	ensure(ListType == ECommandListType::Graphics);
 }
 
 void D3D12CommandList::Execute()
@@ -80,6 +84,7 @@ void D3D12CommandList::Execute()
 
 void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 {
+	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	CurrentGraphicsList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
@@ -87,6 +92,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 
 void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 {
+	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	CurrentGraphicsList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
@@ -135,9 +141,9 @@ void D3D12CommandList::SetPipelineState(PipeLineState state)
 }
 
 
-
 void D3D12CommandList::CreateCommandList(ECommandListType listype)
 {
+	ListType = listype;
 	if (listype == ECommandListType::Graphics)
 	{
 		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
@@ -157,19 +163,26 @@ void D3D12CommandList::CreateCommandList(ECommandListType listype)
 	}
 }
 
+void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
+{
+	ensure(ListType == ECommandListType::Compute);
+}
+
 void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 {
+	ensure(ListType == ECommandListType::Graphics);
 	((D3D12FrameBuffer*)buffer)->ClearBuffer(CurrentGraphicsList);
 }
 //todo: move to gpuresrouce!
 void D3D12CommandList::UAVBarrier(RHIUAV * target)
 {
-	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;
+	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;//todo: counter uav?
 	CurrentGraphicsList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->m_UAV));
 }
 
 void D3D12CommandList::SetScreenBackBufferAsRT()
 {
+	ensure(ListType == ECommandListType::Graphics);
 	if (CurrentRenderTarget != nullptr)
 	{
 		CurrentRenderTarget->UnBind(CurrentGraphicsList);
@@ -182,11 +195,14 @@ void D3D12CommandList::SetScreenBackBufferAsRT()
 
 void D3D12CommandList::ClearScreen()
 {
+	ensure(ListType == ECommandListType::Graphics);
+	ensureMsgf(Device->GetDeviceIndex() == 0, "Only the Primary Device Is allowed to write to the backbuffer");
 	D3D12RHI::Instance->ClearRenderTarget(CurrentGraphicsList);
 }
 
 void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot)
 {
+	ensure(ListType == ECommandListType::Graphics);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot);
@@ -209,7 +225,6 @@ void D3D12CommandList::UpdateConstantBuffer(void * data, int offset)
 
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
 {
-
 	((D3D12Buffer*)buffer)->SetConstantBufferView(offset, CurrentGraphicsList, Register);
 }
 
@@ -230,16 +245,6 @@ D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :
 D3D12Buffer::~D3D12Buffer()
 {}
 
-void D3D12Buffer::CreateVertexBufferFromFile(std::string name)
-{
-	Triangle* mesh;
-	int m_numtriangles = importOBJMesh(StringUtils::ConvertStringToWide(name).c_str(), &mesh);
-	const int vertexBufferSize = sizeof(OGLVertex)*m_numtriangles * 3;
-	CreateVertexBuffer(sizeof(OGLVertex), vertexBufferSize,RHIBuffer::BufferAccessType::Dynamic);
-	VertexCount = m_numtriangles * 3;
-	UpdateVertexBuffer(mesh, vertexBufferSize);
-}
-
 
 
 void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
@@ -253,6 +258,7 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType 
 {
 
 	BufferAccesstype = Accesstype;
+	
 	/*BufferAccesstype = BufferAccessType::Dynamic;*/
 	if (BufferAccesstype == BufferAccessType::Dynamic)
 	{
@@ -266,6 +272,7 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType 
 }
 void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
 {
+	VertexCount = length;
 	if (BufferAccesstype == BufferAccessType::Dynamic)
 	{
 		UINT8* pVertexDataBegin;
@@ -400,3 +407,47 @@ void D3D12Buffer::UnMap()
 	m_vertexBuffer->Unmap(0, nullptr);
 }
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//UAV Start
+D3D12RHIUAV::D3D12RHIUAV( DeviceContext * inDevice) : RHIUAV()
+{
+	Device = inDevice;
+}
+
+D3D12RHIUAV::~D3D12RHIUAV()
+{
+	descriptorHeap->Release();
+}
+
+void D3D12RHIUAV::CreateUAVFromTexture(D3D12Texture * target)
+{
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = 1;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
+	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	destTextureUAVDesc.Format = target->GetResource()->GetDesc().Format;
+	destTextureUAVDesc.Texture2D.MipSlice = 1;
+	//todo:Counter UAV?
+	Device->GetDevice()->CreateUnorderedAccessView(target->GetResource(), UAVCounter, &destTextureUAVDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+}
+
+void D3D12RHIUAV::CreateUAV()
+{
+
+}
+
+void D3D12RHIUAV::CreateUAVForMipsFromTexture(D3D12Texture * target)
+{
+	//todo: Handle This As special case for mipmaping?
+	//as vkan might use other method?
+	int requiredHeapSize = target->Miplevels;
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = 2 *requiredHeapSize;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));
+}

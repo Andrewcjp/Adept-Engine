@@ -63,7 +63,7 @@ void VKanCommandlist::UAVBarrier(RHIUAV * target)
 void VKanCommandlist::SetIndexBuffer(RHIBuffer * buffer)
 {}
 
-void VKanBuffer::CreateVertexBufferFromFile(std::string name)
+void VKanCommandlist::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {}
 
 

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "D3D12Plane.h"
 #include "RHI\RHI.h"
-#include "Rendering/Core/Triangle.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 #include "D3D12RHI.h"
 
 D3D12Plane::D3D12Plane(float size)
@@ -50,27 +50,25 @@ void D3D12Plane::CreateVertexBuffer()
 			xpos + w, ypos,       0.0 ,0.0 ,
 			xpos + w , ypos + h,  0.0 ,0.0 ,
 		};
+		OGLVertex m_vertices[6];
 
-		Triangle a;
-		a.m_vertices[0].m_position = glm::vec3(xpos, ypos + h, 0);
-		a.m_vertices[1].m_position = glm::vec3(xpos, ypos, 0);
-		a.m_vertices[2].m_position = glm::vec3(xpos + w, ypos, 0);
-		a.m_vertices[0].m_texcoords = glm::vec3(0, 1, 0);
-		a.m_vertices[1].m_texcoords = glm::vec3(0, 0, 0);
-		a.m_vertices[2].m_texcoords = glm::vec3(1, 0, 0);
-		Triangle b;
-		b.m_vertices[0].m_position = glm::vec3(xpos, ypos + h, 0);
-		b.m_vertices[1].m_position = glm::vec3(xpos + w, ypos, 0);
-		b.m_vertices[2].m_position = glm::vec3(xpos + w, ypos + h, 0);
-		b.m_vertices[0].m_texcoords = glm::vec3(0, 1, 0);
-		b.m_vertices[1].m_texcoords = glm::vec3(1, 0, 0);
-		b.m_vertices[2].m_texcoords = glm::vec3(1, 1, 0);
+		
+		m_vertices[0].m_position = glm::vec3(xpos, ypos + h, 0);
+		m_vertices[1].m_position = glm::vec3(xpos, ypos, 0);
+		m_vertices[2].m_position = glm::vec3(xpos + w, ypos, 0);
+		m_vertices[0].m_texcoords = glm::vec2(0, 1);
+		m_vertices[1].m_texcoords = glm::vec2(0, 0);
+		m_vertices[2].m_texcoords = glm::vec2(1, 0);
+	
+		m_vertices[4].m_position = glm::vec3(xpos, ypos + h, 0);
+		m_vertices[5].m_position = glm::vec3(xpos + w, ypos, 0);
+		m_vertices[6].m_position = glm::vec3(xpos + w, ypos + h, 0);
+		m_vertices[4].m_texcoords = glm::vec2(0, 1);
+		m_vertices[5].m_texcoords = glm::vec2(1, 0);
+		m_vertices[6].m_texcoords = glm::vec2(1, 1);
 
-		Triangle tris[]{
-			a,b
-		};
-
-		const UINT vertexBufferSize = sizeof(tris);
+		
+		const UINT vertexBufferSize = sizeof(m_vertices);
 
 		// Note: using upload heaps to transfer static data like vert buffers is not 
 		// recommended. Every time the GPU needs it, the upload heap will be marshalled 
@@ -89,7 +87,7 @@ void D3D12Plane::CreateVertexBuffer()
 		CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
 		ThrowIfFailed(m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
 
-		memcpy(pVertexDataBegin, tris, vertexBufferSize);
+		memcpy(pVertexDataBegin, m_vertices, vertexBufferSize);
 		m_vertexBuffer->Unmap(0, nullptr);
 
 		// Initialize the vertex buffer view.

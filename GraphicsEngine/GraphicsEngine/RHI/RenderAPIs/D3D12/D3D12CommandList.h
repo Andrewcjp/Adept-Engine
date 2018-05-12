@@ -30,13 +30,9 @@ public:
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
 	ID3D12GraphicsCommandList* GetCommandList() { return CurrentGraphicsList; }
+	void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
 private:
-	enum ECommandListType
-	{
-		Graphics,
-		Compute,
-		Copy
-	};
+	
 	void CreateCommandList(ECommandListType listype = ECommandListType::Graphics);
 	ID3D12GraphicsCommandList * CurrentGraphicsList = nullptr;
 	bool IsOpen = false;
@@ -53,6 +49,10 @@ private:
 	PipeLineState Currentpipestate;
 	// Inherited via RHICommandList
 	class	DeviceContext* Device = nullptr;
+	ECommandListType ListType = ECommandListType::Graphics; 
+
+	// Inherited via RHICommandList
+	
 };
 
 class D3D12Buffer : public RHIBuffer
@@ -61,7 +61,6 @@ public:
 	D3D12Buffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
 	virtual ~D3D12Buffer();
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-	virtual void CreateVertexBufferFromFile(std::string name) override;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount) override;
 	virtual void CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) override;
 	void CreateStaticBuffer(int Stride, int ByteSize);
@@ -86,14 +85,18 @@ private:
 	int vertexBufferSize = 0;
 	DeviceContext* Device = nullptr;
 };
+
 class D3D12RHIUAV : public RHIUAV
 {
 public:
-	D3D12RHIUAV(class BaseTexture* Target) :RHIUAV(Target)
-	{
-		TargetTexture = (D3D12Texture*)Target;
-	}
-
+	D3D12RHIUAV( DeviceContext* inDevice);
+	~D3D12RHIUAV();
+	void CreateUAVFromTexture(class D3D12Texture* target);
+	void CreateUAV();
+	void CreateUAVForMipsFromTexture(class D3D12Texture* target);
 	ID3D12Resource * m_UAV;
+	ID3D12DescriptorHeap *descriptorHeap;
 	class D3D12Texture * TargetTexture;
+	DeviceContext* Device = nullptr;
+	ID3D12Resource* UAVCounter = nullptr;
 };

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "OGLCommandList.h"
-#include "Rendering/Core/Triangle.h"
-#include "../Core/Assets/OBJFileReader.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 #include "../Core/Utils/StringUtil.h"
 #include "OGLFrameBuffer.h"
 #include "OGLShaderProgram.h"

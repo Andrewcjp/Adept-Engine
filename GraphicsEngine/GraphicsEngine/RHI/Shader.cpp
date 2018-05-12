@@ -6,7 +6,6 @@ Shader::Shader()
 
 Shader::~Shader()
 {
-
 	delete m_Shader;
 }
 
@@ -65,5 +64,10 @@ std::vector<Shader::VertexElementDESC> Shader::GetVertexFormat()
 	out.push_back(VertexElementDESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 
 	return out;
+}
+
+bool Shader::IsComputeShader()
+{
+	return IsCompute;
 }
 

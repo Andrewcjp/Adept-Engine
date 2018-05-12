@@ -50,7 +50,7 @@ private:
 	bool Querry = false;
 	bool FxAA = true;
 	HWND m_hwnd;
-	bool LockMouse = true;
+	bool LockMouse = false;
 	bool MSAAactive = false;
 	Camera* MainCam;
 	GameObject* playerGO;

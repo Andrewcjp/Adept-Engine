@@ -90,7 +90,9 @@ void GrassPatch::Render()
 	glEnableVertexAttribArray(5);
 	glVertexAttribDivisor(5, 1);
 
+#if BUILD_OPENGL
 	((OGLMesh*)m_grassmesh)->RenderInstance(static_cast<int>(transforms.size()));
+#endif
 	glDisableVertexAttribArray(5);
 	//	glDisableVertexAttribArray(7);
 

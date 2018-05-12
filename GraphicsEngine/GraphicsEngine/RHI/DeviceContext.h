@@ -38,6 +38,7 @@ public:
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
 	int GetDeviceIndex();
 private:	
+	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
 	//Device Data
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;

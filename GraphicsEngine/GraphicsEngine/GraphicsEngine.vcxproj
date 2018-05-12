@@ -246,6 +246,7 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="Core\Assets\MeshLoader.h" />
     <ClInclude Include="Core\Utils\MovingAverage.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_ColourCorrect.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_CompostPass.h" />
@@ -306,7 +307,6 @@
     <ClInclude Include="Core\Components\Component.h" />
     <ClInclude Include="Rendering\Core\DebugLineDrawer.h" />
     <ClInclude Include="Editor\EditorObjectSelector.h" />
-    <ClInclude Include="Rendering\Core\Triangle.h" />
     <ClInclude Include="Core\Components\RigidbodyComponent.h" />
     <ClInclude Include="Core\Utils\StringUtil.h" />
     <ClInclude Include="UI\UIDrawBatcher.h" />
@@ -346,8 +346,6 @@
     <ClInclude Include="Rendering\Core\Light.h" />
     <ClInclude Include="Rendering\Core\Material.h" />
     <ClInclude Include="Rendering\Core\Mesh.h" />
-    <ClInclude Include="Core\Assets\MeshCooker.h" />
-    <ClInclude Include="Core\Assets\OBJFileReader.h" />
     <ClInclude Include="OpenGL\OGLPlane.h" />
     <ClInclude Include="OpenGL\OGLCube.h" />
     <ClInclude Include="OpenGL\OGLMesh.h" />
@@ -390,7 +388,7 @@
     <ClInclude Include="UI\UIWidget.h" />
     <ClInclude Include="UI\UIManager.h" />
     <ClInclude Include="Core\Utils.h" />
-    <ClInclude Include="Rendering\Core\Vertex.h" />
+    <ClInclude Include="Rendering\Core\RenderBaseTypes.h" />
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanCommandlist.h" />
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanFramebuffer.h" />
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanRHI.h" />
@@ -399,6 +397,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="Core\Assets\MeshLoader.cpp" />
     <ClCompile Include="Core\Utils\MovingAverage.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PP_ColourCorrect.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PP_CompostPass.cpp" />
@@ -458,7 +457,6 @@
     <ClCompile Include="Core\Components\Component.cpp" />
     <ClCompile Include="Rendering\Core\DebugLineDrawer.cpp" />
     <ClCompile Include="Editor\EditorObjectSelector.cpp" />
-    <ClCompile Include="Rendering\Core\Triangle.cpp" />
     <ClCompile Include="Core\Components\RigidbodyComponent.cpp" />
     <ClCompile Include="UI\UIDrawBatcher.cpp" />
     <ClCompile Include="UI\CollisionRect.cpp" />
@@ -497,8 +495,6 @@
     <ClCompile Include="Rendering\Core\Light.cpp" />
     <ClCompile Include="Rendering\Core\Material.cpp" />
     <ClCompile Include="Rendering\Core\Mesh.cpp" />
-    <ClCompile Include="Core\Assets\MeshCooker.cpp" />
-    <ClCompile Include="Core\Assets\OBJFileReader.cpp" />
     <ClCompile Include="OpenGL\OGLPlane.cpp" />
     <ClCompile Include="OpenGL\OGLCube.cpp" />
     <ClCompile Include="OpenGL\OGLMesh.cpp" />

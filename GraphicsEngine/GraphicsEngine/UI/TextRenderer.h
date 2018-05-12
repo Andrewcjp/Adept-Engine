@@ -1,12 +1,11 @@
 #pragma once
-#include "OpenGL\OGLShader.h"
 #include <string>
-#include <GLEW\GL\glew.h>
 #include "glm\fwd.hpp"
 #include <ft2build.h>
 #include <map>
 #include "include/glm/ext.hpp"
-#include "OpenGL/OGLShaderProgram.h"
+#include "../RHI/RHI.h"
+#include <vector>
 #include FT_FREETYPE_H  
 class BaseTexture;
 class Text_Shader;
@@ -16,7 +15,7 @@ struct Character
 	BaseTexture* Texture;   // ID of the glyph texture
 	glm::ivec2 Size;    // Size of glyph
 	glm::ivec2 Bearing;  // Offset 
-	GLuint Advance;    // offset to next glyph
+	int Advance;    // offset to next glyph
 };
 struct atlas;
 class TextRenderer
@@ -39,8 +38,7 @@ private:
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;
 	FT_Library ft;
-	FT_Face face;
-	atlas* TextAtlas;
+	FT_Face face;	
 	RHIBuffer* VertexBuffer = nullptr;
 	RHICommandList* TextCommandList = nullptr;
 	//when run on second gpu
@@ -58,5 +56,30 @@ private:
 	int currentsize = 0;
 	const int MAX_BUFFER_SIZE = 350;
 	bool NeedsClearRT = true;
+	struct atlas
+	{
+		BaseTexture* Texture;
+		unsigned int w;			// width of texture in pixels
+		unsigned int h;			// height of texture in pixels
+
+		struct
+		{
+			float ax;	// advance.x
+			float ay;	// advance.y
+
+			float bw;	// bitmap.width;
+			float bh;	// bitmap.height;
+
+			float bl;	// bitmap_left;
+			float bt;	// bitmap_top;
+
+			float tx;	// x offset of glyph in texture coordinates
+			float ty;	// y offset of glyph in texture coordinates
+		} c[128];		// character information
+		
+		atlas(FT_Face face, int height, bool RunOnSecondDevice);
+		~atlas();
+	};
+	atlas* TextAtlas;
 };
 

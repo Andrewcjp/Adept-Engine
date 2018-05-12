@@ -19,7 +19,6 @@ public:
 		Static,
 		Dynamic
 	};
-	virtual void CreateVertexBufferFromFile(std::string name) = 0;
 	virtual void CreateVertexBuffer(int Stride,int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) = 0;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) = 0;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount) = 0;
@@ -35,10 +34,9 @@ protected:
 class RHIUAV
 {
 public:
-	RHIUAV(class BaseTexture* Target)
+	RHIUAV()
 	{}	
 };
-
 
 struct PipeLineState
 {
@@ -73,13 +71,19 @@ public:
 	virtual void SetScreenBackBufferAsRT() = 0;
 	virtual void ClearScreen() = 0;
 	virtual void ClearFrameBuffer(FrameBuffer* buffer) = 0;
-	//todo:
+	//todo: complete this
 	virtual void SetUAVParamter() {};
 	virtual void UAVBarrier(RHIUAV* target) = 0;
-	//Set Shader Params?
-	//For validiotn on D3d12 Side 
+	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
+
 
 protected:
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!
+	enum ECommandListType
+	{
+		Graphics,
+		Compute,
+		Copy
+	};
 };
 

@@ -38,7 +38,7 @@ public:
 	static void PreFrameSetUp(ID3D12GraphicsCommandList * list, D3D12Shader * Shader);
 	void PreFrameSwap(ID3D12GraphicsCommandList* list);
 	void SetScreenRenderTarget(ID3D12GraphicsCommandList * list);
-	D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
+
 	void DisplayDeviceDebug();
 	std::string GetMemory();
 	void LoadPipeLine();
@@ -71,6 +71,9 @@ public:
 	static DeviceContext* GetDefaultDevice();
 
 	void AddLinkedFrameBuffer(FrameBuffer* target);
+	//helper fucntions 
+	static void CheckFeatures(ID3D12Device * pDevice);
+	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 private:
 	class	DeviceContext* PrimaryDevice = nullptr;
 	class	DeviceContext* SecondaryDevice = nullptr;
@@ -119,13 +122,14 @@ private:
 	bool Omce = false;
 	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 };
+#include "D3D12Helpers.h"
 //helper functions!
 static inline void ThrowIfFailed(HRESULT hr)
 {
 	if (FAILED(hr))
 	{
-		__debugbreak();
-		throw std::exception();
+		//__debugbreak();		
+		ensureMsgf(hr== S_OK, + (std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }
 void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
