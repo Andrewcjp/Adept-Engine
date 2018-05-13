@@ -2,12 +2,11 @@
 #include "include\glm\glm.hpp"
 #include "Core/Transform.h"
 #include "../Rendering/Core/Camera.h"
-#include "OpenGL\OGLShader.h"
-#include <GLEW\GL\glew.h>
 #include <vector>
 #include "../Rendering/Core/Light.h"
 #include "include/glm/gtc/type_ptr.hpp"
 #include <d3d12.h>
+#include "ShaderProgramBase.h"
 //this is a basis for a shader 
 //shaders will derive from this class so that the correct unifroms can be updated
 class Shader
@@ -70,7 +69,6 @@ public:
 	virtual void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights) {};
 	virtual void UpdateD3D11Uniforms(Transform* t, Camera* c, std::vector<Light*> lights) {};
 	virtual void SetShaderActive();
-	ShaderProgramHandle GetShaderID();
 	ShaderProgramBase* GetShaderProgram();
 
 	const int ShadowFarPlane = 500;

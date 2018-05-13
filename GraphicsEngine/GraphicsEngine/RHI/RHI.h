@@ -25,7 +25,6 @@ public:
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
 	static BaseTexture* CreateTexture(const char * path, DeviceContext* Device = nullptr);
-	static void UnBindUnit(int unit);
 	static BaseTexture* CreateTextureWithData(int with, int height,int nChannels, void * data, DeviceContext* Device = nullptr);
 	static Renderable * CreateMesh(const char * path, ShaderProgramBase* program, bool UseMesh = false);
 	static FrameBuffer* CreateFrameBuffer(int width, int height, DeviceContext* Device = nullptr, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBuffer::FrameBufferType::ColourDepth, glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f));

@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <map>
-#include <GLEW\GL\glew.h>
 #include "glm/fwd.hpp"
 typedef struct _LineItem
 {
@@ -10,7 +9,7 @@ typedef struct _LineItem
 	glm::vec3 colour;
 	float Thickness;
 }Line;
-class OGLShaderProgram;
+class ShaderProgramBase;
 class LineDrawer
 {
 public:
@@ -24,10 +23,10 @@ public:
 
 	void AddLine(glm::vec2 Start, glm::vec2 end,glm::vec3 colour , float thickness = 0);
 private:
-	GLuint	quad_vertexbuffer;
-	OGLShaderProgram * m_TextShader;
+	int	quad_vertexbuffer;
+	ShaderProgramBase * m_TextShader;
 	Line* Lines;
-	GLfloat* Verts;
+	float* Verts;
 
 	size_t VertsOnGPU = 0;
 	size_t LineCount = 0;

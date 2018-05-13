@@ -1,7 +1,7 @@
 #pragma once
 #include "../Rendering/Core/Renderable.h"
 #include "Transform.h"
-#include "GLEW\GL\glew.h"
+
 #include "../Rendering/Core/Material.h"
 #include "Editor/IInspectable.h"
 #include "physx\PxShape.h"
@@ -47,7 +47,6 @@ public:
 	bool GetDoesUseMainShader();
 	bool Occluded = false;
 
-	GLuint Querry;
 	bool QuerryWait = false;
 	bool HasCached = false;
 

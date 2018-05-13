@@ -1,7 +1,6 @@
 #include "ShaderOutput.h"
 #include "RHI/RHI.h"
-#include "D3D11\D3D11Cube.h"
-#include "D3D11\D3D11Shader.h"
+
 
 ShaderOutput::ShaderOutput(int width, int height)
 {
@@ -53,7 +52,8 @@ void ShaderOutput::SetFullScreen(bool state)
 	}
 	if (state)
 	{
-		static const GLfloat g_quad_vertex_buffer_data[] = {
+#if BUILD_OPENGL
+		static const float g_quad_vertex_buffer_data[] = {
 			-1.0f, -1.0f, 0.0f,
 			1.0f, -1.0f, 0.0f,
 			-1.0f,  1.0f, 0.0f,
@@ -61,8 +61,10 @@ void ShaderOutput::SetFullScreen(bool state)
 			1.0f, -1.0f, 0.0f,
 			1.0f,  1.0f, 0.0f,
 		};
+
 		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+#endif
 	}
 	else
 	{
@@ -70,7 +72,8 @@ void ShaderOutput::SetFullScreen(bool state)
 		float w = 1.2f;
 		float xpos = -(w / 2.0f);
 		float ypos = -(h / 2.0f) + 0.1f;
-		static const GLfloat g_quad_vertex_buffer_data[] = {
+#if BUILD_OPENGL
+		static const float g_quad_vertex_buffer_data[] = {
 			xpos,     ypos + h,   0.0 ,
 			xpos,     ypos,      0.0 ,
 			xpos + w, ypos,       0.0 ,
@@ -81,6 +84,7 @@ void ShaderOutput::SetFullScreen(bool state)
 		};
 		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+#endif
 	}
 
 }

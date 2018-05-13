@@ -339,21 +339,21 @@ void ForwardRenderer::AddLight(Light * l)
 	mainscene->GetLights()->push_back(l);
 }
 
-void ForwardRenderer::FixedUpdatePhysx(float dtime)
-{
-	deltatime = dtime;
-	//todo: Move to Compoenent;
-	//todo: Update Objects
-	if (RenderGrass)
-	{
-		grasstest->UpdateAnimation(deltatime);
-	}
-	if (LoadParticles && RenderParticles)
-	{
-		particlesys->Add(deltatime);
-		particlesys->Simulate(deltatime, MainCamera->GetPosition());
-	}
-}
+//void ForwardRenderer::FixedUpdatePhysx(float dtime)
+//{
+//	deltatime = dtime;
+//	//todo: Move to Compoenent;
+//	//todo: Update Objects
+//	if (RenderGrass)
+//	{
+//		grasstest->UpdateAnimation(deltatime);
+//	}
+//	if (LoadParticles && RenderParticles)
+//	{
+//		particlesys->Add(deltatime);
+//		particlesys->Simulate(deltatime, MainCamera->GetPosition());
+//	}
+//}
 
 void ForwardRenderer::SetRenderSettings(RenderSettings set)
 {
@@ -367,10 +367,6 @@ Shader_Main * ForwardRenderer::GetMainShader()
 	return mainshader;
 }
 
-void ForwardRenderer::SetReflectionCamera(Camera * c)
-{
-	RefelctionCamera = c; 
-}
 
 FrameBuffer * ForwardRenderer::GetReflectionBuffer()
 {

@@ -1,15 +1,11 @@
 #pragma once
 #include "RenderEngine.h"
-
 #include <vector>
 #include "../Rendering/Core/Camera.h"
 #include "Core/Transform.h"
 #include "Core/GameObject.h"
 #include "../Rendering/Core/Light.h"
-#include "OpenGL/OGLPlane.h"
-#include "OpenGL/OGLShader.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
-
 #include "../Rendering/Core/Material.h"
 #include "RHI/Shader.h"
 #include "Rendering\Shaders\Shader_Main.h"
@@ -17,7 +13,6 @@
 #include "Rendering\Shaders\Shader_Grass.h"
 #include "Rendering\Shaders\Shader_Querry.h"
 #include "Core/Assets/Scene.h"
-
 #include "Rendering\Shaders\ShaderOutput.h"
 #include "../Rendering/Core/FrameBuffer.h"
 #include "../Rendering/Core/ParticleSystem.h"
@@ -27,7 +22,6 @@
 #include "../Rendering/Core/GrassPatch.h"
 #include "Core/Assets/ImageLoader.h"
 #include "Rendering\Shaders\Shader_Skybox.h"
-#include "OpenGL/OGLFrameBuffer.h"
 #include "../Core/Performance/PerfManager.h"
 #include "../EngineGlobals.h"
 #include "../RHI/RHICommandList.h"
@@ -63,7 +57,7 @@ public:
 	void AddGo(GameObject* g)override;
 
 	void AddLight(Light* l) override;
-	void FixedUpdatePhysx(float dtime) override;
+	//void FixedUpdatePhysx(float dtime) override;
 	Camera* RefelctionCamera;
 	FrameBuffer* RelfectionBuffer;
 	ShaderOutput* outshader;
@@ -99,7 +93,6 @@ private:
 	int ReflectionBufferHeight = 512;
 	// Inherited via RenderEngine
 	virtual Shader_Main * GetMainShader() override;	
-	virtual void SetReflectionCamera(Camera * c) override;
 	virtual FrameBuffer * GetReflectionBuffer() override;
 	virtual ShaderOutput * GetFilterShader() override;	
 	virtual void DestoryRenderWindow() override;

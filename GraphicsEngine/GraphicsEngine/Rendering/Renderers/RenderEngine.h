@@ -23,11 +23,9 @@ public:
 	virtual Camera* GetMainCam() = 0;
 	virtual void AddGo(GameObject* g) = 0;
 	virtual void AddLight(Light* l) = 0;
-	virtual void FixedUpdatePhysx(float dtime) = 0;
 	virtual void Resize(int width, int height) = 0;
 	virtual Shader* GetMainShader() = 0;
 	virtual std::vector<GameObject*> GetObjects() = 0;
-	virtual void SetReflectionCamera(Camera* c) = 0;
 	virtual FrameBuffer* GetReflectionBuffer() = 0;
 	virtual ShaderOutput* GetFilterShader() = 0;
 	bool OcclusionQuerry = true;

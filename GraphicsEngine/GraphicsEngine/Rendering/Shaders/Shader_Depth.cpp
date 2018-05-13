@@ -47,7 +47,7 @@ void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera *, std::vector<Light*
 	//	light = lights[0];
 	//}
 	//glm::vec3 lightPos = light->GetPosition();
-	//GLfloat aspect = (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT;
+	//float aspect = (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT;
 	//glm::mat4 shadowProj;
 	//if (LoadGeomShader)
 	//{
@@ -92,7 +92,7 @@ void Shader_Depth::UpdateOGLUniforms(Transform * t, Camera *, std::vector<Light*
 	//		glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 
 
-	//	for (GLuint i = 0; i < 6; ++i)
+	//	for (int i = 0; i < 6; ++i)
 	//	{
 	//		glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), ("shadowMatrices[" + std::to_string(i) + "]").c_str()), 1, GL_FALSE, glm::value_ptr(shadowTransforms[i]));
 	//	}

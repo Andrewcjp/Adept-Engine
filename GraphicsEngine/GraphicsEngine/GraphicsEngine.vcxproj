@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugGame|Win32">
+      <Configuration>DebugGame</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugGame|x64">
+      <Configuration>DebugGame</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Game|Win32">
-      <Configuration>Game</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Game|x64">
-      <Configuration>Game</Configuration>
-      <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -47,6 +47,13 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -60,13 +67,12 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Game|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Game|x64'">
-    <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -79,10 +85,16 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -101,14 +113,20 @@
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\</IncludePath>
     <LibraryPath>$(ProjectDir)\lib\32;$(ProjectDir)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\</IncludePath>
+    <LibraryPath>$(ProjectDir)\lib\32;$(ProjectDir)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);($projectdir)\</IncludePath>
     <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(VC_LibraryPath_x64);</LibraryPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game|x64'">
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(ProjectDir)lib\64;$(ProjectDir)lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(IncludePath);$(ProjectDir)\lib</IncludePath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);($projectdir)\</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(VC_LibraryPath_x64);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -148,7 +166,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;vulkan-1.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PxPvdSDKDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;PxFoundationDEBUG_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;vulkan-1.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PxPvdSDKDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;PxFoundationDEBUG_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib\64\;$(ProjectDir)lib\64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -163,6 +181,27 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(projectdir)include/freetype2;$(projectdir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3CHECKED_x86.lib;PhysX3CommonCHECKED_x86.lib;PhysX3ExtensionsCHECKED.lib;PvdRuntimeCHECKED.lib;PxTaskCHECKED.lib;PhysX3CookingCHECKED_x86.lib;PhysX3CharacterKinematicCHECKED_x86.lib;LowLevelCHECKED.lib;PhysXProfileSDKCHECKED.lib;PhysXVisualDebuggerSDKCHECKED.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
@@ -207,7 +246,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib\64;$(ProjectDir)\lib\64\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;vulkan-1.lib;glew32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;PxPvdSDKCHECKED_x64.lib;PhysX3CookingCHECKED_x64.lib;PhysX3CharacterKinematicCHECKED_x64.lib;PxTaskCHECKED_x64.lib;SceneQueryCHECKED.lib;SimulationControllerCHECKED.lib;PxFoundationCHECKED_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;vulkan-1.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;PxPvdSDKCHECKED_x64.lib;PhysX3CookingCHECKED_x64.lib;PhysX3CharacterKinematicCHECKED_x64.lib;PxTaskCHECKED_x64.lib;SceneQueryCHECKED.lib;SimulationControllerCHECKED.lib;PxFoundationCHECKED_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -218,21 +257,31 @@
       </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Game|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(projectdir)include/freetype2;$(projectdir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>BUILD_GAME;NOMINMAX ;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NOMINMAX ;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(solutiondir)TestGame;$(projectdir)include/freetype2;$(projectdir)include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glew32.lib;winmm.lib;OpenGL32.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;PxPvdSDKCHECKED_x64.lib;PhysX3CookingCHECKED_x64.lib;PhysX3CharacterKinematicCHECKED_x64.lib;PxTaskCHECKED_x64.lib;SceneQueryCHECKED.lib;SimulationControllerCHECKED.lib;PxFoundationCHECKED_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\64;$(ProjectDir)lib\64\Release</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)\lib\64;$(ProjectDir)\lib\64\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;vulkan-1.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;PxPvdSDKCHECKED_x64.lib;PhysX3CookingCHECKED_x64.lib;PhysX3CharacterKinematicCHECKED_x64.lib;PxTaskCHECKED_x64.lib;SceneQueryCHECKED.lib;SimulationControllerCHECKED.lib;PxFoundationCHECKED_x64.lib;TestGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -259,7 +308,6 @@
     <ClInclude Include="Core\Utils\MemoryUtils.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\GPUResource.h" />
     <ClInclude Include="RHI\DeviceContext.h" />
-    <ClInclude Include="OpenGL\OGLCommandList.h" />
     <ClInclude Include="Packaging\Cooker.h" />
     <ClInclude Include="Core\BaseWindow.h" />
     <ClInclude Include="Core\Assets\SerialHelpers.h" />
@@ -311,12 +359,6 @@
     <ClInclude Include="Core\Utils\StringUtil.h" />
     <ClInclude Include="UI\UIDrawBatcher.h" />
     <ClInclude Include="UI\CollisionRect.h" />
-    <ClInclude Include="D3D11\D3D11FrameBuffer.h" />
-    <ClInclude Include="D3D11\D3D11Plane.h" />
-    <ClInclude Include="D3D11\D3D11Cube.h" />
-    <ClInclude Include="D3D11\D3D11Mesh.h" />
-    <ClInclude Include="D3D11\D3D11Shader.h" />
-    <ClInclude Include="D3D11\D3D11Texture.h" />
     <ClInclude Include="Development\Windows\D3D11Window.h" />
     <ClInclude Include="Rendering\Renderers\DeferredRenderer.h" />
     <ClInclude Include="Editor\EditorGizmos.h" />
@@ -325,8 +367,6 @@
     <ClInclude Include="Editor\IInspectable.h" />
     <ClInclude Include="Editor\Inspector.h" />
     <ClInclude Include="UI\LineDrawer.h" />
-    <ClInclude Include="OpenGL\OGLFrameBuffer.h" />
-    <ClInclude Include="OpenGL\OGLShaderProgram.h" />
     <ClInclude Include="Core\Performance\PerfManager.h" />
     <ClInclude Include="RHI\RHI.h" />
     <ClInclude Include="RHI\ShaderProgramBase.h" />
@@ -346,11 +386,6 @@
     <ClInclude Include="Rendering\Core\Light.h" />
     <ClInclude Include="Rendering\Core\Material.h" />
     <ClInclude Include="Rendering\Core\Mesh.h" />
-    <ClInclude Include="OpenGL\OGLPlane.h" />
-    <ClInclude Include="OpenGL\OGLCube.h" />
-    <ClInclude Include="OpenGL\OGLMesh.h" />
-    <ClInclude Include="OpenGL\OGLShader.h" />
-    <ClInclude Include="OpenGL\OGLTexture.h" />
     <ClInclude Include="Development\Windows\OGLWindow.h" />
     <ClInclude Include="Rendering\Core\ParticleSystem.h" />
     <ClInclude Include="Physics\PhxRigidBody.h" />
@@ -409,7 +444,6 @@
     <ClCompile Include="Core\Utils\MemoryUtils.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\GPUResource.cpp" />
     <ClCompile Include="RHI\DeviceContext.cpp" />
-    <ClCompile Include="OpenGL\OGLCommandList.cpp" />
     <ClCompile Include="Packaging\Cooker.cpp" />
     <ClCompile Include="Core\BaseWindow.cpp" />
     <ClCompile Include="Core\Assets\SerialHelpers.cpp" />
@@ -438,6 +472,7 @@
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugGame|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffectBase.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessing.cpp" />
@@ -460,12 +495,6 @@
     <ClCompile Include="Core\Components\RigidbodyComponent.cpp" />
     <ClCompile Include="UI\UIDrawBatcher.cpp" />
     <ClCompile Include="UI\CollisionRect.cpp" />
-    <ClCompile Include="D3D11\D3D11FrameBuffer.cpp" />
-    <ClCompile Include="D3D11\D3D11Plane.cpp" />
-    <ClCompile Include="D3D11\D3D11Cube.cpp" />
-    <ClCompile Include="D3D11\D3D11Mesh.cpp" />
-    <ClCompile Include="D3D11\D3D11Shader.cpp" />
-    <ClCompile Include="D3D11\D3D11Texture.cpp" />
     <ClCompile Include="Development\Windows\D3D11Window.cpp" />
     <ClCompile Include="Rendering\Renderers\DeferredRenderer.cpp" />
     <ClCompile Include="Editor\EditorGizmos.cpp" />
@@ -474,8 +503,6 @@
     <ClCompile Include="Editor\IInspectable.cpp" />
     <ClCompile Include="Editor\Inspector.cpp" />
     <ClCompile Include="UI\LineDrawer.cpp" />
-    <ClCompile Include="OpenGL\OGLFrameBuffer.cpp" />
-    <ClCompile Include="OpenGL\OGLShaderProgram.cpp" />
     <ClCompile Include="Core\Performance\PerfManager.cpp" />
     <ClCompile Include="RHI\RenderWindow.cpp" />
     <ClCompile Include="RHI\RHI.cpp" />
@@ -495,11 +522,6 @@
     <ClCompile Include="Rendering\Core\Light.cpp" />
     <ClCompile Include="Rendering\Core\Material.cpp" />
     <ClCompile Include="Rendering\Core\Mesh.cpp" />
-    <ClCompile Include="OpenGL\OGLPlane.cpp" />
-    <ClCompile Include="OpenGL\OGLCube.cpp" />
-    <ClCompile Include="OpenGL\OGLMesh.cpp" />
-    <ClCompile Include="OpenGL\OGLShader.cpp" />
-    <ClCompile Include="OpenGL\OGLTexture.cpp" />
     <ClCompile Include="Development\Windows\OGLWindow.cpp" />
     <ClCompile Include="Rendering\Core\ParticleSystem.cpp" />
     <ClCompile Include="Physics\PhxRigidBody.cpp" />

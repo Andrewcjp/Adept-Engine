@@ -2,7 +2,7 @@
 #include "Light.h"
 #include <vector>
 #include "Rendering\Shaders\Shader_Depth.h"
-#include <GLEW\GL\glew.h>
+
 #include <memory>
 #include "Core/GameObject.h"
 #include "../EngineGlobals.h"

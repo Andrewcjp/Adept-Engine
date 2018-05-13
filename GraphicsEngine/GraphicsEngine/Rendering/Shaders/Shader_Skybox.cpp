@@ -1,7 +1,7 @@
 #include "Shader_Skybox.h"
 #include "RHI/RHI.h"
 #include "Core/Assets/ImageLoader.h"
-
+#include "../RHI/ShaderProgramBase.h"
 Shader_Skybox::Shader_Skybox()
 {
 	if (RHI::GetType() == RenderSystemOGL)
@@ -15,18 +15,19 @@ Shader_Skybox::Shader_Skybox()
 
 		m_Shader->BuildShaderProgram();
 		m_Shader->ActivateShaderProgram();
-		SkyboxTexture = ImageLoader::instance->loadsplitCubeMap("heh");
+//////		SkyboxTexture = ImageLoader::instance->loadsplitCubeMap("heh");
 	}
 }
 
 
 Shader_Skybox::~Shader_Skybox()
 {
-	glDeleteTextures(1, &SkyboxTexture);
+//	glDeleteTextures(1, &SkyboxTexture);
 }
 
 void Shader_Skybox::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*> lights)
 {
+#if BUILD_OPENGL
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxTexture);
 
@@ -40,6 +41,7 @@ void Shader_Skybox::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Ligh
 	glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(c->GetProjection()));
 	glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "view"), 1, GL_FALSE, glm::value_ptr(view));
 	glDepthFunc(GL_LEQUAL);
+#endif
 }
 
 void Shader_Skybox::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)

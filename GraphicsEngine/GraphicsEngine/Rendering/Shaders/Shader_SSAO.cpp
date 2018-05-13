@@ -1,14 +1,14 @@
 #include "Shader_SSAO.h"
 #include "RHI/RHI.h"
 
-GLfloat lerp(GLfloat a, GLfloat b, GLfloat f)
+float lerp(float a,float b,float f)
 {
 	return a + f * (b - a);
 }
 Shader_SSAO::Shader_SSAO()
 {
-	noisetex = new OGLTexture();
-	noisetex->GenerateNoiseTex();
+	/*noisetex = new OGLTexture();
+	noisetex->GenerateNoiseTex();*/
 	//Initialise OGL shader
 	m_Shader = RHI::CreateShaderProgam();
 
@@ -24,7 +24,8 @@ Shader_SSAO::Shader_SSAO()
 
 	m_Shader->BuildShaderProgram();
 	m_Shader->ActivateShaderProgram();
-	static const GLfloat g_quad_vertex_buffer_data[] = {
+#if BUILD_OPENGL
+	static const float g_quad_vertex_buffer_data[] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
@@ -41,10 +42,11 @@ Shader_SSAO::Shader_SSAO()
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "gPosition"), 0);
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "gNormal"), 1);
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "texNoise"), NoiseTextureUnit);
-	std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // random floats between 0.0 - 1.0
+#endif
+	std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between 0.0 - 1.0
 	std::default_random_engine generator;
 
-	for (GLuint i = 0; i < 64; ++i)
+	for (int i = 0; i < 64; ++i)
 	{
 		glm::vec3 sample(
 			randomFloats(generator) * 2.0 - 1.0,
@@ -53,7 +55,7 @@ Shader_SSAO::Shader_SSAO()
 		);
 		sample = glm::normalize(sample);
 		sample *= randomFloats(generator);
-		GLfloat scale = GLfloat(i) / static_cast<GLfloat>(64.0);
+		float scale = float(i) / static_cast<float>(64.0);
 		scale = lerp(0.1f, 1.0f, scale * scale);
 		sample *= scale;
 		ssaoKernel.push_back(sample);
@@ -68,6 +70,7 @@ Shader_SSAO::~Shader_SSAO()
 
 void Shader_SSAO::RenderPlane()
 {
+#if BUILD_OPENGL
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
@@ -84,10 +87,12 @@ void Shader_SSAO::RenderPlane()
 	glDrawArrays(GL_TRIANGLES, 0, 6); // 2*3 indices starting at 0 -> 2 triangles
 
 	glDisableVertexAttribArray(0);
+#endif
 }
 
 void Shader_SSAO::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*> lights)
 {
+#if BUILD_OPENGL
 	noisetex->Bind(NoiseTextureUnit);
 	glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, &c->GetProjection()[0][0]);
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "width"), mwidth);
@@ -96,7 +101,7 @@ void Shader_SSAO::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*
 	{
 		glUniform3fv(glGetUniformLocation(m_Shader->GetProgramHandle(), ("samples[" + std::to_string(i) + "]").c_str()), 1, glm::value_ptr(ssaoKernel[i]));
 	}
-
+#endif
 }
 void Shader_SSAO::Resize(int width, int height)
 {

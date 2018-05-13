@@ -9,7 +9,7 @@ public:
 
 	// Inherited via Shader
 	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
-	GLuint ubo;
+	
 private:
 	
 };

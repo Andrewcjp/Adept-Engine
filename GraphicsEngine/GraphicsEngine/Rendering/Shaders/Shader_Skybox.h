@@ -9,7 +9,7 @@ public:
 	// Inherited via Shader
 	virtual void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights = std::vector<Light*>()) ;
 private:
-	GLuint SkyboxTexture;
+	int SkyboxTexture;
 
 	// Inherited via Shader
 	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;

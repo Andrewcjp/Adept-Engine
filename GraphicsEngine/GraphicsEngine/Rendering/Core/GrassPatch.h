@@ -1,6 +1,5 @@
 #pragma once
-#include "OpenGL\OGLMesh.h"
-#include "OpenGL\OGLTexture.h"
+
 #include "Rendering\Shaders\Shader_Grass.h"
 #include "Core/Transform.h"
 
@@ -16,7 +15,7 @@ public:
 	void UpdateAnimation(float t);
 private:
 	Renderable* m_grassmesh;
-	OGLTexture* m_tex;
+	BaseTexture* m_tex;
 	Shader_Grass* Shader;
 	std::vector<glm::vec2> transforms;
 	std::vector<glm::mat4> rotations;
@@ -36,13 +35,10 @@ private:
 	float maxDelta = 50;
 	float offsetsize = 10;
 	bool forward = true;
-	GLuint PositionsBuffer;
-	GLuint RotationsBuffer;
-	GLuint ColourBuffer;
-	GLuint ubo = 0;
+
+
 	unsigned int block_index = 0;
-	GLubyte * blockBuffer;
-	GLuint RotationsMatrixUniform;
+
 
 };
 

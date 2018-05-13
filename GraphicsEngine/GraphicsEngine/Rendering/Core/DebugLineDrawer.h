@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-class OGLShaderProgram;
+
 typedef struct _WLineItem
 {
 	glm::vec3 startpos;
@@ -23,9 +23,9 @@ public:
 private:
 	std::vector<WLine> Lines;
 #if BUILD_OPENGL
-	GLuint	quad_vertexbuffer;
+	int	quad_vertexbuffer;
 #endif
-	OGLShaderProgram * m_TextShader;
+	class ShaderProgramBase * m_TextShader;
 	size_t VertsOnGPU = 0;
 };
 

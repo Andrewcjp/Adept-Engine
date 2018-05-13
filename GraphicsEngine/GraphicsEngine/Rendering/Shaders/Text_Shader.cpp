@@ -50,7 +50,7 @@ void Text_Shader::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light
 	UNUSED_PARAM(c);
 	UNUSED_PARAM(t);
 
-	//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(Width), 0.0f, static_cast<GLfloat>(Height));
+	//glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height));
 	//glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 	//glUniform3f(glGetUniformLocation(m_Shader->GetProgramHandle(), "textColor"), Colour.x, Colour.y, Colour.z);

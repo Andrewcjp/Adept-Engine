@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "DebugLineDrawer.h"
-#include "OpenGL/OGLShaderProgram.h"
 #include "RHI/RHI.h"
 #include "glm\glm.hpp"
 #include "UI\UIManager.h"
@@ -10,7 +9,7 @@ DebugLineDrawer::DebugLineDrawer()
 {
 	if (RHI::GetType() == RenderSystemOGL)
 	{
-		m_TextShader = new OGLShaderProgram();
+		m_TextShader = RHI::CreateShaderProgam();
 		m_TextShader->CreateShaderProgram();
 		m_TextShader->AttachAndCompileShaderFromFile("Debugline_vs", SHADER_VERTEX);
 		m_TextShader->AttachAndCompileShaderFromFile("Debugline_fs", SHADER_FRAGMENT);
@@ -42,11 +41,11 @@ void DebugLineDrawer::GenerateLines()
 	{
 		return;
 	}
-	std::vector<GLfloat> Verts;
+	std::vector<float> Verts;
 	for (int i = 0; i < Lines.size(); i++)
 	{
-		/*GLfloat w = Lines[i].Thickness;
-		GLfloat h = Lines[i].Thickness;*/
+		/*float w = Lines[i].Thickness;
+		float h = Lines[i].Thickness;*/
 		//Lines[i].colour = glm::vec3(1, 1, 0);
 		Verts.push_back(Lines[i].startpos.x);
 		Verts.push_back(Lines[i].startpos.y);
@@ -61,7 +60,7 @@ void DebugLineDrawer::GenerateLines()
 		Verts.push_back(Lines[i].colour.x);
 		Verts.push_back(Lines[i].colour.y);
 		Verts.push_back(Lines[i].colour.z);
-		//GLfloat vertices[] = {
+		//float vertices[] = {
 		//	xpos,     ypos + h,   0.0  ,
 		//	xpos,     ypos,       0.0 ,
 		//	xpos + w, ypos,       1.0 ,
@@ -75,7 +74,7 @@ void DebugLineDrawer::GenerateLines()
 	VertsOnGPU = Verts.size();
 #if BUILD_OPENGL
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * Verts.size(), &Verts[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Verts.size(), &Verts[0], GL_DYNAMIC_DRAW);
 #endif
 }
 
@@ -87,12 +86,12 @@ void DebugLineDrawer::RenderLines(glm::mat4 matrix)
 		glDisable(GL_BLEND);
 		m_TextShader->ActivateShaderProgram();
 
-		//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(UIManager::instance->GetWidth()), 0.0f, static_cast<GLfloat>(UIManager::instance->GetHeight()));
+		//glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(UIManager::instance->GetWidth()), 0.0f, static_cast<float>(UIManager::instance->GetHeight()));
 		glUniformMatrix4fv(glGetUniformLocation(m_TextShader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(matrix));
 
 		//glUniform3f(glGetUniformLocation(m_TextShader->GetProgramHandle(), "textColor"), Colour.x, Colour.y, Colour.z);
 
-		GLsizei size = (6 * sizeof(GLfloat));
+		GLsizei size = (6 * sizeof(float));
 		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 		glVertexAttribPointer(
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
@@ -111,7 +110,7 @@ void DebugLineDrawer::RenderLines(glm::mat4 matrix)
 			GL_FLOAT,           // type
 			GL_FALSE,           // normalized?
 			size,                  // stride
-			(void*)(3 * sizeof(GLfloat))            // array buffer offset
+			(void*)(3 * sizeof(float))            // array buffer offset
 		);
 
 		glEnableVertexAttribArray(1);

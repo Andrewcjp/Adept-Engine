@@ -2,8 +2,6 @@
 #include "include\glm\glm.hpp"
 #include <string>
 #include <vector>
-#include "OpenGL\OGLTexture.h"
-#include "OpenGL\OGLCube.h"
 #include "../Rendering/Core/Mesh.h"
 class Scene;//foward decare scene
 class SceneSerialiser

@@ -20,8 +20,8 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 		return;
 	}
 	RightRect = CollisionRect(WidthOfCollisonRects * 2, h, x + (w - WidthOfCollisonRects), y);
-	GLfloat xpos = (GLfloat)x;
-	GLfloat ypos = (GLfloat)y;
+	float xpos = (float)x;
+	float ypos = (float)y;
 
 	if (UIDrawBatcher::instance != nullptr)
 	{
@@ -45,7 +45,7 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 
 UIBox::~UIBox()
 {	 
-	delete texture;
+////	delete texture;
 }
 
 void UIBox::MouseMove(int x, int y)
@@ -97,7 +97,7 @@ void UIBox::Render()
 		RHI::UnBindUnit(0);
 	}
 
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(UIManager::instance->GetWidth()), 0.0f, static_cast<GLfloat>(UIManager::instance->GetHeight()));
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(UIManager::instance->GetWidth()), 0.0f, static_cast<float>(UIManager::instance->GetHeight()));
 	glUniformMatrix4fv(glGetUniformLocation(m_TextShader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniform1i(glGetUniformLocation(m_TextShader->GetProgramHandle(), "UseColour"), (texture == nullptr));
 

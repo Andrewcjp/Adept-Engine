@@ -1,17 +1,18 @@
 #include "ParticleSystem.h"
 #include "../Core/Performance/PerfManager.h"
-
+#include "../RHI/RHI.h"
+#include "../RHI/BaseTexture.h"
 ParticleSystem::ParticleSystem()
 {
-	texture = new OGLTexture("\\asset\\texture\\smoke.png");
+	texture = RHI::CreateTexture("\\asset\\texture\\smoke.png");
 	shader = new Shader_Particle();
-	static const GLfloat plane_positions[] = {
+	static const float plane_positions[] = {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
 		-0.5f,  0.5f, 0.0f,
 		0.5f,  0.5f, 0.0f,
 	};
-
+#if BUILD_OPENGL
 	glGenBuffers(1, &billboard_VB);
 	glBindBuffer(GL_ARRAY_BUFFER, billboard_VB);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_positions), plane_positions, GL_STATIC_DRAW);
@@ -20,12 +21,13 @@ ParticleSystem::ParticleSystem()
 	glGenBuffers(1, &position_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
 	//Tell the buffer that we will stream data to it at a later time
-	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(float), NULL, GL_STREAM_DRAW);
 
 	glGenBuffers(1, &color_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
 
-	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(float), NULL, GL_STREAM_DRAW);
+#endif
 	Init();
 	Life = 25.0f;
 }
@@ -33,9 +35,6 @@ ParticleSystem::ParticleSystem()
 
 ParticleSystem::~ParticleSystem()
 {
-	glDeleteBuffers(1, &color_buffer);
-	glDeleteBuffers(1, &position_buffer);
-	glDeleteBuffers(1, &billboard_VB);
 
 	delete shader;
 	delete texture;
@@ -126,17 +125,19 @@ void ParticleSystem::UpdateUniforms(Transform* t, Camera* c, std::vector<Light*>
 }
 void ParticleSystem::StreamDataToGPU()
 {
+#if BUILD_OPENGL
 	glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
-	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(GLfloat) * 4, g_particule_position_size_data);
+	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(float), NULL, GL_STREAM_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(float) * 4, g_particule_position_size_data);
 
 	glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
-	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(GLfloat) * 4, g_particule_color_data);
+	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(float), NULL, GL_STREAM_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(float) * 4, g_particule_color_data);
+#endif
 }
 void ParticleSystem::Render()
 {
-
+#if BUILD_OPENGL
 	glEnable(GL_BLEND);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, billboard_VB);
@@ -157,6 +158,7 @@ void ParticleSystem::Render()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+#endif
 }
 void ParticleSystem::SortParticles()
 {

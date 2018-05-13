@@ -16,7 +16,7 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid)
 	//init the querry 
 	if (RHI::GetType() == RenderSystemOGL)
 	{
-		glGenQueries(1, &Querry);
+////		glGenQueries(1, &Querry);
 	}
 }
 Material* GameObject::GetMat()

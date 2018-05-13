@@ -1,6 +1,5 @@
 #pragma once
 #include "UIWidget.h"
-#include <GLEW\GL\glew.h>
 #include "CollisionRect.h"
 class OGLShaderProgram;
 class BaseTexture;
@@ -25,9 +24,6 @@ private:
 	int WidthOfCollisonRects = 30;//todo: ScreenSpace relative
 	bool Selected = false;
 	CollisionRect RightRect;
-	GLuint	quad_vertexbuffer;
-	OGLShaderProgram * m_TextShader;
-	BaseTexture* texture = nullptr;
 	float EdgeGap = 2.0f;
 };
 

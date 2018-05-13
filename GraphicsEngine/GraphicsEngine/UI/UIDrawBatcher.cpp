@@ -73,7 +73,7 @@ void UIDrawBatcher::RenderBatches()
 		return;
 	}
 	Shader->SetShaderActive();
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(UIManager::instance->GetWidth()), 0.0f, static_cast<GLfloat>(UIManager::instance->GetHeight()));
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(UIManager::instance->GetWidth()), 0.0f, static_cast<float>(UIManager::instance->GetHeight()));
 	Shader->UpdateUniforms(projection);
 
 	if (RHI::IsOpenGL())

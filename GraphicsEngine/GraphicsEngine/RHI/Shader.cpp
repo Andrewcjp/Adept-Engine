@@ -31,10 +31,6 @@ void Shader::SetShaderActive()
 	}
 }
 
-ShaderProgramHandle Shader::GetShaderID()
-{
-	return m_Shader->GetProgramHandle();
-}
 
 ShaderProgramBase * Shader::GetShaderProgram()
 {

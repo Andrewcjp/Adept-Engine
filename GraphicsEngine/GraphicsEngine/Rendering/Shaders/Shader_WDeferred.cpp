@@ -1,6 +1,6 @@
 #include "Shader_WDeferred.h"
 #include "RHI/RHI.h"
-
+#include "../RHI/ShaderProgramBase.h"
 
 Shader_WDeferred::Shader_WDeferred()
 {
@@ -19,6 +19,7 @@ Shader_WDeferred::Shader_WDeferred()
 
 	m_Shader->BuildShaderProgram();
 	m_Shader->ActivateShaderProgram();
+#if BUILD_OPENGL
 	m_uniform_model = glGetUniformLocation(m_Shader->GetProgramHandle(), "model");
 	m_uniform_View = glGetUniformLocation(m_Shader->GetProgramHandle(), "view");
 	m_UniformMVP = glGetUniformLocation(m_Shader->GetProgramHandle(), "projection");
@@ -36,6 +37,7 @@ Shader_WDeferred::Shader_WDeferred()
 	m_FarPlane = glGetUniformLocation(m_Shader->GetProgramHandle(), "far_plane");
 	m_MV33 = glGetUniformLocation(m_Shader->GetProgramHandle(), "MV3x3");
 	IsReflect = glGetUniformLocation(m_Shader->GetProgramHandle(), "IsReft");
+#endif
 }
 
 
@@ -45,7 +47,7 @@ Shader_WDeferred::~Shader_WDeferred()
 
 void Shader_WDeferred::SetNormalState(bool hasnormalmap)
 {
-
+#if BUILD_OPENGL
 	if (hasnormalmap)
 	{
 		glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "HasNormalMap"), 1);
@@ -54,20 +56,22 @@ void Shader_WDeferred::SetNormalState(bool hasnormalmap)
 	{
 		glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "HasNormalMap"), 0);
 	}
-
+#endif
 }
 
 void Shader_WDeferred::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
 {
+#if BUILD_OPENGL
 	glUniformMatrix4fv(m_UniformMVP, 1, GL_FALSE, &c->GetProjection()[0][0]);
 	glUniformMatrix4fv(m_uniform_View, 1, GL_FALSE, &c->GetView()[0][0]);
 	glUniformMatrix4fv(m_uniform_model, 1, GL_FALSE, &t->GetModel()[0][0]);
 
-	glUniform1i(m_uniform_LightNumber, static_cast<GLuint>(lights.size()));
+	glUniform1i(m_uniform_LightNumber, static_cast<int>(lights.size()));
 
-	glUniform1f(m_FarPlane, static_cast<GLfloat>(ShadowFarPlane));
+	glUniform1f(m_FarPlane, static_cast<float>(ShadowFarPlane));
 	glUniform1i(m_IsMapUniform, 0);
 	glUniform3fv(Uniform_Cam_Pos, 1, glm::value_ptr(c->GetPosition()));
+#endif
 }
 
 void Shader_WDeferred::UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights)

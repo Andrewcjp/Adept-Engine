@@ -1,7 +1,6 @@
 #pragma once
 #include "../RHI/Shader.h"
 #include <string>
-#include "OpenGL\OGLTexture.h"
 #define CUBE_SIDES 6
 #include "../Rendering/Core/FrameBuffer.h"
 #include "glm\fwd.hpp"

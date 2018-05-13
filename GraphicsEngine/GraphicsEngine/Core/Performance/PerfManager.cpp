@@ -190,7 +190,7 @@ void PerfManager::EndGPUTimer()
 
 		if (stopTimerAvailable)
 		{
-			GLuint64 startTime, stopTime;
+			int64 startTime, stopTime;
 			glGetQueryObjectui64v(queryID[0], GL_QUERY_RESULT, &startTime);
 			glGetQueryObjectui64v(queryID[1], GL_QUERY_RESULT, &stopTime);
 			GPUTime = ((stopTime - startTime) / 1e6f);

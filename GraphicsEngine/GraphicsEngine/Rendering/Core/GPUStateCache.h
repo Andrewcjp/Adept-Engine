@@ -1,5 +1,5 @@
 #pragma once
-#include <GLEW\GL\glew.h>
+
 class GPUStateCache
 {
 public:
@@ -19,7 +19,7 @@ public:
 	}
 	~GPUStateCache();
 	static GPUStateCache* instance;
-	static bool CheckStateOfUnit(int unit, GLuint state)
+	static bool CheckStateOfUnit(int unit, int state)
 	{
 		//return false;
 		if (instance->TextureUnits[unit] == state)
@@ -28,23 +28,23 @@ public:
 		}
 		return false;
 	}
-	static void UpdateUnitState(int unit, GLuint state)
+	static void UpdateUnitState(int unit, int state)
 	{
 		instance->TextureUnits[unit] = state;
 	}
-	static bool CheckCurrentUniformBuffer(GLuint buffer)
+	static bool CheckCurrentUniformBuffer(int buffer)
 	{
 		return (instance->uniformBufferState == buffer);
 	}
-	static void UpdateCurrentUniformBuffer( GLuint state)
+	static void UpdateCurrentUniformBuffer( int state)
 	{
 		instance->uniformBufferState = state;
 	}
 	
 private:
 	GPUStateCache();
-	GLuint TextureUnits[20];
-	GLuint uniformBufferState = 0;
+	int TextureUnits[20];
+	int uniformBufferState = 0;
 
 };
 

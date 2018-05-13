@@ -60,12 +60,12 @@ void D3D12Plane::CreateVertexBuffer()
 		m_vertices[1].m_texcoords = glm::vec2(0, 0);
 		m_vertices[2].m_texcoords = glm::vec2(1, 0);
 	
-		m_vertices[4].m_position = glm::vec3(xpos, ypos + h, 0);
-		m_vertices[5].m_position = glm::vec3(xpos + w, ypos, 0);
-		m_vertices[6].m_position = glm::vec3(xpos + w, ypos + h, 0);
-		m_vertices[4].m_texcoords = glm::vec2(0, 1);
-		m_vertices[5].m_texcoords = glm::vec2(1, 0);
-		m_vertices[6].m_texcoords = glm::vec2(1, 1);
+		m_vertices[3].m_position = glm::vec3(xpos, ypos + h, 0);
+		m_vertices[4].m_position = glm::vec3(xpos + w, ypos, 0);
+		m_vertices[5].m_position = glm::vec3(xpos + w, ypos + h, 0);
+		m_vertices[3].m_texcoords = glm::vec2(0, 1);
+		m_vertices[4].m_texcoords = glm::vec2(1, 0);
+		m_vertices[5].m_texcoords = glm::vec2(1, 1);
 
 		
 		const UINT vertexBufferSize = sizeof(m_vertices);

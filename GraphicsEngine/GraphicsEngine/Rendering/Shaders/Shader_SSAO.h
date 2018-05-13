@@ -4,7 +4,6 @@
 #include <vector>
 #include <random>
 #include "glm\glm.hpp"
-#include "OpenGL\OGLTexture.h"
 class Shader_SSAO :
 	public Shader
 {
@@ -15,8 +14,8 @@ public:
 	virtual void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
 	void Resize(int width, int height);
 private:
-	GLuint quad_vertexbuffer;
-	OGLTexture* noisetex;
+	int quad_vertexbuffer;
+	BaseTexture* noisetex;
 	const int NoiseTextureUnit = 10;
 	std::vector<glm::vec3> ssaoKernel;
 	int mwidth = 0;

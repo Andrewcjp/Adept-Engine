@@ -81,7 +81,7 @@ bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, 
 }
 void BaseWindow::InitilseWindow()
 {
-	glewInit();
+//	glewInit();
 #if USE_PHYSX_THREADING
 	//	ThreadComplete = CreateEvent(NULL, false, false, L"");
 	//	ThreadStart = CreateEvent(NULL, false, false, L"");
@@ -93,7 +93,7 @@ void BaseWindow::InitilseWindow()
 	}
 
 	std::cout << "Scene Load started" << std::endl;
-	ImageLoader::StartLoader();
+////	ImageLoader::StartLoader();
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -189,7 +189,7 @@ void BaseWindow::Render()
 		}
 		FixedUpdate();
 		//CurrentPlayScene->FixedUpdateScene(TickRate);
-		Renderer->FixedUpdatePhysx(TickRate);
+//		Renderer->FixedUpdatePhysx(TickRate);
 		PerfManager::EndTimer("FTick");
 #endif
 

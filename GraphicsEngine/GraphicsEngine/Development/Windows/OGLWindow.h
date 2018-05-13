@@ -10,7 +10,7 @@
 
 #include <ctime>
 #include <time.h>
-#include <GLEW\GL\glew.h>
+
 
 #include "Core/Input.h"
 #include <memory>

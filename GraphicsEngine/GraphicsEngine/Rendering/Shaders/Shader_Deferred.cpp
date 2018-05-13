@@ -1,11 +1,11 @@
 #include "Shader_Deferred.h"
-#include "OpenGL/OGLShaderProgram.h"
+
 
 
 Shader_Deferred::Shader_Deferred()
 {
 	//Initialise OGL shader
-	m_Shader = new OGLShaderProgram();
+	m_Shader = RHI::CreateShaderProgam();
 
 	m_Shader->CreateShaderProgram();
 	m_Shader->AttachAndCompileShaderFromFile("Deferred", SHADER_VERTEX);
@@ -19,6 +19,7 @@ Shader_Deferred::Shader_Deferred()
 
 	m_Shader->BuildShaderProgram();
 	m_Shader->ActivateShaderProgram();
+#if BUILD_OPENGL
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "gPosition"), 0);
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "gNormal"), 1);
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "gAlbedoSpec"), 2);
@@ -29,7 +30,7 @@ Shader_Deferred::Shader_Deferred()
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "shadowcubemap2"), SHADOWCUBEMAP2);
 	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "ssao"), 6);
 
-	static const GLfloat g_quad_vertex_buffer_data[] = {
+	static const float g_quad_vertex_buffer_data[] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
@@ -42,6 +43,7 @@ Shader_Deferred::Shader_Deferred()
 	glGenBuffers(1, &quad_vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+#endif
 }
 
 
@@ -51,8 +53,9 @@ Shader_Deferred::~Shader_Deferred()
 
 void Shader_Deferred::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*> lights)
 {
-	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "numLights"), static_cast<GLuint>(lights.size()));
-	glUniform1f(glGetUniformLocation(m_Shader->GetProgramHandle(), "far_plane"), static_cast<GLfloat>(ShadowFarPlane));
+#if BUILD_OPENGL
+	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "numLights"), static_cast<int>(lights.size()));
+	glUniform1f(glGetUniformLocation(m_Shader->GetProgramHandle(), "far_plane"), static_cast<float>(ShadowFarPlane));
 	glUniform3fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "viewPos"), 1, &c->GetPosition()[0]);
 	for (int i = 0; i < lights.size(); i++) {
 		glUniform3f(glGetUniformLocation(m_Shader->GetProgramHandle(), ("allLights[" + std::to_string(i) + "].position").c_str()), lights[i]->GetPosition().x, lights[i]->GetPosition().y, lights[i]->GetPosition().z);
@@ -63,9 +66,11 @@ void Shader_Deferred::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Li
 		glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), ("allLights[" + std::to_string(i) + "].DirShadowID").c_str()), (lights[i]->DirectionalShadowid));
 		glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), ("allLights[" + std::to_string(i) + "].HasShadow").c_str()), (lights[i]->GetDoesShadow()));
 	}
+#endif
 }
 void Shader_Deferred::RenderPlane()
 {
+#if BUILD_OPENGL
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
@@ -82,6 +87,7 @@ void Shader_Deferred::RenderPlane()
 	glDrawArrays(GL_TRIANGLES, 0, 6); // 2*3 indices starting at 0 -> 2 triangles
 
 	glDisableVertexAttribArray(0);
+#endif
 }
 
 void Shader_Deferred::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)

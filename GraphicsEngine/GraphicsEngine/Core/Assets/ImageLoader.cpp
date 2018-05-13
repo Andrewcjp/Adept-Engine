@@ -1,7 +1,7 @@
 #include "ImageLoader.h"
 #include "Core/Assets/AssetManager.h"
 
-ImageLoader* ImageLoader::instance = NULL;
+
 ImageLoader::ImageLoader()
 {
 
@@ -11,9 +11,9 @@ ImageLoader::ImageLoader()
 ImageLoader::~ImageLoader()
 {
 }
-
-GLuint ImageLoader::loadsplitCubeMap(std::string path)
-{
+#if BUILD_OPENGL
+int ImageLoader::loadsplitCubeMap(std::string path)
+{ImageLoader* ImageLoader::instance = NULL;
 	std::vector<const GLchar*> faces;
 	faces.push_back("right.jpg");
 	faces.push_back("left.jpg");
@@ -22,7 +22,7 @@ GLuint ImageLoader::loadsplitCubeMap(std::string path)
 	faces.push_back("back.jpg");
 	faces.push_back("front.jpg");
 
-	GLuint textureID;
+	int textureID;
 	glGenTextures(1, &textureID);
 	glActiveTexture(GL_TEXTURE0);
 
@@ -30,7 +30,7 @@ GLuint ImageLoader::loadsplitCubeMap(std::string path)
 	unsigned char* image;
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-	for (GLuint i = 0; i < faces.size(); i++)
+	for (int i = 0; i < faces.size(); i++)
 	{
 		std::string facepath = AssetManager::instance->TextureAssetPath;
 		facepath.append(faces[i]);
@@ -62,9 +62,9 @@ unsigned char* ImageLoader::LoadSOILFile(int *width, int *height, int *nchan, co
 	}
 	return image;
 }
-GLuint ImageLoader::LoadImageFile(std::string path)
+int ImageLoader::LoadImageFile(std::string path)
 {
-	GLuint textureID;
+	int textureID;
 	glGenTextures(1, &textureID);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
@@ -72,7 +72,7 @@ GLuint ImageLoader::LoadImageFile(std::string path)
 	if (!AssetManager::instance->GetTextureAsset(path, Image))
 	{
 		//__debugbreak();
-		return (GLuint)-1;
+		return (int)-1;
 	}
 	glTexImage2D(
 		GL_TEXTURE_2D, 0, GL_RGBA8, Image.Width, Image.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Image.image
@@ -85,7 +85,7 @@ GLuint ImageLoader::LoadImageFile(std::string path)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	GLfloat MAxAn;
+	float MAxAn;
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &MAxAn);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, MAxAn);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -93,17 +93,18 @@ GLuint ImageLoader::LoadImageFile(std::string path)
 
 	return textureID;
 }
-
-bool ImageLoader::CheckIfLoaded(std::string name, GLuint * out)
-{
-	for (unsigned int i = 0; i < loadedtextures.size(); i++)
-	{
-		if (loadedtextures[i]->Name == name)
-		{
-			*out = (loadedtextures[i]->m_syshandle);
-			return true;
-		}
-	}
-	return false;
-}
-
+//
+//bool ImageLoader::CheckIfLoaded(std::string name, int * out)
+//{
+//	for (unsigned int i = 0; i < loadedtextures.size(); i++)
+//	{
+//		if (loadedtextures[i]->Name == name)
+//		{
+//			*out = (loadedtextures[i]->m_syshandle);
+//			return true;
+//		}
+//	}
+//	return false;
+//}
+//
+#endif

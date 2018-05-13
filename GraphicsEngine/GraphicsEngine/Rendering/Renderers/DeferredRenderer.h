@@ -24,7 +24,6 @@ public:
 	virtual Camera * GetMainCam() override;
 	virtual void AddGo(GameObject * g) override;
 	virtual void AddLight(Light * l) override;
-	virtual void FixedUpdatePhysx(float dtime) override;
 	void GeometryPass();
 	void RenderSkybox(bool ismain);
 	void LightingPass();
@@ -43,8 +42,8 @@ private:
 	/*FrameBufferSSAO* SSAOBuffer;*/
 	Shader_SSAO*	SSAOShader;
 	GameObject* skybox;
-	GLuint SkyboxTexture;
-	OGLShaderProgram* SkyboxShader;
+	int SkyboxTexture;
+	ShaderProgramBase* SkyboxShader;
 	// Inherited via RenderEngine
 	virtual void Resize(int width, int height) override;
 
@@ -54,10 +53,6 @@ private:
 	// Inherited via RenderEngine
 	virtual std::vector<GameObject*> GetObjects() override;
 
-
-
-	// Inherited via RenderEngine
-	virtual void SetReflectionCamera(Camera * c) override;
 
 	// Inherited via RenderEngine
 	virtual FrameBuffer * GetReflectionBuffer() override;

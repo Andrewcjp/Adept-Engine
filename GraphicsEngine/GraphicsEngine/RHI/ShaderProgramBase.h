@@ -6,8 +6,6 @@ class ShaderProgramBase
 {
 
 protected:
-	ShaderProgramHandle			m_systemHandle; //handle assigned by opengl;
-	ShaderBase*					m_shaders[MAX_NUM_SHADER_PER_PROGRAM];
 	int							m_shaderCount;
 	bool						IsCompute = false;
 public:
@@ -15,11 +13,7 @@ public:
 	{}
 	virtual								~ShaderProgramBase();
 
-	inline ShaderProgramHandle	GetProgramHandle()
-	{
-		return m_systemHandle;
-	}
-
+	
 	virtual void						CreateShaderProgram() = 0;
 	virtual EShaderError				AttachAndCompileShaderFromFile(const char * filename, EShaderType type) = 0;
 	virtual void						BuildShaderProgram() = 0;

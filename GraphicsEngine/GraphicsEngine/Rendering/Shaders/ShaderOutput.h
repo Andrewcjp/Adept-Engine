@@ -1,7 +1,6 @@
 #pragma once
 #include "../RHI/Shader.h"
 #include "RHI/RHI.h"
-class D3D11Cube;
 class ShaderOutput :public Shader
 {
 public:
@@ -34,12 +33,6 @@ private:
 	int mwidth = 0;
 	int mheight = 0;
 	bool fxxastate = false;
-	GLuint quad_vertexbuffer;
 	ConstantBuffer m_cbuffer;
-	//d3d11 only
-	D3D11Cube* OutputCube;
-
-
-
 };
 

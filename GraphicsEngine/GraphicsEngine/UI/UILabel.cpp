@@ -1,6 +1,5 @@
 #include "UILabel.h"
-#include "OpenGL/OGLShaderProgram.h"
-#include <GLEW\GL\glew.h>
+
 #include "TextRenderer.h"
 UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {

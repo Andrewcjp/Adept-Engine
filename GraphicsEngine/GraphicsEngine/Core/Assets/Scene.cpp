@@ -6,6 +6,7 @@
 #include "../Rendering/Renderers/RenderEngine.h"
 #include "../Components/CompoenentRegistry.h"
 #include "../Components/RigidbodyComponent.h"
+#include <algorithm>
 Scene::Scene()
 {}
 

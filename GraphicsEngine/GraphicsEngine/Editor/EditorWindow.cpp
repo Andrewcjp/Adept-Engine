@@ -7,7 +7,6 @@
 #include "Core/Assets/ImageLoader.h"
 #include <ctime>
 #include <time.h>
-#include <GLEW\GL\glew.h>
 #include <memory>
 #include "Core/BaseWindow.h"
 #include "Core/Transform.h"

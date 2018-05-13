@@ -29,10 +29,7 @@ PhysicsEngine* Engine::PhysEngine = NULL;
 #include "D3D11/D3D11Window.h"
 #endif
 
-#if BUILD_OPENGL
-#include <GLEW\GL\glew.h>
-#include <gl/glu.h>
-#endif
+
 std::string Engine::GetRootDir()
 {
 	wchar_t buffer[MAX_PATH];
@@ -120,22 +117,24 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 			std::cout << "Starting Cook" << std::endl;
 			ShouldRunCook = true;
 		}
-		if (input.compare("-ForceAPI OGL") == 0)
-		{
-			ForcedRenderSystem = RenderSystemOGL;
-			std::cout << "Forcing RenderSystemOGL" << std::endl;
-		}
-		else if (input.compare("-ForceAPI D3D12") == 0)
+		else if (input.compare("-dx12") == 0)
 		{
 			ForcedRenderSystem = RenderSystemD3D12;
-			std::cout << "Forcing RenderSystemD3D12" << std::endl;
+			std::cout << "Forcing RenderSystem D3D12" << std::endl;
+		}
+		else if (input.compare("-vk") == 0)
+		{
+			ForcedRenderSystem = RenderSystemVulkan;
+			std::cout << "Forcing RenderSystem Vulkan" << std::endl;
 		}
 	}
+
 	if (ShouldRunCook)
 	{
 		RunCook();
 		exit(0);//todo: proper exit
 	}
+
 	if (FullScreen)
 	{
 		CreateApplicationWindow(1920, 1080, ERenderSystemType::RenderSystemOGL);
@@ -226,34 +225,34 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 }
 void Engine::setVSync(bool sync)
 {
-	// Function pointer for the wgl extention function we need to enable/disable
-	// vsync
-	typedef BOOL(APIENTRY *PFNWGLSWAPINTERVALPROC)(int);
-	PFNWGLSWAPINTERVALPROC wglSwapIntervalEXT = 0;
-
-	const char *extensions = (char*)glGetString(GL_EXTENSIONS);
-	if (extensions == nullptr)
-	{
-		return;
-	}
-	if (strstr(extensions, "WGL_EXT_swap_control") == 0)
-	{
-		std::cout << "WGL_EXT_swap_control Not Avalible" << std::endl;
-		return;
-	}
-	else
-	{
-		wglSwapIntervalEXT = (PFNWGLSWAPINTERVALPROC)wglGetProcAddress("wglSwapIntervalEXT");
-
-		if (wglSwapIntervalEXT != nullptr)
-		{
-			wglSwapIntervalEXT(sync);
-		}
-		else
-		{
-			std::cout << "wglSwapIntervalEXT Not valid" << std::endl;
-		}
-	}
+//	// Function pointer for the wgl extention function we need to enable/disable
+//	// vsync
+//	typedef BOOL(APIENTRY *PFNWGLSWAPINTERVALPROC)(int);
+//	PFNWGLSWAPINTERVALPROC wglSwapIntervalEXT = 0;
+//
+//////	const char *extensions = (char*)glGetString(GL_EXTENSIONS);
+//	/*if (extensions == nullptr)
+//	{
+//		return;
+//	}*/
+//	if (strstr(extensions, "WGL_EXT_swap_control") == 0)
+//	{
+//		std::cout << "WGL_EXT_swap_control Not Avalible" << std::endl;
+//		return;
+//	}
+//	else
+//	{
+//		wglSwapIntervalEXT = (PFNWGLSWAPINTERVALPROC)wglGetProcAddress("wglSwapIntervalEXT");
+//
+//		if (wglSwapIntervalEXT != nullptr)
+//		{
+//			wglSwapIntervalEXT(sync);
+//		}
+//		else
+//		{
+//			std::cout << "wglSwapIntervalEXT Not valid" << std::endl;
+//		}
+//	}
 }
 bool Engine::SwitchRenderAPI(ERenderSystemType type)
 {

@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "LineDrawer.h"
-#include "OpenGL\OGLShaderProgram.h"
 #include "RHI/RHI.h"
 #include "glm\glm.hpp"
 #include "UI\UIManager.h"
+#include "../RHI/ShaderProgramBase.h"
 LineDrawer::LineDrawer()
 {
 	if (RHI::IsOpenGL())
@@ -18,16 +18,16 @@ LineDrawer::LineDrawer()
 }
 void LineDrawer::InitOGL()
 {
-	m_TextShader = new OGLShaderProgram();
+	m_TextShader = RHI::CreateShaderProgam();
 	m_TextShader->CreateShaderProgram();
 	m_TextShader->AttachAndCompileShaderFromFile("line_vs", SHADER_VERTEX);
 	m_TextShader->AttachAndCompileShaderFromFile("line_fs", SHADER_FRAGMENT);
 	m_TextShader->BindAttributeLocation(0, "vertex");
 	m_TextShader->BuildShaderProgram();
 	m_TextShader->ActivateShaderProgram();
-	glGenBuffers(1, &quad_vertexbuffer);
+	/*glGenBuffers(1, &quad_vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * CurrentAllocateLines * 10, NULL, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * CurrentAllocateLines * 10, NULL, GL_STREAM_DRAW);*/
 }
 
 LineDrawer::~LineDrawer()
@@ -36,7 +36,7 @@ LineDrawer::~LineDrawer()
 	delete Verts;
 	if (RHI::IsOpenGL())
 	{
-		glDeleteBuffers(1, &quad_vertexbuffer);
+	//	glDeleteBuffers(1, &quad_vertexbuffer);
 	}
 }
 
@@ -76,20 +76,21 @@ void LineDrawer::RenderLines()
 }
 void LineDrawer::RenderLines_OpenGL()
 {
+#if BUILD_OPENGL
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertindex, NULL, GL_STREAM_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * vertindex, &Verts[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertindex, NULL, GL_STREAM_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertindex, &Verts[0]);
 	if (VertsOnGPU != 0)
 	{
 		glDisable(GL_BLEND);
 		m_TextShader->ActivateShaderProgram();
 
-		glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(UIManager::instance->GetWidth()), 0.0f, static_cast<GLfloat>(UIManager::instance->GetHeight()));
+		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(UIManager::instance->GetWidth()), 0.0f, static_cast<float>(UIManager::instance->GetHeight()));
 		glUniformMatrix4fv(glGetUniformLocation(m_TextShader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 		//glUniform3f(glGetUniformLocation(m_TextShader->GetProgramHandle(), "textColor"), Colour.x, Colour.y, Colour.z);
 
-		GLsizei size = (5 * sizeof(GLfloat));
+		GLsizei size = (5 * sizeof(float));
 		//	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 		glVertexAttribPointer(
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
@@ -107,7 +108,7 @@ void LineDrawer::RenderLines_OpenGL()
 			GL_FLOAT,           // type
 			GL_FALSE,           // normalized?
 			size,                  // stride
-			(void*)(2 * sizeof(GLfloat))            // array buffer offset
+			(void*)(2 * sizeof(float))            // array buffer offset
 		);
 
 		glEnableVertexAttribArray(1);
@@ -116,6 +117,7 @@ void LineDrawer::RenderLines_OpenGL()
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
 	}
+#endif
 }
 void LineDrawer::ClearLines()
 {

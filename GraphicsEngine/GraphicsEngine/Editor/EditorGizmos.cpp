@@ -1,6 +1,6 @@
 #include "EditorGizmos.h"
 #include "Core/GameObject.h"
-#include <GLEW\GL\glew.h>
+
 #include "../Rendering/Core/DebugLineDrawer.h"
 #include "../Core/Input.h"
 EditorGizmos::EditorGizmos()

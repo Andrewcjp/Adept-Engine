@@ -79,7 +79,6 @@ private:
 	//todo move to shader
 	
 	int MaxConstant =25;
-	GLuint Buffer;
 	std::vector<SceneConstantBuffer> SceneBuffer;
 	//information for all the lights in the scene currently
 

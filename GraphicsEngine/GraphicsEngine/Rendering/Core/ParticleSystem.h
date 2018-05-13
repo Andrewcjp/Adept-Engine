@@ -1,8 +1,6 @@
 #pragma once
 #include "glm\glm.hpp"
 #include <algorithm>
-#include <GLEW\GL\glew.h>
-#include "OpenGL\OGLTexture.h"
 #include "Rendering\Shaders\Shader_Particle.h"
 
 const int MaxParticles = 5000;
@@ -69,12 +67,12 @@ private:
 
 
 	Particle Particles[MaxParticles];
-	GLfloat* g_particule_position_size_data = new GLfloat[MaxParticles * 4];
-	GLfloat* g_particule_color_data = new GLfloat[MaxParticles * 4];
-	GLuint billboard_VB;
-	GLuint position_buffer;
-	GLuint color_buffer;
-	OGLTexture* texture;
+	float* g_particule_position_size_data = new float[MaxParticles * 4];
+	float* g_particule_color_data = new float[MaxParticles * 4];
+	int billboard_VB;
+	int position_buffer;
+	int color_buffer;
+	BaseTexture* texture;
 	Shader_Particle* shader;
 };
 
