@@ -157,7 +157,7 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 	ImageLoader::StartLoader();
 	m_width = width;
 	m_height = height;
-	if (IsDeferredMode)
+	if (/*IsDeferredMode*/)
 	{
 		Renderer = new DeferredRenderer(width, height);
 	}

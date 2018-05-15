@@ -129,7 +129,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 			{
 				OpenGlwindow->ShowHud = true;
 			}
-			OpenGlwindow->GetCurrentRenderer()->GetFilterShader()->SetFullScreen(!OpenGlwindow->ShowHud);
+//			OpenGlwindow->GetCurrentRenderer()->GetFilterShader()->SetFullScreen(!OpenGlwindow->ShowHud);
 		}
 		break;
 	case VK_F2:

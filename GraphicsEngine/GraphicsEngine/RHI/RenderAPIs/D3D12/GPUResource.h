@@ -39,7 +39,8 @@ public:
 	eResourceState GetState();
 	void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
 	D3D12_RESOURCE_STATES GetCurrentState();
-
+	ID3D12Resource* GetResource();
+	void Release();
 private:
 	eResourceState currentState;
 	ID3D12Resource* resource = nullptr;

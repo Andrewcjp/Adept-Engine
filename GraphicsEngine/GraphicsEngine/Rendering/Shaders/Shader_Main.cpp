@@ -1,12 +1,20 @@
 #include "Shader_Main.h"
 #include "RHI/RHI.h"
 #include "../Rendering/Core/GPUStateCache.h"
-Shader_Main::Shader_Main()
+Shader_Main::Shader_Main(bool LoadForward)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->CreateShaderProgram();
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs_12", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Main_fs_12", SHADER_FRAGMENT);
+	if (LoadForward)
+	{
+		m_Shader->AttachAndCompileShaderFromFile("Main_fs_12", SHADER_FRAGMENT);
+	}
+	else
+	{
+		m_Shader->AttachAndCompileShaderFromFile("DeferredWrite_fs", SHADER_FRAGMENT);
+	}
+	
 
 	m_Shader->ActivateShaderProgram();
 
@@ -175,8 +183,11 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 	CLightBuffer->UpdateConstantBuffer(&LightsBuffer, 0);
 }
 
-void Shader_Main::BindLightsBuffer(RHICommandList*  list)
+void Shader_Main::BindLightsBuffer(RHICommandList*  list, bool JustLight)
 {
 	list->SetConstantBufferView(CLightBuffer, 0, Shader_Main::LightCBV);
-	list->SetConstantBufferView(CMVBuffer, 0, Shader_Main::MPCBV);
+	if (!JustLight)
+	{
+		list->SetConstantBufferView(CMVBuffer, 0, Shader_Main::MPCBV);
+	}
 }

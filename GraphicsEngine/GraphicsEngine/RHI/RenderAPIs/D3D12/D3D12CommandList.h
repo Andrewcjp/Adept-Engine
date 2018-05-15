@@ -24,7 +24,7 @@ public:
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetTexture(class BaseTexture * texture, int slot) override;
 	// Inherited via RHICommandList
-	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot) override;
+	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 	virtual void SetScreenBackBufferAsRT() override;
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;

@@ -1,4 +1,5 @@
 #pragma once
+#if BUILD_VULKAN
 #define FRAME_LAG 2
 #undef NOMINMAX
 #define VK_USE_PLATFORM_WIN32_KHR
@@ -63,3 +64,4 @@ private:
 	vk::ColorSpaceKHR color_space;
 	void ThrowIfFailed(vk::Result  r);
 };
+#endif

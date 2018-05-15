@@ -61,6 +61,7 @@ public:
 	std::map<std::string, std::string>* GetMeshMap() { return &MeshFileMap; }
 	const std::string ShaderCookedFile = "\\asset\\Cooked\\Shader\\glsl\\CookedShaders.txt";
 	static void RegisterMeshAssetLoad(std::string name);
+	static std::string GetShaderDirPath();
 private:
 	const std::string AssetRootPath = "../asset/";
 	std::string ShaderAssetPath = "../asset/shader/glsl/";	

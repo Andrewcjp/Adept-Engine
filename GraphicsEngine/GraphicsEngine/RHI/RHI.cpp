@@ -10,6 +10,7 @@
 #include "../Rendering/Core/GPUStateCache.h"
 #include "../Core/Engine.h"
 #include "RHICommandList.h"
+
 #if BUILD_D3D12
 #include "../RHI/RenderAPIs/D3D12/D3D12Texture.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12Shader.h"

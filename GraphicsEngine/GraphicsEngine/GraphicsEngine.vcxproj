@@ -297,6 +297,7 @@
     <ClInclude Include="BaseApplication.h" />
     <ClInclude Include="Core\Assets\MeshLoader.h" />
     <ClInclude Include="Core\Utils\MovingAverage.h" />
+    <ClInclude Include="RHI\RenderAPIs\D3D12\DxIncludeHandler.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_ColourCorrect.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_CompostPass.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.h" />
@@ -434,6 +435,7 @@
     <ClCompile Include="BaseApplication.cpp" />
     <ClCompile Include="Core\Assets\MeshLoader.cpp" />
     <ClCompile Include="Core\Utils\MovingAverage.cpp" />
+    <ClCompile Include="RHI\RenderAPIs\D3D12\DxIncludeHandler.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PP_ColourCorrect.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PP_CompostPass.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.cpp" />

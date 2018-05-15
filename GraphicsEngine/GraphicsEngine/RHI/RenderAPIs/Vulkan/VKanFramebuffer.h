@@ -1,5 +1,6 @@
 #pragma once
 #include "../Rendering/Core/FrameBuffer.h"
+#if BUILD_VULKAN
 class VKanFramebuffer : public FrameBuffer
 {
 public:
@@ -12,4 +13,4 @@ public:
 	virtual void UnBind() override;
 	virtual void ClearBuffer(CommandListDef * list = nullptr) override;
 };
-
+#endif

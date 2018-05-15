@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "VKanFramebuffer.h"
-
+#if BUILD_VULKAN
 
 
 
@@ -23,3 +23,4 @@ void VKanFramebuffer::UnBind()
 
 void VKanFramebuffer::ClearBuffer(CommandListDef * list)
 {}
+#endif

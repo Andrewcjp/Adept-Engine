@@ -1,24 +1,25 @@
 Texture2D texColour : register( t0 );
 SamplerState defaultSampler : register ( s0 );
 
-struct VS_OUTPUT
+struct PSInput
 {
-	float4 pos : SV_POSITION;
-	float3 normal : NORMAL0;
-	float3 uv : TEXCOORD0;
+	float4 position : SV_POSITION;
+	float4 Normal :NORMAL0;
+	float2 uv : TEXCOORD;
+	float4 WorldPos:TANGENT0;
 };
 struct FS_OUTPUT
 {
-	float3 Gpos: COLOR0;
-	float3 GNormal: COLOR1;
-	float4 GAlbedoSpec: COLOR2;
-	float3 GTangent: COLOR3;
-}
-FS_OUTPUT main( VS_OUTPUT input ) /*: SV_Target*/
+	float4 Gpos: SV_Target0;
+	float4 GNormal: SV_Target1;
+	float4 GAlbedoSpec: SV_Target2;
+	float4 GTangent: SV_Target3;
+};
+FS_OUTPUT main(PSInput input ) 
 {
 	FS_OUTPUT output = (FS_OUTPUT)0;
-	output.Gpos = pos.xyz;
-	output.GNormal = normal.xyz;
-	output.GAlbedoSpec = float4(texColour.Sample(defaultSampler, input.uv), 0.0f);
+	output.Gpos = input.WorldPos;
+	output.GNormal = float4(input.Normal.xyz,1.0f);//todo: remove this exta compoenent
+	output.GAlbedoSpec = float4(texColour.Sample(defaultSampler, input.uv).xyz, 1.0f);
     return output;
 }

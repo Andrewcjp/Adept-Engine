@@ -25,9 +25,10 @@ public:
 	virtual void AddLight(Light* l) = 0;
 	virtual void Resize(int width, int height) = 0;
 	virtual Shader* GetMainShader() = 0;
-	virtual std::vector<GameObject*> GetObjects() = 0;
-	virtual FrameBuffer* GetReflectionBuffer() = 0;
-	virtual ShaderOutput* GetFilterShader() = 0;
+	virtual std::vector<GameObject*> GetObjects()
+	{
+		return std::vector<GameObject*>	();
+	};
 	bool OcclusionQuerry = true;
 	virtual void DestoryRenderWindow() = 0;
 	virtual void SetRenderSettings(RenderSettings settings);

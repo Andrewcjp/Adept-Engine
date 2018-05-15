@@ -7,15 +7,11 @@ public:
 	Shader_Deferred();
 	~Shader_Deferred();
 
+	std::vector<Shader::ShaderParameter> GetShaderParameters();
+	std::vector<Shader::VertexElementDESC> GetVertexFormat();
+	void RenderScreenQuad(RHICommandList * list);
 
-
-	// Inherited via Shader
-	virtual void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
-	void RenderPlane();
 private:
-	int quad_vertexbuffer;
-
-	// Inherited via Shader
-	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
+	RHIBuffer * VertexBuffer = nullptr;
 };
 

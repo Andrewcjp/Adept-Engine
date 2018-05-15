@@ -17,7 +17,7 @@ VS_OUTPUT main( float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXC
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 	float4 final_pos = mul( pos, world );
-	
+	result.WorldPos = final_pos;
 	final_pos = mul( final_pos, view );
 	final_pos = mul( final_pos, projection );
 

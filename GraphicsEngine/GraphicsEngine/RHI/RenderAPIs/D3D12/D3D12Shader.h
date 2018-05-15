@@ -62,7 +62,7 @@ public:
 private:
 	D3D_SHADER_MACRO * ParseDefines();
 
-
+	class DxIncludeHandler* IncludeHandler = nullptr;
 	DeviceContext* CurrentDevice = nullptr;
 	PiplineShader m_Shader;	
 	ID3D12CommandAllocator* m_commandAllocator = nullptr;

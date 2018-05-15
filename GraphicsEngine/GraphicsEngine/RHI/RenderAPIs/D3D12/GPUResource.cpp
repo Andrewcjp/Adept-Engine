@@ -81,3 +81,13 @@ D3D12_RESOURCE_STATES GPUResource::GetCurrentState()
 {
 	return CurrentResourceState;
 }
+
+ID3D12Resource * GPUResource::GetResource()
+{
+	return resource;
+}
+
+void GPUResource::Release()
+{
+	resource->Release();
+}

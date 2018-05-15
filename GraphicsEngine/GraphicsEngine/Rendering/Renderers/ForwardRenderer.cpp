@@ -51,12 +51,6 @@ void ForwardRenderer::Resize(int width, int height)
 			D3D12RHI::Instance->ResizeSwapChain(width, height);
 		}
 	}
-	//outshader->Resize(width, height);
-	/*if (FilterBuffer != nullptr)
-	{
-		delete FilterBuffer;
-		FilterBuffer = RHI::CreateFrameBuffer(width, height, FrameBufferRatio);
-	}*/
 	if (MainCamera != nullptr)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);
@@ -224,8 +218,7 @@ void ForwardRenderer::MainPass()
 	D3D12TimeManager::Instance->StartTimer(MainCommandList);
 	MainCommandList->SetScreenBackBufferAsRT();
 	MainCommandList->ClearScreen();	
-	mainshader->UpdateMV(MainCamera);
-	
+	mainshader->UpdateMV(MainCamera);	
 	mainshader->BindLightsBuffer(MainCommandList);
 	
 	if (false)
@@ -365,17 +358,6 @@ void ForwardRenderer::SetRenderSettings(RenderSettings set)
 Shader_Main * ForwardRenderer::GetMainShader()
 {
 	return mainshader;
-}
-
-
-FrameBuffer * ForwardRenderer::GetReflectionBuffer()
-{
-	return RelfectionBuffer;
-}
-
-ShaderOutput * ForwardRenderer::GetFilterShader()
-{
-	return outshader;
 }
 
 void ForwardRenderer::DestoryRenderWindow()

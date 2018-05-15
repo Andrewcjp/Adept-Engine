@@ -1,4 +1,5 @@
 #pragma once
+#if BUILD_VULKAN
 #include "../RHI/ShaderProgramBase.h"
 class VKanShader : public ShaderProgramBase
 {
@@ -15,3 +16,4 @@ public:
 	virtual void DeactivateShaderProgram() override;
 };
 
+#endif

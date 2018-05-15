@@ -12,7 +12,7 @@ PP_ColourCorrect::~PP_ColourCorrect()
 void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
 	list->SetScreenBackBufferAsRT();
-	list->SetFrameBufferTexture(InputTexture, 0);
+	list->SetFrameBufferTexture(InputTexture, 0,0);
 	RenderScreenQuad(list);
 }
 

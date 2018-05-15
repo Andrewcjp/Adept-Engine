@@ -9,7 +9,6 @@
 #include "Rendering/Shaders/Shader_SSAO.h"
 #include "../Rendering/Core/FrameBuffer.h"
 #include "Rendering/Shaders/ShaderOutput.h"
-class OGLShaderProgram;
 class DeferredRenderer :public RenderEngine
 {
 public:
@@ -24,11 +23,12 @@ public:
 	virtual Camera * GetMainCam() override;
 	virtual void AddGo(GameObject * g) override;
 	virtual void AddLight(Light * l) override;
+	void PrepareData();
 	void GeometryPass();
 	void RenderSkybox(bool ismain);
 	void LightingPass();
 	void ShadowPass();
-	void RenderFitlerBufferOutput();
+
 private:
 	ShaderOutput* outshader;
 	FrameBuffer* FilterBuffer;
@@ -39,7 +39,13 @@ private:
 	std::vector<GameObject*> Objects;
 	std::vector<Light*> Lights;
 	ShadowRenderer* shadower;
-	/*FrameBufferSSAO* SSAOBuffer;*/
+	FrameBuffer* GFrameBuffer = nullptr;
+	RHICommandList* WriteList = nullptr;
+	Shader_Main* MainShader = nullptr;
+	RHICommandList* LightingList = nullptr;
+	bool once = true;
+	class	PostProcessing* Post = nullptr;
+	FrameBuffer*	OutputBuffer = nullptr;
 	Shader_SSAO*	SSAOShader;
 	GameObject* skybox;
 	int SkyboxTexture;
@@ -50,16 +56,10 @@ private:
 	// Inherited via RenderEngine
 	virtual Shader * GetMainShader() override;
 
-	// Inherited via RenderEngine
-	virtual std::vector<GameObject*> GetObjects() override;
 
-
-	// Inherited via RenderEngine
-	virtual FrameBuffer * GetReflectionBuffer() override;
 	void BindAsRenderTarget();
 
-	// Inherited via RenderEngine
-	virtual ShaderOutput * GetFilterShader() override;
+
 
 	// Inherited via RenderEngine
 	virtual void DestoryRenderWindow() override;

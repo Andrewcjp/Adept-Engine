@@ -6,6 +6,7 @@
 #include "../Rendering/Core/DebugLineDrawer.h"
 #include "../Rendering/Renderers/DeferredRenderer.h"
 #include "../Rendering/Renderers/ForwardRenderer.h"
+#include "../Rendering/PostProcessing/PostProcessing.h"
 #include "../RHI/RHI.h"
 #include "../UI/UIManager.h"
 #include "../Core/Input.h"
@@ -14,7 +15,6 @@
 #include "../Core/Assets/SceneJSerialiser.h"
 #include "../UI/TextRenderer.h"
 BaseWindow* BaseWindow::Instance = nullptr;
-
 BaseWindow::BaseWindow()
 {
 	assert(Instance == nullptr);
@@ -72,20 +72,16 @@ bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, 
 	RHI::InitialiseContext(m_hwnd, width, height);
 	m_height = height;
 	m_width = width;
-
-
 	InitilseWindow();
-
 	PostInitWindow(width, height);
 	return true;
 }
 void BaseWindow::InitilseWindow()
 {
-//	glewInit();
 #if USE_PHYSX_THREADING
-	//	ThreadComplete = CreateEvent(NULL, false, false, L"");
-	//	ThreadStart = CreateEvent(NULL, false, false, L"");
-	//	RenderThread = CreateThread(NULL, 0, (unsigned long(__stdcall *)(void *))this->RunPhysicsThreadLoop, this, 0, NULL);
+		ThreadComplete = CreateEvent(NULL, false, false, L"");
+		ThreadStart = CreateEvent(NULL, false, false, L"");
+		RenderThread = CreateThread(NULL, 0, (unsigned long(__stdcall *)(void *))this->RunPhysicsThreadLoop, this, 0, NULL);
 #endif
 	if (RHI::GetType() == ERenderSystemType::RenderSystemOGL)
 	{
@@ -94,7 +90,7 @@ void BaseWindow::InitilseWindow()
 
 	std::cout << "Scene Load started" << std::endl;
 ////	ImageLoader::StartLoader();
-	if (IsDeferredMode)
+	if (/*IsDeferredMode*/true)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
 	}
@@ -102,6 +98,7 @@ void BaseWindow::InitilseWindow()
 	{
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
+
 	Renderer->Init();
 	CurrentScene = new Scene();
 	CurrentScene->LoadDefault();
@@ -115,7 +112,7 @@ void BaseWindow::InitilseWindow()
 	input = new Input(nullptr, nullptr, m_hwnd, this);
 	input->main = dynamic_cast<Shader_Main*>(Renderer->GetMainShader());
 	input->Renderer = Renderer;
-	input->Filters = Renderer->GetFilterShader();
+//	input->Filters = Renderer->GetFilterShader();
 	input->Cursor = CopyCursor(LoadCursor(NULL, IDC_ARROW));
 	input->Cursor = SetCursor(input->Cursor);
 
@@ -140,7 +137,7 @@ void BaseWindow::FixedUpdate()
 {
 
 }
-#include "../Rendering/PostProcessing/PostProcessing.h"
+
 void BaseWindow::Render()
 {
 	PreRender();

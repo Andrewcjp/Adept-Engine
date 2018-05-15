@@ -200,12 +200,12 @@ void D3D12CommandList::ClearScreen()
 	D3D12RHI::Instance->ClearRenderTarget(CurrentGraphicsList);
 }
 
-void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot)
+void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex )
 {
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
-	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot);
+	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex);
 }
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)

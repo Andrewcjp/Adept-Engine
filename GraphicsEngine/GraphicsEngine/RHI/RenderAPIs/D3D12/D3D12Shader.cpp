@@ -10,15 +10,19 @@
 #include "../Core/Asserts.h"
 #include "../RHI/DeviceContext.h"
 #include <d3dcompiler.h>
+#include "DxIncludeHandler.h"
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = Device;
 	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+	IncludeHandler = new DxIncludeHandler();
 }
 
 
 D3D12Shader::~D3D12Shader()
-{}
+{
+	delete IncludeHandler;
+}
 
 void D3D12Shader::CreateShaderProgram()
 {}
@@ -85,20 +89,20 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	if (type == SHADER_VERTEX)
 	{
 		//todo: To d3dcomplie with text
-		hr = D3DCompileFromFile(filename, defines, NULL, "main", "vs_5_0",
+		hr = D3DCompileFromFile(filename, defines, IncludeHandler, "main", "vs_5_0",
 			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
 		StripD3dShader(&mBlolbs.vsBlob);
 
 	}
 	else if (type == SHADER_FRAGMENT)
 	{
-		hr = D3DCompileFromFile(filename, defines, NULL, "main", "ps_5_0",
+		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0",
 			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
 		StripD3dShader(&mBlolbs.fsBlob);
 	}
 	else if (type == SHADER_COMPUTE)
 	{
-		hr = D3DCompileFromFile(filename, defines, NULL, "main", "cs_5_0",
+		hr = D3DCompileFromFile(filename, defines, IncludeHandler, "main", "cs_5_0",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
 	}
 	else if (type == SHADER_GEOMETRY)
@@ -119,6 +123,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 			Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
 			WindowsHelpers::DisplayMessageBox("Shader Complie Error", Log);
 			pErrorBlob->Release();
+			exit(-1);
 			__debugbreak();
 
 		}

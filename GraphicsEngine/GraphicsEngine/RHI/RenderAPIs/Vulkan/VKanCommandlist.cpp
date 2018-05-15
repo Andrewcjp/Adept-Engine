@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "VKanCommandlist.h"
-
+#if BUILD_VULKAN
 
 VKanCommandlist::VKanCommandlist()
 {}
@@ -85,3 +85,4 @@ void VKanBuffer::CreateIndexBuffer(int Stride, int ByteSize)
 
 void VKanBuffer::UpdateIndexBuffer(void * data, int length)
 {}
+#endif

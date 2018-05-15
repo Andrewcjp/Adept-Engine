@@ -115,7 +115,7 @@ std::string D3D12RHI::GetMemory()
 
 void D3D12RHI::LoadPipeLine()
 {
-	//EnableShaderBasedValidation();
+//	EnableShaderBasedValidation();
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	UINT dxgiFactoryFlags = 0;
@@ -136,7 +136,7 @@ void D3D12RHI::LoadPipeLine()
 	IDXGIFactory4* factory;
 	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 
-	if (true)
+	if (false)
 	{
 		IDXGIAdapter* warpAdapter;
 		ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));

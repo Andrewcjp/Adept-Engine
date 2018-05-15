@@ -168,7 +168,7 @@ AssetManager::AssetManager()
 	path.append("\\asset\\");
 	/*StringUtils::RemoveChar(path, "|");*/
 	ShaderAssetPath = path;
-	ShaderAssetPath.append("shader\\glsl\\");
+	ShaderAssetPath.append("shader\\hlsl\\");
 	TextureAssetPath = path;
 	TextureAssetPath.append("texture\\");
 	LoadFromShaderDir();
@@ -294,6 +294,15 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 			instance->MeshFileMap.emplace(name, name);
 		}	
 	}
+}
+
+std::string AssetManager::GetShaderDirPath()
+{
+	if (instance)
+	{
+		return instance->ShaderAssetPath;
+	}
+	return std::string();
 }
 
 

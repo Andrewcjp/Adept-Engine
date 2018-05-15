@@ -1,4 +1,5 @@
 #pragma once
+#if BUILD_VULKAN
 class VKanTexture
 {
 public:
@@ -6,3 +7,4 @@ public:
 	~VKanTexture();
 };
 
+#endif

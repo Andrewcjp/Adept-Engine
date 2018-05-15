@@ -93,8 +93,6 @@ private:
 	int ReflectionBufferHeight = 512;
 	// Inherited via RenderEngine
 	virtual Shader_Main * GetMainShader() override;	
-	virtual FrameBuffer * GetReflectionBuffer() override;
-	virtual ShaderOutput * GetFilterShader() override;	
 	virtual void DestoryRenderWindow() override;
 
 	// Inherited via RenderEngine

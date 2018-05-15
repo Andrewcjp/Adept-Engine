@@ -45,7 +45,7 @@ public:
 		LightCBV = 2,
 		MPCBV = 3
 	};
-	Shader_Main();
+	Shader_Main(bool LoadForward = true);
 	~Shader_Main();
 	void SetNormalVis();
 	void SetShadowVis();
@@ -64,7 +64,7 @@ public:
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	SceneConstantBuffer CreateUnformBufferEntry(Transform* t);
 	void UpdateLightBuffer(std::vector<Light*> lights);
-	void BindLightsBuffer(RHICommandList * list);
+	void BindLightsBuffer(RHICommandList * list,bool JustLight = false);
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 private:
 	

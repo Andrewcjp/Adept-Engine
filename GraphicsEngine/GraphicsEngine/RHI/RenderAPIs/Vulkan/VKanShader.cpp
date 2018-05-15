@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "VKanShader.h"
-
+#if BUILD_VULKAN
 
 VKanShader::VKanShader()
 {}
@@ -28,3 +28,4 @@ void VKanShader::ActivateShaderProgram()
 
 void VKanShader::DeactivateShaderProgram()
 {}
+#endif

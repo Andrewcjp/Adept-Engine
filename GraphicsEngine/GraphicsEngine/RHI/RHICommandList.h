@@ -67,7 +67,7 @@ public:
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) = 0;
 	virtual void SetTexture(class BaseTexture* texture, int slot) = 0;
-	virtual void SetFrameBufferTexture(class FrameBuffer* buffer, int slot) = 0;
+	virtual void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;
 	virtual void SetScreenBackBufferAsRT() = 0;
 	virtual void ClearScreen() = 0;
 	virtual void ClearFrameBuffer(FrameBuffer* buffer) = 0;

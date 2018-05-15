@@ -1,6 +1,7 @@
 #pragma once
 #include "../RHI/RHICommandList.h"
 #include "../RHI/Shader.h"
+#if BUILD_VULKAN
 class VKanCommandlist :
 	public RHICommandList
 {
@@ -49,3 +50,4 @@ public:
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) override;
 	virtual void UpdateIndexBuffer(void * data, int length) override;
 };
+#endif

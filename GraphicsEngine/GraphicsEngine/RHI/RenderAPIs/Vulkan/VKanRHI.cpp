@@ -2,6 +2,7 @@
 #include "VKanRHI.h"
 #include <stdio.h>
 #include <iostream>
+#if BUILD_VULKAN
 //#define GLFW_INCLUDE_VULKAN
 //#include <GLFW/glfw3.h>
 
@@ -230,3 +231,4 @@ void VKanRHI::ThrowIfFailed(vk::Result  r)
 		std::cout << "Command failed" << std::endl;
 	}
 }
+#endif
