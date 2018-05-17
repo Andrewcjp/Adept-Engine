@@ -81,7 +81,7 @@ private:
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;
-	ID3D12Resource* m_renderTargets[FrameCount];
+	ID3D12Resource* m_SwaprenderTargets[FrameCount];
 	
 	D3D12Texture* Test = nullptr;
 	class FrameBuffer* testbuffer = nullptr;

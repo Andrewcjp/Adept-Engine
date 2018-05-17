@@ -84,7 +84,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	gizmos = new EditorGizmos();
 	selector = new EditorObjectSelector();
 	selector->init();
-	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());	
+//	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());	
 	if (RHI::IsD3D12())
 	{
 		CurrentScene->LoadExampleScene(Renderer, false);
@@ -229,7 +229,7 @@ void EditorWindow::LoadScene()
 
 void EditorWindow::RefreshScene()
 {
-	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());
+//	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());
 	UI->UpdateGameObjectList(CurrentScene->GetObjects());
 	UI->RefreshGameObjectList();
 }

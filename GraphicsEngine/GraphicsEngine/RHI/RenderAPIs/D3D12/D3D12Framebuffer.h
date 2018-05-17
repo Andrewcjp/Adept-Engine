@@ -30,24 +30,23 @@ public:
 	void CopyToDevice(DeviceContext* device);
 	
 private:
-	D3D12_CPU_DESCRIPTOR_HANDLE DepthHandle;
-	D3D12_CPU_DESCRIPTOR_HANDLE RTHandle;
-	ID3D12DescriptorHeap* m_dsvHeap = nullptr;
-	ID3D12DescriptorHeap* m_srvHeap = nullptr;
-	ID3D12DescriptorHeap* m_nullHeap = nullptr;
-	ID3D12Resource * m_depthStencil = nullptr;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE NullHandle;
+	
+	class DescriptorHeap* SrvHeap = nullptr;
+	class DescriptorHeap* RTVHeap = nullptr;
+	class DescriptorHeap* DSVHeap = nullptr;
+	class DescriptorHeap* NullHeap = nullptr;
+
+	ID3D12Resource * m_depthStencil = nullptr;	
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
+
 	DXGI_FORMAT RTVformat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT Depthformat = DXGI_FORMAT_D32_FLOAT;
 	
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	bool once = false;
 	int lastboundslot = 0;
-	//const float clearColor[4] = { 0.0f, 0.2f, 0.4f, 0.0f};
 	const float CubeDepthclearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	UINT descriptorSize = 0;
 	class GPUResource* DepthStencil = nullptr;
 	class GPUResource* RenderTarget[8] = {};
 };

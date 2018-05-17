@@ -63,7 +63,7 @@ private:
 	RenderEngine* Renderer;
 
 	EditorGizmos* gizmos;
-	Scene* mainscene;
+	Scene* MainScene;
 	std::vector<GameObject*> PhysicsObjects;
 
 	bool RenderedReflection = false;

@@ -51,7 +51,7 @@ using namespace DirectX;
 		ShaderOutput*		out;
 		GameObject* testgo = nullptr;
 		GameObject* shadow = nullptr;
-		ShadowRenderer* Shadows = nullptr;
+		mShadowRenderer* Shadows = nullptr;
 		Shader_Depth*	depthtestshader = nullptr;
 		Shader_Main*	mainshader = nullptr;
 		FrameBuffer* dephtestbuffer;

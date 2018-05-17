@@ -14,7 +14,7 @@ public:
 	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj);
 	const int MAX_POINT_SHADOWS = 2;
 	const int MAX_DIRECTIONAL_SHADOWS = 2;
-	void RenderShadowMaps(Camera * c, std::vector<Light*> lights, const std::vector<GameObject*>& ShadowObjects, RHICommandList* list = nullptr, class Shader_Main* mainshader = nullptr);
+	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, RHICommandList* list = nullptr, class Shader_Main* mainshader = nullptr);
 	void RenderPointShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject*>& ShadowObjects);
 	void RenderDirectionalShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject *> & ShadowObjects);
 	void BindShadowMapsToTextures(RHICommandList* list);

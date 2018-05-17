@@ -38,7 +38,7 @@ private:
 	class D3D12FrameBuffer* ddepth;
 	class Editor_Camera* EditorCam;
 	class Input* input;
-	class ShadowRenderer* ShadowR;
+	class mShadowRenderer* ShadowR;
 	class D3D12Plane* debugplane;
 	class ShaderOutput* output;
 	CommandListDef* MainList;

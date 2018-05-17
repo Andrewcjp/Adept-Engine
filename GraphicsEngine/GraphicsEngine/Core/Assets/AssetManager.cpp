@@ -36,10 +36,10 @@ void AssetManager::LoadTexturesFromDir()
 			continue;
 		}
 		TextureAsset t;
-		GetTextureAsset(p.path().string(), t,true);
+		GetTextureAsset(p.path().string(), t, true);
 	}
 }
-bool AssetManager::FileExists(std::string filename) 
+bool AssetManager::FileExists(std::string filename)
 {
 	struct stat fileInfo;
 	return stat(filename.c_str(), &fileInfo) == 0;
@@ -94,7 +94,7 @@ void AssetManager::ExportCookedShaders()
 	std::string dirtarget = ShaderCookedFile;
 	StringUtils::RemoveChar(dirtarget, "CookedShaders.txt");
 	FileUtils::CreateDirectoryFromFullPath(Engine::GetRootDir(), dirtarget, true);
-	std::ofstream myfile(Engine::GetRootDir()+ShaderCookedFile);
+	std::ofstream myfile(Engine::GetRootDir() + ShaderCookedFile);
 	if (myfile.is_open())
 	{
 		for (std::map<std::string, std::string>::iterator it = ShaderSourceMap.begin(); it != ShaderSourceMap.end(); ++it)
@@ -102,7 +102,7 @@ void AssetManager::ExportCookedShaders()
 			//std::cout << it->first << " => " << it->second << '\n';
 			std::string data = "";
 			data.append(it->first);
-			data.append(FileSplit+"\n");
+			data.append(FileSplit + "\n");
 			data.append(it->second);
 			data.append("¬\n");
 			myfile.write(data.c_str(), data.length());
@@ -112,7 +112,7 @@ void AssetManager::ExportCookedShaders()
 }
 void AssetManager::LoadCookedShaders()
 {
-	std::ifstream myfile(Engine::GetRootDir()+ShaderCookedFile);
+	std::ifstream myfile(Engine::GetRootDir() + ShaderCookedFile);
 	std::string file;
 	if (myfile.is_open())
 	{
@@ -164,7 +164,7 @@ void AssetManager::StartAssetManager()
 AssetManager::AssetManager()
 {
 	StartTime = (float)PerfManager::get_nanos();
-	std::string path = Engine::GetRootDir();	
+	std::string path = Engine::GetRootDir();
 	path.append("\\asset\\");
 	/*StringUtils::RemoveChar(path, "|");*/
 	ShaderAssetPath = path;
@@ -193,10 +193,9 @@ AssetManager::AssetManager()
 	std::cout << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << std::endl;
 }
 AssetManager::~AssetManager()
-{
-}
+{}
 #include "ImageIO.h"
-bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset,bool ABSPath)
+bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool ABSPath)
 {
 	if (HasCookedData)
 	{
@@ -292,7 +291,7 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 		if (instance->MeshFileMap.find(name) == instance->MeshFileMap.end())
 		{
 			instance->MeshFileMap.emplace(name, name);
-		}	
+		}
 	}
 }
 
@@ -326,16 +325,22 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 		std::string line;
 		while (std::getline(myfile, line))
 		{
-			///*	if (line.find("/*") != -1 || line.find("*/") != -1|| line.find("//") != -1)
-			//	{
-			//		continue;
-			//	}*/
+			//todo better!
+			///*if (line.find("/*") != -1 || line.find("*/") != -1 || line.find("//") != -1)
+			//{
+			//	continue;
+			//}*/
 			if (line.find("#") != -1)
 			{
 				size_t targetnum = line.find(includeText);
 
 				if (targetnum != -1)
 				{
+					if (line.find("//") != -1)//Contains a commented line 
+					{
+						file.append(" \n");
+						continue;
+					}
 					line.erase(targetnum, includeLength);
 					StringUtils::RemoveChar(line, "\"");
 					StringUtils::RemoveChar(line, "\"");

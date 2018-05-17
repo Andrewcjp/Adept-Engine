@@ -11,7 +11,6 @@ struct Light
 	int HasShadow;
 };
 
-
 float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 vLightDir, float3 vLightColor, float4 vFalloffs, float3 vPosWorld, float3 vPerPixelNormal)
 {
 
@@ -26,7 +25,7 @@ float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 v
 	}
 	MaterialDiffuseColor *= vLightColor;
 
-	return  float4(MaterialDiffuseColor * diffu, 1.0);// +(MaterialSpecularColor*spec);
+	return  float4((MaterialDiffuseColor * diffu) /*+ (MaterialSpecularColor*spec)*/ , 1.0);
 }
 
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal)

@@ -115,7 +115,7 @@ std::string D3D12RHI::GetMemory()
 
 void D3D12RHI::LoadPipeLine()
 {
-//	EnableShaderBasedValidation();
+	//EnableShaderBasedValidation();
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	UINT dxgiFactoryFlags = 0;
@@ -123,7 +123,7 @@ void D3D12RHI::LoadPipeLine()
 	// Enable the debug layer (requires the Graphics Tools "optional feature").
 	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
 	{
-
+		
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
@@ -257,13 +257,13 @@ void D3D12RHI::CreateSwapChainRTs()
 		// Create a RTV for each frame.
 		for (UINT n = 0; n < FrameCount; n++)
 		{
-			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
-			GetDevice()->CreateRenderTargetView(m_renderTargets[n], nullptr, rtvHandle);
-			m_RenderTargetResources[n] = new GPUResource(m_renderTargets[n], D3D12_RESOURCE_STATE_PRESENT);
+			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_SwaprenderTargets[n])));
+			GetDevice()->CreateRenderTargetView(m_SwaprenderTargets[n], nullptr, rtvHandle);
+			m_RenderTargetResources[n] = new GPUResource(m_SwaprenderTargets[n], D3D12_RESOURCE_STATE_PRESENT);
 			rtvHandle.Offset(1, m_rtvDescriptorSize);
 		}
-		NAME_D3D12_OBJECT(m_renderTargets[1]);
-		NAME_D3D12_OBJECT(m_renderTargets[0]);
+		NAME_D3D12_OBJECT(m_SwaprenderTargets[1]);
+		NAME_D3D12_OBJECT(m_SwaprenderTargets[0]);
 
 	}
 }
@@ -296,7 +296,7 @@ void D3D12RHI::ReleaseSwapRTs()
 {
 	for (UINT n = 0; n < FrameCount; n++)
 	{
-		m_renderTargets[n]->Release();
+		m_SwaprenderTargets[n]->Release();
 		delete m_RenderTargetResources[n];
 	}
 	m_depthStencil->Release();
@@ -574,6 +574,7 @@ DeviceContext * D3D12RHI::GetDefaultDevice()
 
 void D3D12RHI::AddLinkedFrameBuffer(FrameBuffer * target)
 {
+	ensure(target != nullptr);
 	FrameBuffersLinkedToSwapChain.push_back(target);
 }
 

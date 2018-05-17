@@ -71,7 +71,7 @@ BOOL D3D12Window::InitWindow(HGLRC, HWND, HDC, int width, int height)
 	ShadowList = ((D3D12Shader*)Depthshader->GetShaderProgram())->CreateShaderCommandList(1);
 	ShadowList->SetName(L"ShadowList");
 	//NAME_D3D12_OBJECT(ShadowList);
-	ShadowR = new ShadowRenderer();
+	ShadowR = new mShadowRenderer();
 	debugplane = new D3D12Plane(1);
 	Lights.push_back(new Light(TestShadowcam->GetPosition(), 1, Light::Directional));
 //	ShadowR->InitShadows(Lights);

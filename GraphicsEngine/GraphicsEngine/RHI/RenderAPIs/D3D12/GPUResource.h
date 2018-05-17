@@ -41,10 +41,14 @@ public:
 	D3D12_RESOURCE_STATES GetCurrentState();
 	ID3D12Resource* GetResource();
 	void Release();
+	void StartResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
+	void EndResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
+	bool IsTransitioning();
 private:
 	eResourceState currentState;
 	ID3D12Resource* resource = nullptr;
 	D3D12_RESOURCE_STATES CurrentResourceState = {};
 	GPUMemoryBlock Block;
+	D3D12_RESOURCE_STATES TargetState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };
 

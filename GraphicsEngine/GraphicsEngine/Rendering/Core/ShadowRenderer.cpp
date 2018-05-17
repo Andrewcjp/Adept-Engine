@@ -47,7 +47,7 @@ void ShadowRenderer::UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 sh
 	GeometryProjections->UpdateConstantBuffer(transforms, 0);
 }
 
-void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*> lights, const std::vector<GameObject*>& ShadowObjects, RHICommandList* list, Shader_Main* mainshader)
+void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, RHICommandList* list, Shader_Main* mainshader)
 {
 	//RenderDirectionalShadows(list, mainshader, ShadowObjects);
 

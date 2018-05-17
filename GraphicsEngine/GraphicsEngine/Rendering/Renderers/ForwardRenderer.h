@@ -30,79 +30,22 @@ class ForwardRenderer : public RenderEngine
 {
 public:
 	ForwardRenderer(int width, int height);
-	void RunQuery();
-	void Resize(int width, int height);
-
 	~ForwardRenderer();
-	void Render() override;
-	std::vector<GameObject*> InGetObj();
-	void UpdateDeltaTime(float value);
-	void Init()override;
-	void ShadowPass();
-	void BindAsRenderTarget();
-	void PrepareData();
+	void OnRender() override;
+	void PostInit() override;
+	virtual void DestoryRenderWindow() override;
+	virtual void FinaliseRender() override;
+	virtual void OnStaticUpdate() override;
+	void Resize(int width, int height) override;
+private:	
 	void RenderDebugPlane();
 	void MainPass();
-
-	void RenderSkybox(bool ismain = true);
-	void RenderFitlerBufferOutput();
-	virtual std::vector<GameObject*> GetObjects() override;
-	void SetScene(Scene * sc) override;
-
-	void TESTINIT();
-
-	float deltatime = 1;
-	clock_t tstart;
-	Camera* GetMainCam() override;
-	void AddGo(GameObject* g)override;
-
-	void AddLight(Light* l) override;
-	//void FixedUpdatePhysx(float dtime) override;
-	Camera* RefelctionCamera;
-	FrameBuffer* RelfectionBuffer;
-	ShaderOutput* outshader;
-	bool RenderParticles = true;
-	bool RenderGrass = true;
-	bool UseQuerry = false;
-	void SetRenderSettings(RenderSettings settings) override;
-private:
-	FrameBuffer* FilterBuffer = nullptr;
-	std::unique_ptr<ParticleSystem> particlesys;
-	std::unique_ptr<GrassPatch>  grasstest;
-	std::vector<GameObject*>* Objects;
-
-	std::vector<GameObject*> PhysicsObjects;
-	Camera*     MainCamera = nullptr;
-	std::vector<Light*>* Lights;
-	float FrameBufferRatio = 1;
-
-	GameObject* skybox = nullptr;
-	ShadowRenderer* shadowrender;
-	Shader_Main* mainshader = nullptr;
-	Shader_Grass* grassshader = nullptr;
-	Shader* QuerryShader = nullptr;
-	GameObject* testGrassobject = nullptr;
-	std::unique_ptr<Shader_Skybox> skyboxShader;
-	bool RenderedReflection = false;
-	bool LoadGrass = true;
-
-	bool LoadParticles = true;
-	class PostProcessing* Post = nullptr;
-
-	int ReflectionBufferWidth = 512;
-	int ReflectionBufferHeight = 512;
-	// Inherited via RenderEngine
-	virtual Shader_Main * GetMainShader() override;	
-	virtual void DestoryRenderWindow() override;
-
-	// Inherited via RenderEngine
-	virtual void FinaliseRender() override;
+	void RenderSkybox();
 	RHICommandList* MainCommandList;
-	RHICommandList* ShadowCMDList = nullptr;
-	bool once = true;
 	//debug
 #if USED3D12DebugP
 	class D3D12Plane* debugplane = nullptr;
 #endif
+
 };
 

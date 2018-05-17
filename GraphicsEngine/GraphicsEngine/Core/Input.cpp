@@ -95,11 +95,11 @@ BOOL Input::MouseMove(int, int, double)
 void Input::SetSelectedObject(int index)
 {
 	instance->currentObjectIndex = index;
-	if (instance->currentObjectIndex >= instance->ogwindow->GetCurrentRenderer()->GetObjects().size())
+	/*if (instance->currentObjectIndex >= instance->ogwindow->GetCurrentRenderer()->GetObjects().size())
 	{
 		instance->currentObjectIndex = 0;
 	}
-	instance->Selectedobject = instance->ogwindow->GetCurrentRenderer()->GetObjects()[instance->currentObjectIndex];
+	instance->Selectedobject = instance->ogwindow->GetCurrentRenderer()->GetObjects()[instance->currentObjectIndex];*/
 }
 void Input::ProcessQue()
 {
@@ -205,11 +205,11 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 		break;
 	case VK_NUMPAD0:
 		currentObjectIndex++;
-		if (currentObjectIndex >= ogwindow->GetCurrentRenderer()->GetObjects().size())
+		/*if (currentObjectIndex >= ogwindow->GetCurrentRenderer()->GetObjects().size())
 		{
 			currentObjectIndex = 0;
 		}
-		Selectedobject = ogwindow->GetCurrentRenderer()->GetObjects()[currentObjectIndex];
+		Selectedobject = ogwindow->GetCurrentRenderer()->GetObjects()[currentObjectIndex];*/
 		break;
 	case VK_DECIMAL:
 		currentObjectIndex--;
@@ -217,7 +217,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 		{
 			currentObjectIndex = 0;
 		}
-		Selectedobject = ogwindow->GetCurrentRenderer()->GetObjects()[currentObjectIndex];
+		//Selectedobject = ogwindow->GetCurrentRenderer()->GetObjects()[currentObjectIndex];
 		break;
 	case VK_NUMPAD4:
 		if (Selectedobject != nullptr)

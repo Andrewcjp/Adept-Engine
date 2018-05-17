@@ -74,9 +74,43 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList* List ,D3D12_RESOUR
 	{
 		List->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
 		CurrentResourceState = newstate;
+		TargetState = newstate;
 	}	
 }
+//todo More Detailed Error checking!
+void GPUResource::StartResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
+{
+	if (newstate != CurrentResourceState)
+	{
+		D3D12_RESOURCE_BARRIER BarrierDesc = {};
+		BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY;
+		BarrierDesc.Transition.StateBefore = CurrentResourceState;
+		BarrierDesc.Transition.StateAfter = newstate;
+		BarrierDesc.Transition.pResource = resource;
+		List->ResourceBarrier(1, &BarrierDesc);
+		TargetState = newstate;
+	}
+}
 
+void GPUResource::EndResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
+{
+	if (newstate != CurrentResourceState)
+	{
+		D3D12_RESOURCE_BARRIER BarrierDesc = {};
+		BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_END_ONLY;
+		BarrierDesc.Transition.StateBefore = CurrentResourceState;
+		BarrierDesc.Transition.StateAfter = newstate;
+		BarrierDesc.Transition.pResource = resource;
+		List->ResourceBarrier(1, &BarrierDesc);
+		CurrentResourceState = newstate;
+	}
+}
+bool GPUResource::IsTransitioning()
+{
+	return (CurrentResourceState != TargetState);
+}
 D3D12_RESOURCE_STATES GPUResource::GetCurrentState()
 {
 	return CurrentResourceState;
@@ -91,3 +125,5 @@ void GPUResource::Release()
 {
 	resource->Release();
 }
+
+

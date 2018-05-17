@@ -19,6 +19,10 @@ void FrameBuffer::InitBuffer(glm::vec4 clearColour)
 	BufferClearColour = clearColour;
 	switch (m_ftype)
 	{
+	case Colour:
+		RenderTargetCount = 1;
+		CreateColour();
+		break;
 	case ColourDepth:
 		RenderTargetCount = 1;
 		CreateColour();

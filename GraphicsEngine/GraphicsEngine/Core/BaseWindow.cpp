@@ -26,27 +26,26 @@ BaseWindow::~BaseWindow()
 {
 
 }
+
 bool BaseWindow::ChangeDisplayMode(int width, int height)
 {
 
-	if (true)
-	{
-		DEVMODE dmScreenSettings;
-		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-		EnumDisplaySettings(NULL, 0, &dmScreenSettings);
-		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsWidth = width;
-		dmScreenSettings.dmPelsHeight = height;
-		dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+	DEVMODE dmScreenSettings;
+	memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+	EnumDisplaySettings(NULL, 0, &dmScreenSettings);
+	dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+	dmScreenSettings.dmPelsWidth = width;
+	dmScreenSettings.dmPelsHeight = height;
+	dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
 
-		// Try To Set Selected Mode And Get Results.
-		LONG result = ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
-		if (result != DISP_CHANGE_SUCCESSFUL)
-		{
-			//__debugbreak();
-			return false;
-		}
+	// Try To Set Selected Mode And Get Results.
+	LONG result = ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
+	if (result != DISP_CHANGE_SUCCESSFUL)
+	{
+		//__debugbreak();
+		return false;
 	}
+
 	return true;
 }
 bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
@@ -79,9 +78,9 @@ bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, 
 void BaseWindow::InitilseWindow()
 {
 #if USE_PHYSX_THREADING
-		ThreadComplete = CreateEvent(NULL, false, false, L"");
-		ThreadStart = CreateEvent(NULL, false, false, L"");
-		RenderThread = CreateThread(NULL, 0, (unsigned long(__stdcall *)(void *))this->RunPhysicsThreadLoop, this, 0, NULL);
+	ThreadComplete = CreateEvent(NULL, false, false, L"");
+	ThreadStart = CreateEvent(NULL, false, false, L"");
+	RenderThread = CreateThread(NULL, 0, (unsigned long(__stdcall *)(void *))this->RunPhysicsThreadLoop, this, 0, NULL);
 #endif
 	if (RHI::GetType() == ERenderSystemType::RenderSystemOGL)
 	{
@@ -89,7 +88,7 @@ void BaseWindow::InitilseWindow()
 	}
 
 	std::cout << "Scene Load started" << std::endl;
-////	ImageLoader::StartLoader();
+	////	ImageLoader::StartLoader();
 	if (/*IsDeferredMode*/true)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -112,7 +111,7 @@ void BaseWindow::InitilseWindow()
 	input = new Input(nullptr, nullptr, m_hwnd, this);
 	input->main = dynamic_cast<Shader_Main*>(Renderer->GetMainShader());
 	input->Renderer = Renderer;
-//	input->Filters = Renderer->GetFilterShader();
+	//	input->Filters = Renderer->GetFilterShader();
 	input->Cursor = CopyCursor(LoadCursor(NULL, IDC_ARROW));
 	input->Cursor = SetCursor(input->Cursor);
 
@@ -186,7 +185,6 @@ void BaseWindow::Render()
 		}
 		FixedUpdate();
 		//CurrentPlayScene->FixedUpdateScene(TickRate);
-//		Renderer->FixedUpdatePhysx(TickRate);
 		PerfManager::EndTimer("FTick");
 #endif
 
@@ -290,7 +288,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
 			if (r != nullptr)
 			{
-				r->RenderParticles = r->RenderParticles ? false : true;
+//				r->RenderParticles = r->RenderParticles ? false : true;
 			}
 			return true;
 		}
@@ -299,7 +297,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
 			if (r != nullptr)
 			{
-				r->RenderGrass = r->RenderGrass ? false : true;
+	//			r->RenderGrass = r->RenderGrass ? false : true;
 			}
 			return true;
 		}
@@ -324,7 +322,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 		else if (command.find("vtest") != -1)
 		{
 			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
-			r->UseQuerry = r->UseQuerry ? false : true;
+//			r->UseQuerry = r->UseQuerry ? false : true;
 			return true;
 		}
 	}
@@ -539,7 +537,7 @@ int EditorWindow::PhysicsThreadLoop()
 
 		//Sleep(10);
 		SetEvent(ThreadComplete);
-}
+	}
 	return 0;
 }
 #endif

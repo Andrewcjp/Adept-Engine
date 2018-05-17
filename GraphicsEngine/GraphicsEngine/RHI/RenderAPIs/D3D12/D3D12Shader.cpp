@@ -11,6 +11,9 @@
 #include "../RHI/DeviceContext.h"
 #include <d3dcompiler.h>
 #include "DxIncludeHandler.h"
+#include "../Core/Assets/AssetManager.h"
+//As shader based validation doesn't support include handlers use ours
+#define USE_DX_INCLUDER 0
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = Device;
@@ -54,8 +57,9 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	std::string path = Engine::GetRootDir();
 	path.append("\\asset\\shader\\hlsl\\");
 	std::string name = shadername;
+	name.append(".hlsl");
 	path.append(name);
-	path.append(".hlsl");
+	
 	if (!FileUtils::exists_test3(path))
 	{
 #ifdef  _DEBUG
@@ -67,6 +71,9 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	{
 		IsCompute = true;
 	}
+
+	std::string ShaderData = AssetManager::instance->LoadFileWithInclude(name);
+
 
 	std::wstring newfile((int)path.size(), 0);
 	MultiByteToWideChar(CP_UTF8, 0, &path[0], (int)path.size(), &newfile[0], (int)path.size());
@@ -89,26 +96,47 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	if (type == SHADER_VERTEX)
 	{
 		//todo: To d3dcomplie with text
+#if USE_DX_INCLUDER
 		hr = D3DCompileFromFile(filename, defines, IncludeHandler, "main", "vs_5_0",
 			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
+#else
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "vs_5_0",
+			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
+#endif
 		StripD3dShader(&mBlolbs.vsBlob);
 
 	}
 	else if (type == SHADER_FRAGMENT)
 	{
+		
+#if USE_DX_INCLUDER
 		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0",
 			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
+#else
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "ps_5_0",
+			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
+#endif
 		StripD3dShader(&mBlolbs.fsBlob);
 	}
 	else if (type == SHADER_COMPUTE)
 	{
-		hr = D3DCompileFromFile(filename, defines, IncludeHandler, "main", "cs_5_0",
+#if USE_DX_INCLUDER
+		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "cs_5_0",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
+#else
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "cs_5_0",
+			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
+#endif
 	}
 	else if (type == SHADER_GEOMETRY)
 	{
-		hr = D3DCompileFromFile(filename, defines, NULL, "main", "gs_5_0",
+#if USE_DX_INCLUDER
+		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "gs_5_0",
 			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
+#else
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "gs_5_0",
+			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
+#endif
 	}
 
 	if (FAILED(hr))
@@ -350,7 +378,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	//cbvs will be InitAsConstantBufferView
 	//srvs and UAvs will be in Ranges
 	//todo fix this!
-	CD3DX12_ROOT_PARAMETER1* rootParameters;
+	CD3DX12_ROOT_PARAMETER1* rootParameters = nullptr;
 	rootParameters = new CD3DX12_ROOT_PARAMETER1[Params.size()];
 	int RangeNumber = 0;
 	for (int i = 0; i < Params.size(); i++)
@@ -429,6 +457,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	ID3DBlob* error;
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
 	ThrowIfFailed(context->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
+
 	std::wstring name = L"Root sig Length = ";
 	name.append(std::to_wstring(Params.size()));
 	output.m_rootSignature->SetName(name.c_str());
