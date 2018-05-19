@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "UIGraph.h"
-#include "LineDrawer.h"
+#include "../Rendering/Core/DebugLineDrawer.h"
 #include "../Core/Performance/PerfManager.h"
-UIGraph::UIGraph(LineDrawer* linebatch, int w, int h, int x, int y) :UIWidget(w, h, x, y)
+UIGraph::UIGraph(DebugLineDrawer* linebatch, int w, int h, int x, int y) :UIWidget(w, h, x, y)
 {
 	LineBatcher = linebatch;
 	PointWidth = 10;
@@ -18,9 +18,9 @@ UIGraph::~UIGraph()
 
 void UIGraph::Render()
 {
-	LineBatcher->AddLine(glm::vec2(X, Y), glm::vec2(X, Y + mheight), glm::vec3(1, 1, 1));
-	LineBatcher->AddLine(glm::vec2(X + mwidth, Y), glm::vec2(X + mwidth, Y + mheight), glm::vec3(1, 1, 1));
-	LineBatcher->AddLine(glm::vec2(X, Y), glm::vec2(X + mwidth, Y), glm::vec3(1, 1, 1));
+	LineBatcher->AddLine(glm::vec3(X, Y,0), glm::vec3(X, Y + mheight, 0), glm::vec3(1, 1, 1));
+	LineBatcher->AddLine(glm::vec3(X + mwidth, Y, 0), glm::vec3(X + mwidth, Y + mheight, 0), glm::vec3(1, 1, 1));
+	LineBatcher->AddLine(glm::vec3(X, Y,0), glm::vec3(X + mwidth, Y, 0), glm::vec3(1, 1, 1));
 	//render points;
 	RenderPoints(points, GraphColour);
 	RenderPoints(Secondpoints, glm::vec3(1, 1, 0));
@@ -30,7 +30,7 @@ void UIGraph::RenderPoints(std::vector<float> &inpoints, glm::vec3 colour)
 	int accum = 0;
 	for (int i = 0; (i + 1) < inpoints.size(); i += 2)
 	{
-		LineBatcher->AddLine(glm::vec2(X + accum, Y + inpoints[i]), glm::vec2(X + accum + PointWidth, Y + inpoints[i + 1]), colour);
+		LineBatcher->AddLine(glm::vec3(X + accum, Y + inpoints[i], 0), glm::vec3(X + accum + PointWidth, Y + inpoints[i + 1], 0), colour);
 		accum += PointWidth;
 	}
 }

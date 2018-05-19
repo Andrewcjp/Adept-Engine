@@ -15,7 +15,10 @@ GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalSta
 }
 GPUResource::~GPUResource()
 {}
-
+void GPUResource::SetName(LPCWSTR name)
+{
+	resource->SetName(name);
+}
 void GPUResource::CreateHeap()
 {
 

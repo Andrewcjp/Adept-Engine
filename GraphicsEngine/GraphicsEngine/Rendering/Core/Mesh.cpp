@@ -15,6 +15,7 @@ Mesh::Mesh(std::string filename)
 Mesh::~Mesh()
 {
 	delete VertexBuffer;
+	delete IndexBuffer;
 }
 
 void Mesh::Render(RHICommandList * list)

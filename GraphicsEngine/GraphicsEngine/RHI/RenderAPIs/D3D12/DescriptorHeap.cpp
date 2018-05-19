@@ -37,5 +37,4 @@ void DescriptorHeap::BindHeap(ID3D12GraphicsCommandList * list)
 {
 	ID3D12DescriptorHeap* ppHeaps[] = { mHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
 }

@@ -7,11 +7,15 @@
 #include "../Components/CompoenentRegistry.h"
 #include "../Components/RigidbodyComponent.h"
 #include <algorithm>
+#include "../Core/Utils/MemoryUtils.h"
 Scene::Scene()
 {}
 
 Scene::~Scene()
-{}
+{
+	Lights.clear();
+	MemoryUtils::DeleteVector(SceneObjects);	
+}
 
 void Scene::UpdateScene(float deltatime)
 {

@@ -69,6 +69,7 @@ void GetDesktopResolution(int& horizontal, int& vertical, HWND window)
 	horizontal = desktop.right - desktop.left;
 	vertical = desktop.bottom - desktop.top;
 }
+
 BOOL Input::MouseMove(int, int, double)
 {
 
@@ -92,15 +93,17 @@ BOOL Input::MouseMove(int, int, double)
 	}
 	return TRUE;
 }
+
 void Input::SetSelectedObject(int index)
 {
 	instance->currentObjectIndex = index;
-	/*if (instance->currentObjectIndex >= instance->ogwindow->GetCurrentRenderer()->GetObjects().size())
+	if (instance->currentObjectIndex >= instance->OpenGlwindow->GetCurrentScene()->GetObjects()->size())
 	{
 		instance->currentObjectIndex = 0;
 	}
-	instance->Selectedobject = instance->ogwindow->GetCurrentRenderer()->GetObjects()[instance->currentObjectIndex];*/
+	instance->Selectedobject = (*instance->OpenGlwindow->GetCurrentScene()->GetObjects())[index];
 }
+
 void Input::ProcessQue()
 {
 	for (size_t i = 0; i < Inputque.size(); i++)
@@ -109,9 +112,9 @@ void Input::ProcessQue()
 		Inputque.pop();
 	}
 }
-BOOL Input::ProcessKeyDown(WPARAM key)
-{
 
+bool Input::ProcessKeyDown(WPARAM key)
+{
 	InputEvent* ie = new InputEvent(this);
 	switch (key)
 	{
@@ -129,7 +132,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 			{
 				OpenGlwindow->ShowHud = true;
 			}
-//			OpenGlwindow->GetCurrentRenderer()->GetFilterShader()->SetFullScreen(!OpenGlwindow->ShowHud);
+			//			OpenGlwindow->GetCurrentRenderer()->GetFilterShader()->SetFullScreen(!OpenGlwindow->ShowHud);
 		}
 		break;
 	case VK_F2:
@@ -199,17 +202,16 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 	case VK_SPACE:
 		break;
 	case VK_DOWN:
-
 		break;
 	case VK_LEFT:
 		break;
 	case VK_NUMPAD0:
 		currentObjectIndex++;
-		/*if (currentObjectIndex >= ogwindow->GetCurrentRenderer()->GetObjects().size())
+		if (currentObjectIndex >= OpenGlwindow->GetCurrentScene()->GetObjects()->size())
 		{
 			currentObjectIndex = 0;
 		}
-		Selectedobject = ogwindow->GetCurrentRenderer()->GetObjects()[currentObjectIndex];*/
+		Selectedobject = (*OpenGlwindow->GetCurrentScene()->GetObjects())[currentObjectIndex];
 		break;
 	case VK_DECIMAL:
 		currentObjectIndex--;
@@ -217,7 +219,7 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 		{
 			currentObjectIndex = 0;
 		}
-		//Selectedobject = ogwindow->GetCurrentRenderer()->GetObjects()[currentObjectIndex];
+		Selectedobject = (*OpenGlwindow->GetCurrentScene()->GetObjects())[currentObjectIndex];
 		break;
 	case VK_NUMPAD4:
 		if (Selectedobject != nullptr)
@@ -269,11 +271,11 @@ BOOL Input::ProcessKeyDown(WPARAM key)
 			break;
 		}
 		KeyMap.emplace(c, true);
-		return TRUE;
+		return true;
 		break;
 	}
 	KeyMap.emplace((int)key, true);
-	return TRUE;
+	return true;
 }
 
 void Input::LockCursor(bool state)
@@ -307,6 +309,10 @@ bool Input::GetKeyDown(int c)
 bool Input::GetKey(char c)
 {
 	if (instance == nullptr)
+	{
+		return false;
+	}
+	if (!instance->IsActiveWindow)
 	{
 		return false;
 	}

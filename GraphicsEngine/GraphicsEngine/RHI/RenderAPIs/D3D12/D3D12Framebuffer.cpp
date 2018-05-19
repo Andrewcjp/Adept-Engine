@@ -119,7 +119,7 @@ void D3D12FrameBuffer::CreateSRV()
 
 void D3D12FrameBuffer::CreateDepth()
 {
-	Depthformat = DXGI_FORMAT_D32_FLOAT;
+	Depthformat = DefaultDepthformat;
 	if (DSVHeap == nullptr)
 	{
 		DSVHeap = new DescriptorHeap(CurrentDevice,  1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
@@ -134,7 +134,7 @@ void D3D12FrameBuffer::CreateDepth()
 	depthOptimizedClearValue.Format = Depthformat;
 	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
 	depthOptimizedClearValue.DepthStencil.Stencil = 0;
-
+	ID3D12Resource* m_depthStencil = nullptr;
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -145,8 +145,8 @@ void D3D12FrameBuffer::CreateDepth()
 	));
 	DepthStencil = new GPUResource(m_depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	//NAME_D3D12_OBJECT(m_depthStencil);
-	CurrentDevice->GetDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, DSVHeap->GetCPUAddress(0));
-	m_depthStencil->SetName(L"FrameBuffer Stencil");
+	CurrentDevice->GetDevice()->CreateDepthStencilView(DepthStencil->GetResource(), &depthStencilDesc, DSVHeap->GetCPUAddress(0));
+	DepthStencil->SetName(L"FrameBuffer Stencil");
 
 	CreateSRV();
 	if (m_ftype == Depth)
@@ -155,11 +155,11 @@ void D3D12FrameBuffer::CreateDepth()
 		//todo look at usage of heaps?	
 		//todo: resize might leak descritpors?
 		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
-		shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		shadowSrvDesc.Format = DefaultDepthReadformat;
 		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		shadowSrvDesc.Texture2D.MipLevels = 1;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		CurrentDevice->GetDevice()->CreateShaderResourceView(m_depthStencil, &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
+		CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
 		NullHeap->SetName(L"Shadow SRV heap");
 		 
 		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, NullHeap->GetCPUAddress(0));
@@ -193,7 +193,7 @@ void D3D12FrameBuffer::Resize(int width, int height)
 	//todo: ensure not in use!
 	if (m_ftype == FrameBufferType::ColourDepth)
 	{
-		m_depthStencil->Release();
+		DepthStencil->Release();
 		delete DepthStencil;
 		CreateDepth();
 	}
@@ -229,14 +229,17 @@ D3D12FrameBuffer::~D3D12FrameBuffer()
 {
 	if (RequiresDepth())
 	{
-		m_depthStencil->Release();
+		DepthStencil->Release();
 		delete NullHeap;
 		delete DSVHeap;
 	}
-	if (m_ftype == FrameBufferType::Colour)
+	if (RenderTargetCount > 0)
 	{		
-		delete RTVHeap;
-		
+		delete RTVHeap;		
+	}
+	for (int i = 0; i < RenderTargetCount; i++)
+	{
+		RenderTarget[i]->Release();
 	}
 	delete SrvHeap;
 }

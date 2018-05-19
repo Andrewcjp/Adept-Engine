@@ -30,7 +30,7 @@ class ForwardRenderer : public RenderEngine
 {
 public:
 	ForwardRenderer(int width, int height);
-	~ForwardRenderer();
+	virtual ~ForwardRenderer();
 	void OnRender() override;
 	void PostInit() override;
 	virtual void DestoryRenderWindow() override;

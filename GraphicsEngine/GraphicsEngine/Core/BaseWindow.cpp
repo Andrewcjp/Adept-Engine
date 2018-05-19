@@ -89,7 +89,7 @@ void BaseWindow::InitilseWindow()
 
 	std::cout << "Scene Load started" << std::endl;
 	////	ImageLoader::StartLoader();
-	if (/*IsDeferredMode*/true)
+	if (/*IsDeferredMode*/false)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
 	}
@@ -120,18 +120,11 @@ void BaseWindow::InitilseWindow()
 	{
 		PerfManager::Instance->SampleNVCounters();
 	}
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-		dLineDrawer = new DebugLineDrawer();
-	}
-	else
-	{
-		/*LoadText = false;
-		ShowText = false;*/
-	}
+	LineDrawer = new DebugLineDrawer();
 	Saver = new SceneJSerialiser();
 	PerfManager::StartPerfManager();
 }
+
 void BaseWindow::FixedUpdate()
 {
 
@@ -203,14 +196,13 @@ void BaseWindow::Render()
 	}
 	PerfManager::StartTimer("Render");
 	Renderer->Render();
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-		dLineDrawer->GenerateLines();
+	
+		LineDrawer->GenerateLines();
 		if (Renderer->GetMainCam() != nullptr)
 		{
-			dLineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
+			LineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
 		}
-	}
+	
 	Renderer->FinaliseRender();
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
@@ -381,9 +373,11 @@ void BaseWindow::Resize(int width, int height)
 void BaseWindow::DestroyRenderWindow()
 {
 	delete input;
+	delete LineDrawer;
 	delete UI;
 	Renderer->DestoryRenderWindow();
 	delete Renderer;
+	delete CurrentScene;
 	RHI::DestoryContext(m_hwnd);
 	DestroyWindow(m_hwnd);
 	m_hwnd = NULL;

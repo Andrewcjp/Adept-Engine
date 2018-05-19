@@ -38,18 +38,28 @@ public:
 	{}	
 };
 
+
+enum PRIMITIVE_TOPOLOGY_TYPE
+{
+	PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED = 0,
+	PRIMITIVE_TOPOLOGY_TYPE_POINT = 1,
+	PRIMITIVE_TOPOLOGY_TYPE_LINE = 2,
+	PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE = 3,
+	PRIMITIVE_TOPOLOGY_TYPE_PATCH = 4
+};
 struct PipeLineState
 {
 	bool DepthTest = true;
 	bool Cull = true;
 	bool Blending = false;
+	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 };
 class FrameBuffer;
 class RHICommandList
 {
 public:
 	RHICommandList();
-	~RHICommandList();
+	virtual ~RHICommandList();
 	virtual void ResetList() = 0;
 	virtual void SetRenderTarget(FrameBuffer* target) = 0;
 

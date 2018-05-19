@@ -17,7 +17,7 @@ public:
 	
 	void PostInit()override;
 	DeferredRenderer(int width, int height) :RenderEngine(width, height) {}
-	~DeferredRenderer();
+	virtual ~DeferredRenderer();
 
 	virtual void Resize(int width, int height) override;
 	virtual void DestoryRenderWindow() override;
@@ -31,8 +31,8 @@ private:
 	void LightingPass();
 	void SSAOPass();
 
-	Shader_WDeferred* DeferredWriteShader;
-	Shader_Deferred* DeferredShader;
+	Shader_WDeferred* DeferredWriteShader = nullptr;
+	Shader_Deferred* DeferredShader = nullptr;
 	FrameBuffer* GFrameBuffer = nullptr;
 	RHICommandList* WriteList = nullptr;
 	RHICommandList* LightingList = nullptr;

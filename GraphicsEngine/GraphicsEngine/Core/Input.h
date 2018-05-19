@@ -44,7 +44,7 @@ public:
 	BOOL   MouseLBDown(int x, int y);
 	BOOL   MouseLBUp(int x, int y);
 	BOOL   MouseMove(int x, int y, double deltatime);
-	BOOL   ProcessKeyDown(WPARAM key);
+	bool   ProcessKeyDown(WPARAM key);
 	void   LockCursor(bool state);
 private:
 	bool Querry = false;

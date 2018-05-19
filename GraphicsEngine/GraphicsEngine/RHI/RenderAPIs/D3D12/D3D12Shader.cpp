@@ -21,10 +21,38 @@ D3D12Shader::D3D12Shader(DeviceContext* Device)
 	IncludeHandler = new DxIncludeHandler();
 }
 
-
 D3D12Shader::~D3D12Shader()
 {
 	delete IncludeHandler;
+	CurrentDevice = nullptr;
+	if (m_Shader.m_pipelineState)
+	{
+		m_Shader.m_pipelineState->Release();
+	}
+	if (m_Shader.m_rootSignature)
+	{
+		m_Shader.m_rootSignature->Release();
+	}
+	if (mBlolbs.csBlob)
+	{
+		mBlolbs.csBlob->Release();
+		mBlolbs.csBlob = nullptr;
+	}
+	if (mBlolbs.fsBlob)
+	{
+		mBlolbs.fsBlob->Release();
+		mBlolbs.fsBlob = nullptr;
+	}
+	if (mBlolbs.vsBlob)
+	{
+		mBlolbs.vsBlob->Release();
+		mBlolbs.vsBlob = nullptr;
+	}
+	if (mBlolbs.gsBlob)
+	{
+		mBlolbs.gsBlob->Release();
+		mBlolbs.gsBlob = nullptr;
+	}
 }
 
 void D3D12Shader::CreateShaderProgram()
@@ -151,6 +179,9 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 			Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
 			WindowsHelpers::DisplayMessageBox("Shader Complie Error", Log);
 			pErrorBlob->Release();
+#ifndef NDEBUG
+			__debugbreak();
+#endif
 			exit(-1);
 			__debugbreak();
 
@@ -228,7 +259,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	psoDesc.DepthStencilState.DepthEnable = Depthtest.DepthTest;
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)Depthtest.RasterMode;
 	psoDesc.NumRenderTargets = PRTD.NumRenderTargets;
 	psoDesc.SampleDesc.Count = 1;
 

@@ -124,6 +124,11 @@ void EditorWindow::ExitPlayMode()
 	IsRunning = false;
 }
 
+void EditorWindow::DestroyRenderWindow()
+{
+	BaseWindow::DestroyRenderWindow();
+}
+
 BOOL EditorWindow::MouseLBDown(int x, int y)
 {
 	BaseWindow::MouseLBDown(x, y);
@@ -163,7 +168,7 @@ void EditorWindow::Update()
 	{
 		gizmos->Update(0);
 		gizmos->SetTarget(input->Selectedobject);
-		gizmos->RenderGizmos(dLineDrawer);
+		gizmos->RenderGizmos(LineDrawer);
 		if (UI != nullptr)
 		{
 			UI->GetInspector()->SetSelectedObject(input->Selectedobject);

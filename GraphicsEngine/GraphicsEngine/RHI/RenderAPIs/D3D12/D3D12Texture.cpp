@@ -199,7 +199,17 @@ D3D12Texture::D3D12Texture(std::string name, DeviceContext* inDevice)
 
 
 D3D12Texture::~D3D12Texture()
-{}
+{
+	if (m_texture)
+	{
+		m_texture->Release();
+		m_texture = nullptr;
+	}
+	if (m_srvHeap)
+	{
+		m_srvHeap->Release();
+	}
+}
 void D3D12Texture::CreateTexture()
 {
 

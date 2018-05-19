@@ -29,6 +29,8 @@ public:
 	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState);
 	~GPUResource();
 
+	void SetName(LPCWSTR name);
+
 	void CreateHeap();
 
 

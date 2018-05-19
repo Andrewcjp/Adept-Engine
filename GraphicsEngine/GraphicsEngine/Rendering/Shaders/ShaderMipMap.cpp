@@ -3,6 +3,7 @@
 #include "d3dx12.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include <algorithm>
+#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 ShaderMipMap::ShaderMipMap()
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -19,7 +20,11 @@ ShaderMipMap::ShaderMipMap()
 
 
 ShaderMipMap::~ShaderMipMap()
-{}
+{
+	pCommandList->Release();
+}
+
+
 void ShaderMipMap::GenAllmips(int limit)
 {
 	int count = 0;
@@ -45,7 +50,7 @@ void ShaderMipMap::GenAllmips(int limit)
 		count++;
 	}
 }
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+
 void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex, int maxcount)
 {
 	int requiredHeapSize = tex->Miplevels;
@@ -73,9 +78,9 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex, int maxcount)
 
 
 	pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(tex->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
-	D3D12RHIUAV* test = new D3D12RHIUAV(D3D12RHI::GetDeviceContext(0));
-	test->CreateUAVFromTexture(tex);
-	delete test;
+	//D3D12RHIUAV* test = new D3D12RHIUAV(D3D12RHI::GetDeviceContext(0));
+	//test->CreateUAVFromTexture(tex);
+	//delete test;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE currentCPUHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), 0, descriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE currentGPUHandle(descriptorHeap->GetGPUDescriptorHandleForHeapStart(), 0, descriptorSize);
 	int CurrentTopMip = tex->MipLevelsReadyNow;
@@ -137,6 +142,7 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex, int maxcount)
 	pCommandList->Close();
 
 	D3D12RHI::Instance->ExecList(pCommandList);
+	descriptorHeap->Release();
 	tex->MipLevelsReadyNow = CurrentTopMip + 1;
 	tex->UpdateSRV();
 }

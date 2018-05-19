@@ -102,7 +102,7 @@ void ForwardRenderer::RenderSkybox()
 
 void ForwardRenderer::DestoryRenderWindow()
 {
-
+	delete MainCommandList;
 }
 
 void ForwardRenderer::FinaliseRender()

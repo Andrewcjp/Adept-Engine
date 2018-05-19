@@ -7,6 +7,7 @@
 #include "../Rendering/PostProcessing/PostProcessing.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../Editor/Editor_Camera.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 void DeferredRenderer::OnRender()
 {
 
@@ -68,7 +69,8 @@ void DeferredRenderer::GeometryPass()
 		MainShader->UpdateCBV();
 	}
 
-	WriteList->ResetList();
+	WriteList->ResetList();	
+	D3D12TimeManager::Instance->StartTimer(WriteList);
 	WriteList->SetRenderTarget(GFrameBuffer);
 	WriteList->ClearFrameBuffer(GFrameBuffer);
 	MainShader->BindLightsBuffer(WriteList);
@@ -109,6 +111,7 @@ void DeferredRenderer::LightingPass()
 	MainShader->BindLightsBuffer(LightingList,true);
 	DeferredShader->RenderScreenQuad(LightingList);
 	LightingList->SetRenderTarget(nullptr);
+	D3D12TimeManager::Instance->EndTimer(LightingList);
 	LightingList->Execute();
 }
 
@@ -135,6 +138,12 @@ void DeferredRenderer::Resize(int width, int height)
 
 void DeferredRenderer::DestoryRenderWindow()
 {
+	delete DeferredWriteShader;
+	delete DeferredShader;
+	delete GFrameBuffer;
+	delete WriteList;
+	delete LightingList;
+	delete OutputBuffer;
 }
 
 void DeferredRenderer::FinaliseRender()

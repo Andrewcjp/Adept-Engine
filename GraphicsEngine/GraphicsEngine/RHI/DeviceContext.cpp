@@ -7,7 +7,28 @@ DeviceContext::DeviceContext()
 
 
 DeviceContext::~DeviceContext()
-{}
+{
+	WaitForGpu();//Ensure the GPU has complete the current task!
+	if (m_Device)
+	{
+		m_Device->Release();
+		m_commandAllocator->Release();
+		m_commandAllocator = nullptr;
+		m_commandQueue->Release();
+		m_commandQueue = nullptr;
+	}
+	if (m_CopyCommandAllocator)
+	{
+		m_CopyList->Release();
+		m_CopyCommandAllocator->Release();
+		m_CopyCommandQueue->Release();
+	}	
+
+	/*if (pDXGIAdapter != nullptr)
+	{
+		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
+	}*/
+}
 
 void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
@@ -98,13 +119,7 @@ std::string DeviceContext::GetMemoryReport()
 
 void DeviceContext::DestoryDevice()
 {
-	WaitForGpu();//Ensure the GPU has complete the current task!
-	m_Device->Release();
-	m_Device = nullptr;
-	m_commandAllocator->Release();
-	m_commandAllocator = nullptr;
-	m_commandQueue->Release();
-	m_commandQueue = nullptr;	
+
 }
 
 void DeviceContext::WaitForGpu()

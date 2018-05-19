@@ -332,6 +332,7 @@
     <ClInclude Include="Core\EngineTypes.h" />
     <ClInclude Include="Rendering\Shaders\Shader_Compost.h" />
     <ClInclude Include="Rendering\Shaders\Shader_ColourCorrect.h" />
+    <ClInclude Include="Rendering\Shaders\Shader_Line.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffectBase.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessing.h" />
@@ -367,7 +368,6 @@
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="Editor\IInspectable.h" />
     <ClInclude Include="Editor\Inspector.h" />
-    <ClInclude Include="UI\LineDrawer.h" />
     <ClInclude Include="Core\Performance\PerfManager.h" />
     <ClInclude Include="RHI\RHI.h" />
     <ClInclude Include="RHI\ShaderProgramBase.h" />
@@ -471,6 +471,7 @@
     <ClCompile Include="Core\GameWindow.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_Compost.cpp" />
     <ClCompile Include="Rendering\Shaders\Shader_ColourCorrect.cpp" />
+    <ClCompile Include="Rendering\Shaders\Shader_Line.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -504,7 +505,6 @@
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Editor\IInspectable.cpp" />
     <ClCompile Include="Editor\Inspector.cpp" />
-    <ClCompile Include="UI\LineDrawer.cpp" />
     <ClCompile Include="Core\Performance\PerfManager.cpp" />
     <ClCompile Include="RHI\RenderWindow.cpp" />
     <ClCompile Include="RHI\RHI.cpp" />

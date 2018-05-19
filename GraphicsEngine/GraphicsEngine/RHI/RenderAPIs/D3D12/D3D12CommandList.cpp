@@ -48,7 +48,7 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
 	}
 	else
 	{
-		
+
 		CurrentRenderTarget = (D3D12FrameBuffer*)target;
 		ensure(CurrentRenderTarget->CheckDevice(Device->GetDeviceIndex()));
 		CurrentRenderTarget->BindBufferAsRenderTarget(CurrentGraphicsList);
@@ -59,7 +59,14 @@ void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCou
 {
 	ensure(IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
-	CurrentGraphicsList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE)
+	{
+		CurrentGraphicsList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+	}
+	else if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+	{
+		CurrentGraphicsList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
 	CurrentGraphicsList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 }
 
@@ -100,7 +107,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
-	if (CurrentPipelinestate.m_pipelineState != nullptr )
+	if (CurrentPipelinestate.m_pipelineState != nullptr)
 	{
 		CurrentPipelinestate.m_pipelineState->Release();
 	}
@@ -114,7 +121,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	ensure((shader->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
-	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters(),Device);
+	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters(), Device);
 
 	D3D12Shader::PipeRenderTargetDesc PRTD = {};
 	if (Buffer == nullptr)
@@ -127,7 +134,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	{
 		PRTD = dbuffer->GetPiplineRenderDesc();
 	}
-	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD,Device);
+	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD, Device);
 	if (CurrentGraphicsList == nullptr)
 	{
 		//todo: ensure a gaphics shader is not used a compute piplne!
@@ -188,7 +195,7 @@ void D3D12CommandList::SetScreenBackBufferAsRT()
 		CurrentRenderTarget->UnBind(CurrentGraphicsList);
 		CurrentRenderTarget = nullptr;
 	}
-	ensureMsgf(Device->GetDeviceIndex() == 0,"Only the Primary Device Is allowed to write to the backbuffer");
+	ensureMsgf(Device->GetDeviceIndex() == 0, "Only the Primary Device Is allowed to write to the backbuffer");
 	D3D12RHI::Instance->SetScreenRenderTarget(CurrentGraphicsList);
 	D3D12RHI::Instance->RenderToScreen(CurrentGraphicsList);
 }
@@ -200,7 +207,7 @@ void D3D12CommandList::ClearScreen()
 	D3D12RHI::Instance->ClearRenderTarget(CurrentGraphicsList);
 }
 
-void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex )
+void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex)
 {
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
@@ -211,7 +218,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 {
 	Texture = (D3D12Texture*)texture;
-	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()),"Attempted to Bind texture that is not on this device");
+	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()), "Attempted to Bind texture that is not on this device");
 	if (CurrentGraphicsList != nullptr)
 	{
 		Texture->BindToSlot(CurrentGraphicsList, slot);
@@ -243,9 +250,21 @@ D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :
 }
 
 D3D12Buffer::~D3D12Buffer()
-{}
-
-
+{
+	Device = nullptr;
+	if (CBV != nullptr)
+	{
+		delete CBV;
+	}
+	if (m_vertexBuffer)
+	{
+		m_vertexBuffer->Release();
+	}
+	if (m_indexBuffer)
+	{
+		m_indexBuffer->Release();
+	}
+}
 
 void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
 {
@@ -256,10 +275,7 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
 
 void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype)
 {
-
 	BufferAccesstype = Accesstype;
-	
-	/*BufferAccesstype = BufferAccessType::Dynamic;*/
 	if (BufferAccesstype == BufferAccessType::Dynamic)
 	{
 		CreateDynamicBuffer(Stride, ByteSize);
@@ -270,6 +286,7 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType 
 	}
 
 }
+
 void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
 {
 	VertexCount = length;
@@ -300,6 +317,7 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
 		D3D12RHI::Instance->AddUploadToUsed(m_UploadBuffer);
 	}
 }
+
 bool D3D12Buffer::CheckDevice(int index)
 {
 	if (Device != nullptr)
@@ -308,6 +326,7 @@ bool D3D12Buffer::CheckDevice(int index)
 	}
 	return false;
 }
+
 void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
 {
 	const int vertexBufferSize = ByteSize;//mazsize
@@ -409,7 +428,7 @@ void D3D12Buffer::UnMap()
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //UAV Start
-D3D12RHIUAV::D3D12RHIUAV( DeviceContext * inDevice) : RHIUAV()
+D3D12RHIUAV::D3D12RHIUAV(DeviceContext * inDevice) : RHIUAV()
 {
 	Device = inDevice;
 }
@@ -446,7 +465,7 @@ void D3D12RHIUAV::CreateUAVForMipsFromTexture(D3D12Texture * target)
 	//as vkan might use other method?
 	int requiredHeapSize = target->Miplevels;
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 2 *requiredHeapSize;
+	heapDesc.NumDescriptors = 2 * requiredHeapSize;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));

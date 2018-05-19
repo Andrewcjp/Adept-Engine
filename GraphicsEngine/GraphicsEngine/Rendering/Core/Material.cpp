@@ -14,7 +14,7 @@ Material::~Material()
 {
 	if (Diffusetexture != nullptr)
 	{
-		Diffusetexture->FreeTexture();
+		delete Diffusetexture;
 	}	
 	if (NormalMap != nullptr)
 	{

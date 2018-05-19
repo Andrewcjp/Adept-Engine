@@ -14,7 +14,7 @@ public:
 	virtual bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen = false) override final;
 	virtual void Render() override final;
 	virtual void Resize(int width, int height) override final;
-	virtual void DestroyRenderWindow() override final;
+	virtual void DestroyRenderWindow() override;
 	BOOL MouseLBDown(int x, int y) override;
 	BOOL MouseLBUp(int x, int y) override;
 	BOOL MouseRBDown(int x, int y) override;
@@ -48,7 +48,7 @@ protected:
 	class RenderEngine * Renderer = nullptr;
 	class Input* input = nullptr;
 	class UIManager* UI = nullptr;
-	class DebugLineDrawer* dLineDrawer = nullptr;
+	class DebugLineDrawer* LineDrawer = nullptr;
 	class Scene* CurrentScene = nullptr;
 	RenderSettings CurrentRenderSettings;
 	class Editor_Camera* EditorCamera = nullptr;

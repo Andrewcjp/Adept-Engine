@@ -11,7 +11,11 @@ D3D12TimeManager::D3D12TimeManager()
 
 
 D3D12TimeManager::~D3D12TimeManager()
-{}
+{
+	 m_timestampQueryHeaps->Release();
+	 m_timestampResultBuffers->Release();
+
+}
 void D3D12TimeManager::Initialize(DeviceContext* context)
 {
 	if (Instance == nullptr)

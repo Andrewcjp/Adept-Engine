@@ -28,15 +28,22 @@ void D3D12RHI::DestroyContext()
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
 	WaitForGpu();
-	/*if (pDXGIAdapter != nullptr)
-	{
-		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
-	}*/
+
 	ReleaseSwapRTs();
-	/*m_commandAllocator->Release();*/
+	delete MipmapShader;
+
 	GetCommandQueue()->Release();
-	GetDevice()->Release();
+	delete PrimaryDevice;
+	if (SecondaryDevice)
+	{
+		delete SecondaryDevice;
+	}
+	m_rtvHeap->Release();
+	m_dsvHeap->Release();
+	delete D3D12TimeManager::Instance;
+//	m_swapChain->Release();
 	CloseHandle(m_fenceEvent);
+	
 }
 
 void EnableShaderBasedValidation()
@@ -46,7 +53,10 @@ void EnableShaderBasedValidation()
 	(D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0)));
 	(spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1)));
 	spDebugController1->SetEnableGPUBasedValidation(true);
+	spDebugController1->Release();
+	spDebugController0->Release();
 }
+
 void D3D12RHI::CheckFeatures(ID3D12Device* pDevice)
 {
 	D3D12_FEATURE_DATA_D3D12_OPTIONS FeatureData;
@@ -69,6 +79,7 @@ void D3D12RHI::CheckFeatures(ID3D12Device* pDevice)
 		//}
 	}
 }
+
 D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
 {
 	D3D12_FEATURE_DATA_FEATURE_LEVELS FeatureData;
@@ -88,10 +99,12 @@ D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
 	}
 	return D3D_FEATURE_LEVEL_11_0;
 }
+
 void D3D12RHI::DisplayDeviceDebug()
 {
 	std::cout << "Primary Adaptor Has " << GetMemory() << std::endl;
 }
+
 std::string D3D12RHI::GetMemory()
 {
 	if (PerfCounter > 60 || !HasSetup)
@@ -244,10 +257,11 @@ void D3D12RHI::LoadPipeLine()
 		m_rtvDescriptorSize = GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 	}
-
+	factory->Release();
 	CreateSwapChainRTs();
 	//ThrowIfFailed(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 }
+
 void D3D12RHI::CreateSwapChainRTs()
 {
 	// Create frame resources.
@@ -292,6 +306,7 @@ void D3D12RHI::InternalResizeSwapChain(int x, int y)
 		RequestedResize = false;
 	}
 }
+
 void D3D12RHI::ReleaseSwapRTs()
 {
 	for (UINT n = 0; n < FrameCount; n++)
@@ -301,6 +316,7 @@ void D3D12RHI::ReleaseSwapRTs()
 	}
 	m_depthStencil->Release();
 }
+
 void D3D12RHI::ResizeSwapChain(int x, int y)
 {
 	if (m_swapChain != nullptr /*&& HasSetup*/)//todo: this check?
@@ -337,6 +353,7 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 
 	GetDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
+
 void D3D12RHI::LoadAssets()
 {
 
@@ -464,6 +481,7 @@ void D3D12RHI::ClearRenderTarget(ID3D12GraphicsCommandList* MainList)
 
 
 }
+
 void D3D12RHI::RenderToScreen(ID3D12GraphicsCommandList* list)
 {
 	list->RSSetViewports(1, &m_viewport);
@@ -485,12 +503,13 @@ void D3D12RHI::PreFrameSetUp(ID3D12GraphicsCommandList* list, D3D12Shader* Shade
 	// Set necessary state.
 	list->SetGraphicsRootSignature(Shader->GetPipelineShader()->m_rootSignature);
 }
+
 void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
 {
 	RenderToScreen(list);
 	SetScreenRenderTarget(list);
-
 }
+
 void D3D12RHI::SetScreenRenderTarget(ID3D12GraphicsCommandList* list)
 {
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);

@@ -11,7 +11,7 @@ class UIWidget;
 class GameObject;
 class UIListBox;
 class UIBox;
-class LineDrawer;
+class DebugLineDrawer;
 class UIDrawBatcher;
 class UIGraph;
 class UIPopoutbox;
@@ -73,7 +73,7 @@ private:
 	float LastHeight = 0;
 	float YHeight = 25;
 	float XSpacing = 25;
-	LineDrawer* LineBatcher;
+	DebugLineDrawer* LineBatcher;
 	UIDrawBatcher* DrawBatcher;
 	CollisionRect ViewportRect;
 	UIPopoutbox* testbox;

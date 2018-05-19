@@ -13,19 +13,29 @@ class DebugLineDrawer
 {
 public:
 	static DebugLineDrawer* instance;
-	DebugLineDrawer();
+	DebugLineDrawer(bool DOnly = false);
 	~DebugLineDrawer();
 	void GenerateLines();
-	void RenderLines(glm::mat4 matrix);
+	void RenderLines();
+	void RenderLines(glm::mat4& matrix);
 	void ClearLines();
 
 	void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float thickness = 0);
+	void OnResize(int newwidth, int newheight);
 private:
 	std::vector<WLine> Lines;
-#if BUILD_OPENGL
-	int	quad_vertexbuffer;
-#endif
-	class ShaderProgramBase * m_TextShader;
+	class Shader_Line* LineShader = nullptr;
+	class RHIBuffer* DataBuffer = nullptr;
+	RHIBuffer* VertexBuffer = nullptr;
+	class RHICommandList* CmdList = nullptr;
+	glm::mat4 Projection;
 	size_t VertsOnGPU = 0;
+	struct VERTEX
+	{
+		glm::vec3 pos;
+		glm::vec3 colour;
+	};
+	const int maxSize = 300;
+	bool Is2DOnly = false;
 };
 

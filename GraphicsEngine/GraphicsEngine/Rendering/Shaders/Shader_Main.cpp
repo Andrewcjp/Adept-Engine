@@ -31,7 +31,9 @@ Shader_Main::Shader_Main(bool LoadForward)
 }
 Shader_Main::~Shader_Main()
 {
-
+	delete CLightBuffer;
+	delete CMVBuffer;
+	delete GameObjectTransformBuffer;
 }
 std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
 {

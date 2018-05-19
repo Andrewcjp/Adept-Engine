@@ -16,14 +16,20 @@ D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 
 D3D12CBV::~D3D12CBV()
 {
-
+	if (m_constantBuffer)
+	{
+		m_constantBuffer->Release();
+	}
+	if (m_cbvHeap)
+	{
+		m_cbvHeap->Release();
+	}
 }
 void D3D12CBV::SetDescriptorHeaps(CommandListDef* list)
 {
 	//assert(offset < InitalBufferCount && "Out of Buffers");
 	ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
 	
 }
 void D3D12CBV::SetGpuView(CommandListDef * list, int offset, int slot)

@@ -6,7 +6,14 @@
 #include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../Editor/Editor_Camera.h"
 RenderEngine::~RenderEngine()
-{}
+{
+	DestoryRenderWindow();
+	delete ShadowCMDList;
+	delete mShadowRenderer;
+	delete Post;
+	delete MainShader;
+	delete FilterBuffer;
+}
 
 void RenderEngine::Render()
 {

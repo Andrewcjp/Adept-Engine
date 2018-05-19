@@ -25,7 +25,7 @@ public:
 	void PrepareData();
 	virtual void PostInit() =0;
 	virtual void Resize(int width, int height) = 0;
-	virtual void DestoryRenderWindow() = 0;
+	virtual void DestoryRenderWindow() {};
 	//called on play start and in editor when statics are changed
 	void StaticUpdate();
 	virtual void OnStaticUpdate() =0;

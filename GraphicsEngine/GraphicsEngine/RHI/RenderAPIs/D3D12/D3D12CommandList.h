@@ -6,7 +6,7 @@ class D3D12CommandList : public RHICommandList
 {
 public:
 	D3D12CommandList(DeviceContext* Device);
-	~D3D12CommandList();
+	virtual ~D3D12CommandList();
 
 	// Inherited via RHICommandList
 	virtual void ResetList() override;
@@ -38,9 +38,6 @@ private:
 	bool IsOpen = false;
 	D3D12Shader::PiplineShader				CurrentPipelinestate;
 	ID3D12CommandAllocator* m_commandAllocator;
-	ID3DBlob*					m_vsBlob;
-	ID3DBlob*					m_fsBlob;
-	ID3DBlob*					m_csBlob;
 	D3D12_INPUT_ELEMENT_DESC* VertexDesc = nullptr;
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
@@ -50,8 +47,6 @@ private:
 	// Inherited via RHICommandList
 	class	DeviceContext* Device = nullptr;
 	ECommandListType ListType = ECommandListType::Graphics; 
-
-	// Inherited via RHICommandList
 	
 };
 
@@ -76,9 +71,9 @@ public:
 	bool CheckDevice(int index);
 private:
 	BufferAccessType BufferAccesstype;
-	ID3D12Resource * m_vertexBuffer;
-	ID3D12Resource * m_indexBuffer;
-	ID3D12Resource * m_UploadBuffer;
+	ID3D12Resource * m_vertexBuffer = nullptr;
+	ID3D12Resource * m_indexBuffer = nullptr;
+	ID3D12Resource * m_UploadBuffer = nullptr;
 	class D3D12CBV* CBV = nullptr;
 	int cpusize = 0;
 	bool UploadComplete = false;

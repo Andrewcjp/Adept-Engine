@@ -23,7 +23,7 @@ public:
 	virtual ~EditorWindow();
 	void EnterPlayMode();
 	void ExitPlayMode();
-
+	virtual void DestroyRenderWindow() override final;
 	BOOL MouseLBDown(int x, int y) override;
 protected:
 	void PrePhysicsUpdate();

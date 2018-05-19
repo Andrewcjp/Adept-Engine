@@ -130,12 +130,11 @@ int BaseApplication::Run()
 void BaseApplication::Kill()
 {
 	m_terminate = TRUE;
+	s_oglapp->GetApplicationWindow()->DestroyRenderWindow();
 }
 
 void BaseApplication::AddMenus(HWND hwnd)
 {
-
-
 	HMENU hMenu;
 	HMENU hGOMenu = CreateMenu();
 	HMENU hdebugMenu = CreateMenu();
@@ -148,11 +147,11 @@ void BaseApplication::AddMenus(HWND hwnd)
 	AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
 	AppendMenuW(hMenu, MF_STRING, IDM_FILE_QUIT, L"&Quit");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
-#if BUILD_D3D11
-	AppendMenuW(hRenderMenu, MF_UNCHECKED, IDM_RENDER_D3D11, L"&DirectX 11");
-#endif
-	AppendMenuW(hRenderMenu, MF_CHECKED, IDM_RENDER_OGL, L"&OpenGL");
-	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hRenderMenu, L"&Renderer");
+//#if BUILD_D3D11
+//	AppendMenuW(hRenderMenu, MF_UNCHECKED, IDM_RENDER_D3D11, L"&DirectX 11");
+//#endif
+//	AppendMenuW(hRenderMenu, MF_CHECKED, IDM_RENDER_OGL, L"&OpenGL");
+//	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hRenderMenu, L"&Renderer");
 	//Gameobject menu
 	AppendMenuW(hGOMenu, MF_STRING, 4, L"&Add GameObject ");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hGOMenu, L"&GameObjects");
@@ -204,7 +203,6 @@ LRESULT CALLBACK BaseApplication::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LP
 		break;
 	case WM_CLOSE:
 		s_oglapp->Kill();
-		s_oglapp->GetApplicationWindow()->DestroyRenderWindow();
 		break;
 	case WM_MOUSEMOVE:
 		s_oglapp->GetApplicationWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));

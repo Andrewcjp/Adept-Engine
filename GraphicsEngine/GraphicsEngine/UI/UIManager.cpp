@@ -9,7 +9,6 @@
 #include "Core/GameObject.h"
 #include "Core/Input.h"
 #include "UI/UIEditField.h"
-#include "LineDrawer.h"
 #include "UIGraph.h"
 #include "../Rendering/Core/GPUStateCache.h"
 #include "../Core/Performance/PerfManager.h"
@@ -21,7 +20,7 @@
 #include "UIPopoutbox.h"
 #include "UIAssetManager.h"
 #include "UIDropDown.h"
-
+#include "../Rendering/Core/DebugLineDrawer.h"
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
 UIManager::UIManager()
@@ -33,7 +32,7 @@ UIManager::UIManager(int w, int h)
 	TopHeight = 0.1f;
 	RightWidth = 0.2f;
 	LeftWidth = 0.2f;
-	LineBatcher = new LineDrawer();
+	LineBatcher = new DebugLineDrawer(true);
 	DrawBatcher = new UIDrawBatcher();
 	Initalise(w, h);
 	instance = this;
@@ -41,6 +40,7 @@ UIManager::UIManager(int w, int h)
 	InitEditorUI();
 #endif
 }
+
 void UIManager::InitEditorUI()
 {
 
@@ -116,6 +116,7 @@ void UIManager::CreateDropDown(std::vector<std::string> &options, float width, f
 	instance->DropdownCurrent = testbox3;
 	//UIManager::UpdateBatches();
 }
+
 void UIManager::AlertBox(std::string MSg)
 {
 	UIPopoutbox* testbox = new UIPopoutbox(100, 300, 250, 150);
@@ -124,6 +125,7 @@ void UIManager::AlertBox(std::string MSg)
 	AddWidget(testbox);
 	UIManager::UpdateBatches();
 }
+
 UIManager::~UIManager()
 {
 	textrender.reset();
@@ -131,6 +133,8 @@ UIManager::~UIManager()
 	{
 		delete widgets[i];
 	}
+	delete LineBatcher;
+	delete DrawBatcher; 
 }
 
 void UIManager::Initalise(int width, int height)
@@ -139,10 +143,12 @@ void UIManager::Initalise(int width, int height)
 	m_height = height;
 	textrender = std::make_unique<TextRenderer>(m_width, m_height);
 }
+
 Inspector* UIManager::GetInspector()
 {
 	return inspector;
 }
+
 void UIManager::RenderTextToScreen(int id, std::string text)
 {
 	RenderTextToScreen(id, text, glm::vec3(0.6, 1.0f, 0.2f));
@@ -160,6 +166,7 @@ void UIManager::RenderTextToScreen(std::string text, float x, float y, float sca
 
 void UIManager::UpdateSize(int width, int height)
 {
+	LineBatcher->OnResize(width, height);
 	DrawBatcher->ClearVertArray();
 	m_width = width;
 	m_height = height;
@@ -188,6 +195,7 @@ void UIManager::AddWidget(UIWidget * widget)
 {
 	widgets.push_back(widget);
 }
+
 void UIManager::UpdateBatches()
 {
 	if (instance != nullptr)
@@ -195,6 +203,7 @@ void UIManager::UpdateBatches()
 		instance->UpdateSize(instance->m_width, instance->m_height);
 	}
 }
+
 void UIManager::UpdateWidgets()
 {
 	for (int i = 0; i < widgets.size(); i++)
@@ -203,6 +212,7 @@ void UIManager::UpdateWidgets()
 	}
 
 }
+
 void UIManager::RenderWidgets()
 {
 	//todo: move to not run every frame?
@@ -251,6 +261,7 @@ void UIManager::MouseClick(int x, int y)
 		}
 	}
 }
+
 void UIManager::MouseClickUp(int x, int y)
 {
 	for (int i = 0; i < widgets.size(); i++)
@@ -332,6 +343,7 @@ void UIManager::SetCurrentcontext(UIWidget * widget)
 		instance->CurrentContext = widget;
 	}
 }
+
 void UIManager::RemoveWidget(UIWidget* widget)
 {
 	widget->IsPendingKill = true;
@@ -359,6 +371,7 @@ void UIManager::CleanUpWidgets()
 	WidgetsToRemove.clear();
 	UpdateBatches();
 }
+
 void UIManager::CloseDropDown()
 {
 	if (instance != nullptr && instance->DropdownCurrent != nullptr)

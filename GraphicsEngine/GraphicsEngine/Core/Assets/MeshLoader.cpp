@@ -33,8 +33,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, std::vector<OGLVertex> &
 
 	if (!scene)
 	{
-		std::cout << "Mesh load failed!: " << filename << std::endl;
-		fprintf(stdout, "Mesh load failed! %s", filename);
+		std::cout << "Mesh load failed!: " << filename << std::endl;		
 	}
 
 	const aiMesh* model = scene->mMeshes[0];

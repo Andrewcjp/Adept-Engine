@@ -7,7 +7,9 @@ D3D12Heap::D3D12Heap()
 
 
 D3D12Heap::~D3D12Heap()
-{}
+{
+	
+}
 
 void D3D12Heap::CreateStaticHeap(int NumDescriptors, D3D12Heap::HeapType type)
 {

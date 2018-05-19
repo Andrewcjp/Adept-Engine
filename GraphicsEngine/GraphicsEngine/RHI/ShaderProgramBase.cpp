@@ -2,6 +2,7 @@
 
 ShaderProgramBase::~ShaderProgramBase()
 {
+
 }
 
 void ShaderProgramBase::ModifyCompileEnviroment(Shader_Define Define)

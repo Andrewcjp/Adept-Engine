@@ -16,7 +16,7 @@ public:
 	void CLoad(std::string name);
 
 	D3D12Texture(std::string name,class DeviceContext * Device);
-	~D3D12Texture();
+	virtual ~D3D12Texture();
 	void CreateTexture();
 	virtual void Bind(int unit) override;
 	void Bind(CommandListDef * list) override;

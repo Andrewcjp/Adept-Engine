@@ -8,7 +8,7 @@ class D3D12Shader : public ShaderProgramBase
 {
 public:
 	D3D12Shader(DeviceContext* Device);
-	~D3D12Shader();
+	virtual ~D3D12Shader();
 	struct ShaderBlobs
 	{
 		ID3DBlob*					vsBlob = nullptr;

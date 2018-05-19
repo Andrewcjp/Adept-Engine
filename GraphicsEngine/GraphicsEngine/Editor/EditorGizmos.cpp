@@ -64,8 +64,8 @@ void EditorGizmos::Update(float deltatime)
 			}
 			
 		}
-		YStartPos = Input::GetMouseInputAsAxis().y;
-		XStartPos = Input::GetMouseInputAsAxis().x;
+		YStartPos = (int)Input::GetMouseInputAsAxis().y;
+		XStartPos = (int)Input::GetMouseInputAsAxis().x;
 		DidFirst = true;
 	}
 	else
