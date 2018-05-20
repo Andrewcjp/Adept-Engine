@@ -87,7 +87,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	std::string name = shadername;
 	name.append(".hlsl");
 	path.append(name);
-	
+
 	if (!FileUtils::exists_test3(path))
 	{
 #ifdef  _DEBUG
@@ -136,7 +136,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	}
 	else if (type == SHADER_FRAGMENT)
 	{
-		
+
 #if USE_DX_INCLUDER
 		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0",
 			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
@@ -212,7 +212,7 @@ void D3D12Shader::ActivateShaderProgram()
 void D3D12Shader::DeactivateShaderProgram()
 {}
 
-D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, 
+D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
 	PipeRenderTargetDesc PRTD, DeviceContext* context)
 {
 	ensure(blobs->vsBlob != nullptr);
@@ -240,16 +240,6 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 		psoDesc.BlendState.AlphaToCoverageEnable = true;
 		psoDesc.BlendState.IndependentBlendEnable = FALSE;
 		psoDesc.BlendState.RenderTarget[0].BlendEnable = TRUE;
-
-		//psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-		//psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-		//psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-
-		//psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
-		//psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
-		//psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_SUBTRACT;
-
-		//psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_GREEN;
 	}
 	else
 	{
@@ -257,6 +247,8 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	}
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState.DepthEnable = Depthtest.DepthTest;
+	psoDesc.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)Depthtest.DepthCompareFunction;
+	psoDesc.DepthStencilState.DepthWriteMask = Depthtest.DepthWrite ? D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ZERO;
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)Depthtest.RasterMode;
@@ -268,9 +260,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 		psoDesc.RTVFormats[i] = PRTD.RTVFormats[i];
 	}
 	psoDesc.DSVFormat = PRTD.DSVFormat;
-	//todo: Driver Crash Here!
 	ThrowIfFailed(context->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
-
 	return output;
 }
 
@@ -333,6 +323,7 @@ void D3D12Shader::CreateComputePipelineShader()
 	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(mBlolbs.csBlob);
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_Shader.m_pipelineState)));
 }
+
 CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
 {
 	Init();
@@ -394,7 +385,8 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 	}
 	return true;
 }
-void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Params,DeviceContext* context)
+
+void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context)
 {
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
 
@@ -493,7 +485,6 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	name.append(std::to_wstring(Params.size()));
 	output.m_rootSignature->SetName(name.c_str());
 }
-
 
 void D3D12Shader::CreateDefaultRootSig(D3D12Shader::PiplineShader &output)
 {

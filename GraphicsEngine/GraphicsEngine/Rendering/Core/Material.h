@@ -13,15 +13,24 @@ public:
 	~Material();
 	void SetMaterialActive(CommandListDef * list = nullptr);
 	void SetMaterialActive(class RHICommandList * list);
-	BaseTexture* Diffusetexture = nullptr;
+
+	void SetShadow(bool state);
+	bool GetDoesShadow();
+	const MaterialProperties* GetProperties();
+	void SetDisplacementMap(BaseTexture* tex);
+	void SetNormalMap(BaseTexture * tex);
+	void SetDiffusetexture(BaseTexture* tex);
+	BaseTexture* GetDisplacementMap();
+	BaseTexture * GetNormalMap();
+	BaseTexture* GetDiffusetexture();
+
+
+private:
+	BaseTexture * Diffusetexture = nullptr;
 	BaseTexture* Metallictex = nullptr;
 	BaseTexture* glosstex = nullptr;
 	BaseTexture* NormalMap = nullptr;
 	BaseTexture* DisplacementMap = nullptr;
-	void SetShadow(bool state);
-	bool GetDoesShadow();
-	const MaterialProperties* GetProperties();
-private:
 	MaterialProperties Properties;
 };
 

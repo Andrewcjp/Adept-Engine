@@ -3,6 +3,20 @@
 #include <memory.h>
 #include "ImageIO.h"
 #include <SOIL.h>
+#include "../RHI/BaseTexture.h"
+#include "../RHI/RHI.h"
+#include <iostream>
+
+#include "../Core/Engine.h"
+#include "../Core/Utils/FileUtils.h"
+ImageIO* ImageIO::instance = nullptr;
+ImageIO::ImageIO()
+{
+	DefaultTexture = RHI::CreateTexture("\\asset\\texture\\T_GridSmall_01_D.png");
+	ensureMsgf(DefaultTexture,"Failed to Load Fallback Texture");
+}
+ImageIO::~ImageIO()
+{}
 EImageIOStatus ImageIO::LoadUncompressedTGA(unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels, FILE* pf)
 {
 	unsigned char header[6];
@@ -46,6 +60,62 @@ EImageIOStatus ImageIO::LoadUncompressedTGA(unsigned char** buffer, int* sizeX, 
 
 	return E_IMAGEIO_SUCCESS;
 }
+
+BaseTexture * ImageIO::GetDefaultTexture()
+{
+	if (instance)
+	{
+		return instance->DefaultTexture;
+	}
+	return nullptr;
+}
+
+void ImageIO::StartLoader()
+{
+	if (instance == nullptr)
+	{
+		instance = new ImageIO();
+	}
+}
+
+void ImageIO::ShutDown()
+{
+	if (instance)
+	{
+		delete instance;
+	}
+}
+
+void ImageIO::RegisterTextureLoad(BaseTexture* newtex)
+{
+	if (instance && newtex)
+	{
+		instance->LoadedTextures.push_back(newtex);
+	}
+}
+bool ImageIO::CheckIfLoaded(std::string name, BaseTexture ** out)
+{
+	if (instance)
+	{
+		return instance->IN_CheckIfLoaded(name, out);
+	}
+	return false;
+}
+
+bool ImageIO::IN_CheckIfLoaded(std::string name, BaseTexture ** out)
+{
+	for (unsigned int i = 0; i < LoadedTextures.size(); i++)
+	{
+		if (LoadedTextures[i]->TextureName == name)
+		{
+			*out = (LoadedTextures[i]);
+			return true;
+		}
+	}
+	return false;
+}
+
+
 
 EImageIOStatus ImageIO::LoadTGA(const char* filename, unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels)
 {
@@ -99,13 +169,15 @@ EImageIOStatus ImageIO::LoadTGA(const char* filename, unsigned char** buffer, in
 EImageIOStatus ImageIO::LoadTexture2D(const char* filename, unsigned char** buffer, int* width, int* height, int* nchan)
 {
 	*buffer = SOIL_load_image(filename, width, height, nchan, SOIL_LOAD_RGBA);
-	if (buffer == nullptr)
+	if (*buffer == nullptr)
 	{
 		//printf("Load texture Error %s\n", file);
+		std::cout << "Falied to Load Texture '" << filename << "'\n";
 		return EImageIOStatus::E_IMAGEIO_ERROR;
 	}
 	return EImageIOStatus::E_IMAGEIO_SUCCESS;
 }
+
 EImageIOStatus ImageIO::LoadTextureCubeMap(const char* filename, unsigned char** buffer, int* width, int* height)
 {
 	//todo: this

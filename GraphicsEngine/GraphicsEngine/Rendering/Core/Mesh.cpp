@@ -7,9 +7,9 @@ Mesh::Mesh()
 
 }
 
-Mesh::Mesh(std::string filename)
+Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 {
-	LoadMeshFromFile(filename);
+	LoadMeshFromFile(filename, Settings);
 }
 
 Mesh::~Mesh()
@@ -25,13 +25,13 @@ void Mesh::Render(RHICommandList * list)
 	list->DrawPrimitive(VertexBuffer->GetVertexCount(), 1, 0, 0);
 }
 
-void Mesh::LoadMeshFromFile(std::string filename)
+void Mesh::LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
 	IndexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Index);
 	std::vector<OGLVertex> vertices;
 	std::vector<int> indices;
-	MeshLoader::LoadMeshFromFile(filename, vertices, indices);
+	MeshLoader::LoadMeshFromFile(filename,Settings, vertices, indices);
 	VertexBuffer->CreateVertexBuffer(sizeof(OGLVertex), sizeof(OGLVertex)* vertices.size(),RHIBuffer::BufferAccessType::Static);
 	VertexBuffer->UpdateVertexBuffer(vertices.data(), vertices.size());
 	IndexBuffer->CreateIndexBuffer(sizeof(int), sizeof(int)* indices.size());

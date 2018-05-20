@@ -17,7 +17,7 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 
 	VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), sizeof(VERTEX)*maxSize, RHIBuffer::BufferAccessType::Dynamic);
 	CmdList = RHI::CreateCommandList();
-	PipeLineState state;
+	PipeLineState state = {};
 	state.DepthTest = false;
 	state.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	CmdList->SetPipelineState(state);

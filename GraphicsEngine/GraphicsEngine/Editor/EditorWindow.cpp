@@ -4,7 +4,6 @@
 #include <string>
 #include <sstream>
 #include "include/glm/gtc/type_ptr.hpp"
-#include "Core/Assets/ImageLoader.h"
 #include <ctime>
 #include <time.h>
 #include <memory>

@@ -104,8 +104,23 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	CurrentGraphicsList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
 }
-
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
+{
+	D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
+	D3D12Shader::PipeRenderTargetDesc PRTD = {};
+	if (Buffer == nullptr)
+	{
+		PRTD.NumRenderTargets = 1;
+		PRTD.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		PRTD.DSVFormat = DXGI_FORMAT_D32_FLOAT;//DXGI_FORMAT_D16_UNORM
+	}
+	else
+	{
+		PRTD = dbuffer->GetPiplineRenderDesc();
+	}
+	CreatePipelineState(shader, PRTD);
+}
+void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc)
 {
 	if (CurrentPipelinestate.m_pipelineState != nullptr)
 	{
@@ -115,26 +130,15 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	{
 		CurrentPipelinestate.m_rootSignature->Release();
 	}
-	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
-	D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
+	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();	
 	ensure((shader->GetShaderParameters().size() > 0));
 	ensure((shader->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
 	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters(), Device);
 
-	D3D12Shader::PipeRenderTargetDesc PRTD = {};
-	if (Buffer == nullptr)
-	{
-		PRTD.NumRenderTargets = 1;
-		PRTD.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		PRTD.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	}
-	else
-	{
-		PRTD = dbuffer->GetPiplineRenderDesc();
-	}
-	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, PRTD, Device);
+	
+	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, RTdesc, Device);
 	if (CurrentGraphicsList == nullptr)
 	{
 		//todo: ensure a gaphics shader is not used a compute piplne!

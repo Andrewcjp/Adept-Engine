@@ -95,9 +95,9 @@ float4 main(PSInput input) : SV_TARGET
 		{
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos);
 		}
-		/*if (lights[i].HasShadow && lights[i].type == 0)
+		/*if (lights[i].HasShadow && lights[i].type == 1)
 		{
-			colour = ShadowCalculationCube( input.WorldPos, lights[i]);
+			colour = ShadowCalculationCube( input.WorldPos.xyz, lights[i]);
 		}*/
 		output += colour;
 	}
@@ -113,25 +113,26 @@ float4 main(PSInput input) : SV_TARGET
 
 float ShadowCalculationCube(const float3 fragPos, Light lpos)
 {
-	// Get vector between fragment position and light position
-	float3 fragToLight = fragPos - float3(0, 5, 20);// lpos.LPosition;
 
+	// Get vector between fragment position and light position
+	float3 fragToLight = fragPos - lpos.LPosition;
 	float currentDepth = length(fragToLight);
 	//if (currentDepth > MaxShadowDistance)
 	//{
 	//	//	return 0.0f;
 	//}
 	float shadow = 0.0f;
-	float bias = 0.01f;
+	float bias = 0.05f;
 	int samples = 1;
 	/*float viewDistance = length(viewPos - fragPos);
 	float diskRadius = (1.0f + (viewDistance / far_plane)) / 25.0f;*/
-	float far_plane = 500.0f;
+	float far_plane = 100;
 
 	float closestDepth = 0;
-	closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, fragToLight).r;
-
+	
+	closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, normalize(fragToLight)).r;
 	closestDepth *= far_plane;
+	//return closestDepth;
 	if (currentDepth - bias > closestDepth)
 	{
 		return 1.0f;

@@ -14,6 +14,8 @@ class DeferredRenderer :public RenderEngine
 public:
 	void OnRender() override;
 
+
+
 	
 	void PostInit()override;
 	DeferredRenderer(int width, int height) :RenderEngine(width, height) {}
@@ -27,10 +29,9 @@ public:
 
 private:
 	void GeometryPass();
-	void RenderSkybox(bool ismain);
 	void LightingPass();
 	void SSAOPass();
-
+	void RenderSkybox();
 	Shader_WDeferred* DeferredWriteShader = nullptr;
 	Shader_Deferred* DeferredShader = nullptr;
 	FrameBuffer* GFrameBuffer = nullptr;

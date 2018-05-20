@@ -28,42 +28,43 @@ void D3D12FrameBuffer::CreateCubeDepth()
 
 	D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
 	renderTargetViewDesc.Format = RTVformat;
-	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	//renderTargetViewDesc.Texture2DArray.MipSlice = 0;
+	//renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
+	//renderTargetViewDesc.Texture2DArray.ArraySize = CUBE_SIDES;
+	//CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(0));
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
-	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
-	renderTargetViewDesc.Texture2DArray.ArraySize = CUBE_SIDES;
-	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
 
-	CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(0));
-	renderTargetViewDesc.Texture2DArray.ArraySize = 1;
 	for (int i = 0; i < CUBE_SIDES; i++)
 	{
-		renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
-		renderTargetViewDesc.Texture2DArray.ArraySize = 1;
-		CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(i+1));
+		//renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
+		//renderTargetViewDesc.Texture2DArray.ArraySize = 1;
+		CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(i ));
 		//might be a read over end issue here
 	}
 
 	SrvHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	SrvHeap->SetName(L"DSV Heap");
-	
+
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-	shadowSrvDesc.Texture2D.MipLevels = 1;
-	shadowSrvDesc.Texture2DArray.ArraySize = CUBE_SIDES;
-	shadowSrvDesc.Texture2DArray.MipLevels = 1;
+	//shadowSrvDesc.Texture2DArray.MipLevels = 1;
+	//shadowSrvDesc.Texture2DArray.ArraySize = CUBE_SIDES;
+	//shadowSrvDesc.Texture2DArray.MipLevels = 1;
+	shadowSrvDesc.TextureCube.MipLevels = 1;
+	shadowSrvDesc.TextureCube.MostDetailedMip = 0;
 	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	CurrentDevice->GetDevice()->CreateShaderResourceView(NewRenderTarget, &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
 	SrvHeap->SetName(L"Shadow 3d  SRV heap");
-	
+
 	NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, NullHeap->GetCPUAddress(0));
 }
 
-void D3D12FrameBuffer::CreateColour(int Index )
+void D3D12FrameBuffer::CreateColour(int Index)
 {
-	if (Index ==2)
+	if (Index == 2)
 	{
 		RTVformat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
@@ -96,7 +97,7 @@ void D3D12FrameBuffer::CreateColour(int Index )
 	CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(Index));
 	CreateSRV();
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
-	SrvDesc.Format = renderTargetViewDesc.Format; 
+	SrvDesc.Format = renderTargetViewDesc.Format;
 	SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	SrvDesc.Texture2D.MipLevels = 1;
 	SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -122,7 +123,7 @@ void D3D12FrameBuffer::CreateDepth()
 	Depthformat = DefaultDepthformat;
 	if (DSVHeap == nullptr)
 	{
-		DSVHeap = new DescriptorHeap(CurrentDevice,  1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+		DSVHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 	}
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
@@ -161,7 +162,7 @@ void D3D12FrameBuffer::CreateDepth()
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
 		NullHeap->SetName(L"Shadow SRV heap");
-		 
+
 		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, NullHeap->GetCPUAddress(0));
 
 	}
@@ -174,7 +175,7 @@ void D3D12FrameBuffer::CreateGBuffer()
 	for (int i = 0; i < RenderTargetCount; i++)
 	{
 		CreateColour(i);
-	}	
+	}
 }
 
 bool D3D12FrameBuffer::CheckDevice(int index)
@@ -203,7 +204,7 @@ void D3D12FrameBuffer::Resize(int width, int height)
 		RenderTarget[0]->GetResource()->Release();
 		CreateColour();
 	}
-	
+
 	if (m_ftype == FrameBufferType::GBuffer)
 	{
 		for (int i = 0; i < RenderTargetCount; i++)
@@ -225,6 +226,24 @@ void D3D12FrameBuffer::CopyToDevice(DeviceContext * device)
 
 }
 
+void D3D12FrameBuffer::BindDepthWithColourPassthrough(ID3D12GraphicsCommandList * list, D3D12FrameBuffer * Passtrhough)
+{
+	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
+	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
+	list->RSSetViewports(1, &m_viewport);
+	list->RSSetScissorRects(1, &m_scissorRect);
+	if (Passtrhough->RenderTarget[0])
+	{
+		Passtrhough->RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	}
+	if (DepthStencil != nullptr)
+	{
+		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	}
+	list->OMSetRenderTargets(Passtrhough->RenderTargetCount, &Passtrhough->RTVHeap->GetCPUAddress(0), true, &DSVHeap->GetCPUAddress(0));
+
+}
+
 D3D12FrameBuffer::~D3D12FrameBuffer()
 {
 	if (RequiresDepth())
@@ -234,8 +253,8 @@ D3D12FrameBuffer::~D3D12FrameBuffer()
 		delete DSVHeap;
 	}
 	if (RenderTargetCount > 0)
-	{		
-		delete RTVHeap;		
+	{
+		delete RTVHeap;
 	}
 	for (int i = 0; i < RenderTargetCount; i++)
 	{
@@ -244,7 +263,7 @@ D3D12FrameBuffer::~D3D12FrameBuffer()
 	delete SrvHeap;
 }
 
-void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot,int Resourceindex)
+void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex)
 {
 	/*if (m_srvHeap == nullptr)
 	{
@@ -255,9 +274,9 @@ void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot,int R
 
 	if (RenderTarget[Resourceindex] != nullptr)
 	{
-			RenderTarget[Resourceindex]->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		RenderTarget[Resourceindex]->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
-	
+
 	if (DepthStencil != nullptr && m_ftype == Depth)
 	{
 		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -275,13 +294,13 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
 
-	
+
 	for (int i = 0; i < RenderTargetCount; i++)
 	{
 		if (RenderTarget[i] != nullptr)
 		{
 			RenderTarget[i]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		}		
+		}
 	}
 
 	if (DepthStencil != nullptr)
@@ -296,7 +315,7 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 		{
 			//validate this is okay todo?
 			rtvHandle = RTVHeap->GetCPUAddress(0);
-		}		
+		}
 		list->OMSetRenderTargets(RenderTargetCount, &rtvHandle, true, &DSVHeap->GetCPUAddress(0));
 	}
 	else
@@ -327,12 +346,12 @@ void D3D12FrameBuffer::ClearBuffer(CommandListDef * list)
 
 	if (m_ftype == ColourDepth || m_ftype == GBuffer || m_ftype == Colour)
 	{
-		
+
 		for (int i = 0; i < RenderTargetCount; i++)
 		{
 			list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferClearColour[0], 0, nullptr);
 		}
-		
+
 	}
 	if (m_ftype == CubeDepth)
 	{
@@ -352,6 +371,13 @@ D3D12Shader::PipeRenderTargetDesc D3D12FrameBuffer::GetPiplineRenderDesc()
 	case ColourDepth:
 		output.RTVFormats[0] = RTVformat;
 	case Depth:
+		output.RTVFormats[0] = RTVformat;
+		output.NumRenderTargets = RenderTargetCount;
+		output.DSVFormat = Depthformat;
+		break;
+	case Colour:
+		output.RTVFormats[0] = RTVformat;
+		output.NumRenderTargets = RenderTargetCount;
 		output.DSVFormat = Depthformat;
 		break;
 	case CubeDepth:

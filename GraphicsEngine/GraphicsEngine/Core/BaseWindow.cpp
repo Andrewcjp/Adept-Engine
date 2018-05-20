@@ -14,6 +14,7 @@
 #include "../Core/Utils/StringUtil.h"
 #include "../Core/Assets/SceneJSerialiser.h"
 #include "../UI/TextRenderer.h"
+#include "../Core/Assets/ImageIO.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -88,8 +89,8 @@ void BaseWindow::InitilseWindow()
 	}
 
 	std::cout << "Scene Load started" << std::endl;
-	////	ImageLoader::StartLoader();
-	if (/*IsDeferredMode*/false)
+	ImageIO::StartLoader();
+	if (/*IsDeferredMode*/true)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
 	}
@@ -348,7 +349,7 @@ void BaseWindow::LoadScene(std::string RelativePath)
 void BaseWindow::PostFrameOne()
 {
 	std::cout << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << std::endl;
-#if BUILD_D3D12
+#if BUILD_D3D12 && !USEGPUTOGENMIPS
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
 		std::cout << "MipMaps took " << D3D12Texture::MipCreationTime << "MS to generate" << std::endl;
@@ -372,6 +373,7 @@ void BaseWindow::Resize(int width, int height)
 
 void BaseWindow::DestroyRenderWindow()
 {
+	ImageIO::ShutDown();
 	delete input;
 	delete LineDrawer;
 	delete UI;

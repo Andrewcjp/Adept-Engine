@@ -11,7 +11,7 @@ public:
 	void SetTickRate(float NewRate);
 	class ExtraComponentRegister* GetECR();
 protected:
-	ExtraComponentRegister* ECR;
+	ExtraComponentRegister* ECR = nullptr;
 private:
 	float TickRate = 60.0f;
 	

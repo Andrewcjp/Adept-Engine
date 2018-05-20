@@ -41,9 +41,10 @@ void ForwardRenderer::OnRender()
 {
 	ShadowPass();
 	MainPass();
+	RenderSkybox();
 	PostProcessPass();
 
-	RenderSkybox();
+	
 }
 
 
@@ -57,7 +58,9 @@ void ForwardRenderer::PostInit()
 	}
 	MainCommandList = RHI::CreateCommandList();
 	//finally init the pipeline!
-	MainCommandList->CreatePipelineState(MainShader);
+	MainCommandList->CreatePipelineState(MainShader,FilterBuffer);
+	SkyBox = new Shader_Skybox();
+	SkyBox->Init(FilterBuffer,nullptr);
 }
 
 
@@ -87,8 +90,10 @@ void ForwardRenderer::MainPass()
 	for (size_t i = 0; i < (*MainScene->GetObjects()).size(); i++)
 	{
 		MainShader->SetActiveIndex(MainCommandList, (int)i);
+		MainCommandList->SetTexture(SkyBox->SkyBoxTexture, 0);
 		(*MainScene->GetObjects())[i]->Render(false, MainCommandList);
 	}
+	
 	MainCommandList->SetRenderTarget(nullptr);
 //	D3D12TimeManager::Instance->EndTimer(MainCommandList);
 	MainCommandList->Execute();
@@ -96,9 +101,8 @@ void ForwardRenderer::MainPass()
 
 void ForwardRenderer::RenderSkybox()
 {
-	//todo:
+	SkyBox->Render(MainShader, FilterBuffer,nullptr);
 }
-
 
 void ForwardRenderer::DestoryRenderWindow()
 {

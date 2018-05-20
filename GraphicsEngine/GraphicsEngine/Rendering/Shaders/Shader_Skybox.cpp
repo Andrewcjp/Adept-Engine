@@ -1,49 +1,82 @@
 #include "Shader_Skybox.h"
 #include "RHI/RHI.h"
-#include "Core/Assets/ImageLoader.h"
 #include "../RHI/ShaderProgramBase.h"
+#include "../Rendering/Core/Renderable.h"
+#include "Shader_Main.h"
 Shader_Skybox::Shader_Skybox()
 {
-	if (RHI::GetType() == RenderSystemOGL)
+	SkyBoxTexture = RHI::CreateTexture("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
+	MeshLoader::FMeshLoadingSettings settings = {};
+	settings.Scale = glm::vec3(100.0f);
+	CubeModel = RHI::CreateMesh("SkyBoxCube.obj", settings);
+	m_Shader = RHI::CreateShaderProgam();
+	m_Shader->CreateShaderProgram();
+	m_Shader->AttachAndCompileShaderFromFile("Skybox_vs", SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("Skybox_fs", SHADER_FRAGMENT);
+
+
+}
+#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
+{
+	List = RHI::CreateCommandList();
+	PipeLineState state = {};
+	state.DepthWrite = false;
+	state.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
+	state.Cull = false;
+	List->SetPipelineState(state);
+	if (DepthSourceBuffer != nullptr)
 	{
-		m_Shader = RHI::CreateShaderProgam();
-		m_Shader->CreateShaderProgram();
-		m_Shader->AttachAndCompileShaderFromFile("skybox", SHADER_VERTEX);
-		m_Shader->AttachAndCompileShaderFromFile("skybox", SHADER_FRAGMENT);
-
-		m_Shader->BindAttributeLocation(0, "position");
-
-		m_Shader->BuildShaderProgram();
-		m_Shader->ActivateShaderProgram();
-//////		SkyboxTexture = ImageLoader::instance->loadsplitCubeMap("heh");
+		D3D12Shader::PipeRenderTargetDesc Desc = ((D3D12FrameBuffer*)Buffer)->GetPiplineRenderDesc();
+		Desc.DSVFormat = ((D3D12FrameBuffer*)DepthSourceBuffer)->GetPiplineRenderDesc().DSVFormat;
+		((D3D12CommandList*)List)->CreatePipelineState(this, Desc);
+	}
+	else
+	{
+		List->CreatePipelineState(this, Buffer);
 	}
 }
 
-
 Shader_Skybox::~Shader_Skybox()
 {
-//	glDeleteTextures(1, &SkyboxTexture);
+	delete CubeModel;
+	delete SkyBoxTexture;
 }
 
-void Shader_Skybox::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*> lights)
+void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
-#if BUILD_OPENGL
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxTexture);
-
-	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "skybox"), 2);
-	glDepthMask(GL_FALSE);
-	glm::mat4 view;
-
-	view = glm::mat4(glm::mat3(c->GetView()));
-	
-
-	glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(c->GetProjection()));
-	glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glDepthFunc(GL_LEQUAL);
-#endif
+	List->ResetList();
+	if (DepthSourceBuffer != nullptr)
+	{
+		if (RHI::IsD3D12())
+		{
+			D3D12FrameBuffer* fb = (D3D12FrameBuffer*)DepthSourceBuffer;
+			D3D12CommandList* ll = (D3D12CommandList*)List;
+			fb->BindDepthWithColourPassthrough(ll->GetCommandList(), (D3D12FrameBuffer*)Buffer);
+		}
+	}
+	else
+	{
+		List->SetRenderTarget(Buffer);
+	}
+	List->SetTexture(SkyBoxTexture, 0);
+	mainshader->BindMvBuffer(List, 1);
+	CubeModel->Render(List);
+	List->Execute();
 }
 
-void Shader_Skybox::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
+std::vector<Shader::ShaderParameter> Shader_Skybox::GetShaderParameters()
 {
+	std::vector<Shader::ShaderParameter> out;
+	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
+	out.push_back(ShaderParameter(ShaderParamType::CBV, 1, 0));
+	return out;
+}
+
+std::vector<Shader::VertexElementDESC> Shader_Skybox::GetVertexFormat()
+{
+	std::vector<VertexElementDESC> out;
+	out.push_back(VertexElementDESC{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	return out;
 }

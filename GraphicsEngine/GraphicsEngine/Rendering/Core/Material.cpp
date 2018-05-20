@@ -7,6 +7,7 @@
 Material::Material(BaseTexture * Diff, MaterialProperties props)
 {
 	Diffusetexture = Diff;
+	Diff->AddRef();
 	Properties = props;
 }
 
@@ -14,15 +15,36 @@ Material::~Material()
 {
 	if (Diffusetexture != nullptr)
 	{
-		delete Diffusetexture;
+		if (Diffusetexture->GetRefCount() > 1)
+		{
+			Diffusetexture->RemoveRef();
+		}
+		else
+		{
+			delete Diffusetexture;
+		}		
 	}	
 	if (NormalMap != nullptr)
 	{
-		delete NormalMap;
+		if (NormalMap->GetRefCount() > 1)
+		{
+			NormalMap->RemoveRef();
+		}
+		else
+		{
+			delete NormalMap;
+		}
 	}
 	if (DisplacementMap != nullptr)
 	{
-		delete DisplacementMap;
+		if (DisplacementMap->GetRefCount() > 1)
+		{
+			DisplacementMap->RemoveRef();
+		}
+		else
+		{
+			delete DisplacementMap;
+		}
 	}
 }
 
@@ -80,4 +102,44 @@ bool Material::GetDoesShadow()
 const Material::MaterialProperties* Material::GetProperties()
 {
 	return &Properties;
+}
+
+void Material::SetDisplacementMap(BaseTexture * tex)
+{
+	if (tex != nullptr)
+	{
+		tex->AddRef();
+		DisplacementMap = tex;
+	}
+}
+void Material::SetNormalMap(BaseTexture * tex)
+{
+	if (tex != nullptr)
+	{
+		tex->AddRef();
+		NormalMap = tex;
+	}
+}
+void Material::SetDiffusetexture(BaseTexture * tex)
+{
+	if (tex != nullptr)
+	{
+		tex->AddRef();
+		Diffusetexture = tex;
+	}
+}
+
+BaseTexture * Material::GetDisplacementMap()
+{
+	return DisplacementMap;
+}
+
+BaseTexture * Material::GetNormalMap()
+{
+	return NormalMap;
+}
+
+BaseTexture * Material::GetDiffusetexture()
+{
+	return Diffusetexture;
 }

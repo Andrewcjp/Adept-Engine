@@ -2,16 +2,18 @@
 
 #include <string>
 #include <vector>
-#include "../Rendering/Core/Mesh.h"
 #include "../Rendering/Core/RenderBaseTypes.h"
 
 //this class loads mesh data into mesh;
 class MeshLoader
 {
 public:
-	MeshLoader();
-	~MeshLoader();
-	static bool LoadMeshFromFile(std::string filename, std::vector<OGLVertex> &vertices,std::vector<int> &indices);
+	static const glm::vec3 DefaultScale;
+	struct FMeshLoadingSettings
+	{
+		glm::vec3 Scale = DefaultScale;
+	};
+	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings,std::vector<OGLVertex> &vertices,std::vector<int> &indices);
 
 
 };

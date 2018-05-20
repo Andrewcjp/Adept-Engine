@@ -4,7 +4,7 @@
 #include "../RHI/BaseTexture.h"
 GrassPatch::GrassPatch()
 {
-	m_grassmesh = RHI::CreateMesh(("Grass.obj"), nullptr);
+	m_grassmesh = RHI::CreateMesh(("Grass.obj"));
 	m_tex = RHI::CreateTexture("\\asset\\texture\\billboardgrass0002.png");
 	Shader = new Shader_Grass();
 	m_transfrom = new Transform();

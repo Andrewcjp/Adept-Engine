@@ -1,19 +1,12 @@
 #include "MeshLoader.h"
-
+#include "../Rendering/Core/Mesh.h"
 #include "include/assimp/Importer.hpp"
 #include "include/assimp/scene.h"
 #include <include/assimp/postprocess.h>
+#include "../include/glm/gtx/transform.hpp"
+const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
-MeshLoader::MeshLoader()
-{
-}
-
-
-MeshLoader::~MeshLoader()
-{
-}
-
-bool MeshLoader::LoadMeshFromFile(std::string filename, std::vector<OGLVertex> &vertices, std::vector<int> &indices)
+bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<int> &indices)
 {
 	//m_meshData = 0;
 
@@ -38,7 +31,6 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, std::vector<OGLVertex> &
 
 	const aiMesh* model = scene->mMeshes[0];
 
-	
 	const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 	for (unsigned int i = 0; i < model->mNumVertices; i++)
 	{
@@ -54,7 +46,15 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, std::vector<OGLVertex> &
 
 		vertices.push_back(vert);
 	}
-
+	if (Settings.Scale != DefaultScale)
+	{
+		for (int i = 0; i < vertices.size(); i++)
+		{
+			glm::vec4 Pos = glm::vec4 (vertices[i].m_position.xyz,1.0f);
+			Pos = Pos * glm::scale(Settings.Scale);
+			vertices[i].m_position = Pos.xyz;
+		}
+	}
 	for (unsigned int i = 0; i < model->mNumFaces; i++)
 	{
 		const aiFace& face = model->mFaces[i];

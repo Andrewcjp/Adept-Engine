@@ -44,6 +44,7 @@ std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
 
 	return out;
 }
+
 void Shader_Main::SetNormalVis()
 {
 	if (vistate)
@@ -190,6 +191,11 @@ void Shader_Main::BindLightsBuffer(RHICommandList*  list, bool JustLight)
 	list->SetConstantBufferView(CLightBuffer, 0, Shader_Main::LightCBV);
 	if (!JustLight)
 	{
-		list->SetConstantBufferView(CMVBuffer, 0, Shader_Main::MPCBV);
+		BindMvBuffer(list, Shader_Main::MPCBV);
 	}
+}
+
+void Shader_Main::BindMvBuffer(RHICommandList * list, int slot)
+{
+	list->SetConstantBufferView(CMVBuffer, 0,slot);
 }

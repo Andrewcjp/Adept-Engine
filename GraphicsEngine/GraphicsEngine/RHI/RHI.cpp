@@ -10,6 +10,7 @@
 #include "../Rendering/Core/GPUStateCache.h"
 #include "../Core/Engine.h"
 #include "RHICommandList.h"
+#include "../Core/Assets/ImageIO.h"
 
 #if BUILD_D3D12
 #include "../RHI/RenderAPIs/D3D12/D3D12Texture.h"
@@ -115,22 +116,38 @@ void RHI::DestoryRHI()
 		delete instance;
 	}
 }
-
+#define NOLOADTEX 0
 BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 {
 	if (Device == nullptr)
 	{
 		Device = D3D12RHI::GetDefaultDevice();
 	}
+#if NOLOADTEX
+	if (ImageIO::GetDefaultTexture())
+	{
+		return ImageIO::GetDefaultTexture();
+	}
+#endif
+	BaseTexture* newtex = nullptr;
+	if (ImageIO::CheckIfLoaded(path,&newtex))
+	{
+		return newtex;
+	}
 	switch (instance->currentsystem)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		return new D3D12Texture(path, Device);
+		newtex = new D3D12Texture(Device);	
 		break;
 #endif
 	}
-	return nullptr;
+	if (!newtex->CreateFromFile(path))
+	{
+		return ImageIO::GetDefaultTexture();
+	}
+	ImageIO::RegisterTextureLoad(newtex);
+	return newtex;
 }
 
 
@@ -141,13 +158,17 @@ BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, vo
 	{
 	case RenderSystemD3D12:
 		newtex = new D3D12Texture(Device);	
-		return newtex;
 		break;
 	}
-	return nullptr;
+	return newtex;
 }
 
-Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool UseMesh)
+Renderable * RHI::CreateMesh(const char * path)
+{
+	return CreateMesh(path, MeshLoader::FMeshLoadingSettings());
+}
+
+Renderable * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	///todo asset paths
 	std::string accpath = Engine::GetRootDir();
@@ -155,7 +176,7 @@ Renderable * RHI::CreateMesh(const char * path, ShaderProgramBase* program, bool
 	apath.append(path);
 	accpath.append(apath);
 	AssetManager::RegisterMeshAssetLoad(apath);
-	return new Mesh(accpath);
+	return new Mesh(accpath, Settings);
 }
 
 FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Device, float ratio, FrameBuffer::FrameBufferType type,glm::vec4 clearcolour)

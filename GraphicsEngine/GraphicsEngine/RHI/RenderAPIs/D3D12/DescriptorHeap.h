@@ -10,6 +10,7 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUAddress(int index);
 	void SetName(LPCWSTR name);
 	void BindHeap(ID3D12GraphicsCommandList* list);
+	void Release();
 private:
 	ID3D12DescriptorHeap * mHeap = nullptr;
 	DeviceContext* Device = nullptr;

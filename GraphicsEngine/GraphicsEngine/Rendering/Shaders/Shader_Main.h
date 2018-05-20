@@ -66,6 +66,7 @@ public:
 	void UpdateLightBuffer(std::vector<Light*> lights);
 	void BindLightsBuffer(RHICommandList * list,bool JustLight = false);
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	void BindMvBuffer(RHICommandList * list, int slot);
 private:
 	
 	bool shadowvisstate = false;
@@ -78,7 +79,7 @@ private:
 	bool Once = false;
 	//todo move to shader
 	
-	int MaxConstant =25;
+	int MaxConstant = 25;
 	std::vector<SceneConstantBuffer> SceneBuffer;
 	//information for all the lights in the scene currently
 

@@ -1,6 +1,5 @@
 #include "DeferredRenderer.h"
 #include "../Rendering/Core/Mesh.h"
-#include "Core/Assets/ImageLoader.h"
 #include "RHI/RHI.h"
 #include "../Core/Components/MeshRendererComponent.h"
 #include "../Core/Assets/Scene.h"
@@ -8,11 +7,11 @@
 #include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../Editor/Editor_Camera.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "Rendering\Shaders\Shader_Skybox.h"
 void DeferredRenderer::OnRender()
 {
 
 #if WITH_EDITOR
-//todo!
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
 		if (MainCamera != EditorCam->GetCamera())
@@ -22,46 +21,47 @@ void DeferredRenderer::OnRender()
 	}
 	else
 	{
-		/*if (MainCamera == EditorCam->GetCamera())
+		if (MainCamera == EditorCam->GetCamera())
 		{
-		MainCamera = mainscene->GetCurrentRenderCamera();
-		}*/
+			MainCamera = MainScene->GetCurrentRenderCamera();
+		}
 	}
 #endif
-
-
-
-
 	GeometryPass();
-
 	LightingPass();
+	RenderSkybox();
 	PostProcessPass();
+}
+
+void DeferredRenderer::RenderSkybox()
+{
+	SkyBox->Render(MainShader, FilterBuffer, GFrameBuffer);
 }
 
 void DeferredRenderer::PostInit()
 {
 	MainShader = new Shader_Main(false);
 	FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::Colour);
-	DeferredShader = new Shader_Deferred();	
-	GFrameBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::GBuffer); 
+	DeferredShader = new Shader_Deferred();
+	GFrameBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::GBuffer);
 	WriteList = RHI::CreateCommandList(RHI::GetDeviceContext(0));
 	WriteList->CreatePipelineState(MainShader, GFrameBuffer);
-	LightingList = RHI::CreateCommandList(RHI::GetDeviceContext(0));	
+	LightingList = RHI::CreateCommandList(RHI::GetDeviceContext(0));
 	LightingList->SetPipelineState(PipeLineState{ false,false,false });
 	LightingList->CreatePipelineState(DeferredShader);
 	D3D12RHI::Instance->AddLinkedFrameBuffer(GFrameBuffer);
-
+	SkyBox = new Shader_Skybox();
+	SkyBox->Init(FilterBuffer, GFrameBuffer);
 }
 
 DeferredRenderer::~DeferredRenderer()
-{
-}
+{}
 
 
 
 void DeferredRenderer::GeometryPass()
-{	
-	
+{
+
 	if (MainScene->StaticSceneNeedsUpdate)
 	{
 		MainShader->UpdateLightBuffer(*MainScene->GetLights());
@@ -69,7 +69,7 @@ void DeferredRenderer::GeometryPass()
 		MainShader->UpdateCBV();
 	}
 
-	WriteList->ResetList();	
+	WriteList->ResetList();
 	D3D12TimeManager::Instance->StartTimer(WriteList);
 	WriteList->SetRenderTarget(GFrameBuffer);
 	WriteList->ClearFrameBuffer(GFrameBuffer);
@@ -83,10 +83,7 @@ void DeferredRenderer::GeometryPass()
 	WriteList->SetRenderTarget(nullptr);
 	WriteList->Execute();
 }
-void DeferredRenderer::RenderSkybox(bool ismain)
-{
 
-}
 void DeferredRenderer::SSAOPass()
 {
 	//SSAOBuffer->BindBufferAsRenderTarget();
@@ -108,7 +105,7 @@ void DeferredRenderer::LightingPass()
 	LightingList->SetFrameBufferTexture(GFrameBuffer, 0, 0);
 	LightingList->SetFrameBufferTexture(GFrameBuffer, 1, 1);
 	LightingList->SetFrameBufferTexture(GFrameBuffer, 3, 2);
-	MainShader->BindLightsBuffer(LightingList,true);
+	MainShader->BindLightsBuffer(LightingList, true);
 	DeferredShader->RenderScreenQuad(LightingList);
 	LightingList->SetRenderTarget(nullptr);
 	D3D12TimeManager::Instance->EndTimer(LightingList);
@@ -147,8 +144,7 @@ void DeferredRenderer::DestoryRenderWindow()
 }
 
 void DeferredRenderer::FinaliseRender()
-{
-}
+{}
 
 void DeferredRenderer::OnStaticUpdate()
 {}

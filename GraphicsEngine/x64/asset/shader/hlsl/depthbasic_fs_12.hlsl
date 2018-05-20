@@ -17,7 +17,6 @@ float4 main(GSOutput input) : SV_Target
 	float LightDistance = length(input.Pos.xyz - input.LightPos);
 	LightDistance = LightDistance / Farplane;
 	return float4(LightDistance, LightDistance, LightDistance, LightDistance);
-
 #endif
 }
 

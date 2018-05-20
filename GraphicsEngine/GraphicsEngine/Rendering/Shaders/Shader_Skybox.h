@@ -4,14 +4,17 @@ class Shader_Skybox : public Shader
 {
 public:
 	Shader_Skybox();
+	void Init(FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	virtual ~Shader_Skybox();
+	void Render(class Shader_Main * mainshader, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
+	std::vector<Shader::ShaderParameter> GetShaderParameters();
+	std::vector<Shader::VertexElementDESC> GetVertexFormat();
+	BaseTexture* SkyBoxTexture;
 
-	// Inherited via Shader
-	virtual void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights = std::vector<Light*>()) ;
 private:
 	int SkyboxTexture;
+	class Renderable* CubeModel;
+	class RHICommandList* List;
 
-	// Inherited via Shader
-	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
 };
 

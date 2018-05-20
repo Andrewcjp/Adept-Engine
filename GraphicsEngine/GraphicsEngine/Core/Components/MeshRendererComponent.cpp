@@ -80,17 +80,17 @@ void MeshRendererComponent::Serialise(rapidjson::Value & v)
 	SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MeshName", m_mesh->AssetName);
 	if (m_mat != nullptr)
 	{
-		if (m_mat->Diffusetexture)
+		if (m_mat->GetDiffusetexture())
 		{
-			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatDiffuse", m_mat->Diffusetexture->AssetName);
+			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatDiffuse", m_mat->GetDiffusetexture()->TextureName);
 		}
-		if (m_mat->NormalMap)
+		if (m_mat->GetNormalMap())
 		{
-			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatNormal", m_mat->NormalMap->AssetName);
+			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatNormal", m_mat->GetNormalMap()->TextureName);
 		}
-		if (m_mat->DisplacementMap)
+		if (m_mat->GetDisplacementMap())
 		{
-			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "DisplacementMap", m_mat->NormalMap->AssetName);
+			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "DisplacementMap", m_mat->GetDisplacementMap()->TextureName);
 		}
 	}	//todo:
 }
@@ -106,7 +106,7 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 			if (path.length() != 0)
 			{
 				//this is not handled for D3D11
-				m_mesh = RHI::CreateMesh(path.c_str(), nullptr);
+				m_mesh = RHI::CreateMesh(path.c_str());
 			}
 		}
 		if (key == "MatDiffuse")
@@ -124,7 +124,7 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 			{
 				if (m_mat != nullptr)
 				{
-					m_mat->NormalMap = RHI::CreateTexture(path.c_str());
+					m_mat->SetNormalMap(RHI::CreateTexture(path.c_str()));
 				}
 			}
 		}
@@ -135,7 +135,7 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 			{
 				if (m_mat != nullptr)
 				{
-					m_mat->DisplacementMap = RHI::CreateTexture(path.c_str());
+					m_mat->SetDisplacementMap(RHI::CreateTexture(path.c_str()));
 				}
 			}
 		}

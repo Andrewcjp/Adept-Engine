@@ -28,7 +28,7 @@ public:
 	void Resize(int width, int height) override;
 	void SetupCopyToDevice(DeviceContext* device);
 	void CopyToDevice(DeviceContext* device);
-	
+	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);
 private:
 	
 	class DescriptorHeap* SrvHeap = nullptr;

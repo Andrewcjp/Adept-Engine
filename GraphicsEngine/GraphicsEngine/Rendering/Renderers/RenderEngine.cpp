@@ -5,6 +5,7 @@
 #include "../Rendering/PostProcessing/PostProcessing.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../Editor/Editor_Camera.h"
+#include "../Rendering/Shaders/Shader_Skybox.h"
 RenderEngine::~RenderEngine()
 {
 	DestoryRenderWindow();

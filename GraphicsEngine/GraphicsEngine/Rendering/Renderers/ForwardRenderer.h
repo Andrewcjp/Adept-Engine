@@ -20,7 +20,6 @@
 #include "../Rendering/Core/ShadowRenderer.h"
 #include "../Rendering/Core/GPUStateCache.h"
 #include "../Rendering/Core/GrassPatch.h"
-#include "Core/Assets/ImageLoader.h"
 #include "Rendering\Shaders\Shader_Skybox.h"
 #include "../Core/Performance/PerfManager.h"
 #include "../EngineGlobals.h"
@@ -42,6 +41,7 @@ private:
 	void MainPass();
 	void RenderSkybox();
 	RHICommandList* MainCommandList;
+
 	//debug
 #if USED3D12DebugP
 	class D3D12Plane* debugplane = nullptr;

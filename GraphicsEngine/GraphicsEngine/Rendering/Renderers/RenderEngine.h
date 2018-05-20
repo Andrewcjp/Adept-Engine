@@ -32,11 +32,14 @@ public:
 	virtual void SetRenderSettings(RenderSettings settings);
 	virtual void SetScene(Scene* sc);
 	virtual void SetEditorCamera(class Editor_Camera* cam);
+
+	
 	
 	//getters
 	Shader* GetMainShader();
 	Camera* GetMainCam();
 protected:
+	void RenderSkybox();
 	void ShadowPass();
 	void PostProcessPass();
 	int			m_width = 0;
@@ -50,7 +53,7 @@ protected:
 	class ShadowRenderer* mShadowRenderer = nullptr;
 	class PostProcessing* Post = nullptr;
 	FrameBuffer* FilterBuffer = nullptr;
-
+	class Shader_Skybox* SkyBox = nullptr;
 	bool once = true;
 };
 
