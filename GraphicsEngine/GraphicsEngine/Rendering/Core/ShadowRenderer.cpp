@@ -32,17 +32,17 @@ void ShadowRenderer::UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 sh
 {
 	glm::mat4 transforms[6];
 	transforms[0] = (shadowProj *
-		glm::lookAt(lightPos, lightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
 	transforms[1] = (shadowProj *
-		glm::lookAt(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
 	transforms[2] = (shadowProj *
-		glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
 	transforms[3] = (shadowProj *
-		glm::lookAt(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
 	transforms[4] = (shadowProj *
-		glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
 	transforms[5] = (shadowProj *
-		glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 0.0,1.0), glm::vec3(0.0, 1.0, 0.0)));
 
 	GeometryProjections->UpdateConstantBuffer(transforms, 0);
 }
@@ -63,9 +63,12 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 
 		list->SetRenderTarget(TargetBuffer);
 		list->ClearFrameBuffer(TargetBuffer);		
-		mainshader->UpdateMV(ShadowingPointLights[SNum]->DirView, ShadowingPointLights[SNum]->Projection);
 		UpdateGeometryShaderParams(ShadowingPointLights[SNum]->GetPosition(), ShadowingPointLights[SNum]->Projection);
-		list->SetConstantBufferView(GeometryProjections, 0, 2);
+		list->SetConstantBufferView(GeometryProjections, 0,0);
+		Shader_Depth::LightData data = {};
+		data.Proj = ShadowingPointLights[SNum]->Projection;
+		data.Lightpos = ShadowingPointLights[SNum]->GetPosition();
+		PointLightShader->UpdateBuffer(list, &data);
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
 			if (ShadowObjects[i]->GetMat() == nullptr)
@@ -80,7 +83,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 			mainshader->SetActiveIndex(list, (int)i);
 			ShadowObjects[i]->Render(true, list);
 		}
-		list->SetRenderTarget(nullptr);
+		//list->SetRenderTarget(nullptr);
 	}
 }
 
@@ -132,6 +135,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 void ShadowRenderer::ClearShadowLights()
 {
 	ShadowingDirectionalLights.clear();
+	ShadowingPointLights.clear();
 }
 
 void ShadowRenderer::InitShadows(std::vector<Light*> lights, RHICommandList* list)
@@ -172,6 +176,6 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights, RHICommandList* lis
 		}
 	}
 	list->CreatePipelineState(DirectionalLightShader, DirectionalLightBuffer);
-	PointShadowList->SetPipelineState(PipeLineState{ false,false,false });
+	PointShadowList->SetPipelineState(PipeLineState{ true,false,false });
 	PointShadowList->CreatePipelineState(PointLightShader, PointLightBuffer);
 }

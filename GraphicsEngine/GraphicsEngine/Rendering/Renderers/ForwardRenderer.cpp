@@ -61,6 +61,9 @@ void ForwardRenderer::PostInit()
 	MainCommandList->CreatePipelineState(MainShader,FilterBuffer);
 	SkyBox = new Shader_Skybox();
 	SkyBox->Init(FilterBuffer,nullptr);
+#if DEBUG_CUBEMAPS
+	SkyBox->test = mShadowRenderer->PointLightBuffer;
+#endif
 }
 
 

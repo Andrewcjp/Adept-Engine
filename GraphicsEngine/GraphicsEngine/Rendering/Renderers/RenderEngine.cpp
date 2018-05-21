@@ -136,7 +136,7 @@ void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 void RenderEngine::ShadowPass()
 {
 	ShadowCMDList->ResetList();
-	MainShader->BindLightsBuffer(ShadowCMDList);
+	//MainShader->BindLightsBuffer(ShadowCMDList);
 
 	mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetObjects(), ShadowCMDList, MainShader);
 	ShadowCMDList->Execute();

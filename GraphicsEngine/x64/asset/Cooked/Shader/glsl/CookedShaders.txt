@@ -346,6 +346,7 @@ Texture2D g_texture : register(t0);
  
 Texture2D g_Shadow_texture : register(t1); 
 //Texture2D g_Shadow_texture2 : register(t2); 
+//TextureCube 
 TextureCube g_Shadow_texture2 : register(t2); 
 SamplerState g_sampler : register(s0); 
 SamplerState g_Clampsampler : register(s1); 
@@ -368,46 +369,46 @@ float GetShadow(float4 pos)
 float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld) 
 { 
 	// Compute pixel position in light space. 
-float4 vLightSpacePos = vPosWorld; 
-vLightSpacePos = mul(vLightSpacePos, lights[lightid].LightVP); 
+	float4 vLightSpacePos = vPosWorld; 
+	vLightSpacePos = mul(vLightSpacePos, lights[lightid].LightVP); 
  
-vLightSpacePos.xyz /= vLightSpacePos.w; 
+	vLightSpacePos.xyz /= vLightSpacePos.w; 
  
-// Translate from homogeneous coords to texture coords. 
-float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f; 
-vShadowTexCoord.y = 1.0f - vShadowTexCoord.y; 
+	// Translate from homogeneous coords to texture coords. 
+	float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f; 
+	vShadowTexCoord.y = 1.0f - vShadowTexCoord.y; 
  
-// Depth bias to avoid pixel self-shadowing. 
-float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS; 
+	// Depth bias to avoid pixel self-shadowing. 
+	float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS; 
  
-// Find sub-pixel weights.//todo: shader define! 
-float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file 
-float size = 1.0f; 
-float4 vSubPixelCoords = float4(size, size, size, size); 
-vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord); 
-vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy; 
-float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy; 
+	// Find sub-pixel weights.//todo: shader define! 
+	float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file 
+	float size = 1.0f; 
+	float4 vSubPixelCoords = float4(size, size, size, size); 
+	vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord); 
+	vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy; 
+	float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy; 
  
-// 2x2 percentage closer filtering. 
-float2 vTexelUnits = 1.0f / vShadowMapDims; 
-float4 vShadowDepths; 
-if (lightid == 0) 
-{ 
-	vShadowDepths.x = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord); 
-	vShadowDepths.y = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)); 
-	vShadowDepths.z = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)); 
-	vShadowDepths.w = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits); 
-} 
-else 
-{ 
-	/*vShadowDepths.x = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord); 
-	vShadowDepths.y = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)); 
-	vShadowDepths.z = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)); 
-	vShadowDepths.w = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);*/ 
-} 
-// What weighted fraction of the 4 samples are nearer to the light than this pixel? 
-float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f; 
-return dot(vBilinearWeights, vShadowTests); 
+	// 2x2 percentage closer filtering. 
+	float2 vTexelUnits = 1.0f / vShadowMapDims; 
+	float4 vShadowDepths; 
+	if (lightid == 0) 
+	{ 
+		vShadowDepths.x = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord); 
+		vShadowDepths.y = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)); 
+		vShadowDepths.z = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)); 
+		vShadowDepths.w = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits); 
+	} 
+	else 
+	{ 
+		/*vShadowDepths.x = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord); 
+		vShadowDepths.y = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)); 
+		vShadowDepths.z = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)); 
+		vShadowDepths.w = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);*/ 
+	} 
+	// What weighted fraction of the 4 samples are nearer to the light than this pixel? 
+	float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f; 
+	return dot(vBilinearWeights, vShadowTests); 
 } 
 float ShadowCalculationCube(const float3 fragPos, Light lpos); 
  
@@ -423,10 +424,10 @@ float4 main(PSInput input) : SV_TARGET
 		{ 
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos); 
 		} 
-		/*if (lights[i].HasShadow && lights[i].type == 1) 
+		if (lights[i].HasShadow && lights[i].type == 1) 
 		{ 
-			colour = ShadowCalculationCube( input.WorldPos.xyz, lights[i]); 
-		}*/ 
+			colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[i]); 
+		} 
 		output += colour; 
 	} 
  
@@ -441,31 +442,31 @@ float4 main(PSInput input) : SV_TARGET
  
 float ShadowCalculationCube(const float3 fragPos, Light lpos) 
 { 
- 
 	// Get vector between fragment position and light position 
-	float3 fragToLight = fragPos - lpos.LPosition; 
+	float3 fragToLight = (fragPos - lpos.LPosition); 
 	float currentDepth = length(fragToLight); 
 	//if (currentDepth > MaxShadowDistance) 
 	//{ 
 	//	//	return 0.0f; 
 	//} 
 	float shadow = 0.0f; 
-	float bias = 0.05f; 
+	float bias = 0.5f; 
 	int samples = 1; 
 	/*float viewDistance = length(viewPos - fragPos); 
 	float diskRadius = (1.0f + (viewDistance / far_plane)) / 25.0f;*/ 
-	float far_plane = 100; 
+	float far_plane = 500; 
  
 	float closestDepth = 0; 
-	 
-	closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, normalize(fragToLight)).r; 
+	float3 val = float3(1, 0, 0); 
+	closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, (fragToLight)).r; 
+ 
 	closestDepth *= far_plane; 
-	//return closestDepth; 
+ 
 	if (currentDepth - bias > closestDepth) 
 	{ 
 		return 1.0f; 
 	} 
-	 
+ 
 	//shadow /= float(samples);//average of samples 
 	//						 //cleanup the low shadow areas 
 	/*if (shadow < 0.25f) 
@@ -877,20 +878,20 @@ depthbasic_fs_12.hlsl|FileStart|
  
 struct GSOutput 
 { 
-	float4 Pos : SV_Position; 
+	float4 Pos : SV_POSITION; 
 	uint slice : SV_RenderTargetArrayIndex; 
-	float3 LightPos: NORMAL0; 
+	float3 LightPos: TEXCOORD0; 
+	float3 WorldPos:NORMAL0; 
 }; 
- 
-float4 main(GSOutput input) : SV_Target 
+float main(GSOutput input) : SV_Depth 
 { 
 #if DIRECTIONAL 
 	return float4(1,1,1,1); 
 #else 
-	float Farplane = 500.0f; 
-	float LightDistance = length(input.Pos.xyz - input.LightPos); 
+	float Farplane = 500; 
+	float LightDistance = length(input.WorldPos.xyz - input.LightPos); 
 	LightDistance = LightDistance / Farplane; 
-	return float4(LightDistance, LightDistance, LightDistance, LightDistance); 
+	return LightDistance; 
 #endif 
 } 
  
@@ -944,26 +945,29 @@ struct VS_OUTPUT
 { 
 	float4 pos : SV_POSITION; 
 	uint slice : SV_RenderTargetArrayIndex; 
-	float3 LightPos: NORMAL0; 
+	float3 LightPos: TEXCOORD0; 
+	float3 WorldPos:NORMAL0; 
 }; 
  
 struct GSOutput 
 { 
 	float4 Pos : SV_POSITION; 
 	uint slice : SV_RenderTargetArrayIndex; 
-	float3 LightPos: NORMAL0; 
+	float3 LightPos: TEXCOORD0; 
+	float3 WorldPos:NORMAL0; 
 }; 
  
 [maxvertexcount(18)] 
-void main(triangleadj VS_OUTPUT input[6], inout TriangleStream<GSOutput> OutputStream) 
+void main(triangle VS_OUTPUT input[3], inout TriangleStream<GSOutput> OutputStream) 
 { 
 	for (uint face = 0; face < 6; face += 1)//for each face 
 	{ 
 		GSOutput output = (GSOutput)0; 
+		output.slice = face; 
 		for (int i = 0; i < 3; ++i) // for each triangle's vertices 
 		{ 
-			output.Pos = mul(input[i].pos, worldm[face]); 
-			output.slice = face; 
+			output.WorldPos = input[i].pos.xyz; 
+			output.Pos = mul(float4(input[i].pos.xyz,1.0f), worldm[face]);			 
 			output.LightPos = input[i].LightPos; 
 			OutputStream.Append(output); 
 		} 
@@ -974,34 +978,45 @@ void main(triangleadj VS_OUTPUT input[6], inout TriangleStream<GSOutput> OutputS
  
 ¬
 depthbasic_vs_12.hlsl|FileStart|
+ 
 cbuffer ConstantBuffer : register(b0) 
 { 
 	row_major matrix world; 
 } 
- 
+#if 0 
 cbuffer SceneConstantBuffer : register(b2) 
 { 
 	row_major matrix ViewP; 
 	row_major matrix Projection; 
 }; 
+ 
+#else 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix ViewP; 
+	row_major matrix Projection; 
+	float4 LightPos; 
+}; 
+#endif 
 struct VS_OUTPUT 
 { 
 	float4 pos : SV_POSITION; 
 	uint slice : SV_RenderTargetArrayIndex; 
-	float3 LightPos: NORMAL0; 
+	float3 LightPos: TEXCOORD0; 
+	float3 WorldPos:NORMAL0; 
 }; 
  
  
 VS_OUTPUT main(float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXCOORD0) 
 { 
 	VS_OUTPUT output = (VS_OUTPUT)0; 
-	float4 final_pos = mul(pos, world); 
+	float4 final_pos = mul(float4(pos.xyz,1.0), world); 
 #if DIRECTIONAL 
 	final_pos = mul(final_pos, ViewP); 
 	final_pos = mul(final_pos, Projection); 
 #endif 
 	output.pos = final_pos; 
-	output.LightPos = float3(0, 5, 20); 
+	output.LightPos = LightPos; 
 	return output; 
 } 
 ¬

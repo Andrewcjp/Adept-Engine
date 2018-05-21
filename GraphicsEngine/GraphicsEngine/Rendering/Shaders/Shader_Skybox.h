@@ -1,5 +1,6 @@
 #pragma once
 #include "../RHI/Shader.h"
+#define DEBUG_CUBEMAPS 0
 class Shader_Skybox : public Shader
 {
 public:
@@ -10,7 +11,9 @@ public:
 	std::vector<Shader::ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 	BaseTexture* SkyBoxTexture;
-
+#if DEBUG_CUBEMAPS
+	FrameBuffer* test = nullptr;
+#endif
 private:
 	int SkyboxTexture;
 	class Renderable* CubeModel;

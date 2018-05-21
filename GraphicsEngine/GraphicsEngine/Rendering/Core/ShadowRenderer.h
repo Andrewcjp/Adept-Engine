@@ -22,6 +22,7 @@ public:
 	void InitShadows(std::vector<Light*> lights, RHICommandList* list);
 	bool UseCache = true;
 	bool Renderered = false;
+	FrameBuffer* PointLightBuffer = nullptr;
 private:
 	std::vector<Light*> ShadowingDirectionalLights;
 	std::vector<Light*> ShadowingPointLights;
@@ -31,7 +32,7 @@ private:
 	RHIBuffer* GeometryProjections = nullptr;
 
 	//todo: to arrays!
-	FrameBuffer* PointLightBuffer = nullptr;
+	
 	FrameBuffer* DirectionalLightBuffer = nullptr;
 	std::vector<FrameBuffer*> DirectionalLightBuffers;
 	RHICommandList* PointShadowList = nullptr;

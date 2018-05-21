@@ -60,7 +60,11 @@ void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBu
 	{
 		List->SetRenderTarget(Buffer);
 	}
+#if DEBUG_CUBEMAPS
+	List->SetFrameBufferTexture(test, 0);		
+#else
 	List->SetTexture(SkyBoxTexture, 0);
+#endif
 	mainshader->BindMvBuffer(List, 1);
 	CubeModel->Render(List);
 	List->Execute();

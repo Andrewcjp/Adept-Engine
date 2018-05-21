@@ -18,6 +18,7 @@ Texture2D g_texture : register(t0);
 
 Texture2D g_Shadow_texture : register(t1);
 //Texture2D g_Shadow_texture2 : register(t2);
+//TextureCube
 TextureCube g_Shadow_texture2 : register(t2);
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
@@ -40,46 +41,46 @@ float GetShadow(float4 pos)
 float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld)
 {
 	// Compute pixel position in light space.
-float4 vLightSpacePos = vPosWorld;
-vLightSpacePos = mul(vLightSpacePos, lights[lightid].LightVP);
+	float4 vLightSpacePos = vPosWorld;
+	vLightSpacePos = mul(vLightSpacePos, lights[lightid].LightVP);
 
-vLightSpacePos.xyz /= vLightSpacePos.w;
+	vLightSpacePos.xyz /= vLightSpacePos.w;
 
-// Translate from homogeneous coords to texture coords.
-float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f;
-vShadowTexCoord.y = 1.0f - vShadowTexCoord.y;
+	// Translate from homogeneous coords to texture coords.
+	float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f;
+	vShadowTexCoord.y = 1.0f - vShadowTexCoord.y;
 
-// Depth bias to avoid pixel self-shadowing.
-float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS;
+	// Depth bias to avoid pixel self-shadowing.
+	float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS;
 
-// Find sub-pixel weights.//todo: shader define!
-float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file
-float size = 1.0f;
-float4 vSubPixelCoords = float4(size, size, size, size);
-vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord);
-vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy;
-float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy;
+	// Find sub-pixel weights.//todo: shader define!
+	float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file
+	float size = 1.0f;
+	float4 vSubPixelCoords = float4(size, size, size, size);
+	vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord);
+	vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy;
+	float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy;
 
-// 2x2 percentage closer filtering.
-float2 vTexelUnits = 1.0f / vShadowMapDims;
-float4 vShadowDepths;
-if (lightid == 0)
-{
-	vShadowDepths.x = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord);
-	vShadowDepths.y = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
-	vShadowDepths.z = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
-	vShadowDepths.w = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);
-}
-else
-{
-	/*vShadowDepths.x = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord);
-	vShadowDepths.y = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
-	vShadowDepths.z = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
-	vShadowDepths.w = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);*/
-}
-// What weighted fraction of the 4 samples are nearer to the light than this pixel?
-float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f;
-return dot(vBilinearWeights, vShadowTests);
+	// 2x2 percentage closer filtering.
+	float2 vTexelUnits = 1.0f / vShadowMapDims;
+	float4 vShadowDepths;
+	if (lightid == 0)
+	{
+		vShadowDepths.x = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord);
+		vShadowDepths.y = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
+		vShadowDepths.z = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
+		vShadowDepths.w = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);
+	}
+	else
+	{
+		/*vShadowDepths.x = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord);
+		vShadowDepths.y = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
+		vShadowDepths.z = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
+		vShadowDepths.w = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);*/
+	}
+	// What weighted fraction of the 4 samples are nearer to the light than this pixel?
+	float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f;
+	return dot(vBilinearWeights, vShadowTests);
 }
 float ShadowCalculationCube(const float3 fragPos, Light lpos);
 
@@ -95,10 +96,10 @@ float4 main(PSInput input) : SV_TARGET
 		{
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos);
 		}
-		/*if (lights[i].HasShadow && lights[i].type == 1)
+		if (lights[i].HasShadow && lights[i].type == 1)
 		{
-			colour = ShadowCalculationCube( input.WorldPos.xyz, lights[i]);
-		}*/
+			colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[i]);
+		}
 		output += colour;
 	}
 
@@ -113,31 +114,31 @@ float4 main(PSInput input) : SV_TARGET
 
 float ShadowCalculationCube(const float3 fragPos, Light lpos)
 {
-
 	// Get vector between fragment position and light position
-	float3 fragToLight = fragPos - lpos.LPosition;
+	float3 fragToLight = (fragPos - lpos.LPosition);
 	float currentDepth = length(fragToLight);
 	//if (currentDepth > MaxShadowDistance)
 	//{
 	//	//	return 0.0f;
 	//}
 	float shadow = 0.0f;
-	float bias = 0.05f;
+	float bias = 0.5f;
 	int samples = 1;
 	/*float viewDistance = length(viewPos - fragPos);
 	float diskRadius = (1.0f + (viewDistance / far_plane)) / 25.0f;*/
-	float far_plane = 100;
+	float far_plane = 500;
 
 	float closestDepth = 0;
-	
-	closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, normalize(fragToLight)).r;
+	float3 val = float3(1, 0, 0);
+	closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, (fragToLight)).r;
+
 	closestDepth *= far_plane;
-	//return closestDepth;
+
 	if (currentDepth - bias > closestDepth)
 	{
 		return 1.0f;
 	}
-	
+
 	//shadow /= float(samples);//average of samples
 	//						 //cleanup the low shadow areas
 	/*if (shadow < 0.25f)

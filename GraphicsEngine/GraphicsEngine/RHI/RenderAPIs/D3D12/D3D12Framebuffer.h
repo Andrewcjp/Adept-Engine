@@ -46,7 +46,7 @@ private:
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	bool once = false;
 	int lastboundslot = 0;
-	const float CubeDepthclearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	const float CubeDepthclearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f };
 	class GPUResource* DepthStencil = nullptr;
 	class GPUResource* RenderTarget[8] = {};
 };
