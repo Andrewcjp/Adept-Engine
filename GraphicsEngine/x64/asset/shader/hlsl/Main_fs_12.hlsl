@@ -1,6 +1,7 @@
 #include "Lighting.hlsl"
 //#include "Shadow.hlsl"
 #define SHADOW_DEPTH_BIAS 0.005f
+#define MAX_SHADOWS 2
 cbuffer LightBuffer : register(b1)
 {
 	Light lights[MAX_LIGHT];
@@ -15,11 +16,8 @@ struct PSInput
 };
 
 Texture2D g_texture : register(t0);
-
 Texture2D g_Shadow_texture : register(t1);
-//Texture2D g_Shadow_texture2 : register(t2);
-//TextureCube
-TextureCube g_Shadow_texture2 : register(t2);
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t2);
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
 float GetShadow(float4 pos)
@@ -130,7 +128,20 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos)
 
 	float closestDepth = 0;
 	float3 val = float3(1, 0, 0);
-	closestDepth = g_Shadow_texture2.Sample(g_Clampsampler, (fragToLight)).r;
+	/*if (lpos.ShadowID == 0)
+	{
+		return 0.0f;
+	}*/
+	int id = lpos.ShadowID;
+	//if (lpos.ShadowID == 0)
+	//{
+	//	id = 1;
+	//}
+	//if (lpos.ShadowID == 1)
+	//{
+	//	id = 0;
+	//}
+	closestDepth = g_Shadow_texture2[id].Sample(g_Clampsampler, (fragToLight)).r;
 
 	closestDepth *= far_plane;
 

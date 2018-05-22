@@ -35,54 +35,43 @@ void D3D12FrameBuffer::CreateCubeDepth()
 	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
 	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
 	CurrentDevice->GetDevice()->CreateDepthStencilView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(0));
-#if 1
-	/*D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
-	renderTargetViewDesc.Format = RTVformat;
-	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION::D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
-	renderTargetViewDesc.Texture2DArray.PlaneSlice = 0;
-	renderTargetViewDesc.Texture2DArray.ArraySize = CUBE_SIDES;
-	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
-	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
-	CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(0));*/
-#else
-	D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
-	renderTargetViewDesc.Format = RTVformat;
-	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	//renderTargetViewDesc.Texture2DArray.MipSlice = 0;
-	//renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
-	//renderTargetViewDesc.Texture2DArray.ArraySize = CUBE_SIDES;
-	//CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(0));
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
 
-	for (int i = 0; i < CUBE_SIDES; i++)
-	{
-		//renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
-		//renderTargetViewDesc.Texture2DArray.ArraySize = 1;
-		CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(i));
-		//might be a read over end issue here
-	}
-#endif
-	SrvHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	SrvHeap->SetName(L"DSV Heap");
-
+	CreateSRVHeap(1);
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 	shadowSrvDesc.TextureCube.MipLevels = 1;
 	shadowSrvDesc.TextureCube.MostDetailedMip = 0;
 	shadowSrvDesc.TextureCube.ResourceMinLODClamp = 0;
-	//shadowSrvDesc.Texture2DArray.MipLevels = 1;
-	//shadowSrvDesc.Texture2DArray.ArraySize = CUBE_SIDES;
-	//shadowSrvDesc.Texture2DArray.MostDetailedMip = 0;
-	//shadowSrvDesc.Texture2DArray.FirstArraySlice = 0;
-	////shadowSrvDesc.TextureCube.MipLevels = 1;
-	////shadowSrvDesc.TextureCube.MostDetailedMip = 0;
 	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	CurrentDevice->GetDevice()->CreateShaderResourceView(NewRenderTarget, &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
 	SrvHeap->SetName(L"Shadow 3d  SRV heap");
 
 	NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, NullHeap->GetCPUAddress(0));
+}
+
+void D3D12FrameBuffer::CreateSRVHeap(int Num)
+{
+	if (SrvHeap != nullptr)
+	{
+		SrvHeap->Release();
+		delete SrvHeap;
+	}
+	SrvHeap = new DescriptorHeap(CurrentDevice, Num, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	SrvHeap->SetName(L"DSV Heap");
+}
+
+void D3D12FrameBuffer::CreateSRVInHeap(int index, DescriptorHeap* targetheap)
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
+	shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+	shadowSrvDesc.TextureCube.MipLevels = 1;
+	shadowSrvDesc.TextureCube.MostDetailedMip = 0;
+	shadowSrvDesc.TextureCube.ResourceMinLODClamp = 0;
+	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &shadowSrvDesc, targetheap->GetCPUAddress(index));
 }
 
 void D3D12FrameBuffer::CreateColour(int Index)
@@ -285,16 +274,8 @@ D3D12FrameBuffer::~D3D12FrameBuffer()
 	}
 	delete SrvHeap;
 }
-
-void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex)
+void D3D12FrameBuffer::ReadyResourcesForRead(CommandListDef * list, int Resourceindex)
 {
-	/*if (m_srvHeap == nullptr)
-	{
-		return;
-	}*/
-	lastboundslot = slot;
-
-
 	if (RenderTarget[Resourceindex] != nullptr)
 	{
 		RenderTarget[Resourceindex]->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -304,6 +285,17 @@ void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int 
 	{
 		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
+}
+
+void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex)
+{
+	/*if (m_srvHeap == nullptr)
+	{
+		return;
+	}*/
+	lastboundslot = slot;
+
+	ReadyResourcesForRead(list, Resourceindex);
 
 	SrvHeap->BindHeap(list);
 	list->SetGraphicsRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));

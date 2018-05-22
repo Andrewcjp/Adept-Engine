@@ -15,7 +15,10 @@ DescriptorHeap::DescriptorHeap(DeviceContext* inDevice,int Num, D3D12_DESCRIPTOR
 
 DescriptorHeap::~DescriptorHeap()
 {
-	mHeap->Release();
+	if (mHeap != nullptr)
+	{
+		mHeap->Release();
+	}
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGpuAddress(int index)
@@ -44,5 +47,6 @@ void DescriptorHeap::Release()
 	if (mHeap)
 	{
 		mHeap->Release();
+		mHeap = nullptr;
 	}
 }

@@ -51,11 +51,12 @@ GameObject::~GameObject()
 	}
 	delete m_transform;
 }
+
 Transform * GameObject::GetTransform()
-{
-	
+{	
 	return m_transform;
 }
+
 Scene * GameObject::GetScene()
 {
 	return OwnerScene;

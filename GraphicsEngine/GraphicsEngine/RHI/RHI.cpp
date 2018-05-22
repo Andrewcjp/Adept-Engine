@@ -41,12 +41,12 @@ void RHI::InitRHI(ERenderSystemType e)
 	{
 		instance = new RHI();
 	}
-	instance->currentsystem = e;
+	instance->CurrentSystem = e;
 }
 
 ERenderSystemType RHI::GetType()
 {
-	return instance->currentsystem;
+	return instance->CurrentSystem;
 }
 
 bool RHI::IsOpenGL()
@@ -71,7 +71,7 @@ bool RHI::SupportsExplictMultiAdaptor()
 
 RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device )
 {
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
@@ -93,7 +93,7 @@ RHICommandList * RHI::CreateCommandList(DeviceContext* Device)
 	{
 		Device = D3D12RHI::GetDefaultDevice();
 	}
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
@@ -134,7 +134,7 @@ BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 	{
 		return newtex;
 	}
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
@@ -154,7 +154,7 @@ BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device)
 {
 	BaseTexture* newtex = nullptr;
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 	case RenderSystemD3D12:
 		newtex = new D3D12Texture(Device);	
@@ -181,7 +181,7 @@ Renderable * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings
 
 FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Device, float ratio, FrameBuffer::FrameBufferType type,glm::vec4 clearcolour)
 {
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
@@ -208,7 +208,7 @@ DeviceContext* RHI::GetDeviceContext(int index)
 }
 ShaderProgramBase * RHI::CreateShaderProgam(DeviceContext* Device)
 {
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
@@ -234,7 +234,7 @@ bool RHI::InitialiseContext(HWND m_hwnd, int w, int h)
 	{
 		return false;
 	}
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
@@ -259,7 +259,7 @@ bool RHI::InitialiseContext(HWND m_hwnd, int w, int h)
 }
 void RHI::RHISwapBuffers()
 {
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 	case RenderSystemD3D12:
 		if (D3D12RHI::Instance != nullptr)
@@ -271,7 +271,7 @@ void RHI::RHISwapBuffers()
 }
 void RHI::DestoryContext(HWND hwnd)
 {
-	switch (instance->currentsystem)
+	switch (instance->CurrentSystem)
 	{
 
 	case RenderSystemD3D12:

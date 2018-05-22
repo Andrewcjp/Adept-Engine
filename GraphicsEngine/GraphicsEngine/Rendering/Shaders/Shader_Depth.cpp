@@ -28,12 +28,14 @@ Shader_Depth::Shader_Depth(bool LoadGeo)
 
 	zfar = static_cast<float>(ShadowFarPlane);
 	ConstantBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant);
-	ConstantBuffer->CreateConstantBuffer(sizeof(LightData), 1);
+	ConstantBuffer->CreateConstantBuffer(sizeof(LightData), MAX_POINT_SHADOWS);
 }
-void Shader_Depth::UpdateBuffer(RHICommandList * list, LightData* data)
+
+
+void Shader_Depth::UpdateBuffer(RHICommandList * list, LightData* data,int index )
 {
-	ConstantBuffer->UpdateConstantBuffer(data, 0);
-	list->SetConstantBufferView(ConstantBuffer, 0, 2);
+	ConstantBuffer->UpdateConstantBuffer(data, index);
+	list->SetConstantBufferView(ConstantBuffer, index, 2);
 }
 
 

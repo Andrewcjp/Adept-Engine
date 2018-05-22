@@ -11,6 +11,8 @@ class Renderable;
 class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
+const int MAX_POINT_SHADOWS = 2;
+const int MAX_DIRECTIONAL_SHADOWS = 2;
 class RHI
 {
 public:
@@ -47,7 +49,7 @@ public:
 	HINSTANCE m_hinst;
 private:
 
-	ERenderSystemType currentsystem;
+	ERenderSystemType CurrentSystem;
 	
 	//------------------------------------
 	class D3D12RHI* D3D12Rhi = nullptr;

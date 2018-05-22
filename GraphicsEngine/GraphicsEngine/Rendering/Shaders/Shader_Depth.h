@@ -7,17 +7,19 @@
 class Shader_Depth :public Shader
 {
 public:
-	Shader_Depth(bool LoadGeo);
-	~Shader_Depth();
-	void SetShaderActive() override;
-	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
-	bool LoadGeomShader = true;	
 	struct LightData
 	{
 		glm::mat4 View;
 		glm::mat4 Proj;
 		glm::vec3 Lightpos;
 	};
+	Shader_Depth(bool LoadGeo);
+	void UpdateBuffer(RHICommandList * list, LightData * data, int index);
+	~Shader_Depth();
+	void SetShaderActive() override;
+	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	bool LoadGeomShader = true;	
+	
 	void UpdateBuffer(RHICommandList* list, LightData* data);
 private:
 	RHIBuffer * ConstantBuffer = nullptr;

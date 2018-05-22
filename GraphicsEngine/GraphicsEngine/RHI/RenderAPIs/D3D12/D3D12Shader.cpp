@@ -141,7 +141,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0",
 			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
 #else
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "ps_5_0",
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "ps_5_1",
 			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
 #endif
 		StripD3dShader(&mBlolbs.fsBlob);
@@ -421,7 +421,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	{
 		if (Params[i].Type == Shader::ShaderParamType::SRV)
 		{
-			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_PIXEL);
 		}
 		else if (Params[i].Type == Shader::ShaderParamType::CBV)

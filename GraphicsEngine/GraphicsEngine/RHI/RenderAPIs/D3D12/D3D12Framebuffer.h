@@ -4,6 +4,7 @@
 #include <d3d12.h>
 #include "d3dx12.h"
 #include "D3D12Shader.h"
+class DescriptorHeap;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
@@ -12,6 +13,7 @@ public:
 		CurrentDevice = device;
 	}
 	virtual ~D3D12FrameBuffer();
+	void ReadyResourcesForRead(CommandListDef * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
 	void		 BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex =0);
 	virtual void BindBufferAsRenderTarget(CommandListDef * list = nullptr) override;
@@ -20,6 +22,9 @@ public:
 	virtual void ClearBuffer(CommandListDef * list = nullptr) override;
 	D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
 	void		 CreateCubeDepth() override;
+
+	void CreateSRVHeap(int Num);
+
 	void		 CreateColour(int Index = 0) override;
 	void		 CreateSRV();
 	void		 CreateDepth() override;
@@ -29,12 +34,14 @@ public:
 	void SetupCopyToDevice(DeviceContext* device);
 	void CopyToDevice(DeviceContext* device);
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);
+	void CreateSRVInHeap(int index, DescriptorHeap * targetheap);
+	DescriptorHeap* GetHeap() { return SrvHeap; };
 private:
 	
-	class DescriptorHeap* SrvHeap = nullptr;
-	class DescriptorHeap* RTVHeap = nullptr;
-	class DescriptorHeap* DSVHeap = nullptr;
-	class DescriptorHeap* NullHeap = nullptr;
+	DescriptorHeap* SrvHeap = nullptr;
+	DescriptorHeap* RTVHeap = nullptr;
+	DescriptorHeap* DSVHeap = nullptr;
+	DescriptorHeap* NullHeap = nullptr;
 
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
@@ -49,5 +56,6 @@ private:
 	const float CubeDepthclearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f };
 	class GPUResource* DepthStencil = nullptr;
 	class GPUResource* RenderTarget[8] = {};
+	int DSVCount = 1;
 };
 

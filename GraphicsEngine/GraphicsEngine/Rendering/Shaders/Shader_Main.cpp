@@ -5,6 +5,7 @@ Shader_Main::Shader_Main(bool LoadForward)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->CreateShaderProgram();
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(MAX_POINT_SHADOWS)));
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs_12", SHADER_VERTEX);
 	if (LoadForward)
 	{
@@ -111,7 +112,9 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	out[3] = ShaderParameter(ShaderParamType::CBV, 3, 2);
 	//two shadows
 	out[4] = ShaderParameter(ShaderParamType::SRV, 4, 1);
-	out[5] = ShaderParameter(ShaderParamType::SRV, 5, 2);
+	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, 5, 2);
+	parm.NumDescriptors = MAX_POINT_SHADOWS;
+	out[5] = parm;
 }
 
 std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
@@ -153,6 +156,7 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 		newitem.Direction = lights[i]->GetDirection();
 		newitem.type = lights[i]->GetType();
 		newitem.HasShadow = lights[i]->GetDoesShadow();
+		newitem.ShadowID = lights[i]->GetShadowId();
 		if (lights[i]->GetType() == Light::Directional || lights[i]->GetType() == Light::Spot)
 		{
 			glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up

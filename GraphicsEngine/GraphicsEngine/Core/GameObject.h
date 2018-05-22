@@ -18,7 +18,7 @@ public:
 	GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
 	~GameObject();
 
-	inline Transform* GetTransform();
+	Transform* GetTransform();
 	class Scene* GetScene();
 	void Internal_SetScene(Scene* scene);
 

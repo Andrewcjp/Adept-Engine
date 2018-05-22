@@ -123,14 +123,25 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	lc->SetIntensity(1.0f);
 	AddGameobjectToScene(go);
 
-	/*go = new GameObject("Point Light");
-	go->GetTransform()->SetPos(glm::vec3(20, 5, 20));
+	go = new GameObject("Point Light");
+	go->GetTransform()->SetPos(glm::vec3(10, 5, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(false);
+	lc->SetShadow(true);
 	lc->SetLightType(Light::Point);
 	lc->SetIntensity(2.0f);
-	AddGameobjectToScene(go);*/
+	AddGameobjectToScene(go);
+	/*for (int i = 0; i < 3; i++)
+	{
+		go = new GameObject("Point Light");
+		go->GetTransform()->SetPos(glm::vec3(20 + (10 * i), 5, 20));
+		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+		lc = (LightComponent*)go->AttachComponent(new LightComponent());
+		lc->SetShadow(true);
+		lc->SetLightType(Light::Point);
+		lc->SetIntensity(2.0f);
+		AddGameobjectToScene(go);
+	}*/
 #endif
 
 	go = new GameObject("Plane");

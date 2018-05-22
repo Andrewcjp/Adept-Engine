@@ -54,6 +54,7 @@ public:
 		RHI_SHADER_VISIBILITY Visiblity;
 		int SignitureSlot = 0;
 		int RegisterSlot = 0;
+		int NumDescriptors = 1;
 	};
 	//todo: migrate to New system
 	typedef struct _MVPStruct
