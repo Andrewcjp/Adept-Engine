@@ -279,3 +279,19 @@ void RHI::DestoryContext(HWND hwnd)
 		break;
 	}
 }
+RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device,int Length)
+{
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
+	switch (instance->CurrentSystem)
+	{
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		return new D3D12RHITextureArray(Device,Length);
+		break;
+#endif
+	}
+	return nullptr;
+}

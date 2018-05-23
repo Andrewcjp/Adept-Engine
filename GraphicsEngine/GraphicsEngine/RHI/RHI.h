@@ -11,7 +11,7 @@ class Renderable;
 class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
-const int MAX_POINT_SHADOWS = 2;
+const int MAX_POINT_SHADOWS = 3;
 const int MAX_DIRECTIONAL_SHADOWS = 2;
 class RHI
 {
@@ -39,11 +39,12 @@ public:
 	static bool InitialiseContext(HWND m_hwnd, int w, int h);
 	static void RHISwapBuffers();
 	static void DestoryContext(HWND hwnd);
+	static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
 	static ERenderSystemType GetType();
 	static bool IsOpenGL();
 	static bool IsD3D12();
 	static bool SupportsThreading();
-	bool SupportsExplictMultiAdaptor();
+	static bool SupportsExplictMultiAdaptor();
 	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
 	static RHICommandList* CreateCommandList(DeviceContext* Device = nullptr);
 	HINSTANCE m_hinst;

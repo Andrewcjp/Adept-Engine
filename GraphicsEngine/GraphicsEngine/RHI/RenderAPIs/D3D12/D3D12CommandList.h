@@ -96,3 +96,19 @@ public:
 	DeviceContext* Device = nullptr;
 	ID3D12Resource* UAVCounter = nullptr;
 };
+
+class D3D12RHITextureArray : public RHITextureArray
+{
+public:
+	//todo: Ensure Framebuffer srv matches!
+	D3D12RHITextureArray(DeviceContext* device,int inNumEntries);
+	virtual ~D3D12RHITextureArray() ;
+	virtual void AddFrameBufferBind(FrameBuffer* Buffer, int slot)override;
+	virtual void BindToShader(RHICommandList* list, int slot)override;
+	virtual void SetIndexNull(int TargetIndex);
+private:
+	class DescriptorHeap* Heap = nullptr;
+	std::vector<D3D12FrameBuffer*> LinkedBuffers;
+	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
+	DeviceContext* Device  =nullptr;
+};

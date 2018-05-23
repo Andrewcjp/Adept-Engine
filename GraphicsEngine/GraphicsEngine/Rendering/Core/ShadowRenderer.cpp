@@ -9,13 +9,17 @@ ShadowRenderer::ShadowRenderer()
 	DirectionalLightShader = new Shader_Depth(false);
 	PointLightShader = new Shader_Depth(true);
 	int shadowwidth = 1024;
+	ShadowDirectionalArray = RHI::CreateTextureArray(D3D12RHI::GetDeviceContext(0), MAX_DIRECTIONAL_SHADOWS);
 	for (int i = 0; i < MAX_DIRECTIONAL_SHADOWS; i++)
 	{
 		DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth,nullptr, 1, FrameBuffer::Depth));
+		ShadowDirectionalArray->AddFrameBufferBind(DirectionalLightBuffers[i], i);
 	}
-	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
-	{
+	ShadowCubeArray = RHI::CreateTextureArray(D3D12RHI::GetDeviceContext(0), MAX_POINT_SHADOWS);
+	for (int i = 0; i < 2; i++)
+	{		
 		PointLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::CubeDepth));
+		ShadowCubeArray->AddFrameBufferBind(PointLightBuffers[i], i);
 	}
 
 	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant,nullptr);
@@ -118,38 +122,15 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 		list->SetRenderTarget(nullptr);
 	} 
 }
-#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "../RHI/RenderAPIs/D3D12/DescriptorHeap.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+
 void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
-#if 0
-	if (ShadowingDirectionalLights.size() > 0)
-	{
-		list->SetFrameBufferTexture(DirectionalLightBuffers[0], 4);
-	}
-	if (ShadowingDirectionalLights.size() > 1)
-	{
-		list->SetFrameBufferTexture(DirectionalLightBuffers[1], 5);
-	}
-#else 
-	//3d texture unit!
-	
-	//list->SetFrameBufferTexture(PointLightBuffers[1], 5);
-	//TODO: d3d12 Speccode!
-	//hacky hack!
-	//bind a heap with two srvs in
-	//list->SetFrameBufferTexture(PointLightBuffers[1], 5);
-	D3D12FrameBuffer* FB = (D3D12FrameBuffer*)PointLightBuffers[0];
-	FB->CreateSRVHeap(ShadowingPointLights.size());
-	DescriptorHeap* heap =  FB->GetHeap();
-	for (int i = 0; i < ShadowingPointLights.size(); i++)
-	{
-		((D3D12FrameBuffer*)PointLightBuffers[i])->CreateSRVInHeap(i, heap);
-		((D3D12FrameBuffer*)PointLightBuffers[i])->ReadyResourcesForRead(((D3D12CommandList*)list)->GetCommandList());
-	}
-	list->SetFrameBufferTexture(PointLightBuffers[0], 5);
-#endif
+
+	ShadowDirectionalArray->BindToShader(list, 4);
+
+	ShadowCubeArray->SetIndexNull(2);
+	ShadowCubeArray->BindToShader(list, 5);	
+
 }
 
 void ShadowRenderer::ClearShadowLights()

@@ -30,25 +30,13 @@ void D3D12FrameBuffer::CreateCubeDepth()
 	D3D12_DEPTH_STENCIL_VIEW_DESC renderTargetViewDesc = {};
 	renderTargetViewDesc.Format = RTVformat;
 	renderTargetViewDesc.ViewDimension = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
-	//renderTargetViewDesc.Texture2DArray.PlaneSlice = 0;
 	renderTargetViewDesc.Texture2DArray.ArraySize = CUBE_SIDES;
 	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
 	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
 	CurrentDevice->GetDevice()->CreateDepthStencilView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(0));
 
 	CreateSRVHeap(1);
-	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
-	shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-	shadowSrvDesc.TextureCube.MipLevels = 1;
-	shadowSrvDesc.TextureCube.MostDetailedMip = 0;
-	shadowSrvDesc.TextureCube.ResourceMinLODClamp = 0;
-	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	CurrentDevice->GetDevice()->CreateShaderResourceView(NewRenderTarget, &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
-	SrvHeap->SetName(L"Shadow 3d  SRV heap");
-
-	NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, NullHeap->GetCPUAddress(0));
+	CreateSRVInHeap(0, SrvHeap);
 }
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
@@ -59,19 +47,51 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 		delete SrvHeap;
 	}
 	SrvHeap = new DescriptorHeap(CurrentDevice, Num, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	SrvHeap->SetName(L"DSV Heap");
+	SrvHeap->SetName(L"Framebuffer Heap");
+	if (NullHeap == nullptr)
+	{
+		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &GetSrvDesc(), NullHeap->GetCPUAddress(0));
+	}
 }
 
 void D3D12FrameBuffer::CreateSRVInHeap(int index, DescriptorHeap* targetheap)
 {
+	if (m_ftype == FrameBufferType::CubeDepth)
+	{
+		CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(), targetheap->GetCPUAddress(index));
+	}
+	else if (m_ftype == FrameBufferType::Depth)
+	{		
+		CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(), targetheap->GetCPUAddress(index));
+	}
+}
+
+D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc()
+{
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
-	shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-	shadowSrvDesc.TextureCube.MipLevels = 1;
-	shadowSrvDesc.TextureCube.MostDetailedMip = 0;
-	shadowSrvDesc.TextureCube.ResourceMinLODClamp = 0;
 	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &shadowSrvDesc, targetheap->GetCPUAddress(index));
+	if (m_ftype == FrameBufferType::CubeDepth)
+	{	
+		shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		shadowSrvDesc.TextureCube.MipLevels = 1;
+		shadowSrvDesc.TextureCube.MostDetailedMip = 0;
+		shadowSrvDesc.TextureCube.ResourceMinLODClamp = 0;
+	}
+	else if (m_ftype == FrameBufferType::Depth)
+	{
+		shadowSrvDesc.Format = DefaultDepthReadformat;
+		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		shadowSrvDesc.Texture2D.MipLevels = 1;
+		shadowSrvDesc.Texture2D.MostDetailedMip = 0;
+		shadowSrvDesc.Texture2D.ResourceMinLODClamp = 0;
+	}
+	else
+	{
+		NoImpl();
+	}
+	return shadowSrvDesc;
 }
 
 void D3D12FrameBuffer::CreateColour(int Index)
@@ -173,6 +193,8 @@ void D3D12FrameBuffer::CreateDepth()
 		shadowSrvDesc.Texture2D.MipLevels = 1;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
+
+
 		NullHeap->SetName(L"Shadow SRV heap");
 
 		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, NullHeap->GetCPUAddress(0));

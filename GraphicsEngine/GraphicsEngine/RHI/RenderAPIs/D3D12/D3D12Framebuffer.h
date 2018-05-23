@@ -26,7 +26,9 @@ public:
 	void CreateSRVHeap(int Num);
 
 	void		 CreateColour(int Index = 0) override;
-	void		 CreateSRV();
+
+	void CreateSRV();
+
 	void		 CreateDepth() override;
 	void		 CreateGBuffer() override;
 	bool CheckDevice(int index);
@@ -36,6 +38,7 @@ public:
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);
 	void CreateSRVInHeap(int index, DescriptorHeap * targetheap);
 	DescriptorHeap* GetHeap() { return SrvHeap; };
+	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc();
 private:
 	
 	DescriptorHeap* SrvHeap = nullptr;

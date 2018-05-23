@@ -39,5 +39,9 @@ private:
 	RHICommandList* PointShadowList = nullptr;
 
 	bool UseDir2 = false;
+
+	RHITextureArray* ShadowCubeArray = nullptr;
+
+	RHITextureArray* ShadowDirectionalArray = nullptr;
 };
 

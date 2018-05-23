@@ -1,5 +1,5 @@
 #pragma once
-
+class DeviceContext;
 class RHIBuffer
 {
 public:
@@ -19,11 +19,11 @@ public:
 		Static,
 		Dynamic
 	};
-	virtual void CreateVertexBuffer(int Stride,int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) = 0;
+	virtual void CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) = 0;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) = 0;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
-	virtual void UpdateVertexBuffer(void* data, int length) =0;
+	virtual void UpdateVertexBuffer(void* data, int length) = 0;
 	virtual void UpdateIndexBuffer(void* data, int length) = 0;
 	virtual ~RHIBuffer() {}
 	int GetVertexCount() { return VertexCount; }
@@ -35,7 +35,7 @@ class RHIUAV
 {
 public:
 	RHIUAV()
-	{}	
+	{}
 };
 
 
@@ -84,7 +84,7 @@ public:
 	virtual void SetVertexBuffer(RHIBuffer* buffer) = 0;
 	virtual void SetIndexBuffer(RHIBuffer* buffer) = 0;
 	//If frame buffer is null the screen will be the render target!
-	virtual void CreatePipelineState(class Shader* shader,class FrameBuffer* Buffer = nullptr) = 0;
+	virtual void CreatePipelineState(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
 	virtual void SetPipelineState(PipeLineState state) = 0;
 	//virtual void SetConstantBuffer(RHIBuffer* buffer) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
@@ -110,3 +110,19 @@ protected:
 	};
 };
 
+//Used to Bind Buffers or textures to a single Descriptor heap/set for shader arrays
+class RHITextureArray
+{
+public:
+	RHITextureArray(DeviceContext* device, int inNumEntries)
+	{
+		NumEntries = inNumEntries;
+	};
+	~RHITextureArray() {};
+	virtual void AddFrameBufferBind(FrameBuffer* Buffer, int slot) = 0;
+	virtual void BindToShader(RHICommandList* list, int slot) = 0;
+	virtual void SetIndexNull(int TargetIndex)  = 0;
+protected:
+	int NumEntries = 1;
+	
+};

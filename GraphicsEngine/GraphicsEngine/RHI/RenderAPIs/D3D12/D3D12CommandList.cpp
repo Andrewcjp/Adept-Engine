@@ -10,7 +10,7 @@
 #include "../RHI/BaseTexture.h"
 #include "D3D12Framebuffer.h"
 #include "../RHI/DeviceContext.h"
-
+#include "DescriptorHeap.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice)
 {
 	Device = inDevice;
@@ -473,4 +473,42 @@ void D3D12RHIUAV::CreateUAVForMipsFromTexture(D3D12Texture * target)
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));
+}
+
+D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device,int inNumEntries):RHITextureArray(device,inNumEntries)
+{
+	Heap = new DescriptorHeap(device,NumEntries,D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	Device = device;
+}
+
+D3D12RHITextureArray::~D3D12RHITextureArray()
+{
+	delete Heap;
+}
+
+//Add a framebuffer to this heap and ask it to create one in our heap
+void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
+{
+	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
+	LinkedBuffers.push_back(dBuffer);
+	dBuffer->CreateSRVInHeap(slot, Heap);
+	NullHeapDesc = dBuffer->GetSrvDesc();
+}
+
+void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
+{
+	D3D12CommandList* DXList = ((D3D12CommandList*)list);
+	for (int i = 0; i < LinkedBuffers.size(); i++)
+	{
+		LinkedBuffers[i]->ReadyResourcesForRead(DXList->GetCommandList());
+	}	
+	Heap->BindHeap(DXList->GetCommandList());
+	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGpuAddress(0));
+
+}
+
+//Makes a descriptor Null Using the first framebuffers Description
+void D3D12RHITextureArray::SetIndexNull(int TargetIndex)
+{	
+	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Heap->GetCPUAddress(TargetIndex));
 }
