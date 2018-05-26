@@ -99,7 +99,7 @@ void UIManager::InitEditorUI()
 
 void UIManager::CreateDropDown(std::vector<std::string> &options, float width, float height, float x, float y, std::function<void(int)> Callback)
 {
-	UIListBox * testbox3 = new UIListBox(100, 300, 250, 150); //new UIDropDown(100, 300, x, y);
+	UIDropDown * testbox3 = new UIDropDown(100, 300, 250, 150); //new UIDropDown(100, 300, x, y);
 	testbox3->Priority = 10;
 	testbox3->SetScaled(width, height * 2, x, y);
 
@@ -374,6 +374,7 @@ void UIManager::CloseDropDown()
 	if (instance != nullptr && instance->DropdownCurrent != nullptr)
 	{
 		instance->RemoveWidget(instance->DropdownCurrent);
+		instance->DropdownCurrent = nullptr;
 	}
 }
 

@@ -55,9 +55,6 @@ void DeferredRenderer::PostInit()
 	SkyBox->Init(FilterBuffer, GFrameBuffer);
 }
 
-DeferredRenderer::~DeferredRenderer()
-{}
-
 
 
 void DeferredRenderer::GeometryPass()
@@ -68,7 +65,7 @@ void DeferredRenderer::GeometryPass()
 		PrepareData();
 		MainShader->UpdateCBV();
 	}
-
+	 
 	WriteList->ResetList();
 	D3D12TimeManager::Instance->StartTimer(WriteList);
 	WriteList->SetRenderTarget(GFrameBuffer);
@@ -130,6 +127,9 @@ void DeferredRenderer::Resize(int width, int height)
 		MainCamera->UpdateProjection((float)width / (float)height);
 	}
 }
+
+DeferredRenderer::~DeferredRenderer()
+{}
 
 void DeferredRenderer::DestoryRenderWindow()
 {

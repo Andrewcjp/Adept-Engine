@@ -1,6 +1,7 @@
 #include "Shader_Main.h"
 #include "RHI/RHI.h"
 #include "../Rendering/Core/GPUStateCache.h"
+#include "Core/GameObject.h"
 Shader_Main::Shader_Main(bool LoadForward)
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -42,7 +43,7 @@ std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
 	out.push_back(VertexElementDESC{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-
+	out.push_back(VertexElementDESC{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	return out;
 }
 
@@ -105,7 +106,7 @@ void Shader_Main::SetActiveIndex(RHICommandList* list, int index)
 }
 void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 {
-	out.resize(6);
+	out.resize(7);
 	out[0] = ShaderParameter(ShaderParamType::SRV, 0, 0);
 	out[1] = ShaderParameter(ShaderParamType::CBV, 1, 0);
 	out[2] = ShaderParameter(ShaderParamType::CBV, 2, 1);
@@ -115,6 +116,7 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, 5, 2);
 	parm.NumDescriptors = MAX_POINT_SHADOWS;
 	out[5] = parm;
+	out[6] = ShaderParameter(ShaderParamType::SRV, 6, 5);
 }
 
 std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
@@ -138,10 +140,15 @@ void Shader_Main::UpdateMV(glm::mat4 View, glm::mat4 Projection)
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
 }
 
-SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(Transform * t)
+SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(GameObject * t)
 {
 	SceneConstantBuffer m_constantBufferData;
-	m_constantBufferData.M = t->GetModel();
+	m_constantBufferData.M = t->GetTransform()->GetModel();
+	m_constantBufferData.HasNormalMap = false;
+	if (t->GetMat() != nullptr)
+	{
+		m_constantBufferData.HasNormalMap = (t->GetMat()->GetNormalMap() != nullptr);
+	}
 	//used in the prepare stage for this frame!
 	return m_constantBufferData;
 }

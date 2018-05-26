@@ -175,6 +175,26 @@ BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, vo
 	return newtex;
 }
 
+BaseTexture * RHI::CreateNullTexture(DeviceContext * Device)
+{
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
+	BaseTexture* newtex = nullptr;
+	switch (instance->CurrentSystem)
+	{
+
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		newtex = new D3D12Texture(Device);
+		break;
+#endif
+	}
+	newtex->CreateAsNull();
+	return newtex;
+}
+
 Renderable * RHI::CreateMesh(const char * path)
 {
 	return CreateMesh(path, MeshLoader::FMeshLoadingSettings());

@@ -68,7 +68,8 @@ BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args,
 		s_oglapp->MyRegisterClass(hinst);
 		s_oglapp->m_engine->SetHInstWindow(hinst);
 		//Now create an OGLWindow for this application
-#if 0
+#if 1
+#pragma comment(lib, "TestGame.lib")
 		s_oglapp->m_engine->SetGame(new TestGame());
 #else 
 		s_oglapp->m_engine->SetGame(new Game());

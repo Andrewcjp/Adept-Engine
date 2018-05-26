@@ -22,6 +22,7 @@ void UIAssetManager::MouseMove(int x, int y)
 {
 }
 
-void UIAssetManager::MouseClick(int x, int y)
+bool UIAssetManager::MouseClick(int x, int y)
 {
+	return false;
 }

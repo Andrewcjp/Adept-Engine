@@ -13,7 +13,7 @@ public:
 	// Inherited via UIWidget
 	virtual void Render() override;
 	void MouseMove(int x, int y)override;
-	void MouseClick(int x, int y)override;
+	bool MouseClick(int x, int y)override;
 	void MouseClickUp(int x, int y)override;
 	virtual void ResizeView(int w, int h, int x = 0, int y = 0) override;
 	void UpdateScaled()override;

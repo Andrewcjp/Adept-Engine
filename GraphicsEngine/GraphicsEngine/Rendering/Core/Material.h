@@ -11,7 +11,6 @@ public:
 	};
 	Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
 	~Material();
-	void SetMaterialActive(CommandListDef * list = nullptr);
 	void SetMaterialActive(class RHICommandList * list);
 
 	void SetShadow(bool state);
@@ -32,5 +31,8 @@ private:
 	BaseTexture* NormalMap = nullptr;
 	BaseTexture* DisplacementMap = nullptr;
 	MaterialProperties Properties;
+
+	//bind to null
+	BaseTexture* NullTexture2D = nullptr;
 };
 

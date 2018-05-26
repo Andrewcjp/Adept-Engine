@@ -169,7 +169,7 @@
       <AdditionalDependencies>winmm.lib;vulkan-1.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3DEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PxPvdSDKDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;PxFoundationDEBUG_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib\64\;$(ProjectDir)lib\64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -248,6 +248,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib\64;$(ProjectDir)\lib\64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>winmm.lib;vulkan-1.lib;freetype.lib;SOIL.lib;assimp.lib;PhysX3CHECKED_x64.lib;PhysX3CommonCHECKED_x64.lib;PhysX3ExtensionsCHECKED.lib;PxPvdSDKCHECKED_x64.lib;PhysX3CookingCHECKED_x64.lib;PhysX3CharacterKinematicCHECKED_x64.lib;PxTaskCHECKED_x64.lib;SceneQueryCHECKED.lib;SimulationControllerCHECKED.lib;PxFoundationCHECKED_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -305,7 +306,6 @@
     <ClInclude Include="Rendering\PostProcessing\PP_ColourCorrect.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_CompostPass.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.h" />
-    <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12Heap.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12MemoryManager.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12CommandList.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\d3dx12Residency.h" />
@@ -443,7 +443,6 @@
     <ClCompile Include="Rendering\PostProcessing\PP_ColourCorrect.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PP_CompostPass.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.cpp" />
-    <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12Heap.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12MemoryManager.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12CommandList.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\DescriptorHeap.cpp" />

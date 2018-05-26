@@ -45,8 +45,9 @@ void UIWidget::MouseMove(int, int)
 {
 }
 
-void UIWidget::MouseClick(int, int)
+bool UIWidget::MouseClick(int, int)
 {
+	return false;
 }
 
 void UIWidget::MouseClickUp(int, int)

@@ -27,6 +27,15 @@ TextRenderer::TextRenderer(int width, int height)
 TextRenderer::~TextRenderer()
 {
 	delete TextAtlas;
+	delete m_TextShader;
+	delete VertexBuffer;
+	coords.empty();
+
+	if (Renderbuffer != nullptr)
+	{
+		delete Renderbuffer;
+	}
+	delete TextCommandList;
 }
 
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color,bool reset/* = true*/)
@@ -36,7 +45,6 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		Reset();
 	}
 	m_TextShader->SetShaderActive();
-	m_TextShader->Colour = color;
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	scale = scale * ScaleFactor;
@@ -86,27 +94,27 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 
 		coords[c++] =
 		{ 
-			x2, -y2, a->c[*p].tx, a->c[*p].ty
+			x2, -y2, a->c[*p].tx, a->c[*p].ty,color
 		};
 		coords[c++] =
 		{
-			x2 + w, -y2, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty
+			x2 + w, -y2, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty,color
 		};
 		coords[c++] =
 		{
-			x2, -y2 - h, a->c[*p].tx, a->c[*p].ty + a->c[*p].bh / a->h
+			x2, -y2 - h, a->c[*p].tx, a->c[*p].ty + a->c[*p].bh / a->h,color
 		};
 		coords[c++] =
 		{
-			x2 + w, -y2, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty
+			x2 + w, -y2, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty,color
 		};
 		coords[c++] =
 		{
-			x2, -y2 - h, a->c[*p].tx, a->c[*p].ty + a->c[*p].bh / a->h
+			x2, -y2 - h, a->c[*p].tx, a->c[*p].ty + a->c[*p].bh / a->h,color
 		};
 		coords[c++] =
 		{
-			x2 + w, -y2 - h, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty + a->c[*p].bh / a->h
+			x2 + w, -y2 - h, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty + a->c[*p].bh / a->h,color
 		};
 		currentsize+=6;
 	}
@@ -143,7 +151,7 @@ void TextRenderer::Reset()
 void TextRenderer::LoadText()
 {	
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, D3D12RHI::GetDeviceContext(RunOnSecondDevice));
-	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, (sizeof(float) * 4 * 6) * MAX_BUFFER_SIZE, RHIBuffer::BufferAccessType::Dynamic);//max text length?
+	VertexBuffer->CreateVertexBuffer(sizeof(point), (sizeof(point) * 6) * MAX_BUFFER_SIZE, RHIBuffer::BufferAccessType::Dynamic);//max text length?
 
 	TextCommandList = RHI::CreateCommandList(D3D12RHI::GetDeviceContext(RunOnSecondDevice));
 	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });

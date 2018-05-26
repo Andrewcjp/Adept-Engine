@@ -14,7 +14,7 @@ public:
 	void SetLabel(std::string lavel);
 	void MouseMove(int x, int y) override;
 	void GetValueText(std::string & string);
-	void MouseClick(int x, int y) override;
+	bool MouseClick(int x, int y) override;
 	void MouseClickUp(int x, int y) override;
 	// Inherited via UIWidget
 	void Render() override;

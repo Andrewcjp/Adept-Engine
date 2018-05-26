@@ -50,3 +50,8 @@ void DescriptorHeap::Release()
 		mHeap = nullptr;
 	}
 }
+
+void DescriptorHeap::SetPriority(EGPUMemoryPriority NewPriority)
+{
+	Priority = NewPriority;
+}

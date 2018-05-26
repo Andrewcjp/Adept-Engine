@@ -33,7 +33,7 @@ public:
 	void NotifyFrameEnd();
 private:
 	bool RunOnSecondDevice = false;
-	bool UseFrameBuffer = false;
+	bool UseFrameBuffer = true;
 	int TextDataLength = 0;
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;
@@ -50,11 +50,12 @@ private:
 		float y;
 		float s;
 		float t;
+		glm::vec3 colour;
 	};
 
 	std::vector<point> coords;
 	int currentsize = 0;
-	const int MAX_BUFFER_SIZE = 350;
+	const int MAX_BUFFER_SIZE = 1000;
 	bool NeedsClearRT = true;
 	struct atlas
 	{

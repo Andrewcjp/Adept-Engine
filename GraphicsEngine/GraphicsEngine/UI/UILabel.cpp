@@ -16,7 +16,6 @@ void UILabel::Render()
 {
 	if (TextRenderer::instance != nullptr)
 	{
-		return;
 		UIManager::instance->RenderTextToScreen(MText, (float)X +10/*+ (mwidth / 2)*/, (float)Y + ((mheight / 2.0f) - (TextScale )), TextScale,glm::vec3(1));
 	}
 }

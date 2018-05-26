@@ -81,11 +81,13 @@ public:
 		DeviceContext* This = (DeviceContext*)param;
 		return This->WorkerThreadMain();
 	}
-
+	//todo: might be a slight issue here
+	//relating to present before everything is finished
 	DWORD WorkerThreadMain()
 	{		
 		while (WorkerRunning)
 		{
+			
 			if (!CommandLists.IsEmpty())
 			{
 				ResetEvent(WorkerThreadEnd);

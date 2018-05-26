@@ -78,13 +78,15 @@ void Inspector::MouseMove(int x, int y)
 	}
 }
 
-void Inspector::MouseClick(int x, int y)
+bool Inspector::MouseClick(int x, int y)
 {
+	bool Returnvalue = false;
 	for (int i = 0; i < SubWidgets.size(); i++)
 	{
-		SubWidgets[i]->MouseClick(x, y);
+		Returnvalue |= SubWidgets[i]->MouseClick(x, y);
 
 	}
+	return Returnvalue;
 }
 void Inspector::MouseClickUp(int x, int y)
 {

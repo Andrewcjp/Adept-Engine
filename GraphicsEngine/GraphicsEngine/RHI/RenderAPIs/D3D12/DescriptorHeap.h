@@ -4,6 +4,13 @@
 class DescriptorHeap
 {
 public:
+	enum EGPUMemoryPriority
+	{
+		Critical,
+		Scaled,
+		RenderBuffers,
+		Streaming
+	};
 	DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	~DescriptorHeap();
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuAddress(int index);
@@ -11,9 +18,11 @@ public:
 	void SetName(LPCWSTR name);
 	void BindHeap(ID3D12GraphicsCommandList* list);
 	void Release();
+	void SetPriority(EGPUMemoryPriority NewPriority);
 private:
 	ID3D12DescriptorHeap * mHeap = nullptr;
 	DeviceContext* Device = nullptr;
 	int DescriptorOffsetSize = 0;
+	EGPUMemoryPriority Priority = EGPUMemoryPriority::Critical;
 };
 

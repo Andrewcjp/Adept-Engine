@@ -88,7 +88,7 @@ public:
 	void Render() override;
 	void ResizeView(int, int, int, int);
 	void MouseMove(int x, int y);
-	void MouseClick(int x, int y);
+	bool MouseClick(int x, int y);
 	void MouseClickUp(int x, int y);
 	void AddComponent();
 	static void AddComponentCallback(int i);

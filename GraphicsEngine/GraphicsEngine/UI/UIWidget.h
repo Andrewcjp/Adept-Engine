@@ -23,7 +23,7 @@ public:
 	glm::vec3 Colour;
 	virtual void UpdateData();
 	virtual void MouseMove(int x, int y);
-	virtual void MouseClick(int x, int y);
+	virtual bool MouseClick(int x, int y);
 	virtual void MouseClickUp(int x, int y);
 	virtual void PostBatchRender();
 	int mwidth;

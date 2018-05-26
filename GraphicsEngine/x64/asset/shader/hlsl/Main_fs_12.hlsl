@@ -6,13 +6,18 @@ cbuffer LightBuffer : register(b1)
 {
 	Light lights[MAX_LIGHT];
 };
-
+cbuffer GOConstantBuffer : register(b0)
+{
+	row_major matrix Model;
+	int HasNormalMap;
+};
 struct PSInput
 {
 	float4 position : SV_POSITION;
 	float4 Normal :NORMAL0;
 	float2 uv : TEXCOORD0;
 	float4 WorldPos:TANGENT0;
+	row_major float3x3 TBN:TANGENT1;
 };
 
 Texture2D g_texture : register(t0);
@@ -20,6 +25,9 @@ Texture2D g_Shadow_texture : register(t1);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t2);
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
+
+
+Texture2D NormalMapTexture : register(t5);
 float GetShadow(float4 pos)
 {
 	float4 vLightSpacePos = pos;
@@ -84,12 +92,17 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos);
 
 float4 main(PSInput input) : SV_TARGET
 {
-
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv);
+	float3 Normal = input.Normal.xyz;
+	if (HasNormalMap == 1)
+	{
+		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
+		Normal = normalize(mul(Normal,input.TBN));
+	}
 	float3 output = float3(0, 0, 0);
 	for (int i = 0; i < MAX_LIGHT; i++)
 	{
-		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz, normalize(input.Normal.xyz));
+		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal));
 		if (lights[i].HasShadow && lights[i].type == 0)
 		{
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos);

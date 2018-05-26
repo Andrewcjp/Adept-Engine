@@ -4,7 +4,7 @@ class Game
 public:
 	Game();
 	~Game();
-	virtual void Update();
+	virtual void  Update();
 	virtual void BeginPlay();
 	virtual void EndPlay();
 	float GetTickRate();

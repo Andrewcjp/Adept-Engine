@@ -5,7 +5,6 @@
 DeviceContext::DeviceContext()
 {}
 
-
 DeviceContext::~DeviceContext()
 {
 	EnsureWorkComplete();

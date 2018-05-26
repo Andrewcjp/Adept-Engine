@@ -247,14 +247,6 @@ bool D3D12Texture::CreateFromFile(std::string FileName)
 	return CLoad(FileName);
 }
 
-
-void D3D12Texture::Bind(CommandListDef* list)
-{
-
-	srvHeap->BindHeap(list);
-	list->SetGraphicsRootDescriptorTable(0, srvHeap->GetGpuAddress(0));
-}
-
 void D3D12Texture::BindToSlot(CommandListDef* list, int slot)
 {
 	srvHeap->BindHeap(list);
@@ -358,6 +350,11 @@ void D3D12Texture::UpdateSRV()
 	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, srvHeap->GetCPUAddress(0));
 }
 
+ID3D12Resource * D3D12Texture::GetResource()
+{
+	return m_texture;
+}
+
 bool D3D12Texture::CheckDevice(int index)
 {
 	if (Device != nullptr)
@@ -365,4 +362,11 @@ bool D3D12Texture::CheckDevice(int index)
 		return (Device->GetDeviceIndex() == index);
 	}
 	return false;
+}
+
+void D3D12Texture::CreateAsNull()
+{
+	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	srvHeap->SetName(L"Texture SRV");
+	UpdateSRV();
 }

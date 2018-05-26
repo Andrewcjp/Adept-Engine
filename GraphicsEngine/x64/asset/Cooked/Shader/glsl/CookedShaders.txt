@@ -93,23 +93,42 @@ struct Light
 	int DirShadowID; 
 	int HasShadow; 
 }; 
- 
-float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 vLightDir, float3 vLightColor, float4 vFalloffs, float3 vPosWorld, float3 vPerPixelNormal) 
+//PBR functions! 
+const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
 { 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
  
-	float diffu = max(dot(vPerPixelNormal, vLightDir), 0.0);//diffuse 
-	float spec = 0.0f; 
-	float3 viewPos = float3(0, 0, 0); 
-	if (diffu > 0.0f) 
-	{ 
-		/*float3 viewDir = normalize(viewPos - vPosWorld); 
-		float3 reflectDir = reflect(-lightdir, normal); 
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);*/ 
-	} 
-	MaterialDiffuseColor *= vLightColor; 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
  
-	return  float4((MaterialDiffuseColor * diffu) /*+ (MaterialSpecularColor*spec)*/ , 1.0); 
+	return num / denom; 
 } 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
  
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
@@ -200,23 +219,42 @@ struct Light
 	int DirShadowID; 
 	int HasShadow; 
 }; 
- 
-float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 vLightDir, float3 vLightColor, float4 vFalloffs, float3 vPosWorld, float3 vPerPixelNormal) 
+//PBR functions! 
+const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
 { 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
  
-	float diffu = max(dot(vPerPixelNormal, vLightDir), 0.0);//diffuse 
-	float spec = 0.0f; 
-	float3 viewPos = float3(0, 0, 0); 
-	if (diffu > 0.0f) 
-	{ 
-		/*float3 viewDir = normalize(viewPos - vPosWorld); 
-		float3 reflectDir = reflect(-lightdir, normal); 
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);*/ 
-	} 
-	MaterialDiffuseColor *= vLightColor; 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
  
-	return  float4((MaterialDiffuseColor * diffu) /*+ (MaterialSpecularColor*spec)*/ , 1.0); 
+	return num / denom; 
 } 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
  
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
@@ -278,23 +316,42 @@ struct Light
 	int DirShadowID; 
 	int HasShadow; 
 }; 
- 
-float4 CalcLightingColor(float3 MaterialDiffuseColor, float3 vLightPos, float3 vLightDir, float3 vLightColor, float4 vFalloffs, float3 vPosWorld, float3 vPerPixelNormal) 
+//PBR functions! 
+const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
 { 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
  
-	float diffu = max(dot(vPerPixelNormal, vLightDir), 0.0);//diffuse 
-	float spec = 0.0f; 
-	float3 viewPos = float3(0, 0, 0); 
-	if (diffu > 0.0f) 
-	{ 
-		/*float3 viewDir = normalize(viewPos - vPosWorld); 
-		float3 reflectDir = reflect(-lightdir, normal); 
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);*/ 
-	} 
-	MaterialDiffuseColor *= vLightColor; 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
  
-	return  float4((MaterialDiffuseColor * diffu) /*+ (MaterialSpecularColor*spec)*/ , 1.0); 
+	return num / denom; 
 } 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
  
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
@@ -334,13 +391,18 @@ cbuffer LightBuffer : register(b1)
 { 
 	Light lights[MAX_LIGHT]; 
 }; 
- 
+cbuffer GOConstantBuffer : register(b0) 
+{ 
+	row_major matrix Model; 
+	int HasNormalMap; 
+}; 
 struct PSInput 
 { 
 	float4 position : SV_POSITION; 
 	float4 Normal :NORMAL0; 
 	float2 uv : TEXCOORD0; 
 	float4 WorldPos:TANGENT0; 
+	row_major float3x3 TBN:TANGENT1; 
 }; 
  
 Texture2D g_texture : register(t0); 
@@ -348,6 +410,9 @@ Texture2D g_Shadow_texture : register(t1);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t2); 
 SamplerState g_sampler : register(s0); 
 SamplerState g_Clampsampler : register(s1); 
+ 
+ 
+Texture2D NormalMapTexture : register(t5); 
 float GetShadow(float4 pos) 
 { 
 	float4 vLightSpacePos = pos; 
@@ -412,12 +477,17 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos);
  
 float4 main(PSInput input) : SV_TARGET 
 { 
- 
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv); 
+	float3 Normal = input.Normal.xyz; 
+	if (HasNormalMap == 1) 
+	{ 
+		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0; 
+		Normal = normalize(mul(Normal,input.TBN)); 
+	} 
 	float3 output = float3(0, 0, 0); 
 	for (int i = 0; i < MAX_LIGHT; i++) 
 	{ 
-		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz, normalize(input.Normal.xyz)); 
+		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal)); 
 		if (lights[i].HasShadow && lights[i].type == 0) 
 		{ 
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos); 
@@ -526,6 +596,7 @@ struct PSInput
 	float4 Normal :NORMAL0; 
 	float2 uv : TEXCOORD; 
 	float4 WorldPos:TANGENT0; 
+	row_major float3x3 TBN:TANGENT1; 
 }; 
  
 Texture2D g_texture : register(t0); 
@@ -534,6 +605,7 @@ SamplerState g_sampler : register(s0);
 cbuffer GOConstantBuffer : register(b0) 
 { 
 	row_major matrix Model; 
+	int HasNormalMap; 
 }; 
 cbuffer SceneConstantBuffer : register(b2) 
 { 
@@ -541,7 +613,7 @@ cbuffer SceneConstantBuffer : register(b2)
 	row_major matrix Projection; 
 }; 
  
-PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TEXCOORD) 
+PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TEXCOORD,float4 Tangent: TANGENT0) 
 { 
 	PSInput result; 
 	float4 final_pos = position; 
@@ -553,7 +625,14 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 	result.position = final_pos; 
 	result.uv = uv.xy; 
 	result.Normal = normal; 
- 
+	if (HasNormalMap) 
+	{ 
+		const float3 BiTangent = (mul(float4(cross(normal.xyz, Tangent.xyz).xyz, 0.0), Model)); 
+		const float3 Normal = (mul(float4(normal.xyz, 0.0), Model)); 
+		const float3 tan = (mul(float4(Tangent.xyz, 0.0), Model)); 
+		float3x3 mat = float3x3(tan, BiTangent, Normal); 
+		result.TBN = mat; 
+	} 
 	return result; 
 } 
 ¬
@@ -1087,26 +1166,18 @@ text_fs_Atlas.hlsl|FileStart|
 Texture2D texColour : register(t0); 
 SamplerState defaultSampler : register (s2); 
  
-cbuffer LineConstantBuffer : register(b0) 
-{ 
-	row_major matrix projection; 
-	float3 Colour; 
-} 
- 
 struct VS_OUTPUT 
 { 
 	float4 pos : SV_POSITION; 
 	float2 uv : TEXCOORD0; 
+	float3 Colour : NORMAL; 
 }; 
  
 float4 main(VS_OUTPUT input) : SV_Target 
 { 
-	//return float4(Colour,1.0); 
-	//float sampled = texColour.Sample(defaultSampler, input.uv).rgba; 
-	//return texColour.Sample(defaultSampler, input.uv).rgba;// float4(sampled, sampled, sampled, sampled); 
 	const float SampledValue = texColour.Sample(defaultSampler, input.uv).r; 
 	float4 sampled = float4(1.0,1.0,1.0, SampledValue); 
-	return float4(Colour, SampledValue); 
+	return float4(input.Colour, SampledValue); 
 } 
 ¬
 text_vs_Atlas.hlsl|FileStart|
@@ -1114,20 +1185,21 @@ text_vs_Atlas.hlsl|FileStart|
 cbuffer LineConstantBuffer : register(b0) 
 { 
 	row_major matrix projection; 
-	float3 Colour; 
 } 
 struct VS_OUTPUT 
 { 
 	float4 pos : SV_POSITION; 
 	float2 uv : TEXCOORD0; 
+	float3 Colour : NORMAL; 
 }; 
  
  
-VS_OUTPUT main(float4 pos : POSITION) 
+VS_OUTPUT main(float4 pos : POSITION, float3 colour: NORMAL) 
 { 
 	VS_OUTPUT output = (VS_OUTPUT)0; 
 	output.pos = mul( float4(pos.x, pos.y, 0.0, 1.0), projection); 
 	output.uv = pos.zw; 
+	output.Colour = colour; 
 	return output; 
 } 
  

@@ -118,7 +118,7 @@ void ParticleSystem::Simulate(float delta, glm::vec3 CameraPosition)
 void ParticleSystem::UpdateUniforms(Transform* t, Camera* c, std::vector<Light*> lights)
 {
 
-	texture->Bind(0);//bind the texture
+//	texture->Bind(0);//bind the texture
 	shader->SetShaderActive();
 	shader->UpdateUniforms(t, c, lights);
 

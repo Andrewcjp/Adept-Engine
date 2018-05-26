@@ -29,13 +29,12 @@ std::vector<Shader::VertexElementDESC> Text_Shader::GetVertexFormat()
 {
 	std::vector<Shader::VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-	//out.push_back(VertexElementDESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 32,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	return out;
 }
 void Text_Shader::Update(RHICommandList* lsit)
 {
 	Data.proj = glm::ortho(0.0f, (float)(Width), 0.0f, (float)(Height));
-	Data.Colour = Colour;
 	CBV->UpdateConstantBuffer(&Data, 0);
 	lsit->SetConstantBufferView(CBV, 0, 1);
 }
@@ -43,21 +42,6 @@ void Text_Shader::Update(RHICommandList* lsit)
 
 Text_Shader::~Text_Shader()
 {
+	delete CBV;
 }
 
-void Text_Shader::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
-{
-	UNUSED_PARAM(c);
-	UNUSED_PARAM(t);
-
-	//glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height));
-	//glUniformMatrix4fv(glGetUniformLocation(m_Shader->GetProgramHandle(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-	//glUniform3f(glGetUniformLocation(m_Shader->GetProgramHandle(), "textColor"), Colour.x, Colour.y, Colour.z);
-	////glActiveTexture(GL_TEXTURE0);
-
-}
-
-void Text_Shader::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
-{
-}

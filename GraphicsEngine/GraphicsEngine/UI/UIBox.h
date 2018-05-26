@@ -12,7 +12,7 @@ public:
 	virtual void ResizeView(int w, int h, int x, int y) override;
 	~UIBox();
 	void MouseMove(int x ,int y) override;
-	void MouseClick(int x, int y) override;
+	bool MouseClick(int x, int y) override;
 	void MouseClickUp(int x, int y) override;
 	virtual void Render() override;
 	glm::vec3 BackgoundColour = glm::vec3(0);

@@ -37,12 +37,13 @@ void UIPanel::MouseMove(int x, int y)
 	}
 }
 
-void UIPanel::MouseClick(int x, int y)
+bool UIPanel::MouseClick(int x, int y)
 {
 	for (int i = 0; i < SubWidgets.size(); i++)
 	{
 		SubWidgets[i]->MouseClick(x, y);
 	}
+	return true;
 }
 
 void UIPanel::MouseClickUp(int x, int y)

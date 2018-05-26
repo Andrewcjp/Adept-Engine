@@ -36,9 +36,9 @@ void UIPopoutbox::MouseMove(int x, int y)
 	OkayButton->MouseMove(x, y);
 }
 
-void UIPopoutbox::MouseClick(int x, int y)
+bool UIPopoutbox::MouseClick(int x, int y)
 {
-	OkayButton->MouseClick(x, y);
+	return OkayButton->MouseClick(x, y);
 }
 
 void UIPopoutbox::SetText(std::string text)

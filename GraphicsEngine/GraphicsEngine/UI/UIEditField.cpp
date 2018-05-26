@@ -123,12 +123,12 @@ void UIEditField::GetValueText(std::string & string)
 		Toggle->SetText(*((bool*)(Valueptr)) ? "True " : "False");
 	}
 }
-void UIEditField::MouseClick(int x, int y)
+bool UIEditField::MouseClick(int x, int y)
 {
 	if (FilterType == Inspector::ValueType::Bool)
 	{
 		Toggle->MouseClick(x, y);
-		return;
+		return false;
 	}
 	if (Rect.Contains(x, y))
 	{
@@ -166,6 +166,7 @@ void UIEditField::MouseClick(int x, int y)
 			}
 		}
 	}
+	return true;
 }
 
 void UIEditField::MouseClickUp(int x, int y)

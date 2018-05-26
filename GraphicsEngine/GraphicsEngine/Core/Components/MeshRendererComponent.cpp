@@ -34,7 +34,7 @@ void MeshRendererComponent::Render(bool DepthOnly, CommandListDef* list)
 {
 	if (m_mat != nullptr && DepthOnly == false)
 	{
-		m_mat->SetMaterialActive(list);
+		//m_mat->SetMaterialActive(list);
 	}
 	if (m_mesh != nullptr)
 	{

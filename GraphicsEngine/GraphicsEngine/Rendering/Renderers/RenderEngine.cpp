@@ -78,7 +78,7 @@ void RenderEngine::PrepareData()
 {
 	for (size_t i = 0; i < (*MainScene->GetObjects()).size(); i++)
 	{
-		MainShader->UpdateUnformBufferEntry(MainShader->CreateUnformBufferEntry((*MainScene->GetObjects())[i]->GetTransform()), (int)i);
+		MainShader->UpdateUnformBufferEntry(MainShader->CreateUnformBufferEntry((*MainScene->GetObjects())[i]), (int)i);
 	}
 }
 

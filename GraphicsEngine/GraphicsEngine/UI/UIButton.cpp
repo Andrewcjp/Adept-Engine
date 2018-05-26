@@ -39,15 +39,17 @@ void UIButton::MouseMove(int x, int y)
 	}
 }
 
-void UIButton::MouseClick(int x, int y)
+bool UIButton::MouseClick(int x, int y)
 {
 	if (Rect.Contains(x, y))
 	{
 		if (Target)
 		{
 			Target();
+			return true;
 		}
 	}
+	return false;
 }
 
 void UIButton::ResizeView(int w, int h, int x, int y)

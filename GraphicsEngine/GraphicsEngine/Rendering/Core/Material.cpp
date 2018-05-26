@@ -9,14 +9,15 @@ Material::Material(BaseTexture * Diff, MaterialProperties props)
 	Diffusetexture = Diff;
 	Diff->AddRef();
 	Properties = props;
+	NullTexture2D = RHI::CreateNullTexture();
 }
 
 Material::~Material()
 {
 	if (Diffusetexture != nullptr)
-	{	
+	{
 		SafeRelease(Diffusetexture);
-	}	
+	}
 	if (NormalMap != nullptr)
 	{
 		SafeRelease(NormalMap);
@@ -27,29 +28,6 @@ Material::~Material()
 	}
 }
 
-void Material::SetMaterialActive(CommandListDef* list)
-{	
-	if (Diffusetexture != nullptr)
-	{
-		if (list != nullptr)
-		{
-			Diffusetexture->Bind(list);
-		}
-		else
-		{
-			Diffusetexture->Bind(ALBEDOMAP);
-		}		
-	}
-	if (NormalMap != nullptr)
-	{
-		NormalMap->Bind(NORMALMAP);
-	}
-	if (DisplacementMap != nullptr)
-	{
-		DisplacementMap->Bind(DISPMAP);
-	}
-	//Todo: Add Other Textures As Needed.
-}
 
 void Material::SetMaterialActive(RHICommandList* list)
 {
@@ -59,7 +37,11 @@ void Material::SetMaterialActive(RHICommandList* list)
 	}
 	if (NormalMap != nullptr)
 	{
-		//list->SetTexture(NormalMap, NORMALMAP);
+		list->SetTexture(NormalMap, NORMALMAP);
+	}
+	else
+	{
+		list->SetTexture(NullTexture2D, NORMALMAP);
 	}
 	if (DisplacementMap != nullptr)
 	{

@@ -45,7 +45,7 @@ GrassPatch::~GrassPatch()
 void GrassPatch::UpdateUniforms(Camera* c, std::vector<Light*> lights, float deltatime)
 {
 	currenttime += deltatime;
-	m_tex->Bind(0);
+//	m_tex->Bind(0);
 
 	Shader->SetShaderActive();
 	Shader->UpdateUniforms(m_transfrom, c, lights);

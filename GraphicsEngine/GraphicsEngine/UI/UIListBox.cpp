@@ -34,13 +34,15 @@ void UIListBox::MouseMove(int x, int y)
 	}
 }
 
-void UIListBox::MouseClick(int x, int y)
+bool UIListBox::MouseClick(int x, int y)
 {
+	bool ReturnValue = false;
 	for (int i = 0; i < items.size(); i++)
 	{
-		items[i]->MouseClick(x, y);
-		Background->MouseClick(x, y);
+		ReturnValue |= items[i]->MouseClick(x, y);
+		ReturnValue |= Background->MouseClick(x, y);
 	}
+	return ReturnValue;
 }
 void UIListBox::MouseClickUp(int x, int y)
 {

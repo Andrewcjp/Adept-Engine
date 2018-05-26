@@ -86,5 +86,5 @@ const int ALBEDOMAP = 0;
 const int SHADOWCUBEMAP = 10;
 const int SHADOWCUBEMAP2 = 11;
 const int SHADOWDIRMAP1 = 9;
-const int NORMALMAP = 4;
+const int NORMALMAP = 6;
 const int DISPMAP = 5;

@@ -29,6 +29,7 @@ public:
 	static void DestoryRHI();
 	static BaseTexture* CreateTexture(const char * path, DeviceContext* Device = nullptr);
 	static BaseTexture* CreateTextureWithData(int with, int height,int nChannels, void * data, DeviceContext* Device = nullptr);
+	static BaseTexture* CreateNullTexture( DeviceContext* Device = nullptr);
 	static Renderable * CreateMesh(const char * path);
 	static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
 	static FrameBuffer* CreateFrameBuffer(int width, int height, DeviceContext* Device = nullptr, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBuffer::FrameBufferType::ColourDepth, glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f));
@@ -48,7 +49,7 @@ public:
 	HINSTANCE m_hinst;
 	static bool RunRenderersAsync();
 	static bool RunListsAsync();
-private:
+private: 
 	bool ShouldRunAsync = false;
 	ERenderSystemType CurrentSystem;
 	

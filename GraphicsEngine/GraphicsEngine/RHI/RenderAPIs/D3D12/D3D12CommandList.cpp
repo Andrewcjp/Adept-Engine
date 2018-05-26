@@ -142,14 +142,14 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRen
 	{
 		CurrentPipelinestate.m_rootSignature->Release();
 	}
-	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();	
+	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
 	ensure((shader->GetShaderParameters().size() > 0));
 	ensure((shader->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
 	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters(), Device);
 
-	
+
 	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, RTdesc, Device);
 	if (CurrentGraphicsList == nullptr)
 	{
@@ -487,9 +487,9 @@ void D3D12RHIUAV::CreateUAVForMipsFromTexture(D3D12Texture * target)
 	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));
 }
 
-D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device,int inNumEntries):RHITextureArray(device,inNumEntries)
+D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)
 {
-	Heap = new DescriptorHeap(device,NumEntries,D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	Device = device;
 }
 
@@ -513,7 +513,7 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 	for (int i = 0; i < LinkedBuffers.size(); i++)
 	{
 		LinkedBuffers[i]->ReadyResourcesForRead(DXList->GetCommandList());
-	}	
+	}
 	Heap->BindHeap(DXList->GetCommandList());
 	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGpuAddress(0));
 
@@ -521,6 +521,6 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 
 //Makes a descriptor Null Using the first framebuffers Description
 void D3D12RHITextureArray::SetIndexNull(int TargetIndex)
-{	
+{
 	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Heap->GetCPUAddress(TargetIndex));
 }

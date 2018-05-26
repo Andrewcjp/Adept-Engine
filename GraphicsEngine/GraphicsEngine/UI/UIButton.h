@@ -12,7 +12,7 @@ public:
 	void Render()override;
 	UILabel * GetLabel();
 	void MouseMove(int x, int y) override;
-	void MouseClick(int x, int y) override;
+	bool MouseClick(int x, int y) override;
 	void ResizeView(int w, int h, int x, int y) override;
 	void UpdateScaled() override;
 	void BindTarget(std::function<void()> t)

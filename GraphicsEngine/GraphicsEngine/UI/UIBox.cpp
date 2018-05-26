@@ -63,15 +63,17 @@ void UIBox::MouseMove(int x, int y)
 	}
 
 }
-void UIBox::MouseClick(int x, int y)
+bool UIBox::MouseClick(int x, int y)
 {
 	if (Resizeable)
 	{
 		if (RightRect.Contains(x, y))
 		{
 			Selected = true;
+			return true;
 		}
 	}
+	return false;
 }
 void UIBox::MouseClickUp(int, int)
 {

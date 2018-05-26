@@ -8,7 +8,6 @@
 #define BUILD_D3D12 1
 #define BUILD_VULKAN 0
 
-
 #define STATS 1
 #define DOCHECK 1
 #define BUILD_SHIPPING 0
