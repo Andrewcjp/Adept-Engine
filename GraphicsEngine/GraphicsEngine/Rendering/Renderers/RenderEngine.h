@@ -48,7 +48,6 @@ protected:
 	Scene* MainScene = nullptr; 
 	Camera* MainCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;
-	RHICommandList* ShadowCMDList = nullptr;
 	Shader_Main* MainShader = nullptr;
 	class ShadowRenderer* mShadowRenderer = nullptr;
 	class PostProcessing* Post = nullptr;

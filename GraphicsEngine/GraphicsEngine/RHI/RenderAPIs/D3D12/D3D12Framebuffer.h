@@ -22,13 +22,9 @@ public:
 	virtual void ClearBuffer(CommandListDef * list = nullptr) override;
 	D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
 	void		 CreateCubeDepth() override;
-
 	void CreateSRVHeap(int Num);
-
 	void		 CreateColour(int Index = 0) override;
-
 	void CreateSRV();
-
 	void		 CreateDepth() override;
 	void		 CreateGBuffer() override;
 	bool CheckDevice(int index);

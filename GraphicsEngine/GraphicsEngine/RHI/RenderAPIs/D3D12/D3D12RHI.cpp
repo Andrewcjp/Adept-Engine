@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "D3D12RHI.h"
 #include "../BaseApplication.h"
 #include <D3Dcompiler.h>
@@ -10,6 +10,7 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 #include "../RHI/DeviceContext.h"
 #include "../RHI/RHI.h"
 #include "D3D12TimeManager.h"
+#include <dxgidebug.h>
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
@@ -40,10 +41,15 @@ void D3D12RHI::DestroyContext()
 	}
 	m_rtvHeap->Release();
 	m_dsvHeap->Release();
+	m_SetupCommandList->Release();
 	delete D3D12TimeManager::Instance;
 //	m_swapChain->Release();
 	CloseHandle(m_fenceEvent);
-	
+	m_fence->Release();
+
+
+
+	ReportObjects();
 }
 
 void EnableShaderBasedValidation()
@@ -67,7 +73,7 @@ void D3D12RHI::CheckFeatures(ID3D12Device* pDevice)
 		// TypedUAVLoadAdditionalFormats contains a Boolean that tells you whether the feature is supported or not
 	/*	if (FeatureData.TypedUAVLoadAdditionalFormats)
 		{*/
-		// Can assume “all-or-nothing” subset is supported (e.g. R32G32B32A32_FLOAT)
+		// Can assume â€œall-or-nothingâ€ subset is supported (e.g. R32G32B32A32_FLOAT)
 		// Cannot assume other formats are supported, so we check:
 		D3D12_FEATURE_DATA_FORMAT_SUPPORT FormatSupport = { DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_FORMAT_SUPPORT1_NONE, D3D12_FORMAT_SUPPORT2_NONE };
 		hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &FormatSupport, sizeof(FormatSupport));
@@ -78,6 +84,25 @@ void D3D12RHI::CheckFeatures(ID3D12Device* pDevice)
 		}
 		//}
 	}
+}
+
+void D3D12RHI::ReportObjects()
+{
+#ifdef _DEBUG
+	IDXGIDebug* pDXGIDebug;
+	typedef HRESULT(__stdcall *fPtr)(const IID&, void**);
+	HMODULE hDll = GetModuleHandleW(L"dxgidebug.dll");
+	fPtr DXGIGetDebugInterface = (fPtr)GetProcAddress(hDll, "DXGIGetDebugInterface");
+	if (DXGIGetDebugInterface)
+	{
+		DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&pDXGIDebug);
+		if (pDXGIDebug)
+		{
+			pDXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+		}
+	}
+#endif
+	//DXGIGetDebugInterface(__uuidof(IDXGIInfoQueue), (void**)&pIDXGIInfoQueue);//DXGI_DEBUG_RLO_IGNORE_INTERNAL
 }
 
 D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
@@ -126,6 +151,8 @@ std::string D3D12RHI::GetMemory()
 	return output;
 }
 
+
+
 void D3D12RHI::LoadPipeLine()
 {
 	//EnableShaderBasedValidation();
@@ -140,14 +167,16 @@ void D3D12RHI::LoadPipeLine()
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
-
+			
 			// Enable additional debug layers.
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
+		
 	}
 #endif
 	IDXGIFactory4* factory;
 	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
+	ReportObjects();
 
 	if (false)
 	{
@@ -426,7 +455,8 @@ void D3D12RHI::PresentFrame()
 		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
 		D3D12TimeManager::Instance->EndTimer(m_SetupCommandList);
 		m_SetupCommandList->Close();
-		ExecList(m_SetupCommandList);
+		PrimaryDevice->ExecuteCommandList(m_SetupCommandList);
+		//ExecList(m_SetupCommandList);
 	}
 	
 	//testing
@@ -441,7 +471,7 @@ void D3D12RHI::PresentFrame()
 		MipmapShader->GenAllmips(100);
 	}
 #endif
-
+	PrimaryDevice->EnsureWorkComplete();
 
 	ThrowIfFailed(m_swapChain->Present(0, 0));
 	if (RequestedResize)

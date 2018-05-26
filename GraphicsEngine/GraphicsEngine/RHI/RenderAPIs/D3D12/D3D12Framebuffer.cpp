@@ -331,8 +331,6 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
 
-
-
 	if (m_ftype == FrameBufferType::CubeDepth)
 	{
 		RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -354,7 +352,7 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 	}
 	if (m_ftype != FrameBufferType::CubeDepth)
 	{
-		if (RequiresDepth())
+		if (RequiresDepth() )
 		{
 			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE();
 			if (RTVHeap)
@@ -362,11 +360,11 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 				//validate this is okay todo?
 				rtvHandle = RTVHeap->GetCPUAddress(0);
 			}
-			list->OMSetRenderTargets(RenderTargetCount, &rtvHandle, false, &DSVHeap->GetCPUAddress(0));
+			list->OMSetRenderTargets(RenderTargetCount, &rtvHandle, (m_ftype == FrameBufferType::GBuffer), &DSVHeap->GetCPUAddress(0));
 		}
 		else
 		{
-			list->OMSetRenderTargets(RenderTargetCount, &RTVHeap->GetCPUAddress(0), false, nullptr);
+			list->OMSetRenderTargets(RenderTargetCount, &RTVHeap->GetCPUAddress(0), (m_ftype == FrameBufferType::GBuffer), nullptr);
 		}
 	}
 
@@ -431,12 +429,6 @@ D3D12Shader::PipeRenderTargetDesc D3D12FrameBuffer::GetPiplineRenderDesc()
 		output.DSVFormat = Depthformat;
 		break;
 	case CubeDepth:
-		//output.DSVFormat = DXGI_FORMAT_UNKNOWN;
-		//output.NumRenderTargets = CUBE_SIDES;
-		//for (int i = 0; i < CUBE_SIDES; i++)
-		//{
-		//	output.RTVFormats[i] = RTVformat;
-		//}
 		output.NumRenderTargets = 0;
 		output.DSVFormat = Depthformat;
 		break;

@@ -1,6 +1,7 @@
 #pragma once
 #include "../EngineGlobals.h"
-class BaseTexture
+#include "../Core/IRefCount.h"
+class BaseTexture : public IRefCount
 {
 public:
 	enum ETextureType
@@ -21,16 +22,6 @@ public:
 	virtual void CreateTextureFromData(void* data, int type, int width, int height, int bits) = 0;
 	std::string TextureName;
 
-	//Shared Refs
-	void RemoveRef() { refcount--; };
-	void AddRef() { refcount++; };
-	int GetRefCount()
-	{
-		return refcount;
-	};
-
 protected:
 	ETextureType CurrentTextureType = ETextureType::Type_2D;
-private:
-	int refcount = 0;
 };

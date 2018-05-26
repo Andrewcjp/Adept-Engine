@@ -10,7 +10,7 @@
 #include "../Rendering/Shaders/ShaderMipMap.h"
 #include "GPUResource.h"
 #include "../RHI/DeviceContext.h"
-#include "../Core/Assets/DDSTextureLoader12.h"
+#include "../ThirdParty/NVDDS/DDSTextureLoader12.h"
 #include "DescriptorHeap.h"
 float D3D12Texture::MipCreationTime = 0;
 
@@ -207,8 +207,8 @@ bool D3D12Texture::LoadDDS(std::string filename)
 	{
 		return false;
 	}
-	MipLevelsReadyNow = subresources.size() / 6;
-	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, subresources.size());
+	MipLevelsReadyNow = (int)subresources.size() / 6;
+	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, (UINT)subresources.size());
 	ID3D12Resource* textureUploadHeap = nullptr;
 	format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	// Create the GPU upload buffer.
@@ -220,7 +220,7 @@ bool D3D12Texture::LoadDDS(std::string filename)
 		nullptr,
 		IID_PPV_ARGS(&textureUploadHeap)));
 
-	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, subresources.size(), subresources.data());
+	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, (UINT)subresources.size(), subresources.data());
 	Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	m_texture->SetName(L"CubeMap");
 	Device->NotifyWorkForCopyEngine();

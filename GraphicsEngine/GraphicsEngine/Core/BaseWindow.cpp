@@ -207,6 +207,7 @@ void BaseWindow::Render()
 	Renderer->FinaliseRender();
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
+	TextRenderer::instance->Reset();
 	if (UI != nullptr && ShowHud && LoadText)
 	{
 		UI->UpdateWidgets();
@@ -219,6 +220,7 @@ void BaseWindow::Render()
 		WindowUI();
 		PerfManager::EndTimer("TEXT");
 	}
+	TextRenderer::instance->Finish();
 	PerfManager::EndTimer("UI");
 
 	if (PostProcessing::Instance)
@@ -237,6 +239,10 @@ void BaseWindow::Render()
 		DidPhsyx = false;
 	}
 #endif
+	if (PerfManager::Instance != nullptr)
+	{
+		PerfManager::Instance->EndCPUTimer();
+	}
 #if !NO_GEN_CONTEXT
 	RHI::RHISwapBuffers();
 #endif
@@ -258,10 +264,7 @@ void BaseWindow::Render()
 	{
 		TextRenderer::instance->NotifyFrameEnd();
 	}
-	if (PerfManager::Instance != nullptr)
-	{
-		PerfManager::Instance->EndCPUTimer();
-	}
+	
 }
 
 bool BaseWindow::ProcessDebugCommand(std::string command)
@@ -504,7 +507,7 @@ void BaseWindow::RenderText()
 			stream << PerfManager::Instance->GetCounterData();
 		}
 	}
-	TextRenderer::instance->Reset();
+	
 	UI->RenderTextToScreen(1, stream.str());
 	stream.str("");
 	if (D3D12RHI::Instance != nullptr && ExtendedPerformanceStats)
@@ -512,7 +515,7 @@ void BaseWindow::RenderText()
 		stream << D3D12RHI::Instance->GetMemory();
 		UI->RenderTextToScreen(2, stream.str());
 	}
-	TextRenderer::instance->Finish();
+	
 
 }
 #if USE_PHYSX_THREADING

@@ -8,7 +8,9 @@ DeviceContext::DeviceContext()
 
 DeviceContext::~DeviceContext()
 {
+	EnsureWorkComplete();
 	WaitForGpu();//Ensure the GPU has complete the current task!
+	WorkerRunning = false;
 	if (m_Device)
 	{
 		m_Device->Release();
@@ -23,7 +25,7 @@ DeviceContext::~DeviceContext()
 		m_CopyCommandAllocator->Release();
 		m_CopyCommandQueue->Release();
 	}	
-
+	pDXGIAdapter->Release();
 	/*if (pDXGIAdapter != nullptr)
 	{
 		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
@@ -82,6 +84,14 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
 	//todo: validate the device capablities 
+
+	if (RHI::RunListsAsync())
+	{
+		WorkerThreadEnd = CreateEvent(0, 0, 0, L"");
+		LPDWORD id = 0;
+		CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&DeviceContext::StartThread, this, NULL, id);
+	}
+
 }
 
 ID3D12Device * DeviceContext::GetDevice()
@@ -121,7 +131,13 @@ void DeviceContext::DestoryDevice()
 {
 
 }
-
+void DeviceContext::EnsureWorkComplete()
+{
+	if (RHI::RunListsAsync())
+	{
+		WaitForSingleObject(WorkerThreadEnd, INFINITE);
+	}
+}
 void DeviceContext::WaitForGpu()
 {
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
@@ -159,9 +175,28 @@ void DeviceContext::ExecuteCopyCommandList(ID3D12GraphicsCommandList * list)
 
 void DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
 {
+	if (RHI::RunListsAsync())
+	{
+		CommandLists.push(list);
+	}
+	else
+	{
+		ID3D12CommandList* ppCommandLists[] = { list };
+		GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		WaitForGpu();
+	}
+}
+
+void DeviceContext::StartExecuteCommandList(ID3D12GraphicsCommandList * list)
+{
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	WaitForGpu();
+	GraphicsQueueSync.CreateStartSyncPoint(m_commandQueue);
+}
+
+void DeviceContext::EndExecuteCommandList()
+{
+	GraphicsQueueSync.WaitOnSync();
 }
 
 int DeviceContext::GetDeviceIndex()
@@ -205,5 +240,29 @@ void GPUSyncPoint::CreateSyncPoint(ID3D12CommandQueue * queue)
 	{
 		// Increment the fence value for the current frame.
 		m_fenceValue++;
+	}
+}
+
+void GPUSyncPoint::CreateStartSyncPoint(ID3D12CommandQueue * queue)
+{
+	// Schedule a Signal command in the queue.
+	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
+	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+	DidStartWork = true;
+}
+
+void GPUSyncPoint::WaitOnSync()
+{
+	if (!DidStartWork)
+	{
+		std::cout << "ERROR:Wait Called on Non Async List\n";
+		return;
+	}
+	// Wait until the fence has been processed.	
+	if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_OBJECT_0)
+	{
+		// Increment the fence value for the current frame.
+		m_fenceValue++;
+		DidStartWork = false;
 	}
 }

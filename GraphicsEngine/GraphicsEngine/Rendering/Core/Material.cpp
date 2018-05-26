@@ -14,43 +14,21 @@ Material::Material(BaseTexture * Diff, MaterialProperties props)
 Material::~Material()
 {
 	if (Diffusetexture != nullptr)
-	{
-		if (Diffusetexture->GetRefCount() > 1)
-		{
-			Diffusetexture->RemoveRef();
-		}
-		else
-		{
-			delete Diffusetexture;
-		}		
+	{	
+		SafeRelease(Diffusetexture);
 	}	
 	if (NormalMap != nullptr)
 	{
-		if (NormalMap->GetRefCount() > 1)
-		{
-			NormalMap->RemoveRef();
-		}
-		else
-		{
-			delete NormalMap;
-		}
+		SafeRelease(NormalMap);
 	}
 	if (DisplacementMap != nullptr)
 	{
-		if (DisplacementMap->GetRefCount() > 1)
-		{
-			DisplacementMap->RemoveRef();
-		}
-		else
-		{
-			delete DisplacementMap;
-		}
+		SafeRelease(DisplacementMap);
 	}
 }
 
 void Material::SetMaterialActive(CommandListDef* list)
-{
-	
+{	
 	if (Diffusetexture != nullptr)
 	{
 		if (list != nullptr)
@@ -60,8 +38,7 @@ void Material::SetMaterialActive(CommandListDef* list)
 		else
 		{
 			Diffusetexture->Bind(ALBEDOMAP);
-		}
-		
+		}		
 	}
 	if (NormalMap != nullptr)
 	{
@@ -73,6 +50,7 @@ void Material::SetMaterialActive(CommandListDef* list)
 	}
 	//Todo: Add Other Textures As Needed.
 }
+
 void Material::SetMaterialActive(RHICommandList* list)
 {
 	if (Diffusetexture != nullptr)
@@ -89,6 +67,7 @@ void Material::SetMaterialActive(RHICommandList* list)
 	}
 	//Todo: Add Other Textures As Needed.
 }
+
 void Material::SetShadow(bool state)
 {
 	Properties.DoesShadow = state;
@@ -112,6 +91,7 @@ void Material::SetDisplacementMap(BaseTexture * tex)
 		DisplacementMap = tex;
 	}
 }
+
 void Material::SetNormalMap(BaseTexture * tex)
 {
 	if (tex != nullptr)
@@ -120,6 +100,7 @@ void Material::SetNormalMap(BaseTexture * tex)
 		NormalMap = tex;
 	}
 }
+
 void Material::SetDiffusetexture(BaseTexture * tex)
 {
 	if (tex != nullptr)

@@ -9,6 +9,8 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dxguid.lib")
+//#pragma comment(lib, "dxgidebug.lib")
 #include "d3d12Shader.h"
 #include "D3D12Texture.h"
 
@@ -41,6 +43,7 @@ public:
 
 	void DisplayDeviceDebug();
 	std::string GetMemory();
+	void ReportObjects();
 	void LoadPipeLine();
 	void CreateSwapChainRTs();
 	void InitMipmaps();

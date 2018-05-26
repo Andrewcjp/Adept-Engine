@@ -34,8 +34,6 @@ public:
 	static FrameBuffer* CreateFrameBuffer(int width, int height, DeviceContext* Device = nullptr, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBuffer::FrameBufferType::ColourDepth, glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f));
 	static DeviceContext * GetDeviceContext(int index);
 	static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
-
-	static void BindScreenRenderTarget(int mwidth, int height);
 	static bool InitialiseContext(HWND m_hwnd, int w, int h);
 	static void RHISwapBuffers();
 	static void DestoryContext(HWND hwnd);
@@ -48,8 +46,10 @@ public:
 	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
 	static RHICommandList* CreateCommandList(DeviceContext* Device = nullptr);
 	HINSTANCE m_hinst;
+	static bool RunRenderersAsync();
+	static bool RunListsAsync();
 private:
-
+	bool ShouldRunAsync = false;
 	ERenderSystemType CurrentSystem;
 	
 	//------------------------------------

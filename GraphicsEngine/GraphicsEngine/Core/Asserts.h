@@ -1,5 +1,5 @@
 #pragma once
-#define DOCHECK 1
+#include "EngineGlobals.h"
 #include "Utils\WindowsHelper.h"
 #if DOCHECK
 #define DebugEnsure(condition) if(!condition){ __debugbreak();}
@@ -14,4 +14,5 @@
 #define checkMsgf(condition,Message);
 #define ensure(condition);
 #define ensureMsgf(condition,Message);
+#define NoImpl();
 #endif

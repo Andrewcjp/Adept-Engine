@@ -77,7 +77,8 @@ public:
 	virtual void SetRenderTarget(FrameBuffer* target) = 0;
 
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
-	virtual void Execute() = 0;
+	virtual void Execute(bool Block = true) = 0;
+	virtual void WaitForCompletion() =0;
 	//drawing
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;

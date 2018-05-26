@@ -9,7 +9,6 @@
 RenderEngine::~RenderEngine()
 {
 	DestoryRenderWindow();
-	delete ShadowCMDList;
 	delete mShadowRenderer;
 	delete Post;
 	delete MainShader;
@@ -63,11 +62,10 @@ void RenderEngine::PreRender()
 //init common to both renderers
 void RenderEngine::Init()
 {
-	ShadowCMDList = RHI::CreateCommandList();
 	mShadowRenderer = new ShadowRenderer();
 	if (MainScene != nullptr)
 	{
-		mShadowRenderer->InitShadows(*MainScene->GetLights(), ShadowCMDList);
+		mShadowRenderer->InitShadows(*MainScene->GetLights());
 	}	
 	Post = new PostProcessing();
 	Post->Init();
@@ -88,7 +86,7 @@ void RenderEngine::PrepareData()
 
 void RenderEngine::StaticUpdate()
 {
-	mShadowRenderer->InitShadows(*MainScene->GetLights(), ShadowCMDList);
+	mShadowRenderer->InitShadows(*MainScene->GetLights());
 	mShadowRenderer->Renderered = false;
 	MainShader->UpdateLightBuffer(*MainScene->GetLights());
 	PrepareData();
@@ -115,7 +113,7 @@ void RenderEngine::SetScene(Scene * sc)
 	MainShader->RefreshLights();
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->InitShadows(*MainScene->GetLights(), ShadowCMDList);
+		mShadowRenderer->InitShadows(*MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
 	}
 	if (sc == nullptr)
@@ -134,12 +132,8 @@ void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 }
 
 void RenderEngine::ShadowPass()
-{
-	ShadowCMDList->ResetList();
-	//MainShader->BindLightsBuffer(ShadowCMDList);
-
-	mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetObjects(), ShadowCMDList, MainShader);
-	ShadowCMDList->Execute();
+{	
+	mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetObjects(), MainShader);
 }
 
 void RenderEngine::PostProcessPass()

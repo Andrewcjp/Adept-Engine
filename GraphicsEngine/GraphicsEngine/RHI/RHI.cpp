@@ -69,7 +69,7 @@ bool RHI::SupportsExplictMultiAdaptor()
 	return (GetType() == RenderSystemD3D12);
 }
 
-RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device )
+RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device)
 {
 	switch (instance->CurrentSystem)
 	{
@@ -109,6 +109,17 @@ RHICommandList * RHI::CreateCommandList(DeviceContext* Device)
 	return nullptr;
 }
 
+bool RHI::RunRenderersAsync()
+{
+	return false;
+}
+
+bool RHI::RunListsAsync()
+{
+	return true;
+}
+
+
 void RHI::DestoryRHI()
 {
 	if (instance != nullptr)
@@ -116,6 +127,7 @@ void RHI::DestoryRHI()
 		delete instance;
 	}
 }
+
 #define NOLOADTEX 0
 BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 {
@@ -124,13 +136,14 @@ BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 		Device = D3D12RHI::GetDefaultDevice();
 	}
 #if NOLOADTEX
+	//TODO: Default Cube Map!
 	if (ImageIO::GetDefaultTexture())
 	{
 		return ImageIO::GetDefaultTexture();
 	}
 #endif
 	BaseTexture* newtex = nullptr;
-	if (ImageIO::CheckIfLoaded(path,&newtex))
+	if (ImageIO::CheckIfLoaded(path, &newtex))
 	{
 		return newtex;
 	}
@@ -138,7 +151,7 @@ BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		newtex = new D3D12Texture(Device);	
+		newtex = new D3D12Texture(Device);
 		break;
 #endif
 	}
@@ -150,14 +163,13 @@ BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 	return newtex;
 }
 
-
 BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device)
 {
 	BaseTexture* newtex = nullptr;
 	switch (instance->CurrentSystem)
 	{
 	case RenderSystemD3D12:
-		newtex = new D3D12Texture(Device);	
+		newtex = new D3D12Texture(Device);
 		break;
 	}
 	return newtex;
@@ -179,7 +191,7 @@ Renderable * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings
 	return new Mesh(accpath, Settings);
 }
 
-FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Device, float ratio, FrameBuffer::FrameBufferType type,glm::vec4 clearcolour)
+FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Device, float ratio, FrameBuffer::FrameBufferType type, glm::vec4 clearcolour)
 {
 	switch (instance->CurrentSystem)
 	{
@@ -196,8 +208,8 @@ FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Devic
 #endif
 	}
 	return nullptr;
-
 }
+
 DeviceContext* RHI::GetDeviceContext(int index)
 {
 	if (IsD3D12())
@@ -206,6 +218,7 @@ DeviceContext* RHI::GetDeviceContext(int index)
 	}
 	return nullptr;
 }
+
 ShaderProgramBase * RHI::CreateShaderProgam(DeviceContext* Device)
 {
 	switch (instance->CurrentSystem)
@@ -221,11 +234,6 @@ ShaderProgramBase * RHI::CreateShaderProgam(DeviceContext* Device)
 #endif
 	}
 	return nullptr;
-}
-
-void RHI::BindScreenRenderTarget(int width, int height)
-{	
-
 }
 
 bool RHI::InitialiseContext(HWND m_hwnd, int w, int h)
@@ -257,6 +265,7 @@ bool RHI::InitialiseContext(HWND m_hwnd, int w, int h)
 
 	return false;
 }
+
 void RHI::RHISwapBuffers()
 {
 	switch (instance->CurrentSystem)
@@ -269,6 +278,7 @@ void RHI::RHISwapBuffers()
 		break;
 	}
 }
+
 void RHI::DestoryContext(HWND hwnd)
 {
 	switch (instance->CurrentSystem)
@@ -279,7 +289,8 @@ void RHI::DestoryContext(HWND hwnd)
 		break;
 	}
 }
-RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device,int Length)
+
+RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)
 {
 	if (Device == nullptr)
 	{
@@ -289,7 +300,7 @@ RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device,int Length)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		return new D3D12RHITextureArray(Device,Length);
+		return new D3D12RHITextureArray(Device, Length);
 		break;
 #endif
 	}

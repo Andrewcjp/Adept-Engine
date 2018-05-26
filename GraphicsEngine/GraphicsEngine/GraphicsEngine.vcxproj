@@ -296,9 +296,11 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
-    <ClInclude Include="Core\Assets\DDSTextureLoader12.h" />
+    <ClInclude Include="RHI\RHI_fwd.h" />
+    <ClInclude Include="ThirdParty\NVDDS\DDSTextureLoader12.h" />
     <ClInclude Include="Core\Assets\MeshLoader.h" />
     <ClInclude Include="Core\Utils\MovingAverage.h" />
+    <ClInclude Include="Core\IRefCount.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\DxIncludeHandler.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_ColourCorrect.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_CompostPass.h" />
@@ -434,7 +436,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
-    <ClCompile Include="Core\Assets\DDSTextureLoader12.cpp" />
+    <ClCompile Include="ThirdParty\NVDDS\DDSTextureLoader12.cpp" />
     <ClCompile Include="Core\Assets\MeshLoader.cpp" />
     <ClCompile Include="Core\Utils\MovingAverage.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\DxIncludeHandler.cpp" />

@@ -27,6 +27,7 @@ void DeferredRenderer::OnRender()
 		}
 	}
 #endif
+	ShadowPass();
 	GeometryPass();
 	LightingPass();
 	RenderSkybox();
@@ -61,7 +62,6 @@ DeferredRenderer::~DeferredRenderer()
 
 void DeferredRenderer::GeometryPass()
 {
-
 	if (MainScene->StaticSceneNeedsUpdate)
 	{
 		MainShader->UpdateLightBuffer(*MainScene->GetLights());
@@ -94,6 +94,7 @@ void DeferredRenderer::SSAOPass()
 	//SSAOShader->RenderPlane();
 	//SSAOBuffer->UnBind();
 }
+
 void DeferredRenderer::LightingPass()
 {
 	LightingList->ResetList();
@@ -112,8 +113,6 @@ void DeferredRenderer::LightingPass()
 	LightingList->Execute();
 }
 
-
-
 void DeferredRenderer::Resize(int width, int height)
 {
 
@@ -131,7 +130,6 @@ void DeferredRenderer::Resize(int width, int height)
 		MainCamera->UpdateProjection((float)width / (float)height);
 	}
 }
-
 
 void DeferredRenderer::DestoryRenderWindow()
 {

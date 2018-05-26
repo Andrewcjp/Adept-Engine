@@ -81,12 +81,24 @@ void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float
 	ensure(ListType == ECommandListType::Graphics);
 }
 
-void D3D12CommandList::Execute()
+void D3D12CommandList::Execute(bool Block)
 {
 	ThrowIfFailed(CurrentGraphicsList->Close());
 	//D3D12RHI::Instance->ExecList(CurrentGraphicsList);
-	Device->ExecuteCommandList(CurrentGraphicsList);
+	if (Block)
+	{
+		Device->ExecuteCommandList(CurrentGraphicsList);
+	}
+	else
+	{
+		Device->StartExecuteCommandList(CurrentGraphicsList);
+	}
 	IsOpen = false;
+}
+
+void D3D12CommandList::WaitForCompletion()
+{
+	Device->EndExecuteCommandList();
 }
 
 void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)

@@ -25,7 +25,6 @@ public:
 	UIManager();
 	UIManager(int w, int h);
 	void InitEditorUI();
-	//void CreateDropDown(std::vector<std::string>& options, int x, int y, std::function<void(int)> Callback);
 	void CreateDropDown(std::vector<std::string>& options, float width, float height, float x, float y, std::function<void(int)> Callback);
 	void AlertBox(std::string MSg);
 	~UIManager();

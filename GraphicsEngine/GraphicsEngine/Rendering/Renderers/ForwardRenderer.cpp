@@ -99,7 +99,12 @@ void ForwardRenderer::MainPass()
 	
 	MainCommandList->SetRenderTarget(nullptr);
 //	D3D12TimeManager::Instance->EndTimer(MainCommandList);
+	if (RHI::RunRenderersAsync())
+	{
+		mShadowRenderer->Wait();
+	}
 	MainCommandList->Execute();
+	//MainCommandList->WaitForCompletion();
 }
 
 void ForwardRenderer::RenderSkybox()

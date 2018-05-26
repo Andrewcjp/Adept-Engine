@@ -47,7 +47,7 @@ public:
 	void EndResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
 	bool IsTransitioning();
 private:
-	eResourceState currentState;
+	eResourceState currentState = eResourceState::Resident;
 	ID3D12Resource* resource = nullptr;
 	D3D12_RESOURCE_STATES CurrentResourceState = {};
 	GPUMemoryBlock Block;

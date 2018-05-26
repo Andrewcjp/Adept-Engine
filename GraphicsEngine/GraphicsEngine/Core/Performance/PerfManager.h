@@ -3,8 +3,8 @@
 #define BUILD_WITH_NVPERFKIT 0
 #include <iomanip>
 #include <time.h>
-#define STATS 1
-#include "../Core/Utils/MovingAverage.h"
+#include "EngineGlobals.h"
+#include "Core/Utils/MovingAverage.h"
 class PerfManager
 {
 public:

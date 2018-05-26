@@ -9,8 +9,10 @@
 #define BUILD_VULKAN 0
 
 
+#define STATS 1
+#define DOCHECK 1
 #define BUILD_SHIPPING 0
-//#define DOCHECK 1
+
 #pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0

@@ -1,5 +1,5 @@
 #include "UILabel.h"
-
+#include "UIManager.h"
 #include "TextRenderer.h"
 UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
@@ -16,7 +16,8 @@ void UILabel::Render()
 {
 	if (TextRenderer::instance != nullptr)
 	{
-		TextRenderer::instance->RenderFromAtlas(MText, (float)X +10/*+ (mwidth / 2)*/, (float)Y + ((mheight / 2.0f) - (TextScale )), TextScale);
+		return;
+		UIManager::instance->RenderTextToScreen(MText, (float)X +10/*+ (mwidth / 2)*/, (float)Y + ((mheight / 2.0f) - (TextScale )), TextScale,glm::vec3(1));
 	}
 }
 
