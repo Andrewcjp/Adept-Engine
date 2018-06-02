@@ -10,7 +10,7 @@ public:
 	void LoadScene(Scene * target, std::string path);
 	static	rapidjson::Document::AllocatorType* jallocator;
 private:
-	rapidjson::Document doc;
+	rapidjson::Document doc = rapidjson::Document();
 	std::string testpath = "test.txt";
 	void SerialiseObjects(Scene* target);
 

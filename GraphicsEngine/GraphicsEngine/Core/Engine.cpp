@@ -17,7 +17,7 @@
 #pragma comment(lib, "shlwapi.lib")
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
-CompoenentRegistry* Engine::CompRegistry = nullptr;
+CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
 PhysicsEngine* Engine::PhysEngine = NULL;
 #ifdef BUILD_GAME
 #define UseDevelopmentWindows 0
@@ -28,7 +28,12 @@ PhysicsEngine* Engine::PhysEngine = NULL;
 #include "../D3D12/D3D12Window.h"
 #include "D3D11/D3D11Window.h"
 #endif
+//#include "TestGame.h"
 
+PhysicsEngine * Engine::GetPhysEngineInstance()
+{
+	return PhysEngine;
+}
 
 std::string Engine::GetRootDir()
 {
@@ -80,6 +85,40 @@ Engine::~Engine()
 void Engine::Destory()
 {
 	PhysEngine->cleanupPhysics();
+}
+
+typedef Game*(CALLBACK* LPFNDLLFUNC1)(void*);
+HRESULT Engine::LoadAndCallSomeFunction(void*dwParam12)
+{
+	HINSTANCE hDLL;               // Handle to DLL  
+	LPFNDLLFUNC1 lpfnDllFunc1;    // Function pointer  
+	HRESULT hrReturnVal = S_OK;
+	hDLL = LoadLibrary(L"TestGame");
+	if (NULL != hDLL)
+	{
+		lpfnDllFunc1 = (LPFNDLLFUNC1)GetProcAddress(hDLL, "Get");
+		if (NULL != lpfnDllFunc1)
+		{
+			// call the function  
+			SetGame((Game*)lpfnDllFunc1(dwParam12));
+		}
+		else
+		{		
+			// report the error  
+			hrReturnVal = ERROR_DELAY_LOAD_FAILED;
+		}
+		//FreeLibrary(hDLL);
+	}
+	else
+	{
+		hrReturnVal = ERROR_DELAY_LOAD_FAILED;
+	}
+	return hrReturnVal;
+}
+
+void Engine::LoadDLL()
+{
+	LoadAndCallSomeFunction(CompRegistry);
 }
 
 void Engine::SetHInstWindow(HINSTANCE inst)
@@ -155,6 +194,7 @@ void Engine::SetGame(Game * game)
 {
 	mgame = game;
 	CompRegistry->RegisterExtraComponents(game->GetECR());
+	game->SetTickRate(20);
 }
 
 Game * Engine::GetGame()

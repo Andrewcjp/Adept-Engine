@@ -31,11 +31,11 @@ void PhysicsThrowerComponent::CreateStackAtPoint()
 	{
 		return;
 	}
-	if (Engine::PhysEngine->RayCastScene(cam->GetPosition(), cam->GetForward(), 100, &hit) == false)
+	if (Engine::GetPhysEngineInstance()->RayCastScene(cam->GetPosition(), cam->GetForward(), 100, &hit) == false)
 	{
 		return;
 	}
-	std::vector<RigidBody*> objs = Engine::PhysEngine->createStack(hit.position, 5, 0.5);
+	std::vector<RigidBody*> objs = Engine::GetPhysEngineInstance()->createStack(hit.position, 5, 0.5);
 
 	for (size_t i = 0; i < objs.size(); i++)
 	{
@@ -65,7 +65,7 @@ void PhysicsThrowerComponent::FireAtScene()
 	go->GetTransform()->SetPos(cam->GetPosition());
 	float scale = 0.5;
 	go->GetTransform()->SetScale(glm::vec3(scale));
-	go->actor = Engine::PhysEngine->FirePrimitiveAtScene(cam->GetPosition() + cam->GetForward() * 2, cam->GetForward() * CurrentForce, scale);
+	go->actor = Engine::GetPhysEngineInstance()->FirePrimitiveAtScene(cam->GetPosition() + cam->GetForward() * 2, cam->GetForward() * CurrentForce, scale);
 	GetOwner()->GetScene()->AddGameobjectToScene(go);
 }
 void PhysicsThrowerComponent::InitComponent()

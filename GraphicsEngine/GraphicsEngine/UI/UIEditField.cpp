@@ -187,7 +187,11 @@ void UIEditField::Render()
 		Toggle->Render();
 	}
 	Namelabel->Render();
-
+	if (Valueptr != nullptr)
+	{
+		GetValueText(nextext);
+		Textlabel->SetText(nextext);
+	}
 }
 
 void UIEditField::ResizeView(int w, int h, int x, int y)

@@ -10,7 +10,7 @@ class Transform;
 class Camera
 {
 public:
-	Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar);
+	CORE_API Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar);
 	bool UseLeftHanded = false;
 	float maxz = 50;
 	float zNear = 0.0f;
@@ -24,7 +24,7 @@ public:
 	}
 	void SetUpAndForward(glm::vec3 fward, glm::vec3 uup);
 	glm::mat4 GetView();
-	glm::vec3 GetPosition();
+	CORE_API glm::vec3 GetPosition();
 	void MoveForward(float amt);
 	void MoveRight(float amt);
 	void MoveUp(float amt);
@@ -37,7 +37,6 @@ public:
 	void SetMouseRotation(float x, float y);
 	void GetRayAtScreenPos(float screenX, float screenY, glm::vec3 & outrayDirection, glm::vec3 & outRayorign);
 	glm::vec3 ScreenPointToWorld(float screenx, float screeny);
-	void ScreenPointToWorld(float screenX, float screenY, glm::vec3 & outRayorign);
 	glm::vec3 TransformDirection(glm::vec3 pDirection, glm::mat4 pMatrix)
 	{
 		return glm::normalize(glm::vec3(pMatrix * glm::vec4(pDirection, 0.0f)));

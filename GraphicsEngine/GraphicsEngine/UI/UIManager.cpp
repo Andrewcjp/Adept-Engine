@@ -170,7 +170,7 @@ void UIManager::UpdateSize(int width, int height)
 	DrawBatcher->ClearVertArray();
 	m_width = width;
 	m_height = height;
-	ViewportRect = CollisionRect(GetScaledWidth(0.70f), GetScaledHeight(0.70f), GetScaledWidth(LeftWidth), GetScaledHeight(BottomHeight));
+	ViewportRect = CollisionRect(GetScaledWidth(0.60f), GetScaledHeight(0.60f), GetScaledWidth(LeftWidth), GetScaledHeight(BottomHeight));
 
 	struct less_than_key
 	{
@@ -246,6 +246,10 @@ void UIManager::MouseMove(int x, int y)
 		}
 	}
 	Blocking = !(ViewportRect.Contains(x, y));
+#if 0
+	widgets[2]->Colour = Blocking ? glm::vec3(1): glm::vec3(0);
+	UpdateBatches();
+#endif
 }
 
 void UIManager::MouseClick(int x, int y)

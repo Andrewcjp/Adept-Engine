@@ -80,6 +80,10 @@ void LightComponent::PostChangeProperties()
 {
 	SetShadow(Shadow);
 	SetIntensity(intensity);
+	if (GetOwner()->GetScene())
+	{
+		GetOwner()->GetScene()->StaticSceneNeedsUpdate = true;
+	}
 }
 
 void LightComponent::Serialise(rapidjson::Value & v)

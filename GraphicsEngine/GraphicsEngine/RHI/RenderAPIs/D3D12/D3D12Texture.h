@@ -1,8 +1,8 @@
 #pragma once
-#include "../RHI/BaseTexture.h"
+#include "RHI/BaseTexture.h"
 #include <d3d12.h>
 #include <vector>
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 
 class D3D12Texture : public BaseTexture
 {
@@ -28,16 +28,10 @@ private:
 	unsigned char * GenerateMips(int count, int StartWidth, int StartHeight, unsigned char * startdata);
 	bool CLoad(std::string name);
 	bool LoadDDS(std::string filename);
-
 	D3D12_SUBRESOURCE_DATA Texturedatarray[9];
 	class DeviceContext * Device = nullptr;
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	ID3D12Resource* m_texture = nullptr;
-	class DescriptorHeap* srvHeap = nullptr;
-	// Inherited via BaseTexture
-	
-
-
-
+	class DescriptorHeap* srvHeap = nullptr;	
 };
 

@@ -41,11 +41,10 @@ private:
 	EditorGizmos* gizmos;
 	bool IsDeferredMode = false;
 	EditorObjectSelector* selector;
-	Scene* CurrentPlayScene;
+	Scene* CurrentPlayScene = nullptr;
 	bool IsPlayingScene = false;
 	int statcount = 0;
 	int currentmemeory = 0;
 	class Editor_Camera* EditorCamera;
-	class SceneJSerialiser* Saver;
 	std::string CurrentSceneSavePath;
 };

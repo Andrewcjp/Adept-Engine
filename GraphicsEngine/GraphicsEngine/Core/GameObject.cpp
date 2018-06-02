@@ -172,7 +172,7 @@ void GameObject::EditorUpdate()
 		{
 			m_Components[i]->OnTransformUpdate();
 		}
-		GetScene()->StaticSceneNeedsUpdate = true;
+		//GetScene()->StaticSceneNeedsUpdate = true;
 		m_transform->Update();
 	}
 }
@@ -307,9 +307,16 @@ void GameObject::DeserialiseGameObject(rapidjson::Value & v)
 //called when the editor updates a value
 void GameObject::PostChangeProperties()
 {
+	GetScene()->StaticSceneNeedsUpdate = true;
 	GetTransform()->SetPos(PositionDummy);
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		m_Components[i]->PostChangeProperties();
 	}
+}
+
+void GameObject::ChangePos_editor(glm::vec3 NewPos)
+{
+	PositionDummy = NewPos;
+
 }

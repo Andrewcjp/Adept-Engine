@@ -9,7 +9,7 @@ public:
 		bool IsReflective = false;
 		bool DoesShadow = true;
 	};
-	Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
+	CORE_API Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
 	~Material();
 	void SetMaterialActive(class RHICommandList * list);
 

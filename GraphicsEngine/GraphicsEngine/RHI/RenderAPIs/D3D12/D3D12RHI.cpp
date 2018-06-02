@@ -14,7 +14,6 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
-	PrimaryDevice = new DeviceContext();
 }
 
 
@@ -29,7 +28,6 @@ void D3D12RHI::DestroyContext()
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
 	WaitForGpu();
-
 	ReleaseSwapRTs();
 	delete MipmapShader;
 
@@ -43,7 +41,7 @@ void D3D12RHI::DestroyContext()
 	m_dsvHeap->Release();
 	m_SetupCommandList->Release();
 	delete D3D12TimeManager::Instance;
-//	m_swapChain->Release();
+	//	m_swapChain->Release();
 	CloseHandle(m_fenceEvent);
 	m_fence->Release();
 
@@ -70,6 +68,7 @@ void D3D12RHI::CheckFeatures(ID3D12Device* pDevice)
 	HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &FeatureData, sizeof(FeatureData));
 	if (SUCCEEDED(hr))
 	{
+		//check(FeatureData.CrossAdapterRowMajorTextureSupported);
 		// TypedUAVLoadAdditionalFormats contains a Boolean that tells you whether the feature is supported or not
 	/*	if (FeatureData.TypedUAVLoadAdditionalFormats)
 		{*/
@@ -163,34 +162,38 @@ void D3D12RHI::LoadPipeLine()
 	// Enable the debug layer (requires the Graphics Tools "optional feature").
 	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
 	{
-		
+
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
-			
+
 			// Enable additional debug layers.
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
-		
+
 	}
 #endif
 	IDXGIFactory4* factory;
 	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 	ReportObjects();
+#if 0
+	IDXGIAdapter* warpAdapter;
+	ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
+	SecondaryDevice = new DeviceContext();
+	SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
 
-	if (false)
+#endif
+#if 0
+	if (true)
 	{
-		IDXGIAdapter* warpAdapter;
-		ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
-		SecondaryDevice = new DeviceContext();
-		SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter,1);
+		
 
-#if 1
+
 		//testing warp adaptor
 		/*for (int i = 0; i < 3; i++)
 		{
 			testbuffer = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
-		}*/	
+		}*/
 
 		//testbuffer2 = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
 		/*for (int i = 0; i < 3; i++)
@@ -198,14 +201,18 @@ void D3D12RHI::LoadPipeLine()
 			Test = new D3D12Texture("\\asset\\texture\\grasshillalbedo.png", SecondaryDevice);
 		}	*/
 
-#endif
-	}
 
+	}
+#endif
+#if 0
 	IDXGIAdapter1* hardwareAdapter;
 	GetHardwareAdapter(factory, &hardwareAdapter);
 
 
-	PrimaryDevice->CreateDeviceFromAdaptor(hardwareAdapter,0);
+	PrimaryDevice->CreateDeviceFromAdaptor(hardwareAdapter, 0);
+#else 
+	FindAdaptors(factory);
+#endif
 	//ThrowIfFailed(D3D12CreateDevice(
 	//	hardwareAdapter,
 	//	D3D_FEATURE_LEVEL_11_0,
@@ -330,7 +337,7 @@ void D3D12RHI::InternalResizeSwapChain(int x, int y)
 		CreateDepthStencil(x, y);
 		for (int i = 0; i < FrameBuffersLinkedToSwapChain.size(); i++)
 		{
-			FrameBuffersLinkedToSwapChain[i]->Resize(x,y);			
+			FrameBuffersLinkedToSwapChain[i]->Resize(x, y);
 		}
 		RequestedResize = false;
 	}
@@ -420,7 +427,7 @@ void D3D12RHI::ExecSetUpList()
 	{
 		SecondaryDevice->UpdateCopyEngine();
 	}
-	WaitForGpu();
+	PrimaryDevice->WaitForGpu();
 	ReleaseUploadHeap();
 }
 
@@ -443,7 +450,9 @@ void D3D12RHI::ExecList(CommandListDef* list, bool Block)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	//PrimaryDevice->WaitForGpu();
 	PrimaryDevice->WaitForGpu();
+	//PrimaryDevice->ExecuteCommandList(list);
 }
 
 void D3D12RHI::PresentFrame()
@@ -458,7 +467,7 @@ void D3D12RHI::PresentFrame()
 		PrimaryDevice->ExecuteCommandList(m_SetupCommandList);
 		//ExecList(m_SetupCommandList);
 	}
-	
+
 	//testing
 	if (m_BudgetNotificationCookie == 1)
 	{
@@ -489,7 +498,7 @@ void D3D12RHI::PresentFrame()
 	}
 	MoveToNextFrame();
 
-	WaitForGpu();
+	//WaitForGpu();
 	count++;
 	if (count > 2)
 	{
@@ -647,6 +656,49 @@ void D3D12RHI::WaitForPreviousFrame()
 	}
 
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+}
+void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
+{
+	IDXGIAdapter1* adapter;
+	int CurrentDeviceIndex = 0;
+	for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
+	{
+		DXGI_ADAPTER_DESC1 desc;
+		adapter->GetDesc1(&desc);
+
+		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+		{
+			// Don't select the Basic Render Driver adapter.
+			// If you want a software adapter, pass in "/warp" on the command line.
+			continue;
+		}
+		// Check to see if the adapter supports Direct3D 12, but don't create the
+		// actual device yet.
+		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+		{
+			DeviceContext** Device = nullptr;
+			if (CurrentDeviceIndex == 0)
+			{
+				Device = &PrimaryDevice;
+			}
+			else if (CurrentDeviceIndex == 1)
+			{
+				Device = &SecondaryDevice;
+			}
+			else
+			{
+				return;
+			}
+			
+			if (*Device == nullptr)
+			{
+				*Device = new DeviceContext();
+				(*Device)->CreateDeviceFromAdaptor(adapter, CurrentDeviceIndex);
+				CurrentDeviceIndex++;
+			}
+		}
+	}
+
 }
 
 

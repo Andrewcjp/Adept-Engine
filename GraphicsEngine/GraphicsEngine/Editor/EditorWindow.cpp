@@ -83,7 +83,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	gizmos = new EditorGizmos();
 	selector = new EditorObjectSelector();
 	selector->init();
-//	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());	
+
 	if (RHI::IsD3D12())
 	{
 		CurrentScene->LoadExampleScene(Renderer, false);
@@ -144,12 +144,10 @@ void EditorWindow::SetDeferredState(bool state)
 }
 
 void EditorWindow::PrePhysicsUpdate()
-{
-}
+{}
 
 void EditorWindow::DuringPhysicsUpdate()
-{
-}
+{}
 
 void EditorWindow::FixedUpdate()
 {
@@ -161,6 +159,16 @@ void EditorWindow::FixedUpdate()
 
 void EditorWindow::Update()
 {
+	if (IsPlayingScene)
+	{
+		PerfManager::StartTimer("Scene Update");
+		CurrentPlayScene->UpdateScene(DeltaTime);
+		PerfManager::EndTimer("Scene Update");
+	}
+	else
+	{
+		CurrentScene->EditorUpdateScene();
+	}
 	EditorCamera->Update(DeltaTime);
 
 	if (input->Selectedobject != nullptr)
@@ -173,15 +181,9 @@ void EditorWindow::Update()
 			UI->GetInspector()->SetSelectedObject(input->Selectedobject);
 		}
 	}
-	if (IsPlayingScene)
-	{
-		PerfManager::StartTimer("Scene Update");
-		CurrentPlayScene->UpdateScene(DeltaTime);
-		PerfManager::EndTimer("Scene Update");
-	}
 	else
 	{
-		CurrentScene->EditorUpdateScene();
+		UI->GetInspector()->SetSelectedObject(nullptr);
 	}
 	if (input->GetVKey(VK_CONTROL))
 	{
@@ -233,7 +235,7 @@ void EditorWindow::LoadScene()
 
 void EditorWindow::RefreshScene()
 {
-//	selector->LinkPhysxBodysToGameObjects(Renderer->GetObjects());
+	selector->LinkPhysxBodysToGameObjects(*CurrentScene->GetObjects());
 	UI->UpdateGameObjectList(CurrentScene->GetObjects());
 	UI->RefreshGameObjectList();
 }
@@ -267,6 +269,6 @@ void EditorWindow::ProcessMenu(WORD command)
 
 void EditorWindow::WindowUI()
 {
-	
+
 }
 

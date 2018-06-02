@@ -100,9 +100,9 @@ void Inspector::AddComponent()
 {
 	//__debugbreak();
 	std::vector<std::string> ops;
-	for (int i = 0; i < CompoenentRegistry::Instance->GetCount(); i++)
+	for (int i = 0; i < CompoenentRegistry::GetInstance()->GetCount(); i++)
 	{
-		ops.push_back(CompoenentRegistry::Instance->GetNameById(i));
+		ops.push_back(CompoenentRegistry::GetInstance()->GetNameById(i));
 	}
 
 	using std::placeholders::_1;
@@ -134,10 +134,6 @@ void Inspector::AddComponentCallback(int i)
 }
 void Inspector::CreateEditor()
 {
-	if (target == nullptr)
-	{
-		return;
-	}
 	if (SubWidgets.size() != 0)
 	{
 		for (int i = 0; i < SubWidgets.size(); i++)
@@ -146,41 +142,43 @@ void Inspector::CreateEditor()
 		}
 		SubWidgets.clear();
 	}
-	std::vector<Inspector::InspectorProperyGroup> Fields = target->GetInspectorFields();
-	for (int i = 0; i < Fields.size(); i++)
+	if (target != nullptr)
 	{
-		UIPanel* Panel = new UIPanel(0, 0, 0, 0);
-
-		for (int j = 0; j < Fields[i].SubProps.size(); j++)
+		std::vector<Inspector::InspectorProperyGroup> Fields = target->GetInspectorFields();
+		for (int i = 0; i < Fields.size(); i++)
 		{
-			UIWidget* newwidget = nullptr;
-			switch (Fields[i].SubProps[j].type)
+			UIPanel* Panel = new UIPanel(0, 0, 0, 0);
+			for (int j = 0; j < Fields[i].SubProps.size(); j++)
 			{
-			case Int:
-			case Float:
-			case String:
-			case Vector:
-			case Label:
-			case Bool:
-				newwidget = new UIEditField(Fields[i].SubProps[j].type, Fields[i].SubProps[j].name, Fields[i].SubProps[j].ValuePtr);
-				break;
-			default:
-				break;
+				UIWidget* newwidget = nullptr;
+				switch (Fields[i].SubProps[j].type)
+				{
+				case Int:
+				case Float:
+				case String:
+				case Vector:
+				case Label:
+				case Bool:
+					newwidget = new UIEditField(Fields[i].SubProps[j].type, Fields[i].SubProps[j].name, Fields[i].SubProps[j].ValuePtr);
+					break;
+				default:
+					break;
+				}
+				if (newwidget != nullptr)
+				{
+					newwidget->AligmentStruct.SizeMax = ItemHeight;
+					Panel->AddSubWidget(newwidget);
+				}
 			}
-			if (newwidget != nullptr)
-			{
-				newwidget->AligmentStruct.SizeMax = ItemHeight;
-				Panel->AddSubWidget(newwidget);
-			}
-		}
-		Panel->SetTitle(Fields[i].name);
-		SubWidgets.push_back(Panel);
+			Panel->SetTitle(Fields[i].name);
+			SubWidgets.push_back(Panel);
 
+		}
+		button = new UIButton(mwidth, 30, 0, 0);
+		button->SetText("Add Component");
+		button->BindTarget(std::bind(&Inspector::AddComponent, this));
+		SubWidgets.push_back(button);
 	}
-	button = new UIButton(mwidth, 30, 0, 0);
-	button->SetText("Add Component");
-	button->BindTarget(std::bind(&Inspector::AddComponent, this));
-	SubWidgets.push_back(button);
 	ResizeView(mwidth, mheight, X, Y);
 	UIManager::UpdateBatches();
 }

@@ -19,7 +19,7 @@ ShadowRenderer::ShadowRenderer()
 		ShadowDirectionalArray->AddFrameBufferBind(DirectionalLightBuffers[i], i);
 	}
 	ShadowCubeArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), MAX_POINT_SHADOWS);
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
 	{
 		PointLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::CubeDepth));
 		ShadowCubeArray->AddFrameBufferBind(PointLightBuffers[i], i);

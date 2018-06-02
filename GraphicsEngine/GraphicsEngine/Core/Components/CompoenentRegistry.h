@@ -1,13 +1,16 @@
 #pragma once
 #include <vector>
 #include <map>
+#include "EngineGlobals.h"
+
 class CompoenentRegistry
 {
 public:
-	CompoenentRegistry();
-	~CompoenentRegistry();
-	void RegisterComponent(std::string name, int id);
-	static CompoenentRegistry* Instance;
+	CORE_API CompoenentRegistry();
+	CORE_API ~CompoenentRegistry();
+	CORE_API void RegisterComponent(std::string name, int id);
+	CORE_API static CompoenentRegistry* GetInstance();
+	
 	enum BaseComponentTypes
 	{
 		LightComp,
@@ -21,7 +24,7 @@ public:
 	
 	static class Component* CreateAdditonalComponent(int id);
 	static Component * CreateBaseComponent(BaseComponentTypes id);
-	void RegisterExtraComponents(class ExtraComponentRegister* ECR);
+	CORE_API void RegisterExtraComponents(class ExtraComponentRegister* ECR);
 	std::string GetNameById(int id);
 	int GetCount();
 private:

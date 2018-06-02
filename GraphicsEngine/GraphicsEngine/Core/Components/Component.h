@@ -2,26 +2,27 @@
 #include <vector>
 #include "../Editor/Inspector.h"
 #include "rapidjson\document.h"
+#include "EngineGlobals.h"
 class Component
 {
 public:
 
-	Component();
-	virtual ~Component();
-	virtual void InitComponent() = 0;
-	virtual void BeginPlay() = 0;
-	virtual void Update(float delta) = 0;
-	virtual void FixedUpdate(float delta);
-	virtual void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props);
-	class GameObject* GetOwner();
+	CORE_API Component();
+	CORE_API virtual ~Component();
+	CORE_API virtual void InitComponent() = 0;
+	CORE_API virtual void BeginPlay() = 0;
+	CORE_API virtual void Update(float delta) = 0;
+	CORE_API virtual void FixedUpdate(float delta);
+	CORE_API virtual void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props);
+	CORE_API class GameObject* GetOwner();
 	void Internal_SetOwner(GameObject* ptr);
 	bool DoesUpdate = true;
 	bool DoesFixedUpdate = false;
-	virtual void OnTransformUpdate();
-	virtual void Serialise(rapidjson::Value& v);
-	virtual void Deserialise(rapidjson::Value& v) = 0;
-	virtual void SceneInitComponent() {};
-	virtual void PostChangeProperties() {};
+	CORE_API virtual void OnTransformUpdate();
+	CORE_API virtual void Serialise(rapidjson::Value& v);
+	CORE_API virtual void Deserialise(rapidjson::Value& v) = 0;
+	CORE_API virtual void SceneInitComponent() {};
+	CORE_API virtual void PostChangeProperties() {};
 protected:
 	int TypeID = -1;
 private:

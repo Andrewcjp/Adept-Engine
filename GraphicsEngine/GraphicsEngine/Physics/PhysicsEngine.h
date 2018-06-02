@@ -27,13 +27,13 @@ public:
 	std::vector<physx::PxRigidActor*> GetActors();
 
 	void cleanupPhysics();
-	std::vector<RigidBody*> createStack(const glm::vec3 & t, int size, float halfExtent);
+	CORE_API std::vector<RigidBody*> createStack(const glm::vec3 & t, int size, float halfExtent);
 
-	RigidBody *FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale/*, PxGeometryType::Enum type*/);
-	RigidBody * CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale);
-	bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene);
+	CORE_API RigidBody *FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale/*, PxGeometryType::Enum type*/);
+	CORE_API RigidBody * CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale);
+	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene);
 	bool RayCastEditorScene(glm::vec3 startpos, glm::vec3 direction, float distance, physx::PxRaycastBuffer * outhit);
-	bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit);
+	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit);
 
 	void AddBoxCollisionToEditor(GameObject * obj);
 

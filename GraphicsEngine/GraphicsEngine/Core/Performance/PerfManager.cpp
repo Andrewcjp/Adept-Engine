@@ -315,7 +315,7 @@ std::string PerfManager::GetCounterData()
 	}
 	std::stringstream stream;
 	float ToMB = (1.0f / 1000000.0f);
-	stream << "Draw calls " << PerfManager::Instance->GetValue(OGLBatch) << " Idle " /*<< std::fixed << std::setprecision(1)*/ << PerfManager::Instance->GetValue(OGLMem)*ToMB;
+	stream << "Draw calls " << PerfManager::Engine::CompRegistry->GetValue(OGLBatch) << " Idle " /*<< std::fixed << std::setprecision(1)*/ << PerfManager::Engine::CompRegistry->GetValue(OGLMem)*ToMB;
 	//<< "MB (" << PerfManager::Instance->GetValue(OGLTextureMem)*ToMB << "MB) ";
 
 	std::string out = stream.str();

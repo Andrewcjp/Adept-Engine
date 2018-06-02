@@ -1,11 +1,10 @@
 #pragma once
-
 #include <iostream>
 #include <vector>
 #include "RenderBaseTypes.h"
 #include "Renderable.h"
-#include "../RHI/RHICommandList.h"
-#include "../Core/Assets/MeshLoader.h"
+#include "RHI/RHICommandList.h"
+#include "Core/Assets/MeshLoader.h"
 class Mesh :public Renderable
 {
 public:

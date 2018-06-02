@@ -7,8 +7,8 @@ DeviceContext::DeviceContext()
 
 DeviceContext::~DeviceContext()
 {
-	EnsureWorkComplete();
-	WaitForGpu();//Ensure the GPU has complete the current task!
+	EnsureWorkComplete();//Ensure the GPU has complete the current task!
+	//WaitForGpu(true);
 	WorkerRunning = false;
 	if (m_Device)
 	{
@@ -58,7 +58,7 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 		std::cout << "Device Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel) << std::endl;
 	}
 	DeviceIndex = index;
-
+	D3D12RHI::CheckFeatures(m_Device);
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
@@ -75,10 +75,14 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
+	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator)));
 	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_CopyCommandAllocator,nullptr, IID_PPV_ARGS(&m_CopyList)));
+	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_SharedCopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_IntraCopyList)));
+	m_IntraCopyList->Close();
+	
 	GraphicsQueueSync.Init(GetDevice());
 	CopyQueueSync.Init(GetDevice());
-
+	WorkerThread_GraphicsQueueSync.Init(GetDevice());
 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
@@ -86,9 +90,8 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 
 	if (RHI::RunListsAsync())
 	{
-		WorkerThreadEnd = CreateEvent(0, 0, 0, L"");
-		LPDWORD id = 0;
-		CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&DeviceContext::StartThread, this, NULL, id);
+		WorkerThreadEnd = CreateEvent(0, 0, 0, L"");		
+		CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&DeviceContext::StartThread, this, NULL,&WorkerThreadid);
 	}
 
 }
@@ -137,14 +140,30 @@ void DeviceContext::EnsureWorkComplete()
 		WaitForSingleObject(WorkerThreadEnd, INFINITE);
 	}
 }
+
 void DeviceContext::WaitForGpu()
 {
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 }
 
+void DeviceContext::WorkerThread_WaitForGpu()
+{
+	WorkerThread_GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
+}
+
 ID3D12GraphicsCommandList * DeviceContext::GetCopyList()
 {
 	return m_CopyList;
+}
+
+ID3D12GraphicsCommandList * DeviceContext::GetSharedCopyList()
+{
+	return m_IntraCopyList;
+}
+
+void DeviceContext::ResetSharingCopyList()
+{
+	ThrowIfFailed(m_IntraCopyList->Reset(m_SharedCopyCommandAllocator, nullptr));
 }
 
 void DeviceContext::NotifyWorkForCopyEngine()

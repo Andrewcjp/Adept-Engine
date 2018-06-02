@@ -11,8 +11,9 @@ public:
 	~Scene();
 	void UpdateScene(float deltatime);
 	void EditorUpdateScene();
+	void OnFrameEnd();
 	void FixedUpdateScene(float deltatime);
-	void AddGameobjectToScene(GameObject* gameobject);
+	CORE_API void AddGameobjectToScene(GameObject* gameobject);
 	void CopyScene(Scene * newscene);
 	std::vector<GameObject*>* GetObjects() { return &SceneObjects; }
 	void StartScene();

@@ -10,10 +10,10 @@ public:
 	RigidBody();
 	~RigidBody();
 	RigidBody(physx::PxRigidDynamic * Rigid);
-	glm::vec3 GetPosition() ;
+	CORE_API glm::vec3 GetPosition() ;
 	glm::quat GetRotation();
 	void AddTorque(glm::vec3);
-	void AddForce(glm::vec3);
+	CORE_API void AddForce(glm::vec3);
 	glm::vec3 GetLinearVelocity();
 private:
 	physx::PxRigidDynamic* actor;

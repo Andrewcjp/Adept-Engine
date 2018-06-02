@@ -78,9 +78,9 @@ void UIListBox::RemoveAll()
 	CurrentCount = 0;
 	items.clear();
 }
-void UIListBox::Select(int inex)
+void UIListBox::Select(int index)
 {
-	SelectedCurrent = inex;
+	SelectedCurrent = index;
 	if (SelectionChanged)
 	{
 		SelectionChanged(SelectedCurrent);

@@ -62,7 +62,7 @@ void D3D12FrameBuffer::CreateSRVInHeap(int index, DescriptorHeap* targetheap)
 		CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(), targetheap->GetCPUAddress(index));
 	}
 	else if (m_ftype == FrameBufferType::Depth)
-	{		
+	{
 		CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(), targetheap->GetCPUAddress(index));
 	}
 }
@@ -72,7 +72,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc()
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	if (m_ftype == FrameBufferType::CubeDepth)
-	{	
+	{
 		shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 		shadowSrvDesc.TextureCube.MipLevels = 1;
@@ -216,6 +216,10 @@ bool D3D12FrameBuffer::CheckDevice(int index)
 {
 	if (CurrentDevice != nullptr)
 	{
+		if (OtherDevice != nullptr)
+		{
+			return (OtherDevice->GetDeviceIndex() == index) || (CurrentDevice->GetDeviceIndex() == index);
+		}
 		return (CurrentDevice->GetDeviceIndex() == index);
 	}
 	return false;
@@ -250,15 +254,150 @@ void D3D12FrameBuffer::Resize(int width, int height)
 	}
 }
 
+static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
+{
+	return (size + alignment - 1) & ~(alignment - 1);
+}
+
 void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 {
+	OtherDevice = device;
+	ID3D12Device* Host = CurrentDevice->GetDevice();
+	ID3D12Device* Target = OtherDevice->GetDevice();
+	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(RTVformat, m_width, m_height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+#if 1
 
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+
+	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, nullptr);
+	UINT64 textureSize = Align(layout.Footprint.RowPitch * layout.Footprint.Height);
+
+	// Create a buffer with the same layout as the render target texture.
+	D3D12_RESOURCE_DESC crossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER);
+
+	CD3DX12_HEAP_DESC heapDesc(
+		textureSize,
+		D3D12_HEAP_TYPE_DEFAULT,
+		0,
+		D3D12_HEAP_FLAG_SHARED | D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER);
+	Host->CreateHeap(&heapDesc, IID_PPV_ARGS(&CrossHeap));
+
+
+
+	ThrowIfFailed(Host->CreateSharedHandle(
+		CrossHeap,
+		nullptr,
+		GENERIC_ALL,
+		nullptr,
+		&heapHandle));
+
+	HRESULT openSharedHandleResult = Target->OpenSharedHandle(heapHandle, IID_PPV_ARGS(&TWO_CrossHeap));
+
+	// We can close the handle after opening the cross-adapter shared resource.
+	CloseHandle(heapHandle);
+	//target
+	ThrowIfFailed(Host->CreatePlacedResource(
+		CrossHeap,
+		0,
+		&crossAdapterDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&PrimaryRes)));
+	//source
+	ThrowIfFailed(Target->CreatePlacedResource(
+		TWO_CrossHeap,
+		0,
+		&crossAdapterDesc,
+		D3D12_RESOURCE_STATE_COPY_SOURCE,
+		nullptr,
+		IID_PPV_ARGS(&Stagedres)));
+#endif
+	////final out
+	//ThrowIfFailed(Primary->CreateCommittedResource(
+	//	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+	//	D3D12_HEAP_FLAG_NONE,
+	//	&renderTargetDesc,
+	//	D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+	//	nullptr,
+	//	IID_PPV_ARGS(&FinalOut)));
+	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+	depthOptimizedClearValue.Format = RTVformat;
+	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
+	depthOptimizedClearValue.DepthStencil.Stencil = 0;
+	ThrowIfFailed(Target->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Tex2D(RTVformat, m_width, m_height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		&depthOptimizedClearValue,
+		IID_PPV_ARGS(&FinalOut)
+	));
+
+	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	//	SharedSRVHeap->
+	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
+	SrvDesc.Format = RTVformat;
+	SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	SrvDesc.Texture2D.MipLevels = 1;
+	SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	OtherDevice->GetDevice()->CreateShaderResourceView(FinalOut, &SrvDesc, SharedSRVHeap->GetCPUAddress(0));
+	SharedTarget = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-void D3D12FrameBuffer::CopyToDevice(DeviceContext * device)
+void D3D12FrameBuffer::CopyToDevice(ID3D12GraphicsCommandList* list)
 {
+	//return;
+	// Copy the intermediate render target into the shared buffer using the
+	// memory layout prescribed by the render target.
+	ID3D12Device* Host = CurrentDevice->GetDevice();
+	ID3D12Device* Target = OtherDevice->GetDevice();
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
 
+	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
+
+	CD3DX12_TEXTURE_COPY_LOCATION dest(PrimaryRes, renderTargetLayout);
+	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	CD3DX12_TEXTURE_COPY_LOCATION src(RenderTarget[0]->GetResource(), 0);
+	CD3DX12_BOX box(0, 0, m_width, m_height);
+
+	list->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
 }
+
+void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
+{
+	//return;
+	ID3D12Device* Host = CurrentDevice->GetDevice();
+	ID3D12Device* Target = OtherDevice->GetDevice();
+	// Copy the buffer in the shared heap into a texture that the secondary
+	// adapter can sample from.
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+		FinalOut,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_COPY_DEST);
+	list->ResourceBarrier(1, &barrier);
+
+	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE,0));
+
+	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(	PrimaryRes, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE));
+	// Copy the shared buffer contents into the texture using the memory
+	// layout prescribed by the texture.
+	D3D12_RESOURCE_DESC secondaryAdapterTexture = FinalOut->GetDesc();
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
+
+	Host->GetCopyableFootprints(&secondaryAdapterTexture, 0, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
+
+	CD3DX12_TEXTURE_COPY_LOCATION dest(FinalOut, 0);
+	CD3DX12_TEXTURE_COPY_LOCATION src(Stagedres, textureLayout);
+	CD3DX12_BOX box(0, 0, m_width, m_height);
+
+	list->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	list->ResourceBarrier(1, &barrier);
+}
+
 
 void D3D12FrameBuffer::BindDepthWithColourPassthrough(ID3D12GraphicsCommandList * list, D3D12FrameBuffer * Passtrhough)
 {
@@ -309,17 +448,27 @@ void D3D12FrameBuffer::ReadyResourcesForRead(CommandListDef * list, int Resource
 	}
 }
 
-void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex)
+void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex, DeviceContext* target)
 {
 	/*if (m_srvHeap == nullptr)
 	{
 		return;
 	}*/
+
 	lastboundslot = slot;
 
-	ReadyResourcesForRead(list, Resourceindex);
-
+	
+	if (target != nullptr && OtherDevice != nullptr)
+	{
+		if (target == OtherDevice)
+		{
+			SharedSRVHeap->BindHeap(list);
+			list->SetGraphicsRootDescriptorTable(slot, SharedSRVHeap->GetGpuAddress(Resourceindex));
+			return;
+		}
+	}
 	SrvHeap->BindHeap(list);
+	ReadyResourcesForRead(list, Resourceindex);
 	list->SetGraphicsRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
 
 }
@@ -352,7 +501,7 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 	}
 	if (m_ftype != FrameBufferType::CubeDepth)
 	{
-		if (RequiresDepth() )
+		if (RequiresDepth())
 		{
 			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE();
 			if (RTVHeap)
@@ -400,11 +549,11 @@ void D3D12FrameBuffer::ClearBuffer(CommandListDef * list)
 	if (m_ftype == CubeDepth)
 	{
 		list->ClearDepthStencilView(RTVHeap->GetCPUAddress(0), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-	//	list->ClearRenderTargetView(RTVHeap->GetCPUAddress(0), CubeDepthclearColor, 0, nullptr);
-		/*for (int i = 0; i < CUBE_SIDES; i++)
-		{
+		//	list->ClearRenderTargetView(RTVHeap->GetCPUAddress(0), CubeDepthclearColor, 0, nullptr);
+			/*for (int i = 0; i < CUBE_SIDES; i++)
+			{
 
-		}*/
+			}*/
 	}
 }
 

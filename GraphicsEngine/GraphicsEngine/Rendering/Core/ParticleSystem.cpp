@@ -153,7 +153,7 @@ void ParticleSystem::Render()
 	glVertexAttribDivisor(1, 1);
 	glVertexAttribDivisor(2, 1);
 	//draw particles
-	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, ParticlesCount);
+	glDrawArrayEngine::CompRegistryd(GL_TRIANGLE_STRIP, 0, 4, ParticlesCount);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);

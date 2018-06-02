@@ -116,7 +116,7 @@ bool RHI::RunRenderersAsync()
 
 bool RHI::RunListsAsync()
 {
-	return true;
+	return false;
 }
 
 

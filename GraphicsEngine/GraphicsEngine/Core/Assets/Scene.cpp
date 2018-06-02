@@ -19,7 +19,6 @@ Scene::~Scene()
 
 void Scene::UpdateScene(float deltatime)
 {
-	StaticSceneNeedsUpdate = false;//clear last frames flag
 	if (SceneObjects.size() == 0)
 	{
 		return;
@@ -30,8 +29,7 @@ void Scene::UpdateScene(float deltatime)
 	}
 }
 void Scene::EditorUpdateScene()
-{
-	StaticSceneNeedsUpdate = false;//clear last frames flag
+{	
 	if (SceneObjects.size() == 0)
 	{
 		return;
@@ -40,6 +38,11 @@ void Scene::EditorUpdateScene()
 	{
 		SceneObjects[i]->EditorUpdate();
 	}
+}
+
+void Scene::OnFrameEnd()
+{
+	StaticSceneNeedsUpdate = false;//clear last frames flag
 }
 
 void Scene::FixedUpdateScene(float deltatime)

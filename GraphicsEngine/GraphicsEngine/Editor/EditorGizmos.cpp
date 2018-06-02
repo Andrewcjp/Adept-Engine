@@ -27,8 +27,8 @@ void EditorGizmos::UpdateAxis(float amt, Axis axis)
 		newpos.z += amt;
 		break;
 	}
-	target->GetTransform()->SetPos(newpos);
-
+	target->ChangePos_editor(newpos);
+	target->PostChangeProperties();
 }
 //todo: axis rotations relative to view etc.
 //todo: axis hit boxes?

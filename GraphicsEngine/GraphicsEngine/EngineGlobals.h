@@ -41,7 +41,7 @@ typedef struct ID3D12GraphicsCommandList CommandListDef;
 typedef struct Stub {} CommandListDef;
 #endif
 
-
+#define CORE_API __declspec(dllexport)
 //Asserts
 
 /*

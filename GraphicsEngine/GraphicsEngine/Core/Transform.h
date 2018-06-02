@@ -8,16 +8,16 @@
 class Transform
 {
 public:
-	Transform(const glm::vec3& pos = glm::vec3(), const glm::vec3& rot = glm::vec3(), const glm::vec3& scale = glm::vec3(1, 1, 1));
+	CORE_API Transform(const glm::vec3& pos = glm::vec3(), const glm::vec3& rot = glm::vec3(), const glm::vec3& scale = glm::vec3(1, 1, 1));
 
 	glm::mat4 GetModel();
 	glm::mat4 GetMVP(Camera* camera);
 	glm::mat4 GetTransFormView();
 	///------------------------------------------------------
 	//setters	
-	void SetPos(const glm::vec3& pos);
-	void SetEulerRot(const glm::vec3& rot);
-	void SetScale(const glm::vec3& scale);
+	CORE_API void SetPos(const glm::vec3& pos);
+	CORE_API void SetEulerRot(const glm::vec3& rot);
+	CORE_API void SetScale(const glm::vec3& scale);
 	void AddRotation(glm::vec3& rot);
 	void RotateAboutAxis(glm::vec3& axis, float amt);
 	void SetQrot(const glm::quat& val);

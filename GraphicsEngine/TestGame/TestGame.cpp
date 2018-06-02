@@ -2,16 +2,23 @@
 #include "EngineHeader.h"
 #include "../Core/Components/CompoenentRegistry.h"
 
-TestGame::TestGame()
+TestGame::TestGame(CompoenentRegistry* Reg):Game(Reg)
 {
 	ECR = new TGExtraComponentRegister();
-	if (CompoenentRegistry::Instance != nullptr)
+	if (Reg != nullptr)
 	{
-		CompoenentRegistry::Instance->RegisterComponent("TGcomp", CompoenentRegistry::Limit + 1);
-		CompoenentRegistry::Instance->RegisterComponent("PhysicsThrower", CompoenentRegistry::Limit + 2);
+		Reg->RegisterComponent("TGcomp", CompoenentRegistry::Limit + 1);
+		Reg->RegisterComponent("PhysicsThrower", CompoenentRegistry::Limit + 2);
 	}
+	std::cout << "hello " << std::endl;
 }
 
 
 TestGame::~TestGame()
 {}
+//use C functioning here
+
+Game* Get(void* regvoid)
+{
+	return new TestGame((CompoenentRegistry*)regvoid);
+}

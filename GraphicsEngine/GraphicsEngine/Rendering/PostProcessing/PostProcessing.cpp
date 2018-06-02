@@ -29,7 +29,7 @@ void PostProcessing::ExecPPStack( FrameBuffer* targetbuffer)
 void PostProcessing::ExecPPStackFinal(FrameBuffer* targetbuffer)
 {
 	//called as final pass
-	if (Needscompost)
+	if (Needscompost )
 	{
 		TestEffct->RunPass(TestEffct->cmdlist, targetbuffer);
 	}

@@ -1,17 +1,17 @@
 #include "stdafx.h"
+#include <iostream>
+#include "Core/Assets/ImageIO.h"
+#include "Core/Engine.h"
+#include "Core/Performance/PerfManager.h"
+#include "Core/Utils/FileUtils.h"
+#include "Core/Utils/StringUtil.h"
+#include "Rendering/Shaders/ShaderMipMap.h"
+#include "GPUResource.h"
+#include "RHI/DeviceContext.h"
+#include "ThirdParty/NVDDS/DDSTextureLoader12.h"
+#include "DescriptorHeap.h"
 #include "D3D12Texture.h"
 #include "D3D12RHI.h"
-#include "../Core/Assets/ImageIO.h"
-#include "../Core/Engine.h"
-#include <iostream>
-#include "../Core/Performance/PerfManager.h"
-#include "../Core/Utils/FileUtils.h"
-#include "../Core/Utils/StringUtil.h"
-#include "../Rendering/Shaders/ShaderMipMap.h"
-#include "GPUResource.h"
-#include "../RHI/DeviceContext.h"
-#include "../ThirdParty/NVDDS/DDSTextureLoader12.h"
-#include "DescriptorHeap.h"
 float D3D12Texture::MipCreationTime = 0;
 
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)
@@ -227,7 +227,6 @@ bool D3D12Texture::LoadDDS(std::string filename)
 	UpdateSRV();
 	return true;
 }
-
 
 D3D12Texture::~D3D12Texture()
 {

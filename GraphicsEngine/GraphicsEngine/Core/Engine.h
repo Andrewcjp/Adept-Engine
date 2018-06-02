@@ -11,14 +11,16 @@ class Engine
 {
 public:
 
-	static class CompoenentRegistry* CompRegistry;
 	static PhysicsEngine*		PhysEngine;
-
+	CORE_API static class CompoenentRegistry* CompRegistry;
+	CORE_API static PhysicsEngine* GetPhysEngineInstance();
 	bool						isWindowVaild = false;
 	static std::string GetRootDir();
 	Engine();
 	~Engine();
 	void Destory();
+	HRESULT LoadAndCallSomeFunction(void * dwParam12);
+	void LoadDLL();
 	void SetHInstWindow(HINSTANCE inst);
 	RenderWindow* GetWindow();
 	ERenderSystemType GetCurrentSystem();

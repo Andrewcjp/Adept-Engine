@@ -15,17 +15,17 @@ class GameObject :
 {
 public:
 	enum EMoblity { Static, Dynamic };
-	GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
-	~GameObject();
+	CORE_API GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
+	CORE_API ~GameObject();
 
-	Transform* GetTransform();
-	class Scene* GetScene();
+	CORE_API Transform* GetTransform();
+	CORE_API class Scene* GetScene();
 	void Internal_SetScene(Scene* scene);
 
 	//Update
-	void FixedUpdate(float delta);
-	void Update(float delta);
-	void BeginPlay();
+	CORE_API void FixedUpdate(float delta);
+	CORE_API void Update(float delta);
+	CORE_API void BeginPlay();
 
 	void Render(bool ignore = false);
 	void Render(bool ignoremat, CommandListDef * list);
@@ -54,7 +54,7 @@ public:
 	//Editor only
 	void EditorUpdate();
 	physx::PxRigidStatic* SelectionShape;
-	Component* AttachComponent(Component* Component);
+	CORE_API Component* AttachComponent(Component* Component);
 	std::vector<Component*> GetComponents();
 	template<class T>
 	T* GetComponent();
@@ -64,6 +64,7 @@ public:
 	void SerialiseGameObject(rapidjson::Value& v);
 	void DeserialiseGameObject(rapidjson::Value& v);
 	void PostChangeProperties();
+	void ChangePos_editor(glm::vec3 NewPos);
 private:
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 

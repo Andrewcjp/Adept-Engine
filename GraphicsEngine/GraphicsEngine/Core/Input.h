@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <queue>
 #include <map>
+#include "EngineGlobals.h"
 class Shader_Main;
 class ShaderOutput;
 class OGLWindow;
@@ -35,8 +36,8 @@ public:
 
 
 	//input processing
-	static bool GetKeyDown(int c);
-	static bool GetKey(char c);
+	CORE_API static bool GetKeyDown(int c);
+	CORE_API static bool GetKey(char c);
 	static bool GetVKey(short key);
 	static HCURSOR Cursor;
 	static glm::vec2 GetMouseInputAsAxis();

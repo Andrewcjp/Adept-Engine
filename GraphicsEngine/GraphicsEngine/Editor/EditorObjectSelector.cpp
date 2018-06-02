@@ -33,16 +33,16 @@ GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const
 	physx::PxRaycastBuffer hit;
 	glm::vec3 camforward = glm::vec4(cam->GetForward(), 1.0f);// *cam->GetProjection();
 	glm::vec3 origin;
-	glm::vec3 dir = cam->GetForward();
+	glm::vec3 dir = -cam->GetForward();
 
 	cam->GetRayAtScreenPos(((float)x), ((float)y), dir, origin);
 	//cam->GetRayAtScreenPos(((float)x / (float)EditorWindow::GetWidth()), ((float)y / (float)EditorWindow::GetHeight()), dir, origin);
 	//origin = /*cam->GetPosition() +*/ cam->ScreenPointToWorld(x, y);
 	if (DebugLineDrawer::instance != nullptr)
 	{
-		DebugLineDrawer::instance->AddLine(origin, origin + dir * 1000, Colours::RED, 10);
+		DebugLineDrawer::instance->AddLine(origin, origin + glm::normalize(-dir) * 1000, Colours::RED, 10);
 	}
-	if (pengine->RayCastEditorScene(origin, glm::normalize(dir), 250, &hit))
+	if (pengine->RayCastEditorScene(origin, glm::normalize(-dir), 15000, &hit))
 	{
 		for (int i = 0; i < objects.size(); i++)
 		{

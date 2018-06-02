@@ -6,7 +6,8 @@
 #include "Resource.h"
 #include <Windowsx.h>
 #include <algorithm>
-#include "TestGame.h"
+//#include "TestGame.h"
+#include "../Core/Game.h"
 #include "Physics\PhysicsEngine.h"
 #include "Core\Engine.h"
 #define TARGET_RESOLUTION 1         // 1-millisecond target resolution
@@ -57,7 +58,7 @@ BOOL BaseApplication::MyRegisterClass(HINSTANCE hinst)
 
 	return TRUE;
 }
-
+#include "../Core/Components/CompoenentRegistry.h"
 BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args, int nshow)
 {
 	if (!s_oglapp)
@@ -68,11 +69,12 @@ BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args,
 		s_oglapp->MyRegisterClass(hinst);
 		s_oglapp->m_engine->SetHInstWindow(hinst);
 		//Now create an OGLWindow for this application
-#if 1
+#if 0
 #pragma comment(lib, "TestGame.lib")
 		s_oglapp->m_engine->SetGame(new TestGame());
 #else 
-		s_oglapp->m_engine->SetGame(new Game());
+		s_oglapp->m_engine->LoadDLL();
+		//s_oglapp->m_engine->SetGame(new Game(CompoenentRegistry::GetInstance()));
 #endif
 		s_oglapp->m_engine->CreateApplication(hinst, args, nshow);
 		

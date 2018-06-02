@@ -197,13 +197,13 @@ void BaseWindow::Render()
 	}
 	PerfManager::StartTimer("Render");
 	Renderer->Render();
-	
-		LineDrawer->GenerateLines();
-		if (Renderer->GetMainCam() != nullptr)
-		{
-			LineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
-		}
-	
+
+	LineDrawer->GenerateLines();
+	if (Renderer->GetMainCam() != nullptr)
+	{
+		LineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
+	}
+
 	Renderer->FinaliseRender();
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
@@ -264,7 +264,10 @@ void BaseWindow::Render()
 	{
 		TextRenderer::instance->NotifyFrameEnd();
 	}
-	
+	if (CurrentScene != nullptr)
+	{
+		CurrentScene->OnFrameEnd();
+	}
 }
 
 bool BaseWindow::ProcessDebugCommand(std::string command)
@@ -284,7 +287,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
 			if (r != nullptr)
 			{
-//				r->RenderParticles = r->RenderParticles ? false : true;
+				//				r->RenderParticles = r->RenderParticles ? false : true;
 			}
 			return true;
 		}
@@ -293,7 +296,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
 			if (r != nullptr)
 			{
-	//			r->RenderGrass = r->RenderGrass ? false : true;
+				//			r->RenderGrass = r->RenderGrass ? false : true;
 			}
 			return true;
 		}
@@ -318,7 +321,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 		else if (command.find("vtest") != -1)
 		{
 			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
-//			r->UseQuerry = r->UseQuerry ? false : true;
+			//			r->UseQuerry = r->UseQuerry ? false : true;
 			return true;
 		}
 	}
@@ -507,7 +510,7 @@ void BaseWindow::RenderText()
 			stream << PerfManager::Instance->GetCounterData();
 		}
 	}
-	
+
 	UI->RenderTextToScreen(1, stream.str());
 	stream.str("");
 	if (D3D12RHI::Instance != nullptr && ExtendedPerformanceStats)
@@ -515,7 +518,7 @@ void BaseWindow::RenderText()
 		stream << D3D12RHI::Instance->GetMemory();
 		UI->RenderTextToScreen(2, stream.str());
 	}
-	
+
 
 }
 #if USE_PHYSX_THREADING

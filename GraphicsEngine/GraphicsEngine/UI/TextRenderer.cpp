@@ -1,6 +1,7 @@
 #include "TextRenderer.h"
 #include "glm\glm.hpp"
 #include "RHI/RHI.h"
+#include "../RHI/DeviceContext.h"
 #include "Rendering/Shaders/Text_Shader.h"
 #include <algorithm>
 #include <cstring>
@@ -138,16 +139,32 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	}
 
 }
+#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+
 void TextRenderer::Finish()
 {
 	TextCommandList->Execute();
 	currentsize = 0;
+	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer;
+	//TextCommandList->ResetList();
+	if (RunOnSecondDevice)
+	{
+		DeviceContext* hostdevbice = D3D12RHI::GetDeviceContext(1);
+		hostdevbice->ResetSharingCopyList();
+		buffer->CopyToDevice(hostdevbice->GetSharedCopyList());
+		hostdevbice->GetSharedCopyList()->Close();
+		//buffer->MakeReadyOnTarget(((D3D12CommandList*)TextCommandList)->GetCommandList());
+		hostdevbice->ExecuteCommandList(hostdevbice->GetSharedCopyList());
+	}
+	/*TextCommandList->Execute();*/
 }
 void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();
 	currentsize = 0;
 }
+
 void TextRenderer::LoadText()
 {	
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, D3D12RHI::GetDeviceContext(RunOnSecondDevice));
@@ -162,7 +179,9 @@ void TextRenderer::LoadText()
 		PostProcessing::Instance->AddCompostPass(Renderbuffer);
 		if (D3D12RHI::Instance)
 		{
-			D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);
+		//	D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);
+			D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer;
+			buffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
 		}
 	}
 

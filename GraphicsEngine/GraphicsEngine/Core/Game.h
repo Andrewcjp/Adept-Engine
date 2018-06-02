@@ -1,19 +1,20 @@
 #pragma once
-class Game
+#include "EngineGlobals.h"
+class  Game
 {
 public:
-	Game();
-	~Game();
-	virtual void  Update();
-	virtual void BeginPlay();
-	virtual void EndPlay();
-	float GetTickRate();
-	void SetTickRate(float NewRate);
-	class ExtraComponentRegister* GetECR();
+	CORE_API Game(class CompoenentRegistry* Reg);
+	CORE_API ~Game();
+	CORE_API virtual void  Update();
+	CORE_API  void BeginPlay();
+	CORE_API  void EndPlay();
+	CORE_API float GetTickRate();
+	CORE_API void SetTickRate(float NewRate);
+	CORE_API class ExtraComponentRegister* GetECR();
 protected:
-	ExtraComponentRegister* ECR = nullptr;
+	ExtraComponentRegister * ECR = nullptr;
 private:
 	float TickRate = 60.0f;
-	
+
 };
 

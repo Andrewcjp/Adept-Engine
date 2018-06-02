@@ -8,7 +8,7 @@ class MeshRendererComponent :
 public:
 
 	MeshRendererComponent();
-	MeshRendererComponent(Renderable * Mesh, Material * materal);
+	CORE_API MeshRendererComponent(Renderable * Mesh, Material * materal);
 	virtual ~MeshRendererComponent();
 	void SetUpMesh(Renderable * Mesh, Material * materal);
 	void Render(bool DepthOnly, CommandListDef * list = nullptr);

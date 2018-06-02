@@ -2,7 +2,7 @@
 #include "Text_Shader.h"
 #include "RHI/RHI.h"
 #include "glm\glm.hpp"
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 Text_Shader::Text_Shader(DeviceContext* context)
 {
 	m_Shader = RHI::CreateShaderProgam(context);

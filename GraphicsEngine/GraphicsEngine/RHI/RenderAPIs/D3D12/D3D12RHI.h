@@ -58,6 +58,7 @@ public:
 	void ExecList(CommandListDef * list, bool block = false);
 	void PostFrame(ID3D12GraphicsCommandList * list);
 	void WaitForPreviousFrame();
+	void FindAdaptors(IDXGIFactory2 * pFactory);
 	void WaitForGpu();
 	void MoveToNextFrame();
 	static ID3D12Device* GetDevice();

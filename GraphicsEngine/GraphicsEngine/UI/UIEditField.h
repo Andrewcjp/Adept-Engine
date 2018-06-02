@@ -44,7 +44,7 @@ private:
 	bool Scrolling = false;
 	int startx = 0;
 	float StartValue = 0.0f;
-	float ScrollScale = 0.0001f;
+	float ScrollScale = 0.001f;
 
 };
 

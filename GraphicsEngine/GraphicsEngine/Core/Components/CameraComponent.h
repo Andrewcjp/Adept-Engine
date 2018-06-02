@@ -13,7 +13,7 @@ public:
 	// Inherited via Component
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
-	static Camera* GetMainCamera();
+	CORE_API static Camera* GetMainCamera();
 private:
 	Camera* MCamera;
 

@@ -5,10 +5,11 @@
 #include "MeshRendererComponent.h"
 #include "LightComponent.h"
 #include "CameraComponent.h"
-CompoenentRegistry* CompoenentRegistry::Instance = nullptr;
+#include "../Core/Engine.h"
+
 CompoenentRegistry::CompoenentRegistry()
 {
-	Instance = this;
+	Engine::CompRegistry = this;
 	RegisterComponent("Camera", BaseComponentTypes::CameraComp);
 	RegisterComponent("Light", BaseComponentTypes::LightComp);
 }
@@ -20,23 +21,27 @@ void CompoenentRegistry::RegisterComponent(std::string name, int id)
 {
 	ComponentNameMap.emplace(id, name);
 }
+CompoenentRegistry * CompoenentRegistry::GetInstance()
+{
+	return Engine::CompRegistry;
+}
 Component* CompoenentRegistry::CreateAdditonalComponent(int id)
 {
-	if (Instance && Instance->ECR)
+	if (Engine::CompRegistry && Engine::CompRegistry->ECR)
 	{
-		return Instance->ECR->CreateExtraComponent(id);
+		return Engine::CompRegistry->ECR->CreateExtraComponent(id);
 	}
 	return nullptr;
 }
 Component* CompoenentRegistry::CreateBaseComponent(BaseComponentTypes id)
 {
-	if (Instance)
+	if (Engine::CompRegistry)
 	{
 		if (id < BaseComponentTypes::Limit)
 		{
-			return Instance->Internal_CreateBaseComponent(id);
+			return Engine::CompRegistry->Internal_CreateBaseComponent(id);
 		}
-		return Instance->Internal_CreateAdditonalComponent(id - (BaseComponentTypes::Limit + 1));//translate the ID to GameLocal space
+		return Engine::CompRegistry->Internal_CreateAdditonalComponent(id - (BaseComponentTypes::Limit + 1));//translate the ID to GameLocal space
 	}
 	return nullptr;
 }

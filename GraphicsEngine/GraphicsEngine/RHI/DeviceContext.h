@@ -67,7 +67,10 @@ public:
 	void DestoryDevice();
 	void EnsureWorkComplete();
 	void WaitForGpu();
+	void WorkerThread_WaitForGpu();
 	ID3D12GraphicsCommandList* GetCopyList();
+	ID3D12GraphicsCommandList * GetSharedCopyList();
+	void ResetSharingCopyList();
 	void NotifyWorkForCopyEngine();
 	void UpdateCopyEngine();
 	void ExecuteCopyCommandList(ID3D12GraphicsCommandList * list);
@@ -93,7 +96,7 @@ public:
 				ResetEvent(WorkerThreadEnd);
 				ID3D12CommandList* ppCommandLists[] = { CommandLists.Pop() };
 				GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-				WaitForGpu();
+				WorkerThread_WaitForGpu();
 			}
 			else
 			{
@@ -122,13 +125,17 @@ private:
 
 	HANDLE WorkerThreadEnd;
 	bool WorkerRunning = true;
+	DWORD WorkerThreadid = 0;
 	//Copy List for this GPU
 	ID3D12GraphicsCommandList* m_CopyList = nullptr;
 	ID3D12CommandAllocator* m_CopyCommandAllocator = nullptr;
 	ID3D12CommandQueue* m_CopyCommandQueue = nullptr;
+	ID3D12GraphicsCommandList* m_IntraCopyList = nullptr;
+	ID3D12CommandAllocator* m_SharedCopyCommandAllocator = nullptr;
 
 	//Sync controllers for each queue
 	GPUSyncPoint GraphicsQueueSync;
+	GPUSyncPoint WorkerThread_GraphicsQueueSync;
 	GPUSyncPoint CopyQueueSync;
 	GPUSyncPoint ComputeQueueSync;
 
