@@ -16,7 +16,6 @@ public:
 	void InitShadows(std::vector<Light*> lights);
 	bool UseCache = false;
 	bool Renderered = false;
-	void Wait();
 private:
 	std::vector<Light*> ShadowingDirectionalLights;
 	std::vector<Light*> ShadowingPointLights;
@@ -28,6 +27,7 @@ private:
 	std::vector<FrameBuffer*> DirectionalLightBuffers;
 	std::vector <FrameBuffer*> PointLightBuffers;// = nullptr;
 	RHICommandList* PointShadowList = nullptr;
+	RHICommandList*  DirectionalShadowList = nullptr;
 	RHITextureArray* ShadowCubeArray = nullptr;
 	RHITextureArray* ShadowDirectionalArray = nullptr;
 };

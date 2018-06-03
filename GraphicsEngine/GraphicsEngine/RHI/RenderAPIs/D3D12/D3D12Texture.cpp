@@ -308,6 +308,8 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	D3D12RHI::Instance->AddUploadToUsed(textureUploadHeap);
 	Device->NotifyWorkForCopyEngine();
+	m_texture->SetName(L"Texture");
+	textureUploadHeap->SetName(L"Upload");
 	// Describe and create a SRV for the texture.
 	UpdateSRV();
 	//gen mips

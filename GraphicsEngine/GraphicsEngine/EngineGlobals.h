@@ -11,6 +11,12 @@
 #define STATS 1
 #define DOCHECK 1
 #define BUILD_SHIPPING 0
+#if STATS
+#define GPUTIMERS_FULL 1
+#else
+#define GPUTIMERS_FULL 0
+#endif
+
 
 #pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME

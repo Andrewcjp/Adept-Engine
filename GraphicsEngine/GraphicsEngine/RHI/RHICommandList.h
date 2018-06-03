@@ -99,9 +99,10 @@ public:
 	virtual void SetUAVParamter() {};
 	virtual void UAVBarrier(RHIUAV* target) = 0;
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
-
+	DeviceContext* GetDevice();
 
 protected:
+	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!
 	enum ECommandListType
 	{

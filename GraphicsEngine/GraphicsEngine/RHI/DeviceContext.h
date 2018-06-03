@@ -50,6 +50,7 @@ private:
 	UINT64 m_fenceValue = 0;
 	bool DidStartWork = false;
 };
+
 //once this class has been completed it will be RHI split
 class DeviceContext
 {
@@ -64,10 +65,9 @@ public:
 
 	void SampleVideoMemoryInfo();
 	std::string GetMemoryReport();
+	void MoveNextFrame();
 	void DestoryDevice();
-	void EnsureWorkComplete();
 	void WaitForGpu();
-	void WorkerThread_WaitForGpu();
 	ID3D12GraphicsCommandList* GetCopyList();
 	ID3D12GraphicsCommandList * GetSharedCopyList();
 	void ResetSharingCopyList();
@@ -77,55 +77,28 @@ public:
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
 	void StartExecuteCommandList(ID3D12GraphicsCommandList* list);
 	void EndExecuteCommandList();
-	//void Wait(ID3D12GraphicsCommandList* list);
 	int GetDeviceIndex();
-	static DWORD WINAPI StartThread(void* param)
-	{
-		DeviceContext* This = (DeviceContext*)param;
-		return This->WorkerThreadMain();
-	}
-	//todo: might be a slight issue here
-	//relating to present before everything is finished
-	DWORD WorkerThreadMain()
-	{		
-		while (WorkerRunning)
-		{
-			
-			if (!CommandLists.IsEmpty())
-			{
-				ResetEvent(WorkerThreadEnd);
-				ID3D12CommandList* ppCommandLists[] = { CommandLists.Pop() };
-				GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-				WorkerThread_WaitForGpu();
-			}
-			else
-			{
-				SetEvent(WorkerThreadEnd);
-			}
-		}
-		return 0;
-	}
-
+	class D3D12TimeManager* GetTimeManager();
+	int GetCpuFrameIndex();
+	int CurrentFrameIndex = 0;
 private:	
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
+	
 	//Device Data
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;
 	ID3D12Device* m_Device = nullptr;
-	ID3D12CommandAllocator* m_commandAllocator = nullptr;
+	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	ID3D12CommandQueue* m_commandQueue = nullptr;
 	
+
+	
+
 	//device info
 	DXGI_QUERY_VIDEO_MEMORY_INFO CurrentVideoMemoryInfo;
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;
 	
-	//async commanndlists
-	ThreadSafe_Queue<ID3D12GraphicsCommandList*> CommandLists;
-
-	HANDLE WorkerThreadEnd;
-	bool WorkerRunning = true;
-	DWORD WorkerThreadid = 0;
 	//Copy List for this GPU
 	ID3D12GraphicsCommandList* m_CopyList = nullptr;
 	ID3D12CommandAllocator* m_CopyCommandAllocator = nullptr;
@@ -135,10 +108,10 @@ private:
 
 	//Sync controllers for each queue
 	GPUSyncPoint GraphicsQueueSync;
-	GPUSyncPoint WorkerThread_GraphicsQueueSync;
 	GPUSyncPoint CopyQueueSync;
 	GPUSyncPoint ComputeQueueSync;
 
+	D3D12TimeManager* TimeManager = nullptr;
 	//copy queue management 
 	bool CopyEngineHasWork = false;
 };

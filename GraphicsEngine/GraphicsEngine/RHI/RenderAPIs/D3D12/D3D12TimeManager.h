@@ -1,33 +1,63 @@
 #pragma once
 #include "D3D12RHI.h"
 #include "../Core/Utils/MovingAverage.h"
+#include "EngineGlobals.h"
+#define AVGTIME 50
+#define ENABLE_GPUTIMERS 1
+#define MAX_TIMER_COUNT 8
 class D3D12TimeManager
 {
 public:
-	static D3D12TimeManager* Instance;
-	D3D12TimeManager();
+	
+	D3D12TimeManager(class DeviceContext* context);
 	~D3D12TimeManager();
-	static void Initialize(class DeviceContext* context);
-	static void Destory();
-	
-
-	
-
 	void UpdateTimers();
-	void StartTimer(ID3D12GraphicsCommandList * ComandList);
-	void StartTimer(RHICommandList * ComandList);
-	void EndTimer(ID3D12GraphicsCommandList * ComandList);
-	void EndTimer(RHICommandList * ComandList);
-
-	UINT64 gpuTimeUS = 0;
-	float gpuTimeMS = 0;
-	float AVGgpuTimeMS = 0;
-
+	std::string GetTimerData();
+	void SetTimerName(int index, std::string Name);	
+	void StartTotalGPUTimer(RHICommandList * ComandList);
+	void StartTimer(RHICommandList * ComandList, int index);
+	void EndTimer(RHICommandList * ComandList, int index);
+	void EndTotalGPUTimer(RHICommandList * ComandList);
+	void EndTotalGPUTimer(ID3D12GraphicsCommandList * ComandList);
+	float AVGgpuTimeMS = 0;	
+	enum eGPUTIMERS
+	{
+		Total,
+		PointShadows,
+		DirShadows,
+		MainPass,
+		UI,
+		Text,
+		Skybox,
+		PostProcess,
+		Present,
+		LIMIT
+	};
 private:
+	void StartTimer(ID3D12GraphicsCommandList * ComandList, int index);
+	void EndTimer(ID3D12GraphicsCommandList * ComandList, int index);
+	struct GPUTimer
+	{
+		std::string name;
+		int Startindex = 0;
+		int Endindex = 1;
+		MovingAverage avg = MovingAverage(AVGTIME);
+		bool Used = false;
+	};
+	bool TimerStarted = false;
+#if GPUTIMERS_FULL
+	const int MaxTimerCount = eGPUTIMERS::LIMIT;
+	const int MaxTimeStamps = MaxTimerCount * 2;
+#else 
+	const int MaxTimerCount = 1;
+	const int MaxTimeStamps =  2;
+#endif
+	int MaxIndexInUse = 0;
 	void Init(DeviceContext * context);
-	MovingAverage avg = MovingAverage(50);
+	MovingAverage avg = MovingAverage(AVGTIME);
 	ID3D12QueryHeap* m_timestampQueryHeaps;
 	ID3D12Resource* m_timestampResultBuffers;
 	UINT64 m_directCommandQueueTimestampFrequencies;
+	GPUTimer TimeDeltas[eGPUTIMERS::LIMIT];
 };
 

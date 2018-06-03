@@ -10,7 +10,6 @@ TestGame::TestGame(CompoenentRegistry* Reg):Game(Reg)
 		Reg->RegisterComponent("TGcomp", CompoenentRegistry::Limit + 1);
 		Reg->RegisterComponent("PhysicsThrower", CompoenentRegistry::Limit + 2);
 	}
-	std::cout << "hello " << std::endl;
 }
 
 

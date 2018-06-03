@@ -12,6 +12,9 @@
 TextRenderer* TextRenderer::instance = nullptr;
 #include "../Rendering/PostProcessing/PostProcessing.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 TextRenderer::TextRenderer(int width, int height)
 {
 	m_width = width;
@@ -139,11 +142,10 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	}
 
 }
-#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 
 void TextRenderer::Finish()
 {
+	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::Text);
 	TextCommandList->Execute();
 	currentsize = 0;
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer;
@@ -162,6 +164,7 @@ void TextRenderer::Finish()
 void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();
+	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::Text);
 	currentsize = 0;
 }
 
@@ -322,7 +325,7 @@ TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
 	}
 	Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
 
-	printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
+	//printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
 }
 
 TextRenderer::atlas::~atlas()

@@ -48,8 +48,8 @@ private:
 	
 	DXGI_FORMAT RTVformat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT Depthformat = DXGI_FORMAT_D32_FLOAT;
-	const DXGI_FORMAT DefaultDepthformat = DXGI_FORMAT_D16_UNORM;
-	const DXGI_FORMAT DefaultDepthReadformat = DXGI_FORMAT_R16_UNORM;
+	const DXGI_FORMAT DefaultDepthformat = DXGI_FORMAT_D32_FLOAT;
+	const DXGI_FORMAT DefaultDepthReadformat = DXGI_FORMAT_R32_FLOAT;
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	bool once = false;
 	int lastboundslot = 0;

@@ -109,16 +109,15 @@ RHICommandList * RHI::CreateCommandList(DeviceContext* Device)
 	return nullptr;
 }
 
-bool RHI::RunRenderersAsync()
+bool RHI::BlockCommandlistExec()
 {
 	return false;
 }
 
-bool RHI::RunListsAsync()
+bool RHI::AllowCPUAhead()
 {
 	return false;
 }
-
 
 void RHI::DestoryRHI()
 {

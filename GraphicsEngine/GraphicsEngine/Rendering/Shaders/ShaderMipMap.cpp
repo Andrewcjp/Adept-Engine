@@ -4,6 +4,7 @@
 #include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include <algorithm>
 #include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "../RHI/DeviceContext.h"
 ShaderMipMap::ShaderMipMap()
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -27,6 +28,8 @@ ShaderMipMap::~ShaderMipMap()
 
 void ShaderMipMap::GenAllmips(int limit)
 {
+	D3D12Shader* shader = (D3D12Shader*)m_Shader;
+	shader->ResetList(pCommandList);
 	int count = 0;
 	for (int i = Targets.size()-1; i >= 0; i--)
 	{
@@ -45,9 +48,17 @@ void ShaderMipMap::GenAllmips(int limit)
 			Targets.erase(Targets.begin() + i);
 			continue;
 		}
-		GenerateMipsForTexture(Targets[i], 1);
+		GenerateMipsForTexture(Targets[i], 50);
 		//if complete		
 		count++;
+	}
+	pCommandList->Close();
+	D3D12RHI::Instance->ExecList(pCommandList);
+	D3D12RHI::Instance->GetDefaultDevice()->WaitForGpu();
+
+	for (int i = 0;i < Targets.size(); i++)
+	{
+		Targets[i]->UpdateSRV();
 	}
 }
 
@@ -69,7 +80,7 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex, int maxcount)
 	//Prepare the unordered access view description for the destination texture
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-	shader->ResetList(pCommandList);
+	
 	
 	pCommandList->SetPipelineState(shader->GetPipelineShader()->m_pipelineState);
 	pCommandList->SetComputeRootSignature(shader->GetPipelineShader()->m_rootSignature);
@@ -139,12 +150,12 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex, int maxcount)
 	}
 	pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(tex->GetResource(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
-	pCommandList->Close();
+	
 
-	D3D12RHI::Instance->ExecList(pCommandList);
-	descriptorHeap->Release();
+	
+	//descriptorHeap->Release();
 	tex->MipLevelsReadyNow = CurrentTopMip + 1;
-	tex->UpdateSRV();
+	
 }
 
 std::vector<Shader::ShaderParameter> ShaderMipMap::GetShaderParameters()

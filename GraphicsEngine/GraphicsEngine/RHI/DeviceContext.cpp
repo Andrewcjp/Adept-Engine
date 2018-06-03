@@ -2,19 +2,21 @@
 #include "DeviceContext.h"
 #include "../Core/Asserts.h"
 #include "RenderAPIs/D3D12/D3D12Helpers.h"
+#include "RenderAPIs/D3D12/D3D12TimeManager.h"
 DeviceContext::DeviceContext()
 {}
 
 DeviceContext::~DeviceContext()
 {
-	EnsureWorkComplete();//Ensure the GPU has complete the current task!
-	//WaitForGpu(true);
-	WorkerRunning = false;
+	WaitForGpu();
 	if (m_Device)
 	{
 		m_Device->Release();
-		m_commandAllocator->Release();
-		m_commandAllocator = nullptr;
+		for (int i = 0; i < RHI::CPUFrameCount; i++)
+		{
+			m_commandAllocator[i]->Release();
+			m_commandAllocator[i] = nullptr;
+		}
 		m_commandQueue->Release();
 		m_commandQueue = nullptr;
 	}
@@ -23,8 +25,9 @@ DeviceContext::~DeviceContext()
 		m_CopyList->Release();
 		m_CopyCommandAllocator->Release();
 		m_CopyCommandQueue->Release();
-	}	
+	}
 	pDXGIAdapter->Release();
+	delete TimeManager;
 	/*if (pDXGIAdapter != nullptr)
 	{
 		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
@@ -33,17 +36,17 @@ DeviceContext::~DeviceContext()
 
 void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
-	
+
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
 		IID_PPV_ARGS(&m_Device)
-	);		
+	);
 	ensureMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
 	ThrowIfFailed(result);
 
-	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);	
+	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
 	if (MaxLevel != D3D_FEATURE_LEVEL_11_0)
 	{
 		m_Device->Release();
@@ -62,38 +65,34 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
-	
+
 	// Describe and create the command queue.
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
-	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_commandAllocator)));
-
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	{
+		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_commandAllocator[i])));
+	}
 
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator)));
-	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_CopyCommandAllocator,nullptr, IID_PPV_ARGS(&m_CopyList)));
+	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_CopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_CopyList)));
 	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_SharedCopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_IntraCopyList)));
 	m_IntraCopyList->Close();
-	
+
 	GraphicsQueueSync.Init(GetDevice());
 	CopyQueueSync.Init(GetDevice());
-	WorkerThread_GraphicsQueueSync.Init(GetDevice());
 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
 	//todo: validate the device capablities 
 
-	if (RHI::RunListsAsync())
-	{
-		WorkerThreadEnd = CreateEvent(0, 0, 0, L"");		
-		CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&DeviceContext::StartThread, this, NULL,&WorkerThreadid);
-	}
-
+	TimeManager = new D3D12TimeManager(this);
 }
 
 ID3D12Device * DeviceContext::GetDevice()
@@ -103,7 +102,7 @@ ID3D12Device * DeviceContext::GetDevice()
 
 ID3D12CommandAllocator * DeviceContext::GetCommandAllocator()
 {
-	return m_commandAllocator;
+	return m_commandAllocator[CurrentFrameIndex];
 }
 
 ID3D12CommandQueue * DeviceContext::GetCommandQueue()
@@ -128,27 +127,23 @@ std::string DeviceContext::GetMemoryReport()
 	output.append("MB");
 	return output;
 }
-
+void DeviceContext::MoveNextFrame()
+{
+	CurrentFrameIndex++;
+	if (CurrentFrameIndex == RHI::CPUFrameCount - 1)
+	{
+		CurrentFrameIndex = 0;
+	}
+}
 void DeviceContext::DestoryDevice()
 {
 
 }
-void DeviceContext::EnsureWorkComplete()
-{
-	if (RHI::RunListsAsync())
-	{
-		WaitForSingleObject(WorkerThreadEnd, INFINITE);
-	}
-}
 
 void DeviceContext::WaitForGpu()
 {
+	
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
-}
-
-void DeviceContext::WorkerThread_WaitForGpu()
-{
-	WorkerThread_GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 }
 
 ID3D12GraphicsCommandList * DeviceContext::GetCopyList()
@@ -177,8 +172,8 @@ void DeviceContext::UpdateCopyEngine()
 	{
 		ThrowIfFailed(m_CopyList->Close());
 		ExecuteCopyCommandList(m_CopyList);
-		ThrowIfFailed(m_CopyCommandAllocator->Reset());
-		ThrowIfFailed(m_CopyList->Reset(m_CopyCommandAllocator, nullptr));
+		/*ThrowIfFailed(m_CopyCommandAllocator->Reset());
+		ThrowIfFailed(m_CopyList->Reset(m_CopyCommandAllocator, nullptr));*/
 		CopyEngineHasWork = false;
 	}
 }
@@ -188,19 +183,16 @@ void DeviceContext::ExecuteCopyCommandList(ID3D12GraphicsCommandList * list)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_CopyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);	
+	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
 }
 
 void DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
 {
-	if (RHI::RunListsAsync())
+
+	ID3D12CommandList* ppCommandLists[] = { list };
+	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	if (RHI::BlockCommandlistExec())
 	{
-		CommandLists.push(list);
-	}
-	else
-	{
-		ID3D12CommandList* ppCommandLists[] = { list };
-		GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 		WaitForGpu();
 	}
 }
@@ -222,6 +214,16 @@ int DeviceContext::GetDeviceIndex()
 	return DeviceIndex;
 }
 
+D3D12TimeManager * DeviceContext::GetTimeManager()
+{
+	return TimeManager;
+}
+
+int DeviceContext::GetCpuFrameIndex()
+{
+	return CurrentFrameIndex;
+}
+
 GPUSyncPoint::~GPUSyncPoint()
 {
 	if (m_fence)
@@ -239,7 +241,7 @@ void GPUSyncPoint::Init(ID3D12Device * device)
 	//	D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER
 	//	D3D12_FENCE_FLAG_NON_MONITORED
 	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-	m_fenceEvent = CreateEvent(nullptr, false,false, nullptr);
+	m_fenceEvent = CreateEvent(nullptr, false, false, nullptr);
 	if (m_fenceEvent == nullptr)
 	{
 		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));

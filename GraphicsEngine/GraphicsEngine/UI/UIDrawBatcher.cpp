@@ -6,6 +6,8 @@
 #include "../RHI/RenderAPIs/D3D12/D3D12Shader.h"
 #include "../Core/Utils/StringUtil.h"
 #include <algorithm>
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "../RHI/DeviceContext.h"
 UIDrawBatcher* UIDrawBatcher::instance = nullptr;
 UIDrawBatcher::UIDrawBatcher()
 {
@@ -21,7 +23,7 @@ void UIDrawBatcher::InitD3D12()
 	const UINT vertexBufferSize = sizeof(UIVertex) * 500;//mazsize
 	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, RHIBuffer::BufferAccessType::Dynamic);
 	commandlist->SetPipelineState(PipeLineState{ false , false });
-	commandlist->CreatePipelineState(Shader);
+	commandlist->CreatePipelineState(Shader);	
 }
 void UIDrawBatcher::ReallocBuffer(int NewSize)
 {
@@ -91,9 +93,11 @@ void UIDrawBatcher::RenderBatches()
 void UIDrawBatcher::RenderBatches_D3D12()
 {
 	commandlist->ResetList();
+	commandlist->GetDevice()->GetTimeManager()->StartTimer(commandlist, D3D12TimeManager::eGPUTIMERS::UI);
 	commandlist->SetScreenBackBufferAsRT();
 	Shader->PushTOGPU(commandlist);
 	Render(commandlist);
+	commandlist->GetDevice()->GetTimeManager()->EndTimer(commandlist, D3D12TimeManager::eGPUTIMERS::UI);
 	commandlist->Execute();
 }
 void UIDrawBatcher::Render(RHICommandList * list)

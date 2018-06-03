@@ -11,3 +11,8 @@ RHICommandList::~RHICommandList()
 
 void RHICommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {}
+
+DeviceContext * RHICommandList::GetDevice()
+{
+	return Device;
+}

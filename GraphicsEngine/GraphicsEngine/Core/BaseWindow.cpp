@@ -15,6 +15,8 @@
 #include "../Core/Assets/SceneJSerialiser.h"
 #include "../UI/TextRenderer.h"
 #include "../Core/Assets/ImageIO.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "../RHI/DeviceContext.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -490,6 +492,7 @@ RenderEngine * BaseWindow::GetCurrentRenderer()
 {
 	return Renderer;
 }
+
 void BaseWindow::RenderText()
 {
 	if (!ShowText)
@@ -500,15 +503,14 @@ void BaseWindow::RenderText()
 	stream << std::fixed << std::setprecision(2);
 	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
 	stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
+	stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
 	if (ExtendedPerformanceStats)
-	{
-
-		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
+	{		
 		if (PerfManager::Instance != nullptr)
 		{
 			stream << PerfManager::Instance->GetAllTimers();
 			stream << PerfManager::Instance->GetCounterData();
-		}
+		}		
 	}
 
 	UI->RenderTextToScreen(1, stream.str());
@@ -518,8 +520,15 @@ void BaseWindow::RenderText()
 		stream << D3D12RHI::Instance->GetMemory();
 		UI->RenderTextToScreen(2, stream.str());
 	}
-
-
+	stream.str("");
+	stream << RHI::GetDeviceContext(0)->GetTimeManager()->GetTimerData();
+	UI->RenderTextToScreen(3, stream.str());
+	if (RHI::GetDeviceContext(1) != nullptr)
+	{
+		stream.str("");
+		//stream << RHI::GetDeviceContext(1)->GetTimeManager()->GetTimerData();
+		UI->RenderTextToScreen(4, stream.str());
+	}
 }
 #if USE_PHYSX_THREADING
 int EditorWindow::PhysicsThreadLoop()

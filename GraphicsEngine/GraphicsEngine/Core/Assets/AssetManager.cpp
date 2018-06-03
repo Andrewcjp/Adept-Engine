@@ -189,8 +189,8 @@ AssetManager::AssetManager()
 	//LoadCookedShaders();
 	ExportCookedShaders();
 #endif
-	std::cout << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << std::endl;
-	std::cout << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << std::endl;
+	//std::cout << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << std::endl;
+	//std::cout << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << std::endl;
 }
 AssetManager::~AssetManager()
 {}

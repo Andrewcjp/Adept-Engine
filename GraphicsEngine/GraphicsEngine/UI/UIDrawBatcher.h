@@ -13,14 +13,11 @@ class UIDrawBatcher
 public:
 	static UIDrawBatcher* instance;
 	UIDrawBatcher();
-	void InitOGL();
 	void InitD3D12();
 	void ReallocBuffer(int NewSize);
 	~UIDrawBatcher();
 	void SendToGPU();
-	void SendToGPU_OpenGL();
 	void SendToGPU_D3D12();
-	void RenderBatches_OpenGL();
 	void RenderBatches_D3D12();
 	void Render(RHICommandList * list);
 	void RenderBatches();

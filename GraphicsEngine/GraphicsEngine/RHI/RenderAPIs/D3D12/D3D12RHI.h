@@ -81,11 +81,11 @@ public:
 private:
 	class	DeviceContext* PrimaryDevice = nullptr;
 	class	DeviceContext* SecondaryDevice = nullptr;
-	static const int FrameCount = 3;
+	
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;
-	ID3D12Resource* m_SwaprenderTargets[FrameCount];
+	ID3D12Resource* m_SwaprenderTargets[RHI::CPUFrameCount];
 	
 	D3D12Texture* Test = nullptr;
 	class FrameBuffer* testbuffer = nullptr;
@@ -105,10 +105,9 @@ private:
 	UINT m_frameIndex;
 	HANDLE m_fenceEvent;
 	ID3D12Fence* m_fence;
-	UINT64 m_fenceValue;
 	UINT64 M_ShadowFence = 0;
 	ID3D12Fence* pShadowFence;
-	UINT64 m_fenceValues[FrameCount];
+	UINT64 m_fenceValues[RHI::CPUFrameCount];
 
 	//	HANDLE ShadowExechandle;
 	ID3D12Debug* debugController;
@@ -117,7 +116,7 @@ private:
 	int count = 0;
 	//todo : Better!
 	std::vector<ID3D12Resource *> UsedUploadHeaps;
-	class GPUResource* m_RenderTargetResources[FrameCount];
+	class GPUResource* m_RenderTargetResources[RHI::CPUFrameCount];
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;
 	int PerfCounter = 0;

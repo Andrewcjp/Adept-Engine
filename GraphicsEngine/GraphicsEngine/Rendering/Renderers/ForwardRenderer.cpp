@@ -6,6 +6,8 @@
 #include "../PostProcessing/PostProcessing.h"
 #include "../Core/Engine.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+
+#include "../RHI/DeviceContext.h"
 #if USED3D12DebugP
 #include "../D3D12/D3D12Plane.h"
 #endif
@@ -64,6 +66,7 @@ void ForwardRenderer::PostInit()
 #if DEBUG_CUBEMAPS
 	SkyBox->test = mShadowRenderer->PointLightBuffer;
 #endif
+	
 }
 
 
@@ -80,7 +83,8 @@ void ForwardRenderer::MainPass()
 {
 	MainCommandList->ResetList();
 	
-	D3D12TimeManager::Instance->StartTimer(MainCommandList);
+	MainCommandList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(MainCommandList);
+	MainCommandList->GetDevice()->GetTimeManager()->StartTimer(MainCommandList, D3D12TimeManager::eGPUTIMERS::MainPass);
 	MainCommandList->SetScreenBackBufferAsRT();
 	MainCommandList->ClearScreen();	
 	MainShader->UpdateMV(MainCamera);	
@@ -95,16 +99,10 @@ void ForwardRenderer::MainPass()
 		MainShader->SetActiveIndex(MainCommandList, (int)i);
 		MainCommandList->SetTexture(SkyBox->SkyBoxTexture, 0);
 		(*MainScene->GetObjects())[i]->Render(false, MainCommandList);
-	}
-	
+	}	
 	MainCommandList->SetRenderTarget(nullptr);
-//	D3D12TimeManager::Instance->EndTimer(MainCommandList);
-	if (RHI::RunRenderersAsync())
-	{
-		mShadowRenderer->Wait();
-	}
+	MainCommandList->GetDevice()->GetTimeManager()->EndTimer(MainCommandList, D3D12TimeManager::eGPUTIMERS::MainPass);
 	MainCommandList->Execute();
-	//MainCommandList->WaitForCompletion();
 }
 
 void ForwardRenderer::RenderSkybox()

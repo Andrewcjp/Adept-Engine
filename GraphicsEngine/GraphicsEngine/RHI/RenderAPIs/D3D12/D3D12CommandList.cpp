@@ -14,7 +14,10 @@
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice)
 {
 	Device = inDevice;
-	ThrowIfFailed(Device->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	{
+		ThrowIfFailed(Device->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator[i])));
+	}
 }
 
 D3D12CommandList::~D3D12CommandList()
@@ -32,9 +35,9 @@ D3D12CommandList::~D3D12CommandList()
 
 void D3D12CommandList::ResetList()
 {
-	ThrowIfFailed(m_commandAllocator->Reset());
+	ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
 	IsOpen = true;
-	ThrowIfFailed(CurrentGraphicsList->Reset(m_commandAllocator, CurrentPipelinestate.m_pipelineState));
+	ThrowIfFailed(CurrentGraphicsList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState));
 	CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
 }
 
@@ -169,14 +172,14 @@ void D3D12CommandList::CreateCommandList(ECommandListType listype)
 	ListType = listype;
 	if (listype == ECommandListType::Graphics)
 	{
-		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
+		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
 		CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
 		ThrowIfFailed(CurrentGraphicsList->Close());
 	}
 	else if (listype == ECommandListType::Compute)
 	{
 		//todo: aloccators?
-		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator, CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
+		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
 		CurrentGraphicsList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
 		ThrowIfFailed(CurrentGraphicsList->Close());
 	}
@@ -300,7 +303,6 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType 
 	{
 		CreateStaticBuffer(Stride, ByteSize);
 	}
-
 }
 
 void D3D12Buffer::UpdateVertexBuffer(void * data, int length)

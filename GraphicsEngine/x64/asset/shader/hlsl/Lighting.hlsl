@@ -1,4 +1,3 @@
-#define MAX_LIGHT 4
 struct Light
 {
 	float3 LPosition;
@@ -63,11 +62,12 @@ float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 
 {
 	float3 LightDirection = float3(0, 1, 0);
 	float distanceToLight = length(light.LPosition - FragPos);
-	float attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2));
+	float attenuation = 1.0f;
 
 	if (light.type == 1)
 	{
 		LightDirection = normalize(light.LPosition - FragPos);
+		attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2));
 	}
 	else
 	{
@@ -75,5 +75,5 @@ float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 
 	}
 
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color;
-	return Diffusecolour *attenuation;
+	return Diffusecolour * attenuation;
 }

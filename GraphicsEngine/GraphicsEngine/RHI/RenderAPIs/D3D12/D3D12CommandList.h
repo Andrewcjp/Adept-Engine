@@ -1,5 +1,6 @@
 #pragma once
 #include "../RHI/RHICommandList.h"
+
 #include <d3d12.h>
 #include "D3D12Shader.h"
 class D3D12CommandList : public RHICommandList
@@ -39,7 +40,7 @@ private:
 	ID3D12GraphicsCommandList * CurrentGraphicsList = nullptr;
 	bool IsOpen = false;
 	D3D12Shader::PiplineShader				CurrentPipelinestate;
-	ID3D12CommandAllocator* m_commandAllocator;
+	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC* VertexDesc = nullptr;
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
@@ -47,7 +48,6 @@ private:
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	PipeLineState Currentpipestate;
 	// Inherited via RHICommandList
-	class	DeviceContext* Device = nullptr;
 	ECommandListType ListType = ECommandListType::Graphics; 
 	
 };

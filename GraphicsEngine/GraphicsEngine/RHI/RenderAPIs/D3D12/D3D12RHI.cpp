@@ -12,14 +12,14 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 #include "D3D12TimeManager.h"
 #include <dxgidebug.h>
 D3D12RHI::D3D12RHI()
+	:m_fenceValues{}
 {
 	Instance = this;
 }
 
-
 D3D12RHI::~D3D12RHI()
 {}
-//todo: 
+
 void D3D12RHI::InitContext()
 {}
 
@@ -30,7 +30,6 @@ void D3D12RHI::DestroyContext()
 	WaitForGpu();
 	ReleaseSwapRTs();
 	delete MipmapShader;
-
 	GetCommandQueue()->Release();
 	delete PrimaryDevice;
 	if (SecondaryDevice)
@@ -40,13 +39,8 @@ void D3D12RHI::DestroyContext()
 	m_rtvHeap->Release();
 	m_dsvHeap->Release();
 	m_SetupCommandList->Release();
-	delete D3D12TimeManager::Instance;
-	//	m_swapChain->Release();
 	CloseHandle(m_fenceEvent);
 	m_fence->Release();
-
-
-
 	ReportObjects();
 }
 
@@ -57,8 +51,6 @@ void EnableShaderBasedValidation()
 	(D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0)));
 	(spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1)));
 	spDebugController1->SetEnableGPUBasedValidation(true);
-	spDebugController1->Release();
-	spDebugController0->Release();
 }
 
 void D3D12RHI::CheckFeatures(ID3D12Device* pDevice)
@@ -144,21 +136,21 @@ std::string D3D12RHI::GetMemory()
 
 	if (SecondaryDevice != nullptr)
 	{
-		output.append("Sec:");
+		output.append(" Sec:");
 		output.append(SecondaryDevice->GetMemoryReport());
 	}
 	return output;
 }
 
-
-
 void D3D12RHI::LoadPipeLine()
 {
-	//EnableShaderBasedValidation();
+#define RUNDEBUG 1//defined(_DEBUG)
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	UINT dxgiFactoryFlags = 0;
-#if defined(_DEBUG) //nsight needs this off
+#if RUNDEBUG //nsight needs this off
+	//EnableShaderBasedValidation();
+
 	// Enable the debug layer (requires the Graphics Tools "optional feature").
 	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
 	{
@@ -181,75 +173,24 @@ void D3D12RHI::LoadPipeLine()
 	ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
 	SecondaryDevice = new DeviceContext();
 	SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
-
 #endif
-#if 0
-	if (true)
-	{
-		
 
-
-		//testing warp adaptor
-		/*for (int i = 0; i < 3; i++)
-		{
-			testbuffer = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
-		}*/
-
-		//testbuffer2 = RHI::CreateFrameBuffer(2000, 2000, SecondaryDevice);
-		/*for (int i = 0; i < 3; i++)
-		{
-			Test = new D3D12Texture("\\asset\\texture\\grasshillalbedo.png", SecondaryDevice);
-		}	*/
-
-
-	}
-#endif
-#if 0
-	IDXGIAdapter1* hardwareAdapter;
-	GetHardwareAdapter(factory, &hardwareAdapter);
-
-
-	PrimaryDevice->CreateDeviceFromAdaptor(hardwareAdapter, 0);
-#else 
 	FindAdaptors(factory);
-#endif
-	//ThrowIfFailed(D3D12CreateDevice(
-	//	hardwareAdapter,
-	//	D3D_FEATURE_LEVEL_11_0,
-	//	IID_PPV_ARGS(&GetDevice())
-	//));
-
-	//GetMaxSupportedFeatureLevel(GetDevice());
-
-	//pDXGIAdapter = (IDXGIAdapter3*)hardwareAdapter;
-	//pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
-
-
-
-
-	if (false)
+#if RUNDEBUG
+	ID3D12InfoQueue* infoqueue;
+	PrimaryDevice->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue));
+	if (infoqueue != nullptr)
 	{
-		//IDXGIAdapter1* shardwareAdapter;
-		//ThrowIfFailed(factory->EnumAdapters1(1, &shardwareAdapter));
-		////GetHardwareAdapter(factory, &shardwareAdapter);
-
-		//ThrowIfFailed(D3D12CreateDevice(
-		//	shardwareAdapter,
-		//	D3D_FEATURE_LEVEL_11_0,
-		//	IID_PPV_ARGS(&m_Secondarydevice)
-		//));
-
+		infoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+		infoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+		infoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
 	}
-	//// Describe and create the command queue.
-	//D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-	//queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	//queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+#endif
 
-	//ThrowIfFailed(GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&GetCommandQueue())));
 	DisplayDeviceDebug();
 	// Describe and create the swap chain.
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-	swapChainDesc.BufferCount = FrameCount;
+	swapChainDesc.BufferCount = RHI::CPUFrameCount;
 	swapChainDesc.Width = m_width;
 	swapChainDesc.Height = m_height;
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -278,7 +219,7 @@ void D3D12RHI::LoadPipeLine()
 	{
 		// Describe and create a render target view (RTV) descriptor heap.
 		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-		rtvHeapDesc.NumDescriptors = FrameCount;
+		rtvHeapDesc.NumDescriptors = RHI::CPUFrameCount;
 		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		ThrowIfFailed(GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
@@ -295,7 +236,6 @@ void D3D12RHI::LoadPipeLine()
 	}
 	factory->Release();
 	CreateSwapChainRTs();
-	//ThrowIfFailed(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 }
 
 void D3D12RHI::CreateSwapChainRTs()
@@ -305,7 +245,7 @@ void D3D12RHI::CreateSwapChainRTs()
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
 		// Create a RTV for each frame.
-		for (UINT n = 0; n < FrameCount; n++)
+		for (UINT n = 0; n < RHI::CPUFrameCount; n++)
 		{
 			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_SwaprenderTargets[n])));
 			GetDevice()->CreateRenderTargetView(m_SwaprenderTargets[n], nullptr, rtvHandle);
@@ -330,7 +270,7 @@ void D3D12RHI::InternalResizeSwapChain(int x, int y)
 	if (m_swapChain != nullptr && HasSetup)
 	{
 		ReleaseSwapRTs();
-		ThrowIfFailed(m_swapChain->ResizeBuffers(FrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+		ThrowIfFailed(m_swapChain->ResizeBuffers(RHI::CPUFrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 		CreateSwapChainRTs();
 		m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(x), static_cast<float>(y));
 		m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(x), static_cast<LONG>(y));
@@ -345,7 +285,7 @@ void D3D12RHI::InternalResizeSwapChain(int x, int y)
 
 void D3D12RHI::ReleaseSwapRTs()
 {
-	for (UINT n = 0; n < FrameCount; n++)
+	for (UINT n = 0; n < RHI::CPUFrameCount; n++)
 	{
 		m_SwaprenderTargets[n]->Release();
 		delete m_RenderTargetResources[n];
@@ -355,7 +295,11 @@ void D3D12RHI::ReleaseSwapRTs()
 
 void D3D12RHI::ResizeSwapChain(int x, int y)
 {
-	if (m_swapChain != nullptr /*&& HasSetup*/)//todo: this check?
+	if (x == 0 || y == 0)
+	{
+		return;
+	}
+	if (m_swapChain != nullptr)
 	{
 		RequestedResize = true;
 		newwidth = x;
@@ -392,30 +336,20 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 
 void D3D12RHI::LoadAssets()
 {
-
+	
+	ThrowIfFailed(GetDevice()->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+	m_fenceValues[m_frameIndex] = 1;
+	// Create an event handle to use for frame synchronization
+	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	if (m_fenceEvent == nullptr)
 	{
-		ThrowIfFailed(GetDevice()->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-		m_fenceValues[m_frameIndex]++;
-		//	m_fenceValue = 1;
-
-
-		// Create an event handle to use for frame synchronization
-		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		if (m_fenceEvent == nullptr)
-		{
-			ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
-		}
-		ThrowIfFailed(GetDevice()->CreateFence(M_ShadowFence, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pShadowFence)));
-		// Wait for the command list to execute; we are reusing the same command 
-		// list in our main loop but for now, we just want to wait for setup to 
-		// complete before continuing.
-
+		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
 	}
+	ThrowIfFailed(GetDevice()->CreateFence(M_ShadowFence, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pShadowFence)));
 	InitMipmaps();
 
 	ThrowIfFailed(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, PrimaryDevice->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
-	D3D12TimeManager::Initialize(PrimaryDevice);
 }
 
 void D3D12RHI::ExecSetUpList()
@@ -427,12 +361,13 @@ void D3D12RHI::ExecSetUpList()
 	{
 		SecondaryDevice->UpdateCopyEngine();
 	}
-	PrimaryDevice->WaitForGpu();
+	WaitForGpu();
 	ReleaseUploadHeap();
 }
 
 void D3D12RHI::ReleaseUploadHeap()
 {
+	//return;
 	for (int i = 0; i < UsedUploadHeaps.size(); i++)
 	{
 		UsedUploadHeaps[i]->Release();
@@ -450,9 +385,7 @@ void D3D12RHI::ExecList(CommandListDef* list, bool Block)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	//PrimaryDevice->WaitForGpu();
-	PrimaryDevice->WaitForGpu();
-	//PrimaryDevice->ExecuteCommandList(list);
+//	WaitForGpu();
 }
 
 void D3D12RHI::PresentFrame()
@@ -461,52 +394,61 @@ void D3D12RHI::PresentFrame()
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(PrimaryDevice->GetCommandAllocator(), nullptr);
+		PrimaryDevice->GetTimeManager()->EndTotalGPUTimer(m_SetupCommandList);
 		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
-		D3D12TimeManager::Instance->EndTimer(m_SetupCommandList);
+
 		m_SetupCommandList->Close();
 		PrimaryDevice->ExecuteCommandList(m_SetupCommandList);
-		//ExecList(m_SetupCommandList);
 	}
-
-	//testing
+	
 	if (m_BudgetNotificationCookie == 1)
 	{
 		DisplayDeviceDebug();
 		std::cout << "Memory Budget Changed" << std::endl;
 	}
 #if USEGPUTOGENMIPS
-	if (count % 10 == 0)
+	if (count == 1)
 	{
+		PrimaryDevice->WaitForGpu();
 		MipmapShader->GenAllmips(100);
 	}
 #endif
-	PrimaryDevice->EnsureWorkComplete();
-
+	
+//	PrimaryDevice->WaitForGpu();
 	ThrowIfFailed(m_swapChain->Present(0, 0));
+	if (!RHI::AllowCPUAhead())
+	{
+		PrimaryDevice->WaitForGpu();
+	}
 	if (RequestedResize)
 	{
+		PrimaryDevice->WaitForGpu();
 		InternalResizeSwapChain(newwidth, newheight);
 	}
+
+	MoveToNextFrame();
+	PrimaryDevice->CurrentFrameIndex = m_frameIndex;
 	//all exectuion this frame has finished 
 	//so all resources should be in the correct state!
 	PrimaryDevice->UpdateCopyEngine();
-	PrimaryDevice->GetCommandAllocator()->Reset();
 	if (SecondaryDevice != nullptr)
 	{
 		SecondaryDevice->UpdateCopyEngine();
-		SecondaryDevice->GetCommandAllocator()->Reset();
 	}
-	MoveToNextFrame();
-
-	//WaitForGpu();
+	PrimaryDevice->GetCommandAllocator()->Reset();
+	if (SecondaryDevice != nullptr)
+	{
+		SecondaryDevice->GetCommandAllocator()->Reset();
+	}	
+	
 	count++;
 	if (count > 2)
 	{
 		HasSetup = true;
 	}
-	if (D3D12TimeManager::Instance)
+	if (PrimaryDevice && m_frameIndex ==0 )
 	{
-		D3D12TimeManager::Instance->UpdateTimers();
+		PrimaryDevice->GetTimeManager()->UpdateTimers();
 	}
 }
 
@@ -517,8 +459,6 @@ void D3D12RHI::ClearRenderTarget(ID3D12GraphicsCommandList* MainList)
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	MainList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 	MainList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-
 }
 
 void D3D12RHI::RenderToScreen(ID3D12GraphicsCommandList* list)
@@ -567,7 +507,15 @@ void D3D12RHI::PostFrame(ID3D12GraphicsCommandList* list)
 
 void D3D12RHI::WaitForGpu()
 {
-	PrimaryDevice->WaitForGpu();
+	// Schedule a Signal command in the queue.
+	ThrowIfFailed(GetCommandQueue()->Signal(m_fence, m_fenceValues[m_frameIndex]));
+
+	// Wait until the fence has been processed.
+	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
+	WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+
+	// Increment the fence value for the current frame.
+	m_fenceValues[m_frameIndex] += 1;
 }
 
 // Prepare to render the next frame.
@@ -576,12 +524,12 @@ void D3D12RHI::MoveToNextFrame()
 	// Schedule a Signal command in the queue.
 	const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
 	ThrowIfFailed(GetCommandQueue()->Signal(m_fence, currentFenceValue));
-
 	// Update the frame index.
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
 	// If the next frame is not ready to be rendered yet, wait until it is ready.
-	if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
+	const int value = m_fence->GetCompletedValue();
+	if (value < m_fenceValues[m_frameIndex])
 	{
 		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
 		WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
@@ -638,24 +586,24 @@ void D3D12RHI::AddLinkedFrameBuffer(FrameBuffer * target)
 
 void D3D12RHI::WaitForPreviousFrame()
 {
-	// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE.
-	// This is code implemented as such for simplicity. The D3D12HelloFrameBuffering
-	// sample illustrates how to use fences for efficient resource usage and to
-	// maximize GPU utilization.
+	//// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE.
+	//// This is code implemented as such for simplicity. The D3D12HelloFrameBuffering
+	//// sample illustrates how to use fences for efficient resource usage and to
+	//// maximize GPU utilization.
 
-	// Signal and increment the fence value.
-	const UINT64 fence = m_fenceValue;
-	ThrowIfFailed(GetCommandQueue()->Signal(m_fence, fence));
-	m_fenceValue++;
+	//// Signal and increment the fence value.
+	//const UINT64 fence = m_fenceValue;
+	//ThrowIfFailed(GetCommandQueue()->Signal(m_fence, fence));
+	//m_fenceValue++;
 
-	// Wait until the previous frame is finished.
-	if (m_fence->GetCompletedValue() < fence)
-	{
-		ThrowIfFailed(m_fence->SetEventOnCompletion(fence, m_fenceEvent));
-		WaitForSingleObject(m_fenceEvent, INFINITE);
-	}
+	//// Wait until the previous frame is finished.
+	//if (m_fence->GetCompletedValue() < fence)
+	//{
+	//	ThrowIfFailed(m_fence->SetEventOnCompletion(fence, m_fenceEvent));
+	//	WaitForSingleObject(m_fenceEvent, INFINITE);
+	//}
 
-	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+	//m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 {
@@ -689,7 +637,7 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 			{
 				return;
 			}
-			
+
 			if (*Device == nullptr)
 			{
 				*Device = new DeviceContext();

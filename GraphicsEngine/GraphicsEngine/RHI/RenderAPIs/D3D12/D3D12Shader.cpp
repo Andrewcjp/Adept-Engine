@@ -322,6 +322,9 @@ void D3D12Shader::CreateComputePipelineShader()
 	computePsoDesc.pRootSignature = m_Shader.m_rootSignature;
 	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(mBlolbs.csBlob);
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_Shader.m_pipelineState)));
+
+	//D3D12Shader::PiplineShader t;
+	//CreateDefaultRootSig(t);
 }
 
 CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
@@ -406,6 +409,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	int RangeNumber = 0;
 	for (int i = 0; i < Params.size(); i++)
 	{
+		rootParameters[i] = CD3DX12_ROOT_PARAMETER1();
 		if (Params[i].Type == Shader::ShaderParamType::SRV)
 		{
 			RangeNumber++;
@@ -421,7 +425,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	{
 		if (Params[i].Type == Shader::ShaderParamType::SRV)
 		{
-			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE,0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_PIXEL);
 		}
 		else if (Params[i].Type == Shader::ShaderParamType::CBV)

@@ -8,9 +8,10 @@
 #include "../Editor/Editor_Camera.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "Rendering\Shaders\Shader_Skybox.h"
+
+#include "../RHI/DeviceContext.h"
 void DeferredRenderer::OnRender()
 {
-
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
@@ -56,7 +57,6 @@ void DeferredRenderer::PostInit()
 }
 
 
-
 void DeferredRenderer::GeometryPass()
 {
 	if (MainScene->StaticSceneNeedsUpdate)
@@ -67,7 +67,7 @@ void DeferredRenderer::GeometryPass()
 	}
 	 
 	WriteList->ResetList();
-	D3D12TimeManager::Instance->StartTimer(WriteList);
+	WriteList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(WriteList);
 	WriteList->SetRenderTarget(GFrameBuffer);
 	WriteList->ClearFrameBuffer(GFrameBuffer);
 	MainShader->BindLightsBuffer(WriteList);
@@ -106,13 +106,11 @@ void DeferredRenderer::LightingPass()
 	MainShader->BindLightsBuffer(LightingList, true);
 	DeferredShader->RenderScreenQuad(LightingList);
 	LightingList->SetRenderTarget(nullptr);
-	D3D12TimeManager::Instance->EndTimer(LightingList);
 	LightingList->Execute();
 }
 
 void DeferredRenderer::Resize(int width, int height)
 {
-
 	m_width = width;
 	m_height = height;
 	if (RHI::IsD3D12())

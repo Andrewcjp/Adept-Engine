@@ -1,10 +1,9 @@
 #include "Lighting.hlsl"
 //#include "Shadow.hlsl"
 #define SHADOW_DEPTH_BIAS 0.005f
-#define MAX_SHADOWS 2
 cbuffer LightBuffer : register(b1)
 {
-	Light lights[MAX_LIGHT];
+	Light lights[MAX_LIGHTS];
 };
 cbuffer GOConstantBuffer : register(b0)
 {
@@ -19,15 +18,14 @@ struct PSInput
 	float4 WorldPos:TANGENT0;
 	row_major float3x3 TBN:TANGENT1;
 };
-
-Texture2D g_texture : register(t0);
-Texture2D g_Shadow_texture : register(t1);
-TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t2);
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
+Texture2D g_texture : register(t0);
+Texture2D NormalMapTexture : register(t1);
 
 
-Texture2D NormalMapTexture : register(t5);
+Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t3);
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(POINT_SHADOW_OFFSET);
 float GetShadow(float4 pos)
 {
 	float4 vLightSpacePos = pos;
@@ -38,7 +36,7 @@ float GetShadow(float4 pos)
 	float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f;
 	vShadowTexCoord.y = 1.0f - vShadowTexCoord.y;
 	float bias = 0.005;
-	if (g_Shadow_texture.Sample(g_sampler, vShadowTexCoord.xy).r < (vLightSpacePos.z - bias))
+	if (g_Shadow_texture[0].Sample(g_sampler, vShadowTexCoord.xy).r < (vLightSpacePos.z - bias))
 	{
 		return 1.0f;
 	}
@@ -70,12 +68,13 @@ float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld)
 	// 2x2 percentage closer filtering.
 	float2 vTexelUnits = 1.0f / vShadowMapDims;
 	float4 vShadowDepths;
+	int id = 0;
 	if (lightid == 0)
 	{
-		vShadowDepths.x = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord);
-		vShadowDepths.y = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
-		vShadowDepths.z = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
-		vShadowDepths.w = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);
+		vShadowDepths.x = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord);
+		vShadowDepths.y = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f));
+		vShadowDepths.z = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y));
+		vShadowDepths.w = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);
 	}
 	else
 	{
@@ -100,7 +99,7 @@ float4 main(PSInput input) : SV_TARGET
 		Normal = normalize(mul(Normal,input.TBN));
 	}
 	float3 output = float3(0, 0, 0);
-	for (int i = 0; i < MAX_LIGHT; i++)
+	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal));
 		if (lights[i].HasShadow && lights[i].type == 0)
@@ -115,9 +114,8 @@ float4 main(PSInput input) : SV_TARGET
 	}
 
 	float3 ambeint = texturecolour * GetAmbient();
-	float Shadow = CalcUnshadowedAmountPCF2x2(0, input.WorldPos);
 	float3 GammaCorrected = ambeint + output;
-	float gamma = 1.0f / 2.2f;
+	//float gamma = 1.0f / 2.2f;
 	//	GammaCorrected = pow(GammaCorrected, float4(gamma, gamma, gamma, gamma));
 	return float4(GammaCorrected.xyz,1.0f);
 }

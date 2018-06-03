@@ -231,20 +231,12 @@ void PerfManager::EndFrameTimer()
 	FrameTime = (float)((get_nanos() - FrameStart) / 1e9f);//in s
 }
 #include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "../RHI/DeviceContext.h"
 float PerfManager::GetGPUTime()
-{
-
-	if (RHI::IsD3D12())
-	{
-		//remove me!
-		if (D3D12TimeManager::Instance)
-		{
-			return D3D12TimeManager::Instance->AVGgpuTimeMS;
-		}
-	}
+{	
 	if (Instance != nullptr)
 	{
-		return Instance->GPUTime;
+		return RHI::GetDeviceContext(0)->GetTimeManager()->AVGgpuTimeMS;
 	}
 	return 0.0f;
 }

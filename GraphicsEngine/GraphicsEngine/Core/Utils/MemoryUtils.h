@@ -8,6 +8,7 @@ namespace MemoryUtils
 		for (int i = 0; i < target.size(); i++)
 		{
 			delete target[i];
+			target[i] = nullptr;
 		}
 		target.clear();
 	}

@@ -12,7 +12,8 @@ class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
 const int MAX_POINT_SHADOWS = 3;
-const int MAX_DIRECTIONAL_SHADOWS = 2;
+const int MAX_DIRECTIONAL_SHADOWS = 1;
+
 class RHI
 {
 public:
@@ -24,7 +25,7 @@ public:
 	RHI();
 	~RHI();
 	static RHI* instance;
-
+	static const int CPUFrameCount = 2;
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
 	CORE_API static BaseTexture* CreateTexture(const char * path, DeviceContext* Device = nullptr);
@@ -47,8 +48,8 @@ public:
 	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
 	static RHICommandList* CreateCommandList(DeviceContext* Device = nullptr);
 	HINSTANCE m_hinst;
-	static bool RunRenderersAsync();
-	static bool RunListsAsync();
+	static bool BlockCommandlistExec();
+	static bool AllowCPUAhead();
 private: 
 	bool ShouldRunAsync = false;
 	ERenderSystemType CurrentSystem;

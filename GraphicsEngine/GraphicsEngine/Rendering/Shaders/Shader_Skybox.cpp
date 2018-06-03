@@ -3,6 +3,8 @@
 #include "../RHI/ShaderProgramBase.h"
 #include "../Rendering/Core/Renderable.h"
 #include "Shader_Main.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "../RHI/DeviceContext.h"
 Shader_Skybox::Shader_Skybox()
 {
 	SkyBoxTexture = RHI::CreateTexture("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
@@ -47,6 +49,7 @@ Shader_Skybox::~Shader_Skybox()
 void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List->ResetList();
+	List->GetDevice()->GetTimeManager()->StartTimer(List, D3D12TimeManager::eGPUTIMERS::Skybox);
 	if (DepthSourceBuffer != nullptr)
 	{
 		if (RHI::IsD3D12())
@@ -65,8 +68,9 @@ void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBu
 #else
 	List->SetTexture(SkyBoxTexture, 0);
 #endif
-	mainshader->BindMvBuffer(List, 1);
+	mainshader->BindMvBuffer(List, 1);	
 	CubeModel->Render(List);
+	List->GetDevice()->GetTimeManager()->EndTimer(List, D3D12TimeManager::eGPUTIMERS::Skybox);
 	List->Execute();
 }
 

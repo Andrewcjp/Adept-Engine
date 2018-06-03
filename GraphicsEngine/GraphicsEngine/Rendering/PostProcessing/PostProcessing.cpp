@@ -2,6 +2,8 @@
 #include "PostProcessing.h"
 #include "PP_CompostPass.h"
 #include "PP_ColourCorrect.h"
+#include "../RHI/DeviceContext.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 PostProcessing* PostProcessing::Instance = nullptr;
 PostProcessing::PostProcessing()
 {
@@ -24,7 +26,9 @@ void PostProcessing::ExecPPStack( FrameBuffer* targetbuffer)
 		Effects[i]->RunPass(list,targetbuffer);
 	}*/
 	//called to post porcess the final rendered scene
+	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
 	ColourCorrect->RunPass(ColourCorrect->cmdlist, targetbuffer);
+	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
 }
 void PostProcessing::ExecPPStackFinal(FrameBuffer* targetbuffer)
 {
