@@ -12,7 +12,7 @@ public:
 
 	void CreateStackAtPoint();
 
-	void FireAtScene();
+	void FireAtScene(); 
 
 	// Inherited via Component
 	virtual void InitComponent() override;

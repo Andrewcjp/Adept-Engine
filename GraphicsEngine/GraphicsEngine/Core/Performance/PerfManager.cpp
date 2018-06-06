@@ -9,6 +9,8 @@
 #include <iomanip>
 #include <time.h>
 #include "../RHI/RHI.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "../RHI/DeviceContext.h"
 
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
@@ -31,11 +33,9 @@ PerfManager::PerfManager()
 	ShowAllStats = true;
 }
 
-
 PerfManager::~PerfManager()
 {
 }
-
 
 void PerfManager::StartTimer(const char * countername)
 {
@@ -55,7 +55,7 @@ void PerfManager::EndTimer(const char * countername)
 	}
 #endif
 }
-int PerfManager::GetTimerIDByName(std::string name)
+int PerfManager::GetTimerIDByName(std::string name) 
 {
 	if (TimerIDs.find(name) == TimerIDs.end())
 	{
@@ -64,6 +64,7 @@ int PerfManager::GetTimerIDByName(std::string name)
 	}
 	return TimerIDs.at(name);
 }
+
 std::string PerfManager::GetTimerName(int id)
 {
 #if STATS
@@ -136,68 +137,24 @@ float PerfManager::GetAVGFrameRate()
 	}
 	return CurrentAVGFps;
 }
-float PerfManager::GetAVGFrameTime()
+
+float PerfManager::GetAVGFrameTime() const
 {
 	return AVGFrameTime;
 }
+
 std::string PerfManager::GetAllTimers()
 {
 	std::stringstream stream;
 	if (ShowAllStats)
 	{
 		stream << std::fixed << std::setprecision(3) << "Stats: ";
-#if 0
-		for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
-		{
-			stream << GetTimerName(it->first) << ": " << it->second << "ms ";
-		}
-#else
 		for (std::map<int, MovingAverage*>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 		{
 			stream << GetTimerName(it->first) << ": " << it->second->GetCurrentAverage() << "ms ";
 		}
-#endif
 	}
-
 	return stream.str();
-}
-void PerfManager::StartGPUTimer()
-{
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-		if (!WaitGPUTimerQuerry)
-		{
-////			glQueryCounter(queryID[0], GL_TIMESTAMP);
-		}
-	}
-}
-void PerfManager::EndGPUTimer()
-{
-#if BUILD_OPENGL
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-		if (!WaitGPUTimerQuerry)
-		{
-			glQueryCounter(queryID[1], GL_TIMESTAMP);
-			WaitGPUTimerQuerry = true;
-		}
-		if (WaitGPUTimerQuerry)
-		{
-			glGetQueryObjectiv(queryID[1],
-				GL_QUERY_RESULT_AVAILABLE,
-				&stopTimerAvailable);
-		}
-
-		if (stopTimerAvailable)
-		{
-			int64 startTime, stopTime;
-			glGetQueryObjectui64v(queryID[0], GL_QUERY_RESULT, &startTime);
-			glGetQueryObjectui64v(queryID[1], GL_QUERY_RESULT, &stopTime);
-			GPUTime = ((stopTime - startTime) / 1e6f);
-			WaitGPUTimerQuerry = false;
-		}
-	}
-#endif
 }
 
 void PerfManager::StartCPUTimer()
@@ -230,8 +187,7 @@ void PerfManager::EndFrameTimer()
 {
 	FrameTime = (float)((get_nanos() - FrameStart) / 1e9f);//in s
 }
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "../RHI/DeviceContext.h"
+
 float PerfManager::GetGPUTime()
 {	
 	if (Instance != nullptr)
@@ -240,6 +196,7 @@ float PerfManager::GetGPUTime()
 	}
 	return 0.0f;
 }
+
 float PerfManager::GetCPUTime()
 {
 	if (Instance != nullptr)
@@ -298,6 +255,7 @@ void PerfManager::SampleNVCounters()
 	}
 #endif
 }
+
 std::string PerfManager::GetCounterData()
 {
 #if BUILD_WITH_NVPERFKIT
@@ -316,6 +274,7 @@ std::string PerfManager::GetCounterData()
 	return std::string();
 #endif
 }
+
 uint64_t PerfManager::GetValue(const char * countername)
 {
 #if BUILD_WITH_NVPERFKIT

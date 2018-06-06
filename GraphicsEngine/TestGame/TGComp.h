@@ -11,7 +11,7 @@ public:
 	virtual void Update(float delta) override;
 
 	// Inherited via Component
-	virtual void InitComponent() override;
+	virtual void InitComponent() override; 
 
 	// Inherited via Component
 	virtual void Serialise(rapidjson::Value & v) override;

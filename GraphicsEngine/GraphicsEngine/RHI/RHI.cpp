@@ -116,7 +116,7 @@ bool RHI::BlockCommandlistExec()
 
 bool RHI::AllowCPUAhead()
 {
-	return false;
+	return true;
 }
 
 void RHI::DestoryRHI()
@@ -228,6 +228,26 @@ FrameBuffer * RHI::CreateFrameBuffer(int width, int height, DeviceContext* Devic
 	}
 	return nullptr;
 }
+
+FrameBuffer * RHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc & Desc)
+{
+	switch (instance->CurrentSystem)
+	{
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		if (Device == nullptr)
+		{
+			Device = D3D12RHI::GetDefaultDevice();
+		}
+	//	D3D12FrameBuffer * ptr = new D3D12FrameBuffer(width, height, Device, ratio, type);
+		//ptr->InitBuffer(clearcolour);
+		return nullptr;
+		break;
+#endif
+	}
+	return nullptr;
+}
+
 
 DeviceContext* RHI::GetDeviceContext(int index)
 {

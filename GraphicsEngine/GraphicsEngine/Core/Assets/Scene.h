@@ -1,6 +1,5 @@
 #pragma once
 #include "Core/GameObject.h"
-#include "SceneSerialiser.h"
 #include "../Rendering/Core/Light.h"
 #include <vector>
 class RenderEngine;
@@ -30,7 +29,6 @@ public:
 private:
 	std::vector<GameObject*> SceneObjects;	
 	std::vector<Light*> Lights;
-	SceneSerialiser* serialiser = nullptr;
 	std::vector<Camera*> Cameras;
 	Camera* CurrentCamera = nullptr;
 };

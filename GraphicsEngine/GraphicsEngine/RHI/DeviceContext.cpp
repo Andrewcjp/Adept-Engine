@@ -72,9 +72,11 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
+	m_commandQueue->SetName(L"Core Device Command Queue");
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_commandAllocator[i])));
+		m_commandAllocator[i]->SetName(L"Core Device Allocator");
 	}
 
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
@@ -141,8 +143,7 @@ void DeviceContext::DestoryDevice()
 }
 
 void DeviceContext::WaitForGpu()
-{
-	
+{	
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 }
 

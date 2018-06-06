@@ -22,10 +22,8 @@ public:
 	static void EndTimer(const char * countername);
 	float GetTimerValue(const char * countername);
 	float GetAVGFrameRate();
-	float GetAVGFrameTime();
+	float GetAVGFrameTime()const;
 	std::string GetAllTimers();
-	void StartGPUTimer();
-	void EndGPUTimer();
 	void StartCPUTimer();
 	void EndCPUTimer();
 	void StartFrameTimer();
@@ -56,9 +54,6 @@ private:
 	float FrameTime = 7.0f;
 	float CPUTime = 0;
 	float GPUTime = 0;
-#if BUILD_OPENGL
-	GLint stopTimerAvailable = 0;
-#endif
 	bool WaitGPUTimerQuerry = false;
 	unsigned int queryID[2];
 	long FrameStart = 0;
@@ -76,6 +71,5 @@ private:
 	float StatAccum = 0;
 	bool Capture = true;
 	MovingAverage CPUAVG = MovingAverage(50);
-	//GPU Bottleneck,2809,simexp,raw,KEPLER_CPU,GRAPHICS,GPU,Bottleneck,UINT64,"Counter ID for GPU bottleneck"
 };
 

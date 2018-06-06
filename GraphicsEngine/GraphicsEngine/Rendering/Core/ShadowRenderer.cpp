@@ -8,7 +8,7 @@
 #include "Core/GameObject.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "../RHI/DeviceContext.h"
-
+#define CUBE_SIDES 6
 ShadowRenderer::ShadowRenderer()
 {
 	DirectionalLightShader = new Shader_Depth(false);
@@ -26,17 +26,15 @@ ShadowRenderer::ShadowRenderer()
 		PointLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::CubeDepth));
 		ShadowCubeArray->AddFrameBufferBind(PointLightBuffers[i], i);
 	}
-
+	ShadowCubeArray->SetIndexNull(2);
 	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, nullptr);
-	GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * 6, MAX_POINT_SHADOWS);
+	GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, MAX_POINT_SHADOWS);
 	PointShadowList = RHI::CreateCommandList();
 	DirectionalShadowList = RHI::CreateCommandList();
-
 }
 
 ShadowRenderer::~ShadowRenderer()
 {
-
 	delete GeometryProjections;
 	delete PointLightShader;
 	delete DirectionalLightShader;
@@ -73,7 +71,6 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, c
 		}
 		Renderered = true;
 	}
-
 	if (ShadowingDirectionalLights.size() > 0)
 	{
 		DirectionalShadowList->ResetList();
@@ -94,7 +91,6 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, c
 		PointShadowList->GetDevice()->GetTimeManager()->EndTimer(PointShadowList, D3D12TimeManager::eGPUTIMERS::PointShadows);
 		PointShadowList->Execute();
 	}
-
 }
 void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject *> & ShadowObjects)
 {
@@ -136,7 +132,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 		list->ClearFrameBuffer(TargetBuffer);
 		mainshader->UpdateMV(ShadowingDirectionalLights[SNum]->DirView, ShadowingDirectionalLights[SNum]->Projection);
 		Shader_Depth::LightData data = {};
-		data.Proj = ShadowingDirectionalLights[SNum]->Projection /**ShadowingDirectionalLights[SNum]->DirView*/;
+		data.Proj = ShadowingDirectionalLights[SNum]->Projection;
 		data.Lightpos = ShadowingDirectionalLights[SNum]->GetPosition();
 		DirectionalLightShader->UpdateBuffer(list, &data, SNum);
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
@@ -160,8 +156,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
 	//return;
-	ShadowDirectionalArray->BindToShader(list, 4);
-	ShadowCubeArray->SetIndexNull(2);
+	ShadowDirectionalArray->BindToShader(list, 4);	
 	ShadowCubeArray->BindToShader(list, 5);
 }
 

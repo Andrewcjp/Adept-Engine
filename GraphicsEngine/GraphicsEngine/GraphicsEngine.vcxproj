@@ -107,6 +107,8 @@
     <LibraryPath>$(ProjectDir)\lib\64;$(ProjectDir)\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -162,6 +164,7 @@
       <PrecompiledHeaderFile>Stdafx.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -297,6 +300,7 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="RHI\RHITypes.h" />
     <ClInclude Include="RHI\RHI_fwd.h" />
     <ClInclude Include="ThirdParty\NVDDS\DDSTextureLoader12.h" />
     <ClInclude Include="Core\Assets\MeshLoader.h" />
@@ -400,7 +404,6 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Physics\RigidBody.h" />
     <ClInclude Include="Core\Assets\Scene.h" />
-    <ClInclude Include="Core\Assets\SceneSerialiser.h" />
     <ClInclude Include="RHI\Shader.h" />
     <ClInclude Include="RHI\ShaderBase.h" />
     <ClInclude Include="Rendering\Shaders\ShaderOutput.h" />
@@ -533,7 +536,6 @@
     <ClCompile Include="Rendering\Renderers\RenderEngine.cpp" />
     <ClCompile Include="Physics\RigidBody.cpp" />
     <ClCompile Include="Core\Assets\Scene.cpp" />
-    <ClCompile Include="Core\Assets\SceneSerialiser.cpp" />
     <ClCompile Include="RHI\Shader.cpp" />
     <ClCompile Include="Rendering\Shaders\ShaderOutput.cpp" />
     <ClCompile Include="Rendering\Shaders\ShaderPBR.cpp" />
@@ -572,4 +574,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <PropertyGroup Condition="'$(Language)'=='C++'">
+    <CAExcludePath>"$(SolutionDir)GraphicsEngine\include";$(CAExcludePath)</CAExcludePath>
+  </PropertyGroup>
 </Project>

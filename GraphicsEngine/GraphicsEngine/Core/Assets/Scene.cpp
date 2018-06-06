@@ -81,7 +81,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Terrain");
-	Material* mat = new Material(RHI::CreateTexture("\\asset\\texture\\grasshillalbedo.png"));
+	Material* mat = new Material(RHI::CreateTexture("\\asset\\texture\\grasshillalbedo.DDS"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("terrainmk2.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -148,7 +148,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #endif
 
 	go = new GameObject("Plane");
-	mat = new Material(RHI::CreateTexture("\\asset\\texture\\bricks2.jpg"));
+	mat = new Material(RHI::CreateTexture("\\asset\\texture\\bricks2.DDS"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 20, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -158,7 +158,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Plane");
-	mat = new Material(RHI::CreateTexture("\\asset\\texture\\bricks2.jpg"));
+	mat = new Material(RHI::CreateTexture("\\asset\\texture\\bricks2.DDS"));
 	mat->SetNormalMap(RHI::CreateTexture("\\asset\\texture\\bricks2_normal.jpg"));
 	mat->SetDisplacementMap(RHI::CreateTexture("\\asset\\texture\\bricks2_disp.jpg"));
 

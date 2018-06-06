@@ -193,10 +193,7 @@ void BaseWindow::Render()
 		CurrentScene->UpdateScene(DeltaTime);
 		//PerfManager::EndTimer("Scene Update");
 	}
-	if (PerfManager::Instance != nullptr)
-	{
-		PerfManager::Instance->StartGPUTimer();
-	}
+	
 	PerfManager::StartTimer("Render");
 	Renderer->Render();
 
@@ -228,11 +225,6 @@ void BaseWindow::Render()
 	if (PostProcessing::Instance)
 	{
 		PostProcessing::Instance->ExecPPStackFinal(nullptr);
-	}
-
-	if (PerfManager::Instance != nullptr)
-	{
-		PerfManager::Instance->EndGPUTimer();
 	}
 #if USE_PHYSX_THREADING
 	if (DidPhsyx)

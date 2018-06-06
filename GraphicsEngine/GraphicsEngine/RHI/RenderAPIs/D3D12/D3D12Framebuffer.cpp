@@ -417,6 +417,14 @@ void D3D12FrameBuffer::BindDepthWithColourPassthrough(ID3D12GraphicsCommandList 
 
 }
 
+D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
+{
+	Init();
+}
+
+void D3D12FrameBuffer::Init()
+{}
+
 D3D12FrameBuffer::~D3D12FrameBuffer()
 {
 	if (RequiresDepth())

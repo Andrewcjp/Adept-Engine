@@ -95,7 +95,7 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 		}
 		if (startheight != 2048)
 		{
-//			SOIL_save_image(rpath.c_str(), SOIL_SAVE_TYPE_BMP, width, height, 4, buffer);
+			//			SOIL_save_image(rpath.c_str(), SOIL_SAVE_TYPE_BMP, width, height, 4, buffer);
 		}
 	}
 	startheight = height;
@@ -168,7 +168,7 @@ bool D3D12Texture::CLoad(std::string name)
 		}
 		Miplevels = 1;
 	}
-	else if (rpath.find(".dds") != -1)
+	else if (rpath.find(".dds") != -1 || rpath.find(".DDS") != -1)
 	{
 		return LoadDDS(rpath);
 	}
@@ -196,21 +196,33 @@ bool D3D12Texture::CLoad(std::string name)
 
 bool D3D12Texture::LoadDDS(std::string filename)
 {
-	
+
 	CurrentTextureType = ETextureType::Type_CubeMap;
 	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	srvHeap->SetName(L"Texture SRV");
 	std::unique_ptr<uint8_t[]> ddsData;
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
-	HRESULT hr = DirectX::LoadDDSTextureFromFile(Device->GetDevice(), StringUtils::ConvertStringToWide(filename).c_str(), &m_texture, ddsData, subresources);
+	bool IsCubeMap = false;
+	DirectX::DDS_ALPHA_MODE ALPHA_MODE;
+	HRESULT hr = DirectX::LoadDDSTextureFromFile(Device->GetDevice(), StringUtils::ConvertStringToWide(filename).c_str(), &m_texture, ddsData, subresources, 0ui64, &ALPHA_MODE, &IsCubeMap);
 	if (hr != S_OK)
 	{
 		return false;
 	}
-	MipLevelsReadyNow = (int)subresources.size() / 6;
+	if (IsCubeMap)
+	{
+		CurrentTextureType = ETextureType::Type_CubeMap;
+		MipLevelsReadyNow = (int)subresources.size() / 6;
+	}
+	else
+	{
+		CurrentTextureType = ETextureType::Type_2D;
+		MipLevelsReadyNow = (int)subresources.size();
+	}
+	
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, (UINT)subresources.size());
 	ID3D12Resource* textureUploadHeap = nullptr;
-	format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	format = m_texture->GetDesc().Format;
 	// Create the GPU upload buffer.
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -222,7 +234,7 @@ bool D3D12Texture::LoadDDS(std::string filename)
 
 	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, (UINT)subresources.size(), subresources.data());
 	Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
-	m_texture->SetName(L"CubeMap");
+	m_texture->SetName(L"Loaded Texture");
 	Device->NotifyWorkForCopyEngine();
 	UpdateSRV();
 	return true;
@@ -261,14 +273,10 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	D3D12_RESOURCE_DESC textureDesc = {};
 	if (type == RHI::TextureType::Text)
 	{
-		textureDesc.Format = DXGI_FORMAT_R8_UNORM;
+		format = DXGI_FORMAT_R8_UNORM;
 		Miplevels = 1;
 		MipLevelsReadyNow = 1;
 		textureDesc.Alignment = 0;
-	}
-	else
-	{
-		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
 	textureDesc.MipLevels = Miplevels;// Miplevels;
 	textureDesc.Width = width;
@@ -277,8 +285,9 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	textureDesc.DepthOrArraySize = 1;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Format = format;
 	textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	format = textureDesc.Format;
+	//format = textureDesc.Format;
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -349,7 +358,7 @@ void D3D12Texture::UpdateSRV()
 	}
 #endif
 	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, srvHeap->GetCPUAddress(0));
-}
+	}
 
 ID3D12Resource * D3D12Texture::GetResource()
 {

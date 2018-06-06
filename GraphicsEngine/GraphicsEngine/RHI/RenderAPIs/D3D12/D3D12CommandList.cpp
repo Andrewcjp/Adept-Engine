@@ -518,7 +518,6 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 	}
 	Heap->BindHeap(DXList->GetCommandList());
 	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGpuAddress(0));
-
 }
 
 //Makes a descriptor Null Using the first framebuffers Description

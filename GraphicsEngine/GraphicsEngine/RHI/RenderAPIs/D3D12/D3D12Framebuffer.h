@@ -12,19 +12,20 @@ public:
 	{
 		CurrentDevice = device;
 	}
+	D3D12FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);
+	void Init();
 	virtual ~D3D12FrameBuffer();
 	void ReadyResourcesForRead(CommandListDef * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
 	void		 BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex =0, DeviceContext* target = nullptr);
-	virtual void BindBufferAsRenderTarget(CommandListDef * list = nullptr) override;
+	virtual void BindBufferAsRenderTarget(CommandListDef * list = nullptr) ;
 	void		 UnBind(CommandListDef * list);
-	virtual void UnBind() override {};
-	virtual void ClearBuffer(CommandListDef * list = nullptr) override;
+	virtual void ClearBuffer(CommandListDef * list = nullptr) ;
 	D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
 	void		 CreateCubeDepth() override;
-	void CreateSRVHeap(int Num);
+	void			CreateSRVHeap(int Num);
 	void		 CreateColour(int Index = 0) override;
-	void CreateSRV();
+	void		 CreateSRV();
 	void		 CreateDepth() override;
 	void		 CreateGBuffer() override;
 	bool CheckDevice(int index);

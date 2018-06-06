@@ -117,3 +117,14 @@ std::string D3D12Helpers::DXErrorCodeToString(HRESULT result)
 		return std::to_string(result);
 	}
 }
+//for now these are the same!
+DXGI_FORMAT D3D12Helpers::ConvertFormat(eTEXTURE_FORMAT format)
+{
+	return (DXGI_FORMAT)format;
+}
+
+D3D12_SRV_DIMENSION D3D12Helpers::ConvertDimension(eTextureDimension Dim)
+{
+	return (D3D12_SRV_DIMENSION)Dim;
+}
+

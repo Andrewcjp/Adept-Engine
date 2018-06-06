@@ -9,9 +9,15 @@ FrameBuffer::FrameBuffer(int width, int height, float ratio, FrameBuffer::FrameB
 	m_height = static_cast<int>(height*ratio);
 
 }
+
+FrameBuffer::FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc)
+{
+	CurrentDevice = device;
+	BufferDesc = Desc;
+}
+
 FrameBuffer::~FrameBuffer()
 {
-	Cleanup();
 }
 
 void FrameBuffer::InitBuffer(glm::vec4 clearColour)
@@ -65,6 +71,11 @@ FrameBuffer::FrameBufferType FrameBuffer::GetType() const
 	return m_ftype;
 }
 
+const RHIFrameBufferDesc & FrameBuffer::GetDescription() const
+{
+	return BufferDesc;
+}
+
 glm::vec4 FrameBuffer::GetClearColour() const
 {
 	return BufferClearColour;
@@ -77,6 +88,3 @@ bool FrameBuffer::RequiresDepth()
 {
 	return m_ftype == FrameBufferType::Depth || m_ftype == FrameBufferType::ColourDepth || m_ftype == FrameBufferType::GBuffer;
 }
-
-void FrameBuffer::Cleanup()
-{}

@@ -115,8 +115,6 @@ bool ImageIO::IN_CheckIfLoaded(std::string name, BaseTexture ** out)
 	return false;
 }
 
-
-
 EImageIOStatus ImageIO::LoadTGA(const char* filename, unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels)
 {
 	FILE* pfile = NULL;

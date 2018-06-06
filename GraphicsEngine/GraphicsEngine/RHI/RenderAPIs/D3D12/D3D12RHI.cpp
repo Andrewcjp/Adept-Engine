@@ -193,8 +193,8 @@ void D3D12RHI::LoadPipeLine()
 	swapChainDesc.BufferCount = RHI::CPUFrameCount;
 	swapChainDesc.Width = m_width;
 	swapChainDesc.Height = m_height;
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
+	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.SampleDesc.Count = 1;
@@ -214,7 +214,7 @@ void D3D12RHI::LoadPipeLine()
 	ThrowIfFailed(factory->MakeWindowAssociation(BaseApplication::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
 
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
+	//m_swapChain->SetFullscreenState(true,nullptr);
 	// Create descriptor heaps.
 	{
 		// Describe and create a render target view (RTV) descriptor heap.
@@ -367,7 +367,11 @@ void D3D12RHI::ExecSetUpList()
 
 void D3D12RHI::ReleaseUploadHeap()
 {
-	//return;
+	if (count < RHI::CPUFrameCount)
+	{
+		//ensure the heap are not still in use!
+		return;
+	}
 	for (int i = 0; i < UsedUploadHeaps.size(); i++)
 	{
 		UsedUploadHeaps[i]->Release();
