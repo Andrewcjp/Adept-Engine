@@ -159,13 +159,26 @@ public:
 	static RHIFrameBufferDesc CreateCubeDepth(int width, int height)
 	{
 		RHIFrameBufferDesc newDesc = CreateDepth(width,height);
-		newDesc.Dimension = eTextureDimension::DIMENSION_TEXTURE2DARRAY;
+		newDesc.Dimension = eTextureDimension::DIMENSION_TEXTURECUBE;
 		newDesc.TextureDepth = 6;
 		return newDesc;
 	}
 	static RHIFrameBufferDesc CreateColourDepth(int width, int height)
 	{
 		RHIFrameBufferDesc newDesc = CreateColour(width,height);
+		newDesc.NeedsDepthStencil = true;
+		return newDesc;
+	}
+	static RHIFrameBufferDesc CreateGBuffer(int width, int height)
+	{
+		RHIFrameBufferDesc newDesc = {};
+		newDesc.Width = width;
+		newDesc.Height = height;
+		newDesc.RenderTargetCount = 4;
+		newDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+		newDesc.RTFormats[1] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+		newDesc.RTFormats[2] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+		newDesc.RTFormats[3] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 		newDesc.NeedsDepthStencil = true;
 		return newDesc;
 	}
@@ -186,8 +199,10 @@ public:
 	int TextureDepth = 0;
 	int RenderTargetCount = 1;
 	bool NeedsDepthStencil = false;
+	
 	//If set to 0 the resource will be auto mipped
 	int MipsToGenerate = 1;
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
 	glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f);
+	float DepthClearValue = 1.0f;
 };

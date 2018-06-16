@@ -1,1 +1,0 @@
-texconv -pow2 -f BC1_UNORM  %1 -o "../DDC/"

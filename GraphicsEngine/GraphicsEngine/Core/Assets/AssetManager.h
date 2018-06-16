@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <string>
+#include "../Core/Utils/StringUtil.h"
 class BaseTexture;
 class ShaderProgramBase;
 
@@ -62,10 +63,30 @@ public:
 	const std::string ShaderCookedFile = "\\asset\\Cooked\\Shader\\glsl\\CookedShaders.txt";
 	static void RegisterMeshAssetLoad(std::string name);
 	static std::string GetShaderDirPath();
+	static BaseTexture * DirectLoadTextureAsset(std::string name, bool DirectLoad = false, class DeviceContext * Device = nullptr);
+	struct AssetPathRef
+	{
+		AssetPathRef(std::string Filename)
+		{
+			std::vector<std::string> split = StringUtils::Split(Filename, '.');
+			if (split.size() == 2)
+			{
+				Name = split[0];
+				Extention = split[1];
+			}
+			BaseName = Name;
+			StringUtils::RemoveChar(BaseName, "\\asset\\texture\\");
+		}
+		std::string Name;
+		std::string BaseName;
+		std::string Extention;
+	};
 private:
 	const std::string AssetRootPath = "../asset/";
 	std::string ShaderAssetPath = "../asset/shader/glsl/";	
-	
+
+	static const std::string GetDDCPath();
+	static const std::string GetTextureGenScript();
 	bool HasCookedData = false;
 	size_t ReadShader(std::string path, char ** buffer);
 

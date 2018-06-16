@@ -233,7 +233,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NOMINMAX ;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(solutiondir)TestGame;$(projectdir)include/freetype2;$(projectdir)include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -300,6 +300,7 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="Core\Platform\GenericApplication.h" />
     <ClInclude Include="RHI\RHITypes.h" />
     <ClInclude Include="RHI\RHI_fwd.h" />
     <ClInclude Include="ThirdParty\NVDDS\DDSTextureLoader12.h" />
@@ -436,9 +437,11 @@
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanRHI.h" />
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanShader.h" />
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanTexture.h" />
+    <ClInclude Include="Core\Platform\WindowsApplication.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="Core\Platform\GenericApplication.cpp" />
     <ClCompile Include="ThirdParty\NVDDS\DDSTextureLoader12.cpp" />
     <ClCompile Include="Core\Assets\MeshLoader.cpp" />
     <ClCompile Include="Core\Utils\MovingAverage.cpp" />
@@ -563,6 +566,7 @@
     <ClCompile Include="RHI\RenderAPIs\Vulkan\VKanRHI.cpp" />
     <ClCompile Include="RHI\RenderAPIs\Vulkan\VKanShader.cpp" />
     <ClCompile Include="RHI\RenderAPIs\Vulkan\VKanTexture.cpp" />
+    <ClCompile Include="Core\Platform\WindowsApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="GraphicsEngine.ico" />

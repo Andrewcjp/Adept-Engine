@@ -178,7 +178,8 @@ void TextRenderer::LoadText()
 	TextCommandList->CreatePipelineState(m_TextShader);
 	if (UseFrameBuffer)
 	{
-		Renderbuffer = RHI::CreateFrameBuffer(1280, 720, D3D12RHI::GetDeviceContext(RunOnSecondDevice), 1.0f, FrameBuffer::ColourDepth, glm::vec4(0.0f, 0.2f, 0.4f, 0.0f));
+		//Renderbuffer = RHI::CreateFrameBuffer(1280, 720, D3D12RHI::GetDeviceContext(RunOnSecondDevice), 1.0f, FrameBuffer::ColourDepth, glm::vec4(0.0f, 0.2f, 0.4f, 0.0f));
+		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(RunOnSecondDevice), RHIFrameBufferDesc::CreateColour(1280, 720));
 		PostProcessing::Instance->AddCompostPass(Renderbuffer);
 		if (D3D12RHI::Instance)
 		{

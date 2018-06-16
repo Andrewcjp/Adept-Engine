@@ -2,6 +2,7 @@
 #include <locale>
 #include <codecvt>
 #include <string>
+#include <vector>
 namespace StringUtils
 {
 	static void RemoveChar(std::string &target, std::string charater)
@@ -22,5 +23,34 @@ namespace StringUtils
 	{
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 		return converter.to_bytes(target);
+	}
+	static std::vector<std::string> Split(std::string Target, char c)
+	{
+		std::vector<std::string> output;
+		while (Target.find(c) != -1)
+		{
+			size_t index = Target.find(c);
+			std::string NewEntry = Target;
+			NewEntry.erase(NewEntry.begin() + index, NewEntry.end());
+			if (NewEntry.length() == 0)
+			{
+				std::string tmp;
+				tmp += c;
+				StringUtils::RemoveChar(Target, tmp);
+			}
+			else
+			{
+				StringUtils::RemoveChar(Target, NewEntry);
+			}
+			if (NewEntry.length() != 0)
+			{
+				output.push_back(NewEntry);
+			}
+		}
+		if (Target.length() != 0)
+		{
+			output.push_back(Target);
+		}
+		return output;
 	}
 }

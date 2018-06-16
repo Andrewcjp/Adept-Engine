@@ -506,7 +506,7 @@ void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
 	LinkedBuffers.push_back(dBuffer);
 	dBuffer->CreateSRVInHeap(slot, Heap);
-	NullHeapDesc = dBuffer->GetSrvDesc();
+	NullHeapDesc = dBuffer->GetSrvDesc(0);
 }
 
 void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)

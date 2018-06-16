@@ -86,8 +86,11 @@ void RenderEngine::PrepareData()
 
 void RenderEngine::StaticUpdate()
 {
-	mShadowRenderer->InitShadows(*MainScene->GetLights());
-	mShadowRenderer->Renderered = false;
+	if (mShadowRenderer != nullptr )
+	{
+		mShadowRenderer->InitShadows(*MainScene->GetLights());
+		mShadowRenderer->Renderered = false;
+	}
 	MainShader->UpdateLightBuffer(*MainScene->GetLights());
 	PrepareData();
 	MainShader->UpdateCBV();
@@ -132,8 +135,11 @@ void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 }
 
 void RenderEngine::ShadowPass()
-{	
-	mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetObjects(), MainShader);
+{
+	if (mShadowRenderer != nullptr)
+	{
+		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetObjects(), MainShader);
+	}
 }
 
 void RenderEngine::PostProcessPass()

@@ -158,7 +158,14 @@ bool D3D12Texture::CLoad(std::string name)
 	int bpp = 0;
 	int nChannels;
 	std::string rpath = Engine::GetRootDir();
-	rpath.append(name.c_str());
+	if (name.find("C:\\") == -1)
+	{
+		rpath.append(name.c_str());
+	}
+	else
+	{
+		rpath = name;
+	}
 	TextureName = name;
 	if (rpath.find(".tga") != -1)
 	{

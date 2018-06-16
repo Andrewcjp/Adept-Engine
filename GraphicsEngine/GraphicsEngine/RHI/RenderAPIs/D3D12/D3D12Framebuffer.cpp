@@ -6,38 +6,6 @@
 #include <algorithm>
 #include "DescriptorHeap.h"
 #define CUBE_SIDES 6
-#define NEWDATA 0
-void D3D12FrameBuffer::CreateCubeDepth()
-{
-	RTVHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
-	ID3D12Resource * NewRenderTarget;
-	RTVformat = DXGI_FORMAT_D32_FLOAT;
-	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-	depthOptimizedClearValue.Format = RTVformat;
-	depthOptimizedClearValue.Color[0] = CubeDepthclearColor[0];
-	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
-	depthOptimizedClearValue.DepthStencil.Stencil = 0;
-	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(RTVformat, m_width, m_height, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		&depthOptimizedClearValue,
-		IID_PPV_ARGS(&NewRenderTarget)
-	));
-
-	RenderTarget[0] = new GPUResource(NewRenderTarget, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	D3D12_DEPTH_STENCIL_VIEW_DESC renderTargetViewDesc = {};
-	renderTargetViewDesc.Format = RTVformat;
-	renderTargetViewDesc.ViewDimension = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
-	renderTargetViewDesc.Texture2DArray.ArraySize = CUBE_SIDES;
-	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
-	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
-	CurrentDevice->GetDevice()->CreateDepthStencilView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(0));
-
-	CreateSRVHeap(1);
-	CreateSRVInHeap(0, SrvHeap);
-}
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
 {
@@ -51,166 +19,67 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &GetSrvDesc(), NullHeap->GetCPUAddress(0));
+		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &GetSrvDesc(0), NullHeap->GetCPUAddress(0));
 	}
 }
 
-void D3D12FrameBuffer::CreateSRVInHeap(int index, DescriptorHeap* targetheap)
+void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targetheap)
 {
-	if (m_ftype == FrameBufferType::CubeDepth)
+	if (BufferDesc.RenderTargetCount > 2)
 	{
-		CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(), targetheap->GetCPUAddress(index));
-	}
-	else if (m_ftype == FrameBufferType::Depth)
-	{
-		CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(), targetheap->GetCPUAddress(index));
-	}
-}
 
-D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc()
-{
-	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
-	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	if (m_ftype == FrameBufferType::CubeDepth)
-	{
-		shadowSrvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		shadowSrvDesc.TextureCube.MipLevels = 1;
-		shadowSrvDesc.TextureCube.MostDetailedMip = 0;
-		shadowSrvDesc.TextureCube.ResourceMinLODClamp = 0;
-	}
-	else if (m_ftype == FrameBufferType::Depth)
-	{
-		shadowSrvDesc.Format = DefaultDepthReadformat;
-		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		shadowSrvDesc.Texture2D.MipLevels = 1;
-		shadowSrvDesc.Texture2D.MostDetailedMip = 0;
-		shadowSrvDesc.Texture2D.ResourceMinLODClamp = 0;
+		CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), targetheap->GetCPUAddress(HeapOffset));
 	}
 	else
 	{
-		NoImpl();
-	}
-	return shadowSrvDesc;
-}
-
-void D3D12FrameBuffer::CreateColour(int Index)
-{
-	if (Index == 2)
-	{
-		RTVformat = DXGI_FORMAT_R8G8B8A8_UNORM;
-	}
-	ID3D12Resource * NewRenderTarget;
-	if (RTVHeap == nullptr)
-	{
-		RTVHeap = new DescriptorHeap(CurrentDevice, RenderTargetCount, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
-	}
-	D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
-	renderTargetViewDesc.Format = RTVformat;
-	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
-	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-	depthOptimizedClearValue.Format = renderTargetViewDesc.Format;
-	depthOptimizedClearValue.Color[0] = BufferClearColour.r;
-	depthOptimizedClearValue.Color[1] = BufferClearColour.g;
-	depthOptimizedClearValue.Color[2] = BufferClearColour.b;
-	depthOptimizedClearValue.Color[3] = BufferClearColour.a;
-
-	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(renderTargetViewDesc.Format, m_width, m_height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		&depthOptimizedClearValue,
-		IID_PPV_ARGS(&NewRenderTarget)
-	));
-
-	RenderTarget[Index] = new GPUResource(NewRenderTarget, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	CurrentDevice->GetDevice()->CreateRenderTargetView(NewRenderTarget, &renderTargetViewDesc, RTVHeap->GetCPUAddress(Index));
-	CreateSRV();
-	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
-	SrvDesc.Format = renderTargetViewDesc.Format;
-	SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	SrvDesc.Texture2D.MipLevels = 1;
-	SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	CurrentDevice->GetDevice()->CreateShaderResourceView(NewRenderTarget, &SrvDesc, SrvHeap->GetCPUAddress(Index));
-
-}
-
-void D3D12FrameBuffer::CreateSRV()
-{
-	if (SrvHeap == nullptr)
-	{
-		SrvHeap = new DescriptorHeap(CurrentDevice, std::max(RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		SrvHeap->SetName(L"DSV Heap");
-		if (m_ftype == Depth)
+		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
+		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
+		shadowSrvDesc.Texture2D.MipLevels = 1;
+		shadowSrvDesc.Texture2DArray.MipLevels = 1;
+		shadowSrvDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
+		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		if (BufferDesc.RenderTargetCount == 0)
 		{
-			NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
+			CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
+		}
+		else
+		{
+			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
+			CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
 		}
 	}
 }
 
-void D3D12FrameBuffer::CreateDepth()
+D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetIndex)
 {
-	Depthformat = DefaultDepthformat;
-	if (DSVHeap == nullptr)
+	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
+	if (BufferDesc.RenderTargetCount > 2)
 	{
-		DSVHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
-	}
-
-	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
-	depthStencilDesc.Format = Depthformat;
-	depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
-
-	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-	depthOptimizedClearValue.Format = Depthformat;
-	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
-	depthOptimizedClearValue.DepthStencil.Stencil = 0;
-	ID3D12Resource* m_depthStencil = nullptr;
-	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(Depthformat, m_width, m_height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
-		D3D12_RESOURCE_STATE_DEPTH_WRITE,
-		&depthOptimizedClearValue,
-		IID_PPV_ARGS(&m_depthStencil)
-	));
-	DepthStencil = new GPUResource(m_depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	//NAME_D3D12_OBJECT(m_depthStencil);
-	CurrentDevice->GetDevice()->CreateDepthStencilView(DepthStencil->GetResource(), &depthStencilDesc, DSVHeap->GetCPUAddress(0));
-	DepthStencil->SetName(L"FrameBuffer Stencil");
-
-	CreateSRV();
-	if (m_ftype == Depth)
-	{
-
-		//todo look at usage of heaps?	
-		//todo: resize might leak descritpors?
-		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
-		shadowSrvDesc.Format = DefaultDepthReadformat;
-		shadowSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
 		shadowSrvDesc.Texture2D.MipLevels = 1;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
-
-
-		NullHeap->SetName(L"Shadow SRV heap");
-
-		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &shadowSrvDesc, NullHeap->GetCPUAddress(0));
-
+		shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[RenderTargetIndex]);
 	}
-}
-
-void D3D12FrameBuffer::CreateGBuffer()
-{
-	RTVformat = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	CreateDepth();
-	for (int i = 0; i < RenderTargetCount; i++)
+	else
 	{
-		CreateColour(i);
+		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
+		shadowSrvDesc.Texture2D.MipLevels = 1;
+		shadowSrvDesc.Texture2DArray.MipLevels = 1;
+		shadowSrvDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
+		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		if (BufferDesc.RenderTargetCount == 0)
+		{
+			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
+		}
+		else
+		{
+			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
+		}
 	}
+	return shadowSrvDesc;
 }
+
 
 bool D3D12FrameBuffer::CheckDevice(int index)
 {
@@ -229,29 +98,16 @@ void D3D12FrameBuffer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	//todo: ensure not in use!
-	if (m_ftype == FrameBufferType::ColourDepth)
+	//todo: ensure not currently in use
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		RenderTarget[i]->Release();
+	}
+	if (DepthStencil)
 	{
 		DepthStencil->Release();
-		delete DepthStencil;
-		CreateDepth();
 	}
-
-	if (m_ftype == FrameBufferType::ColourDepth || m_ftype == FrameBufferType::Colour)
-	{
-		RenderTarget[0]->GetResource()->Release();
-		CreateColour();
-	}
-
-	if (m_ftype == FrameBufferType::GBuffer)
-	{
-		for (int i = 0; i < RenderTargetCount; i++)
-		{
-			RenderTarget[i]->Release();
-		}
-		DepthStencil->Release();
-		CreateGBuffer();
-	}
+	Init();
 }
 
 static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
@@ -413,7 +269,7 @@ void D3D12FrameBuffer::BindDepthWithColourPassthrough(ID3D12GraphicsCommandList 
 	{
 		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
-	list->OMSetRenderTargets(Passtrhough->RenderTargetCount, &Passtrhough->RTVHeap->GetCPUAddress(0), true, &DSVHeap->GetCPUAddress(0));
+	list->OMSetRenderTargets(Passtrhough->BufferDesc.RenderTargetCount, &Passtrhough->RTVHeap->GetCPUAddress(0), true, &DSVHeap->GetCPUAddress(0));
 
 }
 
@@ -421,62 +277,47 @@ D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & 
 {
 	Init();
 }
+
 void D3D12FrameBuffer::UpdateSRV()
 {
 	if (SrvHeap == nullptr)
 	{
-		SrvHeap = new DescriptorHeap(CurrentDevice, std::max(RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		SrvHeap = new DescriptorHeap(CurrentDevice, std::max(BufferDesc.RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		SrvHeap->SetName(L"FrameBuffer SRV Heap");
 	}
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
-	if (BufferDesc.RenderTargetCount > 2)
+	if (BufferDesc.RenderTargetCount == 0)
 	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
-		
-		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
-		shadowSrvDesc.Texture2D.MipLevels = 1;
-		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
-		{			
-			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]);
-			CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[i]->GetResource(), &shadowSrvDesc, SrvHeap->GetCPUAddress(i));
-		}
+		CreateSRVInHeap(0, SrvHeap);
 	}
 	else
 	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
-		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
-		shadowSrvDesc.Texture2D.MipLevels = 1;
-		shadowSrvDesc.Texture2DArray.MipLevels = 1;
-		shadowSrvDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
-		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		if (BufferDesc.RenderTargetCount == 0)
+		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 		{
-			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
-			CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
-		}
-		else
-		{
-			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
-			CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &shadowSrvDesc, SrvHeap->GetCPUAddress(0));
+			CreateSRVInHeap(i, SrvHeap);
 		}
 	}
-
 }
 
-void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr,DescriptorHeap* Heapptr,bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension)
+void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap* Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension,int OffsetInHeap)
 {
 	D3D12_CLEAR_VALUE ClearValue = {};
 	ClearValue.Format = Format;
-	ClearValue.DepthStencil.Depth = 1.0f;
-	ClearValue.DepthStencil.Stencil = 0;
-	ClearValue.Color[0] = BufferDesc.clearcolour.r;
-	ClearValue.Color[1] = BufferDesc.clearcolour.g;
-	ClearValue.Color[2] = BufferDesc.clearcolour.b;
-	ClearValue.Color[3] = BufferDesc.clearcolour.a;
+	if (IsDepthStencil)
+	{
+		ClearValue.DepthStencil.Depth = BufferDesc.DepthClearValue;
+		ClearValue.DepthStencil.Stencil = 0;
+	}
+	else
+	{
+		ClearValue.Color[0] = BufferDesc.clearcolour.r;
+		ClearValue.Color[1] = BufferDesc.clearcolour.g;
+		ClearValue.Color[2] = BufferDesc.clearcolour.b;
+		ClearValue.Color[3] = BufferDesc.clearcolour.a;
+	}
 	ID3D12Resource* NewResource = nullptr;
 	CD3DX12_RESOURCE_DESC ResourceDesc = CD3DX12_RESOURCE_DESC();
 	ResourceDesc.Width = m_width;
@@ -489,7 +330,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr,DescriptorHeap* 
 	ResourceDesc.SampleDesc.Count = 1;
 	ResourceDesc.SampleDesc.Quality = 0;
 	ResourceDesc.Alignment = 0;
-	ResourceDesc.DepthOrArraySize = std::max(BufferDesc.TextureDepth,1);
+	ResourceDesc.DepthOrArraySize = std::max(BufferDesc.TextureDepth, 1);
 	D3D12_RESOURCE_STATES ResourceState = IsDepthStencil ? D3D12_RESOURCE_STATE_DEPTH_WRITE : D3D12_RESOURCE_STATE_RENDER_TARGET;
 
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
@@ -501,7 +342,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr,DescriptorHeap* 
 		IID_PPV_ARGS(&NewResource)
 	));
 	*Resourceptr = new GPUResource(NewResource, ResourceState);
-	
+
 	if (IsDepthStencil)
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
@@ -510,7 +351,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr,DescriptorHeap* 
 		depthStencilDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
 		depthStencilDesc.Texture2D.MipSlice = 0;
 		depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
-		CurrentDevice->GetDevice()->CreateDepthStencilView(NewResource, &depthStencilDesc, Heapptr->GetCPUAddress(0));
+		CurrentDevice->GetDevice()->CreateDepthStencilView(NewResource, &depthStencilDesc, Heapptr->GetCPUAddress(OffsetInHeap));
 		NewResource->SetName(L"FrameBuffer Stencil");
 	}
 	else
@@ -518,21 +359,21 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr,DescriptorHeap* 
 		D3D12_RENDER_TARGET_VIEW_DESC RenderTargetDesc = {};
 		RenderTargetDesc.Format = Format;
 		RenderTargetDesc.ViewDimension = D3D12Helpers::ConvertDimensionRTV(ViewDimension);
-		CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(0));
+		CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap));
 		NewResource->SetName(L"FrameBuffer RT");
 	}
 
 }
 void D3D12FrameBuffer::Init()
-{	
+{
 	if (RTVHeap == nullptr && BufferDesc.RenderTargetCount > 0)
 	{
-		RTVHeap = new DescriptorHeap(CurrentDevice, std::max(RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+		RTVHeap = new DescriptorHeap(CurrentDevice, std::max(BufferDesc.RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 		RTVHeap->SetName(L"FrameBuffer RTV Heap");
 	}
 	if (DSVHeap == nullptr && BufferDesc.NeedsDepthStencil)
 	{
-		DSVHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV,D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+		DSVHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 		DSVHeap->SetName(L"FrameBuffer RTV Heap");
 	}
 
@@ -542,24 +383,24 @@ void D3D12FrameBuffer::Init()
 	}
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]), BufferDesc.Dimension);
+		CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]), BufferDesc.Dimension,i);
 	}
 	UpdateSRV();
 }
 
 D3D12FrameBuffer::~D3D12FrameBuffer()
 {
-	if (RequiresDepth())
+	if (BufferDesc.NeedsDepthStencil)
 	{
 		DepthStencil->Release();
 		delete NullHeap;
 		delete DSVHeap;
 	}
-	if (RenderTargetCount > 0)
+	if (BufferDesc.RenderTargetCount > 0)
 	{
 		delete RTVHeap;
 	}
-	for (int i = 0; i < RenderTargetCount; i++)
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
 		RenderTarget[i]->Release();
 	}
@@ -572,7 +413,7 @@ void D3D12FrameBuffer::ReadyResourcesForRead(CommandListDef * list, int Resource
 		RenderTarget[Resourceindex]->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
 
-	if (DepthStencil != nullptr && m_ftype == Depth)
+	if (DepthStencil != nullptr)
 	{
 		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
@@ -580,13 +421,8 @@ void D3D12FrameBuffer::ReadyResourcesForRead(CommandListDef * list, int Resource
 
 void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex, DeviceContext* target)
 {
-	/*if (m_srvHeap == nullptr)
-	{
-		return;
-	}*/
-
+	ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	lastboundslot = slot;
-
 
 	if (target != nullptr && OtherDevice != nullptr)
 	{
@@ -600,7 +436,6 @@ void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int 
 	SrvHeap->BindHeap(list);
 	ReadyResourcesForRead(list, Resourceindex);
 	list->SetGraphicsRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
-
 }
 
 void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
@@ -610,43 +445,31 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
 
-	if (m_ftype == FrameBufferType::CubeDepth)
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-		list->OMSetRenderTargets(0, nullptr, false, &RTVHeap->GetCPUAddress(0));
-	}
-	else
-	{
-		for (int i = 0; i < RenderTargetCount; i++)
+		if (RenderTarget[i] != nullptr)
 		{
-			if (RenderTarget[i] != nullptr)
-			{
-				RenderTarget[i]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
-			}
+			RenderTarget[i]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}
 	}
 	if (DepthStencil != nullptr)
 	{
 		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
-	if (m_ftype != FrameBufferType::CubeDepth)
+	if (BufferDesc.NeedsDepthStencil)
 	{
-		if (RequiresDepth())
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE();
+		if (RTVHeap)
 		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE();
-			if (RTVHeap)
-			{
-				//validate this is okay todo?
-				rtvHandle = RTVHeap->GetCPUAddress(0);
-			}
-			list->OMSetRenderTargets(RenderTargetCount, &rtvHandle, (m_ftype == FrameBufferType::GBuffer), &DSVHeap->GetCPUAddress(0));
+			//validate this is okay todo?
+			rtvHandle = RTVHeap->GetCPUAddress(0);
 		}
-		else
-		{
-			list->OMSetRenderTargets(RenderTargetCount, &RTVHeap->GetCPUAddress(0), (m_ftype == FrameBufferType::GBuffer), nullptr);
-		}
+		list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &rtvHandle, (BufferDesc.RenderTargetCount > 1), &DSVHeap->GetCPUAddress(0));
 	}
-
+	else
+	{
+		list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &RTVHeap->GetCPUAddress(0), (BufferDesc.RenderTargetCount > 1), nullptr);
+	}
 }
 
 void D3D12FrameBuffer::UnBind(CommandListDef * list)
@@ -657,93 +480,33 @@ void D3D12FrameBuffer::UnBind(CommandListDef * list)
 	}
 	NullHeap->BindHeap(list);
 	NullHeap->SetName(L"null  SRV");
-	list->SetGraphicsRootDescriptorTable(lastboundslot, NullHeap->GetGpuAddress(0));
+	//list->SetGraphicsRootDescriptorTable(lastboundslot, NullHeap->GetGpuAddress(0));
 }
 
 void D3D12FrameBuffer::ClearBuffer(CommandListDef * list)
 {
-
-#if NEWDATA
 	if (BufferDesc.NeedsDepthStencil)
 	{
-		list->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+		list->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), D3D12_CLEAR_FLAG_DEPTH, BufferDesc.DepthClearValue, 0, 0, nullptr);
 	}
 	if (BufferDesc.RenderTargetCount > 0)
 	{
-		for (int i = 0; i < RenderTargetCount; i++)
+		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 		{
-			list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferClearColour[0], 0, nullptr);
+			list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
 		}
 	}
-#else 
-	if (RequiresDepth())
-	{
-		list->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-	}
-
-	if (m_ftype == ColourDepth || m_ftype == GBuffer || m_ftype == Colour)
-	{
-
-		for (int i = 0; i < RenderTargetCount; i++)
-		{
-			list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferClearColour[0], 0, nullptr);
-		}
-
-	}
-	if (m_ftype == CubeDepth)
-	{
-		list->ClearDepthStencilView(RTVHeap->GetCPUAddress(0), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-		//	list->ClearRenderTargetView(RTVHeap->GetCPUAddress(0), CubeDepthclearColor, 0, nullptr);
-		/*for (int i = 0; i < CUBE_SIDES; i++)
-		{
-
-		}*/
-	}
-#endif
 }
-
 
 D3D12Shader::PipeRenderTargetDesc D3D12FrameBuffer::GetPiplineRenderDesc()
 {
 	D3D12Shader::PipeRenderTargetDesc output = {};
-#if NEWDATA
 	output.NumRenderTargets = BufferDesc.RenderTargetCount;
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
 		output.RTVFormats[i] = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]);
 	}
 	output.DSVFormat = D3D12Helpers::ConvertFormat(BufferDesc.DepthFormat);
-#endif
-	switch (m_ftype)
-	{
-	case ColourDepth:
-		output.RTVFormats[0] = RTVformat;
-		output.NumRenderTargets = 0;
-		output.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	case Depth:
-		output.RTVFormats[0] = RTVformat;
-		output.NumRenderTargets = RenderTargetCount;
-		output.DSVFormat = Depthformat;
-		break;
-	case Colour:
-		output.RTVFormats[0] = RTVformat;
-		output.NumRenderTargets = RenderTargetCount;
-		output.DSVFormat = Depthformat;
-		break;
-	case CubeDepth:
-		output.NumRenderTargets = 0;
-		output.DSVFormat = Depthformat;
-		break;
-	case GBuffer:
-		RTVformat = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		output.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		output.RTVFormats[1] = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		output.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		output.RTVFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		output.DSVFormat = Depthformat;
-		output.NumRenderTargets = RenderTargetCount;
-		break;
-	}
 	return output;
 }
 

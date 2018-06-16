@@ -53,7 +53,8 @@ void ForwardRenderer::OnRender()
 void ForwardRenderer::PostInit()
 {
 	MainShader = new Shader_Main();
-	FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::ColourDepth);
+	//FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::ColourDepth);
+	FilterBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateColourDepth(m_width, m_height));
 	if (MainScene == nullptr)
 	{
 		MainScene = new Scene();
@@ -90,7 +91,10 @@ void ForwardRenderer::MainPass()
 	MainShader->UpdateMV(MainCamera);	
 	MainShader->BindLightsBuffer(MainCommandList);
 
-	mShadowRenderer->BindShadowMapsToTextures(MainCommandList);
+	if (mShadowRenderer != nullptr)
+	{
+		mShadowRenderer->BindShadowMapsToTextures(MainCommandList);
+	}
 	MainShader->UpdateMV(MainCamera);
 	MainCommandList->SetRenderTarget(FilterBuffer);
 	MainCommandList->ClearFrameBuffer(FilterBuffer);

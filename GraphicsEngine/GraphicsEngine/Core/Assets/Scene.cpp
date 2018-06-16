@@ -8,6 +8,7 @@
 #include "../Components/RigidbodyComponent.h"
 #include <algorithm>
 #include "../Core/Utils/MemoryUtils.h"
+#include "../Core/Assets/AssetManager.h"
 Scene::Scene()
 {}
 
@@ -74,14 +75,14 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 {
 	GameObject* go = new GameObject("House");
 	LightComponent* lc = nullptr;
-	Material* newmat = new Material(RHI::CreateTexture("\\asset\\texture\\house_diffuse.tga"));
+	Material* newmat = new Material(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\house_diffuse.tga"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("house.obj"), newmat));
 	go->GetTransform()->SetPos(glm::vec3(7, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Terrain");
-	Material* mat = new Material(RHI::CreateTexture("\\asset\\texture\\grasshillalbedo.DDS"));
+	Material* mat = new Material(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\grasshillalbedo.png"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("terrainmk2.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -148,7 +149,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #endif
 
 	go = new GameObject("Plane");
-	mat = new Material(RHI::CreateTexture("\\asset\\texture\\bricks2.DDS"));
+	mat = new Material(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\bricks2.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 20, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -158,9 +159,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Plane");
-	mat = new Material(RHI::CreateTexture("\\asset\\texture\\bricks2.DDS"));
-	mat->SetNormalMap(RHI::CreateTexture("\\asset\\texture\\bricks2_normal.jpg"));
-	mat->SetDisplacementMap(RHI::CreateTexture("\\asset\\texture\\bricks2_disp.jpg"));
+	mat = new Material(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\bricks2.jpg"));
+	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\bricks2_normal.jpg",true));
+	mat->SetDisplacementMap(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\bricks2_disp.jpg"));
 
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
@@ -170,7 +171,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 
 	/*go = new GameObject("Fence");
-	mat = new Material(RHI::CreateTexture("\\asset\\texture\\fence.png"));
+	mat = new Material(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\fence.png"));
 	mat->SetShadow(false);
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(-10, 1, -6));
@@ -180,8 +181,8 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);*/
 
 	go = new GameObject("Static Water");
-	mat = new Material(RHI::CreateTexture("\\asset\\texture\\Water fallback.jpg"));
-	mat->SetNormalMap(RHI::CreateTexture("\\asset\\texture\\IKT4l.jpg"));
+	mat = new Material(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\Water fallback.jpg"));
+	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\IKT4l.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(-37, -2, -20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -196,7 +197,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		props.DoesShadow = false;
 		props.IsReflective = true;
 		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture(), props);
-		mat->NormalMap = RHI::CreateTexture("\\asset\\texture\\IKT4l.jpg");
+		mat->NormalMap = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\IKT4l.jpg");
 		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
 		go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
 		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));

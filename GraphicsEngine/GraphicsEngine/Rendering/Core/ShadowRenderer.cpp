@@ -13,20 +13,22 @@ ShadowRenderer::ShadowRenderer()
 {
 	DirectionalLightShader = new Shader_Depth(false);
 	PointLightShader = new Shader_Depth(true);
-	int shadowwidth = 512;
+	int shadowwidth = 1024;
 	ShadowDirectionalArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), MAX_DIRECTIONAL_SHADOWS);
 	for (int i = 0; i < MAX_DIRECTIONAL_SHADOWS; i++)
 	{
-		DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::Depth));
+		//DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::Depth));
+		DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateDepth(shadowwidth, shadowwidth)));
 		ShadowDirectionalArray->AddFrameBufferBind(DirectionalLightBuffers[i], i);
 	}
 	ShadowCubeArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), MAX_POINT_SHADOWS);
 	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
 	{
-		PointLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::CubeDepth));
+		//PointLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::CubeDepth));
+		PointLightBuffers.push_back(RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateCubeDepth(shadowwidth, shadowwidth)));
 		ShadowCubeArray->AddFrameBufferBind(PointLightBuffers[i], i);
 	}
-	ShadowCubeArray->SetIndexNull(2);
+	//ShadowCubeArray->SetIndexNull(2);
 	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, nullptr);
 	GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, MAX_POINT_SHADOWS);
 	PointShadowList = RHI::CreateCommandList();
@@ -211,8 +213,5 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	PointShadowList->CreatePipelineState(PointLightShader, PointLightBuffers[0]);//all show buffers for cube maps are the same!
 	DirectionalShadowList->SetPipelineState(PipeLineState{ true,false,false });
 	DirectionalShadowList->CreatePipelineState(DirectionalLightShader, DirectionalLightBuffer);
-	RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateColourDepth(1024,1024));
-	RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateColour(1024, 1024));
-	RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateDepth(1024, 1024));
-	RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateCubeDepth(1024, 1024));
+
 }

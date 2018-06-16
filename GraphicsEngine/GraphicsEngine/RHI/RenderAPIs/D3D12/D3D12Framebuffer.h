@@ -9,13 +9,9 @@ class GPUResource;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
-	D3D12FrameBuffer(int width, int height, class DeviceContext* device, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBufferType::ColourDepth) :FrameBuffer(width, height, ratio, type)
-	{
-		CurrentDevice = device;
-	}
-	D3D12FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);
+		D3D12FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);
 	void UpdateSRV();
-	void CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension);
+	void CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap = 0);
 	void Init();
 	virtual ~D3D12FrameBuffer();
 	void ReadyResourcesForRead(CommandListDef * list, int Resourceindex = 0);
@@ -25,21 +21,15 @@ public:
 	void		 UnBind(CommandListDef * list);
 	virtual void ClearBuffer(CommandListDef * list = nullptr) ;
 	D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
-	void		 CreateCubeDepth() override;
 	void			CreateSRVHeap(int Num);
-	void		 CreateColour(int Index = 0) override;
-	void		 CreateSRV();
-	void		 CreateDepth() override;
-	void		 CreateGBuffer() override;
+	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap);
+	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	bool CheckDevice(int index);
 	void Resize(int width, int height) override;
 	void SetupCopyToDevice(DeviceContext* device);
 	void CopyToDevice(ID3D12GraphicsCommandList * list);
 	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);
-	void CreateSRVInHeap(int index, DescriptorHeap * targetheap);
-	DescriptorHeap* GetHeap() { return SrvHeap; };
-	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc();
 private:
 	
 	DescriptorHeap* SrvHeap = nullptr;
@@ -58,10 +48,8 @@ private:
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	bool once = false;
 	int lastboundslot = 0;
-	const float CubeDepthclearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f };
 	class GPUResource* DepthStencil = nullptr;
 	class GPUResource* RenderTarget[8] = {};
-	int DSVCount = 1;
 
 	//device Shareing
 	DeviceContext* OtherDevice = nullptr;

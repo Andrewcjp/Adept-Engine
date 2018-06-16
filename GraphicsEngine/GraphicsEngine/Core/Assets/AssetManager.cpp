@@ -18,6 +18,8 @@
 #include "../Core/Performance/PerfManager.h"
 #include <d3d12.h>
 #include "../Core/Utils/FileUtils.h"
+#include "../RHI/DeviceContext.h"
+#include "../Core/Platform/WindowsApplication.h"
 void AssetManager::LoadFromShaderDir()
 {
 	std::string path = ShaderAssetPath;
@@ -172,6 +174,7 @@ AssetManager::AssetManager()
 	TextureAssetPath = path;
 	TextureAssetPath.append("texture\\");
 	LoadFromShaderDir();
+	FileUtils::TryCreateDirectory(GetDDCPath());
 #if BUILD_PACKAGE
 	if (PreLoadTextShaders)
 	{
@@ -257,6 +260,14 @@ size_t AssetManager::GetShaderAsset(std::string name, char ** buffer)
 	}
 	return 0;
 }
+const std::string AssetManager::GetDDCPath()
+{
+	return Engine::GetRootDir() + "\\asset\\DDC\\";
+}
+const std::string AssetManager::GetTextureGenScript()
+{
+	return Engine::GetRootDir() + "/asset/Scripts/ConvertToDDS.bat";
+}
 size_t AssetManager::ReadShader(std::string name, char ** buffer)
 {
 	std::string NamePath(ShaderAssetPath);
@@ -303,7 +314,42 @@ std::string AssetManager::GetShaderDirPath()
 	}
 	return std::string();
 }
+//todo: Check time stamps!
+BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectLoad, DeviceContext* Device)
+{
+	if (name.find(".dds") != -1 || name.find(".DDS") != -1 || name.find(".tga") != -1 || DirectLoad )
+	{
+		return RHI::CreateTexture(name.c_str(), Device);
+	}
 
+	AssetPathRef Fileref = AssetPathRef(name);
+	//File is not a DDS
+	//check the DDC for A Generated one
+	std::string DDCFilepath = GetDDCPath() + Fileref.BaseName + ".DDS";
+	if (FileUtils::exists_test3(DDCFilepath))
+	{
+		return RHI::CreateTexture(DDCFilepath.c_str(), Device);
+	}
+	else
+	{
+		std::cout << "File '" << Fileref.Name <<"' Does not exist in the DDC Generating Now"  << std::endl;
+		//generate one! BC1_UNORM  
+		std::string Args =" "+ Engine::GetRootDir() + "\\asset\\Scripts\\";
+		Args.append(" BC1_UNORM ");
+		Args.append('"' + Engine::GetRootDir() + name + '"' + " ");
+		Args.append(GetDDCPath());
+		WindowsApplication::ExecuteHostScript(GetTextureGenScript(), Args);
+		if (FileUtils::exists_test3(DDCFilepath))
+		{
+			return RHI::CreateTexture(DDCFilepath.c_str(), Device);
+		}
+		else
+		{
+			std::cout << "File '" << Fileref.Name << "' Failed To Generate!" << std::endl;
+		}
+	}
+	return ImageIO::GetDefaultTexture();
+}
 
 std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 {

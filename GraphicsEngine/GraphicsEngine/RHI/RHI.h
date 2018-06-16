@@ -34,7 +34,6 @@ public:
 	CORE_API static BaseTexture* CreateNullTexture( DeviceContext* Device = nullptr);
 	CORE_API static Renderable * CreateMesh(const char * path);
 	CORE_API static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
-	static FrameBuffer* CreateFrameBuffer(int width, int height, DeviceContext* Device = nullptr, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBuffer::FrameBufferType::ColourDepth, glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f));
 	static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
 	static DeviceContext * GetDeviceContext(int index);
 	static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);

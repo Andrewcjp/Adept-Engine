@@ -140,6 +140,9 @@ D3D12_DSV_DIMENSION D3D12Helpers::ConvertDimensionDSV(eTextureDimension Dim)
 	case eTextureDimension::DIMENSION_TEXTURE2DARRAY:
 		NewDim = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
 		break;
+	case eTextureDimension::DIMENSION_TEXTURECUBE:
+		NewDim = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+		break;
 	default:
 		NoImpl();
 		break;
@@ -177,6 +180,7 @@ D3D12_RESOURCE_DIMENSION D3D12Helpers::ConvertToResourceDimension(eTextureDimens
 	{
 	case eTextureDimension::DIMENSION_TEXTURE2DARRAY:
 	case eTextureDimension::DIMENSION_TEXTURE2D:
+	case eTextureDimension::DIMENSION_TEXTURECUBE:
 		NewDim = D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		break;
 	case eTextureDimension::DIMENSION_TEXTURE3D:
@@ -184,6 +188,7 @@ D3D12_RESOURCE_DIMENSION D3D12Helpers::ConvertToResourceDimension(eTextureDimens
 		NewDim = D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 		break;
 	default:
+		NoImpl();
 		break;
 	}
 	return NewDim;
