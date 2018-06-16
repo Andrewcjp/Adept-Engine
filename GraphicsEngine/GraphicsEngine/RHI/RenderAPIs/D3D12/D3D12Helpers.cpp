@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "D3D12Helpers.h"
-
+#include "Core/Asserts.h"
 
 std::string D3D12Helpers::StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel)
 {
@@ -127,4 +127,64 @@ D3D12_SRV_DIMENSION D3D12Helpers::ConvertDimension(eTextureDimension Dim)
 {
 	return (D3D12_SRV_DIMENSION)Dim;
 }
+//todo:!
+D3D12_DSV_DIMENSION D3D12Helpers::ConvertDimensionDSV(eTextureDimension Dim)
+{
+	D3D12_DSV_DIMENSION NewDim;
+	switch (Dim)
+	{
 
+	case eTextureDimension::DIMENSION_TEXTURE2D:
+		NewDim = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2D;
+		break;
+	case eTextureDimension::DIMENSION_TEXTURE2DARRAY:
+		NewDim = D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+		break;
+	default:
+		NoImpl();
+		break;
+	}
+	return NewDim;
+}
+
+D3D12_RTV_DIMENSION D3D12Helpers::ConvertDimensionRTV(eTextureDimension Dim)
+{
+	D3D12_RTV_DIMENSION NewDim;
+	switch (Dim)
+	{
+	
+	case eTextureDimension::DIMENSION_TEXTURE2D:
+		NewDim = D3D12_RTV_DIMENSION::D3D12_RTV_DIMENSION_TEXTURE2D;
+		break;
+	case eTextureDimension::DIMENSION_TEXTURE2DARRAY:
+		NewDim = D3D12_RTV_DIMENSION::D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+		break;
+	case eTextureDimension::DIMENSION_TEXTURE3D:
+		NewDim = D3D12_RTV_DIMENSION::D3D12_RTV_DIMENSION_TEXTURE3D;
+		break;
+	default:
+		NoImpl();
+		break;
+	}
+	return NewDim;
+}
+
+
+D3D12_RESOURCE_DIMENSION D3D12Helpers::ConvertToResourceDimension(eTextureDimension Dim)
+{
+	D3D12_RESOURCE_DIMENSION NewDim;
+	switch (Dim)
+	{
+	case eTextureDimension::DIMENSION_TEXTURE2DARRAY:
+	case eTextureDimension::DIMENSION_TEXTURE2D:
+		NewDim = D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		break;
+	case eTextureDimension::DIMENSION_TEXTURE3D:
+	case eTextureDimension::DIMENSION_TEXTURECUBEARRAY:
+		NewDim = D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+		break;
+	default:
+		break;
+	}
+	return NewDim;
+}

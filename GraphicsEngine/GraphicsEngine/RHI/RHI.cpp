@@ -239,9 +239,7 @@ FrameBuffer * RHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc 
 		{
 			Device = D3D12RHI::GetDefaultDevice();
 		}
-	//	D3D12FrameBuffer * ptr = new D3D12FrameBuffer(width, height, Device, ratio, type);
-		//ptr->InitBuffer(clearcolour);
-		return nullptr;
+		return new D3D12FrameBuffer(Device, Desc);
 		break;
 #endif
 	}

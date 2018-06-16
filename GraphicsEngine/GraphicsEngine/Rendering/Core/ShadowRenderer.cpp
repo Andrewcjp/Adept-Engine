@@ -211,4 +211,8 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	PointShadowList->CreatePipelineState(PointLightShader, PointLightBuffers[0]);//all show buffers for cube maps are the same!
 	DirectionalShadowList->SetPipelineState(PipeLineState{ true,false,false });
 	DirectionalShadowList->CreatePipelineState(DirectionalLightShader, DirectionalLightBuffer);
+	RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateColourDepth(1024,1024));
+	RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateColour(1024, 1024));
+	RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateDepth(1024, 1024));
+	RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateCubeDepth(1024, 1024));
 }

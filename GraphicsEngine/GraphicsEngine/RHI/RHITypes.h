@@ -138,35 +138,56 @@ enum eTEXTURE_FORMAT
 struct RHIFrameBufferDesc
 {
 public:
-	static RHIFrameBufferDesc GetColour(int width, int height)
+	static RHIFrameBufferDesc CreateColour(int width, int height)
 	{
 		RHIFrameBufferDesc newDesc = {};
 		newDesc.Width = width;
 		newDesc.Height = height;
-		newDesc.Format[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+		newDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
 		return newDesc;
 	}
-	static RHIFrameBufferDesc GetColourDepth(int width, int height)
+	static RHIFrameBufferDesc CreateDepth(int width, int height)
 	{
-		RHIFrameBufferDesc newDesc = GetColour(width,height);
-		newDesc.DepthStencil = true;
+		RHIFrameBufferDesc newDesc = {};
+		newDesc.Width = width;
+		newDesc.Height = height;
+		newDesc.NeedsDepthStencil = true;
+		newDesc.RenderTargetCount = 0;
+		newDesc.Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
 		return newDesc;
 	}
-	RHIFrameBufferDesc() {};
+	static RHIFrameBufferDesc CreateCubeDepth(int width, int height)
+	{
+		RHIFrameBufferDesc newDesc = CreateDepth(width,height);
+		newDesc.Dimension = eTextureDimension::DIMENSION_TEXTURE2DARRAY;
+		newDesc.TextureDepth = 6;
+		return newDesc;
+	}
+	static RHIFrameBufferDesc CreateColourDepth(int width, int height)
+	{
+		RHIFrameBufferDesc newDesc = CreateColour(width,height);
+		newDesc.NeedsDepthStencil = true;
+		return newDesc;
+	}
+	RHIFrameBufferDesc() 
+	{};
 	RHIFrameBufferDesc(int width,int height, eTEXTURE_FORMAT format, eTextureDimension dimension)
 	{
-		Format[0] = format;
+		RTFormats[0] = format;
 		Width = width;
 		Height = height;
 		Dimension = dimension;
 	}
-	eTEXTURE_FORMAT Format[MRT_MAX];
+	eTEXTURE_FORMAT RTFormats[MRT_MAX] = {};
 	eTEXTURE_FORMAT DepthFormat = eTEXTURE_FORMAT::FORMAT_D16_UNORM;
+	eTEXTURE_FORMAT DepthReadFormat = eTEXTURE_FORMAT::FORMAT_R16_UNORM;
 	int Width = 0;
 	int Height = 0;
 	int TextureDepth = 0;
 	int RenderTargetCount = 1;
-	bool DepthStencil = false;
+	bool NeedsDepthStencil = false;
+	//If set to 0 the resource will be auto mipped
+	int MipsToGenerate = 1;
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
 	glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f);
 };

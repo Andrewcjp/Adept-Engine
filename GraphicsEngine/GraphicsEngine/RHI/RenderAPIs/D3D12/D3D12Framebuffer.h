@@ -5,6 +5,7 @@
 #include "d3dx12.h"
 #include "D3D12Shader.h"
 class DescriptorHeap;
+class GPUResource;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
@@ -13,6 +14,8 @@ public:
 		CurrentDevice = device;
 	}
 	D3D12FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);
+	void UpdateSRV();
+	void CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension);
 	void Init();
 	virtual ~D3D12FrameBuffer();
 	void ReadyResourcesForRead(CommandListDef * list, int Resourceindex = 0);
@@ -49,6 +52,7 @@ private:
 	
 	DXGI_FORMAT RTVformat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT Depthformat = DXGI_FORMAT_D32_FLOAT;
+	DXGI_FORMAT DepthReadformat = DXGI_FORMAT_R32_FLOAT;
 	const DXGI_FORMAT DefaultDepthformat = DXGI_FORMAT_D32_FLOAT;
 	const DXGI_FORMAT DefaultDepthReadformat = DXGI_FORMAT_R32_FLOAT;
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;

@@ -12,8 +12,11 @@ FrameBuffer::FrameBuffer(int width, int height, float ratio, FrameBuffer::FrameB
 
 FrameBuffer::FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc)
 {
+
 	CurrentDevice = device;
 	BufferDesc = Desc;
+	m_width = BufferDesc.Width;
+	m_height = BufferDesc.Height;
 }
 
 FrameBuffer::~FrameBuffer()
