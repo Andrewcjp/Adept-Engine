@@ -19,6 +19,7 @@ public:
 	void BindHeap(ID3D12GraphicsCommandList* list);
 	void Release();
 	void SetPriority(EGPUMemoryPriority NewPriority);
+	ID3D12DescriptorHeap* GetHeap() { return mHeap; };
 private:
 	ID3D12DescriptorHeap * mHeap = nullptr;
 	DeviceContext* Device = nullptr;

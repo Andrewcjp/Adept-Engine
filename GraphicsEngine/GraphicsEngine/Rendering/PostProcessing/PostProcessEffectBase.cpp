@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "PostProcessEffectBase.h"
 #include "../RHI/RHI.h"
-
+#include "../RHI/DeviceContext.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 PostProcessEffectBase::PostProcessEffectBase()
 {}
 void PostProcessEffectBase::SetUpData()
@@ -33,8 +34,9 @@ void PostProcessEffectBase::InitEffect()
 void PostProcessEffectBase::RunPass(RHICommandList * list,FrameBuffer* InputTexture)
 {
 	list->ResetList();
-	
+	list->GetDevice()->GetTimeManager()->StartTimer(list, D3D12TimeManager::eGPUTIMERS::PostProcess);
 	ExecPass(list, InputTexture);
+	list->GetDevice()->GetTimeManager()->EndTimer(list, D3D12TimeManager::eGPUTIMERS::PostProcess);
 	list->Execute();
 }
 

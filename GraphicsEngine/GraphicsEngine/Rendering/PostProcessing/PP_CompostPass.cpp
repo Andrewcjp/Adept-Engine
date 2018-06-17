@@ -2,6 +2,7 @@
 #include "PP_CompostPass.h"
 #include "../Rendering/Shaders/Shader_Compost.h"
 #include "../RHI/RHI.h"
+#include "../UI/TextRenderer.h"
 PP_CompostPass::PP_CompostPass()
 {}
 
@@ -12,14 +13,12 @@ PP_CompostPass::~PP_CompostPass()
 #include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 void PP_CompostPass::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
-	//if ()
-	//{
-
-	//}
 
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)InputFramebuffer;
-	buffer->MakeReadyOnTarget(((D3D12CommandList*)list)->GetCommandList());
-	
+	if (TextRenderer::instance->RunOnSecondDevice)
+	{		
+		buffer->MakeReadyOnTarget(((D3D12CommandList*)list)->GetCommandList());
+	}
 	list->SetScreenBackBufferAsRT();
 	//list->SetFrameBufferTexture(InputFramebuffer, 0);
 

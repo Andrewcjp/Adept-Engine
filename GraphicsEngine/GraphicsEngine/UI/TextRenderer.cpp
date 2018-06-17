@@ -145,19 +145,37 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 
 void TextRenderer::Finish()
 {
-	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::Text);
-	TextCommandList->Execute();
-	currentsize = 0;
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer;
+	
+#if 0	
+	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::DirShadows);
+	buffer->CopyToDevice();
+	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::DirShadows);
+	TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(TextCommandList);
+#endif
+	buffer->TransitionTOCopy(((D3D12CommandList*)TextCommandList)->GetCommandList());
+	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::Text);
+	TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(TextCommandList);
+	TextCommandList->Execute();
+	TextCommandList->GetDevice()->InsertGPUWait();
+	currentsize = 0;
 	//TextCommandList->ResetList();
 	if (RunOnSecondDevice)
 	{
 		DeviceContext* hostdevbice = D3D12RHI::GetDeviceContext(1);
+#if 1
 		hostdevbice->ResetSharingCopyList();
+		//TextCommandList->GetDevice()->GetTimeManager()->StartTimer(hostdevbice->GetSharedCopyList(), D3D12TimeManager::eGPUTIMERS::DirShadows);
 		buffer->CopyToDevice(hostdevbice->GetSharedCopyList());
-		hostdevbice->GetSharedCopyList()->Close();
+		
 		//buffer->MakeReadyOnTarget(((D3D12CommandList*)TextCommandList)->GetCommandList());
-		hostdevbice->ExecuteCommandList(hostdevbice->GetSharedCopyList());
+		//TextCommandList->GetDevice()->GetTimeManager()->EndTimer(hostdevbice->GetSharedCopyList(), D3D12TimeManager::eGPUTIMERS::DirShadows);
+		//TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(hostdevbice->GetSharedCopyList());
+		hostdevbice->GetSharedCopyList()->Close();
+		hostdevbice->ExecuteInterGPUCopyCommandList(hostdevbice->GetSharedCopyList());
+		hostdevbice->InsertGPUWaitForSharedCopy();
+#endif
+		RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0));
 	}
 	/*TextCommandList->Execute();*/
 }
@@ -165,6 +183,10 @@ void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();
 	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::Text);
+	if (RunOnSecondDevice)
+	{
+		TextCommandList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(TextCommandList);
+	}
 	currentsize = 0;
 }
 
@@ -179,11 +201,21 @@ void TextRenderer::LoadText()
 	if (UseFrameBuffer)
 	{
 		//Renderbuffer = RHI::CreateFrameBuffer(1280, 720, D3D12RHI::GetDeviceContext(RunOnSecondDevice), 1.0f, FrameBuffer::ColourDepth, glm::vec4(0.0f, 0.2f, 0.4f, 0.0f));
-		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(RunOnSecondDevice), RHIFrameBufferDesc::CreateColour(1280, 720));
+		
+		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(1280, 720);
+		desc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 0.0f);
+		if (RunOnSecondDevice)
+		{			
+			desc.IsShared = true;
+			desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
+		}
+		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(RunOnSecondDevice), desc);
+		D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer; 
+		/*buffer->SetupCopyTest();*/
 		PostProcessing::Instance->AddCompostPass(Renderbuffer);
 		if (D3D12RHI::Instance)
 		{
-		//	D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);
+			//D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);
 			D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer;
 			buffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
 		}

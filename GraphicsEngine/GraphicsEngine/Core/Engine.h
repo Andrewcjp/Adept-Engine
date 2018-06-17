@@ -1,6 +1,6 @@
 #pragma once
 #include "../EngineGlobals.h"
-#include <windows.h>
+#include "Core/MinWindows.h"
 #include <string>
 
 class RenderWindow;

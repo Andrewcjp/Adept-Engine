@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "WindowsHelper.h"
-#include <Windows.h>
+
 void WindowsHelpers::DisplayMessageBox(std::string title, std::string message)
 {
 	MessageBox(

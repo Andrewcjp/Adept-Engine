@@ -1,7 +1,6 @@
 #include "BaseApplication.h"
 
 #if BUILD_WINDOW_ENGINE
-//#include <Windows.h>
 #include "RHI\RenderWindow.h"
 #include "Resource.h"
 #include <Windowsx.h>

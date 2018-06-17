@@ -2,6 +2,7 @@
 #include "RHI/RHI.h"
 #include "../Rendering/Core/GPUStateCache.h"
 #include "Core/GameObject.h"
+#include "Core/Utils/MemoryUtils.h"
 Shader_Main::Shader_Main(bool LoadForward)
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -28,8 +29,11 @@ Shader_Main::Shader_Main(bool LoadForward)
 	{
 		SceneBuffer.push_back(SceneConstantBuffer());
 	}
-	GameObjectTransformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
-	GameObjectTransformBuffer->CreateConstantBuffer(sizeof(SceneConstantBuffer), MaxConstant);
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)//optimize!
+	{
+		GameObjectTransformBuffer[i] = RHI::CreateRHIBuffer(RHIBuffer::Constant,RHI::GetDeviceContext(i));
+		GameObjectTransformBuffer[i]->CreateConstantBuffer(sizeof(SceneConstantBuffer), MaxConstant);
+	}
 	CLightBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1);
 	CMVBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
@@ -39,7 +43,7 @@ Shader_Main::~Shader_Main()
 {
 	delete CLightBuffer;
 	delete CMVBuffer;
-	delete GameObjectTransformBuffer;
+	MemoryUtils::DeleteCArray(GameObjectTransformBuffer,MAX_DEVICE_COUNT);
 }
 std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
 {
@@ -92,9 +96,12 @@ void Shader_Main::ClearBuffer()
 
 void Shader_Main::UpdateCBV()
 {
-	for (int i = 0; i < MaxConstant; i++)
+	for (int DeviceIndex = 0; DeviceIndex < RHI::GetDeviceCount(); DeviceIndex++)//optimize!
 	{
-		GameObjectTransformBuffer->UpdateConstantBuffer(&SceneBuffer[i], i);
+		for (int i = 0; i < MaxConstant; i++)
+		{
+			GameObjectTransformBuffer[DeviceIndex]->UpdateConstantBuffer(&SceneBuffer[i], i);
+		}
 	}
 }
 void Shader_Main::UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int index)
@@ -104,9 +111,9 @@ void Shader_Main::UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int 
 		SceneBuffer[index] = bufer;
 	}
 }
-void Shader_Main::SetActiveIndex(RHICommandList* list, int index)
+void Shader_Main::SetActiveIndex(RHICommandList* list, int index,int DeviceIndex )
 {
-	list->SetConstantBufferView(GameObjectTransformBuffer, index, Shader_Main::MainCBV);
+	list->SetConstantBufferView(GameObjectTransformBuffer[DeviceIndex], index, Shader_Main::MainCBV);
 }
 void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 {

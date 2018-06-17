@@ -1,7 +1,7 @@
 #ifndef __SHADERBASE_H__
 #define __SHADERBASE_H__
 
-#include <Windows.h>
+
 #define INVALID_SHADER_HANDLE			0xffffffff
 #define INVALID_SHADER_PROGRAM_HANDLE	0xffffffff
 #define MAX_NUM_SHADER_PER_PROGRAM		4

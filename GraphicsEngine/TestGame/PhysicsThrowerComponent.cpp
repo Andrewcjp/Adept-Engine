@@ -40,7 +40,7 @@ void PhysicsThrowerComponent::CreateStackAtPoint()
 	for (size_t i = 0; i < objs.size(); i++)
 	{
 		GameObject* go = new GameObject();
-		Material* mat = new Material(RHI::CreateTexture("bricks2.jpg"));
+		Material* mat = new Material(RHI::CreateTexture(std::string("bricks2.jpg")));
 
 		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("cubeuv.obj"), mat));
 		go->GetTransform()->SetPos(objs[i]->GetPosition());
@@ -60,7 +60,7 @@ void PhysicsThrowerComponent::FireAtScene()
 		return;
 	}
 	GameObject* go = new GameObject();
-	Material* mat = new Material(RHI::CreateTexture("bricks2.jpg"));
+	Material* mat = new Material(RHI::CreateTexture(std::string("bricks2.jpg")));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("TherealSpherer.obj"), mat));
 	go->GetTransform()->SetPos(cam->GetPosition());
 	float scale = 0.5;

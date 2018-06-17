@@ -192,14 +192,15 @@ public:
 		Dimension = dimension;
 	}
 	eTEXTURE_FORMAT RTFormats[MRT_MAX] = {};
-	eTEXTURE_FORMAT DepthFormat = eTEXTURE_FORMAT::FORMAT_D16_UNORM;
-	eTEXTURE_FORMAT DepthReadFormat = eTEXTURE_FORMAT::FORMAT_R16_UNORM;
+	eTEXTURE_FORMAT DepthFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	eTEXTURE_FORMAT DepthReadFormat = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
 	int Width = 0;
 	int Height = 0;
-	int TextureDepth = 0;
+	int TextureDepth = 1;
 	int RenderTargetCount = 1;
 	bool NeedsDepthStencil = false;
-	
+	bool IsShared = false;
+	class DeviceContext* DeviceToCopyTo = nullptr;
 	//If set to 0 the resource will be auto mipped
 	int MipsToGenerate = 1;
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;

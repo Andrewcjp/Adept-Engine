@@ -12,5 +12,14 @@ namespace MemoryUtils
 		}
 		target.clear();
 	}
+	template<typename T>
+	static void DeleteCArray(T* target, int Length)
+	{
+		for (int i = 0; i < Length; i++)
+		{
+			delete target[i];
+			target[i] = nullptr;
+		}
+	}
 };
 

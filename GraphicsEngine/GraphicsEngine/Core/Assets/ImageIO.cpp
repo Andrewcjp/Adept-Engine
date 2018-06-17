@@ -12,7 +12,7 @@
 ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {
-	DefaultTexture = RHI::CreateTexture("\\asset\\texture\\T_GridSmall_01_D.png");
+	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\T_GridSmall_01_D.png");
 	ensureMsgf(DefaultTexture,"Failed to Load Fallback Texture");
 }
 ImageIO::~ImageIO()
@@ -106,7 +106,7 @@ bool ImageIO::IN_CheckIfLoaded(std::string name, BaseTexture ** out)
 {
 	for (unsigned int i = 0; i < LoadedTextures.size(); i++)
 	{
-		if (LoadedTextures[i]->TextureName == name)
+		if (LoadedTextures[i]->TexturePath == name)
 		{
 			*out = (LoadedTextures[i]);
 			return true;

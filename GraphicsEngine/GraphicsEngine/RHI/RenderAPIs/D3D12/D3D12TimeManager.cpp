@@ -95,12 +95,15 @@ std::string D3D12TimeManager::GetTimerData()
 	stream.str("GPU: ");
 	stream << std::fixed;
 	float TrackedTime = 0.0f;
-	for (int i = 0; i < MaxIndexInUse+1; i++)
+	for (int i = 0; i < MaxIndexInUse + 1; i++)
 	{
 		stream << TimeDeltas[i].name << ": " << std::setprecision(3) << fabs(TimeDeltas[i].avg.GetCurrentAverage()) << " ";
-		TrackedTime += fabs(TimeDeltas[i].avg.GetCurrentAverage());
+		if (i != 0)
+		{
+			TrackedTime += fabs(TimeDeltas[i].avg.GetCurrentAverage());
+		}
 	}
-	stream << "Lost:" << TrackedTime - AVGgpuTimeMS;
+	stream << "Lost:" <<  AVGgpuTimeMS - TrackedTime;
 	return stream.str();
 #else
 	return "GPU TIMERS DISABLED";
@@ -175,8 +178,7 @@ void D3D12TimeManager::StartTotalGPUTimer(RHICommandList* ComandList)
 void D3D12TimeManager::EndTotalGPUTimer(RHICommandList* ComandList)
 {
 #if ENABLE_GPUTIMERS
-	TimerStarted = false;
-	EndTimer(ComandList, 0);
+	EndTotalGPUTimer(((D3D12CommandList*)ComandList)->GetCommandList());
 #endif
 }
 

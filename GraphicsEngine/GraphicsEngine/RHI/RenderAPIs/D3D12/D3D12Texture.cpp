@@ -12,6 +12,7 @@
 #include "DescriptorHeap.h"
 #include "D3D12Texture.h"
 #include "D3D12RHI.h"
+
 float D3D12Texture::MipCreationTime = 0;
 
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)
@@ -151,37 +152,30 @@ unsigned char* D3D12Texture::GenerateMips(int count, int StartWidth, int StartHe
 	return finalbuffer;
 }
 
-bool D3D12Texture::CLoad(std::string name)
+bool D3D12Texture::CLoad(AssetManager::AssetPathRef name)
 {
 
 	unsigned char *buffer = NULL;
 	int bpp = 0;
 	int nChannels;
-	std::string rpath = Engine::GetRootDir();
-	if (name.find("C:\\") == -1)
+
+	TextureName = name.BaseName;
+	TexturePath = name.GetRelativePathToAsset();
+	if (name.GetFileType() == AssetManager::AssetFileType::DDS)
 	{
-		rpath.append(name.c_str());
+		return LoadDDS(name.GetFullPathToAsset());
 	}
-	else
+	else if (name.GetExtention().find("tga") != -1)
 	{
-		rpath = name;
-	}
-	TextureName = name;
-	if (rpath.find(".tga") != -1)
-	{
-		if (ImageIO::LoadTGA(rpath.c_str(), &buffer, &width, &height, &bpp, &nChannels) != E_IMAGEIO_SUCCESS)
+		if (ImageIO::LoadTGA(name.GetFullPathToAsset().c_str(), &buffer, &width, &height, &bpp, &nChannels) != E_IMAGEIO_SUCCESS)
 		{
 			return false;
 		}
 		Miplevels = 1;
-	}
-	else if (rpath.find(".dds") != -1 || rpath.find(".DDS") != -1)
-	{
-		return LoadDDS(rpath);
-	}
+	}	 
 	else
 	{
-		if (ImageIO::LoadTexture2D(rpath.c_str(), &buffer, &width, &height, &nChannels) != E_IMAGEIO_SUCCESS)
+		if (ImageIO::LoadTexture2D(name.GetFullPathToAsset().c_str(), &buffer, &width, &height, &nChannels) != E_IMAGEIO_SUCCESS)
 		{
 			return false;
 		}
@@ -260,7 +254,7 @@ D3D12Texture::~D3D12Texture()
 	}
 }
 
-bool D3D12Texture::CreateFromFile(std::string FileName)
+bool D3D12Texture::CreateFromFile(AssetManager::AssetPathRef FileName)
 {
 	return CLoad(FileName);
 }

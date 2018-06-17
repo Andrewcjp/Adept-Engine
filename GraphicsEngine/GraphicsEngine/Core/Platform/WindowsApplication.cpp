@@ -2,7 +2,8 @@
 #include "WindowsApplication.h"
 #include "../Core/Utils/FileUtils.h"
 #include "../Core/Utils/StringUtil.h"
-#include <Windows.h>
+
+
 WindowsApplication::WindowsApplication()
 {}
 

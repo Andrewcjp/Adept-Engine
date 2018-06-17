@@ -92,7 +92,8 @@ void BaseWindow::InitilseWindow()
 
 	std::cout << "Scene Load started" << std::endl;
 	ImageIO::StartLoader();
-	if (/*IsDeferredMode*/false)
+	IsDeferredMode = false;
+	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
 	}
@@ -206,11 +207,15 @@ void BaseWindow::Render()
 	Renderer->FinaliseRender();
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
+	if (PostProcessing::Instance)
+	{
+		PostProcessing::Instance->ExecPPStackFinal(nullptr);
+	}
 	TextRenderer::instance->Reset();
 	if (UI != nullptr && ShowHud && LoadText)
 	{
-		UI->UpdateWidgets();
-		UI->RenderWidgets();
+		//UI->UpdateWidgets();
+		//UI->RenderWidgets();
 	}
 	if (LoadText)
 	{
@@ -222,10 +227,7 @@ void BaseWindow::Render()
 	TextRenderer::instance->Finish();
 	PerfManager::EndTimer("UI");
 
-	if (PostProcessing::Instance)
-	{
-		PostProcessing::Instance->ExecPPStackFinal(nullptr);
-	}
+
 #if USE_PHYSX_THREADING
 	if (DidPhsyx)
 	{
@@ -494,6 +496,10 @@ void BaseWindow::RenderText()
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
 	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
+	if (IsDeferredMode)
+	{
+		stream << "DEF ";
+	}
 	stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 	stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
 	if (ExtendedPerformanceStats)
@@ -518,7 +524,7 @@ void BaseWindow::RenderText()
 	if (RHI::GetDeviceContext(1) != nullptr)
 	{
 		stream.str("");
-		//stream << RHI::GetDeviceContext(1)->GetTimeManager()->GetTimerData();
+		stream << RHI::GetDeviceContext(1)->GetTimeManager()->GetTimerData();
 		UI->RenderTextToScreen(4, stream.str());
 	}
 }

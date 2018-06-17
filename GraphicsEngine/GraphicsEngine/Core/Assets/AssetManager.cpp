@@ -317,18 +317,19 @@ std::string AssetManager::GetShaderDirPath()
 //todo: Check time stamps!
 BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectLoad, DeviceContext* Device)
 {
-	if (name.find(".dds") != -1 || name.find(".DDS") != -1 || name.find(".tga") != -1 || DirectLoad )
-	{
-		return RHI::CreateTexture(name.c_str(), Device);
-	}
-
 	AssetPathRef Fileref = AssetPathRef(name);
+	//todo: Deal with TGA to DDS 
+	if (Fileref.GetFileType() == AssetFileType::DDS || name.find(".tga") != -1 || DirectLoad)
+	{
+		return RHI::CreateTexture(Fileref, Device);
+	}
+	
 	//File is not a DDS
 	//check the DDC for A Generated one
-	std::string DDCFilepath = GetDDCPath() + Fileref.BaseName + ".DDS";
-	if (FileUtils::exists_test3(DDCFilepath))
+	std::string DDCRelFilepath = "\\asset\\DDC\\" + Fileref.BaseName + ".DDS";
+	if (FileUtils::exists_test3(Engine::GetRootDir() + DDCRelFilepath))
 	{
-		return RHI::CreateTexture(DDCFilepath.c_str(), Device);
+		return RHI::CreateTexture(DDCRelFilepath, Device);
 	}
 	else
 	{
@@ -336,12 +337,12 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectL
 		//generate one! BC1_UNORM  
 		std::string Args =" "+ Engine::GetRootDir() + "\\asset\\Scripts\\";
 		Args.append(" BC1_UNORM ");
-		Args.append('"' + Engine::GetRootDir() + name + '"' + " ");
+		Args.append('"' + Fileref.GetFullPathToAsset()+ '"' + " ");
 		Args.append(GetDDCPath());
 		WindowsApplication::ExecuteHostScript(GetTextureGenScript(), Args);
-		if (FileUtils::exists_test3(DDCFilepath))
+		if (FileUtils::exists_test3(Engine::GetRootDir() +  DDCRelFilepath))
 		{
-			return RHI::CreateTexture(DDCFilepath.c_str(), Device);
+			return RHI::CreateTexture(DDCRelFilepath, Device);
 		}
 		else
 		{

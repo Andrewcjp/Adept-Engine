@@ -22,13 +22,16 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &GetSrvDesc(0), NullHeap->GetCPUAddress(0));
 	}
 }
-
 void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targetheap)
+{
+	CreateSRVInHeap(HeapOffset, targetheap, CurrentDevice);
+}
+void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targetheap, DeviceContext* target)
 {
 	if (BufferDesc.RenderTargetCount > 2)
 	{
 
-		CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), targetheap->GetCPUAddress(HeapOffset));
+		target->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), targetheap->GetCPUAddress(HeapOffset));
 	}
 	else
 	{
@@ -41,12 +44,12 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targethea
 		if (BufferDesc.RenderTargetCount == 0)
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
-			CurrentDevice->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
+			target->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
 		}
 		else
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
-			CurrentDevice->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
+			target->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
 		}
 	}
 }
@@ -120,12 +123,18 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	OtherDevice = device;
 	ID3D12Device* Host = CurrentDevice->GetDevice();
 	ID3D12Device* Target = OtherDevice->GetDevice();
-	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(RTVformat, m_width, m_height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
+	if (BufferDesc.RenderTargetCount == 0)
+	{
+		readFormat = DXGI_FORMAT_R32_FLOAT;
+	}
+	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, m_width, m_height, BufferDesc.TextureDepth,1 , 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
 #if 1
 
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
-
-	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, nullptr);
+	UINT64 pTotalBytes = 0;
+	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
 	UINT64 textureSize = Align(layout.Footprint.RowPitch * layout.Footprint.Height);
 
 	// Create a buffer with the same layout as the render target texture.
@@ -136,6 +145,8 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		D3D12_HEAP_TYPE_DEFAULT,
 		0,
 		D3D12_HEAP_FLAG_SHARED | D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER);
+	//heapDesc.Properties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE;
+	//heapDesc.Properties.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;//l1?
 	Host->CreateHeap(&heapDesc, IID_PPV_ARGS(&CrossHeap));
 
 
@@ -177,52 +188,133 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	//	nullptr,
 	//	IID_PPV_ARGS(&FinalOut)));
 	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-	depthOptimizedClearValue.Format = RTVformat;
+	depthOptimizedClearValue.Format = readFormat;
 	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
 	depthOptimizedClearValue.DepthStencil.Stencil = 0;
+	//renderTargetDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
 	ThrowIfFailed(Target->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(RTVformat, m_width, m_height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
+		&renderTargetDesc,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		&depthOptimizedClearValue,
+		nullptr,
 		IID_PPV_ARGS(&FinalOut)
 	));
 
 	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	//	SharedSRVHeap->
+	////	SharedSRVHeap->
+
+	SharedTarget = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+	//CreateSRVInHeap(0, SharedSRVHeap, OtherDevice);
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
-	SrvDesc.Format = RTVformat;
-	SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	SrvDesc.Format = readFormat;
+	SrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
 	SrvDesc.Texture2D.MipLevels = 1;
+	SrvDesc.Texture2D.PlaneSlice = 0;
+	SrvDesc.TextureCube.MipLevels = 1;
+
 	SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	OtherDevice->GetDevice()->CreateShaderResourceView(FinalOut, &SrvDesc, SharedSRVHeap->GetCPUAddress(0));
-	SharedTarget = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
+void D3D12FrameBuffer::SetupCopyTest()
+{
 
+	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
+	if (BufferDesc.RenderTargetCount == 0)
+	{
+		readFormat = DXGI_FORMAT_R32_FLOAT;
+	}
+	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, m_width, m_height, BufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&renderTargetDesc,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		nullptr,
+		IID_PPV_ARGS(&FinalOut)
+	));
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+	UINT64 pTotalBytes = 0;
+	CurrentDevice->GetDevice()->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
+	UINT64 textureSize = Align(layout.Footprint.RowPitch * layout.Footprint.Height);
+
+	// Create a buffer with the same layout as the render target texture.
+	D3D12_RESOURCE_DESC crossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER);
+	//CD3DX12_HEAP_DESC heapDesc(
+	//	textureSize,
+	//	D3D12_HEAP_TYPE_DEFAULT,
+	//	0,
+	//	D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES);
+	CD3DX12_HEAP_DESC heapDesc(
+		textureSize,
+		D3D12_HEAP_TYPE_DEFAULT,
+		0,
+		D3D12_HEAP_FLAG_SHARED | D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER);
+	CurrentDevice->GetDevice()->CreateHeap(&heapDesc, IID_PPV_ARGS(&CrossHeap));
+
+	ThrowIfFailed(CurrentDevice->GetDevice()->CreatePlacedResource(
+		CrossHeap,
+		0,
+		&crossAdapterDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&PrimaryRes)));
+}
+void D3D12FrameBuffer::RunCopyTest(ID3D12GraphicsCommandList* list)
+{
+	MakeReadyOnTarget(list);
+}
+void D3D12FrameBuffer::TransitionTOCopy(ID3D12GraphicsCommandList* list)
+{
+	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
+}
+#include "../Core/Performance/PerfManager.h"
 void D3D12FrameBuffer::CopyToDevice(ID3D12GraphicsCommandList* list)
 {
 	//return;
+	PerfManager::StartTimer("CopyToDevice");
 	// Copy the intermediate render target into the shared buffer using the
 	// memory layout prescribed by the render target.
 	ID3D12Device* Host = CurrentDevice->GetDevice();
 	ID3D12Device* Target = OtherDevice->GetDevice();
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
 
-	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
+	GPUResource* TargetResource = RenderTarget[0];
+	if (BufferDesc.RenderTargetCount == 0)
+	{
+		TargetResource = DepthStencil;
+	}
 
-	CD3DX12_TEXTURE_COPY_LOCATION dest(PrimaryRes, renderTargetLayout);
-	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_SOURCE);
-	CD3DX12_TEXTURE_COPY_LOCATION src(RenderTarget[0]->GetResource(), 0);
+
+	TargetResource->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
 	CD3DX12_BOX box(0, 0, m_width, m_height);
 
-	list->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
-	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	const int count = BufferDesc.TextureDepth;
+	for (int i = 0; i < count; i++)
+	{
+		Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
+		CD3DX12_TEXTURE_COPY_LOCATION dest(PrimaryRes, renderTargetLayout);
+		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);
+		list->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+	}
+
+	/*if (BufferDesc.RenderTargetCount == 0)
+	{
+		TargetResource->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	}
+	else
+	{
+		TargetResource->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	}*/
+	PerfManager::EndTimer("CopyToDevice");
 }
 
 void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
 {
 	//return;
+	PerfManager::StartTimer("MakeReadyOnTarget");
 	ID3D12Device* Host = CurrentDevice->GetDevice();
 	ID3D12Device* Target = OtherDevice->GetDevice();
 	// Copy the buffer in the shared heap into a texture that the secondary
@@ -241,17 +333,23 @@ void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
 	D3D12_RESOURCE_DESC secondaryAdapterTexture = FinalOut->GetDesc();
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
 
-	Host->GetCopyableFootprints(&secondaryAdapterTexture, 0, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
 
-	CD3DX12_TEXTURE_COPY_LOCATION dest(FinalOut, 0);
-	CD3DX12_TEXTURE_COPY_LOCATION src(Stagedres, textureLayout);
-	CD3DX12_BOX box(0, 0, m_width, m_height);
+	const int count = BufferDesc.TextureDepth;
+	for (int i = 0; i < count; i++)
+	{
+		int offset = i;
+		CD3DX12_TEXTURE_COPY_LOCATION dest(FinalOut, offset);
+		Host->GetCopyableFootprints(&secondaryAdapterTexture, offset, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
+		CD3DX12_TEXTURE_COPY_LOCATION src(Stagedres, textureLayout);
+		CD3DX12_BOX box(0, 0, m_width, m_height);
 
-	list->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
-
+		list->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+	}
+	//list->CopyResource(FinalOut, Stagedres);
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	list->ResourceBarrier(1, &barrier);
+	PerfManager::EndTimer("MakeReadyOnTarget");
 }
 
 
@@ -276,6 +374,10 @@ void D3D12FrameBuffer::BindDepthWithColourPassthrough(ID3D12GraphicsCommandList 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 	Init();
+	if (BufferDesc.IsShared)
+	{
+		SetupCopyToDevice(BufferDesc.DeviceToCopyTo);
+	}
 }
 
 void D3D12FrameBuffer::UpdateSRV()
@@ -302,7 +404,7 @@ void D3D12FrameBuffer::UpdateSRV()
 	}
 }
 
-void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap* Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension,int OffsetInHeap)
+void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap* Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap)
 {
 	D3D12_CLEAR_VALUE ClearValue = {};
 	ClearValue.Format = Format;
@@ -325,12 +427,17 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	ResourceDesc.Dimension = D3D12Helpers::ConvertToResourceDimension(ViewDimension);
 	ResourceDesc.MipLevels = 1;
 	ResourceDesc.Format = Format;
-	ResourceDesc.Flags = IsDepthStencil ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	ResourceDesc.Flags = (IsDepthStencil ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+	if (!IsDepthStencil)
+	{
+		ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+	}
 	ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	ResourceDesc.SampleDesc.Count = 1;
 	ResourceDesc.SampleDesc.Quality = 0;
 	ResourceDesc.Alignment = 0;
 	ResourceDesc.DepthOrArraySize = std::max(BufferDesc.TextureDepth, 1);
+	
 	D3D12_RESOURCE_STATES ResourceState = IsDepthStencil ? D3D12_RESOURCE_STATE_DEPTH_WRITE : D3D12_RESOURCE_STATE_RENDER_TARGET;
 
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
@@ -383,7 +490,7 @@ void D3D12FrameBuffer::Init()
 	}
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]), BufferDesc.Dimension,i);
+		CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]), BufferDesc.Dimension, i);
 	}
 	UpdateSRV();
 }
@@ -421,18 +528,25 @@ void D3D12FrameBuffer::ReadyResourcesForRead(CommandListDef * list, int Resource
 
 void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex, DeviceContext* target)
 {
-	ensure(Resourceindex < BufferDesc.RenderTargetCount);
+
+	//ensure(Resourceindex < BufferDesc.RenderTargetCount);
+	if (BufferDesc.IsShared)
+	{
+		MakeReadyOnTarget(list);
+
+		if (target != nullptr && OtherDevice != nullptr)
+		{
+			if (target == OtherDevice)
+			{
+				SharedSRVHeap->BindHeap(list);
+				SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+				list->SetGraphicsRootDescriptorTable(slot, SharedSRVHeap->GetGpuAddress(Resourceindex));
+			}
+		}
+		return;
+	}
 	lastboundslot = slot;
 
-	if (target != nullptr && OtherDevice != nullptr)
-	{
-		if (target == OtherDevice)
-		{
-			SharedSRVHeap->BindHeap(list);
-			list->SetGraphicsRootDescriptorTable(slot, SharedSRVHeap->GetGpuAddress(Resourceindex));
-			return;
-		}
-	}
 	SrvHeap->BindHeap(list);
 	ReadyResourcesForRead(list, Resourceindex);
 	list->SetGraphicsRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));

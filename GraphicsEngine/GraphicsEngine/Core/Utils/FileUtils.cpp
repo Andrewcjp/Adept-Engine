@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "FileUtils.h"
 #include <vector>
+
+#include "StringUtil.h"
 bool FileUtils::exists_test3(const std::string & name,bool Silent)
 {
 	struct stat buffer;
@@ -14,8 +16,8 @@ bool FileUtils::exists_test3(const std::string & name,bool Silent)
 	}
 	return false;
 }
-#include <Windows.h>
-#include "StringUtil.h"
+
+
 bool FileUtils::TryCreateDirectory(const std::string & name)
 {
 	DWORD LastError;

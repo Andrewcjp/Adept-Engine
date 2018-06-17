@@ -2,7 +2,7 @@
 #define GLM_FORCE_SWIZZLE
 #include "glm\glm.hpp"
 //#define WIN32_LEAN_AND_MEAN
-//#include <Windows.h>
+#include "Core/MinWindows.h"
 #include <string>
 #include <sstream>
 #include <stdio.h>

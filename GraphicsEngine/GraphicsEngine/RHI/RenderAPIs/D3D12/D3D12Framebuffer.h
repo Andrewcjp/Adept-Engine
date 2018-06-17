@@ -23,10 +23,14 @@ public:
 	D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
 	void			CreateSRVHeap(int Num);
 	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap);
+	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap, DeviceContext * target);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	bool CheckDevice(int index);
 	void Resize(int width, int height) override;
 	void SetupCopyToDevice(DeviceContext* device);
+	void SetupCopyTest();
+	void RunCopyTest(ID3D12GraphicsCommandList * list);
+	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
 	void CopyToDevice(ID3D12GraphicsCommandList * list);
 	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);

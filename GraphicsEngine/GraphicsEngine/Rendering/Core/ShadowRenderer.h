@@ -30,5 +30,6 @@ private:
 	RHICommandList*  DirectionalShadowList = nullptr;
 	RHITextureArray* ShadowCubeArray = nullptr;
 	RHITextureArray* ShadowDirectionalArray = nullptr;
+
 };
 

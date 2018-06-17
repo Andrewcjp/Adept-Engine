@@ -146,6 +146,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRen
 		CurrentPipelinestate.m_rootSignature->Release();
 	}
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
+	ensure(target != nullptr);
 	ensure((shader->GetShaderParameters().size() > 0));
 	ensure((shader->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
@@ -231,7 +232,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
-	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex);
+	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex,Device);
 }
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
@@ -327,11 +328,12 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
 
 											// we are now creating a command with the command list to copy the data from
 											// the upload heap to the default heap
-		UpdateSubresources(D3D12RHI::Instance->m_SetupCommandList, m_vertexBuffer, m_UploadBuffer, 0, 0, 1, &Data);
-
+		UpdateSubresources(Device->GetCopyList(), m_vertexBuffer, m_UploadBuffer, 0, 0, 1, &Data);
+		
 		// transition the vertex buffer data from copy destination state to vertex buffer state
-		D3D12RHI::Instance->m_SetupCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 		UploadComplete = true;
+		Device->NotifyWorkForCopyEngine();
 		D3D12RHI::Instance->AddUploadToUsed(m_UploadBuffer);
 	}
 }

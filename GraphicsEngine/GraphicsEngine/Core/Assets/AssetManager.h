@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include "../Core/Utils/StringUtil.h"
+#include "Core/Engine.h"
 class BaseTexture;
 class ShaderProgramBase;
 
@@ -64,6 +65,14 @@ public:
 	static void RegisterMeshAssetLoad(std::string name);
 	static std::string GetShaderDirPath();
 	static BaseTexture * DirectLoadTextureAsset(std::string name, bool DirectLoad = false, class DeviceContext * Device = nullptr);
+	enum AssetFileType
+	{
+		DDS,
+		Image,//any format jpg, png etc.
+		Mesh,
+		Unknown,
+		Count
+	};
 	struct AssetPathRef
 	{
 		AssetPathRef(std::string Filename)
@@ -73,24 +82,62 @@ public:
 			{
 				Name = split[0];
 				Extention = split[1];
+				FileType = ParseAssetFileType(Extention);
 			}
-			BaseName = Name;
-			StringUtils::RemoveChar(BaseName, "\\asset\\texture\\");
+			split = StringUtils::Split(Name, '\\');
+			if (split.size() > 0)
+			{
+				BaseName = split[split.size() - 1];
+			}
+		}
+		const std::string GetFullPathToAsset()const
+		{
+			return Engine::GetRootDir() + Name + "."+Extention;
+		}
+		const std::string GetRelativePathToAsset()const
+		{
+			return Name + "." + Extention;
+		}
+		const std::string GetExtention()const
+		{
+			return Extention;
 		}
 		std::string Name;
 		std::string BaseName;
+		const AssetFileType GetFileType() const 
+		{
+			return FileType;
+		}
+	private:
 		std::string Extention;
+		AssetFileType FileType = AssetFileType::Unknown;
 	};
+	static AssetFileType ParseAssetFileType(std::string Data)
+	{
+		if (Data.find("dds") != -1|| Data.find("DDS") != -1)
+		{
+			return AssetFileType::DDS;
+		}
+		if (Data.find("jpg") != -1 || Data.find("png") != -1)
+		{
+			return AssetFileType::Image;
+		}
+		if (Data.find("obj") != -1 || Data.find("fbx") != -1)
+		{
+			return AssetFileType::Mesh;
+		}
+		return AssetFileType::Unknown;
+	}
 private:
 	const std::string AssetRootPath = "../asset/";
-	std::string ShaderAssetPath = "../asset/shader/glsl/";	
+	std::string ShaderAssetPath = "../asset/shader/glsl/";
 
 	static const std::string GetDDCPath();
 	static const std::string GetTextureGenScript();
 	bool HasCookedData = false;
 	size_t ReadShader(std::string path, char ** buffer);
 
-	
+
 	std::string LoadShaderIncludeFile(std::string name, int limit);
 	size_t TextFileBufferedRead(std::string name, char ** buffer);
 	bool UseIncluderToLoadOGLShaders = true;
@@ -104,7 +151,7 @@ private:
 	bool UseCookedShaders = false;
 	bool CookShaders = true;
 	bool UseCookedtextures = true;
-	
+
 	std::string TextureCooked = "../asset/TextureCooked.bin";
 	float StartTime = 0;
 	size_t LoadedAssetSize = 0;

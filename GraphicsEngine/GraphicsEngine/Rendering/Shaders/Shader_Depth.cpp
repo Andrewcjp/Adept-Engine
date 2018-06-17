@@ -3,11 +3,14 @@
 #include "glm\glm.hpp"
 #include "Shader_Main.h"
 
-
-Shader_Depth::Shader_Depth(bool LoadGeo)
+Shader_Depth::Shader_Depth(bool LoadGeo):Shader_Depth(LoadGeo, RHI::GetDeviceContext(0))
+{
+	
+}
+Shader_Depth::Shader_Depth(bool LoadGeo,DeviceContext* device)
 {
 	LoadGeomShader = LoadGeo;
-	m_Shader = RHI::CreateShaderProgam();
+	m_Shader = RHI::CreateShaderProgam(device);
 	m_Shader->CreateShaderProgram();
 	if (!LoadGeomShader)
 	{
@@ -27,7 +30,7 @@ Shader_Depth::Shader_Depth(bool LoadGeo)
 	m_Shader->ActivateShaderProgram();
 
 	zfar = static_cast<float>(ShadowFarPlane);
-	ConstantBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant);
+	ConstantBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant,device);
 	ConstantBuffer->CreateConstantBuffer(sizeof(LightData), MAX_POINT_SHADOWS);
 }
 

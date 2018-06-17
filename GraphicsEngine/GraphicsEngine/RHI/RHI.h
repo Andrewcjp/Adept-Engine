@@ -1,10 +1,11 @@
 #pragma once
 #include "EngineGlobals.h"
-#include <Windows.h>
+
 #include "../Rendering/Core/FrameBuffer.h"
 #include "RHICommandList.h"
 #include "../Core/Assets/MeshLoader.h"
 #include "RHITypes.h"
+#include "../Core/Assets/AssetManager.h"
 //todo: refactor!
 //like seriuously this is bad!
 class BaseTexture;
@@ -12,9 +13,9 @@ class Renderable;
 class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
-const int MAX_POINT_SHADOWS = 3;
+const int MAX_POINT_SHADOWS = 2;//3
 const int MAX_DIRECTIONAL_SHADOWS = 1;
-
+const int MAX_DEVICE_COUNT = 2;
 class RHI
 {
 public:
@@ -29,7 +30,7 @@ public:
 	static const int CPUFrameCount = 2;
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
-	CORE_API static BaseTexture* CreateTexture(const char * path, DeviceContext* Device = nullptr);
+	CORE_API static BaseTexture* CreateTexture(AssetManager::AssetPathRef, DeviceContext* Device = nullptr);
 	CORE_API static BaseTexture* CreateTextureWithData(int with, int height,int nChannels, void * data, DeviceContext* Device = nullptr);
 	CORE_API static BaseTexture* CreateNullTexture( DeviceContext* Device = nullptr);
 	CORE_API static Renderable * CreateMesh(const char * path);
@@ -51,6 +52,7 @@ public:
 	HINSTANCE m_hinst;
 	static bool BlockCommandlistExec();
 	static bool AllowCPUAhead();
+	static int GetDeviceCount();
 private: 
 	bool ShouldRunAsync = false;
 	ERenderSystemType CurrentSystem;

@@ -31,9 +31,10 @@ public:
 	void LoadText();
 	void UpdateSize(int width, int height);
 	void NotifyFrameEnd();
+	bool RunOnSecondDevice = true;
 private:
-	bool RunOnSecondDevice = false;
-	bool UseFrameBuffer = false;
+	
+	bool UseFrameBuffer = true;
 	int TextDataLength = 0;
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;

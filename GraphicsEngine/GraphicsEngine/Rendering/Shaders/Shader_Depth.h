@@ -14,6 +14,7 @@ public:
 		glm::vec3 Lightpos;
 	};
 	Shader_Depth(bool LoadGeo);
+	Shader_Depth(bool LoadGeo, DeviceContext * device);
 	void UpdateBuffer(RHICommandList * list, LightData * data, int index);
 	~Shader_Depth();
 	void SetShaderActive() override;

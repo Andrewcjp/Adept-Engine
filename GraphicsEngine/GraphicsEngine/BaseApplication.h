@@ -1,7 +1,7 @@
 #pragma once
 #include "EngineGlobals.h"
 #if BUILD_WINDOW_ENGINE
-#include <windows.h>
+
 #define IDM_RENDER_D3D11 1
 #define IDM_RENDER_OGL 2
 #define IDM_FILE_QUIT 3

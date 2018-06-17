@@ -5,7 +5,7 @@
 GrassPatch::GrassPatch()
 {
 	m_grassmesh = RHI::CreateMesh(("Grass.obj"));
-	m_tex = RHI::CreateTexture("\\asset\\texture\\billboardgrass0002.png");
+	m_tex = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\billboardgrass0002.png");
 	Shader = new Shader_Grass();
 	m_transfrom = new Transform();
 	m_transfrom->SetPos(glm::vec3(30, 0, 0));

@@ -10,7 +10,7 @@ public:
 	static float MipCreationTime;
 	D3D12Texture(class DeviceContext * inDevice = nullptr);
 	virtual ~D3D12Texture();
-	bool CreateFromFile(std::string FileName) override;
+	bool CreateFromFile(AssetManager::AssetPathRef  FileName) override;
 	virtual void Bind(int unit) {};
 	void BindToSlot(CommandListDef * list, int slot);
 	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) {} ;
@@ -26,7 +26,7 @@ public:
 private:
 	unsigned char * GenerateMip(int & startwidth, int & startheight, int bpp, unsigned char * StartData, int & mipsize, float ratio = 2.0f);
 	unsigned char * GenerateMips(int count, int StartWidth, int StartHeight, unsigned char * startdata);
-	bool CLoad(std::string name);
+	bool CLoad(AssetManager::AssetPathRef name);
 	bool LoadDDS(std::string filename);
 	D3D12_SUBRESOURCE_DATA Texturedatarray[9];
 	class DeviceContext * Device = nullptr;

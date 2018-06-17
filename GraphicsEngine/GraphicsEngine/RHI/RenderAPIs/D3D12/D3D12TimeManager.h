@@ -33,9 +33,10 @@ public:
 		Present,
 		LIMIT
 	};
-private:
 	void StartTimer(ID3D12GraphicsCommandList * ComandList, int index);
 	void EndTimer(ID3D12GraphicsCommandList * ComandList, int index);
+private:
+	
 	struct GPUTimer
 	{
 		std::string name;

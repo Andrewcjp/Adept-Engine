@@ -1,6 +1,6 @@
 #pragma once
 #include "include\glm\fwd.hpp"
-#include <windows.h>
+
 #include <queue>
 #include <map>
 #include "EngineGlobals.h"

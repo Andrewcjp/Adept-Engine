@@ -7,7 +7,7 @@
 #include "../RHI/DeviceContext.h"
 Shader_Skybox::Shader_Skybox()
 {
-	SkyBoxTexture = RHI::CreateTexture("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
+	SkyBoxTexture = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
 	MeshLoader::FMeshLoadingSettings settings = {};
 	settings.Scale = glm::vec3(100.0f);
 	CubeModel = RHI::CreateMesh("SkyBoxCube.obj", settings);

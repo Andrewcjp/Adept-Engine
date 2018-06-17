@@ -114,7 +114,7 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 			std::string path = (it->value.GetString());
 			if (path.length() != 0)
 			{
-				m_mat = new Material(RHI::CreateTexture(path.c_str()));
+				m_mat = new Material(RHI::CreateTexture(path));
 			}
 		}
 		if (key == "MatNormal")
@@ -124,7 +124,7 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 			{
 				if (m_mat != nullptr)
 				{
-					m_mat->SetNormalMap(RHI::CreateTexture(path.c_str()));
+					m_mat->SetNormalMap(RHI::CreateTexture(path));
 				}
 			}
 		}
@@ -135,7 +135,7 @@ void MeshRendererComponent::Deserialise(rapidjson::Value & v)
 			{
 				if (m_mat != nullptr)
 				{
-					m_mat->SetDisplacementMap(RHI::CreateTexture(path.c_str()));
+					m_mat->SetDisplacementMap(RHI::CreateTexture(path));
 				}
 			}
 		}

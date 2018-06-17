@@ -7,31 +7,54 @@
 #include "Rendering\Shaders\Shader_Depth.h"
 #include "Core/GameObject.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "../RHI/DeviceContext.h"
 #define CUBE_SIDES 6
+#define TESTSECONDGPUSHADOWS 0
 ShadowRenderer::ShadowRenderer()
 {
 	DirectionalLightShader = new Shader_Depth(false);
-	PointLightShader = new Shader_Depth(true);
+	
 	int shadowwidth = 1024;
 	ShadowDirectionalArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), MAX_DIRECTIONAL_SHADOWS);
 	for (int i = 0; i < MAX_DIRECTIONAL_SHADOWS; i++)
 	{
-		//DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::Depth));
 		DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateDepth(shadowwidth, shadowwidth)));
 		ShadowDirectionalArray->AddFrameBufferBind(DirectionalLightBuffers[i], i);
 	}
 	ShadowCubeArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), MAX_POINT_SHADOWS);
+#if !TESTSECONDGPUSHADOWS
 	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
 	{
-		//PointLightBuffers.push_back(RHI::CreateFrameBuffer(shadowwidth, shadowwidth, nullptr, 1, FrameBuffer::CubeDepth));
 		PointLightBuffers.push_back(RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateCubeDepth(shadowwidth, shadowwidth)));
 		ShadowCubeArray->AddFrameBufferBind(PointLightBuffers[i], i);
 	}
+
+#else
+
+	RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateCubeDepth(shadowwidth, shadowwidth);
+	desc.IsShared = true;
+	desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
+
+	PointLightBuffers.push_back(RHI::CreateFrameBuffer(RHI::GetDeviceContext(1), desc));
+	//D3D12FrameBuffer* Buffer = (D3D12FrameBuffer*)PointLightBuffers[1];
+	////Buffer->CopyToDevice();
+	//Buffer->SetupCopyToDevice();
+	//ShadowCubeArray->AddFrameBufferBind(PointLightBuffers[1], 1);
+
+#endif
+	
+#if TESTSECONDGPUSHADOWS
+	DeviceContext* pointlightdevice = RHI::GetDeviceContext(1);
+#else 
+	DeviceContext* pointlightdevice = RHI::GetDeviceContext(0);
+#endif
+	PointLightShader = new Shader_Depth(true, pointlightdevice);
 	//ShadowCubeArray->SetIndexNull(2);
-	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, nullptr);
+	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, pointlightdevice);
 	GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, MAX_POINT_SHADOWS);
-	PointShadowList = RHI::CreateCommandList();
+	PointShadowList = RHI::CreateCommandList(pointlightdevice);
 	DirectionalShadowList = RHI::CreateCommandList();
 }
 
@@ -85,13 +108,24 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, c
 	if (ShadowingPointLights.size() > 0)
 	{
 		PointShadowList->ResetList();
-		
+
 		PointShadowList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(PointShadowList);
 
 		PointShadowList->GetDevice()->GetTimeManager()->StartTimer(PointShadowList, D3D12TimeManager::eGPUTIMERS::PointShadows);
 		RenderPointShadows(PointShadowList, mainshader, ShadowObjects);
 		PointShadowList->GetDevice()->GetTimeManager()->EndTimer(PointShadowList, D3D12TimeManager::eGPUTIMERS::PointShadows);
+		
+#if TESTSECONDGPUSHADOWS
+		PointShadowList->GetDevice()->GetTimeManager()->StartTimer(PointShadowList, D3D12TimeManager::eGPUTIMERS::DirShadows);
+		D3D12FrameBuffer* Buffer = (D3D12FrameBuffer*)PointLightBuffers[0];
+		Buffer->CopyToDevice(((D3D12CommandList*)PointShadowList)->GetCommandList());
+		PointShadowList->GetDevice()->GetTimeManager()->EndTimer(PointShadowList, D3D12TimeManager::eGPUTIMERS::DirShadows);
+		PointShadowList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(PointShadowList);
+#endif			
 		PointShadowList->Execute();
+#if TESTSECONDGPUSHADOWS
+		RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0));
+#endif
 	}
 }
 void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject *> & ShadowObjects)
@@ -118,7 +152,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 			{
 				continue;
 			}
-			mainshader->SetActiveIndex(list, (int)i);
+			mainshader->SetActiveIndex(list, (int)i,list->GetDeviceIndex());
 			ShadowObjects[i]->Render(true, list);
 		}
 		//list->SetRenderTarget(nullptr);
@@ -157,9 +191,12 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 
 void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
-	//return;
 	ShadowDirectionalArray->BindToShader(list, 4);	
+#if TESTSECONDGPUSHADOWS
+	list->SetFrameBufferTexture(PointLightBuffers[0], 5);
+#else
 	ShadowCubeArray->BindToShader(list, 5);
+#endif
 }
 
 void ShadowRenderer::ClearShadowLights()

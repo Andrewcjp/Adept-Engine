@@ -100,7 +100,7 @@ public:
 	virtual void UAVBarrier(RHIUAV* target) = 0;
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	DeviceContext* GetDevice();
-
+	int GetDeviceIndex();
 protected:
 	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!

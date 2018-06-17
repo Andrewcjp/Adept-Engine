@@ -9,7 +9,6 @@
 #include <strsafe.h>
 #include <fcntl.h>
 
-#include <Windows.h>
 
 #include "BaseApplication.h"
 #include <string>

@@ -144,7 +144,11 @@ std::string D3D12RHI::GetMemory()
 
 void D3D12RHI::LoadPipeLine()
 {
-#define RUNDEBUG 1//defined(_DEBUG)
+#ifdef _DEBUG
+#define RUNDEBUG 1
+#else 
+#define RUNDEBUG 0
+#endif
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	UINT dxgiFactoryFlags = 0;
@@ -158,7 +162,6 @@ void D3D12RHI::LoadPipeLine()
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
-
 			// Enable additional debug layers.
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
@@ -176,14 +179,27 @@ void D3D12RHI::LoadPipeLine()
 #endif
 
 	FindAdaptors(factory);
-#if RUNDEBUG
-	ID3D12InfoQueue* infoqueue;
-	PrimaryDevice->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue));
-	if (infoqueue != nullptr)
+	if (SecondaryDevice != nullptr)
 	{
-		infoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-		infoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-		infoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
+		PrimaryDevice->LinkAdaptors(SecondaryDevice);
+		SecondaryDevice->LinkAdaptors(PrimaryDevice);
+
+	}
+#if RUNDEBUG
+	ID3D12InfoQueue* infoqueue[MAX_DEVICE_COUNT] = {nullptr};
+	PrimaryDevice->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[0]));
+	if (SecondaryDevice != nullptr)
+	{
+		SecondaryDevice->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[1]));
+	}
+	for (int i = 0; i < MAX_DEVICE_COUNT; i++)
+	{
+		if (infoqueue[i] != nullptr)
+		{
+			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
+		}
 	}
 #endif
 
@@ -336,7 +352,7 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 
 void D3D12RHI::LoadAssets()
 {
-	
+
 	ThrowIfFailed(GetDevice()->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 	m_fenceValues[m_frameIndex] = 1;
 	// Create an event handle to use for frame synchronization
@@ -389,7 +405,7 @@ void D3D12RHI::ExecList(CommandListDef* list, bool Block)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-//	WaitForGpu();
+	//	WaitForGpu();
 }
 
 void D3D12RHI::PresentFrame()
@@ -404,7 +420,7 @@ void D3D12RHI::PresentFrame()
 		m_SetupCommandList->Close();
 		PrimaryDevice->ExecuteCommandList(m_SetupCommandList);
 	}
-	
+
 	if (m_BudgetNotificationCookie == 1)
 	{
 		DisplayDeviceDebug();
@@ -413,16 +429,20 @@ void D3D12RHI::PresentFrame()
 #if USEGPUTOGENMIPS
 	if (count == 1)
 	{
-		PrimaryDevice->WaitForGpu();
-		MipmapShader->GenAllmips(100);
+		//PrimaryDevice->WaitForGpu();
+		//MipmapShader->GenAllmips(100);
 	}
 #endif
-	
-//	PrimaryDevice->WaitForGpu();
+
+	//	PrimaryDevice->WaitForGpu();
 	ThrowIfFailed(m_swapChain->Present(0, 0));
 	if (!RHI::AllowCPUAhead())
 	{
 		PrimaryDevice->WaitForGpu();
+		if (SecondaryDevice != nullptr)
+		{
+			SecondaryDevice->WaitForGpu();
+		}
 	}
 	if (RequestedResize)
 	{
@@ -443,16 +463,20 @@ void D3D12RHI::PresentFrame()
 	if (SecondaryDevice != nullptr)
 	{
 		SecondaryDevice->GetCommandAllocator()->Reset();
-	}	
-	
+	}
+
 	count++;
 	if (count > 2)
 	{
 		HasSetup = true;
 	}
-	if (PrimaryDevice && m_frameIndex ==0 )
+	if (PrimaryDevice && m_frameIndex == 0)
 	{
 		PrimaryDevice->GetTimeManager()->UpdateTimers();
+		if (SecondaryDevice != nullptr)
+		{
+			SecondaryDevice->GetTimeManager()->UpdateTimers();
+		}
 	}
 }
 

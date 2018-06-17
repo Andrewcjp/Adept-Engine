@@ -82,21 +82,29 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
-	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator)));
+	
 	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_CopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_CopyList)));
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+		
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_SharedCopyCommandQueue)));
+	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator)));
 	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_SharedCopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_IntraCopyList)));
 	m_IntraCopyList->Close();
 
 	GraphicsQueueSync.Init(GetDevice());
 	CopyQueueSync.Init(GetDevice());
-
+	GpuWaitSyncPoint.InitGPUOnly(GetDevice());
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
 	//todo: validate the device capablities 
+	//GetDevice()->SetStablePowerState(false);
 
 	TimeManager = new D3D12TimeManager(this);
 }
-
+void DeviceContext::LinkAdaptors(DeviceContext* other)
+{
+	CrossAdaptorSync.Init(GetDevice(), other->GetDevice());
+}
 ID3D12Device * DeviceContext::GetDevice()
 {
 	return m_Device;
@@ -143,7 +151,7 @@ void DeviceContext::DestoryDevice()
 }
 
 void DeviceContext::WaitForGpu()
-{	
+{
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 }
 
@@ -159,6 +167,7 @@ ID3D12GraphicsCommandList * DeviceContext::GetSharedCopyList()
 
 void DeviceContext::ResetSharingCopyList()
 {
+	m_SharedCopyCommandAllocator->Reset();
 	ThrowIfFailed(m_IntraCopyList->Reset(m_SharedCopyCommandAllocator, nullptr));
 }
 
@@ -187,6 +196,16 @@ void DeviceContext::ExecuteCopyCommandList(ID3D12GraphicsCommandList * list)
 	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
 }
 
+void DeviceContext::ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list,bool forceblock)
+{
+	ID3D12CommandList* ppCommandLists[] = { list };
+	m_SharedCopyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	if (RHI::BlockCommandlistExec() || forceblock)
+	{
+		GraphicsQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
+	}
+
+}
 void DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
 {
 
@@ -225,6 +244,19 @@ int DeviceContext::GetCpuFrameIndex()
 	return CurrentFrameIndex;
 }
 
+void DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU)
+{
+	CrossAdaptorSync.CrossGPUCreateSyncPoint(GetCommandQueue(), OtherGPU->GetCommandQueue());
+}
+
+void DeviceContext::InsertGPUWait()
+{
+	GpuWaitSyncPoint.GPUCreateSyncPoint(GetCommandQueue(), m_SharedCopyCommandQueue);
+}
+void DeviceContext::InsertGPUWaitForSharedCopy()
+{
+	GpuWaitSyncPoint.GPUCreateSyncPoint(m_SharedCopyCommandQueue, GetCommandQueue());
+}
 GPUSyncPoint::~GPUSyncPoint()
 {
 	if (m_fence)
@@ -234,6 +266,39 @@ GPUSyncPoint::~GPUSyncPoint()
 	}
 }
 
+void GPUSyncPoint::Init(ID3D12Device * device, ID3D12Device* SecondDevice)
+{
+	//Fence types
+	//  D3D12_FENCE_FLAG_NONE
+	//  D3D12_FENCE_FLAG_SHARED
+	//	D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER
+	//	D3D12_FENCE_FLAG_NON_MONITORED
+	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_SHARED | D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER, IID_PPV_ARGS(&m_fence)));
+	m_fenceEvent = CreateEvent(nullptr, false, false, nullptr);
+	if (m_fenceEvent == nullptr)
+	{
+		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+	}
+	m_fenceValue++;
+	// Create a shared handle to the cross adapter fence
+	HANDLE fenceHandle = nullptr;
+	device->CreateSharedHandle(
+		m_fence,
+		nullptr,
+		GENERIC_ALL,
+		nullptr,
+		&fenceHandle);
+
+	// Open shared handle to fence on secondaryDevice GPU
+	SecondDevice->OpenSharedHandle(fenceHandle, IID_PPV_ARGS(&secondaryFence));
+
+	CloseHandle(fenceHandle);
+}
+void GPUSyncPoint::InitGPUOnly(ID3D12Device * device)
+{
+	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+	m_fenceValue++;
+}
 void GPUSyncPoint::Init(ID3D12Device * device)
 {
 	//Fence types
@@ -263,7 +328,22 @@ void GPUSyncPoint::CreateSyncPoint(ID3D12CommandQueue * queue)
 		m_fenceValue++;
 	}
 }
+void GPUSyncPoint::CrossGPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue* otherDeviceQeue)
+{
+	// Schedule a Signal command in the queue.
+	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
 
+	otherDeviceQeue->Wait(secondaryFence, m_fenceValue);
+	m_fenceValue++;
+}
+void GPUSyncPoint::GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * targetqueue)
+{
+	// Schedule a Signal command in the queue.
+	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
+
+	targetqueue->Wait(m_fence, m_fenceValue);
+	m_fenceValue++;
+}
 void GPUSyncPoint::CreateStartSyncPoint(ID3D12CommandQueue * queue)
 {
 	// Schedule a Signal command in the queue.
@@ -287,3 +367,4 @@ void GPUSyncPoint::WaitOnSync()
 		DidStartWork = false;
 	}
 }
+

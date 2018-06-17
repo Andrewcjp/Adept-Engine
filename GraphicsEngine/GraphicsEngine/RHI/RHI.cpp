@@ -119,6 +119,19 @@ bool RHI::AllowCPUAhead()
 	return true;
 }
 
+int RHI::GetDeviceCount()
+{
+	if (GetDeviceContext(1) != nullptr)
+	{
+		return 2;
+	}
+	if (GetDeviceContext(2) != nullptr)
+	{
+		return 3;
+	}
+	return 1;
+}
+
 void RHI::DestoryRHI()
 {
 	if (instance != nullptr)
@@ -128,7 +141,7 @@ void RHI::DestoryRHI()
 }
 
 #define NOLOADTEX 0
-BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
+BaseTexture * RHI::CreateTexture(AssetManager::AssetPathRef path, DeviceContext* Device)
 {
 	if (Device == nullptr)
 	{
@@ -142,7 +155,7 @@ BaseTexture * RHI::CreateTexture(const char * path, DeviceContext* Device)
 	}
 #endif
 	BaseTexture* newtex = nullptr;
-	if (ImageIO::CheckIfLoaded(path, &newtex))
+	if (ImageIO::CheckIfLoaded(path.GetRelativePathToAsset(), &newtex))
 	{
 		return newtex;
 	}

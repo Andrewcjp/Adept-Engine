@@ -35,7 +35,9 @@ void PostProcessing::ExecPPStackFinal(FrameBuffer* targetbuffer)
 	//called as final pass
 	if (Needscompost )
 	{
+		
 		TestEffct->RunPass(TestEffct->cmdlist, targetbuffer);
+
 	}
 }
 void PostProcessing::Init()

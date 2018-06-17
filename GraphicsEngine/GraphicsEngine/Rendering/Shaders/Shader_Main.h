@@ -56,7 +56,7 @@ public:
 	void ClearBuffer();
 	void UpdateCBV();
 	void UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int index);
-	void SetActiveIndex(class RHICommandList * list, int index);
+	void SetActiveIndex(class RHICommandList * list, int index, int DeviceIndex = 0);
 	static void GetMainShaderSig(std::vector<Shader::ShaderParameter>& out);
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	void UpdateMV(Camera * c);
@@ -84,7 +84,7 @@ private:
 
 	RHIBuffer* CLightBuffer;
 	RHIBuffer* CMVBuffer = nullptr;
-	RHIBuffer* GameObjectTransformBuffer = nullptr;
+	RHIBuffer* GameObjectTransformBuffer[MAX_DEVICE_COUNT] = { nullptr };
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
 	struct MVBuffer MV_Buffer;
 	LightBufferW LightsBuffer;
