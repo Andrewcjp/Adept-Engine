@@ -9,7 +9,7 @@ class GPUResource;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
-		D3D12FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);
+	D3D12FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);
 	void UpdateSRV();
 	void CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap = 0);
 	void Init();
@@ -33,6 +33,8 @@ public:
 	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
 	void CopyToDevice(ID3D12GraphicsCommandList * list);
 	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
+	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
+	void MakeReadyForCopy(ID3D12GraphicsCommandList * list);
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);
 private:
 	

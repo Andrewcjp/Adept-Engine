@@ -210,19 +210,14 @@ void UIManager::UpdateWidgets()
 	{
 		widgets[i]->UpdateData();
 	}
+	CleanUpWidgets();
 }
 
 void UIManager::RenderWidgets()
 {
 	//todo: move to not run every frame?
 	DrawBatcher->RenderBatches();	
-	for (int i = 0; i < widgets.size(); i++)
-	{
-		if (widgets[i]->GetEnabled())
-		{
-			widgets[i]->Render();
-		}
-	}
+	
 #if UISTATS
 	PerfManager::StartTimer("Line");
 #endif
@@ -232,8 +227,16 @@ void UIManager::RenderWidgets()
 	PerfManager::EndTimer("Line");
 #endif
 	//todo: GC?
-	CleanUpWidgets();
-
+}
+void UIManager::RenderWidgetText()
+{
+	for (int i = 0; i < widgets.size(); i++)
+	{
+		if (widgets[i]->GetEnabled())
+		{
+			widgets[i]->Render();
+		}
+	}
 }
 //todo: prevent issue with adding while itoring!
 void UIManager::MouseMove(int x, int y)

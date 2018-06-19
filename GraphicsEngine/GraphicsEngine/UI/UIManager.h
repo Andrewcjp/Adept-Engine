@@ -38,6 +38,7 @@ public:
 	static void UpdateBatches();
 	void UpdateWidgets();
 	void RenderWidgets();
+	void RenderWidgetText();
 	void MouseMove(int x, int y);
 	void MouseClick(int x, int y);
 	void MouseClickUp(int x, int y);

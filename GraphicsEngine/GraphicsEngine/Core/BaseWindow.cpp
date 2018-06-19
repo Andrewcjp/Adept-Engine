@@ -207,26 +207,37 @@ void BaseWindow::Render()
 	Renderer->FinaliseRender();
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
+	if (UI != nullptr)
+	{
+		UI->UpdateWidgets();
+	}
+	if (UI != nullptr && ShowHud && LoadText)
+	{		
+		UI->RenderWidgets();
+	}
 	if (PostProcessing::Instance)
 	{
 		PostProcessing::Instance->ExecPPStackFinal(nullptr);
 	}
+	
 	TextRenderer::instance->Reset();
+	PerfManager::StartTimer("TEXT");
 	if (UI != nullptr && ShowHud && LoadText)
 	{
-		//UI->UpdateWidgets();
-		//UI->RenderWidgets();
+		UI->RenderWidgetText();
 	}
 	if (LoadText)
 	{
-		PerfManager::StartTimer("TEXT");
+		
 		RenderText();
 		WindowUI();
-		PerfManager::EndTimer("TEXT");
+		
 	}
+	PerfManager::EndTimer("TEXT");
 	TextRenderer::instance->Finish();
+	
 	PerfManager::EndTimer("UI");
-
+	
 
 #if USE_PHYSX_THREADING
 	if (DidPhsyx)

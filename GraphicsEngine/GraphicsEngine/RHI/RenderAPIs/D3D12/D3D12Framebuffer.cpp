@@ -99,6 +99,10 @@ bool D3D12FrameBuffer::CheckDevice(int index)
 
 void D3D12FrameBuffer::Resize(int width, int height)
 {
+	if (BufferDesc.IsShared)
+	{
+		return;//todo:
+	}
 	m_width = width;
 	m_height = height;
 	//todo: ensure not currently in use
@@ -144,7 +148,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		textureSize,
 		D3D12_HEAP_TYPE_DEFAULT,
 		0,
-		D3D12_HEAP_FLAG_SHARED | D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER);
+		D3D12_HEAP_FLAG_SHARED | D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER/* | D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS*/);
 	//heapDesc.Properties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE;
 	//heapDesc.Properties.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;//l1?
 	Host->CreateHeap(&heapDesc, IID_PPV_ARGS(&CrossHeap));
@@ -196,7 +200,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		&renderTargetDesc,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,
 		IID_PPV_ARGS(&FinalOut)
 	));
@@ -204,7 +208,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	////	SharedSRVHeap->
 
-	SharedTarget = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	SharedTarget = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST);
 
 	//CreateSRVInHeap(0, SharedSRVHeap, OtherDevice);
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
@@ -319,11 +323,11 @@ void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
 	ID3D12Device* Target = OtherDevice->GetDevice();
 	// Copy the buffer in the shared heap into a texture that the secondary
 	// adapter can sample from.
-	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-		FinalOut,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_COPY_DEST);
-	list->ResourceBarrier(1, &barrier);
+	//D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+	//	FinalOut,
+	//	D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+	//	D3D12_RESOURCE_STATE_COPY_DEST);
+	//list->ResourceBarrier(1, &barrier);
 
 	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE,0));
 
@@ -332,8 +336,8 @@ void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
 	// layout prescribed by the texture.
 	D3D12_RESOURCE_DESC secondaryAdapterTexture = FinalOut->GetDesc();
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
-
-
+	//2.0ms - 500
+	SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_DEST);
 	const int count = BufferDesc.TextureDepth;
 	for (int i = 0; i < count; i++)
 	{
@@ -346,12 +350,20 @@ void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
 		list->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
 	}
 	//list->CopyResource(FinalOut, Stagedres);
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	list->ResourceBarrier(1, &barrier);
+	//barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	//barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	//list->ResourceBarrier(1, &barrier);
 	PerfManager::EndTimer("MakeReadyOnTarget");
 }
+void D3D12FrameBuffer::MakeReadyForRead(ID3D12GraphicsCommandList * list)
+{
+	SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+}
 
+void D3D12FrameBuffer::MakeReadyForCopy(ID3D12GraphicsCommandList * list)
+{	
+	SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);//D3D12_RESOURCE_STATE_COPY_DEST
+}
 
 void D3D12FrameBuffer::BindDepthWithColourPassthrough(ID3D12GraphicsCommandList * list, D3D12FrameBuffer * Passtrhough)
 {
@@ -532,8 +544,6 @@ void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int 
 	//ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	if (BufferDesc.IsShared)
 	{
-		MakeReadyOnTarget(list);
-
 		if (target != nullptr && OtherDevice != nullptr)
 		{
 			if (target == OtherDevice)

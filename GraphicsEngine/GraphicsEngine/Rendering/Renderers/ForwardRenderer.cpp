@@ -59,11 +59,12 @@ void ForwardRenderer::PostInit()
 	{
 		MainScene = new Scene();
 	}
+	SkyBox = new Shader_Skybox();
+	SkyBox->Init(FilterBuffer, nullptr);
 	MainCommandList = RHI::CreateCommandList();
 	//finally init the pipeline!
 	MainCommandList->CreatePipelineState(MainShader,FilterBuffer);
-	SkyBox = new Shader_Skybox();
-	SkyBox->Init(FilterBuffer,nullptr);
+
 #if DEBUG_CUBEMAPS
 	SkyBox->test = mShadowRenderer->PointLightBuffer;
 #endif

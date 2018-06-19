@@ -452,6 +452,7 @@ void D3D12RHI::PresentFrame()
 
 	MoveToNextFrame();
 	PrimaryDevice->CurrentFrameIndex = m_frameIndex;
+	SecondaryDevice->CurrentFrameIndex = m_frameIndex;
 	//all exectuion this frame has finished 
 	//so all resources should be in the correct state!
 	PrimaryDevice->UpdateCopyEngine();
@@ -460,9 +461,11 @@ void D3D12RHI::PresentFrame()
 		SecondaryDevice->UpdateCopyEngine();
 	}
 	PrimaryDevice->GetCommandAllocator()->Reset();
+	PrimaryDevice->GetSharedCommandAllocator()->Reset();
 	if (SecondaryDevice != nullptr)
 	{
 		SecondaryDevice->GetCommandAllocator()->Reset();
+		SecondaryDevice->GetSharedCommandAllocator()->Reset();
 	}
 
 	count++;
@@ -540,6 +543,7 @@ void D3D12RHI::WaitForGpu()
 
 	// Wait until the fence has been processed.
 	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
+
 	WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
 
 	// Increment the fence value for the current frame.

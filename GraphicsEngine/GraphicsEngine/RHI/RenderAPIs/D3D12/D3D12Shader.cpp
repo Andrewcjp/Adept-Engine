@@ -110,7 +110,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 
 	ID3DBlob* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
-#if defined(_DEBUG)
+#if 1//defined(_DEBUG)
 	// Enable better shader debugging with the graphics debugging tools.
 	UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else 
@@ -323,8 +323,8 @@ void D3D12Shader::CreateComputePipelineShader()
 	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(mBlolbs.csBlob);
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&m_Shader.m_pipelineState)));
 
-	//D3D12Shader::PiplineShader t;
-	//CreateDefaultRootSig(t);
+	D3D12Shader::PiplineShader t;
+	CreateDefaultRootSig(t);
 }
 
 CommandListDef * D3D12Shader::CreateShaderCommandList(int device)

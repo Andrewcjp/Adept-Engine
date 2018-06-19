@@ -87,8 +87,12 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 		
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_SharedCopyCommandQueue)));
-	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator)));
-	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_SharedCopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_IntraCopyList)));
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	{
+		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator[i])));
+	}
+	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_SharedCopyCommandAllocator[0], nullptr, IID_PPV_ARGS(&m_IntraCopyList)));
+	m_SharedCopyCommandQueue->SetName(L"m_SharedCopyCommandQueue");
 	m_IntraCopyList->Close();
 
 	GraphicsQueueSync.Init(GetDevice());
@@ -113,6 +117,11 @@ ID3D12Device * DeviceContext::GetDevice()
 ID3D12CommandAllocator * DeviceContext::GetCommandAllocator()
 {
 	return m_commandAllocator[CurrentFrameIndex];
+}
+
+ID3D12CommandAllocator * DeviceContext::GetSharedCommandAllocator()
+{
+	return m_SharedCopyCommandAllocator[CurrentFrameIndex];
 }
 
 ID3D12CommandQueue * DeviceContext::GetCommandQueue()
@@ -154,7 +163,10 @@ void DeviceContext::WaitForGpu()
 {
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 }
-
+void DeviceContext::WaitForCopy()
+{
+	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
+}
 ID3D12GraphicsCommandList * DeviceContext::GetCopyList()
 {
 	return m_CopyList;
@@ -166,9 +178,8 @@ ID3D12GraphicsCommandList * DeviceContext::GetSharedCopyList()
 }
 
 void DeviceContext::ResetSharingCopyList()
-{
-	m_SharedCopyCommandAllocator->Reset();
-	ThrowIfFailed(m_IntraCopyList->Reset(m_SharedCopyCommandAllocator, nullptr));
+{	
+	ThrowIfFailed(m_IntraCopyList->Reset(GetSharedCommandAllocator(), nullptr));
 }
 
 void DeviceContext::NotifyWorkForCopyEngine()
@@ -186,6 +197,7 @@ void DeviceContext::UpdateCopyEngine()
 		ThrowIfFailed(m_CopyList->Reset(m_CopyCommandAllocator, nullptr));*/
 		CopyEngineHasWork = false;
 	}
+	
 }
 
 

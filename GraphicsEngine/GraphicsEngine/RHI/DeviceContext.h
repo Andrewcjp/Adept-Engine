@@ -68,6 +68,7 @@ public:
 	void LinkAdaptors(DeviceContext * other);
 	ID3D12Device* GetDevice();
 	ID3D12CommandAllocator* GetCommandAllocator();
+	ID3D12CommandAllocator * GetSharedCommandAllocator();
 	ID3D12CommandQueue* GetCommandQueue();
 
 	void SampleVideoMemoryInfo();
@@ -75,6 +76,7 @@ public:
 	void MoveNextFrame();
 	void DestoryDevice();
 	void WaitForGpu();
+	void WaitForCopy();
 	ID3D12GraphicsCommandList* GetCopyList();
 	ID3D12GraphicsCommandList * GetSharedCopyList();
 	void ResetSharingCopyList();
@@ -114,8 +116,8 @@ private:
 	ID3D12GraphicsCommandList* m_CopyList = nullptr;
 	ID3D12CommandAllocator* m_CopyCommandAllocator = nullptr;
 	ID3D12CommandQueue* m_CopyCommandQueue = nullptr;
-	ID3D12GraphicsCommandList* m_IntraCopyList = nullptr;
-	ID3D12CommandAllocator* m_SharedCopyCommandAllocator = nullptr;
+	ID3D12GraphicsCommandList* m_IntraCopyList= nullptr;
+	ID3D12CommandAllocator* m_SharedCopyCommandAllocator[RHI::CPUFrameCount] = { nullptr };
 	ID3D12CommandQueue* m_SharedCopyCommandQueue = nullptr;
 	//Sync controllers for each queue
 	GPUSyncPoint GraphicsQueueSync;
