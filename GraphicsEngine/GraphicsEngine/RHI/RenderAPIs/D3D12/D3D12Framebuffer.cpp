@@ -99,10 +99,10 @@ bool D3D12FrameBuffer::CheckDevice(int index)
 
 void D3D12FrameBuffer::Resize(int width, int height)
 {
-	if (BufferDesc.IsShared)
-	{
-		return;//todo:
-	}
+	//if (BufferDesc.IsShared)
+	//{
+	//	return;//todo:
+	//}
 	m_width = width;
 	m_height = height;
 	//todo: ensure not currently in use
@@ -114,7 +114,16 @@ void D3D12FrameBuffer::Resize(int width, int height)
 	{
 		DepthStencil->Release();
 	}
+	CurrentDevice->CPUWaitForAll();
+	if (OtherDevice != nullptr)
+	{
+		OtherDevice->CPUWaitForAll();
+	}
 	Init();
+	if (OtherDevice != nullptr)
+	{
+		SetupCopyToDevice(OtherDevice);
+	}
 }
 
 static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)

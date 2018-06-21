@@ -36,7 +36,7 @@ public:
 	void StartTimer(ID3D12GraphicsCommandList * ComandList, int index);
 	void EndTimer(ID3D12GraphicsCommandList * ComandList, int index);
 private:
-	
+	DeviceContext* Context;
 	struct GPUTimer
 	{
 		std::string name;
@@ -44,7 +44,10 @@ private:
 		int Endindex = 1;
 		MovingAverage avg = MovingAverage(AVGTIME);
 		bool Used = false;
+		int Statid = -1;
+		float RawTime = 0.0f;
 	};
+	int StatsGroupId = -1;
 	bool TimerStarted = false;
 #if GPUTIMERS_FULL
 	const int MaxTimerCount = eGPUTIMERS::LIMIT;

@@ -173,7 +173,7 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 		RunCook();
 		exit(0);//todo: proper exit
 	}
-
+	PerfManager::StartPerfManager();
 	if (FullScreen)
 	{
 		CreateApplicationWindow(1920, 1080, ERenderSystemType::RenderSystemOGL);

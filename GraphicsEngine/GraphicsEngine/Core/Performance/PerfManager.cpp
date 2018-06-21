@@ -11,7 +11,7 @@
 #include "../RHI/RHI.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "../RHI/DeviceContext.h"
-
+#include "../UI/TextRenderer.h"
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()
@@ -34,15 +34,26 @@ PerfManager::PerfManager()
 }
 
 PerfManager::~PerfManager()
+{}
+void PerfManager::AddTimer(const char * countername, const char* group)
 {
+	AddTimer(GetTimerIDByName(countername), GetGroupId(group));
 }
-
+void PerfManager::AddTimer(int id, int groupid)
+{
+	TimerData Data;
+	Data.AVG = new MovingAverage(AvgCount);
+	Data.name = GetTimerName(id);
+	Data.GroupId = groupid;
+	AVGTimers.emplace(id, Data);
+	TimerOutput.emplace(id, 0.0f);
+}
 void PerfManager::StartTimer(const char * countername)
 {
 #if	STATS
 	if (Instance != nullptr && PerfActive)
 	{
-		Instance->InStartTimer(countername);
+		StartTimer(Instance->GetTimerIDByName(countername));
 	}
 #endif
 }
@@ -51,11 +62,31 @@ void PerfManager::EndTimer(const char * countername)
 #if STATS
 	if (Instance != nullptr&& PerfActive)
 	{
-		Instance->InEndTimer(countername);
+		EndTimer(Instance->GetTimerIDByName(countername));
 	}
 #endif
 }
-int PerfManager::GetTimerIDByName(std::string name) 
+
+void PerfManager::StartTimer(int Counterid)
+{
+#if STATS
+	if (Instance != nullptr&& PerfActive)
+	{
+		Instance->InStartTimer(Counterid);
+	}
+#endif
+}
+
+void PerfManager::EndTimer(int StatId)
+{
+#if STATS
+	if (Instance != nullptr&& PerfActive)
+	{
+		Instance->InEndTimer(StatId);
+	}
+#endif
+}
+int PerfManager::GetTimerIDByName(std::string name)
 {
 	if (TimerIDs.find(name) == TimerIDs.end())
 	{
@@ -63,6 +94,20 @@ int PerfManager::GetTimerIDByName(std::string name)
 		NextId++;
 	}
 	return TimerIDs.at(name);
+}
+
+int PerfManager::GetGroupId(std::string name)
+{
+	if (name.empty())
+	{
+		return -1;
+	}
+	if (GroupIDS.find(name) == GroupIDS.end())
+	{
+		GroupIDS.emplace(name, NextGroupId);
+		NextGroupId++;
+	}
+	return GroupIDS.at(name);
 }
 
 std::string PerfManager::GetTimerName(int id)
@@ -79,47 +124,48 @@ std::string PerfManager::GetTimerName(int id)
 	return std::string();
 }
 
-void PerfManager::InStartTimer(const char * countername)
+
+void PerfManager::InStartTimer(int targetTimer)
 {
 	if (!Capture)
 	{
 		return;
 	}
-	int targetTimer = GetTimerIDByName(countername);
-	if (Timers.find(targetTimer) != Timers.end())
+	if (TimersStartStamps.find(targetTimer) != TimersStartStamps.end())
 	{
-		Timers.at(targetTimer) = (float)get_nanos();
+		TimersStartStamps.at(targetTimer) = get_nanos();
+		AVGTimers.at(targetTimer).Active = true;
 	}
 	else
 	{
-		Timers.emplace(targetTimer, 0.0f);
+		TimersStartStamps.emplace(targetTimer, 0);
 		TimerOutput.emplace(targetTimer, 0.0f);
-		AVGTimers.emplace(targetTimer, new MovingAverage(AvgCount));
+		AddTimer(GetTimerName(targetTimer).c_str(), "");
 	}
 }
 
-void PerfManager::InEndTimer(const char * countername)
+void PerfManager::InEndTimer(int targetTimer)
 {
 	if (!Capture)
 	{
 		return;
 	}
-	int targetTimer = GetTimerIDByName(countername);
-	if (Timers.find(targetTimer) != Timers.end())
-	{
-		Timers.at(targetTimer) = (float)((get_nanos() - Timers.at(targetTimer)) / TimeMS);;//in ms;
-		TimerOutput.at(targetTimer) = Timers.at(targetTimer);
-		AVGTimers.at(targetTimer)->Add(Timers.at(targetTimer));
-	}
-}
 
-float PerfManager::GetTimerValue(const char * countername)
-{
-	if (Timers.size() != 0)
+	if (TimersStartStamps.find(targetTimer) != TimersStartStamps.end())
 	{
-		return Timers.at(GetTimerIDByName(countername));
+		if (TimersEndStamps.find(targetTimer) != TimersEndStamps.end())
+		{
+			TimersEndStamps.at(targetTimer) = get_nanos();
+		}
+		else
+		{
+			TimersEndStamps.emplace(targetTimer, 0);
+			return;
+		}
+		const float Calctime = (float)((get_nanos() - TimersStartStamps.at(targetTimer)) / TimeMS);;//in ms;
+		TimerOutput.at(targetTimer) += Calctime;
+
 	}
-	return 0.0f;
 }
 
 float PerfManager::GetAVGFrameRate()
@@ -149,9 +195,9 @@ std::string PerfManager::GetAllTimers()
 	if (ShowAllStats)
 	{
 		stream << std::fixed << std::setprecision(3) << "Stats: ";
-		for (std::map<int, MovingAverage*>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+		for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 		{
-			stream << GetTimerName(it->first) << ": " << it->second->GetCurrentAverage() << "ms ";
+			stream << GetTimerName(it->first) << ": " << it->second.AVG->GetCurrentAverage() << "ms ";
 		}
 	}
 	return stream.str();
@@ -175,7 +221,7 @@ void PerfManager::EndCPUTimer()
 	else
 	{
 		Capture = false;
-	}	
+	}
 }
 
 void PerfManager::StartFrameTimer()
@@ -189,7 +235,7 @@ void PerfManager::EndFrameTimer()
 }
 
 float PerfManager::GetGPUTime()
-{	
+{
 	if (Instance != nullptr)
 	{
 		return RHI::GetDeviceContext(0)->GetTimeManager()->AVGgpuTimeMS;
@@ -214,6 +260,131 @@ float PerfManager::GetDeltaTime()
 	}
 	return 0;
 }
+void PerfManager::NotifyEndOfFrame()
+{
+	//clear timers
+	if (Instance != nullptr)
+	{
+		Instance->Internal_NotifyEndOfFrame();
+		Instance->UpdateStats();
+	}
+}
+
+void PerfManager::Internal_NotifyEndOfFrame()
+{
+	if (!Capture)
+	{
+		return;
+	}
+	for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
+	{
+		AVGTimers.at(it->first).AVG->Add(it->second);
+		it->second = 0.0f;
+	}
+}
+PerfManager::TimerData * PerfManager::GetTimerData(int id)
+{
+	if (AVGTimers.find(id) != AVGTimers.end())
+	{
+		return &AVGTimers.at(id);
+	}
+	return nullptr;
+}
+void PerfManager::DrawAllStats(int x, int y)
+{
+#if STATS
+	DrawStatsGroup(x, y, "");
+	for (std::map<std::string, int>::iterator it = GroupIDS.begin(); it != GroupIDS.end(); ++it)
+	{
+		DrawStatsGroup(x, y, it->first);
+	}
+#endif
+}
+void PerfManager::UpdateStats()
+{
+	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	{
+		it->second.Time = it->second.AVG->GetCurrentAverage();
+	}
+}
+void PerfManager::ClearStats()
+{
+	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	{
+		it->second.Time = it->second.AVG->GetCurrentAverage();
+	}
+}
+void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
+{
+#if STATS
+
+	int CurrentHeight = y;
+	TextRenderer* Textcontext = TextRenderer::instance;
+	SortedTimers.clear();
+	const int GroupFilterId = GetGroupId(GroupFilter);
+	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	{
+		if (GroupFilterId != -1)
+		{
+			if (it->second.GroupId != GroupFilterId)
+			{
+				continue;
+			}
+		}
+		else
+		{
+			//ignore Stats in a group
+			if (it->second.GroupId != -1)
+			{
+				continue;
+			}
+		}
+		if (!it->second.Active)
+		{
+			continue;
+		}
+		SortedTimers.push_back(it->second);
+	}
+	struct less_than_key
+	{
+		bool operator() (TimerData& struct1, TimerData& struct2)
+		{
+			return (struct1.Time > struct2.Time);
+		}
+	};
+	std::sort(SortedTimers.begin(), SortedTimers.end(), less_than_key());
+	//title
+	if (!GroupFilter.empty())
+	{
+		Textcontext->RenderFromAtlas(GroupFilter, x, (float)CurrentHeight, TextSize);
+		CurrentHeight -= Height;
+	}
+	for (int i = 0; i < SortedTimers.size(); i++)
+	{
+		Textcontext->RenderFromAtlas(SortedTimers[i].name, (float)x, (float)CurrentHeight, TextSize);
+		std::stringstream stream;
+		stream << std::fixed << std::setprecision(3) << SortedTimers[i].Time << "ms ";
+		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth), (float)CurrentHeight, TextSize);
+		CurrentHeight -= Height;
+	}
+	y = CurrentHeight;
+#endif
+}
+
+
+void PerfManager::UpdateGPUStat(int id, float newtime)
+{
+	if (TimerOutput.find(id) != TimerOutput.end())
+	{
+		PerfManager::TimerData* data = PerfManager::Instance->GetTimerData(id);
+		if (data != nullptr)
+		{
+			data->Active = true;
+		}
+		TimerOutput.at(id) = newtime;
+	}
+}
+
 //nv perf kit
 //-------------------------------------------------------------------------------------------------------------------------------
 bool PerfManager::InitNV()
@@ -308,4 +479,23 @@ uint64_t PerfManager::GetValue(const char * countername)
 	return 0;
 #endif
 
+}
+
+PerfManager::ScopeCycleCounter::ScopeCycleCounter(const char * Name)
+{
+	StatId = Instance->GetTimerIDByName(Name);
+	PerfManager::StartTimer(StatId);
+}
+
+PerfManager::ScopeCycleCounter::ScopeCycleCounter(const char * Name, const char * group)
+{
+	StatId = Instance->GetTimerIDByName(Name);
+	GroupID = Instance->GetGroupId(group);
+	Instance->AddTimer(StatId, GroupID);
+	PerfManager::StartTimer(StatId);
+}
+
+PerfManager::ScopeCycleCounter::~ScopeCycleCounter()
+{
+	PerfManager::EndTimer(StatId);
 }

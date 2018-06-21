@@ -13,6 +13,7 @@ public:
 	// Inherited via RenderWindow
 	virtual bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen = false) override final;
 	virtual void Render() override final;
+	void SleepNoStats(float Seconds);
 	virtual void Resize(int width, int height) override final;
 	virtual void DestroyRenderWindow() override;
 	BOOL MouseLBDown(int x, int y) override;
@@ -56,10 +57,12 @@ protected:
 	
 	float DeltaTime = 0.0f;
 	const float TickRate = 1.0f / 120.0f;
+
 	virtual void WindowUI() {};
 	bool IsRunning = false;
 	bool ShouldTickScene = false;
 	int FrameRateLimit =0;
+	float TargetDeltaTime = 0.0f;
 	void LoadScene(std::string RelativePath);
 
 private:

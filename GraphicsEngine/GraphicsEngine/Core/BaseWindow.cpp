@@ -17,11 +17,15 @@
 #include "../Core/Assets/ImageIO.h"
 #include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "../RHI/DeviceContext.h"
+#include <algorithm>
+#include "../Core/Platform/WindowsApplication.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
 	assert(Instance == nullptr);
 	Instance = this;
+	//FrameRateLimit = 60;
+	WindowsApplication::InitTiming();
 }
 
 
@@ -126,7 +130,7 @@ void BaseWindow::InitilseWindow()
 	}
 	LineDrawer = new DebugLineDrawer();
 	Saver = new SceneJSerialiser();
-	PerfManager::StartPerfManager();
+	
 }
 
 void BaseWindow::FixedUpdate()
@@ -136,10 +140,17 @@ void BaseWindow::FixedUpdate()
 
 void BaseWindow::Render()
 {
+	if (PerfManager::Instance != nullptr )
+	{
+		PerfManager::Instance->ClearStats();
+	}
 	PreRender();
 	if (PerfManager::Instance != nullptr)
 	{
-		DeltaTime = PerfManager::GetDeltaTime();
+		if (FrameRateLimit == 0)
+		{
+			DeltaTime = PerfManager::GetDeltaTime();
+		}
 		PerfManager::Instance->StartCPUTimer();
 		PerfManager::Instance->StartFrameTimer();
 	}
@@ -147,18 +158,6 @@ void BaseWindow::Render()
 	AccumTickTime += DeltaTime;
 	input->ProcessInput(DeltaTime);
 	input->ProcessQue();
-	if (FrameRateLimit != 0)
-	{
-		float targettime = (1.0f / FrameRateLimit);
-		if ((accumrendertime) < targettime)
-		{
-			PerfManager::Instance->EndFrameTimer();
-			input->Clear();
-			return;
-		}
-		accumrendertime = 0;
-	}
-
 
 	//lock the simulation rate to TickRate
 	//this prevents physx being framerate depenent.
@@ -274,6 +273,31 @@ void BaseWindow::Render()
 	if (CurrentScene != nullptr)
 	{
 		CurrentScene->OnFrameEnd();
+	}
+	PerfManager::NotifyEndOfFrame();
+
+	//frameRate limit
+	if (FrameRateLimit != 0)
+	{
+		TargetDeltaTime = 1.0 / FrameRateLimit;
+		const float WaitTime = std::max( (TargetDeltaTime*1000.0f) - (DeltaTime), 0.f);
+		double WaitEndTime = WindowsApplication::Seconds() + (WaitTime/1000.0f);
+		double LastTime = WindowsApplication::Seconds();
+		if (WaitTime > 0)
+		{
+			if (WaitTime > 5 / 1000.f)
+			{
+				//little offset
+				WindowsApplication::Sleep((WaitTime - 0.003f)/1000.0f);
+			}
+			
+			while (WindowsApplication::Seconds() < WaitEndTime)
+			{
+				const double curretntime = WindowsApplication::Seconds();
+				WindowsApplication::Sleep(0);
+			}
+			DeltaTime = WindowsApplication::Seconds() - LastTime;
+		}
 	}
 }
 
@@ -513,14 +537,6 @@ void BaseWindow::RenderText()
 	}
 	stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 	stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
-	if (ExtendedPerformanceStats)
-	{		
-		if (PerfManager::Instance != nullptr)
-		{
-			stream << PerfManager::Instance->GetAllTimers();
-			stream << PerfManager::Instance->GetCounterData();
-		}		
-	}
 
 	UI->RenderTextToScreen(1, stream.str());
 	stream.str("");
@@ -529,16 +545,13 @@ void BaseWindow::RenderText()
 		stream << D3D12RHI::Instance->GetMemory();
 		UI->RenderTextToScreen(2, stream.str());
 	}
-	stream.str("");
-	stream << RHI::GetDeviceContext(0)->GetTimeManager()->GetTimerData();
-	UI->RenderTextToScreen(3, stream.str());
-	if (RHI::GetDeviceContext(1) != nullptr)
-	{
-		stream.str("");
-		stream << RHI::GetDeviceContext(1)->GetTimeManager()->GetTimerData();
-		UI->RenderTextToScreen(4, stream.str());
+
+	if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)
+	{		
+		PerfManager::Instance->DrawAllStats(m_width/2, m_height/1.2);
 	}
 }
+
 #if USE_PHYSX_THREADING
 int EditorWindow::PhysicsThreadLoop()
 {

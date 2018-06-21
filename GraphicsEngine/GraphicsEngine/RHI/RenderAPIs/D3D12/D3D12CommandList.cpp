@@ -11,6 +11,7 @@
 #include "D3D12Framebuffer.h"
 #include "../RHI/DeviceContext.h"
 #include "DescriptorHeap.h"
+#include "../Core/Performance/PerfManager.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice)
 {
 	Device = inDevice;
@@ -35,7 +36,8 @@ D3D12CommandList::~D3D12CommandList()
 
 void D3D12CommandList::ResetList()
 {
-	ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
+	SCOPE_CYCLE_COUNTER_GROUP("ResetList","RHI");
+ 	ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
 	IsOpen = true;
 	ThrowIfFailed(CurrentGraphicsList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState));
 	CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);

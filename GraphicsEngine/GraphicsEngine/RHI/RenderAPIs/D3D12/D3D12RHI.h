@@ -13,18 +13,9 @@
 //#pragma comment(lib, "dxgidebug.lib")
 #include "d3d12Shader.h"
 #include "D3D12Texture.h"
+#include "D3D12Helpers.h"
 
 
-#if defined(_DEBUG)
-inline void SetName(ID3D12Object* pObject, LPCWSTR name)
-{
-	pObject->SetName(name);
-}
-#else
-inline void SetName(ID3D12Object*, LPCWSTR)
-{}
-#endif
-#define NAME_D3D12_OBJECT(x) SetName(x, L#x)
 #define USEGPUTOGENMIPS 1
 class D3D12RHI
 {

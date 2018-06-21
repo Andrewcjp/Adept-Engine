@@ -3,6 +3,7 @@
 #include "../RHI/DeviceContext.h"
 #include "D3D12CommandList.h"
 #include <iomanip>
+#include "../Core/Performance/PerfManager.h"
 D3D12TimeManager::D3D12TimeManager(DeviceContext* context)
 {
 	Init(context);
@@ -39,7 +40,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 
 	ThrowIfFailed(context->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&m_timestampQueryHeaps)));
 
-
+	Context = context;
 	ThrowIfFailed(context->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
 	int TimerItor = 0;
 	for (int i = 0; i < MaxTimerCount; i++)
@@ -48,14 +49,20 @@ void D3D12TimeManager::Init(DeviceContext* context)
 		TimeDeltas[i].Endindex = TimerItor + 1;
 		TimerItor += 2;
 	}
+	if (PerfManager::Instance)
+	{
+		std::string GPUName = "GPU_";
+		GPUName.append(std::to_string(context->GetDeviceIndex()));
+		StatsGroupId = PerfManager::Instance->GetGroupId(GPUName.c_str());
+	}
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::Total, "Total GPU");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::MainPass, "MainPass");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::PointShadows, "Point Shadow Time");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::DirShadows, "Dir Shadow Time");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::Text, "Text");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::UI, "UI");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::MainPass, "Main Pass");
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::Skybox, "Skybox");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::PostProcess, "PP");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::PointShadows, "Point Shadow");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::DirShadows, "Dir Shadow");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::Text, "Text");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::UI, "UI Draw");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::PostProcess, "Post Processing");
 #endif
 }
 void D3D12TimeManager::UpdateTimers()
@@ -73,19 +80,31 @@ void D3D12TimeManager::UpdateTimers()
 		{
 			UINT64 delta = pTimestamps[TimeDeltas[i].Endindex] - pTimestamps[TimeDeltas[i].Startindex];
 			float gpuTimeMS = (float)(delta * 1000) / (float)m_directCommandQueueTimestampFrequencies;
+			TimeDeltas[i].RawTime = gpuTimeMS;
 			TimeDeltas[i].avg.Add(gpuTimeMS);
 		}
 		else
 		{
 			//timer was never started 
 			TimeDeltas[i].avg.Add(0);
-		}
-		TimeDeltas[i].Used = false;
+		}		
 	}
 	// Unmap with an empty range (written range).
 	m_timestampResultBuffers->Unmap(0, &emptyRange);
-
 	AVGgpuTimeMS = TimeDeltas[0].avg.GetCurrentAverage();
+
+	for (int i = 0; i < MaxTimerCount; i++)
+	{		
+		if (!TimeDeltas[i].Used) 
+		{
+			continue;
+		}
+		PerfManager::Instance->UpdateGPUStat(TimeDeltas[i].Statid, TimeDeltas[i].RawTime);
+	}
+	for (int i = 0; i < MaxTimerCount; i++)
+	{
+		TimeDeltas[i].Used = false;
+	}
 #endif
 }
 std::string D3D12TimeManager::GetTimerData()
@@ -119,6 +138,15 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name)
 	ensure(index > -1);
 	TimeDeltas[index].name = Name;
 	MaxIndexInUse = std::max(index,MaxIndexInUse);
+	if (PerfManager::Instance)
+	{
+		TimeDeltas[index].Statid = PerfManager::Instance->GetTimerIDByName(Name+ std::to_string(Context->GetDeviceIndex()));
+		PerfManager::Instance->AddTimer(TimeDeltas[index].Statid, StatsGroupId);
+		if (PerfManager::Instance->GetTimerData(TimeDeltas[index].Statid) != nullptr)
+		{
+			PerfManager::Instance->GetTimerData(TimeDeltas[index].Statid)->name = Name;
+		}
+	}
 }
 
 

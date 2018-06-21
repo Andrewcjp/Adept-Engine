@@ -314,7 +314,7 @@
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12TimeManager.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12MemoryManager.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12CommandList.h" />
-    <ClInclude Include="RHI\RenderAPIs\D3D12\d3dx12Residency.h" />
+    <ClInclude Include="ThirdParty\D3D12\d3dx12Residency.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\DescriptorHeap.h" />
     <ClInclude Include="Core\Utils\MemoryUtils.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\GPUResource.h" />

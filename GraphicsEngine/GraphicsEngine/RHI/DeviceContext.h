@@ -64,6 +64,8 @@ public:
 	DeviceContext();
 	~DeviceContext();
 
+	const char * GetID();
+
 	void CreateDeviceFromAdaptor(IDXGIAdapter1* adapter, int index);
 	void LinkAdaptors(DeviceContext * other);
 	ID3D12Device* GetDevice();
@@ -94,6 +96,7 @@ public:
 	void GPUWaitForOtherGPU(DeviceContext* OtherGPU);
 	void InsertGPUWait();
 	void InsertGPUWaitForSharedCopy();
+	void CPUWaitForAll();
 private:	
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
