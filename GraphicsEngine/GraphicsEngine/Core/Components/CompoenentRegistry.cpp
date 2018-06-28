@@ -5,7 +5,7 @@
 #include "MeshRendererComponent.h"
 #include "LightComponent.h"
 #include "CameraComponent.h"
-#include "../Core/Engine.h"
+#include "Core/Engine.h"
 
 CompoenentRegistry::CompoenentRegistry()
 {

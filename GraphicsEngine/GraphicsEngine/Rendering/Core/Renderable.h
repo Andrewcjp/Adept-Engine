@@ -3,7 +3,7 @@
 #include "RHI/BaseTexture.h"
 #include "include\glm\glm.hpp"
 #include <string>
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 //This is an abstract class
 //It cannot be instantiated without being inherited by a concrete class
 class Renderable

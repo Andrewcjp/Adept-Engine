@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "Cooker.h"
-#include "../Core/Utils/WindowsHelper.h"
+#include "Core/Utils/WindowsHelper.h"
 #include <experimental/filesystem>
-#include "../Core/Engine.h"
-#include "../Core/Utils/FileUtils.h"
+#include "Core/Engine.h"
+#include "Core/Utils/FileUtils.h"
 #include <map>
-#include "../Core/Assets/AssetManager.h"
+#include "Core/Assets/AssetManager.h"
 Cooker::Cooker()
 {
 }

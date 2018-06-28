@@ -1,12 +1,13 @@
 #pragma once
-#include "../RHI/RHICommandList.h"
+#include "RHI/RHICommandList.h"
 
 #include <d3d12.h>
 #include "D3D12Shader.h"
 class D3D12CommandList : public RHICommandList
 {
 public:
-	D3D12CommandList(DeviceContext* Device);
+	
+	D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType = ECommandListType::Graphics);
 	virtual ~D3D12CommandList();
 
 	// Inherited via RHICommandList
@@ -15,28 +16,31 @@ public:
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
-	virtual void Execute(bool Block = true) override;
+	virtual void Execute(DeviceContextQueue::Type Target) override;
 	virtual void WaitForCompletion() override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
-	virtual void SetIndexBuffer(RHIBuffer* buffer)override;
-	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
-			void CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc);
+	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
 	virtual void SetPipelineState(PipeLineState state) override;
+	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
+	void		 CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc);	
 
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetTexture(class BaseTexture * texture, int slot) override;
-	// Inherited via RHICommandList
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
+
 	virtual void SetScreenBackBufferAsRT() override;
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
 	ID3D12GraphicsCommandList* GetCommandList() { return CurrentGraphicsList; }
+	void CreateCommandList();
 	void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
+
+
+	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer)override;
+	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer)override;
 private:
-	
-	void CreateCommandList(ECommandListType listype = ECommandListType::Graphics);
 	ID3D12GraphicsCommandList * CurrentGraphicsList = nullptr;
 	bool IsOpen = false;
 	D3D12Shader::PiplineShader				CurrentPipelinestate;
@@ -47,8 +51,7 @@ private:
 	class D3D12Texture* Texture = nullptr;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	PipeLineState Currentpipestate;
-	// Inherited via RHICommandList
-	ECommandListType ListType = ECommandListType::Graphics; 
+
 	
 };
 
@@ -72,14 +75,16 @@ public:
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	bool CheckDevice(int index);
 private:
+	class D3D12CBV* CBV = nullptr;
+	int ConstantBufferDataSize = 0;
+
 	BufferAccessType BufferAccesstype;
 	ID3D12Resource * m_vertexBuffer = nullptr;
 	ID3D12Resource * m_indexBuffer = nullptr;
 	ID3D12Resource * m_UploadBuffer = nullptr;
-	class D3D12CBV* CBV = nullptr;
-	int cpusize = 0;
+	int VertexBufferSize = 0;
 	bool UploadComplete = false;
-	int vertexBufferSize = 0;
+
 	DeviceContext* Device = nullptr;
 };
 

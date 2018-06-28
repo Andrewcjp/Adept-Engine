@@ -1,6 +1,6 @@
 #include "Stdafx.h"
 #include "PP_ColourCorrect.h"
-#include "../Rendering/Shaders/Shader_ColourCorrect.h"
+#include "Rendering/Shaders/Shader_ColourCorrect.h"
 
 PP_ColourCorrect::PP_ColourCorrect()
 {}

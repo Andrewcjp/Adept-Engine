@@ -1,8 +1,8 @@
 #pragma once
-#include "../RHI/Shader.h"
+#include "RHI/Shader.h"
 #include <string>
 #define MAX_LIGHTS 4
-#include "../RHI/RHICommandList.h"
+#include "RHI/RHICommandList.h"
 typedef struct _LightUniformBuffer
 {
 	

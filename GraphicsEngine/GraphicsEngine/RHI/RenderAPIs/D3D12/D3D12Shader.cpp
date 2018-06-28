@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "D3D12Shader.h"
-#include "../Core/Engine.h"
+#include "Core/Engine.h"
 #include <iostream>
 #include "D3D12RHI.h"
 #include "D3D12CBV.h"
-#include "../Core/Utils/FileUtils.h"
-#include "../Core/Utils/StringUtil.h"
-#include "../Core/Utils/WindowsHelper.h"
-#include "../Core/Asserts.h"
-#include "../RHI/DeviceContext.h"
+#include "Core/Utils/FileUtils.h"
+#include "Core/Utils/StringUtil.h"
+#include "Core/Utils/WindowsHelper.h"
+#include "Core/Asserts.h"
+#include "RHI/DeviceContext.h"
 #include <d3dcompiler.h>
 #include "DxIncludeHandler.h"
-#include "../Core/Assets/AssetManager.h"
+#include "Core/Assets/AssetManager.h"
 //As shader based validation doesn't support include handlers use ours
 #define USE_DX_INCLUDER 0
 D3D12Shader::D3D12Shader(DeviceContext* Device)

@@ -1,6 +1,6 @@
 #include "Shader_WDeferred.h"
 #include "RHI/RHI.h"
-#include "../RHI/ShaderProgramBase.h"
+#include "RHI/ShaderProgramBase.h"
 
 Shader_WDeferred::Shader_WDeferred()
 {

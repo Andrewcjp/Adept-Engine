@@ -1,6 +1,6 @@
 #include "Shader_Main.h"
 #include "RHI/RHI.h"
-#include "../Rendering/Core/GPUStateCache.h"
+#include "Rendering/Core/GPUStateCache.h"
 #include "Core/GameObject.h"
 #include "Core/Utils/MemoryUtils.h"
 Shader_Main::Shader_Main(bool LoadForward)

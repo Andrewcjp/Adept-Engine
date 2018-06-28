@@ -1,14 +1,14 @@
 ﻿#include "stdafx.h"
 #include "D3D12RHI.h"
-#include "../BaseApplication.h"
+#include "BaseApplication.h"
 #include <D3Dcompiler.h>
 #include "glm\glm.hpp"
 #include "include\glm\gtx\transform.hpp"
 D3D12RHI* D3D12RHI::Instance = nullptr;
-#include "../Rendering/Shaders/ShaderMipMap.h"
+#include "Rendering/Shaders/ShaderMipMap.h"
 #include "GPUResource.h"
-#include "../RHI/DeviceContext.h"
-#include "../RHI/RHI.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RHI.h"
 #include "D3D12TimeManager.h"
 #include <dxgidebug.h>
 D3D12RHI::D3D12RHI()
@@ -209,7 +209,6 @@ void D3D12RHI::LoadPipeLine()
 	swapChainDesc.BufferCount = RHI::CPUFrameCount;
 	swapChainDesc.Width = m_width;
 	swapChainDesc.Height = m_height;
-
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -230,7 +229,9 @@ void D3D12RHI::LoadPipeLine()
 	ThrowIfFailed(factory->MakeWindowAssociation(BaseApplication::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
 
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-	//m_swapChain->SetFullscreenState(true,nullptr);
+	m_swapChain->SetFullscreenState(IsFullScreen,nullptr);
+	//m_swapChain->ResizeBuffers()
+	//InternalResizeSwapChain();
 	// Create descriptor heaps.
 	{
 		// Describe and create a render target view (RTV) descriptor heap.
@@ -253,6 +254,7 @@ void D3D12RHI::LoadPipeLine()
 	factory->Release();
 	CreateSwapChainRTs();
 }
+
 
 void D3D12RHI::CreateSwapChainRTs()
 {
@@ -283,9 +285,13 @@ void D3D12RHI::InitMipmaps()
 
 void D3D12RHI::InternalResizeSwapChain(int x, int y)
 {
-	if (m_swapChain != nullptr && HasSetup)
+	if (m_swapChain != nullptr)
 	{
 		ReleaseSwapRTs();
+		for (UINT n = 0; n < RHI::CPUFrameCount; n++)
+		{
+			m_fenceValues[n] = m_fenceValues[m_frameIndex];
+		}
 		ThrowIfFailed(m_swapChain->ResizeBuffers(RHI::CPUFrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 		CreateSwapChainRTs();
 		m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(x), static_cast<float>(y));
@@ -295,6 +301,7 @@ void D3D12RHI::InternalResizeSwapChain(int x, int y)
 		{
 			FrameBuffersLinkedToSwapChain[i]->Resize(x, y);
 		}
+		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 		RequestedResize = false;
 	}
 }
@@ -309,7 +316,7 @@ void D3D12RHI::ReleaseSwapRTs()
 	m_depthStencil->Release();
 }
 
-void D3D12RHI::ResizeSwapChain(int x, int y)
+void D3D12RHI::ResizeSwapChain(int x, int y, bool Force)
 {
 	if (x == 0 || y == 0)
 	{
@@ -320,6 +327,11 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 		RequestedResize = true;
 		newwidth = x;
 		newheight = y;
+	}
+	if (Force)
+	{
+		PrimaryDevice->WaitForGpu();
+		InternalResizeSwapChain(x, y);
 	}
 }
 
@@ -366,6 +378,12 @@ void D3D12RHI::LoadAssets()
 
 	ThrowIfFailed(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, PrimaryDevice->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
+}
+
+void D3D12RHI::ToggleFullScreenState()
+{
+	IsFullScreen = !IsFullScreen;
+	m_swapChain->SetFullscreenState(IsFullScreen, nullptr);
 }
 
 void D3D12RHI::ExecSetUpList()
@@ -444,11 +462,11 @@ void D3D12RHI::PresentFrame()
 			SecondaryDevice->WaitForGpu();
 		}
 	}
-	if (RequestedResize)
+	/*if (RequestedResize)
 	{
 		PrimaryDevice->WaitForGpu();
 		InternalResizeSwapChain(newwidth, newheight);
-	}
+	}*/
 
 	MoveToNextFrame();
 	PrimaryDevice->CurrentFrameIndex = m_frameIndex;

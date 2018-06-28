@@ -3,12 +3,12 @@
 #include <memory.h>
 #include "ImageIO.h"
 #include <SOIL.h>
-#include "../RHI/BaseTexture.h"
-#include "../RHI/RHI.h"
+#include "RHI/BaseTexture.h"
+#include "RHI/RHI.h"
 #include <iostream>
 
-#include "../Core/Engine.h"
-#include "../Core/Utils/FileUtils.h"
+#include "Core/Engine.h"
+#include "Core/Utils/FileUtils.h"
 ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {

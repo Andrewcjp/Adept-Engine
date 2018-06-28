@@ -10,12 +10,12 @@
 #include "Core/Assets/ImageLoader.h"
 #include <gl/glu.h>
 #include "Core/Engine.h"
-#include "../Physics/PhysicsEngine.h"
-#include "../EngineGlobals.h"
+#include "Physics/PhysicsEngine.h"
+#include "EngineGlobals.h"
 #include "UI\UIManager.h"
 #include "RHI/RHI.h"
 #include "Editor/EditorGizmos.h"
-#include "../Core/Performance/PerfManager.h"
+#include "Core/Performance/PerfManager.h"
 //#include "Utils.h"
 OGLWindow::OGLWindow(bool Isdef)
 {
@@ -183,9 +183,9 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 	Renderer->Init();
 
 	GameObject* go = new GameObject("House");
-	//	Material* newmat = new Material(RHI::CreateTexture("../asset/texture/house_diffuse.tga", true));
+	//	Material* newmat = new Material(RHI::CreateTexture("asset/texture/house_diffuse.tga", true));
 	//	go->SetMaterial(newmat);
-	//	go->SetMesh(RHI::CreateMesh("../asset/models/house.obj", Renderer->GetMainShader()->GetShaderProgram()));
+	//	go->SetMesh(RHI::CreateMesh("asset/models/house.obj", Renderer->GetMainShader()->GetShaderProgram()));
 		//	m_mesh->position = glm::vec3(0, 0, -10);
 	go->GetTransform()->SetPos(glm::vec3(7, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -195,11 +195,11 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 	go = new GameObject("Terrain");
 
 
-	Material* mat = new Material(RHI::CreateTexture("../asset/texture/grasshillalbedo.png"));
-	//mat->NormalMap = new OGLTexture("../asset/texture/Normal.tga");
-	//	mat->DisplacementMap = new OGLTexture("../asset/texture/bricks2_disp.jpg");
+	Material* mat = new Material(RHI::CreateTexture("asset/texture/grasshillalbedo.png"));
+	//mat->NormalMap = new OGLTexture("asset/texture/Normal.tga");
+	//	mat->DisplacementMap = new OGLTexture("asset/texture/bricks2_disp.jpg");
 	//go->SetMaterial(mat);
-	//go->SetMesh(RHI::CreateMesh("../asset/models/terrainmk2.obj", Renderer->GetMainShader()->GetShaderProgram()));
+	//go->SetMesh(RHI::CreateMesh("asset/models/terrainmk2.obj", Renderer->GetMainShader()->GetShaderProgram()));
 	//	go->GetMat()->SetShadow(false);
 		//	m_mesh->position = glm::vec3(0, 0, -10);
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
@@ -212,11 +212,11 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 
 	go = new GameObject("Plane");
 
-	mat = new Material(RHI::CreateTexture("../asset/texture/bricks2.jpg"));
-	mat->NormalMap = RHI::CreateTexture("../asset/texture/bricks2_normal.jpg");
-	mat->DisplacementMap = RHI::CreateTexture("../asset/texture/bricks2_disp.jpg");
+	mat = new Material(RHI::CreateTexture("asset/texture/bricks2.jpg"));
+	mat->NormalMap = RHI::CreateTexture("asset/texture/bricks2_normal.jpg");
+	mat->DisplacementMap = RHI::CreateTexture("asset/texture/bricks2_disp.jpg");
 	//go->SetMaterial(mat);
-//	go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
+//	go->SetMesh(RHI::CreateMesh("asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
 	//go->GetMat()->SetShadow(false);
 	go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -226,10 +226,10 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 	if (IsDeferredMode == false)
 	{
 		go = new GameObject("Fence");
-		mat = new Material(RHI::CreateTexture("../asset/texture/fence.png"));
+		mat = new Material(RHI::CreateTexture("asset/texture/fence.png"));
 		mat->SetShadow(false);
 		//		go->SetMaterial(mat);
-			//	go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
+			//	go->SetMesh(RHI::CreateMesh("asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
 				//go->GetMat()->SetShadow(false);
 		go->GetTransform()->SetPos(glm::vec3(-10, 1, -6));
 		go->GetTransform()->SetEulerRot(glm::vec3(90, -90, 0));
@@ -240,11 +240,11 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 
 
 	go = new GameObject("Static Water");
-	mat = new Material(RHI::CreateTexture("../asset/texture/Water fallback.jpg"));
-	mat->NormalMap = RHI::CreateTexture("../asset/texture/IKT4l.jpg");
+	mat = new Material(RHI::CreateTexture("asset/texture/Water fallback.jpg"));
+	mat->NormalMap = RHI::CreateTexture("asset/texture/IKT4l.jpg");
 
 	//	go->SetMaterial(mat);
-		//go->SetMesh(RHI::CreateMesh("../asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
+		//go->SetMesh(RHI::CreateMesh("asset/models/Plane.obj", Renderer->GetMainShader()->GetShaderProgram()));
 		//go->GetMat()->SetShadow(false);
 	go->GetTransform()->SetPos(glm::vec3(-37, -2, -20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -259,7 +259,7 @@ BOOL OGLWindow::InitWindow(HGLRC hglrc, HWND hwnd, HDC hdc, int width, int heigh
 		props.DoesShadow = false;
 		props.IsReflective = true;
 		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture(), props);
-		mat->NormalMap = RHI::CreateTexture("../asset/texture/IKT4l.jpg");
+		mat->NormalMap = RHI::CreateTexture("asset/texture/IKT4l.jpg");
 		go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
 		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 		go->GetTransform()->SetScale(glm::vec3(2));

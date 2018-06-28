@@ -1,7 +1,7 @@
 #include "GrassPatch.h"
 #include "GPUStateCache.h"
-#include "../RHI/RHI.h"
-#include "../RHI/BaseTexture.h"
+#include "RHI/RHI.h"
+#include "RHI/BaseTexture.h"
 GrassPatch::GrassPatch()
 {
 	m_grassmesh = RHI::CreateMesh(("Grass.obj"));

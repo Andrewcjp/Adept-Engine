@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "EditorObjectSelector.h"
-#include "../Core/GameObject.h"
-#include "../Core/Engine.h"
-#include "../Physics/PhysicsEngine.h"
+#include "Core/GameObject.h"
+#include "Core/Engine.h"
+#include "Physics/PhysicsEngine.h"
 #include "EditorWindow.h"
-#include "../Rendering/Core/DebugLineDrawer.h"
-#include "../Rendering/Core/Camera.h"
-#include "../Core/EngineTypes.h"
+#include "Rendering/Core/DebugLineDrawer.h"
+#include "Rendering/Core/Camera.h"
+#include "Core/EngineTypes.h"
 EditorObjectSelector::EditorObjectSelector()
 {
 	pengine = Engine::PhysEngine;

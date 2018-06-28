@@ -6,21 +6,21 @@
 #include <d3d11_1.h>
 #include <DirectXMath.h>
 #include "RHI/RenderWindow.h"
-#include "../Core/GameObject.h"
+#include "Core/GameObject.h"
 #include "D3D11Shader.h"
 #include "D3D11Cube.h"
 #include "D3D11Mesh.h"
 #include "D3D11Texture.h"
-#include "../Rendering/Core/Camera.h"
-#include "../Core/Input.h"
+#include "Rendering/Core/Camera.h"
+#include "Core/Input.h"
 #include "glm\glm.hpp"
 #include "D3D11/D3D11FrameBuffer.h"
 //We will use some Direct X Maths utilities
 using namespace DirectX;
 #include "D3D11Plane.h"
 #include "Rendering/Shaders/ShaderOutput.h"
-#include "../Rendering/Core/ShadowRenderer.h"
-#include "../Rendering/Core/Light.h"
+#include "Rendering/Core/ShadowRenderer.h"
+#include "Rendering/Core/Light.h"
  class D3D11Window : public RenderWindow
 {
 	private:

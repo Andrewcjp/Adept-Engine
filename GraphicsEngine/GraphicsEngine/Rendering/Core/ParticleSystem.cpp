@@ -1,7 +1,7 @@
 #include "ParticleSystem.h"
-#include "../Core/Performance/PerfManager.h"
-#include "../RHI/RHI.h"
-#include "../RHI/BaseTexture.h"
+#include "Core/Performance/PerfManager.h"
+#include "RHI/RHI.h"
+#include "RHI/BaseTexture.h"
 ParticleSystem::ParticleSystem()
 {
 	texture = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\smoke.png");

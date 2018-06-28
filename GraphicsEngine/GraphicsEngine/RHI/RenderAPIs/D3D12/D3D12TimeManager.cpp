@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "D3D12TimeManager.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 #include "D3D12CommandList.h"
 #include <iomanip>
-#include "../Core/Performance/PerfManager.h"
+#include "Core/Performance/PerfManager.h"
 D3D12TimeManager::D3D12TimeManager(DeviceContext* context)
 {
 	Init(context);

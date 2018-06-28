@@ -1,9 +1,9 @@
 #include "Mesh.h"
 #include "Mesh.h"
-#include "../RHI/RHI.h"
-#include "../Core/Assets/MeshLoader.h"
-#include "../RHI/DeviceContext.h"
-#include "../Core/Utils/MemoryUtils.h"
+#include "RHI/RHI.h"
+#include "Core/Assets/MeshLoader.h"
+#include "RHI/DeviceContext.h"
+#include "Core/Utils/MemoryUtils.h"
 Mesh::Mesh()
 {
 

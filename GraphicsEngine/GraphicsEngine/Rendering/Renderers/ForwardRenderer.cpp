@@ -2,14 +2,14 @@
 #include "RHI/RHI.h"
 #include "Core/Components/MeshRendererComponent.h"
 
-#include "../EngineGlobals.h"
-#include "../PostProcessing/PostProcessing.h"
-#include "../Core/Engine.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "EngineGlobals.h"
+#include "Rendering/PostProcessing/PostProcessing.h"
+#include "Core/Engine.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 #if USED3D12DebugP
-#include "../D3D12/D3D12Plane.h"
+#include "D3D12/D3D12Plane.h"
 #endif
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
@@ -23,13 +23,7 @@ void ForwardRenderer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	if (RHI::IsD3D12())
-	{
-		if (D3D12RHI::Instance)
-		{
-			D3D12RHI::Instance->ResizeSwapChain(width, height);
-		}
-	}
+	RenderEngine::Resize(width, height);
 	if (MainCamera != nullptr)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);

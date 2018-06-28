@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "MeshRendererComponent.h"
 #include "CompoenentRegistry.h"
-#include "../Assets/SerialHelpers.h"
-#include "../Assets/SceneJSerialiser.h"
-#include "../RHI/RHI.h"
-#include "../RHI/RHICommandList.h"
+#include "Core/Assets/SerialHelpers.h"
+#include "Core/Assets/SceneJSerialiser.h"
+#include "RHI/RHI.h"
+#include "RHI/RHICommandList.h"
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;

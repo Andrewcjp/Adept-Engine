@@ -14,12 +14,12 @@
 #include <iomanip>
 #include "Core/Engine.h"
 #include <SOIL.h>
-#include "../Utils/StringUtil.h"
-#include "../Core/Performance/PerfManager.h"
+#include "Core/Utils/StringUtil.h"
+#include "Core/Performance/PerfManager.h"
 #include <d3d12.h>
-#include "../Core/Utils/FileUtils.h"
-#include "../RHI/DeviceContext.h"
-#include "../Core/Platform/WindowsApplication.h"
+#include "Core/Utils/FileUtils.h"
+#include "RHI/DeviceContext.h"
+#include "Core/Platform/WindowsApplication.h"
 void AssetManager::LoadFromShaderDir()
 {
 	std::string path = ShaderAssetPath;
@@ -78,13 +78,13 @@ void AssetManager::CookTextureAsset()
 	for (std::map<std::string, TextureAsset>::iterator it = TextureAssetsMap.begin(); it != TextureAssetsMap.end(); ++it)
 	{
 		/*	TextureAsset Target;
-			GetTextureAsset("../asset/texture/grasshillalbedo.png", Target);*/
+			GetTextureAsset("asset/texture/grasshillalbedo.png", Target);*/
 		ofp.write((const char*)(&it->second), sizeof(TextureAsset));
 		//ofp.write((const char*)(it->second.name.data()), sizeof(it->second));
 		ofp.write((const char*)(it->second.image), (it->second.ByteSize));
 	}
 	/*TextureAsset Target;
-	GetTextureAsset("../asset/texture/grasshillalbedo.png", Target);
+	GetTextureAsset("asset/texture/grasshillalbedo.png", Target);
 	ofp.write((const char*)(&Target), sizeof(TextureAsset));
 	ofp.write((const char*)(Target.image), (Target.ByteSize));*/
 	ofp.close();

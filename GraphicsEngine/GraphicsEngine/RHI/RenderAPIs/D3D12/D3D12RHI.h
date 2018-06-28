@@ -40,9 +40,10 @@ public:
 	void InitMipmaps();
 	void InternalResizeSwapChain(int x, int y);
 	void ReleaseSwapRTs();
-	void ResizeSwapChain(int x, int y);
+	void ResizeSwapChain(int x, int y, bool Force = false);
 	void CreateDepthStencil(int width, int height);
 	void LoadAssets();
+	void ToggleFullScreenState();
 	void ExecSetUpList();
 	void ReleaseUploadHeap();
 	void AddUploadToUsed(ID3D12Resource * Target);
@@ -58,6 +59,7 @@ public:
 	int m_height = 100;
 	float m_aspectRatio = 0.0f;
 	bool HasSetup = false;
+	bool IsFullScreen = false;
 	class ShaderMipMap* MipmapShader = nullptr;
 	ID3D12DescriptorHeap* BaseTextureHeap;
 	ID3D12CommandQueue* GetCommandQueue();
@@ -115,6 +117,7 @@ private:
 
 	bool Omce = false;
 	HANDLE EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	
 };
 #include "D3D12Helpers.h"
 //helper functions!

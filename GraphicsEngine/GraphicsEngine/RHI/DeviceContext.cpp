@@ -1,8 +1,9 @@
 #include "Stdafx.h"
 #include "DeviceContext.h"
-#include "../Core/Asserts.h"
+#include "Core/Asserts.h"
 #include "RenderAPIs/D3D12/D3D12Helpers.h"
 #include "RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RenderAPIs/D3D12/D3D12CommandList.h"
 #if defined(_DEBUG)
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -119,6 +120,9 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 	//GetDevice()->SetStablePowerState(false);
 
 	TimeManager = new D3D12TimeManager(this);
+
+	GPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
+
 }
 void DeviceContext::LinkAdaptors(DeviceContext* other)
 {
@@ -271,25 +275,54 @@ int DeviceContext::GetCpuFrameIndex()
 	return CurrentFrameIndex;
 }
 
-void DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU)
+void DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
-	CrossAdaptorSync.CrossGPUCreateSyncPoint(GetCommandQueue(), OtherGPU->GetCommandQueue());
+	CrossAdaptorSync.CrossGPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), OtherGPU->GetCommandQueueFromEnum(WaitingQueue));
 }
 
-void DeviceContext::InsertGPUWait()
-{
-	GpuWaitSyncPoint.GPUCreateSyncPoint(GetCommandQueue(), m_SharedCopyCommandQueue);
-}
-void DeviceContext::InsertGPUWaitForSharedCopy()
-{
-	GpuWaitSyncPoint.GPUCreateSyncPoint(m_SharedCopyCommandQueue, GetCommandQueue());
-}
 void DeviceContext::CPUWaitForAll()
 {
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
 	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
 }
+
+ID3D12CommandQueue* DeviceContext::GetCommandQueueFromEnum(DeviceContextQueue::Type value)
+{
+	switch (value)
+	{
+	case DeviceContextQueue::Graphics:
+		return m_commandQueue;
+		break;
+	case DeviceContextQueue::Compute:
+		NoImpl();
+		return nullptr ;
+		break;
+	case DeviceContextQueue::Copy:
+		return m_CopyCommandQueue;
+		break;
+	case DeviceContextQueue::InterCopy:
+		return m_SharedCopyCommandQueue;
+		break;
+	}
+	return nullptr;
+}
+
+void DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+{
+	GpuWaitSyncPoint.GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
+}
+
+void DeviceContext::WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+{
+
+}
+
+RHICommandList * DeviceContext::GetInterGPUCopyList()
+{
+	return GPUCopyList;
+}
+
 GPUSyncPoint::~GPUSyncPoint()
 {
 	if (m_fence)

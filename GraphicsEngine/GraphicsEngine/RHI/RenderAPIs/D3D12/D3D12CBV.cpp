@@ -2,7 +2,7 @@
 #include "D3D12CBV.h"
 #include "D3D12RHI.h"
 #include "EngineGlobals.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 #if BUILD_D3D12
 D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 {

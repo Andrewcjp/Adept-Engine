@@ -2,10 +2,10 @@
 #include "RenderEngine.h"
 #include "Rendering/Shaders/Shader_WDeferred.h"
 #include "Rendering/Shaders/Shader_Deferred.h"
-#include "../Rendering/Core/GPUStateCache.h"
-#include "../Rendering/Core/ShadowRenderer.h"
+#include "Rendering/Core/GPUStateCache.h"
+#include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/Shaders/Shader_SSAO.h"
-#include "../Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/Shaders/ShaderOutput.h"
 class DeferredRenderer :public RenderEngine
 {

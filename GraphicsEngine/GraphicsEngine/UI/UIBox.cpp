@@ -1,9 +1,9 @@
 #include "UIBox.h"
 #include "glm\glm.hpp"
-#include "../UI/UIManager.h"
+#include "UI/UIManager.h"
 #include "RHI/BaseTexture.h"
 #include "RHI/RHI.h"
-#include "../Rendering/Core/GPUStateCache.h"
+#include "Rendering/Core/GPUStateCache.h"
 #include "UIDrawBatcher.h"
 UIBox::UIBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {

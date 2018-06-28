@@ -2,10 +2,10 @@
 
 #if BUILD_D3D11
 #include "RHI/RHI.h"
-#include "../Core/Engine.h" 
-#include "../Core/Components/MeshRendererComponent.h"
-#include "../Rendering/Shaders/Shader_Main.h"
-#include "../Core/Performance/PerfManager.h"
+#include "Core/Engine.h" 
+#include "Core/Components/MeshRendererComponent.h"
+#include "Rendering/Shaders/Shader_Main.h"
+#include "Core/Performance/PerfManager.h"
 D3D11Window::D3D11Window()
 {
 	m_shaderProgram = NULL;
@@ -43,7 +43,7 @@ BOOL D3D11Window::InitD3DDevice(HWND hWnd)
 
 	m_mesh = RHI::CreateMesh("house.obj", m_shaderProgram);
 	/*m_texture = new D3D11Texture();
-	m_texture->CreateTextureFromFile( m_dxDev, "../asset/texture/house_diffuse.tga" );*/
+	m_texture->CreateTextureFromFile( m_dxDev, "asset/texture/house_diffuse.tga" );*/
 	m_texture = RHI::CreateTexture("house_diffuse.tga", true);
 	m_mesh->SetTexture(m_texture);
 
@@ -52,7 +52,7 @@ BOOL D3D11Window::InitD3DDevice(HWND hWnd)
 	m_output = (D3D11ShaderProgram*)RHI::CreateShaderProgam();
 	m_output->AttachAndCompileShaderFromFile("Pass_vs", SHADER_VERTEX);
 	m_output->AttachAndCompileShaderFromFile("Pass_fs", SHADER_FRAGMENT);
-	//plane = new D3D11Mesh("../asset/models/RenderPlane.obj", m_output);
+	//plane = new D3D11Mesh("asset/models/RenderPlane.obj", m_output);
 	plane = (D3D11Mesh*)RHI::CreateMesh("RenderPlane.obj", m_shaderProgram);// new D3D11Mesh("RenderPlane.obj", m_output);
 	cube = new D3D11Plane(m_output);
 	acube = new D3D11Cube(m_output);
@@ -62,11 +62,11 @@ BOOL D3D11Window::InitD3DDevice(HWND hWnd)
 
 
 	Material* mat = new Material(RHI::CreateTexture("house_diffuse.tga"));
-	//mat->NormalMap = new OGLTexture("../asset/texture/Normal.tga");
-	//	mat->DisplacementMap = new OGLTexture("../asset/texture/bricks2_disp.jpg");
+	//mat->NormalMap = new OGLTexture("asset/texture/Normal.tga");
+	//	mat->DisplacementMap = new OGLTexture("asset/texture/bricks2_disp.jpg");
 	testgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("terrainmk2.obj", m_shaderProgram), mat));
 //	testgo->SetMaterial(mat);
-//	testgo->SetMesh(RHI::CreateMesh("../asset/models/terrainmk2.obj", m_shaderProgram));
+//	testgo->SetMesh(RHI::CreateMesh("asset/models/terrainmk2.obj", m_shaderProgram));
 	//	go->GetMat()->SetShadow(false);
 	//	m_mesh->position = glm::vec3(0, 0, -10);
 	testgo->GetTransform()->SetPos(glm::vec3(10, 0, 0));

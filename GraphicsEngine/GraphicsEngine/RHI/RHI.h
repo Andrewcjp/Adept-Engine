@@ -1,11 +1,11 @@
 #pragma once
 #include "EngineGlobals.h"
 
-#include "../Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/FrameBuffer.h"
 #include "RHICommandList.h"
-#include "../Core/Assets/MeshLoader.h"
+#include "Core/Assets/MeshLoader.h"
 #include "RHITypes.h"
-#include "../Core/Assets/AssetManager.h"
+#include "Core/Assets/AssetManager.h"
 //todo: refactor!
 //like seriuously this is bad!
 class BaseTexture;

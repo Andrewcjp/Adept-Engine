@@ -135,6 +135,47 @@ enum eTEXTURE_FORMAT
 	FORMAT_FORCE_UINT = 0xffffffff
 };
 
+enum PRIMITIVE_TOPOLOGY_TYPE
+{
+	PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED = 0,
+	PRIMITIVE_TOPOLOGY_TYPE_POINT = 1,
+	PRIMITIVE_TOPOLOGY_TYPE_LINE = 2,
+	PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE = 3,
+	PRIMITIVE_TOPOLOGY_TYPE_PATCH = 4
+};
+namespace DeviceContextQueue
+{
+	enum Type
+	{
+		Graphics,
+		Compute,
+		Copy,//used to move resources from Host to this GPU
+		InterCopy,//Used to Transfer Resources From other GPUS Via HOST
+		LIMIT
+	};
+}
+namespace ECommandListType
+{
+	enum Type
+	{
+		Graphics,
+		Compute,
+		Copy
+	};
+}
+
+enum COMPARISON_FUNC
+{
+	COMPARISON_FUNC_NEVER = 1,
+	COMPARISON_FUNC_LESS = 2,
+	COMPARISON_FUNC_EQUAL = 3,
+	COMPARISON_FUNC_LESS_EQUAL = 4,
+	COMPARISON_FUNC_GREATER = 5,
+	COMPARISON_FUNC_NOT_EQUAL = 6,
+	COMPARISON_FUNC_GREATER_EQUAL = 7,
+	COMPARISON_FUNC_ALWAYS = 8
+};
+
 struct RHIFrameBufferDesc
 {
 public:
@@ -158,14 +199,14 @@ public:
 	}
 	static RHIFrameBufferDesc CreateCubeDepth(int width, int height)
 	{
-		RHIFrameBufferDesc newDesc = CreateDepth(width,height);
+		RHIFrameBufferDesc newDesc = CreateDepth(width, height);
 		newDesc.Dimension = eTextureDimension::DIMENSION_TEXTURECUBE;
 		newDesc.TextureDepth = 6;
 		return newDesc;
 	}
 	static RHIFrameBufferDesc CreateColourDepth(int width, int height)
 	{
-		RHIFrameBufferDesc newDesc = CreateColour(width,height);
+		RHIFrameBufferDesc newDesc = CreateColour(width, height);
 		newDesc.NeedsDepthStencil = true;
 		return newDesc;
 	}
@@ -182,9 +223,9 @@ public:
 		newDesc.NeedsDepthStencil = true;
 		return newDesc;
 	}
-	RHIFrameBufferDesc() 
+	RHIFrameBufferDesc()
 	{};
-	RHIFrameBufferDesc(int width,int height, eTEXTURE_FORMAT format, eTextureDimension dimension)
+	RHIFrameBufferDesc(int width, int height, eTEXTURE_FORMAT format, eTextureDimension dimension)
 	{
 		RTFormats[0] = format;
 		Width = width;

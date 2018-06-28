@@ -155,7 +155,7 @@ D3D12_RTV_DIMENSION D3D12Helpers::ConvertDimensionRTV(eTextureDimension Dim)
 	D3D12_RTV_DIMENSION NewDim;
 	switch (Dim)
 	{
-	
+
 	case eTextureDimension::DIMENSION_TEXTURE2D:
 		NewDim = D3D12_RTV_DIMENSION::D3D12_RTV_DIMENSION_TEXTURE2D;
 		break;
@@ -192,4 +192,21 @@ D3D12_RESOURCE_DIMENSION D3D12Helpers::ConvertToResourceDimension(eTextureDimens
 		break;
 	}
 	return NewDim;
+}
+
+D3D12_COMMAND_LIST_TYPE D3D12Helpers::ConvertListType(ECommandListType::Type type)
+{
+	switch (type)
+	{
+	case ECommandListType::Graphics:
+		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT;
+	case ECommandListType::Compute:
+		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_COMPUTE;
+	case ECommandListType::Copy:
+		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_COPY;
+	default:
+		NoImpl();
+		break;
+	}
+	return D3D12_COMMAND_LIST_TYPE();
 }

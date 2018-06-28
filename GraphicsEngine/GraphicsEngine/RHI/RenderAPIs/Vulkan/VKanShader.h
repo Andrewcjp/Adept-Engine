@@ -1,6 +1,6 @@
 #pragma once
 #if BUILD_VULKAN
-#include "../RHI/ShaderProgramBase.h"
+#include "RHI/ShaderProgramBase.h"
 class VKanShader : public ShaderProgramBase
 {
 public:

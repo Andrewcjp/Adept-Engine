@@ -11,9 +11,9 @@
 #include "Core/Assets/AssetManager.h"
 #include "Game.h"
 #include "Shlwapi.h"
-#include "../Packaging/Cooker.h"
-#include "../Core/Utils/FileUtils.h"
-#include "../Core/Utils/WindowsHelper.h"
+#include "Packaging/Cooker.h"
+#include "Core/Utils/FileUtils.h"
+#include "Core/Utils/WindowsHelper.h"
 #pragma comment(lib, "shlwapi.lib")
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
@@ -25,7 +25,7 @@ PhysicsEngine* Engine::PhysEngine = NULL;
 #define UseDevelopmentWindows 0
 #endif
 #if UseDevelopmentWindows
-#include "../D3D12/D3D12Window.h"
+#include "D3D12/D3D12Window.h"
 #include "D3D11/D3D11Window.h"
 #endif
 //#include "TestGame.h"

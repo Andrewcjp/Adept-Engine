@@ -1,4 +1,5 @@
 #pragma once
+#include "RHITypes.h"
 class DeviceContext;
 class RHIBuffer
 {
@@ -36,28 +37,10 @@ class RHIUAV
 public:
 	RHIUAV()
 	{}
+	virtual ~RHIUAV() {};
 };
 
 
-enum PRIMITIVE_TOPOLOGY_TYPE
-{
-	PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED = 0,
-	PRIMITIVE_TOPOLOGY_TYPE_POINT = 1,
-	PRIMITIVE_TOPOLOGY_TYPE_LINE = 2,
-	PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE = 3,
-	PRIMITIVE_TOPOLOGY_TYPE_PATCH = 4
-};
-enum COMPARISON_FUNC
-{
-	COMPARISON_FUNC_NEVER = 1,
-	COMPARISON_FUNC_LESS = 2,
-	COMPARISON_FUNC_EQUAL = 3,
-	COMPARISON_FUNC_LESS_EQUAL = 4,
-	COMPARISON_FUNC_GREATER = 5,
-	COMPARISON_FUNC_NOT_EQUAL = 6,
-	COMPARISON_FUNC_GREATER_EQUAL = 7,
-	COMPARISON_FUNC_ALWAYS = 8
-};
 struct PipeLineState
 {
 	bool DepthTest = true;
@@ -71,13 +54,13 @@ class FrameBuffer;
 class RHICommandList
 {
 public:
-	RHICommandList();
+	RHICommandList(ECommandListType::Type type = ECommandListType::Graphics);
 	virtual ~RHICommandList();
 	virtual void ResetList() = 0;
 	virtual void SetRenderTarget(FrameBuffer* target) = 0;
 
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
-	virtual void Execute(bool Block = true) = 0;
+	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
 	virtual void WaitForCompletion() =0;
 	//drawing
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
@@ -101,15 +84,14 @@ public:
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	DeviceContext* GetDevice();
 	int GetDeviceIndex();
+
+	//MultiGPU
+	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer) {};
+	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer) {};
 protected:
 	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!
-	enum ECommandListType
-	{
-		Graphics,
-		Compute,
-		Copy
-	};
+	ECommandListType::Type ListType = ECommandListType::Graphics;
 };
 
 //Used to Bind Buffers or textures to a single Descriptor heap/set for shader arrays
@@ -120,7 +102,7 @@ public:
 	{
 		NumEntries = inNumEntries;
 	};
-	~RHITextureArray() {};
+	virtual ~RHITextureArray() {};
 	virtual void AddFrameBufferBind(FrameBuffer* Buffer, int slot) = 0;
 	virtual void BindToShader(RHICommandList* list, int slot) = 0;
 	virtual void SetIndexNull(int TargetIndex)  = 0;

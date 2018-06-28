@@ -2,7 +2,7 @@
 #include "UIWidget.h"
 #include "UIBox.h"
 #include "CollisionRect.h"
-#include "../Editor/Inspector.h"
+#include "Editor/Inspector.h"
 class UILabel;
 class UIEditField :
 	public UIBox

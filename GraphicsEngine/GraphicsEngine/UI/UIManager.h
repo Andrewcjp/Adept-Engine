@@ -44,6 +44,7 @@ public:
 	void MouseClickUp(int x, int y);
 	void InitGameobjectList(std::vector<GameObject*>* gos);
 	void UpdateGameObjectList(std::vector<GameObject*>* gos);
+	static void SelectedCallback(int i);
 	void RefreshGameObjectList();
 	int GetWidth();
 	int GetHeight();

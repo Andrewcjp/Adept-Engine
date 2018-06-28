@@ -13,13 +13,14 @@ public:
 	void UpdateData() override;
 private:
 	DebugLineDrawer* LineBatcher;
-	std::vector<float> points;
-	std::vector<float> Secondpoints;
+	std::vector<float> GPUpoints;
+	std::vector<float> CPUpoints;
+	std::vector<float> FrameTimepoints;
 	glm::vec3 GraphColour = glm::vec3(0, 1, 0);
 	int GraphPoints = 50;
 	int PointWidth = 3;
 	int test = 0;
-	int FramesPerSample = 2;
+	int FramesPerSample = 1;
 	int CurrentFrameCounter = 0;
 };
 

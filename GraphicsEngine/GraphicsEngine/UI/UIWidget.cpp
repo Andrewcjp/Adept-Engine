@@ -1,5 +1,5 @@
 #include "UIWidget.h"
-#include "../UI/UIManager.h"
+#include "UI/UIManager.h"
 glm::vec3 DefaultColour = glm::vec3(1);
 UIWidget::UIWidget(int w, int h, int x, int y)
 {

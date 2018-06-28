@@ -1,19 +1,17 @@
 #pragma once
-#include "../RHI/RenderWindow.h"
+#include "RHI/RenderWindow.h"
 #include "Core/Input.h"
-#include "../Rendering/Renderers/ForwardRenderer.h"
-#include "../Rendering/Renderers/DeferredRenderer.h"
-#include "../Rendering/Renderers/RenderSettings.h"
+#include "Rendering/Renderers/ForwardRenderer.h"
+#include "Rendering/Renderers/DeferredRenderer.h"
+#include "Rendering/Renderers/RenderSettings.h"
 #define USE_PHYSX_THREADING 0
 class BaseWindow : public RenderWindow
 {
 public:
 	BaseWindow();
 	virtual ~BaseWindow();
-	// Inherited via RenderWindow
 	virtual bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen = false) override final;
 	virtual void Render() override final;
-	void SleepNoStats(float Seconds);
 	virtual void Resize(int width, int height) override final;
 	virtual void DestroyRenderWindow() override;
 	BOOL MouseLBDown(int x, int y) override;
@@ -61,7 +59,7 @@ protected:
 	virtual void WindowUI() {};
 	bool IsRunning = false;
 	bool ShouldTickScene = false;
-	int FrameRateLimit =0;
+	int FrameRateLimit = 0;
 	float TargetDeltaTime = 0.0f;
 	void LoadScene(std::string RelativePath);
 
@@ -78,13 +76,6 @@ private:
 	bool IsDeferredMode = false;
 	bool LoadText = true;
 	bool Once = true;
-
-	
-	float accumrendertime = 0.0f;
-	float AccumTickTime = 0.0f;
-
-	
-
-	
+	float AccumTickTime = 0.0f;	
 };
 

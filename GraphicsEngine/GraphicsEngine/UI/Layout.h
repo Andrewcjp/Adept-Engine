@@ -2,7 +2,7 @@
 #include <vector>
 #include "UIWidget.h"
 #include "UIManager.h"
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 namespace UIUtils
 {
 	//todo min size with widget value

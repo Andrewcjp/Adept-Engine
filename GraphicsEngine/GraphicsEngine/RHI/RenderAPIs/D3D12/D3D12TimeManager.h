@@ -1,6 +1,6 @@
 #pragma once
 #include "D3D12RHI.h"
-#include "../Core/Utils/MovingAverage.h"
+#include "Core/Utils/MovingAverage.h"
 #include "EngineGlobals.h"
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1

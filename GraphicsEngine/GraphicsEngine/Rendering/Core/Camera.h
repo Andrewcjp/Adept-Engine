@@ -5,7 +5,7 @@
 #include "include\glm\gtc\quaternion.hpp"
 #include "include\glm\gtx\quaternion.hpp"
 #include <iostream>
-#include "../RHI/RHI.h"
+#include "RHI/RHI.h"
 class Transform;
 class Camera
 {

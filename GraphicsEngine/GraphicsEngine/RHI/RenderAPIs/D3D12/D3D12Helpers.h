@@ -1,6 +1,6 @@
 #pragma once
 #include <d3d12.h>
-#include "../RHI/RHITypes.h"
+#include "RHI/RHITypes.h"
 #if defined(_DEBUG)
 inline void SetName(ID3D12Object* pObject, LPCWSTR name)
 {
@@ -23,6 +23,7 @@ public:
 	static D3D12_DSV_DIMENSION ConvertDimensionDSV(eTextureDimension Dim);
 	static D3D12_RTV_DIMENSION ConvertDimensionRTV(eTextureDimension Dim);
 	static D3D12_RESOURCE_DIMENSION ConvertToResourceDimension(eTextureDimension Dim);
+	static D3D12_COMMAND_LIST_TYPE ConvertListType(ECommandListType::Type type);
 };
 
 

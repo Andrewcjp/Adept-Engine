@@ -1,5 +1,5 @@
 #pragma once
-#include "../RHI/Shader.h"
+#include "RHI/Shader.h"
 #define DEBUG_CUBEMAPS 0
 class Shader_Skybox : public Shader
 {

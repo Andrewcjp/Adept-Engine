@@ -4,7 +4,7 @@
 #include <ft2build.h>
 #include <map>
 #include "include/glm/ext.hpp"
-#include "../RHI/RHI.h"
+#include "RHI/RHI.h"
 #include <vector>
 #include FT_FREETYPE_H  
 class BaseTexture;
@@ -31,7 +31,7 @@ public:
 	void LoadText();
 	void UpdateSize(int width, int height);
 	void NotifyFrameEnd();
-	bool RunOnSecondDevice = false;
+	bool RunOnSecondDevice = true;
 private:	
 	bool UseFrameBuffer = true;
 	int TextDataLength = 0;

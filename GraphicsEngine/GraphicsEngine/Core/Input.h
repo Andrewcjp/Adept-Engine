@@ -17,23 +17,12 @@ class Input
 {
 public:
 	static Input* instance;
-	Input(Camera * c, GameObject * playergo, HWND window, RenderWindow* wind);
+	Input(HWND window);
 	~Input();
+
 	void Clear();
-
-	static void SetSelectedObject(int index);
 	void ProcessQue();
-
-	Shader_Main * main;
-	ShaderOutput * Filters;
-
-
-	GameObject* Selectedobject = nullptr;
 	std::queue<InputEvent*> Inputque;
-	int currentObjectIndex = 0;
-	static void Test(Input*in);
-	RenderEngine* Renderer;
-
 
 	//input processing
 	CORE_API static bool GetKeyDown(int c);
@@ -48,16 +37,8 @@ public:
 	bool   ProcessKeyDown(WPARAM key);
 	void   LockCursor(bool state);
 private:
-	bool Querry = false;
-	bool FxAA = true;
 	HWND m_hwnd;
 	bool LockMouse = false;
-	bool MSAAactive = false;
-	Camera* MainCam;
-	GameObject* playerGO;
-	RenderWindow* ogwindow;
-	EditorWindow* OpenGlwindow;	
-	bool IsTidleDown = false;
 	float currentmoveamt = 1.0f;//editor Movemnt
 	glm::vec2 MouseAxis;
 	std::map<int, bool> KeyMap;

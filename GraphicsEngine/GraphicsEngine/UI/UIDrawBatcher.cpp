@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "UIDrawBatcher.h"
 #include "UIManager.h"
-#include "../Rendering/Shaders/Shader_UIBatch.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12Shader.h"
-#include "../Core/Utils/StringUtil.h"
+#include "Rendering/Shaders/Shader_UIBatch.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Shader.h"
+#include "Core/Utils/StringUtil.h"
 #include <algorithm>
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RHI/DeviceContext.h"
 UIDrawBatcher* UIDrawBatcher::instance = nullptr;
 UIDrawBatcher::UIDrawBatcher()
 {

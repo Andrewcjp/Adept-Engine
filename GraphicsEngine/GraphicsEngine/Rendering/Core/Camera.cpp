@@ -175,7 +175,7 @@ void Camera::SetMouseRotation(float x, float y)
 	// Up vector
 	up = glm::cross(right, forward);
 }
-#include "../Editor/EditorWindow.h"
+#include "Editor/EditorWindow.h"
 void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outrayDirection, glm::vec3&  outRayorign)
 {
 	float x = (2.0f * screenX) / EditorWindow::GetWidth() - 1.0f;

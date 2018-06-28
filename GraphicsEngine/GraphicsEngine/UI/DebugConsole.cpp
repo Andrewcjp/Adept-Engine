@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "DebugConsole.h"
 #include "UI\UIEditField.h"
-#include "../Core/Input.h"
+#include "Core/Input.h"
 #include "UIManager.h"
-#include "../Editor/EditorWindow.h"
+#include "Editor/EditorWindow.h"
 #include "UIBox.h"
 #include "UILabel.h"
 #include <cctype>
@@ -27,7 +27,7 @@ DebugConsole::~DebugConsole()
 
 void DebugConsole::Render()
 {
-	if (Input::GetKeyDown('`'))
+	if (Input::GetKeyDown(VK_OEM_8))
 	{
 		IsOpen = true;
 		UIManager::SetCurrentcontext(this);
@@ -42,14 +42,12 @@ void DebugConsole::Render()
 	}
 }
 
-
-
-
 void DebugConsole::ResizeView(int w, int h, int x, int y)
 {
 	EditField->ResizeView(w, 30, x, y);
 	Textlabel->ResizeView(w, 30, x, y);
 }
+
 void DebugConsole::ExecCommand(std::string command)
 {
 	if (!BaseWindow::ProcessDebugCommand(command))
@@ -110,7 +108,10 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 		{
 			Close();
 		}
-		nextext.append(1,(char)std::tolower(c));
+		else
+		{
+			nextext.append(1, (char)std::tolower(c));
+		}
 	}
 	//todo: Cursour Movement
 	Textlabel->SetText(nextext);

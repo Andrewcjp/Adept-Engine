@@ -1,6 +1,6 @@
 #include "TestGame.h"
 #include "EngineHeader.h"
-#include "../Core/Components/CompoenentRegistry.h"
+#include "Core/Components/CompoenentRegistry.h"
 
 TestGame::TestGame(CompoenentRegistry* Reg):Game(Reg)
 {

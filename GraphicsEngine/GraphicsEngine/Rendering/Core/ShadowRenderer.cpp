@@ -6,10 +6,10 @@
 #include "Light.h"
 #include "Rendering\Shaders\Shader_Depth.h"
 #include "Core/GameObject.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "RHI/DeviceContext.h"
 #define CUBE_SIDES 6
 #define TESTSECONDGPUSHADOWS 0
 ShadowRenderer::ShadowRenderer()

@@ -6,7 +6,7 @@
 #include <Windowsx.h>
 #include <algorithm>
 //#include "TestGame.h"
-#include "../Core/Game.h"
+#include "Core/Game.h"
 #include "Physics\PhysicsEngine.h"
 #include "Core\Engine.h"
 #define TARGET_RESOLUTION 1         // 1-millisecond target resolution
@@ -57,7 +57,7 @@ BOOL BaseApplication::MyRegisterClass(HINSTANCE hinst)
 
 	return TRUE;
 }
-#include "../Core/Components/CompoenentRegistry.h"
+#include "Core/Components/CompoenentRegistry.h"
 BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args, int nshow)
 {
 	if (!s_oglapp)

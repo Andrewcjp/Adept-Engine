@@ -1,10 +1,10 @@
 #include "Shader_Skybox.h"
 #include "RHI/RHI.h"
-#include "../RHI/ShaderProgramBase.h"
-#include "../Rendering/Core/Renderable.h"
+#include "RHI/ShaderProgramBase.h"
+#include "Rendering/Core/Renderable.h"
 #include "Shader_Main.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RHI/DeviceContext.h"
 Shader_Skybox::Shader_Skybox()
 {
 	SkyBoxTexture = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
@@ -15,11 +15,9 @@ Shader_Skybox::Shader_Skybox()
 	m_Shader->CreateShaderProgram();
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_vs", SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_fs", SHADER_FRAGMENT);
-
-
 }
-#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List = RHI::CreateCommandList();

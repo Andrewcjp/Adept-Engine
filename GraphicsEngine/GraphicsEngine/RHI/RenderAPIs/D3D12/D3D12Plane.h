@@ -1,8 +1,8 @@
 #pragma once
-#include "../Rendering/Core/Renderable.h"
+#include "Rendering/Core/Renderable.h"
 #include <DirectXMath.h>
 #include <d3d12.h>
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 class D3D12Plane : public Renderable
 {
 public:

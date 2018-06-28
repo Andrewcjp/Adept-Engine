@@ -11,11 +11,11 @@
 #include "Core/Transform.h"
 #include "Core/GameObject.h"
 #include "Core/Input.h"
-#include "../Rendering/Core/Material.h"
-#include "../Rendering/Renderers/ForwardRenderer.h"
-#include "../Rendering/Renderers/DeferredRenderer.h"
+#include "Rendering/Core/Material.h"
+#include "Rendering/Renderers/ForwardRenderer.h"
+#include "Rendering/Renderers/DeferredRenderer.h"
 #include "UI/TextRenderer.h"
-#include "../Rendering/Renderers/RenderSettings.h"
+#include "Rendering/Renderers/RenderSettings.h"
 #include "Core/Engine.h"
 #include "Physics/PhysicsEngine.h"
 #include "EngineGlobals.h"
@@ -34,12 +34,13 @@
 #include "Core/Game.h"
 #include "Editor/Editor_Camera.h"
 #include "UI/UIManager.h"
-
+#include "EditorCore.h"
 EditorWindow* EditorWindow::instance;
 EditorWindow::EditorWindow(bool Isdef) :BaseWindow()
 {
 	IsDeferredMode = Isdef;
 	instance = this;
+	mEditorCore = new EditorCore();
 }
 
 EditorWindow::~EditorWindow()
@@ -131,7 +132,7 @@ BOOL EditorWindow::MouseLBDown(int x, int y)
 	BaseWindow::MouseLBDown(x, y);
 	if (input != nullptr && UI != nullptr && !UI->IsUIBlocking())
 	{
-		input->Selectedobject = selector->RayCastScene(x, y, EditorCamera->GetCamera(), *CurrentScene->GetObjects());
+		mEditorCore->SetSelectedObject(selector->RayCastScene(x, y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
 	}
 	return 0;
 }
@@ -139,6 +140,14 @@ BOOL EditorWindow::MouseLBDown(int x, int y)
 void EditorWindow::SetDeferredState(bool state)
 {
 	IsDeferredMode = state;
+}
+
+EditorCore * EditorWindow::GetEditorCore()
+{
+	if (instance != nullptr)
+	{
+		return instance->mEditorCore; 
+	}
 }
 
 void EditorWindow::PrePhysicsUpdate()
@@ -169,14 +178,14 @@ void EditorWindow::Update()
 	}
 	EditorCamera->Update(DeltaTime);
 
-	if (input->Selectedobject != nullptr)
+	if (mEditorCore->GetSelectedObject() != nullptr)
 	{
 		gizmos->Update(0);
-		gizmos->SetTarget(input->Selectedobject);
+		gizmos->SetTarget(mEditorCore->GetSelectedObject());
 		gizmos->RenderGizmos(LineDrawer);
 		if (UI != nullptr)
 		{
-			UI->GetInspector()->SetSelectedObject(input->Selectedobject);
+			UI->GetInspector()->SetSelectedObject(mEditorCore->GetSelectedObject());
 		}
 	}
 	else
@@ -190,6 +199,19 @@ void EditorWindow::Update()
 			SaveScene();
 		}
 	}
+	if (input->GetKeyDown(VK_F11))
+	{
+		D3D12RHI::Instance->ToggleFullScreenState();
+	}
+	if (input->GetKeyDown(VK_F2))
+	{
+		ExtendedPerformanceStats = !ExtendedPerformanceStats;
+	}
+	if (input->GetKeyDown(VK_F1))
+	{
+		ShowHud = !ShowHud;
+	}
+	
 }
 
 void EditorWindow::SaveScene()

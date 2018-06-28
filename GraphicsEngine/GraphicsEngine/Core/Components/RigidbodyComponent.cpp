@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "RigidbodyComponent.h"
-#include "../Core/GameObject.h"
-#include "../Core/Engine.h"
-#include "../Physics/PhysicsEngine.h"
+#include "Core/GameObject.h"
+#include "Core/Engine.h"
+#include "Physics/PhysicsEngine.h"
 RigidbodyComponent::RigidbodyComponent()
 {
 	DoesFixedUpdate = true;

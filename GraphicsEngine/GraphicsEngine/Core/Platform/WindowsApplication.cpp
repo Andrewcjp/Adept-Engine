@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "WindowsApplication.h"
-#include "../Core/Utils/FileUtils.h"
-#include "../Core/Utils/StringUtil.h"
+#include "Core/Utils/FileUtils.h"
+#include "Core/Utils/StringUtil.h"
 double WindowsApplication::SecondsPerCycle = 0.0f;
 
 WindowsApplication::WindowsApplication()

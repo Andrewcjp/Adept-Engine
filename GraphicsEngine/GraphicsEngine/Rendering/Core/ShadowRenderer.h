@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 #include "RHI/RHI_fwd.h"
 class ShadowRenderer
 {

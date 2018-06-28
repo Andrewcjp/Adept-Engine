@@ -1,14 +1,14 @@
 #include "Scene.h"
-#include "../RHI/RHI.h"
-#include "../Components/MeshRendererComponent.h"
-#include "../Components/CameraComponent.h"
-#include "../Components/LightComponent.h"
-#include "../Rendering/Renderers/RenderEngine.h"
-#include "../Components/CompoenentRegistry.h"
-#include "../Components/RigidbodyComponent.h"
+#include "RHI/RHI.h"
+#include "Core/Components/MeshRendererComponent.h"
+#include "Core/Components/CameraComponent.h"
+#include "Core/Components/LightComponent.h"
+#include "Rendering/Renderers/RenderEngine.h"
+#include "Core/Components/CompoenentRegistry.h"
+#include "Core/Components/RigidbodyComponent.h"
 #include <algorithm>
-#include "../Core/Utils/MemoryUtils.h"
-#include "../Core/Assets/AssetManager.h"
+#include "Core/Utils/MemoryUtils.h"
+#include "Core/Assets/AssetManager.h"
 Scene::Scene()
 {}
 

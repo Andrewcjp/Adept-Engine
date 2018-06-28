@@ -1,8 +1,8 @@
 #pragma once
-#include "../Rendering/Core/Renderable.h"
+#include "Rendering/Core/Renderable.h"
 #include "Transform.h"
 
-#include "../Rendering/Core/Material.h"
+#include "Rendering/Core/Material.h"
 #include "Editor/IInspectable.h"
 #include "physx\PxShape.h"
 #include "physx\PxRigidStatic.h"

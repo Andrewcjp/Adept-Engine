@@ -1,21 +1,21 @@
 #include "TextRenderer.h"
 #include "glm\glm.hpp"
 #include "RHI/RHI.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 #include "Rendering/Shaders/Text_Shader.h"
 #include <algorithm>
 #include <cstring>
-#include "../Core/Engine.h"
-#include "../RHI/BaseTexture.h"
-#include "../Core/Utils/FileUtils.h"
+#include "Core/Engine.h"
+#include "RHI/BaseTexture.h"
+#include "Core/Utils/FileUtils.h"
 #define MAXWIDTH 1024
 TextRenderer* TextRenderer::instance = nullptr;
-#include "../Rendering/PostProcessing/PostProcessing.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "../Core/Performance/PerfManager.h"
+#include "Rendering/PostProcessing/PostProcessing.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "Core/Performance/PerfManager.h"
 TextRenderer::TextRenderer(int width, int height)
 {
 	m_width = width;
@@ -28,7 +28,7 @@ TextRenderer::TextRenderer(int width, int height)
 	coords.reserve(100 * 6);
 }
 
-	
+
 TextRenderer::~TextRenderer()
 {
 	delete TextAtlas;
@@ -43,7 +43,7 @@ TextRenderer::~TextRenderer()
 	delete TextCommandList;
 }
 
-void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color,bool reset/* = true*/)
+void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color, bool reset/* = true*/)
 {
 	if (reset)
 	{
@@ -60,13 +60,13 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		{
 			TextCommandList->ClearFrameBuffer(Renderbuffer);
 			NeedsClearRT = false;
-		}	
+		}
 	}
 	else
 	{
 		TextCommandList->SetScreenBackBufferAsRT();
 	}
-	
+
 	m_TextShader->Update(TextCommandList);
 	const uint8_t *p;
 	atlas* a = TextAtlas;
@@ -98,7 +98,7 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		}
 
 		coords[c++] =
-		{ 
+		{
 			x2, -y2, a->c[*p].tx, a->c[*p].ty,color
 		};
 		coords[c++] =
@@ -121,7 +121,7 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		{
 			x2 + w, -y2 - h, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty + a->c[*p].bh / a->h,color
 		};
-		currentsize+=6;
+		currentsize += 6;
 	}
 	if (reset)
 	{
@@ -131,11 +131,11 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	{
 		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
 	}
-	
+
 	TextCommandList->SetVertexBuffer(VertexBuffer);
 	TextCommandList->SetTexture(TextAtlas->Texture, 0);
 	TextCommandList->DrawPrimitive(c, 1, 0, 0);
-	
+
 	///* Draw all the character on the screen in one go */
 	if (reset)
 	{
@@ -146,38 +146,33 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 
 void TextRenderer::Finish()
 {
-	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer;
-
-	buffer->TransitionTOCopy(((D3D12CommandList*)TextCommandList)->GetCommandList());
+	TextCommandList->SetRenderTarget(nullptr);
 	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::Text);
 	TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(TextCommandList);
 	TextCommandList->Execute();
-	TextCommandList->GetDevice()->InsertGPUWait();
+	TextCommandList->GetDevice()->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	currentsize = 0;
 
 	if (RunOnSecondDevice)
 	{
 		PerfManager::StartTimer("RunOnSecondDevice");
-		DeviceContext* hostdevbice = D3D12RHI::GetDeviceContext(1);
+		DeviceContext* HostDevice = D3D12RHI::GetDeviceContext(1);
 		DeviceContext* TargetDevice = D3D12RHI::GetDeviceContext(0);
-		hostdevbice->ResetSharingCopyList();
-		buffer->CopyToDevice(hostdevbice->GetSharedCopyList());
-		hostdevbice->GetSharedCopyList()->Close();
-		hostdevbice->ExecuteInterGPUCopyCommandList(hostdevbice->GetSharedCopyList());
-		hostdevbice->InsertGPUWaitForSharedCopy();
 		
-		RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0));
+		RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();
+		CopyList->ResetList();
+		CopyList->CopyResourceToSharedMemory(Renderbuffer);
+		CopyList->Execute(DeviceContextQueue::InterCopy);
+		HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+		RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
+		TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 		
-		TargetDevice->InsertGPUWait();
-		
-		TargetDevice->ResetSharingCopyList();
-		buffer->MakeReadyOnTarget(TargetDevice->GetSharedCopyList());
-		TargetDevice->GetSharedCopyList()->Close();
-		TargetDevice->ExecuteInterGPUCopyCommandList(TargetDevice->GetSharedCopyList());		
-		TargetDevice->InsertGPUWaitForSharedCopy();
+		CopyList = TargetDevice->GetInterGPUCopyList();
+		CopyList->ResetList();
+		CopyList->CopyResourceFromSharedMemory(Renderbuffer);
+		CopyList->Execute(DeviceContextQueue::InterCopy);
+		TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 		PerfManager::EndTimer("RunOnSecondDevice");
-		
-
 	}
 }
 void TextRenderer::Reset()
@@ -192,7 +187,7 @@ void TextRenderer::Reset()
 }
 
 void TextRenderer::LoadText()
-{	
+{
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, D3D12RHI::GetDeviceContext(RunOnSecondDevice));
 	VertexBuffer->CreateVertexBuffer(sizeof(point), (sizeof(point) * 6) * MAX_BUFFER_SIZE, RHIBuffer::BufferAccessType::Dynamic);//max text length?
 
@@ -201,24 +196,19 @@ void TextRenderer::LoadText()
 	TextCommandList->CreatePipelineState(m_TextShader);
 	if (UseFrameBuffer)
 	{
-		//Renderbuffer = RHI::CreateFrameBuffer(1280, 720, D3D12RHI::GetDeviceContext(RunOnSecondDevice), 1.0f, FrameBuffer::ColourDepth, glm::vec4(0.0f, 0.2f, 0.4f, 0.0f));
-		
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(1280, 720);
 		desc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 0.0f);
 		if (RunOnSecondDevice)
-		{			
+		{
 			desc.IsShared = true;
 			desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 		}
 		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(RunOnSecondDevice), desc);
-		D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer; 
-		/*buffer->SetupCopyTest();*/
 		PostProcessing::Instance->AddCompostPass(Renderbuffer);
 		if (D3D12RHI::Instance)
 		{
-			D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);
-			D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Renderbuffer;
-			buffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
+			D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);			
+			Renderbuffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
 		}
 	}
 

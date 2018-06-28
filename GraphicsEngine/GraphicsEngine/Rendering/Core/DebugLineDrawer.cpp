@@ -3,9 +3,9 @@
 #include "RHI/RHI.h"
 #include "glm\glm.hpp"
 #include "UI\UIManager.h"
-#include "../Editor/EditorWindow.h"
-#include "../Shaders/Shader_Line.h"
-#include "../RHI/RHICommandList.h"
+#include "Editor/EditorWindow.h"
+#include "Rendering/Shaders/Shader_Line.h"
+#include "RHI/RHICommandList.h"
 DebugLineDrawer* DebugLineDrawer::instance = nullptr;
 DebugLineDrawer::DebugLineDrawer(bool DOnly)
 {
@@ -98,6 +98,11 @@ void DebugLineDrawer::ClearLines()
 
 void DebugLineDrawer::AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time)
 {
+	ensure(Lines.size()*2 < maxSize);
+	if (Lines.size()*2 > maxSize)
+	{
+		return;
+	}
 	WLine l;
 	l.startpos = Start;
 	l.endpos = end;

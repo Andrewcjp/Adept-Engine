@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Component.h"
-#include "../GameObject.h"
-#include "../Assets/SerialHelpers.h"
-#include "../Assets/SceneJSerialiser.h"
+#include "Core/GameObject.h"
+#include "Core/Assets/SerialHelpers.h"
+#include "Core/Assets/SceneJSerialiser.h"
 
 Component::Component()
 {

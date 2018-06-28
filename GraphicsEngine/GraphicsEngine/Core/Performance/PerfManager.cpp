@@ -8,10 +8,10 @@
 #endif
 #include <iomanip>
 #include <time.h>
-#include "../RHI/RHI.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "../RHI/DeviceContext.h"
-#include "../UI/TextRenderer.h"
+#include "RHI/RHI.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RHI/DeviceContext.h"
+#include "UI/TextRenderer.h"
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()
@@ -20,6 +20,7 @@ long PerfManager::get_nanos()
 	timespec_get(&ts, TIME_UTC);
 	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec;
 }
+
 void PerfManager::StartPerfManager()
 {
 	if (Instance == nullptr)
@@ -35,10 +36,12 @@ PerfManager::PerfManager()
 
 PerfManager::~PerfManager()
 {}
+
 void PerfManager::AddTimer(const char * countername, const char* group)
 {
 	AddTimer(GetTimerIDByName(countername), GetGroupId(group));
 }
+
 void PerfManager::AddTimer(int id, int groupid)
 {
 	TimerData Data;
@@ -48,6 +51,7 @@ void PerfManager::AddTimer(int id, int groupid)
 	AVGTimers.emplace(id, Data);
 	TimerOutput.emplace(id, 0.0f);
 }
+
 void PerfManager::StartTimer(const char * countername)
 {
 #if	STATS
@@ -181,7 +185,7 @@ float PerfManager::GetAVGFrameRate()
 		FrameAccum = 0;
 		FrameTimeAccum = 0.0f;
 	}
-	return CurrentAVGFps;
+	return 1.0f/AVGFrameTime;
 }
 
 float PerfManager::GetAVGFrameTime() const
@@ -260,6 +264,15 @@ float PerfManager::GetDeltaTime()
 	}
 	return 0;
 }
+
+void PerfManager::SetDeltaTime(float Time)
+{
+	if (Instance != nullptr)
+	{
+		Instance->FrameTime = Time;
+	}
+}
+
 void PerfManager::NotifyEndOfFrame()
 {
 	//clear timers
@@ -282,6 +295,7 @@ void PerfManager::Internal_NotifyEndOfFrame()
 		it->second = 0.0f;
 	}
 }
+
 PerfManager::TimerData * PerfManager::GetTimerData(int id)
 {
 	if (AVGTimers.find(id) != AVGTimers.end())
@@ -290,6 +304,7 @@ PerfManager::TimerData * PerfManager::GetTimerData(int id)
 	}
 	return nullptr;
 }
+
 void PerfManager::DrawAllStats(int x, int y)
 {
 #if STATS
@@ -300,6 +315,7 @@ void PerfManager::DrawAllStats(int x, int y)
 	}
 #endif
 }
+
 void PerfManager::UpdateStats()
 {
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
@@ -307,6 +323,7 @@ void PerfManager::UpdateStats()
 		it->second.Time = it->second.AVG->GetCurrentAverage();
 	}
 }
+
 void PerfManager::ClearStats()
 {
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
@@ -314,6 +331,7 @@ void PerfManager::ClearStats()
 		it->second.Time = it->second.AVG->GetCurrentAverage();
 	}
 }
+
 void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
 {
 #if STATS
@@ -370,7 +388,6 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
 	y = CurrentHeight;
 #endif
 }
-
 
 void PerfManager::UpdateGPUStat(int id, float newtime)
 {

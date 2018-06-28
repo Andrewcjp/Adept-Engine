@@ -1,9 +1,9 @@
 #pragma once
 #include "include\glm\glm.hpp"
 #include "Core/Transform.h"
-#include "../Rendering/Core/Camera.h"
+#include "Rendering/Core/Camera.h"
 #include <vector>
-#include "../Rendering/Core/Light.h"
+#include "Rendering/Core/Light.h"
 #include "include/glm/gtc/type_ptr.hpp"
 #include <d3d12.h>
 #include "ShaderProgramBase.h"

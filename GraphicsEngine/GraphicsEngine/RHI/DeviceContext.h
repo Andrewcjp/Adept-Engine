@@ -1,5 +1,5 @@
 #pragma once
-#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 
 #include <mutex>
 #include <queue>
@@ -63,9 +63,6 @@ class DeviceContext
 public:
 	DeviceContext();
 	~DeviceContext();
-
-	const char * GetID();
-
 	void CreateDeviceFromAdaptor(IDXGIAdapter1* adapter, int index);
 	void LinkAdaptors(DeviceContext * other);
 	ID3D12Device* GetDevice();
@@ -92,11 +89,15 @@ public:
 	int GetDeviceIndex();
 	class D3D12TimeManager* GetTimeManager();
 	int GetCpuFrameIndex();
+	void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
 	int CurrentFrameIndex = 0;
-	void GPUWaitForOtherGPU(DeviceContext* OtherGPU);
-	void InsertGPUWait();
-	void InsertGPUWaitForSharedCopy();
 	void CPUWaitForAll();
+	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);
+	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
+	void WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
+
+	RHICommandList* GetInterGPUCopyList();
+
 private:	
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
@@ -132,5 +133,8 @@ private:
 	D3D12TimeManager* TimeManager = nullptr;
 	//copy queue management 
 	bool CopyEngineHasWork = false;
+
+
+	RHICommandList* GPUCopyList = nullptr;
 };
 

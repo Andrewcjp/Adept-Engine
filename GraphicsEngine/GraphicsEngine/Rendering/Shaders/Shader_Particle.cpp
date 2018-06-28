@@ -6,8 +6,8 @@ Shader_Particle::Shader_Particle()
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->CreateShaderProgram();
-	//m_Shader->AttachAndCompileShaderFromFile(L"../asset/shader/glsl/PBR.vert", SHADER_VERTEX);
-	//m_Shader->AttachAndCompileShaderFromFile(L"../asset/shader/glsl/PBR.frag", SHADER_FRAGMENT);
+	//m_Shader->AttachAndCompileShaderFromFile(L"asset/shader/glsl/PBR.vert", SHADER_VERTEX);
+	//m_Shader->AttachAndCompileShaderFromFile(L"asset/shader/glsl/PBR.frag", SHADER_FRAGMENT);
 	m_Shader->AttachAndCompileShaderFromFile("Particle", SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Particle", SHADER_FRAGMENT);
 

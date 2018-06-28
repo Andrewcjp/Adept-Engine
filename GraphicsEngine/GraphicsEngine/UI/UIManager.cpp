@@ -10,17 +10,18 @@
 #include "Core/Input.h"
 #include "UI/UIEditField.h"
 #include "UIGraph.h"
-#include "../Rendering/Core/GPUStateCache.h"
-#include "../Core/Performance/PerfManager.h"
+#include "Rendering/Core/GPUStateCache.h"
+#include "Core/Performance/PerfManager.h"
 #include "UIDrawBatcher.h"
 #include "DebugConsole.h"
-#include "../Editor/Inspector.h"
-#include "../Editor/EditorWindow.h"
-#include "../EngineGlobals.h"
+#include "Editor/Inspector.h"
+#include "Editor/EditorWindow.h"
+#include "EngineGlobals.h"
 #include "UIPopoutbox.h"
 #include "UIAssetManager.h"
 #include "UIDropDown.h"
-#include "../Rendering/Core/DebugLineDrawer.h"
+#include "Rendering/Core/DebugLineDrawer.h"
+#include "Editor/EditorCore.h"
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
 UIManager::UIManager()
@@ -72,7 +73,7 @@ void UIManager::InitEditorUI()
 	//testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
 	//AddWidget(testbox);
 	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
-	wid->SetScaled(1.0f, 0.05f, 0.0f, 0.3f);
+	wid->SetScaled(1.0f, 0.05f, 0.0f, 0);
 	AddWidget(wid);
 #if 0
 	UIDropDown * testbox3 = new UIDropDown(100, 300, 250, 150);
@@ -83,14 +84,6 @@ void UIManager::InitEditorUI()
 
 	AddWidget(testbox3);
 #endif
-	//std::vector<std::string> ops;
-	//ops.push_back("2");
-	//ops.push_back("3");
-	//ops.push_back("fasf");
-	//CreateDropDown(ops, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2), std::bind(&EditorWindow::ExitPlayMode, EditorWindow::GetInstance()));
-	//bottom = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
-	//bottom->SetScaled(1.0f - RightWidth, BottomHeight);/
-	//AddWidget(bottom);
 	AssetManager = new UIAssetManager();
 	AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
 	AddWidget(AssetManager);
@@ -180,8 +173,8 @@ void UIManager::UpdateSize(int width, int height)
 		}
 	};
 
-	//seems operator overloading is broken here for some reason
 	std::sort(widgets.begin(), widgets.end(), less_than_key());
+
 	for (int i = (int)widgets.size() - 1; i >= 0; i--)
 	{
 		widgets[i]->UpdateScaled();
@@ -228,6 +221,7 @@ void UIManager::RenderWidgets()
 #endif
 	//todo: GC?
 }
+
 void UIManager::RenderWidgetText()
 {
 	for (int i = 0; i < widgets.size(); i++)
@@ -238,6 +232,7 @@ void UIManager::RenderWidgetText()
 		}
 	}
 }
+
 //todo: prevent issue with adding while itoring!
 void UIManager::MouseMove(int x, int y)
 {
@@ -284,11 +279,18 @@ void UIManager::InitGameobjectList(std::vector<GameObject*>*gos)
 	AddWidget(box);
 	RefreshGameObjectList();
 }
+
 void UIManager::UpdateGameObjectList(std::vector<GameObject*>*gos)
 {
 	GameObjectsPtr = gos;
 }
-
+void UIManager::SelectedCallback(int i)
+{
+	if (instance)
+	{
+		EditorWindow::GetEditorCore()->SetSelectedObjectIndex(i);
+	}
+}
 void UIManager::RefreshGameObjectList()
 {
 	if (box != nullptr && GameObjectsPtr != nullptr)
@@ -296,7 +298,7 @@ void UIManager::RefreshGameObjectList()
 		box->RemoveAll();
 		box->SetScaled(LeftWidth, 1.0f - (BottomHeight + TopHeight), 0.0, BottomHeight);
 		using std::placeholders::_1;
-		box->SelectionChanged = std::bind(&Input::SetSelectedObject, _1);
+		box->SelectionChanged = std::bind(&UIManager::SelectedCallback, _1);
 		for (int i = 0; i < (*(GameObjectsPtr)).size(); i++)
 		{
 			(*GameObjectsPtr)[i]->PostChangeProperties();

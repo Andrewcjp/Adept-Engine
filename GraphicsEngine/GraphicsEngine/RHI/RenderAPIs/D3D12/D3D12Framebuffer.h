@@ -1,6 +1,6 @@
 #pragma once
 #include "Rendering/Core/FrameBuffer.h"
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 #include <d3d12.h>
 #include "d3dx12.h"
 #include "D3D12Shader.h"
@@ -27,17 +27,17 @@ public:
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	bool CheckDevice(int index);
 	void Resize(int width, int height) override;
-	void SetupCopyToDevice(DeviceContext* device);
-	void SetupCopyTest();
-	void RunCopyTest(ID3D12GraphicsCommandList * list);
+
+	//Cross Adaptor
+	void SetupCopyToDevice(DeviceContext* device) override;
 	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
 	void CopyToDevice(ID3D12GraphicsCommandList * list);
 	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
-	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(ID3D12GraphicsCommandList * list);
+
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);
 private:
-	
+	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	DescriptorHeap* SrvHeap = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;
 	DescriptorHeap* DSVHeap = nullptr;

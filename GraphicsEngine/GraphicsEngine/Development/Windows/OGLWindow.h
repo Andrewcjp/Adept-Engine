@@ -6,7 +6,7 @@
 
 #include "Core/Transform.h"
 #include "Core/GameObject.h"
-#include "../Rendering/Core/Light.h"
+#include "Rendering/Core/Light.h"
 
 #include <ctime>
 #include <time.h>
@@ -17,10 +17,10 @@
 #include "Core/Input.h"
 #include "UI/TextRenderer.h"
 
-#include "../OpenGL/OGLTexture.h"
-#include "../Rendering/Core/Material.h"
-#include "../Rendering/Renderers/ForwardRenderer.h"
-#include "../Rendering/Renderers/DeferredRenderer.h"
+#include "OpenGL/OGLTexture.h"
+#include "Rendering/Core/Material.h"
+#include "Rendering/Renderers/ForwardRenderer.h"
+#include "Rendering/Renderers/DeferredRenderer.h"
 #include "UI\UIManager.h"
 class EditorGizmos;
 //class ForwardRenderer;

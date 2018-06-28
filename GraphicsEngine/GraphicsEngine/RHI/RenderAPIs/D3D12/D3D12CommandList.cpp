@@ -2,24 +2,31 @@
 #include "D3D12CommandList.h"
 #include "D3D12RHI.h"
 #include "Rendering/Core/RenderBaseTypes.h"
-#include "../Core/Utils/StringUtil.h"
+#include "Core/Utils/StringUtil.h"
 #include "D3D12CBV.h"
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 #include "D3D12Texture.h"
-#include "../RHI/Shader.h"
-#include "../RHI/BaseTexture.h"
+#include "RHI/Shader.h"
+#include "RHI/BaseTexture.h"
 #include "D3D12Framebuffer.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 #include "DescriptorHeap.h"
-#include "../Core/Performance/PerfManager.h"
-D3D12CommandList::D3D12CommandList(DeviceContext * inDevice)
+#include "Core/Performance/PerfManager.h"
+#include "D3D12Helpers.h"
+D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType):RHICommandList(ListType)
 {
 	Device = inDevice;
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
-		ThrowIfFailed(Device->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator[i])));
+		ThrowIfFailed(Device->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(ListType), IID_PPV_ARGS(&m_commandAllocator[i])));
+	}
+	if (ListType == ECommandListType::Copy)
+	{
+		//copy queues don't have pipline states!
+		CreateCommandList();
 	}
 }
+
 
 D3D12CommandList::~D3D12CommandList()
 {
@@ -36,11 +43,14 @@ D3D12CommandList::~D3D12CommandList()
 
 void D3D12CommandList::ResetList()
 {
-	SCOPE_CYCLE_COUNTER_GROUP("ResetList","RHI");
- 	ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
+	SCOPE_CYCLE_COUNTER_GROUP("ResetList", "RHI");
+	ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
 	IsOpen = true;
 	ThrowIfFailed(CurrentGraphicsList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState));
-	CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
+	if (ListType == ECommandListType::Graphics)
+	{
+		CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
+	}
 }
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
@@ -53,7 +63,6 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
 	}
 	else
 	{
-
 		CurrentRenderTarget = (D3D12FrameBuffer*)target;
 		ensure(CurrentRenderTarget->CheckDevice(Device->GetDeviceIndex()));
 		CurrentRenderTarget->BindBufferAsRenderTarget(CurrentGraphicsList);
@@ -86,17 +95,35 @@ void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float
 	ensure(ListType == ECommandListType::Graphics);
 }
 
-void D3D12CommandList::Execute(bool Block)
+void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 {
+	if (Target == DeviceContextQueue::LIMIT)
+	{
+		switch (ListType)
+		{
+		case ECommandListType::Graphics:
+			Target = DeviceContextQueue::Graphics;
+			break;
+		case ECommandListType::Compute:
+			Target = DeviceContextQueue::Compute;
+			break;
+		case ECommandListType::Copy:
+			Target = DeviceContextQueue::Copy;
+			break;
+		}
+	}
 	ThrowIfFailed(CurrentGraphicsList->Close());
-	//D3D12RHI::Instance->ExecList(CurrentGraphicsList);
-	if (Block)
+	if (Target == DeviceContextQueue::Graphics)
 	{
 		Device->ExecuteCommandList(CurrentGraphicsList);
 	}
-	else
+	else if (Target == DeviceContextQueue::Copy)
 	{
-		Device->StartExecuteCommandList(CurrentGraphicsList);
+		Device->ExecuteCopyCommandList(CurrentGraphicsList);
+	}
+	else if (Target == DeviceContextQueue::InterCopy)
+	{
+		Device->ExecuteInterGPUCopyCommandList(CurrentGraphicsList);
 	}
 	IsOpen = false;
 }
@@ -170,31 +197,44 @@ void D3D12CommandList::SetPipelineState(PipeLineState state)
 }
 
 
-void D3D12CommandList::CreateCommandList(ECommandListType listype)
+void D3D12CommandList::CreateCommandList()
 {
-	ListType = listype;
-	if (listype == ECommandListType::Graphics)
+	if (ListType == ECommandListType::Graphics)
 	{
 		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
 		CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
 		ThrowIfFailed(CurrentGraphicsList->Close());
 	}
-	else if (listype == ECommandListType::Compute)
+	else if (ListType == ECommandListType::Compute)
 	{
 		//todo: aloccators?
 		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
 		CurrentGraphicsList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
 		ThrowIfFailed(CurrentGraphicsList->Close());
 	}
-	else if (listype == ECommandListType::Copy)
+	else if (ListType == ECommandListType::Copy)
 	{
-
+		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
+		//CurrentGraphicsList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
+		ThrowIfFailed(CurrentGraphicsList->Close());
 	}
 }
 
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {
 	ensure(ListType == ECommandListType::Compute);
+}
+
+void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
+{
+	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
+	buffer->CopyToDevice(CurrentGraphicsList);
+}
+
+void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
+{
+	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
+	buffer->MakeReadyOnTarget(CurrentGraphicsList);
 }
 
 void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
@@ -234,7 +274,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
-	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex,Device);
+	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex, Device);
 }
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
@@ -292,7 +332,7 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
 {
 	CBV = new D3D12CBV(Device);
 	CBV->InitCBV(StructSize, Elementcount);
-	cpusize = StructSize;
+	ConstantBufferDataSize = StructSize;
 }
 
 void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype)
@@ -325,13 +365,13 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
 		// store vertex buffer in upload heap
 		D3D12_SUBRESOURCE_DATA Data = {};
 		Data.pData = reinterpret_cast<BYTE*>(data); // pointer to our index array
-		Data.RowPitch = vertexBufferSize; // size of all our index buffer
-		Data.SlicePitch = vertexBufferSize; // also the size of our index buffer
+		Data.RowPitch = VertexBufferSize; // size of all our index buffer
+		Data.SlicePitch = VertexBufferSize; // also the size of our index buffer
 
 											// we are now creating a command with the command list to copy the data from
 											// the upload heap to the default heap
 		UpdateSubresources(Device->GetCopyList(), m_vertexBuffer, m_UploadBuffer, 0, 0, 1, &Data);
-		
+
 		// transition the vertex buffer data from copy destination state to vertex buffer state
 		Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 		UploadComplete = true;
@@ -381,12 +421,12 @@ void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
 {
 	//This Vertex Buffer Will Have Data Changed Every frame so no need to transiton to only gpu.
 	// Create the vertex buffer.
-	vertexBufferSize = ByteSize;//mazsize
+	VertexBufferSize = ByteSize;//mazsize
 
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
+		&CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&m_vertexBuffer)));
@@ -394,13 +434,13 @@ void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
 	// Initialize the vertex buffer view.
 	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
 	m_vertexBufferView.StrideInBytes = Stride;
-	m_vertexBufferView.SizeInBytes = vertexBufferSize;
+	m_vertexBufferView.SizeInBytes = VertexBufferSize;
 	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
 }
 
 void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 {
-	CBV->UpdateCBV(data, offset, cpusize);
+	CBV->UpdateCBV(data, offset, ConstantBufferDataSize);
 }
 
 void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register)

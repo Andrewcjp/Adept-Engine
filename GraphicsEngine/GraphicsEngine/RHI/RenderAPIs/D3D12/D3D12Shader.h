@@ -1,9 +1,9 @@
 #pragma once
-#include "../RHI/ShaderProgramBase.h"
+#include "RHI/ShaderProgramBase.h"
 #include <d3d12.h>
 #include "glm\glm.hpp"
-#include "../EngineGlobals.h"
-#include "../RHI/Shader.h"
+#include "EngineGlobals.h"
+#include "RHI/Shader.h"
 class D3D12Shader : public ShaderProgramBase
 {
 public:

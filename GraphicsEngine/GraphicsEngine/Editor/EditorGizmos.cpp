@@ -1,8 +1,8 @@
 #include "EditorGizmos.h"
 #include "Core/GameObject.h"
 
-#include "../Rendering/Core/DebugLineDrawer.h"
-#include "../Core/Input.h"
+#include "Rendering/Core/DebugLineDrawer.h"
+#include "Core/Input.h"
 EditorGizmos::EditorGizmos()
 {
 	HandleLength = 5;

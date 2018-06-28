@@ -8,8 +8,8 @@
 #include <string>
 #include <iostream>
 #include <filesystem>
-#include "../Core/Assets/AssetManager.h"
-#include "../Core/Utils/StringUtil.h"
+#include "Core/Assets/AssetManager.h"
+#include "Core/Utils/StringUtil.h"
 DxIncludeHandler::DxIncludeHandler()
 {}
 

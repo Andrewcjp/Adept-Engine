@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "../Rendering/Core/RenderBaseTypes.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 
 //this class loads mesh data into mesh;
 class MeshLoader

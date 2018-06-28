@@ -1,7 +1,7 @@
 #pragma once
-#include "../EngineGlobals.h"
-#include "../Core/IRefCount.h"
-#include "../Core/Assets/AssetManager.h"
+#include "EngineGlobals.h"
+#include "Core/IRefCount.h"
+#include "Core/Assets/AssetManager.h"
 class BaseTexture : public IRefCount
 {
 public:

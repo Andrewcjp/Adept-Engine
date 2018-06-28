@@ -2,15 +2,15 @@
 #include "Inspector.h"
 #include "IInspectable.h"
 #include <vector>
-#include "../UI/UIEditField.h"
-#include "../UI/UIBox.h"
-#include "../UI/UIManager.h"
-#include "../UI/UIButton.h"
-#include "../UI/Layout.h"
-#include "../UI/UIPanel.h"
-#include "../Core/Components/CompoenentRegistry.h"
-#include "../Core/GameObject.h"
-#include "../Core/Components/Component.h"
+#include "UI/UIEditField.h"
+#include "UI/UIBox.h"
+#include "UI/UIManager.h"
+#include "UI/UIButton.h"
+#include "UI/Layout.h"
+#include "UI/UIPanel.h"
+#include "Core/Components/CompoenentRegistry.h"
+#include "Core/GameObject.h"
+#include "Core/Components/Component.h"
 Inspector* Inspector::Instance = nullptr;
 Inspector::Inspector(int w, int h, int x, int y)
 	:UIWidget(w, h, x, y)

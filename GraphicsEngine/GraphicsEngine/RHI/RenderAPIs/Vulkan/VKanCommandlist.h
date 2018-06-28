@@ -1,6 +1,6 @@
 #pragma once
-#include "../RHI/RHICommandList.h"
-#include "../RHI/Shader.h"
+#include "RHI/RHICommandList.h"
+#include "RHI/Shader.h"
 #if BUILD_VULKAN
 class VKanCommandlist :
 	public RHICommandList

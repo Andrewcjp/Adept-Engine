@@ -1,5 +1,5 @@
 #pragma once
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 #include <d3d12.h>
 class D3D12CBV
 {

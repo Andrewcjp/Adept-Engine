@@ -2,7 +2,7 @@
 #include "Physics/RigidBody.h"
 #include "RHI/RHI.h"
 #include "Components\MeshRendererComponent.h"
-#include "../Core/Assets/Scene.h"
+#include "Core/Assets/Scene.h"
 //#include "Assets\SerialHelpers.h"
 #include "Assets\SceneJSerialiser.h"
 #include "include\glm\gtx\quaternion.hpp"

@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "RHICommandList.h"
-#include "../Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/FrameBuffer.h"
 #include "DeviceContext.h"
-RHICommandList::RHICommandList()
-{}
 
+
+RHICommandList::RHICommandList(ECommandListType::Type type)
+{
+	ListType = type;
+}
 
 RHICommandList::~RHICommandList()
 {}

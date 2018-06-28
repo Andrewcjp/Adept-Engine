@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Editor_Camera.h"
-#include "../Core/Input.h"
+#include "Core/Input.h"
 
 Editor_Camera::Editor_Camera(Camera* cam)
 {

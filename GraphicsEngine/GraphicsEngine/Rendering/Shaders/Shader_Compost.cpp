@@ -1,6 +1,6 @@
 #include "Stdafx.h"
 #include "Shader_Compost.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 
 Shader_Compost::Shader_Compost(DeviceContext * context)
 {

@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "PostProcessEffectBase.h"
-#include "../RHI/RHI.h"
-#include "../RHI/DeviceContext.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RHI/RHI.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 PostProcessEffectBase::PostProcessEffectBase()
 {}
 void PostProcessEffectBase::SetUpData()

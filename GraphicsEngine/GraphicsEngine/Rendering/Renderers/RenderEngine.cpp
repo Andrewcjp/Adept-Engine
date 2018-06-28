@@ -1,11 +1,11 @@
 #include "RenderEngine.h"
-#include "../Rendering/Core/ShadowRenderer.h"
-#include "../Core/Assets/Scene.h"
-#include "../Rendering/Core/GPUStateCache.h"
-#include "../Rendering/PostProcessing/PostProcessing.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "../Editor/Editor_Camera.h"
-#include "../Rendering/Shaders/Shader_Skybox.h"
+#include "Rendering/Core/ShadowRenderer.h"
+#include "Core/Assets/Scene.h"
+#include "Rendering/Core/GPUStateCache.h"
+#include "Rendering/PostProcessing/PostProcessing.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "Editor/Editor_Camera.h"
+#include "Rendering/Shaders/Shader_Skybox.h"
 RenderEngine::~RenderEngine()
 {
 	DestoryRenderWindow();
@@ -80,6 +80,18 @@ void RenderEngine::PrepareData()
 	{
 		MainShader->UpdateUnformBufferEntry(MainShader->CreateUnformBufferEntry((*MainScene->GetObjects())[i]), (int)i);
 	}
+}
+
+void RenderEngine::Resize(int width, int height)
+{
+	if (RHI::IsD3D12())
+	{
+		if (D3D12RHI::Instance)
+		{
+			D3D12RHI::Instance->ResizeSwapChain(width, height, true);
+		}
+	}
+
 }
 
 

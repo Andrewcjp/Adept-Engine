@@ -16,18 +16,15 @@ public:
 	{
 		LARGE_INTEGER Cycles;
 		QueryPerformanceCounter(&Cycles);
-
-		// add big number to make bugs apparent where return value is being passed to float
-		return Cycles.QuadPart * SecondsPerCycle;// +16777216.0;
+		return Cycles.QuadPart * SecondsPerCycle;
 	}
-	static void Sleep(float Seconds)
+	static void Sleep(float Milliseconds)
 	{
-		int Milliseconds = (int)(Seconds * 1000.0);
-		if (Milliseconds == 0)
+		if (Milliseconds < 0.5f)
 		{
 			::SwitchToThread();
 		}
-		::Sleep(Milliseconds);
+		::Sleep((int)Milliseconds);
 	}
 private:
 	static double SecondsPerCycle;

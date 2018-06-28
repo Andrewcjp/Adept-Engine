@@ -10,6 +10,7 @@ class EditorObjectSelector;
 class DebugLineDrawer;
 class SceneSerialiser;
 class UIManager;
+class EditorCore;
 #define PLAYMODE_USE_SAVED 1
 class EditorWindow : public BaseWindow
 {
@@ -25,6 +26,7 @@ public:
 	void ExitPlayMode();
 	virtual void DestroyRenderWindow() override final;
 	BOOL MouseLBDown(int x, int y) override;
+	static EditorCore* GetEditorCore();
 protected:
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
@@ -36,6 +38,7 @@ protected:
 	void Update() override;
 	void SaveScene();
 	void SetDeferredState(bool state);
+	
 private:
 	static EditorWindow* instance;
 	EditorGizmos* gizmos;
@@ -47,4 +50,5 @@ private:
 	int currentmemeory = 0;
 	class Editor_Camera* EditorCamera;
 	std::string CurrentSceneSavePath;
+	EditorCore* mEditorCore = nullptr;
 };

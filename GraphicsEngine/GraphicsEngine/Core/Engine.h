@@ -1,5 +1,5 @@
 #pragma once
-#include "../EngineGlobals.h"
+#include "EngineGlobals.h"
 #include "Core/MinWindows.h"
 #include <string>
 

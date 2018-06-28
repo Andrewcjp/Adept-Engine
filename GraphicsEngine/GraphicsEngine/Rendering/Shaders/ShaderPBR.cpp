@@ -11,8 +11,8 @@ ShaderPBR::ShaderPBR()
 	m_Shader->CreateShaderProgram();
 	m_Shader->AttachAndCompileShaderFromFile("PBR", SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("PBR", SHADER_FRAGMENT);
-	/*m_Shader->AttachAndCompileShaderFromFile(L"../asset/shader/glsl/fallback.vert", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile(L"../asset/shader/glsl/fallback.frag", SHADER_FRAGMENT);*/
+	/*m_Shader->AttachAndCompileShaderFromFile(L"asset/shader/glsl/fallback.vert", SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile(L"asset/shader/glsl/fallback.frag", SHADER_FRAGMENT);*/
 
 	m_Shader->BindAttributeLocation(0, "pos");
 	m_Shader->BindAttributeLocation(1, "Normal");

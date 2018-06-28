@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../RHI/ShaderBase.h"
+#include "RHI/ShaderBase.h"
 #include <vector>
 class ShaderProgramBase
 {

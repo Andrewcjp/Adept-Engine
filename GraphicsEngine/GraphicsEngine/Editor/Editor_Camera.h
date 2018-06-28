@@ -1,5 +1,5 @@
 #pragma once
-#include "../Rendering/Core/Camera.h"
+#include "Rendering/Core/Camera.h"
 class Editor_Camera
 {
 public:

@@ -1,8 +1,8 @@
 #pragma once
-#include "../RHI/Shader.h"
+#include "RHI/Shader.h"
 #include <string>
 #define CUBE_SIDES 6
-#include "../Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/FrameBuffer.h"
 #include "glm\fwd.hpp"
 class Shader_Depth :public Shader
 {

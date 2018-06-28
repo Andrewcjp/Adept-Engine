@@ -2,8 +2,8 @@
 #include "PostProcessing.h"
 #include "PP_CompostPass.h"
 #include "PP_ColourCorrect.h"
-#include "../RHI/DeviceContext.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 PostProcessing* PostProcessing::Instance = nullptr;
 PostProcessing::PostProcessing()
 {

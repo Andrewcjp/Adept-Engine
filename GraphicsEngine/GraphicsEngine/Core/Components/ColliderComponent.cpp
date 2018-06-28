@@ -1,7 +1,7 @@
 //#include "stdafx.h"
 #include "ColliderComponent.h"
-#include "../Engine.h"
-#include "../Physics/PhysicsEngine.h"
+#include "Core/Engine.h"
+#include "Physics/PhysicsEngine.h"
 
 ColliderComponent::ColliderComponent()
 {

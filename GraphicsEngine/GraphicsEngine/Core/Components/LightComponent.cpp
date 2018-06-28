@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "LightComponent.h"
-#include "../GameObject.h"
-#include "../Editor/EditorWindow.h"
-#include "../EngineGlobals.h"
-#include "../Assets/Scene.h"
+#include "Core/GameObject.h"
+#include "Editor/EditorWindow.h"
+#include "EngineGlobals.h"
+#include "Core/Assets/Scene.h"
 #include "CompoenentRegistry.h"
-#include "../Assets/SerialHelpers.h"
-#include "../Assets/SceneJSerialiser.h"
+#include "Core/Assets/SerialHelpers.h"
+#include "Core/Assets/SceneJSerialiser.h"
 LightComponent::LightComponent() :Component()
 {
 	TypeID = CompoenentRegistry::BaseComponentTypes::LightComp;
@@ -14,9 +14,7 @@ LightComponent::LightComponent() :Component()
 
 LightComponent::~LightComponent()
 {
-
 	GetOwner()->GetScene()->RemoveLight(MLight);
-
 	delete MLight;
 }
 
@@ -24,7 +22,6 @@ void LightComponent::InitComponent()
 {
 	MLight = new Light(GetOwner()->GetTransform()->GetPos(), DefaultIntesity, DefaultType, glm::vec3(1), DefaultShadow);
 	MLight->SetDirection(GetOwner()->GetTransform()->GetForward());
-
 }
 
 void LightComponent::BeginPlay()
@@ -49,9 +46,9 @@ void LightComponent::SetShadow(bool Shadow)
 	MLight->SetShadow(Shadow);
 }
 
-void LightComponent::SetLightColour(glm::vec3)
+void LightComponent::SetLightColour(glm::vec3 value)
 {
-
+	MLight->m_lightColor = value;
 }
 
 Light * LightComponent::Internal_GetLightPtr()
@@ -92,7 +89,6 @@ void LightComponent::Serialise(rapidjson::Value & v)
 	SerialHelpers::addLiteral(v, *SceneJSerialiser::jallocator, "Intensity", MLight->GetIntesity());
 	SerialHelpers::addLiteral(v, *SceneJSerialiser::jallocator, "LightType", MLight->GetType());
 	SerialHelpers::addBool(v, *SceneJSerialiser::jallocator, "LightShadow", MLight->GetDoesShadow());
-
 }
 
 void LightComponent::Deserialise(rapidjson::Value & v)

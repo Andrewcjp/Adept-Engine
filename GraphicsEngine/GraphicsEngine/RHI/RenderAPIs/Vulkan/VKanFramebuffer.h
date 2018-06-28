@@ -1,5 +1,5 @@
 #pragma once
-#include "../Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/FrameBuffer.h"
 #if BUILD_VULKAN
 class VKanFramebuffer : public FrameBuffer
 {

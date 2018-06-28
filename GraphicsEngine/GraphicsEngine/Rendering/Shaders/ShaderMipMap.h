@@ -1,6 +1,6 @@
 #pragma once
 #include "..\RHI\Shader.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12Texture.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
 class ShaderMipMap :
 	public Shader
 {

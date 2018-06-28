@@ -45,6 +45,7 @@ public:
 	static float GetGPUTime();
 	static float GetCPUTime();
 	static float GetDeltaTime();
+	static void SetDeltaTime(float Time);
 	static void NotifyEndOfFrame();
 	bool ShowAllStats = false;
 	struct TimerData
@@ -99,7 +100,7 @@ private:
 	int FrameAccum = 0;
 	float fpsnexttime = 0;
 	float FpsPollSpeed = 0.25f;
-	float CurrentAVGFps;
+	float CurrentAVGFps = 0.0f;
 	float AVGFrameTime = 0;
 	float FrameTimeAccum = 0.0;
 	

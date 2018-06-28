@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include <string>
-#include "../Core/Utils/StringUtil.h"
+#include "Core/Utils/StringUtil.h"
 #include "Core/Engine.h"
 class BaseTexture;
 class ShaderProgramBase;
@@ -57,7 +57,7 @@ public:
 	bool GetTextureAsset(std::string path, TextureAsset & asset, bool ABSPath = false);
 	static size_t GetShaderAsset(std::string name, char ** buffer);
 	std::string LoadFileWithInclude(std::string name);
-	std::string TextureAssetPath = "../asset/shader/glsl/";
+	std::string TextureAssetPath = "asset/shader/glsl/";
 	bool GetShaderAsset(std::string path, ShaderAsset &asset);
 	std::map<std::string, TextureAsset>* GetTextureMap() { return &TextureAssetsMap; }
 	std::map<std::string, std::string>* GetMeshMap() { return &MeshFileMap; }
@@ -129,8 +129,8 @@ public:
 		return AssetFileType::Unknown;
 	}
 private:
-	const std::string AssetRootPath = "../asset/";
-	std::string ShaderAssetPath = "../asset/shader/glsl/";
+	const std::string AssetRootPath = "asset/";
+	std::string ShaderAssetPath = "asset/shader/glsl/";
 
 	static const std::string GetDDCPath();
 	static const std::string GetTextureGenScript();
@@ -152,7 +152,7 @@ private:
 	bool CookShaders = true;
 	bool UseCookedtextures = true;
 
-	std::string TextureCooked = "../asset/TextureCooked.bin";
+	std::string TextureCooked = "asset/TextureCooked.bin";
 	float StartTime = 0;
 	size_t LoadedAssetSize = 0;
 	std::string FileSplit = "|FileStart|";

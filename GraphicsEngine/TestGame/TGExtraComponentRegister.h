@@ -9,3 +9,4 @@ public:
 	Component* CreateExtraComponent(int id)override;
 };
 
+ 

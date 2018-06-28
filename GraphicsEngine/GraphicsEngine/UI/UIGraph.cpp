@@ -1,16 +1,15 @@
 #include "stdafx.h"
 #include "UIGraph.h"
-#include "../Rendering/Core/DebugLineDrawer.h"
-#include "../Core/Performance/PerfManager.h"
+#include "Rendering/Core/DebugLineDrawer.h"
+#include "Core/Performance/PerfManager.h"
 UIGraph::UIGraph(DebugLineDrawer* linebatch, int w, int h, int x, int y) :UIWidget(w, h, x, y)
 {
 	LineBatcher = linebatch;
 	PointWidth = 10;
 	GraphPoints = w / PointWidth * 2;
 	CurrentFrameCounter = 10;
-	FramesPerSample = 5;
+	FramesPerSample = 1;
 }
-
 
 UIGraph::~UIGraph()
 {
@@ -22,9 +21,11 @@ void UIGraph::Render()
 	LineBatcher->AddLine(glm::vec3(X + mwidth, Y, 0), glm::vec3(X + mwidth, Y + mheight, 0), glm::vec3(1, 1, 1));
 	LineBatcher->AddLine(glm::vec3(X, Y,0), glm::vec3(X + mwidth, Y, 0), glm::vec3(1, 1, 1));
 	//render points;
-	RenderPoints(points, GraphColour);
-	RenderPoints(Secondpoints, glm::vec3(1, 1, 0));
+	RenderPoints(GPUpoints, glm::vec3(1, 1, 0));
+	RenderPoints(CPUpoints, glm::vec3(1, 0, 0));
+	RenderPoints(FrameTimepoints, glm::vec3(0, 1, 0));
 }
+
 void UIGraph::RenderPoints(std::vector<float> &inpoints, glm::vec3 colour)
 {
 	int accum = 0;
@@ -34,6 +35,7 @@ void UIGraph::RenderPoints(std::vector<float> &inpoints, glm::vec3 colour)
 		accum += PointWidth;
 	}
 }
+
 void UIGraph::AddPoint(std::vector<float> &inpoints, float value)
 {
 	if (inpoints.size() > GraphPoints)
@@ -42,14 +44,17 @@ void UIGraph::AddPoint(std::vector<float> &inpoints, float value)
 	}
 	inpoints.emplace(inpoints.begin(), value);
 }
+
 void UIGraph::UpdateData()
 {
+	CurrentFrameCounter--;
 	if (CurrentFrameCounter > 0)
-	{
-		CurrentFrameCounter--;
+	{		
 		return;
 	}
 	CurrentFrameCounter = FramesPerSample;
-	AddPoint(points, PerfManager::GetGPUTime()*2.5f);
-	AddPoint(Secondpoints, PerfManager::GetCPUTime()*2.5f);
+	const float Scale = 2.5f;
+	AddPoint(GPUpoints, PerfManager::GetGPUTime()*Scale);
+	AddPoint(CPUpoints, PerfManager::GetCPUTime()*Scale);
+	AddPoint(FrameTimepoints, PerfManager::GetDeltaTime()*1000.0f*Scale);
 }

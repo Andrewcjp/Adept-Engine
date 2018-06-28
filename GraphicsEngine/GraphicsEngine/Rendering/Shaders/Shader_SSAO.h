@@ -1,5 +1,5 @@
 #pragma once
-#include "../RHI/Shader.h"
+#include "RHI/Shader.h"
 
 #include <vector>
 #include <random>

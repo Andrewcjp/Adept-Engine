@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "ShaderMipMap.h"
 #include "d3dx12.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include <algorithm>
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "RHI/DeviceContext.h"
 ShaderMipMap::ShaderMipMap()
 {
 	m_Shader = RHI::CreateShaderProgam();

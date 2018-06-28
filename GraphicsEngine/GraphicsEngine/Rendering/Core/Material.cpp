@@ -1,8 +1,8 @@
 #include "Material.h"
 #include <iostream>
 #include "GPUStateCache.h"
-#include "../RHI/Shader.h"
-#include "../RHI/RHICommandList.h"
+#include "RHI/Shader.h"
+#include "RHI/RHICommandList.h"
 
 Material::Material(BaseTexture * Diff, MaterialProperties props)
 {

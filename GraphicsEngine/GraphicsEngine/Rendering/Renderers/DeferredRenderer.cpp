@@ -1,15 +1,15 @@
 #include "DeferredRenderer.h"
-#include "../Rendering/Core/Mesh.h"
+#include "Rendering/Core/Mesh.h"
 #include "RHI/RHI.h"
-#include "../Core/Components/MeshRendererComponent.h"
-#include "../Core/Assets/Scene.h"
-#include "../Rendering/PostProcessing/PostProcessing.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "../Editor/Editor_Camera.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "Core/Components/MeshRendererComponent.h"
+#include "Core/Assets/Scene.h"
+#include "Rendering/PostProcessing/PostProcessing.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "Editor/Editor_Camera.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "Rendering\Shaders\Shader_Skybox.h"
 
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 void DeferredRenderer::OnRender()
 {
 #if WITH_EDITOR
@@ -116,13 +116,7 @@ void DeferredRenderer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	if (RHI::IsD3D12())
-	{
-		if (D3D12RHI::Instance)
-		{
-			D3D12RHI::Instance->ResizeSwapChain(width, height);
-		}
-	}
+	RenderEngine::Resize(width, height);
 	if (MainCamera != nullptr)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);

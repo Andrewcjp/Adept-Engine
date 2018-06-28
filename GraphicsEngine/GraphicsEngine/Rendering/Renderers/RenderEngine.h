@@ -1,10 +1,10 @@
 #pragma once
-#include "../Rendering/Core/Camera.h"
+#include "Rendering/Core/Camera.h"
 #include "Core/GameObject.h"
-#include "../Rendering/Core/Light.h"
+#include "Rendering/Core/Light.h"
 #include "Rendering\Shaders\Shader_Main.h"
 #include <vector>
-#include "../Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/FrameBuffer.h"
 #include "Rendering\Shaders\ShaderOutput.h"
 #include "RenderSettings.h"
 class OGLWindow;
@@ -24,7 +24,7 @@ public:
 	void Init();
 	void PrepareData();
 	virtual void PostInit() =0;
-	virtual void Resize(int width, int height) = 0;
+	virtual void Resize(int width, int height);
 	virtual void DestoryRenderWindow() {};
 	//called on play start and in editor when statics are changed
 	void StaticUpdate();

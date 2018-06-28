@@ -3,22 +3,22 @@
 #include <mutex>
 #include <thread>
 #include "Engine.h"
-#include "../Rendering/Core/DebugLineDrawer.h"
-#include "../Rendering/Renderers/DeferredRenderer.h"
-#include "../Rendering/Renderers/ForwardRenderer.h"
-#include "../Rendering/PostProcessing/PostProcessing.h"
-#include "../RHI/RHI.h"
-#include "../UI/UIManager.h"
-#include "../Core/Input.h"
-#include "../Physics/PhysicsEngine.h"
-#include "../Core/Utils/StringUtil.h"
-#include "../Core/Assets/SceneJSerialiser.h"
-#include "../UI/TextRenderer.h"
-#include "../Core/Assets/ImageIO.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "../RHI/DeviceContext.h"
+#include "Rendering/Core/DebugLineDrawer.h"
+#include "Rendering/Renderers/DeferredRenderer.h"
+#include "Rendering/Renderers/ForwardRenderer.h"
+#include "Rendering/PostProcessing/PostProcessing.h"
+#include "RHI/RHI.h"
+#include "UI/UIManager.h"
+#include "Core/Input.h"
+#include "Physics/PhysicsEngine.h"
+#include "Core/Utils/StringUtil.h"
+#include "Core/Assets/SceneJSerialiser.h"
+#include "UI/TextRenderer.h"
+#include "Core/Assets/ImageIO.h"
+#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RHI/DeviceContext.h"
 #include <algorithm>
-#include "../Core/Platform/WindowsApplication.h"
+#include "Core/Platform/WindowsApplication.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -110,16 +110,8 @@ void BaseWindow::InitilseWindow()
 	CurrentScene = new Scene();
 	CurrentScene->LoadDefault();
 	Renderer->SetScene(CurrentScene);
-
-	if (LoadText)
-	{
-		UI = new UIManager(m_width, m_height);
-	}
-	//clean
-	input = new Input(nullptr, nullptr, m_hwnd, this);
-	input->main = dynamic_cast<Shader_Main*>(Renderer->GetMainShader());
-	input->Renderer = Renderer;
-	//	input->Filters = Renderer->GetFilterShader();
+	UI = new UIManager(m_width, m_height);
+	input = new Input(m_hwnd);
 	input->Cursor = CopyCursor(LoadCursor(NULL, IDC_ARROW));
 	input->Cursor = SetCursor(input->Cursor);
 
@@ -130,7 +122,7 @@ void BaseWindow::InitilseWindow()
 	}
 	LineDrawer = new DebugLineDrawer();
 	Saver = new SceneJSerialiser();
-	
+
 }
 
 void BaseWindow::FixedUpdate()
@@ -140,7 +132,7 @@ void BaseWindow::FixedUpdate()
 
 void BaseWindow::Render()
 {
-	if (PerfManager::Instance != nullptr )
+	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->ClearStats();
 	}
@@ -154,7 +146,6 @@ void BaseWindow::Render()
 		PerfManager::Instance->StartCPUTimer();
 		PerfManager::Instance->StartFrameTimer();
 	}
-	accumrendertime += DeltaTime;
 	AccumTickTime += DeltaTime;
 	input->ProcessInput(DeltaTime);
 	input->ProcessQue();
@@ -185,7 +176,12 @@ void BaseWindow::Render()
 #endif
 
 	}
-
+#if 1
+	if (input->GetKeyDown(VK_ESCAPE))
+	{
+		PostQuitMessage(0);
+	}
+#endif
 	Update();
 	if (ShouldTickScene)
 	{
@@ -193,7 +189,7 @@ void BaseWindow::Render()
 		CurrentScene->UpdateScene(DeltaTime);
 		//PerfManager::EndTimer("Scene Update");
 	}
-	
+
 	PerfManager::StartTimer("Render");
 	Renderer->Render();
 
@@ -211,14 +207,13 @@ void BaseWindow::Render()
 		UI->UpdateWidgets();
 	}
 	if (UI != nullptr && ShowHud && LoadText)
-	{		
+	{
 		UI->RenderWidgets();
 	}
 	if (PostProcessing::Instance)
 	{
 		PostProcessing::Instance->ExecPPStackFinal(nullptr);
 	}
-	
 	TextRenderer::instance->Reset();
 	PerfManager::StartTimer("TEXT");
 	if (UI != nullptr && ShowHud && LoadText)
@@ -227,16 +222,14 @@ void BaseWindow::Render()
 	}
 	if (LoadText)
 	{
-		
 		RenderText();
 		WindowUI();
-		
 	}
 	PerfManager::EndTimer("TEXT");
 	TextRenderer::instance->Finish();
-	
+
 	PerfManager::EndTimer("UI");
-	
+
 
 #if USE_PHYSX_THREADING
 	if (DidPhsyx)
@@ -280,23 +273,24 @@ void BaseWindow::Render()
 	if (FrameRateLimit != 0)
 	{
 		TargetDeltaTime = 1.0 / FrameRateLimit;
-		const float WaitTime = std::max( (TargetDeltaTime*1000.0f) - (DeltaTime), 0.f);
-		double WaitEndTime = WindowsApplication::Seconds() + (WaitTime/1000.0f);
+		//in MS
+		const float WaitTime = std::max((TargetDeltaTime*1000.0f) - (DeltaTime), 0.0f);
+		double WaitEndTime = WindowsApplication::Seconds() + (WaitTime / 1000.0f);
 		double LastTime = WindowsApplication::Seconds();
 		if (WaitTime > 0)
 		{
 			if (WaitTime > 5 / 1000.f)
 			{
 				//little offset
-				WindowsApplication::Sleep((WaitTime - 0.003f)/1000.0f);
+				WindowsApplication::Sleep(WaitTime);
 			}
-			
+
 			while (WindowsApplication::Seconds() < WaitEndTime)
 			{
-				const double curretntime = WindowsApplication::Seconds();
 				WindowsApplication::Sleep(0);
 			}
 			DeltaTime = WindowsApplication::Seconds() - LastTime;
+			PerfManager::SetDeltaTime(DeltaTime);
 		}
 	}
 }
@@ -322,15 +316,6 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			}
 			return true;
 		}
-		else if (command.find("showgrass") != -1)
-		{
-			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
-			if (r != nullptr)
-			{
-				//			r->RenderGrass = r->RenderGrass ? false : true;
-			}
-			return true;
-		}
 		else if (command.find("renderscale") != -1)
 		{
 			StringUtils::RemoveChar(command, ">renderscale");
@@ -347,12 +332,6 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 		{
 			Instance->CurrentRenderSettings.CurrentAAMode = (Instance->CurrentRenderSettings.CurrentAAMode == AAMode::FXAA) ? AAMode::NONE : AAMode::FXAA;
 			Instance->Renderer->SetRenderSettings(Instance->CurrentRenderSettings);
-			return true;
-		}
-		else if (command.find("vtest") != -1)
-		{
-			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
-			//			r->UseQuerry = r->UseQuerry ? false : true;
 			return true;
 		}
 	}
@@ -547,8 +526,8 @@ void BaseWindow::RenderText()
 	}
 
 	if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)
-	{		
-		PerfManager::Instance->DrawAllStats(m_width/2, m_height/1.2);
+	{
+		PerfManager::Instance->DrawAllStats(m_width / 2, m_height / 1.2);
 	}
 }
 
