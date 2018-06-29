@@ -49,14 +49,11 @@ void RenderEngine::PreRender()
 			MainCamera = EditorCam->GetCamera();
 		}
 	}
-	else
-	{
-		if (MainCamera == EditorCam->GetCamera())
-		{
-			MainCamera = MainScene->GetCurrentRenderCamera();
-		}
-	}
+	else	
 #endif
+	{
+		MainCamera = MainScene->GetCurrentRenderCamera();
+	}	
 }
 
 //init common to both renderers

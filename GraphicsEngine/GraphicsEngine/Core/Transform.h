@@ -23,13 +23,15 @@ public:
 	void SetQrot(const glm::quat& val);
 	void SetParent(Transform* Parent);
 	void TranslatePos(const glm::vec3 & pos);
+	void MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up);
 	///------------------------------------------------------
 	//getters
 	glm::vec3 GetPos() const { return _pos; }
-	glm::vec3 GetEulerRot() const { return _rot; }
+	glm::vec3 GetEulerRot() const;
 	glm::vec3 GetScale() const { return _scale; }
 	glm::vec3 GetForward();
 	glm::vec3 GetUp();
+	glm::vec3 GetRight();
 	glm::vec3 TransfromToLocalSpace(glm::vec3& direction);
 	glm::vec3 TransformDirection(const glm::vec3& pDirection, const  glm::mat4& pMatrix);
 	glm::quat GetQuatRot()const;

@@ -28,7 +28,7 @@ public:
 	CORE_API void BeginPlay();
 
 	void Render(bool ignore = false);
-	void Render(bool ignoremat, CommandListDef * list);
+	void Render(bool ignoremat, ID3D12GraphicsCommandList * list);
 	void Render(bool ignoremat, RHICommandList* list);
 	bool CheckCulled(float Distance, float angle);
 	EMoblity GetMobility();
@@ -88,7 +88,7 @@ inline T * GameObject::GetComponent()
 {
 	for (int i = 0; i < m_Components.size(); i++)
 	{
-		T* Target = static_cast<T>(m_Components[i]);
+		T* Target = static_cast<T*>(m_Components[i]);
 		if (Target != nullptr)
 		{
 			return Target;

@@ -43,14 +43,12 @@ void DeferredRenderer::RenderSkybox()
 void DeferredRenderer::PostInit()
 {
 	MainShader = new Shader_Main(false);
-	//FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::Colour);
 	FilterBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateColour(m_width, m_height));
 	DeferredShader = new Shader_Deferred();
-	//GFrameBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::GBuffer);
 	GFrameBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateGBuffer(m_width, m_height));
-	WriteList = RHI::CreateCommandList(RHI::GetDeviceContext(0));
+	WriteList = RHI::CreateCommandList(ECommandListType::Graphics,RHI::GetDeviceContext(0));
 	WriteList->CreatePipelineState(MainShader, GFrameBuffer);
-	LightingList = RHI::CreateCommandList(RHI::GetDeviceContext(0));
+	LightingList = RHI::CreateCommandList(ECommandListType::Graphics,RHI::GetDeviceContext(0));
 	LightingList->SetPipelineState(PipeLineState{ false,false,false });
 	LightingList->CreatePipelineState(DeferredShader);
 	D3D12RHI::Instance->AddLinkedFrameBuffer(GFrameBuffer);

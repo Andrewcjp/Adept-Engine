@@ -13,7 +13,6 @@ protected:
 
 public:
 	RenderWindow() { ; }
-	RenderWindow(HINSTANCE hInstance, int width, int height);
 	virtual				~RenderWindow() { ; }
 
 	//	virtual BOOL		InitWindow(HINSTANCE hInstance, int width, int height) = 0;

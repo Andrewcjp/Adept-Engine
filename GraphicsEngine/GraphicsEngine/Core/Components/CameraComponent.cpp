@@ -30,6 +30,12 @@ void CameraComponent::BeginPlay()
 
 void CameraComponent::Update(float )
 {
+	if (MCamera != nullptr)
+	{
+		Transform* T = GetOwner()->GetTransform();
+		MCamera->SetPos(T->GetPos());
+		//MCamera->SetUpAndForward(T->GetForward(), T->GetUp());
+	}
 }
 
 Camera * CameraComponent::GetMainCamera()

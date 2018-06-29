@@ -150,6 +150,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 }
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
+	ensure(ListType == ECommandListType::Graphics|| ListType == ECommandListType::Compute);
 	D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
 	D3D12Shader::PipeRenderTargetDesc PRTD = {};
 	if (Buffer == nullptr)
@@ -164,8 +165,10 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	}
 	CreatePipelineState(shader, PRTD);
 }
+
 void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc)
 {
+	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
 	if (CurrentPipelinestate.m_pipelineState != nullptr)
 	{
 		CurrentPipelinestate.m_pipelineState->Release();
@@ -195,7 +198,6 @@ void D3D12CommandList::SetPipelineState(PipeLineState state)
 {
 	Currentpipestate = state;
 }
-
 
 void D3D12CommandList::CreateCommandList()
 {
@@ -228,12 +230,14 @@ void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, in
 void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 {
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
+	ensure(Device == buffer->GetDevice());
 	buffer->CopyToDevice(CurrentGraphicsList);
 }
 
 void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
 {
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
+	ensure(Device == buffer->GetTargetDevice());
 	buffer->MakeReadyOnTarget(CurrentGraphicsList);
 }
 
@@ -242,7 +246,7 @@ void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 	ensure(ListType == ECommandListType::Graphics);
 	((D3D12FrameBuffer*)buffer)->ClearBuffer(CurrentGraphicsList);
 }
-//todo: move to gpuresrouce!
+
 void D3D12CommandList::UAVBarrier(RHIUAV * target)
 {
 	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;//todo: counter uav?
@@ -294,7 +298,9 @@ void D3D12CommandList::UpdateConstantBuffer(void * data, int offset)
 
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
 {
-	((D3D12Buffer*)buffer)->SetConstantBufferView(offset, CurrentGraphicsList, Register);
+	D3D12Buffer* d3Buffer = (D3D12Buffer*)buffer;
+	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
+	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Register);
 }
 
 

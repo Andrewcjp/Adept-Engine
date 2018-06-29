@@ -148,6 +148,7 @@ EditorCore * EditorWindow::GetEditorCore()
 	{
 		return instance->mEditorCore; 
 	}
+	return nullptr;
 }
 
 void EditorWindow::PrePhysicsUpdate()
@@ -198,10 +199,6 @@ void EditorWindow::Update()
 		{
 			SaveScene();
 		}
-	}
-	if (input->GetKeyDown(VK_F11))
-	{
-		D3D12RHI::Instance->ToggleFullScreenState();
 	}
 	if (input->GetKeyDown(VK_F2))
 	{

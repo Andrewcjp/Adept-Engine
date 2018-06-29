@@ -9,6 +9,7 @@
 #include "Core/Game.h"
 #include "Physics\PhysicsEngine.h"
 #include "Core\Engine.h"
+#include "Core/Input.h"
 #define TARGET_RESOLUTION 1         // 1-millisecond target resolution
 BaseApplication* BaseApplication::s_oglapp = nullptr;
 #pragma comment(lib, "winmm.lib")
@@ -216,9 +217,11 @@ LRESULT CALLBACK BaseApplication::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LP
 
 	case WM_LBUTTONUP:
 		s_oglapp->GetApplicationWindow()->MouseLBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		Input::ReciveMouseDownMessage(0, false);
 		break;
 	case WM_LBUTTONDOWN:
 		s_oglapp->GetApplicationWindow()->MouseLBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		Input::ReciveMouseDownMessage(0, true);
 		break;
 	case WM_RBUTTONUP:
 		s_oglapp->GetApplicationWindow()->MouseRBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));

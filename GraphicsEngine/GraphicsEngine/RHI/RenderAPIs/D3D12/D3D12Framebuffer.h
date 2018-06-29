@@ -14,12 +14,12 @@ public:
 	void CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap = 0);
 	void Init();
 	virtual ~D3D12FrameBuffer();
-	void ReadyResourcesForRead(CommandListDef * list, int Resourceindex = 0);
+	void ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
-	void		 BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex =0, DeviceContext* target = nullptr);
-	virtual void BindBufferAsRenderTarget(CommandListDef * list = nullptr) ;
-	void		 UnBind(CommandListDef * list);
-	virtual void ClearBuffer(CommandListDef * list = nullptr) ;
+	void		 BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex =0, DeviceContext* target = nullptr);
+	virtual void BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list = nullptr) ;
+	void		 UnBind(ID3D12GraphicsCommandList * list);
+	virtual void ClearBuffer(ID3D12GraphicsCommandList * list = nullptr) ;
 	D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
 	void			CreateSRVHeap(int Num);
 	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap);
@@ -36,6 +36,10 @@ public:
 	void MakeReadyForCopy(ID3D12GraphicsCommandList * list);
 
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);
+	DeviceContext* GetTargetDevice()
+	{
+		return OtherDevice;
+	}
 private:
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	DescriptorHeap* SrvHeap = nullptr;

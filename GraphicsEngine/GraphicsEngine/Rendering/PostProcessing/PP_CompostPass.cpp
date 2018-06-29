@@ -32,7 +32,7 @@ void PP_CompostPass::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 void PP_CompostPass::PostSetUpData()
 {
 	CurrentShader = new Shader_Compost(RHI::GetDeviceContext(0));
-	cmdlist = RHI::CreateCommandList(RHI::GetDeviceContext(0));
+	cmdlist = RHI::CreateCommandList(ECommandListType::Graphics,RHI::GetDeviceContext(0));
 }
 
 void PP_CompostPass::PostInitEffect()

@@ -15,12 +15,12 @@ VKanFramebuffer::~VKanFramebuffer()
 void VKanFramebuffer::BindToTextureUnit(int unit)
 {}
 
-void VKanFramebuffer::BindBufferAsRenderTarget(CommandListDef * list)
+void VKanFramebuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list)
 {}
 
 void VKanFramebuffer::UnBind()
 {}
 
-void VKanFramebuffer::ClearBuffer(CommandListDef * list)
+void VKanFramebuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 {}
 #endif

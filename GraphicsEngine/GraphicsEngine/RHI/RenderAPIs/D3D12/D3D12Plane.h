@@ -10,7 +10,7 @@ public:
 	~D3D12Plane();
 
 	// Inherited via Renderable
-	//virtual void Render(CommandListDef* list = nullptr) override;
+	//virtual void Render(ID3D12GraphicsCommandList* list = nullptr) override;
 	void Render(RHICommandList* list)override;
 	void CreateVertexBuffer();
 private:

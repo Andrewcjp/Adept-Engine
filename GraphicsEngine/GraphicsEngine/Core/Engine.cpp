@@ -103,7 +103,7 @@ HRESULT Engine::LoadAndCallSomeFunction(void*dwParam12)
 			SetGame((Game*)lpfnDllFunc1(dwParam12));
 		}
 		else
-		{		
+		{
 			// report the error  
 			hrReturnVal = ERROR_DELAY_LOAD_FAILED;
 		}
@@ -209,50 +209,32 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 		mwidth = width;
 		mheight = height;
 		CurrentRenderSystem = type;
-
 #if UseDevelopmentWindows
-		if (type == RenderSystemOGL)
-		{
-#endif
-			if (ForcedRenderSystem == ERenderSystemType::Limit)
-			{
-#if 0
-				RHI::InitRHI(RenderSystemVulkan);
-#else 
-				RHI::InitRHI(RenderSystemD3D12);				
-#endif
-			}
-			else
-			{
-				RHI::InitRHI(ForcedRenderSystem);
-			}
-#if WITH_EDITOR
-			m_appwnd = new EditorWindow(Deferredmode);
-#else 
-			m_appwnd = new GameWindow(/*Deferredmode*/);
-#endif 
-			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
-
-#if UseDevelopmentWindows
-		}
-		else if (type == RenderSystemD3D12)
+		if (type == RenderSystemD3D12)
 		{
 			RHI::InitRHI(RenderSystemD3D12);
 			m_appwnd = new D3D12Window();
 			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
+			m_appwnd->SetVisible(TRUE);
+			return;
 		}
-		else if (type == RenderSystemD3D11)
+#endif
+		if (ForcedRenderSystem == ERenderSystemType::Limit)
 		{
-
-#if BUILD_D3D11
-			RHI::InitRHI(RenderSystemD3D11);
-			m_appwnd = new D3D11Window();
-			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
-#else
-			isWindowVaild = false;
-#endif
+			RHI::InitRHI(RenderSystemD3D12);
 		}
-#endif
+		else
+		{
+			RHI::InitRHI(ForcedRenderSystem);
+		}
+#if WITH_EDITOR
+		m_appwnd = new EditorWindow(Deferredmode);
+#else 
+		m_appwnd = new GameWindow(/*Deferredmode*/);
+#endif 
+		isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
+
+
 		if (!isWindowVaild)
 		{
 			std::cout << "Fatal Error: Window Invalid" << std::endl;
@@ -260,40 +242,9 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 #if !NO_GEN_CONTEXT
 		m_appwnd->SetVisible(TRUE);
 #endif
-
 	}
 }
-void Engine::setVSync(bool sync)
-{
-//	// Function pointer for the wgl extention function we need to enable/disable
-//	// vsync
-//	typedef BOOL(APIENTRY *PFNWGLSWAPINTERVALPROC)(int);
-//	PFNWGLSWAPINTERVALPROC wglSwapIntervalEXT = 0;
-//
-//////	const char *extensions = (char*)glGetString(GL_EXTENSIONS);
-//	/*if (extensions == nullptr)
-//	{
-//		return;
-//	}*/
-//	if (strstr(extensions, "WGL_EXT_swap_control") == 0)
-//	{
-//		std::cout << "WGL_EXT_swap_control Not Avalible" << std::endl;
-//		return;
-//	}
-//	else
-//	{
-//		wglSwapIntervalEXT = (PFNWGLSWAPINTERVALPROC)wglGetProcAddress("wglSwapIntervalEXT");
-//
-//		if (wglSwapIntervalEXT != nullptr)
-//		{
-//			wglSwapIntervalEXT(sync);
-//		}
-//		else
-//		{
-//			std::cout << "wglSwapIntervalEXT Not valid" << std::endl;
-//		}
-//	}
-}
+
 bool Engine::SwitchRenderAPI(ERenderSystemType type)
 {
 	if (type == CurrentRenderSystem)

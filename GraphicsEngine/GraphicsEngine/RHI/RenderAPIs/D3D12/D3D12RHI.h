@@ -47,7 +47,7 @@ public:
 	void ExecSetUpList();
 	void ReleaseUploadHeap();
 	void AddUploadToUsed(ID3D12Resource * Target);
-	void ExecList(CommandListDef * list, bool block = false);
+	void ExecList(ID3D12GraphicsCommandList * list, bool block = false);
 	void PostFrame(ID3D12GraphicsCommandList * list);
 	void WaitForPreviousFrame();
 	void FindAdaptors(IDXGIFactory2 * pFactory);
@@ -71,6 +71,7 @@ public:
 	//helper fucntions 
 	static void CheckFeatures(ID3D12Device * pDevice);
 	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
+	void WaitForAllDevices();
 private:
 	class	DeviceContext* PrimaryDevice = nullptr;
 	class	DeviceContext* SecondaryDevice = nullptr;

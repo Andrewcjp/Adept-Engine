@@ -12,8 +12,8 @@ public:
 	};
 	D3D12CBV(class DeviceContext* Device);
 	~D3D12CBV();
-	void SetDescriptorHeaps(CommandListDef * list);
-	void SetGpuView(CommandListDef* list, int offset, int slot = MainCBV);
+	void SetDescriptorHeaps(ID3D12GraphicsCommandList * list);
+	void SetGpuView(ID3D12GraphicsCommandList* list, int offset, int slot = MainCBV);
 	template<typename  T>
 	void UpdateCBV(T& buffer, int offset)
 	{

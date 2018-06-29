@@ -17,11 +17,10 @@
 #define GPUTIMERS_FULL 0
 #endif
 
-
-#pragma warning (disable:4100 4505)
+//#pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0
-#define BUILD_PACKAGE 0
+#define BUILD_PACKAGE 1
 #else
 #define WITH_EDITOR 1
 #define BUILD_PACKAGE 0
@@ -39,13 +38,6 @@ template <class T>
 void UNUSED_PARAM(T const&)
 {}
 #include "Core\Asserts.h"
-
-#if BUILD_D3D12
-#define NAME_D3D12_OBJECT(x) SetName(x, L#x)
-typedef struct ID3D12GraphicsCommandList CommandListDef;
-#else 
-typedef struct Stub {} CommandListDef;
-#endif
 
 #define CORE_API __declspec(dllexport)
 //Asserts

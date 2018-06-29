@@ -11,7 +11,7 @@ public:
 	CORE_API MeshRendererComponent(Renderable * Mesh, Material * materal);
 	virtual ~MeshRendererComponent();
 	void SetUpMesh(Renderable * Mesh, Material * materal);
-	void Render(bool DepthOnly, CommandListDef * list = nullptr);
+	void Render(bool DepthOnly, ID3D12GraphicsCommandList * list = nullptr);
 	void Render(bool DepthOnly,class RHICommandList * list);
 	/*void Render(bool DepthOnly);*/
 	Material* GetMaterial();

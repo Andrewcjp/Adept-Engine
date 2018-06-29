@@ -30,7 +30,7 @@ void MeshRendererComponent::SetUpMesh(Renderable * Mesh, Material * materal)
 	m_mat = materal;
 }
 
-void MeshRendererComponent::Render(bool DepthOnly, CommandListDef* list)
+void MeshRendererComponent::Render(bool DepthOnly, ID3D12GraphicsCommandList* list)
 {
 	if (m_mat != nullptr && DepthOnly == false)
 	{

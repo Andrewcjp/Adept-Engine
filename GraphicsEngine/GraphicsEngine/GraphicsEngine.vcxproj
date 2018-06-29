@@ -303,8 +303,10 @@
     <ClInclude Include="Core\MinWindows.h" />
     <ClInclude Include="Core\Platform\GenericApplication.h" />
     <ClInclude Include="Editor\EditorCore.h" />
+    <ClInclude Include="Core\Components\Utillity\FreeLookComponent.h" />
     <ClInclude Include="RHI\RHITypes.h" />
     <ClInclude Include="RHI\RHI_fwd.h" />
+    <ClInclude Include="Rendering\Shaders\Shader_Blur.h" />
     <ClInclude Include="ThirdParty\NVDDS\DDSTextureLoader12.h" />
     <ClInclude Include="Core\Assets\MeshLoader.h" />
     <ClInclude Include="Core\Utils\MovingAverage.h" />
@@ -372,7 +374,6 @@
     <ClInclude Include="Core\Utils\StringUtil.h" />
     <ClInclude Include="UI\UIDrawBatcher.h" />
     <ClInclude Include="UI\CollisionRect.h" />
-    <ClInclude Include="Development\Windows\D3D11Window.h" />
     <ClInclude Include="Rendering\Renderers\DeferredRenderer.h" />
     <ClInclude Include="Editor\EditorGizmos.h" />
     <ClInclude Include="Editor\EditorWindow.h" />
@@ -397,9 +398,7 @@
     <ClInclude Include="Rendering\Core\Light.h" />
     <ClInclude Include="Rendering\Core\Material.h" />
     <ClInclude Include="Rendering\Core\Mesh.h" />
-    <ClInclude Include="Development\Windows\OGLWindow.h" />
     <ClInclude Include="Rendering\Core\ParticleSystem.h" />
-    <ClInclude Include="Physics\PhxRigidBody.h" />
     <ClInclude Include="Physics\PhysicsEngine.h" />
     <ClInclude Include="Rendering\Core\Renderable.h" />
     <ClInclude Include="Rendering\Renderers\RenderEngine.h" />
@@ -445,6 +444,8 @@
     <ClCompile Include="BaseApplication.cpp" />
     <ClCompile Include="Core\Platform\GenericApplication.cpp" />
     <ClCompile Include="Editor\EditorCore.cpp" />
+    <ClCompile Include="Core\Components\Utillity\FreeLookComponent.cpp" />
+    <ClCompile Include="Rendering\Shaders\Shader_Blur.cpp" />
     <ClCompile Include="ThirdParty\NVDDS\DDSTextureLoader12.cpp" />
     <ClCompile Include="Core\Assets\MeshLoader.cpp" />
     <ClCompile Include="Core\Utils\MovingAverage.cpp" />
@@ -510,7 +511,6 @@
     <ClCompile Include="Core\Components\RigidbodyComponent.cpp" />
     <ClCompile Include="UI\UIDrawBatcher.cpp" />
     <ClCompile Include="UI\CollisionRect.cpp" />
-    <ClCompile Include="Development\Windows\D3D11Window.cpp" />
     <ClCompile Include="Rendering\Renderers\DeferredRenderer.cpp" />
     <ClCompile Include="Editor\EditorGizmos.cpp" />
     <ClCompile Include="Editor\EditorWindow.cpp" />
@@ -535,9 +535,7 @@
     <ClCompile Include="Rendering\Core\Light.cpp" />
     <ClCompile Include="Rendering\Core\Material.cpp" />
     <ClCompile Include="Rendering\Core\Mesh.cpp" />
-    <ClCompile Include="Development\Windows\OGLWindow.cpp" />
     <ClCompile Include="Rendering\Core\ParticleSystem.cpp" />
-    <ClCompile Include="Physics\PhxRigidBody.cpp" />
     <ClCompile Include="Physics\PhysicsEngine.cpp" />
     <ClCompile Include="Rendering\Renderers\RenderEngine.cpp" />
     <ClCompile Include="Physics\RigidBody.cpp" />

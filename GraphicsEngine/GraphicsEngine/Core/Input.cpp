@@ -120,6 +120,29 @@ void Input::LockCursor(bool state)
 	LockMouse = state;
 }
 
+void Input::ReciveMouseDownMessage(int Button, bool state)
+{
+	if (instance != nullptr)
+	{
+		if (MAX_MOUSE_BUTTON_COUNT > Button && Button >= 0)
+		{
+			instance->MouseKeyData[Button] = state;
+		}
+	}
+}
+
+bool Input::GetMouseButtonDown(int button)
+{
+	if (instance != nullptr)
+	{
+		if (MAX_MOUSE_BUTTON_COUNT > button && button >= 0)
+		{
+			return instance->MouseKeyData[button];
+		}
+	}
+	return false;
+}
+
 bool Input::GetKeyDown(int c)
 {
 	if (instance != nullptr)

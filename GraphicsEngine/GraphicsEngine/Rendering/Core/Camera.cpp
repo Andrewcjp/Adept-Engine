@@ -108,6 +108,20 @@ void Camera::Pitch(float angle)
 	forward = glm::vec3(glm::normalize(glm::rotate(angle, right) * glm::vec4(forward, 0.0)));
 	up = glm::normalize(glm::cross(forward, right));
 }
+
+void Camera::RotateY(float angle)
+{
+	static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
+	if (UseLeftHanded)
+	{
+		angle = -angle;
+	}
+	glm::mat4 irotation = glm::rotate(angle, UP);
+
+	forward = glm::vec3(glm::normalize(irotation * glm::vec4(forward, 0.0)));
+	up = glm::vec3(glm::normalize(irotation * glm::vec4(up, 0.0)));
+}
+
 void Camera::qPitch(float angle)
 {
 	//this->_qrot *= glm::angleAxis((amt), glm::normalize(axis));
@@ -125,19 +139,6 @@ void Camera::qRotateY(float angle)
 	qrot *= glm::quat(euler);
 }
 
-void Camera::RotateY(float angle)
-{
-
-	static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
-	if (UseLeftHanded)
-	{
-		angle = -angle;
-	}
-	glm::mat4 irotation = glm::rotate(angle, UP);
-
-	forward = glm::vec3(glm::normalize(irotation * glm::vec4(forward, 0.0)));
-	up = glm::vec3(glm::normalize(irotation * glm::vec4(up, 0.0)));
-}
 void Camera::ePitch(float angle)
 {
 	rotation.z += angle;

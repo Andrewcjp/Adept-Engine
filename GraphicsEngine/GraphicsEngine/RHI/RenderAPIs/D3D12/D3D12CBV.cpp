@@ -25,14 +25,14 @@ D3D12CBV::~D3D12CBV()
 		m_cbvHeap->Release();
 	}
 }
-void D3D12CBV::SetDescriptorHeaps(CommandListDef* list)
+void D3D12CBV::SetDescriptorHeaps(ID3D12GraphicsCommandList* list)
 {
 	//assert(offset < InitalBufferCount && "Out of Buffers");
 	ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	
 }
-void D3D12CBV::SetGpuView(CommandListDef * list, int offset, int slot)
+void D3D12CBV::SetGpuView(ID3D12GraphicsCommandList * list, int offset, int slot)
 {
 	CD3DX12_GPU_DESCRIPTOR_HANDLE  cbvSrvHandle(m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
 	list->SetGraphicsRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));

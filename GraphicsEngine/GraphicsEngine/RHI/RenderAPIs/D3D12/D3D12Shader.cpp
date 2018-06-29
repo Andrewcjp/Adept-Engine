@@ -327,10 +327,10 @@ void D3D12Shader::CreateComputePipelineShader()
 	CreateDefaultRootSig(t);
 }
 
-CommandListDef * D3D12Shader::CreateShaderCommandList(int device)
+ID3D12GraphicsCommandList * D3D12Shader::CreateShaderCommandList(int device)
 {
 	Init();
-	CommandListDef* newlist = nullptr;
+	ID3D12GraphicsCommandList* newlist = nullptr;
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
 	ThrowIfFailed(newlist->Close());
 	return newlist;

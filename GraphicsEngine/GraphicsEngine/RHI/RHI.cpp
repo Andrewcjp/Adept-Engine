@@ -87,7 +87,7 @@ RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Devi
 	return nullptr;
 }
 
-RHICommandList * RHI::CreateCommandList(DeviceContext* Device)
+RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceContext * Device)
 {
 	if (Device == nullptr)
 	{
@@ -97,7 +97,7 @@ RHICommandList * RHI::CreateCommandList(DeviceContext* Device)
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		return new D3D12CommandList(Device);
+		return new D3D12CommandList(Device,Type);
 		break;
 #endif
 #if BUILD_VULKAN

@@ -54,7 +54,7 @@ ShadowRenderer::ShadowRenderer()
 	//ShadowCubeArray->SetIndexNull(2);
 	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, pointlightdevice);
 	GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, MAX_POINT_SHADOWS);
-	PointShadowList = RHI::CreateCommandList(pointlightdevice);
+	PointShadowList = RHI::CreateCommandList(ECommandListType::Graphics,pointlightdevice);
 	DirectionalShadowList = RHI::CreateCommandList();
 }
 

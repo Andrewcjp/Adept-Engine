@@ -23,10 +23,12 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &GetSrvDesc(0), NullHeap->GetCPUAddress(0));
 	}
 }
+
 void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targetheap)
 {
 	CreateSRVInHeap(HeapOffset, targetheap, CurrentDevice);
 }
+
 void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targetheap, DeviceContext* target)
 {
 	if (BufferDesc.RenderTargetCount > 2)
@@ -130,6 +132,7 @@ static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLAC
 
 void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 {
+	ensure(device != CurrentDevice);
 	OtherDevice = device;
 	ID3D12Device* Host = CurrentDevice->GetDevice();
 	ID3D12Device* Target = OtherDevice->GetDevice();
@@ -249,6 +252,7 @@ void D3D12FrameBuffer::CopyToDevice(ID3D12GraphicsCommandList* list)
 
 void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
 {
+	
 	PerfManager::StartTimer("MakeReadyOnTarget");
 	ID3D12Device* Host = CurrentDevice->GetDevice();
 	ID3D12Device* Target = OtherDevice->GetDevice();
@@ -444,7 +448,7 @@ D3D12FrameBuffer::~D3D12FrameBuffer()
 	delete SrvHeap;
 }
 
-void D3D12FrameBuffer::ReadyResourcesForRead(CommandListDef * list, int Resourceindex)
+void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex)
 {
 	if (RenderTarget[Resourceindex] != nullptr)
 	{
@@ -457,7 +461,7 @@ void D3D12FrameBuffer::ReadyResourcesForRead(CommandListDef * list, int Resource
 	}
 }
 
-void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int Resourceindex, DeviceContext* target)
+void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex, DeviceContext* target)
 {
 
 	//ensure(Resourceindex < BufferDesc.RenderTargetCount);
@@ -482,7 +486,7 @@ void D3D12FrameBuffer::BindBufferToTexture(CommandListDef * list, int slot, int 
 	list->SetGraphicsRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
 }
 
-void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
+void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list)
 {
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
@@ -516,7 +520,7 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(CommandListDef * list)
 	}
 }
 
-void D3D12FrameBuffer::UnBind(CommandListDef * list)
+void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 {
 	if (BufferDesc.IsShared)
 	{
@@ -534,7 +538,7 @@ void D3D12FrameBuffer::UnBind(CommandListDef * list)
 	}
 }
 
-void D3D12FrameBuffer::ClearBuffer(CommandListDef * list)
+void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 {
 	if (BufferDesc.NeedsDepthStencil)
 	{

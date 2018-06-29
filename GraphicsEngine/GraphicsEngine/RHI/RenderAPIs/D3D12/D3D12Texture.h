@@ -12,7 +12,7 @@ public:
 	virtual ~D3D12Texture();
 	bool CreateFromFile(AssetManager::AssetPathRef  FileName) override;
 	virtual void Bind(int unit) {};
-	void BindToSlot(CommandListDef * list, int slot);
+	void BindToSlot(ID3D12GraphicsCommandList * list, int slot);
 	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) {} ;
 	virtual void CreateTextureFromData(void * data, int type, int width, int height, int bits) override;
 	virtual void CreateAsNull() override;

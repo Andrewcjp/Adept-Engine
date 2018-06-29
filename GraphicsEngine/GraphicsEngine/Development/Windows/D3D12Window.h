@@ -41,8 +41,8 @@ private:
 	class mShadowRenderer* ShadowR;
 	class D3D12Plane* debugplane;
 	class ShaderOutput* output;
-	CommandListDef* MainList;
-	CommandListDef* ShadowList;
+	ID3D12GraphicsCommandList* MainList;
+	ID3D12GraphicsCommandList* ShadowList;
 	std::vector<Light*> Lights;
 
 	// Inherited via RenderWindow

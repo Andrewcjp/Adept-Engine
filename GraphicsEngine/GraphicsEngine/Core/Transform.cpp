@@ -16,7 +16,12 @@ glm::vec3 Transform::GetForward()
 glm::vec3 Transform::GetUp()
 {
 	return TransformDirection(glm::vec3(0, 1, 0), GetModel());
-} 
+}
+
+glm::vec3 Transform::GetRight()
+{
+	return TransformDirection(glm::vec3(1, 0, 0), GetModel());
+}
 
 glm::vec3 Transform::TransfromToLocalSpace(glm::vec3 & direction)
 {
@@ -37,7 +42,7 @@ Transform * Transform::GetParent() const
 {
 	return parent;
 }
-     
+
 bool Transform::IsChanged()
 {
 	if (oldpos != _pos)
@@ -71,7 +76,8 @@ glm::mat4 Transform::GetModel()
 	{
 		parentMatrix = parent->GetModel();
 	}
-	CacheModel = posMat *  rotMat * scaleMat;
+	CacheModel = posMat * rotMat * scaleMat;
+	_rot = glm::eulerAngles(_qrot);
 	UpdateModel = false;
 	return CacheModel;
 }
@@ -119,7 +125,10 @@ void Transform::AddRotation(glm::vec3 & rot)
 
 void Transform::RotateAboutAxis(glm::vec3 & axis, float amt)
 {
+	UpdateModel = true;
+	oldqrot = this->_qrot;
 	this->_qrot *= glm::angleAxis((amt), glm::normalize(axis));
+	GetModel();
 }
 
 void Transform::SetQrot(const glm::quat & val)
@@ -138,4 +147,14 @@ void Transform::TranslatePos(const glm::vec3 & pos)
 {
 	UpdateModel = true;
 	_pos += pos;
+}
+
+void Transform::MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up)
+{
+	//_qrot = glm::)
+}
+
+glm::vec3 Transform::GetEulerRot() const
+{
+	return _rot;
 }

@@ -191,7 +191,7 @@ void TextRenderer::LoadText()
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, D3D12RHI::GetDeviceContext(RunOnSecondDevice));
 	VertexBuffer->CreateVertexBuffer(sizeof(point), (sizeof(point) * 6) * MAX_BUFFER_SIZE, RHIBuffer::BufferAccessType::Dynamic);//max text length?
 
-	TextCommandList = RHI::CreateCommandList(D3D12RHI::GetDeviceContext(RunOnSecondDevice));
+	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics,D3D12RHI::GetDeviceContext(RunOnSecondDevice));
 	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });
 	TextCommandList->CreatePipelineState(m_TextShader);
 	if (UseFrameBuffer)

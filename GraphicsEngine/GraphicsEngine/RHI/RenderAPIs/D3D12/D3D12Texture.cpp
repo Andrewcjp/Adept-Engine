@@ -259,7 +259,7 @@ bool D3D12Texture::CreateFromFile(AssetManager::AssetPathRef FileName)
 	return CLoad(FileName);
 }
 
-void D3D12Texture::BindToSlot(CommandListDef* list, int slot)
+void D3D12Texture::BindToSlot(ID3D12GraphicsCommandList* list, int slot)
 {
 	srvHeap->BindHeap(list);
 	list->SetGraphicsRootDescriptorTable(slot, srvHeap->GetGpuAddress(0));

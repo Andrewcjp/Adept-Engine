@@ -6,6 +6,7 @@
 #include "Rendering/Renderers/RenderEngine.h"
 #include "Core/Components/CompoenentRegistry.h"
 #include "Core/Components/RigidbodyComponent.h"
+#include "Core/Components/Utillity/FreeLookComponent.h"
 #include <algorithm>
 #include "Core/Utils/MemoryUtils.h"
 #include "Core/Assets/AssetManager.h"
@@ -95,6 +96,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
 	go->AttachComponent(new CameraComponent());
+#if !WITH_EDITOR
+	go->AttachComponent(new FreeLookComponent());
+#endif
 	AddGameobjectToScene(go);
 
 #if 0

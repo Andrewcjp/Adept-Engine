@@ -48,7 +48,7 @@ public:
 	static void CreateDefaultRootSig(D3D12Shader::PiplineShader & output);
 	void Init();
 	void CreateComputePipelineShader();
-	CommandListDef* CreateShaderCommandList(int device = 0);
+	ID3D12GraphicsCommandList* CreateShaderCommandList(int device = 0);
 	ID3D12CommandAllocator* GetCommandAllocator();
 
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);

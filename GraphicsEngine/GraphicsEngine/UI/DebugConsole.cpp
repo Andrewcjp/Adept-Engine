@@ -50,6 +50,8 @@ void DebugConsole::ResizeView(int w, int h, int x, int y)
 
 void DebugConsole::ExecCommand(std::string command)
 {
+	LastCommand = command;
+	StringUtils::RemoveChar(command, ">");
 	if (!BaseWindow::ProcessDebugCommand(command))
 	{
 		if (command.find("showgraph") != -1)
@@ -60,7 +62,7 @@ void DebugConsole::ExecCommand(std::string command)
 			}
 		}
 	}
-	LastCommand = command;
+	
 	Close();
 }
 void DebugConsole::Close()

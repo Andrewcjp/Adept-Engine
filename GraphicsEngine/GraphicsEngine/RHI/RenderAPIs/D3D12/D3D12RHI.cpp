@@ -116,6 +116,15 @@ D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
 	return D3D_FEATURE_LEVEL_11_0;
 }
 
+void D3D12RHI::WaitForAllDevices()
+{
+	PrimaryDevice->CPUWaitForAll();
+	if (SecondaryDevice != nullptr)
+	{
+		SecondaryDevice->CPUWaitForAll();
+	}
+}
+
 void D3D12RHI::DisplayDeviceDebug()
 {
 	std::cout << "Primary Adaptor Has " << GetMemory() << std::endl;
@@ -419,7 +428,7 @@ void D3D12RHI::AddUploadToUsed(ID3D12Resource* Target)
 	UsedUploadHeaps.push_back(Target);
 }
 
-void D3D12RHI::ExecList(CommandListDef* list, bool Block)
+void D3D12RHI::ExecList(ID3D12GraphicsCommandList* list, bool Block)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);

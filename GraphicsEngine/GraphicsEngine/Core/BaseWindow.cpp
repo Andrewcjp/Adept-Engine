@@ -89,14 +89,10 @@ void BaseWindow::InitilseWindow()
 	ThreadStart = CreateEvent(NULL, false, false, L"");
 	RenderThread = CreateThread(NULL, 0, (unsigned long(__stdcall *)(void *))this->RunPhysicsThreadLoop, this, 0, NULL);
 #endif
-	if (RHI::GetType() == ERenderSystemType::RenderSystemOGL)
-	{
-		Engine::setVSync(false);
-	}
 
 	std::cout << "Scene Load started" << std::endl;
 	ImageIO::StartLoader();
-	IsDeferredMode = false;
+	IsDeferredMode = true;
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -180,6 +176,10 @@ void BaseWindow::Render()
 	if (input->GetKeyDown(VK_ESCAPE))
 	{
 		PostQuitMessage(0);
+	}
+	if (input->GetKeyDown(VK_F11))
+	{
+		D3D12RHI::Instance->ToggleFullScreenState();
 	}
 #endif
 	Update();
@@ -307,18 +307,9 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			}
 			return true;
 		}
-		else if (command.find("showparticles") != -1)
-		{
-			ForwardRenderer* r = (ForwardRenderer*)Instance->Renderer;
-			if (r != nullptr)
-			{
-				//				r->RenderParticles = r->RenderParticles ? false : true;
-			}
-			return true;
-		}
 		else if (command.find("renderscale") != -1)
 		{
-			StringUtils::RemoveChar(command, ">renderscale");
+			StringUtils::RemoveChar(command, "renderscale");
 			StringUtils::RemoveChar(command, " ");
 			if (command.length() > 0)
 			{
@@ -326,12 +317,6 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 				Instance->Renderer->SetRenderSettings(Instance->CurrentRenderSettings);
 				Instance->Resize(Instance->m_width, Instance->m_height);
 			}
-			return true;
-		}
-		else if (command.find("fxaa") != -1)
-		{
-			Instance->CurrentRenderSettings.CurrentAAMode = (Instance->CurrentRenderSettings.CurrentAAMode == AAMode::FXAA) ? AAMode::NONE : AAMode::FXAA;
-			Instance->Renderer->SetRenderSettings(Instance->CurrentRenderSettings);
 			return true;
 		}
 	}
@@ -389,17 +374,19 @@ void BaseWindow::Resize(int width, int height)
 
 void BaseWindow::DestroyRenderWindow()
 {
+	D3D12RHI::Instance->WaitForAllDevices();
 	ImageIO::ShutDown();
+	Renderer->DestoryRenderWindow();
 	delete input;
 	delete LineDrawer;
-	delete UI;
-	Renderer->DestoryRenderWindow();
+	delete UI;	
 	delete Renderer;
 	delete CurrentScene;
 	RHI::DestoryContext(m_hwnd);
 	DestroyWindow(m_hwnd);
 	m_hwnd = NULL;
 }
+
 BOOL BaseWindow::MouseLBDown(int x, int y)
 {
 	if (UI != nullptr)

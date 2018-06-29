@@ -9,8 +9,8 @@ public:
 
 	// Inherited via FrameBuffer
 	virtual void BindToTextureUnit(int unit = 0) override;
-	virtual void BindBufferAsRenderTarget(CommandListDef * list = nullptr) override;
+	virtual void BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list = nullptr) override;
 	virtual void UnBind() override;
-	virtual void ClearBuffer(CommandListDef * list = nullptr) override;
+	virtual void ClearBuffer(ID3D12GraphicsCommandList * list = nullptr) override;
 };
 #endif

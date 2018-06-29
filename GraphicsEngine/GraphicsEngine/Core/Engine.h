@@ -27,7 +27,6 @@ public:
 	void CreateApplication(HINSTANCE hinst, LPSTR args, int nshow);
 	static void RunCook();
 	void CreateApplicationWindow(int width, int height, ERenderSystemType type);
-	static void setVSync(bool sync);
 	bool SwitchRenderAPI(ERenderSystemType type);
 	RenderWindow*				m_appwnd = nullptr;
 	static float StartTime;

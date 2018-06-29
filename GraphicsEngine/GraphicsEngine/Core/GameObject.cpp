@@ -98,7 +98,7 @@ void GameObject::Render(bool ignoremat)
 	//	m_MeshRenderer->Render(ignoremat, nullptr);
 	}
 }
-void GameObject::Render(bool ignoremat, CommandListDef* list)
+void GameObject::Render(bool ignoremat, ID3D12GraphicsCommandList* list)
 {
 
 	if (m_MeshRenderer != nullptr)

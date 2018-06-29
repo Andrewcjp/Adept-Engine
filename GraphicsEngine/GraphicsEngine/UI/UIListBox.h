@@ -21,9 +21,9 @@ public:
 	void Select(int i);
 	void AddItem(std::string  name);
 	void SetTitle(std::string name);
-
 	std::function<void(int t)> SelectionChanged;
 private:
+
 	std::vector<UIButton*> items;
 	int SelectedCurrent = 0;
 	int CurrentCount = 0;

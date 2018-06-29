@@ -13,6 +13,7 @@ class InputEvent;
 class RenderEngine;
 class RenderWindow;
 class EditorWindow;
+const int MAX_MOUSE_BUTTON_COUNT = 10;
 class Input
 {
 public:
@@ -36,15 +37,20 @@ public:
 	BOOL   MouseMove(int x, int y, double deltatime);
 	bool   ProcessKeyDown(WPARAM key);
 	void   LockCursor(bool state);
+	static void ReciveMouseDownMessage(int Button, bool state);
+	static bool GetMouseButtonDown(int button);
 private:
 	HWND m_hwnd;
 	bool LockMouse = false;
 	float currentmoveamt = 1.0f;//editor Movemnt
 	glm::vec2 MouseAxis;
 	std::map<int, bool> KeyMap;
+
 	HKL Layout;
 	bool IsActiveWindow = false;
 	POINT CentrePoint;
+
+	bool MouseKeyData[MAX_MOUSE_BUTTON_COUNT] = { false };
 };
 
 class InputEvent
