@@ -48,7 +48,9 @@ void ForwardRenderer::PostInit()
 {
 	MainShader = new Shader_Main();
 	//FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::ColourDepth);
-	FilterBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateColourDepth(m_width, m_height));
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(m_width, m_height);
+	Desc.AllowUnordedAccess = true;
+	FilterBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
 	if (MainScene == nullptr)
 	{
 		MainScene = new Scene();
@@ -99,14 +101,14 @@ void ForwardRenderer::MainPass()
 		MainCommandList->SetTexture(SkyBox->SkyBoxTexture, 0);
 		(*MainScene->GetObjects())[i]->Render(false, MainCommandList);
 	}	
-	MainCommandList->SetRenderTarget(nullptr);
+	MainCommandList->SetRenderTarget(nullptr);	
 	MainCommandList->GetDevice()->GetTimeManager()->EndTimer(MainCommandList, D3D12TimeManager::eGPUTIMERS::MainPass);
 	MainCommandList->Execute();
 }
 
 void ForwardRenderer::RenderSkybox()
 {
-	SkyBox->Render(MainShader, FilterBuffer,nullptr);
+	SkyBox->Render(MainShader, FilterBuffer,nullptr);	
 }
 
 void ForwardRenderer::DestoryRenderWindow()

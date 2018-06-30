@@ -32,12 +32,16 @@ protected:
 	int VertexCount = 0;
 
 };
+
 class RHIUAV
 {
 public:
 	RHIUAV()
 	{}
 	virtual ~RHIUAV() {};
+	virtual void Bind(class RHICommandList* list, int slot) = 0;
+	virtual void CreateUAVFromFrameBuffer(class FrameBuffer* target) = 0;
+	virtual void CreateUAVFromTexture(class BaseTexture* target) = 0;
 };
 
 

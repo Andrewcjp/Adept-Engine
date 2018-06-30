@@ -31,7 +31,7 @@ public:
 	void LoadText();
 	void UpdateSize(int width, int height);
 	void NotifyFrameEnd();
-	bool RunOnSecondDevice = true;
+	bool RunOnSecondDevice = false;
 private:	
 	bool UseFrameBuffer = true;
 	int TextDataLength = 0;

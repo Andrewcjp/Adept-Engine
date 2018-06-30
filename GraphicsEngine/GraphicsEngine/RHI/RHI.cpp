@@ -87,6 +87,24 @@ RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Devi
 	return nullptr;
 }
 
+RHIUAV * RHI::CreateUAV(DeviceContext * Device)
+{
+	switch (instance->CurrentSystem)
+	{
+#if BUILD_D3D12
+	case RenderSystemD3D12:
+		return new D3D12RHIUAV(Device);
+		break;
+#endif
+#if BUILD_VULKAN
+	case RenderSystemVulkan:
+		return new VKanBuffer(type);
+		break;
+#endif
+	}
+	return nullptr;
+}
+
 RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceContext * Device)
 {
 	if (Device == nullptr)

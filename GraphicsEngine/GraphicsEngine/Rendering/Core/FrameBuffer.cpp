@@ -17,7 +17,7 @@ DeviceContext * FrameBuffer::GetDevice()
 	return CurrentDevice;
 }
 
-const RHIFrameBufferDesc & FrameBuffer::GetDescription() const
+RHIFrameBufferDesc & FrameBuffer::GetDescription() 
 {
 	return BufferDesc;
 }

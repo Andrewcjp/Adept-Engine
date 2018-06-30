@@ -48,6 +48,7 @@ public:
 	static bool SupportsThreading();
 	static bool SupportsExplictMultiAdaptor();
 	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
+	static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics,DeviceContext* Device = nullptr);
 	HINSTANCE m_hinst;
 	static bool BlockCommandlistExec();

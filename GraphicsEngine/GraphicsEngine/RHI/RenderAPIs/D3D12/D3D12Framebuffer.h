@@ -16,7 +16,7 @@ public:
 	virtual ~D3D12FrameBuffer();
 	void ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
-	void		 BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex =0, DeviceContext* target = nullptr);
+	void		 BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex =0, DeviceContext* target = nullptr, bool isCompute =false);
 	virtual void BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list = nullptr) ;
 	void		 UnBind(ID3D12GraphicsCommandList * list);
 	virtual void ClearBuffer(ID3D12GraphicsCommandList * list = nullptr) ;
@@ -39,6 +39,10 @@ public:
 	DeviceContext* GetTargetDevice()
 	{
 		return OtherDevice;
+	}
+	GPUResource* GetResource(int index)
+	{
+		return RenderTarget[index];
 	}
 private:
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);

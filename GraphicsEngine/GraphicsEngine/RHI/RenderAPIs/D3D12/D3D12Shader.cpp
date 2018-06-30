@@ -79,7 +79,13 @@ D3D_SHADER_MACRO* D3D12Shader::ParseDefines()
 	out[last].Name = NULL;
 	return out;
 }
+
+
 EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type)
+{
+	return AttachAndCompileShaderFromFile(shadername, type, "main");
+}
+EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type, const char * Entrypoint)
 {
 	//convert to LPC 
 	std::string path = Engine::GetRootDir();
@@ -152,7 +158,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "cs_5_0",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
 #else
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "cs_5_0",
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "cs_5_0",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
 #endif
 	}
@@ -211,6 +217,17 @@ void D3D12Shader::ActivateShaderProgram()
 {}
 void D3D12Shader::DeactivateShaderProgram()
 {}
+
+
+D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
+	PipeRenderTargetDesc PRTD, DeviceContext* context)
+{
+	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
+	computePsoDesc.pRootSignature = output.m_rootSignature;
+	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(blobs->csBlob);
+	ThrowIfFailed(context->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
+	return output;
+}
 
 D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
 	PipeRenderTargetDesc PRTD, DeviceContext* context)
@@ -400,7 +417,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	{
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
-
+#define UAVRANGES 1
 	//cbvs will be InitAsConstantBufferView
 	//srvs and UAvs will be in Ranges
 	//todo fix this!
@@ -414,8 +431,18 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 		{
 			RangeNumber++;
 		}
+#if UAVRANGES
+		else if (Params[i].Type == Shader::ShaderParamType::UAV)
+		{
+			RangeNumber++;
+		}
+#endif
 	}
-
+	D3D12_SHADER_VISIBILITY BaseSRVVis = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	if (output.IsCompute)
+	{
+		BaseSRVVis = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
+	}
 	CD3DX12_DESCRIPTOR_RANGE1* ranges = nullptr;
 	if (RangeNumber > 0)
 	{
@@ -426,11 +453,20 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 		if (Params[i].Type == Shader::ShaderParamType::SRV)
 		{
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE,0);
-			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_PIXEL);
+			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], BaseSRVVis);
 		}
 		else if (Params[i].Type == Shader::ShaderParamType::CBV)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstantBufferView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
+		}
+		else if (Params[i].Type == Shader::ShaderParamType::UAV)
+		{
+#if !UAVRANGES
+			rootParameters[Params[i].SignitureSlot].InitAsUnorderedAccessView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
+#else
+			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
+			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
+#endif
 		}
 	}
 	//todo: Samplers
@@ -458,7 +494,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	sampler.MaxLOD = D3D12_FLOAT32_MAX;
 	sampler.ShaderRegister = 0;
 	sampler.RegisterSpace = 0;
-	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	samplers[0] = sampler;
 
 

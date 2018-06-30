@@ -360,10 +360,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	ResourceDesc.Dimension = D3D12Helpers::ConvertToResourceDimension(ViewDimension);
 	ResourceDesc.MipLevels = 1;
 	ResourceDesc.Format = Format;
+
 	ResourceDesc.Flags = (IsDepthStencil ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 	if (!IsDepthStencil)
 	{
-		ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+		ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}
 	ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	ResourceDesc.SampleDesc.Count = 1;
@@ -372,7 +373,10 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	ResourceDesc.DepthOrArraySize = std::max(BufferDesc.TextureDepth, 1);
 	
 	D3D12_RESOURCE_STATES ResourceState = IsDepthStencil ? D3D12_RESOURCE_STATE_DEPTH_WRITE : D3D12_RESOURCE_STATE_RENDER_TARGET;
-
+	if (BufferDesc.StartingState != D3D12_RESOURCE_STATE_COMMON)
+	{
+		ResourceState = BufferDesc.StartingState;
+	}
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -461,10 +465,8 @@ void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, i
 	}
 }
 
-void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex, DeviceContext* target)
+void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex, DeviceContext* target, bool isCompute)
 {
-
-	//ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	if (BufferDesc.IsShared)
 	{
 		MakeReadyForRead(list);
@@ -479,11 +481,20 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 		}
 		return;
 	}
+	ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	lastboundslot = slot;
 
 	SrvHeap->BindHeap(list);
-	ReadyResourcesForRead(list, Resourceindex);
-	list->SetGraphicsRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
+	
+	if (isCompute)
+	{
+		list->SetComputeRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
+	}
+	else
+	{
+		ReadyResourcesForRead(list, Resourceindex);
+		list->SetGraphicsRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
+	}
 }
 
 void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list)
@@ -528,13 +539,23 @@ void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 	}
 	else
 	{
-		if (NullHeap == nullptr)
+		//if (NullHeap == nullptr)
+		//{
+		//	return;
+		//}
+		////NullHeap->BindHeap(list);
+		////NullHeap->SetName(L"null  SRV");
+		//////list->SetGraphicsRootDescriptorTable(lastboundslot, NullHeap->GetGpuAddress(0));
+		if (BufferDesc.AllowUnordedAccess)
 		{
-			return;
+			for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+			{
+				if (RenderTarget[i] != nullptr)
+				{
+					RenderTarget[i]->SetResourceState(list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+				}
+			}
 		}
-		NullHeap->BindHeap(list);
-		NullHeap->SetName(L"null  SRV");
-		//list->SetGraphicsRootDescriptorTable(lastboundslot, NullHeap->GetGpuAddress(0));
 	}
 }
 

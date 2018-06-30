@@ -479,7 +479,10 @@ void D3D12RHI::PresentFrame()
 
 	MoveToNextFrame();
 	PrimaryDevice->CurrentFrameIndex = m_frameIndex;
-	SecondaryDevice->CurrentFrameIndex = m_frameIndex;
+	if (SecondaryDevice != nullptr)
+	{
+		SecondaryDevice->CurrentFrameIndex = m_frameIndex;
+	}
 	//all exectuion this frame has finished 
 	//so all resources should be in the correct state!
 	PrimaryDevice->UpdateCopyEngine();

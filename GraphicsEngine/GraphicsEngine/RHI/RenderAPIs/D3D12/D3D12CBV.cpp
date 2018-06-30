@@ -32,10 +32,17 @@ void D3D12CBV::SetDescriptorHeaps(ID3D12GraphicsCommandList* list)
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	
 }
-void D3D12CBV::SetGpuView(ID3D12GraphicsCommandList * list, int offset, int slot)
+void D3D12CBV::SetGpuView(ID3D12GraphicsCommandList * list, int offset, int slot,bool IsCompute)
 {
 	CD3DX12_GPU_DESCRIPTOR_HANDLE  cbvSrvHandle(m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
-	list->SetGraphicsRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));
+	if (IsCompute)
+	{
+		list->SetComputeRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));
+	}
+	else
+	{
+		list->SetGraphicsRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));
+	}	
 }
 
 void D3D12CBV::InitCBV(int StructSize, int Elementcount)

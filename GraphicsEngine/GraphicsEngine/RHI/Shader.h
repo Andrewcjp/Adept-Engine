@@ -76,7 +76,7 @@ public:
 	virtual bool SupportsAPI(ERenderSystemType Type);
 	virtual std::vector<ShaderParameter> GetShaderParameters();
 	virtual std::vector<VertexElementDESC> GetVertexFormat();
-	bool IsComputeShader();
+	virtual bool IsComputeShader();
 protected:
 	ShaderProgramBase * m_Shader = nullptr;
 	bool IsCompute = false;

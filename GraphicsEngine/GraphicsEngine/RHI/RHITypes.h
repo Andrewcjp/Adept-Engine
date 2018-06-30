@@ -1,4 +1,5 @@
 #pragma once
+#include <d3d12.h>
 #define MRT_MAX 8
 enum eTextureDimension
 {
@@ -242,9 +243,11 @@ public:
 	bool NeedsDepthStencil = false;
 	bool IsShared = false;
 	class DeviceContext* DeviceToCopyTo = nullptr;
+	bool AllowUnordedAccess = false;
 	//If set to 0 the resource will be auto mipped
 	int MipsToGenerate = 1;
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
 	glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f);
 	float DepthClearValue = 1.0f;
+	D3D12_RESOURCE_STATES StartingState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };

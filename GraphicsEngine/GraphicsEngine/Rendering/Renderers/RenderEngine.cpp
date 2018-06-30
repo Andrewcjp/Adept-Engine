@@ -64,10 +64,10 @@ void RenderEngine::Init()
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 	}	
-	Post = new PostProcessing();
-	Post->Init();
 	GPUStateCache::Create();
 	PostInit();
+	Post = new PostProcessing();
+	Post->Init(FilterBuffer);
 	D3D12RHI::Instance->AddLinkedFrameBuffer(FilterBuffer);
 }
 
@@ -88,7 +88,7 @@ void RenderEngine::Resize(int width, int height)
 			D3D12RHI::Instance->ResizeSwapChain(width, height, true);
 		}
 	}
-
+	Post->Resize(FilterBuffer);
 }
 
 

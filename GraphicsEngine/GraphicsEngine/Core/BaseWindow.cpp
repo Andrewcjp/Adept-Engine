@@ -92,7 +92,7 @@ void BaseWindow::InitilseWindow()
 
 	std::cout << "Scene Load started" << std::endl;
 	ImageIO::StartLoader();
-	IsDeferredMode = true;
+	IsDeferredMode = false;
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);

@@ -93,7 +93,9 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 		//m_commandAllocator[i]->SetName(L"Core Device Allocator");
 		DEVICE_NAME_OBJECT(m_commandAllocator[i]);
 	}
-
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_ComputeCommandQueue)));
+	DEVICE_NAME_OBJECT(m_ComputeCommandQueue);
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	DEVICE_NAME_OBJECT(m_CopyCommandQueue);
@@ -113,6 +115,7 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 
 	GraphicsQueueSync.Init(GetDevice());
 	CopyQueueSync.Init(GetDevice());
+	ComputeQueueSync.Init(GetDevice());
 	GpuWaitSyncPoint.InitGPUOnly(GetDevice());
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
@@ -219,6 +222,12 @@ void DeviceContext::UpdateCopyEngine()
 
 }
 
+void DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * list)
+{
+	ID3D12CommandList* ppCommandLists[] = { list };
+	m_ComputeCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	ComputeQueueSync.CreateSyncPoint(m_ComputeCommandQueue);
+}
 
 void DeviceContext::ExecuteCopyCommandList(ID3D12GraphicsCommandList * list)
 {
@@ -285,6 +294,7 @@ void DeviceContext::CPUWaitForAll()
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
 	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
+	ComputeQueueSync.CreateSyncPoint(m_commandQueue);
 }
 
 ID3D12CommandQueue* DeviceContext::GetCommandQueueFromEnum(DeviceContextQueue::Type value)
@@ -295,8 +305,7 @@ ID3D12CommandQueue* DeviceContext::GetCommandQueueFromEnum(DeviceContextQueue::T
 		return m_commandQueue;
 		break;
 	case DeviceContextQueue::Compute:
-		NoImpl();
-		return nullptr ;
+		return m_ComputeCommandQueue;
 		break;
 	case DeviceContextQueue::Copy:
 		return m_CopyCommandQueue;

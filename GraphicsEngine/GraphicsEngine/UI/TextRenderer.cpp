@@ -207,8 +207,11 @@ void TextRenderer::LoadText()
 		PostProcessing::Instance->AddCompostPass(Renderbuffer);
 		if (D3D12RHI::Instance)
 		{
-			D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);			
-			Renderbuffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
+			D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);
+			if (RunOnSecondDevice)
+			{
+				Renderbuffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
+			}
 		}
 	}
 

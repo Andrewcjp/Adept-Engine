@@ -12,10 +12,14 @@ public:
 	void AddEffect(PostProcessEffectBase* effect);
 	void ExecPPStack(FrameBuffer* targetbuffer);
 	void ExecPPStackFinal(FrameBuffer * targetbuffer);
-	void Init();
+	void Init(FrameBuffer* Target);
+	void Resize(FrameBuffer * Target);
+	void MakeReadyForPost(RHICommandList * list, FrameBuffer * buffer);
 	void AddCompostPass(FrameBuffer* buffer);
 	class PP_CompostPass* TestEffct = nullptr;
 	class PP_ColourCorrect* ColourCorrect = nullptr;
+	class PP_Blur* Blur = nullptr;
+	class PP_Bloom* Bloom = nullptr;
 private:
 	bool Needscompost = false;
 };

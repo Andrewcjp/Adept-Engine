@@ -10,7 +10,7 @@ public:
 	int GetWidth() const { return m_width; }
 	int GetHeight() const { return m_height; }
 	class DeviceContext* GetDevice();	
-	const RHIFrameBufferDesc& GetDescription()const;
+	RHIFrameBufferDesc& GetDescription();
 	virtual void Resize(int width, int height);
 
 	int m_width = 0;

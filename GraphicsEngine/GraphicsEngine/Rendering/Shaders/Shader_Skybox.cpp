@@ -18,6 +18,7 @@ Shader_Skybox::Shader_Skybox()
 }
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "../RHI/RenderAPIs/D3D12/GPUResource.h"
 void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List = RHI::CreateCommandList();
@@ -68,6 +69,12 @@ void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBu
 #endif
 	mainshader->BindMvBuffer(List, 1);	
 	CubeModel->Render(List);
+
+	///todo:!
+	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
+	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+	
 	List->GetDevice()->GetTimeManager()->EndTimer(List, D3D12TimeManager::eGPUTIMERS::Skybox);
 	List->Execute();
 }

@@ -20,6 +20,7 @@ public:
 	{
 		ID3D12PipelineState* m_pipelineState = nullptr;
 		ID3D12RootSignature* m_rootSignature = nullptr; 
+		bool IsCompute = false;
 	};
 	struct PipeRenderTargetDesc
 	{
@@ -35,11 +36,14 @@ public:
 		ComputeRootParametersCount
 	};
 
+	virtual EShaderError AttachAndCompileShaderFromFile(const char * filename, EShaderType type, const char * Entrypoint = "") override;
 	virtual EShaderError AttachAndCompileShaderFromFile(const char * filename, EShaderType type) override;
 	virtual void BuildShaderProgram() override;
 	virtual void DeleteShaderProgram() override;
 	virtual void ActivateShaderProgram() override;
 	virtual void DeactivateShaderProgram() override;
+
+	static D3D12Shader::PiplineShader CreateComputePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD, DeviceContext * context);
 
 	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD, DeviceContext* context);
 	ShaderBlobs* GetShaderBlobs();
@@ -61,6 +65,7 @@ public:
 	void ResetList(ID3D12GraphicsCommandList * list);
 private:
 	D3D_SHADER_MACRO * ParseDefines();
+
 
 	class DxIncludeHandler* IncludeHandler = nullptr;
 	DeviceContext* CurrentDevice = nullptr;

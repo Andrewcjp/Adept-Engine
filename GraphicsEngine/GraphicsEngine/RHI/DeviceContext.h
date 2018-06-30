@@ -81,6 +81,7 @@ public:
 	void ResetSharingCopyList();
 	void NotifyWorkForCopyEngine();
 	void UpdateCopyEngine();
+	void ExecuteComputeCommandList(ID3D12GraphicsCommandList * list);
 	void ExecuteCopyCommandList(ID3D12GraphicsCommandList * list);
 	void ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock = false);
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
@@ -120,6 +121,7 @@ private:
 	ID3D12GraphicsCommandList* m_CopyList = nullptr;
 	ID3D12CommandAllocator* m_CopyCommandAllocator = nullptr;
 	ID3D12CommandQueue* m_CopyCommandQueue = nullptr;
+	ID3D12CommandQueue* m_ComputeCommandQueue = nullptr;
 	ID3D12GraphicsCommandList* m_IntraCopyList= nullptr;
 	ID3D12CommandAllocator* m_SharedCopyCommandAllocator[RHI::CPUFrameCount] = { nullptr };
 	ID3D12CommandQueue* m_SharedCopyCommandQueue = nullptr;

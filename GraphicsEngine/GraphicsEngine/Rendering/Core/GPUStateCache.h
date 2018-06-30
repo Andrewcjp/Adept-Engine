@@ -40,11 +40,12 @@ public:
 	{
 		instance->uniformBufferState = state;
 	}
-	
+	class FrameBuffer* TextureBuffers[10] = { nullptr };
 private:
 	GPUStateCache();
 	int TextureUnits[20];
 	int uniformBufferState = 0;
+
 
 };
 

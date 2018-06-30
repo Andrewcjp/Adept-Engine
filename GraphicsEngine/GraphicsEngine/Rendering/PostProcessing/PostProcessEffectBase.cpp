@@ -27,17 +27,18 @@ void PostProcessEffectBase::SetUpData()
 PostProcessEffectBase::~PostProcessEffectBase()
 {}
 
-void PostProcessEffectBase::InitEffect()
+void PostProcessEffectBase::InitEffect(FrameBuffer* Target)
 {
-	PostInitEffect();
+	PostInitEffect(Target);
 }
-void PostProcessEffectBase::RunPass(RHICommandList * list,FrameBuffer* InputTexture)
+void PostProcessEffectBase::RunPass(FrameBuffer* InputTexture)
 {
-	list->ResetList();
-	list->GetDevice()->GetTimeManager()->StartTimer(list, D3D12TimeManager::eGPUTIMERS::PostProcess);
-	ExecPass(list, InputTexture);
-	list->GetDevice()->GetTimeManager()->EndTimer(list, D3D12TimeManager::eGPUTIMERS::PostProcess);
-	list->Execute();
+	CMDlist->ResetList();
+	CMDlist->GetDevice()->GetTimeManager()->StartTimer(CMDlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
+	ExecPass(CMDlist, InputTexture);
+	CMDlist->GetDevice()->GetTimeManager()->EndTimer(CMDlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
+	CMDlist->Execute();
+	PostPass();
 }
 
 void PostProcessEffectBase::RenderScreenQuad(RHICommandList * list)

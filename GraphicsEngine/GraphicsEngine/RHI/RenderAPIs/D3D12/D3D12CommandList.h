@@ -50,6 +50,7 @@ private:
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
 	class D3D12Texture* Texture = nullptr;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
+	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 	PipeLineState Currentpipestate;
 
 	
@@ -66,7 +67,8 @@ public:
 	void CreateStaticBuffer(int Stride, int ByteSize);
 	void CreateDynamicBuffer(int Stride, int ByteSize);
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
-	virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register);
+	virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Register, bool IsCompute);
+	//virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register);
 	virtual void UpdateIndexBuffer(void* data, int length) override;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) override;
 	void MapBuffer(void** Data);
@@ -93,14 +95,13 @@ class D3D12RHIUAV : public RHIUAV
 public:
 	D3D12RHIUAV( DeviceContext* inDevice);
 	~D3D12RHIUAV();
-	void CreateUAVFromTexture(class D3D12Texture* target);
-	void CreateUAV();
-	void CreateUAVForMipsFromTexture(class D3D12Texture* target);
-	ID3D12Resource * m_UAV;
-	ID3D12DescriptorHeap *descriptorHeap;
-	class D3D12Texture * TargetTexture;
+	void CreateUAVFromTexture(class BaseTexture* target) override;
+	void CreateUAVFromFrameBuffer(class FrameBuffer* target) override;
+	void Bind(RHICommandList* list, int slot) override;
+	ID3D12Resource * m_UAV = nullptr;
 	DeviceContext* Device = nullptr;
 	ID3D12Resource* UAVCounter = nullptr;
+	class DescriptorHeap* Heap = nullptr;
 };
 
 class D3D12RHITextureArray : public RHITextureArray

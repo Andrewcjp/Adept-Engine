@@ -13,6 +13,8 @@
 #include "DescriptorHeap.h"
 #include "Core/Performance/PerfManager.h"
 #include "D3D12Helpers.h"
+#include "GPUResource.h"
+#include "../Rendering/Core/GPUStateCache.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType):RHICommandList(ListType)
 {
 	Device = inDevice;
@@ -50,6 +52,10 @@ void D3D12CommandList::ResetList()
 	if (ListType == ECommandListType::Graphics)
 	{
 		CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
+	}
+	else if (ListType == ECommandListType::Compute)
+	{
+		CurrentGraphicsList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
 	}
 }
 
@@ -117,6 +123,10 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 	{
 		Device->ExecuteCommandList(CurrentGraphicsList);
 	}
+	else if (Target == DeviceContextQueue::Compute)
+	{
+		Device->ExecuteComputeCommandList(CurrentGraphicsList);
+	}
 	else if (Target == DeviceContextQueue::Copy)
 	{
 		Device->ExecuteCopyCommandList(CurrentGraphicsList);
@@ -177,6 +187,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRen
 	{
 		CurrentPipelinestate.m_rootSignature->Release();
 	}
+	CurrentPipelinestate.IsCompute = (ListType == ECommandListType::Compute);
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
 	ensure(target != nullptr);
 	ensure((shader->GetShaderParameters().size() > 0));
@@ -185,8 +196,14 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRen
 	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
 	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters(), Device);
 
-
-	D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, RTdesc, Device);
+	if (ListType == ECommandListType::Graphics)
+	{
+		D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, RTdesc, Device);
+	}
+	else
+	{
+		D3D12Shader::CreateComputePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, RTdesc, Device);
+	}
 	if (CurrentGraphicsList == nullptr)
 	{
 		//todo: ensure a gaphics shader is not used a compute piplne!
@@ -225,6 +242,7 @@ void D3D12CommandList::CreateCommandList()
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {
 	ensure(ListType == ECommandListType::Compute);
+	CurrentGraphicsList->Dispatch(ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ);
 }
 
 void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
@@ -250,7 +268,7 @@ void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 void D3D12CommandList::UAVBarrier(RHIUAV * target)
 {
 	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;//todo: counter uav?
-	CurrentGraphicsList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->m_UAV));
+	CurrentGraphicsList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
 }
 
 void D3D12CommandList::SetScreenBackBufferAsRT()
@@ -275,10 +293,25 @@ void D3D12CommandList::ClearScreen()
 
 void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex)
 {
-	ensure(ListType == ECommandListType::Graphics);
+	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
+#if 0
+	if (buffer == nullptr)
+	{
+		if (GPUStateCache::instance->TextureBuffers[slot] != nullptr)
+		{
+			((D3D12FrameBuffer*)GPUStateCache::instance->TextureBuffers[slot])->UnBind(CurrentGraphicsList);
+			GPUStateCache::instance->TextureBuffers[slot] = nullptr;
+		}
+		return;
+	}
+	else
+	{
+		GPUStateCache::instance->TextureBuffers[slot] = DBuffer;
+	}
+#endif
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
-	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex, Device);
+	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex, Device,(ListType == ECommandListType::Compute));
 }
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
@@ -300,7 +333,7 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 {
 	D3D12Buffer* d3Buffer = (D3D12Buffer*)buffer;
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
-	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Register);
+	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Register,ListType == ECommandListType::Compute);
 }
 
 
@@ -449,10 +482,10 @@ void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 	CBV->UpdateCBV(data, offset, ConstantBufferDataSize);
 }
 
-void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register)
+void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register,bool  IsCompute)
 {
 	CBV->SetDescriptorHeaps(list);//D3D12CBV::MPCBV
-	CBV->SetGpuView(list, offset, Register);//todo: handle Offset!
+	CBV->SetGpuView(list, offset, Register, IsCompute);//todo: handle Offset!
 }
 
 void D3D12Buffer::UpdateIndexBuffer(void * data, int length)
@@ -495,7 +528,7 @@ void D3D12Buffer::UnMap()
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//UAV Start
+//UAV 
 D3D12RHIUAV::D3D12RHIUAV(DeviceContext * inDevice) : RHIUAV()
 {
 	Device = inDevice;
@@ -503,42 +536,41 @@ D3D12RHIUAV::D3D12RHIUAV(DeviceContext * inDevice) : RHIUAV()
 
 D3D12RHIUAV::~D3D12RHIUAV()
 {
-	descriptorHeap->Release();
+	Heap->Release();
 }
 
-void D3D12RHIUAV::CreateUAVFromTexture(D3D12Texture * target)
+void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 {
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 1;
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));
+	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
+	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	destTextureUAVDesc.Format = ((D3D12Texture*)target)->GetResource()->GetDesc().Format;
+	destTextureUAVDesc.Texture2D.MipSlice = 1;
+	//todo:Counter UAV?
+	Device->GetDevice()->CreateUnorderedAccessView(((D3D12Texture*)target)->GetResource(), UAVCounter, &destTextureUAVDesc, Heap->GetCPUAddress(0));
+}
+
+void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
+{
+	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-	destTextureUAVDesc.Format = target->GetResource()->GetDesc().Format;
-	destTextureUAVDesc.Texture2D.MipSlice = 1;
+	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat( target->GetDescription().RTFormats[0]);
+	destTextureUAVDesc.Texture2D.MipSlice = 0;
 	//todo:Counter UAV?
-	Device->GetDevice()->CreateUnorderedAccessView(target->GetResource(), UAVCounter, &destTextureUAVDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	Device->GetDevice()->CreateUnorderedAccessView(((D3D12FrameBuffer*)target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc, Heap->GetCPUAddress(0));
 }
 
-void D3D12RHIUAV::CreateUAV()
+void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 {
-
+	D3D12CommandList* DXList = ((D3D12CommandList*)list);
+	Heap->BindHeap(DXList->GetCommandList());
+	DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, Heap->GetGpuAddress(0));
 }
 
-void D3D12RHIUAV::CreateUAVForMipsFromTexture(D3D12Texture * target)
-{
-	//todo: Handle This As special case for mipmaping?
-	//as vkan might use other method?
-	int requiredHeapSize = target->Miplevels;
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 2 * requiredHeapSize;
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));
-}
-
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Texture Array
 D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)
 {
 	Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
