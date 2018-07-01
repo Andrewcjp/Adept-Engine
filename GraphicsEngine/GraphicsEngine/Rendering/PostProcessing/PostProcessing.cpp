@@ -33,7 +33,7 @@ void PostProcessing::ExecPPStack(FrameBuffer* targetbuffer)
 	//called to post porcess the final rendered scene
 	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
 #if 1
-	Blur->RunPass(targetbuffer);
+	//Blur->RunPass(targetbuffer);
 	ColourCorrect->RunPass(targetbuffer);
 
 #else 

@@ -143,12 +143,14 @@ std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
 void Shader_Main::UpdateMV(Camera * c)
 {
 	MV_Buffer.V = c->GetView();
-	MV_Buffer.P = c->GetProjection();
+	MV_Buffer.P = c->GetProjection(); 
+	MV_Buffer.CameraPos = c->GetPosition();
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
 }
 
 void Shader_Main::UpdateMV(glm::mat4 View, glm::mat4 Projection)
 {
+	ensure(false);
 	MV_Buffer.V = View;
 	MV_Buffer.P = Projection;
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
@@ -162,6 +164,8 @@ SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(GameObject * t)
 	if (t->GetMat() != nullptr)
 	{
 		m_constantBufferData.HasNormalMap = (t->GetMat()->GetNormalMap() != nullptr);
+		m_constantBufferData.Metallic = t->GetMat()->GetProperties()->Metallic;
+		m_constantBufferData.Roughness = t->GetMat()->GetProperties()->Roughness;
 	}
 	//used in the prepare stage for this frame!
 	return m_constantBufferData;

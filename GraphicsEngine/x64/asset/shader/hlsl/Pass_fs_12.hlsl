@@ -20,6 +20,6 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float gamma = 1.0f / 2.2f;
 	output = pow(output, float4(gamma, gamma, gamma, gamma));
 #endif
-	return mapped;
+	return output;
 	
 }

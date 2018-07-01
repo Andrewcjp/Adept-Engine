@@ -10,7 +10,7 @@ struct Light
 	int HasShadow;
 };
 //PBR functions!
-const float PI = 3.14159265359;
+static const float PI = 3.14159265359;
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
 	float a = roughness * roughness;
@@ -22,7 +22,7 @@ float DistributionGGX(float3 N, float3 H, float roughness)
 	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
 	denom = PI * denom * denom;
 
-	return num / denom;
+	return num / max(denom, 0.0001);
 }
 
 float GeometrySchlickGGX(float NdotV, float roughness)
@@ -45,6 +45,10 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 	return ggx1 * ggx2;
 }
 
+float3 fresnelSchlick(float cosTheta, float3 F0)
+{
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
 
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal)
 {
@@ -58,7 +62,7 @@ float3 GetAmbient()
 }
 
 
-float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 normal)
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal)
 {
 	float3 LightDirection = float3(0, 1, 0);
 	float distanceToLight = length(light.LPosition - FragPos);
@@ -76,4 +80,51 @@ float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 
 
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color;
 	return Diffusecolour * attenuation;
+}
+
+
+
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic)
+{
+	float3 LightDirection = float3(0, 1, 0);
+	float distanceToLight = length(light.LPosition - FragPos);
+	//float attenuation = 1.0f;
+	float3 ViewDir = normalize(CamPos - FragPos);
+	if (light.type == 1)
+	{
+		LightDirection = normalize(light.LPosition - FragPos);
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2));
+	}
+	else
+	{
+		LightDirection = -light.Direction;
+	}
+
+	float3 Half = normalize(ViewDir + LightDirection);
+
+	float attenuation = 1.0 / (distanceToLight * distanceToLight);
+	float3 radiance = light.color * attenuation;
+	roughness = max(roughness, 0.001);
+
+	float3 F0 = float3(0.04, 0.04, 0.04);
+	F0 = lerp(F0, Diffusecolor, Metalic);
+
+	// cook-torrance brdf
+	float NDF = DistributionGGX(normal, Half, roughness);
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness);
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0);
+	
+	
+	float3 kS = F;
+	float3 kD = float3(1.0,1.0,1.0) - kS;
+	kD *= 1.0 - Metalic;
+	
+	float3 numerator = NDF * G * F;
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0);
+	float3 specular = numerator / max(denominator, 0.01);
+	//return specular;
+	// add to outgoing radiance Lo
+	float NdotL = max(dot(normal, LightDirection), 0.0);
+
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL;
 }

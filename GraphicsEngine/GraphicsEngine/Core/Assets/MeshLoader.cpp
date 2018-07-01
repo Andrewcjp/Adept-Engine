@@ -16,7 +16,8 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	const aiScene* scene = importer.ReadFile(filename.c_str(),
 		aiProcess_Triangulate
 		| aiProcess_CalcTangentSpace
-		| aiProcess_GenNormals
+	//	| aiProcess_GenNormals
+		| aiProcess_GenSmoothNormals
 		
 #if 1
 		| aiProcess_FixInfacingNormals

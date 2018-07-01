@@ -5,11 +5,22 @@ cbuffer LightBuffer : register(b1)
 {
 	Light lights[MAX_LIGHTS];
 };
+//tODO:sub struct for mat data?
 cbuffer GOConstantBuffer : register(b0)
 {
 	row_major matrix Model;
 	int HasNormalMap;
+	float Roughness;
+	float Metallic;
 };
+
+cbuffer SceneConstantBuffer : register(b2)
+{
+	row_major matrix View;
+	row_major matrix Projection;
+	float3 CameraPos;
+};
+
 struct PSInput
 {
 	float4 position : SV_POSITION;
@@ -101,7 +112,7 @@ float4 main(PSInput input) : SV_TARGET
 	float3 output = float3(0, 0, 0);
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
-		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal));
+		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
 		if (lights[i].HasShadow && lights[i].type == 0)
 		{
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos);
@@ -112,8 +123,14 @@ float4 main(PSInput input) : SV_TARGET
 		}
 		output += colour;
 	}
+	//output.x *= Metallic;
 
 	float3 ambeint = texturecolour * GetAmbient();
+	float gamma = 1.0f / 2.2f;
+
+	output = output / (output + float3(1.0, 1.0, 1.0));
+	output = pow(output, float3(gamma, gamma, gamma));
+
 	float3 GammaCorrected = ambeint + output;
 	//float gamma = 1.0f / 2.2f;
 	//	GammaCorrected = pow(GammaCorrected, float4(gamma, gamma, gamma, gamma));

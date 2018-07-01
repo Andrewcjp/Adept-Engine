@@ -29,9 +29,9 @@ public:
 
 	static bool ProcessDebugCommand(std::string command);
 	static Camera* GetCurrentCamera();
-	bool ShowHud = true;
+	bool ShowHud = false;
 	bool ShowText = true;
-	bool ExtendedPerformanceStats = true;
+	bool ExtendedPerformanceStats = false;
 protected:
 
 	//callbacks

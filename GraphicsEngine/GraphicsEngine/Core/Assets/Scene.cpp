@@ -123,21 +123,21 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 #if 1
 	go = new GameObject("Point Light");
-	go->GetTransform()->SetPos(glm::vec3(0, 5, 20));
+	go->GetTransform()->SetPos(glm::vec3(0, 10, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	lc = (LightComponent*)go->AttachComponent(new LightComponent());
 	lc->SetShadow(true);
 	lc->SetLightType(Light::Point);
-	lc->SetIntensity(1.0f);
+	lc->SetIntensity(500.0f);
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Point Light");
-	go->GetTransform()->SetPos(glm::vec3(10, 5, 20));
+	go->GetTransform()->SetPos(glm::vec3(10, 20, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	lc = (LightComponent*)go->AttachComponent(new LightComponent());
 	lc->SetShadow(true);
 	lc->SetLightType(Light::Point);
-	lc->SetIntensity(2.0f);
+	lc->SetIntensity(2500.0f);
 	AddGameobjectToScene(go);
 	/*for (int i = 0; i < 3; i++)
 	{
@@ -213,6 +213,27 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		AddGameobjectToScene(go);*/
 	}
 	StaticSceneNeedsUpdate = true;
+
+	int size = 5;
+	glm::vec3 startPos = glm::vec3(10, 5, 30);
+	float stride = 5.0f;
+	Material::MaterialProperties props;
+	for (int y = 0; y < size; y++)
+	{
+		for (int x = 0; x < size; x++)
+		{
+			go = new GameObject("Water");
+			props.Roughness = x * (1.0f / size); 
+			props.Metallic = y* (1.0f / size);
+
+			mat = new Material(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\bricks2.jpg"), props);
+			go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
+			go->GetTransform()->SetPos(startPos+ glm::vec3(x*stride,y*stride,0));
+			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+			go->GetTransform()->SetScale(glm::vec3(1));
+			AddGameobjectToScene(go);
+		}
+	}
 }
 
 void Scene::RemoveCamera(Camera * Cam)

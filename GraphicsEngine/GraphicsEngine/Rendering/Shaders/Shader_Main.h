@@ -23,6 +23,7 @@ struct MVBuffer
 {
 	glm::mat4 V;
 	glm::mat4 P;
+	glm::vec3 CameraPos;
 };
 
 struct LightBufferW
@@ -30,10 +31,12 @@ struct LightBufferW
 	LightUniformBuffer Light[MAX_LIGHTS];
 };
 
-struct SceneConstantBuffer//CBV need to be 256 aligned
+/*__declspec(align(32))*/ struct SceneConstantBuffer//CBV need to be 256 aligned
 {
 	glm::mat4 M;
 	int HasNormalMap = 0;
+	float Roughness = 0.0f;
+	float Metallic = 0.0f;
 };
 class Shader_Main :public Shader
 {
@@ -78,7 +81,7 @@ private:
 	bool Once = false;
 	//todo move to shader
 	
-	int MaxConstant = 25;
+	int MaxConstant = 125;
 	std::vector<SceneConstantBuffer> SceneBuffer;
 	//information for all the lights in the scene currently
 

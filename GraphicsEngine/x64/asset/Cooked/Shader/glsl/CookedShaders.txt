@@ -260,7 +260,7 @@ struct Light
 	int HasShadow; 
 }; 
 //PBR functions! 
-const float PI = 3.14159265359; 
+static const float PI = 3.14159265359; 
 float DistributionGGX(float3 N, float3 H, float roughness) 
 { 
 	float a = roughness * roughness; 
@@ -272,7 +272,7 @@ float DistributionGGX(float3 N, float3 H, float roughness)
 	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
 	denom = PI * denom * denom; 
  
-	return num / denom; 
+	return num / max(denom, 0.0001); 
 } 
  
 float GeometrySchlickGGX(float NdotV, float roughness) 
@@ -295,6 +295,10 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 	return ggx1 * ggx2; 
 } 
  
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
  
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
@@ -308,7 +312,7 @@ float3 GetAmbient()
 } 
  
  
-float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
 { 
 	float3 LightDirection = float3(0, 1, 0); 
 	float distanceToLight = length(light.LPosition - FragPos); 
@@ -326,6 +330,53 @@ float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 
  
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
 	return Diffusecolour * attenuation; 
+} 
+ 
+ 
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
 } 
  
 #define MAX_LIGHT 4 
@@ -386,7 +437,7 @@ struct Light
 	int HasShadow; 
 }; 
 //PBR functions! 
-const float PI = 3.14159265359; 
+static const float PI = 3.14159265359; 
 float DistributionGGX(float3 N, float3 H, float roughness) 
 { 
 	float a = roughness * roughness; 
@@ -398,7 +449,7 @@ float DistributionGGX(float3 N, float3 H, float roughness)
 	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
 	denom = PI * denom * denom; 
  
-	return num / denom; 
+	return num / max(denom, 0.0001); 
 } 
  
 float GeometrySchlickGGX(float NdotV, float roughness) 
@@ -421,6 +472,10 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 	return ggx1 * ggx2; 
 } 
  
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
  
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
@@ -434,7 +489,7 @@ float3 GetAmbient()
 } 
  
  
-float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
 { 
 	float3 LightDirection = float3(0, 1, 0); 
 	float distanceToLight = length(light.LPosition - FragPos); 
@@ -452,6 +507,53 @@ float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 
  
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
 	return Diffusecolour * attenuation; 
+} 
+ 
+ 
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
 } 
 ¬
 Main_fs.hlsl|FileStart|
@@ -483,7 +585,7 @@ struct Light
 	int HasShadow; 
 }; 
 //PBR functions! 
-const float PI = 3.14159265359; 
+static const float PI = 3.14159265359; 
 float DistributionGGX(float3 N, float3 H, float roughness) 
 { 
 	float a = roughness * roughness; 
@@ -495,7 +597,7 @@ float DistributionGGX(float3 N, float3 H, float roughness)
 	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
 	denom = PI * denom * denom; 
  
-	return num / denom; 
+	return num / max(denom, 0.0001); 
 } 
  
 float GeometrySchlickGGX(float NdotV, float roughness) 
@@ -518,6 +620,10 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 	return ggx1 * ggx2; 
 } 
  
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
  
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
@@ -531,7 +637,7 @@ float3 GetAmbient()
 } 
  
  
-float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
 { 
 	float3 LightDirection = float3(0, 1, 0); 
 	float distanceToLight = length(light.LPosition - FragPos); 
@@ -552,16 +658,74 @@ float3 CalcColorFromLight(Light light,float3 Diffusecolor,float3 FragPos,float3 
 } 
  
  
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
+} 
+ 
+ 
 #define SHADOW_DEPTH_BIAS 0.005f 
 cbuffer LightBuffer : register(b1) 
 { 
 	Light lights[MAX_LIGHTS]; 
 }; 
+//tODO:sub struct for mat data? 
 cbuffer GOConstantBuffer : register(b0) 
 { 
 	row_major matrix Model; 
 	int HasNormalMap; 
+	float Roughness; 
+	float Metallic; 
 }; 
+ 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix View; 
+	row_major matrix Projection; 
+	float3 CameraPos; 
+}; 
+ 
 struct PSInput 
 { 
 	float4 position : SV_POSITION; 
@@ -653,7 +817,7 @@ float4 main(PSInput input) : SV_TARGET
 	float3 output = float3(0, 0, 0); 
 	for (int i = 0; i < MAX_LIGHTS; i++) 
 	{ 
-		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal)); 
+		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic); 
 		if (lights[i].HasShadow && lights[i].type == 0) 
 		{ 
 			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos); 
@@ -664,8 +828,14 @@ float4 main(PSInput input) : SV_TARGET
 		} 
 		output += colour; 
 	} 
+	//output.x *= Metallic; 
  
 	float3 ambeint = texturecolour * GetAmbient(); 
+	float gamma = 1.0f / 2.2f; 
+ 
+	output = output / (output + float3(1.0, 1.0, 1.0)); 
+	output = pow(output, float3(gamma, gamma, gamma)); 
+ 
 	float3 GammaCorrected = ambeint + output; 
 	//float gamma = 1.0f / 2.2f; 
 	//	GammaCorrected = pow(GammaCorrected, float4(gamma, gamma, gamma, gamma)); 
@@ -866,7 +1036,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float gamma = 1.0f / 2.2f; 
 	output = pow(output, float4(gamma, gamma, gamma, gamma)); 
 #endif 
-	return mapped; 
+	return output; 
 	 
 } 
 ¬
