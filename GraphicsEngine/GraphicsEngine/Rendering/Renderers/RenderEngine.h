@@ -5,7 +5,7 @@
 #include "Rendering\Shaders\Shader_Main.h"
 #include <vector>
 #include "Rendering/Core/FrameBuffer.h"
-#include "Rendering\Shaders\ShaderOutput.h"
+
 #include "RenderSettings.h"
 class OGLWindow;
 class Scene;

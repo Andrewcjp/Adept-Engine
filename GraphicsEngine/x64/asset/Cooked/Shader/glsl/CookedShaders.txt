@@ -195,7 +195,10 @@ struct PSInput
 	float4 Normal :NORMAL0; 
 	float2 uv : TEXCOORD; 
 	float4 WorldPos:TANGENT0; 
+	row_major float3x3 TBN:TANGENT1; 
+	float2 LightData : TEXCOORD1; 
 }; 
+ 
 struct FS_OUTPUT 
 { 
 	float4 Gpos: SV_Target0; 
@@ -203,12 +206,13 @@ struct FS_OUTPUT
 	float4 GAlbedoSpec: SV_Target2; 
 	float4 GTangent: SV_Target3; 
 }; 
+ 
 FS_OUTPUT main(PSInput input )  
 { 
 	FS_OUTPUT output = (FS_OUTPUT)0; 
 	output.Gpos = input.WorldPos; 
-	output.GNormal = float4(input.Normal.xyz,1.0f);//todo: remove this exta compoenent 
-	output.GAlbedoSpec = float4(texColour.Sample(defaultSampler, input.uv).xyz, 1.0f); 
+	output.GNormal = float4(input.Normal.xyz, input.LightData.r); 
+	output.GAlbedoSpec = float4(texColour.Sample(defaultSampler, input.uv).xyz, input.LightData.g); 
     return output; 
 } 
 ¬
@@ -219,7 +223,13 @@ cbuffer ConstantBuffer : register( b0 )
 	row_major matrix view; 
 	row_major matrix projection; 
 } 
- 
+cbuffer GOConstantBuffer : register(b0) 
+{ 
+	row_major matrix Model; 
+	int HasNormalMap; 
+	float Roughness; 
+	float Metallic; 
+}; 
 struct VS_OUTPUT 
 { 
 	float4 pos : SV_POSITION; 
@@ -308,7 +318,7 @@ float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal
  
 float3 GetAmbient() 
 { 
-	return float3(0.2, 0.2, 0.2); 
+	return float3(0.03, 0.03, 0.03); 
 } 
  
  
@@ -385,7 +395,12 @@ cbuffer LightBuffer : register(b1)
 { 
 	Light lights[MAX_LIGHT]; 
 }; 
- 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix View; 
+	row_major matrix Projection; 
+	float3 CameraPos; 
+}; 
 struct VS_OUTPUT 
 { 
 	float4 pos : SV_POSITION; 
@@ -397,11 +412,17 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv); 
 	float4 normal = NormalTexture.Sample(defaultSampler, input.uv); 
 	float4 AlbedoSpec = AlbedoTexture.Sample(defaultSampler, input.uv); 
+	float Roughness = AlbedoSpec.a; 
+	float Metallic = normal.a; 
 	float3 Diffusecolour = AlbedoSpec.xyz * GetAmbient(); 
 	for (int i = 0; i < MAX_LIGHT; i++) 
 	{ 
-		Diffusecolour += CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(normal.xyz)); 
+		Diffusecolour += CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(normal.xyz), CameraPos, Roughness, Metallic); 
 	} 
+	float gamma = 1.0f / 2.2f; 
+ 
+	Diffusecolour = Diffusecolour / (Diffusecolour + float3(1.0, 1.0, 1.0)); 
+	Diffusecolour = pow(Diffusecolour, float3(gamma, gamma, gamma)); 
 	return float4(Diffusecolour,1.0f); 
 } 
 ¬
@@ -413,6 +434,7 @@ struct VS_OUTPUT
 	float4 pos : SV_POSITION; 
 	float2 uv : TEXCOORD0; 
 }; 
+ 
  
  
 VS_OUTPUT main(float4 position : POSITION /*float4 normal : NORMAL0,*/ /*float4 uv : TEXCOORD*/) 
@@ -485,7 +507,7 @@ float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal
  
 float3 GetAmbient() 
 { 
-	return float3(0.2, 0.2, 0.2); 
+	return float3(0.03, 0.03, 0.03); 
 } 
  
  
@@ -633,7 +655,7 @@ float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal
  
 float3 GetAmbient() 
 { 
-	return float3(0.2, 0.2, 0.2); 
+	return float3(0.03, 0.03, 0.03); 
 } 
  
  
@@ -814,7 +836,7 @@ float4 main(PSInput input) : SV_TARGET
 		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0; 
 		Normal = normalize(mul(Normal,input.TBN)); 
 	} 
-	float3 output = float3(0, 0, 0); 
+	float3 output = texturecolour * GetAmbient(); 
 	for (int i = 0; i < MAX_LIGHTS; i++) 
 	{ 
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic); 
@@ -828,18 +850,11 @@ float4 main(PSInput input) : SV_TARGET
 		} 
 		output += colour; 
 	} 
-	//output.x *= Metallic; 
- 
-	float3 ambeint = texturecolour * GetAmbient(); 
 	float gamma = 1.0f / 2.2f; 
- 
 	output = output / (output + float3(1.0, 1.0, 1.0)); 
 	output = pow(output, float3(gamma, gamma, gamma)); 
  
-	float3 GammaCorrected = ambeint + output; 
-	//float gamma = 1.0f / 2.2f; 
-	//	GammaCorrected = pow(GammaCorrected, float4(gamma, gamma, gamma, gamma)); 
-	return float4(GammaCorrected.xyz,1.0f); 
+	return float4(output.xyz,1.0f); 
 } 
  
  
@@ -932,6 +947,9 @@ struct PSInput
 	float2 uv : TEXCOORD; 
 	float4 WorldPos:TANGENT0; 
 	row_major float3x3 TBN:TANGENT1; 
+#if WITH_DEFERRED 
+	float2 LightData : TEXCOORD1; 
+#endif 
 }; 
  
 Texture2D g_texture : register(t0); 
@@ -941,6 +959,8 @@ cbuffer GOConstantBuffer : register(b0)
 { 
 	row_major matrix Model; 
 	int HasNormalMap; 
+	float Roughness; 
+	float Metallic; 
 }; 
 cbuffer SceneConstantBuffer : register(b2) 
 { 
@@ -968,6 +988,10 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 		float3x3 mat = float3x3(tan, BiTangent, Normal); 
 		result.TBN = mat; 
 	} 
+#if WITH_DEFERRED 
+	result.LightData.x = Roughness; 
+	result.LightData.y = Metallic; 
+#endif 
 	return result; 
 } 
 ¬

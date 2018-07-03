@@ -109,7 +109,7 @@ float4 main(PSInput input) : SV_TARGET
 		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
 		Normal = normalize(mul(Normal,input.TBN));
 	}
-	float3 output = float3(0, 0, 0);
+	float3 output = texturecolour * GetAmbient();
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
@@ -123,18 +123,11 @@ float4 main(PSInput input) : SV_TARGET
 		}
 		output += colour;
 	}
-	//output.x *= Metallic;
-
-	float3 ambeint = texturecolour * GetAmbient();
 	float gamma = 1.0f / 2.2f;
-
 	output = output / (output + float3(1.0, 1.0, 1.0));
 	output = pow(output, float3(gamma, gamma, gamma));
 
-	float3 GammaCorrected = ambeint + output;
-	//float gamma = 1.0f / 2.2f;
-	//	GammaCorrected = pow(GammaCorrected, float4(gamma, gamma, gamma, gamma));
-	return float4(GammaCorrected.xyz,1.0f);
+	return float4(output.xyz,1.0f);
 }
 
 

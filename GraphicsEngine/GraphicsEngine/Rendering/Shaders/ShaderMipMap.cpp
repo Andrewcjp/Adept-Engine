@@ -16,7 +16,6 @@ ShaderMipMap::ShaderMipMap()
 	m_Shader->ActivateShaderProgram();
 	D3D12Shader* shader = (D3D12Shader*)m_Shader;
 	pCommandList = shader->CreateShaderCommandList();
-	IsCompute = true;
 }
 
 
@@ -163,4 +162,9 @@ std::vector<Shader::ShaderParameter> ShaderMipMap::GetShaderParameters()
 	std::vector<Shader::ShaderParameter> Output;
 
 	return Output;
+}
+
+bool ShaderMipMap::IsComputeShader()
+{
+	return true;
 }

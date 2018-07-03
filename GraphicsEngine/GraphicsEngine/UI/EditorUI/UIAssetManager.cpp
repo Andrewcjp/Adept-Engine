@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "UIAssetManager.h"
-#include "UIListBox.h"
-#include "UIManager.h"
+#include "UI/Core/UIListBox.h"
+#include "UI/UIManager.h"
 UIAssetManager::UIAssetManager() :UIBox(1, 1, 1, 1)
 {
 	leftpanel = new UIListBox(1,1,1,1);

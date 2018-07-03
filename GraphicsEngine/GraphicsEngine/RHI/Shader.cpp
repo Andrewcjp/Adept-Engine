@@ -9,20 +9,6 @@ Shader::~Shader()
 	delete m_Shader;
 }
 
-void Shader::UpdateUniforms(Transform * t, Camera * c, std::vector<Light*> lights)
-{
-	switch (RHI::GetType())
-	{
-	case RenderSystemOGL:
-		UpdateOGLUniforms(t, c, lights);
-		break;
-	case RenderSystemD3D11:
-		UpdateD3D11Uniforms(t, c, lights);
-		break;
-	}
-
-}
-
 void Shader::SetShaderActive()
 {
 	if (m_Shader != nullptr)
@@ -64,6 +50,6 @@ std::vector<Shader::VertexElementDESC> Shader::GetVertexFormat()
 
 bool Shader::IsComputeShader()
 {
-	return IsCompute;
+	return false;
 }
 

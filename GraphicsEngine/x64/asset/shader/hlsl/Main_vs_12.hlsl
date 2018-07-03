@@ -6,6 +6,9 @@ struct PSInput
 	float2 uv : TEXCOORD;
 	float4 WorldPos:TANGENT0;
 	row_major float3x3 TBN:TANGENT1;
+#if WITH_DEFERRED
+	float2 LightData : TEXCOORD1;
+#endif
 };
 
 Texture2D g_texture : register(t0);
@@ -15,6 +18,8 @@ cbuffer GOConstantBuffer : register(b0)
 {
 	row_major matrix Model;
 	int HasNormalMap;
+	float Roughness;
+	float Metallic;
 };
 cbuffer SceneConstantBuffer : register(b2)
 {
@@ -42,5 +47,9 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 		float3x3 mat = float3x3(tan, BiTangent, Normal);
 		result.TBN = mat;
 	}
+#if WITH_DEFERRED
+	result.LightData.x = Roughness;
+	result.LightData.y = Metallic;
+#endif
 	return result;
 }

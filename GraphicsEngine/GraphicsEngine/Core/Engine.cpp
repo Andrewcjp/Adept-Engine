@@ -14,6 +14,7 @@
 #include "Packaging/Cooker.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/WindowsHelper.h"
+#include "Core/Types/FString.h"
 #pragma comment(lib, "shlwapi.lib")
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
@@ -74,7 +75,7 @@ Engine::Engine()
 	}
 	AssetManager::StartAssetManager();
 	CompRegistry = new CompoenentRegistry();
-
+	FString::RunFStringTests();
 }
 
 

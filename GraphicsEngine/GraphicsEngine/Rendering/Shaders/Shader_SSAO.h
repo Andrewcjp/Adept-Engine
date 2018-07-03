@@ -11,7 +11,7 @@ public:
 	Shader_SSAO();
 	~Shader_SSAO();
 	void RenderPlane();
-	virtual void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
+	void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights);
 	void Resize(int width, int height);
 private:
 	int quad_vertexbuffer;
@@ -24,7 +24,7 @@ private:
 	
 
 	// Inherited via Shader
-	virtual void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights) override;
+	void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights);
 
 };
 

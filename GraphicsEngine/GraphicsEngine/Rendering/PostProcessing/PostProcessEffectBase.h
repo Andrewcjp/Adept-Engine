@@ -1,6 +1,6 @@
 #pragma once
 #include "RHI/RHICommandList.h"
-#include "Rendering/Shaders/ShaderOutput.h"
+
 class PostProcessEffectBase
 {
 public:

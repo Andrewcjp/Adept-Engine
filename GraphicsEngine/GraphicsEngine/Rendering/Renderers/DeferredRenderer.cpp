@@ -104,6 +104,7 @@ void DeferredRenderer::LightingPass()
 	LightingList->SetFrameBufferTexture(GFrameBuffer, 1, 1);
 	LightingList->SetFrameBufferTexture(GFrameBuffer, 3, 2);
 	MainShader->BindLightsBuffer(LightingList, true);
+	MainShader->BindMvBuffer(LightingList, 4);
 	//mShadowRenderer->BindShadowMapsToTextures(LightingList);
 	DeferredShader->RenderScreenQuad(LightingList);
 	LightingList->SetRenderTarget(nullptr);

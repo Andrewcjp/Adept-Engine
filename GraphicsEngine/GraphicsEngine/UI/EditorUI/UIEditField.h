@@ -1,7 +1,7 @@
 #pragma once
-#include "UIWidget.h"
-#include "UIBox.h"
-#include "CollisionRect.h"
+#include "UI/Core/UIWidget.h"
+#include "UI/Core/UIBox.h"
+#include "UI/Core/CollisionRect.h"
 #include "Editor/Inspector.h"
 class UILabel;
 class UIEditField :

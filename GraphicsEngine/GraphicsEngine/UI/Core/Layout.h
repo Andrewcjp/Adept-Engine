@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "UIWidget.h"
-#include "UIManager.h"
+#include "UI/Core/UIWidget.h"
+#include "UI/UIManager.h"
 #include "EngineGlobals.h"
 namespace UIUtils
 {

@@ -158,6 +158,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	CurrentGraphicsList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
 }
+
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
 	ensure(ListType == ECommandListType::Graphics|| ListType == ECommandListType::Compute);
@@ -178,7 +179,14 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 
 void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc)
 {
-	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
+	if (shader->IsComputeShader())
+	{
+		ensure(ListType == ECommandListType::Compute);
+	}
+	else
+	{
+		ensure(ListType == ECommandListType::Graphics);
+	}	
 	if (CurrentPipelinestate.m_pipelineState != nullptr)
 	{
 		CurrentPipelinestate.m_pipelineState->Release();
@@ -337,7 +345,6 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 }
 
 
-
 D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :RHIBuffer(type)
 {
 	if (inDevice == nullptr)
@@ -369,6 +376,8 @@ D3D12Buffer::~D3D12Buffer()
 
 void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
 {
+	ensure(StructSize > 0);
+	ensure(Elementcount > 0);
 	CBV = new D3D12CBV(Device);
 	CBV->InitCBV(StructSize, Elementcount);
 	ConstantBufferDataSize = StructSize;

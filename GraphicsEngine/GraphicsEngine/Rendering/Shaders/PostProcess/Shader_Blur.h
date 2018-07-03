@@ -35,7 +35,6 @@ public:
 		Blurweights->CreateConstantBuffer(sizeof(float) * 11, 1);
 		std::vector<float> Weights = Shader_Blur::CalcGaussWeights(2.5f);
 		int blurRadius = (int)Weights.size() / 2;
-		//cmdList->SetComputeRoot32BitConstants(0, 1, &blurRadius, 0);
 		Blurweights->UpdateConstantBuffer(Weights.data(), 0);
 	}
 
@@ -43,6 +42,7 @@ public:
 	{
 		return true;
 	}
+
 	std::vector<Shader::ShaderParameter> GetShaderParameters()override
 	{
 		std::vector<Shader::ShaderParameter> Output;

@@ -50,11 +50,15 @@ ShadowRenderer::ShadowRenderer()
 #else 
 	DeviceContext* pointlightdevice = RHI::GetDeviceContext(0);
 #endif
-	PointLightShader = new Shader_Depth(true, pointlightdevice);
+	
 	//ShadowCubeArray->SetIndexNull(2);
-	GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, pointlightdevice);
-	GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, MAX_POINT_SHADOWS);
-	PointShadowList = RHI::CreateCommandList(ECommandListType::Graphics,pointlightdevice);
+	if (MAX_POINT_SHADOWS > 0)
+	{
+		PointLightShader = new Shader_Depth(true, pointlightdevice);
+		GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, pointlightdevice);
+		GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, MAX_POINT_SHADOWS);
+		PointShadowList = RHI::CreateCommandList(ECommandListType::Graphics, pointlightdevice);
+	}	
 	DirectionalShadowList = RHI::CreateCommandList();
 }
 

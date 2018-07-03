@@ -1,5 +1,5 @@
 #pragma once
-#include "UIWidget.h"
+#include "UI/Core/UIWidget.h"
 class UIBox;
 class UILabel;
 class DebugConsole :public UIWidget

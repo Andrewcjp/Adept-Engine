@@ -65,10 +65,6 @@ public:
 	}MVPStruct;
 	Shader();
 	virtual ~Shader();
-
-	void UpdateUniforms(Transform* t, Camera* c, std::vector<Light*> lights = std::vector<Light*>());
-	virtual void UpdateOGLUniforms(Transform* t, Camera* c, std::vector<Light*> lights) {};
-	virtual void UpdateD3D11Uniforms(Transform* t, Camera* c, std::vector<Light*> lights) {};
 	virtual void SetShaderActive();
 	ShaderProgramBase* GetShaderProgram();
 
@@ -79,7 +75,6 @@ public:
 	virtual bool IsComputeShader();
 protected:
 	ShaderProgramBase * m_Shader = nullptr;
-	bool IsCompute = false;
 };
 
 const int ALBEDOMAP = 0;

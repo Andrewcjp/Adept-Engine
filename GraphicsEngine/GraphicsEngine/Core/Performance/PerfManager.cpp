@@ -11,7 +11,7 @@
 #include "RHI/RHI.h"
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "RHI/DeviceContext.h"
-#include "UI/TextRenderer.h"
+#include "Rendering/Renderers/TextRenderer.h"
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()

@@ -3,6 +3,7 @@
 #include "Rendering/Core/GPUStateCache.h"
 #include "Core/GameObject.h"
 #include "Core/Utils/MemoryUtils.h"
+#include <algorithm>
 Shader_Main::Shader_Main(bool LoadForward)
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -10,8 +11,9 @@ Shader_Main::Shader_Main(bool LoadForward)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(MAX_POINT_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(MAX_DIRECTIONAL_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(3+MAX_DIRECTIONAL_SHADOWS)));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(MAX_LIGHTS)));
-	
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(MAX_LIGHTS)));	
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED",std::to_string((int)!LoadForward)));
+
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs_12", SHADER_VERTEX);
 	if (LoadForward)
 	{

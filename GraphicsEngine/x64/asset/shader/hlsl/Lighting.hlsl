@@ -58,7 +58,7 @@ float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal
 
 float3 GetAmbient()
 {
-	return float3(0.2, 0.2, 0.2);
+	return float3(0.03, 0.03, 0.03);
 }
 
 

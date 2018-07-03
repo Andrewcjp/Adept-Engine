@@ -1,6 +1,6 @@
 #include "UILabel.h"
-#include "UIManager.h"
-#include "TextRenderer.h"
+#include "UI/UIManager.h"
+#include "Rendering/Renderers/TextRenderer.h"
 UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
 	MText = text;

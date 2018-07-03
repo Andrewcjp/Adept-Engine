@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "UIEditField.h"
-#include "UILabel.h"
+#include "UI/Core/UILabel.h"
 #include "Editor/EditorWindow.h"
 #include <cctype>
-#include "UIManager.h"
-#include "UIButton.h"
+#include "UI/UIManager.h"
+#include "UI/Core/UIButton.h"
 UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 {
 	Colour = colour;

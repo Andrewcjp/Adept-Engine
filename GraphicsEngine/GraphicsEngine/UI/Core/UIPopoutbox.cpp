@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "UIPopoutbox.h"
 #include "UILabel.h"
-#include "UIManager.h"
+#include "UI/UIManager.h"
 
 
 UIPopoutbox::UIPopoutbox(int w, int h, int x, int y) :UIBox(w, h, x, y)

@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "DebugConsole.h"
-#include "UI\UIEditField.h"
+#include "UI/EditorUI/UIEditField.h"
 #include "Core/Input.h"
-#include "UIManager.h"
+#include "UI/UIManager.h"
 #include "Editor/EditorWindow.h"
-#include "UIBox.h"
-#include "UILabel.h"
+#include "UI/Core/UIBox.h"
+#include "UI/Core/UILabel.h"
 #include <cctype>
 #include "UIGraph.h"
 DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)

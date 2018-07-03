@@ -1,10 +1,10 @@
 #include "Stdafx.h"
 #include "PP_ColourCorrect.h"
-#include "Rendering/Shaders/Shader_ColourCorrect.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "../RHI/DeviceContext.h"
-#include "../RHI/RenderAPIs/D3D12/GPUResource.h"
+#include "Rendering/Shaders/PostProcess/Shader_ColourCorrect.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/GPUResource.h"
 
 PP_ColourCorrect::PP_ColourCorrect()
 {}

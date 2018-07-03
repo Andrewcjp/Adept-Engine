@@ -1,5 +1,5 @@
 #pragma once
-#include "UIWidget.h"
+#include "UI/Core/UIWidget.h"
 #include <vector>
 class DebugLineDrawer;
 class UIGraph : public UIWidget

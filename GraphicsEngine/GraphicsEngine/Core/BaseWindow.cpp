@@ -13,7 +13,7 @@
 #include "Physics/PhysicsEngine.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Assets/SceneJSerialiser.h"
-#include "UI/TextRenderer.h"
+#include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Assets/ImageIO.h"
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "RHI/DeviceContext.h"
@@ -24,7 +24,6 @@ BaseWindow::BaseWindow()
 {
 	assert(Instance == nullptr);
 	Instance = this;
-	//FrameRateLimit = 60;
 	WindowsApplication::InitTiming();
 }
 

@@ -16,7 +16,7 @@ private:
 	const float BaseTranslateSpeed = 10.0f;
 	const float FastTranslateSpeed = 100.0f;
 	float TranslateSpeed = 10.0f;
-	float LookSensitivty = 0.001;
+	float LookSensitivty = 0.001f;
 	class CameraComponent* CameraComp = nullptr;
 	class Camera* Cam = nullptr;
 };

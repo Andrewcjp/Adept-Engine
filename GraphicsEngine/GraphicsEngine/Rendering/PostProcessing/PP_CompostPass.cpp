@@ -1,8 +1,8 @@
 #include "Stdafx.h"
 #include "PP_CompostPass.h"
-#include "Rendering/Shaders/Shader_Compost.h"
+#include "Rendering/Shaders/PostProcess/Shader_Compost.h"
 #include "RHI/RHI.h"
-#include "UI/TextRenderer.h"
+#include "Rendering/Renderers/TextRenderer.h"
 #include "RHI/DeviceContext.h"
 PP_CompostPass::PP_CompostPass()
 {}

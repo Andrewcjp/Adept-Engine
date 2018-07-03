@@ -7,6 +7,7 @@ struct VS_OUTPUT
 };
 
 
+
 VS_OUTPUT main(float4 position : POSITION /*float4 normal : NORMAL0,*/ /*float4 uv : TEXCOORD*/)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;

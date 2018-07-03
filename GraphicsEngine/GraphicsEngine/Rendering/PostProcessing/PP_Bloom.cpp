@@ -1,8 +1,8 @@
 #include "Stdafx.h"
 #include "PP_Bloom.h"
-#include "../Rendering/Shaders/Shader_Bloom.h"
-#include "../RHI/RHICommandList.h"
-#include "../RHI/DeviceContext.h"
+#include "Rendering/Shaders/PostProcess/Shader_Bloom.h"
+#include "RHI/RHICommandList.h"
+#include "RHI/DeviceContext.h"
 #include "PP_Blur.h"
 #include "PP_CompostPass.h"
 PP_Bloom::PP_Bloom()

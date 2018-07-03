@@ -12,5 +12,6 @@ public:
 	ID3D12GraphicsCommandList* pCommandList = nullptr;
 	std::vector<D3D12Texture*> Targets;
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	virtual bool IsComputeShader() override;
 };
 

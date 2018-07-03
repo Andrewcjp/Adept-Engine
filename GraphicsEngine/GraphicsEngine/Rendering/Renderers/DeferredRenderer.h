@@ -6,7 +6,7 @@
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/Shaders/Shader_SSAO.h"
 #include "Rendering/Core/FrameBuffer.h"
-#include "Rendering/Shaders/ShaderOutput.h"
+
 class DeferredRenderer :public RenderEngine
 {
 public:

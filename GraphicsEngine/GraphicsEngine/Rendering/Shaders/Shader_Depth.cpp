@@ -7,7 +7,7 @@ Shader_Depth::Shader_Depth(bool LoadGeo):Shader_Depth(LoadGeo, RHI::GetDeviceCon
 {
 	
 }
-Shader_Depth::Shader_Depth(bool LoadGeo,DeviceContext* device)
+Shader_Depth::Shader_Depth(bool LoadGeo, DeviceContext* device)
 {
 	LoadGeomShader = LoadGeo;
 	m_Shader = RHI::CreateShaderProgam(device);
@@ -30,8 +30,11 @@ Shader_Depth::Shader_Depth(bool LoadGeo,DeviceContext* device)
 	m_Shader->ActivateShaderProgram();
 
 	zfar = static_cast<float>(ShadowFarPlane);
-	ConstantBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant,device);
-	ConstantBuffer->CreateConstantBuffer(sizeof(LightData), MAX_POINT_SHADOWS);
+	if (MAX_POINT_SHADOWS > 0)
+	{
+		ConstantBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant, device);
+		ConstantBuffer->CreateConstantBuffer(sizeof(LightData), MAX_POINT_SHADOWS);
+	}
 }
 
 
