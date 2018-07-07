@@ -10,7 +10,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float exposure = 2.5f;
 	Inputcolour = float4(1.0, 1.0, 1.0, 1.0) - exp(-Inputcolour * exposure);
 	
-	if (length(Inputcolour) > 1.3)
+	if (length(Inputcolour) > 1.8)
 	{
 		DstTexture[DTid.xy] = Inputcolour;
 	}

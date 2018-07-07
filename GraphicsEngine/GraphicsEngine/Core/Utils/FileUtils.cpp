@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "StringUtil.h"
-bool FileUtils::exists_test3(const std::string & name,bool Silent)
+bool FileUtils::File_ExistsTest(const std::string & name,bool Silent)
 {
 	struct stat buffer;
 	if ((stat(name.c_str(), &buffer) == 0))
@@ -44,7 +44,7 @@ bool FileUtils::CreateDirectoryFromFullPath(std::string root, std::string Path, 
 	{
 		StringUtils::RemoveChar(Path, root);
 	}
-	if (FileUtils::exists_test3(root + Path))
+	if (FileUtils::File_ExistsTest(root + Path))
 	{
 		return true;
 	}
@@ -53,7 +53,7 @@ bool FileUtils::CreateDirectoryFromFullPath(std::string root, std::string Path, 
 	for (int i = 0; i < split.size(); i++)
 	{
 		FirstPath += "\\" + split[i];
-		if (!FileUtils::exists_test3(FirstPath))
+		if (!FileUtils::File_ExistsTest(FirstPath))
 		{
 			if (!FileUtils::TryCreateDirectory(FirstPath))
 			{

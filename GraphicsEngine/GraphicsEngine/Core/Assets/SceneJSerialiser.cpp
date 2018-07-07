@@ -32,7 +32,7 @@ void SceneJSerialiser::SaveScene(Scene* target, std::string path)
 }
 void SceneJSerialiser::LoadScene(Scene* target,std::string path)
 {
-	if (!FileUtils::exists_test3(path))
+	if (!FileUtils::File_ExistsTest(path))
 	{
 		return;
 	}

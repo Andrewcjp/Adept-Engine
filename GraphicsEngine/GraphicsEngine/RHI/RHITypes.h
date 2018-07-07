@@ -180,50 +180,12 @@ enum COMPARISON_FUNC
 struct RHIFrameBufferDesc
 {
 public:
-	static RHIFrameBufferDesc CreateColour(int width, int height)
-	{
-		RHIFrameBufferDesc newDesc = {};
-		newDesc.Width = width;
-		newDesc.Height = height;
-		newDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-		return newDesc;
-	}
-	static RHIFrameBufferDesc CreateDepth(int width, int height)
-	{
-		RHIFrameBufferDesc newDesc = {};
-		newDesc.Width = width;
-		newDesc.Height = height;
-		newDesc.NeedsDepthStencil = true;
-		newDesc.RenderTargetCount = 0;
-		newDesc.Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
-		return newDesc;
-	}
-	static RHIFrameBufferDesc CreateCubeDepth(int width, int height)
-	{
-		RHIFrameBufferDesc newDesc = CreateDepth(width, height);
-		newDesc.Dimension = eTextureDimension::DIMENSION_TEXTURECUBE;
-		newDesc.TextureDepth = 6;
-		return newDesc;
-	}
-	static RHIFrameBufferDesc CreateColourDepth(int width, int height)
-	{
-		RHIFrameBufferDesc newDesc = CreateColour(width, height);
-		newDesc.NeedsDepthStencil = true;
-		return newDesc;
-	}
-	static RHIFrameBufferDesc CreateGBuffer(int width, int height)
-	{
-		RHIFrameBufferDesc newDesc = {};
-		newDesc.Width = width;
-		newDesc.Height = height;
-		newDesc.RenderTargetCount = 4;
-		newDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-		newDesc.RTFormats[1] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-		newDesc.RTFormats[2] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-		newDesc.RTFormats[3] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-		newDesc.NeedsDepthStencil = true;
-		return newDesc;
-	}
+	static RHIFrameBufferDesc CreateColour(int width, int height);
+	static RHIFrameBufferDesc CreateDepth(int width, int height);
+	static RHIFrameBufferDesc CreateCubeDepth(int width, int height);
+	static RHIFrameBufferDesc CreateCubeColourDepth(int width, int height);
+	static RHIFrameBufferDesc CreateColourDepth(int width, int height);
+	static RHIFrameBufferDesc CreateGBuffer(int width, int height);
 	RHIFrameBufferDesc()
 	{};
 	RHIFrameBufferDesc(int width, int height, eTEXTURE_FORMAT format, eTextureDimension dimension)
@@ -249,5 +211,6 @@ public:
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
 	glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f);
 	float DepthClearValue = 1.0f;
+	int Samples = 0;
 	D3D12_RESOURCE_STATES StartingState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };

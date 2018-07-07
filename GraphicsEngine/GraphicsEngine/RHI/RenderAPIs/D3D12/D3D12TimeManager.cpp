@@ -57,6 +57,8 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	}
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::Total, "Total GPU");
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::MainPass, "Main Pass");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::DeferredWrite, "Deferred Write");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::DeferredLighting, "Deferred Lighting");
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::Skybox, "Skybox");
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::PointShadows, "Point Shadow");
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::DirShadows, "Dir Shadow");

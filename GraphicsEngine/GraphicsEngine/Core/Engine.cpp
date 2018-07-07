@@ -56,7 +56,7 @@ Engine::Engine()
 #if BUILD_PACKAGE
 	std::string assetpath = GetRootDir();
 	assetpath.append("\\asset\\");
-	if (!FileUtils::exists_test3(assetpath))
+	if (!FileUtils::File_ExistsTest(assetpath))
 	{
 		WindowsHelpers::DisplayMessageBox("Error", " Asset Folder Not Found ");
 		exit(-1);

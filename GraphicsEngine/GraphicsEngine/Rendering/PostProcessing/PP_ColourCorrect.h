@@ -8,6 +8,7 @@ public:
 	virtual void ExecPass(RHICommandList * list, FrameBuffer * InputTexture) override;
 	virtual void PostSetUpData() override;
 	virtual void PostInitEffect(FrameBuffer* Target) override;
+	FrameBuffer* AddtiveBuffer = nullptr;
 private:
 	class Shader_ColourCorrect* CurrentShader = nullptr;
 };

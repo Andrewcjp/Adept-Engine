@@ -50,17 +50,34 @@ float3 fresnelSchlick(float cosTheta, float3 F0)
 	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness)
+{
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal)
 {
 	float diffu = max(dot(Normal, LightDir), 0.0);//diffuse
 	return MaterialDiffuseColor * diffu;
 }
 
-float3 GetAmbient()
+float3 GetAmbient_CONST()
 {
 	return float3(0.03, 0.03, 0.03);
 }
 
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData)
+{
+	float3 F0 = float3(0.04, 0.04, 0.04);
+	F0 = lerp(F0, Diffusecolor, Metal);
+	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0);
+	float3 kD = 1.0 - kS;
+	kD *= 1.0 - Metal;
+	float3 irradiance = IRData;
+	float3 diffuse = irradiance * Diffusecolor;
+	float3 ambient = (kD * diffuse);
+	return ambient;
+}
 
 float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal)
 {
@@ -81,8 +98,6 @@ float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPo
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color;
 	return Diffusecolour * attenuation;
 }
-
-
 
 float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic)
 {

@@ -12,8 +12,7 @@
 #include "D3D12/D3D12Plane.h"
 #endif
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
-{
-	
+{	
 #if USED3D12DebugP
 		debugplane = new D3D12Plane(1);
 #endif
@@ -23,11 +22,12 @@ void ForwardRenderer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	RenderEngine::Resize(width, height);
+	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());	
 	if (MainCamera != nullptr)
 	{
-		MainCamera->UpdateProjection((float)width / (float)height);
+		MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
 	}
+	RenderEngine::Resize(width, height);
 }
 
 ForwardRenderer::~ForwardRenderer()
@@ -38,18 +38,17 @@ void ForwardRenderer::OnRender()
 	ShadowPass();
 	MainPass();
 	RenderSkybox();
-	PostProcessPass();
-
-	
+	PostProcessPass();	
 }
 
-
+#include "../Rendering/Shaders/Generation/Shader_Convolution.h"
 void ForwardRenderer::PostInit()
 {
 	MainShader = new Shader_Main();
 	//FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::ColourDepth);
-	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(m_width, m_height);
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(GetScaledWidth(), GetScaledHeight());
 	Desc.AllowUnordedAccess = true;
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	FilterBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
 	if (MainScene == nullptr)
 	{
@@ -62,7 +61,7 @@ void ForwardRenderer::PostInit()
 	MainCommandList->CreatePipelineState(MainShader,FilterBuffer);
 
 #if DEBUG_CUBEMAPS
-	SkyBox->test = mShadowRenderer->PointLightBuffer;
+	SkyBox->test = Conv->CubeBuffer;
 #endif
 	
 }
@@ -95,10 +94,10 @@ void ForwardRenderer::MainPass()
 	MainShader->UpdateMV(MainCamera);
 	MainCommandList->SetRenderTarget(FilterBuffer);
 	MainCommandList->ClearFrameBuffer(FilterBuffer);
+	MainCommandList->SetFrameBufferTexture(Conv->CubeBuffer, 7);
 	for (size_t i = 0; i < (*MainScene->GetObjects()).size(); i++)
 	{
-		MainShader->SetActiveIndex(MainCommandList, (int)i);
-		MainCommandList->SetTexture(SkyBox->SkyBoxTexture, 0);
+		MainShader->SetActiveIndex(MainCommandList, (int)i);		
 		(*MainScene->GetObjects())[i]->Render(false, MainCommandList);
 	}	
 	MainCommandList->SetRenderTarget(nullptr);	

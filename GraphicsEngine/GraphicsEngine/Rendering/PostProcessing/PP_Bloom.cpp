@@ -36,7 +36,7 @@ void PP_Bloom::PostPass()
 {
 	BlurEffect->RunPass(BloomBuffer);
 	CMDlist->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
-	Compost->RunPass(nullptr);
+	//Compost->RunPass(nullptr);
 }
 
 void PP_Bloom::PostInitEffect(FrameBuffer * Target)

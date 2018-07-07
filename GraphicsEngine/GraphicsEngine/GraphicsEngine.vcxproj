@@ -312,6 +312,8 @@
     <ClInclude Include="Rendering\Shaders\PostProcess\Shader_Blur.h" />
     <ClInclude Include="Rendering\Shaders\PostProcess\Shader_Bloom.h" />
     <ClInclude Include="Rendering\Shaders\PostProcess\Shader_UpSample.h" />
+    <ClInclude Include="Rendering\Shaders\Generation\Shader_Convolution.h" />
+    <ClInclude Include="Rendering\Shaders\Generation\Shader_EnvMap.h" />
     <ClInclude Include="ThirdParty\NVDDS\DDSTextureLoader12.h" />
     <ClInclude Include="Core\Assets\MeshLoader.h" />
     <ClInclude Include="Core\Utils\MovingAverage.h" />
@@ -451,6 +453,9 @@
     <ClCompile Include="Rendering\Shaders\PostProcess\Shader_Blur.cpp" />
     <ClCompile Include="Rendering\Shaders\PostProcess\Shader_Bloom.cpp" />
     <ClCompile Include="Rendering\Shaders\PostProcess\Shader_UpSample.cpp" />
+    <ClCompile Include="RHI\RHITypes.cpp" />
+    <ClCompile Include="Rendering\Shaders\Generation\Shader_Convolution.cpp" />
+    <ClCompile Include="Rendering\Shaders\Generation\Shader_EnvMap.cpp" />
     <ClCompile Include="ThirdParty\NVDDS\DDSTextureLoader12.cpp" />
     <ClCompile Include="Core\Assets\MeshLoader.cpp" />
     <ClCompile Include="Core\Utils\MovingAverage.cpp" />

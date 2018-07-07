@@ -327,7 +327,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectL
 	//File is not a DDS
 	//check the DDC for A Generated one
 	std::string DDCRelFilepath = "\\asset\\DDC\\" + Fileref.BaseName + ".DDS";
-	if (FileUtils::exists_test3(Engine::GetRootDir() + DDCRelFilepath))
+	if (FileUtils::File_ExistsTest(Engine::GetRootDir() + DDCRelFilepath))
 	{
 		return RHI::CreateTexture(DDCRelFilepath, Device);
 	}
@@ -340,7 +340,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectL
 		Args.append('"' + Fileref.GetFullPathToAsset()+ '"' + " ");
 		Args.append(GetDDCPath());
 		WindowsApplication::ExecuteHostScript(GetTextureGenScript(), Args);
-		if (FileUtils::exists_test3(Engine::GetRootDir() +  DDCRelFilepath))
+		if (FileUtils::File_ExistsTest(Engine::GetRootDir() +  DDCRelFilepath))
 		{
 			return RHI::CreateTexture(DDCRelFilepath, Device);
 		}

@@ -34,7 +34,7 @@ namespace fs = std::experimental::filesystem;
 void Cooker::CopyToOutput()
 {
 	std::cout << "**********Cook Started**********" << std::endl;
-	if (!FileUtils::exists_test3(GetTargetPath()))
+	if (!FileUtils::File_ExistsTest(GetTargetPath()))
 	{
 		(!FileUtils::TryCreateDirectory(GetTargetPath()));
 	}
@@ -82,7 +82,7 @@ bool Cooker::CopyAssetToOutput(std::string RelTarget)
 	int pos = TargetDir.find_last_of('\\');
 	TargetDir.erase(TargetDir.begin() + pos, TargetDir.end());
 
-	if (!FileUtils::exists_test3(TargetDir))
+	if (!FileUtils::File_ExistsTest(TargetDir))
 	{
 		if (!FileUtils::CreateDirectoryFromFullPath(GetTargetPath(), TargetDir, false))
 		{

@@ -16,10 +16,10 @@ public:
 	virtual ~D3D12FrameBuffer();
 	void ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
-	void		 BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex =0, DeviceContext* target = nullptr, bool isCompute =false);
-	virtual void BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list = nullptr) ;
+	void		 BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex = 0, DeviceContext* target = nullptr, bool isCompute = false);
+	virtual void BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex);
 	void		 UnBind(ID3D12GraphicsCommandList * list);
-	virtual void ClearBuffer(ID3D12GraphicsCommandList * list = nullptr) ;
+	virtual void ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
 	D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
 	void			CreateSRVHeap(int Num);
 	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap);
@@ -35,7 +35,7 @@ public:
 	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(ID3D12GraphicsCommandList * list);
 
-	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list,D3D12FrameBuffer* Passtrhough);
+	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list, D3D12FrameBuffer* Passtrhough);
 	DeviceContext* GetTargetDevice()
 	{
 		return OtherDevice;
@@ -53,7 +53,7 @@ private:
 
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
-	
+
 	DXGI_FORMAT RTVformat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT Depthformat = DXGI_FORMAT_D32_FLOAT;
 	DXGI_FORMAT DepthReadformat = DXGI_FORMAT_R32_FLOAT;

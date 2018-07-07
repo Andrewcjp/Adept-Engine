@@ -61,7 +61,7 @@ public:
 	RHICommandList(ECommandListType::Type type = ECommandListType::Graphics);
 	virtual ~RHICommandList();
 	virtual void ResetList() = 0;
-	virtual void SetRenderTarget(FrameBuffer* target) = 0;
+	virtual void SetRenderTarget(FrameBuffer* target,int SubResourceIndex = 0) = 0;
 
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
@@ -76,7 +76,7 @@ public:
 	virtual void SetPipelineState(PipeLineState state) = 0;
 	//virtual void SetConstantBuffer(RHIBuffer* buffer) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
-	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) = 0;
+	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
 	virtual void SetTexture(class BaseTexture* texture, int slot) = 0;
 	virtual void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;
 	virtual void SetScreenBackBufferAsRT() = 0;

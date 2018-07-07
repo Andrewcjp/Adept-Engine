@@ -25,6 +25,7 @@ BaseWindow::BaseWindow()
 	assert(Instance == nullptr);
 	Instance = this;
 	WindowsApplication::InitTiming();
+	CurrentRenderSettings.RenderScale = 1;
 }
 
 
@@ -100,7 +101,7 @@ void BaseWindow::InitilseWindow()
 	{
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
-
+	Renderer->SetRenderSettings(CurrentRenderSettings);
 	Renderer->Init();
 	CurrentScene = new Scene();
 	CurrentScene->LoadDefault();
@@ -273,12 +274,12 @@ void BaseWindow::Render()
 	{
 		TargetDeltaTime = 1.0 / FrameRateLimit;
 		//in MS
-		const float WaitTime = std::max((TargetDeltaTime*1000.0f) - (DeltaTime), 0.0f);
-		double WaitEndTime = WindowsApplication::Seconds() + (WaitTime / 1000.0f);
+		const double WaitTime = std::max((TargetDeltaTime*1000.0) - (DeltaTime), 0.0);
+		double WaitEndTime = WindowsApplication::Seconds() + (WaitTime / 1000.0);
 		double LastTime = WindowsApplication::Seconds();
 		if (WaitTime > 0)
 		{
-			if (WaitTime > 5 / 1000.f)
+			if (WaitTime > 5 / 1000.0)
 			{
 				//little offset
 				WindowsApplication::Sleep(WaitTime);
@@ -513,7 +514,7 @@ void BaseWindow::RenderText()
 
 	if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)
 	{
-		PerfManager::Instance->DrawAllStats(m_width / 2, m_height / 1.2);
+		PerfManager::Instance->DrawAllStats(m_width / 2, (int)(m_height / 1.2));
 	}
 }
 

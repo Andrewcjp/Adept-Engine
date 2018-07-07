@@ -1,18 +1,17 @@
 #pragma once
 #include "RHI/RHICommandList.h"
-
 #include <d3d12.h>
 #include "D3D12Shader.h"
+
 class D3D12CommandList : public RHICommandList
 {
 public:
-	
 	D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType = ECommandListType::Graphics);
 	virtual ~D3D12CommandList();
 
 	// Inherited via RHICommandList
 	virtual void ResetList() override;
-	virtual void SetRenderTarget(FrameBuffer * target) override;
+	virtual void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0) override;
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
@@ -22,7 +21,7 @@ public:
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
 	virtual void SetPipelineState(PipeLineState state) override;
 	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
-	void		 CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc);	
+	void		 CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc);
 
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
@@ -37,7 +36,6 @@ public:
 	void CreateCommandList();
 	void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
 
-
 	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer)override;
 	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer)override;
 private:
@@ -51,9 +49,7 @@ private:
 	class D3D12Texture* Texture = nullptr;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
-	PipeLineState Currentpipestate;
-
-	
+	PipeLineState Currentpipestate;	
 };
 
 class D3D12Buffer : public RHIBuffer

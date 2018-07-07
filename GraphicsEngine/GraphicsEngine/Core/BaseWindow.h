@@ -53,7 +53,7 @@ protected:
 	class Editor_Camera* EditorCamera = nullptr;
 	class SceneJSerialiser* Saver = nullptr;
 	
-	float DeltaTime = 0.0f;
+	double DeltaTime = 0.0;
 	const float TickRate = 1.0f / 120.0f;
 
 	virtual void WindowUI() {};

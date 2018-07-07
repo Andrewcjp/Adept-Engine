@@ -11,7 +11,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float exposure = 2.5f; 
 	Inputcolour = float4(1.0, 1.0, 1.0, 1.0) - exp(-Inputcolour * exposure); 
 	 
-	if (length(Inputcolour) > 1.3) 
+	if (length(Inputcolour) > 1.8) 
 	{ 
 		DstTexture[DTid.xy] = Inputcolour; 
 	} 
@@ -185,6 +185,87 @@ float4 main(VS_OUTPUT input) : SV_Target
 	 
 } 
 ¬
+CubeMap_Convoluter_fs.hlsl|FileStart|
+TextureCube texColour : register(t0); 
+SamplerState defaultSampler : register (s0); 
+ 
+cbuffer Data : register(b0) 
+{ 
+	float3 Normal: Normal0; 
+	uint slice : SV_RenderTargetArrayIndex; 
+} 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float3 uv : TEXCOORD0; 
+	uint slice : SV_RenderTargetArrayIndex; 
+}; 
+ 
+static const float PI = 3.14159265359; 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	//return float4(Normal,1.0f); 
+	//return float4(slice,slice,slice,1.0); 
+	float3 irradiance = float3(0.0,0,0); 
+	float3 target = float3(input.uv.x,input.uv.y, input.uv.z); 
+	//return float4(1, 1, 1, 1); 
+	//return float4(texColour.Sample(defaultSampler, target).rgb, 1.0); 
+ 
+	float3 up = float3(0.0, 1.0, 0.0); 
+	float3 right = cross(up, target); 
+	up = cross(target, right); 
+ 
+	float sampleDelta = 0.25; 
+	float nrSamples = 0.0; 
+	for (float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta) 
+	{ 
+		for (float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta) 
+		{ 
+			// spherical to cartesian (in tangent space) 
+			float3 tangentSample = float3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta)); 
+			// tangent space to world 
+			float3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * target; 
+ 
+			irradiance += texColour.Sample(defaultSampler, sampleVec).rgb * cos(theta) * sin(theta); 
+			nrSamples++; 
+		} 
+	} 
+	irradiance = PI * irradiance * (1.0 / float(nrSamples)); 
+ 
+	return float4(irradiance, 1.0f); 
+ 
+	// 
+} 
+¬
+CubeMap_Convoluter_vs.hlsl|FileStart|
+cbuffer ConstantBuffer : register(b0) 
+{ 
+	row_major matrix ViewProj; 
+	int slice : SV_RenderTargetArrayIndex; 
+	 
+} 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float3 uv : TEXCOORD0; 
+	uint slice : SV_RenderTargetArrayIndex; 
+}; 
+ 
+ 
+VS_OUTPUT main(float4 position : POSITION ) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	float4 final_pos = float4(position.xyz, 1.0); 
+	final_pos = mul(final_pos, ViewProj); 
+	output.pos = final_pos.xyww; 
+	output.slice = slice; 
+	output.uv = normalize(position.xyz); 
+	return output; 
+} 
+¬
 DeferredWrite_fs.hlsl|FileStart|
 Texture2D texColour : register( t0 ); 
 SamplerState defaultSampler : register ( s0 ); 
@@ -310,17 +391,34 @@ float3 fresnelSchlick(float cosTheta, float3 F0)
 	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
 } 
  
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
 	float diffu = max(dot(Normal, LightDir), 0.0);//diffuse 
 	return MaterialDiffuseColor * diffu; 
 } 
  
-float3 GetAmbient() 
+float3 GetAmbient_CONST() 
 { 
 	return float3(0.03, 0.03, 0.03); 
 } 
  
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0); 
+	float3 kD = 1.0 - kS; 
+	kD *= 1.0 - Metal; 
+	float3 irradiance = IRData; 
+	float3 diffuse = irradiance * Diffusecolor; 
+	float3 ambient = (kD * diffuse); 
+	return ambient; 
+} 
  
 float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
 { 
@@ -341,8 +439,6 @@ float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPo
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
 	return Diffusecolour * attenuation; 
 } 
- 
- 
  
 float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
 { 
@@ -499,17 +595,34 @@ float3 fresnelSchlick(float cosTheta, float3 F0)
 	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
 } 
  
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
 	float diffu = max(dot(Normal, LightDir), 0.0);//diffuse 
 	return MaterialDiffuseColor * diffu; 
 } 
  
-float3 GetAmbient() 
+float3 GetAmbient_CONST() 
 { 
 	return float3(0.03, 0.03, 0.03); 
 } 
  
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0); 
+	float3 kD = 1.0 - kS; 
+	kD *= 1.0 - Metal; 
+	float3 irradiance = IRData; 
+	float3 diffuse = irradiance * Diffusecolor; 
+	float3 ambient = (kD * diffuse); 
+	return ambient; 
+} 
  
 float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
 { 
@@ -530,8 +643,6 @@ float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPo
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
 	return Diffusecolour * attenuation; 
 } 
- 
- 
  
 float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
 { 
@@ -647,17 +758,34 @@ float3 fresnelSchlick(float cosTheta, float3 F0)
 	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
 } 
  
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
 { 
 	float diffu = max(dot(Normal, LightDir), 0.0);//diffuse 
 	return MaterialDiffuseColor * diffu; 
 } 
  
-float3 GetAmbient() 
+float3 GetAmbient_CONST() 
 { 
 	return float3(0.03, 0.03, 0.03); 
 } 
  
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0); 
+	float3 kD = 1.0 - kS; 
+	kD *= 1.0 - Metal; 
+	float3 irradiance = IRData; 
+	float3 diffuse = irradiance * Diffusecolor; 
+	float3 ambient = (kD * diffuse); 
+	return ambient; 
+} 
  
 float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
 { 
@@ -678,8 +806,6 @@ float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPo
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
 	return Diffusecolour * attenuation; 
 } 
- 
- 
  
 float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
 { 
@@ -764,6 +890,7 @@ Texture2D NormalMapTexture : register(t1);
  
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t3); 
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(POINT_SHADOW_OFFSET); 
+TextureCube DiffuseIrMap : register(t10); 
 float GetShadow(float4 pos) 
 { 
 	float4 vLightSpacePos = pos; 
@@ -829,14 +956,22 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos);
  
 float4 main(PSInput input) : SV_TARGET 
 { 
+	//return float4(Roughness,Roughness,Roughness,1.0f); 
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv); 
+	//texturecolour = float3(1, 0, 0); 
 	float3 Normal = input.Normal.xyz; 
 	if (HasNormalMap == 1) 
 	{ 
 		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0; 
 		Normal = normalize(mul(Normal,input.TBN)); 
 	} 
-	float3 output = texturecolour * GetAmbient(); 
+	//float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor, float Roughness, float Metal, float3 IRData) 
+	//float3 output = texturecolour * GetAmbient_CONST(); 
+	float3 irData = DiffuseIrMap.Sample(g_sampler, normalize(Normal)).rgb; 
+	//return float4(irData, 1.0); 
+	float3 ViewDir = normalize( CameraPos- input.WorldPos.xyz); 
+	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData); 
+	//return float4(output, 1.0); 
 	for (int i = 0; i < MAX_LIGHTS; i++) 
 	{ 
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic); 
@@ -850,9 +985,7 @@ float4 main(PSInput input) : SV_TARGET
 		} 
 		output += colour; 
 	} 
-	float gamma = 1.0f / 2.2f; 
-	output = output / (output + float3(1.0, 1.0, 1.0)); 
-	output = pow(output, float3(gamma, gamma, gamma)); 
+ 
  
 	return float4(output.xyz,1.0f); 
 } 
@@ -1040,7 +1173,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 Pass_fs_12.hlsl|FileStart|
 Texture2D texColour : register(t0); 
 SamplerState defaultSampler : register (s0); 
- 
+Texture2D AdditiveBlendTarget : register(t1); 
 struct VS_OUTPUT 
 { 
 	float4 pos : SV_POSITION; 
@@ -1051,17 +1184,17 @@ struct VS_OUTPUT
 float4 main(VS_OUTPUT input) : SV_Target 
 { 
 	//return float4(1,1,1,1); 
-	float4 output = texColour.Sample(defaultSampler, input.uv); 
+	float3 output = texColour.Sample(defaultSampler, input.uv).rgb; 
  
-	float exposure = 2.5f; 
-	float4 mapped = float4(1.0,1.0,1.0,1.0) - exp(-output * exposure); 
+	output += AdditiveBlendTarget.Sample(defaultSampler, input.uv).rgb; 
  
-#if 0 
+ 
 	float gamma = 1.0f / 2.2f; 
-	output = pow(output, float4(gamma, gamma, gamma, gamma)); 
-#endif 
-	return output; 
-	 
+	float exposure = 2.5; 
+	output = float3(1.0, 1.0, 1.0) - exp(-output * exposure); 
+	output = pow(output, float3(gamma, gamma, gamma)); 
+ 
+	return float4(output,1.0);	 
 } 
 ¬
 Pass_vs.hlsl|FileStart|
@@ -1205,9 +1338,7 @@ SamplerState g_sampler : register(s1);
  
 float4 main(PSInput input) : SV_TARGET 
 { 
- 
-	return float4(g_texture.Sample(g_sampler,input.texcoord).xyz,1.0f); 
-	return float4(1.0f,1.0,1.0f,1.0f); 
+	return float4(g_texture.Sample(g_sampler, input.texcoord).xyz,1.0f); 
 } 
  
 ¬

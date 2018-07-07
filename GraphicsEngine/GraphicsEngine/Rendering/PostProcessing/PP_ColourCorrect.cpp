@@ -16,9 +16,17 @@ PP_ColourCorrect::~PP_ColourCorrect()
 void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
 	list->SetScreenBackBufferAsRT();
-	list->SetFrameBufferTexture(InputTexture, 0,0);
+	list->SetFrameBufferTexture(InputTexture, 0);
+	if (AddtiveBuffer != nullptr)
+	{
+		//list->SetFrameBufferTexture(AddtiveBuffer, 1);
+	}
+
 	RenderScreenQuad(list);
 	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)InputTexture;
+	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+	dBuffer = (D3D12FrameBuffer*)AddtiveBuffer;
 	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 }
 

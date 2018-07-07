@@ -68,5 +68,4 @@ bool WindowsHelpers::DisplaySaveFileDialog(std::string StartDir, std::string Fil
 bool WindowsHelpers::CopyFileToTarget(std::string Target, std::string Dest)
 {
 	return CopyFile(StringUtils::ConvertStringToWide(Target).c_str(), StringUtils::ConvertStringToWide(Dest).c_str(), false);
-	//return false;
 }

@@ -20,7 +20,7 @@ void UIDrawBatcher::InitD3D12()
 {
 	commandlist = RHI::CreateCommandList();
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
-	const UINT vertexBufferSize = sizeof(UIVertex) * 500;//mazsize
+	const UINT vertexBufferSize = sizeof(UIVertex) * Max_Verts;
 	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, RHIBuffer::BufferAccessType::Dynamic);
 	commandlist->SetPipelineState(PipeLineState{ false , false });
 	commandlist->CreatePipelineState(Shader);	
@@ -74,6 +74,7 @@ void UIDrawBatcher::RenderBatches()
 	{
 		return;
 	}
+	ensure(BatchedVerts.size() < Max_Verts);
 	Shader->SetShaderActive();
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(UIManager::instance->GetWidth()), 0.0f, static_cast<float>(UIManager::instance->GetHeight()));
 	Shader->UpdateUniforms(projection);

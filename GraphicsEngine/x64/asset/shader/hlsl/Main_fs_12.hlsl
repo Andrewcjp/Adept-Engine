@@ -37,6 +37,7 @@ Texture2D NormalMapTexture : register(t1);
 
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t3);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(POINT_SHADOW_OFFSET);
+TextureCube DiffuseIrMap : register(t10);
 float GetShadow(float4 pos)
 {
 	float4 vLightSpacePos = pos;
@@ -102,14 +103,22 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos);
 
 float4 main(PSInput input) : SV_TARGET
 {
+	//return float4(Roughness,Roughness,Roughness,1.0f);
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv);
+	//texturecolour = float3(1, 0, 0);
 	float3 Normal = input.Normal.xyz;
 	if (HasNormalMap == 1)
 	{
 		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
 		Normal = normalize(mul(Normal,input.TBN));
 	}
-	float3 output = texturecolour * GetAmbient();
+	//float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor, float Roughness, float Metal, float3 IRData)
+	//float3 output = texturecolour * GetAmbient_CONST();
+	float3 irData = DiffuseIrMap.Sample(g_sampler, normalize(Normal)).rgb;
+	//return float4(irData, 1.0);
+	float3 ViewDir = normalize( CameraPos- input.WorldPos.xyz);
+	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData);
+	//return float4(output, 1.0);
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
@@ -123,9 +132,7 @@ float4 main(PSInput input) : SV_TARGET
 		}
 		output += colour;
 	}
-	float gamma = 1.0f / 2.2f;
-	output = output / (output + float3(1.0, 1.0, 1.0));
-	output = pow(output, float3(gamma, gamma, gamma));
+
 
 	return float4(output.xyz,1.0f);
 }

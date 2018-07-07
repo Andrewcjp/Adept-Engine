@@ -51,7 +51,6 @@ void DeferredRenderer::PostInit()
 	LightingList = RHI::CreateCommandList(ECommandListType::Graphics,RHI::GetDeviceContext(0));
 	LightingList->SetPipelineState(PipeLineState{ false,false,false });
 	LightingList->CreatePipelineState(DeferredShader);
-	D3D12RHI::Instance->AddLinkedFrameBuffer(GFrameBuffer);
 	SkyBox = new Shader_Skybox();
 	SkyBox->Init(FilterBuffer, GFrameBuffer);
 }
@@ -68,6 +67,7 @@ void DeferredRenderer::GeometryPass()
 	 
 	WriteList->ResetList();
 	WriteList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(WriteList);
+	WriteList->GetDevice()->GetTimeManager()->StartTimer(WriteList,D3D12TimeManager::eGPUTIMERS::DeferredWrite);
 	WriteList->SetRenderTarget(GFrameBuffer);
 	WriteList->ClearFrameBuffer(GFrameBuffer);
 	MainShader->BindLightsBuffer(WriteList);
@@ -78,6 +78,7 @@ void DeferredRenderer::GeometryPass()
 		(*MainScene->GetObjects())[i]->Render(false, WriteList);
 	}
 	WriteList->SetRenderTarget(nullptr);
+	WriteList->GetDevice()->GetTimeManager()->EndTimer(WriteList, D3D12TimeManager::eGPUTIMERS::DeferredWrite);
 	WriteList->Execute();
 }
 
@@ -95,6 +96,7 @@ void DeferredRenderer::SSAOPass()
 void DeferredRenderer::LightingPass()
 {
 	LightingList->ResetList();
+	WriteList->GetDevice()->GetTimeManager()->StartTimer(LightingList, D3D12TimeManager::eGPUTIMERS::DeferredLighting);
 	LightingList->SetScreenBackBufferAsRT();
 	LightingList->ClearScreen();
 
@@ -108,6 +110,7 @@ void DeferredRenderer::LightingPass()
 	//mShadowRenderer->BindShadowMapsToTextures(LightingList);
 	DeferredShader->RenderScreenQuad(LightingList);
 	LightingList->SetRenderTarget(nullptr);
+	WriteList->GetDevice()->GetTimeManager()->EndTimer(LightingList, D3D12TimeManager::eGPUTIMERS::DeferredLighting);
 	LightingList->Execute();
 }
 
@@ -115,6 +118,8 @@ void DeferredRenderer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
+	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+	GFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 	RenderEngine::Resize(width, height);
 	if (MainCamera != nullptr)
 	{

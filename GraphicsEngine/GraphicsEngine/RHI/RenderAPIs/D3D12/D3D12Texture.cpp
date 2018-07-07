@@ -31,7 +31,7 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 {
 	std::string rpath = Engine::GetRootDir();
 	rpath.append("\\asset\\DerivedDataCache\\");
-	if (!FileUtils::exists_test3(rpath))
+	if (!FileUtils::File_ExistsTest(rpath))
 	{
 		FileUtils::TryCreateDirectory(rpath);
 	}
@@ -54,7 +54,7 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 	float x_ratio = ((float)(startwidth - 1)) / width;
 	float y_ratio = ((float)(startheight - 1)) / height;
 	rpath.append(".bmp");
-	if (FileUtils::exists_test3(rpath))
+	if (FileUtils::File_ExistsTest(rpath))
 	{
 		if (ImageIO::LoadTexture2D(rpath.c_str(), &buffer, &width, &height, &nChannels) != E_IMAGEIO_SUCCESS)
 		{

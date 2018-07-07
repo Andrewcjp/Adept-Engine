@@ -92,8 +92,6 @@ private:
 	float FrameTime = 1.0f;
 	float CPUTime = 0;
 	float GPUTime = 0;
-	bool WaitGPUTimerQuerry = false;
-	unsigned int queryID[2];
 	long FrameStart = 0;
 	long CPUstart = 0;
 	int CurrentFrame = 0;

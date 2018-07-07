@@ -33,13 +33,13 @@ public:
 	virtual void SetScene(Scene* sc);
 	virtual void SetEditorCamera(class Editor_Camera* cam);
 
-	
-	
 	//getters
 	Shader* GetMainShader();
 	Camera* GetMainCam();
+	int GetScaledWidth();
+	int GetScaledHeight();
 protected:
-	void RenderSkybox();
+	class Shader_Convolution * Conv = nullptr;
 	void ShadowPass();
 	void PostProcessPass();
 	int			m_width = 0;

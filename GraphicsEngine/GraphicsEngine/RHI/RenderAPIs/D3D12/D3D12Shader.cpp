@@ -94,7 +94,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	name.append(".hlsl");
 	path.append(name);
 
-	if (!FileUtils::exists_test3(path))
+	if (!FileUtils::File_ExistsTest(path))
 	{
 #ifdef  _DEBUG
 		__debugbreak();
@@ -250,6 +250,10 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 		psoDesc.GS = CD3DX12_SHADER_BYTECODE(blobs->gsBlob);
 	}
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	if (Depthtest.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+	{
+		//psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON;
+	}
 	psoDesc.RasterizerState.CullMode = Depthtest.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 	if (Depthtest.Blending)
 	{
@@ -452,7 +456,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	{
 		if (Params[i].Type == Shader::ShaderParamType::SRV)
 		{
-			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE,0);
+			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], BaseSRVVis);
 		}
 		else if (Params[i].Type == Shader::ShaderParamType::CBV)
@@ -467,8 +471,8 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
-		}
 	}
+}
 	//todo: Samplers
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =

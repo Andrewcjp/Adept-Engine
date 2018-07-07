@@ -222,6 +222,11 @@ void DeviceContext::UpdateCopyEngine()
 
 }
 
+void DeviceContext::ResetCopyEngine()
+{
+	ThrowIfFailed(m_CopyList->Reset(m_CopyCommandAllocator, nullptr));
+}
+
 void DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * list)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };

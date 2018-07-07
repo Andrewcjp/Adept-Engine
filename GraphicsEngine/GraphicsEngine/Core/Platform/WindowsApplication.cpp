@@ -15,7 +15,7 @@ WindowsApplication::~WindowsApplication()
 
 bool WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args)
 {
-	if (FileUtils::exists_test3(Filename))
+	if (FileUtils::File_ExistsTest(Filename))
 	{
 		//system((Filename + Args).c_str());
 		const std::wstring wideFilename = StringUtils::ConvertStringToWide(Filename);

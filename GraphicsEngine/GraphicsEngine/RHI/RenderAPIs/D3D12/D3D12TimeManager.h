@@ -26,6 +26,8 @@ public:
 		PointShadows,
 		DirShadows,
 		MainPass,
+		DeferredWrite,
+		DeferredLighting,
 		UI,
 		Text,
 		Skybox,

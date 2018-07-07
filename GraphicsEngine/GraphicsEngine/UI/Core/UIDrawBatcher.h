@@ -30,6 +30,6 @@ private:
 	std::vector<UIVertex> BatchedVerts;
 	RHIBuffer* VertexBuffer = nullptr;
 	RHICommandList* commandlist = nullptr;
-
+	const int Max_Verts = 1000;
 };
 

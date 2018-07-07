@@ -32,16 +32,13 @@ void PostProcessing::ExecPPStack(FrameBuffer* targetbuffer)
 	}*/
 	//called to post porcess the final rendered scene
 	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
-#if 1
-	//Blur->RunPass(targetbuffer);
-	ColourCorrect->RunPass(targetbuffer);
 
-#else 
+	//Bloom->RunPass(targetbuffer);
+	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
 	ColourCorrect->RunPass(targetbuffer);
-	Bloom->RunPass(targetbuffer);
-#endif	
-
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
+	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 	
 	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
 
@@ -72,12 +69,14 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Bloom = new PP_Bloom();
 	Bloom->SetUpData();
 	Bloom->InitEffect(Target);
+	ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
 }
 void PostProcessing::Resize(FrameBuffer* Target)
 {
 	//ColourCorrect->InitEffect(Target);
 	Blur->InitEffect(Target);
 	Bloom->InitEffect(Target);
+	ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
 }
 
 void PostProcessing::MakeReadyForPost(RHICommandList* list, FrameBuffer * buffer)

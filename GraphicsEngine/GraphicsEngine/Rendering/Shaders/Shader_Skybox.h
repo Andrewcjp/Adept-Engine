@@ -15,9 +15,7 @@ public:
 	FrameBuffer* test = nullptr;
 #endif
 private:
-	int SkyboxTexture;
-	class Renderable* CubeModel;
-	class RHICommandList* List;
-
+	class Renderable* CubeModel = nullptr;
+	class RHICommandList* List = nullptr;
 };
 

@@ -403,6 +403,8 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		D3D12_RENDER_TARGET_VIEW_DESC RenderTargetDesc = {};
 		RenderTargetDesc.Format = Format;
 		RenderTargetDesc.ViewDimension = D3D12Helpers::ConvertDimensionRTV(ViewDimension);
+		RenderTargetDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
+		RenderTargetDesc.Texture2D.MipSlice = 0;
 		CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap));
 		NewResource->SetName(L"FrameBuffer RT");
 	}
@@ -497,7 +499,7 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 	}
 }
 
-void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list)
+void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex)
 {
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
@@ -523,7 +525,10 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list
 			//validate this is okay todo?
 			rtvHandle = RTVHeap->GetCPUAddress(0);
 		}
-		list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &rtvHandle, (BufferDesc.RenderTargetCount > 1), &DSVHeap->GetCPUAddress(0));
+		if (SubResourceIndex == 0)
+		{
+			list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &rtvHandle, (BufferDesc.RenderTargetCount > 1), &DSVHeap->GetCPUAddress(0));
+		}
 	}
 	else
 	{

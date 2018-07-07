@@ -13,11 +13,12 @@ public:
 	virtual void PostSetUpData() override;
 	void PostPass() override;
 	virtual void PostInitEffect(FrameBuffer * Target) override;
+	FrameBuffer* BloomBuffer = nullptr;
 private:
 	PP_Blur * BlurEffect = nullptr;
 	class Shader_Bloom* BloomShader = nullptr;
 	RHIUAV* UAV = nullptr;
-	FrameBuffer* BloomBuffer = nullptr;
+	
 	class PP_CompostPass* Compost = nullptr;
 };
 

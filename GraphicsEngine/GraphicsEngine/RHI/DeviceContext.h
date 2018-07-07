@@ -81,6 +81,7 @@ public:
 	void ResetSharingCopyList();
 	void NotifyWorkForCopyEngine();
 	void UpdateCopyEngine();
+	void ResetCopyEngine();
 	void ExecuteComputeCommandList(ID3D12GraphicsCommandList * list);
 	void ExecuteCopyCommandList(ID3D12GraphicsCommandList * list);
 	void ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock = false);

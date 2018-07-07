@@ -119,7 +119,7 @@ void Shader_Main::SetActiveIndex(RHICommandList* list, int index,int DeviceIndex
 }
 void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 {
-	out.resize(7);
+	out.resize(8);
 	out[0] = ShaderParameter(ShaderParamType::SRV, 0, 0);
 	out[1] = ShaderParameter(ShaderParamType::CBV, 1, 0);
 	out[2] = ShaderParameter(ShaderParamType::CBV, 2, 1);
@@ -133,6 +133,7 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	out[5] = parm;
 
 	out[6] = ShaderParameter(ShaderParamType::SRV, 6, 1);
+	out[7] = ShaderParameter(ShaderParamType::SRV, 7, 10);
 }
 
 std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
@@ -152,7 +153,7 @@ void Shader_Main::UpdateMV(Camera * c)
 
 void Shader_Main::UpdateMV(glm::mat4 View, glm::mat4 Projection)
 {
-	ensure(false);
+//	ensure(false);
 	MV_Buffer.V = View;
 	MV_Buffer.P = Projection;
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);

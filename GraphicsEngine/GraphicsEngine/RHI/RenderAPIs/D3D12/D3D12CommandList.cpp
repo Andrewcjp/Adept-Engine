@@ -59,7 +59,7 @@ void D3D12CommandList::ResetList()
 	}
 }
 
-void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
+void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
 {
 	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
@@ -71,7 +71,7 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target)
 	{
 		CurrentRenderTarget = (D3D12FrameBuffer*)target;
 		ensure(CurrentRenderTarget->CheckDevice(Device->GetDeviceIndex()));
-		CurrentRenderTarget->BindBufferAsRenderTarget(CurrentGraphicsList);
+		CurrentRenderTarget->BindBufferAsRenderTarget(CurrentGraphicsList, SubResourceIndex);
 	}
 }
 
@@ -337,11 +337,11 @@ void D3D12CommandList::UpdateConstantBuffer(void * data, int offset)
 	CurrentConstantBuffer->UpdateConstantBuffer(data, offset);
 }
 
-void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
+void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot)
 {
 	D3D12Buffer* d3Buffer = (D3D12Buffer*)buffer;
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
-	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Register,ListType == ECommandListType::Compute);
+	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Slot,ListType == ECommandListType::Compute);
 }
 
 
@@ -491,10 +491,10 @@ void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 	CBV->UpdateCBV(data, offset, ConstantBufferDataSize);
 }
 
-void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register,bool  IsCompute)
+void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Slot,bool  IsCompute)
 {
 	CBV->SetDescriptorHeaps(list);//D3D12CBV::MPCBV
-	CBV->SetGpuView(list, offset, Register, IsCompute);//todo: handle Offset!
+	CBV->SetGpuView(list, offset, Slot, IsCompute);//todo: handle Offset!
 }
 
 void D3D12Buffer::UpdateIndexBuffer(void * data, int length)
