@@ -4,13 +4,13 @@
 #include <D3Dcompiler.h>
 #include "glm\glm.hpp"
 #include "include\glm\gtx\transform.hpp"
-D3D12RHI* D3D12RHI::Instance = nullptr;
 #include "Rendering/Shaders/ShaderMipMap.h"
 #include "GPUResource.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
 #include "D3D12TimeManager.h"
 #include <dxgidebug.h>
+D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 	:m_fenceValues{}
 {
@@ -127,7 +127,7 @@ void D3D12RHI::WaitForAllDevices()
 
 void D3D12RHI::DisplayDeviceDebug()
 {
-	std::cout << "Primary Adaptor Has " << GetMemory() << std::endl;
+	Log::OutS  << "Primary Adaptor Has " << GetMemory() << Log::OutS;
 }
 
 std::string D3D12RHI::GetMemory()
@@ -451,7 +451,7 @@ void D3D12RHI::PresentFrame()
 	if (m_BudgetNotificationCookie == 1)
 	{
 		DisplayDeviceDebug();
-		std::cout << "Memory Budget Changed" << std::endl;
+		Log::OutS  << "Memory Budget Changed" << Log::OutS;
 	}
 #if USEGPUTOGENMIPS
 	if (count == 1)

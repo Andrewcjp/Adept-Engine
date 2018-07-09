@@ -28,7 +28,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float4 AlbedoSpec = AlbedoTexture.Sample(defaultSampler, input.uv);
 	float Roughness = AlbedoSpec.a;
 	float Metallic = normal.a;
-	float3 Diffusecolour = AlbedoSpec.xyz * GetAmbient();
+	float3 Diffusecolour = AlbedoSpec.xyz * GetAmbient_CONST();
 	for (int i = 0; i < MAX_LIGHT; i++)
 	{
 		Diffusecolour += CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(normal.xyz), CameraPos, Roughness, Metallic);

@@ -27,7 +27,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 
 	if (!scene)
 	{
-		std::cout << "Mesh load failed!: " << filename << std::endl;		
+		Log::OutS  << "Mesh load failed!: " << filename << Log::OutS;		
 	}
 
 	const aiMesh* model = scene->mMeshes[0];

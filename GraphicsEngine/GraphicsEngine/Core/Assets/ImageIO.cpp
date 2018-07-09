@@ -170,7 +170,7 @@ EImageIOStatus ImageIO::LoadTexture2D(const char* filename, unsigned char** buff
 	if (*buffer == nullptr)
 	{
 		//printf("Load texture Error %s\n", file);
-		std::cout << "Falied to Load Texture '" << filename << "'\n";
+		Log::OutS  << "Falied to Load Texture '" << filename << "'\n";
 		return EImageIOStatus::E_IMAGEIO_ERROR;
 	}
 	return EImageIOStatus::E_IMAGEIO_SUCCESS;

@@ -101,7 +101,7 @@ void AssetManager::ExportCookedShaders()
 	{
 		for (std::map<std::string, std::string>::iterator it = ShaderSourceMap.begin(); it != ShaderSourceMap.end(); ++it)
 		{
-			//std::cout << it->first << " => " << it->second << '\n';
+			//Log::OutS  << it->first << " => " << it->second << '\n';
 			std::string data = "";
 			data.append(it->first);
 			data.append(FileSplit + "\n");
@@ -192,8 +192,8 @@ AssetManager::AssetManager()
 	//LoadCookedShaders();
 	ExportCookedShaders();
 #endif
-	//std::cout << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << std::endl;
-	//std::cout << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << std::endl;
+	//Log::OutS  << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << Log::OutS;
+	//Log::OutS  << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << Log::OutS;
 }
 AssetManager::~AssetManager()
 {}
@@ -231,7 +231,7 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool A
 			}
 			if (image == nullptr)
 			{
-				std::cout << "Load texture Error " << fullpath << std::endl;
+				Log::OutS  << "Load texture Error " << fullpath << Log::OutS;
 				return false;
 			}
 			newasset.image = image;
@@ -333,7 +333,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectL
 	}
 	else
 	{
-		std::cout << "File '" << Fileref.Name <<"' Does not exist in the DDC Generating Now"  << std::endl;
+		Log::OutS  << "File '" << Fileref.Name <<"' Does not exist in the DDC Generating Now"  << Log::OutS;
 		//generate one! BC1_UNORM  
 		std::string Args =" "+ Engine::GetRootDir() + "\\asset\\Scripts\\";
 		Args.append(" BC1_UNORM ");
@@ -346,7 +346,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectL
 		}
 		else
 		{
-			std::cout << "File '" << Fileref.Name << "' Failed To Generate!" << std::endl;
+			Log::OutS  << "File '" << Fileref.Name << "' Failed To Generate!" << Log::OutS;
 		}
 	}
 	return ImageIO::GetDefaultTexture();
@@ -408,7 +408,7 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 	}
 	else
 	{
-		std::cout << "failed to load " << pathname << std::endl;
+		Log::OutS  << "failed to load " << pathname << Log::OutS;
 	}
 	return file;
 }

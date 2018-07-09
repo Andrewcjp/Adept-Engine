@@ -70,7 +70,7 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	m_TextShader->Update(TextCommandList);
 	const uint8_t *p;
 	atlas* a = TextAtlas;
-	unsigned int TargetDatalength = 6 * text.length();
+	size_t TargetDatalength = 6 * text.length();
 	if (coords.size() < currentsize + TargetDatalength)
 	{
 		coords.resize(currentsize + TargetDatalength);
@@ -125,7 +125,7 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	}
 	if (reset)
 	{
-		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(text.length() * 6));
+		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*((int)text.length() * 6));
 	}
 	else
 	{
@@ -217,16 +217,16 @@ void TextRenderer::LoadText()
 
 	if (FT_Init_FreeType(&ft))
 	{
-		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		Log::OutS  << "ERROR::FREETYPE: Could not init FreeType Library" << Log::OutS;
 	}
 	std::string fontpath = Engine::GetRootDir();
 	fontpath.append("\\asset\\fonts\\arial.ttf");
 	if (FT_New_Face(ft, fontpath.c_str(), 0, &face))
 	{
-		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+		Log::OutS  << "ERROR::FREETYPE: Failed to load font" << Log::OutS;
 	}
-	float scale = 2;
-	int facesize = 48 * scale;//48
+	float scale = 1;
+	int facesize = 48 * std::lround(scale);//48
 	ScaleFactor = (float)1 / scale;
 	FT_Set_Pixel_Sizes(face, 0, facesize);
 

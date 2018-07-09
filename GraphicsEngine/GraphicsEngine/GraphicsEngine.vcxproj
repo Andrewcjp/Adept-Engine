@@ -165,6 +165,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <EnablePREfast>false</EnablePREfast>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,6 +175,7 @@
       <AdditionalLibraryDirectories>$(ProjectDir)lib\64\;$(ProjectDir)lib\64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -305,6 +308,7 @@
     <ClInclude Include="Editor\EditorCore.h" />
     <ClInclude Include="Core\Components\Utillity\FreeLookComponent.h" />
     <ClInclude Include="Core\Types\FString.h" />
+    <ClInclude Include="Core\Platform\Logger.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_Bloom.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_Blur.h" />
     <ClInclude Include="RHI\RHITypes.h" />
@@ -359,6 +363,7 @@
     <ClInclude Include="Rendering\Shaders\Shader_UIBatch.h" />
     <ClInclude Include="Rendering\Shaders\ShaderMipMap.h" />
     <ClInclude Include="RHI\RHICommandList.h" />
+    <ClInclude Include="Core\Platform\Threading.h" />
     <ClInclude Include="UI\EditorUI\UIAssetManager.h" />
     <ClInclude Include="UI\Core\UIPopoutbox.h" />
     <ClInclude Include="UI\Core\UIPanel.h" />
@@ -448,6 +453,7 @@
     <ClCompile Include="Editor\EditorCore.cpp" />
     <ClCompile Include="Core\Components\Utillity\FreeLookComponent.cpp" />
     <ClCompile Include="Core\Types\FString.cpp" />
+    <ClCompile Include="Core\Platform\Logger.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PP_Bloom.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PP_Blur.cpp" />
     <ClCompile Include="Rendering\Shaders\PostProcess\Shader_Blur.cpp" />
@@ -507,6 +513,7 @@
     <ClCompile Include="Rendering\Shaders\Shader_UIBatch.cpp" />
     <ClCompile Include="Rendering\Shaders\ShaderMipMap.cpp" />
     <ClCompile Include="RHI\RHICommandList.cpp" />
+    <ClCompile Include="Core\Platform\Threading.cpp" />
     <ClCompile Include="UI\EditorUI\UIAssetManager.cpp" />
     <ClCompile Include="UI\Core\UIPopoutbox.cpp" />
     <ClCompile Include="UI\Core\UIPanel.cpp" />

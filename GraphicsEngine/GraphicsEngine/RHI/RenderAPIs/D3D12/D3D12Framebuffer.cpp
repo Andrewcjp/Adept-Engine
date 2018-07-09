@@ -357,14 +357,17 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	CD3DX12_RESOURCE_DESC ResourceDesc = CD3DX12_RESOURCE_DESC();
 	ResourceDesc.Width = m_width;
 	ResourceDesc.Height = m_height;
-	ResourceDesc.Dimension = D3D12Helpers::ConvertToResourceDimension(ViewDimension);
-	ResourceDesc.MipLevels = 1;
+	ResourceDesc.Dimension = D3D12Helpers::ConvertToResourceDimension(ViewDimension);	
 	ResourceDesc.Format = Format;
-
 	ResourceDesc.Flags = (IsDepthStencil ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 	if (!IsDepthStencil)
 	{
 		ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		ResourceDesc.MipLevels = BufferDesc.MipCount;
+	}
+	else
+	{
+		ResourceDesc.MipLevels = BufferDesc.DepthMipCount;
 	}
 	ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	ResourceDesc.SampleDesc.Count = 1;

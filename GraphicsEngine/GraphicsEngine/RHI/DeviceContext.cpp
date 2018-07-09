@@ -72,7 +72,7 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 
 	if (LogDeviceDebug)
 	{
-		std::cout << "Device Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel) << std::endl;
+		Log::OutS  << "Device Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel) << Log::OutS;
 	}
 	DeviceIndex = index;
 	D3D12RHI::CheckFeatures(m_Device);
@@ -436,7 +436,7 @@ void GPUSyncPoint::WaitOnSync()
 {
 	if (!DidStartWork)
 	{
-		std::cout << "ERROR:Wait Called on Non Async List\n";
+		Log::OutS  << "ERROR:Wait Called on Non Async List\n";
 		return;
 	}
 	// Wait until the fence has been processed.	

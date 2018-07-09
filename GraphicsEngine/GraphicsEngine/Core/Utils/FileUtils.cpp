@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "FileUtils.h"
 #include <vector>
-
+#include "../Core/Platform/Logger.h"
 #include "StringUtil.h"
+
 bool FileUtils::File_ExistsTest(const std::string & name,bool Silent)
 {
 	struct stat buffer;
@@ -12,12 +13,11 @@ bool FileUtils::File_ExistsTest(const std::string & name,bool Silent)
 	}
 	if (!Silent)
 	{
-		std::cout << "File Does not exist " << name.c_str() << std::endl;
+		Log::OutS  << "File Does not exist " << name.c_str() << Log::OutS;
 	}
 	return false;
 }
-
-
+ 
 bool FileUtils::TryCreateDirectory(const std::string & name)
 {
 	DWORD LastError;
@@ -36,7 +36,6 @@ bool FileUtils::TryCreateDirectory(const std::string & name)
 	}
 	return false;
 }
-
 
 bool FileUtils::CreateDirectoryFromFullPath(std::string root, std::string Path, bool RelativeToRoot)
 {

@@ -33,7 +33,7 @@ std::string Cooker::GetTargetPath(bool AppendSlash)
 namespace fs = std::experimental::filesystem;
 void Cooker::CopyToOutput()
 {
-	std::cout << "**********Cook Started**********" << std::endl;
+	Log::OutS  << "**********Cook Started**********" << Log::OutS;
 	if (!FileUtils::File_ExistsTest(GetTargetPath()))
 	{
 		(!FileUtils::TryCreateDirectory(GetTargetPath()));
@@ -41,7 +41,7 @@ void Cooker::CopyToOutput()
 	std::string path = Engine::GetRootDir();
 	path.append("\\Release\\");
 	//Copy Binaries 
-	int SumSize = 0;
+	uintmax_t SumSize = 0;
 	for (auto & p : std::experimental::filesystem::directory_iterator(path))
 	{
 		std::string destpath = p.path().string();
@@ -54,7 +54,7 @@ void Cooker::CopyToOutput()
 			WindowsHelpers::CopyFileToTarget(p.path().string(), out);
 		}
 	}
-	std::cout << "Copied " << SumSize / 1e6 << "mb of Binaries to output" << std::endl;
+	Log::OutS  << "Copied " << SumSize / 1e6 << "mb of Binaries to output" << Log::OutS;
 	//copy assets
 	if (AssetM != nullptr)
 	{
@@ -71,7 +71,7 @@ void Cooker::CopyToOutput()
 		//copy font
 		CopyAssetToOutput("\\asset\\fonts\\arial.ttf");
 	}
-	std::cout << "**********Cook Complete**********" << std::endl;
+	Log::OutS  << "**********Cook Complete**********" << Log::OutS;
 	 
 }
 bool Cooker::CopyAssetToOutput(std::string RelTarget)
@@ -79,7 +79,7 @@ bool Cooker::CopyAssetToOutput(std::string RelTarget)
 	std::string TargetDir = GetTargetPath();
 	TargetDir.append(RelTarget);
 	std::string Targetfile = TargetDir;
-	int pos = TargetDir.find_last_of('\\');
+	size_t pos = TargetDir.find_last_of('\\');
 	TargetDir.erase(TargetDir.begin() + pos, TargetDir.end());
 
 	if (!FileUtils::File_ExistsTest(TargetDir))

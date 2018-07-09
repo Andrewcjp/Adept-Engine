@@ -232,7 +232,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 			else
 			{
-				std::cout << "Max point Shadows Hit" << std::endl;
+				Log::OutS  << "Max point Shadows Hit" << Log::OutS;
 				lights[i]->SetShadow(false);
 			}
 		}
@@ -245,7 +245,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 			else
 			{
-				std::cout << "Max Directional Shadows Hit" << std::endl;
+				Log::OutS  << "Max Directional Shadows Hit" << Log::OutS;
 				lights[i]->SetShadow(false);
 			}
 		}

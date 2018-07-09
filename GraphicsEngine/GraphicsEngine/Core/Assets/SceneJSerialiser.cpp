@@ -89,7 +89,7 @@ std::string SceneJSerialiser::GetFile(std::string filename)
 	}
 	else
 	{
-		std::cout << "failed to load " << filename << std::endl;
+		Log::OutS  << "failed to load " << filename << Log::OutS;
 	}
 	return out;
 }
@@ -105,7 +105,7 @@ bool SceneJSerialiser::WriteToFile(std::string filename, std::string data)
 	}
 	else
 	{
-		std::cout << "failed to save " << filename << std::endl;
+		Log::OutS  << "failed to save " << filename << Log::OutS;
 		return false;
 	}
 	return true;

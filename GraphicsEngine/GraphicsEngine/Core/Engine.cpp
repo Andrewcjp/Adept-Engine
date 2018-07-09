@@ -51,8 +51,8 @@ std::string Engine::GetRootDir()
 Engine::Engine()
 {
 	StartTime = (float)PerfManager::get_nanos();
-	std::cout << "Starting In " << GetRootDir() << std::endl;
-	std::cout << "Loading Engine v0.1" << std::endl;
+	Log::OutS << "Starting In " << GetRootDir()<<Log::OutS;
+	Log::OutS << "Loading Engine v0.1" << Log::OutS;
 #if BUILD_PACKAGE
 	std::string assetpath = GetRootDir();
 	assetpath.append("\\asset\\");
@@ -62,12 +62,11 @@ Engine::Engine()
 		exit(-1);
 	}
 #endif
-
 #if PHYSX_ENABLED
 	PhysEngine = new PhysicsEngine();
 #else
 	PhysEngine = new PhysicsEngine();
-	std::cout << "WARNING: Physx Disabled" << std::endl;
+	Log::OutS  << "WARNING: Physx Disabled" << Log::OutS;
 #endif
 	if (PhysEngine != nullptr)
 	{
@@ -145,7 +144,7 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 		std::string input = args;
 		if (input.compare("-deferred") == 0)
 		{
-			std::cout << "Starting in Deferred Rendering mode" << std::endl;
+			Log::OutS  << "Starting in Deferred Rendering mode" << Log::OutS;
 			Deferredmode = true;
 		}
 		if (input.compare("-fullscreen") == 0)
@@ -154,18 +153,18 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 		}
 		if (input.compare("-cook") == 0)
 		{
-			std::cout << "Starting Cook" << std::endl;
+			Log::OutS  << "Starting Cook" << Log::OutS;
 			ShouldRunCook = true;
 		}
 		else if (input.compare("-dx12") == 0)
 		{
 			ForcedRenderSystem = RenderSystemD3D12;
-			std::cout << "Forcing RenderSystem D3D12" << std::endl;
+			Log::OutS  << "Forcing RenderSystem D3D12" << Log::OutS;
 		}
 		else if (input.compare("-vk") == 0)
 		{
 			ForcedRenderSystem = RenderSystemVulkan;
-			std::cout << "Forcing RenderSystem Vulkan" << std::endl;
+			Log::OutS  << "Forcing RenderSystem Vulkan" << Log::OutS;
 		}
 	}
 
@@ -238,7 +237,7 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 
 		if (!isWindowVaild)
 		{
-			std::cout << "Fatal Error: Window Invalid" << std::endl;
+			Log::OutS  << "Fatal Error: Window Invalid" << Log::OutS;
 		}
 #if !NO_GEN_CONTEXT
 		m_appwnd->SetVisible(TRUE);

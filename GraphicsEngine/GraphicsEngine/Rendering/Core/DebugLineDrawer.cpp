@@ -62,6 +62,7 @@ void DebugLineDrawer::RenderLines()
 {
 	RenderLines(Projection);
 }
+
 void DebugLineDrawer::RenderLines(glm::mat4& matrix)
 {
 	if (VertsOnGPU == 0)

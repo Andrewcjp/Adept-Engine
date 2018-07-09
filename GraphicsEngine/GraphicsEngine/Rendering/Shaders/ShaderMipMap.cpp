@@ -30,7 +30,7 @@ void ShaderMipMap::GenAllmips(int limit)
 	D3D12Shader* shader = (D3D12Shader*)m_Shader;
 	shader->ResetList(pCommandList);
 	int count = 0;
-	for (int i = Targets.size()-1; i >= 0; i--)
+	for (size_t i = Targets.size()-1; i >= 0; i--)
 	{
 		if (count > limit)
 		{
@@ -94,7 +94,7 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex, int maxcount)
 	CD3DX12_CPU_DESCRIPTOR_HANDLE currentCPUHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), 0, descriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE currentGPUHandle(descriptorHeap->GetGPUDescriptorHandleForHeapStart(), 0, descriptorSize);
 	int CurrentTopMip = tex->MipLevelsReadyNow;
-	int target = std::min((CurrentTopMip + maxcount), (tex->Miplevels - 1));
+	uint32_t target = std::min((CurrentTopMip + maxcount), (tex->Miplevels - 1));
 	for (uint32_t TopMip = (CurrentTopMip - 1); TopMip < target; TopMip++)
 	{
 		CurrentTopMip = TopMip + 1;

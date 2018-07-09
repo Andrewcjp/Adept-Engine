@@ -55,6 +55,7 @@ bool BaseWindow::ChangeDisplayMode(int width, int height)
 
 	return true;
 }
+
 bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
 {
 	//window manager class?
@@ -84,13 +85,7 @@ bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, 
 }
 void BaseWindow::InitilseWindow()
 {
-#if USE_PHYSX_THREADING
-	ThreadComplete = CreateEvent(NULL, false, false, L"");
-	ThreadStart = CreateEvent(NULL, false, false, L"");
-	RenderThread = CreateThread(NULL, 0, (unsigned long(__stdcall *)(void *))this->RunPhysicsThreadLoop, this, 0, NULL);
-#endif
-
-	std::cout << "Scene Load started" << std::endl;
+	Log::OutS  << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
 	IsDeferredMode = false;
 	if (IsDeferredMode)
@@ -272,7 +267,7 @@ void BaseWindow::Render()
 	//frameRate limit
 	if (FrameRateLimit != 0)
 	{
-		TargetDeltaTime = 1.0 / FrameRateLimit;
+		TargetDeltaTime = 1.0f / FrameRateLimit;
 		//in MS
 		const double WaitTime = std::max((TargetDeltaTime*1000.0) - (DeltaTime), 0.0);
 		double WaitEndTime = WindowsApplication::Seconds() + (WaitTime / 1000.0);
@@ -349,11 +344,11 @@ void BaseWindow::LoadScene(std::string RelativePath)
 
 void BaseWindow::PostFrameOne()
 {
-	std::cout << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << std::endl;
+	Log::OutS  << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << Log::OutS;
 #if BUILD_D3D12 && !USEGPUTOGENMIPS
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
-		std::cout << "MipMaps took " << D3D12Texture::MipCreationTime << "MS to generate" << std::endl;
+		Log::OutS  << "MipMaps took " << D3D12Texture::MipCreationTime << "MS to generate" << Log::OutS;
 	}
 #endif
 

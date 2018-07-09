@@ -4,7 +4,6 @@
 #include "Rendering/Renderers/ForwardRenderer.h"
 #include "Rendering/Renderers/DeferredRenderer.h"
 #include "Rendering/Renderers/RenderSettings.h"
-#define USE_PHYSX_THREADING 0
 class BaseWindow : public RenderWindow
 {
 public:
@@ -77,5 +76,6 @@ private:
 	bool LoadText = true;
 	bool Once = true;
 	float AccumTickTime = 0.0f;	
+
 };
 

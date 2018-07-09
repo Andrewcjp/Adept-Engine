@@ -1,7 +1,6 @@
 #include "ForwardRenderer.h"
 #include "RHI/RHI.h"
 #include "Core/Components/MeshRendererComponent.h"
-
 #include "EngineGlobals.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "Core/Engine.h"
@@ -45,7 +44,6 @@ void ForwardRenderer::OnRender()
 void ForwardRenderer::PostInit()
 {
 	MainShader = new Shader_Main();
-	//FilterBuffer = RHI::CreateFrameBuffer(m_width, m_height, RHI::GetDeviceContext(0), 1.0f, FrameBuffer::ColourDepth);
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(GetScaledWidth(), GetScaledHeight());
 	Desc.AllowUnordedAccess = true;
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;

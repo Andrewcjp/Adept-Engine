@@ -98,7 +98,7 @@ void RenderEngine::Resize(int width, int height)
 		}
 	}
 	Post->Resize(FilterBuffer);
-	std::cout << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << std::endl;
+	Log::OutS  << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << Log::OutS;
 }
 
 

@@ -39,7 +39,7 @@ void PhysicsEngine::initPhysics()
 
 	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	gScene->addActor(*groundPlane);
-	std::cout << "Physx Initalised" << std::endl;
+	Log::OutS  << "Physx Initalised" << Log::OutS;
 }
 
 void PhysicsEngine::stepPhysics(float Deltatime)

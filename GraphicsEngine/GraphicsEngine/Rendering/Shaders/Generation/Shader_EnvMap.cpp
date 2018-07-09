@@ -39,7 +39,7 @@ void Shader_EnvMap::Init()
 	}
 
 	MeshLoader::FMeshLoadingSettings set;
-	set.Scale = glm::vec3(0.1);
+	set.Scale = glm::vec3(0.1f);
 	Cube = RHI::CreateMesh("SkyBoxCube.obj", set);
 }
 

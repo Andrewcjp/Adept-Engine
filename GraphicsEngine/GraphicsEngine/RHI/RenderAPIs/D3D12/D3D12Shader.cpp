@@ -401,7 +401,7 @@ D3D12Shader::PiplineShader * D3D12Shader::GetPipelineShader()
 bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, D3D12_INPUT_ELEMENT_DESC ** Data, int * length)
 {
 	*Data = new D3D12_INPUT_ELEMENT_DESC[desc.size()];
-	*length = desc.size();
+	*length = (int)desc.size();
 	D3D12_INPUT_ELEMENT_DESC* Dataptr = *Data;
 	for (int i = 0; i < desc.size(); i++)
 	{
@@ -500,8 +500,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	sampler.RegisterSpace = 0;
 	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	samplers[0] = sampler;
-
-
+	
 	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
@@ -518,7 +517,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	sampler.RegisterSpace = 0;
 	samplers[2] = sampler;
 
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(Params.size(), rootParameters, NUMSamples, &samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, NUMSamples, &samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ID3DBlob* signature;
 	ID3DBlob* error;

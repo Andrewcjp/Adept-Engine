@@ -11,7 +11,7 @@ GameWindow::~GameWindow()
 
 void GameWindow::PostInitWindow(int width, int height)
 {
-	std::cout << "Game Loaded" << std::endl;
+	Log::OutS  << "Game Loaded" << Log::OutS;
 	IsRunning = true;
 	ShouldTickScene = true;
 	//LoadScene("\\asset\\scene\\testscene.scene");

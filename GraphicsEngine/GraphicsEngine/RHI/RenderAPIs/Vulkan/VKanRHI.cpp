@@ -18,7 +18,7 @@ void VKanRHI::InitDevice()
 {
 	uint32_t extensionCount = 0;
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-	std::cout << extensionCount << " extensions supported" << std::endl;
+	Log::OutS  << extensionCount << " extensions supported" << Log::OutS;
 
 	vk::ApplicationInfo const app = vk::ApplicationInfo()
 		.setApplicationVersion(0)
@@ -36,8 +36,8 @@ void VKanRHI::InitDevice()
 	res = vk::createInstance(&inst_info, nullptr, &inst);
 	if (res != vk::Result::eSuccess)
 	{
-		std::cout << "cannot find a compatible Vulkan ICD\n";
-		std::cout << "unknown error\n";
+		Log::OutS  << "cannot find a compatible Vulkan ICD\n";
+		Log::OutS  << "unknown error\n";
 		exit(-1);
 	}
 
@@ -228,7 +228,7 @@ void VKanRHI::ThrowIfFailed(vk::Result  r)
 	if (r != vk::Result::eSuccess)
 	{
 		__debugbreak();
-		std::cout << "Command failed" << std::endl;
+		Log::OutS  << "Command failed" << Log::OutS;
 	}
 }
 #endif

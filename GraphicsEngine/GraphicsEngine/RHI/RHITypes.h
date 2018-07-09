@@ -212,5 +212,7 @@ public:
 	glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f);
 	float DepthClearValue = 1.0f;
 	int Samples = 0;
+	int MipCount = 1;
+	int DepthMipCount = 1;
 	D3D12_RESOURCE_STATES StartingState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };

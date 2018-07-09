@@ -2,7 +2,7 @@
 #include "EngineGlobals.h"
 #include "Core/MinWindows.h"
 #include <string>
-
+#include "../Core/Platform/Logger.h"
 class RenderWindow;
 class PhysicsEngine;
 class EditorWindow;

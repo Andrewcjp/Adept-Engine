@@ -102,7 +102,7 @@ void Camera::MoveUp(float amt)
 //Depricated
 void Camera::Pitch(float angle)
 {
-	//std::cout << "pitching by :" << angle << std::endl;
+	//Log::OutS  << "pitching by :" << angle << Log::OutS;
 	glm::vec3 right = glm::normalize(glm::cross(up, forward));
 
 	forward = glm::vec3(glm::normalize(glm::rotate(angle, right) * glm::vec4(forward, 0.0)));

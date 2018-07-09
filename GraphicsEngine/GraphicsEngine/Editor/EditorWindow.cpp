@@ -71,7 +71,7 @@ EditorWindow::EditorWindow(HINSTANCE, int, int)
 
 void EditorWindow::PostInitWindow(int w, int h)
 {
-	std::cout << "Loading Editor v0.01" << std::endl;
+	Log::OutS  << "Loading Editor v0.01" << Log::OutS;
 	EditorCamera = new Editor_Camera();
 	Renderer->SetEditorCamera(EditorCamera);
 	if (UI != nullptr)
@@ -92,7 +92,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 
 void EditorWindow::EnterPlayMode()
 {
-	std::cout << "Entering play mode" << std::endl;
+	Log::OutS  << "Entering play mode" << Log::OutS;
 	Engine::GetGame()->BeginPlay();
 	IsPlayingScene = true;
 	if (CurrentPlayScene != nullptr)
@@ -115,7 +115,7 @@ void EditorWindow::EnterPlayMode()
 
 void EditorWindow::ExitPlayMode()
 {
-	std::cout << "Exiting play mode" << std::endl;
+	Log::OutS  << "Exiting play mode" << Log::OutS;
 	Renderer->SetScene(CurrentScene);
 	EditorCamera->SetEnabled(true);
 	IsPlayingScene = false;
