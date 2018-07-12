@@ -87,7 +87,7 @@ void BaseWindow::InitilseWindow()
 {
 	Log::OutS  << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
-	IsDeferredMode = false;
+	IsDeferredMode = true;
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -146,15 +146,6 @@ void BaseWindow::Render()
 	if (AccumTickTime > TickRate && IsRunning)
 	{
 		AccumTickTime = 0;
-#if USE_PHYSX_THREADING
-		SetEvent(ThreadStart);
-		DuringPhysicsUpdate();
-		DidPhsyx = true;
-		//we can access the physx Scene While it is running
-		//	WaitForSingleObject(ThreadComplete, INFINITE);
-
-#else
-
 		PerfManager::StartTimer("FTick");
 		Engine::PhysEngine->stepPhysics(TickRate);
 		if (ShouldTickScene)
@@ -164,8 +155,6 @@ void BaseWindow::Render()
 		FixedUpdate();
 		//CurrentPlayScene->FixedUpdateScene(TickRate);
 		PerfManager::EndTimer("FTick");
-#endif
-
 	}
 #if 1
 	if (input->GetKeyDown(VK_ESCAPE))
@@ -174,7 +163,8 @@ void BaseWindow::Render()
 	}
 	if (input->GetKeyDown(VK_F11))
 	{
-		D3D12RHI::Instance->ToggleFullScreenState();
+		//D3D12RHI::Instance->ToggleFullScreenState();
+		RHI::ToggleFullScreenState();
 	}
 #endif
 	Update();
@@ -225,14 +215,6 @@ void BaseWindow::Render()
 
 	PerfManager::EndTimer("UI");
 
-
-#if USE_PHYSX_THREADING
-	if (DidPhsyx)
-	{
-		WaitForSingleObject(ThreadComplete, INFINITE);//ensure physx by end of frame
-		DidPhsyx = false;
-	}
-#endif
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->EndCPUTimer();
@@ -345,7 +327,7 @@ void BaseWindow::LoadScene(std::string RelativePath)
 void BaseWindow::PostFrameOne()
 {
 	Log::OutS  << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << Log::OutS;
-#if BUILD_D3D12 && !USEGPUTOGENMIPS
+#if BUILD_D3D12 && !USEGPUTOGENMIPS_ATRUNTIME
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
 		Log::OutS  << "MipMaps took " << D3D12Texture::MipCreationTime << "MS to generate" << Log::OutS;
@@ -512,26 +494,3 @@ void BaseWindow::RenderText()
 		PerfManager::Instance->DrawAllStats(m_width / 2, (int)(m_height / 1.2));
 	}
 }
-
-#if USE_PHYSX_THREADING
-int EditorWindow::PhysicsThreadLoop()
-{
-	while (true)
-	{
-		WaitForSingleObject(ThreadStart, INFINITE);
-
-		if (IsPlayingScene)
-		{
-			PerfManager::StartTimer("FTick");
-			Engine::PhysEngine->stepPhysics(false, TickRate);
-			CurrentPlayScene->FixedUpdateScene(TickRate);
-			Renderer->FixedUpdatePhysx(TickRate);//hmmm
-			PerfManager::EndTimer("FTick");
-		}
-
-		//Sleep(10);
-		SetEvent(ThreadComplete);
-	}
-	return 0;
-}
-#endif

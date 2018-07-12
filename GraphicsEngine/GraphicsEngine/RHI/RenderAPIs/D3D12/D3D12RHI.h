@@ -6,7 +6,6 @@
 #include <DXGI1_4.h>
 #include "d3dx12.h"
 #include <vector>
-
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
@@ -16,7 +15,7 @@
 #include "D3D12Helpers.h"
 
 
-#define USEGPUTOGENMIPS 1
+#define USEGPUTOGENMIPS_ATRUNTIME 0
 class D3D12RHI
 {
 public:
@@ -47,7 +46,7 @@ public:
 	void ExecSetUpList();
 	void ReleaseUploadHeap();
 	void AddUploadToUsed(ID3D12Resource * Target);
-	void ExecList(ID3D12GraphicsCommandList * list, bool block = false);
+
 	void PostFrame(ID3D12GraphicsCommandList * list);
 	void WaitForPreviousFrame();
 	void FindAdaptors(IDXGIFactory2 * pFactory);
@@ -75,15 +74,11 @@ public:
 private:
 	class	DeviceContext* PrimaryDevice = nullptr;
 	class	DeviceContext* SecondaryDevice = nullptr;
-	
+	void ExecList(ID3D12GraphicsCommandList * list, bool block = false);
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;
 	ID3D12Resource* m_SwaprenderTargets[RHI::CPUFrameCount];
-	
-	D3D12Texture* Test = nullptr;
-	class FrameBuffer* testbuffer = nullptr;
-	class FrameBuffer* testbuffer2 = nullptr;
 	ID3D12DescriptorHeap* m_rtvHeap;
 	ID3D12DescriptorHeap* m_dsvHeap;
 	UINT m_rtvDescriptorSize;
@@ -91,13 +86,10 @@ private:
 	bool RequestedResize = false;
 	int newwidth = 0;
 	int newheight = 0;
-	UINT64 StartGPUTime = 0; 
-	UINT64 EndGPUTime = 0;
-	UINT64 Fq = 0;
-	
+
 	// Synchronization objects.
 	UINT m_frameIndex;
-	HANDLE m_fenceEvent;
+	HANDLE m_fenceEvent;                                        
 	ID3D12Fence* m_fence;
 	UINT64 M_ShadowFence = 0;
 	ID3D12Fence* pShadowFence;
@@ -107,7 +99,7 @@ private:
 	ID3D12Debug* debugController;
 	HANDLE m_VideoMemoryBudgetChange;
 	DWORD m_BudgetNotificationCookie;
-	int count = 0;
+	int CPUAheadCount = 0;
 	//todo : Better!
 	std::vector<ID3D12Resource *> UsedUploadHeaps;
 	class GPUResource* m_RenderTargetResources[RHI::CPUFrameCount];

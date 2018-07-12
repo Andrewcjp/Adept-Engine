@@ -4,9 +4,11 @@
 #include "EngineGlobals.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "Core/Engine.h"
+#include "RHI/DeviceContext.h"
+
+//todo:RHI
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 
-#include "RHI/DeviceContext.h"
 #if USED3D12DebugP
 #include "D3D12/D3D12Plane.h"
 #endif
@@ -41,6 +43,7 @@ void ForwardRenderer::OnRender()
 }
 
 #include "../Rendering/Shaders/Generation/Shader_Convolution.h"
+#include "../Rendering/Shaders/Generation/Shader_EnvMap.h"
 void ForwardRenderer::PostInit()
 {
 	MainShader = new Shader_Main();
@@ -93,6 +96,11 @@ void ForwardRenderer::MainPass()
 	MainCommandList->SetRenderTarget(FilterBuffer);
 	MainCommandList->ClearFrameBuffer(FilterBuffer);
 	MainCommandList->SetFrameBufferTexture(Conv->CubeBuffer, 7);
+	if (MainScene->GetLightingData()->SkyBox != nullptr)
+	{
+		MainCommandList->SetTexture(MainScene->GetLightingData()->SkyBox, 8);
+	}
+	MainCommandList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, 9);
 	for (size_t i = 0; i < (*MainScene->GetObjects()).size(); i++)
 	{
 		MainShader->SetActiveIndex(MainCommandList, (int)i);		

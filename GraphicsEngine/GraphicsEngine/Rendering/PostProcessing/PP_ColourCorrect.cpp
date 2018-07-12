@@ -16,10 +16,15 @@ PP_ColourCorrect::~PP_ColourCorrect()
 void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
 	list->SetScreenBackBufferAsRT();
+	list->ClearScreen();
 	list->SetFrameBufferTexture(InputTexture, 0);
 	if (AddtiveBuffer != nullptr)
 	{
-		//list->SetFrameBufferTexture(AddtiveBuffer, 1);
+		list->SetFrameBufferTexture(AddtiveBuffer, 1);
+	}
+	else
+	{
+		list->SetFrameBufferTexture(nullptr, 1);
 	}
 
 	RenderScreenQuad(list);

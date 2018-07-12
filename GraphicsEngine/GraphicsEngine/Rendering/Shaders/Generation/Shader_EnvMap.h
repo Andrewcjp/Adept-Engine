@@ -1,5 +1,6 @@
 #pragma once
 #include "../RHI/Shader.h"
+#include "Shader_Convolution.h"
 class Shader_EnvMap : public Shader
 {
 public:
@@ -11,6 +12,8 @@ public:
 	FrameBuffer * CubeBuffer = nullptr;
 	void Init();
 	void ProcessTexture(BaseTexture* target);
+	void ComputeEnvBRDF();
+	FrameBuffer * EnvBRDFBuffer = nullptr;
 private:
 	RHICommandList * CmdList = nullptr;
 	RHIBuffer* ShaderData = nullptr;
@@ -22,5 +25,6 @@ private:
 	};
 	SData Data[6];
 	Renderable* Cube = nullptr;
+	Shader_Convolution::QuadDrawer* QuadDraw = nullptr;
 };
 

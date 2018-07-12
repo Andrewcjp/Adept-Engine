@@ -40,6 +40,9 @@ std::vector<Shader::ShaderParameter> Shader_Deferred::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::CBV, 2, 1));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 3, 2));
 	out.push_back(ShaderParameter(ShaderParamType::CBV, 4, 2));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, 5, 10));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, 6, 11));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, 7, 12));
 	return out;
 }
 std::vector<Shader::VertexElementDESC> Shader_Deferred::GetVertexFormat()

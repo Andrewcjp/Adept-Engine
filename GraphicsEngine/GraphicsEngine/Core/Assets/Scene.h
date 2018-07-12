@@ -26,10 +26,20 @@ public:
 	void RemoveLight(Light* Light);
 	void RemoveGameObject(GameObject * object);
 	bool StaticSceneNeedsUpdate = false;
+	
+	struct LightingEnviromentData
+	{
+		BaseTexture* SkyBox = nullptr;
+		BaseTexture* DiffuseMap = nullptr;
+	};
+	LightingEnviromentData* GetLightingData() { return &LightingData; }
 private:
 	std::vector<GameObject*> SceneObjects;	
 	std::vector<Light*> Lights;
 	std::vector<Camera*> Cameras;
 	Camera* CurrentCamera = nullptr;
+	
+	
+	LightingEnviromentData LightingData;
 };
 

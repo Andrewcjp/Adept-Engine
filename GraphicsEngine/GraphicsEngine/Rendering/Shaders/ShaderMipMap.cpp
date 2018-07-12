@@ -23,7 +23,7 @@ ShaderMipMap::~ShaderMipMap()
 {
 	pCommandList->Release();
 }
-
+#if USEGPUTOGENMIPS_ATRUNTIME
 
 void ShaderMipMap::GenAllmips(int limit)
 {
@@ -156,7 +156,7 @@ void ShaderMipMap::GenerateMipsForTexture(D3D12Texture* tex, int maxcount)
 	tex->MipLevelsReadyNow = CurrentTopMip + 1;
 	
 }
-
+#endif
 std::vector<Shader::ShaderParameter> ShaderMipMap::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> Output;

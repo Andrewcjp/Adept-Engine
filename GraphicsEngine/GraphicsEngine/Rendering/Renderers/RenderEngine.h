@@ -22,6 +22,7 @@ public:
 	virtual void OnRender() = 0;
 	virtual void FinaliseRender() = 0;
 	void Init();
+	void ProcessScene();
 	void PrepareData();
 	virtual void PostInit() =0;
 	virtual void Resize(int width, int height);
@@ -40,6 +41,7 @@ public:
 	int GetScaledHeight();
 protected:
 	class Shader_Convolution * Conv = nullptr;
+	class Shader_EnvMap* envMap = nullptr;
 	void ShadowPass();
 	void PostProcessPass();
 	int			m_width = 0;

@@ -287,7 +287,7 @@ void D3D12RHI::CreateSwapChainRTs()
 
 void D3D12RHI::InitMipmaps()
 {
-#if USEGPUTOGENMIPS
+#if USEGPUTOGENMIPS_ATRUNTIME
 	MipmapShader = new ShaderMipMap();
 #endif
 }
@@ -373,7 +373,6 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 
 void D3D12RHI::LoadAssets()
 {
-
 	ThrowIfFailed(GetDevice()->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 	m_fenceValues[m_frameIndex] = 1;
 	// Create an event handle to use for frame synchronization
@@ -410,7 +409,7 @@ void D3D12RHI::ExecSetUpList()
 
 void D3D12RHI::ReleaseUploadHeap()
 {
-	if (count < RHI::CPUFrameCount)
+	if (CPUAheadCount < RHI::CPUFrameCount)
 	{
 		//ensure the heap are not still in use!
 		return;
@@ -420,7 +419,6 @@ void D3D12RHI::ReleaseUploadHeap()
 		UsedUploadHeaps[i]->Release();
 	}
 	UsedUploadHeaps.clear();
-
 }
 
 void D3D12RHI::AddUploadToUsed(ID3D12Resource* Target)
@@ -432,7 +430,6 @@ void D3D12RHI::ExecList(ID3D12GraphicsCommandList* list, bool Block)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	//	WaitForGpu();
 }
 
 void D3D12RHI::PresentFrame()
@@ -453,7 +450,7 @@ void D3D12RHI::PresentFrame()
 		DisplayDeviceDebug();
 		Log::OutS  << "Memory Budget Changed" << Log::OutS;
 	}
-#if USEGPUTOGENMIPS
+#if USEGPUTOGENMIPS_ATRUNTIME
 	if (count == 1)
 	{
 		//PrimaryDevice->WaitForGpu();
@@ -461,7 +458,6 @@ void D3D12RHI::PresentFrame()
 	}
 #endif
 
-	//	PrimaryDevice->WaitForGpu();
 	ThrowIfFailed(m_swapChain->Present(0, 0));
 	if (!RHI::AllowCPUAhead())
 	{
@@ -471,11 +467,6 @@ void D3D12RHI::PresentFrame()
 			SecondaryDevice->WaitForGpu();
 		}
 	}
-	/*if (RequestedResize)
-	{
-		PrimaryDevice->WaitForGpu();
-		InternalResizeSwapChain(newwidth, newheight);
-	}*/
 
 	MoveToNextFrame();
 	PrimaryDevice->CurrentFrameIndex = m_frameIndex;
@@ -483,33 +474,22 @@ void D3D12RHI::PresentFrame()
 	{
 		SecondaryDevice->CurrentFrameIndex = m_frameIndex;
 	}
-	//all exectuion this frame has finished 
+	//all execution this frame has finished 
 	//so all resources should be in the correct state!
 	PrimaryDevice->UpdateCopyEngine();
 	if (SecondaryDevice != nullptr)
 	{
 		SecondaryDevice->UpdateCopyEngine();
 	}
-	PrimaryDevice->GetCommandAllocator()->Reset();
-	PrimaryDevice->GetSharedCommandAllocator()->Reset();
+	PrimaryDevice->ResetDeviceAtEndOfFrame();
 	if (SecondaryDevice != nullptr)
 	{
-		SecondaryDevice->GetCommandAllocator()->Reset();
-		SecondaryDevice->GetSharedCommandAllocator()->Reset();
+		SecondaryDevice->ResetDeviceAtEndOfFrame();
 	}
-
-	count++;
-	if (count > 2)
+	CPUAheadCount++;
+	if (CPUAheadCount > 2)
 	{
 		HasSetup = true;
-	}
-	if (PrimaryDevice && m_frameIndex == 0)
-	{
-		PrimaryDevice->GetTimeManager()->UpdateTimers();
-		if (SecondaryDevice != nullptr)
-		{
-			SecondaryDevice->GetTimeManager()->UpdateTimers();
-		}
 	}
 }
 
@@ -590,7 +570,7 @@ void D3D12RHI::MoveToNextFrame()
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
 	// If the next frame is not ready to be rendered yet, wait until it is ready.
-	const int value = m_fence->GetCompletedValue();
+	const UINT64 value = m_fence->GetCompletedValue();
 	if (value < m_fenceValues[m_frameIndex])
 	{
 		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));

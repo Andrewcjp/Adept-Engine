@@ -12,9 +12,8 @@
 #include "DescriptorHeap.h"
 #include "D3D12Texture.h"
 #include "D3D12RHI.h"
-
+#define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
 float D3D12Texture::MipCreationTime = 0;
-
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 {
 	if (inDevice == nullptr)
@@ -181,15 +180,15 @@ bool D3D12Texture::CLoad(AssetManager::AssetPathRef name)
 		}
 	}
 
-#if USEGPUTOGENMIPS
-	unsigned char*  finalbuffer = buffer;
-#else
+#if USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME
 	if (width == 0 || height == 0)
 	{
 		return;
 	}
 	unsigned char*  finalbuffer = GenerateMips(Miplevels - 1, width, height, buffer);
 	MipLevelsReadyNow = Miplevels;
+#else 
+	unsigned char*  finalbuffer = buffer;
 #endif
 	CreateTextureFromData(finalbuffer, 0, width, height, 4);
 	return true;
@@ -197,8 +196,6 @@ bool D3D12Texture::CLoad(AssetManager::AssetPathRef name)
 
 bool D3D12Texture::LoadDDS(std::string filename)
 {
-
-	CurrentTextureType = ETextureType::Type_CubeMap;
 	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	srvHeap->SetName(L"Texture SRV");
 	std::unique_ptr<uint8_t[]> ddsData;
@@ -323,7 +320,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	// Describe and create a SRV for the texture.
 	UpdateSRV();
 	//gen mips
-#if	USEGPUTOGENMIPS
+#if	USEGPUTOGENMIPS_ATRUNTIME
 	if (type != RHI::TextureType::Text && D3D12RHI::Instance->MipmapShader != nullptr)
 	{
 		D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
@@ -340,7 +337,7 @@ void D3D12Texture::UpdateSRV()
 	if (CurrentTextureType == ETextureType::Type_CubeMap)
 	{
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MipLevels = 1;
+		srvDesc.TextureCube.MipLevels = MipLevelsReadyNow;
 		srvDesc.TextureCube.MostDetailedMip = 0;
 	}
 	else
@@ -352,10 +349,12 @@ void D3D12Texture::UpdateSRV()
 
 #if 0
 	//test for streaming data like mips of disc!
-	if (MipLevelsReadyNow == 6)
+	const int testmip = 8;
+	if (MipLevelsReadyNow > testmip)
 	{
-		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow - 5;
-		srvDesc.Texture2D.MostDetailedMip = 5;
+		
+		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow - testmip;
+		srvDesc.Texture2D.MostDetailedMip = testmip;
 	}
 #endif
 	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, srvHeap->GetCPUAddress(0));

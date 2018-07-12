@@ -116,7 +116,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 
 	ID3DBlob* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
-#if 1//defined(_DEBUG)
+#if defined(_DEBUG)
 	// Enable better shader debugging with the graphics debugging tools.
 	UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else 
@@ -129,7 +129,6 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 	D3D_SHADER_MACRO* defines = ParseDefines();
 	if (type == SHADER_VERTEX)
 	{
-		//todo: To d3dcomplie with text
 #if USE_DX_INCLUDER
 		hr = D3DCompileFromFile(filename, defines, IncludeHandler, "main", "vs_5_0",
 			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
@@ -173,16 +172,16 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #endif
 	}
 
-	if (FAILED(hr))
+	if (pErrorBlob)
 	{
-		if (pErrorBlob)
+		fprintf(stdout, "Shader Compile output: %s\n", reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+		std::string Log = "Shader: ";
+		Log.append(StringUtils::ConvertWideToString(filename));
+		Log.append("\n");
+		Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+		Log::OutS << Log << Log::OutS;
+		if (FAILED(hr))
 		{
-			fprintf(stdout, "Shader output: %s\n",
-				reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
-			std::string Log = "Shader: ";
-			Log.append(StringUtils::ConvertWideToString(filename));
-			Log.append("\n");
-			Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
 			WindowsHelpers::DisplayMessageBox("Shader Complie Error", Log);
 			pErrorBlob->Release();
 #ifndef NDEBUG
@@ -190,10 +189,8 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #endif
 			exit(-1);
 			__debugbreak();
-
+			return SHADER_ERROR_COMPILE;
 		}
-		//D3DEnsure(hr);
-		return SHADER_ERROR_COMPILE;
 	}
 
 	if (pErrorBlob)
@@ -424,7 +421,6 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 #define UAVRANGES 1
 	//cbvs will be InitAsConstantBufferView
 	//srvs and UAvs will be in Ranges
-	//todo fix this!
 	CD3DX12_ROOT_PARAMETER1* rootParameters = nullptr;
 	rootParameters = new CD3DX12_ROOT_PARAMETER1[Params.size()];
 	int RangeNumber = 0;
@@ -471,8 +467,8 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
+		}
 	}
-}
 	//todo: Samplers
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -500,7 +496,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	sampler.RegisterSpace = 0;
 	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	samplers[0] = sampler;
-	
+
 	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;

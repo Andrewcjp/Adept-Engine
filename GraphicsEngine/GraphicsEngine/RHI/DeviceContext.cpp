@@ -141,6 +141,15 @@ ID3D12CommandAllocator * DeviceContext::GetCommandAllocator()
 	return m_commandAllocator[CurrentFrameIndex];
 }
 
+ID3D12CommandAllocator * DeviceContext::GetComputeCommandAllocator()
+{
+	return nullptr;
+}
+
+ID3D12CommandAllocator * DeviceContext::GetCopyCommandAllocator()
+{
+	return m_CopyCommandAllocator;
+}
 ID3D12CommandAllocator * DeviceContext::GetSharedCommandAllocator()
 {
 	return m_SharedCopyCommandAllocator[CurrentFrameIndex];
@@ -149,6 +158,18 @@ ID3D12CommandAllocator * DeviceContext::GetSharedCommandAllocator()
 ID3D12CommandQueue * DeviceContext::GetCommandQueue()
 {
 	return m_commandQueue;
+}
+
+void DeviceContext::ResetDeviceAtEndOfFrame()
+{
+	if (CurrentFrameIndex == 0)
+	{
+		GetTimeManager()->UpdateTimers();
+	}
+	GetCommandAllocator()->Reset();
+	GetSharedCommandAllocator()->Reset();
+	GetCopyCommandAllocator()->Reset();
+	//compute work could run past the end of a frame?
 }
 
 void DeviceContext::SampleVideoMemoryInfo()

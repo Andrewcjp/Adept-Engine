@@ -3,10 +3,10 @@
 #include "Core/Assets/Scene.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
-#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "Editor/Editor_Camera.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "Rendering/Shaders/Generation/Shader_Convolution.h"
+#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 RenderEngine::~RenderEngine()
 {
 	DestoryRenderWindow();
@@ -18,9 +18,9 @@ RenderEngine::~RenderEngine()
 
 void RenderEngine::Render()
 {
-	if (once)//todo: move me!
+	if (once)
 	{
-		D3D12RHI::Instance->ExecSetUpList();
+		RHI::RHIRunFirstFrame();
 		once = false;
 	}
 	if (MainCamera == nullptr)
@@ -42,7 +42,6 @@ void RenderEngine::PreRender()
 		StaticUpdate();
 	}
 #if WITH_EDITOR
-	//todo!
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
 		if (MainCamera != EditorCam->GetCamera())
@@ -66,18 +65,35 @@ void RenderEngine::Init()
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 	}
 
-	Conv = new Shader_Convolution();
+	Conv = new Shader_Convolution();	
 	Conv->init();
-	Conv->TargetCubemap = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
-	RHI::GetDeviceContext(0)->UpdateCopyEngine();
-	RHI::GetDeviceContext(0)->CPUWaitForAll();
-	RHI::GetDeviceContext(0)->ResetCopyEngine();
-	Conv->ComputeConvolution(Conv->TargetCubemap);
+	envMap = new Shader_EnvMap();
+	envMap->Init();
 
 	GPUStateCache::Create();
 	PostInit();
 	Post = new PostProcessing();
 	Post->Init(FilterBuffer);
+}
+
+void RenderEngine::ProcessScene()
+{
+	if (MainScene == nullptr)
+	{
+		return;
+	}
+	//AssetManager::DirectLoadTextureAsset("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
+	Scene::LightingEnviromentData* Data = MainScene->GetLightingData();
+	Conv->TargetCubemap = Data->SkyBox;
+	envMap->TargetCubemap = Data->SkyBox;
+	RHI::GetDeviceContext(0)->UpdateCopyEngine();
+	RHI::GetDeviceContext(0)->CPUWaitForAll();
+	RHI::GetDeviceContext(0)->ResetCopyEngine();
+	if (Data->DiffuseMap == nullptr)
+	{
+		Conv->ComputeConvolution(Conv->TargetCubemap);
+	}
+	envMap->ComputeEnvBRDF();
 }
 
 void RenderEngine::PrepareData()
@@ -90,18 +106,10 @@ void RenderEngine::PrepareData()
 
 void RenderEngine::Resize(int width, int height)
 {
-	if (RHI::IsD3D12())
-	{
-		if (D3D12RHI::Instance)
-		{
-			D3D12RHI::Instance->ResizeSwapChain(width, height, true);
-		}
-	}
+	RHI::ResizeSwapChain(width, height);
 	Post->Resize(FilterBuffer);
 	Log::OutS  << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << Log::OutS;
 }
-
-
 
 void RenderEngine::StaticUpdate()
 {
@@ -137,6 +145,7 @@ void RenderEngine::SetScene(Scene * sc)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
+		ProcessScene();
 	}
 	if (sc == nullptr)
 	{
@@ -155,7 +164,6 @@ void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 
 void RenderEngine::ShadowPass()
 {
-//	Conv->ComputeConvolution(Conv->TargetCubemap);
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetObjects(), MainShader);

@@ -127,7 +127,7 @@ UIManager::~UIManager()
 		delete widgets[i];
 	}
 	delete LineBatcher;
-	delete DrawBatcher; 
+	delete DrawBatcher;
 }
 
 void UIManager::Initalise(int width, int height)
@@ -154,7 +154,7 @@ void UIManager::RenderTextToScreen(int id, std::string text, glm::vec3 colour)
 
 void UIManager::RenderTextToScreen(std::string text, float x, float y, float scale, glm::vec3 colour)
 {
-	textrender->RenderFromAtlas(text, x, y, scale, colour,false);
+	textrender->RenderFromAtlas(text, x, y, scale, colour, false);
 }
 
 void UIManager::UpdateSize(int width, int height)
@@ -209,8 +209,8 @@ void UIManager::UpdateWidgets()
 void UIManager::RenderWidgets()
 {
 	//todo: move to not run every frame?
-	DrawBatcher->RenderBatches();	
-	
+	DrawBatcher->RenderBatches();
+
 #if UISTATS
 	PerfManager::StartTimer("Line");
 #endif
@@ -245,7 +245,7 @@ void UIManager::MouseMove(int x, int y)
 	}
 	Blocking = !(ViewportRect.Contains(x, y));
 #if 0
-	widgets[2]->Colour = Blocking ? glm::vec3(1): glm::vec3(0);
+	widgets[2]->Colour = Blocking ? glm::vec3(1) : glm::vec3(0);
 	UpdateBatches();
 #endif
 }
@@ -284,6 +284,7 @@ void UIManager::UpdateGameObjectList(std::vector<GameObject*>*gos)
 {
 	GameObjectsPtr = gos;
 }
+
 void UIManager::SelectedCallback(int i)
 {
 	if (instance)
@@ -291,6 +292,7 @@ void UIManager::SelectedCallback(int i)
 		EditorWindow::GetEditorCore()->SetSelectedObjectIndex(i);
 	}
 }
+
 void UIManager::RefreshGameObjectList()
 {
 	if (box != nullptr && GameObjectsPtr != nullptr)
@@ -362,17 +364,19 @@ void UIManager::CleanUpWidgets()
 	{
 		return;
 	}
-	for (int i = 0; i < WidgetsToRemove.size(); i++)
+	for (int x = 0; x < widgets.size(); x++)
 	{
-		for (int x = 0; x < widgets.size(); x++)
+		for (int i = 0; i < WidgetsToRemove.size(); i++)
 		{
-			if (widgets[x] == WidgetsToRemove[i])//todo: perfromance of this?
+			if (widgets[x] == WidgetsToRemove[i])//todo: performance of this?
 			{
 				widgets.erase(widgets.begin() + x);
+				delete WidgetsToRemove[i];//delete and dont realloc?
+				WidgetsToRemove[i] = nullptr;
 				break;
 			}
+
 		}
-		delete WidgetsToRemove[i];//delete and dont realloc?
 	}
 	WidgetsToRemove.clear();
 	UpdateBatches();

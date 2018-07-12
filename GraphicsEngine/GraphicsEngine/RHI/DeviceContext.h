@@ -67,9 +67,11 @@ public:
 	void LinkAdaptors(DeviceContext * other);
 	ID3D12Device* GetDevice();
 	ID3D12CommandAllocator* GetCommandAllocator();
+	ID3D12CommandAllocator * GetComputeCommandAllocator();
+	ID3D12CommandAllocator * GetCopyCommandAllocator();
 	ID3D12CommandAllocator * GetSharedCommandAllocator();
 	ID3D12CommandQueue* GetCommandQueue();
-
+	void ResetDeviceAtEndOfFrame();
 	void SampleVideoMemoryInfo();
 	std::string GetMemoryReport();
 	void MoveNextFrame();

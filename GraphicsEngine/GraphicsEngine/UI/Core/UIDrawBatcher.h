@@ -13,14 +13,12 @@ class UIDrawBatcher
 public:
 	static UIDrawBatcher* instance;
 	UIDrawBatcher();
-	void InitD3D12();
+	void Init();
 	void ReallocBuffer(int NewSize);
 	~UIDrawBatcher();
 	void SendToGPU();
-	void SendToGPU_D3D12();
-	void RenderBatches_D3D12();
-	void Render(RHICommandList * list);
 	void RenderBatches();
+	void Render(RHICommandList * list);
 	void AddVertex(glm::vec2 pos, bool Back, glm::vec3 frontcol = glm::vec3(1,1,1), glm::vec3 backcol = glm::vec3(0));
 	void ClearVertArray();
 	void CleanUp();

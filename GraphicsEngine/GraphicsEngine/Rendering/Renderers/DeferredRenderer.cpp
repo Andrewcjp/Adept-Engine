@@ -4,11 +4,11 @@
 #include "Core/Components/MeshRendererComponent.h"
 #include "Core/Assets/Scene.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
-#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "Editor/Editor_Camera.h"
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "Rendering\Shaders\Shader_Skybox.h"
-
+#include "../Rendering/Shaders/Generation/Shader_EnvMap.h"
+#include "../Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "RHI/DeviceContext.h"
 void DeferredRenderer::OnRender()
 {
@@ -97,19 +97,24 @@ void DeferredRenderer::LightingPass()
 {
 	LightingList->ResetList();
 	WriteList->GetDevice()->GetTimeManager()->StartTimer(LightingList, D3D12TimeManager::eGPUTIMERS::DeferredLighting);
-	LightingList->SetScreenBackBufferAsRT();
-	LightingList->ClearScreen();
 
 	LightingList->SetRenderTarget(FilterBuffer);
 	LightingList->ClearFrameBuffer(FilterBuffer);
 	LightingList->SetFrameBufferTexture(GFrameBuffer, 0, 0);
 	LightingList->SetFrameBufferTexture(GFrameBuffer, 1, 1);
 	LightingList->SetFrameBufferTexture(GFrameBuffer, 3, 2);
+	LightingList->SetFrameBufferTexture(Conv->CubeBuffer, 5);
+	if (MainScene->GetLightingData()->SkyBox != nullptr)
+	{
+		LightingList->SetTexture(MainScene->GetLightingData()->SkyBox, 6);
+	}
+	LightingList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, 7);
+
 	MainShader->BindLightsBuffer(LightingList, true);
 	MainShader->BindMvBuffer(LightingList, 4);
 	//mShadowRenderer->BindShadowMapsToTextures(LightingList);
 	DeferredShader->RenderScreenQuad(LightingList);
-	LightingList->SetRenderTarget(nullptr);
+	//LightingList->SetRenderTarget(nullptr);
 	WriteList->GetDevice()->GetTimeManager()->EndTimer(LightingList, D3D12TimeManager::eGPUTIMERS::DeferredLighting);
 	LightingList->Execute();
 }

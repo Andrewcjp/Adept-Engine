@@ -57,7 +57,7 @@ float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness)
 
 float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal)
 {
-	float diffu = max(dot(Normal, LightDir), 0.0);//diffuse
+	float diffu = max(dot(Normal, LightDir), 0.0);
 	return MaterialDiffuseColor * diffu;
 }
 
@@ -66,7 +66,7 @@ float3 GetAmbient_CONST()
 	return float3(0.03, 0.03, 0.03);
 }
 
-float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData)
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF)
 {
 	float3 F0 = float3(0.04, 0.04, 0.04);
 	F0 = lerp(F0, Diffusecolor, Metal);
@@ -75,7 +75,9 @@ float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughnes
 	kD *= 1.0 - Metal;
 	float3 irradiance = IRData;
 	float3 diffuse = irradiance * Diffusecolor;
-	float3 ambient = (kD * diffuse);
+	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness);
+	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y);
+	float3 ambient = (kD * diffuse+ Specular);
 	return ambient;
 }
 

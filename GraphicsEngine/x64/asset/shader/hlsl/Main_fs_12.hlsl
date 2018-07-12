@@ -38,6 +38,8 @@ Texture2D NormalMapTexture : register(t1);
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t3);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(POINT_SHADOW_OFFSET);
 TextureCube DiffuseIrMap : register(t10);
+TextureCube SpecularBlurMap: register(t11);
+Texture2D envBRDFTexture: register(t12);
 float GetShadow(float4 pos)
 {
 	float4 vLightSpacePos = pos;
@@ -47,7 +49,7 @@ float GetShadow(float4 pos)
 	vLightSpacePos.xyz /= vLightSpacePos.w;
 	float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f;
 	vShadowTexCoord.y = 1.0f - vShadowTexCoord.y;
-	float bias = 0.005;
+	float bias = 0.005f;
 	if (g_Shadow_texture[0].Sample(g_sampler, vShadowTexCoord.xy).r < (vLightSpacePos.z - bias))
 	{
 		return 1.0f;
@@ -112,12 +114,16 @@ float4 main(PSInput input) : SV_TARGET
 		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
 		Normal = normalize(mul(Normal,input.TBN));
 	}
-	//float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor, float Roughness, float Metal, float3 IRData)
-	//float3 output = texturecolour * GetAmbient_CONST();
+
 	float3 irData = DiffuseIrMap.Sample(g_sampler, normalize(Normal)).rgb;
-	//return float4(irData, 1.0);
 	float3 ViewDir = normalize( CameraPos- input.WorldPos.xyz);
-	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData);
+	const float MAX_REFLECTION_LOD = 11.0;
+	float3 R = reflect(-ViewDir, Normal);
+	float2 envBRDF = envBRDFTexture.Sample(g_sampler,float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
+	float3 prefilteredColor = SpecularBlurMap.SampleLevel(g_sampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;//textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF);
+
+
 	//return float4(output, 1.0);
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{

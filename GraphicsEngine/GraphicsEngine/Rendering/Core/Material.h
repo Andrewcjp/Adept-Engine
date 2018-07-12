@@ -8,7 +8,7 @@ public:
 		bool UseMainShader = true;
 		bool IsReflective = false;
 		bool DoesShadow = true;
-		float Roughness = 0.0f;
+		float Roughness = 1.0f;
 		float Metallic = 0.0f;
 	};
 	CORE_API Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());

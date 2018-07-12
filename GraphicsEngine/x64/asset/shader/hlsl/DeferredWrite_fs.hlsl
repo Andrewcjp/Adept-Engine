@@ -23,7 +23,7 @@ FS_OUTPUT main(PSInput input )
 {
 	FS_OUTPUT output = (FS_OUTPUT)0;
 	output.Gpos = input.WorldPos;
-	output.GNormal = float4(input.Normal.xyz, input.LightData.r);
-	output.GAlbedoSpec = float4(texColour.Sample(defaultSampler, input.uv).xyz, input.LightData.g);
+	output.GNormal = float4(input.Normal.xyz, input.LightData.g);
+	output.GAlbedoSpec = float4(texColour.Sample(defaultSampler, input.uv).xyz, input.LightData.r);
     return output;
 }

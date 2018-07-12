@@ -33,7 +33,6 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targethea
 {
 	if (BufferDesc.RenderTargetCount > 2)
 	{
-
 		target->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), targetheap->GetCPUAddress(HeapOffset));
 	}
 	else
@@ -142,7 +141,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	{
 		readFormat = DXGI_FORMAT_R32_FLOAT;
 	}
-	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, m_width, m_height, BufferDesc.TextureDepth,1 , 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
+	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, m_width, m_height, BufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
 
 
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
@@ -252,7 +251,7 @@ void D3D12FrameBuffer::CopyToDevice(ID3D12GraphicsCommandList* list)
 
 void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
 {
-	
+
 	PerfManager::StartTimer("MakeReadyOnTarget");
 	ID3D12Device* Host = CurrentDevice->GetDevice();
 	ID3D12Device* Target = OtherDevice->GetDevice();
@@ -283,7 +282,7 @@ void D3D12FrameBuffer::MakeReadyForRead(ID3D12GraphicsCommandList * list)
 }
 
 void D3D12FrameBuffer::MakeReadyForCopy(ID3D12GraphicsCommandList * list)
-{	
+{
 	SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);//D3D12_RESOURCE_STATE_COPY_DEST
 }
 
@@ -357,7 +356,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	CD3DX12_RESOURCE_DESC ResourceDesc = CD3DX12_RESOURCE_DESC();
 	ResourceDesc.Width = m_width;
 	ResourceDesc.Height = m_height;
-	ResourceDesc.Dimension = D3D12Helpers::ConvertToResourceDimension(ViewDimension);	
+	ResourceDesc.Dimension = D3D12Helpers::ConvertToResourceDimension(ViewDimension);
 	ResourceDesc.Format = Format;
 	ResourceDesc.Flags = (IsDepthStencil ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 	if (!IsDepthStencil)
@@ -374,7 +373,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	ResourceDesc.SampleDesc.Quality = 0;
 	ResourceDesc.Alignment = 0;
 	ResourceDesc.DepthOrArraySize = std::max(BufferDesc.TextureDepth, 1);
-	
+
 	D3D12_RESOURCE_STATES ResourceState = IsDepthStencil ? D3D12_RESOURCE_STATE_DEPTH_WRITE : D3D12_RESOURCE_STATE_RENDER_TARGET;
 	if (BufferDesc.StartingState != D3D12_RESOURCE_STATE_COMMON)
 	{
@@ -407,8 +406,12 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		RenderTargetDesc.Format = Format;
 		RenderTargetDesc.ViewDimension = D3D12Helpers::ConvertDimensionRTV(ViewDimension);
 		RenderTargetDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
-		RenderTargetDesc.Texture2D.MipSlice = 0;
-		CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap));
+		for (int i = 0; i < BufferDesc.MipCount; i++)
+		{
+			//write create rtvs for all the mips
+			RenderTargetDesc.Texture2D.MipSlice = i;
+			CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap+ i));
+		}
 		NewResource->SetName(L"FrameBuffer RT");
 	}
 
@@ -416,9 +419,10 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 
 void D3D12FrameBuffer::Init()
 {
+	const int Descriptorcount = std::max(BufferDesc.RenderTargetCount + BufferDesc.MipCount, 1);
 	if (RTVHeap == nullptr && BufferDesc.RenderTargetCount > 0)
 	{
-		RTVHeap = new DescriptorHeap(CurrentDevice, std::max(BufferDesc.RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+		RTVHeap = new DescriptorHeap(CurrentDevice, Descriptorcount, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 		RTVHeap->SetName(L"FrameBuffer RTV Heap");
 	}
 	if (DSVHeap == nullptr && BufferDesc.NeedsDepthStencil)
@@ -431,9 +435,13 @@ void D3D12FrameBuffer::Init()
 	{
 		CreateResource(&DepthStencil, DSVHeap, true, D3D12Helpers::ConvertFormat(BufferDesc.DepthFormat), BufferDesc.Dimension);
 	}
-	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	if (BufferDesc.RenderTargetCount > 0)
 	{
-		CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]), BufferDesc.Dimension, i);
+		const int MipStride = BufferDesc.MipCount;
+		for (int i = 0; i < BufferDesc.RenderTargetCount; i += MipStride)
+		{
+			CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i/ BufferDesc.MipCount]), BufferDesc.Dimension, i);
+		}
 	}
 	UpdateSRV();
 }
@@ -490,7 +498,7 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 	lastboundslot = slot;
 
 	SrvHeap->BindHeap(list);
-	
+
 	if (isCompute)
 	{
 		list->SetComputeRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
@@ -531,6 +539,10 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list
 		if (SubResourceIndex == 0)
 		{
 			list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &rtvHandle, (BufferDesc.RenderTargetCount > 1), &DSVHeap->GetCPUAddress(0));
+		}
+		else
+		{
+			list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &RTVHeap->GetCPUAddress(SubResourceIndex), false, &DSVHeap->GetCPUAddress(0));
 		}
 	}
 	else

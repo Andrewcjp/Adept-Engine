@@ -119,7 +119,7 @@ void Shader_Main::SetActiveIndex(RHICommandList* list, int index,int DeviceIndex
 }
 void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 {
-	out.resize(8);
+	out.resize(10);
 	out[0] = ShaderParameter(ShaderParamType::SRV, 0, 0);
 	out[1] = ShaderParameter(ShaderParamType::CBV, 1, 0);
 	out[2] = ShaderParameter(ShaderParamType::CBV, 2, 1);
@@ -134,6 +134,8 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 
 	out[6] = ShaderParameter(ShaderParamType::SRV, 6, 1);
 	out[7] = ShaderParameter(ShaderParamType::SRV, 7, 10);
+	out[8] = ShaderParameter(ShaderParamType::SRV, 8, 11);
+	out[9] = ShaderParameter(ShaderParamType::SRV, 9, 12);
 }
 
 std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()

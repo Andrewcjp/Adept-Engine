@@ -41,6 +41,8 @@ public:
 	static bool InitialiseContext(HWND m_hwnd, int w, int h);
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
+	static void ToggleFullScreenState();
+	static void ResizeSwapChain(int width, int height);
 	static void DestoryContext(HWND hwnd);
 	static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
 	static ERenderSystemType GetType();

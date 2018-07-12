@@ -11,6 +11,6 @@ SamplerState g_sampler : register(s1);
 
 float4 main(PSInput input) : SV_TARGET
 {
-	return float4(g_texture.Sample(g_sampler, input.texcoord).xyz,1.0f);
+	return float4(g_texture.SampleLevel(g_sampler, input.texcoord,0).xyz,1.0f);
 }
 

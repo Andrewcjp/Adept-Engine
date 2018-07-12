@@ -115,7 +115,7 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 	{
 #if BUILD_D3D12
 	case RenderSystemD3D12:
-		return new D3D12CommandList(Device,Type);
+		return new D3D12CommandList(Device, Type);
 		break;
 #endif
 #if BUILD_VULKAN
@@ -129,12 +129,12 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 
 bool RHI::BlockCommandlistExec()
 {
-	return false;
+	return true;
 }
 
 bool RHI::AllowCPUAhead()
 {
-	return true;
+	return false;
 }
 
 int RHI::GetDeviceCount()
@@ -326,6 +326,36 @@ void RHI::RHISwapBuffers()
 		}
 		break;
 	}
+}
+
+void RHI::RHIRunFirstFrame()
+{
+	switch (instance->CurrentSystem)
+	{
+	case RenderSystemD3D12:
+		D3D12RHI::Instance->ExecSetUpList();
+		break;
+	}
+}
+
+void RHI::ToggleFullScreenState()
+{
+	switch (instance->CurrentSystem)
+	{
+	case RenderSystemD3D12:
+		D3D12RHI::Instance->ToggleFullScreenState();
+		break;
+	}
+}
+
+void RHI::ResizeSwapChain(int width, int height)
+{
+	switch (instance->CurrentSystem)
+	{
+	case RenderSystemD3D12:
+		D3D12RHI::Instance->ResizeSwapChain(width, height, true);
+		break;
+	}	
 }
 
 void RHI::DestoryContext(HWND hwnd)
