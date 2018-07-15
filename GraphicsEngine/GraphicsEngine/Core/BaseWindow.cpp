@@ -87,7 +87,7 @@ void BaseWindow::InitilseWindow()
 {
 	Log::OutS  << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
-	IsDeferredMode = true;
+	IsDeferredMode = true; 
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);

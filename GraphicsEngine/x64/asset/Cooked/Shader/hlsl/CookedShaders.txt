@@ -272,12 +272,10 @@ float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughnes
 { 
 	float3 F0 = float3(0.04, 0.04, 0.04); 
 	F0 = lerp(F0, Diffusecolor, Metal); 
-	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0); 
-	float3 kD = 1.0 - kS; 
-	kD *= 1.0 - Metal; 
-	float3 irradiance = IRData; 
-	float3 diffuse = irradiance * Diffusecolor; 
 	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
 	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
 	float3 ambient = (kD * diffuse+ Specular); 
 	return ambient; 
@@ -583,13 +581,17 @@ VS_OUTPUT main( float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXC
 } 
 ¬
 Deferred_LightingPass_fs.hlsl|FileStart|
+SamplerState defaultSampler : register (s0); 
+SamplerState g_Clampsampler : register(s1); 
+ 
 Texture2D PosTexture : register(t0); 
 Texture2D NormalTexture : register(t1); 
 Texture2D AlbedoTexture : register(t2); 
-SamplerState defaultSampler : register (s1); 
 TextureCube DiffuseIrMap : register(t10); 
 TextureCube SpecularBlurMap: register(t11); 
 Texture2D envBRDFTexture: register(t12); 
+ 
+Texture2D PerSampledShadow: register(t13); 
 struct Light 
 { 
 	float3 LPosition; 
@@ -662,12 +664,10 @@ float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughnes
 { 
 	float3 F0 = float3(0.04, 0.04, 0.04); 
 	F0 = lerp(F0, Diffusecolor, Metal); 
-	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0); 
-	float3 kD = 1.0 - kS; 
-	kD *= 1.0 - Metal; 
-	float3 irradiance = IRData; 
-	float3 diffuse = irradiance * Diffusecolor; 
 	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
 	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
 	float3 ambient = (kD * diffuse+ Specular); 
 	return ambient; 
@@ -758,6 +758,10 @@ struct VS_OUTPUT
  
 float4 main(VS_OUTPUT input) : SV_Target 
 { 
+	/*float out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r; 
+	return float4(out2, 0, 0, 1.0f);*/ 
+ 
+ 
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv); 
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv); 
 	float3 Normal = normalize(Normalt.xyz); 
@@ -777,7 +781,17 @@ float4 main(VS_OUTPUT input) : SV_Target
 	//return float4(0,0,0, 1.0f); 
 	for (int i = 0; i < MAX_LIGHT; i++) 
 	{ 
-		output += CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic); 
+		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic); 
+		if (i == 2) 
+		{ 
+			int out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r; 
+			LightColour *= 1.0 - out2; 
+		} 
+		else 
+		{ 
+			LightColour = float3(0, 0, 0); 
+		} 
+		output += LightColour; 
 	} 
 	float gamma = 1.0f / 2.2f; 
  
@@ -879,12 +893,10 @@ float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughnes
 { 
 	float3 F0 = float3(0.04, 0.04, 0.04); 
 	F0 = lerp(F0, Diffusecolor, Metal); 
-	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0); 
-	float3 kD = 1.0 - kS; 
-	kD *= 1.0 - Metal; 
-	float3 irradiance = IRData; 
-	float3 diffuse = irradiance * Diffusecolor; 
 	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
 	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
 	float3 ambient = (kD * diffuse+ Specular); 
 	return ambient; 
@@ -956,22 +968,6 @@ float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, floa
 } 
 ¬
 Main_fs.hlsl|FileStart|
-Texture2D texColour : register( t0 ); 
-SamplerState defaultSampler : register ( s0 ); 
- 
-struct VS_OUTPUT 
-{ 
-	float4 pos : SV_POSITION; 
-	float4 normal : NORMAL0; 
-	float3 uv : TEXCOORD0; 
-}; 
- 
-float4 main( VS_OUTPUT input ) : SV_Target 
-{ 
-    return texColour.Sample( defaultSampler, input.uv ); 
-} 
-¬
-Main_fs_12.hlsl|FileStart|
 struct Light 
 { 
 	float3 LPosition; 
@@ -1044,12 +1040,10 @@ float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughnes
 { 
 	float3 F0 = float3(0.04, 0.04, 0.04); 
 	F0 = lerp(F0, Diffusecolor, Metal); 
-	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0); 
-	float3 kD = 1.0 - kS; 
-	kD *= 1.0 - Metal; 
-	float3 irradiance = IRData; 
-	float3 diffuse = irradiance * Diffusecolor; 
 	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
 	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
 	float3 ambient = (kD * diffuse+ Specular); 
 	return ambient; 
@@ -1161,6 +1155,7 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(POINT_SHADOW_OFFSET)
 TextureCube DiffuseIrMap : register(t10); 
 TextureCube SpecularBlurMap: register(t11); 
 Texture2D envBRDFTexture: register(t12); 
+Texture2D PerSampledShadow: register(t13); 
 float GetShadow(float4 pos) 
 { 
 	float4 vLightSpacePos = pos; 
@@ -1202,14 +1197,14 @@ float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld)
  
 	// 2x2 percentage closer filtering. 
 	float2 vTexelUnits = 1.0f / vShadowMapDims; 
-	float4 vShadowDepths; 
+	float4 vShadowDepths = float4(0,0,0,0); 
 	int id = 0; 
 	if (lightid == 0) 
 	{ 
-		vShadowDepths.x = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord); 
-		vShadowDepths.y = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)); 
-		vShadowDepths.z = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)); 
-		vShadowDepths.w = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits); 
+		vShadowDepths.x = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord).r; 
+		vShadowDepths.y = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)).r; 
+		vShadowDepths.z = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)).r; 
+		vShadowDepths.w = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits).r; 
 	} 
 	else 
 	{ 
@@ -1226,9 +1221,12 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos);
  
 float4 main(PSInput input) : SV_TARGET 
 { 
-	//return float4(Roughness,Roughness,Roughness,1.0f); 
-	float3 texturecolour = g_texture.Sample(g_sampler, input.uv); 
-	//texturecolour = float3(1, 0, 0); 
+	float2 Pos = input.position.xy / input.position.w; 
+	////Pos.x = (Pos.x + 1) / 2; 
+	////Pos.y = (Pos.y + 1) / 2; 
+	float out2 = PerSampledShadow.Sample(g_Clampsampler, Pos.xy).r; 
+	return float4(out2,0, 0, 1.0f); 
+	float3 texturecolour = g_texture.Sample(g_sampler, input.uv).rgb; 
 	float3 Normal = input.Normal.xyz; 
 	if (HasNormalMap == 1) 
 	{ 
@@ -1244,23 +1242,28 @@ float4 main(PSInput input) : SV_TARGET
 	float3 prefilteredColor = SpecularBlurMap.SampleLevel(g_sampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;//textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb; 
 	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF); 
  
- 
-	//return float4(output, 1.0); 
 	for (int i = 0; i < MAX_LIGHTS; i++) 
 	{ 
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic); 
 		if (lights[i].HasShadow && lights[i].type == 0) 
 		{ 
-			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos); 
+			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos).r; 
 		} 
-		if (lights[i].HasShadow && lights[i].type == 1) 
+		if (i == 2) 
 		{ 
-			colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[i]); 
+			float out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r; 
+			colour *= 1.0 - out2; 
 		} 
+		else 
+		{ 
+			if (lights[i].HasShadow && lights[i].type == 1) 
+			{ 
+				colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[i]); 
+			} 
+		} 
+	 
 		output += colour; 
 	} 
- 
- 
 	return float4(output.xyz,1.0f); 
 } 
  
@@ -1270,82 +1273,20 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos)
 	// Get vector between fragment position and light position 
 	float3 fragToLight = (fragPos - lpos.LPosition); 
 	float currentDepth = length(fragToLight); 
-	//if (currentDepth > MaxShadowDistance) 
-	//{ 
-	//	//	return 0.0f; 
-	//} 
-	float shadow = 0.0f; 
 	float bias = 0.5f; 
-	int samples = 1; 
-	/*float viewDistance = length(viewPos - fragPos); 
-	float diskRadius = (1.0f + (viewDistance / far_plane)) / 25.0f;*/ 
 	float far_plane = 500; 
- 
 	float closestDepth = 0; 
-	float3 val = float3(1, 0, 0); 
-	/*if (lpos.ShadowID == 0) 
-	{ 
-		return 0.0f; 
-	}*/ 
 	int id = lpos.ShadowID; 
-	//if (lpos.ShadowID == 0) 
-	//{ 
-	//	id = 1; 
-	//} 
-	//if (lpos.ShadowID == 1) 
-	//{ 
-	//	id = 0; 
-	//} 
-	closestDepth = g_Shadow_texture2[id].Sample(g_Clampsampler, (fragToLight)).r; 
- 
+	closestDepth = g_Shadow_texture2[id].Sample(g_Clampsampler, fragToLight).r; 
 	closestDepth *= far_plane; 
- 
 	if (currentDepth - bias > closestDepth) 
 	{ 
 		return 1.0f; 
 	} 
- 
-	//shadow /= float(samples);//average of samples 
-	//						 //cleanup the low shadow areas 
-	/*if (shadow < 0.25f) 
-	{ 
-		return 0.0f; 
-	}*/ 
 	return 0.0f; 
 } 
 ¬
 Main_vs.hlsl|FileStart|
-cbuffer ConstantBuffer : register( b0 ) 
-{ 
-	row_major matrix world; 
-	row_major matrix view; 
-	row_major matrix projection; 
-} 
- 
-struct VS_OUTPUT 
-{ 
-	float4 pos : SV_POSITION; 
-	float4 normal : NORMAL0; 
-	float3 uv : TEXCOORD0; 
-}; 
- 
- 
-VS_OUTPUT main( float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXCOORD0 ) 
-{ 
-	VS_OUTPUT output = (VS_OUTPUT)0; 
-	float4 final_pos = mul( pos, world ); 
-	 
-	final_pos = mul( final_pos, view ); 
-	final_pos = mul( final_pos, projection ); 
- 
-	output.pos = final_pos; 
-	output.normal = normal; 
-	output.uv = uv; 
- 
-    return output; 
-} 
-¬
-Main_vs_12.hlsl|FileStart|
  
 struct PSInput 
 { 
@@ -1377,7 +1318,7 @@ cbuffer SceneConstantBuffer : register(b2)
  
 PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TEXCOORD,float4 Tangent: TANGENT0) 
 { 
-	PSInput result; 
+	PSInput result =(PSInput)0; 
 	float4 final_pos = position; 
 	final_pos.w = 1.0f; 
 	final_pos = mul(position, Model); 
@@ -1389,9 +1330,9 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 	result.Normal = normal; 
 	if (HasNormalMap) 
 	{ 
-		const float3 BiTangent = (mul(float4(cross(normal.xyz, Tangent.xyz).xyz, 0.0), Model)); 
-		const float3 Normal = (mul(float4(normal.xyz, 0.0), Model)); 
-		const float3 tan = (mul(float4(Tangent.xyz, 0.0), Model)); 
+		const float3 BiTangent = (mul(float4(cross(normal.xyz, Tangent.xyz).xyz, 0.0), Model)).xyz; 
+		const float3 Normal = (mul(float4(normal.xyz, 0.0), Model)).xyz; 
+		const float3 tan = (mul(float4(Tangent.xyz, 0.0), Model)).xyz; 
 		float3x3 mat = float3x3(tan, BiTangent, Normal); 
 		result.TBN = mat; 
 	} 
@@ -1594,6 +1535,230 @@ loat4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld)
 	return dot(vBilinearWeights, vShadowTests); 
 } 
 ¬
+ShadowSample_fs.hlsl|FileStart|
+struct Light 
+{ 
+	float3 LPosition; 
+	float3 color; 
+	float3 Direction; 
+	row_major matrix LightVP; 
+	int type;//type 1 == point, type 0 == directional, tpye 2 == spot 
+	int ShadowID; 
+	int DirShadowID; 
+	int HasShadow; 
+}; 
+//PBR functions! 
+static const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
+{ 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
+ 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
+ 
+	return num / max(denom, 0.0001); 
+} 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
+{ 
+	float diffu = max(dot(Normal, LightDir), 0.0); 
+	return MaterialDiffuseColor * diffu; 
+} 
+ 
+float3 GetAmbient_CONST() 
+{ 
+	return float3(0.03, 0.03, 0.03); 
+} 
+ 
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
+	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
+	float3 ambient = (kD * diffuse+ Specular); 
+	return ambient; 
+} 
+ 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	float attenuation = 1.0f; 
+ 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
+	return Diffusecolour * attenuation; 
+} 
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
+} 
+ 
+#define SHADOW_DEPTH_BIAS 0.005f 
+#define MAX_LIGHTS 5 
+cbuffer LightBuffer : register(b1) 
+{ 
+	Light lights[MAX_LIGHTS]; 
+}; 
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float4 Normal :NORMAL0; 
+	float4 WorldPos:TANGENT0; 
+}; 
+SamplerState g_sampler : register(s0); 
+SamplerState g_Clampsampler : register(s1); 
+TextureCube g_Shadow_texture: register(t0); 
+ 
+float ShadowCalculationCube(const float3 fragPos, Light lpos); 
+ 
+float main(PSInput input) : SV_TARGET 
+{	 
+	return ShadowCalculationCube(input.WorldPos.xyz,lights[2]); 
+} 
+ 
+float ShadowCalculationCube(const float3 fragPos, Light lpos) 
+{ 
+	// Get vector between fragment position and light position 
+	float3 fragToLight = (fragPos - lpos.LPosition); 
+	float currentDepth = length(fragToLight); 
+	float bias = 0.5f; 
+	float far_plane = 500; 
+	float closestDepth = 0; 
+	closestDepth = g_Shadow_texture.Sample(g_Clampsampler, fragToLight).r; 
+	closestDepth *= far_plane; 
+	if (currentDepth - bias > closestDepth) 
+	{ 
+		return 1.0f; 
+	} 
+	return 0.0f; 
+} 
+¬
+ShadowSample_vs.hlsl|FileStart|
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float4 Normal :NORMAL0; 
+	float4 WorldPos:TANGENT0; 
+}; 
+ 
+cbuffer GOConstantBuffer : register(b0) 
+{ 
+	row_major matrix Model; 
+	int HasNormalMap; 
+	float Roughness; 
+	float Metallic; 
+}; 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix View; 
+	row_major matrix Projection; 
+}; 
+ 
+PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TEXCOORD,float4 Tangent: TANGENT0) 
+{ 
+	PSInput result =(PSInput)0; 
+	float4 final_pos = position; 
+	final_pos.w = 1.0f; 
+	final_pos = mul(position, Model); 
+	result.WorldPos = final_pos; 
+	final_pos = mul(final_pos, View); 
+	final_pos = mul(final_pos, Projection); 
+	result.position = final_pos; 
+	result.Normal = normal; 
+	return result; 
+} 
+¬
 Skybox_fs.hlsl|FileStart|
  
 struct PSInput 
@@ -1733,7 +1898,7 @@ struct GSOutput
 float main(GSOutput input) : SV_Depth 
 { 
 #if DIRECTIONAL 
-	return float4(1,1,1,1); 
+	return 1.0f; 
 #else 
 	float Farplane = 500; 
 	float LightDistance = length(input.WorldPos.xyz - input.LightPos); 
@@ -1802,7 +1967,7 @@ cbuffer SceneConstantBuffer : register(b2)
 { 
 	row_major matrix ViewP; 
 	row_major matrix Projection; 
-	float4 LightPos; 
+	float3 LightPos; 
 }; 
 #endif 
 struct VS_OUTPUT 

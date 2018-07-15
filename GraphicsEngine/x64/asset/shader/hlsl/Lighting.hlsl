@@ -70,12 +70,10 @@ float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughnes
 {
 	float3 F0 = float3(0.04, 0.04, 0.04);
 	F0 = lerp(F0, Diffusecolor, Metal);
-	float3 kS = fresnelSchlick(max(dot(Normal, View), 0.0), F0);
-	float3 kD = 1.0 - kS;
-	kD *= 1.0 - Metal;
-	float3 irradiance = IRData;
-	float3 diffuse = irradiance * Diffusecolor;
 	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness);
+	float3 kD = 1.0 - F;
+	kD *= 1.0 - Metal;
+	float3 diffuse = IRData * Diffusecolor;
 	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y);
 	float3 ambient = (kD * diffuse+ Specular);
 	return ambient;

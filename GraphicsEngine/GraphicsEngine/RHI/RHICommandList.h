@@ -22,7 +22,7 @@ public:
 	};
 	virtual void CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) = 0;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) = 0;
-	virtual void CreateConstantBuffer(int StructSize, int Elementcount) = 0;
+	virtual void CreateConstantBuffer(int StructSize, int Elementcount,bool ReplicateToAllDevices = false) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
 	virtual void UpdateVertexBuffer(void* data, int length) = 0;
 	virtual void UpdateIndexBuffer(void* data, int length) = 0;

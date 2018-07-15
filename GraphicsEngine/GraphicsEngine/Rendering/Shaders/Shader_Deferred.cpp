@@ -16,7 +16,7 @@ Shader_Deferred::Shader_Deferred()
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 
-	//Initialise OGL shader
+	//Initialise shader
 	m_Shader = RHI::CreateShaderProgam();
 
 	m_Shader->CreateShaderProgram();
@@ -43,6 +43,7 @@ std::vector<Shader::ShaderParameter> Shader_Deferred::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 5, 10));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 6, 11));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 7, 12));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, 8, 13));
 	return out;
 }
 std::vector<Shader::VertexElementDESC> Shader_Deferred::GetVertexFormat()

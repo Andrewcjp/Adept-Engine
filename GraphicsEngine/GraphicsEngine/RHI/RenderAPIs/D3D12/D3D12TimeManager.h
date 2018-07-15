@@ -33,6 +33,7 @@ public:
 		Skybox,
 		PostProcess,
 		Present,
+		ShadowPreSample,
 		LIMIT
 	};
 	void StartTimer(ID3D12GraphicsCommandList * ComandList, int index);

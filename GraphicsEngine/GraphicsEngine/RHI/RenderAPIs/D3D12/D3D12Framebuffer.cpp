@@ -494,7 +494,7 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 		}
 		return;
 	}
-	ensure(Resourceindex < BufferDesc.RenderTargetCount);
+//	ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	lastboundslot = slot;
 
 	SrvHeap->BindHeap(list);

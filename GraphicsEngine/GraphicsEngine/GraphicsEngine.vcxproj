@@ -318,6 +318,7 @@
     <ClInclude Include="Rendering\Shaders\PostProcess\Shader_UpSample.h" />
     <ClInclude Include="Rendering\Shaders\Generation\Shader_Convolution.h" />
     <ClInclude Include="Rendering\Shaders\Generation\Shader_EnvMap.h" />
+    <ClInclude Include="Rendering\Shaders\MultiGPU\Shader_ShadowSample.h" />
     <ClInclude Include="ThirdParty\NVDDS\DDSTextureLoader12.h" />
     <ClInclude Include="Core\Assets\MeshLoader.h" />
     <ClInclude Include="Core\Utils\MovingAverage.h" />
@@ -462,6 +463,7 @@
     <ClCompile Include="RHI\RHITypes.cpp" />
     <ClCompile Include="Rendering\Shaders\Generation\Shader_Convolution.cpp" />
     <ClCompile Include="Rendering\Shaders\Generation\Shader_EnvMap.cpp" />
+    <ClCompile Include="Rendering\Shaders\MultiGPU\Shader_ShadowSample.cpp" />
     <ClCompile Include="ThirdParty\NVDDS\DDSTextureLoader12.cpp" />
     <ClCompile Include="Core\Assets\MeshLoader.cpp" />
     <ClCompile Include="Core\Utils\MovingAverage.cpp" />

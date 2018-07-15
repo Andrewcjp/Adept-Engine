@@ -14,10 +14,10 @@ Shader_Main::Shader_Main(bool LoadForward)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(MAX_LIGHTS)));	
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED",std::to_string((int)!LoadForward)));
 
-	m_Shader->AttachAndCompileShaderFromFile("Main_vs_12", SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);
 	if (LoadForward)
 	{
-		m_Shader->AttachAndCompileShaderFromFile("Main_fs_12", SHADER_FRAGMENT);
+		m_Shader->AttachAndCompileShaderFromFile("Main_fs", SHADER_FRAGMENT);
 	}
 	else
 	{
@@ -37,9 +37,9 @@ Shader_Main::Shader_Main(bool LoadForward)
 		GameObjectTransformBuffer[i]->CreateConstantBuffer(sizeof(SceneConstantBuffer), MaxConstant);
 	}
 	CLightBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
-	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1);
+	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1,true);
 	CMVBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
-	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), 1);
+	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), 1, true);
 }
 Shader_Main::~Shader_Main()
 {
@@ -119,7 +119,7 @@ void Shader_Main::SetActiveIndex(RHICommandList* list, int index,int DeviceIndex
 }
 void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 {
-	out.resize(10);
+	out.resize(11);
 	out[0] = ShaderParameter(ShaderParamType::SRV, 0, 0);
 	out[1] = ShaderParameter(ShaderParamType::CBV, 1, 0);
 	out[2] = ShaderParameter(ShaderParamType::CBV, 2, 1);
@@ -136,6 +136,7 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	out[7] = ShaderParameter(ShaderParamType::SRV, 7, 10);
 	out[8] = ShaderParameter(ShaderParamType::SRV, 8, 11);
 	out[9] = ShaderParameter(ShaderParamType::SRV, 9, 12);
+	out[10] = ShaderParameter(ShaderParamType::SRV, 10, 13);
 }
 
 std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()

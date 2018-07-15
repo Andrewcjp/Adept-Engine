@@ -16,6 +16,7 @@ public:
 	int m_width = 0;
 	int m_height = 0;
 	virtual void SetupCopyToDevice(DeviceContext* device) {};
+	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice);
 protected:	
 	DeviceContext* CurrentDevice = nullptr;
 	RHIFrameBufferDesc BufferDesc;

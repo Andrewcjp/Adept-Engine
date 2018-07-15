@@ -29,6 +29,7 @@
 #endif
 
 RHI* RHI::instance = nullptr;
+MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 RHI::RHI()
 {}
 
@@ -129,12 +130,12 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 
 bool RHI::BlockCommandlistExec()
 {
-	return true;
+	return false;
 }
 
 bool RHI::AllowCPUAhead()
 {
-	return false;
+	return true;
 }
 
 int RHI::GetDeviceCount()
@@ -148,6 +149,16 @@ int RHI::GetDeviceCount()
 		return 3;
 	}
 	return 1;
+}
+
+bool RHI::UseAdditonalGPUs()
+{
+	return false;
+}
+
+const MultiGPUMode * RHI::GetMGPUMode()
+{
+	return &CurrentMGPUMode;
 }
 
 void RHI::DestoryRHI()

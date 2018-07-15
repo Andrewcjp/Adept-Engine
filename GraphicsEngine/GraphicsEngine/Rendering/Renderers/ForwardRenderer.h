@@ -20,7 +20,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "EngineGlobals.h"
 #include "RHI/RHICommandList.h"
-#define USED3D12DebugP 0
+#define USED3D12DebugP 1
 class ForwardRenderer : public RenderEngine
 {
 public:
@@ -28,6 +28,7 @@ public:
 	virtual ~ForwardRenderer();
 	void OnRender() override;
 	void PostInit() override;
+	void SetupOnDevice(DeviceContext * TargetDevice);
 	virtual void DestoryRenderWindow() override;
 	virtual void FinaliseRender() override;
 	virtual void OnStaticUpdate() override;
@@ -36,12 +37,11 @@ private:
 	void RenderDebugPlane();
 	void MainPass();
 	void RenderSkybox();
-	RHICommandList* MainCommandList;
-
+	RHICommandList* MainCommandList = nullptr;
 	//debug
 #if USED3D12DebugP
 	class D3D12Plane* debugplane = nullptr;
 #endif
-
+	bool RunSFR = false;
 };
 

@@ -423,7 +423,7 @@ void GPUSyncPoint::CreateSyncPoint(ID3D12CommandQueue * queue)
 
 	// Wait until the fence has been processed.
 	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-	if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_OBJECT_0)
+	if (WaitForSingleObject(m_fenceEvent, 100) == WAIT_OBJECT_0)
 	{
 		// Increment the fence value for the current frame.
 		m_fenceValue++;

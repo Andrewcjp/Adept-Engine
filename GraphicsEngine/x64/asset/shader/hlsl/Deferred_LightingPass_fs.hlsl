@@ -1,10 +1,14 @@
+SamplerState defaultSampler : register (s0);
+SamplerState g_Clampsampler : register(s1);
+
 Texture2D PosTexture : register(t0);
 Texture2D NormalTexture : register(t1);
 Texture2D AlbedoTexture : register(t2);
-SamplerState defaultSampler : register (s1);
 TextureCube DiffuseIrMap : register(t10);
 TextureCube SpecularBlurMap: register(t11);
 Texture2D envBRDFTexture: register(t12);
+
+Texture2D PerSampledShadow: register(t13);
 #include "Lighting.hlsl"
 #define MAX_LIGHT 4
 
@@ -26,6 +30,10 @@ struct VS_OUTPUT
 
 float4 main(VS_OUTPUT input) : SV_Target
 {
+	/*float out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
+	return float4(out2, 0, 0, 1.0f);*/
+
+
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv);
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv);
 	float3 Normal = normalize(Normalt.xyz);
@@ -45,7 +53,17 @@ float4 main(VS_OUTPUT input) : SV_Target
 	//return float4(0,0,0, 1.0f);
 	for (int i = 0; i < MAX_LIGHT; i++)
 	{
-		output += CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
+		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
+		if (i == 2)
+		{
+			int out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
+			LightColour *= 1.0 - out2;
+		}
+		else
+		{
+			LightColour = float3(0, 0, 0);
+		}
+		output += LightColour;
 	}
 	float gamma = 1.0f / 2.2f;
 

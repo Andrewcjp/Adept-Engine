@@ -65,7 +65,6 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Blur->SetUpData();
 	Blur->InitEffect(Target);
 
-
 	Bloom = new PP_Bloom();
 	Bloom->SetUpData();
 	Bloom->InitEffect(Target);
@@ -73,7 +72,6 @@ void PostProcessing::Init(FrameBuffer* Target)
 }
 void PostProcessing::Resize(FrameBuffer* Target)
 {
-	//ColourCorrect->InitEffect(Target);
 	Blur->InitEffect(Target);
 	Bloom->InitEffect(Target);
 	ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
@@ -84,6 +82,7 @@ void PostProcessing::MakeReadyForPost(RHICommandList* list, FrameBuffer * buffer
 	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)buffer;
 	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 }
+
 void PostProcessing::AddCompostPass(FrameBuffer * buffer)
 {
 	TestEffct->SetInputFrameBuffer(buffer);

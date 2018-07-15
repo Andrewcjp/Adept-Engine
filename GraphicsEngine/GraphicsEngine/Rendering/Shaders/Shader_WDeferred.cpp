@@ -8,7 +8,7 @@ Shader_WDeferred::Shader_WDeferred()
 	m_Shader = RHI::CreateShaderProgam();
 
 	m_Shader->CreateShaderProgram();
-	m_Shader->AttachAndCompileShaderFromFile("Main_vs_12", SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("DeferredWrite_fs", SHADER_FRAGMENT);
 
 	m_Shader->BuildShaderProgram();

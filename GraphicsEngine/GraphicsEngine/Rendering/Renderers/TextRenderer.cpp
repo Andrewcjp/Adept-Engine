@@ -155,6 +155,7 @@ void TextRenderer::Finish()
 
 	if (RunOnSecondDevice)
 	{
+#if 0
 		PerfManager::StartTimer("RunOnSecondDevice");
 		DeviceContext* HostDevice = D3D12RHI::GetDeviceContext(1);
 		DeviceContext* TargetDevice = D3D12RHI::GetDeviceContext(0);
@@ -173,6 +174,9 @@ void TextRenderer::Finish()
 		CopyList->Execute(DeviceContextQueue::InterCopy);
 		TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 		PerfManager::EndTimer("RunOnSecondDevice");
+#else
+		FrameBuffer::CopyHelper(Renderbuffer, RHI::GetDeviceContext(0));
+#endif
 	}
 }
 void TextRenderer::Reset()

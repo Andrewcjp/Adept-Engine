@@ -58,12 +58,13 @@ public:
 	D3D12Buffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
 	virtual ~D3D12Buffer();
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-	virtual void CreateConstantBuffer(int StructSize, int Elementcount) override;
+	virtual void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) override;
 	virtual void CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) override;
 	void CreateStaticBuffer(int Stride, int ByteSize);
 	void CreateDynamicBuffer(int Stride, int ByteSize);
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
-	virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Register, bool IsCompute);
+	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
+	//virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Register, bool IsCompute);
 	//virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register);
 	virtual void UpdateIndexBuffer(void* data, int length) override;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) override;
@@ -73,7 +74,7 @@ public:
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	bool CheckDevice(int index);
 private:
-	class D3D12CBV* CBV = nullptr;
+	class D3D12CBV* CBV[MAX_DEVICE_COUNT] = { nullptr };
 	int ConstantBufferDataSize = 0;
 
 	BufferAccessType BufferAccesstype;
@@ -82,7 +83,7 @@ private:
 	ID3D12Resource * m_UploadBuffer = nullptr;
 	int VertexBufferSize = 0;
 	bool UploadComplete = false;
-
+	bool CrossDevice = false;
 	DeviceContext* Device = nullptr;
 };
 

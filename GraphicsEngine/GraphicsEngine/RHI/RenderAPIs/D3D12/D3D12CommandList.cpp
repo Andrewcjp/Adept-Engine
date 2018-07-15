@@ -15,7 +15,8 @@
 #include "D3D12Helpers.h"
 #include "GPUResource.h"
 #include "../Rendering/Core/GPUStateCache.h"
-D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType):RHICommandList(ListType)
+#include "../Core/Utils/MemoryUtils.h"
+D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType)
 {
 	Device = inDevice;
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
@@ -46,6 +47,7 @@ D3D12CommandList::~D3D12CommandList()
 void D3D12CommandList::ResetList()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("ResetList", "RHI");
+	ensure(!IsOpen);
 	ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
 	IsOpen = true;
 	ThrowIfFailed(CurrentGraphicsList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState));
@@ -161,7 +163,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
-	ensure(ListType == ECommandListType::Graphics|| ListType == ECommandListType::Compute);
+	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
 	D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
 	D3D12Shader::PipeRenderTargetDesc PRTD = {};
 	if (Buffer == nullptr)
@@ -186,7 +188,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRen
 	else
 	{
 		ensure(ListType == ECommandListType::Graphics);
-	}	
+	}
 	if (CurrentPipelinestate.m_pipelineState != nullptr)
 	{
 		CurrentPipelinestate.m_pipelineState->Release();
@@ -319,7 +321,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	}
 #endif
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
-	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex, Device,(ListType == ECommandListType::Compute));
+	DBuffer->BindBufferToTexture(CurrentGraphicsList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
 }
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
@@ -341,7 +343,7 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 {
 	D3D12Buffer* d3Buffer = (D3D12Buffer*)buffer;
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
-	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Slot,ListType == ECommandListType::Compute);
+	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Slot, ListType == ECommandListType::Compute,Device->GetDeviceIndex());
 }
 
 
@@ -360,9 +362,9 @@ D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :
 D3D12Buffer::~D3D12Buffer()
 {
 	Device = nullptr;
-	if (CBV != nullptr)
+	if (CurrentBufferType == RHIBuffer::BufferType::Constant)
 	{
-		delete CBV;
+		MemoryUtils::DeleteCArray(CBV, MAX_DEVICE_COUNT);
 	}
 	if (m_vertexBuffer)
 	{
@@ -374,13 +376,53 @@ D3D12Buffer::~D3D12Buffer()
 	}
 }
 
-void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount)
+void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices)
 {
 	ensure(StructSize > 0);
 	ensure(Elementcount > 0);
-	CBV = new D3D12CBV(Device);
-	CBV->InitCBV(StructSize, Elementcount);
 	ConstantBufferDataSize = StructSize;
+	CrossDevice = ReplicateToAllDevices;
+	if (ReplicateToAllDevices)
+	{
+		for (int i = 0; i < RHI::GetDeviceCount(); i++)
+		{
+			CBV[i] = new D3D12CBV(RHI::GetDeviceContext(i));
+			CBV[i]->InitCBV(StructSize, Elementcount);
+		}
+	}
+	else
+	{
+		CBV[0] = new D3D12CBV(Device);
+		CBV[0]->InitCBV(StructSize, Elementcount);
+	}
+}
+void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
+{
+	if (CrossDevice)
+	{
+		for (int i = 0; i < RHI::GetDeviceCount(); i++)
+		{
+			CBV[i]->UpdateCBV(data, offset, ConstantBufferDataSize);
+		}
+	}
+	else
+	{
+		CBV[0]->UpdateCBV(data, offset, ConstantBufferDataSize);
+	}
+}
+
+void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Slot, bool  IsCompute,int Deviceindex)
+{
+	if (CrossDevice)
+	{
+		CBV[Deviceindex]->SetDescriptorHeaps(list);//D3D12CBV::MPCBV
+		CBV[Deviceindex]->SetGpuView(list, offset, Slot, IsCompute);//todo: handle Offset!
+	}
+	else
+	{
+		CBV[0]->SetDescriptorHeaps(list);//D3D12CBV::MPCBV
+		CBV[0]->SetGpuView(list, offset, Slot, IsCompute);//todo: handle Offset!
+	}
 }
 
 void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype)
@@ -430,6 +472,11 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
 
 bool D3D12Buffer::CheckDevice(int index)
 {
+	if (CurrentBufferType == RHIBuffer::BufferType::Constant && CrossDevice)
+	{
+		//ready on all devices!
+		return true;
+	}
 	if (Device != nullptr)
 	{
 		return (Device->GetDeviceIndex() == index);
@@ -465,6 +512,7 @@ void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
 	m_vertexBufferView.SizeInBytes = vertexBufferSize;
 	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
 }
+
 void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
 {
 	//This Vertex Buffer Will Have Data Changed Every frame so no need to transiton to only gpu.
@@ -486,16 +534,8 @@ void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
 	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
 }
 
-void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
-{
-	CBV->UpdateCBV(data, offset, ConstantBufferDataSize);
-}
 
-void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Slot,bool  IsCompute)
-{
-	CBV->SetDescriptorHeaps(list);//D3D12CBV::MPCBV
-	CBV->SetGpuView(list, offset, Slot, IsCompute);//todo: handle Offset!
-}
+
 
 void D3D12Buffer::UpdateIndexBuffer(void * data, int length)
 {
@@ -565,7 +605,7 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat( target->GetDescription().RTFormats[0]);
+	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(target->GetDescription().RTFormats[0]);
 	destTextureUAVDesc.Texture2D.MipSlice = 0;
 	//todo:Counter UAV?
 	Device->GetDevice()->CreateUnorderedAccessView(((D3D12FrameBuffer*)target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc, Heap->GetCPUAddress(0));

@@ -8,7 +8,7 @@ struct GSOutput
 float main(GSOutput input) : SV_Depth
 {
 #if DIRECTIONAL
-	return float4(1,1,1,1);
+	return 1.0f;
 #else
 	float Farplane = 500;
 	float LightDistance = length(input.WorldPos.xyz - input.LightPos);

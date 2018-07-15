@@ -174,8 +174,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 
 	if (pErrorBlob)
 	{
-		fprintf(stdout, "Shader Compile output: %s\n", reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
-		std::string Log = "Shader: ";
+		std::string Log = "Shader Compile Output: ";
 		Log.append(StringUtils::ConvertWideToString(filename));
 		Log.append("\n");
 		Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));

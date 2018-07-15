@@ -86,7 +86,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	go = new GameObject("Terrain");
 	Material* mat = new Material(AssetManager::DirectLoadTextureAsset("\\asset\\texture\\grasshillalbedo.png"));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("terrainmk2.obj"), mat));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("DefaultTerrain.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));

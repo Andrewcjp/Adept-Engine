@@ -112,10 +112,11 @@ void DeferredRenderer::LightingPass()
 
 	MainShader->BindLightsBuffer(LightingList, true);
 	MainShader->BindMvBuffer(LightingList, 4);
-	//mShadowRenderer->BindShadowMapsToTextures(LightingList);
+	mShadowRenderer->BindShadowMapsToTextures(LightingList);
 	DeferredShader->RenderScreenQuad(LightingList);
 	//LightingList->SetRenderTarget(nullptr);
 	WriteList->GetDevice()->GetTimeManager()->EndTimer(LightingList, D3D12TimeManager::eGPUTIMERS::DeferredLighting);
+	mShadowRenderer->Unbind(LightingList);
 	LightingList->Execute();
 }
 

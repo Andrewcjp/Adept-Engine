@@ -65,6 +65,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::Text, "Text");
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::UI, "UI Draw");
 	SetTimerName(D3D12TimeManager::eGPUTIMERS::PostProcess, "Post Processing");
+	SetTimerName(D3D12TimeManager::eGPUTIMERS::ShadowPreSample, "Shadow PreSample");
 #endif
 }
 void D3D12TimeManager::UpdateTimers()

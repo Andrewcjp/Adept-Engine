@@ -6,6 +6,7 @@
 #include "Core/Assets/MeshLoader.h"
 #include "RHITypes.h"
 #include "Core/Assets/AssetManager.h"
+#include "Rendering/Renderers/RenderSettings.h"
 //todo: refactor!
 //like seriuously this is bad!
 class BaseTexture;
@@ -13,7 +14,7 @@ class Renderable;
 class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
-const int MAX_POINT_SHADOWS = 2;//3
+const int MAX_POINT_SHADOWS = 3;
 const int MAX_DIRECTIONAL_SHADOWS = 1;
 const int MAX_DEVICE_COUNT = 2;
 class RHI
@@ -57,10 +58,11 @@ public:
 	static bool BlockCommandlistExec();
 	static bool AllowCPUAhead();
 	static int GetDeviceCount();
+	static bool UseAdditonalGPUs();
+	static const MultiGPUMode* GetMGPUMode();
 private: 
-	bool ShouldRunAsync = false;
 	ERenderSystemType CurrentSystem;
-	
+	static MultiGPUMode CurrentMGPUMode;
 	//------------------------------------
 	class D3D12RHI* D3D12Rhi = nullptr;
 	class VKanRHI* VulkanRHI = nullptr;

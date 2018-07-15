@@ -15,7 +15,7 @@ cbuffer SceneConstantBuffer : register(b2)
 {
 	row_major matrix ViewP;
 	row_major matrix Projection;
-	float4 LightPos;
+	float3 LightPos;
 };
 #endif
 struct VS_OUTPUT

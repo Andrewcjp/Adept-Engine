@@ -61,7 +61,7 @@ public:
 	bool GetShaderAsset(std::string path, ShaderAsset &asset);
 	std::map<std::string, TextureAsset>* GetTextureMap() { return &TextureAssetsMap; }
 	std::map<std::string, std::string>* GetMeshMap() { return &MeshFileMap; }
-	const std::string ShaderCookedFile = "\\asset\\Cooked\\Shader\\glsl\\CookedShaders.txt";
+	const std::string ShaderCookedFile = "\\asset\\Cooked\\Shader\\hlsl\\CookedShaders.txt";
 	static void RegisterMeshAssetLoad(std::string name);
 	static std::string GetShaderDirPath();
 	static BaseTexture * DirectLoadTextureAsset(std::string name, bool DirectLoad = false, class DeviceContext * Device = nullptr);

@@ -70,6 +70,7 @@ void Cooker::CopyToOutput()
 		CopyAssetToOutput(AssetM->ShaderCookedFile);
 		//copy font
 		CopyAssetToOutput("\\asset\\fonts\\arial.ttf");
+		CopyAssetToOutput("\\asset\\DDC\\T_GridSmall_01_D.DDS");
 	}
 	Log::OutS  << "**********Cook Complete**********" << Log::OutS;
 	 
