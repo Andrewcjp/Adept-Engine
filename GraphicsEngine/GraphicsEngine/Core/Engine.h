@@ -19,7 +19,6 @@ public:
 	Engine();
 	~Engine();
 	void Destory();
-	HRESULT LoadAndCallSomeFunction(void * dwParam12);
 	void LoadDLL();
 	void SetHInstWindow(HINSTANCE inst);
 	RenderWindow* GetWindow();
@@ -41,7 +40,7 @@ private:
 	bool Deferredmode = false;
 	bool FullScreen = false;
 	bool ShouldRunCook = false;
-	HGLRC mhglrc;	
+	HGLRC mhglrc;
 	HDC mhdc;
 	static Game* mgame;
 };

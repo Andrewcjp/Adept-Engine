@@ -32,7 +32,13 @@ BaseApplication::BaseApplication()
 BaseApplication::~BaseApplication()
 {
 	if (m_appwnd)
+	{
 		delete m_appwnd;
+	}
+	if (m_engine)
+	{
+		delete m_engine;
+	}
 }
 
 BOOL BaseApplication::MyRegisterClass(HINSTANCE hinst)

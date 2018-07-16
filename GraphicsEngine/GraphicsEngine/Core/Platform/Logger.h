@@ -1,11 +1,12 @@
 #pragma once
 #include <sstream>
 #include <ios>
+#include "EngineGlobals.h"
 class Log
 {
 public:
 	static void LogOutput(std::string data);
-	struct StreamWrapper
+	 struct StreamWrapper
 	{
 		std::stringstream Out;
 		template<class T>

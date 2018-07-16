@@ -1,5 +1,7 @@
 #pragma once
 #include "EngineGlobals.h"
+#include "../Core/Module/ModuleInterface.h"
+#include "../Core/Platform/Logger.h"
 class  Game
 {
 public:
@@ -17,4 +19,15 @@ private:
 	float TickRate = 60.0f;
 
 };
-
+class GameModule :public IModuleInterface
+{
+public:
+	void StartupModule() override
+	{
+	//	Log::OutS << "Game Module Startup" << Log::OutS;
+	}
+	virtual Game* GetGamePtr(class CompoenentRegistry* Reg)
+	{
+		return nullptr;
+	}
+};

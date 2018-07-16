@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "FString.h"
 #include "Core/Asserts.h"
-
+#include "../Core/Utils/StringUtil.h"
 FString::FString()
 {}
 
@@ -34,6 +34,11 @@ bool FString::Contains(FString Target)
 }
 
 
+std::string & FString::ToSString()
+{
+	return  UnderlyingString;
+}
+
 void FString::RunFStringTests()
 {
 	FString test = FString("hello");
@@ -41,4 +46,13 @@ void FString::RunFStringTests()
 	std::string data = "hello";
 	test = FString(data);
 	ensure(test.Contains("h"))
+}
+
+std::wstring & FString::ToWideString()
+{
+	if (!WideCached)
+	{
+		WideString = StringUtils::ConvertStringToWide(UnderlyingString);
+	}
+	return  WideString;
 }

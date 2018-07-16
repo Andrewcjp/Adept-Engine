@@ -10,4 +10,12 @@ public:
 	~TestGame();
 };
    
-extern "C" __declspec(dllexport) Game* Get(void* regvoid);    
+
+class TestGameModule :public GameModule
+{
+	Game* GetGamePtr(CompoenentRegistry* Reg) override
+	{
+		return new TestGame(Reg);
+	}
+};
+IMPLEMENT_MODULE(TestGameModule);

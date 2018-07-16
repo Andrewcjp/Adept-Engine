@@ -20,16 +20,7 @@ float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
 PhysicsEngine* Engine::PhysEngine = NULL;
-#ifdef BUILD_GAME
-#define UseDevelopmentWindows 0
-#else
-#define UseDevelopmentWindows 0
-#endif
-#if UseDevelopmentWindows
-#include "D3D12/D3D12Window.h"
-#include "D3D11/D3D11Window.h"
-#endif
-//#include "TestGame.h"
+#include "Module/ModuleManager.h"
 
 PhysicsEngine * Engine::GetPhysEngineInstance()
 {
@@ -77,48 +68,23 @@ Engine::Engine()
 	FString::RunFStringTests();
 }
 
-
 Engine::~Engine()
 {
-
+	Destory();
 }
+
 void Engine::Destory()
 {
 	PhysEngine->cleanupPhysics();
+	ModuleManager::Get()->ShutDown();
 }
 
-typedef Game*(CALLBACK* LPFNDLLFUNC1)(void*);
-HRESULT Engine::LoadAndCallSomeFunction(void*dwParam12)
+void Engine::LoadDLL()                                        
 {
-	HINSTANCE hDLL;               // Handle to DLL  
-	LPFNDLLFUNC1 lpfnDllFunc1;    // Function pointer  
-	HRESULT hrReturnVal = S_OK;
-	hDLL = LoadLibrary(L"TestGame");
-	if (NULL != hDLL)
-	{
-		lpfnDllFunc1 = (LPFNDLLFUNC1)GetProcAddress(hDLL, "Get");
-		if (NULL != lpfnDllFunc1)
-		{
-			// call the function  
-			SetGame((Game*)lpfnDllFunc1(dwParam12));
-		}
-		else
-		{
-			// report the error  
-			hrReturnVal = ERROR_DELAY_LOAD_FAILED;
-		}
-		//FreeLibrary(hDLL);
-	}
-	else
-	{
-		hrReturnVal = ERROR_DELAY_LOAD_FAILED;
-	}
-	return hrReturnVal;
-}
-
-void Engine::LoadDLL()
-{
-	LoadAndCallSomeFunction(CompRegistry);
+	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>("TestGame");
+	Game* gm = Gamemodule->GetGamePtr(CompRegistry);
+	ensure(gm);
+	SetGame(gm);
 }
 
 void Engine::SetHInstWindow(HINSTANCE inst)
@@ -135,7 +101,6 @@ ERenderSystemType Engine::GetCurrentSystem()
 {
 	return CurrentRenderSystem;
 }
-
 
 void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 {
@@ -183,6 +148,7 @@ void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
 		CreateApplicationWindow(1280, 720, ERenderSystemType::RenderSystemOGL);
 	}
 }
+
 void Engine::RunCook()
 {
 	Cooker* cook = new Cooker(AssetManager::instance);
@@ -233,7 +199,6 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 		m_appwnd = new GameWindow(/*Deferredmode*/);
 #endif 
 		isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
-
 
 		if (!isWindowVaild)
 		{

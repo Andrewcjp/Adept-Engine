@@ -2,7 +2,7 @@
 #include "EngineHeader.h"
 #include "Core/Components/CompoenentRegistry.h"
 
-TestGame::TestGame(CompoenentRegistry* Reg):Game(Reg)
+TestGame::TestGame(CompoenentRegistry* Reg) :Game(Reg)
 {
 	ECR = new TGExtraComponentRegister();
 	if (Reg != nullptr)
@@ -12,12 +12,5 @@ TestGame::TestGame(CompoenentRegistry* Reg):Game(Reg)
 	}
 }
 
-
 TestGame::~TestGame()
 {}
-//use C functioning here
-
-Game* Get(void* regvoid)
-{
-	return new TestGame((CompoenentRegistry*)regvoid);
-}

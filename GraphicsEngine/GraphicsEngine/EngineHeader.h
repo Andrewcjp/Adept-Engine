@@ -14,3 +14,4 @@
 #include "Core\Components\CameraComponent.h"
 #include "Core\Assets\Scene.h"
 #include "Rendering\Core\Camera.h"
+#include "Core/Module/ModuleInterface.h"

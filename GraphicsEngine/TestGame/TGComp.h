@@ -3,7 +3,7 @@
 class TGComp :public Component
 {
 public:
-	TGComp();
+	 TGComp();
 	~TGComp();
 
 	// Inherited via Component
