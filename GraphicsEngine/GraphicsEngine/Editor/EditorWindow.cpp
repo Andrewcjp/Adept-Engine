@@ -30,7 +30,6 @@
 #include "Core/Assets/SceneJSerialiser.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Utils/StringUtil.h"
-#include "Core/Utils/WindowsHelper.h"
 #include "Core/Game.h"
 #include "Editor/Editor_Camera.h"
 #include "UI/UIManager.h"
@@ -127,7 +126,7 @@ void EditorWindow::DestroyRenderWindow()
 	BaseWindow::DestroyRenderWindow();
 }
 
-BOOL EditorWindow::MouseLBDown(int x, int y)
+bool EditorWindow::MouseLBDown(int x, int y)
 {
 	BaseWindow::MouseLBDown(x, y);
 	if (input != nullptr && UI != nullptr && !UI->IsUIBlocking())
@@ -219,7 +218,7 @@ void EditorWindow::SaveScene()
 		Startdir.append("\\asset\\scene\\");
 		using namespace std::string_literals;
 		std::string Output;
-		if (WindowsHelpers::DisplaySaveFileDialog(Startdir, "Scene Files\0*.scene\0"s, ".scene", Output))
+		if (PlatformApplication::DisplaySaveFileDialog(Startdir, "Scene Files\0*.scene\0"s, ".scene", Output))
 		{
 			CurrentSceneSavePath = Output;
 			Saver->SaveScene(CurrentScene, CurrentSceneSavePath);
@@ -237,7 +236,7 @@ void EditorWindow::LoadScene()
 	std::string Startdir = Engine::GetRootDir();
 	Startdir.append("\\asset\\scene\\");
 	using namespace std::string_literals;
-	if (WindowsHelpers::DisplayOpenFileDialog(Startdir, "Scene Files\0*.scene\0"s, Output))
+	if (PlatformApplication::DisplayOpenFileDialog(Startdir, "Scene Files\0*.scene\0"s, Output))
 	{
 		CurrentSceneSavePath = Output;
 		Renderer->SetScene(nullptr);

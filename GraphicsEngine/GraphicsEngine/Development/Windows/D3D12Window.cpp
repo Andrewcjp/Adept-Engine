@@ -23,7 +23,7 @@ D3D12Window::~D3D12Window()
 {
 }
 
-bool D3D12Window::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
+bool D3D12Window::CreateRenderWindow(int width, int height)
 {
 	UNUSED_PARAM(Fullscreen);
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,

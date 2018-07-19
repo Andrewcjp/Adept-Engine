@@ -115,6 +115,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)GraphicsEngine\include;$(SolutionDir)GraphicsEngine\;%(AdditionalIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnablePREfast>false</EnablePREfast>
+      <PreprocessorDefinitions>NOMINMAX;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\AANdr\Dropbox\Engine\Engine\Repo\GraphicsEngine\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -161,7 +162,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)GraphicsEngine\include;$(SolutionDir)GraphicsEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TESTGAME_BUILD;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -190,7 +191,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PhysicsThrowerComponent.cpp" />
-    <ClCompile Include="Source.cpp" />
     <ClCompile Include="TestGame.cpp" />
     <ClCompile Include="TGComp.cpp" />
     <ClCompile Include="TGExtraComponentRegister.cpp" />

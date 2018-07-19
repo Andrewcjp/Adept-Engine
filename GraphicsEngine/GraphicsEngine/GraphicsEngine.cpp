@@ -1,21 +1,17 @@
-// OGLWin32.cpp : Defines the entry point for the application.
-//
-
 #include "GraphicsEngine.h"
 #include "EngineGlobals.h"
-#if BUILD_WINDOW_ENGINE
+
 #include <stdio.h>
 #include <io.h>
 #include <strsafe.h>
 #include <fcntl.h>
 
-
+#include "../Core/MinWindows.h"
 #include "BaseApplication.h"
 #include <string>
 #include <iostream>
+
 #pragma comment (lib, "opengl32.lib")
-//#pragma comment (lib, "glu32.lib")
-//#pragma comment (lib, "glew32.lib")
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 
@@ -51,7 +47,8 @@ void ErrorExit(LPTSTR lpszFunction)
 	LocalFree(lpDisplayBuf);
 	ExitProcess(dw);
 }
-
+#include "../Core/Engine.h"
+#include "../Core/Platform/PlatformCore.h"
 int APIENTRY WinMain(HINSTANCE hInstance,
 	HINSTANCE ,
 	LPSTR    lpCmdLine,
@@ -70,13 +67,26 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	FILE* pf_out;
 	freopen_s(&pf_out, "CONOUT$", "w", stdout);
 	
+	Engine* engine = new Engine();
 
+	engine->PreInit();
+#if 0
 	//Create the application instance
 	BaseApplication* myapp = BaseApplication::CreateApplication(hInstance, lpCmdLine, nCmdShow);
 
 	exitcode = myapp->Run();
 
 	myapp->DestroyApplication();
+#else
+	PlatformWindow* myapp = PlatformWindow::CreateApplication(engine,hInstance, lpCmdLine, nCmdShow);
+
+	exitcode = myapp->Run();
+	engine->OnDestoryWindow();
+	myapp->DestroyApplication();
+#endif
+
+	engine->Destory();
+	delete engine;
 
 	fclose(pf_out);
 
@@ -88,4 +98,3 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	//getchar();
 	return exitcode;
 }
-#endif

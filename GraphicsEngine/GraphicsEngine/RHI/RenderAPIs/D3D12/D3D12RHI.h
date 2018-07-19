@@ -13,10 +13,14 @@
 #include "d3d12Shader.h"
 #include "D3D12Texture.h"
 #include "D3D12Helpers.h"
-
+#define TEST_RHI 1
 
 #define USEGPUTOGENMIPS_ATRUNTIME 0
-class D3D12RHI
+
+class D3D12RHI 
+#if TEST_RHI
+	: public RHIClass
+#endif
 {
 public:
 	static D3D12RHI* Instance;
@@ -39,7 +43,7 @@ public:
 	void InitMipmaps();
 	void InternalResizeSwapChain(int x, int y);
 	void ReleaseSwapRTs();
-	void ResizeSwapChain(int x, int y, bool Force = false);
+	
 	void CreateDepthStencil(int width, int height);
 	void LoadAssets();
 	void ToggleFullScreenState();
@@ -71,6 +75,22 @@ public:
 	static void CheckFeatures(ID3D12Device * pDevice);
 	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	void WaitForAllDevices();
+
+	void ResizeSwapChain(int x, int y);
+#if TEST_RHI
+	 bool InitRHI(int w, int h) override;
+	 bool DestoryRHI() override;
+	 BaseTexture* CreateTexture(DeviceContext* Device = nullptr) override;
+	 FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc) override;
+	 ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) override;
+	 RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;
+	 RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr) override;
+	 RHIUAV* CreateUAV(DeviceContext* Device = nullptr) override;
+	 RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr)override;
+
+	 void RHISwapBuffers() override;
+	 void RHIRunFirstFrame() override;
+#endif
 private:
 	class	DeviceContext* PrimaryDevice = nullptr;
 	class	DeviceContext* SecondaryDevice = nullptr;

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Cooker.h"
-#include "Core/Utils/WindowsHelper.h"
 #include <experimental/filesystem>
 #include "Core/Engine.h"
 #include "Core/Utils/FileUtils.h"
@@ -36,7 +35,7 @@ void Cooker::CopyToOutput()
 	Log::OutS  << "**********Cook Started**********" << Log::OutS;
 	if (!FileUtils::File_ExistsTest(GetTargetPath()))
 	{
-		(!FileUtils::TryCreateDirectory(GetTargetPath()));
+		(!PlatformApplication::TryCreateDirectory(GetTargetPath()));
 	}
 	std::string path = Engine::GetRootDir();
 	path.append("\\Release\\");
@@ -51,7 +50,7 @@ void Cooker::CopyToOutput()
 			SumSize += fs::file_size(p);
 			std::string out = GetTargetPath(true);
 			out.append(destpath);
-			WindowsHelpers::CopyFileToTarget(p.path().string(), out);
+			PlatformApplication::CopyFileToTarget(p.path().string(), out);
 		}
 	}
 	Log::OutS  << "Copied " << SumSize / 1e6 << "mb of Binaries to output" << Log::OutS;
@@ -92,7 +91,7 @@ bool Cooker::CopyAssetToOutput(std::string RelTarget)
 	}
 	std::string source = Engine::GetRootDir();
 	source.append(RelTarget);
-	if (!WindowsHelpers::CopyFileToTarget(source, Targetfile))
+	if (!PlatformApplication::CopyFileToTarget(source, Targetfile))
 	{
 		return false;
 	}

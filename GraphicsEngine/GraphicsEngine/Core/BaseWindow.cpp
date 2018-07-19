@@ -18,13 +18,13 @@
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "RHI/DeviceContext.h"
 #include <algorithm>
-#include "Core/Platform/WindowsApplication.h"
+#include "Core/Platform/PlatformCore.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
 	assert(Instance == nullptr);
 	Instance = this;
-	WindowsApplication::InitTiming();
+	PlatformApplication::InitTiming();
 	CurrentRenderSettings.RenderScale = 1;
 }
 
@@ -56,27 +56,9 @@ bool BaseWindow::ChangeDisplayMode(int width, int height)
 	return true;
 }
 
-bool BaseWindow::CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen)
+bool BaseWindow::CreateRenderWindow( int width, int height)
 {
-	//window manager class?
-	if (Fullscreen)
-	{
-		if (ChangeDisplayMode(width, height))
-		{
-			m_hwnd = CreateWindowEx(NULL,
-				L"RenderWindow", L"OGLWindow", WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-				0, 0, width, height, NULL, NULL, hInstance, NULL);
-		}
-	}
-	else
-	{
-		m_hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-			L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-			0, 0, width, height, NULL, NULL, hInstance, NULL);
-	}
-	m_hInstance = hInstance;
-	RHI::instance->m_hinst = hInstance;
-	RHI::InitialiseContext(m_hwnd, width, height);
+	RHI::InitialiseContext(width, height);
 	m_height = height;
 	m_width = width;
 	InitilseWindow();
@@ -102,7 +84,7 @@ void BaseWindow::InitilseWindow()
 	CurrentScene->LoadDefault();
 	Renderer->SetScene(CurrentScene);
 	UI = new UIManager(m_width, m_height);
-	input = new Input(m_hwnd);
+	input = new Input();
 	input->Cursor = CopyCursor(LoadCursor(NULL, IDC_ARROW));
 	input->Cursor = SetCursor(input->Cursor);
 
@@ -252,21 +234,21 @@ void BaseWindow::Render()
 		TargetDeltaTime = 1.0f / FrameRateLimit;
 		//in MS
 		const double WaitTime = std::max((TargetDeltaTime*1000.0) - (DeltaTime), 0.0);
-		double WaitEndTime = WindowsApplication::Seconds() + (WaitTime / 1000.0);
-		double LastTime = WindowsApplication::Seconds();
+		double WaitEndTime = PlatformApplication::Seconds() + (WaitTime / 1000.0);
+		double LastTime = PlatformApplication::Seconds();
 		if (WaitTime > 0)
 		{
 			if (WaitTime > 5 / 1000.0)
 			{
 				//little offset
-				WindowsApplication::Sleep(WaitTime);
+				PlatformApplication::Sleep(WaitTime);
 			}
 
-			while (WindowsApplication::Seconds() < WaitEndTime)
+			while (PlatformApplication::Seconds() < WaitEndTime)
 			{
-				WindowsApplication::Sleep(0);
+				PlatformApplication::Sleep(0);
 			}
-			DeltaTime = WindowsApplication::Seconds() - LastTime;
+			DeltaTime = PlatformApplication::Seconds() - LastTime;
 			PerfManager::SetDeltaTime(DeltaTime);
 		}
 	}
@@ -359,12 +341,11 @@ void BaseWindow::DestroyRenderWindow()
 	delete UI;	
 	delete Renderer;
 	delete CurrentScene;
-	RHI::DestoryContext(m_hwnd);
-	DestroyWindow(m_hwnd);
-	m_hwnd = NULL;
+	RHI::DestoryContext();
+
 }
 
-BOOL BaseWindow::MouseLBDown(int x, int y)
+bool BaseWindow::MouseLBDown(int x, int y)
 {
 	if (UI != nullptr)
 	{
@@ -373,7 +354,7 @@ BOOL BaseWindow::MouseLBDown(int x, int y)
 	return TRUE;
 }
 
-BOOL BaseWindow::MouseLBUp(int x, int y)
+bool BaseWindow::MouseLBUp(int x, int y)
 {
 	if (UI != nullptr)
 	{
@@ -382,7 +363,7 @@ BOOL BaseWindow::MouseLBUp(int x, int y)
 	return TRUE;
 }
 
-BOOL BaseWindow::MouseRBDown(int x, int y)
+bool BaseWindow::MouseRBDown(int x, int y)
 {
 	if (UI != nullptr)
 	{
@@ -399,7 +380,7 @@ BOOL BaseWindow::MouseRBDown(int x, int y)
 	return 0;
 }
 
-BOOL BaseWindow::MouseRBUp(int x, int y)
+bool BaseWindow::MouseRBUp(int x, int y)
 {
 	if (UI)
 	{
@@ -416,7 +397,7 @@ BOOL BaseWindow::MouseRBUp(int x, int y)
 	return 0;
 }
 
-BOOL BaseWindow::MouseMove(int x, int y)
+bool BaseWindow::MouseMove(int x, int y)
 {
 	input->MouseMove(x, y, DeltaTime);
 	if (UI != nullptr)
@@ -426,7 +407,7 @@ BOOL BaseWindow::MouseMove(int x, int y)
 	return TRUE;
 }
 
-BOOL BaseWindow::KeyDown(WPARAM key)
+bool BaseWindow::KeyDown(WPARAM key)
 {
 	if (UIManager::GetCurrentContext() != nullptr)
 	{

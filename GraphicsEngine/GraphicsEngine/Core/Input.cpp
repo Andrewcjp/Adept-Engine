@@ -11,14 +11,14 @@
 #include "Editor\EditorWindow.h"
 #include "Components\MeshRendererComponent.h"
 #include "UI/UIManager.h"
+#include "../Core/Platform/PlatformCore.h"
 Input* Input::instance = nullptr;
 HCURSOR Input::Cursor = NULL;
-Input::Input(HWND windowd)
+Input::Input()
 {
 	instance = this;
-	m_hwnd = windowd;
 	Layout = GetKeyboardLayout(0);
-
+	m_hwnd = PlatformWindow::GetHWND();
 }
 
 Input::~Input()
@@ -33,7 +33,7 @@ void Input::Clear()
 }
 void Input::ProcessInput(const float)
 {
-	IsActiveWindow = (m_hwnd == GetActiveWindow());
+	IsActiveWindow =  PlatformWindow::IsActiveWindow();
 	if (UIManager::GetCurrentContext() != nullptr)
 	{
 		return;//block input!

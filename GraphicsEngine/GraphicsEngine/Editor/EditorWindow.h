@@ -25,13 +25,13 @@ public:
 	void EnterPlayMode();
 	void ExitPlayMode();
 	virtual void DestroyRenderWindow() override final;
-	BOOL MouseLBDown(int x, int y) override;
+	bool MouseLBDown(int x, int y) override;
 	static EditorCore* GetEditorCore();
 protected:
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
 	void FixedUpdate() override;
-	void LoadScene();
+	void LoadScene(); 
 	void RefreshScene();
 	void ProcessMenu(WORD command) override;
 	void WindowUI() override;

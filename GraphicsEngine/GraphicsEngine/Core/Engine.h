@@ -1,8 +1,9 @@
 #pragma once
 #include "EngineGlobals.h"
-#include "Core/MinWindows.h"
+
 #include <string>
 #include "../Core/Platform/Logger.h"
+#include "../Core/Types/FString.h"
 class RenderWindow;
 class PhysicsEngine;
 class EditorWindow;
@@ -18,30 +19,32 @@ public:
 	static std::string GetRootDir();
 	Engine();
 	~Engine();
+	void PreInit();
+	void OnRender();
+	void OnDestoryWindow();
 	void Destory();
 	void LoadDLL();
-	void SetHInstWindow(HINSTANCE inst);
-	RenderWindow* GetWindow();
+	RenderWindow* GetRenderWindow();
 	ERenderSystemType GetCurrentSystem();
-	void CreateApplication(HINSTANCE hinst, LPSTR args, int nshow);
+	void CreateApplication();
 	static void RunCook();
 	void CreateApplicationWindow(int width, int height, ERenderSystemType type);
-	bool SwitchRenderAPI(ERenderSystemType type);
 	RenderWindow*				m_appwnd = nullptr;
 	static float StartTime;
 	static void SetGame(Game* game);
 	static Game* GetGame();
-	HWND mhwnd;
+	void ProcessCommandLineInput(class FString Text,int length);
+	int GetWidth();
+	int GetHeight();
+	void Resize(int width, int height);
 private:
 	ERenderSystemType ForcedRenderSystem = ERenderSystemType::Limit;
 	ERenderSystemType CurrentRenderSystem = ERenderSystemType::Limit;
-	HINSTANCE m_hInst;
+
 	int mwidth, mheight;
 	bool Deferredmode = false;
 	bool FullScreen = false;
 	bool ShouldRunCook = false;
-	HGLRC mhglrc;
-	HDC mhdc;
 	static Game* mgame;
 };
 

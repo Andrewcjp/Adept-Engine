@@ -6,9 +6,9 @@
 #include "D3D12CBV.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/StringUtil.h"
-#include "Core/Utils/WindowsHelper.h"
 #include "Core/Asserts.h"
 #include "RHI/DeviceContext.h"
+
 #include <d3dcompiler.h>
 #include "DxIncludeHandler.h"
 #include "Core/Assets/AssetManager.h"
@@ -181,7 +181,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		Log::OutS << Log << Log::OutS;
 		if (FAILED(hr))
 		{
-			WindowsHelpers::DisplayMessageBox("Shader Complie Error", Log);
+			PlatformApplication::DisplayMessageBox("Shader Complie Error", Log);
 			pErrorBlob->Release();
 #ifndef NDEBUG
 			__debugbreak();

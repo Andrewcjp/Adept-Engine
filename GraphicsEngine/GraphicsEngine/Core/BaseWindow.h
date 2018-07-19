@@ -9,16 +9,16 @@ class BaseWindow : public RenderWindow
 public:
 	BaseWindow();
 	virtual ~BaseWindow();
-	virtual bool CreateRenderWindow(HINSTANCE hInstance, int width, int height, bool Fullscreen = false) override final;
+	virtual bool CreateRenderWindow( int width, int height) override final;
 	virtual void Render() override final;
 	virtual void Resize(int width, int height) override final;
 	virtual void DestroyRenderWindow() override;
-	BOOL MouseLBDown(int x, int y) override;
-	BOOL MouseLBUp(int x, int y) override;
-	BOOL MouseRBDown(int x, int y) override;
-	BOOL MouseRBUp(int x, int y) override;
-	BOOL MouseMove(int x, int y) override final;
-	BOOL KeyDown(WPARAM key) override;
+	bool MouseLBDown(int x, int y) override;
+	bool MouseLBUp(int x, int y) override;
+	bool MouseRBDown(int x, int y) override;
+	bool MouseRBUp(int x, int y) override;
+	bool MouseMove(int x, int y) override final;
+	bool KeyDown(WPARAM key) override;
 	virtual void ProcessMenu(WORD command) override;
 
 	//getters
@@ -68,7 +68,6 @@ private:
 	void InitilseWindow();
 	static BaseWindow* Instance;
 	//basics
-	HINSTANCE m_hInstance;
 	int			m_width;
 	int			m_height;
 	//constants

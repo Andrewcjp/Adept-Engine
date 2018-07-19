@@ -10,7 +10,7 @@ public:
 	~Scene();
 	void UpdateScene(float deltatime);
 	void EditorUpdateScene();
-	void OnFrameEnd();
+	void OnFrameEnd(); 
 	void FixedUpdateScene(float deltatime);
 	CORE_API void AddGameobjectToScene(GameObject* gameobject);
 	void CopyScene(Scene * newscene);

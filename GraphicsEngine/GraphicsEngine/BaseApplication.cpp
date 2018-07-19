@@ -73,7 +73,7 @@ BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args,
 
 		s_oglapp->m_hInst = hinst;
 		s_oglapp->MyRegisterClass(hinst);
-		s_oglapp->m_engine->SetHInstWindow(hinst);
+	//	s_oglapp->m_engine->SetHInstWindow(hinst);
 		//Now create an OGLWindow for this application
 #if 0
 #pragma comment(lib, "TestGame.lib")
@@ -82,7 +82,7 @@ BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args,
 		s_oglapp->m_engine->LoadDLL();
 		//s_oglapp->m_engine->SetGame(new Game(CompoenentRegistry::GetInstance()));
 #endif
-		s_oglapp->m_engine->CreateApplication(hinst, args, nshow);
+		s_oglapp->m_engine->CreateApplication();
 		
 	}
 
@@ -90,7 +90,8 @@ BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args,
 }
 HWND BaseApplication::GetHWND()
 {
-	return s_oglapp->GetApplicationWindow()->GetHWND();
+	//return s_oglapp->GetApplicationWindow()->GetHWND();
+	return NULL;
 }
 void BaseApplication::DestroyApplication()
 {
@@ -176,7 +177,7 @@ void BaseApplication::AddMenus(HWND hwnd)
 
 inline RenderWindow * BaseApplication::GetApplicationWindow()
 {
-	return m_engine->GetWindow();
+	return m_engine->GetRenderWindow();
 }
 
 LRESULT CALLBACK BaseApplication::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -205,9 +206,9 @@ LRESULT CALLBACK BaseApplication::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LP
 			SendMessage(hwnd, WM_CLOSE, 0, 0);
 			break;
 		default:
-			if (s_oglapp->m_engine->GetWindow())
+			if (s_oglapp->m_engine->GetRenderWindow())
 			{
-				s_oglapp->m_engine->GetWindow()->ProcessMenu(LOWORD(wparam));
+				s_oglapp->m_engine->GetRenderWindow()->ProcessMenu(LOWORD(wparam));
 			}
 		}
 		break;

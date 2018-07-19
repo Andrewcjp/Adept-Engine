@@ -11,9 +11,10 @@ public:
 	virtual void ShutdownModule()
 	{}
 };
-
+ 
 #define IMPLEMENT_MODULE( ModuleImplClass) \
 extern "C" DLLEXPORT IModuleInterface* InitializeModule() \
 { \
 	return new ModuleImplClass(); \
 } 
+

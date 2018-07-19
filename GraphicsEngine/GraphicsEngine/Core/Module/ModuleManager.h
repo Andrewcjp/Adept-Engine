@@ -13,6 +13,7 @@ namespace ModuleLoadStatus
 		Status_LoadFailed
 	};
 };
+typedef IModuleInterface* (*FInitializeModuleFunctionPtr)(void);
 class ModuleManager
 {
 public:
@@ -20,7 +21,7 @@ public:
 	ModuleManager();
 	~ModuleManager();
 	void ShutDown();
-	void * GetDllHandle(LPCWSTR Name);
+	
 	template<class T>
 	T* GetModule(FString Name)
 	{
@@ -37,24 +38,46 @@ public:
 		}
 		return (T*)LoadModule(Name);
 	}
+	std::map<std::string, FInitializeModuleFunctionPtr> StaticModulePtrs;
+	void PreLoadModules();
 private:
 	std::vector<FString> ModulesNames;
 	void SetupPreLoadModules();
-	void PreLoadModules();
+	
 	void UnloadModule(FString name);	
 	static ModuleManager* Instance;
 	IModuleInterface * LoadModule(FString Name);
-	void * GetDllExport(void * DllHandle, const CHAR * ProcName);
-	void FreeDllHandle(void * DllHandle);
 	struct ModuleInfo
 	{
 		void* Handle = nullptr;
 		FString Name;
 		IModuleInterface* Module = nullptr;
 		ModuleLoadStatus::Type ModuleStatus = ModuleLoadStatus::Status_UnLoaded;
+#ifdef NDEBUG
+		bool IsDynamic = false;
+#else
+		bool IsDynamic = true;
+#endif
+		
 	};
 	std::map<std::string, ModuleInfo> Modules;
-	ModuleInfo TestModule;
-};
 
-typedef IModuleInterface* (*FInitializeModuleFunctionPtr)(void);
+};
+#if 1
+template<class ModuleClass>
+class StaticModuleReg
+{
+public:
+	StaticModuleReg(const char* name)
+	{
+		//__debugbreak();
+		ModuleManager::Get()->StaticModulePtrs.emplace(name, &StaticInitializeModule());
+	}
+	IModuleInterface* StaticInitializeModule()
+	{
+		return new ModuleClass();
+	}
+};
+#define IMPLEMENT_MODULE_STATIC( ModuleImplClass) static FStaticallyLinkedModuleRegistrant< ModuleImplClass > ModuleRegistrant##ModuleImplClass( #ModuleImplClass ); 
+
+#endif

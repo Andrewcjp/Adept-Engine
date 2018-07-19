@@ -3,7 +3,7 @@
 #include <vector>
 #include "../Core/Platform/Logger.h"
 #include "StringUtil.h"
-
+#include "../Core/Platform/PlatformCore.h"
 bool FileUtils::File_ExistsTest(const std::string & name,bool Silent)
 {
 	struct stat buffer;
@@ -18,25 +18,6 @@ bool FileUtils::File_ExistsTest(const std::string & name,bool Silent)
 	return false;
 }
  
-bool FileUtils::TryCreateDirectory(const std::string & name)
-{
-	DWORD LastError;
-	if (CreateDirectory(StringUtils::ConvertStringToWide(name).c_str(), NULL))
-	{
-		return true;
-	}
-	else
-	{
-		LastError = GetLastError();
-		HRESULT hr = HRESULT_FROM_WIN32(LastError);
-		if (LastError == ERROR_ALREADY_EXISTS)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 bool FileUtils::CreateDirectoryFromFullPath(std::string root, std::string Path, bool RelativeToRoot)
 {
 	if (!RelativeToRoot)
@@ -54,7 +35,7 @@ bool FileUtils::CreateDirectoryFromFullPath(std::string root, std::string Path, 
 		FirstPath += "\\" + split[i];
 		if (!FileUtils::File_ExistsTest(FirstPath))
 		{
-			if (!FileUtils::TryCreateDirectory(FirstPath))
+			if (!PlatformApplication::TryCreateDirectory(FirstPath))
 			{
 				return false;
 			}

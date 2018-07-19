@@ -24,13 +24,12 @@ class BaseApplication
 		virtual						~BaseApplication();		
 		BOOL						MyRegisterClass(HINSTANCE hinst);
 		int mwidth, mheight;
-	
-	public:
-
 		HINSTANCE					m_hInst;
+	public:
+		
 		bool						isWindowVaild = false;
 		static BaseApplication*		CreateApplication(HINSTANCE hInst, LPSTR args, int nshow);
-		static HWND GetHWND();
+		static HWND					GetHWND();
 		static void					DestroyApplication();
 		static BaseApplication*		GetApplication();
 

@@ -19,7 +19,7 @@
 #include <d3d12.h>
 #include "Core/Utils/FileUtils.h"
 #include "RHI/DeviceContext.h"
-#include "Core/Platform/WindowsApplication.h"
+#include "Core/Platform/PlatformCore.h"
 void AssetManager::LoadFromShaderDir()
 {
 	std::string path = ShaderAssetPath;
@@ -174,7 +174,7 @@ AssetManager::AssetManager()
 	TextureAssetPath = path;
 	TextureAssetPath.append("texture\\");
 	LoadFromShaderDir();
-	FileUtils::TryCreateDirectory(GetDDCPath());
+	PlatformApplication::TryCreateDirectory(GetDDCPath());
 #if BUILD_PACKAGE
 	if (PreLoadTextShaders)
 	{
@@ -339,7 +339,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectL
 		Args.append(" BC1_UNORM ");
 		Args.append('"' + Fileref.GetFullPathToAsset()+ '"' + " ");
 		Args.append(GetDDCPath());
-		WindowsApplication::ExecuteHostScript(GetTextureGenScript(), Args);
+		PlatformApplication::ExecuteHostScript(GetTextureGenScript(), Args);
 		if (FileUtils::File_ExistsTest(Engine::GetRootDir() +  DDCRelFilepath))
 		{
 			return RHI::CreateTexture(DDCRelFilepath, Device);

@@ -10,6 +10,28 @@
 #include "RHI/RHI.h"
 #include "D3D12TimeManager.h"
 #include <dxgidebug.h>
+#include "../Core/Platform/PlatformCore.h"
+#include "RHI/BaseTexture.h"
+#include "Rendering/Core/Renderable.h"
+#include "Rendering/Core/Mesh.h"
+#include "RHI/ShaderBase.h"
+#include "RHI/ShaderProgramBase.h"
+#include "RHI/RHICommandList.h"
+#include "Core/Performance/PerfManager.h"
+#include "Core/Assets/AssetManager.h"
+#include "Rendering/Core/Mesh.h"
+#include "Rendering/Core/GPUStateCache.h"
+#include "Core/Engine.h"
+
+#include "Core/Assets/ImageIO.h"
+
+#if 1
+#include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Shader.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#endif
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 	:m_fenceValues{}
@@ -21,7 +43,9 @@ D3D12RHI::~D3D12RHI()
 {}
 
 void D3D12RHI::InitContext()
-{}
+{
+
+}
 
 void D3D12RHI::DestroyContext()
 {
@@ -127,7 +151,7 @@ void D3D12RHI::WaitForAllDevices()
 
 void D3D12RHI::DisplayDeviceDebug()
 {
-	Log::OutS  << "Primary Adaptor Has " << GetMemory() << Log::OutS;
+	Log::OutS << "Primary Adaptor Has " << GetMemory() << Log::OutS;
 }
 
 std::string D3D12RHI::GetMemory()
@@ -195,7 +219,7 @@ void D3D12RHI::LoadPipeLine()
 
 	}
 #if RUNDEBUG
-	ID3D12InfoQueue* infoqueue[MAX_DEVICE_COUNT] = {nullptr};
+	ID3D12InfoQueue* infoqueue[MAX_DEVICE_COUNT] = { nullptr };
 	PrimaryDevice->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[0]));
 	if (SecondaryDevice != nullptr)
 	{
@@ -226,7 +250,7 @@ void D3D12RHI::LoadPipeLine()
 	IDXGISwapChain1* swapChain;
 	ThrowIfFailed(factory->CreateSwapChainForHwnd(
 		GetCommandQueue(),		// Swap chain needs the queue so that it can force a flush on it.
-		BaseApplication::GetHWND(),
+		PlatformWindow::GetHWND(),
 		&swapChainDesc,
 		nullptr,
 		nullptr,
@@ -235,10 +259,10 @@ void D3D12RHI::LoadPipeLine()
 	m_swapChain = (IDXGISwapChain3*)swapChain;
 
 	// This sample does not support fullscreen transitions.
-	ThrowIfFailed(factory->MakeWindowAssociation(BaseApplication::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
+	ThrowIfFailed(factory->MakeWindowAssociation(PlatformWindow::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
 
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-	m_swapChain->SetFullscreenState(IsFullScreen,nullptr);
+	m_swapChain->SetFullscreenState(IsFullScreen, nullptr);
 	//m_swapChain->ResizeBuffers()
 	//InternalResizeSwapChain();
 	// Create descriptor heaps.
@@ -325,7 +349,7 @@ void D3D12RHI::ReleaseSwapRTs()
 	m_depthStencil->Release();
 }
 
-void D3D12RHI::ResizeSwapChain(int x, int y, bool Force)
+void D3D12RHI::ResizeSwapChain(int x, int y)
 {
 	if (x == 0 || y == 0)
 	{
@@ -337,11 +361,10 @@ void D3D12RHI::ResizeSwapChain(int x, int y, bool Force)
 		newwidth = x;
 		newheight = y;
 	}
-	if (Force)
-	{
-		PrimaryDevice->WaitForGpu();
-		InternalResizeSwapChain(x, y);
-	}
+
+	PrimaryDevice->WaitForGpu();
+	InternalResizeSwapChain(x, y);
+
 }
 
 void D3D12RHI::CreateDepthStencil(int width, int height)
@@ -448,7 +471,7 @@ void D3D12RHI::PresentFrame()
 	if (m_BudgetNotificationCookie == 1)
 	{
 		DisplayDeviceDebug();
-		Log::OutS  << "Memory Budget Changed" << Log::OutS;
+		Log::OutS << "Memory Budget Changed" << Log::OutS;
 	}
 #if USEGPUTOGENMIPS_ATRUNTIME
 	if (count == 1)
@@ -719,3 +742,87 @@ void GetHardwareAdapter(IDXGIFactory2 * pFactory, IDXGIAdapter1 ** ppAdapter)
 
 	*ppAdapter = adapter;
 }
+#if TEST_RHI
+RHIBuffer * D3D12RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device)
+{
+	return new D3D12Buffer(type, Device);
+}
+
+RHIUAV * D3D12RHI::CreateUAV(DeviceContext * Device)
+{
+	return new D3D12RHIUAV(Device);
+}
+
+RHICommandList * D3D12RHI::CreateCommandList(ECommandListType::Type Type, DeviceContext * Device)
+{
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
+	return new D3D12CommandList(Device, Type);
+}
+BaseTexture * D3D12RHI::CreateTexture(DeviceContext* Device)
+{
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
+	return new D3D12Texture(Device);
+}
+
+
+FrameBuffer * D3D12RHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc & Desc)
+{
+
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
+	return new D3D12FrameBuffer(Device, Desc);
+}
+
+ShaderProgramBase * D3D12RHI::CreateShaderProgam(DeviceContext* Device)
+{
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
+	return new D3D12Shader(Device);
+}
+
+bool D3D12RHI::InitRHI(int w, int h)
+{
+	m_height = w;
+	m_width = h;
+	m_aspectRatio = static_cast<float>(w) / static_cast<float>(h);
+	LoadPipeLine();
+	LoadAssets();
+
+	return false;
+}
+
+bool D3D12RHI::DestoryRHI()
+{
+	DestroyContext();
+	return false;
+}
+
+void D3D12RHI::RHISwapBuffers()
+{
+	PresentFrame();
+}
+
+void D3D12RHI::RHIRunFirstFrame()
+{
+	ExecSetUpList();
+}
+
+RHITextureArray * D3D12RHI::CreateTextureArray(DeviceContext* Device, int Length)
+{
+	if (Device == nullptr)
+	{
+		Device = D3D12RHI::GetDefaultDevice();
+	}
+	return new D3D12RHITextureArray(Device, Length);;
+}
+#endif

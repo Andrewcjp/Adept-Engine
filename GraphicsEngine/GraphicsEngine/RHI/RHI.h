@@ -17,6 +17,8 @@ class DeviceContext;
 const int MAX_POINT_SHADOWS = 3;
 const int MAX_DIRECTIONAL_SHADOWS = 1;
 const int MAX_DEVICE_COUNT = 2;
+#define RHI_API DLLEXPORT
+#define RHI_USE_MODULE 0
 class RHI
 {
 public:
@@ -32,40 +34,61 @@ public:
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
 	CORE_API static BaseTexture* CreateTexture(AssetManager::AssetPathRef, DeviceContext* Device = nullptr);
-	CORE_API static BaseTexture* CreateTextureWithData(int with, int height,int nChannels, void * data, DeviceContext* Device = nullptr);
-	CORE_API static BaseTexture* CreateNullTexture( DeviceContext* Device = nullptr);
+	CORE_API static BaseTexture* CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device = nullptr);
+	CORE_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
 	CORE_API static Renderable * CreateMesh(const char * path);
 	CORE_API static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
 	static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
 	static DeviceContext * GetDeviceContext(int index);
 	static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
-	static bool InitialiseContext(HWND m_hwnd, int w, int h);
+	static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
+	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
+	static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
+	static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
+
+
+	static bool InitialiseContext( int w, int h);
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
 	static void ToggleFullScreenState();
 	static void ResizeSwapChain(int width, int height);
-	static void DestoryContext(HWND hwnd);
-	static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
-	static ERenderSystemType GetType();
-	static bool IsOpenGL();
-	static bool IsD3D12();
-	static bool SupportsThreading();
-	static bool SupportsExplictMultiAdaptor();
-	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
-	static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
-	static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics,DeviceContext* Device = nullptr);
-	HINSTANCE m_hinst;
+	static void DestoryContext();
+
+	static const MultiGPUMode* GetMGPUMode();
 	static bool BlockCommandlistExec();
 	static bool AllowCPUAhead();
 	static int GetDeviceCount();
 	static bool UseAdditonalGPUs();
-	static const MultiGPUMode* GetMGPUMode();
-private: 
+	static bool IsD3D12();
+	static bool SupportsThreading();
+	static bool SupportsExplictMultiAdaptor();
+	static ERenderSystemType GetType();
+private:
 	ERenderSystemType CurrentSystem;
 	static MultiGPUMode CurrentMGPUMode;
 	//------------------------------------
 	class D3D12RHI* D3D12Rhi = nullptr;
 	class VKanRHI* VulkanRHI = nullptr;
-	
+	class RHIClass* CurrentRHI = nullptr;
+
 };
 
+class RHI_API RHIClass
+{
+public:
+	virtual bool InitRHI(int w, int h) = 0;
+	virtual bool DestoryRHI() = 0;
+	virtual BaseTexture* CreateTexture(DeviceContext* Device = nullptr) = 0;
+	virtual FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc) = 0;
+//	virtual DeviceContext * GetDeviceContext(int index) = 0;
+	virtual ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
+	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;
+	virtual RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr) = 0;
+	virtual RHIUAV* CreateUAV(DeviceContext* Device = nullptr) = 0;
+	virtual RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr) = 0;
+
+	virtual void RHISwapBuffers() = 0;
+	virtual void RHIRunFirstFrame() = 0;
+	virtual void ToggleFullScreenState() = 0;
+	virtual void ResizeSwapChain(int width, int height) = 0;
+};

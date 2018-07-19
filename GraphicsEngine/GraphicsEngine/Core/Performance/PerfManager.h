@@ -3,6 +3,8 @@
 #define BUILD_WITH_NVPERFKIT 0
 #include <iomanip>
 #include <time.h>
+#include <vector>
+
 #include "EngineGlobals.h"
 #include "Core/Utils/MovingAverage.h"
 #define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter CYCLECOUNTER(name);

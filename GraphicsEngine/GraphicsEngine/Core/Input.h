@@ -4,6 +4,7 @@
 #include <queue>
 #include <map>
 #include "EngineGlobals.h"
+#include "../Core/MinWindows.h"
 class Shader_Main;
 class ShaderOutput;
 class OGLWindow;
@@ -18,7 +19,7 @@ class Input
 {
 public:
 	static Input* instance;
-	Input(HWND window);
+	Input();
 	~Input();
 
 	void Clear();

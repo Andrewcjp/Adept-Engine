@@ -32,7 +32,7 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 	rpath.append("\\asset\\DerivedDataCache\\");
 	if (!FileUtils::File_ExistsTest(rpath))
 	{
-		FileUtils::TryCreateDirectory(rpath);
+		PlatformApplication::TryCreateDirectory(rpath);
 	}
 	//todo Proper DDC
 	StringUtils::RemoveChar(TextureName, "\\asset\\texture\\");

@@ -1,5 +1,6 @@
 #pragma once
 #include "Core\Components\Component.h"
+//#pragma comment(lib, "GraphicsEngine.lib")
 class TGComp :public Component
 {
 public:

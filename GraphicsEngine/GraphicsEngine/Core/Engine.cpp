@@ -13,7 +13,6 @@
 #include "Shlwapi.h"
 #include "Packaging/Cooker.h"
 #include "Core/Utils/FileUtils.h"
-#include "Core/Utils/WindowsHelper.h"
 #include "Core/Types/FString.h"
 #pragma comment(lib, "shlwapi.lib")
 float Engine::StartTime = 0;
@@ -42,14 +41,14 @@ std::string Engine::GetRootDir()
 Engine::Engine()
 {
 	StartTime = (float)PerfManager::get_nanos();
-	Log::OutS << "Starting In " << GetRootDir()<<Log::OutS;
+	Log::OutS << "Starting In " << GetRootDir() << Log::OutS;
 	Log::OutS << "Loading Engine v0.1" << Log::OutS;
 #if BUILD_PACKAGE
 	std::string assetpath = GetRootDir();
 	assetpath.append("\\asset\\");
 	if (!FileUtils::File_ExistsTest(assetpath))
 	{
-		WindowsHelpers::DisplayMessageBox("Error", " Asset Folder Not Found ");
+		PlatformApplication::DisplayMessageBox("Error", " Asset Folder Not Found ");
 		exit(-1);
 	}
 #endif
@@ -57,7 +56,7 @@ Engine::Engine()
 	PhysEngine = new PhysicsEngine();
 #else
 	PhysEngine = new PhysicsEngine();
-	Log::OutS  << "WARNING: Physx Disabled" << Log::OutS;
+	Log::OutS << "WARNING: Physx Disabled" << Log::OutS;
 #endif
 	if (PhysEngine != nullptr)
 	{
@@ -66,11 +65,29 @@ Engine::Engine()
 	AssetManager::StartAssetManager();
 	CompRegistry = new CompoenentRegistry();
 	FString::RunFStringTests();
+	ModuleManager::Get()->PreLoadModules();
 }
 
 Engine::~Engine()
 {
-	Destory();
+	
+}
+void Engine::PreInit()
+{
+	PerfManager::StartPerfManager();
+
+}
+void Engine::OnRender()
+{
+	if (m_appwnd != nullptr)
+	{
+		m_appwnd->Render();
+	}
+}
+
+void Engine::OnDestoryWindow()
+{
+
 }
 
 void Engine::Destory()
@@ -79,20 +96,21 @@ void Engine::Destory()
 	ModuleManager::Get()->ShutDown();
 }
 
-void Engine::LoadDLL()                                        
+void Engine::LoadDLL()
 {
+
 	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>("TestGame");
+	//ensure(Gamemodule);
+	if (Gamemodule == nullptr)
+	{
+		return;
+	}
 	Game* gm = Gamemodule->GetGamePtr(CompRegistry);
-	ensure(gm);
+	//	ensure(gm);
 	SetGame(gm);
 }
 
-void Engine::SetHInstWindow(HINSTANCE inst)
-{
-	m_hInst = inst;
-}
-
-RenderWindow * Engine::GetWindow()
+RenderWindow * Engine::GetRenderWindow()
 {
 	return m_appwnd;
 }
@@ -102,51 +120,9 @@ ERenderSystemType Engine::GetCurrentSystem()
 	return CurrentRenderSystem;
 }
 
-void Engine::CreateApplication(HINSTANCE, LPSTR args, int nCmdShow)
+void Engine::CreateApplication()
 {
-	if (nCmdShow > 0)
-	{
-		std::string input = args;
-		if (input.compare("-deferred") == 0)
-		{
-			Log::OutS  << "Starting in Deferred Rendering mode" << Log::OutS;
-			Deferredmode = true;
-		}
-		if (input.compare("-fullscreen") == 0)
-		{
-			FullScreen = true;
-		}
-		if (input.compare("-cook") == 0)
-		{
-			Log::OutS  << "Starting Cook" << Log::OutS;
-			ShouldRunCook = true;
-		}
-		else if (input.compare("-dx12") == 0)
-		{
-			ForcedRenderSystem = RenderSystemD3D12;
-			Log::OutS  << "Forcing RenderSystem D3D12" << Log::OutS;
-		}
-		else if (input.compare("-vk") == 0)
-		{
-			ForcedRenderSystem = RenderSystemVulkan;
-			Log::OutS  << "Forcing RenderSystem Vulkan" << Log::OutS;
-		}
-	}
-
-	if (ShouldRunCook)
-	{
-		RunCook();
-		exit(0);//todo: proper exit
-	}
-	PerfManager::StartPerfManager();
-	if (FullScreen)
-	{
-		CreateApplicationWindow(1920, 1080, ERenderSystemType::RenderSystemOGL);
-	}
-	else
-	{
-		CreateApplicationWindow(1280, 720, ERenderSystemType::RenderSystemOGL);
-	}
+	CreateApplicationWindow(GetWidth(), GetHeight(), ERenderSystemType::RenderSystemOGL);
 }
 
 void Engine::RunCook()
@@ -166,6 +142,63 @@ void Engine::SetGame(Game * game)
 Game * Engine::GetGame()
 {
 	return mgame;
+}
+
+void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
+{
+	mwidth = 1280;
+	mheight = 720;
+	if (nCmdShow > 0)
+	{
+		std::string input = args.ToSString();
+		if (input.compare("-deferred") == 0)
+		{
+			Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
+			Deferredmode = true;
+		}
+		if (input.compare("-fullscreen") == 0)
+		{
+			FullScreen = true;
+		}
+		if (input.compare("-cook") == 0)
+		{
+			Log::OutS << "Starting Cook" << Log::OutS;
+			ShouldRunCook = true;
+		}
+		else if (input.compare("-dx12") == 0)
+		{
+			ForcedRenderSystem = RenderSystemD3D12;
+			Log::OutS << "Forcing RenderSystem D3D12" << Log::OutS;
+		}
+		else if (input.compare("-vk") == 0)
+		{
+			ForcedRenderSystem = RenderSystemVulkan;
+			Log::OutS << "Forcing RenderSystem Vulkan" << Log::OutS;
+		}
+	}
+
+	if (ShouldRunCook)
+	{
+		RunCook();
+		exit(0);//todo: proper exit
+	}
+
+}
+
+int Engine::GetWidth()
+{
+	return mwidth;
+}
+
+int Engine::GetHeight()
+{
+	return mheight;
+}
+
+void Engine::Resize(int width, int height)
+{
+	mwidth = width;
+	mheight = height;
 }
 
 void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType type)
@@ -198,29 +231,12 @@ void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType ty
 #else 
 		m_appwnd = new GameWindow(/*Deferredmode*/);
 #endif 
-		isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
+		isWindowVaild = m_appwnd->CreateRenderWindow( width, height);
 
 		if (!isWindowVaild)
 		{
-			Log::OutS  << "Fatal Error: Window Invalid" << Log::OutS;
+			Log::OutS << "Fatal Error: Window Invalid" << Log::OutS;
 		}
-#if !NO_GEN_CONTEXT
-		m_appwnd->SetVisible(TRUE);
-#endif
 	}
 }
 
-bool Engine::SwitchRenderAPI(ERenderSystemType type)
-{
-	if (type == CurrentRenderSystem)
-	{
-		return false;
-	}
-	isWindowVaild = false;
-	m_appwnd->DestroyRenderWindow();
-	delete m_appwnd;
-	m_appwnd = nullptr;
-	RHI::InitRHI(type);
-	CreateApplicationWindow(mwidth, mheight, type);
-	return true;
-}

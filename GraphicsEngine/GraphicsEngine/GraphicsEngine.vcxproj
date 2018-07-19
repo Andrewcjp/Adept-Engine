@@ -304,7 +304,9 @@
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
     <ClInclude Include="Core\MinWindows.h" />
-    <ClInclude Include="Core\Platform\GenericApplication.h" />
+    <ClInclude Include="Core\Platform\Generic\GenericApplication.h" />
+    <ClInclude Include="Core\Platform\Generic\GenericWindow.h" />
+    <ClInclude Include="Core\Platform\PlatformCore.h" />
     <ClInclude Include="Editor\EditorCore.h" />
     <ClInclude Include="Core\Components\Utillity\FreeLookComponent.h" />
     <ClInclude Include="Core\Types\FString.h" />
@@ -340,7 +342,6 @@
     <ClInclude Include="Core\Assets\SerialHelpers.h" />
     <ClInclude Include="Core\Components\ColliderComponent.h" />
     <ClInclude Include="Core\Components\CompoenentRegistry.h" />
-    <ClInclude Include="Core\Utils\WindowsHelper.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12Helpers.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12Plane.h" />
     <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12CBV.h" />
@@ -447,12 +448,13 @@
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanRHI.h" />
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanShader.h" />
     <ClInclude Include="RHI\RenderAPIs\Vulkan\VKanTexture.h" />
-    <ClInclude Include="Core\Platform\WindowsApplication.h" />
+    <ClInclude Include="Core\Platform\Windows\WindowsApplication.h" />
+    <ClInclude Include="Core\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="Core\Platform\Windows\WindowPlatformMisc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
     <ClCompile Include="Core\Module\ModuleInterface.h" />
-    <ClCompile Include="Core\Platform\GenericApplication.cpp" />
     <ClCompile Include="Editor\EditorCore.cpp" />
     <ClCompile Include="Core\Components\Utillity\FreeLookComponent.cpp" />
     <ClCompile Include="Core\Types\FString.cpp" />
@@ -490,7 +492,6 @@
     <ClCompile Include="Core\Components\MeshRendererComponent.cpp" />
     <ClCompile Include="Core\Transform.cpp" />
     <ClCompile Include="Core\Utils\FileUtils.cpp" />
-    <ClCompile Include="Core\Utils\WindowsHelper.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12Helpers.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12Plane.cpp" />
     <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12CBV.cpp" />
@@ -584,7 +585,9 @@
     <ClCompile Include="RHI\RenderAPIs\Vulkan\VKanRHI.cpp" />
     <ClCompile Include="RHI\RenderAPIs\Vulkan\VKanShader.cpp" />
     <ClCompile Include="RHI\RenderAPIs\Vulkan\VKanTexture.cpp" />
-    <ClCompile Include="Core\Platform\WindowsApplication.cpp" />
+    <ClCompile Include="Core\Platform\Windows\WindowsApplication.cpp" />
+    <ClCompile Include="Core\Platform\Windows\WindowsWindow.cpp" />
+    <ClCompile Include="Core\Platform\Windows\WindowPlatformMisc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="GraphicsEngine.ico" />

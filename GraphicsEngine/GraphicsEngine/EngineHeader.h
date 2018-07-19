@@ -15,3 +15,4 @@
 #include "Core\Assets\Scene.h"
 #include "Rendering\Core\Camera.h"
 #include "Core/Module/ModuleInterface.h"
+#include "Core/Module/ModuleManager.h"

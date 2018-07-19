@@ -1,6 +1,6 @@
 #pragma once
 #define PHYSX_ENABLED 1
-#define BUILD_WINDOW_ENGINE 1
+#define BUILD_WINDOW_ENGINE 0
 #define NO_GEN_CONTEXT 0
 
 #define BUILD_D3D11 0
@@ -44,7 +44,7 @@ void UNUSED_PARAM(T const&)
 #define DLLEXPORT __declspec(dllexport)
 #define DLLIMPORT __declspec(dllimport)
 //Asserts
-
+#define PLATFORM_WINDOWS 1
 /*
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "glew32.lib")

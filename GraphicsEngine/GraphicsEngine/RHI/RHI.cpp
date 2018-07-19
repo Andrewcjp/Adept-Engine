@@ -50,10 +50,6 @@ ERenderSystemType RHI::GetType()
 	return instance->CurrentSystem;
 }
 
-bool RHI::IsOpenGL()
-{
-	return (GetType() == RenderSystemOGL);
-}
 
 bool RHI::IsD3D12()
 {
@@ -296,12 +292,8 @@ ShaderProgramBase * RHI::CreateShaderProgam(DeviceContext* Device)
 	return nullptr;
 }
 
-bool RHI::InitialiseContext(HWND m_hwnd, int w, int h)
+bool RHI::InitialiseContext( int w, int h)
 {
-	if (!m_hwnd)
-	{
-		return false;
-	}
 	switch (instance->CurrentSystem)
 	{
 #if BUILD_D3D12
@@ -364,16 +356,15 @@ void RHI::ResizeSwapChain(int width, int height)
 	switch (instance->CurrentSystem)
 	{
 	case RenderSystemD3D12:
-		D3D12RHI::Instance->ResizeSwapChain(width, height, true);
+		D3D12RHI::Instance->ResizeSwapChain(width, height);
 		break;
 	}	
 }
 
-void RHI::DestoryContext(HWND hwnd)
+void RHI::DestoryContext()
 {
 	switch (instance->CurrentSystem)
 	{
-
 	case RenderSystemD3D12:
 		instance->D3D12Rhi->DestroyContext();
 		break;
