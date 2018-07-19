@@ -30,8 +30,27 @@
 
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
-RHI::RHI()
-{}
+RHI::RHI(ERenderSystemType system)
+{
+	CurrentSystem = system;
+	switch (CurrentSystem)
+	{
+#if BUILD_D3D12
+	case ERenderSystemType::RenderSystemD3D12:
+			CurrentRHI = new D3D12RHI();
+			break;
+#endif
+#if BUILD_VULKAN
+	case ERenderSystemType::RenderSystemVulkan:
+		CurrentRHI = new VKanRHI();
+		break;
+#endif
+	default:
+		ensureMsgf(false, "Selected RHI not Avalable");
+		break;
+	}
+	
+}
 
 RHI::~RHI()
 {}
@@ -40,14 +59,27 @@ void RHI::InitRHI(ERenderSystemType e)
 {
 	if (instance == nullptr)
 	{
-		instance = new RHI();
+		instance = new RHI(e);
 	}
-	instance->CurrentSystem = e;
 }
 
 ERenderSystemType RHI::GetType()
 {
 	return instance->CurrentSystem;
+}
+
+RHIClass * RHI::GetRHIClass()
+{
+	if (instance != nullptr)
+	{
+		return instance->CurrentRHI;
+	}
+	return nullptr;
+}
+
+void RHI::WaitForGPU()
+{
+	GetRHIClass()->WaitForGPU();
 }
 
 
@@ -68,60 +100,22 @@ bool RHI::SupportsExplictMultiAdaptor()
 
 RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device)
 {
-	switch (instance->CurrentSystem)
-	{
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		return new D3D12Buffer(type, Device);
-		break;
-#endif
-#if BUILD_VULKAN
-	case RenderSystemVulkan:
-		return new VKanBuffer(type);
-		break;
-#endif
-	}
-	return nullptr;
+	return	GetRHIClass()->CreateRHIBuffer(type, Device);
 }
 
 RHIUAV * RHI::CreateUAV(DeviceContext * Device)
 {
-	switch (instance->CurrentSystem)
-	{
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		return new D3D12RHIUAV(Device);
-		break;
-#endif
-#if BUILD_VULKAN
-	case RenderSystemVulkan:
-		return new VKanBuffer(type);
-		break;
-#endif
-	}
-	return nullptr;
+	
+	return GetRHIClass()->CreateUAV(Device);;
 }
 
 RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceContext * Device)
 {
 	if (Device == nullptr)
 	{
-		Device = D3D12RHI::GetDefaultDevice();
-	}
-	switch (instance->CurrentSystem)
-	{
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		return new D3D12CommandList(Device, Type);
-		break;
-#endif
-#if BUILD_VULKAN
-	case RenderSystemVulkan:
-		return new VKanCommandlist();
-		break;
-#endif
-	}
-	return nullptr;
+		Device = RHI::GetDefaultDevice();
+	}	
+	return GetRHIClass()->CreateCommandList(Type, Device);;
 }
 
 bool RHI::BlockCommandlistExec()
@@ -170,7 +164,7 @@ BaseTexture * RHI::CreateTexture(AssetManager::AssetPathRef path, DeviceContext*
 {
 	if (Device == nullptr)
 	{
-		Device = D3D12RHI::GetDefaultDevice();
+		Device = RHI::GetDefaultDevice();
 	}
 #if NOLOADTEX
 	//TODO: Default Cube Map!
@@ -184,14 +178,7 @@ BaseTexture * RHI::CreateTexture(AssetManager::AssetPathRef path, DeviceContext*
 	{
 		return newtex;
 	}
-	switch (instance->CurrentSystem)
-	{
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		newtex = new D3D12Texture(Device);
-		break;
-#endif
-	}
+	newtex = GetRHIClass()->CreateTexture(Device);
 	if (!newtex->CreateFromFile(path))
 	{
 		return ImageIO::GetDefaultTexture();
@@ -202,32 +189,17 @@ BaseTexture * RHI::CreateTexture(AssetManager::AssetPathRef path, DeviceContext*
 
 BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device)
 {
-	BaseTexture* newtex = nullptr;
-	switch (instance->CurrentSystem)
-	{
-	case RenderSystemD3D12:
-		newtex = new D3D12Texture(Device);
-		break;
-	}
-	return newtex;
+	return GetRHIClass()->CreateTexture(Device);
 }
 
 BaseTexture * RHI::CreateNullTexture(DeviceContext * Device)
 {
 	if (Device == nullptr)
 	{
-		Device = D3D12RHI::GetDefaultDevice();
+		Device = RHI::GetDefaultDevice();
 	}
 	BaseTexture* newtex = nullptr;
-	switch (instance->CurrentSystem)
-	{
-
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		newtex = new D3D12Texture(Device);
-		break;
-#endif
-	}
+	newtex = GetRHIClass()->CreateTexture(Device);
 	newtex->CreateAsNull();
 	return newtex;
 }
@@ -250,19 +222,11 @@ Renderable * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings
 
 FrameBuffer * RHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc & Desc)
 {
-	switch (instance->CurrentSystem)
+	if (Device == nullptr)
 	{
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		if (Device == nullptr)
-		{
-			Device = D3D12RHI::GetDefaultDevice();
-		}
-		return new D3D12FrameBuffer(Device, Desc);
-		break;
-#endif
+		Device = RHI::GetDefaultDevice();
 	}
-	return nullptr;
+	return GetRHIClass()->CreateFrameBuffer(Device, Desc);
 }
 
 
@@ -270,120 +234,56 @@ DeviceContext* RHI::GetDeviceContext(int index)
 {
 	if (IsD3D12())
 	{
-		return D3D12RHI::GetDeviceContext(index);
+		return GetRHIClass()->GetDeviceContext(index);
 	}
 	return nullptr;
 }
 
 ShaderProgramBase * RHI::CreateShaderProgam(DeviceContext* Device)
 {
-	switch (instance->CurrentSystem)
-	{
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		if (Device == nullptr)
-		{
-			Device = D3D12RHI::GetDefaultDevice();
-		}
-		return new D3D12Shader(Device);
-		break;
-#endif
-	}
-	return nullptr;
+	return GetRHIClass()->CreateShaderProgam(Device);
 }
 
-bool RHI::InitialiseContext( int w, int h)
+DeviceContext * RHI::GetDefaultDevice()
 {
-	switch (instance->CurrentSystem)
-	{
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		instance->D3D12Rhi = new D3D12RHI();
-		instance->D3D12Rhi->m_height = w;
-		instance->D3D12Rhi->m_width = h;
-		instance->D3D12Rhi->m_aspectRatio = static_cast<float>(w) / static_cast<float>(h);
-		instance->D3D12Rhi->LoadPipeLine();
-		instance->D3D12Rhi->LoadAssets();
-		break;
-#endif
-#if BUILD_VULKAN
-	case RenderSystemVulkan:
-		instance->VulkanRHI = new VKanRHI(instance->m_hinst);
-		instance->VulkanRHI->win32HWND = m_hwnd;
-		instance->VulkanRHI->InitContext();
-		break;
-#endif
-	}
+	return GetRHIClass()->GetDefaultDevice();
+}
 
-	return false;
+bool RHI::InitialiseContext(int w, int h)
+{	
+	return GetRHIClass()->InitRHI(w, h);
 }
 
 void RHI::RHISwapBuffers()
 {
-	switch (instance->CurrentSystem)
-	{
-	case RenderSystemD3D12:
-		if (D3D12RHI::Instance != nullptr)
-		{
-			D3D12RHI::Instance->PresentFrame();
-		}
-		break;
-	}
+	GetRHIClass()->RHISwapBuffers();
 }
 
 void RHI::RHIRunFirstFrame()
 {
-	switch (instance->CurrentSystem)
-	{
-	case RenderSystemD3D12:
-		D3D12RHI::Instance->ExecSetUpList();
-		break;
-	}
+	GetRHIClass()->RHIRunFirstFrame();
 }
 
 void RHI::ToggleFullScreenState()
 {
-	switch (instance->CurrentSystem)
-	{
-	case RenderSystemD3D12:
-		D3D12RHI::Instance->ToggleFullScreenState();
-		break;
-	}
+	GetRHIClass()->ToggleFullScreenState();
 }
 
 void RHI::ResizeSwapChain(int width, int height)
 {
-	switch (instance->CurrentSystem)
-	{
-	case RenderSystemD3D12:
-		D3D12RHI::Instance->ResizeSwapChain(width, height);
-		break;
-	}	
+	GetRHIClass()->ResizeSwapChain(width, height);
 }
 
 void RHI::DestoryContext()
 {
-	switch (instance->CurrentSystem)
-	{
-	case RenderSystemD3D12:
-		instance->D3D12Rhi->DestroyContext();
-		break;
-	}
+	GetRHIClass()->DestoryRHI();
 }
 
 RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)
 {
 	if (Device == nullptr)
 	{
-		Device = D3D12RHI::GetDefaultDevice();
-	}
-	switch (instance->CurrentSystem)
-	{
-#if BUILD_D3D12
-	case RenderSystemD3D12:
-		return new D3D12RHITextureArray(Device, Length);
-		break;
-#endif
-	}
-	return nullptr;
+		Device = RHI::GetDefaultDevice();
+	}	
+	return GetRHIClass()->CreateTextureArray(Device, Length);;
 }

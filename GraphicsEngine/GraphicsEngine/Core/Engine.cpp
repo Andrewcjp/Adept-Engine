@@ -115,14 +115,9 @@ RenderWindow * Engine::GetRenderWindow()
 	return m_appwnd;
 }
 
-ERenderSystemType Engine::GetCurrentSystem()
-{
-	return CurrentRenderSystem;
-}
-
 void Engine::CreateApplication()
 {
-	CreateApplicationWindow(GetWidth(), GetHeight(), ERenderSystemType::RenderSystemOGL);
+	CreateApplicationWindow(GetWidth(), GetHeight());
 }
 
 void Engine::RunCook()
@@ -150,6 +145,7 @@ void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 	mheight = 720;
 	if (nCmdShow > 0)
 	{
+		//todo: xbyx
 		std::string input = args.ToSString();
 		if (input.compare("-deferred") == 0)
 		{
@@ -201,13 +197,12 @@ void Engine::Resize(int width, int height)
 	mheight = height;
 }
 
-void Engine::CreateApplicationWindow(int width, int height, ERenderSystemType type)
+void Engine::CreateApplicationWindow(int width, int height)
 {
 	if (m_appwnd == nullptr)
 	{
 		mwidth = width;
 		mheight = height;
-		CurrentRenderSystem = type;
 #if UseDevelopmentWindows
 		if (type == RenderSystemD3D12)
 		{

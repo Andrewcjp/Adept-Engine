@@ -27,7 +27,7 @@ public:
 		Normal,
 		Text
 	};
-	RHI();
+	RHI(ERenderSystemType system);
 	~RHI();
 	static RHI* instance;
 	static const int CPUFrameCount = 2;
@@ -39,14 +39,14 @@ public:
 	CORE_API static Renderable * CreateMesh(const char * path);
 	CORE_API static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
 	static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
-	static DeviceContext * GetDeviceContext(int index);
+	static DeviceContext * GetDeviceContext(int index = 0);
 	static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 	static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
 	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
 	static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
 
-
+	static DeviceContext* GetDefaultDevice();
 	static bool InitialiseContext( int w, int h);
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
@@ -63,14 +63,12 @@ public:
 	static bool SupportsThreading();
 	static bool SupportsExplictMultiAdaptor();
 	static ERenderSystemType GetType();
+	static class RHIClass* GetRHIClass();
+	static void WaitForGPU();
 private:
 	ERenderSystemType CurrentSystem;
 	static MultiGPUMode CurrentMGPUMode;
-	//------------------------------------
-	class D3D12RHI* D3D12Rhi = nullptr;
-	class VKanRHI* VulkanRHI = nullptr;
 	class RHIClass* CurrentRHI = nullptr;
-
 };
 
 class RHI_API RHIClass
@@ -80,15 +78,16 @@ public:
 	virtual bool DestoryRHI() = 0;
 	virtual BaseTexture* CreateTexture(DeviceContext* Device = nullptr) = 0;
 	virtual FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc) = 0;
-//	virtual DeviceContext * GetDeviceContext(int index) = 0;
 	virtual ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
 	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;
 	virtual RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr) = 0;
 	virtual RHIUAV* CreateUAV(DeviceContext* Device = nullptr) = 0;
 	virtual RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr) = 0;
-
+	virtual DeviceContext* GetDefaultDevice() = 0;
+	virtual DeviceContext* GetDeviceContext(int index = 0) = 0;
 	virtual void RHISwapBuffers() = 0;
 	virtual void RHIRunFirstFrame() = 0;
 	virtual void ToggleFullScreenState() = 0;
 	virtual void ResizeSwapChain(int width, int height) = 0;
+	virtual void WaitForGPU() =0;
 };

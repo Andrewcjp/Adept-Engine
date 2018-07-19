@@ -351,7 +351,7 @@ D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :
 {
 	if (inDevice == nullptr)
 	{
-		Device = D3D12RHI::GetDefaultDevice();
+		Device = RHI::GetDefaultDevice();
 	}
 	else
 	{

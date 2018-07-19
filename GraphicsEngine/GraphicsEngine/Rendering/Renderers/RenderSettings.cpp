@@ -4,7 +4,7 @@
 MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;
-	SplitShadowWork = true;
+	SplitShadowWork = false;
 	ComputePerFrameShadowDataOnExCard = false;
 	PSComputeWorkSplit = false;
 }

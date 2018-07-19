@@ -69,7 +69,7 @@ void BaseWindow::InitilseWindow()
 {
 	Log::OutS  << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
-	IsDeferredMode = true; 
+	IsDeferredMode = false; 
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -333,7 +333,7 @@ void BaseWindow::Resize(int width, int height)
 
 void BaseWindow::DestroyRenderWindow()
 {
-	D3D12RHI::Instance->WaitForAllDevices();
+	RHI::WaitForGPU();
 	ImageIO::ShutDown();
 	Renderer->DestoryRenderWindow();
 	delete input;
@@ -342,7 +342,6 @@ void BaseWindow::DestroyRenderWindow()
 	delete Renderer;
 	delete CurrentScene;
 	RHI::DestoryContext();
-
 }
 
 bool BaseWindow::MouseLBDown(int x, int y)
@@ -464,6 +463,7 @@ void BaseWindow::RenderText()
 
 	UI->RenderTextToScreen(1, stream.str());
 	stream.str("");
+
 	if (D3D12RHI::Instance != nullptr && ExtendedPerformanceStats)
 	{
 		stream << D3D12RHI::Instance->GetMemory();

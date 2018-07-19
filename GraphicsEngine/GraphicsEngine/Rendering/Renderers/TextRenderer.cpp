@@ -20,7 +20,7 @@ TextRenderer::TextRenderer(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	m_TextShader = new Text_Shader(D3D12RHI::GetDeviceContext(RunOnSecondDevice));
+	m_TextShader = new Text_Shader(RHI::GetDeviceContext(RunOnSecondDevice));
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	LoadText();
@@ -157,8 +157,8 @@ void TextRenderer::Finish()
 	{
 #if 0
 		PerfManager::StartTimer("RunOnSecondDevice");
-		DeviceContext* HostDevice = D3D12RHI::GetDeviceContext(1);
-		DeviceContext* TargetDevice = D3D12RHI::GetDeviceContext(0);
+		DeviceContext* HostDevice = RHI::GetDeviceContext(1);
+		DeviceContext* TargetDevice = RHI::GetDeviceContext(0);
 		
 		RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();
 		CopyList->ResetList();
@@ -192,10 +192,10 @@ void TextRenderer::Reset()
 
 void TextRenderer::LoadText()
 {
-	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, D3D12RHI::GetDeviceContext(RunOnSecondDevice));
+	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, RHI::GetDeviceContext(RunOnSecondDevice));
 	VertexBuffer->CreateVertexBuffer(sizeof(point), (sizeof(point) * 6) * MAX_BUFFER_SIZE, RHIBuffer::BufferAccessType::Dynamic);//max text length?
 
-	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics,D3D12RHI::GetDeviceContext(RunOnSecondDevice));
+	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(RunOnSecondDevice));
 	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });
 	TextCommandList->CreatePipelineState(m_TextShader);
 	if (UseFrameBuffer)
@@ -348,11 +348,11 @@ TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
 	}
 	if (RunOnSecondDevice)
 	{
-		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, D3D12RHI::GetDeviceContext(1));
+		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::GetDeviceContext(1));
 	}
 	else
 	{
-		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, D3D12RHI::GetDeviceContext(0));
+		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::GetDeviceContext(0));
 	}
 	Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
 

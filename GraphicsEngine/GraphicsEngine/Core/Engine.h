@@ -28,7 +28,7 @@ public:
 	ERenderSystemType GetCurrentSystem();
 	void CreateApplication();
 	static void RunCook();
-	void CreateApplicationWindow(int width, int height, ERenderSystemType type);
+	void CreateApplicationWindow(int width, int height);
 	RenderWindow*				m_appwnd = nullptr;
 	static float StartTime;
 	static void SetGame(Game* game);
@@ -39,8 +39,6 @@ public:
 	void Resize(int width, int height);
 private:
 	ERenderSystemType ForcedRenderSystem = ERenderSystemType::Limit;
-	ERenderSystemType CurrentRenderSystem = ERenderSystemType::Limit;
-
 	int mwidth, mheight;
 	bool Deferredmode = false;
 	bool FullScreen = false;

@@ -17,7 +17,6 @@
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = Device;
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 	IncludeHandler = new DxIncludeHandler();
 }
 
@@ -232,7 +231,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	ensure(blobs->fsBlob != nullptr);
 	if (context == nullptr)
 	{
-		context = D3D12RHI::GetDeviceContext(0);
+		context = RHI::GetDeviceContext(0);
 	}
 	// Describe and create the graphics pipeline state object (PSO).
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = { 0 };
@@ -342,37 +341,6 @@ void D3D12Shader::CreateComputePipelineShader()
 
 	D3D12Shader::PiplineShader t;
 	CreateDefaultRootSig(t);
-}
-
-ID3D12GraphicsCommandList * D3D12Shader::CreateShaderCommandList(int device)
-{
-	Init();
-	ID3D12GraphicsCommandList* newlist = nullptr;
-	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, m_Shader.m_pipelineState, IID_PPV_ARGS(&newlist)));
-	ThrowIfFailed(newlist->Close());
-	return newlist;
-}
-
-ID3D12CommandAllocator* D3D12Shader::GetCommandAllocator()
-{
-	return m_commandAllocator;
-}
-
-void D3D12Shader::ResetList(ID3D12GraphicsCommandList* list)
-{
-	// Command list allocators can only be reset when the associated 
-	// command lists have finished execution on the GPU; apps should use 
-	// fences to determine GPU execution progress.
-	ThrowIfFailed(GetCommandAllocator()->Reset());
-
-	// However, when ExecuteCommandList() is called on a particular command 
-	// list, that command list can then be reset at any time and must be before 
-	// re-recording.
-	ThrowIfFailed(list->Reset(GetCommandAllocator(), m_Shader.m_pipelineState));
-
-	// Set necessary state.
-	list->SetGraphicsRootSignature(m_Shader.m_rootSignature);
-
 }
 
 D3D12_INPUT_ELEMENT_DESC D3D12Shader::ConvertVertexFormat(Shader::VertexElementDESC* desc)
@@ -531,10 +499,10 @@ void D3D12Shader::CreateDefaultRootSig(D3D12Shader::PiplineShader &output)
 	// This is the highest version the sample supports. If CheckFeatureSupport succeeds, the HighestVersion returned will not be greater than this.
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
 
-	if (FAILED(D3D12RHI::GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+	/*if (FAILED(D3D12RHI::GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
 	{
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
-	}
+	}*/
 
 	CD3DX12_DESCRIPTOR_RANGE1 ranges[2];
 	ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
@@ -588,5 +556,5 @@ void D3D12Shader::CreateDefaultRootSig(D3D12Shader::PiplineShader &output)
 	ID3DBlob* signature;
 	ID3DBlob* error;
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
-	ThrowIfFailed(D3D12RHI::GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
+	//ThrowIfFailed(D3D12RHI::GetDisplayDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 }

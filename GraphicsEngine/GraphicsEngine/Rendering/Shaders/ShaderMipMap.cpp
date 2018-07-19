@@ -15,7 +15,7 @@ ShaderMipMap::ShaderMipMap()
 	m_Shader->BuildShaderProgram();
 	m_Shader->ActivateShaderProgram();
 	D3D12Shader* shader = (D3D12Shader*)m_Shader;
-	pCommandList = shader->CreateShaderCommandList();
+	//pCommandList = shader->CreateShaderCommandList();
 }
 
 

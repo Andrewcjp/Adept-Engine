@@ -242,8 +242,9 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 
 void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
-	/*ShadowDirectionalArray->BindToShader(list, 4);
-	ShadowCubeArray->BindToShader(list, 5);*/
+	ShadowDirectionalArray->BindToShader(list, 4);
+	ShadowCubeArray->BindToShader(list, 5);
+#if 0
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
 #if 1
@@ -252,6 +253,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 		list->SetFrameBufferTexture(LightInteractions[2]->PreSampledBuffer, 10);
 #endif
 	}
+#endif
 }
 
 void ShadowRenderer::ClearShadowLights()

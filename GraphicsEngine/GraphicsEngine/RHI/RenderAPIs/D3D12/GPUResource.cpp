@@ -43,14 +43,14 @@ void GPUResource::CreateHeap()
 	//
 	heapDesc.Flags = D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES | D3D12_HEAP_FLAG_DENY_BUFFERS;
 
-	ThrowIfFailed( D3D12RHI::GetDevice()->CreateHeap(&heapDesc, IID_PPV_ARGS(&pHeap)));
+	//ThrowIfFailed( D3D12RHI::GetDevice()->CreateHeap(&heapDesc, IID_PPV_ARGS(&pHeap)));
 }
 
 void GPUResource::Evict()
 {
 	ensure(currentState != eResourceState::Evicted);
 	ID3D12Pageable* Pageableresource = resource;
-	ThrowIfFailed(D3D12RHI::GetDevice()->Evict(1, &Pageableresource));
+//	ThrowIfFailed(D3D12RHI::GetDevice()->Evict(1, &Pageableresource));
 	currentState = eResourceState::Evicted;
 }
 
@@ -58,7 +58,7 @@ void GPUResource::MakeResident()
 {
 	ensure(currentState != eResourceState::Resident);
 	ID3D12Pageable* Pageableresource = resource;
-	ThrowIfFailed(D3D12RHI::GetDevice()->MakeResident(1, &Pageableresource));
+	//ThrowIfFailed(D3D12RHI::GetDevice()->MakeResident(1, &Pageableresource));
 	currentState = eResourceState::Resident;
 }
 

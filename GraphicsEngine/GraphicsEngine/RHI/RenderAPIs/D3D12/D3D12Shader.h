@@ -52,16 +52,9 @@ public:
 	static void CreateDefaultRootSig(D3D12Shader::PiplineShader & output);
 	void Init();
 	void CreateComputePipelineShader();
-	ID3D12GraphicsCommandList* CreateShaderCommandList(int device = 0);
-	ID3D12CommandAllocator* GetCommandAllocator();
-
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);
-
-
 	virtual void CreateShaderProgram() override;
 	PiplineShader* GetPipelineShader();
-
-
 	void ResetList(ID3D12GraphicsCommandList * list);
 private:
 	D3D_SHADER_MACRO * ParseDefines();
@@ -70,7 +63,6 @@ private:
 	class DxIncludeHandler* IncludeHandler = nullptr;
 	DeviceContext* CurrentDevice = nullptr;
 	PiplineShader m_Shader;	
-	ID3D12CommandAllocator* m_commandAllocator = nullptr;
 	ID3D12DescriptorHeap* m_samplerHeap = nullptr;
 	ShaderBlobs mBlolbs;
 };

@@ -9,7 +9,7 @@ D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 	Device = inDevice;
 	if (Device == nullptr)
 	{
-		Device = D3D12RHI::GetDeviceContext();
+		Device = RHI::GetDeviceContext();
 	}
 }
 

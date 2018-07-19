@@ -42,11 +42,6 @@ D3D12RHI::D3D12RHI()
 D3D12RHI::~D3D12RHI()
 {}
 
-void D3D12RHI::InitContext()
-{
-
-}
-
 void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be
@@ -140,7 +135,7 @@ D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
 	return D3D_FEATURE_LEVEL_11_0;
 }
 
-void D3D12RHI::WaitForAllDevices()
+void D3D12RHI::WaitForGPU()
 {
 	PrimaryDevice->CPUWaitForAll();
 	if (SecondaryDevice != nullptr)
@@ -156,9 +151,9 @@ void D3D12RHI::DisplayDeviceDebug()
 
 std::string D3D12RHI::GetMemory()
 {
-	if (PerfCounter > 60 || !HasSetup)
+	if (PresentCount > 60 || !HasSetup)
 	{
-		PerfCounter = 0;
+		PresentCount = 0;
 		PrimaryDevice->SampleVideoMemoryInfo();
 		if (SecondaryDevice != nullptr)
 		{
@@ -246,7 +241,7 @@ void D3D12RHI::LoadPipeLine()
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.SampleDesc.Count = 1;
-	CheckFeatures(GetDevice());
+	CheckFeatures(GetDisplayDevice());
 	IDXGISwapChain1* swapChain;
 	ThrowIfFailed(factory->CreateSwapChainForHwnd(
 		GetCommandQueue(),		// Swap chain needs the queue so that it can force a flush on it.
@@ -272,16 +267,16 @@ void D3D12RHI::LoadPipeLine()
 		rtvHeapDesc.NumDescriptors = RHI::CPUFrameCount;
 		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+		ThrowIfFailed(GetDisplayDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
 
-		m_rtvDescriptorSize = GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 		dsvHeapDesc.NumDescriptors = 1;
 		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(GetDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
-		m_rtvDescriptorSize = GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		ThrowIfFailed(GetDisplayDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
+		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 	}
 	factory->Release();
@@ -299,7 +294,7 @@ void D3D12RHI::CreateSwapChainRTs()
 		for (UINT n = 0; n < RHI::CPUFrameCount; n++)
 		{
 			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_SwaprenderTargets[n])));
-			GetDevice()->CreateRenderTargetView(m_SwaprenderTargets[n], nullptr, rtvHandle);
+			GetDisplayDevice()->CreateRenderTargetView(m_SwaprenderTargets[n], nullptr, rtvHandle);
 			m_RenderTargetResources[n] = new GPUResource(m_SwaprenderTargets[n], D3D12_RESOURCE_STATE_PRESENT);
 			rtvHandle.Offset(1, m_rtvDescriptorSize);
 		}
@@ -314,29 +309,6 @@ void D3D12RHI::InitMipmaps()
 #if USEGPUTOGENMIPS_ATRUNTIME
 	MipmapShader = new ShaderMipMap();
 #endif
-}
-
-void D3D12RHI::InternalResizeSwapChain(int x, int y)
-{
-	if (m_swapChain != nullptr)
-	{
-		ReleaseSwapRTs();
-		for (UINT n = 0; n < RHI::CPUFrameCount; n++)
-		{
-			m_fenceValues[n] = m_fenceValues[m_frameIndex];
-		}
-		ThrowIfFailed(m_swapChain->ResizeBuffers(RHI::CPUFrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
-		CreateSwapChainRTs();
-		m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(x), static_cast<float>(y));
-		m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(x), static_cast<LONG>(y));
-		CreateDepthStencil(x, y);
-		for (int i = 0; i < FrameBuffersLinkedToSwapChain.size(); i++)
-		{
-			FrameBuffersLinkedToSwapChain[i]->Resize(x, y);
-		}
-		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-		RequestedResize = false;
-	}
 }
 
 void D3D12RHI::ReleaseSwapRTs()
@@ -355,16 +327,25 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 	{
 		return;
 	}
+	PrimaryDevice->WaitForGpu();
 	if (m_swapChain != nullptr)
 	{
-		RequestedResize = true;
-		newwidth = x;
-		newheight = y;
+		ReleaseSwapRTs();
+		for (UINT n = 0; n < RHI::CPUFrameCount; n++)
+		{
+			m_fenceValues[n] = m_fenceValues[m_frameIndex];
+		}
+		ThrowIfFailed(m_swapChain->ResizeBuffers(RHI::CPUFrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+		CreateSwapChainRTs();
+		m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(x), static_cast<float>(y));
+		m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(x), static_cast<LONG>(y));
+		CreateDepthStencil(x, y);
+		for (int i = 0; i < FrameBuffersLinkedToSwapChain.size(); i++)
+		{
+			FrameBuffersLinkedToSwapChain[i]->Resize(x, y);
+		}
+		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 	}
-
-	PrimaryDevice->WaitForGpu();
-	InternalResizeSwapChain(x, y);
-
 }
 
 void D3D12RHI::CreateDepthStencil(int width, int height)
@@ -380,7 +361,7 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
 	depthOptimizedClearValue.DepthStencil.Stencil = 0;
 
-	ThrowIfFailed(GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(GetDisplayDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
@@ -391,12 +372,12 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 
 	NAME_D3D12_OBJECT(m_depthStencil);
 
-	GetDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	GetDisplayDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 void D3D12RHI::LoadAssets()
 {
-	ThrowIfFailed(GetDevice()->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+	ThrowIfFailed(GetDisplayDevice()->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 	m_fenceValues[m_frameIndex] = 1;
 	// Create an event handle to use for frame synchronization
 	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -404,10 +385,7 @@ void D3D12RHI::LoadAssets()
 	{
 		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
 	}
-	ThrowIfFailed(GetDevice()->CreateFence(M_ShadowFence, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pShadowFence)));
-	InitMipmaps();
-
-	ThrowIfFailed(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, PrimaryDevice->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
+	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, PrimaryDevice->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
 }
 
@@ -457,7 +435,7 @@ void D3D12RHI::ExecList(ID3D12GraphicsCommandList* list, bool Block)
 
 void D3D12RHI::PresentFrame()
 {
-	PerfCounter++;
+	PresentCount++;
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(PrimaryDevice->GetCommandAllocator(), nullptr);
@@ -473,13 +451,6 @@ void D3D12RHI::PresentFrame()
 		DisplayDeviceDebug();
 		Log::OutS << "Memory Budget Changed" << Log::OutS;
 	}
-#if USEGPUTOGENMIPS_ATRUNTIME
-	if (count == 1)
-	{
-		//PrimaryDevice->WaitForGpu();
-		//MipmapShader->GenAllmips(100);
-	}
-#endif
 
 	ThrowIfFailed(m_swapChain->Present(0, 0));
 	if (!RHI::AllowCPUAhead())
@@ -531,27 +502,6 @@ void D3D12RHI::RenderToScreen(ID3D12GraphicsCommandList* list)
 	list->RSSetScissorRects(1, &m_scissorRect);
 }
 
-void D3D12RHI::PreFrameSetUp(ID3D12GraphicsCommandList* list, D3D12Shader* Shader)
-{
-	// Command list allocators can only be reset when the associated 
-	// command lists have finished execution on the GPU; apps should use 
-	// fences to determine GPU execution progress.
-	ThrowIfFailed(Shader->GetCommandAllocator()->Reset());
-
-	// However, when ExecuteCommandList() is called on a particular command 
-	// list, that command list can then be reset at any time and must be before 
-	// re-recording.
-	ThrowIfFailed(list->Reset(Shader->GetCommandAllocator(), Shader->GetPipelineShader()->m_pipelineState));
-
-	// Set necessary state.
-	list->SetGraphicsRootSignature(Shader->GetPipelineShader()->m_rootSignature);
-}
-
-void D3D12RHI::PreFrameSwap(ID3D12GraphicsCommandList* list)
-{
-	RenderToScreen(list);
-	SetScreenRenderTarget(list);
-}
 
 void D3D12RHI::SetScreenRenderTarget(ID3D12GraphicsCommandList* list)
 {
@@ -559,14 +509,6 @@ void D3D12RHI::SetScreenRenderTarget(ID3D12GraphicsCommandList* list)
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	list->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 	m_RenderTargetResources[m_frameIndex]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
-}
-
-void D3D12RHI::PostFrame(ID3D12GraphicsCommandList* list)
-{
-	// Indicate that the back buffer will now be used to present.
-	//list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
-
-	ThrowIfFailed(list->Close());
 }
 
 void D3D12RHI::WaitForGpu()
@@ -602,15 +544,6 @@ void D3D12RHI::MoveToNextFrame()
 
 	// Set the fence value for the next frame.
 	m_fenceValues[m_frameIndex] = currentFenceValue + 1;
-}
-
-ID3D12Device * D3D12RHI::GetDevice()
-{
-	if (Instance != nullptr)
-	{
-		return Instance->PrimaryDevice->GetDevice();
-	}
-	return nullptr;
 }
 
 ID3D12CommandQueue * D3D12RHI::GetCommandQueue()
@@ -742,7 +675,7 @@ void GetHardwareAdapter(IDXGIFactory2 * pFactory, IDXGIAdapter1 ** ppAdapter)
 
 	*ppAdapter = adapter;
 }
-#if TEST_RHI
+
 RHIBuffer * D3D12RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device)
 {
 	return new D3D12Buffer(type, Device);
@@ -797,7 +730,6 @@ bool D3D12RHI::InitRHI(int w, int h)
 	m_aspectRatio = static_cast<float>(w) / static_cast<float>(h);
 	LoadPipeLine();
 	LoadAssets();
-
 	return false;
 }
 
@@ -817,12 +749,16 @@ void D3D12RHI::RHIRunFirstFrame()
 	ExecSetUpList();
 }
 
+ID3D12Device * D3D12RHI::GetDisplayDevice()
+{
+	return PrimaryDevice->GetDevice();
+}
+
 RHITextureArray * D3D12RHI::CreateTextureArray(DeviceContext* Device, int Length)
 {
 	if (Device == nullptr)
 	{
-		Device = D3D12RHI::GetDefaultDevice();
+		Device = RHI::GetDefaultDevice();
 	}
 	return new D3D12RHITextureArray(Device, Length);;
 }
-#endif

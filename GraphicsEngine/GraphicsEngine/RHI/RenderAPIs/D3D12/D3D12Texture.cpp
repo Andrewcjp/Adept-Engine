@@ -18,7 +18,7 @@ D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 {
 	if (inDevice == nullptr)
 	{
-		Device = D3D12RHI::GetDefaultDevice();
+		Device = RHI::GetDefaultDevice();
 	}
 	else
 	{
