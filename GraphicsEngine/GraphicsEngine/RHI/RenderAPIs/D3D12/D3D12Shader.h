@@ -55,11 +55,8 @@ public:
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);
 	virtual void CreateShaderProgram() override;
 	PiplineShader* GetPipelineShader();
-	void ResetList(ID3D12GraphicsCommandList * list);
 private:
 	D3D_SHADER_MACRO * ParseDefines();
-
-
 	class DxIncludeHandler* IncludeHandler = nullptr;
 	DeviceContext* CurrentDevice = nullptr;
 	PiplineShader m_Shader;	

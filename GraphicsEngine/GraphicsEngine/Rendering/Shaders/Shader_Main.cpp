@@ -8,9 +8,9 @@ Shader_Main::Shader_Main(bool LoadForward)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->CreateShaderProgram();
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(MAX_POINT_SHADOWS)));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(MAX_DIRECTIONAL_SHADOWS)));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(3+MAX_DIRECTIONAL_SHADOWS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(3+ RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(MAX_LIGHTS)));	
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED",std::to_string((int)!LoadForward)));
 
@@ -126,10 +126,10 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	out[3] = ShaderParameter(ShaderParamType::CBV, 3, 2);
 	//two shadows
 	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, 4, 3);
-	parm.NumDescriptors = MAX_DIRECTIONAL_SHADOWS;
+	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS;
 	out[4] = parm;
-	parm = ShaderParameter(ShaderParamType::SRV, 5, 3 + MAX_DIRECTIONAL_SHADOWS);
-	parm.NumDescriptors = MAX_POINT_SHADOWS;
+	parm = ShaderParameter(ShaderParamType::SRV, 5, 3 + RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS);
+	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS;
 	out[5] = parm;
 
 	out[6] = ShaderParameter(ShaderParamType::SRV, 6, 1);

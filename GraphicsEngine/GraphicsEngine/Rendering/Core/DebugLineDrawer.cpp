@@ -104,7 +104,7 @@ void DebugLineDrawer::AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, 
 	{
 		return;
 	}
-	WLine l;
+	WLine l = {};
 	l.startpos = Start;
 	l.endpos = end;
 	l.colour = colour;

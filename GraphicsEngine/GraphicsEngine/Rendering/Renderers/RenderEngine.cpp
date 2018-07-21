@@ -182,12 +182,12 @@ Camera * RenderEngine::GetMainCam()
 
 int RenderEngine::GetScaledWidth()
 {
-	return m_width * CurrentRenderSettings.RenderScale;
+	return (int)(m_width * CurrentRenderSettings.RenderScale);
 }
 
 int RenderEngine::GetScaledHeight()
 {
-	return m_height * CurrentRenderSettings.RenderScale;
+	return (int)(m_height * CurrentRenderSettings.RenderScale);
 }
 
 Shader * RenderEngine::GetMainShader()

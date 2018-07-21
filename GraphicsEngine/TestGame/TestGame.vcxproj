@@ -115,7 +115,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)GraphicsEngine\include;$(SolutionDir)GraphicsEngine\;%(AdditionalIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnablePREfast>false</EnablePREfast>
-      <PreprocessorDefinitions>NOMINMAX;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\AANdr\Dropbox\Engine\Engine\Repo\GraphicsEngine\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

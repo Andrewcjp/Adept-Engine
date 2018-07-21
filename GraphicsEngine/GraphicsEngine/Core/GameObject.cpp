@@ -13,12 +13,8 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid)
 	ObjectID = oid;
 	Mobilty = stat;
 	m_transform = new Transform();
-	//init the querry 
-	if (RHI::GetType() == RenderSystemOGL)
-	{
-////		glGenQueries(1, &Querry);
-	}
 }
+
 Material* GameObject::GetMat()
 {
 	if (m_MeshRenderer != nullptr)
@@ -27,6 +23,7 @@ Material* GameObject::GetMat()
 	}
 	return nullptr;
 }
+
 bool GameObject::GetReflection()
 {
 	if (m_MeshRenderer != nullptr)
@@ -35,6 +32,7 @@ bool GameObject::GetReflection()
 	}
 	return false;
 }
+
 bool GameObject::GetDoesUseMainShader()
 {
 	if (m_MeshRenderer != nullptr)
@@ -43,6 +41,7 @@ bool GameObject::GetDoesUseMainShader()
 	}
 	return false;
 }
+
 GameObject::~GameObject()
 {
 	for (int i = 0; i < m_Components.size(); i++)
@@ -70,18 +69,6 @@ void GameObject::Internal_SetScene(Scene * scene)
 	}
 	PositionDummy = GetTransform()->GetPos();
 }
-bool  GameObject::CheckCulled(float Distance, float angle)
-{
-	if (Distance > 250)
-	{
-		return true;
-	}
-	if (angle > 50)
-	{
-		return true;
-	}
-	return false;
-}
 
 Renderable * GameObject::GetMesh()
 {
@@ -91,21 +78,7 @@ Renderable * GameObject::GetMesh()
 	}
 	return nullptr;
 }
-void GameObject::Render(bool ignoremat)
-{
-	if (m_MeshRenderer != nullptr)
-	{
-	//	m_MeshRenderer->Render(ignoremat, nullptr);
-	}
-}
-void GameObject::Render(bool ignoremat, ID3D12GraphicsCommandList* list)
-{
 
-	if (m_MeshRenderer != nullptr)
-	{
-		m_MeshRenderer->Render(ignoremat, list);
-	}
-}
 void GameObject::Render(bool ignoremat,RHICommandList * list)
 {
 	if (m_MeshRenderer != nullptr)
@@ -163,8 +136,6 @@ GameObject::EMoblity GameObject::GetMobility()
 
 void GameObject::EditorUpdate()
 {
-
-
 	bool changed = m_transform->IsChanged();
 	if (changed)
 	{
@@ -318,5 +289,4 @@ void GameObject::PostChangeProperties()
 void GameObject::ChangePos_editor(glm::vec3 NewPos)
 {
 	PositionDummy = NewPos;
-
 }

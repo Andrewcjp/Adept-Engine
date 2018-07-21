@@ -85,8 +85,7 @@ void BaseWindow::InitilseWindow()
 	Renderer->SetScene(CurrentScene);
 	UI = new UIManager(m_width, m_height);
 	input = new Input();
-	input->Cursor = CopyCursor(LoadCursor(NULL, IDC_ARROW));
-	input->Cursor = SetCursor(input->Cursor);
+
 
 	fprintf(stdout, "Scene initalised\n");
 	if (PerfManager::Instance != nullptr)
@@ -292,6 +291,15 @@ Camera * BaseWindow::GetCurrentCamera()
 	return nullptr;
 }
 
+const RenderSettings * BaseWindow::GetCurrentRenderSettings()
+{
+	if (Instance != nullptr)
+	{
+		return &Instance->CurrentRenderSettings;
+	}
+	return nullptr;
+}
+
 void BaseWindow::LoadScene(std::string RelativePath)
 {
 	std::string Startdir = Engine::GetRootDir();
@@ -414,7 +422,7 @@ bool BaseWindow::KeyDown(WPARAM key)
 	}
 	else
 	{
-		input->ProcessKeyDown(key);
+		input->ProcessKeyDown((unsigned int)key);
 	}
 	return TRUE;
 }

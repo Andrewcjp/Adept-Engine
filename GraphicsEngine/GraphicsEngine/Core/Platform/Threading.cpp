@@ -33,8 +33,6 @@ Thread::~Thread()
 {
 	if (Handle != NULL)
 	{
-		/// The following is not guaranteed to succeed as the thread may be suspended on a variable
-		/// in a derived class, which in our case is Step or Done.
 		RequestToExit();
 		WaitForThreadToFinish(-1);
 	}

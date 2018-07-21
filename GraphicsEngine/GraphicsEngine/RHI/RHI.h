@@ -14,8 +14,6 @@ class Renderable;
 class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
-const int MAX_POINT_SHADOWS = 3;
-const int MAX_DIRECTIONAL_SHADOWS = 1;
 const int MAX_DEVICE_COUNT = 2;
 #define RHI_API DLLEXPORT
 #define RHI_USE_MODULE 0
@@ -29,7 +27,7 @@ public:
 	};
 	RHI(ERenderSystemType system);
 	~RHI();
-	static RHI* instance;
+	
 	static const int CPUFrameCount = 2;
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
@@ -39,13 +37,13 @@ public:
 	CORE_API static Renderable * CreateMesh(const char * path);
 	CORE_API static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
 	static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
-	static DeviceContext * GetDeviceContext(int index = 0);
 	static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 	static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
 	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
 	static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
 
+	static DeviceContext * GetDeviceContext(int index = 0);
 	static DeviceContext* GetDefaultDevice();
 	static bool InitialiseContext( int w, int h);
 	static void RHISwapBuffers();
@@ -65,10 +63,13 @@ public:
 	static ERenderSystemType GetType();
 	static class RHIClass* GetRHIClass();
 	static void WaitForGPU();
+	static RenderConstants* GetRenderConstants();
 private:
+	static RHI* instance;
 	ERenderSystemType CurrentSystem;
 	static MultiGPUMode CurrentMGPUMode;
 	class RHIClass* CurrentRHI = nullptr;
+	RenderConstants M_RenderConsants;
 };
 
 class RHI_API RHIClass

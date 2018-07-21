@@ -14,18 +14,23 @@ WindowsWindow::WindowsWindow()
 	m_hInst = 0;
 	m_terminate = false;
 	TIMECAPS tc;
+	Layout = GetKeyboardLayout(0);
 	if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR)
 	{
 		// Error; application can't continue.
 		MessageBoxA(0, "Timer Error Aborting", "Error", 0);
 		Kill();
 	}
+	Cursor = CopyCursor(LoadCursor(NULL, IDC_ARROW));
+	Cursor = SetCursor(Cursor);
+	Cursors[GenericWindow::CursorType::IBeam] = LoadCursor(NULL, IDC_IBEAM);
+	Cursors[GenericWindow::CursorType::Normal] = LoadCursor(NULL, IDC_ARROW);
 }
 
 
 WindowsWindow::~WindowsWindow()
 {
-
+	DestroyCursor(Cursor);
 }
 
 BOOL WindowsWindow::MyRegisterClass(HINSTANCE hinst)
@@ -77,7 +82,7 @@ void WindowsWindow::SetVisible(bool visible)
 	ShowWindow(HWindow, visible ? SW_SHOW : SW_HIDE);
 }
 
-bool WindowsWindow::CreateOSWindow(int width,int height)
+bool WindowsWindow::CreateOSWindow(int width, int height)
 {
 	app->HWindow = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
 		L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -96,7 +101,7 @@ void WindowsWindow::DestroyApplication()
 	if (app)
 	{
 		delete app;
-	}	
+	}
 }
 
 WindowsWindow* WindowsWindow::GetApplication()
@@ -166,6 +171,68 @@ void WindowsWindow::AddMenus(HWND hwnd)
 	SetMenu(hwnd, hMenubar);
 }
 
+void WindowsWindow::GetDesktopResolution(int & horizontal, int & vertical)
+{
+	RECT desktop;
+	// Get the size of screen to the variable desktop
+	//	GetWindowRect(hDesktop, &desktop);
+	GetClientRect(HWindow, &desktop);
+	// The top left corner will have coordinates (0,0)
+	// and the bottom right corner will have coordinates
+	// (horizontal, vertical)
+	horizontal = desktop.right - desktop.left;
+	vertical = desktop.bottom - desktop.top;
+}
+
+IntPoint WindowsWindow::GetMousePos()
+{
+	POINT pt;
+	GetCursorPos(&pt);
+	ScreenToClient(HWindow, &pt);
+	return IntPoint(pt.x, pt.y);
+}
+
+void WindowsWindow::SetMousePos(IntPoint & point)
+{
+	POINT pt = { point.x,point.y };
+	ClientToScreen(HWindow, &pt);
+	SetCursorPos(pt.x, pt.y);
+}
+
+char WindowsWindow::GetVirtualKeyAsChar(unsigned int key)
+{
+	return (UINT)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
+}
+
+short WindowsWindow::GetCharAsVirtualKey(char c)
+{
+	return VkKeyScanEx(c, Layout);
+}
+
+bool WindowsWindow::IsKeyDown(short key)
+{
+	if (GetKeyState(key) & 0x8000)
+	{
+		return true;
+	}
+	return false;
+}
+
+void WindowsWindow::SetCursorType(GenericWindow::CursorType Type)
+{
+	switch (Type)
+	{
+	case GenericWindow::CursorType::IBeam:
+		SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::IBeam]);
+		break;
+	default:
+	case GenericWindow::CursorType::Drag:
+	case GenericWindow::CursorType::Normal:
+		SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::Normal]);
+		break;
+	}
+}
+
 
 bool WindowsWindow::IsActiveWindow()
 {
@@ -195,7 +262,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		else
 		{
 			app->m_engine->Resize(LOWORD(lparam), HIWORD(lparam));
-		}		
+		}
 		break;
 	case WM_CLOSE:
 		app->Kill();

@@ -10,8 +10,7 @@
 class Component;
 class RigidBody;
 class MeshRendererComponent;
-class GameObject :
-	public IInspectable
+class GameObject : public IInspectable
 {
 public:
 	enum EMoblity { Static, Dynamic };
@@ -27,30 +26,21 @@ public:
 	CORE_API void Update(float delta);
 	CORE_API void BeginPlay();
 
-	void Render(bool ignore = false);
-	void Render(bool ignoremat, ID3D12GraphicsCommandList * list);
 	void Render(bool ignoremat, RHICommandList* list);
-	bool CheckCulled(float Distance, float angle);
 	EMoblity GetMobility();
 
 	//temp
 	Renderable* GetMesh();
 	RigidBody* actor;
 
-
-
 	//getters
 	Material* GetMat();
 	std::string GetName() { return Name; }
 	void SetName(std::string name) { Name = name; }
-	bool GetReflection();	
+	bool GetReflection();
 	bool GetDoesUseMainShader();
-	bool Occluded = false;
-
-	bool QuerryWait = false;
 	bool HasCached = false;
 
-	
 	//Editor only
 	void EditorUpdate();
 	physx::PxRigidStatic* SelectionShape;
@@ -58,7 +48,6 @@ public:
 	std::vector<Component*> GetComponents();
 	template<class T>
 	T* GetComponent();
-	
 
 	void CopyPtrs(GameObject* newObject);
 	void SerialiseGameObject(rapidjson::Value& v);

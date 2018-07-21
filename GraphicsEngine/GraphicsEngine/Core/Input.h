@@ -4,7 +4,6 @@
 #include <queue>
 #include <map>
 #include "EngineGlobals.h"
-#include "../Core/MinWindows.h"
 class Shader_Main;
 class ShaderOutput;
 class OGLWindow;
@@ -30,27 +29,23 @@ public:
 	CORE_API static bool GetKeyDown(int c);
 	CORE_API static bool GetKey(char c);
 	static bool GetVKey(short key);
-	static HCURSOR Cursor;
+	
 	static glm::vec2 GetMouseInputAsAxis();
 	void   ProcessInput(const float delatime);
-	BOOL   MouseLBDown(int x, int y);
-	BOOL   MouseLBUp(int x, int y);
-	BOOL   MouseMove(int x, int y, double deltatime);
-	bool   ProcessKeyDown(WPARAM key);
+	bool   MouseLBDown(int x, int y);
+	bool   MouseLBUp(int x, int y);
+	bool   MouseMove(int x, int y, double deltatime);
+	bool   ProcessKeyDown(unsigned int key);
 	void   LockCursor(bool state);
 	static void ReciveMouseDownMessage(int Button, bool state);
 	static bool GetMouseButtonDown(int button);
 private:
-	HWND m_hwnd;
 	bool LockMouse = false;
 	float currentmoveamt = 1.0f;//editor Movemnt
 	glm::vec2 MouseAxis;
-	std::map<int, bool> KeyMap;
-
-	HKL Layout;
+	std::map<int, bool> KeyMap;	
 	bool IsActiveWindow = false;
-	POINT CentrePoint;
-
+	IntPoint CentrePoint;
 	bool MouseKeyData[MAX_MOUSE_BUTTON_COUNT] = { false };
 };
 

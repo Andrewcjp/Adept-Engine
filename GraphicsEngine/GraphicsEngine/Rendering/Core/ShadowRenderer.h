@@ -2,7 +2,7 @@
 #include <vector>
 #include "EngineGlobals.h"
 #include "RHI/RHI_fwd.h"
-const int ShadowSize = 2048;
+
 class ShadowRenderer
 {
 public:
@@ -40,7 +40,8 @@ private:
 	
 	struct ShadowLightInteraction
 	{
-		ShadowLightInteraction(class DeviceContext* Context, bool IsPoint);
+
+		ShadowLightInteraction(class DeviceContext * Context, bool IsPoint, int MapSize);
 		void PreSampleShadows(RHICommandList* List);
 		FrameBuffer* ShadowMap = nullptr;
 		Shader_Depth* Shader = nullptr;
