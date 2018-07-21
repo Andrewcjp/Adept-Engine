@@ -30,10 +30,10 @@ Shader_Depth::Shader_Depth(bool LoadGeo, DeviceContext* device)
 	m_Shader->ActivateShaderProgram();
 
 	zfar = static_cast<float>(ShadowFarPlane);
-	if (MAX_POINT_SHADOWS > 0)
+	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
 	{
 		ConstantBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant, device);
-		ConstantBuffer->CreateConstantBuffer(sizeof(LightData), MAX_POINT_SHADOWS);
+		ConstantBuffer->CreateConstantBuffer(sizeof(LightData), RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS);
 	}
 }
 

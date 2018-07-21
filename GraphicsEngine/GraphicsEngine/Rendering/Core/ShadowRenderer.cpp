@@ -11,6 +11,8 @@
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "RHI/DeviceContext.h"
+#include "../Core/BaseWindow.h"
+#include "../RHI/RHITypes.h"
 #define CUBE_SIDES 6
 
 ShadowRenderer::ShadowRenderer()
@@ -18,13 +20,13 @@ ShadowRenderer::ShadowRenderer()
 	DirectionalLightShader = new Shader_Depth(false);
 
 	int shadowwidth = 1024;
-	ShadowDirectionalArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), MAX_DIRECTIONAL_SHADOWS);
-	for (int i = 0; i < MAX_DIRECTIONAL_SHADOWS; i++)
+	ShadowDirectionalArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS);
+	for (int i = 0; i < RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS; i++)
 	{
 		DirectionalLightBuffers.push_back(RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateDepth(shadowwidth, shadowwidth)));
 		ShadowDirectionalArray->AddFrameBufferBind(DirectionalLightBuffers[i], i);
 	}
-	ShadowCubeArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), MAX_POINT_SHADOWS);
+	ShadowCubeArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS);
 #if 0
 	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
 	{
@@ -32,27 +34,28 @@ ShadowRenderer::ShadowRenderer()
 		ShadowCubeArray->AddFrameBufferBind(PointLightBuffers[i], i);
 	}
 #else
-	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
+
+	const int ShadowMapSize = BaseWindow::GetCurrentRenderSettings()->ShadowMapSize;
+	for (int i = 0; i < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS; i++)
 	{
 		if (i == 2 && RHI::GetMGPUMode()->SplitShadowWork)
 		{
-			LightInteractions.push_back(new ShadowLightInteraction(RHI::GetDeviceContext(1), true));
+			LightInteractions.push_back(new ShadowLightInteraction(RHI::GetDeviceContext(1), true, ShadowMapSize));
 			ShadowCubeArray->SetIndexNull(2);
 		}
 		else
 		{
-			LightInteractions.push_back(new ShadowLightInteraction(RHI::GetDeviceContext(0), true));
+			LightInteractions.push_back(new ShadowLightInteraction(RHI::GetDeviceContext(0), true, ShadowMapSize));
 			ShadowCubeArray->AddFrameBufferBind(LightInteractions[i]->ShadowMap, i);
 		}
 	}
 #endif
 	DeviceContext* pointlightdevice = RHI::GetDeviceContext(0);
-	//ShadowCubeArray->SetIndexNull(2);
-	if (MAX_POINT_SHADOWS > 0)
+	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
 	{
 		PointLightShader = new Shader_Depth(true, pointlightdevice);
 		GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, pointlightdevice);
-		GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, MAX_POINT_SHADOWS, true);
+		GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, true);
 		PointShadowList = RHI::CreateCommandList(ECommandListType::Graphics, pointlightdevice);
 		PointShadowListALT = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
 	}
@@ -277,7 +280,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		}
 		if (lights[i]->GetType() == Light::Point)
 		{
-			if (ShadowingPointLights.size() < MAX_POINT_SHADOWS)
+			if (ShadowingPointLights.size() < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS)
 			{
 				lights[i]->SetShadowId((int)ShadowingPointLights.size());
 				ShadowingPointLights.push_back(lights[i]);
@@ -290,7 +293,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		}
 		else if (lights[i]->GetType() == Light::Directional)
 		{
-			if (ShadowingDirectionalLights.size() < MAX_DIRECTIONAL_SHADOWS)
+			if (ShadowingDirectionalLights.size() < RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)
 			{
 				lights[i]->SetShadowId((int)ShadowingDirectionalLights.size());
 				ShadowingDirectionalLights.push_back(lights[i]);
@@ -324,12 +327,12 @@ void ShadowRenderer::Unbind(RHICommandList * list)
 	}
 }
 
-ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * Context, bool IsPoint)
+ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * Context, bool IsPoint, int MapSize)
 {
 	DeviceIndex = Context->GetDeviceIndex();
 	if (IsPoint)
 	{
-		int size = (Context->GetDeviceIndex() == 0) ? ShadowSize : ShadowSize/1.2;
+		int size = (Context->GetDeviceIndex() == 0) ? MapSize : MapSize / 1;
 		ShadowMap = RHI::CreateFrameBuffer(Context, RHIFrameBufferDesc::CreateCubeDepth(size, size));
 	}
 	Shader = new Shader_Depth(IsPoint, Context);

@@ -438,7 +438,7 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType 
 	}
 }
 
-void D3D12Buffer::UpdateVertexBuffer(void * data, int length)
+void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
 {
 	VertexCount = length;
 	if (BufferAccesstype == BufferAccessType::Dynamic)
@@ -537,7 +537,7 @@ void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
 
 
 
-void D3D12Buffer::UpdateIndexBuffer(void * data, int length)
+void D3D12Buffer::UpdateIndexBuffer(void * data, size_t length)
 {
 	UINT8* pIndexDataBegin;
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.

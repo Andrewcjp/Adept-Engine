@@ -31,6 +31,7 @@ public:
 	bool ShowHud = false;
 	bool ShowText = true;
 	bool ExtendedPerformanceStats = true;
+	static const RenderSettings* GetCurrentRenderSettings();
 protected:
 
 	//callbacks
@@ -74,7 +75,6 @@ private:
 	bool IsDeferredMode = false;
 	bool LoadText = true;
 	bool Once = true;
-	float AccumTickTime = 0.0f;	
-
+	double AccumTickTime = 0.0f;
 };
 

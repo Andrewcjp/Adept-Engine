@@ -374,7 +374,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
 	//title
 	if (!GroupFilter.empty())
 	{
-		Textcontext->RenderFromAtlas(GroupFilter, x, (float)CurrentHeight, TextSize);
+		Textcontext->RenderFromAtlas(GroupFilter, (float)x, (float)CurrentHeight, TextSize);
 		CurrentHeight -= Height;
 	}
 	for (int i = 0; i < SortedTimers.size(); i++)

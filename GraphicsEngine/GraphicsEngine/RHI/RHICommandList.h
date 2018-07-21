@@ -24,13 +24,12 @@ public:
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) = 0;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount,bool ReplicateToAllDevices = false) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
-	virtual void UpdateVertexBuffer(void* data, int length) = 0;
-	virtual void UpdateIndexBuffer(void* data, int length) = 0;
+	virtual void UpdateVertexBuffer(void* data, size_t length) = 0;
+	virtual void UpdateIndexBuffer(void* data, size_t length) = 0;
 	virtual ~RHIBuffer() {}
-	int GetVertexCount() { return VertexCount; }
+	size_t GetVertexCount() { return VertexCount; }
 protected:
-	int VertexCount = 0;
-
+	size_t VertexCount = 0;
 };
 
 class RHIUAV

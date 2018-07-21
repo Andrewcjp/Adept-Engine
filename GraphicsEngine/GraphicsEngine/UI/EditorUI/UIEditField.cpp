@@ -5,6 +5,7 @@
 #include <cctype>
 #include "UI/UIManager.h"
 #include "UI/Core/UIButton.h"
+#include "../Core/Platform/PlatformCore.h"
 UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 {
 	Colour = colour;
@@ -93,18 +94,17 @@ void UIEditField::MouseMove(int x, int y)
 	{
 		UIManager::UpdateBatches();
 		WasSelected = true;
-		Input::Cursor = LoadCursor(NULL, IDC_IBEAM);
-		Input::Cursor = SetCursor(Input::Cursor);
+		PlatformWindow::SetCursorType(GenericWindow::CursorType::IBeam);
 
 	}
 	else
 	{
+		
 		if (WasSelected)
 		{
 			//works currently but might leak resources;
-			Input::Cursor = LoadCursor(NULL, IDC_ARROW);
-			Input::Cursor = SetCursor(Input::Cursor);
 			UIManager::UpdateBatches();
+			PlatformWindow::SetCursorType(GenericWindow::CursorType::Normal);
 			WasSelected = false;
 		}
 	}

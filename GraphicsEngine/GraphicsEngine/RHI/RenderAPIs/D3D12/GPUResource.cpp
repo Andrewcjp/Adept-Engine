@@ -1,17 +1,22 @@
 #include "stdafx.h"
 #include "GPUResource.h"
 #include <algorithm>
-
+#include "RHI/DeviceContext.h"
+#include "RHI/RHI.h"
 GPUResource::GPUResource()
 {}
-GPUResource::GPUResource(ID3D12Resource* Target)
-{
-	resource = Target;
-}
+
 GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState)
 {
 	resource = Target;
 	CurrentResourceState = InitalState;
+	Device = RHI::GetDefaultDevice();
+}
+GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState, DeviceContext * device)
+{
+	resource = Target;
+	CurrentResourceState = InitalState;
+	Device = device;
 }
 GPUResource::~GPUResource()
 {}
@@ -50,7 +55,7 @@ void GPUResource::Evict()
 {
 	ensure(currentState != eResourceState::Evicted);
 	ID3D12Pageable* Pageableresource = resource;
-//	ThrowIfFailed(D3D12RHI::GetDevice()->Evict(1, &Pageableresource));
+	ThrowIfFailed(Device->GetDevice()->Evict(1, &Pageableresource));
 	currentState = eResourceState::Evicted;
 }
 
@@ -58,7 +63,7 @@ void GPUResource::MakeResident()
 {
 	ensure(currentState != eResourceState::Resident);
 	ID3D12Pageable* Pageableresource = resource;
-	//ThrowIfFailed(D3D12RHI::GetDevice()->MakeResident(1, &Pageableresource));
+	ThrowIfFailed(Device->GetDevice()->MakeResident(1, &Pageableresource));
 	currentState = eResourceState::Resident;
 }
 

@@ -82,6 +82,15 @@ void RHI::WaitForGPU()
 	GetRHIClass()->WaitForGPU();
 }
 
+RenderConstants* RHI::GetRenderConstants()
+{
+	if (instance != nullptr)
+	{
+		return &instance->M_RenderConsants;
+	}
+	return nullptr;
+}
+
 
 bool RHI::IsD3D12()
 {
@@ -143,7 +152,7 @@ int RHI::GetDeviceCount()
 
 bool RHI::UseAdditonalGPUs()
 {
-	return false;
+	return true;
 }
 
 const MultiGPUMode * RHI::GetMGPUMode()

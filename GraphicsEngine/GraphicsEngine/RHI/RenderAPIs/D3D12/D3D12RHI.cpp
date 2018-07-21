@@ -126,7 +126,7 @@ D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
 		D3D_FEATURE_LEVEL_12_1,
 	};
 	FeatureData.pFeatureLevelsRequested = FeatureLevelsList;
-	FeatureData.NumFeatureLevels = 1;
+	FeatureData.NumFeatureLevels = 4;
 	HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &FeatureData, sizeof(FeatureData));
 	if (SUCCEEDED(hr))
 	{

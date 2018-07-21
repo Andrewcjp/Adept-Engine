@@ -66,11 +66,11 @@ public:
 	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
 	//virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Register, bool IsCompute);
 	//virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register);
-	virtual void UpdateIndexBuffer(void* data, int length) override;
+	virtual void UpdateIndexBuffer(void* data, size_t length) override;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) override;
 	void MapBuffer(void** Data);
 	void UnMap();
-	virtual void UpdateVertexBuffer(void* data, int length) override;
+	virtual void UpdateVertexBuffer(void* data, size_t length) override;
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	bool CheckDevice(int index);
 private:

@@ -25,16 +25,11 @@ public:
 		Evicted
 	};
 	GPUResource();
-	GPUResource(ID3D12Resource * Target);
 	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState);
+	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState,DeviceContext* Device);
 	~GPUResource();
-
 	void SetName(LPCWSTR name);
-
 	void CreateHeap();
-
-
-
 	void Evict();
 	void MakeResident();
 	bool IsResident();
@@ -52,5 +47,6 @@ private:
 	D3D12_RESOURCE_STATES CurrentResourceState = {};
 	GPUMemoryBlock Block;
 	D3D12_RESOURCE_STATES TargetState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
+	DeviceContext* Device;
 };
 

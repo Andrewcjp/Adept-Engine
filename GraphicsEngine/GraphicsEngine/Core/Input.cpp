@@ -13,17 +13,15 @@
 #include "UI/UIManager.h"
 #include "../Core/Platform/PlatformCore.h"
 Input* Input::instance = nullptr;
-HCURSOR Input::Cursor = NULL;
+
 Input::Input()
 {
 	instance = this;
-	Layout = GetKeyboardLayout(0);
-	m_hwnd = PlatformWindow::GetHWND();
 }
 
 Input::~Input()
 {
-	DestroyCursor(Cursor);
+
 }
 
 void Input::Clear()
@@ -33,57 +31,42 @@ void Input::Clear()
 }
 void Input::ProcessInput(const float)
 {
-	IsActiveWindow =  PlatformWindow::IsActiveWindow();
+	IsActiveWindow = PlatformWindow::IsActiveWindow();
 	if (UIManager::GetCurrentContext() != nullptr)
 	{
 		return;//block input!
 	}
 }
 
-BOOL Input::MouseLBDown(int, int)
+bool Input::MouseLBDown(int, int)
 {
 	ShowCursor(false);
 	return TRUE;
 }
 
-BOOL Input::MouseLBUp(int, int)
+bool Input::MouseLBUp(int, int)
 {
 	ShowCursor(true);
 	return TRUE;
 }
 
-void GetDesktopResolution(int& horizontal, int& vertical, HWND window)
-{
-	RECT desktop;
-	// Get the size of screen to the variable desktop
-	//	GetWindowRect(hDesktop, &desktop);
-	GetClientRect(window, &desktop);
-	// The top left corner will have coordinates (0,0)
-	// and the bottom right corner will have coordinates
-	// (horizontal, vertical)
-	horizontal = desktop.right - desktop.left;
-	vertical = desktop.bottom - desktop.top;
-}
 
-BOOL Input::MouseMove(int, int, double)
+
+bool Input::MouseMove(int, int, double)
 {
 	int height, width = 0;
-	GetDesktopResolution(height, width, m_hwnd);
+	PlatformWindow::GetApplication()->GetDesktopResolution(height, width);
 	int halfheight = (height / 2);
 	int halfwidth = (width / 2);
-
-	POINT pt;
-	GetCursorPos(&pt);
-	ScreenToClient(m_hwnd, &pt);
-	MouseAxis.x = (float)((halfheight)-(int)pt.x);
-	MouseAxis.y = (float)(-((halfwidth)-(int)pt.y));
-	pt.x = halfheight;
-	pt.y = halfwidth;
-	ClientToScreen(m_hwnd, &pt);
-	CentrePoint = pt;
+	IntPoint Point = PlatformWindow::GetApplication()->GetMousePos();
+	MouseAxis.x = (float)((halfheight)-(int)Point.x);
+	MouseAxis.y = (float)(-((halfwidth)-(int)Point.y));
+	Point.x = halfheight;
+	Point.y = halfwidth;
+	CentrePoint = Point;
 	if (LockMouse)
 	{
-		SetCursorPos(pt.x, pt.y);
+		PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
 	}
 	return TRUE;
 }
@@ -97,12 +80,14 @@ void Input::ProcessQue()
 	}
 }
 
-bool Input::ProcessKeyDown(WPARAM key)
+bool Input::ProcessKeyDown(unsigned int key)
 {
+	//this only accounts for EN keyboard layouts
 	const bool IsVKey = (int)key > 90;//vKey Start
 	if (!IsVKey)
 	{
-		char c = (UINT)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
+
+		char c = PlatformWindow::GetApplication()->GetVirtualKeyAsChar(key);
 		KeyMap.emplace(c, true);
 		return true;
 	}
@@ -114,7 +99,7 @@ void Input::LockCursor(bool state)
 {
 	if (state)
 	{
-		SetCursorPos(CentrePoint.x, CentrePoint.y);
+		PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
 	}
 	LockMouse = state;
 }
@@ -165,7 +150,7 @@ bool Input::GetKey(char c)
 	{
 		return false;
 	}
-	short key = VkKeyScanEx(c, instance->Layout);
+	short key = PlatformWindow::GetApplication()->GetCharAsVirtualKey(c);
 	return GetVKey(key);
 }
 
@@ -179,12 +164,7 @@ bool Input::GetVKey(short key)
 	{
 		return false;
 	}
-	if (GetKeyState(key) & 0x8000)
-	{
-		return true;
-	}
-
-	return false;
+	return PlatformWindow::GetApplication()->IsKeyDown(key);
 }
 
 glm::vec2 Input::GetMouseInputAsAxis()
