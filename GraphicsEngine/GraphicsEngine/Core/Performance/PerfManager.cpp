@@ -12,6 +12,7 @@
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "RHI/DeviceContext.h"
 #include "Rendering/Renderers/TextRenderer.h"
+#include "../Core/Utils/NVAPIManager.h"
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()
@@ -29,13 +30,24 @@ void PerfManager::StartPerfManager()
 	}
 }
 
+void PerfManager::ShutdownPerfManager()
+{
+	if (Instance != nullptr)
+	{
+		delete Instance;
+	}
+}
+
 PerfManager::PerfManager()
 {
 	ShowAllStats = true;
+	NVApiManager = new NVAPIManager();
 }
 
 PerfManager::~PerfManager()
-{}
+{
+	delete NVApiManager;
+}
 
 void PerfManager::AddTimer(const char * countername, const char* group)
 {
@@ -89,6 +101,14 @@ void PerfManager::EndTimer(int StatId)
 		Instance->InEndTimer(StatId);
 	}
 #endif
+}
+std::string PerfManager::GetGPUData()
+{
+	if (Instance != nullptr)
+	{
+		return Instance->NVApiManager->GetClockData();
+	}
+	return std::string();
 }
 int PerfManager::GetTimerIDByName(std::string name)
 {
@@ -322,6 +342,17 @@ void PerfManager::UpdateStats()
 	{
 		it->second.Time = it->second.AVG->GetCurrentAverage();
 	}
+	CurrentSlowStatsUpdate += GetDeltaTime();
+	if (CurrentSlowStatsUpdate > SlowStatsUpdateRate)
+	{
+		CurrentSlowStatsUpdate = 0;
+		SampleSlowStats();
+	}
+}
+
+void PerfManager::SampleSlowStats()
+{ 
+	NVApiManager->SampleClocks();
 }
 
 void PerfManager::ClearStats()

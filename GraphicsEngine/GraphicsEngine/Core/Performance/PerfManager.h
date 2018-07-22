@@ -24,6 +24,7 @@ public:
 	static long get_nanos();
 	static PerfManager* Instance;
 	static void StartPerfManager();
+	static void ShutdownPerfManager();
 	PerfManager();
 	~PerfManager();
 	void AddTimer(const char * countername, const char * group);
@@ -37,6 +38,7 @@ public:
 	static void EndTimer(const char * countername);
 	static void StartTimer(int Counterid);
 	static void EndTimer(int Counterid);
+	static std::string GetGPUData();
 	float GetAVGFrameRate();
 	float GetAVGFrameTime()const;
 	std::string GetAllTimers();
@@ -61,6 +63,7 @@ public:
 	TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y);
 	void UpdateStats();
+	void SampleSlowStats();
 	void ClearStats();
 	void DrawStatsGroup(int x, int & y, std::string GroupFilter);
 	void UpdateGPUStat(int id, float newtime);
@@ -71,7 +74,7 @@ private:
 	void InStartTimer(int targetTimer);
 	void InEndTimer(int targetTimer);
 	
-
+	class NVAPIManager* NVApiManager = nullptr;
 	std::string GetTimerName(int id);
 #if BUILD_WITH_NVPERFKIT
 	const char * OGLBatch = "OGL batch count";
@@ -115,5 +118,9 @@ private:
 	const float TextSize = 0.4f;
 	const int Height = 20;
 	const int ColWidth = 250;
+
+
+	const float SlowStatsUpdateRate = 0.25;
+	float CurrentSlowStatsUpdate = 0.0f;
 };
 

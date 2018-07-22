@@ -22,16 +22,14 @@
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "Core/Engine.h"
-
+#include <DXProgrammableCapture.h>  
 #include "Core/Assets/ImageIO.h"
-
-#if 1
 #include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Shader.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#endif
+
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 	:m_fenceValues{}
@@ -135,6 +133,16 @@ D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
 	return D3D_FEATURE_LEVEL_11_0;
 }
 
+bool D3D12RHI::DetectGPUDebugger()
+{
+	IDXGraphicsAnalysis* pGraphicsAnalysis;
+	HRESULT getAnalysis = DXGIGetDebugInterface1(0, __uuidof(pGraphicsAnalysis), reinterpret_cast<void**>(&pGraphicsAnalysis));
+	if (getAnalysis != S_OK)
+	{
+		return false;
+	}
+	return true;
+}
 void D3D12RHI::WaitForGPU()
 {
 	PrimaryDevice->CPUWaitForAll();
@@ -199,13 +207,15 @@ void D3D12RHI::LoadPipeLine()
 	IDXGIFactory4* factory;
 	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 	ReportObjects();
-#if 0
-	IDXGIAdapter* warpAdapter;
-	ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
-	SecondaryDevice = new DeviceContext();
-	SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
-#endif
 
+	if (DetectGPUDebugger())
+	{
+		IDXGIAdapter* warpAdapter;
+		ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
+		SecondaryDevice = new DeviceContext();
+		SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
+		Log::LogMessage("Found D3D12 GPU debugger, Warp adaptor is now used instead of second physical GPU");
+	}
 	FindAdaptors(factory);
 	if (SecondaryDevice != nullptr)
 	{

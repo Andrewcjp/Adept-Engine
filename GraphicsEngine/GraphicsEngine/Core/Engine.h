@@ -23,9 +23,8 @@ public:
 	void OnRender();
 	void OnDestoryWindow();
 	void Destory();
-	void LoadDLL();
+	void LoadGame();
 	RenderWindow* GetRenderWindow();
-	ERenderSystemType GetCurrentSystem();
 	void CreateApplication();
 	static void RunCook();
 	void CreateApplicationWindow(int width, int height);

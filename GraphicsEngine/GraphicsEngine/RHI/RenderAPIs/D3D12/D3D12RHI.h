@@ -28,12 +28,11 @@ public:
 	void AddUploadToUsed(ID3D12Resource * Target);
 	static void CheckFeatures(ID3D12Device * pDevice);
 	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
-
+	static bool DetectGPUDebugger();
 	//temp To be RHI'D	
 	std::string GetMemory();
 	void AddLinkedFrameBuffer(FrameBuffer* target);
 private:
-	void InitContext();
 	void DestroyContext();
 	void PresentFrame();
 	void DisplayDeviceDebug();
@@ -41,7 +40,6 @@ private:
 	void LoadPipeLine();
 	void CreateSwapChainRTs();
 	void InitMipmaps();
-	void InternalResizeSwapChain(int x, int y);
 	void ReleaseSwapRTs();
 	void CreateDepthStencil(int width, int height);
 	void LoadAssets();
@@ -67,6 +65,7 @@ private:
 	RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr) override;
 	RHIUAV* CreateUAV(DeviceContext* Device = nullptr) override;
 	RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr)override;
+	
 	void WaitForGPU() override;
 	void RHISwapBuffers() override;
 	void RHIRunFirstFrame() override;

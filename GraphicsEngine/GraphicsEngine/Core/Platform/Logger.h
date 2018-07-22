@@ -5,8 +5,14 @@
 class Log
 {
 public:
+	enum Severity
+	{
+		Message,
+		Warning,
+		Error
+	};
 	static void LogOutput(std::string data);
-	 struct StreamWrapper
+	struct StreamWrapper
 	{
 		std::stringstream Out;
 		template<class T>
@@ -24,5 +30,6 @@ public:
 		}
 	};
 	static StreamWrapper OutS;
+	static void LogMessage(std::string msg, Severity s = Severity::Message);
 };
 

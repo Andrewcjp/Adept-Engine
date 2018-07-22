@@ -1,6 +1,5 @@
 #include "Engine.h"
 #include "GameWindow.h"
-
 #include "Resource.h"
 #include "EngineGlobals.h"
 #include "Physics/PhysicsEngine.h"
@@ -14,7 +13,9 @@
 #include "Packaging/Cooker.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Types/FString.h"
+
 #pragma comment(lib, "shlwapi.lib")
+
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
@@ -94,11 +95,11 @@ void Engine::Destory()
 {
 	PhysEngine->cleanupPhysics();
 	ModuleManager::Get()->ShutDown();
+	PerfManager::ShutdownPerfManager();
 }
 
-void Engine::LoadDLL()
+void Engine::LoadGame()
 {
-
 	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>("TestGame");
 	//ensure(Gamemodule);
 	if (Gamemodule == nullptr)

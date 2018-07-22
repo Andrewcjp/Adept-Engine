@@ -4,15 +4,8 @@
 #include <queue>
 #include <map>
 #include "EngineGlobals.h"
-class Shader_Main;
-class ShaderOutput;
-class OGLWindow;
-class Camera;
-class GameObject;
+#include "../Core/EngineTypes.h"
 class InputEvent;
-class RenderEngine;
-class RenderWindow;
-class EditorWindow;
 const int MAX_MOUSE_BUTTON_COUNT = 10;
 class Input
 {

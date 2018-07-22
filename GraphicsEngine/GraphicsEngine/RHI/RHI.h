@@ -70,6 +70,7 @@ private:
 	static MultiGPUMode CurrentMGPUMode;
 	class RHIClass* CurrentRHI = nullptr;
 	RenderConstants M_RenderConsants;
+
 };
 
 class RHI_API RHIClass

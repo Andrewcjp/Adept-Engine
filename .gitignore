@@ -29,3 +29,5 @@
 /GraphicsEngine/x64/unused
 /GraphicsEngine/GraphicsEngine/lib/64/Debug
 /GraphicsEngine/x64/asset/DDC
+/GraphicsEngine/GraphicsEngine/include/nvapi
+/GraphicsEngine/GraphicsEngine/lib/64

@@ -79,7 +79,7 @@ BaseApplication* BaseApplication::CreateApplication(HINSTANCE hinst, LPSTR args,
 #pragma comment(lib, "TestGame.lib")
 		s_oglapp->m_engine->SetGame(new TestGame());
 #else 
-		s_oglapp->m_engine->LoadDLL();
+		s_oglapp->m_engine->LoadGame();
 		//s_oglapp->m_engine->SetGame(new Game(CompoenentRegistry::GetInstance()));
 #endif
 		s_oglapp->m_engine->CreateApplication();

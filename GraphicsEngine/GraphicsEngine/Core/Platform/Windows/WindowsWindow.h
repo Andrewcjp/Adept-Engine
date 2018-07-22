@@ -1,6 +1,6 @@
 #pragma once
 #include "../Core/MinWindows.h"
-#include "../Core/EngineTypes.h"
+#include "../Core/EngineTypes_fwd.h"
 #include "../Generic/GenericWindow.h"
 class WindowsWindow
 {

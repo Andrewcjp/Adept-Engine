@@ -5,7 +5,7 @@
 #include <Windowsx.h>
 #include "Resource.h"
 #include "Core/Components/CompoenentRegistry.h"
-
+#include "../Core/EngineTypes.h"
 #pragma comment(lib, "winmm.lib")
 
 WindowsWindow* WindowsWindow::app = nullptr;
@@ -68,7 +68,7 @@ WindowsWindow* WindowsWindow::CreateApplication(Engine* EnginePtr, HINSTANCE hin
 		app->m_hInst = hinst;
 		app->MyRegisterClass(hinst);
 		//Now create an OGLWindow for this application
-		app->m_engine->LoadDLL();
+		app->m_engine->LoadGame();
 		app->m_engine->ProcessCommandLineInput((const CHAR *)args, nshow);
 		app->CreateOSWindow(app->m_engine->GetWidth(), app->m_engine->GetHeight());
 		app->m_engine->CreateApplication();

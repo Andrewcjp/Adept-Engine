@@ -69,7 +69,7 @@ void BaseWindow::InitilseWindow()
 {
 	Log::OutS  << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
-	IsDeferredMode = false; 
+	IsDeferredMode = true; 
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -474,7 +474,7 @@ void BaseWindow::RenderText()
 
 	if (D3D12RHI::Instance != nullptr && ExtendedPerformanceStats)
 	{
-		stream << D3D12RHI::Instance->GetMemory();
+		stream << D3D12RHI::Instance->GetMemory() <<" "<< PerfManager::GetGPUData();
 		UI->RenderTextToScreen(2, stream.str());
 	}
 
@@ -482,4 +482,5 @@ void BaseWindow::RenderText()
 	{
 		PerfManager::Instance->DrawAllStats(m_width / 2, (int)(m_height / 1.2));
 	}
+	
 }

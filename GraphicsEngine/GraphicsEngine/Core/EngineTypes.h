@@ -1,6 +1,7 @@
 #pragma once
 #include "glm/glm.hpp"
-typedef  glm::vec3 Colour;
+#include "Core/Types/FString.h"
+typedef glm::vec3 Colour;
 namespace Colours
 {
 	static Colour RED = Colour(1, 0, 0);

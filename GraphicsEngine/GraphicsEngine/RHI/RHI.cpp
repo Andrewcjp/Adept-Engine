@@ -28,6 +28,7 @@
 #include "RHI/RenderAPIs/Vulkan/VKanTexture.h"
 #endif
 
+
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 RHI::RHI(ERenderSystemType system)
