@@ -125,7 +125,7 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 	{
 		Device = RHI::GetDefaultDevice();
 	}	
-	return GetRHIClass()->CreateCommandList(Type, Device);;
+	return GetRHIClass()->CreateCommandList(Type, Device);
 }
 
 bool RHI::BlockCommandlistExec()
@@ -170,7 +170,7 @@ void RHI::DestoryRHI()
 }
 
 #define NOLOADTEX 0
-BaseTexture * RHI::CreateTexture(AssetManager::AssetPathRef path, DeviceContext* Device)
+BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device)
 {
 	if (Device == nullptr)
 	{

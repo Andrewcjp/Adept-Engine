@@ -95,16 +95,18 @@ void DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 	}
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_ComputeCommandQueue)));
-	DEVICE_NAME_OBJECT(m_ComputeCommandQueue);
+
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
-	DEVICE_NAME_OBJECT(m_CopyCommandQueue);
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
-	DEVICE_NAME_OBJECT(m_CopyCommandAllocator);
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_CopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_CopyList)));
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_SharedCopyCommandQueue)));
+
 	DEVICE_NAME_OBJECT(m_SharedCopyCommandQueue);
+	DEVICE_NAME_OBJECT(m_ComputeCommandQueue);
+	DEVICE_NAME_OBJECT(m_CopyCommandQueue);
+	DEVICE_NAME_OBJECT(m_CopyCommandAllocator);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator[i])));

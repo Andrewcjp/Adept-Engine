@@ -291,6 +291,7 @@ void D3D12RHI::LoadPipeLine()
 	}
 	factory->Release();
 	CreateSwapChainRTs();
+	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
 }
 
 
@@ -341,6 +342,10 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 	if (m_swapChain != nullptr)
 	{
 		ReleaseSwapRTs();
+		if (ScreenShotter != nullptr)
+		{
+			delete ScreenShotter;
+		}
 		for (UINT n = 0; n < RHI::CPUFrameCount; n++)
 		{
 			m_fenceValues[n] = m_fenceValues[m_frameIndex];
@@ -355,6 +360,7 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 			FrameBuffersLinkedToSwapChain[i]->Resize(x, y);
 		}
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+		ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
 	}
 }
 
@@ -461,7 +467,13 @@ void D3D12RHI::PresentFrame()
 		DisplayDeviceDebug();
 		Log::OutS << "Memory Budget Changed" << Log::OutS;
 	}
-
+	//only set up to grab the 0 frame of spawn chain
+	if (RunScreenShot && m_frameIndex == 0)
+	{
+		ScreenShotter->WriteBackRenderTarget();
+		ScreenShotter->WriteToFile(AssetPathRef("\\asset\\Saved\\Screen"));
+		RunScreenShot = false;
+	}
 	ThrowIfFailed(m_swapChain->Present(0, 0));
 	if (!RHI::AllowCPUAhead())
 	{
@@ -704,6 +716,12 @@ RHICommandList * D3D12RHI::CreateCommandList(ECommandListType::Type Type, Device
 	}
 	return new D3D12CommandList(Device, Type);
 }
+
+void D3D12RHI::TriggerBackBufferScreenShot()
+{
+	RunScreenShot = true;
+}
+
 BaseTexture * D3D12RHI::CreateTexture(DeviceContext* Device)
 {
 	if (Device == nullptr)
@@ -735,8 +753,8 @@ ShaderProgramBase * D3D12RHI::CreateShaderProgam(DeviceContext* Device)
 
 bool D3D12RHI::InitRHI(int w, int h)
 {
-	m_height = w;
-	m_width = h;
+	m_width = w;
+	m_height = h;
 	m_aspectRatio = static_cast<float>(w) / static_cast<float>(h);
 	LoadPipeLine();
 	LoadAssets();
@@ -772,3 +790,5 @@ RHITextureArray * D3D12RHI::CreateTextureArray(DeviceContext* Device, int Length
 	}
 	return new D3D12RHITextureArray(Device, Length);;
 }
+
+

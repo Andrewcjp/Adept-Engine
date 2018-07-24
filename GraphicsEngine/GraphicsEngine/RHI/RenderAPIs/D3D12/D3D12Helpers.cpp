@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "D3D12Helpers.h"
 #include "Core/Asserts.h"
+#include "GPUResource.h"
+#include "D3D12CommandList.h"
+#include "RHI/DeviceContext.h"
+#include "Core/Assets/AssetTypes.h"
+#include "../Core/Platform/PlatformCore.h"
 
 std::string D3D12Helpers::StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel)
 {
@@ -210,4 +215,101 @@ D3D12_COMMAND_LIST_TYPE D3D12Helpers::ConvertListType(ECommandListType::Type typ
 		break;
 	}
 	return D3D12_COMMAND_LIST_TYPE();
+}
+
+void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
+{
+	Cmdlist->ResetList();
+	D3D12_RESOURCE_STATES InitalState = Target->GetCurrentState();
+	Target->SetResourceState(Cmdlist->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
+	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
+	CD3DX12_BOX box(0, 0, Desc.Width, Desc.Height);
+
+	Device->GetDevice()->GetCopyableFootprints(&Desc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
+	CD3DX12_TEXTURE_COPY_LOCATION dest(WriteBackResource->GetResource(), renderTargetLayout);
+	CD3DX12_TEXTURE_COPY_LOCATION src(Target->GetResource(), 0);
+	Cmdlist->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+
+	Target->SetResourceState(Cmdlist->GetCommandList(), InitalState);
+	Device->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	Cmdlist->Execute(DeviceContextQueue::InterCopy);
+	Device->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+}
+
+static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
+{
+	return (size + alignment - 1) & ~(alignment - 1);
+}
+
+D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext * context, GPUResource* target)
+{
+	Device = context;
+	Cmdlist = (D3D12CommandList*)RHI::CreateCommandList(ECommandListType::Copy, context);
+	Target = target;
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+	UINT64 pTotalBytes = 0;
+	context->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
+	UINT64 textureSize = Align(layout.Footprint.RowPitch * layout.Footprint.Height);
+
+	// Create a buffer with the same layout as the render target texture.
+	D3D12_RESOURCE_DESC crossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_NONE);
+	ID3D12Resource* Readback = nullptr;
+	ThrowIfFailed(context->GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+		D3D12_HEAP_FLAG_NONE,
+		&crossAdapterDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&Readback)));
+
+	WriteBackResource = new GPUResource(Readback, D3D12_RESOURCE_STATE_COPY_DEST);
+
+}
+
+#include <SOIL.h>
+void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
+{
+	const bool DDS = false;
+	const D3D12_RANGE emptyRange = {};
+	D3D12_RANGE readRange = {};
+	ThrowIfFailed(WriteBackResource->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&pData + readRange.Begin)));//+begin?
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+	UINT64 pTotalBytes = 0;
+	Device->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
+	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
+	const unsigned char * Pioint = ((const unsigned char *)pData);
+
+	std::string path = Ref.GetNoExtPathToAsset();
+	path.append(GenericPlatformMisc::GetDateTimeString());
+	if (DDS)
+	{
+		path.append(".DDS");
+	}
+	else
+	{
+		path.append(".bmp");
+	}
+	BYTE* RawData = (BYTE*)malloc(pTotalBytes);
+	ZeroMemory(RawData, pTotalBytes);
+	BYTE* source = static_cast<BYTE*>(pData);
+	BYTE* WritePtr = RawData;
+	const int ChannelCount = 4;
+	for (int i = 0; i < Desc.Height; i++)
+	{
+		memcpy(WritePtr, source, Desc.Width * ChannelCount); // for 4 bytes per pixel
+		source += layout.Footprint.RowPitch;
+		WritePtr += Desc.Width * ChannelCount;
+	}
+	WriteBackResource->GetResource()->Unmap(0, &emptyRange);
+
+	//remove the Alpha Value from the texture for BMPs
+	for (int i = 0; i < Desc.Height*Desc.Width*ChannelCount; i+= ChannelCount)
+	{
+		BYTE* Ptr = (RawData + i+3);
+		*Ptr = 255;
+	}
+	//de align
+	SOIL_save_image(path.c_str(), DDS ? SOIL_SAVE_TYPE_DDS : SOIL_SAVE_TYPE_BMP, Desc.Width, Desc.Height, ChannelCount, RawData);
+	
 }

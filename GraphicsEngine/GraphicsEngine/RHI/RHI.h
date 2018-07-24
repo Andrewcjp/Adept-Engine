@@ -31,7 +31,7 @@ public:
 	static const int CPUFrameCount = 2;
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
-	CORE_API static BaseTexture* CreateTexture(AssetManager::AssetPathRef, DeviceContext* Device = nullptr);
+	CORE_API static BaseTexture* CreateTexture(AssetPathRef, DeviceContext* Device = nullptr);
 	CORE_API static BaseTexture* CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device = nullptr);
 	CORE_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
 	CORE_API static Renderable * CreateMesh(const char * path);
@@ -92,4 +92,5 @@ public:
 	virtual void ToggleFullScreenState() = 0;
 	virtual void ResizeSwapChain(int width, int height) = 0;
 	virtual void WaitForGPU() =0;
+	virtual void TriggerBackBufferScreenShot() = 0;
 };

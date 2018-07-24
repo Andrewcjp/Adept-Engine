@@ -6,9 +6,7 @@
 #define IDM_RENDER_OGL 2
 #define IDM_FILE_QUIT 3
 
-class RenderWindow;
-class PhysicsEngine;
-class Engine;
+
 //Define BaseApplication as a singleton
 class BaseApplication
 {

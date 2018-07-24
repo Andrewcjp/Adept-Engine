@@ -1,7 +1,6 @@
 #pragma once
 class GenericWindow
-{
-	
+{	
 public:
 	enum CursorType
 	{

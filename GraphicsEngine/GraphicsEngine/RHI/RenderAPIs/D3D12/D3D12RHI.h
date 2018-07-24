@@ -65,7 +65,8 @@ private:
 	RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr) override;
 	RHIUAV* CreateUAV(DeviceContext* Device = nullptr) override;
 	RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr)override;
-	
+	virtual void TriggerBackBufferScreenShot() override;
+
 	void WaitForGPU() override;
 	void RHISwapBuffers() override;
 	void RHIRunFirstFrame() override;
@@ -109,8 +110,9 @@ private:
 	size_t totalVRAM = 0;
 	int PresentCount = 0;
 	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;
-
+	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
+	bool RunScreenShot = false;
 };
 #include "D3D12Helpers.h"
 //helper functions!

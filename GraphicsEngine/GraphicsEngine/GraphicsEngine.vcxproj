@@ -303,9 +303,11 @@
   <ItemGroup>
     <ClInclude Include="Core\Asserts.h" />
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="Core\Assets\AssetTypes.h" />
     <ClInclude Include="Core\EngineTypes_fwd.h" />
     <ClInclude Include="Core\MinWindows.h" />
     <ClInclude Include="Core\Platform\Generic\GenericApplication.h" />
+    <ClInclude Include="Core\Platform\Generic\GenericPlatformMisc.h" />
     <ClInclude Include="Core\Platform\Generic\GenericWindow.h" />
     <ClInclude Include="Core\Platform\PlatformCore.h" />
     <ClInclude Include="Editor\EditorCore.h" />
@@ -456,7 +458,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="Core\Assets\AssetTypes.cpp" />
     <ClCompile Include="Core\Module\ModuleInterface.h" />
+    <ClCompile Include="Core\Platform\Generic\GenericPlatformMisc.cpp" />
     <ClCompile Include="Editor\EditorCore.cpp" />
     <ClCompile Include="Core\Components\Utillity\FreeLookComponent.cpp" />
     <ClCompile Include="Core\Types\FString.cpp" />

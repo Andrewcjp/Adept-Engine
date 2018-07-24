@@ -151,7 +151,7 @@ unsigned char* D3D12Texture::GenerateMips(int count, int StartWidth, int StartHe
 	return finalbuffer;
 }
 
-bool D3D12Texture::CLoad(AssetManager::AssetPathRef name)
+bool D3D12Texture::CLoad(AssetPathRef name)
 {
 
 	unsigned char *buffer = NULL;
@@ -160,7 +160,7 @@ bool D3D12Texture::CLoad(AssetManager::AssetPathRef name)
 
 	TextureName = name.BaseName;
 	TexturePath = name.GetRelativePathToAsset();
-	if (name.GetFileType() == AssetManager::AssetFileType::DDS)
+	if (name.GetFileType() == AssetFileType::DDS)
 	{
 		return LoadDDS(name.GetFullPathToAsset());
 	}
@@ -251,7 +251,7 @@ D3D12Texture::~D3D12Texture()
 	}
 }
 
-bool D3D12Texture::CreateFromFile(AssetManager::AssetPathRef FileName)
+bool D3D12Texture::CreateFromFile(AssetPathRef FileName)
 {
 	return CLoad(FileName);
 }

@@ -85,7 +85,7 @@ void WindowsWindow::SetVisible(bool visible)
 bool WindowsWindow::CreateOSWindow(int width, int height)
 {
 	app->HWindow = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-		L"RenderWindow", L"OGLWindow", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+		L"RenderWindow", L"Engine Window", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
 	return true;
 }

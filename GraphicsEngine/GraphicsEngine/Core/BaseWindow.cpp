@@ -56,7 +56,7 @@ bool BaseWindow::ChangeDisplayMode(int width, int height)
 	return true;
 }
 
-bool BaseWindow::CreateRenderWindow( int width, int height)
+bool BaseWindow::CreateRenderWindow(int width, int height)
 {
 	RHI::InitialiseContext(width, height);
 	m_height = height;
@@ -67,9 +67,9 @@ bool BaseWindow::CreateRenderWindow( int width, int height)
 }
 void BaseWindow::InitilseWindow()
 {
-	Log::OutS  << "Scene Load started" << Log::OutS;
+	Log::OutS << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
-	IsDeferredMode = true; 
+	IsDeferredMode = true;
 	if (IsDeferredMode)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -144,10 +144,14 @@ void BaseWindow::Render()
 	}
 	if (input->GetKeyDown(VK_F11))
 	{
-		//D3D12RHI::Instance->ToggleFullScreenState();
 		RHI::ToggleFullScreenState();
 	}
+	if (input->GetKeyDown(VK_F9))
+	{
+		RHI::GetRHIClass()->TriggerBackBufferScreenShot();
+	}
 #endif
+
 	Update();
 	if (ShouldTickScene)
 	{
@@ -316,17 +320,21 @@ void BaseWindow::LoadScene(std::string RelativePath)
 
 void BaseWindow::PostFrameOne()
 {
-	Log::OutS  << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << Log::OutS;
+	Log::OutS << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << Log::OutS;
 #if BUILD_D3D12 && !USEGPUTOGENMIPS_ATRUNTIME
 	if (RHI::GetType() == RenderSystemD3D12)
 	{
-		Log::OutS  << "MipMaps took " << D3D12Texture::MipCreationTime << "MS to generate" << Log::OutS;
+		Log::OutS << "MipMaps took " << D3D12Texture::MipCreationTime << "MS to generate" << Log::OutS;
 	}
 #endif
 
 }
 void BaseWindow::Resize(int width, int height)
 {
+	if (width == m_width && height == m_height)
+	{
+		return;
+	}
 	m_width = width;
 	m_height = height;
 	if (UI != nullptr)
@@ -346,7 +354,7 @@ void BaseWindow::DestroyRenderWindow()
 	Renderer->DestoryRenderWindow();
 	delete input;
 	delete LineDrawer;
-	delete UI;	
+	delete UI;
 	delete Renderer;
 	delete CurrentScene;
 	RHI::DestoryContext();
@@ -474,7 +482,7 @@ void BaseWindow::RenderText()
 
 	if (D3D12RHI::Instance != nullptr && ExtendedPerformanceStats)
 	{
-		stream << D3D12RHI::Instance->GetMemory() <<" "<< PerfManager::GetGPUData();
+		stream << D3D12RHI::Instance->GetMemory() << " " << PerfManager::GetGPUData();
 		UI->RenderTextToScreen(2, stream.str());
 	}
 
@@ -482,5 +490,5 @@ void BaseWindow::RenderText()
 	{
 		PerfManager::Instance->DrawAllStats(m_width / 2, (int)(m_height / 1.2));
 	}
-	
+
 }

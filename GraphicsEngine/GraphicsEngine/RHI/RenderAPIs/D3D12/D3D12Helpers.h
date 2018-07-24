@@ -26,4 +26,19 @@ public:
 	static D3D12_COMMAND_LIST_TYPE ConvertListType(ECommandListType::Type type);
 };
 
-
+//Used to Copy Back resources for read
+//Run outside the RHI
+struct AssetPathRef;
+class D3D12ReadBackCopyHelper
+{
+public:
+	void WriteBackRenderTarget();
+	D3D12ReadBackCopyHelper(class DeviceContext* context, class GPUResource* Target);
+	void WriteToFile(AssetPathRef& Ref);
+private:
+	GPUResource * WriteBackResource = nullptr;
+	GPUResource* Target = nullptr;
+	DeviceContext* Device = nullptr;
+	class D3D12CommandList* Cmdlist = nullptr;
+	void* pData = nullptr;
+};

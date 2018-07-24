@@ -15,7 +15,7 @@ public:
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
-	virtual void Execute(DeviceContextQueue::Type Target) override;
+	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
 	virtual void WaitForCompletion() override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;

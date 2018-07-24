@@ -3,7 +3,7 @@
 
 #include <string>
 #include "../Core/Platform/Logger.h"
-#include "../Core/Types/FString.h"
+#include "../Core/EngineTypes.h"
 class RenderWindow;
 class PhysicsEngine;
 class EditorWindow;
@@ -16,6 +16,7 @@ public:
 	CORE_API static class CompoenentRegistry* CompRegistry;
 	CORE_API static PhysicsEngine* GetPhysEngineInstance();
 	bool						isWindowVaild = false;
+	static Engine* EngineInstance;
 	static std::string GetRootDir();
 	Engine();
 	~Engine();
@@ -36,9 +37,11 @@ public:
 	int GetWidth();
 	int GetHeight();
 	void Resize(int width, int height);
+	IntPoint* GetInitalScreen();
 private:
 	ERenderSystemType ForcedRenderSystem = ERenderSystemType::Limit;
 	int mwidth, mheight;
+	IntPoint IntialScreenSize;
 	bool Deferredmode = false;
 	bool FullScreen = false;
 	bool ShouldRunCook = false;

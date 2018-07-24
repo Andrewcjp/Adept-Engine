@@ -26,6 +26,7 @@ TextRenderer::TextRenderer(int width, int height)
 	LoadText();
 	instance = this;
 	coords.reserve(100 * 6);
+	UpdateSize(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());
 }
 
 
@@ -198,9 +199,10 @@ void TextRenderer::LoadText()
 	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(RunOnSecondDevice));
 	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });
 	TextCommandList->CreatePipelineState(m_TextShader);
+	
 	if (UseFrameBuffer)
 	{
-		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(1280, 720);
+		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());
 		desc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 0.0f);
 		if (RunOnSecondDevice)
 		{

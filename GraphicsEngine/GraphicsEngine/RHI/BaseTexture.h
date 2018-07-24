@@ -11,7 +11,7 @@ public:
 		Type_CubeMap
 	};
 	virtual		 ~BaseTexture() { ; }
-	virtual bool CreateFromFile(AssetManager::AssetPathRef FileName) = 0;	
+	virtual bool CreateFromFile(AssetPathRef FileName) = 0;	
 	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) = 0;
 	virtual void CreateTextureFromData(void* data, int type, int width, int height, int bits) = 0;	
 	virtual void CreateAsNull() =0;

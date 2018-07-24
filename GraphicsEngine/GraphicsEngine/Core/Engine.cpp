@@ -12,15 +12,17 @@
 #include "Shlwapi.h"
 #include "Packaging/Cooker.h"
 #include "Core/Utils/FileUtils.h"
-#include "Core/Types/FString.h"
+#include "Module/ModuleManager.h"
+
 
 #pragma comment(lib, "shlwapi.lib")
 
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
-PhysicsEngine* Engine::PhysEngine = NULL;
-#include "Module/ModuleManager.h"
+PhysicsEngine* Engine::PhysEngine = nullptr;
+Engine* Engine::EngineInstance = nullptr;
+
 
 PhysicsEngine * Engine::GetPhysEngineInstance()
 {
@@ -41,6 +43,7 @@ std::string Engine::GetRootDir()
 
 Engine::Engine()
 {
+	EngineInstance = this;
 	StartTime = (float)PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetRootDir() << Log::OutS;
 	Log::OutS << "Loading Engine v0.1" << Log::OutS;
@@ -71,7 +74,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	
+
 }
 void Engine::PreInit()
 {
@@ -198,6 +201,11 @@ void Engine::Resize(int width, int height)
 	mheight = height;
 }
 
+IntPoint * Engine::GetInitalScreen()
+{
+	return &IntialScreenSize;
+}
+
 void Engine::CreateApplicationWindow(int width, int height)
 {
 	if (m_appwnd == nullptr)
@@ -227,7 +235,7 @@ void Engine::CreateApplicationWindow(int width, int height)
 #else 
 		m_appwnd = new GameWindow(/*Deferredmode*/);
 #endif 
-		isWindowVaild = m_appwnd->CreateRenderWindow( width, height);
+		isWindowVaild = m_appwnd->CreateRenderWindow(width, height);
 
 		if (!isWindowVaild)
 		{
