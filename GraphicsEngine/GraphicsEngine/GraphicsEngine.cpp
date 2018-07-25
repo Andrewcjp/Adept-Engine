@@ -81,7 +81,6 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	PlatformWindow* myapp = PlatformWindow::CreateApplication(engine,hInstance, lpCmdLine, nCmdShow);
 
 	exitcode = myapp->Run();
-	engine->OnDestoryWindow();
 	myapp->DestroyApplication();
 #endif
 

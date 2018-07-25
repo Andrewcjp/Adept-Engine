@@ -48,7 +48,7 @@ Shader_Skybox::~Shader_Skybox()
 void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List->ResetList();
-	List->GetDevice()->GetTimeManager()->StartTimer(List, D3D12TimeManager::eGPUTIMERS::Skybox);
+	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::Skybox);
 	if (DepthSourceBuffer != nullptr)
 	{
 		if (RHI::IsD3D12())
@@ -75,7 +75,7 @@ void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBu
 	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 	
-	List->GetDevice()->GetTimeManager()->EndTimer(List, D3D12TimeManager::eGPUTIMERS::Skybox);
+	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
 	List->Execute();
 }
 

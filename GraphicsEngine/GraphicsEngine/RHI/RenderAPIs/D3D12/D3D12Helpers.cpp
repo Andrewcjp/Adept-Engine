@@ -3,6 +3,7 @@
 #include "Core/Asserts.h"
 #include "GPUResource.h"
 #include "D3D12CommandList.h"
+#include "D3D12DeviceContext.h"
 #include "RHI/DeviceContext.h"
 #include "Core/Assets/AssetTypes.h"
 #include "../Core/Platform/PlatformCore.h"
@@ -244,18 +245,18 @@ static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLAC
 
 D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext * context, GPUResource* target)
 {
-	Device = context;
+	Device = (D3D12DeviceContext*)context;
 	Cmdlist = (D3D12CommandList*)RHI::CreateCommandList(ECommandListType::Copy, context);
 	Target = target;
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
 	UINT64 pTotalBytes = 0;
-	context->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
+	Device->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
 	UINT64 textureSize = Align(layout.Footprint.RowPitch * layout.Footprint.Height);
 
 	// Create a buffer with the same layout as the render target texture.
 	D3D12_RESOURCE_DESC crossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_NONE);
 	ID3D12Resource* Readback = nullptr;
-	ThrowIfFailed(context->GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 		D3D12_HEAP_FLAG_NONE,
 		&crossAdapterDesc,

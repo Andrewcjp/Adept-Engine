@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "DescriptorHeap.h"
 #include "Core/Performance/PerfManager.h"
+#include "D3D12DeviceContext.h"
 #define CUBE_SIDES 6
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
@@ -33,7 +34,7 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targethea
 {
 	if (BufferDesc.RenderTargetCount > 2)
 	{
-		target->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), targetheap->GetCPUAddress(HeapOffset));
+		((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), targetheap->GetCPUAddress(HeapOffset));
 	}
 	else
 	{
@@ -46,12 +47,12 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targethea
 		if (BufferDesc.RenderTargetCount == 0)
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
-			target->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
+			((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
 		}
 		else
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
-			target->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
+			((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
 		}
 	}
 }
@@ -132,7 +133,7 @@ static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLAC
 void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 {
 	ensure(device != CurrentDevice);
-	OtherDevice = device;
+	OtherDevice = (D3D12DeviceContext*)device;
 	ID3D12Device* Host = CurrentDevice->GetDevice();
 	ID3D12Device* Target = OtherDevice->GetDevice();
 
@@ -303,8 +304,19 @@ void D3D12FrameBuffer::BindDepthWithColourPassthrough(ID3D12GraphicsCommandList 
 	list->OMSetRenderTargets(Passtrhough->BufferDesc.RenderTargetCount, &Passtrhough->RTVHeap->GetCPUAddress(0), true, &DSVHeap->GetCPUAddress(0));
 }
 
+DeviceContext * D3D12FrameBuffer::GetTargetDevice()
+{
+	return OtherDevice;
+}
+
+DeviceContext * D3D12FrameBuffer::GetDevice()
+{
+	return CurrentDevice;
+}
+
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
+	CurrentDevice = (D3D12DeviceContext*)device;
 	Init();
 	if (BufferDesc.IsShared)
 	{

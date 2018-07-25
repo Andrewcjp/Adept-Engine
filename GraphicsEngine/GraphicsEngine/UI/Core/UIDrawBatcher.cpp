@@ -77,11 +77,11 @@ void UIDrawBatcher::RenderBatches()
 	Shader->UpdateUniforms(projection);
 
 	commandlist->ResetList();
-	commandlist->GetDevice()->GetTimeManager()->StartTimer(commandlist, D3D12TimeManager::eGPUTIMERS::UI);
+	commandlist->GetDevice()->GetTimeManager()->StartTimer(commandlist, EGPUTIMERS::UI);
 	commandlist->SetScreenBackBufferAsRT();
 	Shader->PushTOGPU(commandlist);
 	Render(commandlist);
-	commandlist->GetDevice()->GetTimeManager()->EndTimer(commandlist, D3D12TimeManager::eGPUTIMERS::UI);
+	commandlist->GetDevice()->GetTimeManager()->EndTimer(commandlist, EGPUTIMERS::UI);
 	commandlist->Execute();	
 }
 

@@ -176,7 +176,25 @@ enum COMPARISON_FUNC
 	COMPARISON_FUNC_GREATER_EQUAL = 7,
 	COMPARISON_FUNC_ALWAYS = 8
 };
-
+namespace EGPUTIMERS
+{
+	enum Type
+	{
+		Total,
+		PointShadows,
+		DirShadows,
+		MainPass,
+		DeferredWrite,
+		DeferredLighting,
+		UI,
+		Text,
+		Skybox,
+		PostProcess,
+		Present,
+		ShadowPreSample,
+		LIMIT
+	};
+}
 struct RHIFrameBufferDesc
 {
 public:

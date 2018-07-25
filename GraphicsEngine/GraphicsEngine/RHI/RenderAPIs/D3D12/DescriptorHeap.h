@@ -22,7 +22,7 @@ public:
 	ID3D12DescriptorHeap* GetHeap() { return mHeap; };
 private:
 	ID3D12DescriptorHeap * mHeap = nullptr;
-	DeviceContext* Device = nullptr;
+	class D3D12DeviceContext* Device = nullptr;
 	int DescriptorOffsetSize = 0;
 	EGPUMemoryPriority Priority = EGPUMemoryPriority::Critical;
 };

@@ -4,7 +4,8 @@
 #include "D3D12CommandList.h"
 #include <iomanip>
 #include "Core/Performance/PerfManager.h"
-D3D12TimeManager::D3D12TimeManager(DeviceContext* context)
+#include "D3D12DeviceContext.h"
+D3D12TimeManager::D3D12TimeManager(DeviceContext* context):RHITimeManager(context)
 {
 	Init(context);
 }
@@ -20,6 +21,7 @@ D3D12TimeManager::~D3D12TimeManager()
 
 void D3D12TimeManager::Init(DeviceContext* context)
 {
+	D3D12DeviceContext* dcontext = (D3D12DeviceContext*)context;
 #if ENABLE_GPUTIMERS
 	// Create query heaps and result buffers.
 	// Two timestamps for each frame.
@@ -30,7 +32,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	timestampHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
 	timestampHeapDesc.Count = resultCount;
 
-	ThrowIfFailed(context->GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(dcontext->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(resultBufferSize),
@@ -38,10 +40,8 @@ void D3D12TimeManager::Init(DeviceContext* context)
 		nullptr,
 		IID_PPV_ARGS(&m_timestampResultBuffers)));
 
-	ThrowIfFailed(context->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&m_timestampQueryHeaps)));
-
-	Context = context;
-	ThrowIfFailed(context->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
+	ThrowIfFailed(dcontext->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&m_timestampQueryHeaps)));
+	ThrowIfFailed(dcontext->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
 	int TimerItor = 0;
 	for (int i = 0; i < MaxTimerCount; i++)
 	{
@@ -55,17 +55,17 @@ void D3D12TimeManager::Init(DeviceContext* context)
 		GPUName.append(std::to_string(context->GetDeviceIndex()));
 		StatsGroupId = PerfManager::Instance->GetGroupId(GPUName.c_str());
 	}
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::Total, "Total GPU");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::MainPass, "Main Pass");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::DeferredWrite, "Deferred Write");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::DeferredLighting, "Deferred Lighting");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::Skybox, "Skybox");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::PointShadows, "Point Shadow");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::DirShadows, "Dir Shadow");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::Text, "Text");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::UI, "UI Draw");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::PostProcess, "Post Processing");
-	SetTimerName(D3D12TimeManager::eGPUTIMERS::ShadowPreSample, "Shadow PreSample");
+	SetTimerName(EGPUTIMERS::Total, "Total GPU");
+	SetTimerName(EGPUTIMERS::MainPass, "Main Pass");
+	SetTimerName(EGPUTIMERS::DeferredWrite, "Deferred Write");
+	SetTimerName(EGPUTIMERS::DeferredLighting, "Deferred Lighting");
+	SetTimerName(EGPUTIMERS::Skybox, "Skybox");
+	SetTimerName(EGPUTIMERS::PointShadows, "Point Shadow");
+	SetTimerName(EGPUTIMERS::DirShadows, "Dir Shadow");
+	SetTimerName(EGPUTIMERS::Text, "Text");
+	SetTimerName(EGPUTIMERS::UI, "UI Draw");
+	SetTimerName(EGPUTIMERS::PostProcess, "Post Processing");
+	SetTimerName(EGPUTIMERS::ShadowPreSample, "Shadow PreSample");
 #endif
 }
 void D3D12TimeManager::UpdateTimers()
@@ -177,6 +177,11 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	D3D12CommandList* List = (D3D12CommandList*)CommandList;
 	EndTimer(List->GetCommandList(), index);
 #endif
+}
+
+float D3D12TimeManager::GetTotalTime()
+{
+	return AVGgpuTimeMS;
 }
 
 void D3D12TimeManager::StartTimer(ID3D12GraphicsCommandList * ComandList, int index)

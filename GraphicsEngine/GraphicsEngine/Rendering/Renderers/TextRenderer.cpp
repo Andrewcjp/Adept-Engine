@@ -148,7 +148,7 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 void TextRenderer::Finish()
 {
 	TextCommandList->SetRenderTarget(nullptr);
-	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::Text);
+	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, EGPUTIMERS::Text);
 	TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(TextCommandList);
 	TextCommandList->Execute();
 	TextCommandList->GetDevice()->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
@@ -183,7 +183,7 @@ void TextRenderer::Finish()
 void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();
-	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, D3D12TimeManager::eGPUTIMERS::Text);
+	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, EGPUTIMERS::Text);
 	if (RunOnSecondDevice)
 	{
 		TextCommandList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(TextCommandList);

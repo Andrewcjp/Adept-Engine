@@ -107,9 +107,9 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, c
 	{
 		DirectionalShadowList->ResetList();
 		DirectionalShadowList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(DirectionalShadowList);
-		DirectionalShadowList->GetDevice()->GetTimeManager()->StartTimer(DirectionalShadowList, D3D12TimeManager::eGPUTIMERS::DirShadows);
+		DirectionalShadowList->GetDevice()->GetTimeManager()->StartTimer(DirectionalShadowList, EGPUTIMERS::DirShadows);
 		RenderDirectionalShadows(DirectionalShadowList, mainshader, ShadowObjects);
-		DirectionalShadowList->GetDevice()->GetTimeManager()->EndTimer(DirectionalShadowList, D3D12TimeManager::eGPUTIMERS::DirShadows);
+		DirectionalShadowList->GetDevice()->GetTimeManager()->EndTimer(DirectionalShadowList, EGPUTIMERS::DirShadows);
 		DirectionalShadowList->Execute();
 	}
 	if (ShadowingPointLights.size() > 0)
@@ -126,9 +126,9 @@ void ShadowRenderer::RunPointShadowPass(RHICommandList* List, const std::vector<
 {
 	List->ResetList();
 	List->GetDevice()->GetTimeManager()->StartTotalGPUTimer(List);
-	List->GetDevice()->GetTimeManager()->StartTimer(List, D3D12TimeManager::eGPUTIMERS::PointShadows);
+	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::PointShadows);
 	RenderPointShadows(List, mainshader, ShadowObjects);
-	List->GetDevice()->GetTimeManager()->EndTimer(List, D3D12TimeManager::eGPUTIMERS::PointShadows);
+	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::PointShadows);
 	List->Execute();
 }
 
@@ -136,7 +136,7 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 {
 	RHICommandList* list = ShadowPreSamplingList;
 	list->ResetList();
-	list->GetDevice()->GetTimeManager()->StartTimer(list, D3D12TimeManager::eGPUTIMERS::ShadowPreSample);
+	list->GetDevice()->GetTimeManager()->StartTimer(list, EGPUTIMERS::ShadowPreSample);
 	for (int SNum = 0; SNum < (int)ShadowingPointLights.size(); SNum++)
 	{
 		if (!LightInteractions[SNum]->NeedsSample)
@@ -164,7 +164,7 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 		}
 		list->SetRenderTarget(nullptr);
 	}
-	list->GetDevice()->GetTimeManager()->EndTimer(list, D3D12TimeManager::eGPUTIMERS::ShadowPreSample);
+	list->GetDevice()->GetTimeManager()->EndTimer(list, EGPUTIMERS::ShadowPreSample);
 	list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
 	list->Execute();
 	for (int SNum = 0; SNum < (int)ShadowingPointLights.size(); SNum++)

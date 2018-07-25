@@ -71,11 +71,10 @@ private:
 	void RHISwapBuffers() override;
 	void RHIRunFirstFrame() override;
 	void ResizeSwapChain(int x, int y) override;
-
 private:
 	ID3D12Device * GetDisplayDevice();
-	class	DeviceContext* PrimaryDevice = nullptr;
-	class	DeviceContext* SecondaryDevice = nullptr;
+	class	D3D12DeviceContext* PrimaryDevice = nullptr;
+	class	D3D12DeviceContext* SecondaryDevice = nullptr;
 	void ExecList(ID3D12GraphicsCommandList * list, bool block = false);
 	ID3D12GraphicsCommandList* m_SetupCommandList;
 	int m_width = 0;

@@ -91,7 +91,8 @@ void Engine::OnRender()
 
 void Engine::OnDestoryWindow()
 {
-
+	m_appwnd->DestroyRenderWindow();
+	m_appwnd = nullptr;
 }
 
 void Engine::Destory()

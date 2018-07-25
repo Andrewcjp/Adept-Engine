@@ -29,7 +29,7 @@
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-
+#include "D3D12DeviceContext.h"
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 	:m_fenceValues{}
@@ -212,7 +212,7 @@ void D3D12RHI::LoadPipeLine()
 	{
 		IDXGIAdapter* warpAdapter;
 		ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
-		SecondaryDevice = new DeviceContext();
+		SecondaryDevice = new D3D12DeviceContext();
 		SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
 		Log::LogMessage("Found D3D12 GPU debugger, Warp adaptor is now used instead of second physical GPU");
 	}
@@ -455,7 +455,7 @@ void D3D12RHI::PresentFrame()
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(PrimaryDevice->GetCommandAllocator(), nullptr);
-		PrimaryDevice->GetTimeManager()->EndTotalGPUTimer(m_SetupCommandList);
+		((D3D12TimeManager*)PrimaryDevice->GetTimeManager())->EndTotalGPUTimer(m_SetupCommandList);
 		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
 
 		m_SetupCommandList->Close();
@@ -644,7 +644,7 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 		// actual device yet.
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 		{
-			DeviceContext** Device = nullptr;
+			D3D12DeviceContext** Device = nullptr;
 			if (CurrentDeviceIndex == 0)
 			{
 				Device = &PrimaryDevice;
@@ -660,7 +660,7 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 
 			if (*Device == nullptr)
 			{
-				*Device = new DeviceContext();
+				*Device = new D3D12DeviceContext();
 				(*Device)->CreateDeviceFromAdaptor(adapter, CurrentDeviceIndex);
 				CurrentDeviceIndex++;
 			}

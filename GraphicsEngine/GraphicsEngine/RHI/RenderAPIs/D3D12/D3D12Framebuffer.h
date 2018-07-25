@@ -36,15 +36,14 @@ public:
 	void MakeReadyForCopy(ID3D12GraphicsCommandList * list);
 
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list, D3D12FrameBuffer* Passtrhough);
-	DeviceContext* GetTargetDevice()
-	{
-		return OtherDevice;
-	}
+	DeviceContext* GetTargetDevice();
+	DeviceContext* GetDevice() override;
 	GPUResource* GetResource(int index)
 	{
 		return RenderTarget[index];
 	}
 private:
+	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	DescriptorHeap* SrvHeap = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;
@@ -66,7 +65,7 @@ private:
 	class GPUResource* RenderTarget[8] = {};
 
 	//device Shareing
-	DeviceContext* OtherDevice = nullptr;
+	class D3D12DeviceContext* OtherDevice = nullptr;
 	ID3D12Heap* CrossHeap = nullptr;
 	ID3D12Heap* TWO_CrossHeap = nullptr;
 	HANDLE heapHandle = nullptr;

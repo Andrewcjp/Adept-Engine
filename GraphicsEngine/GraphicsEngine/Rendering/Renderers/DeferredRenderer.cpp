@@ -67,7 +67,7 @@ void DeferredRenderer::GeometryPass()
 	 
 	WriteList->ResetList();
 	WriteList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(WriteList);
-	WriteList->GetDevice()->GetTimeManager()->StartTimer(WriteList,D3D12TimeManager::eGPUTIMERS::DeferredWrite);
+	WriteList->GetDevice()->GetTimeManager()->StartTimer(WriteList,EGPUTIMERS::DeferredWrite);
 	WriteList->SetRenderTarget(GFrameBuffer);
 	WriteList->ClearFrameBuffer(GFrameBuffer);
 	MainShader->BindLightsBuffer(WriteList);
@@ -78,7 +78,7 @@ void DeferredRenderer::GeometryPass()
 		(*MainScene->GetObjects())[i]->Render(false, WriteList);
 	}
 	WriteList->SetRenderTarget(nullptr);
-	WriteList->GetDevice()->GetTimeManager()->EndTimer(WriteList, D3D12TimeManager::eGPUTIMERS::DeferredWrite);
+	WriteList->GetDevice()->GetTimeManager()->EndTimer(WriteList, EGPUTIMERS::DeferredWrite);
 	WriteList->Execute();
 }
 
@@ -96,7 +96,7 @@ void DeferredRenderer::SSAOPass()
 void DeferredRenderer::LightingPass()
 {
 	LightingList->ResetList();
-	WriteList->GetDevice()->GetTimeManager()->StartTimer(LightingList, D3D12TimeManager::eGPUTIMERS::DeferredLighting);
+	WriteList->GetDevice()->GetTimeManager()->StartTimer(LightingList, EGPUTIMERS::DeferredLighting);
 
 	LightingList->SetRenderTarget(FilterBuffer);
 	LightingList->ClearFrameBuffer(FilterBuffer);
@@ -115,7 +115,7 @@ void DeferredRenderer::LightingPass()
 	mShadowRenderer->BindShadowMapsToTextures(LightingList);
 	DeferredShader->RenderScreenQuad(LightingList);
 	//LightingList->SetRenderTarget(nullptr);
-	WriteList->GetDevice()->GetTimeManager()->EndTimer(LightingList, D3D12TimeManager::eGPUTIMERS::DeferredLighting);
+	WriteList->GetDevice()->GetTimeManager()->EndTimer(LightingList, EGPUTIMERS::DeferredLighting);
 	mShadowRenderer->Unbind(LightingList);
 	LightingList->Execute();
 }

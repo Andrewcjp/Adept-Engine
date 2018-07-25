@@ -4,12 +4,13 @@
 #include "EngineGlobals.h"
 #include "RHI/DeviceContext.h"
 #if BUILD_D3D12
+#include "D3D12DeviceContext.h"
 D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 {
-	Device = inDevice;
+	Device = (D3D12DeviceContext*)inDevice;
 	if (Device == nullptr)
 	{
-		Device = RHI::GetDeviceContext();
+		Device = (D3D12DeviceContext*)RHI::GetDeviceContext();
 	}
 }
 

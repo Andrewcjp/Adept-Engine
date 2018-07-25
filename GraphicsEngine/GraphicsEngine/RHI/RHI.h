@@ -92,5 +92,5 @@ public:
 	virtual void ToggleFullScreenState() = 0;
 	virtual void ResizeSwapChain(int width, int height) = 0;
 	virtual void WaitForGPU() =0;
-	virtual void TriggerBackBufferScreenShot() = 0;
+	virtual void TriggerBackBufferScreenShot() = 0;	
 };

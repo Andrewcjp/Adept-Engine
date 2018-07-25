@@ -13,6 +13,7 @@
 #include "RHI/DeviceContext.h"
 #include "Rendering/Renderers/TextRenderer.h"
 #include "../Core/Utils/NVAPIManager.h"
+#include <algorithm>
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()
@@ -262,7 +263,7 @@ float PerfManager::GetGPUTime()
 {
 	if (Instance != nullptr)
 	{
-		return RHI::GetDeviceContext(0)->GetTimeManager()->AVGgpuTimeMS;
+		return RHI::GetDeviceContext(0)->GetTimeManager()->GetTotalTime();
 	}
 	return 0.0f;
 }

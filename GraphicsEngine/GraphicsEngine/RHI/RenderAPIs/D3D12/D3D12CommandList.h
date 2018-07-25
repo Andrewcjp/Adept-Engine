@@ -39,6 +39,7 @@ public:
 	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer)override;
 	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer)override;
 private:
+	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList * CurrentGraphicsList = nullptr;
 	bool IsOpen = false;
 	D3D12Shader::PiplineShader				CurrentPipelinestate;
@@ -84,7 +85,7 @@ private:
 	int VertexBufferSize = 0;
 	bool UploadComplete = false;
 	bool CrossDevice = false;
-	DeviceContext* Device = nullptr;
+	D3D12DeviceContext* Device = nullptr;
 };
 
 class D3D12RHIUAV : public RHIUAV
@@ -96,7 +97,7 @@ public:
 	void CreateUAVFromFrameBuffer(class FrameBuffer* target) override;
 	void Bind(RHICommandList* list, int slot) override;
 	ID3D12Resource * m_UAV = nullptr;
-	DeviceContext* Device = nullptr;
+	D3D12DeviceContext* Device = nullptr;
 	ID3D12Resource* UAVCounter = nullptr;
 	class DescriptorHeap* Heap = nullptr;
 };
@@ -114,5 +115,5 @@ private:
 	class DescriptorHeap* Heap = nullptr;
 	std::vector<D3D12FrameBuffer*> LinkedBuffers;
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
-	DeviceContext* Device  =nullptr;
+	D3D12DeviceContext* Device  =nullptr;
 };

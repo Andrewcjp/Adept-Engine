@@ -16,12 +16,14 @@
 #include "GPUResource.h"
 #include "../Rendering/Core/GPUStateCache.h"
 #include "../Core/Utils/MemoryUtils.h"
+#include "D3D12DeviceContext.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType)
 {
 	Device = inDevice;
+	mDeviceContext = (D3D12DeviceContext*)inDevice;
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
-		ThrowIfFailed(Device->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(ListType), IID_PPV_ARGS(&m_commandAllocator[i])));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(ListType), IID_PPV_ARGS(&m_commandAllocator[i])));
 	}
 	if (ListType == ECommandListType::Copy)
 	{
@@ -123,26 +125,26 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 	ThrowIfFailed(CurrentGraphicsList->Close());
 	if (Target == DeviceContextQueue::Graphics)
 	{
-		Device->ExecuteCommandList(CurrentGraphicsList);
+		mDeviceContext->ExecuteCommandList(CurrentGraphicsList);
 	}
 	else if (Target == DeviceContextQueue::Compute)
 	{
-		Device->ExecuteComputeCommandList(CurrentGraphicsList);
+		mDeviceContext->ExecuteComputeCommandList(CurrentGraphicsList);
 	}
 	else if (Target == DeviceContextQueue::Copy)
 	{
-		Device->ExecuteCopyCommandList(CurrentGraphicsList);
+		mDeviceContext->ExecuteCopyCommandList(CurrentGraphicsList);
 	}
 	else if (Target == DeviceContextQueue::InterCopy)
 	{
-		Device->ExecuteInterGPUCopyCommandList(CurrentGraphicsList);
+		mDeviceContext->ExecuteInterGPUCopyCommandList(CurrentGraphicsList);
 	}
 	IsOpen = false;
 }
 
 void D3D12CommandList::WaitForCompletion()
 {
-	Device->EndExecuteCommandList();
+	mDeviceContext->EndExecuteCommandList();
 }
 
 void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
@@ -230,20 +232,20 @@ void D3D12CommandList::CreateCommandList()
 {
 	if (ListType == ECommandListType::Graphics)
 	{
-		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
 		CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
 		ThrowIfFailed(CurrentGraphicsList->Close());
 	}
 	else if (ListType == ECommandListType::Compute)
 	{
 		//todo: aloccators?
-		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
 		CurrentGraphicsList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
 		ThrowIfFailed(CurrentGraphicsList->Close());
 	}
 	else if (ListType == ECommandListType::Copy)
 	{
-		ThrowIfFailed(Device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentGraphicsList)));
 		//CurrentGraphicsList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
 		ThrowIfFailed(CurrentGraphicsList->Close());
 	}
@@ -351,11 +353,11 @@ D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :
 {
 	if (inDevice == nullptr)
 	{
-		Device = RHI::GetDefaultDevice();
+		Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();
 	}
 	else
 	{
-		Device = inDevice;
+		Device = (D3D12DeviceContext*)inDevice;
 	}
 }
 
@@ -580,7 +582,7 @@ void D3D12Buffer::UnMap()
 //UAV 
 D3D12RHIUAV::D3D12RHIUAV(DeviceContext * inDevice) : RHIUAV()
 {
-	Device = inDevice;
+	Device = (D3D12DeviceContext*)inDevice;
 }
 
 D3D12RHIUAV::~D3D12RHIUAV()
@@ -623,7 +625,7 @@ void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)
 {
 	Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	Device = device;
+	Device = (D3D12DeviceContext*)device;
 }
 
 D3D12RHITextureArray::~D3D12RHITextureArray()

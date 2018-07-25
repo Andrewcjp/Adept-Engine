@@ -30,6 +30,6 @@ private:
 	ID3D12DescriptorHeap* m_cbvHeap;
 	int InitalBufferCount = 10;
 	int CB_Size = 0;
-	DeviceContext* Device = nullptr;
+	class D3D12DeviceContext* Device = nullptr;
 };
 

@@ -318,6 +318,8 @@
     <ClInclude Include="Core\Utils\NVAPIManager.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_Bloom.h" />
     <ClInclude Include="Rendering\PostProcessing\PP_Blur.h" />
+    <ClInclude Include="RHI\RenderAPIs\D3D12\D3D12DeviceContext.h" />
+    <ClInclude Include="RHI\RHITimeManager.h" />
     <ClInclude Include="RHI\RHITypes.h" />
     <ClInclude Include="RHI\RHI_fwd.h" />
     <ClInclude Include="Rendering\Shaders\PostProcess\Shader_Blur.h" />
@@ -472,6 +474,8 @@
     <ClCompile Include="Rendering\Shaders\PostProcess\Shader_Blur.cpp" />
     <ClCompile Include="Rendering\Shaders\PostProcess\Shader_Bloom.cpp" />
     <ClCompile Include="Rendering\Shaders\PostProcess\Shader_UpSample.cpp" />
+    <ClCompile Include="RHI\RenderAPIs\D3D12\D3D12DeviceContext.cpp" />
+    <ClCompile Include="RHI\RHITimeManager.cpp" />
     <ClCompile Include="RHI\RHITypes.cpp" />
     <ClCompile Include="Rendering\Shaders\Generation\Shader_Convolution.cpp" />
     <ClCompile Include="Rendering\Shaders\Generation\Shader_EnvMap.cpp" />

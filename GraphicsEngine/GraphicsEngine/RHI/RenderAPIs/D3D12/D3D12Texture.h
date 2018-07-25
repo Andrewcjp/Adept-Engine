@@ -29,7 +29,7 @@ private:
 	bool CLoad(AssetPathRef name);
 	bool LoadDDS(std::string filename);
 	D3D12_SUBRESOURCE_DATA Texturedatarray[9];
-	class DeviceContext * Device = nullptr;
+	class D3D12DeviceContext * Device = nullptr;
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	ID3D12Resource* m_texture = nullptr;
 	class DescriptorHeap* srvHeap = nullptr;	

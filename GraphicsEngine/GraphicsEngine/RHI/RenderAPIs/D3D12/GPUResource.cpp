@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
+#include "D3D12DeviceContext.h"
 GPUResource::GPUResource()
 {}
 
@@ -10,13 +11,13 @@ GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalSta
 {
 	resource = Target;
 	CurrentResourceState = InitalState;
-	Device = RHI::GetDefaultDevice();
+	Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();
 }
 GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState, DeviceContext * device)
 {
 	resource = Target;
 	CurrentResourceState = InitalState;
-	Device = device;
+	Device = (D3D12DeviceContext*)device;
 }
 GPUResource::~GPUResource()
 {}

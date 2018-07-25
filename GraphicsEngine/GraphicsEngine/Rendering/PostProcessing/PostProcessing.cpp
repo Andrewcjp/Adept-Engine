@@ -31,7 +31,7 @@ void PostProcessing::ExecPPStack(FrameBuffer* targetbuffer)
 		Effects[i]->RunPass(list,targetbuffer);
 	}*/
 	//called to post porcess the final rendered scene
-	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
+	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, EGPUTIMERS::PostProcess);
 
 	//Bloom->RunPass(targetbuffer);
 	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
@@ -40,7 +40,7 @@ void PostProcessing::ExecPPStack(FrameBuffer* targetbuffer)
 	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
 	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 	
-	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, D3D12TimeManager::eGPUTIMERS::PostProcess);
+	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, EGPUTIMERS::PostProcess);
 
 }
 void PostProcessing::ExecPPStackFinal(FrameBuffer* targetbuffer)

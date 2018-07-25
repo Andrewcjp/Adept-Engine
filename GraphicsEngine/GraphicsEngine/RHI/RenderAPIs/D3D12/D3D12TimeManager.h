@@ -2,44 +2,31 @@
 #include "D3D12RHI.h"
 #include "Core/Utils/MovingAverage.h"
 #include "EngineGlobals.h"
+#include "../RHI/RHITimeManager.h"
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
 #define MAX_TIMER_COUNT 8
-class D3D12TimeManager
+#include "../RHI/RHITypes.h"
+class D3D12TimeManager : public RHITimeManager
 {
 public:
 	
 	D3D12TimeManager(class DeviceContext* context);
 	~D3D12TimeManager();
-	void UpdateTimers();
-	std::string GetTimerData();
-	void SetTimerName(int index, std::string Name);	
-	void StartTotalGPUTimer(RHICommandList * ComandList);
-	void StartTimer(RHICommandList * ComandList, int index);
-	void EndTimer(RHICommandList * ComandList, int index);
-	void EndTotalGPUTimer(RHICommandList * ComandList);
-	void EndTotalGPUTimer(ID3D12GraphicsCommandList * ComandList);
-	float AVGgpuTimeMS = 0;	
-	enum eGPUTIMERS
-	{
-		Total,
-		PointShadows,
-		DirShadows,
-		MainPass,
-		DeferredWrite,
-		DeferredLighting,
-		UI,
-		Text,
-		Skybox,
-		PostProcess,
-		Present,
-		ShadowPreSample,
-		LIMIT
-	};
+	void UpdateTimers() override;
+	std::string GetTimerData() override;
+	void SetTimerName(int index, std::string Name) override;
+	void StartTotalGPUTimer(RHICommandList * ComandList) override;
+	void StartTimer(RHICommandList * ComandList, int index) override;
+	void EndTimer(RHICommandList * ComandList, int index) override;
+	void EndTotalGPUTimer(RHICommandList * ComandList) override;
+
+	float GetTotalTime() override;
 	void StartTimer(ID3D12GraphicsCommandList * ComandList, int index);
 	void EndTimer(ID3D12GraphicsCommandList * ComandList, int index);
+	void EndTotalGPUTimer(ID3D12GraphicsCommandList * ComandList);
 private:
-	DeviceContext* Context;
+	float AVGgpuTimeMS = 0;	
 	struct GPUTimer
 	{
 		std::string name;
@@ -53,7 +40,7 @@ private:
 	int StatsGroupId = -1;
 	bool TimerStarted = false;
 #if GPUTIMERS_FULL
-	const int MaxTimerCount = eGPUTIMERS::LIMIT;
+	const int MaxTimerCount = EGPUTIMERS::LIMIT;
 	const int MaxTimeStamps = MaxTimerCount * 2;
 #else 
 	const int MaxTimerCount = 1;
@@ -65,6 +52,6 @@ private:
 	ID3D12QueryHeap* m_timestampQueryHeaps;
 	ID3D12Resource* m_timestampResultBuffers;
 	UINT64 m_directCommandQueueTimestampFrequencies;
-	GPUTimer TimeDeltas[eGPUTIMERS::LIMIT];
+	GPUTimer TimeDeltas[EGPUTIMERS::LIMIT];
 };
 

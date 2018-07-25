@@ -47,6 +47,6 @@ private:
 	D3D12_RESOURCE_STATES CurrentResourceState = {};
 	GPUMemoryBlock Block;
 	D3D12_RESOURCE_STATES TargetState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
-	DeviceContext* Device;
+	class D3D12DeviceContext* Device;
 };
 

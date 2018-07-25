@@ -71,7 +71,7 @@ void ForwardRenderer::MainPass()
 	MainCommandList->ResetList();
 
 	MainCommandList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(MainCommandList);
-	MainCommandList->GetDevice()->GetTimeManager()->StartTimer(MainCommandList, D3D12TimeManager::eGPUTIMERS::MainPass);
+	MainCommandList->GetDevice()->GetTimeManager()->StartTimer(MainCommandList, EGPUTIMERS::MainPass);
 	MainCommandList->SetScreenBackBufferAsRT();
 	MainCommandList->ClearScreen();
 	MainShader->UpdateMV(MainCamera);
@@ -96,7 +96,7 @@ void ForwardRenderer::MainPass()
 		(*MainScene->GetObjects())[i]->Render(false, MainCommandList);
 	}
 	MainCommandList->SetRenderTarget(nullptr);
-	MainCommandList->GetDevice()->GetTimeManager()->EndTimer(MainCommandList, D3D12TimeManager::eGPUTIMERS::MainPass);
+	MainCommandList->GetDevice()->GetTimeManager()->EndTimer(MainCommandList, EGPUTIMERS::MainPass);
 	mShadowRenderer->Unbind(MainCommandList);
 	MainCommandList->Execute();
 }

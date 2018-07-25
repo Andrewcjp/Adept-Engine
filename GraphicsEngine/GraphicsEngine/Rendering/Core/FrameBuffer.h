@@ -9,7 +9,7 @@ public:
 	
 	int GetWidth() const { return m_width; }
 	int GetHeight() const { return m_height; }
-	class DeviceContext* GetDevice();	
+	virtual class DeviceContext* GetDevice() = 0;	
 	RHIFrameBufferDesc& GetDescription();
 	virtual void Resize(int width, int height);
 
@@ -18,7 +18,7 @@ public:
 	virtual void SetupCopyToDevice(DeviceContext* device) {};
 	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice);
 protected:	
-	DeviceContext* CurrentDevice = nullptr;
+	
 	RHIFrameBufferDesc BufferDesc;
 	
 };

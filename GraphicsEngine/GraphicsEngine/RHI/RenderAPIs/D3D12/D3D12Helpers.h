@@ -38,7 +38,7 @@ public:
 private:
 	GPUResource * WriteBackResource = nullptr;
 	GPUResource* Target = nullptr;
-	DeviceContext* Device = nullptr;
+	class D3D12DeviceContext* Device = nullptr;
 	class D3D12CommandList* Cmdlist = nullptr;
 	void* pData = nullptr;
 };

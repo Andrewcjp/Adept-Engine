@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "DescriptorHeap.h"
 #include <algorithm>
-
+#include "D3D12DeviceContext.h"
 DescriptorHeap::DescriptorHeap(DeviceContext* inDevice,int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
-	Device = inDevice;
+	Device = (D3D12DeviceContext*)inDevice;
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 	srvHeapDesc.NumDescriptors = std::max(Num, 1);
 	srvHeapDesc.Type = type;
