@@ -1,0 +1,2109 @@
+BloomThreshold_CS.hlsl|FileStart|
+Texture2D<float4> SrcTexture : register(t0); 
+RWTexture2D<float4> DstTexture : register(u0); 
+SamplerState BilinearClamp : register(s0); 
+ 
+[numthreads(8, 8, 1)] 
+void main(uint3 DTid : SV_DispatchThreadID) 
+{ 
+	float4 Inputcolour = SrcTexture[DTid.xy]; 
+ 
+	float exposure = 2.5f; 
+	Inputcolour = float4(1.0, 1.0, 1.0, 1.0) - exp(-Inputcolour * exposure); 
+	 
+	if (length(Inputcolour) > 1.8) 
+	{ 
+		DstTexture[DTid.xy] = Inputcolour; 
+	} 
+	else 
+	{ 
+		DstTexture[DTid.xy] = float4(0,0,0,0.0f); 
+	} 
+} 
+¬
+BlurCS.hlsl|FileStart|
+Texture2D<float4> SrcTexture : register(t0); 
+RWTexture2D<float4> DstTexture : register(u0); 
+ 
+#if 0 
+[numthreads(8, 8, 1)] 
+void main(uint3 DTid : SV_DispatchThreadID) 
+{ 
+	float4 Inputcolour = SrcTexture[DTid.xy]; 
+	//Inputcolour.x = 0; 
+	DstTexture[DTid.xy] = blurColor; 
+} 
+#else 
+cbuffer cbSettings : register(b0) 
+{ 
+	// We cannot have an array entry in a constant buffer that gets mapped onto 
+	// root constants, so list each element.   
+ 
+	// Support up to 11 blur weights. 
+	float w0; 
+	float w1; 
+	float w2; 
+	float w3; 
+	float w4; 
+	float w5; 
+	float w6; 
+	float w7; 
+	float w8; 
+	float w9; 
+	float w10; 
+}; 
+ 
+static const int gMaxBlurRadius = 5; 
+static const int gBlurRadius = 5; 
+#define N 256 
+#define CacheSize (N + 2*gMaxBlurRadius) 
+groupshared float4 gCache[CacheSize]; 
+[numthreads(N, 1, 1)] 
+void main(int3 groupThreadID : SV_GroupThreadID,int3 dispatchThreadID : SV_DispatchThreadID) 
+{ 
+	// Put in an array for each indexing. 
+	const float offset = 0.2f; 
+	//float weights[11] = { offset,offset,offset,offset,offset,offset,offset,offset,offset,offset,offset }; 
+	//float weights[11] = {1.0f,1.0f ,1.0f ,1.0f ,1.0f ,1.0f ,1.0f ,1.0f ,1.0f ,1.0f ,1.0f }; 
+	// 
+	float weights[11] = { w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10 }; 
+	// Fill local thread storage to reduce bandwidth.  To blur  
+	// N pixels, we will need to load N + 2*BlurRadius pixels 
+	// due to the blur radius. 
+	// 
+ 
+	// This thread group runs N threads.  To get the extra 2*BlurRadius pixels,  
+	// have 2*BlurRadius threads sample an extra pixel. 
+	if (groupThreadID.x < gBlurRadius) 
+	{ 
+		// Clamp out of bound samples that occur at image borders. 
+		int x = max(dispatchThreadID.x - gBlurRadius, 0); 
+		gCache[groupThreadID.x] = SrcTexture[int2(x, dispatchThreadID.y)]; 
+	} 
+	if (groupThreadID.x >= N - gBlurRadius) 
+	{ 
+		// Clamp out of bound samples that occur at image borders. 
+		int x = min(dispatchThreadID.x + gBlurRadius, SrcTexture.Length.x - 1); 
+		gCache[groupThreadID.x + 2 * gBlurRadius] = SrcTexture[int2(x, dispatchThreadID.y)]; 
+	} 
+ 
+	// Clamp out of bound samples that occur at image borders. 
+	gCache[groupThreadID.x + gBlurRadius] = SrcTexture[min(dispatchThreadID.xy, SrcTexture.Length.xy - 1)]; 
+ 
+	// Wait for all threads to finish. 
+	GroupMemoryBarrierWithGroupSync(); 
+ 
+	// 
+	// Now blur each pixel. 
+	// 
+ 
+	float4 blurColor = float4(0, 0, 0, 0); 
+ 
+	for (int i = -gBlurRadius; i <= gBlurRadius; ++i) 
+	{ 
+		int k = groupThreadID.x + gBlurRadius + i; 
+ 
+		blurColor += weights[i + gBlurRadius] * gCache[k]; 
+	} 
+ 
+	DstTexture[dispatchThreadID.xy] = blurColor; 
+} 
+ 
+ 
+[numthreads(1, N, 1)] 
+void VertBlurCS(int3 groupThreadID : SV_GroupThreadID, 
+	int3 dispatchThreadID : SV_DispatchThreadID) 
+{ 
+	// Put in an array for each indexing. 
+	//{ w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10 }; 
+	const float offset = 0.58; 
+	//float weights[11] = { offset,offset,offset,offset,offset,offset,offset,offset,offset,offset,offset }; 
+	float weights[11] = { w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10 }; 
+	//float weights[11] = { 0.1,0.1 ,0.1 ,0.1 ,0.1 ,0.1 ,0.1 ,0.1 ,0.1 ,0.1 ,0.1 }; 
+	// 
+	// Fill local thread storage to reduce bandwidth.  To blur  
+	// N pixels, we will need to load N + 2*BlurRadius pixels 
+	// due to the blur radius. 
+	// 
+ 
+	// This thread group runs N threads.  To get the extra 2*BlurRadius pixels,  
+	// have 2*BlurRadius threads sample an extra pixel. 
+	if (groupThreadID.y < gBlurRadius) 
+	{ 
+		// Clamp out of bound samples that occur at image borders. 
+		int y = max(dispatchThreadID.y - gBlurRadius, 0); 
+		gCache[groupThreadID.y] = SrcTexture[int2(dispatchThreadID.x, y)]; 
+	} 
+	if (groupThreadID.y >= N - gBlurRadius) 
+	{ 
+		// Clamp out of bound samples that occur at image borders. 
+		int y = min(dispatchThreadID.y + gBlurRadius, SrcTexture.Length.y - 1); 
+		gCache[groupThreadID.y + 2 * gBlurRadius] = SrcTexture[int2(dispatchThreadID.x, y)]; 
+	} 
+ 
+	// Clamp out of bound samples that occur at image borders. 
+	gCache[groupThreadID.y + gBlurRadius] = SrcTexture[min(dispatchThreadID.xy, SrcTexture.Length.xy - 1)]; 
+ 
+ 
+	// Wait for all threads to finish. 
+	GroupMemoryBarrierWithGroupSync(); 
+ 
+	// 
+	// Now blur each pixel. 
+	// 
+ 
+	float4 blurColor = float4(0, 0, 0, 0); 
+ 
+	for (int i = -gBlurRadius; i <= gBlurRadius; ++i) 
+	{ 
+		int k = groupThreadID.y + gBlurRadius + i; 
+ 
+		blurColor += weights[i + gBlurRadius] * gCache[k]; 
+	} 
+ 
+	DstTexture[dispatchThreadID.xy] = blurColor ; 
+} 
+#endif 
+¬
+Compost_fs.hlsl|FileStart|
+Texture2D texColour : register(t0); 
+SamplerState defaultSampler : register (s0); 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	//return float4(1,1,1,1); 
+	float4 output = texColour.Sample(defaultSampler, input.uv); 
+	//output.a = 0.25f; 
+	return output; 
+	 
+} 
+¬
+CubeMap_Convolute_IntergrateBRDF_fs.hlsl|FileStart|
+TextureCube texColour : register(t0); 
+SamplerState defaultSampler : register (s0); 
+ 
+cbuffer Data : register(b0) 
+{ 
+	float3 Normal: Normal0; 
+	uint slice : SV_RenderTargetArrayIndex; 
+} 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+struct Light 
+{ 
+	float3 LPosition; 
+	float3 color; 
+	float3 Direction; 
+	row_major matrix LightVP; 
+	int type;//type 1 == point, type 0 == directional, tpye 2 == spot 
+	int ShadowID; 
+	int DirShadowID; 
+	int HasShadow; 
+}; 
+//PBR functions! 
+static const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
+{ 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
+ 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
+ 
+	return num / max(denom, 0.0001); 
+} 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
+{ 
+	float diffu = max(dot(Normal, LightDir), 0.0); 
+	return MaterialDiffuseColor * diffu; 
+} 
+ 
+float3 GetAmbient_CONST() 
+{ 
+	return float3(0.03, 0.03, 0.03); 
+} 
+ 
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
+	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
+	float3 ambient = (kD * diffuse+ Specular); 
+	return ambient; 
+} 
+ 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	float attenuation = 1.0f; 
+ 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
+	return Diffusecolour * attenuation; 
+} 
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
+} 
+ 
+ 
+float3 ImportanceSampleGGX(float2 Xi, float3 N, float roughness) 
+{ 
+	float a = roughness * roughness; 
+ 
+	float phi = 2.0 * PI * Xi.x; 
+	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y)); 
+	float sinTheta = sqrt(1.0 - cosTheta * cosTheta); 
+ 
+	// from spherical coordinates to cartesian coordinates 
+	float3 H; 
+	H.x = cos(phi) * sinTheta; 
+	H.y = sin(phi) * sinTheta; 
+	H.z = cosTheta; 
+ 
+	// from tangent-space vector to world-space sample vector 
+	float3 up = abs(N.z) < 0.999 ? float3(0.0, 0.0, 1.0) : float3(1.0, 0.0, 0.0); 
+	float3 tangent = normalize(cross(up, N)); 
+	float3 bitangent = cross(N, tangent); 
+ 
+	float3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z; 
+	return normalize(sampleVec); 
+} 
+ 
+float RadicalInverse_VdC(uint bits) 
+{ 
+	bits = (bits << 16u) | (bits >> 16u); 
+	bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u); 
+	bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u); 
+	bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u); 
+	bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u); 
+	return float(bits) * 2.3283064365386963e-10; // / 0x100000000 
+} 
+ 
+// ---------------------------------------------------------------------------- 
+float2 Hammersley(uint i, uint N) 
+{ 
+	return float2(float(i) / float(N), RadicalInverse_VdC(i)); 
+} 
+ 
+float2 IntegrateBRDF(float NdotV, float roughness) 
+{ 
+	float3 V; 
+	V.x = sqrt(1.0 - NdotV * NdotV); 
+	V.y = 0.0; 
+	V.z = NdotV; 
+ 
+	float A = 0.0; 
+	float B = 0.0; 
+ 
+	float3 N = float3(0.0, 0.0, 1.0); 
+ 
+	const uint SAMPLE_COUNT = 1024u; 
+	for (uint i = 0u; i < SAMPLE_COUNT; ++i) 
+	{ 
+		float2 Xi = Hammersley(i, SAMPLE_COUNT); 
+		float3 H = ImportanceSampleGGX(Xi, N, roughness); 
+		float3 L = normalize(2.0 * dot(V, H) * H - V); 
+ 
+		float NdotL = max(L.z, 0.0); 
+		float NdotH = max(H.z, 0.0); 
+		float VdotH = max(dot(V, H), 0.0); 
+ 
+		if (NdotL > 0.0) 
+		{ 
+			float G = GeometrySmith(N, V, L, roughness); 
+			float G_Vis = (G * VdotH) / (NdotH * NdotV); 
+			float Fc = pow(1.0 - VdotH, 5.0); 
+ 
+			A += (1.0 - Fc) * G_Vis; 
+			B += Fc * G_Vis; 
+		} 
+	} 
+	A /= float(SAMPLE_COUNT); 
+	B /= float(SAMPLE_COUNT); 
+	return float2(A, B); 
+} 
+ 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	float2 integratedBRDF = IntegrateBRDF(input.uv.x, input.uv.y); 
+	return float4(integratedBRDF.xy, 0.0f, 1.0f); 
+} 
+¬
+CubeMap_Convoluter_fs.hlsl|FileStart|
+TextureCube texColour : register(t0); 
+SamplerState defaultSampler : register (s0); 
+ 
+cbuffer Data : register(b0) 
+{ 
+	float3 Normal: Normal0; 
+	uint slice : SV_RenderTargetArrayIndex; 
+} 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float3 uv : TEXCOORD0; 
+	uint slice : SV_RenderTargetArrayIndex; 
+}; 
+ 
+static const float PI = 3.14159265359; 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	//return float4(Normal,1.0f); 
+	//return float4(slice,slice,slice,1.0); 
+	float3 irradiance = float3(0.0,0,0); 
+	float3 target = float3(input.uv.x,input.uv.y, input.uv.z); 
+	//return float4(1, 1, 1, 1); 
+	//return float4(texColour.Sample(defaultSampler, target).rgb, 1.0); 
+ 
+	float3 up = float3(0.0, 1.0, 0.0); 
+	float3 right = cross(up, target); 
+	up = cross(target, right); 
+ 
+	float sampleDelta = 0.25; 
+	float nrSamples = 0.0; 
+	for (float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta) 
+	{ 
+		for (float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta) 
+		{ 
+			// spherical to cartesian (in tangent space) 
+			float3 tangentSample = float3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta)); 
+			// tangent space to world 
+			float3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * target; 
+ 
+			irradiance += texColour.Sample(defaultSampler, sampleVec).rgb * cos(theta) * sin(theta); 
+			nrSamples++; 
+		} 
+	} 
+	irradiance = PI * irradiance * (1.0 / float(nrSamples)); 
+ 
+	return float4(irradiance, 1.0f); 
+ 
+	// 
+} 
+¬
+CubeMap_Convoluter_vs.hlsl|FileStart|
+cbuffer ConstantBuffer : register(b0) 
+{ 
+	row_major matrix ViewProj; 
+	int slice : SV_RenderTargetArrayIndex; 
+	 
+} 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float3 uv : TEXCOORD0; 
+	uint slice : SV_RenderTargetArrayIndex; 
+}; 
+ 
+ 
+VS_OUTPUT main(float4 position : POSITION ) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	float4 final_pos = float4(position.xyz, 1.0); 
+	final_pos = mul(final_pos, ViewProj); 
+	output.pos = final_pos.xyww; 
+	output.slice = slice; 
+	output.uv = normalize(position.xyz); 
+	return output; 
+} 
+¬
+DeferredWrite_fs.hlsl|FileStart|
+Texture2D texColour : register( t0 ); 
+SamplerState defaultSampler : register ( s0 ); 
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float4 Normal :NORMAL0; 
+	float2 uv : TEXCOORD; 
+	float4 WorldPos:TANGENT0; 
+	row_major float3x3 TBN:TANGENT1; 
+	float2 LightData : TEXCOORD1; 
+}; 
+ 
+struct FS_OUTPUT 
+{ 
+	float4 Gpos: SV_Target0; 
+	float4 GNormal: SV_Target1; 
+	float4 GAlbedoSpec: SV_Target2; 
+	float4 GTangent: SV_Target3; 
+}; 
+ 
+FS_OUTPUT main(PSInput input )  
+{ 
+	FS_OUTPUT output = (FS_OUTPUT)0; 
+	output.Gpos = input.WorldPos; 
+	output.GNormal = float4(input.Normal.xyz, input.LightData.g); 
+	output.GAlbedoSpec = float4(texColour.Sample(defaultSampler, input.uv).xyz, input.LightData.r); 
+    return output; 
+} 
+¬
+DeferredWrite_vs.hlsl|FileStart|
+cbuffer ConstantBuffer : register( b0 ) 
+{ 
+	row_major matrix world; 
+	row_major matrix view; 
+	row_major matrix projection; 
+} 
+cbuffer GOConstantBuffer : register(b0) 
+{ 
+	row_major matrix Model; 
+	int HasNormalMap; 
+	float Roughness; 
+	float Metallic; 
+}; 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float3 normal : NORMAL0; 
+	float3 uv : TEXCOORD0; 
+}; 
+ 
+ 
+VS_OUTPUT main( float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXCOORD0 ) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	float4 final_pos = mul( pos, world ); 
+	result.WorldPos = final_pos; 
+	final_pos = mul( final_pos, view ); 
+	final_pos = mul( final_pos, projection ); 
+ 
+	output.pos = final_pos; 
+	output.normal = normal; 
+	output.uv = uv; 
+ 
+    return output; 
+} 
+¬
+Deferred_LightingPass_fs.hlsl|FileStart|
+SamplerState defaultSampler : register (s0); 
+SamplerState g_Clampsampler : register(s1); 
+ 
+Texture2D PosTexture : register(t0); 
+Texture2D NormalTexture : register(t1); 
+Texture2D AlbedoTexture : register(t2); 
+TextureCube DiffuseIrMap : register(t10); 
+TextureCube SpecularBlurMap: register(t11); 
+Texture2D envBRDFTexture: register(t12); 
+ 
+Texture2D PerSampledShadow: register(t13); 
+struct Light 
+{ 
+	float3 LPosition; 
+	float3 color; 
+	float3 Direction; 
+	row_major matrix LightVP; 
+	int type;//type 1 == point, type 0 == directional, tpye 2 == spot 
+	int ShadowID; 
+	int DirShadowID; 
+	int HasShadow; 
+}; 
+//PBR functions! 
+static const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
+{ 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
+ 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
+ 
+	return num / max(denom, 0.0001); 
+} 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
+{ 
+	float diffu = max(dot(Normal, LightDir), 0.0); 
+	return MaterialDiffuseColor * diffu; 
+} 
+ 
+float3 GetAmbient_CONST() 
+{ 
+	return float3(0.03, 0.03, 0.03); 
+} 
+ 
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
+	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
+	float3 ambient = (kD * diffuse+ Specular); 
+	return ambient; 
+} 
+ 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	float attenuation = 1.0f; 
+ 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
+	return Diffusecolour * attenuation; 
+} 
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
+} 
+ 
+#define MAX_LIGHT 4 
+ 
+cbuffer LightBuffer : register(b1) 
+{ 
+	Light lights[MAX_LIGHT]; 
+}; 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix View; 
+	row_major matrix Projection; 
+	float3 CameraPos; 
+}; 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	/*float out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r; 
+	return float4(out2, 0, 0, 1.0f);*/ 
+ 
+ 
+	float4 pos = PosTexture.Sample(defaultSampler, input.uv); 
+	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv); 
+	float3 Normal = normalize(Normalt.xyz); 
+	float4 AlbedoSpec = AlbedoTexture.Sample(defaultSampler, input.uv); 
+	float Roughness = AlbedoSpec.a; 
+	float Metallic = Normalt.a; 
+	//calc Ambient  
+ 
+	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb; 
+	float3 ViewDir = normalize(CameraPos - pos.xyz); 
+	const float MAX_REFLECTION_LOD = 11.0; 
+	float3 R = reflect(-ViewDir, Normal); 
+	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg; 
+	float3 prefilteredColor = SpecularBlurMap.SampleLevel(defaultSampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb; 
+	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF); 
+	//return float4(irData, 1.0f); 
+	//return float4(0,0,0, 1.0f); 
+	for (int i = 0; i < MAX_LIGHT; i++) 
+	{ 
+		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic); 
+		if (i == 2) 
+		{ 
+			int out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r; 
+			LightColour *= 1.0 - out2; 
+		} 
+		else 
+		{ 
+			LightColour = float3(0, 0, 0); 
+		} 
+		output += LightColour; 
+	} 
+	float gamma = 1.0f / 2.2f; 
+ 
+	//output = output / (output + float3(1.0, 1.0, 1.0)); 
+	//output = pow(output, float3(gamma, gamma, gamma)); 
+	return float4(output,1.0f); 
+} 
+¬
+Deferred_LightingPass_vs.hlsl|FileStart|
+ 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+ 
+ 
+VS_OUTPUT main(float4 position : POSITION /*float4 normal : NORMAL0,*/ /*float4 uv : TEXCOORD*/) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	output.pos = position; 
+	const float2 fliped = float2 (position.x, -position.y); 
+	output.uv = (fliped + float2(1, 1)) / 2.0f; 
+	return output; 
+} 
+¬
+Lighting.hlsl|FileStart|
+struct Light 
+{ 
+	float3 LPosition; 
+	float3 color; 
+	float3 Direction; 
+	row_major matrix LightVP; 
+	int type;//type 1 == point, type 0 == directional, tpye 2 == spot 
+	int ShadowID; 
+	int DirShadowID; 
+	int HasShadow; 
+}; 
+//PBR functions! 
+static const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
+{ 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
+ 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
+ 
+	return num / max(denom, 0.0001); 
+} 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
+{ 
+	float diffu = max(dot(Normal, LightDir), 0.0); 
+	return MaterialDiffuseColor * diffu; 
+} 
+ 
+float3 GetAmbient_CONST() 
+{ 
+	return float3(0.03, 0.03, 0.03); 
+} 
+ 
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
+	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
+	float3 ambient = (kD * diffuse+ Specular); 
+	return ambient; 
+} 
+ 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	float attenuation = 1.0f; 
+ 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
+	return Diffusecolour * attenuation; 
+} 
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
+} 
+¬
+Main_fs.hlsl|FileStart|
+struct Light 
+{ 
+	float3 LPosition; 
+	float3 color; 
+	float3 Direction; 
+	row_major matrix LightVP; 
+	int type;//type 1 == point, type 0 == directional, tpye 2 == spot 
+	int ShadowID; 
+	int DirShadowID; 
+	int HasShadow; 
+}; 
+//PBR functions! 
+static const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
+{ 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
+ 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
+ 
+	return num / max(denom, 0.0001); 
+} 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
+{ 
+	float diffu = max(dot(Normal, LightDir), 0.0); 
+	return MaterialDiffuseColor * diffu; 
+} 
+ 
+float3 GetAmbient_CONST() 
+{ 
+	return float3(0.03, 0.03, 0.03); 
+} 
+ 
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
+	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
+	float3 ambient = (kD * diffuse+ Specular); 
+	return ambient; 
+} 
+ 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	float attenuation = 1.0f; 
+ 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
+	return Diffusecolour * attenuation; 
+} 
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
+} 
+ 
+ 
+#define SHADOW_DEPTH_BIAS 0.005f 
+cbuffer LightBuffer : register(b1) 
+{ 
+	Light lights[MAX_LIGHTS]; 
+}; 
+//tODO:sub struct for mat data? 
+cbuffer GOConstantBuffer : register(b0) 
+{ 
+	row_major matrix Model; 
+	int HasNormalMap; 
+	float Roughness; 
+	float Metallic; 
+}; 
+ 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix View; 
+	row_major matrix Projection; 
+	float3 CameraPos; 
+}; 
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float4 Normal :NORMAL0; 
+	float2 uv : TEXCOORD0; 
+	float4 WorldPos:TANGENT0; 
+	row_major float3x3 TBN:TANGENT1; 
+}; 
+SamplerState g_sampler : register(s0); 
+SamplerState g_Clampsampler : register(s1); 
+Texture2D g_texture : register(t0); 
+Texture2D NormalMapTexture : register(t1); 
+ 
+ 
+Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t3); 
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(POINT_SHADOW_OFFSET); 
+TextureCube DiffuseIrMap : register(t10); 
+TextureCube SpecularBlurMap: register(t11); 
+Texture2D envBRDFTexture: register(t12); 
+Texture2D PerSampledShadow: register(t13); 
+float GetShadow(float4 pos) 
+{ 
+	float4 vLightSpacePos = pos; 
+	//vLightSpacePos = mul(vLightSpacePos, lights[lightIndex].view); 
+	//vLightSpacePos = mul(vLightSpacePos, lights[lightIndex].projection); 
+	vLightSpacePos = mul(vLightSpacePos, lights[0].LightVP); 
+	vLightSpacePos.xyz /= vLightSpacePos.w; 
+	float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f; 
+	vShadowTexCoord.y = 1.0f - vShadowTexCoord.y; 
+	float bias = 0.005f; 
+	if (g_Shadow_texture[0].Sample(g_sampler, vShadowTexCoord.xy).r < (vLightSpacePos.z - bias)) 
+	{ 
+		return 1.0f; 
+	} 
+	return 0.0f; 
+} 
+float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld) 
+{ 
+	// Compute pixel position in light space. 
+	float4 vLightSpacePos = vPosWorld; 
+	vLightSpacePos = mul(vLightSpacePos, lights[lightid].LightVP); 
+ 
+	vLightSpacePos.xyz /= vLightSpacePos.w; 
+ 
+	// Translate from homogeneous coords to texture coords. 
+	float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f; 
+	vShadowTexCoord.y = 1.0f - vShadowTexCoord.y; 
+ 
+	// Depth bias to avoid pixel self-shadowing. 
+	float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS; 
+ 
+	// Find sub-pixel weights.//todo: shader define! 
+	float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file 
+	float size = 1.0f; 
+	float4 vSubPixelCoords = float4(size, size, size, size); 
+	vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord); 
+	vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy; 
+	float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy; 
+ 
+	// 2x2 percentage closer filtering. 
+	float2 vTexelUnits = 1.0f / vShadowMapDims; 
+	float4 vShadowDepths = float4(0,0,0,0); 
+	int id = 0; 
+	if (lightid == 0) 
+	{ 
+		vShadowDepths.x = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord).r; 
+		vShadowDepths.y = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)).r; 
+		vShadowDepths.z = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)).r; 
+		vShadowDepths.w = g_Shadow_texture[id].Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits).r; 
+	} 
+	else 
+	{ 
+		/*vShadowDepths.x = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord); 
+		vShadowDepths.y = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)); 
+		vShadowDepths.z = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)); 
+		vShadowDepths.w = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);*/ 
+	} 
+	// What weighted fraction of the 4 samples are nearer to the light than this pixel? 
+	float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f; 
+	return dot(vBilinearWeights, vShadowTests); 
+} 
+float ShadowCalculationCube(const float3 fragPos, Light lpos); 
+ 
+float4 main(PSInput input) : SV_TARGET 
+{ 
+	float2 Pos = input.position.xy / input.position.w; 
+	////Pos.x = (Pos.x + 1) / 2; 
+	////Pos.y = (Pos.y + 1) / 2; 
+	float out2 = PerSampledShadow.Sample(g_Clampsampler, Pos.xy).r; 
+	//return float4(out2,0, 0, 1.0f); 
+	float3 texturecolour = g_texture.Sample(g_sampler, input.uv).rgb; 
+	float3 Normal = input.Normal.xyz; 
+	if (HasNormalMap == 1) 
+	{ 
+		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0; 
+		Normal = normalize(mul(Normal,input.TBN)); 
+	} 
+ 
+	float3 irData = DiffuseIrMap.Sample(g_sampler, normalize(Normal)).rgb; 
+	float3 ViewDir = normalize( CameraPos- input.WorldPos.xyz); 
+	const float MAX_REFLECTION_LOD = 11.0; 
+	float3 R = reflect(-ViewDir, Normal); 
+	float2 envBRDF = envBRDFTexture.Sample(g_sampler,float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg; 
+	float3 prefilteredColor = SpecularBlurMap.SampleLevel(g_sampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;//textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb; 
+	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF); 
+ 
+	for (int i = 0; i < MAX_LIGHTS; i++) 
+	{ 
+		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic); 
+		if (lights[i].HasShadow && lights[i].type == 0) 
+		{ 
+			colour *= CalcUnshadowedAmountPCF2x2(i, input.WorldPos).r; 
+		} 
+		if (i == 2) 
+		{ 
+			float out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r; 
+			colour *= 1.0 - out2; 
+		} 
+		else 
+		{ 
+			if (lights[i].HasShadow && lights[i].type == 1) 
+			{ 
+				colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[i]); 
+			} 
+		} 
+	 
+		output += colour; 
+	} 
+	return float4(output.xyz,1.0f); 
+} 
+ 
+ 
+float ShadowCalculationCube(const float3 fragPos, Light lpos) 
+{ 
+	// Get vector between fragment position and light position 
+	float3 fragToLight = (fragPos - lpos.LPosition); 
+	float currentDepth = length(fragToLight); 
+	float bias = 0.5f; 
+	float far_plane = 500; 
+	float closestDepth = 0; 
+	int id = lpos.ShadowID; 
+	closestDepth = g_Shadow_texture2[id].Sample(g_Clampsampler, fragToLight).r; 
+	closestDepth *= far_plane; 
+	if (currentDepth - bias > closestDepth) 
+	{ 
+		return 1.0f; 
+	} 
+	return 0.0f; 
+} 
+¬
+Main_vs.hlsl|FileStart|
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float4 Normal :NORMAL0; 
+	float2 uv : TEXCOORD; 
+	float4 WorldPos:TANGENT0; 
+	row_major float3x3 TBN:TANGENT1; 
+#if WITH_DEFERRED 
+	float2 LightData : TEXCOORD1; 
+#endif 
+}; 
+ 
+Texture2D g_texture : register(t0); 
+SamplerState g_sampler : register(s0); 
+ 
+cbuffer GOConstantBuffer : register(b0) 
+{ 
+	row_major matrix Model; 
+	int HasNormalMap; 
+	float Roughness; 
+	float Metallic; 
+}; 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix View; 
+	row_major matrix Projection; 
+}; 
+ 
+PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TEXCOORD,float4 Tangent: TANGENT0) 
+{ 
+	PSInput result =(PSInput)0; 
+	float4 final_pos = position; 
+	final_pos.w = 1.0f; 
+	final_pos = mul(position, Model); 
+	result.WorldPos = final_pos; 
+	final_pos = mul(final_pos, View); 
+	final_pos = mul(final_pos, Projection); 
+	result.position = final_pos; 
+	result.uv = uv.xy; 
+	result.Normal = normal; 
+	if (HasNormalMap) 
+	{ 
+		const float3 BiTangent = (mul(float4(cross(normal.xyz, Tangent.xyz).xyz, 0.0), Model)).xyz; 
+		const float3 Normal = (mul(float4(normal.xyz, 0.0), Model)).xyz; 
+		const float3 tan = (mul(float4(Tangent.xyz, 0.0), Model)).xyz; 
+		float3x3 mat = float3x3(tan, BiTangent, Normal); 
+		result.TBN = mat; 
+	} 
+#if WITH_DEFERRED 
+	result.LightData.x = Roughness; 
+	result.LightData.y = Metallic; 
+#endif 
+	return result; 
+} 
+¬
+MipmapCS.hlsl|FileStart|
+Texture2D<float4> SrcTexture : register(t0); 
+RWTexture2D<float4> DstTexture : register(u0); 
+SamplerState BilinearClamp : register(s0); 
+ 
+cbuffer CB : register(b0) 
+{ 
+	float2 TexelSize;   // 1.0 / destination dimension 
+} 
+ 
+[numthreads(8, 8, 1)] 
+void main(uint3 DTid : SV_DispatchThreadID) 
+{ 
+	//DTid is the thread ID * the values from numthreads above and in this case correspond to the pixels location in number of pixels. 
+	//As a result texcoords (in 0-1 range) will point at the center between the 4 pixels used for the mipmap. 
+	//TexelSize = 1.0 / 256; 
+	//(1.0 / 256)  
+	float2 texcoords = TexelSize * (DTid.xy + 0.5); 
+ 
+	//The samplers linear interpolation will mix the four pixel values to the new pixels color 
+	float4 color = SrcTexture.SampleLevel(BilinearClamp, texcoords, 0); 
+ 
+	//Write the final color into the destination texture. 
+	DstTexture[DTid.xy] = color; 
+} 
+¬
+Pass_fs.hlsl|FileStart|
+Texture2D texColour : register(t0); 
+SamplerState defaultSampler : register (s0); 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	return texColour.Sample(defaultSampler, input.uv); 
+	//return float4(1,1,1,1); 
+} 
+¬
+Pass_fs_12.hlsl|FileStart|
+Texture2D texColour : register(t0); 
+SamplerState defaultSampler : register (s0); 
+Texture2D AdditiveBlendTarget : register(t1); 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	float3 output = texColour.Sample(defaultSampler, input.uv).rgb; 
+	output += AdditiveBlendTarget.Sample(defaultSampler, input.uv).rgb; 
+	const float gamma = 1.0f / 2.2f; 
+	const float exposure = 2.5f; 
+	output = float3(1.0, 1.0, 1.0) - exp(-output * exposure); 
+	output = pow(abs(output), float3(gamma, gamma, gamma)); 
+ 
+	return float4(output,1.0);	 
+} 
+¬
+Pass_vs.hlsl|FileStart|
+cbuffer ConstantBuffer : register(b0) 
+{ 
+	row_major matrix world; 
+	row_major matrix view; 
+	row_major matrix projection; 
+} 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float3 uv : TEXCOORD0; 
+}; 
+ 
+ 
+VS_OUTPUT main(float4 pos : POSITION, float3 uv : TEXCOORD0) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	float4 final_pos = mul(pos, world); 
+ 
+	//final_pos = mul(final_pos, view); 
+	//final_pos = mul(final_pos, projection); 
+ 
+	output.pos = final_pos; 
+ 
+	//output.uv = uv; 
+	float2 u = (pos.xy + float2(1, 1)) / 2.0; 
+	output.uv = float3(u.x, -u.y, 0); 
+	return output; 
+} 
+¬
+Pass_vs_12.hlsl|FileStart|
+ 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+ 
+VS_OUTPUT main(float4 position : POSITION /*float4 normal : NORMAL0,*/ /*float4 uv : TEXCOORD*/) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+//	float4 final_pos = mul(position, world); 
+// 
+//	//final_pos = musssl(final_pos, view); 
+//	//final_pos = mul(final_pos, projection); 
+////	output.normal = float3(0, 0, -1); 
+//	output.pos = float4(position.xy, 0, 10.0f); 
+// 
+//	//output.uv = uv; 
+//	float2 u = (position.xy + float2(1, 1)) / 2.2; 
+//	//output.uv = uv;// u;///float3(u.x, -u.y, 0); 
+	 
+	output.pos = position; 
+	const float2 fliped = float2 (position.x, -position.y); 
+	output.uv = (fliped + float2(1, 1)) / 2.0f; 
+	return output; 
+} 
+¬
+PostProcessBase_VS.hlsl|FileStart|
+ 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+ 
+VS_OUTPUT main(float4 position : POSITION /*float4 normal : NORMAL0,*/ /*float4 uv : TEXCOORD*/) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	output.pos = position; 
+	const float2 fliped = float2 (position.x, -position.y); 
+	output.uv = (fliped + float2(1, 1)) / 2.0f; 
+	return output; 
+} 
+¬
+Shadow.hlsl|FileStart|
+#define SHADOW_DEPTH_BIAS 0.005f 
+loat4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld) 
+{ 
+	// Compute pixel position in light space. 
+	float4 vLightSpacePos = vPosWorld; 
+	vLightSpacePos = mul(vLightSpacePos, lights[lightid].LightVP); 
+ 
+	vLightSpacePos.xyz /= vLightSpacePos.w; 
+ 
+	// Translate from homogeneous coords to texture coords. 
+	float2 vShadowTexCoord = 0.5f * vLightSpacePos.xy + 0.5f; 
+	vShadowTexCoord.y = 1.0f - vShadowTexCoord.y; 
+ 
+	// Depth bias to avoid pixel self-shadowing. 
+	float vLightSpaceDepth = vLightSpacePos.z - SHADOW_DEPTH_BIAS; 
+ 
+	// Find sub-pixel weights.//todo: shader define! 
+	float2 vShadowMapDims = float2(1024, 1024); // need to keep in sync with .cpp file 
+	float size = 1.0f; 
+	float4 vSubPixelCoords = float4(size, size, size, size); 
+	vSubPixelCoords.xy = frac(vShadowMapDims * vShadowTexCoord); 
+	vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy; 
+	float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy; 
+ 
+	// 2x2 percentage closer filtering. 
+	float2 vTexelUnits = 1.0f / vShadowMapDims; 
+	float4 vShadowDepths; 
+	if (lightid == 0) 
+	{ 
+		vShadowDepths.x = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord); 
+		vShadowDepths.y = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)); 
+		vShadowDepths.z = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)); 
+		vShadowDepths.w = g_Shadow_texture.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits); 
+	} 
+	else 
+	{ 
+		/*vShadowDepths.x = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord); 
+		vShadowDepths.y = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(vTexelUnits.x, 0.0f)); 
+		vShadowDepths.z = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + float2(0.0f, vTexelUnits.y)); 
+		vShadowDepths.w = g_Shadow_texture2.Sample(g_Clampsampler, vShadowTexCoord + vTexelUnits);*/ 
+	} 
+	// What weighted fraction of the 4 samples are nearer to the light than this pixel? 
+	float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f; 
+	return dot(vBilinearWeights, vShadowTests); 
+} 
+¬
+ShadowSample_fs.hlsl|FileStart|
+struct Light 
+{ 
+	float3 LPosition; 
+	float3 color; 
+	float3 Direction; 
+	row_major matrix LightVP; 
+	int type;//type 1 == point, type 0 == directional, tpye 2 == spot 
+	int ShadowID; 
+	int DirShadowID; 
+	int HasShadow; 
+}; 
+//PBR functions! 
+static const float PI = 3.14159265359; 
+float DistributionGGX(float3 N, float3 H, float roughness) 
+{ 
+	float a = roughness * roughness; 
+	float a2 = a * a; 
+	float NdotH = max(dot(N, H), 0.0); 
+	float NdotH2 = NdotH * NdotH; 
+ 
+	float num = a2; 
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0); 
+	denom = PI * denom * denom; 
+ 
+	return num / max(denom, 0.0001); 
+} 
+ 
+float GeometrySchlickGGX(float NdotV, float roughness) 
+{ 
+	float r = (roughness + 1.0); 
+	float k = (r*r) / 8.0; 
+ 
+	float num = NdotV; 
+	float denom = NdotV * (1.0 - k) + k; 
+ 
+	return num / denom; 
+} 
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness) 
+{ 
+	float NdotV = max(dot(N, V), 0.0); 
+	float NdotL = max(dot(N, L), 0.0); 
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness); 
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness); 
+ 
+	return ggx1 * ggx2; 
+} 
+ 
+float3 fresnelSchlick(float cosTheta, float3 F0) 
+{ 
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 fresnelSchlick_Roughness(float cosTheta, float3 F0, float Roughness) 
+{ 
+	return F0 + (max(float3(1.0 - Roughness, 1.0 - Roughness, 1.0 - Roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0); 
+} 
+ 
+float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal) 
+{ 
+	float diffu = max(dot(Normal, LightDir), 0.0); 
+	return MaterialDiffuseColor * diffu; 
+} 
+ 
+float3 GetAmbient_CONST() 
+{ 
+	return float3(0.03, 0.03, 0.03); 
+} 
+ 
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF) 
+{ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metal); 
+	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness); 
+	float3 kD = 1.0 - F; 
+	kD *= 1.0 - Metal; 
+	float3 diffuse = IRData * Diffusecolor; 
+	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y); 
+	float3 ambient = (kD * diffuse+ Specular); 
+	return ambient; 
+} 
+ 
+float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	float attenuation = 1.0f; 
+ 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color; 
+	return Diffusecolour * attenuation; 
+} 
+ 
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic) 
+{ 
+	float3 LightDirection = float3(0, 1, 0); 
+	float distanceToLight = length(light.LPosition - FragPos); 
+	//float attenuation = 1.0f; 
+	float3 ViewDir = normalize(CamPos - FragPos); 
+	if (light.type == 1) 
+	{ 
+		LightDirection = normalize(light.LPosition - FragPos); 
+		//attenuation = 1.0 / (1.0 + 0.001 * pow(distanceToLight, 2)); 
+	} 
+	else 
+	{ 
+		LightDirection = -light.Direction; 
+	} 
+ 
+	float3 Half = normalize(ViewDir + LightDirection); 
+ 
+	float attenuation = 1.0 / (distanceToLight * distanceToLight); 
+	float3 radiance = light.color * attenuation; 
+	roughness = max(roughness, 0.001); 
+ 
+	float3 F0 = float3(0.04, 0.04, 0.04); 
+	F0 = lerp(F0, Diffusecolor, Metalic); 
+ 
+	// cook-torrance brdf 
+	float NDF = DistributionGGX(normal, Half, roughness); 
+	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness); 
+	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0); 
+	 
+	 
+	float3 kS = F; 
+	float3 kD = float3(1.0,1.0,1.0) - kS; 
+	kD *= 1.0 - Metalic; 
+	 
+	float3 numerator = NDF * G * F; 
+	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0); 
+	float3 specular = numerator / max(denominator, 0.01); 
+	//return specular; 
+	// add to outgoing radiance Lo 
+	float NdotL = max(dot(normal, LightDirection), 0.0); 
+ 
+	return (kD * Diffusecolor / PI + specular) * radiance * NdotL; 
+} 
+ 
+#define SHADOW_DEPTH_BIAS 0.005f 
+#define MAX_LIGHTS 5 
+cbuffer LightBuffer : register(b1) 
+{ 
+	Light lights[MAX_LIGHTS]; 
+}; 
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float4 Normal :NORMAL0; 
+	float4 WorldPos:TANGENT0; 
+}; 
+SamplerState g_sampler : register(s0); 
+SamplerState g_Clampsampler : register(s1); 
+TextureCube g_Shadow_texture: register(t0); 
+ 
+float ShadowCalculationCube(const float3 fragPos, Light lpos); 
+ 
+float main(PSInput input) : SV_TARGET 
+{	 
+	return ShadowCalculationCube(input.WorldPos.xyz,lights[2]); 
+} 
+ 
+float ShadowCalculationCube(const float3 fragPos, Light lpos) 
+{ 
+	// Get vector between fragment position and light position 
+	float3 fragToLight = (fragPos - lpos.LPosition); 
+	float currentDepth = length(fragToLight); 
+	float bias = 0.5f; 
+	float far_plane = 500; 
+	float closestDepth = 0; 
+	closestDepth = g_Shadow_texture.Sample(g_Clampsampler, fragToLight).r; 
+	closestDepth *= far_plane; 
+	if (currentDepth - bias > closestDepth) 
+	{ 
+		return 1.0f; 
+	} 
+	return 0.0f; 
+} 
+¬
+ShadowSample_vs.hlsl|FileStart|
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float4 Normal :NORMAL0; 
+	float4 WorldPos:TANGENT0; 
+}; 
+ 
+cbuffer GOConstantBuffer : register(b0) 
+{ 
+	row_major matrix Model; 
+	int HasNormalMap; 
+	float Roughness; 
+	float Metallic; 
+}; 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix View; 
+	row_major matrix Projection; 
+}; 
+ 
+PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TEXCOORD,float4 Tangent: TANGENT0) 
+{ 
+	PSInput result =(PSInput)0; 
+	float4 final_pos = position; 
+	final_pos.w = 1.0f; 
+	final_pos = mul(position, Model); 
+	result.WorldPos = final_pos; 
+	final_pos = mul(final_pos, View); 
+	final_pos = mul(final_pos, Projection); 
+	result.position = final_pos; 
+	result.Normal = normal; 
+	return result; 
+} 
+¬
+Skybox_fs.hlsl|FileStart|
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float3 texcoord :TEXCOORD; 
+}; 
+ 
+TextureCube g_texture : register(t0); 
+SamplerState g_sampler : register(s1); 
+ 
+ 
+float4 main(PSInput input) : SV_TARGET 
+{ 
+	return float4(g_texture.SampleLevel(g_sampler, input.texcoord,0).xyz,1.0f); 
+} 
+ 
+¬
+Skybox_vs.hlsl|FileStart|
+ 
+struct PSInput 
+{ 
+	float4 position : SV_POSITION; 
+	float3 texcoord :TEXCOORD; 
+}; 
+ 
+cbuffer SceneConstantBuffer : register(b0) 
+{ 
+	row_major matrix View; 
+	row_major matrix Projection; 
+}; 
+ 
+PSInput main(float4 position : POSITION) 
+{ 
+	PSInput result; 
+	float4 final_pos = float4(position.xyz,1.0); 
+	final_pos = mul(final_pos, View); 
+	final_pos = mul(final_pos, Projection); 
+	result.position = final_pos.xyww; 
+	result.texcoord = normalize(position.xyz); 
+	return result; 
+} 
+¬
+UI_Batch_fs.hlsl|FileStart|
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float3 FrontColour:TEXCOORD; 
+	float3 BackColour:TEXCOORD1; 
+	uint Back : TEXCOORD2; 
+}; 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	if (input.Back == 0 ) 
+	{ 
+		return float4(input.FrontColour.xyz, 0.0); 
+	} 
+	else 
+	{ 
+		return float4(input.BackColour.xyz,0.0); 
+	} 
+	 
+} 
+¬
+UI_Batch_vs.hlsl|FileStart|
+cbuffer ConstantBuffer : register(b0) 
+{ 
+	row_major matrix projection; 
+} 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float3 FrontColour:TEXCOORD; 
+	float3 BackColour:TEXCOORD1; 
+	uint Back: TEXCOORD2; 
+}; 
+ 
+ 
+VS_OUTPUT main(float2 position : POSITION, uint back : TEXCOORD2, float3 fc : TEXCOORD, float3 bc : TEXCOORD1) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	float4 finalpos = float4(position.xy, 0.0, 1.0); 
+	output.pos = mul(finalpos, projection); 
+	output.FrontColour = fc; 
+	output.Back = back; 
+	output.BackColour = bc;	 
+	return output; 
+} 
+¬
+debugline_fs.hlsl|FileStart|
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos    : SV_POSITION; 
+	float3 colour : TEXCOORD0; 
+}; 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	return float4(input.colour,1.0f); 
+} 
+¬
+debugline_vs.hlsl|FileStart|
+cbuffer ConstantBuffer : register(b0) 
+{ 
+	row_major matrix projection; 
+} 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos    : SV_POSITION; 
+	float3 colour : TEXCOORD0; 
+}; 
+ 
+ 
+VS_OUTPUT main(float3 pos : POSITION, float3 color : NORMAL0) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+#if TWOD_ONLY 
+	pos.z = 0.0f; 
+#endif 
+	output.pos = mul(float4(pos, 1.0), projection); 
+	output.colour = color; 
+	return output; 
+} 
+¬
+depthbasic_fs_12.hlsl|FileStart|
+struct GSOutput 
+{ 
+	float4 Pos : SV_POSITION; 
+	uint slice : SV_RenderTargetArrayIndex; 
+	float3 LightPos: TEXCOORD0; 
+	float3 WorldPos:NORMAL0; 
+}; 
+float main(GSOutput input) : SV_Depth 
+{ 
+#if DIRECTIONAL 
+	return 1.0f; 
+#else 
+	float Farplane = 500; 
+	float LightDistance = length(input.WorldPos.xyz - input.LightPos); 
+	LightDistance = LightDistance / Farplane; 
+	return LightDistance; 
+#endif 
+} 
+ 
+¬
+depthbasic_geo.hlsl|FileStart|
+cbuffer GeoTrans : register(b1) 
+{ 
+	row_major matrix worldm[6]; 
+} 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	uint slice : SV_RenderTargetArrayIndex; 
+	float3 LightPos: TEXCOORD0; 
+	float3 WorldPos:NORMAL0; 
+}; 
+ 
+struct GSOutput 
+{ 
+	float4 Pos : SV_POSITION; 
+	uint slice : SV_RenderTargetArrayIndex; 
+	float3 LightPos: TEXCOORD0; 
+	float3 WorldPos:NORMAL0; 
+}; 
+ 
+[maxvertexcount(18)] 
+void main(triangle VS_OUTPUT input[3], inout TriangleStream<GSOutput> OutputStream) 
+{ 
+	for (uint face = 0; face < 6; face += 1)//for each face 
+	{ 
+		GSOutput output = (GSOutput)0; 
+		output.slice = face; 
+		for (int i = 0; i < 3; ++i) // for each triangle's vertices 
+		{ 
+			output.WorldPos = input[i].pos.xyz; 
+			output.Pos = mul(float4(input[i].pos.xyz,1.0f), worldm[face]);			 
+			output.LightPos = input[i].LightPos; 
+			OutputStream.Append(output); 
+		} 
+		OutputStream.RestartStrip(); 
+	} 
+ 
+} 
+ 
+¬
+depthbasic_vs_12.hlsl|FileStart|
+ 
+cbuffer ConstantBuffer : register(b0) 
+{ 
+	row_major matrix world; 
+} 
+#if 0 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix ViewP; 
+	row_major matrix Projection; 
+}; 
+ 
+#else 
+cbuffer SceneConstantBuffer : register(b2) 
+{ 
+	row_major matrix ViewP; 
+	row_major matrix Projection; 
+	float3 LightPos; 
+}; 
+#endif 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	uint slice : SV_RenderTargetArrayIndex; 
+	float3 LightPos: TEXCOORD0; 
+	float3 WorldPos:NORMAL0; 
+}; 
+ 
+ 
+VS_OUTPUT main(float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXCOORD0) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	float4 final_pos = mul(float4(pos.xyz,1.0), world); 
+#if DIRECTIONAL 
+	final_pos = mul(final_pos, ViewP); 
+	final_pos = mul(final_pos, Projection); 
+#endif 
+	output.pos = final_pos; 
+	output.LightPos = LightPos; 
+	return output; 
+} 
+¬
+output_fs.hlsl|FileStart|
+Texture2D texColour : register(t0); 
+SamplerState defaultSampler : register (s0); 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	return texColour.Sample(defaultSampler, input.uv); 
+//return float4(1,1,1,1); 
+} 
+¬
+output_vs.hlsl|FileStart|
+ 
+cbuffer LineConstantBuffer : register(b0) 
+{ 
+	row_major matrix projection; 
+	float3 Colour; 
+} 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+}; 
+ 
+VS_OUTPUT main(float4 pos : POSITION, float2 uv : TEXCOORD0) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	output.pos = mul( float4(pos.x, pos.y, 0.0, 1.0), projection); 
+	output.uv = pos.zw; 
+	return output; 
+} 
+ 
+ 
+ 
+/* 
+#version 330 core 
+layout(location = 0) in vec4 vertex; // vec2 pos & vec2 texure coods 
+out vec2 TexCoords; 
+uniform mat4 projection; 
+ 
+void main() 
+{ 
+    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0); 
+    TexCoords = vertex.zw; 
+}  
+*/ 
+¬
+text_fs_Atlas.hlsl|FileStart|
+Texture2D texColour : register(t0); 
+SamplerState defaultSampler : register (s2); 
+ 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+	float3 Colour : NORMAL; 
+}; 
+ 
+float4 main(VS_OUTPUT input) : SV_Target 
+{ 
+	float SampledValue = texColour.Sample(defaultSampler, input.uv).r; 
+#if 0 
+	float test; 
+	for (int i = 0; i < 100000; i++) 
+	{ 
+		test = texColour.Sample(defaultSampler, input.uv).r; 
+	} 
+	SampledValue = test; 
+#endif 
+	return float4(input.Colour, SampledValue); 
+} 
+¬
+text_vs_Atlas.hlsl|FileStart|
+ 
+cbuffer LineConstantBuffer : register(b0) 
+{ 
+	row_major matrix projection; 
+} 
+struct VS_OUTPUT 
+{ 
+	float4 pos : SV_POSITION; 
+	float2 uv : TEXCOORD0; 
+	float3 Colour : NORMAL; 
+}; 
+ 
+ 
+VS_OUTPUT main(float4 pos : POSITION, float3 colour: NORMAL) 
+{ 
+	VS_OUTPUT output = (VS_OUTPUT)0; 
+	output.pos = mul( float4(pos.x, pos.y, 0.0, 1.0), projection); 
+	output.uv = pos.zw; 
+	output.Colour = colour; 
+	return output; 
+} 
+ 
+ 
+ 
+/* 
+#version 330 core 
+layout(location = 0) in vec4 vertex; // vec2 pos & vec2 texure coods 
+out vec2 TexCoords; 
+uniform mat4 projection; 
+ 
+void main() 
+{ 
+    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0); 
+    TexCoords = vertex.zw; 
+}  
+*/ 
+¬

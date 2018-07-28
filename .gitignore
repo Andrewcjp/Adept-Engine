@@ -32,3 +32,14 @@
 /GraphicsEngine/GraphicsEngine/include/nvapi
 /GraphicsEngine/GraphicsEngine/lib/64
 /GraphicsEngine/x64/asset/Saved
+/GraphicsEngine/BuildCsFiles.dll
+/GraphicsEngine/lib/64/nvapi64.lib
+/GraphicsEngine/lib/64/Debug/TestGame.dll
+/GraphicsEngine/lib/64/Debug/TestGame.ilk
+/GraphicsEngine/lib/64/Debug/TestGame.pdb
+/GraphicsEngine/lib/64/Release/TestGame.lib
+/GraphicsEngine/Intermediate
+/GraphicsEngine/Binaries/Debug
+/GraphicsEngine/Binaries/Release
+/GraphicsEngine/Binaries/RelWithDebInfo
+/GraphicsEngine/Binaries/Asset/DDC
