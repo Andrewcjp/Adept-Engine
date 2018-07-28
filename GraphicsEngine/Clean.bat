@@ -1,0 +1,1 @@
+EngineBuildTool -Clean -NoGen
