@@ -7,7 +7,7 @@
 #include "RHITypes.h"
 #include "Core/Assets/AssetManager.h"
 #include "Rendering/Renderers/RenderSettings.h"
-#include "../Core/Utils/MemoryUtils.h"
+#include "Core/Utils/MemoryUtils.h"
 //todo: refactor!
 //like seriuously this is bad!
 class BaseTexture;

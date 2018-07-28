@@ -18,7 +18,7 @@ Shader_Skybox::Shader_Skybox()
 }
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "../RHI/RenderAPIs/D3D12/GPUResource.h"
+#include "RHI/RenderAPIs/D3D12/GPUResource.h"
 void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List = RHI::CreateCommandList();

@@ -13,7 +13,7 @@
 #include "d3d12Shader.h"
 #include "D3D12Texture.h"
 #include "D3D12Helpers.h"
-#include "../Core/Utils/RefChecker.h"
+#include "Core/Utils/RefChecker.h"
 #define USEGPUTOGENMIPS_ATRUNTIME 0
 
 class D3D12RHI : public RHIClass

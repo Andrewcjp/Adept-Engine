@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "../Core/Asserts.h"
+#include "Core/Asserts.h"
 
 class GenericApplication
 {

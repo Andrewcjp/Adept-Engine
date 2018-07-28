@@ -1,6 +1,6 @@
 #include "Stdafx.h"
 #include "Shader_ShadowSample.h"
-#include "../Shader_Main.h"
+#include "Rendering/Shaders/Shader_Main.h"
 
 Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context)
 {

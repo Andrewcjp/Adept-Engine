@@ -11,7 +11,7 @@
 #include "Editor\EditorWindow.h"
 #include "Components\MeshRendererComponent.h"
 #include "UI/UIManager.h"
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Platform/PlatformCore.h"
 Input* Input::instance = nullptr;
 
 Input::Input()

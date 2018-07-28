@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "NVAPIManager.h"
-#include "../Core/Asserts.h"
-#include "../Core/Platform/Logger.h"
+#include "Core/Asserts.h"
+#include "Core/Platform/Logger.h"
 NVAPIManager::NVAPIManager()
 {
 #if NVAPI_PRESENT 

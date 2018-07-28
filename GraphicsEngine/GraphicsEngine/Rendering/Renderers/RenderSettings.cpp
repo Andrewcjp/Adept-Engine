@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "RenderSettings.h"
-#include "../RHI/RHI.h"
+#include "RHI/RHI.h"
 MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;

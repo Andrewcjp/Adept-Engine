@@ -10,7 +10,7 @@
 #include "RHI/RHI.h"
 #include "D3D12TimeManager.h"
 #include <dxgidebug.h>
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Platform/PlatformCore.h"
 #include "RHI/BaseTexture.h"
 #include "Rendering/Core/Renderable.h"
 #include "Rendering/Core/Mesh.h"

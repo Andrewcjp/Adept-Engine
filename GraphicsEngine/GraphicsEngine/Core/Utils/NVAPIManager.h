@@ -1,7 +1,7 @@
 #pragma once
 //This might not be supported by every complier version
 //detect if present as NVAPI is not distributable
-#if __has_include("../include/nvapi/nvapi.h")
+#if __has_include("include/nvapi/nvapi.h")
 #define NVAPI_PRESENT 1
 #else 
 #define NVAPI_PRESENT 0
@@ -9,7 +9,7 @@
 
 #if NVAPI_PRESENT 
 #pragma comment(lib, "nvapi64.lib")
-#include "../include/nvapi/nvapi.h"
+#include "include/nvapi/nvapi.h"
 #endif
 class NVAPIManager
 {

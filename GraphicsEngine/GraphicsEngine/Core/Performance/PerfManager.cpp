@@ -12,7 +12,7 @@
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "RHI/DeviceContext.h"
 #include "Rendering/Renderers/TextRenderer.h"
-#include "../Core/Utils/NVAPIManager.h"
+#include "Core/Utils/NVAPIManager.h"
 #include <algorithm>
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;

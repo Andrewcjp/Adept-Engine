@@ -1,6 +1,6 @@
 #pragma once
-#include "../Generic/GenericApplication.h"
-#include "../Core/Types/FString.h"
+#include "Core/Platform/Generic/GenericApplication.h"
+#include "Core/Types/FString.h"
 class WindowsApplication : public GenericApplication
 {
 public:

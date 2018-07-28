@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "FileUtils.h"
 #include <vector>
-#include "../Core/Platform/Logger.h"
+#include "Core/Platform/Logger.h"
 #include "StringUtil.h"
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Platform/PlatformCore.h"
 bool FileUtils::File_ExistsTest(const std::string & name,bool Silent)
 {
 	struct stat buffer;

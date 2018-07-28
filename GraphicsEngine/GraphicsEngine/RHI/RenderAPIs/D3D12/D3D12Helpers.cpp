@@ -6,7 +6,7 @@
 #include "D3D12DeviceContext.h"
 #include "RHI/DeviceContext.h"
 #include "Core/Assets/AssetTypes.h"
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Platform/PlatformCore.h"
 
 std::string D3D12Helpers::StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel)
 {

@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "AssetTypes.h"
-#include "../Core/Engine.h"
-#include "../Utils/StringUtil.h"
+#include "Core/Engine.h"
+#include "Core/Utils/StringUtil.h"
 AssetPathRef::AssetPathRef(std::string Filename)
 {
 	std::vector<std::string> split = StringUtils::Split(Filename, '.');

@@ -1,6 +1,6 @@
 #include "FrameBuffer.h"
 #include "RHI/DeviceContext.h"
-#include "../Core/Performance/PerfManager.h"
+#include "Core/Performance/PerfManager.h"
 FrameBuffer::FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc)
 {
 	BufferDesc = Desc;

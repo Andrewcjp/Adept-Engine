@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "WindowPlatformMisc.h"
 #include "Core\Platform\Windows\WindowPlatformMisc.h"
-#include "../Core/MinWindows.h"
+#include "Core/MinWindows.h"
 
 void WindowPlatformMisc::LogPlatformOutput(FString data)
 {

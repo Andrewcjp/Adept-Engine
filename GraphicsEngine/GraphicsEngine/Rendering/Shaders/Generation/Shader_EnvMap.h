@@ -1,5 +1,5 @@
 #pragma once
-#include "../RHI/Shader.h"
+#include "RHI/Shader.h"
 #include "Shader_Convolution.h"
 class Shader_EnvMap : public Shader
 {

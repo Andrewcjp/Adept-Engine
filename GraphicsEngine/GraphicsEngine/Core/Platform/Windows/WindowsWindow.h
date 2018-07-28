@@ -1,7 +1,7 @@
 #pragma once
-#include "../Core/MinWindows.h"
-#include "../Core/EngineTypes_fwd.h"
-#include "../Generic/GenericWindow.h"
+#include "Core/MinWindows.h"
+#include "Core/EngineTypes_fwd.h"
+#include "Core/Platform/Generic/GenericWindow.h"
 class WindowsWindow
 {
 private:

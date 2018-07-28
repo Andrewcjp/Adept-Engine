@@ -1,6 +1,6 @@
 #pragma once
 #include "EngineGlobals.h"
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Platform/PlatformCore.h"
 #if DOCHECK
 #define DebugEnsure(condition) if(!condition){ __debugbreak();}
 #define ensure(condition) {if(!(condition)){ __debugbreak(); PlatformApplication::DisplayMessageBox("Error", "Ensure Failed \n" #condition); exit(1359);}}

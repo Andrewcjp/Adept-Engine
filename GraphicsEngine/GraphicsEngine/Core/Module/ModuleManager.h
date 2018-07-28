@@ -1,9 +1,9 @@
 #pragma once
-#include "../Core/Types/FString.h"
+#include "Core/Types/FString.h"
 #include "ModuleInterface.h"
 #include <vector>
 #include <map>
-#include "../Core/Platform/Logger.h"
+#include "Core/Platform/Logger.h"
 namespace ModuleLoadStatus
 {
 	enum Type
@@ -54,7 +54,7 @@ private:
 		IModuleInterface* Module = nullptr;
 		ModuleLoadStatus::Type ModuleStatus = ModuleLoadStatus::Status_UnLoaded;
 #ifdef NDEBUG
-		bool IsDynamic = false;
+		bool IsDynamic = true;
 #else
 		bool IsDynamic = true;
 #endif

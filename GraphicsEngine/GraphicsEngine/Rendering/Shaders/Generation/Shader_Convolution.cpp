@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Shader_Convolution.h"
-#include "../Rendering/Core/Renderable.h"
+#include "Rendering/Core/Renderable.h"
 
 Shader_Convolution::Shader_Convolution()
 {

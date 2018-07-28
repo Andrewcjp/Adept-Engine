@@ -2,8 +2,8 @@
 #include "EngineGlobals.h"
 
 #include <string>
-#include "../Core/Platform/Logger.h"
-#include "../Core/EngineTypes.h"
+#include "Core/Platform/Logger.h"
+#include "Core/EngineTypes.h"
 class RenderWindow;
 class PhysicsEngine;
 class EditorWindow;

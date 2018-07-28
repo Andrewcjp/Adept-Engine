@@ -1,11 +1,11 @@
 #include "Stdafx.h"
 #include "WindowsWindow.h"
-#include "../Core/Engine.h"
-#include "../RHI/RenderWindow.h"
+#include "Core/Engine.h"
+#include "RHI/RenderWindow.h"
 #include <Windowsx.h>
 #include "Resource.h"
 #include "Core/Components/CompoenentRegistry.h"
-#include "../Core/EngineTypes.h"
+#include "Core/EngineTypes.h"
 #pragma comment(lib, "winmm.lib")
 
 WindowsWindow* WindowsWindow::app = nullptr;

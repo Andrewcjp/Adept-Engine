@@ -6,7 +6,7 @@
 #include <strsafe.h>
 #include <fcntl.h>
 
-#include "../Core/MinWindows.h"
+#include "Core/MinWindows.h"
 #include "BaseApplication.h"
 #include <string>
 #include <iostream>
@@ -47,8 +47,8 @@ void ErrorExit(LPTSTR lpszFunction)
 	LocalFree(lpDisplayBuf);
 	ExitProcess(dw);
 }
-#include "../Core/Engine.h"
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Engine.h"
+#include "Core/Platform/PlatformCore.h"
 int APIENTRY WinMain(HINSTANCE hInstance,
 	HINSTANCE ,
 	LPSTR    lpCmdLine,

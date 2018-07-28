@@ -5,7 +5,7 @@
 #include <cctype>
 #include "UI/UIManager.h"
 #include "UI/Core/UIButton.h"
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Platform/PlatformCore.h"
 UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 {
 	Colour = colour;

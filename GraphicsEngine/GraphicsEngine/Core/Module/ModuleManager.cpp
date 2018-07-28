@@ -1,6 +1,6 @@
 #include "Stdafx.h"
 #include "ModuleManager.h"
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Platform/PlatformCore.h"
 ModuleManager* ModuleManager::Instance = nullptr;
 ModuleManager * ModuleManager::Get()
 {

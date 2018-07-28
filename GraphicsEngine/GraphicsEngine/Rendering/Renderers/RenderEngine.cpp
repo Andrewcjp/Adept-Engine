@@ -59,7 +59,7 @@ void RenderEngine::PreRender()
 		MainCamera = MainScene->GetCurrentRenderCamera();
 	}
 }
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 //init common to both renderers
 void RenderEngine::Init()
 {

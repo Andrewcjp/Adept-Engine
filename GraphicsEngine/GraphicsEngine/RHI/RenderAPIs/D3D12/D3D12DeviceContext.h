@@ -1,6 +1,6 @@
 #pragma once
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "../RHI/DeviceContext.h"
+#include "RHI/DeviceContext.h"
 #include <mutex>
 #include <queue>
 template<class T>

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Core/Types/FString.h"
+#include "Core/Types/FString.h"
 class WindowPlatformMisc
 {
 public:

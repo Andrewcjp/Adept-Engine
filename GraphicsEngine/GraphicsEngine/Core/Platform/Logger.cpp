@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "Logger.h"
-#include "../Core/Utils/StringUtil.h"
-#include "../Core/Platform/PlatformCore.h"
+#include "Core/Utils/StringUtil.h"
+#include "Core/Platform/PlatformCore.h"
 Log::StreamWrapper Log::OutS;
 
 

@@ -36,8 +36,8 @@ void ForwardRenderer::OnRender()
 	PostProcessPass();
 }
 
-#include "../Rendering/Shaders/Generation/Shader_Convolution.h"
-#include "../Rendering/Shaders/Generation/Shader_EnvMap.h"
+#include "Rendering/Shaders/Generation/Shader_Convolution.h"
+#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 void ForwardRenderer::PostInit()
 {
 	SetupOnDevice(RHI::GetDeviceContext(0));

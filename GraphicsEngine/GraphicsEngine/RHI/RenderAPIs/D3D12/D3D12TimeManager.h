@@ -2,11 +2,11 @@
 #include "D3D12RHI.h"
 #include "Core/Utils/MovingAverage.h"
 #include "EngineGlobals.h"
-#include "../RHI/RHITimeManager.h"
+#include "RHI/RHITimeManager.h"
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
 #define MAX_TIMER_COUNT 8
-#include "../RHI/RHITypes.h"
+#include "RHI/RHITypes.h"
 class D3D12TimeManager : public RHITimeManager
 {
 public:

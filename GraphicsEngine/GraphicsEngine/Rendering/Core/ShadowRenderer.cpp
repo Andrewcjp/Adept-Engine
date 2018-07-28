@@ -5,14 +5,14 @@
 #include "Core/Utils/MemoryUtils.h"
 #include "Light.h"
 #include "Rendering\Shaders\Shader_Depth.h"
-#include "../Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
+#include "Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
 #include "Core/GameObject.h"
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "RHI/DeviceContext.h"
-#include "../Core/BaseWindow.h"
-#include "../RHI/RHITypes.h"
+#include "Core/BaseWindow.h"
+#include "RHI/RHITypes.h"
 #define CUBE_SIDES 6
 
 ShadowRenderer::ShadowRenderer()
@@ -323,9 +323,9 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	DirectionalShadowList->CreatePipelineState(DirectionalLightShader, DirectionalLightBuffer);
 
 }
-#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "../RHI/RenderAPIs/D3D12/GPUResource.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "RHI/RenderAPIs/D3D12/GPUResource.h"
 void ShadowRenderer::Unbind(RHICommandList * list)
 {
 	if (RHI::GetMGPUMode()->SplitShadowWork)

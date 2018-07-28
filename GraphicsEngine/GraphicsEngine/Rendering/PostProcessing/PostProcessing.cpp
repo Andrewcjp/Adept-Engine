@@ -6,11 +6,11 @@
 #include "PP_Bloom.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "../RHI/DeviceContext.h"
-#include "../RHI/RenderAPIs/D3D12/GPUResource.h"
-#include "../Core/Utils/MemoryUtils.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/GPUResource.h"
+#include "Core/Utils/MemoryUtils.h"
 PostProcessing* PostProcessing::Instance = nullptr;
 PostProcessing::PostProcessing()
 {

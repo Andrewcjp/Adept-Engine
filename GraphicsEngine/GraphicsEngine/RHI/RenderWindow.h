@@ -1,5 +1,5 @@
 #pragma once
-#include "../Core/MinWindows.h"
+#include "Core/MinWindows.h"
 class RenderEngine;
 class RenderWindow
 {

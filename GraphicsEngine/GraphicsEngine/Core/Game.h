@@ -1,7 +1,7 @@
 #pragma once
 #include "EngineGlobals.h"
-#include "../Core/Module/ModuleInterface.h"
-#include "../Core/Platform/Logger.h"
+#include "Core/Module/ModuleInterface.h"
+#include "Core/Platform/Logger.h"
 class  Game
 {
 public:

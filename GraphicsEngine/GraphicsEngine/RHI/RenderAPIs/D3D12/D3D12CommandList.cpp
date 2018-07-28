@@ -14,8 +14,8 @@
 #include "Core/Performance/PerfManager.h"
 #include "D3D12Helpers.h"
 #include "GPUResource.h"
-#include "../Rendering/Core/GPUStateCache.h"
-#include "../Core/Utils/MemoryUtils.h"
+#include "Rendering/Core/GPUStateCache.h"
+#include "Core/Utils/MemoryUtils.h"
 #include "D3D12DeviceContext.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType)
 {

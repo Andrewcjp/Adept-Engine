@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "FString.h"
 #include "Core/Asserts.h"
-#include "../Core/Utils/StringUtil.h"
+#include "Core/Utils/StringUtil.h"
 FString::FString()
 {}
 
