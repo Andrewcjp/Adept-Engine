@@ -15,6 +15,10 @@ public:
 	FrameBuffer * CubeBuffer = nullptr;
 	struct QuadDrawer
 	{
+		~QuadDrawer()
+		{
+			delete VertexBuffer;
+		}
 		RHIBuffer* VertexBuffer = nullptr;
 		void init()
 		{

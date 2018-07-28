@@ -70,6 +70,13 @@ ShadowRenderer::~ShadowRenderer()
 	delete GeometryProjections;
 	delete PointLightShader;
 	delete DirectionalLightShader;
+	delete ShadowCubeArray;
+	delete ShadowDirectionalArray;
+	delete PointShadowListALT;
+	delete PointShadowList;
+	delete ShadowPreSampleShader;
+	delete DirectionalShadowList;
+	delete ShadowPreSamplingList;
 	MemoryUtils::DeleteVector(DirectionalLightBuffers);
 	MemoryUtils::DeleteVector(LightInteractions);
 }
@@ -347,6 +354,16 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 		PreSampledBuffer = RHI::CreateFrameBuffer(Context, desc);
 	}
 	IsPointLight = IsPoint;
+}
+
+ShadowRenderer::ShadowLightInteraction::~ShadowLightInteraction()
+{
+	delete Shader;
+	delete ShadowMap;
+	if (PreSampledBuffer != nullptr)
+	{
+		delete PreSampledBuffer;
+	}
 }
 
 void ShadowRenderer::ShadowLightInteraction::PreSampleShadows(RHICommandList * List)

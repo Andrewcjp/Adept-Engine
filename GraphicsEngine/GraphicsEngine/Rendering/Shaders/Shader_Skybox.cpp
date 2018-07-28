@@ -43,6 +43,7 @@ Shader_Skybox::~Shader_Skybox()
 {
 	delete CubeModel;
 	delete SkyBoxTexture;
+	delete List;
 }
 
 void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)

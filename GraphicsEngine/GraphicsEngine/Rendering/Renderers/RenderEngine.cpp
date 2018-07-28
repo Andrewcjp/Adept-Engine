@@ -14,6 +14,10 @@ RenderEngine::~RenderEngine()
 	delete Post;
 	delete MainShader;
 	delete FilterBuffer;
+	delete Conv;
+	delete envMap;
+	delete SkyBox;
+
 }
 
 void RenderEngine::Render()

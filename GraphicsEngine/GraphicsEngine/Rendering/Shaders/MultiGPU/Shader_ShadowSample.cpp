@@ -11,7 +11,9 @@ Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context)
 
 
 Shader_ShadowSample::~Shader_ShadowSample()
-{}
+{
+
+}
 
 std::vector<Shader::ShaderParameter> Shader_ShadowSample::GetShaderParameters()
 {

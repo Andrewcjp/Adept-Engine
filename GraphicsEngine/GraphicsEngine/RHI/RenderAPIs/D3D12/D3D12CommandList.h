@@ -2,7 +2,7 @@
 #include "RHI/RHICommandList.h"
 #include <d3d12.h>
 #include "D3D12Shader.h"
-
+#include "../Core/Utils/RefChecker.h"
 class D3D12CommandList : public RHICommandList
 {
 public:
@@ -44,7 +44,8 @@ private:
 	bool IsOpen = false;
 	D3D12Shader::PiplineShader				CurrentPipelinestate;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
-	D3D12_INPUT_ELEMENT_DESC* VertexDesc = nullptr;
+	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();
+	std::vector<Shader::ShaderParameter> Params;
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
 	class D3D12Texture* Texture = nullptr;
@@ -117,3 +118,6 @@ private:
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
 	D3D12DeviceContext* Device  =nullptr;
 };
+CreateChecker(D3D12CommandList);
+CreateChecker(D3D12Buffer);
+CreateChecker(D3D12RHITextureArray);

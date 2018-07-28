@@ -12,7 +12,13 @@ Shader_EnvMap::Shader_EnvMap()
 
 
 Shader_EnvMap::~Shader_EnvMap()
-{}
+{
+	delete CmdList;
+	delete QuadDraw;
+	delete ShaderData;
+	delete CubeBuffer;
+	delete Cube;
+}
 
 void Shader_EnvMap::Init()
 {

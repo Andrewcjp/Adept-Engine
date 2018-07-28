@@ -5,7 +5,7 @@ class PostProcessEffectBase
 {
 public:
 	PostProcessEffectBase();
-	~PostProcessEffectBase();
+	virtual ~PostProcessEffectBase();
 	
 	void RunPass( FrameBuffer * InputTexture);
 	void SetUpData();

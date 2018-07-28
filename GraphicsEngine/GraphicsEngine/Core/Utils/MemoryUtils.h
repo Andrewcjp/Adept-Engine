@@ -21,5 +21,5 @@ namespace MemoryUtils
 			target[i] = nullptr;
 		}
 	}
-};
 
+};

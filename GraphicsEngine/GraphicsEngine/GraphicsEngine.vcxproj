@@ -310,6 +310,7 @@
     <ClInclude Include="Core\Platform\Generic\GenericPlatformMisc.h" />
     <ClInclude Include="Core\Platform\Generic\GenericWindow.h" />
     <ClInclude Include="Core\Platform\PlatformCore.h" />
+    <ClInclude Include="Core\Utils\RefChecker.h" />
     <ClInclude Include="Editor\EditorCore.h" />
     <ClInclude Include="Core\Components\Utillity\FreeLookComponent.h" />
     <ClInclude Include="Core\Types\FString.h" />
@@ -463,6 +464,7 @@
     <ClCompile Include="Core\Assets\AssetTypes.cpp" />
     <ClCompile Include="Core\Module\ModuleInterface.h" />
     <ClCompile Include="Core\Platform\Generic\GenericPlatformMisc.cpp" />
+    <ClCompile Include="Core\Utils\RefChecker.cpp" />
     <ClCompile Include="Editor\EditorCore.cpp" />
     <ClCompile Include="Core\Components\Utillity\FreeLookComponent.cpp" />
     <ClCompile Include="Core\Types\FString.cpp" />

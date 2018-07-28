@@ -11,7 +11,9 @@ PP_ColourCorrect::PP_ColourCorrect()
 
 
 PP_ColourCorrect::~PP_ColourCorrect()
-{}
+{
+	delete CurrentShader;
+}
 
 void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {

@@ -10,7 +10,12 @@ PP_Bloom::PP_Bloom()
 
 
 PP_Bloom::~PP_Bloom()
-{}
+{
+	delete BlurEffect;
+	delete Compost;
+	delete BloomShader;
+	delete UAV;
+}
 
 void PP_Bloom::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {

@@ -13,7 +13,12 @@ Shader_Convolution::Shader_Convolution()
 
 
 Shader_Convolution::~Shader_Convolution()
-{}
+{
+	delete CmdList;
+	delete ShaderData;
+	delete Cube;
+	delete Test;
+}
 
 void Shader_Convolution::init()
 {

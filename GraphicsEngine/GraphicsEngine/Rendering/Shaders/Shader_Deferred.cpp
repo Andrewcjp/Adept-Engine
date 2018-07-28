@@ -28,10 +28,11 @@ Shader_Deferred::Shader_Deferred()
 
 }
 
-
 Shader_Deferred::~Shader_Deferred()
 {
+	delete VertexBuffer;
 }
+
 std::vector<Shader::ShaderParameter> Shader_Deferred::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> out;

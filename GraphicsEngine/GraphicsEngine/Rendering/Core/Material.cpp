@@ -16,15 +16,15 @@ Material::~Material()
 {
 	if (Diffusetexture != nullptr)
 	{
-		SafeRelease(Diffusetexture);
+		SafeRefRelease(Diffusetexture);
 	}
 	if (NormalMap != nullptr)
 	{
-		SafeRelease(NormalMap);
+		SafeRefRelease(NormalMap);
 	}
 	if (DisplacementMap != nullptr)
 	{
-		SafeRelease(DisplacementMap);
+		SafeRefRelease(DisplacementMap);
 	}
 }
 

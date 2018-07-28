@@ -11,7 +11,7 @@ inline void SetName(ID3D12Object*, LPCWSTR)
 {}
 #endif
 #define NAME_D3D12_OBJECT(x) SetName(x, L#x)
-
+#define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
 class D3D12Helpers
 { 
 public:
@@ -34,6 +34,7 @@ class D3D12ReadBackCopyHelper
 public:
 	void WriteBackRenderTarget();
 	D3D12ReadBackCopyHelper(class DeviceContext* context, class GPUResource* Target);
+	~D3D12ReadBackCopyHelper();
 	void WriteToFile(AssetPathRef& Ref);
 private:
 	GPUResource * WriteBackResource = nullptr;

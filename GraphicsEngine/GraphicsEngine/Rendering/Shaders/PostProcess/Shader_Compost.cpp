@@ -16,7 +16,10 @@ Shader_Compost::Shader_Compost(DeviceContext * context)
 }
 
 Shader_Compost::~Shader_Compost()
-{}
+{
+
+}
+
 std::vector<Shader::ShaderParameter> Shader_Compost::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> out;

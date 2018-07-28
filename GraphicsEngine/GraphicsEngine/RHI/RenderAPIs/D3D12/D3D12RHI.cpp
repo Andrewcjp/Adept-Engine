@@ -30,6 +30,7 @@
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
+
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 	:m_fenceValues{}
@@ -57,7 +58,8 @@ void D3D12RHI::DestroyContext()
 	m_dsvHeap->Release();
 	m_SetupCommandList->Release();
 	CloseHandle(m_fenceEvent);
-	m_fence->Release();
+	SafeRelease(m_fence);
+	delete ScreenShotter;
 	ReportObjects();
 }
 
@@ -221,7 +223,6 @@ void D3D12RHI::LoadPipeLine()
 	{
 		PrimaryDevice->LinkAdaptors(SecondaryDevice);
 		SecondaryDevice->LinkAdaptors(PrimaryDevice);
-
 	}
 #if RUNDEBUG
 	ID3D12InfoQueue* infoqueue[MAX_DEVICE_COUNT] = { nullptr };
@@ -492,6 +493,7 @@ void D3D12RHI::PresentFrame()
 	}
 	//all execution this frame has finished 
 	//so all resources should be in the correct state!
+	ReleaseUploadHeap();
 	PrimaryDevice->UpdateCopyEngine();
 	if (SecondaryDevice != nullptr)
 	{
@@ -666,7 +668,6 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 			}
 		}
 	}
-
 }
 
 

@@ -19,6 +19,7 @@
 #include "D3D12DeviceContext.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType)
 {
+	AddCheckerRef(D3D12CommandList, this);
 	Device = inDevice;
 	mDeviceContext = (D3D12DeviceContext*)inDevice;
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
@@ -35,6 +36,7 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 
 D3D12CommandList::~D3D12CommandList()
 {
+	RemoveCheckerRef(D3D12CommandList, this);
 	if (CurrentPipelinestate.m_pipelineState != nullptr)
 	{
 		CurrentPipelinestate.m_pipelineState->Release();
@@ -208,6 +210,9 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRen
 	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
 	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters(), Device);
 
+	VertexDesc = *desc;
+	Params = shader->GetShaderParameters();
+
 	if (ListType == ECommandListType::Graphics)
 	{
 		D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, RTdesc, Device);
@@ -351,6 +356,7 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 
 D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :RHIBuffer(type)
 {
+	AddCheckerRef(D3D12Buffer, this);
 	if (inDevice == nullptr)
 	{
 		Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();
@@ -363,6 +369,7 @@ D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :
 
 D3D12Buffer::~D3D12Buffer()
 {
+	RemoveCheckerRef(D3D12Buffer, this);
 	Device = nullptr;
 	if (CurrentBufferType == RHIBuffer::BufferType::Constant)
 	{
@@ -509,6 +516,7 @@ void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
 		nullptr,
 		IID_PPV_ARGS(&m_UploadBuffer)));
 	m_UploadBuffer->SetName(L"Index Buffer Upload Resource Heap");
+	D3D12RHI::Instance->AddUploadToUsed(m_UploadBuffer);
 	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
 	m_vertexBufferView.StrideInBytes = Stride;
 	m_vertexBufferView.SizeInBytes = vertexBufferSize;
@@ -535,9 +543,6 @@ void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
 	m_vertexBufferView.SizeInBytes = VertexBufferSize;
 	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
 }
-
-
-
 
 void D3D12Buffer::UpdateIndexBuffer(void * data, size_t length)
 {
@@ -624,12 +629,14 @@ void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 //Texture Array
 D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)
 {
+	AddCheckerRef(D3D12RHITextureArray, this);
 	Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	Device = (D3D12DeviceContext*)device;
 }
 
 D3D12RHITextureArray::~D3D12RHITextureArray()
 {
+	RemoveCheckerRef(D3D12RHITextureArray, this);
 	delete Heap;
 }
 

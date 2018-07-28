@@ -9,7 +9,9 @@ PP_CompostPass::PP_CompostPass()
 
 
 PP_CompostPass::~PP_CompostPass()
-{}
+{
+	delete CurrentShader;
+}
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "../RHI/RenderAPIs/D3D12/GPUResource.h"

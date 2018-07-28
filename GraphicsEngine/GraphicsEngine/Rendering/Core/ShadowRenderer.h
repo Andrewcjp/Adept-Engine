@@ -40,8 +40,8 @@ private:
 	
 	struct ShadowLightInteraction
 	{
-
 		ShadowLightInteraction(class DeviceContext * Context, bool IsPoint, int MapSize);
+		~ShadowLightInteraction();
 		void PreSampleShadows(RHICommandList* List);
 		FrameBuffer* ShadowMap = nullptr;
 		Shader_Depth* Shader = nullptr;

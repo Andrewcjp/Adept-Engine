@@ -287,6 +287,9 @@ void RHI::ResizeSwapChain(int width, int height)
 void RHI::DestoryContext()
 {
 	GetRHIClass()->DestoryRHI();
+#if DETECT_MEMEORY_LEAKS
+	RefCheckerContainer::LogAllRefCounters();
+#endif
 }
 
 RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)

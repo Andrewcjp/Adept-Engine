@@ -6,7 +6,11 @@ PP_Blur::PP_Blur()
 {}
 
 PP_Blur::~PP_Blur()
-{}
+{
+	delete VertcmdList;
+	delete UAV;
+	delete VertBlur;
+}
 
 void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {

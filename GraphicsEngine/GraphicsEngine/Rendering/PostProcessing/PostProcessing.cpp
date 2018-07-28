@@ -10,6 +10,7 @@
 #include "../RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "../RHI/DeviceContext.h"
 #include "../RHI/RenderAPIs/D3D12/GPUResource.h"
+#include "../Core/Utils/MemoryUtils.h"
 PostProcessing* PostProcessing::Instance = nullptr;
 PostProcessing::PostProcessing()
 {
@@ -17,7 +18,10 @@ PostProcessing::PostProcessing()
 }
 
 PostProcessing::~PostProcessing()
-{}
+{
+	Instance = nullptr;
+	MemoryUtils::DeleteVector(Effects);
+}
 
 void PostProcessing::AddEffect(PostProcessEffectBase * effect)
 {
@@ -69,6 +73,10 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Bloom->SetUpData();
 	Bloom->InitEffect(Target);
 	ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
+	AddEffect(Bloom);
+	AddEffect(Blur);
+	AddEffect(ColourCorrect);
+	AddEffect(TestEffct);
 }
 void PostProcessing::Resize(FrameBuffer* Target)
 {

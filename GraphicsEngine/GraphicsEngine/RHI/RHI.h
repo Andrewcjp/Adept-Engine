@@ -7,6 +7,7 @@
 #include "RHITypes.h"
 #include "Core/Assets/AssetManager.h"
 #include "Rendering/Renderers/RenderSettings.h"
+#include "../Core/Utils/MemoryUtils.h"
 //todo: refactor!
 //like seriuously this is bad!
 class BaseTexture;
@@ -17,6 +18,7 @@ class DeviceContext;
 const int MAX_DEVICE_COUNT = 2;
 #define RHI_API DLLEXPORT
 #define RHI_USE_MODULE 0
+
 class RHI
 {
 public:
@@ -70,7 +72,6 @@ private:
 	static MultiGPUMode CurrentMGPUMode;
 	class RHIClass* CurrentRHI = nullptr;
 	RenderConstants M_RenderConsants;
-
 };
 
 class RHI_API RHIClass

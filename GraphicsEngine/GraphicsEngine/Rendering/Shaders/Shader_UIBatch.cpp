@@ -16,6 +16,7 @@ Shader_UIBatch::Shader_UIBatch()
 	UniformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	UniformBuffer->CreateConstantBuffer(sizeof(UnifromData), 1);
 }
+
 std::vector<Shader::VertexElementDESC> Shader_UIBatch::GetVertexFormat()
 {
 	std::vector<Shader::VertexElementDESC> out;
@@ -28,8 +29,9 @@ std::vector<Shader::VertexElementDESC> Shader_UIBatch::GetVertexFormat()
 }
 
 Shader_UIBatch::~Shader_UIBatch()
-{}
-
+{
+	delete UniformBuffer;
+}
 
 void Shader_UIBatch::PushTOGPU(RHICommandList* list)
 {

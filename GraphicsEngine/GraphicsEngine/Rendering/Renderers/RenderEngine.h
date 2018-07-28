@@ -16,7 +16,7 @@ public:
 		m_width = width;
 		m_height = height;
 	}
-	~RenderEngine();
+	virtual ~RenderEngine();
 	void Render();
 	void PreRender();
 	virtual void OnRender() = 0;

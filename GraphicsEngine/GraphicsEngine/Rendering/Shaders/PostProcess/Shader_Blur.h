@@ -37,7 +37,10 @@ public:
 		int blurRadius = (int)Weights.size() / 2;
 		Blurweights->UpdateConstantBuffer(Weights.data(), 0);
 	}
-
+	~Shader_BlurVert()
+	{
+		delete Blurweights;
+	}
 	bool IsComputeShader() override
 	{
 		return true;

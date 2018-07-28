@@ -16,7 +16,7 @@
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
 float D3D12Texture::MipCreationTime = 0;
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)
-{
+{	
 	if (inDevice == nullptr)
 	{
 		Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();

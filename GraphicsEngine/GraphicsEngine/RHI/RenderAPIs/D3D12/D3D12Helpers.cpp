@@ -268,6 +268,12 @@ D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext * context, GPURes
 
 }
 
+D3D12ReadBackCopyHelper::~D3D12ReadBackCopyHelper()
+{
+	delete WriteBackResource;
+	delete Cmdlist;
+}
+
 #include <SOIL.h>
 void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 {

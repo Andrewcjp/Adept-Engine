@@ -25,7 +25,10 @@ void PostProcessEffectBase::SetUpData()
 
 
 PostProcessEffectBase::~PostProcessEffectBase()
-{}
+{
+	delete CMDlist;
+	delete VertexBuffer;
+}
 
 void PostProcessEffectBase::InitEffect(FrameBuffer* Target)
 {
@@ -46,7 +49,6 @@ void PostProcessEffectBase::RenderScreenQuad(RHICommandList * list)
 	//todo: less than full screen!
 	list->SetVertexBuffer(VertexBuffer);
 	list->DrawPrimitive(6, 1, 0, 0);
-
 }
 
 //void PostProcessEffectBase::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)

@@ -22,13 +22,15 @@ D3D12DeviceContext::D3D12DeviceContext()
 D3D12DeviceContext::~D3D12DeviceContext()
 {
 	WaitForGpu();
-	if (m_Device)
+	if (m_Device != nullptr)
 	{
 		m_Device->Release();
 		for (int i = 0; i < RHI::CPUFrameCount; i++)
 		{
 			m_commandAllocator[i]->Release();
 			m_commandAllocator[i] = nullptr;
+			m_SharedCopyCommandAllocator[i]->Release();
+			m_SharedCopyCommandAllocator[i] = nullptr;
 		}
 		m_commandQueue->Release();
 		m_commandQueue = nullptr;
@@ -41,6 +43,10 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	}
 	pDXGIAdapter->Release();
 	delete TimeManager;
+	delete GPUCopyList;
+	SafeRelease(m_IntraCopyList);
+	SafeRelease(m_SharedCopyCommandQueue);
+	SafeRelease(m_ComputeCommandQueue);
 	/*if (pDXGIAdapter != nullptr)
 	{
 		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
