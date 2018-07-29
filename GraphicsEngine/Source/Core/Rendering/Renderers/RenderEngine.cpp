@@ -159,6 +159,10 @@ void RenderEngine::SetScene(Scene * sc)
 	{
 		MainCamera = MainScene->GetCurrentRenderCamera();
 	}
+	if (MainCamera != nullptr)
+	{
+		MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight()); 
+	}
 }
 
 void RenderEngine::SetEditorCamera(Editor_Camera * cam)

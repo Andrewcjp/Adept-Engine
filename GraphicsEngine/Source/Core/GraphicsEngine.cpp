@@ -7,13 +7,14 @@
 #include <fcntl.h>
 
 #include "Core/MinWindows.h"
-#include "BaseApplication.h"
+#include "Core/Engine.h"
+#include "Core/Platform/PlatformCore.h"
 #include <string>
 #include <iostream>
 
 #pragma comment (lib, "opengl32.lib")
-#pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
+#define USE_SEP_CONSOLE 1
 
 void ErrorExit(LPTSTR lpszFunction)
 {
@@ -47,8 +48,7 @@ void ErrorExit(LPTSTR lpszFunction)
 	LocalFree(lpDisplayBuf);
 	ExitProcess(dw);
 }
-#include "Core/Engine.h"
-#include "Core/Platform/PlatformCore.h"
+
 int APIENTRY WinMain(HINSTANCE hInstance,
 	HINSTANCE ,
 	LPSTR    lpCmdLine,
@@ -56,6 +56,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 {
 
 	int exitcode = 0;
+#if USE_SEP_CONSOLE
 	//Allocate a console window
 	//so that messages can be redirected to stdout
 	if (!AllocConsole())
@@ -63,37 +64,27 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		ErrorExit(TEXT("AllocConsole"));
 	}
 
-
 	FILE* pf_out;
 	freopen_s(&pf_out, "CONOUT$", "w", stdout);
+#endif
 	
 	Engine* engine = new Engine();
-
 	engine->PreInit();
-#if 0
-	//Create the application instance
-	BaseApplication* myapp = BaseApplication::CreateApplication(hInstance, lpCmdLine, nCmdShow);
 
-	exitcode = myapp->Run();
-
-	myapp->DestroyApplication();
-#else
 	PlatformWindow* myapp = PlatformWindow::CreateApplication(engine,hInstance, lpCmdLine, nCmdShow);
-
 	exitcode = myapp->Run();
-	myapp->DestroyApplication();
-#endif
 
+	myapp->DestroyApplication();
 	engine->Destory();
 	delete engine;
-
+	
+#if USE_SEP_CONSOLE
 	fclose(pf_out);
-
 	//Free the console window
 	if (!FreeConsole())
 	{
 		ErrorExit(TEXT("FreeConsole"));
 	}
-	//getchar();
+#endif
 	return exitcode;
 }

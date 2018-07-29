@@ -151,7 +151,7 @@ int RHI::GetDeviceCount()
 	return 1;
 }
 
-bool RHI::UseAdditonalGPUs()
+bool RHI::UseAdditionalGPUs()
 {
 	return true;
 }

@@ -17,9 +17,13 @@ public:
 	NVAPIManager();
 	~NVAPIManager(); 
 	std::string GetClockData();
+	void RenderGPUStats(int x, int y);
 	void SampleClocks();
 private:
+	int StaticProps = 2;
+	int DynamicProps = 4;
 	std::string SampleData;
+	std::vector<std::vector<std::string>> GpuData;	
 #if NVAPI_PRESENT 
 	NvU32 GPUCount = 0;
 	NvPhysicalGpuHandle GPUHandles[NVAPI_MAX_PHYSICAL_GPUS];
