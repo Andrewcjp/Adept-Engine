@@ -1,7 +1,9 @@
 ﻿#include "stdafx.h"
 #include "D3D12RHI.h"
-#include "BaseApplication.h"
+#include <DXProgrammableCapture.h>  
+#include <dxgidebug.h>
 #include <D3Dcompiler.h>
+
 #include "glm\glm.hpp"
 #include "include\glm\gtx\transform.hpp"
 #include "Rendering/Shaders/ShaderMipMap.h"
@@ -9,7 +11,6 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
 #include "D3D12TimeManager.h"
-#include <dxgidebug.h>
 #include "Core/Platform/PlatformCore.h"
 #include "RHI/BaseTexture.h"
 #include "Rendering/Core/Renderable.h"
@@ -22,7 +23,6 @@
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "Core/Engine.h"
-#include <DXProgrammableCapture.h>  
 #include "Core/Assets/ImageIO.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Shader.h"

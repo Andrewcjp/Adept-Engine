@@ -13,7 +13,7 @@ MultiGPUMode::MultiGPUMode()
 
 void MultiGPUMode::ValidateSettings()
 {
-	if (!RHI::UseAdditonalGPUs())
+	if (!RHI::UseAdditionalGPUs())
 	{
 		MainPassSFR = false;
 		SplitShadowWork = false;

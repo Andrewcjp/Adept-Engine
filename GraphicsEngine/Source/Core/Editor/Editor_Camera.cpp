@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "Editor_Camera.h"
 #include "Core/Input.h"
-
+#include "Editor/EditorWindow.h"
 Editor_Camera::Editor_Camera(Camera* cam)
 {
 	if (cam == nullptr)
 	{
-		MainCam = new Camera(glm::vec3(0, 10, 0), 75.0f, 1.77f, 0.1f, 1000.0f);
+		float aspect = (float)EditorWindow::GetWidth() / (float)EditorWindow::GetHeight();
+		MainCam = new Camera(glm::vec3(0, 10, 0), 75.0f, aspect, 0.1f, 1000.0f);
 	}
 	else
 	{

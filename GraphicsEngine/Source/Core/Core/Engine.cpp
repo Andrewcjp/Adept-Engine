@@ -147,7 +147,7 @@ Game * Engine::GetGame()
 
 void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 {
-	mwidth = 1280;
+	mwidth = 1700;
 	mheight = 720;
 	if (nCmdShow > 0)
 	{

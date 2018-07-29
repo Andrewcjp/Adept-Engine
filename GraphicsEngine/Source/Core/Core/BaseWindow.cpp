@@ -482,8 +482,9 @@ void BaseWindow::RenderText()
 
 	if (D3D12RHI::Instance != nullptr && ExtendedPerformanceStats)
 	{
-		stream << D3D12RHI::Instance->GetMemory() << " " << PerfManager::GetGPUData();
+		stream << D3D12RHI::Instance->GetMemory();
 		UI->RenderTextToScreen(2, stream.str());
+		PerfManager::RenderGpuData(10 , (int)(m_height - m_height/8));
 	}
 
 	if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)

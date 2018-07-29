@@ -103,13 +103,12 @@ void PerfManager::EndTimer(int StatId)
 	}
 #endif
 }
-std::string PerfManager::GetGPUData()
+void PerfManager::RenderGpuData(int x,int y)
 {
 	if (Instance != nullptr)
 	{
-		return Instance->NVApiManager->GetClockData();
+		Instance->NVApiManager->RenderGPUStats(x,y);
 	}
-	return std::string();
 }
 int PerfManager::GetTimerIDByName(std::string name)
 {

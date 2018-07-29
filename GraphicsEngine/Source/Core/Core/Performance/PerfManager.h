@@ -38,7 +38,7 @@ public:
 	static void EndTimer(const char * countername);
 	static void StartTimer(int Counterid);
 	static void EndTimer(int Counterid);
-	static std::string GetGPUData();
+	static void RenderGpuData(int x, int y);
 	float GetAVGFrameRate();
 	float GetAVGFrameTime()const;
 	std::string GetAllTimers();

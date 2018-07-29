@@ -58,7 +58,7 @@ public:
 	static bool BlockCommandlistExec();
 	static bool AllowCPUAhead();
 	static int GetDeviceCount();
-	static bool UseAdditonalGPUs();
+	static bool UseAdditionalGPUs();
 	static bool IsD3D12();
 	static bool SupportsThreading();
 	static bool SupportsExplictMultiAdaptor();
