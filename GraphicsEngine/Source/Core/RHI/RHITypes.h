@@ -1,4 +1,5 @@
 #pragma once
+#include "EngineGlobals.h"
 #include <d3d12.h>
 #define MRT_MAX 8
 enum eTextureDimension
@@ -195,6 +196,25 @@ namespace EGPUTIMERS
 		LIMIT
 	};
 }
+
+struct RHI_API RHIPipeRenderTargetDesc
+{
+	eTEXTURE_FORMAT RTVFormats[8] = { eTEXTURE_FORMAT::FORMAT_UNKNOWN };
+	eTEXTURE_FORMAT DSVFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
+	int NumRenderTargets = 0;
+};
+
+struct RHI_API PipeLineState
+{
+	bool DepthTest = true;
+	bool Cull = true;
+	bool Blending = false;
+	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
+	bool DepthWrite = true;
+	RHIPipeRenderTargetDesc RenderTargetDesc = RHIPipeRenderTargetDesc();
+};
+
 struct RHIFrameBufferDesc
 {
 public:
@@ -213,8 +233,8 @@ public:
 		Height = height;
 		Dimension = dimension;
 	}
-	eTEXTURE_FORMAT RTFormats[MRT_MAX] = {};
-	eTEXTURE_FORMAT DepthFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	 eTEXTURE_FORMAT RTFormats[MRT_MAX] = {};
+	 eTEXTURE_FORMAT DepthFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
 	eTEXTURE_FORMAT DepthReadFormat = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
 	int Width = 0;
 	int Height = 0;

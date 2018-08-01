@@ -21,15 +21,19 @@ AssetPathRef::AssetPathRef(std::string Filename)
 		BaseName = split[split.size() - 1];
 	}
 }
-
+#include "Core//Assets/AssetManager.h"
 const std::string AssetPathRef::GetFullPathToAsset() const
 {
-	return Engine::GetRootDir() + Name + "." + Extention;
+	if (IsDDC)
+	{
+		return AssetManager::GetRootDir() + DDCPath;
+	}
+	return AssetManager::GetContentPath() + Name + "." + Extention;
 }
 
 const std::string AssetPathRef::GetNoExtPathToAsset() const
 {
-	return Engine::GetRootDir() + Name;
+	return AssetManager::GetContentPath() + Name;
 }
 
 const std::string AssetPathRef::GetRelativePathToAsset() const

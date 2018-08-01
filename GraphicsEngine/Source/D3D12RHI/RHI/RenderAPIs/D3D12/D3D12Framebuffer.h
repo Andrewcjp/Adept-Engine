@@ -20,7 +20,7 @@ public:
 	virtual void BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex);
 	void		 UnBind(ID3D12GraphicsCommandList * list);
 	virtual void ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
-	D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
+	//D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
 	void			CreateSRVHeap(int Num);
 	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap);
 	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap, DeviceContext * target);
@@ -42,6 +42,8 @@ public:
 	{
 		return RenderTarget[index];
 	}
+	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
+
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);

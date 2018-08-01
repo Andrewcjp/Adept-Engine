@@ -8,3 +8,5 @@ class RHITextureArray;
 class RHICommandList;
 class Shader_Main;
 class Camera;
+class DeviceContext;
+class RHITimeManager;

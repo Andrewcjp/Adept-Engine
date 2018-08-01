@@ -16,13 +16,14 @@
 #include <SOIL.h>
 #include "Core/Utils/StringUtil.h"
 #include "Core/Performance/PerfManager.h"
-#include <d3d12.h>
 #include "Core/Utils/FileUtils.h"
 #include "RHI/DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
+#include "ImageIO.h"
+const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
-	std::string path = ShaderAssetPath;
+	std::string path = GetShaderPath();
 	for (auto & p : std::experimental::filesystem::directory_iterator(path))
 	{
 		LoadFileWithInclude(p.path().filename().string());
@@ -41,62 +42,13 @@ void AssetManager::LoadTexturesFromDir()
 		GetTextureAsset(p.path().string(), t, true);
 	}
 }
-bool AssetManager::FileExists(std::string filename)
-{
-	struct stat fileInfo;
-	return stat(filename.c_str(), &fileInfo) == 0;
-}
-bool AssetManager::LoadTextureAsset()
-{
-	if (FileExists(TextureCooked) == false)
-	{
-		return false;
-	}
-	int datalength = 8;
-	char * attribdata = new char[datalength];//two points of data
-	std::ifstream ifp(TextureCooked, std::ios::in | std::ios::binary);
-	ifp.read(reinterpret_cast<char*>(attribdata), datalength * sizeof(char));
-	std::string data = attribdata;
-	int count = std::stoi(data);
-	for (int i = 0; i < count; i++)
-	{
-		TextureAsset Target;
-		ifp.read(reinterpret_cast<char*>(&Target), sizeof(TextureAsset));
-		ifp.read((char*)(Target.image), (Target.ByteSize));
-		TextureAssetsMap.emplace(Target.name, Target);
-	}
-	ifp.close();
-	return true;
-}
-void AssetManager::CookTextureAsset()
-{
-	std::ofstream ofp(TextureCooked, std::ios::out | std::ios::binary);
-	std::stringstream stream;
-	stream << std::setfill('0') << std::setw(8) << (TextureAssetsMap.size());// << "|" << std::setfill('0') << std::setw(8) << (0);
-	std::string data = stream.str();
-	ofp.write((const char*)(data.c_str()), data.length());
-	for (std::map<std::string, TextureAsset>::iterator it = TextureAssetsMap.begin(); it != TextureAssetsMap.end(); ++it)
-	{
-		/*	TextureAsset Target;
-			GetTextureAsset("asset/texture/grasshillalbedo.png", Target);*/
-		ofp.write((const char*)(&it->second), sizeof(TextureAsset));
-		//ofp.write((const char*)(it->second.name.data()), sizeof(it->second));
-		ofp.write((const char*)(it->second.image), (it->second.ByteSize));
-	}
-	/*TextureAsset Target;
-	GetTextureAsset("asset/texture/grasshillalbedo.png", Target);
-	ofp.write((const char*)(&Target), sizeof(TextureAsset));
-	ofp.write((const char*)(Target.image), (Target.ByteSize));*/
-	ofp.close();
-	//ofp.write(reinterpret_cast<const char*>(&ShaderSourceMap), ShaderSourceMap.size() * sizeof(Vertex));
-}
 
 void AssetManager::ExportCookedShaders()
 {
 	std::string dirtarget = ShaderCookedFile;
 	StringUtils::RemoveChar(dirtarget, "CookedShaders.txt");
-	FileUtils::CreateDirectoryFromFullPath(Engine::GetRootDir(), dirtarget, true);
-	std::ofstream myfile(Engine::GetRootDir() + ShaderCookedFile);
+	FileUtils::CreateDirectoryFromFullPath(Engine::GetExecutionDir(), dirtarget, true);
+	std::ofstream myfile(Engine::GetExecutionDir() + ShaderCookedFile);
 	if (myfile.is_open())
 	{
 		for (std::map<std::string, std::string>::iterator it = ShaderSourceMap.begin(); it != ShaderSourceMap.end(); ++it)
@@ -114,7 +66,7 @@ void AssetManager::ExportCookedShaders()
 }
 void AssetManager::LoadCookedShaders()
 {
-	std::ifstream myfile(Engine::GetRootDir() + ShaderCookedFile);
+	std::ifstream myfile(Engine::GetExecutionDir() + ShaderCookedFile);
 	std::string file;
 	if (myfile.is_open())
 	{
@@ -144,8 +96,6 @@ void AssetManager::LoadCookedShaders()
 				StringUtils::RemoveChar(Key, FileSplit);
 				StringUtils::RemoveChar(Key, "¬");
 			}
-
-
 		}
 		myfile.close();
 	}
@@ -163,22 +113,99 @@ void AssetManager::StartAssetManager()
 		instance = new AssetManager();
 	}
 }
+
+const std::string AssetManager::GetContentPath()
+{
+	if (instance != nullptr)
+	{
+		return instance->ContentDirPath;
+	}
+	return "";
+}
+
+const std::string AssetManager::GetShaderPath()
+{
+	if (instance != nullptr)
+	{
+		return instance->ShaderDirPath;
+	}
+	return "";
+}
+
+const std::string AssetManager::GetDDCPath()
+{
+	if (instance != nullptr)
+	{
+		return instance->DDCDirPath;
+	}
+	return "";
+}
+
+const std::string AssetManager::GetTextureGenScript()
+{
+	if (instance != nullptr)
+	{
+		return instance->TextureGenScriptPath;
+	}
+	return "";
+}
+
+const std::string AssetManager::GetScriptPath()
+{
+	if (instance != nullptr)
+	{
+		return instance->ScriptDirPath;
+	}
+	return "";
+}
+
+const std::string AssetManager::GetRootDir()
+{
+	if (instance != nullptr)
+	{
+		return instance->RootDir;
+	}
+	return "";
+}
+
+void AssetManager::SetupPaths()
+{
+	RootDir = Engine::GetExecutionDir();
+	StringUtils::RemoveChar(RootDir, "\\Binaries");
+
+	ContentDirPath = RootDir + "\\Content\\";
+	if (!FileUtils::File_ExistsTest(ContentDirPath))
+	{
+		PlatformApplication::DisplayMessageBox("Error", "No Content Dir");
+		exit(-1);
+	}
+	ShaderDirPath = RootDir + "\\Shaders\\";
+	if (!FileUtils::File_ExistsTest(ShaderDirPath))
+	{
+		PlatformApplication::DisplayMessageBox("Error", "No Content Dir");
+		exit(-1);
+	}
+	DDCDirPath = RootDir + "\\" + DDCName + "\\";
+	PlatformApplication::TryCreateDirectory(DDCDirPath);
+
+	TextureGenScriptPath = RootDir + "\\Scripts\\ConvertToDDS.bat";
+	ScriptDirPath = RootDir + "\\Scripts\\";
+	if (!FileUtils::File_ExistsTest(TextureGenScriptPath))
+	{
+		PlatformApplication::DisplayMessageBox("Error", "Texture Get Script Missing");
+	}
+
+}
+
 AssetManager::AssetManager()
 {
-	StartTime = (float)PerfManager::get_nanos();
-	std::string path = Engine::GetRootDir();
-	path.append("\\asset\\");
-	/*StringUtils::RemoveChar(path, "|");*/
-	ShaderAssetPath = path;
-	ShaderAssetPath.append("shader\\hlsl\\");
-	TextureAssetPath = path;
-	TextureAssetPath.append("texture\\");
+	SetupPaths();
 	LoadFromShaderDir();
 	PlatformApplication::TryCreateDirectory(GetDDCPath());
 #if BUILD_PACKAGE
 	if (PreLoadTextShaders)
 	{
-		if (FileExists(Engine::GetRootDir() + ShaderCookedFile))
+		if (FileExists(Engine::GetExecutionDir() + ShaderCookedFile))
 		{
 			LoadCookedShaders();
 		}
@@ -190,14 +217,24 @@ AssetManager::AssetManager()
 	LoadTexturesFromDir();
 #else
 	//LoadCookedShaders();
-	ExportCookedShaders();
+	//ExportCookedShaders();
 #endif
 	//Log::OutS  << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << Log::OutS;
 	//Log::OutS  << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << Log::OutS;
 }
+
+AssetManager * AssetManager::Get()
+{
+	if (instance == nullptr)
+	{
+		instance = new AssetManager();
+	}
+	return instance;
+}
+
 AssetManager::~AssetManager()
 {}
-#include "ImageIO.h"
+
 bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool ABSPath)
 {
 	if (HasCookedData)
@@ -217,7 +254,7 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool A
 			}
 			else
 			{
-				fullpath = Engine::GetRootDir();
+				fullpath = Engine::GetExecutionDir();
 				fullpath.append(path);
 			}
 			if (fullpath.find(".tga") != -1)
@@ -231,13 +268,13 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool A
 			}
 			if (image == nullptr)
 			{
-				Log::OutS  << "Load texture Error " << fullpath << Log::OutS;
+				Log::OutS << "Load texture Error " << fullpath << Log::OutS;
 				return false;
 			}
 			newasset.image = image;
 			newasset.ByteSize = (newasset.Width* newasset.Height) *(newasset.Nchannels * sizeof(unsigned char));
 			LoadedAssetSize += newasset.ByteSize;
-			StringUtils::RemoveChar(fullpath, Engine::GetRootDir());
+			StringUtils::RemoveChar(fullpath, Engine::GetExecutionDir());
 			newasset.name = fullpath;
 			newasset.NameSize = fullpath.length();
 			TextureAssetsMap.emplace(path, newasset);
@@ -252,29 +289,7 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool A
 	}
 	return false;
 }
-size_t AssetManager::GetShaderAsset(std::string name, char ** buffer)
-{
-	if (instance != nullptr)
-	{
-		return instance->ReadShader(name, buffer);
-	}
-	return 0;
-}
-const std::string AssetManager::GetDDCPath()
-{
-	return Engine::GetRootDir() + "\\asset\\DDC\\";
-}
-const std::string AssetManager::GetTextureGenScript()
-{
-	return Engine::GetRootDir() + "/asset/Scripts/ConvertToDDS.bat";
-}
-size_t AssetManager::ReadShader(std::string name, char ** buffer)
-{
-	std::string NamePath(ShaderAssetPath);
-	NamePath.append(name);
 
-	return TextFileBufferedRead(NamePath, buffer);
-}
 std::string AssetManager::LoadFileWithInclude(std::string name)
 {
 	std::string  output;
@@ -306,16 +321,8 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 	}
 }
 
-std::string AssetManager::GetShaderDirPath()
-{
-	if (instance)
-	{
-		return instance->ShaderAssetPath;
-	}
-	return std::string();
-}
 //todo: Check time stamps!
-BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectLoad, DeviceContext* Device)
+BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool DirectLoad, DeviceContext* Device)
 {
 	AssetPathRef Fileref = AssetPathRef(name);
 	//todo: Deal with TGA to DDS 
@@ -323,30 +330,33 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name,bool DirectL
 	{
 		return RHI::CreateTexture(Fileref, Device);
 	}
-	
+
 	//File is not a DDS
 	//check the DDC for A Generated one
-	std::string DDCRelFilepath = "\\asset\\DDC\\" + Fileref.BaseName + ".DDS";
-	if (FileUtils::File_ExistsTest(Engine::GetRootDir() + DDCRelFilepath))
+	std::string DDCRelFilepath = "\\" + DDCName + "\\" + Fileref.BaseName + ".DDS";
+	Fileref.DDCPath = DDCRelFilepath;
+	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath))
 	{
-		return RHI::CreateTexture(DDCRelFilepath, Device);
+		Fileref.IsDDC = true;
+		return RHI::CreateTexture(Fileref, Device);
 	}
 	else
 	{
-		Log::OutS  << "File '" << Fileref.Name <<"' Does not exist in the DDC Generating Now"  << Log::OutS;
+		Log::OutS << "File '" << Fileref.Name << "' Does not exist in the DDC Generating Now" << Log::OutS;
 		//generate one! BC1_UNORM  
-		std::string Args =" "+ Engine::GetRootDir() + "\\asset\\Scripts\\";
+		std::string Args = " " + GetScriptPath();
 		Args.append(" BC1_UNORM ");
-		Args.append('"' + Fileref.GetFullPathToAsset()+ '"' + " ");
+		Args.append('"' + Fileref.GetFullPathToAsset() + '"' + " ");
 		Args.append(GetDDCPath());
 		PlatformApplication::ExecuteHostScript(GetTextureGenScript(), Args);
-		if (FileUtils::File_ExistsTest(Engine::GetRootDir() +  DDCRelFilepath))
+		if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath))
 		{
-			return RHI::CreateTexture(DDCRelFilepath, Device);
+			Fileref.IsDDC = true;
+			return RHI::CreateTexture(Fileref, Device);
 		}
 		else
 		{
-			Log::OutS  << "File '" << Fileref.Name << "' Failed To Generate!" << Log::OutS;
+			Log::OutS << "File '" << Fileref.Name << "' Failed To Generate!" << Log::OutS;
 		}
 	}
 	return ImageIO::GetDefaultTexture();
@@ -356,14 +366,14 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 {
 	std::string file;
 	limit++;
-	if (limit > 2)
+	if (limit > MaxIncludeTreeLength)
 	{
 		return file;
 	}
 	std::string pathname = name;
 	if (limit > 0)
 	{
-		pathname = ShaderAssetPath;
+		pathname = GetShaderPath();
 		pathname.append(name);
 	}
 	std::ifstream myfile(pathname);
@@ -408,14 +418,32 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 	}
 	else
 	{
-		Log::OutS  << "failed to load " << pathname << Log::OutS;
+		Log::OutS << "failed to load " << pathname << Log::OutS;
 	}
 	return file;
 }
+
+
+//Remove if unused 
+#if 0
+size_t AssetManager::GetShaderAsset(std::string name, char ** buffer)
+{
+	if (instance != nullptr)
+	{
+		return instance->ReadShader(name, buffer);
+	}
+	return 0;
+}
+
+size_t AssetManager::ReadShader(std::string name, char ** buffer)
+{
+	std::string NamePath(ShaderAssetPath);
+	NamePath.append(name);
+
+	return TextFileBufferedRead(NamePath, buffer);
+}
 size_t AssetManager::TextFileBufferedRead(std::string name, char** buffer)
 {
-
-	//std::string filename(file);
 	std::wstring newfile((int)name.size(), 0);
 	MultiByteToWideChar(CP_UTF8, 0, &name[0], (int)name.size(), &newfile[0], (int)name.size());
 	LPCWSTR filename = newfile.c_str();
@@ -445,3 +473,4 @@ size_t AssetManager::TextFileBufferedRead(std::string name, char** buffer)
 
 	return count;
 }
+#endif

@@ -1,13 +1,9 @@
 #pragma once
-#include <map>
-#include <string>
+#include "EngineGlobals.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Engine.h"
 #include "AssetTypes.h"
 class BaseTexture;
-class ShaderProgramBase;
-
-
 struct TextureAsset
 {
 	int Nchannels;
@@ -18,17 +14,12 @@ struct TextureAsset
 	size_t NameSize;
 	unsigned char* image;
 };
-#include <d3d12.h>
+
 struct ShaderAsset
 {
 	std::string Name;
-	//rendersystem?
-	union
-	{
-		int id;
-		ID3DBlob* blob;
-	};
 };
+
 class AssetManager
 {
 public:
@@ -43,56 +34,69 @@ public:
 		AssetType type;
 		void* DataPtr;
 	};
+
+	static AssetManager* instance;
+	CORE_API static AssetManager* Get();
+	~AssetManager();
+	static void StartAssetManager();
 	void LoadFromShaderDir();
 	void LoadTexturesFromDir();
-	bool FileExists(std::string filename);
-	bool LoadTextureAsset();
 	void LoadCookedShaders();
-	void CookTextureAsset();
 	void ExportCookedShaders();
-	static void StartAssetManager();
-	static AssetManager* instance;
-	AssetManager();
-	~AssetManager();
-
+	
 	bool GetTextureAsset(std::string path, TextureAsset & asset, bool ABSPath = false);
 	static size_t GetShaderAsset(std::string name, char ** buffer);
-	std::string LoadFileWithInclude(std::string name);
-	std::string TextureAssetPath = "asset/shader/glsl/";
+	CORE_API std::string LoadFileWithInclude(std::string name);
+
 	bool GetShaderAsset(std::string path, ShaderAsset &asset);
 	std::map<std::string, TextureAsset>* GetTextureMap() { return &TextureAssetsMap; }
 	std::map<std::string, std::string>* GetMeshMap() { return &MeshFileMap; }
-	const std::string ShaderCookedFile = "\\asset\\Cooked\\Shader\\hlsl\\CookedShaders.txt";
+
 	static void RegisterMeshAssetLoad(std::string name);
-	static std::string GetShaderDirPath();
 	static BaseTexture * DirectLoadTextureAsset(std::string name, bool DirectLoad = false, class DeviceContext * Device = nullptr);
-
-	
-
+	CORE_API static const std::string GetShaderPath();
+	CORE_API static const std::string GetContentPath();
+	CORE_API static const std::string GetDDCPath();
+	CORE_API static const std::string GetScriptPath();
+	CORE_API static const std::string GetTextureGenScript();
+	CORE_API static const std::string GetRootDir();
+	const std::string ShaderCookedFile = "\\asset\\Cooked\\Shader\\hlsl\\CookedShaders.txt";
 private:
-	const std::string AssetRootPath = "asset/";
-	std::string ShaderAssetPath = "asset/shader/glsl/";
-	static const std::string GetDDCPath();
-	static const std::string GetTextureGenScript();
+	AssetManager();
 	bool HasCookedData = false;
-	size_t ReadShader(std::string path, char ** buffer);
-	std::string LoadShaderIncludeFile(std::string name, int limit);
-	size_t TextFileBufferedRead(std::string name, char ** buffer);
-	bool UseIncluderToLoadOGLShaders = true;
-	const char * includeText = "#include";
-	int	 includeLength = 9;
+
+	std::string TextureAssetPath = "asset/shader/glsl/";
 	std::map<std::string, std::string> ShaderSourceMap;
 	std::map<std::string, TextureAsset> TextureAssetsMap;
 	std::map<std::string, ShaderAsset> ShaderMap;
 	std::map<std::string, std::string> MeshFileMap;
+
 	bool PreLoadTextShaders = true;
 	bool UseCookedShaders = false;
 	bool CookShaders = true;
 	bool UseCookedtextures = true;
 
 	std::string TextureCooked = "asset/TextureCooked.bin";
-	float StartTime = 0;
 	size_t LoadedAssetSize = 0;
 	std::string FileSplit = "|FileStart|";
+
+	//include Handler
+	const char * includeText = "#include";
+	int	 includeLength = 9;
+	//Cached Paths
+	void SetupPaths();
+	std::string RootDir = "";
+	std::string ContentDirPath = "";
+	std::string ShaderDirPath = "";
+	std::string DDCDirPath = "";
+	std::string TextureGenScriptPath = "";
+	std::string ScriptDirPath = "";
+	std::string LoadShaderIncludeFile(std::string name, int limit);
+	static const std::string DDCName;
+	const int MaxIncludeTreeLength = 10;
+#if 0
+	size_t ReadShader(std::string path, char ** buffer);	
+	size_t TextFileBufferedRead(std::string name, char ** buffer);
+#endif
 };
 

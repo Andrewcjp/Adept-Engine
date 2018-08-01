@@ -16,6 +16,7 @@ TextRenderer* TextRenderer::instance = nullptr;
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/EngineInc.h"
 TextRenderer::TextRenderer(int width, int height)
 {
 	m_width = width;
@@ -211,22 +212,25 @@ void TextRenderer::LoadText()
 		}
 		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(RunOnSecondDevice), desc);
 		PostProcessing::Instance->AddCompostPass(Renderbuffer);
+#if 0
 		if (D3D12RHI::Instance)
 		{
 			D3D12RHI::Instance->AddLinkedFrameBuffer(Renderbuffer);
-			if (RunOnSecondDevice)
-			{
-				Renderbuffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
-			}
+			
 		}
+#endif
+		if (RunOnSecondDevice)
+		{
+			Renderbuffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
+	}
 	}
 
 	if (FT_Init_FreeType(&ft))
 	{
 		Log::OutS  << "ERROR::FREETYPE: Could not init FreeType Library" << Log::OutS;
 	}
-	std::string fontpath = Engine::GetRootDir();
-	fontpath.append("\\asset\\fonts\\arial.ttf");
+	std::string fontpath = AssetManager::GetContentPath();
+	fontpath.append("\\fonts\\arial.ttf");
 	if (FT_New_Face(ft, fontpath.c_str(), 0, &face))
 	{
 		Log::OutS  << "ERROR::FREETYPE: Failed to load font" << Log::OutS;

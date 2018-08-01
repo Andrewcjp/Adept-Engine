@@ -1,13 +1,14 @@
 #include "Shader_Skybox.h"
 #include "RHI/RHI.h"
+#include "RHI/RHI_inc.h"
 #include "RHI/ShaderProgramBase.h"
 #include "Rendering/Core/Renderable.h"
 #include "Shader_Main.h"
-#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "RHI/DeviceContext.h"
+#include "Core/EngineInc.h"
 Shader_Skybox::Shader_Skybox()
 {
-	SkyBoxTexture = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
+	SkyBoxTexture = AssetManager::DirectLoadTextureAsset("texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
 	MeshLoader::FMeshLoadingSettings settings = {};
 	settings.Scale = glm::vec3(100.0f);
 	CubeModel = RHI::CreateMesh("SkyBoxCube.obj", settings);
@@ -16,9 +17,7 @@ Shader_Skybox::Shader_Skybox()
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_vs", SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_fs", SHADER_FRAGMENT);
 }
-#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "RHI/RenderAPIs/D3D12/GPUResource.h"
+
 void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List = RHI::CreateCommandList();
@@ -26,15 +25,17 @@ void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 	state.DepthWrite = false;
 	state.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
 	state.Cull = false;
-	List->SetPipelineState(state);
+
 	if (DepthSourceBuffer != nullptr)
 	{
-		D3D12Shader::PipeRenderTargetDesc Desc = ((D3D12FrameBuffer*)Buffer)->GetPiplineRenderDesc();
-		Desc.DSVFormat = ((D3D12FrameBuffer*)DepthSourceBuffer)->GetPiplineRenderDesc().DSVFormat;
-		((D3D12CommandList*)List)->CreatePipelineState(this, Desc);
+		RHIPipeRenderTargetDesc Desc = Buffer->GetPiplineRenderDesc();
+		state.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
+		List->SetPipelineState(state);
+		List->CreatePipelineState(this);
 	}
 	else
 	{
+		List->SetPipelineState(state);
 		List->CreatePipelineState(this, Buffer);
 	}
 }
@@ -52,30 +53,33 @@ void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBu
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::Skybox);
 	if (DepthSourceBuffer != nullptr)
 	{
+#if 0
 		if (RHI::IsD3D12())
 		{
 			D3D12FrameBuffer* fb = (D3D12FrameBuffer*)DepthSourceBuffer;
 			D3D12CommandList* ll = (D3D12CommandList*)List;
 			fb->BindDepthWithColourPassthrough(ll->GetCommandList(), (D3D12FrameBuffer*)Buffer);
 		}
+#endif
 	}
 	else
 	{
 		List->SetRenderTarget(Buffer);
 	}
 #if DEBUG_CUBEMAPS
-	List->SetFrameBufferTexture(test, 0);		
+	List->SetFrameBufferTexture(test, 0);
 #else
 	List->SetTexture(SkyBoxTexture, 0);
 #endif
-	mainshader->BindMvBuffer(List, 1);	
+	mainshader->BindMvBuffer(List, 1);
 	CubeModel->Render(List);
 
 	///todo:!
-	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
-	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+#if 0
+	/*D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
+	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);*/
+#endif
 
-	
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
 	List->Execute();
 }

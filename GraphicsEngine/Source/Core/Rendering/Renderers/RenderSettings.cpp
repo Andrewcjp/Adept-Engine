@@ -20,7 +20,7 @@ void MultiGPUMode::ValidateSettings()
 		ComputePerFrameShadowDataOnExCard = false;
 		PSComputeWorkSplit = false;
 	}
-}
+} 
 
 RenderSettings::RenderSettings()
 {

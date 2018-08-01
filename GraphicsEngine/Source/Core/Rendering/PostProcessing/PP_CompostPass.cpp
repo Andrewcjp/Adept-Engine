@@ -12,22 +12,27 @@ PP_CompostPass::~PP_CompostPass()
 {
 	delete CurrentShader;
 }
+#define TEST 0
+#if TEST
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "RHI/RenderAPIs/D3D12/GPUResource.h"
+#endif
 void PP_CompostPass::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
+#if TEST
 	ID3D12GraphicsCommandList* dlist = ((D3D12CommandList*)list)->GetCommandList();
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)InputFramebuffer;
+#endif
 	list->SetScreenBackBufferAsRT();
 	if (TextRenderer::instance->RunOnSecondDevice)
 	{
 		//	buffer->MakeReadyForRead(dlist);
 	}
-	buffer->BindBufferToTexture(dlist, 0, 0, RHI::GetDeviceContext(0));
-
+	list->SetFrameBufferTexture(InputFramebuffer,0);
 
 	RenderScreenQuad(list);
+#if TEST
 	if (TextRenderer::instance->RunOnSecondDevice)
 	{
 		buffer->MakeReadyForCopy(dlist);
@@ -36,6 +41,7 @@ void PP_CompostPass::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	{
 		buffer->GetResource(0)->SetResourceState(dlist, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 	}
+#endif
 }
 
 void PP_CompostPass::PostSetUpData()
@@ -46,7 +52,11 @@ void PP_CompostPass::PostSetUpData()
 
 void PP_CompostPass::PostInitEffect(FrameBuffer* Target)
 {
-	CMDlist->SetPipelineState(PipeLineState{ false,false,true });
+	PipeLineState state = PipeLineState{ false,false,true };
+	state.RenderTargetDesc.NumRenderTargets = 1;
+	state.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+	state.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	CMDlist->SetPipelineState(state);
 	CMDlist->CreatePipelineState(CurrentShader);
 }
 

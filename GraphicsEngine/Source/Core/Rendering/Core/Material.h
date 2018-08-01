@@ -10,6 +10,7 @@ public:
 		bool DoesShadow = true;
 		float Roughness = 1.0f;
 		float Metallic = 0.0f;
+		class Shader* ShaderInUse = nullptr;
 	};
 	CORE_API Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
 	~Material();

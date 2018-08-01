@@ -4,6 +4,7 @@
 #include "include/assimp/scene.h"
 #include <include/assimp/postprocess.h>
 #include "include/glm/gtx/transform.hpp"
+#include "Core/EngineInc.h"
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<int> &indices)

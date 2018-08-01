@@ -2,7 +2,7 @@
 #include <sstream>
 #include <ios>
 #include "EngineGlobals.h"
-class Log
+class CORE_API Log
 {
 public:
 	enum Severity

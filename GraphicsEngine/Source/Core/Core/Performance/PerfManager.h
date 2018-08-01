@@ -12,7 +12,7 @@
 class PerfManager
 {
 public:
-	struct ScopeCycleCounter
+	struct RHI_API ScopeCycleCounter
 	{
 		ScopeCycleCounter(const char* Name);
 		ScopeCycleCounter(const char* Name,const char* group);
@@ -21,21 +21,22 @@ public:
 		int StatId = -1;
 		int GroupID = -1;
 	};
-	static long get_nanos();
+	CORE_API static long get_nanos();
 	static PerfManager* Instance;
+	CORE_API static PerfManager* Get();
 	static void StartPerfManager();
 	static void ShutdownPerfManager();
 	PerfManager();
 	~PerfManager();
-	void AddTimer(const char * countername, const char * group);
-	void AddTimer(int id, int groupid);
+	CORE_API void AddTimer(const char * countername, const char * group);
+	CORE_API void AddTimer(int id, int groupid);
 	bool InitNV();
 	void SampleNVCounters();
 	std::string GetCounterData();
 	uint64_t GetValue(const char * countername);
 
-	static void StartTimer(const char * countername);
-	static void EndTimer(const char * countername);
+	CORE_API static void StartTimer(const char * countername);
+	CORE_API static void EndTimer(const char * countername);
 	static void StartTimer(int Counterid);
 	static void EndTimer(int Counterid);
 	static void RenderGpuData(int x, int y);
@@ -60,15 +61,15 @@ public:
 		int GroupId = 0;
 		bool Active = false;
 	};
-	TimerData* GetTimerData(int id);
+	CORE_API TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y);
 	void UpdateStats();
 	void SampleSlowStats();
 	void ClearStats();
 	void DrawStatsGroup(int x, int & y, std::string GroupFilter);
-	void UpdateGPUStat(int id, float newtime);
-	int GetTimerIDByName(std::string name);
-	int GetGroupId(std::string name);
+	CORE_API void UpdateGPUStat(int id, float newtime);
+	CORE_API int GetTimerIDByName(std::string name);
+	CORE_API int GetGroupId(std::string name);
 private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);

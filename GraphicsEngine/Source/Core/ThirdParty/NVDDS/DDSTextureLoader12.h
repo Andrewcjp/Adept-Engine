@@ -15,7 +15,7 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
-
+#include "EngineGlobals.h"
 #include <d3d12.h>
 
 #include <memory>
@@ -52,7 +52,7 @@ namespace DirectX
         _Out_opt_ DDS_ALPHA_MODE* alphaMode = nullptr,
         _Out_opt_ bool* isCubeMap = nullptr);
 
-    HRESULT __cdecl LoadDDSTextureFromFile(
+	CORE_API HRESULT __cdecl LoadDDSTextureFromFile(
         _In_ ID3D12Device* d3dDevice,
         _In_z_ const wchar_t* szFileName,
         _Outptr_ ID3D12Resource** texture,

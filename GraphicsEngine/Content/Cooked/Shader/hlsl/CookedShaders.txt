@@ -1227,6 +1227,8 @@ float4 main(PSInput input) : SV_TARGET
 	float out2 = PerSampledShadow.Sample(g_Clampsampler, Pos.xy).r; 
 	//return float4(out2,0, 0, 1.0f); 
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv).rgb; 
+	//Insert Marker 
+ 
 	float3 Normal = input.Normal.xyz; 
 	if (HasNormalMap == 1) 
 	{ 

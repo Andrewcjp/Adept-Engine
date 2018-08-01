@@ -30,11 +30,13 @@ void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTextur
 	}
 
 	RenderScreenQuad(list);
+#if 0
 	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)InputTexture;
 	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 	dBuffer = (D3D12FrameBuffer*)AddtiveBuffer;
 	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+#endif
 }
 
 void PP_ColourCorrect::PostSetUpData()
@@ -45,6 +47,10 @@ void PP_ColourCorrect::PostSetUpData()
 
 void PP_ColourCorrect::PostInitEffect(FrameBuffer* Target)
 {
-	CMDlist->SetPipelineState(PipeLineState{ false,false,true });
+	PipeLineState state = PipeLineState{ false,false,true };
+	state.RenderTargetDesc.NumRenderTargets = 1;
+	state.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+	state.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	CMDlist->SetPipelineState(state);
 	CMDlist->CreatePipelineState(CurrentShader);
 }

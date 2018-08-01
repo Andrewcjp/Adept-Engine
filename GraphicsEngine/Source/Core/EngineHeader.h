@@ -16,3 +16,4 @@
 #include "Core/Module/ModuleInterface.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Assets/AssetTypes.h"
+#include "Core/EngineInc.h"

@@ -21,7 +21,7 @@ public:
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
 	virtual void SetPipelineState(PipeLineState state) override;
 	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
-	void		 CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc);
+	void		 IN_CreatePipelineState(Shader * shader);
 
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;

@@ -29,7 +29,7 @@ PhysicsEngine * Engine::GetPhysEngineInstance()
 	return PhysEngine;
 }
 
-std::string Engine::GetRootDir()
+std::string Engine::GetExecutionDir()
 {
 	wchar_t buffer[MAX_PATH];
 	GetModuleFileName(NULL, buffer, MAX_PATH);
@@ -45,10 +45,10 @@ Engine::Engine()
 {
 	EngineInstance = this;
 	StartTime = (float)PerfManager::get_nanos();
-	Log::OutS << "Starting In " << GetRootDir() << Log::OutS;
+	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
 	Log::OutS << "Loading Engine v0.1" << Log::OutS;
 #if BUILD_PACKAGE
-	std::string assetpath = GetRootDir();
+	std::string assetpath = GetExecutionDir();
 	assetpath.append("\\asset\\");
 	if (!FileUtils::File_ExistsTest(assetpath))
 	{
@@ -206,6 +206,11 @@ void Engine::Resize(int width, int height)
 IntPoint * Engine::GetInitalScreen()
 {
 	return &IntialScreenSize;
+}
+
+bool Engine::GetWindowValid() const
+{
+	return isWindowVaild;
 }
 
 void Engine::CreateApplicationWindow(int width, int height)

@@ -606,15 +606,15 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 	}
 }
 
-D3D12Shader::PipeRenderTargetDesc D3D12FrameBuffer::GetPiplineRenderDesc()
+const RHIPipeRenderTargetDesc& D3D12FrameBuffer::GetPiplineRenderDesc()
 {
-	D3D12Shader::PipeRenderTargetDesc output = {};
+	RHIPipeRenderTargetDesc output = {};
 	output.NumRenderTargets = BufferDesc.RenderTargetCount;
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		output.RTVFormats[i] = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]);
+		output.RTVFormats[i] = BufferDesc.RTFormats[i];
 	}
-	output.DSVFormat = D3D12Helpers::ConvertFormat(BufferDesc.DepthFormat);
+	output.DSVFormat = BufferDesc.DepthFormat;
 	return output;
 }
 

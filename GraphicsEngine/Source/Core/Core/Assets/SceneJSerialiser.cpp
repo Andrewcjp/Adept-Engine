@@ -10,7 +10,7 @@
 rapidjson::Document::AllocatorType* SceneJSerialiser::jallocator = nullptr;
 SceneJSerialiser::SceneJSerialiser()
 {
-	testpath = Engine::GetRootDir();
+	testpath = Engine::GetExecutionDir();
 	testpath.append("\\asset\\scene\\test.scene");
 }
 

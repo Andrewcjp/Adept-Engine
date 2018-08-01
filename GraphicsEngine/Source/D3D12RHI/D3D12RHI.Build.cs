@@ -7,8 +7,11 @@ class D3D12RHIModule : ModuleDef
         ModuleName = "D3D12RHI";
         SourceFileSearchDir = "D3D12RHI";
         ModuleOuputType = ModuleDef.ModuleType.LIB;
-        IncludeDirectories.Add("Source/Core");
+        IncludeDirectories.Add("Source/Core");       
         SolutionFolderPath = "Engine/Modules/RHI";
+
+        ModuleOuputType = ModuleDef.ModuleType.DLL;
+        ModuleDepends.Add("Core");
 
     }
 }

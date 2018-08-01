@@ -1,6 +1,7 @@
 #pragma once
-#include "RHI_fwd.h"
-class RHITimeManager
+#include "EngineGlobals.h"
+#include "RHI_inc_fwd.h"
+class RHI_API RHITimeManager
 {
 public:
 	RHITimeManager(class DeviceContext* context);

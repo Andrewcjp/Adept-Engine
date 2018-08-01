@@ -29,7 +29,7 @@ D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 
 unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int bpp, unsigned char * StartData, int&mipsize, float ratio)
 {
-	std::string rpath = Engine::GetRootDir();
+	std::string rpath = Engine::GetExecutionDir();
 	rpath.append("\\asset\\DerivedDataCache\\");
 	if (!FileUtils::File_ExistsTest(rpath))
 	{
@@ -161,7 +161,7 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 
 	TextureName = name.BaseName;
 	TexturePath = name.GetRelativePathToAsset();
-	if (name.GetFileType() == AssetFileType::DDS)
+	if (name.GetFileType() == AssetFileType::DDS || name.IsDDC)
 	{
 		return LoadDDS(name.GetFullPathToAsset());
 	}

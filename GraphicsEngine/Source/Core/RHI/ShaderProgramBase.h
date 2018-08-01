@@ -1,5 +1,5 @@
 #pragma once
-
+#include "EngineGlobals.h"
 #include "RHI/ShaderBase.h"
 #include <vector>
 class ShaderProgramBase
@@ -9,14 +9,14 @@ protected:
 	int							m_shaderCount;
 	bool						IsCompute = false;
 public:
-	ShaderProgramBase()
+	RHI_API ShaderProgramBase()
 	{}
-	virtual								~ShaderProgramBase();
+	RHI_API virtual								~ShaderProgramBase();
 
 	
 	virtual void						CreateShaderProgram() = 0;
-	virtual EShaderError				AttachAndCompileShaderFromFile(const char * filename, EShaderType type) = 0;
-	virtual EShaderError				AttachAndCompileShaderFromFile(const char * filename, EShaderType type, const char * Entrypoint) = 0;
+	RHI_API virtual EShaderError				AttachAndCompileShaderFromFile(const char * filename, EShaderType type) = 0;
+	RHI_API virtual EShaderError				AttachAndCompileShaderFromFile(const char * filename, EShaderType type, const char * Entrypoint) = 0;
 	virtual void						BuildShaderProgram() = 0;
 	virtual void						DeleteShaderProgram() = 0;
 	virtual void						ActivateShaderProgram() = 0;

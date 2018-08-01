@@ -88,8 +88,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type, const char * Entrypoint)
 {
 	//convert to LPC 
-	std::string path = Engine::GetRootDir();
-	path.append("\\asset\\shader\\hlsl\\");
+	std::string path = AssetManager::GetShaderPath();
 	std::string name = shadername;
 	name.append(".hlsl");
 	path.append(name);
@@ -106,7 +105,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		IsCompute = true;
 	}
 
-	std::string ShaderData = AssetManager::instance->LoadFileWithInclude(name);
+	std::string ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
 
 
 	std::wstring newfile((int)path.size(), 0);
@@ -178,7 +177,8 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		Log.append(StringUtils::ConvertWideToString(filename));
 		Log.append("\n");
 		Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
-		Log::OutS << Log << Log::OutS;
+		//Log::OutS << Log << Log::OutS;
+		Log::LogMessage(Log);
 		if (FAILED(hr))
 		{
 			PlatformApplication::DisplayMessageBox("Shader Complie Error", Log);
@@ -216,7 +216,7 @@ void D3D12Shader::DeactivateShaderProgram()
 
 
 D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
-	PipeRenderTargetDesc PRTD, DeviceContext* context)
+	 DeviceContext* context)
 {
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
 	computePsoDesc.pRootSignature = output.m_rootSignature;
@@ -226,7 +226,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShade
 }
 
 D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
-	PipeRenderTargetDesc PRTD, DeviceContext* context)
+	 DeviceContext* context)
 {
 	ensure(blobs->vsBlob != nullptr);
 	ensure(blobs->fsBlob != nullptr);
@@ -269,14 +269,15 @@ D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &outp
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)Depthtest.RasterMode;
-	psoDesc.NumRenderTargets = PRTD.NumRenderTargets;
+	psoDesc.NumRenderTargets = Depthtest.RenderTargetDesc.NumRenderTargets;
 	psoDesc.SampleDesc.Count = 1;
 
 	for (int i = 0; i < 8; i++)
 	{
-		psoDesc.RTVFormats[i] = PRTD.RTVFormats[i];
+		psoDesc.RTVFormats[i] = D3D12Helpers::ConvertFormat(Depthtest.RenderTargetDesc.RTVFormats[i]);
 	}
-	psoDesc.DSVFormat = PRTD.DSVFormat;
+	psoDesc.DSVFormat = D3D12Helpers::ConvertFormat(Depthtest.RenderTargetDesc.DSVFormat);
+
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
 	return output;
 }

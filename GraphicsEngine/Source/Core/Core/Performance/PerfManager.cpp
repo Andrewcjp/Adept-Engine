@@ -23,6 +23,15 @@ long PerfManager::get_nanos()
 	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec;
 }
 
+PerfManager * PerfManager::Get()
+{
+	if (Instance == nullptr)
+	{
+		Instance = new PerfManager();
+	}
+	return Instance;
+}
+
 void PerfManager::StartPerfManager()
 {
 	if (Instance == nullptr)

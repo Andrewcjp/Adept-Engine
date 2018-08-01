@@ -22,12 +22,7 @@ public:
 		ID3D12RootSignature* m_rootSignature = nullptr; 
 		bool IsCompute = false;
 	};
-	struct PipeRenderTargetDesc
-	{
-		DXGI_FORMAT RTVFormats[8];
-		DXGI_FORMAT DSVFormat = DXGI_FORMAT_UNKNOWN;
-		int NumRenderTargets = 1;
-	};
+
 	enum ComputeRootParameters : UINT32
 	{
 		ComputeRootCBV = 0,
@@ -43,9 +38,9 @@ public:
 	virtual void ActivateShaderProgram() override;
 	virtual void DeactivateShaderProgram() override;
 
-	static D3D12Shader::PiplineShader CreateComputePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD, DeviceContext * context);
+	static D3D12Shader::PiplineShader CreateComputePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, PipeLineState Depthtest, DeviceContext * context);
+	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,DeviceContext* context);
 
-	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, PipeRenderTargetDesc PRTD, DeviceContext* context);
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
 	static void CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Parms, DeviceContext* context);
