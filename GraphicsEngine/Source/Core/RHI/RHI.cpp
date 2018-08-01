@@ -1,16 +1,12 @@
 #include "RHI.h"
-#include "BaseTexture.h"
-#include "Rendering/Core/Renderable.h"
-#include "Rendering/Core/Mesh.h"
-#include "RHI/ShaderBase.h"
 #include "ShaderProgramBase.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Assets/AssetManager.h"
 #include "Rendering/Core/Mesh.h"
-#include "Rendering/Core/GPUStateCache.h"
 #include "Core/Engine.h"
-#include "RHICommandList.h"
+#include "RHI_inc.h"
 #include "Core/Assets/ImageIO.h"
+
 
 #if BUILD_D3D12
 #include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
@@ -34,11 +30,19 @@ MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 RHI::RHI(ERenderSystemType system)
 {
 	CurrentSystem = system;
+	RHIModule* RHImodule = nullptr;
 	switch (CurrentSystem)
 	{
 #if BUILD_D3D12
+
 	case ERenderSystemType::RenderSystemD3D12:
+#if RHI_USE_MODULE
+		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("D3D12RHI");
+		ensure(RHImodule);
+		CurrentRHI = RHImodule->GetRHIClass();
+#else
 			CurrentRHI = new D3D12RHI();
+#endif
 			break;
 #endif
 #if BUILD_VULKAN
@@ -50,7 +54,7 @@ RHI::RHI(ERenderSystemType system)
 		ensureMsgf(false, "Selected RHI not Avalable");
 		break;
 	}
-	
+	ensureMsgf(CurrentRHI,"RHI load failed");
 }
 
 RHI::~RHI()
@@ -222,10 +226,10 @@ Renderable * RHI::CreateMesh(const char * path)
 Renderable * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	///todo asset paths
-	std::string accpath = Engine::GetRootDir();
-	std::string apath = ("\\asset\\models\\");
+	std::string accpath = AssetManager::GetContentPath();
+	std::string apath = ("\\models\\");
 	apath.append(path);
-	accpath.append(apath);
+	accpath.append(apath);//todo remove
 	AssetManager::RegisterMeshAssetLoad(apath);
 	return new Mesh(accpath, Settings);
 }

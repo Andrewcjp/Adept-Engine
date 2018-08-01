@@ -6,13 +6,13 @@
 #include "RHI/BaseTexture.h"
 #include "RHI/RHI.h"
 #include <iostream>
-
+#include "Core/EngineInc.h"
 #include "Core/Engine.h"
 #include "Core/Utils/FileUtils.h"
 ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {
-	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\asset\\texture\\T_GridSmall_01_D.png");
+	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
 	ensureMsgf(DefaultTexture,"Failed to Load Fallback Texture");
 }
 ImageIO::~ImageIO()

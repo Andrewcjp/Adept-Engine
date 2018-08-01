@@ -13,6 +13,7 @@
 #include "RHI/DeviceContext.h"
 #include "Core/BaseWindow.h"
 #include "RHI/RHITypes.h"
+#include "Core/EngineInc.h"
 #define CUBE_SIDES 6
 
 ShadowRenderer::ShadowRenderer()
@@ -252,7 +253,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 
 void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
-#if 0
+#if 1
 	ShadowDirectionalArray->BindToShader(list, 4);
 	ShadowCubeArray->BindToShader(list, 5);
 #else
@@ -328,11 +329,13 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 #include "RHI/RenderAPIs/D3D12/GPUResource.h"
 void ShadowRenderer::Unbind(RHICommandList * list)
 {
+#if 0
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
 		D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)LightInteractions[2]->PreSampledBuffer;
 		dBuffer->MakeReadyForCopy(((D3D12CommandList*)list)->GetCommandList());
 	}
+#endif
 }
 
 ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * Context, bool IsPoint, int MapSize)

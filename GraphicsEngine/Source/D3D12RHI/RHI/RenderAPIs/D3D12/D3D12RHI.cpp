@@ -1,28 +1,17 @@
 ﻿#include "stdafx.h"
 #include "D3D12RHI.h"
-#include <DXProgrammableCapture.h>  
-#include <dxgidebug.h>
-#include <D3Dcompiler.h>
 
-#include "glm\glm.hpp"
+#include "RHI/RHI.h"
+#include "RHI/RHI_inc.h"
 #include "include\glm\gtx\transform.hpp"
 #include "Rendering/Shaders/ShaderMipMap.h"
 #include "GPUResource.h"
-#include "RHI/DeviceContext.h"
-#include "RHI/RHI.h"
 #include "D3D12TimeManager.h"
 #include "Core/Platform/PlatformCore.h"
-#include "RHI/BaseTexture.h"
 #include "Rendering/Core/Renderable.h"
 #include "Rendering/Core/Mesh.h"
-#include "RHI/ShaderBase.h"
-#include "RHI/ShaderProgramBase.h"
-#include "RHI/RHICommandList.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Assets/AssetManager.h"
-#include "Rendering/Core/Mesh.h"
-#include "Rendering/Core/GPUStateCache.h"
-#include "Core/Engine.h"
 #include "Core/Assets/ImageIO.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Shader.h"
@@ -31,6 +20,11 @@
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
 
+#include <DXProgrammableCapture.h>  
+#include <dxgidebug.h>
+#include <D3Dcompiler.h>
+#pragma comment (lib, "opengl32.lib")
+#pragma comment (lib, "d3dcompiler.lib")
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 	:m_fenceValues{}
@@ -156,7 +150,7 @@ void D3D12RHI::WaitForGPU()
 
 void D3D12RHI::DisplayDeviceDebug()
 {
-	Log::OutS << "Primary Adaptor Has " << GetMemory() << Log::OutS;
+	//Log::OutS << "Primary Adaptor Has " << GetMemory() << Log::OutS;1
 }
 
 std::string D3D12RHI::GetMemory()
@@ -466,7 +460,7 @@ void D3D12RHI::PresentFrame()
 	if (m_BudgetNotificationCookie == 1)
 	{
 		DisplayDeviceDebug();
-		Log::OutS << "Memory Budget Changed" << Log::OutS;
+		//Log::OutS << "Memory Budget Changed" << Log::OutS;
 	}
 	//only set up to grab the 0 frame of spawn chain
 	if (RunScreenShot && m_frameIndex == 0)
@@ -606,27 +600,6 @@ void D3D12RHI::AddLinkedFrameBuffer(FrameBuffer * target)
 	FrameBuffersLinkedToSwapChain.push_back(target);
 }
 
-void D3D12RHI::WaitForPreviousFrame()
-{
-	//// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE.
-	//// This is code implemented as such for simplicity. The D3D12HelloFrameBuffering
-	//// sample illustrates how to use fences for efficient resource usage and to
-	//// maximize GPU utilization.
-
-	//// Signal and increment the fence value.
-	//const UINT64 fence = m_fenceValue;
-	//ThrowIfFailed(GetCommandQueue()->Signal(m_fence, fence));
-	//m_fenceValue++;
-
-	//// Wait until the previous frame is finished.
-	//if (m_fence->GetCompletedValue() < fence)
-	//{
-	//	ThrowIfFailed(m_fence->SetEventOnCompletion(fence, m_fenceEvent));
-	//	WaitForSingleObject(m_fenceEvent, INFINITE);
-	//}
-
-	//m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-}
 void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 {
 	IDXGIAdapter1* adapter;
@@ -793,3 +766,13 @@ RHITextureArray * D3D12RHI::CreateTextureArray(DeviceContext* Device, int Length
 }
 
 
+class D3D12RHIModule : public RHIModule
+{
+	virtual RHIClass* GetRHIClass()
+	{
+		return new D3D12RHI();
+	}
+};
+#ifdef D3D12RHI_API
+IMPLEMENT_MODULE(D3D12RHIModule);
+#endif

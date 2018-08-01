@@ -15,15 +15,19 @@ namespace AssetFileType
 static AssetFileType::Type ParseAssetFileType(std::string Data);
 struct AssetPathRef
 {
-	CORE_API AssetPathRef(std::string Filename);
-	const std::string GetFullPathToAsset()const;
-	const std::string GetNoExtPathToAsset() const;
-	const std::string GetRelativePathToAsset()const;
-	const std::string GetExtention()const;
+	RHI_API AssetPathRef(std::string Filename);
+	RHI_API AssetPathRef() {};
+	RHI_API const std::string GetFullPathToAsset()const;
+	RHI_API const std::string GetNoExtPathToAsset() const;
+	RHI_API const std::string GetRelativePathToAsset()const;
+	RHI_API const std::string GetExtention()const;
 	std::string Name;
 	std::string BaseName;
-	const AssetFileType::Type GetFileType() const;
+	RHI_API const AssetFileType::Type GetFileType() const;
+	bool IsDDC = false;
+	std::string DDCPath;
 private:
 	std::string Extention;
+
 	AssetFileType::Type FileType = AssetFileType::Unknown;
 };

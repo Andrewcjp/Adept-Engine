@@ -1,7 +1,8 @@
 #pragma once
+#include "EngineGlobals.h"
 #include "RHITypes.h"
 class DeviceContext;
-class RHIBuffer
+class RHI_API RHIBuffer
 {
 public:
 	enum BufferType
@@ -44,17 +45,9 @@ public:
 };
 
 
-struct PipeLineState
-{
-	bool DepthTest = true;
-	bool Cull = true;
-	bool Blending = false;
-	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
-	bool DepthWrite = true;
-};
+
 class FrameBuffer;
-class RHICommandList
+class RHI_API RHICommandList
 {
 public:
 	RHICommandList(ECommandListType::Type type = ECommandListType::Graphics);
@@ -98,7 +91,7 @@ protected:
 };
 
 //Used to Bind Buffers or textures to a single Descriptor heap/set for shader arrays
-class RHITextureArray
+class RHI_API RHITextureArray
 {
 public:
 	RHITextureArray(DeviceContext* device, int inNumEntries)

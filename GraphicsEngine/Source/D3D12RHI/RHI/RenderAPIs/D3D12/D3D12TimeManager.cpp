@@ -5,7 +5,7 @@
 #include <iomanip>
 #include "Core/Performance/PerfManager.h"
 #include "D3D12DeviceContext.h"
-D3D12TimeManager::D3D12TimeManager(DeviceContext* context):RHITimeManager(context)
+D3D12TimeManager::D3D12TimeManager(DeviceContext* context) :RHITimeManager(context)
 {
 	Init(context);
 }
@@ -49,12 +49,11 @@ void D3D12TimeManager::Init(DeviceContext* context)
 		TimeDeltas[i].Endindex = TimerItor + 1;
 		TimerItor += 2;
 	}
-	if (PerfManager::Instance)
-	{
-		std::string GPUName = "GPU_";
-		GPUName.append(std::to_string(context->GetDeviceIndex()));
-		StatsGroupId = PerfManager::Instance->GetGroupId(GPUName.c_str());
-	}
+
+	std::string GPUName = "GPU_";
+	GPUName.append(std::to_string(context->GetDeviceIndex()));
+	StatsGroupId = PerfManager::Get()->GetGroupId(GPUName.c_str());
+
 	SetTimerName(EGPUTIMERS::Total, "Total GPU");
 	SetTimerName(EGPUTIMERS::MainPass, "Main Pass");
 	SetTimerName(EGPUTIMERS::DeferredWrite, "Deferred Write");
@@ -90,19 +89,19 @@ void D3D12TimeManager::UpdateTimers()
 		{
 			//timer was never started 
 			TimeDeltas[i].avg.Add(0);
-		}		
+		}
 	}
 	// Unmap with an empty range (written range).
 	m_timestampResultBuffers->Unmap(0, &emptyRange);
 	AVGgpuTimeMS = TimeDeltas[0].avg.GetCurrentAverage();
 
 	for (int i = 0; i < MaxTimerCount; i++)
-	{		
-		if (!TimeDeltas[i].Used) 
+	{
+		if (!TimeDeltas[i].Used)
 		{
 			continue;
 		}
-		PerfManager::Instance->UpdateGPUStat(TimeDeltas[i].Statid, TimeDeltas[i].RawTime);
+		PerfManager::Get()->UpdateGPUStat(TimeDeltas[i].Statid, TimeDeltas[i].RawTime);
 	}
 	for (int i = 0; i < MaxTimerCount; i++)
 	{
@@ -125,7 +124,7 @@ std::string D3D12TimeManager::GetTimerData()
 			TrackedTime += fabs(TimeDeltas[i].avg.GetCurrentAverage());
 		}
 	}
-	stream << "Lost:" <<  AVGgpuTimeMS - TrackedTime;
+	stream << "Lost:" << AVGgpuTimeMS - TrackedTime;
 	return stream.str();
 #else
 	return "GPU TIMERS DISABLED";
@@ -140,16 +139,15 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name)
 	}
 	ensure(index > -1);
 	TimeDeltas[index].name = Name;
-	MaxIndexInUse = std::max(index,MaxIndexInUse);
-	if (PerfManager::Instance)
+	MaxIndexInUse = std::max(index, MaxIndexInUse);
+
+	TimeDeltas[index].Statid = PerfManager::Get()->GetTimerIDByName(Name + std::to_string(Context->GetDeviceIndex()));
+	PerfManager::Get()->AddTimer(TimeDeltas[index].Statid, StatsGroupId);
+	if (PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid) != nullptr)
 	{
-		TimeDeltas[index].Statid = PerfManager::Instance->GetTimerIDByName(Name+ std::to_string(Context->GetDeviceIndex()));
-		PerfManager::Instance->AddTimer(TimeDeltas[index].Statid, StatsGroupId);
-		if (PerfManager::Instance->GetTimerData(TimeDeltas[index].Statid) != nullptr)
-		{
-			PerfManager::Instance->GetTimerData(TimeDeltas[index].Statid)->name = Name;
-		}
+		PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid)->name = Name;
 	}
+
 }
 
 

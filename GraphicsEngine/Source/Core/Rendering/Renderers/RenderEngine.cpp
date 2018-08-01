@@ -7,6 +7,7 @@
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
+
 RenderEngine::~RenderEngine()
 {
 	DestoryRenderWindow();

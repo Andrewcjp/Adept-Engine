@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Platform/Generic/GenericApplication.h"
 #include "Core/Types/FString.h"
+#include "EngineGlobals.h"
 class WindowsApplication : public GenericApplication
 {
 public:
@@ -13,11 +14,11 @@ public:
 	static void InitTiming();
 	static double Seconds();
 	static void Sleep(float Milliseconds);
-	static void DisplayMessageBox(std::string title, std::string message);
+	static __declspec(dllexport) void DisplayMessageBox(std::string title, std::string message);
 	static bool DisplayOpenFileDialog(std::string StartDir, std::string Filter, std::string & outData);
 	static bool DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string Extenstion, std::string & outData);
 	static bool CopyFileToTarget(std::string Target, std::string Dest);
-	static bool TryCreateDirectory(const std::string & name);
+	__declspec(dllexport) static bool TryCreateDirectory(const std::string & name);
 private:
 	static double SecondsPerCycle;
 };

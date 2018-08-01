@@ -85,11 +85,11 @@ void PostProcessing::Resize(FrameBuffer* Target)
 	ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
 }
 
-void PostProcessing::MakeReadyForPost(RHICommandList* list, FrameBuffer * buffer)
-{
-	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)buffer;
-	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-}
+//void PostProcessing::MakeReadyForPost(RHICommandList* list, FrameBuffer * buffer)
+//{
+//	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)buffer;
+//	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+//}
 
 void PostProcessing::AddCompostPass(FrameBuffer * buffer)
 {

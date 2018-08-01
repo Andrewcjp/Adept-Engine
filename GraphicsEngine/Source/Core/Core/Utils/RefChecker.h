@@ -1,7 +1,8 @@
 #pragma once
 //Used to Detect Object leaks!
 #include "EngineGlobals.h"
-#define DETECT_MEMEORY_LEAKS 1
+#define DETECT_MEMEORY_LEAKS 0
+//todo: RHI_API 
 #if DETECT_MEMEORY_LEAKS
 class RefCheckerContainer
 {

@@ -19,7 +19,7 @@ DxIncludeHandler::~DxIncludeHandler()
 
 HRESULT DxIncludeHandler::Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID pParentData, LPCVOID * ppData, UINT * pBytes)
 {
-	std::string path = AssetManager::GetShaderDirPath();
+	std::string path = AssetManager::GetShaderPath();
 	path.append(pFileName);
 	std::ifstream myfile(path);
 	if (myfile.is_open())

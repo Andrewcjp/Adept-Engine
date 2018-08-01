@@ -14,7 +14,7 @@ public:
 	void ExecPPStackFinal(FrameBuffer * targetbuffer);
 	void Init(FrameBuffer* Target);
 	void Resize(FrameBuffer * Target);
-	void MakeReadyForPost(RHICommandList * list, FrameBuffer * buffer);
+
 	void AddCompostPass(FrameBuffer* buffer);
 	class PP_CompostPass* TestEffct = nullptr;
 	class PP_ColourCorrect* ColourCorrect = nullptr;

@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "Shader_EnvMap.h"
 #include "Rendering/Core/Renderable.h"
-
+#include "RHI/RHI_inc.h"
 Shader_EnvMap::Shader_EnvMap()
 {
 	m_Shader = RHI::CreateShaderProgam();

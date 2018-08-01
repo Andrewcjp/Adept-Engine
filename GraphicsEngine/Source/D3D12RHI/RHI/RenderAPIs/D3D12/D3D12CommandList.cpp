@@ -165,25 +165,40 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 	CurrentGraphicsList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
 }
 
+void D3D12CommandList::SetPipelineState(PipeLineState state)
+{
+	Currentpipestate = state;
+}
+
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
-	D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
-	D3D12Shader::PipeRenderTargetDesc PRTD = {};
-	if (Buffer == nullptr)
+	//D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
+	//D3D12Shader::PipeRenderTargetDesc PRTD = {};
+	//if (Buffer == nullptr)
+	//{
+	//	PRTD.NumRenderTargets = 1;
+	//	PRTD.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	//	PRTD.DSVFormat = DXGI_FORMAT_D32_FLOAT;//DXGI_FORMAT_D16_UNORM
+	//}
+	//else
+	//{
+	//	PRTD = dbuffer->GetPiplineRenderDesc();
+	//}
+	if (Buffer != nullptr)
 	{
-		PRTD.NumRenderTargets = 1;
-		PRTD.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		PRTD.DSVFormat = DXGI_FORMAT_D32_FLOAT;//DXGI_FORMAT_D16_UNORM
+		Currentpipestate.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 	}
-	else
+	if (Currentpipestate.RenderTargetDesc.NumRenderTargets == 0)
 	{
-		PRTD = dbuffer->GetPiplineRenderDesc();
+		Currentpipestate.RenderTargetDesc.NumRenderTargets = 1;
+		Currentpipestate.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+		Currentpipestate.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
 	}
-	CreatePipelineState(shader, PRTD);
+	IN_CreatePipelineState(shader);
 }
 
-void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRenderTargetDesc RTdesc)
+void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 {
 	if (shader->IsComputeShader())
 	{
@@ -215,11 +230,11 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRen
 
 	if (ListType == ECommandListType::Graphics)
 	{
-		D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, RTdesc, Device);
+		D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, Device);
 	}
 	else
 	{
-		D3D12Shader::CreateComputePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, RTdesc, Device);
+		D3D12Shader::CreateComputePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, Device);
 	}
 	if (CurrentGraphicsList == nullptr)
 	{
@@ -228,10 +243,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, D3D12Shader::PipeRen
 	}
 }
 
-void D3D12CommandList::SetPipelineState(PipeLineState state)
-{
-	Currentpipestate = state;
-}
+
 
 void D3D12CommandList::CreateCommandList()
 {

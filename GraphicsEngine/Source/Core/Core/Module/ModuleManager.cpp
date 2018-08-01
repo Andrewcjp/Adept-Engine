@@ -32,6 +32,7 @@ void ModuleManager::ShutDown()
 void ModuleManager::SetupPreLoadModules()
 {
 	ModulesNames.push_back("TestGame");
+	ModulesNames.push_back("D3D12RHI");
 }
 
 void ModuleManager::PreLoadModules()

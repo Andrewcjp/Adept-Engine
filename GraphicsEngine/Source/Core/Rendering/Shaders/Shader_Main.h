@@ -61,13 +61,14 @@ public:
 	void UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int index);
 	void SetActiveIndex(class RHICommandList * list, int index, int DeviceIndex = 0);
 	static void GetMainShaderSig(std::vector<Shader::ShaderParameter>& out);
-	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+
 	void UpdateMV(Camera * c);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	SceneConstantBuffer CreateUnformBufferEntry(class GameObject * t);
 	void UpdateLightBuffer(std::vector<Light*> lights);
 	void BindLightsBuffer(RHICommandList * list,bool JustLight = false);
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	void BindMvBuffer(RHICommandList * list, int slot);
 private:
 	

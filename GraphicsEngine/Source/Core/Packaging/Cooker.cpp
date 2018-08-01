@@ -20,7 +20,7 @@ Cooker::~Cooker()
 //returns the root path of the output dir
 std::string Cooker::GetTargetPath(bool AppendSlash)
 {
-	std::string TargetPath = Engine::GetRootDir();
+	std::string TargetPath = Engine::GetExecutionDir();
 	StringUtils::RemoveChar(TargetPath, "\\x64");
 	TargetPath.append(OutputPath);
 	if (AppendSlash)
@@ -37,7 +37,7 @@ void Cooker::CopyToOutput()
 	{
 		(!PlatformApplication::TryCreateDirectory(GetTargetPath()));
 	}
-	std::string path = Engine::GetRootDir();
+	std::string path = Engine::GetExecutionDir();
 	path.append("\\Release\\");
 	//Copy Binaries 
 	uintmax_t SumSize = 0;
@@ -89,7 +89,7 @@ bool Cooker::CopyAssetToOutput(std::string RelTarget)
 			/*return false;*/
 		}
 	}
-	std::string source = Engine::GetRootDir();
+	std::string source = Engine::GetExecutionDir();
 	source.append(RelTarget);
 	if (!PlatformApplication::CopyFileToTarget(source, Targetfile))
 	{

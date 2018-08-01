@@ -1,13 +1,13 @@
 #pragma once
 #include "EngineGlobals.h"
-
-#include "Rendering/Core/FrameBuffer.h"
-#include "RHICommandList.h"
-#include "Core/Assets/MeshLoader.h"
+#include "Core/EngineInc_fwd.h"
+#include "RHI_inc_fwd.h"
 #include "RHITypes.h"
-#include "Core/Assets/AssetManager.h"
+#include "Core/Assets/AssetTypes.h"
 #include "Rendering/Renderers/RenderSettings.h"
 #include "Core/Utils/MemoryUtils.h"
+#include "Core/Assets/MeshLoader.h"
+#include "RHICommandList.h"
 //todo: refactor!
 //like seriuously this is bad!
 class BaseTexture;
@@ -16,8 +16,8 @@ class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
 const int MAX_DEVICE_COUNT = 2;
-#define RHI_API DLLEXPORT
-#define RHI_USE_MODULE 0
+
+#define RHI_USE_MODULE 1
 
 class RHI
 {
@@ -38,15 +38,15 @@ public:
 	CORE_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
 	CORE_API static Renderable * CreateMesh(const char * path);
 	CORE_API static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
-	static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
-	static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
-	static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
-	static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
-	static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
-	static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
+	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
+	RHI_API static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
+	RHI_API static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
+	RHI_API static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
+	RHI_API static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
+	RHI_API static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
 
-	static DeviceContext * GetDeviceContext(int index = 0);
-	static DeviceContext* GetDefaultDevice();
+	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
+	RHI_API static DeviceContext* GetDefaultDevice();
 	static bool InitialiseContext( int w, int h);
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
@@ -55,14 +55,14 @@ public:
 	static void DestoryContext();
 
 	static const MultiGPUMode* GetMGPUMode();
-	static bool BlockCommandlistExec();
-	static bool AllowCPUAhead();
-	static int GetDeviceCount();
+	RHI_API static bool BlockCommandlistExec();
+	RHI_API static bool AllowCPUAhead();
+	RHI_API static int GetDeviceCount();
 	static bool UseAdditionalGPUs();
 	static bool IsD3D12();
 	static bool SupportsThreading();
 	static bool SupportsExplictMultiAdaptor();
-	static ERenderSystemType GetType();
+	RHI_API static ERenderSystemType GetType();
 	static class RHIClass* GetRHIClass();
 	static void WaitForGPU();
 	static RenderConstants* GetRenderConstants();
@@ -94,4 +94,10 @@ public:
 	virtual void ResizeSwapChain(int width, int height) = 0;
 	virtual void WaitForGPU() =0;
 	virtual void TriggerBackBufferScreenShot() = 0;	
+};
+#include "Core/Module/ModuleInterface.h"
+class RHIModule : public IModuleInterface
+{
+public:
+	virtual RHIClass* GetRHIClass() = 0;
 };

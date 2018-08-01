@@ -306,7 +306,7 @@ const RenderSettings * BaseWindow::GetCurrentRenderSettings()
 
 void BaseWindow::LoadScene(std::string RelativePath)
 {
-	std::string Startdir = Engine::GetRootDir();
+	std::string Startdir = Engine::GetExecutionDir();
 	Startdir.append(RelativePath);
 	Renderer->SetScene(nullptr);
 	delete CurrentScene;
@@ -321,14 +321,8 @@ void BaseWindow::LoadScene(std::string RelativePath)
 void BaseWindow::PostFrameOne()
 {
 	Log::OutS << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << Log::OutS;
-#if BUILD_D3D12 && !USEGPUTOGENMIPS_ATRUNTIME
-	if (RHI::GetType() == RenderSystemD3D12)
-	{
-		Log::OutS << "MipMaps took " << D3D12Texture::MipCreationTime << "MS to generate" << Log::OutS;
-	}
-#endif
-
 }
+
 void BaseWindow::Resize(int width, int height)
 {
 	if (width == m_width && height == m_height)
@@ -480,11 +474,11 @@ void BaseWindow::RenderText()
 	UI->RenderTextToScreen(1, stream.str());
 	stream.str("");
 
-	if (D3D12RHI::Instance != nullptr && ExtendedPerformanceStats)
+	if (RHI::GetRHIClass() != nullptr && ExtendedPerformanceStats)
 	{
-		stream << D3D12RHI::Instance->GetMemory();
-		UI->RenderTextToScreen(2, stream.str());
-		PerfManager::RenderGpuData(10 , (int)(m_height - m_height/8));
+		/*stream << RHI::GetRHIClass()->GetMemory();
+		UI->RenderTextToScreen(2, stream.str());*/
+		PerfManager::RenderGpuData(10, (int)(m_height - m_height / 8));
 	}
 
 	if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)

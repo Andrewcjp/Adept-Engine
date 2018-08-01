@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "PP_Blur.h"
 #include "Rendering/Shaders/PostProcess/Shader_Blur.h"
-#include "RHI/DeviceContext.h"
+#include "RHI/RHI_inc.h"
 PP_Blur::PP_Blur()
 {}
 
@@ -31,6 +31,7 @@ void PP_Blur::PostSetUpData()
 	CMDlist = RHI::CreateCommandList(ECommandListType::Compute);
 	VertcmdList = RHI::CreateCommandList(ECommandListType::Compute);
 }
+
 void PP_Blur::PostPass()
 {
 	VertcmdList->ResetList();

@@ -1,7 +1,8 @@
 #pragma once
-#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "EngineGlobals.h"
+#include "RHI/RHI_inc.h"
 
-class DeviceContext
+class RHI_API DeviceContext
 {
 public:
 	DeviceContext();

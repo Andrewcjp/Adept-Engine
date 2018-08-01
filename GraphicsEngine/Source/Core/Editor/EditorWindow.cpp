@@ -28,7 +28,6 @@
 #include "EditorObjectSelector.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Core/Assets/SceneJSerialiser.h"
-#include "Core/Assets/AssetManager.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Game.h"
 #include "Editor/Editor_Camera.h"
@@ -67,7 +66,7 @@ EditorWindow::EditorWindow(HINSTANCE, int, int)
 {
 	instance = this;
 }
-
+#include "Core/Assets/Asset_Shader.h"
 void EditorWindow::PostInitWindow(int w, int h)
 {
 	Log::OutS  << "Loading Editor v0.01" << Log::OutS;
@@ -87,6 +86,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 		CurrentScene->LoadExampleScene(Renderer, false);
 		RefreshScene();
 	}
+	Asset_Shader* Asset = new Asset_Shader();
 }
 
 void EditorWindow::EnterPlayMode()
@@ -214,7 +214,7 @@ void EditorWindow::SaveScene()
 {
 	if (CurrentSceneSavePath.length() == 0)
 	{
-		std::string Startdir = Engine::GetRootDir();
+		std::string Startdir = Engine::GetExecutionDir();
 		Startdir.append("\\asset\\scene\\");
 		using namespace std::string_literals;
 		std::string Output;
@@ -233,7 +233,7 @@ void EditorWindow::SaveScene()
 void EditorWindow::LoadScene()
 {
 	std::string Output;
-	std::string Startdir = Engine::GetRootDir();
+	std::string Startdir = Engine::GetExecutionDir();
 	Startdir.append("\\asset\\scene\\");
 	using namespace std::string_literals;
 	if (PlatformApplication::DisplayOpenFileDialog(Startdir, "Scene Files\0*.scene\0"s, Output))

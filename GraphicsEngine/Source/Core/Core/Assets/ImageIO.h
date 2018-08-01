@@ -28,9 +28,9 @@ public:
 	static void ShutDown();
 	static void RegisterTextureLoad(BaseTexture * newtex);
 	static bool CheckIfLoaded(std::string name, BaseTexture ** out);
-	static EImageIOStatus LoadTGA(const char* filename, unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels);
-	static EImageIOStatus LoadTexture2D(const char * filename, unsigned char ** buffer, int * width, int * height, int * nchan);
-	static EImageIOStatus LoadTextureCubeMap(const char * filename, unsigned char ** buffer, int * width, int * height);
+	__declspec(dllexport) static EImageIOStatus LoadTGA(const char* filename, unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels);
+	__declspec(dllexport) static EImageIOStatus LoadTexture2D(const char * filename, unsigned char ** buffer, int * width, int * height, int * nchan);
+	__declspec(dllexport) static EImageIOStatus LoadTextureCubeMap(const char * filename, unsigned char ** buffer, int * width, int * height);
 
 };
 

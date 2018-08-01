@@ -8,6 +8,7 @@
 #include "UI/Core/UILabel.h"
 #include <cctype>
 #include "UIGraph.h"
+#include "Core/EngineInc.h"
 DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 {
 	EditField = new UIBox(w, h, x, y);

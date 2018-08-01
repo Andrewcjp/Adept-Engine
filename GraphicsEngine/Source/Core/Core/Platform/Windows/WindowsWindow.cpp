@@ -129,7 +129,7 @@ int WindowsWindow::Run()
 				DispatchMessage(&msg);
 			}
 		}
-		if (m_engine->isWindowVaild && !m_terminate)
+		if (m_engine->GetWindowValid() && !m_terminate)
 		{
 			m_engine->OnRender();
 		}
@@ -157,11 +157,7 @@ void WindowsWindow::AddMenus(HWND hwnd)
 	AppendMenuW(hMenu, MF_STRING, 6, L"&Load Scene");
 	AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
-	//#if BUILD_D3D11
-	//	AppendMenuW(hRenderMenu, MF_UNCHECKED, IDM_RENDER_D3D11, L"&DirectX 11");
-	//#endif
-	//	AppendMenuW(hRenderMenu, MF_CHECKED, IDM_RENDER_OGL, L"&OpenGL");
-	//	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hRenderMenu, L"&Renderer");
+	
 	//Gameobject menu
 	AppendMenuW(hGOMenu, MF_STRING, 4, L"&Add GameObject ");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hGOMenu, L"&GameObjects");
