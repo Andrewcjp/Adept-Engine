@@ -1,8 +1,10 @@
 #pragma once
-#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "RHI/DeviceContext.h"
 #include <mutex>
 #include <queue>
+#include <d3d12.h>
+#include <d3dx12.h>
+#include <dxgi1_4.h>
 template<class T>
 class ThreadSafe_Queue
 {

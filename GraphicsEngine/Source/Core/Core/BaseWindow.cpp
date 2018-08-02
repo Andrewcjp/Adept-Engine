@@ -15,7 +15,6 @@
 #include "Core/Assets/SceneJSerialiser.h"
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Assets/ImageIO.h"
-#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "RHI/DeviceContext.h"
 #include <algorithm>
 #include "Core/Platform/PlatformCore.h"

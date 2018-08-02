@@ -1,11 +1,11 @@
 #pragma once
-#include "Rendering/Core/FrameBuffer.h"
 #include "EngineGlobals.h"
+#include "Rendering/Core/FrameBuffer.h"
 #include <d3d12.h>
 #include "d3dx12.h"
-#include "D3D12Shader.h"
 class DescriptorHeap;
 class GPUResource;
+class D3D12DeviceContext;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:

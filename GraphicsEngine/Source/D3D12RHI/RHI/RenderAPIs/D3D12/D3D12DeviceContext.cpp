@@ -1,10 +1,10 @@
 #include "Stdafx.h"
 #include "D3D12DeviceContext.h"
-#include "RHI/DeviceContext.h"
 #include "Core/Asserts.h"
 #include "D3D12Helpers.h"
 #include "D3D12TimeManager.h"
 #include "D3D12CommandList.h"
+#include "D3D12RHI.h"
 #if defined(_DEBUG)
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)

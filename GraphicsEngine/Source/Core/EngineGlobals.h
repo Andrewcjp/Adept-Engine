@@ -43,7 +43,15 @@ void UNUSED_PARAM(T const&)
 #define DLLEXPORT __declspec(dllexport)
 #define DLLIMPORT __declspec(dllimport)
 
-#define RHI_API DLLEXPORT
+//#define RHI_API DLLEXPORT
+
+#if defined(CORE_EXPORT) 
+#   define RHI_API DLLEXPORT
+#else 
+#   define RHI_API DLLIMPORT
+#endif // CORE_EXPORT
+
+
 //Asserts
 #define PLATFORM_WINDOWS 1
 /*

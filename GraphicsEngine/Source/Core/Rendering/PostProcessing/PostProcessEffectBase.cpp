@@ -2,7 +2,7 @@
 #include "PostProcessEffectBase.h"
 #include "RHI/RHI.h"
 #include "RHI/DeviceContext.h"
-#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+#include "RHI/RHI_inc.h"
 PostProcessEffectBase::PostProcessEffectBase()
 {}
 void PostProcessEffectBase::SetUpData()

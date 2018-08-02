@@ -6,8 +6,7 @@
 #include "D3D12CBV.h"
 #include "EngineGlobals.h"
 #include "D3D12Texture.h"
-#include "RHI/Shader.h"
-#include "RHI/BaseTexture.h"
+#include "RHI/RHI_inc.h"
 #include "D3D12Framebuffer.h"
 #include "RHI/DeviceContext.h"
 #include "DescriptorHeap.h"
@@ -17,6 +16,7 @@
 #include "Rendering/Core/GPUStateCache.h"
 #include "Core/Utils/MemoryUtils.h"
 #include "D3D12DeviceContext.h"
+
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType)
 {
 	AddCheckerRef(D3D12CommandList, this);

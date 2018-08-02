@@ -1,12 +1,13 @@
 #pragma once
-#include "D3D12RHI.h"
-#include "Core/Utils/MovingAverage.h"
 #include "EngineGlobals.h"
+#include "Core/Utils/MovingAverage.h"
+#include "RHI/RHITypes.h"
 #include "RHI/RHITimeManager.h"
+#include <d3dx12.h>
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
 #define MAX_TIMER_COUNT 8
-#include "RHI/RHITypes.h"
+
 class D3D12TimeManager : public RHITimeManager
 {
 public:
