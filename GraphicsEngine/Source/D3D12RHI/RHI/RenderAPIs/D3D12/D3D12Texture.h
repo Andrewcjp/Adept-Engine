@@ -1,8 +1,8 @@
 #pragma once
-#include "RHI/BaseTexture.h"
-#include <d3d12.h>
-#include <vector>
 #include "EngineGlobals.h"
+#include "RHI/BaseTexture.h"
+//#include <d3d12.h>
+//#include <vector>
 
 class D3D12Texture : public BaseTexture
 {

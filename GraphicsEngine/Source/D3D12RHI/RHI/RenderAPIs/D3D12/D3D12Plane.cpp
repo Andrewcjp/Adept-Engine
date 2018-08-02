@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "D3D12Plane.h"
-#include "RHI\RHI.h"
-#include "Rendering/Core/RenderBaseTypes.h"
 #include "D3D12RHI.h"
 
 D3D12Plane::D3D12Plane(float size)

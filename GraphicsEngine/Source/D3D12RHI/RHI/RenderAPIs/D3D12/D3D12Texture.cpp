@@ -11,7 +11,6 @@
 #include "ThirdParty/NVDDS/DDSTextureLoader12.h"
 #include "DescriptorHeap.h"
 #include "D3D12Texture.h"
-#include "D3D12RHI.h"
 #include "D3D12DeviceContext.h"
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
 float D3D12Texture::MipCreationTime = 0;

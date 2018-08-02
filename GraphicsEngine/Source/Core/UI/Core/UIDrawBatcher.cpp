@@ -4,8 +4,8 @@
 #include "UI/UIManager.h"
 #include "Rendering/Shaders/Shader_UIBatch.h"
 #include "Core/Utils/StringUtil.h"
-#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-#include "RHI/DeviceContext.h"
+#include "RHI/RHI_inc.h"
+
 UIDrawBatcher* UIDrawBatcher::instance = nullptr;
 UIDrawBatcher::UIDrawBatcher()
 {

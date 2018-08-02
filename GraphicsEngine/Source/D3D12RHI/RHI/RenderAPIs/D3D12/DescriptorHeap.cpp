@@ -2,6 +2,7 @@
 #include "DescriptorHeap.h"
 #include <algorithm>
 #include "D3D12DeviceContext.h"
+#include "D3D12RHI.h"
 DescriptorHeap::DescriptorHeap(DeviceContext* inDevice,int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
 	Device = (D3D12DeviceContext*)inDevice;

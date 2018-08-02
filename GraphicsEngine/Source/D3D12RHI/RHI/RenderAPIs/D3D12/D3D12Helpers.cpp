@@ -4,7 +4,6 @@
 #include "GPUResource.h"
 #include "D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
-#include "RHI/DeviceContext.h"
 #include "Core/Assets/AssetTypes.h"
 #include "Core/Platform/PlatformCore.h"
 

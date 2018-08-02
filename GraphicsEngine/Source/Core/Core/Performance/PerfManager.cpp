@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <time.h>
 #include "RHI/RHI.h"
-#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
+
 #include "RHI/DeviceContext.h"
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Utils/NVAPIManager.h"

@@ -6,9 +6,9 @@
 #include "Core/Engine.h"
 #include "RHI_inc.h"
 #include "Core/Assets/ImageIO.h"
+#include "Core/Module/ModuleManager.h"
 
-
-#if BUILD_D3D12
+#if 0//BUILD_D3D12
 #include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Shader.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
@@ -94,6 +94,15 @@ RenderConstants* RHI::GetRenderConstants()
 		return &instance->M_RenderConsants;
 	}
 	return nullptr;
+}
+
+void RHI::AddLinkedFrameBuffer(FrameBuffer * target)
+{
+	if (instance != nullptr)
+	{
+		ensure(target != nullptr);
+		instance->FrameBuffersLinkedToSwapChain.push_back(target);
+	}
 }
 
 
@@ -286,6 +295,11 @@ void RHI::ToggleFullScreenState()
 void RHI::ResizeSwapChain(int width, int height)
 {
 	GetRHIClass()->ResizeSwapChain(width, height);
+	for (int i = 0; i < instance->FrameBuffersLinkedToSwapChain.size(); i++)
+	{
+		instance->FrameBuffersLinkedToSwapChain[i]->Resize(width, height);
+	}
+	instance->FrameBuffersLinkedToSwapChain.clear();
 }
 
 void RHI::DestoryContext()

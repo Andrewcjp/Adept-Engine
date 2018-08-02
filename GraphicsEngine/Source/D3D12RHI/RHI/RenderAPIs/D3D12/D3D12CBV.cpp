@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "D3D12CBV.h"
 #include "D3D12RHI.h"
-#include "EngineGlobals.h"
-#include "RHI/DeviceContext.h"
 #if BUILD_D3D12
 #include "D3D12DeviceContext.h"
 D3D12CBV::D3D12CBV(DeviceContext* inDevice)

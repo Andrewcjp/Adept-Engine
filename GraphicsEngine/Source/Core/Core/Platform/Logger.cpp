@@ -17,13 +17,13 @@ void Log::LogMessage( std::string msg, Severity s)
 	switch(s)
 	{
 	case Severity::Message:
-		data.append("Message:");
+		//data.append("Message:");
 		break;
 	case Severity::Warning:
-		data.append("Warning:");
+		data.append("Warning: ");
 		break;
 	case Severity::Error:
-		data.append("Error:");
+		data.append("Error: ");
 		break;
 	}
 	data.append(msg);

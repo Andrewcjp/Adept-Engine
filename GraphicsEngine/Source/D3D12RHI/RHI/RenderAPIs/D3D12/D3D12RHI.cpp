@@ -350,10 +350,6 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 		m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(x), static_cast<float>(y));
 		m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(x), static_cast<LONG>(y));
 		CreateDepthStencil(x, y);
-		for (int i = 0; i < FrameBuffersLinkedToSwapChain.size(); i++)
-		{
-			FrameBuffersLinkedToSwapChain[i]->Resize(x, y);
-		}
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 		ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
 	}
@@ -592,12 +588,6 @@ DeviceContext * D3D12RHI::GetDefaultDevice()
 		return Instance->PrimaryDevice;
 	}
 	return nullptr;
-}
-
-void D3D12RHI::AddLinkedFrameBuffer(FrameBuffer * target)
-{
-	ensure(target != nullptr);
-	FrameBuffersLinkedToSwapChain.push_back(target);
 }
 
 void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)

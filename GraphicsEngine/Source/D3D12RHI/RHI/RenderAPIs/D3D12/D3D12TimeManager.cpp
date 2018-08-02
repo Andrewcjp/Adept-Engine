@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "D3D12TimeManager.h"
-#include "RHI/DeviceContext.h"
 #include "D3D12CommandList.h"
 #include <iomanip>
 #include "Core/Performance/PerfManager.h"
 #include "D3D12DeviceContext.h"
+#include "D3D12RHI.h"
+
 D3D12TimeManager::D3D12TimeManager(DeviceContext* context) :RHITimeManager(context)
 {
 	Init(context);

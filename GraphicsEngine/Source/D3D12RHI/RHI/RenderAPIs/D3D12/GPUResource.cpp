@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "GPUResource.h"
 #include <algorithm>
-#include "RHI/DeviceContext.h"
-#include "RHI/RHI.h"
 #include "D3D12DeviceContext.h"
 GPUResource::GPUResource()
 {}
@@ -19,12 +17,15 @@ GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalSt
 	CurrentResourceState = InitalState;
 	Device = (D3D12DeviceContext*)device;
 }
+
 GPUResource::~GPUResource()
 {}
+
 void GPUResource::SetName(LPCWSTR name)
 {
 	resource->SetName(name);
 }
+
 void GPUResource::CreateHeap()
 {
 

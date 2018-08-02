@@ -33,11 +33,11 @@ public:
 	static const int CPUFrameCount = 2;
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
-	CORE_API static BaseTexture* CreateTexture(AssetPathRef, DeviceContext* Device = nullptr);
-	CORE_API static BaseTexture* CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device = nullptr);
-	CORE_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
-	CORE_API static Renderable * CreateMesh(const char * path);
-	CORE_API static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
+	RHI_API static BaseTexture* CreateTexture(AssetPathRef, DeviceContext* Device = nullptr);
+	RHI_API static BaseTexture* CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device = nullptr);
+	RHI_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
+	RHI_API static Renderable * CreateMesh(const char * path);
+	RHI_API static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
 	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
 	RHI_API static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 	RHI_API static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
@@ -66,12 +66,14 @@ public:
 	static class RHIClass* GetRHIClass();
 	static void WaitForGPU();
 	static RenderConstants* GetRenderConstants();
+	static void AddLinkedFrameBuffer(FrameBuffer* target);
 private:
 	static RHI* instance;
 	ERenderSystemType CurrentSystem;
 	static MultiGPUMode CurrentMGPUMode;
 	class RHIClass* CurrentRHI = nullptr;
 	RenderConstants M_RenderConsants;
+	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;
 };
 
 class RHI_API RHIClass

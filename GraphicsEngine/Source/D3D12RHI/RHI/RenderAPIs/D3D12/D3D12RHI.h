@@ -32,7 +32,7 @@ public:
 	static bool DetectGPUDebugger();
 	//temp To be RHI'D	
 	std::string GetMemory();
-	void AddLinkedFrameBuffer(FrameBuffer* target);
+	
 private:
 	void DestroyContext();
 	void PresentFrame();
@@ -47,7 +47,7 @@ private:
 	void ToggleFullScreenState();
 	void ExecSetUpList();
 	void ReleaseUploadHeap();
-	void WaitForPreviousFrame();
+
 	void FindAdaptors(IDXGIFactory2 * pFactory);
 	void WaitForGpu();
 	void MoveToNextFrame();
@@ -109,7 +109,7 @@ private:
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;
 	int PresentCount = 0;
-	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;
+
 	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
