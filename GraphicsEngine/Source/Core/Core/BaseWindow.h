@@ -18,8 +18,6 @@ public:
 	bool MouseRBDown(int x, int y) override;
 	bool MouseRBUp(int x, int y) override;
 	bool MouseMove(int x, int y) override final;
-	bool KeyDown(WPARAM key) override;
-	virtual void ProcessMenu(WORD command) override;
 
 	//getters
 	static int GetWidth();

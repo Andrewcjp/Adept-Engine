@@ -3,6 +3,7 @@
 #include "Core/Asserts.h"
 #include "Core/Platform/Logger.h"
 #include "Rendering/Renderers/TextRenderer.h"
+#include "Core/Platform/PlatformCore.h"
 
 #define NVAPI_GPU_UTILIZATION_DOMAIN_GPU 0
 #define NVAPI_GPU_UTILIZATION_DOMAIN_FB  1

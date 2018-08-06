@@ -8,7 +8,7 @@
 #include "Rendering/Core/Camera.h"
 #include "Rendering/Shaders/Shader_Depth.h"
 #include "D3D12Framebuffer.h"
-#include "EngineGlobals.h"
+
 #include "Editor/Editor_Camera.h"
 #include "Core/Input.h"
 #include "Rendering/Core/ShadowRenderer.h"

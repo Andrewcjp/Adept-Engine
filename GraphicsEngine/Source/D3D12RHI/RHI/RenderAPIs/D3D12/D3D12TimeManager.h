@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "Core/Utils/MovingAverage.h"
 #include "RHI/RHITypes.h"
 #include "RHI/RHITimeManager.h"

@@ -1,6 +1,6 @@
 #ifndef MOVING_AVERAGE__H
 #define MOVING_AVERAGE__H
-#include "EngineGlobals.h"
+
 class CORE_API MovingAverage
 {
 public:

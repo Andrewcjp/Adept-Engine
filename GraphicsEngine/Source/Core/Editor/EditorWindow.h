@@ -1,7 +1,5 @@
 #pragma once
-
 #include "RHI/RenderWindow.h"
-
 #include <vector>
 #include "Core/BaseWindow.h"
 class EditorGizmos;
@@ -33,7 +31,7 @@ protected:
 	void FixedUpdate() override;
 	void LoadScene(); 
 	void RefreshScene();
-	void ProcessMenu(WORD command) override;
+	void ProcessMenu(unsigned short command) override;
 	void WindowUI() override;
 	void Update() override;
 	void SaveScene();

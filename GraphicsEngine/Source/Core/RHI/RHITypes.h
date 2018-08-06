@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include <d3d12.h>
 #define MRT_MAX 8
 enum eTextureDimension

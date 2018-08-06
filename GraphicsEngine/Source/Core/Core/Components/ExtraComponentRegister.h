@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.h"
-#include "EngineGlobals.h"
+
 class ExtraComponentRegister
 {
 public:

@@ -15,6 +15,7 @@
 #include "D3D12Helpers.h"
 #include "Core/Utils/RefChecker.h"
 #include "Core/Module/ModuleManager.h"
+#include "Core/Platform/PlatformCore.h"
 #define USEGPUTOGENMIPS_ATRUNTIME 0
 
 class D3D12RHI : public RHIClass

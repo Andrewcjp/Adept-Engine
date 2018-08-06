@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "Core/EngineInc_fwd.h"
 #include "RHI_inc_fwd.h"
 #include "RHITypes.h"

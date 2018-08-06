@@ -462,7 +462,7 @@ void D3D12RHI::PresentFrame()
 	if (RunScreenShot && m_frameIndex == 0)
 	{
 		ScreenShotter->WriteBackRenderTarget();
-		ScreenShotter->WriteToFile(AssetPathRef("\\asset\\Saved\\Screen"));
+		ScreenShotter->WriteToFile(AssetPathRef("Saved\\Screen"));
 		RunScreenShot = false;
 	}
 	ThrowIfFailed(m_swapChain->Present(0, 0));
@@ -763,6 +763,6 @@ class D3D12RHIModule : public RHIModule
 		return new D3D12RHI();
 	}
 };
-#ifdef D3D12RHI_API
+#ifdef D3D12RHI_EXPORT
 IMPLEMENT_MODULE(D3D12RHIModule);
 #endif

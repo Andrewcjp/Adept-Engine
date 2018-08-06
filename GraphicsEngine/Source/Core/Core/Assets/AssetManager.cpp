@@ -177,13 +177,13 @@ void AssetManager::SetupPaths()
 	if (!FileUtils::File_ExistsTest(ContentDirPath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", "No Content Dir");
-		exit(-1);
+		Engine::Exit(-1);
 	}
 	ShaderDirPath = RootDir + "\\Shaders\\";
 	if (!FileUtils::File_ExistsTest(ShaderDirPath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", "No Content Dir");
-		exit(-1);
+		Engine::Exit(-1);
 	}
 	DDCDirPath = RootDir + "\\" + DDCName + "\\";
 	PlatformApplication::TryCreateDirectory(DDCDirPath);
@@ -382,15 +382,9 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 		std::string line;
 		while (std::getline(myfile, line))
 		{
-			//todo better!
-			///*if (line.find("/*") != -1 || line.find("*/") != -1 || line.find("//") != -1)
-			//{
-			//	continue;
-			//}*/
 			if (line.find("#") != -1)
 			{
 				size_t targetnum = line.find(includeText);
-
 				if (targetnum != -1)
 				{
 					if (line.find("//") != -1)//Contains a commented line 

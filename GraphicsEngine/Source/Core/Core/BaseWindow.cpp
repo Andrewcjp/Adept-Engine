@@ -415,21 +415,7 @@ bool BaseWindow::MouseMove(int x, int y)
 	return TRUE;
 }
 
-bool BaseWindow::KeyDown(WPARAM key)
-{
-	if (UIManager::GetCurrentContext() != nullptr)
-	{
-		UIManager::GetCurrentContext()->ProcessKeyDown(key);
-	}
-	else
-	{
-		input->ProcessKeyDown((unsigned int)key);
-	}
-	return TRUE;
-}
 
-void BaseWindow::ProcessMenu(WORD command)
-{}
 
 //getters
 int BaseWindow::GetWidth()

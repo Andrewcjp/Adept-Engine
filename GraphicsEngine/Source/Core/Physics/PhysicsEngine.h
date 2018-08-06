@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EngineGlobals.h"
+
 #if PHYSX_ENABLED
 #include <vector>
 #include "glm\glm.hpp"

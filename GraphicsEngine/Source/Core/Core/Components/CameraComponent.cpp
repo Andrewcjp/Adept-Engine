@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CameraComponent.h"
-#include "EngineGlobals.h"
+
 #include "Editor/EditorWindow.h"
 #include "Rendering/Core/Camera.h"
 #include "CompoenentRegistry.h"

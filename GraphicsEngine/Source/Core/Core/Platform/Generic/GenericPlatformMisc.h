@@ -1,7 +1,6 @@
 #pragma once
-#include "EngineGlobals.h"
 #include <string>
-class  __declspec(dllexport) GenericPlatformMisc
+class CORE_API GenericPlatformMisc
 {
 public:
 	 static std::string GetDateTimeString();

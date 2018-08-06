@@ -3,7 +3,7 @@
 #include "Core/MinWindows.h"
 #include "Core/EngineTypes_fwd.h"
 #include "Core/Platform/Generic/GenericWindow.h"
-#include "EngineGlobals.h"
+
 class WindowsWindow
 {
 private:
@@ -33,7 +33,7 @@ public:
 	static WindowsWindow*		CreateApplication(Engine * EnginePtr, HINSTANCE hInst, LPSTR args, int nshow);
 	void						SetVisible(bool visible);
 	bool						CreateOSWindow(int width, int height);
-	__declspec(dllexport) static HWND					GetHWND();
+	CORE_API static HWND		GetHWND();
 	static void					DestroyApplication();
 	static WindowsWindow*		GetApplication();
 	int							Run();

@@ -324,9 +324,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	DirectionalShadowList->CreatePipelineState(DirectionalLightShader, DirectionalLightBuffer);
 
 }
-//#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-//#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-//#include "RHI/RenderAPIs/D3D12/GPUResource.h"
+
 void ShadowRenderer::Unbind(RHICommandList * list)
 {
 #if 0

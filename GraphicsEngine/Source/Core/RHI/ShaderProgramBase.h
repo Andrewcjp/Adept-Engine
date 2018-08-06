@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "RHI/ShaderBase.h"
 #include <vector>
 class ShaderProgramBase

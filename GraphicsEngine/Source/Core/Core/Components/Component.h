@@ -2,7 +2,7 @@
 #include <vector>
 #include "Editor/Inspector.h"
 #include "rapidjson\document.h"
-#include "EngineGlobals.h"
+
 
 class Component
 {

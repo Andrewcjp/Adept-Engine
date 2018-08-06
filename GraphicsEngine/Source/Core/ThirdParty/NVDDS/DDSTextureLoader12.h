@@ -15,7 +15,7 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
-#include "EngineGlobals.h"
+
 #include <d3d12.h>
 
 #include <memory>

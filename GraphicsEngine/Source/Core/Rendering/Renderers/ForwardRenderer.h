@@ -18,7 +18,7 @@
 #include "Rendering/Core/GPUStateCache.h"
 #include "Rendering\Shaders\Shader_Skybox.h"
 #include "Core/Performance/PerfManager.h"
-#include "EngineGlobals.h"
+
 #include "RHI/RHICommandList.h"
 #define USED3D12DebugP 1
 class ForwardRenderer : public RenderEngine

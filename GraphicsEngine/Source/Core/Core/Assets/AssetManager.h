@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "Core/Utils/StringUtil.h"
 #include "Core/Engine.h"
 #include "AssetTypes.h"

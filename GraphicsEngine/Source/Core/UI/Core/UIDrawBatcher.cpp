@@ -5,6 +5,7 @@
 #include "Rendering/Shaders/Shader_UIBatch.h"
 #include "Core/Utils/StringUtil.h"
 #include "RHI/RHI_inc.h"
+#include "Core/Platform/PlatformCore.h"
 
 UIDrawBatcher* UIDrawBatcher::instance = nullptr;
 UIDrawBatcher::UIDrawBatcher()

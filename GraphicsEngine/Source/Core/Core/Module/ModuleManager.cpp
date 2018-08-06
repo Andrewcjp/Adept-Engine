@@ -74,6 +74,11 @@ IModuleInterface * ModuleManager::LoadModule(FString Name)
 			return nullptr;
 		}
 		FInitializeModuleFunctionPtr ModuleInitPtr = (FInitializeModuleFunctionPtr)PlatformApplication::GetDllExport(Info->Handle, "InitializeModule");
+		if (ModuleInitPtr == nullptr)
+		{
+			Info->ModuleStatus = ModuleLoadStatus::Status_LoadFailed;
+			return nullptr;
+		}
 		Info->Module = (IModuleInterface*)ModuleInitPtr();
 	}
 	else // Module is Static!

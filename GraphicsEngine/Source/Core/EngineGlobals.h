@@ -38,19 +38,20 @@ void UNUSED_PARAM(T const&)
 {}
 #include "Core\Asserts.h"
 
-#define CORE_API __declspec(dllexport)
-#define STATICEXPORT extern __declspec(dllexport)
 #define DLLEXPORT __declspec(dllexport)
 #define DLLIMPORT __declspec(dllimport)
-
-//#define RHI_API DLLEXPORT
 
 #if defined(CORE_EXPORT) 
 #   define RHI_API DLLEXPORT
 #else 
 #   define RHI_API DLLIMPORT
-#endif // CORE_EXPORT
+#endif // RHI_API
 
+#if defined(CORE_EXPORT) 
+#   define CORE_API DLLEXPORT
+#else 
+#   define CORE_API DLLIMPORT
+#endif // CORE_API
 
 //Asserts
 #define PLATFORM_WINDOWS 1

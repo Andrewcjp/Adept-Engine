@@ -65,8 +65,5 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		indices.push_back(face.mIndices[1]);
 		indices.push_back(face.mIndices[2]);
 	}
-	//InitMesh(&vertices[0], vertices.size(), (int*)&indices[0], indices.size(), false);
-	///*Mesh* newmesh = new Mesh(&vertices[0], vertices.size(), (int*)&indices[0], indices.size())*/;
-
 	return true;
 }

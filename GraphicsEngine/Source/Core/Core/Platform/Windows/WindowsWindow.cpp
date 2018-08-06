@@ -282,7 +282,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		app->m_engine->GetRenderWindow()->MouseRBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
 		break;
 	case WM_KEYDOWN:
-		app->m_engine->GetRenderWindow()->KeyDown(wparam);
+		app->m_engine->HandleInput(LOWORD(wparam));
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);

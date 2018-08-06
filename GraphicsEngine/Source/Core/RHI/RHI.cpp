@@ -7,14 +7,7 @@
 #include "RHI_inc.h"
 #include "Core/Assets/ImageIO.h"
 #include "Core/Module/ModuleManager.h"
-
-#if 0//BUILD_D3D12
-#include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
-#include "RHI/RenderAPIs/D3D12/D3D12Shader.h"
-#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#endif
+#include "Core/Platform/PlatformCore.h"
 
 #if BUILD_VULKAN
 #include "RHI/RenderAPIs/Vulkan/VKanRHI.h"
