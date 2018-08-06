@@ -1,7 +1,7 @@
 #include "ForwardRenderer.h"
 #include "RHI/RHI.h"
 #include "Core/Components/MeshRendererComponent.h"
-#include "EngineGlobals.h"
+
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "Core/Engine.h"
 #include "RHI/DeviceContext.h"

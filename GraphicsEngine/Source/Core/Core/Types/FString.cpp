@@ -2,6 +2,7 @@
 #include "FString.h"
 #include "Core/Asserts.h"
 #include "Core/Utils/StringUtil.h"
+#include "Core/Platform/PlatformCore.h"
 FString::FString()
 {}
 

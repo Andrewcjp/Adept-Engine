@@ -186,7 +186,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #ifndef NDEBUG
 			__debugbreak();
 #endif
-			exit(-1);
+			Engine::Exit(-1);
 			__debugbreak();
 			return SHADER_ERROR_COMPILE;
 		}

@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "RHI/RHI_inc.h"
 
 class RHI_API DeviceContext

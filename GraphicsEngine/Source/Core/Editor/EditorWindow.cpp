@@ -18,7 +18,7 @@
 #include "Rendering/Renderers/RenderSettings.h"
 #include "Core/Engine.h"
 #include "Physics/PhysicsEngine.h"
-#include "EngineGlobals.h"
+
 #include "UI/UIManager.h"
 #include "RHI/RHI.h"
 #include "EditorGizmos.h"
@@ -256,7 +256,7 @@ void EditorWindow::RefreshScene()
 	UI->RefreshGameObjectList();
 }
 
-void EditorWindow::ProcessMenu(WORD command)
+void EditorWindow::ProcessMenu(unsigned short command)
 {
 	switch (command)
 	{

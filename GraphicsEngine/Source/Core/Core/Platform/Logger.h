@@ -1,7 +1,7 @@
 #pragma once
 #include <sstream>
 #include <ios>
-#include "EngineGlobals.h"
+
 class CORE_API Log
 {
 public:

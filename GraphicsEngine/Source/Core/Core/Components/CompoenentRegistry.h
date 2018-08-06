@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
-#include "EngineGlobals.h"
+
 
 class CompoenentRegistry
 {

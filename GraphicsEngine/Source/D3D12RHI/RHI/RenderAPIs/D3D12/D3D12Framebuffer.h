@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "Rendering/Core/FrameBuffer.h"
 #include <d3d12.h>
 #include "d3dx12.h"
@@ -10,24 +10,26 @@ class D3D12FrameBuffer : public FrameBuffer
 {
 public:
 	D3D12FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);
-	void UpdateSRV();
-	void CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap = 0);
-	void Init();
 	virtual ~D3D12FrameBuffer();
-	void ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
-	// Inherited via FrameBuffer
-	void		 BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex = 0, DeviceContext* target = nullptr, bool isCompute = false);
-	virtual void BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex);
-	void		 UnBind(ID3D12GraphicsCommandList * list);
-	virtual void ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
-	//D3D12Shader::PipeRenderTargetDesc GetPiplineRenderDesc();
-	void			CreateSRVHeap(int Num);
-	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap);
-	void CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap, DeviceContext * target);
-	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
-	bool CheckDevice(int index);
-	void Resize(int width, int height) override;
 
+	void UpdateSRV();
+	void Init();
+
+	void							CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap = 0);
+	void							ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
+	// Inherited via FrameBuffer
+	void							BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex = 0, DeviceContext* target = nullptr, bool isCompute = false);
+	virtual void					BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex);
+	void							UnBind(ID3D12GraphicsCommandList * list);
+	virtual void					ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
+	void							CreateSRVHeap(int Num);
+	void							CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap);
+	void							CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap, DeviceContext * target);
+	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
+	bool							CheckDevice(int index);
+	void							Resize(int width, int height) override;
+	
+	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
 	//Cross Adaptor
 	void SetupCopyToDevice(DeviceContext* device) override;
 	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
@@ -38,11 +40,7 @@ public:
 	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list, D3D12FrameBuffer* Passtrhough);
 	DeviceContext* GetTargetDevice();
 	DeviceContext* GetDevice() override;
-	GPUResource* GetResource(int index)
-	{
-		return RenderTarget[index];
-	}
-	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
+	GPUResource* GetResource(int index);	
 
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
@@ -77,5 +75,6 @@ private:
 	CD3DX12_RESOURCE_DESC renderTargetDesc;
 	DescriptorHeap* SharedSRVHeap = nullptr;
 	class GPUResource* SharedTarget = nullptr;
+	RHIPipeRenderTargetDesc RenderTargetDesc = {};
 };
 

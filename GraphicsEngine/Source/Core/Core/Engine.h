@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "Core/Platform/Logger.h"
 #include "Core/EngineTypes.h"
 class RenderWindow;
@@ -36,6 +36,8 @@ public:
 	void							Resize(int width, int height);
 	IntPoint*						GetInitalScreen();
 	bool							GetWindowValid() const;
+	CORE_API static void			Exit(int code = 0);
+	void							HandleInput(unsigned int key);
 private:
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;

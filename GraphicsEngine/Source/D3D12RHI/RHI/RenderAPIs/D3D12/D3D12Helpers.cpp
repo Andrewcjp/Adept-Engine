@@ -274,6 +274,7 @@ D3D12ReadBackCopyHelper::~D3D12ReadBackCopyHelper()
 }
 
 #include <SOIL.h>
+#include "Core/Utils/FileUtils.h"
 void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 {
 	const bool DDS = false;
@@ -285,9 +286,10 @@ void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 	Device->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
 	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
 	const unsigned char * Pioint = ((const unsigned char *)pData);
-
+	
 	std::string path = Ref.GetNoExtPathToAsset();
 	path.append(GenericPlatformMisc::GetDateTimeString());
+	FileUtils::CreateDirectoryFromFullPath(path);
 	if (DDS)
 	{
 		path.append(".DDS");
@@ -301,7 +303,7 @@ void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 	BYTE* source = static_cast<BYTE*>(pData);
 	BYTE* WritePtr = RawData;
 	const int ChannelCount = 4;
-	for (int i = 0; i < Desc.Height; i++)
+	for (size_t i = 0; i < Desc.Height; i++)
 	{
 		memcpy(WritePtr, source, Desc.Width * ChannelCount); // for 4 bytes per pixel
 		source += layout.Footprint.RowPitch;

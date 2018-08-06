@@ -9,3 +9,4 @@
 #include <stdlib.h>
 #include <vector>    
 #include <map>
+#include "EngineGlobals.h"

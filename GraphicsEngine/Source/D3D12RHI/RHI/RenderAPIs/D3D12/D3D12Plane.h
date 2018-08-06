@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "Rendering/Core/Renderable.h"
 #include <DirectXMath.h>
 #include <d3d12.h>

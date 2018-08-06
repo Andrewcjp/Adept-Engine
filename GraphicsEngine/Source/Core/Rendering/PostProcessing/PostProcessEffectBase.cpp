@@ -51,10 +51,3 @@ void PostProcessEffectBase::RenderScreenQuad(RHICommandList * list)
 	list->DrawPrimitive(6, 1, 0, 0);
 }
 
-//void PostProcessEffectBase::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
-//{
-//	/*list->SetScreenBackBufferAsRT();
-//	list->SetFrameBufferTexture(InputTexture, 0);
-//	RenderScreenQuad(list);*/
-//}
-

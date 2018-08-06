@@ -5,6 +5,7 @@
 #include "Core/Utils/FileUtils.h"
 #include <map>
 #include "Core/Assets/AssetManager.h"
+#include "Core/Platform/PlatformCore.h"
 Cooker::Cooker()
 {
 }

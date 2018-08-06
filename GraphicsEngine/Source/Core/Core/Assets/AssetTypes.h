@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 namespace AssetFileType
 {
 	enum Type

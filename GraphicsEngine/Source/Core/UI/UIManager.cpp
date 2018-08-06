@@ -16,7 +16,7 @@
 #include "GameUI/DebugConsole.h"
 #include "Editor/Inspector.h"
 #include "Editor/EditorWindow.h"
-#include "EngineGlobals.h"
+
 #include "UI/Core/UIPopoutbox.h"
 #include "UI/EditorUI/UIAssetManager.h"
 #include "UI/GameUI/UIDropDown.h"

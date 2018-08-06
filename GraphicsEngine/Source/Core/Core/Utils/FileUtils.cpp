@@ -4,6 +4,8 @@
 #include "Core/Platform/Logger.h"
 #include "StringUtil.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Assets/AssetManager.h"
+
 bool FileUtils::File_ExistsTest(const std::string & name,bool Silent)
 {
 	struct stat buffer;
@@ -30,6 +32,28 @@ bool FileUtils::CreateDirectoryFromFullPath(std::string root, std::string Path, 
 	}
 	std::vector<std::string> split = StringUtils::Split(Path, '\\');
 	std::string FirstPath = root;
+	for (int i = 0; i < split.size(); i++)
+	{
+		FirstPath += "\\" + split[i];
+		if (!FileUtils::File_ExistsTest(FirstPath))
+		{
+			if (!PlatformApplication::TryCreateDirectory(FirstPath))
+			{
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
+bool FileUtils::CreateDirectoryFromFullPath(std::string Path)
+{
+	if (FileUtils::File_ExistsTest(Path))
+	{
+		return true;
+	}
+	std::vector<std::string> split = StringUtils::Split(Path, '\\');
+	std::string FirstPath = AssetManager::GetRootDir();
 	for (int i = 0; i < split.size(); i++)
 	{
 		FirstPath += "\\" + split[i];

@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "RHI/RHITypes.h"
 class FrameBuffer
 {

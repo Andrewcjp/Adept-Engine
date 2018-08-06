@@ -2,7 +2,7 @@
 #include "RHI/RenderWindow.h"
 #if 0
 #include "D3D12/D3D12RHI.h"
-#include "EngineGlobals.h"
+
 
 class D3D12Window : public RenderWindow
 {

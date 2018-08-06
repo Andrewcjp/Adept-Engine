@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "Core/Assets/AssetTypes.h"
 class Asset_Shader
 {

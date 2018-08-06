@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/MinWindows.h"
 class RenderEngine;
 class RenderWindow
 {
@@ -22,9 +21,6 @@ public:
 	virtual bool			MouseRBDown(int x, int y) = 0;
 	virtual bool			MouseRBUp(int x, int y) = 0;
 	virtual bool			MouseMove(int x, int y) = 0;
-
-	virtual bool			KeyDown(WPARAM key) = 0;
-	//todo
-	virtual void			ProcessMenu(WORD command) = 0;
+	virtual void			ProcessMenu(unsigned short command) = 0;
 
 };

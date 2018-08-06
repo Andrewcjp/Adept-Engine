@@ -14,6 +14,7 @@ TextRenderer* TextRenderer::instance = nullptr;
 #include "RHI/RHI_inc.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/EngineInc.h"
+#include "Core/Platform/PlatformCore.h"
 TextRenderer::TextRenderer(int width, int height)
 {
 	m_width = width;

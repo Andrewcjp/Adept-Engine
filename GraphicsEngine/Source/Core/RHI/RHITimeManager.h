@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "RHI_inc_fwd.h"
 class RHI_API RHITimeManager
 {

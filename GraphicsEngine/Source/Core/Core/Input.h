@@ -3,7 +3,7 @@
 
 #include <queue>
 #include <map>
-#include "EngineGlobals.h"
+
 #include "Core/EngineTypes.h"
 class InputEvent;
 const int MAX_MOUSE_BUTTON_COUNT = 10;

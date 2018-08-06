@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "RHITypes.h"
 class DeviceContext;
 class RHI_API RHIBuffer

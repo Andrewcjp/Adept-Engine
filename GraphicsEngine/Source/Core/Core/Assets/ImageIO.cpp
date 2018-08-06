@@ -9,6 +9,7 @@
 #include "Core/EngineInc.h"
 #include "Core/Engine.h"
 #include "Core/Utils/FileUtils.h"
+#include "Core/Platform/PlatformCore.h"
 ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {

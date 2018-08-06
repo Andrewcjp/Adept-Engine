@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/EngineInc.h"
 #include "Core/Assets/AssetTypes.h"
 class ShaderGraph
 {

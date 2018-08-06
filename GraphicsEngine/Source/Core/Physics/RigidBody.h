@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineGlobals.h"
+
 #include "glm\glm.hpp"
 #include "glm\gtx\quaternion.hpp"
 

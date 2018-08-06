@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include "GameWindow.h"
 #include "Resource.h"
-#include "EngineGlobals.h"
+
 #include "Physics/PhysicsEngine.h"
 #include "RHI/RHI.h"
 #include "Editor/EditorWindow.h"
@@ -53,7 +53,7 @@ Engine::Engine()
 	if (!FileUtils::File_ExistsTest(assetpath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", " Asset Folder Not Found ");
-		exit(-1);
+		Engine::Exit(-1);
 	}
 #endif
 #if PHYSX_ENABLED
@@ -105,14 +105,13 @@ void Engine::Destory()
 void Engine::LoadGame()
 {
 	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>("TestGame");
-	////ensure(Gamemodule);
-	//TestGame* game = new TestGame(nullptr);
+	ensure(Gamemodule);	
 	if (Gamemodule == nullptr)
 	{
 		return;
 	}
 	Game* gm = Gamemodule->GetGamePtr(CompRegistry);
-	//	ensure(gm);
+	ensure(gm);
 	SetGame(gm);
 }
 
@@ -182,7 +181,7 @@ void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 	if (ShouldRunCook)
 	{
 		RunCook();
-		exit(0);//todo: proper exit
+		Exit(0);
 	}
 
 }
@@ -211,6 +210,30 @@ IntPoint * Engine::GetInitalScreen()
 bool Engine::GetWindowValid() const
 {
 	return isWindowVaild;
+}
+
+void Engine::Exit(int code)
+{
+	PlatformWindow::DestroyApplication();
+	if (EngineInstance != nullptr)
+	{
+		EngineInstance->Destory();
+		delete EngineInstance;		
+	}
+	exit(code);
+}
+#include "UI/UIManager.h"
+#include "Input.h"
+void Engine::HandleInput(unsigned int key)
+{
+	if (UIManager::GetCurrentContext() != nullptr)
+	{
+		UIManager::GetCurrentContext()->ProcessKeyDown(key);
+	}
+	else
+	{
+		Input::instance->ProcessKeyDown((unsigned int)key);
+	}
 }
 
 void Engine::CreateApplicationWindow(int width, int height)

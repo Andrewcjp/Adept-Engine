@@ -313,6 +313,11 @@ DeviceContext * D3D12FrameBuffer::GetDevice()
 	return CurrentDevice;
 }
 
+GPUResource * D3D12FrameBuffer::GetResource(int index)
+{
+	return RenderTarget[index];
+}
+
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 	CurrentDevice = (D3D12DeviceContext*)device;
@@ -430,6 +435,14 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 
 void D3D12FrameBuffer::Init()
 {
+	//update RenderTargetDesc
+	RenderTargetDesc.NumRenderTargets = BufferDesc.RenderTargetCount;
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		RenderTargetDesc.RTVFormats[i] = BufferDesc.RTFormats[i];
+	}
+	RenderTargetDesc.DSVFormat = BufferDesc.DepthFormat;
+
 	const int Descriptorcount = std::max(BufferDesc.RenderTargetCount + BufferDesc.MipCount, 1);
 	if (RTVHeap == nullptr && BufferDesc.RenderTargetCount > 0)
 	{
@@ -606,14 +619,7 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 }
 
 const RHIPipeRenderTargetDesc& D3D12FrameBuffer::GetPiplineRenderDesc()
-{
-	RHIPipeRenderTargetDesc output = {};
-	output.NumRenderTargets = BufferDesc.RenderTargetCount;
-	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
-	{
-		output.RTVFormats[i] = BufferDesc.RTFormats[i];
-	}
-	output.DSVFormat = BufferDesc.DepthFormat;
-	return output;
+{	
+	return RenderTargetDesc;
 }
 

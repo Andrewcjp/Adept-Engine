@@ -4,7 +4,7 @@
 #include "Rendering/Core/RenderBaseTypes.h"
 #include "Core/Utils/StringUtil.h"
 #include "D3D12CBV.h"
-#include "EngineGlobals.h"
+
 #include "D3D12Texture.h"
 #include "RHI/RHI_inc.h"
 #include "D3D12Framebuffer.h"
@@ -32,7 +32,6 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 		CreateCommandList();
 	}
 }
-
 
 D3D12CommandList::~D3D12CommandList()
 {
@@ -173,18 +172,6 @@ void D3D12CommandList::SetPipelineState(PipeLineState state)
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
 {
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
-	//D3D12FrameBuffer* dbuffer = (D3D12FrameBuffer*)Buffer;
-	//D3D12Shader::PipeRenderTargetDesc PRTD = {};
-	//if (Buffer == nullptr)
-	//{
-	//	PRTD.NumRenderTargets = 1;
-	//	PRTD.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	//	PRTD.DSVFormat = DXGI_FORMAT_D32_FLOAT;//DXGI_FORMAT_D16_UNORM
-	//}
-	//else
-	//{
-	//	PRTD = dbuffer->GetPiplineRenderDesc();
-	//}
 	if (Buffer != nullptr)
 	{
 		Currentpipestate.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
@@ -208,6 +195,7 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 	{
 		ensure(ListType == ECommandListType::Graphics);
 	}
+#if 0
 	if (CurrentPipelinestate.m_pipelineState != nullptr)
 	{
 		CurrentPipelinestate.m_pipelineState->Release();
@@ -216,6 +204,7 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 	{
 		CurrentPipelinestate.m_rootSignature->Release();
 	}
+#endif
 	CurrentPipelinestate.IsCompute = (ListType == ECommandListType::Compute);
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
 	ensure(target != nullptr);

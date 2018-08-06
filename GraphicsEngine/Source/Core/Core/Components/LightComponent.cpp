@@ -2,7 +2,7 @@
 #include "LightComponent.h"
 #include "Core/GameObject.h"
 #include "Editor/EditorWindow.h"
-#include "EngineGlobals.h"
+
 #include "Core/Assets/Scene.h"
 #include "CompoenentRegistry.h"
 #include "Core/Assets/SerialHelpers.h"
