@@ -8,7 +8,7 @@
 #include "Core/Assets/ImageIO.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
-
+#include "Core/Utils/RefChecker.h"
 #if BUILD_VULKAN
 #include "RHI/RenderAPIs/Vulkan/VKanRHI.h"
 #include "RHI/RenderAPIs/Vulkan/VKanCommandlist.h"

@@ -1,6 +1,7 @@
 #include "Stdafx.h"
 #include "ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
+
 ModuleManager* ModuleManager::Instance = nullptr;
 ModuleManager * ModuleManager::Get()
 {
@@ -65,6 +66,8 @@ IModuleInterface * ModuleManager::LoadModule(FString Name)
 {
 	Modules.emplace(Name.ToSString(), ModuleInfo());
 	ModuleInfo* Info = &Modules.at(Name.ToSString());
+	Info->IsDynamic = !(StaticModulePtrs.find(Name.ToSString()) != StaticModulePtrs.end());
+
 	if (Info->IsDynamic)
 	{
 		Info->Handle = PlatformApplication::GetDllHandle(Name);
@@ -85,9 +88,8 @@ IModuleInterface * ModuleManager::LoadModule(FString Name)
 	{
 		if (StaticModulePtrs.find(Name.ToSString()) != StaticModulePtrs.end())
 		{
-			FInitializeModuleFunctionPtr ModuleInitPtr = StaticModulePtrs.at(Name.ToSString());
+			FStaticInitializeModuleFunctionPtr ModuleInitPtr = StaticModulePtrs.at(Name.ToSString());
 			Info->Module = (IModuleInterface*)ModuleInitPtr();
-
 		}
 	}
 	if (Info->Module == nullptr)

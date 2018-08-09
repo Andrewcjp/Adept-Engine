@@ -6,10 +6,6 @@
 #include "Core/Engine.h"
 #include "RHI/DeviceContext.h"
 
-//todo:RHI
-#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-
-
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {}
 
@@ -90,10 +86,10 @@ void ForwardRenderer::MainPass()
 		MainCommandList->SetTexture(MainScene->GetLightingData()->SkyBox, 8);
 	}
 	MainCommandList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, 9);
-	for (size_t i = 0; i < (*MainScene->GetObjects()).size(); i++)
+	for (size_t i = 0; i < (*MainScene->GetRenderableObjects()).size(); i++)
 	{
 		MainShader->SetActiveIndex(MainCommandList, (int)i);
-		(*MainScene->GetObjects())[i]->Render(false, MainCommandList);
+		(*MainScene->GetRenderableObjects())[i]->Render(false, MainCommandList);
 	}
 	MainCommandList->SetRenderTarget(nullptr);
 	MainCommandList->GetDevice()->GetTimeManager()->EndTimer(MainCommandList, EGPUTIMERS::MainPass);

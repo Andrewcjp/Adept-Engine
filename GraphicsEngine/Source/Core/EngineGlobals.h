@@ -44,13 +44,21 @@ void UNUSED_PARAM(T const&)
 #if defined(CORE_EXPORT) 
 #   define RHI_API DLLEXPORT
 #else 
+#ifndef STATIC_MODULE
 #   define RHI_API DLLIMPORT
+#else 
+#   define RHI_API
+#endif
 #endif // RHI_API
 
 #if defined(CORE_EXPORT) 
 #   define CORE_API DLLEXPORT
 #else 
+#ifndef STATIC_MODULE
 #   define CORE_API DLLIMPORT
+#else
+#   define CORE_API
+#endif
 #endif // CORE_API
 
 //Asserts

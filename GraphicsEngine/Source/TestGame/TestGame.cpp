@@ -1,7 +1,7 @@
 #include "TestGame.h"
 #include "EngineHeader.h"
 #include "Core/Components/CompoenentRegistry.h"
-
+#include "Core/Platform/PlatformCore.h"
 TestGame::TestGame(CompoenentRegistry* Reg) :Game(Reg)
 {
 	ECR = new TGExtraComponentRegister();
@@ -14,3 +14,7 @@ TestGame::TestGame(CompoenentRegistry* Reg) :Game(Reg)
 
 TestGame::~TestGame()
 {}
+
+//#if 1//TESTGAME_EXPORT
+//IMPLEMENT_MODULE_STATIC(TestGameModule)
+//#endif

@@ -1,7 +1,7 @@
 #pragma once
 #include "Core\Game.h"
 #include "TGExtraComponentRegister.h"
-//#pragma comment(lib, "GraphicsEngine.lib")
+
 class TestGame :
 	public Game
 {
@@ -18,4 +18,9 @@ class TestGameModule :public GameModule
 		return new TestGame(Reg);
 	}
 };
-IMPLEMENT_MODULE(TestGameModule);
+
+#ifdef STATIC_MODULE
+IMPLEMENT_MODULE_STATIC(TestGameModule, TestGame);
+#else
+IMPLEMENT_MODULE_DYNAMIC(TestGameModule);
+#endif
