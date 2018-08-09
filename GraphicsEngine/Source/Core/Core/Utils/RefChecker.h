@@ -1,15 +1,14 @@
 #pragma once
 //Used to Detect Object leaks!
 
-#define DETECT_MEMEORY_LEAKS 0
-//todo: RHI_API 
+#define DETECT_MEMEORY_LEAKS 1
 #if DETECT_MEMEORY_LEAKS
 class RefCheckerContainer
 {
 public:
-	virtual int LogRefs();
-	static void LogAllRefCounters();
-	static void Add(RefCheckerContainer* a);
+	CORE_API virtual int LogRefs();
+	CORE_API static void LogAllRefCounters();
+	CORE_API static void Add(RefCheckerContainer* a);
 	static RefCheckerContainer* Instance;
 private:
 	std::vector<RefCheckerContainer*> Checkers;
@@ -19,7 +18,7 @@ template<class T>
 class  RefChecker : public RefCheckerContainer
 {
 public:
-	CORE_API RefChecker()
+	RefChecker()
 	{
 		RefCheckerContainer::Add(this);
 	};

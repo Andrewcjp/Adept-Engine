@@ -12,9 +12,5 @@ public:
 	{}
 };
  
-#define IMPLEMENT_MODULE( ModuleImplClass) \
-extern "C" DLLEXPORT IModuleInterface* InitializeModule() \
-{ \
-	return new ModuleImplClass(); \
-} 
+
 

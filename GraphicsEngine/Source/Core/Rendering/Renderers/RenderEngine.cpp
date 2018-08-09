@@ -1,4 +1,5 @@
 #include "RenderEngine.h"
+#include "RHI/DeviceContext.h"
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Core/Assets/Scene.h"
 #include "Rendering/Core/GPUStateCache.h"
@@ -18,7 +19,6 @@ RenderEngine::~RenderEngine()
 	delete Conv;
 	delete envMap;
 	delete SkyBox;
-
 }
 
 void RenderEngine::Render()
@@ -32,7 +32,7 @@ void RenderEngine::Render()
 	{
 		return;
 	}
-	if ((*MainScene->GetObjects()).size() == 0)
+	if ((*MainScene->GetRenderableObjects()).size() == 0)
 	{
 		return;
 	}
@@ -60,7 +60,7 @@ void RenderEngine::PreRender()
 		MainCamera = MainScene->GetCurrentRenderCamera();
 	}
 }
-#include "RHI/DeviceContext.h"
+
 //init common to both renderers
 void RenderEngine::Init()
 {
@@ -87,7 +87,6 @@ void RenderEngine::ProcessScene()
 	{
 		return;
 	}
-	//AssetManager::DirectLoadTextureAsset("\\asset\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
 	Scene::LightingEnviromentData* Data = MainScene->GetLightingData();
 	Conv->TargetCubemap = Data->SkyBox;
 	envMap->TargetCubemap = Data->SkyBox;
@@ -103,9 +102,9 @@ void RenderEngine::ProcessScene()
 
 void RenderEngine::PrepareData()
 {
-	for (size_t i = 0; i < (*MainScene->GetObjects()).size(); i++)
+	for (size_t i = 0; i < (*MainScene->GetRenderableObjects()).size(); i++)
 	{
-		MainShader->UpdateUnformBufferEntry(MainShader->CreateUnformBufferEntry((*MainScene->GetObjects())[i]), (int)i);
+		MainShader->UpdateUnformBufferEntry(MainShader->CreateUnformBufferEntry((*MainScene->GetRenderableObjects())[i]), (int)i);
 	}
 }
 
@@ -175,7 +174,7 @@ void RenderEngine::ShadowPass()
 {
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetObjects(), MainShader);
+		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetRenderableObjects(), MainShader);
 	}
 }
 

@@ -302,6 +302,10 @@ void Scene::RemoveGameObject(GameObject* object)
 void Scene::AddGameobjectToScene(GameObject* gameobject)
 {
 	SceneObjects.push_back(gameobject);
+	if (gameobject->GetMat() != nullptr)
+	{
+		RenderSceneObjects.push_back(gameobject);
+	}
 	gameobject->Internal_SetScene(this);
 }
 

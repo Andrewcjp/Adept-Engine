@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "Core/Platform/Logger.h"
+#include <functional>
 namespace ModuleLoadStatus
 {
 	enum Type
@@ -14,6 +15,7 @@ namespace ModuleLoadStatus
 	};
 };
 typedef IModuleInterface* (*FInitializeModuleFunctionPtr)(void);
+typedef std::function<IModuleInterface*()> FStaticInitializeModuleFunctionPtr;
 class ModuleManager
 {
 public:
@@ -38,7 +40,7 @@ public:
 		}
 		return (T*)LoadModule(Name);
 	}
-	std::map<std::string, FInitializeModuleFunctionPtr> StaticModulePtrs;
+	std::map<std::string, FStaticInitializeModuleFunctionPtr> StaticModulePtrs;
 	void PreLoadModules();
 private:
 	std::vector<FString> ModulesNames;
@@ -56,14 +58,16 @@ private:
 #ifdef NDEBUG
 		bool IsDynamic = true;
 #else
-		bool IsDynamic = true;
+		bool IsDynamic = false;
 #endif
 		
 	};
 	std::map<std::string, ModuleInfo> Modules;
 
 };
-#if 1
+
+
+
 template<class ModuleClass>
 class StaticModuleReg
 {
@@ -71,13 +75,30 @@ public:
 	StaticModuleReg(const char* name)
 	{
 		//__debugbreak();
-		ModuleManager::Get()->StaticModulePtrs.emplace(name, &StaticInitializeModule());
+		//std::bind(&EditorWindow::EnterPlayMode, EditorWindow::GetInstance()
+		FStaticInitializeModuleFunctionPtr Funcptr = std::bind(&StaticModuleReg::StaticInitializeModule);
+		//ensure(false);
+		ModuleManager::Get()->StaticModulePtrs.emplace(name, Funcptr);
 	}
-	IModuleInterface* StaticInitializeModule()
+
+	static IModuleInterface* StaticInitializeModule()
 	{
 		return new ModuleClass();
 	}
 };
-#define IMPLEMENT_MODULE_STATIC( ModuleImplClass) static FStaticallyLinkedModuleRegistrant< ModuleImplClass > ModuleRegistrant##ModuleImplClass( #ModuleImplClass ); 
+#define IMPLEMENT_MODULE_STATIC( ModuleImplClass,ModName) static StaticModuleReg< ModuleImplClass > ModuleRegistrant##ModuleImplClass( #ModName ); 
 
+#define IMPLEMENT_MODULE_DYNAMIC( ModuleImplClass) \
+extern "C" DLLEXPORT IModuleInterface* InitializeModule() \
+{ \
+	return new ModuleImplClass(); \
+} 
+
+#if 0
+//Module Test
+class TestMode :public IModuleInterface
+{
+	
+};
+IMPLEMENT_MODULE_STATIC(TestMode);
 #endif

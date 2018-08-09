@@ -15,6 +15,7 @@ public:
 	CORE_API void AddGameobjectToScene(GameObject* gameobject);
 	void CopyScene(Scene * newscene);
 	std::vector<GameObject*>* GetObjects() { return &SceneObjects; }
+	std::vector<GameObject*>* GetRenderableObjects() { return &RenderSceneObjects; }
 	void StartScene();
 	void LoadDefault();
 	void LoadExampleScene(RenderEngine * Renderer, bool IsDeferredMode);
@@ -35,6 +36,7 @@ public:
 	LightingEnviromentData* GetLightingData() { return &LightingData; }
 private:
 	std::vector<GameObject*> SceneObjects;	
+	std::vector<GameObject*> RenderSceneObjects;
 	std::vector<Light*> Lights;
 	std::vector<Camera*> Cameras;
 	Camera* CurrentCamera = nullptr;

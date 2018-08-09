@@ -72,10 +72,10 @@ void DeferredRenderer::GeometryPass()
 	WriteList->ClearFrameBuffer(GFrameBuffer);
 	MainShader->BindLightsBuffer(WriteList);
 	MainShader->UpdateMV(MainCamera);
-	for (size_t i = 0; i < (*MainScene->GetObjects()).size(); i++)
+	for (size_t i = 0; i < (*MainScene->GetRenderableObjects()).size(); i++)
 	{
 		MainShader->SetActiveIndex(WriteList, i);
-		(*MainScene->GetObjects())[i]->Render(false, WriteList);
+		(*MainScene->GetRenderableObjects())[i]->Render(false, WriteList);
 	}
 	WriteList->SetRenderTarget(nullptr);
 	WriteList->GetDevice()->GetTimeManager()->EndTimer(WriteList, EGPUTIMERS::DeferredWrite);
