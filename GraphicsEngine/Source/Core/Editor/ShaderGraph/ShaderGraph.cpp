@@ -5,6 +5,8 @@
 #include <ios>
 #include <iostream>
 #include <fstream>
+#include "Rendering/Shaders/Shader_NodeGraph.h"
+#include "Core/Platform/PlatformCore.h"
 ShaderGraph::ShaderGraph(FString Name)
 {
 	GraphName = Name;
@@ -17,8 +19,10 @@ ShaderGraph::~ShaderGraph()
 
 void ShaderGraph::test()
 {
-	Nodes.push_back(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(0, 0, 0)));
+	GraphName = "Test";
+	Nodes.push_back(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(0, 1, 0)));
 }
+
 bool WriteToFile(std::string filename, std::string data)
 {
 	std::string out;
@@ -36,6 +40,7 @@ bool WriteToFile(std::string filename, std::string data)
 	}
 	return true;
 }
+
 bool ShaderGraph::Complie(AssetPathRef Outputfile)
 {
 	std::string MainShader = AssetManager::instance->LoadFileWithInclude("Main_fs.hlsl");
@@ -65,6 +70,18 @@ bool ShaderGraph::Complie(AssetPathRef Outputfile)
 	{
 		ComplieOutput += Nodes[i]->GetComplieCode();
 	}
-	return WriteToFile(Outputfile.GetFullPathToAsset(), PreFile + ComplieOutput + PostFile);
+	std::string Path = AssetManager::GetShaderPath() +"Gen\\" + GraphName.ToSString() +".hlsl";
+	PlatformApplication::TryCreateDirectory(AssetManager::GetShaderPath() + "Gen");
+	return WriteToFile(Path, PreFile + ComplieOutput + PostFile);
+}
+
+Shader* ShaderGraph::GetGeneratedShader()
+{
+	return new Shader_NodeGraph(this);
+}
+
+Material::TextureBindSet * ShaderGraph::GetMaterialData()
+{
+	return MaterialBinds;
 }
 

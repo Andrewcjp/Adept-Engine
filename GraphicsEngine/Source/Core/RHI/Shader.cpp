@@ -53,3 +53,7 @@ bool Shader::IsComputeShader()
 	return false;
 }
 
+const std::string Shader::GetName()
+{
+	return "";
+}

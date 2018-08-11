@@ -69,6 +69,8 @@ void MeshRendererComponent::Serialise(rapidjson::Value & v)
 	SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MeshName", m_mesh->AssetName);
 	if (m_mat != nullptr)
 	{
+#if 0
+		//todo: Serial
 		if (m_mat->GetDiffusetexture())
 		{
 			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatDiffuse", m_mat->GetDiffusetexture()->TextureName);
@@ -81,6 +83,7 @@ void MeshRendererComponent::Serialise(rapidjson::Value & v)
 		{
 			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "DisplacementMap", m_mat->GetDisplacementMap()->TextureName);
 		}
+#endif
 	}	//todo:
 }
 

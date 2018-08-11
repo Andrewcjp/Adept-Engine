@@ -66,7 +66,7 @@ EditorWindow::EditorWindow(HINSTANCE, int, int)
 {
 	instance = this;
 }
-#include "Core/Assets/Asset_Shader.h"
+
 void EditorWindow::PostInitWindow(int w, int h)
 {
 	Log::OutS  << "Loading Editor v0.01" << Log::OutS;
@@ -86,7 +86,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 		CurrentScene->LoadExampleScene(Renderer, false);
 		RefreshScene();
 	}
-	Asset_Shader* Asset = new Asset_Shader();
+	
 }
 
 void EditorWindow::EnterPlayMode()

@@ -2,7 +2,6 @@
 #include "RHI/ShaderProgramBase.h"
 #include <d3d12.h>
 #include "glm\glm.hpp"
-
 #include "RHI/Shader.h"
 class D3D12Shader : public ShaderProgramBase
 {
@@ -19,8 +18,12 @@ public:
 	struct PiplineShader
 	{
 		ID3D12PipelineState* m_pipelineState = nullptr;
-		ID3D12RootSignature* m_rootSignature = nullptr; 
+		ID3D12RootSignature* m_rootSignature = nullptr;
 		bool IsCompute = false;
+		bool operator!=(const PiplineShader &other) const
+		{
+			return (m_pipelineState != other.m_pipelineState) || (m_rootSignature != other.m_rootSignature);
+		}
 	};
 
 	enum ComputeRootParameters : UINT32
@@ -39,7 +42,7 @@ public:
 	virtual void DeactivateShaderProgram() override;
 
 	static D3D12Shader::PiplineShader CreateComputePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, PipeLineState Depthtest, DeviceContext * context);
-	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,DeviceContext* context);
+	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, DeviceContext* context);
 
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
@@ -54,7 +57,7 @@ private:
 	D3D_SHADER_MACRO * ParseDefines();
 	class DxIncludeHandler* IncludeHandler = nullptr;
 	class D3D12DeviceContext* CurrentDevice = nullptr;
-	PiplineShader m_Shader;	
+	PiplineShader m_Shader;
 	ID3D12DescriptorHeap* m_samplerHeap = nullptr;
 	ShaderBlobs mBlolbs;
 };

@@ -88,8 +88,17 @@ void ForwardRenderer::MainPass()
 	MainCommandList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, 9);
 	for (size_t i = 0; i < (*MainScene->GetRenderableObjects()).size(); i++)
 	{
+		GameObject* CurrentObj = (*MainScene->GetRenderableObjects())[i];
 		MainShader->SetActiveIndex(MainCommandList, (int)i);
-		(*MainScene->GetRenderableObjects())[i]->Render(false, MainCommandList);
+		if (CurrentObj->GetMat()->GetProperties()->ShaderInUse != nullptr)
+		{
+			MainCommandList->SetPipelineStateObject(CurrentObj->GetMat()->GetProperties()->ShaderInUse, FilterBuffer);
+		}
+		else
+		{
+			MainCommandList->SetPipelineStateObject(MainShader, FilterBuffer);
+		}
+		CurrentObj->Render(false, MainCommandList);
 	}
 	MainCommandList->SetRenderTarget(nullptr);
 	MainCommandList->GetDevice()->GetTimeManager()->EndTimer(MainCommandList, EGPUTIMERS::MainPass);

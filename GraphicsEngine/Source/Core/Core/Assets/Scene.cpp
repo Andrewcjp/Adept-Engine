@@ -10,6 +10,8 @@
 #include <algorithm>
 #include "Core/Utils/MemoryUtils.h"
 #include "Core/Assets/AssetManager.h"
+
+#include "Core/Assets/Asset_Shader.h"
 Scene::Scene()
 {
 	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
@@ -165,9 +167,12 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	}
 #endif
 
-	Material::MaterialProperties props = Material::MaterialProperties();
+
+	Asset_Shader* Asset = new Asset_Shader();
+
 	go = new GameObject("Test");
-	mat = new Material(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"), props);
+	mat = Asset->GetMaterialInstance();
+	//mat->UpdateBind()
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -240,7 +245,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	int size = 5;
 	glm::vec3 startPos = glm::vec3(10, 5, 30);
 	float stride = 5.0f;
-	props;
+	Material::MaterialProperties props;
 	for (int y = 0; y < size; y++)
 	{
 		for (int x = 0; x < size; x++)

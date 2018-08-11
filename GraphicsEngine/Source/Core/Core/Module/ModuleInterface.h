@@ -6,8 +6,10 @@ class IModuleInterface
 public:
 	virtual ~IModuleInterface()
 	{}
-	virtual void StartupModule()
-	{}
+	virtual bool StartupModule()
+	{
+		return true;
+	}
 	virtual void ShutdownModule()
 	{}
 };

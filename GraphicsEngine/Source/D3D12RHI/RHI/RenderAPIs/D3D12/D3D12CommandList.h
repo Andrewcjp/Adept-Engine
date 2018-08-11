@@ -21,6 +21,7 @@ public:
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
 	virtual void SetPipelineState(PipeLineState state) override;
 	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
+	virtual void SetPipelineStateObject(class Shader* shader, class FrameBuffer* Buffer = nullptr)override;
 	void		 IN_CreatePipelineState(Shader * shader);
 
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
@@ -52,6 +53,7 @@ private:
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 	PipeLineState Currentpipestate;	
+	std::map<std::string, D3D12Shader::PiplineShader> PSOCache;
 };
 
 class D3D12Buffer : public RHIBuffer
