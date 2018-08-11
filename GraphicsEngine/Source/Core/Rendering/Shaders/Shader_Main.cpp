@@ -10,9 +10,9 @@ Shader_Main::Shader_Main(bool LoadForward)
 	m_Shader->CreateShaderProgram();
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(3+ RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(MAX_LIGHTS)));	
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED",std::to_string((int)!LoadForward)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(3 + RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(MAX_LIGHTS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED", std::to_string((int)!LoadForward)));
 
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);
 	if (LoadForward)
@@ -23,7 +23,7 @@ Shader_Main::Shader_Main(bool LoadForward)
 	{
 		m_Shader->AttachAndCompileShaderFromFile("DeferredWrite_fs", SHADER_FRAGMENT);
 	}
-	
+
 
 	m_Shader->ActivateShaderProgram();
 
@@ -33,11 +33,11 @@ Shader_Main::Shader_Main(bool LoadForward)
 	}
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)//optimize!
 	{
-		GameObjectTransformBuffer[i] = RHI::CreateRHIBuffer(RHIBuffer::Constant,RHI::GetDeviceContext(i));
+		GameObjectTransformBuffer[i] = RHI::CreateRHIBuffer(RHIBuffer::Constant, RHI::GetDeviceContext(i));
 		GameObjectTransformBuffer[i]->CreateConstantBuffer(sizeof(SceneConstantBuffer), MaxConstant);
 	}
 	CLightBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
-	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1,true);
+	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
 	CMVBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), 1, true);
 }
@@ -45,7 +45,7 @@ Shader_Main::~Shader_Main()
 {
 	delete CLightBuffer;
 	delete CMVBuffer;
-	MemoryUtils::DeleteCArray(GameObjectTransformBuffer,MAX_DEVICE_COUNT);
+	MemoryUtils::DeleteCArray(GameObjectTransformBuffer, MAX_DEVICE_COUNT);
 }
 std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
 {
@@ -113,7 +113,7 @@ void Shader_Main::UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int 
 		SceneBuffer[index] = bufer;
 	}
 }
-void Shader_Main::SetActiveIndex(RHICommandList* list, int index,int DeviceIndex )
+void Shader_Main::SetActiveIndex(RHICommandList* list, int index, int DeviceIndex)
 {
 	list->SetConstantBufferView(GameObjectTransformBuffer[DeviceIndex], index, Shader_Main::MainCBV);
 }
@@ -149,14 +149,14 @@ std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
 void Shader_Main::UpdateMV(Camera * c)
 {
 	MV_Buffer.V = c->GetView();
-	MV_Buffer.P = c->GetProjection(); 
+	MV_Buffer.P = c->GetProjection();
 	MV_Buffer.CameraPos = c->GetPosition();
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
 }
 
 void Shader_Main::UpdateMV(glm::mat4 View, glm::mat4 Projection)
 {
-//	ensure(false);
+	//	ensure(false);
 	MV_Buffer.V = View;
 	MV_Buffer.P = Projection;
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
@@ -169,7 +169,7 @@ SceneConstantBuffer Shader_Main::CreateUnformBufferEntry(GameObject * t)
 	m_constantBufferData.HasNormalMap = false;
 	if (t->GetMat() != nullptr)
 	{
-		m_constantBufferData.HasNormalMap = (t->GetMat()->GetNormalMap() != nullptr);
+		m_constantBufferData.HasNormalMap = t->GetMat()->HasNormalMap();
 		m_constantBufferData.Metallic = t->GetMat()->GetProperties()->Metallic;
 		m_constantBufferData.Roughness = t->GetMat()->GetProperties()->Roughness;
 	}
@@ -232,5 +232,5 @@ void Shader_Main::BindLightsBuffer(RHICommandList*  list, bool JustLight)
 
 void Shader_Main::BindMvBuffer(RHICommandList * list, int slot)
 {
-	list->SetConstantBufferView(CMVBuffer, 0,slot);
+	list->SetConstantBufferView(CMVBuffer, 0, slot);
 }

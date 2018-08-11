@@ -185,6 +185,29 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	IN_CreatePipelineState(shader);
 }
 
+void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buffer)
+{
+	bool IsChanged = false;
+	if (PSOCache.find(shader->GetName()) != PSOCache.end())
+	{
+		if (PSOCache.at(shader->GetName()) != CurrentPipelinestate)
+		{
+			CurrentPipelinestate = PSOCache.at(shader->GetName());
+			IsChanged = true;
+		}
+	}
+	else
+	{
+		CreatePipelineState(shader, Buffer);
+		IsChanged = true;
+		Log::LogMessage("Created a PSO at runtime", Log::Severity::Warning);
+	}
+	if (IsChanged)
+	{
+		CurrentGraphicsList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
+	}
+}
+
 void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 {
 	if (shader->IsComputeShader())
@@ -230,6 +253,7 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 		//todo: ensure a gaphics shader is not used a compute piplne!
 		CreateCommandList();
 	}
+	PSOCache.try_emplace(shader->GetName(), CurrentPipelinestate);
 }
 
 
@@ -351,7 +375,7 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 {
 	D3D12Buffer* d3Buffer = (D3D12Buffer*)buffer;
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
-	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Slot, ListType == ECommandListType::Compute,Device->GetDeviceIndex());
+	d3Buffer->SetConstantBufferView(offset, CurrentGraphicsList, Slot, ListType == ECommandListType::Compute, Device->GetDeviceIndex());
 }
 
 
@@ -421,7 +445,7 @@ void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 	}
 }
 
-void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Slot, bool  IsCompute,int Deviceindex)
+void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Slot, bool  IsCompute, int Deviceindex)
 {
 	if (CrossDevice)
 	{

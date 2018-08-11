@@ -7,7 +7,7 @@ ModuleManager * ModuleManager::Get()
 {
 	if (Instance == nullptr)
 	{
-		Instance = new ModuleManager();		
+		Instance = new ModuleManager();
 	}
 	return Instance;
 }
@@ -97,8 +97,8 @@ IModuleInterface * ModuleManager::LoadModule(FString Name)
 		Info->ModuleStatus = ModuleLoadStatus::Status_LoadFailed;
 		return nullptr;
 	}
-	Info->Module->StartupModule();
-	Info->ModuleStatus = ModuleLoadStatus::Status_Loaded;
+	const bool InitValue = Info->Module->StartupModule();
+	Info->ModuleStatus = InitValue ? ModuleLoadStatus::Status_Loaded : ModuleLoadStatus::Status_LoadFailed;
 	return Info->Module;
 }
 

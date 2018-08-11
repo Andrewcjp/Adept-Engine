@@ -8,17 +8,15 @@
 #include "Core/Utils/MemoryUtils.h"
 #include "Core/Assets/MeshLoader.h"
 #include "RHICommandList.h"
-//todo: refactor!
-//like seriuously this is bad!
+#include "Core/Module/ModuleInterface.h"
+
 class BaseTexture;
 class Renderable;
 class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
 const int MAX_DEVICE_COUNT = 2;
-
 #define RHI_USE_MODULE 1
-
 class RHI
 {
 public:
@@ -97,7 +95,7 @@ public:
 	virtual void WaitForGPU() =0;
 	virtual void TriggerBackBufferScreenShot() = 0;	
 };
-#include "Core/Module/ModuleInterface.h"
+
 class RHIModule : public IModuleInterface
 {
 public:

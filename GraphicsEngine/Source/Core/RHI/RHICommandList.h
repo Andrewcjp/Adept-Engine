@@ -65,6 +65,9 @@ public:
 	virtual void SetIndexBuffer(RHIBuffer* buffer) = 0;
 	//If frame buffer is null the screen will be the render target!
 	virtual void CreatePipelineState(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
+	//uses the Cached PiplineStates
+	virtual void SetPipelineStateObject(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
+
 	virtual void SetPipelineState(PipeLineState state) = 0;
 	//virtual void SetConstantBuffer(RHIBuffer* buffer) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;

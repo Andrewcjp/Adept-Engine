@@ -22,9 +22,10 @@ private:
 class GameModule :public IModuleInterface
 {
 public:
-	void StartupModule() override
+	bool StartupModule() override
 	{
 	//	Log::OutS << "Game Module Startup" << Log::OutS;
+		return true;
 	}
 	virtual Game* GetGamePtr(class CompoenentRegistry* Reg)
 	{

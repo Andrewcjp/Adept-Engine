@@ -71,12 +71,12 @@ public:
 		TargetProp = Prop;
 	};
 	~SGN_Constant() {};
-	glm::vec3 Value = glm::vec3(0,0,0);
+	glm::vec3 Value = glm::vec3(0, 0, 0);
 	PropertyLink* TargetProp = nullptr;
 	virtual std::string GetComplieCode()
 	{
 		std::stringstream Stream;
-		Stream << TargetProp->GetNameCode() << " = " << glm::to_string(Value) << ";\n";
+		Stream << TargetProp->GetNameCode() << " = " << "float3" << "(" << std::to_string(Value.x) << ", " << std::to_string(Value.y) << " ," << std::to_string(Value.z) << ");\n";
 		return Stream.str();
 	}
 };
@@ -84,7 +84,7 @@ public:
 class CoreProps
 {
 public:
-	PropertyLink* Diffusecolour = nullptr;
+	PropertyLink * Diffusecolour = nullptr;
 	CoreProps()
 	{
 		Diffusecolour = new PropertyLink();

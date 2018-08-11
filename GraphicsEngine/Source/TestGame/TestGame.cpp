@@ -14,7 +14,3 @@ TestGame::TestGame(CompoenentRegistry* Reg) :Game(Reg)
 
 TestGame::~TestGame()
 {}
-
-//#if 1//TESTGAME_EXPORT
-//IMPLEMENT_MODULE_STATIC(TestGameModule)
-//#endif

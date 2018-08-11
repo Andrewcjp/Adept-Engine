@@ -111,9 +111,17 @@ float4 main(PSInput input) : SV_TARGET
 	////Pos.y = (Pos.y + 1) / 2;
 	float out2 = PerSampledShadow.Sample(g_Clampsampler, Pos.xy).r;
 	//return float4(out2,0, 0, 1.0f);
+#if !TEST
 	float3 texturecolour = g_texture.Sample(g_sampler, input.uv).rgb;
+#else
+	float3 texturecolour = float3(0, 0, 0);
+#endif
 	//Insert Marker
 
+
+#if TEST
+	texturecolour = Diffuse;
+#endif
 	float3 Normal = input.Normal.xyz;
 	if (HasNormalMap == 1)
 	{

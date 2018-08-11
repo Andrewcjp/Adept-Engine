@@ -67,6 +67,7 @@ public:
 	virtual ~Shader();
 	virtual void SetShaderActive();
 	RHI_API ShaderProgramBase* GetShaderProgram();
+	virtual const std::string GetName();
 
 	const int ShadowFarPlane = 500;
 	virtual bool SupportsAPI(ERenderSystemType Type);
