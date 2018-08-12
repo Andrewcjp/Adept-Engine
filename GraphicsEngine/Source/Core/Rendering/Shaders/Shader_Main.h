@@ -30,7 +30,21 @@ struct LightBufferW
 {
 	LightUniformBuffer Light[MAX_LIGHTS];
 };
-
+namespace MainShaderRSBinds
+{
+	enum type
+	{
+		GODataCBV = 0,
+		LightDataCBV = 1,
+		MVCBV = 2,
+		DirShadow = 3,
+		PointShadow = 4,
+		DiffuseIr = 5,
+		SpecBlurMap = 6,
+		EnvBRDF = 7,
+		Limit
+	};
+}
 /*__declspec(align(32))*/ struct SceneConstantBuffer//CBV need to be 256 aligned
 {
 	glm::mat4 M;
@@ -41,12 +55,6 @@ struct LightBufferW
 class Shader_Main :public Shader
 {
 public:
-	enum ShaderRegisterSlot
-	{
-		MainCBV = 1,
-		LightCBV = 2,
-		MPCBV = 3
-	};
 	Shader_Main(bool LoadForward = true);
 	~Shader_Main();
 	void SetNormalVis();
@@ -70,6 +78,7 @@ public:
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	void BindMvBuffer(RHICommandList * list, int slot);
+
 private:
 	
 	bool shadowvisstate = false;

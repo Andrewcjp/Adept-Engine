@@ -324,7 +324,7 @@ void BaseWindow::PostFrameOne()
 
 void BaseWindow::Resize(int width, int height)
 {
-	if (width == m_width && height == m_height)
+	if (width == m_width && height == m_height || width == 0 || height == 0)
 	{
 		return;
 	}

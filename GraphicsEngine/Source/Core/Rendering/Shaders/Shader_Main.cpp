@@ -10,7 +10,7 @@ Shader_Main::Shader_Main(bool LoadForward)
 	m_Shader->CreateShaderProgram();
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(3 + RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(MAX_LIGHTS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED", std::to_string((int)!LoadForward)));
 
@@ -115,28 +115,24 @@ void Shader_Main::UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int 
 }
 void Shader_Main::SetActiveIndex(RHICommandList* list, int index, int DeviceIndex)
 {
-	list->SetConstantBufferView(GameObjectTransformBuffer[DeviceIndex], index, Shader_Main::MainCBV);
+	list->SetConstantBufferView(GameObjectTransformBuffer[DeviceIndex], index, MainShaderRSBinds::GODataCBV);
 }
 void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 {
-	out.resize(11);
-	out[0] = ShaderParameter(ShaderParamType::SRV, 0, 0);
-	out[1] = ShaderParameter(ShaderParamType::CBV, 1, 0);
-	out[2] = ShaderParameter(ShaderParamType::CBV, 2, 1);
-	out[3] = ShaderParameter(ShaderParamType::CBV, 3, 2);
+	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::GODataCBV, 0));
+	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::LightDataCBV, 1));
+	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::MVCBV, 2));
 	//two shadows
-	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, 4, 3);
+	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DirShadow, 0);
 	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS;
-	out[4] = parm;
-	parm = ShaderParameter(ShaderParamType::SRV, 5, 3 + RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS);
+	out.push_back(parm);
+	parm = ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::PointShadow,/*(0 + )*/RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS);
 	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS;
-	out[5] = parm;
-
-	out[6] = ShaderParameter(ShaderParamType::SRV, 6, 1);
-	out[7] = ShaderParameter(ShaderParamType::SRV, 7, 10);
-	out[8] = ShaderParameter(ShaderParamType::SRV, 8, 11);
-	out[9] = ShaderParameter(ShaderParamType::SRV, 9, 12);
-	out[10] = ShaderParameter(ShaderParamType::SRV, 10, 13);
+	out.push_back(parm);
+	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DiffuseIr, 10));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::SpecBlurMap, 11));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::EnvBRDF, 12));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::Limit, 13));
 }
 
 std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
@@ -223,10 +219,10 @@ void Shader_Main::UpdateLightBuffer(std::vector<Light*> lights)
 
 void Shader_Main::BindLightsBuffer(RHICommandList*  list, bool JustLight)
 {
-	list->SetConstantBufferView(CLightBuffer, 0, Shader_Main::LightCBV);
+	list->SetConstantBufferView(CLightBuffer, 0, MainShaderRSBinds::LightDataCBV);
 	if (!JustLight)
 	{
-		BindMvBuffer(list, Shader_Main::MPCBV);
+		BindMvBuffer(list, MainShaderRSBinds::MVCBV);
 	}
 }
 

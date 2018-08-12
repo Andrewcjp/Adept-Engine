@@ -254,8 +254,8 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
 #if 1
-	ShadowDirectionalArray->BindToShader(list, 4);
-	ShadowCubeArray->BindToShader(list, 5);
+	ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
+	ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
 #else
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{

@@ -11,5 +11,6 @@ public:
 	const std::string GetName() override;
 private:
 	std::string Matname = "";
+	ShaderGraph* Graph = nullptr;
 };
 

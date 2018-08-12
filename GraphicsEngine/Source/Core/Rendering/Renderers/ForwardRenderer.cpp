@@ -80,12 +80,12 @@ void ForwardRenderer::MainPass()
 	MainShader->UpdateMV(MainCamera);
 	MainCommandList->SetRenderTarget(FilterBuffer);
 	MainCommandList->ClearFrameBuffer(FilterBuffer);
-	MainCommandList->SetFrameBufferTexture(Conv->CubeBuffer, 7);
+	MainCommandList->SetFrameBufferTexture(Conv->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-		MainCommandList->SetTexture(MainScene->GetLightingData()->SkyBox, 8);
+		MainCommandList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 	}
-	MainCommandList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, 9);
+	MainCommandList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	for (size_t i = 0; i < (*MainScene->GetRenderableObjects()).size(); i++)
 	{
 		GameObject* CurrentObj = (*MainScene->GetRenderableObjects())[i];

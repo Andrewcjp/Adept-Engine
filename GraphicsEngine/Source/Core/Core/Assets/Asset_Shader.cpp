@@ -2,12 +2,21 @@
 #include "Asset_Shader.h"
 #include "Editor/ShaderGraph/ShaderGraph.h"
 #include "Rendering/Core/Material.h"
-Asset_Shader::Asset_Shader()
+Asset_Shader::Asset_Shader(bool GenDefault)
 {
-	Graph = new ShaderGraph("TEst");
-	Graph->Complie(AssetPathRef("\\Gen\\Test.hlsl"));
+	if (GenDefault)
+	{
+		Graph = new ShaderGraph("");
+		Graph->CreateDefault();
+		Graph->Complie();
+	}
+	else
+	{
+		Graph = new ShaderGraph("Test");
+		Graph->test();
+		Graph->Complie();
+	}
 }
-
 
 Asset_Shader::~Asset_Shader()
 {}

@@ -1,10 +1,7 @@
 #include "Lighting.hlsl"
 //#include "Shadow.hlsl"
 #define SHADOW_DEPTH_BIAS 0.005f
-cbuffer LightBuffer : register(b1)
-{
-	Light lights[MAX_LIGHTS];
-};
+
 //tODO:sub struct for mat data?
 cbuffer GOConstantBuffer : register(b0)
 {
@@ -12,6 +9,11 @@ cbuffer GOConstantBuffer : register(b0)
 	int HasNormalMap;
 	float Roughness;
 	float Metallic;
+};
+
+cbuffer LightBuffer : register(b1)
+{
+	Light lights[MAX_LIGHTS];
 };
 
 cbuffer SceneConstantBuffer : register(b2)
@@ -31,16 +33,19 @@ struct PSInput
 };
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
-Texture2D g_texture : register(t0);
-Texture2D NormalMapTexture : register(t1);
 
 
-Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t3);
+Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t0);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(POINT_SHADOW_OFFSET);
+
 TextureCube DiffuseIrMap : register(t10);
 TextureCube SpecularBlurMap: register(t11);
 Texture2D envBRDFTexture: register(t12);
 Texture2D PerSampledShadow: register(t13);
+
+Texture2D g_texture : register(t20);
+Texture2D NormalMapTexture : register(t21);
+
 float GetShadow(float4 pos)
 {
 	float4 vLightSpacePos = pos;
@@ -103,16 +108,17 @@ float4 CalcUnshadowedAmountPCF2x2(int lightid, float4 vPosWorld)
 	return dot(vBilinearWeights, vShadowTests);
 }
 float ShadowCalculationCube(const float3 fragPos, Light lpos);
-
+//Declares
 float4 main(PSInput input) : SV_TARGET
 {
 	float2 Pos = input.position.xy / input.position.w;
 	////Pos.x = (Pos.x + 1) / 2;
 	////Pos.y = (Pos.y + 1) / 2;
+	float3 Normal = input.Normal.xyz;
 	float out2 = PerSampledShadow.Sample(g_Clampsampler, Pos.xy).r;
 	//return float4(out2,0, 0, 1.0f);
 #if !TEST
-	float3 texturecolour = g_texture.Sample(g_sampler, input.uv).rgb;
+	float3 texturecolour = float3(0, 0, 0);// g_texture.Sample(g_sampler, input.uv).rgb;
 #else
 	float3 texturecolour = float3(0, 0, 0);
 #endif
@@ -122,11 +128,11 @@ float4 main(PSInput input) : SV_TARGET
 #if TEST
 	texturecolour = Diffuse;
 #endif
-	float3 Normal = input.Normal.xyz;
+	
 	if (HasNormalMap == 1)
 	{
-		Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
-		Normal = normalize(mul(Normal,input.TBN));
+		/*Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
+		Normal = normalize(mul(Normal,input.TBN));*/
 	}
 
 	float3 irData = DiffuseIrMap.Sample(g_sampler, normalize(Normal)).rgb;

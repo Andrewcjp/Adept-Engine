@@ -36,11 +36,7 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 D3D12CommandList::~D3D12CommandList()
 {
 	RemoveCheckerRef(D3D12CommandList, this);
-	if (CurrentPipelinestate.m_pipelineState != nullptr)
-	{
-		CurrentPipelinestate.m_pipelineState->Release();
-		CurrentPipelinestate.m_rootSignature->Release();
-	}
+	MemoryUtils::DeleteReleaseableMap<std::string, D3D12Shader::PiplineShader>(PSOCache);
 	if (CurrentGraphicsList != nullptr)
 	{
 		CurrentGraphicsList->Release();
@@ -205,6 +201,7 @@ void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buf
 	if (IsChanged)
 	{
 		CurrentGraphicsList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
+		CurrentGraphicsList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
 	}
 }
 

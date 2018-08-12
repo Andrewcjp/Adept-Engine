@@ -3,6 +3,7 @@
 #include <d3d12.h>
 #include "glm\glm.hpp"
 #include "RHI/Shader.h"
+#include "D3D12Helpers.h"
 class D3D12Shader : public ShaderProgramBase
 {
 public:
@@ -23,6 +24,11 @@ public:
 		bool operator!=(const PiplineShader &other) const
 		{
 			return (m_pipelineState != other.m_pipelineState) || (m_rootSignature != other.m_rootSignature);
+		}
+		void Release()
+		{
+			SafeRelease(m_pipelineState);
+			SafeRelease(m_rootSignature);
 		}
 	};
 

@@ -3,11 +3,21 @@
 class Material
 {
 public:
-	typedef std::pair<BaseTexture*, int> TextureBindpair;
+	struct TextureBindData
+	{
+		BaseTexture* TextureObj = nullptr;
+		int RootSigSlot = 0;
+		int RegisterSlot = 0;
+	};
 	struct TextureBindSet
 	{
-		std::map<std::string, Material::TextureBindpair> BindMap;
+		std::map<std::string, Material::TextureBindData> BindMap;
+		void AddBind(std::string name, int index, int Register)
+		{
+			BindMap.emplace(name, Material::TextureBindData{ nullptr, index ,Register });
+		}
 	};
+
 	struct MaterialProperties
 	{
 		bool UseMainShader = true;
@@ -16,7 +26,7 @@ public:
 		float Roughness = 1.0f;
 		float Metallic = 0.0f;
 		class Shader* ShaderInUse = nullptr;
-		TextureBindSet* TextureBinds = nullptr;
+		const TextureBindSet* TextureBinds = nullptr;
 	};
 
 	CORE_API Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
@@ -29,11 +39,13 @@ public:
 
 	void SetShadow(bool state);
 	bool GetDoesShadow();
-	const MaterialProperties* GetProperties();
+	MaterialProperties* GetProperties();
 	void SetDisplacementMap(BaseTexture* tex);
 	void SetNormalMap(BaseTexture * tex);
 	void SetDiffusetexture(BaseTexture* tex);
 	bool HasNormalMap();
+	static void SetupDefaultMaterial();
+	static Material* GetDefaultMaterial();
 
 private:
 	TextureBindSet * CurrentBindSet = nullptr;
@@ -42,5 +54,6 @@ private:
 	MaterialProperties Properties;
 	//bind to null
 	BaseTexture* NullTexture2D = nullptr;
+	static class Asset_Shader* DefaultMaterial;
 };
 

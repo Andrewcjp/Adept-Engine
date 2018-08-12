@@ -34,7 +34,6 @@ public:
 	virtual void OnStaticUpdate() override;
 	void Resize(int width, int height) override;
 private:	
-	void RenderDebugPlane();
 	void MainPass();
 	void RenderSkybox();
 	RHICommandList* MainCommandList = nullptr;
