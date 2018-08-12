@@ -424,7 +424,7 @@ void D3D12RHI::ReleaseUploadHeap()
 	}
 	for (int i = 0; i < UsedUploadHeaps.size(); i++)
 	{
-		UsedUploadHeaps[i]->Release();
+		//UsedUploadHeaps[i]->Release();
 	}
 	UsedUploadHeaps.clear();
 }

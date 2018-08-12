@@ -4,6 +4,9 @@
 #include "RHI/Shader.h"
 #include "RHI/RHICommandList.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Assets/Asset_Shader.h"
+Asset_Shader* Material::DefaultMaterial = nullptr;
+
 Material::Material(BaseTexture * Diff, MaterialProperties props) :Material(props)
 {
 	UpdateBind("ALBEDOMAP", Diff);
@@ -16,28 +19,30 @@ Material::Material(MaterialProperties props)
 	if (Properties.TextureBinds == nullptr)
 	{
 		CurrentBindSet = new TextureBindSet();
-		SetupDefaultBinding(CurrentBindSet);
+		//SetupDefaultBinding(CurrentBindSet);
 	}
 	else
 	{
-		Properties.TextureBinds = Properties.TextureBinds;
+		CurrentBindSet = new TextureBindSet(*Properties.TextureBinds);
 	}
+	SetupBindings();
 }
 
 Material::~Material()
 {
-	std::map<std::string, Material::TextureBindpair>::iterator it;
+	std::map<std::string, Material::TextureBindData>::iterator it;
 	for (it = CurrentBindSet->BindMap.begin(); it != CurrentBindSet->BindMap.end(); it++)
 	{
-		SafeRefRelease(it->second.first);
+		SafeRefRelease(it->second.TextureObj);
 	}
 }
 
 void Material::SetMaterialActive(RHICommandList* list)
 {
+	//	return;
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
-		list->SetTexture(Pair.second.first, Pair.second.second);
+		list->SetTexture(Pair.second.TextureObj, Pair.second.RootSigSlot);
 	}
 }
 
@@ -45,16 +50,16 @@ void Material::UpdateBind(std::string Name, BaseTexture* NewTex)
 {
 	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
 	{
-		if (CurrentBindSet->BindMap.at(Name).first != NewTex)
+		if (CurrentBindSet->BindMap.at(Name).TextureObj != NewTex)
 		{
-			CurrentBindSet->BindMap.at(Name).first->Release();
-			CurrentBindSet->BindMap.at(Name).first = NewTex;
+			CurrentBindSet->BindMap.at(Name).TextureObj->Release();
+			CurrentBindSet->BindMap.at(Name).TextureObj = NewTex;
 			NewTex->AddRef();
 		}
 	}
 	else
 	{
-		ensureMsgf(false, "Failed to Find Bind");
+		//ensureMsgf(false, "Failed to Find Bind");
 	}
 }
 
@@ -62,7 +67,7 @@ BaseTexture * Material::GetTexturebind(std::string Name)
 {
 	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
 	{
-		return CurrentBindSet->BindMap.at(Name).first;
+		return CurrentBindSet->BindMap.at(Name).TextureObj;
 	}
 	return nullptr;
 }
@@ -77,7 +82,7 @@ bool Material::GetDoesShadow()
 	return Properties.DoesShadow;
 }
 
-const Material::MaterialProperties* Material::GetProperties()
+Material::MaterialProperties* Material::GetProperties()
 {
 	return &Properties;
 }
@@ -102,7 +107,7 @@ void Material::SetDiffusetexture(BaseTexture * tex)
 {
 	if (tex != nullptr)
 	{
-		UpdateBind("ALBEDOMAP", tex);
+		UpdateBind("DiffuseMap", tex);
 	}
 }
 
@@ -111,21 +116,36 @@ bool Material::HasNormalMap()
 	return GetTexturebind("NORMALMAP") != NullTexture2D;
 }
 
+void Material::SetupDefaultMaterial()
+{
+	if (DefaultMaterial == nullptr)
+	{
+		DefaultMaterial = new Asset_Shader(true);
+	}
+}
+
+Material * Material::GetDefaultMaterial()
+{
+	return DefaultMaterial->GetMaterialInstance();
+}
+
 void Material::SetupDefaultBinding(TextureBindSet* TargetSet)
 {
 	TargetSet->BindMap.clear();
-	TargetSet->BindMap.emplace("ALBEDOMAP", TextureBindpair(NullTexture2D, ALBEDOMAP));
-	TargetSet->BindMap.emplace("NORMALMAP", TextureBindpair(NullTexture2D, NORMALMAP));
-	for (int i = 0; i < TargetSet->BindMap.size(); i++)
-	{
-		NullTexture2D->AddRef();
-	}
+	TargetSet->BindMap.emplace("ALBEDOMAP", TextureBindData{ NullTexture2D, ALBEDOMAP });
+	TargetSet->BindMap.emplace("NORMALMAP", TextureBindData{ NullTexture2D, NORMALMAP });
 }
 
 void Material::SetupBindings()
 {
-	for (auto Pair : CurrentBindSet->BindMap)
+	//init to zero binds
+	std::map<std::string, Material::TextureBindData>::iterator it;
+	for (it = CurrentBindSet->BindMap.begin(); it != CurrentBindSet->BindMap.end(); it++)
 	{
-		Pair.second.first->AddRef();
+		it->second.TextureObj = NullTexture2D;
+	}
+	for (int i = 0; i < CurrentBindSet->BindMap.size(); i++)
+	{
+		NullTexture2D->AddRef();
 	}
 }

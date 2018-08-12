@@ -40,15 +40,20 @@ public:
 		}
 		return output;
 	}
+	void SetDefined(bool state)
+	{
+		IsDefined = state;
+	}
 private:
 	bool IsDefined = false;
 };
 class ShaderGraphNode
 {
 public:
-	ShaderGraphNode();
-	~ShaderGraphNode();
+	ShaderGraphNode() {};
+	virtual ~ShaderGraphNode() {};
 	virtual std::string GetComplieCode() = 0;
+	class ShaderGraph* Root = nullptr;
 };
 
 class SGN_MathNode : public ShaderGraphNode
@@ -85,10 +90,54 @@ class CoreProps
 {
 public:
 	PropertyLink * Diffusecolour = nullptr;
+	PropertyLink * NormalDir = nullptr;
 	CoreProps()
 	{
 		Diffusecolour = new PropertyLink();
 		Diffusecolour->Name = "Diffuse";
 		Diffusecolour->Type = ShaderPropertyType::Float3;
+
+		NormalDir = new PropertyLink();
+		NormalDir->Name = "Normal";
+		NormalDir->SetDefined(true);
+		NormalDir->Type = ShaderPropertyType::Float3;
 	}
+};
+namespace TextureType
+{
+	enum Type
+	{
+		Colour,
+		Normal
+	};
+}
+class SGN_Texture : public ShaderGraphNode
+{
+public:
+	SGN_Texture(PropertyLink* Prop, std::string name, TextureType::Type Type = TextureType::Colour)
+	{
+		TargetProp = Prop;
+		Texname = name;
+		texType = Type;
+	};
+	TextureType::Type texType;
+	~SGN_Texture() {};
+	PropertyLink* TargetProp = nullptr;
+	std::string Texname;
+
+	virtual std::string GetComplieCode();
+};
+
+class SGN_CodeSnippet : public ShaderGraphNode
+{
+public:
+	SGN_CodeSnippet(PropertyLink* Prop, std::string code)
+	{
+		TargetProp = Prop;
+		CodeSnip = code;
+	};
+	~SGN_CodeSnippet() {};
+	PropertyLink* TargetProp = nullptr;
+	std::string CodeSnip;
+	virtual std::string GetComplieCode();
 };

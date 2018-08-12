@@ -1,6 +1,6 @@
 #pragma once
 //macro That Removes ref and deletes the object if the count == 0; Also Nulls the pointer for safety
-#define SafeRefRelease(target)if((target)->GetRefCount() > 1){(target)->Release();}else{delete (target); (target) = nullptr;}
+#define SafeRefRelease(target)if(target != nullptr && (target)->GetRefCount() > 1){(target)->Release();}else{delete (target); (target) = nullptr;}
 class IRefCount
 {
 public:

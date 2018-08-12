@@ -11,7 +11,8 @@ ShaderGraph::ShaderGraph(FString Name)
 {
 	GraphName = Name;
 	CoreGraphProperties = new CoreProps();
-	test();
+	MaterialBinds = new Material::TextureBindSet();
+	CurrentSlot = MainShaderRSBinds::Limit + 1;
 }
 
 ShaderGraph::~ShaderGraph()
@@ -20,9 +21,16 @@ ShaderGraph::~ShaderGraph()
 void ShaderGraph::test()
 {
 	GraphName = "Test";
-	Nodes.push_back(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(0, 1, 0)));
+	//AddNodetoGraph(new SGN_Constant(CoreGraphProperties->NormalDir, glm::vec3(0, 0, 0)));
+	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
+	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->NormalDir, "NORMALMAP",TextureType::Normal));
 }
-
+void ShaderGraph::CreateDefault()
+{
+	GraphName = "Default";
+	//AddNodetoGraph(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(1, 1, 0)));
+	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
+}
 bool WriteToFile(std::string filename, std::string data)
 {
 	std::string out;
@@ -41,27 +49,45 @@ bool WriteToFile(std::string filename, std::string data)
 	return true;
 }
 
-bool ShaderGraph::Complie(AssetPathRef Outputfile)
+bool ShaderGraph::Complie()
 {
 	std::string MainShader = AssetManager::instance->LoadFileWithInclude("Main_fs.hlsl");
 	std::vector<std::string> split = StringUtils::Split(MainShader, '\n');
-	const std::string TargetLine = "//Insert Marker";
+	const std::string TargetMarker = "//Insert Marker";
+	const std::string TargetDefineMarker = "//Declares";
 	std::string PreFile = "";
 	std::string PostFile = "";
+	std::string MidFile = "";
 	bool Pre = true;
+	int TargetMarkerindex = 0;
+	int DeclareStartindex = 0;
+	int postIndex = 0;
 	for (int i = 0; i < split.size(); i++)
 	{
-		if (Pre)
+		if (split[i].find(TargetDefineMarker) != -1)
+		{
+			DeclareStartindex = i;
+			/*Pre = false;*/
+		}
+		if (split[i].find(TargetMarker) != -1)
+		{
+			TargetMarkerindex = i;
+		}
+	}
+	for (int i = 0; i < split.size(); i++)
+	{
+		if (i < DeclareStartindex)
 		{
 			PreFile += split[i] + "\n";
 		}
-		else
+		if (i > DeclareStartindex && i < TargetMarkerindex)
+		{
+			MidFile += split[i] + "\n";
+		}
+
+		if (i > TargetMarkerindex)
 		{
 			PostFile += split[i] + "\n";
-		}
-		if (split[i].find(TargetLine) != -1)
-		{
-			Pre = false;
 		}
 	}
 
@@ -70,18 +96,42 @@ bool ShaderGraph::Complie(AssetPathRef Outputfile)
 	{
 		ComplieOutput += Nodes[i]->GetComplieCode();
 	}
-	std::string Path = AssetManager::GetShaderPath() +"Gen\\" + GraphName.ToSString() +".hlsl";
+
+	PreFile += Declares + MidFile;
+
+	std::string Path = AssetManager::GetShaderPath() + "Gen\\" + GraphName.ToSString() + ".hlsl";
 	PlatformApplication::TryCreateDirectory(AssetManager::GetShaderPath() + "Gen");
 	return WriteToFile(Path, PreFile + ComplieOutput + PostFile);
 }
 
 Shader* ShaderGraph::GetGeneratedShader()
 {
-	return new Shader_NodeGraph(this);
+	if (GeneratedShader == nullptr)
+	{
+		GeneratedShader = new Shader_NodeGraph(this);
+	}
+	return GeneratedShader;
 }
 
-Material::TextureBindSet * ShaderGraph::GetMaterialData()
+const Material::TextureBindSet * ShaderGraph::GetMaterialData()
 {
 	return MaterialBinds;
+}
+
+void ShaderGraph::AddNodetoGraph(ShaderGraphNode * Node)
+{
+	Node->Root = this;
+	Nodes.push_back(Node);
+}
+
+void ShaderGraph::AddTexDecleration(std::string data, std::string name)
+{
+	//data cotains Texture2D g_texture 
+	//: register(t20);
+	const std::string RegisterString = ": register(t" + std::to_string(TReg) + ");\n";
+	Declares += data + RegisterString;
+	MaterialBinds->AddBind(name, CurrentSlot, TReg);
+	CurrentSlot++;
+	TReg++;
 }
 

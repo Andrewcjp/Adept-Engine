@@ -35,7 +35,7 @@ Shader_UIBatch::~Shader_UIBatch()
 
 void Shader_UIBatch::PushTOGPU(RHICommandList* list)
 {
-	list->SetConstantBufferView(UniformBuffer, 0, 1);
+	list->SetConstantBufferView(UniformBuffer, 0, 0);
 }
 
 std::vector<Shader::ShaderParameter> Shader_UIBatch::GetShaderParameters()
