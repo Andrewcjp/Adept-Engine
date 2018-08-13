@@ -129,6 +129,11 @@ Material * Material::GetDefaultMaterial()
 	return DefaultMaterial->GetMaterialInstance();
 }
 
+Shader * Material::GetDefaultMaterialShader()
+{
+	return DefaultMaterial->GetMaterialInstance()->GetProperties()->ShaderInUse;
+}
+
 void Material::SetupDefaultBinding(TextureBindSet* TargetSet)
 {
 	TargetSet->BindMap.clear();

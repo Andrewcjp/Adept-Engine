@@ -36,15 +36,21 @@ Shader_Deferred::~Shader_Deferred()
 std::vector<Shader::ShaderParameter> Shader_Deferred::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> out;
-	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, 1, 1));
-	out.push_back(ShaderParameter(ShaderParamType::CBV, 2, 1));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, 3, 2));
-	out.push_back(ShaderParameter(ShaderParamType::CBV, 4, 2));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, 5, 10));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, 6, 11));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, 7, 12));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, 8, 13));
+	out.push_back(ShaderParameter(ShaderParamType::CBV, DeferredLightingShaderRSBinds::LightDataCBV, 1));
+	out.push_back(ShaderParameter(ShaderParamType::CBV, DeferredLightingShaderRSBinds::MVCBV, 2));
+
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::PosTex, 0));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::NormalTex, 1));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::AlbedoTex, 2));
+
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::DirShadow, 7));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::PointShadow, 8));
+
+
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::DiffuseIr, 10));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::SpecBlurMap, 11));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::EnvBRDF, 12));
+	//out.push_back(ShaderParameter(ShaderParamType::SRV, 8, 13));
 	return out;
 }
 std::vector<Shader::VertexElementDESC> Shader_Deferred::GetVertexFormat()

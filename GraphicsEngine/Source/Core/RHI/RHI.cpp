@@ -98,6 +98,15 @@ void RHI::AddLinkedFrameBuffer(FrameBuffer * target)
 	}
 }
 
+RenderSettings* RHI::GetRenderSettings()
+{
+	if (instance != nullptr)
+	{
+		return &instance->RenderSettings;
+	}
+	return nullptr;
+}
+
 
 bool RHI::IsD3D12()
 {

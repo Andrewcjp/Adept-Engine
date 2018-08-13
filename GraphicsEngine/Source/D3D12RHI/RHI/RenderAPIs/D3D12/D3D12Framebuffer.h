@@ -37,7 +37,8 @@ public:
 	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(ID3D12GraphicsCommandList * list);
 
-	void BindDepthWithColourPassthrough(ID3D12GraphicsCommandList* list, D3D12FrameBuffer* Passtrhough);
+
+	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
 	DeviceContext* GetTargetDevice();
 	DeviceContext* GetDevice() override;
 	GPUResource* GetResource(int index);	

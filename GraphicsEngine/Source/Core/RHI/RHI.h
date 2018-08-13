@@ -9,6 +9,7 @@
 #include "Core/Assets/MeshLoader.h"
 #include "RHICommandList.h"
 #include "Core/Module/ModuleInterface.h"
+#include "Rendering/Renderers/RenderSettings.h"
 
 class BaseTexture;
 class Renderable;
@@ -27,7 +28,7 @@ public:
 	};
 	RHI(ERenderSystemType system);
 	~RHI();
-	
+
 	static const int CPUFrameCount = 2;
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
@@ -45,14 +46,14 @@ public:
 
 	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
 	RHI_API static DeviceContext* GetDefaultDevice();
-	static bool InitialiseContext( int w, int h);
+	static bool InitialiseContext(int w, int h);
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
 	static void ToggleFullScreenState();
 	static void ResizeSwapChain(int width, int height);
 	static void DestoryContext();
 
-	static const MultiGPUMode* GetMGPUMode();
+	
 	RHI_API static bool BlockCommandlistExec();
 	RHI_API static bool AllowCPUAhead();
 	RHI_API static int GetDeviceCount();
@@ -65,12 +66,15 @@ public:
 	static void WaitForGPU();
 	static RenderConstants* GetRenderConstants();
 	static void AddLinkedFrameBuffer(FrameBuffer* target);
+	static RenderSettings* GetRenderSettings();
+	static const MultiGPUMode* GetMGPUMode();
 private:
 	static RHI* instance;
 	ERenderSystemType CurrentSystem;
 	static MultiGPUMode CurrentMGPUMode;
 	class RHIClass* CurrentRHI = nullptr;
 	RenderConstants M_RenderConsants;
+	RenderSettings RenderSettings = {};
 	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;
 };
 
@@ -92,8 +96,8 @@ public:
 	virtual void RHIRunFirstFrame() = 0;
 	virtual void ToggleFullScreenState() = 0;
 	virtual void ResizeSwapChain(int width, int height) = 0;
-	virtual void WaitForGPU() =0;
-	virtual void TriggerBackBufferScreenShot() = 0;	
+	virtual void WaitForGPU() = 0;
+	virtual void TriggerBackBufferScreenShot() = 0;
 };
 
 class RHIModule : public IModuleInterface

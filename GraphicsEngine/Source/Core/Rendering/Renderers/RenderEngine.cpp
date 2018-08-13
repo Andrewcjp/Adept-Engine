@@ -8,6 +8,14 @@
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
+#include "Rendering/Core/SceneRenderer.h"
+
+RenderEngine::RenderEngine(int width, int height)
+{
+	m_width = width;
+	m_height = height;
+	SceneRender = new SceneRenderer(nullptr);
+}
 
 RenderEngine::~RenderEngine()
 {
@@ -64,13 +72,13 @@ void RenderEngine::PreRender()
 //init common to both renderers
 void RenderEngine::Init()
 {
-	mShadowRenderer = new ShadowRenderer();
+	mShadowRenderer = new ShadowRenderer(SceneRender);
 	if (MainScene != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 	}
 
-	Conv = new Shader_Convolution();	
+	Conv = new Shader_Convolution();
 	Conv->init();
 	envMap = new Shader_EnvMap();
 	envMap->Init();
@@ -79,6 +87,7 @@ void RenderEngine::Init()
 	PostInit();
 	Post = new PostProcessing();
 	Post->Init(FilterBuffer);
+	SceneRender->Init();
 }
 
 void RenderEngine::ProcessScene()
@@ -104,7 +113,7 @@ void RenderEngine::PrepareData()
 {
 	for (size_t i = 0; i < (*MainScene->GetRenderableObjects()).size(); i++)
 	{
-		MainShader->UpdateUnformBufferEntry(MainShader->CreateUnformBufferEntry((*MainScene->GetRenderableObjects())[i]), (int)i);
+		SceneRender->UpdateUnformBufferEntry(SceneRender->CreateUnformBufferEntry((*MainScene->GetRenderableObjects())[i]), (int)i);
 	}
 }
 
@@ -112,7 +121,7 @@ void RenderEngine::Resize(int width, int height)
 {
 	RHI::ResizeSwapChain(width, height);
 	Post->Resize(FilterBuffer);
-	Log::OutS  << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << Log::OutS;
+	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << Log::OutS;
 }
 
 void RenderEngine::StaticUpdate()
@@ -122,16 +131,11 @@ void RenderEngine::StaticUpdate()
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
 	}
-	MainShader->UpdateLightBuffer(*MainScene->GetLights());
+	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 	PrepareData();
-	MainShader->UpdateCBV();
+	SceneRender->UpdateCBV();
 
 	OnStaticUpdate();
-}
-
-void RenderEngine::SetRenderSettings(RenderSettings set)
-{
-	CurrentRenderSettings = set;
 }
 
 void RenderEngine::SetScene(Scene * sc)
@@ -143,8 +147,8 @@ void RenderEngine::SetScene(Scene * sc)
 		mShadowRenderer->ClearShadowLights();
 		return;
 	}
+	SceneRender->SetScene(sc);
 
-	MainShader->RefreshLights();
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
@@ -161,7 +165,7 @@ void RenderEngine::SetScene(Scene * sc)
 	}
 	if (MainCamera != nullptr)
 	{
-		MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight()); 
+		MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
 	}
 }
 
@@ -171,7 +175,7 @@ void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 }
 
 void RenderEngine::ShadowPass()
-{
+{	
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetRenderableObjects(), MainShader);
@@ -190,12 +194,12 @@ Camera * RenderEngine::GetMainCam()
 
 int RenderEngine::GetScaledWidth()
 {
-	return (int)(m_width * CurrentRenderSettings.RenderScale);
+	return (int)(m_width * RHI::GetRenderSettings()->RenderScale);
 }
 
 int RenderEngine::GetScaledHeight()
 {
-	return (int)(m_height * CurrentRenderSettings.RenderScale);
+	return (int)(m_height * RHI::GetRenderSettings()->RenderScale);
 }
 
 Shader * RenderEngine::GetMainShader()

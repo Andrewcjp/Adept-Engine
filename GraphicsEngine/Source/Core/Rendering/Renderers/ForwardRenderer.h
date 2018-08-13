@@ -8,18 +8,17 @@
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "Rendering/Core/Material.h"
 #include "RHI/Shader.h"
-#include "Rendering\Shaders\Shader_Main.h"
-#include "Rendering\Shaders\Shader_Depth.h"
-#include "Rendering\Shaders\Shader_Grass.h"
+#include "Rendering/Shaders/Shader_Main.h"
+#include "Rendering/Shaders/Shader_Depth.h"
+#include "Rendering/Shaders/Shader_Grass.h"
 #include "Core/Assets/Scene.h"
 #include "Rendering/Core/FrameBuffer.h"
-#include <memory>
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/Core/GPUStateCache.h"
-#include "Rendering\Shaders\Shader_Skybox.h"
+#include "Rendering/Shaders/Shader_Skybox.h"
 #include "Core/Performance/PerfManager.h"
-
 #include "RHI/RHICommandList.h"
+
 #define USED3D12DebugP 1
 class ForwardRenderer : public RenderEngine
 {
@@ -33,6 +32,7 @@ public:
 	virtual void FinaliseRender() override;
 	virtual void OnStaticUpdate() override;
 	void Resize(int width, int height) override;
+	
 private:	
 	void MainPass();
 	void RenderSkybox();

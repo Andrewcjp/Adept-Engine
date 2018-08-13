@@ -32,7 +32,7 @@ void MeshRendererComponent::SetUpMesh(Renderable * Mesh, Material * materal)
 
 void MeshRendererComponent::Render(bool DepthOnly, RHICommandList* list)
 {
-	if (m_mat != nullptr && DepthOnly == false)
+	if (m_mat != nullptr && !DepthOnly)
 	{
 		m_mat->SetMaterialActive(list);
 	}

@@ -21,16 +21,21 @@ ShaderGraph::~ShaderGraph()
 void ShaderGraph::test()
 {
 	GraphName = "Test";
-	//AddNodetoGraph(new SGN_Constant(CoreGraphProperties->NormalDir, glm::vec3(0, 0, 0)));
+#if 0
+	AddNodetoGraph(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(1, 1, 1)));
+#else
 	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
 	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->NormalDir, "NORMALMAP",TextureType::Normal));
+#endif
 }
+
 void ShaderGraph::CreateDefault()
 {
 	GraphName = "Default";
 	//AddNodetoGraph(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(1, 1, 0)));
 	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
 }
+
 bool WriteToFile(std::string filename, std::string data)
 {
 	std::string out;
@@ -49,9 +54,19 @@ bool WriteToFile(std::string filename, std::string data)
 	return true;
 }
 
+std::string ShaderGraph::GetTemplateName()
+{
+	if (RHI::GetRenderSettings()->IsDeferred)
+	{
+		return "MaterialTemplate_DEF_W_fs.hlsl";
+	}
+	return "MaterialTemplate_FWD_fs.hlsl";
+}
+
 bool ShaderGraph::Complie()
 {
-	std::string MainShader = AssetManager::instance->LoadFileWithInclude("Main_fs.hlsl");
+	std::string MainShader = AssetManager::instance->LoadFileWithInclude(GetTemplateName());
+	ensure(!MainShader.empty());
 	std::vector<std::string> split = StringUtils::Split(MainShader, '\n');
 	const std::string TargetMarker = "//Insert Marker";
 	const std::string TargetDefineMarker = "//Declares";

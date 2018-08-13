@@ -9,6 +9,7 @@ public:
 	~ShaderGraph();
 	void test();
 	void CreateDefault();
+	
 	bool Complie();
 	class Shader* GetGeneratedShader();
 	const Material::TextureBindSet* GetMaterialData();
@@ -24,5 +25,6 @@ private:
 	int TReg = 20;
 	int CurrentSlot = 0;
 	class Shader_NodeGraph* GeneratedShader = nullptr;
+	std::string GetTemplateName();
 };
 

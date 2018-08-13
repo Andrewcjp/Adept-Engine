@@ -29,7 +29,6 @@ public:
 	bool ShowHud = false;
 	bool ShowText = true;
 	bool ExtendedPerformanceStats = true;
-	static const RenderSettings* GetCurrentRenderSettings();
 protected:
 
 	//callbacks
@@ -47,7 +46,6 @@ protected:
 	class UIManager* UI = nullptr;
 	class DebugLineDrawer* LineDrawer = nullptr;
 	class Scene* CurrentScene = nullptr;
-	RenderSettings CurrentRenderSettings;
 	class Editor_Camera* EditorCamera = nullptr;
 	class SceneJSerialiser* Saver = nullptr;
 	
@@ -70,7 +68,6 @@ private:
 	int			m_width;
 	int			m_height;
 	//constants
-	bool IsDeferredMode = false;
 	bool LoadText = true;
 	bool Once = true;
 	double AccumTickTime = 0.0f;
