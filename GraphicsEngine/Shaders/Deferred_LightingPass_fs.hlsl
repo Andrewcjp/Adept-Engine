@@ -4,6 +4,7 @@ SamplerState g_Clampsampler : register(s1);
 Texture2D PosTexture : register(t0);
 Texture2D NormalTexture : register(t1);
 Texture2D AlbedoTexture : register(t2);
+
 TextureCube DiffuseIrMap : register(t10);
 TextureCube SpecularBlurMap: register(t11);
 Texture2D envBRDFTexture: register(t12);
@@ -56,8 +57,8 @@ float4 main(VS_OUTPUT input) : SV_Target
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
 		if (i == 2)
 		{
-			int out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
-			LightColour *= 1.0 - out2;
+		//	int out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
+		//	LightColour *= 1.0 - out2;
 		}
 		else
 		{

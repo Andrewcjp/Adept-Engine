@@ -24,7 +24,7 @@ BaseWindow::BaseWindow()
 	assert(Instance == nullptr);
 	Instance = this;
 	PlatformApplication::InitTiming();
-	CurrentRenderSettings.RenderScale = 1;
+	RHI::GetRenderSettings()->RenderScale = 1;
 }
 
 
@@ -58,6 +58,7 @@ bool BaseWindow::ChangeDisplayMode(int width, int height)
 bool BaseWindow::CreateRenderWindow(int width, int height)
 {
 	RHI::InitialiseContext(width, height);
+	Material::SetupDefaultMaterial();//move!
 	m_height = height;
 	m_width = width;
 	InitilseWindow();
@@ -68,8 +69,7 @@ void BaseWindow::InitilseWindow()
 {
 	Log::OutS << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
-	IsDeferredMode = false;
-	if (IsDeferredMode)
+	if (RHI::GetRenderSettings()->IsDeferred)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
 	}
@@ -77,7 +77,6 @@ void BaseWindow::InitilseWindow()
 	{
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
-	Renderer->SetRenderSettings(CurrentRenderSettings);
 	Renderer->Init();
 	CurrentScene = new Scene();
 	CurrentScene->LoadDefault();
@@ -274,8 +273,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			StringUtils::RemoveChar(command, " ");
 			if (command.length() > 0)
 			{
-				Instance->CurrentRenderSettings.RenderScale = glm::clamp(stof(command), 0.1f, 5.0f);
-				Instance->Renderer->SetRenderSettings(Instance->CurrentRenderSettings);
+				RHI::GetRenderSettings()->RenderScale = glm::clamp(stof(command), 0.1f, 5.0f);
 				Instance->Resize(Instance->m_width, Instance->m_height);
 			}
 			return true;
@@ -290,15 +288,6 @@ Camera * BaseWindow::GetCurrentCamera()
 	{
 		return Instance->Renderer->GetMainCam();
 
-	}
-	return nullptr;
-}
-
-const RenderSettings * BaseWindow::GetCurrentRenderSettings()
-{
-	if (Instance != nullptr)
-	{
-		return &Instance->CurrentRenderSettings;
 	}
 	return nullptr;
 }
@@ -449,7 +438,7 @@ void BaseWindow::RenderText()
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
 	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
-	if (IsDeferredMode)
+	if (RHI::GetRenderSettings()->IsDeferred)
 	{
 		stream << "DEF ";
 	}

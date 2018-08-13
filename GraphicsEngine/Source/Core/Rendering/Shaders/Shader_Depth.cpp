@@ -57,9 +57,9 @@ void Shader_Depth::SetShaderActive()
 std::vector<Shader::ShaderParameter> Shader_Depth::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> Output;
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, 1));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 0));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 2));
+	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, Shader_Depth_RSSlots::ModelBuffer));
+	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, Shader_Depth_RSSlots::GeometryProjections));
+	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, Shader_Depth_RSSlots::VPBuffer));
 	//Shader_Main::GetMainShaderSig(Output);
 	return Output;
 }

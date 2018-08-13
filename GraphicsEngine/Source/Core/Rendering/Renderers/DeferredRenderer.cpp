@@ -10,6 +10,7 @@
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "RHI/DeviceContext.h"
+#include "Rendering/Core/SceneRenderer.h"
 void DeferredRenderer::OnRender()
 {
 #if WITH_EDITOR
@@ -37,46 +38,38 @@ void DeferredRenderer::OnRender()
 
 void DeferredRenderer::RenderSkybox()
 {
-	SkyBox->Render(MainShader, FilterBuffer, GFrameBuffer);
+	SkyBox->Render(SceneRender, FilterBuffer, GFrameBuffer);
 }
 
 void DeferredRenderer::PostInit()
 {
-	MainShader = new Shader_Main(false);
 	FilterBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateColour(m_width, m_height));
 	DeferredShader = new Shader_Deferred();
 	GFrameBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateGBuffer(m_width, m_height));
-	WriteList = RHI::CreateCommandList(ECommandListType::Graphics,RHI::GetDeviceContext(0));
-	WriteList->CreatePipelineState(MainShader, GFrameBuffer);
-	LightingList = RHI::CreateCommandList(ECommandListType::Graphics,RHI::GetDeviceContext(0));
+	WriteList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
+	WriteList->CreatePipelineState(Material::GetDefaultMaterialShader(), GFrameBuffer);
+	LightingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
 	LightingList->SetPipelineState(PipeLineState{ false,false,false });
 	LightingList->CreatePipelineState(DeferredShader);
 	SkyBox = new Shader_Skybox();
 	SkyBox->Init(FilterBuffer, GFrameBuffer);
 }
 
-
 void DeferredRenderer::GeometryPass()
 {
 	if (MainScene->StaticSceneNeedsUpdate)
 	{
-		MainShader->UpdateLightBuffer(*MainScene->GetLights());
+		SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 		PrepareData();
-		MainShader->UpdateCBV();
+		SceneRender->UpdateCBV();
 	}
-	 
+	SceneRender->UpdateMV(MainCamera);
 	WriteList->ResetList();
 	WriteList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(WriteList);
-	WriteList->GetDevice()->GetTimeManager()->StartTimer(WriteList,EGPUTIMERS::DeferredWrite);
+	WriteList->GetDevice()->GetTimeManager()->StartTimer(WriteList, EGPUTIMERS::DeferredWrite);
 	WriteList->SetRenderTarget(GFrameBuffer);
 	WriteList->ClearFrameBuffer(GFrameBuffer);
-	MainShader->BindLightsBuffer(WriteList);
-	MainShader->UpdateMV(MainCamera);
-	for (size_t i = 0; i < (*MainScene->GetRenderableObjects()).size(); i++)
-	{
-		MainShader->SetActiveIndex(WriteList, i);
-		(*MainScene->GetRenderableObjects())[i]->Render(false, WriteList);
-	}
+	SceneRender->RenderScene(WriteList, false, GFrameBuffer);
 	WriteList->SetRenderTarget(nullptr);
 	WriteList->GetDevice()->GetTimeManager()->EndTimer(WriteList, EGPUTIMERS::DeferredWrite);
 	WriteList->Execute();
@@ -100,19 +93,21 @@ void DeferredRenderer::LightingPass()
 
 	LightingList->SetRenderTarget(FilterBuffer);
 	LightingList->ClearFrameBuffer(FilterBuffer);
-	LightingList->SetFrameBufferTexture(GFrameBuffer, 0, 0);
-	LightingList->SetFrameBufferTexture(GFrameBuffer, 1, 1);
-	LightingList->SetFrameBufferTexture(GFrameBuffer, 3, 2);
-	LightingList->SetFrameBufferTexture(Conv->CubeBuffer, 5);
+	LightingList->SetFrameBufferTexture(GFrameBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
+	LightingList->SetFrameBufferTexture(GFrameBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
+	LightingList->SetFrameBufferTexture(GFrameBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
+	LightingList->SetFrameBufferTexture(Conv->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-		LightingList->SetTexture(MainScene->GetLightingData()->SkyBox, 6);
+		LightingList->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
 	}
-	LightingList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, 7);
+	LightingList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
 
-	MainShader->BindLightsBuffer(LightingList, true);
-	MainShader->BindMvBuffer(LightingList, 4);
-	mShadowRenderer->BindShadowMapsToTextures(LightingList);
+	SceneRender->BindLightsBuffer(LightingList, DeferredLightingShaderRSBinds::LightDataCBV);
+	SceneRender->BindMvBuffer(LightingList, DeferredLightingShaderRSBinds::MVCBV);
+
+	//mShadowRenderer->BindShadowMapsToTextures(LightingList);
+
 	DeferredShader->RenderScreenQuad(LightingList);
 	//LightingList->SetRenderTarget(nullptr);
 	WriteList->GetDevice()->GetTimeManager()->EndTimer(LightingList, EGPUTIMERS::DeferredLighting);

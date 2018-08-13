@@ -1,19 +1,23 @@
 #pragma once
-enum AAMode
+namespace AAMode
 {
-	NONE,
-	FXAA,
-	MSAA,
-	SMAA,
-};
+	enum Type
+	{
+		NONE,
+		FXAA,
+		MSAA,
+		SMAA,
+	};
+}
 
 struct RenderSettings
 {
 	RenderSettings();
 public:
 	float RenderScale = 1;
-	AAMode CurrentAAMode = AAMode::FXAA;
+	AAMode::Type CurrentAAMode = AAMode::FXAA;
 	int ShadowMapSize = 2048;
+	bool IsDeferred = false;
 };
 
 struct MultiGPUMode

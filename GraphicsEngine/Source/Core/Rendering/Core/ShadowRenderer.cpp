@@ -14,10 +14,12 @@
 #include "Core/BaseWindow.h"
 #include "RHI/RHITypes.h"
 #include "Core/EngineInc.h"
+#include "Rendering/Core/SceneRenderer.h"
 #define CUBE_SIDES 6
 
-ShadowRenderer::ShadowRenderer()
+ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 {
+	Scenerenderer = sceneRenderer;
 	DirectionalLightShader = new Shader_Depth(false);
 
 	int shadowwidth = 1024;
@@ -36,7 +38,7 @@ ShadowRenderer::ShadowRenderer()
 	}
 #else
 
-	const int ShadowMapSize = BaseWindow::GetCurrentRenderSettings()->ShadowMapSize;
+	const int ShadowMapSize = RHI::GetRenderSettings()->ShadowMapSize;
 	for (int i = 0; i < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS; i++)
 	{
 		if (i == 2 && RHI::GetMGPUMode()->SplitShadowWork)
@@ -65,6 +67,8 @@ ShadowRenderer::ShadowRenderer()
 	ShadowPreSamplingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
 	ShadowPreSamplingList->CreatePipelineState(ShadowPreSampleShader, LightInteractions[2]->PreSampledBuffer);
 }
+
+
 
 ShadowRenderer::~ShadowRenderer()
 {
@@ -154,8 +158,8 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 		list->SetFrameBufferTexture(LightInteractions[SNum]->ShadowMap, 0);
 		list->SetRenderTarget(LightInteractions[SNum]->PreSampledBuffer);
 		list->ClearFrameBuffer(LightInteractions[SNum]->PreSampledBuffer);
-		mainshader->BindLightsBuffer(list);
-		mainshader->BindMvBuffer(list, 2);
+
+		Scenerenderer->BindMvBuffer(list, Shader_Depth_RSSlots::VPBuffer);
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
 			if (ShadowObjects[i]->GetMat() == nullptr)
@@ -167,9 +171,11 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 			{
 				continue;
 			}
-			mainshader->SetActiveIndex(list, (int)i, list->GetDeviceIndex());
+			Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());
 			ShadowObjects[i]->Render(true, list);
 		}
+
+		Scenerenderer->RenderScene(list, true);
 		list->SetRenderTarget(nullptr);
 	}
 	list->GetDevice()->GetTimeManager()->EndTimer(list, EGPUTIMERS::ShadowPreSample);
@@ -198,7 +204,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 		list->SetRenderTarget(TargetBuffer);
 		list->ClearFrameBuffer(TargetBuffer);
 		UpdateGeometryShaderParams(ShadowingPointLights[SNum]->GetPosition(), ShadowingPointLights[SNum]->Projection, SNum);
-		list->SetConstantBufferView(GeometryProjections, SNum, 0);
+		list->SetConstantBufferView(GeometryProjections, SNum, Shader_Depth_RSSlots::GeometryProjections);
 		Shader_Depth::LightData data = {};
 		data.Proj = ShadowingPointLights[SNum]->Projection;
 		data.Lightpos = ShadowingPointLights[SNum]->GetPosition();
@@ -214,9 +220,10 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 			{
 				continue;
 			}
-			mainshader->SetActiveIndex(list, (int)i, list->GetDeviceIndex());
+			Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());//default to Shader_Depth_RSSlots::ModelBuffer
 			ShadowObjects[i]->Render(true, list);
 		}
+
 	}
 }
 
@@ -228,7 +235,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 
 		list->SetRenderTarget(TargetBuffer);
 		list->ClearFrameBuffer(TargetBuffer);
-		mainshader->UpdateMV(ShadowingDirectionalLights[SNum]->DirView, ShadowingDirectionalLights[SNum]->Projection);
+		//		mainshader->UpdateMV(ShadowingDirectionalLights[SNum]->DirView, ShadowingDirectionalLights[SNum]->Projection);
 		Shader_Depth::LightData data = {};
 		data.Proj = ShadowingDirectionalLights[SNum]->Projection;
 		data.Lightpos = ShadowingDirectionalLights[SNum]->GetPosition();
@@ -244,7 +251,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 			{
 				continue;
 			}
-			mainshader->SetActiveIndex(list, (int)i);
+			//mainshader->SetActiveIndex(list, (int)i);
 			ShadowObjects[i]->Render(true, list);
 		}
 		//list->SetRenderTarget(nullptr);

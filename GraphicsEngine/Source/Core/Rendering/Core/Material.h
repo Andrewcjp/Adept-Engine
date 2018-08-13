@@ -46,7 +46,7 @@ public:
 	bool HasNormalMap();
 	static void SetupDefaultMaterial();
 	static Material* GetDefaultMaterial();
-
+	static Shader* GetDefaultMaterialShader();
 private:
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);

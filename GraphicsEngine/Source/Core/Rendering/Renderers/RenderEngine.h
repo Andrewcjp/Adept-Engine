@@ -2,20 +2,16 @@
 #include "Rendering/Core/Camera.h"
 #include "Core/GameObject.h"
 #include "Rendering/Core/Light.h"
-#include "Rendering\Shaders\Shader_Main.h"
+#include "Rendering/Shaders/Shader_Main.h"
 #include <vector>
 #include "Rendering/Core/FrameBuffer.h"
-
 #include "RenderSettings.h"
-class OGLWindow;
+
 class Scene;
 class RenderEngine
 {
 public:
-	RenderEngine(int width, int height) {
-		m_width = width;
-		m_height = height;
-	}
+	RenderEngine(int width, int height);
 	virtual ~RenderEngine();
 	void Render();
 	void PreRender();
@@ -30,10 +26,9 @@ public:
 	//called on play start and in editor when statics are changed
 	void StaticUpdate();
 	virtual void OnStaticUpdate() =0;
-	virtual void SetRenderSettings(RenderSettings settings);
 	virtual void SetScene(Scene* sc);
 	virtual void SetEditorCamera(class Editor_Camera* cam);
-
+	class SceneRenderer* SceneRender = nullptr;
 	//getters
 	Shader* GetMainShader();
 	Camera* GetMainCam();
@@ -46,7 +41,7 @@ protected:
 	void PostProcessPass();
 	int			m_width = 0;
 	int			m_height = 0;
-	RenderSettings CurrentRenderSettings = {};
+	
 	Scene* MainScene = nullptr; 
 	Camera* MainCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;

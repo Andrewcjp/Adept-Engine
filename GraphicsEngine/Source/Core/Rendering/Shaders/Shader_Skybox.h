@@ -7,7 +7,7 @@ public:
 	Shader_Skybox();
 	void Init(FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	virtual ~Shader_Skybox();
-	void Render(class Shader_Main * mainshader, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
+	void Render(class SceneRenderer * SceneRender, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	std::vector<Shader::ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 	BaseTexture* SkyBoxTexture;

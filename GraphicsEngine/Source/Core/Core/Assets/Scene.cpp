@@ -78,8 +78,6 @@ void Scene::LoadDefault()
 //load an example scene
 void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 {
-	Material::SetupDefaultMaterial();//move!
-
 	GameObject* go = new GameObject("House");
 	LightComponent* lc = nullptr;
 	//Material* newmat = new Material(AssetManager::DirectLoadTextureAsset("texture\\house_diffuse.tga"));

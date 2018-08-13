@@ -5,6 +5,14 @@
 //todo: refactor!
 Shader_NodeGraph::Shader_NodeGraph(ShaderGraph* graph) :Shader_Main(true)
 {
+	if (RHI::GetRenderSettings()->IsDeferred)
+	{
+		m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);		
+	}
+	else
+	{
+		m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);
+	}
 	std::string Data = "Gen\\" + graph->GetGraphName().ToSString();
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TEST", "1"));
 	m_Shader->AttachAndCompileShaderFromFile(Data.c_str(), SHADER_FRAGMENT);

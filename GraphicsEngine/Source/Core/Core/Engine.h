@@ -38,6 +38,7 @@ public:
 	bool							GetWindowValid() const;
 	CORE_API static void			Exit(int code = 0);
 	void							HandleInput(unsigned int key);
+
 private:
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;

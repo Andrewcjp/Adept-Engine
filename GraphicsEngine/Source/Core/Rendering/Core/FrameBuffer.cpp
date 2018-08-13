@@ -46,3 +46,5 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice)
 	PerfManager::EndTimer("RunOnSecondDevice");
 }
 
+void FrameBuffer::BindDepthWithColourPassthrough(RHICommandList * list, FrameBuffer * PassThrough)
+{}

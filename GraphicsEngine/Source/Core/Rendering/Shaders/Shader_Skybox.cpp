@@ -6,6 +6,7 @@
 #include "Shader_Main.h"
 #include "RHI/DeviceContext.h"
 #include "Core/EngineInc.h"
+#include "Rendering/Core/SceneRenderer.h"
 Shader_Skybox::Shader_Skybox()
 {
 	SkyBoxTexture = AssetManager::DirectLoadTextureAsset("texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
@@ -47,7 +48,7 @@ Shader_Skybox::~Shader_Skybox()
 	delete List;
 }
 
-void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
+void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List->ResetList();
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::Skybox);
@@ -61,6 +62,7 @@ void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBu
 			fb->BindDepthWithColourPassthrough(ll->GetCommandList(), (D3D12FrameBuffer*)Buffer);
 		}
 #endif
+		DepthSourceBuffer->BindDepthWithColourPassthrough(List, Buffer);
 	}
 	else
 	{
@@ -71,7 +73,7 @@ void Shader_Skybox::Render(Shader_Main* mainshader, FrameBuffer* Buffer, FrameBu
 #else
 	List->SetTexture(SkyBoxTexture, 0);
 #endif
-	mainshader->BindMvBuffer(List, 1);
+	SceneRender->BindMvBuffer(List, 1);
 	CubeModel->Render(List);
 
 	///todo:!

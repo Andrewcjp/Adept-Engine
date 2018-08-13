@@ -1,12 +1,11 @@
 #pragma once
 #include <vector>
-
 #include "RHI/RHI_inc_fwd.h"
 
 class ShadowRenderer
 {
 public:
-	ShadowRenderer();
+	ShadowRenderer(class SceneRenderer* SceneRender);
 	~ShadowRenderer();
 	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index);
 	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects,class Shader_Main* mainshader = nullptr);
@@ -29,7 +28,6 @@ private:
 
 	FrameBuffer* DirectionalLightBuffer = nullptr;
 	std::vector<FrameBuffer*> DirectionalLightBuffers;
-//	std::vector <FrameBuffer*> PointLightBuffers;
 	RHICommandList* PointShadowList = nullptr;
 	RHICommandList* PointShadowListALT = nullptr;
 	RHICommandList*  DirectionalShadowList = nullptr;
@@ -58,5 +56,6 @@ private:
 	
 	class Shader_ShadowSample* ShadowPreSampleShader = nullptr;
 	RHICommandList* ShadowPreSamplingList = nullptr;
+	SceneRenderer* Scenerenderer = nullptr;
 };
 

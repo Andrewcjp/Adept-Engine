@@ -422,11 +422,14 @@ void D3D12RHI::ReleaseUploadHeap()
 		//ensure the heap are not still in use!
 		return;
 	}
-	for (int i = 0; i < UsedUploadHeaps.size(); i++)
+	if (!DetectGPUDebugger())
 	{
-		//UsedUploadHeaps[i]->Release();
-	}
-	UsedUploadHeaps.clear();
+		for (int i = 0; i < UsedUploadHeaps.size(); i++)
+		{
+			UsedUploadHeaps[i]->Release();
+		}
+		UsedUploadHeaps.clear();
+	}	
 }
 
 void D3D12RHI::AddUploadToUsed(ID3D12Resource* Target)

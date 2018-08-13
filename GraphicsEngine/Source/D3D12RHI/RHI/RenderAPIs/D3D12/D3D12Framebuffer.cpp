@@ -6,6 +6,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
+#include "D3D12CommandList.h"
 #define CUBE_SIDES 6
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
@@ -286,21 +287,24 @@ void D3D12FrameBuffer::MakeReadyForCopy(ID3D12GraphicsCommandList * list)
 	SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);//D3D12_RESOURCE_STATE_COPY_DEST
 }
 
-void D3D12FrameBuffer::BindDepthWithColourPassthrough(ID3D12GraphicsCommandList * list, D3D12FrameBuffer * Passtrhough)
+
+void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, FrameBuffer* PassThrough)
 {
+	D3D12FrameBuffer * DPassBuffer = (D3D12FrameBuffer*)PassThrough;
+	ID3D12GraphicsCommandList* list = ((D3D12CommandList*)List)->GetCommandList();
 	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
 	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
-	if (Passtrhough->RenderTarget[0])
+	if (DPassBuffer->RenderTarget[0])
 	{
-		Passtrhough->RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		DPassBuffer->RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	}
 	if (DepthStencil != nullptr)
 	{
 		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
-	list->OMSetRenderTargets(Passtrhough->BufferDesc.RenderTargetCount, &Passtrhough->RTVHeap->GetCPUAddress(0), true, &DSVHeap->GetCPUAddress(0));
+	list->OMSetRenderTargets(DPassBuffer->BufferDesc.RenderTargetCount, &DPassBuffer->RTVHeap->GetCPUAddress(0), true, &DSVHeap->GetCPUAddress(0));
 }
 
 DeviceContext * D3D12FrameBuffer::GetTargetDevice()
@@ -426,7 +430,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		{
 			//write create rtvs for all the mips
 			RenderTargetDesc.Texture2D.MipSlice = i;
-			CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap+ i));
+			CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
 		}
 		NewResource->SetName(L"FrameBuffer RT");
 	}
@@ -464,7 +468,7 @@ void D3D12FrameBuffer::Init()
 		const int MipStride = BufferDesc.MipCount;
 		for (int i = 0; i < BufferDesc.RenderTargetCount; i += MipStride)
 		{
-			CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i/ BufferDesc.MipCount]), BufferDesc.Dimension, i);
+			CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i / BufferDesc.MipCount]), BufferDesc.Dimension, i);
 		}
 	}
 	UpdateSRV();
@@ -518,7 +522,7 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 		}
 		return;
 	}
-//	ensure(Resourceindex < BufferDesc.RenderTargetCount);
+	//	ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	lastboundslot = slot;
 
 	SrvHeap->BindHeap(list);
@@ -619,7 +623,7 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 }
 
 const RHIPipeRenderTargetDesc& D3D12FrameBuffer::GetPiplineRenderDesc()
-{	
+{
 	return RenderTargetDesc;
 }
 
