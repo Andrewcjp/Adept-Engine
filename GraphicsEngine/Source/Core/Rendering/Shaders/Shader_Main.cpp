@@ -12,7 +12,7 @@ Shader_Main::Shader_Main(bool LoadForward)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(MAX_LIGHTS)));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED", std::to_string((int)RHI::GetRenderSettings()->IsDeferred)));
+//	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED", std::to_string((int)RHI::GetRenderSettings()->IsDeferred)));
 #if 0
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);
 	if (LoadForward)

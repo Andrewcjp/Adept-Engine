@@ -37,9 +37,15 @@ void PostProcessEffectBase::InitEffect(FrameBuffer* Target)
 void PostProcessEffectBase::RunPass(FrameBuffer* InputTexture)
 {
 	CMDlist->ResetList();
-	CMDlist->GetDevice()->GetTimeManager()->StartTimer(CMDlist, EGPUTIMERS::PostProcess);
+	if (IsFirst)
+	{
+		CMDlist->GetDevice()->GetTimeManager()->StartTimer(CMDlist, EGPUTIMERS::PostProcess);
+	}
 	ExecPass(CMDlist, InputTexture);
-	CMDlist->GetDevice()->GetTimeManager()->EndTimer(CMDlist, EGPUTIMERS::PostProcess);
+	if (IsLast)
+	{
+		CMDlist->GetDevice()->GetTimeManager()->EndTimer(CMDlist, EGPUTIMERS::PostProcess);
+	}
 	CMDlist->Execute();
 	PostPass();
 }

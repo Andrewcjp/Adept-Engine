@@ -23,7 +23,7 @@ void PP_Bloom::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	list->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	const int ThreadCount = 8;
 	list->Dispatch(InputTexture->GetWidth()  / ThreadCount, InputTexture->GetHeight() / ThreadCount, 1);
-	list->UAVBarrier(UAV);
+	list->UAVBarrier(UAV);	
 }
 
 void PP_Bloom::PostSetUpData()
@@ -66,6 +66,7 @@ void PP_Bloom::PostInitEffect(FrameBuffer * Target)
 	Desc.StartingState = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	BloomBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
 	//BloomBuffer->
+	
 	UAV->CreateUAVFromFrameBuffer(BloomBuffer);
 	BlurEffect->InitEffect(BloomBuffer);
 	Compost->InitEffect(BloomBuffer);

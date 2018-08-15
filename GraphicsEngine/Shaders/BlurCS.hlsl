@@ -31,7 +31,7 @@ cbuffer cbSettings : register(b0)
 
 static const int gMaxBlurRadius = 5;
 static const int gBlurRadius = 5;
-#define N 256
+#define N 32
 #define CacheSize (N + 2*gMaxBlurRadius)
 groupshared float4 gCache[CacheSize];
 [numthreads(N, 1, 1)]

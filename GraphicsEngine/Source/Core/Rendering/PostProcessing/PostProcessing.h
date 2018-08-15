@@ -22,6 +22,7 @@ public:
 	class PP_Bloom* Bloom = nullptr;
 private:
 	bool Needscompost = false;
+	
 };
 
 //todo:

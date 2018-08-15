@@ -288,6 +288,11 @@ void D3D12FrameBuffer::MakeReadyForCopy(ID3D12GraphicsCommandList * list)
 }
 
 
+void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List)
+{
+	GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+}
+
 void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, FrameBuffer* PassThrough)
 {
 	D3D12FrameBuffer * DPassBuffer = (D3D12FrameBuffer*)PassThrough;

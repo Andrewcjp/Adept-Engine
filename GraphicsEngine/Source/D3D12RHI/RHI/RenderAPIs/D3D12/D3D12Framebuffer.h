@@ -37,7 +37,7 @@ public:
 	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(ID3D12GraphicsCommandList * list);
 
-
+	virtual void MakeReadyForComputeUse(RHICommandList* List) override;
 	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
 	DeviceContext* GetTargetDevice();
 	DeviceContext* GetDevice() override;
