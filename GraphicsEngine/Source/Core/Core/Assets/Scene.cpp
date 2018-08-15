@@ -78,9 +78,11 @@ void Scene::LoadDefault()
 //load an example scene
 void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 {
+	StaticSceneNeedsUpdate = true;
+	Asset_Shader* NormalMapShader = new Asset_Shader();
+
 	GameObject* go = new GameObject("House");
 	LightComponent* lc = nullptr;
-	//Material* newmat = new Material(AssetManager::DirectLoadTextureAsset("texture\\house_diffuse.tga"));
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\house_diffuse.tga"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("house.obj"), mat));
@@ -90,13 +92,11 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	go = new GameObject("Terrain");
 	mat = Material::GetDefaultMaterial();
-	//new Material(AssetManager::DirectLoadTextureAsset("texture\\grasshillalbedo.png"));
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\grasshillalbedo.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("DefaultTerrain.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
-	//slow
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Camera");
@@ -119,14 +119,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	lc->SetIntensity(1.3f);
 	AddGameobjectToScene(go);
 
-	//go = new GameObject("Dir Light");
-	//go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
-	//go->GetTransform()->SetEulerRot(glm::vec3(50, 0, 0));
-	//lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	//lc->SetShadow(true);
-	//lc->SetLightType(Light::Directional);
-	//lc->SetIntensity(1.3f);
-	//AddGameobjectToScene(go);
 #endif
 
 #if 1
@@ -148,8 +140,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	lc->SetIntensity(500.0f);
 	AddGameobjectToScene(go);
 
-
-
 	go = new GameObject("Point Light");
 	go->GetTransform()->SetPos(glm::vec3(3, 15, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -158,6 +148,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	lc->SetLightType(Light::Point);
 	lc->SetIntensity(500.0f);
 	AddGameobjectToScene(go);
+
 	for (int i = 0; i < 1; i++)
 	{
 		go = new GameObject("Point Light");
@@ -169,13 +160,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		lc->SetIntensity(500.0f);
 		AddGameobjectToScene(go);
 	}
-#endif
-
-
-	Asset_Shader* Asset = new Asset_Shader();
+#endif	
 
 	go = new GameObject("Test");
-	mat = Asset->GetMaterialInstance();
+	mat = NormalMapShader->GetMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
@@ -184,29 +172,26 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
 
+	go = new GameObject("Plane");
+	mat = NormalMapShader->GetMaterialInstance();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
+	mat->SetDisplacementMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_disp.jpg"));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
+	go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(0.5));
+	AddGameobjectToScene(go);
 
 	go = new GameObject("Plane");
-	mat = Material::GetDefaultMaterial();
+	mat = NormalMapShader->GetMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 20, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(0.5));
 	go->AttachComponent(new RigidbodyComponent());
-
-	AddGameobjectToScene(go);
-
-	go = new GameObject("Plane");
-	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
-	mat->SetDisplacementMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_disp.jpg"));
-
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(0.5));
-
 	AddGameobjectToScene(go);
 
 	/*go = new GameObject("Fence");
@@ -227,28 +212,26 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(-37, -2, -20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
-
 	AddGameobjectToScene(go);
-	if (IsDeferredMode == false)
-	{
-		/*go = new GameObject("Water");
 
-		Material::MaterialProperties props;
-		props.DoesShadow = false;
-		props.IsReflective = true;
-		mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture(), props);
-		mat->NormalMap = AssetManager::DirectLoadTextureAsset("\\texture\\IKT4l.jpg");
-		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-		go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
-		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-		go->GetTransform()->SetScale(glm::vec3(2));
-		Camera* c = new Camera(go->GetTransform()->GetPos(), 90.0f, static_cast<float>(512 / 512), 0.1f, 100.0f);
-		c->Pitch(-90);
-		c->SetUpAndForward(glm::vec3(0, 1.0, 0), glm::vec3(0, 0, 1.0));
-		Renderer->SetReflectionCamera(c);
-		AddGameobjectToScene(go);*/
-	}
-	StaticSceneNeedsUpdate = true;
+
+	/*go = new GameObject("Water");
+
+	Material::MaterialProperties props;
+	props.DoesShadow = false;
+	props.IsReflective = true;
+	mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture(), props);
+	mat->NormalMap = AssetManager::DirectLoadTextureAsset("\\texture\\IKT4l.jpg");
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
+	go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(2));
+	Camera* c = new Camera(go->GetTransform()->GetPos(), 90.0f, static_cast<float>(512 / 512), 0.1f, 100.0f);
+	c->Pitch(-90);
+	c->SetUpAndForward(glm::vec3(0, 1.0, 0), glm::vec3(0, 0, 1.0));
+	Renderer->SetReflectionCamera(c);
+	AddGameobjectToScene(go);*/
+
 
 	int size = 5;
 	glm::vec3 startPos = glm::vec3(10, 5, 30);

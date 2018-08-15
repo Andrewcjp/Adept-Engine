@@ -17,7 +17,10 @@ protected:
 	virtual void PostInitEffect(FrameBuffer* Target) = 0;
 	RHICommandList* CMDlist = nullptr;
 	virtual void PostPass() {};
+	bool IsFirst = false;
+	bool IsLast = false;
 private:
 	RHIBuffer * VertexBuffer = nullptr;	
+	friend class PostProcessing;
 };
 

@@ -25,5 +25,5 @@ void MultiGPUMode::ValidateSettings()
 RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 2048;
-	IsDeferred = true;
+	IsDeferred = false;
 }

@@ -33,16 +33,16 @@ void PostProcessing::ExecPPStack(FrameBuffer* targetbuffer)
 		Effects[i]->RunPass(list,targetbuffer);
 	}*/
 	//called to post porcess the final rendered scene
-	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, EGPUTIMERS::PostProcess);
+	
 
-	//Bloom->RunPass(targetbuffer);
-	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
+	Bloom->RunPass(targetbuffer);
+	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+
 	ColourCorrect->RunPass(targetbuffer);
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
+
 	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 	
-	//ColourCorrect->cmdlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->cmdlist, EGPUTIMERS::PostProcess);
+	//ColourCorrect->CMDlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->CMDlist, EGPUTIMERS::PostProcess);
 
 }
 void PostProcessing::ExecPPStackFinal(FrameBuffer* targetbuffer)
@@ -75,6 +75,10 @@ void PostProcessing::Init(FrameBuffer* Target)
 	AddEffect(Blur);
 	AddEffect(ColourCorrect);
 	AddEffect(TestEffct);
+
+	Bloom->IsFirst = true;
+	ColourCorrect->IsLast = true;
+
 }
 void PostProcessing::Resize(FrameBuffer* Target)
 {

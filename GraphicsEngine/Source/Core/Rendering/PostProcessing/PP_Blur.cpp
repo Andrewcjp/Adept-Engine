@@ -2,6 +2,7 @@
 #include "PP_Blur.h"
 #include "Rendering/Shaders/PostProcess/Shader_Blur.h"
 #include "RHI/RHI_inc.h"
+const int ThreadCount = 32;
 PP_Blur::PP_Blur()
 {}
 
@@ -17,7 +18,6 @@ void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	UAV->Bind(list, 1);
 	list->SetFrameBufferTexture(InputTexture, 0);
 	list->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
-	const int ThreadCount = 8;
 	list->SetConstantBufferView(VertBlur->Blurweights, 0, 2);
 	list->Dispatch(InputTexture->GetWidth() / ThreadCount, InputTexture->GetHeight(), 1);
 	list->UAVBarrier(UAV);
@@ -40,7 +40,7 @@ void PP_Blur::PostPass()
 	VertcmdList->SetFrameBufferTexture(Cache, 0);
 	VertcmdList->SetConstantBufferView(VertBlur->Blurweights, 0, 2);
 	VertcmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
-	const int ThreadCount = 8;
+
 	list->Dispatch(Cache->GetWidth(), Cache->GetHeight() / ThreadCount, 1);
 	list->UAVBarrier(UAV);
 	VertcmdList->Execute();

@@ -81,7 +81,7 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 	/*D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
 	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);*/
 #endif
-
+	Buffer->MakeReadyForComputeUse(List);
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
 	List->Execute();
 }
