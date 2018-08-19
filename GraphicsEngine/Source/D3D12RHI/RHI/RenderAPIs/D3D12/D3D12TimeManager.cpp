@@ -42,7 +42,26 @@ void D3D12TimeManager::Init(DeviceContext* context)
 		IID_PPV_ARGS(&m_timestampResultBuffers)));
 
 	ThrowIfFailed(dcontext->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&m_timestampQueryHeaps)));
+
+	if (dcontext->GetCaps().SupportsCopyTimeStamps)
+	{
+		timestampHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP;
+
+		ThrowIfFailed(dcontext->GetDevice()->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(resultBufferSize),
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(&m_CopytimestampResultBuffers)));
+
+		ThrowIfFailed(dcontext->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&m_CopytimestampQueryHeaps)));
+	}
+
 	ThrowIfFailed(dcontext->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
+	ThrowIfFailed(dcontext->GetCommandQueueFromEnum(DeviceContextQueue::Copy)->GetTimestampFrequency(&m_copyCommandQueueTimestampFrequencies));
+	
+
 	int TimerItor = 0;
 	for (int i = 0; i < MaxTimerCount; i++)
 	{
@@ -66,23 +85,30 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::UI, "UI Draw");
 	SetTimerName(EGPUTIMERS::PostProcess, "Post Processing");
 	SetTimerName(EGPUTIMERS::ShadowPreSample, "Shadow PreSample");
+
+	SetTimerName(EGPUTIMERS::MGPUCopy, "MGPU Copy");
+	CopyListTimers[EGPUTIMERS::MGPUCopy] = true;
 #endif
 }
-void D3D12TimeManager::UpdateTimers()
+
+void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBuffer, float ClockFreq,bool IsCopyList)
 {
-#if ENABLE_GPUTIMERS
 	D3D12_RANGE readRange = {};
 	const D3D12_RANGE emptyRange = {};
 	void* pData = nullptr;
-	ThrowIfFailed(m_timestampResultBuffers->Map(0, &readRange, &pData));
+	ThrowIfFailed(ResultBuffer->Map(0, &readRange, &pData));
 
 	const UINT64* pTimestamps = reinterpret_cast<UINT64*>(static_cast<UINT8*>(pData) + readRange.Begin);
-	for (int i = 0; i < MaxTimerCount; i++)
+	for (int i = 0; i < count; i++)
 	{
+		if (CopyListTimers[i] != IsCopyList)
+		{
+			continue;
+		}
 		if (TimeDeltas[i].Used)
 		{
 			UINT64 delta = pTimestamps[TimeDeltas[i].Endindex] - pTimestamps[TimeDeltas[i].Startindex];
-			float gpuTimeMS = (float)(delta * 1000) / (float)m_directCommandQueueTimestampFrequencies;
+			float gpuTimeMS = (float)(delta * 1000) / (float)ClockFreq;
 			TimeDeltas[i].RawTime = gpuTimeMS;
 			TimeDeltas[i].avg.Add(gpuTimeMS);
 		}
@@ -93,9 +119,21 @@ void D3D12TimeManager::UpdateTimers()
 		}
 	}
 	// Unmap with an empty range (written range).
-	m_timestampResultBuffers->Unmap(0, &emptyRange);
-	AVGgpuTimeMS = TimeDeltas[0].avg.GetCurrentAverage();
+	ResultBuffer->Unmap(0, &emptyRange);
+	
+}
 
+
+void D3D12TimeManager::UpdateTimers()
+{
+#if ENABLE_GPUTIMERS
+	if (m_CopytimestampResultBuffers != nullptr)
+	{
+		ProcessTimeStampHeaps(MaxTimerCount, m_CopytimestampResultBuffers, m_copyCommandQueueTimestampFrequencies,true);
+	}
+	ProcessTimeStampHeaps(MaxTimerCount, m_timestampResultBuffers, m_directCommandQueueTimestampFrequencies,false);
+
+	AVGgpuTimeMS = TimeDeltas[0].avg.GetCurrentAverage();
 	for (int i = 0; i < MaxTimerCount; i++)
 	{
 		if (!TimeDeltas[i].Used)
@@ -110,6 +148,7 @@ void D3D12TimeManager::UpdateTimers()
 	}
 #endif
 }
+
 std::string D3D12TimeManager::GetTimerData()
 {
 #if ENABLE_GPUTIMERS
@@ -161,7 +200,7 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	}
 	ensure(index > -1);
 	D3D12CommandList* List = (D3D12CommandList*)CommandList;
-	StartTimer(List->GetCommandList(), index);
+	StartTimer(List->GetCommandList(), index, List->IsCopyList());
 #endif
 }
 
@@ -174,7 +213,7 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	}
 	ensure(index > -1);
 	D3D12CommandList* List = (D3D12CommandList*)CommandList;
-	EndTimer(List->GetCommandList(), index);
+	EndTimer(List->GetCommandList(), index, List->IsCopyList());
 #endif
 }
 
@@ -183,18 +222,33 @@ float D3D12TimeManager::GetTotalTime()
 	return AVGgpuTimeMS;
 }
 
-void D3D12TimeManager::StartTimer(ID3D12GraphicsCommandList * ComandList, int index)
+void D3D12TimeManager::StartTimer(ID3D12GraphicsCommandList * ComandList, int index, bool IsCopy)
 {
 #if ENABLE_GPUTIMERS
-	ComandList->EndQuery(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Startindex);
+	if (IsCopy)
+	{
+
+		ComandList->EndQuery(m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Startindex);
+	}
+	else
+	{
+		ComandList->EndQuery(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Startindex);
+	}
 	TimeDeltas[index].Used = true;
 #endif
 }
 
-void D3D12TimeManager::EndTimer(ID3D12GraphicsCommandList* ComandList, int index)
+void D3D12TimeManager::EndTimer(ID3D12GraphicsCommandList* ComandList, int index, bool IsCopy)
 {
 #if ENABLE_GPUTIMERS
-	ComandList->EndQuery(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Endindex);
+	if (IsCopy)
+	{
+		ComandList->EndQuery(m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Endindex);
+	}
+	else
+	{
+		ComandList->EndQuery(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Endindex);
+	}
 #endif
 }
 
@@ -221,7 +275,14 @@ void D3D12TimeManager::EndTotalGPUTimer(ID3D12GraphicsCommandList* ComandList)
 {
 #if ENABLE_GPUTIMERS
 	TimerStarted = false;
-	EndTimer(ComandList, 0);
+	EndTimer(ComandList, 0, false);
 	ComandList->ResolveQueryData(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, MaxTimerCount * 2, m_timestampResultBuffers, 0);
 #endif
+}
+
+void D3D12TimeManager::ResolveCopyTimeHeaps(RHICommandList* CommandList)
+{
+	ensure(CommandList->IsCopyList());
+	D3D12CommandList* List = (D3D12CommandList*)CommandList;
+	List->GetCommandList()->ResolveQueryData(m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, MaxTimerCount * 2, m_CopytimestampResultBuffers, 0);
 }

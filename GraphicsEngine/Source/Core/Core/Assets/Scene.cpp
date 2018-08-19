@@ -80,7 +80,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 {
 	StaticSceneNeedsUpdate = true;
 	Asset_Shader* NormalMapShader = new Asset_Shader();
-
+	NormalMapShader->SetupTestMat();
 	GameObject* go = new GameObject("House");
 	LightComponent* lc = nullptr;
 	Material* mat = Material::GetDefaultMaterial();
@@ -168,6 +168,20 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	AddGameobjectToScene(go);
+	Asset_Shader* ColourMat = new Asset_Shader();
+	ColourMat->SetupSingleColour();
+
+	go = new GameObject("Test");
+	mat = ColourMat->GetMaterialInstance();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	mat->GetProperties()->Roughness = 0.0f;
+	mat->GetProperties()->Metallic = 1.0f;
+	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
+	go->GetTransform()->SetPos(glm::vec3(15, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);

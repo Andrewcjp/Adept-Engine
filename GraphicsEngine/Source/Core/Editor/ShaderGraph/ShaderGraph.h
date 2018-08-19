@@ -8,6 +8,7 @@ public:
 	ShaderGraph(FString Name);
 	~ShaderGraph();
 	void test();
+	void SolidColour();
 	void CreateDefault();
 	
 	bool Complie();

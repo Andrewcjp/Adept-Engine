@@ -9,7 +9,7 @@
 #include "Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Core/SceneRenderer.h"
-
+#include "Core/Performance/PerfManager.h"
 RenderEngine::RenderEngine(int width, int height)
 {
 	m_width = width;
@@ -183,7 +183,7 @@ void RenderEngine::ShadowPass()
 }
 
 void RenderEngine::PostProcessPass()
-{
+{	
 	Post->ExecPPStack(FilterBuffer);
 }
 

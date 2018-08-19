@@ -20,3 +20,6 @@ void GameWindow::PostInitWindow(int width, int height)
 	Renderer->SetScene(CurrentScene);
 	CurrentScene->StartScene();
 }
+
+void GameWindow::ProcessMenu(unsigned short command)
+{}

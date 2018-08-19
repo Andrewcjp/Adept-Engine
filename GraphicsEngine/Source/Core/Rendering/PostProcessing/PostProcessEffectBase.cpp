@@ -34,6 +34,7 @@ void PostProcessEffectBase::InitEffect(FrameBuffer* Target)
 {
 	PostInitEffect(Target);
 }
+
 void PostProcessEffectBase::RunPass(FrameBuffer* InputTexture)
 {
 	CMDlist->ResetList();

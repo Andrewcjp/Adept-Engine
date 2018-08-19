@@ -5,12 +5,12 @@
 #include "Core/Assets/Scene.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "Editor/Editor_Camera.h"
-#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
 #include "Rendering\Shaders\Shader_Skybox.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "RHI/DeviceContext.h"
 #include "Rendering/Core/SceneRenderer.h"
+
 void DeferredRenderer::OnRender()
 {
 #if WITH_EDITOR

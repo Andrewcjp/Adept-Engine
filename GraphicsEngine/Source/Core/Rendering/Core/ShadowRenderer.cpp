@@ -107,6 +107,7 @@ void ShadowRenderer::UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 sh
 
 void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, Shader_Main* mainshader)
 {
+	SCOPE_CYCLE_COUNTER("Shadow CPU");
 	if (UseCache)
 	{
 		if (Renderered)
@@ -146,16 +147,18 @@ void ShadowRenderer::RunPointShadowPass(RHICommandList* List, const std::vector<
 
 void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObjects, Shader_Main* mainshader)
 {
+	SCOPE_CYCLE_COUNTER("PreSampleShadows");
+
 	RHICommandList* list = ShadowPreSamplingList;
 	list->ResetList();
-	list->GetDevice()->GetTimeManager()->StartTimer(list, EGPUTIMERS::ShadowPreSample);
+	list->StartTimer(EGPUTIMERS::ShadowPreSample);
 	for (int SNum = 0; SNum < (int)ShadowingPointLights.size(); SNum++)
 	{
 		if (!LightInteractions[SNum]->NeedsSample)
 		{
 			continue;
 		}
-		list->SetFrameBufferTexture(LightInteractions[SNum]->ShadowMap, 0);
+		list->SetFrameBufferTexture(LightInteractions[SNum]->ShadowMap, Shader_ShadowSample::ShadowSRV);
 		list->SetRenderTarget(LightInteractions[SNum]->PreSampledBuffer);
 		list->ClearFrameBuffer(LightInteractions[SNum]->PreSampledBuffer);
 
@@ -174,11 +177,9 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 			Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());
 			ShadowObjects[i]->Render(true, list);
 		}
-
-		Scenerenderer->RenderScene(list, true);
 		list->SetRenderTarget(nullptr);
 	}
-	list->GetDevice()->GetTimeManager()->EndTimer(list, EGPUTIMERS::ShadowPreSample);
+	list->EndTimer(EGPUTIMERS::ShadowPreSample);
 	list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
 	list->Execute();
 	for (int SNum = 0; SNum < (int)ShadowingPointLights.size(); SNum++)
@@ -189,6 +190,7 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 		}
 		FrameBuffer::CopyHelper(LightInteractions[SNum]->PreSampledBuffer, RHI::GetDeviceContext(0));
 	}
+
 }
 
 void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject *> & ShadowObjects)

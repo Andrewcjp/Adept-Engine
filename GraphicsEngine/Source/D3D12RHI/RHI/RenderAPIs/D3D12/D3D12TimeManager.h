@@ -23,9 +23,11 @@ public:
 	void EndTotalGPUTimer(RHICommandList * ComandList) override;
 
 	float GetTotalTime() override;
-	void StartTimer(ID3D12GraphicsCommandList * ComandList, int index);
-	void EndTimer(ID3D12GraphicsCommandList * ComandList, int index);
+	void StartTimer(ID3D12GraphicsCommandList * ComandList, int index, bool IsCopy);
+	void EndTimer(ID3D12GraphicsCommandList * ComandList, int index, bool IsCopy);
+
 	void EndTotalGPUTimer(ID3D12GraphicsCommandList * ComandList);
+	void ResolveCopyTimeHeaps(RHICommandList * ComandList) override;
 private:
 	float AVGgpuTimeMS = 0;	
 	struct GPUTimer
@@ -49,10 +51,17 @@ private:
 #endif
 	int MaxIndexInUse = 0;
 	void Init(DeviceContext * context);
+	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, float ClockFreq, bool CopyList);
+
 	MovingAverage avg = MovingAverage(AVGTIME);
 	ID3D12QueryHeap* m_timestampQueryHeaps;
 	ID3D12Resource* m_timestampResultBuffers;
-	UINT64 m_directCommandQueueTimestampFrequencies;
+	UINT64 m_directCommandQueueTimestampFrequencies = 1;
+	UINT64 m_copyCommandQueueTimestampFrequencies = 1;
 	GPUTimer TimeDeltas[EGPUTIMERS::LIMIT];
+	bool	 CopyListTimers[EGPUTIMERS::LIMIT] = {};
+	ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;
+	ID3D12Resource* m_CopytimestampResultBuffers = nullptr;
+
 };
 

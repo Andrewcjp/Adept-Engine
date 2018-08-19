@@ -9,11 +9,10 @@ FrameBuffer::FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc)
 }
 
 FrameBuffer::~FrameBuffer()
-{
-}
+{}
 
 
-RHIFrameBufferDesc & FrameBuffer::GetDescription() 
+RHIFrameBufferDesc & FrameBuffer::GetDescription()
 {
 	return BufferDesc;
 }
@@ -32,7 +31,10 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice)
 	HostDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();
 	CopyList->ResetList();
+	CopyList->StartTimer(EGPUTIMERS::MGPUCopy);
 	CopyList->CopyResourceToSharedMemory(Target);
+	CopyList->EndTimer(EGPUTIMERS::MGPUCopy);
+	CopyList->ResolveTimers();
 	CopyList->Execute(DeviceContextQueue::InterCopy);
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
@@ -40,7 +42,11 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice)
 
 	CopyList = TargetDevice->GetInterGPUCopyList();
 	CopyList->ResetList();
+
+	CopyList->StartTimer(EGPUTIMERS::MGPUCopy);
 	CopyList->CopyResourceFromSharedMemory(Target);
+	CopyList->EndTimer(EGPUTIMERS::MGPUCopy);
+	CopyList->ResolveTimers();
 	CopyList->Execute(DeviceContextQueue::InterCopy);
 	TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	PerfManager::EndTimer("RunOnSecondDevice");

@@ -96,10 +96,10 @@ HWND WindowsWindow::GetHWND()
 }
 
 void WindowsWindow::DestroyApplication()
-{
-	DestroyWindow(app->HWindow);
-	if (app)
+{	
+	if (app != nullptr)
 	{
+		DestroyWindow(app->HWindow);
 		delete app;
 	}
 }

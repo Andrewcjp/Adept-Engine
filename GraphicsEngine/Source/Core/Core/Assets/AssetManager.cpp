@@ -171,8 +171,9 @@ const std::string AssetManager::GetRootDir()
 void AssetManager::SetupPaths()
 {
 	RootDir = Engine::GetExecutionDir();
+#if WITH_EDITOR
 	StringUtils::RemoveChar(RootDir, "\\Binaries");
-
+#endif
 	ContentDirPath = RootDir + "\\Content\\";
 	if (!FileUtils::File_ExistsTest(ContentDirPath))
 	{

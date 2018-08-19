@@ -14,6 +14,7 @@ public:
 	virtual void EndTimer(RHICommandList * ComandList, int index) = 0;
 	virtual void EndTotalGPUTimer(RHICommandList * ComandList) = 0;
 	virtual float GetTotalTime() = 0;
+	virtual void ResolveCopyTimeHeaps(RHICommandList * ComandList) = 0;
 protected:
 	DeviceContext * Context = nullptr;
 };

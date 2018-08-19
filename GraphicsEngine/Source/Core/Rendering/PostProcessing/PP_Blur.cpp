@@ -17,7 +17,7 @@ void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
 	UAV->Bind(list, 1);
 	list->SetFrameBufferTexture(InputTexture, 0);
-	list->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	
 	list->SetConstantBufferView(VertBlur->Blurweights, 0, 2);
 	list->Dispatch(InputTexture->GetWidth() / ThreadCount, InputTexture->GetHeight(), 1);
 	list->UAVBarrier(UAV);
@@ -39,7 +39,7 @@ void PP_Blur::PostPass()
 	UAV->Bind(VertcmdList, 1);
 	VertcmdList->SetFrameBufferTexture(Cache, 0);
 	VertcmdList->SetConstantBufferView(VertBlur->Blurweights, 0, 2);
-	VertcmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+
 
 	list->Dispatch(Cache->GetWidth(), Cache->GetHeight() / ThreadCount, 1);
 	list->UAVBarrier(UAV);

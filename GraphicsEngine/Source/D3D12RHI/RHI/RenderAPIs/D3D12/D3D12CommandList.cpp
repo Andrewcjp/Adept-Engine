@@ -65,8 +65,11 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
 	{
-		CurrentRenderTarget->UnBind(CurrentGraphicsList);
-		CurrentRenderTarget = nullptr;
+		if (CurrentRenderTarget != nullptr)
+		{
+			CurrentRenderTarget->UnBind(CurrentGraphicsList);
+			CurrentRenderTarget = nullptr;
+		}
 	}
 	else
 	{
@@ -104,6 +107,7 @@ void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float
 
 void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 {
+	SCOPE_CYCLE_COUNTER_GROUP("Execute", "RHI");
 	if (Target == DeviceContextQueue::LIMIT)
 	{
 		switch (ListType)

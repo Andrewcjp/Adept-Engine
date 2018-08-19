@@ -30,20 +30,8 @@ public:
 	void RefreshLights() { Once = false; };
 	bool ISWATER = false;
 	float currentnumber = 0;
-	bool IsPhysics = false;
-	//void ClearBuffer();	
+
 	static void GetMainShaderSig(std::vector<Shader::ShaderParameter>& out);
-
-	//void UpdateCBV();
-	//void UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int index);
-	//void SetActiveIndex(class RHICommandList * list, int index, int DeviceIndex = 0);
-	//void UpdateMV(Camera * c);
-	//void UpdateMV(glm::mat4 View, glm::mat4 Projection);
-	//SceneConstantBuffer CreateUnformBufferEntry(class GameObject * t);
-	//void UpdateLightBuffer(std::vector<Light*> lights);
-	//void BindLightsBuffer(RHICommandList * list,bool JustLight = false);
-	//void BindMvBuffer(RHICommandList * list, int slot);
-
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	

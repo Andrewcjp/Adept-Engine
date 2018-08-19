@@ -1,8 +1,8 @@
 #pragma once
 //Used to Detect Object leaks!
 
-#define DETECT_MEMEORY_LEAKS 1
-#if DETECT_MEMEORY_LEAKS
+#define DETECT_MEMORY_LEAKS 1
+#if DETECT_MEMORY_LEAKS
 class RefCheckerContainer
 {
 public:

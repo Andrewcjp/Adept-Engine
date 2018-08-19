@@ -112,11 +112,11 @@ void PerfManager::EndTimer(int StatId)
 	}
 #endif
 }
-void PerfManager::RenderGpuData(int x,int y)
+void PerfManager::RenderGpuData(int x, int y)
 {
 	if (Instance != nullptr)
 	{
-		Instance->NVApiManager->RenderGPUStats(x,y);
+		Instance->NVApiManager->RenderGPUStats(x, y);
 	}
 }
 int PerfManager::GetTimerIDByName(std::string name)
@@ -168,6 +168,7 @@ void PerfManager::InStartTimer(int targetTimer)
 	{
 		TimersStartStamps.at(targetTimer) = get_nanos();
 		AVGTimers.at(targetTimer).Active = true;
+		AVGTimers.at(targetTimer).CallCount++;
 	}
 	else
 	{
@@ -214,7 +215,7 @@ float PerfManager::GetAVGFrameRate()
 		FrameAccum = 0;
 		FrameTimeAccum = 0.0f;
 	}
-	return 1.0f/AVGFrameTime;
+	return 1.0f / AVGFrameTime;
 }
 
 float PerfManager::GetAVGFrameTime() const
@@ -320,8 +321,11 @@ void PerfManager::Internal_NotifyEndOfFrame()
 	}
 	for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
 	{
-		AVGTimers.at(it->first).AVG->Add(it->second);
+		TimerData*  data = &AVGTimers.at(it->first);
+		data->AVG->Add(it->second);
 		it->second = 0.0f;
+		data->LastCallCount = data->CallCount;
+		data->CallCount = 0;
 	}
 }
 
@@ -360,7 +364,7 @@ void PerfManager::UpdateStats()
 }
 
 void PerfManager::SampleSlowStats()
-{ 
+{
 	NVApiManager->SampleClocks();
 }
 
@@ -375,7 +379,6 @@ void PerfManager::ClearStats()
 void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
 {
 #if STATS
-
 	int CurrentHeight = y;
 	TextRenderer* Textcontext = TextRenderer::instance;
 	SortedTimers.clear();
@@ -423,6 +426,9 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
 		std::stringstream stream;
 		stream << std::fixed << std::setprecision(3) << SortedTimers[i].Time << "ms ";
 		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth), (float)CurrentHeight, TextSize);
+		stream.str("");
+		stream << std::fixed << std::setprecision(3) << SortedTimers[i].LastCallCount;
+		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth * 1.4), (float)CurrentHeight, TextSize);
 		CurrentHeight -= Height;
 	}
 	y = CurrentHeight;

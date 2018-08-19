@@ -17,11 +17,11 @@ Shader_ShadowSample::~Shader_ShadowSample()
 
 std::vector<Shader::ShaderParameter> Shader_ShadowSample::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
-	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 0));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 1));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 3, 2));
+	std::vector<Shader::ShaderParameter> Output;	
+	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
+	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 1));
+	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 2));
+	Output.push_back(ShaderParameter(ShaderParamType::SRV, ShadowSRV, 0));
 	return Output;
 }
 

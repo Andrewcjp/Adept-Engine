@@ -8,7 +8,8 @@ public:
 	std::string GetTargetPath(bool AppendSlash = false);
 
 	void CopyToOutput();
-	bool CopyAssetToOutput(std::string RelTarget);
+	void CopyFolderToOutput(std::string Target, std::string PathFromBuild);
+		bool CopyAssetToOutput(std::string RelTarget);
 	void CreatePackage();
 private:
 	std::string OutputPath = "\\Build";

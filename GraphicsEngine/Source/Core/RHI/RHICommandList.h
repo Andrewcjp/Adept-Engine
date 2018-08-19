@@ -83,10 +83,16 @@ public:
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	DeviceContext* GetDevice();
 	int GetDeviceIndex();
-
+	void StartTimer(int TimerId);
+	void EndTimer(int TimerId);
+	void ResolveTimers();
 	//MultiGPU
 	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer) {};
 	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer) {};
+	bool IsGraphicsList()const;
+	bool IsCopyList() const;
+	bool IsComputeList() const;
+
 protected:
 	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!

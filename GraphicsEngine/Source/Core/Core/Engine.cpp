@@ -13,7 +13,8 @@
 #include "Packaging/Cooker.h"
 #include "Core/Utils/FileUtils.h"
 #include "Module/ModuleManager.h"
-
+#include "UI/UIManager.h"
+#include "Input.h"
 
 #pragma comment(lib, "shlwapi.lib")
 
@@ -222,8 +223,7 @@ void Engine::Exit(int code)
 	}
 	exit(code);
 }
-#include "UI/UIManager.h"
-#include "Input.h"
+
 void Engine::HandleInput(unsigned int key)
 {
 	if (UIManager::GetCurrentContext() != nullptr)

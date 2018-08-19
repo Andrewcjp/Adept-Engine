@@ -5,6 +5,7 @@
 #include "D3D12TimeManager.h"
 #include "D3D12CommandList.h"
 #include "D3D12RHI.h"
+#include "Core/Performance/PerfManager.h"
 #if defined(_DEBUG)
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -53,6 +54,17 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	}*/
 }
 
+void D3D12DeviceContext::CheckFeatures()
+{
+	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData;
+	ZeroMemory(&FeatureData, sizeof(FeatureData));
+	HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS3, &FeatureData, sizeof(FeatureData));
+	if (SUCCEEDED(hr))
+	{
+		Caps_Data.SupportsCopyTimeStamps = FeatureData.CopyQueueTimestampQueriesSupported;
+	}
+}
+
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
 
@@ -84,7 +96,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		Log::LogMessage(ss.str());
 	}
 	DeviceIndex = index;
-	D3D12RHI::CheckFeatures(m_Device);
+	CheckFeatures();
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
@@ -356,6 +368,7 @@ ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQue
 
 void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
+	SCOPE_CYCLE_COUNTER_GROUP("InsertGPUWait", "RHI");
 	GpuWaitSyncPoint.GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
 }
 

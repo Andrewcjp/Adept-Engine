@@ -29,6 +29,17 @@ void ShaderGraph::test()
 #endif
 }
 
+void ShaderGraph::SolidColour()
+{
+	GraphName = "Test2";
+#if 1
+	AddNodetoGraph(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(1, 1, 1)));
+#else
+	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
+	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->NormalDir, "NORMALMAP", TextureType::Normal));
+#endif
+}
+
 void ShaderGraph::CreateDefault()
 {
 	GraphName = "Default";
