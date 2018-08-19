@@ -12,5 +12,8 @@ public:
 	};
 private:
 	PlayerSettings CurrentSettings;
+
+	// Inherited via BaseWindow
+	virtual void ProcessMenu(unsigned short command) override;
 };
 

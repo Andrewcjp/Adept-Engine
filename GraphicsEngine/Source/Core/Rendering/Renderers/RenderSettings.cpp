@@ -4,7 +4,7 @@
 MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;
-	SplitShadowWork = false;
+	SplitShadowWork = true;
 	ComputePerFrameShadowDataOnExCard = false;
 	PSComputeWorkSplit = false;
 
@@ -24,6 +24,6 @@ void MultiGPUMode::ValidateSettings()
 
 RenderSettings::RenderSettings()
 {
-	ShadowMapSize = 2048;
+	ShadowMapSize = 1024;
 	IsDeferred = false;
 }

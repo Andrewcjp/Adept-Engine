@@ -301,13 +301,12 @@ void RHI::ResizeSwapChain(int width, int height)
 	{
 		instance->FrameBuffersLinkedToSwapChain[i]->Resize(width, height);
 	}
-	instance->FrameBuffersLinkedToSwapChain.clear();
 }
 
 void RHI::DestoryContext()
 {
 	GetRHIClass()->DestoryRHI();
-#if DETECT_MEMEORY_LEAKS
+#if DETECT_MEMORY_LEAKS
 	RefCheckerContainer::LogAllRefCounters();
 #endif
 }

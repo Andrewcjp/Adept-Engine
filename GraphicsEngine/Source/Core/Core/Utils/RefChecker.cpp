@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "RefChecker.h"
-#if DETECT_MEMEORY_LEAKS
+#if DETECT_MEMORY_LEAKS
 RefCheckerContainer* RefCheckerContainer::Instance = nullptr;
 int RefCheckerContainer::LogRefs()
 {

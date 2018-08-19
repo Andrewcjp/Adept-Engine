@@ -66,29 +66,6 @@ void EnableShaderBasedValidation()
 	spDebugController1->SetEnableGPUBasedValidation(true);
 }
 
-void D3D12RHI::CheckFeatures(ID3D12Device* pDevice)
-{
-	D3D12_FEATURE_DATA_D3D12_OPTIONS FeatureData;
-	ZeroMemory(&FeatureData, sizeof(FeatureData));
-	HRESULT hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &FeatureData, sizeof(FeatureData));
-	if (SUCCEEDED(hr))
-	{
-		//check(FeatureData.CrossAdapterRowMajorTextureSupported);
-		// TypedUAVLoadAdditionalFormats contains a Boolean that tells you whether the feature is supported or not
-	/*	if (FeatureData.TypedUAVLoadAdditionalFormats)
-		{*/
-		// Can assume “all-or-nothing” subset is supported (e.g. R32G32B32A32_FLOAT)
-		// Cannot assume other formats are supported, so we check:
-		D3D12_FEATURE_DATA_FORMAT_SUPPORT FormatSupport = { DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_FORMAT_SUPPORT1_NONE, D3D12_FORMAT_SUPPORT2_NONE };
-		hr = pDevice->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &FormatSupport, sizeof(FormatSupport));
-		if (SUCCEEDED(hr) && (FormatSupport.Support2 & D3D12_FORMAT_SUPPORT2_UAV_TYPED_STORE) != 0)
-		{
-			// DXGI_FORMAT_R32G32_FLOAT supports UAV Typed Load!
-			//__debugbreak();
-		}
-		//}
-	}
-}
 
 void D3D12RHI::ReportObjects()
 {
@@ -174,6 +151,15 @@ std::string D3D12RHI::GetMemory()
 	return output;
 }
 
+bool D3D12RHI::CopyQueueTimeStampSupported()
+{
+	if (Instance)
+	{
+		return Instance->SupportsCopyTimeStamps;
+	}
+	return false;
+}
+
 void D3D12RHI::LoadPipeLine()
 {
 #ifdef _DEBUG
@@ -246,7 +232,6 @@ void D3D12RHI::LoadPipeLine()
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.SampleDesc.Count = 1;
-	CheckFeatures(GetDisplayDevice());
 	IDXGISwapChain1* swapChain;
 	ThrowIfFailed(factory->CreateSwapChainForHwnd(
 		GetCommandQueue(),		// Swap chain needs the queue so that it can force a flush on it.

@@ -7,5 +7,6 @@ public:
 	~Shader_ShadowSample();
 	std::vector<Shader::ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
+	static const int ShadowSRV = 3;
 };
 

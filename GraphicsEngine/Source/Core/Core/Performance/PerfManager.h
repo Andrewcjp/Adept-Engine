@@ -60,6 +60,8 @@ public:
 		std::string name;
 		int GroupId = 0;
 		bool Active = false;
+		int CallCount = 0;
+		int LastCallCount = 0;
 	};
 	CORE_API TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y);

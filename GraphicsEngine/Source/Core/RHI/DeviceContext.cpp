@@ -33,6 +33,11 @@ void DeviceContext::DestoryDevice()
 
 }
 
+const CapabilityData & DeviceContext::GetCaps()
+{
+	return Caps_Data;
+}
+
 RHICommandList * DeviceContext::GetInterGPUCopyList()
 {
 	return GPUCopyList;

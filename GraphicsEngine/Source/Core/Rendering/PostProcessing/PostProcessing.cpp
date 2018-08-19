@@ -8,6 +8,7 @@
 #include "RHI/RHI_inc.h"
 #include "RHI/DeviceContext.h"
 #include "Core/Utils/MemoryUtils.h"
+#include "Core/Performance/PerfManager.h"
 
 PostProcessing* PostProcessing::Instance = nullptr;
 PostProcessing::PostProcessing()
@@ -28,20 +29,25 @@ void PostProcessing::AddEffect(PostProcessEffectBase * effect)
 
 void PostProcessing::ExecPPStack(FrameBuffer* targetbuffer)
 {
+	SCOPE_CYCLE_COUNTER("PostProcessPass");
 	/*for (int i = 0; i < Effects.size(); i++)
 	{
 		Effects[i]->RunPass(list,targetbuffer);
 	}*/
 	//called to post porcess the final rendered scene
-	
 
-	Bloom->RunPass(targetbuffer);
+#if 0
+	{
+		SCOPE_CYCLE_COUNTER("Bloom");
+		Bloom->RunPass(targetbuffer);
+	}
+
 	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
-
+#endif
 	ColourCorrect->RunPass(targetbuffer);
 
 	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
-	
+
 	//ColourCorrect->CMDlist->GetDevice()->GetTimeManager()->StartTimer(ColourCorrect->CMDlist, EGPUTIMERS::PostProcess);
 
 }

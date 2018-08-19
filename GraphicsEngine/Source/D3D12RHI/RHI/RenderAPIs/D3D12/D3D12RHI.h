@@ -28,12 +28,12 @@ public:
 	void ClearRenderTarget(ID3D12GraphicsCommandList * MainList);
 	static D3D12RHI* Instance;
 	void AddUploadToUsed(ID3D12Resource * Target);
-	static void CheckFeatures(ID3D12Device * pDevice);
+
 	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	static bool DetectGPUDebugger();
 	//temp To be RHI'D	
 	std::string GetMemory();
-	
+	static bool CopyQueueTimeStampSupported();
 private:
 	void DestroyContext();
 	void PresentFrame();
@@ -114,6 +114,7 @@ private:
 	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
+	bool SupportsCopyTimeStamps = false;;
 };
 #include "D3D12Helpers.h"
 //helper functions!

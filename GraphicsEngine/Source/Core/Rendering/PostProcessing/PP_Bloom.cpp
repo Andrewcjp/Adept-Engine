@@ -4,6 +4,7 @@
 #include "RHI/RHI_inc.h"
 #include "PP_Blur.h"
 #include "PP_CompostPass.h"
+#include "Core/Performance/PerfManager.h"
 PP_Bloom::PP_Bloom()
 {}
 
@@ -18,9 +19,12 @@ PP_Bloom::~PP_Bloom()
 
 void PP_Bloom::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
+	{
+		SCOPE_CYCLE_COUNTER("PP_Bloom");
+		list->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	}
 	UAV->Bind(list, 1);
 	list->SetFrameBufferTexture(InputTexture, 0);
-	list->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	const int ThreadCount = 8;
 	list->Dispatch(InputTexture->GetWidth()  / ThreadCount, InputTexture->GetHeight() / ThreadCount, 1);
 	list->UAVBarrier(UAV);	
@@ -38,8 +42,9 @@ void PP_Bloom::PostSetUpData()
 
 void PP_Bloom::PostPass()
 {
-	BlurEffect->RunPass(BloomBuffer);
-	CMDlist->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	SCOPE_CYCLE_COUNTER("PP_Bloom::PostPass");
+	//BlurEffect->RunPass(BloomBuffer);
+	//CMDlist->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	//Compost->RunPass(nullptr);
 }
 

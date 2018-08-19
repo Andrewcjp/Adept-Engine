@@ -193,6 +193,7 @@ namespace EGPUTIMERS
 		PostProcess,
 		Present,
 		ShadowPreSample,
+		MGPUCopy,
 		LIMIT
 	};
 }

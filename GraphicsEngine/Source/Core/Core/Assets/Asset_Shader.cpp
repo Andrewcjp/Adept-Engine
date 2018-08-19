@@ -10,12 +10,26 @@ Asset_Shader::Asset_Shader(bool GenDefault)
 		Graph->CreateDefault();
 		Graph->Complie();
 	}
-	else
-	{
-		Graph = new ShaderGraph("Test");
-		Graph->test();
-		Graph->Complie();
-	}
+	//else
+	//{
+	//	/*Graph = new ShaderGraph("Test");
+	//	Graph->test();
+	//	Graph->Complie();*/
+	//}
+}
+
+void Asset_Shader::SetupSingleColour()
+{
+	Graph = new ShaderGraph("Test");
+	Graph->SolidColour();
+	Graph->Complie();
+}
+
+void Asset_Shader::SetupTestMat()
+{
+	Graph = new ShaderGraph("Colour");
+	Graph->test();
+	Graph->Complie();
 }
 
 Asset_Shader::~Asset_Shader()

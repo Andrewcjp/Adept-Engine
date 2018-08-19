@@ -1,7 +1,10 @@
 #pragma once
 
 #include "RHI/RHI_inc.h"
-
+struct CapabilityData
+{
+	bool SupportsCopyTimeStamps = false;
+};
 class RHI_API DeviceContext
 {
 public:
@@ -27,7 +30,7 @@ public:
 	virtual void CPUWaitForAll() = 0;
 	virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
 	virtual void WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
-
+	const CapabilityData& GetCaps();
 	RHICommandList* GetInterGPUCopyList();
 	virtual class RHITimeManager* GetTimeManager() = 0;
 protected:
@@ -36,5 +39,6 @@ protected:
 	//copy queue management 
 	bool CopyEngineHasWork = false;
 	RHICommandList* GPUCopyList = nullptr;
+	CapabilityData Caps_Data = CapabilityData();
 };
 

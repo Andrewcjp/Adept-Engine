@@ -66,6 +66,8 @@ public:
 	D3D12DeviceContext();
 	virtual ~D3D12DeviceContext();
 
+
+
 	//RHI
 	void ResetDeviceAtEndOfFrame();
 	void SampleVideoMemoryInfo();
@@ -108,6 +110,7 @@ public:
 
 	RHICommandList* GetInterGPUCopyList();
 private:	
+	void CheckFeatures();
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
 	
