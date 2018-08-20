@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "DebugLineDrawer.h"
 #include "RHI/RHI.h"
-#include "glm\glm.hpp"
 #include "UI\UIManager.h"
 #include "Editor/EditorWindow.h"
 #include "Rendering/Shaders/Shader_Line.h"
 #include "RHI/RHICommandList.h"
+#include "Core/Platform/PlatformCore.h"
+#include "Core/Performance/PerfManager.h"
 DebugLineDrawer* DebugLineDrawer::instance = nullptr;
 DebugLineDrawer::DebugLineDrawer(bool DOnly)
 {

@@ -1,8 +1,6 @@
 #pragma once
 #include "RHI/RenderWindow.h"
 #include "Core/Input.h"
-#include "Rendering/Renderers/ForwardRenderer.h"
-#include "Rendering/Renderers/DeferredRenderer.h"
 #include "Rendering/Renderers/RenderSettings.h"
 class BaseWindow : public RenderWindow
 {
@@ -25,7 +23,7 @@ public:
 	RenderEngine * GetCurrentRenderer();
 
 	static bool ProcessDebugCommand(std::string command);
-	static Camera* GetCurrentCamera();
+	static class Camera* GetCurrentCamera();
 	bool ShowHud = false;
 	bool ShowText = true;
 	bool ExtendedPerformanceStats = true;

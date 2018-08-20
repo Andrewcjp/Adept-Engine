@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "EditorCore.h"
 #include "EditorWindow.h"
-
+#include "Core/Assets/Scene.h"
 EditorCore::EditorCore()
 {}
 

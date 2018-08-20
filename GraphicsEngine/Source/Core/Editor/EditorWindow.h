@@ -12,19 +12,18 @@ class EditorCore;
 #define PLAYMODE_USE_SAVED 1
 class EditorWindow : public BaseWindow
 {
-
 public:
 	void PostInitWindow(int w, int h) override;
 	static Scene* GetCurrentScene();
 	static EditorWindow* GetInstance() { return instance; }
-	EditorWindow(HINSTANCE hInstance, int width, int height);
-	EditorWindow(bool Isdef);
+	EditorWindow();
 	virtual ~EditorWindow();
 	void EnterPlayMode();
 	void ExitPlayMode();
 	virtual void DestroyRenderWindow() override final;
 	bool MouseLBDown(int x, int y) override;
 	static EditorCore* GetEditorCore();
+
 protected:
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
@@ -34,18 +33,13 @@ protected:
 	void ProcessMenu(unsigned short command) override;
 	void WindowUI() override;
 	void Update() override;
-	void SaveScene();
-	void SetDeferredState(bool state);
-	
+	void SaveScene();	
 private:
 	static EditorWindow* instance;
 	EditorGizmos* gizmos;
-	bool IsDeferredMode = false;
 	EditorObjectSelector* selector;
 	Scene* CurrentPlayScene = nullptr;
 	bool IsPlayingScene = false;
-	int statcount = 0;
-	int currentmemeory = 0;
 	class Editor_Camera* EditorCamera;
 	std::string CurrentSceneSavePath;
 	EditorCore* mEditorCore = nullptr;

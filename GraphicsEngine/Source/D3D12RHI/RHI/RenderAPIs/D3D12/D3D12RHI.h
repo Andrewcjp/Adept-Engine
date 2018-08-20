@@ -33,7 +33,6 @@ public:
 	static bool DetectGPUDebugger();
 	//temp To be RHI'D	
 	std::string GetMemory();
-	static bool CopyQueueTimeStampSupported();
 private:
 	void DestroyContext();
 	void PresentFrame();
@@ -114,7 +113,6 @@ private:
 	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
-	bool SupportsCopyTimeStamps = false;;
 };
 #include "D3D12Helpers.h"
 //helper functions!

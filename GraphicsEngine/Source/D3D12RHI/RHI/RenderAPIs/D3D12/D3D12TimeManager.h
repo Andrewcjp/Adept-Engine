@@ -58,7 +58,7 @@ private:
 	ID3D12Resource* m_timestampResultBuffers;
 	UINT64 m_directCommandQueueTimestampFrequencies = 1;
 	UINT64 m_copyCommandQueueTimestampFrequencies = 1;
-	GPUTimer TimeDeltas[EGPUTIMERS::LIMIT];
+	GPUTimer TimeDeltas[EGPUTIMERS::LIMIT] = {};
 	bool	 CopyListTimers[EGPUTIMERS::LIMIT] = {};
 	ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;
 	ID3D12Resource* m_CopytimestampResultBuffers = nullptr;

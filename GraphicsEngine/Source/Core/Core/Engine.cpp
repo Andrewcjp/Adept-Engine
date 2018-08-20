@@ -15,6 +15,10 @@
 #include "Module/ModuleManager.h"
 #include "UI/UIManager.h"
 #include "Input.h"
+#include "Core/Platform/PlatformCore.h"
+#include "Core/Performance/PerfManager.h"
+#include "UI/Core/UIWidget.h"
+#include "Core/Platform/ConsoleVariable.h"
 
 #pragma comment(lib, "shlwapi.lib")
 
@@ -145,6 +149,7 @@ Game * Engine::GetGame()
 	return mgame;
 }
 
+static ConsoleVariable RunCookVar("cook", 0, true);
 void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 {
 	mwidth = 1700;
@@ -153,26 +158,25 @@ void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 	{
 		//todo: xbyx
 		std::string input = args.ToSString();
-		if (input.compare("-deferred") == 0)
-		{
-			Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
-			Deferredmode = true;
-		}
+		ConsoleVariableManager::SetupVars(input);
 		if (input.compare("-fullscreen") == 0)
 		{
 			FullScreen = true;
 		}
-		if (input.compare("-cook") == 0)
+
+		if (RunCookVar.GetBoolValue())
 		{
 			Log::OutS << "Starting Cook" << Log::OutS;
 			ShouldRunCook = true;
 		}
-		else if (input.compare("-dx12") == 0)
+
+		if (input.compare("-dx12") == 0)
 		{
 			ForcedRenderSystem = RenderSystemD3D12;
 			Log::OutS << "Forcing RenderSystem D3D12" << Log::OutS;
 		}
-		else if (input.compare("-vk") == 0)
+
+		if (input.compare("-vk") == 0)
 		{
 			ForcedRenderSystem = RenderSystemVulkan;
 			Log::OutS << "Forcing RenderSystem Vulkan" << Log::OutS;
@@ -261,9 +265,9 @@ void Engine::CreateApplicationWindow(int width, int height)
 			RHI::InitRHI(ForcedRenderSystem);
 		}
 #if WITH_EDITOR
-		m_appwnd = new EditorWindow(Deferredmode);
+		m_appwnd = new EditorWindow();
 #else 
-		m_appwnd = new GameWindow(/*Deferredmode*/);
+		m_appwnd = new GameWindow();
 #endif 
 		isWindowVaild = m_appwnd->CreateRenderWindow(width, height);
 

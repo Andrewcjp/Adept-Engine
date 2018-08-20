@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "GameWindow.h"
-
-
+#include "EngineInc.h"
+#include "Core/Assets/Scene.h"
+#include "Rendering/Renderers/RenderEngine.h"
 GameWindow::GameWindow()
 {}
 

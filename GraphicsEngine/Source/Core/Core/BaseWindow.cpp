@@ -404,8 +404,6 @@ bool BaseWindow::MouseMove(int x, int y)
 	return TRUE;
 }
 
-
-
 //getters
 int BaseWindow::GetWidth()
 {
@@ -424,6 +422,7 @@ int BaseWindow::GetHeight()
 	}
 	return 0;
 }
+
 RenderEngine * BaseWindow::GetCurrentRenderer()
 {
 	return Renderer;
@@ -459,5 +458,4 @@ void BaseWindow::RenderText()
 	{
 		PerfManager::Instance->DrawAllStats(m_width / 2, (int)(m_height / 1.2));
 	}
-
 }

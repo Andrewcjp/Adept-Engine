@@ -1,29 +1,34 @@
 #include "stdafx.h"
 #include "RenderSettings.h"
 #include "RHI/RHI.h"
+#include "Core/Platform/ConsoleVariable.h"
+static ConsoleVariable UseDeferredMode("deferred", 0, true);
+
 MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;
 	SplitShadowWork = true;
 	ComputePerFrameShadowDataOnExCard = false;
 	PSComputeWorkSplit = false;
-
-	ValidateSettings();
 }
 
 void MultiGPUMode::ValidateSettings()
 {
-	if (!RHI::UseAdditionalGPUs())
+	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1)
 	{
 		MainPassSFR = false;
 		SplitShadowWork = false;
 		ComputePerFrameShadowDataOnExCard = false;
 		PSComputeWorkSplit = false;
 	}
-} 
+}
 
 RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
-	IsDeferred = false;
+	IsDeferred = UseDeferredMode.GetBoolValue();
+	if (IsDeferred)
+	{
+		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
+	}
 }

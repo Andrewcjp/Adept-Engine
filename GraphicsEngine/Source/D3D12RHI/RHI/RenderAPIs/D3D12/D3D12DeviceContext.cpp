@@ -150,10 +150,12 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	GPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
 
 }
+
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
 {
 	CrossAdaptorSync.Init(GetDevice(), other->GetDevice());
 }
+
 ID3D12Device * D3D12DeviceContext::GetDevice()
 {
 	return m_Device;

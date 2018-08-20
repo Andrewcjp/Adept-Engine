@@ -46,7 +46,7 @@ public:
 
 	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
 	RHI_API static DeviceContext* GetDefaultDevice();
-	static bool InitialiseContext(int w, int h);
+	static void InitialiseContext(int w, int h);
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
 	static void ToggleFullScreenState();
