@@ -9,6 +9,7 @@
 #include <cctype>
 #include "UIGraph.h"
 #include "Core/EngineInc.h"
+#include "Core/MinWindows.h"
 DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 {
 	EditField = new UIBox(w, h, x, y);

@@ -4,7 +4,7 @@
 #include "Core/EngineTypes_fwd.h"
 #include "Core/Platform/Generic/GenericWindow.h"
 
-class WindowsWindow
+class WindowsWindow : public GenericWindow
 {
 private:
 

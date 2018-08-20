@@ -11,7 +11,6 @@ FrameBuffer::FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc)
 FrameBuffer::~FrameBuffer()
 {}
 
-
 RHIFrameBufferDesc & FrameBuffer::GetDescription()
 {
 	return BufferDesc;

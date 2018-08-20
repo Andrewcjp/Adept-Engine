@@ -33,10 +33,11 @@
 #include "Editor/Editor_Camera.h"
 #include "UI/UIManager.h"
 #include "EditorCore.h"
+#include "Core/Platform/PlatformCore.h"
+
 EditorWindow* EditorWindow::instance;
-EditorWindow::EditorWindow(bool Isdef) :BaseWindow()
+EditorWindow::EditorWindow() :BaseWindow()
 {
-	IsDeferredMode = Isdef;
 	instance = this;
 	mEditorCore = new EditorCore();
 }
@@ -59,12 +60,6 @@ Scene * EditorWindow::GetCurrentScene()
 		return instance->CurrentScene;
 	}
 	return nullptr;
-}
-
-
-EditorWindow::EditorWindow(HINSTANCE, int, int)
-{
-	instance = this;
 }
 
 void EditorWindow::PostInitWindow(int w, int h)
@@ -134,11 +129,6 @@ bool EditorWindow::MouseLBDown(int x, int y)
 		mEditorCore->SetSelectedObject(selector->RayCastScene(x, y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
 	}
 	return 0;
-}
-
-void EditorWindow::SetDeferredState(bool state)
-{
-	IsDeferredMode = state;
 }
 
 EditorCore * EditorWindow::GetEditorCore()

@@ -107,7 +107,6 @@ RenderSettings* RHI::GetRenderSettings()
 	return nullptr;
 }
 
-
 bool RHI::IsD3D12()
 {
 	return (GetType() == RenderSystemD3D12);
@@ -254,14 +253,9 @@ FrameBuffer * RHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc 
 	return GetRHIClass()->CreateFrameBuffer(Device, Desc);
 }
 
-
 DeviceContext* RHI::GetDeviceContext(int index)
 {
-	if (IsD3D12())
-	{
-		return GetRHIClass()->GetDeviceContext(index);
-	}
-	return nullptr;
+	return GetRHIClass()->GetDeviceContext(index);
 }
 
 ShaderProgramBase * RHI::CreateShaderProgam(DeviceContext* Device)
@@ -274,9 +268,10 @@ DeviceContext * RHI::GetDefaultDevice()
 	return GetRHIClass()->GetDefaultDevice();
 }
 
-bool RHI::InitialiseContext(int w, int h)
+void RHI::InitialiseContext(int w, int h)
 {	
-	return GetRHIClass()->InitRHI(w, h);
+	GetRHIClass()->InitRHI(w, h);
+	CurrentMGPUMode.ValidateSettings(); 
 }
 
 void RHI::RHISwapBuffers()

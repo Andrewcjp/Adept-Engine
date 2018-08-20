@@ -1,8 +1,6 @@
 #pragma once
 #include "UIWidget.h"
 #include "CollisionRect.h"
-class OGLShaderProgram;
-class BaseTexture;
 class UIBox :
 	public UIWidget
 {

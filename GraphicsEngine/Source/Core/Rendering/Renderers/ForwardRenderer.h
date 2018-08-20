@@ -5,7 +5,6 @@
 #include "Core/Transform.h"
 #include "Core/GameObject.h"
 #include "Rendering/Core/Light.h"
-#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "Rendering/Core/Material.h"
 #include "RHI/Shader.h"
 #include "Rendering/Shaders/Shader_Main.h"

@@ -7,9 +7,7 @@
 #include "Rendering\Shaders\Shader_Depth.h"
 #include "Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
 #include "Core/GameObject.h"
-//#include "RHI/RenderAPIs/D3D12/D3D12TimeManager.h"
-//#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-//#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "Core/Performance/PerfManager.h"
 #include "RHI/DeviceContext.h"
 #include "Core/BaseWindow.h"
 #include "RHI/RHITypes.h"
@@ -67,8 +65,6 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	ShadowPreSamplingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
 	ShadowPreSamplingList->CreatePipelineState(ShadowPreSampleShader, LightInteractions[2]->PreSampledBuffer);
 }
-
-
 
 ShadowRenderer::~ShadowRenderer()
 {
@@ -135,6 +131,7 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, c
 		}
 	}
 }
+
 void ShadowRenderer::RunPointShadowPass(RHICommandList* List, const std::vector<GameObject*>& ShadowObjects, Shader_Main* mainshader)
 {
 	List->ResetList();
@@ -225,7 +222,6 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 			Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());//default to Shader_Depth_RSSlots::ModelBuffer
 			ShadowObjects[i]->Render(true, list);
 		}
-
 	}
 }
 

@@ -19,17 +19,19 @@
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
-
 #include <DXProgrammableCapture.h>  
 #include <dxgidebug.h>
 #include <D3Dcompiler.h>
+#include "Core/Platform/ConsoleVariable.h"
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "d3dcompiler.lib")
+static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, true);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 	:m_fenceValues{}
 {
 	Instance = this;
+
 }
 
 D3D12RHI::~D3D12RHI()
@@ -149,15 +151,6 @@ std::string D3D12RHI::GetMemory()
 		output.append(SecondaryDevice->GetMemoryReport());
 	}
 	return output;
-}
-
-bool D3D12RHI::CopyQueueTimeStampSupported()
-{
-	if (Instance)
-	{
-		return Instance->SupportsCopyTimeStamps;
-	}
-	return false;
 }
 
 void D3D12RHI::LoadPipeLine()
@@ -404,7 +397,7 @@ void D3D12RHI::ReleaseUploadHeap()
 {
 	if (CPUAheadCount < RHI::CPUFrameCount)
 	{
-		//ensure the heap are not still in use!
+		//ensure the heaps are not still in use!
 		return;
 	}
 	if (!DetectGPUDebugger())
@@ -616,11 +609,15 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 				*Device = new D3D12DeviceContext();
 				(*Device)->CreateDeviceFromAdaptor(adapter, CurrentDeviceIndex);
 				CurrentDeviceIndex++;
+				if (ForceSingleGPU.GetBoolValue())
+				{
+					Log::LogMessage("Forced Single Gpu Mode");
+					return;
+				}
 			}
 		}
 	}
 }
-
 
 void GetHardwareAdapter(IDXGIFactory2 * pFactory, IDXGIAdapter1 ** ppAdapter)
 {
@@ -751,6 +748,7 @@ class D3D12RHIModule : public RHIModule
 		return new D3D12RHI();
 	}
 };
+
 #ifdef D3D12RHI_EXPORT
 IMPLEMENT_MODULE_DYNAMIC(D3D12RHIModule);
 #endif
