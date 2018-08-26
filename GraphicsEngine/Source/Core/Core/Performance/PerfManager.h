@@ -9,6 +9,7 @@
 #include "Core/Utils/MovingAverage.h"
 #define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter CYCLECOUNTER(name);
 #define SCOPE_CYCLE_COUNTER_GROUP(name,group) PerfManager::ScopeCycleCounter CYCLECOUNTER(name,group);
+#define SCOPE_STARTUP_COUNTER(name) PerfManager::ScopeStartupCounter STARTUPCOUNTER(name);
 class PerfManager
 {
 public:
@@ -20,6 +21,13 @@ public:
 	private:
 		int StatId = -1;
 		int GroupID = -1;
+	};
+	struct RHI_API ScopeStartupCounter
+	{
+		ScopeStartupCounter(const char* name);
+		~ScopeStartupCounter();
+	private:
+		const char* Name = "";
 	};
 	CORE_API static long get_nanos();
 	static PerfManager* Instance;
@@ -72,6 +80,11 @@ public:
 	CORE_API void UpdateGPUStat(int id, float newtime);
 	CORE_API int GetTimerIDByName(std::string name);
 	CORE_API int GetGroupId(std::string name);
+
+	CORE_API void StartSingleActionTimer(std::string Name);
+	CORE_API void EndSingleActionTimer(std::string Name);
+	void FlushSingleActionTimers();
+	void LogSingleActionTimers();
 private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);
@@ -86,6 +99,10 @@ private:
 	uint64_t hNVPMContext;
 	bool DidInitNVCounters = false;
 #endif
+	std::map<std::string, long> SingleActionTimers;
+	std::map<std::string, float> SingleActionTimersAccum;
+
+
 	std::map<int, long> TimersStartStamps;
 	std::map<int, long> TimersEndStamps;
 	

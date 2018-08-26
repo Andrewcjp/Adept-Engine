@@ -8,7 +8,7 @@
 #include "Core/Utils/StringUtil.h"
 #include "Core/Asserts.h"
 #include "RHI/DeviceContext.h"
-
+#include "Core/Performance/PerfManager.h"
 #include <d3dcompiler.h>
 #include "DxIncludeHandler.h"
 #include "Core/Assets/AssetManager.h"
@@ -85,8 +85,10 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 {
 	return AttachAndCompileShaderFromFile(shadername, type, "main");
 }
+
 EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type, const char * Entrypoint)
 {
+	SCOPE_STARTUP_COUNTER("Shader Compile");
 	//convert to LPC 
 	std::string path = AssetManager::GetShaderPath();
 	std::string name = shadername;
@@ -169,8 +171,7 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "gs_5_0",
 			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
 #endif
-	}
-
+	}	
 	if (pErrorBlob)
 	{
 		std::string Log = "Shader Compile Output: ";
@@ -218,6 +219,7 @@ void D3D12Shader::DeactivateShaderProgram()
 D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
 	 DeviceContext* context)
 {
+	SCOPE_STARTUP_COUNTER("Create Compute PSO");
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
 	computePsoDesc.pRootSignature = output.m_rootSignature;
 	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(blobs->csBlob);
@@ -228,6 +230,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShade
 D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
 	 DeviceContext* context)
 {
+	SCOPE_STARTUP_COUNTER("Create PSO");
 	ensure(blobs->vsBlob != nullptr);
 	ensure(blobs->fsBlob != nullptr);
 	if (context == nullptr)
@@ -378,6 +381,7 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 
 void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context)
 {
+	SCOPE_STARTUP_COUNTER("CreateRootSig");
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
 
 	// This is the highest version the sample supports. If CheckFeatureSupport succeeds, the HighestVersion returned will not be greater than this.

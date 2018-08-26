@@ -562,3 +562,57 @@ PerfManager::ScopeCycleCounter::~ScopeCycleCounter()
 {
 	PerfManager::EndTimer(StatId);
 }
+
+void PerfManager::StartSingleActionTimer(std::string Name)
+{
+	if (SingleActionTimers.find(Name) != SingleActionTimers.end())
+	{
+		SingleActionTimers.at(Name) = get_nanos();
+	}
+	else
+	{
+		SingleActionTimers.emplace(Name, get_nanos());
+		SingleActionTimersAccum.emplace(Name, 0.0f);
+	}
+}
+
+void PerfManager::EndSingleActionTimer(std::string Name)
+{
+	if (SingleActionTimers.find(Name) != SingleActionTimers.end())
+	{
+		float TimeInMS = (float)(get_nanos() - SingleActionTimers.at(Name)) / TimeMS;
+		SingleActionTimersAccum.at(Name) += TimeInMS;		
+	}
+	else
+	{
+		SingleActionTimers.emplace(Name, 0);
+		SingleActionTimersAccum.emplace(Name, 0.0f);
+	}
+}
+
+void PerfManager::FlushSingleActionTimers()
+{
+	for (std::map<std::string, float>::iterator it = SingleActionTimersAccum.begin(); it != SingleActionTimersAccum.end(); ++it)
+	{
+		it->second = 0.0f;
+	}
+}
+
+void PerfManager::LogSingleActionTimers()
+{
+	for (std::map<std::string, float>::iterator it = SingleActionTimersAccum.begin(); it != SingleActionTimersAccum.end(); ++it)
+	{
+		Log::OutS << "Timer " << it->first << " Took " << it->second << "ms" << Log::OutS;
+	}
+}
+
+PerfManager::ScopeStartupCounter::ScopeStartupCounter(const char* name)
+{
+	Name = name;
+	Get()->StartSingleActionTimer(name);
+}
+
+PerfManager::ScopeStartupCounter::~ScopeStartupCounter()
+{
+	Get()->EndSingleActionTimer(Name);
+}

@@ -234,8 +234,8 @@ public:
 		Height = height;
 		Dimension = dimension;
 	}
-	 eTEXTURE_FORMAT RTFormats[MRT_MAX] = {};
-	 eTEXTURE_FORMAT DepthFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	eTEXTURE_FORMAT RTFormats[MRT_MAX] = {};
+	eTEXTURE_FORMAT DepthFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
 	eTEXTURE_FORMAT DepthReadFormat = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
 	int Width = 0;
 	int Height = 0;

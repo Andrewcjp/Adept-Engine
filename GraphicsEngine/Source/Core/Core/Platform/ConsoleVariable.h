@@ -1,10 +1,19 @@
 #pragma once
 #include <algorithm>
 //Console vars can also be set though the launch arguments
+namespace ECVarType
+{
+	enum Type
+	{
+		ConsoleOnly,
+		LaunchOnly,
+		ConsoleAndLaunch,
+	};
+}
 class ConsoleVariable
 {
 public:
-	CORE_API ConsoleVariable(std::string name, int DefaultValue, bool AsLaunchArgs = false);
+	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly);
 	~ConsoleVariable() {}
 	const std::string& GetName()const
 	{
@@ -48,7 +57,7 @@ public:
 	}
 	static void SetupVars(std::string LaunchArgString)
 	{
-		std::transform(LaunchArgString.begin(), LaunchArgString.end(), LaunchArgString.begin(), ::tolower);		
+		std::transform(LaunchArgString.begin(), LaunchArgString.end(), LaunchArgString.begin(), ::tolower);
 		for (ConsoleVariable* CV : Instance->LaunchArgs)
 		{
 			if (LaunchArgString.compare(CV->GetLaunchName()) == 0)

@@ -19,7 +19,6 @@ Material::Material(MaterialProperties props)
 	if (Properties.TextureBinds == nullptr)
 	{
 		CurrentBindSet = new TextureBindSet();
-		//SetupDefaultBinding(CurrentBindSet);
 	}
 	else
 	{
@@ -39,7 +38,6 @@ Material::~Material()
 
 void Material::SetMaterialActive(RHICommandList* list)
 {
-	//	return;
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
 		list->SetTexture(Pair.second.TextureObj, Pair.second.RootSigSlot);

@@ -21,7 +21,7 @@ static std::string ShaderPropertyTypeToString(ShaderPropertyType::Type type)
 	}
 	return "";
 }
-class  PropertyLink
+class PropertyLink
 {
 public:
 	std::string Name = "";
