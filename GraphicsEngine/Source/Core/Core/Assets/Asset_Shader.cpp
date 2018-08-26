@@ -1,6 +1,6 @@
 #include "Stdafx.h"
 #include "Asset_Shader.h"
-#include "Editor/ShaderGraph/ShaderGraph.h"
+#include "Rendering/ShaderGraph/ShaderGraph.h"
 #include "Rendering/Core/Material.h"
 Asset_Shader::Asset_Shader(bool GenDefault)
 {

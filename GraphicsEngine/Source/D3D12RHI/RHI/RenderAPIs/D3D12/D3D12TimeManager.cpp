@@ -123,7 +123,6 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 	
 }
 
-
 void D3D12TimeManager::UpdateTimers()
 {
 #if ENABLE_GPUTIMERS

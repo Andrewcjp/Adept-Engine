@@ -2,12 +2,12 @@
 #include "RenderSettings.h"
 #include "RHI/RHI.h"
 #include "Core/Platform/ConsoleVariable.h"
-static ConsoleVariable UseDeferredMode("deferred", 0, true);
+static ConsoleVariable UseDeferredMode("deferred", 0, ECVarType::LaunchOnly);
 
 MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;
-	SplitShadowWork = true;
+	SplitShadowWork = false;
 	ComputePerFrameShadowDataOnExCard = false;
 	PSComputeWorkSplit = false;
 }
@@ -25,7 +25,7 @@ void MultiGPUMode::ValidateSettings()
 
 RenderSettings::RenderSettings()
 {
-	ShadowMapSize = 1024;
+	ShadowMapSize = 512;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	if (IsDeferred)
 	{

@@ -1,6 +1,6 @@
 #include "Stdafx.h"
 #include "Shader_NodeGraph.h"
-#include "Editor/ShaderGraph/ShaderGraph.h"
+#include "Rendering/ShaderGraph/ShaderGraph.h"
 
 //todo: refactor!
 Shader_NodeGraph::Shader_NodeGraph(ShaderGraph* graph) :Shader_Main(true)
@@ -33,7 +33,6 @@ std::vector<Shader::VertexElementDESC> Shader_NodeGraph::GetVertexFormat()
 std::vector<Shader::ShaderParameter> Shader_NodeGraph::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> Params = Shader_Main::GetShaderParameters();
-	//Params.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::Limit+1, 20));
 	std::map<std::string, Material::TextureBindData>::const_iterator it;
 	for (it = Graph->GetMaterialData()->BindMap.begin(); it != Graph->GetMaterialData()->BindMap.end(); it++)
 	{

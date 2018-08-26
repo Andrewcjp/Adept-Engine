@@ -25,13 +25,12 @@
 #include "Core/Platform/ConsoleVariable.h"
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, true);
+static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 	:m_fenceValues{}
 {
 	Instance = this;
-
 }
 
 D3D12RHI::~D3D12RHI()
@@ -241,8 +240,7 @@ void D3D12RHI::LoadPipeLine()
 
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 	m_swapChain->SetFullscreenState(IsFullScreen, nullptr);
-	//m_swapChain->ResizeBuffers()
-	//InternalResizeSwapChain();
+
 	// Create descriptor heaps.
 	{
 		// Describe and create a render target view (RTV) descriptor heap.

@@ -56,15 +56,16 @@ bool BaseWindow::ChangeDisplayMode(int width, int height)
 }
 
 bool BaseWindow::CreateRenderWindow(int width, int height)
-{
+{	
 	RHI::InitialiseContext(width, height);
 	Material::SetupDefaultMaterial();//move!
 	m_height = height;
 	m_width = width;
-	InitilseWindow();
+	InitilseWindow();	
 	PostInitWindow(width, height);
 	return true;
 }
+
 void BaseWindow::InitilseWindow()
 {
 	Log::OutS << "Scene Load started" << Log::OutS;
@@ -308,6 +309,7 @@ void BaseWindow::LoadScene(std::string RelativePath)
 
 void BaseWindow::PostFrameOne()
 {
+	PerfManager::Instance->LogSingleActionTimers();
 	Log::OutS << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << Log::OutS;
 }
 

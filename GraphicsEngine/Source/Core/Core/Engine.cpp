@@ -149,7 +149,7 @@ Game * Engine::GetGame()
 	return mgame;
 }
 
-static ConsoleVariable RunCookVar("cook", 0, true);
+static ConsoleVariable RunCookVar("cook", 0, ECVarType::LaunchOnly);
 void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 {
 	mwidth = 1700;
