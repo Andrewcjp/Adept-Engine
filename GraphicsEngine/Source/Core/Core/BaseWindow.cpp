@@ -21,7 +21,7 @@
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
-	assert(Instance == nullptr);
+	ensure(Instance == nullptr);
 	Instance = this;
 	PlatformApplication::InitTiming();
 	RHI::GetRenderSettings()->RenderScale = 1;
@@ -31,7 +31,7 @@ BaseWindow::BaseWindow()
 BaseWindow::~BaseWindow()
 {
 
-}
+} 
 
 bool BaseWindow::ChangeDisplayMode(int width, int height)
 {

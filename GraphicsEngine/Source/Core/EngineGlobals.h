@@ -15,7 +15,7 @@
 #else
 #define GPUTIMERS_FULL 0
 #endif 
-//#define BUILD_GAME
+
 //#pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0

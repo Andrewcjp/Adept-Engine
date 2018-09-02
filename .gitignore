@@ -49,3 +49,7 @@
 /GraphicsEngine/Source/CmakeLists.txt
 /GraphicsEngine/Shaders/Gen
 /GraphicsEngine/DerivedDataCache
+/GraphicsEngine/Binaries
+/GraphicsEngine/EngineBuildTool.exe.config
+/GraphicsEngine/EngineBuildTool.pdb
+*.pdb

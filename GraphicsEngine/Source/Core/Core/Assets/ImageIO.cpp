@@ -14,10 +14,12 @@ ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {
 	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
-	ensureMsgf(DefaultTexture,"Failed to Load Fallback Texture");
+	checkMsgf(DefaultTexture,"Failed to Load Fallback Texture");
 }
+
 ImageIO::~ImageIO()
 {}
+
 EImageIOStatus ImageIO::LoadUncompressedTGA(unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels, FILE* pf)
 {
 	unsigned char header[6];

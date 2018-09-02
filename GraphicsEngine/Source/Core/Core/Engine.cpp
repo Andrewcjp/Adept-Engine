@@ -52,15 +52,6 @@ Engine::Engine()
 	StartTime = (float)PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
 	Log::OutS << "Loading Engine v0.1" << Log::OutS;
-#if BUILD_PACKAGE
-	std::string assetpath = GetExecutionDir();
-	assetpath.append("\\asset\\");
-	if (!FileUtils::File_ExistsTest(assetpath))
-	{
-		PlatformApplication::DisplayMessageBox("Error", " Asset Folder Not Found ");
-		Engine::Exit(-1);
-	}
-#endif
 #if PHYSX_ENABLED
 	PhysEngine = new PhysicsEngine();
 #else
@@ -102,7 +93,10 @@ void Engine::OnDestoryWindow()
 
 void Engine::Destory()
 {
-	PhysEngine->cleanupPhysics();
+	if (PhysEngine != nullptr)
+	{
+		PhysEngine->cleanupPhysics();
+	}
 	ModuleManager::Get()->ShutDown();
 	PerfManager::ShutdownPerfManager();
 }

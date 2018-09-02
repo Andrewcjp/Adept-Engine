@@ -7,6 +7,6 @@ class VulkanRHIModule : ModuleDef
         ModuleName = "VulkanRHI";
         SourceFileSearchDir = "VulkanRHI";
         //  ModuleDepends.Add("Core");
-        ModuleOuputType = ModuleDef.ModuleType.LIB;
+        ModuleOutputType = ModuleDef.ModuleType.LIB;
     }
 }
