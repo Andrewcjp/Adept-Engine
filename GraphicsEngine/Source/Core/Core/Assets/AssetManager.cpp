@@ -206,10 +206,10 @@ AssetManager::AssetManager()
 #if BUILD_PACKAGE
 	if (PreLoadTextShaders)
 	{
-		if (FileExists(Engine::GetExecutionDir() + ShaderCookedFile))
+		if (FileUtils::File_ExistsTest(Engine::GetExecutionDir() + ShaderCookedFile))
 		{
 			LoadCookedShaders();
-		}
+		} 
 		else
 		{
 			ExportCookedShaders();

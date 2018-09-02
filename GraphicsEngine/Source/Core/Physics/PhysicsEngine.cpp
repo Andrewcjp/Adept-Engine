@@ -19,7 +19,7 @@ void PhysicsEngine::initPhysics()
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 	//todo!
 	int cpucount = std::thread::hardware_concurrency();
-	unsigned int threadsToCreate = std::max(( int)1, cpucount - 2);
+	unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
 	gDispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = gDispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
@@ -39,7 +39,7 @@ void PhysicsEngine::initPhysics()
 
 	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	gScene->addActor(*groundPlane);
-	Log::OutS  << "Physx Initalised" << Log::OutS;
+	Log::OutS << "Physx Initalised" << Log::OutS;
 }
 
 void PhysicsEngine::stepPhysics(float Deltatime)

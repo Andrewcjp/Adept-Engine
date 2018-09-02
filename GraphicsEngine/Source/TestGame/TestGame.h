@@ -10,15 +10,15 @@ public:
 	~TestGame();
 };
    
-
+ 
 class TestGameModule :public GameModule
 {
 	Game* GetGamePtr(CompoenentRegistry* Reg) override
 	{
 		return new TestGame(Reg);
-	}
+	} 
 };
-
+ 
 #ifdef STATIC_MODULE
 IMPLEMENT_MODULE_STATIC(TestGameModule, TestGame);
 #else
