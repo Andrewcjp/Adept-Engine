@@ -6,13 +6,13 @@ Shader_Compost::Shader_Compost(DeviceContext * context)
 {
 	m_Shader = RHI::CreateShaderProgam();
 
-	m_Shader->CreateShaderProgram();
+	
 
-	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Compost_fs", SHADER_FRAGMENT);
+	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("Compost_fs", EShaderType::SHADER_FRAGMENT);
 
-	m_Shader->BuildShaderProgram();
-	m_Shader->ActivateShaderProgram();
+	
+	
 }
 
 Shader_Compost::~Shader_Compost()

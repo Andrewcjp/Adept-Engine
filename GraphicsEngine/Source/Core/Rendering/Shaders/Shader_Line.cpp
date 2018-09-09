@@ -6,9 +6,9 @@ Shader_Line::Shader_Line(bool is2D)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TWOD_ONLY", is2D ? "1":"0"));
-	m_Shader->CreateShaderProgram();
-	m_Shader->AttachAndCompileShaderFromFile("debugline_vs", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("debugline_fs", SHADER_FRAGMENT);
+	
+	m_Shader->AttachAndCompileShaderFromFile("debugline_vs", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("debugline_fs", EShaderType::SHADER_FRAGMENT);
 }
 
 

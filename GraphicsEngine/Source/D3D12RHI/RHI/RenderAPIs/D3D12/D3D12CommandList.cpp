@@ -176,7 +176,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	{
 		Currentpipestate.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 	}
-	if (Currentpipestate.RenderTargetDesc.NumRenderTargets == 0)
+	if (Currentpipestate.RenderTargetDesc.NumRenderTargets == 0 && Currentpipestate.RenderTargetDesc.DSVFormat == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
 	{
 		Currentpipestate.RenderTargetDesc.NumRenderTargets = 1;
 		Currentpipestate.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;

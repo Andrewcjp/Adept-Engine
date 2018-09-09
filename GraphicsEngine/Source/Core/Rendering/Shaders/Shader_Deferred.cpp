@@ -19,12 +19,12 @@ Shader_Deferred::Shader_Deferred()
 	//Initialise shader
 	m_Shader = RHI::CreateShaderProgam();
 
-	m_Shader->CreateShaderProgram();
-	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_vs", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_fs", SHADER_FRAGMENT);
+	
+	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_vs", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_fs", EShaderType::SHADER_FRAGMENT);
 
-	m_Shader->BuildShaderProgram();
-	m_Shader->ActivateShaderProgram();
+	//
+	//
 
 }
 

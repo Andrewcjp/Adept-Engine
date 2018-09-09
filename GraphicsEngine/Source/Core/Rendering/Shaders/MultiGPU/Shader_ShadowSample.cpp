@@ -5,8 +5,8 @@
 Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context)
 {
 	m_Shader = RHI::CreateShaderProgam(Context);
-	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_vs", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_fs", SHADER_FRAGMENT);
+	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_vs", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_fs", EShaderType::SHADER_FRAGMENT);
 }
 
 

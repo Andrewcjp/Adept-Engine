@@ -9,5 +9,6 @@ public:
 	static void InitTiming() {};
 	static double Seconds() { };
 	static void Sleep(float Milliseconds) {  };
+	CORE_API static int64_t GetFileTimeStamp(const std::string Path);
 };
 

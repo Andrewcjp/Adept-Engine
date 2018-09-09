@@ -40,12 +40,8 @@ public:
 		ComputeRootParametersCount
 	};
 
-	virtual EShaderError AttachAndCompileShaderFromFile(const char * filename, EShaderType type, const char * Entrypoint = "") override;
-	virtual EShaderError AttachAndCompileShaderFromFile(const char * filename, EShaderType type) override;
-	virtual void BuildShaderProgram() override;
-	virtual void DeleteShaderProgram() override;
-	virtual void ActivateShaderProgram() override;
-	virtual void DeactivateShaderProgram() override;
+	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint = "") override;
+	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type) override;
 
 	static D3D12Shader::PiplineShader CreateComputePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, PipeLineState Depthtest, DeviceContext * context);
 	static PiplineShader CreatePipelineShader(PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, DeviceContext* context);
@@ -57,14 +53,17 @@ public:
 	void Init();
 	void CreateComputePipelineShader();
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);
-	virtual void CreateShaderProgram() override;
 	PiplineShader* GetPipelineShader();
 private:
 	D3D_SHADER_MACRO * ParseDefines();
-	class DxIncludeHandler* IncludeHandler = nullptr;
 	class D3D12DeviceContext* CurrentDevice = nullptr;
 	PiplineShader m_Shader;
 	ID3D12DescriptorHeap* m_samplerHeap = nullptr;
 	ShaderBlobs mBlolbs;
+	const bool CacheBlobs = false;
+	void WriteBlobs(const std::string & shadername, EShaderType::Type type);
+	bool TryLoadCachedShader(std::string Name, ID3DBlob** Blob);
+	bool CompareCachedShaderBlobWithSRC(const std::string & ShaderName);
+	ID3DBlob ** GetCurrentBlob(EShaderType::Type type);
 };
 

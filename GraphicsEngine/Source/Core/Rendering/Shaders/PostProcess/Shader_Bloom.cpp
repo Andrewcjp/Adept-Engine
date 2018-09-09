@@ -5,7 +5,7 @@
 Shader_Bloom::Shader_Bloom()
 {
 	m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));
-	m_Shader->CreateShaderProgram();
+	
 	m_Shader->AttachAndCompileShaderFromFile("BloomThreshold_CS", EShaderType::SHADER_COMPUTE);
 }
 

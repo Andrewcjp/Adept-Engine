@@ -6,13 +6,10 @@
 Text_Shader::Text_Shader(DeviceContext* context)
 {
 	m_Shader = RHI::CreateShaderProgam(context);
-	m_Shader->CreateShaderProgram();
-	m_Shader->AttachAndCompileShaderFromFile("text_vs_Atlas", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("text_fs_Atlas", SHADER_FRAGMENT);
-
-	m_Shader->BindAttributeLocation(0, "vertex");
-
-	m_Shader->BuildShaderProgram();
+	
+	m_Shader->AttachAndCompileShaderFromFile("text_vs_Atlas", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("text_fs_Atlas", EShaderType::SHADER_FRAGMENT);
+	
 	CBV = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant,context);
 	CBV->CreateConstantBuffer(sizeof(Data), 1);
 } 

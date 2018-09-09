@@ -12,18 +12,15 @@ Shader_SSAO::Shader_SSAO()
 	//Initialise OGL shader
 	m_Shader = RHI::CreateShaderProgam();
 
-	m_Shader->CreateShaderProgram();
-	m_Shader->AttachAndCompileShaderFromFile("SSAO", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("SSAO", SHADER_FRAGMENT);
+	
+	m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_FRAGMENT);
 
-	m_Shader->BindAttributeLocation(0, "pos");
-	m_Shader->BindAttributeLocation(1, "Normal");
-	m_Shader->BindAttributeLocation(2, "texCoords");
 
 	//	glBindFragDataLocation(m_Shader->GetProgramHandle(), 0, "FragColor");
 
-	m_Shader->BuildShaderProgram();
-	m_Shader->ActivateShaderProgram();
+	//
+	//
 #if BUILD_OPENGL
 	static const float g_quad_vertex_buffer_data[] = {
 		-1.0f, -1.0f, 0.0f,

@@ -5,20 +5,12 @@
 Shader_Particle::Shader_Particle()
 {
 	m_Shader = RHI::CreateShaderProgam();
-	m_Shader->CreateShaderProgram();
-	//m_Shader->AttachAndCompileShaderFromFile(L"asset/shader/glsl/PBR.vert", SHADER_VERTEX);
-	//m_Shader->AttachAndCompileShaderFromFile(L"asset/shader/glsl/PBR.frag", SHADER_FRAGMENT);
-	m_Shader->AttachAndCompileShaderFromFile("Particle", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Particle", SHADER_FRAGMENT);
-
-	m_Shader->BindAttributeLocation(0, "pos");
-	m_Shader->BindAttributeLocation(1, "Normal");
-	m_Shader->BindAttributeLocation(2, "texCoords");
-
 	
+	//m_Shader->AttachAndCompileShaderFromFile(L"asset/shader/glsl/PBR.vert", EShaderType::SHADER_VERTEX);
+	//m_Shader->AttachAndCompileShaderFromFile(L"asset/shader/glsl/PBR.frag", EShaderType::SHADER_FRAGMENT);
+	m_Shader->AttachAndCompileShaderFromFile("Particle", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("Particle", EShaderType::SHADER_FRAGMENT);
 
-	m_Shader->BuildShaderProgram();
-	m_Shader->ActivateShaderProgram();
 #if BUILD_OPENGL
 	VP = glGetUniformLocation(m_Shader->GetProgramHandle(), "VP");
 	CameraRight_worldspace = glGetUniformLocation(m_Shader->GetProgramHandle(), "CameraRight_worldspace");

@@ -8,11 +8,11 @@ Shader_UIBatch::Shader_UIBatch()
 	{
 		return;
 	}
-	m_Shader->CreateShaderProgram();
+	
 
-	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_vs", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_fs", SHADER_FRAGMENT);
-	m_Shader->BuildShaderProgram();
+	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_vs", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_fs", EShaderType::SHADER_FRAGMENT);
+	
 	UniformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	UniformBuffer->CreateConstantBuffer(sizeof(UnifromData), 1);
 }
