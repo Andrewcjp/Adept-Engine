@@ -319,13 +319,15 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 		}
 	}
-	PointShadowList->SetPipelineState(PipeLineState{ true,false,false });
-	PointShadowList->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all show buffers for cube maps are the same!
+	PipeLineState pipestate = PipeLineState{ false,false,false };
+	pipestate.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
+	PointShadowList->SetPipelineState(pipestate);
+	PointShadowList->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
 
-	PointShadowListALT->SetPipelineState(PipeLineState{ true,false,false });
-	PointShadowListALT->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all show buffers for cube maps are the same!
+	PointShadowListALT->SetPipelineState(pipestate);
+	PointShadowListALT->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
 
-	DirectionalShadowList->SetPipelineState(PipeLineState{ true,false,false });
+	DirectionalShadowList->SetPipelineState(pipestate);
 	DirectionalShadowList->CreatePipelineState(DirectionalLightShader, DirectionalLightBuffer);
 
 }
@@ -347,7 +349,9 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 	if (IsPoint)
 	{
 		int size = (Context->GetDeviceIndex() == 0) ? MapSize : MapSize / 1;
-		ShadowMap = RHI::CreateFrameBuffer(Context, RHIFrameBufferDesc::CreateCubeDepth(size, size));
+		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateCubeDepth(size, size);
+		//desc.DepthClearValue = 0.0f;
+		ShadowMap = RHI::CreateFrameBuffer(Context, desc);
 	}
 	Shader = new Shader_Depth(IsPoint, Context);
 	if (Context->GetDeviceIndex() != 0)

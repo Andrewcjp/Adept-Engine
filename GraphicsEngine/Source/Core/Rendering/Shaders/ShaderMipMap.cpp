@@ -9,11 +9,11 @@ ShaderMipMap::ShaderMipMap()
 {
 	//m_Shader = RHI::CreateShaderProgam();
 
-	//m_Shader->CreateShaderProgram();
+	//
 	//m_Shader->AttachAndCompileShaderFromFile("MipmapCS", SHADER_COMPUTE);
 
-	//m_Shader->BuildShaderProgram();
-	//m_Shader->ActivateShaderProgram();
+	//
+	//
 	//D3D12Shader* shader = (D3D12Shader*)m_Shader;
 	//pCommandList = shader->CreateShaderCommandList();
 }

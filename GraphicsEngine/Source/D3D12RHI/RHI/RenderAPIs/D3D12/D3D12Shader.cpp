@@ -10,20 +10,17 @@
 #include "RHI/DeviceContext.h"
 #include "Core/Performance/PerfManager.h"
 #include <d3dcompiler.h>
-#include "DxIncludeHandler.h"
 #include "Core/Assets/AssetManager.h"
 #include "D3D12DeviceContext.h"
+
 //As shader based validation doesn't support include handlers use ours
-#define USE_DX_INCLUDER 0
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = (D3D12DeviceContext*)Device;
-	IncludeHandler = new DxIncludeHandler();
 }
 
 D3D12Shader::~D3D12Shader()
 {
-	delete IncludeHandler;
 	CurrentDevice = nullptr;
 	if (m_Shader.m_pipelineState)
 	{
@@ -55,10 +52,11 @@ D3D12Shader::~D3D12Shader()
 	}
 }
 
-void D3D12Shader::CreateShaderProgram()
-{}
 void StripD3dShader(ID3DBlob** blob)
 {
+#if !BUILD_SHIPPING
+	return;
+#endif
 	if (*blob == nullptr)
 	{
 		return;
@@ -66,6 +64,7 @@ void StripD3dShader(ID3DBlob** blob)
 	UINT stripflags = D3DCOMPILER_STRIP_REFLECTION_DATA | D3DCOMPILER_STRIP_DEBUG_INFO | D3DCOMPILER_STRIP_TEST_BLOBS;
 	D3DStripShader(*blob, (*blob)->GetBufferSize(), stripflags, blob);
 }
+
 D3D_SHADER_MACRO* D3D12Shader::ParseDefines()
 {
 	D3D_SHADER_MACRO* out = new D3D_SHADER_MACRO[Defines.size() + 1];
@@ -80,15 +79,43 @@ D3D_SHADER_MACRO* D3D12Shader::ParseDefines()
 	return out;
 }
 
-
-EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type)
+EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type type)
 {
 	return AttachAndCompileShaderFromFile(shadername, type, "main");
 }
 
-EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType type, const char * Entrypoint)
+ID3DBlob** D3D12Shader::GetCurrentBlob(EShaderType::Type type)
+{
+	switch (type)
+	{
+	case EShaderType::SHADER_VERTEX:
+		return &mBlolbs.vsBlob;
+		break;
+	case EShaderType::SHADER_FRAGMENT:
+		return &mBlolbs.fsBlob;
+		break;
+	case EShaderType::SHADER_GEOMETRY:
+		return &mBlolbs.gsBlob;
+		break;
+	case EShaderType::SHADER_COMPUTE:
+		return &mBlolbs.csBlob;
+		break;
+	case EShaderType::SHADER_UNDEFINED:
+		break;
+	default:
+		break;
+	}
+	return nullptr;
+}
+
+EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
 	SCOPE_STARTUP_COUNTER("Shader Compile");
+
+	if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType)))
+	{
+		return EShaderError::SHADER_ERROR_NONE;
+	}
 	//convert to LPC 
 	std::string path = AssetManager::GetShaderPath();
 	std::string name = shadername;
@@ -100,21 +127,17 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #ifdef  _DEBUG
 		__debugbreak();
 #endif
-		return SHADER_ERROR_NOFILE;
+		return EShaderError::SHADER_ERROR_NOFILE;
 	}
-	if (type == SHADER_COMPUTE)
+	if (ShaderType == EShaderType::SHADER_COMPUTE)
 	{
 		IsCompute = true;
 	}
 
 	std::string ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
-
-
 	std::wstring newfile((int)path.size(), 0);
 	MultiByteToWideChar(CP_UTF8, 0, &path[0], (int)path.size(), &newfile[0], (int)path.size());
 	LPCWSTR filename = newfile.c_str();
-
-
 	ID3DBlob* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
 #if defined(_DEBUG)
@@ -128,60 +151,41 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #endif
 #endif
 	D3D_SHADER_MACRO* defines = ParseDefines();
-	if (type == SHADER_VERTEX)
+	switch (ShaderType)
 	{
-#if USE_DX_INCLUDER
-		hr = D3DCompileFromFile(filename, defines, IncludeHandler, "main", "vs_5_0",
+	case EShaderType::SHADER_VERTEX:
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "vs_5_0",
 			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
-#else
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "vs_5_0",
-			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
-#endif
-		StripD3dShader(&mBlolbs.vsBlob);
-
-	}
-	else if (type == SHADER_FRAGMENT)
-	{
-
-#if USE_DX_INCLUDER
-		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0",
+		break;
+	case EShaderType::SHADER_FRAGMENT:
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "ps_5_1",
 			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
-#else
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "ps_5_1",
-			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
-#endif
-		StripD3dShader(&mBlolbs.fsBlob);
-	}
-	else if (type == SHADER_COMPUTE)
-	{
-#if USE_DX_INCLUDER
-		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "cs_5_0",
-			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
-#else
+		break;
+	case EShaderType::SHADER_GEOMETRY:
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "gs_5_0",
+			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
+		break;
+	case EShaderType::SHADER_COMPUTE:
 		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "cs_5_0",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
-#endif
+		break;
+	case EShaderType::SHADER_UNDEFINED:
+	default:
+		ensureMsgf(false, "Unknown Shader Type!");
+		break;
 	}
-	else if (type == SHADER_GEOMETRY)
-	{
-#if USE_DX_INCLUDER
-		hr = D3DCompileFromFile(filename, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "gs_5_0",
-			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
-#else
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, "main", "gs_5_0",
-			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
-#endif
-	}	
+
+	StripD3dShader(GetCurrentBlob(ShaderType));
 	if (pErrorBlob)
 	{
 		std::string Log = "Shader Compile Output: ";
 		Log.append(StringUtils::ConvertWideToString(filename));
 		Log.append("\n");
 		Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
-		//Log::OutS << Log << Log::OutS;
-		Log::LogMessage(Log);
+
 		if (FAILED(hr))
 		{
+			Log::LogMessage(Log, Log::Severity::Error);
 			PlatformApplication::DisplayMessageBox("Shader Complie Error", Log);
 			pErrorBlob->Release();
 #ifndef NDEBUG
@@ -189,35 +193,68 @@ EShaderError D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername
 #endif
 			Engine::Exit(-1);
 			__debugbreak();
-			return SHADER_ERROR_COMPILE;
+			return EShaderError::SHADER_ERROR_COMPILE;
+		}
+		else
+		{
+			Log::LogMessage(Log, Log::Severity::Warning);
 		}
 	}
-
 	if (pErrorBlob)
 	{
 		pErrorBlob->Release();
 	}
 	if (FAILED(hr))
 	{
-		return SHADER_ERROR_CREATE;
+		return EShaderError::SHADER_ERROR_CREATE;
 	}
-	return SHADER_ERROR_NONE;
+	WriteBlobs(shadername, ShaderType);
+	return EShaderError::SHADER_ERROR_NONE;
 }
 
-void D3D12Shader::BuildShaderProgram()
-{}
+bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName)
+{
+	std::string ShaderSRCPath = AssetManager::GetShaderPath() + ShaderName + ".hlsl";
+	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + ShaderName + ".cso";
+	int64_t time = PlatformApplication::GetFileTimeStamp(ShaderSRCPath);
+	int64_t CSOtime = PlatformApplication::GetFileTimeStamp(ShaderCSOPath);
+	//if the Src is newer than the CSO recomplie
+	return !(time > CSOtime);
+}
 
-void D3D12Shader::DeleteShaderProgram()
-{}
+bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob)
+{
+	if (!CacheBlobs)
+	{
+		return false;
+	}
+	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + Name + ".cso";
+	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name))
+	{
+		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
+		return true;
+	}
+	return false;
+}
 
-void D3D12Shader::ActivateShaderProgram()
-{}
-void D3D12Shader::DeactivateShaderProgram()
-{}
-
+void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type type)
+{
+	if (CacheBlobs)
+	{
+		const std::string DDcShaderPath = AssetManager::GetDDCPath() + "Shaders\\";
+		PlatformApplication::TryCreateDirectory(DDcShaderPath);
+		if (shadername.find("\\") != -1)
+		{
+			std::string FolderPath = shadername;
+			FolderPath = FolderPath.erase(shadername.find("\\"));
+			PlatformApplication::TryCreateDirectory(DDcShaderPath + FolderPath);
+		}
+		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + shadername + ".cso").c_str(), true));
+	}
+}
 
 D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
-	 DeviceContext* context)
+	DeviceContext* context)
 {
 	SCOPE_STARTUP_COUNTER("Create Compute PSO");
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
@@ -228,7 +265,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShade
 }
 
 D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
-	 DeviceContext* context)
+	DeviceContext* context)
 {
 	SCOPE_STARTUP_COUNTER("Create PSO");
 	ensure(blobs->vsBlob != nullptr);
@@ -431,7 +468,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 		else if (Params[i].Type == Shader::ShaderParamType::CBV)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstantBufferView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
-		}
+	}
 		else if (Params[i].Type == Shader::ShaderParamType::UAV)
 		{
 #if !UAVRANGES
@@ -441,7 +478,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
 		}
-	}
+}
 	//todo: Samplers
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -496,7 +533,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	std::wstring name = L"Root sig Length = ";
 	name.append(std::to_wstring(Params.size()));
 	output.m_rootSignature->SetName(name.c_str());
-}
+	}
 
 void D3D12Shader::CreateDefaultRootSig(D3D12Shader::PiplineShader &output)
 {

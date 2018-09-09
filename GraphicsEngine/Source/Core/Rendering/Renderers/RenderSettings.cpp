@@ -25,7 +25,7 @@ void MultiGPUMode::ValidateSettings()
 
 RenderSettings::RenderSettings()
 {
-	ShadowMapSize = 512;
+	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	if (IsDeferred)
 	{

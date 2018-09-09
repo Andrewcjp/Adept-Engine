@@ -3,31 +3,27 @@
 #include "glm\glm.hpp"
 #include "Shader_Main.h"
 
-Shader_Depth::Shader_Depth(bool LoadGeo):Shader_Depth(LoadGeo, RHI::GetDeviceContext(0))
+Shader_Depth::Shader_Depth(bool LoadGeo) :Shader_Depth(LoadGeo, RHI::GetDeviceContext(0))
 {
-	
+
 }
 Shader_Depth::Shader_Depth(bool LoadGeo, DeviceContext* device)
 {
 	LoadGeomShader = LoadGeo;
 	m_Shader = RHI::CreateShaderProgam(device);
-	m_Shader->CreateShaderProgram();
+
 	if (!LoadGeomShader)
 	{
 		m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", "1"));
 	}
-	if (RHI::GetType() == RenderSystemD3D12)
-	{
-		m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs_12", SHADER_VERTEX);
-		if (LoadGeomShader)
-		{
-			m_Shader->AttachAndCompileShaderFromFile("depthbasic_geo", SHADER_GEOMETRY);
-		}
-		m_Shader->AttachAndCompileShaderFromFile("depthbasic_fs_12", SHADER_FRAGMENT);
-	}
 
-	m_Shader->BuildShaderProgram();
-	m_Shader->ActivateShaderProgram();
+	m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs_12", EShaderType::SHADER_VERTEX);
+	if (LoadGeomShader)
+	{
+		m_Shader->AttachAndCompileShaderFromFile("depthbasic_geo", EShaderType::SHADER_GEOMETRY);
+	}
+	m_Shader->AttachAndCompileShaderFromFile("depthbasic_fs_12", EShaderType::SHADER_FRAGMENT);
+
 
 	zfar = static_cast<float>(ShadowFarPlane);
 	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
@@ -38,7 +34,7 @@ Shader_Depth::Shader_Depth(bool LoadGeo, DeviceContext* device)
 }
 
 
-void Shader_Depth::UpdateBuffer(RHICommandList * list, LightData* data,int index )
+void Shader_Depth::UpdateBuffer(RHICommandList * list, LightData* data, int index)
 {
 	ConstantBuffer->UpdateConstantBuffer(data, index);
 	list->SetConstantBufferView(ConstantBuffer, index, 2);

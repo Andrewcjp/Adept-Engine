@@ -5,7 +5,7 @@
 Shader_EnvMap::Shader_EnvMap()
 {
 	m_Shader = RHI::CreateShaderProgam();
-	m_Shader->CreateShaderProgram();
+	
 	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("CubeMap_Convolute_IntergrateBRDF_fs", EShaderType::SHADER_FRAGMENT);
 }

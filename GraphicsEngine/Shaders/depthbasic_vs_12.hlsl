@@ -3,21 +3,14 @@ cbuffer ConstantBuffer : register(b0)
 {
 	row_major matrix world;
 }
-#if 0
-cbuffer SceneConstantBuffer : register(b2)
-{
-	row_major matrix ViewP;
-	row_major matrix Projection;
-};
 
-#else
 cbuffer SceneConstantBuffer : register(b2)
 {
 	row_major matrix ViewP;
 	row_major matrix Projection;
 	float3 LightPos;
 };
-#endif
+
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;

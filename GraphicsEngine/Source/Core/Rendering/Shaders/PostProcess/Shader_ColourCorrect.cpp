@@ -6,13 +6,13 @@ Shader_ColourCorrect::Shader_ColourCorrect()
 {
 	m_Shader = RHI::CreateShaderProgam();
 	
-	m_Shader->CreateShaderProgram();
+	
 
-	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Pass_fs_12", SHADER_FRAGMENT);
+	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("Pass_fs_12", EShaderType::SHADER_FRAGMENT);
 
-	m_Shader->BuildShaderProgram();
-	m_Shader->ActivateShaderProgram();
+	
+	
 }
 
 Shader_ColourCorrect::~Shader_ColourCorrect()

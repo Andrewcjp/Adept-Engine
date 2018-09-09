@@ -13,7 +13,7 @@ void Shader::SetShaderActive()
 {
 	if (m_Shader != nullptr)
 	{
-		m_Shader->ActivateShaderProgram();
+		
 	}
 }
 

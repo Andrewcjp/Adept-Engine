@@ -7,12 +7,12 @@ Shader_WDeferred::Shader_WDeferred()
 	//Initialise OGL shader
 	m_Shader = RHI::CreateShaderProgam();
 
-	m_Shader->CreateShaderProgram();
-	m_Shader->AttachAndCompileShaderFromFile("Main_vs", SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("DeferredWrite_fs", SHADER_FRAGMENT);
+	
+	m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("DeferredWrite_fs", EShaderType::SHADER_FRAGMENT);
 
-	m_Shader->BuildShaderProgram();
-	m_Shader->ActivateShaderProgram();
+	
+	
 
 }
 
