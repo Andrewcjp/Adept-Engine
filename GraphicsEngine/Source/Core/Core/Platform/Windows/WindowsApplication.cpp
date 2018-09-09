@@ -39,10 +39,12 @@ void* WindowsApplication::GetDllHandle(FString Name)
 	}
 	return Handle;
 }
-bool WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args)
+
+int WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args)
 {
 	if (FileUtils::File_ExistsTest(Filename))
 	{
+		
 		//system((Filename + Args).c_str());
 		const std::wstring wideFilename = StringUtils::ConvertStringToWide(Filename);
 		const std::wstring wideArgs = StringUtils::ConvertStringToWide(Args);
@@ -61,9 +63,11 @@ bool WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args
 			return false;
 		}
 		WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
-		return true;
+		int ReturnCode = -1;
+		GetExitCodeProcess(ShExecInfo.hProcess, (LPDWORD)&ReturnCode);
+		return ReturnCode;
 	}
-	return false;
+	return -1;
 }
 
 void WindowsApplication::InitTiming()

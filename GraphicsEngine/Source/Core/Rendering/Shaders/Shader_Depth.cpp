@@ -11,12 +11,7 @@ Shader_Depth::Shader_Depth(bool LoadGeo, DeviceContext* device)
 {
 	LoadGeomShader = LoadGeo;
 	m_Shader = RHI::CreateShaderProgam(device);
-
-	if (!LoadGeomShader)
-	{
-		m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", "1"));
-	}
-
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", LoadGeomShader ? "0" : "1"));
 	m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs_12", EShaderType::SHADER_VERTEX);
 	if (LoadGeomShader)
 	{
@@ -37,7 +32,7 @@ Shader_Depth::Shader_Depth(bool LoadGeo, DeviceContext* device)
 void Shader_Depth::UpdateBuffer(RHICommandList * list, LightData* data, int index)
 {
 	ConstantBuffer->UpdateConstantBuffer(data, index);
-	list->SetConstantBufferView(ConstantBuffer, index, 2);
+	list->SetConstantBufferView(ConstantBuffer, index, Shader_Depth_RSSlots::VPBuffer);
 }
 
 

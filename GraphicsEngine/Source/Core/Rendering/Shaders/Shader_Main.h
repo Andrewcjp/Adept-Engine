@@ -1,7 +1,6 @@
 #pragma once
 #include "RHI/Shader.h"
 #include <string>
-#define MAX_LIGHTS 4
 #include "RHI/RHICommandList.h"
 namespace MainShaderRSBinds
 {

@@ -14,7 +14,7 @@
 #include "Core/EngineInc.h"
 #include "Rendering/Core/SceneRenderer.h"
 #define CUBE_SIDES 6
-
+#define TEST_PRESAMPLE 1
 ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 {
 	Scenerenderer = sceneRenderer;
@@ -28,7 +28,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 		ShadowDirectionalArray->AddFrameBufferBind(DirectionalLightBuffers[i], i);
 	}
 	ShadowCubeArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS);
-#if 0
+#if !TEST_PRESAMPLE
 	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
 	{
 		PointLightBuffers.push_back(RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateCubeDepth(shadowwidth, shadowwidth)));
@@ -61,9 +61,15 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 		PointShadowListALT = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
 	}
 	DirectionalShadowList = RHI::CreateCommandList();
+
+#if TEST_PRESAMPLE
 	ShadowPreSampleShader = new Shader_ShadowSample(RHI::GetDeviceContext(1));
 	ShadowPreSamplingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
-	ShadowPreSamplingList->CreatePipelineState(ShadowPreSampleShader, LightInteractions[2]->PreSampledBuffer);
+	if (LightInteractions.size() > 2)
+	{
+		ShadowPreSamplingList->CreatePipelineState(ShadowPreSampleShader, LightInteractions[2]->PreSampledBuffer);
+	}
+#endif
 }
 
 ShadowRenderer::~ShadowRenderer()
@@ -187,7 +193,6 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 		}
 		FrameBuffer::CopyHelper(LightInteractions[SNum]->PreSampledBuffer, RHI::GetDeviceContext(0));
 	}
-
 }
 
 void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject *> & ShadowObjects)
@@ -202,6 +207,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 		Shader_Depth* TargetShader = LightInteractions[SNum]->Shader;
 		list->SetRenderTarget(TargetBuffer);
 		list->ClearFrameBuffer(TargetBuffer);
+		list->SetPipelineStateObject(TargetShader);
 		UpdateGeometryShaderParams(ShadowingPointLights[SNum]->GetPosition(), ShadowingPointLights[SNum]->Projection, SNum);
 		list->SetConstantBufferView(GeometryProjections, SNum, Shader_Depth_RSSlots::GeometryProjections);
 		Shader_Depth::LightData data = {};
@@ -259,8 +265,16 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
 #if 1
-	ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
-	ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
+	if (RHI::GetRenderSettings()->IsDeferred)
+	{
+		ShadowDirectionalArray->BindToShader(list, 5);
+		ShadowCubeArray->BindToShader(list, 6);
+	}
+	else
+	{
+		ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
+		ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
+	}
 #else
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
@@ -319,7 +333,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 		}
 	}
-	PipeLineState pipestate = PipeLineState{ false,false,false };
+	PipeLineState pipestate = PipeLineState{ true,false,false };
 	pipestate.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
 	PointShadowList->SetPipelineState(pipestate);
 	PointShadowList->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!

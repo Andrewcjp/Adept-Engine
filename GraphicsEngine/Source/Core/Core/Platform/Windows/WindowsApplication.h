@@ -10,7 +10,7 @@ public:
 	static void * GetDllExport(void * DllHandle, const char * ProcName);
 	static void FreeDllHandle(void * DllHandle);
 	static void * GetDllHandle(FString Name);
-	static bool ExecuteHostScript(std::string Filename, std::string Args);
+	static int ExecuteHostScript(std::string Filename, std::string Args);
 	static void InitTiming();
 	static double Seconds();
 	static void Sleep(float Milliseconds);
