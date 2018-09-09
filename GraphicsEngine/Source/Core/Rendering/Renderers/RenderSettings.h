@@ -9,7 +9,7 @@ namespace AAMode
 		SMAA,
 	};
 }
-
+//Props Are Set in the Constructor 
 struct RenderSettings
 {
 	RenderSettings();
@@ -19,7 +19,7 @@ public:
 	int ShadowMapSize = 2048;
 	bool IsDeferred = false;
 };
-
+//Props Are Set in the Constructor 
 struct MultiGPUMode
 {
 	MultiGPUMode();
@@ -32,9 +32,11 @@ struct MultiGPUMode
 	bool PSComputeWorkSplit = false;
 	void ValidateSettings();
 };
-
+//Props Are Set in the Constructor 
 struct RenderConstants
 {
-	int MAX_DYNAMIC_POINT_SHADOWS = 4;
-	int MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
+	int MAX_DYNAMIC_POINT_SHADOWS;
+	int MAX_DYNAMIC_DIRECTIONAL_SHADOWS;
+	int MAX_LIGHTS = 4;
+	RenderConstants();
 };

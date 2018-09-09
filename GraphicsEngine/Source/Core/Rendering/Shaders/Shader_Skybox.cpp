@@ -14,7 +14,7 @@ Shader_Skybox::Shader_Skybox()
 	settings.Scale = glm::vec3(100.0f);
 	CubeModel = RHI::CreateMesh("SkyBoxCube.obj", settings);
 	m_Shader = RHI::CreateShaderProgam();
-	
+
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_fs", EShaderType::SHADER_FRAGMENT);
 }
@@ -29,7 +29,7 @@ void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 
 	if (DepthSourceBuffer != nullptr)
 	{
-		RHIPipeRenderTargetDesc Desc = Buffer->GetPiplineRenderDesc();
+		state.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 		state.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
 		List->SetPipelineState(state);
 		List->CreatePipelineState(this);

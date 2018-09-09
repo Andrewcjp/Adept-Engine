@@ -120,7 +120,6 @@ static inline void ThrowIfFailed(HRESULT hr)
 {
 	if (FAILED(hr))
 	{
-		//__debugbreak();		
 		ensureMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }

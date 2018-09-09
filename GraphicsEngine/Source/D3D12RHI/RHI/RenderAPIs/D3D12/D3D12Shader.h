@@ -60,9 +60,9 @@ private:
 	PiplineShader m_Shader;
 	ID3D12DescriptorHeap* m_samplerHeap = nullptr;
 	ShaderBlobs mBlolbs;
-	const bool CacheBlobs = false;
+	bool CacheBlobs = false;
 	void WriteBlobs(const std::string & shadername, EShaderType::Type type);
-	bool TryLoadCachedShader(std::string Name, ID3DBlob** Blob);
+	bool TryLoadCachedShader(std::string Name, ID3DBlob** Blob, const std::string & InstanceHash);
 	bool CompareCachedShaderBlobWithSRC(const std::string & ShaderName);
 	ID3DBlob ** GetCurrentBlob(EShaderType::Type type);
 };

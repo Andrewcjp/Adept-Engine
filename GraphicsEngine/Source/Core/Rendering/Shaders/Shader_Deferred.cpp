@@ -1,6 +1,6 @@
 #include "Shader_Deferred.h"
 #include "RHI/ShaderProgramBase.h"
-
+#include <algorithm>
 
 Shader_Deferred::Shader_Deferred()
 {
@@ -18,13 +18,13 @@ Shader_Deferred::Shader_Deferred()
 
 	//Initialise shader
 	m_Shader = RHI::CreateShaderProgam();
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
+	//m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
 
-	
 	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_fs", EShaderType::SHADER_FRAGMENT);
-
-	//
-	//
 
 }
 
@@ -43,9 +43,11 @@ std::vector<Shader::ShaderParameter> Shader_Deferred::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::NormalTex, 1));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::AlbedoTex, 2));
 
-	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::DirShadow, 7));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::PointShadow, 8));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::DirShadow, 4));
 
+	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::PointShadow, 5);
+	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS;
+	out.push_back(parm);
 
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::DiffuseIr, 10));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::SpecBlurMap, 11));

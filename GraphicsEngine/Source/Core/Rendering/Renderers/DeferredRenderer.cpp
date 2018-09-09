@@ -106,7 +106,7 @@ void DeferredRenderer::LightingPass()
 	SceneRender->BindLightsBuffer(LightingList, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRender->BindMvBuffer(LightingList, DeferredLightingShaderRSBinds::MVCBV);
 
-	//mShadowRenderer->BindShadowMapsToTextures(LightingList);
+	mShadowRenderer->BindShadowMapsToTextures(LightingList);
 
 	DeferredShader->RenderScreenQuad(LightingList);
 	//LightingList->SetRenderTarget(nullptr);

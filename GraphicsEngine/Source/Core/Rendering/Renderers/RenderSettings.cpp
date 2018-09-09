@@ -32,3 +32,9 @@ RenderSettings::RenderSettings()
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 }
+
+RenderConstants::RenderConstants()
+{
+	MAX_DYNAMIC_POINT_SHADOWS = 4;
+	MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
+}

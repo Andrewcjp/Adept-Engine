@@ -10,12 +10,19 @@ TextureCube SpecularBlurMap: register(t11);
 Texture2D envBRDFTexture: register(t12);
 
 Texture2D PerSampledShadow: register(t13);
+
+
+Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t4);
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5);
+
+
 #include "Lighting.hlsl"
-#define MAX_LIGHT 4
+#include "Shadow.hlsl"
+
 
 cbuffer LightBuffer : register(b1)
 {
-	Light lights[MAX_LIGHT];
+	Light lights[MAX_LIGHTS];
 };
 cbuffer SceneConstantBuffer : register(b2)
 {
@@ -28,6 +35,7 @@ struct VS_OUTPUT
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
 };
+
 
 float4 main(VS_OUTPUT input) : SV_Target
 {
@@ -52,17 +60,12 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
 	//return float4(irData, 1.0f);
 	//return float4(0,0,0, 1.0f);
-	for (int i = 0; i < MAX_LIGHT; i++)
+	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
-		if (i == 2)
+		if (lights[i].HasShadow && lights[i].type == 1)
 		{
-		//	int out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
-		//	LightColour *= 1.0 - out2;
-		}
-		else
-		{
-			LightColour = float3(0, 0, 0);
+			LightColour *= 1.0 - ShadowCalculationCube(pos, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
 		}
 		output += LightColour;
 	}
