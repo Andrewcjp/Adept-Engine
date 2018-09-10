@@ -10,30 +10,14 @@ Shader_Main::Shader_Main(bool LoadForward)
 
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("POINT_SHADOW_OFFSET", "t" + std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
-	//	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_DEFERRED", std::to_string((int)RHI::GetRenderSettings()->IsDeferred)));
-#if 0
-	m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
-	if (LoadForward)
-	{
-		m_Shader->AttachAndCompileShaderFromFile("Main_fs", EShaderType::SHADER_FRAGMENT);
-	}
-	else
-	{
-		m_Shader->AttachAndCompileShaderFromFile("DeferredWrite_fs", EShaderType::SHADER_FRAGMENT);
-	}
-#endif
-
-
-
 }
+
 Shader_Main::~Shader_Main()
 {
-	//delete CLightBuffer;
-	//delete CMVBuffer;
-	//MemoryUtils::DeleteCArray(GameObjectTransformBuffer, MAX_DEVICE_COUNT);
+
 }
+
 std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
 {
 	std::vector<Shader::VertexElementDESC> out;
@@ -44,50 +28,16 @@ std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
 	return out;
 }
 
-void Shader_Main::SetNormalVis()
-{
-	if (vistate)
-	{
-		vistate = false;
-	}
-	else
-	{
-		vistate = true;
-	}
-}
-void Shader_Main::SetFullBright()
-{
-	if (enabledFullBright)
-	{
-		enabledFullBright = false;
-	}
-	else
-	{
-		enabledFullBright = true;
-	}
-}
-void Shader_Main::SetShadowVis()
-{
-	if (shadowvisstate)
-	{
-		shadowvisstate = false;
-	}
-	else
-	{
-		shadowvisstate = true;
-	}
-}
-
 void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 {
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::GODataCBV, 0));
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::LightDataCBV, 1));
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::MVCBV, 2));
 	//two shadows
-	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DirShadow, 0);
+	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DirShadow, 0, 1);
 	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS;
 	out.push_back(parm);
-	parm = ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::PointShadow,/*(0 + )*/RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS);
+	parm = ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::PointShadow, 1, 2);
 	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS;
 	out.push_back(parm);
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DiffuseIr, 10));

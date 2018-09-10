@@ -21,6 +21,7 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		NullHeap->SetName(L"NullHeap");
 		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &GetSrvDesc(0), NullHeap->GetCPUAddress(0));
 	}
 }
@@ -205,6 +206,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	));
 
 	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	SharedSRVHeap->SetName(L"FrameBuffer SharedSRVHeap");
 	SharedTarget = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
@@ -287,7 +289,6 @@ void D3D12FrameBuffer::MakeReadyForCopy(ID3D12GraphicsCommandList * list)
 	SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);//D3D12_RESOURCE_STATE_COPY_DEST
 }
 
-
 void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List)
 {
 	GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
@@ -335,6 +336,7 @@ D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & 
 	{
 		SetupCopyToDevice(BufferDesc.DeviceToCopyTo);
 	}
+	AddCheckerRef(D3D12FrameBuffer, this);
 }
 
 void D3D12FrameBuffer::UpdateSRV()
@@ -347,6 +349,7 @@ void D3D12FrameBuffer::UpdateSRV()
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		NullHeap->SetName(L"NullHeap");
 	}
 	if (BufferDesc.RenderTargetCount == 0)
 	{
@@ -481,12 +484,13 @@ void D3D12FrameBuffer::Init()
 
 D3D12FrameBuffer::~D3D12FrameBuffer()
 {
+	RemoveCheckerRef(D3D12FrameBuffer, this);
 	if (BufferDesc.NeedsDepthStencil)
 	{
 		DepthStencil->Release();
-		delete NullHeap;
 		delete DSVHeap;
 	}
+	SafeRelease(NullHeap);
 	if (BufferDesc.RenderTargetCount > 0)
 	{
 		delete RTVHeap;
@@ -496,6 +500,14 @@ D3D12FrameBuffer::~D3D12FrameBuffer()
 		RenderTarget[i]->Release();
 	}
 	delete SrvHeap;
+	SafeRelease(PrimaryRes);
+	SafeRelease(Stagedres);
+	SafeRelease(FinalOut);
+	SafeRelease(SharedSRVHeap);
+	if (SharedTarget)
+	{
+		delete SharedTarget;
+	}
 }
 
 void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex)

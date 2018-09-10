@@ -109,7 +109,6 @@ void DeferredRenderer::LightingPass()
 	mShadowRenderer->BindShadowMapsToTextures(LightingList);
 
 	DeferredShader->RenderScreenQuad(LightingList);
-	//LightingList->SetRenderTarget(nullptr);
 	WriteList->GetDevice()->GetTimeManager()->EndTimer(LightingList, EGPUTIMERS::DeferredLighting);
 	mShadowRenderer->Unbind(LightingList);
 	LightingList->Execute();

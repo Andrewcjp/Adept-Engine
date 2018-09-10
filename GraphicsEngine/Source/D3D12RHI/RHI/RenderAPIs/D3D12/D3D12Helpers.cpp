@@ -6,6 +6,8 @@
 #include "D3D12DeviceContext.h"
 #include "Core/Assets/AssetTypes.h"
 #include "Core/Platform/PlatformCore.h"
+#include <SOIL.h>
+#include "Core/Utils/FileUtils.h"
 
 std::string D3D12Helpers::StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel)
 {
@@ -224,7 +226,7 @@ void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
 	Target->SetResourceState(Cmdlist->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
 	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
-	CD3DX12_BOX box(0, 0, Desc.Width, Desc.Height);
+	CD3DX12_BOX box(0, 0, (LONG)Desc.Width, Desc.Height);
 
 	Device->GetDevice()->GetCopyableFootprints(&Desc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
 	CD3DX12_TEXTURE_COPY_LOCATION dest(WriteBackResource->GetResource(), renderTargetLayout);
@@ -264,7 +266,7 @@ D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext * context, GPURes
 		IID_PPV_ARGS(&Readback)));
 
 	WriteBackResource = new GPUResource(Readback, D3D12_RESOURCE_STATE_COPY_DEST);
-
+	NAME_D3D12_OBJECT(Readback);
 }
 
 D3D12ReadBackCopyHelper::~D3D12ReadBackCopyHelper()
@@ -273,8 +275,7 @@ D3D12ReadBackCopyHelper::~D3D12ReadBackCopyHelper()
 	delete Cmdlist;
 }
 
-#include <SOIL.h>
-#include "Core/Utils/FileUtils.h"
+
 void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 {
 	const bool DDS = false;
@@ -289,7 +290,7 @@ void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 	
 	std::string path = Ref.GetNoExtPathToAsset();
 	path.append(GenericPlatformMisc::GetDateTimeString());
-	FileUtils::CreateDirectoryFromFullPath(path);
+	FileUtils::CreateDirectoriesToFullPath(path);
 	if (DDS)
 	{
 		path.append(".DDS");
@@ -318,6 +319,6 @@ void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 		*Ptr = 255;
 	}
 	//de align
-	SOIL_save_image(path.c_str(), DDS ? SOIL_SAVE_TYPE_DDS : SOIL_SAVE_TYPE_BMP, Desc.Width, Desc.Height, ChannelCount, RawData);
+	SOIL_save_image(path.c_str(), DDS ? SOIL_SAVE_TYPE_DDS : SOIL_SAVE_TYPE_BMP, (int)Desc.Width, Desc.Height, ChannelCount, RawData);
 	
 }

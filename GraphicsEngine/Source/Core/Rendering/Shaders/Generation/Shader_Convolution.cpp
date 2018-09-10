@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Shader_Convolution.h"
 #include "Rendering/Core/Renderable.h"
-
+#include "Rendering/Core/FrameBuffer.h"
 Shader_Convolution::Shader_Convolution()
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -15,6 +15,7 @@ Shader_Convolution::~Shader_Convolution()
 {
 	delete CmdList;
 	delete ShaderData;
+	delete CubeBuffer;
 	delete Cube;
 	delete Test;
 }

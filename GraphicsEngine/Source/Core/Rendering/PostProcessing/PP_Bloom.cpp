@@ -14,6 +14,7 @@ PP_Bloom::~PP_Bloom()
 	delete BlurEffect;
 	delete Compost;
 	delete BloomShader;
+	delete BloomBuffer;
 	delete UAV;
 }
 

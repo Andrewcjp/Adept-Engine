@@ -43,7 +43,7 @@ public:
 	}
 	int LogRefs()
 	{
-		//check(Refs.size() == 0);
+		check(Refs.size() == 0);
 		return (int)Refs.size();
 	}
 

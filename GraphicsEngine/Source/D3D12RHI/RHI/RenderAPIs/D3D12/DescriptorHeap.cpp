@@ -3,28 +3,30 @@
 #include <algorithm>
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
-DescriptorHeap::DescriptorHeap(DeviceContext* inDevice,int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
+#include "Core/Utils/StringUtil.h"
+#include "Core/Utils/RefChecker.h"
+CreateChecker(DescriptorHeap);
+DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
 	Device = (D3D12DeviceContext*)inDevice;
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 	srvHeapDesc.NumDescriptors = std::max(Num, 1);
 	srvHeapDesc.Type = type;
 	srvHeapDesc.Flags = flags;
 	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mHeap)));
 	DescriptorOffsetSize = Device->GetDevice()->GetDescriptorHandleIncrementSize(type);
+	const std::string name = "Desc Heap Descs: " + std::to_string(srvHeapDesc.NumDescriptors);
+	SetName(StringUtils::ConvertStringToWide(name).c_str());
+	AddCheckerRef(DescriptorHeap, this);
 }
 
 DescriptorHeap::~DescriptorHeap()
 {
-	if (mHeap != nullptr)
-	{
-		mHeap->Release();
-	}
+	Release();
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGpuAddress(int index)
 {
-	return 	CD3DX12_GPU_DESCRIPTOR_HANDLE(mHeap->GetGPUDescriptorHandleForHeapStart(), index, DescriptorOffsetSize);
+	return CD3DX12_GPU_DESCRIPTOR_HANDLE(mHeap->GetGPUDescriptorHandleForHeapStart(), index, DescriptorOffsetSize);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUAddress(int index)
@@ -47,8 +49,8 @@ void DescriptorHeap::Release()
 {
 	if (mHeap)
 	{
-		mHeap->Release();
-		mHeap = nullptr;
+		RemoveCheckerRef(DescriptorHeap, this);
+		SafeRelease(mHeap);
 	}
 }
 

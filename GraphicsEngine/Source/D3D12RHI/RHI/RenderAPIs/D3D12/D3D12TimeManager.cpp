@@ -16,6 +16,8 @@ D3D12TimeManager::~D3D12TimeManager()
 #if ENABLE_GPUTIMERS
 	m_timestampQueryHeaps->Release();
 	m_timestampResultBuffers->Release();
+	m_CopytimestampResultBuffers->Release();
+	m_CopytimestampQueryHeaps->Release();
 #endif
 }
 
@@ -91,7 +93,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 #endif
 }
 
-void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBuffer, float ClockFreq,bool IsCopyList)
+void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBuffer, UINT64 ClockFreq,bool IsCopyList)
 {
 	D3D12_RANGE readRange = {};
 	const D3D12_RANGE emptyRange = {};

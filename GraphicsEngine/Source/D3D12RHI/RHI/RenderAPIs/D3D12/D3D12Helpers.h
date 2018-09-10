@@ -2,7 +2,7 @@
 #include <d3d12.h>
 #include "RHI/RHITypes.h"
 #if defined(_DEBUG)
-inline void SetName(ID3D12Object* pObject, LPCWSTR name)
+inline void NAME_D3D12_SetName(ID3D12Object* pObject, LPCWSTR name)
 {
 	pObject->SetName(name);
 }
@@ -10,7 +10,7 @@ inline void SetName(ID3D12Object* pObject, LPCWSTR name)
 inline void SetName(ID3D12Object*, LPCWSTR)
 {}
 #endif
-#define NAME_D3D12_OBJECT(x) SetName(x, L#x)
+#define NAME_D3D12_OBJECT(x) NAME_D3D12_SetName(x, L#x)
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
 class D3D12Helpers
 { 

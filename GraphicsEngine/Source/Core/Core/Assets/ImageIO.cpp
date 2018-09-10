@@ -14,11 +14,13 @@ ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {
 	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
-	checkMsgf(DefaultTexture,"Failed to Load Fallback Texture");
+	checkMsgf(DefaultTexture, "Failed to Load Fallback Texture");
 }
 
 ImageIO::~ImageIO()
-{}
+{
+	SafeRefRelease(DefaultTexture);
+}
 
 EImageIOStatus ImageIO::LoadUncompressedTGA(unsigned char** buffer, int* sizeX, int* sizeY, int* bpp, int* nChannels, FILE* pf)
 {
@@ -173,7 +175,7 @@ EImageIOStatus ImageIO::LoadTexture2D(const char* filename, unsigned char** buff
 	if (*buffer == nullptr)
 	{
 		//printf("Load texture Error %s\n", file);
-		Log::OutS  << "Falied to Load Texture '" << filename << "'\n";
+		Log::OutS << "Falied to Load Texture '" << filename << "'\n";
 		return EImageIOStatus::E_IMAGEIO_ERROR;
 	}
 	return EImageIOStatus::E_IMAGEIO_SUCCESS;

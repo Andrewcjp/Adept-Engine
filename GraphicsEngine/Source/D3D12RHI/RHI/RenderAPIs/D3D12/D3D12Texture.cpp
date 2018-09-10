@@ -12,10 +12,13 @@
 #include "DescriptorHeap.h"
 #include "D3D12Texture.h"
 #include "D3D12DeviceContext.h"
+#include "Core/Utils/RefChecker.h"
+CreateChecker(D3D12Texture);
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
 float D3D12Texture::MipCreationTime = 0;
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)
-{	
+{
+	AddCheckerRef(D3D12Texture, this);
 	if (inDevice == nullptr)
 	{
 		Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();
@@ -171,7 +174,7 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 			return false;
 		}
 		Miplevels = 1;
-	}	 
+	}
 	else
 	{
 		if (ImageIO::LoadTexture2D(name.GetFullPathToAsset().c_str(), &buffer, &width, &height, &nChannels) != E_IMAGEIO_SUCCESS)
@@ -217,7 +220,7 @@ bool D3D12Texture::LoadDDS(std::string filename)
 		CurrentTextureType = ETextureType::Type_2D;
 		MipLevelsReadyNow = (int)subresources.size();
 	}
-	
+
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, (UINT)subresources.size());
 	ID3D12Resource* textureUploadHeap = nullptr;
 	format = m_texture->GetDesc().Format;
@@ -229,26 +232,21 @@ bool D3D12Texture::LoadDDS(std::string filename)
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&textureUploadHeap)));
-
+	NAME_D3D12_OBJECT(textureUploadHeap);
 	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, (UINT)subresources.size(), subresources.data());
 	Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	m_texture->SetName(L"Loaded Texture");
 	Device->NotifyWorkForCopyEngine();
+	D3D12RHI::Get()->AddUploadToUsed(textureUploadHeap);
 	UpdateSRV();
 	return true;
 }
 
 D3D12Texture::~D3D12Texture()
 {
-	if (m_texture)
-	{
-		m_texture->Release();
-		m_texture = nullptr;
-	}
-	if (srvHeap)
-	{
-		srvHeap->Release();
-	}
+	SafeRelease(m_texture);
+	SafeRelease(srvHeap);
+	RemoveCheckerRef(D3D12Texture, this);
 }
 
 bool D3D12Texture::CreateFromFile(AssetPathRef FileName)
@@ -324,7 +322,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	if (type != RHI::TextureType::Text && D3D12RHI::Instance->MipmapShader != nullptr)
 	{
 		D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
-	}
+}
 #endif
 }
 
@@ -352,13 +350,13 @@ void D3D12Texture::UpdateSRV()
 	const int testmip = 8;
 	if (MipLevelsReadyNow > testmip)
 	{
-		
+
 		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow - testmip;
 		srvDesc.Texture2D.MostDetailedMip = testmip;
 	}
 #endif
 	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, srvHeap->GetCPUAddress(0));
-	}
+}
 
 ID3D12Resource * D3D12Texture::GetResource()
 {

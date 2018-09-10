@@ -32,8 +32,8 @@ struct PSInput
 	row_major float3x3 TBN:TANGENT1;
 };
 
-Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t0);
-TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(POINT_SHADOW_OFFSET);
+Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t0, space1);
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t1,space2);
 
 
 TextureCube DiffuseIrMap : register(t10);

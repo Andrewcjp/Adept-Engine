@@ -55,5 +55,5 @@ bool Shader::IsComputeShader()
 
 const std::string Shader::GetName()
 {
-	return "";
+	return "_";
 }

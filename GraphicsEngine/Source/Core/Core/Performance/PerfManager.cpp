@@ -66,6 +66,10 @@ void PerfManager::AddTimer(const char * countername, const char* group)
 
 void PerfManager::AddTimer(int id, int groupid)
 {
+	if (AVGTimers.find(id) != AVGTimers.end())
+	{
+		return;
+	}
 	TimerData Data;
 	Data.AVG = new MovingAverage(AvgCount);
 	Data.name = GetTimerName(id);

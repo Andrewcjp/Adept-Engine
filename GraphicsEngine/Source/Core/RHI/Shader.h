@@ -24,7 +24,7 @@ public:
 		SHADER_VISIBILITY_PIXEL = 5
 	};
 	typedef
-	enum INPUT_CLASSIFICATION
+		enum INPUT_CLASSIFICATION
 	{
 		INPUT_CLASSIFICATION_PER_VERTEX_DATA = 0,
 		INPUT_CLASSIFICATION_PER_INSTANCE_DATA = 1
@@ -43,18 +43,20 @@ public:
 	{
 		ShaderParameter()
 		{}
-		ShaderParameter(ShaderParamType it, int sslot, int reg , RHI_SHADER_VISIBILITY Vis = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL)
+		ShaderParameter(ShaderParamType it, int sigslot, int ShaderRegister, int ShaderRegSpace = 0, RHI_SHADER_VISIBILITY Vis = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL)
 		{
 			Type = it;
-			SignitureSlot = sslot;
-			RegisterSlot = reg;
+			SignitureSlot = sigslot;
+			RegisterSlot = ShaderRegister;
 			Visiblity = Vis;
+			RegisterSpace = ShaderRegSpace;
 		}
 		ShaderParamType Type;
 		RHI_SHADER_VISIBILITY Visiblity;
 		int SignitureSlot = 0;
 		int RegisterSlot = 0;
 		int NumDescriptors = 1;
+		int RegisterSpace = 0;
 	};
 	//todo: migrate to New system
 	typedef struct _MVPStruct

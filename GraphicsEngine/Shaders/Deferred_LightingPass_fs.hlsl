@@ -12,8 +12,8 @@ Texture2D envBRDFTexture: register(t12);
 Texture2D PerSampledShadow: register(t13);
 
 
-Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t4);
-TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5);
+Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t4,space1);
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5,space2);
 
 
 #include "Lighting.hlsl"
@@ -65,7 +65,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
 		if (lights[i].HasShadow && lights[i].type == 1)
 		{
-			LightColour *= 1.0 - ShadowCalculationCube(pos, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
+			LightColour *= 1.0 - ShadowCalculationCube(pos.xyz, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
 		}
 		output += LightColour;
 	}

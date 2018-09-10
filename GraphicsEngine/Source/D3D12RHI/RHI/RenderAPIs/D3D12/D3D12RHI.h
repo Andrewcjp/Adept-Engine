@@ -27,8 +27,8 @@ public:
 	void RenderToScreen(ID3D12GraphicsCommandList * list);
 	void ClearRenderTarget(ID3D12GraphicsCommandList * MainList);
 	static D3D12RHI* Instance;
-	void AddUploadToUsed(ID3D12Resource * Target);
-
+	void AddUploadToUsed(IUnknown * Target);
+	static D3D12RHI* Get();
 	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	static bool DetectGPUDebugger();
 	//temp To be RHI'D	
@@ -72,6 +72,7 @@ private:
 	void RHISwapBuffers() override;
 	void RHIRunFirstFrame() override;
 	void ResizeSwapChain(int x, int y) override;
+
 private:
 	ID3D12Device * GetDisplayDevice();
 	class	D3D12DeviceContext* PrimaryDevice = nullptr;
@@ -102,14 +103,13 @@ private:
 	ID3D12Debug* debugController;
 	HANDLE m_VideoMemoryBudgetChange;
 	DWORD m_BudgetNotificationCookie;
-	int CPUAheadCount = 0;
-	//todo : Better!
-	std::vector<ID3D12Resource *> UsedUploadHeaps;
+
+	typedef std::pair<IUnknown*, int64_t> UploadHeapStamped;
+	std::vector<UploadHeapStamped> UsedUploadHeaps;
+
 	class GPUResource* m_RenderTargetResources[RHI::CPUFrameCount];
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;
-	int PresentCount = 0;
-
 	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
@@ -120,7 +120,7 @@ static inline void ThrowIfFailed(HRESULT hr)
 {
 	if (FAILED(hr))
 	{
-		ensureMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
+		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }
 void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
