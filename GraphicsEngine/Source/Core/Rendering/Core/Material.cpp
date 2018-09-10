@@ -15,7 +15,6 @@ Material::Material(BaseTexture * Diff, MaterialProperties props) :Material(props
 Material::Material(MaterialProperties props)
 {
 	Properties = props;
-	NullTexture2D = RHI::CreateNullTexture();
 	if (Properties.TextureBinds == nullptr)
 	{
 		CurrentBindSet = new TextureBindSet();
@@ -50,7 +49,7 @@ void Material::UpdateBind(std::string Name, BaseTexture* NewTex)
 	{
 		if (CurrentBindSet->BindMap.at(Name).TextureObj != NewTex)
 		{
-			CurrentBindSet->BindMap.at(Name).TextureObj->Release();
+			SafeRefRelease(CurrentBindSet->BindMap.at(Name).TextureObj);
 			CurrentBindSet->BindMap.at(Name).TextureObj = NewTex;
 			NewTex->AddRef();
 		}
@@ -58,6 +57,7 @@ void Material::UpdateBind(std::string Name, BaseTexture* NewTex)
 	else
 	{
 		//ensureMsgf(false, "Failed to Find Bind");
+		//SafeRefRelease(NewTex);
 	}
 }
 
@@ -111,7 +111,7 @@ void Material::SetDiffusetexture(BaseTexture * tex)
 
 bool Material::HasNormalMap()
 {
-	return GetTexturebind("NORMALMAP") != NullTexture2D;
+	return GetTexturebind("NORMALMAP") != nullptr;
 }
 
 void Material::SetupDefaultMaterial()
@@ -135,20 +135,21 @@ Shader * Material::GetDefaultMaterialShader()
 void Material::SetupDefaultBinding(TextureBindSet* TargetSet)
 {
 	TargetSet->BindMap.clear();
-	TargetSet->BindMap.emplace("ALBEDOMAP", TextureBindData{ NullTexture2D, ALBEDOMAP });
-	TargetSet->BindMap.emplace("NORMALMAP", TextureBindData{ NullTexture2D, NORMALMAP });
+	TargetSet->BindMap.emplace("ALBEDOMAP", TextureBindData{ nullptr, ALBEDOMAP });
+	TargetSet->BindMap.emplace("NORMALMAP", TextureBindData{ nullptr, NORMALMAP });
 }
 
 void Material::SetupBindings()
 {
-	//init to zero binds
-	std::map<std::string, Material::TextureBindData>::iterator it;
-	for (it = CurrentBindSet->BindMap.begin(); it != CurrentBindSet->BindMap.end(); it++)
-	{
-		it->second.TextureObj = NullTexture2D;
-	}
-	for (int i = 0; i < CurrentBindSet->BindMap.size(); i++)
-	{
-		NullTexture2D->AddRef();
-	}
+	return;
+	////init to zero binds
+	//std::map<std::string, Material::TextureBindData>::iterator it;
+	//for (it = CurrentBindSet->BindMap.begin(); it != CurrentBindSet->BindMap.end(); it++)
+	//{
+	//	it->second.TextureObj = NullTexture2D;
+	//}
+	//for (int i = 0; i < CurrentBindSet->BindMap.size(); i++)
+	//{
+	//	NullTexture2D->AddRef();
+	//}
 }

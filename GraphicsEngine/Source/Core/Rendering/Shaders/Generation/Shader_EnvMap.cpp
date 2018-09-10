@@ -18,6 +18,7 @@ Shader_EnvMap::~Shader_EnvMap()
 	delete ShaderData;
 	delete CubeBuffer;
 	delete Cube;
+	delete EnvBRDFBuffer;
 }
 
 void Shader_EnvMap::Init()

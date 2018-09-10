@@ -22,6 +22,15 @@ namespace MemoryUtils
 		}
 	}
 	template<typename T>
+	static void DeleteReleaseableCArray(T* target, int Length)
+	{
+		for (int i = 0; i < Length; i++)
+		{
+			target[i]->Release();
+			target[i] = nullptr;
+		}
+	}
+	template<typename T>
 	static void DeleteReleaseableVector(std::vector<T*>& target)
 	{
 		for (int i = 0; i < target.size(); i++)

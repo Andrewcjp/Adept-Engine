@@ -3,7 +3,7 @@
 #include <d3d12.h>
 #include "D3D12Shader.h"
 #include "Core/Utils/RefChecker.h"
-class /*RHI_API*/ D3D12CommandList : public RHICommandList
+class D3D12CommandList : public RHICommandList
 {
 public:
 	D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType = ECommandListType::Graphics);
@@ -43,7 +43,7 @@ private:
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList * CurrentCommandList = nullptr;
 	bool IsOpen = false;
-	D3D12Shader::PiplineShader				CurrentPipelinestate;
+	D3D12PiplineShader				CurrentPipelinestate;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();
 	std::vector<Shader::ShaderParameter> Params;
@@ -52,8 +52,8 @@ private:
 	class D3D12Texture* Texture = nullptr;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
-	PipeLineState Currentpipestate;	
-	std::map<std::string, D3D12Shader::PiplineShader> PSOCache;
+	PipeLineState Currentpipestate;
+	std::map<std::string, D3D12PiplineShader> PSOCache;
 };
 
 class D3D12Buffer : public RHIBuffer
@@ -94,7 +94,7 @@ private:
 class D3D12RHIUAV : public RHIUAV
 {
 public:
-	D3D12RHIUAV( DeviceContext* inDevice);
+	D3D12RHIUAV(DeviceContext* inDevice);
 	~D3D12RHIUAV();
 	void CreateUAVFromTexture(class BaseTexture* target) override;
 	void CreateUAVFromFrameBuffer(class FrameBuffer* target) override;
@@ -109,8 +109,8 @@ class D3D12RHITextureArray : public RHITextureArray
 {
 public:
 	//todo: Ensure Framebuffer srv matches!
-	D3D12RHITextureArray(DeviceContext* device,int inNumEntries);
-	virtual ~D3D12RHITextureArray() ;
+	D3D12RHITextureArray(DeviceContext* device, int inNumEntries);
+	virtual ~D3D12RHITextureArray();
 	virtual void AddFrameBufferBind(FrameBuffer* Buffer, int slot)override;
 	virtual void BindToShader(RHICommandList* list, int slot)override;
 	virtual void SetIndexNull(int TargetIndex);
@@ -118,8 +118,9 @@ private:
 	class DescriptorHeap* Heap = nullptr;
 	std::vector<D3D12FrameBuffer*> LinkedBuffers;
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
-	D3D12DeviceContext* Device  =nullptr;
+	D3D12DeviceContext* Device = nullptr;
 };
 CreateChecker(D3D12CommandList);
 CreateChecker(D3D12Buffer);
 CreateChecker(D3D12RHITextureArray);
+CreateChecker(D3D12RHIUAV);

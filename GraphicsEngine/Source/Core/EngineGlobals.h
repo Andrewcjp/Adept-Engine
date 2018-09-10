@@ -6,17 +6,27 @@
 #define BUILD_OPENGL 0
 #define BUILD_D3D12 1
 #define BUILD_VULKAN 0
-
+#ifdef BUILD_SHIP
+#define BUILD_SHIPPING 1
+#else
+#define BUILD_SHIPPING 0
+#endif
+#if BUILD_SHIPPING
+#define STATS 0
+#define DOCHECK 1
+#define DOFULLCHECK 0
+#else
 #define STATS 1
 #define DOCHECK 1
-#define BUILD_SHIPPING 0
+#define DOFULLCHECK 1
+#endif
+
 #if STATS
 #define GPUTIMERS_FULL 1
 #else
 #define GPUTIMERS_FULL 0
 #endif 
 
-//#pragma warning (disable:4100 4505)
 #ifdef BUILD_GAME
 #define WITH_EDITOR 0
 #define BUILD_PACKAGE 1

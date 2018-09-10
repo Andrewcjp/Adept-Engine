@@ -12,7 +12,7 @@ void NameObject(ID3D12Object* pObject, std::wstring name, int id)
 {
 	name.append(L"_");
 	name.append(std::to_wstring(id));
-	SetName(pObject, name.c_str());
+	NAME_D3D12_SetName(pObject, name.c_str());
 }
 #else
 #define DEVICE_NAME_OBJECT(x);
@@ -22,32 +22,23 @@ D3D12DeviceContext::D3D12DeviceContext()
 
 D3D12DeviceContext::~D3D12DeviceContext()
 {
-	WaitForGpu();
-	if (m_Device != nullptr)
+	SafeRelease(m_commandQueue);
+	
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
-		m_Device->Release();
-		for (int i = 0; i < RHI::CPUFrameCount; i++)
-		{
-			m_commandAllocator[i]->Release();
-			m_commandAllocator[i] = nullptr;
-			m_SharedCopyCommandAllocator[i]->Release();
-			m_SharedCopyCommandAllocator[i] = nullptr;
-		}
-		m_commandQueue->Release();
-		m_commandQueue = nullptr;
+		SafeRelease(m_commandAllocator[i]);
+		SafeRelease(m_SharedCopyCommandAllocator[i]);
 	}
-	if (m_CopyCommandAllocator)
-	{
-		m_CopyList->Release();
-		m_CopyCommandAllocator->Release();
-		m_CopyCommandQueue->Release();
-	}
-	pDXGIAdapter->Release();
+	SafeRelease(m_CopyList);
+	SafeRelease(m_CopyCommandAllocator);	
 	delete TimeManager;
 	delete GPUCopyList;
 	SafeRelease(m_IntraCopyList);
 	SafeRelease(m_SharedCopyCommandQueue);
 	SafeRelease(m_ComputeCommandQueue);
+	SafeRelease(m_CopyCommandQueue);
+	SafeRelease(m_Device);
+	SafeRelease(pDXGIAdapter);
 	/*if (pDXGIAdapter != nullptr)
 	{
 		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
@@ -67,14 +58,13 @@ void D3D12DeviceContext::CheckFeatures()
 
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
-
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
 		IID_PPV_ARGS(&m_Device)
 	);
-	ensureMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
+	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
 	ThrowIfFailed(result);
 
 	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
@@ -386,11 +376,8 @@ RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()
 
 GPUSyncPoint::~GPUSyncPoint()
 {
-	if (m_fence)
-	{
-		m_fence->Release();
-		m_fence = nullptr;
-	}
+	SafeRelease(m_fence);
+	SafeRelease(secondaryFence);
 }
 
 void GPUSyncPoint::Init(ID3D12Device * device, ID3D12Device* SecondDevice)

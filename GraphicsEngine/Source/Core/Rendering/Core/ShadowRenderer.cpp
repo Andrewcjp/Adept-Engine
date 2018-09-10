@@ -207,7 +207,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 		Shader_Depth* TargetShader = LightInteractions[SNum]->Shader;
 		list->SetRenderTarget(TargetBuffer);
 		list->ClearFrameBuffer(TargetBuffer);
-		list->SetPipelineStateObject(TargetShader);
+		//list->SetPipelineStateObject(TargetShader);
 		UpdateGeometryShaderParams(ShadowingPointLights[SNum]->GetPosition(), ShadowingPointLights[SNum]->Projection, SNum);
 		list->SetConstantBufferView(GeometryProjections, SNum, Shader_Depth_RSSlots::GeometryProjections);
 		Shader_Depth::LightData data = {};
@@ -297,7 +297,10 @@ void ShadowRenderer::ClearShadowLights()
 void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 {
 	ClearShadowLights();
-
+	if (lights.size() == 0)
+	{
+		return;
+	}
 	int lastpointshadow = 0;
 	int lastdirshadow = 0;
 	for (size_t i = 0; i < lights.size(); i++)
@@ -335,13 +338,13 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	}
 	PipeLineState pipestate = PipeLineState{ true,false,false };
 	pipestate.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
-	PointShadowList->SetPipelineState(pipestate);
+	//PointShadowList->SetPipelineState(pipestate);
 	PointShadowList->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
 
-	PointShadowListALT->SetPipelineState(pipestate);
-	PointShadowListALT->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
+	//PointShadowListALT->SetPipelineState(pipestate);
+//	PointShadowListALT->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
 
-	DirectionalShadowList->SetPipelineState(pipestate);
+	//	DirectionalShadowList->SetPipelineState(pipestate);
 	DirectionalShadowList->CreatePipelineState(DirectionalLightShader, DirectionalLightBuffer);
 
 }

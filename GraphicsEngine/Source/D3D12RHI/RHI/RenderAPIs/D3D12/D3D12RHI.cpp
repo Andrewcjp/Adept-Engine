@@ -41,11 +41,12 @@ void D3D12RHI::DestroyContext()
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
 	WaitForGpu();
+	
 	ReleaseSwapRTs();
 	delete MipmapShader;
-	GetCommandQueue()->Release();
+	SafeRelease(m_swapChain);
 	delete PrimaryDevice;
-	if (SecondaryDevice)
+	if (SecondaryDevice != nullptr)
 	{
 		delete SecondaryDevice;
 	}
@@ -54,6 +55,7 @@ void D3D12RHI::DestroyContext()
 	m_SetupCommandList->Release();
 	CloseHandle(m_fenceEvent);
 	SafeRelease(m_fence);
+
 	delete ScreenShotter;
 	ReportObjects();
 }
@@ -133,9 +135,8 @@ void D3D12RHI::DisplayDeviceDebug()
 
 std::string D3D12RHI::GetMemory()
 {
-	if (PresentCount > 60 || !HasSetup)
+	if (RHI::GetFrameCount() % 60 == 0 || !HasSetup)
 	{
-		PresentCount = 0;
 		PrimaryDevice->SampleVideoMemoryInfo();
 		if (SecondaryDevice != nullptr)
 		{
@@ -172,13 +173,14 @@ void D3D12RHI::LoadPipeLine()
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
+			debugController->Release();
 			// Enable additional debug layers.
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
 
 	}
 #endif
-	IDXGIFactory4* factory;
+	IDXGIFactory4* factory = nullptr;
 	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 	ReportObjects();
 
@@ -210,6 +212,7 @@ void D3D12RHI::LoadPipeLine()
 			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
+			infoqueue[i]->Release();
 		}
 	}
 #endif
@@ -233,8 +236,8 @@ void D3D12RHI::LoadPipeLine()
 		nullptr,
 		&swapChain
 	));
-	m_swapChain = (IDXGISwapChain3*)swapChain;
 
+	m_swapChain = (IDXGISwapChain3*)swapChain;
 	// This sample does not support fullscreen transitions.
 	ThrowIfFailed(factory->MakeWindowAssociation(PlatformWindow::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
 
@@ -260,7 +263,7 @@ void D3D12RHI::LoadPipeLine()
 		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 	}
-	factory->Release();
+	SafeRelease(factory);
 	CreateSwapChainRTs();
 	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
 }
@@ -297,7 +300,6 @@ void D3D12RHI::ReleaseSwapRTs()
 {
 	for (UINT n = 0; n < RHI::CPUFrameCount; n++)
 	{
-		m_SwaprenderTargets[n]->Release();
 		delete m_RenderTargetResources[n];
 	}
 	m_depthStencil->Release();
@@ -393,24 +395,29 @@ void D3D12RHI::ExecSetUpList()
 
 void D3D12RHI::ReleaseUploadHeap()
 {
-	if (CPUAheadCount < RHI::CPUFrameCount)
-	{
-		//ensure the heaps are not still in use!
-		return;
-	}
+	//The Visual studio Graphics Debugger Casuses a crash here in Driver Code. Cause Unknown
 	if (!DetectGPUDebugger())
 	{
-		for (int i = 0; i < UsedUploadHeaps.size(); i++)
+		for (int i = (int)UsedUploadHeaps.size() - 1; i >= 0; i--)
 		{
-			UsedUploadHeaps[i]->Release();
+			const int CurrentFrame = RHI::GetFrameCount();
+			if (UsedUploadHeaps[i].second + RHI::CPUFrameCount < CurrentFrame)
+			{
+				UsedUploadHeaps[i].first->Release();
+				UsedUploadHeaps.erase(UsedUploadHeaps.begin() + i);
+			}
 		}
-		UsedUploadHeaps.clear();
-	}	
+	}
 }
 
-void D3D12RHI::AddUploadToUsed(ID3D12Resource* Target)
+void D3D12RHI::AddUploadToUsed(IUnknown* Target)
 {
-	UsedUploadHeaps.push_back(Target);
+	UsedUploadHeaps.push_back(UploadHeapStamped(Target, RHI::GetFrameCount()));
+}
+
+D3D12RHI * D3D12RHI::Get()
+{
+	return Instance;
 }
 
 void D3D12RHI::ExecList(ID3D12GraphicsCommandList* list, bool Block)
@@ -421,7 +428,7 @@ void D3D12RHI::ExecList(ID3D12GraphicsCommandList* list, bool Block)
 
 void D3D12RHI::PresentFrame()
 {
-	PresentCount++;
+
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(PrimaryDevice->GetCommandAllocator(), nullptr);
@@ -473,8 +480,8 @@ void D3D12RHI::PresentFrame()
 	{
 		SecondaryDevice->ResetDeviceAtEndOfFrame();
 	}
-	CPUAheadCount++;
-	if (CPUAheadCount > 2)
+
+	if (RHI::GetFrameCount() > 2)
 	{
 		HasSetup = true;
 	}
@@ -580,6 +587,7 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 
 		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
 		{
+			adapter->Release();
 			// Don't select the Basic Render Driver adapter.
 			// If you want a software adapter, pass in "/warp" on the command line.
 			continue;
@@ -606,7 +614,7 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 			{
 				*Device = new D3D12DeviceContext();
 				(*Device)->CreateDeviceFromAdaptor(adapter, CurrentDeviceIndex);
-				CurrentDeviceIndex++;
+				CurrentDeviceIndex++;				
 				if (ForceSingleGPU.GetBoolValue())
 				{
 					Log::LogMessage("Forced Single Gpu Mode");
@@ -615,34 +623,6 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 			}
 		}
 	}
-}
-
-void GetHardwareAdapter(IDXGIFactory2 * pFactory, IDXGIAdapter1 ** ppAdapter)
-{
-	IDXGIAdapter1* adapter;
-	*ppAdapter = nullptr;
-
-	for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
-	{
-		DXGI_ADAPTER_DESC1 desc;
-		adapter->GetDesc1(&desc);
-
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-		{
-			// Don't select the Basic Render Driver adapter.
-			// If you want a software adapter, pass in "/warp" on the command line.
-			continue;
-		}
-
-		// Check to see if the adapter supports Direct3D 12, but don't create the
-		// actual device yet.
-		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
-		{
-			break;
-		}
-	}
-
-	*ppAdapter = adapter;
 }
 
 RHIBuffer * D3D12RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device)

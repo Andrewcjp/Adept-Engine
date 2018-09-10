@@ -13,7 +13,11 @@ SceneRenderer::SceneRenderer(Scene* Target)
 
 
 SceneRenderer::~SceneRenderer()
-{}
+{
+	MemoryUtils::DeleteCArray(GameObjectTransformBuffer, 2);
+	delete CLightBuffer;
+	delete CMVBuffer;
+}
 
 void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly, FrameBuffer* FrameBuffer)
 {

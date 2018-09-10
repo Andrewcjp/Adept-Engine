@@ -53,7 +53,6 @@ private:
 	void SetupBindings();
 	MaterialProperties Properties;
 	//bind to null
-	BaseTexture* NullTexture2D = nullptr;
 	static class Asset_Shader* DefaultMaterial;
 };
 

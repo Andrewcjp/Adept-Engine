@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+
 //Console vars can also be set though the launch arguments
 namespace ECVarType
 {
@@ -55,15 +56,5 @@ public:
 	{
 		//todo: gather from config
 	}
-	static void SetupVars(std::string LaunchArgString)
-	{
-		std::transform(LaunchArgString.begin(), LaunchArgString.end(), LaunchArgString.begin(), ::tolower);
-		for (ConsoleVariable* CV : Instance->LaunchArgs)
-		{
-			if (LaunchArgString.compare(CV->GetLaunchName()) == 0)
-			{
-				CV->SetValue(1);
-			}
-		}
-	}
+	static void SetupVars(std::string LaunchArgString);
 };

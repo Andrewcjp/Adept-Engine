@@ -51,7 +51,7 @@ private:
 #endif
 	int MaxIndexInUse = 0;
 	void Init(DeviceContext * context);
-	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, float ClockFreq, bool CopyList);
+	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, UINT64 ClockFreq, bool CopyList);
 
 	MovingAverage avg = MovingAverage(AVGTIME);
 	ID3D12QueryHeap* m_timestampQueryHeaps;

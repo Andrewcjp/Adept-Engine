@@ -34,9 +34,9 @@ RHI::RHI(ERenderSystemType system)
 		ensure(RHImodule);
 		CurrentRHI = RHImodule->GetRHIClass();
 #else
-			CurrentRHI = new D3D12RHI();
+		CurrentRHI = new D3D12RHI();
 #endif
-			break;
+		break;
 #endif
 #if BUILD_VULKAN
 	case ERenderSystemType::RenderSystemVulkan:
@@ -44,10 +44,10 @@ RHI::RHI(ERenderSystemType system)
 		break;
 #endif
 	default:
-		ensureMsgf(false, "Selected RHI not Avalable");
+		ensureFatalMsgf(false, "Selected RHI not Avalable");
 		break;
 	}
-	ensureMsgf(CurrentRHI,"RHI load failed");
+	ensureFatalMsgf(CurrentRHI, "RHI load failed");
 }
 
 RHI::~RHI()
@@ -129,7 +129,7 @@ RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Devi
 
 RHIUAV * RHI::CreateUAV(DeviceContext * Device)
 {
-	
+
 	return GetRHIClass()->CreateUAV(Device);
 }
 
@@ -138,18 +138,27 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 	if (Device == nullptr)
 	{
 		Device = RHI::GetDefaultDevice();
-	}	
+	}
 	return GetRHIClass()->CreateCommandList(Type, Device);
 }
 
 bool RHI::BlockCommandlistExec()
 {
 	return false;
-} 
+}
 
 bool RHI::AllowCPUAhead()
 {
 	return true;
+}
+
+int RHI::GetFrameCount()
+{
+	if (instance == nullptr)
+	{
+		return 0;
+	}
+	return instance->PresentCount;
 }
 
 int RHI::GetDeviceCount()
@@ -269,14 +278,15 @@ DeviceContext * RHI::GetDefaultDevice()
 }
 
 void RHI::InitialiseContext(int w, int h)
-{	
+{
 	GetRHIClass()->InitRHI(w, h);
-	CurrentMGPUMode.ValidateSettings(); 
+	CurrentMGPUMode.ValidateSettings();
 }
 
 void RHI::RHISwapBuffers()
 {
 	GetRHIClass()->RHISwapBuffers();
+	instance->PresentCount++;
 }
 
 void RHI::RHIRunFirstFrame()
@@ -311,6 +321,6 @@ RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)
 	if (Device == nullptr)
 	{
 		Device = RHI::GetDefaultDevice();
-	}	
+	}
 	return GetRHIClass()->CreateTextureArray(Device, Length);;
 }

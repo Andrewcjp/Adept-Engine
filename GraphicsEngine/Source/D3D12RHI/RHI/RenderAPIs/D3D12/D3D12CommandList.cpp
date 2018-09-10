@@ -16,6 +16,7 @@
 #include "Rendering/Core/GPUStateCache.h"
 #include "Core/Utils/MemoryUtils.h"
 #include "D3D12DeviceContext.h"
+#include "Core/Platform/PlatformCore.h"
 
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType)
 {
@@ -36,10 +37,15 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 D3D12CommandList::~D3D12CommandList()
 {
 	RemoveCheckerRef(D3D12CommandList, this);
-	MemoryUtils::DeleteReleaseableMap<std::string, D3D12Shader::PiplineShader>(PSOCache);
+	MemoryUtils::DeleteReleaseableMap<std::string, D3D12PiplineShader>(PSOCache);
 	if (CurrentCommandList != nullptr)
 	{
 		CurrentCommandList->Release();
+	}
+	MemoryUtils::DeleteReleaseableCArray(m_commandAllocator, RHI::CPUFrameCount);
+	if (PSOCache.size() == 0)
+	{
+		CurrentPipelinestate.Release();
 	}
 }
 
@@ -215,20 +221,11 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 	{
 		ensure(ListType == ECommandListType::Compute);
 	}
-	else 
+	else
 	{
 		ensure(ListType == ECommandListType::Graphics);
-	}
-#if 0
-	if (CurrentPipelinestate.m_pipelineState != nullptr)
-	{
-		CurrentPipelinestate.m_pipelineState->Release();
-	}
-	if (CurrentPipelinestate.m_rootSignature != nullptr)
-	{
-		CurrentPipelinestate.m_rootSignature->Release();
-	}
-#endif
+	}	
+
 	CurrentPipelinestate.IsCompute = (ListType == ECommandListType::Compute);
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
 	ensure(target != nullptr);
@@ -245,7 +242,7 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 	{
 		D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, Device);
 	}
-	else if(ListType == ECommandListType::Compute)
+	else if (ListType == ECommandListType::Compute)
 	{
 		D3D12Shader::CreateComputePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, Device);
 	}
@@ -348,7 +345,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	else
 	{
 		GPUStateCache::instance->TextureBuffers[slot] = DBuffer;
-}
+	}
 #endif
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
@@ -414,6 +411,10 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool Re
 	ensure(Elementcount > 0);
 	ConstantBufferDataSize = StructSize;
 	CrossDevice = ReplicateToAllDevices;
+	if (StructSize == 76)
+	{
+		//	__debugbreak();
+	}
 	if (ReplicateToAllDevices)
 	{
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
@@ -611,16 +612,21 @@ void D3D12Buffer::UnMap()
 D3D12RHIUAV::D3D12RHIUAV(DeviceContext * inDevice) : RHIUAV()
 {
 	Device = (D3D12DeviceContext*)inDevice;
+	AddCheckerRef(D3D12RHIUAV, this);
 }
 
 D3D12RHIUAV::~D3D12RHIUAV()
 {
+	RemoveCheckerRef(D3D12RHIUAV, this);
 	Heap->Release();
+	SafeRelease(UAVCounter);
+	SafeRelease(m_UAV);
 }
 
 void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 {
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	Heap->SetName(L"CreateUAVFromTexture");
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = ((D3D12Texture*)target)->GetResource()->GetDesc().Format;
@@ -632,7 +638,7 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
 {
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-
+	Heap->SetName(L"CreateUAVFromFrameBuffer");
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(target->GetDescription().RTFormats[0]);
@@ -654,6 +660,7 @@ D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntri
 {
 	AddCheckerRef(D3D12RHITextureArray, this);
 	Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	Heap->SetName(L"D3D12RHITextureArray");
 	Device = (D3D12DeviceContext*)device;
 }
 

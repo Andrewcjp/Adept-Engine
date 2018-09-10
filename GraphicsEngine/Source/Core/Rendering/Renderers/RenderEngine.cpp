@@ -20,6 +20,7 @@ RenderEngine::RenderEngine(int width, int height)
 RenderEngine::~RenderEngine()
 {
 	DestoryRenderWindow();
+	delete SceneRender;
 	delete mShadowRenderer;
 	delete Post;
 	delete MainShader;

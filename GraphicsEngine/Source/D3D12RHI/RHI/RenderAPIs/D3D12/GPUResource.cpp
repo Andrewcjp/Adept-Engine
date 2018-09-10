@@ -2,24 +2,26 @@
 #include "GPUResource.h"
 #include <algorithm>
 #include "D3D12DeviceContext.h"
+CreateChecker(GPUResource);
 GPUResource::GPUResource()
 {}
 
-GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState)
-{
-	resource = Target;
-	CurrentResourceState = InitalState;
-	Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();
-}
+GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState) :GPUResource(Target, InitalState, (D3D12DeviceContext*)RHI::GetDefaultDevice())
+{}
+
 GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState, DeviceContext * device)
 {
+	AddCheckerRef(GPUResource, this);
 	resource = Target;
+	NAME_D3D12_OBJECT(Target);
 	CurrentResourceState = InitalState;
 	Device = (D3D12DeviceContext*)device;
 }
 
 GPUResource::~GPUResource()
-{}
+{
+	Release();
+}
 
 void GPUResource::SetName(LPCWSTR name)
 {
@@ -78,14 +80,15 @@ GPUResource::eResourceState GPUResource::GetState()
 {
 	return currentState;
 }
-void GPUResource::SetResourceState(ID3D12GraphicsCommandList* List ,D3D12_RESOURCE_STATES newstate)
+
+void GPUResource::SetResourceState(ID3D12GraphicsCommandList* List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
 	{
 		List->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
 		CurrentResourceState = newstate;
 		TargetState = newstate;
-	}	
+	}
 }
 //todo More Detailed Error checking!
 void GPUResource::StartResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
@@ -133,7 +136,11 @@ ID3D12Resource * GPUResource::GetResource()
 
 void GPUResource::Release()
 {
-	resource->Release();
+	if (resource != nullptr)
+	{
+		SafeRelease(resource);
+		RemoveCheckerRef(GPUResource, this);
+	}
 }
 
 

@@ -1,22 +1,20 @@
 #include "stdafx.h"
 #include "D3D12Shader.h"
-#include "Core/Engine.h"
-#include <iostream>
 #include "D3D12RHI.h"
-#include "D3D12CBV.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Asserts.h"
 #include "RHI/DeviceContext.h"
-#include "Core/Performance/PerfManager.h"
-#include <d3dcompiler.h>
-#include "Core/Assets/AssetManager.h"
 #include "D3D12DeviceContext.h"
-
+#include "Core/Performance/PerfManager.h"
+#include "Core/Assets/AssetManager.h"
+#include <d3dcompiler.h>
+#include "Core/Platform/ConsoleVariable.h"
+static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
-	CacheBlobs = true;
 	CurrentDevice = (D3D12DeviceContext*)Device;
+	CacheBlobs = !NoShaderCache.GetBoolValue();
 }
 
 D3D12Shader::~D3D12Shader()
@@ -30,7 +28,7 @@ D3D12Shader::~D3D12Shader()
 	SafeRelease(mBlolbs.gsBlob);
 }
 
-void StripD3dShader(ID3DBlob** blob)
+void StripD3DShader(ID3DBlob** blob)
 {
 #if !BUILD_SHIPPING
 	return;
@@ -86,18 +84,31 @@ ID3DBlob** D3D12Shader::GetCurrentBlob(EShaderType::Type type)
 	return nullptr;
 }
 
+const std::string D3D12Shader::GetShaderInstanceHash()
+{
+	if (Defines.size() == 0)
+	{
+		return "";
+	}
+	std::string DefineSum;
+	for (Shader_Define d : Defines)
+	{
+		DefineSum += d.Name + d.Value;
+	}
+	size_t Hash = std::hash<std::string>{} (DefineSum);
+	return std::to_string(Hash);
+}
+
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
 	SCOPE_STARTUP_COUNTER("Shader Compile");
-	if (Defines.size() == 0)
+
+	//Can't Currently Support this!
+	if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType), GetShaderInstanceHash()))
 	{
-		//Can't Currently Support this!
-		if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType),""))
-		{
-			return EShaderError::SHADER_ERROR_NONE;
-		}
+		return EShaderError::SHADER_ERROR_NONE;
 	}
-	//convert to LPC 
+
 	std::string path = AssetManager::GetShaderPath();
 	std::string name = shadername;
 	name.append(".hlsl");
@@ -116,20 +127,15 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	}
 
 	std::string ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
-	std::wstring newfile((int)path.size(), 0);
-	MultiByteToWideChar(CP_UTF8, 0, &path[0], (int)path.size(), &newfile[0], (int)path.size());
-	LPCWSTR filename = newfile.c_str();
+	LPCWSTR filename = StringUtils::ConvertStringToWide(path).c_str();
 	ID3DBlob* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
 #if defined(_DEBUG)
 	// Enable better shader debugging with the graphics debugging tools.
 	UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
 #else 
-#if BUILD_SHIPPING
-	UINT compileFlags = D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND;
-#else
-	UINT compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND;//| D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS ;
-#endif
+	UINT compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS;
+	//	compileFlags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
 #endif
 	D3D_SHADER_MACRO* defines = ParseDefines();
 	switch (ShaderType)
@@ -156,7 +162,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		break;
 	}
 
-	StripD3dShader(GetCurrentBlob(ShaderType));
+	StripD3DShader(GetCurrentBlob(ShaderType));
 	if (pErrorBlob)
 	{
 		std::string Log = "Shader Compile Output: ";
@@ -173,7 +179,6 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 			__debugbreak();
 #endif
 			Engine::Exit(-1);
-			__debugbreak();
 			return EShaderError::SHADER_ERROR_COMPILE;
 		}
 		else
@@ -193,14 +198,23 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	return EShaderError::SHADER_ERROR_NONE;
 }
 
-bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName)
+bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & InstanceHash)
 {
 	std::string ShaderSRCPath = AssetManager::GetShaderPath() + ShaderName + ".hlsl";
-	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + ShaderName + ".cso";
+	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + GetShaderNamestr(ShaderName, InstanceHash);
 	int64_t time = PlatformApplication::GetFileTimeStamp(ShaderSRCPath);
 	int64_t CSOtime = PlatformApplication::GetFileTimeStamp(ShaderCSOPath);
 	//if the Src is newer than the CSO recomplie
 	return !(time > CSOtime);
+}
+
+const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash)
+{
+#if NDEBUG
+	return Shadername + "_" + InstanceHash + ".cso";
+#else
+	return Shadername + "_" + InstanceHash + "_D" + ".cso";
+#endif	
 }
 
 bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const std::string & InstanceHash)
@@ -209,8 +223,8 @@ bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const 
 	{
 		return false;
 	}
-	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + Name + ".cso";
-	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name))
+	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + GetShaderNamestr(Name, InstanceHash);
+	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, InstanceHash))
 	{
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 		return true;
@@ -223,18 +237,12 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 	if (CacheBlobs)
 	{
 		const std::string DDcShaderPath = AssetManager::GetDDCPath() + "Shaders\\";
-		PlatformApplication::TryCreateDirectory(DDcShaderPath);
-		if (shadername.find("\\") != -1)
-		{
-			std::string FolderPath = shadername;
-			FolderPath = FolderPath.erase(shadername.find("\\"));
-			PlatformApplication::TryCreateDirectory(DDcShaderPath + FolderPath);
-		}
-		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + shadername + ".cso").c_str(), true));
+		FileUtils::CreateDirectoriesToFullPath(DDcShaderPath + shadername + ".");
+		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash())).c_str(), true));
 	}
 }
 
-D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
+D3D12PiplineShader D3D12Shader::CreateComputePipelineShader(D3D12PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
 	DeviceContext* context)
 {
 	SCOPE_STARTUP_COUNTER("Create Compute PSO");
@@ -245,7 +253,7 @@ D3D12Shader::PiplineShader D3D12Shader::CreateComputePipelineShader(PiplineShade
 	return output;
 }
 
-D3D12Shader::PiplineShader D3D12Shader::CreatePipelineShader(PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
+D3D12PiplineShader D3D12Shader::CreatePipelineShader(D3D12PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
 	DeviceContext* context)
 {
 	SCOPE_STARTUP_COUNTER("Create PSO");
@@ -373,7 +381,7 @@ D3D12_INPUT_ELEMENT_DESC D3D12Shader::ConvertVertexFormat(Shader::VertexElementD
 	return output;
 }
 
-D3D12Shader::PiplineShader * D3D12Shader::GetPipelineShader()
+D3D12PiplineShader * D3D12Shader::GetPipelineShader()
 {
 	return &m_Shader;
 }
@@ -390,7 +398,7 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 	return true;
 }
 
-void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context)
+void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context)
 {
 	SCOPE_STARTUP_COUNTER("CreateRootSig");
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
@@ -436,7 +444,7 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	{
 		if (Params[i].Type == Shader::ShaderParamType::SRV)
 		{
-			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
+			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], BaseSRVVis);
 		}
 		else if (Params[i].Type == Shader::ShaderParamType::CBV)
@@ -504,12 +512,34 @@ void D3D12Shader::CreateRootSig(D3D12Shader::PiplineShader &output, std::vector<
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 
-	std::wstring name = L"Root sig Length = ";
-	name.append(std::to_wstring(Params.size()));
-	output.m_rootSignature->SetName(name.c_str());
+	output.m_rootSignature->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
 }
-
-void D3D12Shader::CreateDefaultRootSig(D3D12Shader::PiplineShader &output)
+const std::string D3D12Shader::GetUniqueName(std::vector<Shader::ShaderParameter>& Params)
+{
+	std::string output = "Root sig Length = ";;
+	output.append(std::to_string(Params.size()));
+	for (Shader::ShaderParameter sp : Params)
+	{
+		output += "T";
+		switch (sp.Type)
+		{
+		case Shader::ShaderParamType::CBV:
+			output += "CBV";
+			break;
+		case Shader::ShaderParamType::SRV:
+			output += "SRV";
+			break;
+		case Shader::ShaderParamType::UAV:
+			output += "UAV";
+			break;
+		default:
+			break;
+		}
+		output += ", ";
+	}
+	return output;
+}
+void D3D12Shader::CreateDefaultRootSig(D3D12PiplineShader &output)
 {
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
 
@@ -574,4 +604,15 @@ void D3D12Shader::CreateDefaultRootSig(D3D12Shader::PiplineShader &output)
 	ID3DBlob* error;
 	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
 	//ThrowIfFailed(D3D12RHI::GetDisplayDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
+}
+
+D3D12PiplineShader::D3D12PiplineShader()
+{
+	//AddCheckerRef(D3D12PiplineShader, this);
+}
+
+void D3D12PiplineShader::Release()
+{
+	SafeRelease(m_pipelineState);
+	SafeRelease(m_rootSignature);
 }

@@ -183,7 +183,7 @@ void AssetManager::SetupPaths()
 	ShaderDirPath = RootDir + "\\Shaders\\";
 	if (!FileUtils::File_ExistsTest(ShaderDirPath))
 	{
-		PlatformApplication::DisplayMessageBox("Error", "No Content Dir");
+		PlatformApplication::DisplayMessageBox("Error", "No Shader Dir");
 		Engine::Exit(-1);
 	}
 	DDCDirPath = RootDir + "\\" + DDCName + "\\";
@@ -195,7 +195,6 @@ void AssetManager::SetupPaths()
 	{
 		PlatformApplication::DisplayMessageBox("Error", "Texture Get Script Missing");
 	}
-
 }
 
 AssetManager::AssetManager()

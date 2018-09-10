@@ -57,6 +57,8 @@ public:
 	RHI_API static bool BlockCommandlistExec();
 	RHI_API static bool AllowCPUAhead();
 	RHI_API static int GetDeviceCount();
+	RHI_API static int GetFrameCount();
+
 	static bool UseAdditionalGPUs();
 	static bool IsD3D12();
 	static bool SupportsThreading();
@@ -76,6 +78,7 @@ private:
 	RenderConstants M_RenderConsants;
 	RenderSettings RenderSettings = {};
 	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;
+	int PresentCount = 0;
 };
 
 class RHI_API RHIClass
