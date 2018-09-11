@@ -72,9 +72,3 @@ void PhysicsThrowerComponent::InitComponent()
 {
 
 }
-
-void PhysicsThrowerComponent::Serialise(rapidjson::Value & v)
-{}
-
-void PhysicsThrowerComponent::Deserialise(rapidjson::Value & v)
-{}

@@ -6,6 +6,7 @@
 #include "Assets\SceneJSerialiser.h"
 #include "include\glm\gtx\quaternion.hpp"
 #include "Components\CompoenentRegistry.h"
+#include "Core/Assets/Archive.h"
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
 {
 	Name = name;
@@ -51,7 +52,7 @@ GameObject::~GameObject()
 }
 
 Transform * GameObject::GetTransform()
-{	
+{
 	return m_transform;
 }
 
@@ -78,7 +79,7 @@ Renderable * GameObject::GetMesh()
 	return nullptr;
 }
 
-void GameObject::Render(bool ignoremat,RHICommandList * list)
+void GameObject::Render(bool ignoremat, RHICommandList * list)
 {
 	if (m_MeshRenderer != nullptr)
 	{
@@ -198,82 +199,26 @@ std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
 	return test;
 }
 
-void GameObject::SerialiseGameObject(rapidjson::Value& v)
+
+void GameObject::ProcessSerialArchive(Archive* A)
 {
-	SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "Name", Name);
-	SerialHelpers::addVector(v, *SceneJSerialiser::jallocator, "Pos", GetTransform()->GetPos());
-	SerialHelpers::addVector(v, *SceneJSerialiser::jallocator, "Rot", glm::eulerAngles(GetTransform()->GetQuatRot()));
-	SerialHelpers::addVector(v, *SceneJSerialiser::jallocator, "Scale", GetTransform()->GetScale());
-	rapidjson::Value comp(rapidjson::kArrayType);
-	for (int i = 0; i < m_Components.size(); i++)
+	ArchiveProp(GetTransform());
+	ArchiveProp(Name);
+	if (A->IsReading())
 	{
-		rapidjson::Value jsv(rapidjson::kObjectType);
-		m_Components[i]->Serialise(jsv);
-		comp.PushBack(jsv, *SceneJSerialiser::jallocator);
+		std::vector<Component*> CompStaging;
+		ArchiveProp_Alias(CompStaging, m_Components);
+		for (Component* C : CompStaging)
+		{
+			AttachComponent(C);
+		}
 	}
-	SerialHelpers::addJsonValue(v, *SceneJSerialiser::jallocator, ComponentArrayKey, comp);
+	else
+	{
+		ArchiveProp(m_Components);
+	}
 }
 
-void GameObject::DeserialiseGameObject(rapidjson::Value & v)
-{
-	for (auto& it = v.MemberBegin(); it != v.MemberEnd(); it++)
-	{
-		std::string key = (it->name.GetString());
-		if (key == "Name")
-		{
-			SetName(it->value.GetString());
-		}
-		if (key == "Pos")
-		{
-			glm::vec3 pos;
-			if (SerialHelpers::getFloatVec<3>(it->value, "Pos", &pos[0]))
-			{
-				GetTransform()->SetPos(pos);
-			}
-		}
-		if (key == "Rot")
-		{
-			glm::vec3 rot;
-			if (SerialHelpers::getFloatVec<3>(it->value, "Rot", &rot[0]))
-			{
-				glm::quat newrot = glm::toQuat(glm::orientate3(rot));
-				GetTransform()->SetQrot(newrot);
-			}
-		}
-		if (key == "Scale")
-		{
-			glm::vec3 scale;
-			if (SerialHelpers::getFloatVec<3>(it->value, "Scale", &scale[0]))
-			{
-				GetTransform()->SetScale(scale);
-			}
-		}
-		if (key == "Components")
-		{
-			//foreach component
-			auto t = it->value.GetArray();
-			t.begin();
-			for (unsigned int i = 0; i < t.Size(); i++)
-			{
-				Component* newc = nullptr;
-				rapidjson::Value*  cv = &t[i];
-				for (auto& cit = cv->MemberBegin(); cit != cv->MemberEnd(); cit++)
-				{
-					//read the first part of the object for the components ID
-					if (cit->name == "Type")
-					{
-						newc = CompoenentRegistry::CreateBaseComponent((CompoenentRegistry::BaseComponentTypes)cit->value.GetInt());
-					}
-				}
-				if (newc != nullptr)
-				{
-					newc->Deserialise(*cv);
-					AttachComponent(newc);
-				}
-			}
-		}
-	}
-}
 //called when the editor updates a value
 void GameObject::PostChangeProperties()
 {

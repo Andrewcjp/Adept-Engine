@@ -5,25 +5,18 @@
 #include <include/assimp/postprocess.h>
 #include "include/glm/gtx/transform.hpp"
 #include "Core/EngineInc.h"
+#include "Core/Platform/PlatformCore.h"
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<int> &indices)
 {
-	//m_meshData = 0;
-
-
 	Assimp::Importer importer;
 
 	const aiScene* scene = importer.ReadFile(filename.c_str(),
 		aiProcess_Triangulate
 		| aiProcess_CalcTangentSpace
-	//	| aiProcess_GenNormals
 		| aiProcess_GenSmoothNormals
-		
-#if 1
 		| aiProcess_FixInfacingNormals
-#endif
-
 	);
 
 	if (!scene)
@@ -60,7 +53,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	for (unsigned int i = 0; i < model->mNumFaces; i++)
 	{
 		const aiFace& face = model->mFaces[i];
-		assert(face.mNumIndices == 3);
+		ensure(face.mNumIndices == 3);
 		indices.push_back(face.mIndices[0]);
 		indices.push_back(face.mIndices[1]);
 		indices.push_back(face.mIndices[2]);

@@ -24,11 +24,10 @@ private:
 	float DefaultIntesity = 10.0;
 	float intensity = 0;
 	Light::LightType DefaultType = Light::Point;
+	glm::vec3 DefaultColour = glm::vec3(1);
 	bool DefaultShadow = false;
 	bool Shadow = false;
-	// Inherited via Component
-	virtual void Serialise(rapidjson::Value & v) override;
-	virtual void Deserialise( rapidjson::Value & v) override;
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
+	virtual void ProcessSerialArchive(class Archive* Arch) override;
 };
 

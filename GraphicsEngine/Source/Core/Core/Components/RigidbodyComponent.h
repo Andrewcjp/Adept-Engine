@@ -19,10 +19,6 @@ private:
 	// Inherited via Component
 
 
-	// Inherited via Component
-	virtual void Serialise(rapidjson::Value & v) override;
-
-	virtual void Deserialise(rapidjson::Value & v) override;
 
 };
 

@@ -55,18 +55,11 @@ private:
 		FString Name;
 		IModuleInterface* Module = nullptr;
 		ModuleLoadStatus::Type ModuleStatus = ModuleLoadStatus::Status_UnLoaded;
-#ifdef NDEBUG
-		bool IsDynamic = true;
-#else
 		bool IsDynamic = false;
-#endif
-		
 	};
 	std::map<std::string, ModuleInfo> Modules;
 
 };
-
-
 
 template<class ModuleClass>
 class StaticModuleReg
@@ -74,10 +67,7 @@ class StaticModuleReg
 public:
 	StaticModuleReg(const char* name)
 	{
-		//__debugbreak();
-		//std::bind(&EditorWindow::EnterPlayMode, EditorWindow::GetInstance()
 		FStaticInitializeModuleFunctionPtr Funcptr = std::bind(&StaticModuleReg::StaticInitializeModule);
-		//ensure(false);
 		ModuleManager::Get()->StaticModulePtrs.emplace(name, Funcptr);
 	}
 
@@ -93,12 +83,3 @@ extern "C" DLLEXPORT IModuleInterface* InitializeModule() \
 { \
 	return new ModuleImplClass(); \
 } 
-
-#if 0
-//Module Test
-class TestMode :public IModuleInterface
-{
-	
-};
-IMPLEMENT_MODULE_STATIC(TestMode);
-#endif

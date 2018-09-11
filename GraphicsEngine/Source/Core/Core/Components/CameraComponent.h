@@ -14,16 +14,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
 	CORE_API static Camera* GetMainCamera();
+	virtual void ProcessSerialArchive(class Archive* A) override;
 private:
 	Camera* MCamera;
-
-
-	// Inherited via Component
-	virtual void Serialise(rapidjson::Value & v) override;
-
-	virtual void Deserialise(rapidjson::Value & v) override;
-
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
-
 };
 

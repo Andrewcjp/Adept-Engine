@@ -11,7 +11,7 @@ public:
 	virtual void InitComponent() override;
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
-	virtual void Deserialise(rapidjson::Value & v) override;
+
 private:
 	const float BaseTranslateSpeed = 10.0f;
 	const float FastTranslateSpeed = 100.0f;

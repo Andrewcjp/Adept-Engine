@@ -45,14 +45,11 @@ Camera * CameraComponent::GetMainCamera()
 	return BaseWindow::GetCurrentCamera();
 }
 
-void CameraComponent::Serialise(rapidjson::Value & v)
+void CameraComponent::ProcessSerialArchive(Archive * A)
 {
-	Component::Serialise(v);
+	Component::ProcessSerialArchive(A);
 }
 
-void CameraComponent::Deserialise(rapidjson::Value & )
-{
-}
 void CameraComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Camera");

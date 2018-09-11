@@ -38,6 +38,7 @@ public:
 	Transform* GetParent()const;
 	bool IsChanged();
 	void Update();
+	void Serilise(class Archive* A);
 private:
 	//cached matrixs;
 	glm::mat4 CacheModel;

@@ -88,10 +88,7 @@ void FreeLookComponent::Update(float delta)
 	}
 }
 
-void FreeLookComponent::Deserialise(rapidjson::Value & v)
-{
 
-}
 
 
 //void FreeLookComponent::RotateY(float angle)
