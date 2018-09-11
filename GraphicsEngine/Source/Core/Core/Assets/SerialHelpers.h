@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef _SerialHelpers_
-#define _SerialHelpers_
 #include "rapidjson\document.h"
 
 namespace SerialHelpers
@@ -32,7 +30,7 @@ namespace SerialHelpers
 
 
 	template<uint32_t VecSize>
-	bool getFloatVec(const rapidjson::Value& jsonVal, const std::string& , float vec[VecSize])
+	bool getFloatVec(const rapidjson::Value& jsonVal, const std::string&, float vec[VecSize])
 	{
 		if (jsonVal.IsArray() == false)
 		{
@@ -42,7 +40,7 @@ namespace SerialHelpers
 
 		if (jsonVal.Size() != VecSize)
 		{
-		/*	return error("Trying to load a vector for " + desc + ", but vector size mismatches. Required size is " + std::to_string(VecSize) + ", array size is " + std::to_string(jsonVal.Size()));*/
+			/*	return error("Trying to load a vector for " + desc + ", but vector size mismatches. Required size is " + std::to_string(VecSize) + ", array size is " + std::to_string(jsonVal.Size()));*/
 			return false;
 		}
 
@@ -58,5 +56,6 @@ namespace SerialHelpers
 		}
 		return true;
 	}
+	glm::vec3 GetFloatVec3(const rapidjson::Value& jsonVal);
+	const std::string GetString(const rapidjson::Value& jsonVal);
 }
-#endif

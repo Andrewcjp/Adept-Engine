@@ -54,3 +54,4 @@
 /GraphicsEngine/EngineBuildTool.exe.config
 /GraphicsEngine/EngineBuildTool.pdb
 *.pdb
+/GraphicsEngine/Content/Test/Test.Scene

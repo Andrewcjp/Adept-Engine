@@ -75,15 +75,7 @@ void UIManager::InitEditorUI()
 	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
 	wid->SetScaled(1.0f, 0.05f, 0.0f, 0);
 	AddWidget(wid);
-#if 0
-	UIDropDown * testbox3 = new UIDropDown(100, 300, 250, 150);
-	testbox3->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
-	testbox3->AddItem("ke2rjt");
-	testbox3->AddItem("kerjt");
-	testbox3->AddItem("ke3rjt");
 
-	AddWidget(testbox3);
-#endif
 	AssetManager = new UIAssetManager();
 	AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
 	AddWidget(AssetManager);

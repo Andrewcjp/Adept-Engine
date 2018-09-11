@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "MeshRendererComponent.h"
 #include "CompoenentRegistry.h"
-#include "Core/Assets/SerialHelpers.h"
-#include "Core/Assets/SceneJSerialiser.h"
 #include "RHI/RHI.h"
 #include "RHI/RHICommandList.h"
+#include "Core/Assets/Archive.h"
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
@@ -16,7 +15,6 @@ MeshRendererComponent::MeshRendererComponent(Renderable* Mesh, Material* materal
 {
 	SetUpMesh(Mesh, materal);
 }
-
 
 MeshRendererComponent::~MeshRendererComponent()
 {
@@ -63,74 +61,12 @@ void MeshRendererComponent::Update(float)
 void MeshRendererComponent::InitComponent()
 {}
 
-void MeshRendererComponent::Serialise(rapidjson::Value & v)
+void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 {
-	Component::Serialise(v);
-	SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MeshName", m_mesh->AssetName);
-	if (m_mat != nullptr)
+	Component::ProcessSerialArchive(A);
+	if (m_mesh != nullptr)
 	{
-#if 0
-		//todo: Serial
-		if (m_mat->GetDiffusetexture())
-		{
-			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatDiffuse", m_mat->GetDiffusetexture()->TextureName);
-		}
-		if (m_mat->GetNormalMap())
-		{
-			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "MatNormal", m_mat->GetNormalMap()->TextureName);
-		}
-		if (m_mat->GetDisplacementMap())
-		{
-			SerialHelpers::addString(v, *SceneJSerialiser::jallocator, "DisplacementMap", m_mat->GetDisplacementMap()->TextureName);
-		}
-#endif
-	}	//todo:
-}
-
-void MeshRendererComponent::Deserialise(rapidjson::Value & v)
-{
-	for (auto& it = v.MemberBegin(); it != v.MemberEnd(); it++)
-	{
-		std::string key = (it->name.GetString());
-		if (key == "MeshName")
-		{
-			std::string path = (it->value.GetString());
-			if (path.length() != 0)
-			{
-				//this is not handled for D3D11
-				m_mesh = RHI::CreateMesh(path.c_str());
-			}
-		}
-		if (key == "MatDiffuse")
-		{
-			std::string path = (it->value.GetString());
-			if (path.length() != 0)
-			{
-				m_mat = new Material(RHI::CreateTexture(path));
-			}
-		}
-		if (key == "MatNormal")
-		{
-			std::string path = (it->value.GetString());
-			if (path.length() != 0)
-			{
-				if (m_mat != nullptr)
-				{
-					m_mat->SetNormalMap(RHI::CreateTexture(path));
-				}
-			}
-		}
-		if (key == "DisplacementMap")
-		{
-			std::string path = (it->value.GetString());
-			if (path.length() != 0)
-			{
-				if (m_mat != nullptr)
-				{
-					m_mat->SetDisplacementMap(RHI::CreateTexture(path));
-				}
-			}
-		}
-
+		ArchiveProp(m_mesh->AssetName);
 	}
 }
+

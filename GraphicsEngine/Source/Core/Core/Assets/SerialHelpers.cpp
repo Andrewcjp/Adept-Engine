@@ -26,3 +26,15 @@ void SerialHelpers::addBool(rapidjson::Value & jval, rapidjson::Document::Alloca
 
 	jval.AddMember(jkey, jbool, jallocator);
 }
+
+glm::vec3 SerialHelpers::GetFloatVec3(const rapidjson::Value & jsonVal)
+{
+	glm::vec3 out = glm::vec3(0, 0, 0);
+	getFloatVec<3>(jsonVal, "Rot", &out[0]);
+	return out;
+}
+
+const std::string SerialHelpers::GetString(const rapidjson::Value & jsonVal)
+{
+	return jsonVal.GetString();
+}

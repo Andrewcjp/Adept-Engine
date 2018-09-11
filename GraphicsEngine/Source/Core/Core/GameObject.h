@@ -50,8 +50,9 @@ public:
 	T* GetComponent();
 
 	void CopyPtrs(GameObject* newObject);
-	void SerialiseGameObject(rapidjson::Value& v);
-	void DeserialiseGameObject(rapidjson::Value& v);
+
+	void ProcessSerialArchive(class Archive* Arch);
+
 	void PostChangeProperties();
 	void ChangePos_editor(glm::vec3 NewPos);
 private:

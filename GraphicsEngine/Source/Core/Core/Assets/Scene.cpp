@@ -10,8 +10,8 @@
 #include <algorithm>
 #include "Core/Utils/MemoryUtils.h"
 #include "Core/Assets/AssetManager.h"
-
 #include "Core/Assets/Asset_Shader.h"
+
 Scene::Scene()
 {
 	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);

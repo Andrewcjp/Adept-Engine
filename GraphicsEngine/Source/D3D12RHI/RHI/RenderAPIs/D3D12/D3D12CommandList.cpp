@@ -224,7 +224,7 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 	else
 	{
 		ensure(ListType == ECommandListType::Graphics);
-	}	
+	}
 
 	CurrentPipelinestate.IsCompute = (ListType == ECommandListType::Compute);
 	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
@@ -395,14 +395,8 @@ D3D12Buffer::~D3D12Buffer()
 	{
 		MemoryUtils::DeleteCArray(CBV, MAX_DEVICE_COUNT);
 	}
-	if (m_vertexBuffer)
-	{
-		m_vertexBuffer->Release();
-	}
-	if (m_indexBuffer)
-	{
-		m_indexBuffer->Release();
-	}
+	SafeRelease(m_vertexBuffer);
+	SafeRelease(m_indexBuffer);
 }
 
 void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices)
@@ -411,10 +405,6 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool Re
 	ensure(Elementcount > 0);
 	ConstantBufferDataSize = StructSize;
 	CrossDevice = ReplicateToAllDevices;
-	if (StructSize == 76)
-	{
-		//	__debugbreak();
-	}
 	if (ReplicateToAllDevices)
 	{
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
@@ -448,13 +438,13 @@ void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* l
 {
 	if (CrossDevice)
 	{
-		CBV[Deviceindex]->SetDescriptorHeaps(list);//D3D12CBV::MPCBV
-		CBV[Deviceindex]->SetGpuView(list, offset, Slot, IsCompute);//todo: handle Offset!
+		CBV[Deviceindex]->SetDescriptorHeaps(list);
+		CBV[Deviceindex]->SetGpuView(list, offset, Slot, IsCompute);
 	}
 	else
 	{
-		CBV[0]->SetDescriptorHeaps(list);//D3D12CBV::MPCBV
-		CBV[0]->SetGpuView(list, offset, Slot, IsCompute);//todo: handle Offset!
+		CBV[0]->SetDescriptorHeaps(list);
+		CBV[0]->SetGpuView(list, offset, Slot, IsCompute);
 	}
 }
 
@@ -625,6 +615,8 @@ D3D12RHIUAV::~D3D12RHIUAV()
 
 void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 {
+	D3D12Texture* D3DTarget = (D3D12Texture*)target;
+	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	Heap->SetName(L"CreateUAVFromTexture");
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
@@ -637,6 +629,8 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 
 void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
 {
+	D3D12FrameBuffer* D3DTarget = (D3D12FrameBuffer*)target;
+	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	Heap->SetName(L"CreateUAVFromFrameBuffer");
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
@@ -649,6 +643,7 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
 
 void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 {
+	ensure(Device == list->GetDevice());
 	D3D12CommandList* DXList = ((D3D12CommandList*)list);
 	Heap->BindHeap(DXList->GetCommandList());
 	DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, Heap->GetGpuAddress(0));
@@ -674,6 +669,7 @@ D3D12RHITextureArray::~D3D12RHITextureArray()
 void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 {
 	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
+	ensure(dBuffer->CheckDevice(Device->GetDeviceIndex()));
 	LinkedBuffers.push_back(dBuffer);
 	dBuffer->CreateSRVInHeap(slot, Heap);
 	NullHeapDesc = dBuffer->GetSrvDesc(0);
@@ -682,6 +678,7 @@ void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 {
 	D3D12CommandList* DXList = ((D3D12CommandList*)list);
+	ensure(DXList->GetDevice() == Device);
 	for (int i = 0; i < LinkedBuffers.size(); i++)
 	{
 		LinkedBuffers[i]->ReadyResourcesForRead(DXList->GetCommandList());

@@ -61,7 +61,7 @@ Scene * EditorWindow::GetCurrentScene()
 	}
 	return nullptr;
 }
-
+#define TEST_SERIAL 1
 void EditorWindow::PostInitWindow(int w, int h)
 {
 	Log::OutS  << "Loading Editor v0.01" << Log::OutS;
@@ -81,7 +81,12 @@ void EditorWindow::PostInitWindow(int w, int h)
 		CurrentScene->LoadExampleScene(Renderer, false);
 		RefreshScene();
 	}
-	
+#if TEST_SERIAL
+	std::string TestFilePath = AssetManager::GetContentPath() + "Test\\Test.Scene";
+	Saver->SaveScene(CurrentScene, TestFilePath);
+	Scene* Test = new Scene();
+	Saver->LoadScene(Test, TestFilePath);
+#endif
 }
 
 void EditorWindow::EnterPlayMode()

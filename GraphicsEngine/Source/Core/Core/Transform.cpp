@@ -1,5 +1,5 @@
 #include "Transform.h"
-
+#include "Core/Assets/Archive.h"
 
 Transform::Transform(const glm::vec3 & pos, const glm::vec3 & rot, const glm::vec3 & scale) :
 	_pos(pos),
@@ -61,6 +61,13 @@ void Transform::Update()
 	oldpos = _pos;
 	oldqrot = _qrot;
 	oldscale = _scale;
+}
+
+void Transform::Serilise(Archive * A)
+{
+	ArchiveProp(_pos);
+	//ArchiveProp(_qrot);
+	ArchiveProp(_scale);
 }
 
 glm::mat4 Transform::GetModel()

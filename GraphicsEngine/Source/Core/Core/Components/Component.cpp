@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "Component.h"
 #include "Core/GameObject.h"
-#include "Core/Assets/SerialHelpers.h"
-#include "Core/Assets/SceneJSerialiser.h"
-
+#include "Core/Assets/Archive.h"
+#include "Core/Platform/PlatformCore.h"
 Component::Component()
 {
 	TypeID = -1;
@@ -17,6 +16,12 @@ Component::~Component()
 void Component::InitComponent()
 {
 }
+
+void Component::BeginPlay()
+{}
+
+void Component::Update(float delta)
+{}
 
 void Component::FixedUpdate(float )
 {
@@ -36,7 +41,7 @@ GameObject * Component::GetOwner()
 
 void Component::Internal_SetOwner(GameObject * ptr)
 {
-	assert((Owner == nullptr) && "This component Already Has an owner");
+	ensureMsgf((Owner == nullptr), "This component Already Has an owner");
 	Owner = ptr;
 	InitComponent();
 }
@@ -45,8 +50,11 @@ void Component::OnTransformUpdate()
 {
 }
 
-void Component::Serialise(rapidjson::Value & v)
+void Component::ProcessSerialArchive(Archive * A)
 {
-	SerialHelpers::addLiteral(v, *SceneJSerialiser::jallocator, "Type", TypeID);
+	if (!A->IsReading())
+	{
+		ArchiveProp(TypeID);
+	}
 }
 

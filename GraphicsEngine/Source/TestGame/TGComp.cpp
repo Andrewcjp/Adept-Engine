@@ -26,10 +26,3 @@ void TGComp::InitComponent()
 
 }
 
-void TGComp::Serialise(rapidjson::Value & v)
-{
-}
-
-void TGComp::Deserialise(rapidjson::Value & v)
-{
-}

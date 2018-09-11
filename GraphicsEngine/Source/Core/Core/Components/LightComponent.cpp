@@ -5,8 +5,7 @@
 
 #include "Core/Assets/Scene.h"
 #include "CompoenentRegistry.h"
-#include "Core/Assets/SerialHelpers.h"
-#include "Core/Assets/SceneJSerialiser.h"
+#include "Core/Assets/Archive.h"
 LightComponent::LightComponent() :Component()
 {
 	TypeID = CompoenentRegistry::BaseComponentTypes::LightComp;
@@ -20,7 +19,7 @@ LightComponent::~LightComponent()
 
 void LightComponent::InitComponent()
 {
-	MLight = new Light(GetOwner()->GetTransform()->GetPos(), DefaultIntesity, DefaultType, glm::vec3(1), DefaultShadow);
+	MLight = new Light(GetOwner()->GetTransform()->GetPos(), DefaultIntesity, DefaultType, DefaultColour, DefaultShadow);
 	MLight->SetDirection(GetOwner()->GetTransform()->GetForward());
 }
 
@@ -82,37 +81,15 @@ void LightComponent::PostChangeProperties()
 		GetOwner()->GetScene()->StaticSceneNeedsUpdate = true;
 	}
 }
-
-void LightComponent::Serialise(rapidjson::Value & v)
+void LightComponent::ProcessSerialArchive(Archive * A)
 {
-	Component::Serialise(v);
-	SerialHelpers::addLiteral(v, *SceneJSerialiser::jallocator, "Intensity", MLight->GetIntesity());
-	SerialHelpers::addLiteral(v, *SceneJSerialiser::jallocator, "LightType", MLight->GetType());
-	SerialHelpers::addBool(v, *SceneJSerialiser::jallocator, "LightShadow", MLight->GetDoesShadow());
+	Component::ProcessSerialArchive(A);
+	ArchiveProp(DefaultIntesity);
+	ArchiveProp(DefaultShadow);
+	ArchiveProp(DefaultColour);
+	ArchiveProp_Enum(DefaultType, Light::LightType);
 }
 
-void LightComponent::Deserialise(rapidjson::Value & v)
-{
-	for (auto& it = v.MemberBegin(); it != v.MemberEnd(); it++)
-	{
-		std::string key = (it->name.GetString());
-		if (key == "Intensity")
-		{
-			DefaultIntesity = it->value.GetFloat();
-			//MLight->SetIntesity(it->value.GetFloat());
-		}
-		if (key == "LightType")
-		{
-			DefaultType = (Light::LightType)it->value.GetInt();
-			//MLight->SetLightType((Light::LightType)it->value.GetInt());
-		}
-		if (key == "LightShadow")
-		{
-			DefaultShadow = it->value.GetBool();
-			//MLight->SetLightType((Light::LightType)it->value.GetInt());
-		}
-	}
-}
 void LightComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
@@ -120,3 +97,5 @@ void LightComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGr
 	group.SubProps.push_back(Inspector::CreateProperty("Intensity", Inspector::Float, &intensity));
 	props.push_back(group);
 }
+
+

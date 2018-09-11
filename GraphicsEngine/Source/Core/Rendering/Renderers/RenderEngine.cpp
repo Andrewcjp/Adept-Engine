@@ -97,6 +97,11 @@ void RenderEngine::ProcessScene()
 	{
 		return;
 	}
+	//Todo: TEMP FIX!
+	if (RHI::GetFrameCount() > 10)
+	{
+		return;
+	}
 	Scene::LightingEnviromentData* Data = MainScene->GetLightingData();
 	Conv->TargetCubemap = Data->SkyBox;
 	envMap->TargetCubemap = Data->SkyBox;

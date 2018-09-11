@@ -54,14 +54,6 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::Skybox);
 	if (DepthSourceBuffer != nullptr)
 	{
-#if 0
-		if (RHI::IsD3D12())
-		{
-			D3D12FrameBuffer* fb = (D3D12FrameBuffer*)DepthSourceBuffer;
-			D3D12CommandList* ll = (D3D12CommandList*)List;
-			fb->BindDepthWithColourPassthrough(ll->GetCommandList(), (D3D12FrameBuffer*)Buffer);
-		}
-#endif
 		DepthSourceBuffer->BindDepthWithColourPassthrough(List, Buffer);
 	}
 	else
@@ -76,11 +68,6 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 	SceneRender->BindMvBuffer(List, 1);
 	CubeModel->Render(List);
 
-	///todo:!
-#if 0
-	/*D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
-	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);*/
-#endif
 	Buffer->MakeReadyForComputeUse(List);
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
 	List->Execute();
