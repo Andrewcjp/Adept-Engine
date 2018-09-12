@@ -3,12 +3,13 @@
 
 #include "RHI/RHI.h"
 #include "RHI/RHI_inc.h"
+#include "RHI/RHITypes.h"
 #include "include\glm\gtx\transform.hpp"
 #include "Rendering/Shaders/ShaderMipMap.h"
 #include "GPUResource.h"
 #include "D3D12TimeManager.h"
 #include "Core/Platform/PlatformCore.h"
-#include "Rendering/Core/Renderable.h"
+#include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/Mesh.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Assets/AssetManager.h"
@@ -40,7 +41,7 @@ void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
-	WaitForGpu();
+	//WaitForGpu();
 	
 	ReleaseSwapRTs();
 	delete MipmapShader;
@@ -398,21 +399,21 @@ void D3D12RHI::ReleaseUploadHeap()
 	//The Visual studio Graphics Debugger Casuses a crash here in Driver Code. Cause Unknown
 	if (!DetectGPUDebugger())
 	{
-		for (int i = (int)UsedUploadHeaps.size() - 1; i >= 0; i--)
+		for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 		{
 			const int CurrentFrame = RHI::GetFrameCount();
-			if (UsedUploadHeaps[i].second + RHI::CPUFrameCount < CurrentFrame)
+			if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount < CurrentFrame)
 			{
-				UsedUploadHeaps[i].first->Release();
-				UsedUploadHeaps.erase(UsedUploadHeaps.begin() + i);
+				DeferredDeleteQueue[i].first->Release();
+				DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
 			}
 		}
 	}
 }
 
-void D3D12RHI::AddUploadToUsed(IUnknown* Target)
+void D3D12RHI::AddObjectToDeferredDeleteQueue(IUnknown* Target)
 {
-	UsedUploadHeaps.push_back(UploadHeapStamped(Target, RHI::GetFrameCount()));
+	DeferredDeleteQueue.push_back(UploadHeapStamped(Target, RHI::GetFrameCount()));
 }
 
 D3D12RHI * D3D12RHI::Get()

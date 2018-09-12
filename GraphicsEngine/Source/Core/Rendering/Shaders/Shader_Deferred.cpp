@@ -29,7 +29,7 @@ Shader_Deferred::Shader_Deferred()
 
 Shader_Deferred::~Shader_Deferred()
 {
-	delete VertexBuffer;
+	EnqueueSafeRHIRelease(VertexBuffer);
 }
 
 std::vector<Shader::ShaderParameter> Shader_Deferred::GetShaderParameters()

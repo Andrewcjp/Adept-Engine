@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/IRefCount.h"
+#include "RHI/RHITypes.h"
 #include "Core/EngineInc_fwd.h"
-class BaseTexture : public IRefCount
+class BaseTexture : public IRefCount, public IRHIResourse
 {
 public:
 	enum ETextureType

@@ -5,20 +5,22 @@
 #include "RHI/DeviceContext.h"
 #include "Core/Utils/MemoryUtils.h"
 Mesh::Mesh()
-{
-
-}
+{}
 
 Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	LoadMeshFromFile(filename, Settings);
 }
 
-Mesh::~Mesh()
+void Mesh::Release()
 {
-	MemoryUtils::DeleteCArray(VertexBuffers, MAX_DEVICE_COUNT);
-	MemoryUtils::DeleteCArray(IndexBuffers, MAX_DEVICE_COUNT);
+	IRHIResourse::Release();
+	MemoryUtils::DeleteReleaseableCArray(VertexBuffers, MAX_DEVICE_COUNT);
+	MemoryUtils::DeleteReleaseableCArray(IndexBuffers, MAX_DEVICE_COUNT);
 }
+
+Mesh::~Mesh()
+{}
 
 void Mesh::Render(RHICommandList * list)
 {

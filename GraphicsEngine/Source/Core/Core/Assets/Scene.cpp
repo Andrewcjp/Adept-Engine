@@ -11,18 +11,19 @@
 #include "Core/Utils/MemoryUtils.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/Asset_Shader.h"
-
+#include "Core/Platform/PlatformCore.h"
 Scene::Scene()
 {
-	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
+	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);	
+	LightingData.SkyBox->AddRef();
 }
 
 Scene::~Scene()
 {
 	Lights.clear();
 	MemoryUtils::DeleteVector(SceneObjects);
-	SafeRefRelease(LightingData.SkyBox);
-	SafeRefRelease(LightingData.DiffuseMap);
+	SafeRHIRefRelease(LightingData.SkyBox);
+	SafeRHIRefRelease(LightingData.DiffuseMap);
 }
 
 void Scene::UpdateScene(float deltatime)
@@ -36,6 +37,7 @@ void Scene::UpdateScene(float deltatime)
 		SceneObjects[i]->Update(deltatime);
 	}
 }
+
 void Scene::EditorUpdateScene()
 {
 	if (SceneObjects.size() == 0)
@@ -181,6 +183,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	mat->GetProperties()->Roughness = 0.0f;
 	mat->GetProperties()->Metallic = 1.0f;
+
 	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(15, 10, 0));
@@ -270,6 +273,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			AddGameobjectToScene(go);
 		}
 	}
+	SafeRHIRefRelease(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
+	FrameBuffer* fv = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), RHIFrameBufferDesc::CreateColour(1, 1));
+	EnqueueSafeRHIRelease(fv);
 }
 
 void Scene::RemoveCamera(Camera * Cam)
@@ -299,7 +305,6 @@ void Scene::RemoveLight(Light * Light)
 {
 	if (Lights.size() > 1)
 	{
-		//todo error!
 		Lights.erase(std::remove(Lights.begin(), Lights.end(), Light));
 	}
 	else

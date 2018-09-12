@@ -24,7 +24,7 @@ private:
 		int faceID = 0;
 	};
 	SData Data[6];
-	Renderable* Cube = nullptr;
+	Mesh* Cube = nullptr;
 	Shader_Convolution::QuadDrawer* QuadDraw = nullptr;
 };
 

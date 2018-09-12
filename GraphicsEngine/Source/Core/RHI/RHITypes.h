@@ -255,3 +255,21 @@ public:
 	int DepthMipCount = 1;
 	D3D12_RESOURCE_STATES StartingState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };
+
+class RHI_API IRHIResourse
+{
+public:
+	virtual ~IRHIResourse();
+	virtual void Release();
+	bool IsPendingKill()
+	{
+		return PendingKill;
+	}
+	bool IsReleased = false;
+private:
+	bool PendingKill = false;
+	friend class RHI;
+};
+//Releases the GPU side and deletes the CPU object
+#define SafeRHIRelease(Target) if(Target != nullptr){Target->Release(); delete Target; Target= nullptr;}
+#define EnqueueSafeRHIRelease(Target) if(Target != nullptr){RHI::AddToDeferredDeleteQueue(Target);}

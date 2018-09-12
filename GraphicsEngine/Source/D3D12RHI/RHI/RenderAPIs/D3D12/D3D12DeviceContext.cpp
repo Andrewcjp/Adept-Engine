@@ -32,7 +32,7 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	SafeRelease(m_CopyList);
 	SafeRelease(m_CopyCommandAllocator);	
 	delete TimeManager;
-	delete GPUCopyList;
+	SafeRHIRelease(GPUCopyList);
 	SafeRelease(m_IntraCopyList);
 	SafeRelease(m_SharedCopyCommandQueue);
 	SafeRelease(m_ComputeCommandQueue);

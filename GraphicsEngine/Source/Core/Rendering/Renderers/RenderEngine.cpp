@@ -24,7 +24,7 @@ RenderEngine::~RenderEngine()
 	delete mShadowRenderer;
 	delete Post;
 	delete MainShader;
-	delete FilterBuffer;
+	EnqueueSafeRHIRelease(FilterBuffer);
 	delete Conv;
 	delete envMap;
 	delete SkyBox;
@@ -41,7 +41,7 @@ void RenderEngine::Render()
 	{
 		return;
 	}
-	if ((*MainScene->GetRenderableObjects()).size() == 0)
+	if ((*MainScene->GetMeshObjects()).size() == 0)
 	{
 		return;
 	}
@@ -117,9 +117,9 @@ void RenderEngine::ProcessScene()
 
 void RenderEngine::PrepareData()
 {
-	for (size_t i = 0; i < (*MainScene->GetRenderableObjects()).size(); i++)
+	for (size_t i = 0; i < (*MainScene->GetMeshObjects()).size(); i++)
 	{
-		SceneRender->UpdateUnformBufferEntry(SceneRender->CreateUnformBufferEntry((*MainScene->GetRenderableObjects())[i]), (int)i);
+		SceneRender->UpdateUnformBufferEntry(SceneRender->CreateUnformBufferEntry((*MainScene->GetMeshObjects())[i]), (int)i);
 	}
 }
 
@@ -154,7 +154,7 @@ void RenderEngine::SetScene(Scene * sc)
 		return;
 	}
 	SceneRender->SetScene(sc);
-
+	SkyBox->SetSkyBox(sc->GetLightingData()->SkyBox);
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
@@ -184,7 +184,7 @@ void RenderEngine::ShadowPass()
 {	
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetRenderableObjects(), MainShader);
+		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetMeshObjects(), MainShader);
 	}
 }
 

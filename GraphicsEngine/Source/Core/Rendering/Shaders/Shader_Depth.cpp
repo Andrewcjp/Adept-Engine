@@ -34,7 +34,7 @@ void Shader_Depth::UpdateBuffer(RHICommandList * list, LightData* data, int inde
 
 Shader_Depth::~Shader_Depth()
 {
-	delete ConstantBuffer;
+	EnqueueSafeRHIRelease(ConstantBuffer);
 }
 
 void Shader_Depth::SetShaderActive()

@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Rendering/Core/Renderable.h"
+#include "Rendering/Core/Mesh.h"
 #include <DirectXMath.h>
 #include <d3d12.h>
 
-class D3D12Plane : public Renderable
+class D3D12Plane : public Mesh
 {
 public:
 	D3D12Plane(float size);
 	~D3D12Plane();
 
-	// Inherited via Renderable
+	// Inherited via Mesh
 	//virtual void Render(ID3D12GraphicsCommandList* list = nullptr) override;
 	void Render(RHICommandList* list)override;
 	void CreateVertexBuffer();

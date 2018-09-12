@@ -2,7 +2,7 @@
 
 #include "RHITypes.h"
 class DeviceContext;
-class RHI_API RHIBuffer
+class RHI_API RHIBuffer : public IRHIResourse
 {
 public:
 	enum BufferType
@@ -33,7 +33,7 @@ protected:
 	size_t VertexCount = 0;
 };
 
-class RHIUAV
+class RHIUAV : public IRHIResourse
 {
 public:
 	RHIUAV()
@@ -47,7 +47,7 @@ public:
 
 
 class FrameBuffer;
-class RHI_API RHICommandList
+class RHI_API RHICommandList : public IRHIResourse
 {
 public:
 	RHICommandList(ECommandListType::Type type = ECommandListType::Graphics);
@@ -100,7 +100,7 @@ protected:
 };
 
 //Used to Bind Buffers or textures to a single Descriptor heap/set for shader arrays
-class RHI_API RHITextureArray
+class RHI_API RHITextureArray : public IRHIResourse
 {
 public:
 	RHITextureArray(DeviceContext* device, int inNumEntries)

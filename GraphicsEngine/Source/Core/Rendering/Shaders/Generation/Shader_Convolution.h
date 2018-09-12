@@ -17,7 +17,7 @@ public:
 	{
 		~QuadDrawer()
 		{
-			delete VertexBuffer;
+			EnqueueSafeRHIRelease(VertexBuffer);
 		}
 		RHIBuffer* VertexBuffer = nullptr;
 		void init()
@@ -53,7 +53,7 @@ private:
 		int faceID = 0;
 	};
 	SData Data[6];
-	Renderable* Cube = nullptr;
+	Mesh* Cube = nullptr;
 
 	QuadDrawer* Test = nullptr;
 };

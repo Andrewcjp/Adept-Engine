@@ -37,7 +37,7 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 	{
 		PlatformApplication::TryCreateDirectory(rpath);
 	}
-	//todo Proper DDC
+
 	StringUtils::RemoveChar(TextureName, "\\asset\\texture\\");
 	rpath.append(TextureName);
 	rpath.append("_mip_");
@@ -237,16 +237,21 @@ bool D3D12Texture::LoadDDS(std::string filename)
 	Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	m_texture->SetName(L"Loaded Texture");
 	Device->NotifyWorkForCopyEngine();
-	D3D12RHI::Get()->AddUploadToUsed(textureUploadHeap);
+	D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(textureUploadHeap);
 	UpdateSRV();
 	return true;
 }
 
-D3D12Texture::~D3D12Texture()
+void D3D12Texture::Release()
 {
 	SafeRelease(m_texture);
 	SafeRelease(srvHeap);
-	RemoveCheckerRef(D3D12Texture, this);
+	IRHIResourse::Release();
+	RemoveCheckerRef(D3D12Texture, this);	
+}
+
+D3D12Texture::~D3D12Texture()
+{	
 }
 
 bool D3D12Texture::CreateFromFile(AssetPathRef FileName)
@@ -311,7 +316,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 
 	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
 	Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
-	D3D12RHI::Instance->AddUploadToUsed(textureUploadHeap);
+	D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(textureUploadHeap);
 	Device->NotifyWorkForCopyEngine();
 	m_texture->SetName(L"Texture");
 	textureUploadHeap->SetName(L"Upload");

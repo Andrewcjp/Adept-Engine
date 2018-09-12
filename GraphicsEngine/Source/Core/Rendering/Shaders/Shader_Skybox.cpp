@@ -2,17 +2,16 @@
 #include "RHI/RHI.h"
 #include "RHI/RHI_inc.h"
 #include "RHI/ShaderProgramBase.h"
-#include "Rendering/Core/Renderable.h"
+#include "Rendering/Core/Mesh.h"
 #include "Shader_Main.h"
 #include "RHI/DeviceContext.h"
 #include "Core/EngineInc.h"
 #include "Rendering/Core/SceneRenderer.h"
 Shader_Skybox::Shader_Skybox()
 {
-	SkyBoxTexture = AssetManager::DirectLoadTextureAsset("texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
 	MeshLoader::FMeshLoadingSettings settings = {};
 	settings.Scale = glm::vec3(100.0f);
-	CubeModel = RHI::CreateMesh("SkyBoxCube.obj", settings);
+	CubeModel = (Mesh*)RHI::CreateMesh("SkyBoxCube.obj", settings);
 	m_Shader = RHI::CreateShaderProgam();
 
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_vs", EShaderType::SHADER_VERTEX);
@@ -43,9 +42,18 @@ void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 
 Shader_Skybox::~Shader_Skybox()
 {
-	delete CubeModel;
-	SafeRefRelease(SkyBoxTexture);
-	delete List;
+	//SafeRHIRefRelease(SkyBoxTexture);
+	EnqueueSafeRHIRelease(CubeModel);
+	EnqueueSafeRHIRelease(List);
+}
+
+void Shader_Skybox::SetSkyBox(BaseTexture * tex)
+{
+	if (SkyBoxTexture != nullptr)
+	{
+		SafeRHIRefRelease(SkyBoxTexture);
+	}
+	SkyBoxTexture = tex;
 }
 
 void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)

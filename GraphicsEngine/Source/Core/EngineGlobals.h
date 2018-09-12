@@ -73,6 +73,9 @@ void UNUSED_PARAM(T const&)
 
 //Asserts
 #define PLATFORM_WINDOWS 1
+
+//Utility Marcos
+#define SafeDelete(Target)if(Target != nullptr){delete Target; Target= nullptr;}
 /*
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "glew32.lib")

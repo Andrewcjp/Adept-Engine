@@ -20,7 +20,10 @@ GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalSt
 
 GPUResource::~GPUResource()
 {
-	Release();
+	if (!IsReleased)
+	{
+		Release();
+	}
 }
 
 void GPUResource::SetName(LPCWSTR name)
@@ -136,11 +139,9 @@ ID3D12Resource * GPUResource::GetResource()
 
 void GPUResource::Release()
 {
-	if (resource != nullptr)
-	{
-		SafeRelease(resource);
-		RemoveCheckerRef(GPUResource, this);
-	}
+	IRHIResourse::Release();
+	SafeRelease(resource);
+	RemoveCheckerRef(GPUResource, this);
 }
 
 

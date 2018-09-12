@@ -7,6 +7,7 @@ class D3D12CommandList : public RHICommandList
 {
 public:
 	D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType = ECommandListType::Graphics);
+
 	virtual ~D3D12CommandList();
 
 	// Inherited via RHICommandList
@@ -39,6 +40,7 @@ public:
 
 	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer)override;
 	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer)override;
+	void Release()override;
 private:
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList * CurrentCommandList = nullptr;
@@ -60,6 +62,7 @@ class D3D12Buffer : public RHIBuffer
 {
 public:
 	D3D12Buffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
+	
 	virtual ~D3D12Buffer();
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) override;
@@ -77,7 +80,10 @@ public:
 	virtual void UpdateVertexBuffer(void* data, size_t length) override;
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	bool CheckDevice(int index);
+protected:
+	void Release() override;
 private:
+	
 	class D3D12CBV* CBV[MAX_DEVICE_COUNT] = { nullptr };
 	int ConstantBufferDataSize = 0;
 
@@ -95,6 +101,7 @@ class D3D12RHIUAV : public RHIUAV
 {
 public:
 	D3D12RHIUAV(DeviceContext* inDevice);
+	
 	~D3D12RHIUAV();
 	void CreateUAVFromTexture(class BaseTexture* target) override;
 	void CreateUAVFromFrameBuffer(class FrameBuffer* target) override;
@@ -103,6 +110,8 @@ public:
 	D3D12DeviceContext* Device = nullptr;
 	ID3D12Resource* UAVCounter = nullptr;
 	class DescriptorHeap* Heap = nullptr;
+protected:
+	void Release() override;
 };
 
 class D3D12RHITextureArray : public RHITextureArray
@@ -115,6 +124,7 @@ public:
 	virtual void BindToShader(RHICommandList* list, int slot)override;
 	virtual void SetIndexNull(int TargetIndex);
 private:
+	void Release() override;
 	class DescriptorHeap* Heap = nullptr;
 	std::vector<D3D12FrameBuffer*> LinkedBuffers;
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};

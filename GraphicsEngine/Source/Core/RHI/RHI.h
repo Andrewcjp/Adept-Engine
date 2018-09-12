@@ -12,7 +12,7 @@
 #include "Rendering/Renderers/RenderSettings.h"
 
 class BaseTexture;
-class Renderable;
+class Mesh;
 class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
@@ -35,8 +35,8 @@ public:
 	RHI_API static BaseTexture* CreateTexture(AssetPathRef, DeviceContext* Device = nullptr);
 	RHI_API static BaseTexture* CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device = nullptr);
 	RHI_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
-	RHI_API static Renderable * CreateMesh(const char * path);
-	RHI_API static Renderable * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
+	RHI_API static Mesh * CreateMesh(const char * path);
+	RHI_API static Mesh * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
 	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
 	RHI_API static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 	RHI_API static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
@@ -70,7 +70,10 @@ public:
 	static void AddLinkedFrameBuffer(FrameBuffer* target);
 	static RenderSettings* GetRenderSettings();
 	static const MultiGPUMode* GetMGPUMode();
+	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
+	static RHI* Get();
 private:
+	void TickDeferredDeleteQueue(bool Flush = false);
 	static RHI* instance;
 	ERenderSystemType CurrentSystem;
 	static MultiGPUMode CurrentMGPUMode;
@@ -79,6 +82,8 @@ private:
 	RenderSettings RenderSettings = {};
 	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;
 	int PresentCount = 0;
+	typedef std::pair<IRHIResourse*, int64_t> RHIResourseStamped;
+	std::vector<RHIResourseStamped> DeferredDeleteQueue;
 };
 
 class RHI_API RHIClass

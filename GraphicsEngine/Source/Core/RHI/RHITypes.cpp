@@ -57,3 +57,13 @@ RHIFrameBufferDesc RHIFrameBufferDesc::CreateGBuffer(int width, int height)
 	newDesc.NeedsDepthStencil = true;
 	return newDesc;
 }
+
+IRHIResourse::~IRHIResourse()
+{
+	DebugEnsure(IsReleased);
+}
+
+void IRHIResourse::Release()
+{
+	IsReleased = true;
+}

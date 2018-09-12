@@ -13,6 +13,7 @@
 #include "RHI/RHITypes.h"
 #include "Core/EngineInc.h"
 #include "Rendering/Core/SceneRenderer.h"
+
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
 ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
@@ -74,17 +75,17 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 
 ShadowRenderer::~ShadowRenderer()
 {
-	delete GeometryProjections;
+	EnqueueSafeRHIRelease(GeometryProjections);
 	delete PointLightShader;
 	delete DirectionalLightShader;
-	delete ShadowCubeArray;
-	delete ShadowDirectionalArray;
-	delete PointShadowListALT;
-	delete PointShadowList;
+	EnqueueSafeRHIRelease(ShadowCubeArray);
+	EnqueueSafeRHIRelease(ShadowDirectionalArray);
+	EnqueueSafeRHIRelease(PointShadowListALT);
+	EnqueueSafeRHIRelease(PointShadowList);
 	delete ShadowPreSampleShader;
-	delete DirectionalShadowList;
-	delete ShadowPreSamplingList;
-	MemoryUtils::DeleteVector(DirectionalLightBuffers);
+	EnqueueSafeRHIRelease(DirectionalShadowList);
+	EnqueueSafeRHIRelease(ShadowPreSamplingList);
+	MemoryUtils::RHIUtil::DeleteVector(DirectionalLightBuffers);
 	MemoryUtils::DeleteVector(LightInteractions);
 }
 
@@ -386,11 +387,8 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 ShadowRenderer::ShadowLightInteraction::~ShadowLightInteraction()
 {
 	delete Shader;
-	delete ShadowMap;
-	if (PreSampledBuffer != nullptr)
-	{
-		delete PreSampledBuffer;
-	}
+	EnqueueSafeRHIRelease(ShadowMap);
+	EnqueueSafeRHIRelease(PreSampledBuffer);
 }
 
 void ShadowRenderer::ShadowLightInteraction::PreSampleShadows(RHICommandList * List)

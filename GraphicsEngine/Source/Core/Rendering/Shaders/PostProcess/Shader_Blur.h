@@ -7,7 +7,7 @@ public:
 	Shader_Blur()
 	{
 		m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));
-		
+
 		m_Shader->AttachAndCompileShaderFromFile("BlurCS", EShaderType::SHADER_COMPUTE);
 	}
 	~Shader_Blur();
@@ -29,8 +29,8 @@ public:
 	Shader_BlurVert()
 	{
 		m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));
-		
-		m_Shader->AttachAndCompileShaderFromFile("BlurCS", EShaderType::SHADER_COMPUTE,"VertBlurCS");
+
+		m_Shader->AttachAndCompileShaderFromFile("BlurCS", EShaderType::SHADER_COMPUTE, "VertBlurCS");
 		Blurweights = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant);
 		Blurweights->CreateConstantBuffer(sizeof(float) * 11, 1);
 		std::vector<float> Weights = Shader_Blur::CalcGaussWeights(2.5f);
@@ -39,7 +39,7 @@ public:
 	}
 	~Shader_BlurVert()
 	{
-		delete Blurweights;
+		EnqueueSafeRHIRelease(Blurweights);
 	}
 	bool IsComputeShader() override
 	{

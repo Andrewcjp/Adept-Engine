@@ -1,5 +1,5 @@
 #pragma once
-#include "Rendering/Core/Renderable.h"
+#include "Rendering/Core/Mesh.h"
 #include "Transform.h"
 
 #include "Rendering/Core/Material.h"
@@ -30,7 +30,7 @@ public:
 	EMoblity GetMobility();
 
 	//temp
-	Renderable* GetMesh();
+	Mesh* GetMesh();
 	RigidBody* actor;
 
 	//getters

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RHI/RHITypes.h"
-class FrameBuffer
+class FrameBuffer : public IRHIResourse
 {
 public:	
 	RHI_API FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);

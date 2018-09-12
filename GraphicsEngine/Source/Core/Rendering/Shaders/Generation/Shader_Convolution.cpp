@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Shader_Convolution.h"
-#include "Rendering/Core/Renderable.h"
+#include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/FrameBuffer.h"
 Shader_Convolution::Shader_Convolution()
 {
@@ -13,11 +13,11 @@ Shader_Convolution::Shader_Convolution()
 
 Shader_Convolution::~Shader_Convolution()
 {
-	delete CmdList;
-	delete ShaderData;
-	delete CubeBuffer;
-	delete Cube;
-	delete Test;
+	EnqueueSafeRHIRelease(CmdList);
+	EnqueueSafeRHIRelease(ShaderData);
+	EnqueueSafeRHIRelease(CubeBuffer);
+	EnqueueSafeRHIRelease(Cube);
+	delete (Test);
 }
 
 void Shader_Convolution::init()

@@ -29,9 +29,9 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 
 DebugLineDrawer::~DebugLineDrawer()
 {
-	delete CmdList;
-	delete VertexBuffer;
-	delete DataBuffer;
+	EnqueueSafeRHIRelease(CmdList);
+	EnqueueSafeRHIRelease(VertexBuffer);
+	EnqueueSafeRHIRelease(DataBuffer);
 	delete LineShader;
 }
 

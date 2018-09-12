@@ -8,8 +8,8 @@ PP_Blur::PP_Blur()
 
 PP_Blur::~PP_Blur()
 {
-	delete VertcmdList;
-	delete UAV;
+	EnqueueSafeRHIRelease(VertcmdList);
+	EnqueueSafeRHIRelease(UAV);
 	delete VertBlur;
 }
 
@@ -17,7 +17,7 @@ void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
 	UAV->Bind(list, 1);
 	list->SetFrameBufferTexture(InputTexture, 0);
-	
+
 	list->SetConstantBufferView(VertBlur->Blurweights, 0, 2);
 	list->Dispatch(InputTexture->GetWidth() / ThreadCount, InputTexture->GetHeight(), 1);
 	list->UAVBarrier(UAV);

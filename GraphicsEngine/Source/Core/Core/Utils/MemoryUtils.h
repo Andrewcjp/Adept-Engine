@@ -21,6 +21,7 @@ namespace MemoryUtils
 			target[i] = nullptr;
 		}
 	}
+
 	template<typename T>
 	static void DeleteReleaseableCArray(T* target, int Length)
 	{
@@ -47,6 +48,28 @@ namespace MemoryUtils
 		for (it = target.begin(); it != target.end(); it++)
 		{
 			it->second.Release();
+		}
+	}
+	namespace RHIUtil
+	{
+		template<typename T>
+		static void DeleteRHICArray(T* target, int Length)
+		{
+			for (int i = 0; i < Length; i++)
+			{
+				EnqueueSafeRHIRelease(target[i]);
+				target[i] = nullptr;
+			}
+		}
+		template<typename T>
+		static void DeleteVector(std::vector<T*>& target)
+		{
+			for (int i = 0; i < target.size(); i++)
+			{
+				EnqueueSafeRHIRelease(target[i]);
+				target[i] = nullptr;
+			}
+			target.clear();
 		}
 	}
 };
