@@ -14,9 +14,9 @@ SceneRenderer::SceneRenderer(Scene* Target)
 
 SceneRenderer::~SceneRenderer()
 {
-	MemoryUtils::DeleteCArray(GameObjectTransformBuffer, 2);
-	delete CLightBuffer;
-	delete CMVBuffer;
+	EnqueueSafeRHIRelease(CLightBuffer);
+	EnqueueSafeRHIRelease(CMVBuffer);
+	MemoryUtils::RHIUtil::DeleteRHICArray(GameObjectTransformBuffer, 2);
 }
 
 void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly, FrameBuffer* FrameBuffer)
@@ -27,9 +27,9 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	}
 	BindMvBuffer(CommandList);
 	//UpdateMV(MainCamera);
-	for (size_t i = 0; i < (*TargetScene->GetRenderableObjects()).size(); i++)
+	for (size_t i = 0; i < (*TargetScene->GetMeshObjects()).size(); i++)
 	{
-		GameObject* CurrentObj = (*TargetScene->GetRenderableObjects())[i];
+		GameObject* CurrentObj = (*TargetScene->GetMeshObjects())[i];
 		SetActiveIndex(CommandList, (int)i, CommandList->GetDeviceIndex());
 		if (!PositionOnly)
 		{

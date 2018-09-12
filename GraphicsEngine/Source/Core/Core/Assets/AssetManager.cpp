@@ -100,9 +100,9 @@ void AssetManager::LoadCookedShaders()
 		myfile.close();
 	}
 }
-//todo: Unload Shaders To save memory
+
 //and wrap the code to recreate when reqeusted
-//todo: image/mesh writing data
+
 //linked list of nodes written to disk binary
 //each node stores string of id and size of data.
 AssetManager* AssetManager::instance = nullptr;

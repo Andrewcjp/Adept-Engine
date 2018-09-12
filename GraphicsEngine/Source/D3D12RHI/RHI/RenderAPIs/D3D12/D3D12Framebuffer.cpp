@@ -7,6 +7,7 @@
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
 #include "D3D12CommandList.h"
+#include "RHI/RHITypes.h"
 #define CUBE_SIDES 6
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
@@ -328,6 +329,33 @@ GPUResource * D3D12FrameBuffer::GetResource(int index)
 	return RenderTarget[index];
 }
 
+void D3D12FrameBuffer::Release()
+{
+	
+	IRHIResourse::Release();
+	RemoveCheckerRef(D3D12FrameBuffer, this);
+	if (BufferDesc.NeedsDepthStencil)
+	{
+		DepthStencil->Release();
+		SafeDelete(DSVHeap);
+	}
+	SafeRelease(NullHeap);
+	if (BufferDesc.RenderTargetCount > 0)
+	{
+		SafeDelete(RTVHeap);
+	}
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		RenderTarget[i]->Release();
+	}
+	SafeDelete(SrvHeap);
+	SafeRelease(PrimaryRes);
+	SafeRelease(Stagedres);
+	SafeRelease(FinalOut);
+	SafeRelease(SharedSRVHeap);
+	SafeDelete(SharedTarget);
+}
+
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 	CurrentDevice = (D3D12DeviceContext*)device;
@@ -483,32 +511,7 @@ void D3D12FrameBuffer::Init()
 }
 
 D3D12FrameBuffer::~D3D12FrameBuffer()
-{
-	RemoveCheckerRef(D3D12FrameBuffer, this);
-	if (BufferDesc.NeedsDepthStencil)
-	{
-		DepthStencil->Release();
-		delete DSVHeap;
-	}
-	SafeRelease(NullHeap);
-	if (BufferDesc.RenderTargetCount > 0)
-	{
-		delete RTVHeap;
-	}
-	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
-	{
-		RenderTarget[i]->Release();
-	}
-	delete SrvHeap;
-	SafeRelease(PrimaryRes);
-	SafeRelease(Stagedres);
-	SafeRelease(FinalOut);
-	SafeRelease(SharedSRVHeap);
-	if (SharedTarget)
-	{
-		delete SharedTarget;
-	}
-}
+{}
 
 void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex)
 {

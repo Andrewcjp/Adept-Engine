@@ -21,6 +21,8 @@ public:
 	UINT16 Miplevels = 6;
 	int	MipLevelsReadyNow = 1;
 	bool CheckDevice(int index);
+protected:
+	void Release() override;
 private:
 	unsigned char * GenerateMip(int & startwidth, int & startheight, int bpp, unsigned char * StartData, int & mipsize, float ratio = 2.0f);
 	unsigned char * GenerateMips(int count, int StartWidth, int StartHeight, unsigned char * startdata);

@@ -27,7 +27,7 @@ public:
 	void RenderToScreen(ID3D12GraphicsCommandList * list);
 	void ClearRenderTarget(ID3D12GraphicsCommandList * MainList);
 	static D3D12RHI* Instance;
-	void AddUploadToUsed(IUnknown * Target);
+	void AddObjectToDeferredDeleteQueue(IUnknown * Target);
 	static D3D12RHI* Get();
 	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	static bool DetectGPUDebugger();
@@ -105,7 +105,7 @@ private:
 	DWORD m_BudgetNotificationCookie;
 
 	typedef std::pair<IUnknown*, int64_t> UploadHeapStamped;
-	std::vector<UploadHeapStamped> UsedUploadHeaps;
+	std::vector<UploadHeapStamped> DeferredDeleteQueue;
 
 	class GPUResource* m_RenderTargetResources[RHI::CPUFrameCount];
 	size_t usedVRAM = 0;

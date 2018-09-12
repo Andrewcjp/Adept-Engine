@@ -11,7 +11,7 @@ MeshRendererComponent::MeshRendererComponent()
 	TypeID = CompoenentRegistry::BaseComponentTypes::MeshComp;
 }
 
-MeshRendererComponent::MeshRendererComponent(Renderable* Mesh, Material* materal) :MeshRendererComponent()
+MeshRendererComponent::MeshRendererComponent(Mesh* Mesh, Material* materal) :MeshRendererComponent()
 {
 	SetUpMesh(Mesh, materal);
 }
@@ -19,10 +19,10 @@ MeshRendererComponent::MeshRendererComponent(Renderable* Mesh, Material* materal
 MeshRendererComponent::~MeshRendererComponent()
 {
 	delete m_mat;
-	delete m_mesh;
+	EnqueueSafeRHIRelease(m_mesh);
 }
 
-void MeshRendererComponent::SetUpMesh(Renderable * Mesh, Material * materal)
+void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)
 {
 	m_mesh = Mesh;
 	m_mat = materal;

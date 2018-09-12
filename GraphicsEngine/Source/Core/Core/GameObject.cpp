@@ -70,7 +70,7 @@ void GameObject::Internal_SetScene(Scene * scene)
 	PositionDummy = GetTransform()->GetPos();
 }
 
-Renderable * GameObject::GetMesh()
+Mesh * GameObject::GetMesh()
 {
 	if (m_MeshRenderer != nullptr)
 	{

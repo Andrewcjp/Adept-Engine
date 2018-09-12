@@ -33,14 +33,10 @@ TextRenderer::~TextRenderer()
 {
 	delete TextAtlas;
 	delete m_TextShader;
-	delete VertexBuffer;
+	EnqueueSafeRHIRelease(VertexBuffer);
 	coords.empty();
-
-	if (Renderbuffer != nullptr)
-	{
-		delete Renderbuffer;
-	}
-	delete TextCommandList;
+	EnqueueSafeRHIRelease(Renderbuffer);	
+	EnqueueSafeRHIRelease(TextCommandList);
 }
 
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color, bool reset/* = true*/)
@@ -359,5 +355,5 @@ TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
 
 TextRenderer::atlas::~atlas()
 {
-	delete Texture;
+	EnqueueSafeRHIRelease(Texture);
 }

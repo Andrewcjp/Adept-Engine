@@ -3,7 +3,6 @@
 #include "RHICommandList.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "BaseTexture.h"
-#include "Rendering/Core/Renderable.h"
 #include "Rendering/Core/Mesh.h"
 #include "RHI/ShaderBase.h"
 #include "RHI/DeviceContext.h"

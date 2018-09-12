@@ -34,20 +34,21 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 	}
 }
 
-D3D12CommandList::~D3D12CommandList()
+void D3D12CommandList::Release()
 {
+	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12CommandList, this);
 	MemoryUtils::DeleteReleaseableMap<std::string, D3D12PiplineShader>(PSOCache);
-	if (CurrentCommandList != nullptr)
-	{
-		CurrentCommandList->Release();
-	}
+	SafeRelease(CurrentCommandList);
 	MemoryUtils::DeleteReleaseableCArray(m_commandAllocator, RHI::CPUFrameCount);
 	if (PSOCache.size() == 0)
 	{
 		CurrentPipelinestate.Release();
 	}
 }
+
+D3D12CommandList::~D3D12CommandList()
+{}
 
 void D3D12CommandList::ResetList()
 {
@@ -67,7 +68,7 @@ void D3D12CommandList::ResetList()
 }
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
-{
+{	
 	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
 	{
@@ -79,6 +80,7 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 	}
 	else
 	{
+		ensure(!target->IsPendingKill());
 		CurrentRenderTarget = (D3D12FrameBuffer*)target;
 		ensure(CurrentRenderTarget->CheckDevice(Device->GetDeviceIndex()));
 		CurrentRenderTarget->BindBufferAsRenderTarget(CurrentCommandList, SubResourceIndex);
@@ -156,6 +158,7 @@ void D3D12CommandList::WaitForCompletion()
 
 void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 {
+	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
@@ -164,6 +167,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 
 void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 {
+	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
@@ -176,10 +180,11 @@ void D3D12CommandList::SetPipelineState(PipeLineState state)
 }
 
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
-{
+{	
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
-	if (Buffer != nullptr)
+	if (Buffer != nullptr)		
 	{
+		ensure(!Buffer->IsPendingKill());
 		Currentpipestate.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 	}
 	if (Currentpipestate.RenderTargetDesc.NumRenderTargets == 0 && Currentpipestate.RenderTargetDesc.DSVFormat == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
@@ -193,6 +198,7 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 
 void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buffer)
 {
+	ensure(!Buffer->IsPendingKill());
 	bool IsChanged = false;
 	if (PSOCache.find(shader->GetName()) != PSOCache.end())
 	{
@@ -284,6 +290,7 @@ void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, in
 
 void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 {
+	ensure(!Buffer->IsPendingKill());
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
 	ensure(Device == buffer->GetDevice());
 	buffer->CopyToDevice(CurrentCommandList);
@@ -291,6 +298,7 @@ void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 
 void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
 {
+	ensure(!Buffer->IsPendingKill());
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
 	ensure(Device == buffer->GetTargetDevice());
 	buffer->MakeReadyOnTarget(CurrentCommandList);
@@ -298,12 +306,14 @@ void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
 
 void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 {
+	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
 	((D3D12FrameBuffer*)buffer)->ClearBuffer(CurrentCommandList);
 }
 
 void D3D12CommandList::UAVBarrier(RHIUAV * target)
 {
+	ensure(!target->IsPendingKill());
 	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;//todo: counter uav?
 	CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
 }
@@ -330,6 +340,7 @@ void D3D12CommandList::ClearScreen()
 
 void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex)
 {
+	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
 #if 0
@@ -354,6 +365,8 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 {
 	Texture = (D3D12Texture*)texture;
+	ensure(texture);
+	ensure(!texture->IsPendingKill());
 	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()), "Attempted to Bind texture that is not on this device");
 	if (CurrentCommandList != nullptr)
 	{
@@ -368,6 +381,7 @@ void D3D12CommandList::UpdateConstantBuffer(void * data, int offset)
 
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot)
 {
+	ensure(!buffer->IsPendingKill());
 	D3D12Buffer* d3Buffer = (D3D12Buffer*)buffer;
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
 	d3Buffer->SetConstantBufferView(offset, CurrentCommandList, Slot, ListType == ECommandListType::Compute, Device->GetDeviceIndex());
@@ -386,9 +400,9 @@ D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :
 		Device = (D3D12DeviceContext*)inDevice;
 	}
 }
-
-D3D12Buffer::~D3D12Buffer()
+void D3D12Buffer::Release()
 {
+	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12Buffer, this);
 	Device = nullptr;
 	if (CurrentBufferType == RHIBuffer::BufferType::Constant)
@@ -398,6 +412,9 @@ D3D12Buffer::~D3D12Buffer()
 	SafeRelease(m_vertexBuffer);
 	SafeRelease(m_indexBuffer);
 }
+
+D3D12Buffer::~D3D12Buffer()
+{}
 
 void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices)
 {
@@ -489,7 +506,7 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
 		Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 		UploadComplete = true;
 		Device->NotifyWorkForCopyEngine();
-		D3D12RHI::Instance->AddUploadToUsed(m_UploadBuffer);
+		D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(m_UploadBuffer);
 	}
 }
 
@@ -530,7 +547,7 @@ void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
 		nullptr,
 		IID_PPV_ARGS(&m_UploadBuffer)));
 	m_UploadBuffer->SetName(L"Index Buffer Upload Resource Heap");
-	D3D12RHI::Instance->AddUploadToUsed(m_UploadBuffer);
+	D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(m_UploadBuffer);
 	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
 	m_vertexBufferView.StrideInBytes = Stride;
 	m_vertexBufferView.SizeInBytes = vertexBufferSize;
@@ -604,14 +621,16 @@ D3D12RHIUAV::D3D12RHIUAV(DeviceContext * inDevice) : RHIUAV()
 	Device = (D3D12DeviceContext*)inDevice;
 	AddCheckerRef(D3D12RHIUAV, this);
 }
-
-D3D12RHIUAV::~D3D12RHIUAV()
+void D3D12RHIUAV::Release()
 {
+	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12RHIUAV, this);
 	Heap->Release();
 	SafeRelease(UAVCounter);
 	SafeRelease(m_UAV);
 }
+D3D12RHIUAV::~D3D12RHIUAV()
+{}
 
 void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 {
@@ -660,14 +679,12 @@ D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntri
 }
 
 D3D12RHITextureArray::~D3D12RHITextureArray()
-{
-	RemoveCheckerRef(D3D12RHITextureArray, this);
-	delete Heap;
-}
+{}
 
 //Add a framebuffer to this heap and ask it to create one in our heap
 void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 {
+	ensure(!Buffer->IsPendingKill());
 	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
 	ensure(dBuffer->CheckDevice(Device->GetDeviceIndex()));
 	LinkedBuffers.push_back(dBuffer);
@@ -691,4 +708,11 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 void D3D12RHITextureArray::SetIndexNull(int TargetIndex)
 {
 	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Heap->GetCPUAddress(TargetIndex));
+}
+
+void D3D12RHITextureArray::Release()
+{
+	IRHIResourse::Release();
+	RemoveCheckerRef(D3D12RHITextureArray, this);
+	SafeDelete(Heap);
 }

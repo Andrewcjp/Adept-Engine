@@ -53,10 +53,6 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	Desc.AllowUnordedAccess = true;
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	FilterBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
-	if (MainScene == nullptr)
-	{
-		MainScene = new Scene();
-	}
 	SkyBox = new Shader_Skybox();
 	SkyBox->Init(FilterBuffer, nullptr);
 	MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
@@ -101,7 +97,7 @@ void ForwardRenderer::RenderSkybox()
 
 void ForwardRenderer::DestoryRenderWindow()
 {
-	delete MainCommandList;
+	EnqueueSafeRHIRelease( MainCommandList);
 }
 
 void ForwardRenderer::FinaliseRender()

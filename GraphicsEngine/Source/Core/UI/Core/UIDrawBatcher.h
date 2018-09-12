@@ -29,5 +29,6 @@ private:
 	RHIBuffer* VertexBuffer = nullptr;
 	RHICommandList* commandlist = nullptr;
 	const int Max_Verts = 1000;
+	int Current_Max_Verts = UIMin;
 };
 

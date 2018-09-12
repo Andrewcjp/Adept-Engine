@@ -45,7 +45,7 @@ EditorWindow::EditorWindow() :BaseWindow()
 EditorWindow::~EditorWindow()
 {
 	//vectors will clean up after them selves
-	//Clean up the renderable
+	//Clean up the Mesh
 	delete CurrentScene;
 }
 
@@ -86,6 +86,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	Saver->SaveScene(CurrentScene, TestFilePath);
 	Scene* Test = new Scene();
 	Saver->LoadScene(Test, TestFilePath);
+	delete Test;
 #endif
 }
 

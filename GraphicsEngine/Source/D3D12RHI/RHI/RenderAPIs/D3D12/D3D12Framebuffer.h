@@ -43,7 +43,7 @@ public:
 	DeviceContext* GetTargetDevice();
 	DeviceContext* GetDevice() override;
 	GPUResource* GetResource(int index);	
-
+	void Release() override;
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);

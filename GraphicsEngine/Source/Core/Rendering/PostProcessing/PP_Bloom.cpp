@@ -14,8 +14,8 @@ PP_Bloom::~PP_Bloom()
 	delete BlurEffect;
 	delete Compost;
 	delete BloomShader;
-	delete BloomBuffer;
-	delete UAV;
+	EnqueueSafeRHIRelease( BloomBuffer);
+	EnqueueSafeRHIRelease( UAV);
 }
 
 void PP_Bloom::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)

@@ -9,14 +9,6 @@
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/RefChecker.h"
-#if BUILD_VULKAN
-#include "RHI/RenderAPIs/Vulkan/VKanRHI.h"
-#include "RHI/RenderAPIs/Vulkan/VKanCommandlist.h"
-#include "RHI/RenderAPIs/Vulkan/VKanFramebuffer.h"
-#include "RHI/RenderAPIs/Vulkan/VKanShader.h"
-#include "RHI/RenderAPIs/Vulkan/VKanTexture.h"
-#endif
-
 
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
@@ -184,6 +176,32 @@ const MultiGPUMode * RHI::GetMGPUMode()
 	return &CurrentMGPUMode;
 }
 
+void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
+{
+	ensure(!Resource->IsPendingKill());
+	Get()->DeferredDeleteQueue.push_back(RHIResourseStamped(Resource, RHI::GetFrameCount()));
+	Resource->PendingKill = true;
+}
+
+RHI * RHI::Get()
+{
+	return instance;
+}
+
+void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
+{
+	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
+	{
+		const int CurrentFrame = RHI::GetFrameCount();
+		if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount < CurrentFrame || Flush)
+		{
+			SafeRHIRelease(DeferredDeleteQueue[i].first);
+			//delete DeferredDeleteQueue[i].first;
+			DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
+		}
+	}
+}
+
 void RHI::DestoryRHI()
 {
 	if (instance != nullptr)
@@ -217,6 +235,7 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device)
 		return ImageIO::GetDefaultTexture();
 	}
 	ImageIO::RegisterTextureLoad(newtex);
+	//newtex->AddRef();
 	return newtex;
 }
 
@@ -237,12 +256,12 @@ BaseTexture * RHI::CreateNullTexture(DeviceContext * Device)
 	return newtex;
 }
 
-Renderable * RHI::CreateMesh(const char * path)
+Mesh * RHI::CreateMesh(const char * path)
 {
 	return CreateMesh(path, MeshLoader::FMeshLoadingSettings());
 }
 
-Renderable * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings)
+Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	///todo asset paths
 	std::string accpath = AssetManager::GetContentPath();
@@ -287,6 +306,7 @@ void RHI::RHISwapBuffers()
 {
 	GetRHIClass()->RHISwapBuffers();
 	instance->PresentCount++;
+	Get()->TickDeferredDeleteQueue();
 }
 
 void RHI::RHIRunFirstFrame()
@@ -310,6 +330,8 @@ void RHI::ResizeSwapChain(int width, int height)
 
 void RHI::DestoryContext()
 {
+	GetRHIClass()->WaitForGPU();
+	Get()->TickDeferredDeleteQueue(true);
 	GetRHIClass()->DestoryRHI();
 #if DETECT_MEMORY_LEAKS
 	RefCheckerContainer::LogAllRefCounters();

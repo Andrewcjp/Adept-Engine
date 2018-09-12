@@ -39,6 +39,6 @@ void Text_Shader::Update(RHICommandList* lsit)
 
 Text_Shader::~Text_Shader()
 {
-	delete CBV;
+	EnqueueSafeRHIRelease(CBV);
 }
 

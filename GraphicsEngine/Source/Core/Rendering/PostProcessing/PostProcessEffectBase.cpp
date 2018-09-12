@@ -26,8 +26,8 @@ void PostProcessEffectBase::SetUpData()
 
 PostProcessEffectBase::~PostProcessEffectBase()
 {
-	delete CMDlist;
-	delete VertexBuffer;
+	EnqueueSafeRHIRelease(CMDlist);
+	EnqueueSafeRHIRelease(VertexBuffer);
 }
 
 void PostProcessEffectBase::InitEffect(FrameBuffer* Target)

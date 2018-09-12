@@ -15,7 +15,7 @@ public:
 	CORE_API void AddGameobjectToScene(GameObject* gameobject);
 	void CopyScene(Scene * newscene);
 	std::vector<GameObject*>* GetObjects() { return &SceneObjects; }
-	std::vector<GameObject*>* GetRenderableObjects() { return &RenderSceneObjects; }
+	std::vector<GameObject*>* GetMeshObjects() { return &RenderSceneObjects; }
 	void StartScene();
 	void LoadDefault();
 	void LoadExampleScene(RenderEngine * Renderer, bool IsDeferredMode);

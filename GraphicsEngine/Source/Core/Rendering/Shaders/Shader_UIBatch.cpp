@@ -30,7 +30,7 @@ std::vector<Shader::VertexElementDESC> Shader_UIBatch::GetVertexFormat()
 
 Shader_UIBatch::~Shader_UIBatch()
 {
-	delete UniformBuffer;
+	EnqueueSafeRHIRelease(UniformBuffer);
 }
 
 void Shader_UIBatch::PushTOGPU(RHICommandList* list)

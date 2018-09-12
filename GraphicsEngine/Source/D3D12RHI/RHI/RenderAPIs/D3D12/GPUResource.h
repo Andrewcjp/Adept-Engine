@@ -14,7 +14,7 @@ struct GPUMemoryBlock
 };
 
 
-class GPUResource
+class GPUResource : public IRHIResourse
 {
 public:
 	enum eResourceState
@@ -37,7 +37,7 @@ public:
 	void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
 	D3D12_RESOURCE_STATES GetCurrentState();
 	ID3D12Resource* GetResource();
-	void Release();
+	void Release() override;
 	void StartResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
 	void EndResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
 	bool IsTransitioning();

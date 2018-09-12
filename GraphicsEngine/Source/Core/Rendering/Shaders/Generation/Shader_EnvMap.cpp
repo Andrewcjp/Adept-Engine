@@ -1,11 +1,11 @@
 #include "Stdafx.h"
 #include "Shader_EnvMap.h"
-#include "Rendering/Core/Renderable.h"
+#include "Rendering/Core/Mesh.h"
 #include "RHI/RHI_inc.h"
 Shader_EnvMap::Shader_EnvMap()
 {
 	m_Shader = RHI::CreateShaderProgam();
-	
+
 	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("CubeMap_Convolute_IntergrateBRDF_fs", EShaderType::SHADER_FRAGMENT);
 }
@@ -13,12 +13,12 @@ Shader_EnvMap::Shader_EnvMap()
 
 Shader_EnvMap::~Shader_EnvMap()
 {
-	delete CmdList;
+	EnqueueSafeRHIRelease(CmdList);
 	delete QuadDraw;
-	delete ShaderData;
-	delete CubeBuffer;
-	delete Cube;
-	delete EnvBRDFBuffer;
+	EnqueueSafeRHIRelease(ShaderData);
+	EnqueueSafeRHIRelease(CubeBuffer);
+	EnqueueSafeRHIRelease(Cube);
+	EnqueueSafeRHIRelease(EnvBRDFBuffer);
 }
 
 void Shader_EnvMap::Init()
