@@ -123,6 +123,10 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 {
 	for (int i = 0; i < lights.size(); i++)
 	{
+		if (i >= MAX_LIGHTS)
+		{
+			continue;
+		}
 		LightUniformBuffer newitem;
 		newitem.position = lights[i]->GetPosition();
 		newitem.color = glm::vec3(lights[i]->GetColor());

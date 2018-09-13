@@ -4,6 +4,7 @@
 #include "RHI/RHI.h"
 #include "RHI/RHICommandList.h"
 #include "Core/Assets/Archive.h"
+#include "Core/Assets/AssetManager.h"
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
@@ -64,9 +65,24 @@ void MeshRendererComponent::InitComponent()
 void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 {
 	Component::ProcessSerialArchive(A);
-	if (m_mesh != nullptr)
+	if (A->IsReading())
 	{
-		ArchiveProp(m_mesh->AssetName);
+		std::string Assetname;
+		ArchiveProp_Alias(Assetname, m_mesh->AssetName);
+		if (!Assetname.empty())
+		{
+			m_mesh = RHI::CreateMesh(Assetname.c_str());
+		}
+		m_mat = Material::GetDefaultMaterial();
+		m_mat->ProcessSerialArchive(A);
+	}
+	else
+	{
+		if (m_mesh != nullptr)
+		{
+			ArchiveProp(m_mesh->AssetName);
+		}
+		m_mat->ProcessSerialArchive(A);
 	}
 }
 

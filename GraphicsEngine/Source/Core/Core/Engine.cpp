@@ -64,7 +64,9 @@ Engine::Engine()
 	}
 	AssetManager::StartAssetManager();
 	CompRegistry = new CompoenentRegistry();
+#if 	RUNTESTS
 	FString::RunFStringTests();
+#endif
 	ModuleManager::Get()->PreLoadModules();
 }
 
@@ -104,7 +106,7 @@ void Engine::Destory()
 void Engine::LoadGame()
 {
 	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>("TestGame");
-	ensure(Gamemodule);	
+	ensure(Gamemodule);
 	if (Gamemodule == nullptr)
 	{
 		return;
@@ -213,11 +215,12 @@ bool Engine::GetWindowValid() const
 
 void Engine::Exit(int code)
 {
+	Log::LogMessage("Exit code " + std::to_string(code));
 	PlatformWindow::DestroyApplication();
 	if (EngineInstance != nullptr)
 	{
 		EngineInstance->Destory();
-		delete EngineInstance;		
+		delete EngineInstance;
 	}
 	exit(code);
 }

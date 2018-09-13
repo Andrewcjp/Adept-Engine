@@ -33,6 +33,7 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	SafeRelease(m_CopyCommandAllocator);	
 	delete TimeManager;
 	SafeRHIRelease(GPUCopyList);
+	SafeRHIRelease(InterGPUCopyList);
 	SafeRelease(m_IntraCopyList);
 	SafeRelease(m_SharedCopyCommandQueue);
 	SafeRelease(m_ComputeCommandQueue);
@@ -136,9 +137,10 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	//GetDevice()->SetStablePowerState(false);
 
 	TimeManager = new D3D12TimeManager(this);
-
-	GPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
-
+	GPUCopyList = new D3D12CommandList(this, ECommandListType::Graphics);
+	InterGPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
+	((D3D12CommandList*)GPUCopyList)->CreateCommandList();
+	GPUCopyList->ResetList();
 }
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
@@ -163,7 +165,7 @@ ID3D12CommandAllocator * D3D12DeviceContext::GetComputeCommandAllocator()
 
 ID3D12CommandAllocator * D3D12DeviceContext::GetCopyCommandAllocator()
 {
-	return m_CopyCommandAllocator;
+	return nullptr;
 }
 ID3D12CommandAllocator * D3D12DeviceContext::GetSharedCommandAllocator()
 {
@@ -183,7 +185,7 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 	}
 	GetCommandAllocator()->Reset();
 	GetSharedCommandAllocator()->Reset();
-	GetCopyCommandAllocator()->Reset();
+	ResetCopyEngine();
 	//compute work could run past the end of a frame?
 }
 
@@ -227,7 +229,7 @@ void D3D12DeviceContext::WaitForCopy()
 }
 ID3D12GraphicsCommandList * D3D12DeviceContext::GetCopyList()
 {
-	return m_CopyList;
+	return ((D3D12CommandList*)GPUCopyList)->GetCommandList();
 }
 
 ID3D12GraphicsCommandList * D3D12DeviceContext::GetSharedCopyList()
@@ -246,21 +248,21 @@ void D3D12DeviceContext::NotifyWorkForCopyEngine()
 }
 
 void D3D12DeviceContext::UpdateCopyEngine()
-{
+{	
 	if (CopyEngineHasWork)
-	{
-		ThrowIfFailed(m_CopyList->Close());
-		ExecuteCopyCommandList(m_CopyList);
-		/*ThrowIfFailed(m_CopyCommandAllocator->Reset());
-		ThrowIfFailed(m_CopyList->Reset(m_CopyCommandAllocator, nullptr));*/
-		CopyEngineHasWork = false;
+	{				
+		//CopyEngineHasWork = false;
+		GPUCopyList->Execute();
 	}
-
+	
 }
 
 void D3D12DeviceContext::ResetCopyEngine()
 {
-	ThrowIfFailed(m_CopyList->Reset(m_CopyCommandAllocator, nullptr));
+	if (CopyEngineHasWork)
+	{
+		GPUCopyList->ResetList();
+	}
 }
 
 void D3D12DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * list)
@@ -335,7 +337,7 @@ void D3D12DeviceContext::CPUWaitForAll()
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
 	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
-	ComputeQueueSync.CreateSyncPoint(m_commandQueue);
+	ComputeQueueSync.CreateSyncPoint(m_ComputeCommandQueue);
 }
 
 ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQueue::Type value)
@@ -371,7 +373,7 @@ void D3D12DeviceContext::WaitForGPU(DeviceContextQueue::Type WaitingQueue, Devic
 
 RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()
 {
-	return GPUCopyList;
+	return InterGPUCopyList;
 }
 
 GPUSyncPoint::~GPUSyncPoint()

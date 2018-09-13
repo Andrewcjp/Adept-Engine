@@ -43,7 +43,7 @@ void RenderEngine::Render()
 	}
 	if ((*MainScene->GetMeshObjects()).size() == 0)
 	{
-		return;
+		//return;
 	}
 	PreRender();
 	OnRender();

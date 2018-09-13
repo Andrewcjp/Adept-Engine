@@ -116,9 +116,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 
 	if (!FileUtils::File_ExistsTest(path))
 	{
-#ifdef  _DEBUG
-		__debugbreak();
-#endif
+		DebugEnsure(false);
 		return EShaderError::SHADER_ERROR_NOFILE;
 	}
 	if (ShaderType == EShaderType::SHADER_COMPUTE)
@@ -224,12 +222,17 @@ bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const 
 		return false;
 	}
 	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + GetShaderNamestr(Name, InstanceHash);
+#if BUILD_SHIPPING
+	ensure(FileUtils::File_ExistsTest(ShaderPath));
+	ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
+#else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, InstanceHash))
 	{
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 		return true;
 	}
 	return false;
+#endif
 }
 
 void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type type)

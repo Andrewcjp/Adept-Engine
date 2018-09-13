@@ -40,5 +40,5 @@ const CapabilityData & DeviceContext::GetCaps()
 
 RHICommandList * DeviceContext::GetInterGPUCopyList()
 {
-	return GPUCopyList;
+	return InterGPUCopyList;
 }

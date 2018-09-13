@@ -49,7 +49,7 @@ void PP_Blur::PostInitEffect(FrameBuffer* Target)
 {
 	if (UAV != nullptr)
 	{
-		delete UAV;
+		EnqueueSafeRHIRelease(UAV);
 	}
 	else
 	{

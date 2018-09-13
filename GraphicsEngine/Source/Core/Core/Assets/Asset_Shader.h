@@ -9,6 +9,7 @@ public:
 	~Asset_Shader();
 	bool IsGraph = false;
 	class Material* GetMaterialInstance();
+	void GetMaterialInstance(Material * mat);
 private:
 
 	class ShaderGraph* Graph;

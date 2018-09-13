@@ -9,10 +9,10 @@ public:
 
 	void CopyToOutput();
 	void CopyFolderToOutput(std::string Target, std::string PathFromBuild);
-		bool CopyAssetToOutput(std::string RelTarget);
+	bool CopyAssetToOutput(std::string RelTarget);
 	void CreatePackage();
 private:
 	std::string OutputPath = "\\Build";
-	AssetManager* AssetM;
+	AssetManager* AssetM = nullptr;
 };
 

@@ -53,9 +53,10 @@ D3D12CommandList::~D3D12CommandList()
 void D3D12CommandList::ResetList()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("ResetList", "RHI");
-	ensure(!IsOpen);
+	ensure(!m_IsOpen);
 	ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
-	IsOpen = true;
+	m_IsOpen = true;
+	ensure(CurrentCommandList != nullptr);
 	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState));
 	if (ListType == ECommandListType::Graphics)
 	{
@@ -68,7 +69,7 @@ void D3D12CommandList::ResetList()
 }
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
-{	
+{
 	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
 	{
@@ -89,7 +90,7 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 
 void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
-	ensure(IsOpen);
+	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
 	if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE)
 	{
@@ -148,7 +149,7 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 	{
 		mDeviceContext->ExecuteInterGPUCopyCommandList(CurrentCommandList);
 	}
-	IsOpen = false;
+	m_IsOpen = false;
 }
 
 void D3D12CommandList::WaitForCompletion()
@@ -180,9 +181,9 @@ void D3D12CommandList::SetPipelineState(PipeLineState state)
 }
 
 void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
-{	
+{
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
-	if (Buffer != nullptr)		
+	if (Buffer != nullptr)
 	{
 		ensure(!Buffer->IsPendingKill());
 		Currentpipestate.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
@@ -198,7 +199,10 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 
 void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buffer)
 {
-	ensure(!Buffer->IsPendingKill());
+	if (Buffer != nullptr)
+	{
+		ensure(!Buffer->IsPendingKill());
+	}
 	bool IsChanged = false;
 	if (PSOCache.find(shader->GetName()) != PSOCache.end())
 	{
@@ -214,7 +218,7 @@ void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buf
 		IsChanged = true;
 		Log::LogMessage("Created a PSO at runtime", Log::Severity::Warning);
 	}
-	if (IsChanged)
+	if (IsChanged && IsOpen())
 	{
 		CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
 		CurrentCommandList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
@@ -265,7 +269,10 @@ void D3D12CommandList::CreateCommandList()
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentCommandList)));
 		CurrentCommandList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
-		CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
+		if (CurrentPipelinestate.m_pipelineState != nullptr)
+		{
+			CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
+		}
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Compute)
@@ -318,6 +325,12 @@ void D3D12CommandList::UAVBarrier(RHIUAV * target)
 	CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
 }
 
+ID3D12GraphicsCommandList * D3D12CommandList::GetCommandList()
+{
+	ensure(m_IsOpen);
+	return CurrentCommandList;
+}
+
 void D3D12CommandList::SetScreenBackBufferAsRT()
 {
 	ensure(ListType == ECommandListType::Graphics);
@@ -356,7 +369,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	else
 	{
 		GPUStateCache::instance->TextureBuffers[slot] = DBuffer;
-	}
+}
 #endif
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));

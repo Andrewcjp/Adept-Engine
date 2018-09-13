@@ -76,6 +76,14 @@ std::string ShaderGraph::GetTemplateName()
 
 bool ShaderGraph::Complie()
 {
+#if BUILD_SHIPPING
+	//Temp For Default Materials
+	for (int i = 0; i < Nodes.size(); i++)
+	{
+		Nodes[i]->GetComplieCode();
+	}
+	return true;
+#endif
 	std::string MainShader = AssetManager::instance->LoadFileWithInclude(GetTemplateName());
 	ensure(!MainShader.empty());
 	std::vector<std::string> split = StringUtils::Split(MainShader, '\n');
@@ -93,7 +101,6 @@ bool ShaderGraph::Complie()
 		if (split[i].find(TargetDefineMarker) != -1)
 		{
 			DeclareStartindex = i;
-			/*Pre = false;*/
 		}
 		if (split[i].find(TargetMarker) != -1)
 		{

@@ -54,6 +54,37 @@ std::string & FString::ToSString()
 	return  UnderlyingString;
 }
 
+
+std::wstring & FString::ToWideString()
+{
+	if (!WideCached)
+	{
+		WideString = StringUtils::ConvertStringToWide(UnderlyingString);
+	}
+	return WideString;
+}
+
+bool FString::operator==(const FString & b) const
+{
+	if (Hash == -1 || b.Hash == -1)
+	{
+		return UnderlyingString == b.UnderlyingString;
+	}
+	return Hash == b.Hash;
+}
+
+void FString::SetupHash()
+{
+	if (Hash != -1)
+	{
+		return;
+	}
+	Hash = std::hash<std::string>{} (UnderlyingString);
+}
+
+
+
+#if RUNTESTS
 void FString::RunFStringTests()
 {
 	FString test = FString("hello");
@@ -104,31 +135,4 @@ void FString::RunPerfTests()
 {
 	Test(1000, "FString Hashed ", "FString String ");
 }
-
-
-std::wstring & FString::ToWideString()
-{
-	if (!WideCached)
-	{
-		WideString = StringUtils::ConvertStringToWide(UnderlyingString);
-	}
-	return WideString;
-}
-
-bool FString::operator==(const FString & b) const
-{
-	if (Hash == -1 || b.Hash == -1)
-	{
-		return UnderlyingString == b.UnderlyingString;
-	}
-	return Hash == b.Hash;
-}
-
-void FString::SetupHash()
-{
-	if (Hash != -1)
-	{
-		return;
-	}
-	Hash = std::hash<std::string>{} (UnderlyingString);
-}
+#endif

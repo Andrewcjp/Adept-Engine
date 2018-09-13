@@ -20,13 +20,11 @@ public:
 	void SceneInitComponent() override final;
 	void PostChangeProperties() override;
 private:
-	Light* MLight;
-	float DefaultIntesity = 10.0;
-	float intensity = 0;
-	Light::LightType DefaultType = Light::Point;
-	glm::vec3 DefaultColour = glm::vec3(1);
-	bool DefaultShadow = false;
-	bool Shadow = false;
+	Light* MLight = nullptr;
+	float CurrentIntensity = 0.0f;
+	Light::LightType CurrentType = Light::Point;
+	glm::vec3 CurrentColour = glm::vec3(1);
+	bool DoesShadow = false;
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
 	virtual void ProcessSerialArchive(class Archive* Arch) override;
 };

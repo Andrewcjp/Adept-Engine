@@ -34,17 +34,21 @@ public:
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
-	ID3D12GraphicsCommandList* GetCommandList() { return CurrentCommandList; }
+	ID3D12GraphicsCommandList* GetCommandList();
 	void CreateCommandList();
 	void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
 
 	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer)override;
 	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer)override;
 	void Release()override;
+	bool IsOpen()
+	{
+		return m_IsOpen;
+	}
 private:
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList * CurrentCommandList = nullptr;
-	bool IsOpen = false;
+	bool m_IsOpen = false;
 	D3D12PiplineShader				CurrentPipelinestate;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();
