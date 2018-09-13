@@ -8,7 +8,7 @@ MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;
 	SplitShadowWork = false;
-	ComputePerFrameShadowDataOnExCard = false;
+	ComputePerFrameShadowDataOnExCard = true;
 	PSComputeWorkSplit = false;
 }
 
@@ -25,7 +25,7 @@ void MultiGPUMode::ValidateSettings()
 
 RenderSettings::RenderSettings()
 {
-	ShadowMapSize = 1024;
+	ShadowMapSize = 2024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	if (IsDeferred)
 	{

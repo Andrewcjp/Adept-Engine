@@ -5,6 +5,10 @@
 #include "RHI/RHICommandList.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Assets/Asset_Shader.h"
+#include "Core/Assets/ImageIO.h"
+#include "Core/Assets/Archive.h"
+#include "Core/Assets/SerialHelpers.h"
+#include "Core/Assets/AssetManager.h"
 Asset_Shader* Material::DefaultMaterial = nullptr;
 
 Material::Material(BaseTexture * Diff, MaterialProperties props) :Material(props)
@@ -23,7 +27,6 @@ Material::Material(MaterialProperties props)
 	{
 		CurrentBindSet = new TextureBindSet(*Properties.TextureBinds);
 	}
-	SetupBindings();
 }
 
 Material::~Material()
@@ -39,7 +42,14 @@ void Material::SetMaterialActive(RHICommandList* list)
 {
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
-		list->SetTexture(Pair.second.TextureObj, Pair.second.RootSigSlot);
+		if (Pair.second.TextureObj == nullptr)
+		{
+			list->SetTexture(ImageIO::GetDefaultTexture(), Pair.second.RootSigSlot);
+		}
+		else
+		{
+			list->SetTexture(Pair.second.TextureObj, Pair.second.RootSigSlot);
+		}		
 	}
 }
 
@@ -132,6 +142,67 @@ Shader * Material::GetDefaultMaterialShader()
 	return DefaultMaterial->GetMaterialInstance()->GetProperties()->ShaderInUse;
 }
 
+void SerialTextureBind(Archive * A, Material::TextureBindData* object)
+{
+	ArchiveProp(object->RegisterSlot);
+	ArchiveProp(object->RootSigSlot);
+	if (A->IsReading())
+	{
+		std::string Name;
+		ArchiveProp_Alias(Name, object->TextureObj->TexturePath);
+		object->TextureObj = AssetManager::DirectLoadTextureAsset(Name);
+		object->TextureObj->AddRef();
+	}
+	else
+	{
+		ArchiveProp(object->TextureObj->TexturePath);
+	}
+}
+
+void Material::ProcessSerialArchive(Archive * A)
+{
+
+	ArchiveProp(Properties.Metallic);
+	ArchiveProp(Properties.Roughness);
+	if (A->IsReading())
+	{
+		std::string ShaderName = "";
+		ArchiveProp_Alias(ShaderName, Properties.ShaderInUse->GetName());
+		//TEMP
+		Asset_Shader* NewShader = nullptr;
+		if (ShaderName == "Test")
+		{
+			NewShader = new Asset_Shader();
+			NewShader->SetupTestMat();
+		}
+		else if (ShaderName == "Test2")
+		{
+			NewShader = new Asset_Shader();
+			NewShader->SetupSingleColour();
+		}
+		else 
+		{
+			Properties.ShaderInUse = Material::GetDefaultMaterialShader();
+		}
+		if (NewShader != nullptr)
+		{
+			NewShader->GetMaterialInstance(this);
+			//CurrentBindSet->BindMap = Properties.TextureBinds;
+		}		
+	}
+	else
+	{
+		std::string tmp = Properties.ShaderInUse->GetName();
+		ArchiveProp_Alias(tmp, Properties.ShaderInUse->GetName());
+	}
+	if (A->IsReading())
+	{
+		CurrentBindSet->BindMap.clear();
+	}
+	A->LinkPropertyMap<std::string, Material::TextureBindData>(CurrentBindSet->BindMap, "CurrentBindSet->BindMap", &SerialTextureBind);
+
+}
+
 void Material::SetupDefaultBinding(TextureBindSet* TargetSet)
 {
 	TargetSet->BindMap.clear();
@@ -139,17 +210,3 @@ void Material::SetupDefaultBinding(TextureBindSet* TargetSet)
 	TargetSet->BindMap.emplace("NORMALMAP", TextureBindData{ nullptr, NORMALMAP });
 }
 
-void Material::SetupBindings()
-{
-	return;
-	////init to zero binds
-	//std::map<std::string, Material::TextureBindData>::iterator it;
-	//for (it = CurrentBindSet->BindMap.begin(); it != CurrentBindSet->BindMap.end(); it++)
-	//{
-	//	it->second.TextureObj = NullTexture2D;
-	//}
-	//for (int i = 0; i < CurrentBindSet->BindMap.size(); i++)
-	//{
-	//	NullTexture2D->AddRef();
-	//}
-}

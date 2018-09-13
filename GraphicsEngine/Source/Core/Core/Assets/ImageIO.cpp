@@ -114,6 +114,11 @@ bool ImageIO::IN_CheckIfLoaded(std::string name, BaseTexture ** out)
 	{
 		if (LoadedTextures[i]->TexturePath == name)
 		{
+			if (LoadedTextures[i]->IsPendingKill())
+			{
+				LoadedTextures.erase(LoadedTextures.begin() + i);
+				return false;
+			}
 			*out = (LoadedTextures[i]);
 			return true;
 		}

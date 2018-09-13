@@ -40,7 +40,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	const int ShadowMapSize = RHI::GetRenderSettings()->ShadowMapSize;
 	for (int i = 0; i < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS; i++)
 	{
-		if (i == 2 && RHI::GetMGPUMode()->SplitShadowWork)
+		if ((i == 2 /*|| i== 3*/) && RHI::GetMGPUMode()->SplitShadowWork)
 		{
 			LightInteractions.push_back(new ShadowLightInteraction(RHI::GetDeviceContext(1), true, ShadowMapSize));
 			ShadowCubeArray->SetIndexNull(2);
@@ -339,14 +339,14 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	}
 	PipeLineState pipestate = PipeLineState{ true,false,false };
 	pipestate.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
-	//PointShadowList->SetPipelineState(pipestate);
-	PointShadowList->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
+	PointShadowList->SetPipelineState(pipestate);
+	PointShadowList->SetPipelineStateObject(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
 
-	//PointShadowListALT->SetPipelineState(pipestate);
-//	PointShadowListALT->CreatePipelineState(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
+	PointShadowListALT->SetPipelineState(pipestate);
+	PointShadowListALT->SetPipelineStateObject(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
 
-	//	DirectionalShadowList->SetPipelineState(pipestate);
-	DirectionalShadowList->CreatePipelineState(DirectionalLightShader, DirectionalLightBuffer);
+	DirectionalShadowList->SetPipelineState(pipestate);
+	DirectionalShadowList->SetPipelineStateObject(DirectionalLightShader, DirectionalLightBuffer);
 
 }
 

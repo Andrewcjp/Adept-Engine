@@ -390,8 +390,18 @@ void D3D12RHI::ExecSetUpList()
 	{
 		SecondaryDevice->UpdateCopyEngine();
 	}
-	WaitForGpu();
+	PrimaryDevice->CPUWaitForAll();
+	if (SecondaryDevice != nullptr)
+	{
+		SecondaryDevice->CPUWaitForAll();
+	}
 	ReleaseUploadHeap();
+	PrimaryDevice->ResetCopyEngine();
+	if (SecondaryDevice != nullptr)		
+	{
+		SecondaryDevice->ResetCopyEngine();
+		SecondaryDevice->ResetWork();//turn off the copy engine
+	}
 }
 
 void D3D12RHI::ReleaseUploadHeap()
@@ -429,7 +439,6 @@ void D3D12RHI::ExecList(ID3D12GraphicsCommandList* list, bool Block)
 
 void D3D12RHI::PresentFrame()
 {
-
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(PrimaryDevice->GetCommandAllocator(), nullptr);
@@ -461,7 +470,11 @@ void D3D12RHI::PresentFrame()
 			SecondaryDevice->WaitForGpu();
 		}
 	}
-
+	PrimaryDevice->UpdateCopyEngine();
+	if (SecondaryDevice != nullptr)
+	{
+		SecondaryDevice->UpdateCopyEngine();
+	}
 	MoveToNextFrame();
 	PrimaryDevice->CurrentFrameIndex = m_frameIndex;
 	if (SecondaryDevice != nullptr)
@@ -469,13 +482,10 @@ void D3D12RHI::PresentFrame()
 		SecondaryDevice->CurrentFrameIndex = m_frameIndex;
 	}
 	//all execution this frame has finished 
-	//so all resources should be in the correct state!
+	//so all resources should be in the correct state!	
+	
 	ReleaseUploadHeap();
-	PrimaryDevice->UpdateCopyEngine();
-	if (SecondaryDevice != nullptr)
-	{
-		SecondaryDevice->UpdateCopyEngine();
-	}
+	const int CurrentFrame = RHI::GetFrameCount();
 	PrimaryDevice->ResetDeviceAtEndOfFrame();
 	if (SecondaryDevice != nullptr)
 	{

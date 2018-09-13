@@ -98,6 +98,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\grasshillalbedo.png"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("DefaultTerrain.obj"), mat));
+	go->AttachComponent(new LightComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
@@ -169,7 +170,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go = new GameObject("Test");
 	mat = NormalMapShader->GetMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
+	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -194,7 +195,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go = new GameObject("Plane");
 	mat = NormalMapShader->GetMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
+	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
 //	mat->SetDisplacementMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_disp.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
@@ -205,7 +206,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go = new GameObject("Plane");
 	mat = NormalMapShader->GetMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
+	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 20, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -273,7 +274,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			AddGameobjectToScene(go);
 		}
 	}
-	SafeRHIRefRelease(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
+	SafeRHIRefRelease(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
 	FrameBuffer* fv = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), RHIFrameBufferDesc::CreateColour(1, 1));
 	EnqueueSafeRHIRelease(fv);
 }

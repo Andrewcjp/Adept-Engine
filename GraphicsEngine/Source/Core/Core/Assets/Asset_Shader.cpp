@@ -20,7 +20,7 @@ Asset_Shader::Asset_Shader(bool GenDefault)
 
 void Asset_Shader::SetupSingleColour()
 {
-	Graph = new ShaderGraph("Test");
+	Graph = new ShaderGraph("Test2");
 	Graph->SolidColour();
 	Graph->Complie();
 }
@@ -41,4 +41,10 @@ Material * Asset_Shader::GetMaterialInstance()
 	Props.ShaderInUse = Graph->GetGeneratedShader();
 	Props.TextureBinds = Graph->GetMaterialData();
 	return new Material(Props);
+}
+void Asset_Shader::GetMaterialInstance(Material* mat)
+{
+	Material::MaterialProperties Props = Material::MaterialProperties();
+	mat->GetProperties()->ShaderInUse = Graph->GetGeneratedShader();
+	mat->GetProperties()->TextureBinds = Graph->GetMaterialData();
 }

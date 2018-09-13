@@ -42,6 +42,6 @@ private:
 	Camera* CurrentCamera = nullptr;
 	
 	
-	LightingEnviromentData LightingData;
+	LightingEnviromentData LightingData = LightingEnviromentData();
 };
 

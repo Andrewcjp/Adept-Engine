@@ -53,7 +53,7 @@ void PP_Bloom::PostInitEffect(FrameBuffer * Target)
 {
 	if (UAV != nullptr)
 	{
-		delete UAV;
+		EnqueueSafeRHIRelease(UAV);
 	}
 	else
 	{
@@ -63,7 +63,7 @@ void PP_Bloom::PostInitEffect(FrameBuffer * Target)
 	UAV = RHI::CreateUAV(RHI::GetDeviceContext(0));
 	if (BloomBuffer != nullptr)
 	{
-		delete BloomBuffer;
+		EnqueueSafeRHIRelease(BloomBuffer);
 	}
 	RHIFrameBufferDesc Desc = Target->GetDescription();
 	

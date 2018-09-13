@@ -15,10 +15,12 @@
 #define STATS 0
 #define DOCHECK 1
 #define DOFULLCHECK 0
+#define RUNTESTS 0
 #else
 #define STATS 1
 #define DOCHECK 1
 #define DOFULLCHECK 1
+#define RUNTESTS 1
 #endif
 
 #if STATS

@@ -66,7 +66,7 @@ private:
 	struct MVBuffer MV_Buffer;
 	LightBufferW LightsBuffer;
 	int MaxConstant = 125;
-	std::vector<SceneConstantBuffer> SceneBuffer;
+	std::vector<SceneConstantBuffer> SceneBuffer = std::vector<SceneConstantBuffer>();
 	class Scene* TargetScene = nullptr;
 	class Shader_NodeGraph* WorldDefaultMatShader = nullptr;
 };

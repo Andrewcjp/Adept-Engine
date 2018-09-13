@@ -84,9 +84,11 @@ void EditorWindow::PostInitWindow(int w, int h)
 #if TEST_SERIAL
 	std::string TestFilePath = AssetManager::GetContentPath() + "Test\\Test.Scene";
 	Saver->SaveScene(CurrentScene, TestFilePath);
-	Scene* Test = new Scene();
-	Saver->LoadScene(Test, TestFilePath);
-	delete Test;
+	delete CurrentScene;
+	CurrentScene = new Scene();
+	Saver->LoadScene(CurrentScene, TestFilePath);
+	Renderer->SetScene(CurrentScene);
+	RefreshScene();
 #endif
 }
 

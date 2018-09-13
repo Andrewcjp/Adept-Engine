@@ -27,8 +27,11 @@ namespace MemoryUtils
 	{
 		for (int i = 0; i < Length; i++)
 		{
-			target[i]->Release();
-			target[i] = nullptr;
+			if (target[i] != nullptr)
+			{
+				target[i]->Release();
+				target[i] = nullptr;
+			}
 		}
 	}
 	template<typename T>

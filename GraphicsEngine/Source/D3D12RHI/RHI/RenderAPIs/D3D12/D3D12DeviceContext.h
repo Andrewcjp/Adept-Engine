@@ -107,13 +107,15 @@ public:
 	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);
 	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
 	void WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
-
+	void ResetWork()
+	{
+		CopyEngineHasWork = false;
+	}
 	RHICommandList* GetInterGPUCopyList();
 private:	
 	void CheckFeatures();
 	bool LogDeviceDebug = true;
-	int DeviceIndex = 0;
-	
+
 	//Device Data
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;
 	ID3D12Device* m_Device = nullptr;
@@ -144,7 +146,5 @@ private:
 	GPUSyncPoint CrossAdaptorSync;
 
 	class D3D12TimeManager* TimeManager = nullptr;
-	//copy queue management 
-	bool CopyEngineHasWork = false;
 };
 

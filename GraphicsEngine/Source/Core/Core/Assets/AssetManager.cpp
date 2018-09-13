@@ -180,29 +180,33 @@ void AssetManager::SetupPaths()
 		PlatformApplication::DisplayMessageBox("Error", "No Content Dir");
 		Engine::Exit(-1);
 	}
+	DDCDirPath = RootDir + "\\" + DDCName + "\\";
+	PlatformApplication::TryCreateDirectory(DDCDirPath);
+
+#if WITH_EDITOR
 	ShaderDirPath = RootDir + "\\Shaders\\";
 	if (!FileUtils::File_ExistsTest(ShaderDirPath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", "No Shader Dir");
 		Engine::Exit(-1);
 	}
-	DDCDirPath = RootDir + "\\" + DDCName + "\\";
-	PlatformApplication::TryCreateDirectory(DDCDirPath);
-
 	TextureGenScriptPath = RootDir + "\\Scripts\\ConvertToDDS.bat";
 	ScriptDirPath = RootDir + "\\Scripts\\";
 	if (!FileUtils::File_ExistsTest(TextureGenScriptPath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", "Texture Get Script Missing");
 	}
+#endif
 }
 
 AssetManager::AssetManager()
 {
-	SetupPaths();
-	LoadFromShaderDir();
+	SetupPaths();	
 	PlatformApplication::TryCreateDirectory(GetDDCPath());
-#if BUILD_PACKAGE
+#if !BUILD_SHIPPING
+	LoadFromShaderDir();
+#endif
+#if 0//BUILD_PACKAGE
 	if (PreLoadTextShaders)
 	{
 		if (FileUtils::File_ExistsTest(Engine::GetExecutionDir() + ShaderCookedFile))
@@ -346,6 +350,9 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool Direct
 	}
 	else
 	{
+#if BUILD_SHIPPING
+		Log::OutS << "File '" << Fileref.Name << "' Is missing from the cooked data" << Log::OutS;
+#else
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist in the DDC Generating Now" << Log::OutS;
 		//generate one! BC1_UNORM  
 		std::string Args = " " + GetScriptPath();
@@ -362,6 +369,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool Direct
 		{
 			Log::OutS << "File '" << Fileref.Name << "' Failed To Generate!" << Log::OutS;
 		}
+#endif
 	}
 	return ImageIO::GetDefaultTexture();
 }

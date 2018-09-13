@@ -36,7 +36,7 @@ public:
 
 	void UpdateBind(std::string Name, BaseTexture * NewTex);
 	BaseTexture* GetTexturebind(std::string Name);
-
+	typedef std::pair<std::string, Material::TextureBindData> FlatMap;
 	void SetShadow(bool state);
 	bool GetDoesShadow();
 	MaterialProperties* GetProperties();
@@ -47,10 +47,10 @@ public:
 	static void SetupDefaultMaterial();
 	static Material* GetDefaultMaterial();
 	static Shader* GetDefaultMaterialShader();
+	void ProcessSerialArchive(class Archive* A);
 private:
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);
-	void SetupBindings();
 	MaterialProperties Properties;
 	//bind to null
 	static class Asset_Shader* DefaultMaterial;

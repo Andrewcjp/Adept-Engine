@@ -269,7 +269,9 @@ Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Sett
 	apath.append(path);
 	accpath.append(apath);//todo remove
 	AssetManager::RegisterMeshAssetLoad(apath);
-	return new Mesh(accpath, Settings);
+	Mesh* newmesh = new Mesh(accpath, Settings);
+	newmesh->AssetName = path;
+	return newmesh;
 }
 
 FrameBuffer * RHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc & Desc)
@@ -304,9 +306,9 @@ void RHI::InitialiseContext(int w, int h)
 
 void RHI::RHISwapBuffers()
 {
-	GetRHIClass()->RHISwapBuffers();
-	instance->PresentCount++;
+	GetRHIClass()->RHISwapBuffers();	
 	Get()->TickDeferredDeleteQueue();
+	instance->PresentCount++;
 }
 
 void RHI::RHIRunFirstFrame()

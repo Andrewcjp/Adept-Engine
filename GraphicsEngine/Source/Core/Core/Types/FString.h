@@ -9,13 +9,16 @@ public:
 	~FString();
 	bool Contains(FString Target);	
 	std::string& ToSString();
-	static void RunFStringTests();
-	
 	std::wstring& ToWideString();
 	bool operator==(const FString &b) const;
 	void SetupHash();
+#if RUNTESTS
+	static void RunFStringTests();
+#endif
 private:
+#if RUNTESTS
 	static void RunPerfTests();
+#endif
 	bool WideCached = false;
 	std::string UnderlyingString;
 	std::wstring WideString;

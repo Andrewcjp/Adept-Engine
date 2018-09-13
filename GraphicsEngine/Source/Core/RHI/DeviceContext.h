@@ -38,6 +38,7 @@ protected:
 	int DeviceIndex = 0;
 	//copy queue management 
 	bool CopyEngineHasWork = false;
+	RHICommandList* InterGPUCopyList = nullptr;
 	RHICommandList* GPUCopyList = nullptr;
 	CapabilityData Caps_Data = CapabilityData();
 };
