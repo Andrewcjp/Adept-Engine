@@ -1,17 +1,15 @@
 #pragma once
-
 #include "Core/Utils/MovingAverage.h"
 #include "RHI/RHITypes.h"
 #include "RHI/RHITimeManager.h"
 #include <d3dx12.h>
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
-#define MAX_TIMER_COUNT 8
 
 class D3D12TimeManager : public RHITimeManager
 {
 public:
-	
+
 	D3D12TimeManager(class DeviceContext* context);
 	~D3D12TimeManager();
 	void UpdateTimers() override;
@@ -29,7 +27,7 @@ public:
 	void EndTotalGPUTimer(ID3D12GraphicsCommandList * ComandList);
 	void ResolveCopyTimeHeaps(RHICommandList * ComandList) override;
 private:
-	float AVGgpuTimeMS = 0;	
+	float AVGgpuTimeMS = 0;
 	struct GPUTimer
 	{
 		std::string name;
@@ -44,24 +42,28 @@ private:
 	bool TimerStarted = false;
 #if GPUTIMERS_FULL
 	const int MaxTimerCount = EGPUTIMERS::LIMIT;
+	static const int TotalMaxTimerCount = EGPUTIMERS::LIMIT + EGPUCOPYTIMERS::LIMIT;
 	const int MaxTimeStamps = MaxTimerCount * 2;
+	const bool EnableCopyTimers = true;
 #else 
 	const int MaxTimerCount = 1;
-	const int MaxTimeStamps =  2;
+	static const int TotalMaxTimerCount = 1;
+	const int MaxTimeStamps = 2;
+	const bool EnableCopyTimers = false;
 #endif
 	int MaxIndexInUse = 0;
+	const int CopyOffset = EGPUTIMERS::LIMIT;
 	void Init(DeviceContext * context);
-	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, UINT64 ClockFreq, bool CopyList);
+	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, UINT64 ClockFreq, bool CopyList,int offset);
 
 	MovingAverage avg = MovingAverage(AVGTIME);
 	ID3D12QueryHeap* m_timestampQueryHeaps;
 	ID3D12Resource* m_timestampResultBuffers;
 	UINT64 m_directCommandQueueTimestampFrequencies = 1;
 	UINT64 m_copyCommandQueueTimestampFrequencies = 1;
-	GPUTimer TimeDeltas[EGPUTIMERS::LIMIT] = {};
-	bool	 CopyListTimers[EGPUTIMERS::LIMIT] = {};
+	GPUTimer TimeDeltas[TotalMaxTimerCount] = {};
 	ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;
 	ID3D12Resource* m_CopytimestampResultBuffers = nullptr;
-
+	class D3D12DeviceContext* Device = nullptr;
 };
 

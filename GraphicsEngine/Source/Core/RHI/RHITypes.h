@@ -193,11 +193,18 @@ namespace EGPUTIMERS
 		PostProcess,
 		Present,
 		ShadowPreSample,
+		LIMIT
+	};
+}
+namespace EGPUCOPYTIMERS
+{
+	enum Type
+	{
+		Total,
 		MGPUCopy,
 		LIMIT
 	};
 }
-
 struct RHI_API RHIPipeRenderTargetDesc
 {
 	eTEXTURE_FORMAT RTVFormats[8] = { eTEXTURE_FORMAT::FORMAT_UNKNOWN };

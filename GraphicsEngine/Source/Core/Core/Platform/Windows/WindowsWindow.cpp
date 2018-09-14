@@ -6,6 +6,7 @@
 #include "Resource.h"
 #include "Core/Components/CompoenentRegistry.h"
 #include "Core/EngineTypes.h"
+#include "Core/Input.h"
 #pragma comment(lib, "winmm.lib")
 
 WindowsWindow* WindowsWindow::app = nullptr;
@@ -269,17 +270,19 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 
 	case WM_LBUTTONUP:
 		app->m_engine->GetRenderWindow()->MouseLBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		//	Input::ReciveMouseDownMessage(0, false);
+		Input::ReciveMouseDownMessage(0, false);
 		break;
 	case WM_LBUTTONDOWN:
 		app->m_engine->GetRenderWindow()->MouseLBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		//	Input::ReciveMouseDownMessage(0, true);
+		Input::ReciveMouseDownMessage(0, true);
 		break;
 	case WM_RBUTTONUP:
 		app->m_engine->GetRenderWindow()->MouseRBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		Input::ReciveMouseDownMessage(1, false);
 		break;
 	case WM_RBUTTONDOWN:
 		app->m_engine->GetRenderWindow()->MouseRBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		Input::ReciveMouseDownMessage(1, true);
 		break;
 	case WM_KEYDOWN:
 		app->m_engine->HandleInput(LOWORD(wparam));

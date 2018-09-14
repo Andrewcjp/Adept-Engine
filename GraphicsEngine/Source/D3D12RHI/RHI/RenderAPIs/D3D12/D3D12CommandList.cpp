@@ -216,7 +216,10 @@ void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buf
 	{
 		CreatePipelineState(shader, Buffer);
 		IsChanged = true;
-		Log::LogMessage("Created a PSO at runtime", Log::Severity::Warning);
+		if (RHI::GetFrameCount() > 2)
+		{
+			Log::LogMessage("Created a PSO at runtime", Log::Severity::Warning);
+		}
 	}
 	if (IsChanged && IsOpen())
 	{

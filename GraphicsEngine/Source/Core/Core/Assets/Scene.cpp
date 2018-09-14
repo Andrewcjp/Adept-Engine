@@ -263,9 +263,8 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		{
 			go = new GameObject("Water");
 			mat = Material::GetDefaultMaterial();
-			mat->GetProperties()->Roughness = x * (1.0f / size);
-			mat->GetProperties()->Metallic = y * (1.0f / size);
-
+			mat->GetProperties()->Roughness = x * (1.0f / (size-1));
+			mat->GetProperties()->Metallic = y * (1.0f / (size - 1));
 			mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 			go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
 			go->GetTransform()->SetPos(startPos + glm::vec3(x*stride, y*stride, 0));

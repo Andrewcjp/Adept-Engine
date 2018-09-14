@@ -330,8 +330,7 @@ GPUResource * D3D12FrameBuffer::GetResource(int index)
 }
 
 void D3D12FrameBuffer::Release()
-{
-	
+{	
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12FrameBuffer, this);
 	if (BufferDesc.NeedsDepthStencil)
@@ -354,6 +353,8 @@ void D3D12FrameBuffer::Release()
 	SafeRelease(FinalOut);
 	SafeRelease(SharedSRVHeap);
 	SafeDelete(SharedTarget);
+	SafeRelease(TWO_CrossHeap);
+	SafeRelease(CrossHeap);
 }
 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)

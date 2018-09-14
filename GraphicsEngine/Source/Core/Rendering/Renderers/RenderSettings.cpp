@@ -7,7 +7,7 @@ static ConsoleVariable UseDeferredMode("deferred", 0, ECVarType::LaunchOnly);
 MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;
-	SplitShadowWork = false;
+	SplitShadowWork = true;
 	ComputePerFrameShadowDataOnExCard = true;
 	PSComputeWorkSplit = false;
 }

@@ -12,6 +12,7 @@ GameWindow::~GameWindow()
 
 void GameWindow::PostInitWindow(int width, int height)
 {
+	//FrameRateLimit = 120;
 	Log::OutS  << "Game Loaded" << Log::OutS;
 	IsRunning = true;
 	ShouldTickScene = true;

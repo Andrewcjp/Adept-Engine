@@ -19,7 +19,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "UI/Core/UIWidget.h"
 #include "Core/Platform/ConsoleVariable.h"
-
+#include "Version.h"
 #pragma comment(lib, "shlwapi.lib")
 
 float Engine::StartTime = 0;
@@ -51,7 +51,7 @@ Engine::Engine()
 	EngineInstance = this;
 	StartTime = (float)PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
-	Log::OutS << "Loading Engine v0.1" << Log::OutS;
+	Log::OutS << "Loading Engine v" << ENGINE_VERSION << Log::OutS;
 #if PHYSX_ENABLED
 	PhysEngine = new PhysicsEngine();
 #else

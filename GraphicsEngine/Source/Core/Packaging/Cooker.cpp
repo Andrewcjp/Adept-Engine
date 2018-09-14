@@ -36,10 +36,12 @@ void Cooker::CopyToOutput()
 #if _DEBUG
 	BuildDebug = true;
 #endif
+
 	std::string BuildConfig = "ShippingReleasePackage";
 	if (BuildDebug)
 	{
 		BuildConfig = "ShippingDebugPackage";
+		Log::LogMessage("Cooking ShippingDebugPackage");
 	}
 	Log::OutS << "**********Complie Started**********" << Log::OutS;
 	if (PlatformApplication::ExecuteHostScript(AssetManager::GetScriptPath() + "\\BuildSLN.bat", BuildConfig, true) != 0)

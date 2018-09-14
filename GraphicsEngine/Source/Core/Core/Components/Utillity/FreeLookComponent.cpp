@@ -81,9 +81,11 @@ void FreeLookComponent::Update(float delta)
 
 
 		Input::instance->LockCursor(true);
+		Input::SetCursorVisible(false);
 	}
 	else
 	{
+		Input::SetCursorVisible(true);
 		Input::instance->LockCursor(false);
 	}
 }
