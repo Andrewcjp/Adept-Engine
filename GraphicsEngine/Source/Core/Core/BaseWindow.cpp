@@ -338,8 +338,8 @@ void BaseWindow::DestroyRenderWindow()
 	Renderer->DestoryRenderWindow();
 	delete input;
 	delete LineDrawer;
-	delete UI;
-	delete Renderer;
+	SafeDelete(UI);
+	SafeDelete(Renderer);
 	delete CurrentScene;
 	RHI::DestoryContext();
 }

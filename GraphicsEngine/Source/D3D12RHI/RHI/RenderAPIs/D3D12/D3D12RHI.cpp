@@ -41,8 +41,7 @@ void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
-	//WaitForGpu();
-	
+	m_swapChain->SetFullscreenState(false,nullptr);
 	ReleaseSwapRTs();
 	delete MipmapShader;
 	SafeRelease(m_swapChain);
@@ -520,20 +519,6 @@ void D3D12RHI::SetScreenRenderTarget(ID3D12GraphicsCommandList* list)
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	list->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 	m_RenderTargetResources[m_frameIndex]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
-}
-
-void D3D12RHI::WaitForGpu()
-{
-	// Schedule a Signal command in the queue.
-	ThrowIfFailed(GetCommandQueue()->Signal(m_fence, m_fenceValues[m_frameIndex]));
-
-	// Wait until the fence has been processed.
-	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
-
-	WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
-
-	// Increment the fence value for the current frame.
-	m_fenceValues[m_frameIndex] += 1;
 }
 
 // Prepare to render the next frame.

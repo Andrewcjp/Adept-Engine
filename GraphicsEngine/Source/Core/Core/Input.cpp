@@ -40,17 +40,13 @@ void Input::ProcessInput(const float)
 
 bool Input::MouseLBDown(int, int)
 {
-	ShowCursor(false);
 	return TRUE;
 }
 
 bool Input::MouseLBUp(int, int)
 {
-	ShowCursor(true);
 	return TRUE;
 }
-
-
 
 bool Input::MouseMove(int, int, double)
 {
@@ -86,7 +82,6 @@ bool Input::ProcessKeyDown(unsigned int key)
 	const bool IsVKey = (int)key > 90;//vKey Start
 	if (!IsVKey)
 	{
-
 		char c = PlatformWindow::GetApplication()->GetVirtualKeyAsChar(key);
 		KeyMap.emplace(c, true);
 		return true;
@@ -125,6 +120,19 @@ bool Input::GetMouseButtonDown(int button)
 		}
 	}
 	return false;
+}
+
+void Input::SetCursorVisible(bool state)
+{
+	int CurrentCount = ShowCursor(state);
+	if (CurrentCount > 1)
+	{
+		CurrentCount = ShowCursor(false);
+	}
+	if (CurrentCount < -1)
+	{
+		CurrentCount = ShowCursor(true);
+	}
 }
 
 bool Input::GetKeyDown(int c)

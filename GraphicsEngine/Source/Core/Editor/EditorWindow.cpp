@@ -18,7 +18,7 @@
 #include "Rendering/Renderers/RenderSettings.h"
 #include "Core/Engine.h"
 #include "Physics/PhysicsEngine.h"
-
+#include "Core/Version.h"
 #include "UI/UIManager.h"
 #include "RHI/RHI.h"
 #include "EditorGizmos.h"
@@ -64,7 +64,7 @@ Scene * EditorWindow::GetCurrentScene()
 #define TEST_SERIAL 1
 void EditorWindow::PostInitWindow(int w, int h)
 {
-	Log::OutS  << "Loading Editor v0.01" << Log::OutS;
+	Log::OutS << "Loading Editor v" << EDITOR_VERSION << Log::OutS;
 	EditorCamera = new Editor_Camera();
 	Renderer->SetEditorCamera(EditorCamera);
 	if (UI != nullptr)
@@ -94,7 +94,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 
 void EditorWindow::EnterPlayMode()
 {
-	Log::OutS  << "Entering play mode" << Log::OutS;
+	Log::OutS << "Entering play mode" << Log::OutS;
 	Engine::GetGame()->BeginPlay();
 	IsPlayingScene = true;
 	if (CurrentPlayScene != nullptr)
@@ -117,7 +117,7 @@ void EditorWindow::EnterPlayMode()
 
 void EditorWindow::ExitPlayMode()
 {
-	Log::OutS  << "Exiting play mode" << Log::OutS;
+	Log::OutS << "Exiting play mode" << Log::OutS;
 	Renderer->SetScene(CurrentScene);
 	EditorCamera->SetEnabled(true);
 	IsPlayingScene = false;
@@ -143,7 +143,7 @@ EditorCore * EditorWindow::GetEditorCore()
 {
 	if (instance != nullptr)
 	{
-		return instance->mEditorCore; 
+		return instance->mEditorCore;
 	}
 	return nullptr;
 }
@@ -205,7 +205,7 @@ void EditorWindow::Update()
 	{
 		ShowHud = !ShowHud;
 	}
-	
+
 }
 
 void EditorWindow::SaveScene()

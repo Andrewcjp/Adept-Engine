@@ -8,7 +8,9 @@
 #include "Core/Transform.h"
 #include "Core/Components/Component.h"
 #include "Core/Components/CompoenentRegistry.h"
+#define SERAL_VERSION_NUMBER 1
 
+#define IN_ArchiveProp(Property) LinkProperty(Property,#Property);
 Archive::Archive(std::string FilePath, bool Write)
 {
 	FileName = FilePath;
@@ -149,6 +151,24 @@ void Archive::LinkProperty(std::vector<Component*> & Value, const char * PropNam
 
 void Archive::LinkProperty(Scene* Value, const char * PropName)
 {
+	int VersionNumber = SERAL_VERSION_NUMBER;
+	if (IsReading())
+	{		
+		CurrentReadHead = doc.MemberBegin();
+	}
+	if (!IsReading())
+	{
+		rapidjson::Value jsongovalue(rapidjson::kObjectType);
+		valueptr = &jsongovalue;
+		IN_ArchiveProp(VersionNumber);
+		SerialHelpers::addJsonValue(doc, doc.GetAllocator(), "SceneData", jsongovalue);
+	}
+	else
+	{
+		Scope_PopReadHead(CurrentReadHead);
+		IN_ArchiveProp(VersionNumber);
+		ensureFatalMsgf(SERAL_VERSION_NUMBER == VersionNumber, "Incorrect Version from file");
+	}
 	if (IsReading())
 	{
 		const auto& gos = doc.FindMember("GOS");
@@ -167,7 +187,6 @@ void Archive::LinkProperty(Scene* Value, const char * PropName)
 	}
 	else
 	{
-		doc.SetObject();
 		std::vector<GameObject*> objects = *Value->GetObjects();
 		rapidjson::Value jsonGOs(rapidjson::kArrayType);
 		for (int i = 0; i < objects.size(); i++)
@@ -205,5 +224,8 @@ void Archive::Init()
 	else
 	{
 		jallocator = &doc.GetAllocator();
+		doc.SetObject();
+		valueptr = new rapidjson::Value(rapidjson::kObjectType);
+
 	}
 }

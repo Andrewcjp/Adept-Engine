@@ -32,6 +32,7 @@ public:
 	void   LockCursor(bool state);
 	static void ReciveMouseDownMessage(int Button, bool state);
 	static bool GetMouseButtonDown(int button);
+	static void SetCursorVisible(bool state);
 private:
 	bool LockMouse = false;
 	float currentmoveamt = 1.0f;//editor Movemnt

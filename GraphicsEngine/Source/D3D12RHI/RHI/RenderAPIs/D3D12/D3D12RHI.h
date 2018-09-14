@@ -49,7 +49,6 @@ private:
 	void ReleaseUploadHeap();
 
 	void FindAdaptors(IDXGIFactory2 * pFactory);
-	void WaitForGpu();
 	void MoveToNextFrame();
 
 	class ShaderMipMap* MipmapShader = nullptr;

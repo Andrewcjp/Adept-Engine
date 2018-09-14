@@ -117,7 +117,26 @@ private:
 	void Init();
 	std::string FileName = "";
 	rapidjson::Document doc = rapidjson::Document();
+	struct ReadHeadPop
+	{
+		ReadHeadPop(rapidjson::Value::MemberIterator* head)
+		{
+			CurrentHead = head;
+			OldHead = *CurrentHead;
+			*CurrentHead = (*CurrentHead)->value.MemberBegin();
+
+		}
+		~ReadHeadPop()
+		{
+			*CurrentHead = OldHead;
+		}
+	private:
+		rapidjson::Value::MemberIterator* CurrentHead = nullptr;
+		rapidjson::Value::MemberIterator OldHead;
+	};
+
 };
+#define Scope_PopReadHead(Head) ReadHeadPop ReadHeadPop_##Head = ReadHeadPop(&Head);
 
 #define ArchiveProp(Property) A->LinkProperty(Property,#Property);
 #define ArchiveProp_Alias(Property,Alias) A->LinkProperty(Property,#Alias);

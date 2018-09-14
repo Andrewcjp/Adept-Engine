@@ -30,9 +30,9 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice)
 	HostDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();
 	CopyList->ResetList();
-	CopyList->StartTimer(EGPUTIMERS::MGPUCopy);
+	CopyList->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
 	CopyList->CopyResourceToSharedMemory(Target);
-	CopyList->EndTimer(EGPUTIMERS::MGPUCopy);
+	CopyList->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
 	CopyList->ResolveTimers();
 	CopyList->Execute(DeviceContextQueue::InterCopy);
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
@@ -42,9 +42,9 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice)
 	CopyList = TargetDevice->GetInterGPUCopyList();
 	CopyList->ResetList();
 
-	CopyList->StartTimer(EGPUTIMERS::MGPUCopy);
+	CopyList->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
 	CopyList->CopyResourceFromSharedMemory(Target);
-	CopyList->EndTimer(EGPUTIMERS::MGPUCopy);
+	CopyList->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
 	CopyList->ResolveTimers();
 	CopyList->Execute(DeviceContextQueue::InterCopy);
 	TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
