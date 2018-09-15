@@ -39,13 +39,17 @@ void* WindowsApplication::GetDllHandle(FString Name)
 	}
 	return Handle;
 }
-
-int WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args,bool ShowOutput)
+int WindowsApplication::ExecuteHostScript(std::string Filename, std::string Args, bool ShowOutput)
+{
+	return ExecuteHostScript(Filename, Args, "", ShowOutput);
+}
+int WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args, std::string WorkingDir,bool ShowOutput)
 {
 	if (FileUtils::File_ExistsTest(Filename))
 	{		
 		const std::wstring wideFilename = StringUtils::ConvertStringToWide(Filename);
 		const std::wstring wideArgs = StringUtils::ConvertStringToWide(Args);
+		const std::wstring wideworkingArgs = StringUtils::ConvertStringToWide(WorkingDir);
 		SHELLEXECUTEINFO ShExecInfo = { 0 };
 		ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
 		ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;		
@@ -54,6 +58,11 @@ int WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args,
 		ShExecInfo.lpFile = wideFilename.c_str();
 		ShExecInfo.lpParameters = wideArgs.c_str();
 		ShExecInfo.lpDirectory = NULL;
+		if (!WorkingDir.empty())
+		{
+			ShExecInfo.lpDirectory = wideworkingArgs.c_str();
+		}
+
 		if (ShowOutput)
 		{
 			ShExecInfo.nShow = SW_SHOW;

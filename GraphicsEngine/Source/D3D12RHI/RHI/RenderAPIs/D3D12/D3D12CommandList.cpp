@@ -563,7 +563,7 @@ void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
 		nullptr,
 		IID_PPV_ARGS(&m_UploadBuffer)));
 	m_UploadBuffer->SetName(L"Index Buffer Upload Resource Heap");
-	D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(m_UploadBuffer);
+	//D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(m_UploadBuffer);
 	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
 	m_vertexBufferView.StrideInBytes = Stride;
 	m_vertexBufferView.SizeInBytes = vertexBufferSize;

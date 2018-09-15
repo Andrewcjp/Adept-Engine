@@ -1,6 +1,7 @@
 #include "Stdafx.h"
 #include "Shader_Blur.h"
-
+DECLARE_GLOBAL_SHADER(Shader_Blur);
+DECLARE_GLOBAL_SHADER(Shader_BlurVert);
 
 Shader_Blur::~Shader_Blur()
 {

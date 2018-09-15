@@ -2,7 +2,7 @@
 #include "RHI/RHI.h"
 
 
-Shader_Particle::Shader_Particle()
+Shader_Particle::Shader_Particle(DeviceContext* device):Shader(device)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	

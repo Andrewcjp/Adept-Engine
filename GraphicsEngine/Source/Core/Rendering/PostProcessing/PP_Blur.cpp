@@ -10,7 +10,6 @@ PP_Blur::~PP_Blur()
 {
 	EnqueueSafeRHIRelease(VertcmdList);
 	EnqueueSafeRHIRelease(UAV);
-	delete VertBlur;
 }
 
 void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
@@ -26,8 +25,8 @@ void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 
 void PP_Blur::PostSetUpData()
 {
-	BlurShader = new Shader_Blur();
-	VertBlur = new Shader_BlurVert();
+	BlurShader = ShaderComplier::GetShader<Shader_Blur>();
+	VertBlur = ShaderComplier::GetShader<Shader_BlurVert>();
 	CMDlist = RHI::CreateCommandList(ECommandListType::Compute);
 	VertcmdList = RHI::CreateCommandList(ECommandListType::Compute);
 }

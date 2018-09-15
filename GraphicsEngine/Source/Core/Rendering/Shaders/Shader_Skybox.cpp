@@ -7,7 +7,8 @@
 #include "RHI/DeviceContext.h"
 #include "Core/EngineInc.h"
 #include "Rendering/Core/SceneRenderer.h"
-Shader_Skybox::Shader_Skybox()
+DECLARE_GLOBAL_SHADER(Shader_Skybox);
+Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
 	MeshLoader::FMeshLoadingSettings settings = {};
 	settings.Scale = glm::vec3(100.0f);

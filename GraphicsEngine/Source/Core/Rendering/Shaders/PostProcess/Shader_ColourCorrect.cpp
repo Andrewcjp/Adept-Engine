@@ -1,8 +1,8 @@
 #include "Stdafx.h"
 #include "Shader_ColourCorrect.h"
+DECLARE_GLOBAL_SHADER(Shader_ColourCorrect);
 
-
-Shader_ColourCorrect::Shader_ColourCorrect()
+Shader_ColourCorrect::Shader_ColourCorrect(DeviceContext* dev):Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	

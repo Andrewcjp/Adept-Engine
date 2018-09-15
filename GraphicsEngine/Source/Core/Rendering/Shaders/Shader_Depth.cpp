@@ -2,14 +2,16 @@
 #include "RHI/RHI.h"
 #include "glm\glm.hpp"
 #include "Shader_Main.h"
-
-Shader_Depth::Shader_Depth(bool LoadGeo) :Shader_Depth(LoadGeo, RHI::GetDeviceContext(0))
+DECLARE_GLOBAL_SHADER_ARGS(Shader_Depth, bool);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_ON, Shader_Depth, bool, true);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_OFF, Shader_Depth, bool, false);
+Shader_Depth::Shader_Depth(bool LoadGeo) :Shader_Depth(RHI::GetDeviceContext(0), LoadGeo)
 {}
 
-Shader_Depth::Shader_Depth(bool LoadGeo, DeviceContext* device)
+Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(Device)
 {
 	LoadGeomShader = LoadGeo;
-	m_Shader = RHI::CreateShaderProgam(device);
+	m_Shader = RHI::CreateShaderProgam(Device);
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", LoadGeomShader ? "0" : "1"));
 	m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs_12", EShaderType::SHADER_VERTEX);
 	if (LoadGeomShader)
@@ -21,7 +23,7 @@ Shader_Depth::Shader_Depth(bool LoadGeo, DeviceContext* device)
 	zfar = static_cast<float>(ShadowFarPlane);
 	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
 	{
-		ConstantBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant, device);
+		ConstantBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant, Device);
 		ConstantBuffer->CreateConstantBuffer(sizeof(LightData), RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS);
 	}
 }

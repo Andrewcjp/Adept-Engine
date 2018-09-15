@@ -57,7 +57,7 @@ bool BaseWindow::ChangeDisplayMode(int width, int height)
 
 bool BaseWindow::CreateRenderWindow(int width, int height)
 {	
-	RHI::InitialiseContext(width, height);
+	RHI::InitialiseContextWindow(width, height);
 	Material::SetupDefaultMaterial();//move!
 	m_height = height;
 	m_width = width;
@@ -340,8 +340,7 @@ void BaseWindow::DestroyRenderWindow()
 	delete LineDrawer;
 	SafeDelete(UI);
 	SafeDelete(Renderer);
-	delete CurrentScene;
-	RHI::DestoryContext();
+	delete CurrentScene;	
 }
 
 bool BaseWindow::MouseLBDown(int x, int y)

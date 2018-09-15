@@ -41,7 +41,10 @@ void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
-	m_swapChain->SetFullscreenState(false,nullptr);
+	if (m_swapChain)
+	{
+		m_swapChain->SetFullscreenState(false, nullptr);
+	}
 	ReleaseSwapRTs();
 	delete MipmapShader;
 	SafeRelease(m_swapChain);
@@ -50,12 +53,12 @@ void D3D12RHI::DestroyContext()
 	{
 		delete SecondaryDevice;
 	}
-	m_rtvHeap->Release();
-	m_dsvHeap->Release();
-	m_SetupCommandList->Release();
+	SafeRelease(m_rtvHeap);
+	SafeRelease(m_dsvHeap);
+	SafeRelease(m_SetupCommandList);
 	CloseHandle(m_fenceEvent);
 	SafeRelease(m_fence);
-
+	SafeRelease(factory);
 	delete ScreenShotter;
 	ReportObjects();
 }
@@ -160,8 +163,7 @@ void D3D12RHI::LoadPipeLine()
 #else 
 #define RUNDEBUG 0
 #endif
-	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
-	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
+
 	UINT dxgiFactoryFlags = 0;
 #if RUNDEBUG //nsight needs this off
 	//EnableShaderBasedValidation();
@@ -180,7 +182,7 @@ void D3D12RHI::LoadPipeLine()
 
 	}
 #endif
-	IDXGIFactory4* factory = nullptr;
+
 	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 	ReportObjects();
 
@@ -218,54 +220,7 @@ void D3D12RHI::LoadPipeLine()
 #endif
 
 	DisplayDeviceDebug();
-	// Describe and create the swap chain.
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-	swapChainDesc.BufferCount = RHI::CPUFrameCount;
-	swapChainDesc.Width = m_width;
-	swapChainDesc.Height = m_height;
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	swapChainDesc.SampleDesc.Count = 1;
-	IDXGISwapChain1* swapChain;
-	ThrowIfFailed(factory->CreateSwapChainForHwnd(
-		GetCommandQueue(),		// Swap chain needs the queue so that it can force a flush on it.
-		PlatformWindow::GetHWND(),
-		&swapChainDesc,
-		nullptr,
-		nullptr,
-		&swapChain
-	));
 
-	m_swapChain = (IDXGISwapChain3*)swapChain;
-	// This sample does not support fullscreen transitions.
-	ThrowIfFailed(factory->MakeWindowAssociation(PlatformWindow::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
-
-	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-	m_swapChain->SetFullscreenState(IsFullScreen, nullptr);
-
-	// Create descriptor heaps.
-	{
-		// Describe and create a render target view (RTV) descriptor heap.
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-		rtvHeapDesc.NumDescriptors = RHI::CPUFrameCount;
-		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(GetDisplayDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
-
-		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-		dsvHeapDesc.NumDescriptors = 1;
-		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(GetDisplayDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
-		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-	}
-	SafeRelease(factory);
-	CreateSwapChainRTs();
-	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
 }
 
 
@@ -302,7 +257,7 @@ void D3D12RHI::ReleaseSwapRTs()
 	{
 		delete m_RenderTargetResources[n];
 	}
-	m_depthStencil->Release();
+	SafeRelease(m_depthStencil);
 }
 
 void D3D12RHI::ResizeSwapChain(int x, int y)
@@ -360,8 +315,59 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 	GetDisplayDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
-void D3D12RHI::LoadAssets()
+void D3D12RHI::InitSwapChain()
 {
+	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
+	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
+	// Describe and create the swap chain.
+	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+	swapChainDesc.BufferCount = RHI::CPUFrameCount;
+	swapChainDesc.Width = m_width;
+	swapChainDesc.Height = m_height;
+	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.SampleDesc.Count = 1;
+	IDXGISwapChain1* swapChain;
+	ThrowIfFailed(factory->CreateSwapChainForHwnd(
+		GetCommandQueue(),		// Swap chain needs the queue so that it can force a flush on it.
+		PlatformWindow::GetHWND(),
+		&swapChainDesc,
+		nullptr,
+		nullptr,
+		&swapChain
+	));
+
+	m_swapChain = (IDXGISwapChain3*)swapChain;
+	// This sample does not support fullscreen transitions.
+	ThrowIfFailed(factory->MakeWindowAssociation(PlatformWindow::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
+
+	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+	m_swapChain->SetFullscreenState(IsFullScreen, nullptr);
+
+	// Create descriptor heaps.
+	{
+		// Describe and create a render target view (RTV) descriptor heap.
+		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+		rtvHeapDesc.NumDescriptors = RHI::CPUFrameCount;
+		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		ThrowIfFailed(GetDisplayDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+
+		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+		dsvHeapDesc.NumDescriptors = 1;
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		ThrowIfFailed(GetDisplayDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
+		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	}
+	SafeRelease(factory);
+	CreateSwapChainRTs();
+
+	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
 	ThrowIfFailed(GetDisplayDevice()->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 	m_fenceValues[m_frameIndex] = 1;
 	// Create an event handle to use for frame synchronization
@@ -396,7 +402,7 @@ void D3D12RHI::ExecSetUpList()
 	}
 	ReleaseUploadHeap();
 	PrimaryDevice->ResetCopyEngine();
-	if (SecondaryDevice != nullptr)		
+	if (SecondaryDevice != nullptr)
 	{
 		SecondaryDevice->ResetCopyEngine();
 		SecondaryDevice->ResetWork();//turn off the copy engine
@@ -413,8 +419,8 @@ void D3D12RHI::ReleaseUploadHeap()
 			const int CurrentFrame = RHI::GetFrameCount();
 			if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount < CurrentFrame)
 			{
-				DeferredDeleteQueue[i].first->Release();
-				DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
+				SafeRelease(DeferredDeleteQueue[i].first)
+					DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
 			}
 		}
 	}
@@ -422,6 +428,10 @@ void D3D12RHI::ReleaseUploadHeap()
 
 void D3D12RHI::AddObjectToDeferredDeleteQueue(IUnknown* Target)
 {
+	for (UploadHeapStamped r : DeferredDeleteQueue)
+	{
+		ensure(r.first != Target);
+	}
 	DeferredDeleteQueue.push_back(UploadHeapStamped(Target, RHI::GetFrameCount()));
 }
 
@@ -482,7 +492,7 @@ void D3D12RHI::PresentFrame()
 	}
 	//all execution this frame has finished 
 	//so all resources should be in the correct state!	
-	
+
 	ReleaseUploadHeap();
 	const int CurrentFrame = RHI::GetFrameCount();
 	PrimaryDevice->ResetDeviceAtEndOfFrame();
@@ -547,6 +557,7 @@ ID3D12CommandQueue * D3D12RHI::GetCommandQueue()
 	return PrimaryDevice->GetCommandQueue();
 }
 
+
 DeviceContext * D3D12RHI::GetDeviceContext(int index)
 {
 	if (Instance != nullptr)
@@ -610,7 +621,7 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 			{
 				*Device = new D3D12DeviceContext();
 				(*Device)->CreateDeviceFromAdaptor(adapter, CurrentDeviceIndex);
-				CurrentDeviceIndex++;				
+				CurrentDeviceIndex++;
 				if (ForceSingleGPU.GetBoolValue())
 				{
 					Log::LogMessage("Forced Single Gpu Mode");
@@ -674,13 +685,18 @@ ShaderProgramBase * D3D12RHI::CreateShaderProgam(DeviceContext* Device)
 	return new D3D12Shader(Device);
 }
 
-bool D3D12RHI::InitRHI(int w, int h)
+bool D3D12RHI::InitWindow(int w, int h)
 {
 	m_width = w;
 	m_height = h;
 	m_aspectRatio = static_cast<float>(w) / static_cast<float>(h);
+	InitSwapChain();
+	return false;
+}
+
+bool D3D12RHI::InitRHI()
+{
 	LoadPipeLine();
-	LoadAssets();
 	return false;
 }
 

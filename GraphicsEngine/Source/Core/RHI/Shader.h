@@ -7,8 +7,29 @@
 #include "include/glm/gtc/type_ptr.hpp"
 #include <d3d12.h>
 #include "ShaderProgramBase.h"
+#include "Core/Assets/ShaderComplier.h"
 //this is a basis for a shader 
 //shaders will derive from this class so that the correct unifroms can be updated
+
+//Static Object adds a Function ptr for the consructor to the shader complier
+//Declare Permitation 
+#define DECLARE_GLOBAL_SHADER(Type)\
+Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
+{\
+	return new Type(Data.Context);\
+}\
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0)
+
+#define DECLARE_GLOBAL_SHADER_ARGS(Type,Datatype)\
+Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
+{\
+	return new Type(Data.Context,(Datatype)Data.Data);\
+}\
+
+#define DECLARE_GLOBAL_SHADER_PERMIUTATION(Name,Type,Datatype,DataValue)\
+Datatype  _Type_##Name = DataValue; \
+ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue), &ConstructCompiledInstance_##Type, ShaderInit(&_Type_##Name, sizeof(Datatype))); \
+
 class Shader
 {
 public:
@@ -66,6 +87,7 @@ public:
 		glm::mat4 P;
 	}MVPStruct;
 	Shader();
+	Shader(DeviceContext* context);
 	virtual ~Shader();
 	virtual void SetShaderActive();
 	RHI_API ShaderProgramBase* GetShaderProgram();
@@ -78,6 +100,7 @@ public:
 	virtual bool IsComputeShader();
 protected:
 	ShaderProgramBase * m_Shader = nullptr;
+	class DeviceContext* Device = nullptr;
 };
 
 const int ALBEDOMAP = 0;

@@ -8,7 +8,7 @@ class Shader_UIBatch :
 		glm::mat4x4 Proj;
 	};
 public:
-	Shader_UIBatch();
+	Shader_UIBatch(class DeviceContext* dev);
 	virtual ~Shader_UIBatch();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;	
 	void PushTOGPU(RHICommandList * list);

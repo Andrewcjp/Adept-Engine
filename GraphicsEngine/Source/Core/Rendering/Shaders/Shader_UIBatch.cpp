@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "Shader_UIBatch.h"
 #include "Shader_Main.h"
-Shader_UIBatch::Shader_UIBatch()
+DECLARE_GLOBAL_SHADER(Shader_UIBatch);
+Shader_UIBatch::Shader_UIBatch(class DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	if (m_Shader == nullptr)

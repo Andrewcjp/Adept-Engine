@@ -96,14 +96,13 @@ const std::string D3D12Shader::GetShaderInstanceHash()
 		DefineSum += d.Name + d.Value;
 	}
 	size_t Hash = std::hash<std::string>{} (DefineSum);
-	return std::to_string(Hash);
+	return "_" + std::to_string(Hash);
 }
 
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
 	SCOPE_STARTUP_COUNTER("Shader Compile");
-
-	//Can't Currently Support this!
+	
 	if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType), GetShaderInstanceHash()))
 	{
 		return EShaderError::SHADER_ERROR_NONE;
@@ -208,11 +207,13 @@ bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName,
 
 const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash)
 {
-#if NDEBUG
-	return Shadername + "_" + InstanceHash + ".cso";
-#else
-	return Shadername + "_" + InstanceHash + "_D" + ".cso";
-#endif	
+	std::string OutputName = Shadername + InstanceHash;
+	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
+	{
+		OutputName += "_D";
+	}
+	OutputName += ".cso";
+	return OutputName;
 }
 
 bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const std::string & InstanceHash)
@@ -223,14 +224,14 @@ bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const 
 	}
 	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + GetShaderNamestr(Name, InstanceHash);
 #if BUILD_SHIPPING
-	ensure(FileUtils::File_ExistsTest(ShaderPath));
+	ensureFatalMsgf(FileUtils::File_ExistsTest(ShaderPath), "Missing shader: " + GetShaderNamestr(Name, InstanceHash));
 	ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 #else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, InstanceHash))
 	{
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 		return true;
-	}
+}
 	return false;
 #endif
 }
@@ -463,7 +464,7 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
 		}
-	}
+		}
 	//todo: Samplers
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -516,7 +517,7 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 
 	output.m_rootSignature->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
-}
+	}
 const std::string D3D12Shader::GetUniqueName(std::vector<Shader::ShaderParameter>& Params)
 {
 	std::string output = "Root sig Length = ";;

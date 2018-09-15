@@ -4,7 +4,7 @@
 class Shader_EnvMap : public Shader
 {
 public:
-	Shader_EnvMap();
+	Shader_EnvMap(class DeviceContext* dev);
 	~Shader_EnvMap();
 	std::vector<ShaderParameter> GetShaderParameters() override;
 	std::vector<VertexElementDESC> GetVertexFormat() override;

@@ -50,7 +50,7 @@ void ErrorExit(LPTSTR lpszFunction)
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance,
-	HINSTANCE ,
+	HINSTANCE,
 	LPSTR    lpCmdLine,
 	int       nCmdShow)
 {
@@ -67,13 +67,15 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	FILE* pf_out;
 	freopen_s(&pf_out, "CONOUT$", "w", stdout);
 #endif
-	
+
 	Engine* engine = new Engine();
 	engine->PreInit();
 
-	PlatformWindow* myapp = PlatformWindow::CreateApplication(engine,hInstance, lpCmdLine, nCmdShow);
-	exitcode = myapp->Run();
-
+	PlatformWindow* myapp = PlatformWindow::CreateApplication(engine, hInstance, lpCmdLine, nCmdShow);
+	if (!engine->GetIsCooking())
+	{
+		exitcode = myapp->Run();
+	}
 	myapp->DestroyApplication();
 	engine->Destory();
 	delete engine;

@@ -19,7 +19,7 @@
 ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 {
 	Scenerenderer = sceneRenderer;
-	DirectionalLightShader = new Shader_Depth(false);
+	DirectionalLightShader = ShaderComplier::GetShader_Default<Shader_Depth>(false);
 
 	int shadowwidth = 1024;
 	ShadowDirectionalArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS);
@@ -55,7 +55,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	DeviceContext* pointlightdevice = RHI::GetDeviceContext(0);
 	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
 	{
-		PointLightShader = new Shader_Depth(true, pointlightdevice);
+		PointLightShader = ShaderComplier::GetShader<Shader_Depth>(pointlightdevice,true); 
 		GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, pointlightdevice);
 		GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, true);
 		PointShadowList = RHI::CreateCommandList(ECommandListType::Graphics, pointlightdevice);
@@ -64,7 +64,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	DirectionalShadowList = RHI::CreateCommandList();
 
 #if TEST_PRESAMPLE
-	ShadowPreSampleShader = new Shader_ShadowSample(RHI::GetDeviceContext(1));
+	ShadowPreSampleShader = ShaderComplier::GetShader<Shader_ShadowSample>(pointlightdevice);
 	ShadowPreSamplingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
 	if (LightInteractions.size() > 2)
 	{
@@ -76,13 +76,10 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 ShadowRenderer::~ShadowRenderer()
 {
 	EnqueueSafeRHIRelease(GeometryProjections);
-	delete PointLightShader;
-	delete DirectionalLightShader;
 	EnqueueSafeRHIRelease(ShadowCubeArray);
 	EnqueueSafeRHIRelease(ShadowDirectionalArray);
 	EnqueueSafeRHIRelease(PointShadowListALT);
 	EnqueueSafeRHIRelease(PointShadowList);
-	delete ShadowPreSampleShader;
 	EnqueueSafeRHIRelease(DirectionalShadowList);
 	EnqueueSafeRHIRelease(ShadowPreSamplingList);
 	MemoryUtils::RHIUtil::DeleteVector(DirectionalLightBuffers);
@@ -371,7 +368,7 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 		//desc.DepthClearValue = 0.0f;
 		ShadowMap = RHI::CreateFrameBuffer(Context, desc);
 	}
-	Shader = new Shader_Depth(IsPoint, Context);
+	Shader = new Shader_Depth( Context, IsPoint);
 	if (Context->GetDeviceIndex() != 0)
 	{
 		NeedsSample = true;
