@@ -64,10 +64,11 @@ Engine::Engine()
 	}
 	AssetManager::StartAssetManager();
 	CompRegistry = new CompoenentRegistry();
-#if 	RUNTESTS
+#if RUNTESTS
 	FString::RunFStringTests();
 #endif
 	ModuleManager::Get()->PreLoadModules();
+
 }
 
 Engine::~Engine()
@@ -95,6 +96,7 @@ void Engine::OnDestoryWindow()
 
 void Engine::Destory()
 {
+	RHI::DestoryContext();
 	if (PhysEngine != nullptr)
 	{
 		PhysEngine->cleanupPhysics();
@@ -123,12 +125,29 @@ RenderWindow * Engine::GetRenderWindow()
 
 void Engine::CreateApplication()
 {
-	CreateApplicationWindow(GetWidth(), GetHeight());
+	if (ForcedRenderSystem == ERenderSystemType::Limit)
+	{
+		RHI::InitRHI(RenderSystemD3D12);
+	}
+	else
+	{
+		RHI::InitRHI(ForcedRenderSystem);
+	}
+	RHI::InitialiseContext();
+	if (!IsCooking)
+	{
+		CreateApplicationWindow(GetWidth(), GetHeight());
+	}
+	else
+	{
+		RunCook();
+	}
+
 }
 
 void Engine::RunCook()
 {
-	Cooker* cook = new Cooker(AssetManager::instance);
+	Cooker* cook = new Cooker();
 	cook->CopyToOutput();
 	delete cook;
 }
@@ -181,10 +200,8 @@ void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 
 	if (ShouldRunCook)
 	{
-		RunCook();
-		Exit(0);
+		IsCooking = true;
 	}
-
 }
 
 int Engine::GetWidth()
@@ -237,6 +254,20 @@ void Engine::HandleInput(unsigned int key)
 	}
 }
 
+bool Engine::GetIsCooking() 
+{
+	return EngineInstance->IsCooking;
+}
+
+Engine * Engine::Get()
+{
+	if (EngineInstance == nullptr)
+	{
+		EngineInstance = new Engine();
+	}
+	return EngineInstance;
+}
+
 void Engine::CreateApplicationWindow(int width, int height)
 {
 	if (m_appwnd == nullptr)
@@ -252,15 +283,7 @@ void Engine::CreateApplicationWindow(int width, int height)
 			m_appwnd->SetVisible(TRUE);
 			return;
 		}
-#endif
-		if (ForcedRenderSystem == ERenderSystemType::Limit)
-		{
-			RHI::InitRHI(RenderSystemD3D12);
-		}
-		else
-		{
-			RHI::InitRHI(ForcedRenderSystem);
-		}
+#endif		
 #if WITH_EDITOR
 		m_appwnd = new EditorWindow();
 #else 

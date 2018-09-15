@@ -53,7 +53,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	Desc.AllowUnordedAccess = true;
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	FilterBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
-	SkyBox = new Shader_Skybox();
+	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyBox->Init(FilterBuffer, nullptr);
 	MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
 	//finally init the pipeline!

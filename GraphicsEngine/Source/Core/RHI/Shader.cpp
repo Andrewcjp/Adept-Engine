@@ -4,6 +4,11 @@
 Shader::Shader()
 {}
 
+Shader::Shader(DeviceContext * context)
+{
+	Device = context;
+}
+
 Shader::~Shader()
 {
 	delete m_Shader;

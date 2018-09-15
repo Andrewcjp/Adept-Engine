@@ -5,7 +5,7 @@ class Shader_Convolution :
 	public Shader
 {
 public:
-	Shader_Convolution();
+	Shader_Convolution(class DeviceContext* dev);
 	~Shader_Convolution();
 	void init();
 	void ComputeConvolution(BaseTexture * Target);

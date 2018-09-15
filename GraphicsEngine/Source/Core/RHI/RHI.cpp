@@ -9,7 +9,7 @@
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/RefChecker.h"
-
+#include "Core/Assets/ShaderComplier.h"
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 RHI::RHI(ERenderSystemType system)
@@ -298,15 +298,21 @@ DeviceContext * RHI::GetDefaultDevice()
 	return GetRHIClass()->GetDefaultDevice();
 }
 
-void RHI::InitialiseContext(int w, int h)
+void RHI::InitialiseContext()
 {
-	GetRHIClass()->InitRHI(w, h);
+	GetRHIClass()->InitRHI();
 	CurrentMGPUMode.ValidateSettings();
+	ShaderComplier::Get()->ComplieAllGlobalShaders();
+}
+
+void RHI::InitialiseContextWindow(int w, int h)
+{
+	GetRHIClass()->InitWindow(w, h);
 }
 
 void RHI::RHISwapBuffers()
 {
-	GetRHIClass()->RHISwapBuffers();	
+	GetRHIClass()->RHISwapBuffers();
 	Get()->TickDeferredDeleteQueue();
 	instance->PresentCount++;
 }
@@ -333,6 +339,7 @@ void RHI::ResizeSwapChain(int width, int height)
 void RHI::DestoryContext()
 {
 	GetRHIClass()->WaitForGPU();
+	ShaderComplier::Get()->FreeAllGlobalShaders();
 	Get()->TickDeferredDeleteQueue(true);
 	GetRHIClass()->DestoryRHI();
 #if DETECT_MEMORY_LEAKS

@@ -43,7 +43,7 @@ BOOL D3D12Window::InitWindow(HGLRC, HWND, HDC, int width, int height)
 	RHITest->m_width = m_width;
 	RHITest->m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 	RHITest->LoadPipeLine();
-	RHITest->LoadAssets();
+	RHITest->InitSwapChain();
 	mainshader = new Shader_Main();
 
 	Testtexture = RHI::CreateTexture("\\asset\\texture\\house_diffuse.tga");

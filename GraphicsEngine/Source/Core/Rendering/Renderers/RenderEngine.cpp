@@ -23,11 +23,7 @@ RenderEngine::~RenderEngine()
 	delete SceneRender;
 	delete mShadowRenderer;
 	delete Post;
-	delete MainShader;
 	EnqueueSafeRHIRelease(FilterBuffer);
-	delete Conv;
-	delete envMap;
-	delete SkyBox;
 }
 
 void RenderEngine::Render()
@@ -79,9 +75,10 @@ void RenderEngine::Init()
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 	}
 
-	Conv = new Shader_Convolution();
+	Conv = ShaderComplier::GetShader<Shader_Convolution>();
 	Conv->init();
-	envMap = new Shader_EnvMap();
+
+	envMap = ShaderComplier::GetShader<Shader_EnvMap>();
 	envMap->Init();
 
 	GPUStateCache::Create();
@@ -181,7 +178,7 @@ void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 }
 
 void RenderEngine::ShadowPass()
-{	
+{
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetMeshObjects(), MainShader);
@@ -189,7 +186,7 @@ void RenderEngine::ShadowPass()
 }
 
 void RenderEngine::PostProcessPass()
-{	
+{
 	Post->ExecPPStack(FilterBuffer);
 }
 

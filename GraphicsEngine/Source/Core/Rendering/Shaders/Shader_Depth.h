@@ -23,14 +23,13 @@ public:
 		glm::vec3 Lightpos;
 	};
 	Shader_Depth(bool LoadGeo);
-	Shader_Depth(bool LoadGeo, DeviceContext * device);
+	Shader_Depth(DeviceContext* device, bool LoadGeo);
 	void UpdateBuffer(RHICommandList * list, LightData * data, int index);
 	~Shader_Depth();
 	void SetShaderActive() override;
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	bool LoadGeomShader = true;	
 	
-	void UpdateBuffer(RHICommandList* list, LightData* data);
 private:
 	RHIBuffer * ConstantBuffer = nullptr;
 	float znear = 1;

@@ -11,6 +11,7 @@ public:
 	static void FreeDllHandle(void * DllHandle);
 	static void * GetDllHandle(FString Name);
 	static int ExecuteHostScript(std::string Filename, std::string Args, bool ShowOutput = false);
+	static int ExecuteHostScript(std::string Filename, std::string Args, std::string WorkingDir, bool ShowOutput = false);
 	static void InitTiming();
 	static double Seconds();
 	static void Sleep(float Milliseconds);

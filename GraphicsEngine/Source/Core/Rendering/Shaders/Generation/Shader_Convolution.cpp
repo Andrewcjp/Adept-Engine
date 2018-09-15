@@ -2,7 +2,8 @@
 #include "Shader_Convolution.h"
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/FrameBuffer.h"
-Shader_Convolution::Shader_Convolution()
+DECLARE_GLOBAL_SHADER(Shader_Convolution);
+Shader_Convolution::Shader_Convolution(class DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->AttachAndCompileShaderFromFile("CubeMap_Convoluter_vs", EShaderType::SHADER_VERTEX);

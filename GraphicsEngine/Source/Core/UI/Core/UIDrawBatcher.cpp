@@ -11,7 +11,7 @@ UIDrawBatcher* UIDrawBatcher::instance = nullptr;
 UIDrawBatcher::UIDrawBatcher()
 {
 	instance = this;
-	Shader = new Shader_UIBatch();
+	Shader = ShaderComplier::GetShader<Shader_UIBatch>();
 	Init();
 	Current_Max_Verts = UIMin;
 }
@@ -38,7 +38,6 @@ void UIDrawBatcher::ReallocBuffer(int NewSize)
 UIDrawBatcher::~UIDrawBatcher()
 {
 	BatchedVerts.empty();
-	delete Shader;
 	EnqueueSafeRHIRelease(VertexBuffer);
 	EnqueueSafeRHIRelease(commandlist);
 }

@@ -11,7 +11,7 @@ PP_ColourCorrect::PP_ColourCorrect()
 
 PP_ColourCorrect::~PP_ColourCorrect()
 {
-	delete CurrentShader;
+	
 }
 
 void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
@@ -42,7 +42,7 @@ void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTextur
 
 void PP_ColourCorrect::PostSetUpData()
 {
-	CurrentShader = new Shader_ColourCorrect(/*RHI::GetDeviceContext(0)*/);
+	CurrentShader = ShaderComplier::GetShader<Shader_ColourCorrect>();		
 	CMDlist = RHI::CreateCommandList();
 }
 

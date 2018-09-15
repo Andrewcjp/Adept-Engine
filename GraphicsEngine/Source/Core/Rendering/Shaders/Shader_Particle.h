@@ -3,7 +3,7 @@
 class Shader_Particle :public Shader
 {
 public:
-	Shader_Particle();
+	Shader_Particle(class DeviceContext* device);
 	~Shader_Particle();
 	void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights) ;
 private:

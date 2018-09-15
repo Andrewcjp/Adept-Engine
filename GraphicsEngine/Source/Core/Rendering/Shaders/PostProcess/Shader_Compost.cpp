@@ -1,18 +1,12 @@
 #include "Stdafx.h"
 #include "Shader_Compost.h"
 #include "RHI/DeviceContext.h"
-
-Shader_Compost::Shader_Compost(DeviceContext * context)
+DECLARE_GLOBAL_SHADER(Shader_Compost);
+Shader_Compost::Shader_Compost(DeviceContext * context):Shader(context)
 {
 	m_Shader = RHI::CreateShaderProgam();
-
-	
-
 	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Compost_fs", EShaderType::SHADER_FRAGMENT);
-
-	
-	
+	m_Shader->AttachAndCompileShaderFromFile("Compost_fs", EShaderType::SHADER_FRAGMENT);	
 }
 
 Shader_Compost::~Shader_Compost()

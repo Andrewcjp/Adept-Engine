@@ -21,7 +21,7 @@ class Shader_Deferred :
 	public Shader
 {
 public:
-	Shader_Deferred();
+	Shader_Deferred(class DeviceContext* dev);
 	~Shader_Deferred();
 
 	std::vector<Shader::ShaderParameter> GetShaderParameters();

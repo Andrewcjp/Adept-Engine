@@ -3,16 +3,18 @@ class Cooker
 {
 public:
 	Cooker();
-	Cooker(class AssetManager * ASM);
 	~Cooker();
 	std::string GetTargetPath(bool AppendSlash = false);
 
 	void CopyToOutput();
+	void CookAllShaders();
 	void CopyFolderToOutput(std::string Target, std::string PathFromBuild);
 	bool CopyAssetToOutput(std::string RelTarget);
 	void CreatePackage();
 private:
 	std::string OutputPath = "\\Build";
-	AssetManager* AssetM = nullptr;
+	bool ShouldPack = false;
+	bool ShouldComplie = true;
+	std::string BuildConfig = "";
 };
 

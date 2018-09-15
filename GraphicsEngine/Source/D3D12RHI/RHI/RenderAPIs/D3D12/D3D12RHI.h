@@ -43,7 +43,7 @@ private:
 	void InitMipmaps();
 	void ReleaseSwapRTs();
 	void CreateDepthStencil(int width, int height);
-	void LoadAssets();
+	void InitSwapChain();
 	void ToggleFullScreenState();
 	void ExecSetUpList();
 	void ReleaseUploadHeap();
@@ -54,7 +54,8 @@ private:
 	class ShaderMipMap* MipmapShader = nullptr;
 	ID3D12DescriptorHeap* BaseTextureHeap;
 	ID3D12CommandQueue* GetCommandQueue();
-	bool InitRHI(int w, int h) override;
+	bool InitRHI()override;
+	bool InitWindow(int w, int h) override;
 	bool DestoryRHI() override;
 	DeviceContext* GetDefaultDevice() override;
 	DeviceContext* GetDeviceContext(int index = 0) override;
@@ -73,6 +74,7 @@ private:
 	void ResizeSwapChain(int x, int y) override;
 
 private:
+	IDXGIFactory4 * factory = nullptr;
 	ID3D12Device * GetDisplayDevice();
 	class	D3D12DeviceContext* PrimaryDevice = nullptr;
 	class	D3D12DeviceContext* SecondaryDevice = nullptr;
@@ -122,5 +124,5 @@ static inline void ThrowIfFailed(HRESULT hr)
 		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }
-void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
+
 

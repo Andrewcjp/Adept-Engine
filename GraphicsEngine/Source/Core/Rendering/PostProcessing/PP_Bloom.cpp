@@ -5,6 +5,7 @@
 #include "PP_Blur.h"
 #include "PP_CompostPass.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Assets/ShaderComplier.h"
 PP_Bloom::PP_Bloom()
 {}
 
@@ -13,7 +14,6 @@ PP_Bloom::~PP_Bloom()
 {
 	delete BlurEffect;
 	delete Compost;
-	delete BloomShader;
 	EnqueueSafeRHIRelease( BloomBuffer);
 	EnqueueSafeRHIRelease( UAV);
 }
@@ -35,7 +35,7 @@ void PP_Bloom::PostSetUpData()
 {
 	BlurEffect = new PP_Blur();
 	BlurEffect->SetUpData();
-	BloomShader = new Shader_Bloom();
+	BloomShader = ShaderComplier::GetShader<Shader_Bloom>();
 	CMDlist = RHI::CreateCommandList(ECommandListType::Compute);
 	Compost = new PP_CompostPass();
 	Compost->SetUpData();

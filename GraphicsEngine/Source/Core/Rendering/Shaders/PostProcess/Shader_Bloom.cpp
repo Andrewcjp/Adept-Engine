@@ -1,10 +1,10 @@
 #include "Stdafx.h"
 #include "Shader_Bloom.h"
-
+DECLARE_GLOBAL_SHADER(Shader_Bloom);
 //Handles Threshold Pass for Bloom!
-Shader_Bloom::Shader_Bloom()
+Shader_Bloom::Shader_Bloom(DeviceContext* device) :Shader(device)
 {
-	m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));
+	m_Shader = RHI::CreateShaderProgam(Device);
 	
 	m_Shader->AttachAndCompileShaderFromFile("BloomThreshold_CS", EShaderType::SHADER_COMPUTE);
 }

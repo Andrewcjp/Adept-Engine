@@ -46,7 +46,9 @@ public:
 
 	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
 	RHI_API static DeviceContext* GetDefaultDevice();
-	static void InitialiseContext(int w, int h);
+	static void InitialiseContext();
+	static void InitialiseContextWindow(int w, int h);
+	
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
 	static void ToggleFullScreenState();
@@ -89,7 +91,8 @@ private:
 class RHI_API RHIClass
 {
 public:
-	virtual bool InitRHI(int w, int h) = 0;
+	virtual bool InitRHI() = 0;
+	virtual bool InitWindow(int w, int h) = 0;
 	virtual bool DestoryRHI() = 0;
 	virtual BaseTexture* CreateTexture(DeviceContext* Device = nullptr) = 0;
 	virtual FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc) = 0;

@@ -7,11 +7,13 @@
 #include "RHI/RHICommandList.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Assets/ShaderComplier.h"
 DebugLineDrawer* DebugLineDrawer::instance = nullptr;
 DebugLineDrawer::DebugLineDrawer(bool DOnly)
 {
 	Is2DOnly = DOnly;
-	LineShader = new Shader_Line(Is2DOnly);
+	LineShader = ShaderComplier::GetShader_Default<Shader_Line,bool>(Is2DOnly);
+	ensure(LineShader);
 	DataBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant);
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
@@ -32,7 +34,6 @@ DebugLineDrawer::~DebugLineDrawer()
 	EnqueueSafeRHIRelease(CmdList);
 	EnqueueSafeRHIRelease(VertexBuffer);
 	EnqueueSafeRHIRelease(DataBuffer);
-	delete LineShader;
 }
 
 void DebugLineDrawer::GenerateLines()

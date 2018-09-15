@@ -2,7 +2,8 @@
 #include "Shader_EnvMap.h"
 #include "Rendering/Core/Mesh.h"
 #include "RHI/RHI_inc.h"
-Shader_EnvMap::Shader_EnvMap()
+DECLARE_GLOBAL_SHADER(Shader_EnvMap);
+Shader_EnvMap::Shader_EnvMap(class DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();
 
