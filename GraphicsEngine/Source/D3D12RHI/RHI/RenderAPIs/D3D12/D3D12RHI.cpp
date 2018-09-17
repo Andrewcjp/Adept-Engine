@@ -41,6 +41,7 @@ void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
+	ReleaseUploadHeaps(true);
 	if (m_swapChain)
 	{
 		m_swapChain->SetFullscreenState(false, nullptr);
@@ -400,7 +401,7 @@ void D3D12RHI::ExecSetUpList()
 	{
 		SecondaryDevice->CPUWaitForAll();
 	}
-	ReleaseUploadHeap();
+	ReleaseUploadHeaps();
 	PrimaryDevice->ResetCopyEngine();
 	if (SecondaryDevice != nullptr)
 	{
@@ -409,7 +410,7 @@ void D3D12RHI::ExecSetUpList()
 	}
 }
 
-void D3D12RHI::ReleaseUploadHeap()
+void D3D12RHI::ReleaseUploadHeaps(bool force)
 {
 	//The Visual studio Graphics Debugger Casuses a crash here in Driver Code. Cause Unknown
 	if (!DetectGPUDebugger())
@@ -417,7 +418,7 @@ void D3D12RHI::ReleaseUploadHeap()
 		for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 		{
 			const int CurrentFrame = RHI::GetFrameCount();
-			if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount < CurrentFrame)
+			if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount < CurrentFrame || force)
 			{
 				SafeRelease(DeferredDeleteQueue[i].first)
 					DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
@@ -493,7 +494,7 @@ void D3D12RHI::PresentFrame()
 	//all execution this frame has finished 
 	//so all resources should be in the correct state!	
 
-	ReleaseUploadHeap();
+	ReleaseUploadHeaps();
 	const int CurrentFrame = RHI::GetFrameCount();
 	PrimaryDevice->ResetDeviceAtEndOfFrame();
 	if (SecondaryDevice != nullptr)

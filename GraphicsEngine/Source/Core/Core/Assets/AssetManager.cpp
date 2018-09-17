@@ -43,66 +43,7 @@ void AssetManager::LoadTexturesFromDir()
 	}
 }
 
-void AssetManager::ExportCookedShaders()
-{
-	std::string dirtarget = ShaderCookedFile;
-	StringUtils::RemoveChar(dirtarget, "CookedShaders.txt");
-	FileUtils::CreateDirectoryFromFullPath(Engine::GetExecutionDir(), dirtarget, true);
-	std::ofstream myfile(Engine::GetExecutionDir() + ShaderCookedFile);
-	if (myfile.is_open())
-	{
-		for (std::map<std::string, std::string>::iterator it = ShaderSourceMap.begin(); it != ShaderSourceMap.end(); ++it)
-		{
-			//Log::OutS  << it->first << " => " << it->second << '\n';
-			std::string data = "";
-			data.append(it->first);
-			data.append(FileSplit + "\n");
-			data.append(it->second);
-			data.append("¬\n");
-			myfile.write(data.c_str(), data.length());
-		}
-	}
-	myfile.close();
-}
-void AssetManager::LoadCookedShaders()
-{
-	std::ifstream myfile(Engine::GetExecutionDir() + ShaderCookedFile);
-	std::string file;
-	if (myfile.is_open())
-	{
-		std::string line;
-		std::string shaderSource;
-		std::string Key;
-		while (std::getline(myfile, line))
-		{
-			if (line.find("¬") != -1)
-			{
-				std::string Shader = shaderSource;
-				ShaderSourceMap.emplace(Key, Shader);
-				shaderSource = "";
-				Key = "";
-				continue;
-			}
-			size_t target = line.find(FileSplit);
-			if (target == -1)
-			{
-				shaderSource.append(line);
-				shaderSource.append("\n");
-				continue;
-			}
-			else
-			{
-				Key = line;
-				StringUtils::RemoveChar(Key, FileSplit);
-				StringUtils::RemoveChar(Key, "¬");
-			}
-		}
-		myfile.close();
-	}
-}
-
 //and wrap the code to recreate when reqeusted
-
 //linked list of nodes written to disk binary
 //each node stores string of id and size of data.
 AssetManager* AssetManager::instance = nullptr;
@@ -207,17 +148,6 @@ AssetManager::AssetManager()
 	LoadFromShaderDir();
 #endif
 #if 0//BUILD_PACKAGE
-	if (PreLoadTextShaders)
-	{
-		if (FileUtils::File_ExistsTest(Engine::GetExecutionDir() + ShaderCookedFile))
-		{
-			LoadCookedShaders();
-		} 
-		else
-		{
-			ExportCookedShaders();
-		}
-	}
 	LoadTexturesFromDir();
 #else
 	//LoadCookedShaders();

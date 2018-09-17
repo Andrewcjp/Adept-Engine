@@ -102,7 +102,7 @@ const std::string D3D12Shader::GetShaderInstanceHash()
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
 	SCOPE_STARTUP_COUNTER("Shader Compile");
-	
+
 	if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType), GetShaderInstanceHash()))
 	{
 		return EShaderError::SHADER_ERROR_NONE;
@@ -127,13 +127,16 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	LPCWSTR filename = StringUtils::ConvertStringToWide(path).c_str();
 	ID3DBlob* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
-#if defined(_DEBUG)
-	// Enable better shader debugging with the graphics debugging tools.
-	UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
-#else 
-	UINT compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS;
-	//	compileFlags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
-#endif
+	UINT compileFlags = 0;
+	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
+	{
+		UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
+	}
+	else
+	{
+		UINT compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS;
+		//	compileFlags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
+	}
 	D3D_SHADER_MACRO* defines = ParseDefines();
 	switch (ShaderType)
 	{
@@ -231,7 +234,7 @@ bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const 
 	{
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 		return true;
-}
+	}
 	return false;
 #endif
 }
@@ -464,7 +467,7 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
 		}
-		}
+	}
 	//todo: Samplers
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -517,7 +520,7 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 
 	output.m_rootSignature->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
-	}
+}
 const std::string D3D12Shader::GetUniqueName(std::vector<Shader::ShaderParameter>& Params)
 {
 	std::string output = "Root sig Length = ";;

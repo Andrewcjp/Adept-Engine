@@ -320,6 +320,7 @@ void RHI::RHISwapBuffers()
 void RHI::RHIRunFirstFrame()
 {
 	GetRHIClass()->RHIRunFirstFrame();
+	ShaderComplier::Get()->TickMaterialComplie();
 }
 
 void RHI::ToggleFullScreenState()

@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-
+#include <queue>
 struct ShaderInit
 {
 	ShaderInit() {}
@@ -13,7 +13,6 @@ struct ShaderInit
 	void* Data = nullptr;
 };
 
-
 struct ShaderType
 {
 	typedef std::function<class Shader*(const ShaderInit &)> InitliserFunc;
@@ -22,6 +21,16 @@ struct ShaderType
 	ShaderInit ShaderInitalizer;
 	Shader* CompliedShader = nullptr;
 };
+
+struct MaterialShader
+{
+	class Asset_Shader* ShaderAsset = nullptr;
+	MaterialShader(Asset_Shader* shader)
+	{
+		ShaderAsset = shader;
+	}
+};
+
 class ShaderComplier
 {
 public:
@@ -34,6 +43,7 @@ public:
 	void ComplieShader(ShaderType & type, DeviceContext* Context);
 	ShaderType * GetShaderFromGlobalMap(std::string name);
 	void AddShaderType(std::string Name, ShaderType  type);
+	void TickMaterialComplie();
 	template<class T>
 	static T* GetShader()
 	{
@@ -81,8 +91,11 @@ public:
 	{
 		return GetShader<T>(RHI::GetDefaultDevice(), Data);
 	}
+	static void AddMaterial(class Asset_Shader* shader);
 private:
 	static ShaderComplier * Instance;
-	std::map<std::string, ShaderType> GlobalShaderTypesMap;
+	std::map<std::string, ShaderType> GlobalShaderMap;
+	std::map<std::string, MaterialShader> MaterialShaderMap;
+	std::queue<MaterialShader> MaterialShaderComplieQueue;
 	bool ComplieShadersOnTheFly = false;
 };
