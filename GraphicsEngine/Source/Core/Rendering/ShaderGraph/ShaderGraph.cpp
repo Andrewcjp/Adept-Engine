@@ -43,7 +43,6 @@ void ShaderGraph::SolidColour()
 void ShaderGraph::CreateDefault()
 {
 	GraphName = "Default";
-	//AddNodetoGraph(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(1, 1, 0)));
 	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
 }
 

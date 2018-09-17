@@ -41,8 +41,6 @@ public:
 	static void StartAssetManager();
 	void LoadFromShaderDir();
 	void LoadTexturesFromDir();
-	void LoadCookedShaders();
-	void ExportCookedShaders();
 	
 	bool GetTextureAsset(std::string path, TextureAsset & asset, bool ABSPath = false);
 	static size_t GetShaderAsset(std::string name, char ** buffer);
@@ -60,7 +58,6 @@ public:
 	CORE_API static const std::string GetScriptPath();
 	CORE_API static const std::string GetTextureGenScript();
 	CORE_API static const std::string GetRootDir();
-	const std::string ShaderCookedFile = "\\asset\\Cooked\\Shader\\hlsl\\CookedShaders.txt";
 private:
 	AssetManager();
 	bool HasCookedData = false;

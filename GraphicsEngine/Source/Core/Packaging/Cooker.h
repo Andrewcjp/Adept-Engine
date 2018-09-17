@@ -13,8 +13,9 @@ public:
 	void CreatePackage();
 private:
 	std::string OutputPath = "\\Build";
-	bool ShouldPack = false;
+	bool ShouldPack = true;
 	bool ShouldComplie = true;
+	bool ShouldStage = true;
 	std::string BuildConfig = "";
 };
 

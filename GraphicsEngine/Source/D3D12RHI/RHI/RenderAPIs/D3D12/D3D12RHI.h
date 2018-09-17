@@ -46,7 +46,7 @@ private:
 	void InitSwapChain();
 	void ToggleFullScreenState();
 	void ExecSetUpList();
-	void ReleaseUploadHeap();
+	void ReleaseUploadHeaps(bool force = false);
 
 	void FindAdaptors(IDXGIFactory2 * pFactory);
 	void MoveToNextFrame();
