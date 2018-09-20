@@ -54,7 +54,7 @@ protected:
 	bool IsRunning = false;
 	bool ShouldTickScene = false;
 	int FrameRateLimit = 0;
-	float TargetDeltaTime = 0.0f;
+	double TargetDeltaTime = 0.0;
 	void LoadScene(std::string RelativePath);
 
 private:

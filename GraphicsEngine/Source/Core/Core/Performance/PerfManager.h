@@ -115,6 +115,7 @@ private:
 	const float TimeMS = 1e6f;
 	static bool PerfActive;
 	float FrameTime = 1.0f;
+	float DeltaTime = 0.0f;
 	float CPUTime = 0;
 	float GPUTime = 0;
 	long FrameStart = 0;

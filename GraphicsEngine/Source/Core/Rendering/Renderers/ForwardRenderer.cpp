@@ -6,7 +6,7 @@
 #include "Core/Engine.h"
 #include "RHI/DeviceContext.h"
 #include "Rendering/Core/SceneRenderer.h"
-
+#include "Rendering/Core/ParticleSystemManager.h"
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 
@@ -88,6 +88,7 @@ void ForwardRenderer::MainPass()
 	MainCommandList->GetDevice()->GetTimeManager()->EndTimer(MainCommandList, EGPUTIMERS::MainPass);
 	mShadowRenderer->Unbind(MainCommandList);
 	MainCommandList->Execute();
+	ParticleSystemManager::Get()->Render(FilterBuffer);
 }
 
 void ForwardRenderer::RenderSkybox()

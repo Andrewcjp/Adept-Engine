@@ -17,7 +17,7 @@
 #include "Core/Utils/MemoryUtils.h"
 #include "D3D12DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
-
+#include "DescriptorHeap.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType)
 {
 	AddCheckerRef(D3D12CommandList, this);
@@ -44,6 +44,35 @@ void D3D12CommandList::Release()
 	if (PSOCache.size() == 0)
 	{
 		CurrentPipelinestate.Release();
+	}
+	SafeRelease(CommandSig);
+}
+
+void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)
+{
+	ensure(CommandSig != nullptr);
+	ensure(ArgumentBuffer);
+	ID3D12Resource* counterB = nullptr;
+	if (CountBuffer != nullptr)
+	{
+		counterB = ((D3D12Buffer*)CountBuffer)->GetResource()->GetResource();
+	}
+	PushPrimitiveTopology();
+	CurrentCommandList->ExecuteIndirect(CommandSig, MaxCommandCount, ((D3D12Buffer*)ArgumentBuffer)->GetResource()->GetResource(), ArgOffset, counterB, CountBufferOffset);
+}
+
+void D3D12CommandList::PushPrimitiveTopology()
+{
+	if (IsGraphicsList())
+	{
+		if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE)
+		{
+			CurrentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+		}
+		else if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+		{
+			CurrentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		}
 	}
 }
 
@@ -92,14 +121,7 @@ void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCou
 {
 	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
-	if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE)
-	{
-		CurrentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-	}
-	else if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-	{
-		CurrentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	}
+	PushPrimitiveTopology();
 	CurrentCommandList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 }
 
@@ -224,7 +246,14 @@ void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buf
 	if (IsChanged && IsOpen())
 	{
 		CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
-		CurrentCommandList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
+		if (IsGraphicsList())
+		{
+			CurrentCommandList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
+		}
+		else
+		{
+			CurrentCommandList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
+		}
 	}
 }
 
@@ -328,6 +357,53 @@ void D3D12CommandList::UAVBarrier(RHIUAV * target)
 	CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
 }
 
+void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
+{
+	D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+	if (Dispatch)
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[1] = {};
+		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+		ensure(commandSize % 4 == 0);
+
+		commandSignatureDesc.pArgumentDescs = argumentDescs;
+		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
+		commandSignatureDesc.ByteStride = commandSize;
+	}
+	else
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2] = {};
+		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
+		argumentDescs[0].Constant.RootParameterIndex = 0;
+		argumentDescs[0].Constant.Num32BitValuesToSet = 1;
+		argumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
+		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+		ensure(commandSize % 4 == 0);
+
+		commandSignatureDesc.pArgumentDescs = argumentDescs;
+		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
+		commandSignatureDesc.ByteStride = commandSize;
+	}
+
+
+	ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : CurrentPipelinestate.m_rootSignature, IID_PPV_ARGS(&CommandSig)));
+	NAME_D3D12_OBJECT(CommandSig);
+
+}
+
+void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
+{
+	if (IsComputeList())
+	{
+		CurrentCommandList->SetComputeRoot32BitConstants(SignitureSlot, ValueNum, Data, DataOffset);
+	}
+	else
+	{
+		CurrentCommandList->SetGraphicsRoot32BitConstants(SignitureSlot, ValueNum, Data, DataOffset);
+	}
+
+}
+
 ID3D12GraphicsCommandList * D3D12CommandList::GetCommandList()
 {
 	ensure(m_IsOpen);
@@ -372,7 +448,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	else
 	{
 		GPUStateCache::instance->TextureBuffers[slot] = DBuffer;
-}
+	}
 #endif
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
@@ -425,8 +501,8 @@ void D3D12Buffer::Release()
 	{
 		MemoryUtils::DeleteCArray(CBV, MAX_DEVICE_COUNT);
 	}
-	SafeRelease(m_vertexBuffer);
-	SafeRelease(m_indexBuffer);
+	SafeRelease(m_DataBuffer);
+	SafeRelease(SRVBufferHeap);
 }
 
 D3D12Buffer::~D3D12Buffer()
@@ -436,7 +512,7 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool Re
 {
 	ensure(StructSize > 0);
 	ensure(Elementcount > 0);
-	ConstantBufferDataSize = StructSize;
+	TotalByteSize = StructSize;
 	CrossDevice = ReplicateToAllDevices;
 	if (ReplicateToAllDevices)
 	{
@@ -458,12 +534,12 @@ void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 	{
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
 		{
-			CBV[i]->UpdateCBV(data, offset, ConstantBufferDataSize);
+			CBV[i]->UpdateCBV(data, offset, TotalByteSize);
 		}
 	}
 	else
 	{
-		CBV[0]->UpdateCBV(data, offset, ConstantBufferDataSize);
+		CBV[0]->UpdateCBV(data, offset, TotalByteSize);
 	}
 }
 
@@ -481,23 +557,76 @@ void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* l
 	}
 }
 
-void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype)
+GPUResource * D3D12Buffer::GetResource()
+{
+	return m_DataBuffer;
+}
+
+void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype)
 {
 	BufferAccesstype = Accesstype;
-	if (BufferAccesstype == BufferAccessType::Dynamic)
+	if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
-		CreateDynamicBuffer(Stride, ByteSize);
+		CreateDynamicBuffer(ByteSize);
 	}
-	else if (BufferAccesstype == BufferAccessType::Static)
+	else if (BufferAccesstype == EBufferAccessType::Static)
 	{
-		CreateStaticBuffer(Stride, ByteSize);
+		CreateStaticBuffer(ByteSize);
 	}
+	m_vertexBufferView.BufferLocation = m_DataBuffer->GetResource()->GetGPUVirtualAddress();
+	m_vertexBufferView.StrideInBytes = Stride;
+	m_vertexBufferView.SizeInBytes = TotalByteSize;
+	m_DataBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
 }
 
 void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
 {
 	VertexCount = length;
-	if (BufferAccesstype == BufferAccessType::Dynamic)
+	UpdateData(data, length, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+}
+
+void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
+{
+	SetupBufferSRV();
+	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
+	SRVBufferHeap->BindHeap(d3dlist->GetCommandList());
+	if (list->IsComputeList())
+	{
+		d3dlist->GetCommandList()->SetComputeRootDescriptorTable(RSSlot, SRVBufferHeap->GetGpuAddress(0));
+	}
+	else
+	{
+		d3dlist->GetCommandList()->SetGraphicsRootDescriptorTable(RSSlot, SRVBufferHeap->GetGpuAddress(0));
+	}
+}
+
+void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
+{
+	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
+	D3D12_RESOURCE_STATES s = D3D12Helpers::ConvertBufferResourceState(State);
+	int t = D3D12Helpers::ConvertBufferResourceState(State);
+	m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), D3D12Helpers::ConvertBufferResourceState(State));
+}
+
+void D3D12Buffer::SetupBufferSRV()
+{
+	if (SRVBufferHeap == nullptr)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Buffer.NumElements = ElementCount;
+		srvDesc.Buffer.StructureByteStride = ElementSize;
+		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		SRVBufferHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		Device->GetDevice()->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc, SRVBufferHeap->GetCPUAddress(0));
+	}
+}
+
+void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)
+{
+	if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
 		UINT8* pVertexDataBegin;
 		MapBuffer(reinterpret_cast<void**>(&pVertexDataBegin));
@@ -511,15 +640,16 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
 		// store vertex buffer in upload heap
 		D3D12_SUBRESOURCE_DATA Data = {};
 		Data.pData = reinterpret_cast<BYTE*>(data); // pointer to our index array
-		Data.RowPitch = VertexBufferSize; // size of all our index buffer
-		Data.SlicePitch = VertexBufferSize; // also the size of our index buffer
+		Data.RowPitch = TotalByteSize; // size of all our index buffer
+		Data.SlicePitch = TotalByteSize; // also the size of our index buffer
 
 											// we are now creating a command with the command list to copy the data from
 											// the upload heap to the default heap
-		UpdateSubresources(Device->GetCopyList(), m_vertexBuffer, m_UploadBuffer, 0, 0, 1, &Data);
+		UpdateSubresources(Device->GetCopyList(), m_DataBuffer->GetResource(), m_UploadBuffer, 0, 0, 1, &Data);
 
 		// transition the vertex buffer data from copy destination state to vertex buffer state
-		Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+		//Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_DataBuffer, D3D12_RESOURCE_STATE_COPY_DEST, EndState));
+		m_DataBuffer->SetResourceState(Device->GetCopyList(), EndState);
 		UploadComplete = true;
 		Device->NotifyWorkForCopyEngine();
 		D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(m_UploadBuffer);
@@ -540,94 +670,120 @@ bool D3D12Buffer::CheckDevice(int index)
 	return false;
 }
 
-void D3D12Buffer::CreateStaticBuffer(int Stride, int ByteSize)
+void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 {
-	const int vertexBufferSize = ByteSize;//mazsize
+	TotalByteSize = ByteSize;//mazsize
+	ID3D12Resource* TempRes = nullptr;
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), // a default heap
 		D3D12_HEAP_FLAG_NONE, // no flags
-		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), // resource description for a buffer
+		&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE), // resource description for a buffer
 		D3D12_RESOURCE_STATE_COPY_DEST, // start in the copy destination state
 		nullptr, // optimized clear value must be null for this type of resource
-		IID_PPV_ARGS(&m_vertexBuffer)));
-
+		IID_PPV_ARGS(&TempRes)));
+	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_COPY_DEST);
 	// we can give resource heaps a name so when we debug with the graphics debugger we know what resource we are looking at
-	m_vertexBuffer->SetName(L"Index Buffer Resource Heap");
+	m_DataBuffer->SetName(L"Buffer Resource Heap");
 
 	// create upload heap to upload index buffer
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
 		D3D12_HEAP_FLAG_NONE, // no flags
-		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), // resource description for a buffer
+		&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize), // resource description for a buffer
 		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
 		nullptr,
 		IID_PPV_ARGS(&m_UploadBuffer)));
-	m_UploadBuffer->SetName(L"Index Buffer Upload Resource Heap");
-	//D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(m_UploadBuffer);
-	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-	m_vertexBufferView.StrideInBytes = Stride;
-	m_vertexBufferView.SizeInBytes = vertexBufferSize;
-	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
+	m_UploadBuffer->SetName(L"Buffer Upload Resource Heap");
 }
 
-void D3D12Buffer::CreateDynamicBuffer(int Stride, int ByteSize)
+void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 {
-	//This Vertex Buffer Will Have Data Changed Every frame so no need to transiton to only gpu.
+	//This Buffer Will Have Data Changed Every frame so no need to transiton to only gpu.
 	// Create the vertex buffer.
-	VertexBufferSize = ByteSize;//mazsize
-
+	TotalByteSize = ByteSize;
+	ID3D12Resource* TempRes = nullptr;
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize),
+		&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&m_vertexBuffer)));
+		IID_PPV_ARGS(&TempRes)));
+	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_GENERIC_READ);
 
-	// Initialize the vertex buffer view.
-	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-	m_vertexBufferView.StrideInBytes = Stride;
-	m_vertexBufferView.SizeInBytes = VertexBufferSize;
-	m_vertexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
+}
+static inline UINT AlignForUavCounter(UINT bufferSize)
+{
+	const UINT alignment = D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT;
+	return (bufferSize + (alignment - 1)) & ~(alignment - 1);
+}
+void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
+{
+	ElementSize = desc.Stride;
+	ElementCount = desc.ElementCount;
+	BufferAccesstype = desc.Accesstype;
+	if (desc.CounterSize > 0)
+	{
+		CounterOffset = desc.ElementCount * desc.Stride;
+		CounterOffset = AlignForUavCounter(CounterOffset);
+	}
+	Desc = desc;
+	TotalByteSize = desc.ElementCount * desc.Stride + desc.CounterSize;
+	if (BufferAccesstype == EBufferAccessType::GPUOnly)
+	{
+		ID3D12Resource* TempRes = nullptr;
+		ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE),
+			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+			nullptr,
+			IID_PPV_ARGS(&TempRes)));
+		m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	}
+	else if (BufferAccesstype == EBufferAccessType::Dynamic)
+	{
+		CreateDynamicBuffer(TotalByteSize);
+	}
+	else if (BufferAccesstype == EBufferAccessType::Static)
+	{
+		CreateStaticBuffer(TotalByteSize);
+	}
+	if (desc.CreateSRV)
+	{
+		SetupBufferSRV();
+	}
 }
 
 void D3D12Buffer::UpdateIndexBuffer(void * data, size_t length)
 {
-	UINT8* pIndexDataBegin;
-	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
-	ThrowIfFailed(m_indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)));
-	memcpy(pIndexDataBegin, data, length);
-	m_indexBuffer->Unmap(0, nullptr);
+	UpdateData(data, length, D3D12_RESOURCE_STATE_GENERIC_READ);
+}
+
+void D3D12Buffer::UpdateBufferData(void * data, size_t length,EBufferResourceState::Type state)
+{
+	UpdateData(data, length, D3D12Helpers::ConvertBufferResourceState(state));
 }
 
 void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 {
-	const int vertexBufferSize = ByteSize;
-
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&m_indexBuffer)));
-
-	// Initialize the vertex buffer view.
-	m_IndexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
+	TotalByteSize = ByteSize;
+	CreateStaticBuffer(ByteSize);
+	m_IndexBufferView.BufferLocation = m_DataBuffer->GetResource()->GetGPUVirtualAddress();
 	m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-	m_IndexBufferView.SizeInBytes = vertexBufferSize;
-	m_indexBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
+	m_IndexBufferView.SizeInBytes = TotalByteSize;
+	m_DataBuffer->SetName(L"Index Buffer");
 }
 
 void D3D12Buffer::MapBuffer(void ** Data)
 {
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
-	ThrowIfFailed(m_vertexBuffer->Map(0, &readRange, Data));
+	ThrowIfFailed(m_DataBuffer->GetResource()->Map(0, &readRange, Data));
 }
 
 void D3D12Buffer::UnMap()
 {
-	m_vertexBuffer->Unmap(0, nullptr);
+	m_DataBuffer->GetResource()->Unmap(0, nullptr);
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -645,8 +801,27 @@ void D3D12RHIUAV::Release()
 	SafeRelease(UAVCounter);
 	SafeRelease(m_UAV);
 }
+
 D3D12RHIUAV::~D3D12RHIUAV()
 {}
+
+void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
+{
+	D3D12Buffer* d3dtarget = (D3D12Buffer*)target;
+	ensure(target->CurrentBufferType == RHIBuffer::BufferType::GPU);
+	ensure(d3dtarget->CheckDevice(Device->GetDeviceIndex()));
+	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	Heap->SetName(L"CreateUAVFromRHIBuffer");
+	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
+	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+	destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
+	destTextureUAVDesc.Buffer.FirstElement = 0;
+	destTextureUAVDesc.Buffer.NumElements = d3dtarget->ElementCount;
+	destTextureUAVDesc.Buffer.StructureByteStride = d3dtarget->ElementSize;
+	destTextureUAVDesc.Buffer.CounterOffsetInBytes = d3dtarget->CounterOffset;
+	destTextureUAVDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+	Device->GetDevice()->CreateUnorderedAccessView(d3dtarget->GetResource()->GetResource(), d3dtarget->GetResource()->GetResource(), &destTextureUAVDesc, Heap->GetCPUAddress(0));
+}
 
 void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 {

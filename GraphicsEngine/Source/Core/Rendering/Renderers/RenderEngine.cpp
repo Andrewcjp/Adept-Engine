@@ -10,6 +10,7 @@
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Core/Performance/PerfManager.h"
+#include "Rendering/Core/ParticleSystemManager.h"
 RenderEngine::RenderEngine(int width, int height)
 {
 	m_width = width;
@@ -42,6 +43,7 @@ void RenderEngine::Render()
 		//return;
 	}
 	PreRender();
+	ParticleSystemManager::Get()->Simulate();
 	OnRender();
 }
 
@@ -64,6 +66,7 @@ void RenderEngine::PreRender()
 	{
 		MainCamera = MainScene->GetCurrentRenderCamera();
 	}
+	ParticleSystemManager::Get()->PreRenderUpdate(MainCamera);
 }
 
 //init common to both renderers

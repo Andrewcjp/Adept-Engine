@@ -34,6 +34,9 @@ public:
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
+	virtual void SetUpCommandSigniture(int commandSize,bool Dispatch) override;
+
+	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset);
 	ID3D12GraphicsCommandList* GetCommandList();
 	void CreateCommandList();
 	void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
@@ -45,7 +48,10 @@ public:
 	{
 		return m_IsOpen;
 	}
+	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
+
 private:
+	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList * CurrentCommandList = nullptr;
 	bool m_IsOpen = false;
@@ -60,52 +66,60 @@ private:
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 	PipeLineState Currentpipestate;
 	std::map<std::string, D3D12PiplineShader> PSOCache;
+
+	ID3D12CommandSignature* CommandSig = nullptr;
 };
 
 class D3D12Buffer : public RHIBuffer
 {
 public:
 	D3D12Buffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
-	
 	virtual ~D3D12Buffer();
-	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) override;
-	virtual void CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) override;
-	void CreateStaticBuffer(int Stride, int ByteSize);
-	void CreateDynamicBuffer(int Stride, int ByteSize);
+	virtual void CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype = EBufferAccessType::Static) override;
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
-	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
-	//virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Register, bool IsCompute);
-	//virtual void SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Register);
 	virtual void UpdateIndexBuffer(void* data, size_t length) override;
+	virtual void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) override;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) override;
+	virtual void CreateBuffer(RHIBufferDesc desc) override;
+	virtual void UpdateVertexBuffer(void* data, size_t length) override;
+	virtual void BindBufferReadOnly(RHICommandList* list, int RSSlot)override;
+	virtual void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) override;
+	bool CheckDevice(int index);
+
+	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
+	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
+	class GPUResource* GetResource();
+protected:
+	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);
+	void Release() override;
+	void SetupBufferSRV();
+	friend class D3D12RHIUAV;
+private:
 	void MapBuffer(void** Data);
 	void UnMap();
-	virtual void UpdateVertexBuffer(void* data, size_t length) override;
-	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
-	bool CheckDevice(int index);
-protected:
-	void Release() override;
-private:
-	
+	void CreateStaticBuffer(int ByteSize);
+	void CreateDynamicBuffer(int ByteSize);
+	RHIBufferDesc Desc;
 	class D3D12CBV* CBV[MAX_DEVICE_COUNT] = { nullptr };
-	int ConstantBufferDataSize = 0;
-
-	BufferAccessType BufferAccesstype;
-	ID3D12Resource * m_vertexBuffer = nullptr;
-	ID3D12Resource * m_indexBuffer = nullptr;
+	EBufferAccessType::Type BufferAccesstype;
 	ID3D12Resource * m_UploadBuffer = nullptr;
-	int VertexBufferSize = 0;
+	GPUResource* m_DataBuffer = nullptr;
+	int ElementCount = 0;
+	int ElementSize = 0;
 	bool UploadComplete = false;
 	bool CrossDevice = false;
 	D3D12DeviceContext* Device = nullptr;
+	class DescriptorHeap* SRVBufferHeap = nullptr;;
+	//gpu buffer
 };
 
 class D3D12RHIUAV : public RHIUAV
 {
 public:
 	D3D12RHIUAV(DeviceContext* inDevice);
-	
+
 	~D3D12RHIUAV();
 	void CreateUAVFromTexture(class BaseTexture* target) override;
 	void CreateUAVFromFrameBuffer(class FrameBuffer* target) override;
@@ -116,6 +130,7 @@ public:
 	class DescriptorHeap* Heap = nullptr;
 protected:
 	void Release() override;
+	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
 };
 
 class D3D12RHITextureArray : public RHITextureArray

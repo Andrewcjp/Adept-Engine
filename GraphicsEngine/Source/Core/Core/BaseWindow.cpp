@@ -31,7 +31,7 @@ BaseWindow::BaseWindow()
 BaseWindow::~BaseWindow()
 {
 
-} 
+}
 
 bool BaseWindow::ChangeDisplayMode(int width, int height)
 {
@@ -56,12 +56,12 @@ bool BaseWindow::ChangeDisplayMode(int width, int height)
 }
 
 bool BaseWindow::CreateRenderWindow(int width, int height)
-{	
+{
 	RHI::InitialiseContextWindow(width, height);
 	Material::SetupDefaultMaterial();//move!
 	m_height = height;
 	m_width = width;
-	InitilseWindow();	
+	InitilseWindow();
 	PostInitWindow(width, height);
 	return true;
 }
@@ -110,10 +110,7 @@ void BaseWindow::Render()
 	PreRender();
 	if (PerfManager::Instance != nullptr)
 	{
-		if (FrameRateLimit == 0)
-		{
-			DeltaTime = PerfManager::GetDeltaTime();
-		}
+		DeltaTime = PerfManager::GetDeltaTime();
 		PerfManager::Instance->StartCPUTimer();
 		PerfManager::Instance->StartFrameTimer();
 	}
@@ -207,12 +204,6 @@ void BaseWindow::Render()
 	RHI::RHISwapBuffers();
 #endif
 
-	if (PerfManager::Instance != nullptr)
-	{
-		PerfManager::Instance->SampleNVCounters();
-		PerfManager::Instance->EndFrameTimer();
-	}
-
 	if (Once)
 	{
 		PostFrameOne();
@@ -229,31 +220,29 @@ void BaseWindow::Render()
 		CurrentScene->OnFrameEnd();
 	}
 	PerfManager::NotifyEndOfFrame();
-
 	//frameRate limit
 	if (FrameRateLimit != 0)
 	{
-		TargetDeltaTime = 1.0f / FrameRateLimit;
+		TargetDeltaTime = 1.0f / (FrameRateLimit + 1);
 		//in MS
-		const double WaitTime = std::max((TargetDeltaTime*1000.0) - (DeltaTime), 0.0);
+		const double WaitTime = std::max((TargetDeltaTime)-(PerfManager::GetDeltaTime()), 0.0)*1000.0f;
 		double WaitEndTime = PlatformApplication::Seconds() + (WaitTime / 1000.0);
 		double LastTime = PlatformApplication::Seconds();
 		if (WaitTime > 0)
 		{
-			if (WaitTime > 5 / 1000.0)
+			if (WaitTime > 5)
 			{
-				//little offset
-				PlatformApplication::Sleep(WaitTime);
+				//Offset a little to give slack to the scheduler
+				PlatformApplication::Sleep(WaitTime - 2.0f);
 			}
-
+			//spin wait until our time
 			while (PlatformApplication::Seconds() < WaitEndTime)
 			{
 				PlatformApplication::Sleep(0);
 			}
-			DeltaTime = PlatformApplication::Seconds() - LastTime;
-			PerfManager::SetDeltaTime(DeltaTime);
 		}
 	}
+	PerfManager::NotifyEndOfFrame();
 }
 
 bool BaseWindow::ProcessDebugCommand(std::string command)
@@ -340,7 +329,7 @@ void BaseWindow::DestroyRenderWindow()
 	delete LineDrawer;
 	SafeDelete(UI);
 	SafeDelete(Renderer);
-	delete CurrentScene;	
+	delete CurrentScene;
 }
 
 bool BaseWindow::MouseLBDown(int x, int y)
@@ -437,7 +426,7 @@ void BaseWindow::RenderText()
 	}
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
-	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
+	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << PerfManager::GetDeltaTime() * 1000 << "ms ";
 	if (RHI::GetRenderSettings()->IsDeferred)
 	{
 		stream << "DEF ";
