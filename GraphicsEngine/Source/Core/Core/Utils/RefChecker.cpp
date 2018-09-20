@@ -9,9 +9,12 @@ int RefCheckerContainer::LogRefs()
 
 void RefCheckerContainer::LogAllRefCounters()
 {
-	for (int i = 0; i < Instance->Checkers.size(); i++)
+	if (Instance)
 	{
-		Instance->Checkers[i]->LogRefs();
+		for (int i = 0; i < Instance->Checkers.size(); i++)
+		{
+			Instance->Checkers[i]->LogRefs();
+		}
 	}
 }
 

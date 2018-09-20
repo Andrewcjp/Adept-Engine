@@ -18,7 +18,7 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
 
-	VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), sizeof(VERTEX)*maxSize, RHIBuffer::BufferAccessType::Dynamic);
+	VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), sizeof(VERTEX)*maxSize, EBufferAccessType::Dynamic);
 	CmdList = RHI::CreateCommandList();
 	PipeLineState state = {};
 	state.DepthTest = false;

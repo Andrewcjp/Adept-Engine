@@ -270,6 +270,7 @@ void PerfManager::StartFrameTimer()
 void PerfManager::EndFrameTimer()
 {
 	FrameTime = (float)((get_nanos() - FrameStart) / 1e9f);//in s
+	DeltaTime = FrameTime;
 }
 
 float PerfManager::GetGPUTime()
@@ -285,7 +286,7 @@ float PerfManager::GetCPUTime()
 {
 	if (Instance != nullptr)
 	{
-		return Instance->CPUAVG.GetCurrentAverage();//Instance->CPUTime;
+		return Instance->CPUAVG.GetCurrentAverage();
 	}
 	return 0;
 }
@@ -294,7 +295,7 @@ float PerfManager::GetDeltaTime()
 {
 	if (Instance != nullptr)
 	{
-		return Instance->FrameTime;
+		return Instance->DeltaTime;
 	}
 	return 0;
 }
@@ -303,7 +304,7 @@ void PerfManager::SetDeltaTime(float Time)
 {
 	if (Instance != nullptr)
 	{
-		Instance->FrameTime = Time;
+		Instance->DeltaTime = Time;
 	}
 }
 
@@ -312,6 +313,8 @@ void PerfManager::NotifyEndOfFrame()
 	//clear timers
 	if (Instance != nullptr)
 	{
+		PerfManager::Instance->SampleNVCounters();
+		PerfManager::Instance->EndFrameTimer();
 		Instance->Internal_NotifyEndOfFrame();
 		Instance->UpdateStats();
 	}

@@ -30,11 +30,12 @@ Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
 Datatype  _Type_##Name = DataValue; \
 ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue), &ConstructCompiledInstance_##Type, ShaderInit(&_Type_##Name, sizeof(Datatype))); \
 
+#define NAME_SHADER(Type) const std::string GetName() override{return #Type;}
 class Shader
 {
 public:
 
-	enum ShaderParamType { SRV, UAV, CBV };
+	enum ShaderParamType { SRV, UAV, CBV, RootConstant };
 	enum RHI_SHADER_VISIBILITY
 	{
 		SHADER_VISIBILITY_ALL = 0,
@@ -64,13 +65,20 @@ public:
 	{
 		ShaderParameter()
 		{}
-		ShaderParameter(ShaderParamType it, int sigslot, int ShaderRegister, int ShaderRegSpace = 0, RHI_SHADER_VISIBILITY Vis = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL)
+		ShaderParameter(ShaderParamType it, int sigslot, int ShaderRegister, int ShaderRegSpace, RHI_SHADER_VISIBILITY Vis)
 		{
 			Type = it;
 			SignitureSlot = sigslot;
 			RegisterSlot = ShaderRegister;
 			Visiblity = Vis;
 			RegisterSpace = ShaderRegSpace;
+		}
+		ShaderParameter(ShaderParamType it, int sigslot, int ShaderRegister, int ShaderRegSpace = 0) :ShaderParameter(it, sigslot, ShaderRegister, ShaderRegSpace, RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL)
+		{
+			if (it == ShaderParamType::SRV)
+			{
+				Visiblity = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_PIXEL;
+			}
 		}
 		ShaderParamType Type;
 		RHI_SHADER_VISIBILITY Visiblity;

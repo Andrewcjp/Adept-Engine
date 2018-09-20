@@ -39,9 +39,9 @@ void Mesh::LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettin
 	const int count = Settings.InitOnAllDevices ? RHI::GetDeviceCount() : 1;
 	for (int i = 0; i < count; i++)
 	{
-		VertexBuffers[i] = RHI::CreateRHIBuffer(RHIBuffer::Vertex, RHI::GetDeviceContext(i));
-		IndexBuffers[i] = RHI::CreateRHIBuffer(RHIBuffer::Index, RHI::GetDeviceContext(i));
-		VertexBuffers[i]->CreateVertexBuffer(sizeof(OGLVertex), sizeof(OGLVertex)* vertices.size(), RHIBuffer::BufferAccessType::Static);
+		VertexBuffers[i] = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, RHI::GetDeviceContext(i));
+		IndexBuffers[i] = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Index, RHI::GetDeviceContext(i));
+		VertexBuffers[i]->CreateVertexBuffer(sizeof(OGLVertex), sizeof(OGLVertex)* vertices.size(), EBufferAccessType::Static);
 		VertexBuffers[i]->UpdateVertexBuffer(vertices.data(), vertices.size());
 		IndexBuffers[i]->CreateIndexBuffer(sizeof(int), sizeof(int)* indices.size());
 		IndexBuffers[i]->UpdateIndexBuffer(indices.data(), indices.size());

@@ -88,7 +88,7 @@ private:
 	std::string DDCDirPath = "";
 	std::string TextureGenScriptPath = "";
 	std::string ScriptDirPath = "";
-	std::string LoadShaderIncludeFile(std::string name, int limit);
+	std::string LoadShaderIncludeFile(std::string name, int limit,std::string Relative = std::string());
 	static const std::string DDCName;
 	const int MaxIncludeTreeLength = 10;
 #if 0

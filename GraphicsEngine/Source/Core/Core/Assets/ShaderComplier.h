@@ -56,6 +56,7 @@ public:
 			}
 			return (T*)(CachedShader->CompliedShader);
 		}
+		DebugEnsure(false);
 		return nullptr;
 	}
 	template<class T>

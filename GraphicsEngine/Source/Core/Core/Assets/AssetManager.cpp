@@ -142,7 +142,7 @@ void AssetManager::SetupPaths()
 
 AssetManager::AssetManager()
 {
-	SetupPaths();	
+	SetupPaths();
 	PlatformApplication::TryCreateDirectory(GetDDCPath());
 #if !BUILD_SHIPPING
 	LoadFromShaderDir();
@@ -304,7 +304,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool Direct
 	return ImageIO::GetDefaultTexture();
 }
 
-std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
+std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit, std::string Relative)
 {
 	std::string file;
 	limit++;
@@ -318,6 +318,20 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 		pathname = GetShaderPath();
 		pathname.append(name);
 	}
+	if (!FileUtils::File_ExistsTest(pathname))
+	{
+		pathname = GetShaderPath();
+		pathname.append(Relative);
+		pathname.append(name);
+	}
+	std::string RelativeStartPath = "";
+	if (name.find('\\') != -1)
+	{
+		RelativeStartPath = name;
+		std::vector<std::string> data = StringUtils::Split(name, '\\');
+		StringUtils::RemoveChar(RelativeStartPath, data[data.size() - 1]);
+	}
+
 	std::ifstream myfile(pathname);
 	if (myfile.is_open())
 	{
@@ -337,7 +351,8 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit)
 					line.erase(targetnum, includeLength);
 					StringUtils::RemoveChar(line, "\"");
 					StringUtils::RemoveChar(line, "\"");
-					file.append(LoadShaderIncludeFile(line.c_str(), limit));
+
+					file.append(LoadShaderIncludeFile(line.c_str(), limit, RelativeStartPath));
 				}
 				else
 				{
@@ -408,5 +423,5 @@ size_t AssetManager::TextFileBufferedRead(std::string name, char** buffer)
 	fclose(pfile);
 
 	return count;
-}
+		}
 #endif

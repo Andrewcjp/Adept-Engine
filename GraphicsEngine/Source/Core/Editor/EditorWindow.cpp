@@ -64,6 +64,7 @@ Scene * EditorWindow::GetCurrentScene()
 #define TEST_SERIAL 1
 void EditorWindow::PostInitWindow(int w, int h)
 {
+	FrameRateLimit = 60;
 	Log::OutS << "Loading Editor v" << EDITOR_VERSION << Log::OutS;
 	EditorCamera = new Editor_Camera();
 	Renderer->SetEditorCamera(EditorCamera);

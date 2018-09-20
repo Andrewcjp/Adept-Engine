@@ -10,7 +10,7 @@ WindowsApplication::WindowsApplication()
 {
 	InitTiming();
 }
- 
+
 
 WindowsApplication::~WindowsApplication()
 {
@@ -43,16 +43,16 @@ int WindowsApplication::ExecuteHostScript(std::string Filename, std::string Args
 {
 	return ExecuteHostScript(Filename, Args, "", ShowOutput);
 }
-int WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args, std::string WorkingDir,bool ShowOutput)
+int WindowsApplication::ExecuteHostScript(std::string Filename, std::string Args, std::string WorkingDir, bool ShowOutput)
 {
 	if (FileUtils::File_ExistsTest(Filename))
-	{		
+	{
 		const std::wstring wideFilename = StringUtils::ConvertStringToWide(Filename);
 		const std::wstring wideArgs = StringUtils::ConvertStringToWide(Args);
 		const std::wstring wideworkingArgs = StringUtils::ConvertStringToWide(WorkingDir);
 		SHELLEXECUTEINFO ShExecInfo = { 0 };
 		ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-		ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;		
+		ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 		ShExecInfo.hwnd = GetDesktopWindow();
 		ShExecInfo.lpVerb = NULL;
 		ShExecInfo.lpFile = wideFilename.c_str();
@@ -70,7 +70,7 @@ int WindowsApplication::ExecuteHostScript(std::string Filename,std::string Args,
 		else
 		{
 			ShExecInfo.nShow = SW_HIDE;
-		}		
+		}
 		ShExecInfo.hInstApp = NULL;
 		if (!ShellExecuteEx(&ShExecInfo))
 		{
@@ -99,9 +99,9 @@ double WindowsApplication::Seconds()
 	return Cycles.QuadPart * SecondsPerCycle;
 }
 
-void WindowsApplication::Sleep(float Milliseconds)
+void WindowsApplication::Sleep(double Milliseconds)
 {
-	if (Milliseconds < 0.5f)
+	if (Milliseconds == 0.0f)
 	{
 		::SwitchToThread();
 	}

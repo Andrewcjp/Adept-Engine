@@ -156,6 +156,16 @@ namespace DeviceContextQueue
 		LIMIT
 	};
 }
+namespace EBufferResourceState
+{
+	enum Type
+	{
+		UnorderedAccess,
+		Read,
+		IndirectArgs,
+		Limit
+	};
+}
 namespace ECommandListType
 {
 	enum Type

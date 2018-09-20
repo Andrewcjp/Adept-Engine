@@ -219,6 +219,23 @@ D3D12_COMMAND_LIST_TYPE D3D12Helpers::ConvertListType(ECommandListType::Type typ
 	return D3D12_COMMAND_LIST_TYPE();
 }
 
+D3D12_RESOURCE_STATES D3D12Helpers::ConvertBufferResourceState(EBufferResourceState::Type intype)
+{
+	switch (intype)
+	{
+	case EBufferResourceState::Read:
+		return (D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		break;
+	case EBufferResourceState::UnorderedAccess:
+		return D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		break;
+	case EBufferResourceState::IndirectArgs:
+		return D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT;
+		break;
+	}
+	return D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
+}
+
 void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
 {
 	Cmdlist->ResetList();
@@ -287,7 +304,7 @@ void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 	Device->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
 	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
 	const unsigned char * Pioint = ((const unsigned char *)pData);
-	
+
 	std::string path = Ref.GetNoExtPathToAsset();
 	path.append(GenericPlatformMisc::GetDateTimeString());
 	FileUtils::CreateDirectoriesToFullPath(path);
@@ -313,12 +330,12 @@ void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 	WriteBackResource->GetResource()->Unmap(0, &emptyRange);
 
 	//remove the Alpha Value from the texture for BMPs
-	for (int i = 0; i < Desc.Height*Desc.Width*ChannelCount; i+= ChannelCount)
+	for (int i = 0; i < Desc.Height*Desc.Width*ChannelCount; i += ChannelCount)
 	{
-		BYTE* Ptr = (RawData + i+3);
+		BYTE* Ptr = (RawData + i + 3);
 		*Ptr = 255;
 	}
 	//de align
 	SOIL_save_image(path.c_str(), DDS ? SOIL_SAVE_TYPE_DDS : SOIL_SAVE_TYPE_BMP, (int)Desc.Width, Desc.Height, ChannelCount, RawData);
-	
+
 }

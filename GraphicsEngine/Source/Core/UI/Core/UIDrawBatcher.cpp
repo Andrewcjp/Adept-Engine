@@ -21,7 +21,7 @@ void UIDrawBatcher::Init()
 	commandlist = RHI::CreateCommandList();
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
 	const UINT vertexBufferSize = sizeof(UIVertex) * Current_Max_Verts;
-	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, RHIBuffer::BufferAccessType::Dynamic);
+	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, EBufferAccessType::Dynamic);
 	commandlist->SetPipelineState(PipeLineState{ false , false });
 	commandlist->CreatePipelineState(Shader);
 }
@@ -32,7 +32,7 @@ void UIDrawBatcher::ReallocBuffer(int NewSize)
 	Current_Max_Verts = NewSize;
 	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
 	const UINT vertexBufferSize = sizeof(UIVertex) * Current_Max_Verts;
-	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, RHIBuffer::BufferAccessType::Dynamic);
+	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, EBufferAccessType::Dynamic);
 }
 
 UIDrawBatcher::~UIDrawBatcher()

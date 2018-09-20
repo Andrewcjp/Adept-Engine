@@ -10,6 +10,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/RefChecker.h"
 #include "Core/Assets/ShaderComplier.h"
+#include "Rendering/Core/ParticleSystemManager.h"
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 RHI::RHI(ERenderSystemType system)
@@ -121,7 +122,10 @@ RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Devi
 
 RHIUAV * RHI::CreateUAV(DeviceContext * Device)
 {
-
+	if (Device == nullptr)
+	{
+		Device = RHI::GetDefaultDevice();
+	}
 	return GetRHIClass()->CreateUAV(Device);
 }
 
@@ -303,6 +307,7 @@ void RHI::InitialiseContext()
 	GetRHIClass()->InitRHI();
 	CurrentMGPUMode.ValidateSettings();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
+	ParticleSystemManager::Get();
 }
 
 void RHI::InitialiseContextWindow(int w, int h)
@@ -339,10 +344,18 @@ void RHI::ResizeSwapChain(int width, int height)
 
 void RHI::DestoryContext()
 {
-	GetRHIClass()->WaitForGPU();
+	if (GetRHIClass())
+	{
+		GetRHIClass()->WaitForGPU();
+	}
+	ParticleSystemManager::Get()->ShutDown();
 	ShaderComplier::Get()->FreeAllGlobalShaders();
-	Get()->TickDeferredDeleteQueue(true);
-	GetRHIClass()->DestoryRHI();
+	if (Get())
+	{
+		
+		Get()->TickDeferredDeleteQueue(true);
+		GetRHIClass()->DestoryRHI();
+	}
 #if DETECT_MEMORY_LEAKS
 	RefCheckerContainer::LogAllRefCounters();
 #endif

@@ -50,7 +50,7 @@ void Shader_Convolution::init()
 		ShaderData->UpdateConstantBuffer(&Data[i], i);
 	}
 	MeshLoader::FMeshLoadingSettings set;
-	set.Scale = glm::vec3(0.1);
+	set.Scale = glm::vec3(0.1f);
 	Cube = RHI::CreateMesh("SkyBoxCube.obj", set);
 }
 

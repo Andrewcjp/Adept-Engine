@@ -25,6 +25,7 @@ public:
 	static D3D12_RTV_DIMENSION ConvertDimensionRTV(eTextureDimension Dim);
 	static D3D12_RESOURCE_DIMENSION ConvertToResourceDimension(eTextureDimension Dim);
 	static D3D12_COMMAND_LIST_TYPE ConvertListType(ECommandListType::Type type);
+	static D3D12_RESOURCE_STATES ConvertBufferResourceState(EBufferResourceState::Type intype);
 };
 
 //Used to Copy Back resources for read
