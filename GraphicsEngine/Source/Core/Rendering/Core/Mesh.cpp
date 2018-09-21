@@ -46,4 +46,7 @@ void Mesh::LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettin
 		IndexBuffers[i]->CreateIndexBuffer(sizeof(int), sizeof(int)* indices.size());
 		IndexBuffers[i]->UpdateIndexBuffer(indices.data(), indices.size());
 	}
+	indices.clear();
+	vertices.clear();
+
 }

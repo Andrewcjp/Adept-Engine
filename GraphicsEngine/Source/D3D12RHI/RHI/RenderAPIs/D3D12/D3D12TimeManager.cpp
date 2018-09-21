@@ -91,6 +91,8 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::UI, "UI Draw");
 	SetTimerName(EGPUTIMERS::PostProcess, "Post Processing");
 	SetTimerName(EGPUTIMERS::ShadowPreSample, "Shadow PreSample");
+	SetTimerName(EGPUTIMERS::ParticleDraw, "Particle Draw");
+	SetTimerName(EGPUTIMERS::ParticleSimulation, "Particle Sim");
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy");
 #endif
 }

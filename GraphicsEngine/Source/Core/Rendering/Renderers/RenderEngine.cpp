@@ -72,6 +72,7 @@ void RenderEngine::PreRender()
 //init common to both renderers
 void RenderEngine::Init()
 {
+	//400
 	mShadowRenderer = new ShadowRenderer(SceneRender);
 	if (MainScene != nullptr)
 	{
@@ -86,6 +87,7 @@ void RenderEngine::Init()
 
 	GPUStateCache::Create();
 	PostInit();
+	//400mb
 	Post = new PostProcessing();
 	Post->Init(FilterBuffer);
 	SceneRender->Init();

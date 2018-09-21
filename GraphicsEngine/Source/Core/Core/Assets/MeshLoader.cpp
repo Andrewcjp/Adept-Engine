@@ -13,15 +13,16 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	Assimp::Importer importer;
 
 	const aiScene* scene = importer.ReadFile(filename.c_str(),
-		aiProcess_Triangulate
-		| aiProcess_CalcTangentSpace
-		| aiProcess_GenSmoothNormals
-		| aiProcess_FixInfacingNormals
+		//aiProcess_Triangulate
+		aiProcess_CalcTangentSpace
+		//| aiProcess_GenSmoothNormals
+		//| aiProcess_FixInfacingNormals
 	);
-
+	
 	if (!scene)
 	{
-		Log::OutS  << "Mesh load failed!: " << filename << Log::OutS;		
+		Log::OutS  << "Mesh load failed!: " << filename << Log::OutS;	
+		return false;
 	}
 
 	const aiMesh* model = scene->mMeshes[0];
@@ -58,5 +59,6 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		indices.push_back(face.mIndices[1]);
 		indices.push_back(face.mIndices[2]);
 	}
+	importer.FreeScene();
 	return true;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "RHI/RHI.h"
-#define MAX_PARTICLES 100
+#define MAX_PARTICLES 1000
+#define USE_INDIRECTCOMPUTE 0
 class ParticleSystemManager
 {
 public:
@@ -13,6 +14,7 @@ public:
 	{
 		glm::vec4 Pos;
 		glm::vec4 Vel;
+		float lifetime;
 	};
 	struct IndirectArgs
 	{
@@ -35,8 +37,10 @@ private:
 	RHIUAV * DeadParticleIndexs_UAV = nullptr;
 	RHIBuffer * AliveParticleIndexs = nullptr;
 	RHIUAV * AliveParticleIndexs_UAV = nullptr;
+	RHIBuffer* AliveParticleIndexs_PostSim = nullptr;
+	RHIUAV * AliveParticleIndexs_PostSim_UAV = nullptr;
 
-	int CurrentParticleCount = 100;
+	int CurrentParticleCount = MAX_PARTICLES;
 	RHIUAV* GPU_ParticleData_UAV = nullptr;
 	RHICommandList* CmdList = nullptr;
 	RHIBuffer* RenderCommandBuffer = nullptr;
@@ -61,10 +65,12 @@ private:
 	struct ParticleConstData
 	{
 		glm::mat4x4 VPMat;
-		glm::vec3 CameraRight_worldspace;
-		glm::vec3 CameraUp_worldspace;
+		glm::vec4 CameraRight_worldspace;
+		glm::vec4 CameraUp_worldspace;
 	};
 	ParticleConstData RenderData = ParticleConstData();
 	int emitcount = 0;
+	//TEst
+	BaseTexture* TEstTex = nullptr;
 };
 

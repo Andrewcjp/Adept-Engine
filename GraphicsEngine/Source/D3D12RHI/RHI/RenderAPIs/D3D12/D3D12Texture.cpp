@@ -194,6 +194,7 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 	unsigned char*  finalbuffer = buffer;
 #endif
 	CreateTextureFromData(finalbuffer, 0, width, height, 4);
+	delete finalbuffer;
 	return true;
 }
 
@@ -238,6 +239,7 @@ bool D3D12Texture::LoadDDS(std::string filename)
 	m_texture->SetName(L"Loaded Texture");
 	Device->NotifyWorkForCopyEngine();
 	D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(textureUploadHeap);
+	ddsData.release();
 	UpdateSRV();
 	return true;
 }
@@ -327,7 +329,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	if (type != RHI::TextureType::Text && D3D12RHI::Instance->MipmapShader != nullptr)
 	{
 		D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
-}
+	}
 #endif
 }
 

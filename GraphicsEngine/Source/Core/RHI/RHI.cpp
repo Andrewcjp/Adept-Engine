@@ -140,12 +140,12 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 
 bool RHI::BlockCommandlistExec()
 {
-	return false;
+	return true;
 }
 
 bool RHI::AllowCPUAhead()
 {
-	return true;
+	return false;
 }
 
 int RHI::GetFrameCount()

@@ -52,7 +52,6 @@ private:
 	const bool EnableCopyTimers = false;
 #endif
 	int MaxIndexInUse = 0;
-	const int CopyOffset = EGPUTIMERS::LIMIT;
 	void Init(DeviceContext * context);
 	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, UINT64 ClockFreq, bool CopyList,int offset);
 

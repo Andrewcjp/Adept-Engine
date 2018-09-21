@@ -3,7 +3,7 @@ RWStructuredBuffer<PosVelo> newPosVelo	: register(u0);	// UAV
 RWByteAddressBuffer CounterBuffer: register(u1);
 StructuredBuffer<uint> AliveIndexs :register(t2);
 RWStructuredBuffer<uint> DeadIndexs :register(u2);
-static const int PARTICLECOUNTER_OFFSET_DEADCOUNT = 4;
+RWStructuredBuffer<uint> PostSim_AliveIndex :register(u3);
 [numthreads(1, 1, 1)]
 void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint GI : SV_GroupIndex)
 {
@@ -12,21 +12,22 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
 	uint aliveCount = CounterBuffer.Load(0);
 	if (DTid.x < aliveCount)
 	{
-		if (newPosVelo[index].pos.w > 0)
+		if (newPosVelo[index].Lifetime > 0.0f)
 		{
-			newPosVelo[index].vel += float4(0, -1, 0, 0.0f)*timeStep;
+			newPosVelo[index].vel += float4(0, -0.1, 0, 0.0f);
 			newPosVelo[index].pos += float4(newPosVelo[index].vel.xyz, 0.0) * timeStep;
-			newPosVelo[index].pos.w -= timeStep;
+			newPosVelo[index].Lifetime -= timeStep;
+			uint NewAliveIndex = 0;
+			CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_ALIVECOUNT_AFTERSIMULATION, 1, NewAliveIndex);
+			PostSim_AliveIndex[NewAliveIndex] = index;
 		}
 		else
 		{
-			if (aliveCount > 0)
-			{
-				uint DeadParticle;
-				CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_DEADCOUNT, 1, DeadParticle);
-				DeadIndexs[DeadParticle] = index;
-				CounterBuffer.InterlockedAdd(0, -1, aliveCount);
-			}
+			uint DeadParticle;
+			CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_DEADCOUNT, 1, DeadParticle);
+			DeadIndexs[DeadParticle] = index;
+			//CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_ALIVECOUNT, -1, aliveCount);
+
 		}
 	}
 }

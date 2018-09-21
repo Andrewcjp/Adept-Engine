@@ -61,7 +61,7 @@ Scene * EditorWindow::GetCurrentScene()
 	}
 	return nullptr;
 }
-#define TEST_SERIAL 1
+#define TEST_SERIAL 0
 void EditorWindow::PostInitWindow(int w, int h)
 {
 	FrameRateLimit = 60;
