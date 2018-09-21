@@ -171,6 +171,7 @@ void D3D12RHI::LoadPipeLine()
 
 	// Enable the debug layer (requires the Graphics Tools "optional feature").
 	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
+//	if (!DetectGPUDebugger())
 	{
 
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
@@ -219,11 +220,16 @@ void D3D12RHI::LoadPipeLine()
 		}
 	}
 #endif
-
 	DisplayDeviceDebug();
-
 }
 
+void D3D12RHI::HandleDeviceFailure()
+{
+	ensure(Instance);
+	HRESULT HR;
+	HR = Instance->PrimaryDevice->GetDevice()->GetDeviceRemovedReason();
+	ensureMsgf(HR == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(HR));
+}
 
 void D3D12RHI::CreateSwapChainRTs()
 {

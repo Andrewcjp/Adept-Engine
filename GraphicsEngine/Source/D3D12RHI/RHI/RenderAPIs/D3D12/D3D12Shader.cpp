@@ -103,7 +103,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 {
 	SCOPE_STARTUP_COUNTER("Shader Compile");
 
-	if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType), GetShaderInstanceHash()))
+	if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType), GetShaderInstanceHash(), ShaderType))
 	{
 		return EShaderError::SHADER_ERROR_NONE;
 	}
@@ -166,7 +166,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	if (pErrorBlob)
 	{
 		std::string Log = "Shader Compile Output: ";
-		Log.append(StringUtils::ConvertWideToString(filename));
+		Log.append(name);
 		Log.append("\n");
 		Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
 
@@ -198,19 +198,21 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	return EShaderError::SHADER_ERROR_NONE;
 }
 
-bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & InstanceHash)
+bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName)
 {
 	std::string ShaderSRCPath = AssetManager::GetShaderPath() + ShaderName + ".hlsl";
-	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + GetShaderNamestr(ShaderName, InstanceHash);
+	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + FullShaderName;
 	int64_t time = PlatformApplication::GetFileTimeStamp(ShaderSRCPath);
 	int64_t CSOtime = PlatformApplication::GetFileTimeStamp(ShaderCSOPath);
 	//if the Src is newer than the CSO recomplie
 	return !(time > CSOtime);
 }
 
-const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash)
+const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type)
 {
-	std::string OutputName = Shadername + InstanceHash;
+	std::string OutputName = Shadername;
+	OutputName += "_" + std::to_string((int)type);
+	OutputName += "_" + InstanceHash;
 	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
 		OutputName += "_D";
@@ -219,18 +221,19 @@ const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, 
 	return OutputName;
 }
 
-bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const std::string & InstanceHash)
+bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const std::string & InstanceHash, EShaderType::Type type)
 {
 	if (!CacheBlobs)
 	{
 		return false;
 	}
-	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + GetShaderNamestr(Name, InstanceHash);
+	const std::string FullShaderName = GetShaderNamestr(Name, InstanceHash, type);
+	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + FullShaderName;
 #if BUILD_SHIPPING
 	ensureFatalMsgf(FileUtils::File_ExistsTest(ShaderPath), "Missing shader: " + GetShaderNamestr(Name, InstanceHash));
 	ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 #else	
-	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, InstanceHash))
+	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, FullShaderName))
 	{
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 		return true;
@@ -245,7 +248,7 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 	{
 		const std::string DDcShaderPath = AssetManager::GetDDCPath() + "Shaders\\";
 		FileUtils::CreateDirectoriesToFullPath(DDcShaderPath + shadername + ".");
-		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash())).c_str(), true));
+		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
 	}
 }
 

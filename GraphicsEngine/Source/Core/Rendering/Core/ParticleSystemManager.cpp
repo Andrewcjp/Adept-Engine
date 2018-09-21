@@ -3,6 +3,8 @@
 #include "Core/Assets/ShaderComplier.h"
 #include "Rendering/Shaders/Particle/Shader_ParticleCompute.h"
 #include "Rendering/Shaders/Particle/Shader_ParticleDraw.h"
+#include "RHI/DeviceContext.h"
+#include "Core/Assets/AssetManager.h"
 ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
 
 ParticleSystemManager::ParticleSystemManager()
@@ -21,7 +23,7 @@ void ParticleSystemManager::Init()
 	desc.Stride = sizeof(ParticleData);
 	desc.ElementCount = CurrentParticleCount;
 	desc.AllowUnorderedAccess = true;
-
+	GPU_ParticleData->SetDebugName("Particle Data");
 	GPU_ParticleData->CreateBuffer(desc);
 	GPU_ParticleData_UAV = RHI::CreateUAV();
 	GPU_ParticleData_UAV->CreateUAVFromRHIBuffer(GPU_ParticleData);
@@ -34,6 +36,7 @@ void ParticleSystemManager::Init()
 	Counters count = Counters();
 	count.deadCount = CurrentParticleCount;
 	CounterBuffer->UpdateIndexBuffer(&count, sizeof(Counters));
+	CounterBuffer->SetDebugName("Counter");
 	CounterUAV = RHI::CreateUAV();
 	CounterUAV->CreateUAVFromRHIBuffer(CounterBuffer);
 	CmdList = RHI::CreateCommandList(ECommandListType::Compute);
@@ -48,15 +51,28 @@ void ParticleSystemManager::Init()
 	desc.Accesstype = EBufferAccessType::GPUOnly;
 	desc.ElementCount = CurrentParticleCount;
 	AliveParticleIndexs->CreateBuffer(desc);
+	AliveParticleIndexs->SetDebugName("Alive Pre sim");
 	AliveParticleIndexs_UAV = RHI::CreateUAV();
 	AliveParticleIndexs_UAV->CreateUAVFromRHIBuffer(AliveParticleIndexs);
-	//AliveParticleIndexs->UpdateBufferData(0, 0, EBufferResourceState::UnorderedAccess);
+
+	AliveParticleIndexs_PostSim = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
+	desc = RHIBufferDesc();
+	desc.Stride = sizeof(UINT);
+	desc.AllowUnorderedAccess = true;
+	desc.Accesstype = EBufferAccessType::GPUOnly;
+	desc.ElementCount = CurrentParticleCount;
+	AliveParticleIndexs_PostSim->CreateBuffer(desc);
+	AliveParticleIndexs_PostSim->SetDebugName("Alive Post Sim");
+	AliveParticleIndexs_PostSim_UAV = RHI::CreateUAV();
+	AliveParticleIndexs_PostSim_UAV->CreateUAVFromRHIBuffer(AliveParticleIndexs_PostSim);
+
 	DeadParticleIndexs = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
 	desc = RHIBufferDesc();
 	desc.Stride = sizeof(UINT);
 	desc.AllowUnorderedAccess = true;
 	desc.Accesstype = EBufferAccessType::Static;
 	desc.ElementCount = CurrentParticleCount;
+	DeadParticleIndexs->SetDebugName("Dead Particles");
 	DeadParticleIndexs->CreateBuffer(desc);
 	uint32_t* indices = new uint32_t[MAX_PARTICLES];
 	for (uint32_t i = 0; i < MAX_PARTICLES; ++i)
@@ -64,9 +80,13 @@ void ParticleSystemManager::Init()
 		indices[i] = i;
 	}
 	DeadParticleIndexs->UpdateBufferData(indices, MAX_PARTICLES, EBufferResourceState::UnorderedAccess);
+	DeadParticleIndexs->SetDebugName("Dead particle indexes");
 	DeadParticleIndexs_UAV = RHI::CreateUAV();
 	DeadParticleIndexs_UAV->CreateUAVFromRHIBuffer(DeadParticleIndexs);
 	delete[] indices;
+
+	//test
+	TEstTex = AssetManager::DirectLoadTextureAsset("texture\\smoke.png", true);
 }
 
 void ParticleSystemManager::SetupCommandBuffer()
@@ -88,9 +108,12 @@ void ParticleSystemManager::SetupCommandBuffer()
 	Data[1].dispatchArgs.ThreadGroupCountY = 1;
 	Data[1].dispatchArgs.ThreadGroupCountZ = 1;
 	DispatchCommandBuffer->UpdateBufferData(Data, sizeof(IndrectDispatchArgs) * 2, EBufferResourceState::UnorderedAccess);
+	DispatchCommandBuffer->SetDebugName("Dispatch Command Buffer");
 	DispatchCommandBuffer_UAV = RHI::CreateUAV();
 	DispatchCommandBuffer_UAV->CreateUAVFromRHIBuffer(DispatchCommandBuffer);
+#if USE_INDIRECTCOMPUTE
 	CmdList->SetUpCommandSigniture(sizeof(IndrectDispatchArgs), true);
+#endif
 	RenderCommandBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
 	desc.Accesstype = EBufferAccessType::Static;
 	desc.Stride = sizeof(IndirectArgs);
@@ -108,8 +131,10 @@ void ParticleSystemManager::SetupCommandBuffer()
 		cmdbuffer[i].data = 0;
 	}
 	RenderCommandBuffer->UpdateBufferData(cmdbuffer.data(), cmdbuffer.size(), EBufferResourceState::UnorderedAccess);
+	RenderCommandBuffer->SetDebugName("RenderCommandBuffer");
 	RenderCommandBuffer_UAV = RHI::CreateUAV();
 	RenderCommandBuffer_UAV->CreateUAVFromRHIBuffer(RenderCommandBuffer);
+
 	RenderList = RHI::CreateCommandList();
 	PipeLineState pls = PipeLineState();
 	pls.Cull = false;
@@ -117,9 +142,12 @@ void ParticleSystemManager::SetupCommandBuffer()
 	pls.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	pls.RenderTargetDesc.NumRenderTargets = 1;
 	pls.RenderTargetDesc.DSVFormat = FORMAT_D32_FLOAT;
+	pls.Blending = true;
 	RenderList->SetPipelineState(pls);
 	RenderList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleDraw>());
+#if 1//USE_INDIRECTCOMPUTE
 	RenderList->SetUpCommandSigniture(sizeof(IndirectArgs), false);
+#endif
 
 
 	float g_quad_vertex_buffer_data[] = {
@@ -139,8 +167,8 @@ void ParticleSystemManager::SetupCommandBuffer()
 
 void ParticleSystemManager::PreRenderUpdate(Camera* c)
 {
-	RenderData.CameraUp_worldspace = c->GetUp();
-	RenderData.CameraRight_worldspace = c->GetRight();
+	RenderData.CameraUp_worldspace = glm::vec4(c->GetUp(), 1.0f);
+	RenderData.CameraRight_worldspace = glm::vec4(c->GetRight(), 1.0f);
 	RenderData.VPMat = c->GetViewProjection();
 	ParticleRenderConstants->UpdateConstantBuffer(&RenderData, 0);
 }
@@ -172,15 +200,22 @@ void ParticleSystemManager::ShutDown()
 	EnqueueSafeRHIRelease(DeadParticleIndexs);
 	EnqueueSafeRHIRelease(AliveParticleIndexs_UAV);
 	EnqueueSafeRHIRelease(DeadParticleIndexs_UAV);
+	EnqueueSafeRHIRelease(TEstTex);
+	EnqueueSafeRHIRelease(AliveParticleIndexs_PostSim);
+	EnqueueSafeRHIRelease(AliveParticleIndexs_PostSim_UAV);
 }
 
 void ParticleSystemManager::Simulate()
 {
 	CmdList->ResetList();
+	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
 	CmdList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_StartSimulation>());
 	CounterUAV->Bind(CmdList, 0);
 	DispatchCommandBuffer_UAV->Bind(CmdList, 1);
+	emitcount++;
+	int on = 1;// (emitcount % 10 == 0);
+	CmdList->SetRootConstant(2, 1, &on, 0);
 	CmdList->Dispatch(1, 1, 1);
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::IndirectArgs);
 
@@ -189,41 +224,56 @@ void ParticleSystemManager::Simulate()
 	GPU_ParticleData_UAV->Bind(CmdList, 0);
 	AliveParticleIndexs_UAV->Bind(CmdList, 2);
 	DeadParticleIndexs_UAV->Bind(CmdList, 3);
-	emitcount++;
-	int on = (emitcount % 10 == 0);
-	CmdList->SetRootConstant(4, 1, &on, 0);
+#if USE_INDIRECTCOMPUTE
 	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, 0, nullptr, 0);
+#else
+	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
+#endif
 
 	CmdList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleCompute>());
 	GPU_ParticleData_UAV->Bind(CmdList, 0);
 	CounterUAV->Bind(CmdList, 1);
 	AliveParticleIndexs->BindBufferReadOnly(CmdList, 2);
 	DeadParticleIndexs_UAV->Bind(CmdList, 3);
-	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, 0, nullptr, 0);
+	AliveParticleIndexs_PostSim_UAV->Bind(CmdList, 4);
+#if USE_INDIRECTCOMPUTE
+	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, sizeof(IndrectDispatchArgs), nullptr, 0);
+#else
+	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
+#endif
 
 	CmdList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_EndSimulation>());
-
+	AliveParticleIndexs_PostSim->BindBufferReadOnly(CmdList, 0);
 	RenderCommandBuffer_UAV->Bind(CmdList, 1);
-	//AliveParticleIndexs->SetBufferState(CmdList,EBufferResourceState::)
-	AliveParticleIndexs->BindBufferReadOnly(CmdList, 0);
+	CounterUAV->Bind(CmdList, 2);
+#if USE_INDIRECTCOMPUTE
 	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, sizeof(IndrectDispatchArgs), nullptr, 0);
+#else
+	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
+#endif
 	RenderCommandBuffer->SetBufferState(CmdList, EBufferResourceState::IndirectArgs);
+	CmdList->EndTimer(EGPUTIMERS::ParticleSimulation);
 	CmdList->Execute();
+	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
 void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 {
-
+	//return;
 	RenderList->ResetList();
-	//RenderList->CreatePipelineState(ShaderComplier::GetShader<Shader_ParticleDraw>(), BufferTarget);
+	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
+	RenderList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleDraw>(), BufferTarget);
 	RenderList->SetRenderTarget(BufferTarget);
 	RenderList->SetVertexBuffer(VertexBuffer);
 	RenderList->SetConstantBufferView(ParticleRenderConstants, 0, 2);
 	GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
 	GPU_ParticleData->BindBufferReadOnly(RenderList, 1);
 	RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::IndirectArgs);
+	RenderList->SetTexture(TEstTex, 3);
 	RenderList->ExecuteIndiect(MAX_PARTICLES, RenderCommandBuffer, 0, nullptr, 0);
 	GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
 	RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
+	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 	RenderList->Execute();
+	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 }

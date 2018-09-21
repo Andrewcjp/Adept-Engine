@@ -20,6 +20,7 @@ std::vector<Shader::ShaderParameter> Shader_ParticleCompute::GetShaderParameters
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 1));
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 2, 2));
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 3, 2));
+	Output.push_back(ShaderParameter(ShaderParamType::UAV, 4, 3));
 	return Output;
 }
 
@@ -37,6 +38,7 @@ std::vector<Shader::ShaderParameter> Shader_StartSimulation::GetShaderParameters
 	std::vector<Shader::ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 0, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 1));
+	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 2, 0));
 	return Output;
 }
 
@@ -54,6 +56,7 @@ std::vector<Shader::ShaderParameter> Shader_EndSimulation::GetShaderParameters()
 	std::vector<Shader::ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 1));
+	Output.push_back(ShaderParameter(ShaderParamType::UAV, 2, 2));
 	return Output;
 }
 
@@ -73,6 +76,5 @@ std::vector<Shader::ShaderParameter> Shader_ParticleEmit::GetShaderParameters()
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 1));
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 2, 2));
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 3, 3));
-	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 4, 0));
 	return Output;
 }

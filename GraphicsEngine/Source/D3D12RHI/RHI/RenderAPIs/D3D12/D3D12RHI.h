@@ -33,6 +33,7 @@ public:
 	static bool DetectGPUDebugger();
 	//temp To be RHI'D	
 	std::string GetMemory();
+	static void HandleDeviceFailure();
 private:
 	void DestroyContext();
 	void PresentFrame();
@@ -114,6 +115,7 @@ private:
 	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
+	
 };
 #include "D3D12Helpers.h"
 //helper functions!
@@ -121,6 +123,7 @@ static inline void ThrowIfFailed(HRESULT hr)
 {
 	if (FAILED(hr))
 	{
+		D3D12RHI::HandleDeviceFailure();
 		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }

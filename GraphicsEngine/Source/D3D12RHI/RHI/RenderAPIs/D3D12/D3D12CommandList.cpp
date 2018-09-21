@@ -57,7 +57,7 @@ void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentB
 	{
 		counterB = ((D3D12Buffer*)CountBuffer)->GetResource()->GetResource();
 	}
-	PushPrimitiveTopology();
+	//PushPrimitiveTopology();
 	CurrentCommandList->ExecuteIndirect(CommandSig, MaxCommandCount, ((D3D12Buffer*)ArgumentBuffer)->GetResource()->GetResource(), ArgOffset, counterB, CountBufferOffset);
 }
 
@@ -186,6 +186,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	CurrentCommandList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
+	PushPrimitiveTopology();
 }
 
 void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
@@ -624,6 +625,15 @@ void D3D12Buffer::SetupBufferSRV()
 	}
 }
 
+void D3D12Buffer::SetDebugName(const char* Name)
+{
+	RHIBuffer::SetDebugName(Name);
+	if (m_DataBuffer)
+	{
+		m_DataBuffer->SetName(StringUtils::ConvertStringToWide(Name).c_str());
+	}
+}
+
 void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)
 {
 	if (BufferAccesstype == EBufferAccessType::Dynamic)
@@ -684,7 +694,11 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_COPY_DEST);
 	// we can give resource heaps a name so when we debug with the graphics debugger we know what resource we are looking at
 	m_DataBuffer->SetName(L"Buffer Resource Heap");
-
+	std::string name = DebugName;
+	if (name.length() > 0)
+	{
+		m_DataBuffer->SetName(StringUtils::ConvertStringToWide(DebugName).c_str());
+	}
 	// create upload heap to upload index buffer
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
@@ -710,6 +724,7 @@ void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 		nullptr,
 		IID_PPV_ARGS(&TempRes)));
 	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_GENERIC_READ);
+	m_DataBuffer->SetName(StringUtils::ConvertStringToWide(DebugName).c_str());
 
 }
 static inline UINT AlignForUavCounter(UINT bufferSize)
@@ -740,6 +755,7 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 			nullptr,
 			IID_PPV_ARGS(&TempRes)));
 		m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		m_DataBuffer->SetName(StringUtils::ConvertStringToWide(DebugName).c_str());
 	}
 	else if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
@@ -760,7 +776,7 @@ void D3D12Buffer::UpdateIndexBuffer(void * data, size_t length)
 	UpdateData(data, length, D3D12_RESOURCE_STATE_GENERIC_READ);
 }
 
-void D3D12Buffer::UpdateBufferData(void * data, size_t length,EBufferResourceState::Type state)
+void D3D12Buffer::UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state)
 {
 	UpdateData(data, length, D3D12Helpers::ConvertBufferResourceState(state));
 }
@@ -811,7 +827,15 @@ void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 	ensure(target->CurrentBufferType == RHIBuffer::BufferType::GPU);
 	ensure(d3dtarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	Heap->SetName(L"CreateUAVFromRHIBuffer");
+	std::string Name = d3dtarget->DebugName;
+	if (Name.length() > 0)
+	{
+		Heap->SetName(StringUtils::ConvertStringToWide(Name + "_UAV").c_str());
+	}
+	else
+	{
+		Heap->SetName(L"CreateUAVFromRHIBuffer");
+	}
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -856,7 +880,14 @@ void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 	ensure(Device == list->GetDevice());
 	D3D12CommandList* DXList = ((D3D12CommandList*)list);
 	Heap->BindHeap(DXList->GetCommandList());
-	DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, Heap->GetGpuAddress(0));
+	if (list->IsComputeList())
+	{
+		DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, Heap->GetGpuAddress(0));
+	}
+	else
+	{
+		DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGpuAddress(0));
+	}
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

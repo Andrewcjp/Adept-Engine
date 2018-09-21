@@ -202,7 +202,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 			continue;
 		}
 		FrameBuffer* TargetBuffer = LightInteractions[SNum]->ShadowMap;
-		Shader_Depth* TargetShader = LightInteractions[SNum]->Shader;
+		Shader_Depth* TargetShader = PointLightShader;//LightInteractions[SNum]->Shader;
 		list->SetRenderTarget(TargetBuffer);
 		list->ClearFrameBuffer(TargetBuffer);
 		//list->SetPipelineStateObject(TargetShader);
@@ -368,7 +368,7 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 		//desc.DepthClearValue = 0.0f;
 		ShadowMap = RHI::CreateFrameBuffer(Context, desc);
 	}
-	Shader = new Shader_Depth( Context, IsPoint);
+	//Shader = new Shader_Depth( Context, IsPoint);
 	if (Context->GetDeviceIndex() != 0)
 	{
 		NeedsSample = true;
@@ -383,7 +383,7 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 
 ShadowRenderer::ShadowLightInteraction::~ShadowLightInteraction()
 {
-	delete Shader;
+	SafeDelete(Shader)
 	EnqueueSafeRHIRelease(ShadowMap);
 	EnqueueSafeRHIRelease(PreSampledBuffer);
 }

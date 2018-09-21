@@ -203,6 +203,8 @@ namespace EGPUTIMERS
 		PostProcess,
 		Present,
 		ShadowPreSample,
+		ParticleDraw,
+		ParticleSimulation,
 		LIMIT
 	};
 }

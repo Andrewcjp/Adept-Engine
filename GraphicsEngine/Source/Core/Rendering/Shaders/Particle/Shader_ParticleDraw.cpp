@@ -6,7 +6,7 @@ Shader_ParticleDraw::Shader_ParticleDraw(DeviceContext* device) :Shader(device)
 {
 	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->AttachAndCompileShaderFromFile("Particles\\ParticleDraw", EShaderType::SHADER_VERTEX, "VSMain");
-	m_Shader->AttachAndCompileShaderFromFile("Particles\\ParticleDraw2", EShaderType::SHADER_FRAGMENT, "FSMain");
+	m_Shader->AttachAndCompileShaderFromFile("Particles\\ParticleDraw", EShaderType::SHADER_FRAGMENT, "FSMain");
 }
 
 Shader_ParticleDraw::~Shader_ParticleDraw()
@@ -25,5 +25,6 @@ std::vector<Shader::ShaderParameter> Shader_ParticleDraw::GetShaderParameters()
 	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 0, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 1, 0, 0, RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 1));
+	Output.push_back(ShaderParameter(ShaderParamType::SRV, 3, 1));
 	return Output;
 }

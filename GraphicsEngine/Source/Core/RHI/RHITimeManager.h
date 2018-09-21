@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RHI_inc_fwd.h"
+#include "RHITypes.h"
 class RHI_API RHITimeManager
 {
 public:
@@ -17,5 +18,6 @@ public:
 	virtual void ResolveCopyTimeHeaps(RHICommandList * ComandList) = 0;
 protected:
 	DeviceContext * Context = nullptr;
+	const int CopyOffset = EGPUTIMERS::LIMIT;
 };
 

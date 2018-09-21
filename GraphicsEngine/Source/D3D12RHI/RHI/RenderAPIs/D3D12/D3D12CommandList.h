@@ -95,6 +95,7 @@ protected:
 	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);
 	void Release() override;
 	void SetupBufferSRV();
+	void SetDebugName(const char* Name) override;
 	friend class D3D12RHIUAV;
 private:
 	void MapBuffer(void** Data);

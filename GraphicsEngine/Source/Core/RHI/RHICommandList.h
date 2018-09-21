@@ -52,10 +52,15 @@ public:
 	{
 		return CounterOffset;
 	}
-protected:
+	virtual void SetDebugName(const char* Name)
+	{
+		DebugName = Name;
+	}
+protected: 
 	size_t VertexCount = 0;
 	int CounterOffset = 0;
 	int TotalByteSize = 0;
+	const char* DebugName = "";
 };
 
 class RHIUAV : public IRHIResourse
