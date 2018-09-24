@@ -1,19 +1,18 @@
 #pragma once
 #include "RHI/RHICommandList.h"
 #include "RHI/Shader.h"
-#if BUILD_VULKAN
+#include "VKanRHI.h"
 class VKanCommandlist :
 	public RHICommandList
 {
 public:
-	VKanCommandlist();
+	VKanCommandlist(ECommandListType::Type type, DeviceContext* context);
 	~VKanCommandlist();
 
 	// Inherited via RHICommandList
 	virtual void ResetList() override;
-	virtual void SetRenderTarget(FrameBuffer * target) override;
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
-	virtual void Execute() override;
+
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
@@ -22,7 +21,6 @@ public:
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetTexture(BaseTexture * texture, int slot) override;
-	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot) override;
 	virtual void SetScreenBackBufferAsRT() override;
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
@@ -33,21 +31,39 @@ public:
 
 	// Inherited via RHICommandList
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
+
+	// Inherited via RHICommandList
+	virtual void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0) override;
+	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
+	virtual void WaitForCompletion() override;
+	virtual void SetPipelineStateObject(Shader * shader, FrameBuffer * Buffer = nullptr) override;
+	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
+	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
+	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset) override;
+	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset) override;
+	VkCommandBuffer CommandBuffer;
+private:
+	
 };
 
-class VKanBuffer : public RHIBuffer
+
+class VkanUAV :public RHIUAV
 {
 public:
-	VKanBuffer(RHIBuffer::BufferType type) :RHIBuffer(type) {}
-	virtual ~VKanBuffer() {};
-	// Inherited via RHIBuffer	
-	virtual void CreateConstantBuffer(int StructSize, int Elementcount) override;
-	virtual void UpdateConstantBuffer(void * data, int offset) override;
-	virtual void UpdateVertexBuffer(void * data, int length) override;
-
-	// Inherited via RHIBuffer
-	virtual void CreateVertexBuffer(int Stride, int ByteSize, BufferAccessType Accesstype = BufferAccessType::Static) override;
-	virtual void CreateIndexBuffer(int Stride, int ByteSize) override;
-	virtual void UpdateIndexBuffer(void * data, int length) override;
+	VkanUAV() {};
+	// Inherited via RHIUAV
+	virtual void Bind(RHICommandList * list, int slot) override;
+	virtual void CreateUAVFromFrameBuffer(FrameBuffer * target) override;
+	virtual void CreateUAVFromTexture(BaseTexture * target) override;
+	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
 };
-#endif
+class VkanTextureArray :public RHITextureArray
+{
+public:
+	VkanTextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)
+	{};
+	// Inherited via RHITextureArray
+	virtual void AddFrameBufferBind(FrameBuffer * Buffer, int slot) override;
+	virtual void BindToShader(RHICommandList * list, int slot) override;
+	virtual void SetIndexNull(int TargetIndex) override;
+};

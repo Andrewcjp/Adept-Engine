@@ -96,6 +96,10 @@ HWND WindowsWindow::GetHWND()
 	return app->HWindow;
 }
 
+ HINSTANCE WindowsWindow::GetHInstance()
+{
+	 return app->m_hInst;
+}
 void WindowsWindow::DestroyApplication()
 {	
 	if (app != nullptr)

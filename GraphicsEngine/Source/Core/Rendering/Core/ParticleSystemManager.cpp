@@ -9,7 +9,7 @@ ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
 
 ParticleSystemManager::ParticleSystemManager()
 {
-	Init();
+	//Init();
 }
 
 ParticleSystemManager::~ParticleSystemManager()
@@ -170,7 +170,10 @@ void ParticleSystemManager::PreRenderUpdate(Camera* c)
 	RenderData.CameraUp_worldspace = glm::vec4(c->GetUp(), 1.0f);
 	RenderData.CameraRight_worldspace = glm::vec4(c->GetRight(), 1.0f);
 	RenderData.VPMat = c->GetViewProjection();
-	ParticleRenderConstants->UpdateConstantBuffer(&RenderData, 0);
+	if (ParticleRenderConstants)
+	{
+		ParticleRenderConstants->UpdateConstantBuffer(&RenderData, 0);
+	}
 }
 
 ParticleSystemManager * ParticleSystemManager::Get()
@@ -207,6 +210,7 @@ void ParticleSystemManager::ShutDown()
 
 void ParticleSystemManager::Simulate()
 {
+	return;
 	CmdList->ResetList();
 	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
@@ -259,7 +263,7 @@ void ParticleSystemManager::Simulate()
 
 void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 {
-	//return;
+	return;
 	RenderList->ResetList();
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
 	RenderList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleDraw>(), BufferTarget);
