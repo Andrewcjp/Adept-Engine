@@ -10,6 +10,11 @@ Mesh::Mesh()
 Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	LoadMeshFromFile(filename, Settings);
+	FrameCreated = RHI::GetFrameCount();
+	if (FrameCreated == 0)
+	{
+		FrameCreated = -10;
+	}
 }
 
 void Mesh::Release()
@@ -24,9 +29,12 @@ Mesh::~Mesh()
 
 void Mesh::Render(RHICommandList * list)
 {
-	list->SetVertexBuffer(VertexBuffers[list->GetDeviceIndex()]);
-	list->SetIndexBuffer(IndexBuffers[list->GetDeviceIndex()]);
-	list->DrawPrimitive(VertexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0);
+	if (RHI::GetFrameCount() > FrameCreated + 1)
+	{
+		list->SetVertexBuffer(VertexBuffers[list->GetDeviceIndex()]);
+		list->SetIndexBuffer(IndexBuffers[list->GetDeviceIndex()]);
+		list->DrawPrimitive(VertexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0);
+	}
 }
 
 void Mesh::LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)

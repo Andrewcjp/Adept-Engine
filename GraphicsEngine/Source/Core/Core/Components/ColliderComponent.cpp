@@ -31,17 +31,17 @@ void ColliderComponent::CreateShape()
 	{
 		CollisionShape->release();
 	}
-	switch (CollisionShapeType)
-	{
-	case Box:
-		CollisionShape = Engine::PhysEngine->GetGPhysics()->createShape(physx::PxBoxGeometry(BoxHalfExtent, BoxHalfExtent, BoxHalfExtent),
-			*(Engine::PhysEngine->GetDefaultMaterial()));
-		break;
-	case Sphere:
-		CollisionShape = Engine::PhysEngine->GetGPhysics()->createShape(physx::PxSphereGeometry(Radius),
-			*(Engine::PhysEngine->GetDefaultMaterial()));
-		break;
-	}
+	//switch (CollisionShapeType)
+	//{
+	//case Box:
+	//	CollisionShape = Engine::PhysEngine->GetGPhysics()->createShape(physx::PxBoxGeometry(BoxHalfExtent, BoxHalfExtent, BoxHalfExtent),
+	//		*(Engine::PhysEngine->GetDefaultMaterial()));
+	//	break;
+	//case Sphere:
+	//	CollisionShape = Engine::PhysEngine->GetGPhysics()->createShape(physx::PxSphereGeometry(Radius),
+	//		*(Engine::PhysEngine->GetDefaultMaterial()));
+	//	break;
+	//}
 	InitalisedCollisionShapeType = CollisionShapeType;
 }
 

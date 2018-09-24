@@ -24,13 +24,13 @@ void EditorObjectSelector::LinkPhysxBodysToGameObjects(const std::vector<GameObj
 {
 	for (int i = 0; i < objects.size(); i++)
 	{
-		pengine->AddBoxCollisionToEditor(objects[i]);
+		//pengine->AddBoxCollisionToEditor(objects[i]);
 	}
 }
 GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const std::vector<GameObject*>& objects)
 {
 
-	physx::PxRaycastBuffer hit;
+	/*physx::PxRaycastBuffer hit;*/
 	glm::vec3 camforward = glm::vec4(cam->GetForward(), 1.0f);// *cam->GetProjection();
 	glm::vec3 origin;
 	glm::vec3 dir = -cam->GetForward();
@@ -42,7 +42,7 @@ GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const
 	{
 		DebugLineDrawer::instance->AddLine(origin, origin + glm::normalize(-dir) * 1000, Colours::RED, 10);
 	}
-	if (pengine->RayCastEditorScene(origin, glm::normalize(-dir), 15000, &hit))
+	/*if (pengine->RayCastEditorScene(origin, glm::normalize(-dir), 15000, &hit))
 	{
 		for (int i = 0; i < objects.size(); i++)
 		{
@@ -51,6 +51,6 @@ GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const
 				return objects[i];
 			}
 		}
-	}
+	}*/
 	return nullptr;
 }

@@ -7,8 +7,9 @@
 #include "physx\PxShape.h"
 #include "physx\PxRigidStatic.h"
 #include "rapidjson\document.h"
+#include "Physics/PhysicsEngine.h"
 class Component;
-class RigidBody;
+//class RigidBody;
 class MeshRendererComponent;
 class GameObject : public IInspectable
 {

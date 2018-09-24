@@ -1,5 +1,5 @@
 #include "GameObject.h"
-#include "Physics/RigidBody.h"
+#include "Physics/GenericRigidBody.h"
 #include "RHI/RHI.h"
 #include "Components\MeshRendererComponent.h"
 #include "Core/Assets/Scene.h"
@@ -136,12 +136,17 @@ GameObject::EMoblity GameObject::GetMobility()
 
 void GameObject::EditorUpdate()
 {
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components[i]->EditorUpdate();
+	}
+
 	bool changed = m_transform->IsChanged();
 	if (changed)
 	{
 		for (int i = 0; i < m_Components.size(); i++)
 		{
-			m_Components[i]->OnTransformUpdate();
+			m_Components[i]->OnTransformUpdate();			
 		}
 		//GetScene()->StaticSceneNeedsUpdate = true;
 		m_transform->Update();

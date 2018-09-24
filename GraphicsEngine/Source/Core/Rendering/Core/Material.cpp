@@ -13,7 +13,7 @@ Asset_Shader* Material::DefaultMaterial = nullptr;
 
 Material::Material(BaseTexture * Diff, MaterialProperties props) :Material(props)
 {
-	UpdateBind("ALBEDOMAP", Diff);
+	UpdateBind("DiffuseMap", Diff);
 }
 
 Material::Material(MaterialProperties props)
@@ -192,7 +192,11 @@ void Material::ProcessSerialArchive(Archive * A)
 	}
 	else
 	{
-		std::string tmp = Properties.ShaderInUse->GetName();
+		std::string tmp = "";
+		if (Properties.ShaderInUse != nullptr)
+		{
+			tmp = Properties.ShaderInUse->GetName();
+		}		
 		ArchiveProp_Alias(tmp, Properties.ShaderInUse->GetName());
 	}
 	if (A->IsReading())

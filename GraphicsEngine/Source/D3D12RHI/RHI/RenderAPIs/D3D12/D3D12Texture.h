@@ -32,6 +32,7 @@ private:
 	class D3D12DeviceContext * Device = nullptr;
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	ID3D12Resource* m_texture = nullptr;
-	class DescriptorHeap* srvHeap = nullptr;	
+	class DescriptorHeap* srvHeap = nullptr;
+	int FrameCreated = -1;
 };
 

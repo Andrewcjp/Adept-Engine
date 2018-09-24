@@ -27,6 +27,11 @@ D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 	{
 		Device = (D3D12DeviceContext*)inDevice;
 	}
+	FrameCreated = RHI::GetFrameCount();
+	if (FrameCreated == 0)
+	{
+		FrameCreated = -10;
+	}
 }
 
 unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int bpp, unsigned char * StartData, int&mipsize, float ratio)
@@ -263,8 +268,11 @@ bool D3D12Texture::CreateFromFile(AssetPathRef FileName)
 
 void D3D12Texture::BindToSlot(ID3D12GraphicsCommandList* list, int slot)
 {
-	srvHeap->BindHeap(list);
-	list->SetGraphicsRootDescriptorTable(slot, srvHeap->GetGpuAddress(0));
+	if (RHI::GetFrameCount() > FrameCreated + 1)
+	{
+		srvHeap->BindHeap(list);
+		list->SetGraphicsRootDescriptorTable(slot, srvHeap->GetGpuAddress(0));
+	}
 }
 
 void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int height, int bits)

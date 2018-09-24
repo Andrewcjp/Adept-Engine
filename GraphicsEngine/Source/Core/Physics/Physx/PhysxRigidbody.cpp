@@ -1,17 +1,10 @@
-#include "RigidBody.h"
+#include "Stdafx.h"
+#include "PhysxRigidbody.h"
+#if PHYSX_ENABLED
+PhysxRigidbody::~PhysxRigidbody()
+{}
 
-
-
-RigidBody::RigidBody()
-{
-
-}
-
-
-RigidBody::~RigidBody()
-{
-}
-RigidBody::RigidBody(physx::PxRigidDynamic* Rigid)
+PhysxRigidbody::PhysxRigidbody(physx::PxRigidDynamic* Rigid)
 {
 	actor = Rigid;
 	//if (actor != nullptr) {
@@ -27,7 +20,7 @@ RigidBody::RigidBody(physx::PxRigidDynamic* Rigid)
 }
 
 
-glm::vec3 RigidBody::GetPosition()
+glm::vec3 PhysxRigidbody::GetPosition()
 {
 #if	PHYSX_ENABLED
 
@@ -37,7 +30,7 @@ glm::vec3 RigidBody::GetPosition()
 #endif
 }
 
-glm::quat RigidBody::GetRotation()
+glm::quat PhysxRigidbody::GetRotation()
 {
 #if	PHYSX_ENABLED
 	return PXquatToGLM(actor->getGlobalPose().q);
@@ -46,7 +39,7 @@ glm::quat RigidBody::GetRotation()
 #endif
 }
 
-void RigidBody::AddTorque(glm::vec3 torque)
+void PhysxRigidbody::AddTorque(glm::vec3 torque)
 {
 	if (actor != nullptr)
 	{
@@ -54,7 +47,7 @@ void RigidBody::AddTorque(glm::vec3 torque)
 	}
 }
 
-void RigidBody::AddForce(glm::vec3 force)
+void PhysxRigidbody::AddForce(glm::vec3 force)
 {
 	if (actor != nullptr)
 	{
@@ -62,7 +55,7 @@ void RigidBody::AddForce(glm::vec3 force)
 	}
 }
 
-glm::vec3 RigidBody::GetLinearVelocity()
+glm::vec3 PhysxRigidbody::GetLinearVelocity()
 {
 	if (actor != nullptr)
 	{
@@ -71,3 +64,4 @@ glm::vec3 RigidBody::GetLinearVelocity()
 	return glm::vec3();
 }
 
+#endif

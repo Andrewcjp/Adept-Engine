@@ -1,11 +1,12 @@
-#include "PhysicsEngine.h"
-#include "RigidBody.h"
+#include "Stdafx.h"
+#include "PhysxEngine.h"
+#if PHYSX_ENABLED
 #include <thread>
 #include "Core/GameObject.h"
 #define ENABLEPVD !(NDEBUG)
 #include <algorithm>
 using namespace physx;
-void PhysicsEngine::initPhysics()
+void PhysxEngine::initPhysics()
 {
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 #if ENABLEPVD
@@ -42,13 +43,13 @@ void PhysicsEngine::initPhysics()
 	Log::OutS << "Physx Initalised" << Log::OutS;
 }
 
-void PhysicsEngine::stepPhysics(float Deltatime)
+void PhysxEngine::stepPhysics(float Deltatime)
 {
 	//Deltatime
 	gScene->simulate(Deltatime);
 	gScene->fetchResults(true);
 }
-std::vector<PxRigidActor*> PhysicsEngine::GetActors()
+std::vector<PxRigidActor*> PhysxEngine::GetActors()
 {
 	PxU32 nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
 	if (nbActors > 0)
@@ -61,7 +62,7 @@ std::vector<PxRigidActor*> PhysicsEngine::GetActors()
 	std::vector<PxRigidActor*> actors;
 	return actors;
 }
-void PhysicsEngine::cleanupPhysics()
+void PhysxEngine::cleanupPhysics()
 {
 
 	gScene->release();
@@ -75,18 +76,18 @@ void PhysicsEngine::cleanupPhysics()
 #endif
 	gFoundation->release();
 }
-std::vector<RigidBody*> PhysicsEngine::createStack(const glm::vec3 & t, int size, float halfExtent)
+std::vector<RigidBody*> PhysxEngine::createStack(const glm::vec3 & t, int size, float halfExtent)
 {
 	std::vector<PxRigidDynamic*> objects = createStack(PxTransform(GLMtoPXvec3(t)), size, halfExtent);
 	std::vector<RigidBody*> Bodies;
 	for (int i = 0; i < objects.size(); i++)
 	{
-		RigidBody* body = new RigidBody(objects[i]);
+		RigidBody* body = new PhysxRigidbody(objects[i]);
 		Bodies.push_back(body);
 	}
 	return Bodies;
 }
-PxRigidDynamic* PhysicsEngine::createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
+PxRigidDynamic* PhysxEngine::createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
 {
 	PxRigidDynamic* dynamic = PxCreateDynamic(*gPhysics, t, geometry, *gMaterial, 10.0f);
 	dynamic->setAngularDamping(0.5f);
@@ -97,7 +98,7 @@ PxRigidDynamic* PhysicsEngine::createDynamic(const PxTransform& t, const PxGeome
 
 }
 
-std::vector<PxRigidDynamic*> PhysicsEngine::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
+std::vector<PxRigidDynamic*> PhysxEngine::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
 {
 	std::vector<PxRigidDynamic*> objects;
 	PxShape* shape = gPhysics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
@@ -117,7 +118,7 @@ std::vector<PxRigidDynamic*> PhysicsEngine::createStack(const PxTransform& t, Px
 	return objects;
 }
 
-PxRigidDynamic* PhysicsEngine::CreateActor(PxVec3 position, PxReal halfextent, PxGeometryType::Enum type)
+PxRigidDynamic* PhysxEngine::CreateActor(PxVec3 position, PxReal halfextent, PxGeometryType::Enum type)
 {
 
 	PxShape* shape;
@@ -150,26 +151,26 @@ PxRigidDynamic* PhysicsEngine::CreateActor(PxVec3 position, PxReal halfextent, P
 	//body->set
 	return body;
 }
-PxRigidDynamic* PhysicsEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale, PxGeometryType::Enum type)
+PxRigidDynamic* PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale, PxGeometryType::Enum type)
 {
 	PxRigidDynamic* newobject = CreateActor(GLMtoPXvec3(position), scale, type);
 	newobject->addForce(GLMtoPXvec3(velocity), PxForceMode::eFORCE, true);
 	return newobject;
 }
-RigidBody * PhysicsEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale)
+RigidBody * PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale)
 {
-	return new RigidBody(FirePrimitiveAtScene(position, velocity, scale, PxGeometryType::eSPHERE));
+	return new PhysxRigidbody(FirePrimitiveAtScene(position, velocity, scale, PxGeometryType::eSPHERE));
 }
-RigidBody* PhysicsEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
+RigidBody* PhysxEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
 {
 	PX_UNUSED(velocity);
-	return new RigidBody(CreateActor(GLMtoPXvec3(position), scale, PxGeometryType::eSPHERE));
+	return new PhysxRigidbody(CreateActor(GLMtoPXvec3(position), scale, PxGeometryType::eSPHERE));
 }
-bool PhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
+bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {
 	return RayCastScene(startpos, direction, distance, hit, false);
 }
-void PhysicsEngine::AddBoxCollisionToEditor(GameObject* obj)
+void PhysxEngine::AddBoxCollisionToEditor(GameObject* obj)
 {
 	PxRigidStatic* st = gPhysics->createRigidStatic(PxTransform(GLMtoPXvec3(obj->GetTransform()->GetPos())));
 	PxRigidActorExt::createExclusiveShape(*st, PxBoxGeometry(2, 2, 2), *gMaterial);
@@ -178,7 +179,7 @@ void PhysicsEngine::AddBoxCollisionToEditor(GameObject* obj)
 	obj->SelectionShape = st;
 
 }
-bool PhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene)
+bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene)
 {
 	PxRaycastBuffer hit;
 
@@ -198,18 +199,5 @@ bool PhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float 
 	}
 	return false;
 }
-bool PhysicsEngine::RayCastEditorScene(glm::vec3 startpos, glm::vec3 direction, float distance, PxRaycastBuffer* outhit)
-{
-	PxRaycastBuffer hit;
 
-	bool cast;
-
-	cast = gEdtiorScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, *outhit);
-
-	if (cast)
-	{
-		//outhit->position = PXvec3ToGLM(hit.getAnyHit(0).position);
-		return true;
-	}
-	return false;
-}
+#endif

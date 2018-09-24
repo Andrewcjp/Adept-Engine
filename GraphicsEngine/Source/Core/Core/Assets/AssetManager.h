@@ -51,7 +51,7 @@ public:
 	std::map<std::string, std::string>* GetMeshMap() { return &MeshFileMap; }
 
 	static void RegisterMeshAssetLoad(std::string name);
-	static BaseTexture * DirectLoadTextureAsset(std::string name, bool DirectLoad = false, class DeviceContext * Device = nullptr);
+	CORE_API static BaseTexture * DirectLoadTextureAsset(std::string name, bool DirectLoad = false, class DeviceContext * Device = nullptr);
 	CORE_API static const std::string GetShaderPath();
 	CORE_API static const std::string GetContentPath();
 	CORE_API static const std::string GetDDCPath();
