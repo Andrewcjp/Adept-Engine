@@ -17,7 +17,7 @@ public:
 	CORE_API virtual void SceneInitComponent() {};
 	CORE_API virtual void PostChangeProperties() {};
 	CORE_API virtual void ProcessSerialArchive(class Archive* Arch);
-
+	CORE_API virtual void EditorUpdate() {};
 protected:
 	int TypeID = -1;
 	void Internal_SetOwner(GameObject* ptr);

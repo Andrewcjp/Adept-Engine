@@ -41,12 +41,12 @@ public:
 	bool GetDoesShadow();
 	MaterialProperties* GetProperties();
 	void SetDisplacementMap(BaseTexture* tex);
-	void SetNormalMap(BaseTexture * tex);
-	void SetDiffusetexture(BaseTexture* tex);
+	CORE_API void SetNormalMap(BaseTexture * tex);
+	CORE_API void SetDiffusetexture(BaseTexture* tex);
 	bool HasNormalMap();
 	static void SetupDefaultMaterial();
-	static Material* GetDefaultMaterial();
-	static Shader* GetDefaultMaterialShader();
+	CORE_API static Material* GetDefaultMaterial();
+	CORE_API static Shader* GetDefaultMaterialShader();
 	void ProcessSerialArchive(class Archive* A);
 private:
 	TextureBindSet * CurrentBindSet = nullptr;

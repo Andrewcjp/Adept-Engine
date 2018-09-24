@@ -4,7 +4,6 @@
 #include "Core\GameObject.h"
 #include "Core\Components\Component.h"
 #include "Core\Components\ExtraComponentRegister.h"
-#include "Physics\RigidBody.h"
 #include "Physics\PhysicsEngine.h"
 #include "Rendering\Core\Material.h"
 #include "Core\Components\MeshRendererComponent.h"

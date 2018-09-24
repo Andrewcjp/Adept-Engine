@@ -1,11 +1,11 @@
 #pragma once
 #include "Component.h"
-#include "Physics/RigidBody.h"
+#include "Physics/Physics_fwd.h"
 class RigidbodyComponent :
 	public Component
 {
 public:
-	RigidbodyComponent();
+	CORE_API RigidbodyComponent();
 	~RigidbodyComponent();
 
 	// Inherited via Component

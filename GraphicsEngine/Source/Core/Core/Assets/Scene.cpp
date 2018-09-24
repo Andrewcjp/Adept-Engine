@@ -211,7 +211,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 20, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(0.5));
+	
 	go->AttachComponent(new RigidbodyComponent());
+	//go->actor = Engine::GetPhysEngineInstance()->CreatePrimitiveRigidBody(go->GetTransform()->GetPos(), glm::vec3(0, 10, 0), 1);
 	AddGameobjectToScene(go);
 
 	/*go = new GameObject("Fence");

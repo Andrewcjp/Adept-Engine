@@ -29,6 +29,7 @@ RenderEngine::~RenderEngine()
 
 void RenderEngine::Render()
 {
+	PrepareData();
 	if (once)
 	{
 		RHI::RHIRunFirstFrame();
@@ -123,6 +124,7 @@ void RenderEngine::PrepareData()
 	{
 		SceneRender->UpdateUnformBufferEntry(SceneRender->CreateUnformBufferEntry((*MainScene->GetMeshObjects())[i]), (int)i);
 	}
+	SceneRender->UpdateCBV();
 }
 
 void RenderEngine::Resize(int width, int height)
@@ -141,7 +143,7 @@ void RenderEngine::StaticUpdate()
 	}
 	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 	PrepareData();
-	SceneRender->UpdateCBV();
+	
 
 	OnStaticUpdate();
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
+#include "Physics/Physics_fwd.h"
 class GameObject;
-class PhysicsEngine;
 class Camera;
 class EditorObjectSelector
 {

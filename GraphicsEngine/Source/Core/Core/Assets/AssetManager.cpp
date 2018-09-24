@@ -112,7 +112,7 @@ const std::string AssetManager::GetRootDir()
 void AssetManager::SetupPaths()
 {
 	RootDir = Engine::GetExecutionDir();
-#if WITH_EDITOR
+#if !BUILD_PACKAGE
 	StringUtils::RemoveChar(RootDir, "\\Binaries");
 #endif
 	ContentDirPath = RootDir + "\\Content\\";
@@ -124,7 +124,7 @@ void AssetManager::SetupPaths()
 	DDCDirPath = RootDir + "\\" + DDCName + "\\";
 	PlatformApplication::TryCreateDirectory(DDCDirPath);
 
-#if WITH_EDITOR
+#if !BUILD_PACKAGE
 	ShaderDirPath = RootDir + "\\Shaders\\";
 	if (!FileUtils::File_ExistsTest(ShaderDirPath))
 	{
@@ -259,10 +259,7 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool DirectLoad, DeviceContext* Device)
 {
 	AssetPathRef Fileref = AssetPathRef(name);
-	if (RHI::GetFrameCount() > 10)
-	{
-		return ImageIO::GetDefaultTexture();
-	}
+	
 	//todo: Deal with TGA to DDS 
 	if (Fileref.GetFileType() == AssetFileType::DDS || name.find(".tga") != -1 || DirectLoad)
 	{

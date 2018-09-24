@@ -53,11 +53,11 @@ Engine::Engine()
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
 	Log::OutS << "Loading Engine v" << ENGINE_VERSION << Log::OutS;
 #if PHYSX_ENABLED
-	PhysEngine = new PhysicsEngine();
-#else
-	PhysEngine = new PhysicsEngine();
-	Log::OutS << "WARNING: Physx Disabled" << Log::OutS;
+	Log::OutS << "Running with Physx" << Log::OutS;
+#else	
+	Log::OutS << "Running with TDSim" << Log::OutS;
 #endif
+	PhysEngine = new PhysicsEngine();
 	if (PhysEngine != nullptr)
 	{
 		PhysEngine->initPhysics();

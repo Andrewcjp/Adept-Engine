@@ -2,8 +2,8 @@
 
 #include "Core/Platform/Logger.h"
 #include "Core/EngineTypes.h"
+#include "Physics/PhysicsEngine.h"
 class RenderWindow;
-class PhysicsEngine;
 class EditorWindow;
 class Game;
 class Engine

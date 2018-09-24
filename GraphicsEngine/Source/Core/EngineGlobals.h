@@ -1,5 +1,6 @@
 #pragma once
 #define PHYSX_ENABLED 1
+#define TDSIM_ENABLED 0
 #define NO_GEN_CONTEXT 0
 
 #define BUILD_D3D11 0

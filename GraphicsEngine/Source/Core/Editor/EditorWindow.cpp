@@ -76,12 +76,16 @@ void EditorWindow::PostInitWindow(int w, int h)
 	gizmos = new EditorGizmos();
 	selector = new EditorObjectSelector();
 	selector->init();
-
 	if (RHI::IsD3D12())
 	{
 		CurrentScene->LoadExampleScene(Renderer, false);
 		RefreshScene();
 	}
+#if _DEBUG
+	IsRunning = true;
+	IsPlayingScene = true;
+	CurrentPlayScene = CurrentScene;
+#endif
 #if TEST_SERIAL
 	std::string TestFilePath = AssetManager::GetContentPath() + "Test\\Test.Scene";
 	Saver->SaveScene(CurrentScene, TestFilePath);
@@ -165,7 +169,7 @@ void EditorWindow::FixedUpdate()
 
 void EditorWindow::Update()
 {
-	if (IsPlayingScene)
+	if (IsPlayingScene && CurrentPlayScene != nullptr)
 	{
 		PerfManager::StartTimer("Scene Update");
 		CurrentPlayScene->UpdateScene(DeltaTime);
@@ -231,6 +235,7 @@ void EditorWindow::SaveScene()
 
 void EditorWindow::LoadScene()
 {
+	mEditorCore->SetSelectedObject(nullptr);
 	std::string Output;
 	std::string Startdir = Engine::GetExecutionDir();
 	Startdir.append("\\asset\\scene\\");
