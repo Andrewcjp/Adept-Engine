@@ -81,7 +81,7 @@ class FrameBuffer;
 class RHI_API RHICommandList : public IRHIResourse
 {
 public:
-	RHICommandList(ECommandListType::Type type = ECommandListType::Graphics);
+	RHICommandList(ECommandListType::Type type,DeviceContext* context);
 	virtual ~RHICommandList();
 	virtual void ResetList() = 0;
 	virtual void SetRenderTarget(FrameBuffer* target, int SubResourceIndex = 0) = 0;

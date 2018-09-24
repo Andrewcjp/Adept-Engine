@@ -33,7 +33,9 @@ RHI::RHI(ERenderSystemType system)
 #endif
 #if BUILD_VULKAN
 	case ERenderSystemType::RenderSystemVulkan:
-		CurrentRHI = new VKanRHI();
+		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("VulkanRHI");
+		ensure(RHImodule);
+		CurrentRHI = RHImodule->GetRHIClass();
 		break;
 #endif
 	default:

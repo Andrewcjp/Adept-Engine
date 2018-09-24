@@ -18,10 +18,9 @@
 #include "D3D12DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
 #include "DescriptorHeap.h"
-D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType)
+D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType,inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
-	Device = inDevice;
 	mDeviceContext = (D3D12DeviceContext*)inDevice;
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{

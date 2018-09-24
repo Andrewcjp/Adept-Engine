@@ -4,9 +4,10 @@
 #include "DeviceContext.h"
 
 
-RHICommandList::RHICommandList(ECommandListType::Type type)
+RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
 	ListType = type;
+	Device = context;
 }
 
 RHICommandList::~RHICommandList()

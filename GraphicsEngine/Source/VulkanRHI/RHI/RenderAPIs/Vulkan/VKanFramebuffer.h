@@ -4,13 +4,16 @@
 class VKanFramebuffer : public FrameBuffer
 {
 public:
-	VKanFramebuffer(int width, int height, float ratio = 1.0f, FrameBuffer::FrameBufferType type = FrameBufferType::ColourDepth);
-	~VKanFramebuffer();
+	VKanFramebuffer(DeviceContext * device, RHIFrameBufferDesc & Desc);
+
 
 	// Inherited via FrameBuffer
-	virtual void BindToTextureUnit(int unit = 0) override;
-	virtual void BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list = nullptr) override;
-	virtual void UnBind() override;
-	virtual void ClearBuffer(ID3D12GraphicsCommandList * list = nullptr) override;
+	virtual DeviceContext * GetDevice() override;
+
+	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
+
+	virtual void MakeReadyForComputeUse(RHICommandList * List) override;
+private:
+	RHIPipeRenderTargetDesc desc;
 };
 #endif

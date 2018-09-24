@@ -2,25 +2,22 @@
 #include "VKanFramebuffer.h"
 #if BUILD_VULKAN
 
+#endif
 
-
-VKanFramebuffer::VKanFramebuffer(int width, int height, float ratio, FrameBuffer::FrameBufferType type) :FrameBuffer(width, height, ratio, type)
+VKanFramebuffer::VKanFramebuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
-	//CreateBuffer();
+
+}
+DeviceContext * VKanFramebuffer::GetDevice()
+{
+	return nullptr;
 }
 
-VKanFramebuffer::~VKanFramebuffer()
-{}
+const RHIPipeRenderTargetDesc & VKanFramebuffer::GetPiplineRenderDesc()
+{
+	// TODO: insert return statement here
+	return desc;
+}
 
-void VKanFramebuffer::BindToTextureUnit(int unit)
+void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList * List)
 {}
-
-void VKanFramebuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list)
-{}
-
-void VKanFramebuffer::UnBind()
-{}
-
-void VKanFramebuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
-{}
-#endif

@@ -18,7 +18,7 @@ public:
 	virtual void SetupCopyToDevice(DeviceContext* device) {};
 	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice);
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc() = 0;
-	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough);
+	RHI_API virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough);
 	virtual void MakeReadyForComputeUse(RHICommandList* List) = 0;
 protected:		
 	RHIFrameBufferDesc BufferDesc;
