@@ -7,7 +7,7 @@ class CoreTargetRules : TargetRules
         LibSearchPaths.Add(new LibSearchPath("\\64", LibBuildConfig.General));
         LibSearchPaths.Add(new LibSearchPath("\\64\\Debug", LibBuildConfig.Debug));
         LibSearchPaths.Add(new LibSearchPath("\\64\\Release", LibBuildConfig.Optimized));
-       // ModuleExcludeList.Add("VulkanRHI");
+        ModuleExcludeList.Add("VulkanRHI");
     }
     public override ModuleDef GetCoreModule()
     {
@@ -20,7 +20,6 @@ class CoreTargetRules : TargetRules
         CoreModule.IncludeDirectories.Add("/Include");
         CoreModule.IncludeDirectories.Add("");
         CoreModule.IncludeDirectories.Add("/Include/freetype2");
-        
         return CoreModule;
     }
 }

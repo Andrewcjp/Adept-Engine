@@ -98,7 +98,7 @@ void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQ
 	{
 		throw std::runtime_error("failed to record command buffer!");
 	}
-	VKanRHI::RHIinstance->ListcmdBuffers.push_back(CommandBuffer);
+	//VKanRHI::RHIinstance->ListcmdBuffers.push_back(CommandBuffer);
 
 }
 
