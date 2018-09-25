@@ -7,9 +7,10 @@
 #include "RHI/DeviceContext.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/ParticleSystemManager.h"
+
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
-
+	
 }
 
 void ForwardRenderer::Resize(int width, int height)
@@ -58,6 +59,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
 	//finally init the pipeline!
 	MainCommandList->CreatePipelineState(Material::GetDefaultMaterialShader(), FilterBuffer);
+	/*VKanRHI::Get()->thelist = MainCommandList;*/
 }
 
 void ForwardRenderer::MainPass()

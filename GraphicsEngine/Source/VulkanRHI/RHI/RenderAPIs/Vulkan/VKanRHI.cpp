@@ -55,6 +55,13 @@ bool VKanRHI::InitRHI()
 	return true;
 }
 
+//private:
+
+VKanRHI * VKanRHI::Get()
+{
+	return RHIinstance;
+}
+
 
 bool VKanRHI::InitWindow(int w, int h)
 {
@@ -137,11 +144,11 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
-	
+
 };
 
 const std::vector<const char*> deviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME	
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
 #ifdef NDEBUG
@@ -838,26 +845,35 @@ void  VKanRHI::drawFrame()
 	submitInfo.pWaitDstStageMask = waitStages;
 	if (cmdlist == nullptr)
 	{
-		cmdlist = new VKanCommandlist(ECommandListType::Graphics,nullptr);
+		cmdlist = new VKanCommandlist(ECommandListType::Graphics, nullptr);
 	}
 
 	cmdlist->ResetList();
 
-	
 
+	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->DrawPrimitive(3, 1, 0, 0);
 	cmdlist->Execute();
-#if 0
+#if 1
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &cmdlist->CommandBuffer;
 	//submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
 #else
+	if (thelist != nullptr)
+	{
+		VKanCommandlist* vklist = (VKanCommandlist*)thelist;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &vklist->CommandBuffer;
+	}
+	else
+	{
+		submitInfo.commandBufferCount = ListcmdBuffers.size();
+		submitInfo.pCommandBuffers = ListcmdBuffers.data();
+	}
 
-	submitInfo.commandBufferCount = ListcmdBuffers.size();
-	submitInfo.pCommandBuffers = ListcmdBuffers.data();
-	
+
 #endif
-	
+
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
@@ -1160,7 +1176,7 @@ void  VKanRHI::setupDebugCallback()
 
 	VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
 	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 	createInfo.pfnUserCallback = debugCallback;
 	if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &callback) != VK_SUCCESS)

@@ -190,12 +190,13 @@ void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 			ForcedRenderSystem = RenderSystemD3D12;
 			Log::OutS << "Forcing RenderSystem D3D12" << Log::OutS;
 		}
-
+#if BUILD_VULKAN
 		if (input.compare("-vk") == 0)
 		{
 			ForcedRenderSystem = RenderSystemVulkan;
 			Log::OutS << "Forcing RenderSystem Vulkan" << Log::OutS;
 		}
+#endif
 	}
 
 	if (ShouldRunCook)

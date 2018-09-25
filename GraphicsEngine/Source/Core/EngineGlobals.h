@@ -6,7 +6,7 @@
 #define BUILD_D3D11 0
 #define BUILD_OPENGL 0
 #define BUILD_D3D12 1
-#define BUILD_VULKAN 1
+#define BUILD_VULKAN 0
 #ifdef BUILD_SHIP
 #define BUILD_SHIPPING 1
 #else

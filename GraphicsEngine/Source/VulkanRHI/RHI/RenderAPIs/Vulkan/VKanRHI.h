@@ -68,8 +68,11 @@ public:
 	HWND	win32HWND;
 	static VKanRHI* RHIinstance;
 //private:
-
-
+#if VULKANRHI_EXPORT
+	DLLEXPORT static VKanRHI* Get();
+#else
+	DLLIMPORT static VKanRHI* Get();
+#endif
 	HINSTANCE win32Hinst;
 
 
@@ -89,7 +92,7 @@ public:
 	VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
-
+	RHICommandList* thelist;
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
