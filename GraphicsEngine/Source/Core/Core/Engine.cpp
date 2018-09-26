@@ -8,7 +8,7 @@
 #include "Components\CompoenentRegistry.h"
 #include "BaseWindow.h"
 #include "Core/Assets/AssetManager.h"
-#include "Game.h"
+#include "Game/Game.h"
 #include "Shlwapi.h"
 #include "Packaging/Cooker.h"
 #include "Core/Utils/FileUtils.h"
@@ -156,7 +156,7 @@ void Engine::SetGame(Game * game)
 {
 	mgame = game;
 	CompRegistry->RegisterExtraComponents(game->GetECR());
-	game->SetTickRate(20);
+	game->Init();
 }
 
 Game * Engine::GetGame()

@@ -46,6 +46,15 @@ void Component::Internal_SetOwner(GameObject * ptr)
 	InitComponent();
 }
 
+Scene * Component::GetOwnerScene()
+{
+	if (GetOwner() != nullptr)
+	{
+		return GetOwner()->GetScene();
+	}
+	return nullptr;
+}
+
 void Component::OnTransformUpdate()
 {
 }

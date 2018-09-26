@@ -12,10 +12,14 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/Asset_Shader.h"
 #include "Core/Platform/PlatformCore.h"
-Scene::Scene()
+#include "Core/Game/Gamemode.h"
+#include "Core/Game/Game.h"
+Scene::Scene(bool EditScene )
 {
 	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);	
 	LightingData.SkyBox->AddRef();
+	CurrentGameMode = Engine::GetGame()->CreateGameMode();
+	bEditorScene = EditScene;
 }
 
 Scene::~Scene()
@@ -24,10 +28,12 @@ Scene::~Scene()
 	MemoryUtils::DeleteVector(SceneObjects);
 	SafeRHIRefRelease(LightingData.SkyBox);
 	SafeRHIRefRelease(LightingData.DiffuseMap);
+	delete CurrentGameMode;
 }
 
 void Scene::UpdateScene(float deltatime)
 {
+	CurrentGameMode->Update();
 	if (SceneObjects.size() == 0)
 	{
 		return;
@@ -65,6 +71,7 @@ void Scene::FixedUpdateScene(float deltatime)
 
 void Scene::StartScene()
 {
+	CurrentGameMode->BeginPlay();
 	for (int i = 0; i < SceneObjects.size(); i++)
 	{
 		SceneObjects[i]->BeginPlay();
@@ -319,6 +326,11 @@ void Scene::RemoveGameObject(GameObject* object)
 	SceneObjects.erase(std::remove(SceneObjects.begin(), SceneObjects.end(), object));
 	object->Internal_SetScene(nullptr);
 }
+void Scene::EndScene()
+{
+	CurrentGameMode->EndPlay();
+}
+
 void Scene::AddGameobjectToScene(GameObject* gameobject)
 {
 	SceneObjects.push_back(gameobject);

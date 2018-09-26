@@ -42,5 +42,6 @@ private:
 	bool IsPlayingScene = false;
 	class Editor_Camera* EditorCamera;
 	std::string CurrentSceneSavePath;
+	std::string EditorPlaySceneTempFile = "";
 	EditorCore* mEditorCore = nullptr;
 };

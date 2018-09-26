@@ -3,10 +3,11 @@
 #include "Rendering/Core/Light.h"
 #include <vector>
 class RenderEngine;
+class GameMode;
 class Scene
 {
 public:
-	Scene();
+	Scene(bool EditScene = false);
 	~Scene();
 	void UpdateScene(float deltatime);
 	void EditorUpdateScene();
@@ -27,21 +28,22 @@ public:
 	void RemoveLight(Light* Light);
 	void RemoveGameObject(GameObject * object);
 	bool StaticSceneNeedsUpdate = false;
-	
+	void EndScene();
 	struct LightingEnviromentData
 	{
 		BaseTexture* SkyBox = nullptr;
 		BaseTexture* DiffuseMap = nullptr;
 	};
 	LightingEnviromentData* GetLightingData() { return &LightingData; }
+	bool IsEditorScene() { return bEditorScene; }
 private:
 	std::vector<GameObject*> SceneObjects;	
 	std::vector<GameObject*> RenderSceneObjects;
 	std::vector<Light*> Lights;
 	std::vector<Camera*> Cameras;
 	Camera* CurrentCamera = nullptr;
-	
-	
+	GameMode* CurrentGameMode = nullptr;
+	bool bEditorScene = false;
 	LightingEnviromentData LightingData = LightingEnviromentData();
 };
 

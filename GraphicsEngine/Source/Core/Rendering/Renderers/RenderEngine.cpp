@@ -120,6 +120,10 @@ void RenderEngine::ProcessScene()
 
 void RenderEngine::PrepareData()
 {
+	if (MainScene == nullptr)
+	{
+		return;
+	}
 	for (size_t i = 0; i < (*MainScene->GetMeshObjects()).size(); i++)
 	{
 		SceneRender->UpdateUnformBufferEntry(SceneRender->CreateUnformBufferEntry((*MainScene->GetMeshObjects())[i]), (int)i);

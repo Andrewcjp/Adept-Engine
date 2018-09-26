@@ -23,6 +23,7 @@ protected:
 	void Internal_SetOwner(GameObject* ptr);
 	bool DoesUpdate = true;
 	bool DoesFixedUpdate = false;
+	class Scene* GetOwnerScene();
 private:
 	GameObject* Owner = nullptr;	
 	friend GameObject;
