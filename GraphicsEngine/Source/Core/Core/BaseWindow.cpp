@@ -18,6 +18,7 @@
 #include "RHI/DeviceContext.h"
 #include <algorithm>
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Game/Game.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -79,9 +80,9 @@ void BaseWindow::InitilseWindow()
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
 	Renderer->Init();
-	CurrentScene = new Scene();
-	CurrentScene->LoadDefault();
-	Renderer->SetScene(CurrentScene);
+	//CurrentScene = new Scene();
+	//CurrentScene->LoadDefault();
+	//Renderer->SetScene(CurrentScene);
 	UI = new UIManager(m_width, m_height);
 	input = new Input();
 
@@ -151,6 +152,7 @@ void BaseWindow::Render()
 	Update();
 	if (ShouldTickScene)
 	{
+		Engine::GetGame()->Update();
 		//PerfManager::StartTimer("Scene Update");
 		CurrentScene->UpdateScene(DeltaTime);
 		//PerfManager::EndTimer("Scene Update");
@@ -329,6 +331,7 @@ void BaseWindow::DestroyRenderWindow()
 	delete LineDrawer;
 	SafeDelete(UI);
 	SafeDelete(Renderer);
+	CurrentScene->EndScene();
 	delete CurrentScene;
 }
 

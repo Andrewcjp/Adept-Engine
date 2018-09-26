@@ -29,7 +29,7 @@
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Core/Assets/SceneJSerialiser.h"
 #include "Core/Utils/StringUtil.h"
-#include "Core/Game.h"
+#include "Core/Game/Game.h"
 #include "Editor/Editor_Camera.h"
 #include "UI/UIManager.h"
 #include "EditorCore.h"
@@ -40,12 +40,14 @@ EditorWindow::EditorWindow() :BaseWindow()
 {
 	instance = this;
 	mEditorCore = new EditorCore();
+	EditorPlaySceneTempFile = AssetManager::GetDDCPath() + "EditorScene.tmp";
 }
 
 EditorWindow::~EditorWindow()
 {
 	//vectors will clean up after them selves
 	//Clean up the Mesh
+	SafeDelete(CurrentPlayScene);
 	delete CurrentScene;
 }
 
@@ -66,8 +68,10 @@ void EditorWindow::PostInitWindow(int w, int h)
 {
 	FrameRateLimit = 60;
 	Log::OutS << "Loading Editor v" << EDITOR_VERSION << Log::OutS;
+	CurrentScene = new Scene(true);
 	EditorCamera = new Editor_Camera();
 	Renderer->SetEditorCamera(EditorCamera);
+
 	if (UI != nullptr)
 	{
 		UI->InitGameobjectList(CurrentScene->GetObjects());
@@ -76,16 +80,16 @@ void EditorWindow::PostInitWindow(int w, int h)
 	gizmos = new EditorGizmos();
 	selector = new EditorObjectSelector();
 	selector->init();
-	if (RHI::IsD3D12())
-	{
-		CurrentScene->LoadExampleScene(Renderer, false);
-		RefreshScene();
-	}
-#if _DEBUG
-	IsRunning = true;
-	IsPlayingScene = true;
-	CurrentPlayScene = CurrentScene;
-#endif
+
+	CurrentScene->LoadExampleScene(Renderer, false);
+	Renderer->SetScene(CurrentScene);
+	RefreshScene();
+
+	//#if _DEBUG
+	//	IsRunning = true;
+	//	IsPlayingScene = true;
+	//	CurrentPlayScene = CurrentScene;
+	//#endif
 #if TEST_SERIAL
 	std::string TestFilePath = AssetManager::GetContentPath() + "Test\\Test.Scene";
 	Saver->SaveScene(CurrentScene, TestFilePath);
@@ -99,34 +103,42 @@ void EditorWindow::PostInitWindow(int w, int h)
 
 void EditorWindow::EnterPlayMode()
 {
+	if (IsPlayingScene)
+	{
+		return;
+	}
 	Log::OutS << "Entering play mode" << Log::OutS;
 	Engine::GetGame()->BeginPlay();
-	IsPlayingScene = true;
-	if (CurrentPlayScene != nullptr)
-	{
-		delete CurrentPlayScene;
-	}
+	mEditorCore->SetSelectedObject(nullptr);
+	SafeDelete(CurrentPlayScene);
 #if PLAYMODE_USE_SAVED
-	SaveScene();
+	Saver->SaveScene(CurrentScene, EditorPlaySceneTempFile);
 	CurrentPlayScene = new Scene();
-	Saver->LoadScene(CurrentPlayScene, CurrentSceneSavePath);
-	//CurrentScene->CopyScene(CurrentPlayScene);
-	//CurrentPlayScene->LoadExampleScene(Renderer, false);
+	Saver->LoadScene(CurrentPlayScene, EditorPlaySceneTempFile);
 	Renderer->SetScene(CurrentPlayScene);
 	CurrentPlayScene->StartScene();
 #endif
 	EditorCamera->SetEnabled(false);
 	IsRunning = true;
-
+	IsPlayingScene = true;
+	ShouldTickScene = true;
 }
 
 void EditorWindow::ExitPlayMode()
 {
+	if (!IsPlayingScene)
+	{
+		return;
+	}
+	mEditorCore->SetSelectedObject(nullptr);
 	Log::OutS << "Exiting play mode" << Log::OutS;
 	Renderer->SetScene(CurrentScene);
+	CurrentScene->EndScene();
 	EditorCamera->SetEnabled(true);
 	IsPlayingScene = false;
 	IsRunning = false;
+	ShouldTickScene = false;
+	SafeDelete(CurrentPlayScene);
 }
 
 void EditorWindow::DestroyRenderWindow()
@@ -178,8 +190,9 @@ void EditorWindow::Update()
 	else
 	{
 		CurrentScene->EditorUpdateScene();
+		EditorCamera->Update(DeltaTime);
 	}
-	EditorCamera->Update(DeltaTime);
+	
 
 	if (mEditorCore->GetSelectedObject() != nullptr)
 	{

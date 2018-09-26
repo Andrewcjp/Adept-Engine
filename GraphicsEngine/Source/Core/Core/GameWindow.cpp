@@ -3,6 +3,7 @@
 #include "EngineInc.h"
 #include "Core/Assets/Scene.h"
 #include "Rendering/Renderers/RenderEngine.h"
+#include "Core/Game/Game.h"
 GameWindow::GameWindow()
 {}
 

@@ -1,13 +1,14 @@
 #pragma once
-#include "Core\Game.h"
+#include "Core/Game/Game.h"
 #include "TGExtraComponentRegister.h"
-
+#include "TestGameGameMode.h"
 class TestGame :
 	public Game
 {
 public:
 	TestGame(class CompoenentRegistry* Reg); 
 	~TestGame();
+	virtual GameMode* CreateGameMode() override;
 };
    
  

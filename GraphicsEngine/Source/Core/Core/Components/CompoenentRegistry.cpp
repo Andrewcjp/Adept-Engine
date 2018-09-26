@@ -6,12 +6,15 @@
 #include "LightComponent.h"
 #include "CameraComponent.h"
 #include "Core/Engine.h"
+#include "RigidbodyComponent.h"
 
 CompoenentRegistry::CompoenentRegistry()
 {
 	Engine::CompRegistry = this;
 	RegisterComponent("Camera", BaseComponentTypes::CameraComp);
 	RegisterComponent("Light", BaseComponentTypes::LightComp);
+	RegisterComponent("RigidBody", BaseComponentTypes::RigidComp);
+	RegisterComponent("Particle System", BaseComponentTypes::ParticleComp);
 }
 
 CompoenentRegistry::~CompoenentRegistry()
@@ -57,6 +60,9 @@ Component* CompoenentRegistry::Internal_CreateBaseComponent(BaseComponentTypes i
 		break;
 	case CameraComp:
 		return new CameraComponent();
+		break;
+	case RigidComp:
+		return new RigidbodyComponent();
 		break;
 	}
 	return nullptr;

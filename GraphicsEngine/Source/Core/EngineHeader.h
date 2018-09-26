@@ -1,6 +1,7 @@
 #pragma once
 //todo: sort these
-#include "Core\Game.h"
+#include "Core/Game/Game.h"
+#include "Core/Game/Gamemode.h"
 #include "Core\GameObject.h"
 #include "Core\Components\Component.h"
 #include "Core\Components\ExtraComponentRegister.h"

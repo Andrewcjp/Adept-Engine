@@ -14,3 +14,8 @@ TestGame::TestGame(CompoenentRegistry* Reg) :Game(Reg)
 
 TestGame::~TestGame()
 {}
+
+GameMode * TestGame::CreateGameMode()
+{
+	return new TestGameGameMode();
+}

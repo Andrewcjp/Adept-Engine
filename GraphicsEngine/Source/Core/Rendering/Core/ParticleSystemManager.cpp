@@ -9,7 +9,7 @@ ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
 
 ParticleSystemManager::ParticleSystemManager()
 {
-	//Init();
+	Init();
 }
 
 ParticleSystemManager::~ParticleSystemManager()
@@ -210,7 +210,6 @@ void ParticleSystemManager::ShutDown()
 
 void ParticleSystemManager::Simulate()
 {
-	return;
 	CmdList->ResetList();
 	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
@@ -263,7 +262,7 @@ void ParticleSystemManager::Simulate()
 
 void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 {
-	return;
+//	return;
 	RenderList->ResetList();
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
 	RenderList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleDraw>(), BufferTarget);
