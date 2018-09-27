@@ -1,6 +1,11 @@
 #pragma once
+#ifdef USE_PHYSX
 #define PHYSX_ENABLED 1
 #define TDSIM_ENABLED 0
+#else
+#define PHYSX_ENABLED 0
+#define TDSIM_ENABLED 1
+#endif
 #define NO_GEN_CONTEXT 0
 
 #define BUILD_D3D11 0
@@ -79,6 +84,7 @@ void UNUSED_PARAM(T const&)
 
 //Utility Marcos
 #define SafeDelete(Target)if(Target != nullptr){delete Target; Target= nullptr;}
+#define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
 /*
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "glew32.lib")

@@ -3,6 +3,7 @@
 #include "Core/Platform/Logger.h"
 #include "Core/EngineTypes.h"
 #include "Physics/PhysicsEngine.h"
+#include "Core/EngineSettings.h"
 class RenderWindow;
 class EditorWindow;
 class Game;
@@ -39,6 +40,7 @@ public:
 	void							HandleInput(unsigned int key);
 	static bool						GetIsCooking();
 	static Engine*					Get();
+	static const EngineSettings*	GetSettings() { return &EngineInstance->Settings; }
 private:
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;
@@ -50,5 +52,6 @@ private:
 	bool							isWindowVaild = false;
 	RenderWindow*					m_appwnd = nullptr;
 	bool							IsCooking = false;
+	EngineSettings					Settings;
 };
 

@@ -2,8 +2,10 @@
 #if PHYSX_ENABLED
 class PhysxRigidbody;
 class PhysxEngine;
+class PhysxCollider;
 typedef PhysxRigidbody RigidBody;
 typedef PhysxEngine PhysicsEngine;
+typedef PhysxCollider Collider;
 #elif TDSIM_ENABLED
 class TDRigidBody;
 class TDPhysicsEngine;

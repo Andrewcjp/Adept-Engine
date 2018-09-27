@@ -3,6 +3,7 @@
 #if PHYSX_ENABLED
 #include <thread>
 #include "Core/GameObject.h"
+#include "Core/Engine.h"
 #define ENABLEPVD !(NDEBUG)
 #include <algorithm>
 using namespace physx;
@@ -37,7 +38,6 @@ void PhysxEngine::initPhysics()
 	}
 #endif
 	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-
 	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	gScene->addActor(*groundPlane);
 	Log::OutS << "Physx Initalised" << Log::OutS;
@@ -82,8 +82,8 @@ std::vector<RigidBody*> PhysxEngine::createStack(const glm::vec3 & t, int size, 
 	std::vector<RigidBody*> Bodies;
 	for (int i = 0; i < objects.size(); i++)
 	{
-		RigidBody* body = new PhysxRigidbody(objects[i]);
-		Bodies.push_back(body);
+		//		RigidBody* body = new PhysxRigidbody(objects[i]);
+				//Bodies.push_back(body);
 	}
 	return Bodies;
 }
@@ -121,35 +121,33 @@ std::vector<PxRigidDynamic*> PhysxEngine::createStack(const PxTransform& t, PxU3
 PxRigidDynamic* PhysxEngine::CreateActor(PxVec3 position, PxReal halfextent, PxGeometryType::Enum type)
 {
 
-	PxShape* shape;
-	switch (type)
-	{
-	case physx::PxGeometryType::eSPHERE:
-		shape = gPhysics->createShape(PxSphereGeometry(halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
-		break;
-	case physx::PxGeometryType::eBOX:
-		shape = gPhysics->createShape(PxBoxGeometry(halfextent, halfextent, halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
-		break;
-	case physx::PxGeometryType::ePLANE:
-	case physx::PxGeometryType::eCAPSULE:
-	case physx::PxGeometryType::eCONVEXMESH:
-	case physx::PxGeometryType::eTRIANGLEMESH:
-	case physx::PxGeometryType::eHEIGHTFIELD:
-	case physx::PxGeometryType::eGEOMETRY_COUNT:
-	case physx::PxGeometryType::eINVALID:
-	default:
-		shape = gPhysics->createShape(PxSphereGeometry(halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
-		break;
-	}
+	//PxShape* shape;
+	//switch (type)
+	//{
+	//case physx::PxGeometryType::eSPHERE:
+	//	shape = gPhysics->createShape(PxSphereGeometry(halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
+	//	break;
+	//case physx::PxGeometryType::eBOX:
+	//	shape = gPhysics->createShape(PxBoxGeometry(halfextent, halfextent, halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
+	//	break;
+	//case physx::PxGeometryType::ePLANE:
+	//case physx::PxGeometryType::eCAPSULE:
+	//case physx::PxGeometryType::eCONVEXMESH:
+	//case physx::PxGeometryType::eTRIANGLEMESH:
+	//case physx::PxGeometryType::eHEIGHTFIELD:
+	//case physx::PxGeometryType::eGEOMETRY_COUNT:
+	//case physx::PxGeometryType::eINVALID:
+	//default:
+	//	shape = gPhysics->createShape(PxSphereGeometry(halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
+	//	break;
+	//}
 
-	PxRigidDynamic* body = gPhysics->createRigidDynamic(PxTransform(position));
-	body->attachShape(*shape);
-	PxRigidBodyExt::updateMassAndInertia(*body, 5.0f);
-	gScene->addActor(*body);
 
-	body->setAngularDamping(1);
-	//body->set
-	return body;
+
+
+	////body->set
+	//return body;
+	return nullptr;
 }
 PxRigidDynamic* PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale, PxGeometryType::Enum type)
 {
@@ -157,14 +155,30 @@ PxRigidDynamic* PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 
 	newobject->addForce(GLMtoPXvec3(velocity), PxForceMode::eFORCE, true);
 	return newobject;
 }
+physx::PxPhysics * PhysxEngine::GetGPhysics()
+{
+	return Engine::GetPhysEngineInstance()->gPhysics;
+}
+physx::PxScene * PhysxEngine::GetPlayScene()
+{
+	return Engine::GetPhysEngineInstance()->gScene;
+}
+physx::PxMaterial * PhysxEngine::GetDefaultMaterial()
+{
+	return Engine::GetPhysEngineInstance()->gMaterial;
+}
+physx::PxMaterial * PhysxEngine::CreatePhysxMat(PhysicalMaterial * mat)
+{
+	return gPhysics->createMaterial(mat->StaticFriction, mat->DynamicFirction, mat->Bouncyness);
+}
 RigidBody * PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale)
 {
-	return new PhysxRigidbody(FirePrimitiveAtScene(position, velocity, scale, PxGeometryType::eSPHERE));
+	return nullptr;/// new PhysxRigidbody(FirePrimitiveAtScene(position, velocity, scale, PxGeometryType::eSPHERE));
 }
 RigidBody* PhysxEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
 {
 	PX_UNUSED(velocity);
-	return new PhysxRigidbody(CreateActor(GLMtoPXvec3(position), scale, PxGeometryType::eSPHERE));
+	return nullptr;// new PhysxRigidbody(CreateActor(GLMtoPXvec3(position), scale, PxGeometryType::eSPHERE));
 }
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {

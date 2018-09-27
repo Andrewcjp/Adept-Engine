@@ -16,7 +16,7 @@ SceneRenderer::~SceneRenderer()
 {
 	EnqueueSafeRHIRelease(CLightBuffer);
 	EnqueueSafeRHIRelease(CMVBuffer);
-	MemoryUtils::RHIUtil::DeleteRHICArray(GameObjectTransformBuffer, 2);
+	EnqueueSafeRHIRelease(GameObjectTransformBuffer);
 }
 
 void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly, FrameBuffer* FrameBuffer)
@@ -52,11 +52,7 @@ void SceneRenderer::Init()
 	{
 		SceneBuffer.push_back(SceneConstantBuffer());
 	}
-	for (int i = 0; i < RHI::GetDeviceCount(); i++)//optimize!
-	{
-		GameObjectTransformBuffer[i] = RHI::CreateRHIBuffer(RHIBuffer::Constant, RHI::GetDeviceContext(i));
-		GameObjectTransformBuffer[i]->CreateConstantBuffer(sizeof(SceneConstantBuffer), MaxConstant);
-	}
+	UpdateTransformBufferSize(MaxConstant);
 	CLightBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
 	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
 	CMVBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
@@ -65,12 +61,9 @@ void SceneRenderer::Init()
 
 void SceneRenderer::UpdateCBV()
 {
-	for (int DeviceIndex = 0; DeviceIndex < RHI::GetDeviceCount(); DeviceIndex++)//optimize!
+	for (int i = 0; i < MaxConstant; i++)
 	{
-		for (int i = 0; i < MaxConstant; i++)
-		{
-			GameObjectTransformBuffer[DeviceIndex]->UpdateConstantBuffer(&SceneBuffer[i], i);
-		}
+		GameObjectTransformBuffer->UpdateConstantBuffer(&SceneBuffer[i], i);
 	}
 }
 
@@ -80,11 +73,24 @@ void SceneRenderer::UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, in
 	{
 		SceneBuffer[index] = bufer;
 	}
+	else
+	{
+		UpdateTransformBufferSize(index + 10);
+	}
+}
+
+void SceneRenderer::UpdateTransformBufferSize(int NewSize)
+{
+	EnqueueSafeRHIRelease(GameObjectTransformBuffer);
+	GameObjectTransformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
+	GameObjectTransformBuffer->CreateConstantBuffer(sizeof(SceneConstantBuffer), NewSize, true);
+	SceneBuffer.resize(NewSize);
+	MaxConstant = NewSize;
 }
 
 void SceneRenderer::SetActiveIndex(RHICommandList* list, int index, int DeviceIndex)
 {
-	list->SetConstantBufferView(GameObjectTransformBuffer[DeviceIndex], index, MainShaderRSBinds::GODataCBV);
+	list->SetConstantBufferView(GameObjectTransformBuffer, index, MainShaderRSBinds::GODataCBV);
 }
 
 

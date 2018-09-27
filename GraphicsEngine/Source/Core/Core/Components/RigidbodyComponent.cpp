@@ -5,6 +5,7 @@
 #include "Physics/PhysicsEngine.h"
 #include "CompoenentRegistry.h"
 #include "Core/Assets/Scene.h"
+#include "ColliderComponent.h"
 RigidbodyComponent::RigidbodyComponent()
 {
 	DoesFixedUpdate = true;
@@ -34,14 +35,22 @@ void RigidbodyComponent::SceneInitComponent()
 {
 	if (Engine::PhysEngine != nullptr && GetOwnerScene() && !GetOwnerScene()->IsEditorScene())
 	{
-		actor = Engine::PhysEngine->CreatePrimitiveRigidBody(GetOwner()->GetTransform()->GetPos(), glm::vec3(0), 1);
+		actor = new RigidBody(EBodyType::RigidDynamic, *GetOwner()->GetTransform());
+		std::vector<ColliderComponent*> colliders = GetOwner()->GetAllComponentsOfType<ColliderComponent>();
+		Collider* tempcol = new Collider();
+		for (ColliderComponent* cc : colliders)
+		{
+			tempcol->Shapes.push_back(cc->GetColliderShape());
+		}
+		actor->AttachCollider(tempcol);
+		actor->InitBody();
 	}
 }
 
 void RigidbodyComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("RigidBody Component");
-	//group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Float, nullptr));
+	group.SubProps.push_back(Inspector::CreateProperty("Mass", Inspector::Float, &mass));
 	props.push_back(group);
 }
 

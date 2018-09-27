@@ -44,10 +44,11 @@ class SceneRenderer
 public:
 	SceneRenderer(class Scene* Target);
 	~SceneRenderer();
-	void RenderScene(RHICommandList* CommandList,bool PositionOnly, FrameBuffer* FrameBuffer = nullptr);
+	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr);
 	void Init();
 	void UpdateCBV();
 	void UpdateUnformBufferEntry(const SceneConstantBuffer & bufer, int index);
+	
 	void SetActiveIndex(RHICommandList * list, int index, int DeviceIndex);
 	void UpdateMV(Camera * c);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
@@ -59,13 +60,14 @@ public:
 	void SetScene(Scene* NewScene);
 	void ClearBuffer();
 private:
+	void UpdateTransformBufferSize(int NewSize);
 	RHIBuffer * CLightBuffer = nullptr;
 	RHIBuffer* CMVBuffer = nullptr;
-	RHIBuffer* GameObjectTransformBuffer[MAX_DEVICE_COUNT] = { nullptr };
+	RHIBuffer* GameObjectTransformBuffer = nullptr;
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
 	struct MVBuffer MV_Buffer;
 	LightBufferW LightsBuffer;
-	int MaxConstant = 125;
+	int MaxConstant = 100;
 	std::vector<SceneConstantBuffer> SceneBuffer = std::vector<SceneConstantBuffer>();
 	class Scene* TargetScene = nullptr;
 	class Shader_NodeGraph* WorldDefaultMatShader = nullptr;

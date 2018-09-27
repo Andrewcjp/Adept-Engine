@@ -2,11 +2,11 @@
 
 
 
-GenericRigidBody::GenericRigidBody()
+
+GenericRigidBody::GenericRigidBody(EBodyType::Type type)
 {
-
+	BodyType = type;
 }
-
 
 GenericRigidBody::~GenericRigidBody()
 {}
@@ -35,3 +35,11 @@ glm::vec3 GenericRigidBody::GetLinearVelocity()
 	return glm::vec3();
 }
 
+void GenericRigidBody::AttachCollider(Collider * col)
+{}
+
+GenericCollider::GenericCollider()
+{}
+
+GenericCollider::~GenericCollider()
+{}

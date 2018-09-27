@@ -279,7 +279,7 @@ void D3D12DeviceContext::ExecuteCopyCommandList(ID3D12GraphicsCommandList * list
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_CopyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	if (RHI::BlockCommandlistExec() || true)
+	if (RHI::BlockCommandlistExec())
 	{
 		CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
 	}
@@ -297,7 +297,6 @@ void D3D12DeviceContext::ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandLis
 }
 void D3D12DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
 {
-
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	if (RHI::BlockCommandlistExec())

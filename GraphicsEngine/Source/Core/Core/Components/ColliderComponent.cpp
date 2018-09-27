@@ -2,64 +2,83 @@
 #include "ColliderComponent.h"
 #include "Core/Engine.h"
 #include "Physics/PhysicsEngine.h"
-
+#include "CompoenentRegistry.h"
+#include "Core/Assets/Archive.h"
 ColliderComponent::ColliderComponent()
 {
+	TypeID = CompoenentRegistry::BaseComponentTypes::ColliderComp;
 }
 
 
 ColliderComponent::~ColliderComponent()
-{
-}
+{}
 
 void ColliderComponent::InitComponent()
 {
-	//CreateShape();
+
 }
 
 void ColliderComponent::BeginPlay()
-{
-}
+{}
 
-void ColliderComponent::Update(float )
-{
-}
+void ColliderComponent::Update(float)
+{}
 
-void ColliderComponent::CreateShape()
+void ColliderComponent::ProcessSerialArchive(Archive * A)
 {
-	if (CollisionShape != nullptr && InitalisedCollisionShapeType != CollisionShapeType)
+	Component::ProcessSerialArchive(A);
+	ArchiveProp_Enum(CollisionShapeType, EShapeType::Type);
+	if (CollisionShapeType == EShapeType::eBOX)
 	{
-		CollisionShape->release();
+		ArchiveProp(BoxExtents);
 	}
-	//switch (CollisionShapeType)
-	//{
-	//case Box:
-	//	CollisionShape = Engine::PhysEngine->GetGPhysics()->createShape(physx::PxBoxGeometry(BoxHalfExtent, BoxHalfExtent, BoxHalfExtent),
-	//		*(Engine::PhysEngine->GetDefaultMaterial()));
-	//	break;
-	//case Sphere:
-	//	CollisionShape = Engine::PhysEngine->GetGPhysics()->createShape(physx::PxSphereGeometry(Radius),
-	//		*(Engine::PhysEngine->GetDefaultMaterial()));
-	//	break;
-	//}
-	InitalisedCollisionShapeType = CollisionShapeType;
+	else if (CollisionShapeType == EShapeType::eSPHERE)
+	{
+		ArchiveProp(Radius);
+	}
 }
 
-ColliderComponent::ShapeType ColliderComponent::GetCollisonShape()
+EShapeType::Type ColliderComponent::GetCollisonShape()
 {
 	return CollisionShapeType;
 }
 
-void ColliderComponent::SetCollisonShape(ShapeType newtype)
+void ColliderComponent::SetCollisonShape(EShapeType::Type newtype)
 {
 	CollisionShapeType = newtype;
 }
 
-physx::PxShape * ColliderComponent::Internal_GetPhysxShape()
+ShapeElem * ColliderComponent::GetColliderShape()
 {
-	if (CollisionShape == nullptr)
+	switch (CollisionShapeType)
 	{
-		CreateShape();
+	case EShapeType::eBOX:
+	{
+		BoxElem* box = new BoxElem();
+		box->Extents = BoxExtents;
+		return box;
 	}
-	return CollisionShape;
+	case EShapeType::eSPHERE:
+	{
+		SphereElem* box = new SphereElem();
+		box->raduis = Radius;
+		return box;
+	}
+	}
+	return nullptr;
+}
+
+void ColliderComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
+{
+	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Collider Component");
+	group.SubProps.push_back(Inspector::CreateProperty("Type", Inspector::Int, &CollisionShapeType, true));
+	if (CollisionShapeType == EShapeType::eBOX)
+	{
+		group.SubProps.push_back(Inspector::CreateProperty("Extents", Inspector::Vector, &BoxExtents));
+	}
+	else if (CollisionShapeType == EShapeType::eSPHERE)
+	{
+		group.SubProps.push_back(Inspector::CreateProperty("Raduis", Inspector::Float, &Radius));
+	}
+	props.push_back(group);
 }
