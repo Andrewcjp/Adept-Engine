@@ -21,7 +21,7 @@ private:
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
 	void ProcessSerialArchive(Archive * A) override;
 
-
+	float mass = 1.0f;
 
 	// Inherited via Component
 	virtual void InitComponent()override {} ;

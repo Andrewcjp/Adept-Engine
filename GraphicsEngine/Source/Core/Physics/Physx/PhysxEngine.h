@@ -51,14 +51,10 @@ public:
 		return physx::PxVec3(val.x, val.y, val.z);
 	}
 
-	physx::PxPhysics* GetGPhysics()
-	{
-		return gPhysics;
-	}
-	physx::PxMaterial* GetDefaultMaterial()
-	{
-		return gMaterial;
-	}
+	static physx::PxPhysics* GetGPhysics();
+	static physx::PxScene * GetPlayScene();
+	static physx::PxMaterial* GetDefaultMaterial();
+	physx::PxMaterial* CreatePhysxMat(PhysicalMaterial* mat);
 private:
 
 	physx::PxDefaultAllocator		gAllocator;

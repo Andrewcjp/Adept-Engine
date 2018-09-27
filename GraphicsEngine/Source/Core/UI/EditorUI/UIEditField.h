@@ -9,7 +9,7 @@ class UIEditField :
 {
 public:
 	UIEditField(int, int, int, int);
-	UIEditField(Inspector::ValueType type, std::string name, void * valueptr);
+	UIEditField(Inspector::InspectorPropery * Targetprop);
 	~UIEditField();
 	void SetLabel(std::string lavel);
 	void MouseMove(int x, int y) override;
@@ -45,6 +45,7 @@ private:
 	int startx = 0;
 	float StartValue = 0.0f;
 	float ScrollScale = 0.001f;
+	Inspector::InspectorPropery Property;
 
 };
 

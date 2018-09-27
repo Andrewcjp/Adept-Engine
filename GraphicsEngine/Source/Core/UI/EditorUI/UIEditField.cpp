@@ -16,14 +16,13 @@ UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 	Enabled = true;
 
 }
-
-UIEditField::UIEditField(Inspector::ValueType type, std::string name, void *valueptr) : UIEditField(0, 0, 0, 0)
+UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(0, 0, 0, 0)
 {
-	FilterType = type;
-	Namelabel->SetText(name);
-	Valueptr = valueptr;
-
-	if (type == Inspector::ValueType::Bool)
+	FilterType = Targetprop->type;
+	Namelabel->SetText(Targetprop->name);
+	Valueptr = Targetprop->ValuePtr;
+	Property = *Targetprop;
+	if (Targetprop->type == Inspector::ValueType::Bool)
 	{
 		Textlabel->SetEnabled(false);
 
@@ -56,8 +55,7 @@ UIEditField::UIEditField(Inspector::ValueType type, std::string name, void *valu
 }
 
 UIEditField::~UIEditField()
-{
-}
+{}
 
 void UIEditField::SetLabel(std::string lavel)
 {
@@ -99,7 +97,7 @@ void UIEditField::MouseMove(int x, int y)
 	}
 	else
 	{
-		
+
 		if (WasSelected)
 		{
 			//works currently but might leak resources;
@@ -187,7 +185,7 @@ void UIEditField::Render()
 		Toggle->Render();
 	}
 	Namelabel->Render();
-	if (Valueptr != nullptr)
+	if (Valueptr != nullptr && !IsEditing)
 	{
 		GetValueText(nextext);
 		Textlabel->SetText(nextext);
@@ -230,18 +228,28 @@ void UIEditField::SendValue()
 			//Target.append(nextext);
 			*((std::string*)Valueptr) = nextext;
 		}
-		if (FilterType == Inspector::ValueType::Float)
+		else if (FilterType == Inspector::ValueType::Float)
 		{
 			float out = (float)atof(nextext.c_str());
 
 			*((float*)Valueptr) = out;
 		}
-		if (FilterType == Inspector::ValueType::Bool)
+		else if (FilterType == Inspector::ValueType::Bool)
 		{
 			*((bool*)(Valueptr)) = !*((bool*)(Valueptr));
 			Toggle->SetText(*((bool*)(Valueptr)) ? "True" : "False");
 		}
-		UIManager::instance->RefreshGameObjectList();
+		else if (FilterType == Inspector::ValueType::Int)
+		{
+			int out = (int)atoi(nextext.c_str());
+
+			*((int*)Valueptr) = out;
+		}
+		
+		if (Property.ChangesEditor)
+		{
+			UIManager::instance->RefreshGameObjectList();
+		}
 	}
 }
 

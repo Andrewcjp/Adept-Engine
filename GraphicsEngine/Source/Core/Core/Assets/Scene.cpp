@@ -14,9 +14,10 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Game/Gamemode.h"
 #include "Core/Game/Game.h"
-Scene::Scene(bool EditScene )
+#include "Core/Components/ColliderComponent.h"
+Scene::Scene(bool EditScene)
 {
-	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);	
+	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
 	LightingData.SkyBox->AddRef();
 	CurrentGameMode = Engine::GetGame()->CreateGameMode();
 	bEditorScene = EditScene;
@@ -203,7 +204,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat = NormalMapShader->GetMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
-//	mat->SetDisplacementMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_disp.jpg"));
+	//	mat->SetDisplacementMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_disp.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -218,8 +219,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 20, 20));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(0.5));
-	
+
 	go->AttachComponent(new RigidbodyComponent());
+	go->AttachComponent(new ColliderComponent());
 	//go->actor = Engine::GetPhysEngineInstance()->CreatePrimitiveRigidBody(go->GetTransform()->GetPos(), glm::vec3(0, 10, 0), 1);
 	AddGameobjectToScene(go);
 
@@ -272,7 +274,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		{
 			go = new GameObject("Water");
 			mat = Material::GetDefaultMaterial();
-			mat->GetProperties()->Roughness = x * (1.0f / (size-1));
+			mat->GetProperties()->Roughness = x * (1.0f / (size - 1));
 			mat->GetProperties()->Metallic = y * (1.0f / (size - 1));
 			mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 			go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));

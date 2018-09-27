@@ -286,7 +286,7 @@ void UIManager::SelectedCallback(int i)
 }
 
 void UIManager::RefreshGameObjectList()
-{
+{	
 	if (box != nullptr && GameObjectsPtr != nullptr)
 	{
 		box->RemoveAll();
@@ -298,6 +298,7 @@ void UIManager::RefreshGameObjectList()
 			(*GameObjectsPtr)[i]->PostChangeProperties();
 			box->AddItem((*(GameObjectsPtr))[i]->GetName().c_str());
 		}
+		GetInspector()->Refresh();
 		UpdateBatches();
 	}
 }

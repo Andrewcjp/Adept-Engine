@@ -1,30 +1,26 @@
 #include "Stdafx.h"
-#include "PhysxRigidbody.h"
 #if PHYSX_ENABLED
+#include "PhysxRigidbody.h"
+#include "PhysxEngine.h"
+#include "PhysxCollider.h"
+#include "Physics/PhysicsTypes.h"
+#include "Core/Platform/PlatformCore.h"
+#include "Core/Engine.h"
+using namespace physx;
 PhysxRigidbody::~PhysxRigidbody()
-{}
-
-PhysxRigidbody::PhysxRigidbody(physx::PxRigidDynamic* Rigid)
 {
-	actor = Rigid;
-	//if (actor != nullptr) {
-	//	const physx::PxU32 shapenumber = actor->getNbShapes();//get the number of shapes
-	//	physx::PxShape* shapes[1];//might have to change this
-	//	actor->getShapes(shapes, 1);//copy data to the shapes array
-	//								//should only be one shape in this object/actor thingimajig!
-	//								//otherwise the lastone will be used!
-	//	if (shapes[0] != nullptr) {
-	//		transform = physx::PxShapeExt::getGlobalPose(*shapes[0], *actor);
-	//	}
-	//}
+	PMaterial->release();
 }
 
+PhysxRigidbody::PhysxRigidbody(EBodyType::Type type, Transform initalpos) :GenericRigidBody(type)
+{
+	transform = initalpos;
+}
 
 glm::vec3 PhysxRigidbody::GetPosition()
 {
 #if	PHYSX_ENABLED
-
-	return PXvec3ToGLM(actor->getGlobalPose().p);
+	return PXvec3ToGLM(CommonActorPtr->getGlobalPose().p);
 #else
 	return glm::vec3();
 #endif
@@ -33,7 +29,7 @@ glm::vec3 PhysxRigidbody::GetPosition()
 glm::quat PhysxRigidbody::GetRotation()
 {
 #if	PHYSX_ENABLED
-	return PXquatToGLM(actor->getGlobalPose().q);
+	return PXquatToGLM(CommonActorPtr->getGlobalPose().q);
 #else
 	return glm::quat();
 #endif
@@ -41,27 +37,107 @@ glm::quat PhysxRigidbody::GetRotation()
 
 void PhysxRigidbody::AddTorque(glm::vec3 torque)
 {
-	if (actor != nullptr)
+	if (Dynamicactor != nullptr)
 	{
-		actor->addTorque(GLMtoPXvec3(torque));
+		Dynamicactor->addTorque(GLMtoPXvec3(torque));
 	}
 }
 
 void PhysxRigidbody::AddForce(glm::vec3 force)
 {
-	if (actor != nullptr)
+	if (Dynamicactor != nullptr)
 	{
-		actor->addForce(GLMtoPXvec3(force));
+		Dynamicactor->addForce(GLMtoPXvec3(force));
 	}
 }
 
 glm::vec3 PhysxRigidbody::GetLinearVelocity()
 {
-	if (actor != nullptr)
+	if (Dynamicactor != nullptr)
 	{
-		return PXvec3ToGLM(actor->getLinearVelocity());
+		return PXvec3ToGLM(Dynamicactor->getLinearVelocity());
 	}
 	return glm::vec3();
 }
 
+void PhysxRigidbody::AttachCollider(Collider * col)
+{
+	PMaterial = PhysxEngine::GetDefaultMaterial();
+	PxShape* newShape = nullptr;
+	for (int i = 0; i < col->Shapes.size(); i++)
+	{
+		ShapeElem* Shape = col->Shapes[i];
+		switch (Shape->GetType())
+		{
+		case EShapeType::eBOX:
+		{
+			BoxElem* BoxShape = (BoxElem*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxBoxGeometry(GLMtoPXvec3(BoxShape->Extents)), *PMaterial);
+			break;
+		}
+		case EShapeType::eSPHERE:
+		{
+			SphereElem* SphereShape = (SphereElem*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxSphereGeometry(SphereShape->raduis), *PMaterial);
+			break;
+		}
+		}
+		ensure(newShape);
+		Shapes.push_back(newShape);
+	}
+}
+
+void PhysxRigidbody::SetPhysicalMaterial(PhysicalMaterial * newmat)
+{
+	if (newmat != nullptr && newmat != PhysicsMat)
+	{
+		PhysicsMat = newmat;
+		PMaterial = Engine::GetPhysEngineInstance()->CreatePhysxMat(PhysicsMat);
+		for (int i = 0; i < Shapes.size(); i++)
+		{
+			Shapes[i]->setMaterials(&PMaterial, 1);
+		}
+	}
+}
+
+void PhysxRigidbody::InitBody()
+{
+	if (PhysicsMat != nullptr)
+	{
+		PMaterial = Engine::GetPhysEngineInstance()->CreatePhysxMat(PhysicsMat);
+	}
+	else
+	{		
+		PhysicsMat = PhysicalMaterial::GetDefault();
+	}
+	if (BodyType == EBodyType::RigidDynamic)
+	{
+		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(GLMtoPXvec3(transform.GetPos())));
+		for (int i = 0; i < Shapes.size(); i++)
+		{
+			Dynamicactor->attachShape(*Shapes[i]);
+		}
+		Dynamicactor->setAngularDamping(AngularDamping);
+		Dynamicactor->setLinearDamping(LinearDamping);
+		if (UseAutoMass)
+		{
+			Dynamicactor->setMass(Mass);
+		}
+		else
+		{
+			PxRigidBodyExt::updateMassAndInertia(*Dynamicactor, PhysicsMat->density);
+		}
+		CommonActorPtr = Dynamicactor;
+	}
+	else if (BodyType == EBodyType::RigidStatic)
+	{
+		StaticActor = PhysxEngine::GetGPhysics()->createRigidStatic(PxTransform(GLMtoPXvec3(transform.GetPos())));
+		for (int i = 0; i < Shapes.size(); i++)
+		{
+			StaticActor->attachShape(*Shapes[i]);
+		}
+		CommonActorPtr = StaticActor;
+	}
+	PhysxEngine::GetPlayScene()->addActor(*CommonActorPtr);
+}
 #endif

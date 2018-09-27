@@ -36,13 +36,18 @@ void Inspector::SetSelectedObject(IInspectable * newTarget)
 		CreateEditor();
 	}
 }
+void Inspector::Refresh()
+{
+	CreateEditor();
+}
 
-Inspector::InspectorPropery Inspector::CreateProperty(std::string name, ValueType type, void * Valueptr)
+Inspector::InspectorPropery Inspector::CreateProperty(std::string name, ValueType type, void * Valueptr,bool EditorEffect)
 {
 	Inspector::InspectorPropery NameProp;
 	NameProp.name = name;
 	NameProp.type = type;
 	NameProp.ValuePtr = Valueptr;
+	NameProp.ChangesEditor = EditorEffect;
 	return NameProp;
 }
 
@@ -159,7 +164,7 @@ void Inspector::CreateEditor()
 				case Vector:
 				case Label:
 				case Bool:
-					newwidget = new UIEditField(Fields[i].SubProps[j].type, Fields[i].SubProps[j].name, Fields[i].SubProps[j].ValuePtr);
+					newwidget = new UIEditField(&Fields[i].SubProps[j]);
 					break;
 				default:
 					break;

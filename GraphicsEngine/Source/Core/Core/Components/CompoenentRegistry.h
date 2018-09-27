@@ -19,6 +19,7 @@ public:
 		RigidComp,
 		MeshComp,
 		GrassPatchComp,
+		ColliderComp,
 		Limit
 	};
 	

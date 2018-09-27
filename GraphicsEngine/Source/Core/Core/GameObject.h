@@ -56,6 +56,20 @@ public:
 
 	void PostChangeProperties();
 	void ChangePos_editor(glm::vec3 NewPos);
+	template<class T>
+	std::vector<T*> GetAllComponentsOfType()
+	{
+		std::vector<T*> Comps;
+		for (int i = 0; i < m_Components.size(); i++)
+		{
+			T* Target = dynamic_cast<T*>(m_Components[i]);
+			if (Target != nullptr)
+			{
+				Comps.push_back(Target);
+			}
+		}
+		return Comps;
+	}
 private:
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 
@@ -79,7 +93,7 @@ inline T * GameObject::GetComponent()
 {
 	for (int i = 0; i < m_Components.size(); i++)
 	{
-		T* Target = static_cast<T*>(m_Components[i]);
+		T* Target = dynamic_cast<T*>(m_Components[i]);
 		if (Target != nullptr)
 		{
 			return Target;

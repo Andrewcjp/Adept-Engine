@@ -7,7 +7,7 @@
 #include "CameraComponent.h"
 #include "Core/Engine.h"
 #include "RigidbodyComponent.h"
-
+#include "ColliderComponent.h"
 CompoenentRegistry::CompoenentRegistry()
 {
 	Engine::CompRegistry = this;
@@ -63,6 +63,9 @@ Component* CompoenentRegistry::Internal_CreateBaseComponent(BaseComponentTypes i
 		break;
 	case RigidComp:
 		return new RigidbodyComponent();
+		break;
+	case ColliderComp:
+		return new ColliderComponent();
 		break;
 	}
 	return nullptr;

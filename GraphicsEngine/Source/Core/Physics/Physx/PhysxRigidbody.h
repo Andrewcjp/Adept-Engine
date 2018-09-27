@@ -3,19 +3,28 @@
 #include "glm\glm.hpp"
 #include "glm\gtx\quaternion.hpp"
 #include "Physics/GenericRigidBody.h"
+#include "Physics/PhysicsTypes.h"
 #include "physx\PxPhysicsAPI.h"
+#include "Core/Transform.h"
 class PhysxRigidbody : public GenericRigidBody
 {
 public:
 	~PhysxRigidbody();
-	PhysxRigidbody(physx::PxRigidDynamic * Rigid);
+	PhysxRigidbody(EBodyType::Type type, Transform InitalPosition);
 	CORE_API glm::vec3 GetPosition();
 	CORE_API glm::quat GetRotation();
 	CORE_API void AddTorque(glm::vec3);
 	CORE_API void AddForce(glm::vec3);
 	CORE_API glm::vec3 GetLinearVelocity();
+	void AttachCollider(Collider* col);
+	void SetPhysicalMaterial(PhysicalMaterial* newmat);
+	
+	void InitBody();
 private:
-	physx::PxRigidDynamic* actor;
+	
+	physx::PxRigidDynamic*	Dynamicactor = nullptr;
+	physx::PxRigidStatic*	StaticActor = nullptr;
+	physx::PxRigidActor*	CommonActorPtr = nullptr;
 	glm::vec3 PXvec3ToGLM(physx::PxVec3 val)
 	{
 		return glm::vec3(val.x, val.y, val.z);
@@ -28,5 +37,9 @@ private:
 	{
 		return physx::PxVec3(val.x, val.y, val.z);
 	}
+	std::vector<physx::PxShape*> Shapes;
+	Transform transform;
+	PhysicalMaterial* PhysicsMat = nullptr;
+	physx::PxMaterial* PMaterial = nullptr;
 };
 #endif

@@ -70,9 +70,10 @@ public:
 	};
 	struct InspectorPropery
 	{
-		std::string name;
-		void* ValuePtr;
+		std::string name = "";
+		void* ValuePtr = nullptr;
 		ValueType type;
+		bool ChangesEditor = false;
 	};
 	struct InspectorProperyGroup
 	{
@@ -82,7 +83,8 @@ public:
 	Inspector(int w, int h, int x, int y);
 	~Inspector();
 	void SetSelectedObject(IInspectable* target);
-	static InspectorPropery CreateProperty(std::string name, ValueType type, void* Valueptr);
+	void Refresh();
+	static InspectorPropery CreateProperty(std::string name, ValueType type, void* Valueptr, bool EditorEffect = false);
 	static InspectorProperyGroup CreatePropertyGroup(std::string name);
 	// Inherited via UIWidget
 	void Render() override;
