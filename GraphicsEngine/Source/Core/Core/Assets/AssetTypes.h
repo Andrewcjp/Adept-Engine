@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Stdafx.h"
 namespace AssetFileType
 {
 	enum Type

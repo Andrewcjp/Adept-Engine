@@ -40,6 +40,7 @@ class CoreTargetRules : TargetRules
         CoreModule.IncludeDirectories.Add("/Include");
         CoreModule.IncludeDirectories.Add("");
         CoreModule.IncludeDirectories.Add("/Include/freetype2");
+        CoreModule.UseCorePCH = false;
         return CoreModule;
     }
 }
