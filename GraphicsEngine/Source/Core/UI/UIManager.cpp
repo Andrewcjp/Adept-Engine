@@ -7,7 +7,7 @@
 #include "Core/UIListBox.h"
 #include "Core/UILabel.h"
 #include "Core/GameObject.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #include "UI/EditorUI/UIEditField.h"
 #include "UI/GameUI/UIGraph.h"
 #include "Rendering/Core/GPUStateCache.h"
@@ -22,6 +22,7 @@
 #include "UI/GameUI/UIDropDown.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Editor/EditorCore.h"
+#include <algorithm>
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
 UIManager::UIManager()

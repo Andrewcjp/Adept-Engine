@@ -1,6 +1,6 @@
 #pragma once
 #include "RHI/RenderWindow.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #include "Rendering/Renderers/RenderSettings.h"
 class BaseWindow : public RenderWindow
 {

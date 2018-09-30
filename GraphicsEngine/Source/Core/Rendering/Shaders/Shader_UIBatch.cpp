@@ -22,10 +22,10 @@ std::vector<Shader::VertexElementDESC> Shader_UIBatch::GetVertexFormat()
 {
 	std::vector<Shader::VertexElementDESC> out;
 	///(float2 position : POSITION, int back : NORMAL0, float3 fc : TEXCOORD, float3 bc : TEXCOORD1)
-	out.push_back(VertexElementDESC{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-	out.push_back(VertexElementDESC{ "TEXCOORD", 2, DXGI_FORMAT_R16_UINT, 0, 8, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-	out.push_back(VertexElementDESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-	out.push_back(VertexElementDESC{ "TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "TEXCOORD", 2, FORMAT_R16_UINT, 0, 8, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "TEXCOORD", 0, FORMAT_R32G32B32_FLOAT, 0, 12,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "TEXCOORD", 1, FORMAT_R32G32B32_FLOAT, 0, 24, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	return out;
 }
 

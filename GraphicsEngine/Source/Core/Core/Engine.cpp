@@ -14,7 +14,7 @@
 #include "Core/Utils/FileUtils.h"
 #include "Module/ModuleManager.h"
 #include "UI/UIManager.h"
-#include "Input.h"
+#include "Input/Input.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Performance/PerfManager.h"
 #include "UI/Core/UIWidget.h"

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Editor_Camera.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #include "Editor/EditorWindow.h"
 Editor_Camera::Editor_Camera(Camera* cam)
 {
@@ -25,12 +25,12 @@ Editor_Camera::~Editor_Camera()
 
 void Editor_Camera::Update(float delatime)
 {
-	if (Input::GetVKey(VK_RBUTTON))
+	if (Input::GetVKey(0x02))
 	{
 		Input::instance->LockCursor(true);
 		Input::SetCursorVisible(false);
 		float movespeed = 100;
-		if (Input::GetVKey(VK_LSHIFT))
+		if (Input::GetVKey(0xA0))
 		{
 			movespeed = 1000;
 		}

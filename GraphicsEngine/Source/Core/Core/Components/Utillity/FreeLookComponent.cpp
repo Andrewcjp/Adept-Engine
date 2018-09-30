@@ -1,7 +1,7 @@
 #include "Stdafx.h"
 #include "FreeLookComponent.h"
 #include "Rendering/Core/Camera.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #include "Core/GameObject.h"
 #include "Core/Components/CameraComponent.h"
 FreeLookComponent::FreeLookComponent()
@@ -30,7 +30,7 @@ void FreeLookComponent::BeginPlay()
 void FreeLookComponent::Update(float delta)
 {
 	Transform* Form = GetOwner()->GetTransform();
-	if (Input::GetVKey(VK_SHIFT))
+	if (Input::GetVKey(0x0))
 	{
 		TranslateSpeed = FastTranslateSpeed;
 	}

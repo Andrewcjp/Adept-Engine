@@ -5,7 +5,6 @@
 #include <vector>
 #include "Rendering/Core/Light.h"
 #include "include/glm/gtc/type_ptr.hpp"
-#include <d3d12.h>
 #include "ShaderProgramBase.h"
 #include "Core/Assets/ShaderComplier.h"
 //this is a basis for a shader 
@@ -54,12 +53,12 @@ public:
 	typedef struct VertexElementDESC
 	{
 		char* SemanticName;
-		UINT SemanticIndex;
-		DXGI_FORMAT Format;
-		UINT InputSlot;
-		UINT AlignedByteOffset;
+		unsigned int SemanticIndex;
+		eTEXTURE_FORMAT Format;
+		unsigned int InputSlot;
+		unsigned int AlignedByteOffset;
 		INPUT_CLASSIFICATION InputSlotClass;
-		UINT InstanceDataStepRate;
+		unsigned int InstanceDataStepRate;
 	} 	VertexElementDESC;
 	struct ShaderParameter
 	{

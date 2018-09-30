@@ -9,7 +9,7 @@
 #include "Rendering\Core\Material.h"
 #include "Core\Components\MeshRendererComponent.h"
 #include "Core\Components\LightComponent.h"
-#include "Core\Input.h"
+#include "Core/Input/Input.h"
 #include "Core\Components\CameraComponent.h"
 #include "Core\Assets\Scene.h"
 #include "Rendering\Core\Camera.h"
