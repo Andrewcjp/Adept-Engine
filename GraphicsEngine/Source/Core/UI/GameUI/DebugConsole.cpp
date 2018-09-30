@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "DebugConsole.h"
 #include "UI/EditorUI/UIEditField.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #include "UI/UIManager.h"
 #include "Editor/EditorWindow.h"
 #include "UI/Core/UIBox.h"

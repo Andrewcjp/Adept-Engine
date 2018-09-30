@@ -2,12 +2,6 @@
 #include "RHI/RenderWindow.h"
 #include "Core/Engine.h"
 #include "include\glm\glm.hpp"
-#include "Rendering/Core/Camera.h"
-#include "Core/GameObject.h"
-#include "Rendering/Shaders/Shader_Main.h"
-#include "Rendering/Renderers/RenderEngine.h"
-#include "Editor\EditorWindow.h"
-#include "Components\MeshRendererComponent.h"
 #include "UI/UIManager.h"
 #include "Core/Platform/PlatformCore.h"
 Input* Input::instance = nullptr;
@@ -25,7 +19,6 @@ Input::~Input()
 void Input::Clear()
 {
 	KeyMap.clear();
-
 }
 void Input::ProcessInput(const float)
 {
@@ -46,8 +39,9 @@ bool Input::MouseLBUp(int, int)
 	return TRUE;
 }
 
-bool Input::MouseMove(int, int, double)
+bool Input::MouseMove(int x, int y, double)
 {
+	MousePosScreen = glm::vec2(x, y);
 	int height, width = 0;
 	PlatformWindow::GetApplication()->GetDesktopResolution(height, width);
 	int halfheight = (height / 2);
@@ -63,15 +57,6 @@ bool Input::MouseMove(int, int, double)
 		PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
 	}
 	return TRUE;
-}
-
-void Input::ProcessQue()
-{
-	for (size_t i = 0; i < Inputque.size(); i++)
-	{
-		Inputque.front()->Func(this);
-		Inputque.pop();
-	}
 }
 
 bool Input::ProcessKeyDown(unsigned int key)
@@ -131,6 +116,15 @@ void Input::SetCursorVisible(bool state)
 	{
 		CurrentCount = ShowCursor(true);
 	}
+}
+
+glm::vec2 Input::GetMousePos()
+{
+	if (instance != nullptr)
+	{
+		return instance->MousePosScreen;
+	}
+	return glm::vec2();
 }
 
 bool Input::GetKeyDown(int c)

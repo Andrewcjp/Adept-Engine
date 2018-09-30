@@ -434,7 +434,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	D3D12_RESOURCE_STATES ResourceState = IsDepthStencil ? D3D12_RESOURCE_STATE_DEPTH_WRITE : D3D12_RESOURCE_STATE_RENDER_TARGET;
 	if (BufferDesc.StartingState != D3D12_RESOURCE_STATE_COMMON)
 	{
-		ResourceState = BufferDesc.StartingState;
+		ResourceState = (D3D12_RESOURCE_STATES)BufferDesc.StartingState;
 	}
 	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),

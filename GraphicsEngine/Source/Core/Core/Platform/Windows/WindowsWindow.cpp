@@ -6,7 +6,7 @@
 #include "Resource.h"
 #include "Core/Components/CompoenentRegistry.h"
 #include "Core/EngineTypes.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #pragma comment(lib, "winmm.lib")
 
 WindowsWindow* WindowsWindow::app = nullptr;

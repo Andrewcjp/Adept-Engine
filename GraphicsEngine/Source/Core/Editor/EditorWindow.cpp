@@ -10,7 +10,7 @@
 #include "Core/BaseWindow.h"
 #include "Core/Transform.h"
 #include "Core/GameObject.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #include "Rendering/Core/Material.h"
 #include "Rendering/Renderers/ForwardRenderer.h"
 #include "Rendering/Renderers/DeferredRenderer.h"
@@ -149,10 +149,7 @@ void EditorWindow::DestroyRenderWindow()
 bool EditorWindow::MouseLBDown(int x, int y)
 {
 	BaseWindow::MouseLBDown(x, y);
-	if (input != nullptr && UI != nullptr && !UI->IsUIBlocking())
-	{
-		mEditorCore->SetSelectedObject(selector->RayCastScene(x, y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
-	}
+
 	return 0;
 }
 
@@ -223,7 +220,10 @@ void EditorWindow::Update()
 	{
 		ShowHud = !ShowHud;
 	}
-
+	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking())
+	{
+		mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
+	}
 }
 
 void EditorWindow::SaveScene()

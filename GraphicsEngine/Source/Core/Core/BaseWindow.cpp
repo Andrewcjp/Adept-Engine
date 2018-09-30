@@ -9,7 +9,7 @@
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "RHI/RHI.h"
 #include "UI/UIManager.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 //#include "Physics/PhysicsEngine.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Assets/SceneJSerialiser.h"
@@ -117,7 +117,6 @@ void BaseWindow::Render()
 	}
 	AccumTickTime += DeltaTime;
 	input->ProcessInput(DeltaTime);
-	input->ProcessQue();
 	
 	//lock the simulation rate to TickRate
 	//this prevents physx being framerate depenent.

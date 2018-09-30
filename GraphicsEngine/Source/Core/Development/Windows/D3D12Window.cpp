@@ -10,7 +10,7 @@
 #include "D3D12Framebuffer.h"
 
 #include "Editor/Editor_Camera.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #include "Rendering/Core/ShadowRenderer.h"
 #include "D3D12Plane.h"
 #include "Rendering/Shaders/ShaderOutput.h"

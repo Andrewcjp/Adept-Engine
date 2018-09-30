@@ -12,11 +12,11 @@ void PhysicsThrowerComponent::BeginPlay()
 
 void PhysicsThrowerComponent::Update(float delta)
 {
-	if (Input::GetKeyDown(VK_SPACE))
+	if (Input::GetKeyDown(KeyCode::SPACE))
 	{
 		FireAtScene();
 	}
-	if (Input::GetKeyDown(VK_DOWN))
+	if (Input::GetKeyDown(0x28))
 	{
 		//CreateStackAtPoint();
 	}

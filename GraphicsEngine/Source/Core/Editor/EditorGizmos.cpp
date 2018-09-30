@@ -2,7 +2,7 @@
 #include "Core/GameObject.h"
 
 #include "Rendering/Core/DebugLineDrawer.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 EditorGizmos::EditorGizmos()
 {
 	HandleLength = 5;

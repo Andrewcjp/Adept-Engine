@@ -2,6 +2,7 @@
 #include "RHI/RHI.h"
 #define MAX_PARTICLES 1000
 #define USE_INDIRECTCOMPUTE 0
+#include <d3d12.h>
 class ParticleSystemManager
 {
 public:
@@ -52,10 +53,10 @@ private:
 	RHIUAV* CounterUAV = nullptr;
 	struct Counters
 	{
-		UINT aliveCount = 0;
-		UINT deadCount = 0;
-		UINT realEmitCount = 0;
-		UINT aliveCount_afterSimulation = 0;
+		unsigned int aliveCount = 0;
+		unsigned int deadCount = 0;
+		unsigned int realEmitCount = 0;
+		unsigned int aliveCount_afterSimulation = 0;
 	};
 
 	//rendering

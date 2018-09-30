@@ -384,10 +384,10 @@ D3D12_INPUT_ELEMENT_DESC D3D12Shader::ConvertVertexFormat(Shader::VertexElementD
 	output.AlignedByteOffset = desc->AlignedByteOffset;
 	output.InputSlot = desc->InputSlot;
 	output.SemanticIndex = desc->SemanticIndex;
-	output.Format = desc->Format;
+	output.Format = D3D12Helpers::ConvertFormat(desc->Format);
 	output.InstanceDataStepRate = desc->InstanceDataStepRate;
 	//identical!
-	output.InputSlotClass = (D3D12_INPUT_CLASSIFICATION)(int)desc->InputSlotClass;
+	output.InputSlotClass =  (D3D12_INPUT_CLASSIFICATION)desc->InputSlotClass;
 	return output;
 }
 

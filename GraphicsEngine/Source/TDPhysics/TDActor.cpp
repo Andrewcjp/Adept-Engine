@@ -5,8 +5,7 @@ namespace TD
 
 	TDActor::TDActor()
 	{}
-
-
+	
 	TDActor::~TDActor()
 	{}
 
