@@ -1,10 +1,11 @@
 #include "TGExtraComponentRegister.h"
 #include "TGComp.h"
 #include "PhysicsThrowerComponent.h"
-
+#include "TestPlayer.h"
 TGExtraComponentRegister::TGExtraComponentRegister():ExtraComponentRegister()
 {
 	Ids.push_back(1);
+	Ids.push_back(2);
 }
 
 
@@ -20,6 +21,10 @@ Component * TGExtraComponentRegister::CreateExtraComponent(int id)
 	if (id == 1)
 	{
 		return new PhysicsThrowerComponent();
+	}
+	if (id == 2)
+	{
+		return new TestPlayer();
 	}
 	return nullptr;
 }

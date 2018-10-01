@@ -9,8 +9,10 @@ GameMode::GameMode()
 GameMode::~GameMode()
 {}
 
-void GameMode::BeginPlay()
-{}
+void GameMode::BeginPlay(Scene* Scene)
+{
+	CurrentScene = Scene;
+}
 
 void GameMode::EndPlay()
 {}

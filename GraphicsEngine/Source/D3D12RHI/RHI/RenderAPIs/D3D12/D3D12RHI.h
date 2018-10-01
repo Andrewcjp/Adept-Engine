@@ -52,7 +52,6 @@ private:
 	void FindAdaptors(IDXGIFactory2 * pFactory);
 	void MoveToNextFrame();
 
-	class ShaderMipMap* MipmapShader = nullptr;
 	ID3D12DescriptorHeap* BaseTextureHeap;
 	ID3D12CommandQueue* GetCommandQueue();
 	bool InitRHI()override;

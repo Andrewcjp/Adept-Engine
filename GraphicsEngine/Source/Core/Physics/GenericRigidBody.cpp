@@ -38,6 +38,17 @@ glm::vec3 GenericRigidBody::GetLinearVelocity()
 void GenericRigidBody::AttachCollider(Collider * col)
 {}
 
+void GenericRigidBody::SetLockFlags(BodyInstanceData data)
+{
+	LockData = data;
+	UpdateFlagStates();
+}
+
+BodyInstanceData GenericRigidBody::GetLockFlags()
+{
+	return LockData;
+}
+
 GenericCollider::GenericCollider()
 {}
 

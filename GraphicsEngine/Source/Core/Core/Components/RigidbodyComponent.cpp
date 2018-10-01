@@ -43,8 +43,26 @@ void RigidbodyComponent::SceneInitComponent()
 			tempcol->Shapes.push_back(cc->GetColliderShape());
 		}
 		actor->AttachCollider(tempcol);
+		actor->SetLockFlags(LockData);
 		actor->InitBody();
 	}
+}
+
+void RigidbodyComponent::SetLinearVelocity(glm::vec3 velocity)
+{
+	if (actor != nullptr)
+	{
+		actor->SetLinearVelocity(velocity);
+	}
+}
+
+glm::vec3 RigidbodyComponent::GetVelocity()
+{
+	if (actor != nullptr)
+	{
+		return actor->GetLinearVelocity();
+	}
+	return glm::vec3();
 }
 
 void RigidbodyComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
@@ -59,4 +77,16 @@ void RigidbodyComponent::ProcessSerialArchive(Archive * A)
 	Component::ProcessSerialArchive(A);
 }
 
+void RigidbodyComponent::SetLockFlags(BodyInstanceData data)
+{
+	LockData = data;
+	if (actor)
+	{
+		actor->SetLockFlags(LockData);
+	}
+}
 
+BodyInstanceData RigidbodyComponent::GetLockFlags()
+{
+	return LockData;
+}

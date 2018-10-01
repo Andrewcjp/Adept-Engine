@@ -5,7 +5,6 @@
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/StringUtil.h"
-#include "Rendering/Shaders/ShaderMipMap.h"
 #include "GPUResource.h"
 #include "RHI/DeviceContext.h"
 #include "ThirdParty/NVDDS/DDSTextureLoader12.h"

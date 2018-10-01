@@ -5,7 +5,7 @@ class TestGameGameMode:public GameMode
 public:
 	TestGameGameMode();
 	~TestGameGameMode();
-	virtual void BeginPlay();
+	virtual void BeginPlay(Scene* Scene);
 	virtual void EndPlay();
 	virtual void Update();
 };

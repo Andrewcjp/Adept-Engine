@@ -35,7 +35,7 @@ private:
 		glm::vec3 pos;
 		glm::vec3 colour;
 	};
-	const int maxSize = 500;
+	const int maxSize = 1500;
 	bool Is2DOnly = false;
 };
 

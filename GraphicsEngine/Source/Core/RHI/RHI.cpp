@@ -20,15 +20,10 @@ RHI::RHI(ERenderSystemType system)
 	switch (CurrentSystem)
 	{
 #if BUILD_D3D12
-
 	case ERenderSystemType::RenderSystemD3D12:
-#if RHI_USE_MODULE
 		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("D3D12RHI");
 		ensure(RHImodule);
 		CurrentRHI = RHImodule->GetRHIClass();
-#else
-		CurrentRHI = new D3D12RHI();
-#endif
 		break;
 #endif
 #if BUILD_VULKAN

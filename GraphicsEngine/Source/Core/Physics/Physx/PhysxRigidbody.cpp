@@ -60,6 +60,14 @@ glm::vec3 PhysxRigidbody::GetLinearVelocity()
 	return glm::vec3();
 }
 
+void PhysxRigidbody::SetLinearVelocity(glm::vec3 velocity)
+{
+	if (Dynamicactor != nullptr)
+	{
+		Dynamicactor->setLinearVelocity(GLMtoPXvec3(velocity));
+	}
+}
+
 void PhysxRigidbody::AttachCollider(Collider * col)
 {
 	PMaterial = PhysxEngine::GetDefaultMaterial();
@@ -100,6 +108,19 @@ void PhysxRigidbody::SetPhysicalMaterial(PhysicalMaterial * newmat)
 	}
 }
 
+void PhysxRigidbody::UpdateFlagStates()
+{
+	if (Dynamicactor)
+	{
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, LockData.LockXRot);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, LockData.LockYRot);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, LockData.LockZRot);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, LockData.LockXPosition);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, LockData.LockYPosition);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, LockData.LockZPosition);
+	}
+}
+
 void PhysxRigidbody::InitBody()
 {
 	if (PhysicsMat != nullptr)
@@ -107,9 +128,10 @@ void PhysxRigidbody::InitBody()
 		PMaterial = Engine::GetPhysEngineInstance()->CreatePhysxMat(PhysicsMat);
 	}
 	else
-	{		
+	{
 		PhysicsMat = PhysicalMaterial::GetDefault();
 	}
+
 	if (BodyType == EBodyType::RigidDynamic)
 	{
 		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(GLMtoPXvec3(transform.GetPos())));
@@ -117,17 +139,18 @@ void PhysxRigidbody::InitBody()
 		{
 			Dynamicactor->attachShape(*Shapes[i]);
 		}
-		Dynamicactor->setAngularDamping(AngularDamping);
-		Dynamicactor->setLinearDamping(LinearDamping);
-		if (UseAutoMass)
+		Dynamicactor->setAngularDamping(LockData.AngularDamping);
+		Dynamicactor->setLinearDamping(LockData.LinearDamping);
+		if (LockData.UseAutoMass)
 		{
-			Dynamicactor->setMass(Mass);
+			Dynamicactor->setMass(LockData.Mass);
 		}
 		else
 		{
 			PxRigidBodyExt::updateMassAndInertia(*Dynamicactor, PhysicsMat->density);
 		}
 		CommonActorPtr = Dynamicactor;
+		UpdateFlagStates();
 	}
 	else if (BodyType == EBodyType::RigidStatic)
 	{

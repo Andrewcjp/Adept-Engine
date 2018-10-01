@@ -16,8 +16,11 @@ public:
 	CORE_API void AddTorque(glm::vec3);
 	CORE_API void AddForce(glm::vec3);
 	CORE_API glm::vec3 GetLinearVelocity();
+	CORE_API void SetLinearVelocity(glm::vec3 velocity);
 	void AttachCollider(Collider* col);
 	void SetPhysicalMaterial(PhysicalMaterial* newmat);
+
+	void UpdateFlagStates() override;
 	
 	void InitBody();
 private:

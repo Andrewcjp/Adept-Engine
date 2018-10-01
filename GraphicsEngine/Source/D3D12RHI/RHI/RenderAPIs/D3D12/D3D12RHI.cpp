@@ -1,11 +1,9 @@
 ﻿#include "stdafx.h"
 #include "D3D12RHI.h"
-
 #include "RHI/RHI.h"
 #include "RHI/RHI_inc.h"
 #include "RHI/RHITypes.h"
 #include "include\glm\gtx\transform.hpp"
-#include "Rendering/Shaders/ShaderMipMap.h"
 #include "GPUResource.h"
 #include "D3D12TimeManager.h"
 #include "Core/Platform/PlatformCore.h"
@@ -47,7 +45,6 @@ void D3D12RHI::DestroyContext()
 		m_swapChain->SetFullscreenState(false, nullptr);
 	}
 	ReleaseSwapRTs();
-	delete MipmapShader;
 	SafeRelease(m_swapChain);
 	delete PrimaryDevice;
 	if (SecondaryDevice != nullptr)
