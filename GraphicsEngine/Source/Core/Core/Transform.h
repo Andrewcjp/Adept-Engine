@@ -29,9 +29,9 @@ public:
 	glm::vec3 GetPos() const { return _pos; }
 	glm::vec3 GetEulerRot() const;
 	glm::vec3 GetScale() const { return _scale; }
-	glm::vec3 GetForward();
-	glm::vec3 GetUp();
-	glm::vec3 GetRight();
+	CORE_API glm::vec3 GetForward();
+	CORE_API glm::vec3 GetUp();
+	CORE_API glm::vec3 GetRight();
 	glm::vec3 TransfromToLocalSpace(glm::vec3& direction);
 	glm::vec3 TransformDirection(const glm::vec3& pDirection, const  glm::mat4& pMatrix);
 	glm::quat GetQuatRot()const;

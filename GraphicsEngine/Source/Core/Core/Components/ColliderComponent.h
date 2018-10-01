@@ -6,17 +6,17 @@ class ColliderComponent :
 {
 public:
 	
-	ColliderComponent();
-	~ColliderComponent();
+	CORE_API ColliderComponent();
+	CORE_API ~ColliderComponent();
 
 	// Inherited via Component
 	virtual void InitComponent() override;
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;	
 	void ProcessSerialArchive(class Archive* A) override;
-	EShapeType::Type GetCollisonShape();
-	void SetCollisonShape(EShapeType::Type newtype);
-	ShapeElem* GetColliderShape();
+	CORE_API EShapeType::Type GetCollisonShape();
+	CORE_API void SetCollisonShape(EShapeType::Type newtype);
+	CORE_API ShapeElem* GetColliderShape();
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props);
 
 private:

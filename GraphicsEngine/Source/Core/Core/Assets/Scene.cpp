@@ -72,7 +72,8 @@ void Scene::FixedUpdateScene(float deltatime)
 
 void Scene::StartScene()
 {
-	CurrentGameMode->BeginPlay();
+	IsRunning = true;
+	CurrentGameMode->BeginPlay(this);
 	for (int i = 0; i < SceneObjects.size(); i++)
 	{
 		SceneObjects[i]->BeginPlay();
@@ -331,6 +332,7 @@ void Scene::RemoveGameObject(GameObject* object)
 void Scene::EndScene()
 {
 	CurrentGameMode->EndPlay();
+	IsRunning = false;
 }
 
 void Scene::AddGameobjectToScene(GameObject* gameobject)
@@ -341,6 +343,10 @@ void Scene::AddGameobjectToScene(GameObject* gameobject)
 		RenderSceneObjects.push_back(gameobject);
 	}
 	gameobject->Internal_SetScene(this);
+	if (IsRunning)
+	{
+		gameobject->BeginPlay();
+	}
 }
 
 void Scene::CopyScene(Scene* newscene)

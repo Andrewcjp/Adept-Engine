@@ -1,7 +1,7 @@
 #include "PhysicsThrowerComponent.h"
 #include "EngineHeader.h"
 #include "Physics/PhysicsEngine.h"
-#include "Core/Components/RigidbodyComponent.h"
+#include "Core/Components/Core_Components_inc.h"
 PhysicsThrowerComponent::PhysicsThrowerComponent()
 {}
 

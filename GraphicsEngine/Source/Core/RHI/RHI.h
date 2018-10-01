@@ -9,7 +9,6 @@
 #include "Core/Assets/MeshLoader.h"
 #include "RHICommandList.h"
 #include "Core/Module/ModuleInterface.h"
-#include "Rendering/Renderers/RenderSettings.h"
 
 class BaseTexture;
 class Mesh;
@@ -17,7 +16,6 @@ class ShaderProgramBase;
 class FrameBuffer;
 class DeviceContext;
 const int MAX_DEVICE_COUNT = 2;
-#define RHI_USE_MODULE 1
 class RHI
 {
 public:

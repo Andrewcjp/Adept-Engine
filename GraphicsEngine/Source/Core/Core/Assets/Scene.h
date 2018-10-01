@@ -45,5 +45,6 @@ private:
 	GameMode* CurrentGameMode = nullptr;
 	bool bEditorScene = false;
 	LightingEnviromentData LightingData = LightingEnviromentData();
+	bool IsRunning = false;
 };
 

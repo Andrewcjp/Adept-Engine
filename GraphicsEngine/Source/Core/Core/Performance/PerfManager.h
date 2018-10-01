@@ -57,7 +57,7 @@ public:
 	void EndFrameTimer();
 	static float GetGPUTime();
 	static float GetCPUTime();
-	static float GetDeltaTime();
+	CORE_API static float GetDeltaTime();
 	static void SetDeltaTime(float Time);
 	static void NotifyEndOfFrame();
 	bool ShowAllStats = false;

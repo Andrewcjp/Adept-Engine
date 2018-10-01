@@ -39,7 +39,7 @@ public:
 	typedef std::pair<std::string, Material::TextureBindData> FlatMap;
 	void SetShadow(bool state);
 	bool GetDoesShadow();
-	MaterialProperties* GetProperties();
+	CORE_API MaterialProperties* GetProperties();
 	void SetDisplacementMap(BaseTexture* tex);
 	CORE_API void SetNormalMap(BaseTexture * tex);
 	CORE_API void SetDiffusetexture(BaseTexture* tex);
