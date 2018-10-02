@@ -18,8 +18,8 @@ public:
 	CORE_API void SetPos(const glm::vec3& pos);
 	CORE_API void SetEulerRot(const glm::vec3& rot);
 	CORE_API void SetScale(const glm::vec3& scale);
-	void AddRotation(glm::vec3& rot);
-	void RotateAboutAxis(glm::vec3& axis, float amt);
+	CORE_API void AddRotation(glm::vec3& rot);
+	CORE_API void RotateAboutAxis(glm::vec3& axis, float amt);
 	void SetQrot(const glm::quat& val);
 	void SetParent(Transform* Parent);
 	void TranslatePos(const glm::vec3 & pos);
@@ -27,7 +27,7 @@ public:
 	///------------------------------------------------------
 	//getters
 	glm::vec3 GetPos() const { return _pos; }
-	glm::vec3 GetEulerRot() const;
+	CORE_API glm::vec3 GetEulerRot() const;
 	glm::vec3 GetScale() const { return _scale; }
 	CORE_API glm::vec3 GetForward();
 	CORE_API glm::vec3 GetUp();

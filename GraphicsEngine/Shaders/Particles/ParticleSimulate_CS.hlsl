@@ -14,7 +14,10 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
 	{
 		if (newPosVelo[index].Lifetime > 0.0f)
 		{
-			newPosVelo[index].vel += float4(0, -0.1, 0, 0.0f);
+			const float4 Gravity = float4(0, -9.81, 0, 0);
+
+			newPosVelo[index].vel += Gravity* timeStep;			
+			
 			newPosVelo[index].pos += float4(newPosVelo[index].vel.xyz, 0.0) * timeStep;
 			newPosVelo[index].Lifetime -= timeStep;
 			uint NewAliveIndex = 0;

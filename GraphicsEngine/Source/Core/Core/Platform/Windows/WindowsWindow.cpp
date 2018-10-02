@@ -212,7 +212,7 @@ short WindowsWindow::GetCharAsVirtualKey(char c)
 
 bool WindowsWindow::IsKeyDown(short key)
 {
-	if (GetKeyState(key) & 0x8000)
+	if (::GetAsyncKeyState(key) & 0x8000)
 	{
 		return true;
 	}

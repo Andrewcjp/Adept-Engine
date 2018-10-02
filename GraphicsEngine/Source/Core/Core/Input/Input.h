@@ -24,10 +24,10 @@ public:
 	bool   MouseLBUp(int x, int y);
 	bool   MouseMove(int x, int y, double deltatime);
 	bool   ProcessKeyDown(unsigned int key);
-	void   LockCursor(bool state);
-	static void ReciveMouseDownMessage(int Button, bool state);
-	static bool GetMouseButtonDown(int button);
-	static void SetCursorVisible(bool state);
+	CORE_API static void LockCursor(bool state);
+	CORE_API static void ReciveMouseDownMessage(int Button, bool state);
+	CORE_API static bool GetMouseButtonDown(int button);
+	CORE_API static void SetCursorVisible(bool state);
 	
 private:
 	bool LockMouse = false;

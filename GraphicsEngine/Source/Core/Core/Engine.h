@@ -41,6 +41,7 @@ public:
 	static bool						GetIsCooking();
 	static Engine*					Get();
 	static const EngineSettings*	GetSettings() { return &EngineInstance->Settings; }
+	static float					GetPhysicsDeltaTime();
 private:
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;

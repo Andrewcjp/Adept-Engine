@@ -25,7 +25,6 @@ public:
 	CORE_API RigidBody * FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale/*, PxGeometryType::Enum type*/);
 
 private:
-
-
+	
 };
 #endif

@@ -14,7 +14,6 @@ GenericRigidBody::~GenericRigidBody()
 glm::vec3 GenericRigidBody::GetPosition()
 {
 	return glm::vec3();
-
 }
 
 glm::quat GenericRigidBody::GetRotation()
@@ -27,8 +26,11 @@ void GenericRigidBody::AddTorque(glm::vec3 torque)
 
 }
 
-void GenericRigidBody::AddForce(glm::vec3 force)
-{}
+void GenericRigidBody::AddForce(glm::vec3 force, EForceMode::Type Mode)
+{
+	
+}
+
 
 glm::vec3 GenericRigidBody::GetLinearVelocity()
 {

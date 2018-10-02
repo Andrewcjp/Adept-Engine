@@ -22,14 +22,14 @@ public:
 	{
 		return projection;
 	}
-	void SetUpAndForward(glm::vec3 fward, glm::vec3 uup);
+	CORE_API void SetUpAndForward(glm::vec3 fward, glm::vec3 uup);
 	glm::mat4 GetView();
 	CORE_API glm::vec3 GetPosition();
 	void MoveForward(float amt);
 	void MoveRight(float amt);
 	void MoveUp(float amt);
-	void Pitch(float angle);
-	void RotateY(float angle);
+	CORE_API void Pitch(float angle);
+	CORE_API void RotateY(float angle);
 	void ePitch(float angle);
 	void qPitch(float angle);
 	void qRotateY(float angle);

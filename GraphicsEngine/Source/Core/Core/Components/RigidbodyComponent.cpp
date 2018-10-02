@@ -22,12 +22,20 @@ void RigidbodyComponent::BeginPlay()
 void RigidbodyComponent::Update(float delta)
 {}
 
+void RigidbodyComponent::OnTransformUpdate()
+{
+	if (actor != nullptr)
+	{
+		actor->SetPositionAndRotation(GetOwner()->GetTransform()->GetPos(), GetOwner()->GetTransform()->GetPos());
+	}
+}
+
 void RigidbodyComponent::FixedUpdate(float delta)
 {
 	if (actor != nullptr)
 	{
 		GetOwner()->GetTransform()->SetPos(actor->GetPosition());
-		GetOwner()->GetTransform()->SetQrot(actor->GetRotation());
+		//GetOwner()->GetTransform()->SetQrot(actor->GetRotation());
 	}
 }
 

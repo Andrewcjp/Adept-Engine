@@ -13,6 +13,15 @@ namespace EShapeType
 		eLimit
 	};
 }
+namespace EForceMode 
+{
+	enum Type 
+	{
+		AsAcceleration,
+		AsForce,
+		Limit,
+	};
+}
 namespace EBodyType
 {
 	enum Type

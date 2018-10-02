@@ -255,7 +255,7 @@ void Engine::HandleInput(unsigned int key)
 	}
 }
 
-bool Engine::GetIsCooking() 
+bool Engine::GetIsCooking()
 {
 	return EngineInstance->IsCooking;
 }
@@ -267,6 +267,16 @@ Engine * Engine::Get()
 		EngineInstance = new Engine();
 	}
 	return EngineInstance;
+}
+
+float Engine::GetPhysicsDeltaTime()
+{
+	//Todo: Smooth DT to avoid Spikes causing weird physics 
+	if (EngineInstance != nullptr)
+	{
+		return std::min(PerfManager::GetDeltaTime(), GetSettings()->MaxPhysicsTimeStep);
+	}
+	return 0.0f;
 }
 
 void Engine::CreateApplicationWindow(int width, int height)

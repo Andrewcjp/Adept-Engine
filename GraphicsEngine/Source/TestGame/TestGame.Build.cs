@@ -6,8 +6,7 @@ class TestGameModule : ModuleDef
     {
         ModuleName = "TestGame";
         SourceFileSearchDir = "TestGame";
-        ModuleDepends.Add("Core");
-        ModuleOutputType = ModuleDef.ModuleType.DLL;
+        ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
         SolutionFolderPath = "Game";
     }
 }

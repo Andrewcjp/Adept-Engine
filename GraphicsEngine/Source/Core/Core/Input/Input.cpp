@@ -77,9 +77,9 @@ void Input::LockCursor(bool state)
 {
 	if (state)
 	{
-		PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
+		PlatformWindow::GetApplication()->SetMousePos(instance->CentrePoint);
 	}
-	LockMouse = state;
+	instance->LockMouse = state;
 }
 
 void Input::ReciveMouseDownMessage(int Button, bool state)
