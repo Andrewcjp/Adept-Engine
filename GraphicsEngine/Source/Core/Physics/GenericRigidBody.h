@@ -24,7 +24,7 @@ public:
 	CORE_API glm::vec3 GetPosition();
 	CORE_API glm::quat GetRotation();
 	CORE_API void AddTorque(glm::vec3);
-	CORE_API void AddForce(glm::vec3);
+	CORE_API void AddForce(glm::vec3 force, EForceMode::Type Mode = EForceMode::AsForce);
 	CORE_API glm::vec3 GetLinearVelocity();
 	void AttachCollider(Collider* col);
 	CORE_API void SetLockFlags(BodyInstanceData data);

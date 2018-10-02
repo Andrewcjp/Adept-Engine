@@ -48,7 +48,7 @@ protected:
 	class SceneJSerialiser* Saver = nullptr;
 	
 	double DeltaTime = 0.0;
-	const float TickRate = 1.0f / 120.0f;
+	const float TickRate = 1.0f / 60.0f;
 
 	virtual void WindowUI() {};
 	bool IsRunning = false;

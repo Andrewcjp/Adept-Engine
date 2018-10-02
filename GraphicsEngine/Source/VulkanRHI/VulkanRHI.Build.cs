@@ -7,7 +7,6 @@ class VulkanRHIModule : ModuleDef
         SolutionFolderPath = "Engine/Modules/RHI";
         ModuleName = "VulkanRHI";
         SourceFileSearchDir = "VulkanRHI";
-        ModuleDepends.Add("Core");
-        ModuleOutputType = ModuleDef.ModuleType.DLL;
+        ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
     }
 }

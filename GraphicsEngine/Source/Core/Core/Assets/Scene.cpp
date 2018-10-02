@@ -196,9 +196,11 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(15, 10, 0));
+	go->GetTransform()->SetPos(glm::vec3(0, 10, 10));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
+	go->AttachComponent(new ColliderComponent());
+	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Plane");

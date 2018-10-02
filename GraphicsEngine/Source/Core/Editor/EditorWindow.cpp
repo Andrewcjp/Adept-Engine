@@ -85,11 +85,6 @@ void EditorWindow::PostInitWindow(int w, int h)
 	Renderer->SetScene(CurrentScene);
 	RefreshScene();
 
-	//#if _DEBUG
-	//	IsRunning = true;
-	//	IsPlayingScene = true;
-	//	CurrentPlayScene = CurrentScene;
-	//#endif
 #if TEST_SERIAL
 	std::string TestFilePath = AssetManager::GetContentPath() + "Test\\Test.Scene";
 	Saver->SaveScene(CurrentScene, TestFilePath);
@@ -143,6 +138,7 @@ void EditorWindow::ExitPlayMode()
 
 void EditorWindow::DestroyRenderWindow()
 {
+	ExitPlayMode();
 	BaseWindow::DestroyRenderWindow();
 }
 
@@ -191,7 +187,7 @@ void EditorWindow::Update()
 	}
 	
 
-	if (mEditorCore->GetSelectedObject() != nullptr)
+	if (mEditorCore->GetSelectedObject() != nullptr && IsPlayingScene)
 	{
 		gizmos->Update(0);
 		gizmos->SetTarget(mEditorCore->GetSelectedObject());

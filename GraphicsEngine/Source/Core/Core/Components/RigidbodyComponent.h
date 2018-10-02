@@ -18,6 +18,7 @@ public:
 	CORE_API glm::vec3 GetVelocity();
 	CORE_API void SetLockFlags(BodyInstanceData data);
 	CORE_API BodyInstanceData GetLockFlags();
+	void OnTransformUpdate() override ;
 private:
 	RigidBody* actor;
 	BodyInstanceData LockData;

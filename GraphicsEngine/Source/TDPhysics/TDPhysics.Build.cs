@@ -9,6 +9,7 @@ class TDPhysicsModule : ModuleDef
         SourceFileSearchDir = "TDPhysics";
         PCH = "TDPCH";
         // ModuleDepends.Add("Core");
+        NeedsCore = false;
         ModuleOutputType = ModuleDef.ModuleType.DLL;
         UseCorePCH = false;
     }

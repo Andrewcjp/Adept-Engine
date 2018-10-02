@@ -30,7 +30,7 @@ glm::vec3 Transform::TransfromToLocalSpace(glm::vec3 & direction)
 
 glm::vec3 Transform::TransformDirection(const  glm::vec3 & pDirection, const  glm::mat4 & pMatrix)
 {
-	return glm::normalize(glm::vec3(pMatrix * glm::vec4(pDirection, 0.0f)));
+	return /*glm::normalize*/(glm::vec3(pMatrix * glm::vec4(pDirection, 0.0f)));
 }
 
 glm::quat Transform::GetQuatRot() const
@@ -78,7 +78,7 @@ glm::mat4 Transform::GetModel()
 	}
 	glm::mat4 posMat = glm::translate(_pos);
 	glm::mat4 scaleMat = glm::scale(_scale);
-	glm::mat4 rotMat = (glm::toMat4(((_qrot))));
+	glm::mat4 rotMat = glm::toMat4(_qrot);
 	if (parent != nullptr && parent->IsChanged())
 	{
 		parentMatrix = parent->GetModel();
@@ -115,7 +115,12 @@ void Transform::SetEulerRot(const glm::vec3 & rot)
 {
 	UpdateModel = true;
 	oldqrot = this->_qrot;
-	this->_qrot = glm::quat(glm::radians(rot));
+	glm::quat QuatAroundX = glm::angleAxis(glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));
+	glm::quat QuatAroundY = glm::angleAxis(glm::radians(rot.y), glm::vec3(0.0, 1.0, 0.0));
+	glm::quat QuatAroundZ = glm::angleAxis(glm::radians(rot.z), glm::vec3(0.0, 0.0, 1.0));
+	glm::quat finalOrientation = QuatAroundX * QuatAroundY * QuatAroundZ;
+	this->_qrot = finalOrientation;
+	//this->_qrot = glm::quat(glm::radians(rot));
 }
 
 void Transform::SetScale(const glm::vec3 & scale)
@@ -127,6 +132,7 @@ void Transform::SetScale(const glm::vec3 & scale)
 
 void Transform::AddRotation(glm::vec3 & rot)
 {
+	UpdateModel = true;
 	this->_rot += rot;
 }
 
@@ -134,7 +140,7 @@ void Transform::RotateAboutAxis(glm::vec3 & axis, float amt)
 {
 	UpdateModel = true;
 	oldqrot = this->_qrot;
-	this->_qrot *= glm::angleAxis((amt), glm::normalize(axis));
+	this->_qrot *= glm::angleAxis(glm::radians(amt), axis);
 	GetModel();
 }
 
@@ -163,5 +169,5 @@ void Transform::MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up)
 
 glm::vec3 Transform::GetEulerRot() const
 {
-	return _rot;
+	return glm::degrees(_rot);
 }

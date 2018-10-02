@@ -11,6 +11,7 @@ TestGameGameMode::~TestGameGameMode()
 void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
+
 	GameObject* go = new GameObject("Player Test");
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));

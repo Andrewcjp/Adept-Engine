@@ -117,22 +117,31 @@ void BaseWindow::Render()
 	}
 	AccumTickTime += DeltaTime;
 	input->ProcessInput(DeltaTime);
-	
+
 	//lock the simulation rate to TickRate
 	//this prevents physx being framerate depenent.
-	if (AccumTickTime > TickRate && IsRunning)
+	if (IsRunning)
 	{
 		AccumTickTime = 0;
 		PerfManager::StartTimer("FTick");
-		Engine::PhysEngine->stepPhysics(TickRate);
-		if (ShouldTickScene)
+		float TimeStep = Engine::GetPhysicsDeltaTime();
+		if (TimeStep > 0)
 		{
-			CurrentScene->FixedUpdateScene(TickRate);
+			Engine::PhysEngine->stepPhysics(TimeStep);
+			if (ShouldTickScene)
+			{
+				CurrentScene->FixedUpdateScene(TimeStep);
+			}
+			FixedUpdate();
 		}
-		FixedUpdate();
+		else
+		{
+			Log::LogMessage("Delta Time was Negative", Log::Severity::Warning);
+		}
 		//CurrentPlayScene->FixedUpdateScene(TickRate);
 		PerfManager::EndTimer("FTick");
 	}
+
 #if 1
 	if (input->GetKeyDown(VK_ESCAPE))
 	{
@@ -428,7 +437,7 @@ void BaseWindow::RenderText()
 	}
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
-	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << PerfManager::GetDeltaTime() * 1000 << "ms ";
+	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
 	if (RHI::GetRenderSettings()->IsDeferred)
 	{
 		stream << "DEF ";

@@ -40,7 +40,9 @@ class CoreTargetRules : TargetRules
         CoreModule.IncludeDirectories.Add("/Include");
         CoreModule.IncludeDirectories.Add("");
         CoreModule.IncludeDirectories.Add("/Include/freetype2");
+        CoreModule.IncludeDirectories.Add("/source/TDPhysics");
         CoreModule.UseCorePCH = false;
+        CoreModule.ModuleDepends.Add("TDPhysics");
         return CoreModule;
     }
 }

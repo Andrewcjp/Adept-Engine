@@ -114,6 +114,7 @@ void AssetManager::SetupPaths()
 	RootDir = Engine::GetExecutionDir();
 #if !BUILD_PACKAGE
 	StringUtils::RemoveChar(RootDir, "\\Binaries");
+	StringUtils::RemoveChar(RootDir, "\\binaries");
 #endif
 	ContentDirPath = RootDir + "\\Content\\";
 	if (!FileUtils::File_ExistsTest(ContentDirPath))

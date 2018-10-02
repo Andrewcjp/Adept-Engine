@@ -35,6 +35,15 @@ glm::quat PhysxRigidbody::GetRotation()
 #endif
 }
 
+void PhysxRigidbody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)
+{
+	if (CommonActorPtr != nullptr)
+	{
+		CommonActorPtr->setGlobalPose(PxTransform(GLMtoPXvec3(pos), GLMtoPXQuat(rot)));
+	//	PxTransform()
+	}
+}
+
 void PhysxRigidbody::AddTorque(glm::vec3 torque)
 {
 	if (Dynamicactor != nullptr)
@@ -43,7 +52,7 @@ void PhysxRigidbody::AddTorque(glm::vec3 torque)
 	}
 }
 
-void PhysxRigidbody::AddForce(glm::vec3 force)
+void PhysxRigidbody::AddForce(glm::vec3 force, EForceMode::Type Mode)
 {
 	if (Dynamicactor != nullptr)
 	{

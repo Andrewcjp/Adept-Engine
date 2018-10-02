@@ -11,4 +11,6 @@ class TDRigidBody;
 class TDPhysicsEngine;
 typedef TDRigidBody RigidBody;
 typedef TDPhysicsEngine PhysicsEngine;
+class GenericCollider;
+typedef GenericCollider Collider;
 #endif

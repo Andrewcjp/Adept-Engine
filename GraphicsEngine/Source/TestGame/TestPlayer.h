@@ -16,5 +16,6 @@ private:
 	float jumpHeight = 10;
 	RigidbodyComponent* RB = nullptr;
 	CameraComponent* Cam = nullptr;
+	float LookSensitivty = 0.001f;
 };
 

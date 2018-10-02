@@ -23,7 +23,7 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
 		newPosVelo[newParticleIndex] = (PosVelo)0;
 		newPosVelo[newParticleIndex].pos = float4(0, 0, 20, 2);
 		int Tweak = aliveCount % 5;
-		newPosVelo[newParticleIndex].vel = float4(Tweak, 0.5, 0, 0);
+		newPosVelo[newParticleIndex].vel = float4(Tweak, 10, 5, 0);
 		newPosVelo[newParticleIndex].pos.y = 20;
 		newPosVelo[newParticleIndex].Lifetime = 10;
 	}

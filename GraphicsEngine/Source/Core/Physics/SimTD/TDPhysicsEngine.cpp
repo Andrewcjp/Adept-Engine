@@ -4,12 +4,17 @@
 #include <thread>
 #include "Core/GameObject.h"
 #include <algorithm>
-
+#include "TDPhysicsAPI.h"
 void TDPhysicsEngine::initPhysics()
-{}
+{
+	//TDSolver
+	TDPhysics::Get()->StartUp();
+}
 
 void TDPhysicsEngine::stepPhysics(float Deltatime)
-{}
+{
+	TDPhysics::Get()->StartStep(Deltatime);
+}
 
 void TDPhysicsEngine::cleanupPhysics()
 {}

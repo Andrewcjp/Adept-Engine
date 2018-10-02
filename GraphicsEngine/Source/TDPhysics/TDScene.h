@@ -8,7 +8,7 @@ namespace TD
 	public:
 		TDScene();
 		~TDScene();
-		void AddToScene(TDActor* Actor);
+		TD_API void AddToScene(TDActor* Actor);
 		std::vector<TDActor*>& GetActors() { return SceneActors; };
 	private:
 		TDQuadTree* AcclerationTree = nullptr;
