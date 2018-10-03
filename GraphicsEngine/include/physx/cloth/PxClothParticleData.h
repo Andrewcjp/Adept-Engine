@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -50,9 +50,10 @@ struct PxClothParticle;
 
 /**
 \brief Data layout descriptor for reading cloth data from the SDK.
+\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 @see PxCloth.lockParticleData()
 */
-class PxClothParticleData : public PxLockedData
+class PX_DEPRECATED PxClothParticleData : public PxLockedData
 {
 public:
 	/**

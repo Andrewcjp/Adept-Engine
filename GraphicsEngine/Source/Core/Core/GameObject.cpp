@@ -26,24 +26,6 @@ Material* GameObject::GetMat()
 	return nullptr;
 }
 
-bool GameObject::GetReflection()
-{
-	if (m_MeshRenderer != nullptr)
-	{
-		return m_MeshRenderer->GetMaterial()->GetProperties()->IsReflective;
-	}
-	return false;
-}
-
-bool GameObject::GetDoesUseMainShader()
-{
-	if (m_MeshRenderer != nullptr)
-	{
-		return m_MeshRenderer->GetMaterial()->GetProperties()->UseMainShader;
-	}
-	return false;
-}
-
 GameObject::~GameObject()
 {
 	for (int i = 0; i < m_Components.size(); i++)
@@ -117,10 +99,6 @@ void GameObject::Update(float delta)
 	{
 		m_transform->Update();
 	}
-	if (SelectionShape != nullptr)
-	{
-		//SelectionShape->
-	}
 }
 
 void GameObject::BeginPlay()
@@ -135,9 +113,10 @@ GameObject::EMoblity GameObject::GetMobility()
 {
 	return Mobilty;
 }
-
+#if WITH_EDITOR
 void GameObject::EditorUpdate()
 {
+
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		m_Components[i]->EditorUpdate();
@@ -154,7 +133,7 @@ void GameObject::EditorUpdate()
 		m_transform->Update();
 	}
 }
-
+#endif
 Component* GameObject::AttachComponent(Component * Component)
 {
 	if (Component == nullptr)
@@ -200,17 +179,17 @@ void GameObject::SetParent(GameObject * Parent)
 	mParent = Parent;
 	GetTransform()->SetParent(mParent->GetTransform());
 }
-
+#if WITH_EDITOR
 std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
 {
 	std::vector<Inspector::InspectorProperyGroup> test;
 	Inspector::InspectorProperyGroup RootGroup = Inspector::CreatePropertyGroup("GameObject");
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Name", Inspector::String, &Name));
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Name", EditValueType::String, &Name));
 	test.push_back(RootGroup);
 	RootGroup = Inspector::CreatePropertyGroup("Transform");
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position x", Inspector::Float, &PositionDummy.x));
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position y", Inspector::Float, &PositionDummy.y));
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position z", Inspector::Float, &PositionDummy.z));
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position x", EditValueType::Float, &PositionDummy.x));
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position y", EditValueType::Float, &PositionDummy.y));
+	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position z", EditValueType::Float, &PositionDummy.z));
 	test.push_back(RootGroup);
 	for (int i = 0; i < m_Components.size(); i++)
 	{
@@ -218,7 +197,7 @@ std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
 	}
 	return test;
 }
-
+#endif
 
 void GameObject::ProcessSerialArchive(Archive* A)
 {
@@ -238,7 +217,7 @@ void GameObject::ProcessSerialArchive(Archive* A)
 		ArchiveProp(m_Components);
 	}
 }
-
+#if WITH_EDITOR
 //called when the editor updates a value
 void GameObject::PostChangeProperties()
 {
@@ -249,7 +228,7 @@ void GameObject::PostChangeProperties()
 		m_Components[i]->PostChangeProperties();
 	}
 }
-
+#endif
 void GameObject::ChangePos_editor(glm::vec3 NewPos)
 {
 	PositionDummy = NewPos;

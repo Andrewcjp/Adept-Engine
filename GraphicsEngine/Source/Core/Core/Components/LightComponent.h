@@ -18,14 +18,18 @@ public:
 	Light* Internal_GetLightPtr();
 	void OnTransformUpdate() override;
 	void SceneInitComponent() override final;
+#if WITH_EDITOR
 	void PostChangeProperties() override;
+#endif
 private:
 	Light* MLight = nullptr;
 	float CurrentIntensity = 0.0f;
 	Light::LightType CurrentType = Light::Point;
 	glm::vec3 CurrentColour = glm::vec3(1);
 	bool DoesShadow = false;
+#if WITH_EDITOR
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
+#endif
 	virtual void ProcessSerialArchive(class Archive* Arch) override;
 };
 

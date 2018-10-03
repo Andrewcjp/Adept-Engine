@@ -17,6 +17,8 @@ public:
 	virtual void ProcessSerialArchive(class Archive* A) override;
 private:
 	Camera* MCamera;
+#if WITH_EDITOR
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
+#endif
 };
 

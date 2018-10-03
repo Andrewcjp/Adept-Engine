@@ -1,5 +1,6 @@
 #pragma once
 class GameObject;
+#if WITH_EDITOR
 class EditorCore
 {
 public:
@@ -12,3 +13,4 @@ private:
 	GameObject* SelectedObject = nullptr;
 };
 
+#endif

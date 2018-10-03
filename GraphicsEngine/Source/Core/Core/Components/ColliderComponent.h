@@ -17,8 +17,9 @@ public:
 	CORE_API EShapeType::Type GetCollisonShape();
 	CORE_API void SetCollisonShape(EShapeType::Type newtype);
 	CORE_API ShapeElem* GetColliderShape();
+#if WITH_EDITOR
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props);
-
+#endif
 private:
 	EShapeType::Type CollisionShapeType = EShapeType::eBOX;
 	float Radius = 1;

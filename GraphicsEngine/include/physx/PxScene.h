@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -149,9 +149,10 @@ struct PxActorTypeFlag
 #if PX_USE_CLOTH_API
 		/**
 		\brief A cloth
+		\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 		@see PxCloth
 		*/
-		eCLOTH				= (1 << 5)
+		eCLOTH				PX_DEPRECATED = (1 << 5)
 #endif
 	};
 };
@@ -743,14 +744,17 @@ class PxScene
 	\note The PxCloth objects that interact can be controlled through the filter
 	shader, @see PxSimulationFilterShader. Cloth objects with the PxClothFlag::eGPU
 	set can only interact with other GPU simulated cloth objects.
+	
+	\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 	*/
-	virtual void				setClothInterCollisionDistance(PxF32 distance) = 0;
+	PX_DEPRECATED virtual void	setClothInterCollisionDistance(PxF32 distance) = 0;
 
 	/**
 	\brief Retrieves distance used for cloth inter-collision.
 	\return The distance used for cloth inter-collision.
+	\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 	*/
-	virtual PxF32				getClothInterCollisionDistance() const = 0;
+	PX_DEPRECATED virtual PxF32	getClothInterCollisionDistance() const = 0;
 
 	/**
 	\brief Sets the cloth inter-collision stiffness.
@@ -759,13 +763,15 @@ class PxScene
 	when they are closer than the inter-collision distance.
 
 	\param [in] stiffness Fraction of distance residual to resolve per iteration (default: 1.0).
+	\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 	*/
-	virtual void				setClothInterCollisionStiffness(PxF32 stiffness) = 0; 
+	PX_DEPRECATED virtual void	setClothInterCollisionStiffness(PxF32 stiffness) = 0; 
 	/**
 	\brief Retrieves the stiffness coefficient used for cloth inter-collision.
 	\return The stiffness coefficient used for cloth inter-collision.
+	\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 	*/
-	virtual PxF32				getClothInterCollisionStiffness() const = 0; 
+	PX_DEPRECATED virtual PxF32	getClothInterCollisionStiffness() const = 0; 
 
 	/**
 	\brief Sets the number of inter-collision separation iterations to perform.
@@ -774,13 +780,15 @@ class PxScene
 	of separation passes that are performed.
 
 	\param[in] nbIterations The number of iterations to perform (default: 1).
+	\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 	*/
-	virtual void				setClothInterCollisionNbIterations(PxU32 nbIterations) = 0; 	
+	PX_DEPRECATED virtual void	setClothInterCollisionNbIterations(PxU32 nbIterations) = 0; 	
 	/**
 	\brief Retrieves the number of iterations used for cloth inter-collision.
 	\return The number of iterations used for cloth inter-collision.
+	\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 	*/
-	virtual PxU32				getClothInterCollisionNbIterations() const = 0; 
+	PX_DEPRECATED virtual PxU32	getClothInterCollisionNbIterations() const = 0; 
 	//@}
 
 	#endif // PX_USE_CLOTH_API
@@ -1282,9 +1290,9 @@ class PxScene
 
 
 	/**
-	\brief Defines a box in world space to which visualization geometry will be (conservatively) culled
+	\brief Defines a box in world space to which visualization geometry will be (conservatively) culled. Use a non-empty culling box to enable the feature, and an empty culling box to disable it.
 	
-	\param[in] box the box to which the geometry will be culled.
+	\param[in] box the box to which the geometry will be culled. Empty box to disable the feature.
 	@see setVisualizationParameter getVisualizationCullingBox getRenderBuffer()
 	*/
 	virtual void				setVisualizationCullingBox(const PxBounds3& box) = 0;
@@ -1409,6 +1417,67 @@ class PxScene
 	@see PxSceneDesc.dynamicTreeRebuildRateHint setDynamicTreeRebuildRateHint() getDynamicTreeRebuildRateHint()
 	*/
 	virtual void				forceDynamicTreeRebuild(bool rebuildStaticStructure, bool rebuildDynamicStructure)	= 0;
+
+	/**
+	\brief Sets scene query update mode	
+
+	\param[in] updateMode	Scene query update mode.
+
+	@see PxSceneQueryUpdateMode::Enum
+	*/
+	virtual void				setSceneQueryUpdateMode(PxSceneQueryUpdateMode::Enum updateMode) = 0;
+
+	/**
+	\brief Gets scene query update mode	
+
+	\return Current scene query update mode.
+
+	@see PxSceneQueryUpdateMode::Enum
+	*/
+	virtual PxSceneQueryUpdateMode::Enum getSceneQueryUpdateMode() const = 0;
+
+	/**
+	\brief Executes scene queries update tasks.
+	This function will refit dirty shapes within the pruner and will execute a task to build a new AABB tree, which is
+	build on a different thread. The new AABB tree is built based on the dynamic tree rebuild hint rate. Once
+	the new tree is ready it will be commited in next fetchQueries call, which must be called after.
+
+	\note If PxSceneQueryUpdateMode::eBUILD_DISABLED_COMMIT_DISABLED is used, it is required to update the scene queries
+	using this function.
+
+	\param[in] completionTask if non-NULL, this task will have its refcount incremented in sceneQueryUpdate(), then
+	decremented when the scene is ready to have fetchQueries called. So the task will not run until the
+	application also calls removeReference().
+	\param[in] controlSimulation if true, the scene controls its PxTaskManager simulation state. Leave
+    true unless the application is calling the PxTaskManager start/stopSimulation() methods itself.
+
+	@see PxSceneQueryUpdateMode::eBUILD_DISABLED_COMMIT_DISABLED
+	*/
+	virtual void				sceneQueriesUpdate(physx::PxBaseTask* completionTask = NULL, bool controlSimulation = true)	= 0;
+
+	/**
+	\brief This checks to see if the scene queries update has completed.
+
+	This does not cause the data available for reading to be updated with the results of the scene queries update, it is simply a status check.
+	The bool will allow it to either return immediately or block waiting for the condition to be met so that it can return true
+	
+	\param[in] block When set to true will block until the condition is met.
+	\return True if the results are available.
+
+	@see sceneQueriesUpdate() fetchResults()
+	*/
+	virtual	bool				checkQueries(bool block = false) = 0;
+
+	/**
+	This method must be called after sceneQueriesUpdate. It will wait for the scene queries update to finish. If the user makes an illegal scene queries update call, 
+	the SDK will issue an error	message.
+
+	If a new AABB tree build finished, then during fetchQueries the current tree within the pruning structure is swapped with the new tree. 
+
+	\param[in] block When set to true will block until the condition is met, which is tree built task must finish running.
+	*/
+
+	virtual	bool				fetchQueries(bool block = false)	= 0;	
 
 	/**
 	\brief Performs a raycast against objects in the scene, returns results in a PxRaycastBuffer object

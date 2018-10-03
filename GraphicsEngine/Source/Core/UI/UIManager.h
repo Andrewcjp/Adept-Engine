@@ -5,6 +5,7 @@
 #include <vector>
 #include "UI/Core/CollisionRect.h"
 #include <functional>
+#include "Core/EngineTypes.h"
 #define UISTATS 0
 class TextRenderer;
 class UIWidget;
@@ -57,7 +58,7 @@ public:
 	void RemoveWidget(UIWidget * widget);
 	void CleanUpWidgets();
 	static void CloseDropDown();
-	glm::vec4 GetEditorRect();
+	IntRect GetEditorRect();
 private:
 	UIWidget * DropdownCurrent = nullptr;
 	std::vector<UIWidget*> WidgetsToRemove;//todo: use queue? and handle large deletes?

@@ -15,7 +15,9 @@ public:
 	void Render(bool DepthOnly,class RHICommandList * list);
 	/*void Render(bool DepthOnly);*/
 	Material* GetMaterial();
+#if WITH_EDITOR
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props) override final;
+#endif
 	Mesh* GetMesh()
 	{
 		return m_mesh;

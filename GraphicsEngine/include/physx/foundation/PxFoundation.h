@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -126,7 +126,18 @@ PxCreateFoundation(physx::PxU32 version, physx::PxAllocatorCallback& allocator, 
 
 @see PxCreateFoundation()
 */
+#if PX_CLANG
+#if PX_LINUX
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+#endif // PX_LINUX
+#endif // PX_CLANG
 PX_C_EXPORT PX_FOUNDATION_API physx::PxFoundation& PX_CALL_CONV PxGetFoundation();
+#if PX_CLANG
+#if PX_LINUX
+	#pragma clang diagnostic pop
+#endif // PX_LINUX
+#endif // PX_CLANG
 
 namespace physx
 {

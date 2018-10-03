@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -34,11 +34,6 @@
 #include "foundation/PxPreprocessor.h"
 #include "foundation/windows/PxWindowsFoundationDelayLoadHook.h"
 #include "common/PxPhysXCommonConfig.h"
-#if PX_SUPPORT_GPU_PHYSX
-#include "Pxg.h"
-#else
-#define PX_PHYSX_GPU_API
-#endif
 
 /** \addtogroup foundation
 @{
@@ -56,12 +51,11 @@ namespace physx
 	PxDelayLoadHook can be sub-classed to provide the custom filenames.
 
 	Once the names are set, the instance must be set for use by PhysX.dll using PxSetPhysXDelayLoadHook(), 
-	PhysXCooking.dll using PxSetPhysXCookingDelayLoadHook(), PhysXGPU.dll using PxSetPhysXGpuDelayLoadHook 
-	or by PhysXCommon.dll using PxSetPhysXCommonDelayLoadHook().
+	PhysXCooking.dll using PxSetPhysXCookingDelayLoadHook()	or by PhysXCommon.dll using PxSetPhysXCommonDelayLoadHook().
 
 	\note Foundation names are set through the base class PxFoundationDelayLoadHook.
 
-	@see PxSetPhysXDelayLoadHook(), PxSetPhysXCookingDelayLoadHook(), PxSetPhysXGpuDelayLoadHook(), PxSetPhysXCommonDelayLoadHook()
+	@see PxSetPhysXDelayLoadHook(), PxSetPhysXCookingDelayLoadHook(), PxSetPhysXCommonDelayLoadHook()
 	@see PxFoundationDelayLoadHook
  	*/
 	class PxDelayLoadHook: public PxFoundationDelayLoadHook
@@ -101,15 +95,6 @@ namespace physx
 	@see PxDelayLoadHook
 	*/
 	PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXCookingDelayLoadHook(const physx::PxDelayLoadHook* hook);
-
-	/**
-	\brief Sets delay load hook instance for PhysXGpu dll.
-
-	\param[in] hook Delay load hook.
-
-	@see PxDelayLoadHook
-	*/
-	PX_C_EXPORT PX_PHYSX_GPU_API void PX_CALL_CONV PxSetPhysXGpuDelayLoadHook(const physx::PxDelayLoadHook* hook);
 
 	/**
 	\brief Sets delay load hook instance for PhysXCommon dll.

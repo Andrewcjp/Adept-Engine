@@ -26,14 +26,14 @@ void Component::Update(float delta)
 void Component::FixedUpdate(float )
 {
 }
-
+#if WITH_EDITOR
 void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Component");
 	//group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Float, nullptr));
 	props.push_back(group);
 }
-
+#endif
 GameObject * Component::GetOwner()
 {
 	return Owner;

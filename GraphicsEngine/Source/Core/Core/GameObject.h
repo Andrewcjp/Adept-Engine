@@ -9,25 +9,14 @@
 #include "rapidjson\document.h"
 #include "Physics/PhysicsEngine.h"
 class Component;
-//class RigidBody;
 class MeshRendererComponent;
-class GameObject : public IInspectable
+class GameObject 
+#if WITH_EDITOR
+	: public IInspectable
+#endif
 {
 public:
-	template<class T>
-	std::vector<T*> GetAllComponentsOfType()
-	{
-		std::vector<T*> Comps;
-		for (int i = 0; i < m_Components.size(); i++)
-		{
-			T* Target = dynamic_cast<T*>(m_Components[i]);
-			if (Target != nullptr)
-			{
-				Comps.push_back(Target);
-			}
-		}
-		return Comps;
-	}
+
 	enum EMoblity { Static, Dynamic };
 	CORE_API GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
 	CORE_API ~GameObject();
@@ -42,33 +31,35 @@ public:
 	CORE_API void BeginPlay();
 
 	void Render(bool ignoremat, RHICommandList* list);
+
 	EMoblity GetMobility();
-
-	//temp
 	Mesh* GetMesh();
-	RigidBody* actor;
-
-	//getters
 	Material* GetMat();
 	std::string GetName() { return Name; }
+
 	void SetName(std::string name) { Name = name; }
-	bool GetReflection();
-	bool GetDoesUseMainShader();
 	bool HasCached = false;
 
+	
+#if WITH_EDITOR
 	//Editor only
 	void EditorUpdate();
-	physx::PxRigidStatic* SelectionShape;
-	CORE_API Component* AttachComponent(Component* Component);
-	std::vector<Component*> GetComponents();
+#endif
+	//Components
 	template<class T>
 	T* GetComponent();
+	template<class T>
+	std::vector<T*> GetAllComponentsOfType();
+	CORE_API Component* AttachComponent(Component* Component);
+	std::vector<Component*> GetComponents();
 
 	void CopyPtrs(GameObject* newObject);
 	CORE_API void SetParent(GameObject* Parent);
 	void ProcessSerialArchive(class Archive* Arch);
 
+#if WITH_EDITOR
 	void PostChangeProperties();
+#endif
 	void ChangePos_editor(glm::vec3 NewPos);
 
 	//Movement
@@ -78,22 +69,23 @@ public:
 	CORE_API glm::vec3 GetPosition();
 	CORE_API glm::quat GetRotation();
 private:
-	
+
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 
 	int ObjectID = 0;
-	std::string Name;
+	std::string Name = "";
 	glm::vec3 PositionDummy;
 
 	Transform* m_transform = nullptr;
-	EMoblity Mobilty;
+	EMoblity Mobilty = EMoblity::Static;
 	std::vector<Component*> m_Components;
 	MeshRendererComponent* m_MeshRenderer = nullptr;
 	GameObject* mParent = nullptr;
 	std::vector<GameObject*> Children;
+#if WITH_EDITOR
 	virtual std::vector<Inspector::InspectorProperyGroup> GetInspectorFields() override;
+#endif
 	Scene* OwnerScene;
-	const char * ComponentArrayKey = "Components";
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;
 };
 
@@ -109,4 +101,19 @@ inline T * GameObject::GetComponent()
 		}
 	}
 	return nullptr;
+}
+
+template<class T>
+inline std::vector<T*> GameObject::GetAllComponentsOfType()
+{
+	std::vector<T*> Comps;
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		T* Target = dynamic_cast<T*>(m_Components[i]);
+		if (Target != nullptr)
+		{
+			Comps.push_back(Target);
+		}
+	}
+	return Comps;
 }

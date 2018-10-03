@@ -1,6 +1,7 @@
 #pragma once
 class GameObject;
 class DebugLineDrawer;
+#if WITH_EDITOR
 class EditorGizmos
 {
 public:
@@ -31,4 +32,4 @@ private:
 	/*bool */
 
 };
-
+#endif

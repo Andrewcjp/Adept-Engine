@@ -67,18 +67,19 @@ ShapeElem * ColliderComponent::GetColliderShape()
 	}
 	return nullptr;
 }
-
+#if WITH_EDITOR
 void ColliderComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Collider Component");
-	group.SubProps.push_back(Inspector::CreateProperty("Type", Inspector::Int, &CollisionShapeType, true));
+	group.SubProps.push_back(Inspector::CreateProperty("Type", EditValueType::Int, &CollisionShapeType, true));
 	if (CollisionShapeType == EShapeType::eBOX)
 	{
-		group.SubProps.push_back(Inspector::CreateProperty("Extents", Inspector::Vector, &BoxExtents));
+		group.SubProps.push_back(Inspector::CreateProperty("Extents", EditValueType::Vector, &BoxExtents));
 	}
 	else if (CollisionShapeType == EShapeType::eSPHERE)
 	{
-		group.SubProps.push_back(Inspector::CreateProperty("Raduis", Inspector::Float, &Radius));
+		group.SubProps.push_back(Inspector::CreateProperty("Raduis", EditValueType::Float, &Radius));
 	}
 	props.push_back(group);
 }
+#endif

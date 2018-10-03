@@ -11,6 +11,7 @@
 #include "Core/Components/CompoenentRegistry.h"
 #include "Core/GameObject.h"
 #include "Core/Components/Component.h"
+#if WITH_EDITOR
 Inspector* Inspector::Instance = nullptr;
 Inspector::Inspector(int w, int h, int x, int y)
 	:UIWidget(w, h, x, y)
@@ -41,7 +42,7 @@ void Inspector::Refresh()
 	CreateEditor();
 }
 
-Inspector::InspectorPropery Inspector::CreateProperty(std::string name, ValueType type, void * Valueptr,bool EditorEffect)
+Inspector::InspectorPropery Inspector::CreateProperty(std::string name, EditValueType::Type type, void * Valueptr,bool EditorEffect)
 {
 	Inspector::InspectorPropery NameProp;
 	NameProp.name = name;
@@ -158,12 +159,12 @@ void Inspector::CreateEditor()
 				UIWidget* newwidget = nullptr;
 				switch (Fields[i].SubProps[j].type)
 				{
-				case Int:
-				case Float:
-				case String:
-				case Vector:
-				case Label:
-				case Bool:
+				case EditValueType::Int:
+				case EditValueType::Float:
+				case EditValueType::String:
+				case EditValueType::Vector:
+				case EditValueType::Label:
+				case EditValueType::Bool:
 					newwidget = new UIEditField(&Fields[i].SubProps[j]);
 					break;
 				default:
@@ -187,3 +188,4 @@ void Inspector::CreateEditor()
 	ResizeView(mwidth, mheight, X, Y);
 	UIManager::UpdateBatches();
 }
+#endif

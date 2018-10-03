@@ -49,10 +49,11 @@ void CameraComponent::ProcessSerialArchive(Archive * A)
 {
 	Component::ProcessSerialArchive(A);
 }
-
+#if WITH_EDITOR
 void CameraComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Camera");
 	//group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Float, nullptr));
 	props.push_back(group);
 }
+#endif

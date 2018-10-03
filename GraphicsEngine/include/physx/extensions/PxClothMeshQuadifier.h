@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -41,7 +41,10 @@ namespace physx
 	
 struct PxClothMeshQuadifierImpl;
 
-class PxClothMeshQuadifier
+/**
+\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
+*/
+class PX_DEPRECATED PxClothMeshQuadifier
 {
 public:
 	/**

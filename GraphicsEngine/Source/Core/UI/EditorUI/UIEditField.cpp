@@ -14,15 +14,15 @@ UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 
 	Rect = CollisionRect(w, h, x, y);
 	Enabled = true;
-
 }
+#if WITH_EDITOR
 UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(0, 0, 0, 0)
 {
 	FilterType = Targetprop->type;
 	Namelabel->SetText(Targetprop->name);
 	Valueptr = Targetprop->ValuePtr;
 	Property = *Targetprop;
-	if (Targetprop->type == Inspector::ValueType::Bool)
+	if (Targetprop->type == EditValueType::Bool)
 	{
 		Textlabel->SetEnabled(false);
 
@@ -32,28 +32,28 @@ UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(
 		Textlabel->SetText(nextext);
 	}
 
-	if (FilterType != Inspector::ValueType::Bool)
+	if (FilterType != EditValueType::Bool)
 	{
 		TextBox = new UIBox(0, 0, 0, 0);
 
 		TextBox->BackgoundColour = glm::vec3(0.25f);
 		TextBox->Colour = glm::vec3(0.7f);
 	}
-	else if (FilterType == Inspector::ValueType::Bool)
+	else if (FilterType == EditValueType::Bool)
 	{
 		Toggle = new UIButton(0, 0, 0, 0);
 		Toggle->BackgoundColour = glm::vec3(0.25f);
 		Toggle->Colour = glm::vec3(0.7f);
 		Toggle->BindTarget(std::bind(&UIEditField::SendValue, this));
 	}
-	SupportsScroll = (FilterType == Inspector::ValueType::Float);//todo: int
+	SupportsScroll = (FilterType == EditValueType::Float);//todo: int
 	if (Valueptr != nullptr)
 	{
 		GetValueText(nextext);
 		Textlabel->SetText(nextext);
 	}
 }
-
+#endif
 UIEditField::~UIEditField()
 {}
 
@@ -83,7 +83,7 @@ void UIEditField::MouseMove(int x, int y)
 			return;
 		}
 	}
-	if (FilterType == Inspector::ValueType::Bool)
+	if (FilterType == EditValueType::Bool)
 	{
 		Toggle->MouseMove(x, y);
 		return;
@@ -111,19 +111,19 @@ void UIEditField::MouseMove(int x, int y)
 }
 void UIEditField::GetValueText(std::string & string)
 {
-	if (FilterType == Inspector::ValueType::Float)
+	if (FilterType == EditValueType::Float)
 	{
 		float t = *((float*)Valueptr);
 		string = std::to_string(t);
 	}
-	if (FilterType == Inspector::ValueType::Bool)
+	if (FilterType == EditValueType::Bool)
 	{
 		Toggle->SetText(*((bool*)(Valueptr)) ? "True " : "False");
 	}
 }
 bool UIEditField::MouseClick(int x, int y)
 {
-	if (FilterType == Inspector::ValueType::Bool)
+	if (FilterType == EditValueType::Bool)
 	{
 		Toggle->MouseClick(x, y);
 		return false;
@@ -156,7 +156,7 @@ bool UIEditField::MouseClick(int x, int y)
 		//__debugbreak();
 		if (Valueptr != nullptr)
 		{
-			if (FilterType == Inspector::ValueType::Float)
+			if (FilterType == EditValueType::Float)
 			{
 				Scrolling = true;
 				startx = x;
@@ -175,12 +175,12 @@ void UIEditField::MouseClickUp(int x, int y)
 void UIEditField::Render()
 {
 	UIBox::Render();
-	if (FilterType != Inspector::ValueType::Label && FilterType != Inspector::ValueType::Bool)
+	if (FilterType != EditValueType::Label && FilterType != EditValueType::Bool)
 	{
 		TextBox->Render();
 		Textlabel->Render();
 	}
-	if (FilterType == Inspector::ValueType::Bool)
+	if (FilterType == EditValueType::Bool)
 	{
 		Toggle->Render();
 	}
@@ -200,11 +200,11 @@ void UIEditField::ResizeView(int w, int h, int x, int y)
 	Namelabel->ResizeView(w / 3, h / 2, x, y);
 	int gap = 25;
 	Textlabel->ResizeView(((w / 3) * 2) - gap, h / 2, x + (w / 3) + gap, y);
-	if (FilterType == Inspector::ValueType::Bool)
+	if (FilterType == EditValueType::Bool)
 	{
 		Toggle->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
 	}
-	if (TextBox != nullptr && FilterType != Inspector::Label)
+	if (TextBox != nullptr && FilterType != EditValueType::Label)
 	{
 		TextBox->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
 	}
@@ -220,7 +220,7 @@ void UIEditField::SendValue()
 {
 	if (Valueptr != nullptr)
 	{
-		if (FilterType == Inspector::ValueType::String)
+		if (FilterType == EditValueType::String)
 		{
 			//nextext.copy((char*)Valueptr, nextext.length());
 			//std::string Target = *((std::string*)Valueptr);
@@ -228,28 +228,29 @@ void UIEditField::SendValue()
 			//Target.append(nextext);
 			*((std::string*)Valueptr) = nextext;
 		}
-		else if (FilterType == Inspector::ValueType::Float)
+		else if (FilterType == EditValueType::Float)
 		{
 			float out = (float)atof(nextext.c_str());
 
 			*((float*)Valueptr) = out;
 		}
-		else if (FilterType == Inspector::ValueType::Bool)
+		else if (FilterType == EditValueType::Bool)
 		{
 			*((bool*)(Valueptr)) = !*((bool*)(Valueptr));
 			Toggle->SetText(*((bool*)(Valueptr)) ? "True" : "False");
 		}
-		else if (FilterType == Inspector::ValueType::Int)
+		else if (FilterType == EditValueType::Int)
 		{
 			int out = (int)atoi(nextext.c_str());
 
 			*((int*)Valueptr) = out;
 		}
-		
+#if WITH_EDITOR
 		if (Property.ChangesEditor)
 		{
 			UIManager::instance->RefreshGameObjectList();
 		}
+#endif
 	}
 }
 
@@ -334,19 +335,19 @@ void UIEditField::ProcessKeyDown(WPARAM key)
 }
 bool UIEditField::CheckValidInput(char c)
 {
-	if (FilterType == Inspector::String)
+	if (FilterType == EditValueType::String)
 	{
 		return true;
 	}
-	else if (FilterType == Inspector::Int || FilterType == Inspector::Float)
+	else if (FilterType == EditValueType::Int || FilterType == EditValueType::Float)
 	{
 		std::string Filter = "1234567890.";
 		std::string IntFilter = "1234567890";
-		if (FilterType == Inspector::Float)
+		if (FilterType == EditValueType::Float)
 		{
 			return (Filter.find(c) != -1);
 		}
-		else if (FilterType == Inspector::Int)
+		else if (FilterType == EditValueType::Int)
 		{
 			return (IntFilter.find(c) != -1);
 		}

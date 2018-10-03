@@ -9,7 +9,9 @@ public:
 	// Inherited via Component
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
+#if WITH_EDITOR
 	void EditorUpdate() override;
+#endif
 	void CreateStackAtPoint();
 
 	void FireAtScene(); 

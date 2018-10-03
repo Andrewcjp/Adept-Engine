@@ -5,6 +5,7 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI_inc.h"
 #include "Editor/EditorWindow.h"
+#include "Core/EngineTypes.h"
 PP_ColourCorrect::PP_ColourCorrect()
 {}
 
@@ -30,8 +31,8 @@ void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTextur
 #if WITH_EDITOR
 	if (EditorWindow::GetInstance()->UseSmallerViewPort())
 	{
-		glm::vec4 rect = EditorWindow::GetInstance()->GetViewPortRect();
-		list->SetViewport(rect.x, rect.y, rect.z, rect.w, 0, 0);
+		IntRect rect = EditorWindow::GetInstance()->GetViewPortRect();
+		list->SetViewport(rect.Min.x, rect.Min.y, rect.Max.x, rect.Max.y, 0, 0);
 	}
 #endif
 	RenderScreenQuad(list);

@@ -13,6 +13,7 @@ public:
 	{
 		glm::vec3 Scale = DefaultScale;
 		bool InitOnAllDevices = true;
+		bool CreatePhysxMesh = false;
 	};
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings,std::vector<OGLVertex> &vertices,std::vector<int> &indices);
 

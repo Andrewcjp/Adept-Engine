@@ -34,7 +34,7 @@
 #include "UI/UIManager.h"
 #include "EditorCore.h"
 #include "Core/Platform/PlatformCore.h"
-
+#if WITH_EDITOR
 EditorWindow* EditorWindow::instance;
 EditorWindow::EditorWindow() :BaseWindow()
 {
@@ -232,7 +232,7 @@ void EditorWindow::Update()
 		mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
 	}
 }
-glm::vec4 EditorWindow::GetViewPortRect()
+IntRect EditorWindow::GetViewPortRect()
 {
 	return UI->GetEditorRect();
 }
@@ -315,3 +315,4 @@ void EditorWindow::WindowUI()
 
 }
 
+#endif

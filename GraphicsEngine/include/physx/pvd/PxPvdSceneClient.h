@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -40,7 +40,7 @@ namespace physx
 {
 	namespace pvdsdk
 	{
-		class PvdClient;   
+		class PvdClient;
 		struct PvdDebugPoint;
 		struct PvdDebugLine;
 		struct PvdDebugTriangle;
@@ -101,27 +101,27 @@ class PxPvdSceneClient
 	virtual PxPvdSceneFlags getScenePvdFlags() const = 0;
 
 	/**
-	update camera on PVD application's DirectX render window
+	update camera on PVD application's render window
 	*/
 	virtual void updateCamera(const char* name, const PxVec3& origin, const PxVec3& up, const PxVec3& target) = 0;
 
 	/**
-	draw points on PVD application's DirectX render window
+	draw points on PVD application's render window
 	*/
 	virtual void drawPoints(const physx::pvdsdk::PvdDebugPoint* points, PxU32 count) = 0;
 
 	/**
-	draw lines on PVD application's DirectX render window
+	draw lines on PVD application's render window
 	*/
 	virtual void drawLines(const physx::pvdsdk::PvdDebugLine* lines, PxU32 count) = 0;
 
 	/**
-	draw triangles on PVD application's DirectX render window
+	draw triangles on PVD application's render window
 	*/
 	virtual void drawTriangles(const physx::pvdsdk::PvdDebugTriangle* triangles, PxU32 count) = 0;
 
 	/**
-	draw text on PVD application's DirectX render window
+	draw text on PVD application's render window
 	*/
 	virtual void drawText(const physx::pvdsdk::PvdDebugText& text) = 0;
 

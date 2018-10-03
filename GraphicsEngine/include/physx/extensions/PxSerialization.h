@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -101,7 +101,7 @@ public:
 
 	For definitions of <b>requires</b> and <b>complete</b> see #PxSerialization::complete
 
-	A serializable object is <b>subordinate</b> if it cannot be serialized on it's own
+	A serializable object is <b>subordinate</b> if it cannot be serialized on its own
 	The following objects are subordinate:
 	- articulation links
 	- articulation joints

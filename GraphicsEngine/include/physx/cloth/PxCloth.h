@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -53,8 +53,9 @@ class PxScene;
 \brief Solver configuration parameters for the vertical and horizontal stretch phase types.
 \see PxCloth.setStretchConfig()
 \see PxClothFabric for information on actual phase data in cloth fabric
+\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 */
-struct PxClothStretchConfig
+struct PX_DEPRECATED PxClothStretchConfig
 {
 	/**
 	\brief Stiffness of the stretch constraints.
@@ -104,8 +105,9 @@ struct PxClothStretchConfig
 \brief Solver configuration parameters for the tether phases.
 \see PxCloth.setTetherConfig()
 \see PxClothFabric for information on actual tether constraints in cloth fabric.
+\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 */
-struct PxClothTetherConfig
+struct PX_DEPRECATED PxClothTetherConfig
 {
 	/**
 	\brief Stiffness of the tether constraints.
@@ -136,8 +138,9 @@ struct PxClothTetherConfig
 \brief Solver configuration parameters for the tether phases.
 \see PxCloth.setTetherConfig()
 \see PxClothFabric for information on actual tether constraints in cloth fabric.
+\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 */
-struct PxClothMotionConstraintConfig
+struct PX_DEPRECATED PxClothMotionConstraintConfig
 {
 	/**
 	\brief Scale of motion constraint radii.
@@ -184,9 +187,11 @@ These shapes are all treated separately to the main PhysX rigid body scene.
 \arg Virtual particles can be used to improve collision at a finer scale than the cloth sampling.
 \arg Motion and separation constraints are used to limit the particle movement within or outside of a sphere.
 
+\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
+
 @see PxPhysics.createCloth
 */
-class PxCloth : public PxActor
+class PX_DEPRECATED PxCloth : public PxActor
 {
 public:
 	/**

@@ -23,13 +23,16 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
 
 #ifndef PX_PHYSICS_NX_CLOTH_TYPES
 #define PX_PHYSICS_NX_CLOTH_TYPES
+
+/** \defgroup cloth cloth (deprecated)*/
+
 /** \addtogroup cloth
   @{
 */
@@ -49,8 +52,10 @@ namespace physx
    \details Defines flags to turn on/off features of the cloth solver.
    The flag can be set during the cloth object construction (\see PxPhysics.createCloth() ),
    or individually after the cloth has been created (\see PxCloth.setClothFlag() ).
+   
+   \deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
  */
-struct PxClothFlag
+struct PX_DEPRECATED PxClothFlag
 {
 	enum Enum
 	{
@@ -73,8 +78,9 @@ PX_FLAGS_OPERATORS(PxClothFlag::Enum, PxU16)
    to the position during simulation.
    \see PxPhysics.createCloth()
    \see PxCloth.setParticles()
+   \deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 */
-struct PxClothParticle
+struct PX_DEPRECATED PxClothParticle
 {
 	PxVec3 pos;			//!< position of the particle (in cloth local space)
 	PxReal invWeight;	//!< inverse mass of the particle. If set to 0, the particle is fully constrained.
@@ -90,9 +96,10 @@ struct PxClothParticle
 /**
 \brief Constraints for cloth particle motion.
 \details Defines a spherical volume to which the motion of a particle should be constrained.
+\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 @see PxCloth.setMotionConstraints()
 */
-struct PxClothParticleMotionConstraint
+struct PX_DEPRECATED PxClothParticleMotionConstraint
 {
 	PxVec3 pos;			//!< Center of the motion constraint sphere (in cloth local space)
 	PxReal radius;		//!< Maximum distance the particle can move away from the sphere center.
@@ -108,9 +115,10 @@ struct PxClothParticleMotionConstraint
 /**
 \brief Separation constraints for cloth particle movement
 \details Defines a spherical volume such that corresponding particles should stay outside.
+\deprecated The PhysX cloth feature has been deprecated in PhysX version 3.4.1
 @see PxCloth.setSeparationConstraints()
 */
-struct PxClothParticleSeparationConstraint
+struct PX_DEPRECATED PxClothParticleSeparationConstraint
 {
 	PxVec3 pos;			//!< Center of the constraint sphere (in cloth local space)
 	PxReal radius;		//!< Radius of the constraint sphere such that the particle stay outside of this sphere.

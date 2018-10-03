@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -46,7 +46,6 @@ class PxActor;
 class PxShape;
 
 static const PxU32 INVALID_FILTER_PAIR_INDEX = 0xffffffff;
-
 
 /**
 \brief Collection of flags describing the actions to take for a collision pair.
@@ -202,10 +201,8 @@ struct PxPairFlag
 
 		\note Contacts are only responded to if eSOLVE_CONTACT is enabled.
 		*/
-
 		eDETECT_DISCRETE_CONTACT			= (1<<10),
 		
-
 		/**
 		\brief This flag is used to indicate whether this pair generates CCD contacts. 
 
@@ -218,7 +215,6 @@ struct PxPairFlag
 		@see PxRigidBodyFlag::eENABLE_CCD
 		@see PxSceneFlag::eENABLE_CCD
 		*/
-
 		eDETECT_CCD_CONTACT					= (1<<11),
 
 		/**
@@ -391,6 +387,11 @@ struct PxFilterData
 	}
 
 	/**
+	\brief Copy constructor.
+	*/
+	PX_INLINE PxFilterData(const PxFilterData& fd) : word0(fd.word0), word1(fd.word1), word2(fd.word2), word3(fd.word3)	{}
+
+	/**
 	\brief Constructor to set filter data initially.
 	*/
 	PX_INLINE PxFilterData(PxU32 w0, PxU32 w1, PxU32 w2, PxU32 w3) : word0(w0), word1(w1), word2(w2), word3(w3) {}
@@ -401,6 +402,17 @@ struct PxFilterData
 	PX_INLINE void setToDefault()
 	{
 		*this = PxFilterData();
+	}
+
+	/**
+	\brief Assignment operator
+	*/
+	PX_INLINE void operator = (const PxFilterData& fd)
+	{
+		word0 = fd.word0;
+		word1 = fd.word1;
+		word2 = fd.word2;
+		word3 = fd.word3;
 	}
 
 	/**
@@ -572,8 +584,8 @@ This methods gets called when:
 following pairs:
 
 \li Pair of static rigid actors
-\li A static rigid actor and a kinematic actor (unless one is a trigger or if explicitly enabled through #PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS)
-\li Two kinematic actors (unless one is a trigger or if explicitly enabled through #PxSceneFlag::eENABLE_KINEMATIC_PAIRS)
+\li A static rigid actor and a kinematic actor (unless one is a trigger or if explicitly enabled through PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS)
+\li Two kinematic actors (unless one is a trigger or if explicitly enabled through PxSceneFlag::eENABLE_KINEMATIC_PAIRS)
 \li Pair of particle systems
 \li Two jointed rigid bodies and the joint was defined to disable collision
 \li Two articulation links if connected through an articulation joint
@@ -711,12 +723,40 @@ protected:
 
 struct PxFilterInfo
 {
-	PX_FORCE_INLINE	PxFilterInfo()							:	filterFlags(0), pairFlags(0), filterPairIndex(INVALID_FILTER_PAIR_INDEX)			{}
+	PX_FORCE_INLINE	PxFilterInfo()								:	filterFlags(0), pairFlags(0), filterPairIndex(INVALID_FILTER_PAIR_INDEX)			{}
 	PX_FORCE_INLINE	PxFilterInfo(PxFilterFlags filterFlags_)	:	filterFlags(filterFlags_), pairFlags(0), filterPairIndex(INVALID_FILTER_PAIR_INDEX)	{}
 
 	PxFilterFlags	filterFlags;
 	PxPairFlags		pairFlags;
 	PxU32			filterPairIndex;
+};
+
+struct PxPairFilteringMode
+{
+	enum Enum
+	{
+		/**
+		Output pair from BP, potentially send to user callbacks, create regular interaction object.
+		Similar to enabling PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS / PxSceneFlag::eENABLE_KINEMATIC_PAIRS.
+		*/
+		eKEEP,
+
+		/**
+		Output pair from BP, create interaction marker. Can be later switched to regular interaction.
+		Similar to disabling PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS / PxSceneFlag::eENABLE_KINEMATIC_PAIRS.
+		*/
+		eSUPPRESS,
+
+		/**
+		Don't output pair from BP. Cannot be later switched to regular interaction, needs "resetFiltering" call.
+		*/
+		eKILL,
+
+		/**
+		Default is to ignore the mode and use PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS and PxSceneFlag::eENABLE_KINEMATIC_PAIRS instead (compatibility).
+		*/
+		eDEFAULT
+	};
 };
 
 #if !PX_DOXYGEN

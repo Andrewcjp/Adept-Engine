@@ -1,14 +1,10 @@
 #pragma once
 #include "UI/Core/UIWidget.h"
 #include <vector>
-class IInspectable;
-class UIBox;
 #include <functional>
-class Inspector : public UIWidget
+namespace EditValueType
 {
-public:
-
-	enum ValueType
+	enum Type
 	{
 		Int,
 		Float,
@@ -19,9 +15,19 @@ public:
 		Colour,
 		Label
 	};
+};
+#if WITH_EDITOR
+class IInspectable;
+class UIBox;
+
+class Inspector : public UIWidget
+{
+public:
+
+	
 	struct PType
 	{
-		ValueType type;
+		EditValueType::Type type;
 		union 
 		{
 			float fvalue;
@@ -46,13 +52,13 @@ public:
 	struct PropertyField
 	{
 		
-		PropertyField(ValueType t, PType ptype)
+		PropertyField(EditValueType::Type t, PType ptype)
 		{
 			type = t;
 			currentptype = ptype;
 		}
 		PType currentptype;
-		ValueType type;
+		EditValueType::Type type;
 		PType GetValue()
 		{
 			if (currentptype.fTarget)
@@ -72,7 +78,7 @@ public:
 	{
 		std::string name = "";
 		void* ValuePtr = nullptr;
-		ValueType type;
+		EditValueType::Type type;
 		bool ChangesEditor = false;
 	};
 	struct InspectorProperyGroup
@@ -84,7 +90,7 @@ public:
 	~Inspector();
 	void SetSelectedObject(IInspectable* target);
 	void Refresh();
-	static InspectorPropery CreateProperty(std::string name, ValueType type, void* Valueptr, bool EditorEffect = false);
+	static InspectorPropery CreateProperty(std::string name, EditValueType::Type type, void* Valueptr, bool EditorEffect = false);
 	static InspectorProperyGroup CreatePropertyGroup(std::string name);
 	// Inherited via UIWidget
 	void Render() override;
@@ -104,3 +110,4 @@ private:
 	UIBox* Backgroundbox;
 };
 
+#endif

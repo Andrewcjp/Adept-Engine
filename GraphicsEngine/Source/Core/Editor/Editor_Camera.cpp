@@ -2,6 +2,7 @@
 #include "Editor_Camera.h"
 #include "Core/Input/Input.h"
 #include "Editor/EditorWindow.h"
+#if WITH_EDITOR
 Editor_Camera::Editor_Camera(Camera* cam)
 {
 	if (cam == nullptr)
@@ -73,3 +74,4 @@ void Editor_Camera::Update(float delatime)
 		Input::SetCursorVisible(true);
 	}
 }
+#endif
