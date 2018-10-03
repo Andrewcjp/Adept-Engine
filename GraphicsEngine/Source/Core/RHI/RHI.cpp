@@ -344,12 +344,11 @@ void RHI::DestoryContext()
 	if (GetRHIClass())
 	{
 		GetRHIClass()->WaitForGPU();
+		ParticleSystemManager::Get()->ShutDown();
 	}
-	ParticleSystemManager::Get()->ShutDown();
 	ShaderComplier::Get()->FreeAllGlobalShaders();
 	if (Get())
 	{
-		
 		Get()->TickDeferredDeleteQueue(true);
 		GetRHIClass()->DestoryRHI();
 	}

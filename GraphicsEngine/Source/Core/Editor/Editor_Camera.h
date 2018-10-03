@@ -1,5 +1,6 @@
 #pragma once
 #include "Rendering/Core/Camera.h"
+#if WITH_EDITOR
 class Editor_Camera
 {
 public:
@@ -14,4 +15,4 @@ private:
 	float sensitvity = 0.5f;
 	bool IsActive = false;
 };
-
+#endif

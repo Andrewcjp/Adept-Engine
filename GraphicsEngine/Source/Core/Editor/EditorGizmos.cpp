@@ -3,6 +3,7 @@
 
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Core/Input/Input.h"
+#if WITH_EDITOR
 EditorGizmos::EditorGizmos()
 {
 	HandleLength = 5;
@@ -28,6 +29,7 @@ void EditorGizmos::UpdateAxis(float amt, Axis axis)
 		break;
 	}
 	target->ChangePos_editor(newpos);
+
 	target->PostChangeProperties();
 }
 //todo: axis rotations relative to view etc.
@@ -95,3 +97,4 @@ void EditorGizmos::SetTarget(GameObject * t)
 {
 	target = t;
 }
+#endif

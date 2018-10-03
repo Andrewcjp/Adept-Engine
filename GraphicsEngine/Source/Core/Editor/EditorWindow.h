@@ -10,6 +10,7 @@ class SceneSerialiser;
 class UIManager;
 class EditorCore;
 #define PLAYMODE_USE_SAVED 1
+#if WITH_EDITOR
 class EditorWindow : public BaseWindow
 {
 public:
@@ -24,7 +25,7 @@ public:
 	bool MouseLBDown(int x, int y) override;
 	static EditorCore* GetEditorCore();
 	bool UseSmallerViewPort();
-	glm::vec4 GetViewPortRect();
+	IntRect GetViewPortRect();
 protected:
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
@@ -46,3 +47,4 @@ private:
 	std::string EditorPlaySceneTempFile = "";
 	EditorCore* mEditorCore = nullptr;
 };
+#endif

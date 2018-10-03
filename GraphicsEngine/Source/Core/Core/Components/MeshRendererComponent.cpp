@@ -45,14 +45,14 @@ Material *MeshRendererComponent::GetMaterial()
 {
 	return m_mat;
 }
-
+#if WITH_EDITOR
 void MeshRendererComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Mesh Component");
-	group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Float, nullptr));
+	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Float, nullptr));
 	props.push_back(group);
 }
-
+#endif
 void MeshRendererComponent::BeginPlay()
 {}
 

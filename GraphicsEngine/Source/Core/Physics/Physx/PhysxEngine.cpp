@@ -190,7 +190,7 @@ void PhysxEngine::AddBoxCollisionToEditor(GameObject* obj)
 	PxRigidActorExt::createExclusiveShape(*st, PxBoxGeometry(2, 2, 2), *gMaterial);
 
 	gEdtiorScene->addActor(*st);
-	obj->SelectionShape = st;
+	//obj->SelectionShape = st;
 
 }
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene)

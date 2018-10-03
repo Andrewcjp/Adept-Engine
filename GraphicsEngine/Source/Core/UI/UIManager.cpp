@@ -54,7 +54,7 @@ void UIManager::InitEditorUI()
 	UIGraph* graph = new UIGraph(LineBatcher, 250, 150, 15, 25);
 	Graph = graph;
 	AddWidget(graph);
-
+#if WITH_EDITOR
 	inspector = new Inspector(m_width, GetScaledHeight(0.2f), 0, 0);
 	inspector->SetScaled(RightWidth, 1.0f - (TopHeight), 1 - RightWidth);
 	AddWidget(inspector);
@@ -70,6 +70,7 @@ void UIManager::InitEditorUI()
 	button->BindTarget(std::bind(&EditorWindow::ExitPlayMode, EditorWindow::GetInstance()));
 	button->SetText("Stop");
 	AddWidget(button);
+#endif
 	//testbox = new UIPopoutbox(100, 300, 250, 150);
 	//testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
 	//AddWidget(testbox);
@@ -280,14 +281,17 @@ void UIManager::UpdateGameObjectList(std::vector<GameObject*>*gos)
 
 void UIManager::SelectedCallback(int i)
 {
+#if WITH_EDITOR
 	if (instance)
 	{
 		EditorWindow::GetEditorCore()->SetSelectedObjectIndex(i);
 	}
+#endif
 }
 
 void UIManager::RefreshGameObjectList()
 {
+#if WITH_EDITOR
 	if (box != nullptr && GameObjectsPtr != nullptr)
 	{
 		box->RemoveAll();
@@ -302,6 +306,7 @@ void UIManager::RefreshGameObjectList()
 		GetInspector()->Refresh();
 		UpdateBatches();
 	}
+#endif
 }
 
 int UIManager::GetWidth()
@@ -385,14 +390,14 @@ void UIManager::CloseDropDown()
 	}
 }
 
-glm::vec4 UIManager::GetEditorRect()
+IntRect UIManager::GetEditorRect()
 {
-	glm::vec4 rect;
-	rect.x = GetScaledWidth(LeftWidth);
-	rect.y = GetScaledHeight(TopHeight);
+	IntRect rect;
+	rect.Min.x = (float)GetScaledWidth(LeftWidth);
+	rect.Min.y = GetScaledHeight(TopHeight);
 
-	rect.z = GetScaledWidth(0.8 - RightWidth);
-	rect.w = GetScaledHeight(0.9 - BottomHeight);
+	rect.Max.x = GetScaledWidth(0.8 - RightWidth);
+	rect.Max.y = GetScaledHeight(0.9 - BottomHeight);
 	return rect;
 }
 

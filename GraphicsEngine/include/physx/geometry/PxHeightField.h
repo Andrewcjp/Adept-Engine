@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -35,6 +35,7 @@
 */
 
 #include "geometry/PxHeightFieldFlag.h"
+#include "geometry/PxHeightFieldSample.h"
 #include "common/PxBase.h"
 
 #if !PX_DOXYGEN
@@ -233,6 +234,15 @@ class PxHeightField	: public PxBase
 	\return Triangle normal for a given triangle index
 	*/
 	PX_PHYSX_COMMON_API virtual	PxVec3					getTriangleNormal(PxTriangleID triangleIndex) const = 0;
+
+	/**
+	\brief Returns heightfield sample of given row and column	
+
+	\param[in] row Given heightfield row
+	\param[in] column Given heightfield column
+	\return Heightfield sample
+	*/
+	PX_PHYSX_COMMON_API virtual	const PxHeightFieldSample&	getSample(PxU32 row, PxU32 column) const = 0;
 
 	/**
 	\brief Returns the number of times the heightfield data has been modified

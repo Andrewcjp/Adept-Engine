@@ -9,7 +9,9 @@ class UIEditField :
 {
 public:
 	UIEditField(int, int, int, int);
+#if WITH_EDITOR
 	UIEditField(Inspector::InspectorPropery * Targetprop);
+#endif
 	~UIEditField();
 	void SetLabel(std::string lavel);
 	void MouseMove(int x, int y) override;
@@ -27,14 +29,14 @@ private:
 	UILabel* Namelabel = nullptr;
 	UILabel* Textlabel = nullptr;
 	UIBox* TextBox = nullptr;
-	UIButton* Toggle = nullptr;
+	class UIButton* Toggle = nullptr;
 	glm::vec3 colour = glm::vec3(0.8f);
 	CollisionRect Rect;
 	CollisionRect ValueDrawChangeRect;
 	std::string nextext;
 	std::string LastText;
 	bool WasSelected = false;
-	Inspector::ValueType FilterType = Inspector::ValueType::String;
+	EditValueType::Type FilterType = EditValueType::String;
 	int CursorPos = 0;
 	std::string DisplayText;
 	bool IsEditing = false;
@@ -45,7 +47,9 @@ private:
 	int startx = 0;
 	float StartValue = 0.0f;
 	float ScrollScale = 0.001f;
+#if WITH_EDITOR
 	Inspector::InspectorPropery Property;
+#endif
 
 };
 

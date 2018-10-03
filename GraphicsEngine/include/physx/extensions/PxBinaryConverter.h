@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -93,6 +93,16 @@ public:
 	\return True if success
 	*/
 	virtual		bool	setMetaData(PxInputStream& srcMetaData, PxInputStream& dstMetaData)					= 0;
+
+	/**
+	\brief Test utility function to compare two sets of meta data.
+
+	The meta data needs to be set before calling the compareMetaData method.
+	This method will issue PxErrorCode::eDEBUG_INFO messages if mismatches are encountered.
+
+	\return True if meta data is equivalend
+	*/
+	virtual		bool	compareMetaData() const = 0;
 
 	/**
 	\brief Converts binary stream from source platform to target platform

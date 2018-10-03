@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -38,8 +38,8 @@
 #include "foundation/unix/PxUnixIntrinsics.h"
 #elif PX_XBOXONE
 #include "foundation/XboxOne/PxXboxOneIntrinsics.h"
-#elif PX_NX
-#include "foundation/nx/PxNXIntrinsics.h"
+#elif PX_SWITCH
+#include "foundation/switch/PxSwitchIntrinsics.h"
 #else
 #error "Platform not supported!"
 #endif

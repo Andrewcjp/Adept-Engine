@@ -17,17 +17,17 @@ void PhysicsThrowerComponent::Update(float delta)
 		FireAtScene();
 	}
 	if (Input::GetKeyDown(0x28))
-	{
+	{ 
 		//CreateStackAtPoint();
-	}
+	} 
 }
-
+#if WITH_EDITOR
 void PhysicsThrowerComponent::EditorUpdate()
 {	
 	//Todo: Debug
 	Update(0);
 }
-
+#endif 
 void PhysicsThrowerComponent::CreateStackAtPoint()
 {
 	RayHit hit;

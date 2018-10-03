@@ -10,7 +10,9 @@ public:
 	Scene(bool EditScene = false);
 	~Scene();
 	void UpdateScene(float deltatime);
+#if WITH_EDITOR
 	void EditorUpdateScene();
+#endif
 	void OnFrameEnd(); 
 	void FixedUpdateScene(float deltatime);
 	CORE_API void AddGameobjectToScene(GameObject* gameobject);

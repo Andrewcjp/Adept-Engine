@@ -24,7 +24,9 @@ private:
 	RigidBody* actor;
 	BodyInstanceData LockData;
 	// Inherited via Component
+#if WITH_EDITOR
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
+#endif
 	void ProcessSerialArchive(Archive * A) override;
 
 	float mass = 1.0f;

@@ -2,6 +2,7 @@
 #include "EditorCore.h"
 #include "EditorWindow.h"
 #include "Core/Assets/Scene.h"
+#if WITH_EDITOR
 EditorCore::EditorCore()
 {}
 
@@ -23,3 +24,4 @@ void EditorCore::SetSelectedObject(GameObject * newobj)
 {
 	SelectedObject = newobj;
 }
+#endif

@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -40,7 +40,7 @@
 
 #include <stdlib.h>
 
-#if PX_WINDOWS || PX_LINUX_FAMILY || PX_NX
+#if PX_WINDOWS || PX_LINUX_FAMILY || PX_SWITCH
 #include <malloc.h>
 #endif
 
@@ -60,7 +60,7 @@ PX_FORCE_INLINE void platformAlignedFree(void* ptr)
 {
 	_aligned_free(ptr);
 }
-#elif PX_LINUX_FAMILY || PX_NX
+#elif PX_LINUX_FAMILY || PX_SWITCH
 PX_FORCE_INLINE void* platformAlignedAlloc(size_t size)
 {
 	return ::memalign(16, size);

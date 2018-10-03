@@ -73,7 +73,7 @@ void LightComponent::SceneInitComponent()
 	DoesShadow = MLight->GetDoesShadow();
 
 }
-
+#if WITH_EDITOR
 void LightComponent::PostChangeProperties()
 {
 	SetShadow(DoesShadow);
@@ -83,6 +83,7 @@ void LightComponent::PostChangeProperties()
 		GetOwner()->GetScene()->StaticSceneNeedsUpdate = true;
 	}
 }
+#endif
 void LightComponent::ProcessSerialArchive(Archive * A)
 {
 	Component::ProcessSerialArchive(A);
@@ -91,13 +92,13 @@ void LightComponent::ProcessSerialArchive(Archive * A)
 	ArchiveProp(CurrentColour);
 	ArchiveProp_Enum(CurrentType, Light::LightType);
 }
-
+#if WITH_EDITOR
 void LightComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
 	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
-	group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Bool, &DoesShadow));
-	group.SubProps.push_back(Inspector::CreateProperty("Intensity", Inspector::Float, &CurrentIntensity));
+	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Bool, &DoesShadow));
+	group.SubProps.push_back(Inspector::CreateProperty("Intensity", EditValueType::Float, &CurrentIntensity));
 	props.push_back(group);
 }
-
+#endif
 

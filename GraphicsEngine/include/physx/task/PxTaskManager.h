@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 
 #ifndef PXTASK_PXTASKMANAGER_H
 #define PXTASK_PXTASKMANAGER_H
@@ -72,7 +72,7 @@ class PxGpuDispatcher;
  
  A PxTaskManager instance holds references to user-provided dispatcher objects, when tasks are
  submitted the PxTaskManager routes them to the appropriate dispatcher and handles task profiling if enabled. 
- Users should not implement the PxTaskManager interface, the SDK creates it's own concrete PxTaskManager object
+ Users should not implement the PxTaskManager interface, the SDK creates its own concrete PxTaskManager object
  per-scene which users can configure by passing dispatcher objects into the PxSceneDesc.
 
 

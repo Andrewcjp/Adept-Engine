@@ -179,8 +179,8 @@ void Camera::SetMouseRotation(float x, float y)
 #include "Editor/EditorWindow.h"
 void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outrayDirection, glm::vec3&  outRayorign)
 {
-	float x = (2.0f * screenX) / EditorWindow::GetWidth() - 1.0f;
-	float y = 1.0f - (2.0f * screenY) / EditorWindow::GetHeight();
+	float x = (2.0f * screenX) / BaseWindow::GetWidth() - 1.0f;
+	float y = 1.0f - (2.0f * screenY) / BaseWindow::GetHeight();
 
 	float z = 1.0f;
 	glm::vec3 ray_nds = glm::vec3(x, y, z);
@@ -200,8 +200,8 @@ glm::vec3  Camera::ScreenPointToWorld(float screenX, float screenY)
 
 	/*double x = 2.0 * screenX / EditorWindow::GetWidth() - 1;
 	double y = -2.0 * screenY / EditorWindow::GetHeight() + 1;*/
-	float x = (2.0f * screenX) / EditorWindow::GetWidth() - 1.0f;
-	float y = 1.0f - (2.0f * screenY) / EditorWindow::GetHeight();
+	float x = (2.0f * screenX) / BaseWindow::GetWidth() - 1.0f;
+	float y = 1.0f - (2.0f * screenY) / BaseWindow::GetHeight();
 
 	glm::mat4x4 viewProjectionInverse = glm::inverse(projection *
 		GetView());

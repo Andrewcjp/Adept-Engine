@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -38,6 +38,12 @@
   @{
 */
 
+#define PX_STRINGIZE_HELPER(X) #X
+#define PX_STRINGIZE(X) PX_STRINGIZE_HELPER(X)
+
+#define PX_CONCAT_HELPER(X, Y) X##Y
+#define PX_CONCAT(X, Y) PX_CONCAT_HELPER(X, Y)
+
 /*
 The following preprocessor identifiers specify compiler, OS, and architecture.
 All definitions have a value of 1 or 0, use '#if' instead of '#ifdef'.
@@ -47,7 +53,9 @@ All definitions have a value of 1 or 0, use '#if' instead of '#ifdef'.
 Compiler defines, see http://sourceforge.net/p/predef/wiki/Compilers/
 */
 #if defined(_MSC_VER)
-#if _MSC_VER >= 1900
+#if _MSC_VER >= 1910
+#define PX_VC 15
+#elif _MSC_VER >= 1900
 #define PX_VC 14
 #elif _MSC_VER >= 1800
 #define PX_VC 12
@@ -88,7 +96,7 @@ Operating system defines, see http://sourceforge.net/p/predef/wiki/OperatingSyst
 #elif defined(__ORBIS__)
 #define PX_PS4 1
 #elif defined(__NX__)
-#define PX_NX 1
+#define PX_SWITCH 1
 #else
 #error "Unknown operating system"
 #endif
@@ -161,8 +169,8 @@ define anything not defined on this platform to 0
 #ifndef PX_PS4
 #define PX_PS4 0
 #endif
-#ifndef PX_NX
-#define PX_NX 0
+#ifndef PX_SWITCH
+#define PX_SWITCH 0
 #endif
 #ifndef PX_X64
 #define PX_X64 0
@@ -425,8 +433,8 @@ General defines
 */
 
 // static assert
-#if(defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))) || (PX_PS4) || (PX_APPLE_FAMILY) || (PX_NX) || (PX_CLANG && PX_ARM)
-#define PX_COMPILE_TIME_ASSERT(exp) typedef char PxCompileTimeAssert_Dummy[(exp) ? 1 : -1] __attribute__((unused))
+#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))) || (PX_PS4) || (PX_APPLE_FAMILY) || (PX_SWITCH) || (PX_CLANG && PX_ARM)
+#define PX_COMPILE_TIME_ASSERT(exp) typedef char PX_CONCAT(PxCompileTimeAssert_Dummy, __COUNTER__)[(exp) ? 1 : -1] __attribute__((unused))
 #else
 #define PX_COMPILE_TIME_ASSERT(exp) typedef char PxCompileTimeAssert_Dummy[(exp) ? 1 : -1]
 #endif
@@ -488,7 +496,8 @@ struct PxPackValidation
 	long long a;
 };
 #endif
-#if !PX_APPLE_FAMILY && !PX_EMSCRIPTEN
+// clang (as of version 3.9) cannot align doubles on 8 byte boundary  when compiling for Intel 32 bit target
+#if !PX_APPLE_FAMILY && !PX_EMSCRIPTEN && !(PX_CLANG && PX_X86)
 PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(PxPackValidation, a) == 8);
 #endif
 
@@ -516,12 +525,6 @@ PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(PxPackValidation, a) == 8);
 protected:                                                                                                             \
 	Class(const Class&);                                                                                               \
 	Class& operator=(const Class&);
-
-#define PX_STRINGIZE_HELPER(X) #X
-#define PX_STRINGIZE(X) PX_STRINGIZE_HELPER(X)
-
-#define PX_CONCAT_HELPER(X, Y) X##Y
-#define PX_CONCAT(X, Y) PX_CONCAT_HELPER(X, Y)
 
 #ifndef DISABLE_CUDA_PHYSX
 //CUDA is currently supported only on windows 
