@@ -7,6 +7,8 @@
 #include "include\glm\gtx\quaternion.hpp"
 #include "Components\CompoenentRegistry.h"
 #include "Core/Assets/Archive.h"
+#include "Core/Components/RigidbodyComponent.h"
+#include "Core/Platform/PlatformCore.h"
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
 {
 	Name = name;
@@ -146,7 +148,7 @@ void GameObject::EditorUpdate()
 	{
 		for (int i = 0; i < m_Components.size(); i++)
 		{
-			m_Components[i]->OnTransformUpdate();			
+			m_Components[i]->OnTransformUpdate();
 		}
 		//GetScene()->StaticSceneNeedsUpdate = true;
 		m_transform->Update();
@@ -168,6 +170,13 @@ Component* GameObject::AttachComponent(Component * Component)
 	{
 		m_Components.push_back(Component);
 	}
+
+	RigidbodyComponent* NewRigidbody = dynamic_cast<RigidbodyComponent*>(Component);
+	if (NewRigidbody != nullptr)
+	{
+		ensure(PhysicsBodyComponent == nullptr);
+		PhysicsBodyComponent = NewRigidbody;
+	}
 	Component->Internal_SetOwner(this);
 	return Component;
 }
@@ -184,6 +193,12 @@ void GameObject::CopyPtrs(GameObject *)
 		//Component* comp = new Component(m_Components[i]);
 		//todo Copy ptrs!
 	}
+}
+
+void GameObject::SetParent(GameObject * Parent)
+{
+	mParent = Parent;
+	GetTransform()->SetParent(mParent->GetTransform());
 }
 
 std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
@@ -238,4 +253,34 @@ void GameObject::PostChangeProperties()
 void GameObject::ChangePos_editor(glm::vec3 NewPos)
 {
 	PositionDummy = NewPos;
+}
+
+void GameObject::SetPosition(glm::vec3 newpos)
+{
+	MoveComponent(newpos, GetRotation());
+}
+
+void GameObject::SetRotation(glm::quat newrot)
+{
+	MoveComponent(GetPosition(), newrot);
+}
+
+glm::vec3 GameObject::GetPosition()
+{
+	return GetTransform()->GetPos();
+}
+
+glm::quat GameObject::GetRotation()
+{
+	return GetTransform()->GetQuatRot();
+}
+
+void GameObject::MoveComponent(glm::vec3 newpos, glm::quat newrot, bool UpdatePhysics)
+{
+	GetTransform()->SetPos(newpos);
+	GetTransform()->SetQrot(newrot);
+	if (PhysicsBodyComponent != nullptr && UpdatePhysics)
+	{
+		PhysicsBodyComponent->MovePhysicsBody(newpos, newrot);
+	}
 }

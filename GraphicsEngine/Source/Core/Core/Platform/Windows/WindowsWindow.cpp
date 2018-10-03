@@ -266,7 +266,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		}
 		break;
 	case WM_CLOSE:
-		app->Kill();
+		PostQuitMessage(0);
 		break;
 	case WM_MOUSEMOVE:
 		app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));

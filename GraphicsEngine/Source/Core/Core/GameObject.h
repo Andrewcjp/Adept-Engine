@@ -14,6 +14,20 @@ class MeshRendererComponent;
 class GameObject : public IInspectable
 {
 public:
+	template<class T>
+	std::vector<T*> GetAllComponentsOfType()
+	{
+		std::vector<T*> Comps;
+		for (int i = 0; i < m_Components.size(); i++)
+		{
+			T* Target = dynamic_cast<T*>(m_Components[i]);
+			if (Target != nullptr)
+			{
+				Comps.push_back(Target);
+			}
+		}
+		return Comps;
+	}
 	enum EMoblity { Static, Dynamic };
 	CORE_API GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
 	CORE_API ~GameObject();
@@ -51,26 +65,20 @@ public:
 	T* GetComponent();
 
 	void CopyPtrs(GameObject* newObject);
-
+	CORE_API void SetParent(GameObject* Parent);
 	void ProcessSerialArchive(class Archive* Arch);
 
 	void PostChangeProperties();
 	void ChangePos_editor(glm::vec3 NewPos);
-	template<class T>
-	std::vector<T*> GetAllComponentsOfType()
-	{
-		std::vector<T*> Comps;
-		for (int i = 0; i < m_Components.size(); i++)
-		{
-			T* Target = dynamic_cast<T*>(m_Components[i]);
-			if (Target != nullptr)
-			{
-				Comps.push_back(Target);
-			}
-		}
-		return Comps;
-	}
+
+	//Movement
+	CORE_API void SetPosition(glm::vec3 newpos);
+	CORE_API void SetRotation(glm::quat newrot);
+	void MoveComponent(glm::vec3 newpos, glm::quat newrot, bool UpdatePhysics = true);
+	CORE_API glm::vec3 GetPosition();
+	CORE_API glm::quat GetRotation();
 private:
+	
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 
 	int ObjectID = 0;
@@ -86,6 +94,7 @@ private:
 	virtual std::vector<Inspector::InspectorProperyGroup> GetInspectorFields() override;
 	Scene* OwnerScene;
 	const char * ComponentArrayKey = "Components";
+	class RigidbodyComponent* PhysicsBodyComponent = nullptr;
 };
 
 template<class T>

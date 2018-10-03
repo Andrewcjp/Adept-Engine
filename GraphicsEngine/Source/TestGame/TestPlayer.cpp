@@ -28,11 +28,11 @@ void TestPlayer::Update(float delta)
 	TargetVel.x = 0.0f;
 	if (Input::GetKey('a'))
 	{
-		TargetVel += GetOwner()->GetTransform()->GetRight()* Speed;
+		TargetVel -= GetOwner()->GetTransform()->GetRight()* Speed;
 	}
 	if (Input::GetKey('d'))
 	{
-		TargetVel -= GetOwner()->GetTransform()->GetRight()*Speed;
+		TargetVel += GetOwner()->GetTransform()->GetRight()*Speed;
 	}
 	if (Input::GetKey('w'))
 	{
@@ -44,7 +44,7 @@ void TestPlayer::Update(float delta)
 	}
 	if (Input::GetKeyDown(KeyCode::SPACE))
 	{
-		TargetVel -= GetOwner()->GetTransform()->GetUp() * jumpHeight;
+		TargetVel += GetOwner()->GetTransform()->GetUp() * jumpHeight;
 	}
 	if (RB != nullptr)
 	{
@@ -55,37 +55,25 @@ void TestPlayer::Update(float delta)
 		glm::vec3 Pos = GetOwner()->GetTransform()->GetPos();
 		CameraComponent::GetMainCamera()->SetPos(Pos);
 	}
-	if (Input::GetMouseButtonDown(0))
+	if (/*Input::GetMouseButtonDown(0)*/true)
 	{
 		glm::vec2 axis = Input::GetMouseInputAsAxis();
-
-#if 0	
-		Form->RotateAboutAxis(glm::vec3(0, 1, 0), axis.y*LookSensitivty);
-		Form->RotateAboutAxis(Form->GetRight(), -axis.x*LookSensitivty);
-#else 
-		//CameraComponent::GetMainCamera()->RotateY(axis.x*LookSensitivty);
-		//GetOwner()->GetTransform()->RotateAboutAxis(GetOwner()->GetTransform()->GetUp(), axis.x*LookSensitivty);
-#if 0
-		glm::vec3 rotation = GetOwner()->GetTransform()->GetEulerRot();
-		rotation.xz = 0;
-		//rotation.z = 0.0;
-		rotation.y += 1;// 
-		GetOwner()->GetTransform()->SetEulerRot(rotation);
-#else
-		GetOwner()->GetTransform()->RotateAboutAxis(glm::vec3(0, 1, 0), -axis.x*(1.0 / 100.0f));
-		//GetOwner()->GetTransform()->RotateAboutAxis(GetOwner()->GetTransform()->GetRight(), axis.y*(1.0 / 100.0f));
-#endif
-
-		//GetOwner()->GetTransform()->SetEulerRot(glm::vec3(0, 90, 0));
 		const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
-		Log::LogMessage(glm::to_string(rot));
-		//Log::LogMessage(glm::to_string(GetOwner()->GetTransform()->GetForward()));
-		//GetOwner()->
-		CameraComponent::GetMainCamera()->SetUpAndForward(GetOwner()->GetTransform()->GetForward(), GetOwner()->GetTransform()->GetUp());
-		CameraComponent::GetMainCamera()->Pitch(axis.y*LookSensitivty);
-#endif
+		glm::quat YRot = glm::quat(glm::radians(glm::vec3(0, -axis.x*LookSensitivty, 0)));
+		GetOwner()->SetRotation(GetOwner()->GetTransform()->GetQuatRot()* YRot);
+		glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
+
+		glm::mat4 LocalMAtrix = GetOwner()->GetTransform()->GetModel();
+		if (CameraObject)
+		{
+			glm::quat rotation = glm::quat(glm::toMat4(newrot)*glm::inverse(LocalMAtrix));
+			rotation = glm::toMat4(rotation) *LocalMAtrix;
 
 
+			CameraObject->GetTransform()->SetQrot(CameraObject->GetTransform()->GetQuatRot()* rotation);
+			CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
+		}
+	//	Log::LogMessage(glm::to_string(CameraObject->GetTransform()->GetEulerRot()));
 		Input::LockCursor(true);
 		Input::SetCursorVisible(false);
 	}

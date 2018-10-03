@@ -12,7 +12,6 @@ RigidbodyComponent::RigidbodyComponent()
 	TypeID = CompoenentRegistry::BaseComponentTypes::RigidComp;
 }
 
-
 RigidbodyComponent::~RigidbodyComponent()
 {}
 
@@ -26,16 +25,24 @@ void RigidbodyComponent::OnTransformUpdate()
 {
 	if (actor != nullptr)
 	{
-		actor->SetPositionAndRotation(GetOwner()->GetTransform()->GetPos(), GetOwner()->GetTransform()->GetPos());
+		//	actor->SetPositionAndRotation(GetOwner()->GetTransform()->GetPos(), GetOwner()->GetTransform()->GetQuatRot());
 	}
 }
 
 void RigidbodyComponent::FixedUpdate(float delta)
 {
 	if (actor != nullptr)
+	{		
+		GetOwner()->MoveComponent(actor->GetPosition(), GetOwner()->GetTransform()->GetQuatRot()/*actor->GetRotation()*/, false);
+	}
+}
+
+void RigidbodyComponent::MovePhysicsBody(glm::vec3 newpos, glm::quat newrot)
+{
+	if (actor != nullptr)
 	{
-		GetOwner()->GetTransform()->SetPos(actor->GetPosition());
-		//GetOwner()->GetTransform()->SetQrot(actor->GetRotation());
+		actor->SetPositionAndRotation(newpos, newrot);
+		//Log::LogMessage(glm::to_string(newrot));
 	}
 }
 

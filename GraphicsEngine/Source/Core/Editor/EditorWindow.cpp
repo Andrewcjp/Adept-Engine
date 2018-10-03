@@ -158,6 +158,11 @@ EditorCore * EditorWindow::GetEditorCore()
 	return nullptr;
 }
 
+bool EditorWindow::UseSmallerViewPort()
+{
+	return ShowHud;
+}
+
 void EditorWindow::PrePhysicsUpdate()
 {}
 
@@ -185,7 +190,7 @@ void EditorWindow::Update()
 		CurrentScene->EditorUpdateScene();
 		EditorCamera->Update(DeltaTime);
 	}
-	
+
 
 	if (mEditorCore->GetSelectedObject() != nullptr && IsPlayingScene)
 	{
@@ -201,6 +206,11 @@ void EditorWindow::Update()
 	{
 		UI->GetInspector()->SetSelectedObject(nullptr);
 	}
+	if (input->GetKeyDown(VK_ESCAPE))
+	{
+		//ExitPlayMode();
+		PostQuitMessage(0);
+	}
 	if (input->GetVKey(VK_CONTROL))
 	{
 		if (input->GetKeyDown('S'))
@@ -214,14 +224,18 @@ void EditorWindow::Update()
 	}
 	if (input->GetKeyDown(VK_F1))
 	{
-		ShowHud = !ShowHud;
+		ShowHud = !ShowHud;		
 	}
+
 	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking())
 	{
 		mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
 	}
 }
-
+glm::vec4 EditorWindow::GetViewPortRect()
+{
+	return UI->GetEditorRect();
+}
 void EditorWindow::SaveScene()
 {
 	if (CurrentSceneSavePath.length() == 0)

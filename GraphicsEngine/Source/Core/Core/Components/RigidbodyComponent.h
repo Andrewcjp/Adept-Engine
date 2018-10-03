@@ -13,6 +13,7 @@ public:
 	void BeginPlay() override;
 	void Update(float delta) override;
 	void FixedUpdate(float delta) override;
+	void MovePhysicsBody(glm::vec3 newpos, glm::quat newrot);
 	virtual void SceneInitComponent() override;
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
 	CORE_API glm::vec3 GetVelocity();
@@ -27,7 +28,6 @@ private:
 	void ProcessSerialArchive(Archive * A) override;
 
 	float mass = 1.0f;
-
 	// Inherited via Component
 	virtual void InitComponent()override {} ;
 
