@@ -143,10 +143,10 @@ void BaseWindow::Render()
 	}
 
 #if 1
-	if (input->GetKeyDown(VK_ESCAPE))
+	/*if (input->GetKeyDown(VK_ESCAPE))
 	{
 		PostQuitMessage(0);
-	}
+	}*/
 	if (input->GetKeyDown(VK_F11))
 	{
 		RHI::ToggleFullScreenState();
@@ -326,6 +326,7 @@ void BaseWindow::Resize(int width, int height)
 	}
 	if (Renderer != nullptr)
 	{
+		RHI::ResizeSwapChain(width, height);
 		Renderer->Resize(width, height);
 	}
 }

@@ -131,8 +131,9 @@ void D3D12CommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int Insta
 
 void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
 {
-	//D3D12RHI::Instance->RenderToScreen(CurrentGraphicsList);
 	ensure(ListType == ECommandListType::Graphics);
+	CD3DX12_VIEWPORT m_viewport = CD3DX12_VIEWPORT(MinX, MinY, MaxX, MaxY);
+	CurrentCommandList->RSSetViewports(1, &m_viewport);
 }
 
 void D3D12CommandList::Execute(DeviceContextQueue::Type Target)

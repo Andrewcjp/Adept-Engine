@@ -23,7 +23,8 @@ public:
 	virtual void DestroyRenderWindow() override final;
 	bool MouseLBDown(int x, int y) override;
 	static EditorCore* GetEditorCore();
-
+	bool UseSmallerViewPort();
+	glm::vec4 GetViewPortRect();
 protected:
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();

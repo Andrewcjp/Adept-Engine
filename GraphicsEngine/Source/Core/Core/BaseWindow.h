@@ -26,7 +26,7 @@ public:
 	static class Camera* GetCurrentCamera();
 	bool ShowHud = false;
 	bool ShowText = true;
-	bool ExtendedPerformanceStats = true;
+	bool ExtendedPerformanceStats = false;
 protected:
 
 	//callbacks

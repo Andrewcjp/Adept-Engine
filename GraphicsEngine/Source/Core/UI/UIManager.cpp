@@ -287,7 +287,7 @@ void UIManager::SelectedCallback(int i)
 }
 
 void UIManager::RefreshGameObjectList()
-{	
+{
 	if (box != nullptr && GameObjectsPtr != nullptr)
 	{
 		box->RemoveAll();
@@ -383,5 +383,16 @@ void UIManager::CloseDropDown()
 		instance->RemoveWidget(instance->DropdownCurrent);
 		instance->DropdownCurrent = nullptr;
 	}
+}
+
+glm::vec4 UIManager::GetEditorRect()
+{
+	glm::vec4 rect;
+	rect.x = GetScaledWidth(LeftWidth);
+	rect.y = GetScaledHeight(TopHeight);
+
+	rect.z = GetScaledWidth(0.8 - RightWidth);
+	rect.w = GetScaledHeight(0.9 - BottomHeight);
+	return rect;
 }
 

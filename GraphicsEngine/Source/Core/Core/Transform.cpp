@@ -72,18 +72,26 @@ void Transform::Serilise(Archive * A)
 
 glm::mat4 Transform::GetModel()
 {
-	if (!UpdateModel)
+	if (!UpdateModel && parent == nullptr)
+	{
+		return CacheModel;
+	}
+	if (parent != nullptr && !parent->IsChanged())
 	{
 		return CacheModel;
 	}
 	glm::mat4 posMat = glm::translate(_pos);
 	glm::mat4 scaleMat = glm::scale(_scale);
 	glm::mat4 rotMat = glm::toMat4(_qrot);
-	if (parent != nullptr && parent->IsChanged())
+	if (parent != nullptr /*&& parent->IsChanged()*/)
 	{
 		parentMatrix = parent->GetModel();
 	}
-	CacheModel = posMat * rotMat * scaleMat;
+	else
+	{
+		parentMatrix = glm::mat4(1);
+	}
+	CacheModel = parentMatrix * (posMat * rotMat * scaleMat);
 	_rot = glm::eulerAngles(_qrot);
 	UpdateModel = false;
 	return CacheModel;

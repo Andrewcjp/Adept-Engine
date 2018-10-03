@@ -133,7 +133,6 @@ void RenderEngine::PrepareData()
 
 void RenderEngine::Resize(int width, int height)
 {
-	RHI::ResizeSwapChain(width, height);
 	Post->Resize(FilterBuffer);
 	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << Log::OutS;
 }

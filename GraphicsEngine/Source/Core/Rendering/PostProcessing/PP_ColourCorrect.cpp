@@ -4,14 +4,14 @@
 
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI_inc.h"
-
+#include "Editor/EditorWindow.h"
 PP_ColourCorrect::PP_ColourCorrect()
 {}
 
 
 PP_ColourCorrect::~PP_ColourCorrect()
 {
-	
+
 }
 
 void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
@@ -27,7 +27,13 @@ void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTextur
 	{
 		list->SetFrameBufferTexture(nullptr, 1);
 	}
-
+#if WITH_EDITOR
+	if (EditorWindow::GetInstance()->UseSmallerViewPort())
+	{
+		glm::vec4 rect = EditorWindow::GetInstance()->GetViewPortRect();
+		list->SetViewport(rect.x, rect.y, rect.z, rect.w, 0, 0);
+	}
+#endif
 	RenderScreenQuad(list);
 	InputTexture->MakeReadyForComputeUse(list);
 	AddtiveBuffer->MakeReadyForComputeUse(list);
@@ -42,7 +48,7 @@ void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTextur
 
 void PP_ColourCorrect::PostSetUpData()
 {
-	CurrentShader = ShaderComplier::GetShader<Shader_ColourCorrect>();		
+	CurrentShader = ShaderComplier::GetShader<Shader_ColourCorrect>();
 	CMDlist = RHI::CreateCommandList();
 }
 

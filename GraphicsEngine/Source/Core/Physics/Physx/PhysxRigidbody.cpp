@@ -143,7 +143,7 @@ void PhysxRigidbody::InitBody()
 
 	if (BodyType == EBodyType::RigidDynamic)
 	{
-		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(GLMtoPXvec3(transform.GetPos())));
+		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(GLMtoPXvec3(transform.GetPos()),GLMtoPXQuat(transform.GetQuatRot())));
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			Dynamicactor->attachShape(*Shapes[i]);
@@ -163,7 +163,7 @@ void PhysxRigidbody::InitBody()
 	}
 	else if (BodyType == EBodyType::RigidStatic)
 	{
-		StaticActor = PhysxEngine::GetGPhysics()->createRigidStatic(PxTransform(GLMtoPXvec3(transform.GetPos())));
+		StaticActor = PhysxEngine::GetGPhysics()->createRigidStatic(PxTransform(GLMtoPXvec3(transform.GetPos()), GLMtoPXQuat(transform.GetQuatRot())));
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			StaticActor->attachShape(*Shapes[i]);
