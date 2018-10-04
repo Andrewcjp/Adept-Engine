@@ -17,7 +17,6 @@ public:
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
-	virtual void WaitForCompletion() override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
 	virtual void SetPipelineState(PipeLineState state) override;
@@ -73,7 +72,7 @@ private:
 class D3D12Buffer : public RHIBuffer
 {
 public:
-	D3D12Buffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
+	D3D12Buffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr);
 	virtual ~D3D12Buffer();
 	virtual void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) override;
 	virtual void CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype = EBufferAccessType::Static) override;
@@ -103,7 +102,7 @@ private:
 	void CreateStaticBuffer(int ByteSize);
 	void CreateDynamicBuffer(int ByteSize);
 	RHIBufferDesc Desc;
-	class D3D12CBV* CBV[MAX_DEVICE_COUNT] = { nullptr };
+	class D3D12CBV* CBV[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	EBufferAccessType::Type BufferAccesstype;
 	ID3D12Resource * m_UploadBuffer = nullptr;
 	GPUResource* m_DataBuffer = nullptr;

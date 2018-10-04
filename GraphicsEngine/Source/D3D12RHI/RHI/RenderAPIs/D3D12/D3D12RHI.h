@@ -17,7 +17,7 @@
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
 #define USEGPUTOGENMIPS_ATRUNTIME 0
-
+class D3D12DeviceContext;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -46,14 +46,15 @@ private:
 	void CreateDepthStencil(int width, int height);
 	void InitSwapChain();
 	void ToggleFullScreenState();
+	void WaitForAllGPUS();
+	void ResetAllGPUCopyEngines();
+	void UpdateAllCopyEngines();
 	void ExecSetUpList();
 	void ReleaseUploadHeaps(bool force = false);
 
 	void FindAdaptors(IDXGIFactory2 * pFactory);
-	void MoveToNextFrame();
 
 	ID3D12DescriptorHeap* BaseTextureHeap;
-	ID3D12CommandQueue* GetCommandQueue();
 	bool InitRHI()override;
 	bool InitWindow(int w, int h) override;
 	bool DestoryRHI() override;
@@ -63,7 +64,7 @@ private:
 	FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc) override;
 	ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) override;
 	RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;
-	RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr) override;
+	RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr) override;
 	RHIUAV* CreateUAV(DeviceContext* Device = nullptr) override;
 	RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr)override;
 	virtual void TriggerBackBufferScreenShot() override;
@@ -71,14 +72,18 @@ private:
 	void WaitForGPU() override;
 	void RHISwapBuffers() override;
 	void RHIRunFirstFrame() override;
+	
 	void ResizeSwapChain(int x, int y) override;
 
 private:
+	D3D12DeviceContext * GetPrimaryDevice();
+	D3D12DeviceContext* GetSecondaryDevice();
+	D3D12DeviceContext* GetThridDevice();
 	IDXGIFactory4 * factory = nullptr;
 	ID3D12Device * GetDisplayDevice();
-	class	D3D12DeviceContext* PrimaryDevice = nullptr;
-	class	D3D12DeviceContext* SecondaryDevice = nullptr;
-	void ExecList(ID3D12GraphicsCommandList * list, bool block = false);
+	//class	D3D12DeviceContext* PrimaryDevice = nullptr;
+//	class	D3D12DeviceContext* SecondaryDevice = nullptr;
+	D3D12DeviceContext* DeviceContexts[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	ID3D12GraphicsCommandList* m_SetupCommandList;
 	int m_width = 0;
 	int m_height = 0;
@@ -93,28 +98,16 @@ private:
 	ID3D12DescriptorHeap* m_dsvHeap;
 	UINT m_rtvDescriptorSize;
 	ID3D12Resource * m_depthStencil;
-
-	// Synchronization objects.
-	UINT m_frameIndex;
-	HANDLE m_fenceEvent;
-	ID3D12Fence* m_fence;
-	UINT64 M_ShadowFence = 0;
-	UINT64 m_fenceValues[RHI::CPUFrameCount];
-
+	int m_frameIndex = 0;
 	ID3D12Debug* debugController;
-	HANDLE m_VideoMemoryBudgetChange;
-	DWORD m_BudgetNotificationCookie;
 
 	typedef std::pair<IUnknown*, int64_t> UploadHeapStamped;
 	std::vector<UploadHeapStamped> DeferredDeleteQueue;
-
 	class GPUResource* m_RenderTargetResources[RHI::CPUFrameCount];
-	size_t usedVRAM = 0;
-	size_t totalVRAM = 0;
 	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
-	
+
 };
 #include "D3D12Helpers.h"
 //helper functions!

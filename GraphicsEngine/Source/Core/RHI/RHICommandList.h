@@ -24,15 +24,9 @@ struct RHIBufferDesc
 class RHI_API RHIBuffer : public IRHIResourse
 {
 public:
-	enum BufferType
-	{
-		Vertex,
-		Index,
-		Constant,
-		GPU
-	};
-	RHIBuffer::BufferType CurrentBufferType;
-	RHIBuffer(RHIBuffer::BufferType type)
+	
+	ERHIBufferType::Type CurrentBufferType;
+	RHIBuffer(ERHIBufferType::Type type)
 	{
 		CurrentBufferType = type;
 	}
@@ -75,8 +69,6 @@ public:
 	virtual void CreateUAVFromRHIBuffer(class RHIBuffer* target) = 0;
 };
 
-
-
 class FrameBuffer;
 class RHI_API RHICommandList : public IRHIResourse
 {
@@ -88,7 +80,6 @@ public:
 
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
-	virtual void WaitForCompletion() = 0;
 	//drawing
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;

@@ -1,4 +1,5 @@
 #pragma once
+#include "RHI/RHICommandList.h"
 #include "RHI/Shader.h"
 #include <vector>
 class Shader_Blur : public Shader
@@ -32,7 +33,7 @@ public:
 		m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));
 
 		m_Shader->AttachAndCompileShaderFromFile("BlurCS", EShaderType::SHADER_COMPUTE, "VertBlurCS");
-		Blurweights = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant);
+		Blurweights = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 		Blurweights->CreateConstantBuffer(sizeof(float) * 11, 1);
 		std::vector<float> Weights = Shader_Blur::CalcGaussWeights(2.5f);
 		int blurRadius = (int)Weights.size() / 2;

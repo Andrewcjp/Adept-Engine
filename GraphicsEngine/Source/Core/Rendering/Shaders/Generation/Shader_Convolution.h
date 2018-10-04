@@ -15,32 +15,10 @@ public:
 	FrameBuffer * CubeBuffer = nullptr;
 	struct QuadDrawer
 	{
-		~QuadDrawer()
-		{
-			EnqueueSafeRHIRelease(VertexBuffer);
-		}
+		~QuadDrawer();
 		RHIBuffer* VertexBuffer = nullptr;
-		void init()
-		{
-			float g_quad_vertex_buffer_data[] = {
-				-1.0f, -1.0f, 0.0f,0.0f,
-				1.0f, -1.0f, 0.0f,0.0f,
-				-1.0f,  1.0f, 0.0f,0.0f,
-				-1.0f,  1.0f, 0.0f,0.0f,
-				1.0f, -1.0f, 0.0f,0.0f,
-				1.0f,  1.0f, 0.0f,0.0f,
-			};
-			VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
-			VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
-			VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
-		}
-		void RenderScreenQuad(RHICommandList * list)
-		{
-			//todo: less than full screen!
-			list->SetVertexBuffer(VertexBuffer);
-			list->DrawPrimitive(6, 1, 0, 0);
-
-		}
+		void init();
+		void RenderScreenQuad(RHICommandList * list);
 	};
 private:
 	

@@ -141,6 +141,10 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	InterGPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
 	((D3D12CommandList*)GPUCopyList)->CreateCommandList();
 	GPUCopyList->ResetList();
+	GraphicsSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Graphics), GetDevice());
+	CopySync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Copy), GetDevice());
+	InterGPUSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::InterCopy), GetDevice());
+	ComputeSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Compute), GetDevice());
 }
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
@@ -177,6 +181,15 @@ ID3D12CommandQueue * D3D12DeviceContext::GetCommandQueue()
 	return m_commandQueue;
 }
 
+void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
+{
+	GraphicsSync.MoveNextFrame(SyncIndex);
+	CopySync.MoveNextFrame(SyncIndex);
+	InterGPUSync.MoveNextFrame(SyncIndex);
+	ComputeSync.MoveNextFrame(SyncIndex);
+	CurrentFrameIndex = SyncIndex;
+}
+
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
 	if (CurrentFrameIndex == 0)
@@ -208,11 +221,11 @@ std::string D3D12DeviceContext::GetMemoryReport()
 }
 void D3D12DeviceContext::MoveNextFrame()
 {
-	CurrentFrameIndex++;
+	/*CurrentFrameIndex++;
 	if (CurrentFrameIndex == RHI::CPUFrameCount - 1)
 	{
 		CurrentFrameIndex = 0;
-	}
+	}*/
 }
 void D3D12DeviceContext::DestoryDevice()
 {
@@ -249,7 +262,7 @@ void D3D12DeviceContext::NotifyWorkForCopyEngine()
 
 void D3D12DeviceContext::UpdateCopyEngine()
 {	
-	if (CopyEngineHasWork)
+	if (true)
 	{				
 		//CopyEngineHasWork = false;
 		GPUCopyList->Execute();
@@ -259,7 +272,7 @@ void D3D12DeviceContext::UpdateCopyEngine()
 
 void D3D12DeviceContext::ResetCopyEngine()
 {
-	if (CopyEngineHasWork)
+	if (/*CopyEngineHasWork*/true)
 	{
 		GPUCopyList->ResetList();
 	}
@@ -303,18 +316,6 @@ void D3D12DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
 	{
 		WaitForGpu();
 	}
-}
-
-void D3D12DeviceContext::StartExecuteCommandList(ID3D12GraphicsCommandList * list)
-{
-	ID3D12CommandList* ppCommandLists[] = { list };
-	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-	GraphicsQueueSync.CreateStartSyncPoint(m_commandQueue);
-}
-
-void D3D12DeviceContext::EndExecuteCommandList()
-{
-	GraphicsQueueSync.WaitOnSync();
 }
 
 int D3D12DeviceContext::GetDeviceIndex()
@@ -465,27 +466,45 @@ void GPUSyncPoint::GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQ
 	targetqueue->Wait(m_fence, m_fenceValue);
 	m_fenceValue++;
 }
-void GPUSyncPoint::CreateStartSyncPoint(ID3D12CommandQueue * queue)
+
+void GPUFenceSync::Init(ID3D12CommandQueue * TargetQueue, ID3D12Device* device)
 {
-	// Schedule a Signal command in the queue.
-	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
-	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-	DidStartWork = true;
+	Queue = TargetQueue;
+	ThrowIfFailed(device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+	m_fenceValues[m_frameIndex] = 1;
+	// Create an event handle to use for frame synchronization
+	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+#if !BUILD_SHIPPING
+	if (m_fenceEvent == nullptr)
+	{
+		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+	}
+#endif
+#if _DEBUG
+	m_fence->SetName(L"GPUFenceSync Fence");
+#endif
 }
 
-void GPUSyncPoint::WaitOnSync()
+void GPUFenceSync::MoveNextFrame(int SyncIndex)
 {
-	if (!DidStartWork)
+	if (Queue == nullptr)
 	{
-		//Log::OutS  << "ERROR:Wait Called on Non Async List\n";
 		return;
 	}
-	// Wait until the fence has been processed.	
-	if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_OBJECT_0)
-	{
-		// Increment the fence value for the current frame.
-		m_fenceValue++;
-		DidStartWork = false;
-	}
-}
+	// Schedule a Signal command in the queue.
+	const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
+	ThrowIfFailed(Queue->Signal(m_fence, currentFenceValue));
+	// Update the frame index.
+	m_frameIndex = SyncIndex;
 
+	// If the next frame is not ready to be rendered yet, wait until it is ready.
+	const UINT64 value = m_fence->GetCompletedValue();
+	if (value < m_fenceValues[m_frameIndex])
+	{
+		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
+		WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+	}
+
+	// Set the fence value for the next frame.
+	m_fenceValues[m_frameIndex] = currentFenceValue + 1;
+}

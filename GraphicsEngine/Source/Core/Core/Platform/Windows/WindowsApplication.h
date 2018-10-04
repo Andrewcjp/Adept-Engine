@@ -7,12 +7,13 @@ class WindowsApplication : public GenericApplication
 public:
 	WindowsApplication();
 	~WindowsApplication();
+	static void Init();
 	static void * GetDllExport(void * DllHandle, const char * ProcName);
 	static void FreeDllHandle(void * DllHandle);
 	static void * GetDllHandle(FString Name);
 	static int ExecuteHostScript(std::string Filename, std::string Args, bool ShowOutput = false);
 	static int ExecuteHostScript(std::string Filename, std::string Args, std::string WorkingDir, bool ShowOutput = false);
-	static void InitTiming();
+
 	static double Seconds();
 	static void Sleep(double Milliseconds);
 	static CORE_API void DisplayMessageBox(std::string title, std::string message);
@@ -22,6 +23,8 @@ public:
 	CORE_API static bool TryCreateDirectory(const std::string & name);
 private:
 	static double SecondsPerCycle;
+	static void ValidateWindows();
+	static void InitTiming();
 };
 
 typedef WindowsApplication PlatformApplication;

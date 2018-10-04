@@ -10,3 +10,7 @@ class Shader_Main;
 class Camera;
 class DeviceContext;
 class RHITimeManager;
+class RHIUAV;
+class Mesh;
+class ShaderProgramBase;
+class BaseTexture;

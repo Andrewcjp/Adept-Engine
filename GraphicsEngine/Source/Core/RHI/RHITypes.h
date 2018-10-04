@@ -243,6 +243,16 @@ namespace EGPUCOPYTIMERS
 		LIMIT
 	};
 }
+namespace ERHIBufferType
+{
+	enum Type
+	{
+		Vertex,
+		Index,
+		Constant,
+		GPU
+	};
+}
 struct RHI_API RHIPipeRenderTargetDesc
 {
 	eTEXTURE_FORMAT RTVFormats[8] = { eTEXTURE_FORMAT::FORMAT_UNKNOWN };
@@ -318,3 +328,18 @@ private:
 //Releases the GPU side and deletes the CPU object
 #define SafeRHIRelease(Target) if(Target != nullptr){Target->Release(); delete Target; Target= nullptr;}
 #define EnqueueSafeRHIRelease(Target) if(Target != nullptr){RHI::AddToDeferredDeleteQueue(Target);}
+
+struct IndirectDrawArgs
+{
+	int VertexCountPerInstance;
+	int InstanceCount;
+	int StartVertexLocation;
+	int StartInstanceLocation;
+};
+
+struct IndirectDispatchArgs
+{
+	int ThreadGroupCountX;
+	int ThreadGroupCountY;
+	int ThreadGroupCountZ;
+};

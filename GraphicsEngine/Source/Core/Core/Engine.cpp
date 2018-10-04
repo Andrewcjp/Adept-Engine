@@ -21,7 +21,7 @@
 #include "Core/Platform/ConsoleVariable.h"
 #include "Version.h"
 #pragma comment(lib, "shlwapi.lib")
-
+#include "Core/Platform/Windows/WindowsWindow.h"
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
@@ -49,6 +49,7 @@ std::string Engine::GetExecutionDir()
 Engine::Engine()
 {
 	EngineInstance = this;
+	PlatformApplication::Init();
 	StartTime = (float)PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
 	Log::OutS << "Loading Engine v" << ENGINE_VERSION << Log::OutS;
@@ -97,6 +98,7 @@ void Engine::OnDestoryWindow()
 void Engine::Destory()
 {
 	RHI::DestoryContext();
+	RHI::DestoryRHI();
 	if (PhysEngine != nullptr)
 	{
 		PhysEngine->cleanupPhysics();
@@ -125,6 +127,7 @@ RenderWindow * Engine::GetRenderWindow()
 
 void Engine::CreateApplication()
 {
+
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
 		RHI::InitRHI(RenderSystemD3D12);

@@ -14,7 +14,7 @@ Shader_UIBatch::Shader_UIBatch(class DeviceContext* dev) :Shader(dev)
 	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_fs", EShaderType::SHADER_FRAGMENT);
 	
-	UniformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
+	UniformBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	UniformBuffer->CreateConstantBuffer(sizeof(UnifromData), 1);
 }
 

@@ -7,15 +7,9 @@
 #include "Rendering/Renderers/RenderSettings.h"
 #include "Core/Utils/MemoryUtils.h"
 #include "Core/Assets/MeshLoader.h"
-#include "RHICommandList.h"
 #include "Core/Module/ModuleInterface.h"
-
-class BaseTexture;
-class Mesh;
-class ShaderProgramBase;
-class FrameBuffer;
-class DeviceContext;
-const int MAX_DEVICE_COUNT = 2;
+#include "RHI_inc_fwd.h"
+#define MAX_GPU_DEVICE_COUNT 2
 class RHI
 {
 public:
@@ -38,7 +32,7 @@ public:
 	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
 	RHI_API static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 	RHI_API static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
-	RHI_API static RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr);
+	RHI_API static RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr);
 	RHI_API static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	RHI_API static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
 
@@ -96,7 +90,7 @@ public:
 	virtual FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc) = 0;
 	virtual ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
 	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;
-	virtual RHIBuffer* CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device = nullptr) = 0;
+	virtual RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr) = 0;
 	virtual RHIUAV* CreateUAV(DeviceContext* Device = nullptr) = 0;
 	virtual RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr) = 0;
 	virtual DeviceContext* GetDefaultDevice() = 0;

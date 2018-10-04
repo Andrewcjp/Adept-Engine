@@ -85,22 +85,3 @@ void UNUSED_PARAM(T const&)
 //Utility Marcos
 #define SafeDelete(Target)if(Target != nullptr){delete Target; Target= nullptr;}
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
-/*
-#pragma comment(lib, "winmm.lib")
-#pragma comment(lib, "glew32.lib")
-#pragma comment(lib, "freetype.lib")
-#pragma comment(lib, "SOIL.lib")
-#pragma comment(lib, "assimp.lib")
-#pragma comment(lib, "PhysX3CHECKED_x64.lib")
-#pragma comment(lib, "PhysX3CommonCHECKED_x64.lib")
-#pragma comment(lib, "PhysX3ExtensionsCHECKED.lib")
-#pragma comment(lib, "PxPvdSDKCHECKED_x64.lib")
-#pragma comment(lib, "PhysX3CookingCHECKED_x64.lib")
-#pragma comment(lib, "PhysX3CharacterKinematicCHECKED_x64.lib")
-#pragma comment(lib, "PxTaskCHECKED_x64.lib")
-#pragma comment(lib, "SceneQueryCHECKED.lib")
-#pragma comment(lib, "SimulationControllerCHECKED.lib")
-#pragma comment(lib, "PxFoundationCHECKED_x64.lib")
-
-#pragma comment(lib, "TestGame.lib")
-*/

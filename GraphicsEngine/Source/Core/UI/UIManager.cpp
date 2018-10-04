@@ -393,11 +393,11 @@ void UIManager::CloseDropDown()
 IntRect UIManager::GetEditorRect()
 {
 	IntRect rect;
-	rect.Min.x = (float)GetScaledWidth(LeftWidth);
+	rect.Min.x = GetScaledWidth(LeftWidth);
 	rect.Min.y = GetScaledHeight(TopHeight);
 
-	rect.Max.x = GetScaledWidth(0.8 - RightWidth);
-	rect.Max.y = GetScaledHeight(0.9 - BottomHeight);
+	rect.Max.x = GetScaledWidth(0.8f - RightWidth);
+	rect.Max.y = GetScaledHeight(0.9f - BottomHeight);
 	return rect;
 }
 

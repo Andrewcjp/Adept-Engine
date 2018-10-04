@@ -1,6 +1,7 @@
 #include "Shader_Deferred.h"
 #include "RHI/ShaderProgramBase.h"
 #include <algorithm>
+#include "RHI/RHICommandList.h"
 DECLARE_GLOBAL_SHADER(Shader_Deferred);
 Shader_Deferred::Shader_Deferred(class DeviceContext* dev) :Shader(dev)
 {
@@ -12,7 +13,7 @@ Shader_Deferred::Shader_Deferred(class DeviceContext* dev) :Shader(dev)
 		1.0f, -1.0f, 0.0f,0.0f,
 		1.0f,  1.0f, 0.0f,0.0f,
 	};
-	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 

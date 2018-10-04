@@ -2,7 +2,6 @@
 #include "RHI/RHI.h"
 #define MAX_PARTICLES 1000
 #define USE_INDIRECTCOMPUTE 0
-#include <d3d12.h>
 class ParticleSystemManager
 {
 public:
@@ -17,6 +16,7 @@ public:
 		glm::vec4 Vel;
 		float lifetime;
 	};
+#if 0
 	struct IndirectArgs
 	{
 		int data;
@@ -26,6 +26,17 @@ public:
 	{
 		D3D12_DISPATCH_ARGUMENTS dispatchArgs;
 	};
+#else
+	struct IndirectArgs
+	{
+		int data;
+		IndirectDrawArgs drawArguments;
+	};
+	struct DispatchArgs
+	{
+		IndirectDispatchArgs dispatchArgs;
+	};
+#endif
 	static ParticleSystemManager* Get();
 	void ShutDown();
 	void Simulate();

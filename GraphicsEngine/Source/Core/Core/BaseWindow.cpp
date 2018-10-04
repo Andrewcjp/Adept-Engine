@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "BaseWindow.h"
-#include <mutex>
-#include <thread>
 #include "Engine.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Rendering/Renderers/DeferredRenderer.h"
@@ -10,21 +8,19 @@
 #include "RHI/RHI.h"
 #include "UI/UIManager.h"
 #include "Core/Input/Input.h"
-//#include "Physics/PhysicsEngine.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Assets/SceneJSerialiser.h"
 #include "Rendering/Renderers/TextRenderer.h"
-#include "Core/Assets/ImageIO.h"
 #include "RHI/DeviceContext.h"
 #include <algorithm>
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Game/Game.h"
+#include "Core/Assets/ImageIO.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
 	ensure(Instance == nullptr);
 	Instance = this;
-	PlatformApplication::InitTiming();
 	RHI::GetRenderSettings()->RenderScale = 1;
 }
 
@@ -36,7 +32,7 @@ BaseWindow::~BaseWindow()
 
 bool BaseWindow::ChangeDisplayMode(int width, int height)
 {
-
+#if 0
 	DEVMODE dmScreenSettings;
 	memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
 	EnumDisplaySettings(NULL, 0, &dmScreenSettings);
@@ -52,7 +48,7 @@ bool BaseWindow::ChangeDisplayMode(int width, int height)
 		//__debugbreak();
 		return false;
 	}
-
+#endif
 	return true;
 }
 
@@ -350,7 +346,7 @@ bool BaseWindow::MouseLBDown(int x, int y)
 	{
 		UI->MouseClick(x, y);
 	}
-	return TRUE;
+	return true;
 }
 
 bool BaseWindow::MouseLBUp(int x, int y)
@@ -359,7 +355,7 @@ bool BaseWindow::MouseLBUp(int x, int y)
 	{
 		UI->MouseClickUp(x, y);
 	}
-	return TRUE;
+	return true;
 }
 
 bool BaseWindow::MouseRBDown(int x, int y)
@@ -403,7 +399,7 @@ bool BaseWindow::MouseMove(int x, int y)
 	{
 		UI->MouseMove(x, y);
 	}
-	return TRUE;
+	return true;
 }
 
 //getters

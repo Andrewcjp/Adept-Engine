@@ -14,9 +14,9 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	Is2DOnly = DOnly;
 	LineShader = ShaderComplier::GetShader_Default<Shader_Line,bool>(Is2DOnly);
 	ensure(LineShader);
-	DataBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant);
+	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);
-	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
 
 	VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), sizeof(VERTEX)*maxSize, EBufferAccessType::Dynamic);
 	CmdList = RHI::CreateCommandList();
@@ -79,7 +79,7 @@ void DebugLineDrawer::RenderLines(glm::mat4& matrix)
 		DataBuffer->UpdateConstantBuffer(glm::value_ptr(matrix), 0);
 	}
 	CmdList->SetConstantBufferView(DataBuffer, 0, 0);
-	CmdList->DrawPrimitive(VertsOnGPU, 1, 0, 0);
+	CmdList->DrawPrimitive((int)VertsOnGPU, 1, 0, 0);
 	CmdList->Execute();
 	ClearLines();//bin all lines rendered this frame.
 }

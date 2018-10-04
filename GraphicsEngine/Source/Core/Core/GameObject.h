@@ -1,13 +1,8 @@
 #pragma once
 #include "Rendering/Core/Mesh.h"
 #include "Transform.h"
-
 #include "Rendering/Core/Material.h"
 #include "Editor/IInspectable.h"
-#include "physx\PxShape.h"
-#include "physx\PxRigidStatic.h"
-#include "rapidjson\document.h"
-#include "Physics/PhysicsEngine.h"
 class Component;
 class MeshRendererComponent;
 class GameObject 

@@ -32,7 +32,7 @@ void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTextur
 	if (EditorWindow::GetInstance()->UseSmallerViewPort())
 	{
 		IntRect rect = EditorWindow::GetInstance()->GetViewPortRect();
-		list->SetViewport(rect.Min.x, rect.Min.y, rect.Max.x, rect.Max.y, 0, 0);
+		list->SetViewport(rect.Min.x, rect.Min.y, rect.Max.x, rect.Max.y, 0, 0); 
 	}
 #endif
 	RenderScreenQuad(list);

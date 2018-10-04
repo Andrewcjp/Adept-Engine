@@ -2,6 +2,7 @@
 #include "Shader_Convolution.h"
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "RHI/RHICommandList.h"
 DECLARE_GLOBAL_SHADER(Shader_Convolution);
 Shader_Convolution::Shader_Convolution(class DeviceContext* dev) :Shader(dev)
 {
@@ -30,7 +31,7 @@ void Shader_Convolution::init()
 	CmdList = RHI::CreateCommandList();
 	CmdList->SetPipelineState(PipeLineState{ false,false,false });
 	CmdList->CreatePipelineState(this, CubeBuffer);
-	ShaderData = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant);
+	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] =
@@ -82,4 +83,32 @@ std::vector<Shader::VertexElementDESC> Shader_Convolution::GetVertexFormat()
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	return out;
+}
+
+Shader_Convolution::QuadDrawer::~QuadDrawer()
+{
+	EnqueueSafeRHIRelease(VertexBuffer);
+}
+
+void Shader_Convolution::QuadDrawer::init()
+{
+	float g_quad_vertex_buffer_data[] = {
+		-1.0f, -1.0f, 0.0f,0.0f,
+		1.0f, -1.0f, 0.0f,0.0f,
+		-1.0f,  1.0f, 0.0f,0.0f,
+		-1.0f,  1.0f, 0.0f,0.0f,
+		1.0f, -1.0f, 0.0f,0.0f,
+		1.0f,  1.0f, 0.0f,0.0f,
+	};
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
+	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
+}
+
+void Shader_Convolution::QuadDrawer::RenderScreenQuad(RHICommandList * list)
+{
+	//todo: less than full screen!
+	list->SetVertexBuffer(VertexBuffer);
+	list->DrawPrimitive(6, 1, 0, 0);
+
 }

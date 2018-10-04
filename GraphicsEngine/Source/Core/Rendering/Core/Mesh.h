@@ -19,7 +19,7 @@ public:
 private:
 	RHI_API void Release() override;
 	int FrameCreated = 0;
-	RHIBuffer * VertexBuffers[MAX_DEVICE_COUNT] = { nullptr };
-	RHIBuffer* IndexBuffers[MAX_DEVICE_COUNT] = { nullptr };
+	RHIBuffer * VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
+	RHIBuffer* IndexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
 };
 

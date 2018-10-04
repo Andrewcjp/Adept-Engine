@@ -17,7 +17,7 @@ ParticleSystemManager::~ParticleSystemManager()
 
 void ParticleSystemManager::Init()
 {
-	GPU_ParticleData = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
+	GPU_ParticleData = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	RHIBufferDesc desc;
 	desc.Accesstype = EBufferAccessType::GPUOnly;
 	desc.Stride = sizeof(ParticleData);
@@ -28,7 +28,7 @@ void ParticleSystemManager::Init()
 	GPU_ParticleData_UAV = RHI::CreateUAV();
 	GPU_ParticleData_UAV->CreateUAVFromRHIBuffer(GPU_ParticleData);
 
-	CounterBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
+	CounterBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	desc.Accesstype = EBufferAccessType::Static;
 	desc.Stride = sizeof(Counters);
 	desc.ElementCount = 1;
@@ -44,9 +44,9 @@ void ParticleSystemManager::Init()
 	SetupCommandBuffer();
 
 
-	AliveParticleIndexs = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
+	AliveParticleIndexs = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	desc = RHIBufferDesc();
-	desc.Stride = sizeof(UINT);
+	desc.Stride = sizeof(unsigned int);
 	desc.AllowUnorderedAccess = true;
 	desc.Accesstype = EBufferAccessType::GPUOnly;
 	desc.ElementCount = CurrentParticleCount;
@@ -55,9 +55,9 @@ void ParticleSystemManager::Init()
 	AliveParticleIndexs_UAV = RHI::CreateUAV();
 	AliveParticleIndexs_UAV->CreateUAVFromRHIBuffer(AliveParticleIndexs);
 
-	AliveParticleIndexs_PostSim = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
+	AliveParticleIndexs_PostSim = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	desc = RHIBufferDesc();
-	desc.Stride = sizeof(UINT);
+	desc.Stride = sizeof(unsigned int);
 	desc.AllowUnorderedAccess = true;
 	desc.Accesstype = EBufferAccessType::GPUOnly;
 	desc.ElementCount = CurrentParticleCount;
@@ -66,9 +66,9 @@ void ParticleSystemManager::Init()
 	AliveParticleIndexs_PostSim_UAV = RHI::CreateUAV();
 	AliveParticleIndexs_PostSim_UAV->CreateUAVFromRHIBuffer(AliveParticleIndexs_PostSim);
 
-	DeadParticleIndexs = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
+	DeadParticleIndexs = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	desc = RHIBufferDesc();
-	desc.Stride = sizeof(UINT);
+	desc.Stride = sizeof(unsigned int);
 	desc.AllowUnorderedAccess = true;
 	desc.Accesstype = EBufferAccessType::Static;
 	desc.ElementCount = CurrentParticleCount;
@@ -91,30 +91,30 @@ void ParticleSystemManager::Init()
 
 void ParticleSystemManager::SetupCommandBuffer()
 {
-	DispatchCommandBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
+	DispatchCommandBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	RHIBufferDesc desc;
 	desc.Accesstype = EBufferAccessType::Static;
-	desc.Stride = sizeof(IndrectDispatchArgs) * 2;
+	desc.Stride = sizeof(IndirectDispatchArgs) * 2;
 	desc.ElementCount = 1;
 	desc.AllowUnorderedAccess = true;
 	DispatchCommandBuffer->CreateBuffer(desc);
-	IndrectDispatchArgs Data[2];
-	Data[0].dispatchArgs = D3D12_DISPATCH_ARGUMENTS();
+	DispatchArgs Data[2];
+	Data[0].dispatchArgs = IndirectDispatchArgs();
 	Data[0].dispatchArgs.ThreadGroupCountX = 1;
 	Data[0].dispatchArgs.ThreadGroupCountY = 1;
 	Data[0].dispatchArgs.ThreadGroupCountZ = 1;
-	Data[1].dispatchArgs = D3D12_DISPATCH_ARGUMENTS();
+	Data[1].dispatchArgs = IndirectDispatchArgs();
 	Data[1].dispatchArgs.ThreadGroupCountX = 1;
 	Data[1].dispatchArgs.ThreadGroupCountY = 1;
 	Data[1].dispatchArgs.ThreadGroupCountZ = 1;
-	DispatchCommandBuffer->UpdateBufferData(Data, sizeof(IndrectDispatchArgs) * 2, EBufferResourceState::UnorderedAccess);
+	DispatchCommandBuffer->UpdateBufferData(Data, sizeof(IndirectDispatchArgs) * 2, EBufferResourceState::UnorderedAccess);
 	DispatchCommandBuffer->SetDebugName("Dispatch Command Buffer");
 	DispatchCommandBuffer_UAV = RHI::CreateUAV();
 	DispatchCommandBuffer_UAV->CreateUAVFromRHIBuffer(DispatchCommandBuffer);
 #if USE_INDIRECTCOMPUTE
-	CmdList->SetUpCommandSigniture(sizeof(IndrectDispatchArgs), true);
+	CmdList->SetUpCommandSigniture(sizeof(DispatchArgs), true);
 #endif
-	RenderCommandBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::GPU);
+	RenderCommandBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	desc.Accesstype = EBufferAccessType::Static;
 	desc.Stride = sizeof(IndirectArgs);
 	desc.ElementCount = CurrentParticleCount;
@@ -158,10 +158,10 @@ void ParticleSystemManager::SetupCommandBuffer()
 	1.0f, -1.0f, 0.0f,0.0f,
 	1.0f,  1.0f, 0.0f,0.0f,
 	};
-	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex);
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
-	ParticleRenderConstants = RHI::CreateRHIBuffer(RHIBuffer::Constant);
+	ParticleRenderConstants = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	ParticleRenderConstants->CreateConstantBuffer(sizeof(RenderData), 1);
 }
 
@@ -240,7 +240,7 @@ void ParticleSystemManager::Simulate()
 	DeadParticleIndexs_UAV->Bind(CmdList, 3);
 	AliveParticleIndexs_PostSim_UAV->Bind(CmdList, 4);
 #if USE_INDIRECTCOMPUTE
-	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, sizeof(IndrectDispatchArgs), nullptr, 0);
+	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else
 	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
 #endif
@@ -250,7 +250,7 @@ void ParticleSystemManager::Simulate()
 	RenderCommandBuffer_UAV->Bind(CmdList, 1);
 	CounterUAV->Bind(CmdList, 2);
 #if USE_INDIRECTCOMPUTE
-	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, sizeof(IndrectDispatchArgs), nullptr, 0);
+	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else
 	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
 #endif
@@ -262,7 +262,7 @@ void ParticleSystemManager::Simulate()
 
 void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 {
-//	return;
+	//	return;
 	RenderList->ResetList();
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
 	RenderList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleDraw>(), BufferTarget);

@@ -65,7 +65,7 @@ void NVAPIManager::RenderGPUStats(int statx, int starty)
 	{
 		for (int i = 0; i < GpuData[x].size(); i++)
 		{
-			TextRenderer::instance->RenderFromAtlas(GpuData[x][i], (float)statx + x * Xsize, starty - Ysize * i, 0.35f);
+			TextRenderer::instance->RenderFromAtlas(GpuData[x][i], (float)statx + x * Xsize, (float)starty - Ysize * i, 0.35f);
 		}
 	}
 

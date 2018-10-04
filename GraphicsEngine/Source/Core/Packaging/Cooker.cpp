@@ -9,6 +9,8 @@
 #include "Core/Platform/ConsoleVariable.h"
 #include "Core/Assets/ShaderComplier.h"
 #include "RHI/RHI.h"
+#include "Core/Platform/PlatformCore.h"
+#include "Core/Platform/Windows/WindowsWindow.h"
 static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);
 Cooker::Cooker()
 {
@@ -47,7 +49,7 @@ void Cooker::CopyToOutput()
 		if (PlatformApplication::ExecuteHostScript(AssetManager::GetScriptPath() + "\\BuildSLN.bat", BuildConfig, true) != 0)
 		{
 			Log::LogMessage("Complie Failed, Aborting Cook", Log::Severity::Error);
-			Sleep(2000);
+			::Sleep(2000);
 			Engine::Exit(-1);
 		}
 		Log::OutS << "**********Complie Finished**********" << Log::OutS;

@@ -38,7 +38,7 @@ void Shader_EnvMap::Init()
 	CmdList = RHI::CreateCommandList();
 	CmdList->SetPipelineState(PipeLineState{ false,false,false });
 	CmdList->CreatePipelineState(this, EnvBRDFBuffer);
-	ShaderData = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant);
+	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] =
