@@ -11,7 +11,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include <string>
 #include <iostream>
-
+#include "Core/Platform/Windows/WindowsWindow.h"
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 #define USE_SEP_CONSOLE 1

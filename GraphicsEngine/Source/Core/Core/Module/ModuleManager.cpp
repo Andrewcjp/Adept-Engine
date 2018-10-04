@@ -23,12 +23,11 @@ ModuleManager::~ModuleManager()
 void ModuleManager::ShutDown()
 {
 	//Unload in reverse Module Load order
-	for (int i = ModulesNames.size() - 1; i >= 0; i--)
+	for (int i = (int)ModulesNames.size() - 1; i >= 0; i--)
 	{
 		UnloadModule(ModulesNames[i]);
 	}
 }
-
 
 void ModuleManager::SetupPreLoadModules()
 {

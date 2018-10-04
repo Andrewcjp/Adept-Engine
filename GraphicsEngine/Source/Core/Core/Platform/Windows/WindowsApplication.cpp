@@ -2,13 +2,13 @@
 #include "WindowsApplication.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/StringUtil.h"
-
 #include "Core/MinWindows.h"
+#include <VersionHelpers.h>
 double WindowsApplication::SecondsPerCycle = 0.0f;
 
 WindowsApplication::WindowsApplication()
 {
-	InitTiming();
+	
 }
 
 
@@ -16,10 +16,15 @@ WindowsApplication::~WindowsApplication()
 {
 
 }
+
+void WindowsApplication::Init()
+{
+	ValidateWindows();
+	InitTiming();
+}
+
 void* WindowsApplication::GetDllExport(void* DllHandle, const char* ProcName)
 {
-	/*check(DllHandle);
-	check(ProcName);*/
 	return (void*)::GetProcAddress((HMODULE)DllHandle, (ProcName));
 }
 
@@ -194,4 +199,13 @@ bool WindowsApplication::TryCreateDirectory(const std::string & name)
 		}
 	}
 	return false;
+}
+
+void WindowsApplication::ValidateWindows()
+{
+	if (!IsWindows8OrGreater())
+	{
+		MessageBox(NULL, L"You need at least Windows 8", L"Version Not Supported", MB_OK);
+		exit(-1);
+	}
 }

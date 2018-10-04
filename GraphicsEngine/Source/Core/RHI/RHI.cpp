@@ -11,6 +11,7 @@
 #include "Core/Utils/RefChecker.h"
 #include "Core/Assets/ShaderComplier.h"
 #include "Rendering/Core/ParticleSystemManager.h"
+#include "RHICommandList.h"
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 RHI::RHI(ERenderSystemType system)
@@ -112,7 +113,7 @@ bool RHI::SupportsExplictMultiAdaptor()
 	return (GetType() == RenderSystemD3D12);
 }
 
-RHIBuffer * RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device)
+RHIBuffer * RHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device)
 {
 	return	GetRHIClass()->CreateRHIBuffer(type, Device);
 }
@@ -137,12 +138,12 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 
 bool RHI::BlockCommandlistExec()
 {
-	return true;
+	return false;
 }
 
 bool RHI::AllowCPUAhead()
 {
-	return false;
+	return true;
 }
 
 int RHI::GetFrameCount()

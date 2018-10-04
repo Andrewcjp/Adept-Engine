@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI/RenderWindow.h"
-#include "Core/Input/Input.h"
 #include "Rendering/Renderers/RenderSettings.h"
+class Input;
 class BaseWindow : public RenderWindow
 {
 public:
@@ -47,7 +47,7 @@ protected:
 	class Editor_Camera* EditorCamera = nullptr;
 	class SceneJSerialiser* Saver = nullptr;
 	
-	double DeltaTime = 0.0;
+	float DeltaTime = 0.0;
 	const float TickRate = 1.0f / 60.0f;
 
 	virtual void WindowUI() {};

@@ -260,7 +260,7 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool DirectLoad, DeviceContext* Device)
 {
 	AssetPathRef Fileref = AssetPathRef(name);
-	
+
 	//todo: Deal with TGA to DDS 
 	if (Fileref.GetFileType() == AssetFileType::DDS || name.find(".tga") != -1 || DirectLoad)
 	{
@@ -421,5 +421,5 @@ size_t AssetManager::TextFileBufferedRead(std::string name, char** buffer)
 	fclose(pfile);
 
 	return count;
-		}
+}
 #endif

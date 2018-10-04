@@ -208,8 +208,7 @@ void EditorWindow::Update()
 	}
 	if (input->GetKeyDown(VK_ESCAPE))
 	{
-		//ExitPlayMode();
-		PostQuitMessage(0);
+		ExitPlayMode();		
 	}
 	if (input->GetVKey(VK_CONTROL))
 	{

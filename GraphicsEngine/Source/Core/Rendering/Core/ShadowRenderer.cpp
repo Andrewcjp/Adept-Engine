@@ -56,7 +56,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
 	{
 		PointLightShader = ShaderComplier::GetShader<Shader_Depth>(pointlightdevice,true); 
-		GeometryProjections = RHI::CreateRHIBuffer(RHIBuffer::Constant, pointlightdevice);
+		GeometryProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant, pointlightdevice);
 		GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, true);
 		PointShadowList = RHI::CreateCommandList(ECommandListType::Graphics, pointlightdevice);
 		PointShadowListALT = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
@@ -241,7 +241,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 		Shader_Depth::LightData data = {};
 		data.Proj = ShadowingDirectionalLights[SNum]->Projection;
 		data.Lightpos = ShadowingDirectionalLights[SNum]->GetPosition();
-		DirectionalLightShader->UpdateBuffer(list, &data, SNum);
+		DirectionalLightShader->UpdateBuffer(list, &data, (int)SNum);
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
 			if (ShadowObjects[i]->GetMat() == nullptr)

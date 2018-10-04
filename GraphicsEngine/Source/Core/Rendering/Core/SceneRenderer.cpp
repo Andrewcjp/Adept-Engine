@@ -53,9 +53,9 @@ void SceneRenderer::Init()
 		SceneBuffer.push_back(SceneConstantBuffer());
 	}
 	UpdateTransformBufferSize(MaxConstant);
-	CLightBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
+	CLightBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
-	CMVBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
+	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), 1, true);
 }
 
@@ -82,7 +82,7 @@ void SceneRenderer::UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, in
 void SceneRenderer::UpdateTransformBufferSize(int NewSize)
 {
 	EnqueueSafeRHIRelease(GameObjectTransformBuffer);
-	GameObjectTransformBuffer = RHI::CreateRHIBuffer(RHIBuffer::Constant);
+	GameObjectTransformBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	GameObjectTransformBuffer->CreateConstantBuffer(sizeof(SceneConstantBuffer), NewSize, true);
 	SceneBuffer.resize(NewSize);
 	MaxConstant = NewSize;
@@ -92,7 +92,6 @@ void SceneRenderer::SetActiveIndex(RHICommandList* list, int index, int DeviceIn
 {
 	list->SetConstantBufferView(GameObjectTransformBuffer, index, MainShaderRSBinds::GODataCBV);
 }
-
 
 void SceneRenderer::UpdateMV(Camera * c)
 {

@@ -24,10 +24,10 @@
 #include "Core/Platform/ConsoleVariable.h"
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "d3dcompiler.lib")
+#include "Core/Platform/Windows/WindowsWindow.h"
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
-	:m_fenceValues{}
 {
 	Instance = this;
 }
@@ -46,16 +46,10 @@ void D3D12RHI::DestroyContext()
 	}
 	ReleaseSwapRTs();
 	SafeRelease(m_swapChain);
-	delete PrimaryDevice;
-	if (SecondaryDevice != nullptr)
-	{
-		delete SecondaryDevice;
-	}
+	MemoryUtils::DeleteCArray(DeviceContexts, MAX_GPU_DEVICE_COUNT);
 	SafeRelease(m_rtvHeap);
 	SafeRelease(m_dsvHeap);
 	SafeRelease(m_SetupCommandList);
-	CloseHandle(m_fenceEvent);
-	SafeRelease(m_fence);
 	SafeRelease(factory);
 	delete ScreenShotter;
 	ReportObjects();
@@ -122,11 +116,12 @@ bool D3D12RHI::DetectGPUDebugger()
 }
 void D3D12RHI::WaitForGPU()
 {
-	PrimaryDevice->CPUWaitForAll();
-	if (SecondaryDevice != nullptr)
+	/*PrimaryDevice->CPUWaitForAll();
+	if ( != nullptr)
 	{
 		SecondaryDevice->CPUWaitForAll();
-	}
+	}*/
+	WaitForAllGPUS();
 }
 
 void D3D12RHI::DisplayDeviceDebug()
@@ -138,18 +133,20 @@ std::string D3D12RHI::GetMemory()
 {
 	if (RHI::GetFrameCount() % 60 == 0 || !HasSetup)
 	{
-		PrimaryDevice->SampleVideoMemoryInfo();
-		if (SecondaryDevice != nullptr)
+		for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 		{
-			SecondaryDevice->SampleVideoMemoryInfo();
+			if (DeviceContexts[i] != nullptr)
+			{
+				DeviceContexts[i]->SampleVideoMemoryInfo();
+			}
 		}
 	}
-	std::string output = PrimaryDevice->GetMemoryReport();
+	std::string output = GetPrimaryDevice()->GetMemoryReport();
 
-	if (SecondaryDevice != nullptr)
+	if (GetSecondaryDevice() != nullptr)
 	{
 		output.append(" Sec:");
-		output.append(SecondaryDevice->GetMemoryReport());
+		output.append(GetSecondaryDevice()->GetMemoryReport());
 	}
 	return output;
 }
@@ -189,31 +186,32 @@ void D3D12RHI::LoadPipeLine()
 	{
 		IDXGIAdapter* warpAdapter;
 		ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
-		SecondaryDevice = new D3D12DeviceContext();
-		SecondaryDevice->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
+		DeviceContexts[1] = new D3D12DeviceContext();
+		DeviceContexts[1]->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
 		Log::LogMessage("Found D3D12 GPU debugger, Warp adaptor is now used instead of second physical GPU");
 	}
 	FindAdaptors(factory);
-	if (SecondaryDevice != nullptr)
+	//todo: handle 3 GPU
+	if (GetSecondaryDevice() != nullptr)
 	{
-		PrimaryDevice->LinkAdaptors(SecondaryDevice);
-		SecondaryDevice->LinkAdaptors(PrimaryDevice);
+		GetPrimaryDevice()->LinkAdaptors(GetSecondaryDevice());
+		GetSecondaryDevice()->LinkAdaptors(GetPrimaryDevice());
 	}
+	//GetPrimaryDevice()->l
 #if RUNDEBUG
-	ID3D12InfoQueue* infoqueue[MAX_DEVICE_COUNT] = { nullptr };
-	PrimaryDevice->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[0]));
-	if (SecondaryDevice != nullptr)
+	ID3D12InfoQueue* infoqueue[MAX_GPU_DEVICE_COUNT] = { nullptr };
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
-		SecondaryDevice->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[1]));
-	}
-	for (int i = 0; i < MAX_DEVICE_COUNT; i++)
-	{
-		if (infoqueue[i] != nullptr)
+		if (DeviceContexts[i] != nullptr)
 		{
-			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-			infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
-			infoqueue[i]->Release();
+			DeviceContexts[i]->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[i]));
+			if (infoqueue[i] != nullptr)
+			{
+				infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+				infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+				infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
+				infoqueue[i]->Release();
+			}
 		}
 	}
 #endif
@@ -224,7 +222,7 @@ void D3D12RHI::HandleDeviceFailure()
 {
 	ensure(Instance);
 	HRESULT HR;
-	HR = Instance->PrimaryDevice->GetDevice()->GetDeviceRemovedReason();
+	HR = Instance->GetPrimaryDevice()->GetDevice()->GetDeviceRemovedReason();
 	ensureMsgf(HR == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(HR));
 }
 
@@ -270,17 +268,13 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 	{
 		return;
 	}
-	PrimaryDevice->WaitForGpu();
+	GetPrimaryDevice()->WaitForGpu();
 	if (m_swapChain != nullptr)
 	{
 		ReleaseSwapRTs();
 		if (ScreenShotter != nullptr)
 		{
 			delete ScreenShotter;
-		}
-		for (UINT n = 0; n < RHI::CPUFrameCount; n++)
-		{
-			m_fenceValues[n] = m_fenceValues[m_frameIndex];
 		}
 		ThrowIfFailed(m_swapChain->ResizeBuffers(RHI::CPUFrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 		CreateSwapChainRTs();
@@ -334,7 +328,7 @@ void D3D12RHI::InitSwapChain()
 	swapChainDesc.SampleDesc.Count = 1;
 	IDXGISwapChain1* swapChain;
 	ThrowIfFailed(factory->CreateSwapChainForHwnd(
-		GetCommandQueue(),		// Swap chain needs the queue so that it can force a flush on it.
+		GetPrimaryDevice()->GetCommandQueue(),		// Swap chain needs the queue so that it can force a flush on it.
 		PlatformWindow::GetHWND(),
 		&swapChainDesc,
 		nullptr,
@@ -372,15 +366,7 @@ void D3D12RHI::InitSwapChain()
 	CreateSwapChainRTs();
 
 	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
-	ThrowIfFailed(GetDisplayDevice()->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-	m_fenceValues[m_frameIndex] = 1;
-	// Create an event handle to use for frame synchronization
-	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-	if (m_fenceEvent == nullptr)
-	{
-		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
-	}
-	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, PrimaryDevice->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
+	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, GetPrimaryDevice()->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
 }
 
@@ -389,28 +375,44 @@ void D3D12RHI::ToggleFullScreenState()
 	IsFullScreen = !IsFullScreen;
 	m_swapChain->SetFullscreenState(IsFullScreen, nullptr);
 }
-
+void D3D12RHI::WaitForAllGPUS()
+{
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		if (DeviceContexts[i] != nullptr)
+		{
+			DeviceContexts[i]->CPUWaitForAll();
+		}
+	}
+}
+void D3D12RHI::ResetAllGPUCopyEngines()
+{
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		if (DeviceContexts[i] != nullptr)
+		{
+			DeviceContexts[i]->ResetCopyEngine();
+		}
+	}
+}
+void D3D12RHI::UpdateAllCopyEngines()
+{
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		if (DeviceContexts[i] != nullptr)
+		{
+			DeviceContexts[i]->UpdateCopyEngine();
+		}
+	}
+}
 void D3D12RHI::ExecSetUpList()
 {
 	ThrowIfFailed(m_SetupCommandList->Close());
-	ExecList(m_SetupCommandList);//todo: move this!
-	PrimaryDevice->UpdateCopyEngine();
-	if (SecondaryDevice != nullptr)
-	{
-		SecondaryDevice->UpdateCopyEngine();
-	}
-	PrimaryDevice->CPUWaitForAll();
-	if (SecondaryDevice != nullptr)
-	{
-		SecondaryDevice->CPUWaitForAll();
-	}
+	GetPrimaryDevice()->ExecuteCommandList(m_SetupCommandList);
+	UpdateAllCopyEngines();
+	WaitForAllGPUS();
 	ReleaseUploadHeaps();
-	PrimaryDevice->ResetCopyEngine();
-	if (SecondaryDevice != nullptr)
-	{
-		SecondaryDevice->ResetCopyEngine();
-		SecondaryDevice->ResetWork();//turn off the copy engine
-	}
+	ResetAllGPUCopyEngines();
 }
 
 void D3D12RHI::ReleaseUploadHeaps(bool force)
@@ -423,8 +425,8 @@ void D3D12RHI::ReleaseUploadHeaps(bool force)
 			const int CurrentFrame = RHI::GetFrameCount();
 			if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount < CurrentFrame || force)
 			{
-				SafeRelease(DeferredDeleteQueue[i].first)
-					DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
+				SafeRelease(DeferredDeleteQueue[i].first);
+				DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
 			}
 		}
 	}
@@ -444,29 +446,18 @@ D3D12RHI * D3D12RHI::Get()
 	return Instance;
 }
 
-void D3D12RHI::ExecList(ID3D12GraphicsCommandList* list, bool Block)
-{
-	ID3D12CommandList* ppCommandLists[] = { list };
-	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-}
-
 void D3D12RHI::PresentFrame()
 {
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
-		m_SetupCommandList->Reset(PrimaryDevice->GetCommandAllocator(), nullptr);
-		((D3D12TimeManager*)PrimaryDevice->GetTimeManager())->EndTotalGPUTimer(m_SetupCommandList);
+		m_SetupCommandList->Reset(GetPrimaryDevice()->GetCommandAllocator(), nullptr);
+		((D3D12TimeManager*)GetPrimaryDevice()->GetTimeManager())->EndTotalGPUTimer(m_SetupCommandList);
 		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
 
 		m_SetupCommandList->Close();
-		PrimaryDevice->ExecuteCommandList(m_SetupCommandList);
+		GetPrimaryDevice()->ExecuteCommandList(m_SetupCommandList);
 	}
 
-	if (m_BudgetNotificationCookie == 1)
-	{
-		DisplayDeviceDebug();
-		//Log::OutS << "Memory Budget Changed" << Log::OutS;
-	}
 	//only set up to grab the 0 frame of spawn chain
 	if (RunScreenShot && m_frameIndex == 0)
 	{
@@ -477,34 +468,29 @@ void D3D12RHI::PresentFrame()
 	ThrowIfFailed(m_swapChain->Present(0, 0));
 	if (!RHI::AllowCPUAhead())
 	{
-		PrimaryDevice->WaitForGpu();
-		if (SecondaryDevice != nullptr)
+		WaitForAllGPUS();
+	}
+
+	UpdateAllCopyEngines();
+	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		if (DeviceContexts[i] != nullptr)
 		{
-			SecondaryDevice->WaitForGpu();
+			DeviceContexts[i]->MoveNextFrame(m_swapChain->GetCurrentBackBufferIndex());
 		}
 	}
-	PrimaryDevice->UpdateCopyEngine();
-	if (SecondaryDevice != nullptr)
-	{
-		SecondaryDevice->UpdateCopyEngine();
-	}
-	MoveToNextFrame();
-	PrimaryDevice->CurrentFrameIndex = m_frameIndex;
-	if (SecondaryDevice != nullptr)
-	{
-		SecondaryDevice->CurrentFrameIndex = m_frameIndex;
-	}
+
 	//all execution this frame has finished 
 	//so all resources should be in the correct state!	
-
 	ReleaseUploadHeaps();
-	const int CurrentFrame = RHI::GetFrameCount();
-	PrimaryDevice->ResetDeviceAtEndOfFrame();
-	if (SecondaryDevice != nullptr)
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
-		SecondaryDevice->ResetDeviceAtEndOfFrame();
+		if (DeviceContexts[i] != nullptr)
+		{
+			DeviceContexts[i]->ResetDeviceAtEndOfFrame();
+		}
 	}
-
 	if (RHI::GetFrameCount() > 2)
 	{
 		HasSetup = true;
@@ -526,7 +512,6 @@ void D3D12RHI::RenderToScreen(ID3D12GraphicsCommandList* list)
 	list->RSSetScissorRects(1, &m_scissorRect);
 }
 
-
 void D3D12RHI::SetScreenRenderTarget(ID3D12GraphicsCommandList* list)
 {
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
@@ -535,44 +520,17 @@ void D3D12RHI::SetScreenRenderTarget(ID3D12GraphicsCommandList* list)
 	m_RenderTargetResources[m_frameIndex]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
 }
 
-// Prepare to render the next frame.
-void D3D12RHI::MoveToNextFrame()
-{
-	// Schedule a Signal command in the queue.
-	const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
-	ThrowIfFailed(GetCommandQueue()->Signal(m_fence, currentFenceValue));
-	// Update the frame index.
-	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-	// If the next frame is not ready to be rendered yet, wait until it is ready.
-	const UINT64 value = m_fence->GetCompletedValue();
-	if (value < m_fenceValues[m_frameIndex])
-	{
-		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
-		WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
-	}
-
-	// Set the fence value for the next frame.
-	m_fenceValues[m_frameIndex] = currentFenceValue + 1;
-}
-
-ID3D12CommandQueue * D3D12RHI::GetCommandQueue()
-{
-	return PrimaryDevice->GetCommandQueue();
-}
-
-
 DeviceContext * D3D12RHI::GetDeviceContext(int index)
 {
 	if (Instance != nullptr)
 	{
 		if (index == 0)
 		{
-			return Instance->PrimaryDevice;
+			return Instance->DeviceContexts[0];
 		}
 		else if (index == 1)
 		{
-			return Instance->SecondaryDevice;
+			return Instance->DeviceContexts[1];
 		}
 	}
 	return nullptr;
@@ -582,7 +540,7 @@ DeviceContext * D3D12RHI::GetDefaultDevice()
 {
 	if (Instance != nullptr)
 	{
-		return Instance->PrimaryDevice;
+		return Instance->GetPrimaryDevice();
 	}
 	return nullptr;
 }
@@ -608,19 +566,11 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 		{
 			D3D12DeviceContext** Device = nullptr;
-			if (CurrentDeviceIndex == 0)
-			{
-				Device = &PrimaryDevice;
-			}
-			else if (CurrentDeviceIndex == 1)
-			{
-				Device = &SecondaryDevice;
-			}
-			else
+			if (CurrentDeviceIndex >= MAX_GPU_DEVICE_COUNT)
 			{
 				return;
 			}
-
+			Device = &DeviceContexts[CurrentDeviceIndex];
 			if (*Device == nullptr)
 			{
 				*Device = new D3D12DeviceContext();
@@ -632,11 +582,12 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 					return;
 				}
 			}
+		
 		}
 	}
 }
 
-RHIBuffer * D3D12RHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext* Device)
+RHIBuffer * D3D12RHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device)
 {
 	return new D3D12Buffer(type, Device);
 }
@@ -720,9 +671,32 @@ void D3D12RHI::RHIRunFirstFrame()
 	ExecSetUpList();
 }
 
+D3D12DeviceContext * D3D12RHI::GetPrimaryDevice()
+{
+	return DeviceContexts[0];
+}
+
+D3D12DeviceContext * D3D12RHI::GetSecondaryDevice()
+{
+#if (MAX_GPU_DEVICE_COUNT > 1)
+	return DeviceContexts[1];
+#else 
+	return nullptr;
+#endif
+}
+
+D3D12DeviceContext * D3D12RHI::GetThridDevice()
+{
+#if (MAX_GPU_DEVICE_COUNT > 2)
+	return DeviceContexts[2];
+#else 
+	return nullptr;
+#endif
+}
+
 ID3D12Device * D3D12RHI::GetDisplayDevice()
 {
-	return PrimaryDevice->GetDevice();
+	return GetPrimaryDevice()->GetDevice();
 }
 
 RHITextureArray * D3D12RHI::CreateTextureArray(DeviceContext* Device, int Length)
@@ -746,3 +720,4 @@ class D3D12RHIModule : public RHIModule
 #ifdef D3D12RHI_EXPORT
 IMPLEMENT_MODULE_DYNAMIC(D3D12RHIModule);
 #endif
+

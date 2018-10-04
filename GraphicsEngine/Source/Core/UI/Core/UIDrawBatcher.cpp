@@ -19,8 +19,8 @@ UIDrawBatcher::UIDrawBatcher()
 void UIDrawBatcher::Init()
 {
 	commandlist = RHI::CreateCommandList();
-	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
-	const UINT vertexBufferSize = sizeof(UIVertex) * Current_Max_Verts;
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	const int vertexBufferSize = sizeof(UIVertex) * Current_Max_Verts;
 	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, EBufferAccessType::Dynamic);
 	commandlist->SetPipelineState(PipeLineState{ false , false });
 	commandlist->CreatePipelineState(Shader);
@@ -30,8 +30,8 @@ void UIDrawBatcher::ReallocBuffer(int NewSize)
 	ensure(NewSize < Max_Verts);
 	EnqueueSafeRHIRelease(VertexBuffer);
 	Current_Max_Verts = NewSize;
-	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::Vertex);
-	const UINT vertexBufferSize = sizeof(UIVertex) * Current_Max_Verts;
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	const int vertexBufferSize = sizeof(UIVertex) * Current_Max_Verts;
 	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, EBufferAccessType::Dynamic);
 }
 
@@ -70,7 +70,7 @@ void UIDrawBatcher::SendToGPU()
 	}
 	if (BatchedVerts.size() > Current_Max_Verts)
 	{
-		ReallocBuffer(BatchedVerts.size() + 10);
+		ReallocBuffer((int)BatchedVerts.size() + 10);
 	}
 	VertexBuffer->UpdateVertexBuffer(&BatchedVerts[0], sizeof(UIVertex)*BatchedVerts.size());
 }

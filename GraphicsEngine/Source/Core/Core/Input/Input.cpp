@@ -4,6 +4,7 @@
 #include "include\glm\glm.hpp"
 #include "UI/UIManager.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Platform/Windows/WindowsWindow.h"
 Input* Input::instance = nullptr;
 
 Input::Input()
@@ -41,7 +42,7 @@ bool Input::MouseLBUp(int, int)
 
 bool Input::MouseMove(int x, int y, double)
 {
-	MousePosScreen = glm::vec2(x, y);
+	MousePosScreen = IntPoint(x, y);
 	int height, width = 0;
 	PlatformWindow::GetApplication()->GetDesktopResolution(height, width);
 	int halfheight = (height / 2);
@@ -118,13 +119,13 @@ void Input::SetCursorVisible(bool state)
 	}
 }
 
-glm::vec2 Input::GetMousePos()
+IntPoint Input::GetMousePos()
 {
 	if (instance != nullptr)
 	{
 		return instance->MousePosScreen;
 	}
-	return glm::vec2();
+	return IntPoint();
 }
 
 bool Input::GetKeyDown(int c)

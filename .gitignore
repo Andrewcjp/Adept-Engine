@@ -56,3 +56,4 @@
 *.pdb
 /GraphicsEngine/Content/Test/Test.Scene
 /GraphicsEngine/Packed
+/GraphicsEngine/CmakeLocal/CMake

@@ -17,7 +17,7 @@ public:
 	CORE_API static bool GetKey(char c);
 	CORE_API static bool GetVKey(short key);	
 	CORE_API static glm::vec2 GetMouseInputAsAxis();
-	CORE_API static glm::vec2 GetMousePos();
+	CORE_API static IntPoint GetMousePos();
 
 	void   ProcessInput(const float delatime);
 	bool   MouseLBDown(int x, int y);
@@ -32,7 +32,7 @@ public:
 private:
 	bool LockMouse = false;
 	glm::vec2 MouseAxis;
-	glm::vec2 MousePosScreen;
+	IntPoint MousePosScreen;
 	std::map<int, bool> KeyMap;	
 	bool IsActiveWindow = false;
 	IntPoint CentrePoint;

@@ -11,7 +11,7 @@ Text_Shader::Text_Shader(DeviceContext* context)
 	m_Shader->AttachAndCompileShaderFromFile("text_vs_Atlas", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("text_fs_Atlas", EShaderType::SHADER_FRAGMENT);
 	
-	CBV = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Constant,context);
+	CBV = RHI::CreateRHIBuffer(ERHIBufferType::Constant,context);
 	CBV->CreateConstantBuffer(sizeof(Data), 1);
 } 
 

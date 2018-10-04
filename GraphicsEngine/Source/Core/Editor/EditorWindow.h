@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI/RenderWindow.h"
-#include <vector>
 #include "Core/BaseWindow.h"
+#include "Core/EngineTypes.h"
 class EditorGizmos;
 class UIEditField;
 class EditorObjectSelector;

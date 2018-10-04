@@ -18,7 +18,7 @@
 #include "D3D12DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
 #include "DescriptorHeap.h"
-D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType,inDevice)
+D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
 	mDeviceContext = (D3D12DeviceContext*)inDevice;
@@ -132,7 +132,7 @@ void D3D12CommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int Insta
 void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
 {
 	ensure(ListType == ECommandListType::Graphics);
-	CD3DX12_VIEWPORT m_viewport = CD3DX12_VIEWPORT(MinX, MinY, MaxX, MaxY);
+	CD3DX12_VIEWPORT m_viewport = CD3DX12_VIEWPORT((FLOAT)MinX, (FLOAT)MinY, (FLOAT)MaxX, (FLOAT)MaxY);
 	CurrentCommandList->RSSetViewports(1, &m_viewport);
 }
 
@@ -172,11 +172,6 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 		mDeviceContext->ExecuteInterGPUCopyCommandList(CurrentCommandList);
 	}
 	m_IsOpen = false;
-}
-
-void D3D12CommandList::WaitForCompletion()
-{
-	mDeviceContext->EndExecuteCommandList();
 }
 
 void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
@@ -481,7 +476,7 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 }
 
 
-D3D12Buffer::D3D12Buffer(RHIBuffer::BufferType type, DeviceContext * inDevice) :RHIBuffer(type)
+D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext * inDevice) :RHIBuffer(type)
 {
 	AddCheckerRef(D3D12Buffer, this);
 	if (inDevice == nullptr)
@@ -498,9 +493,9 @@ void D3D12Buffer::Release()
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12Buffer, this);
 	Device = nullptr;
-	if (CurrentBufferType == RHIBuffer::BufferType::Constant)
+	if (CurrentBufferType == ERHIBufferType::Constant)
 	{
-		MemoryUtils::DeleteCArray(CBV, MAX_DEVICE_COUNT);
+		MemoryUtils::DeleteCArray(CBV, MAX_GPU_DEVICE_COUNT);
 	}
 	SafeRelease(m_DataBuffer);
 	SafeRelease(SRVBufferHeap);
@@ -668,7 +663,7 @@ void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES E
 
 bool D3D12Buffer::CheckDevice(int index)
 {
-	if (CurrentBufferType == RHIBuffer::BufferType::Constant && CrossDevice)
+	if (CurrentBufferType == ERHIBufferType::Constant && CrossDevice)
 	{
 		//ready on all devices!
 		return true;
@@ -824,7 +819,7 @@ D3D12RHIUAV::~D3D12RHIUAV()
 void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 {
 	D3D12Buffer* d3dtarget = (D3D12Buffer*)target;
-	ensure(target->CurrentBufferType == RHIBuffer::BufferType::GPU);
+	ensure(target->CurrentBufferType == ERHIBufferType::GPU);
 	ensure(d3dtarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	std::string Name = d3dtarget->DebugName;

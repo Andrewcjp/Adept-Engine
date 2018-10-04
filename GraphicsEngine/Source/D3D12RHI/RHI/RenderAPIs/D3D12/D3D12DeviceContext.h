@@ -2,7 +2,6 @@
 #include "RHI/DeviceContext.h"
 #include <mutex>
 #include <queue>
-#include <d3d12.h>
 #include <d3dx12.h>
 #include <dxgi1_4.h>
 template<class T>
@@ -35,6 +34,27 @@ public:
 
 };
 
+class GPUFenceSync
+{
+public:
+	void Init(ID3D12CommandQueue* TargetQueue, ID3D12Device* device);
+	void MoveNextFrame(int SyncIndex);
+	int GetFrameIndex()
+	{
+		return m_frameIndex;
+	}
+	~GPUFenceSync()
+	{
+		SafeRelease(m_fence);
+		CloseHandle(m_fenceEvent);
+	}
+private:
+	ID3D12CommandQueue* Queue;
+	UINT64 m_fenceValues[RHI::CPUFrameCount];
+	ID3D12Fence* m_fence;
+	int m_frameIndex = 0;
+	HANDLE m_fenceEvent;
+};
 
 class GPUSyncPoint
 {
@@ -47,16 +67,12 @@ public:
 	void CreateSyncPoint(ID3D12CommandQueue* queue);
 	void CrossGPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * otherDeviceQeue);
 	void GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * targetqueue);
-	void CreateStartSyncPoint(ID3D12CommandQueue* queue);
-	void WaitOnSync();
-	
+
 private:
 	HANDLE m_fenceEvent;
 	ID3D12Fence* m_fence = nullptr;
-	ID3D12Fence* secondaryFence = nullptr;
-	
+	ID3D12Fence* secondaryFence = nullptr;	
 	UINT64 m_fenceValue = 0;
-	bool DidStartWork = false;
 };
 
 //once this class has been completed it will be RHI split
@@ -66,8 +82,7 @@ public:
 	D3D12DeviceContext();
 	virtual ~D3D12DeviceContext();
 
-
-
+	void MoveNextFrame(int SyncIndex);
 	//RHI
 	void ResetDeviceAtEndOfFrame();
 	void SampleVideoMemoryInfo();
@@ -96,13 +111,11 @@ public:
 	void ExecuteCopyCommandList(ID3D12GraphicsCommandList * list);
 	void ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock = false);
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
-	void StartExecuteCommandList(ID3D12GraphicsCommandList* list);
-	void EndExecuteCommandList();
 	int GetDeviceIndex();
 	class RHITimeManager* GetTimeManager()override;
 	int GetCpuFrameIndex();
 	void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
-	int CurrentFrameIndex = 0;
+
 	void CPUWaitForAll();
 	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);
 	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
@@ -113,6 +126,10 @@ public:
 	}
 	RHICommandList* GetInterGPUCopyList();
 private:	
+	GPUFenceSync GraphicsSync;
+	GPUFenceSync CopySync;
+	GPUFenceSync InterGPUSync;
+	GPUFenceSync ComputeSync;
 	void CheckFeatures();
 	bool LogDeviceDebug = true;
 
@@ -122,8 +139,7 @@ private:
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	ID3D12CommandQueue* m_commandQueue = nullptr;
 	
-
-	
+	int CurrentFrameIndex = 0;
 
 	//device info
 	DXGI_QUERY_VIDEO_MEMORY_INFO CurrentVideoMemoryInfo;

@@ -188,7 +188,7 @@ void TextRenderer::Reset()
 
 void TextRenderer::LoadText()
 {
-	VertexBuffer = RHI::CreateRHIBuffer(RHIBuffer::BufferType::Vertex, RHI::GetDeviceContext(RunOnSecondDevice));
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDeviceContext(RunOnSecondDevice));
 	VertexBuffer->CreateVertexBuffer(sizeof(point), (sizeof(point) * 6) * MAX_BUFFER_SIZE, EBufferAccessType::Dynamic);//max text length?
 
 	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(RunOnSecondDevice));
