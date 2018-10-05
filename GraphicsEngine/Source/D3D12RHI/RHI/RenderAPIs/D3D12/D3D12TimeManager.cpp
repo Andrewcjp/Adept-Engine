@@ -4,8 +4,12 @@
 #include <iomanip>
 #include "Core/Performance/PerfManager.h"
 #include "D3D12DeviceContext.h"
-#include "D3D12RHI.h"
-
+#include "D3D12RHI.h" 
+#if PIX_ENABLED
+#define PROFILE_BUILD 
+#include <pix3.h>
+#endif
+#include "Core/Utils/StringUtil.h"
 D3D12TimeManager::D3D12TimeManager(DeviceContext* context) :RHITimeManager(context)
 {
 	Init(context);
@@ -20,7 +24,6 @@ D3D12TimeManager::~D3D12TimeManager()
 	SafeRelease(m_CopytimestampQueryHeaps);
 #endif
 }
-
 
 void D3D12TimeManager::Init(DeviceContext* context)
 {
@@ -188,8 +191,16 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name)
 	{
 		PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid)->name = Name;
 	}
+#if PIX_ENABLED
+	PixTimerNames[index] = StringUtils::ConvertStringToWide(Name);
+#endif
 }
-
+#if PIX_ENABLED
+LPCWSTR D3D12TimeManager::GetTimerNameForPIX(int index)
+{
+	return PixTimerNames[index].c_str();
+}
+#endif
 
 void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 {
@@ -201,6 +212,12 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	ensure(index > -1);
 	D3D12CommandList* List = (D3D12CommandList*)CommandList;
 	StartTimer(List->GetCommandList(), index, List->IsCopyList());
+#if PIX_ENABLED
+	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
+	{
+		PIXBeginEvent(List->GetCommandList(), 0, GetTimerNameForPIX(index));
+	}
+#endif
 #endif
 }
 
@@ -214,6 +231,13 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	ensure(index > -1);
 	D3D12CommandList* List = (D3D12CommandList*)CommandList;
 	EndTimer(List->GetCommandList(), index, List->IsCopyList());
+#if PIX_ENABLED
+	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
+	{
+
+		PIXEndEvent(List->GetCommandList());
+	}
+#endif
 #endif
 }
 

@@ -288,6 +288,16 @@ Camera * BaseWindow::GetCurrentCamera()
 	return nullptr;
 }
 
+Scene * BaseWindow::GetScene()
+{
+	return Instance->GetCurrentScene();
+}
+
+Scene * BaseWindow::GetCurrentScene()
+{
+	return CurrentScene;
+}
+
 void BaseWindow::LoadScene(std::string RelativePath)
 {
 	std::string Startdir = Engine::GetExecutionDir();

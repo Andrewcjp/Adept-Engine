@@ -180,6 +180,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
+	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
 	PushPrimitiveTopology();
 }
@@ -190,6 +191,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
+	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
 }
 
@@ -579,12 +581,20 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
 {
 	VertexCount = length;
 	UpdateData(data, length, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	if (BufferAccesstype == EBufferAccessType::Dynamic)
+	{
+		PostUploadState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	}
 }
 
 void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
-{
+{	
 	SetupBufferSRV();
 	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
+	if (BufferAccesstype != EBufferAccessType::GPUOnly)//gpu buffer states are explictily managed by render code
+	{
+		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
+	}
 	SRVBufferHeap->BindHeap(d3dlist->GetCommandList());
 	if (list->IsComputeList())
 	{
@@ -597,10 +607,11 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 }
 
 void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
-{
+{	
 	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
+#if _DEBUG
 	D3D12_RESOURCE_STATES s = D3D12Helpers::ConvertBufferResourceState(State);
-	int t = D3D12Helpers::ConvertBufferResourceState(State);
+#endif
 	m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), D3D12Helpers::ConvertBufferResourceState(State));
 }
 
@@ -631,6 +642,7 @@ void D3D12Buffer::SetDebugName(const char* Name)
 
 void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)
 {
+	PostUploadState = EndState;
 	if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
 		UINT8* pVertexDataBegin;
@@ -652,9 +664,6 @@ void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES E
 											// the upload heap to the default heap
 		UpdateSubresources(Device->GetCopyList(), m_DataBuffer->GetResource(), m_UploadBuffer, 0, 0, 1, &Data);
 
-		// transition the vertex buffer data from copy destination state to vertex buffer state
-		//Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_DataBuffer, D3D12_RESOURCE_STATE_COPY_DEST, EndState));
-		m_DataBuffer->SetResourceState(Device->GetCopyList(), EndState);
 		UploadComplete = true;
 		Device->NotifyWorkForCopyEngine();
 		D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(m_UploadBuffer);
@@ -673,6 +682,11 @@ bool D3D12Buffer::CheckDevice(int index)
 		return (Device->GetDeviceIndex() == index);
 	}
 	return false;
+}
+
+void D3D12Buffer::EnsureResouceInFinalState(ID3D12GraphicsCommandList * list)
+{
+	m_DataBuffer->SetResourceState(list, PostUploadState);
 }
 
 void D3D12Buffer::CreateStaticBuffer(int ByteSize)

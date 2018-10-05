@@ -6,7 +6,17 @@
 #include "Core/Engine.h"
 #define ENABLEPVD !(NDEBUG)
 #include <algorithm>
+#include "PhysxSupport.h"
 using namespace physx;
+physx::PxFilterFlags CollisionFilterShader(
+	physx::PxFilterObjectAttributes /*attributes0*/, physx::PxFilterData /*filterData0*/,
+	physx::PxFilterObjectAttributes /*attributes1*/, physx::PxFilterData /*filterData1*/,
+	physx::PxPairFlags& retPairFlags, const void* /*constantBlock*/, PxU32 /*constantBlockSize*/)
+{
+	retPairFlags = PxPairFlag::eCONTACT_DEFAULT;
+	retPairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS | PxPairFlag::eNOTIFY_TOUCH_FOUND;
+	return PxFilterFlag::eDEFAULT;
+}
 void PhysxEngine::initPhysics()
 {
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
@@ -19,12 +29,14 @@ void PhysxEngine::initPhysics()
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	CallBackHandler = new PhysxCallBackHandler();
+	sceneDesc.simulationEventCallback = CallBackHandler;
 	//todo!
 	int cpucount = std::thread::hardware_concurrency();
 	unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
 	gDispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = gDispatcher;
-	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+	sceneDesc.filterShader = CollisionFilterShader;
 	gScene = gPhysics->createScene(sceneDesc);
 
 	gEdtiorScene = gPhysics->createScene(sceneDesc);
@@ -75,6 +87,7 @@ void PhysxEngine::cleanupPhysics()
 	transport->release();
 #endif
 	gFoundation->release();
+	SafeDelete(CallBackHandler);
 }
 std::vector<RigidBody*> PhysxEngine::createStack(const glm::vec3 & t, int size, float halfExtent)
 {

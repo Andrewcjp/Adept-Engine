@@ -5,7 +5,7 @@
 #include "Editor/IInspectable.h"
 class Component;
 class MeshRendererComponent;
-class GameObject 
+class GameObject
 #if WITH_EDITOR
 	: public IInspectable
 #endif
@@ -15,7 +15,7 @@ public:
 	enum EMoblity { Static, Dynamic };
 	CORE_API GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
 	CORE_API ~GameObject();
-
+	CORE_API static GameObject* Instantiate(glm::vec3 Pos, glm::quat Rotation = glm::quat());
 	CORE_API Transform* GetTransform();
 	CORE_API class Scene* GetScene();
 	void Internal_SetScene(Scene* scene);
@@ -35,7 +35,7 @@ public:
 	void SetName(std::string name) { Name = name; }
 	bool HasCached = false;
 
-	
+
 #if WITH_EDITOR
 	//Editor only
 	void EditorUpdate();

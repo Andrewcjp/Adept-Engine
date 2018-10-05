@@ -10,6 +10,7 @@
 
 #include <vector>
 #define PVD_HOST "127.0.0.1"
+class PhysxCallBackHandler;
 class PhysxEngine : public GenericPhysicsEngine
 {
 public:
@@ -56,7 +57,7 @@ public:
 	static physx::PxMaterial* GetDefaultMaterial();
 	physx::PxMaterial* CreatePhysxMat(PhysicalMaterial* mat);
 private:
-
+	PhysxCallBackHandler*			CallBackHandler = nullptr;
 	physx::PxDefaultAllocator		gAllocator;
 	physx::PxDefaultErrorCallback	gErrorCallback;
 

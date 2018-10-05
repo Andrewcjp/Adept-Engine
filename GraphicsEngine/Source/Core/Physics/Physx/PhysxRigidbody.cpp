@@ -9,7 +9,9 @@
 using namespace physx;
 PhysxRigidbody::~PhysxRigidbody()
 {
-	PMaterial->release();
+	//PMaterial->release(); //Not released as we don't own it the shape does
+	PhysxEngine::GetPlayScene()->removeActor(*CommonActorPtr);
+	CommonActorPtr->release();
 }
 
 PhysxRigidbody::PhysxRigidbody(EBodyType::Type type, Transform initalpos) :GenericRigidBody(type)
@@ -19,20 +21,12 @@ PhysxRigidbody::PhysxRigidbody(EBodyType::Type type, Transform initalpos) :Gener
 
 glm::vec3 PhysxRigidbody::GetPosition()
 {
-#if	PHYSX_ENABLED
 	return PXvec3ToGLM(CommonActorPtr->getGlobalPose().p);
-#else
-	return glm::vec3();
-#endif
 }
 
 glm::quat PhysxRigidbody::GetRotation()
 {
-#if	PHYSX_ENABLED
 	return PXquatToGLM(CommonActorPtr->getGlobalPose().q);
-#else
-	return glm::quat();
-#endif
 }
 
 void PhysxRigidbody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)
@@ -40,7 +34,6 @@ void PhysxRigidbody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)
 	if (CommonActorPtr != nullptr)
 	{
 		CommonActorPtr->setGlobalPose(PxTransform(GLMtoPXvec3(pos), GLMtoPXQuat(rot)));
-	//	PxTransform()
 	}
 }
 
@@ -143,10 +136,11 @@ void PhysxRigidbody::InitBody()
 
 	if (BodyType == EBodyType::RigidDynamic)
 	{
-		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(GLMtoPXvec3(transform.GetPos()),GLMtoPXQuat(transform.GetQuatRot())));
+		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(GLMtoPXvec3(transform.GetPos()), GLMtoPXQuat(transform.GetQuatRot())));
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			Dynamicactor->attachShape(*Shapes[i]);
+			Shapes[i]->userData = this;
 		}
 		Dynamicactor->setAngularDamping(LockData.AngularDamping);
 		Dynamicactor->setLinearDamping(LockData.LinearDamping);
@@ -167,9 +161,11 @@ void PhysxRigidbody::InitBody()
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			StaticActor->attachShape(*Shapes[i]);
+			Shapes[i]->userData = this;
 		}
 		CommonActorPtr = StaticActor;
 	}
+	//CommonActorPtr->userData = this;
 	PhysxEngine::GetPlayScene()->addActor(*CommonActorPtr);
 }
 #endif

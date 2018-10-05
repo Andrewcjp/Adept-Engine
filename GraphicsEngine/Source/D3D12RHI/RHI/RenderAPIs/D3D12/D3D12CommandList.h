@@ -85,7 +85,7 @@ public:
 	virtual void BindBufferReadOnly(RHICommandList* list, int RSSlot)override;
 	virtual void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) override;
 	bool CheckDevice(int index);
-
+	void EnsureResouceInFinalState(ID3D12GraphicsCommandList* list);
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
@@ -111,8 +111,8 @@ private:
 	bool UploadComplete = false;
 	bool CrossDevice = false;
 	D3D12DeviceContext* Device = nullptr;
-	class DescriptorHeap* SRVBufferHeap = nullptr;;
-	//gpu buffer
+	class DescriptorHeap* SRVBufferHeap = nullptr;
+	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };
 
 class D3D12RHIUAV : public RHIUAV

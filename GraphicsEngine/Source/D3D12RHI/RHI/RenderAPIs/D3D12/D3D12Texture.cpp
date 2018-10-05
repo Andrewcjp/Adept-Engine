@@ -12,6 +12,7 @@
 #include "D3D12Texture.h"
 #include "D3D12DeviceContext.h"
 #include "Core/Utils/RefChecker.h"
+
 CreateChecker(D3D12Texture);
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
 float D3D12Texture::MipCreationTime = 0;
@@ -239,7 +240,7 @@ bool D3D12Texture::LoadDDS(std::string filename)
 		IID_PPV_ARGS(&textureUploadHeap)));
 	NAME_D3D12_OBJECT(textureUploadHeap);
 	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, (UINT)subresources.size(), subresources.data());
-	Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	TextureResource = new GPUResource(m_texture, D3D12_RESOURCE_STATE_COPY_DEST);
 	m_texture->SetName(L"Loaded Texture");
 	Device->NotifyWorkForCopyEngine();
 	D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(textureUploadHeap);
@@ -252,13 +253,13 @@ void D3D12Texture::Release()
 {
 	SafeRelease(m_texture);
 	SafeRelease(srvHeap);
+	SafeRelease(TextureResource);
 	IRHIResourse::Release();
-	RemoveCheckerRef(D3D12Texture, this);	
+	RemoveCheckerRef(D3D12Texture, this);
 }
 
 D3D12Texture::~D3D12Texture()
-{	
-}
+{}
 
 bool D3D12Texture::CreateFromFile(AssetPathRef FileName)
 {
@@ -269,6 +270,7 @@ void D3D12Texture::BindToSlot(ID3D12GraphicsCommandList* list, int slot)
 {
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
+		TextureResource->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		srvHeap->BindHeap(list);
 		list->SetGraphicsRootDescriptorTable(slot, srvHeap->GetGpuAddress(0));
 	}
@@ -322,22 +324,15 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	textureData.RowPitch = width * bits;
 	textureData.SlicePitch = textureData.RowPitch * height;
 	Texturedatarray[0] = textureData;
-
 	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
-	Device->GetCopyList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+
+	TextureResource = new GPUResource(m_texture, D3D12_RESOURCE_STATE_COPY_DEST);
 	D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(textureUploadHeap);
 	Device->NotifyWorkForCopyEngine();
 	m_texture->SetName(L"Texture");
 	textureUploadHeap->SetName(L"Upload");
 	// Describe and create a SRV for the texture.
 	UpdateSRV();
-	//gen mips
-#if	USEGPUTOGENMIPS_ATRUNTIME
-	if (type != RHI::TextureType::Text && D3D12RHI::Instance->MipmapShader != nullptr)
-	{
-		D3D12RHI::Instance->MipmapShader->Targets.push_back(this);
-	}
-#endif
 }
 
 void D3D12Texture::UpdateSRV()

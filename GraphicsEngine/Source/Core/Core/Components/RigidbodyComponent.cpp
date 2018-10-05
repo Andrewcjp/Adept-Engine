@@ -13,7 +13,9 @@ RigidbodyComponent::RigidbodyComponent()
 }
 
 RigidbodyComponent::~RigidbodyComponent()
-{}
+{
+	SafeDelete(actor);
+}
 
 void RigidbodyComponent::BeginPlay()
 {}

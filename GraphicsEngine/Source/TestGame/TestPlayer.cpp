@@ -55,6 +55,10 @@ void TestPlayer::Update(float delta)
 		glm::vec3 Pos = GetOwner()->GetTransform()->GetPos();
 		CameraComponent::GetMainCamera()->SetPos(Pos);
 	}
+	if (Input::GetMouseButtonDown(0))
+	{
+		GameObject::Instantiate(glm::vec3(0,10,0));
+	}
 	if (/*Input::GetMouseButtonDown(0)*/true)
 	{
 		glm::vec2 axis = Input::GetMouseInputAsAxis();

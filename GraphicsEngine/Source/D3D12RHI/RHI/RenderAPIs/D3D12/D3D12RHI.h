@@ -16,7 +16,6 @@
 #include "Core/Utils/RefChecker.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
-#define USEGPUTOGENMIPS_ATRUNTIME 0
 class D3D12DeviceContext;
 class D3D12RHI : public RHIClass
 {
@@ -41,7 +40,6 @@ private:
 	void ReportObjects();
 	void LoadPipeLine();
 	void CreateSwapChainRTs();
-	void InitMipmaps();
 	void ReleaseSwapRTs();
 	void CreateDepthStencil(int width, int height);
 	void InitSwapChain();

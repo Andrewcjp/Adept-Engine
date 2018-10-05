@@ -108,7 +108,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_ComputeCommandQueue)));
 
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_CopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_CopyList)));
@@ -137,7 +137,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	//GetDevice()->SetStablePowerState(false);
 
 	TimeManager = new D3D12TimeManager(this);
-	GPUCopyList = new D3D12CommandList(this, ECommandListType::Graphics);
+	GPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
 	InterGPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
 	((D3D12CommandList*)GPUCopyList)->CreateCommandList();
 	GPUCopyList->ResetList();
@@ -444,11 +444,14 @@ void GPUSyncPoint::CreateSyncPoint(ID3D12CommandQueue * queue)
 
 	// Wait until the fence has been processed.
 	ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-	if (WaitForSingleObject(m_fenceEvent, 100) == WAIT_OBJECT_0)
+	DWORD status = WaitForSingleObject(m_fenceEvent, INFINITE);
+	if (status == WAIT_OBJECT_0)
 	{
 		// Increment the fence value for the current frame.
 		m_fenceValue++;
+		return;
 	}
+	ensure(status == WAIT_OBJECT_0);
 }
 void GPUSyncPoint::CrossGPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue* otherDeviceQeue)
 {

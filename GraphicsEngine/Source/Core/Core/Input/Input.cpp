@@ -42,6 +42,10 @@ bool Input::MouseLBUp(int, int)
 
 bool Input::MouseMove(int x, int y, double)
 {
+	if (!PlatformWindow::IsActiveWindow())
+	{
+		return false;
+	}
 	MousePosScreen = IntPoint(x, y);
 	int height, width = 0;
 	PlatformWindow::GetApplication()->GetDesktopResolution(height, width);
@@ -76,7 +80,7 @@ bool Input::ProcessKeyDown(unsigned int key)
 
 void Input::LockCursor(bool state)
 {
-	if (state)
+	if (state && PlatformWindow::IsActiveWindow())
 	{
 		PlatformWindow::GetApplication()->SetMousePos(instance->CentrePoint);
 	}

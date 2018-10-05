@@ -7,7 +7,7 @@
 #include "Core/Assets/Archive.h"
 #include "Core/Components/RigidbodyComponent.h"
 #include "Core/Platform/PlatformCore.h"
-
+#include "Core/BaseWindow.h"
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
 {
 	Name = name;
@@ -32,6 +32,15 @@ GameObject::~GameObject()
 		delete m_Components[i];
 	}
 	delete m_transform;
+}
+
+GameObject * GameObject::Instantiate(glm::vec3 Pos, glm::quat Rotation)
+{
+	GameObject* NewObject = new GameObject();
+	NewObject->SetPosition(Pos);
+	NewObject->SetRotation(Rotation);
+	BaseWindow::GetScene()->AddGameobjectToScene(NewObject);
+	return NewObject;
 }
 
 Transform * GameObject::GetTransform()
@@ -156,6 +165,10 @@ Component* GameObject::AttachComponent(Component * Component)
 		PhysicsBodyComponent = NewRigidbody;
 	}
 	Component->Internal_SetOwner(this);
+	if (OwnerScene != nullptr)
+	{
+		Component->SceneInitComponent();
+	}
 	return Component;
 }
 

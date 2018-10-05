@@ -116,11 +116,6 @@ bool D3D12RHI::DetectGPUDebugger()
 }
 void D3D12RHI::WaitForGPU()
 {
-	/*PrimaryDevice->CPUWaitForAll();
-	if ( != nullptr)
-	{
-		SecondaryDevice->CPUWaitForAll();
-	}*/
 	WaitForAllGPUS();
 }
 
@@ -165,17 +160,12 @@ void D3D12RHI::LoadPipeLine()
 
 	// Enable the debug layer (requires the Graphics Tools "optional feature").
 	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
-//	if (!DetectGPUDebugger())
+	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 	{
-
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-		{
-			debugController->EnableDebugLayer();
-			debugController->Release();
-			// Enable additional debug layers.
-			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-		}
-
+		debugController->EnableDebugLayer();
+		debugController->Release();
+		// Enable additional debug layers.
+		dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 	}
 #endif
 
@@ -197,7 +187,6 @@ void D3D12RHI::LoadPipeLine()
 		GetPrimaryDevice()->LinkAdaptors(GetSecondaryDevice());
 		GetSecondaryDevice()->LinkAdaptors(GetPrimaryDevice());
 	}
-	//GetPrimaryDevice()->l
 #if RUNDEBUG
 	ID3D12InfoQueue* infoqueue[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
@@ -244,13 +233,6 @@ void D3D12RHI::CreateSwapChainRTs()
 		NAME_D3D12_OBJECT(m_SwaprenderTargets[0]);
 
 	}
-}
-
-void D3D12RHI::InitMipmaps()
-{
-#if USEGPUTOGENMIPS_ATRUNTIME
-	MipmapShader = new ShaderMipMap();
-#endif
 }
 
 void D3D12RHI::ReleaseSwapRTs()
@@ -385,6 +367,7 @@ void D3D12RHI::WaitForAllGPUS()
 		}
 	}
 }
+
 void D3D12RHI::ResetAllGPUCopyEngines()
 {
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
@@ -395,6 +378,7 @@ void D3D12RHI::ResetAllGPUCopyEngines()
 		}
 	}
 }
+
 void D3D12RHI::UpdateAllCopyEngines()
 {
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
@@ -405,6 +389,7 @@ void D3D12RHI::UpdateAllCopyEngines()
 		}
 	}
 }
+
 void D3D12RHI::ExecSetUpList()
 {
 	ThrowIfFailed(m_SetupCommandList->Close());
@@ -582,7 +567,7 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 					return;
 				}
 			}
-		
+
 		}
 	}
 }
