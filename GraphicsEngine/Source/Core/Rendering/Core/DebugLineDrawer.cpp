@@ -12,7 +12,7 @@ DebugLineDrawer* DebugLineDrawer::instance = nullptr;
 DebugLineDrawer::DebugLineDrawer(bool DOnly)
 {
 	Is2DOnly = DOnly;
-	LineShader = ShaderComplier::GetShader_Default<Shader_Line,bool>(Is2DOnly);
+	LineShader = ShaderComplier::GetShader_Default<Shader_Line, bool>(Is2DOnly);
 	ensure(LineShader);
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);
@@ -25,7 +25,7 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	state.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	CmdList->SetPipelineState(state);
 	CmdList->CreatePipelineState(LineShader);
-	instance = this;	
+	instance = this;
 }
 
 
@@ -46,7 +46,7 @@ void DebugLineDrawer::GenerateLines()
 	for (int i = 0; i < Lines.size(); i++)
 	{
 		VERTEX AVert = {};
-		AVert.pos =	Lines[i].startpos;
+		AVert.pos = Lines[i].startpos;
 		AVert.colour = Lines[i].colour;
 		Verts.push_back(AVert);
 
@@ -77,6 +77,13 @@ void DebugLineDrawer::RenderLines(glm::mat4& matrix)
 	if (!Is2DOnly)
 	{
 		DataBuffer->UpdateConstantBuffer(glm::value_ptr(matrix), 0);
+#if WITH_EDITOR
+		if (EditorWindow::GetInstance()->UseSmallerViewPort())
+		{
+			IntRect rect = EditorWindow::GetInstance()->GetViewPortRect();
+			CmdList->SetViewport(rect.Min.x, rect.Min.y, rect.Max.x, rect.Max.y, 0, 0);
+		}
+#endif
 	}
 	CmdList->SetConstantBufferView(DataBuffer, 0, 0);
 	CmdList->DrawPrimitive((int)VertsOnGPU, 1, 0, 0);
@@ -101,8 +108,8 @@ void DebugLineDrawer::ClearLines()
 
 void DebugLineDrawer::AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time)
 {
-	ensure(Lines.size()*2 < maxSize);
-	if (Lines.size()*2 > maxSize)
+	ensure(Lines.size() * 2 < maxSize);
+	if (Lines.size() * 2 > maxSize)
 	{
 		return;
 	}

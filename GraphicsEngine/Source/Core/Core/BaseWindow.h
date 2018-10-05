@@ -2,6 +2,7 @@
 #include "RHI/RenderWindow.h"
 #include "Rendering/Renderers/RenderSettings.h"
 class Input;
+class Scene;
 class BaseWindow : public RenderWindow
 {
 public:
@@ -27,8 +28,9 @@ public:
 	bool ShowHud = false;
 	bool ShowText = true;
 	bool ExtendedPerformanceStats = false;
+	static Scene* GetScene();
 protected:
-
+	virtual Scene* GetCurrentScene();
 	//callbacks
 	virtual void PostInitWindow(int width, int height) {};
 	virtual void PreRender() {};

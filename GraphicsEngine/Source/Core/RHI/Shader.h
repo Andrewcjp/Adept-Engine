@@ -22,7 +22,7 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0)
 #define DECLARE_GLOBAL_SHADER_ARGS(Type,Datatype)\
 Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
 {\
-	return new Type(Data.Context,(Datatype)Data.Data);\
+	return new Type(Data.Context,*((Datatype*)Data.Data));\
 }\
 
 #define DECLARE_GLOBAL_SHADER_PERMIUTATION(Name,Type,Datatype,DataValue)\

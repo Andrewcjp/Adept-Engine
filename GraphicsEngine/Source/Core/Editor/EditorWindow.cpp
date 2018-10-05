@@ -191,8 +191,7 @@ void EditorWindow::Update()
 		EditorCamera->Update(DeltaTime);
 	}
 
-
-	if (mEditorCore->GetSelectedObject() != nullptr && IsPlayingScene)
+	if (mEditorCore->GetSelectedObject() != nullptr && !IsPlayingScene)
 	{
 		gizmos->Update(0);
 		gizmos->SetTarget(mEditorCore->GetSelectedObject());
@@ -223,7 +222,7 @@ void EditorWindow::Update()
 	}
 	if (input->GetKeyDown(VK_F1))
 	{
-		ShowHud = !ShowHud;		
+		ShowHud = !ShowHud;
 	}
 
 	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking())

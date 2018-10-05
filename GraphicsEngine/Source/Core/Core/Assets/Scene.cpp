@@ -267,6 +267,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);*/
 
 
+#if 0
 	int size = 5;
 	glm::vec3 startPos = glm::vec3(10, 5, 30);
 	float stride = 5.0f;
@@ -287,6 +288,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			AddGameobjectToScene(go);
 		}
 	}
+#endif
 	SafeRHIRefRelease(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
 	FrameBuffer* fv = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), RHIFrameBufferDesc::CreateColour(1, 1));
 	EnqueueSafeRHIRelease(fv);

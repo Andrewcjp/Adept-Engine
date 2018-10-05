@@ -5,7 +5,11 @@
 #include <d3dx12.h>
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
-
+#if __has_include(<pix3.h>)
+#define PIX_ENABLED 1
+#else
+#define PIX_ENABLED 0
+#endif
 class D3D12TimeManager : public RHITimeManager
 {
 public:
@@ -15,6 +19,7 @@ public:
 	void UpdateTimers() override;
 	std::string GetTimerData() override;
 	void SetTimerName(int index, std::string Name) override;
+	
 	void StartTotalGPUTimer(RHICommandList * ComandList) override;
 	void StartTimer(RHICommandList * ComandList, int index) override;
 	void EndTimer(RHICommandList * ComandList, int index) override;
@@ -64,5 +69,9 @@ private:
 	ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;
 	ID3D12Resource* m_CopytimestampResultBuffers = nullptr;
 	class D3D12DeviceContext* Device = nullptr;
+#if PIX_ENABLED
+	std::wstring PixTimerNames[TotalMaxTimerCount] = {};
+	LPCWSTR GetTimerNameForPIX(int index);
+#endif
 };
 

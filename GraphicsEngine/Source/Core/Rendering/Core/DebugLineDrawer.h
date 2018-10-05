@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-
+#include "Core/EngineTypes.h"
 typedef struct _WLineItem
 {
 	glm::vec3 startpos;
@@ -22,6 +22,7 @@ public:
 
 	void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float thickness = 0);
 	void OnResize(int newwidth, int newheight);
+
 private:
 	std::vector<WLine> Lines;
 	class Shader_Line* LineShader = nullptr;

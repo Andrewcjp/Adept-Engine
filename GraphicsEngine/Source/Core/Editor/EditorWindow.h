@@ -9,13 +9,14 @@ class DebugLineDrawer;
 class SceneSerialiser;
 class UIManager;
 class EditorCore;
+class Scene;
 #define PLAYMODE_USE_SAVED 1
 #if WITH_EDITOR
 class EditorWindow : public BaseWindow
 {
 public:
 	void PostInitWindow(int w, int h) override;
-	static Scene* GetCurrentScene();
+	
 	static EditorWindow* GetInstance() { return instance; }
 	EditorWindow();
 	virtual ~EditorWindow();
@@ -26,7 +27,9 @@ public:
 	static EditorCore* GetEditorCore();
 	bool UseSmallerViewPort();
 	IntRect GetViewPortRect();
+	
 protected:
+	Scene* GetCurrentScene() override;
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
 	void FixedUpdate() override;
