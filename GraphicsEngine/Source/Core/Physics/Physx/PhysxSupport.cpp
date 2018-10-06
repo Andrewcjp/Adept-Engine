@@ -1,27 +1,46 @@
 #include "Stdafx.h"
 #include "PhysxSupport.h"
 #include "PhysxRigidbody.h"
+#include "Physics/PhysicsEngine.h"
+#include "Core/Components/Core_Components_inc.h"
+#include "Core/GameObject.h"
 void PhysxCallBackHandler::onContact(const PxContactPairHeader & PairHeader, const PxContactPair * Pairs, PxU32 NumPairs)
 {
 	for (unsigned int PairIdx = 0; PairIdx < NumPairs; PairIdx++)
 	{
-		PhysxRigidbody* RigidBodyA = nullptr;
-		PhysxRigidbody* RigidBodyB = nullptr;
+		Collider* ColliderA = nullptr;
+		Collider* ColliderB = nullptr;
 		if (Pairs[PairIdx].shapes[0]->userData != nullptr)
 		{
-			RigidBodyA = (PhysxRigidbody*)Pairs[PairIdx].shapes[0]->userData;
+			ColliderA = (Collider*)Pairs[PairIdx].shapes[0]->userData;
 		}
 		if (Pairs[PairIdx].shapes[1]->userData != nullptr)
 		{
-			RigidBodyB = (PhysxRigidbody*)Pairs[PairIdx].shapes[1]->userData;
+			ColliderB = (Collider*)Pairs[PairIdx].shapes[1]->userData;
 		}
-		if (RigidBodyB == nullptr || RigidBodyA == nullptr)
+		if (ColliderB == nullptr || ColliderA == nullptr)
 		{
-			Log::LogMessage("untracked Collison ",Log::Severity::Warning);
+			Log::LogMessage("untracked Collison ", Log::Severity::Warning);
 			return;
 		}
-		std::string data = "Obj: " + glm::to_string(RigidBodyA->GetPosition()) + " collided with " + glm::to_string(RigidBodyB->GetPosition());
-		Log::LogMessage(data);
+		/*std::string data = "Obj: " + glm::to_string(RigidBodyA->GetOwner()->GetPosition()) + " collided with " + glm::to_string(RigidBodyB->GetOwner()->GetPosition());
+		Log::LogMessage(data);*/
+
+		CollisonData Data;
+		//todo: check order here!
+		Data.Hitcollider = ColliderA;
+		Data.OtherCollider = ColliderB;
+
+		if (ColliderA->GetOwner() != nullptr && ColliderA->GetOwner()->GetOwnerComponent() != nullptr && ColliderA->GetOwner()->GetOwnerComponent()->GetOwner() != nullptr)
+		{
+			ColliderA->GetOwner()->GetOwnerComponent()->GetOwner()->BroadCast_OnCollide(Data);
+		}
+		Data.Hitcollider = ColliderB;
+		Data.OtherCollider = ColliderA;
+		if (ColliderB->GetOwner() != nullptr && ColliderB->GetOwner()->GetOwnerComponent() != nullptr && ColliderB->GetOwner()->GetOwnerComponent()->GetOwner() != nullptr)
+		{
+			ColliderB->GetOwner()->GetOwnerComponent()->GetOwner()->BroadCast_OnCollide(Data);
+		}
 	}
 }
 

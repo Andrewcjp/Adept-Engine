@@ -60,6 +60,20 @@ struct SphereElem :public ShapeElem
 		ShapeType = EShapeType::eSPHERE;
 	};
 };
+struct PlaneElm :public ShapeElem
+{
+	glm::vec3 scale = glm::vec3(0,1,0);
+	PlaneElm()
+	{
+		ShapeType = EShapeType::ePLANE;
+	};
+};
+struct CollisonData
+{
+	Collider* Hitcollider = nullptr;
+	Collider* OtherCollider = nullptr;
+
+};
 struct PhysicalMaterial
 {
 	float StaticFriction = 0.5f;

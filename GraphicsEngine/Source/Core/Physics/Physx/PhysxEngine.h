@@ -57,6 +57,7 @@ public:
 	static physx::PxMaterial* GetDefaultMaterial();
 	physx::PxMaterial* CreatePhysxMat(PhysicalMaterial* mat);
 private:
+	class ColliderComponent*		DebugFloor = nullptr;
 	PhysxCallBackHandler*			CallBackHandler = nullptr;
 	physx::PxDefaultAllocator		gAllocator;
 	physx::PxDefaultErrorCallback	gErrorCallback;

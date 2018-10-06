@@ -142,7 +142,7 @@ void GameObject::EditorUpdate()
 	}
 }
 #endif
-Component* GameObject::AttachComponent(Component * Component)
+Component* GameObject::IN_AttachComponent(Component * Component)
 {
 	if (Component == nullptr)
 	{
@@ -264,6 +264,14 @@ glm::vec3 GameObject::GetPosition()
 glm::quat GameObject::GetRotation()
 {
 	return GetTransform()->GetQuatRot();
+}
+
+void GameObject::BroadCast_OnCollide(CollisonData Data)
+{
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components[i]->OnCollide(Data);
+	}
 }
 
 void GameObject::MoveComponent(glm::vec3 newpos, glm::quat newrot, bool UpdatePhysics)

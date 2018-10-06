@@ -57,10 +57,12 @@ void RigidbodyComponent::SceneInitComponent()
 		Collider* tempcol = new Collider();
 		for (ColliderComponent* cc : colliders)
 		{
+			cc->TransferToRigidbody();
 			tempcol->Shapes.push_back(cc->GetColliderShape());
 		}
 		actor->AttachCollider(tempcol);
 		actor->SetLockFlags(LockData);
+		actor->SetOwnerComponent(this);
 		actor->InitBody();
 	}
 }

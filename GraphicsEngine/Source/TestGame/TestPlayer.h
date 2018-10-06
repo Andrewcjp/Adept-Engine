@@ -9,6 +9,7 @@ public:
 
 	// Inherited via Component
 	virtual void InitComponent() override;
+	void OnCollide(CollisonData data) override;
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
 	GameObject* CameraObject = nullptr;

@@ -91,10 +91,19 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 			newShape = PhysxEngine::GetGPhysics()->createShape(PxSphereGeometry(SphereShape->raduis), *PMaterial);
 			break;
 		}
+		case EShapeType::ePLANE:
+		{
+			PlaneElm* SphereShape = (PlaneElm*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxPlaneGeometry(), *PMaterial);
+			newShape->setLocalPose(PxTransform(GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(0, 1, 0, 0)));
+			break;
 		}
+		}
+		newShape->userData = col;
 		ensure(newShape);
 		Shapes.push_back(newShape);
 	}
+	col->SetOwner(this);
 }
 
 void PhysxRigidbody::SetPhysicalMaterial(PhysicalMaterial * newmat)
@@ -140,7 +149,6 @@ void PhysxRigidbody::InitBody()
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			Dynamicactor->attachShape(*Shapes[i]);
-			Shapes[i]->userData = this;
 		}
 		Dynamicactor->setAngularDamping(LockData.AngularDamping);
 		Dynamicactor->setLinearDamping(LockData.LinearDamping);
@@ -161,11 +169,9 @@ void PhysxRigidbody::InitBody()
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			StaticActor->attachShape(*Shapes[i]);
-			Shapes[i]->userData = this;
 		}
 		CommonActorPtr = StaticActor;
 	}
-	//CommonActorPtr->userData = this;
 	PhysxEngine::GetPlayScene()->addActor(*CommonActorPtr);
 }
 #endif
