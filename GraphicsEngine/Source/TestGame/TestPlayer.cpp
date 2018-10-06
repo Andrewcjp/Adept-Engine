@@ -16,6 +16,11 @@ void TestPlayer::InitComponent()
 
 }
 
+void TestPlayer::OnCollide(CollisonData data)
+{
+
+}
+
 void TestPlayer::BeginPlay()
 {
 	RB = GetOwner()->GetComponent<RigidbodyComponent>();
@@ -57,7 +62,11 @@ void TestPlayer::Update(float delta)
 	}
 	if (Input::GetMouseButtonDown(0))
 	{
-		GameObject::Instantiate(glm::vec3(0,10,0));
+		GameObject* newgo = GameObject::Instantiate(GetOwner()->GetPosition());
+		newgo->AttachComponent(new ColliderComponent());
+		RigidbodyComponent* rb = newgo->AttachComponent(new RigidbodyComponent());
+		rb->SetLinearVelocity(glm::vec3(0, 10, 0));
+		
 	}
 	if (/*Input::GetMouseButtonDown(0)*/true)
 	{

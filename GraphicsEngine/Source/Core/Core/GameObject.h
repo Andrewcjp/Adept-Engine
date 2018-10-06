@@ -3,6 +3,8 @@
 #include "Transform.h"
 #include "Rendering/Core/Material.h"
 #include "Editor/IInspectable.h"
+#include "Physics/Physics_fwd.h"
+#include "Physics/PhysicsTypes.h"
 class Component;
 class MeshRendererComponent;
 class GameObject
@@ -45,7 +47,12 @@ public:
 	T* GetComponent();
 	template<class T>
 	std::vector<T*> GetAllComponentsOfType();
-	CORE_API Component* AttachComponent(Component* Component);
+	template<class T>
+	T* AttachComponent(T*Component)
+	{
+		return (T*)IN_AttachComponent(Component);
+	}
+
 	std::vector<Component*> GetComponents();
 
 	void CopyPtrs(GameObject* newObject);
@@ -63,8 +70,9 @@ public:
 	void MoveComponent(glm::vec3 newpos, glm::quat newrot, bool UpdatePhysics = true);
 	CORE_API glm::vec3 GetPosition();
 	CORE_API glm::quat GetRotation();
+	void BroadCast_OnCollide(CollisonData Data);
 private:
-
+	CORE_API Component* IN_AttachComponent(Component* Component);
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 
 	int ObjectID = 0;

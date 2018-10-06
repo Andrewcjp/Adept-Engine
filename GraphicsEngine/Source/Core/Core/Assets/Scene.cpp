@@ -111,6 +111,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
+	go->AttachComponent(new ColliderComponent());
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Camera");

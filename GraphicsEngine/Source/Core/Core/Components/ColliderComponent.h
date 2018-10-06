@@ -17,6 +17,8 @@ public:
 	CORE_API EShapeType::Type GetCollisonShape();
 	CORE_API void SetCollisonShape(EShapeType::Type newtype);
 	CORE_API ShapeElem* GetColliderShape();
+	void SceneInitComponent()override;
+	void TransferToRigidbody();
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props);
 #endif
@@ -24,5 +26,6 @@ private:
 	EShapeType::Type CollisionShapeType = EShapeType::eBOX;
 	float Radius = 1;
 	glm::vec3 BoxExtents = glm::vec3(1, 1, 1);
+	RigidBody* Actor = nullptr;
 };
 

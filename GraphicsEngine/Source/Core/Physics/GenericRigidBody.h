@@ -16,6 +16,7 @@ struct BodyInstanceData
 	float Mass = 1.0f;
 	bool UseAutoMass = false;
 };
+class Component;
 class GenericRigidBody
 {
 public:
@@ -29,11 +30,13 @@ public:
 	void AttachCollider(Collider* col);
 	CORE_API void SetLockFlags(BodyInstanceData data);
 	CORE_API BodyInstanceData GetLockFlags();
-
+	Component* GetOwnerComponent() { return OwningComponent; }
+	void SetOwnerComponent(Component* newowner) { OwningComponent = newowner; }
 protected:
 	virtual void UpdateFlagStates() {};
 	EBodyType::Type BodyType;
 	BodyInstanceData LockData;
+	Component* OwningComponent = nullptr;
 };
 
 class GenericCollider

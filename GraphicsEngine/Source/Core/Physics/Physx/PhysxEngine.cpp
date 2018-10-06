@@ -7,6 +7,7 @@
 #define ENABLEPVD !(NDEBUG)
 #include <algorithm>
 #include "PhysxSupport.h"
+#include "Core/Components/ColliderComponent.h"
 using namespace physx;
 physx::PxFilterFlags CollisionFilterShader(
 	physx::PxFilterObjectAttributes /*attributes0*/, physx::PxFilterData /*filterData0*/,
@@ -50,8 +51,20 @@ void PhysxEngine::initPhysics()
 	}
 #endif
 	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+#if 1
 	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	gScene->addActor(*groundPlane);
+#else
+	GameObject* go = new GameObject();
+	go->SetPosition(glm::vec3(0, 0, 0));
+	go->SetRotation(glm::vec3(90, 0, 0));
+	DebugFloor = new ColliderComponent();
+	DebugFloor->SetCollisonShape(EShapeType::ePLANE);
+	go->AttachComponent(DebugFloor);
+	DebugFloor->SceneInitComponent();
+	go->SetRotation(glm::vec3(90, 0, 0));
+	//DebugFloor->
+#endif
 	Log::OutS << "Physx Initalised" << Log::OutS;
 }
 
