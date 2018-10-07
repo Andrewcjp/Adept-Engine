@@ -2,6 +2,7 @@
 #include "EngineHeader.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Components/Core_Components_inc.h"
+#include "Projectile.h"
 TestPlayer::TestPlayer()
 {
 
@@ -60,14 +61,7 @@ void TestPlayer::Update(float delta)
 		glm::vec3 Pos = GetOwner()->GetTransform()->GetPos();
 		CameraComponent::GetMainCamera()->SetPos(Pos);
 	}
-	if (Input::GetMouseButtonDown(0))
-	{
-		GameObject* newgo = GameObject::Instantiate(GetOwner()->GetPosition());
-		newgo->AttachComponent(new ColliderComponent());
-		RigidbodyComponent* rb = newgo->AttachComponent(new RigidbodyComponent());
-		rb->SetLinearVelocity(glm::vec3(0, 10, 0));
-		
-	}
+	
 	if (/*Input::GetMouseButtonDown(0)*/true)
 	{
 		glm::vec2 axis = Input::GetMouseInputAsAxis();
@@ -86,7 +80,7 @@ void TestPlayer::Update(float delta)
 			CameraObject->GetTransform()->SetQrot(CameraObject->GetTransform()->GetQuatRot()* rotation);
 			CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
 		}
-	//	Log::LogMessage(glm::to_string(CameraObject->GetTransform()->GetEulerRot()));
+		//	Log::LogMessage(glm::to_string(CameraObject->GetTransform()->GetEulerRot()));
 		Input::LockCursor(true);
 		Input::SetCursorVisible(false);
 	}

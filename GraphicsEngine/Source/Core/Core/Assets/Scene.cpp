@@ -43,6 +43,7 @@ void Scene::UpdateScene(float deltatime)
 	{
 		SceneObjects[i]->Update(deltatime);
 	}
+	TickDeferredRemove();
 }
 #if WITH_EDITOR
 void Scene::EditorUpdateScene()
@@ -331,13 +332,27 @@ void Scene::RemoveLight(Light * Light)
 }
 void Scene::RemoveGameObject(GameObject* object)
 {
-	SceneObjects.erase(std::remove(SceneObjects.begin(), SceneObjects.end(), object));
-	object->Internal_SetScene(nullptr);
+	DeferredRemoveQueue.push_back(object);
 }
 void Scene::EndScene()
 {
 	CurrentGameMode->EndPlay();
 	IsRunning = false;
+}
+
+void Scene::TickDeferredRemove()
+{
+	for (int i = 0; i < DeferredRemoveQueue.size(); i++)
+	{
+		if (DeferredRemoveQueue[i] != nullptr)
+		{
+			SceneObjects.erase(std::remove(SceneObjects.begin(), SceneObjects.end()-1, DeferredRemoveQueue[i]));
+			RenderSceneObjects.erase(std::remove(RenderSceneObjects.begin(), RenderSceneObjects.end(), DeferredRemoveQueue[i]));
+			DeferredRemoveQueue[i]->Internal_SetScene(nullptr);
+			SafeDelete(DeferredRemoveQueue[i]);
+		}
+	}
+	DeferredRemoveQueue.clear();
 }
 
 void Scene::AddGameobjectToScene(GameObject* gameobject)

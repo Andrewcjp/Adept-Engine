@@ -39,8 +39,13 @@ GameObject * GameObject::Instantiate(glm::vec3 Pos, glm::quat Rotation)
 	GameObject* NewObject = new GameObject();
 	NewObject->SetPosition(Pos);
 	NewObject->SetRotation(Rotation);
-	BaseWindow::GetScene()->AddGameobjectToScene(NewObject);
+	
 	return NewObject;
+}
+
+void GameObject::FinishGameObjectSpawn(GameObject* Object)
+{
+	BaseWindow::GetScene()->AddGameobjectToScene(Object);
 }
 
 Transform * GameObject::GetTransform()
@@ -61,6 +66,16 @@ void GameObject::Internal_SetScene(Scene * scene)
 	}
 	PositionDummy = GetTransform()->GetPos();
 }
+
+void GameObject::Destory()
+{
+	if (GetScene())
+	{
+		GetScene()->RemoveGameObject(this);
+	}
+}
+
+
 
 Mesh * GameObject::GetMesh()
 {

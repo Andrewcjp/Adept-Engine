@@ -1,6 +1,7 @@
 #include "TestGameGameMode.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "TestPlayer.h"
+#include "Weapon.h"
 TestGameGameMode::TestGameGameMode()
 {}
 
@@ -23,6 +24,7 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	go->GetTransform()->SetScale(glm::vec3(1));
 	go->AttachComponent(new RigidbodyComponent());
 	go->AttachComponent(new ColliderComponent());
+	go->AttachComponent(new Weapon());
 	TestPlayer* player = (TestPlayer*)go->AttachComponent(new TestPlayer());
 	BodyInstanceData lock;
 	//lock.LockXRot = true;

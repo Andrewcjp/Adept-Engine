@@ -7,6 +7,7 @@ public:
 	PhysxCollider();
 	~PhysxCollider();
 	void SetOwner(RigidBody* newowner);
+	CORE_API class GameObject* GetGameObject();
 private:
 	RigidBody* Owner = nullptr;
 };
