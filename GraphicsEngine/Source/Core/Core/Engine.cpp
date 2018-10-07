@@ -254,7 +254,18 @@ void Engine::HandleInput(unsigned int key)
 	}
 	else
 	{
-		Input::instance->ProcessKeyDown((unsigned int)key);
+		Input::Get()->ProcessKeyDown((unsigned int)key);
+	}
+}
+void Engine::HandleKeyUp(unsigned int key)
+{
+	if (UIManager::GetCurrentContext() != nullptr)
+	{
+		//UIManager::GetCurrentContext()->ProcessKeyDown(key); TODO: this
+	}
+	else
+	{
+		Input::Get()->ProcessKeyUp((unsigned int)key);
 	}
 }
 

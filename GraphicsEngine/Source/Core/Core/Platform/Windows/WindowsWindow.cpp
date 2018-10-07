@@ -7,6 +7,7 @@
 #include "Core/Components/CompoenentRegistry.h"
 #include "Core/EngineTypes.h"
 #include "Core/Input/Input.h"
+#include "Core/Platform/Windows/WindowsApplication.h"
 #pragma comment(lib, "winmm.lib")
 
 WindowsWindow* WindowsWindow::app = nullptr;
@@ -74,6 +75,7 @@ WindowsWindow* WindowsWindow::CreateApplication(Engine* EnginePtr, HINSTANCE hin
 		app->CreateOSWindow(app->m_engine->GetWidth(), app->m_engine->GetHeight());
 		app->m_engine->CreateApplication();
 		app->SetVisible(true);
+		app->SetupHPMI();
 	}
 	return app;
 }
@@ -88,6 +90,7 @@ bool WindowsWindow::CreateOSWindow(int width, int height)
 	app->HWindow = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
 		L"RenderWindow", L"Engine Window", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
+
 	return true;
 }
 
@@ -96,12 +99,12 @@ HWND WindowsWindow::GetHWND()
 	return app->HWindow;
 }
 
- HINSTANCE WindowsWindow::GetHInstance()
+HINSTANCE WindowsWindow::GetHInstance()
 {
-	 return app->m_hInst;
+	return app->m_hInst;
 }
 void WindowsWindow::DestroyApplication()
-{	
+{
 	if (app != nullptr)
 	{
 		DestroyWindow(app->HWindow);
@@ -121,7 +124,7 @@ int WindowsWindow::Run()
 
 	while (!m_terminate)
 	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			//peek for windows message
 			if (msg.message == WM_QUIT)
@@ -130,6 +133,7 @@ int WindowsWindow::Run()
 			}
 			else
 			{
+
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
@@ -162,7 +166,7 @@ void WindowsWindow::AddMenus(HWND hwnd)
 	AppendMenuW(hMenu, MF_STRING, 6, L"&Load Scene");
 	AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
-	
+
 	//Gameobject menu
 	AppendMenuW(hGOMenu, MF_STRING, 4, L"&Add GameObject ");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hGOMenu, L"&GameObjects");
@@ -239,6 +243,24 @@ bool WindowsWindow::IsActiveWindow()
 {
 	return (WindowsWindow::GetHWND() == GetActiveWindow());
 }
+#ifndef HID_USAGE_PAGE_GENERIC
+#define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
+#endif
+#ifndef HID_USAGE_GENERIC_MOUSE
+#define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
+#endif
+void WindowsWindow::SetupHPMI()
+{
+	if (Input::Get()->IsUsingHPMI())
+	{
+		RAWINPUTDEVICE Rid;
+		Rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
+		Rid.usUsage = HID_USAGE_GENERIC_MOUSE;
+		Rid.dwFlags = 0;// RIDEV_INPUTSINK;
+		Rid.hwndTarget = GetHWND();
+		ensure(::RegisterRawInputDevices(&Rid, 1, sizeof(RAWINPUTDEVICE)));
+	}
+}
 
 LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -268,6 +290,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		break;
+	case WM_NCMOUSEMOVE:
 	case WM_MOUSEMOVE:
 		app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
 		break;
@@ -289,8 +312,46 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		Input::ReciveMouseDownMessage(1, true);
 		break;
 	case WM_KEYDOWN:
-		app->m_engine->HandleInput(LOWORD(wparam));
+	{
+		//From MSDN The repeat count for the current message. https://docs.microsoft.com/en-us/windows/desktop/inputdev/wm-keydown
+		// LPARAM bit 30 will be ZERO for new presses, or ONE if this is a repeat
+		bool bIsRepeat = (lparam & 0x40000000) != 0;
+		if (!bIsRepeat)
+		{
+			app->m_engine->HandleInput(LOWORD(wparam));
+		}
 		break;
+	}	
+	case WM_KEYUP:
+	{
+		//key up doesn't repeat!
+		app->m_engine->HandleKeyUp(LOWORD(wparam));
+		break;
+	}
+	case WM_INPUT:
+	{
+		UINT dwSize = 40;
+		static BYTE lpb[40];
+
+		GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
+
+		RAWINPUT* raw = (RAWINPUT*)lpb;
+
+		if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			int xPosRelative = raw->data.mouse.lLastX;
+			int yPosRelative = raw->data.mouse.lLastY;
+			if (xPosRelative != 0)
+			{
+				float t = 0;
+			}
+			if (Input::Get())
+			{
+				Input::Get()->ReciveMouseAxisData(glm::vec2(xPosRelative, yPosRelative));
+			}
+		}
+		break;
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

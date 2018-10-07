@@ -39,6 +39,7 @@ public:
 	int							Run();
 	void						Kill();
 	static bool					IsActiveWindow();
+	void SetupHPMI();
 	CORE_API static HINSTANCE   GetHInstance();
 
 	static	LRESULT CALLBACK	WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);

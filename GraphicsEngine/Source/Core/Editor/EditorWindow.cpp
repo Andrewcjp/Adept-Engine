@@ -205,22 +205,22 @@ void EditorWindow::Update()
 	{
 		UI->GetInspector()->SetSelectedObject(nullptr);
 	}
-	if (input->GetKeyDown(VK_ESCAPE))
+	if (Input::GetKeyDown(VK_ESCAPE))
 	{
 		ExitPlayMode();		
 	}
-	if (input->GetVKey(VK_CONTROL))
+	if (Input::GetVKey(VK_CONTROL))
 	{
-		if (input->GetKeyDown('S'))
+		if (Input::GetKeyDown('S'))
 		{
 			SaveScene();
 		}
 	}
-	if (input->GetKeyDown(VK_F2))
+	if (Input::GetKeyDown(VK_F2))
 	{
 		ExtendedPerformanceStats = !ExtendedPerformanceStats;
 	}
-	if (input->GetKeyDown(VK_F1))
+	if (Input::GetKeyDown(VK_F1))
 	{
 		ShowHud = !ShowHud;
 	}

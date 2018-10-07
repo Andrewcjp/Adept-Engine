@@ -28,7 +28,7 @@ void Editor_Camera::Update(float delatime)
 {
 	if (Input::GetVKey(0x02))
 	{
-		Input::instance->LockCursor(true);
+		Input::LockCursor(true);
 		Input::SetCursorVisible(false);
 		float movespeed = 100;
 		if (Input::GetVKey(0xA0))
@@ -70,7 +70,7 @@ void Editor_Camera::Update(float delatime)
 	}
 	else
 	{
-		Input::instance->LockCursor(false);
+		Input::LockCursor(false);
 		Input::SetCursorVisible(true);
 	}
 }

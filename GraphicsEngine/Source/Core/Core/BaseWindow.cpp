@@ -76,13 +76,9 @@ void BaseWindow::InitilseWindow()
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
 	Renderer->Init();
-	//CurrentScene = new Scene();
-	//CurrentScene->LoadDefault();
-	//Renderer->SetScene(CurrentScene);
+
 	UI = new UIManager(m_width, m_height);
-	input = new Input();
-
-
+	Input::Startup();
 	fprintf(stdout, "Scene initalised\n");
 	if (PerfManager::Instance != nullptr)
 	{
@@ -112,7 +108,7 @@ void BaseWindow::Render()
 		PerfManager::Instance->StartFrameTimer();
 	}
 	AccumTickTime += DeltaTime;
-	input->ProcessInput(DeltaTime);
+	Input::Get()->ProcessInput(DeltaTime);
 
 	//lock the simulation rate to TickRate
 	//this prevents physx being framerate depenent.
@@ -143,11 +139,11 @@ void BaseWindow::Render()
 	{
 		PostQuitMessage(0);
 	}*/
-	if (input->GetKeyDown(VK_F11))
+	if (Input::Get()->GetKeyDown(VK_F11))
 	{
 		RHI::ToggleFullScreenState();
 	}
-	if (input->GetKeyDown(VK_F9))
+	if (Input::Get()->GetKeyDown(VK_F9))
 	{
 		RHI::GetRHIClass()->TriggerBackBufferScreenShot();
 	}
@@ -215,7 +211,7 @@ void BaseWindow::Render()
 		PostFrameOne();
 		Once = false;
 	}
-	input->Clear();//clear key states
+	Input::Get()->Clear();//clear key states
 	PostRender();
 	if (TextRenderer::instance != nullptr)
 	{
@@ -342,12 +338,12 @@ void BaseWindow::DestroyRenderWindow()
 	RHI::WaitForGPU();
 	ImageIO::ShutDown();
 	Renderer->DestoryRenderWindow();
-	delete input;
 	delete LineDrawer;
 	SafeDelete(UI);
 	SafeDelete(Renderer);
 	CurrentScene->EndScene();
 	delete CurrentScene;
+	Input::ShutDown();
 }
 
 bool BaseWindow::MouseLBDown(int x, int y)
@@ -374,12 +370,12 @@ bool BaseWindow::MouseRBDown(int x, int y)
 	{
 		if (!UI->IsUIBlocking())
 		{
-			input->MouseLBDown(x, y);
+			Input::Get()->MouseLBDown(x, y);
 		}
 	}
 	else
 	{
-		input->MouseLBDown(x, y);
+		Input::Get()->MouseLBDown(x, y);
 	}
 
 	return 0;
@@ -391,12 +387,12 @@ bool BaseWindow::MouseRBUp(int x, int y)
 	{
 		if (!UI->IsUIBlocking())
 		{
-			input->MouseLBUp(x, y);
+			Input::Get()->MouseLBUp(x, y);
 		}
 	}
 	else
 	{
-		input->MouseLBUp(x, y);
+		Input::Get()->MouseLBUp(x, y);
 	}
 
 	return 0;
@@ -404,7 +400,7 @@ bool BaseWindow::MouseRBUp(int x, int y)
 
 bool BaseWindow::MouseMove(int x, int y)
 {
-	input->MouseMove(x, y, DeltaTime);
+	Input::Get()->MouseMove(x, y, DeltaTime);
 	if (UI != nullptr)
 	{
 		UI->MouseMove(x, y);
@@ -451,7 +447,10 @@ void BaseWindow::RenderText()
 	}
 	stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 	stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
-
+	if (Input::GetKeyDown(KeyCode::SPACE))
+	{
+		stream << "DOWN ";
+	}
 	UI->RenderTextToScreen(1, stream.str());
 	stream.str("");
 

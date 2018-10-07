@@ -62,25 +62,25 @@ void TestPlayer::Update(float delta)
 		CameraComponent::GetMainCamera()->SetPos(Pos);
 	}
 	
-	if (/*Input::GetMouseButtonDown(0)*/true)
+	glm::vec2 axis = Input::GetMouseInputAsAxis();
+	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
+	glm::quat YRot = glm::quat(glm::radians(glm::vec3(0, -axis.x*LookSensitivty, 0)));
+	GetOwner()->SetRotation(GetOwner()->GetTransform()->GetQuatRot()* YRot);
+	glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
+
+	glm::mat4 LocalMAtrix = GetOwner()->GetTransform()->GetModel();
+	if (CameraObject)
 	{
-		glm::vec2 axis = Input::GetMouseInputAsAxis();
-		const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
-		glm::quat YRot = glm::quat(glm::radians(glm::vec3(0, -axis.x*LookSensitivty, 0)));
-		GetOwner()->SetRotation(GetOwner()->GetTransform()->GetQuatRot()* YRot);
-		glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
-
-		glm::mat4 LocalMAtrix = GetOwner()->GetTransform()->GetModel();
-		if (CameraObject)
-		{
-			glm::quat rotation = glm::quat(glm::toMat4(newrot)*glm::inverse(LocalMAtrix));
-			rotation = glm::toMat4(rotation) *LocalMAtrix;
+		glm::quat rotation = glm::quat(glm::toMat4(newrot)*glm::inverse(LocalMAtrix));
+		rotation = glm::toMat4(rotation) *LocalMAtrix;
 
 
-			CameraObject->GetTransform()->SetQrot(CameraObject->GetTransform()->GetQuatRot()* rotation);
-			CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
-		}
-		//	Log::LogMessage(glm::to_string(CameraObject->GetTransform()->GetEulerRot()));
+		CameraObject->GetTransform()->SetQrot(CameraObject->GetTransform()->GetQuatRot()* rotation);
+		CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
+	}
+	//	Log::LogMessage(glm::to_string(CameraObject->GetTransform()->GetEulerRot()));
+	if (true)
+	{
 		Input::LockCursor(true);
 		Input::SetCursorVisible(false);
 	}
