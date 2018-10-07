@@ -64,6 +64,7 @@ void RigidbodyComponent::SceneInitComponent()
 		actor->SetLockFlags(LockData);
 		actor->SetOwnerComponent(this);
 		actor->InitBody();
+		actor->SetLinearVelocity(InitalVelocity);
 	}
 }
 
@@ -72,6 +73,10 @@ void RigidbodyComponent::SetLinearVelocity(glm::vec3 velocity)
 	if (actor != nullptr)
 	{
 		actor->SetLinearVelocity(velocity);
+	}
+	else
+	{
+		InitalVelocity = velocity;
 	}
 }
 

@@ -15,10 +15,10 @@ public:
 	};
 	// Inherited via Component
 	virtual void InitComponent() override;
-	
+	virtual void Update(float delta) override;
 	struct WeaponSettings
 	{
-		float FireDelay = 0.1f;
+		float FireDelay = 0.2f;
 		WeaponType Type = WeaponType::Limit;
 		int PelletCount = 1;
 		bool IsSemiAuto = false;
@@ -27,8 +27,9 @@ public:
 	void SetCurrentSettings(WeaponSettings NewSettings);
 	void Fire();
 private:
-	float CoolDown = 0.0f;
+	float CurrentCoolDown = 0.0f;
 	float CurrentFireRate = 0.1f;
 	WeaponType CurrentWeaponType = WeaponType::Rifle;
-	WeaponSettings CurrentSettings;
+	WeaponSettings CurrentSettings = WeaponSettings();
+	float ProjectileSpeed = 200.0f;
 };

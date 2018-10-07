@@ -38,6 +38,7 @@ public:
 	};
 	LightingEnviromentData* GetLightingData() { return &LightingData; }
 	bool IsEditorScene() { return bEditorScene; }
+	void TickDeferredRemove();
 private:
 	std::vector<GameObject*> SceneObjects;	
 	std::vector<GameObject*> RenderSceneObjects;
@@ -48,5 +49,6 @@ private:
 	bool bEditorScene = false;
 	LightingEnviromentData LightingData = LightingEnviromentData();
 	bool IsRunning = false;
+	std::vector<GameObject*> DeferredRemoveQueue;
 };
 

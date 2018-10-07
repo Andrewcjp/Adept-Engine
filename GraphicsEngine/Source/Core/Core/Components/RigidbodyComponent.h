@@ -32,6 +32,7 @@ private:
 	float mass = 1.0f;
 	// Inherited via Component
 	virtual void InitComponent()override {} ;
+	glm::vec3 InitalVelocity = glm::vec3(0);
 
 };
 

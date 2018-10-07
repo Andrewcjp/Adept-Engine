@@ -82,7 +82,7 @@ void ColliderComponent::SceneInitComponent()
 {
 	if ((GetOwner() != nullptr && GetOwner()->GetComponent<RigidbodyComponent>() == nullptr) || GetOwner() == nullptr)
 	{
-		//A gameobject without a rgidbody should be setup as a static rigidbody
+		//A gameobject without a rigidbody should be setup as a static rigidbody
 		Actor = new RigidBody(EBodyType::RigidStatic, GetOwner()->GetPosition());
 		std::vector<ColliderComponent*> colliders = GetOwner()->GetAllComponentsOfType<ColliderComponent>();
 		Collider* tempcol = new Collider();

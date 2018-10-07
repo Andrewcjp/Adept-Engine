@@ -18,10 +18,11 @@ public:
 	CORE_API GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
 	CORE_API ~GameObject();
 	CORE_API static GameObject* Instantiate(glm::vec3 Pos, glm::quat Rotation = glm::quat());
+	CORE_API static void FinishGameObjectSpawn(GameObject * Object);
 	CORE_API Transform* GetTransform();
 	CORE_API class Scene* GetScene();
 	void Internal_SetScene(Scene* scene);
-
+	CORE_API void Destory();
 	//Update
 	CORE_API void FixedUpdate(float delta);
 	CORE_API void Update(float delta);
