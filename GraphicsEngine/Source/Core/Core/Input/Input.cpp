@@ -7,14 +7,36 @@
 #include "Core/Platform/Windows/WindowsWindow.h"
 Input* Input::instance = nullptr;
 
+void Input::Startup()
+{
+	instance = new Input();
+
+}
+
+void Input::ShutDown()
+{
+	SafeDelete(instance);
+}
+
+void Input::ReciveMouseAxisData(glm::vec2 data)
+{
+	if (IsUsingHPMI())
+	{
+		MouseAxis = data;
+	}
+}
+
 Input::Input()
 {
-	instance = this;
+	UseHighPrecisionMouseInput = false;
 }
 
 Input::~Input()
-{
+{}
 
+Input * Input::Get()
+{
+	return instance;
 }
 
 void Input::Clear()
@@ -46,20 +68,28 @@ bool Input::MouseMove(int x, int y, double)
 	{
 		return false;
 	}
-	MousePosScreen = IntPoint(x, y);
-	int height, width = 0;
-	PlatformWindow::GetApplication()->GetDesktopResolution(height, width);
-	int halfheight = (height / 2);
-	int halfwidth = (width / 2);
-	IntPoint Point = PlatformWindow::GetApplication()->GetMousePos();
-	MouseAxis.x = (float)((halfheight)-(int)Point.x);
-	MouseAxis.y = (float)(-((halfwidth)-(int)Point.y));
-	Point.x = halfheight;
-	Point.y = halfwidth;
-	CentrePoint = Point;
-	if (LockMouse)
+	if (CurrentFrame != RHI::GetFrameCount())
 	{
-		PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
+		MousePosScreen = IntPoint(x, y);
+		int height, width = 0;
+		PlatformWindow::GetApplication()->GetDesktopResolution(height, width);
+		int halfheight = (height / 2);
+		int halfwidth = (width / 2);
+		IntPoint Point = PlatformWindow::GetApplication()->GetMousePos();
+		if (!IsUsingHPMI())
+		{
+			MouseAxis.x = (float)((halfheight)-(int)Point.x);
+			MouseAxis.y = (float)(-((halfwidth)-(int)Point.y));
+		}
+		Point.x = halfheight;
+		Point.y = halfwidth;
+		CentrePoint = Point;
+		//Log::LogMessage(std::to_string(RHI::GetFrameCount()) + "  " + glm::to_string(instance->MouseAxis));
+		if (LockMouse)
+		{
+			PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
+		}
+		CurrentFrame = RHI::GetFrameCount();
 	}
 	return TRUE;
 }
@@ -75,6 +105,20 @@ bool Input::ProcessKeyDown(unsigned int key)
 		return true;
 	}
 	KeyMap.emplace((int)key, true);
+	return true;
+}
+
+bool Input::ProcessKeyUp(unsigned int key)
+{
+	//this only accounts for EN keyboard layouts
+	const bool IsVKey = (int)key > 90;//vKey Start
+	if (!IsVKey)
+	{
+		char c = PlatformWindow::GetApplication()->GetVirtualKeyAsChar(key);
+		KeyMap.emplace(c, false);
+		return true;
+	}
+	KeyMap.emplace((int)key, false);
 	return true;
 }
 
@@ -144,6 +188,19 @@ bool Input::GetKeyDown(int c)
 	}
 	return false;
 }
+//A key is in the keymap only if we recived an event for it this frame so false is key up in this case.
+bool Input::GetKeyUp(int c)
+{
+	if (instance != nullptr)
+	{
+		//todo: use array of keys?
+		if (instance->KeyMap.find((int)c) != instance->KeyMap.end())
+		{
+			return !instance->KeyMap.at((int)c);
+		}
+	}
+	return false;
+}
 
 bool Input::GetKey(char c)
 {
@@ -175,7 +232,7 @@ bool Input::GetVKey(short key)
 glm::vec2 Input::GetMouseInputAsAxis()
 {
 	if (instance != nullptr)
-	{
+	{		
 		return instance->MouseAxis;
 	}
 	return glm::vec2();

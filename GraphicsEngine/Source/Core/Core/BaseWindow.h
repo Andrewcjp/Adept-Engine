@@ -42,7 +42,6 @@ protected:
 	bool ChangeDisplayMode(int width, int height);
 	//Sub Modules
 	class RenderEngine * Renderer = nullptr;
-	class Input* input = nullptr;
 	class UIManager* UI = nullptr;
 	class DebugLineDrawer* LineDrawer = nullptr;
 	class Scene* CurrentScene = nullptr;
