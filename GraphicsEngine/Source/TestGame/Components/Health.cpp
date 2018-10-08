@@ -18,7 +18,12 @@ void Health::TakeDamage(float amt)
 	}
 }
 
-void Health::InitComponent()
+void Health::SceneInitComponent()
 {
 	CurrentHealth = MaxHealth;
+}
+
+ void Health::InitComponent()
+{
+	
 }

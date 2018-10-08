@@ -18,11 +18,11 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 		delete SrvHeap;
 	}
 	SrvHeap = new DescriptorHeap(CurrentDevice, Num, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	SrvHeap->SetName(L"Framebuffer Heap");
+	NAME_RHI_OBJ(SrvHeap);
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		NullHeap->SetName(L"NullHeap");
+		NAME_RHI_OBJ(NullHeap);
 		CurrentDevice->GetDevice()->CreateShaderResourceView(nullptr, &GetSrvDesc(0), NullHeap->GetCPUAddress(0));
 	}
 }
@@ -207,7 +207,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	));
 
 	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	SharedSRVHeap->SetName(L"FrameBuffer SharedSRVHeap");
+	NAME_RHI_OBJ(SharedSRVHeap);
 	SharedTarget = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
@@ -373,12 +373,12 @@ void D3D12FrameBuffer::UpdateSRV()
 	if (SrvHeap == nullptr)
 	{
 		SrvHeap = new DescriptorHeap(CurrentDevice, std::max(BufferDesc.RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		SrvHeap->SetName(L"FrameBuffer SRV Heap");
+		NAME_RHI_OBJ(SrvHeap);
 	}
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		NullHeap->SetName(L"NullHeap");
+		NAME_RHI_OBJ(NullHeap);
 	}
 	if (BufferDesc.RenderTargetCount == 0)
 	{
@@ -455,7 +455,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		depthStencilDesc.Texture2D.MipSlice = 0;
 		depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
 		CurrentDevice->GetDevice()->CreateDepthStencilView(NewResource, &depthStencilDesc, Heapptr->GetCPUAddress(OffsetInHeap));
-		NewResource->SetName(L"FrameBuffer Stencil");
+		D3D12Helpers::NameRHIObject(NewResource, this,"(FB Stencil)");
 	}
 	else
 	{
@@ -469,7 +469,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 			RenderTargetDesc.Texture2D.MipSlice = i;
 			CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
 		}
-		NewResource->SetName(L"FrameBuffer RT");
+		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
 	}
 
 }
@@ -488,12 +488,12 @@ void D3D12FrameBuffer::Init()
 	if (RTVHeap == nullptr && BufferDesc.RenderTargetCount > 0)
 	{
 		RTVHeap = new DescriptorHeap(CurrentDevice, Descriptorcount, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
-		RTVHeap->SetName(L"FrameBuffer RTV Heap");
+		NAME_RHI_OBJ(RTVHeap);
 	}
 	if (DSVHeap == nullptr && BufferDesc.NeedsDepthStencil)
 	{
 		DSVHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
-		DSVHeap->SetName(L"FrameBuffer RTV Heap");
+		NAME_RHI_OBJ(DSVHeap);
 	}
 
 	if (BufferDesc.NeedsDepthStencil)
@@ -608,13 +608,6 @@ void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 	}
 	else
 	{
-		//if (NullHeap == nullptr)
-		//{
-		//	return;
-		//}
-		////NullHeap->BindHeap(list);
-		////NullHeap->SetName(L"null  SRV");
-		//////list->SetGraphicsRootDescriptorTable(lastboundslot, NullHeap->GetGpuAddress(0));
 		if (BufferDesc.AllowUnordedAccess)
 		{
 			for (int i = 0; i < BufferDesc.RenderTargetCount; i++)

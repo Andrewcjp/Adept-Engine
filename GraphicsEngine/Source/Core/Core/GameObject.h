@@ -56,7 +56,6 @@ public:
 
 	std::vector<Component*> GetComponents();
 
-	void CopyPtrs(GameObject* newObject);
 	CORE_API void SetParent(GameObject* Parent);
 	void ProcessSerialArchive(class Archive* Arch);
 
@@ -73,6 +72,7 @@ public:
 	CORE_API glm::quat GetRotation();
 	void BroadCast_OnCollide(CollisonData Data);
 private:
+	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 

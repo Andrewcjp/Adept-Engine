@@ -146,8 +146,6 @@ private:
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;
 	
-	//Copy List for this GPU
-	ID3D12GraphicsCommandList* m_CopyList = nullptr;
 	ID3D12CommandAllocator* m_CopyCommandAllocator = nullptr;
 	ID3D12CommandQueue* m_CopyCommandQueue = nullptr;
 	ID3D12CommandQueue* m_ComputeCommandQueue = nullptr;

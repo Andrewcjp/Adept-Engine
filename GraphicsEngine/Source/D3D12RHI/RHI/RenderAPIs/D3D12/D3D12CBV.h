@@ -23,6 +23,7 @@ public:
 		memcpy(m_pCbvDataBegin + (offset * CB_Size), buffer, size);
 	}
 	void InitCBV(int StructSize, int Elementcount = 1);
+	void SetName(LPCWSTR name);
 private:
 	ID3D12Resource * m_constantBuffer;
 	UINT8* m_pCbvDataBegin;

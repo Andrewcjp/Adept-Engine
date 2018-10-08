@@ -13,15 +13,15 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	Assimp::Importer importer;
 
 	const aiScene* scene = importer.ReadFile(filename.c_str(),
-		//aiProcess_Triangulate
-		aiProcess_CalcTangentSpace
+		aiProcess_Triangulate
+		| aiProcess_CalcTangentSpace
 		//| aiProcess_GenSmoothNormals
 		//| aiProcess_FixInfacingNormals
 	);
-	
+
 	if (!scene)
 	{
-		Log::OutS  << "Mesh load failed!: " << filename << Log::OutS;	
+		Log::OutS << "Mesh load failed!: " << filename << Log::OutS;
 		return false;
 	}
 
@@ -33,7 +33,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		const aiVector3D* pPos = &(model->mVertices[i]);
 		const aiVector3D* pNormal = &(model->mNormals[i]);
 		const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
-		const aiVector3D* pTangent = &(model->mTangents[i]);
+		const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
 
 		OGLVertex vert(glm::vec3(pPos->x, pPos->y, pPos->z),
 			glm::vec2(pTexCoord->x, pTexCoord->y),
@@ -46,7 +46,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	{
 		for (int i = 0; i < vertices.size(); i++)
 		{
-			glm::vec4 Pos = glm::vec4 (vertices[i].m_position.xyz,1.0f);
+			glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz, 1.0f);
 			Pos = Pos * glm::scale(Settings.Scale);
 			vertices[i].m_position = Pos.xyz;
 		}

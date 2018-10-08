@@ -8,6 +8,25 @@
 #include "Core/Platform/PlatformCore.h"
 #include <SOIL.h>
 #include "Core/Utils/FileUtils.h"
+#include "GPUResource.h"
+#include "DescriptorHeap.h"
+#include "D3D12CBV.h"
+void D3D12Helpers::NameRHIObject(DescriptorHeap * Object, IRHIResourse * resource, std::string OtherData)
+{
+	Object->SetName(StringUtils::ConvertStringToWide(OtherData + resource->GetDebugName()).c_str());
+}
+void D3D12Helpers::NameRHIObject(GPUResource * Object, IRHIResourse * resource, std::string OtherData)
+{
+	Object->SetName(StringUtils::ConvertStringToWide(OtherData + resource->GetDebugName()).c_str());
+}
+void D3D12Helpers::NameRHIObject(D3D12CBV * Object, IRHIResourse * resource, std::string OtherData)
+{
+	Object->SetName(StringUtils::ConvertStringToWide(OtherData + resource->GetDebugName()).c_str());
+}
+void D3D12Helpers::NameRHIObject(ID3D12Object * Object, IRHIResourse * resource, std::string OtherData)
+{
+	NAME_D3D12_SetName_Convert(Object, OtherData + resource->GetDebugName());
+}
 
 std::string D3D12Helpers::StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel)
 {

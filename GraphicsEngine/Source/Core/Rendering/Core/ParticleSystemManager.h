@@ -48,12 +48,11 @@ private:
 	RHIBuffer * DeadParticleIndexs = nullptr;
 	RHIUAV * DeadParticleIndexs_UAV = nullptr;
 	RHIBuffer * AliveParticleIndexs = nullptr;
-	RHIUAV * AliveParticleIndexs_UAV = nullptr;
 	RHIBuffer* AliveParticleIndexs_PostSim = nullptr;
 	RHIUAV * AliveParticleIndexs_PostSim_UAV = nullptr;
 
 	int CurrentParticleCount = MAX_PARTICLES;
-	RHIUAV* GPU_ParticleData_UAV = nullptr;
+
 	RHICommandList* CmdList = nullptr;
 	RHIBuffer* RenderCommandBuffer = nullptr;
 	RHIUAV* RenderCommandBuffer_UAV = nullptr;

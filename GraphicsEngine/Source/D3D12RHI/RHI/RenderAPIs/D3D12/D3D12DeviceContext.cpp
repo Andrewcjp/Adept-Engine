@@ -29,7 +29,6 @@ D3D12DeviceContext::~D3D12DeviceContext()
 		SafeRelease(m_commandAllocator[i]);
 		SafeRelease(m_SharedCopyCommandAllocator[i]);
 	}
-	SafeRelease(m_CopyList);
 	SafeRelease(m_CopyCommandAllocator);	
 	delete TimeManager;
 	SafeRHIRelease(GPUCopyList);
@@ -102,7 +101,6 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_commandAllocator[i])));
-		//m_commandAllocator[i]->SetName(L"Core Device Allocator");
 		DEVICE_NAME_OBJECT(m_commandAllocator[i]);
 	}
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
@@ -111,7 +109,6 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
-	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_CopyCommandAllocator, nullptr, IID_PPV_ARGS(&m_CopyList)));
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_SharedCopyCommandQueue)));
 

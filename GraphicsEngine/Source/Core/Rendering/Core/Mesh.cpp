@@ -43,7 +43,11 @@ void Mesh::LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettin
 	std::vector<OGLVertex> vertices;
 	std::vector<int> indices;
 	MeshLoader::LoadMeshFromFile(filename, Settings, vertices, indices);
-
+	if (vertices.size() == 0 || indices.size() == 0)
+	{
+		Log::LogMessage("Failed to load mesh " + filename, Log::Severity::Error);
+		return;
+	}
 	const int count = Settings.InitOnAllDevices ? RHI::GetDeviceCount() : 1;
 	for (int i = 0; i < count; i++)
 	{

@@ -130,6 +130,7 @@ int WindowsWindow::Run()
 			if (msg.message == WM_QUIT)
 			{
 				Kill();
+				break;
 			}
 			else
 			{
@@ -292,7 +293,10 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		break;
 	case WM_NCMOUSEMOVE:
 	case WM_MOUSEMOVE:
-		app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		if (app->m_engine->GetRenderWindow())
+		{
+			app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		}
 		break;
 
 	case WM_LBUTTONUP:

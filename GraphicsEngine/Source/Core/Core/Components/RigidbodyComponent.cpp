@@ -31,6 +31,18 @@ void RigidbodyComponent::OnTransformUpdate()
 	}
 }
 
+void RigidbodyComponent::SetGravity(bool active)
+{
+	if (actor != nullptr)
+	{
+		actor->SetGravity(active);
+	}
+	else
+	{
+		LockData.Gravity = active;
+	}
+}
+
 void RigidbodyComponent::FixedUpdate(float delta)
 {
 	if (actor != nullptr)
@@ -65,6 +77,7 @@ void RigidbodyComponent::SceneInitComponent()
 		actor->SetOwnerComponent(this);
 		actor->InitBody();
 		actor->SetLinearVelocity(InitalVelocity);
+		actor->SetGravity(LockData.Gravity);
 	}
 }
 

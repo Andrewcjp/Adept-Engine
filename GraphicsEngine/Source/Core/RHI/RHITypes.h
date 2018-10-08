@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Types/FString.h"
 #define MRT_MAX 8
 enum eTextureDimension
 {
@@ -40,7 +41,7 @@ namespace GPU_RESOURCE_STATES
 		D3D12_RESOURCE_STATE_VIDEO_DECODE_WRITE = 0x20000,
 		D3D12_RESOURCE_STATE_VIDEO_PROCESS_READ = 0x40000,
 		D3D12_RESOURCE_STATE_VIDEO_PROCESS_WRITE = 0x80000
-	} ;
+	};
 }
 enum eTEXTURE_FORMAT
 {
@@ -321,14 +322,19 @@ public:
 		return PendingKill;
 	}
 	bool IsReleased = false;
+	void SetDebugName(std::string Name);
+	const char* GetDebugName();
+	const char* ObjectSufix = "";
 private:
+	const char* FinalName = "";	
+	const char* DebugName = "";
 	bool PendingKill = false;
 	friend class RHI;
 };
 //Releases the GPU side and deletes the CPU object
 #define SafeRHIRelease(Target) if(Target != nullptr){Target->Release(); delete Target; Target= nullptr;}
 #define EnqueueSafeRHIRelease(Target) if(Target != nullptr){RHI::AddToDeferredDeleteQueue(Target);}
-
+#define NAME_RHI_OBJECT(x) x->SetDebugName(#x);
 struct IndirectDrawArgs
 {
 	int VertexCountPerInstance;

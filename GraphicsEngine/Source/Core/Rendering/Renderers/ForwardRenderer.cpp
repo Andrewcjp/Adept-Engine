@@ -59,6 +59,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
 	//finally init the pipeline!
 	MainCommandList->CreatePipelineState(Material::GetDefaultMaterialShader(), FilterBuffer);
+	NAME_RHI_OBJECT(MainCommandList);
 	/*VKanRHI::Get()->thelist = MainCommandList;*/
 }
 

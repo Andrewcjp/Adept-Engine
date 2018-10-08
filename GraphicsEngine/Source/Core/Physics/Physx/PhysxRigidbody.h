@@ -20,12 +20,12 @@ public:
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
 	void AttachCollider(Collider* col);
 	void SetPhysicalMaterial(PhysicalMaterial* newmat);
-
+	void SetGravity(bool active);
 	void UpdateFlagStates() override;
 
 	void InitBody();
 private:
-
+	std::vector<Collider*> AttachedColliders;
 	physx::PxRigidDynamic*	Dynamicactor = nullptr;
 	physx::PxRigidStatic*	StaticActor = nullptr;
 	physx::PxRigidActor*	CommonActorPtr = nullptr;

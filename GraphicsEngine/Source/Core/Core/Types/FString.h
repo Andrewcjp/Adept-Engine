@@ -1,15 +1,15 @@
 #pragma once
 
-class FString
+class  FString
 {
 public:
-	FString();
-	FString(std::string input,bool Hash = false);
-	FString(const char* text, bool Hash = false);
-	~FString();
-	bool Contains(FString Target);	
-	std::string& ToSString();
-	std::wstring& ToWideString();
+	 FString();
+	 CORE_API FString(std::string input,bool Hash = false);
+	 FString(const char* text, bool Hash = false);
+	 ~FString();
+	 bool Contains(FString Target);
+	 std::string& ToSString();
+	 std::wstring& ToWideString();
 	bool operator==(const FString &b) const;
 	void SetupHash();
 #if RUNTESTS

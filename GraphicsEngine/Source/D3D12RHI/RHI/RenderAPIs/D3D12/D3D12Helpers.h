@@ -1,12 +1,19 @@
 #pragma once
 #include <d3d12.h>
 #include "RHI/RHITypes.h"
+#include "Core/Utils/StringUtil.h"
+
 #if defined(_DEBUG)
+inline void NAME_D3D12_SetName_Convert(ID3D12Object* pObject, std::string name)
+{
+	pObject->SetName(StringUtils::ConvertStringToWide(name).c_str());
+}
 inline void NAME_D3D12_SetName(ID3D12Object* pObject, LPCWSTR name)
 {
 	pObject->SetName(name);
 }
 #define NAME_D3D12_OBJECT(x) NAME_D3D12_SetName(x, L#x)
+#define NAME_RHI_OBJ(x) D3D12Helpers::NameRHIObject(x,this,#x);
 #else
 inline void SetName(ID3D12Object*, LPCWSTR)
 {}
@@ -14,9 +21,12 @@ inline void SetName(ID3D12Object*, LPCWSTR)
 #endif
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
 class D3D12Helpers
-{ 
+{
 public:
-
+	static void NameRHIObject(class DescriptorHeap * Object, IRHIResourse * resource, std::string OtherData = std::string());
+	static void NameRHIObject(class GPUResource* Object, IRHIResourse* resource, std::string OtherData = std::string());
+	static void NameRHIObject(class D3D12CBV * Object, IRHIResourse * resource, std::string OtherData = std::string());
+	static void NameRHIObject(ID3D12Object* Object, IRHIResourse* resource, std::string OtherData = std::string());
 	static std::string StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel);
 	static std::string DXErrorCodeToString(HRESULT result);
 	static DXGI_FORMAT ConvertFormat(eTEXTURE_FORMAT format);

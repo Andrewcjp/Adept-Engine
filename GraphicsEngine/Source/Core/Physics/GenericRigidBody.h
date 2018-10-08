@@ -15,13 +15,14 @@ struct BodyInstanceData
 	float LinearDamping = 0.05f;
 	float Mass = 1.0f;
 	bool UseAutoMass = false;
+	bool Gravity = true;
 };
 class Component;
 class GenericRigidBody
 {
 public:
 	GenericRigidBody(EBodyType::Type type);
-	~GenericRigidBody();
+	virtual ~GenericRigidBody();
 	CORE_API glm::vec3 GetPosition();
 	CORE_API glm::quat GetRotation();
 	CORE_API void AddTorque(glm::vec3);
@@ -43,7 +44,7 @@ class GenericCollider
 {
 public:
 	GenericCollider();
-	~GenericCollider();
+	virtual ~GenericCollider();
 	std::vector<ShapeElem*> Shapes;
 protected:
 

@@ -14,6 +14,10 @@ ColliderComponent::ColliderComponent()
 
 ColliderComponent::~ColliderComponent()
 {
+	if (Actor != nullptr)
+	{
+		Actor->SetOwnerComponent(nullptr);
+	}
 	SafeDelete(Actor);
 }
 

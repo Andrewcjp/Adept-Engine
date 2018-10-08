@@ -39,6 +39,7 @@ public:
 	bool IsChanged();
 	void Update();
 	void Serilise(class Archive* A);
+	CORE_API void SetLocalRotation(glm::quat localrot);
 private:
 	//cached matrixs;
 	glm::mat4 CacheModel;

@@ -74,10 +74,9 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
 	ThrowIfFailed(m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
 	//memcpy(m_pCbvDataBegin, &m_constantBufferData, sizeof(m_constantBufferData));
-
-	std::wstring str = L"CBV ";
-	str.append(std::to_wstring(StructSize));
-	//str.forma
-	m_cbvHeap->SetName(str.c_str());
+}
+void D3D12CBV::SetName(LPCWSTR name)
+{
+	m_cbvHeap->SetName(name);
 }
 #endif

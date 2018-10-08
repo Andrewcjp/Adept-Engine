@@ -188,9 +188,13 @@ void EditorWindow::Update()
 	else
 	{
 		CurrentScene->EditorUpdateScene();
-		EditorCamera->Update(DeltaTime);
+		
 	}
 
+	if (!IsPlayingScene || IsEditorEjected())
+	{
+		EditorCamera->Update(DeltaTime);
+	}
 	if (mEditorCore->GetSelectedObject() != nullptr && !IsPlayingScene)
 	{
 		gizmos->Update(0);
@@ -224,7 +228,10 @@ void EditorWindow::Update()
 	{
 		ShowHud = !ShowHud;
 	}
-
+	if (Input::GetKeyDown(VK_F4))
+	{
+		Eject();
+	}
 	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking())
 	{
 		mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
@@ -234,6 +241,21 @@ IntRect EditorWindow::GetViewPortRect()
 {
 	return UI->GetEditorRect();
 }
+void EditorWindow::Eject()
+{
+	if (IsPlayingScene)
+	{
+		EditorCamera->SetEnabled(!EditorCamera->GetEnabled());
+		Input::LockCursor(false);
+		Input::SetCursorVisible(true);
+	}
+}
+
+bool EditorWindow::IsEditorEjected()
+{
+	return EditorCamera->GetEnabled();
+}
+
 void EditorWindow::SaveScene()
 {
 	if (CurrentSceneSavePath.length() == 0)
