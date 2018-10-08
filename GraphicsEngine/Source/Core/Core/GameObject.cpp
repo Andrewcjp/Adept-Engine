@@ -29,9 +29,9 @@ GameObject::~GameObject()
 {
 	for (int i = 0; i < m_Components.size(); i++)
 	{
-		delete m_Components[i];
+		SafeDelete(m_Components[i]);
 	}
-	delete m_transform;
+	SafeDelete(m_transform);
 }
 
 GameObject * GameObject::Instantiate(glm::vec3 Pos, glm::quat Rotation)
@@ -60,22 +60,24 @@ Scene * GameObject::GetScene()
 void GameObject::Internal_SetScene(Scene * scene)
 {
 	OwnerScene = scene;
-	for (int i = 0; i < m_Components.size(); i++)
+	if (scene != nullptr)
 	{
-		m_Components[i]->SceneInitComponent();
-	}
-	PositionDummy = GetTransform()->GetPos();
+		for (int i = 0; i < m_Components.size(); i++)
+		{
+			m_Components[i]->SceneInitComponent();
+		}
+		PositionDummy = GetTransform()->GetPos();
+	}	
 }
 
 void GameObject::Destory()
 {
-	if (GetScene())
+	if (GetScene() && !IsDead)
 	{
 		GetScene()->RemoveGameObject(this);
+		IsDead = true;
 	}
 }
-
-
 
 Mesh * GameObject::GetMesh()
 {
@@ -190,15 +192,6 @@ Component* GameObject::IN_AttachComponent(Component * Component)
 std::vector<Component*> GameObject::GetComponents()
 {
 	return m_Components;
-}
-
-void GameObject::CopyPtrs(GameObject *)
-{
-	for (int i = 0; i < m_Components.size(); i++)
-	{
-		//Component* comp = new Component(m_Components[i]);
-		//todo Copy ptrs!
-	}
 }
 
 void GameObject::SetParent(GameObject * Parent)

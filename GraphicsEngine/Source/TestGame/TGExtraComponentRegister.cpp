@@ -1,10 +1,10 @@
 #include "TGExtraComponentRegister.h"
-#include "TGComp.h"
-#include "PhysicsThrowerComponent.h"
-#include "TestPlayer.h"
-#include "Weapon.h"
-#include "Projectile.h"
-#include "Health.h"
+#include "Components/TGComp.h"
+#include "Components/PhysicsThrowerComponent.h"
+#include "Components/TestPlayer.h"
+#include "Components/Weapon.h"
+#include "Components/Projectile.h"
+#include "Components/Health.h"
 TGExtraComponentRegister::TGExtraComponentRegister() :ExtraComponentRegister()
 {
 	for (int i = 0; i < ComponentTypes::Limit; i++)

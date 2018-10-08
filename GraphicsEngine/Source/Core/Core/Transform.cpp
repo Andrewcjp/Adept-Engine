@@ -70,16 +70,26 @@ void Transform::Serilise(Archive * A)
 	ArchiveProp(_scale);
 }
 
+void Transform::SetLocalRotation(glm::quat localrot)
+{
+	glm::mat4 LocalMAtrix = GetModel();
+	glm::quat rotation = glm::quat(glm::toMat4(localrot)*glm::inverse(LocalMAtrix));
+	rotation = glm::toMat4(rotation) *LocalMAtrix;
+	SetQrot(GetQuatRot()* rotation);
+}
+
 glm::mat4 Transform::GetModel()
 {
+#if 1
 	if (!UpdateModel && parent == nullptr)
 	{
 		return CacheModel;
 	}
-	if (parent != nullptr && !parent->IsChanged())
+	if (parent != nullptr && !parent->IsChanged() && !UpdateModel)
 	{
 		return CacheModel;
 	}
+#endif
 	glm::mat4 posMat = glm::translate(_pos);
 	glm::mat4 scaleMat = glm::scale(_scale);
 	glm::mat4 rotMat = glm::toMat4(_qrot);

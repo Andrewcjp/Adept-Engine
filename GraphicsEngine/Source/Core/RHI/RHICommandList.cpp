@@ -2,11 +2,12 @@
 #include "RHICommandList.h"
 #include "Rendering/Core/FrameBuffer.h"
 #include "DeviceContext.h"
-
+#include "Core/Platform/PlatformCore.h"
 
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
 	ListType = type;
+	ObjectSufix = "(CMDLIST)";
 	Device = context;
 }
 
@@ -71,7 +72,7 @@ void RHICommandList::ResolveTimers()
 	}
 	else
 	{
-		
+
 	}
 }
 
@@ -88,4 +89,42 @@ bool RHICommandList::IsCopyList() const
 bool RHICommandList::IsComputeList() const
 {
 	return ListType == ECommandListType::Compute;
+}
+
+RHIUAV * RHIBuffer::GetUAV()
+{
+	ensureMsgf(Desc.CreateUAV, "CreateUAV should be set on this buffer to use a UAV from it");
+	return UAV;
+}
+
+RHIUAV::RHIUAV()
+{
+	ObjectSufix = "(UAV)";
+}
+
+RHIBuffer::RHIBuffer(ERHIBufferType::Type type)
+{
+	CurrentBufferType = type;	
+	switch (CurrentBufferType)
+	{
+	case ERHIBufferType::Constant:
+		ObjectSufix = "(Constant Buffer)";
+		break;
+	case ERHIBufferType::Vertex:
+		ObjectSufix = "(VTX Buffer)";
+		break;
+	case ERHIBufferType::Index:
+		ObjectSufix = "(IDX Buffer)";
+		break;
+	case ERHIBufferType::GPU:
+		ObjectSufix = "(GPU Buffer)";
+	default:
+		break;
+	}
+}
+
+RHITextureArray::RHITextureArray(DeviceContext * device, int inNumEntries)
+{
+	NumEntries = inNumEntries;
+	ObjectSufix = "(TexArray)";
 }

@@ -8,6 +8,7 @@ public:
 	~PhysxCollider();
 	void SetOwner(RigidBody* newowner);
 	CORE_API class GameObject* GetGameObject();
+	bool IsDead = false;
 private:
 	RigidBody* Owner = nullptr;
 };

@@ -17,7 +17,7 @@ class EditorWindow : public BaseWindow
 public:
 	void PostInitWindow(int w, int h) override;
 	
-	static EditorWindow* GetInstance() { return instance; }
+	CORE_API static EditorWindow* GetInstance() { return instance; }
 	EditorWindow();
 	virtual ~EditorWindow();
 	void EnterPlayMode();
@@ -27,7 +27,8 @@ public:
 	static EditorCore* GetEditorCore();
 	bool UseSmallerViewPort();
 	IntRect GetViewPortRect();
-	
+	void Eject();
+	CORE_API bool IsEditorEjected();
 protected:
 	Scene* GetCurrentScene() override;
 	void PrePhysicsUpdate();

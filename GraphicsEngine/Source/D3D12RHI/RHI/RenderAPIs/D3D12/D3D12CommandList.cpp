@@ -317,6 +317,7 @@ void D3D12CommandList::CreateCommandList()
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
+	D3D12Helpers::NameRHIObject(CurrentCommandList, this);
 }
 
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
@@ -501,6 +502,7 @@ void D3D12Buffer::Release()
 	}
 	SafeRelease(m_DataBuffer);
 	SafeRelease(SRVBufferHeap);
+	SafeRelease(UAV);
 }
 
 D3D12Buffer::~D3D12Buffer()
@@ -518,12 +520,14 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool Re
 		{
 			CBV[i] = new D3D12CBV(RHI::GetDeviceContext(i));
 			CBV[i]->InitCBV(StructSize, Elementcount);
+			D3D12Helpers::NameRHIObject(CBV[i], this);
 		}
 	}
 	else
 	{
 		CBV[0] = new D3D12CBV(Device);
 		CBV[0]->InitCBV(StructSize, Elementcount);
+		D3D12Helpers::NameRHIObject(CBV[0], this);
 	}
 }
 void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
@@ -574,7 +578,7 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType
 	m_vertexBufferView.BufferLocation = m_DataBuffer->GetResource()->GetGPUVirtualAddress();
 	m_vertexBufferView.StrideInBytes = Stride;
 	m_vertexBufferView.SizeInBytes = TotalByteSize;
-	m_DataBuffer->SetName(StringUtils::ConvertStringToWide("Vertex Buffer").c_str());
+	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }
 
 void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
@@ -588,7 +592,7 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
 }
 
 void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
-{	
+{
 	SetupBufferSRV();
 	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
 	if (BufferAccesstype != EBufferAccessType::GPUOnly)//gpu buffer states are explictily managed by render code
@@ -607,7 +611,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 }
 
 void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
-{	
+{
 	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
 #if _DEBUG
 	D3D12_RESOURCE_STATES s = D3D12Helpers::ConvertBufferResourceState(State);
@@ -631,13 +635,10 @@ void D3D12Buffer::SetupBufferSRV()
 	}
 }
 
-void D3D12Buffer::SetDebugName(const char* Name)
+void D3D12Buffer::CreateUAV()
 {
-	RHIBuffer::SetDebugName(Name);
-	if (m_DataBuffer)
-	{
-		m_DataBuffer->SetName(StringUtils::ConvertStringToWide(Name).c_str());
-	}
+	UAV = RHI::CreateUAV();
+	UAV->CreateUAVFromRHIBuffer(this);
 }
 
 void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)
@@ -702,12 +703,7 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 		IID_PPV_ARGS(&TempRes)));
 	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_COPY_DEST);
 	// we can give resource heaps a name so when we debug with the graphics debugger we know what resource we are looking at
-	m_DataBuffer->SetName(L"Buffer Resource Heap");
-	std::string name = DebugName;
-	if (name.length() > 0)
-	{
-		m_DataBuffer->SetName(StringUtils::ConvertStringToWide(DebugName).c_str());
-	}
+	
 	// create upload heap to upload index buffer
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
@@ -716,7 +712,7 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
 		nullptr,
 		IID_PPV_ARGS(&m_UploadBuffer)));
-	m_UploadBuffer->SetName(L"Buffer Upload Resource Heap");
+	D3D12Helpers::NameRHIObject(m_UploadBuffer, this,"(UPLOAD)");
 }
 
 void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
@@ -733,8 +729,6 @@ void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 		nullptr,
 		IID_PPV_ARGS(&TempRes)));
 	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_GENERIC_READ);
-	m_DataBuffer->SetName(StringUtils::ConvertStringToWide(DebugName).c_str());
-
 }
 static inline UINT AlignForUavCounter(UINT bufferSize)
 {
@@ -764,7 +758,6 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 			nullptr,
 			IID_PPV_ARGS(&TempRes)));
 		m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-		m_DataBuffer->SetName(StringUtils::ConvertStringToWide(DebugName).c_str());
 	}
 	else if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
@@ -778,6 +771,11 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 	{
 		SetupBufferSRV();
 	}
+	if (desc.CreateUAV)
+	{
+		CreateUAV();
+	}
+	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }
 
 void D3D12Buffer::UpdateIndexBuffer(void * data, size_t length)
@@ -797,7 +795,7 @@ void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 	m_IndexBufferView.BufferLocation = m_DataBuffer->GetResource()->GetGPUVirtualAddress();
 	m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	m_IndexBufferView.SizeInBytes = TotalByteSize;
-	m_DataBuffer->SetName(L"Index Buffer");
+	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }
 
 void D3D12Buffer::MapBuffer(void ** Data)
@@ -836,15 +834,8 @@ void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 	ensure(target->CurrentBufferType == ERHIBufferType::GPU);
 	ensure(d3dtarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	std::string Name = d3dtarget->DebugName;
-	if (Name.length() > 0)
-	{
-		Heap->SetName(StringUtils::ConvertStringToWide(Name + "_UAV").c_str());
-	}
-	else
-	{
-		Heap->SetName(L"CreateUAVFromRHIBuffer");
-	}
+	SetDebugName(d3dtarget->GetDebugName());
+	D3D12Helpers::NameRHIObject(Heap, this);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -861,7 +852,8 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 	D3D12Texture* D3DTarget = (D3D12Texture*)target;
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	Heap->SetName(L"CreateUAVFromTexture");
+	SetDebugName(D3DTarget->GetDebugName());
+	D3D12Helpers::NameRHIObject(Heap, this);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = ((D3D12Texture*)target)->GetResource()->GetDesc().Format;
@@ -875,7 +867,8 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
 	D3D12FrameBuffer* D3DTarget = (D3D12FrameBuffer*)target;
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	Heap->SetName(L"CreateUAVFromFrameBuffer");
+	SetDebugName(D3DTarget->GetDebugName());
+	D3D12Helpers::NameRHIObject(Heap, this);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(target->GetDescription().RTFormats[0]);
@@ -905,7 +898,7 @@ D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntri
 {
 	AddCheckerRef(D3D12RHITextureArray, this);
 	Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	Heap->SetName(L"D3D12RHITextureArray");
+	D3D12Helpers::NameRHIObject(Heap, this);
 	Device = (D3D12DeviceContext*)device;
 }
 

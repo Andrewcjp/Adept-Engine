@@ -12,6 +12,12 @@ PhysxRigidbody::~PhysxRigidbody()
 	//PMaterial->release(); //Not released as we don't own it the shape does
 	PhysxEngine::GetPlayScene()->removeActor(*CommonActorPtr);
 	CommonActorPtr->release();
+	MemoryUtils::DeleteVector(AttachedColliders);
+	for (int i = 0; i < Shapes.size(); i++)
+	{
+		Shapes[i]->userData = (void*)0xAffffffff; 
+		Shapes[i]->release();
+	}
 }
 
 PhysxRigidbody::PhysxRigidbody(EBodyType::Type type, Transform initalpos) :GenericRigidBody(type)
@@ -103,6 +109,7 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 		ensure(newShape);
 		Shapes.push_back(newShape);
 	}
+	AttachedColliders.push_back(col);
 	col->SetOwner(this);
 }
 
@@ -116,6 +123,14 @@ void PhysxRigidbody::SetPhysicalMaterial(PhysicalMaterial * newmat)
 		{
 			Shapes[i]->setMaterials(&PMaterial, 1);
 		}
+	}
+}
+
+void PhysxRigidbody::SetGravity(bool active)
+{
+	if (CommonActorPtr)
+	{
+		CommonActorPtr->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !active);
 	}
 }
 

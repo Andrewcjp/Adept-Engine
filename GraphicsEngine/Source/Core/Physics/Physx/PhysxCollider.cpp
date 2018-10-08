@@ -12,7 +12,9 @@ PhysxCollider::PhysxCollider()
 
 
 PhysxCollider::~PhysxCollider()
-{}
+{
+//	__debugbreak();
+}
 
 void PhysxCollider::SetOwner(RigidBody * newowner)
 {

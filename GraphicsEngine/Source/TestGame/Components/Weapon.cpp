@@ -2,7 +2,7 @@
 #include "EngineHeader.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "Projectile.h"
-
+#include "Editor/EditorWindow.h"
 Weapon::Weapon()
 {}
 
@@ -17,6 +17,10 @@ void Weapon::InitComponent()
 
 void Weapon::Update(float delta)
 {
+	if (EditorWindow::GetInstance()->IsEditorEjected())
+	{
+		return;
+	}
 	CurrentCoolDown -= delta;
 	if (Input::GetMouseButtonDown(0))
 	{
@@ -42,6 +46,7 @@ void Weapon::Fire()
 	newgo->GetTransform()->SetScale(glm::vec3(0.3f));
 	newgo->AttachComponent(new ColliderComponent());
 	RigidbodyComponent* rb = newgo->AttachComponent(new RigidbodyComponent());
+	rb->SetGravity(false);
 	rb->SetLinearVelocity(Forward*ProjectileSpeed);
 	Projectile* Proj = newgo->AttachComponent(new Projectile());
 	Proj->SetDamage(10);

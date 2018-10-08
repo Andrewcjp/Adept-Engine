@@ -20,16 +20,14 @@ struct RHIBufferDesc
 	EBufferAccessType::Type Accesstype;
 	bool AllowUnorderedAccess = false;
 	bool CreateSRV = false;
+	bool CreateUAV = false;
 };
 class RHI_API RHIBuffer : public IRHIResourse
 {
 public:
 	
 	ERHIBufferType::Type CurrentBufferType;
-	RHIBuffer(ERHIBufferType::Type type)
-	{
-		CurrentBufferType = type;
-	}
+	RHIBuffer(ERHIBufferType::Type type);
 	virtual void CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype = EBufferAccessType::Static) = 0;
 	virtual void CreateBuffer(RHIBufferDesc Desc) = 0;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) = 0;
@@ -46,22 +44,19 @@ public:
 	{
 		return CounterOffset;
 	}
-	virtual void SetDebugName(const char* Name)
-	{
-		DebugName = Name;
-	}
+	class RHIUAV* GetUAV();
 protected: 
+	RHIBufferDesc Desc;
 	size_t VertexCount = 0;
 	int CounterOffset = 0;
 	int TotalByteSize = 0;
-	const char* DebugName = "";
+	class RHIUAV* UAV = nullptr;
 };
 
-class RHIUAV : public IRHIResourse
+class RHI_API RHIUAV : public IRHIResourse
 {
 public:
-	RHIUAV()
-	{}
+	RHIUAV();
 	virtual ~RHIUAV() {};
 	virtual void Bind(class RHICommandList* list, int slot) = 0;
 	virtual void CreateUAVFromFrameBuffer(class FrameBuffer* target) = 0;
@@ -129,10 +124,7 @@ protected:
 class RHI_API RHITextureArray : public IRHIResourse
 {
 public:
-	RHITextureArray(DeviceContext* device, int inNumEntries)
-	{
-		NumEntries = inNumEntries;
-	};
+	RHITextureArray(DeviceContext* device, int inNumEntries);;
 	virtual ~RHITextureArray() {};
 	virtual void AddFrameBufferBind(FrameBuffer* Buffer, int slot) = 0;
 	virtual void BindToShader(RHICommandList* list, int slot) = 0;

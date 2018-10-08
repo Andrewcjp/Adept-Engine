@@ -43,7 +43,7 @@ void Scene::UpdateScene(float deltatime)
 	{
 		SceneObjects[i]->Update(deltatime);
 	}
-	TickDeferredRemove();
+
 }
 #if WITH_EDITOR
 void Scene::EditorUpdateScene()
@@ -69,6 +69,7 @@ void Scene::FixedUpdateScene(float deltatime)
 	{
 		SceneObjects[i]->FixedUpdate(deltatime);
 	}
+	TickDeferredRemove();
 }
 
 void Scene::StartScene()
@@ -112,7 +113,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
-	go->AttachComponent(new ColliderComponent());
+	//go->AttachComponent(new ColliderComponent());
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Camera");
@@ -346,8 +347,16 @@ void Scene::TickDeferredRemove()
 	{
 		if (DeferredRemoveQueue[i] != nullptr)
 		{
-			SceneObjects.erase(std::remove(SceneObjects.begin(), SceneObjects.end()-1, DeferredRemoveQueue[i]));
-			RenderSceneObjects.erase(std::remove(RenderSceneObjects.begin(), RenderSceneObjects.end(), DeferredRemoveQueue[i]));
+			auto vecso = std::find(SceneObjects.begin(), SceneObjects.end(), DeferredRemoveQueue[i]);
+			if (vecso != std::end(SceneObjects))
+			{
+				SceneObjects.erase(vecso);
+			}
+			auto vec =  std::find(RenderSceneObjects.begin(), RenderSceneObjects.end(), DeferredRemoveQueue[i]);
+			if (vec != std::end(RenderSceneObjects))
+			{
+				RenderSceneObjects.erase(vec);
+			}			
 			DeferredRemoveQueue[i]->Internal_SetScene(nullptr);
 			SafeDelete(DeferredRemoveQueue[i]);
 		}

@@ -78,18 +78,18 @@ bool Input::MouseMove(int x, int y, double)
 		IntPoint Point = PlatformWindow::GetApplication()->GetMousePos();
 		if (!IsUsingHPMI())
 		{
-			MouseAxis.x = (float)((halfheight)-(int)Point.x);
-			MouseAxis.y = (float)(-((halfwidth)-(int)Point.y));
+			MouseAxis.x = (float)(halfheight - (float)Point.x);
+			MouseAxis.y = -(float)(halfwidth - (float)Point.y);
 		}
 		Point.x = halfheight;
 		Point.y = halfwidth;
 		CentrePoint = Point;
-		//Log::LogMessage(std::to_string(RHI::GetFrameCount()) + "  " + glm::to_string(instance->MouseAxis));
-		if (LockMouse)
-		{
-			PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
-		}
+		//Log::LogMessage(std::to_string(RHI::GetFrameCount()) + "  " + glm::to_string(instance->MouseAxis) + "  x" + std::to_string(MousePosScreen.x) + "  y" + std::to_string(MousePosScreen.y));
 		CurrentFrame = RHI::GetFrameCount();
+	}
+	if (LockMouse)
+	{
+		PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
 	}
 	return TRUE;
 }
@@ -120,6 +120,25 @@ bool Input::ProcessKeyUp(unsigned int key)
 	}
 	KeyMap.emplace((int)key, false);
 	return true;
+}
+#include "Editor/EditorWindow.h"
+void Input::SetCursorState(bool Locked, bool Visible)
+{
+#if WITH_EDITOR
+	if (!EditorWindow::GetInstance()->IsEditorEjected())
+	{
+		LockCursor(Locked);
+		SetCursorVisible(Visible);
+	}
+	else
+	{
+		LockCursor(false);
+		SetCursorVisible(true);
+	}
+#else
+	LockCursor(Locked);
+	SetCursorVisible(Visible);
+#endif
 }
 
 void Input::LockCursor(bool state)
@@ -232,7 +251,7 @@ bool Input::GetVKey(short key)
 glm::vec2 Input::GetMouseInputAsAxis()
 {
 	if (instance != nullptr)
-	{		
+	{
 		return instance->MouseAxis;
 	}
 	return glm::vec2();

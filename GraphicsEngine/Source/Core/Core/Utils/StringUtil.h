@@ -53,4 +53,11 @@ namespace StringUtils
 		}
 		return output;
 	}
+	static const char* CopyStringToCharArray(std::string String)
+	{
+		char* tmp = new char[String.length() + 1];
+		strcpy_s(tmp, String.length() + 1, String.c_str());
+		return tmp;
+	}
+
 }

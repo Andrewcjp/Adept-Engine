@@ -278,8 +278,7 @@ Camera * BaseWindow::GetCurrentCamera()
 {
 	if (Instance != nullptr && Instance->Renderer != nullptr)
 	{
-		return Instance->Renderer->GetMainCam();
-
+		return Instance->Renderer->GetMainCam();	
 	}
 	return nullptr;
 }

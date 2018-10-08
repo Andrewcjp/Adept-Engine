@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "RHITypes.h"
+#include "Core/Utils/StringUtil.h"
 
 RHIFrameBufferDesc RHIFrameBufferDesc::CreateColour(int width, int height)
 {
@@ -66,4 +67,16 @@ IRHIResourse::~IRHIResourse()
 void IRHIResourse::Release()
 {
 	IsReleased = true;
+}
+
+void IRHIResourse::SetDebugName(std::string Name)
+{
+	DebugName = StringUtils::CopyStringToCharArray(Name);
+}
+
+const char * IRHIResourse::GetDebugName()
+{
+	std::string Finaln = std::string(DebugName) + ObjectSufix;
+	FinalName = StringUtils::CopyStringToCharArray(Finaln);
+	return FinalName;
 }

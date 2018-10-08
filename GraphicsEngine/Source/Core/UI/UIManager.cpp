@@ -70,6 +70,11 @@ void UIManager::InitEditorUI()
 	button->BindTarget(std::bind(&EditorWindow::ExitPlayMode, EditorWindow::GetInstance()));
 	button->SetText("Stop");
 	AddWidget(button);
+	button = new UIButton(200, 50, 0, 500);
+	button->SetScaled(0.05f, 0.075f, 0.5f + 0.05f, 1.0f - (TopHeight));
+	button->BindTarget(std::bind(&EditorWindow::Eject, EditorWindow::GetInstance()));
+	button->SetText("Eject");
+	AddWidget(button);
 #endif
 	//testbox = new UIPopoutbox(100, 300, 250, 150);
 	//testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));

@@ -20,8 +20,9 @@ public:
 	CORE_API void SetLockFlags(BodyInstanceData data);
 	CORE_API BodyInstanceData GetLockFlags();
 	void OnTransformUpdate() override ;
+	CORE_API void SetGravity(bool active);
 private:
-	RigidBody* actor;
+	RigidBody* actor = nullptr;
 	BodyInstanceData LockData;
 	// Inherited via Component
 #if WITH_EDITOR

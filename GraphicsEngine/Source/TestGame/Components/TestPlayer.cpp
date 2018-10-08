@@ -3,6 +3,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "Projectile.h"
+#include "Editor/EditorWindow.h"
 TestPlayer::TestPlayer()
 {
 
@@ -29,6 +30,10 @@ void TestPlayer::BeginPlay()
 
 void TestPlayer::Update(float delta)
 {
+	if (EditorWindow::GetInstance()->IsEditorEjected())
+	{
+		return;
+	}
 	glm::vec3 TargetVel = RB->GetVelocity();
 	TargetVel.z = 0.0f;
 	TargetVel.x = 0.0f;
@@ -67,27 +72,20 @@ void TestPlayer::Update(float delta)
 	glm::quat YRot = glm::quat(glm::radians(glm::vec3(0, -axis.x*LookSensitivty, 0)));
 	GetOwner()->SetRotation(GetOwner()->GetTransform()->GetQuatRot()* YRot);
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
-
-	glm::mat4 LocalMAtrix = GetOwner()->GetTransform()->GetModel();
 	if (CameraObject)
 	{
+#if 1
+		glm::mat4 LocalMAtrix = GetOwner()->GetTransform()->GetModel();
 		glm::quat rotation = glm::quat(glm::toMat4(newrot)*glm::inverse(LocalMAtrix));
 		rotation = glm::toMat4(rotation) *LocalMAtrix;
 
 
 		CameraObject->GetTransform()->SetQrot(CameraObject->GetTransform()->GetQuatRot()* rotation);
+#else
+		CameraObject->GetTransform()->SetLocalRotation(newrot);
+#endif
 		CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
 	}
-	//	Log::LogMessage(glm::to_string(CameraObject->GetTransform()->GetEulerRot()));
-	if (true)
-	{
-		Input::LockCursor(true);
-		Input::SetCursorVisible(false);
-	}
-	else
-	{
-		Input::SetCursorVisible(true);
-		Input::LockCursor(false);
-	}
+	Input::SetCursorState(true, false);
 }
 

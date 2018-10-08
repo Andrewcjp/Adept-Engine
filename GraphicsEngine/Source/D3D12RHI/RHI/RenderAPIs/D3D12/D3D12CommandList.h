@@ -33,7 +33,7 @@ public:
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
-	virtual void SetUpCommandSigniture(int commandSize,bool Dispatch) override;
+	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
 
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset);
 	ID3D12GraphicsCommandList* GetCommandList();
@@ -69,6 +69,24 @@ private:
 	ID3D12CommandSignature* CommandSig = nullptr;
 };
 
+class D3D12RHIUAV : public RHIUAV
+{
+public:
+	D3D12RHIUAV(DeviceContext* inDevice);
+
+	~D3D12RHIUAV();
+	void CreateUAVFromTexture(class BaseTexture* target) override;
+	void CreateUAVFromFrameBuffer(class FrameBuffer* target) override;
+	void Bind(RHICommandList* list, int slot) override;
+	ID3D12Resource * m_UAV = nullptr;
+	D3D12DeviceContext* Device = nullptr;
+	ID3D12Resource* UAVCounter = nullptr;
+	class DescriptorHeap* Heap = nullptr;
+protected:
+	void Release() override;
+	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
+};
+
 class D3D12Buffer : public RHIBuffer
 {
 public:
@@ -90,18 +108,19 @@ public:
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
 	class GPUResource* GetResource();
+
 protected:
 	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);
 	void Release() override;
 	void SetupBufferSRV();
-	void SetDebugName(const char* Name) override;
+	void CreateUAV();
 	friend class D3D12RHIUAV;
 private:
 	void MapBuffer(void** Data);
 	void UnMap();
 	void CreateStaticBuffer(int ByteSize);
 	void CreateDynamicBuffer(int ByteSize);
-	RHIBufferDesc Desc;
+
 	class D3D12CBV* CBV[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	EBufferAccessType::Type BufferAccesstype;
 	ID3D12Resource * m_UploadBuffer = nullptr;
@@ -115,23 +134,6 @@ private:
 	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };
 
-class D3D12RHIUAV : public RHIUAV
-{
-public:
-	D3D12RHIUAV(DeviceContext* inDevice);
-
-	~D3D12RHIUAV();
-	void CreateUAVFromTexture(class BaseTexture* target) override;
-	void CreateUAVFromFrameBuffer(class FrameBuffer* target) override;
-	void Bind(RHICommandList* list, int slot) override;
-	ID3D12Resource * m_UAV = nullptr;
-	D3D12DeviceContext* Device = nullptr;
-	ID3D12Resource* UAVCounter = nullptr;
-	class DescriptorHeap* Heap = nullptr;
-protected:
-	void Release() override;
-	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
-};
 
 class D3D12RHITextureArray : public RHITextureArray
 {

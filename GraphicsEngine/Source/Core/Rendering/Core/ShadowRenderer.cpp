@@ -60,9 +60,11 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 		GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, true);
 		PointShadowList = RHI::CreateCommandList(ECommandListType::Graphics, pointlightdevice);
 		PointShadowListALT = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
+		NAME_RHI_OBJECT(PointShadowListALT);
+		NAME_RHI_OBJECT(PointShadowList);
 	}
 	DirectionalShadowList = RHI::CreateCommandList();
-
+	NAME_RHI_OBJECT(DirectionalShadowList);
 #if TEST_PRESAMPLE
 	ShadowPreSampleShader = ShaderComplier::GetShader<Shader_ShadowSample>(pointlightdevice);
 	ShadowPreSamplingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
