@@ -187,6 +187,7 @@ void PhysxRigidbody::InitBody()
 		}
 		CommonActorPtr = StaticActor;
 	}
+	CommonActorPtr->userData = this;
 	PhysxEngine::GetPlayScene()->addActor(*CommonActorPtr);
 }
 #endif

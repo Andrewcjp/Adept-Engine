@@ -217,24 +217,29 @@ void PhysxEngine::AddBoxCollisionToEditor(GameObject* obj)
 
 	gEdtiorScene->addActor(*st);
 	//obj->SelectionShape = st;
-
 }
+
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene)
 {
 	PxRaycastBuffer hit;
-
+	//const PxU32 bufferSize = 256;        // [in] size of 'hitBuffer'
+	//PxRaycastHit hitBuffer[bufferSize];  // [out] User provided buffer for results
+	//PxRaycastBuffer hit(hitBuffer, bufferSize); // [out] Blocking and touching hits stored here
 	bool cast;
 	if (CastEdtiorScene)
 	{
-		cast = gEdtiorScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit);
+		cast = gEdtiorScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlag::eDEFAULT);
 	}
 	else
 	{
-		cast = gScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit);
+		PxQueryFilterData fd;
+		//fd.flags |= PxQueryFlag::; // note the OR with the default value
+		cast = gScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlags(PxHitFlag::eDEFAULT),fd);
 	}
-	if (cast)
+	if (hit.hasBlock)
 	{
 		outhit->position = PXvec3ToGLM(hit.getAnyHit(0).position);
+		outhit->HitBody = (RigidBody*)hit.block.actor->userData;
 		return true;
 	}
 	return false;
