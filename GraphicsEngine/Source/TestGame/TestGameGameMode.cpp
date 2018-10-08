@@ -42,7 +42,6 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 
 	SpawnSKull(glm::vec3(20, 5, 0));
 	SpawnSKull(glm::vec3(-15, 5, 0));
-
 }
 
 void TestGameGameMode::SpawnSKull(glm::vec3 Position)
