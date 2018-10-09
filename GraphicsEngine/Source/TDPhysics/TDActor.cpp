@@ -1,5 +1,5 @@
 #include "TDActor.h"
-
+#include "TDShape.h"
 namespace TD
 {
 
@@ -47,5 +47,14 @@ namespace TD
 	void TDActor::SetLinearVelocity(glm::vec3 newvel)
 	{
 		LinearVelocity = newvel;
+	}
+	void TDActor::AttachShape(TDShape * newShape)
+	{
+		AttachedShapes.push_back(newShape);
+		newShape->SetOwner(this);
+	}
+	std::vector<TDShape*>& TDActor::GetAttachedShapes()
+	{
+		return AttachedShapes;
 	}
 }

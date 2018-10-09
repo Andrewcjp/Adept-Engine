@@ -22,6 +22,7 @@
 #include "Version.h"
 #pragma comment(lib, "shlwapi.lib")
 #include "Core/Platform/Windows/WindowsWindow.h"
+#include "AI/Core/AISystem.h"
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
@@ -58,6 +59,7 @@ Engine::Engine()
 #else	
 	Log::OutS << "Running with TDSim" << Log::OutS;
 #endif
+	ModuleManager::Get()->PreLoadModules();
 	PhysEngine = new PhysicsEngine();
 	if (PhysEngine != nullptr)
 	{
@@ -68,7 +70,7 @@ Engine::Engine()
 #if RUNTESTS
 	FString::RunFStringTests();
 #endif
-	ModuleManager::Get()->PreLoadModules();
+	AISystem::StartUp();
 
 }
 
@@ -79,6 +81,7 @@ Engine::~Engine()
 void Engine::PreInit()
 {
 	PerfManager::StartPerfManager();
+	TestTDPhysics();
 
 }
 void Engine::OnRender()
@@ -103,6 +106,7 @@ void Engine::Destory()
 	{
 		PhysEngine->cleanupPhysics();
 	}
+	AISystem::ShutDown();
 	ModuleManager::Get()->ShutDown();
 	PerfManager::ShutdownPerfManager();
 }
@@ -321,5 +325,10 @@ void Engine::CreateApplicationWindow(int width, int height)
 			Log::OutS << "Fatal Error: Window Invalid" << Log::OutS;
 		}
 	}
+}
+#include "Test/TDTest.h"
+void Engine::TestTDPhysics()
+{
+	TD::TDTest::RunAllTests();
 }
 

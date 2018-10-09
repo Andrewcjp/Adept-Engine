@@ -8,6 +8,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Assets/ShaderComplier.h"
+
 DebugLineDrawer* DebugLineDrawer::instance = nullptr;
 DebugLineDrawer::DebugLineDrawer(bool DOnly)
 {
@@ -16,9 +17,10 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	ensure(LineShader);
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);
-	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	//VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
 
-	VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), sizeof(VERTEX)*maxSize, EBufferAccessType::Dynamic);
+	//VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), sizeof(VERTEX)*maxSize, EBufferAccessType::Dynamic);
+	ReallocBuffer(CurrentMaxVerts);
 	CmdList = RHI::CreateCommandList();
 	PipeLineState state = {};
 	state.DepthTest = false;
@@ -64,7 +66,15 @@ void DebugLineDrawer::RenderLines()
 {
 	RenderLines(Projection);
 }
-
+void DebugLineDrawer::ReallocBuffer(int NewSize)
+{
+	ensure(NewSize < maxSize);
+	EnqueueSafeRHIRelease(VertexBuffer);
+	CurrentMaxVerts = NewSize;
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	const int vertexBufferSize = sizeof(VERTEX) * CurrentMaxVerts;
+	VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), vertexBufferSize, EBufferAccessType::Dynamic);
+}
 void DebugLineDrawer::RenderLines(glm::mat4& matrix)
 {
 	if (VertsOnGPU == 0)
@@ -108,10 +118,9 @@ void DebugLineDrawer::ClearLines()
 
 void DebugLineDrawer::AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time)
 {
-	ensure(Lines.size() * 2 < maxSize);
-	if (Lines.size() * 2 > maxSize)
+	if (Lines.size() * 2 >= CurrentMaxVerts)
 	{
-		return;
+		ReallocBuffer(Lines.size() * 2 + 10);
 	}
 	WLine l = {};
 	l.startpos = Start;

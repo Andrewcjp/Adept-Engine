@@ -17,6 +17,7 @@ public:
 	~DebugLineDrawer();
 	void GenerateLines();
 	void RenderLines();
+	void ReallocBuffer(int NewSize);
 	void RenderLines(glm::mat4& matrix);
 	void ClearLines();
 
@@ -36,7 +37,8 @@ private:
 		glm::vec3 pos;
 		glm::vec3 colour;
 	};
-	const int maxSize = 1500;
+	const int maxSize = 10000;
+	int CurrentMaxVerts = 100;
 	bool Is2DOnly = false;
 };
 

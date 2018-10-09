@@ -72,7 +72,6 @@ struct CollisonData
 {
 	Collider* Hitcollider = nullptr;
 	Collider* OtherCollider = nullptr;
-
 };
 struct PhysicalMaterial
 {

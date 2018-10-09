@@ -12,6 +12,7 @@ namespace TD
 			Limit
 		};
 	};
+	class TDShape;
 	class TDActor
 	{
 	public:
@@ -27,6 +28,8 @@ namespace TD
 		virtual glm::vec3 GetLinearVelocity();
 		virtual void SetLinearVelocity(glm::vec3 newvel);
 		virtual void ResetForceThisFrame() {};
+		virtual void AttachShape(TDShape* newShape);
+		std::vector<TDShape*>& GetAttachedShapes();
 	protected:
 		~TDActor();
 		float BodyMass = 1.0f;
@@ -35,5 +38,6 @@ namespace TD
 		TDActorType::Type ActorType;
 		TDScene* OwningScene = nullptr;
 		friend class TDScene;
+		std::vector<TDShape*> AttachedShapes;
 	};
 }

@@ -9,4 +9,23 @@ namespace TD
 
 	TDShape::~TDShape()
 	{}
+	void TDShape::SetPhysicalMaterial(TDPhysicalMaterial mat) {
+		ShapeMaterial = mat;
+	}
+	const TDPhysicalMaterial * TDShape::GetPhysicalMaterial() const
+	{
+		return &ShapeMaterial;
+	}
+	EShapeType::Type TDShape::GetShapeType() const
+	{
+		return ShapeType;
+	}
+	void TDShape::SetOwner(TDActor * newowner)
+	{
+		Owner = newowner;
+	}
+	TDActor * TDShape::GetOwner()
+	{
+		return Owner;
+	}
 }

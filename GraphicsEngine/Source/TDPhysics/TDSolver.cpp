@@ -14,13 +14,13 @@ namespace TD
 	{
 		for (int i = 0; i < scene->GetActors().size(); i++)
 		{
-			IntergrateActor(scene->GetActors()[i], dt);
+			IntergrateActor(scene->GetActors()[i], dt, scene);
 		}
 	}
-	void TDSolver::IntergrateActor(TDActor* actor, float dt)
+	void TDSolver::IntergrateActor(TDActor* actor, float dt, TDScene* Scene)
 	{
 		glm::vec3 Veldelta = actor->GetVelocityDelta();
-		Veldelta += glm::vec3(0, -9.81, 0);
+		Veldelta += Scene->GetGravity();
 		glm::vec3 BodyVelocity = actor->GetLinearVelocity();
 		BodyVelocity += Veldelta * dt;
 		actor->SetLinearVelocity(BodyVelocity);
@@ -30,6 +30,12 @@ namespace TD
 	}
 	void TDSolver::ResolveCollisions(TDScene* scene)
 	{
+		for (int i = 0; i < scene->GetActors().size(); i++)
+		{
+			for (int j = 0; j < scene->GetActors().size(); j++)
+			{
 
+			}
+		}
 	}
 }
