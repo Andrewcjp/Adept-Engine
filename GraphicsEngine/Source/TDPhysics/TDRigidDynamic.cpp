@@ -11,14 +11,17 @@ namespace TD
 
 	TDRigidDynamic::~TDRigidDynamic()
 	{}
-
+	bool TDRigidDynamic::IsEffectedByGravity()
+	{
+		return UseGravity;
+	}
 	glm::vec3 TDRigidDynamic::GetVelocityDelta()
 	{
 		return DeltaVel;
 	}
 	void TDRigidDynamic::AddForce(glm::vec3 Force, bool AsForce)
 	{
-		if (AsForce) 
+		if (AsForce)
 		{
 			DeltaVel = Force / BodyMass;
 		}
@@ -31,5 +34,9 @@ namespace TD
 	void TDRigidDynamic::ResetForceThisFrame()
 	{
 		DeltaVel = glm::vec3();
+	}
+	void TDRigidDynamic::SetGravity(bool enabled)
+	{
+		UseGravity = enabled;
 	}
 }

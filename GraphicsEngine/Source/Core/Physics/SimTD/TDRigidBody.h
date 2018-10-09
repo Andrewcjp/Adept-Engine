@@ -22,9 +22,13 @@ public:
 	CORE_API BodyInstanceData GetLockFlags();
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
 	CORE_API void InitBody();
+	void SetPositionAndRotation(glm::vec3 pos, glm::quat rot);
+	CORE_API void SetGravity(bool state);
 private:
 	Transform m_transform;
 	TDRigidDynamic* Actor = nullptr;
+	TDRigidStatic* StaticActor = nullptr;
+	TDActor* CommonActorPTr = nullptr;
 };
 
 #endif

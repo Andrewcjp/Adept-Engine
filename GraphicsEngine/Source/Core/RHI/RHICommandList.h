@@ -72,7 +72,6 @@ public:
 	virtual ~RHICommandList();
 	virtual void ResetList() = 0;
 	virtual void SetRenderTarget(FrameBuffer* target, int SubResourceIndex = 0) = 0;
-
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
 	//drawing
@@ -84,9 +83,7 @@ public:
 	virtual void CreatePipelineState(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
 	//uses the Cached PiplineStates
 	virtual void SetPipelineStateObject(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
-
 	virtual void SetPipelineState(PipeLineState state) = 0;
-	//virtual void SetConstantBuffer(RHIBuffer* buffer) = 0;
 	virtual void UpdateConstantBuffer(void * data, int offset) = 0;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
 	virtual void SetTexture(class BaseTexture* texture, int slot) = 0;
@@ -95,7 +92,7 @@ public:
 	virtual void ClearScreen() = 0;
 	virtual void ClearFrameBuffer(FrameBuffer* buffer) = 0;
 	//todo: complete this
-	virtual void SetUAVParamter() {};
+	//virtual void SetUAVParamter() {};
 	virtual void UAVBarrier(RHIUAV* target) = 0;
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	//Indirect

@@ -149,7 +149,7 @@ std::string D3D12RHI::GetMemory()
 void D3D12RHI::LoadPipeLine()
 {
 #ifdef _DEBUG
-#define RUNDEBUG 0
+#define RUNDEBUG 1
 #else 
 #define RUNDEBUG 0
 #endif

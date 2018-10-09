@@ -1,4 +1,5 @@
 #pragma once
+#if PHYSX_ENABLED
 #include <include/physx/PxPhysicsAPI.h>
 using namespace physx;
 class PhysxCallBackHandler :public physx::PxSimulationEventCallback
@@ -17,3 +18,4 @@ class PhysxCallBackHandler :public physx::PxSimulationEventCallback
 	virtual void onAdvance(const PxRigidBody * const * bodyBuffer, const PxTransform * poseBuffer, const PxU32 count) override;
 
 };
+#endif

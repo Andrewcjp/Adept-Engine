@@ -1,8 +1,6 @@
 #include "GenericRigidBody.h"
-
-
-
-
+#include "Core/Components/Component.h"
+#include "Physics/PhysicsEngine.h"
 GenericRigidBody::GenericRigidBody(EBodyType::Type type)
 {
 	BodyType = type;
@@ -56,3 +54,21 @@ GenericCollider::GenericCollider()
 
 GenericCollider::~GenericCollider()
 {}
+GameObject * GenericCollider::GetGameObject()
+{
+	if (Owner != nullptr && Owner->GetOwnerComponent() != nullptr && Owner->GetOwnerComponent()->GetOwner() != nullptr)
+	{
+		return Owner->GetOwnerComponent()->GetOwner();
+	}
+	return nullptr;
+}
+
+void GenericCollider::SetOwner(RigidBody * newowner)
+{
+	Owner = newowner;
+}
+
+RigidBody * GenericCollider::GetOwner()
+{
+	return Owner;
+}

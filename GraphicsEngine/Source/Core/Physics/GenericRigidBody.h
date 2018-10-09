@@ -45,8 +45,11 @@ class GenericCollider
 public:
 	GenericCollider();
 	virtual ~GenericCollider();
+	virtual class GameObject * GetGameObject();
 	std::vector<ShapeElem*> Shapes;
+	CORE_API void SetOwner(RigidBody* newowner);
+	CORE_API RigidBody * GetOwner();
 protected:
-
+	RigidBody* Owner = nullptr;
 };
 

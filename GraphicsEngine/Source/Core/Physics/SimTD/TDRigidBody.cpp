@@ -59,6 +59,19 @@ void TDRigidBody::InitBody()
 	Actor = new TDRigidDynamic();
 	Actor->GetTransfrom()->SetPos(m_transform.GetPos());
 	TDPhysics::GetScene()->AddToScene(Actor);
+	CommonActorPTr = Actor;
+}
+
+void TDRigidBody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)
+{
+}
+
+void TDRigidBody::SetGravity(bool state)
+{
+	if (Actor) 
+	{
+		Actor->SetGravity(state);
+	}
 }
 
 #endif

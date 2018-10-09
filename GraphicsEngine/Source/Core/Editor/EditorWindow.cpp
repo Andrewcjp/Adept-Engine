@@ -176,7 +176,8 @@ void EditorWindow::FixedUpdate()
 		CurrentPlayScene->FixedUpdateScene(TickRate);
 	}
 }
-
+#include "AI/Core/AISystem.h"
+#include "AI/Core/NavigationMesh.h"
 void EditorWindow::Update()
 {
 	if (IsPlayingScene && CurrentPlayScene != nullptr)
@@ -190,7 +191,7 @@ void EditorWindow::Update()
 		CurrentScene->EditorUpdateScene();
 		
 	}
-
+	AISystem::Get()->mesh->DrawNavMeshLines(LineDrawer);
 	if (!IsPlayingScene || IsEditorEjected())
 	{
 		EditorCamera->Update(DeltaTime);
@@ -232,7 +233,7 @@ void EditorWindow::Update()
 	{
 		Eject();
 	}
-	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking())
+	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking() && IsEditorEjected())
 	{
 		mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
 	}

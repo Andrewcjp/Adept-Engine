@@ -15,7 +15,9 @@ TestGameGameMode::~TestGameGameMode()
 void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
-
+#if TDSIM_ENABLED
+	return;
+#endif
 	GameObject* go = new GameObject("Player Test");
 	player = go;
 	Material* mat = Material::GetDefaultMaterial();

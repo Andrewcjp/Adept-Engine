@@ -4,6 +4,7 @@
 #include "Physics/PhysicsEngine.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "Core/GameObject.h"
+#if PHYSX_ENABLED
 void PhysxCallBackHandler::onContact(const PxContactPairHeader & PairHeader, const PxContactPair * Pairs, PxU32 NumPairs)
 {
 	for (unsigned int PairIdx = 0; PairIdx < NumPairs; PairIdx++)
@@ -57,7 +58,6 @@ void PhysxCallBackHandler::onWake(PxActor ** actors, PxU32 count)
 void PhysxCallBackHandler::onSleep(PxActor ** actors, PxU32 count)
 {
 	DebugEnsure(false);
-
 }
 
 void PhysxCallBackHandler::onTrigger(PxTriggerPair * pairs, PxU32 count)
@@ -69,3 +69,4 @@ void PhysxCallBackHandler::onAdvance(const PxRigidBody * const * bodyBuffer, con
 {
 	DebugEnsure(false);
 }
+#endif
