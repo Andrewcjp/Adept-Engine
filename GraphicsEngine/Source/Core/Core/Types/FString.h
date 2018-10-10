@@ -7,11 +7,11 @@ public:
 	 CORE_API FString(std::string input,bool Hash = false);
 	 CORE_API FString(const char* text, bool Hash = false);
 	 CORE_API ~FString();
-	 bool Contains(FString Target);
+	 CORE_API bool Contains(FString Target);
 	 std::string& ToSString();
 	 std::wstring& ToWideString();
 	bool operator==(const FString &b) const;
-	void SetupHash();
+	CORE_API void SetupHash();
 #if RUNTESTS
 	static void RunFStringTests();
 #endif

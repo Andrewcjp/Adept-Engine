@@ -1,9 +1,11 @@
+#ifndef FROMTEST
 #include "Stdafx.h"
+#endif
 #include "FString.h"
 #include "Core/Asserts.h"
-#include "Core/Utils/StringUtil.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Utils/StringUtil.h"
 #define AUTO_HASH 0
 FString::FString()
 {
