@@ -23,6 +23,7 @@
 #pragma comment(lib, "shlwapi.lib")
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "AI/Core/AISystem.h"
+#include "Audio/AudioEngine.h"
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
@@ -71,7 +72,7 @@ Engine::Engine()
 	FString::RunFStringTests();
 #endif
 	AISystem::StartUp();
-
+	AudioEngine::Startup();
 }
 
 Engine::~Engine()
@@ -107,6 +108,7 @@ void Engine::Destory()
 		PhysEngine->cleanupPhysics();
 	}
 	AISystem::ShutDown();
+	AudioEngine::Shutdown();
 	ModuleManager::Get()->ShutDown();
 	PerfManager::ShutdownPerfManager();
 }

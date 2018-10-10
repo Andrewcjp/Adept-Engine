@@ -206,6 +206,10 @@ RigidBody* PhysxEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 v
 	PX_UNUSED(velocity);
 	return nullptr;// new PhysxRigidbody(CreateActor(GLMtoPXvec3(position), scale, PxGeometryType::eSPHERE));
 }
+bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit,std::vector<RigidBody*>& IgnoredActors)
+{
+	return RayCastScene(startpos, direction, distance, outhit, false, IgnoredActors);
+}
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {
 	return RayCastScene(startpos, direction, distance, hit, false);
@@ -219,7 +223,7 @@ void PhysxEngine::AddBoxCollisionToEditor(GameObject* obj)
 	//obj->SelectionShape = st;
 }
 
-bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene)
+bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors)
 {
 	PxRaycastBuffer hit;
 	//const PxU32 bufferSize = 256;        // [in] size of 'hitBuffer'
@@ -230,11 +234,14 @@ bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float di
 	{
 		cast = gEdtiorScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlag::eDEFAULT);
 	}
-	else
+	else 
 	{
 		PxQueryFilterData fd;
-		//fd.flags |= PxQueryFlag::; // note the OR with the default value
-		cast = gScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlags(PxHitFlag::eDEFAULT),fd);
+		fd.flags |= PxQueryFlag::ePREFILTER; // note the OR with the default value
+		FPxQueryFilterCallback* filter = new FPxQueryFilterCallback();
+		filter->IgnoredBodies = IgnoredActors;
+		cast = gScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlags(PxHitFlag::eDEFAULT), fd, filter);
+		delete filter;
 	}
 	if (hit.hasBlock)
 	{

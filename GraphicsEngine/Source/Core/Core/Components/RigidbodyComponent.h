@@ -21,6 +21,7 @@ public:
 	CORE_API BodyInstanceData GetLockFlags();
 	void OnTransformUpdate() override ;
 	CORE_API void SetGravity(bool active);
+	CORE_API RigidBody* GetActor();
 private:
 	RigidBody* actor = nullptr;
 	BodyInstanceData LockData;

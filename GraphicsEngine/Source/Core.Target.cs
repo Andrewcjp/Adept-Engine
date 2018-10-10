@@ -16,6 +16,8 @@ class CoreTargetRules : TargetRules
             LibSearchPaths.Add(new LibSearchPath("\\Physx", LibBuildConfig.General, true));
         }
         LibSearchPaths.Add(new LibSearchPath("\\Core", LibBuildConfig.General, true));
+        LibSearchPaths.Add(new LibSearchPath("\\WWise\\Debug", LibBuildConfig.Debug));
+        LibSearchPaths.Add(new LibSearchPath("\\WWise\\Release", LibBuildConfig.Optimized));
         if (BuildVulkan)
         {
             LibSearchPaths.Add(new LibSearchPath("\\Vulkan", LibBuildConfig.General, true));

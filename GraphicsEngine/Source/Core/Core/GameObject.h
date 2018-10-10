@@ -71,6 +71,10 @@ public:
 	CORE_API glm::vec3 GetPosition();
 	CORE_API glm::quat GetRotation();
 	void BroadCast_OnCollide(CollisonData Data);
+	int GetAudioId()
+	{
+		return AudioId;		
+	}
 private:
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);
@@ -91,6 +95,7 @@ private:
 #endif
 	Scene* OwnerScene;
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;
+	int AudioId = 0;
 };
 
 template<class T>

@@ -3,7 +3,7 @@
 #include "RHI/RHITypes.h"
 #include "Core/Utils/StringUtil.h"
 
-#if defined(_DEBUG)
+#if NAME_RHI_PRIMS
 inline void NAME_D3D12_SetName_Convert(ID3D12Object* pObject, std::string name)
 {
 	pObject->SetName(StringUtils::ConvertStringToWide(name).c_str());
@@ -18,6 +18,7 @@ inline void NAME_D3D12_SetName(ID3D12Object* pObject, LPCWSTR name)
 inline void SetName(ID3D12Object*, LPCWSTR)
 {}
 #define NAME_D3D12_OBJECT(x)
+#define NAME_RHI_OBJ(x)
 #endif
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
 class D3D12Helpers

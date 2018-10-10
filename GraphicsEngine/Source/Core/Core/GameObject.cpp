@@ -8,12 +8,15 @@
 #include "Core/Components/RigidbodyComponent.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/BaseWindow.h"
+#include "Audio/AudioEngine.h"
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
 {
 	Name = name;
 	ObjectID = oid;
 	Mobilty = stat;
 	m_transform = new Transform();
+	AudioId = AudioEngine::GetNextAudioId();
+	AudioEngine::RegisterObject(this);
 }
 
 Material* GameObject::GetMat()
@@ -27,6 +30,7 @@ Material* GameObject::GetMat()
 
 GameObject::~GameObject()
 {
+	AudioEngine::DeRegisterObject(this);
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		SafeDelete(m_Components[i]);

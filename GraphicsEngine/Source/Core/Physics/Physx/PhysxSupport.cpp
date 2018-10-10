@@ -70,3 +70,22 @@ void PhysxCallBackHandler::onAdvance(const PxRigidBody * const * bodyBuffer, con
 	DebugEnsure(false);
 }
 #endif
+
+PxQueryHitType::Enum FPxQueryFilterCallback::CalcQueryHitType(const PxFilterData & PQueryFilter, const PxFilterData & PShapeFilter, bool bPreFilter)
+{
+	return PxQueryHitType::Enum();
+}
+
+PxQueryHitType::Enum FPxQueryFilterCallback::preFilter(const PxFilterData & filterData, const PxShape * shape, const PxRigidActor * actor, PxHitFlags & queryFlags)
+{
+	// Check if the shape is the right complexity for the trace 
+	RigidBody* rb = (RigidBody*)actor->userData;
+	for (int i = 0; i < IgnoredBodies.size(); i++)
+	{
+		if (rb == IgnoredBodies[i])
+		{
+			return PxQueryHitType::eNONE;
+		}
+	}
+	return PxQueryHitType::eBLOCK;
+}

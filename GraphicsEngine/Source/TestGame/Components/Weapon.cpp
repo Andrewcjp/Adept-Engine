@@ -3,6 +3,7 @@
 #include "Core/Components/Core_Components_inc.h"
 #include "Projectile.h"
 #include "Editor/EditorWindow.h"
+#include "Audio/AudioEngine.h"
 Weapon::Weapon()
 {}
 
@@ -39,6 +40,7 @@ void Weapon::Fire()
 	{
 		return;
 	}
+	AudioEngine::PostEvent("Play_Shotgun", GetOwner());
 	//Create projectile!
 	const glm::vec3 Forward = CameraComponent::GetMainCamera()->GetForward();
 	glm::vec3 Position = GetOwner()->GetPosition() + Forward * 3;

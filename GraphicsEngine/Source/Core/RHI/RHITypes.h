@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Types/FString.h"
 #define MRT_MAX 8
+#define NAME_RHI_PRIMS !BUILD_SHIPPING
 enum eTextureDimension
 {
 	DIMENSION_UNKNOWN = 0,
@@ -323,18 +324,26 @@ public:
 	}
 	bool IsReleased = false;
 	void SetDebugName(std::string Name);
-	const char* GetDebugName();
 	const char* ObjectSufix = "";
+#if NAME_RHI_PRIMS	
+	const char* GetDebugName();	
+#endif
 private:
+#if NAME_RHI_PRIMS
 	const char* FinalName = "";	
 	const char* DebugName = "";
+#endif
 	bool PendingKill = false;
 	friend class RHI;
 };
 //Releases the GPU side and deletes the CPU object
 #define SafeRHIRelease(Target) if(Target != nullptr){Target->Release(); delete Target; Target= nullptr;}
 #define EnqueueSafeRHIRelease(Target) if(Target != nullptr){RHI::AddToDeferredDeleteQueue(Target);}
+#if NAME_RHI_PRIMS
 #define NAME_RHI_OBJECT(x) x->SetDebugName(#x);
+#else
+#define NAME_RHI_OBJECT(x)
+#endif
 struct IndirectDrawArgs
 {
 	int VertexCountPerInstance;

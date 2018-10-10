@@ -34,6 +34,7 @@
 #include "UI/UIManager.h"
 #include "EditorCore.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Audio/AudioEngine.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -125,6 +126,7 @@ void EditorWindow::ExitPlayMode()
 	{
 		return;
 	}
+	AudioEngine::StopAll();
 	mEditorCore->SetSelectedObject(nullptr);
 	Log::OutS << "Exiting play mode" << Log::OutS;
 	Renderer->SetScene(CurrentScene);
