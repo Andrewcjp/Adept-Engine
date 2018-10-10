@@ -68,6 +68,24 @@ struct PlaneElm :public ShapeElem
 		ShapeType = EShapeType::ePLANE;
 	};
 };
+struct TriMeshElm :public ShapeElem
+{
+	std::string MeshAssetName = "";
+	glm::vec3 Scale = glm::vec3(1);
+	TriMeshElm()
+	{
+		ShapeType = EShapeType::eTRIANGLEMESH;
+	};
+};
+struct ConvexMeshElm :public ShapeElem
+{
+	std::string MeshAssetName = "";
+	glm::vec3 Scale = glm::vec3(1);
+	ConvexMeshElm()
+	{
+		ShapeType = EShapeType::eCONVEXMESH;
+	};
+};
 struct CollisonData
 {
 	Collider* Hitcollider = nullptr;

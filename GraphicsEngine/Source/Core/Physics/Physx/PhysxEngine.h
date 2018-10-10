@@ -57,6 +57,7 @@ public:
 	static physx::PxScene * GetPlayScene();
 	static physx::PxMaterial* GetDefaultMaterial();
 	physx::PxMaterial* CreatePhysxMat(PhysicalMaterial* mat);
+	static 	physx::PxCooking* GetCooker();
 private:
 	class ColliderComponent*		DebugFloor = nullptr;
 	PhysxCallBackHandler*			CallBackHandler = nullptr;
@@ -65,7 +66,7 @@ private:
 
 	physx::PxFoundation*			gFoundation = NULL;
 	physx::PxPhysics*				gPhysics = NULL;
-
+	physx::PxCooking*				gCooking = NULL;
 	physx::PxDefaultCpuDispatcher*	gDispatcher = NULL;
 	physx::PxScene*				gScene = NULL;
 	physx::PxScene*				gEdtiorScene = NULL;

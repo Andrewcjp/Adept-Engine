@@ -18,6 +18,7 @@ public:
 	CORE_API void AddForce(glm::vec3, EForceMode::Type Mode = EForceMode::AsForce);
 	CORE_API glm::vec3 GetLinearVelocity();
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
+
 	void AttachCollider(Collider* col);
 	void SetPhysicalMaterial(PhysicalMaterial* newmat);
 	void SetGravity(bool active);
@@ -26,6 +27,8 @@ public:
 	void InitBody();
 private:
 	std::vector<Collider*> AttachedColliders;
+	physx::PxTriangleMesh * GenerateTriangleMesh(std::string Filename, glm::vec3 scale);
+	physx::PxConvexMesh * GenerateConvexMesh(std::string Filename, glm::vec3 scale);
 	physx::PxRigidDynamic*	Dynamicactor = nullptr;
 	physx::PxRigidStatic*	StaticActor = nullptr;
 	physx::PxRigidActor*	CommonActorPtr = nullptr;
