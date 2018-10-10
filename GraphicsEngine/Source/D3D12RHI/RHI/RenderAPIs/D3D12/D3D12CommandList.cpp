@@ -703,7 +703,7 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 		IID_PPV_ARGS(&TempRes)));
 	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_COPY_DEST);
 	// we can give resource heaps a name so when we debug with the graphics debugger we know what resource we are looking at
-	
+
 	// create upload heap to upload index buffer
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
@@ -712,7 +712,7 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
 		nullptr,
 		IID_PPV_ARGS(&m_UploadBuffer)));
-	D3D12Helpers::NameRHIObject(m_UploadBuffer, this,"(UPLOAD)");
+	D3D12Helpers::NameRHIObject(m_UploadBuffer, this, "(UPLOAD)");
 }
 
 void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
@@ -834,7 +834,9 @@ void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 	ensure(target->CurrentBufferType == ERHIBufferType::GPU);
 	ensure(d3dtarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+#if NAME_RHI_PRIMS
 	SetDebugName(d3dtarget->GetDebugName());
+#endif
 	D3D12Helpers::NameRHIObject(Heap, this);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
@@ -852,7 +854,9 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 	D3D12Texture* D3DTarget = (D3D12Texture*)target;
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+#if 	NAME_RHI_PRIMS
 	SetDebugName(D3DTarget->GetDebugName());
+#endif
 	D3D12Helpers::NameRHIObject(Heap, this);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
@@ -867,7 +871,9 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
 	D3D12FrameBuffer* D3DTarget = (D3D12FrameBuffer*)target;
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+#if NAME_RHI_PRIMS
 	SetDebugName(D3DTarget->GetDebugName());
+#endif
 	D3D12Helpers::NameRHIObject(Heap, this);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;

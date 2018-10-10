@@ -1,0 +1,6 @@
+Event	ID	Name			Wwise Object Path	Notes
+	992244	Play_Shotgun			\Default Work Unit\Play_Shotgun	
+
+In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
+	319483686	Noise_Close_OneShot_Shotgun_Wave 0 0 0	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\Noise_Close_OneShot_Shotgun_Wave 0 0 0_56D34C19.wem		\Actor-Mixer Hierarchy\Default Work Unit\Noise_Close_OneShot_Shotgun_Wave 0 0 0		170256
+

@@ -43,7 +43,7 @@ public:
 	int GetCounterOffset()
 	{
 		return CounterOffset;
-	}
+	} 
 	class RHIUAV* GetUAV();
 protected: 
 	RHIBufferDesc Desc;

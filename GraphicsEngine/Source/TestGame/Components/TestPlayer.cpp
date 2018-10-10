@@ -28,10 +28,11 @@ void TestPlayer::CheckForGround()
 	IsGrounded = false;
 	RayHit hit;
 	glm::vec3 down = -GetOwner()->GetTransform()->GetUp();
-	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition() - down * 2.5, down, 2, &hit))
+	std::vector<RigidBody*> IgnoreActors;
+	IgnoreActors.push_back(RB->GetActor());
+	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 2, &hit, IgnoreActors))
 	{
 		IsGrounded = true;
-		Log::LogMessage("G");
 	}
 }
 void TestPlayer::BeginPlay()
@@ -46,10 +47,8 @@ void TestPlayer::Update(float delta)
 		return;
 	}
 	CheckForGround();
-	if (IsGrounded)
-	{
-		UpdateMovement(delta);
-	}
+	UpdateMovement(delta);
+
 	if (CameraComponent::GetMainCamera() != nullptr)
 	{
 		glm::vec3 Pos = GetOwner()->GetTransform()->GetPos();
@@ -83,7 +82,14 @@ void TestPlayer::UpdateMovement(float delta)
 	glm::vec3 TargetVel = glm::vec3(0, 0, 0);
 	glm::vec3 right = glm::vec3(1, 0, 0);
 	glm::vec3 fwd = glm::vec3(0, 0, 1);
-	Speed = 1;
+	if (IsGrounded)
+	{
+		Speed = 1;
+	}
+	else
+	{
+		Speed = 0.2f;
+	}
 	if (Input::GetKey('a'))
 	{
 		TargetVel -= right * Speed;
@@ -100,18 +106,21 @@ void TestPlayer::UpdateMovement(float delta)
 	{
 		TargetVel -= fwd * Speed;
 	}
-	float friction = 0.1f;
-	if (TargetVel == glm::vec3(0))
+	if (IsGrounded)
 	{
-		friction = 0.5f;
+		float friction = 0.1f;
+		if (TargetVel == glm::vec3(0))
+		{
+			friction = 0.5f;
+		}
+		RelativeSpeed -= RelativeSpeed * 20.0f*friction*delta;
 	}
-	RelativeSpeed -= RelativeSpeed * 20.0f*friction*delta;
 	glm::vec3 CurrentVel = RB->GetVelocity();
 	RelativeSpeed += (TargetVel*Acceleration*delta);
 	RelativeSpeed = glm::clamp(RelativeSpeed, -glm::vec3(MaxSpeed), glm::vec3(MaxSpeed));
 	glm::vec3 NewVel = (RelativeSpeed.z*GetOwner()->GetTransform()->GetForward()) + (RelativeSpeed.x*GetOwner()->GetTransform()->GetRight());
 	NewVel.y = RB->GetVelocity().y;
-	if (Input::GetKeyDown(KeyCode::SPACE))
+	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
 		NewVel += GetOwner()->GetTransform()->GetUp() * jumpHeight;
 	}

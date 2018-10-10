@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="11" SoundbankVersion="132">
+	<RootPaths>
+		<ProjectRoot>C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\</ProjectRoot>
+		<SourceFilesRoot>C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\</SourceFilesRoot>
+		<SoundBanksRoot>C:\Users\AANdr\Dropbox\Engine\Engine\Repo\GraphicsEngine\Content\Banks\</SoundBanksRoot>
+		<ExternalSourcesInputFile></ExternalSourcesInputFile>
+		<ExternalSourcesOutputRoot>C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\GeneratedSoundBanks\Windows</ExternalSourcesOutputRoot>
+	</RootPaths>
+	<DialogueEvents/>
+	<StreamedFiles/>
+	<MediaFilesNotInAnyBank/>
+	<SoundBanks>
+		<SoundBank Id="1355168291" Language="SFX">
+			<ObjectPath>Init</ObjectPath>
+			<ShortName>Init</ShortName>
+			<Path>Init.bnk</Path>
+		</SoundBank>
+		<SoundBank Id="3787826988" Language="SFX">
+			<ObjectPath>\SoundBanks\Default Work Unit\Core</ObjectPath>
+			<ShortName>Core</ShortName>
+			<Path>Core.bnk</Path>
+			<IncludedEvents>
+				<Event Id="992244" Name="Play_Shotgun" ObjectPath="\Events\Default Work Unit\Play_Shotgun"/>
+			</IncludedEvents>
+			<IncludedMemoryFiles>
+				<File Id="319483686" Language="SFX">
+					<ShortName>Noise_Close_OneShot_Shotgun_Wave 0 0 0.wav</ShortName>
+					<Path>SFX\Noise_Close_OneShot_Shotgun_Wave 0 0 0_56D34C19.wem</Path>
+				</File>
+			</IncludedMemoryFiles>
+		</SoundBank>
+	</SoundBanks>
+</SoundBanksInfo>

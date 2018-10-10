@@ -16,6 +16,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Game/Game.h"
 #include "Core/Assets/ImageIO.h"
+#include "Audio/AudioEngine.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -109,7 +110,7 @@ void BaseWindow::Render()
 	}
 	AccumTickTime += DeltaTime;
 	Input::Get()->ProcessInput(DeltaTime);
-
+	AudioEngine::ProcessAudio();
 	//lock the simulation rate to TickRate
 	//this prevents physx being framerate depenent.
 	if (IsRunning)

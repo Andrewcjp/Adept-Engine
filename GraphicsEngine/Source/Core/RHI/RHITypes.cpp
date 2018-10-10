@@ -68,7 +68,7 @@ void IRHIResourse::Release()
 {
 	IsReleased = true;
 }
-
+#if NAME_RHI_PRIMS
 void IRHIResourse::SetDebugName(std::string Name)
 {
 	DebugName = StringUtils::CopyStringToCharArray(Name);
@@ -80,3 +80,7 @@ const char * IRHIResourse::GetDebugName()
 	FinalName = StringUtils::CopyStringToCharArray(Finaln);
 	return FinalName;
 }
+#else
+void IRHIResourse::SetDebugName(std::string Name)
+{}
+#endif

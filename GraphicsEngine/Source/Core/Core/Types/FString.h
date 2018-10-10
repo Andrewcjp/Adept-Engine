@@ -5,8 +5,8 @@ class  FString
 public:
 	 FString();
 	 CORE_API FString(std::string input,bool Hash = false);
-	 FString(const char* text, bool Hash = false);
-	 ~FString();
+	 CORE_API FString(const char* text, bool Hash = false);
+	 CORE_API ~FString();
 	 bool Contains(FString Target);
 	 std::string& ToSString();
 	 std::wstring& ToWideString();
