@@ -6,6 +6,7 @@
 #include "Core/Assets/Archive.h"
 #include "Core/GameObject.h"
 #include "RigidbodyComponent.h"
+#include "Core/Assets/AssetManager.h"
 ColliderComponent::ColliderComponent()
 {
 	TypeID = CompoenentRegistry::BaseComponentTypes::ColliderComp;
@@ -44,6 +45,10 @@ void ColliderComponent::ProcessSerialArchive(Archive * A)
 	{
 		ArchiveProp(Radius);
 	}
+	else if (CollisionShapeType == EShapeType::eTRIANGLEMESH || CollisionShapeType == EShapeType::eCONVEXMESH)
+	{
+		ArchiveProp(MeshName);
+	}	
 }
 
 EShapeType::Type ColliderComponent::GetCollisonShape()
@@ -78,6 +83,28 @@ ShapeElem * ColliderComponent::GetColliderShape()
 		box->scale = BoxExtents;
 		return box;
 	}
+	case EShapeType::eCONVEXMESH:
+	{
+		if (MeshName.length() == 0)
+		{
+			return nullptr;
+		}
+		ConvexMeshElm* box = new ConvexMeshElm();
+		box->MeshAssetName = MeshName;
+		box->Scale = GetOwner()->GetTransform()->GetScale();
+		return box;
+	}
+	case EShapeType::eTRIANGLEMESH:
+	{
+		if (MeshName.length() == 0)
+		{
+			return nullptr;
+		}
+		TriMeshElm* box = new TriMeshElm();
+		box->MeshAssetName = MeshName;
+		box->Scale = GetOwner()->GetTransform()->GetScale();
+		return box;
+	}
 	}
 	return nullptr;
 }
@@ -103,6 +130,11 @@ void ColliderComponent::TransferToRigidbody()
 {
 	SafeDelete(Actor);
 }
+
+void ColliderComponent::SetTriangleMeshAssetName(std::string name)
+{
+	MeshName = AssetManager::GetContentPath() + name;
+}
 #if WITH_EDITOR
 void ColliderComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
@@ -119,7 +151,7 @@ void ColliderComponent::GetInspectorProps(std::vector<Inspector::InspectorProper
 	else if (CollisionShapeType == EShapeType::ePLANE)
 	{
 		group.SubProps.push_back(Inspector::CreateProperty("Scale", EditValueType::Vector, &BoxExtents));
-	}	
+	}
 	props.push_back(group);
 }
 #endif

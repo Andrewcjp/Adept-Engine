@@ -28,6 +28,13 @@ void PhysxEngine::initPhysics()
 #endif
 	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
+	PxCookingParams params(gPhysics->getTolerancesScale());
+	params.meshWeldTolerance = 0.001f;
+	params.meshPreprocessParams = PxMeshPreprocessingFlags(PxMeshPreprocessingFlag::eWELD_VERTICES);
+	params.buildGPUData = true; //Enable GRB data being produced in cooking.
+	gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, params);
+
+
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 	CallBackHandler = new PhysxCallBackHandler();
@@ -196,6 +203,10 @@ physx::PxMaterial * PhysxEngine::GetDefaultMaterial()
 physx::PxMaterial * PhysxEngine::CreatePhysxMat(PhysicalMaterial * mat)
 {
 	return gPhysics->createMaterial(mat->StaticFriction, mat->DynamicFirction, mat->Bouncyness);
+}
+physx::PxCooking * PhysxEngine::GetCooker()
+{
+	return Engine::GetPhysEngineInstance()->gCooking;
 }
 RigidBody * PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale)
 {

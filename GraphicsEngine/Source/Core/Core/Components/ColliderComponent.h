@@ -19,6 +19,8 @@ public:
 	CORE_API ShapeElem* GetColliderShape();
 	void SceneInitComponent()override;
 	void TransferToRigidbody();
+	void SetTriangleMeshAssetName(std::string name);
+
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props);
 #endif
@@ -27,5 +29,6 @@ private:
 	float Radius = 1;
 	glm::vec3 BoxExtents = glm::vec3(1, 1, 1);
 	RigidBody* Actor = nullptr;
+	std::string MeshName;
 };
 

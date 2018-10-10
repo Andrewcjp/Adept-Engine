@@ -15,7 +15,7 @@ PhysxRigidbody::~PhysxRigidbody()
 	MemoryUtils::DeleteVector(AttachedColliders);
 	for (int i = 0; i < Shapes.size(); i++)
 	{
-		Shapes[i]->userData = (void*)0xAffffffff; 
+		Shapes[i]->userData = (void*)0xAffffffff;
 		Shapes[i]->release();
 	}
 }
@@ -75,14 +75,75 @@ void PhysxRigidbody::SetLinearVelocity(glm::vec3 velocity)
 		Dynamicactor->setLinearVelocity(GLMtoPXvec3(velocity));
 	}
 }
+physx::PxTriangleMesh* PhysxRigidbody::GenerateTriangleMesh(std::string Filename, glm::vec3 scale)
+{
+	std::vector<OGLVertex> vertices;
+	std::vector<int> indices;
+	MeshLoader::FMeshLoadingSettings t;
+	t.Scale = scale;
+	MeshLoader::LoadMeshFromFile(Filename, t, vertices, indices);
+	std::vector <glm::vec3> verts;
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		verts.push_back(vertices[i].m_position);
+	}
+	PxTriangleMeshDesc meshDesc;
+	meshDesc.points.count = verts.size();
+	meshDesc.points.stride = sizeof(glm::vec3);
+	meshDesc.points.data = verts.data();
 
+	meshDesc.triangles.count = indices.size();
+	meshDesc.triangles.stride = 3 * sizeof(int);
+	meshDesc.triangles.data = indices.data();
+
+	ensure(meshDesc.isValid());
+	PxDefaultMemoryOutputStream writeBuffer;
+	PxTriangleMeshCookingResult::Enum result;
+	bool status = PhysxEngine::GetCooker()->cookTriangleMesh(meshDesc, writeBuffer, &result);
+	ensure(status);
+
+	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	return PhysxEngine::GetGPhysics()->createTriangleMesh(readBuffer);
+}
+physx::PxConvexMesh* PhysxRigidbody::GenerateConvexMesh(std::string Filename, glm::vec3 scale)
+{
+	std::vector<OGLVertex> vertices;
+	std::vector<int> indices;
+	MeshLoader::FMeshLoadingSettings t;
+	t.Scale = scale;
+	MeshLoader::LoadMeshFromFile(Filename, t, vertices, indices);
+	std::vector <glm::vec3> verts;
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		verts.push_back(vertices[indices[i]].m_position);
+	}
+	PxConvexMeshDesc convexDesc;
+	convexDesc.points.count = verts.size();
+	convexDesc.points.stride = sizeof(PxVec3);
+	convexDesc.points.data = verts.data();
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+	convexDesc.vertexLimit = 10;
+
+	PxDefaultMemoryOutputStream buf;
+	bool status = PhysxEngine::GetCooker()->cookConvexMesh(convexDesc, buf);
+	ensure(status);
+
+	PxDefaultMemoryInputData readBuffer(buf.getData(), buf.getSize());
+	return PhysxEngine::GetGPhysics()->createConvexMesh(readBuffer);
+}
 void PhysxRigidbody::AttachCollider(Collider * col)
 {
+
 	PMaterial = PhysxEngine::GetDefaultMaterial();
 	PxShape* newShape = nullptr;
 	for (int i = 0; i < col->Shapes.size(); i++)
 	{
 		ShapeElem* Shape = col->Shapes[i];
+		if (Shape == nullptr)
+		{
+			Log::LogMessage("Invalid physx Shape", Log::Severity::Error);
+			continue;
+		}
 		switch (Shape->GetType())
 		{
 		case EShapeType::eBOX:
@@ -104,9 +165,21 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 			newShape->setLocalPose(PxTransform(GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(0, 1, 0, 0)));
 			break;
 		}
+		case EShapeType::eCONVEXMESH:
+		{
+			ConvexMeshElm* SphereShape = (ConvexMeshElm*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxConvexMeshGeometry(GenerateConvexMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial);
+			break;
 		}
-		newShape->userData = col;
+		case EShapeType::eTRIANGLEMESH:
+		{
+			TriMeshElm* SphereShape = (TriMeshElm*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxTriangleMeshGeometry(GenerateTriangleMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial);
+			break;
+		}
+		}
 		ensure(newShape);
+		newShape->userData = col;
 		Shapes.push_back(newShape);
 	}
 	AttachedColliders.push_back(col);
