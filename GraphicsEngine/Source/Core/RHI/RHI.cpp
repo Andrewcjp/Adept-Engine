@@ -198,7 +198,6 @@ void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 		if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount < CurrentFrame || Flush)
 		{
 			SafeRHIRelease(DeferredDeleteQueue[i].first);
-			//delete DeferredDeleteQueue[i].first;
 			DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
 		}
 	}
@@ -237,7 +236,6 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device)
 		return ImageIO::GetDefaultTexture();
 	}
 	ImageIO::RegisterTextureLoad(newtex);
-	//newtex->AddRef();
 	return newtex;
 }
 

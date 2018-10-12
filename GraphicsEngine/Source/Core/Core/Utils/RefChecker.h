@@ -44,6 +44,10 @@ public:
 	int LogRefs()
 	{
 		check(Refs.size() == 0);
+		if (Refs.size() != 0)
+		{
+			Log::LogMessage("Objects Leaked!", Log::Error);
+		}
 		return (int)Refs.size();
 	}
 

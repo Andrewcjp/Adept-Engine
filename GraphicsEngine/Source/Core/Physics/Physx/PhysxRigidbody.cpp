@@ -87,12 +87,12 @@ physx::PxTriangleMesh* PhysxRigidbody::GenerateTriangleMesh(std::string Filename
 	{
 		verts.push_back(vertices[i].m_position);
 	}
-	PxTriangleMeshDesc meshDesc;
-	meshDesc.points.count = verts.size();
+	PxTriangleMeshDesc meshDesc = PxTriangleMeshDesc();
+	meshDesc.points.count = (PxU32)verts.size();
 	meshDesc.points.stride = sizeof(glm::vec3);
 	meshDesc.points.data = verts.data();
 
-	meshDesc.triangles.count = indices.size();
+	meshDesc.triangles.count = (PxU32)(indices.size() / 3);
 	meshDesc.triangles.stride = 3 * sizeof(int);
 	meshDesc.triangles.data = indices.data();
 
@@ -101,7 +101,7 @@ physx::PxTriangleMesh* PhysxRigidbody::GenerateTriangleMesh(std::string Filename
 	PxTriangleMeshCookingResult::Enum result;
 	bool status = PhysxEngine::GetCooker()->cookTriangleMesh(meshDesc, writeBuffer, &result);
 	ensure(status);
-
+	ensure(result == PxTriangleMeshCookingResult::eSUCCESS);
 	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 	return PhysxEngine::GetGPhysics()->createTriangleMesh(readBuffer);
 }
@@ -118,7 +118,7 @@ physx::PxConvexMesh* PhysxRigidbody::GenerateConvexMesh(std::string Filename, gl
 		verts.push_back(vertices[indices[i]].m_position);
 	}
 	PxConvexMeshDesc convexDesc;
-	convexDesc.points.count = verts.size();
+	convexDesc.points.count = (PxU32)verts.size();
 	convexDesc.points.stride = sizeof(PxVec3);
 	convexDesc.points.data = verts.data();
 	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;

@@ -81,19 +81,7 @@ void PhysxEngine::stepPhysics(float Deltatime)
 	gScene->simulate(Deltatime);
 	gScene->fetchResults(true);
 }
-std::vector<PxRigidActor*> PhysxEngine::GetActors()
-{
-	PxU32 nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
-	if (nbActors > 0)
-	{
-		std::vector<PxRigidActor*> actors(nbActors);
-		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC, (PxActor**)&actors[0], nbActors);
-		return actors;
-		//Snippets::renderActors(&actors[0], (PxU32)actors.size(), true);
-	}
-	std::vector<PxRigidActor*> actors;
-	return actors;
-}
+
 void PhysxEngine::cleanupPhysics()
 {
 
@@ -109,85 +97,38 @@ void PhysxEngine::cleanupPhysics()
 	gFoundation->release();
 	SafeDelete(CallBackHandler);
 }
-std::vector<RigidBody*> PhysxEngine::createStack(const glm::vec3 & t, int size, float halfExtent)
-{
-	std::vector<PxRigidDynamic*> objects = createStack(PxTransform(GLMtoPXvec3(t)), size, halfExtent);
-	std::vector<RigidBody*> Bodies;
-	for (int i = 0; i < objects.size(); i++)
-	{
-		//		RigidBody* body = new PhysxRigidbody(objects[i]);
-				//Bodies.push_back(body);
-	}
-	return Bodies;
-}
-PxRigidDynamic* PhysxEngine::createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
-{
-	PxRigidDynamic* dynamic = PxCreateDynamic(*gPhysics, t, geometry, *gMaterial, 10.0f);
-	dynamic->setAngularDamping(0.5f);
-	dynamic->setLinearVelocity(velocity);
-	gScene->addActor(*dynamic);
-	return dynamic;
+//std::vector<RigidBody*> PhysxEngine::createStack(const glm::vec3 & t, int size, float halfExtent)
+//{
+//	std::vector<PxRigidDynamic*> objects = createStack(PxTransform(GLMtoPXvec3(t)), size, halfExtent);
+//	std::vector<RigidBody*> Bodies;
+//	for (int i = 0; i < objects.size(); i++)
+//	{
+//		//		RigidBody* body = new PhysxRigidbody(objects[i]);
+//				//Bodies.push_back(body);
+//	}
+//	return Bodies;
+//}
 
+//std::vector<PxRigidDynamic*> PhysxEngine::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
+//{
+//	std::vector<PxRigidDynamic*> objects;
+//	PxShape* shape = gPhysics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
+//	for (PxU32 i = 0; i < size; i++)
+//	{
+//		for (PxU32 j = 0; j < size - i; j++)
+//		{
+//			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
+//			PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
+//			body->attachShape(*shape);
+//			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+//			gScene->addActor(*body);
+//			objects.push_back(body);
+//		}
+//	}
+//	shape->release();
+//	return objects;
+//}
 
-}
-
-std::vector<PxRigidDynamic*> PhysxEngine::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
-{
-	std::vector<PxRigidDynamic*> objects;
-	PxShape* shape = gPhysics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
-	for (PxU32 i = 0; i < size; i++)
-	{
-		for (PxU32 j = 0; j < size - i; j++)
-		{
-			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
-			PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
-			body->attachShape(*shape);
-			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-			gScene->addActor(*body);
-			objects.push_back(body);
-		}
-	}
-	shape->release();
-	return objects;
-}
-
-PxRigidDynamic* PhysxEngine::CreateActor(PxVec3 position, PxReal halfextent, PxGeometryType::Enum type)
-{
-
-	//PxShape* shape;
-	//switch (type)
-	//{
-	//case physx::PxGeometryType::eSPHERE:
-	//	shape = gPhysics->createShape(PxSphereGeometry(halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
-	//	break;
-	//case physx::PxGeometryType::eBOX:
-	//	shape = gPhysics->createShape(PxBoxGeometry(halfextent, halfextent, halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
-	//	break;
-	//case physx::PxGeometryType::ePLANE:
-	//case physx::PxGeometryType::eCAPSULE:
-	//case physx::PxGeometryType::eCONVEXMESH:
-	//case physx::PxGeometryType::eTRIANGLEMESH:
-	//case physx::PxGeometryType::eHEIGHTFIELD:
-	//case physx::PxGeometryType::eGEOMETRY_COUNT:
-	//case physx::PxGeometryType::eINVALID:
-	//default:
-	//	shape = gPhysics->createShape(PxSphereGeometry(halfextent), *gPhysics->createMaterial(0.1f, 0.05f, 0.6f));
-	//	break;
-	//}
-
-
-
-
-	////body->set
-	//return body;
-	return nullptr;
-}
-PxRigidDynamic* PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale, PxGeometryType::Enum type)
-{
-	PxRigidDynamic* newobject = CreateActor(GLMtoPXvec3(position), scale, type);
-	newobject->addForce(GLMtoPXvec3(velocity), PxForceMode::eFORCE, true);
-	return newobject;
-}
 physx::PxPhysics * PhysxEngine::GetGPhysics()
 {
 	return Engine::GetPhysEngineInstance()->gPhysics;
@@ -207,15 +148,6 @@ physx::PxMaterial * PhysxEngine::CreatePhysxMat(PhysicalMaterial * mat)
 physx::PxCooking * PhysxEngine::GetCooker()
 {
 	return Engine::GetPhysEngineInstance()->gCooking;
-}
-RigidBody * PhysxEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale)
-{
-	return nullptr;/// new PhysxRigidbody(FirePrimitiveAtScene(position, velocity, scale, PxGeometryType::eSPHERE));
-}
-RigidBody* PhysxEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
-{
-	PX_UNUSED(velocity);
-	return nullptr;// new PhysxRigidbody(CreateActor(GLMtoPXvec3(position), scale, PxGeometryType::eSPHERE));
 }
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit,std::vector<RigidBody*>& IgnoredActors)
 {

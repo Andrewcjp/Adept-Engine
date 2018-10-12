@@ -21,8 +21,11 @@ public:
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
 	virtual void SetPipelineState(PipeLineState state) override;
 	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
+
+	
+	
 	virtual void SetPipelineStateObject(class Shader* shader, class FrameBuffer* Buffer = nullptr)override;
-	void		 IN_CreatePipelineState(Shader * shader);
+	void IN_CreatePipelineState(Shader * shader);
 
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
@@ -50,6 +53,7 @@ public:
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
 
 private:
+	std::string GetPSOHash(Shader * shader, const RHIPipeRenderTargetDesc & statedesc);
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList * CurrentCommandList = nullptr;
@@ -67,6 +71,7 @@ private:
 	std::map<std::string, D3D12PiplineShader> PSOCache;
 
 	ID3D12CommandSignature* CommandSig = nullptr;
+	std::string CurrnetPsoKey = "";
 };
 
 class D3D12RHIUAV : public RHIUAV

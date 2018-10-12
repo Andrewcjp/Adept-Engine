@@ -29,7 +29,8 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	go->AttachComponent(new RigidbodyComponent());
-	go->AttachComponent(new ColliderComponent());
+	ColliderComponent* cc= go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eSPHERE);
 	go->AttachComponent(new Weapon());
 	TestPlayer* player = (TestPlayer*)go->AttachComponent(new TestPlayer());
 	BodyInstanceData lock;

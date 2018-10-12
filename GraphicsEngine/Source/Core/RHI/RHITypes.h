@@ -310,6 +310,7 @@ public:
 	int Samples = 0;
 	int MipCount = 1;
 	int DepthMipCount = 1;
+	bool CubeMapAddressAsOne = true;
 	GPU_RESOURCE_STATES::Type StartingState = GPU_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };
 

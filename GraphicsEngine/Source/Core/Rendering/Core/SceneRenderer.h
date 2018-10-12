@@ -39,13 +39,15 @@ struct LightBufferW
 	float Roughness = 0.0f;
 	float Metallic = 0.0f;
 };
+class RelfectionProbe;
 class SceneRenderer
 {
 public:
 	SceneRenderer(class Scene* Target);
 	~SceneRenderer();
-	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr);
+	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr,bool IsCubemap =false);
 	void Init();
+	void UpdateReflectionParams(glm::vec3 lightPos);
 	void UpdateCBV();
 	void UpdateUnformBufferEntry(const SceneConstantBuffer & bufer, int index);
 	
@@ -59,11 +61,16 @@ public:
 	void BindMvBuffer(RHICommandList * list, int slot);
 	void SetScene(Scene* NewScene);
 	void ClearBuffer();
+	void UpdateRelflectionProbes(std::vector<RelfectionProbe*>& probes, RHICommandList * commandlist);
+
+	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
+
 private:
 	void UpdateTransformBufferSize(int NewSize);
 	RHIBuffer * CLightBuffer = nullptr;
 	RHIBuffer* CMVBuffer = nullptr;
 	RHIBuffer* GameObjectTransformBuffer = nullptr;
+
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
 	struct MVBuffer MV_Buffer;
 	LightBufferW LightsBuffer;
@@ -71,5 +78,10 @@ private:
 	std::vector<SceneConstantBuffer> SceneBuffer = std::vector<SceneConstantBuffer>();
 	class Scene* TargetScene = nullptr;
 	class Shader_NodeGraph* WorldDefaultMatShader = nullptr;
+	//Cube map captures
+	MVBuffer CubeMapViews[6];
+	float zNear = 0.0f;
+	float ZFar = 1000.0f;
+	RHIBuffer* RelfectionProbeProjections = nullptr;
 };
 

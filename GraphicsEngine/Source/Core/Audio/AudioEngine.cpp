@@ -118,6 +118,7 @@ bool AudioEngine::Init()
 }
 void AudioEngine::Terminate()
 {
+	AK::SoundEngine::ClearBanks();
 #ifndef AK_OPTIMIZED
 	//
 	// Terminate Communication Services
@@ -161,9 +162,7 @@ void AudioEngine::LoadBanks()
 {
 	LoadBank("Init.bnk");
 	LoadBank("Core.bnk");
-
 	AK::SoundEngine::RegisterGameObj(GAME_OBJECT_ID_DEFAULT, "DEFAULT");
-	//PostEvent("Play_TheFatRat___Unity_MASTER");
 }
 void AudioEngine::RegisterObject(GameObject* obj)
 {
@@ -187,5 +186,5 @@ void AudioEngine::LoadBank(std::string Name)
 	const std::string BankLocation = AssetManager::GetContentPath() + "Banks\\" + Name;
 	AkBankID bankID; // Not used. These banks can be unloaded with their file name.
 	AKRESULT eResult = AK::SoundEngine::LoadBank(BankLocation.c_str(), AK_DEFAULT_POOL_ID, bankID);
-	assert(eResult == AK_Success);
+	assert(eResult == AK_Success);	
 }
