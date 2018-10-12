@@ -7,10 +7,10 @@
 #include "RHI/DeviceContext.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/ParticleSystemManager.h"
-
+#include "Rendering/Core/RelfectionProbe.h"
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
-	
+
 }
 
 void ForwardRenderer::Resize(int width, int height)
@@ -23,6 +23,7 @@ void ForwardRenderer::Resize(int width, int height)
 		MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
 	}
 	RenderEngine::Resize(width, height);
+
 }
 
 ForwardRenderer::~ForwardRenderer()
@@ -31,6 +32,7 @@ ForwardRenderer::~ForwardRenderer()
 void ForwardRenderer::OnRender()
 {
 	ShadowPass();
+	CubeMapPass();
 	MainPass();
 	RenderSkybox();
 	PostProcessPass();
@@ -43,8 +45,11 @@ void ForwardRenderer::PostInit()
 	SetupOnDevice(RHI::GetDeviceContext(0));
 #if DEBUG_CUBEMAPS
 	SkyBox->test = Conv->CubeBuffer;
+	SkyBox->test = probes[0]->CapturedTexture;
 #endif
+	//probes.push_back(new RelfectionProbe());
 
+	
 }
 
 void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
@@ -61,8 +66,28 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	MainCommandList->CreatePipelineState(Material::GetDefaultMaterialShader(), FilterBuffer);
 	NAME_RHI_OBJECT(MainCommandList);
 	/*VKanRHI::Get()->thelist = MainCommandList;*/
-}
+	CubemapCaptureList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
+	//finally init the pipeline!
+	CubemapCaptureList->CreatePipelineState(Material::GetDefaultMaterialShader(), FilterBuffer);
 
+}
+void ForwardRenderer::CubeMapPass()
+{
+	CubemapCaptureList->ResetList();
+	if (mShadowRenderer != nullptr)
+	{
+		mShadowRenderer->BindShadowMapsToTextures(CubemapCaptureList);
+	}
+	CubemapCaptureList->SetFrameBufferTexture(Conv->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+	if (MainScene->GetLightingData()->SkyBox != nullptr)
+	{
+		CubemapCaptureList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
+	}
+	CubemapCaptureList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
+	SceneRender->UpdateRelflectionProbes(probes, CubemapCaptureList);
+	
+	CubemapCaptureList->Execute();
+}
 void ForwardRenderer::MainPass()
 {
 	MainCommandList->ResetList();
@@ -79,10 +104,11 @@ void ForwardRenderer::MainPass()
 	MainCommandList->ClearFrameBuffer(FilterBuffer);
 	MainCommandList->SetFrameBufferTexture(Conv->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
-	{ 
+	{
 		MainCommandList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 	}
 	MainCommandList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
+
 
 	SceneRender->UpdateMV(MainCamera);
 	SceneRender->RenderScene(MainCommandList, false, FilterBuffer);
@@ -101,7 +127,8 @@ void ForwardRenderer::RenderSkybox()
 
 void ForwardRenderer::DestoryRenderWindow()
 {
-	EnqueueSafeRHIRelease( MainCommandList);
+	EnqueueSafeRHIRelease(MainCommandList);
+	EnqueueSafeRHIRelease(CubemapCaptureList);
 }
 
 void ForwardRenderer::FinaliseRender()

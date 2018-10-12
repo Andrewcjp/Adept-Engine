@@ -217,6 +217,14 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	IN_CreatePipelineState(shader);
 }
 
+std::string D3D12CommandList::GetPSOHash(Shader* shader,const RHIPipeRenderTargetDesc & statedesc)
+{
+	std::string hash = "";
+	hash += shader->GetName();	
+	hash += std::to_string((int)statedesc.RTVFormats[0]);	
+	return hash;
+}
+
 void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buffer)
 {
 	if (Buffer != nullptr)
@@ -224,11 +232,17 @@ void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buf
 		ensure(!Buffer->IsPendingKill());
 	}
 	bool IsChanged = false;
-	if (PSOCache.find(shader->GetName()) != PSOCache.end())
+	std::string Hash = GetPSOHash(shader, Currentpipestate.RenderTargetDesc);
+	if (Buffer != nullptr)
 	{
-		if (PSOCache.at(shader->GetName()) != CurrentPipelinestate)
+		Hash = GetPSOHash(shader, Buffer->GetPiplineRenderDesc());
+	}
+	if (PSOCache.find(Hash) != PSOCache.end())
+	{
+		if (PSOCache.at(Hash) != CurrentPipelinestate)
 		{
-			CurrentPipelinestate = PSOCache.at(shader->GetName());
+			CurrentPipelinestate = PSOCache.at(Hash);
+			CurrnetPsoKey = Hash;
 			IsChanged = true;
 		}
 	}
@@ -290,11 +304,17 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 	{
 		CreateCommandList();
 	}
-	PSOCache.try_emplace(shader->GetName(), CurrentPipelinestate);
+	const std::string Hash = GetPSOHash(shader, Currentpipestate.RenderTargetDesc);
+	
+	PSOCache.try_emplace(Hash, CurrentPipelinestate);
 }
 
 void D3D12CommandList::CreateCommandList()
 {
+	if (CurrentCommandList != nullptr)
+	{
+		return;
+	}
 	if (ListType == ECommandListType::Graphics)
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentCommandList)));

@@ -27,6 +27,7 @@ public:
 	void OnRender() override;
 	void PostInit() override;
 	void SetupOnDevice(DeviceContext * TargetDevice);
+	void CubeMapPass();
 	virtual void DestoryRenderWindow() override;
 	virtual void FinaliseRender() override;
 	virtual void OnStaticUpdate() override;
@@ -36,10 +37,11 @@ private:
 	void MainPass();
 	void RenderSkybox();
 	RHICommandList* MainCommandList = nullptr;
+	RHICommandList* CubemapCaptureList = nullptr;
 	//debug
 #if USED3D12DebugP
 	class D3D12Plane* debugplane = nullptr;
 #endif
-	bool RunSFR = false;
+	std::vector< class RelfectionProbe*> probes;
 };
 

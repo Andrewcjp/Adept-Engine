@@ -330,7 +330,7 @@ GPUResource * D3D12FrameBuffer::GetResource(int index)
 }
 
 void D3D12FrameBuffer::Release()
-{	
+{
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12FrameBuffer, this);
 	if (BufferDesc.NeedsDepthStencil)
@@ -452,23 +452,49 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		depthStencilDesc.Format = Format;
 		depthStencilDesc.ViewDimension = D3D12Helpers::ConvertDimensionDSV(ViewDimension);
 		depthStencilDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
-		depthStencilDesc.Texture2D.MipSlice = 0;
+		depthStencilDesc.Texture2DArray.MipSlice = 0;
 		depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
-		CurrentDevice->GetDevice()->CreateDepthStencilView(NewResource, &depthStencilDesc, Heapptr->GetCPUAddress(OffsetInHeap));
-		D3D12Helpers::NameRHIObject(NewResource, this,"(FB Stencil)");
+		if (BufferDesc.CubeMapAddressAsOne)
+		{
+			CurrentDevice->GetDevice()->CreateDepthStencilView(NewResource, &depthStencilDesc, Heapptr->GetCPUAddress(OffsetInHeap));
+		}
+		else
+		{
+			for (int i = 0; i < BufferDesc.TextureDepth; i++)
+			{
+				depthStencilDesc.Texture2DArray.ArraySize = 1;
+				depthStencilDesc.Texture2DArray.FirstArraySlice = i;
+				CurrentDevice->GetDevice()->CreateDepthStencilView(NewResource, &depthStencilDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
+			}
+		}
+		D3D12Helpers::NameRHIObject(NewResource, this, "(FB Stencil)");
 	}
 	else
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC RenderTargetDesc = {};
 		RenderTargetDesc.Format = Format;
 		RenderTargetDesc.ViewDimension = D3D12Helpers::ConvertDimensionRTV(ViewDimension);
-		RenderTargetDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
-		for (int i = 0; i < BufferDesc.MipCount; i++)
+		if (BufferDesc.CubeMapAddressAsOne)
 		{
-			//write create rtvs for all the mips
-			RenderTargetDesc.Texture2D.MipSlice = i;
-			CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
+			RenderTargetDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
+			for (int i = 0; i < BufferDesc.MipCount; i++)
+			{
+				//write create rtvs for all the mips
+				RenderTargetDesc.Texture2D.MipSlice = i;
+				CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
+			}
 		}
+		else
+		{
+			for (int i = 0; i < BufferDesc.TextureDepth; i++)
+			{
+				RenderTargetDesc.Texture2DArray.ArraySize = 1;
+				RenderTargetDesc.Texture2DArray.FirstArraySlice = i;
+				CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
+			}
+
+		}
+
 		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
 	}
 
@@ -484,7 +510,11 @@ void D3D12FrameBuffer::Init()
 	}
 	RenderTargetDesc.DSVFormat = BufferDesc.DepthFormat;
 
-	const int Descriptorcount = std::max(BufferDesc.RenderTargetCount + BufferDesc.MipCount, 1);
+	int Descriptorcount = std::max(BufferDesc.RenderTargetCount + BufferDesc.MipCount, 1);
+	if (!BufferDesc.CubeMapAddressAsOne)
+	{
+		Descriptorcount = std::max(BufferDesc.RenderTargetCount*BufferDesc.TextureDepth, 1);
+	}
 	if (RTVHeap == nullptr && BufferDesc.RenderTargetCount > 0)
 	{
 		RTVHeap = new DescriptorHeap(CurrentDevice, Descriptorcount, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
@@ -492,7 +522,7 @@ void D3D12FrameBuffer::Init()
 	}
 	if (DSVHeap == nullptr && BufferDesc.NeedsDepthStencil)
 	{
-		DSVHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+		DSVHeap = new DescriptorHeap(CurrentDevice, Descriptorcount, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 		NAME_RHI_OBJ(DSVHeap);
 	}
 
@@ -585,13 +615,13 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list
 			//validate this is okay todo?
 			rtvHandle = RTVHeap->GetCPUAddress(0);
 		}
-		if (SubResourceIndex == 0)
+		if (BufferDesc.CubeMapAddressAsOne)
 		{
 			list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &rtvHandle, (BufferDesc.RenderTargetCount > 1), &DSVHeap->GetCPUAddress(0));
 		}
 		else
 		{
-			list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &RTVHeap->GetCPUAddress(SubResourceIndex), false, &DSVHeap->GetCPUAddress(0));
+			list->OMSetRenderTargets(BufferDesc.RenderTargetCount, &RTVHeap->GetCPUAddress(SubResourceIndex), false, &DSVHeap->GetCPUAddress(SubResourceIndex));
 		}
 	}
 	else
@@ -623,15 +653,44 @@ void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 
 void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 {
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		if (RenderTarget[i] != nullptr)
+		{
+			RenderTarget[i]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		}
+	}
+	if (DepthStencil != nullptr)
+	{
+		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	}
 	if (BufferDesc.NeedsDepthStencil)
 	{
-		list->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), D3D12_CLEAR_FLAG_DEPTH, BufferDesc.DepthClearValue, 0, 0, nullptr);
+		
+		if (!BufferDesc.CubeMapAddressAsOne)
+		{
+			for (int i = 0; i < BufferDesc.TextureDepth; i++)
+			{
+				list->ClearDepthStencilView(DSVHeap->GetCPUAddress(i), D3D12_CLEAR_FLAG_DEPTH, BufferDesc.DepthClearValue, 0, 0, nullptr);
+			}
+		}
+		else
+		{
+			list->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), D3D12_CLEAR_FLAG_DEPTH, BufferDesc.DepthClearValue, 0, 0, nullptr);
+		}
 	}
 	if (BufferDesc.RenderTargetCount > 0)
 	{
 		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 		{
 			list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
+		}
+		if (!BufferDesc.CubeMapAddressAsOne)
+		{
+			for (int i = 0; i < BufferDesc.TextureDepth; i++)
+			{
+				list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
+			}
 		}
 	}
 }

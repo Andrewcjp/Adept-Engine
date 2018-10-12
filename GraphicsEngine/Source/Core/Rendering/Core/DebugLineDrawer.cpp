@@ -120,7 +120,7 @@ void DebugLineDrawer::AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, 
 {
 	if (Lines.size() * 2 >= CurrentMaxVerts)
 	{
-		ReallocBuffer(Lines.size() * 2 + 10);
+		ReallocBuffer((int)Lines.size() * 2 + 10);
 	}
 	WLine l = {};
 	l.startpos = Start;

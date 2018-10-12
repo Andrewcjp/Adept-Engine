@@ -7,7 +7,18 @@
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
 	ListType = type;
-	ObjectSufix = "(CMDLIST)";
+	switch (ListType)
+	{
+	case ECommandListType::Graphics:
+		ObjectSufix = "(CMDLIST-G)";
+		break;
+	case ECommandListType::Compute:
+		ObjectSufix = "(CMDLIST-C)";
+		break;
+	case ECommandListType::Copy:
+		ObjectSufix = "(CMDLIST-CPY)";
+		break;
+	}
 	Device = context;
 }
 
@@ -104,7 +115,7 @@ RHIUAV::RHIUAV()
 
 RHIBuffer::RHIBuffer(ERHIBufferType::Type type)
 {
-	CurrentBufferType = type;	
+	CurrentBufferType = type;
 	switch (CurrentBufferType)
 	{
 	case ERHIBufferType::Constant:

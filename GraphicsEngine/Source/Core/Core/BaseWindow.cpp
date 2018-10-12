@@ -447,10 +447,6 @@ void BaseWindow::RenderText()
 	}
 	stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 	stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
-	if (Input::GetKeyDown(KeyCode::SPACE))
-	{
-		stream << "DOWN ";
-	}
 	UI->RenderTextToScreen(1, stream.str());
 	stream.str("");
 

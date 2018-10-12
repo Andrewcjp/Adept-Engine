@@ -10,6 +10,7 @@ DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTO
 {
 	Device = (D3D12DeviceContext*)inDevice;
 	srvHeapDesc.NumDescriptors = std::max(Num, 1);
+	DescriptorCount = Num;
 	srvHeapDesc.Type = type;
 	srvHeapDesc.Flags = flags;
 	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mHeap)));
@@ -26,11 +27,13 @@ DescriptorHeap::~DescriptorHeap()
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGpuAddress(int index)
 {
+	ensure(index < DescriptorCount);
 	return CD3DX12_GPU_DESCRIPTOR_HANDLE(mHeap->GetGPUDescriptorHandleForHeapStart(), index, DescriptorOffsetSize);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUAddress(int index)
 {
+	ensure(index < DescriptorCount);
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(mHeap->GetCPUDescriptorHandleForHeapStart(), index, DescriptorOffsetSize);
 }
 

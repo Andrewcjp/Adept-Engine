@@ -26,5 +26,6 @@ private:
 	int DescriptorOffsetSize = 0;
 	EGPUMemoryPriority Priority = EGPUMemoryPriority::Critical;
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	int DescriptorCount = 0;
 };
 

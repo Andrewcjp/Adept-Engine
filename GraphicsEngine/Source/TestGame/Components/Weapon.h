@@ -31,5 +31,5 @@ private:
 	float CurrentFireRate = 0.1f;
 	WeaponType CurrentWeaponType = WeaponType::Rifle;
 	WeaponSettings CurrentSettings = WeaponSettings();
-	float ProjectileSpeed = 75.0f;
+	float ProjectileSpeed = 30.0f;
 };
