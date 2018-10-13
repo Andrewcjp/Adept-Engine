@@ -6,7 +6,7 @@ AISystem* AISystem::Instance = nullptr;
 AISystem::AISystem()
 {
 	mesh = new NavigationMesh();
-	mesh->GenTestMesh();
+	//mesh->GenTestMesh();
 }
 
 

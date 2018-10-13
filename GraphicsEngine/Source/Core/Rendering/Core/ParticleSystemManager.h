@@ -46,21 +46,14 @@ private:
 	RHIBuffer * GPU_ParticleData = nullptr;
 	RHIBuffer * EmittedParticleData = nullptr;
 	RHIBuffer * DeadParticleIndexs = nullptr;
-	RHIUAV * DeadParticleIndexs_UAV = nullptr;
 	RHIBuffer * AliveParticleIndexs = nullptr;
 	RHIBuffer* AliveParticleIndexs_PostSim = nullptr;
-	RHIUAV * AliveParticleIndexs_PostSim_UAV = nullptr;
-
 	int CurrentParticleCount = MAX_PARTICLES;
-
 	RHICommandList* CmdList = nullptr;
 	RHIBuffer* RenderCommandBuffer = nullptr;
-	RHIUAV* RenderCommandBuffer_UAV = nullptr;
 	RHIBuffer* DispatchCommandBuffer = nullptr;
-	RHIUAV* DispatchCommandBuffer_UAV = nullptr;
 	//counters
 	RHIBuffer * CounterBuffer = nullptr;
-	RHIUAV* CounterUAV = nullptr;
 	struct Counters
 	{
 		unsigned int aliveCount = 0;

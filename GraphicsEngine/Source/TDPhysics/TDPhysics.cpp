@@ -2,6 +2,8 @@
 #include "TDPhysics.h"
 #include "TDSolver.h"
 #include "TDScene.h"
+#include "TDVersion.h"
+#include "Utils/MemoryUtils.h"
 namespace TD
 {
 	TDPhysics* TDPhysics::Instance = nullptr;
@@ -15,37 +17,48 @@ namespace TD
 
 	}
 
-	TDPhysics * TDPhysics::CreatePhysics()
+	TDPhysics * TDPhysics::CreatePhysics(unsigned int BuildID)
 	{
-		return new TDPhysics();
+		if (BuildID != TD_VERSION_NUMBER)
+		{
+			return nullptr;
+		}
+		if (Instance == nullptr)
+		{
+			Instance = new TDPhysics();
+		}
+		return Instance;
 	}
 
 	void TDPhysics::StartUp()
 	{
 		Solver = new TDSolver();
-		CurrentScene = new TDScene();
 	}
 
 	void TDPhysics::StartStep(float deltaTime)
 	{
-		Solver->IntergrateScene(CurrentScene, deltaTime);
+		for (int i = 0; i < Scenes.size(); i++)
+		{
+			Solver->IntergrateScene(Scenes[i], deltaTime);
+		}
 	}
 
 	void TDPhysics::ShutDown()
 	{
-		SafeDelete(CurrentScene);
-		SafeDelete(Solver);
+		MemoryUtils::DeleteVector(Scenes);
+		SafeDelete(Solver); 
+		SafeDelete(Instance);
 	}
-	TDScene * TDPhysics::GetScene()
-	{
-		return Instance->CurrentScene;
-	}
+
 	TDPhysics * TDPhysics::Get()
-	{
-		if (Instance == nullptr) 
-		{
-			Instance = new TDPhysics();
-		}
+	{		
 		return Instance;
+	}
+
+	TDScene * TDPhysics::CreateScene()
+	{
+		TDScene* newscene = new TDScene();
+		Scenes.push_back(newscene);
+		return newscene;
 	}
 }

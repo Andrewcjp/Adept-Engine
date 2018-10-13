@@ -24,12 +24,15 @@ namespace TD {
 	void TDTest::RunAllTests()
 	{
 		TDRigidStatic* rb = new TDRigidStatic();
-		rb->GetTransfrom()->SetPos(glm::vec3(0, 1, 0));
+		rb->GetTransfrom()->SetPos(glm::vec3(0, 0.9, 0));
 		rb->AttachShape(new TDSphere());
 		TDRigidStatic* rbB = new TDRigidStatic();
 		rbB->GetTransfrom()->SetPos(glm::vec3(0, 0, 0));
 		rbB->AttachShape(new TDPlane());
 		ContactData data;
 		DebugEnsure(TDCollisionHandlers::CollidePlaneSphere((TDPlane*)rbB->GetAttachedShapes()[0], (TDSphere*)rb->GetAttachedShapes()[0], &data));
+
+		rb->GetTransfrom()->SetPos(glm::vec3(0, 2, 0));
+		DebugEnsure(TDCollisionHandlers::CollidePlaneSphere((TDPlane*)rbB->GetAttachedShapes()[0], (TDSphere*)rb->GetAttachedShapes()[0], &data) == false);
 	}
 }

@@ -10,11 +10,11 @@ namespace TD
 		~TDShape();
 		/**
 		*\brief  Sets the Physical Material of this shape
-		*\param TDPhysicalMaterial to use
+		*\param mat to use
 		*/
 		void SetPhysicalMaterial(TDPhysicalMaterial mat);
 		/**
-		*\brief  Gets a const PTR to the shapes current physcal material
+		*\brief  Gets a const PTR to the shapes current physical material
 		*\return Const PTR to a Physics material
 		*/
 		const TDPhysicalMaterial* GetPhysicalMaterial()const;

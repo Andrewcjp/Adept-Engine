@@ -13,6 +13,16 @@ struct NavigationPath
 {
 	std::vector<glm::vec3> Positions;
 };
+struct NavPoint
+{
+	glm::vec3 pos;
+	NavPoint(glm::vec3 ipos)
+	{
+		pos = ipos;
+	}
+	float navcost = 0;
+	NavTriangle* owner = nullptr;
+};
 namespace ENavRequestStatus
 {
 	enum Type

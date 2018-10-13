@@ -189,7 +189,9 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name)
 	PerfManager::Get()->AddTimer(TimeDeltas[index].Statid, StatsGroupId);
 	if (PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid) != nullptr)
 	{
-		PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid)->name = Name;
+		PerfManager::TimerData* data = PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid);
+		data->name = Name;
+		data->IsGPUTimer = true;
 	}
 #if PIX_ENABLED
 	PixTimerNames[index] = StringUtils::ConvertStringToWide(Name);

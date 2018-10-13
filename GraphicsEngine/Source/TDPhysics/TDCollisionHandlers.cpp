@@ -27,7 +27,7 @@ bool TD::TDCollisionHandlers::CollidePlaneSphere(TDPlane * A, TDSphere * B, Cont
 	TDTransform* BTransform = B->GetOwner()->GetTransfrom();
 	glm::vec3 SpherePos = glm::inverse(ATransform->GetModel())*glm::vec4(BTransform->GetPos(), 0);
 	//BTransform->TransfromToLocalSpace()
-	const float Seperation = SpherePos.x - B->Radius;
+	const float Seperation = SpherePos.y - B->Radius;
 	if (Seperation <= 0.0f) 
 	{
 		const glm::vec3 normal = ATransform->GetUp();

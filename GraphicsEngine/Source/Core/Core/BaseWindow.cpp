@@ -31,28 +31,6 @@ BaseWindow::~BaseWindow()
 
 }
 
-bool BaseWindow::ChangeDisplayMode(int width, int height)
-{
-#if 0
-	DEVMODE dmScreenSettings;
-	memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-	EnumDisplaySettings(NULL, 0, &dmScreenSettings);
-	dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-	dmScreenSettings.dmPelsWidth = width;
-	dmScreenSettings.dmPelsHeight = height;
-	dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-
-	// Try To Set Selected Mode And Get Results.
-	LONG result = ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
-	if (result != DISP_CHANGE_SUCCESSFUL)
-	{
-		//__debugbreak();
-		return false;
-	}
-#endif
-	return true;
-}
-
 bool BaseWindow::CreateRenderWindow(int width, int height)
 {
 	RHI::InitialiseContextWindow(width, height);
@@ -60,6 +38,7 @@ bool BaseWindow::CreateRenderWindow(int width, int height)
 	m_height = height;
 	m_width = width;
 	InitilseWindow();
+
 	PostInitWindow(width, height);
 	return true;
 }
@@ -245,7 +224,7 @@ void BaseWindow::Render()
 			}
 		}
 	}
-	PerfManager::NotifyEndOfFrame();
+	PerfManager::NotifyEndOfFrame(true);
 }
 
 bool BaseWindow::ProcessDebugCommand(std::string command)
@@ -452,13 +431,12 @@ void BaseWindow::RenderText()
 
 	if (RHI::GetRHIClass() != nullptr && ExtendedPerformanceStats)
 	{
-		/*stream << RHI::GetRHIClass()->GetMemory();
-		UI->RenderTextToScreen(2, stream.str());*/
 		PerfManager::RenderGpuData(10, (int)(m_height - m_height / 8));
 	}
 
 	if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)
 	{
-		PerfManager::Instance->DrawAllStats(m_width / 2, (int)(m_height / 1.2));
+		PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));
+		PerfManager::Instance->DrawAllStats((int)(m_width / 1.5f), (int)(m_height / 1.2),true);
 	}
 }

@@ -14,18 +14,21 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
 
 		uint DeadCount;
 		CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_DEADCOUNT, -1, DeadCount);
-		newParticleIndex = DeadIndexs[DeadCount - 1];
+		if (DeadCount > 1)
+		{
+			newParticleIndex = DeadIndexs[DeadCount - 1];
 
-		uint aliveCount;
-		CounterBuffer.InterlockedAdd(0, 1, aliveCount);
-		AliveIndexs[aliveCount] = newParticleIndex;
+			uint aliveCount;
+			CounterBuffer.InterlockedAdd(0, 1, aliveCount);
+			AliveIndexs[aliveCount] = newParticleIndex;
 
-		newPosVelo[newParticleIndex] = (PosVelo)0;
-		newPosVelo[newParticleIndex].pos = float4(0, 0, 20, 2);
-		int Tweak = aliveCount % 5;
-		newPosVelo[newParticleIndex].vel = float4(Tweak, 10, 5, 0);
-		newPosVelo[newParticleIndex].pos.y = 20;
-		newPosVelo[newParticleIndex].Lifetime = 10;
+			newPosVelo[newParticleIndex] = (PosVelo)0;
+			newPosVelo[newParticleIndex].pos = float4(0, 0, 20, 2);
+			int Tweak = aliveCount % 5;
+			newPosVelo[newParticleIndex].vel = float4(Tweak, 10, 5, 0);
+			newPosVelo[newParticleIndex].pos.y = 20;
+			newPosVelo[newParticleIndex].Lifetime = 2;
+		}
 	}
 }
 

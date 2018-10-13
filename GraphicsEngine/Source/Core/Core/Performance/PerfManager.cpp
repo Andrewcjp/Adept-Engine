@@ -172,7 +172,7 @@ void PerfManager::InStartTimer(int targetTimer)
 	{
 		TimersStartStamps.at(targetTimer) = get_nanos();
 		AVGTimers.at(targetTimer).Active = true;
-		AVGTimers.at(targetTimer).CallCount++;
+		AVGTimers.at(targetTimer).CallCount += 1;
 	}
 	else
 	{
@@ -251,7 +251,7 @@ void PerfManager::EndCPUTimer()
 	CPUTime = (float)((get_nanos() - CPUstart) / 1e6f);//in ms
 	StatAccum += CPUTime;
 	CPUAVG.Add(CPUTime);
-	if (StatAccum > StatsUpdateSpeed)
+	if (StatAccum > StatsTickRate || !LockStatsRate)
 	{
 		Capture = true;
 		StatAccum = 0.0f;
@@ -308,15 +308,18 @@ void PerfManager::SetDeltaTime(float Time)
 	}
 }
 
-void PerfManager::NotifyEndOfFrame()
+void PerfManager::NotifyEndOfFrame(bool Final)
 {
 	//clear timers
 	if (Instance != nullptr)
 	{
-		PerfManager::Instance->SampleNVCounters();
 		PerfManager::Instance->EndFrameTimer();
-		Instance->Internal_NotifyEndOfFrame();
-		Instance->UpdateStats();
+		if (Final)
+		{
+			PerfManager::Instance->SampleNVCounters();
+			Instance->Internal_NotifyEndOfFrame();
+			Instance->UpdateStats();
+		}
 	}
 }
 
@@ -345,19 +348,20 @@ PerfManager::TimerData * PerfManager::GetTimerData(int id)
 	return nullptr;
 }
 
-void PerfManager::DrawAllStats(int x, int y)
+void PerfManager::DrawAllStats(int x, int y, bool IncludeGPUStats)
 {
 #if STATS
-	DrawStatsGroup(x, y, "");
+	DrawStatsGroup(x, y, "", IncludeGPUStats);
 	for (std::map<std::string, int>::iterator it = GroupIDS.begin(); it != GroupIDS.end(); ++it)
 	{
-		DrawStatsGroup(x, y, it->first);
+		DrawStatsGroup(x, y, it->first, IncludeGPUStats);
 	}
 #endif
 }
 
 void PerfManager::UpdateStats()
 {
+#if STATS
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		it->second.Time = it->second.AVG->GetCurrentAverage();
@@ -368,6 +372,7 @@ void PerfManager::UpdateStats()
 		CurrentSlowStatsUpdate = 0;
 		SampleSlowStats();
 	}
+#endif
 }
 
 void PerfManager::SampleSlowStats()
@@ -383,7 +388,7 @@ void PerfManager::ClearStats()
 	}
 }
 
-void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
+void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool IncludeGPU)
 {
 #if STATS
 	int CurrentHeight = y;
@@ -411,7 +416,19 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
 		{
 			continue;
 		}
+		if (it->second.IsGPUTimer && !IncludeGPU)
+		{
+			continue;
+		}
+		if (IncludeGPU && !it->second.IsGPUTimer)
+		{
+			continue;
+		}
 		SortedTimers.push_back(it->second);
+	}
+	if (SortedTimers.size() == 0)
+	{
+		return;
 	}
 	struct less_than_key
 	{
@@ -434,8 +451,11 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter)
 		stream << std::fixed << std::setprecision(3) << SortedTimers[i].Time << "ms ";
 		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth), (float)CurrentHeight, TextSize);
 		stream.str("");
-		stream << std::fixed << std::setprecision(3) << SortedTimers[i].LastCallCount;
-		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth * 1.4), (float)CurrentHeight, TextSize);
+		if (!SortedTimers[i].IsGPUTimer)
+		{
+			stream << SortedTimers[i].LastCallCount;
+			Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth * 1.4), (float)CurrentHeight, TextSize);
+		}
 		CurrentHeight -= Height;
 	}
 	y = CurrentHeight;
@@ -588,7 +608,7 @@ void PerfManager::EndSingleActionTimer(std::string Name)
 	if (SingleActionTimers.find(Name) != SingleActionTimers.end())
 	{
 		float TimeInMS = (float)(get_nanos() - SingleActionTimers.at(Name)) / TimeMS;
-		SingleActionTimersAccum.at(Name) += TimeInMS;		
+		SingleActionTimersAccum.at(Name) += TimeInMS;
 	}
 	else
 	{
