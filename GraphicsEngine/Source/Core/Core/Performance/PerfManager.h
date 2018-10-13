@@ -59,7 +59,7 @@ public:
 	static float GetCPUTime();
 	CORE_API static float GetDeltaTime();
 	static void SetDeltaTime(float Time);
-	static void NotifyEndOfFrame();
+	static void NotifyEndOfFrame(bool Final = false);
 	bool ShowAllStats = false;
 	struct TimerData
 	{
@@ -70,13 +70,14 @@ public:
 		bool Active = false;
 		int CallCount = 0;
 		int LastCallCount = 0;
+		bool IsGPUTimer = false;
 	};
 	CORE_API TimerData* GetTimerData(int id);
-	void DrawAllStats(int x, int y);
+	void DrawAllStats(int x, int y, bool IncludeGPUStats = false);
 	void UpdateStats();
 	void SampleSlowStats();
 	void ClearStats();
-	void DrawStatsGroup(int x, int & y, std::string GroupFilter);
+	void DrawStatsGroup(int x, int & y, std::string GroupFilter, bool IncludeGPU);
 	CORE_API void UpdateGPUStat(int id, float newtime);
 	CORE_API int GetTimerIDByName(std::string name);
 	CORE_API int GetGroupId(std::string name);
@@ -127,8 +128,8 @@ private:
 	float CurrentAVGFps = 0.0f;
 	float AVGFrameTime = 0;
 	float FrameTimeAccum = 0.0;
-	
-	const float StatsUpdateSpeed = 25.0f;
+	const bool LockStatsRate = true;
+	const float StatsTickRate = (1.0f / 60.0f)*1000.0f;
 	const int AvgCount = 50;
 	float StatAccum = 0;
 	bool Capture = true;

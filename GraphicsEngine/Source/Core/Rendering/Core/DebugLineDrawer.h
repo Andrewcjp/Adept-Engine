@@ -21,7 +21,7 @@ public:
 	void RenderLines(glm::mat4& matrix);
 	void ClearLines();
 
-	void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float thickness = 0);
+	void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
 	void OnResize(int newwidth, int newheight);
 
 private:

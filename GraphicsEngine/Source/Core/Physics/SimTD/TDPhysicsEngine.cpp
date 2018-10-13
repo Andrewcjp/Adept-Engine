@@ -8,6 +8,7 @@
 void TDPhysicsEngine::initPhysics()
 {
 	//TDSolver
+	TDPhysics::CreatePhysics(TD_VERSION_NUMBER);
 	TDPhysics::Get()->StartUp();
 }
 
@@ -18,7 +19,6 @@ void TDPhysicsEngine::stepPhysics(float Deltatime)
 
 void TDPhysicsEngine::cleanupPhysics()
 {}
-
 
 RigidBody* TDPhysicsEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
 {

@@ -34,7 +34,7 @@ void NavigationMesh::GenTestMesh()
 	}
 	PopulateNearLists();
 	NavigationPath data;
-	CalculatePath(glm::vec3(10, 0, 0), glm::vec3(0, 0, 0), &data);
+	CalculatePath(glm::vec3(20, 0, 0), glm::vec3(-20, 0, 0), &data);
 }
 
 void NavigationMesh::DrawNavMeshLines(DebugLineDrawer* drawer)
@@ -114,6 +114,59 @@ NavTriangle* NavigationMesh::FindTriangleFromWorldPos(glm::vec3 worldpos)
 	}
 	return nullptr;
 }
+void CalulateCost(NavPoint* point, glm::vec3 endpoint)
+{
+	point->navcost = glm::distance(point->pos, endpoint);
+}
+NavPoint* Getlowest(std::vector<NavPoint*> & points)
+{
+	if (points.size() == 0)
+	{
+		return nullptr;
+	}
+	NavPoint* Lowestnode = points[0];
+	for (int i = 0; i < points.size(); i++)
+	{
+		if (Lowestnode->navcost > points[i]->navcost)
+		{
+			Lowestnode = points[i];
+		}
+	}
+	return Lowestnode;
+}
+bool AddToCLosed(NavPoint* ppoint, NavTriangle* endtri)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		if (ppoint->pos == endtri->Positons[i])
+		{
+			return true;
+		}
+	}
+	return false;
+}
+bool Contains(NavPoint* point, std::vector<NavPoint*> & points)
+{
+	for (int i = 0; i < points.size(); i++)
+	{
+		if (points[i] == point)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+void RemoveItem(NavPoint* point, std::vector<NavPoint*> & points)
+{
+	for (int i = 0; i < points.size(); i++)
+	{
+		if (points[i] == point)
+		{
+			points.erase(points.begin() + i);
+			return;
+		}
+	}
+}
 ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath* outputPath)
 {
 	*outputPath = NavigationPath();
@@ -127,8 +180,54 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 	{
 		return ENavRequestStatus::FailedPointOffNavMesh;
 	}
+	std::vector<NavPoint*> CLosedList;
+	std::vector<NavPoint*> OpenList;
+	for (int i = 0; i < 3; i++)
+	{
+		OpenList.push_back(new NavPoint(StartTri->Positons[i]));
+		OpenList[i]->owner = StartTri;
+		CalulateCost(OpenList[i], EndPos);
+	}
+	NavPoint*currnetpoint = nullptr;
+	//assign costs!
+	while (OpenList.size() > 0)
+	{
+		currnetpoint = Getlowest(OpenList);
+		RemoveItem(currnetpoint, OpenList);
+		if (AddToCLosed(currnetpoint, EndTri))
+		{
+			CLosedList.push_back(currnetpoint);
+			break;//path found
+		}
+		else
+		{
+			CLosedList.push_back(currnetpoint);
+		}
 
+		for (int i = 0; i < currnetpoint->owner->NearTriangles.size(); i++)
+		{
+			for (int x = 0; x < 3; x++)
+			{
+				NavPoint* newpoint = new NavPoint(currnetpoint->owner->NearTriangles[i]->Positons[x]);
+				newpoint->owner = currnetpoint->owner->NearTriangles[i];
+				if (!Contains(newpoint, CLosedList) && !Contains(newpoint, OpenList))
+				{
+					CalulateCost(newpoint,EndPos);
+					OpenList.push_back(newpoint);
+				}
+			}
+		}
 
+	}
+
+	for (int i = 0; i < CLosedList.size(); i++)
+	{
+		outputPath->Positions.push_back(CLosedList[i]->pos);
+		if (i < CLosedList.size() - 1 && DebugLineDrawer::instance != nullptr)
+		{
+			DebugLineDrawer::instance->AddLine(CLosedList[i]->pos, CLosedList[i + 1]->pos, glm::vec3(0, 1, 0), 100);
+		}
+	}
 
 	return ENavRequestStatus::Complete;
 }

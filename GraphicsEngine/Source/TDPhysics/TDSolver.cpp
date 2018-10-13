@@ -17,6 +17,7 @@ namespace TD
 			IntergrateActor(scene->GetActors()[i], dt, scene);
 		}
 	}
+
 	void TDSolver::IntergrateActor(TDActor* actor, float dt, TDScene* Scene)
 	{
 		glm::vec3 Veldelta = actor->GetVelocityDelta();
@@ -28,6 +29,7 @@ namespace TD
 		actor->GetTransfrom()->SetPos(startpos + (BodyVelocity*dt));
 		actor->ResetForceThisFrame();
 	}
+
 	void TDSolver::ResolveCollisions(TDScene* scene)
 	{
 		for (int i = 0; i < scene->GetActors().size(); i++)

@@ -39,7 +39,7 @@ protected:
 	virtual void PreDestory() {};
 	virtual void FixedUpdate();
 	virtual void Update() {};
-	bool ChangeDisplayMode(int width, int height);
+
 	//Sub Modules
 	class RenderEngine * Renderer = nullptr;
 	class UIManager* UI = nullptr;

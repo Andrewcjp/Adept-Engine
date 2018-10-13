@@ -6,17 +6,39 @@ namespace TD
 	class TDPhysics
 	{
 	public:
-		static TDPhysics* CreatePhysics();
+		/**
+		*\brief Creates a Physics Engine Object for use
+		*\param BuildID provided by TD_VERSION_NUMBER in TDPhysicsAPI.h
+		*/
+		static TDPhysics * CreatePhysics(unsigned int BuildID);
+		/**
+		*\brief Initializes the Simulator ready for work
+		*/
 		TD_API void StartUp();
-		TD_API void StartStep(float deltaTime);
+		/**
+		*\brief Starts the step of the Simulator 
+		*\param TimeStep for the Simulator to use
+		*/
+		TD_API void StartStep(float TimeStep);
+		/**
+		*\brief Destroy the Simulator
+		*After this call any TDPhysics pointers are invalid for use.
+		*/
 		TD_API void ShutDown();
-		TD_API static TDScene* GetScene();
+		/**
+		*\brief Returns the current TDPhysics instance, nullptr if the Simulator has not been initialized 
+		*/
 		TD_API static TDPhysics* Get();
+		/**
+		*\brief Creates a new TDScene for Use.
+		*/
+		TD_API TDScene* CreateScene();
 	private:
 		TDPhysics();
 		~TDPhysics();
+
 		TDSolver* Solver = nullptr;
-		TDScene* CurrentScene = nullptr;
+		std::vector<TDScene*> Scenes;
 		static TDPhysics* Instance;
 	};
 

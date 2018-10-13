@@ -35,6 +35,8 @@
 #include "EditorCore.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Audio/AudioEngine.h"
+#include "AI/Core/AISystem.h"
+#include "AI/Core/NavigationMesh.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -95,6 +97,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	Renderer->SetScene(CurrentScene);
 	RefreshScene();
 #endif
+	AISystem::Get()->mesh->GenTestMesh();
 }
 
 void EditorWindow::EnterPlayMode()
