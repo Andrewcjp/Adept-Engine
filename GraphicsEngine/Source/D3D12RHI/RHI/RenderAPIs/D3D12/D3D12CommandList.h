@@ -126,7 +126,7 @@ private:
 	void CreateStaticBuffer(int ByteSize);
 	void CreateDynamicBuffer(int ByteSize);
 
-	class D3D12CBV* CBV[MAX_GPU_DEVICE_COUNT] = { nullptr };
+	class D3D12CBV* CBV[MAX_GPU_DEVICE_COUNT][RHI::CPUFrameCount] = { nullptr };
 	EBufferAccessType::Type BufferAccesstype;
 	ID3D12Resource * m_UploadBuffer = nullptr;
 	GPUResource* m_DataBuffer = nullptr;

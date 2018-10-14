@@ -18,8 +18,8 @@ public:
 	CORE_API void AddForce(glm::vec3 force, EForceMode::Type Mode = EForceMode::AsForce);
 	CORE_API glm::vec3 GetLinearVelocity();
 	void AttachCollider(Collider* col);
-	CORE_API void SetLockFlags(BodyInstanceData data);
-	CORE_API BodyInstanceData GetLockFlags();
+	CORE_API void SetBodyData(BodyInstanceData data);
+	CORE_API BodyInstanceData GetBodyData();
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
 	CORE_API void InitBody();
 	void SetPositionAndRotation(glm::vec3 pos, glm::quat rot);

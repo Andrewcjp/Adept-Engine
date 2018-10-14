@@ -18,12 +18,14 @@ public:
 	CORE_API void AddForce(glm::vec3, EForceMode::Type Mode = EForceMode::AsForce);
 	CORE_API glm::vec3 GetLinearVelocity();
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
-
+	CORE_API glm::vec3 GetAngularVelocity();
+	CORE_API void SetAngularVelocity(glm::vec3 velocity);
 	void AttachCollider(Collider* col);
 	void SetPhysicalMaterial(PhysicalMaterial* newmat);
-	void SetGravity(bool active);
-	void UpdateFlagStates() override;
 
+	void UpdateBodyState() override;
+
+	physx::PxRigidActor* GetActor() { return CommonActorPtr; }
 	void InitBody();
 private:
 	std::vector<Collider*> AttachedColliders;
@@ -32,22 +34,7 @@ private:
 	physx::PxRigidDynamic*	Dynamicactor = nullptr;
 	physx::PxRigidStatic*	StaticActor = nullptr;
 	physx::PxRigidActor*	CommonActorPtr = nullptr;
-	glm::vec3 PXvec3ToGLM(physx::PxVec3 val)
-	{
-		return glm::vec3(val.x, val.y, val.z);
-	}
-	glm::quat PXquatToGLM(physx::PxQuat val)
-	{
-		return glm::quat(val.x, val.y, val.z, val.w);
-	}
-	physx::PxVec3 GLMtoPXvec3(glm::vec3 val)
-	{
-		return physx::PxVec3(val.x, val.y, val.z);
-	}
-	physx::PxQuat GLMtoPXQuat(glm::quat val)
-	{
-		return physx::PxQuat(val.x, val.y, val.z, val.w);
-	}
+
 	std::vector<physx::PxShape*> Shapes;
 	Transform transform;
 	PhysicalMaterial* PhysicsMat = nullptr;

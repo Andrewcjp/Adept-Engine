@@ -50,5 +50,6 @@ private:
 	std::string CurrentSceneSavePath;
 	std::string EditorPlaySceneTempFile = "";
 	EditorCore* mEditorCore = nullptr;
+
 };
 #endif

@@ -35,18 +35,35 @@ glm::vec3 GenericRigidBody::GetLinearVelocity()
 	return glm::vec3();
 }
 
+void GenericRigidBody::SetLinearVelocity(glm::vec3 velocity)
+{}
+
+glm::vec3 GenericRigidBody::GetAngularVelocity()
+{
+	return glm::vec3();
+}
+
+void GenericRigidBody::SetAngularVelocity(glm::vec3 velocity)
+{}
+
+void GenericRigidBody::SetGravity(bool active)
+{
+	BodyData.Gravity = active;
+	UpdateBodyState();
+}
+
 void GenericRigidBody::AttachCollider(Collider * col)
 {}
 
-void GenericRigidBody::SetLockFlags(BodyInstanceData data)
+void GenericRigidBody::SetBodyData(BodyInstanceData data)
 {
-	LockData = data;
-	UpdateFlagStates();
+	BodyData = data;
+	UpdateBodyState();
 }
 
-BodyInstanceData GenericRigidBody::GetLockFlags()
+BodyInstanceData& GenericRigidBody::GetBodyData()
 {
-	return LockData;
+	return BodyData;
 }
 
 GenericCollider::GenericCollider()

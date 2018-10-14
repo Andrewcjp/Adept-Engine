@@ -59,7 +59,7 @@ void BaseWindow::InitilseWindow()
 
 	UI = new UIManager(m_width, m_height);
 	Input::Startup();
-	fprintf(stdout, "Scene initalised\n");
+	fprintf(stdout, "Scene initialized\n");
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->SampleNVCounters();
@@ -90,8 +90,6 @@ void BaseWindow::Render()
 	AccumTickTime += DeltaTime;
 	Input::Get()->ProcessInput(DeltaTime);
 	AudioEngine::ProcessAudio();
-	//lock the simulation rate to TickRate
-	//this prevents physx being framerate depenent.
 	if (IsRunning)
 	{
 		AccumTickTime = 0;
@@ -99,7 +97,10 @@ void BaseWindow::Render()
 		float TimeStep = Engine::GetPhysicsDeltaTime();
 		if (TimeStep > 0)
 		{
-			Engine::PhysEngine->stepPhysics(TimeStep);
+			{
+				SCOPE_CYCLE_COUNTER("stepPhysics");
+				Engine::PhysEngine->stepPhysics(TimeStep);
+			}
 			if (ShouldTickScene)
 			{
 				CurrentScene->FixedUpdateScene(TimeStep);
@@ -110,7 +111,6 @@ void BaseWindow::Render()
 		{
 			Log::LogMessage("Delta Time was Negative", Log::Severity::Warning);
 		}
-		//CurrentPlayScene->FixedUpdateScene(TickRate);
 		PerfManager::EndTimer("FTick");
 	}
 
@@ -133,9 +133,9 @@ void BaseWindow::Render()
 	if (ShouldTickScene)
 	{
 		Engine::GetGame()->Update();
-		//PerfManager::StartTimer("Scene Update");
+		PerfManager::StartTimer("Scene Update");
 		CurrentScene->UpdateScene(DeltaTime);
-		//PerfManager::EndTimer("Scene Update");
+		PerfManager::EndTimer("Scene Update");
 	}
 
 	PerfManager::StartTimer("Render");
@@ -258,7 +258,7 @@ Camera * BaseWindow::GetCurrentCamera()
 {
 	if (Instance != nullptr && Instance->Renderer != nullptr)
 	{
-		return Instance->Renderer->GetMainCam();	
+		return Instance->Renderer->GetMainCam();
 	}
 	return nullptr;
 }
@@ -437,6 +437,6 @@ void BaseWindow::RenderText()
 	if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)
 	{
 		PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));
-		PerfManager::Instance->DrawAllStats((int)(m_width / 1.5f), (int)(m_height / 1.2),true);
+		PerfManager::Instance->DrawAllStats((int)(m_width / 1.5f), (int)(m_height / 1.2), true);
 	}
 }

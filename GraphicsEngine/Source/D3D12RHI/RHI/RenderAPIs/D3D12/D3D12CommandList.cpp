@@ -18,6 +18,7 @@
 #include "D3D12DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
 #include "DescriptorHeap.h"
+#include "D3D12DeviceContext.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
@@ -217,11 +218,11 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	IN_CreatePipelineState(shader);
 }
 
-std::string D3D12CommandList::GetPSOHash(Shader* shader,const RHIPipeRenderTargetDesc & statedesc)
+std::string D3D12CommandList::GetPSOHash(Shader* shader, const RHIPipeRenderTargetDesc & statedesc)
 {
 	std::string hash = "";
-	hash += shader->GetName();	
-	hash += std::to_string((int)statedesc.RTVFormats[0]);	
+	hash += shader->GetName();
+	hash += std::to_string((int)statedesc.RTVFormats[0]);
 	return hash;
 }
 
@@ -305,7 +306,7 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 		CreateCommandList();
 	}
 	const std::string Hash = GetPSOHash(shader, Currentpipestate.RenderTargetDesc);
-	
+
 	PSOCache.try_emplace(Hash, CurrentPipelinestate);
 }
 
@@ -518,7 +519,10 @@ void D3D12Buffer::Release()
 	Device = nullptr;
 	if (CurrentBufferType == ERHIBufferType::Constant)
 	{
-		MemoryUtils::DeleteCArray(CBV, MAX_GPU_DEVICE_COUNT);
+		for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+		{
+			MemoryUtils::DeleteCArray(CBV[i], RHI::CPUFrameCount);
+		}
 	}
 	SafeRelease(m_DataBuffer);
 	SafeRelease(SRVBufferHeap);
@@ -538,44 +542,69 @@ void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool Re
 	{
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
 		{
-			CBV[i] = new D3D12CBV(RHI::GetDeviceContext(i));
-			CBV[i]->InitCBV(StructSize, Elementcount);
-			D3D12Helpers::NameRHIObject(CBV[i], this);
+			for (int j = 0; j < RHI::CPUFrameCount; j++)
+			{
+				CBV[i][j] = new D3D12CBV(RHI::GetDeviceContext(i));
+				CBV[i][j]->InitCBV(StructSize, Elementcount);
+				D3D12Helpers::NameRHIObject(CBV[i][j], this);
+			}
 		}
 	}
 	else
 	{
-		CBV[0] = new D3D12CBV(Device);
-		CBV[0]->InitCBV(StructSize, Elementcount);
-		D3D12Helpers::NameRHIObject(CBV[0], this);
+		for (int j = 0; j < RHI::CPUFrameCount; j++)
+		{
+			CBV[0][j] = new D3D12CBV(Device);
+			CBV[0][j]->InitCBV(StructSize, Elementcount);
+			D3D12Helpers::NameRHIObject(CBV[0][j], this);
+		}
 	}
 }
+
 void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 {
+	const int index = Device->GetCpuFrameIndex();
 	if (CrossDevice)
 	{
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
 		{
-			CBV[i]->UpdateCBV(data, offset, TotalByteSize);
+			if (RHI::GetFrameCount() == 0)
+			{
+				CBV[i][0]->UpdateCBV(data, offset, TotalByteSize);
+				CBV[i][1]->UpdateCBV(data, offset, TotalByteSize);
+			}
+			else
+			{
+				CBV[i][index]->UpdateCBV(data, offset, TotalByteSize);
+			}
 		}
 	}
 	else
 	{
-		CBV[0]->UpdateCBV(data, offset, TotalByteSize);
+		if (RHI::GetFrameCount() == 0)
+		{
+			CBV[0][0]->UpdateCBV(data, offset, TotalByteSize);
+			CBV[0][1]->UpdateCBV(data, offset, TotalByteSize);
+		}
+		else
+		{
+			CBV[0][index]->UpdateCBV(data, offset, TotalByteSize);
+		}
 	}
 }
 
 void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Slot, bool  IsCompute, int Deviceindex)
 {
+	const int index = Device->GetCpuFrameIndex();
 	if (CrossDevice)
 	{
-		CBV[Deviceindex]->SetDescriptorHeaps(list);
-		CBV[Deviceindex]->SetGpuView(list, offset, Slot, IsCompute);
+		CBV[Deviceindex][index]->SetDescriptorHeaps(list);
+		CBV[Deviceindex][index]->SetGpuView(list, offset, Slot, IsCompute);
 	}
 	else
 	{
-		CBV[0]->SetDescriptorHeaps(list);
-		CBV[0]->SetGpuView(list, offset, Slot, IsCompute);
+		CBV[0][index]->SetDescriptorHeaps(list);
+		CBV[0][index]->SetGpuView(list, offset, Slot, IsCompute);
 	}
 }
 
@@ -615,7 +644,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 {
 	SetupBufferSRV();
 	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
-	if (BufferAccesstype != EBufferAccessType::GPUOnly)//gpu buffer states are explictily managed by render code
+	if (BufferAccesstype != EBufferAccessType::GPUOnly)//gpu buffer states are explicitly managed by render code
 	{
 		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
 	}
@@ -712,7 +741,7 @@ void D3D12Buffer::EnsureResouceInFinalState(ID3D12GraphicsCommandList * list)
 
 void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 {
-	TotalByteSize = ByteSize;//mazsize
+	TotalByteSize = ByteSize;//max size
 	ID3D12Resource* TempRes = nullptr;
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), // a default heap
@@ -737,7 +766,7 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 
 void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 {
-	//This Buffer Will Have Data Changed Every frame so no need to transiton to only gpu.
+	//This Buffer Will Have Data Changed Every frame so no need to transition to only gpu.
 	// Create the vertex buffer.
 	TotalByteSize = ByteSize;
 	ID3D12Resource* TempRes = nullptr;
@@ -882,7 +911,7 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = ((D3D12Texture*)target)->GetResource()->GetDesc().Format;
 	destTextureUAVDesc.Texture2D.MipSlice = 1;
-	//todo:Counter UAV?
+	//todo: Counter UAV?
 	Device->GetDevice()->CreateUnorderedAccessView(((D3D12Texture*)target)->GetResource(), UAVCounter, &destTextureUAVDesc, Heap->GetCPUAddress(0));
 }
 
@@ -931,7 +960,7 @@ D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntri
 D3D12RHITextureArray::~D3D12RHITextureArray()
 {}
 
-//Add a framebuffer to this heap and ask it to create one in our heap
+//Add a frame buffer to this heap and ask it to create one in our heap
 void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 {
 	ensure(!Buffer->IsPendingKill());
@@ -954,7 +983,7 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGpuAddress(0));
 }
 
-//Makes a descriptor Null Using the first framebuffers Description
+//Makes a descriptor Null Using the first frame buffers Description
 void D3D12RHITextureArray::SetIndexNull(int TargetIndex)
 {
 	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Heap->GetCPUAddress(TargetIndex));

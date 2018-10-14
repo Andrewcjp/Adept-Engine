@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d12.h>
+#define Enable_CBV_BUFFERING 1
 class D3D12CBV
 {
 public:

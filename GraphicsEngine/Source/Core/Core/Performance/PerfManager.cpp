@@ -632,7 +632,20 @@ void PerfManager::LogSingleActionTimers()
 		Log::OutS << "Timer " << it->first << " Took " << it->second << "ms" << Log::OutS;
 	}
 }
-
+void PerfManager::LogSingleActionTimer(std::string name)
+{
+	if (SingleActionTimersAccum.find(name) != SingleActionTimersAccum.end())
+	{
+		Log::OutS << "Timer " << name << " Took " << SingleActionTimersAccum.at(name) << "ms" << Log::OutS;
+	}
+}
+void PerfManager::FlushSingleActionTimer(std::string name)
+{
+	if (SingleActionTimersAccum.find(name) != SingleActionTimersAccum.end())
+	{
+		SingleActionTimersAccum.at(name) = 0.0f;
+	}
+}
 PerfManager::ScopeStartupCounter::ScopeStartupCounter(const char* name)
 {
 	Name = name;

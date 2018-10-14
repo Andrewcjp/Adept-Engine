@@ -43,7 +43,6 @@ public:
 	void LoadTexturesFromDir();
 	
 	bool GetTextureAsset(std::string path, TextureAsset & asset, bool ABSPath = false);
-	static size_t GetShaderAsset(std::string name, char ** buffer);
 	CORE_API std::string LoadFileWithInclude(std::string name);
 
 	bool GetShaderAsset(std::string path, ShaderAsset &asset);
@@ -91,9 +90,5 @@ private:
 	std::string LoadShaderIncludeFile(std::string name, int limit,std::string Relative = std::string());
 	static const std::string DDCName;
 	const int MaxIncludeTreeLength = 10;
-#if 0
-	size_t ReadShader(std::string path, char ** buffer);	
-	size_t TextFileBufferedRead(std::string name, char ** buffer);
-#endif
 };
 

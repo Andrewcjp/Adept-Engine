@@ -7,6 +7,7 @@
 #include <fstream>
 #include "Rendering/Shaders/Shader_NodeGraph.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Utils/FileUtils.h"
 ShaderGraph::ShaderGraph(FString Name)
 {
 	GraphName = Name;
@@ -45,25 +46,6 @@ void ShaderGraph::CreateDefault()
 	GraphName = "Default";
 	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
 }
-
-bool WriteToFile(std::string filename, std::string data)
-{
-	std::string out;
-	std::ofstream myfile(filename, std::ofstream::out);
-	if (myfile.is_open())
-	{
-		std::string line;
-		myfile.write(data.c_str(), data.length());
-		myfile.close();
-	}
-	else
-	{
-		Log::OutS << "failed to save " << filename << Log::OutS;
-		return false;
-	}
-	return true;
-}
-
 std::string ShaderGraph::GetTemplateName()
 {
 	if (RHI::GetRenderSettings()->IsDeferred)
@@ -133,7 +115,7 @@ bool ShaderGraph::Complie()
 
 	std::string Path = AssetManager::GetShaderPath() + "Gen\\" + GraphName.ToSString() + ".hlsl";
 	PlatformApplication::TryCreateDirectory(AssetManager::GetShaderPath() + "Gen");
-	return WriteToFile(Path, PreFile + ComplieOutput + PostFile);
+	return FileUtils::WriteToFile(Path, PreFile + ComplieOutput + PostFile);
 }
 
 Shader* ShaderGraph::GetGeneratedShader()

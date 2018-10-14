@@ -1,12 +1,13 @@
 #include "TDPCH.h"
 #include "TDSolver.h"
 #include "TDScene.h"
-
+#include "TDCollisionHandlers.h"
+#include "TDAsserts.h"
 namespace TD
 {
 	TDSolver::TDSolver()
 	{}
-
+	 
 	TDSolver::~TDSolver()
 	{}
 
@@ -36,8 +37,25 @@ namespace TD
 		{
 			for (int j = 0; j < scene->GetActors().size(); j++)
 			{
-
+			//	ProcessCollisions(scene->GetActors()[i], scene->GetActors()[j]);
 			}
 		}
+	}
+
+	void TDSolver::ProcessCollisions(TDShape* A, TDShape* B)
+	{
+		EShapeType::Type AType = A->GetShapeType();
+		EShapeType::Type BType = A->GetShapeType();
+
+		const bool flip = (AType < BType);
+		if (flip)
+		{
+			std::swap(A, B);
+			std::swap(AType, BType);
+		}
+
+		ContactMethod m = ContactMethodTable[AType][BType];
+		DebugEnsure(m);
+		m(nullptr, nullptr, nullptr);
 	}
 }

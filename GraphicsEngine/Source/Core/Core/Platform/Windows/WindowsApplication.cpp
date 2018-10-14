@@ -3,6 +3,7 @@
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/MinWindows.h"
+#include "Core/Platform/Logger.h"
 #include <VersionHelpers.h>
 double WindowsApplication::SecondsPerCycle = 0.0f;
 

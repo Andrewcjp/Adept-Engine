@@ -5,7 +5,8 @@
 #include "StringUtil.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Assets/AssetManager.h"
-
+#include <iostream>
+#include <fstream>
 bool FileUtils::File_ExistsTest(const std::string & name, bool Silent)
 {
 	struct stat buffer;
@@ -77,4 +78,25 @@ bool FileUtils::CreateDirectoriesToFullPath(std::string Path)
 		}
 	}
 	return false;
+}
+
+bool FileUtils::WriteToFile(std::string Filename, std::string data, bool append)
+{
+	std::string out;
+	char flags = std::ofstream::out;
+	if (append)
+	{
+		flags |= std::fstream::app;
+	}
+	std::ofstream myfile(Filename, flags);
+	if (!myfile.is_open())
+	{
+		Log::OutS << "Failed to Write " << Filename << Log::OutS;
+		return false;
+	}
+	std::string line;
+	myfile.write(data.c_str(), data.length());
+	myfile.close();
+
+	return true;
 }

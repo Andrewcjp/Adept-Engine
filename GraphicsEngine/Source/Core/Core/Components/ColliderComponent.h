@@ -26,8 +26,9 @@ public:
 #endif
 private:
 	EShapeType::Type CollisionShapeType = EShapeType::eBOX;
-	float Radius = 1;
+	float Radius = 1.0f;
 	glm::vec3 BoxExtents = glm::vec3(1, 1, 1);
+	float Height = 1.0f;
 	RigidBody* Actor = nullptr;
 	std::string MeshName;
 };

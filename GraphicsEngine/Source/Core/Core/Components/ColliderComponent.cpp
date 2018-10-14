@@ -83,6 +83,13 @@ ShapeElem * ColliderComponent::GetColliderShape()
 		box->scale = BoxExtents;
 		return box;
 	}
+	case EShapeType::eCAPSULE:
+	{
+		CapsuleElm* cap = new CapsuleElm();
+		cap->raduis = Radius;
+		cap->height = Height;
+		return cap;
+	}
 	case EShapeType::eCONVEXMESH:
 	{
 		if (MeshName.length() == 0)

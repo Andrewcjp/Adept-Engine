@@ -27,19 +27,19 @@ PhysxRigidbody::PhysxRigidbody(EBodyType::Type type, Transform initalpos) :Gener
 
 glm::vec3 PhysxRigidbody::GetPosition()
 {
-	return PXvec3ToGLM(CommonActorPtr->getGlobalPose().p);
+	return PhysxEngine::PXvec3ToGLM(CommonActorPtr->getGlobalPose().p);
 }
 
 glm::quat PhysxRigidbody::GetRotation()
 {
-	return PXquatToGLM(CommonActorPtr->getGlobalPose().q);
+	return PhysxEngine::PXquatToGLM(CommonActorPtr->getGlobalPose().q);
 }
 
 void PhysxRigidbody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)
 {
 	if (CommonActorPtr != nullptr)
 	{
-		CommonActorPtr->setGlobalPose(PxTransform(GLMtoPXvec3(pos), GLMtoPXQuat(rot)));
+		CommonActorPtr->setGlobalPose(PxTransform(PhysxEngine::GLMtoPXvec3(pos), PhysxEngine::GLMtoPXQuat(rot)));
 	}
 }
 
@@ -47,7 +47,7 @@ void PhysxRigidbody::AddTorque(glm::vec3 torque)
 {
 	if (Dynamicactor != nullptr)
 	{
-		Dynamicactor->addTorque(GLMtoPXvec3(torque));
+		Dynamicactor->addTorque(PhysxEngine::GLMtoPXvec3(torque));
 	}
 }
 
@@ -55,7 +55,7 @@ void PhysxRigidbody::AddForce(glm::vec3 force, EForceMode::Type Mode)
 {
 	if (Dynamicactor != nullptr)
 	{
-		Dynamicactor->addForce(GLMtoPXvec3(force));
+		Dynamicactor->addForce(PhysxEngine::GLMtoPXvec3(force));
 	}
 }
 
@@ -63,7 +63,7 @@ glm::vec3 PhysxRigidbody::GetLinearVelocity()
 {
 	if (Dynamicactor != nullptr)
 	{
-		return PXvec3ToGLM(Dynamicactor->getLinearVelocity());
+		return PhysxEngine::PXvec3ToGLM(Dynamicactor->getLinearVelocity());
 	}
 	return glm::vec3();
 }
@@ -72,9 +72,25 @@ void PhysxRigidbody::SetLinearVelocity(glm::vec3 velocity)
 {
 	if (Dynamicactor != nullptr)
 	{
-		Dynamicactor->setLinearVelocity(GLMtoPXvec3(velocity));
+		Dynamicactor->setLinearVelocity(PhysxEngine::GLMtoPXvec3(velocity));
 	}
 }
+glm::vec3 PhysxRigidbody::GetAngularVelocity()
+{
+	if (Dynamicactor != nullptr)
+	{
+		return PhysxEngine::PXvec3ToGLM(Dynamicactor->getAngularVelocity());
+	}
+	return glm::vec3();
+}
+void PhysxRigidbody::SetAngularVelocity(glm::vec3 velocity)
+{
+	if (Dynamicactor != nullptr)
+	{
+		Dynamicactor->setAngularVelocity(PhysxEngine::GLMtoPXvec3(velocity));
+	}
+}
+
 physx::PxTriangleMesh* PhysxRigidbody::GenerateTriangleMesh(std::string Filename, glm::vec3 scale)
 {
 	std::vector<OGLVertex> vertices;
@@ -149,7 +165,7 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 		case EShapeType::eBOX:
 		{
 			BoxElem* BoxShape = (BoxElem*)Shape;
-			newShape = PhysxEngine::GetGPhysics()->createShape(PxBoxGeometry(GLMtoPXvec3(BoxShape->Extents)), *PMaterial);
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxBoxGeometry(PhysxEngine::GLMtoPXvec3(BoxShape->Extents)), *PMaterial);
 			break;
 		}
 		case EShapeType::eSPHERE:
@@ -158,11 +174,17 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 			newShape = PhysxEngine::GetGPhysics()->createShape(PxSphereGeometry(SphereShape->raduis), *PMaterial);
 			break;
 		}
+		case EShapeType::eCAPSULE:
+		{
+			CapsuleElm* SphereShape = (CapsuleElm*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxCapsuleGeometry(SphereShape->raduis, SphereShape->height), *PMaterial);
+			break;
+		}
 		case EShapeType::ePLANE:
 		{
 			PlaneElm* SphereShape = (PlaneElm*)Shape;
 			newShape = PhysxEngine::GetGPhysics()->createShape(PxPlaneGeometry(), *PMaterial);
-			newShape->setLocalPose(PxTransform(GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(0, 1, 0, 0)));
+			newShape->setLocalPose(PxTransform(PhysxEngine::GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(0, 1, 0, 0)));
 			break;
 		}
 		case EShapeType::eCONVEXMESH:
@@ -199,24 +221,20 @@ void PhysxRigidbody::SetPhysicalMaterial(PhysicalMaterial * newmat)
 	}
 }
 
-void PhysxRigidbody::SetGravity(bool active)
-{
-	if (CommonActorPtr)
-	{
-		CommonActorPtr->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !active);
-	}
-}
-
-void PhysxRigidbody::UpdateFlagStates()
+void PhysxRigidbody::UpdateBodyState()
 {
 	if (Dynamicactor)
 	{
-		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, LockData.LockXRot);
-		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, LockData.LockYRot);
-		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, LockData.LockZRot);
-		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, LockData.LockXPosition);
-		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, LockData.LockYPosition);
-		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, LockData.LockZPosition);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, BodyData.LockXRot);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, BodyData.LockYRot);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, BodyData.LockZRot);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, BodyData.LockXPosition);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, BodyData.LockYPosition);
+		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, BodyData.LockZPosition);
+	}
+	if (CommonActorPtr)
+	{
+		CommonActorPtr->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !BodyData.Gravity);
 	}
 }
 
@@ -233,33 +251,33 @@ void PhysxRigidbody::InitBody()
 
 	if (BodyType == EBodyType::RigidDynamic)
 	{
-		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(GLMtoPXvec3(transform.GetPos()), GLMtoPXQuat(transform.GetQuatRot())));
+		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(PhysxEngine::GLMtoPXvec3(transform.GetPos()), PhysxEngine::GLMtoPXQuat(transform.GetQuatRot())));
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			Dynamicactor->attachShape(*Shapes[i]);
 		}
-		Dynamicactor->setAngularDamping(LockData.AngularDamping);
-		Dynamicactor->setLinearDamping(LockData.LinearDamping);
-		if (LockData.UseAutoMass)
+		Dynamicactor->setAngularDamping(BodyData.AngularDamping);
+		Dynamicactor->setLinearDamping(BodyData.LinearDamping);
+		if (BodyData.UseAutoMass)
 		{
-			Dynamicactor->setMass(LockData.Mass);
+			Dynamicactor->setMass(BodyData.Mass);
 		}
 		else
 		{
 			PxRigidBodyExt::updateMassAndInertia(*Dynamicactor, PhysicsMat->density);
 		}
-		CommonActorPtr = Dynamicactor;
-		UpdateFlagStates();
+		CommonActorPtr = Dynamicactor;		
 	}
 	else if (BodyType == EBodyType::RigidStatic)
 	{
-		StaticActor = PhysxEngine::GetGPhysics()->createRigidStatic(PxTransform(GLMtoPXvec3(transform.GetPos()), GLMtoPXQuat(transform.GetQuatRot())));
+		StaticActor = PhysxEngine::GetGPhysics()->createRigidStatic(PxTransform(PhysxEngine::GLMtoPXvec3(transform.GetPos()), PhysxEngine::GLMtoPXQuat(transform.GetQuatRot())));
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			StaticActor->attachShape(*Shapes[i]);
 		}
 		CommonActorPtr = StaticActor;
 	}
+	UpdateBodyState();
 	CommonActorPtr->userData = this;
 	PhysxEngine::GetPlayScene()->addActor(*CommonActorPtr);
 }

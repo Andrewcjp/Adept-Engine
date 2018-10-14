@@ -86,6 +86,8 @@ public:
 	CORE_API void EndSingleActionTimer(std::string Name);
 	void FlushSingleActionTimers();
 	void LogSingleActionTimers();
+	void LogSingleActionTimer(std::string name);
+	void FlushSingleActionTimer(std::string name);
 private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);
@@ -135,14 +137,11 @@ private:
 	bool Capture = true;
 	MovingAverage CPUAVG = MovingAverage(50);
 	std::vector<TimerData> SortedTimers;
-
 	//stats UI
 	const float TextSize = 0.4f;
 	const int Height = 20;
 	const int ColWidth = 250;
-
-
-	const float SlowStatsUpdateRate = 0.25;
+	const float SlowStatsUpdateRate = (1.0f / 10.0f);
 	float CurrentSlowStatsUpdate = 0.0f;
 };
 

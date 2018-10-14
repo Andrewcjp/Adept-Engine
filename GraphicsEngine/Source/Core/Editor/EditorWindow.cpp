@@ -107,6 +107,8 @@ void EditorWindow::EnterPlayMode()
 		return;
 	}
 	Log::OutS << "Entering play mode" << Log::OutS;
+	const std::string PlayStatTimer = "Scene Play";
+	PerfManager::Get()->StartSingleActionTimer(PlayStatTimer);
 	Engine::GetGame()->BeginPlay();
 	mEditorCore->SetSelectedObject(nullptr);
 	SafeDelete(CurrentPlayScene);
@@ -121,6 +123,9 @@ void EditorWindow::EnterPlayMode()
 	IsRunning = true;
 	IsPlayingScene = true;
 	ShouldTickScene = true;
+	PerfManager::Get()->EndSingleActionTimer(PlayStatTimer);
+	PerfManager::Get()->LogSingleActionTimer(PlayStatTimer);
+	PerfManager::Get()->FlushSingleActionTimer(PlayStatTimer);
 }
 
 void EditorWindow::ExitPlayMode()

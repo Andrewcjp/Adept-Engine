@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Types/FString.h"
-class WindowPlatformMisc
+#include "Core/Platform/Generic/GenericPlatformMisc.h"
+class WindowPlatformMisc:public GenericPlatformMisc
 {
 public:
 	static void LogPlatformOutput(FString data);

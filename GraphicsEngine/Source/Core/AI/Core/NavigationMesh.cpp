@@ -2,10 +2,10 @@
 #include "NavigationMesh.h"
 #include "Core/Assets/MeshLoader.h"
 #include "Rendering/Core/DebugLineDrawer.h"
+#include "Core/Assets/AssetManager.h"
 
 NavigationMesh::NavigationMesh()
 {}
-
 
 NavigationMesh::~NavigationMesh()
 {}
@@ -16,7 +16,7 @@ void NavigationMesh::GenTestMesh()
 	std::vector<int> indices;
 	MeshLoader::FMeshLoadingSettings t;
 	t.Scale = glm::vec3(5);
-	MeshLoader::LoadMeshFromFile("C:\\Users\\AANdr\\Dropbox\\Engine\\Engine\\Repo\\GraphicsEngine\\Content\\models\\NavPlaneTest_L.obj", t, vertices, indices);
+	MeshLoader::LoadMeshFromFile(AssetManager::GetContentPath() +  "models\\NavPlaneTest_L.obj", t, vertices, indices);
 
 	for (int i = 0; i < vertices.size(); i += 3)
 	{
@@ -69,6 +69,7 @@ struct Edge
 		return (lhs.first == first) && (lhs.second == second) || (lhs.second == first) && (lhs.first == second);
 	}
 };
+
 int findInV(std::vector<Edge>& v, Edge value)
 {
 	for (int i = 0; i < v.size(); i++)
@@ -80,6 +81,7 @@ int findInV(std::vector<Edge>& v, Edge value)
 	}
 	return -1;
 }
+
 void NavigationMesh::PopulateNearLists()
 {
 	std::vector<Edge> SharedEdges;
@@ -103,6 +105,7 @@ void NavigationMesh::PopulateNearLists()
 		}
 	}
 }
+
 NavTriangle* NavigationMesh::FindTriangleFromWorldPos(glm::vec3 worldpos)
 {
 	for (int i = 0; i < Triangles.size(); i++)
@@ -114,10 +117,12 @@ NavTriangle* NavigationMesh::FindTriangleFromWorldPos(glm::vec3 worldpos)
 	}
 	return nullptr;
 }
+
 void CalulateCost(NavPoint* point, glm::vec3 endpoint)
 {
 	point->navcost = glm::distance(point->pos, endpoint);
 }
+
 NavPoint* Getlowest(std::vector<NavPoint*> & points)
 {
 	if (points.size() == 0)
@@ -134,6 +139,7 @@ NavPoint* Getlowest(std::vector<NavPoint*> & points)
 	}
 	return Lowestnode;
 }
+
 bool AddToCLosed(NavPoint* ppoint, NavTriangle* endtri)
 {
 	for (int i = 0; i < 3; i++)
@@ -145,6 +151,7 @@ bool AddToCLosed(NavPoint* ppoint, NavTriangle* endtri)
 	}
 	return false;
 }
+
 bool Contains(NavPoint* point, std::vector<NavPoint*> & points)
 {
 	for (int i = 0; i < points.size(); i++)
@@ -156,6 +163,7 @@ bool Contains(NavPoint* point, std::vector<NavPoint*> & points)
 	}
 	return false;
 }
+
 void RemoveItem(NavPoint* point, std::vector<NavPoint*> & points)
 {
 	for (int i = 0; i < points.size(); i++)
@@ -167,6 +175,7 @@ void RemoveItem(NavPoint* point, std::vector<NavPoint*> & points)
 		}
 	}
 }
+
 ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath* outputPath)
 {
 	*outputPath = NavigationPath();
@@ -188,7 +197,7 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 		OpenList[i]->owner = StartTri;
 		CalulateCost(OpenList[i], EndPos);
 	}
-	NavPoint*currnetpoint = nullptr;
+	NavPoint* currnetpoint = nullptr;
 	//assign costs!
 	while (OpenList.size() > 0)
 	{
@@ -203,7 +212,6 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 		{
 			CLosedList.push_back(currnetpoint);
 		}
-
 		for (int i = 0; i < currnetpoint->owner->NearTriangles.size(); i++)
 		{
 			for (int x = 0; x < 3; x++)
@@ -217,7 +225,6 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 				}
 			}
 		}
-
 	}
 
 	for (int i = 0; i < CLosedList.size(); i++)
@@ -228,7 +235,6 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 			DebugLineDrawer::instance->AddLine(CLosedList[i]->pos, CLosedList[i + 1]->pos, glm::vec3(0, 1, 0), 100);
 		}
 	}
-
 	return ENavRequestStatus::Complete;
 }
 
@@ -244,6 +250,7 @@ bool pointInTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 point)
 	bool checkSide3 = side(v3.xz, v1.xz, point.xy) >= 0;
 	return checkSide1 && checkSide2 && checkSide3;
 }
+
 bool NavTriangle::IsPointInsideTri(glm::vec3 point)
 {
 	return pointInTriangle(Positons[0], Positons[1], Positons[2], point);
