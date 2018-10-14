@@ -2,7 +2,7 @@
 #include <sstream>
 #include <ios>
 
-class CORE_API Log
+class Log
 {
 public:
 	enum Severity
@@ -11,7 +11,7 @@ public:
 		Warning,
 		Error
 	};
-	static void LogOutput(std::string data);
+	CORE_API static void LogOutput(std::string data, bool ForceFlush = false);
 	struct StreamWrapper
 	{
 		std::stringstream Out;
@@ -30,6 +30,15 @@ public:
 		}
 	};
 	static StreamWrapper OutS;
-	static void LogMessage(std::string msg, Severity s = Severity::Message);
+	CORE_API static void LogMessage(std::string msg, Severity s = Severity::Message);
+	static void StartLogger();
+	static void ShutDownLogger();
+private:
+	Log();
+	static Log* Instance;
+	void FlushToLogFile();
+	std::vector<std::string> LogData;
+	std::string LogFilePath = "";
+	int LastIndex = 0;
 };
 

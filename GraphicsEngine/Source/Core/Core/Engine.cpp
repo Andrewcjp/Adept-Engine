@@ -51,6 +51,7 @@ std::string Engine::GetExecutionDir()
 Engine::Engine()
 {
 	EngineInstance = this;
+	Log::StartLogger();
 	PlatformApplication::Init();
 	StartTime = (float)PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
@@ -77,7 +78,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-
+	Log::ShutDownLogger();
 }
 void Engine::PreInit()
 {

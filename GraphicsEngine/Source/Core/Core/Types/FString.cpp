@@ -6,6 +6,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/StringUtil.h"
+#include "Core/Platform/Logger.h"
 #define AUTO_HASH 0
 FString::FString()
 {

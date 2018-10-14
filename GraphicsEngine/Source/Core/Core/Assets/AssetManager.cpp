@@ -152,7 +152,6 @@ AssetManager::AssetManager()
 	LoadTexturesFromDir();
 #else
 	//LoadCookedShaders();
-	//ExportCookedShaders();
 #endif
 	//Log::OutS  << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << Log::OutS;
 	//Log::OutS  << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << Log::OutS;
@@ -371,55 +370,3 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit, std
 	}
 	return file;
 }
-
-
-//Remove if unused 
-#if 0
-size_t AssetManager::GetShaderAsset(std::string name, char ** buffer)
-{
-	if (instance != nullptr)
-	{
-		return instance->ReadShader(name, buffer);
-	}
-	return 0;
-}
-
-size_t AssetManager::ReadShader(std::string name, char ** buffer)
-{
-	std::string NamePath(ShaderAssetPath);
-	NamePath.append(name);
-
-	return TextFileBufferedRead(NamePath, buffer);
-}
-size_t AssetManager::TextFileBufferedRead(std::string name, char** buffer)
-{
-	std::wstring newfile((int)name.size(), 0);
-	MultiByteToWideChar(CP_UTF8, 0, &name[0], (int)name.size(), &newfile[0], (int)name.size());
-	LPCWSTR filename = newfile.c_str();
-	FILE *pfile = NULL;
-	*buffer = NULL;
-	size_t count = 0;
-
-	if (filename == NULL) return 0;
-
-	_wfopen_s(&pfile, filename, L"rt");
-
-	if (!pfile) return 0;
-
-	fseek(pfile, 0, SEEK_END);
-	count = ftell(pfile);
-	rewind(pfile);
-
-	if (count > 0)
-	{
-		*buffer = new char[count + 1];
-
-		count = (fread(*buffer, sizeof(char), count, pfile));
-		(*buffer)[count] = '\0';
-	}
-
-	fclose(pfile);
-
-	return count;
-}
-#endif

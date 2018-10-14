@@ -30,6 +30,12 @@ namespace TD
 		*\brief Get the TDActor which owns this shape
 		*/
 		TDActor* GetOwner();
+
+		template<class T>
+		static T* CastShape(class TDShape* shape)
+		{
+			return static_cast<T*>(shape);
+		}
 	protected:
 		EShapeType::Type ShapeType = EShapeType::eLimit;
 		TDPhysicalMaterial ShapeMaterial = TDPhysicalMaterial();

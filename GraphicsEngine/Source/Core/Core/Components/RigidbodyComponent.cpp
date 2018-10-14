@@ -76,7 +76,7 @@ void RigidbodyComponent::SceneInitComponent()
 			tempcol->Shapes.push_back(cc->GetColliderShape());
 		}
 		actor->AttachCollider(tempcol);
-		actor->SetLockFlags(LockData);
+		actor->SetBodyData(LockData);
 		actor->SetOwnerComponent(this);
 		actor->InitBody();
 		actor->SetLinearVelocity(InitalVelocity);
@@ -122,7 +122,7 @@ void RigidbodyComponent::SetLockFlags(BodyInstanceData data)
 	LockData = data;
 	if (actor)
 	{
-		actor->SetLockFlags(LockData);
+		actor->SetBodyData(LockData);
 	}
 }
 

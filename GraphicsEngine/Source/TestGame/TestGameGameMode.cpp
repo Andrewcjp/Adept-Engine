@@ -11,11 +11,33 @@ TestGameGameMode::TestGameGameMode()
 
 TestGameGameMode::~TestGameGameMode()
 {}
+GameObject* MakeTestSphere()
+{
+	GameObject* go = new GameObject("Test Sphere");
+	Material* mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
+	go->SetPosition(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	go->AttachComponent(new RigidbodyComponent());
+	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eSPHERE);
+	return go;
+}
 
 void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
-#if TDSIM_ENABLED
+
+	GameObject* A = MakeTestSphere();
+	GameObject* B = MakeTestSphere();
+	A->SetPosition(glm::vec3(0, 20, 0));
+	Scene->AddGameobjectToScene(A);
+	Scene->AddGameobjectToScene(B);
+	ConstaintSetup data;
+	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<RigidbodyComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
+#if 0//TDSIM_ENABLED
 	return;
 #endif
 	GameObject* go = new GameObject("Player Test");
@@ -29,8 +51,8 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	go->AttachComponent(new RigidbodyComponent());
-	ColliderComponent* cc= go->AttachComponent(new ColliderComponent());
-	cc->SetCollisonShape(EShapeType::eSPHERE);
+	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	go->AttachComponent(new Weapon());
 	TestPlayer* player = (TestPlayer*)go->AttachComponent(new TestPlayer());
 	BodyInstanceData lock;

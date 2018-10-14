@@ -86,6 +86,15 @@ struct ConvexMeshElm :public ShapeElem
 		ShapeType = EShapeType::eCONVEXMESH;
 	};
 };
+struct CapsuleElm :public ShapeElem
+{
+	float height = 2;
+	float raduis = 1;
+	CapsuleElm()
+	{
+		ShapeType = EShapeType::eCAPSULE;
+	};
+};
 struct CollisonData
 {
 	Collider* Hitcollider = nullptr;

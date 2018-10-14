@@ -39,12 +39,12 @@ void TDRigidBody::AttachCollider(Collider * col)
 
 }
 
-void TDRigidBody::SetLockFlags(BodyInstanceData data)
+void TDRigidBody::SetBodyData(BodyInstanceData data)
 {
 
 }
 
-BodyInstanceData TDRigidBody::GetLockFlags()
+BodyInstanceData TDRigidBody::GetBodyData()
 {
 	return BodyInstanceData();
 }

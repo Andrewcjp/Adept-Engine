@@ -4,10 +4,10 @@
 #include "glm\glm.hpp"
 #include "Physics/Physx/PhysxRigidbody.h"
 #include "Physics/GenericPhysicsEngine.h"
+#include "Physics/GenericConstraint.h"
 #include <include/physx/PxPhysicsAPI.h>
 #include "include/physx/foundation/PxSimpleTypes.h"
 #include <iostream>
-
 #include <vector>
 #define PVD_HOST "127.0.0.1"
 class PhysxCallBackHandler;
@@ -18,26 +18,29 @@ public:
 	void stepPhysics(float Deltatime);
 
 	void cleanupPhysics();
-	CORE_API std::vector<RigidBody*> createStack(const glm::vec3 & t, int size, float halfExtent);
 
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors);
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors = std::vector<RigidBody*>());
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit);
-
+	CORE_API ConstraintInstance* CreateConstraint(RigidBody* A, RigidBody* B, ConstaintSetup Setup);
 	void AddBoxCollisionToEditor(GameObject * obj);
 
 	static glm::vec3 PXvec3ToGLM(physx::PxVec3 val)
 	{
 		return glm::vec3(val.x, val.y, val.z);
 	}
-	//static glm::quat PXquatToGLM(physx::PxQuat val) {
-	//	return glm::quat(val.x, val.y, val.z, val.w);
-	//}
+	static glm::quat PXquatToGLM(physx::PxQuat val)
+	{
+		return glm::quat(val.x, val.y, val.z, val.w);
+	}
 	static physx::PxVec3 GLMtoPXvec3(glm::vec3 val)
 	{
 		return physx::PxVec3(val.x, val.y, val.z);
 	}
-
+	static physx::PxQuat GLMtoPXQuat(glm::quat val)
+	{
+		return physx::PxQuat(val.x, val.y, val.z, val.w);
+	}
 	static physx::PxPhysics* GetGPhysics();
 	static physx::PxScene * GetPlayScene();
 	static physx::PxMaterial* GetDefaultMaterial();

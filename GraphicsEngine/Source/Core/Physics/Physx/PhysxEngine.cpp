@@ -77,6 +77,7 @@ void PhysxEngine::initPhysics()
 
 void PhysxEngine::stepPhysics(float Deltatime)
 {
+	
 	//Deltatime
 	gScene->simulate(Deltatime);
 	gScene->fetchResults(true);
@@ -157,6 +158,22 @@ bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float di
 {
 	return RayCastScene(startpos, direction, distance, hit, false);
 }
+
+ConstraintInstance * PhysxEngine::CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup)
+{
+	PxD6Joint* PD6Joint = PxD6JointCreate(PxGetPhysics(), A->GetActor(),PxTransform(GLMtoPXvec3(A->GetPosition()), GLMtoPXQuat(A->GetRotation())),
+		B->GetActor(), PxTransform(GLMtoPXvec3(B->GetPosition()), GLMtoPXQuat(B->GetRotation())));
+
+	if (PD6Joint == nullptr)
+	{
+		
+		return false;
+	}
+
+
+	return nullptr;
+}
+
 void PhysxEngine::AddBoxCollisionToEditor(GameObject* obj)
 {
 	PxRigidStatic* st = gPhysics->createRigidStatic(PxTransform(GLMtoPXvec3(obj->GetTransform()->GetPos())));

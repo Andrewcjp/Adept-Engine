@@ -39,6 +39,7 @@ namespace TD
 	{
 		for (int i = 0; i < Scenes.size(); i++)
 		{
+			Solver->ResolveCollisions(Scenes[i]);
 			Solver->IntergrateScene(Scenes[i], deltaTime);
 		}
 	}
