@@ -8,6 +8,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "Rendering/Core/RelfectionProbe.h"
+
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 

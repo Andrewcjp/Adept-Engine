@@ -5,21 +5,16 @@
 #include "AI/SkullChaser.h"
 #include "Components/Health.h"
 #include "Components/Projectile.h"
+#include "Components/WeaponManager.h"
 TestGameGameMode::TestGameGameMode()
 {}
 
 
 TestGameGameMode::~TestGameGameMode()
 {}
-GameObject* MakeTestSphere()
+GameObject* MakeTestSphere(Scene* Scene)
 {
-	GameObject* go = new GameObject("Test Sphere");
-	Material* mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
-	go->SetPosition(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
+	GameObject* go = Scene::CreateDebugSphere(Scene);
 	go->AttachComponent(new RigidbodyComponent());
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);
@@ -30,11 +25,9 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
 
-	GameObject* A = MakeTestSphere();
-	GameObject* B = MakeTestSphere();
+	GameObject* A = MakeTestSphere(Scene);
+	GameObject* B = MakeTestSphere(Scene);
 	A->SetPosition(glm::vec3(0, 20, 0));
-	Scene->AddGameobjectToScene(A);
-	Scene->AddGameobjectToScene(B);
 	ConstaintSetup data;
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<RigidbodyComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #if 0//TDSIM_ENABLED
@@ -53,7 +46,7 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	go->AttachComponent(new RigidbodyComponent());
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
-	go->AttachComponent(new Weapon());
+	
 	TestPlayer* player = (TestPlayer*)go->AttachComponent(new TestPlayer());
 	BodyInstanceData lock;
 	lock.LockXRot = true;
@@ -64,6 +57,14 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	Cam->SetParent(go);
 	Scene->AddGameobjectToScene(Cam);
 	player->CameraObject = Cam;
+
+
+	WeaponManager* manager = go->AttachComponent(new WeaponManager());
+	manager->Weapons[0] = go->AttachComponent(new Weapon());
+	manager->Weapons[1] = go->AttachComponent(new Weapon());
+	manager->Weapons[2] = go->AttachComponent(new Weapon());	
+	manager->Weapons[0]->SetWeaponModel(Scene::CreateDebugSphere(Scene), player->CameraObject);
+
 
 	SpawnSKull(glm::vec3(20, 5, 0));
 	SpawnSKull(glm::vec3(-15, 5, 0));

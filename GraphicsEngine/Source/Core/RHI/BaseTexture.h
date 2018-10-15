@@ -18,6 +18,7 @@ public:
 	virtual void CreateAsNull() =0;
 	std::string  TextureName;
 	std::string  TexturePath;
+	ETextureType GetType(){return CurrentTextureType; }
 protected:
 	ETextureType CurrentTextureType = ETextureType::Type_2D;
 };

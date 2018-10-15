@@ -7,7 +7,6 @@
 #include <algorithm>
 TestPlayer::TestPlayer()
 {
-	Acceleration = 20.0f;
 }
 
 
@@ -82,13 +81,10 @@ void TestPlayer::UpdateMovement(float delta)
 	glm::vec3 TargetVel = glm::vec3(0, 0, 0);
 	glm::vec3 right = glm::vec3(1, 0, 0);
 	glm::vec3 fwd = glm::vec3(0, 0, 1);
-	if (IsGrounded)
+	float Speed = 1;
+	if (!IsGrounded)
 	{
-		Speed = 1;
-	}
-	else
-	{
-		Speed = 0.2f;
+		Speed = AirSpeedFactor;
 	}
 	if (Input::GetKey('a'))
 	{

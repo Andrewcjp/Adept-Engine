@@ -12,9 +12,9 @@ namespace TD
 		~TDSolver();
 		void IntergrateScene(TDScene* scene, float dt);
 		void ResolveCollisions(TDScene* scene);
-
+		static void ProcessCollisions(TDShape * A, TDShape * B);
 	private:
-		void ProcessCollisions(TDShape * A, TDShape * B);
+		
 		void IntergrateActor(TDActor * actor, float dt, TDScene * Scene);
 	};
 }

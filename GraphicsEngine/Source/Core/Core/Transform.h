@@ -24,6 +24,7 @@ public:
 	CORE_API void SetParent(Transform* Parent);
 	void TranslatePos(const glm::vec3 & pos);
 	void MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up);
+	CORE_API void SetLocalPosition(glm::vec3 localpos);
 	///------------------------------------------------------
 	//getters
 	CORE_API glm::vec3 GetPos() const { return _pos; }

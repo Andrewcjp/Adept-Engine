@@ -19,13 +19,13 @@ private:
 	void CheckForGround();
 	void UpdateMovement(float delta);
 	glm::vec3 RelativeSpeed = glm::vec3();
-	float MaxSpeed = 10.0f;
-	float Acceleration = 30.0f;
-	float Speed = 10;
+	const float MaxSpeed = 10.0f;
+	const float Acceleration = 25.0f;
 	float jumpHeight = 10;
 	RigidbodyComponent* RB = nullptr;
 	CameraComponent* Cam = nullptr;
 	float LookSensitivty = 0.1f;
 	bool IsGrounded = false;
+	const float AirSpeedFactor = 0.2f;
 };
 

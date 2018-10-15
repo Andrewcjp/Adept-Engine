@@ -80,7 +80,7 @@ void Transform::SetLocalRotation(glm::quat localrot)
 
 glm::mat4 Transform::GetModel()
 {
-#if 1
+#if 0
 	if (!UpdateModel && parent == nullptr)
 	{
 		return CacheModel;
@@ -172,6 +172,10 @@ void Transform::SetParent(Transform * Parent)
 {
 	UpdateModel = true;
 	parent = Parent;
+	if (Parent != nullptr)
+	{
+		Parent->UpdateModel = true;
+	}
 }
 
 void Transform::TranslatePos(const glm::vec3 & pos)
@@ -183,6 +187,14 @@ void Transform::TranslatePos(const glm::vec3 & pos)
 void Transform::MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up)
 {
 	//_qrot = glm::)
+}
+
+void Transform::SetLocalPosition(glm::vec3 localpos)
+{
+	glm::mat4 LocalMAtrix = GetModel();
+	glm::vec4 newpos = glm::vec4(localpos, 1.0f)*glm::inverse(LocalMAtrix);
+	newpos = newpos * LocalMAtrix;
+	SetPos(newpos);
 }
 
 glm::vec3 Transform::GetEulerRot() const
