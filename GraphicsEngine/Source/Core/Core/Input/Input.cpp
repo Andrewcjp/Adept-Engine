@@ -5,12 +5,12 @@
 #include "UI/UIManager.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
+#include "Editor/EditorWindow.h"
 Input* Input::instance = nullptr;
 
 void Input::Startup()
 {
 	instance = new Input();
-
 }
 
 void Input::ShutDown()
@@ -42,7 +42,20 @@ Input * Input::Get()
 void Input::Clear()
 {
 	KeyMap.clear();
+	MouseWheelUpThisFrame = false;
+	MouseWheelDownThisFrame = false;
 }
+
+bool Input::GetMouseWheelUp()
+{
+	return Get()->MouseWheelUpThisFrame;
+}
+
+bool Input::GetMouseWheelDown()
+{
+	return Get()->MouseWheelDownThisFrame;
+}
+
 void Input::ProcessInput(const float)
 {
 	IsActiveWindow = PlatformWindow::IsActiveWindow();
@@ -121,7 +134,21 @@ bool Input::ProcessKeyUp(unsigned int key)
 	KeyMap.emplace((int)key, false);
 	return true;
 }
-#include "Editor/EditorWindow.h"
+
+void Input::ProcessMouseWheel(float Delta)
+{
+	const float DeltaMin = 0.5f;
+	if (Delta > DeltaMin)
+	{
+		MouseWheelUpThisFrame = true;
+	}
+	if (Delta < -DeltaMin)
+	{
+		MouseWheelDownThisFrame = true;
+	}
+}
+
+
 void Input::SetCursorState(bool Locked, bool Visible)
 {
 #if WITH_EDITOR

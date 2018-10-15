@@ -7,6 +7,7 @@
 #include "RHI/DeviceContext.h"
 #include "Core/EngineInc.h"
 #include "Rendering/Core/SceneRenderer.h"
+#include "Core/Platform/PlatformCore.h"
 DECLARE_GLOBAL_SHADER(Shader_Skybox);
 Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
@@ -50,6 +51,7 @@ Shader_Skybox::~Shader_Skybox()
 
 void Shader_Skybox::SetSkyBox(BaseTexture * tex)
 {
+	ensure(tex->GetType() == BaseTexture::ETextureType::Type_CubeMap);
 	if (SkyBoxTexture != nullptr)
 	{
 		SafeRHIRefRelease(SkyBoxTexture);

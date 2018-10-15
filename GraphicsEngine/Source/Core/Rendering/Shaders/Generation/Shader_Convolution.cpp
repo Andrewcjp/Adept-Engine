@@ -3,6 +3,8 @@
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/FrameBuffer.h"
 #include "RHI/RHICommandList.h"
+#include "RHI/BaseTexture.h"
+#include "Core/Platform/PlatformCore.h"
 DECLARE_GLOBAL_SHADER(Shader_Convolution);
 Shader_Convolution::Shader_Convolution(class DeviceContext* dev) :Shader(dev)
 {
@@ -57,6 +59,7 @@ void Shader_Convolution::init()
 
 void Shader_Convolution::ComputeConvolution(BaseTexture* Target)
 {
+	ensure(Target->GetType() == BaseTexture::ETextureType::Type_CubeMap);
 	CmdList->ResetList();
 	CmdList->ClearFrameBuffer(CubeBuffer);
 	CmdList->SetTexture(Target, 0);

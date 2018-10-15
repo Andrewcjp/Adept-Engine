@@ -8,6 +8,7 @@ namespace ComponentTypes
 		PhysicsThrowerComponent,
 		TestPlayer,
 		Weapon,
+		WeaponManager,
 		Projectile,
 		Health,
 		Limit

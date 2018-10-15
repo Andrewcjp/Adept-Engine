@@ -17,7 +17,9 @@
 #include "Core/Components/ColliderComponent.h"
 Scene::Scene(bool EditScene)
 {
-	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
+	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
+	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds",true);
+	
 	LightingData.SkyBox->AddRef();
 	CurrentGameMode = Engine::GetGame()->CreateGameMode();
 	bEditorScene = EditScene;
@@ -364,6 +366,19 @@ void Scene::TickDeferredRemove()
 		}
 	}
 	DeferredRemoveQueue.clear();
+}
+
+GameObject * Scene::CreateDebugSphere(Scene* s)
+{
+	GameObject* go = new GameObject("Test Sphere");
+	Material* mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
+	go->SetPosition(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	s->AddGameobjectToScene(go);
+	return go;
 }
 
 void Scene::AddGameobjectToScene(GameObject* gameobject)

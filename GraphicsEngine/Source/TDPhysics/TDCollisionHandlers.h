@@ -17,7 +17,7 @@ namespace TD
 		static bool CollideBoxSphere(CollisionHandlerArgs);
 		static bool CollideMeshSphere(CollisionHandlerArgs);
 		static bool CollideBoxMesh(CollisionHandlerArgs);
-		static bool CollidePlaneSphere(CollisionHandlerArgs);
+		static bool CollideSpherePlane(CollisionHandlerArgs);
 	};
 	typedef bool(*ContactMethod)(TDShape*, TDShape*, ContactData*);
 	/**
@@ -27,6 +27,7 @@ namespace TD
 	{
 		{
 			TDCollisionHandlers::CollideSphereSphere,
+			TDCollisionHandlers::CollideSpherePlane,			
 			TDCollisionHandlers::CollideBoxSphere
 		}
 

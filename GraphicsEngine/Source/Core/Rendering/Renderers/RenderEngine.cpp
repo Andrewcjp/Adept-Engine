@@ -150,7 +150,7 @@ void RenderEngine::StaticUpdate()
 
 	OnStaticUpdate();
 }
-
+#include "Core/Assets/AssetManager.h"
 void RenderEngine::SetScene(Scene * sc)
 {
 	MainScene = sc;

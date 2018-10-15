@@ -18,15 +18,7 @@ void Weapon::InitComponent()
 
 void Weapon::Update(float delta)
 {
-	if (EditorWindow::GetInstance()->IsEditorEjected())
-	{
-		return;
-	}
 	CurrentCoolDown -= delta;
-	if (Input::GetMouseButtonDown(0))
-	{
-		Fire();
-	}
 }
 
 void Weapon::SetCurrentSettings(WeaponSettings NewSettings)
@@ -55,4 +47,13 @@ void Weapon::Fire()
 	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), Material::GetDefaultMaterial()));
 	GameObject::FinishGameObjectSpawn(newgo);
 	CurrentCoolDown = CurrentSettings.FireDelay;
+}
+
+void Weapon::SetWeaponModel(GameObject * Model, GameObject* cameraobj)
+{
+	WeaponModel = Model;
+	WeaponModel->GetTransform()->SetParent(cameraobj->GetTransform());
+	WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(0.25, -0.3, 0.5));
+	WeaponModel->GetTransform()->SetScale(glm::vec3(0.1, 0.1, 0.5));
+	//WeaponModel->SetPosition(CurrentSettings.WeaponRelativePos);
 }

@@ -39,6 +39,7 @@ public:
 	LightingEnviromentData* GetLightingData() { return &LightingData; }
 	bool IsEditorScene() { return bEditorScene; }
 	void TickDeferredRemove();
+	CORE_API static GameObject* CreateDebugSphere(Scene* s);
 private:
 	std::vector<GameObject*> SceneObjects;	
 	std::vector<GameObject*> RenderSceneObjects;

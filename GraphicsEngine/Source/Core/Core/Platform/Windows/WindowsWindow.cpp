@@ -325,7 +325,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 			app->m_engine->HandleInput(LOWORD(wparam));
 		}
 		break;
-	}	
+	}
 	case WM_KEYUP:
 	{
 		//key up doesn't repeat!
@@ -356,6 +356,17 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		}
 		break;
 	}
+	case WM_MOUSEWHEEL:
+	{
+		const float SpinFactor = 1 / 120.0f;
+		const short WheelDelta = GET_WHEEL_DELTA_WPARAM(wparam);
+
+		if (Input::Get())
+		{
+			Input::Get()->ProcessMouseWheel(static_cast<float>(WheelDelta)*SpinFactor);
+		}
+	}
+	break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

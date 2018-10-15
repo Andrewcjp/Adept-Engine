@@ -5,6 +5,7 @@
 #include "Components/Weapon.h"
 #include "Components/Projectile.h"
 #include "Components/Health.h"
+#include "Components/WeaponManager.h"
 TGExtraComponentRegister::TGExtraComponentRegister() :ExtraComponentRegister()
 {
 	for (int i = 0; i < ComponentTypes::Limit; i++)
@@ -33,6 +34,8 @@ Component * TGExtraComponentRegister::CreateExtraComponent(int id)
 		return new Projectile();
 	case ComponentTypes::Health:
 		return new Health();
+	case ComponentTypes::WeaponManager:
+		return new WeaponManager();
 	}
 	return nullptr;
 }
