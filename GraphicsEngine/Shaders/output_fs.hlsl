@@ -10,5 +10,4 @@ struct VS_OUTPUT
 float4 main(VS_OUTPUT input) : SV_Target
 {
 	return texColour.Sample(defaultSampler, input.uv);
-//return float4(1,1,1,1);
 }

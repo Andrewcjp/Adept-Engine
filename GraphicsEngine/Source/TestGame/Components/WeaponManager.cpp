@@ -22,6 +22,11 @@ Weapon * WeaponManager::GetCurrentWeapon()
 
 void WeaponManager::SwitchWeaponUp(bool Direction)
 {
+	if (CurrentIndex == 0 && !Direction)
+	{
+		CurrentIndex = MAX_WEAPON_COUNT - 1;
+		return;
+	}
 	CurrentIndex += Direction ? 1 : -1;
 	CurrentIndex %= MAX_WEAPON_COUNT;
 }

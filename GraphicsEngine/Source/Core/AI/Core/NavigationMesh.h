@@ -20,8 +20,17 @@ struct NavPoint
 	{
 		pos = ipos;
 	}
-	float navcost = 0;
+	float GetNavCost() {
+		return gcost + fcost;
+	}
+	float gcost = 0;
+	float fcost = 0;
 	NavTriangle* owner = nullptr;
+	bool operator==(const NavPoint& rhs)
+	{
+		return rhs.pos == pos;
+	}
+	NavPoint* Parent = nullptr;
 };
 namespace ENavRequestStatus
 {
@@ -41,7 +50,7 @@ public:
 	void DrawNavMeshLines(class DebugLineDrawer * drawer);
 	void PopulateNearLists();
 	NavTriangle * FindTriangleFromWorldPos(glm::vec3 worldpos);
-	ENavRequestStatus::Type CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath* outputPath);
+	ENavRequestStatus::Type CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outputPath);
 private:
 	std::vector<NavTriangle*> Triangles;
 };
