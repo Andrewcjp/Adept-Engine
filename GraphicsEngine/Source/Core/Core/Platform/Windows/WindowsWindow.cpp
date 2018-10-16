@@ -345,10 +345,6 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		{
 			int xPosRelative = raw->data.mouse.lLastX;
 			int yPosRelative = raw->data.mouse.lLastY;
-			if (xPosRelative != 0)
-			{
-				float t = 0;
-			}
 			if (Input::Get())
 			{
 				Input::Get()->ReciveMouseAxisData(glm::vec2(xPosRelative, yPosRelative));

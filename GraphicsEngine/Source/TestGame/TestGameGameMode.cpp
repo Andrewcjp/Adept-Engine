@@ -6,6 +6,7 @@
 #include "Components/Health.h"
 #include "Components/Projectile.h"
 #include "Components/WeaponManager.h"
+#include "AI/Core/AIController.h"
 TestGameGameMode::TestGameGameMode()
 {}
 
@@ -14,10 +15,11 @@ TestGameGameMode::~TestGameGameMode()
 {}
 GameObject* MakeTestSphere(Scene* Scene)
 {
-	GameObject* go = Scene::CreateDebugSphere(Scene);
+	GameObject* go = Scene::CreateDebugSphere(nullptr);
 	go->AttachComponent(new RigidbodyComponent());
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);
+	Scene->AddGameobjectToScene(go);
 	return go;
 }
 
@@ -25,14 +27,17 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
 
+#if 0
 	GameObject* A = MakeTestSphere(Scene);
 	GameObject* B = MakeTestSphere(Scene);
 	A->SetPosition(glm::vec3(0, 20, 0));
 	ConstaintSetup data;
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<RigidbodyComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
+#endif
 #if 0//TDSIM_ENABLED
 	return;
 #endif
+#if 1
 	GameObject* go = new GameObject("Player Test");
 	player = go;
 	Material* mat = Material::GetDefaultMaterial();
@@ -46,28 +51,35 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	go->AttachComponent(new RigidbodyComponent());
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
-	
-	TestPlayer* player = (TestPlayer*)go->AttachComponent(new TestPlayer());
+
+	TestPlayer* player = go->AttachComponent(new TestPlayer());
 	BodyInstanceData lock;
 	lock.LockXRot = true;
 	lock.LockZRot = true;
 	go->GetComponent<RigidbodyComponent>()->SetLockFlags(lock);
-	Scene->AddGameobjectToScene(go);
+	
 	GameObject* Cam = new GameObject("PlayerCamera");
 	Cam->SetParent(go);
-	Scene->AddGameobjectToScene(Cam);
+	
 	player->CameraObject = Cam;
-
+	Scene->AddGameobjectToScene(Cam);
+	Scene->AddGameobjectToScene(go);
 
 	WeaponManager* manager = go->AttachComponent(new WeaponManager());
 	manager->Weapons[0] = go->AttachComponent(new Weapon());
 	manager->Weapons[1] = go->AttachComponent(new Weapon());
 	manager->Weapons[2] = go->AttachComponent(new Weapon());	
 	manager->Weapons[0]->SetWeaponModel(Scene::CreateDebugSphere(Scene), player->CameraObject);
-
-
 	SpawnSKull(glm::vec3(20, 5, 0));
 	SpawnSKull(glm::vec3(-15, 5, 0));
+#endif
+
+
+
+	GameObject* AiTest = MakeTestSphere(Scene);
+	AiTest->SetPosition(glm::vec3(10, 10, 0));
+	AIController* controller = AiTest->AttachComponent(new AIController());
+	controller->MoveTo(glm::vec3(0, 0, 20));
 }
 
 void TestGameGameMode::SpawnSKull(glm::vec3 Position)

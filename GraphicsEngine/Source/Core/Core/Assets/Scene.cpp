@@ -377,7 +377,10 @@ GameObject * Scene::CreateDebugSphere(Scene* s)
 	go->SetPosition(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-	s->AddGameobjectToScene(go);
+	if (s != nullptr)
+	{
+		s->AddGameobjectToScene(go);
+	}
 	return go;
 }
 

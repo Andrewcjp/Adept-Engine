@@ -266,7 +266,7 @@ void PhysxRigidbody::InitBody()
 		{
 			PxRigidBodyExt::updateMassAndInertia(*Dynamicactor, PhysicsMat->density);
 		}
-		CommonActorPtr = Dynamicactor;		
+		CommonActorPtr = Dynamicactor;
 	}
 	else if (BodyType == EBodyType::RigidStatic)
 	{

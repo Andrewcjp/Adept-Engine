@@ -6,9 +6,7 @@
 #include "Editor/EditorWindow.h"
 #include <algorithm>
 TestPlayer::TestPlayer()
-{
-}
-
+{}
 
 TestPlayer::~TestPlayer()
 {}
@@ -22,21 +20,26 @@ void TestPlayer::OnCollide(CollisonData data)
 {
 
 }
+
 void TestPlayer::CheckForGround()
 {
 	IsGrounded = false;
 	RayHit hit;
-	glm::vec3 down = -GetOwner()->GetTransform()->GetUp();
+	glm::vec3 down = -GetOwner()->GetTransform()->GetRight();
 	std::vector<RigidBody*> IgnoreActors;
 	IgnoreActors.push_back(RB->GetActor());
-	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 2, &hit, IgnoreActors))
+	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 3, &hit, IgnoreActors))
 	{
 		IsGrounded = true;
 	}
 }
+
 void TestPlayer::BeginPlay()
 {
 	RB = GetOwner()->GetComponent<RigidbodyComponent>();
+	glm::quat newrot = glm::quat(glm::radians(glm::vec3(90, 90, 0)));
+	CameraObject->GetTransform()->SetLocalRotation(newrot);
+	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
 }
 
 void TestPlayer::Update(float delta)
@@ -56,8 +59,8 @@ void TestPlayer::Update(float delta)
 
 	glm::vec2 axis = Input::GetMouseInputAsAxis();
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
-	glm::quat YRot = glm::quat(glm::radians(glm::vec3(0, -axis.x*LookSensitivty, 0)));
-	GetOwner()->SetRotation(GetOwner()->GetTransform()->GetQuatRot()* YRot);
+	glm::quat YRot = glm::quat(glm::radians(glm::vec3(rot.x + -axis.x*LookSensitivty, 0, 90)));
+	GetOwner()->SetRotation(YRot);
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
 	if (CameraObject)
 	{
@@ -96,11 +99,11 @@ void TestPlayer::UpdateMovement(float delta)
 	}
 	if (Input::GetKey('w'))
 	{
-		TargetVel += fwd * Speed;
+		TargetVel -= fwd * Speed;
 	}
 	if (Input::GetKey('s'))
 	{
-		TargetVel -= fwd * Speed;
+		TargetVel += fwd * Speed;
 	}
 	if (IsGrounded)
 	{
@@ -114,11 +117,11 @@ void TestPlayer::UpdateMovement(float delta)
 	glm::vec3 CurrentVel = RB->GetVelocity();
 	RelativeSpeed += (TargetVel*Acceleration*delta);
 	RelativeSpeed = glm::clamp(RelativeSpeed, -glm::vec3(MaxSpeed), glm::vec3(MaxSpeed));
-	glm::vec3 NewVel = (RelativeSpeed.z*GetOwner()->GetTransform()->GetForward()) + (RelativeSpeed.x*GetOwner()->GetTransform()->GetRight());
+	glm::vec3 NewVel = (RelativeSpeed.z*GetOwner()->GetTransform()->GetForward()) + (RelativeSpeed.x*GetOwner()->GetTransform()->GetUp());
 	NewVel.y = RB->GetVelocity().y;
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
-		NewVel += GetOwner()->GetTransform()->GetUp() * jumpHeight;
+		NewVel += GetOwner()->GetTransform()->GetRight() * jumpHeight;
 	}
 	if (RB != nullptr)
 	{
