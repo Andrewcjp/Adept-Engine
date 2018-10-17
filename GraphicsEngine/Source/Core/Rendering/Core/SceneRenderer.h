@@ -64,7 +64,6 @@ public:
 	void UpdateRelflectionProbes(std::vector<RelfectionProbe*>& probes, RHICommandList * commandlist);
 
 	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
-
 private:
 	void UpdateTransformBufferSize(int NewSize);
 	RHIBuffer * CLightBuffer = nullptr;

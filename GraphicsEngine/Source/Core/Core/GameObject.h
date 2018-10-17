@@ -32,9 +32,8 @@ public:
 
 	EMoblity GetMobility();
 	Mesh* GetMesh();
-	Material* GetMat();
 	std::string GetName() { return Name; }
-
+	RigidBody* GetRigidbody();
 	void SetName(std::string name) { Name = name; }
 	bool HasCached = false;
 

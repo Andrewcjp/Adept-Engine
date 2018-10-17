@@ -7,7 +7,7 @@
 #define AssertDebugBreak() __debugbreak();
 #else
 #define DebugEnsure(condition);
-#define AssertDebugBreak()
+#define AssertDebugBreak();
 #endif
 #if DOFULLCHECK
 #define ensure(condition) {if(!(condition)){ AssertDebugBreak();std::string Message = "Ensure Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition ;\

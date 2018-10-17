@@ -44,10 +44,12 @@ void TestPlayer::BeginPlay()
 
 void TestPlayer::Update(float delta)
 {
+#if WITH_EDITOR
 	if (EditorWindow::GetInstance()->IsEditorEjected())
 	{
 		return;
 	}
+#endif
 	CheckForGround();
 	UpdateMovement(delta);
 
@@ -71,6 +73,8 @@ void TestPlayer::Update(float delta)
 
 
 		CameraObject->GetTransform()->SetQrot(CameraObject->GetTransform()->GetQuatRot()* rotation);
+		const float EyeHeight = 2.0f;
+		CameraObject->GetTransform()->SetLocalPosition(glm::vec3(0, EyeHeight, 0));
 #else
 		CameraObject->GetTransform()->SetLocalRotation(newrot);
 #endif

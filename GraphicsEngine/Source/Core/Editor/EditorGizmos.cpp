@@ -7,29 +7,48 @@
 EditorGizmos::EditorGizmos()
 {
 	HandleLength = 5;
+	ModeIndex = CurrentGizmoMode::Translate;
 }
 
 
 EditorGizmos::~EditorGizmos()
-{
-}
+{}
 void EditorGizmos::UpdateAxis(float amt, Axis axis)
 {
-	glm::vec3 newpos = target->GetTransform()->GetPos();
-	switch (axis)
+	if (ModeIndex == CurrentGizmoMode::Translate)
 	{
-	case AxisX:
-		newpos.x += amt;
-		break;
-	case AxisY:
-		newpos.y += amt;
-		break;
-	case AxisZ:
-		newpos.z += amt;
-		break;
+		glm::vec3 newpos = target->GetTransform()->GetPos();
+		switch (axis)
+		{
+		case AxisX:
+			newpos.x += amt;
+			break;
+		case AxisY:
+			newpos.y += amt;
+			break;
+		case AxisZ:
+			newpos.z += amt;
+			break;
+		}
+		target->ChangePos_editor(newpos);
 	}
-	target->ChangePos_editor(newpos);
-
+	else if (ModeIndex == CurrentGizmoMode::Rotate)
+	{
+		glm::vec3 newrot = target->GetTransform()->GetEulerRot();
+		switch (axis)
+		{
+		case AxisX:
+			newrot.x += amt;
+			break;
+		case AxisY:
+			newrot.y += amt;
+			break;
+		case AxisZ:
+			newrot.z += amt;
+			break;
+		}
+		target->GetTransform()->SetQrot(glm::quat(glm::radians(newrot)));
+	}
 	target->PostChangeProperties();
 }
 //todo: axis rotations relative to view etc.
@@ -49,6 +68,7 @@ void EditorGizmos::UpdateAxis(float amt)
 	{
 		UpdateAxis(amt, AxisZ);
 	}
+
 }
 void EditorGizmos::Update(float deltatime)
 {
@@ -64,7 +84,7 @@ void EditorGizmos::Update(float deltatime)
 			{
 				UpdateAxis((float)(YStartPos - Input::GetMouseInputAsAxis().y)*Scale);
 			}
-			
+
 		}
 		YStartPos = (int)Input::GetMouseInputAsAxis().y;
 		XStartPos = (int)Input::GetMouseInputAsAxis().x;
@@ -96,5 +116,9 @@ void EditorGizmos::RenderGizmos(DebugLineDrawer* lien)
 void EditorGizmos::SetTarget(GameObject * t)
 {
 	target = t;
+}
+void EditorGizmos::SwitchMode(int index)
+{
+	ModeIndex = index;
 }
 #endif

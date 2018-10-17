@@ -612,7 +612,6 @@ BaseTexture * D3D12RHI::CreateTexture(DeviceContext* Device)
 
 FrameBuffer * D3D12RHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc & Desc)
 {
-
 	if (Device == nullptr)
 	{
 		Device = D3D12RHI::GetDefaultDevice();

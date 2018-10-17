@@ -60,7 +60,7 @@ void Shader_EnvMap::Init()
 
 	MeshLoader::FMeshLoadingSettings set;
 	set.Scale = glm::vec3(0.1f);
-	Cube = RHI::CreateMesh("SkyBoxCube.obj", set);
+	Cube = RHI::CreateMesh("models\\SkyBoxCube.obj", set);
 }
 
 void Shader_EnvMap::ProcessTexture(BaseTexture * Target)
@@ -72,7 +72,7 @@ void Shader_EnvMap::ProcessTexture(BaseTexture * Target)
 	{
 		CmdList->SetRenderTarget(CubeBuffer, 0);
 		CmdList->SetConstantBufferView(ShaderData, i, 1);
-		Cube->Render(CmdList);
+		Cube->Render(CmdList,true);
 	}
 	CmdList->Execute();
 }

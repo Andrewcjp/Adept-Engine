@@ -20,10 +20,6 @@ private:
 	void RemoveRef()
 	{
 		refcount--;
-		if (refcount == 0)
-		{
-			//__debugbreak();
-		}
 	}
 	int refcount = 0;
 };

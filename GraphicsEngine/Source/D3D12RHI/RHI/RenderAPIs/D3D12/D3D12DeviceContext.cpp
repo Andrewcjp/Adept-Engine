@@ -6,7 +6,7 @@
 #include "D3D12CommandList.h"
 #include "D3D12RHI.h"
 #include "Core/Performance/PerfManager.h"
-#if defined(_DEBUG)
+#if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
 {
@@ -216,14 +216,7 @@ std::string D3D12DeviceContext::GetMemoryReport()
 	output.append("MB");
 	return output;
 }
-void D3D12DeviceContext::MoveNextFrame()
-{
-	/*CurrentFrameIndex++;
-	if (CurrentFrameIndex == RHI::CPUFrameCount - 1)
-	{
-		CurrentFrameIndex = 0;
-	}*/
-}
+
 void D3D12DeviceContext::DestoryDevice()
 {
 
@@ -233,10 +226,12 @@ void D3D12DeviceContext::WaitForGpu()
 {
 	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
 }
+
 void D3D12DeviceContext::WaitForCopy()
 {
 	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
 }
+
 ID3D12GraphicsCommandList * D3D12DeviceContext::GetCopyList()
 {
 	return ((D3D12CommandList*)GPUCopyList)->GetCommandList();
@@ -480,7 +475,7 @@ void GPUFenceSync::Init(ID3D12CommandQueue * TargetQueue, ID3D12Device* device)
 		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
 	}
 #endif
-#if _DEBUG
+#if NAME_RHI_PRIMS
 	m_fence->SetName(L"GPUFenceSync Fence");
 #endif
 }

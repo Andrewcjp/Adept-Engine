@@ -19,15 +19,6 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid)
 	AudioEngine::RegisterObject(this);
 }
 
-Material* GameObject::GetMat()
-{
-	if (m_MeshRenderer != nullptr)
-	{
-		return m_MeshRenderer->GetMaterial();
-	}
-	return nullptr;
-}
-
 GameObject::~GameObject()
 {
 	AudioEngine::DeRegisterObject(this);
@@ -88,6 +79,15 @@ Mesh * GameObject::GetMesh()
 	if (m_MeshRenderer != nullptr)
 	{
 		return m_MeshRenderer->GetMesh();
+	}
+	return nullptr;
+}
+
+RigidBody * GameObject::GetRigidbody()
+{
+	if (PhysicsBodyComponent != nullptr)
+	{
+		return PhysicsBodyComponent->GetActor();
 	}
 	return nullptr;
 }

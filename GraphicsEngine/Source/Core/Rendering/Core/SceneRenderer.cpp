@@ -34,17 +34,6 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	{
 		GameObject* CurrentObj = (*TargetScene->GetMeshObjects())[i];
 		SetActiveIndex(CommandList, (int)i, CommandList->GetDeviceIndex());
-		if (!PositionOnly)
-		{
-			if (CurrentObj->GetMat()->GetProperties()->ShaderInUse != nullptr)
-			{
-				CommandList->SetPipelineStateObject(CurrentObj->GetMat()->GetProperties()->ShaderInUse, FrameBuffer);
-			}
-			else
-			{
-				CommandList->SetPipelineStateObject(WorldDefaultMatShader, FrameBuffer);
-			}
-		}
 		CurrentObj->Render(PositionOnly, CommandList);
 	}
 }
@@ -141,11 +130,12 @@ SceneConstantBuffer SceneRenderer::CreateUnformBufferEntry(GameObject * t)
 	SceneConstantBuffer m_constantBufferData;
 	m_constantBufferData.M = t->GetTransform()->GetModel();
 	m_constantBufferData.HasNormalMap = false;
-	if (t->GetMat() != nullptr)
+	//todo: handle this !
+	if (t->GetMesh()->GetMaterial(0) != nullptr)
 	{
-		m_constantBufferData.HasNormalMap = t->GetMat()->HasNormalMap();
-		m_constantBufferData.Metallic = t->GetMat()->GetProperties()->Metallic;
-		m_constantBufferData.Roughness = t->GetMat()->GetProperties()->Roughness;
+		m_constantBufferData.HasNormalMap = t->GetMesh()->GetMaterial(0)->HasNormalMap();
+		m_constantBufferData.Metallic = t->GetMesh()->GetMaterial(0)->GetProperties()->Metallic;
+		m_constantBufferData.Roughness = t->GetMesh()->GetMaterial(0)->GetProperties()->Roughness;
 	}
 	//used in the prepare stage for this frame!
 	return m_constantBufferData;

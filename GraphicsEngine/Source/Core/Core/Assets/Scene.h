@@ -40,7 +40,9 @@ public:
 	bool IsEditorScene() { return bEditorScene; }
 	void TickDeferredRemove();
 	CORE_API static GameObject* CreateDebugSphere(Scene* s);
+	float GetGravityStrength() const { return GravityStrength; }
 private:
+	float GravityStrength = 20.0f;
 	std::vector<GameObject*> SceneObjects;	
 	std::vector<GameObject*> RenderSceneObjects;
 	std::vector<Light*> Lights;

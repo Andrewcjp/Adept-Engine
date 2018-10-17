@@ -14,7 +14,7 @@ public:
 
 	void Render(bool DepthOnly,class RHICommandList * list);
 	/*void Render(bool DepthOnly);*/
-	Material* GetMaterial();
+	Material* GetMaterial(int index);
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props) override final;
 #endif
@@ -22,10 +22,9 @@ public:
 	{
 		return m_mesh;
 	}
+	void SetMaterial(Material * mat, int index);
 private:
 	Mesh* m_mesh = nullptr;
-	Material* m_mat = nullptr;
-
 	// Inherited via Component
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
