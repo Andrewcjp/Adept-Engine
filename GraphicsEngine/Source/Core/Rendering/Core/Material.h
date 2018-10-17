@@ -22,7 +22,6 @@ public:
 	{
 		bool UseMainShader = true;
 		bool IsReflective = false;
-		bool DoesShadow = true;
 		float Roughness = 1.0f;
 		float Metallic = 0.0f;
 		class Shader* ShaderInUse = nullptr;
@@ -37,8 +36,6 @@ public:
 	void UpdateBind(std::string Name, BaseTexture * NewTex);
 	BaseTexture* GetTexturebind(std::string Name);
 	typedef std::pair<std::string, Material::TextureBindData> FlatMap;
-	void SetShadow(bool state);
-	bool GetDoesShadow();
 	CORE_API MaterialProperties* GetProperties();
 	void SetDisplacementMap(BaseTexture* tex);
 	CORE_API void SetNormalMap(BaseTexture * tex);

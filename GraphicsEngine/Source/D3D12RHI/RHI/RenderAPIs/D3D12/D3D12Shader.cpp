@@ -229,9 +229,10 @@ bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const 
 	}
 	const std::string FullShaderName = GetShaderNamestr(Name, InstanceHash, type);
 	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + FullShaderName;
-#if BUILD_SHIPPING
-	ensureFatalMsgf(FileUtils::File_ExistsTest(ShaderPath), "Missing shader: " + GetShaderNamestr(Name, InstanceHash));
+#if BUILD_PACKAGE
+	ensureFatalMsgf(FileUtils::File_ExistsTest(ShaderPath), "Missing shader: " + GetShaderNamestr(Name, InstanceHash, type));
 	ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
+	return true;
 #else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, FullShaderName))
 	{

@@ -44,7 +44,7 @@ void Weapon::Fire()
 	rb->SetLinearVelocity(Forward*ProjectileSpeed);
 	Projectile* Proj = newgo->AttachComponent(new Projectile());
 	Proj->SetDamage(10);
-	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), Material::GetDefaultMaterial()));
+	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
 	GameObject::FinishGameObjectSpawn(newgo);
 	CurrentCoolDown = CurrentSettings.FireDelay;
 }
@@ -53,7 +53,7 @@ void Weapon::SetWeaponModel(GameObject * Model, GameObject* cameraobj)
 {
 	WeaponModel = Model;
 	WeaponModel->GetTransform()->SetParent(cameraobj->GetTransform());
-	WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(0.25, -0.3, 0.5));
-	WeaponModel->GetTransform()->SetScale(glm::vec3(0.1, 0.1, 0.5));
+	WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(-0.4, -0.6, 2));
+	WeaponModel->GetTransform()->SetScale(glm::vec3(0.5f));
 	//WeaponModel->SetPosition(CurrentSettings.WeaponRelativePos);
 }

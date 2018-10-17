@@ -78,6 +78,7 @@ private:
 	int PresentCount = 0;
 	typedef std::pair<IRHIResourse*, int64_t> RHIResourseStamped;
 	std::vector<RHIResourseStamped> DeferredDeleteQueue;
+	bool IsFlushingDeleteQueue = false;
 };
 
 class RHI_API RHIClass

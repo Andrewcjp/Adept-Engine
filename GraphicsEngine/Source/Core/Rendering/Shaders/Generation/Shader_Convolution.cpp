@@ -54,7 +54,7 @@ void Shader_Convolution::init()
 	}
 	MeshLoader::FMeshLoadingSettings set;
 	set.Scale = glm::vec3(0.1f);
-	Cube = RHI::CreateMesh("SkyBoxCube.obj", set);
+	Cube = RHI::CreateMesh("models\\SkyBoxCube.obj", set);
 }
 
 void Shader_Convolution::ComputeConvolution(BaseTexture* Target)
@@ -62,7 +62,7 @@ void Shader_Convolution::ComputeConvolution(BaseTexture* Target)
 	ensure(Target->GetType() == BaseTexture::ETextureType::Type_CubeMap);
 	CmdList->ResetList();
 	CmdList->ClearFrameBuffer(CubeBuffer);
-	CmdList->SetTexture(Target, 0);
+	CmdList->SetTexture(Target, 0); 
 	for (int i = 0; i < 6; i++)
 	{
 		CmdList->SetRenderTarget(CubeBuffer);

@@ -2,7 +2,6 @@
 #include "TDSolver.h"
 #include "TDScene.h"
 #include "TDCollisionHandlers.h"
-#include "TDAsserts.h"
 namespace TD
 {
 	TDSolver::TDSolver()
@@ -19,16 +18,16 @@ namespace TD
 		}
 	}
 
-	void TDSolver::IntergrateActor(TDActor* actor, float dt, TDScene* Scene)
+	void TDSolver::IntergrateActor(TDActor* Actor, float dt, TDScene* Scene)
 	{
-		glm::vec3 Veldelta = actor->GetVelocityDelta();
+		glm::vec3 Veldelta = Actor->GetVelocityDelta();
 		Veldelta += Scene->GetGravity();
-		glm::vec3 BodyVelocity = actor->GetLinearVelocity();
+		glm::vec3 BodyVelocity = Actor->GetLinearVelocity();
 		BodyVelocity += Veldelta * dt;
-		actor->SetLinearVelocity(BodyVelocity);
-		glm::vec3 startpos = actor->GetTransfrom()->GetPos();
-		actor->GetTransfrom()->SetPos(startpos + (BodyVelocity*dt));
-		actor->ResetForceThisFrame();
+		Actor->SetLinearVelocity(BodyVelocity);
+		glm::vec3 startpos = Actor->GetTransfrom()->GetPos();
+		Actor->GetTransfrom()->SetPos(startpos + (BodyVelocity*dt));
+		Actor->ResetForceThisFrame();
 	}
 
 	void TDSolver::ResolveCollisions(TDScene* scene)

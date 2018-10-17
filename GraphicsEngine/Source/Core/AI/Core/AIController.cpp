@@ -24,7 +24,6 @@ void AIController::MoveTo(GameObject * target)
 {
 	CurrentTarget.IsValid = true;
 	CurrentTarget.MovingTarget = target;
-
 }
 
 void AIController::InitComponent()
@@ -46,7 +45,7 @@ void AIController::Update(float dt)
 		float distance = glm::distance(ProjectPosition(GetOwner()->GetPosition()), Path->Positions[CurrentPathIndex]);
 		if (distance <= PathNodeArriveRaduis)
 		{
-			//we have arrived close enought to this node
+			//we have arrived close enough to this node
 			CurrentPathIndex++;
 			if (CurrentPathIndex >= Path->Positions.size())
 			{

@@ -41,10 +41,12 @@ void WeaponManager::SwitchWeapon(int index)
 
 void WeaponManager::Update(float delta)
 {
+#if WITH_EDTIOR
 	if (EditorWindow::GetInstance()->IsEditorEjected())
 	{
 		return;
 	}
+#endif
 	if (Input::GetMouseButtonDown(0))
 	{
 		GetCurrentWeapon()->Fire();

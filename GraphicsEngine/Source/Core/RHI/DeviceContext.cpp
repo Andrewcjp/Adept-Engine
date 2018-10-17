@@ -19,15 +19,6 @@ void DeviceContext::ResetDeviceAtEndOfFrame()
 	}
 }
 
-void DeviceContext::MoveNextFrame()
-{
-	CurrentFrameIndex++;
-	if (CurrentFrameIndex == RHI::CPUFrameCount - 1)
-	{
-		CurrentFrameIndex = 0;
-	}
-}
-
 void DeviceContext::DestoryDevice()
 {
 

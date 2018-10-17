@@ -15,8 +15,9 @@ void NavigationMesh::GenTestMesh()
 	std::vector<OGLVertex> vertices;
 	std::vector<int> indices;
 	MeshLoader::FMeshLoadingSettings t;
-	t.Scale = glm::vec3(5);
-	MeshLoader::LoadMeshFromFile(AssetManager::GetContentPath() + "models\\NavPlaneTest_L.obj", t, vertices, indices);
+	t.GenerateIndexed = false;
+	t.Scale = glm::vec3(10); 
+	MeshLoader::LoadMeshFromFile_Direct(AssetManager::GetContentPath() + "models\\NavPlaneTest_L.obj", t, vertices, indices);
 
 	for (int i = 0; i < vertices.size(); i += 3)
 	{

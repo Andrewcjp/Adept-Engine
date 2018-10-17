@@ -87,7 +87,6 @@ public:
 	void ResetDeviceAtEndOfFrame();
 	void SampleVideoMemoryInfo();
 	std::string GetMemoryReport();
-	void MoveNextFrame();
 	void DestoryDevice();
 	void WaitForGpu();
 	void WaitForCopy();

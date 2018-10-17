@@ -220,6 +220,21 @@ void EditorWindow::Update()
 	{
 		UI->GetInspector()->SetSelectedObject(nullptr);
 	}
+	if (!Input::GetMouseButtonDown(1))
+	{
+		if (Input::GetKeyDown('W'))
+		{
+			gizmos->SwitchMode(CurrentGizmoMode::Translate);
+		}
+		if (Input::GetKeyDown('E'))
+		{
+			gizmos->SwitchMode(CurrentGizmoMode::Rotate);
+		}
+		if (Input::GetKeyDown('R'))
+		{
+			gizmos->SwitchMode(CurrentGizmoMode::Scale);
+		}
+	}
 	if (Input::GetKeyDown(VK_ESCAPE))
 	{
 		ExitPlayMode();		

@@ -12,17 +12,17 @@ D3D12Plane::~D3D12Plane()
 }
 
 
-void D3D12Plane::Render(RHICommandList * list)
-{
-	if (list == nullptr && RHI::GetType() == RenderSystemD3D12)
-	{
-		printf("Error Null List\n");
-		return;
-	}
-	//list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//list->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-	//list->DrawInstanced(2 * 3, 1, 0, 0);
-}
+//void D3D12Plane::Render(RHICommandList * list)
+//{
+//	if (list == nullptr && RHI::GetType() == RenderSystemD3D12)
+//	{
+//		printf("Error Null List\n");
+//		return;
+//	}
+//	//list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//	//list->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+//	//list->DrawInstanced(2 * 3, 1, 0, 0);
+//}
 void D3D12Plane::CreateVertexBuffer()
 {
 

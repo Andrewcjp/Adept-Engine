@@ -14,7 +14,6 @@ public:
 	virtual void ResetDeviceAtEndOfFrame() = 0;
 	virtual void SampleVideoMemoryInfo() = 0;
 	virtual std::string GetMemoryReport() = 0;
-	virtual void MoveNextFrame() = 0;
 	virtual void DestoryDevice() = 0;
 	virtual void WaitForGpu() = 0;
 	virtual void WaitForCopy() = 0;

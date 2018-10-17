@@ -20,7 +20,7 @@ private:
 	void UpdateMovement(float delta);
 	glm::vec3 RelativeSpeed = glm::vec3();
 	const float MaxSpeed = 10.0f;
-	const float Acceleration = 25.0f;
+	const float Acceleration = 35.0f;
 	float jumpHeight = 10;
 	RigidbodyComponent* RB = nullptr;
 	CameraComponent* Cam = nullptr;

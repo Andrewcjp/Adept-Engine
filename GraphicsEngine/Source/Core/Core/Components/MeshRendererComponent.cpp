@@ -8,7 +8,6 @@
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
-	m_mat = nullptr;
 	TypeID = CompoenentRegistry::BaseComponentTypes::MeshComp;
 }
 
@@ -19,32 +18,32 @@ MeshRendererComponent::MeshRendererComponent(Mesh* Mesh, Material* materal) :Mes
 
 MeshRendererComponent::~MeshRendererComponent()
 {
-	delete m_mat;
 	EnqueueSafeRHIRelease(m_mesh);
 }
 
 void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)
 {
 	m_mesh = Mesh;
-	m_mat = materal;
+	SetMaterial(materal, 0);
 }
 
 void MeshRendererComponent::Render(bool DepthOnly, RHICommandList* list)
 {
-	if (m_mat != nullptr && !DepthOnly)
-	{
-		m_mat->SetMaterialActive(list);
-	}
 	if (m_mesh != nullptr)
 	{
-		m_mesh->Render(list);
+		m_mesh->Render(list, !DepthOnly);
 	}
 }
 
-Material *MeshRendererComponent::GetMaterial()
+Material *MeshRendererComponent::GetMaterial(int index)
 {
-	return m_mat;
+	if (m_mesh == nullptr)
+	{
+		return nullptr;
+	}
+	return 	m_mesh->GetMaterial(index);
 }
+
 #if WITH_EDITOR
 void MeshRendererComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
 {
@@ -53,6 +52,15 @@ void MeshRendererComponent::GetInspectorProps(std::vector<Inspector::InspectorPr
 	props.push_back(group);
 }
 #endif
+
+void MeshRendererComponent::SetMaterial(Material * mat, int index)
+{
+	if (m_mesh != nullptr)
+	{
+		m_mesh->SetMaterial(mat, index);
+	}
+}
+
 void MeshRendererComponent::BeginPlay()
 {}
 
@@ -73,8 +81,6 @@ void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 		{
 			m_mesh = RHI::CreateMesh(Assetname.c_str());
 		}
-		m_mat = Material::GetDefaultMaterial();
-		m_mat->ProcessSerialArchive(A);
 	}
 	else
 	{
@@ -82,7 +88,7 @@ void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 		{
 			ArchiveProp(m_mesh->AssetName);
 		}
-		m_mat->ProcessSerialArchive(A);
 	}
+	m_mesh->ProcessSerialArchive(A);
 }
 

@@ -168,12 +168,12 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 		Scenerenderer->BindMvBuffer(list, Shader_Depth_RSSlots::VPBuffer);
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
-			if (ShadowObjects[i]->GetMat() == nullptr)
+			if (ShadowObjects[i]->GetMesh() == nullptr)
 			{
 				//object should not be rendered to the depth map
 				continue;
 			}
-			if (ShadowObjects[i]->GetMat()->GetDoesShadow() == false)
+			if (ShadowObjects[i]->GetMesh()->GetDoesShadow() == false)
 			{
 				continue;
 			}
@@ -216,12 +216,12 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 		TargetShader->UpdateBuffer(list, &data, SNum);
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
-			if (ShadowObjects[i]->GetMat() == nullptr)
+			if (ShadowObjects[i]->GetMesh() == nullptr)
 			{
 				//object should not be rendered to the depth map
 				continue;
 			}
-			if (ShadowObjects[i]->GetMat()->GetDoesShadow() == false)
+			if (ShadowObjects[i]->GetMesh()->GetDoesShadow() == false)
 			{
 				continue;
 			}
@@ -246,12 +246,12 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 		DirectionalLightShader->UpdateBuffer(list, &data, (int)SNum);
 		for (size_t i = 0; i < ShadowObjects.size(); i++)
 		{
-			if (ShadowObjects[i]->GetMat() == nullptr)
+			if (ShadowObjects[i]->GetMesh() == nullptr)
 			{
 				//object should not be rendered to the depth map
 				continue;
 			}
-			if (ShadowObjects[i]->GetMat()->GetDoesShadow() == false)
+			if (ShadowObjects[i]->GetMesh()->GetDoesShadow() == false)
 			{
 				continue;
 			}

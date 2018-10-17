@@ -178,20 +178,31 @@ const MultiGPUMode * RHI::GetMGPUMode()
 	return &CurrentMGPUMode;
 }
 
-void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
-{
-	ensure(!Resource->IsPendingKill());
-	Get()->DeferredDeleteQueue.push_back(RHIResourseStamped(Resource, RHI::GetFrameCount()));
-	Resource->PendingKill = true;
-}
+
 
 RHI * RHI::Get()
 {
 	return instance;
 }
 
+void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
+{
+	ensure(!Resource->IsPendingKill());
+	if (Get()->IsFlushingDeleteQueue)
+	{
+		SafeRHIRelease(Resource);
+	}
+	else
+	{
+		Get()->DeferredDeleteQueue.push_back(RHIResourseStamped(Resource, RHI::GetFrameCount()));
+		Resource->PendingKill = true;
+	}
+	
+}
+
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 {
+	IsFlushingDeleteQueue = true;
 	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 	{
 		const int CurrentFrame = RHI::GetFrameCount();
@@ -201,6 +212,7 @@ void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 			DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
 		}
 	}
+	IsFlushingDeleteQueue = false;
 }
 
 void RHI::DestoryRHI()
@@ -265,7 +277,7 @@ Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Sett
 {
 	///todo asset paths
 	std::string accpath = AssetManager::GetContentPath();
-	std::string apath = ("\\models\\");
+	std::string apath = "";/// ("\\models\\");
 	apath.append(path);
 	accpath.append(apath);//todo remove
 	AssetManager::RegisterMeshAssetLoad(apath);

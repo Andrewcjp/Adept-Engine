@@ -2,6 +2,16 @@
 class GameObject;
 class DebugLineDrawer;
 #if WITH_EDITOR
+namespace CurrentGizmoMode
+{
+	enum type
+	{
+		Translate,
+		Rotate,
+		Scale,
+		Limit
+	};
+};
 class EditorGizmos
 {
 public:
@@ -11,6 +21,7 @@ public:
 		AxisX,
 		AxisY
 	};
+	
 	EditorGizmos();
 	~EditorGizmos();
 	void UpdateAxis(float amt, Axis axis);
@@ -18,17 +29,17 @@ public:
 
 	void Update(float deltatime);
 	void RenderGizmos(DebugLineDrawer * lien);
-	void MouseDown(int x, int y);
-	void MouseUp(int x, int y);
 	void SetTarget(GameObject* t);
+	void SwitchMode(int index);
 private:
-	GameObject* target;
+	GameObject* target = nullptr;
 	float HandleLength = 10;
 	int YStartPos = 0;
 	int XStartPos = 0;
 	float Scale = 0.1f;
 	glm::vec3 StartPos;
 	bool DidFirst = false;
+	int ModeIndex = 0;
 	/*bool */
 
 };

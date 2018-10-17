@@ -127,7 +127,10 @@ void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCou
 
 void D3D12CommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
 {
+	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
+	PushPrimitiveTopology();
+	CurrentCommandList->DrawIndexedInstanced(IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
 }
 
 void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
@@ -829,6 +832,7 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 
 void D3D12Buffer::UpdateIndexBuffer(void * data, size_t length)
 {
+	VertexCount = length;
 	UpdateData(data, length, D3D12_RESOURCE_STATE_GENERIC_READ);
 }
 

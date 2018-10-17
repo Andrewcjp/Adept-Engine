@@ -40,6 +40,16 @@ Material::~Material()
 
 void Material::SetMaterialActive(RHICommandList* list)
 {
+#if 1
+	if (GetProperties()->ShaderInUse != nullptr)
+	{
+		list->SetPipelineStateObject(GetProperties()->ShaderInUse);
+	}
+	else
+	{
+		list->SetPipelineStateObject(Material::GetDefaultMaterialShader()/*, FrameBuffer*/);
+	}
+#endif
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
 		if (Pair.second.TextureObj == nullptr)
@@ -49,7 +59,7 @@ void Material::SetMaterialActive(RHICommandList* list)
 		else
 		{
 			list->SetTexture(Pair.second.TextureObj, Pair.second.RootSigSlot);
-		}		
+		}
 	}
 }
 
@@ -66,7 +76,7 @@ void Material::UpdateBind(std::string Name, BaseTexture* NewTex)
 	}
 	else
 	{
-		//ensureMsgf(false, "Failed to Find Bind");
+		ensureMsgf(false, "Failed to Find Bind");
 		//SafeRefRelease(NewTex);
 	}
 }
@@ -78,16 +88,6 @@ BaseTexture * Material::GetTexturebind(std::string Name)
 		return CurrentBindSet->BindMap.at(Name).TextureObj;
 	}
 	return nullptr;
-}
-
-void Material::SetShadow(bool state)
-{
-	Properties.DoesShadow = state;
-}
-
-bool Material::GetDoesShadow()
-{
-	return Properties.DoesShadow;
 }
 
 Material::MaterialProperties* Material::GetProperties()
@@ -180,7 +180,7 @@ void Material::ProcessSerialArchive(Archive * A)
 			NewShader = new Asset_Shader();
 			NewShader->SetupSingleColour();
 		}
-		else 
+		else
 		{
 			Properties.ShaderInUse = Material::GetDefaultMaterialShader();
 		}
@@ -188,7 +188,7 @@ void Material::ProcessSerialArchive(Archive * A)
 		{
 			NewShader->GetMaterialInstance(this);
 			//CurrentBindSet->BindMap = Properties.TextureBinds;
-		}		
+		}
 	}
 	else
 	{
@@ -196,7 +196,7 @@ void Material::ProcessSerialArchive(Archive * A)
 		if (Properties.ShaderInUse != nullptr)
 		{
 			tmp = Properties.ShaderInUse->GetName();
-		}		
+		}
 		ArchiveProp_Alias(tmp, Properties.ShaderInUse->GetName());
 	}
 	if (A->IsReading())

@@ -97,7 +97,7 @@ physx::PxTriangleMesh* PhysxRigidbody::GenerateTriangleMesh(std::string Filename
 	std::vector<int> indices;
 	MeshLoader::FMeshLoadingSettings t;
 	t.Scale = scale;
-	MeshLoader::LoadMeshFromFile(Filename, t, vertices, indices);
+	MeshLoader::LoadMeshFromFile_Direct(Filename, t, vertices, indices);
 	std::vector <glm::vec3> verts;
 	for (int i = 0; i < vertices.size(); i++)
 	{
@@ -127,7 +127,7 @@ physx::PxConvexMesh* PhysxRigidbody::GenerateConvexMesh(std::string Filename, gl
 	std::vector<int> indices;
 	MeshLoader::FMeshLoadingSettings t;
 	t.Scale = scale;
-	MeshLoader::LoadMeshFromFile(Filename, t, vertices, indices);
+	MeshLoader::LoadMeshFromFile_Direct(Filename, t, vertices, indices);
 	std::vector <glm::vec3> verts;
 	for (int i = 0; i < vertices.size(); i++)
 	{

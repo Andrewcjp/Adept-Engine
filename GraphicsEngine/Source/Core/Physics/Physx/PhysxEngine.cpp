@@ -18,6 +18,7 @@ physx::PxFilterFlags CollisionFilterShader(
 	retPairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS | PxPairFlag::eNOTIFY_TOUCH_FOUND;
 	return PxFilterFlag::eDEFAULT;
 }
+
 void PhysxEngine::initPhysics()
 {
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
@@ -36,7 +37,7 @@ void PhysxEngine::initPhysics()
 
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	sceneDesc.gravity = PxVec3(0.0f, -20.0f, 0.0f);
 	CallBackHandler = new PhysxCallBackHandler();
 	sceneDesc.simulationEventCallback = CallBackHandler;
 	//todo!
@@ -85,7 +86,6 @@ void PhysxEngine::stepPhysics(float Deltatime)
 
 void PhysxEngine::cleanupPhysics()
 {
-
 	gScene->release();
 	gEdtiorScene->release();
 	gDispatcher->release();
@@ -98,37 +98,6 @@ void PhysxEngine::cleanupPhysics()
 	gFoundation->release();
 	SafeDelete(CallBackHandler);
 }
-//std::vector<RigidBody*> PhysxEngine::createStack(const glm::vec3 & t, int size, float halfExtent)
-//{
-//	std::vector<PxRigidDynamic*> objects = createStack(PxTransform(GLMtoPXvec3(t)), size, halfExtent);
-//	std::vector<RigidBody*> Bodies;
-//	for (int i = 0; i < objects.size(); i++)
-//	{
-//		//		RigidBody* body = new PhysxRigidbody(objects[i]);
-//				//Bodies.push_back(body);
-//	}
-//	return Bodies;
-//}
-
-//std::vector<PxRigidDynamic*> PhysxEngine::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
-//{
-//	std::vector<PxRigidDynamic*> objects;
-//	PxShape* shape = gPhysics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
-//	for (PxU32 i = 0; i < size; i++)
-//	{
-//		for (PxU32 j = 0; j < size - i; j++)
-//		{
-//			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
-//			PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
-//			body->attachShape(*shape);
-//			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-//			gScene->addActor(*body);
-//			objects.push_back(body);
-//		}
-//	}
-//	shape->release();
-//	return objects;
-//}
 
 physx::PxPhysics * PhysxEngine::GetGPhysics()
 {

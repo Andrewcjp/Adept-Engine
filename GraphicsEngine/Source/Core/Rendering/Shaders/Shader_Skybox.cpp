@@ -13,7 +13,7 @@ Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
 	MeshLoader::FMeshLoadingSettings settings = {};
 	settings.Scale = glm::vec3(100.0f);
-	CubeModel = (Mesh*)RHI::CreateMesh("SkyBoxCube.obj", settings);
+	CubeModel = RHI::CreateMesh("models\\SkyBoxCube.obj", settings);
 	m_Shader = RHI::CreateShaderProgam();
 
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_vs", EShaderType::SHADER_VERTEX);

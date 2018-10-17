@@ -8,25 +8,102 @@
 #include "Core/Platform/PlatformCore.h"
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
-bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<int> &indices)
+bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes)
 {
 	Assimp::Importer importer;
-
-	const aiScene* scene = importer.ReadFile(filename.c_str(),
-		aiProcess_Triangulate
-		| aiProcess_CalcTangentSpace
-		//| aiProcess_GenSmoothNormals
-		//| aiProcess_FixInfacingNormals
-	);
+	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
+	if (Settings.GenerateIndexed)
+	{
+		Flags |= aiProcess_JoinIdenticalVertices;
+	}
+	if (Settings.FlipUVs)
+	{
+		Flags |= aiProcess_FlipUVs;
+	}
+	const aiScene* scene = importer.ReadFile(filename.c_str(), Flags);
 
 	if (!scene)
 	{
 		Log::OutS << "Mesh load failed!: " << filename << Log::OutS;
 		return false;
 	}
+	//todo: handle Extra meshes
+	std::vector<OGLVertex> vertices;
+	std::vector<int> indices;
+	for (int i = 0; i < scene->mNumMeshes; i++)
+	{
+		const aiMesh* model = scene->mMeshes[i];
+		const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
+		for (unsigned int i = 0; i < model->mNumVertices; i++)
+		{
+			const aiVector3D* pPos = &(model->mVertices[i]);
+			const aiVector3D* pNormal = &(model->mNormals[i]);
+			const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
+			const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
 
+			OGLVertex vert(glm::vec3(pPos->x, pPos->y, pPos->z),
+				glm::vec2(pTexCoord->x, pTexCoord->y),
+				glm::vec3(pNormal->x, pNormal->y, pNormal->z),
+				glm::vec3(pTangent->x, pTangent->y, pTangent->z));
+
+			vertices.push_back(vert);
+		}
+		if (Settings.Scale != DefaultScale)
+		{
+			for (int i = 0; i < vertices.size(); i++)
+			{
+				glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz, 1.0f);
+				Pos = Pos * glm::scale(Settings.Scale);
+				vertices[i].m_position = Pos.xyz;
+			}
+		}
+		for (unsigned int i = 0; i < model->mNumFaces; i++)
+		{
+			const aiFace& face = model->mFaces[i];
+			ensure(face.mNumIndices == 3);
+			indices.push_back(face.mIndices[0]);
+			indices.push_back(face.mIndices[1]);
+			indices.push_back(face.mIndices[2]);
+		}
+		MeshEntity* newmesh = new MeshEntity(Settings, vertices, indices);
+		//workaround for wired extra material from blender models
+		if (scene->mNumMaterials > 1)
+		{
+			newmesh->MaterialIndex = model->mMaterialIndex - 1;
+		}
+		else
+		{
+			newmesh->MaterialIndex = model->mMaterialIndex;
+		}
+		Meshes.push_back(newmesh);
+
+		vertices.clear();
+		indices.clear();
+	}
+	importer.FreeScene();
+	return true;
+}
+
+bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<int>& indices)
+{
+	Assimp::Importer importer;
+	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
+	if (Settings.GenerateIndexed)
+	{
+		Flags |= aiProcess_JoinIdenticalVertices;
+	}
+	if (Settings.FlipUVs)
+	{
+		Flags |= aiProcess_FlipUVs;
+	}
+	const aiScene* scene = importer.ReadFile(filename.c_str(), Flags);
+
+	if (!scene)
+	{
+		Log::OutS << "Mesh load failed!: " << filename << Log::OutS;
+		return false;
+	}
 	const aiMesh* model = scene->mMeshes[0];
-
 	const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 	for (unsigned int i = 0; i < model->mNumVertices; i++)
 	{
@@ -59,6 +136,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		indices.push_back(face.mIndices[1]);
 		indices.push_back(face.mIndices[2]);
 	}
+
 	importer.FreeScene();
 	return true;
 }
