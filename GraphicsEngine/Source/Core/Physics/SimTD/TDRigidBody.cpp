@@ -9,12 +9,12 @@ TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(ty
 TDRigidBody::~TDRigidBody()
 {}
 
-glm::vec3 TDRigidBody::GetPosition()
+glm::vec3 TDRigidBody::GetPosition() const
 {
 	return Actor->GetTransfrom()->GetPos();
 }
 
-glm::quat TDRigidBody::GetRotation()
+glm::quat TDRigidBody::GetRotation() const
 {
 	return m_transform.GetQuatRot();
 }

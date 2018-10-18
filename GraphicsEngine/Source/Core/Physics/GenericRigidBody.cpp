@@ -9,12 +9,12 @@ GenericRigidBody::GenericRigidBody(EBodyType::Type type)
 GenericRigidBody::~GenericRigidBody()
 {}
 
-glm::vec3 GenericRigidBody::GetPosition()
+glm::vec3 GenericRigidBody::GetPosition() const
 {
 	return glm::vec3();
 }
 
-glm::quat GenericRigidBody::GetRotation()
+glm::quat GenericRigidBody::GetRotation() const
 {
 	return glm::quat();
 }
@@ -30,7 +30,7 @@ void GenericRigidBody::AddForce(glm::vec3 force, EForceMode::Type Mode)
 }
 
 
-glm::vec3 GenericRigidBody::GetLinearVelocity()
+glm::vec3 GenericRigidBody::GetLinearVelocity() const
 {
 	return glm::vec3();
 }
@@ -38,7 +38,7 @@ glm::vec3 GenericRigidBody::GetLinearVelocity()
 void GenericRigidBody::SetLinearVelocity(glm::vec3 velocity)
 {}
 
-glm::vec3 GenericRigidBody::GetAngularVelocity()
+glm::vec3 GenericRigidBody::GetAngularVelocity() const
 {
 	return glm::vec3();
 }

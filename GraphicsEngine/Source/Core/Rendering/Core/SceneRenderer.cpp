@@ -160,7 +160,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 		{
 			glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
 			glm::vec3 position = glm::vec3(0, 20, 50);
-			//position = lights[i]->GetPosition();
+			position = lights[i]->GetPosition();
 			LightView = glm::lookAtLH<float>(position, position + newitem.Direction, glm::vec3(0, 0, 1));//world up
 			float size = 100.0f;
 			glm::mat4 proj;

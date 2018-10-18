@@ -23,9 +23,20 @@ class GenericRigidBody
 public:
 	GenericRigidBody(EBodyType::Type type);
 	virtual ~GenericRigidBody();
-	glm::vec3 GetPosition();
-	glm::quat GetRotation();
-	void AddTorque(glm::vec3);
+	/**
+	*\return The bodies current root position
+	*/
+	glm::vec3 GetPosition()const ;
+	/**
+	*\return The bodies current rotation 
+	*/
+	glm::quat GetRotation()const;
+	/**
+	*\brief Adds a Torque around the bodies root
+	*\param Torque to add
+	*\param Force addition mode
+	*/
+	void AddTorque(glm::vec3 Torque);
 	/**
 	*\brief Adds a force at the bodies root 
 	*\param Force to add
@@ -35,7 +46,7 @@ public:
 	/**
 	*\brief Returns the Linear velocity of the body from the last timestep
 	*/
-	glm::vec3 GetLinearVelocity();
+	glm::vec3 GetLinearVelocity() const;
 	/**
 	*\brief Sets the linear velocity of this body for the next timestep
 	*/
@@ -43,7 +54,7 @@ public:
 	/**
 	*\brief Returns the angular velocity of the body from the last timestep 
 	*/
-	glm::vec3 GetAngularVelocity();
+	glm::vec3 GetAngularVelocity()const;
 	/**
 	*\brief Sets the Angular velocity of this body for the next timestep
 	*/
@@ -55,7 +66,7 @@ public:
 	void SetBodyData(BodyInstanceData data);
 	BodyInstanceData& GetBodyData();
 
-	Component* GetOwnerComponent() { return OwningComponent; }
+	Component* GetOwnerComponent() const { return OwningComponent; }
 	void SetOwnerComponent(Component* newowner) { OwningComponent = newowner; }
 protected:
 	virtual void UpdateBodyState() {};

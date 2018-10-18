@@ -40,7 +40,7 @@ void NavigationMesh::GenTestMesh()
 
 void NavigationMesh::DrawNavMeshLines(DebugLineDrawer* drawer)
 {
-	glm::vec3 offset = glm::vec3(0, 3, 0);
+	glm::vec3 offset = glm::vec3(0, 0.2f, 0);
 	for (int i = 0; i < Triangles.size(); i++)
 	{
 		for (int x = 0; x < 3; x++)
@@ -197,14 +197,19 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 	{
 		return ENavRequestStatus::FailedPointOffNavMesh;
 	}
+
 	DebugLineDrawer::instance->AddLine(EndTri->avgcentre, EndTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
+	if (StartTri == EndTri)
+	{
+		//we are within a nav triangle so we path straight to the point 
+		outputPath->Positions.push_back(EndPos);
+	}
+	
 	std::vector<NavPoint*> ClosedList;
 	std::vector<NavPoint*> OpenList;
 	NavPoint* CurrentPoint = new NavPoint(StartTri->Positons[0]);
 	CurrentPoint->owner = StartTri;
-	//CurrentPoint->Parent = CurrentPoint;
 	OpenList.push_back(CurrentPoint);
-
 	while (OpenList.size() > 0)
 	{
 		CurrentPoint = Getlowest(OpenList);
@@ -246,11 +251,13 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 			}
 		}
 	}
+	outputPath->Positions.push_back(Startpoint);
 	while (CurrentPoint->Parent != nullptr)
 	{
 		outputPath->Positions.push_back(CurrentPoint->pos);
 		CurrentPoint = CurrentPoint->Parent;
 	}
+	outputPath->Positions.push_back(EndPos);
 	for (int i = 0; i < outputPath->Positions.size(); i++) 
 	{
 		if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::instance != nullptr)
@@ -268,7 +275,7 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 	}*/
 	//DebugLineDrawer::instance->AddLine(ClosedList[ClosedList.size() - 1]->pos, EndPos, glm::vec3(0, 0.2, 0), 100);
 
-
+	
 
 	DebugLineDrawer::instance->AddLine(Startpoint, Startpoint + glm::vec3(0, 10, 0), glm::vec3(0, 0, 1), 100);
 	DebugLineDrawer::instance->AddLine(EndPos, EndPos + glm::vec3(0, 10, 0), glm::vec3(0, 0, 0.5), 100);

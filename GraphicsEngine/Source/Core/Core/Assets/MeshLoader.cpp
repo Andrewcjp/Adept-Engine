@@ -7,6 +7,36 @@
 #include "Core/EngineInc.h"
 #include "Core/Platform/PlatformCore.h"
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
+void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
+{
+	for (unsigned int i = 0; i < currentnode->mNumChildren; i++)
+	{
+		TraverseNodeTree(nodes, currentnode->mChildren[i]);
+		nodes.push_back(currentnode->mChildren[i]);
+	}
+}
+
+//todo: this should be optimized; construct a sumed transfrom map?
+bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const aiScene* scene, aiMatrix4x4& transfrom)
+{
+	for (unsigned int i = 0; i < nodes.size(); i++)
+	{
+		for (unsigned int j = 0; j < nodes[i]->mNumMeshes; j++)
+		{
+			if (scene->mMeshes[nodes[i]->mMeshes[j]] == mesh)
+			{
+				aiNode* curerntnode = nodes[i];
+				while (curerntnode != scene->mRootNode)
+				{
+					transfrom *= curerntnode->mTransformation;
+					curerntnode = curerntnode->mParent;
+				}
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes)
 {
@@ -30,16 +60,23 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	//todo: handle Extra meshes
 	std::vector<OGLVertex> vertices;
 	std::vector<int> indices;
+	std::vector<aiNode*> NodeArray;
+	TraverseNodeTree(NodeArray, scene->mRootNode);
 	for (int i = 0; i < scene->mNumMeshes; i++)
 	{
 		const aiMesh* model = scene->mMeshes[i];
 		const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
+		aiMatrix4x4 transfrom;
+		const bool ValidTransfrom = FindMeshInNodeTree(NodeArray, model, scene, transfrom);
+		DebugEnsure(ValidTransfrom);
 		for (unsigned int i = 0; i < model->mNumVertices; i++)
 		{
-			const aiVector3D* pPos = &(model->mVertices[i]);
+			aiVector3D* pPos = &(model->mVertices[i]);
 			const aiVector3D* pNormal = &(model->mNormals[i]);
 			const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
 			const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
+			
+			*pPos = transfrom * (*pPos);
 
 			OGLVertex vert(glm::vec3(pPos->x, pPos->y, pPos->z),
 				glm::vec2(pTexCoord->x, pTexCoord->y),
@@ -48,6 +85,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 
 			vertices.push_back(vert);
 		}
+
 		if (Settings.Scale != DefaultScale)
 		{
 			for (int i = 0; i < vertices.size(); i++)

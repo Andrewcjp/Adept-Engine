@@ -15,6 +15,7 @@
 #include "Core/Game/Gamemode.h"
 #include "Core/Game/Game.h"
 #include "Core/Components/ColliderComponent.h"
+#include "AI/Core/AISystem.h"
 Scene::Scene(bool EditScene)
 {
 	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
@@ -77,6 +78,7 @@ void Scene::FixedUpdateScene(float deltatime)
 void Scene::StartScene()
 {
 	IsRunning = true;
+	AISystem::Get()->SetupForScene(this);
 	CurrentGameMode->BeginPlay(this);
 	for (int i = 0; i < SceneObjects.size(); i++)
 	{
@@ -259,18 +261,18 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//go->GetTransform()->SetScale(glm::vec3(2));
 	//AddGameobjectToScene(go);
 
-
-	/*go = new GameObject("Gun Test");
+#if 0
+	go = new GameObject("Gun Test");
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Weapons\\Rifle\\Textures\\Variation 06\\Rifle_06_Albedo.png"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.FlipUVs = true;
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Weapons\\Rifle\\Rifle.fbx", set), mat));
-	go->GetTransform()->SetPos(glm::vec3(0, 2, 0));
+	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-	AddGameobjectToScene(go);*/
-
+	AddGameobjectToScene(go);
+#endif
 	/*go = new GameObject("Water");
 
 	Material::MaterialProperties props;
@@ -357,6 +359,7 @@ void Scene::RemoveGameObject(GameObject* object)
 void Scene::EndScene()
 {
 	CurrentGameMode->EndPlay();
+	AISystem::Get()->SetupForScene(nullptr);
 	IsRunning = false;
 }
 

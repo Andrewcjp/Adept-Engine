@@ -12,11 +12,11 @@ class TDRigidBody :public GenericRigidBody
 public:
 	TDRigidBody(EBodyType::Type type,Transform T);
 	~TDRigidBody();
-	CORE_API glm::vec3 GetPosition();
-	CORE_API glm::quat GetRotation();
+	glm::vec3 GetPosition()const;
+	glm::quat GetRotation()const;
 	CORE_API void AddTorque(glm::vec3);
 	CORE_API void AddForce(glm::vec3 force, EForceMode::Type Mode = EForceMode::AsForce);
-	CORE_API glm::vec3 GetLinearVelocity();
+	glm::vec3 GetLinearVelocity() const;
 	void AttachCollider(Collider* col);
 	CORE_API void SetBodyData(BodyInstanceData data);
 	CORE_API BodyInstanceData GetBodyData();
