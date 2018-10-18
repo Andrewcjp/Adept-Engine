@@ -11,14 +11,14 @@ class PhysxRigidbody : public GenericRigidBody
 public:
 	~PhysxRigidbody();
 	PhysxRigidbody(EBodyType::Type type, Transform InitalPosition);
-	CORE_API glm::vec3 GetPosition();
-	CORE_API glm::quat GetRotation();
+	glm::vec3 GetPosition()const;
+	glm::quat GetRotation()const;
 	void SetPositionAndRotation(glm::vec3 pos, glm::quat rot);
 	CORE_API void AddTorque(glm::vec3);
 	CORE_API void AddForce(glm::vec3, EForceMode::Type Mode = EForceMode::AsForce);
-	CORE_API glm::vec3 GetLinearVelocity();
+	glm::vec3 GetLinearVelocity() const;
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
-	CORE_API glm::vec3 GetAngularVelocity();
+	glm::vec3 GetAngularVelocity()const;
 	CORE_API void SetAngularVelocity(glm::vec3 velocity);
 	void AttachCollider(Collider* col);
 	void SetPhysicalMaterial(PhysicalMaterial* newmat);

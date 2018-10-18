@@ -30,8 +30,8 @@ void Mesh::Release()
 
 Mesh::~Mesh()
 {}
-
 void Mesh::Render(RHICommandList * list, bool SetMaterial)
+
 {
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{

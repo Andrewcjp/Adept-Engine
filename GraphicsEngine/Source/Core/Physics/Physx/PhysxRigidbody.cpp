@@ -25,12 +25,12 @@ PhysxRigidbody::PhysxRigidbody(EBodyType::Type type, Transform initalpos) :Gener
 	transform = initalpos;
 }
 
-glm::vec3 PhysxRigidbody::GetPosition()
+glm::vec3 PhysxRigidbody::GetPosition() const
 {
 	return PhysxEngine::PXvec3ToGLM(CommonActorPtr->getGlobalPose().p);
 }
 
-glm::quat PhysxRigidbody::GetRotation()
+glm::quat PhysxRigidbody::GetRotation() const
 {
 	return PhysxEngine::PXquatToGLM(CommonActorPtr->getGlobalPose().q);
 }
@@ -59,7 +59,7 @@ void PhysxRigidbody::AddForce(glm::vec3 force, EForceMode::Type Mode)
 	}
 }
 
-glm::vec3 PhysxRigidbody::GetLinearVelocity()
+glm::vec3 PhysxRigidbody::GetLinearVelocity() const
 {
 	if (Dynamicactor != nullptr)
 	{
@@ -75,7 +75,7 @@ void PhysxRigidbody::SetLinearVelocity(glm::vec3 velocity)
 		Dynamicactor->setLinearVelocity(PhysxEngine::GLMtoPXvec3(velocity));
 	}
 }
-glm::vec3 PhysxRigidbody::GetAngularVelocity()
+glm::vec3 PhysxRigidbody::GetAngularVelocity() const
 {
 	if (Dynamicactor != nullptr)
 	{
