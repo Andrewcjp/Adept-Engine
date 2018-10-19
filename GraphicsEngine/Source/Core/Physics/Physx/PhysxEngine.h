@@ -66,5 +66,4 @@ private:
 	physx::PxReal stackZ = 10.0f;
 
 };
-//typedef PhysxEngine PhysicsEngine;
 #endif

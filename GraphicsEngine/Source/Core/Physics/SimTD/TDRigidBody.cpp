@@ -1,5 +1,8 @@
-#include "TDRigidBody.h"
 #if TDSIM_ENABLED
+#include "TDRigidBody.h"
+#include "TDRigidDynamic.h"
+#include "TDPhysicsEngine.h"
+#include "Shapes/TDSphere.h"
 
 TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(type)
 {
@@ -29,7 +32,7 @@ void TDRigidBody::AddForce(glm::vec3 force, EForceMode::Type Mode)
 	Actor->AddForce(force, (Mode == EForceMode::AsForce));
 }
 
-glm::vec3 TDRigidBody::GetLinearVelocity()
+glm::vec3 TDRigidBody::GetLinearVelocity()const 
 {
 	return glm::vec3();
 }
@@ -56,9 +59,10 @@ void TDRigidBody::SetLinearVelocity(glm::vec3 velocity)
 
 void TDRigidBody::InitBody()
 {
-	Actor = new TDRigidDynamic();
+	Actor = new TD::TDRigidDynamic();
 	Actor->GetTransfrom()->SetPos(m_transform.GetPos());
-	TDPhysics::GetScene()->AddToScene(Actor);
+	Actor->AttachShape(new TD::TDSphere());
+	TDPhysicsEngine::GetScene()->AddToScene(Actor);
 	CommonActorPTr = Actor;
 }
 

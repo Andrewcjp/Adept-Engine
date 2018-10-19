@@ -4,14 +4,14 @@ namespace TD {
 	{
 		float StaticFriction = 0.5f;
 		float DynamicFirction = 0.6f;
-		float Bouncyness = 0.6f;
+		float Restitution = 0.6f;
 		float density = 1.0;
 		static TDPhysicalMaterial* GetDefault()
 		{
 			return new TDPhysicalMaterial();
 		}
 	};
-	namespace EShapeType
+	namespace TDShapeType
 	{
 		enum Type
 		{
@@ -24,7 +24,7 @@ namespace TD {
 			eLimit
 		};
 	}
-	namespace EForceMode
+	namespace TDForceMode
 	{
 		enum Type
 		{
@@ -33,7 +33,7 @@ namespace TD {
 			Limit,
 		};
 	}
-	namespace EBodyType
+	namespace TDBodyType
 	{
 		enum Type
 		{

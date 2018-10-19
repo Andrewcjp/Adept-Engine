@@ -16,7 +16,7 @@ namespace TD
 	{
 		return &ShapeMaterial;
 	}
-	EShapeType::Type TDShape::GetShapeType() const
+	TDShapeType::Type TDShape::GetShapeType() const
 	{
 		return ShapeType;
 	}

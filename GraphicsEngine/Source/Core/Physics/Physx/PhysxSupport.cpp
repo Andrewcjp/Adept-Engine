@@ -69,7 +69,7 @@ void PhysxCallBackHandler::onAdvance(const PxRigidBody * const * bodyBuffer, con
 {
 	DebugEnsure(false);
 }
-#endif
+
 
 PxQueryHitType::Enum FPxQueryFilterCallback::CalcQueryHitType(const PxFilterData & PQueryFilter, const PxFilterData & PShapeFilter, bool bPreFilter)
 {
@@ -89,3 +89,4 @@ PxQueryHitType::Enum FPxQueryFilterCallback::preFilter(const PxFilterData & filt
 	}
 	return PxQueryHitType::eBLOCK;
 }
+#endif

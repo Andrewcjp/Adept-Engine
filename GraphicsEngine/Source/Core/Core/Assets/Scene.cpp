@@ -118,12 +118,14 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	r->SetMaterial(mat,1);
 	go->AttachComponent(new LightComponent());
-	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetPos(glm::vec3(5, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
+#if 0
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
 	cc->SetTriangleMeshAssetName("models\\Terrain test.obj");
+#endif
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Camera");

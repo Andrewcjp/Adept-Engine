@@ -4,7 +4,7 @@ namespace TD {
 
 	TDSphere::TDSphere()
 	{
-		ShapeType = EShapeType::eSPHERE;
+		ShapeType = TDShapeType::eSPHERE;
 	}
 
 

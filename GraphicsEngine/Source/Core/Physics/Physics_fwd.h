@@ -16,5 +16,5 @@ typedef TDPhysicsEngine PhysicsEngine;
 class GenericCollider;
 typedef GenericCollider Collider;
 class GenericConstraint;
-typedef PhysxConstraint ConstraintInstance;
+typedef GenericConstraint ConstraintInstance;
 #endif

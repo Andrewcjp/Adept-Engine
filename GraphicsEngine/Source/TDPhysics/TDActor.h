@@ -16,13 +16,14 @@ namespace TD
 	class TDActor
 	{
 	public:
-		TDActor();
+		TD_API TDActor();
 		virtual void Init();
 		TDActorType::Type GetActorType() const;
 		TDScene* GetScene() const;
 		void Release();
 		TD_API TDTransform* GetTransfrom();
-		float GetBodyMass();
+		TD_API float GetBodyMass();
+		float GetInvBodyMass();
 		virtual void AddForce(glm::vec3 Force, bool AsForce) {};
 		virtual glm::vec3 GetVelocityDelta();
 		virtual glm::vec3 GetLinearVelocity();
@@ -30,8 +31,9 @@ namespace TD
 		virtual void ResetForceThisFrame() {};
 		virtual void AttachShape(TDShape* newShape);
 		std::vector<TDShape*>& GetAttachedShapes();
+
 	protected:
-		~TDActor();
+		TD_API virtual ~TDActor();
 		float BodyMass = 1.0f;
 		glm::vec3 LinearVelocity = glm::vec3();
 		TDTransform Transform;

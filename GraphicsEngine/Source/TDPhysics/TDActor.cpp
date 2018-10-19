@@ -5,7 +5,7 @@ namespace TD
 
 	TDActor::TDActor()
 	{}
-	
+
 	TDActor::~TDActor()
 	{}
 
@@ -28,13 +28,21 @@ namespace TD
 	{
 
 	}
-	TDTransform * TDActor::GetTransfrom() 
+	TDTransform * TDActor::GetTransfrom()
 	{
 		return &Transform;
 	}
 	float TDActor::GetBodyMass()
 	{
 		return BodyMass;
+	}
+	float TDActor::GetInvBodyMass()
+	{
+		if (BodyMass <= FLT_EPSILON)
+		{
+			return 0.0f;
+		}
+		return 1.0f / BodyMass;
 	}
 	glm::vec3 TDActor::GetVelocityDelta()
 	{
@@ -46,7 +54,10 @@ namespace TD
 	}
 	void TDActor::SetLinearVelocity(glm::vec3 newvel)
 	{
-		LinearVelocity = newvel;
+		if (GetActorType() != TDActorType::RigidStatic)
+		{
+			LinearVelocity = newvel;
+		}
 	}
 	void TDActor::AttachShape(TDShape * newShape)
 	{
