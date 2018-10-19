@@ -3,7 +3,7 @@
 #include "TDActor.h"
 namespace TD
 {
-	class TDShape
+	class TD_API TDShape
 	{
 	public:
 		TDShape();
@@ -21,7 +21,7 @@ namespace TD
 		/**
 		*\brief Returns the type of this shape 
 		*/
-		EShapeType::Type GetShapeType()const;
+		TDShapeType::Type GetShapeType()const;
 		/**
 		*\brief Sets the TDActor which owns this shape
 		*/
@@ -37,7 +37,7 @@ namespace TD
 			return static_cast<T*>(shape);
 		}
 	protected:
-		EShapeType::Type ShapeType = EShapeType::eLimit;
+		TDShapeType::Type ShapeType = TDShapeType::eLimit;
 		TDPhysicalMaterial ShapeMaterial = TDPhysicalMaterial();
 		TDActor* Owner = nullptr;
 	};

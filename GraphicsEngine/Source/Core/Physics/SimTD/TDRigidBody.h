@@ -6,7 +6,7 @@
 #include "Physics/GenericRigidBody.h"
 #include "core/Transform.h"
 #include "TDPhysicsAPI.h"
-using namespace TD;
+
 class TDRigidBody :public GenericRigidBody
 {
 public:
@@ -26,9 +26,9 @@ public:
 	CORE_API void SetGravity(bool state);
 private:
 	Transform m_transform;
-	TDRigidDynamic* Actor = nullptr;
-	TDRigidStatic* StaticActor = nullptr;
-	TDActor* CommonActorPTr = nullptr;
+	TD::TDRigidDynamic* Actor = nullptr;
+	TD::TDRigidStatic* StaticActor = nullptr;
+	TD::TDActor* CommonActorPTr = nullptr;
 };
 
 #endif

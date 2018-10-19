@@ -10,7 +10,7 @@ namespace TD
 		*\brief Creates a Physics Engine Object for use
 		*\param BuildID provided by TD_VERSION_NUMBER in TDPhysicsAPI.h
 		*/
-		static TDPhysics * CreatePhysics(unsigned int BuildID);
+		TD_API static TDPhysics * CreatePhysics(unsigned int BuildID);
 		/**
 		*\brief Initializes the Simulator ready for work
 		*/

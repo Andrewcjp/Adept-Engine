@@ -17,6 +17,7 @@ namespace TD
 
 	void TDTest::RunAllTests()
 	{
+		return;
 		TDRigidStatic* rb = new TDRigidStatic();
 		rb->GetTransfrom()->SetPos(glm::vec3(0, 0.9, 0));
 		rb->AttachShape(new TDSphere());

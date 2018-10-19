@@ -4,7 +4,7 @@ namespace TD {
 
 	TDBox::TDBox()
 	{
-		ShapeType = EShapeType::eBOX;
+		ShapeType = TDShapeType::eBOX;
 	}
 
 

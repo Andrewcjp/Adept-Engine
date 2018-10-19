@@ -4,7 +4,7 @@
 namespace TD {
 	TDPlane::TDPlane()
 	{
-		ShapeType = EShapeType::ePLANE;
+		ShapeType = TDShapeType::ePLANE;
 	}
 
 

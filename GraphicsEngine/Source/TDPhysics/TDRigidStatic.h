@@ -5,8 +5,8 @@ namespace TD
 	class TDRigidStatic : public TDActor
 	{
 	public:
-		TDRigidStatic();
-		~TDRigidStatic();
+		TD_API TDRigidStatic();
+		TD_API ~TDRigidStatic();
 	};
 
 }

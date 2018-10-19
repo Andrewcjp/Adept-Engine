@@ -2,7 +2,7 @@
 #include "TDShape.h"
 namespace TD
 {
-	class TDPlane :public TDShape
+	class TD_API TDPlane :public TDShape
 	{
 	public:
 		TDPlane();

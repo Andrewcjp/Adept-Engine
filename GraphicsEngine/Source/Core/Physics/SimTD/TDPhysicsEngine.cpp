@@ -4,12 +4,19 @@
 #include <thread>
 #include "Core/GameObject.h"
 #include <algorithm>
-#include "TDPhysicsAPI.h"
+#include "Shapes/TDPlane.h"
+TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::initPhysics()
 {
 	//TDSolver
 	TDPhysics::CreatePhysics(TD_VERSION_NUMBER);
 	TDPhysics::Get()->StartUp();
+	Instance = this;
+	PlayScene = TDPhysics::Get()->CreateScene();
+	TDRigidStatic* Actor = new TD::TDRigidStatic();
+	Actor->GetTransfrom()->SetPos(glm::vec3(0,0,0));
+	Actor->AttachShape(new TDPlane());
+	TDPhysicsEngine::GetScene()->AddToScene(Actor);
 }
 
 void TDPhysicsEngine::stepPhysics(float Deltatime)
@@ -27,7 +34,15 @@ RigidBody* TDPhysicsEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::ve
 
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {
-	return RayCastScene(startpos, direction, distance, hit, false);
+	return false;// RayCastScene(startpos, direction, distance, hit, false);
+}
+bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors)
+{
+	return false;
+}
+bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors)
+{
+	return false;
 }
 
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene)
@@ -49,5 +64,13 @@ std::vector<RigidBody*> TDPhysicsEngine::createStack(const glm::vec3 & t, int si
 RigidBody * TDPhysicsEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale)
 {
 	return nullptr;
+}
+TDScene * TDPhysicsEngine::GetScene()
+{
+	return Instance->PlayScene;
+}
+TDPhysicsEngine * TDPhysicsEngine::Get()
+{
+	return Instance;
 }
 #endif
