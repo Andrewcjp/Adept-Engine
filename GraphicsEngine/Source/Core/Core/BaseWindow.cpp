@@ -60,10 +60,6 @@ void BaseWindow::InitilseWindow()
 	UI = new UIManager(m_width, m_height);
 	Input::Startup();
 	fprintf(stdout, "Scene initialized\n");
-	if (PerfManager::Instance != nullptr)
-	{
-		PerfManager::Instance->SampleNVCounters();
-	}
 	LineDrawer = new DebugLineDrawer();
 	Saver = new SceneJSerialiser();
 

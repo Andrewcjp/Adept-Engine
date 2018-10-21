@@ -100,3 +100,33 @@ bool FileUtils::WriteToFile(std::string Filename, std::string data, bool append)
 
 	return true;
 }
+
+FileUtils::CSVWriter::CSVWriter(std::string filename)
+{
+	FileTarget = filename;
+}
+
+void FileUtils::CSVWriter::Save()
+{
+	if (FileTarget.empty())
+	{
+		return;
+	}
+	WriteToFile(FileTarget, FileContents);
+}
+
+void FileUtils::CSVWriter::AddEntry(std::string Data)
+{
+	FileContents.append(Data);
+	FileContents.append(", ");
+}
+
+void FileUtils::CSVWriter::AddLineBreak()
+{
+	FileContents.append("\r");
+}
+
+void FileUtils::CSVWriter::Clear()
+{
+	FileContents = "";
+}

@@ -9,6 +9,10 @@ Log* Log::Instance = nullptr;
 
 void Log::LogOutput(std::string data,bool ForceFlush/* = false*/)
 {
+	if (Instance == nullptr)
+	{
+		return;
+	}
 	Instance->LogData.push_back(data);
 	if (ForceFlush || Instance->LogData.size() % 10)
 	{
@@ -51,7 +55,7 @@ void Log::ShutDownLogger()
 
 Log::Log()
 {
-	LogFilePath = Engine::GetExecutionDir() + "\\Log.txt";
+	LogFilePath = AssetManager::DirectGetGeneratedDir() + "\\Log.txt";
 	std::string data = "Log Started ";
 	data.append(PlatformMisc::GetDateTimeString());
 	data.append("\n");

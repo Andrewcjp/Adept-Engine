@@ -40,7 +40,6 @@ public:
 	~AssetManager();
 	static void StartAssetManager();
 	void LoadFromShaderDir();
-	void LoadTexturesFromDir();
 	
 	bool GetTextureAsset(std::string path, TextureAsset & asset, bool ABSPath = false);
 	CORE_API std::string LoadFileWithInclude(std::string name);
@@ -57,11 +56,12 @@ public:
 	CORE_API static const std::string GetScriptPath();
 	CORE_API static const std::string GetTextureGenScript();
 	CORE_API static const std::string GetRootDir();
+	static const std::string GetGeneratedDir();
+	static const std::string DirectGetGeneratedDir();
 private:
 	AssetManager();
 	bool HasCookedData = false;
 
-	std::string TextureAssetPath = "asset/shader/glsl/";
 	std::map<std::string, std::string> ShaderSourceMap;
 	std::map<std::string, TextureAsset> TextureAssetsMap;
 	std::map<std::string, ShaderAsset> ShaderMap;
@@ -87,6 +87,7 @@ private:
 	std::string DDCDirPath = "";
 	std::string TextureGenScriptPath = "";
 	std::string ScriptDirPath = "";
+	std::string GeneratedDirPath = "";
 	std::string LoadShaderIncludeFile(std::string name, int limit,std::string Relative = std::string());
 	static const std::string DDCName;
 	const int MaxIncludeTreeLength = 10;

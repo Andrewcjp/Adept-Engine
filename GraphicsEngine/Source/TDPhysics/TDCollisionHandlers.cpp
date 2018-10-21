@@ -4,17 +4,13 @@
 #include "Shapes/TDMesh.h"
 #include "Shapes/TDBox.h"
 #include "Shapes/TDPlane.h"
-
-bool TD::TDCollisionHandlers::CollideSphereSphere(CollisionHandlerArgs)
+bool TD::TDCollisionHandlers::InvalidCollisonPair(CollisionHandlerArgs)
 {
+	assert(false);
 	return false;
 }
 
-bool TD::TDCollisionHandlers::CollideBoxMesh(CollisionHandlerArgs)
-{
-	return false;
-}
-
+//convex
 bool TD::TDCollisionHandlers::CollideConvexConvex(CollisionHandlerArgs)
 {
 	return false;
@@ -25,9 +21,9 @@ bool TD::TDCollisionHandlers::CollideConvexMesh(CollisionHandlerArgs)
 	return false;
 }
 
-bool TD::TDCollisionHandlers::InvalidCollisonPair(CollisionHandlerArgs)
+//Spheres 
+bool TD::TDCollisionHandlers::CollideSphereSphere(CollisionHandlerArgs)
 {
-	assert(false);
 	return false;
 }
 
@@ -73,6 +69,7 @@ bool TD::TDCollisionHandlers::CollideSphereMesh(CollisionHandlerArgs)
 	return false;
 }
 
+//Plane
 bool TD::TDCollisionHandlers::CollidePlaneCapsule(CollisionHandlerArgs)
 {
 	return false;
@@ -93,6 +90,7 @@ bool TD::TDCollisionHandlers::CollidePlaneMesh(CollisionHandlerArgs)
 	return false;
 }
 
+//Capsule
 bool TD::TDCollisionHandlers::CollideCapsuleCapsule(CollisionHandlerArgs)
 {
 	return false;
@@ -113,12 +111,18 @@ bool TD::TDCollisionHandlers::CollideCapsuleMesh(CollisionHandlerArgs)
 	return false;
 }
 
+//Box
 bool TD::TDCollisionHandlers::CollideBoxBox(CollisionHandlerArgs)
 {
 	return false;
 }
 
 bool TD::TDCollisionHandlers::CollideBoxConvex(CollisionHandlerArgs)
+{
+	return false;
+}
+
+bool TD::TDCollisionHandlers::CollideBoxMesh(CollisionHandlerArgs)
 {
 	return false;
 }
