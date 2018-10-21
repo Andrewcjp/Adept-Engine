@@ -80,7 +80,8 @@ namespace TD
 			const float InvMassSum = invmassA + invmassB;
 			//Coefficient of Restitution min of both materials 
 			float CoR = fminf(A->GetPhysicalMaterial()->Restitution, B->GetPhysicalMaterial()->Restitution);
-			float numerator = (-(1.0f + CoR) * glm::dot(RelVel, RelNrm));			float j = numerator / InvMassSum;
+			float numerator = (-(1.0f + CoR) * glm::dot(RelVel, RelNrm));
+			float j = numerator / InvMassSum;
 			const glm::vec3 impluse = RelNrm * j;
 
 			A->GetOwner()->SetLinearVelocity(A->GetOwner()->GetLinearVelocity() + impluse * invmassA);

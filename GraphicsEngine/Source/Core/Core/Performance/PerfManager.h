@@ -1,10 +1,8 @@
 #pragma once
 #include <map>
-#define BUILD_WITH_NVPERFKIT 0
 #include <iomanip>
 #include <time.h>
 #include <vector>
-
 
 #include "Core/Utils/MovingAverage.h"
 #define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter CYCLECOUNTER(name);
@@ -38,10 +36,6 @@ public:
 	~PerfManager();
 	CORE_API void AddTimer(const char * countername, const char * group);
 	CORE_API void AddTimer(int id, int groupid);
-	bool InitNV();
-	void SampleNVCounters();
-	std::string GetCounterData();
-	uint64_t GetValue(const char * countername);
 
 	CORE_API static void StartTimer(const char * countername);
 	CORE_API static void EndTimer(const char * countername);
@@ -88,6 +82,7 @@ public:
 	void LogSingleActionTimers();
 	void LogSingleActionTimer(std::string name);
 	void FlushSingleActionTimer(std::string name);
+	void WriteLogStreams(class BenchMarker* Bencher);
 private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);
@@ -95,13 +90,6 @@ private:
 	
 	class NVAPIManager* NVApiManager = nullptr;
 	std::string GetTimerName(int id);
-#if BUILD_WITH_NVPERFKIT
-	const char * OGLBatch = "OGL batch count";
-	const char * OGLMem = "OGL memory allocated";
-	const char * OGLTextureMem = "OGL memory allocated (textures)";
-	uint64_t hNVPMContext;
-	bool DidInitNVCounters = false;
-#endif
 	std::map<std::string, long> SingleActionTimers;
 	std::map<std::string, float> SingleActionTimersAccum;
 
@@ -109,8 +97,8 @@ private:
 	std::map<int, long> TimersStartStamps;
 	std::map<int, long> TimersEndStamps;
 	
-	std::map< std::string, int> TimerIDs;
-	std::map< std::string, int> GroupIDS;
+	std::map<std::string, int> TimerIDs;
+	std::map<std::string, int> GroupIDS;
 	std::map<int, float> TimerOutput;
 	std::map<int, TimerData> AVGTimers;
 	int NextId = 0;
@@ -143,5 +131,7 @@ private:
 	const int ColWidth = 250;
 	const float SlowStatsUpdateRate = (1.0f / 10.0f);
 	float CurrentSlowStatsUpdate = 0.0f;
+
+	BenchMarker* Bencher = nullptr;
 };
 

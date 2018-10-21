@@ -29,21 +29,8 @@ void AssetManager::LoadFromShaderDir()
 		LoadFileWithInclude(p.path().filename().string());
 	}
 }
-void AssetManager::LoadTexturesFromDir()
-{
-	std::string path = TextureAssetPath;
-	for (auto & p : std::experimental::filesystem::directory_iterator(path))
-	{
-		if ((p.path().filename().string().find(".") == -1))
-		{
-			continue;
-		}
-		TextureAsset t;
-		GetTextureAsset(p.path().string(), t, true);
-	}
-}
 
-//and wrap the code to recreate when reqeusted
+//and wrap the code to recreate when requested
 //linked list of nodes written to disk binary
 //each node stores string of id and size of data.
 AssetManager* AssetManager::instance = nullptr;
@@ -109,6 +96,22 @@ const std::string AssetManager::GetRootDir()
 	return "";
 }
 
+const std::string AssetManager::GetGeneratedDir()
+{
+	if (instance != nullptr)
+	{
+		return instance->GeneratedDirPath;
+	}
+	return "";
+}
+
+const std::string AssetManager::DirectGetGeneratedDir()
+{
+	std::string GeneratedDirPath = Engine::GetExecutionDir() + "\\Saved";
+	PlatformApplication::TryCreateDirectory(GeneratedDirPath);
+	return GeneratedDirPath;
+}
+
 void AssetManager::SetupPaths()
 {
 	RootDir = Engine::GetExecutionDir();
@@ -125,6 +128,8 @@ void AssetManager::SetupPaths()
 	DDCDirPath = RootDir + "\\" + DDCName + "\\";
 	PlatformApplication::TryCreateDirectory(DDCDirPath);
 
+	GeneratedDirPath = Engine::GetExecutionDir()+"\\Saved"; 
+	PlatformApplication::TryCreateDirectory(GeneratedDirPath);
 #if !BUILD_PACKAGE
 	ShaderDirPath = RootDir + "\\Shaders\\";
 	if (!FileUtils::File_ExistsTest(ShaderDirPath))

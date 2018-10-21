@@ -1,11 +1,5 @@
 #include "stdafx.h"
 #include "PerfManager.h"
-#if BUILD_WITH_NVPERFKIT
-#ifndef NVPM_INITGUID
-#include "NVPerfKit/NvPmApi.Manager.h"
-#include "SharedHeader.h"
-#endif
-#endif
 #include <iomanip>
 #include <time.h>
 #include "RHI/RHI.h"
@@ -14,6 +8,7 @@
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Utils/NVAPIManager.h"
 #include <algorithm>
+#include "BenchMarker.h"
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()
@@ -52,11 +47,13 @@ PerfManager::PerfManager()
 {
 	ShowAllStats = true;
 	NVApiManager = new NVAPIManager();
+	Bencher = new BenchMarker();
 }
 
 PerfManager::~PerfManager()
 {
-	delete NVApiManager;
+	SafeDelete(NVApiManager);
+	SafeDelete(Bencher);
 }
 
 void PerfManager::AddTimer(const char * countername, const char* group)
@@ -316,7 +313,6 @@ void PerfManager::NotifyEndOfFrame(bool Final)
 		PerfManager::Instance->EndFrameTimer();
 		if (Final)
 		{
-			PerfManager::Instance->SampleNVCounters();
 			Instance->Internal_NotifyEndOfFrame();
 			Instance->UpdateStats();
 		}
@@ -372,6 +368,7 @@ void PerfManager::UpdateStats()
 		CurrentSlowStatsUpdate = 0;
 		SampleSlowStats();
 	}
+	Bencher->TickBenchMarker();
 #endif
 }
 
@@ -475,102 +472,6 @@ void PerfManager::UpdateGPUStat(int id, float newtime)
 	}
 }
 
-//nv perf kit
-//-------------------------------------------------------------------------------------------------------------------------------
-bool PerfManager::InitNV()
-{
-#if BUILD_WITH_NVPERFKIT
-	DidInitNVCounters = true;
-	if (S_NVPMManager.Construct(L"C:/Users/AANdr/Dropbox/Engine/Engine/GraphicsEngine/x64/Debug/NvPmApi.Core.dll") != S_OK)
-	{
-		return false; // This is an error condition
-	}
-	NVPMRESULT nvResult;
-	if ((nvResult = GetNvPmApi()->Init()) != NVPM_OK)
-	{
-		return false; // This is an error condition
-	}
-
-	if ((nvResult = GetNvPmApi()->CreateContextFromOGLContext((uint64_t)wglGetCurrentContext(), &hNVPMContext)) != NVPM_OK)
-	{
-		return false; // This is an error condition
-	}
-	//"OGL frame time"
-	if ((nvResult = GetNvPmApi()->AddCounterByName(hNVPMContext, OGLBatch)) != NVPM_OK) { __debugbreak(); }
-	if ((nvResult = GetNvPmApi()->AddCounterByName(hNVPMContext, OGLMem)) != NVPM_OK) { __debugbreak(); }
-	if ((nvResult = GetNvPmApi()->AddCounterByName(hNVPMContext, OGLTextureMem)) != NVPM_OK) { __debugbreak(); }
-#endif
-	return true;
-}
-
-void PerfManager::SampleNVCounters()
-{
-#if BUILD_WITH_NVPERFKIT
-	if (DidInitNVCounters)
-	{
-		NVPMUINT nCount = 0;
-		if ((GetNvPmApi()->Sample(hNVPMContext, NULL, &nCount)) != NVPM_OK)
-		{
-			__debugbreak();
-		}
-	}
-#endif
-}
-
-std::string PerfManager::GetCounterData()
-{
-#if BUILD_WITH_NVPERFKIT
-	if (!DidInitNVCounters)
-	{
-		return std::string();
-	}
-	std::stringstream Out;
-	float ToMB = (1.0f / 1000000.0f);
-	Out << "Draw calls " << PerfManager::Engine::CompRegistry->GetValue(OGLBatch) << " Idle " /*<< std::fixed << std::setprecision(1)*/ << PerfManager::Engine::CompRegistry->GetValue(OGLMem)*ToMB;
-	//<< "MB (" << PerfManager::Instance->GetValue(OGLTextureMem)*ToMB << "MB) ";
-
-	std::string out = Out.str();
-	return out;
-#else
-	return std::string();
-#endif
-}
-
-uint64_t PerfManager::GetValue(const char * countername)
-{
-#if BUILD_WITH_NVPERFKIT
-	if (!DidInitNVCounters)
-	{
-		return 0;
-	}
-
-	NVPMUINT64 value = 0;
-	NVPMUINT64 cycles = 0;
-	NVPMRESULT nvResult;
-	NVPMCounterID id = 0;
-	NVPMUINT8  overflow = 0;
-	(GetNvPmApi()->GetCounterIDByContext(hNVPMContext, countername, &id));
-	//NVPMCHECKCONTINUE(GetNvPmApi()->GetCounterAttribute(id, NVPMA_COUNTER_VALUE_TYPE, &type));
-	//GetNvPmApi()->GetCounterIDByContext(hNVPMContext, OGLFrameTime, &id);
-	//if ((nvResult = GetNvPmApi()->GetCounterValueByName((NVPMContext)hNVPMContext, OGLFrameTime, 0, &value, &cycles)) != NVPM_OK)
-	//{
-	//	__debugbreak();
-	//}
-	if ((nvResult = GetNvPmApi()->GetCounterValueUint64(hNVPMContext, id, 0, &value, &cycles, &overflow)) != NVPM_OK)
-	{
-		//__debugbreak();
-	}
-	/*if ((nvResult = GetNvPmApi()->GetCounterValueUint64(hNVPMContext, id, 0, &value, &cycle, &overflow)) != NVPM_OK)
-	{
-	__debugbreak();
-	}*/
-	return value;
-#else
-	return 0;
-#endif
-
-}
-
 PerfManager::ScopeCycleCounter::ScopeCycleCounter(const char * Name)
 {
 	StatId = Instance->GetTimerIDByName(Name);
@@ -646,6 +547,19 @@ void PerfManager::FlushSingleActionTimer(std::string name)
 		SingleActionTimersAccum.at(name) = 0.0f;
 	}
 }
+
+void PerfManager::WriteLogStreams(BenchMarker * Bencher)
+{
+	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	{
+		Bencher->WriteStat(it->first, it->second.Time);
+	}
+	Bencher->WriteCoreStat(ECoreStatName::FrameTime, GetAVGFrameTime() * 1000);
+	Bencher->WriteCoreStat(ECoreStatName::FrameRate, GetAVGFrameRate());
+	Bencher->WriteCoreStat(ECoreStatName::CPU, GetCPUTime());
+	Bencher->WriteCoreStat(ECoreStatName::GPU, GetGPUTime());
+}
+
 PerfManager::ScopeStartupCounter::ScopeStartupCounter(const char* name)
 {
 	Name = name;
