@@ -21,29 +21,22 @@ namespace TD
 		TDActorType::Type GetActorType() const;
 		TDScene* GetScene() const;
 		void Release();
-		TD_API TDTransform* GetTransfrom();
-		/**\return The bodies mass in Kg*/
-		TD_API float GetBodyMass();
-		/**\returns The inverse bodies mass in Kg, if mass is zero, zero is returned */
-		float GetInvBodyMass();
-
-		virtual void AddForce(glm::vec3 Force, bool AsForce) {};
-		/**\brief Internal: the sum of velocity change this frame*/
-		virtual glm::vec3 GetVelocityDelta();
-		virtual glm::vec3 GetLinearVelocity();
-		virtual void SetLinearVelocity(glm::vec3 newvel);
-		virtual void ResetForceThisFrame() {};
+		TD_API TDTransform* GetTransfrom();	
 		virtual void AttachShape(TDShape* newShape);
 		std::vector<TDShape*>& GetAttachedShapes();
-
+		template<class T>
+		static T* ActorCast(TDActor* actor)
+		{
+			return dynamic_cast<T*>(actor);
+		}
 	protected:
 		TD_API virtual ~TDActor();
-		float BodyMass = 1.0f;
-		glm::vec3 LinearVelocity = glm::vec3();
-		TDTransform Transform;
-		TDActorType::Type ActorType;
 		TDScene* OwningScene = nullptr;
 		friend class TDScene;
 		std::vector<TDShape*> AttachedShapes;
+		TDActorType::Type ActorType;
+		TDTransform Transform;
+
+
 	};
 }

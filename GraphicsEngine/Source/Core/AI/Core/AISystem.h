@@ -15,6 +15,5 @@ public:
 private:
 	AIDirector* Director = nullptr;
 	static AISystem* Instance;
-
 };
 

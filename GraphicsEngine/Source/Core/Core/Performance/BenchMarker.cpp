@@ -88,7 +88,6 @@ void BenchMarker::CapturePerfMarkers()
 
 void BenchMarker::WriteFullStatsHeader(bool OnlyCoreStats)
 {
-
 	for (int id = 0; id < ECoreStatName::Limit; id++)
 	{
 		CSV->AddEntry(CoreStats[id]->name);

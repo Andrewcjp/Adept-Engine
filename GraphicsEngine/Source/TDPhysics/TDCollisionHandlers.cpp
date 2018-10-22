@@ -24,7 +24,30 @@ bool TD::TDCollisionHandlers::CollideConvexMesh(CollisionHandlerArgs)
 //Spheres 
 bool TD::TDCollisionHandlers::CollideSphereSphere(CollisionHandlerArgs)
 {
-	return false;
+	TDSphere* SphereA = TDShape::CastShape<TDSphere>(A);
+	TDSphere* SphereB = TDShape::CastShape<TDSphere>(B);
+
+	glm::vec3 CollisonNormal = SphereA->GetOwner()->GetTransfrom()->GetPos() - SphereB->GetOwner()->GetTransfrom()->GetPos();
+	const float Distancesq = glm::length2(CollisonNormal);
+	const float RaduisSum = SphereA->Radius + SphereB->Radius;
+	const float inflatedSum = RaduisSum + 0.0f;//mContactDistance
+	if (Distancesq >= inflatedSum * inflatedSum)
+	{
+		return false;
+	}
+	float magn = glm::sqrt(Distancesq);
+	//this would normally be a simple normalization of the CollisonNormal but the small number case has to handled here.
+	if (magn <= 0.00001f)//the sphere are almost completely overlapped 
+	{
+		CollisonNormal = glm::vec3(1.0f, 0.0f, 0.0f);
+	}
+	else
+	{
+		CollisonNormal *= 1.0 / magn;
+	}
+	const glm::vec3 contactpoint = CollisonNormal * ((SphereA->Radius + magn - SphereB->Radius)*-0.5f) + SphereB->GetOwner()->GetTransfrom()->GetPos();
+	contactbuffer->Contact(contactpoint, CollisonNormal, abs(magn - RaduisSum));
+	return true;
 }
 
 bool TD::TDCollisionHandlers::CollideSpherePlane(CollisionHandlerArgs)
@@ -40,10 +63,7 @@ bool TD::TDCollisionHandlers::CollideSpherePlane(CollisionHandlerArgs)
 	{
 		const glm::vec3 normal = BTransform->GetUp();
 		const glm::vec3 point = ATransform->GetPos() - normal * Sphere->Radius;
-		contactbuffer->depth = abs(Seperation);
-		contactbuffer->ContactPoints[0] = point;
-		contactbuffer->Blocking = true;
-		contactbuffer->Direction = normal;
+		contactbuffer->Contact(point, normal, abs(Seperation));
 		return true;
 	}
 	return false;

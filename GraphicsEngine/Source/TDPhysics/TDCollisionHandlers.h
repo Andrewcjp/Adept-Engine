@@ -11,6 +11,15 @@ namespace TD
 		bool Blocking = false;
 		glm::vec3 Direction = glm::vec3();
 		float depth = 0.0f;
+		int ContactCount = 0;
+		void Contact(glm::vec3 position, glm::vec3 normal, float seperation)
+		{
+			Blocking = true;
+			ContactPoints[ContactCount] = position;
+			ContactCount++;
+			Direction = normal;
+			depth = seperation;
+		}
 	};
 
 	class TDCollisionHandlers

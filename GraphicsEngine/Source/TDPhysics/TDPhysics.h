@@ -3,6 +3,7 @@ namespace TD
 {
 	class TDScene;
 	class TDSolver;
+	class TDOptions;
 	class TDPhysics
 	{
 	public:
@@ -33,6 +34,8 @@ namespace TD
 		*\brief Creates a new TDScene for Use.
 		*/
 		TD_API TDScene* CreateScene();
+
+		static TDOptions* GetCurrentOptions();
 	private:
 		TDPhysics();
 		~TDPhysics();
@@ -40,6 +43,8 @@ namespace TD
 		TDSolver* Solver = nullptr;
 		std::vector<TDScene*> Scenes;
 		static TDPhysics* Instance;
+		TDOptions* CurrentOptions = nullptr;
+		
 	};
 
 }
