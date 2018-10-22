@@ -218,6 +218,13 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
+
+	go = CreateDebugSphere(nullptr);
+	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
+	go->GetTransform()->SetPos(glm::vec3(0, 15, 10));
+	cc->SetCollisonShape(EShapeType::eSPHERE);
+	go->AttachComponent(new RigidbodyComponent());
+	AddGameobjectToScene(go);
 	//go = new GameObject("Plane");
 	//mat = NormalMapShader->GetMaterialInstance();
 	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));

@@ -62,4 +62,13 @@ namespace TD
 		Scenes.push_back(newscene);
 		return newscene;
 	}
+
+	TDOptions* TDPhysics::GetCurrentOptions()
+	{
+		if (Instance != nullptr)
+		{
+			return Instance->CurrentOptions;
+		}
+		return nullptr;
+	}
 }

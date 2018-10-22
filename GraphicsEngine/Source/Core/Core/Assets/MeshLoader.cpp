@@ -62,7 +62,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	std::vector<int> indices;
 	std::vector<aiNode*> NodeArray;
 	TraverseNodeTree(NodeArray, scene->mRootNode);
-	for (int i = 0; i < scene->mNumMeshes; i++)
+	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
 		const aiMesh* model = scene->mMeshes[i];
 		const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
@@ -104,7 +104,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 			indices.push_back(face.mIndices[2]);
 		}
 		MeshEntity* newmesh = new MeshEntity(Settings, vertices, indices);
-		//workaround for wired extra material from blender models
+		//workaround for weird extra material from blender models
 		if (scene->mNumMaterials > 1)
 		{
 			newmesh->MaterialIndex = model->mMaterialIndex - 1;
