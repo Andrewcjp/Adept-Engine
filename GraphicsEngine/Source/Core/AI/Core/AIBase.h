@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Components/Component.h"
+class AIController;
 class AIBase : public Component
 {
 public:
@@ -10,7 +11,7 @@ public:
 protected:
 	CORE_API virtual void Update(float dt) override;
 	float DistanceToPlayer = -1.0f;
-	
+	AIController* Controller = nullptr;
 private:
 	CORE_API virtual void InitComponent() override;
 	

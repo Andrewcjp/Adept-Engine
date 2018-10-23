@@ -11,7 +11,7 @@ SkullChaser::~SkullChaser()
 
 void SkullChaser::InitComponent()
 {
-
+	
 }
 
 void SkullChaser::Update(float dt)

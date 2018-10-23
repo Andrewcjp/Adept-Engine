@@ -1,7 +1,7 @@
 #pragma once
 //this class is to wrap all d3d12 rhi stuff up in
 //and handle object creation
-//and prevent RHI.cpp from getting extremly large
+//and prevent RHI.cpp from getting extremely large
 #include <d3d12.h>
 #include <DXGI1_4.h>
 #include "d3dx12.h"
@@ -43,7 +43,7 @@ private:
 	void ReleaseSwapRTs();
 	void CreateDepthStencil(int width, int height);
 	void InitSwapChain();
-	void ToggleFullScreenState();
+	void SetFullScreenState(bool state);
 	void WaitForAllGPUS();
 	void ResetAllGPUCopyEngines();
 	void UpdateAllCopyEngines();
@@ -74,20 +74,19 @@ private:
 	void ResizeSwapChain(int x, int y) override;
 
 private:
+	bool IsFullScreen = false;
 	D3D12DeviceContext * GetPrimaryDevice();
 	D3D12DeviceContext* GetSecondaryDevice();
 	D3D12DeviceContext* GetThridDevice();
 	IDXGIFactory4 * factory = nullptr;
+
 	ID3D12Device * GetDisplayDevice();
-	//class	D3D12DeviceContext* PrimaryDevice = nullptr;
-//	class	D3D12DeviceContext* SecondaryDevice = nullptr;
 	D3D12DeviceContext* DeviceContexts[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	ID3D12GraphicsCommandList* m_SetupCommandList;
 	int m_width = 0;
 	int m_height = 0;
 	float m_aspectRatio = 0.0f;
 	bool HasSetup = false;
-	bool IsFullScreen = false;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	IDXGISwapChain3* m_swapChain;
@@ -105,7 +104,6 @@ private:
 	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
-
 };
 #include "D3D12Helpers.h"
 //helper functions!

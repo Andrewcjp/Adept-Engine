@@ -13,6 +13,7 @@ namespace TD
 		std::vector<TDActor*>& GetActors() { return SceneActors; };
 		std::vector<TDRigidDynamic*>& GetDynamicActors() { return DynamicActors; };
 		glm::vec3 GetGravity()const { return GravityForce; }
+		TD_API void RemoveActor(TDActor* Actor);
 	private:
 		glm::vec3 GravityForce = glm::vec3(0, -9.81, 0);
 		TDQuadTree* AcclerationTree = nullptr;

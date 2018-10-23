@@ -57,7 +57,6 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		Log::OutS << "Mesh load failed!: " << filename << Log::OutS;
 		return false;
 	}
-	//todo: handle Extra meshes
 	std::vector<OGLVertex> vertices;
 	std::vector<int> indices;
 	std::vector<aiNode*> NodeArray;

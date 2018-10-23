@@ -1,8 +1,8 @@
 #pragma once
-
 #include "glm\glm.hpp"
 #include "glm\gtx\quaternion.hpp"
 #include "PhysicsTypes.h"
+
 struct BodyInstanceData
 {
 	bool LockXRot = false;
@@ -17,7 +17,9 @@ struct BodyInstanceData
 	bool UseAutoMass = false;
 	bool Gravity = true;
 };
+
 class Component;
+/*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/
 class GenericRigidBody
 {
 public:
@@ -26,9 +28,9 @@ public:
 	/**
 	*\return The bodies current root position
 	*/
-	glm::vec3 GetPosition()const ;
+	glm::vec3 GetPosition()const;
 	/**
-	*\return The bodies current rotation 
+	*\return The bodies current rotation
 	*/
 	glm::quat GetRotation()const;
 	/**
@@ -38,7 +40,7 @@ public:
 	*/
 	void AddTorque(glm::vec3 Torque);
 	/**
-	*\brief Adds a force at the bodies root 
+	*\brief Adds a force at the bodies root
 	*\param Force to add
 	*\param Force addition mode
 	*/
@@ -52,13 +54,21 @@ public:
 	*/
 	void SetLinearVelocity(glm::vec3 velocity);
 	/**
-	*\brief Returns the angular velocity of the body from the last timestep 
+	*\brief Returns the angular velocity of the body from the last timestep
 	*/
 	glm::vec3 GetAngularVelocity()const;
 	/**
 	*\brief Sets the Angular velocity of this body for the next timestep
 	*/
 	void SetAngularVelocity(glm::vec3 velocity);
+	/**
+	*\brief Returns the bodies Inertia Tensor
+	*/
+	glm::vec3 GetInertiaTensor()const;
+	/**
+	*\brief Sets the bodies Inertia Tensor
+	*/
+	void SetInertiaTensor(float newtensor);
 
 	void SetGravity(bool active);
 	void AttachCollider(Collider* col);
@@ -75,6 +85,7 @@ protected:
 	Component* OwningComponent = nullptr;
 };
 
+/*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/
 class GenericCollider
 {
 public:

@@ -327,7 +327,7 @@ void D3D12RHI::InitSwapChain()
 	ThrowIfFailed(factory->MakeWindowAssociation(PlatformWindow::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
 
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-	m_swapChain->SetFullscreenState(IsFullScreen, nullptr);
+	m_swapChain->SetFullscreenState(false, nullptr);
 
 	// Create descriptor heaps.
 	{
@@ -356,11 +356,15 @@ void D3D12RHI::InitSwapChain()
 	CreateDepthStencil(m_width, m_height);
 }
 
-void D3D12RHI::ToggleFullScreenState()
+void D3D12RHI::SetFullScreenState(bool state)
 {
-	IsFullScreen = !IsFullScreen;
-	m_swapChain->SetFullscreenState(IsFullScreen, nullptr);
+	IsFullScreen = state;
+	if (m_swapChain != nullptr)
+	{
+		m_swapChain->SetFullscreenState(state, nullptr);
+	}
 }
+
 void D3D12RHI::WaitForAllGPUS()
 {
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
@@ -406,7 +410,7 @@ void D3D12RHI::ExecSetUpList()
 
 void D3D12RHI::ReleaseUploadHeaps(bool force)
 {
-	//The Visual studio Graphics Debugger Casuses a crash here in Driver Code. Cause Unknown
+	//The Visual studio Graphics Debugger Causes a crash here in Driver Code. Cause Unknown
 	if (!DetectGPUDebugger())
 	{
 		for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)

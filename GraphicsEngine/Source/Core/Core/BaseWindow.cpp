@@ -22,7 +22,6 @@ BaseWindow::BaseWindow()
 {
 	ensure(Instance == nullptr);
 	Instance = this;
-	RHI::GetRenderSettings()->RenderScale = 1;
 }
 
 

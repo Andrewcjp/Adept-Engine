@@ -6,6 +6,7 @@
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
 class GameObject;
+/*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/
 class GenericPhysicsEngine
 {
 public:

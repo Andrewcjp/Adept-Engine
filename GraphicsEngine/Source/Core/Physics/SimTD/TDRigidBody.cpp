@@ -10,7 +10,9 @@ TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(ty
 }
 
 TDRigidBody::~TDRigidBody()
-{}
+{
+	TDPhysicsEngine::GetScene()->RemoveActor(Actor);
+}
 
 glm::vec3 TDRigidBody::GetPosition() const
 {

@@ -12,8 +12,11 @@
 #include "Core/Assets/ShaderComplier.h"
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "RHICommandList.h"
+#include "Core/Platform/ConsoleVariable.h"
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
+static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
+
 RHI::RHI(ERenderSystemType system)
 {
 	CurrentSystem = system;
@@ -311,7 +314,7 @@ DeviceContext * RHI::GetDefaultDevice()
 }
 
 void RHI::InitialiseContext()
-{
+{	
 	GetRHIClass()->InitRHI();
 	CurrentMGPUMode.ValidateSettings();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
@@ -334,11 +337,18 @@ void RHI::RHIRunFirstFrame()
 {
 	GetRHIClass()->RHIRunFirstFrame();
 	ShaderComplier::Get()->TickMaterialComplie();
+	GetRHIClass()->SetFullScreenState(StartFullscreen.GetBoolValue());
+}
+
+void RHI::SetFullScreenState(bool state)
+{
+	Get()->IsFullScreen = state;
+	GetRHIClass()->SetFullScreenState(state);
 }
 
 void RHI::ToggleFullScreenState()
 {
-	GetRHIClass()->ToggleFullScreenState();
+	SetFullScreenState(!Get()->IsFullScreen);
 }
 
 void RHI::ResizeSwapChain(int width, int height)

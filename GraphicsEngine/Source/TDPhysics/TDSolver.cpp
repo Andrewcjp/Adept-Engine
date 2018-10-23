@@ -22,16 +22,19 @@ namespace TD
 
 	void TDSolver::IntergrateActor(TDRigidDynamic * actor, float dt, TDScene * Scene)
 	{
-		glm::vec3 Veldelta = actor->GetLinearVelocityDelta();
-		if (actor->GetActorType() != TDActorType::RigidStatic)
+		if (actor->IsBodyAsleep())
 		{
-			Veldelta += Scene->GetGravity();
+			actor->UpdateSleepTimer(dt);
+			return;
 		}
+		glm::vec3 Veldelta = actor->GetLinearVelocityDelta();
+		Veldelta += Scene->GetGravity();
 		glm::vec3 BodyVelocity = actor->GetLinearVelocity();
 		BodyVelocity += Veldelta * dt;
 		actor->SetLinearVelocity(BodyVelocity);
 		glm::vec3 startpos = actor->GetTransfrom()->GetPos();
 		actor->GetTransfrom()->SetPos(startpos + (BodyVelocity*dt));
+		actor->UpdateSleepTimer(dt);
 		actor->ResetForceThisFrame();
 	}
 

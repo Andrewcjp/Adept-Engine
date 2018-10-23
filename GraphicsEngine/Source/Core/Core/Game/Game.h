@@ -3,6 +3,7 @@
 #include "Core/Module/ModuleInterface.h"
 #include "Core/Platform/Logger.h"
 #include "Core/Game/Gamemode.h"
+class AIDirector;
 class  Game
 {
 public:
@@ -15,7 +16,7 @@ public:
 	CORE_API void SetTickRate(float NewRate);
 	CORE_API class ExtraComponentRegister* GetECR();
 	CORE_API virtual GameMode* CreateGameMode();
-
+	CORE_API virtual AIDirector* CreateAIDirector();
 	void Init();
 protected:
 	ExtraComponentRegister * ECR = nullptr;

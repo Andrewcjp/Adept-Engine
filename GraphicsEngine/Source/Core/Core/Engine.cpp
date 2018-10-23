@@ -72,7 +72,7 @@ Engine::Engine()
 #if RUNTESTS
 	FString::RunFStringTests();
 #endif
-	AISystem::StartUp();
+	
 	AudioEngine::Startup();
 }
 
@@ -125,6 +125,7 @@ void Engine::LoadGame()
 	Game* gm = Gamemodule->GetGamePtr(CompRegistry);
 	ensure(gm);
 	SetGame(gm);
+	AISystem::StartUp();
 }
 
 RenderWindow * Engine::GetRenderWindow()
@@ -175,33 +176,29 @@ Game * Engine::GetGame()
 }
 
 static ConsoleVariable RunCookVar("cook", 0, ECVarType::LaunchOnly);
+static ConsoleVariable UseDX12("dx12", 0, ECVarType::LaunchOnly);
+static ConsoleVariable UseVK("vk", 0, ECVarType::LaunchOnly);
+
 void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 {
 	mwidth = 1700;
 	mheight = 720;
 	if (nCmdShow > 0)
 	{
-		//todo: xbyx
-		std::string input = args.ToSString();
-		ConsoleVariableManager::SetupVars(input);
-		if (input.compare("-fullscreen") == 0)
-		{
-			FullScreen = true;
-		}
-
+		ConsoleVariableManager::SetupVars(args.ToSString());
 		if (RunCookVar.GetBoolValue())
 		{
 			Log::OutS << "Starting Cook" << Log::OutS;
 			ShouldRunCook = true;
 		}
 
-		if (input.compare("-dx12") == 0)
+		if (UseDX12.GetBoolValue())
 		{
 			ForcedRenderSystem = RenderSystemD3D12;
 			Log::OutS << "Forcing RenderSystem D3D12" << Log::OutS;
 		}
 #if BUILD_VULKAN
-		if (input.compare("-vk") == 0)
+		if (UseVK.GetBoolValue())
 		{
 			ForcedRenderSystem = RenderSystemVulkan;
 			Log::OutS << "Forcing RenderSystem Vulkan" << Log::OutS;

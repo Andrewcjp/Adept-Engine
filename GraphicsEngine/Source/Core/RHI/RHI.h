@@ -43,6 +43,7 @@ public:
 	
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
+	static void SetFullScreenState(bool state);
 	static void ToggleFullScreenState();
 	static void ResizeSwapChain(int width, int height);
 	static void DestoryContext();
@@ -79,6 +80,7 @@ private:
 	typedef std::pair<IRHIResourse*, int64_t> RHIResourseStamped;
 	std::vector<RHIResourseStamped> DeferredDeleteQueue;
 	bool IsFlushingDeleteQueue = false;
+	bool IsFullScreen = false;
 };
 
 class RHI_API RHIClass
@@ -98,7 +100,7 @@ public:
 	virtual DeviceContext* GetDeviceContext(int index = 0) = 0;
 	virtual void RHISwapBuffers() = 0;
 	virtual void RHIRunFirstFrame() = 0;
-	virtual void ToggleFullScreenState() = 0;
+	virtual void SetFullScreenState(bool state) = 0;
 	virtual void ResizeSwapChain(int width, int height) = 0;
 	virtual void WaitForGPU() = 0;
 	virtual void TriggerBackBufferScreenShot() = 0;

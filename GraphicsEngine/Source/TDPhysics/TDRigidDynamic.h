@@ -9,6 +9,7 @@ namespace TD
 		~TDRigidDynamic();		
 		
 		TD_API void SetGravity(bool enabled);
+
 		TD_API bool IsEffectedByGravity();
 		/**\return The bodies mass in Kg*/
 		TD_API float GetBodyMass();
@@ -18,9 +19,13 @@ namespace TD
 		glm::vec3 GetLinearVelocity();
 		void SetLinearVelocity(glm::vec3 newvel);
 		TD_API void AddForce(glm::vec3 Force, bool AsForce);
-		//Angular Motion
+
+		//Angular Motion		
+		float GetInertiaTensor();
+		void SetInertiaTensor(float tensor);
 		glm::vec3 GetAngularVelocity();
 		void SetAngularVelocity(glm::vec3 velocity);
+
 		void AddTorque(glm::vec3 Torque);
 
 		//Internal Functions
@@ -28,6 +33,8 @@ namespace TD
 		glm::vec3 GetLinearVelocityDelta();
 		glm::vec3 GetAngularVelocityDelta();
 		void ResetForceThisFrame();
+		void UpdateSleepTimer(float DT);
+		bool IsBodyAsleep()const;
 	private:
 		glm::vec3 DeltaLinearVel = glm::vec3();
 		glm::vec3 DeltaAngularVel = glm::vec3();
@@ -39,6 +46,9 @@ namespace TD
 		//Angular
 		glm::vec3 AngularVel = glm::vec3();
 		float InertaTensor = 1.0f;
+
+		float SleepTimer = 0.0f;
+		float SleepMaxTimer = 10.0f;
 	};
 
 }

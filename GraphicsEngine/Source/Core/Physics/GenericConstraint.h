@@ -9,6 +9,7 @@ namespace EConstaintMotion
 		Locked,
 	};
 }
+
 struct LinearConstaintSetup
 {
 	float limit = 0;
@@ -16,6 +17,7 @@ struct LinearConstaintSetup
 	EConstaintMotion::Type YMotion;
 	EConstaintMotion::Type ZMotion;
 };
+
 struct ConstaintSetup
 {
 	float LinearBreakThreshold = 1.0f;
@@ -25,6 +27,8 @@ struct ConstaintSetup
 	bool EnableProjection = false;
 	float ProjectionLinearTolerance;
 };
+
+/*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/
 class GenericConstraint
 {
 public:
