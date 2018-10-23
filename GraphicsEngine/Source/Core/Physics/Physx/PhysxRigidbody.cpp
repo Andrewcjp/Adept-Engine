@@ -231,6 +231,8 @@ void PhysxRigidbody::UpdateBodyState()
 		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, BodyData.LockXPosition);
 		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, BodyData.LockYPosition);
 		Dynamicactor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, BodyData.LockZPosition);
+		Dynamicactor->setLinearDamping(BodyData.LinearDamping);
+		Dynamicactor->setAngularDamping(BodyData.AngularDamping);
 	}
 	if (CommonActorPtr)
 	{

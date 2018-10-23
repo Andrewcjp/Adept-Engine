@@ -38,6 +38,22 @@ namespace TD
 			DeltaLinearVel = Force;
 		}
 	}
+	void TDRigidDynamic::UpdateSleepTimer(float DT)
+	{
+		if (glm::length2(DeltaLinearVel) == 0 && glm::length2(DeltaAngularVel) == 0)
+		{
+			SleepTimer += DT;
+		}
+		else
+		{
+			SleepTimer = 0.0f;
+		}
+	}
+
+	bool TDRigidDynamic::IsBodyAsleep() const
+	{
+		return SleepTimer > SleepMaxTimer;
+	}
 
 	void TDRigidDynamic::ResetForceThisFrame()
 	{
@@ -77,6 +93,16 @@ namespace TD
 	glm::vec3 TDRigidDynamic::GetAngularVelocity()
 	{
 		return AngularVel;
+	}
+
+	float TDRigidDynamic::GetInertiaTensor()
+	{
+		return InertaTensor;
+	}
+
+	void TDRigidDynamic::SetInertiaTensor(float tensor)
+	{
+		InertaTensor = tensor;
 	}
 
 	void TDRigidDynamic::SetAngularVelocity(glm::vec3 velocity)

@@ -25,12 +25,13 @@ void MultiGPUMode::ValidateSettings()
 
 RenderSettings::RenderSettings()
 {
-	ShadowMapSize = 2024;
+	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
+	RenderScale = 1.0f;
 }
 
 RenderConstants::RenderConstants()

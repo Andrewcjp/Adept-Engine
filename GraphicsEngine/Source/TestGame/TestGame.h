@@ -9,6 +9,7 @@ public:
 	TestGame(class CompoenentRegistry* Reg); 
 	~TestGame();
 	virtual GameMode* CreateGameMode() override;
+	AIDirector * CreateAIDirector() override;
 };
    
  

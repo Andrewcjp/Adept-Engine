@@ -48,7 +48,6 @@ private:
 	int								mwidth, mheight;
 	IntPoint						IntialScreenSize;
 	bool							Deferredmode = false;
-	bool							FullScreen = false;
 	bool							ShouldRunCook = false;
 	static Game*					mgame;
 	bool							isWindowVaild = false;

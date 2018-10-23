@@ -1,5 +1,5 @@
 #include "Game.h"
-
+#include "ai/CORE/AIDirector.h"
 Game::Game(CompoenentRegistry* Reg)
 {
 }
@@ -44,4 +44,9 @@ ExtraComponentRegister * Game::GetECR()
 GameMode * Game::CreateGameMode()
 {
 	return new GameMode();
+}
+
+AIDirector * Game::CreateAIDirector()
+{
+	return new AIDirector();
 }

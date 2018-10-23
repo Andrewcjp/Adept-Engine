@@ -25,4 +25,23 @@ namespace TD
 			DynamicActors.push_back(Dynamic);
 		}
 	}
+	template<class T>
+	void RemoveFromVector(std::vector<T*>& vector, T* target) {
+		for (int i = 0; i < vector.size(); i++) {
+			if (vector[i] == target) {
+				vector.erase(vector.begin() + i);
+				return;
+			}
+		}
+	}
+	void TDScene::RemoveActor(TDActor * Actor)
+	{
+		RemoveFromVector(SceneActors, Actor);
+		TDRigidDynamic* Dynamic = TDActor::ActorCast<TDRigidDynamic>(Actor);
+		if (Dynamic != nullptr)
+		{
+			RemoveFromVector(DynamicActors, Dynamic);
+		}		
+	}
+
 }

@@ -41,6 +41,7 @@ namespace ENavRequestStatus
 		Complete,
 	};
 }
+class NavigationObstacle;
 class NavigationMesh
 {
 public:
@@ -51,7 +52,14 @@ public:
 	void PopulateNearLists();
 	NavTriangle * FindTriangleFromWorldPos(glm::vec3 worldpos);
 	ENavRequestStatus::Type CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outputPath);
+	ENavRequestStatus::Type CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
+	ENavRequestStatus::Type CalculatePath_DSTAR_BoardPhase(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
+	ENavRequestStatus::Type CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
+	void RegisterObstacle(NavigationObstacle* NewObstacle);
+	void NotifyNavMeshUpdate();
 private:
+	bool NavMeshNeedsUpdate = false;
 	std::vector<NavTriangle*> Triangles;
+	std::vector<NavigationObstacle*> Obstacles;
 };
 

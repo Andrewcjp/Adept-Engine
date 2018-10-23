@@ -46,6 +46,14 @@ glm::vec3 GenericRigidBody::GetAngularVelocity() const
 void GenericRigidBody::SetAngularVelocity(glm::vec3 velocity)
 {}
 
+glm::vec3 GenericRigidBody::GetInertiaTensor() const
+{
+	return glm::vec3();
+}
+
+void GenericRigidBody::SetInertiaTensor(float newtensor)
+{}
+
 void GenericRigidBody::SetGravity(bool active)
 {
 	BodyData.Gravity = active;

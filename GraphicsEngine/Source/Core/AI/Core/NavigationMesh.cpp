@@ -3,7 +3,8 @@
 #include "Core/Assets/MeshLoader.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Core/Assets/AssetManager.h"
-
+#include "AI/Core/AISystem.h"
+#include "AI/Core/NavigationObstacle.h"
 NavigationMesh::NavigationMesh()
 {}
 
@@ -16,7 +17,7 @@ void NavigationMesh::GenTestMesh()
 	std::vector<int> indices;
 	MeshLoader::FMeshLoadingSettings t;
 	t.GenerateIndexed = false;
-	t.Scale = glm::vec3(10); 
+	t.Scale = glm::vec3(10);
 	MeshLoader::LoadMeshFromFile_Direct(AssetManager::GetContentPath() + "models\\NavPlaneTest_L.obj", t, vertices, indices);
 
 	for (int i = 0; i < vertices.size(); i += 3)
@@ -34,7 +35,7 @@ void NavigationMesh::GenTestMesh()
 		Triangles.push_back(a);
 	}
 	PopulateNearLists();
-	NavigationPath data;
+	//NavigationPath* data;1
 	//CalculatePath(glm::vec3(20, 0, -10), glm::vec3(-15, 0, 20), &data);
 }
 
@@ -143,7 +144,7 @@ NavPoint* Getlowest(std::vector<NavPoint*> & points)
 	return Lowestnode;
 }
 
-bool AddToCLosed(NavPoint* ppoint, NavTriangle* endtri)
+bool AddToClosed(NavPoint* ppoint, NavTriangle* endtri)
 {
 	for (int i = 0; i < 3; i++)
 	{
@@ -184,6 +185,30 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 {
 	Startpoint.y = 0;
 	EndPos.y = 0;
+	switch (AISystem::GetPathMode())
+	{
+	case EAINavigationMode::AStar:
+		return CalculatePath_ASTAR(Startpoint, EndPos, outpath);
+	case EAINavigationMode::DStarLTE:
+		return CalculatePath_DSTAR_LTE(Startpoint, EndPos, outpath);
+	case EAINavigationMode::DStarBoardPhase:
+		return CalculatePath_DSTAR_BoardPhase(Startpoint, EndPos, outpath);
+	}
+	return ENavRequestStatus::Failed;
+}
+
+ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+{
+	return ENavRequestStatus::Failed;
+}
+
+ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_BoardPhase(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+{
+	return ENavRequestStatus::Failed;
+}
+
+ENavRequestStatus::Type NavigationMesh::CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+{
 	NavigationPath* outputPath = new NavigationPath();
 	*outpath = outputPath;
 	NavTriangle* StartTri = FindTriangleFromWorldPos(Startpoint);
@@ -191,20 +216,20 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 	{
 		return ENavRequestStatus::FailedPointOffNavMesh;
 	}
-	DebugLineDrawer::instance->AddLine(StartTri->avgcentre, StartTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
 	NavTriangle* EndTri = FindTriangleFromWorldPos(EndPos);
 	if (EndTri == nullptr)
 	{
 		return ENavRequestStatus::FailedPointOffNavMesh;
 	}
-
+	DebugLineDrawer::instance->AddLine(StartTri->avgcentre, StartTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
 	DebugLineDrawer::instance->AddLine(EndTri->avgcentre, EndTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
+
 	if (StartTri == EndTri)
 	{
 		//we are within a nav triangle so we path straight to the point 
 		outputPath->Positions.push_back(EndPos);
 	}
-	
+
 	std::vector<NavPoint*> ClosedList;
 	std::vector<NavPoint*> OpenList;
 	NavPoint* CurrentPoint = new NavPoint(StartTri->Positons[0]);
@@ -214,7 +239,7 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 	{
 		CurrentPoint = Getlowest(OpenList);
 		RemoveItem(CurrentPoint, OpenList);
-		if (AddToCLosed(CurrentPoint, EndTri))
+		if (AddToClosed(CurrentPoint, EndTri))
 		{
 			ClosedList.push_back(CurrentPoint);
 			break;//path found
@@ -258,11 +283,11 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 		CurrentPoint = CurrentPoint->Parent;
 	}
 	outputPath->Positions.push_back(EndPos);
-	for (int i = 0; i < outputPath->Positions.size(); i++) 
+	for (int i = 0; i < outputPath->Positions.size(); i++)
 	{
 		if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::instance != nullptr)
 		{
-			DebugLineDrawer::instance->AddLine(outputPath->Positions[i], outputPath->Positions[i+1], glm::vec3(0, 1, 0), 100);
+			DebugLineDrawer::instance->AddLine(outputPath->Positions[i], outputPath->Positions[i + 1], glm::vec3(0, 1, 0), 100);
 		}
 	}
 	/*for (int i = 0; i < ClosedList.size(); i++)
@@ -275,11 +300,23 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 	}*/
 	//DebugLineDrawer::instance->AddLine(ClosedList[ClosedList.size() - 1]->pos, EndPos, glm::vec3(0, 0.2, 0), 100);
 
-	
+
 
 	DebugLineDrawer::instance->AddLine(Startpoint, Startpoint + glm::vec3(0, 10, 0), glm::vec3(0, 0, 1), 100);
 	DebugLineDrawer::instance->AddLine(EndPos, EndPos + glm::vec3(0, 10, 0), glm::vec3(0, 0, 0.5), 100);
 	return ENavRequestStatus::Complete;
+}
+
+void NavigationMesh::RegisterObstacle(NavigationObstacle * NewObstacle)
+{
+	Obstacles.push_back(NewObstacle);
+	NewObstacle->LinkToMesh(this);
+	NotifyNavMeshUpdate();
+}
+
+void NavigationMesh::NotifyNavMeshUpdate()
+{
+	NavMeshNeedsUpdate = true;
 }
 
 float side(glm::vec2 v1, glm::vec2  v2, glm::vec2 point)
