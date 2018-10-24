@@ -46,6 +46,9 @@ public:
 	void CreateComputePipelineShader();
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);
 	D3D12PiplineShader* GetPipelineShader();
+#if !BUILD_SHIPPING
+	static void PrintShaderStats();
+#endif
 private:
 	D3D_SHADER_MACRO * ParseDefines();
 	class D3D12DeviceContext* CurrentDevice = nullptr;
@@ -60,5 +63,14 @@ private:
 	ID3DBlob ** GetCurrentBlob(EShaderType::Type type);
 	const std::string GetShaderInstanceHash();
 	static const std::string GetUniqueName(std::vector<Shader::ShaderParameter>& Params);
+#if !BUILD_SHIPPING
+	struct ShaderStats
+	{
+		int ShaderComplieCount = 0;
+		int TotalShaderCount = 0;
+		int ShaderLoadFromCacheCount = 0;
+	};
+	static ShaderStats stats;
+#endif
 };
 

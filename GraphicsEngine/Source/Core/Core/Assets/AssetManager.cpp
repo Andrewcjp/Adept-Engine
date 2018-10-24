@@ -271,18 +271,19 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool Direct
 		return RHI::CreateTexture(Fileref, Device);
 	}
 
-	//File is not a DDS
+	
 	//check the DDC for A Generated one
 	std::string DDCRelFilepath = "\\" + DDCName + "\\" + Fileref.BaseName + ".DDS";
 	Fileref.DDCPath = DDCRelFilepath;
-	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath))
+	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath) && !PlatformApplication::CheckFileSrcNewer(GetRootDir() + DDCRelFilepath, Fileref.GetFullPathToAsset()))
 	{
 		Fileref.IsDDC = true;
 		return RHI::CreateTexture(Fileref, Device);
 	}
 	else
 	{
-#if BUILD_SHIPPING
+		//File is not a DDS
+#if BUILD_PACKAGE
 		Log::OutS << "File '" << Fileref.Name << "' Is missing from the cooked data" << Log::OutS;
 #else
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist in the DDC Generating Now" << Log::OutS;

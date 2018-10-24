@@ -11,6 +11,9 @@
 #include <d3dcompiler.h>
 #include "Core/Platform/ConsoleVariable.h"
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
+#if !BUILD_SHIPPING
+D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
+#endif
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = (D3D12DeviceContext*)Device;
@@ -102,9 +105,14 @@ const std::string D3D12Shader::GetShaderInstanceHash()
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
 	SCOPE_STARTUP_COUNTER("Shader Compile");
-
+#if !BUILD_SHIPPING
+	stats.TotalShaderCount++;
+#endif
 	if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType), GetShaderInstanceHash(), ShaderType))
 	{
+#if !BUILD_SHIPPING
+		stats.ShaderLoadFromCacheCount++;
+#endif
 		return EShaderError::SHADER_ERROR_NONE;
 	}
 
@@ -115,7 +123,6 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 
 	if (!FileUtils::File_ExistsTest(path))
 	{
-		DebugEnsure(false);
 		return EShaderError::SHADER_ERROR_NOFILE;
 	}
 	if (ShaderType == EShaderType::SHADER_COMPUTE)
@@ -195,6 +202,9 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		return EShaderError::SHADER_ERROR_CREATE;
 	}
 	WriteBlobs(shadername, ShaderType);
+#if !BUILD_SHIPPING
+	stats.ShaderComplieCount++;
+#endif
 	return EShaderError::SHADER_ERROR_NONE;
 }
 
@@ -202,10 +212,8 @@ bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName,
 {
 	std::string ShaderSRCPath = AssetManager::GetShaderPath() + ShaderName + ".hlsl";
 	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + FullShaderName;
-	int64_t time = PlatformApplication::GetFileTimeStamp(ShaderSRCPath);
-	int64_t CSOtime = PlatformApplication::GetFileTimeStamp(ShaderCSOPath);
-	//if the Src is newer than the CSO recomplie
-	return !(time > CSOtime);
+	//if the source is newer than the CSO recompile
+	return PlatformApplication::CheckFileSrcNewer(ShaderSRCPath, ShaderCSOPath);
 }
 
 const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type)
@@ -388,7 +396,7 @@ D3D12_INPUT_ELEMENT_DESC D3D12Shader::ConvertVertexFormat(Shader::VertexElementD
 	output.Format = D3D12Helpers::ConvertFormat(desc->Format);
 	output.InstanceDataStepRate = desc->InstanceDataStepRate;
 	//identical!
-	output.InputSlotClass =  (D3D12_INPUT_CLASSIFICATION)desc->InputSlotClass;
+	output.InputSlotClass = (D3D12_INPUT_CLASSIFICATION)desc->InputSlotClass;
 	return output;
 }
 
@@ -396,7 +404,14 @@ D3D12PiplineShader * D3D12Shader::GetPipelineShader()
 {
 	return &m_Shader;
 }
-
+#if !BUILD_SHIPPING
+void D3D12Shader::PrintShaderStats()
+{
+	std::stringstream ss;
+	ss << "Shader Stats: Loaded: " << stats.ShaderLoadFromCacheCount << "/" << stats.TotalShaderCount << " Complied: " << stats.ShaderComplieCount << "/" << stats.TotalShaderCount;
+	Log::LogMessage(ss.str());
+}
+#endif
 bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, D3D12_INPUT_ELEMENT_DESC ** Data, int * length)
 {
 	*Data = new D3D12_INPUT_ELEMENT_DESC[desc.size()];
@@ -554,6 +569,7 @@ const std::string D3D12Shader::GetUniqueName(std::vector<Shader::ShaderParameter
 	}
 	return output;
 }
+
 void D3D12Shader::CreateDefaultRootSig(D3D12PiplineShader &output)
 {
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};

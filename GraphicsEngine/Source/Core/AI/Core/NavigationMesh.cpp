@@ -35,8 +35,8 @@ void NavigationMesh::GenTestMesh()
 		Triangles.push_back(a);
 	}
 	PopulateNearLists();
-	//NavigationPath* data;1
-	//CalculatePath(glm::vec3(20, 0, -10), glm::vec3(-15, 0, 20), &data);
+	NavigationPath* data;
+	CalculatePath(glm::vec3(20, 0, -10), glm::vec3(-15, 0, 20), &data);
 }
 
 void NavigationMesh::DrawNavMeshLines(DebugLineDrawer* drawer)
@@ -197,14 +197,60 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm:
 	return ENavRequestStatus::Failed;
 }
 
-ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_BoardPhase(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
 {
 	return ENavRequestStatus::Failed;
 }
 
-ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_BoardPhase(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
 {
+	NavigationPath* outputPath = new NavigationPath();
+	*outpath = outputPath;
+	NavTriangle* StartTri = FindTriangleFromWorldPos(Startpoint);
+	if (StartTri == nullptr)
+	{
+		return ENavRequestStatus::FailedPointOffNavMesh;
+	}
+	NavTriangle* EndTri = FindTriangleFromWorldPos(EndPos);
+	if (EndTri == nullptr)
+	{
+		return ENavRequestStatus::FailedPointOffNavMesh;
+	}
+	DebugLineDrawer::instance->AddLine(StartTri->avgcentre, StartTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
+	DebugLineDrawer::instance->AddLine(EndTri->avgcentre, EndTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
+
+	if (StartTri == EndTri)
+	{
+		//we are within a nav triangle so we path straight to the point 
+		outputPath->Positions.push_back(EndPos);
+	}
+	NavPoint* CurrentPoint = nullptr;
+
+
+
+
+
+	ConstructPath(outputPath, Startpoint, CurrentPoint, EndPos);
+
 	return ENavRequestStatus::Failed;
+}
+
+void NavigationMesh::ConstructPath(NavigationPath* outputPath, glm::vec3 Startpoint, NavPoint* CurrentPoint, glm::vec3 EndPos)
+{
+	outputPath->Positions.push_back(Startpoint);
+	while (CurrentPoint->Parent != nullptr)
+	{
+		outputPath->Positions.push_back(CurrentPoint->pos);
+		CurrentPoint = CurrentPoint->Parent;
+	}
+	outputPath->Positions.push_back(EndPos);
+	for (int i = 0; i < outputPath->Positions.size(); i++)
+	{
+		if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::instance != nullptr)
+		{
+			DebugLineDrawer::instance->AddLine(outputPath->Positions[i], outputPath->Positions[i + 1], glm::vec3(0, 1, 0), 100);
+		}
+	}
 }
 
 ENavRequestStatus::Type NavigationMesh::CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
@@ -276,32 +322,7 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_ASTAR(glm::vec3 Startpoint
 			}
 		}
 	}
-	outputPath->Positions.push_back(Startpoint);
-	while (CurrentPoint->Parent != nullptr)
-	{
-		outputPath->Positions.push_back(CurrentPoint->pos);
-		CurrentPoint = CurrentPoint->Parent;
-	}
-	outputPath->Positions.push_back(EndPos);
-	for (int i = 0; i < outputPath->Positions.size(); i++)
-	{
-		if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::instance != nullptr)
-		{
-			DebugLineDrawer::instance->AddLine(outputPath->Positions[i], outputPath->Positions[i + 1], glm::vec3(0, 1, 0), 100);
-		}
-	}
-	/*for (int i = 0; i < ClosedList.size(); i++)
-	{
-
-		if (i < ClosedList.size() - 1 && DebugLineDrawer::instance != nullptr)
-		{
-			DebugLineDrawer::instance->AddLine(ClosedList[i]->pos, ClosedList[i + 1]->pos, glm::vec3(0, 1, 0), 100);
-		}
-	}*/
-	//DebugLineDrawer::instance->AddLine(ClosedList[ClosedList.size() - 1]->pos, EndPos, glm::vec3(0, 0.2, 0), 100);
-
-
-
+	ConstructPath(outputPath, Startpoint, CurrentPoint, EndPos);
 	DebugLineDrawer::instance->AddLine(Startpoint, Startpoint + glm::vec3(0, 10, 0), glm::vec3(0, 0, 1), 100);
 	DebugLineDrawer::instance->AddLine(EndPos, EndPos + glm::vec3(0, 10, 0), glm::vec3(0, 0, 0.5), 100);
 	return ENavRequestStatus::Complete;

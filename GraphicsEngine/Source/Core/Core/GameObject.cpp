@@ -21,6 +21,10 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid)
 
 GameObject::~GameObject()
 {
+	for (int i = 0; i < m_Components.size(); i++)
+	{		
+		m_Components[i]->OnDestroy();
+	}
 	AudioEngine::DeRegisterObject(this);
 	for (int i = 0; i < m_Components.size(); i++)
 	{

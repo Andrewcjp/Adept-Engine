@@ -84,7 +84,11 @@ void Engine::PreInit()
 {
 	PerfManager::StartPerfManager();
 	TestTDPhysics();
-
+	LoadGame();
+	if (IsCooking)
+	{
+		RunCook();
+	}
 }
 void Engine::OnRender()
 {
@@ -135,7 +139,6 @@ RenderWindow * Engine::GetRenderWindow()
 
 void Engine::CreateApplication()
 {
-
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
 		RHI::InitRHI(RenderSystemD3D12);
@@ -149,18 +152,13 @@ void Engine::CreateApplication()
 	{
 		CreateApplicationWindow(GetWidth(), GetHeight());
 	}
-	else
-	{
-		RunCook();
-	}
-
 }
 
 void Engine::RunCook()
 {
 	Cooker* cook = new Cooker();
 	cook->CopyToOutput();
-	delete cook;
+	SafeDelete(cook);
 }
 
 void Engine::SetGame(Game * game)

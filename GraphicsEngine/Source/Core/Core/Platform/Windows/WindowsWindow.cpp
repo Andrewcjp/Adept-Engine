@@ -65,17 +65,19 @@ WindowsWindow* WindowsWindow::CreateApplication(Engine* EnginePtr, HINSTANCE hin
 {
 	if (!app)
 	{
+		//app->m_engine->ProcessCommandLineInput((const CHAR *)args, nshow);
 		app = new WindowsWindow();
 		app->m_engine = EnginePtr;
 		app->m_hInst = hinst;
 		app->MyRegisterClass(hinst);
 		//Now create an OGLWindow for this application
-		app->m_engine->LoadGame();
-		app->m_engine->ProcessCommandLineInput((const CHAR *)args, nshow);
-		app->CreateOSWindow(app->m_engine->GetWidth(), app->m_engine->GetHeight());
-		app->m_engine->CreateApplication();
-		app->SetVisible(true);
-		app->SetupHPMI();
+		if (!app->m_engine->GetIsCooking())
+		{
+			app->CreateOSWindow(app->m_engine->GetWidth(), app->m_engine->GetHeight());
+			app->m_engine->CreateApplication();
+			app->SetVisible(true);
+			app->SetupHPMI();
+		}
 	}
 	return app;
 }
