@@ -4,18 +4,10 @@
 #include "Core/Assets/Archive.h"
 #include "Core/Platform/PlatformCore.h"
 Component::Component()
-{
-	TypeID = -1;
-}
-
+{}
 
 Component::~Component()
-{
-}
-
-void Component::InitComponent()
-{
-}
+{}
 
 void Component::BeginPlay()
 {}
@@ -23,17 +15,14 @@ void Component::BeginPlay()
 void Component::Update(float delta)
 {}
 
-void Component::FixedUpdate(float )
-{
-}
+void Component::FixedUpdate(float)
+{}
+
 #if WITH_EDITOR
 void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props)
-{
-	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Component");
-	//group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Float, nullptr));
-	props.push_back(group);
-}
+{}
 #endif
+
 GameObject * Component::GetOwner()
 {
 	return Owner;
@@ -56,8 +45,7 @@ Scene * Component::GetOwnerScene()
 }
 
 void Component::OnTransformUpdate()
-{
-}
+{}
 
 void Component::ProcessSerialArchive(Archive * A)
 {
@@ -67,3 +55,5 @@ void Component::ProcessSerialArchive(Archive * A)
 	}
 }
 
+void Component::OnDestroy()
+{}

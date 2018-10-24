@@ -25,11 +25,23 @@ void TestGame_Director::NotifySpawningPoolDestruction()
 {
 	//lock the area
 	//Spawn A Wave!
+	
 }
 
-void TestGame_Director::SpawnAI(glm::vec3 SpawnPos)
+GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 {
-
+	switch (type)
+	{
+	case EAIType::Imp:
+		return SpawnImp(SpawnPos);
+	case EAIType::Rioter:
+		return SpawnRioter(SpawnPos);
+	case EAIType::Orb:
+		return SpawnOrb(SpawnPos);
+	case EAIType::Skull:
+		return SpawnSkull(SpawnPos);
+	}
+	return nullptr;
 }
 
 GameObject* TestGame_Director::CreateAI(glm::vec3 pos)

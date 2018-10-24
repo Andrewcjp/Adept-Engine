@@ -20,9 +20,14 @@ public:
 	void SetupForScene(Scene * newscene);
 	static void StartUp();
 	static void ShutDown();
-	static AISystem* Get();
+	CORE_API static AISystem* Get();
 	NavigationMesh* mesh = nullptr;
 	static EAINavigationMode::Type GetPathMode();
+	template<class T>
+	static T* GetDirector()
+	{
+		return (T*)Get()->Director;
+	}
 private:
 	AIDirector* Director = nullptr;
 	static AISystem* Instance;

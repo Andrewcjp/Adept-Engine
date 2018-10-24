@@ -7,6 +7,26 @@ struct AIDirector_DifficultyPreset
 	float SizeWeighting = 0.5f;//normal value;
 
 };
+namespace EAIType
+{
+	enum Type
+	{
+		Imp,
+		Rioter,
+		Orb,
+		Skull,
+		Limit
+	};
+};
+namespace EDirectorMode
+{
+	enum Type
+	{
+		Passive,
+		Wave,
+		Limit
+	};
+}
 class GameObject;
 class TestGame_Director : public AIDirector
 {
@@ -15,7 +35,7 @@ public:
 	~TestGame_Director();
 	void Tick() override;
 	void NotifySpawningPoolDestruction();
-	void SpawnAI(glm::vec3 SpawnPos);
+	GameObject* SpawnAI(glm::vec3 SpawnPos, EAIType::Type type);
 	GameObject * CreateAI(glm::vec3 pos);
 	GameObject * SpawnImp(glm::vec3 pos);
 	GameObject * SpawnRioter(glm::vec3 pos);

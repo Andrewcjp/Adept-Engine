@@ -661,6 +661,9 @@ void D3D12RHI::RHISwapBuffers()
 void D3D12RHI::RHIRunFirstFrame()
 {
 	ExecSetUpList();
+#if !BUILD_SHIPPING
+	D3D12Shader::PrintShaderStats();
+#endif
 }
 
 D3D12DeviceContext * D3D12RHI::GetPrimaryDevice()

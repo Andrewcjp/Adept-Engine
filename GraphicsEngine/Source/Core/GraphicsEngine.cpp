@@ -69,16 +69,16 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 #endif
 
 	Engine* engine = new Engine();
+	engine->ProcessCommandLineInput((const CHAR *)lpCmdLine, nCmdShow);
 	engine->PreInit();
-
-	PlatformWindow* myapp = PlatformWindow::CreateApplication(engine, hInstance, lpCmdLine, nCmdShow);
 	if (!engine->GetIsCooking())
 	{
+		PlatformWindow* myapp = PlatformWindow::CreateApplication(engine, hInstance, lpCmdLine, nCmdShow);
 		exitcode = myapp->Run();
-	}
-	myapp->DestroyApplication();
+		myapp->DestroyApplication();
+	}	
 	engine->Destory();
-	delete engine;
+	SafeDelete(engine);
 	
 #if USE_SEP_CONSOLE
 	fclose(pf_out);

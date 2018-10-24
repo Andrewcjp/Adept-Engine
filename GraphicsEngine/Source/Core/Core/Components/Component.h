@@ -7,7 +7,7 @@ class Component
 public:
 	CORE_API Component();
 	CORE_API virtual ~Component();
-	CORE_API virtual void InitComponent() = 0;
+	CORE_API virtual void InitComponent() {};
 	CORE_API virtual void BeginPlay();
 	CORE_API virtual void Update(float delta);
 	CORE_API virtual void FixedUpdate(float delta);
@@ -23,6 +23,7 @@ public:
 #endif
 
 	CORE_API virtual void OnCollide(CollisonData data) {};
+	CORE_API virtual void OnDestroy();
 protected:
 	int TypeID = -1;
 	void Internal_SetOwner(GameObject* ptr);

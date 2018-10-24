@@ -51,13 +51,18 @@ public:
 	void DrawNavMeshLines(class DebugLineDrawer * drawer);
 	void PopulateNearLists();
 	NavTriangle * FindTriangleFromWorldPos(glm::vec3 worldpos);
+
 	ENavRequestStatus::Type CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outputPath);
-	ENavRequestStatus::Type CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
-	ENavRequestStatus::Type CalculatePath_DSTAR_BoardPhase(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
-	ENavRequestStatus::Type CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
+
 	void RegisterObstacle(NavigationObstacle* NewObstacle);
 	void NotifyNavMeshUpdate();
 private:
+	ENavRequestStatus::Type CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
+
+	void ConstructPath(NavigationPath* outputPath, glm::vec3 Startpoint, NavPoint* CurrentPoint, glm::vec3 EndPos);
+
+	ENavRequestStatus::Type CalculatePath_DSTAR_BoardPhase(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
+	ENavRequestStatus::Type CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
 	bool NavMeshNeedsUpdate = false;
 	std::vector<NavTriangle*> Triangles;
 	std::vector<NavigationObstacle*> Obstacles;

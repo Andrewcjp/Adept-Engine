@@ -222,7 +222,7 @@ void RHI::DestoryRHI()
 {
 	if (instance != nullptr)
 	{
-		delete instance;
+		SafeDelete(instance);
 	}
 }
 
