@@ -1,5 +1,6 @@
 #include "TDRigidDynamic.h"
-
+#include "TDPhysics.h"
+#include "TDSimConfig.h"
 
 namespace TD
 {
@@ -7,6 +8,8 @@ namespace TD
 	{
 		ActorType = TDActorType::RigidDynamic;
 		BodyMass = 10.0f;
+		CachedsqSleepZeroThreshold = TDPhysics::GetCurrentSimConfig()->BodySleepZeroThreshold;
+		CachedsqSleepZeroThreshold = CachedsqSleepZeroThreshold * CachedsqSleepZeroThreshold;//All compares are done Squared
 	}
 
 	TDRigidDynamic::~TDRigidDynamic()
@@ -38,9 +41,18 @@ namespace TD
 			DeltaLinearVel = Force;
 		}
 	}
+	bool TDRigidDynamic::CheckSleep(glm::vec3 & value)
+	{
+		if (glm::length2(value) <= CachedsqSleepZeroThreshold)
+		{
+			value = glm::vec3();
+			return true;
+		}
+		return false;
+	}
 	void TDRigidDynamic::UpdateSleepTimer(float DT)
 	{
-		if (glm::length2(DeltaLinearVel) == 0 && glm::length2(DeltaAngularVel) == 0)
+		if (CheckSleep(DeltaLinearVel) && CheckSleep(DeltaAngularVel) && CheckSleep(LinearVelocity) && CheckSleep(AngularVel))
 		{
 			SleepTimer += DT;
 		}
@@ -114,4 +126,10 @@ namespace TD
 	{
 		DeltaAngularVel += Torque;
 	}
+
+	void TDRigidDynamic::AddForceAtPosition(glm::vec3 force)
+	{
+		//todo:
+	}
+
 }

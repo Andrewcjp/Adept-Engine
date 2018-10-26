@@ -5,6 +5,8 @@
 #include "Core/Assets/AssetManager.h"
 #include "AI/Core/AISystem.h"
 #include "AI/Core/NavigationObstacle.h"
+#include <queue>
+#include <algorithm>
 NavigationMesh::NavigationMesh()
 {}
 
@@ -36,7 +38,7 @@ void NavigationMesh::GenTestMesh()
 	}
 	PopulateNearLists();
 	NavigationPath* data;
-	CalculatePath(glm::vec3(20, 0, -10), glm::vec3(-15, 0, 20), &data);
+	CalculatePath(glm::vec3(20, 0, -10), glm::vec3(-20, 0, 25), &data);
 }
 
 void NavigationMesh::DrawNavMeshLines(DebugLineDrawer* drawer)
@@ -122,9 +124,9 @@ NavTriangle* NavigationMesh::FindTriangleFromWorldPos(glm::vec3 worldpos)
 
 void CalulateCost(NavPoint* point, glm::vec3 endpoint, glm::vec3 startpos, NavPoint* currentpoint)
 {
-	point->fcost = glm::distance(point->pos, endpoint);
+	point->hcost = glm::distance(point->pos, endpoint);
 	//const float fcost = glm::distance(point->pos, startpos);
-	point->gcost = currentpoint->GetNavCost() + glm::distance(currentpoint->pos, point->pos);
+	point->gcost = currentpoint->gcost + glm::distance(currentpoint->pos, point->pos);
 }
 
 NavPoint* Getlowest(std::vector<NavPoint*> & points)
@@ -202,6 +204,12 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_BoardPhase(glm::vec3
 	return ENavRequestStatus::Failed;
 }
 
+bool compare(NavPoint* A, NavPoint* b)
+{
+	return false;
+}
+
+
 ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
 {
 	NavigationPath* outputPath = new NavigationPath();
@@ -225,25 +233,24 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 		outputPath->Positions.push_back(EndPos);
 	}
 	NavPoint* CurrentPoint = nullptr;
-
-
-
-
-
+	std::priority_queue<NavPoint*> OpenList;
+	OpenList.emplace(CurrentPoint);
 	ConstructPath(outputPath, Startpoint, CurrentPoint, EndPos);
-
 	return ENavRequestStatus::Failed;
 }
 
 void NavigationMesh::ConstructPath(NavigationPath* outputPath, glm::vec3 Startpoint, NavPoint* CurrentPoint, glm::vec3 EndPos)
 {
-	outputPath->Positions.push_back(Startpoint);
-	while (CurrentPoint->Parent != nullptr)
-	{
-		outputPath->Positions.push_back(CurrentPoint->pos);
-		CurrentPoint = CurrentPoint->Parent;
-	}
 	outputPath->Positions.push_back(EndPos);
+	if (CurrentPoint != nullptr)
+	{
+		while (CurrentPoint->Parent != nullptr)
+		{
+			outputPath->Positions.push_back(CurrentPoint->pos);
+			CurrentPoint = CurrentPoint->Parent;
+		}
+	}
+	outputPath->Positions.push_back(Startpoint);
 	for (int i = 0; i < outputPath->Positions.size(); i++)
 	{
 		if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::instance != nullptr)
@@ -281,17 +288,21 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_ASTAR(glm::vec3 Startpoint
 	NavPoint* CurrentPoint = new NavPoint(StartTri->Positons[0]);
 	CurrentPoint->owner = StartTri;
 	OpenList.push_back(CurrentPoint);
+	CalulateCost(CurrentPoint, EndPos, Startpoint, CurrentPoint);
+	DebugLineDrawer::instance->AddLine(CurrentPoint->pos, CurrentPoint->pos + glm::vec3(0, 10, 0), glm::vec3(0, 1, 0), 100);
 	while (OpenList.size() > 0)
 	{
 		CurrentPoint = Getlowest(OpenList);
 		RemoveItem(CurrentPoint, OpenList);
 		if (AddToClosed(CurrentPoint, EndTri))
 		{
-			ClosedList.push_back(CurrentPoint);
+		//	ClosedList.push_back(CurrentPoint);
+			DebugLineDrawer::instance->AddLine(CurrentPoint->pos, CurrentPoint->pos + glm::vec3(0, 10, 0), glm::vec3(0, 1, 0), 100);
 			break;//path found
 		}
 		else
 		{
+			DebugLineDrawer::instance->AddLine(CurrentPoint->pos, CurrentPoint->pos + glm::vec3(0, 10, 0), glm::vec3(1, 0, 0), 100);
 			ClosedList.push_back(CurrentPoint);
 		}
 		for (int i = 0; i < CurrentPoint->owner->NearTriangles.size(); i++)
@@ -306,8 +317,9 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_ASTAR(glm::vec3 Startpoint
 					CalulateCost(newpoint, EndPos, Startpoint, CurrentPoint);
 					if (Contains(newpoint, OpenList, &index))
 					{
-						if (OpenList[index]->gcost > newpoint->gcost)
+						if (OpenList[index]->GetNavCost() > newpoint->GetNavCost())
 						{
+							DebugLineDrawer::instance->AddLine(OpenList[index]->pos, OpenList[index]->pos + glm::vec3(0, 10, 0), glm::vec3(0, 1, 0), 100);
 							OpenList[index] = newpoint;
 							newpoint->Parent = CurrentPoint;
 							CalulateCost(OpenList[index], EndPos, Startpoint, CurrentPoint);
@@ -324,7 +336,7 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_ASTAR(glm::vec3 Startpoint
 	}
 	ConstructPath(outputPath, Startpoint, CurrentPoint, EndPos);
 	DebugLineDrawer::instance->AddLine(Startpoint, Startpoint + glm::vec3(0, 10, 0), glm::vec3(0, 0, 1), 100);
-	DebugLineDrawer::instance->AddLine(EndPos, EndPos + glm::vec3(0, 10, 0), glm::vec3(0, 0, 0.5), 100);
+	DebugLineDrawer::instance->AddLine(EndPos, EndPos + glm::vec3(0, 10, 0), glm::vec3(0, 0, 0.2), 100);
 	return ENavRequestStatus::Complete;
 }
 

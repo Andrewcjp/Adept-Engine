@@ -4,6 +4,7 @@
 #include "TDScene.h"
 #include "TDVersion.h"
 #include "Utils/MemoryUtils.h"
+#include "TDSimConfig.h"
 namespace TD
 {
 	TDPhysics* TDPhysics::Instance = nullptr;
@@ -17,15 +18,21 @@ namespace TD
 
 	}
 
-	TDPhysics * TDPhysics::CreatePhysics(unsigned int BuildID)
+	TDPhysics * TDPhysics::CreatePhysics(unsigned int BuildID, TDSimConfig* SimConfig /*= nullptr*/)
 	{
 		if (BuildID != TD_VERSION_NUMBER)
 		{
+			//todo: message!
 			return nullptr;
 		}
 		if (Instance == nullptr)
 		{
 			Instance = new TDPhysics();
+			Instance->CurrentSimConfig = SimConfig;
+			if (Instance->CurrentSimConfig == nullptr)
+			{
+				Instance->CurrentSimConfig = new TDSimConfig();
+			}
 		}
 		return Instance;
 	}
@@ -47,12 +54,12 @@ namespace TD
 	void TDPhysics::ShutDown()
 	{
 		MemoryUtils::DeleteVector(Scenes);
-		SafeDelete(Solver); 
+		SafeDelete(Solver);
 		SafeDelete(Instance);
 	}
 
 	TDPhysics * TDPhysics::Get()
-	{		
+	{
 		return Instance;
 	}
 
@@ -63,11 +70,11 @@ namespace TD
 		return newscene;
 	}
 
-	TDOptions* TDPhysics::GetCurrentOptions()
+	TDSimConfig* TDPhysics::GetCurrentSimConfig()
 	{
 		if (Instance != nullptr)
 		{
-			return Instance->CurrentOptions;
+			return Instance->CurrentSimConfig;
 		}
 		return nullptr;
 	}

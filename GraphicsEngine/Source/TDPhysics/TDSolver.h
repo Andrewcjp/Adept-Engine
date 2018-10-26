@@ -1,5 +1,4 @@
 #pragma once
-
 namespace TD
 {
 	class TDScene;
@@ -7,6 +6,7 @@ namespace TD
 	class TDShape;
 	class TDRigidDynamic;
 	struct ContactData;
+	struct TDPhysicalMaterial;
 	class TDSolver
 	{
 	public:
@@ -15,11 +15,9 @@ namespace TD
 		void IntergrateScene(TDScene* scene, float dt);
 		void ResolveCollisions(TDScene* scene);
 		static void ProcessCollisions(TDShape * A, TDShape * B);
-
-		
-		
 	private:
-		static void ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, float CoR);
+		int SolverIterations = 5;
+		static void ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, const TDPhysicalMaterial * AMaterial, const TDPhysicalMaterial * BMaterial);
 		void IntergrateActor(TDRigidDynamic * actor, float dt, TDScene * Scene);
 	};
 }

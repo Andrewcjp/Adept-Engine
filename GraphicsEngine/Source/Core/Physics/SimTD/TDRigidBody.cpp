@@ -21,12 +21,12 @@ glm::vec3 TDRigidBody::GetPosition() const
 
 glm::quat TDRigidBody::GetRotation() const
 {
-	return m_transform.GetQuatRot();
+	return Actor->GetTransfrom()->GetQuatRot();
 }
 
 void TDRigidBody::AddTorque(glm::vec3 torque)
 {
-
+	Actor->AddTorque(torque);
 }
 
 void TDRigidBody::AddForce(glm::vec3 force, EForceMode::Type Mode)
