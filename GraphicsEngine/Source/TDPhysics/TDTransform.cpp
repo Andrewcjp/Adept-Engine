@@ -124,6 +124,7 @@ namespace TD
 	{
 		UpdateModel = true;
 		_qrot = val;
+		GetModel();
 	}
 
 	void TDTransform::SetParent(TDTransform * Parent)

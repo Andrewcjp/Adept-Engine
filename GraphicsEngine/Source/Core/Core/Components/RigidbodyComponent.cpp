@@ -49,8 +49,12 @@ void RigidbodyComponent::SetGravity(bool active)
 void RigidbodyComponent::FixedUpdate(float delta)
 {
 	if (actor != nullptr)
-	{		
+	{	
+#if PHYSX_ENABLED
 		GetOwner()->MoveComponent(actor->GetPosition(), GetOwner()->GetTransform()->GetQuatRot()/*actor->GetRotation()*/, false);
+#else
+		GetOwner()->MoveComponent(actor->GetPosition(), actor->GetRotation(), false);
+#endif
 	}
 }
 

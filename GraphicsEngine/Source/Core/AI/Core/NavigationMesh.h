@@ -21,16 +21,17 @@ struct NavPoint
 		pos = ipos;
 	}
 	float GetNavCost() {
-		return gcost + fcost;
+		return gcost + hcost;
 	}
 	float gcost = 0;
-	float fcost = 0;
+	float hcost = 0;
 	NavTriangle* owner = nullptr;
 	bool operator==(const NavPoint& rhs)
 	{
 		return rhs.pos == pos;
 	}
 	NavPoint* Parent = nullptr;
+	glm::vec2 NavKey = glm::vec2();
 };
 namespace ENavRequestStatus
 {
