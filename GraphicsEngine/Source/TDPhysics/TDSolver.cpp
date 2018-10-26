@@ -18,10 +18,16 @@ namespace TD
 
 	void TDSolver::IntergrateScene(TDScene* scene, float dt)
 	{
+#if !BUILD_FULLRELEASE
+		TDPhysics::StartTimer(TDPerfCounters::IntergrateScene);
+#endif
 		for (int i = 0; i < scene->GetDynamicActors().size(); i++)
 		{
 			IntergrateActor(scene->GetDynamicActors()[i], dt, scene);
 		}
+#if !BUILD_FULLRELEASE
+		TDPhysics::EndTimer(TDPerfCounters::IntergrateScene);
+#endif
 	}
 
 	void TDSolver::IntergrateActor(TDRigidDynamic * actor, float dt, TDScene * Scene)
@@ -51,6 +57,9 @@ namespace TD
 
 	void TDSolver::ResolveCollisions(TDScene* scene)
 	{
+#if !BUILD_FULLRELEASE
+		TDPhysics::StartTimer(TDPerfCounters::ResolveCollisions);
+#endif
 		for (int Iterations = 0; Iterations < SolverIterations; Iterations++)
 		{
 			for (int i = 0; i < scene->GetActors().size(); i++)
@@ -66,6 +75,9 @@ namespace TD
 				}
 			}
 		}
+#if !BUILD_FULLRELEASE
+		TDPhysics::EndTimer(TDPerfCounters::ResolveCollisions);
+#endif
 	}
 
 	void TDSolver::ProcessCollisions(TDShape* A, TDShape* B)

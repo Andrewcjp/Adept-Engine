@@ -8,15 +8,27 @@
 namespace TD
 {
 	TDPhysics* TDPhysics::Instance = nullptr;
-	TDPhysics::TDPhysics()
+	void TDPhysics::StartTimer(TDPerfCounters::Type timer)
 	{
-
+		if (Get()->GetCurrentSimConfig()->PerfCounterCallBack != nullptr)
+		{
+			Get()->GetCurrentSimConfig()->PerfCounterCallBack(true, timer);
+		}
 	}
+
+	void TDPhysics::EndTimer(TDPerfCounters::Type timer)
+	{
+		if (Get()->GetCurrentSimConfig()->PerfCounterCallBack != nullptr)
+		{
+			Get()->GetCurrentSimConfig()->PerfCounterCallBack(false, timer);
+		}
+	}
+
+	TDPhysics::TDPhysics()
+	{}
 
 	TDPhysics::~TDPhysics()
-	{
-
-	}
+	{}
 
 	TDPhysics * TDPhysics::CreatePhysics(unsigned int BuildID, TDSimConfig* SimConfig /*= nullptr*/)
 	{

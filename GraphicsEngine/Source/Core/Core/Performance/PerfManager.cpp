@@ -56,16 +56,21 @@ PerfManager::~PerfManager()
 	SafeDelete(Bencher);
 }
 
-void PerfManager::AddTimer(const char * countername, const char* group)
+int PerfManager::AddTimer(const char * countername, const char* group)
 {
-	AddTimer(GetTimerIDByName(countername), GetGroupId(group));
+	return AddTimer(GetTimerIDByName(countername), GetGroupId(group));
 }
 
-void PerfManager::AddTimer(int id, int groupid)
+int PerfManager::AddTimer(const char * countername, int groupId)
+{
+	return AddTimer(GetTimerIDByName(countername), groupId);
+}
+
+int PerfManager::AddTimer(int id, int groupid)
 {
 	if (AVGTimers.find(id) != AVGTimers.end())
 	{
-		return;
+		return id;
 	}
 	TimerData Data;
 	Data.AVG = new MovingAverage(AvgCount);
@@ -73,6 +78,7 @@ void PerfManager::AddTimer(int id, int groupid)
 	Data.GroupId = groupid;
 	AVGTimers.emplace(id, Data);
 	TimerOutput.emplace(id, 0.0f);
+	return id;
 }
 
 void PerfManager::StartTimer(const char * countername)

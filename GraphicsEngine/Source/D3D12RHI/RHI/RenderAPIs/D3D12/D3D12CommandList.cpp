@@ -907,7 +907,7 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 	D3D12Texture* D3DTarget = (D3D12Texture*)target;
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-#if 	NAME_RHI_PRIMS
+#if NAME_RHI_PRIMS
 	SetDebugName(D3DTarget->GetDebugName());
 #endif
 	D3D12Helpers::NameRHIObject(Heap, this);

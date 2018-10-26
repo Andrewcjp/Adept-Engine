@@ -1,12 +1,12 @@
 #include "Stdafx.h"
 #include "TDScene.h"
-#include "TDQuadTree.h"
+#include "TDOctTree.h"
 #include "TDRigidDynamic.h"
 namespace TD
 {
 	TDScene::TDScene()
 	{
-		AcclerationTree = new TDQuadTree();
+		AcclerationTree = new TDOctTree();
 	}
 
 

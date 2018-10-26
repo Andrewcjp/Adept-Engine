@@ -62,12 +62,13 @@ Engine::Engine()
 	Log::OutS << "Running with TDSim" << Log::OutS;
 #endif
 	ModuleManager::Get()->PreLoadModules();
+	AssetManager::StartAssetManager();
+	PerfManager::StartPerfManager();	
 	PhysEngine = new PhysicsEngine();
 	if (PhysEngine != nullptr)
 	{
 		PhysEngine->initPhysics();
-	}
-	AssetManager::StartAssetManager();
+	}	
 	CompRegistry = new CompoenentRegistry();
 #if RUNTESTS
 	FString::RunFStringTests();
@@ -81,8 +82,7 @@ Engine::~Engine()
 	Log::ShutDownLogger();
 }
 void Engine::PreInit()
-{
-	PerfManager::StartPerfManager();
+{	
 	TestTDPhysics();
 	LoadGame();
 	if (IsCooking)

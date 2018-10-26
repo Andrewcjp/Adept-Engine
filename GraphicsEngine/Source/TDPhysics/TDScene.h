@@ -2,7 +2,7 @@
 #include "TDActor.h"
 namespace TD
 {
-	class TDQuadTree;
+	class TDOctTree;
 	class TDRigidDynamic;
 	class TDScene
 	{
@@ -16,7 +16,7 @@ namespace TD
 		TD_API void RemoveActor(TDActor* Actor);
 	private:
 		glm::vec3 GravityForce = glm::vec3(0, -9.81, 0);
-		TDQuadTree* AcclerationTree = nullptr;
+		TDOctTree* AcclerationTree = nullptr;
 		//todo: remove
 		std::vector<TDActor*> SceneActors;
 		std::vector<TDRigidDynamic*> DynamicActors;

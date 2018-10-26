@@ -3,11 +3,13 @@
 #include <iomanip>
 #include <time.h>
 #include <vector>
-
 #include "Core/Utils/MovingAverage.h"
 #define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter CYCLECOUNTER(name);
 #define SCOPE_CYCLE_COUNTER_GROUP(name,group) PerfManager::ScopeCycleCounter CYCLECOUNTER(name,group);
 #define SCOPE_STARTUP_COUNTER(name) PerfManager::ScopeStartupCounter STARTUPCOUNTER(name);
+#define DECLARE_TIMER_GROUP(name,GroupName) int name = PerfManager::Get()->GetGroupId(GroupName); 
+#define DECLARE_TIMER(name,Group)int name =  PerfManager::Get()->AddTimer(#name, Group);
+
 class PerfManager
 {
 public:
@@ -34,8 +36,9 @@ public:
 	static void ShutdownPerfManager();
 	PerfManager();
 	~PerfManager();
-	CORE_API void AddTimer(const char * countername, const char * group);
-	CORE_API void AddTimer(int id, int groupid);
+	CORE_API int AddTimer(const char * countername, const char * group);
+	CORE_API int AddTimer(const char * countername, int groupId);
+	CORE_API int AddTimer(int id, int groupid);
 
 	CORE_API static void StartTimer(const char * countername);
 	CORE_API static void EndTimer(const char * countername);
