@@ -375,11 +375,9 @@ void UIManager::CleanUpWidgets()
 			if (widgets[x] == WidgetsToRemove[i])//todo: performance of this?
 			{
 				widgets.erase(widgets.begin() + x);
-				delete WidgetsToRemove[i];//delete and dont realloc?
-				WidgetsToRemove[i] = nullptr;
+				SafeDelete(widgets[i]);
 				break;
 			}
-
 		}
 	}
 	WidgetsToRemove.clear();

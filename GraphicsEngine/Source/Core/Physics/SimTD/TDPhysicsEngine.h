@@ -15,6 +15,7 @@ class TDPhysicsEngine: public GenericPhysicsEngine
 {
 public:
 	void initPhysics();
+	static void TimerCallbackHandler(bool IsStart, TDPerfCounters::Type type);
 	void stepPhysics(float Deltatime);
 	void cleanupPhysics();
 

@@ -11,3 +11,9 @@
 #endif
 #endif // TD_API
 #include <vector>
+#ifdef BUILD_SHIP
+#define BUILD_FULLRELEASE 1
+#else
+#define BUILD_FULLRELEASE 0
+#endif
+

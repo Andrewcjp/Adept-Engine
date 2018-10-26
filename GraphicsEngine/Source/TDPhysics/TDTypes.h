@@ -42,4 +42,14 @@ namespace TD {
 			Limit
 		};
 	}
+	namespace TDPerfCounters
+	{
+		enum Type
+		{
+			ResolveCollisions,
+			IntergrateScene,
+			ResolveConstraints,
+			eLimit
+		};
+	}
 };
