@@ -57,14 +57,14 @@ std::string ShaderGraph::GetTemplateName()
 
 bool ShaderGraph::Complie()
 {
-#if BUILD_SHIPPING
+#if !WITH_EDITOR
 	//Temp For Default Materials
 	for (int i = 0; i < Nodes.size(); i++)
 	{
 		Nodes[i]->GetComplieCode();
 	}
 	return true;
-#endif
+#else
 	std::string MainShader = AssetManager::instance->LoadFileWithInclude(GetTemplateName());
 	ensure(!MainShader.empty());
 	std::vector<std::string> split = StringUtils::Split(MainShader, '\n');
@@ -116,6 +116,7 @@ bool ShaderGraph::Complie()
 	std::string Path = AssetManager::GetShaderPath() + "Gen\\" + GraphName.ToSString() + ".hlsl";
 	PlatformApplication::TryCreateDirectory(AssetManager::GetShaderPath() + "Gen");
 	return FileUtils::WriteToFile(Path, PreFile + ComplieOutput + PostFile);
+#endif
 }
 
 Shader* ShaderGraph::GetGeneratedShader()
