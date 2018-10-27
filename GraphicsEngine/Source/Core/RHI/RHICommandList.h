@@ -92,7 +92,6 @@ public:
 	virtual void ClearScreen() = 0;
 	virtual void ClearFrameBuffer(FrameBuffer* buffer) = 0;
 	//todo: complete this
-	//virtual void SetUAVParamter() {};
 	virtual void UAVBarrier(RHIUAV* target) = 0;
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	//Indirect

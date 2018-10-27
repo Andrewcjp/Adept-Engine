@@ -181,7 +181,7 @@ void D3D12RHI::LoadPipeLine()
 		ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
 		DeviceContexts[1] = new D3D12DeviceContext();
 		DeviceContexts[1]->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
-		Log::LogMessage("Found D3D12 GPU debugger, Warp adaptor is now used instead of second physical GPU");
+		Log::LogMessage("Found D3D12 GPU debugger, Warp adapter is now used instead of second physical GPU");
 #endif
 	}
 	FindAdaptors(factory);

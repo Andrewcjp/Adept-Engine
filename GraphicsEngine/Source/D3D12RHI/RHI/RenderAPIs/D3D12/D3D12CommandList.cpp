@@ -376,13 +376,16 @@ void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 void D3D12CommandList::UAVBarrier(RHIUAV * target)
 {
 	ensure(!target->IsPendingKill());
-	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;//todo: counter uav?
+	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;
 	CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
 }
 
 void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
 {
+	//todo: RHI indirect commands
+	//todo: Care full there was an address out of scope issue here/
 	D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+	ZeroMemory(&commandSignatureDesc, sizeof(commandSignatureDesc));
 	if (Dispatch)
 	{
 		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[1] = {};
@@ -392,26 +395,26 @@ void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
 		commandSignatureDesc.ByteStride = commandSize;
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : CurrentPipelinestate.m_rootSignature, IID_PPV_ARGS(&CommandSig)));
+		NAME_D3D12_OBJECT(CommandSig);
 	}
 	else
 	{
 		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2] = {};
+		ZeroMemory(&argumentDescs, sizeof(argumentDescs));
 		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
 		argumentDescs[0].Constant.RootParameterIndex = 0;
 		argumentDescs[0].Constant.Num32BitValuesToSet = 1;
 		argumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
 		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
-		ensure(commandSize % 4 == 0);
 
+		ensure(commandSize % 4 == 0);
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
 		commandSignatureDesc.ByteStride = commandSize;
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : CurrentPipelinestate.m_rootSignature, IID_PPV_ARGS(&CommandSig)));
+		NAME_D3D12_OBJECT(CommandSig);
 	}
-
-
-	ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : CurrentPipelinestate.m_rootSignature, IID_PPV_ARGS(&CommandSig)));
-	NAME_D3D12_OBJECT(CommandSig);
-
 }
 
 void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
