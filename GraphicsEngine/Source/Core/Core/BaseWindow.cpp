@@ -24,7 +24,6 @@ BaseWindow::BaseWindow()
 	Instance = this;
 }
 
-
 BaseWindow::~BaseWindow()
 {
 
@@ -121,6 +120,10 @@ void BaseWindow::Render()
 	if (Input::Get()->GetKeyDown(VK_F9))
 	{
 		RHI::GetRHIClass()->TriggerBackBufferScreenShot();
+	}
+	if (Input::GetKeyDown(VK_F2))
+	{
+		ExtendedPerformanceStats = !ExtendedPerformanceStats;
 	}
 #endif
 

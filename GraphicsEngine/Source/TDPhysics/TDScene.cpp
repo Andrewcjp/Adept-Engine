@@ -2,6 +2,8 @@
 #include "TDScene.h"
 #include "TDOctTree.h"
 #include "TDRigidDynamic.h"
+#include "TDTypes.h"
+#include "TDCollisionHandlers.h"
 namespace TD
 {
 	TDScene::TDScene()
@@ -44,4 +46,32 @@ namespace TD
 		}		
 	}
 
+	bool TDScene::RayCastScene(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)
+	{
+		RayCastSceneInternal(Origin, Dir, Distance, HitData);
+		return false;
+	}
+	bool TDScene::RayCastSceneInternal(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)
+	{
+		//todo: make go fast!
+		//todo: MultiCast 
+		bool Hit = false;
+		for (int i = 0; i < SceneActors.size(); i++)
+		{
+			TDActor* actor = SceneActors[i];
+			for (int j = 0; j < actor->GetAttachedShapes().size(); j++)
+			{
+				TDShape* currentshape = actor->GetAttachedShapes()[j];
+				DebugEnsure(currentshape);
+				IntersectionMethod con = IntersectionMethodTable[currentshape->GetShapeType()];
+				DebugEnsure(con);
+				Hit = con(currentshape, Origin, Dir, Distance);
+				if (Hit)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

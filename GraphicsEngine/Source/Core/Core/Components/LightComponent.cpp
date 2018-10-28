@@ -14,7 +14,7 @@ LightComponent::LightComponent() :Component()
 LightComponent::~LightComponent()
 {
 	GetOwner()->GetScene()->RemoveLight(MLight);
-	delete MLight;
+	SafeDelete(MLight);
 }
 
 void LightComponent::InitComponent()

@@ -209,7 +209,6 @@ bool compare(NavPoint* A, NavPoint* b)
 	return false;
 }
 
-
 ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
 {
 	NavigationPath* outputPath = new NavigationPath();

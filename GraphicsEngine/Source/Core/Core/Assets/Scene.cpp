@@ -16,23 +16,23 @@
 #include "Core/Game/Game.h"
 #include "Core/Components/ColliderComponent.h"
 #include "AI/Core/AISystem.h"
-Scene::Scene(bool EditScene)
+Scene::Scene(bool EditorScene)
 {
 	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
 	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds",true);
 	
 	LightingData.SkyBox->AddRef();
 	CurrentGameMode = Engine::GetGame()->CreateGameMode();
-	bEditorScene = EditScene;
+	bEditorScene = EditorScene;
 }
 
 Scene::~Scene()
 {
-	Lights.clear();
+	Lights.clear();//Scene Does not own these objects
 	MemoryUtils::DeleteVector(SceneObjects);
 	SafeRHIRefRelease(LightingData.SkyBox);
 	SafeRHIRefRelease(LightingData.DiffuseMap);
-	delete CurrentGameMode;
+	SafeDelete(CurrentGameMode);
 }
 
 void Scene::UpdateScene(float deltatime)
@@ -103,6 +103,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	GameObject* go = nullptr;/// new GameObject("House");
 	LightComponent* lc = nullptr;
 	Material* mat = nullptr;//
+	ColliderComponent* cc = nullptr;
 	//Material::GetDefaultMaterial();
 	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\house_diffuse.tga"));
 	//go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\house.obj"), mat));
@@ -112,19 +113,19 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	go = new GameObject("Terrain");
 	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\grasshillalbedo.png"));
-	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Terrain test.obj"), mat));
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\textures_terrain_ground_marsrock_ground_01_tiled_c.dds"));
+	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\TerrrainTest.obj"), mat));
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	r->SetMaterial(mat,1);
 	go->AttachComponent(new LightComponent());
-	go->GetTransform()->SetPos(glm::vec3(5, 0, 0));
+	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(2));
-#if 0
-	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
+	go->GetTransform()->SetScale(glm::vec3(10));
+#if !TDSIM_ENABLED
+	cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
-	cc->SetTriangleMeshAssetName("models\\Terrain test.obj");
+	cc->SetTriangleMeshAssetName("models\\TerrrainTest.obj");
 #endif
 	AddGameobjectToScene(go);
 
@@ -134,7 +135,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetScale(glm::vec3(2));
 	go->AttachComponent(new CameraComponent());
 #if !WITH_EDITOR
-	go->AttachComponent(new FreeLookComponent());
+	//go->AttachComponent(new FreeLookComponent());
 #endif
 	AddGameobjectToScene(go);
 
@@ -220,7 +221,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 
 	go = CreateDebugSphere(nullptr);
-	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
+	cc = go->AttachComponent(new ColliderComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 15, 10));
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	go->AttachComponent(new RigidbodyComponent());
