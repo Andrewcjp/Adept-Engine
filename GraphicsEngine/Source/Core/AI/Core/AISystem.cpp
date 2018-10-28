@@ -12,7 +12,7 @@ AISystem::AISystem()
 	mesh = new NavigationMesh();
 
 	Director = Engine::GetGame()->CreateAIDirector();
-	//mesh->GenTestMesh();
+	mesh->GenTestMesh();
 }
 
 AISystem::~AISystem()

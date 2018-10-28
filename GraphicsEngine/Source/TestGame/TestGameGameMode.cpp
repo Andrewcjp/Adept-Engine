@@ -34,8 +34,8 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	ConstaintSetup data;
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<RigidbodyComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
-#if 1//TDSIM_ENABLED
-	return;
+#if TDSIM_ENABLED
+	//return; 
 #endif
 #if 1
 	GameObject* go = new GameObject("Player Test");
@@ -83,8 +83,6 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	SpawnSKull(glm::vec3(20, 5, 0));
 	SpawnSKull(glm::vec3(-15, 5, 0));
 #endif
-
-
 
 	GameObject* AiTest = MakeTestSphere(Scene);
 	AiTest->SetPosition(glm::vec3(10, 10, 0));

@@ -146,3 +146,33 @@ bool TD::TDCollisionHandlers::CollideBoxMesh(CollisionHandlerArgs)
 {
 	return false;
 }
+
+bool TD::TDIntersectionHandlers::IntersectSphere(InterSectionArgs)
+{
+	return false;
+}
+
+bool TD::TDIntersectionHandlers::IntersectPlane(InterSectionArgs)
+{
+	return false;
+}
+
+bool TD::TDIntersectionHandlers::IntersectCapsule(InterSectionArgs)
+{
+	return false;
+}
+
+bool TD::TDIntersectionHandlers::IntersectBox(InterSectionArgs)
+{
+	return false;
+}
+
+bool TD::TDIntersectionHandlers::IntersectConvex(InterSectionArgs)
+{
+	return false;
+}
+
+bool TD::TDIntersectionHandlers::IntersectMesh(InterSectionArgs)
+{
+	return false;
+}

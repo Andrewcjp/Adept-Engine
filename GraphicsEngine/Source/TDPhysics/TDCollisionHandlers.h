@@ -52,7 +52,28 @@ namespace TD
 		//Invalid Pair
 		static bool InvalidCollisonPair(CollisionHandlerArgs);
 	};
-	typedef bool(*ContactMethod)(TDShape*, TDShape*, ContactData*);
+#define InterSectionArgs TDShape* Shape,glm::vec3 Origin,glm::vec3 Dir,float distance
+	struct TDIntersectionHandlers
+	{
+		static bool IntersectSphere(InterSectionArgs);
+		static bool IntersectPlane(InterSectionArgs);
+		static bool IntersectCapsule(InterSectionArgs);
+		static bool IntersectBox(InterSectionArgs);
+		static bool IntersectConvex(InterSectionArgs);
+		static bool IntersectMesh(InterSectionArgs);
+	};
+
+	typedef bool(*IntersectionMethod)(InterSectionArgs);
+	static IntersectionMethod IntersectionMethodTable[TDShapeType::eLimit] =
+	{
+		TDIntersectionHandlers::IntersectSphere,
+		TDIntersectionHandlers::IntersectPlane,
+		TDIntersectionHandlers::IntersectCapsule,
+		TDIntersectionHandlers::IntersectBox,
+		TDIntersectionHandlers::IntersectConvex,
+		TDIntersectionHandlers::IntersectMesh
+	};
+	typedef bool(*ContactMethod)(CollisionHandlerArgs);
 	/**
 	*\Brief Collision Handlers for every possible collision
 	*/

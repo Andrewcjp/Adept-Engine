@@ -79,14 +79,23 @@ RigidBody* TDPhysicsEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::ve
 
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {
+	RaycastData data;
+	PlayScene->RayCastScene(startpos, direction, distance, &data);
+	if (data.BlockingHit)
+	{
+		return true;
+	}
 	return false;// RayCastScene(startpos, direction, distance, hit, false);
 }
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors)
 {
+	RaycastData data;
+	PlayScene->RayCastScene(startpos, direction, distance, &data);
 	return false;
 }
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors)
 {
+
 	return false;
 }
 

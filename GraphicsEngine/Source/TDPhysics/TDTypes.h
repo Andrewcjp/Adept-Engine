@@ -1,5 +1,7 @@
 #pragma once
-namespace TD {
+#include "TDPCH.h"
+namespace TD
+{
 	struct TDPhysicalMaterial
 	{
 		float StaticFriction = 0.5f;
@@ -10,6 +12,14 @@ namespace TD {
 		{
 			return new TDPhysicalMaterial();
 		}
+	};
+	struct RaycastData
+	{
+		bool BlockingHit = false;
+		bool StartPenetrating = false;
+		float Distance = 0.0f;
+		glm::vec3 Point = glm::vec3();
+		glm::vec3 Normal = glm::vec3();
 	};
 	namespace TDShapeType
 	{
