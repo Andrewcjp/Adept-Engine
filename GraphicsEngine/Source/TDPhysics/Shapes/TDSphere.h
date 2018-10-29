@@ -1,6 +1,7 @@
 #pragma once
 #include "TDShape.h"
-namespace TD {
+namespace TD 
+{
 	class TD_API TDSphere :public TDShape
 	{
 	public:
@@ -8,5 +9,4 @@ namespace TD {
 		 ~TDSphere();
 		float Radius = 1;
 	};
-
 }

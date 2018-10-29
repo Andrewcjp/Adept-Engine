@@ -59,6 +59,7 @@ namespace TD
 			ResolveCollisions,
 			IntergrateScene,
 			ResolveConstraints,
+			IntersectionTests,
 			eLimit
 		};
 	}

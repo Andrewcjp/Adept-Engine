@@ -4,6 +4,7 @@
 #include "TDRigidDynamic.h"
 #include "TDTypes.h"
 #include "TDCollisionHandlers.h"
+#include "TDPhysics.h"
 namespace TD
 {
 	TDScene::TDScene()
@@ -27,6 +28,7 @@ namespace TD
 			DynamicActors.push_back(Dynamic);
 		}
 	}
+
 	template<class T>
 	void RemoveFromVector(std::vector<T*>& vector, T* target) {
 		for (int i = 0; i < vector.size(); i++) {
@@ -36,6 +38,7 @@ namespace TD
 			}
 		}
 	}
+
 	void TDScene::RemoveActor(TDActor * Actor)
 	{
 		RemoveFromVector(SceneActors, Actor);
@@ -48,9 +51,16 @@ namespace TD
 
 	bool TDScene::RayCastScene(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)
 	{
+#if !BUILD_FULLRELEASE
+		TDPhysics::StartTimer(TDPerfCounters::IntersectionTests);
+#endif
 		RayCastSceneInternal(Origin, Dir, Distance, HitData);
+#if !BUILD_FULLRELEASE
+		TDPhysics::EndTimer(TDPerfCounters::IntersectionTests);
+#endif
 		return false;
 	}
+
 	bool TDScene::RayCastSceneInternal(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)
 	{
 		//todo: make go fast!
