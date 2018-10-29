@@ -35,7 +35,7 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<RigidbodyComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
 #if TDSIM_ENABLED
-	//return; 
+	return; 
 #endif
 #if 1
 	GameObject* go = new GameObject("Player Test");

@@ -7,7 +7,7 @@ namespace TD
 	{
 	public:
 		TDShape();
-		~TDShape();
+		virtual ~TDShape();
 		/**
 		*\brief  Sets the Physical Material of this shape
 		*\param mat to use
@@ -34,7 +34,7 @@ namespace TD
 		template<class T>
 		static T* CastShape(class TDShape* shape)
 		{
-			return static_cast<T*>(shape);
+			return dynamic_cast<T*>(shape);
 		}
 	protected:
 		TDShapeType::Type ShapeType = TDShapeType::eLimit;

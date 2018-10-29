@@ -58,6 +58,7 @@ namespace TD
 	void TDSolver::ResolveCollisions(TDScene* scene)
 	{
 #if !BUILD_FULLRELEASE
+		BroadPhaseCount = 0;
 		TDPhysics::StartTimer(TDPerfCounters::ResolveCollisions);
 #endif
 		for (int Iterations = 0; Iterations < SolverIterations; Iterations++)
@@ -67,19 +68,46 @@ namespace TD
 				for (int j = i; j < scene->GetActors().size(); j++)
 				{
 					TDActor* Actor = scene->GetActors()[i];
+					TDActor* Actorb = scene->GetActors()[j];
 					if (scene->GetActors()[i] == scene->GetActors()[j])
 					{
 						continue;
 					}
-					ProcessCollisions(Actor->GetAttachedShapes()[0], scene->GetActors()[j]->GetAttachedShapes()[0]);
+					if (BroadPhaseTest(Actor, Actorb))
+					{
+						ProcessCollisions(Actor->GetAttachedShapes()[0], Actorb->GetAttachedShapes()[0]);
+					}
 				}
 			}
 		}
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::ResolveCollisions);
+		printf(ReportbroadPhaseStats().c_str());
 #endif
 	}
 
+	bool TDSolver::BroadPhaseTest(TDActor* A, TDActor* B)
+	{
+		if (A->GetAttachedShapes()[0]->GetShapeType() == TDShapeType::ePLANE || B->GetAttachedShapes()[0]->GetShapeType() == TDShapeType::ePLANE)
+		{
+			return true;
+		}
+		ContactMethod con = ContactMethodTable[TDShapeType::eSPHERE][TDShapeType::eSPHERE];
+		DebugEnsure(con);
+		ContactData data;
+		con((TDShape*)A->BroadPhaseShape, (TDShape*)B->BroadPhaseShape, &data);
+		if (!data.Blocking)
+		{
+			BroadPhaseCount++;
+		}
+		return data.Blocking;
+	}
+	std::string TDSolver::ReportbroadPhaseStats()
+	{
+		std::stringstream ss;
+		ss << "removed " << BroadPhaseCount << " intersections\n";
+		return ss.str();
+	}
 	void TDSolver::ProcessCollisions(TDShape* A, TDShape* B)
 	{
 		TDShapeType::Type AType = A->GetShapeType();

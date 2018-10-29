@@ -25,6 +25,8 @@ void TDPhysicsEngine::initPhysics()
 	PerfManager::Get()->AddTimer("ResolveCollisions", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("ResolveConstraints", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("IntergrateScene", GROUP_PhysicsEngine);
+	PerfManager::Get()->AddTimer("IntersectionTests", GROUP_PhysicsEngine);
+
 }
 
 void TDPhysicsEngine::TimerCallbackHandler(bool IsStart, TDPerfCounters::Type type)
@@ -59,6 +61,16 @@ void TDPhysicsEngine::TimerCallbackHandler(bool IsStart, TDPerfCounters::Type ty
 		else
 		{
 			PerfManager::EndTimer("IntergrateScene");
+		}
+		break;
+	case TD::TDPerfCounters::IntersectionTests:
+		if (IsStart)
+		{
+			PerfManager::StartTimer("IntersectionTests");
+		}
+		else
+		{
+			PerfManager::EndTimer("IntersectionTests");
 		}
 		break;
 	}
