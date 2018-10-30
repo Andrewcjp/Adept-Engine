@@ -6,6 +6,7 @@
 #include "TDCollisionHandlers.h"
 //remove
 #include "TDSolver.h"
+#include "Shapes/TDAABB.h"
 namespace TD
 {
 	TDTest::TDTest()
@@ -17,6 +18,17 @@ namespace TD
 
 	void TDTest::RunAllTests()
 	{
+		TDAABB* A = new TDAABB();
+		A->Position = glm::vec3(0);
+		A->HalfExtends = glm::vec3(1, 1, 1);
+
+		TDAABB* B = new TDAABB();
+		B->Position = glm::vec3(0, 10, 0);
+		B->HalfExtends = glm::vec3(1, 1, 1);
+
+		DebugEnsure(TDCollisionHandlers::CollideAABBAABB(A, B) == false);
+		B->Position = glm::vec3(0, 0.7f, 0);
+		DebugEnsure(TDCollisionHandlers::CollideAABBAABB(A, B));
 		return;
 		TDRigidStatic* rb = new TDRigidStatic();
 		rb->GetTransfrom()->SetPos(glm::vec3(0, 0.9, 0));
@@ -30,6 +42,6 @@ namespace TD
 		rb->GetTransfrom()->SetPos(glm::vec3(0, 2, 0));
 		DebugEnsure(TDCollisionHandlers::CollideSpherePlane((TDSphere*)rb->GetAttachedShapes()[0], (TDPlane*)rbB->GetAttachedShapes()[0], &data) == false);
 
-		TDSolver::ProcessCollisions(rbB->GetAttachedShapes()[0], rb->GetAttachedShapes()[0]);
+//		TDSolver::ProcessCollisions(rbB->GetAttachedShapes()[0]);
 	}
 }

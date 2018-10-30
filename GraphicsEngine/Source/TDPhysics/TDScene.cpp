@@ -5,6 +5,8 @@
 #include "TDTypes.h"
 #include "TDCollisionHandlers.h"
 #include "TDPhysics.h"
+#include "TDSolver.h"
+#include "TDBroadphase.h"
 namespace TD
 {
 	TDScene::TDScene()
@@ -20,6 +22,7 @@ namespace TD
 
 	void TDScene::AddToScene(TDActor * Actor)
 	{
+		Actor->Init();
 		SceneActors.push_back(Actor);
 		Actor->OwningScene = this;
 		TDRigidDynamic* Dynamic = TDActor::ActorCast<TDRigidDynamic>(Actor);
@@ -27,6 +30,7 @@ namespace TD
 		{
 			DynamicActors.push_back(Dynamic);
 		}
+		TDPhysics::Get()->Solver->Broadphase->AddToPhase(Actor);
 	}
 
 	template<class T>
@@ -46,7 +50,8 @@ namespace TD
 		if (Dynamic != nullptr)
 		{
 			RemoveFromVector(DynamicActors, Dynamic);
-		}		
+		}	
+		TDPhysics::Get()->Solver->Broadphase->RemoveFromPhase(Actor);
 	}
 
 	bool TDScene::RayCastScene(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)

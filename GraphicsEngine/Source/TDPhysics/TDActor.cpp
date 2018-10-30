@@ -1,6 +1,7 @@
 #include "TDActor.h"
 #include "TDShape.h"
 #include "Shapes/TDSphere.h"
+#include "Shapes/TDAABB.h"
 namespace TD
 {
 
@@ -9,6 +10,8 @@ namespace TD
 		BroadPhaseShape = new TDSphere();
 		BroadPhaseShape->Radius = 1.0f;//todo:
 		BroadPhaseShape->SetOwner(this);
+		AABB = new TDAABB();
+		AABB->Owner = this;
 	}
 
 	TDActor::~TDActor()
@@ -16,7 +19,7 @@ namespace TD
 
 	void TDActor::Init()
 	{
-
+		AABB->Position = Transform.GetPos();
 	}
 
 	TDActorType::Type TDActor::GetActorType() const
@@ -46,6 +49,11 @@ namespace TD
 		if (shape != nullptr)
 		{
 			BroadPhaseShape->Radius += shape->Radius;
+			AABB->HalfExtends = glm::vec3(shape->Radius, shape->Radius, shape->Radius) * 2;
+		}
+		if (newShape->GetShapeType() == TDShapeType::ePLANE)
+		{
+			AABB->HalfExtends = glm::vec3(100000, 10, 1000000);
 		}
 	}
 	std::vector<TDShape*>& TDActor::GetAttachedShapes()

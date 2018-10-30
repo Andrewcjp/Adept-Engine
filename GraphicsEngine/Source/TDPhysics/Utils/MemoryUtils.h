@@ -77,5 +77,33 @@ namespace TD
 				target.clear();
 			}
 		}
+		namespace VectorUtils
+		{
+			template<class T>
+			void RemoveItem(T* point, std::vector<T*> & points)
+			{
+				for (int i = 0; i < points.size(); i++)
+				{
+					if (points[i] == point)
+					{
+						points.erase(points.begin() + i);
+						return;
+					}
+				}
+			}
+			template<class T>
+			void RemoveItemO(T* point, std::vector<T*> & points)
+			{
+				for (int i = 0; i < points.size(); i++)
+				{
+					if (points[i]->Owner == point->Owner)
+					{
+						points.erase(points.begin() + i);
+						return;
+					}
+				}
+				__debugbreak();
+			}
+		};
 	};
 };

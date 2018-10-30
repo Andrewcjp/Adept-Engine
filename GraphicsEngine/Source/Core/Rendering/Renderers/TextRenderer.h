@@ -55,7 +55,7 @@ private:
 
 	std::vector<point> coords;
 	int currentsize = 0;
-	const int MAX_BUFFER_SIZE = 1000;
+	const int MAX_BUFFER_SIZE = 10000;
 	bool NeedsClearRT = true;
 	struct atlas
 	{

@@ -33,7 +33,7 @@ public:
 	EMoblity GetMobility();
 	Mesh* GetMesh();
 	std::string GetName() { return Name; }
-	RigidBody* GetRigidbody();
+	CORE_API RigidBody* GetRigidbody();
 	void SetName(std::string name) { Name = name; }
 	bool HasCached = false;
 

@@ -5,6 +5,7 @@ namespace TD
 	class TDScene;
 	class TDSolver;
 	class TDSimConfig;
+	namespace Threading { class TaskGraph; }
 	class TDPhysics
 	{
 	public:
@@ -49,11 +50,13 @@ namespace TD
 		//Internal Functions
 		static void StartTimer(TDPerfCounters::Type timer);
 		static void EndTimer(TDPerfCounters::Type timer);
+		TDSolver* Solver = nullptr;
+		static Threading::TaskGraph* GetTaskGraph();
 	private:
 		TDPhysics();
 		~TDPhysics();
-
-		TDSolver* Solver = nullptr;
+		Threading::TaskGraph* TDTaskGraph = nullptr;
+		
 		std::vector<TDScene*> Scenes;
 		static TDPhysics* Instance;
 		TDSimConfig* CurrentSimConfig = nullptr;
