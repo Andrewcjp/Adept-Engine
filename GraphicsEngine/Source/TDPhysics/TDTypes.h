@@ -2,11 +2,12 @@
 #include "TDPCH.h"
 namespace TD
 {
-	struct TDPhysicalMaterial
+	struct TD_API TDPhysicalMaterial
 	{
-		float StaticFriction = 0.5f;
+		TDPhysicalMaterial();
+		float StaticFriction = 0.2f;
 		float DynamicFirction = 0.6f;
-		float Restitution = 0.6f;
+		float Restitution = 0.2f;
 		float density = 1.0;
 		static TDPhysicalMaterial* GetDefault()
 		{
@@ -63,4 +64,44 @@ namespace TD
 			eLimit
 		};
 	}
+	namespace TDBroadphaseMethod
+	{
+		enum Type
+		{
+			SAP,
+			HSAP,
+			MBP,
+			Limit
+		};
+	}
+	const int MAX_CONTACT_POINTS_COUNT = 50;
+	struct ContactData
+	{
+		glm::vec3 ContactPoints[MAX_CONTACT_POINTS_COUNT];
+		bool Blocking = false;
+		glm::vec3 Direction = glm::vec3();
+		float depth = 0.0f;
+		int ContactCount = 0;
+		void Contact(glm::vec3 position, glm::vec3 normal, float seperation)
+		{
+			Blocking = true;
+			ContactPoints[ContactCount] = position;
+			ContactCount++;
+			Direction = normal;
+			depth = seperation;
+		}
+		void Reset();
+	};
+	class TDActor;
+	struct CollisionPair
+	{
+		CollisionPair(TDActor* A, TDActor* B)
+		{
+			first = A;
+			second = B;
+		}
+		TDActor* first = nullptr;
+		TDActor* second = nullptr;
+		ContactData data;
+	};
 };

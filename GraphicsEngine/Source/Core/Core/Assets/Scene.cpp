@@ -19,8 +19,8 @@
 Scene::Scene(bool EditorScene)
 {
 	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
-	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds",true);
-	
+	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds", true);
+
 	LightingData.SkyBox->AddRef();
 	CurrentGameMode = Engine::GetGame()->CreateGameMode();
 	bEditorScene = EditorScene;
@@ -85,6 +85,7 @@ void Scene::StartScene()
 		SceneObjects[i]->BeginPlay();
 	}
 }
+
 void Scene::LoadDefault()
 {
 	GameObject* go = new GameObject("Main Camera");
@@ -117,7 +118,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\TerrrainTest.obj"), mat));
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	r->SetMaterial(mat,1);
+	r->SetMaterial(mat, 1);
 	go->AttachComponent(new LightComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -226,50 +227,25 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
-	//go = new GameObject("Plane");
-	//mat = NormalMapShader->GetMaterialInstance();
-	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
-	////	mat->SetDisplacementMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_disp.jpg"));
-	//go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Plane.obj"), mat));
-	//go->GetTransform()->SetPos(glm::vec3(-24, 2, -6));
-	//go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	//go->GetTransform()->SetScale(glm::vec3(0.5));
-	//AddGameobjectToScene(go);
-
-	//go = new GameObject("Plane");
-	//mat = NormalMapShader->GetMaterialInstance();
-	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
-	//go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Plane.obj"), mat));
-	//go->GetTransform()->SetPos(glm::vec3(0, 20, 20));
-	//go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	//go->GetTransform()->SetScale(glm::vec3(0.5));
-
-	//go->AttachComponent(new RigidbodyComponent());
-	//go->AttachComponent(new ColliderComponent());
-	////go->actor = Engine::GetPhysEngineInstance()->CreatePrimitiveRigidBody(go->GetTransform()->GetPos(), glm::vec3(0, 10, 0), 1);
-	//AddGameobjectToScene(go);
-
-	/*go = new GameObject("Fence");
-	mat = new Material(AssetManager::DirectLoadTextureAsset("\\texture\\fence.png"));
-	mat->SetShadow(false);
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(-10, 1, -6));
-	go->GetTransform()->SetEulerRot(glm::vec3(90, -90, 0));
-	go->GetTransform()->SetScale(glm::vec3(0.1f));
-
-	AddGameobjectToScene(go);*/
-
-	//go = new GameObject("Static Water");
-	//mat = Material::GetDefaultMaterial();
-	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("texture\\Water fallback.jpg"));
-	////mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("texture\\IKT4l.jpg"));
-	//go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Plane.obj"), mat));
-	//go->GetTransform()->SetPos(glm::vec3(-37, -2, -20));
-	//go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	//go->GetTransform()->SetScale(glm::vec3(2));
-	//AddGameobjectToScene(go);
+	glm::vec3 startpos = glm::vec3(0, 10, 0);
+	float stride = 5.0f;
+	int size = 4;
+	int zsize = 2;
+	for (int x = 0; x < size; x++)
+	{
+		for (int y = 0; y < size; y++)
+		{
+			for (int z = 0; z < zsize; z++)
+			{
+				go = CreateDebugSphere(nullptr);
+				cc = go->AttachComponent(new ColliderComponent());
+				go->GetTransform()->SetPos(glm::vec3(x *stride, 15 + z * stride, y*stride));
+				cc->SetCollisonShape(EShapeType::eSPHERE);
+				go->AttachComponent(new RigidbodyComponent());
+				AddGameobjectToScene(go);
+			}
+		}
+	}
 
 #if 0
 	go = new GameObject("Gun Test");
@@ -384,11 +360,11 @@ void Scene::TickDeferredRemove()
 			{
 				SceneObjects.erase(vecso);
 			}
-			auto vec =  std::find(RenderSceneObjects.begin(), RenderSceneObjects.end(), DeferredRemoveQueue[i]);
+			auto vec = std::find(RenderSceneObjects.begin(), RenderSceneObjects.end(), DeferredRemoveQueue[i]);
 			if (vec != std::end(RenderSceneObjects))
 			{
 				RenderSceneObjects.erase(vec);
-			}			
+			}
 			DeferredRemoveQueue[i]->Internal_SetScene(nullptr);
 			SafeDelete(DeferredRemoveQueue[i]);
 		}

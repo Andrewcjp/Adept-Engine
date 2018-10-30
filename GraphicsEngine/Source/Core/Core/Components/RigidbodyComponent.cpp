@@ -51,7 +51,7 @@ void RigidbodyComponent::FixedUpdate(float delta)
 	if (actor != nullptr)
 	{	
 		//todo: fix transform feedback issue in PHYSX
-#if 1//PHYSX_ENABLED
+#if 0//PHYSX_ENABLED
 		GetOwner()->MoveComponent(actor->GetPosition(), GetOwner()->GetTransform()->GetQuatRot()/*actor->GetRotation()*/, false);
 #else
 		GetOwner()->MoveComponent(actor->GetPosition(), actor->GetRotation(), false);

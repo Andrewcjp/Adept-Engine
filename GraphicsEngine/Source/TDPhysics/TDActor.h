@@ -1,9 +1,9 @@
 #pragma once
 #include "TDTransform.h"
-
-namespace TD { class TDSphere; }
 namespace TD
 {
+	class TDAABB;
+	class TDSphere;
 	class TDScene;
 	struct TDActorType
 	{
@@ -32,6 +32,7 @@ namespace TD
 			return dynamic_cast<T*>(actor);
 		}
 		TDSphere* BroadPhaseShape = nullptr;
+		TDAABB* AABB = nullptr;
 	protected:
 		TD_API virtual ~TDActor();
 		TDScene* OwningScene = nullptr;

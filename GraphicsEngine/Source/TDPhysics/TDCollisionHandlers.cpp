@@ -4,6 +4,7 @@
 #include "Shapes/TDMesh.h"
 #include "Shapes/TDBox.h"
 #include "Shapes/TDPlane.h"
+#include "Shapes/TDAABB.h"
 bool TD::TDCollisionHandlers::InvalidCollisonPair(CollisionHandlerArgs)
 {
 	assert(false);
@@ -67,6 +68,17 @@ bool TD::TDCollisionHandlers::CollideSpherePlane(CollisionHandlerArgs)
 		return true;
 	}
 	return false;
+}
+
+bool TD::TDCollisionHandlers::CollideAABBAABB(TDAABB* A, TDAABB* b)
+{
+	const glm::vec3 aMin = A->GetMin();
+	const glm::vec3 aMax = A->GetMax();	
+	const glm::vec3 bMin = b->GetMin();
+	const glm::vec3 bMax = b->GetMax();
+	return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
+		(aMin.y <= bMax.y && aMax.y >= bMin.y) &&
+		(aMin.z <= bMax.z && aMax.z >= bMin.z);
 }
 
 bool TD::TDCollisionHandlers::CollideSphereCapsule(CollisionHandlerArgs)

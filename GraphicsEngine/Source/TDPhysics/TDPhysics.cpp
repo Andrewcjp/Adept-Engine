@@ -5,6 +5,7 @@
 #include "TDVersion.h"
 #include "Utils/MemoryUtils.h"
 #include "TDSimConfig.h"
+#include "Utils/Threading.h"
 namespace TD
 {
 	TDPhysics* TDPhysics::Instance = nullptr;
@@ -22,6 +23,11 @@ namespace TD
 		{
 			Get()->GetCurrentSimConfig()->PerfCounterCallBack(false, timer);
 		}
+	}
+
+	Threading::TaskGraph * TDPhysics::GetTaskGraph()
+	{
+		return Instance->TDTaskGraph;
 	}
 
 	TDPhysics::TDPhysics()
@@ -51,6 +57,7 @@ namespace TD
 
 	void TDPhysics::StartUp()
 	{
+		TDTaskGraph = new Threading::TaskGraph(CurrentSimConfig->TaskGraphThreadCount);
 		Solver = new TDSolver();
 	}
 
@@ -65,6 +72,8 @@ namespace TD
 
 	void TDPhysics::ShutDown()
 	{
+		TDTaskGraph->Shutdown();
+		SafeDelete(TDTaskGraph);
 		MemoryUtils::DeleteVector(Scenes);
 		SafeDelete(Solver);
 		SafeDelete(Instance);

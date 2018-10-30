@@ -1,27 +1,12 @@
 #pragma once
 #include "Stdafx.h"
 #include "TDShape.h"
+
 namespace TD
 {
 #define CollisionHandlerArgs TDShape* A, TDShape* B, ContactData* contactbuffer
-	const int MAX_CONTACT_POINTS_COUNT = 50;
-	struct ContactData
-	{
-		glm::vec3 ContactPoints[MAX_CONTACT_POINTS_COUNT];
-		bool Blocking = false;
-		glm::vec3 Direction = glm::vec3();
-		float depth = 0.0f;
-		int ContactCount = 0;
-		void Contact(glm::vec3 position, glm::vec3 normal, float seperation)
-		{
-			Blocking = true;
-			ContactPoints[ContactCount] = position;
-			ContactCount++;
-			Direction = normal;
-			depth = seperation;
-		}
-	};
-
+	class TDAABB;
+	struct ContactData;
 	class TDCollisionHandlers
 	{
 	public:
@@ -49,8 +34,10 @@ namespace TD
 		//Convex Collisions
 		static bool CollideConvexConvex(CollisionHandlerArgs);
 		static bool CollideConvexMesh(CollisionHandlerArgs);
+		
 		//Invalid Pair
 		static bool InvalidCollisonPair(CollisionHandlerArgs);
+		static bool CollideAABBAABB(TDAABB * A, TDAABB * b);
 	};
 #define InterSectionArgs TDShape* Shape,glm::vec3 Origin,glm::vec3 Dir,float distance
 	struct TDIntersectionHandlers
