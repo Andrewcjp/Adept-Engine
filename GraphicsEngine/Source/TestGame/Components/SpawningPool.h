@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Components/Component.h"
+
 class SpawningPool : public Component
 {
 public:

@@ -1,7 +1,6 @@
 #pragma once
 #include "Core/GameObject.h"
 #include "Rendering/Core/Light.h"
-#include <vector>
 class RenderEngine;
 class GameMode;
 class Scene

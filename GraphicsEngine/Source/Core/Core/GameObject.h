@@ -1,7 +1,6 @@
 #pragma once
 #include "Rendering/Core/Mesh.h"
 #include "Transform.h"
-#include "Rendering/Core/Material.h"
 #include "Editor/IInspectable.h"
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"

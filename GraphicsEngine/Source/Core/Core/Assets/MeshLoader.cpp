@@ -3,7 +3,6 @@
 #include "include/assimp/Importer.hpp"
 #include "include/assimp/scene.h"
 #include <include/assimp/postprocess.h>
-#include "include/glm/gtx/transform.hpp"
 #include "Core/EngineInc.h"
 #include "Core/Platform/PlatformCore.h"
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);

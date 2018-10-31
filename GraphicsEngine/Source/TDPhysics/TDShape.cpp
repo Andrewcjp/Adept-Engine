@@ -34,4 +34,8 @@ namespace TD
 	{
 		return Owner;
 	}
+	glm::vec3 TDShape::GetBoundBoxHExtents()
+	{
+		return glm::vec3(1, 1, 1);
+	}
 }

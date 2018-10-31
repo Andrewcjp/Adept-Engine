@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+
 #include "RHI/RHI_inc_fwd.h"
 
 class ShadowRenderer

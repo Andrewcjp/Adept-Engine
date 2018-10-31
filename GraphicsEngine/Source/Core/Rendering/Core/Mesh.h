@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include <vector>
+
 #include "RenderBaseTypes.h"
 #include "Mesh.h"
 #include "RHI/RHICommandList.h"

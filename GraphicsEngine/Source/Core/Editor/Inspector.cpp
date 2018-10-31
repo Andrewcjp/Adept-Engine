@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Inspector.h"
 #include "IInspectable.h"
-#include <vector>
+
 #include "UI/EditorUI/UIEditField.h"
 #include "UI/Core/UIBox.h"
 #include "UI/UIManager.h"

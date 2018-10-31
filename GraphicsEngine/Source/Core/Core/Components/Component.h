@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include "Editor/Inspector.h"
 #include "Physics/PhysicsTypes.h"
 class Component

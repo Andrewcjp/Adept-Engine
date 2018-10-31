@@ -1,20 +1,12 @@
 #include "TextRenderer.h"
-#include "glm\glm.hpp"
-#include "RHI/RHI.h"
-#include "RHI/DeviceContext.h"
-#include "Rendering/Shaders/Text_Shader.h"
-#include <algorithm>
-#include <cstring>
-#include "Core/Engine.h"
-#include "RHI/BaseTexture.h"
-#include "Core/Utils/FileUtils.h"
-#define MAXWIDTH 1024
-TextRenderer* TextRenderer::instance = nullptr;
-#include "Rendering/PostProcessing/PostProcessing.h"
-#include "RHI/RHI_inc.h"
-#include "Core/Performance/PerfManager.h"
 #include "Core/EngineInc.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Rendering/PostProcessing/PostProcessing.h"
+#include "Rendering/Shaders/Text_Shader.h"
+#include "RHI/DeviceContext.h"
+
+#define MAXWIDTH 1024
+TextRenderer* TextRenderer::instance = nullptr;
 TextRenderer::TextRenderer(int width, int height)
 {
 	m_width = width;

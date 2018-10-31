@@ -31,7 +31,6 @@ namespace TD
 		{
 			return dynamic_cast<T*>(actor);
 		}
-		TDSphere* BroadPhaseShape = nullptr;
 		TDAABB* AABB = nullptr;
 	protected:
 		TD_API virtual ~TDActor();

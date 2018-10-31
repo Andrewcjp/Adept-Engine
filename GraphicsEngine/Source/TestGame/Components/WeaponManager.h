@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Components/Component.h"
+#include "Source/TestGame/TestGamePCH.h"
 const int MAX_WEAPON_COUNT = 3;
 class Weapon;
 class WeaponManager :public Component
@@ -9,7 +9,7 @@ public:
 	~WeaponManager();
 	void InitComponent() override;
 
-	Weapon* Weapons[MAX_WEAPON_COUNT];
+	Weapon* Weapons[MAX_WEAPON_COUNT]; 
 	Weapon* GetCurrentWeapon();
 	void SwitchWeaponUp(bool Direction);
 	void SwitchWeapon(int index);

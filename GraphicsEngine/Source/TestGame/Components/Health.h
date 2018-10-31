@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Components/Component.h"
+#include "Source/TestGame/TestGamePCH.h"
 class Health : public Component
 {
 public:

@@ -2,7 +2,7 @@
 #include <map>
 #include <iomanip>
 #include <time.h>
-#include <vector>
+
 #include "Core/Utils/MovingAverage.h"
 #define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter CYCLECOUNTER(name);
 #define SCOPE_CYCLE_COUNTER_GROUP(name,group) PerfManager::ScopeCycleCounter CYCLECOUNTER(name,group);

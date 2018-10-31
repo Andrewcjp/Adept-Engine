@@ -1,7 +1,5 @@
 #pragma once
 #if TDSIM_ENABLED
-#include "glm\glm.hpp"
-#include "glm\gtx\quaternion.hpp"
 #include "Physics/Physics_fwd.h"
 #include "Physics/GenericRigidBody.h"
 #include "core/Transform.h"

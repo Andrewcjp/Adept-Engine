@@ -1,5 +1,4 @@
 #pragma once
-#include <d3d12.h>
 #include "RHI/RHITypes.h"
 #include "Core/Utils/StringUtil.h"
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+
 #include "Inspector.h"
 #if WITH_EDITOR
 class IInspectable

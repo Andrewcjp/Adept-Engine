@@ -1,7 +1,4 @@
 #pragma once
-
-#include <string>
-#include <vector>
 #include "Rendering/Core/RenderBaseTypes.h"
 struct MeshEntity;
 //this class loads mesh data into mesh;

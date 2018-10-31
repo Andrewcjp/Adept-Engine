@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Types/FString.h"
 #include "ModuleInterface.h"
-#include <vector>
+
 #include <map>
 #include "Core/Platform/Logger.h"
 #include <functional>

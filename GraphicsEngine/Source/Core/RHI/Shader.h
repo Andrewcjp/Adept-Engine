@@ -1,10 +1,8 @@
 #pragma once
-#include "include\glm\glm.hpp"
 #include "Core/Transform.h"
 #include "Rendering/Core/Camera.h"
-#include <vector>
+
 #include "Rendering/Core/Light.h"
-#include "include/glm/gtc/type_ptr.hpp"
 #include "ShaderProgramBase.h"
 #include "Core/Assets/ShaderComplier.h"
 //this is a basis for a shader 

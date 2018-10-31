@@ -1,8 +1,5 @@
 #pragma once
-#include "glm\glm.hpp"
-#include "glm\gtx\quaternion.hpp"
 #include "PhysicsTypes.h"
-
 struct BodyInstanceData
 {
 	bool LockXRot = false;

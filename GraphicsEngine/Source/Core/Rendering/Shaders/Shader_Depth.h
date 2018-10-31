@@ -3,7 +3,7 @@
 #include <string>
 #define CUBE_SIDES 6
 #include "Rendering/Core/FrameBuffer.h"
-#include "glm\fwd.hpp"
+
 namespace Shader_Depth_RSSlots
 {
 	enum Type

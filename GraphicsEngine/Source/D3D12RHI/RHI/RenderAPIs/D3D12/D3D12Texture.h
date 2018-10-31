@@ -1,7 +1,5 @@
 #pragma once
-
 #include "RHI/BaseTexture.h"
-
 class D3D12Texture : public BaseTexture
 {
 public:

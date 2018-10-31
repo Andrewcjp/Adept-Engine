@@ -1,6 +1,5 @@
 #include "Shader_Depth.h"
 #include "RHI/RHI.h"
-#include "glm\glm.hpp"
 #include "Shader_Main.h"
 DECLARE_GLOBAL_SHADER_ARGS(Shader_Depth, bool);
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_ON, Shader_Depth, bool, true);

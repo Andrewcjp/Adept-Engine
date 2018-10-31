@@ -1,17 +1,11 @@
 #include "RHI.h"
-#include "ShaderProgramBase.h"
-#include "Core/Performance/PerfManager.h"
 #include "Core/Assets/AssetManager.h"
-#include "Rendering/Core/Mesh.h"
-#include "Core/Engine.h"
 #include "RHI_inc.h"
 #include "Core/Assets/ImageIO.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
-#include "Core/Utils/RefChecker.h"
 #include "Core/Assets/ShaderComplier.h"
 #include "Rendering/Core/ParticleSystemManager.h"
-#include "RHICommandList.h"
 #include "Core/Platform/ConsoleVariable.h"
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();

@@ -1,7 +1,4 @@
 #pragma once
-#include <include/glm/glm.hpp>
-
-
 struct OGLVertex
 {
 	glm::vec3 m_position = glm::vec3(0);

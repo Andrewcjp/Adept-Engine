@@ -1,5 +1,4 @@
 #pragma once
-#include "glm/glm.hpp"
 #include "Core/Types/FString.h"
 typedef glm::vec3 Colour;
 namespace Colours

@@ -7,6 +7,9 @@ namespace TD
 	public:
 		TDPlane();
 		~TDPlane();
+
+		virtual glm::vec3 GetBoundBoxHExtents() override;
+
 	};
 }
 

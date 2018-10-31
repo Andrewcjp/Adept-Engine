@@ -70,12 +70,12 @@ bool TD::TDCollisionHandlers::CollideSpherePlane(CollisionHandlerArgs)
 	return false;
 }
 
-bool TD::TDCollisionHandlers::CollideAABBAABB(TDAABB* A, TDAABB* b)
+bool TD::TDCollisionHandlers::CollideAABBAABB(TDAABB* A, TDAABB* B)
 {
 	const glm::vec3 aMin = A->GetMin();
 	const glm::vec3 aMax = A->GetMax();	
-	const glm::vec3 bMin = b->GetMin();
-	const glm::vec3 bMax = b->GetMax();
+	const glm::vec3 bMin = B->GetMin();
+	const glm::vec3 bMax = B->GetMax();
 	return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
 		(aMin.y <= bMax.y && aMax.y >= bMin.y) &&
 		(aMin.z <= bMax.z && aMax.z >= bMin.z);

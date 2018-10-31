@@ -1,42 +1,20 @@
 #include "EditorWindow.h"
-#include "Resource.h"
-#include <iomanip> 
-#include <string>
-#include <sstream>
-#include "include/glm/gtc/type_ptr.hpp"
-#include <ctime>
-#include <time.h>
-#include <memory>
-#include "Core/BaseWindow.h"
-#include "Core/Transform.h"
-#include "Core/GameObject.h"
 #include "Core/Input/Input.h"
-#include "Rendering/Core/Material.h"
 #include "Rendering/Renderers/ForwardRenderer.h"
-#include "Rendering/Renderers/DeferredRenderer.h"
-#include "Rendering/Renderers/TextRenderer.h"
-#include "Rendering/Renderers/RenderSettings.h"
-#include "Core/Engine.h"
-#include "Physics/PhysicsEngine.h"
 #include "Core/Version.h"
 #include "UI/UIManager.h"
-#include "RHI/RHI.h"
 #include "EditorGizmos.h"
-#include "UI/EditorUI/UIEditField.h"
-#include "Core/Performance/PerfManager.h"
 #include "Core/Assets/AssetManager.h"
 #include "EditorObjectSelector.h"
-#include "Rendering/Core/DebugLineDrawer.h"
 #include "Core/Assets/SceneJSerialiser.h"
-#include "Core/Utils/StringUtil.h"
 #include "Core/Game/Game.h"
 #include "Editor/Editor_Camera.h"
-#include "UI/UIManager.h"
 #include "EditorCore.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Audio/AudioEngine.h"
 #include "AI/Core/AISystem.h"
 #include "AI/Core/NavigationMesh.h"
+#include "Core/Utils/DebugDrawers.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -186,8 +164,7 @@ void EditorWindow::FixedUpdate()
 		CurrentPlayScene->FixedUpdateScene(TickRate);
 	}
 }
-#include "AI/Core/AISystem.h"
-#include "AI/Core/NavigationMesh.h"
+
 void EditorWindow::Update()
 {
 	if (IsPlayingScene && CurrentPlayScene != nullptr)
@@ -199,8 +176,9 @@ void EditorWindow::Update()
 	else
 	{
 		CurrentScene->EditorUpdateScene();
-		
 	}
+
+	DebugDrawers::DrawDebugCapsule(glm::vec3(0, 10, 0), 1, 2, glm::quat(glm::radians(glm::vec3(90, 0, 0))), glm::vec3(1,0,0));
 	AISystem::Get()->mesh->DrawNavMeshLines(LineDrawer);
 	if (!IsPlayingScene || IsEditorEjected())
 	{
@@ -237,7 +215,7 @@ void EditorWindow::Update()
 	}
 	if (Input::GetKeyDown(VK_ESCAPE))
 	{
-		ExitPlayMode();		
+		ExitPlayMode();
 	}
 	if (Input::GetVKey(VK_CONTROL))
 	{

@@ -8,5 +8,7 @@ class TestGameModule : ModuleDef
         SourceFileSearchDir = "TestGame";
         ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
         SolutionFolderPath = "Game";
+        PCH = "TestGamePCH";
+        UseCorePCH = false;
     }
 }

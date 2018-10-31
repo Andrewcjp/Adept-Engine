@@ -1,6 +1,4 @@
 #pragma once
-#include "Core/Components/Core_Components_FWD.h"
-#include "Core/Components/Component.h"
 class GameObject;
 class Weapon : public Component
 {

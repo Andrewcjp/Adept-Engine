@@ -2,14 +2,11 @@
 #include "RHI/DeviceContext.h"
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Core/Assets/Scene.h"
-#include "Rendering/Core/GPUStateCache.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "Editor/Editor_Camera.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
-#include "Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Core/SceneRenderer.h"
-#include "Core/Performance/PerfManager.h"
 #include "Rendering/Core/ParticleSystemManager.h"
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -150,7 +147,6 @@ void RenderEngine::StaticUpdate()
 
 	OnStaticUpdate();
 }
-#include "Core/Assets/AssetManager.h"
 void RenderEngine::SetScene(Scene * sc)
 {
 	MainScene = sc;

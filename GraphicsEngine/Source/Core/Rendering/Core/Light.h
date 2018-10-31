@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Transform.h"
-#include "include\glm\glm.hpp"
+
 
 class Light
 {

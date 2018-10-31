@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/Components/Component.h"
 #include "Core/Components/Core_Components_FWD.h"
 class TestPlayer :public Component
 {

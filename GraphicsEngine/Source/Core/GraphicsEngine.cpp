@@ -1,17 +1,8 @@
 #include "GraphicsEngine.h"
-#include "EngineGlobals.h"
-
-#include <stdio.h>
-#include <io.h>
-#include <strsafe.h>
-#include <fcntl.h>
-
-#include "Core/MinWindows.h"
 #include "Core/Engine.h"
 #include "Core/Platform/PlatformCore.h"
-#include <string>
-#include <iostream>
 #include "Core/Platform/Windows/WindowsWindow.h"
+#include <strsafe.h>
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 #define USE_SEP_CONSOLE 1

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FileUtils.h"
-#include <vector>
+
 #include "Core/Platform/Logger.h"
 #include "StringUtil.h"
 #include "Core/Platform/PlatformCore.h"

@@ -1,5 +1,4 @@
 #pragma once
-#include <d3d12.h>
 #define Enable_CBV_BUFFERING 1
 class D3D12CBV
 {
@@ -9,7 +8,7 @@ public:
 		MainCBV = 1,
 		LightCBV = 2,
 		MPCBV = 3
-	};
+	}; 
 	D3D12CBV(class DeviceContext* Device);
 	~D3D12CBV();
 	void SetDescriptorHeaps(ID3D12GraphicsCommandList * list);

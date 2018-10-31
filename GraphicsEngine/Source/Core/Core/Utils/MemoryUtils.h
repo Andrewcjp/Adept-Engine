@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+
 namespace MemoryUtils
 {
 	template<typename T>

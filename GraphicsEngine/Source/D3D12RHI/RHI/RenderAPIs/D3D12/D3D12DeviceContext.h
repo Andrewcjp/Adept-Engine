@@ -2,8 +2,6 @@
 #include "RHI/DeviceContext.h"
 #include <mutex>
 #include <queue>
-#include <d3dx12.h>
-#include <dxgi1_4.h>
 template<class T>
 class ThreadSafe_Queue
 {
