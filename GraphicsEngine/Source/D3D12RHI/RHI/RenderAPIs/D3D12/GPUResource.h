@@ -1,6 +1,5 @@
 #pragma once
 #include "D3D12RHI.h"
-#include <vector>
 
 #define _KB(x) (x * 1024)
 #define _MB(x) (x * 1024 * 1024)

@@ -1,6 +1,6 @@
 #pragma once
 #include "UI/Core/UIWidget.h"
-#include <vector>
+
 #include <functional>
 namespace EditValueType
 {

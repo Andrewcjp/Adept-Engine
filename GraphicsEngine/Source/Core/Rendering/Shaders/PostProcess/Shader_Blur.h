@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI/RHICommandList.h"
 #include "RHI/Shader.h"
-#include <vector>
+
 class Shader_Blur : public Shader
 {
 public:

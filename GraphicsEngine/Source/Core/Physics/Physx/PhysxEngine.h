@@ -1,14 +1,13 @@
 #pragma once
 #if PHYSX_ENABLED
-#include <vector>
-#include "glm\glm.hpp"
+
 #include "Physics/Physx/PhysxRigidbody.h"
 #include "Physics/GenericPhysicsEngine.h"
 #include "Physics/GenericConstraint.h"
 #include <include/physx/PxPhysicsAPI.h>
 #include "include/physx/foundation/PxSimpleTypes.h"
-#include <iostream>
-#include <vector>
+
+
 #define PVD_HOST "127.0.0.1"
 class PhysxCallBackHandler;
 class PhysxEngine : public GenericPhysicsEngine

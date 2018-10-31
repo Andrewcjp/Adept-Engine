@@ -5,8 +5,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "AI/Core/AISystem.h"
 #include "AI/Core/NavigationObstacle.h"
-#include <queue>
-#include <algorithm>
+
 NavigationMesh::NavigationMesh()
 {}
 

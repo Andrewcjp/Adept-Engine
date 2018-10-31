@@ -76,14 +76,10 @@ namespace TD
 				{
 					continue;
 				}
-				if (BroadPhaseTest(Actor, Actorb))
-				{
-					NarrowPhasePairs.push_back(CollisionPair(Actor, Actorb));
-				}
+				NarrowPhasePairs.push_back(CollisionPair(Actor, Actorb));
 			}
 		}
 #else
-
 		for (int i = 0; i < scene->GetActors().size(); i++)
 		{
 			Broadphase->UpdateActor(scene->GetActors()[i]);
@@ -99,12 +95,10 @@ namespace TD
 #if !BUILD_FULLRELEASE
 		TDPhysics::StartTimer(TDPerfCounters::ResolveCollisions);
 #endif
-#if USE_PHASE
 		ProcessBroadPhase(scene);
-#endif
 		for (int Iterations = 0; Iterations < SolverIterations; Iterations++)
 		{
-#if USE_PHASE
+
 #if USE_THREADED_COLLISION_DETECTION
 			const int BatchSize = 50;
 			std::function <void(int)> ProcessCollisionsFunc = [&](int threadIndex)
@@ -114,7 +108,7 @@ namespace TD
 				for (int i = StartingIndex; i < ThisBatchcount; i++)
 				{
 					ProcessCollisions(&NarrowPhasePairs[i]);
-				} 
+				}
 			};
 			const int threadcount = std::min(TDPhysics::GetTaskGraph()->GetThreadCount(), (int)NarrowPhasePairs.size() / BatchSize + 1);
 			TDPhysics::GetTaskGraph()->RunTaskOnGraph(ProcessCollisionsFunc, threadcount);
@@ -122,55 +116,18 @@ namespace TD
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{
 				ProcessCollisions(&NarrowPhasePairs[i]);
-			}
+		}
 #endif
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{
 				ProcessResponsePair(&NarrowPhasePairs[i]);
 				NarrowPhasePairs[i].data.Reset();
 			}
-#else 
-			const int Half = scene->GetActors().size() / 2;
-			for (int i = 0; i < scene->GetActors().size(); i++)
-			{
-				for (int j = i; j < scene->GetActors().size(); j++)
-				{
-					TDActor* Actor = scene->GetActors()[i];
-					TDActor* Actorb = scene->GetActors()[j];
-					if (scene->GetActors()[i] == scene->GetActors()[j])
-					{
-						continue;
-					}
-					if (i > Half /*|| j > Half*/)
-					{
-						continue;
-					}
-					ProcessCollisions(Actor->GetAttachedShapes()[0]);
-				}
-			}
-#endif
-		}
+	}
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::ResolveCollisions);
 #endif
-	}
-
-	bool TDSolver::BroadPhaseTest(TDActor* A, TDActor* B)
-	{
-		if (A->GetAttachedShapes()[0]->GetShapeType() == TDShapeType::ePLANE || B->GetAttachedShapes()[0]->GetShapeType() == TDShapeType::ePLANE)
-		{
-			return true;
-		}
-		ContactMethod con = ContactMethodTable[TDShapeType::eSPHERE][TDShapeType::eSPHERE];
-		DebugEnsure(con);
-		ContactData data;
-		con((TDShape*)A->BroadPhaseShape, (TDShape*)B->BroadPhaseShape, &data);
-		if (!data.Blocking)
-		{
-			BroadPhaseCount++;
-		}
-		return data.Blocking;
-	}
+}
 
 	std::string TDSolver::ReportbroadPhaseStats()
 	{

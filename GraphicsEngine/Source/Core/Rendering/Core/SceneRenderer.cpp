@@ -5,6 +5,7 @@
 #include "Core/Assets/Scene.h"
 #include "Rendering/Shaders/Shader_NodeGraph.h"
 #include "Rendering/Core/RelfectionProbe.h"
+#include "Rendering/Core/Material.h"
 SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;

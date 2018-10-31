@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+
 #include "Core/EngineTypes.h"
 typedef struct _WLineItem
 {

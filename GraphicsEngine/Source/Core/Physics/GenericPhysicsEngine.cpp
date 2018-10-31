@@ -28,3 +28,8 @@ void GenericPhysicsEngine::AddBoxCollisionToEditor(GameObject* obj)
 
 }
 
+bool GenericPhysicsEngine::GetShowPhysicsShape()
+{
+	return ShowPhysicsDebugShapes;
+}
+

@@ -3,11 +3,9 @@
 #include <iomanip>
 #include <time.h>
 #include "RHI/RHI.h"
-
 #include "RHI/DeviceContext.h"
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Utils/NVAPIManager.h"
-#include <algorithm>
 #include "BenchMarker.h"
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;

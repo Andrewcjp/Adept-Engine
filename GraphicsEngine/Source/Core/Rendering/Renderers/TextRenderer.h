@@ -1,11 +1,9 @@
 #pragma once
 #include <string>
-#include "glm\fwd.hpp"
 #include <ft2build.h>
 #include <map>
-#include "include/glm/ext.hpp"
 #include "RHI/RHI.h"
-#include <vector>
+
 #include FT_FREETYPE_H  
 class BaseTexture;
 class Text_Shader;

@@ -1,6 +1,6 @@
 #pragma once
 #include "UIBox.h"
-#include <vector>
+
 class UIPanel :
 	public UIBox
 {

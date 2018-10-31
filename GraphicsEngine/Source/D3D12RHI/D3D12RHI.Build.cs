@@ -9,6 +9,8 @@ class D3D12RHIModule : ModuleDef
         ModuleOutputType = ModuleDef.ModuleType.LIB;
         IncludeDirectories.Add("Source/Core");       
         SolutionFolderPath = "Engine/Modules/RHI";
+        UseCorePCH = false;
+        PCH = "D3D12RHIPCH";
         ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
     }
 }

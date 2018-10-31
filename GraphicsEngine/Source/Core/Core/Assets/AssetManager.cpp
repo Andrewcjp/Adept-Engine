@@ -1,23 +1,9 @@
 #include "stdafx.h"
 #include "AssetManager.h"
-#include "RHI/Shader.h"
-#include "RHI/ShaderProgramBase.h"
-#include <iostream>
-#include <ios>
-#include <stdio.h>
 #include <fstream>
-#include <string>
-#include <string>
-#include <iostream>
 #include <filesystem>
-#include <experimental/filesystem>
-#include <iomanip>
-#include "Core/Engine.h"
 #include <SOIL.h>
-#include "Core/Utils/StringUtil.h"
-#include "Core/Performance/PerfManager.h"
 #include "Core/Utils/FileUtils.h"
-#include "RHI/DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
 #include "ImageIO.h"
 const std::string AssetManager::DDCName = "DerivedDataCache";

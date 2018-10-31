@@ -8,5 +8,7 @@ namespace TD
 		 TDSphere();
 		 ~TDSphere();
 		float Radius = 1;
+		virtual glm::vec3 GetBoundBoxHExtents() override;
+
 	};
 }

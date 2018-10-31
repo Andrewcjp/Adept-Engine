@@ -1,10 +1,4 @@
 #pragma once
-
-#include "include\glm\glm.hpp"
-#include "include\glm\gtx\transform.hpp"
-#include "include\glm\gtc\quaternion.hpp"
-#include "include\glm\gtx\quaternion.hpp"
-#include <iostream>
 #include "RHI/RHI.h"
 class Transform;
 class Camera

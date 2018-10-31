@@ -7,7 +7,6 @@
 #include "Core/Components/CompoenentRegistry.h"
 #include "Core/Components/RigidbodyComponent.h"
 #include "Core/Components/Utillity/FreeLookComponent.h"
-#include <algorithm>
 #include "Core/Utils/MemoryUtils.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/Asset_Shader.h"
@@ -101,16 +100,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	StaticSceneNeedsUpdate = true;
 	Asset_Shader* NormalMapShader = new Asset_Shader();
 	NormalMapShader->SetupTestMat();
-	GameObject* go = nullptr;/// new GameObject("House");
+	GameObject* go = nullptr;
 	LightComponent* lc = nullptr;
-	Material* mat = nullptr;//
+	Material* mat = nullptr;
 	ColliderComponent* cc = nullptr;
-	//Material::GetDefaultMaterial();
-	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\house_diffuse.tga"));
-	//go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\house.obj"), mat));
-	//go->GetTransform()->SetPos(glm::vec3(7, 0, 0));
-	//go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	//AddGameobjectToScene(go);
 
 	go = new GameObject("Terrain");
 	mat = Material::GetDefaultMaterial();
@@ -247,35 +240,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		}
 	}
 
-#if 0
-	go = new GameObject("Gun Test");
-	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Weapons\\Rifle\\Textures\\Variation 06\\Rifle_06_Albedo.png"));
-	MeshLoader::FMeshLoadingSettings set;
-	set.FlipUVs = true;
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Weapons\\Rifle\\Rifle.fbx", set), mat));
-	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
-	AddGameobjectToScene(go);
-#endif
-	/*go = new GameObject("Water");
-
-	Material::MaterialProperties props;
-	props.DoesShadow = false;
-	props.IsReflective = true;
-	mat = new Material(Renderer->GetReflectionBuffer()->GetRenderTexture(), props);
-	mat->NormalMap = AssetManager::DirectLoadTextureAsset("\\texture\\IKT4l.jpg");
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Plane.obj", Renderer->GetMainShader()->GetShaderProgram()), mat));
-	go->GetTransform()->SetPos(glm::vec3(-37, -1, -21));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(2));
-	Camera* c = new Camera(go->GetTransform()->GetPos(), 90.0f, static_cast<float>(512 / 512), 0.1f, 100.0f);
-	c->Pitch(-90);
-	c->SetUpAndForward(glm::vec3(0, 1.0, 0), glm::vec3(0, 0, 1.0));
-	Renderer->SetReflectionCamera(c);
-	AddGameobjectToScene(go);*/
-
 
 #if 0
 	int size = 5;
@@ -299,9 +263,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		}
 	}
 #endif
-	/*SafeRHIRefRelease(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
-	FrameBuffer* fv = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), RHIFrameBufferDesc::CreateColour(1, 1));
-	EnqueueSafeRHIRelease(fv);*/
 }
 
 void Scene::RemoveCamera(Camera * Cam)

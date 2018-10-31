@@ -1,15 +1,14 @@
-#include "stdafx.h"
 #include "DebugConsole.h"
-#include "UI/EditorUI/UIEditField.h"
-#include "Core/Input/Input.h"
-#include "UI/UIManager.h"
-#include "Editor/EditorWindow.h"
-#include "UI/Core/UIBox.h"
-#include "UI/Core/UILabel.h"
-#include <cctype>
-#include "UIGraph.h"
 #include "Core/EngineInc.h"
+#include "Core/Input/Input.h"
 #include "Core/MinWindows.h"
+#include "Editor/EditorWindow.h"
+#include "Stdafx.h"
+#include "UI/Core/UILabel.h"
+#include "UI/EditorUI/UIEditField.h"
+#include "UI/UIManager.h"
+#include "UIGraph.h"
+#include <cctype>
 DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 {
 	EditField = new UIBox(w, h, x, y);

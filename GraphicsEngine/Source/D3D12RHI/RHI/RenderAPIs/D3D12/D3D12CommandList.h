@@ -1,6 +1,5 @@
 #pragma once
 #include "RHI/RHICommandList.h"
-#include <d3d12.h>
 #include "D3D12Shader.h"
 #include "Core/Utils/RefChecker.h"
 class D3D12CommandList : public RHICommandList

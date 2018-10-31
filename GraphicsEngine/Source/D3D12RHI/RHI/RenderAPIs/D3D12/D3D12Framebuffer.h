@@ -1,8 +1,5 @@
 #pragma once
-
 #include "Rendering/Core/FrameBuffer.h"
-#include <d3d12.h>
-#include "d3dx12.h"
 #include "Core/Utils/RefChecker.h"
 class DescriptorHeap;
 class GPUResource;

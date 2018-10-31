@@ -1,11 +1,9 @@
 #pragma once
 #if PHYSX_ENABLED
-#include "glm\glm.hpp"
-#include "glm\gtx\quaternion.hpp"
+#include "Core/Transform.h"
 #include "Physics/GenericRigidBody.h"
 #include "Physics/PhysicsTypes.h"
-#include "physx\PxPhysicsAPI.h"
-#include "Core/Transform.h"
+#include "physx/PxPhysicsAPI.h"
 class PhysxRigidbody : public GenericRigidBody
 {
 public:

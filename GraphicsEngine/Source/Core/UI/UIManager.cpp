@@ -1,28 +1,16 @@
 #include "UIManager.h"
-#include "Rendering/Renderers/TextRenderer.h"
-#include "glm\glm.hpp"
-#include "Core/UIWidget.h"
-#include "Core/UIBox.h"
-#include "Core/UIButton.h"
-#include "Core/UIListBox.h"
-#include "Core/UILabel.h"
 #include "Core/GameObject.h"
-#include "Core/Input/Input.h"
-#include "UI/EditorUI/UIEditField.h"
-#include "UI/GameUI/UIGraph.h"
-#include "Rendering/Core/GPUStateCache.h"
-#include "Core/Performance/PerfManager.h"
-#include "UI/Core/UIDrawBatcher.h"
-#include "GameUI/DebugConsole.h"
-#include "Editor/Inspector.h"
-#include "Editor/EditorWindow.h"
-
-#include "UI/Core/UIPopoutbox.h"
-#include "UI/EditorUI/UIAssetManager.h"
-#include "UI/GameUI/UIDropDown.h"
-#include "Rendering/Core/DebugLineDrawer.h"
+#include "Core/UIDrawBatcher.h"
+#include "Core/UIPopoutbox.h"
 #include "Editor/EditorCore.h"
-#include <algorithm>
+#include "Editor/EditorWindow.h"
+#include "EditorUI/UIAssetManager.h"
+#include "GameUI/DebugConsole.h"
+#include "GameUI/UIDropDown.h"
+#include "GameUI/UIGraph.h"
+#include "Rendering/Core/DebugLineDrawer.h"
+#include "Rendering/Renderers/TextRenderer.h"
+
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
 UIManager::UIManager()

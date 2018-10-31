@@ -1,11 +1,8 @@
 #pragma once
 #include "RHI/ShaderProgramBase.h"
-#include <d3d12.h>
-#include "glm\glm.hpp"
 #include "RHI/Shader.h"
 #include "D3D12Helpers.h"
 #include "Core/Utils/RefChecker.h"
-
 struct D3D12PiplineShader
 {
 	D3D12PiplineShader();

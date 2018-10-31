@@ -1,9 +1,5 @@
 #pragma once
 #include "RHI/Shader.h"
-
-#include <vector>
-#include <random>
-#include "glm\glm.hpp"
 class Shader_SSAO :
 	public Shader
 {

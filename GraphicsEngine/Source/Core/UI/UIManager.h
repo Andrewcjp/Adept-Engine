@@ -1,8 +1,4 @@
 #pragma once
-#include <string>
-#include <memory>
-#include "glm/fwd.hpp"
-#include <vector>
 #include "UI/Core/CollisionRect.h"
 #include <functional>
 #include "Core/EngineTypes.h"

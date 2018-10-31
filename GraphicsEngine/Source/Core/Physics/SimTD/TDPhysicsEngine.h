@@ -1,9 +1,5 @@
 #pragma once
 #if TDSIM_ENABLED
-#include <vector>
-#include "glm\glm.hpp"
-#include <iostream>
-#include <vector>
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
 #include "TDPhysicsAPI.h"

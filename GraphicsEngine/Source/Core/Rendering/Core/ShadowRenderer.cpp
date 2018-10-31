@@ -1,17 +1,10 @@
 #include "ShadowRenderer.h"
-#include "RHI/RHI.h"
 #include "Rendering/Shaders/Shader_Main.h"
-#include "Rendering/Core/FrameBuffer.h"
-#include "Core/Utils/MemoryUtils.h"
-#include "Light.h"
 #include "Rendering\Shaders\Shader_Depth.h"
 #include "Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
 #include "Core/GameObject.h"
 #include "Core/Performance/PerfManager.h"
 #include "RHI/DeviceContext.h"
-#include "Core/BaseWindow.h"
-#include "RHI/RHITypes.h"
-#include "Core/EngineInc.h"
 #include "Rendering/Core/SceneRenderer.h"
 
 #define CUBE_SIDES 6

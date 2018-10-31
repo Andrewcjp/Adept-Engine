@@ -1,8 +1,4 @@
 #pragma once
-#include <vector>
-#include "glm\glm.hpp"
-#include <iostream>
-#include <vector>
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
 class GameObject;
@@ -16,11 +12,13 @@ public:
 
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene);
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * hit);
+	bool GetShowPhysicsShape();
 
 	//old:
 	void AddBoxCollisionToEditor(GameObject * obj);
+	
 private:
-
-
+	bool ShowPhysicsDebugShapes = false;
+	 
 };
 

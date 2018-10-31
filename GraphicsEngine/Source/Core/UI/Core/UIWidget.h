@@ -1,6 +1,5 @@
 #pragma once
-#include "glm\glm.hpp"
-#include <string>
+
 typedef unsigned long long UINT_PTR;
 #define USE_BATCHED_DRAW 1
 class UIWidget

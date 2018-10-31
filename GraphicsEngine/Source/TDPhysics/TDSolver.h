@@ -17,7 +17,6 @@ namespace TD
 		~TDSolver();
 		void IntergrateScene(TDScene* scene, float dt);
 		void ResolveCollisions(TDScene* scene);
-		bool BroadPhaseTest(TDActor * A, TDActor * B);
 		std::string ReportbroadPhaseStats();
 		static void ProcessCollisions(CollisionPair * A);
 		void ProcessResponsePair(CollisionPair * pair);

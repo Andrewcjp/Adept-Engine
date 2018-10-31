@@ -2,7 +2,7 @@
 #include <locale>
 #include <codecvt>
 #include <string>
-#include <vector>
+
 namespace StringUtils
 {
 	static void RemoveChar(std::string &target, std::string charater)

@@ -1,6 +1,5 @@
 #pragma once
 #include <functional>
-#include <queue>
 struct ShaderInit
 {
 	ShaderInit() {}

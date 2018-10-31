@@ -30,7 +30,7 @@ namespace TD
 		*\brief Get the TDActor which owns this shape
 		*/
 		TDActor* GetOwner();
-
+		virtual glm::vec3 GetBoundBoxHExtents();
 		template<class T>
 		static T* CastShape(class TDShape* shape)
 		{

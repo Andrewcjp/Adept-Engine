@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/Components/Component.h"
 #include "AI/Core/AIBase.h"
 class SkullChaser : public AIBase
 {
