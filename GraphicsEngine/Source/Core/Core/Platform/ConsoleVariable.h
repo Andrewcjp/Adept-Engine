@@ -11,10 +11,11 @@ namespace ECVarType
 		ConsoleAndLaunch,
 	};
 }
+
 class ConsoleVariable
 {
 public:
-	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly);
+	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly,bool NeedsValue = false);
 	~ConsoleVariable() {}
 	const std::string& GetName()const
 	{
@@ -33,9 +34,18 @@ public:
 	{
 		CurrentValue = value;
 	}
+	int GetIntValue()
+	{
+		return CurrentValue;
+	}
+	bool IsValueVar()
+	{
+		return NeedsValue;
+	}
 private:
 	std::string Name = "";
 	int CurrentValue = 0;
+	bool NeedsValue = false;
 };
 
 class ConsoleVariableManager

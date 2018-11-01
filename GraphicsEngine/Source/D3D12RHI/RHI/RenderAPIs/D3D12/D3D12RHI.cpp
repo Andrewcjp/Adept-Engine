@@ -8,7 +8,6 @@
 #include "D3D12TimeManager.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Rendering/Core/Mesh.h"
-#include "Rendering/Core/Mesh.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/ImageIO.h"
@@ -22,9 +21,10 @@
 #include <dxgidebug.h>
 #include <D3Dcompiler.h>
 #include "Core/Platform/ConsoleVariable.h"
+#include "Core/Platform/Windows/WindowsWindow.h"
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-#include "Core/Platform/Windows/WindowsWindow.h"
+static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
@@ -104,6 +104,17 @@ D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
 	return D3D_FEATURE_LEVEL_11_0;
 }
 
+void D3D12RHI::ReportDeviceData()
+{
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		if (DeviceContexts[i] != nullptr)
+		{
+		//	DeviceContexts[i]->
+		}
+	}
+}
+
 bool D3D12RHI::DetectGPUDebugger()
 {
 	IDXGraphicsAnalysis* pGraphicsAnalysis;
@@ -114,6 +125,7 @@ bool D3D12RHI::DetectGPUDebugger()
 	}
 	return true;
 }
+
 void D3D12RHI::WaitForGPU()
 {
 	WaitForAllGPUS();
@@ -184,7 +196,11 @@ void D3D12RHI::LoadPipeLine()
 		Log::LogMessage("Found D3D12 GPU debugger, Warp adapter is now used instead of second physical GPU");
 #endif
 	}
-	FindAdaptors(factory);
+	if (!FindAdaptors(factory, false))//Search adapters in a picky fashion 
+	{
+		Log::LogMessage("Failed to find select device index, Defaulting", Log::Severity::Warning);
+		FindAdaptors(factory, true);//force find an adapter
+	}
 	//todo: handle 3 GPU
 	if (GetSecondaryDevice() != nullptr)
 	{
@@ -538,17 +554,26 @@ DeviceContext * D3D12RHI::GetDefaultDevice()
 	return nullptr;
 }
 
-void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
+bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 {
+	int TargetIndex = ForceGPUIndex.GetIntValue();
+	bool ForcingIndex = (TargetIndex != -1);
+	if (ForceFind)
+	{
+		ForcingIndex = false;
+	}
 	IDXGIAdapter1* adapter;
 	int CurrentDeviceIndex = 0;
 	for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
 	{
 		DXGI_ADAPTER_DESC1 desc;
 		adapter->GetDesc1(&desc);
-
 		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
 		{
+			if (TargetIndex == adapterIndex)
+			{
+				ForcingIndex = false;
+			}
 			adapter->Release();
 			// Don't select the Basic Render Driver adapter.
 			// If you want a software adapter, pass in "/warp" on the command line.
@@ -558,10 +583,15 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 		// actual device yet.
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 		{
+			if (ForcingIndex && adapterIndex != TargetIndex)
+			{
+				adapter->Release();
+				continue;
+			}
 			D3D12DeviceContext** Device = nullptr;
 			if (CurrentDeviceIndex >= MAX_GPU_DEVICE_COUNT)
 			{
-				return;
+				return true;
 			}
 			Device = &DeviceContexts[CurrentDeviceIndex];
 			if (*Device == nullptr)
@@ -572,12 +602,12 @@ void D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory)
 				if (ForceSingleGPU.GetBoolValue())
 				{
 					Log::LogMessage("Forced Single Gpu Mode");
-					return;
+					return true;
 				}
 			}
-
 		}
 	}
+	return (CurrentDeviceIndex != 0);
 }
 
 RHIBuffer * D3D12RHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device)

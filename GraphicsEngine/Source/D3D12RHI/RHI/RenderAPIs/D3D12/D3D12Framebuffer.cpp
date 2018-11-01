@@ -127,11 +127,6 @@ void D3D12FrameBuffer::Resize(int width, int height)
 	}
 }
 
-static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
-{
-	return (size + alignment - 1) & ~(alignment - 1);
-}
-
 void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 {
 	ensure(device != CurrentDevice);
@@ -150,7 +145,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
 	UINT64 pTotalBytes = 0;
 	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
-	UINT64 textureSize = Align(layout.Footprint.RowPitch * layout.Footprint.Height);
+	UINT64 textureSize = D3D12Helpers::Align(layout.Footprint.RowPitch * layout.Footprint.Height);
 
 	// Create a buffer with the same layout as the render target texture.
 	D3D12_RESOURCE_DESC crossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER);

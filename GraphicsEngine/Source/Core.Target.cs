@@ -45,6 +45,7 @@ class CoreTargetRules : TargetRules
         CoreModule.IncludeDirectories.Add("/source/TDPhysics");
         CoreModule.UseCorePCH = false;
         CoreModule.ModuleDepends.Add("TDPhysics");
+        CoreModule.UseUnity = true;
         return CoreModule;
     }
 }

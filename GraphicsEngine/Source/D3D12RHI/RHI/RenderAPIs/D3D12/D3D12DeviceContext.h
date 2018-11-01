@@ -88,7 +88,7 @@ public:
 	void DestoryDevice();
 	void WaitForGpu();
 	void WaitForCopy();
-
+	void ReportData();
 	//D3d12
 	void CreateDeviceFromAdaptor(IDXGIAdapter1* adapter, int index);
 	void LinkAdaptors(D3D12DeviceContext * other);
@@ -142,7 +142,8 @@ private:
 	DXGI_QUERY_VIDEO_MEMORY_INFO CurrentVideoMemoryInfo;
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;
-	
+	DXGI_ADAPTER_DESC1 Adaptordesc;
+
 	ID3D12CommandAllocator* m_CopyCommandAllocator = nullptr;
 	ID3D12CommandQueue* m_CopyCommandQueue = nullptr;
 	ID3D12CommandQueue* m_ComputeCommandQueue = nullptr;

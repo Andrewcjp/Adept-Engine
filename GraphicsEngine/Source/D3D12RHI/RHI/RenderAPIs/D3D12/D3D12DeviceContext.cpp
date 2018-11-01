@@ -23,13 +23,13 @@ D3D12DeviceContext::D3D12DeviceContext()
 D3D12DeviceContext::~D3D12DeviceContext()
 {
 	SafeRelease(m_commandQueue);
-	
+
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		SafeRelease(m_commandAllocator[i]);
 		SafeRelease(m_SharedCopyCommandAllocator[i]);
 	}
-	SafeRelease(m_CopyCommandAllocator);	
+	SafeRelease(m_CopyCommandAllocator);
 	delete TimeManager;
 	SafeRHIRelease(GPUCopyList);
 	SafeRHIRelease(InterGPUCopyList);
@@ -59,6 +59,8 @@ void D3D12DeviceContext::CheckFeatures()
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
+	pDXGIAdapter->GetDesc1(&Adaptordesc);
+	ReportData();
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
@@ -232,6 +234,14 @@ void D3D12DeviceContext::WaitForCopy()
 	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
 }
 
+void D3D12DeviceContext::ReportData()
+{
+	//Memory and name
+	std::stringstream ss;
+	ss << "Adapter Name: \"" << StringUtils::ConvertWideToString(Adaptordesc.Description) << "\" Dedicated Video Memory: " << std::setprecision(3) << Adaptordesc.DedicatedVideoMemory / 1e9 << "GB ";
+	Log::LogMessage(ss.str());
+}
+
 ID3D12GraphicsCommandList * D3D12DeviceContext::GetCopyList()
 {
 	return ((D3D12CommandList*)GPUCopyList)->GetCommandList();
@@ -253,13 +263,13 @@ void D3D12DeviceContext::NotifyWorkForCopyEngine()
 }
 
 void D3D12DeviceContext::UpdateCopyEngine()
-{	
+{
 	if (true)
-	{				
+	{
 		//CopyEngineHasWork = false;
 		GPUCopyList->Execute();
 	}
-	
+
 }
 
 void D3D12DeviceContext::ResetCopyEngine()

@@ -25,6 +25,7 @@ public:
 	void AddObjectToDeferredDeleteQueue(IUnknown * Target);
 	static D3D12RHI* Get();
 	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
+	void ReportDeviceData();
 	static bool DetectGPUDebugger();
 	//temp To be RHI'D	
 	std::string GetMemory();
@@ -46,7 +47,7 @@ private:
 	void ExecSetUpList();
 	void ReleaseUploadHeaps(bool force = false);
 
-	void FindAdaptors(IDXGIFactory2 * pFactory);
+	bool FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind);
 
 	ID3D12DescriptorHeap* BaseTextureHeap;
 	bool InitRHI()override;
