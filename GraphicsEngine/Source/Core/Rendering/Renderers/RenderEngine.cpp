@@ -18,9 +18,9 @@ RenderEngine::RenderEngine(int width, int height)
 RenderEngine::~RenderEngine()
 {
 	DestoryRenderWindow();
-	delete SceneRender;
-	delete mShadowRenderer;
-	delete Post;
+	SafeDelete(SceneRender);
+	SafeDelete(mShadowRenderer);
+	SafeDelete(Post);
 	EnqueueSafeRHIRelease(FilterBuffer);
 }
 
@@ -70,7 +70,6 @@ void RenderEngine::PreRender()
 //init common to both renderers
 void RenderEngine::Init()
 {
-	//400
 	mShadowRenderer = new ShadowRenderer(SceneRender);
 	if (MainScene != nullptr)
 	{
@@ -143,10 +142,11 @@ void RenderEngine::StaticUpdate()
 	}
 	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 	PrepareData();
-	
+
 
 	OnStaticUpdate();
 }
+
 void RenderEngine::SetScene(Scene * sc)
 {
 	MainScene = sc;

@@ -12,5 +12,6 @@ class D3D12RHIModule : ModuleDef
         UseCorePCH = false;
         PCH = "D3D12RHIPCH";
         ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
+        UseUnity = true;
     }
 }

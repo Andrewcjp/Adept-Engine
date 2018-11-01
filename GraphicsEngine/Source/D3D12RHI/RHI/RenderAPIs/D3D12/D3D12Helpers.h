@@ -36,6 +36,10 @@ public:
 	static D3D12_RESOURCE_DIMENSION ConvertToResourceDimension(eTextureDimension Dim);
 	static D3D12_COMMAND_LIST_TYPE ConvertListType(ECommandListType::Type type);
 	static D3D12_RESOURCE_STATES ConvertBufferResourceState(EBufferResourceState::Type intype);
+	static UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
+	{
+		return (size + alignment - 1) & ~(alignment - 1);
+	}
 };
 
 //Used to Copy Back resources for read

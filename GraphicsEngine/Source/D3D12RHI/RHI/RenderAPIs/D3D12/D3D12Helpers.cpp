@@ -284,11 +284,6 @@ void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
 	Device->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 }
 
-static inline UINT Align(UINT size, UINT alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
-{
-	return (size + alignment - 1) & ~(alignment - 1);
-}
-
 D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext * context, GPUResource* target)
 {
 	Device = (D3D12DeviceContext*)context;
@@ -297,7 +292,7 @@ D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext * context, GPURes
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
 	UINT64 pTotalBytes = 0;
 	Device->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
-	UINT64 textureSize = Align(layout.Footprint.RowPitch * layout.Footprint.Height);
+	UINT64 textureSize = D3D12Helpers::Align(layout.Footprint.RowPitch * layout.Footprint.Height);
 
 	// Create a buffer with the same layout as the render target texture.
 	D3D12_RESOURCE_DESC crossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_NONE);
