@@ -95,6 +95,7 @@ void D3D12CommandList::ResetList()
 	{
 		CurrentCommandList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
 	}
+	HandleStallTimer();
 }
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)

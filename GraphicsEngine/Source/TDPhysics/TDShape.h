@@ -36,6 +36,7 @@ namespace TD
 		{
 			return dynamic_cast<T*>(shape);
 		}
+		glm::vec3 GetPos();
 	protected:
 		TDShapeType::Type ShapeType = TDShapeType::eLimit;
 		TDPhysicalMaterial ShapeMaterial = TDPhysicalMaterial();

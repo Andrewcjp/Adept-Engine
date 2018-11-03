@@ -2,7 +2,7 @@
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)
-#if !BUILD_SHIPPING && !NDEBUG
+#if !BUILD_SHIPPING
 #define DebugEnsure(condition) if(!condition){ __debugbreak();}
 #define AssertDebugBreak() __debugbreak();
 #else

@@ -222,6 +222,10 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 			ShadowObjects[i]->Render(true, list);
 		}
 	}
+	if (list->GetDeviceIndex() == 0)
+	{
+		list->InsertGPUStallTimer();
+	}
 }
 
 void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject *> & ShadowObjects)

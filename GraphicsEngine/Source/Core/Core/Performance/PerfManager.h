@@ -71,6 +71,7 @@ public:
 	};
 	CORE_API TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y, bool IncludeGPUStats = false);
+	
 	void UpdateStats();
 	void SampleSlowStats();
 	void ClearStats();
@@ -95,7 +96,7 @@ private:
 	std::string GetTimerName(int id);
 	std::map<std::string, long> SingleActionTimers;
 	std::map<std::string, float> SingleActionTimersAccum;
-
+	void UpdateStatsTimer();
 
 	std::map<int, long> TimersStartStamps;
 	std::map<int, long> TimersEndStamps;
@@ -122,7 +123,7 @@ private:
 	float AVGFrameTime = 0;
 	float FrameTimeAccum = 0.0;
 	const bool LockStatsRate = true;
-	const float StatsTickRate = (1.0f / 60.0f)*1000.0f;
+	const float StatsTickRate = (1.0f / 60.0f);
 	const int AvgCount = 50;
 	float StatAccum = 0;
 	bool Capture = true;

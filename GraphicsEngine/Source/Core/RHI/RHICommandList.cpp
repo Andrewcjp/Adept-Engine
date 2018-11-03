@@ -87,7 +87,7 @@ void RHICommandList::ResolveTimers()
 	}
 }
 
-bool RHICommandList::IsGraphicsList()const
+bool RHICommandList::IsGraphicsList() const
 {
 	return ListType == ECommandListType::Graphics;
 }
@@ -100,6 +100,24 @@ bool RHICommandList::IsCopyList() const
 bool RHICommandList::IsComputeList() const
 {
 	return ListType == ECommandListType::Compute;
+}
+
+void RHICommandList::InsertGPUStallTimer()
+{
+	if (RHI::GetDeviceCount() > 1)
+	{
+		StartTimer(EGPUTIMERS::GPU0WaitOnGPU1);
+		Device->InsertStallTimerMarker();
+	}
+}
+
+void RHICommandList::HandleStallTimer()
+{
+	if (Device->ShouldInsertTimer() && !IsCopyList() && RHI::GetDeviceCount() > 1)
+	{
+		EndTimer(EGPUTIMERS::GPU0WaitOnGPU1);
+		Device->OnInsertStallTimer();
+	}
 }
 
 RHIUAV * RHIBuffer::GetUAV()

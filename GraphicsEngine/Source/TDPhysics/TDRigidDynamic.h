@@ -16,20 +16,20 @@ namespace TD
 		/**\returns The inverse bodies mass in Kg, if mass is zero, zero is returned */
 		float GetInvBodyMass();
 		//Linear Motion
-		glm::vec3 GetLinearVelocity();
-		void SetLinearVelocity(glm::vec3 newvel);
+		TD_API glm::vec3 GetLinearVelocity();
+		TD_API void SetLinearVelocity(glm::vec3 newvel);
 		TD_API void AddForce(glm::vec3 Force, bool AsForce);
 
 		
 
 		//Angular Motion		
-		float GetInertiaTensor();
-		void SetInertiaTensor(float tensor);
-		glm::vec3 GetAngularVelocity();
-		void SetAngularVelocity(glm::vec3 velocity);
+		TD_API float GetInertiaTensor();
+		TD_API void SetInertiaTensor(float tensor);
+		TD_API glm::vec3 GetAngularVelocity();
+		TD_API void SetAngularVelocity(glm::vec3 velocity);
 
 		TD_API void AddTorque(glm::vec3 Torque);
-		void AddForceAtPosition(glm::vec3 force);
+		TD_API void AddForceAtPosition(glm::vec3 force);
 		//Internal Functions
 		/**\brief Internal: the sum of velocity change this frame*/
 		glm::vec3 GetLinearVelocityDelta();

@@ -103,7 +103,7 @@ namespace TD
 
 	void SweepAndPrune::Sort()
 	{
-		//todo: local sort on insert;
+		//todo: local sort on insert?
 		SAPSortAxis(Xpoints);
 		SAPSortAxis(Ypoints);
 		SAPSortAxis(Zpoints);

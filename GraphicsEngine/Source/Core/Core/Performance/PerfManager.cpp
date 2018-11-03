@@ -252,17 +252,8 @@ void PerfManager::StartCPUTimer()
 void PerfManager::EndCPUTimer()
 {
 	CPUTime = (float)((get_nanos() - CPUstart) / 1e6f);//in ms
-	StatAccum += CPUTime;
 	CPUAVG.Add(CPUTime);
-	if (StatAccum > StatsTickRate || !LockStatsRate)
-	{
-		Capture = true;
-		StatAccum = 0.0f;
-	}
-	else
-	{
-		Capture = false;
-	}
+
 }
 
 void PerfManager::StartFrameTimer()
@@ -310,7 +301,6 @@ void PerfManager::SetDeltaTime(float Time)
 		Instance->DeltaTime = Time;
 	}
 }
-
 void PerfManager::NotifyEndOfFrame(bool Final)
 {
 	//clear timers
@@ -319,8 +309,9 @@ void PerfManager::NotifyEndOfFrame(bool Final)
 		PerfManager::Instance->EndFrameTimer();
 		if (Final)
 		{
+			Instance->UpdateStatsTimer();
 			Instance->Internal_NotifyEndOfFrame();
-			Instance->UpdateStats();
+			Instance->UpdateStats();			
 		}
 	}
 }
@@ -360,6 +351,25 @@ void PerfManager::DrawAllStats(int x, int y, bool IncludeGPUStats)
 	}
 #endif
 }
+void PerfManager::UpdateStatsTimer()
+{
+	CurrentSlowStatsUpdate += GetDeltaTime();
+	if (CurrentSlowStatsUpdate > SlowStatsUpdateRate)
+	{
+		CurrentSlowStatsUpdate = 0;
+		SampleSlowStats();
+	}
+	StatAccum += GetDeltaTime();
+	if (StatAccum > StatsTickRate || !LockStatsRate)
+	{
+		Capture = true;
+		StatAccum = 0.0f;
+	}
+	else
+	{
+		Capture = false;
+	}
+}
 
 void PerfManager::UpdateStats()
 {
@@ -367,12 +377,6 @@ void PerfManager::UpdateStats()
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		it->second.Time = it->second.AVG->GetCurrentAverage();
-	}
-	CurrentSlowStatsUpdate += GetDeltaTime();
-	if (CurrentSlowStatsUpdate > SlowStatsUpdateRate)
-	{
-		CurrentSlowStatsUpdate = 0;
-		SampleSlowStats();
 	}
 	Bencher->TickBenchMarker();
 #endif

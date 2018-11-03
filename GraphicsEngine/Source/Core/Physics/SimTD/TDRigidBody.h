@@ -27,6 +27,7 @@ private:
 	TD::TDRigidDynamic* Actor = nullptr;
 	TD::TDRigidStatic* StaticActor = nullptr;
 	TD::TDActor* CommonActorPTr = nullptr;
+	std::vector<TD::TDShape*> shapes;
 };
 
 #endif

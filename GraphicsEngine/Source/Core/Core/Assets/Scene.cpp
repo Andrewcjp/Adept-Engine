@@ -233,7 +233,14 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				go = CreateDebugSphere(nullptr);
 				cc = go->AttachComponent(new ColliderComponent());
 				go->GetTransform()->SetPos(glm::vec3(x *stride, 15 + z * stride, y*stride));
-				cc->SetCollisonShape(EShapeType::eSPHERE);
+				if (z == 0)
+				{
+					cc->SetCollisonShape(EShapeType::eSPHERE);
+				}
+				else
+				{
+					cc->SetCollisonShape(EShapeType::eBOX);
+				}				
 				go->AttachComponent(new RigidbodyComponent());
 				AddGameobjectToScene(go);
 			}

@@ -87,7 +87,7 @@ namespace TD
 			Blocking = true;
 			ContactPoints[ContactCount] = position;
 			ContactCount++;
-			Direction = normal;
+			Direction = glm::normalize(normal);
 			depth = seperation;
 		}
 		void Reset();

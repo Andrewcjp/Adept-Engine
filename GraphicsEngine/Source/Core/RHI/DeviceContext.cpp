@@ -33,3 +33,18 @@ RHICommandList * DeviceContext::GetInterGPUCopyList()
 {
 	return InterGPUCopyList;
 }
+
+void DeviceContext::InsertStallTimerMarker()
+{
+	InsertStallTimer = true;
+}
+
+bool DeviceContext::ShouldInsertTimer()
+{
+	return InsertStallTimer;
+}
+
+void DeviceContext::OnInsertStallTimer()
+{
+	InsertStallTimer = false;
+}

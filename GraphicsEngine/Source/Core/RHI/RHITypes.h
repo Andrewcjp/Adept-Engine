@@ -233,6 +233,7 @@ namespace EGPUTIMERS
 		ShadowPreSample,
 		ParticleDraw,
 		ParticleSimulation,
+		GPU0WaitOnGPU1,
 		LIMIT
 	};
 }
