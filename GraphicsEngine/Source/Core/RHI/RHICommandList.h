@@ -109,7 +109,8 @@ public:
 	bool IsGraphicsList()const;
 	bool IsCopyList() const;
 	bool IsComputeList() const;
-
+	void InsertGPUStallTimer();
+	void HandleStallTimer();
 protected:
 	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!

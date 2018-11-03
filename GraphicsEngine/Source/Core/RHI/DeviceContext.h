@@ -32,9 +32,13 @@ public:
 	const CapabilityData& GetCaps();
 	RHICommandList* GetInterGPUCopyList();
 	virtual class RHITimeManager* GetTimeManager() = 0;
+	void InsertStallTimerMarker();
+	bool ShouldInsertTimer();
+	void OnInsertStallTimer();
 protected:
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
+	bool InsertStallTimer = false;
 	//copy queue management 
 	bool CopyEngineHasWork = false;
 	RHICommandList* InterGPUCopyList = nullptr;

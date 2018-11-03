@@ -116,7 +116,7 @@ namespace TD
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{
 				ProcessCollisions(&NarrowPhasePairs[i]);
-		}
+			}
 #endif
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{

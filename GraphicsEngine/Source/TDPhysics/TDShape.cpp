@@ -38,4 +38,12 @@ namespace TD
 	{
 		return glm::vec3(1, 1, 1);
 	}
+	glm::vec3 TDShape::GetPos()
+	{
+		if (GetOwner() != nullptr)
+		{
+			return GetOwner()->GetTransfrom()->GetPos();
+		}
+		return glm::vec3();
+	}
 }
