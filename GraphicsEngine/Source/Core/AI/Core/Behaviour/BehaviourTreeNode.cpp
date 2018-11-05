@@ -15,30 +15,42 @@ EBTNodeReturn::Type BehaviourTreeNode::ExecuteNode()
 
 EBTNodeReturn::Type BehaviourTreeNode::HandleExecuteNode()
 {
-	EBTNodeReturn::Type returnvalue = ExecuteNode();
-	if (returnvalue == EBTNodeReturn::Failure)
+	EBTNodeReturn::Type returnvalue = EBTNodeReturn::LIMIT;
+	if (RunningChild == nullptr)
 	{
-		return returnvalue;
+		returnvalue = ExecuteNode();
+		if (returnvalue == EBTNodeReturn::Failure)
+		{
+			return returnvalue;
+		}
+	}
+	else
+	{
+		returnvalue = RunningChild->HandleExecuteNode();
 	}
 	if (ExecuteChilds)
 	{
 		//Children should be sorted for priority
 		for (int i = 0; i < Children.size(); i++)
 		{
+			if (RunningChild != Children[i] && RunningChild != nullptr)
+			{
+				continue;
+			}
 			returnvalue = Children[i]->HandleExecuteNode();
 			if (returnvalue == EBTNodeReturn::Failure)
 			{
 				return returnvalue;
 			}
+			if (returnvalue == EBTNodeReturn::Running)
+			{
+				RunningChild = Children[i];
+				return returnvalue;
+			}
+			RunningChild = nullptr;
 		}
 	}
 	return returnvalue;
-}
-
-EBTNodeReturn::Type BTServiceNode::ExecuteNode()
-{
-	service->HandleTick();
-	return service->GetServiceStatus();
 }
 
 BTMoveToNode::BTMoveToNode(BTValue * GoalPos)
@@ -58,34 +70,63 @@ EBTNodeReturn::Type BTMoveToNode::ExecuteNode()
 	return (hr == ENavRequestStatus::Complete) ? EBTNodeReturn::Success : EBTNodeReturn::Failure;
 }
 
-EBTNodeReturn::Type BTSelectorNode::ExecuteNode()
+EBTNodeReturn::Type BTSelectorNode::HandleExecuteNode()
 {
-	for (int i = 0; i < Services.size(); i++)
+	if (RunningChild == nullptr)
 	{
-		Services[i]->HandleTick();
-	}
-	bool Checks = false;
-	for (int i = 0; i < Decorators.size(); i++)
-	{
-		Checks = Decorators[i]->RunCheck();
-		if (!Checks)
+		for (int i = 0; i < Services.size(); i++)
 		{
-			return EBTNodeReturn::Failure;
+			Services[i]->HandleTick();
+		}
+		bool Checks = false;
+		for (int i = 0; i < Decorators.size(); i++)
+		{
+			Checks = Decorators[i]->RunCheck();
+			if (!Checks)
+			{
+				return EBTNodeReturn::Failure;
+			}
 		}
 	}
 	//the checks have passed execute lower
 	EBTNodeReturn::Type returnvalue = EBTNodeReturn::Success;
 	for (int i = 0; i < Children.size(); i++)
 	{
+		if (RunningChild != Children[i] && RunningChild != nullptr)
+		{
+			continue;
+		}
 		returnvalue = Children[i]->HandleExecuteNode();
+		if (returnvalue == EBTNodeReturn::Running)
+		{
+			RunningChild = Children[i];
+			return returnvalue;
+		}
+		RunningChild = nullptr;
 		if (returnvalue == EBTNodeReturn::Failure && ContinueUntilFail)
 		{
 			return returnvalue;
 		}
-		else if(returnvalue == EBTNodeReturn::Success && !ContinueUntilFail)
+		else if (returnvalue == EBTNodeReturn::Success && !ContinueUntilFail)
 		{
 			return returnvalue;
 		}
 	}
 	return returnvalue;
+
+}
+
+EBTNodeReturn::Type BTSelectorNode::ExecuteNode()
+{
+	return EBTNodeReturn::Success;
+}
+
+EBTNodeReturn::Type BTWaitNode::ExecuteNode()
+{
+	if (Remaining > 0.0f)
+	{
+		Remaining--;
+		return EBTNodeReturn::Running;
+	}
+	return EBTNodeReturn::Success;
 }

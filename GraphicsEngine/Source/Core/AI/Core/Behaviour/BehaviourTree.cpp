@@ -20,6 +20,15 @@ void BehaviourTree::RunTree()
 	{
 		return;
 	}
+	//if (RunningNode != nullptr)
+	//{
+	//	EBTNodeReturn::Type res = RunningNode->HandleExecuteNode();
+	//	if (res == EBTNodeReturn::Running)
+	//	{
+	//		return;
+	//	}
+	//	RunningNode = nullptr;
+	//}
 	RootNode->HandleExecuteNode();
 }
 

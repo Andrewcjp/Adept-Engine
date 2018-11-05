@@ -12,5 +12,6 @@ public:
 	virtual void SetupTree();//a sub tree should use this to setup in code
 	GameObject* Target = nullptr;
 	BTBlackboard* Blackboard = nullptr;
+	BehaviourTreeNode* RunningNode = nullptr;
 };
 
