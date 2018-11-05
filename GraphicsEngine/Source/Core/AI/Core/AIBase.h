@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Components/Component.h"
 class AIController;
+class BehaviourTree;
 class AIBase : public Component
 {
 public:
@@ -9,11 +10,14 @@ public:
 	//todo: AI director will know this/search scene for tagged object
 	GameObject* Player = nullptr;
 protected:
+	CORE_API virtual void SetupBrain();
 	CORE_API virtual void Update(float dt) override;
 	float DistanceToPlayer = -1.0f;
 	AIController* Controller = nullptr;
+	BehaviourTree* BTTree = nullptr;
 private:
 	CORE_API virtual void InitComponent() override;
+
 	
 };
 

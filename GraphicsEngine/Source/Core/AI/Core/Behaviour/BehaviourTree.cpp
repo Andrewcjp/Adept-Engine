@@ -11,7 +11,6 @@ BehaviourTree::BehaviourTree()
 	RootNode->ParentTree = this;
 }
 
-
 BehaviourTree::~BehaviourTree()
 {}
 

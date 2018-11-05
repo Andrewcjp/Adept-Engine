@@ -39,6 +39,7 @@ void AISystem::ShutDown()
 
 void AISystem::Tick(float dt)
 {
+	Director->Tick();
 	BTManager->Tick(dt);
 }
 

@@ -4,6 +4,9 @@
 #include "BehaviourTree.h"
 #include "Core/GameObject.h"
 #include "BTBlackboard.h"
+#include "../Services/ServiceBase.h"
+#include "BaseDecorator.h"
+
 
 EBTNodeReturn::Type BehaviourTreeNode::ExecuteNode()
 {
@@ -17,13 +20,16 @@ EBTNodeReturn::Type BehaviourTreeNode::HandleExecuteNode()
 	{
 		return returnvalue;
 	}
-	//Children should be sorted for priority
-	for (int i = 0; i < Children.size(); i++)
+	if (ExecuteChilds)
 	{
-		returnvalue = Children[i]->HandleExecuteNode();
-		if (returnvalue == EBTNodeReturn::Failure)
+		//Children should be sorted for priority
+		for (int i = 0; i < Children.size(); i++)
 		{
-			return returnvalue;
+			returnvalue = Children[i]->HandleExecuteNode();
+			if (returnvalue == EBTNodeReturn::Failure)
+			{
+				return returnvalue;
+			}
 		}
 	}
 	return returnvalue;
@@ -31,7 +37,8 @@ EBTNodeReturn::Type BehaviourTreeNode::HandleExecuteNode()
 
 EBTNodeReturn::Type BTServiceNode::ExecuteNode()
 {
-	return EBTNodeReturn::Type();
+	service->HandleTick();
+	return service->GetServiceStatus();
 }
 
 BTMoveToNode::BTMoveToNode(BTValue * GoalPos)
@@ -49,4 +56,36 @@ EBTNodeReturn::Type BTMoveToNode::ExecuteNode()
 	}
 	ENavRequestStatus::Type hr = AISystem::Get()->CalculatePath(goal, ParentTree->Target->GetPosition(), &path);
 	return (hr == ENavRequestStatus::Complete) ? EBTNodeReturn::Success : EBTNodeReturn::Failure;
+}
+
+EBTNodeReturn::Type BTSelectorNode::ExecuteNode()
+{
+	for (int i = 0; i < Services.size(); i++)
+	{
+		Services[i]->HandleTick();
+	}
+	bool Checks = false;
+	for (int i = 0; i < Decorators.size(); i++)
+	{
+		Checks = Decorators[i]->RunCheck();
+		if (!Checks)
+		{
+			return EBTNodeReturn::Failure;
+		}
+	}
+	//the checks have passed execute lower
+	EBTNodeReturn::Type returnvalue = EBTNodeReturn::Success;
+	for (int i = 0; i < Children.size(); i++)
+	{
+		returnvalue = Children[i]->HandleExecuteNode();
+		if (returnvalue == EBTNodeReturn::Failure && ContinueUntilFail)
+		{
+			return returnvalue;
+		}
+		else if(returnvalue == EBTNodeReturn::Success && !ContinueUntilFail)
+		{
+			return returnvalue;
+		}
+	}
+	return returnvalue;
 }

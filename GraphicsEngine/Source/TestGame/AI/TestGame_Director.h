@@ -43,6 +43,7 @@ public:
 	GameObject * SpawnSkull(glm::vec3 pos);
 private:
 	AIDirector_DifficultyPreset CurrentPreset = AIDirector_DifficultyPreset();
+	bool once = false;
 
 };
 

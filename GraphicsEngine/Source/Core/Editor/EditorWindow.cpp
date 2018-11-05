@@ -13,7 +13,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Audio/AudioEngine.h"
 #include "AI/Core/AISystem.h"
-#include "AI/Core/NavigationMesh.h"
+#include "AI/Core/Navigation/NavigationMesh.h"
 #include "Core/Utils/DebugDrawers.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance;

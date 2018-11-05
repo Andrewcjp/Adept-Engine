@@ -33,6 +33,10 @@ public:
 	{
 		return (T*)Get()->Director;
 	}
+	BehaviourTreeManager* GetBTManager()
+	{
+		return BTManager;
+	};
 private:
 	BehaviourTreeManager* BTManager = nullptr; 
 	AIDirector* Director = nullptr;
