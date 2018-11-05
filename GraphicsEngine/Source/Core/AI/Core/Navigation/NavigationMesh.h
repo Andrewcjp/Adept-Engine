@@ -20,7 +20,8 @@ struct NavPoint
 	{
 		pos = ipos;
 	}
-	float GetNavCost() {
+	float GetNavCost()
+	{
 		return gcost + hcost;
 	}
 	float gcost = 0;
@@ -42,12 +43,46 @@ namespace ENavRequestStatus
 		Complete,
 	};
 }
+const int MAX_int = std::numeric_limits<int>::max();
+#if 1
+const size_t DIRECTIONS_WIDTH = 8;
+const size_t DIRECTIONS_HEIGHT = 2;
+const int DIRECTIONS[DIRECTIONS_WIDTH][DIRECTIONS_HEIGHT] = { { 0, 1 },{ 0, -1 },{ 1, 0 },{ -1, 0 },{ 1, 1 },{ 1, -1 },{ -1, 1 },{ -1, -1 } };
+#else
+const size_t DIRECTIONS_WIDTH = 4;
+const size_t DIRECTIONS_HEIGHT = 2;
+const int DIRECTIONS[DIRECTIONS_WIDTH][DIRECTIONS_HEIGHT] = { { 0, 1 },{ 0, -1 },{ 1, 0 },{ -1, 0 } };
+#endif
 class NavigationObstacle;
 class NavigationMesh
 {
 public:
+	struct DLTENode
+	{
+		int key[2];
+		int g = MAX_int;
+		int rhs = MAX_int;
+		bool Blocked = false;
+		glm::ivec2 Point = glm::ivec2(0, 0);
+		int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1 ,1,1,1,1 };
+	};
+	void SetupGrid();
 	NavigationMesh();
 	~NavigationMesh();
+	int heuristic(DLTENode sFrom, DLTENode sTo);
+	int * calculate_keys(DLTENode sTo, DLTENode * sFromPointer);
+	int * queue_top_key();
+	DLTENode * queue_pop();
+	void queue_insert(DLTENode * statePointer);
+	void queue_remove(DLTENode s);
+	NavigationMesh::DLTENode get_start();
+	NavigationMesh::DLTENode get_goal();
+	void run();
+	void GridLTE();
+	std::deque<DLTENode*> neighbors(DLTENode s);
+	int traversal_cost(DLTENode sFrom, DLTENode sTo);
+	void update_state(DLTENode * statePointer);
+	void RenderGrid();
 	void GenTestMesh();
 	void DrawNavMeshLines(class DebugLineDrawer * drawer);
 	void PopulateNearLists();
@@ -67,5 +102,15 @@ private:
 	bool NavMeshNeedsUpdate = false;
 	std::vector<NavTriangle*> Triangles;
 	std::vector<NavigationObstacle*> Obstacles;
+
+#define Gsize 50
+	DLTENode grid[Gsize][Gsize];
+	//dlte
+	std::deque<DLTENode*> queue;
+	DLTENode* emptyState = nullptr;
+	int kM;
+	DLTENode* goalnode = nullptr;
+	DLTENode* startnode = nullptr;
+
 };
 

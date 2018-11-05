@@ -1,18 +1,19 @@
 #include "Stdafx.h"
 #include "AISystem.h"
-#include "AI/Core/NavigationMesh.h"
+#include "Navigation/NavigationMesh.h"
 #include "AIDirector.h"
 #include "core/Engine.h"
 #include "core/Game/Game.h"
+#include "Behaviour/BehaviourTreeManager.h"
 AISystem* AISystem::Instance = nullptr;
 
 AISystem::AISystem()
 {
 	CurrentMode = EAINavigationMode::AStar;
 	mesh = new NavigationMesh();
-
+	BTManager = new BehaviourTreeManager();
 	Director = Engine::GetGame()->CreateAIDirector();
-	mesh->GenTestMesh();
+	//mesh->GenTestMesh();
 }
 
 AISystem::~AISystem()
@@ -36,6 +37,11 @@ void AISystem::ShutDown()
 	SafeDelete(Instance);
 }
 
+void AISystem::Tick(float dt)
+{
+	BTManager->Tick(dt);
+}
+
 AISystem * AISystem::Get()
 {
 	return Instance;
@@ -43,9 +49,13 @@ AISystem * AISystem::Get()
 
 EAINavigationMode::Type AISystem::GetPathMode()
 {
-	if (Instance == nullptr) 
+	if (Instance == nullptr)
 	{
 		return EAINavigationMode::Limit;
 	}
 	return Instance->CurrentMode;
+}
+ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+{
+	return mesh->CalculatePath(Startpoint, EndPos, outpath);
 }

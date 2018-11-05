@@ -75,7 +75,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	Renderer->SetScene(CurrentScene);
 	RefreshScene();
 #endif
-	//AISystem::Get()->mesh->GenTestMesh();
+	AISystem::Get()->mesh->GenTestMesh();
 }
 
 void EditorWindow::EnterPlayMode()

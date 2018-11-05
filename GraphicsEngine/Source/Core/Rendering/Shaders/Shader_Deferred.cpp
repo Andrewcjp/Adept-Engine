@@ -2,6 +2,7 @@
 #include "RHI/ShaderProgramBase.h"
 #include <algorithm>
 #include "RHI/RHICommandList.h"
+#include "RHI/RHI.h"
 DECLARE_GLOBAL_SHADER(Shader_Deferred);
 Shader_Deferred::Shader_Deferred(class DeviceContext* dev) :Shader(dev)
 {

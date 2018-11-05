@@ -61,7 +61,7 @@ public:
 	RHI_API static ERenderSystemType GetType();
 	static class RHIClass* GetRHIClass();
 	static void WaitForGPU();
-	static RenderConstants* GetRenderConstants();
+	static const RenderConstants* GetRenderConstants();
 	static void AddLinkedFrameBuffer(FrameBuffer* target);
 	static RenderSettings* GetRenderSettings();
 	static const MultiGPUMode* GetMGPUMode();

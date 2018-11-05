@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI/RHI.h"
 #include "RHI/RHI_inc_fwd.h"
-#define MAX_LIGHTS 4
+#define MAX_POSSIBLE_LIGHTS 128
 
 typedef struct _LightUniformBuffer
 {
@@ -13,7 +13,7 @@ typedef struct _LightUniformBuffer
 	glm::vec3 Direction;
 	float t3;
 	glm::mat4x4 LightVP;
-	int type;//type 1 == point, type 0 == directional, tpye 2 == spot
+	int type;//type 1 == point, type 0 == directional, type 2 == spot
 	int ShadowID;
 	int DirShadowID;
 	int HasShadow;
@@ -29,7 +29,7 @@ struct MVBuffer
 
 struct LightBufferW
 {
-	LightUniformBuffer Light[MAX_LIGHTS];
+	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];
 };
 
 /*__declspec(align(32))*/ struct SceneConstantBuffer//CBV need to be 256 aligned
