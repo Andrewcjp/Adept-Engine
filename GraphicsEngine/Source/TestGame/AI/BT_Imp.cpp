@@ -1,23 +1,23 @@
-#include "Stdafx.h"
-#include "TestBTTree.h"
+#pragma once
+#include "Source/TestGame/TestGamePCH.h"
+#include "BT_Imp.h"
 #include "AI/Core/Behaviour/BehaviourTreeNode.h"
 #include "AI/Core/Behaviour/BTBlackboard.h"
 #include "AI/Core/Behaviour/BaseDecorator.h"
 
-
-TestBTTree::TestBTTree()
+BT_Imp::BT_Imp()
 {}
 
 
-TestBTTree::~TestBTTree()
+BT_Imp::~BT_Imp()
 {}
 
-void TestBTTree::SetupTree()
+void BT_Imp::SetupTree()
 {
 	BTValue* posptr = Blackboard->AddValue(EBTBBValueType::Vector);
 	posptr->vector = glm::vec3(1, 1, 1);
 	BTValue* obj = Blackboard->AddValue(EBTBBValueType::Object);
-	obj->ObjectPtr = (void*)0x1;
+	obj->ObjectPtr = (void*)0x0;
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->Decorators.push_back(new BaseDecorator(obj, EDecoratorTestType::NotNull));
 	selector->AddChildNode<BTMoveToNode>(new BTMoveToNode(posptr));

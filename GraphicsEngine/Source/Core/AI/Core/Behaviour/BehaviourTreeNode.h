@@ -21,10 +21,13 @@ namespace EBTNodeReturn
 };
 class BehaviourTree;
 struct BTValue;
+class ServiceBase;
+class BaseDecorator;
 class BehaviourTreeNode
 {
 public:
-	virtual EBTNodeReturn::Type ExecuteNode();
+	CORE_API BehaviourTreeNode() {}
+	CORE_API virtual ~BehaviourTreeNode() {}
 	EBTNodeReturn::Type HandleExecuteNode();
 	BehaviourTreeNode* Parent = nullptr;
 	std::vector<BehaviourTreeNode*> Children;
@@ -37,16 +40,30 @@ public:
 		return (T*)node;
 	}
 	std::vector<BTValue*> BBValues;
+protected:
+	virtual EBTNodeReturn::Type ExecuteNode();
+	bool ExecuteChilds = true;
 };
 
 class BTServiceNode :public BehaviourTreeNode
 {
 	virtual EBTNodeReturn::Type ExecuteNode() override;
+private:
+	ServiceBase* service = nullptr;
 };
 
 class BTMoveToNode :public BehaviourTreeNode
 {
 public:
-	BTMoveToNode(BTValue* GoalPos);
+	CORE_API BTMoveToNode(BTValue* GoalPos);
 	virtual EBTNodeReturn::Type ExecuteNode() override;
+};
+class BTSelectorNode :public BehaviourTreeNode
+{
+public:
+	CORE_API BTSelectorNode() { ExecuteChilds = false; }
+	virtual EBTNodeReturn::Type ExecuteNode() override;
+	std::vector<BaseDecorator*> Decorators;//Conditionals for this selector
+	std::vector<ServiceBase*> Services;//services update value for decorators to check
+	bool ContinueUntilFail = true;
 };

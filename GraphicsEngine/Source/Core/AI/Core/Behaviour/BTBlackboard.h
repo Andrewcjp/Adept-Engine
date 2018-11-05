@@ -6,6 +6,7 @@ namespace EBTBBValueType
 		Vector,
 		Float,
 		Integer,
+		Object,
 		Limit
 	};
 };
@@ -20,6 +21,8 @@ struct BTValue
 	{
 		return (T*)GetValuePtr();
 	}
+	bool IsValid();
+	void* ObjectPtr = nullptr;
 private:
 	void* GetValuePtr()
 	{
@@ -41,7 +44,7 @@ private:
 class BTBlackboard
 {
 public:
-	BTValue* AddValue(EBTBBValueType::Type type);
+	CORE_API BTValue* AddValue(EBTBBValueType::Type type);
 	BTBlackboard();
 	~BTBlackboard();
 	std::vector<BTValue*> values;

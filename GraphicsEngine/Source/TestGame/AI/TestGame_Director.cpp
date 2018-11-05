@@ -18,7 +18,11 @@ TestGame_Director::~TestGame_Director()
 
 void TestGame_Director::Tick()
 {
-
+	if (!once)
+	{
+		SpawnAI(glm::vec3(0, 10, 0), EAIType::Imp);
+		once = true;
+	}
 }
 
 void TestGame_Director::NotifySpawningPoolDestruction()

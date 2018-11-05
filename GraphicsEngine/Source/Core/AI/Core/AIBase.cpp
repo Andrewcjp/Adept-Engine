@@ -2,6 +2,10 @@
 #include "AIBase.h"
 #include "Core/GameObject.h"
 #include "AI/Core/AIController.h"
+#include "AISystem.h"
+#include "Behaviour/BehaviourTreeManager.h"
+#include "Behaviour/BehaviourTree.h"
+#include "Core/Platform/PlatformCore.h"
 
 AIBase::AIBase()
 {}
@@ -9,6 +13,16 @@ AIBase::AIBase()
 
 AIBase::~AIBase()
 {}
+
+void AIBase::SetupBrain()
+{
+	ensureMsgf(BTTree != nullptr, "AI missing Behaviour Tree");
+	if (BTTree->Target == nullptr)
+	{
+		BTTree->Target = GetOwner();
+	}
+	AISystem::Get()->GetBTManager()->AddTree(BTTree);
+}
 
 void AIBase::Update(float dt)
 {
@@ -21,4 +35,5 @@ void AIBase::Update(float dt)
 void AIBase::InitComponent()
 {
 	Controller = GetOwner()->GetComponent<AIController>();
+	SetupBrain();
 }
