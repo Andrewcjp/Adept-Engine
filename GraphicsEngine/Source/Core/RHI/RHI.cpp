@@ -68,7 +68,7 @@ void RHI::WaitForGPU()
 	GetRHIClass()->WaitForGPU();
 }
 
-RenderConstants* RHI::GetRenderConstants()
+const RenderConstants* RHI::GetRenderConstants()
 {
 	if (instance != nullptr)
 	{

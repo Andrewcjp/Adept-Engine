@@ -36,6 +36,7 @@ Scene::~Scene()
 
 void Scene::UpdateScene(float deltatime)
 {
+	AISystem::Get()->Tick(deltatime);
 	CurrentGameMode->Update();
 	if (SceneObjects.size() == 0)
 	{
@@ -240,7 +241,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				else
 				{
 					cc->SetCollisonShape(EShapeType::eBOX);
-				}				
+				}
 				go->AttachComponent(new RigidbodyComponent());
 				AddGameobjectToScene(go);
 			}
@@ -268,7 +269,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
 		}
-	}
+}
 #endif
 }
 

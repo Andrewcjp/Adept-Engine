@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Components/Component.h"
-#include "AI/Core/NavigationMesh.h"
+#include "AI/Core/Navigation/NavigationMesh.h"
 class GameObject;
 class RigidbodyComponent;
 class AIController : public Component

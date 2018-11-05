@@ -146,7 +146,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 {
 	for (int i = 0; i < lights.size(); i++)
 	{
-		if (i >= MAX_LIGHTS)
+		if (i >= MAX_POSSIBLE_LIGHTS || i >= RHI::GetRenderConstants()->MAX_LIGHTS)
 		{
 			continue;
 		}

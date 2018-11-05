@@ -4,16 +4,310 @@
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Core/Assets/AssetManager.h"
 #include "AI/Core/AISystem.h"
-#include "AI/Core/NavigationObstacle.h"
+#include "AI/Core/Navigation/NavigationObstacle.h"
+#include "Core/Platform/PlatformCore.h"
 
+void NavigationMesh::SetupGrid()
+{
+	grid[10][10].Blocked = true;
+	for (int x = 0; x < Gsize; x++)
+	{
+		for (int y = 0; y < Gsize; y++)
+		{
+			grid[x][y].Point = glm::ivec2(x, y);
+		}
+	}
+}
 NavigationMesh::NavigationMesh()
-{}
+{
+	SetupGrid();
+}
 
 NavigationMesh::~NavigationMesh()
 {}
+int NavigationMesh::heuristic(DLTENode sFrom, DLTENode sTo)
+{
+	int distance{ 0 };
+	sFrom.Point.x > sTo.Point.x ? distance = sFrom.Point.x - sTo.Point.x : distance = sTo.Point.x - sFrom.Point.x;
+	sFrom.Point.y > sTo.Point.y ? distance += sFrom.Point.y - sTo.Point.y : distance += sTo.Point.y - sFrom.Point.y;
+	return distance;
+}
+int* NavigationMesh::calculate_keys(DLTENode sTo, DLTENode* sFromPointer)
+{
+	int heuristicValue{ heuristic(*sFromPointer, sTo) };
+	sFromPointer->rhs <= sFromPointer->g ? sFromPointer->key[0] = sFromPointer->rhs + heuristicValue + kM : sFromPointer->key[0] = sFromPointer->g + heuristicValue + kM;
+	sFromPointer->rhs <= sFromPointer->g ? sFromPointer->key[1] = sFromPointer->rhs : sFromPointer->key[1] = sFromPointer->g;
+	return sFromPointer->key;
+}
+bool key_less_than_key(int* keyFrom, int* keyTo)
+{
+	if (keyFrom[0] < keyTo[0])
+	{
+		return true;
+	}
+	else if (keyFrom[0] == keyTo[0] && keyFrom[1] < keyTo[1])
+	{
+		return true;
+	}
+	return false;
+}
+int* NavigationMesh::queue_top_key()
+{
+	if (!queue.empty())
+	{
+		return queue.front()->key;
+	}
+	else
+	{
+		return emptyState->key;
+	}
+}
+NavigationMesh::DLTENode* NavigationMesh::queue_pop()
+{
+	DLTENode* temporaryStatePointer{ queue.front() };
+	queue.pop_front();
+	return temporaryStatePointer;
+
+}
+void NavigationMesh::queue_insert(DLTENode* statePointer)
+{
+	if (!queue.empty())
+	{
+		DLTENode temporaryState;
+		for (size_t i = 0; i != queue.size(); ++i)
+		{
+			temporaryState = *(queue[i]);
+			if (key_less_than_key(statePointer->key, temporaryState.key))
+			{
+				queue.insert(queue.begin() + i, statePointer);
+				return;
+			}
+		}
+		queue.push_back(statePointer);
+	}
+	else
+	{
+		queue.push_front(statePointer);
+	}
+
+}
+void NavigationMesh::queue_remove(DLTENode s)
+{
+	if (!queue.empty())
+	{
+		DLTENode temporaryState;
+		for (size_t i = 0; i < queue.size(); ++i)
+		{
+			temporaryState = *(queue[i]);
+			if (s.Point.x == temporaryState.Point.x && s.Point.y == temporaryState.Point.y)
+			{
+				queue.erase(queue.begin() + i);
+			}
+		}
+	}
+}
+NavigationMesh::DLTENode NavigationMesh::get_start()
+{
+	return *startnode;
+}
+NavigationMesh::DLTENode NavigationMesh::get_goal()
+{
+	return *goalnode;
+}
+void NavigationMesh::run()
+{
+	GridLTE();
+	std::vector<glm::vec3> path;
+	while (get_start().Point.x != get_goal().Point.x || get_start().Point.y != get_goal().Point.y)
+	{
+		/* if start->g == numeric_limits<int>::max() then there is no path */
+		std::deque<DLTENode*> temporaryDeque{ neighbors(get_start()) };
+		DLTENode* temporaryState{ temporaryDeque[0] };
+		DLTENode* secondTemporaryState;
+		for (size_t i = 1; i != temporaryDeque.size(); ++i)
+		{
+			secondTemporaryState = temporaryDeque[i];
+			int temp_cost{ traversal_cost(get_start(), *temporaryState) };
+			int temp_cost2{ traversal_cost(get_start(), *secondTemporaryState) };
+			if (secondTemporaryState->g != MAX_int)
+			{
+				if (temporaryState->g == MAX_int || secondTemporaryState->g + temp_cost2 < temporaryState->g + temp_cost)
+				{
+					temporaryState = secondTemporaryState;
+				}
+			}
+		}
+		path.push_back(glm::vec3(startnode->Point.x, 1, startnode->Point.y));
+		startnode = (temporaryState);
+		//GridLTE();
+		//	std::cout << dStarLite.get_start().x << " " << dStarLite.get_start().y << std::endl;
+			/* if any edge cost has changed */
+			//if (changesDetected)
+			//{
+			//	dStarLite.set_k_m(dStarLite.get_k_m() + dStarLite.heuristic(lastState, dStarLite.get_start()));
+			//	lastState = dStarLite.get_start();
+			//	// for all directed changes (u, v), update_cost (u, v) and then update_state(v)
+			//	dStarLite.update_cost(4, dStarLite.get_state_pointer(1, 2), *(dStarLite.get_state_pointer(1, 3)));
+			//	dStarLite.update_state(dStarLite.get_state_pointer(1, 3));
+			//	// end for all
+			//	dStarLite.compute_shortest_path();
+			//	changesDetected = false;
+			//}
+
+	}
+	for (int i = 0; i < path.size(); i++)
+	{
+		DebugLineDrawer::instance->AddLine(path[i], path[i] + glm::vec3(0, 2, 0), glm::vec3(0, 0, 1), 100);
+	}
+}
+void NavigationMesh::GridLTE()
+{
+	//init;
+	startnode = &grid[10][10];
+	goalnode = &grid[30][19];
+	queue_insert(goalnode);
+	startnode->g = MAX_int;
+	startnode->rhs = MAX_int;
+	goalnode->g = MAX_int;
+	goalnode->rhs = 0;
+	calculate_keys(*startnode, goalnode);
+
+	emptyState = new DLTENode();
+	emptyState->key[0] = MAX_int;
+	emptyState->key[1] = MAX_int;
+	DLTENode* ptr = nullptr;
+	while (key_less_than_key(queue_top_key(), calculate_keys(*startnode, startnode)) || startnode->rhs != startnode->g)
+	{
+		ptr = queue_pop();
+		ensure(ptr);
+		if (key_less_than_key(queue_top_key(), calculate_keys(*startnode, ptr)))
+		{
+			queue_insert(ptr);//possible path node 
+		}
+		else
+		{
+			std::deque<DLTENode*> temporaryDeque{ neighbors(*ptr) };
+			if (ptr->g > ptr->rhs)
+			{
+				ptr->g = ptr->rhs;
+				for (size_t i = 0; i != temporaryDeque.size(); ++i)
+				{
+					update_state(temporaryDeque[i]);
+				}
+			}
+			else
+			{
+				ptr->g = MAX_int;
+				for (size_t i = 0; i != temporaryDeque.size(); ++i)
+				{
+					update_state(temporaryDeque[i]);
+				}
+				update_state(ptr);
+			}
+		}
+	}
+	ensure(queue.size());
+	DebugLineDrawer::instance->AddLine(glm::vec3(goalnode->Point.x, 0, goalnode->Point.y), glm::vec3(goalnode->Point.x, 10, goalnode->Point.y), glm::vec3(0, 1, 1), 100);
+
+}
+
+std::deque<NavigationMesh::DLTENode*> NavigationMesh::neighbors(DLTENode s)
+{
+	std::deque<DLTENode*> temporaryDeque;
+	DLTENode* temporaryStatePointer;
+	std::string coordinates;
+	int temporaryX;
+	int temporaryY;
+	for (size_t i = 0; i != DIRECTIONS_WIDTH; ++i)
+	{
+		temporaryX = s.Point.x + DIRECTIONS[i][0];
+		temporaryY = s.Point.y + DIRECTIONS[i][1];
+		//coordinates = coordinates_to_string(temporaryX, temporaryY);
+		/*if (grid.find(coordinates) == grid.end())
+		{
+			temporaryStatePointer = new state();
+			temporaryStatePointer->x = temporaryX;
+			temporaryStatePointer->y = temporaryY;
+			grid[coordinates] = temporaryStatePointer;
+		}
+		else
+		{
+			temporaryStatePointer = grid[coordinates];
+		}*/
+		//todo: link the navmesh graph here
+		temporaryStatePointer = &grid[temporaryX][temporaryY];
+		if (temporaryY >= 0 && temporaryX >= 0)
+		{
+			ensure(temporaryY >= 0);
+			ensure(temporaryX >= 0);
+			temporaryDeque.push_back(temporaryStatePointer);
+		}
+
+	}
+	return temporaryDeque;
+}
+int NavigationMesh::traversal_cost(DLTENode sFrom, DLTENode sTo)
+{
+	int edgeCost{ 1 };
+	for (size_t i = 0; i != DIRECTIONS_WIDTH; ++i)
+	{
+		if (sFrom.Point.x + DIRECTIONS[i][0] == sTo.Point.x && sFrom.Point.y + DIRECTIONS[i][1] == sTo.Point.y)
+		{
+			edgeCost = sFrom.edgeCost[i];
+			break;
+		}
+	}
+	return edgeCost;
+}
+
+void NavigationMesh::update_state(DLTENode* statePointer)
+{
+	if (statePointer->Point.x != goalnode->Point.x || statePointer->Point.y != goalnode->Point.y)
+	{
+		std::deque<DLTENode*> temporaryDeque = neighbors(*statePointer);
+		DLTENode* temporaryStatePointer = temporaryDeque[0];
+		if (temporaryStatePointer->g != MAX_int)
+		{
+			statePointer->rhs = temporaryStatePointer->g + traversal_cost(*statePointer, *temporaryStatePointer);
+		}
+		int temp_cost;
+		for (size_t i = 1; i < temporaryDeque.size(); ++i)
+		{
+			temporaryStatePointer = temporaryDeque[i];
+			temp_cost = traversal_cost(*statePointer, *temporaryStatePointer);
+			if (temporaryStatePointer->g != MAX_int && statePointer->rhs > temporaryStatePointer->g + temp_cost)
+			{
+				statePointer->rhs = temporaryStatePointer->g + temp_cost;
+			}
+		}
+	}
+	// if s is in queue, then remove
+	queue_remove(*statePointer);
+
+	if (statePointer->g != statePointer->rhs)
+	{
+		calculate_keys(*startnode, statePointer);
+		//queue_insert(statePointer);
+		queue_insert(statePointer);
+	}
+}
+
+void NavigationMesh::RenderGrid()
+{
+	for (int x = 0; x < Gsize; x++)
+	{
+		for (int y = 0; y < Gsize; y++)
+		{
+			DebugLineDrawer::instance->AddLine(glm::vec3(x, 0, y), glm::vec3(x, 0.5, y), grid[x][y].Blocked ? glm::vec3(1, 0, 0) : glm::vec3(0, 1, 0), 100);
+		}
+	}
+}
 
 void NavigationMesh::GenTestMesh()
 {
+	run();
+	RenderGrid();
+	return;
 	std::vector<OGLVertex> vertices;
 	std::vector<int> indices;
 	MeshLoader::FMeshLoadingSettings t;
@@ -294,7 +588,7 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_ASTAR(glm::vec3 Startpoint
 		RemoveItem(CurrentPoint, OpenList);
 		if (AddToClosed(CurrentPoint, EndTri))
 		{
-		//	ClosedList.push_back(CurrentPoint);
+			//	ClosedList.push_back(CurrentPoint);
 			DebugLineDrawer::instance->AddLine(CurrentPoint->pos, CurrentPoint->pos + glm::vec3(0, 10, 0), glm::vec3(0, 1, 0), 100);
 			break;//path found
 		}
