@@ -17,8 +17,9 @@ void BT_Imp::SetupTree()
 	BTValue* posptr = Blackboard->AddValue(EBTBBValueType::Vector);
 	posptr->vector = glm::vec3(1, 1, 1);
 	BTValue* obj = Blackboard->AddValue(EBTBBValueType::Object);
-	obj->ObjectPtr = (void*)0x0;
+	obj->ObjectPtr = (void*)0x1;
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->Decorators.push_back(new BaseDecorator(obj, EDecoratorTestType::NotNull));
+	selector->AddChildNode<BTWaitNode>(new BTWaitNode(10));
 	selector->AddChildNode<BTMoveToNode>(new BTMoveToNode(posptr));
 }

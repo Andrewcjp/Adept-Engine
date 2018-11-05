@@ -6,7 +6,7 @@
 
 BehaviourTreeManager::BehaviourTreeManager()
 {
-	AddTree(new TestBTTree());
+	//AddTree(new TestBTTree());
 }
 
 
