@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿
 #include "D3D12RHI.h"
 #include "RHI/RHI.h"
 #include "RHI/RHI_inc.h"

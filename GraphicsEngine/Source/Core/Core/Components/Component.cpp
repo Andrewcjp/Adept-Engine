@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Component.h"
 #include "Core/GameObject.h"
 #include "Core/Assets/Archive.h"
@@ -19,7 +19,7 @@ void Component::FixedUpdate(float)
 {}
 
 #if WITH_EDITOR
-void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props)
+void Component::GetInspectorProps(std::vector<InspectorProperyGroup> &props)
 {}
 #endif
 

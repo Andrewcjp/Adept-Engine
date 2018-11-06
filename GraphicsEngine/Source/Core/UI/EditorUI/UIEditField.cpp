@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "UIEditField.h"
 #include "UI/Core/UILabel.h"
 #include "Editor/EditorWindow.h"

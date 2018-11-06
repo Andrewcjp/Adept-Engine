@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "GPUResource.h"
 #include <algorithm>
 #include "D3D12DeviceContext.h"

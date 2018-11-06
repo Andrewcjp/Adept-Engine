@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "WindowsApplication.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/StringUtil.h"

@@ -1,5 +1,4 @@
 #pragma once
-#include "Source/TestGame/TestGamePCH.h"
 const int MAX_WEAPON_COUNT = 3;
 class Weapon;
 class WeaponManager :public Component

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Shader_UIBatch.h"
 #include "Shader_Main.h"
 DECLARE_GLOBAL_SHADER(Shader_UIBatch);

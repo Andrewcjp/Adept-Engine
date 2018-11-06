@@ -1,25 +1,11 @@
 #pragma once
 #include "UI/Core/UIWidget.h"
-
 #include <functional>
-namespace EditValueType
-{
-	enum Type
-	{
-		Int,
-		Float,
-		String,
-		Vector,
-		Bool,
-		Slider,
-		Colour,
-		Label
-	};
-};
+#include "Editor/EditorTypes.h"
 #if WITH_EDITOR
 class IInspectable;
 class UIBox;
-
+struct InspectorProperyGroup;
 class Inspector : public UIWidget
 {
 public:
@@ -81,11 +67,7 @@ public:
 		EditValueType::Type type;
 		bool ChangesEditor = false;
 	};
-	struct InspectorProperyGroup
-	{
-		std::string name;
-		std::vector<InspectorPropery> SubProps;
-	};
+	
 	Inspector(int w, int h, int x, int y);
 	~Inspector();
 	void SetSelectedObject(IInspectable* target);
@@ -109,5 +91,9 @@ private:
 	std::vector<UIWidget*> SubWidgets;
 	UIBox* Backgroundbox;
 };
-
+struct InspectorProperyGroup
+{
+	std::string name;
+	std::vector<struct Inspector::InspectorPropery> SubProps;
+};
 #endif

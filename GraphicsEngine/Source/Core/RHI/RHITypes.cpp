@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "RHITypes.h"
 #include "Core/Utils/StringUtil.h"
 

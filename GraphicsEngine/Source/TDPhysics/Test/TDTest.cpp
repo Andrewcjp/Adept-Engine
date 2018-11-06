@@ -1,4 +1,4 @@
-#include "TDPCH.h"
+
 #include "TDTest.h"
 #include "TDRigidStatic.h"
 #include "Shapes/TDSphere.h"

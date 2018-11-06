@@ -1,7 +1,7 @@
 #pragma once
 #if PHYSX_ENABLED
 
-#include "Physics/Physx/PhysxRigidbody.h"
+
 #include "Physics/GenericPhysicsEngine.h"
 #include "Physics/GenericConstraint.h"
 #include <include/physx/PxPhysicsAPI.h>
@@ -13,6 +13,7 @@ class PhysxCallBackHandler;
 class PhysxEngine : public GenericPhysicsEngine
 {
 public:
+	static PhysxEngine * Get();
 	void initPhysics();
 	void stepPhysics(float Deltatime);
 

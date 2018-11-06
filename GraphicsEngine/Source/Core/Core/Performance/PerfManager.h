@@ -55,6 +55,7 @@ public:
 	static float GetGPUTime();
 	static float GetCPUTime();
 	CORE_API static float GetDeltaTime();
+	CORE_API static float GetDeltaTimeRaw();
 	static void SetDeltaTime(float Time);
 	static void NotifyEndOfFrame(bool Final = false);
 	bool ShowAllStats = false;
@@ -111,6 +112,7 @@ private:
 	static bool PerfActive;
 	float FrameTime = 1.0f;
 	float DeltaTime = 0.0f;
+	float ClampedDT = 0.0f;
 	float CPUTime = 0;
 	float GPUTime = 0;
 	long FrameStart = 0;

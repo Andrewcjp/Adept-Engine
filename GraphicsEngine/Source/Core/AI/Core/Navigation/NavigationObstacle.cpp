@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "NavigationObstacle.h"
 #include "NavigationMesh.h"
 

@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "PP_Blur.h"
 #include "Rendering/Shaders/PostProcess/Shader_Blur.h"
 #include "RHI/RHI_inc.h"

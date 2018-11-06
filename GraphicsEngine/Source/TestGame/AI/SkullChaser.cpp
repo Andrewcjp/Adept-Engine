@@ -1,6 +1,5 @@
 #include "SkullChaser.h"
-#include "Core/GameObject.h"
-#include "Core/Components/Core_Components_inc.h"
+#include "Core/Components/RigidbodyComponent.h"
 
 SkullChaser::SkullChaser()
 {}

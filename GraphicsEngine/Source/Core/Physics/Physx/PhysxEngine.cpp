@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "PhysxEngine.h"
 #if PHYSX_ENABLED
 #include <thread>
@@ -18,7 +18,10 @@ physx::PxFilterFlags CollisionFilterShader(
 	retPairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS | PxPairFlag::eNOTIFY_TOUCH_FOUND;
 	return PxFilterFlag::eDEFAULT;
 }
-
+PhysxEngine * PhysxEngine::Get()
+{
+	return Engine::GetPhysEngineInstance();
+}
 void PhysxEngine::initPhysics()
 {
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);

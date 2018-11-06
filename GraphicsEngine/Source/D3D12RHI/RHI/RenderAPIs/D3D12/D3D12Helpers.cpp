@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "D3D12Helpers.h"
 #include "Core/Asserts.h"
 #include "GPUResource.h"

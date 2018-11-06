@@ -1,6 +1,8 @@
 #pragma once
-#include "Editor/Inspector.h"
+#include "Editor/EditorTypes.h"
 #include "Physics/PhysicsTypes.h"
+
+struct InspectorProperyGroup;
 class Component
 {
 public:
@@ -18,7 +20,7 @@ public:
 #if WITH_EDITOR
 	CORE_API virtual void EditorUpdate() {};
 	CORE_API virtual void PostChangeProperties() {};
-	CORE_API virtual void Component::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props);
+	CORE_API virtual void Component::GetInspectorProps(std::vector<InspectorProperyGroup> &props);
 #endif
 
 	CORE_API virtual void OnCollide(CollisonData data) {};

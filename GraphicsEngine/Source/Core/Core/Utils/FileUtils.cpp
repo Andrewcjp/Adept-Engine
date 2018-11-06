@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "FileUtils.h"
 
 #include "Core/Platform/Logger.h"

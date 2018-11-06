@@ -1,10 +1,7 @@
 #include "TestPlayer.h"
 #include "EngineHeader.h"
-#include "Core/Performance/PerfManager.h"
 #include "Core/Components/Core_Components_inc.h"
-#include "Projectile.h"
 #include "Editor/EditorWindow.h"
-#include <algorithm>
 TestPlayer::TestPlayer()
 {}
 

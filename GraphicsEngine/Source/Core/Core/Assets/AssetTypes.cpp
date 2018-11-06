@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "AssetTypes.h"
 #include "Core/Engine.h"
 #include "Core/Utils/StringUtil.h"

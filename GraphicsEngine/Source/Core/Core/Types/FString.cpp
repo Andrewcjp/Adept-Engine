@@ -1,5 +1,5 @@
 #ifndef FROMTEST
-#include "Stdafx.h"
+
 #endif
 #include "FString.h"
 #include "Core/Asserts.h"

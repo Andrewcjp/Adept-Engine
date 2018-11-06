@@ -1,5 +1,5 @@
 #pragma once
-#include "TDPCH.h"
+
 namespace TD
 {
 	struct TD_API TDPhysicalMaterial

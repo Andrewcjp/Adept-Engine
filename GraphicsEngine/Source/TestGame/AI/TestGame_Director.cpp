@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "TestGame_Director.h"
 #include "Core/GameObject.h"
 #include "DemonImp.h"

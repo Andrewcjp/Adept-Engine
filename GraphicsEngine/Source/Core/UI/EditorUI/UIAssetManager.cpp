@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "UIAssetManager.h"
 #include "UI/Core/UIListBox.h"
 #include "UI/UIManager.h"

@@ -1,5 +1,4 @@
 #pragma once
-#include "Source/TestGame/TestGamePCH.h"
 #include "BT_Imp.h"
 #include "AI/Core/Behaviour/BehaviourTreeNode.h"
 #include "AI/Core/Behaviour/BTBlackboard.h"
@@ -15,7 +14,7 @@ BT_Imp::~BT_Imp()
 void BT_Imp::SetupTree()
 {
 	BTValue* posptr = Blackboard->AddValue(EBTBBValueType::Vector);
-	posptr->vector = glm::vec3(1, 1, 1);
+	posptr->Vector = glm::vec3(1, 1, 1);
 	BTValue* obj = Blackboard->AddValue(EBTBBValueType::Object);
 	obj->ObjectPtr = (void*)0x1;
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());

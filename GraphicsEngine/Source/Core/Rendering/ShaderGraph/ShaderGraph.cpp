@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "ShaderGraph.h"
 #include "ShaderGraphNode.h"
 #include "Core/Assets/AssetManager.h"

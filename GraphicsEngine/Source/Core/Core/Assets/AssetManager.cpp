@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "AssetManager.h"
 #include <fstream>
 #include <filesystem>

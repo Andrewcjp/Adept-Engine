@@ -16,7 +16,7 @@ public:
 	/*void Render(bool DepthOnly);*/
 	Material* GetMaterial(int index);
 #if WITH_EDITOR
-	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup> &props) override final;
+	void GetInspectorProps(std::vector<InspectorProperyGroup> &props) override final;
 #endif
 	Mesh* GetMesh()
 	{

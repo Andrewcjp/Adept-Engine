@@ -1,4 +1,4 @@
-#include "TDPCH.h"
+
 #include "TDTypes.h"
 
 TD::TDPhysicalMaterial::TDPhysicalMaterial()

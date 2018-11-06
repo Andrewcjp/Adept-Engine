@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "RigidbodyComponent.h"
 #include "Core/GameObject.h"
 #include "Core/Engine.h"
@@ -110,9 +110,9 @@ glm::vec3 RigidbodyComponent::GetVelocity()
 	return glm::vec3();
 }
 #if WITH_EDITOR
-void RigidbodyComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
+void RigidbodyComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("RigidBody Component");
+	InspectorProperyGroup group = Inspector::CreatePropertyGroup("RigidBody Component");
 	group.SubProps.push_back(Inspector::CreateProperty("Mass", EditValueType::Float, &mass));
 	props.push_back(group);
 }

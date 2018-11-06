@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "D3D12Shader.h"
 #include "D3D12RHI.h"
 #include "Core/Utils/FileUtils.h"

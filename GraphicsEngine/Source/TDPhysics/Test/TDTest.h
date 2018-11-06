@@ -1,6 +1,6 @@
 #pragma once
-#include "TDPCH.h"
-namespace TD {
+namespace TD 
+{
 	class TDTest
 	{
 	public:

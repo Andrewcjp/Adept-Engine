@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "GenericApplication.h"
 #include "Core/Utils/StringUtil.h"
 #include <experimental/filesystem>

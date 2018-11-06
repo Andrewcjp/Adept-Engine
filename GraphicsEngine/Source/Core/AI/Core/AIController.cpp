@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "AIController.h"
 #include "Core/GameObject.h"
 #include "Core/Components/RigidbodyComponent.h"

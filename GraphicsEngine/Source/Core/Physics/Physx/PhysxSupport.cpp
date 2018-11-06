@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "PhysxSupport.h"
 #include "PhysxRigidbody.h"
 #include "Physics/PhysicsEngine.h"

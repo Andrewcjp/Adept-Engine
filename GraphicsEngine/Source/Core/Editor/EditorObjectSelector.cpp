@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "EditorObjectSelector.h"
 #include "Core/GameObject.h"
 #include "Core/Engine.h"
@@ -40,7 +40,7 @@ GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const
 	//origin = /*cam->GetPosition() +*/ cam->ScreenPointToWorld(x, y);
 	if (DebugLineDrawer::instance != nullptr)
 	{
-		DebugLineDrawer::instance->AddLine(origin, origin + glm::normalize(-dir) * 1000, Colours::RED, 10);
+//		DebugLineDrawer::instance->AddLine(origin, origin + glm::normalize(-dir) * 1000, Colours::RED, 10);
 	}
 	/*if (pengine->RayCastEditorScene(origin, glm::normalize(-dir), 15000, &hit))
 	{

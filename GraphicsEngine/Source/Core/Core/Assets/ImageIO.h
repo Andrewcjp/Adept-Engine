@@ -1,5 +1,5 @@
 #pragma once
-#include "Stdafx.h"
+
 enum EImageIOStatus
 {
 	E_IMAGEIO_ERROR = 0,

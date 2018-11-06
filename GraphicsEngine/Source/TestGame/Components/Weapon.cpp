@@ -1,9 +1,9 @@
 #include "Weapon.h"
-#include "EngineHeader.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "Projectile.h"
 #include "Editor/EditorWindow.h"
 #include "Audio/AudioEngine.h"
+#include "Core/GameObject.h"
 Weapon::Weapon()
 {}
 

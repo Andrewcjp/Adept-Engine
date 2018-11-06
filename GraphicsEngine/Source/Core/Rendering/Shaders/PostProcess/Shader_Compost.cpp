@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Shader_Compost.h"
 #include "RHI/DeviceContext.h"
 DECLARE_GLOBAL_SHADER(Shader_Compost);

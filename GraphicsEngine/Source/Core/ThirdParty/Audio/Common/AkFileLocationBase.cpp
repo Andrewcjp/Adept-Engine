@@ -24,7 +24,7 @@ written agreement between you and Audiokinetic Inc.
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+
 #include "AkFileLocationBase.h"
 
 #include <AK/SoundEngine/Common/AkStreamMgrModule.h>

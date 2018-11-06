@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Editor_Camera.h"
 #include "Core/Input/Input.h"
 #include "Editor/EditorWindow.h"

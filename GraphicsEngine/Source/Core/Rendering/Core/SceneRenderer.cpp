@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "SceneRenderer.h"
 #include "Rendering/Shaders/Shader_Main.h"
 #include "Core/GameObject.h"

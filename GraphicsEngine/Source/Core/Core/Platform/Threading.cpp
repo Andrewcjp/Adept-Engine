@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Threading.h"
 namespace Threading
 {

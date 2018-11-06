@@ -1,10 +1,11 @@
-#include "Stdafx.h"
+
 #include "AISystem.h"
 #include "Navigation/NavigationMesh.h"
 #include "AIDirector.h"
 #include "core/Engine.h"
 #include "core/Game/Game.h"
 #include "Behaviour/BehaviourTreeManager.h"
+#include "AI/Generation/NavMeshGenerator.h"
 AISystem* AISystem::Instance = nullptr;
 
 AISystem::AISystem()
@@ -13,6 +14,8 @@ AISystem::AISystem()
 	mesh = new NavigationMesh();
 	BTManager = new BehaviourTreeManager();
 	Director = Engine::GetGame()->CreateAIDirector();
+	NavMeshGenerator* n = new NavMeshGenerator();
+	n->Voxelise(nullptr);
 	//mesh->GenTestMesh();
 }
 
@@ -56,7 +59,13 @@ EAINavigationMode::Type AISystem::GetPathMode()
 	}
 	return Instance->CurrentMode;
 }
+
 ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
 {
-	return mesh->CalculatePath(Startpoint, EndPos, outpath);
+	ENavRequestStatus::Type result = mesh->CalculatePath(Startpoint, EndPos, outpath);
+	if (result != ENavRequestStatus::Complete)
+	{
+		Log::LogMessage("CalculatePath Failed",Log::Severity::Warning);
+	}
+	return result;
 }

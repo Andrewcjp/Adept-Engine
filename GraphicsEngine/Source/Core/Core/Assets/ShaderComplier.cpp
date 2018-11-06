@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "ShaderComplier.h"
 #include "RHI/Shader.h"
 #include "Core/Platform/ConsoleVariable.h"
@@ -56,7 +56,7 @@ void ShaderComplier::ComplieShader(ShaderType & type, DeviceContext* Context)
 		type.CompliedShader = type.Constructor(type.ShaderInitalizer);
 	}
 }
-//todo: complie materials too
+//todo: compile materials too
 //todo: device index
 ShaderType* ShaderComplier::GetShaderFromGlobalMap(std::string name)
 {

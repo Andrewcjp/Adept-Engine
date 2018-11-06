@@ -16,4 +16,8 @@
 #else
 #define BUILD_FULLRELEASE 0
 #endif
+#define SafeDelete(Target)if(Target != nullptr){delete Target; Target= nullptr;}
+#define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
+#include "TDAsserts.h"
+
 #include "include/glm/glm.hpp"

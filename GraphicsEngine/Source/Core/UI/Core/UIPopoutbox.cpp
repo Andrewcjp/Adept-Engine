@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "UIPopoutbox.h"
 #include "UILabel.h"
 #include "UI/UIManager.h"

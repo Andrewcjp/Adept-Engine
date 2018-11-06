@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "PP_Bloom.h"
 #include "Rendering/Shaders/PostProcess/Shader_Bloom.h"
 #include "RHI/RHI_inc.h"

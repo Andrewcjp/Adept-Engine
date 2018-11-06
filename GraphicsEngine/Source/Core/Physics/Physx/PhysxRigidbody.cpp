@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #if PHYSX_ENABLED
 #include "PhysxRigidbody.h"
 #include "PhysxEngine.h"

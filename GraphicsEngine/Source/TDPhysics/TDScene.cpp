@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "TDScene.h"
 #include "TDOctTree.h"
 #include "TDRigidDynamic.h"

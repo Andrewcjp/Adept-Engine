@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include <iostream>
 #include "Core/Assets/ImageIO.h"
 #include "Core/Engine.h"

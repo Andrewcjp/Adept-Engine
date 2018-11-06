@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "DebugDrawers.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #define PI (3.1415926535897932f)

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "RenderSettings.h"
 #include "RHI/RHI.h"
 #include "Core/Platform/ConsoleVariable.h"

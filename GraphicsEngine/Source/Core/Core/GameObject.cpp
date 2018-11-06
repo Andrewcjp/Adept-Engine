@@ -205,10 +205,10 @@ void GameObject::SetParent(GameObject * Parent)
 	GetTransform()->SetParent(mParent->GetTransform());
 }
 #if WITH_EDITOR
-std::vector<Inspector::InspectorProperyGroup> GameObject::GetInspectorFields()
+std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()
 {
-	std::vector<Inspector::InspectorProperyGroup> test;
-	Inspector::InspectorProperyGroup RootGroup = Inspector::CreatePropertyGroup("GameObject");
+	std::vector<InspectorProperyGroup> test;
+	InspectorProperyGroup RootGroup = Inspector::CreatePropertyGroup("GameObject");
 	RootGroup.SubProps.push_back(Inspector::CreateProperty("Name", EditValueType::String, &Name));
 	test.push_back(RootGroup);
 	RootGroup = Inspector::CreatePropertyGroup("Transform");

@@ -1,5 +1,4 @@
 #pragma once
-#include "Source/TestGame/TestGamePCH.h"
 class PhysicsThrowerComponent :public Component
 {
 public:

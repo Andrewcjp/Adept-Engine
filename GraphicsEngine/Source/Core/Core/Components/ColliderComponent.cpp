@@ -1,4 +1,4 @@
-//#include "stdafx.h"
+//
 #include "ColliderComponent.h"
 #include "Core/Engine.h"
 #include "Physics/PhysicsEngine.h"
@@ -143,9 +143,9 @@ void ColliderComponent::SetTriangleMeshAssetName(std::string name)
 	MeshName = AssetManager::GetContentPath() + name;
 }
 #if WITH_EDITOR
-void ColliderComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
+void ColliderComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Collider Component");
+	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Collider Component");
 	group.SubProps.push_back(Inspector::CreateProperty("Type", EditValueType::Int, &CollisionShapeType, true));
 	if (CollisionShapeType == EShapeType::eBOX)
 	{

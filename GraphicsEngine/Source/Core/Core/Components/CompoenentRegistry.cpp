@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "CompoenentRegistry.h"
 #include "ExtraComponentRegister.h"
 #include "Component.h"

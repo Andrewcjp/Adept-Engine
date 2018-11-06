@@ -13,7 +13,7 @@ public:
 	//called when desleected
 	virtual void OnDeselected();
 	//used to populate the feilds in this object.
-	virtual std::vector<Inspector::InspectorProperyGroup> GetInspectorFields() = 0;
+	virtual std::vector<InspectorProperyGroup> GetInspectorFields() = 0;
 
 };
 #endif

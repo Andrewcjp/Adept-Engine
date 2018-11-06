@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "DeviceContext.h"
 #include "Core/Asserts.h"
 #include "RHITypes.h"

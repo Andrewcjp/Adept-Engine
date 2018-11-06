@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "PP_CompostPass.h"
 #include "Rendering/Shaders/PostProcess/Shader_Compost.h"
 #include "RHI/RHI.h"

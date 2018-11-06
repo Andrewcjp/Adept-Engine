@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "SceneJSerialiser.h"
 #include "Scene.h"
 #include "Core/GameObject.h"

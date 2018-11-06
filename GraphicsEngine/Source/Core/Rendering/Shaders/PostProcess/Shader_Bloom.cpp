@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Shader_Bloom.h"
 DECLARE_GLOBAL_SHADER(Shader_Bloom);
 //Handles Threshold Pass for Bloom!
