@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Shader_Line.h"
 #include "Core/Assets/ShaderComplier.h"
 

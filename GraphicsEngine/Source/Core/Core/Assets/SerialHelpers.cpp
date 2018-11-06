@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "SerialHelpers.h"
 
 void SerialHelpers::addJsonValue(rapidjson::Value & jval, rapidjson::Document::AllocatorType & jallocator, const std::string & key, rapidjson::Value & value)

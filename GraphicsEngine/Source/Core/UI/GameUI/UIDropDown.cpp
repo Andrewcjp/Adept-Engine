@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "UIDropDown.h"
 #include "UI/UIManager.h"
 

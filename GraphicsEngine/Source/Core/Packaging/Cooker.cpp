@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Cooker.h"
 #include <experimental/filesystem>
 #include "Core/Engine.h"

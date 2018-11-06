@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "ParticleSystemManager.h"
 #include "Core/Assets/ShaderComplier.h"
 #include "Rendering/Shaders/Particle/Shader_ParticleCompute.h"

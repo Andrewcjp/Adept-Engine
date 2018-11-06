@@ -17,6 +17,7 @@
 #include "Audio/AudioEngine.h"
 #include "AI/Core/AISystem.h"
 #include "Platform/Windows/WindowsWindow.h"
+#include "GameWindow.h"
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
@@ -236,7 +237,7 @@ void Engine::Exit(int code)
 	if (EngineInstance != nullptr)
 	{
 		EngineInstance->Destory();
-		delete EngineInstance;
+		SafeDelete(EngineInstance);
 	}
 	exit(code);
 }
@@ -256,7 +257,7 @@ void Engine::HandleKeyUp(unsigned int key)
 {
 	if (UIManager::GetCurrentContext() != nullptr)
 	{
-		//UIManager::GetCurrentContext()->ProcessKeyDown(key); TODO: this
+		UIManager::GetCurrentContext()->ProcessKeyDown(key);// TODO: this
 	}
 	else
 	{
@@ -294,16 +295,6 @@ void Engine::CreateApplicationWindow(int width, int height)
 	{
 		mwidth = width;
 		mheight = height;
-#if UseDevelopmentWindows
-		if (type == RenderSystemD3D12)
-		{
-			RHI::InitRHI(RenderSystemD3D12);
-			m_appwnd = new D3D12Window();
-			isWindowVaild = m_appwnd->CreateRenderWindow(m_hInst, width, height, FullScreen);
-			m_appwnd->SetVisible(TRUE);
-			return;
-		}
-#endif		
 #if WITH_EDITOR
 		m_appwnd = new EditorWindow();
 #else 
@@ -317,6 +308,10 @@ void Engine::CreateApplicationWindow(int width, int height)
 		}
 	}
 }
+
+
+//Temp test for physics collisions 
+#include <TDPhysicsAPI.h>
 #include "Test/TDTest.h"
 void Engine::TestTDPhysics()
 {

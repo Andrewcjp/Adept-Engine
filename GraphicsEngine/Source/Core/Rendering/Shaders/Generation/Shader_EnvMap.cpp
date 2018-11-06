@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Shader_EnvMap.h"
 #include "Rendering/Core/Mesh.h"
 #include "RHI/RHI_inc.h"

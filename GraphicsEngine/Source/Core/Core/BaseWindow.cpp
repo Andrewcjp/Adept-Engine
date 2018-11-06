@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "BaseWindow.h"
 #include "Engine.h"
 #include "Rendering/Core/DebugLineDrawer.h"

@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Shader_ShadowSample.h"
 #include "Rendering/Shaders/Shader_Main.h"
 DECLARE_GLOBAL_SHADER(Shader_ShadowSample);

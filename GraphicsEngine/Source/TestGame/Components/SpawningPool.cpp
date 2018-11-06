@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "SpawningPool.h"
 #include "AI/Core/AISystem.h"
 #include "../AI/TestGame_Director.h"

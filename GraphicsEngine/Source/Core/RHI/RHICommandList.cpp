@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "RHICommandList.h"
 #include "Rendering/Core/FrameBuffer.h"
 #include "DeviceContext.h"

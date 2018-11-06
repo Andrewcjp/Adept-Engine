@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "PostProcessing.h"
 #include "PP_CompostPass.h"
 #include "PP_ColourCorrect.h"

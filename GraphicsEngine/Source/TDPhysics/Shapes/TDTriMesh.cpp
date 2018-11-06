@@ -1,4 +1,4 @@
-#include "TDPCH.h"
+
 #include "TDTriMesh.h"
 namespace TD
 {

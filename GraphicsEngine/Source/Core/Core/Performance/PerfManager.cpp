@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "PerfManager.h"
 #include <iomanip>
 #include <time.h>
@@ -264,7 +264,7 @@ void PerfManager::StartFrameTimer()
 void PerfManager::EndFrameTimer()
 {
 	FrameTime = (float)((get_nanos() - FrameStart) / 1e9f);//in s
-	DeltaTime = FrameTime;
+	SetDeltaTime(FrameTime);
 }
 
 float PerfManager::GetGPUTime()
@@ -289,9 +289,18 @@ float PerfManager::GetDeltaTime()
 {
 	if (Instance != nullptr)
 	{
-		return Instance->DeltaTime;
+		return Instance->ClampedDT;
 	}
 	return 0;
+}
+
+float PerfManager::GetDeltaTimeRaw()
+{
+	if (Instance != nullptr)
+	{
+		return Instance->DeltaTime;
+	}
+	return 0.0f;
 }
 
 void PerfManager::SetDeltaTime(float Time)
@@ -299,6 +308,8 @@ void PerfManager::SetDeltaTime(float Time)
 	if (Instance != nullptr)
 	{
 		Instance->DeltaTime = Time;
+		Instance->ClampedDT = Time;
+		Instance->ClampedDT = std::min(Instance->ClampedDT,(1.0f / 10.0f));
 	}
 }
 void PerfManager::NotifyEndOfFrame(bool Final)
@@ -311,7 +322,7 @@ void PerfManager::NotifyEndOfFrame(bool Final)
 		{
 			Instance->UpdateStatsTimer();
 			Instance->Internal_NotifyEndOfFrame();
-			Instance->UpdateStats();			
+			Instance->UpdateStats();
 		}
 	}
 }

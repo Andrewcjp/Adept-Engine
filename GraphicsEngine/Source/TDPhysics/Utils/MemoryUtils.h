@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 namespace TD
 {
 	namespace MemoryUtils

@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "NavigationMesh.h"
 #include "Core/Assets/MeshLoader.h"
 #include "Rendering/Core/DebugLineDrawer.h"

@@ -3,7 +3,7 @@
 #include "Core/Input/Input.h"
 #include "Core/MinWindows.h"
 #include "Editor/EditorWindow.h"
-#include "Stdafx.h"
+
 #include "UI/Core/UILabel.h"
 #include "UI/EditorUI/UIEditField.h"
 #include "UI/UIManager.h"

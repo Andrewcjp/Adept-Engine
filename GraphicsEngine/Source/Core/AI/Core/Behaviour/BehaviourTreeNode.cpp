@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "BehaviourTreeNode.h"
 #include "AI/Core/AISystem.h"
 #include "BehaviourTree.h"
@@ -6,6 +6,7 @@
 #include "BTBlackboard.h"
 #include "../Services/ServiceBase.h"
 #include "BaseDecorator.h"
+#include "Core/Performance/PerfManager.h"
 
 
 EBTNodeReturn::Type BehaviourTreeNode::ExecuteNode()
@@ -125,7 +126,7 @@ EBTNodeReturn::Type BTWaitNode::ExecuteNode()
 {
 	if (Remaining > 0.0f)
 	{
-		Remaining--;
+		Remaining -= PerfManager::GetDeltaTime();
 		return EBTNodeReturn::Running;
 	}
 	return EBTNodeReturn::Success;

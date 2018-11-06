@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Inspector.h"
 #include "IInspectable.h"
 
@@ -52,9 +52,9 @@ Inspector::InspectorPropery Inspector::CreateProperty(std::string name, EditValu
 	return NameProp;
 }
 
-Inspector::InspectorProperyGroup Inspector::CreatePropertyGroup(std::string name)
+InspectorProperyGroup Inspector::CreatePropertyGroup(std::string name)
 {
-	Inspector::InspectorProperyGroup NameProp;
+	InspectorProperyGroup NameProp;
 	NameProp.name = name;
 	return NameProp;
 }
@@ -150,7 +150,7 @@ void Inspector::CreateEditor()
 	}
 	if (target != nullptr)
 	{
-		std::vector<Inspector::InspectorProperyGroup> Fields = target->GetInspectorFields();
+		std::vector<InspectorProperyGroup> Fields = target->GetInspectorFields();
 		for (int i = 0; i < Fields.size(); i++)
 		{
 			UIPanel* Panel = new UIPanel(0, 0, 0, 0);

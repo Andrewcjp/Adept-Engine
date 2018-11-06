@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "PostProcessEffectBase.h"
 #include "RHI/RHI.h"
 #include "RHI/DeviceContext.h"

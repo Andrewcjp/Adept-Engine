@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
 

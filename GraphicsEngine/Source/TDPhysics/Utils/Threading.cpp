@@ -1,6 +1,7 @@
-#include "Stdafx.h"
+
 #include "Threading.h"
 #include <algorithm>
+#include <typeinfo>
 namespace TD
 {
 	using namespace Threading;

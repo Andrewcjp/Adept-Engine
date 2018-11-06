@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "BTBlackboard.h"
 
 
@@ -28,6 +28,22 @@ bool BTValue::IsValid()
 		break;
 	case EBTBBValueType::Object:
 		return ObjectPtr != nullptr;
+		break;
+	}
+	return true;
+}
+bool BTValue::CheckZero()
+{
+	switch (ValueType)
+	{
+	case EBTBBValueType::Vector:
+		return Vector != glm::vec3(0.0f);
+		break;
+	case EBTBBValueType::Float:
+		return FloatValue != 0.0f;
+		break;
+	case EBTBBValueType::Integer:
+		return IntValue != 0;
 		break;
 	}
 	return true;

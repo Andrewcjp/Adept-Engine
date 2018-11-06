@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "ConsoleVariable.h"
 #include "Core/Utils/StringUtil.h"
 #include "Logger.h"

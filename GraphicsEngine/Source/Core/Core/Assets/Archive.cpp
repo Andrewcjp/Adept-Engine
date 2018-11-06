@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Archive.h"
 #include "Core/Assets/SceneJSerialiser.h"
 #include "Core/Platform/PlatformCore.h"

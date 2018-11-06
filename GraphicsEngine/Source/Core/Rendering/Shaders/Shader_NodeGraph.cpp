@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Shader_NodeGraph.h"
 #include "Rendering/ShaderGraph/ShaderGraph.h"
 

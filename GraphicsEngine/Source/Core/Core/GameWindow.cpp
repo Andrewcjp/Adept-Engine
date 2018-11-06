@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "GameWindow.h"
 #include "EngineInc.h"
 #include "Core/Assets/Scene.h"

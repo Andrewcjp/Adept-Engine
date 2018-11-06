@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "D3D12TimeManager.h"
 #include "D3D12CommandList.h"
 #include <iomanip>

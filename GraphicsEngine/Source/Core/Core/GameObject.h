@@ -1,7 +1,9 @@
 #pragma once
 #include "Rendering/Core/Mesh.h"
 #include "Transform.h"
+#if WITH_EDITOR
 #include "Editor/IInspectable.h"
+#endif
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
 class Component;
@@ -89,7 +91,7 @@ private:
 	GameObject* mParent = nullptr;
 	std::vector<GameObject*> Children;
 #if WITH_EDITOR
-	virtual std::vector<Inspector::InspectorProperyGroup> GetInspectorFields() override;
+	virtual std::vector<InspectorProperyGroup> GetInspectorFields() override;
 #endif
 	Scene* OwnerScene;
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;

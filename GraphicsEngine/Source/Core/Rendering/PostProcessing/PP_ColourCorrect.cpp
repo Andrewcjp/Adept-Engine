@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "PP_ColourCorrect.h"
 #include "Rendering/Shaders/PostProcess/Shader_ColourCorrect.h"
 

@@ -1,4 +1,4 @@
-#include "TDPCH.h"
+
 #include "TDSphere.h"
 namespace TD
 {

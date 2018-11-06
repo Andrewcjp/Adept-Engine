@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "LightComponent.h"
 #include "Core/GameObject.h"
 #include "Editor/EditorWindow.h"
@@ -93,9 +93,9 @@ void LightComponent::ProcessSerialArchive(Archive * A)
 	ArchiveProp_Enum(CurrentType, Light::LightType);
 }
 #if WITH_EDITOR
-void LightComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
+void LightComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
+	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
 	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Bool, &DoesShadow));
 	group.SubProps.push_back(Inspector::CreateProperty("Intensity", EditValueType::Float, &CurrentIntensity));
 	props.push_back(group);

@@ -22,7 +22,7 @@ public:
 	void SetTriangleMeshAssetName(std::string name);
 
 #if WITH_EDITOR
-	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props);
+	void GetInspectorProps(std::vector<InspectorProperyGroup>& props);
 #endif
 private:
 	EShapeType::Type CollisionShapeType = EShapeType::eBOX;

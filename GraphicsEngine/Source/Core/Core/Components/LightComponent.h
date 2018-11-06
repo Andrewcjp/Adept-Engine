@@ -28,7 +28,7 @@ private:
 	glm::vec3 CurrentColour = glm::vec3(1);
 	bool DoesShadow = false;
 #if WITH_EDITOR
-	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
+	void GetInspectorProps(std::vector<InspectorProperyGroup>& props) override;
 #endif
 	virtual void ProcessSerialArchive(class Archive* Arch) override;
 };

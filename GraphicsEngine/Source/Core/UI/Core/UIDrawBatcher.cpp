@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include <algorithm>
 #include "UIDrawBatcher.h"
 #include "UI/UIManager.h"

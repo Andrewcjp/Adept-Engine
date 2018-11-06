@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "DebugLineDrawer.h"
 #include "Editor/EditorWindow.h"
 #include "Rendering/Shaders/Shader_Line.h"

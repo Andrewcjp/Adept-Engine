@@ -18,7 +18,7 @@ public:
 private:
 	Camera* MCamera;
 #if WITH_EDITOR
-	void GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props) override;
+	void GetInspectorProps(std::vector<InspectorProperyGroup>& props) override;
 #endif
 };
 

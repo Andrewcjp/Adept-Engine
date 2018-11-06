@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "DescriptorHeap.h"
 #include <algorithm>
 #include "D3D12DeviceContext.h"

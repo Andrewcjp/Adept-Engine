@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "UIPanel.h"
 #include "Layout.h"
 #include "UILabel.h"

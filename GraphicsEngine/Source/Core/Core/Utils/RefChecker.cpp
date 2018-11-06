@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "RefChecker.h"
 #if DETECT_MEMORY_LEAKS
 RefCheckerContainer* RefCheckerContainer::Instance = nullptr;

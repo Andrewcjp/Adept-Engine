@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "AudioEngine.h"
 #include <AK/SoundEngine/Common/AkSoundEngine.h>
 #include <AK/IBytes.h>

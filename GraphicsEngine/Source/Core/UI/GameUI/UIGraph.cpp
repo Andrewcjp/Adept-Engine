@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "UIGraph.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Core/Performance/PerfManager.h"

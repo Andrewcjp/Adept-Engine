@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Shader_ParticleCompute.h"
 DECLARE_GLOBAL_SHADER(Shader_ParticleCompute);
 DECLARE_GLOBAL_SHADER(Shader_StartSimulation);

@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "FreeLookComponent.h"
 #include "Rendering/Core/Camera.h"
 #include "Core/Input/Input.h"

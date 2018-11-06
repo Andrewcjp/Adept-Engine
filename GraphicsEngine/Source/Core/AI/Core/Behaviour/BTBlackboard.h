@@ -13,7 +13,7 @@ namespace EBTBBValueType
 struct BTValue
 {
 	EBTBBValueType::Type ValueType = EBTBBValueType::Limit;
-	glm::vec3 vector = glm::vec3();
+	glm::vec3 Vector = glm::vec3();
 	int IntValue = 0;
 	float FloatValue = 0.0f;
 	template<class T>
@@ -22,6 +22,7 @@ struct BTValue
 		return (T*)GetValuePtr();
 	}
 	bool IsValid();
+	bool CheckZero();
 	void* ObjectPtr = nullptr;
 private:
 	void* GetValuePtr()
@@ -35,7 +36,10 @@ private:
 			return &IntValue;
 			break;
 		case EBTBBValueType::Vector:
-			return &vector;
+			return &Vector;
+			break;
+		case EBTBBValueType::Object:
+			return ObjectPtr;
 			break;
 		}
 		return nullptr;

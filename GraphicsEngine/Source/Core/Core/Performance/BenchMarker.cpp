@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "BenchMarker.h"
 #include "PerfManager.h"
 #include "Core/Assets/AssetManager.h"

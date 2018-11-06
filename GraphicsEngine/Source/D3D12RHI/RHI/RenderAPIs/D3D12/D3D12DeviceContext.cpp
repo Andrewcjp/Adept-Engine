@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "D3D12DeviceContext.h"
 #include "Core/Asserts.h"
 #include "D3D12Helpers.h"

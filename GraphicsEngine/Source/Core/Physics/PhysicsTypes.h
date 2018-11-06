@@ -36,6 +36,7 @@ typedef struct _RayHit
 	glm::vec3 position = glm::vec3();
 	RigidBody* HitBody = nullptr;
 	bool StartInside = false;
+	float Distance = 0.0f;
 }RayHit;
 struct ShapeElem
 {

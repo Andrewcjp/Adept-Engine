@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "AIBase.h"
 #include "Core/GameObject.h"
 #include "AI/Core/AIController.h"

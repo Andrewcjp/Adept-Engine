@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "WindowsWindow.h"
 #include "Core/Engine.h"
 #include "RHI/RenderWindow.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Shader_Convolution.h"
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/FrameBuffer.h"

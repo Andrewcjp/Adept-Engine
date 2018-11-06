@@ -1,10 +1,11 @@
-#include "stdafx.h"
+
 #include "MeshRendererComponent.h"
 #include "CompoenentRegistry.h"
 #include "RHI/RHI.h"
 #include "RHI/RHICommandList.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/AssetManager.h"
+#include "Editor/Inspector.h"
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
@@ -45,9 +46,9 @@ Material *MeshRendererComponent::GetMaterial(int index)
 }
 
 #if WITH_EDITOR
-void MeshRendererComponent::GetInspectorProps(std::vector<Inspector::InspectorProperyGroup>& props)
+void MeshRendererComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	Inspector::InspectorProperyGroup group = Inspector::CreatePropertyGroup("Mesh Component");
+	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Mesh Component");
 	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Float, nullptr));
 	props.push_back(group);
 }

@@ -1,4 +1,4 @@
-#include "TDPCH.h"
+
 #include "TDSolver.h"
 #include "TDScene.h"
 #include "TDCollisionHandlers.h"
@@ -9,6 +9,11 @@
 #include <functional>
 #include "Utils/Threading.h"
 #include <algorithm>
+#include <iosfwd>
+#include <typeinfo>
+#include <ios>
+#include <iostream>
+#include <sstream>
 #define USE_LINEAR_PROJECTION 1
 #define USE_THREADED_COLLISION_DETECTION 0
 namespace TD
@@ -123,11 +128,11 @@ namespace TD
 				ProcessResponsePair(&NarrowPhasePairs[i]);
 				NarrowPhasePairs[i].data.Reset();
 			}
-	}
+		}
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::ResolveCollisions);
 #endif
-}
+	}
 
 	std::string TDSolver::ReportbroadPhaseStats()
 	{

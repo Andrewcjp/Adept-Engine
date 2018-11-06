@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "TDPhysics.h"
 #include "TDSolver.h"
 #include "TDScene.h"

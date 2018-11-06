@@ -1,5 +1,5 @@
 #pragma once
-#include "Stdafx.h"
+
 #include "TDShape.h"
 
 namespace TD

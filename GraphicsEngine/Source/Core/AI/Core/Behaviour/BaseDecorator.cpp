@@ -1,14 +1,14 @@
-#include "Stdafx.h"
+
 #include "BaseDecorator.h"
 #include "AI/Core/Behaviour/BTBlackboard.h"
-
+#include "Core/Platform/PlatformCore.h"
+#include "Core/Platform/Logger.h"
 
 BaseDecorator::BaseDecorator(BTValue* value, EDecoratorTestType::Type t)
 {
 	ConditonalValue = value;
 	TestType = t;
 }
-
 
 BaseDecorator::~BaseDecorator()
 {}
@@ -19,14 +19,13 @@ bool BaseDecorator::RunCheck()
 	{
 	case EDecoratorTestType::Null:
 		return !ConditonalValue->IsValid();
-		break;
 	case EDecoratorTestType::NotNull:
 		return ConditonalValue->IsValid();
-		break;
 	case EDecoratorTestType::NotZero:
-		float t = *ConditonalValue->GetValue<float>();
-		return t != 0.0f;
-		break;
+		return !ConditonalValue->CheckZero();
+	case EDecoratorTestType::Zero:
+		return ConditonalValue->CheckZero(); 
 	}
+	ensure(false);
 	return false;
 }

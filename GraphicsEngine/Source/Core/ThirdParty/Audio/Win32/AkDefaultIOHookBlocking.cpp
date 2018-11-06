@@ -42,7 +42,7 @@ written agreement between you and Audiokinetic Inc.
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+
 #include "AkDefaultIOHookBlocking.h"
 #include "AkFileHelpers.h"
 

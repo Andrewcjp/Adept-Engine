@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "D3D12CommandList.h"
 #include "D3D12RHI.h"
 #include "Rendering/Core/RenderBaseTypes.h"

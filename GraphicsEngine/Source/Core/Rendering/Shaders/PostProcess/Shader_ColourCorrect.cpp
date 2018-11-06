@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Shader_ColourCorrect.h"
 DECLARE_GLOBAL_SHADER(Shader_ColourCorrect);
 

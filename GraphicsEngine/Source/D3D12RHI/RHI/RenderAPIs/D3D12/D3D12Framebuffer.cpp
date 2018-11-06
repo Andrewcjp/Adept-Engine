@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "D3D12Framebuffer.h"
 #include "GPUResource.h"
 #include <algorithm>
@@ -694,4 +694,3 @@ const RHIPipeRenderTargetDesc& D3D12FrameBuffer::GetPiplineRenderDesc()
 {
 	return RenderTargetDesc;
 }
-

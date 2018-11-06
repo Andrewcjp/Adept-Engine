@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "BehaviourTree.h"
 #include "BehaviourTreeNode.h"
 #include "BTBlackboard.h"
@@ -14,12 +14,18 @@ BehaviourTree::BehaviourTree()
 BehaviourTree::~BehaviourTree()
 {}
 
-void BehaviourTree::RunTree()
+void BehaviourTree::RunTree(float dt)
 {
 	if (RootNode == nullptr)
 	{
 		return;
 	}
+	CoolDownTime -= dt;
+	if (CoolDownTime > 0.0f)
+	{
+		return;
+	}
+	CoolDownTime = UpdateRate;
 	//if (RunningNode != nullptr)
 	//{
 	//	EBTNodeReturn::Type res = RunningNode->HandleExecuteNode();

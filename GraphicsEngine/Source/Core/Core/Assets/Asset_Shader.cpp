@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "Asset_Shader.h"
 #include "Rendering/ShaderGraph/ShaderGraph.h"
 #include "Rendering/Core/Material.h"

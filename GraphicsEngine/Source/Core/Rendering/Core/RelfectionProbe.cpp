@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "RelfectionProbe.h"
 #include "RHI/RHI_inc.h"
 

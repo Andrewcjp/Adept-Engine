@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Text_Shader.h"
 #include "RHI/RHI.h"
 #include "RHI/DeviceContext.h"
