@@ -77,6 +77,11 @@ void DebugDrawers::DrawHalfCircle(const glm::vec3& Base, const glm::vec3& X, con
 
 void DebugDrawers::DrawDebugLine(glm::vec3 const& LineStart, glm::vec3  const& LineEnd, glm::vec3  const& Color, bool bPersistentLines, float LifeTime, float Thickness)
 {
+	if (DebugLineDrawer::instance == nullptr)
+	{
+		AssertDebugBreak();
+		return;
+	}
 	//todo: persistent lines
 	//todo: thickness
 	float const LineLifeTime = (LifeTime > 0.f) ? LifeTime : DefultLifeTime;

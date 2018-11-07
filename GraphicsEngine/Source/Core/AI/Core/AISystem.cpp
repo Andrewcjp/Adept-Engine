@@ -14,8 +14,7 @@ AISystem::AISystem()
 	mesh = new NavigationMesh();
 	BTManager = new BehaviourTreeManager();
 	Director = Engine::GetGame()->CreateAIDirector();
-	NavMeshGenerator* n = new NavMeshGenerator();
-	n->Voxelise(nullptr);
+
 	//mesh->GenTestMesh();
 }
 
@@ -44,6 +43,7 @@ void AISystem::Tick(float dt)
 {
 	Director->Tick();
 	BTManager->Tick(dt);
+	n->RenderGrid();
 }
 
 AISystem * AISystem::Get()
@@ -68,4 +68,10 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 		Log::LogMessage("CalculatePath Failed",Log::Severity::Warning);
 	}
 	return result;
+}
+ 
+void AISystem::GenerateMesh()
+{
+	n = new NavMeshGenerator();
+	n->Voxelise(nullptr);
 }

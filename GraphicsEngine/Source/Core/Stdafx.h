@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/scalar_multiplication.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 #include <ios>
@@ -23,4 +24,3 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
-#include "glm/gtx/scalar_multiplication.hpp"

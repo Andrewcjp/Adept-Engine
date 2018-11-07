@@ -34,6 +34,7 @@ void TestPlayer::CheckForGround()
 void TestPlayer::BeginPlay()
 {
 	RB = GetOwner()->GetComponent<RigidbodyComponent>();
+	RB->IsKineimatic = true;
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(90, 90, 0)));
 	CameraObject->GetTransform()->SetLocalRotation(newrot);
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();

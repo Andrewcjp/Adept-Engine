@@ -22,6 +22,7 @@ public:
 	void OnTransformUpdate() override ;
 	CORE_API void SetGravity(bool active);
 	CORE_API RigidBody* GetActor();
+	bool IsKineimatic = false;
 private:
 	RigidBody* actor = nullptr;
 	BodyInstanceData LockData;

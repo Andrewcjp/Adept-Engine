@@ -39,7 +39,7 @@ glm::vec3 ProjectPosition(glm::vec3 pos)
 
 void AIController::Update(float dt)
 {
-	if (CurrentTarget.IsValid && Rigidbody != nullptr && Path != nullptr)
+	if (CurrentTarget.IsValid && Rigidbody != nullptr && Path != nullptr && Path->Positions.size() > 0)
 	{
 		//Point at the Next path node
 		float distance = glm::distance(ProjectPosition(GetOwner()->GetPosition()), Path->Positions[CurrentPathIndex]);
@@ -79,7 +79,11 @@ void AIController::ReplanPath()
 	if (AISystem::Get()->mesh != nullptr)
 	{
 		ENavRequestStatus::Type Status = AISystem::Get()->mesh->CalculatePath(GetOwner()->GetPosition(), CurrentTarget.GetTargetPos(), &Path);
-		ensure(Status == ENavRequestStatus::Complete);
+		//ensure(Status == ENavRequestStatus::Complete);
+		if (Status != ENavRequestStatus::Complete)
+		{
+			Log::LogMessage("Path planning failed", Log::Severity::Warning);
+		}
 	}
 }
 

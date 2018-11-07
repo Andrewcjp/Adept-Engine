@@ -4,6 +4,7 @@ class NavigationMesh;
 class AIDirector;
 class Scene;
 class BehaviourTreeManager;
+class NavMeshGenerator;
 namespace EAINavigationMode
 {
 	enum Type 
@@ -37,7 +38,9 @@ public:
 	{
 		return BTManager;
 	};
+	void GenerateMesh();
 private:
+	NavMeshGenerator* n = nullptr;
 	BehaviourTreeManager* BTManager = nullptr; 
 	AIDirector* Director = nullptr;
 	static AISystem* Instance;
