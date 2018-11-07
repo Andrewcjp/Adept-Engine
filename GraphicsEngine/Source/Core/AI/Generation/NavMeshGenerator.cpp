@@ -4,9 +4,13 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Logger.h"
 #include "Physics/PhysicsEngine.h"
+#include "Core/Utils/DebugDrawers.h"
+#include "AI/ThirdParty/delaunator.hpp"
 using namespace ClipperLib;
 NavMeshGenerator::NavMeshGenerator()
-{}
+{
+	ClipEngine = new ClipperLib::Clipper();
+}
 
 NavMeshGenerator::~NavMeshGenerator()
 {}
@@ -16,7 +20,7 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 	//Find bounds of Scene
 
 	//todo: load all meshes into the physics engine
-	const int GridSize = 100;
+	const int GridSize = 40;
 	HeightField* Field = new HeightField();
 	Field->InitGrid(glm::vec3(0, 0, 0), GridSize, GridSize);
 	glm::vec3 pos = Field->GetPosition(GridSize / 2, GridSize / 2);
@@ -33,6 +37,7 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 			if (PhysicsEngine::Get()->RayCastScene(xypos, glm::vec3(0, -1, 0), distance, &hiot))
 			{
 				Field->SetValue(x, y, hiot.Distance);
+				//DebugDrawers::DrawDebugLine(xypos, xypos + glm::vec3(0, -1 + 1 * hiot.Distance, 0), glm::vec3(0, 1, 0), false, 100);
 			}
 		}
 	}
@@ -58,12 +63,14 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 			plane->Points.push_back(Field->GetPosition(x, y));
 		}
 	}
-
+	GenerateMesh(planes[0]);
 }
+
 bool approximatelyEqual(float a, float b, float epsilon)
 {
 	return fabs(a - b) <= ((fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }
+
 NavPlane* NavMeshGenerator::GetPlane(float Z, std::vector<NavPlane*>& list)
 {
 	const float PlaneTolerance = 0.5f;
@@ -81,39 +88,80 @@ NavPlane* NavMeshGenerator::GetPlane(float Z, std::vector<NavPlane*>& list)
 	return plane;
 }
 
-void NavMeshGenerator::GenerateMesh(Scene * TargetScene)
+void NavMeshGenerator::GenerateMesh(NavPlane* target)
 {
-	//ClipEngine->Execute(ClipType::ctIntersection, );
-}
-//Paths subj(2), clip(1), solution;
-//
-////define outer blue 'subject' polygon
-//subj[0] <<
-//IntPoint(180, 200) << IntPoint(260, 200) <<
-//IntPoint(260, 150) << IntPoint(180, 150);
-//
-////define subject's inner triangular 'hole' (with reverse orientation)
-//subj[1] <<
-//IntPoint(215, 160) << IntPoint(230, 190) << IntPoint(200, 190);
-//
-////define orange 'clipping' polygon
-//clip[0] <<
-//IntPoint(190, 210) << IntPoint(240, 210) <<
-//IntPoint(240, 130) << IntPoint(190, 130);
-//
-////draw input polygons with user-defined routine ... 
-//DrawPolygons(subj, 0x160000FF, 0x600000FF); //blue
-//DrawPolygons(clip, 0x20FFFF00, 0x30FF0000); //orange
-//
-////perform intersection ...
-//Clipper c;
-//c.AddPaths(subj, ptSubject, true);
-//c.AddPaths(clip, ptClip, true);
-//c.Execute(ctIntersection, solution, pftNonZero, pftNonZero);
-//
-////draw solution with user-defined routine ... 
-//DrawPolygons(solution, 0x3000FF00, 0xFF006600); //solution shaded green
+	//test();
+#if 0
+	ClipperLib::Paths p(1);
 
+	for (int i = 0; i < target->Points.size(); i++)
+	{
+		p[0] << ClipperLib::IntPoint(target->Points[i].x, target->Points[i].z);
+	}
+	ClipEngine->AddPath(p[0], ptClip, true);
+	ClipEngine->AddPath(p[0], ptSubject, true);
+	ClipEngine->Execute(ClipType::ctIntersection, output, pftNonZero, pftNonZero);
+#else
+	std::vector<double> Points;
+	for (int i = 0; i < target->Points.size(); i++)
+	{
+		Points.push_back(target->Points[i].x);
+		Points.push_back(0.0f);
+		Points.push_back(target->Points[i].z);
+	}
+	delaunator::Delaunator d(Points);
+	std::vector<Tri> triangles;
+	for (std::size_t i = 0; i < d.triangles.size(); i += 3)
+	{
+		Tri newrti;
+		newrti.points[0] = (glm::vec3(d.coords[2 * d.triangles[i]], 0, d.coords[2 * d.triangles[i] + 1]));
+		newrti.points[1] = (glm::vec3(d.coords[2 * d.triangles[i + 1]], 0, d.coords[2 * d.triangles[i + 1] + 1]));
+		newrti.points[2] = (glm::vec3(d.coords[2 * d.triangles[i + 2]], 0, d.coords[2 * d.triangles[i + 2] + 1]));
+		if (true)
+		{
+			std::swap(newrti.points[0].x, newrti.points[0].z);
+			std::swap(newrti.points[1].x, newrti.points[1].z);
+			std::swap(newrti.points[2].x, newrti.points[2].z);
+		}
+		triangles.push_back(newrti);
+	}
+	for (int i = 0; i < triangles.size(); i++)
+	{
+		//if (i > 500)
+		//{
+		//	continue;
+		//}
+		const int sides = 3;
+		for (int x = 0; x < sides; x++)
+		{
+			const int next = (x + 1) % sides;
+			DebugDrawers::DrawDebugLine(triangles[i].points[x], triangles[i].points[next], glm::vec3(1), false, 1000);
+		}
+
+	}
+
+#endif
+}
+
+void NavMeshGenerator::RenderGrid()
+{
+	return;
+	for (int i = 0; i < output.size(); i++)
+	{
+		const int sides = output[i].size();
+		for (int x = 0; x < sides; x++)
+		{
+			const int next = (x + 1) % sides;
+			DebugDrawers::DrawDebugLine(glm::vec3(output[i][x].X, 0, output[i][x].Y), glm::vec3(output[i][next].X, 0, output[i][next].Y));
+			//	drawer->AddLine(offset + Triangles[i]->Positons[x], offset + Triangles[i]->Positons[next], glm::vec3(1, 1, 1));
+		}
+		//for (int n = 0; n < Triangles[i]->NearTriangles.size(); n++)
+		{
+			//drawer->AddLine(offset + Triangles[i]->avgcentre, offset + Triangles[i]->avgcentre+glm::vec3(0,10,0), glm::vec3(1, 0, 0));
+		}
+	}
+
+}
 void HeightField::SetValue(int x, int y, float value)
 {
 	GridData[x * Width + y] = value;

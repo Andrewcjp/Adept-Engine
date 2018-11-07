@@ -16,7 +16,7 @@ class EditorWindow : public BaseWindow
 {
 public:
 	void PostInitWindow(int w, int h) override;
-	
+	 
 	CORE_API static EditorWindow* GetInstance() { return instance; }
 	EditorWindow();
 	virtual ~EditorWindow();
