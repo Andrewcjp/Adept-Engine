@@ -64,7 +64,7 @@ void PhysxEngine::initPhysics()
 	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 #if 1
 	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
-	gScene->addActor(*groundPlane);
+	//gScene->addActor(*groundPlane);
 #else
 	GameObject* go = new GameObject();
 	go->SetPosition(glm::vec3(0, 0, 0));
@@ -179,6 +179,7 @@ bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float di
 	{
 		outhit->position = PXvec3ToGLM(hit.getAnyHit(0).position);
 		outhit->HitBody = (RigidBody*)hit.block.actor->userData;
+		outhit->Distance = hit.getAnyHit(0).distance;
 		return true;
 	}
 	return false;

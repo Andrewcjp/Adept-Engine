@@ -471,7 +471,9 @@ void D3D12RHI::PresentFrame()
 	if (RunScreenShot && m_frameIndex == 0)
 	{
 		ScreenShotter->WriteBackRenderTarget();
+		//todo: should be an async task to write from GPU to disk also prevent capture before write is complete
 		ScreenShotter->WriteToFile(AssetPathRef("Saved\\Screen"));
+		Log::LogMessage("Took ScreenShot");
 		RunScreenShot = false;
 	}
 	ThrowIfFailed(m_swapChain->Present(0, 0));

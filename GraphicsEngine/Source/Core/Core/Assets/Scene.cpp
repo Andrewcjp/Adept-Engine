@@ -109,18 +109,20 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go = new GameObject("Terrain");
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\textures_terrain_ground_marsrock_ground_01_tiled_c.dds"));
-	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\TerrrainTest.obj"), mat));
+	MeshLoader::FMeshLoadingSettings set;
+	set.UVScale = glm::vec2(20);
+	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Room1.obj",set), mat));//TerrrainTest
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	r->SetMaterial(mat, 1);
 	go->AttachComponent(new LightComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(10));
+	go->GetTransform()->SetScale(glm::vec3(1));
 #if !TDSIM_ENABLED
 	cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
-	cc->SetTriangleMeshAssetName("models\\TerrrainTest.obj");
+	cc->SetTriangleMeshAssetName("models\\Room1.obj");
 #endif
 	AddGameobjectToScene(go);
 

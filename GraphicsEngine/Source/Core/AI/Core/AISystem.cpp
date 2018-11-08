@@ -43,7 +43,6 @@ void AISystem::Tick(float dt)
 {
 	Director->Tick();
 	BTManager->Tick(dt);
-	n->RenderGrid();
 }
 
 AISystem * AISystem::Get()

@@ -138,3 +138,8 @@ void DebugLineDrawer::OnResize(int newwidth, int newheight)
 		DataBuffer->UpdateConstantBuffer(glm::value_ptr(Projection), 0);
 	}
 }
+
+DebugLineDrawer * DebugLineDrawer::Get()
+{
+	return instance;
+}

@@ -1,22 +1,25 @@
 #pragma once
-#include "AI/ThirdParty/clipper.hpp"
-namespace ClipperLib { class Clipper; }
+
 class Scene;
 struct NavPlane;
+struct HeightField;
 class NavMeshGenerator
 {
 public:
 	NavMeshGenerator();
 	~NavMeshGenerator();
 	void Voxelise(Scene * TargetScene);
+
+	bool ValidateQuad(const int GirdStep, float FirstHeight, HeightField* Field, glm::ivec2 &offset);
+
 	NavPlane * GetPlane(float Z, std::vector<NavPlane*>& list);
 	//Take the scene and generate a navigation mesh for it.
 	void GenerateMesh(NavPlane* target);
-	void RenderGrid();
 private:
-	ClipperLib::Clipper* ClipEngine = nullptr;
 	const float SamplingDistance = 1.0f;
-	ClipperLib::Paths output;
+	int RemovedQuadsPoints = 0;
+	int PrunedTris = 0;
+	int TotalTriCount = 0;
 };
 struct HeightField 
 {
@@ -29,7 +32,7 @@ private:
 	int Width, Height = 0;
 	glm::vec3 RootPos = glm::vec3(0, 0, 0);
 	glm::vec3 CentreOffset = glm::vec3(0, 0, 0);
-	float GridSpacing = 5.0f;
+	float GridSpacing = 2.5f;
 };
 struct Tri
 {

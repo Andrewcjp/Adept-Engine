@@ -1,0 +1,17 @@
+GLM
+
+DirectX Texture Loader
+
+Delaunator
+
+Free Type
+
+Clipper?
+
+Physx
+
+NVAPI
+
+Directx 12
+
+VKan

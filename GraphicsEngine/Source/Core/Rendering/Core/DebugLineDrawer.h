@@ -11,8 +11,7 @@ typedef struct _WLineItem
 }WLine;
 class DebugLineDrawer
 {
-public:
-	static DebugLineDrawer* instance;
+public:	
 	DebugLineDrawer(bool DOnly = false);
 	~DebugLineDrawer();
 	void GenerateLines();
@@ -23,8 +22,9 @@ public:
 
 	void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
 	void OnResize(int newwidth, int newheight);
-
+	CORE_API static DebugLineDrawer* Get();
 private:
+	static DebugLineDrawer* instance;
 	std::vector<WLine> Lines;
 	class Shader_Line* LineShader = nullptr;
 	class RHIBuffer* DataBuffer = nullptr;
