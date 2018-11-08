@@ -73,11 +73,11 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 			const aiVector3D* pNormal = &(model->mNormals[i]);
 			const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
 			const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
-			
+
 			*pPos = transfrom * (*pPos);
 
 			OGLVertex vert(glm::vec3(pPos->x, pPos->y, pPos->z),
-				glm::vec2(pTexCoord->x, pTexCoord->y),
+				glm::vec2(pTexCoord->x, pTexCoord->y)*Settings.UVScale,
 				glm::vec3(pNormal->x, pNormal->y, pNormal->z),
 				glm::vec3(pTangent->x, pTangent->y, pTangent->z));
 

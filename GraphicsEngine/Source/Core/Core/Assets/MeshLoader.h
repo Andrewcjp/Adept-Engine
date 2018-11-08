@@ -9,6 +9,7 @@ public:
 	struct FMeshLoadingSettings
 	{
 		glm::vec3 Scale = glm::vec3(1,1,1);
+		glm::vec2 UVScale = glm::vec2(1, 1);
 		bool InitOnAllDevices = true;
 		bool CreatePhysxMesh = false;
 		bool GenerateIndexed = true;

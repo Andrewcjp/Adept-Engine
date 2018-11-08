@@ -38,7 +38,7 @@ GameObject * EditorObjectSelector::RayCastScene(int x, int y, Camera* cam, const
 	cam->GetRayAtScreenPos(((float)x), ((float)y), dir, origin);
 	//cam->GetRayAtScreenPos(((float)x / (float)EditorWindow::GetWidth()), ((float)y / (float)EditorWindow::GetHeight()), dir, origin);
 	//origin = /*cam->GetPosition() +*/ cam->ScreenPointToWorld(x, y);
-	if (DebugLineDrawer::instance != nullptr)
+	if (DebugLineDrawer::Get() != nullptr)
 	{
 //		DebugLineDrawer::instance->AddLine(origin, origin + glm::normalize(-dir) * 1000, Colours::RED, 10);
 	}

@@ -29,7 +29,7 @@ EditorWindow::~EditorWindow()
 	//vectors will clean up after them selves
 	//Clean up the Mesh
 	SafeDelete(CurrentPlayScene);
-	delete CurrentScene;
+	SafeDelete(CurrentScene);
 }
 
 Scene * EditorWindow::GetCurrentScene()
