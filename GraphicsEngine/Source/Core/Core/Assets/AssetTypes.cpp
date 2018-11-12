@@ -4,6 +4,11 @@
 #include "Core/Utils/StringUtil.h"
 AssetPathRef::AssetPathRef(std::string Filename)
 {
+	if (Filename.find("\\") == 0)
+	{
+		Filename.erase(0,1);//trim leading whitespace
+	}
+
 	std::vector<std::string> split = StringUtils::Split(Filename, '.');
 	if (split.size() == 2)
 	{
@@ -44,6 +49,11 @@ const std::string AssetPathRef::GetRelativePathToAsset() const
 const std::string AssetPathRef::GetExtention() const
 {
 	return Extention;
+}
+
+const std::string AssetPathRef::GetBaseNameExtention()
+{
+	return BaseName + "." + Extention;
 }
 
 const AssetFileType::Type AssetPathRef::GetFileType() const

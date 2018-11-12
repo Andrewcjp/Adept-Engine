@@ -26,7 +26,6 @@ GameObject* MakeTestSphere(Scene* Scene)
 void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
-
 #if 0
 	GameObject* A = MakeTestSphere(Scene);
 	GameObject* B = MakeTestSphere(Scene);

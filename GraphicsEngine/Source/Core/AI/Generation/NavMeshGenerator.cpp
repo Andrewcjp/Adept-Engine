@@ -167,7 +167,6 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 
 	ensure(Points.size() % 3 == 0);
 	delaunator::Delaunator d(Points);
-	std::vector<Tri> triangles;
 	for (std::size_t i = 0; i < d.triangles.size(); i += 3)
 	{
 		Tri newrti;
@@ -180,17 +179,17 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			std::swap(newrti.points[1].x, newrti.points[1].z);
 			std::swap(newrti.points[2].x, newrti.points[2].z);
 		}
-		triangles.push_back(newrti);
+		target->Triangles.push_back(newrti);
 	}
 	//the delaunator Can generate triangles that stretch over invalid regions 
 	//so: prune triangles that are invalid
-	TotalTriCount = (int)triangles.size();
-	for (int i = (int)triangles.size() - 1; i >= 0; i--)
+	TotalTriCount = (int)target->Triangles.size();
+	for (int i = (int)target->Triangles.size() - 1; i >= 0; i--)
 	{
 		glm::vec3 avgpos;
 		for (int n = 0; n < 3; n++)
 		{
-			avgpos += triangles[i].points[n];
+			avgpos += target->Triangles[i].points[n];
 		}
 		avgpos /= 3;
 		RayHit hiot;
@@ -199,17 +198,17 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 		const bool CastHit = PhysicsEngine::Get()->RayCastScene(avgpos, glm::vec3(0, -1, 0), 50, &hiot);
 		if (!CastHit || !approximatelyEqual(hiot.Distance, -target->ZHeight, 5.0f))
 		{
-			triangles.erase(triangles.begin() + i);
+			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;
 		}
 	}
-	for (int i = 0; i < triangles.size(); i++)
+	for (int i = 0; i < target->Triangles.size(); i++)
 	{
 		const int sides = 3;
 		for (int x = 0; x < sides; x++)
 		{
 			const int next = (x + 1) % sides;
-			DebugDrawers::DrawDebugLine(triangles[i].points[x], triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
+			DebugDrawers::DrawDebugLine(target->Triangles[i].points[x], target->Triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
 		}
 	}
 	std::stringstream ss;

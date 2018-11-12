@@ -114,7 +114,7 @@ void AssetManager::SetupPaths()
 	DDCDirPath = RootDir + "\\" + DDCName + "\\";
 	PlatformApplication::TryCreateDirectory(DDCDirPath);
 
-	GeneratedDirPath = Engine::GetExecutionDir()+"\\Saved"; 
+	GeneratedDirPath = Engine::GetExecutionDir() + "\\Saved";
 	PlatformApplication::TryCreateDirectory(GeneratedDirPath);
 #if !BUILD_PACKAGE
 	ShaderDirPath = RootDir + "\\Shaders\\";
@@ -252,16 +252,22 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool Direct
 	AssetPathRef Fileref = AssetPathRef(name);
 
 	//todo: Deal with TGA to DDS 
-	if (Fileref.GetFileType() == AssetFileType::DDS || name.find(".tga") != -1 || DirectLoad)
+	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ name.find(".tga") != -1 || DirectLoad)
 	{
 		return RHI::CreateTexture(Fileref, Device);
 	}
 
-	
+	if (Fileref.GetFileType() == AssetFileType::DDS)
+	{
+		//Temp copy to DDC
+		ensure(PlatformApplication::CopyFileToTarget(Fileref.GetFullPathToAsset(), GetDDCPath() + Fileref.GetBaseNameExtention()));
+		Fileref.IsDDC = true;
+	}
+
 	//check the DDC for A Generated one
 	std::string DDCRelFilepath = "\\" + DDCName + "\\" + Fileref.BaseName + ".DDS";
 	Fileref.DDCPath = DDCRelFilepath;
-	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath) && !PlatformApplication::CheckFileSrcNewer(GetRootDir() + DDCRelFilepath, Fileref.GetFullPathToAsset()))
+	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath) && !PlatformApplication::CheckFileSrcNewer(GetRootDir() + DDCRelFilepath, Fileref.GetFullPathToAsset()) || Fileref.IsDDC)
 	{
 		Fileref.IsDDC = true;
 		return RHI::CreateTexture(Fileref, Device);

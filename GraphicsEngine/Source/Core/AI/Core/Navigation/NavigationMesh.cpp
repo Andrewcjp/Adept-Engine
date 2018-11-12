@@ -235,6 +235,7 @@ std::deque<NavigationMesh::DLTENode*> NavigationMesh::neighbors(DLTENode s)
 			temporaryStatePointer = grid[coordinates];
 		}*/
 		//todo: link the navmesh graph here
+		//search though the current nodes connections which will be assigned at bake time
 		temporaryStatePointer = &grid[temporaryX][temporaryY];
 		if (temporaryY >= 0 && temporaryX >= 0)
 		{
