@@ -180,7 +180,17 @@ bool WindowsApplication::DisplaySaveFileDialog(std::string StartDir, std::string
 
 bool WindowsApplication::CopyFileToTarget(std::string Target, std::string Dest)
 {
-	return CopyFile(StringUtils::ConvertStringToWide(Target).c_str(), StringUtils::ConvertStringToWide(Dest).c_str(), false);
+	if (CopyFile(StringUtils::ConvertStringToWide(Target).c_str(), StringUtils::ConvertStringToWide(Dest).c_str(), false))
+	{
+		return true;
+	}
+	DWORD LastError = GetLastError();
+	HRESULT hr = HRESULT_FROM_WIN32(LastError);
+	if (LastError == ERROR_ALREADY_EXISTS)
+	{
+		return true;
+	}	
+	return false;
 }
 
 bool WindowsApplication::TryCreateDirectory(const std::string & name)

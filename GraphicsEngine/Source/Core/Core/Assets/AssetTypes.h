@@ -23,6 +23,7 @@ struct AssetPathRef
 	RHI_API const std::string GetExtention()const;
 	std::string Name;
 	std::string BaseName;
+	RHI_API const std::string GetBaseNameExtention();
 	RHI_API const AssetFileType::Type GetFileType() const;
 	bool IsDDC = false;
 	std::string DDCPath;

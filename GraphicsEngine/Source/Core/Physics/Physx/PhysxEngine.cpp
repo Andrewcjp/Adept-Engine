@@ -46,7 +46,7 @@ void PhysxEngine::initPhysics()
 	//todo!
 	int cpucount = std::thread::hardware_concurrency();
 	unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
-	gDispatcher = PxDefaultCpuDispatcherCreate(2);
+	gDispatcher = PxDefaultCpuDispatcherCreate(6);
 	sceneDesc.cpuDispatcher = gDispatcher;
 	sceneDesc.filterShader = CollisionFilterShader;
 	gScene = gPhysics->createScene(sceneDesc);

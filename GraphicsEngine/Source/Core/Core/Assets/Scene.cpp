@@ -18,7 +18,7 @@
 Scene::Scene(bool EditorScene)
 {
 	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
-	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds", true);
+	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds");
 
 	LightingData.SkyBox->AddRef();
 	CurrentGameMode = Engine::GetGame()->CreateGameMode();
