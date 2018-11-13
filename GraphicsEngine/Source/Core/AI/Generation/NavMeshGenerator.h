@@ -11,15 +11,17 @@ public:
 	void Voxelise(Scene * TargetScene);
 
 	bool ValidateQuad(const int GirdStep, float FirstHeight, HeightField* Field, glm::ivec2 &offset);
-
-	NavPlane * GetPlane(float Z, std::vector<NavPlane*>& list);
+	NavPlane* GetPlane(float z);
+	
 	//Take the scene and generate a navigation mesh for it.
 	void GenerateMesh(NavPlane* target);
 private:
+	NavPlane * GetPlane(float Z, std::vector<NavPlane*>& list);
 	const float SamplingDistance = 1.0f;
 	int RemovedQuadsPoints = 0;
 	int PrunedTris = 0;
 	int TotalTriCount = 0;
+	std::vector<NavPlane*> planes;
 };
 struct HeightField 
 {
@@ -45,5 +47,5 @@ struct NavPlane
 	float ZHeight = 0.0f;
 	void BuildMesh();
 	void RenderMesh();
-	std::vector<struct NavNode*> NavPoints;
+	std::vector<struct DLTENode*> NavPoints;
 };

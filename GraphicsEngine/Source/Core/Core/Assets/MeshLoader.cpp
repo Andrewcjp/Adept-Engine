@@ -1,11 +1,11 @@
 #include "MeshLoader.h"
-#include "Rendering/Core/Mesh.h"
-#include "include/assimp/Importer.hpp"
-#include "include/assimp/scene.h"
-#include <include/assimp/postprocess.h>
+#include "Archive.h"
 #include "Core/EngineInc.h"
 #include "Core/Platform/PlatformCore.h"
-#include "Core/Assets/Archive.h"
+#include "Rendering/Core/Mesh.h"
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
 {
@@ -38,7 +38,7 @@ bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const 
 	return false;
 }
 
-void MeshLoader::FMeshLoadingSettings::Serilise(Archive * A)
+void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
 {	
 	ArchiveProp(Scale);
 	ArchiveProp(UVScale); 

@@ -6,6 +6,8 @@
 #include "AI/Core/AISystem.h"
 #include "AI/Core/Navigation/NavigationObstacle.h"
 #include "Core/Platform/PlatformCore.h"
+#include "AI/Generation/NavMeshGenerator.h"
+#include "Core/Utils/DebugDrawers.h"
 
 void NavigationMesh::SetupGrid()
 {
@@ -14,12 +16,22 @@ void NavigationMesh::SetupGrid()
 	{
 		for (int y = 0; y < Gsize; y++)
 		{
-			grid[x][y].Point = glm::ivec2(x, y);
-			if (x < Gsize-1) {
+			grid[x][y].Point = glm::vec2(x, y);
+			if (x < Gsize - 1)
+			{
 				grid[x][y].NearNodes.push_back(&grid[x + 1][y]);
 			}
-			if (y < Gsize-1) {
+			if (y < Gsize - 1)
+			{
 				grid[x][y].NearNodes.push_back(&grid[x][y + 1]);
+			}
+			if (y > 0)
+			{
+				grid[x][y].NearNodes.push_back(&grid[x][y - 1]);
+			}
+			if (x > 0)
+			{
+				grid[x][y].NearNodes.push_back(&grid[x - 1][y]);
 			}
 		}
 	}
@@ -32,23 +44,23 @@ NavigationMesh::NavigationMesh()
 NavigationMesh::~NavigationMesh()
 {}
 
-int NavigationMesh::heuristic(DLTENode sFrom, DLTENode sTo)
+float NavigationMesh::heuristic(DLTENode sFrom, DLTENode sTo)
 {
-	int distance{ 0 };
+	float distance{ 0 };
 	sFrom.Point.x > sTo.Point.x ? distance = sFrom.Point.x - sTo.Point.x : distance = sTo.Point.x - sFrom.Point.x;
 	sFrom.Point.y > sTo.Point.y ? distance += sFrom.Point.y - sTo.Point.y : distance += sTo.Point.y - sFrom.Point.y;
 	return distance;
 }
 
-int* NavigationMesh::calculate_keys(DLTENode sTo, DLTENode* sFromPointer)
+float * NavigationMesh::calculate_keys(DLTENode sTo, DLTENode * sFromPointer)
 {
-	int heuristicValue{ heuristic(*sFromPointer, sTo) };
+	float heuristicValue{ heuristic(*sFromPointer, sTo) };
 	sFromPointer->rhs <= sFromPointer->g ? sFromPointer->key[0] = sFromPointer->rhs + heuristicValue + kM : sFromPointer->key[0] = sFromPointer->g + heuristicValue + kM;
 	sFromPointer->rhs <= sFromPointer->g ? sFromPointer->key[1] = sFromPointer->rhs : sFromPointer->key[1] = sFromPointer->g;
 	return sFromPointer->key;
 }
 
-bool key_less_than_key(int* keyFrom, int* keyTo)
+bool key_less_than_key(float* keyFrom, float* keyTo)
 {
 	if (keyFrom[0] < keyTo[0])
 	{
@@ -60,7 +72,7 @@ bool key_less_than_key(int* keyFrom, int* keyTo)
 	}
 	return false;
 }
-int* NavigationMesh::queue_top_key()
+float * NavigationMesh::queue_top_key()
 {
 	if (!queue.empty())
 	{
@@ -71,7 +83,7 @@ int* NavigationMesh::queue_top_key()
 		return emptyState->key;
 	}
 }
-NavigationMesh::DLTENode* NavigationMesh::queue_pop()
+DLTENode* NavigationMesh::queue_pop()
 {
 	DLTENode* temporaryStatePointer{ queue.front() };
 	queue.pop_front();
@@ -115,24 +127,25 @@ void NavigationMesh::queue_remove(DLTENode s)
 		}
 	}
 }
-NavigationMesh::DLTENode NavigationMesh::get_start()
+DLTENode NavigationMesh::get_start()
 {
 	return *startnode;
 }
-NavigationMesh::DLTENode NavigationMesh::get_goal()
+DLTENode NavigationMesh::get_goal()
 {
 	return *goalnode;
 }
 void NavigationMesh::run()
 {
+	SetTarget(glm::vec3(60, 0, 0), glm::vec3(60, 0, 10));
 	GridLTE();
 	std::vector<glm::vec3> path;
 	while (get_start().Point.x != get_goal().Point.x || get_start().Point.y != get_goal().Point.y)
 	{
-		/* if start->g == numeric_limits<int>::max() then there is no path */
+
 		std::deque<DLTENode*> temporaryDeque{ neighbors(get_start()) };
 		DLTENode* temporaryState{ temporaryDeque[0] };
-		DLTENode* secondTemporaryState; 
+		DLTENode* secondTemporaryState;
 		for (size_t i = 1; i != temporaryDeque.size(); ++i)
 		{
 			secondTemporaryState = temporaryDeque[i];
@@ -145,6 +158,12 @@ void NavigationMesh::run()
 					temporaryState = secondTemporaryState;
 				}
 			}
+		}
+		/* if start->g == numeric_limits<int>::max() then there is no path */
+		if (get_start().g == FloatMAX)
+		{
+			//			__debugbreak();
+			break;
 		}
 		path.push_back(glm::vec3(startnode->Point.x, 1, startnode->Point.y));
 		startnode = (temporaryState);
@@ -169,25 +188,54 @@ void NavigationMesh::run()
 		DebugLineDrawer::Get()->AddLine(path[i], path[i] + glm::vec3(0, 2, 0), glm::vec3(0, 0, 1), 100);
 	}
 }
+
+void NavigationMesh::SetTarget(glm::vec3 Target, glm::vec3 Origin)
+{
+	float CurrentPoint = FloatMAX;
+	for (int i = 0; i < Plane->NavPoints.size(); i++)
+	{
+		const float newdist = glm::distance2(Plane->NavPoints[i]->GetPos(Plane), Origin);
+		if (newdist < CurrentPoint)
+		{
+			CurrentPoint = newdist;
+			startnode = Plane->NavPoints[i];
+		}
+	}
+	CurrentPoint = FloatMAX;
+	for (int i = 0; i < Plane->NavPoints.size(); i++)
+	{
+		const float newdist = glm::distance2(Plane->NavPoints[i]->GetPos(Plane), Target);
+		if (newdist < CurrentPoint)
+		{
+			CurrentPoint = newdist;
+			goalnode = Plane->NavPoints[i];
+		}
+	}
+	DebugDrawers::DrawDebugSphere(Origin, 2, glm::vec3(1), 16, false, 100000);
+	DebugDrawers::DrawDebugSphere(Target, 2, glm::vec3(0.5f), 16, false, 100000);
+}
+
 void NavigationMesh::GridLTE()
 {
 	//init;
-	startnode = &grid[10][10];
-	goalnode = &grid[30][19];
+	//startnode = &grid[10][10];
+	//goalnode = &grid[30][19];
+	DebugLineDrawer::Get()->AddLine(glm::vec3(startnode->Point.x, 0, startnode->Point.y), glm::vec3(startnode->Point.x, 10, startnode->Point.y), glm::vec3(0, 1, 1), 100);
 	queue_insert(goalnode);
-	startnode->g = MAX_int;
-	startnode->rhs = MAX_int;
-	goalnode->g = MAX_int;
+	startnode->g = FloatMAX;
+	startnode->rhs = FloatMAX;
+	goalnode->g = FloatMAX;
 	goalnode->rhs = 0;
 	calculate_keys(*startnode, goalnode);
 
 	emptyState = new DLTENode();
-	emptyState->key[0] = MAX_int;
-	emptyState->key[1] = MAX_int;
+	emptyState->key[0] = FloatMAX;
+	emptyState->key[1] = FloatMAX;
 	DLTENode* ptr = nullptr;
 	while (key_less_than_key(queue_top_key(), calculate_keys(*startnode, startnode)) || startnode->rhs != startnode->g)
 	{
 		ptr = queue_pop();
+		DebugDrawers::DrawDebugLine(ptr->GetPos(Plane), ptr->GetPos(Plane) + glm::vec3(0, 2, 0),glm::vec3(1,0,0),false,1000);
 		ensure(ptr);
 		if (key_less_than_key(queue_top_key(), calculate_keys(*startnode, ptr)))
 		{
@@ -206,7 +254,7 @@ void NavigationMesh::GridLTE()
 			}
 			else
 			{
-				ptr->g = MAX_int;
+				ptr->g = FloatMAX;
 				for (size_t i = 0; i != temporaryDeque.size(); ++i)
 				{
 					update_state(temporaryDeque[i]);
@@ -220,10 +268,10 @@ void NavigationMesh::GridLTE()
 
 }
 
-std::deque<NavigationMesh::DLTENode*> NavigationMesh::neighbors(DLTENode s)
+std::deque<DLTENode*> NavigationMesh::neighbors(DLTENode s)
 {
 	std::deque<DLTENode*> temporaryDeque;
-#if 1
+#if 0
 	DLTENode* temporaryStatePointer;
 	std::string coordinates;
 	int temporaryX;
@@ -254,16 +302,16 @@ std::deque<NavigationMesh::DLTENode*> NavigationMesh::neighbors(DLTENode s)
 			temporaryDeque.push_back(temporaryStatePointer);
 		}
 
-	}
+}
 #else
-	for (int i = 0; i < s.NearNodes.size(); i++) 
+	for (int i = 0; i < s.NearNodes.size(); i++)
 	{
 		temporaryDeque.push_back(s.NearNodes[i]);
 	}
 #endif
 	DebugEnsure(temporaryDeque.size());
 	return temporaryDeque;
-}
+		}
 int NavigationMesh::traversal_cost(DLTENode sFrom, DLTENode sTo)
 {
 	int edgeCost{ 1 };
@@ -678,4 +726,9 @@ bool pointInTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 point)
 bool NavTriangle::IsPointInsideTri(glm::vec3 point)
 {
 	return pointInTriangle(Positons[0], Positons[1], Positons[2], point);
+}
+
+glm::vec3 DLTENode::GetPos(NavPlane* p)
+{
+	return glm::vec3(Point.x, 10 + p->ZHeight, Point.y);
 }

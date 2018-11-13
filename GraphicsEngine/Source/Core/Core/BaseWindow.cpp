@@ -135,13 +135,13 @@ void BaseWindow::Render()
 
 	PerfManager::StartTimer("Render");
 	Renderer->Render();
-
+	PerfManager::StartTimer("LineDrawer");
 	LineDrawer->GenerateLines();
 	if (Renderer->GetMainCam() != nullptr)
 	{
 		LineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
 	}
-
+	PerfManager::EndTimer("LineDrawer");
 	Renderer->FinaliseRender();
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");

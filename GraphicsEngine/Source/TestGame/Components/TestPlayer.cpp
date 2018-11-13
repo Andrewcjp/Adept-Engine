@@ -9,7 +9,7 @@ TestPlayer::~TestPlayer()
 {}
 
 void TestPlayer::InitComponent()
-{
+{ 
 
 }
 

@@ -15,7 +15,7 @@ public:
 		bool CreatePhysxMesh = false;
 		bool GenerateIndexed = true;
 		bool FlipUVs = false;
-		void Serilise(Archive* A);
+		void Serialize(Archive* A);
 	};
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes);
 	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices);

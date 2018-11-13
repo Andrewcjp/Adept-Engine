@@ -83,7 +83,6 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 	//slopes will be handled with overall angle delta between point
 	//plane object will take in points and create triangles which will then be simplified down to as few tri as possible
 
-	std::vector<NavPlane*> planes;
 	for (int x = 0; x < GridSize; x++)
 	{
 		for (int y = 0; y < GridSize; y++)
@@ -127,6 +126,20 @@ bool NavMeshGenerator::ValidateQuad(const int GirdStep, float FirstHeight, Heigh
 bool approximatelyEqual(float a, float b, float epsilon)
 {
 	return fabs(a - b) <= epsilon;
+}
+
+NavPlane * NavMeshGenerator::GetPlane(float Z)
+{
+	const float PlaneTolerance = 5.0f;
+	NavPlane* plane = nullptr;
+	for (int i = 0; i < planes.size(); i++)
+	{
+		if (approximatelyEqual(planes[i]->ZHeight, Z, PlaneTolerance))
+		{
+			return planes[i];
+		}
+	}
+	return nullptr;
 }
 
 NavPlane* NavMeshGenerator::GetPlane(float Z, std::vector<NavPlane*>& list)
@@ -247,18 +260,50 @@ void HeightField::InitGrid(glm::vec3 Pos, int x, int y)
 		GridData[x] = -std::numeric_limits<float>::max();
 	}
 }
-
+bool Contains(DLTENode* point, std::vector<DLTENode*> & points, NavPlane* p)
+{
+	for (int i = 0; i < points.size(); i++)
+	{
+		if (points[i]->GetPos(p) == point->GetPos(p))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+void Link(DLTENode* a, DLTENode*b)
+{
+	a->NearNodes.push_back(b);
+	b->NearNodes.push_back(a);
+}
 void NavPlane::BuildMesh()
 {
 	for (int i = 0; i < Triangles.size(); i++)
 	{
-		NavPoints.push_back(new NavNode(Triangles[i].points[0]));
-		NavPoints.push_back(new NavNode(Triangles[i].points[1]));
-		NavPoints[NavPoints.size() - 1]->NearNodes.push_back(NavPoints[NavPoints.size() - 2]);
-		NavPoints.push_back(new NavNode(Triangles[i].points[2]));
-		NavPoints[NavPoints.size() - 1]->NearNodes.push_back(NavPoints[NavPoints.size() - 2]);
+		DLTENode* n1 = new DLTENode(Triangles[i].points[0]);
+		DLTENode* n2 = new DLTENode(Triangles[i].points[1]);
+		DLTENode* n3 = new DLTENode(Triangles[i].points[2]);
+		Link(n1, n2);
+		Link(n2, n3);
+		Link(n3, n1);
+		NavPoints.push_back(n1);
+		NavPoints.push_back(n2);
+		NavPoints.push_back(n3);
 	}
 
+	for (int x = 0; x < NavPoints.size(); x++)
+	{
+		for (int y = 0; y < NavPoints.size(); y++)
+		{
+			if (NavPoints[x]->GetPos(this) == NavPoints[y]->GetPos(this) && x != y)
+			{
+				if (!Contains(NavPoints[x], NavPoints[x]->NearNodes, this))
+				{
+					NavPoints[x]->NearNodes.push_back(NavPoints[y]);
+				}
+			}
+		}
+	}
 }
 void NavPlane::RenderMesh()
 {
@@ -266,7 +311,9 @@ void NavPlane::RenderMesh()
 	{
 		for (int x = 0; x < NavPoints[i]->NearNodes.size(); x++)
 		{
-			DebugDrawers::DrawDebugLine(NavPoints[i]->Pos, NavPoints[i]->NearNodes[x]->Pos, glm::vec3(x / (int)NavPoints[i]->NearNodes.size(), 0, 0), false, 1000);
+			float value = (float)x + 1 / (float)NavPoints[i]->NearNodes.size();
+			glm::vec3 dir = NavPoints[i]->GetPos(this) - NavPoints[i]->NearNodes[x]->GetPos(this);
+			DebugDrawers::DrawDebugLine(NavPoints[i]->GetPos(this), NavPoints[i]->GetPos(this) + dir / 2, glm::vec3(value), false, 1000);
 		}
 	}
 }
