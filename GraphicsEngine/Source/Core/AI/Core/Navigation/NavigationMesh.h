@@ -37,10 +37,11 @@ struct NavPoint
 
 struct NavNode
 {
-	NavNode(glm::vec3 npos) {
+	NavNode(glm::vec3 npos)
+	{
 		Pos = npos;
 	}
-	glm::vec3 Pos = glm::vec3(0,0,0);
+	glm::vec3 Pos = glm::vec3(0, 0, 0);
 	std::vector<NavNode*> NearNodes;
 };
 
@@ -54,6 +55,7 @@ namespace ENavRequestStatus
 	};
 }
 const int MAX_int = std::numeric_limits<int>::max();
+const float FloatMAX = std::numeric_limits<float>::max();
 #if 1
 const size_t DIRECTIONS_WIDTH = 8;
 const size_t DIRECTIONS_HEIGHT = 2;
@@ -64,31 +66,41 @@ const size_t DIRECTIONS_HEIGHT = 2;
 const int DIRECTIONS[DIRECTIONS_WIDTH][DIRECTIONS_HEIGHT] = { { 0, 1 },{ 0, -1 },{ 1, 0 },{ -1, 0 } };
 #endif
 class NavigationObstacle;
+struct NavPlane;
+struct DLTENode
+{
+	DLTENode() {}
+	DLTENode(glm::vec3 pos)
+	{
+		Point.x = pos.x;
+		Point.y = pos.z;
+	}
+	glm::vec3 GetPos(NavPlane* p);
+	float key[2];
+	float g = FloatMAX;
+	float rhs = FloatMAX;
+	bool Blocked = false;
+	glm::vec2 Point = glm::vec2(0, 0);
+	int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1, 1, 1, 1, 1 };
+	std::vector<DLTENode*> NearNodes;
+};
 class NavigationMesh
 {
 public:
-	struct DLTENode
-	{
-		int key[2];
-		int g = MAX_int;
-		int rhs = MAX_int;
-		bool Blocked = false;
-		glm::ivec2 Point = glm::ivec2(0, 0);
-		int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1, 1, 1, 1, 1};
-		std::vector<DLTENode*> NearNodes;
-	};
+
 	void SetupGrid();
 	NavigationMesh();
 	~NavigationMesh();
-	int heuristic(DLTENode sFrom, DLTENode sTo);
-	int * calculate_keys(DLTENode sTo, DLTENode * sFromPointer);
-	int * queue_top_key();
+	float heuristic(DLTENode sFrom, DLTENode sTo);
+	float * calculate_keys(DLTENode sTo, DLTENode * sFromPointer);
+	float * queue_top_key();
 	DLTENode * queue_pop();
 	void queue_insert(DLTENode * statePointer);
 	void queue_remove(DLTENode s);
 	NavigationMesh::DLTENode get_start();
 	NavigationMesh::DLTENode get_goal();
 	void run();
+	void SetTarget(glm::vec3 Target, glm::vec3 Origin);
 	void GridLTE();
 	std::deque<DLTENode*> neighbors(DLTENode s);
 	int traversal_cost(DLTENode sFrom, DLTENode sTo);
@@ -103,7 +115,7 @@ public:
 
 	void RegisterObstacle(NavigationObstacle* NewObstacle);
 	void NotifyNavMeshUpdate();
-
+	NavPlane* Plane = nullptr;
 private:
 	ENavRequestStatus::Type CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
 
@@ -117,6 +129,7 @@ private:
 
 #define Gsize 50
 	DLTENode grid[Gsize][Gsize];
+	
 	//dlte
 	std::deque<DLTENode*> queue;
 	DLTENode* emptyState = nullptr;

@@ -72,11 +72,12 @@ void EditorWindow::PostInitWindow(int w, int h)
 	delete CurrentScene;
 	CurrentScene = new Scene();
 	Saver->LoadScene(CurrentScene, TestFilePath);
-	Renderer->SetScene(CurrentScene);
+	Renderer->SetScene(CurrentScene); 
 	RefreshScene();
 #endif
-	AISystem::Get()->mesh->GenTestMesh();     
+	    
 	AISystem::Get()->GenerateMesh(); 
+	AISystem::Get()->mesh->GenTestMesh();
 }
 
 void EditorWindow::EnterPlayMode()

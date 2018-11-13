@@ -1,8 +1,6 @@
-
 #include "SpawningPool.h"
 #include "AI/Core/AISystem.h"
-#include "../AI/TestGame_Director.h"
-
+#include "Source/TestGame/AI/TestGame_Director.h"
 
 SpawningPool::SpawningPool()
 {

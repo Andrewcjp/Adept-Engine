@@ -2,7 +2,7 @@
 #include "DebugDrawers.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #define PI (3.1415926535897932f)
-static const float DefultLifeTime = 10.0f;
+static const float DefultLifeTime = 50.0f;
 void DebugDrawers::DrawDebugSphere(glm::vec3 const & Center, float Radius, glm::vec3 const & Color, int Segments, bool bPersistentLines, float LifeTime, float Thickness)
 {
 	float LineLifeTime = (LifeTime > 0.f) ? LifeTime : DefultLifeTime;

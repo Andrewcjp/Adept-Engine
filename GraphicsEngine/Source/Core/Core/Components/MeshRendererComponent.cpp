@@ -79,7 +79,7 @@ void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 		std::string Assetname;
 		ArchiveProp_Alias(Assetname, m_mesh->AssetName);
 		MeshLoader::FMeshLoadingSettings set;
-		set.Serilise(A);
+		set.Serialize(A);
 		if (!Assetname.empty())
 		{
 			m_mesh = RHI::CreateMesh(Assetname.c_str(),set);
@@ -90,7 +90,7 @@ void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 		if (m_mesh != nullptr)
 		{
 			ArchiveProp(m_mesh->AssetName);
-			m_mesh->ImportSettings.Serilise(A);
+			m_mesh->ImportSettings.Serialize(A);
 		}
 	}
 	m_mesh->ProcessSerialArchive(A);
