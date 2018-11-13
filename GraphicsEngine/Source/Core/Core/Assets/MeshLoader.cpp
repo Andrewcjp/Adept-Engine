@@ -5,6 +5,7 @@
 #include <include/assimp/postprocess.h>
 #include "Core/EngineInc.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Assets/Archive.h"
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
 {
@@ -35,6 +36,16 @@ bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const 
 		}
 	}
 	return false;
+}
+
+void MeshLoader::FMeshLoadingSettings::Serilise(Archive * A)
+{	
+	ArchiveProp(Scale);
+	ArchiveProp(UVScale); 
+	ArchiveProp(InitOnAllDevices);
+	ArchiveProp(CreatePhysxMesh);
+	ArchiveProp(GenerateIndexed);
+	ArchiveProp(FlipUVs);
 }
 
 bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes)

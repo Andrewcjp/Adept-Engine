@@ -5,6 +5,7 @@
 #include "Physics/PhysicsEngine.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "AI/Generation/ThirdParty/delaunator.hpp"
+#include "AI/CORE/Navigation/NavigationMesh.h"
 NavMeshGenerator::NavMeshGenerator()
 {}
 
@@ -208,12 +209,14 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 		for (int x = 0; x < sides; x++)
 		{
 			const int next = (x + 1) % sides;
-			DebugDrawers::DrawDebugLine(target->Triangles[i].points[x], target->Triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
+			//DebugDrawers::DrawDebugLine(target->Triangles[i].points[x], target->Triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
 		}
 	}
+	target->BuildMesh();
 	std::stringstream ss;
 	ss << "Pruned " << PrunedTris << "/" << TotalTriCount;
 	Log::LogMessage(ss.str());
+	target->RenderMesh();
 }
 
 void HeightField::SetValue(int x, int y, float value)
@@ -242,5 +245,28 @@ void HeightField::InitGrid(glm::vec3 Pos, int x, int y)
 	for (int x = 0; x < Width*Height; x++)
 	{
 		GridData[x] = -std::numeric_limits<float>::max();
+	}
+}
+
+void NavPlane::BuildMesh()
+{
+	for (int i = 0; i < Triangles.size(); i++)
+	{
+		NavPoints.push_back(new NavNode(Triangles[i].points[0]));
+		NavPoints.push_back(new NavNode(Triangles[i].points[1]));
+		NavPoints[NavPoints.size() - 1]->NearNodes.push_back(NavPoints[NavPoints.size() - 2]);
+		NavPoints.push_back(new NavNode(Triangles[i].points[2]));
+		NavPoints[NavPoints.size() - 1]->NearNodes.push_back(NavPoints[NavPoints.size() - 2]);
+	}
+
+}
+void NavPlane::RenderMesh()
+{
+	for (int i = 0; i < NavPoints.size(); i++)
+	{
+		for (int x = 0; x < NavPoints[i]->NearNodes.size(); x++)
+		{
+			DebugDrawers::DrawDebugLine(NavPoints[i]->Pos, NavPoints[i]->NearNodes[x]->Pos, glm::vec3(x / (int)NavPoints[i]->NearNodes.size(), 0, 0), false, 1000);
+		}
 	}
 }

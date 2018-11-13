@@ -65,6 +65,7 @@ void Mesh::TryPushMaterial(RHICommandList* list, int index)
 
 void Mesh::LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 {
+	ImportSettings = Settings;
 	MeshLoader::LoadMeshFromFile(filename, Settings, SubMeshes);
 	if (SubMeshes.size() == 0)
 	{

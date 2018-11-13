@@ -93,7 +93,7 @@ const std::string AssetManager::GetGeneratedDir()
 
 const std::string AssetManager::DirectGetGeneratedDir()
 {
-	std::string GeneratedDirPath = Engine::GetExecutionDir() + "\\Saved";
+	std::string GeneratedDirPath = Engine::GetExecutionDir() + "\\Saved\\";
 	PlatformApplication::TryCreateDirectory(GeneratedDirPath);
 	return GeneratedDirPath;
 }

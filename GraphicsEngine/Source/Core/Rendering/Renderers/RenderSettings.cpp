@@ -2,7 +2,7 @@
 #include "RenderSettings.h"
 #include "RHI/RHI.h"
 #include "Core/Platform/ConsoleVariable.h"
-static ConsoleVariable UseDeferredMode("deferred", 0, ECVarType::LaunchOnly);
+static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
 
 MultiGPUMode::MultiGPUMode()
 {

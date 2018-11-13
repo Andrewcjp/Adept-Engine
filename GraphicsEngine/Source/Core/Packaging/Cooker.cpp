@@ -18,6 +18,7 @@ Cooker::Cooker()
 #if _DEBUG
 	BuildDebug = false;
 #endif
+	ShouldComplie = false;
 	BuildConfig = "ShippingReleasePackage";
 	if (BuildDebug)
 	{
@@ -95,8 +96,11 @@ void Cooker::CopyToOutput()
 			contentItemCount++;
 			CopyAssetToOutput(it->first);
 		}*/
-		//CopyFolderToOutput(AssetManager::GetContentPath(), "\\Content\\");
+#if 1
+		CopyFolderToOutput(AssetManager::GetContentPath(), "\\Content\\");
+#else
 		CopyFolderToOutput(AssetManager::GetContentPath() + "models", "\\Content\\models");
+#endif
 		CopyFolderToOutput(AssetManager::GetDDCPath(), "\\DerivedDataCache\\");
 		//copy font
 		CopyAssetToOutput("\\Content\\fonts\\arial.ttf");

@@ -14,6 +14,7 @@
 #include "AKHooks.h"
 #include "Core/Platform/Logger.h"
 #include "Core/GameObject.h"
+#include "Core/Assets/AssetManager.h"
 //wwise Libs
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dsound.lib")
@@ -154,10 +155,10 @@ void AudioEngine::PostEvent(FString name, GameObject * Obj)
 	}
 	if (outputid == AK_INVALID_PLAYING_ID)
 	{
-		Log::LogMessage("Falied to post event \"" + name.ToSString() + "\"", Log::Severity::Error);
+		Log::LogMessage("Failed to post event \"" + name.ToSString() + "\"", Log::Severity::Error);
 	}
 }
-#include "Core/Assets/AssetManager.h"
+
 void AudioEngine::LoadBanks()
 {
 	LoadBank("Init.bnk");
