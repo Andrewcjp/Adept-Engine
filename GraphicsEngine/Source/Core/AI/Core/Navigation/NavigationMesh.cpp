@@ -15,6 +15,12 @@ void NavigationMesh::SetupGrid()
 		for (int y = 0; y < Gsize; y++)
 		{
 			grid[x][y].Point = glm::ivec2(x, y);
+			if (x < Gsize-1) {
+				grid[x][y].NearNodes.push_back(&grid[x + 1][y]);
+			}
+			if (y < Gsize-1) {
+				grid[x][y].NearNodes.push_back(&grid[x][y + 1]);
+			}
 		}
 	}
 }
@@ -25,6 +31,7 @@ NavigationMesh::NavigationMesh()
 
 NavigationMesh::~NavigationMesh()
 {}
+
 int NavigationMesh::heuristic(DLTENode sFrom, DLTENode sTo)
 {
 	int distance{ 0 };
@@ -32,6 +39,7 @@ int NavigationMesh::heuristic(DLTENode sFrom, DLTENode sTo)
 	sFrom.Point.y > sTo.Point.y ? distance += sFrom.Point.y - sTo.Point.y : distance += sTo.Point.y - sFrom.Point.y;
 	return distance;
 }
+
 int* NavigationMesh::calculate_keys(DLTENode sTo, DLTENode* sFromPointer)
 {
 	int heuristicValue{ heuristic(*sFromPointer, sTo) };
@@ -39,6 +47,7 @@ int* NavigationMesh::calculate_keys(DLTENode sTo, DLTENode* sFromPointer)
 	sFromPointer->rhs <= sFromPointer->g ? sFromPointer->key[1] = sFromPointer->rhs : sFromPointer->key[1] = sFromPointer->g;
 	return sFromPointer->key;
 }
+
 bool key_less_than_key(int* keyFrom, int* keyTo)
 {
 	if (keyFrom[0] < keyTo[0])
@@ -123,7 +132,7 @@ void NavigationMesh::run()
 		/* if start->g == numeric_limits<int>::max() then there is no path */
 		std::deque<DLTENode*> temporaryDeque{ neighbors(get_start()) };
 		DLTENode* temporaryState{ temporaryDeque[0] };
-		DLTENode* secondTemporaryState;
+		DLTENode* secondTemporaryState; 
 		for (size_t i = 1; i != temporaryDeque.size(); ++i)
 		{
 			secondTemporaryState = temporaryDeque[i];
@@ -206,7 +215,7 @@ void NavigationMesh::GridLTE()
 			}
 		}
 	}
-	ensure(queue.size());
+	//ensure(queue.size());
 	DebugLineDrawer::Get()->AddLine(glm::vec3(goalnode->Point.x, 0, goalnode->Point.y), glm::vec3(goalnode->Point.x, 10, goalnode->Point.y), glm::vec3(0, 1, 1), 100);
 
 }
@@ -214,6 +223,7 @@ void NavigationMesh::GridLTE()
 std::deque<NavigationMesh::DLTENode*> NavigationMesh::neighbors(DLTENode s)
 {
 	std::deque<DLTENode*> temporaryDeque;
+#if 1
 	DLTENode* temporaryStatePointer;
 	std::string coordinates;
 	int temporaryX;
@@ -245,6 +255,13 @@ std::deque<NavigationMesh::DLTENode*> NavigationMesh::neighbors(DLTENode s)
 		}
 
 	}
+#else
+	for (int i = 0; i < s.NearNodes.size(); i++) 
+	{
+		temporaryDeque.push_back(s.NearNodes[i]);
+	}
+#endif
+	DebugEnsure(temporaryDeque.size());
 	return temporaryDeque;
 }
 int NavigationMesh::traversal_cost(DLTENode sFrom, DLTENode sTo)

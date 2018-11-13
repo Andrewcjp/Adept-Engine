@@ -36,6 +36,21 @@ void Archive::LinkProperty(glm::vec3 & Value, const char * PropName)
 	}
 }
 
+void Archive::LinkProperty(glm::vec2 & Value, const char * PropName)
+{
+	if (IsReading())
+	{
+		std::string key = (CurrentReadHead->name.GetString());
+		ensure(key == PropName);
+		Value = SerialHelpers::GetFloatVec2(CurrentReadHead->value);
+		CurrentReadHead++;
+	}
+	else
+	{
+		SerialHelpers::addVector(*valueptr, *jallocator, PropName, Value);
+	}
+}
+
 void Archive::LinkProperty(Transform * Value, const char * PropName)
 {
 	Value->Serilise(this);

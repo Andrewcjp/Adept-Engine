@@ -176,8 +176,7 @@ EImageIOStatus ImageIO::LoadTexture2D(const char* filename, unsigned char** buff
 	*buffer = SOIL_load_image(filename, width, height, nchan, SOIL_LOAD_RGBA);
 	if (*buffer == nullptr)
 	{
-		//printf("Load texture Error %s\n", file);
-		Log::OutS << "Falied to Load Texture '" << filename << "'\n";
+		Log::OutS << "Failed to Load Texture '" << filename << "'\n";
 		return EImageIOStatus::E_IMAGEIO_ERROR;
 	}
 	return EImageIOStatus::E_IMAGEIO_SUCCESS;

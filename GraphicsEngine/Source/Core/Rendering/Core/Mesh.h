@@ -32,6 +32,7 @@ public:
 	void ProcessSerialArchive(class Archive* Arch);
 	void SetShadow(bool state);
 	bool GetDoesShadow();
+	MeshLoader::FMeshLoadingSettings ImportSettings;
 private:
 	RHI_API void Release() override;
 	int FrameCreated = 0;

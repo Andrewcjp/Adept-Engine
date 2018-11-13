@@ -13,6 +13,7 @@ public:
 	void LinkProperty(bool & Value, const char * PropName);
 	void LinkProperty(std::string & Value, const char * PropName);
 	void LinkProperty(glm::vec3 & Value, const char* PropName);
+	void LinkProperty(glm::vec2 & value, const char* PropName);
 	//Complex Core Types
 	void LinkProperty(std::vector<class Component*>& Value, const char * PropName);
 	void LinkProperty(class Transform * Value, const char * PropName);

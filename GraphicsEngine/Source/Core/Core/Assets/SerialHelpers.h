@@ -57,5 +57,6 @@ namespace SerialHelpers
 		return true;
 	}
 	glm::vec3 GetFloatVec3(const rapidjson::Value& jsonVal);
+	glm::vec2 GetFloatVec2(const rapidjson::Value & jsonVal);
 	const std::string GetString(const rapidjson::Value& jsonVal);
 }

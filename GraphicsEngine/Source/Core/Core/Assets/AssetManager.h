@@ -56,8 +56,8 @@ public:
 	CORE_API static const std::string GetScriptPath();
 	CORE_API static const std::string GetTextureGenScript();
 	CORE_API static const std::string GetRootDir();
-	static const std::string GetGeneratedDir();
-	static const std::string DirectGetGeneratedDir();
+	CORE_API static const std::string GetGeneratedDir();
+	CORE_API static const std::string DirectGetGeneratedDir();
 private:
 	AssetManager();
 	bool HasCookedData = false;

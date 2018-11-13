@@ -34,6 +34,16 @@ struct NavPoint
 	NavPoint* Parent = nullptr;
 	glm::vec2 NavKey = glm::vec2();
 };
+
+struct NavNode
+{
+	NavNode(glm::vec3 npos) {
+		Pos = npos;
+	}
+	glm::vec3 Pos = glm::vec3(0,0,0);
+	std::vector<NavNode*> NearNodes;
+};
+
 namespace ENavRequestStatus
 {
 	enum Type
@@ -64,7 +74,8 @@ public:
 		int rhs = MAX_int;
 		bool Blocked = false;
 		glm::ivec2 Point = glm::ivec2(0, 0);
-		int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1 ,1,1,1,1 };
+		int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1, 1, 1, 1, 1};
+		std::vector<DLTENode*> NearNodes;
 	};
 	void SetupGrid();
 	NavigationMesh();
@@ -92,6 +103,7 @@ public:
 
 	void RegisterObstacle(NavigationObstacle* NewObstacle);
 	void NotifyNavMeshUpdate();
+
 private:
 	ENavRequestStatus::Type CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
 

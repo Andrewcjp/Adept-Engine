@@ -51,7 +51,7 @@ public:
 	void WriteBackRenderTarget();
 	D3D12ReadBackCopyHelper(class DeviceContext* context, class GPUResource* Target);
 	~D3D12ReadBackCopyHelper();
-	void WriteToFile(AssetPathRef& Ref);
+	void WriteToFile(std::string Ref);
 private:
 	GPUResource * WriteBackResource = nullptr;
 	GPUResource* Target = nullptr;

@@ -316,7 +316,7 @@ D3D12ReadBackCopyHelper::~D3D12ReadBackCopyHelper()
 	SafeRHIRelease(Cmdlist);
 }
 
-void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
+void D3D12ReadBackCopyHelper::WriteToFile(std::string Ref)
 {
 	const bool DDS = false;
 	const D3D12_RANGE emptyRange = {};
@@ -328,9 +328,9 @@ void D3D12ReadBackCopyHelper::WriteToFile(AssetPathRef & Ref)
 	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
 	const unsigned char * Pioint = ((const unsigned char *)pData);
 
-	std::string path = Ref.GetNoExtPathToAsset();
-	path.append(GenericPlatformMisc::GetDateTimeString());
+	std::string path = Ref;
 	FileUtils::CreateDirectoriesToFullPath(path);
+	path.append(GenericPlatformMisc::GetDateTimeString());	
 	if (DDS)
 	{
 		path.append(".DDS");

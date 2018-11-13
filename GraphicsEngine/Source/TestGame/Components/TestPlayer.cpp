@@ -54,6 +54,7 @@ void TestPlayer::Update(float delta)
 	if (CameraComponent::GetMainCamera() != nullptr)
 	{
 		glm::vec3 Pos = GetOwner()->GetTransform()->GetPos();
+	//	Pos.y += 2;
 		CameraComponent::GetMainCamera()->SetPos(Pos);
 	}
 
@@ -64,19 +65,11 @@ void TestPlayer::Update(float delta)
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
 	if (CameraObject)
 	{
-#if 1
-		glm::mat4 LocalMAtrix = GetOwner()->GetTransform()->GetModel();
-		glm::quat rotation = glm::quat(glm::toMat4(newrot)*glm::inverse(LocalMAtrix));
-		rotation = glm::toMat4(rotation) *LocalMAtrix;
-
-
-		CameraObject->GetTransform()->SetQrot(CameraObject->GetTransform()->GetQuatRot()* rotation);
+		CameraObject->GetTransform()->SetLocalRotation(newrot);
 		const float EyeHeight = 2.0f;
 		CameraObject->GetTransform()->SetLocalPosition(glm::vec3(0, EyeHeight, 0));
-#else
-		CameraObject->GetTransform()->SetLocalRotation(newrot);
-#endif
 		CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
+		//CameraComponent::GetMainCamera()->SetPos(CameraObject->GetTransform()->GetPos());
 	}
 	Input::SetCursorState(true, false);
 }

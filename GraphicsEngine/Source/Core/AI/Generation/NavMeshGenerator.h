@@ -43,4 +43,7 @@ struct NavPlane
 	std::vector<glm::vec3> Points;
 	std::vector<Tri> Triangles;
 	float ZHeight = 0.0f;
+	void BuildMesh();
+	void RenderMesh();
+	std::vector<struct NavNode*> NavPoints;
 };
