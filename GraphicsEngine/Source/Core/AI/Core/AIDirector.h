@@ -1,6 +1,8 @@
 #pragma once
-namespace EAIDirectorDifficulty {
-	enum Type {
+namespace EAIDirectorDifficulty
+{
+	enum Type
+	{
 		Easy,
 		Normal,
 		Hard,
@@ -9,6 +11,7 @@ namespace EAIDirectorDifficulty {
 	};
 }
 class Scene;
+class GameObject;
 class AIDirector
 {
 public:
@@ -16,8 +19,11 @@ public:
 	CORE_API ~AIDirector();
 	void SetScene(Scene* newscene);
 	CORE_API virtual void Tick();
-private:
+	CORE_API GameObject* GetPlayerObject();
+	CORE_API void SetPlayer(GameObject* player);
+protected:
 	Scene* scene = nullptr;
+	GameObject* Player = nullptr;
 
 };
 

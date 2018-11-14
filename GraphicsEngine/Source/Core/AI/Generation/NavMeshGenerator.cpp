@@ -368,6 +368,7 @@ Tri* NavPlane::FindTriangleFromWorldPos(glm::vec3 worldpos)
 	}
 	return nullptr;
 }
+
 float Tri::side(glm::vec2 v1, glm::vec2 v2, glm::vec2 point)
 {
 	return (v2.y - v1.y)*(point.x - v1.x) + (-v2.x + v1.x)*(point.y - v1.y);

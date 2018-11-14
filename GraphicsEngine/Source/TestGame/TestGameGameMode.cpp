@@ -7,6 +7,8 @@
 #include "Components/Projectile.h"
 #include "Components/WeaponManager.h"
 #include "AI/Core/AIController.h"
+#include "AI/Core/AISystem.h"
+#include "AI/TestGame_Director.h"
 TestGameGameMode::TestGameGameMode()
 {}
 
@@ -79,14 +81,16 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	go->GetTransform()->SetScale(glm::vec3(1));
 	Scene->AddGameobjectToScene(go);
 	manager->Weapons[0]->SetWeaponModel(go, player->CameraObject);
+	AISystem::Get()->GetDirector<TestGame_Director>()->SetPlayer(player->GetOwner());
 	SpawnSKull(glm::vec3(20, 5, 0));
 	SpawnSKull(glm::vec3(-15, 5, 0));
 #endif
-
+#if 0
 	GameObject* AiTest = MakeTestSphere(Scene);
 	AiTest->SetPosition(glm::vec3(50, -2, 0));
 	AIController* controller = AiTest->AttachComponent(new AIController());
 	controller->MoveTo(player->GetOwner());
+#endif
 }
 
 void TestGameGameMode::SpawnSKull(glm::vec3 Position)
