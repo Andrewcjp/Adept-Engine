@@ -19,3 +19,13 @@ void AIDirector::SetScene(Scene * newscene)
 void AIDirector::Tick()
 {
 }
+
+GameObject * AIDirector::GetPlayerObject()
+{
+	return Player;
+}
+
+void AIDirector::SetPlayer(GameObject* player)
+{
+	Player = player;
+}

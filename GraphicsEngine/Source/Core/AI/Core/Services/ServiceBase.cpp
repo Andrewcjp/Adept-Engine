@@ -10,7 +10,7 @@ ServiceBase::~ServiceBase()
 
 void ServiceBase::HandleTick()
 {
-
+	Tick();
 }
 
 void ServiceBase::HandleInit()

@@ -7,6 +7,7 @@
 #include "../Services/ServiceBase.h"
 #include "BaseDecorator.h"
 #include "Core/Performance/PerfManager.h"
+#include "../AIController.h"
 
 
 EBTNodeReturn::Type BehaviourTreeNode::ExecuteNode()
@@ -61,14 +62,14 @@ BTMoveToNode::BTMoveToNode(BTValue * GoalPos)
 
 EBTNodeReturn::Type BTMoveToNode::ExecuteNode()
 {
-	glm::vec3 goal = *BBValues[0]->GetValue<glm::vec3>();
 	NavigationPath* path = nullptr;
 	if (ParentTree->Target == nullptr)
 	{
 		return EBTNodeReturn::Failure;
 	}
-	ENavRequestStatus::Type hr = AISystem::Get()->CalculatePath(goal, ParentTree->Target->GetPosition(), &path);
-	return (hr == ENavRequestStatus::Complete) ? EBTNodeReturn::Success : EBTNodeReturn::Failure;
+	AIController* controller = 	ParentTree->Target->GetComponent<AIController>();
+	controller->MoveTo(BBValues[0]->GetValue<GameObject>());
+	return  (/*hr == ENavRequestStatus::Complete*/1) ? EBTNodeReturn::Success : EBTNodeReturn::Failure;
 }
 
 EBTNodeReturn::Type BTSelectorNode::HandleExecuteNode()
@@ -77,7 +78,7 @@ EBTNodeReturn::Type BTSelectorNode::HandleExecuteNode()
 	{
 		for (int i = 0; i < Services.size(); i++)
 		{
-			Services[i]->HandleTick();
+			Services[i]->HandleTick();//If a child is running a service can't tick 
 		}
 		bool Checks = false;
 		for (int i = 0; i < Decorators.size(); i++)

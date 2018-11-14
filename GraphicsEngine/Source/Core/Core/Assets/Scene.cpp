@@ -309,10 +309,12 @@ void Scene::RemoveLight(Light * Light)
 		Lights.empty();
 	}
 }
+
 void Scene::RemoveGameObject(GameObject* object)
 {
 	DeferredRemoveQueue.push_back(object);
 }
+
 void Scene::EndScene()
 {
 	CurrentGameMode->EndPlay();

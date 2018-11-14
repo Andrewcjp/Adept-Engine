@@ -8,6 +8,7 @@
 #include "DemonRiotShield.h"
 #include "DemonOrb.h"
 #include "SkullChaser.h"
+#include "Core/Components/MeshRendererComponent.h"
 
 TestGame_Director::TestGame_Director()
 {}
@@ -20,7 +21,7 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		SpawnAI(glm::vec3(0, 10, 0), EAIType::Imp);
+		SpawnAI(glm::vec3(50, 10, 0), EAIType::Imp);
 		once = true;
 	}
 }
@@ -63,6 +64,11 @@ GameObject* TestGame_Director::SpawnImp(glm::vec3 pos)
 {
 	GameObject* newImp = CreateAI(pos);
 	newImp->AttachComponent(new DemonImp());
+	Material* mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	newImp->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
+	newImp->GetTransform()->SetScale(glm::vec3(1, 2, 1));
+	scene->AddGameobjectToScene(newImp);
 	return newImp;
 }
 
