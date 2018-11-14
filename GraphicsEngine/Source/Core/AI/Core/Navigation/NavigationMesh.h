@@ -69,11 +69,22 @@ class NavigationObstacle;
 struct NavPlane;
 struct DLTENode
 {
-	DLTENode() {}
+	DLTENode()
+	{
+		Reset();
+	}
 	DLTENode(glm::vec3 pos)
 	{
 		Point.x = pos.x;
 		Point.y = pos.z;
+		Reset();
+	}
+	void Reset()
+	{
+		g = FloatMAX;
+		rhs = FloatMAX;
+		key[0] = 0.0f;
+		key[1] = 0.0f;
 	}
 	glm::vec3 GetPos(NavPlane* p);
 	float key[2];
@@ -99,7 +110,8 @@ public:
 	void queue_remove(DLTENode s);
 	NavigationMesh::DLTENode get_start();
 	NavigationMesh::DLTENode get_goal();
-	void run();
+	void Reset();
+	void run(std::vector<glm::vec3>& path);
 	void SetTarget(glm::vec3 Target, glm::vec3 Origin);
 	void GridLTE();
 	std::deque<DLTENode*> neighbors(DLTENode s);
@@ -107,7 +119,7 @@ public:
 	void update_state(DLTENode * statePointer);
 	void RenderGrid();
 	void GenTestMesh();
-	void DrawNavMeshLines(class DebugLineDrawer * drawer);
+	void DrawNavMeshLines();
 	void PopulateNearLists();
 	NavTriangle * FindTriangleFromWorldPos(glm::vec3 worldpos);
 
@@ -129,7 +141,7 @@ private:
 
 #define Gsize 50
 	DLTENode grid[Gsize][Gsize];
-	
+
 	//dlte
 	std::deque<DLTENode*> queue;
 	DLTENode* emptyState = nullptr;

@@ -10,7 +10,7 @@ AISystem* AISystem::Instance = nullptr;
 
 AISystem::AISystem()
 {
-	CurrentMode = EAINavigationMode::AStar;
+	CurrentMode = EAINavigationMode::DStarLTE;
 	mesh = new NavigationMesh();
 	BTManager = new BehaviourTreeManager();
 	Director = Engine::GetGame()->CreateAIDirector();

@@ -84,9 +84,9 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 #endif
 
 	GameObject* AiTest = MakeTestSphere(Scene);
-	AiTest->SetPosition(glm::vec3(10, 10, 0));
+	AiTest->SetPosition(glm::vec3(50, -2, 0));
 	AIController* controller = AiTest->AttachComponent(new AIController());
-	controller->MoveTo(glm::vec3(0, 0, 20));
+	controller->MoveTo(player->GetOwner());
 }
 
 void TestGameGameMode::SpawnSKull(glm::vec3 Position)

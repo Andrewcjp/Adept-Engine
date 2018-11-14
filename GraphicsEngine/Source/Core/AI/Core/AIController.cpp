@@ -5,6 +5,7 @@
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "AI/Core/AISystem.h"
 #include "Core/Platform/PlatformCore.h"
+
 AIController::AIController()
 {}
 
@@ -24,6 +25,7 @@ void AIController::MoveTo(GameObject * target)
 {
 	CurrentTarget.IsValid = true;
 	CurrentTarget.MovingTarget = target;
+	ReplanPath();
 }
 
 void AIController::InitComponent()
@@ -39,9 +41,14 @@ glm::vec3 ProjectPosition(glm::vec3 pos)
 
 void AIController::Update(float dt)
 {
+	if (CurrentTarget.IsValid && RHI::GetFrameCount() % 60 == 0)
+	{
+		ReplanPath();
+	}
 	if (CurrentTarget.IsValid && Rigidbody != nullptr && Path != nullptr && Path->Positions.size() > 0)
 	{
 		//Point at the Next path node
+		CurrentPathIndex = glm::clamp(CurrentPathIndex, 0, (int)Path->Positions.size() - 1);
 		float distance = glm::distance(ProjectPosition(GetOwner()->GetPosition()), Path->Positions[CurrentPathIndex]);
 		if (distance <= PathNodeArriveRaduis)
 		{
@@ -70,7 +77,7 @@ void AIController::Update(float dt)
 	}
 	else if (Rigidbody != nullptr)
 	{
-		Rigidbody->GetActor()->SetLinearVelocity(glm::vec3(0, 0, 0));
+		Rigidbody->GetActor()->SetLinearVelocity(glm::vec3(0, Rigidbody->GetActor()->GetLinearVelocity().y, 0));
 	}
 }
 

@@ -8,6 +8,8 @@ typedef struct _WLineItem
 	glm::vec3 colour;
 	float Time;
 	float Thickness;
+	bool Persistent = false;
+	bool NewLine = true;
 }WLine;
 class DebugLineDrawer
 {
@@ -15,15 +17,19 @@ public:
 	DebugLineDrawer(bool DOnly = false);
 	~DebugLineDrawer();
 	void GenerateLines();
-	void RenderLines();
-	void ReallocBuffer(int NewSize);
+	void UpdateLineBuffer(int offset);
+	void CreateLineVerts(WLine & line);
 	void RenderLines(glm::mat4& matrix);
-	void ClearLines();
 
+	void RenderLines();	
 	void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
 	void OnResize(int newwidth, int newheight);
+	void FlushDebugLines();
 	CORE_API static DebugLineDrawer* Get();
 private:
+	void ReallocBuffer(int NewSize);
+	void RegenerateVertBuffer();
+	void ClearLines();
 	static DebugLineDrawer* instance;
 	std::vector<WLine> Lines;
 	class Shader_Line* LineShader = nullptr;
@@ -37,6 +43,8 @@ private:
 		glm::vec3 pos;
 		glm::vec3 colour;
 	};
+	bool RegenNeeded = true;
+	std::vector<VERTEX> Verts;
 	const int maxSize = 100000;
 	int CurrentMaxVerts = 100;
 	bool Is2DOnly = false;
