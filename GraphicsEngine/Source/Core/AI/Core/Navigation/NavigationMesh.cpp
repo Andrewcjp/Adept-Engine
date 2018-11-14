@@ -134,11 +134,18 @@ DLTENode NavigationMesh::get_goal()
 {
 	return *goalnode;
 }
-void NavigationMesh::run()
+void NavigationMesh::Reset()
 {
-	SetTarget(glm::vec3(50.5, 0, 0), glm::vec3(60, 0, 10));
+	for (int i = 0; i < Plane->NavPoints.size(); i++)
+	{
+		Plane->NavPoints[i]->Reset();
+	}
+}
+void NavigationMesh::run(std::vector<glm::vec3>& path)
+{
+	Reset();
 	GridLTE();
-	std::vector<glm::vec3> path;
+	//std::vector<glm::vec3> path;
 	while (get_start().Point.x != get_goal().Point.x || get_start().Point.y != get_goal().Point.y)
 	{
 		std::deque<DLTENode*> temporaryDeque{ neighbors(get_start()) };
@@ -181,10 +188,12 @@ void NavigationMesh::run()
 			//}
 
 	}
+#if 0
 	for (int i = 0; i < path.size(); i++)
 	{
 		DebugLineDrawer::Get()->AddLine(path[i], path[i] + glm::vec3(0, 2, 0), glm::vec3(0, 0, 1), 100);
 	}
+#endif
 }
 
 void NavigationMesh::SetTarget(glm::vec3 Target, glm::vec3 Origin)
@@ -213,8 +222,8 @@ void NavigationMesh::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 #endif
 	Plane->ResolvePositionToNode(Target, &goalnode);
 	Plane->ResolvePositionToNode(Origin, &startnode);
-	DebugDrawers::DrawDebugSphere(Origin, 2, glm::vec3(1), 16, false, 100000);
-	DebugDrawers::DrawDebugSphere(Target, 2, glm::vec3(0.5f), 16, false, 100000);
+	//DebugDrawers::DrawDebugSphere(Origin, 2, glm::vec3(1), 16, false, 100000);
+	//DebugDrawers::DrawDebugSphere(Target, 2, glm::vec3(0.5f), 16, false, 100000);
 }
 
 void NavigationMesh::GridLTE()
@@ -225,7 +234,7 @@ void NavigationMesh::GridLTE()
 		startnode = &grid[10][10];
 		goalnode = &grid[30][19];
 	}
-	DebugLineDrawer::Get()->AddLine(glm::vec3(startnode->Point.x, 0, startnode->Point.y), glm::vec3(startnode->Point.x, 10, startnode->Point.y), glm::vec3(0, 1, 1), 100);
+	//DebugLineDrawer::Get()->AddLine(glm::vec3(startnode->Point.x, 0, startnode->Point.y), glm::vec3(startnode->Point.x, 10, startnode->Point.y), glm::vec3(0, 1, 1), 100);
 	queue_insert(goalnode);
 	startnode->g = FloatMAX;
 	startnode->rhs = FloatMAX;
@@ -240,7 +249,7 @@ void NavigationMesh::GridLTE()
 	while (key_less_than_key(queue_top_key(), calculate_keys(*startnode, startnode)) || startnode->rhs != startnode->g)
 	{
 		ptr = queue_pop();
-		DebugDrawers::DrawDebugLine(ptr->GetPos(Plane), ptr->GetPos(Plane) + glm::vec3(0, 2, 0), glm::vec3(1, 0, 0), false, 1000);
+		//DebugDrawers::DrawDebugLine(ptr->GetPos(Plane), ptr->GetPos(Plane) + glm::vec3(0, 2, 0), glm::vec3(1, 0, 0), false, 1000);
 		ensure(ptr);
 		if (key_less_than_key(queue_top_key(), calculate_keys(*startnode, ptr)))
 		{
@@ -269,7 +278,7 @@ void NavigationMesh::GridLTE()
 		}
 	}
 	//ensure(queue.size());
-	DebugLineDrawer::Get()->AddLine(glm::vec3(goalnode->Point.x, 0, goalnode->Point.y), glm::vec3(goalnode->Point.x, 10, goalnode->Point.y), glm::vec3(0, 1, 1), 100);
+//	DebugLineDrawer::Get()->AddLine(glm::vec3(goalnode->Point.x, 0, goalnode->Point.y), glm::vec3(goalnode->Point.x, 10, goalnode->Point.y), glm::vec3(0, 1, 1), 100);
 
 }
 
@@ -307,7 +316,7 @@ std::deque<DLTENode*> NavigationMesh::neighbors(DLTENode s)
 			temporaryDeque.push_back(temporaryStatePointer);
 		}
 
-}
+	}
 #else
 	for (int i = 0; i < s.NearNodes.size(); i++)
 	{
@@ -316,7 +325,7 @@ std::deque<DLTENode*> NavigationMesh::neighbors(DLTENode s)
 #endif
 	DebugEnsure(temporaryDeque.size());
 	return temporaryDeque;
-		}
+}
 int NavigationMesh::traversal_cost(DLTENode sFrom, DLTENode sTo)
 {
 	int edgeCost{ 1 };
@@ -376,36 +385,14 @@ void NavigationMesh::RenderGrid()
 
 void NavigationMesh::GenTestMesh()
 {
-	run();
-	//RenderGrid();
 	return;
-	std::vector<OGLVertex> vertices;
-	std::vector<int> indices;
-	MeshLoader::FMeshLoadingSettings t;
-	t.GenerateIndexed = false;
-	t.Scale = glm::vec3(10);
-	MeshLoader::LoadMeshFromFile_Direct(AssetManager::GetContentPath() + "models\\NavPlaneTest_L.obj", t, vertices, indices);
-
-	for (int i = 0; i < vertices.size(); i += 3)
-	{
-		NavTriangle* a = new NavTriangle();
-		a->Positons[0] = vertices[indices[i]].m_position;
-		a->Positons[1] = vertices[indices[i + 1]].m_position;
-		a->Positons[2] = vertices[indices[i + 2]].m_position;
-
-		for (int x = 0; x < 3; x++)
-		{
-			a->avgcentre += a->Positons[x];
-		}
-		a->avgcentre /= 3;
-		Triangles.push_back(a);
-	}
-	PopulateNearLists();
-	NavigationPath* data;
-	CalculatePath(glm::vec3(20, 0, -10), glm::vec3(-20, 0, 25), &data);
+	SetTarget(glm::vec3(50.5, 0, 0), glm::vec3(60, 0, 10));
+	run(std::vector<glm::vec3>());
+	SetTarget(glm::vec3(50.5, 0, -10), glm::vec3(70, 0, -10));
+	run(std::vector<glm::vec3>());
 }
 
-void NavigationMesh::DrawNavMeshLines(DebugLineDrawer* drawer)
+void NavigationMesh::DrawNavMeshLines()
 {
 	glm::vec3 offset = glm::vec3(0, 0.2f, 0);
 	for (int i = 0; i < Triangles.size(); i++)
@@ -413,11 +400,7 @@ void NavigationMesh::DrawNavMeshLines(DebugLineDrawer* drawer)
 		for (int x = 0; x < 3; x++)
 		{
 			const int next = (x + 1) % 3;
-			drawer->AddLine(offset + Triangles[i]->Positons[x], offset + Triangles[i]->Positons[next], glm::vec3(1, 1, 1));
-		}
-		//for (int n = 0; n < Triangles[i]->NearTriangles.size(); n++)
-		{
-			//drawer->AddLine(offset + Triangles[i]->avgcentre, offset + Triangles[i]->avgcentre+glm::vec3(0,10,0), glm::vec3(1, 0, 0));
+			DebugDrawers::DrawDebugLine(offset + Triangles[i]->Positons[x], offset + Triangles[i]->Positons[next], glm::vec3(1, 1, 1));
 		}
 	}
 }
@@ -580,26 +563,26 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 	NavTriangle* StartTri = FindTriangleFromWorldPos(Startpoint);
 	if (StartTri == nullptr)
 	{
-		return ENavRequestStatus::FailedPointOffNavMesh;
+		//return ENavRequestStatus::FailedPointOffNavMesh;
 	}
 	NavTriangle* EndTri = FindTriangleFromWorldPos(EndPos);
 	if (EndTri == nullptr)
 	{
-		return ENavRequestStatus::FailedPointOffNavMesh;
+		//return ENavRequestStatus::FailedPointOffNavMesh;
 	}
-	DebugLineDrawer::Get()->AddLine(StartTri->avgcentre, StartTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
-	DebugLineDrawer::Get()->AddLine(EndTri->avgcentre, EndTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
+	//DebugLineDrawer::Get()->AddLine(StartTri->avgcentre, StartTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
+	//DebugLineDrawer::Get()->AddLine(EndTri->avgcentre, EndTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
 
 	if (StartTri == EndTri)
 	{
 		//we are within a nav triangle so we path straight to the point 
-		outputPath->Positions.push_back(EndPos);
+	//	outputPath->Positions.push_back(EndPos);
 	}
-	NavPoint* CurrentPoint = nullptr;
-	std::priority_queue<NavPoint*> OpenList;
-	OpenList.emplace(CurrentPoint);
-	ConstructPath(outputPath, Startpoint, CurrentPoint, EndPos);
-	return ENavRequestStatus::Failed;
+	SetTarget(EndPos, Startpoint);
+	run(outputPath->Positions);
+	outputPath->Positions.push_back(EndPos);
+	//DebugLineDrawer::Get()->AddLine(EndPos, EndPos + glm::vec3(0, 10, 0), glm::vec3(0, 1, 0), 100);
+	return ENavRequestStatus::Complete;
 }
 
 void NavigationMesh::ConstructPath(NavigationPath* outputPath, glm::vec3 Startpoint, NavPoint* CurrentPoint, glm::vec3 EndPos)

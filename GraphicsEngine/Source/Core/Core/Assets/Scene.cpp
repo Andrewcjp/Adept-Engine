@@ -216,7 +216,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
-
+	return;
 	go = CreateDebugSphere(nullptr);
 	cc = go->AttachComponent(new ColliderComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 15, 10));

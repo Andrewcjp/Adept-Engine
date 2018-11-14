@@ -1,10 +1,15 @@
 
 #include "DebugLineDrawer.h"
+#include "Core/Performance/PerfManager.h"
+#include "Core/Platform/PlatformCore.h"
 #include "Editor/EditorWindow.h"
 #include "Rendering/Shaders/Shader_Line.h"
 #include "RHI/RHICommandList.h"
-#include "Core/Platform/PlatformCore.h"
-#include "Core/Performance/PerfManager.h"
+#if _DEBUG
+#pragma optimize("g",on)
+#pragma runtime_checks( "sc", off )  
+#pragma auto_inline( on )  
+#endif
 
 DebugLineDrawer* DebugLineDrawer::instance = nullptr;
 DebugLineDrawer::DebugLineDrawer(bool DOnly)
@@ -30,7 +35,6 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	}
 }
 
-
 DebugLineDrawer::~DebugLineDrawer()
 {
 	EnqueueSafeRHIRelease(CmdList);
@@ -44,28 +48,65 @@ void DebugLineDrawer::GenerateLines()
 	{
 		return;
 	}
-	std::vector<VERTEX> Verts;
+	ClearLines();
+	if (RegenNeeded)
+	{
+		RegenerateVertBuffer();
+		RegenNeeded = false;
+	}
+	else
+	{
+		int firstDirtyIndex = (int)Lines.size();
+		for (int i = 0; i < Lines.size(); i++)
+		{
+			if (Lines[i].NewLine)
+			{
+				firstDirtyIndex = i;
+				CreateLineVerts(Lines[i]);
+				Lines[i].NewLine = false;
+			}
+		}
+		UpdateLineBuffer(firstDirtyIndex);
+	}
+}
+
+void DebugLineDrawer::UpdateLineBuffer(int offset)
+{
+	if (offset != Lines.size())
+	{
+		VertsOnGPU = Verts.size();
+		VertexBuffer->UpdateVertexBuffer(Verts.data(), sizeof(VERTEX) * Verts.size());
+	}
+}
+
+void DebugLineDrawer::CreateLineVerts(WLine& line)
+{
+	VERTEX AVert = {};
+	AVert.pos = line.startpos;
+	AVert.colour = line.colour;
+	Verts.push_back(AVert);
+
+	VERTEX BVert = {};
+	BVert.pos = line.endpos;
+	BVert.colour = line.colour;
+	Verts.push_back(BVert);
+}
+
+void DebugLineDrawer::RegenerateVertBuffer()
+{
+	Verts.clear();
 	for (int i = 0; i < Lines.size(); i++)
 	{
-		VERTEX AVert = {};
-		AVert.pos = Lines[i].startpos;
-		AVert.colour = Lines[i].colour;
-		Verts.push_back(AVert);
-
-		VERTEX BVert = {};
-		BVert.pos = Lines[i].endpos;
-		BVert.colour = Lines[i].colour;
-		Verts.push_back(BVert);
+		CreateLineVerts(Lines[i]);
 	}
-	VertsOnGPU = Verts.size();
-
-	VertexBuffer->UpdateVertexBuffer(Verts.data(), sizeof(VERTEX) * Verts.size());
+	UpdateLineBuffer(0);
 }
 
 void DebugLineDrawer::RenderLines()
 {
 	RenderLines(Projection);
 }
+
 void DebugLineDrawer::ReallocBuffer(int NewSize)
 {
 	ensure(NewSize < maxSize);
@@ -75,6 +116,7 @@ void DebugLineDrawer::ReallocBuffer(int NewSize)
 	const int vertexBufferSize = sizeof(VERTEX) * CurrentMaxVerts;
 	VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), vertexBufferSize, EBufferAccessType::Dynamic);
 }
+
 void DebugLineDrawer::RenderLines(glm::mat4& matrix)
 {
 	if (VertsOnGPU == 0)
@@ -98,20 +140,25 @@ void DebugLineDrawer::RenderLines(glm::mat4& matrix)
 	CmdList->SetConstantBufferView(DataBuffer, 0, 0);
 	CmdList->DrawPrimitive((int)VertsOnGPU, 1, 0, 0);
 	CmdList->Execute();
-	ClearLines();//bin all lines rendered this frame.
+}
+
+void DebugLineDrawer::FlushDebugLines()
+{
+	Lines.clear();
 }
 
 void DebugLineDrawer::ClearLines()
 {
 	for (int i = 0; i < Lines.size(); i++)
 	{
-		if (Lines[i].Time > 0)
+		if (Lines[i].Time > 0 || Lines[i].Persistent)
 		{
 			Lines[i].Time -= PerfManager::GetDeltaTime();
 		}
 		else
 		{
 			Lines.erase(Lines.begin() + i);
+			RegenNeeded = true;
 		}
 	}
 }
@@ -143,3 +190,8 @@ DebugLineDrawer * DebugLineDrawer::Get()
 {
 	return instance;
 }
+#if _DEBUG
+#pragma auto_inline( off ) 
+#pragma runtime_checks( "", restore ) 
+#pragma optimize("",off)
+#endif
