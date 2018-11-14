@@ -11,7 +11,6 @@
 
 void NavigationMesh::SetupGrid()
 {
-	grid[10][10].Blocked = true;
 	for (int x = 0; x < Gsize; x++)
 	{
 		for (int y = 0; y < Gsize; y++)
@@ -137,12 +136,11 @@ DLTENode NavigationMesh::get_goal()
 }
 void NavigationMesh::run()
 {
-	SetTarget(glm::vec3(60, 0, 0), glm::vec3(60, 0, 10));
+	SetTarget(glm::vec3(50.5, 0, 0), glm::vec3(60, 0, 10));
 	GridLTE();
 	std::vector<glm::vec3> path;
 	while (get_start().Point.x != get_goal().Point.x || get_start().Point.y != get_goal().Point.y)
 	{
-
 		std::deque<DLTENode*> temporaryDeque{ neighbors(get_start()) };
 		DLTENode* temporaryState{ temporaryDeque[0] };
 		DLTENode* secondTemporaryState;
@@ -191,6 +189,7 @@ void NavigationMesh::run()
 
 void NavigationMesh::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 {
+#if 0
 	float CurrentPoint = FloatMAX;
 	for (int i = 0; i < Plane->NavPoints.size(); i++)
 	{
@@ -211,6 +210,9 @@ void NavigationMesh::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 			goalnode = Plane->NavPoints[i];
 		}
 	}
+#endif
+	Plane->ResolvePositionToNode(Target, &goalnode);
+	Plane->ResolvePositionToNode(Origin, &startnode);
 	DebugDrawers::DrawDebugSphere(Origin, 2, glm::vec3(1), 16, false, 100000);
 	DebugDrawers::DrawDebugSphere(Target, 2, glm::vec3(0.5f), 16, false, 100000);
 }
@@ -218,8 +220,11 @@ void NavigationMesh::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 void NavigationMesh::GridLTE()
 {
 	//init;
-	//startnode = &grid[10][10];
-	//goalnode = &grid[30][19];
+	if (startnode == nullptr)
+	{
+		startnode = &grid[10][10];
+		goalnode = &grid[30][19];
+	}
 	DebugLineDrawer::Get()->AddLine(glm::vec3(startnode->Point.x, 0, startnode->Point.y), glm::vec3(startnode->Point.x, 10, startnode->Point.y), glm::vec3(0, 1, 1), 100);
 	queue_insert(goalnode);
 	startnode->g = FloatMAX;
@@ -235,7 +240,7 @@ void NavigationMesh::GridLTE()
 	while (key_less_than_key(queue_top_key(), calculate_keys(*startnode, startnode)) || startnode->rhs != startnode->g)
 	{
 		ptr = queue_pop();
-		DebugDrawers::DrawDebugLine(ptr->GetPos(Plane), ptr->GetPos(Plane) + glm::vec3(0, 2, 0),glm::vec3(1,0,0),false,1000);
+		DebugDrawers::DrawDebugLine(ptr->GetPos(Plane), ptr->GetPos(Plane) + glm::vec3(0, 2, 0), glm::vec3(1, 0, 0), false, 1000);
 		ensure(ptr);
 		if (key_less_than_key(queue_top_key(), calculate_keys(*startnode, ptr)))
 		{
@@ -247,7 +252,7 @@ void NavigationMesh::GridLTE()
 			if (ptr->g > ptr->rhs)
 			{
 				ptr->g = ptr->rhs;
-				for (size_t i = 0; i != temporaryDeque.size(); ++i)
+				for (size_t i = 0; i < temporaryDeque.size(); i++)
 				{
 					update_state(temporaryDeque[i]);
 				}
@@ -255,7 +260,7 @@ void NavigationMesh::GridLTE()
 			else
 			{
 				ptr->g = FloatMAX;
-				for (size_t i = 0; i != temporaryDeque.size(); ++i)
+				for (size_t i = 0; i < temporaryDeque.size(); i++)
 				{
 					update_state(temporaryDeque[i]);
 				}

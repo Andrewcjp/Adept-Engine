@@ -260,6 +260,7 @@ void HeightField::InitGrid(glm::vec3 Pos, int x, int y)
 		GridData[x] = -std::numeric_limits<float>::max();
 	}
 }
+
 bool Contains(DLTENode* point, std::vector<DLTENode*> & points, NavPlane* p)
 {
 	for (int i = 0; i < points.size(); i++)
@@ -271,11 +272,13 @@ bool Contains(DLTENode* point, std::vector<DLTENode*> & points, NavPlane* p)
 	}
 	return false;
 }
+
 void Link(DLTENode* a, DLTENode*b)
 {
 	a->NearNodes.push_back(b);
 	b->NearNodes.push_back(a);
 }
+
 void NavPlane::BuildMesh()
 {
 	for (int i = 0; i < Triangles.size(); i++)
@@ -299,7 +302,7 @@ void NavPlane::BuildMesh()
 			{
 				if (!Contains(NavPoints[x], NavPoints[x]->NearNodes, this))
 				{
-					NavPoints[x]->NearNodes.push_back(NavPoints[y]);
+					Link(NavPoints[x], NavPoints[y]);
 				}
 			}
 		}
@@ -307,6 +310,7 @@ void NavPlane::BuildMesh()
 }
 void NavPlane::RenderMesh()
 {
+	return;
 	for (int i = 0; i < NavPoints.size(); i++)
 	{
 		for (int x = 0; x < NavPoints[i]->NearNodes.size(); x++)
@@ -316,4 +320,68 @@ void NavPlane::RenderMesh()
 			DebugDrawers::DrawDebugLine(NavPoints[i]->GetPos(this), NavPoints[i]->GetPos(this) + dir / 2, glm::vec3(value), false, 1000);
 		}
 	}
+}
+
+bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
+{
+#if 0
+	//Triangle phase first 
+	Tri* triangle = FindTriangleFromWorldPos(pos);
+	if (triangle == nullptr)
+	{
+		return false;
+	}
+
+	float CurrentPoint = FloatMAX;
+	for (int i = 0; i < 3; i++)
+	{
+		const float newdist = glm::distance2(triangle->Nodes[i]->GetPos(this), pos);
+		if (newdist < CurrentPoint)
+		{
+			CurrentPoint = newdist;
+			*node = triangle->Nodes[i];
+		}
+	}
+#else
+	float CurrentPoint = FloatMAX;
+	for (int i = 0; i < NavPoints.size(); i++)
+	{
+		const float newdist = glm::distance2(NavPoints[i]->GetPos(this), pos);
+		if (newdist < CurrentPoint)
+		{
+			CurrentPoint = newdist;
+			*node = NavPoints[i];
+		}
+	}
+#endif
+	//the check points
+	return true;
+}
+Tri* NavPlane::FindTriangleFromWorldPos(glm::vec3 worldpos)
+{
+	for (int i = 0; i < Triangles.size(); i++)
+	{
+		if (Triangles[i].IsPointInsideTri(worldpos))
+		{
+			return &Triangles[i];
+		}
+	}
+	return nullptr;
+}
+float Tri::side(glm::vec2 v1, glm::vec2 v2, glm::vec2 point)
+{
+	return (v2.y - v1.y)*(point.x - v1.x) + (-v2.x + v1.x)*(point.y - v1.y);
+}
+
+bool Tri::pointInTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 point)
+{
+	bool checkSide1 = side(v1.xz, v2.xz, point.xz) >= 0;
+	bool checkSide2 = side(v2.xz, v3.xz, point.xz) >= 0;
+	bool checkSide3 = side(v3.xz, v1.xz, point.xz) >= 0;
+	return checkSide1 && checkSide2 && checkSide3;
+}
+
+bool Tri::IsPointInsideTri(glm::vec3 point)
+{
+	return pointInTriangle(points[0], points[1], points[2], point);
 }

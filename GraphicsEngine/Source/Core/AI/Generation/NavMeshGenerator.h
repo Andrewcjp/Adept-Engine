@@ -36,9 +36,14 @@ private:
 	glm::vec3 CentreOffset = glm::vec3(0, 0, 0);
 	float GridSpacing = 2.5f;
 };
+struct DLTENode;
 struct Tri
 {
 	glm::vec3 points[3];
+	DLTENode* Nodes[3];
+	float side(glm::vec2 v1, glm::vec2  v2, glm::vec2 point);
+	bool pointInTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 point);
+	bool IsPointInsideTri(glm::vec3 point);
 };
 struct NavPlane
 {
@@ -47,5 +52,7 @@ struct NavPlane
 	float ZHeight = 0.0f;
 	void BuildMesh();
 	void RenderMesh();
-	std::vector<struct DLTENode*> NavPoints;
+	std::vector<DLTENode*> NavPoints;
+	bool ResolvePositionToNode(glm::vec3 pos, DLTENode** node);
+	Tri * FindTriangleFromWorldPos(glm::vec3 worldpos);
 };
