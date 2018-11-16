@@ -9,6 +9,9 @@ public:
 	CORE_API ~AIBase();
 	//todo: AI director will know this/search scene for tagged object
 	GameObject* Player = nullptr;
+
+	CORE_API virtual void OnDestroy() override;
+
 protected:
 	CORE_API virtual void SetupBrain();
 	CORE_API virtual void Update(float dt) override;

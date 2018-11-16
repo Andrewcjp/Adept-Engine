@@ -15,6 +15,17 @@ namespace EAINavigationMode
 		Limit
 	};
 }
+namespace EAIDebugMode
+{
+	enum Type
+	{
+		None,
+		NavMesh,
+		PathOnly,
+		All,
+		Limit
+	};
+}
 struct NavigationPath;
 class AISystem
 {
@@ -25,6 +36,7 @@ public:
 	static void StartUp();
 	static void ShutDown();
 	void Tick(float dt);
+	void EditorTick();
 	CORE_API static AISystem* Get();
 	NavigationMesh* mesh = nullptr;
 	static EAINavigationMode::Type GetPathMode();
@@ -39,11 +51,14 @@ public:
 		return BTManager;
 	};
 	void GenerateMesh();
+	static EAIDebugMode::Type GetDebugMode();
+	static void SetDebugMode(EAIDebugMode::Type mode);
 private:
 	NavMeshGenerator* n = nullptr;
 	BehaviourTreeManager* BTManager = nullptr; 
 	AIDirector* Director = nullptr;
 	static AISystem* Instance;
 	EAINavigationMode::Type CurrentMode = EAINavigationMode::Limit;
+	EAIDebugMode::Type DebugMode = EAIDebugMode::Limit;
 };
 

@@ -6,6 +6,7 @@
 #include "Core/Utils/DebugDrawers.h"
 #include "AI/Generation/ThirdParty/delaunator.hpp"
 #include "AI/CORE/Navigation/NavigationMesh.h"
+#include "Core/Utils/VectorUtils.h"
 NavMeshGenerator::NavMeshGenerator()
 {}
 
@@ -276,18 +277,7 @@ bool Contains(DLTENode* point, std::vector<DLTENode*> & points, NavPlane* p)
 	}
 	return false;
 }
-bool ContainsPoint(std::vector<DLTENode*>& node, DLTENode* target)
-{
-	for (int i = 0; i < node.size(); i++)
-	{
-		if (node[i]->Point == target->Point)
-		{
-			return true;
-		}
 
-	}
-	return false;
-}
 void NavPlane::RemoveDupeNavPoints()
 {
 	std::vector<DLTENode*> RemoveList;
@@ -299,10 +289,11 @@ void NavPlane::RemoveDupeNavPoints()
 			{
 				if (NavPoints[x]->Point == NavPoints[y]->Point)
 				{
-					if (ContainsPoint(RemoveList,NavPoints[x]))
+					if (VectorUtils::Contains<DLTENode*>(RemoveList, NavPoints[x], [](DLTENode*a, DLTENode* b) {return a->Point == b->Point; }))
 					{
 						continue;
 					}
+
 					RemoveList.push_back(NavPoints[y]);
 					if (NavPoints[y]->OwnerTri->Nodes[0] == NavPoints[y])
 					{
@@ -323,14 +314,8 @@ void NavPlane::RemoveDupeNavPoints()
 
 	for (int i = 0; i < RemoveList.size(); i++)
 	{
-		for (int l = (int)NavPoints.size() - 1; l > 0; l--)
-		{
-			if (NavPoints[l] == RemoveList[i])
-			{
-				NavPoints.erase(NavPoints.begin() + l);
-			}
-		}
-	}
+		VectorUtils::Remove(NavPoints, RemoveList[i]);
+	}	
 }
 
 void Link(DLTENode* a, DLTENode*b)

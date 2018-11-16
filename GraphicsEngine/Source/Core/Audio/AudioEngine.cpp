@@ -32,8 +32,11 @@ void AudioEngine::Startup()
 
 void AudioEngine::Shutdown()
 {
-	Instance->Terminate();
-	SafeDelete(Instance);
+	if (Instance != nullptr)
+	{
+		Instance->Terminate();
+		SafeDelete(Instance);
+	}
 }
 
 AudioEngine * AudioEngine::Get()

@@ -47,6 +47,8 @@ Scene * EditorWindow::GetCurrentScene()
 #define TEST_SERIAL 0
 void EditorWindow::PostInitWindow(int w, int h)
 {
+	ShowHud = false;
+	ShowText = true;
 	FrameRateLimit = 60;
 	Log::OutS << "Loading Editor v" << EDITOR_VERSION << Log::OutS;
 	CurrentScene = new Scene(true);
@@ -57,7 +59,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	{
 		UI->InitGameobjectList(CurrentScene->GetObjects());
 	}
-	fprintf(stdout, "Scene initalised\n");
+	Log::LogMessage("Scene initialized");
 	gizmos = new EditorGizmos();
 	selector = new EditorObjectSelector();
 	selector->init();
@@ -178,6 +180,7 @@ void EditorWindow::Update()
 	else
 	{
 		CurrentScene->EditorUpdateScene();
+		AISystem::Get()->EditorTick(); 
 	}
 
 	DebugDrawers::DrawDebugCapsule(glm::vec3(0, 10, 0), 1, 2, glm::quat(glm::radians(glm::vec3(90, 0, 0))), glm::vec3(1,0,0));

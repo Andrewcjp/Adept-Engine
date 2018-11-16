@@ -14,6 +14,7 @@
 #include "Core/Game/Game.h"
 #include "Core/Assets/ImageIO.h"
 #include "Audio/AudioEngine.h"
+#include "AI/Core/AISystem.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -226,12 +227,14 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 {
 	if (Instance != nullptr)
 	{
-		if (command.find("stats") != -1)
+		if (command.find("fps") != -1)
 		{
-			if (PerfManager::Instance != nullptr)
-			{
-				PerfManager::Instance->ShowAllStats = !PerfManager::Instance->ShowAllStats;
-			}
+			Instance->ShowText = !Instance->ShowText;
+			return true;
+		}
+		else if(command.find("stats") != -1)
+		{
+			Instance->ExtendedPerformanceStats = !Instance->ExtendedPerformanceStats;
 			return true;
 		}
 		else if (command.find("renderscale") != -1)
@@ -242,6 +245,33 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			{
 				RHI::GetRenderSettings()->RenderScale = glm::clamp(stof(command), 0.1f, 5.0f);
 				Instance->Resize(Instance->m_width, Instance->m_height);
+			}
+			return true;
+		}
+		else if (command.find("exit") != -1)
+		{
+			Engine::RequestExit(0);
+			return true;
+		}
+		else if (command.find("aidebug") != -1)
+		{
+			StringUtils::RemoveChar(command, "aidebug");
+			StringUtils::RemoveChar(command, " ");
+			if (command.length() > 0)
+			{
+				int mode = glm::clamp(stoi(command), 0, (int)EAIDebugMode::Limit);
+				AISystem::SetDebugMode((EAIDebugMode::Type)mode);
+			}
+			else
+			{
+				if (AISystem::GetDebugMode() != EAIDebugMode::None)
+				{
+					AISystem::SetDebugMode(EAIDebugMode::None);
+				}
+				else
+				{
+					AISystem::SetDebugMode(EAIDebugMode::All);
+				}
 			}
 			return true;
 		}

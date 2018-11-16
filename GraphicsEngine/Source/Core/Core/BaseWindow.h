@@ -25,8 +25,8 @@ public:
 
 	static bool ProcessDebugCommand(std::string command);
 	static class Camera* GetCurrentCamera();
-	bool ShowHud = false;
-	bool ShowText = true;
+	bool ShowHud = true;
+	bool ShowText = false;
 	bool ExtendedPerformanceStats = false;
 	static Scene* GetScene();
 protected:

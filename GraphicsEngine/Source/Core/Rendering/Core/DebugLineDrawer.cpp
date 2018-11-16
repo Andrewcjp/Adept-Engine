@@ -47,9 +47,8 @@ void DebugLineDrawer::GenerateLines()
 	if (Lines.size() == 0)
 	{
 		return;
-	}
-	ClearLines();
-	if (RegenNeeded)
+	}	
+	if (RegenNeeded || true)
 	{
 		RegenerateVertBuffer();
 		RegenNeeded = false;
@@ -68,13 +67,15 @@ void DebugLineDrawer::GenerateLines()
 		}
 		UpdateLineBuffer(firstDirtyIndex);
 	}
+	ClearLines();
 }
 
 void DebugLineDrawer::UpdateLineBuffer(int offset)
 {
-	if (offset != Lines.size())
+	//if (offset != Lines.size())
 	{
-		VertsOnGPU = Verts.size();
+		ensure(Verts.size() < CurrentMaxVerts);
+		VertsOnGPU = Verts.size();		
 		VertexBuffer->UpdateVertexBuffer(Verts.data(), sizeof(VERTEX) * Verts.size());
 	}
 }
@@ -167,7 +168,7 @@ void DebugLineDrawer::AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, 
 {
 	if (Lines.size() * 2 >= CurrentMaxVerts)
 	{
-		ReallocBuffer((int)Lines.size() * 2 + 10);
+		ReallocBuffer((int)Lines.size() * 2 + 100);
 	}
 	WLine l = {};
 	l.startpos = Start;

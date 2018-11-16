@@ -1,20 +1,14 @@
 #include "Scene.h"
-#include "RHI/RHI.h"
-#include "Core/Components/MeshRendererComponent.h"
-#include "Core/Components/CameraComponent.h"
-#include "Core/Components/LightComponent.h"
-#include "Rendering/Renderers/RenderEngine.h"
-#include "Core/Components/CompoenentRegistry.h"
-#include "Core/Components/RigidbodyComponent.h"
-#include "Core/Components/Utillity/FreeLookComponent.h"
-#include "Core/Utils/MemoryUtils.h"
-#include "Core/Assets/AssetManager.h"
-#include "Core/Assets/Asset_Shader.h"
-#include "Core/Platform/PlatformCore.h"
-#include "Core/Game/Gamemode.h"
-#include "Core/Game/Game.h"
-#include "Core/Components/ColliderComponent.h"
 #include "AI/Core/AISystem.h"
+#include "Asset_Shader.h"
+#include "AssetManager.h"
+#include "Core/Components/CameraComponent.h"
+#include "Core/Components/ColliderComponent.h"
+#include "Core/Components/LightComponent.h"
+#include "Core/Components/MeshRendererComponent.h"
+#include "Core/Components/RigidbodyComponent.h"
+#include "Core/Game/Game.h"
+
 Scene::Scene(bool EditorScene)
 {
 	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
@@ -111,7 +105,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\textures_terrain_ground_marsrock_ground_01_tiled_c.dds"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.UVScale = glm::vec2(20);
-	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Room1.obj",set), mat));//TerrrainTest
+	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Room1.obj", set), mat));//TerrrainTest
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	r->SetMaterial(mat, 1);
@@ -198,9 +192,32 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
+
+	go = new GameObject("Rock");
+	//mat = NormalMapShader->GetMaterialInstance();
+	mat = Material::GetDefaultMaterial();
+	mat->GetProperties()->Metallic = 0.0f;
+	mat->GetProperties()->Roughness = 1.0f;
+	TextureImportSettings setting;
+	setting.Compression = ECompressionSetting::BRGA;
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Terrain\\Rock1.tif", setting));//Rock1_nmp
+	//setting.Compression = ECompressionSetting::None;
+	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("Terrain\\Rock1_nmp.tif", setting));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Terrain\\Rock1A.fbx"), mat));
+	go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	AddGameobjectToScene(go);
+
 	Asset_Shader* ColourMat = new Asset_Shader();
 	ColourMat->SetupSingleColour();
-
+	go = new GameObject("Size Guide");
+	mat = ColourMat->GetMaterialInstance();
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\sizeguide.obj"), mat));
+	go->GetTransform()->SetPos(glm::vec3(50, -10, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	AddGameobjectToScene(go);
 	go = new GameObject("Test");
 	mat = ColourMat->GetMaterialInstance();
 	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
@@ -271,7 +288,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
 		}
-}
+	}
 #endif
 }
 

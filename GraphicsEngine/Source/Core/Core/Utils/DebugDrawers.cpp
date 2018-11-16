@@ -84,8 +84,7 @@ void DebugDrawers::DrawDebugLine(glm::vec3 const& LineStart, glm::vec3  const& L
 	}
 	//todo: persistent lines
 	//todo: thickness
-	float const LineLifeTime = (LifeTime > 0.f) ? LifeTime : DefultLifeTime;
-	DebugLineDrawer::Get()->AddLine(LineStart, LineEnd, Color, LineLifeTime);
+	DebugLineDrawer::Get()->AddLine(LineStart, LineEnd, Color, LifeTime);
 }
 
 void DebugDrawers::DrawDebugCapsule(glm::vec3 const& Center, float HalfHeight, float Radius, glm::quat& Rotation, glm::vec3 const& Color, bool bPersistentLines, float LifeTime, float Thickness)

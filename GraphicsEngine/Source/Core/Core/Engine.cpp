@@ -229,7 +229,18 @@ bool Engine::GetWindowValid() const
 {
 	return isWindowVaild;
 }
-
+void Engine::RequestExit(int code)
+{
+	if (PlatformWindow::GetApplication() != nullptr)
+	{
+		PlatformWindow::Kill();
+	}
+	else
+	{
+		Exit(code);
+	}
+}
+//this handles no window cases
 void Engine::Exit(int code)
 {
 	Log::LogMessage("Exit code " + std::to_string(code));
@@ -257,7 +268,7 @@ void Engine::HandleKeyUp(unsigned int key)
 {
 	if (UIManager::GetCurrentContext() != nullptr)
 	{
-		UIManager::GetCurrentContext()->ProcessKeyDown(key);// TODO: this
+		UIManager::GetCurrentContext()->ProcessKeyUp(key);
 	}
 	else
 	{

@@ -22,7 +22,7 @@ public:
 	CORE_API void SetLocalPosition(glm::vec3 localpos);
 	///------------------------------------------------------
 	//getters
-	CORE_API glm::vec3 GetPos() const { return _pos; }
+	CORE_API glm::vec3 GetPos() const;
 	CORE_API glm::vec3 GetEulerRot() const;
 	CORE_API glm::vec3 GetScale() const { return _scale; }
 	CORE_API glm::vec3 GetForward();
@@ -30,7 +30,7 @@ public:
 	CORE_API glm::vec3 GetRight();
 	glm::vec3 TransfromToLocalSpace(glm::vec3& direction);
 	glm::vec3 TransformDirection(const glm::vec3& pDirection, const  glm::mat4& pMatrix);
-	CORE_API glm::quat GetQuatRot()const;
+	CORE_API glm::quat GetQuatRot();
 	CORE_API Transform* GetParent()const;
 	bool IsChanged();
 	void Update();

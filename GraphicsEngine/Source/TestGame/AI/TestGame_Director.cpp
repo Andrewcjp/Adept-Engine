@@ -9,6 +9,7 @@
 #include "DemonOrb.h"
 #include "SkullChaser.h"
 #include "Core/Components/MeshRendererComponent.h"
+#include "../Components/Health.h"
 
 TestGame_Director::TestGame_Director()
 {}
@@ -56,7 +57,7 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 	ColliderComponent* cc = newAI->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	AIController* Controller = newAI->AttachComponent(new AIController());
-
+	newAI->AttachComponent(new Health());
 	return newAI;
 }
 

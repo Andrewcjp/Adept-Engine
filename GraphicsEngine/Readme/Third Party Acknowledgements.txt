@@ -1,0 +1,26 @@
+GLM
+https://glm.g-truc.net/0.9.9/index.html
+
+Delaunator
+Vova Bilonenko, https://github.com/delfrrr/delaunator-cpp
+
+Clipper
+Angus johnson, http://www.angusj.com/delphi/clipper.php
+
+Free Type
+https://www.freetype.org/
+
+Physx
+Nvidia, https://www.geforce.com/hardware/technology/physx
+
+NVAPI
+Nvidia, https://developer.nvidia.com/nvapi
+
+DirectX Texture Loader
+Microsoft Corporation, https://github.com/Microsoft/DirectXTK
+
+DirectX 12
+Microsoft Corporation, https://docs.microsoft.com/en-us/windows/desktop/direct3d12/directx-12-programming-guide
+
+Vulkan
+khronos Group Inc, https://www.khronos.org/vulkan/
