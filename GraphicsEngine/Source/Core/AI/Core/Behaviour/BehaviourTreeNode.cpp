@@ -1,14 +1,12 @@
-
 #include "BehaviourTreeNode.h"
+#include "AI/Core/AIController.h"
 #include "AI/Core/AISystem.h"
-#include "BehaviourTree.h"
-#include "Core/GameObject.h"
-#include "BTBlackboard.h"
-#include "../Services/ServiceBase.h"
+#include "AI/Core/Services/ServiceBase.h"
 #include "BaseDecorator.h"
+#include "BehaviourTree.h"
+#include "BTBlackboard.h"
+#include "Core/GameObject.h"
 #include "Core/Performance/PerfManager.h"
-#include "../AIController.h"
-
 
 EBTNodeReturn::Type BehaviourTreeNode::ExecuteNode()
 {
@@ -67,8 +65,17 @@ EBTNodeReturn::Type BTMoveToNode::ExecuteNode()
 	{
 		return EBTNodeReturn::Failure;
 	}
-	AIController* controller = 	ParentTree->Target->GetComponent<AIController>();
-	controller->MoveTo(BBValues[0]->GetValue<GameObject>());
+	AIController* controller = ParentTree->Target->GetComponent<AIController>();
+
+	if (BBValues[0]->ValueType == EBTBBValueType::Object)
+	{
+		controller->MoveTo(BBValues[0]->GetValue<GameObject>());
+	}
+	else
+	{
+		controller->MoveTo(*BBValues[0]->GetValue<glm::vec3>());
+	}
+
 	return  (/*hr == ENavRequestStatus::Complete*/1) ? EBTNodeReturn::Success : EBTNodeReturn::Failure;
 }
 
@@ -130,5 +137,6 @@ EBTNodeReturn::Type BTWaitNode::ExecuteNode()
 		Remaining -= PerfManager::GetDeltaTime();
 		return EBTNodeReturn::Running;
 	}
+	Remaining = TargetTime;
 	return EBTNodeReturn::Success;
 }
