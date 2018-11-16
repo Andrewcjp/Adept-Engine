@@ -8,6 +8,8 @@
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/ParticleSystemManager.h"
+#include "Editor/EditorWindow.h"
+#include "Editor/EditorCore.h"
 RenderEngine::RenderEngine(int width, int height)
 {
 	m_width = width;
@@ -172,10 +174,7 @@ void RenderEngine::SetScene(Scene * sc)
 	{
 		MainCamera = MainScene->GetCurrentRenderCamera();
 	}
-	if (MainCamera != nullptr)
-	{
-		MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
-	}
+	HandleCameraResize();
 }
 
 void RenderEngine::SetEditorCamera(Editor_Camera * cam)
@@ -209,6 +208,30 @@ int RenderEngine::GetScaledWidth()
 int RenderEngine::GetScaledHeight()
 {
 	return (int)(m_height * RHI::GetRenderSettings()->RenderScale);
+}
+
+void RenderEngine::HandleCameraResize()
+{
+#if WITH_EDITOR
+	if (MainCamera != nullptr)
+	{
+		if (EditorWindow::GetEditorCore()->LockAspect)
+		{
+			MainCamera->UpdateProjection(EditorWindow::GetEditorCore()->LockedAspect);
+		}
+		else
+		{
+			MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
+		}
+
+	}
+#else
+	if (MainCamera != nullptr)
+	{
+		MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
+	}
+#endif
+
 }
 
 Shader * RenderEngine::GetMainShader()

@@ -50,7 +50,7 @@ void Weapon::SetWeaponModel(GameObject * Model, GameObject* cameraobj)
 {
 	WeaponModel = Model;
 	WeaponModel->GetTransform()->SetParent(cameraobj->GetTransform());
-	WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(-0.4, -0.6, 2));
+	WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -1, 2.5));
 	WeaponModel->GetTransform()->SetScale(glm::vec3(0.5f));
 	//WeaponModel->SetPosition(CurrentSettings.WeaponRelativePos);
 }

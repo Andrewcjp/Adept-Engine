@@ -34,6 +34,7 @@ public:
 	Camera* GetMainCam();
 	int GetScaledWidth();
 	int GetScaledHeight();
+	void HandleCameraResize();
 protected:
 	class Shader_Convolution * Conv = nullptr;
 	class Shader_EnvMap* envMap = nullptr;

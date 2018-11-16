@@ -120,6 +120,7 @@ public:
 	int traversal_cost(DLTENode sFrom, DLTENode sTo);
 	void update_state(DLTENode * statePointer);
 	void RenderGrid();
+	void RenderMesh();
 	void GenTestMesh();
 	void DrawNavMeshLines();
 	void PopulateNearLists();
@@ -150,6 +151,5 @@ private:
 	int kM;
 	DLTENode* goalnode = nullptr;
 	DLTENode* startnode = nullptr;
-
 };
 

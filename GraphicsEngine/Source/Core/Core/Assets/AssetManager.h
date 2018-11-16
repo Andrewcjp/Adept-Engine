@@ -19,7 +19,28 @@ struct ShaderAsset
 {
 	std::string Name;
 };
-
+namespace ECompressionSetting
+{
+	enum Type
+	{
+		None,
+		BC1,
+		FP16,
+		BRGA,
+		Limit
+	};
+}
+struct TextureImportSettings
+{
+	TextureImportSettings() {}
+	TextureImportSettings(bool Forceload)
+	{
+		DirectLoad = Forceload;
+	}
+	ECompressionSetting::Type Compression = ECompressionSetting::BRGA;
+	bool DirectLoad = false;
+	std::string GetTypeString();
+};
 class AssetManager
 {
 public:
@@ -40,7 +61,7 @@ public:
 	~AssetManager();
 	static void StartAssetManager();
 	void LoadFromShaderDir();
-	
+
 	bool GetTextureAsset(std::string path, TextureAsset & asset, bool ABSPath = false);
 	CORE_API std::string LoadFileWithInclude(std::string name);
 
@@ -49,7 +70,7 @@ public:
 	std::map<std::string, std::string>* GetMeshMap() { return &MeshFileMap; }
 
 	static void RegisterMeshAssetLoad(std::string name);
-	CORE_API static BaseTexture * DirectLoadTextureAsset(std::string name, bool DirectLoad = false, class DeviceContext * Device = nullptr);
+	CORE_API static BaseTexture * DirectLoadTextureAsset(std::string name, TextureImportSettings settigns = TextureImportSettings(), class DeviceContext * Device = nullptr);
 	CORE_API static const std::string GetShaderPath();
 	CORE_API static const std::string GetContentPath();
 	CORE_API static const std::string GetDDCPath();
@@ -88,7 +109,7 @@ private:
 	std::string TextureGenScriptPath = "";
 	std::string ScriptDirPath = "";
 	std::string GeneratedDirPath = "";
-	std::string LoadShaderIncludeFile(std::string name, int limit,std::string Relative = std::string());
+	std::string LoadShaderIncludeFile(std::string name, int limit, std::string Relative = std::string());
 	static const std::string DDCName;
 	const int MaxIncludeTreeLength = 10;
 };

@@ -7,6 +7,7 @@ public:
 	BehaviourTreeManager();
 	~BehaviourTreeManager();
 	void AddTree(BehaviourTree* tree);
+	void RemoveTree(BehaviourTree * tree);
 	void Tick(float dt);
 private:
 	std::vector<BehaviourTree*> trees;

@@ -23,24 +23,25 @@ DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 
 DebugConsole::~DebugConsole()
 {
-	delete EditField;
+	SafeDelete(EditField);
 }
 
 void DebugConsole::Render()
 {
-	if (Input::GetKeyDown(VK_OEM_8))
-	{
-		IsOpen = true;
-		UIManager::SetCurrentcontext(this);
-
-		nextext = ">";
-		EditField->SetEnabled(IsOpen);
-		UIManager::UpdateBatches();
-	}
 	if (IsOpen)
 	{
 		Textlabel->Render();
 	}
+}
+
+void DebugConsole::Open()
+{
+	IsOpen = true;
+	UIManager::SetCurrentcontext(this);
+
+	nextext = ">";
+	EditField->SetEnabled(IsOpen);
+	UIManager::UpdateBatches();
 }
 
 void DebugConsole::ResizeView(int w, int h, int x, int y)
@@ -52,20 +53,21 @@ void DebugConsole::ResizeView(int w, int h, int x, int y)
 void DebugConsole::ExecCommand(std::string command)
 {
 	LastCommand = command;
-	StringUtils::RemoveChar(command, ">");
+	StringUtils::RemoveChar(command, ">"); 
 	if (!BaseWindow::ProcessDebugCommand(command))
 	{
 		if (command.find("showgraph") != -1)
 		{
-			if (UIManager::instance)
+			if (UIManager::instance != nullptr)
 			{
 				UIManager::instance->Graph->SetEnabled(!UIManager::instance->Graph->GetEnabled());
 			}
 		}
 	}
-	
+
 	Close();
 }
+
 void DebugConsole::Close()
 {
 	IsOpen = false;
@@ -76,13 +78,14 @@ void DebugConsole::Close()
 	Textlabel->SetText(nextext);
 	UIManager::SetCurrentcontext(nullptr);
 }
+
 void DebugConsole::ProcessKeyDown(UINT_PTR key)
 {
 	if (key == VK_DELETE)
 	{
 		nextext = ">";
 	}
-	else if (key == VK_RETURN)
+	else if (key == VK_RETURN) 
 	{
 		UIManager::SetCurrentcontext(nullptr);
 		ExecCommand(nextext);
@@ -111,11 +114,19 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 		{
 			Close();
 		}
-		else
+		else if(c != 0)
 		{
 			nextext.append(1, (char)std::tolower(c));
 		}
 	}
-	//todo: Cursour Movement
+	//todo: Cursor Movement
 	Textlabel->SetText(nextext);
+}
+
+void DebugConsole::UpdateData()
+{
+	if (Input::GetKeyDown(VK_OEM_8))
+	{
+		Open();
+	}
 }

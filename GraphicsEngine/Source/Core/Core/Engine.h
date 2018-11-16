@@ -15,7 +15,7 @@ public:
 	CORE_API static class CompoenentRegistry* CompRegistry;
 	static PhysicsEngine*			PhysEngine;
 	static Engine*					EngineInstance;
-	CORE_API static std::string				GetExecutionDir();
+	CORE_API static std::string		GetExecutionDir();
 	CORE_API static PhysicsEngine*  GetPhysEngineInstance();
 	void							PreInit();
 	void							OnRender();
@@ -36,7 +36,8 @@ public:
 	void							Resize(int width, int height);
 	IntPoint*						GetInitalScreen();
 	bool							GetWindowValid() const;
-	CORE_API static void			Exit(int code = 0);
+	CORE_API static void			RequestExit(int code);
+
 	void							HandleInput(unsigned int key);
 	void							HandleKeyUp(unsigned int key);
 	static bool						GetIsCooking();
@@ -44,6 +45,7 @@ public:
 	static const EngineSettings*	GetSettings() { return &EngineInstance->Settings; }
 	static float					GetPhysicsDeltaTime();
 private:
+	static void						Exit(int code = 0);
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;
 	IntPoint						IntialScreenSize;

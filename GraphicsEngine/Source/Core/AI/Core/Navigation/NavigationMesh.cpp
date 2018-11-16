@@ -383,6 +383,23 @@ void NavigationMesh::RenderGrid()
 	}
 }
 
+void NavigationMesh::RenderMesh()
+{
+	if (Plane == nullptr)
+	{
+		return;
+	}
+	for (int i = 0; i < Plane->Triangles.size(); i++)
+	{
+		const int sides = 3;
+		for (int x = 0; x < sides; x++)
+		{
+			const int next = (x + 1) % sides;
+			DebugDrawers::DrawDebugLine(Plane->Triangles[i].points[x], Plane->Triangles[i].points[next], glm::vec3(1), false, 0.0f);
+		}
+	}
+}
+
 void NavigationMesh::GenTestMesh()
 {
 	return;
@@ -558,6 +575,10 @@ bool compare(NavPoint* A, NavPoint* b)
 
 ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
 {
+	if (Plane == nullptr)
+	{
+		return ENavRequestStatus::Failed;
+	}
 	NavigationPath* outputPath = new NavigationPath();
 	*outpath = outputPath;
 	NavTriangle* StartTri = FindTriangleFromWorldPos(Startpoint);
@@ -581,14 +602,17 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 	SetTarget(EndPos, Startpoint);
 	run(outputPath->Positions);
 	outputPath->Positions.push_back(EndPos);
-	for (int i = 0; i < outputPath->Positions.size(); i++)
+	if (AISystem::GetDebugMode() == EAIDebugMode::PathOnly || AISystem::GetDebugMode() == EAIDebugMode::All)
 	{
-		if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::Get() != nullptr)
+		for (int i = 0; i < outputPath->Positions.size(); i++)
 		{
-			DebugLineDrawer::Get()->AddLine(outputPath->Positions[i], outputPath->Positions[i + 1], glm::vec3(0, 1, 0), 1.0f);
+			if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::Get() != nullptr)
+			{
+				DebugLineDrawer::Get()->AddLine(outputPath->Positions[i], outputPath->Positions[i + 1], glm::vec3(0, 1, 0), 1.0f);
+			}
 		}
 	}
-	//DebugLineDrawer::Get()->AddLine(EndPos, EndPos + glm::vec3(0, 10, 0), glm::vec3(0, 1, 0), 100);
+
 	return ENavRequestStatus::Complete;
 }
 

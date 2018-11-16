@@ -2,6 +2,7 @@
 #include "EngineHeader.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "Editor/EditorWindow.h"
+#include "Core/Utils/DebugDrawers.h"
 TestPlayer::TestPlayer()
 {}
 
@@ -9,7 +10,7 @@ TestPlayer::~TestPlayer()
 {}
 
 void TestPlayer::InitComponent()
-{ 
+{
 
 }
 
@@ -36,12 +37,16 @@ void TestPlayer::BeginPlay()
 	RB = GetOwner()->GetComponent<RigidbodyComponent>();
 	RB->IsKineimatic = true;
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(90, 90, 0)));
+	CameraObject->SetParent(GetOwner());
 	CameraObject->GetTransform()->SetLocalRotation(newrot);
+	CameraObject->GetTransform()->SetLocalPosition(glm::vec3(2, 0, 0));
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
 }
 
 void TestPlayer::Update(float delta)
 {
+	const float EyeHeight = 1.9f;
+	DebugDrawers::DrawDebugCapsule(CameraObject->GetPosition() - glm::vec3(0, EyeHeight / 2.0f, 0), EyeHeight / 2.0f, 2.0f, glm::quat(glm::radians(glm::vec3(90, 0, 0))));
 #if WITH_EDITOR
 	if (EditorWindow::GetInstance()->IsEditorEjected())
 	{
@@ -51,13 +56,6 @@ void TestPlayer::Update(float delta)
 	CheckForGround();
 	UpdateMovement(delta);
 
-	if (CameraComponent::GetMainCamera() != nullptr)
-	{
-		glm::vec3 Pos = GetOwner()->GetTransform()->GetPos();
-	//	Pos.y += 2;
-		CameraComponent::GetMainCamera()->SetPos(Pos);
-	}
-
 	glm::vec2 axis = Input::GetMouseInputAsAxis();
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
 	glm::quat YRot = glm::quat(glm::radians(glm::vec3(rot.x + -axis.x*LookSensitivty, 0, 90)));
@@ -66,10 +64,10 @@ void TestPlayer::Update(float delta)
 	if (CameraObject)
 	{
 		CameraObject->GetTransform()->SetLocalRotation(newrot);
-		const float EyeHeight = 2.0f;
-		CameraObject->GetTransform()->SetLocalPosition(glm::vec3(0, EyeHeight, 0));
+
+		CameraObject->GetTransform()->SetLocalPosition(glm::vec3(EyeHeight, 0, 0));
 		CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
-		//CameraComponent::GetMainCamera()->SetPos(CameraObject->GetTransform()->GetPos());
+		CameraComponent::GetMainCamera()->SetPos(CameraObject->GetTransform()->GetPos());
 	}
 	Input::SetCursorState(true, false);
 }

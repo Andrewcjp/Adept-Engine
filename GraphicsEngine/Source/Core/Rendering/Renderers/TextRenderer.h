@@ -31,7 +31,7 @@ public:
 	void NotifyFrameEnd();
 	bool RunOnSecondDevice = false;
 private:	
-	bool UseFrameBuffer = true;
+	bool UseFrameBuffer = false;
 	int TextDataLength = 0;
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;

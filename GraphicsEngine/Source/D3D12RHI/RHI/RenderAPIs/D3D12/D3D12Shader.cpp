@@ -185,7 +185,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #ifndef NDEBUG
 			__debugbreak();
 #endif
-			Engine::Exit(-1);
+			Engine::RequestExit(-1);
 			return EShaderError::SHADER_ERROR_COMPILE;
 		}
 		else
@@ -193,6 +193,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 			Log::LogMessage(Log, Log::Severity::Warning);
 		}
 	}
+
 	if (pErrorBlob)
 	{
 		pErrorBlob->Release();

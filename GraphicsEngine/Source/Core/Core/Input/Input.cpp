@@ -271,6 +271,10 @@ bool Input::GetVKey(short key)
 	{
 		return false;
 	}
+	if (UIManager::GetCurrentContext() != nullptr)
+	{
+		return false;
+	}
 	return PlatformWindow::GetApplication()->IsKeyDown(key);
 }
 

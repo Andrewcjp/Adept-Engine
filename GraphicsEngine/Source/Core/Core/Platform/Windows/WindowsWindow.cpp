@@ -146,14 +146,13 @@ int WindowsWindow::Run()
 			m_engine->OnRender();
 		}
 	}
-
+	app->m_engine->OnDestoryWindow();
 	return (int)msg.wParam;
 }
 
 void WindowsWindow::Kill()
 {
-	m_terminate = TRUE;
-	m_engine->OnDestoryWindow();
+	app->m_terminate = TRUE;	
 }
 
 void WindowsWindow::AddMenus(HWND hwnd)

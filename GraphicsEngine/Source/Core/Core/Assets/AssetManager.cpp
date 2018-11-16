@@ -109,7 +109,7 @@ void AssetManager::SetupPaths()
 	if (!FileUtils::File_ExistsTest(ContentDirPath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", "No Content Dir");
-		Engine::Exit(-1);
+		Engine::RequestExit(-1);
 	}
 	DDCDirPath = RootDir + "\\" + DDCName + "\\";
 	PlatformApplication::TryCreateDirectory(DDCDirPath);
@@ -121,7 +121,7 @@ void AssetManager::SetupPaths()
 	if (!FileUtils::File_ExistsTest(ShaderDirPath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", "No Shader Dir");
-		Engine::Exit(-1);
+		Engine::RequestExit(-1);
 	}
 	TextureGenScriptPath = RootDir + "\\Scripts\\ConvertToDDS.bat";
 	ScriptDirPath = RootDir + "\\Scripts\\";
@@ -247,12 +247,16 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 }
 
 //todo: Check time stamps!
-BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool DirectLoad, DeviceContext* Device)
+BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImportSettings settings, DeviceContext* Device)
 {
 	AssetPathRef Fileref = AssetPathRef(name);
-
+	if (!FileUtils::File_ExistsTest(Fileref.GetFullPathToAsset()))
+	{
+		Log::OutS << "File '" << Fileref.Name << "' Does not exist" << Log::OutS;
+		return nullptr;
+	}
 	//todo: Deal with TGA to DDS 
-	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ name.find(".tga") != -1 || DirectLoad)
+	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ name.find(".tga") != -1 || settings.DirectLoad)
 	{
 		return RHI::CreateTexture(Fileref, Device);
 	}
@@ -281,7 +285,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, bool Direct
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist in the DDC Generating Now" << Log::OutS;
 		//generate one! BC1_UNORM  
 		std::string Args = " " + GetScriptPath();
-		Args.append(" BC1_UNORM ");
+		Args.append(settings.GetTypeString());
 		Args.append('"' + Fileref.GetFullPathToAsset() + '"' + " ");
 		Args.append(GetDDCPath());
 		PlatformApplication::ExecuteHostScript(GetTextureGenScript(), Args);
@@ -367,4 +371,24 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit, std
 		Log::OutS << "failed to load " << pathname << Log::OutS;
 	}
 	return file;
+}
+
+std::string TextureImportSettings::GetTypeString()
+{	
+	switch (Compression)
+	{
+	case ECompressionSetting::None:
+		return " FP32 ";
+		break;
+	case ECompressionSetting::FP16:
+		return " FP16 ";
+	case ECompressionSetting::BRGA:
+		return " BGRA ";		
+	case ECompressionSetting::BC1:
+		return " BC1_UNORM ";
+		break;
+	case ECompressionSetting::Limit:
+		break;
+	}
+	return "  ";
 }

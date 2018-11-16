@@ -1,6 +1,0 @@
-This file contains a list of assets and their sources.
-if an asset is not listed here it was created for this project
-
-Asset: Rifle.fbx & heavy.fbx and textures.
-Source: http://devassets.com/assets/sci-fi-weapons/
-

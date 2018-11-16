@@ -61,7 +61,8 @@ void UIWidget::PostBatchRender()
 void UIWidget::ProcessKeyDown(UINT_PTR)
 {
 }
-
+void UIWidget::ProcessKeyUp(UINT_PTR)
+{}
 void UIWidget::SetEnabled(bool state)
 {
 	UIManager::UpdateBatches();

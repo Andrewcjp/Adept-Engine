@@ -1,0 +1,4 @@
+Debug commands:
+Open the console with '`'
+
+aidebug <mode> :  

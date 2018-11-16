@@ -30,6 +30,7 @@ public:
 	int X;
 	int Y;
 	virtual void ProcessKeyDown(UINT_PTR key);
+	void ProcessKeyUp(UINT_PTR);
 	void SetEnabled(bool state);
 	bool GetEnabled()
 	{

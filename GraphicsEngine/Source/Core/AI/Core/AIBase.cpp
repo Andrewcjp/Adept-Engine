@@ -14,6 +14,11 @@ AIBase::AIBase()
 AIBase::~AIBase()
 {}
 
+void AIBase::OnDestroy()
+{
+	AISystem::Get()->GetBTManager()->RemoveTree(BTTree);
+}
+
 void AIBase::SetupBrain()
 {
 	ensureMsgf(BTTree != nullptr, "AI missing Behaviour Tree");

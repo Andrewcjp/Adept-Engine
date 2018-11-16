@@ -51,7 +51,7 @@ void Cooker::CopyToOutput()
 		{
 			Log::LogMessage("Complie Failed, Aborting Cook", Log::Severity::Error);
 			::Sleep(2000);
-			Engine::Exit(-1);
+			Engine::RequestExit(-1);
 		}
 		Log::OutS << "**********Complie Finished**********" << Log::OutS;
 	}

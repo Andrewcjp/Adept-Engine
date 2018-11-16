@@ -26,11 +26,22 @@ UIManager::UIManager(int w, int h)
 	DrawBatcher = new UIDrawBatcher();
 	Initalise(w, h);
 	instance = this;
+	InitCommonUI();
 #if WITH_EDITOR
 	InitEditorUI();
 #endif
 }
-
+void UIManager::InitCommonUI()
+{
+	UIGraph* graph = new UIGraph(LineBatcher, 250, 150, 15, 25);
+	Graph = graph;
+	AddWidget(graph);
+	graph->SetEnabled(false);
+	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
+	wid->SetScaled(1.0f, 0.05f, 0.0f, 0);
+	AddWidget(wid);
+}
+#if WITH_EDITOR
 void UIManager::InitEditorUI()
 {
 
@@ -39,10 +50,8 @@ void UIManager::InitEditorUI()
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
 	AddWidget(TOP);
 
-	UIGraph* graph = new UIGraph(LineBatcher, 250, 150, 15, 25);
-	Graph = graph;
-	AddWidget(graph);
-#if WITH_EDITOR
+	
+
 	inspector = new Inspector(m_width, GetScaledHeight(0.2f), 0, 0);
 	inspector->SetScaled(RightWidth, 1.0f - (TopHeight), 1 - RightWidth);
 	AddWidget(inspector);
@@ -63,20 +72,15 @@ void UIManager::InitEditorUI()
 	button->BindTarget(std::bind(&EditorWindow::Eject, EditorWindow::GetInstance()));
 	button->SetText("Eject");
 	AddWidget(button);
-#endif
-	//testbox = new UIPopoutbox(100, 300, 250, 150);
-	//testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
-	//AddWidget(testbox);
-	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
-	wid->SetScaled(1.0f, 0.05f, 0.0f, 0);
-	AddWidget(wid);
+
 
 	AssetManager = new UIAssetManager();
 	AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
 	AddWidget(AssetManager);
 	UpdateBatches();
-}
 
+}
+#endif
 void UIManager::CreateDropDown(std::vector<std::string> &options, float width, float height, float x, float y, std::function<void(int)> Callback)
 {
 	UIDropDown * testbox3 = new UIDropDown(100, 300, 250, 150); //new UIDropDown(100, 300, x, y);

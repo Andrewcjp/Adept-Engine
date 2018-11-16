@@ -8,6 +8,8 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "Rendering/Core/RelfectionProbe.h"
+#include "Editor/EditorWindow.h"
+#include "Editor/EditorCore.h"
 
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
@@ -19,10 +21,7 @@ void ForwardRenderer::Resize(int width, int height)
 	m_width = width;
 	m_height = height;
 	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());
-	if (MainCamera != nullptr)
-	{
-		MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
-	}
+	HandleCameraResize();
 	RenderEngine::Resize(width, height);
 
 }
@@ -50,7 +49,7 @@ void ForwardRenderer::PostInit()
 #endif
 	//probes.push_back(new RelfectionProbe());
 
-	
+
 }
 
 void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
@@ -91,7 +90,7 @@ void ForwardRenderer::CubeMapPass()
 	}
 	CubemapCaptureList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	SceneRender->UpdateRelflectionProbes(probes, CubemapCaptureList);
-	
+
 	CubemapCaptureList->Execute();
 }
 

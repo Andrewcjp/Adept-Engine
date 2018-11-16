@@ -1,21 +1,19 @@
-
 #include "AISystem.h"
-#include "Navigation/NavigationMesh.h"
-#include "AIDirector.h"
-#include "core/Engine.h"
-#include "core/Game/Game.h"
-#include "Behaviour/BehaviourTreeManager.h"
 #include "AI/Generation/NavMeshGenerator.h"
-AISystem* AISystem::Instance = nullptr;
+#include "AIDirector.h"
+#include "Behaviour/BehaviourTreeManager.h"
+#include "Core/Engine.h"
+#include "Core/Game/Game.h"
+#include "Navigation/NavigationMesh.h"
 
+AISystem* AISystem::Instance = nullptr;
 AISystem::AISystem()
 {
 	CurrentMode = EAINavigationMode::DStarLTE;
 	mesh = new NavigationMesh();
 	BTManager = new BehaviourTreeManager();
 	Director = Engine::GetGame()->CreateAIDirector();
-
-	//mesh->GenTestMesh();
+	DebugMode = EAIDebugMode::None;
 }
 
 AISystem::~AISystem()
@@ -43,6 +41,17 @@ void AISystem::Tick(float dt)
 {
 	Director->Tick();
 	BTManager->Tick(dt);
+	if (AISystem::GetDebugMode() == EAIDebugMode::NavMesh || AISystem::GetDebugMode() == EAIDebugMode::All)
+	{
+		mesh->RenderMesh();
+	}
+}
+void AISystem::EditorTick()
+{
+	if (AISystem::GetDebugMode() == EAIDebugMode::NavMesh || AISystem::GetDebugMode() == EAIDebugMode::All)
+	{
+		mesh->RenderMesh();
+	}
 }
 
 AISystem * AISystem::Get()
@@ -64,14 +73,24 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 	ENavRequestStatus::Type result = mesh->CalculatePath(Startpoint, EndPos, outpath);
 	if (result != ENavRequestStatus::Complete)
 	{
-		Log::LogMessage("CalculatePath Failed",Log::Severity::Warning);
+		Log::LogMessage("CalculatePath Failed", Log::Severity::Warning);
 	}
 	return result;
 }
- 
+
 void AISystem::GenerateMesh()
 {
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
 	mesh->Plane = n->GetPlane(-17);
+}
+
+EAIDebugMode::Type AISystem::GetDebugMode()
+{
+	return Get()->DebugMode;
+}
+
+void AISystem::SetDebugMode(EAIDebugMode::Type mode)
+{
+	Get()->DebugMode = mode;
 }

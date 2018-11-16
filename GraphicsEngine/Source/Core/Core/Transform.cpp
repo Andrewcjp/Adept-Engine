@@ -33,8 +33,9 @@ glm::vec3 Transform::TransformDirection(const  glm::vec3 & pDirection, const  gl
 	return /*glm::normalize*/(glm::vec3(pMatrix * glm::vec4(pDirection, 0.0f)));
 }
 
-glm::quat Transform::GetQuatRot() const
+glm::quat Transform::GetQuatRot()
 {
+	GetModel();
 	return _qrot;
 }
 
@@ -95,6 +96,7 @@ glm::mat4 Transform::GetModel()
 	}
 	CacheModel = parentMatrix * (posMat * rotMat * scaleMat);
 	_rot = glm::eulerAngles(_qrot);
+
 	UpdateModel = false;
 	return CacheModel;
 }
@@ -187,6 +189,11 @@ void Transform::SetLocalPosition(glm::vec3 localpos)
 	glm::vec4 newpos = glm::vec4(localpos, 1.0f)*glm::inverse(LocalMAtrix);
 	newpos = newpos * LocalMAtrix;
 	SetPos(newpos);
+}
+
+glm::vec3 Transform::GetPos() const
+{
+	return glm::vec3(CacheModel[3][0], CacheModel[3][1], CacheModel[3][2]);;
 }
 
 void Transform::SetLocalRotation(glm::quat localrot)
