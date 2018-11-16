@@ -50,7 +50,9 @@ struct NavPlane
 	std::vector<glm::vec3> Points;
 	std::vector<Tri> Triangles;
 	float ZHeight = 0.0f;
-	void BuildMesh();
+	void RemoveDupeNavPoints();
+	void BuildNavPoints();
+	void BuildMeshLinks();
 	void RenderMesh();
 	std::vector<DLTENode*> NavPoints;
 	bool ResolvePositionToNode(glm::vec3 pos, DLTENode** node);

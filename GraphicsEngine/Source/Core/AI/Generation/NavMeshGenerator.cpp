@@ -216,6 +216,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			PrunedTris++;
 		}
 	}
+#if 0
 	for (int i = 0; i < target->Triangles.size(); i++)
 	{
 		const int sides = 3;
@@ -225,7 +226,10 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			//DebugDrawers::DrawDebugLine(target->Triangles[i].points[x], target->Triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
 		}
 	}
-	target->BuildMesh();
+#endif
+	target->BuildNavPoints();
+	target->RemoveDupeNavPoints();
+	target->BuildMeshLinks();
 	std::stringstream ss;
 	ss << "Pruned " << PrunedTris << "/" << TotalTriCount;
 	Log::LogMessage(ss.str());
@@ -272,6 +276,62 @@ bool Contains(DLTENode* point, std::vector<DLTENode*> & points, NavPlane* p)
 	}
 	return false;
 }
+bool ContainsPoint(std::vector<DLTENode*>& node, DLTENode* target)
+{
+	for (int i = 0; i < node.size(); i++)
+	{
+		if (node[i]->Point == target->Point)
+		{
+			return true;
+		}
+
+	}
+	return false;
+}
+void NavPlane::RemoveDupeNavPoints()
+{
+	std::vector<DLTENode*> RemoveList;
+	for (int x = 0; x < NavPoints.size(); x++)
+	{
+		for (int y = 0; y < NavPoints.size(); y++)
+		{
+			if (x != y)
+			{
+				if (NavPoints[x]->Point == NavPoints[y]->Point)
+				{
+					if (ContainsPoint(RemoveList,NavPoints[x]))
+					{
+						continue;
+					}
+					RemoveList.push_back(NavPoints[y]);
+					if (NavPoints[y]->OwnerTri->Nodes[0] == NavPoints[y])
+					{
+						NavPoints[y]->OwnerTri->Nodes[0] = NavPoints[x];
+					}
+					else if (NavPoints[y]->OwnerTri->Nodes[1] == NavPoints[y])
+					{
+						NavPoints[y]->OwnerTri->Nodes[1] = NavPoints[x];
+					}
+					else if (NavPoints[y]->OwnerTri->Nodes[2] == NavPoints[y])
+					{
+						NavPoints[y]->OwnerTri->Nodes[2] = NavPoints[x];
+					}
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < RemoveList.size(); i++)
+	{
+		for (int l = (int)NavPoints.size() - 1; l > 0; l--)
+		{
+			if (NavPoints[l] == RemoveList[i])
+			{
+				NavPoints.erase(NavPoints.begin() + l);
+			}
+		}
+	}
+}
 
 void Link(DLTENode* a, DLTENode*b)
 {
@@ -279,19 +339,32 @@ void Link(DLTENode* a, DLTENode*b)
 	b->NearNodes.push_back(a);
 }
 
-void NavPlane::BuildMesh()
+void NavPlane::BuildNavPoints()
 {
 	for (int i = 0; i < Triangles.size(); i++)
 	{
 		DLTENode* n1 = new DLTENode(Triangles[i].points[0]);
 		DLTENode* n2 = new DLTENode(Triangles[i].points[1]);
 		DLTENode* n3 = new DLTENode(Triangles[i].points[2]);
-		Link(n1, n2);
-		Link(n2, n3);
-		Link(n3, n1);
 		NavPoints.push_back(n1);
 		NavPoints.push_back(n2);
 		NavPoints.push_back(n3);
+		n1->OwnerTri = &Triangles[i];
+		n2->OwnerTri = &Triangles[i];
+		n3->OwnerTri = &Triangles[i];
+		Triangles[i].Nodes[0] = n1;
+		Triangles[i].Nodes[1] = n2;
+		Triangles[i].Nodes[2] = n3;
+	}
+}
+
+void NavPlane::BuildMeshLinks()
+{
+	for (int i = 0; i < Triangles.size(); i++)
+	{
+		Link(Triangles[i].Nodes[0], Triangles[i].Nodes[1]);
+		Link(Triangles[i].Nodes[1], Triangles[i].Nodes[2]);
+		Link(Triangles[i].Nodes[2], Triangles[i].Nodes[0]);
 	}
 
 	for (int x = 0; x < NavPoints.size(); x++)

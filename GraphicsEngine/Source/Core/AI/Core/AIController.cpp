@@ -16,6 +16,7 @@ AIController::~AIController()
 void AIController::MoveTo(glm::vec3 pos)
 {
 	CurrentTarget.IsValid = true;
+	CurrentTarget.MovingTarget = nullptr;
 	CurrentTarget.StaticPos = pos;
 	DebugLineDrawer::Get()->AddLine(pos, pos + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
 	ReplanPath();

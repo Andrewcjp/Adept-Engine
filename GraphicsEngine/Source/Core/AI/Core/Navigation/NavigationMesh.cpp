@@ -581,6 +581,13 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 	SetTarget(EndPos, Startpoint);
 	run(outputPath->Positions);
 	outputPath->Positions.push_back(EndPos);
+	for (int i = 0; i < outputPath->Positions.size(); i++)
+	{
+		if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::Get() != nullptr)
+		{
+			DebugLineDrawer::Get()->AddLine(outputPath->Positions[i], outputPath->Positions[i + 1], glm::vec3(0, 1, 0), 1.0f);
+		}
+	}
 	//DebugLineDrawer::Get()->AddLine(EndPos, EndPos + glm::vec3(0, 10, 0), glm::vec3(0, 1, 0), 100);
 	return ENavRequestStatus::Complete;
 }

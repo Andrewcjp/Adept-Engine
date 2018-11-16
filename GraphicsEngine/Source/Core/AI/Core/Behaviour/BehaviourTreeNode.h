@@ -68,10 +68,12 @@ class BTWaitNode :public BehaviourTreeNode
 public:
 	BTWaitNode(float Time)
 	{
-		Remaining = Time;
+		TargetTime = Time;
+		Remaining = TargetTime;
 	}
 protected:
 	CORE_API EBTNodeReturn::Type ExecuteNode() override;//todo: fix!
 private:
 	float Remaining = 0.0f;
+	float TargetTime = 0.0f;
 };

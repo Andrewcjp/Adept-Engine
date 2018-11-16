@@ -67,6 +67,7 @@ const int DIRECTIONS[DIRECTIONS_WIDTH][DIRECTIONS_HEIGHT] = { { 0, 1 },{ 0, -1 }
 #endif
 class NavigationObstacle;
 struct NavPlane;
+struct Tri;
 struct DLTENode
 {
 	DLTENode()
@@ -94,6 +95,7 @@ struct DLTENode
 	glm::vec2 Point = glm::vec2(0, 0);
 	int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1, 1, 1, 1, 1 };
 	std::vector<DLTENode*> NearNodes;
+	Tri* OwnerTri = nullptr;
 };
 class NavigationMesh
 {
