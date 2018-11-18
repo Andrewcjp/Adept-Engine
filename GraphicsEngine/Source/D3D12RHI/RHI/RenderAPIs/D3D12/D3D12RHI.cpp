@@ -26,6 +26,7 @@
 #pragma comment (lib, "d3dcompiler.lib")
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
+static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
@@ -167,17 +168,19 @@ void D3D12RHI::LoadPipeLine()
 #endif
 
 	UINT dxgiFactoryFlags = 0;
-#if RUNDEBUG //nsight needs this off
-	//EnableShaderBasedValidation();
+#if 0//RUNDEBUG //nsight needs this off
+	if (!ForceNoDebug.GetBoolValue())
+	{	//EnableShaderBasedValidation();
 
-	// Enable the debug layer (requires the Graphics Tools "optional feature").
-	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
-	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-	{
-		debugController->EnableDebugLayer();
-		debugController->Release();
-		// Enable additional debug layers.
-		dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+// Enable the debug layer (requires the Graphics Tools "optional feature").
+// NOTE: Enabling the debug layer after device creation will invalidate the active device.
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+		{
+			debugController->EnableDebugLayer();
+			debugController->Release();
+			// Enable additional debug layers.
+			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+		}
 	}
 #endif
 
@@ -208,18 +211,21 @@ void D3D12RHI::LoadPipeLine()
 		GetSecondaryDevice()->LinkAdaptors(GetPrimaryDevice());
 	}
 #if RUNDEBUG
-	ID3D12InfoQueue* infoqueue[MAX_GPU_DEVICE_COUNT] = { nullptr };
-	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	if (!ForceNoDebug.GetBoolValue())
 	{
-		if (DeviceContexts[i] != nullptr)
+		ID3D12InfoQueue* infoqueue[MAX_GPU_DEVICE_COUNT] = { nullptr };
+		for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 		{
-			DeviceContexts[i]->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[i]));
-			if (infoqueue[i] != nullptr)
+			if (DeviceContexts[i] != nullptr)
 			{
-				infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-				infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-				infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
-				infoqueue[i]->Release();
+				DeviceContexts[i]->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[i]));
+				if (infoqueue[i] != nullptr)
+				{
+					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
+					infoqueue[i]->Release();
+				}
 			}
 		}
 	}

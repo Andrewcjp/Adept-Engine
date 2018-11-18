@@ -140,7 +140,7 @@ bool RHI::BlockCommandlistExec()
 
 bool RHI::AllowCPUAhead()
 {
-	return false;
+	return true;
 }
 
 int RHI::GetFrameCount()

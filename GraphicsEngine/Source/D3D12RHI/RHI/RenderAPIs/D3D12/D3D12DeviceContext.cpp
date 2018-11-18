@@ -54,6 +54,13 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		Caps_Data.SupportsCopyTimeStamps = FeatureData.CopyQueueTimestampQueriesSupported;
 	}
+	/*D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData;
+	ZeroMemory(&FeatureData, sizeof(FeatureData));
+	HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData, sizeof(FeatureData));
+	if (SUCCEEDED(hr))
+	{
+		Caps_Data.SupportsCopyTimeStamps = FeatureData.CopyQueueTimestampQueriesSupported;
+	}*/
 }
 
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)

@@ -16,7 +16,7 @@
 #include "AI/Core/Navigation/NavigationMesh.h"
 #include "Core/Utils/DebugDrawers.h"
 #if WITH_EDITOR
-EditorWindow* EditorWindow::instance;
+EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()
 {
 	instance = this;

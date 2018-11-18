@@ -7,6 +7,7 @@
 #include "AI/Generation/ThirdParty/delaunator.hpp"
 #include "AI/CORE/Navigation/NavigationMesh.h"
 #include "Core/Utils/VectorUtils.h"
+#include "Core/Utils/MathUtils.h"
 NavMeshGenerator::NavMeshGenerator()
 {}
 
@@ -124,18 +125,13 @@ bool NavMeshGenerator::ValidateQuad(const int GirdStep, float FirstHeight, Heigh
 	return true;
 }
 
-bool approximatelyEqual(float a, float b, float epsilon)
-{
-	return fabs(a - b) <= epsilon;
-}
-
 NavPlane * NavMeshGenerator::GetPlane(float Z)
 {
 	const float PlaneTolerance = 5.0f;
 	NavPlane* plane = nullptr;
 	for (int i = 0; i < planes.size(); i++)
 	{
-		if (approximatelyEqual(planes[i]->ZHeight, Z, PlaneTolerance))
+		if (MathUtils::AlmostEqual(planes[i]->ZHeight, Z, PlaneTolerance))
 		{
 			return planes[i];
 		}
@@ -153,7 +149,7 @@ NavPlane* NavMeshGenerator::GetPlane(float Z, std::vector<NavPlane*>& list)
 		{
 			float t = 0;
 		}
-		if (approximatelyEqual(list[i]->ZHeight, Z, PlaneTolerance))
+		if (MathUtils::AlmostEqual(list[i]->ZHeight, Z, PlaneTolerance))
 		{
 			return list[i];
 		}
@@ -211,7 +207,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 		avgpos.y = startHeight;
 		//DebugDrawers::DrawDebugLine(avgpos, avgpos + glm::vec3(0, target->ZHeight, 0), glm::vec3(0, 1, 0), false, 100);
 		const bool CastHit = PhysicsEngine::Get()->RayCastScene(avgpos, glm::vec3(0, -1, 0), 50, &hiot);
-		if (!CastHit || !approximatelyEqual(hiot.Distance, -target->ZHeight, 5.0f))
+		if (!CastHit || !MathUtils::AlmostEqual(hiot.Distance, -target->ZHeight, 5.0f))
 		{
 			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;
