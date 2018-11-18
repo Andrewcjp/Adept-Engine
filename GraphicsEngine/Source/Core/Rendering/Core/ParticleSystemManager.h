@@ -15,18 +15,8 @@ public:
 		glm::vec4 Pos;
 		glm::vec4 Vel;
 		float lifetime;
+		float Size;
 	};
-#if 0
-	struct IndirectArgs
-	{
-		int data;
-		D3D12_DRAW_ARGUMENTS drawArguments;
-	};
-	struct IndrectDispatchArgs
-	{
-		D3D12_DISPATCH_ARGUMENTS dispatchArgs;
-	};
-#else
 	struct IndirectArgs
 	{
 		int data;
@@ -36,9 +26,9 @@ public:
 	{
 		IndirectDispatchArgs dispatchArgs;
 	};
-#endif
 	static ParticleSystemManager* Get();
 	void ShutDown();
+	void Sync();
 	void Simulate();
 	void Render(FrameBuffer * BufferTarget);
 private:

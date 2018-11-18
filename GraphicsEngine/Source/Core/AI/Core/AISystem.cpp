@@ -13,7 +13,7 @@ AISystem::AISystem()
 	mesh = new NavigationMesh();
 	BTManager = new BehaviourTreeManager();
 	Director = Engine::GetGame()->CreateAIDirector();
-	DebugMode = EAIDebugMode::None;
+	DebugMode = EAIDebugMode::PathOnly;
 }
 
 AISystem::~AISystem()

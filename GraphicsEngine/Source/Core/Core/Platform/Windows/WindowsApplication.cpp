@@ -8,15 +8,11 @@
 double WindowsApplication::SecondsPerCycle = 0.0f;
 
 WindowsApplication::WindowsApplication()
-{
-	
-}
+{}
 
 
 WindowsApplication::~WindowsApplication()
-{
-
-}
+{}
 
 void WindowsApplication::Init()
 {
@@ -42,13 +38,19 @@ void* WindowsApplication::GetDllHandle(FString Name)
 	if (!Handle)
 	{
 		//log!
+#if _DEBUG
+		DWORD LastError = GetLastError();
+		HRESULT hr = HRESULT_FROM_WIN32(LastError);
+#endif
 	}
 	return Handle;
 }
+
 int WindowsApplication::ExecuteHostScript(std::string Filename, std::string Args, bool ShowOutput)
 {
 	return ExecuteHostScript(Filename, Args, "", ShowOutput);
 }
+
 int WindowsApplication::ExecuteHostScript(std::string Filename, std::string Args, std::string WorkingDir, bool ShowOutput)
 {
 	if (FileUtils::File_ExistsTest(Filename))
@@ -189,7 +191,7 @@ bool WindowsApplication::CopyFileToTarget(std::string Target, std::string Dest)
 	if (LastError == ERROR_ALREADY_EXISTS)
 	{
 		return true;
-	}	
+	}
 	return false;
 }
 

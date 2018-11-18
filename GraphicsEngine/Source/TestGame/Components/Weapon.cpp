@@ -1,9 +1,9 @@
 #include "Weapon.h"
 #include "Projectile.h"
 #include "Audio/AudioEngine.h"
+#include "TestPlayer.h"
 Weapon::Weapon()
 {}
-
 
 Weapon::~Weapon()
 {}
@@ -32,7 +32,8 @@ void Weapon::Fire()
 	AudioEngine::PostEvent("Play_Shotgun", GetOwner());
 	//Create projectile!
 	const glm::vec3 Forward = CameraComponent::GetMainCamera()->GetForward();
-	glm::vec3 Position = GetOwner()->GetPosition() + Forward * 3;
+	TestPlayer* Player = GetOwner()->GetComponent<TestPlayer>();
+	glm::vec3 Position = Player->CameraObject->GetPosition() + Forward * 4;
 	GameObject* newgo = GameObject::Instantiate(Position);
 	newgo->GetTransform()->SetScale(glm::vec3(0.3f));
 	newgo->AttachComponent(new ColliderComponent());

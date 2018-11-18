@@ -137,6 +137,7 @@ private:
 	void ConstructPath(NavigationPath* outputPath, glm::vec3 Startpoint, NavPoint* CurrentPoint, glm::vec3 EndPos);
 
 	ENavRequestStatus::Type CalculatePath_DSTAR_BoardPhase(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
+	void SmoothPath(NavigationPath * path);
 	ENavRequestStatus::Type CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
 	bool NavMeshNeedsUpdate = false;
 	std::vector<NavTriangle*> Triangles;

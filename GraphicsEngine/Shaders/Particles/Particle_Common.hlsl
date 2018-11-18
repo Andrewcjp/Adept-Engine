@@ -9,4 +9,5 @@ struct PosVelo
 	float4 pos;
 	float4 vel;
 	float Lifetime;
+    float Size;
 };

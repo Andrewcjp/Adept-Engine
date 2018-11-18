@@ -19,7 +19,7 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid)
 GameObject::~GameObject()
 {
 	for (int i = 0; i < m_Components.size(); i++)
-	{		
+	{
 		m_Components[i]->OnDestroy();
 	}
 	AudioEngine::DeRegisterObject(this);
@@ -35,7 +35,6 @@ GameObject * GameObject::Instantiate(glm::vec3 Pos, glm::quat Rotation)
 	GameObject* NewObject = new GameObject();
 	NewObject->SetPosition(Pos);
 	NewObject->SetRotation(Rotation);
-	
 	return NewObject;
 }
 
@@ -64,7 +63,7 @@ void GameObject::Internal_SetScene(Scene * scene)
 			m_Components[i]->SceneInitComponent();
 		}
 		PositionDummy = GetTransform()->GetPos();
-	}	
+	}
 }
 
 void GameObject::Destory()

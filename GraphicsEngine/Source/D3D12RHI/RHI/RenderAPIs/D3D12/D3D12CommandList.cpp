@@ -376,9 +376,18 @@ void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 
 void D3D12CommandList::UAVBarrier(RHIUAV * target)
 {
-	ensure(!target->IsPendingKill());
-	D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;
-	CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
+	//The resource can be NULL, which indicates that any UAV access could require the barrier.
+	if (target != nullptr)
+	{
+		ensure(!target->IsPendingKill());
+		D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;
+		CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->m_UAV));
+		CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
+	}
+	else
+	{
+		CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(nullptr));
+	}
 }
 
 void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
