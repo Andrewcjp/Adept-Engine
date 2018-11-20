@@ -27,7 +27,7 @@ public:
 	CORE_API RigidBody * FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale/*, PxGeometryType::Enum type*/);
 	static TDScene* GetScene();
 	static TDPhysicsEngine* Get();
-	
+	static EPhysicsDebugMode::Type GetCurrentMode();
 private:
 	TDScene* PlayScene = nullptr;
 	static TDPhysicsEngine* Instance;

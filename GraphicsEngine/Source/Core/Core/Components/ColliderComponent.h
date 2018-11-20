@@ -17,19 +17,25 @@ public:
 	CORE_API EShapeType::Type GetCollisonShape();
 	CORE_API void SetCollisonShape(EShapeType::Type newtype);
 	CORE_API ShapeElem* GetColliderShape();
+	void LoadMesh();
 	void SceneInitComponent()override;
 	void TransferToRigidbody();
 	void SetTriangleMeshAssetName(std::string name);
 
 #if WITH_EDITOR
+	virtual void EditorUpdate();
 	void GetInspectorProps(std::vector<InspectorProperyGroup>& props);
 #endif
-private:
-	EShapeType::Type CollisionShapeType = EShapeType::eBOX;
+	//todo: refactor
 	float Radius = 1.0f;
 	glm::vec3 BoxExtents = glm::vec3(1, 1, 1);
 	float Height = 1.0f;
+private:
+	EShapeType::Type CollisionShapeType = EShapeType::eBOX;
+
 	RigidBody* Actor = nullptr;
 	std::string MeshName;
+	std::vector<glm::vec3*> Points;
+
 };
 

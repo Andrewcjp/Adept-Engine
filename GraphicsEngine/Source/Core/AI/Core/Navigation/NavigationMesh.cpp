@@ -224,7 +224,8 @@ void NavigationMesh::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 	Plane->ResolvePositionToNode(Target, &goalnode);
 	Plane->ResolvePositionToNode(Origin, &startnode);
 	//DebugDrawers::DrawDebugSphere(Origin, 2, glm::vec3(1), 16, false, 100000);
-	//DebugDrawers::DrawDebugSphere(Target, 2, glm::vec3(0.5f), 16, false, 100000);
+	Origin.y = -10.0f;
+	DebugDrawers::DrawDebugSphere(Origin, 0.25f, glm::vec3(0.5f), 16, false, 1);
 }
 
 void NavigationMesh::GridLTE()
@@ -644,6 +645,7 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 	}
 	SetTarget(EndPos, Startpoint);
 	run(outputPath->Positions);
+
 	outputPath->Positions.push_back(EndPos);
 	SmoothPath(outputPath);
 	if (AISystem::GetDebugMode() == EAIDebugMode::PathOnly || AISystem::GetDebugMode() == EAIDebugMode::All)
@@ -652,7 +654,9 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 		{
 			if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::Get() != nullptr)
 			{
-				DebugLineDrawer::Get()->AddLine(outputPath->Positions[i], outputPath->Positions[i + 1], glm::vec3(0, 1, 0), 1.0f);
+				const float height = -10.0f;
+				DebugLineDrawer::Get()->AddLine(glm::vec3(outputPath->Positions[i].x, height, outputPath->Positions[i].z),
+					glm::vec3(outputPath->Positions[i + 1].x, height, outputPath->Positions[i + 1].z), glm::vec3(0, 1, 0), 1.0f);
 			}
 		}
 	}

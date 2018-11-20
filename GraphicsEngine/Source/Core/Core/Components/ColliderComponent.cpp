@@ -7,6 +7,7 @@
 #include "Core/GameObject.h"
 #include "RigidbodyComponent.h"
 #include "Core/Assets/AssetManager.h"
+#include "core/Utils/DebugDrawers.h"
 ColliderComponent::ColliderComponent()
 {
 	TypeID = CompoenentRegistry::BaseComponentTypes::ColliderComp;
@@ -48,12 +49,41 @@ void ColliderComponent::ProcessSerialArchive(Archive * A)
 	else if (CollisionShapeType == EShapeType::eTRIANGLEMESH || CollisionShapeType == EShapeType::eCONVEXMESH)
 	{
 		ArchiveProp(MeshName);
-	}	
+	}
 }
 
 EShapeType::Type ColliderComponent::GetCollisonShape()
 {
 	return CollisionShapeType;
+}
+
+void ColliderComponent::EditorUpdate()
+{
+	if (PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::ShowShapes) {
+		switch (CollisionShapeType)
+		{
+			//todo: transition this to use a wireframe shader
+		case EShapeType::eSPHERE:
+			DebugDrawers::DrawDebugSphere(GetOwner()->GetPosition(), Radius, glm::vec3(1));
+			break;
+		case EShapeType::eCAPSULE:
+			DebugDrawers::DrawDebugCapsule(GetOwner()->GetPosition(), Height, Radius, GetOwner()->GetRotation());
+			break;
+		case EShapeType::eTRIANGLEMESH:
+			for (int i = 0; i < Points.size(); i++)
+			{
+				for (int x = 0; x < 3; x++)
+				{
+					const int next = (x + 1) % 3;
+					DebugDrawers::DrawDebugLine(Points[i][x], Points[i][next], glm::vec3(1), false, 0.0f);
+				}
+			}
+			break;
+		case EShapeType::eBOX:
+			
+			break;
+		}
+	}
 }
 
 void ColliderComponent::SetCollisonShape(EShapeType::Type newtype)
@@ -109,12 +139,35 @@ ShapeElem * ColliderComponent::GetColliderShape()
 		}
 		TriMeshElm* box = new TriMeshElm();
 		box->MeshAssetName = MeshName;
+#if USE_PHYSX
+		//LoadMesh();
+#endif
 		box->Scale = GetOwner()->GetTransform()->GetScale();
 		return box;
 	}
 	}
 	return nullptr;
 }
+
+void ColliderComponent::LoadMesh()
+{
+	
+	MeshLoader::FMeshLoadingSettings set;
+	std::vector<OGLVertex> v;
+	std::vector<int> inds;
+	set.GenerateIndexed = true;
+	MeshLoader::LoadMeshFromFile_Direct(MeshName, set, v, inds);
+	Points.clear();
+	for (int i = 0; i < inds.size(); i += 3)
+	{
+		glm::vec3* data = new glm::vec3[3];
+		data[0] = v[inds[i]].m_position;
+		data[1] = v[inds[i + 1]].m_position;
+		data[2] = v[inds[i + 2]].m_position;
+		Points.push_back(data);
+	}
+}
+
 
 void ColliderComponent::SceneInitComponent()
 {

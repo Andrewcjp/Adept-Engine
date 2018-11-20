@@ -45,7 +45,9 @@ void GameObject::FinishGameObjectSpawn(GameObject* Object)
 
 Transform * GameObject::GetTransform()
 {
+#if !USE_TRANSFORM_CACHING
 	m_transform->GetModel();
+#endif
 	return m_transform;
 }
 

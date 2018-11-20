@@ -168,7 +168,7 @@ void D3D12RHI::LoadPipeLine()
 #endif
 
 	UINT dxgiFactoryFlags = 0;
-#if 0//RUNDEBUG //nsight needs this off
+#if RUNDEBUG //nsight needs this off
 	if (!ForceNoDebug.GetBoolValue())
 	{	//EnableShaderBasedValidation();
 
@@ -589,6 +589,8 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 		}
 		// Check to see if the adapter supports Direct3D 12, but don't create the
 		// actual device yet.
+		HRESULT r = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr);
+
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 		{
 			if (ForcingIndex && adapterIndex != TargetIndex)

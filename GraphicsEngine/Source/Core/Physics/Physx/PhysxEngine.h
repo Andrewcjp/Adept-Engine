@@ -46,6 +46,7 @@ public:
 	static physx::PxMaterial* GetDefaultMaterial();
 	physx::PxMaterial* CreatePhysxMat(PhysicalMaterial* mat);
 	static 	physx::PxCooking* GetCooker();
+	static EPhysicsDebugMode::Type GetCurrentMode();
 private:
 	class ColliderComponent*		DebugFloor = nullptr;
 	PhysxCallBackHandler*			CallBackHandler = nullptr;

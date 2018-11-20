@@ -48,5 +48,6 @@ private:
 	const int maxSize = 100000;
 	int CurrentMaxVerts = 100;
 	bool Is2DOnly = false;
+	int EraseIndex = 0;
 };
 
