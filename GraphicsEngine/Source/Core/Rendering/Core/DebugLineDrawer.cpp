@@ -19,9 +19,6 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	ensure(LineShader);
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);
-	//VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
-
-	//VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), sizeof(VERTEX)*maxSize, EBufferAccessType::Dynamic);
 	ReallocBuffer(CurrentMaxVerts);
 	CmdList = RHI::CreateCommandList();
 	PipeLineState state = {};
@@ -74,7 +71,7 @@ void DebugLineDrawer::UpdateLineBuffer(int offset)
 {
 	//if (offset != Lines.size())
 	{
-		ensure(Verts.size() < CurrentMaxVerts);
+		//ensure(Verts.size() < CurrentMaxVerts);
 		VertsOnGPU = Verts.size();		
 		VertexBuffer->UpdateVertexBuffer(Verts.data(), sizeof(VERTEX) * Verts.size());
 	}

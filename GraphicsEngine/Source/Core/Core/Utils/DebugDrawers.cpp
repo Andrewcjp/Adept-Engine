@@ -119,3 +119,8 @@ void DebugDrawers::DrawDebugCapsule(glm::vec3 const& Center, float HalfHeight, f
 	DrawDebugLine(TopEnd + Radius * YAxis, BottomEnd + Radius * YAxis, Color, bPersistentLines, LifeTime, Thickness);
 	DrawDebugLine(TopEnd - Radius * YAxis, BottomEnd - Radius * YAxis, Color, bPersistentLines, LifeTime, Thickness);
 }
+
+void DebugDrawers::FlushAllLines()
+{
+	DebugLineDrawer::Get()->FlushDebugLines();
+}

@@ -24,6 +24,7 @@ PhysxEngine * PhysxEngine::Get()
 }
 void PhysxEngine::initPhysics()
 {
+	PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 #if ENABLEPVD
 	gPvd = PxCreatePvd(*gFoundation);
@@ -122,6 +123,12 @@ physx::PxCooking * PhysxEngine::GetCooker()
 {
 	return Engine::GetPhysEngineInstance()->gCooking;
 }
+
+EPhysicsDebugMode::Type PhysxEngine::GetCurrentMode()
+{
+	return Get()->PhysicsDebugMode;
+}
+
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit,std::vector<RigidBody*>& IgnoredActors)
 {
 	return RayCastScene(startpos, direction, distance, outhit, false, IgnoredActors);

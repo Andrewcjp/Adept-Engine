@@ -124,6 +124,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
+	go->GetTransform()->GetScale();
 	go->AttachComponent(new CameraComponent());
 #if !WITH_EDITOR
 	//go->AttachComponent(new FreeLookComponent());
@@ -191,6 +192,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
+	ColliderComponent* col = go->AttachComponent(new ColliderComponent());
+	col->SetCollisonShape(EShapeType::eSPHERE);
+	col->Radius = 1.0f;
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Rock");

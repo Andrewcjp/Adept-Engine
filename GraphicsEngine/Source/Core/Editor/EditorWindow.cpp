@@ -74,11 +74,11 @@ void EditorWindow::PostInitWindow(int w, int h)
 	delete CurrentScene;
 	CurrentScene = new Scene();
 	Saver->LoadScene(CurrentScene, TestFilePath);
-	Renderer->SetScene(CurrentScene); 
+	Renderer->SetScene(CurrentScene);
 	RefreshScene();
 #endif
-	    
-	AISystem::Get()->GenerateMesh(); 
+
+	AISystem::Get()->GenerateMesh();
 	AISystem::Get()->mesh->GenTestMesh();
 }
 
@@ -176,14 +176,18 @@ void EditorWindow::Update()
 		PerfManager::StartTimer("Scene Update");
 		CurrentPlayScene->UpdateScene(DeltaTime);
 		PerfManager::EndTimer("Scene Update");
+		if (IsEditorEjected())
+		{
+			CurrentPlayScene->EditorUpdateScene();
+		}
 	}
 	else
 	{
 		CurrentScene->EditorUpdateScene();
-		AISystem::Get()->EditorTick(); 
+		AISystem::Get()->EditorTick();
 	}
 
-	DebugDrawers::DrawDebugCapsule(glm::vec3(0, 10, 0), 1, 2, glm::quat(glm::radians(glm::vec3(90, 0, 0))), glm::vec3(1,0,0));
+	DebugDrawers::DrawDebugCapsule(glm::vec3(0, 10, 0), 1, 2, glm::quat(glm::radians(glm::vec3(90, 0, 0))), glm::vec3(1, 0, 0));
 	AISystem::Get()->mesh->DrawNavMeshLines();
 	if (!IsPlayingScene || IsEditorEjected())
 	{

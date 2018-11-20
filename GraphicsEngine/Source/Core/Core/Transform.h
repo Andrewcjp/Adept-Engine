@@ -1,5 +1,6 @@
 #pragma once
 #include "Rendering/Core/Camera.h"
+#define USE_TRANSFORM_CACHING 0
 class Transform
 {
 public:
@@ -24,7 +25,7 @@ public:
 	//getters
 	CORE_API glm::vec3 GetPos() const;
 	CORE_API glm::vec3 GetEulerRot() const;
-	CORE_API glm::vec3 GetScale() const { return _scale; }
+	CORE_API glm::vec3 GetScale() const;
 	CORE_API glm::vec3 GetForward();
 	CORE_API glm::vec3 GetUp();
 	CORE_API glm::vec3 GetRight();

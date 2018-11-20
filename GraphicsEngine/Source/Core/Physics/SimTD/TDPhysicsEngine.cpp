@@ -140,6 +140,11 @@ TDPhysicsEngine * TDPhysicsEngine::Get()
 	return Instance;
 }
 
+EPhysicsDebugMode::Type TDPhysicsEngine::GetCurrentMode()
+{
+	return Get()->PhysicsDebugMode;
+}
+
 
 
 #endif
