@@ -37,11 +37,12 @@ namespace TD
 		void ResetForceThisFrame();
 		void UpdateSleepTimer(float DT);
 		bool IsBodyAsleep()const;
+		bool IsAffectedByGravity()const { return UseGravity; };
 	private:
 		bool CheckSleep(glm::vec3 & value);
 		glm::vec3 DeltaLinearVel = glm::vec3();
 		glm::vec3 DeltaAngularVel = glm::vec3();
-		bool UseGravity = false;
+		bool UseGravity = true;
 		//RigidBody Physics Values
 		//Linear
 		float BodyMass = 1.0f;

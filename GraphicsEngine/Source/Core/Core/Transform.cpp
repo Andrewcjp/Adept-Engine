@@ -1,5 +1,6 @@
 #include "Transform.h"
 #include "Core/Assets/Archive.h"
+#include "Utils/MathUtils.h"
 
 Transform::Transform(const glm::vec3 & pos, const glm::vec3 & rot, const glm::vec3 & scale) :
 	_pos(pos),
@@ -126,6 +127,7 @@ void Transform::SetPos(const glm::vec3 & pos)
 	oldpos = _pos;
 	_pos = pos;
 	GetModel();
+	CheckNAN(_pos);
 }
 
 void Transform::SetEulerRot(const glm::vec3 & rot)
@@ -145,6 +147,7 @@ void Transform::SetScale(const glm::vec3 & scale)
 	UpdateModel = true;
 	this->oldscale = this->_scale;
 	this->_scale = scale;
+	CheckNAN(_scale);
 }
 
 void Transform::AddRotation(glm::vec3 & rot)
@@ -193,6 +196,7 @@ void Transform::SetLocalPosition(glm::vec3 localpos)
 	glm::mat4 LocalMAtrix = parent->GetModel();
 	glm::vec4 newpos = glm::vec4(localpos, 1.0f)*glm::inverse(LocalMAtrix);
 	newpos = newpos * LocalMAtrix;
+	CheckNAN(newpos);
 	SetPos(newpos);
 }
 

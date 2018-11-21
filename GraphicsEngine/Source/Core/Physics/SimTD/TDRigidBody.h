@@ -5,6 +5,8 @@
 #include "core/Transform.h"
 #include "TDPhysicsAPI.h"
 
+namespace TD { class TDMesh; }
+
 class TDRigidBody :public GenericRigidBody
 {
 public:
@@ -16,6 +18,7 @@ public:
 	CORE_API void AddForce(glm::vec3 force, EForceMode::Type Mode = EForceMode::AsForce);
 	glm::vec3 GetLinearVelocity() const;
 	void AttachCollider(Collider* col);
+	TD::TDMesh * GenerateTriangleMesh(std::string Filename, glm::vec3 scale);
 	CORE_API void SetBodyData(BodyInstanceData data);
 	CORE_API BodyInstanceData GetBodyData();
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
@@ -28,6 +31,7 @@ private:
 	TD::TDRigidStatic* StaticActor = nullptr;
 	TD::TDActor* CommonActorPTr = nullptr;
 	std::vector<TD::TDShape*> shapes;
+	BodyInstanceData data;
 };
 
 #endif

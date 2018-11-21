@@ -41,6 +41,10 @@ namespace TD
 
 	void TDActor::AttachShape(TDShape * newShape)
 	{
+		if (newShape == nullptr)
+		{
+			return;
+		}
 		AttachedShapes.push_back(newShape);
 		newShape->SetOwner(this);
 		AABB->HalfExtends = newShape->GetBoundBoxHExtents();

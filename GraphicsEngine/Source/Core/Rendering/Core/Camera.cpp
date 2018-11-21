@@ -209,6 +209,14 @@ glm::vec3  Camera::ScreenPointToWorld(float screenX, float screenY)
 	glm::vec3 point3D = glm::vec3(x, y, 0.0f);
 	return viewProjectionInverse * glm::vec4(point3D.xyz, 0.0f);
 }
+#include "Core/Utils/MathUtils.h"
+void Camera::SetPos(glm::vec3 value)
+{
+	CheckNAN(value);
+
+	m_pos = value;
+}
+
 //old
 //glm::mat4 inverseVP = glm::inverse(GetProjection() * GetView());
 //

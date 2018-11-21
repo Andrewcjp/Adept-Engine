@@ -22,7 +22,7 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		SpawnAI(glm::vec3(50, 10, 0), EAIType::Imp);
+		//SpawnAI(glm::vec3(50, 10, 0), EAIType::Imp);
 		once = true;
 	}
 }
