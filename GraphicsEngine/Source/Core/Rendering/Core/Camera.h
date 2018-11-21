@@ -39,10 +39,7 @@ public:
 	{
 		linkedtransform = t;
 	}
-	void SetPos(glm::vec3 value)
-	{
-		m_pos = value;
-	}
+	CORE_API void SetPos(glm::vec3 value);
 	glm::vec3 GetRight()
 	{
 		return glm::normalize(glm::cross(up, forward));

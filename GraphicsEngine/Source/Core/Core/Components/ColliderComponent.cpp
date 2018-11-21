@@ -59,7 +59,8 @@ EShapeType::Type ColliderComponent::GetCollisonShape()
 
 void ColliderComponent::EditorUpdate()
 {
-	if (PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::ShowShapes) {
+	if (PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::ShowShapes)
+	{
 		switch (CollisionShapeType)
 		{
 			//todo: transition this to use a wireframe shader
@@ -80,7 +81,7 @@ void ColliderComponent::EditorUpdate()
 			}
 			break;
 		case EShapeType::eBOX:
-			
+
 			break;
 		}
 	}
@@ -151,7 +152,7 @@ ShapeElem * ColliderComponent::GetColliderShape()
 
 void ColliderComponent::LoadMesh()
 {
-	
+
 	MeshLoader::FMeshLoadingSettings set;
 	std::vector<OGLVertex> v;
 	std::vector<int> inds;
@@ -181,6 +182,7 @@ void ColliderComponent::SceneInitComponent()
 		{
 			tempcol->Shapes.push_back(cc->GetColliderShape());
 		}
+		Actor->SetGravity(false);
 		Actor->AttachCollider(tempcol);
 		Actor->InitBody();
 		Actor->SetOwnerComponent(this);

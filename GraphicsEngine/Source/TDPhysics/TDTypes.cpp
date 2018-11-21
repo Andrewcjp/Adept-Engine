@@ -10,7 +10,7 @@ void TD::ContactData::Reset()
 {
 	ContactPoints[MAX_CONTACT_POINTS_COUNT];
 	Blocking = false;
-	Direction = glm::vec3();
-	depth = 0.0f;
+	Direction[MAX_CONTACT_POINTS_COUNT];
+	depth[MAX_CONTACT_POINTS_COUNT];
 	ContactCount = 0;
 }

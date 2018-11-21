@@ -2,7 +2,7 @@
 #include "Shapes/TDAABB.h"
 #include "Shapes/TDBox.h"
 #include "Shapes/TDBox.h"
-#include "Shapes/TDMesh.h"
+#include "Shapes/TDMeshShape.h"
 #include "Shapes/TDPlane.h"
 #include "Shapes/TDSphere.h"
 #include "TDShape.h"
@@ -10,7 +10,7 @@ namespace TD
 {
 	bool TD::TDCollisionHandlers::InvalidCollisonPair(CollisionHandlerArgs)
 	{
-		assert(false);
+		//assert(false);
 		return false;
 	}
 
@@ -134,7 +134,9 @@ namespace TD
 
 	bool TD::TDCollisionHandlers::CollideSphereMesh(CollisionHandlerArgs)
 	{
-		return false;
+		TDSphere* sphere = TDShape::CastShape<TDSphere>(A);
+		TDMeshShape* mesh = TDShape::CastShape<TDMeshShape>(B);
+		return mesh->MeshSphere(sphere, contactbuffer);
 	}
 
 	//Plane

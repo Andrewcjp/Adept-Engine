@@ -113,7 +113,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-#if !TDSIM_ENABLED
+#if 1
 	cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
 	cc->SetTriangleMeshAssetName("models\\Room1.obj");
@@ -192,9 +192,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-	ColliderComponent* col = go->AttachComponent(new ColliderComponent());
-	col->SetCollisonShape(EShapeType::eSPHERE);
-	col->Radius = 1.0f;
+	//ColliderComponent* col = go->AttachComponent(new ColliderComponent());
+	//col->SetCollisonShape(EShapeType::eSPHERE);
+	//col->Radius = 1.0f;
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Rock");
@@ -230,10 +230,11 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(0, 10, 10));
+	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-	go->AttachComponent(new ColliderComponent());
+	cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eSPHERE);
 	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
@@ -263,7 +264,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				}
 				else
 				{
-					cc->SetCollisonShape(EShapeType::eBOX);
+					cc->SetCollisonShape(EShapeType::eSPHERE);
 				}
 				go->AttachComponent(new RigidbodyComponent());
 				AddGameobjectToScene(go);

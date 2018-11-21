@@ -1,4 +1,5 @@
 #include "TDTransform.h"
+#include "Utils/MathUtils.h"
 namespace TD
 {
 
@@ -91,6 +92,7 @@ namespace TD
 		UpdateModel = true;
 		oldpos = _pos;
 		_pos = pos;
+		CheckNAN(_pos);
 	}
 
 	void TDTransform::SetEulerRot(const glm::vec3 & rot)
@@ -105,6 +107,7 @@ namespace TD
 		UpdateModel = true;
 		this->oldscale = this->_scale;
 		this->_scale = scale;
+		CheckNAN(_scale);
 	}
 
 	void TDTransform::AddRotation(glm::vec3 & rot)
