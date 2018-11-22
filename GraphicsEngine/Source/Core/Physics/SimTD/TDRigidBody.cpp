@@ -79,6 +79,7 @@ void TDRigidBody::AttachCollider(Collider * col)
 		shapes.push_back(newShape);
 	}
 }
+
 TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 scale)
 {
 	std::vector<OGLVertex> vertices;
@@ -99,7 +100,7 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 	desc.Points.Stride = sizeof(glm::vec3);
 	desc.Points.DataPtr = verts.data();
 
-	desc.Indices.Count = indices.size()/2;
+	desc.Indices.Count = indices.size() / 2;
 	desc.Indices.Stride = sizeof(int);
 	desc.Indices.DataPtr = indices.data();
 
@@ -110,23 +111,6 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 
 	TD::TDMesh* newmesh = new TD::TDMesh(desc);
 	newmesh->CookMesh();
-	//PxTriangleMeshDesc meshDesc = PxTriangleMeshDesc();
-	//meshDesc.points.count = (PxU32)verts.size();
-	//meshDesc.points.stride = sizeof(glm::vec3);
-	//meshDesc.points.data = verts.data();
-
-	//meshDesc.triangles.count = (PxU32)(indices.size() / 3);
-	//meshDesc.triangles.stride = 3 * sizeof(int);
-	//meshDesc.triangles.data = indices.data();
-
-	//ensure(meshDesc.isValid());
-	//PxDefaultMemoryOutputStream writeBuffer;
-	//PxTriangleMeshCookingResult::Enum result;
-	//bool status = PhysxEngine::GetCooker()->cookTriangleMesh(meshDesc, writeBuffer, &result);
-	//ensure(status);
-	//ensure(result == PxTriangleMeshCookingResult::eSUCCESS);
-	//PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-	//return PhysxEngine::GetGPhysics()->createTriangleMesh(readBuffer);
 	/*std::vector<TDTriangle*> tris = newmesh->GetTriangles();
 	for (int i = 0; i < tris.size(); i++)
 	{
@@ -153,7 +137,10 @@ BodyInstanceData TDRigidBody::GetBodyData()
 
 void TDRigidBody::SetLinearVelocity(glm::vec3 velocity)
 {
-
+	if (Actor)
+	{
+		Actor->SetLinearVelocity(velocity);
+	}
 }
 
 void TDRigidBody::InitBody()
@@ -162,7 +149,7 @@ void TDRigidBody::InitBody()
 	for (TD::TDShape* s : shapes)
 	{
 		Actor->AttachShape(s);
-	}	
+	}
 	Actor->GetTransfrom()->SetPos(m_transform.GetPos());
 	Actor->SetGravity(data.Gravity);
 	TDPhysicsEngine::GetScene()->AddToScene(Actor);
@@ -170,7 +157,13 @@ void TDRigidBody::InitBody()
 }
 
 void TDRigidBody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)
-{}
+{
+	if (Actor)
+	{
+		Actor->GetTransfrom()->SetPos(pos);
+		Actor->GetTransfrom()->SetQrot(rot);
+	}
+}
 
 void TDRigidBody::SetGravity(bool state)
 {
@@ -182,6 +175,11 @@ void TDRigidBody::SetGravity(bool state)
 	{
 		data.Gravity = state;
 	}
+}
+
+TD::TDActor* TDRigidBody::GetActor()
+{
+	return CommonActorPTr;
 }
 
 #endif

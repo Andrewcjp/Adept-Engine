@@ -10,6 +10,7 @@ namespace TD
 		BodyMass = 10.0f;
 		CachedsqSleepZeroThreshold = TDPhysics::GetCurrentSimConfig()->BodySleepZeroThreshold;
 		CachedsqSleepZeroThreshold = CachedsqSleepZeroThreshold * CachedsqSleepZeroThreshold;//All compares are done Squared
+		ComputeInertiaTensor();
 	}
 
 	TDRigidDynamic::~TDRigidDynamic()
@@ -34,13 +35,14 @@ namespace TD
 	{
 		if (AsForce)
 		{
-			DeltaLinearVel = Force / BodyMass;
+			DeltaLinearVel = Force;
 		}
 		else
 		{
-			DeltaLinearVel = Force;
+			DeltaLinearVel = Force * BodyMass;
 		}
 	}
+
 	bool TDRigidDynamic::CheckSleep(glm::vec3 & value)
 	{
 		if (glm::length2(value) <= CachedsqSleepZeroThreshold)
@@ -50,6 +52,7 @@ namespace TD
 		}
 		return false;
 	}
+
 	void TDRigidDynamic::UpdateSleepTimer(float DT)
 	{
 		if (CheckSleep(DeltaLinearVel) && CheckSleep(DeltaAngularVel) && CheckSleep(LinearVelocity) && CheckSleep(AngularVel))
@@ -107,12 +110,40 @@ namespace TD
 		return AngularVel;
 	}
 
-	float TDRigidDynamic::GetInertiaTensor()
+	void TDRigidDynamic::ComputeInertiaTensor()
+	{
+		if (BodyMass == 0.0f)
+		{
+			InertaTensor = glm::mat4(0);
+		}
+		float ix = 0.0f;
+		float iy = 0.0f;
+		float iz = 0.0f;
+		float iw = 0.0f;
+
+		if (true)
+		{
+			float r2 = 1.0;
+			float fraction = (2.0f / 5.0f);
+
+			ix = r2 * BodyMass * fraction;
+			iy = r2 * BodyMass * fraction;
+			iz = r2 * BodyMass * fraction;
+			iw = 1.0f;
+		}
+		InertaTensor = glm::inverse(glm::mat4x4(
+			ix, 0, 0, 0,
+			0, iy, 0, 0,
+			0, 0, iz, 0,
+			0, 0, 0, iw));
+	}
+
+	glm::mat4x4 TDRigidDynamic::GetInertiaTensor()
 	{
 		return InertaTensor;
 	}
 
-	void TDRigidDynamic::SetInertiaTensor(float tensor)
+	void TDRigidDynamic::SetInertiaTensor(glm::mat4x4 tensor)
 	{
 		InertaTensor = tensor;
 	}
@@ -124,12 +155,16 @@ namespace TD
 
 	void TDRigidDynamic::AddTorque(glm::vec3 Torque)
 	{
-		DeltaAngularVel += Torque;
+		glm::vec3 angAccel = glm::vec4(Torque, 0.0f) * GetInertiaTensor();
+		DeltaAngularVel += angAccel;
 	}
 
-	void TDRigidDynamic::AddForceAtPosition(glm::vec3 force)
+	void TDRigidDynamic::AddForceAtPosition(glm::vec3 pos, glm::vec3 force)
 	{
-		//todo:
+		glm::vec3 centerOfMass = GetTransfrom()->GetPos();
+		glm::vec3 torque = glm::cross(pos - centerOfMass, force);
+		AddTorque(torque);
+		AddForce(force, true);
 	}
 
 }

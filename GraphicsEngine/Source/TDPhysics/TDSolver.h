@@ -21,6 +21,7 @@ namespace TD
 		static void ProcessCollisions(CollisionPair * A);
 		void ProcessResponsePair(CollisionPair * pair);
 		void PostIntergrate(CollisionPair * pair);
+		void ResolveConstraints(TDScene* scene);
 		static void RunPostFixup(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data);
 		TDBroadphase* Broadphase = nullptr;
 	private:

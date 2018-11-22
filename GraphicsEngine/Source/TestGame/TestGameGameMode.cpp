@@ -9,6 +9,7 @@
 #include "AI/Core/AIController.h"
 #include "AI/Core/AISystem.h"
 #include "AI/TestGame_Director.h"
+#include "Physics/GenericConstraint.h"
 TestGameGameMode::TestGameGameMode()
 {}
 
@@ -28,7 +29,7 @@ GameObject* MakeTestSphere(Scene* Scene)
 void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
-#if 0
+#if 1
 	GameObject* A = MakeTestSphere(Scene);
 	GameObject* B = MakeTestSphere(Scene);
 	A->SetPosition(glm::vec3(0, 20, 0));

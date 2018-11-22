@@ -1,6 +1,7 @@
 
 #include "DebugDrawers.h"
 #include "Rendering/Core/DebugLineDrawer.h"
+#include "../Transform.h"
 #define PI (3.1415926535897932f)
 static const float DefultLifeTime = 50.0f;
 void DebugDrawers::DrawDebugSphere(glm::vec3 const & Center, float Radius, glm::vec3 const & Color, int Segments, bool bPersistentLines, float LifeTime, float Thickness)
@@ -123,4 +124,70 @@ void DebugDrawers::DrawDebugCapsule(glm::vec3 const& Center, float HalfHeight, f
 void DebugDrawers::FlushAllLines()
 {
 	DebugLineDrawer::Get()->FlushDebugLines();
+}
+void DrawDebugBox(glm::vec3 const& Center, glm::vec3 const& Box, const glm::quat& Rotation, glm::vec3 const& Color, bool bPersistentLines, float LifeTime)
+{
+	// no debug line drawing on dedicated server
+	
+	{
+		// this means foreground lines can't be persistent 
+		//ULineBatchComponent* const LineBatcher = GetDebugLineBatcher(InWorld, bPersistentLines, LifeTime, (DepthPriority == SDPG_Foreground));
+		//if (LineBatcher != NULL)
+		{
+			
+			
+
+			/*Transform T;
+			T.SetQrot(Rotation);
+			FVector Start = T.TransformPosition((Box.x, Box.y, Box.x));
+			FVector End = Transform.TransformPosition(FVector(Box.X, -Box.Y, Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(Box.X, -Box.Y, Box.Z));
+			End = Transform.TransformPosition(FVector(-Box.X, -Box.Y, Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(-Box.X, -Box.Y, Box.Z));
+			End = Transform.TransformPosition(FVector(-Box.X, Box.Y, Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(-Box.X, Box.Y, Box.Z));
+			End = Transform.TransformPosition(FVector(Box.X, Box.Y, Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(Box.X, Box.Y, -Box.Z));
+			End = Transform.TransformPosition(FVector(Box.X, -Box.Y, -Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(Box.X, -Box.Y, -Box.Z));
+			End = Transform.TransformPosition(FVector(-Box.X, -Box.Y, -Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(-Box.X, -Box.Y, -Box.Z));
+			End = Transform.TransformPosition(FVector(-Box.X, Box.Y, -Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(-Box.X, Box.Y, -Box.Z));
+			End = Transform.TransformPosition(FVector(Box.X, Box.Y, -Box.Z));
+			new(Lines)FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(Box.X, Box.Y, Box.Z));
+			End = Transform.TransformPosition(FVector(Box.X, Box.Y, -Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(Box.X, -Box.Y, Box.Z));
+			End = Transform.TransformPosition(FVector(Box.X, -Box.Y, -Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(-Box.X, -Box.Y, Box.Z));
+			End = Transform.TransformPosition(FVector(-Box.X, -Box.Y, -Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			Start = Transform.TransformPosition(FVector(-Box.X, Box.Y, Box.Z));
+			End = Transform.TransformPosition(FVector(-Box.X, Box.Y, -Box.Z));
+			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
+
+			LineBatcher->DrawLines(Lines);*/
+		}
+	}
 }

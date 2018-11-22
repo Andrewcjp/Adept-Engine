@@ -1,10 +1,12 @@
 #pragma once
 #include "TDTypes.h"
+
 namespace TD
 {
 	class TDScene;
 	class TDSolver;
 	class TDSimConfig;
+	class TDConstraint;
 	namespace Threading { class TaskGraph; }
 	class TDPhysics
 	{
@@ -34,7 +36,7 @@ namespace TD
 		/**
 		*\brief Returns the current TDPhysics instance
 		*
-		*returns nullptr if the Simulator has not been initialized 
+		*returns nullptr if the Simulator has not been initialized
 		*/
 		TD_API static TDPhysics* Get();
 		/**
@@ -42,25 +44,28 @@ namespace TD
 		*/
 		TD_API TDScene* CreateScene();
 
+		TD_API TDConstraint* CreateConstraint(TDActor* BodyA, TDActor* BodyB, const ConstraintDesc& desc);
 		///\brief Returns the current Config for the simulator.
 		///
 		///some config properties can be changed at runtime
 		static TDSimConfig* GetCurrentSimConfig();
-		
+
 		//Internal Functions
 		static void StartTimer(TDPerfCounters::Type timer);
 		static void EndTimer(TDPerfCounters::Type timer);
+		static void DrawDebugLine(glm::vec3 LineStart, glm::vec3 LineEnd, glm::vec3 Colour, float lifetime);
+		static void DrawDebugPoint(glm::vec3 pos, glm::vec3 colour, float Lifetime);
 		TDSolver* Solver = nullptr;
 		static Threading::TaskGraph* GetTaskGraph();
 	private:
 		TDPhysics();
 		~TDPhysics();
 		Threading::TaskGraph* TDTaskGraph = nullptr;
-		
+
 		std::vector<TDScene*> Scenes;
 		static TDPhysics* Instance;
 		TDSimConfig* CurrentSimConfig = nullptr;
-		
+
 	};
 
 }

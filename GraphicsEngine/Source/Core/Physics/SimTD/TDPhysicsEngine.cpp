@@ -7,12 +7,15 @@
 #include "Shapes/TDPlane.h"
 #include "TDSimConfig.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Utils/DebugDrawers.h"
+#include "../GenericConstraint.h"
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::initPhysics()
 {
 	//TDSolver
 	TDSimConfig* config = new TDSimConfig();
-	config->PerfCounterCallBack = (TDSimConfig::PrefCounterCallBack)&TimerCallbackHandler;
+	config->PerfCounterCallBack = (TDSimConfig::FPrefCounterCallBack)&TimerCallbackHandler;
+	config->DebugLineCallBack = (TDSimConfig::FDebugLineCallBack)&DebugLineCallbackHandler;
 	TDPhysics::CreatePhysics(TD_VERSION_NUMBER, config);
 	TDPhysics::Get()->StartUp();
 	Instance = this;
@@ -20,13 +23,24 @@ void TDPhysicsEngine::initPhysics()
 	TDRigidStatic* Actor = new TD::TDRigidStatic();
 	Actor->GetTransfrom()->SetPos(glm::vec3(0, 0, 0));
 	Actor->AttachShape(new TDPlane());
-	//TDPhysicsEngine::GetScene()->AddToScene(Actor);
+	TDPhysicsEngine::GetScene()->AddToScene(Actor);
 	DECLARE_TIMER_GROUP(GROUP_PhysicsEngine, "Physics Engine");
 	PerfManager::Get()->AddTimer("ResolveCollisions", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("ResolveConstraints", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("IntergrateScene", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("IntersectionTests", GROUP_PhysicsEngine);
 
+}
+ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, const ConstaintSetup& Setup)
+{
+	TD::ConstraintDesc desc;
+	desc.Type = TDConstraintType::Spring;
+	TDPhysics::Get()->CreateConstraint(A->GetActor(), B->GetActor(), desc);
+	return nullptr;
+}
+void TDPhysicsEngine::DebugLineCallbackHandler(glm::vec3 start, glm::vec3 end, glm::vec3 Colour, float lifetime)
+{
+	DebugDrawers::DrawDebugLine(start, end, Colour, false, lifetime);
 }
 
 void TDPhysicsEngine::TimerCallbackHandler(bool IsStart, TDPerfCounters::Type type)
@@ -102,8 +116,7 @@ bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, floa
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors)
 {
 	RaycastData data;
-	PlayScene->RayCastScene(startpos, direction, distance, &data);
-	return false;
+	return PlayScene->RayCastScene(startpos, direction, distance, &data);
 }
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors)
 {

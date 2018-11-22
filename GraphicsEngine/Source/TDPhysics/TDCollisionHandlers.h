@@ -39,7 +39,7 @@ namespace TD
 		static bool InvalidCollisonPair(CollisionHandlerArgs);
 		static bool CollideAABBAABB(TDAABB * A, TDAABB * b);
 	};
-#define InterSectionArgs TDShape* Shape,glm::vec3 Origin,glm::vec3 Dir,float distance
+#define InterSectionArgs TDShape* Shape,glm::vec3 Origin,glm::vec3 Dir,float distance,RaycastData* HitData
 	struct TDIntersectionHandlers
 	{
 		static bool IntersectSphere(InterSectionArgs);

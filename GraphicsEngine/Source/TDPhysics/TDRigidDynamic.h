@@ -23,13 +23,14 @@ namespace TD
 		
 
 		//Angular Motion		
-		TD_API float GetInertiaTensor();
-		TD_API void SetInertiaTensor(float tensor);
+		TD_API glm::mat4x4 GetInertiaTensor();
+		TD_API void SetInertiaTensor(glm::mat4x4 tensor);
 		TD_API glm::vec3 GetAngularVelocity();
+		
 		TD_API void SetAngularVelocity(glm::vec3 velocity);
 
 		TD_API void AddTorque(glm::vec3 Torque);
-		TD_API void AddForceAtPosition(glm::vec3 force);
+		TD_API void AddForceAtPosition(glm::vec3 pos, glm::vec3 force);
 		//Internal Functions
 		/**\brief Internal: the sum of velocity change this frame*/
 		glm::vec3 GetLinearVelocityDelta();
@@ -39,6 +40,7 @@ namespace TD
 		bool IsBodyAsleep()const;
 		bool IsAffectedByGravity()const { return UseGravity; };
 	private:
+		void ComputeInertiaTensor();
 		bool CheckSleep(glm::vec3 & value);
 		glm::vec3 DeltaLinearVel = glm::vec3();
 		glm::vec3 DeltaAngularVel = glm::vec3();
@@ -49,7 +51,7 @@ namespace TD
 		glm::vec3 LinearVelocity = glm::vec3();
 		//Angular
 		glm::vec3 AngularVel = glm::vec3();
-		float InertaTensor = 1.0f;
+		glm::mat4x4 InertaTensor;
 		float CachedsqSleepZeroThreshold = 0.0f;
 		float SleepTimer = 0.0f;
 		float SleepMaxTimer = 10.0f;

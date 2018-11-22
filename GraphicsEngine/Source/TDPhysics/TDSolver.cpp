@@ -1,22 +1,15 @@
 
 #include "TDSolver.h"
-#include "TDScene.h"
-#include "TDCollisionHandlers.h"
-#include "TDRigidDynamic.h"
-#include "TDPhysics.h"
-#include "TDSimConfig.h"
+#include "Constraints/TDConstraint.h"
 #include "TDBroadphase.h"
-#include <functional>
-#include "Utils/Threading.h"
-#include <algorithm>
-#include <iosfwd>
-#include <typeinfo>
-#include <ios>
-#include <iostream>
+#include "TDCollisionHandlers.h"
+#include "TDPhysics.h"
+#include "TDRigidDynamic.h"
+#include "TDScene.h"
+#include "TDSimConfig.h"
 #include <sstream>
 #define USE_LINEAR_PROJECTION 1
 #define USE_THREADED_COLLISION_DETECTION 0
-
 #define TEST_T 0
 namespace TD
 {
@@ -36,6 +29,7 @@ namespace TD
 #endif
 		for (int i = 0; i < scene->GetDynamicActors().size(); i++)
 		{
+
 			IntergrateActor(scene->GetDynamicActors()[i], dt, scene);
 		}
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
@@ -55,7 +49,7 @@ namespace TD
 			actor->UpdateSleepTimer(dt);
 			return;
 		}
-		glm::vec3 Veldelta = actor->GetLinearVelocityDelta();
+		glm::vec3 Veldelta = actor->GetLinearVelocityDelta() / actor->GetInvBodyMass();
 		if (actor->IsAffectedByGravity())
 		{
 			Veldelta += Scene->GetGravity();
@@ -66,12 +60,38 @@ namespace TD
 		const glm::vec3 startpos = actor->GetTransfrom()->GetPos();
 		actor->GetTransfrom()->SetPos(startpos + (BodyVelocity*dt));
 
-		glm::vec3 AVelDelta = actor->GetAngularVelocityDelta();
+		glm::vec3 AVelDelta = glm::vec4(actor->GetAngularVelocityDelta(), 0.0f)*actor->GetInertiaTensor();
 		glm::vec3 BodyAngVel = actor->GetAngularVelocity();
 		BodyAngVel += AVelDelta * dt;
-		actor->SetAngularVelocity(BodyAngVel);
+
+#if 0		
 		const glm::vec3 startRot = actor->GetTransfrom()->GetEulerRot();
 		actor->GetTransfrom()->SetQrot(glm::quat(startRot + (BodyAngVel*dt)));
+#else
+		float w = glm::length2(BodyAngVel);
+		// Integrate the rotation using closed form quaternion integrator
+		if (w != 0.0f)//need to protect the sqrt
+		{
+			w = glm::sqrt(w);
+			float maxW = 1e+7f;
+			if (w > maxW)
+			{
+				BodyAngVel = glm::normalize(BodyAngVel)* maxW;
+				w = maxW;
+			}
+			float v = dt * w * 0.5f;//in rads!
+			float s = glm::sin(v);
+			float q = glm::cos(v);
+			s /= w;
+
+			const glm::vec3 pqr = BodyAngVel * s;
+			glm::quat quatvel = glm::quat(pqr.x, pqr.y, pqr.z, 0.0f);
+			glm::quat result = quatvel * actor->GetTransfrom()->GetQuatRot();
+			result += actor->GetTransfrom()->GetQuatRot() * q;
+			actor->GetTransfrom()->SetQrot(glm::normalize(result));
+		}
+#endif
+		actor->SetAngularVelocity(BodyAngVel);
 		actor->UpdateSleepTimer(dt);
 		actor->ResetForceThisFrame();
 	}
@@ -93,7 +113,7 @@ namespace TD
 				}
 				NarrowPhasePairs.push_back(CollisionPair(Actor, Actorb));
 			}
-		}
+	}
 #else
 		for (int i = 0; i < scene->GetActors().size(); i++)
 		{
@@ -103,7 +123,7 @@ namespace TD
 		NarrowPhasePairs = Broadphase->NarrowPhasePairs;
 #endif
 		//printf(ReportbroadPhaseStats().c_str());
-	}
+}
 
 	void TDSolver::ResolveCollisions(TDScene* scene)
 	{
@@ -128,18 +148,25 @@ namespace TD
 				for (int i = StartingIndex; i < ThisBatchcount; i++)
 				{
 					ProcessCollisions(&NarrowPhasePairs[i]);
-		}
-	};
+				}
+			};
 			const int threadcount = std::min(TDPhysics::GetTaskGraph()->GetThreadCount(), (int)NarrowPhasePairs.size() / BatchSize + 1);
 			TDPhysics::GetTaskGraph()->RunTaskOnGraph(ProcessCollisionsFunc, threadcount);
 #else
 
 #endif
+#if TEST_T
+			for (int i = 0; i < NarrowPhasePairs.size(); i++)
+			{
+				NarrowPhasePairs[i].data.Reset();//reset before check collisions again
+				ProcessCollisions(&NarrowPhasePairs[i]);
+			}
+#endif
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{
 				ProcessResponsePair(&NarrowPhasePairs[i]);
 			}
-}
+		}
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::ResolveCollisions);
 #endif
@@ -188,7 +215,7 @@ namespace TD
 					depthest = i;
 				}
 			}
-				for (int i = 0; i < pair->data.ContactCount; i++)
+			for (int i = 0; i < pair->data.ContactCount; i++)
 			{
 				ProcessCollisionResponse(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()),
 					&pair->data, A->GetPhysicalMaterial(), B->GetPhysicalMaterial(), i);
@@ -203,11 +230,20 @@ namespace TD
 		RunPostFixup(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()), &pair->data);
 #endif
 	}
+
+	void TDSolver::ResolveConstraints(TDScene * scene)
+	{
+		for (int i = 0; i < scene->GetConstraints().size(); i++)
+		{
+			scene->GetConstraints()[i]->Resolve();
+		}
+	}
+
 	void TDSolver::RunPostFixup(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data)
 	{
-		
 		for (int i = 0; i < data->ContactCount; i++)
 		{
+			TDPhysics::DrawDebugPoint(data->ContactPoints[i], glm::vec3(0, 1, 0), 0.0f);
 			float invmassA = 0.0f;
 			if (A != nullptr)
 			{
@@ -227,11 +263,11 @@ namespace TD
 			const glm::vec3 Reporjections = data->Direction[i] * scalar * LinearProjectionPercent;
 			if (A != nullptr)
 			{
-				A->GetTransfrom()->SetPos(A->GetTransfrom()->GetPos() + (Reporjections * invmassA)/* / data->ContactCount*/);
+				A->GetTransfrom()->SetPos(A->GetTransfrom()->GetPos() + (Reporjections * invmassA) / data->ContactCount);
 			}
 			if (B != nullptr)
 			{
-				B->GetTransfrom()->SetPos(B->GetTransfrom()->GetPos() - (Reporjections * invmassB) /*/ data->ContactCount*/);
+				B->GetTransfrom()->SetPos(B->GetTransfrom()->GetPos() - (Reporjections * invmassB) / data->ContactCount);
 			}
 		}
 #endif
@@ -283,7 +319,7 @@ namespace TD
 		if (B != nullptr)
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - impluse * invmassB);
-		}
+	}
 #if TEST_T
 		RunPostFixup(A, B, data);
 #endif
@@ -323,5 +359,5 @@ namespace TD
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - FrictionImpluse * invmassB);
 		}
-	}
 }
+	}

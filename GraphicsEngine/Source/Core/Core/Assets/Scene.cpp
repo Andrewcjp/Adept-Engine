@@ -113,7 +113,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-#if 1
+#if 0
 	cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
 	cc->SetTriangleMeshAssetName("models\\Room1.obj");
@@ -238,7 +238,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
-	return;
+	//return;
 	go = CreateDebugSphere(nullptr);
 	cc = go->AttachComponent(new ColliderComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 15, 10));

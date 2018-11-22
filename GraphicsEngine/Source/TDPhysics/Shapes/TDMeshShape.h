@@ -58,6 +58,7 @@ namespace TD
 		bool PointInTriangle(const glm::vec3 & p);
 		bool TriangleSphere(TDSphere * s, glm::vec3 & out_Contact, float & depth);
 		glm::vec3 ClosestPoint(const glm::vec3 & p);
+		void DebugDraw();
 	};
 	struct Edge
 	{
