@@ -6,6 +6,8 @@
 #include "Utils/MemoryUtils.h"
 #include "TDSimConfig.h"
 #include "Utils/Threading.h"
+#include "Constraints/TDSpringJoint.h"
+#include "Constraints/TDDistanceJoint.h"
 namespace TD
 {
 	TDPhysics* TDPhysics::Instance = nullptr;
@@ -25,6 +27,17 @@ namespace TD
 		}
 	}
 
+	void TDPhysics::DrawDebugLine(glm::vec3 LineStart, glm::vec3 LineEnd, glm::vec3 Colour, float lifetime)
+	{
+		if (Get()->GetCurrentSimConfig()->DebugLineCallBack != nullptr)
+		{
+			Get()->GetCurrentSimConfig()->DebugLineCallBack(LineStart, LineEnd, Colour, lifetime);
+		}
+	}
+	void TDPhysics::DrawDebugPoint(glm::vec3 pos, glm::vec3 colour, float Lifetime)
+	{
+		DrawDebugLine(pos, pos + glm::vec3(0, 1, 0), colour, Lifetime);
+	}
 	Threading::TaskGraph * TDPhysics::GetTaskGraph()
 	{
 		return Instance->TDTaskGraph;
@@ -67,6 +80,7 @@ namespace TD
 		{
 			Solver->ResolveCollisions(Scenes[i]);
 			Solver->IntergrateScene(Scenes[i], deltaTime);
+			Scenes[i]->DebugRender();
 		}
 	}
 
@@ -89,6 +103,25 @@ namespace TD
 		TDScene* newscene = new TDScene();
 		Scenes.push_back(newscene);
 		return newscene;
+	}
+
+	TDConstraint * TDPhysics::CreateConstraint(TDActor * BodyA, TDActor * BodyB, const ConstraintDesc & desc)
+	{
+		if (BodyA->GetScene() != BodyB->GetScene() || BodyA->GetScene() == nullptr || BodyB->GetScene() == nullptr)
+		{
+			return nullptr;
+		}
+		TDConstraint* constaint;
+		if (desc.Type == TDConstraintType::Spring)
+		{
+			constaint =  new TDSpringJoint(BodyA, BodyB, desc);
+		}
+		else
+		{
+			constaint = new TDDistanceJoint(BodyA, BodyB, desc);
+		}
+		BodyA->GetScene()->AddConstraint(constaint);
+		return constaint;
 	}
 
 	TDSimConfig* TDPhysics::GetCurrentSimConfig()

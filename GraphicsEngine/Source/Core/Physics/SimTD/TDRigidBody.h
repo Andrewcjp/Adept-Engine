@@ -25,6 +25,7 @@ public:
 	CORE_API void InitBody();
 	void SetPositionAndRotation(glm::vec3 pos, glm::quat rot);
 	CORE_API void SetGravity(bool state);
+	TD::TDActor* GetActor();;
 private:
 	Transform m_transform;
 	TD::TDRigidDynamic* Actor = nullptr;

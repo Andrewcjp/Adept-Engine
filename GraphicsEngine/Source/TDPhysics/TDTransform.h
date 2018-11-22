@@ -19,7 +19,7 @@ namespace TD
 
 		void AddRotation(glm::vec3& rot);
 		void RotateAboutAxis(glm::vec3& axis, float amt);
-		void SetQrot(const glm::quat& val);
+		TD_API void SetQrot(const glm::quat& val);
 		void SetParent(TDTransform* Parent);
 		void TranslatePos(const glm::vec3 & pos);
 		void MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up);

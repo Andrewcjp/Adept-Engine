@@ -9,3 +9,4 @@
 #include "TDRigidDynamic.h"
 #include "TDRigidStatic.h"
 #include "TDTransform.h"
+#include "Constraints/TDConstraint.h"

@@ -103,6 +103,10 @@ namespace TD
 		}
 		void Reset();
 	};
+	struct RayCastPayload
+	{
+
+	};
 	class TDActor;
 	struct CollisionPair
 	{
@@ -114,5 +118,20 @@ namespace TD
 		TDActor* first = nullptr;
 		TDActor* second = nullptr;
 		ContactData data;
+	};
+	namespace TDConstraintType
+	{
+		enum Type
+		{
+			Distance,
+			Spring,
+			Motor,
+			Limit
+		};
+	}
+	struct ConstraintDesc
+	{
+		float distance = 0.0f;
+		TDConstraintType::Type Type;
 	};
 };

@@ -221,8 +221,36 @@ namespace TD
 		return false;
 	}
 
-	bool TD::TDIntersectionHandlers::IntersectPlane(InterSectionArgs)
+	bool TD::TDIntersectionHandlers::IntersectPlane(InterSectionArgs)//TDShape* Shape,glm::vec3 Origin,glm::vec3 Dir,float distance
 	{
+		TDPlane* plane = TDShape::CastShape<TDPlane>(Shape);
+
+		float nd = glm::dot(Dir, plane->Normal);
+		float pn = glm::dot(Origin, plane->Normal);
+
+		// nd must be negative, and not 0
+		// if nd is positive, the ray and plane normals
+		// point in the same direction. No intersection.
+		if (nd >= 0.0f)
+		{
+			return false;
+		}
+
+		float t = (plane->PlaneDistance - pn) / nd;
+
+		// t must be positive
+		if (t >= 0.0f)
+		{
+			if( t <= distance)
+			{
+				HitData->Normal = glm::vec3(plane->Normal);
+				HitData->Point = Origin + Dir * t;
+				HitData->Distance = t;
+				HitData->BlockingHit = true;
+				return true;
+			}			
+		}
+
 		return false;
 	}
 

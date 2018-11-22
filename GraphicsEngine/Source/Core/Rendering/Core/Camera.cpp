@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Core/Transform.h"
+#include "Editor/EditorWindow.h"
 
 Camera::Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar)
 {
@@ -176,7 +177,7 @@ void Camera::SetMouseRotation(float x, float y)
 	// Up vector
 	up = glm::cross(right, forward);
 }
-#include "Editor/EditorWindow.h"
+
 void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outrayDirection, glm::vec3&  outRayorign)
 {
 	float x = (2.0f * screenX) / BaseWindow::GetWidth() - 1.0f;

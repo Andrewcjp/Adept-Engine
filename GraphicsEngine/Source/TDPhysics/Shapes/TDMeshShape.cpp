@@ -2,6 +2,7 @@
 #include "TDMeshShape.h"
 #include "TDPlane.h"
 #include "TDSphere.h"
+#include "TDPhysics.h"
 
 namespace TD
 {
@@ -84,7 +85,7 @@ namespace TD
 	}
 	bool TDMeshShape::MeshSphere(TDSphere * s, ContactData* contactbuffer)
 	{
-		
+
 		//normal is triangles normal!
 		for (int i = 0; i < Mesh->GetTriangles().size(); i++)
 		{
@@ -93,6 +94,9 @@ namespace TD
 			if (Mesh->GetTriangles()[i]->TriangleSphere(s, ContactPoint, Depth))
 			{
 				contactbuffer->Contact(ContactPoint, Mesh->GetTriangles()[i]->Normal, Depth);
+#if !BUILD_SHIPPING
+				Mesh->GetTriangles()[i]->DebugDraw();
+#endif
 				//return true;
 			}
 
@@ -101,7 +105,6 @@ namespace TD
 	}
 	bool TDTriangle::TriangleSphere(TDSphere * s, glm::vec3 & out_Contact, float & depth)
 	{
-		
 		glm::vec3 closest = ClosestPoint(s->GetPos());
 		out_Contact = closest;
 		float magSq = glm::length2(closest - s->GetPos());
@@ -138,6 +141,15 @@ namespace TD
 		}
 
 		return c3;
+	}
+
+	void TDTriangle::DebugDraw()
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			const int next = (i + 1) % 3;
+			TDPhysics::DrawDebugLine(Points[i], Points[next], glm::vec3(1), 0.0f);
+		}
 	}
 
 	TDMesh::TDMesh(const TDTriangleMeshDesc& desc)

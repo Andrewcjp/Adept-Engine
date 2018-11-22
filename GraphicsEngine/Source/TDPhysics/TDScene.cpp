@@ -6,6 +6,8 @@
 #include "TDPhysics.h"
 #include "TDSolver.h"
 #include "TDBroadphase.h"
+#include "TDActor.h"
+#include "Shapes/TDAABB.h"
 namespace TD
 {
 	TDScene::TDScene()
@@ -18,7 +20,15 @@ namespace TD
 	{
 		SafeDelete(AcclerationTree);
 	}
-
+#if !BUILD_FULLRELEASE
+	void TDScene::DebugRender()
+	{
+		for (int i = 0; i < SceneActors.size(); i++)
+		{
+			SceneActors[i]->AABB->DebugRender();
+		}
+	}
+#endif
 	void TDScene::AddToScene(TDActor * Actor)
 	{
 		Actor->Init();
@@ -32,10 +42,18 @@ namespace TD
 		TDPhysics::Get()->Solver->Broadphase->AddToPhase(Actor);
 	}
 
+	void TDScene::AddConstraint(TDConstraint* con)
+	{
+		Constraints.push_back(con);
+	}
+
 	template<class T>
-	void RemoveFromVector(std::vector<T*>& vector, T* target) {
-		for (int i = 0; i < vector.size(); i++) {
-			if (vector[i] == target) {
+	void RemoveFromVector(std::vector<T*>& vector, T* target)
+	{
+		for (int i = 0; i < vector.size(); i++)
+		{
+			if (vector[i] == target)
+			{
 				vector.erase(vector.begin() + i);
 				return;
 			}
@@ -49,7 +67,7 @@ namespace TD
 		if (Dynamic != nullptr)
 		{
 			RemoveFromVector(DynamicActors, Dynamic);
-		}	
+		}
 		TDPhysics::Get()->Solver->Broadphase->RemoveFromPhase(Actor);
 	}
 
@@ -58,11 +76,11 @@ namespace TD
 #if !BUILD_FULLRELEASE
 		TDPhysics::StartTimer(TDPerfCounters::IntersectionTests);
 #endif
-		RayCastSceneInternal(Origin, Dir, Distance, HitData);
+		bool result = RayCastSceneInternal(Origin, Dir, Distance, HitData);
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::IntersectionTests);
 #endif
-		return false;
+		return result;
 	}
 
 	bool TDScene::RayCastSceneInternal(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)
@@ -79,7 +97,7 @@ namespace TD
 				DebugEnsure(currentshape);
 				IntersectionMethod con = IntersectionMethodTable[currentshape->GetShapeType()];
 				DebugEnsure(con);
-				Hit = con(currentshape, Origin, Dir, Distance);
+				Hit = con(currentshape, Origin, Dir, Distance, HitData);
 				if (Hit)
 				{
 					return true;
