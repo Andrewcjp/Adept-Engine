@@ -7,7 +7,6 @@
 #if PHYSX_ENABLED
 #include "Physics/Physx/PhysxRigidbody.h"
 #include "Physics/Physx/PhysxEngine.h"
-#include "Physics/Physx/PhysxCollider.h"
 #endif
 #if TDSIM_ENABLED
 #include "Physics/SimTD/TDRigidBody.h"

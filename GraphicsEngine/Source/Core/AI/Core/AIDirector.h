@@ -12,6 +12,7 @@ namespace EAIDirectorDifficulty
 }
 class Scene;
 class GameObject;
+class SpawnMarker;
 class AIDirector
 {
 public:
@@ -21,9 +22,11 @@ public:
 	CORE_API virtual void Tick();
 	CORE_API GameObject* GetPlayerObject();
 	CORE_API void SetPlayer(GameObject* player);
+	std::vector<SpawnMarker*> spawnmarkers;
 protected:
 	Scene* scene = nullptr;
 	GameObject* Player = nullptr;
+	
 
 };
 

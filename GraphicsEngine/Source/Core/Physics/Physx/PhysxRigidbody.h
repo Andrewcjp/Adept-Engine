@@ -25,6 +25,7 @@ public:
 
 	physx::PxRigidActor* GetActor() { return CommonActorPtr; }
 	void InitBody();
+	float GetMass();
 private:
 	std::vector<Collider*> AttachedColliders;
 	physx::PxTriangleMesh * GenerateTriangleMesh(std::string Filename, glm::vec3 scale);

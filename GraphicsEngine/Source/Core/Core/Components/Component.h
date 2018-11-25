@@ -3,6 +3,8 @@
 #include "Physics/PhysicsTypes.h"
 
 struct InspectorProperyGroup;
+class Scene;
+class GameObject;
 class Component
 {
 public:
@@ -12,7 +14,7 @@ public:
 	CORE_API virtual void BeginPlay();
 	CORE_API virtual void Update(float delta);
 	CORE_API virtual void FixedUpdate(float delta);
-	CORE_API class GameObject* GetOwner();
+	CORE_API GameObject* GetOwner();
 	CORE_API virtual void OnTransformUpdate();
 	CORE_API virtual void SceneInitComponent() {};
 	CORE_API virtual void ProcessSerialArchive(class Archive* Arch);
@@ -30,7 +32,7 @@ protected:
 	void Internal_SetOwner(GameObject* ptr);
 	bool DoesUpdate = true;
 	bool DoesFixedUpdate = false;
-	class Scene* GetOwnerScene();
+	CORE_API Scene* GetOwnerScene();
 private:
 	GameObject* Owner = nullptr;	
 	friend GameObject;

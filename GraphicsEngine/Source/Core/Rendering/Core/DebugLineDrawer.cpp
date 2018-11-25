@@ -30,6 +30,7 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	{
 		instance = this;
 	}
+	ResizeVertexStream(CurrentVertStreamLength);
 }
 
 DebugLineDrawer::~DebugLineDrawer()
@@ -44,26 +45,8 @@ void DebugLineDrawer::GenerateLines()
 	if (Lines.size() == 0)
 	{
 		return;
-	}	
-	if (RegenNeeded || true)
-	{
-		RegenerateVertBuffer();
-		RegenNeeded = false;
 	}
-	else
-	{
-		int firstDirtyIndex = (int)Lines.size();
-		for (int i = 0; i < Lines.size(); i++)
-		{
-			if (Lines[i].NewLine)
-			{
-				firstDirtyIndex = i;
-				CreateLineVerts(Lines[i]);
-				Lines[i].NewLine = false;
-			}
-		}
-		UpdateLineBuffer(firstDirtyIndex);
-	}
+	RegenerateVertBuffer();
 	ClearLines();
 }
 
@@ -72,8 +55,9 @@ void DebugLineDrawer::UpdateLineBuffer(int offset)
 	//if (offset != Lines.size())
 	{
 		//ensure(Verts.size() < CurrentMaxVerts);
-		VertsOnGPU = Verts.size();		
-		VertexBuffer->UpdateVertexBuffer(Verts.data(), sizeof(VERTEX) * Verts.size());
+		VertsOnGPU = GetArraySize();
+		VertexBuffer->UpdateVertexBuffer(VertArray, sizeof(VERTEX) * GetArraySize());
+		//VertexBuffer->UpdateVertexBuffer(Verts.data(), sizeof(VERTEX) * 10);
 	}
 }
 
@@ -82,17 +66,20 @@ void DebugLineDrawer::CreateLineVerts(WLine& line)
 	VERTEX AVert = {};
 	AVert.pos = line.startpos;
 	AVert.colour = line.colour;
-	Verts.push_back(AVert);
+	//Verts.push_back(AVert);
+	InsertVertex(AVert);
 
 	VERTEX BVert = {};
 	BVert.pos = line.endpos;
 	BVert.colour = line.colour;
-	Verts.push_back(BVert);
+	InsertVertex(BVert);
+	//Verts.push_back(BVert);
 }
 
 void DebugLineDrawer::RegenerateVertBuffer()
 {
-	Verts.clear();
+	//	Verts.clear();
+	ResetVertexStream();
 	for (int i = 0; i < Lines.size(); i++)
 	{
 		CreateLineVerts(Lines[i]);
@@ -107,6 +94,10 @@ void DebugLineDrawer::RenderLines()
 
 void DebugLineDrawer::ReallocBuffer(int NewSize)
 {
+	if (NewSize == maxSize)
+	{
+		return;
+	}
 	ensure(NewSize < maxSize);
 	EnqueueSafeRHIRelease(VertexBuffer);
 	CurrentMaxVerts = NewSize;
@@ -147,13 +138,13 @@ void DebugLineDrawer::FlushDebugLines()
 
 void DebugLineDrawer::ClearLines()
 {
-	for (int i = 0; i < Lines.size(); i++)
+	for (int i = (int)Lines.size() - 1; i >= 0; i--)
 	{
-		if (Lines[i].Time > 0 || Lines[i].Persistent)
+		if (Lines[i].Time > 0.0f || Lines[i].Persistent)
 		{
 			Lines[i].Time -= PerfManager::GetDeltaTime();
 		}
-		else
+		if (Lines[i].Time <= 0.0f)
 		{
 			Lines.erase(Lines.begin() + i);
 			RegenNeeded = true;
@@ -161,11 +152,53 @@ void DebugLineDrawer::ClearLines()
 	}
 }
 
+void DebugLineDrawer::InsertVertex(VERTEX v)
+{
+	if (InsertPtr < CurrentVertStreamLength)
+	{
+		VertArray[InsertPtr] = v;
+		InsertPtr++;
+	}
+	else
+	{
+		__debugbreak();
+	}
+}
+
+void DebugLineDrawer::ResizeVertexStream(int newsize)
+{
+	if (CurrentVertStreamLength == newsize)
+	{
+		return;
+	}
+	VERTEX* newarray = new VERTEX[newsize];
+	if (VertArray != nullptr)
+	{
+		memcpy(newarray, VertArray, CurrentVertStreamLength);
+		delete[] VertArray;
+	}
+	VertArray = newarray;
+	CurrentVertStreamLength = newsize;
+}
+
+void DebugLineDrawer::ResetVertexStream()
+{
+	InsertPtr = 0;
+}
+
 void DebugLineDrawer::AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time)
 {
 	if (Lines.size() * 2 >= CurrentMaxVerts)
 	{
-		ReallocBuffer((int)Lines.size() * 2 + 100);
+		const int newbuffersize = (int)Lines.size() * 2 + 100;
+		if (newbuffersize >= maxSize)
+		{
+			ReallocBuffer(maxSize);
+			ResizeVertexStream(maxSize);
+			return;
+		}
+		ReallocBuffer(newbuffersize);
+		ResizeVertexStream(newbuffersize);
 	}
 	WLine l = {};
 	l.startpos = Start;

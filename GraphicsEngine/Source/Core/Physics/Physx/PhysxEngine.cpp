@@ -18,13 +18,15 @@ physx::PxFilterFlags CollisionFilterShader(
 	retPairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS | PxPairFlag::eNOTIFY_TOUCH_FOUND;
 	return PxFilterFlag::eDEFAULT;
 }
+
 PhysxEngine * PhysxEngine::Get()
 {
 	return Engine::GetPhysEngineInstance();
 }
+
 void PhysxEngine::initPhysics()
 {
-	PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
+	//PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 #if ENABLEPVD
 	gPvd = PxCreatePvd(*gFoundation);

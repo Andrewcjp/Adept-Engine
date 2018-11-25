@@ -1,4 +1,3 @@
-
 #include "TDSolver.h"
 #include "Constraints/TDConstraint.h"
 #include "TDBroadphase.h"
@@ -8,6 +7,7 @@
 #include "TDScene.h"
 #include "TDSimConfig.h"
 #include <sstream>
+
 #define USE_LINEAR_PROJECTION 1
 #define USE_THREADED_COLLISION_DETECTION 0
 #define TEST_T 0
@@ -113,7 +113,7 @@ namespace TD
 				}
 				NarrowPhasePairs.push_back(CollisionPair(Actor, Actorb));
 			}
-	}
+		}
 #else
 		for (int i = 0; i < scene->GetActors().size(); i++)
 		{
@@ -123,7 +123,7 @@ namespace TD
 		NarrowPhasePairs = Broadphase->NarrowPhasePairs;
 #endif
 		//printf(ReportbroadPhaseStats().c_str());
-}
+	}
 
 	void TDSolver::ResolveCollisions(TDScene* scene)
 	{
@@ -319,7 +319,7 @@ namespace TD
 		if (B != nullptr)
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - impluse * invmassB);
-	}
+		}
 #if TEST_T
 		RunPostFixup(A, B, data);
 #endif
@@ -359,5 +359,5 @@ namespace TD
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - FrictionImpluse * invmassB);
 		}
-}
 	}
+}

@@ -45,9 +45,16 @@ private:
 	};
 	bool RegenNeeded = true;
 	std::vector<VERTEX> Verts;
-	const int maxSize = 100000;
+	const int maxSize = 80000;
 	int CurrentMaxVerts = 100;
 	bool Is2DOnly = false;
 	int EraseIndex = 0;
+	VERTEX* VertArray = nullptr;
+	int CurrentVertStreamLength = 10;
+	void InsertVertex(VERTEX v);
+	int InsertPtr = 0;
+	void ResizeVertexStream(int newsize);
+	void ResetVertexStream();
+	int GetArraySize() { return InsertPtr; }
 };
 

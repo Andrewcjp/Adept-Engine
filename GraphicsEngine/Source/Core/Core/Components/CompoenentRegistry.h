@@ -16,6 +16,7 @@ public:
 		MeshComp,
 		GrassPatchComp,
 		ColliderComp,
+		SpawnMarkerComp,
 		Limit
 	};
 	

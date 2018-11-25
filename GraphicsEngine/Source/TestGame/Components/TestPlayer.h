@@ -13,8 +13,10 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
-	
+	RigidbodyComponent* GetRBody() { return RB; }
 	GameObject* CameraObject = nullptr;
+	bool GetIsGrounded() const { return IsGrounded; }
+	glm::vec3 ExtraVel = glm::vec3();
 private:
 	void CheckForGround();
 	void UpdateMovement(float delta);

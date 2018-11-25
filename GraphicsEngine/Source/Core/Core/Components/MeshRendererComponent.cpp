@@ -30,7 +30,7 @@ void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)
 
 void MeshRendererComponent::Render(bool DepthOnly, RHICommandList* list)
 {
-	if (m_mesh != nullptr)
+	if (m_mesh != nullptr && IsVisible)
 	{
 		m_mesh->Render(list, !DepthOnly);
 	}
@@ -60,6 +60,11 @@ void MeshRendererComponent::SetMaterial(Material * mat, int index)
 	{
 		m_mesh->SetMaterial(mat, index);
 	}
+}
+
+void MeshRendererComponent::SetVisiblity(bool state)
+{
+	IsVisible = state;
 }
 
 void MeshRendererComponent::BeginPlay()

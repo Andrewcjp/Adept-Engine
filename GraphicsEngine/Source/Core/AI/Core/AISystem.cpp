@@ -12,7 +12,7 @@ AISystem::AISystem()
 	CurrentMode = EAINavigationMode::DStarLTE;
 	mesh = new NavigationMesh();
 	BTManager = new BehaviourTreeManager();
-	Director = Engine::GetGame()->CreateAIDirector();
+
 	DebugMode = EAIDebugMode::PathOnly;
 }
 
@@ -24,7 +24,19 @@ AISystem::~AISystem()
 
 void AISystem::SetupForScene(Scene* newscene)
 {
-	Director->SetScene(newscene);
+	SceneStart();
+	Director->SetScene(newscene);	
+}
+
+void AISystem::SceneStart()
+{
+	Director = Engine::GetGame()->CreateAIDirector();
+}
+
+void AISystem::SceneEnd()
+{
+	SafeDelete(Director);
+	BTManager->Reset();
 }
 
 void AISystem::StartUp()
@@ -80,7 +92,9 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 
 void AISystem::GenerateMesh()
 {
+#if TDSIM_ENABLED
 	return;
+#endif
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
 	mesh->Plane = n->GetPlane(-17);

@@ -199,28 +199,7 @@ void NavigationMesh::run(std::vector<glm::vec3>& path)
 
 void NavigationMesh::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 {
-#if 0
-	float CurrentPoint = FloatMAX;
-	for (int i = 0; i < Plane->NavPoints.size(); i++)
-	{
-		const float newdist = glm::distance2(Plane->NavPoints[i]->GetPos(Plane), Origin);
-		if (newdist < CurrentPoint)
-		{
-			CurrentPoint = newdist;
-			startnode = Plane->NavPoints[i];
-		}
-	}
-	CurrentPoint = FloatMAX;
-	for (int i = 0; i < Plane->NavPoints.size(); i++)
-	{
-		const float newdist = glm::distance2(Plane->NavPoints[i]->GetPos(Plane), Target);
-		if (newdist < CurrentPoint)
-		{
-			CurrentPoint = newdist;
-			goalnode = Plane->NavPoints[i];
-		}
-	}
-#endif
+
 	Plane->ResolvePositionToNode(Target, &goalnode);
 	Plane->ResolvePositionToNode(Origin, &startnode);
 	//DebugDrawers::DrawDebugSphere(Origin, 2, glm::vec3(1), 16, false, 100000);

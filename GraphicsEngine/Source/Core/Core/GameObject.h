@@ -28,11 +28,12 @@ public:
 	CORE_API void FixedUpdate(float delta);
 	CORE_API void Update(float delta);
 	CORE_API void BeginPlay();
-
+	CORE_API float GetMass();
 	void Render(bool ignoremat, RHICommandList* list);
 
 	EMoblity GetMobility();
 	Mesh* GetMesh();
+	MeshRendererComponent* GetMeshRenderer() const{ return m_MeshRenderer; }
 	std::string GetName() { return Name; }
 	CORE_API RigidBody* GetRigidbody();
 	void SetName(std::string name) { Name = name; }
@@ -75,6 +76,7 @@ public:
 	{
 		return AudioId;		
 	}
+	void OnRemoveFromScene();
 private:
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);
@@ -92,6 +94,7 @@ private:
 	std::vector<GameObject*> Children;
 #if WITH_EDITOR
 	virtual std::vector<InspectorProperyGroup> GetInspectorFields() override;
+	
 #endif
 	Scene* OwnerScene;
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;

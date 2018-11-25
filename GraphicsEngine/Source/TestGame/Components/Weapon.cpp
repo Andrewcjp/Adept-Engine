@@ -2,8 +2,62 @@
 #include "Projectile.h"
 #include "Audio/AudioEngine.h"
 #include "TestPlayer.h"
-Weapon::Weapon()
-{}
+
+
+Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player)
+{
+	if (T == Rifle)
+	{
+		CurrentSettings.FireDelay = 0.135f;
+	}
+	else if (T == ShotGun)
+	{
+		CurrentSettings.FireDelay = 0.350f;
+		CurrentSettings.PelletCount = 5;
+	}
+	else if (T == RailGun)
+	{
+		CurrentSettings.FireDelay = 0.850f;
+	}
+	Player = player;
+	CurrentWeaponType = T;
+	CreateModel(scene, player->CameraObject);
+}
+
+void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
+{
+	GameObject* go = new GameObject("Gun Test");
+	Material* mat = Material::GetDefaultMaterial();
+	go->GetTransform()->SetPos(glm::vec3(0, 2, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	WeaponModel = go;
+	WeaponModel->GetTransform()->SetParent(cameraobj->GetTransform());
+	if (CurrentWeaponType == WeaponType::Rifle)
+	{
+		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Weapons\\Rifle\\Textures\\Variation 06\\Rifle_06_Albedo.png"));
+		MeshLoader::FMeshLoadingSettings set;
+		set.FlipUVs = true;
+		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Weapons\\Rifle\\Rifle.fbx", set), mat));
+		WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -1, 2.5));
+		WeaponModel->GetTransform()->SetScale(glm::vec3(0.5f));
+	}
+	else if (CurrentWeaponType == WeaponType::ShotGun)
+	{
+
+	}
+	else if (CurrentWeaponType == WeaponType::RailGun)
+	{
+		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Weapons\\Heavy\\Textures\\Variation 08\\Heavy_08_Albedo.png"));
+		MeshLoader::FMeshLoadingSettings set;
+		set.FlipUVs = true;
+		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Weapons\\Heavy\\Heavy.fbx", set), mat));
+		WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -2, 3));//z,y,x
+		WeaponModel->GetTransform()->SetScale(glm::vec3(0.4f));
+	}
+
+	s->AddGameobjectToScene(go);
+}
 
 Weapon::~Weapon()
 {}
@@ -45,13 +99,14 @@ void Weapon::Fire()
 	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
 	GameObject::FinishGameObjectSpawn(newgo);
 	CurrentCoolDown = CurrentSettings.FireDelay;
+	OnFire();
 }
 
-void Weapon::SetWeaponModel(GameObject * Model, GameObject* cameraobj)
+void Weapon::SetState(bool state)
 {
-	WeaponModel = Model;
-	WeaponModel->GetTransform()->SetParent(cameraobj->GetTransform());
-	WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -1, 2.5));
-	WeaponModel->GetTransform()->SetScale(glm::vec3(0.5f));
-	//WeaponModel->SetPosition(CurrentSettings.WeaponRelativePos);
+	if (WeaponModel->GetMeshRenderer() != nullptr)
+	{
+		WeaponModel->GetMeshRenderer()->SetVisiblity(state);
+	}
 }
+
