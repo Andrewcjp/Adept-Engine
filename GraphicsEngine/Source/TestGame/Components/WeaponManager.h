@@ -1,6 +1,7 @@
 #pragma once
 const int MAX_WEAPON_COUNT = 3;
 class Weapon;
+class MeleeWeapon;
 class WeaponManager :public Component
 {
 public:
@@ -12,6 +13,11 @@ public:
 	Weapon* GetCurrentWeapon();
 	void SwitchWeaponUp(bool Direction);
 	void SwitchWeapon(int index);
+	void TryToMelee();
+	MeleeWeapon* Melee = nullptr;
+
+	virtual void BeginPlay() override;
+
 private:
 	
 	void Update(float delta) override;

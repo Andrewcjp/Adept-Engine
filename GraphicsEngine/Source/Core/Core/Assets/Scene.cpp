@@ -8,6 +8,7 @@
 #include "Core/Components/MeshRendererComponent.h"
 #include "Core/Components/RigidbodyComponent.h"
 #include "Core/Game/Game.h"
+#include "AI/Core/SpawnMarker.h"
 
 Scene::Scene(bool EditorScene)
 {
@@ -21,6 +22,7 @@ Scene::Scene(bool EditorScene)
 
 Scene::~Scene()
 {
+	IsDestruction = true;
 	Lights.clear();//Scene Does not own these objects
 	MemoryUtils::DeleteVector(SceneObjects);
 	SafeRHIRefRelease(LightingData.SkyBox);
@@ -113,7 +115,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-#if 0
+#if 1
 	cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
 	cc->SetTriangleMeshAssetName("models\\Room1.obj");
@@ -238,7 +240,11 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
-	//return;
+	go = new GameObject("spawn");
+	go->GetTransform()->SetPos(glm::vec3(50, 0, -5));
+	go->AttachComponent(new SpawnMarker());
+	AddGameobjectToScene(go);
+	return;
 	go = CreateDebugSphere(nullptr);
 	cc = go->AttachComponent(new ColliderComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 15, 10));
@@ -292,10 +298,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
+			}
 		}
-	}
 #endif
-}
+	}
 
 void Scene::RemoveCamera(Camera * Cam)
 {
@@ -334,13 +340,14 @@ void Scene::RemoveLight(Light * Light)
 
 void Scene::RemoveGameObject(GameObject* object)
 {
+	object->OnRemoveFromScene();
 	DeferredRemoveQueue.push_back(object);
 }
 
 void Scene::EndScene()
 {
 	CurrentGameMode->EndPlay();
-	AISystem::Get()->SetupForScene(nullptr);
+	AISystem::Get()->SceneEnd();
 	IsRunning = false;
 }
 

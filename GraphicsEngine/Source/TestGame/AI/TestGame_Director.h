@@ -34,6 +34,7 @@ public:
 	TestGame_Director();
 	~TestGame_Director();
 	void Tick() override;
+	glm::vec3 GetSpawnPos();
 	void NotifySpawningPoolDestruction();
 	GameObject* SpawnAI(glm::vec3 SpawnPos, EAIType::Type type);
 	GameObject * CreateAI(glm::vec3 pos);

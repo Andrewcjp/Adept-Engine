@@ -2,7 +2,6 @@
 #if PHYSX_ENABLED
 #include "PhysxRigidbody.h"
 #include "PhysxEngine.h"
-#include "PhysxCollider.h"
 #include "Physics/PhysicsTypes.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Engine.h"
@@ -282,5 +281,13 @@ void PhysxRigidbody::InitBody()
 	UpdateBodyState();
 	CommonActorPtr->userData = this;
 	PhysxEngine::GetPlayScene()->addActor(*CommonActorPtr);
+}
+float PhysxRigidbody::GetMass()
+{
+	if (Dynamicactor == nullptr)
+	{
+		return 1.0f;
+	}
+	return Dynamicactor->getMass();
 }
 #endif

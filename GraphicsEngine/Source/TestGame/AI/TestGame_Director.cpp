@@ -1,15 +1,16 @@
-
 #include "TestGame_Director.h"
-#include "Core/GameObject.h"
-#include "DemonImp.h"
 #include "AI/Core/AIController.h"
-#include "Core/Components/RigidbodyComponent.h"
 #include "Core/Components/ColliderComponent.h"
-#include "DemonRiotShield.h"
-#include "DemonOrb.h"
-#include "SkullChaser.h"
 #include "Core/Components/MeshRendererComponent.h"
-#include "../Components/Health.h"
+#include "Core/Components/RigidbodyComponent.h"
+#include "DemonImp.h"
+#include "DemonOrb.h"
+#include "DemonRiotShield.h"
+#include "SkullChaser.h"
+#include "Source/TestGame/Components/Health.h"
+#include "AI/Core/AIDirector.h"
+#include "Core/Components/Component.h"
+#include "AI/Core/SpawnMarker.h"
 
 TestGame_Director::TestGame_Director()
 {}
@@ -22,16 +23,21 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		//SpawnAI(glm::vec3(50, 10, 0), EAIType::Imp);
+		SpawnAI(glm::vec3(50, 10, 0), EAIType::Imp);
 		once = true;
 	}
+}
+
+glm::vec3 TestGame_Director::GetSpawnPos()
+{
+	return spawnmarkers[0]->GetOwner()->GetPosition();
 }
 
 void TestGame_Director::NotifySpawningPoolDestruction()
 {
 	//lock the area
 	//Spawn A Wave!
-	
+	SpawnAI(GetSpawnPos(), EAIType::Imp);
 }
 
 GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
@@ -64,6 +70,7 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 GameObject* TestGame_Director::SpawnImp(glm::vec3 pos)
 {
 	GameObject* newImp = CreateAI(pos);
+	newImp->SetName("IMP");
 	newImp->AttachComponent(new DemonImp());
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));

@@ -2,6 +2,7 @@
 #include "Editor/EditorWindow.h"
 #include "Core/Input/Input.h"
 #include "Weapon.h"
+#include "MeleeWeapon.h"
 
 WeaponManager::WeaponManager()
 {}
@@ -13,6 +14,15 @@ WeaponManager::~WeaponManager()
 void WeaponManager::InitComponent()
 {
 
+}
+
+void WeaponManager::BeginPlay()
+{
+	for (int i = 0; i < MAX_WEAPON_COUNT; i++)
+	{
+		Weapons[i]->SetState(false);
+	}
+	Weapons[0]->SetState(true);
 }
 
 Weapon * WeaponManager::GetCurrentWeapon()
@@ -39,6 +49,11 @@ void WeaponManager::SwitchWeapon(int index)
 	}
 }
 
+void WeaponManager::TryToMelee()
+{
+	Melee->Fire();
+}
+
 void WeaponManager::Update(float delta)
 {
 #if WITH_EDTIOR
@@ -53,10 +68,18 @@ void WeaponManager::Update(float delta)
 	}
 	if (Input::GetMouseWheelUp())
 	{
+		Weapons[CurrentIndex]->SetState(false);
 		SwitchWeaponUp(true);
+		Weapons[CurrentIndex]->SetState(true);
 	}
 	if (Input::GetMouseWheelDown())
 	{
+		Weapons[CurrentIndex]->SetState(false);
 		SwitchWeaponUp(false);
+		Weapons[CurrentIndex]->SetState(true);
+	}
+	if (Input::GetKeyDown('F'))
+	{
+		Melee->Fire();
 	}
 }

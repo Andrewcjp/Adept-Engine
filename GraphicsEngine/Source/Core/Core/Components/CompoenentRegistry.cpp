@@ -8,6 +8,7 @@
 #include "Core/Engine.h"
 #include "RigidbodyComponent.h"
 #include "ColliderComponent.h"
+#include "AI/Core/SpawnMarker.h"
 CompoenentRegistry::CompoenentRegistry()
 {
 	Engine::CompRegistry = this;
@@ -18,8 +19,7 @@ CompoenentRegistry::CompoenentRegistry()
 }
 
 CompoenentRegistry::~CompoenentRegistry()
-{
-}
+{}
 void CompoenentRegistry::RegisterComponent(std::string name, int id)
 {
 	ComponentNameMap.emplace(id, name);
@@ -67,6 +67,8 @@ Component* CompoenentRegistry::Internal_CreateBaseComponent(BaseComponentTypes i
 	case ColliderComp:
 		return new ColliderComponent();
 		break;
+	case SpawnMarkerComp:
+		return new SpawnMarker();
 	}
 	return nullptr;
 }

@@ -1,21 +1,25 @@
 #include "TestGameGameMode.h"
-#include "Core/Components/Core_Components_inc.h"
-#include "Components/TestPlayer.h"
-#include "Components/Weapon.h"
-#include "AI/SkullChaser.h"
-#include "Components/Health.h"
-#include "Components/Projectile.h"
-#include "Components/WeaponManager.h"
 #include "AI/Core/AIController.h"
 #include "AI/Core/AISystem.h"
+#include "AI/SkullChaser.h"
 #include "AI/TestGame_Director.h"
+#include "Components/Health.h"
+#include "Components/Projectile.h"
+#include "Components/TestPlayer.h"
+#include "Components/Weapon.h"
+#include "Components/WeaponManager.h"
+#include "Core/Components/Core_Components_inc.h"
 #include "Physics/GenericConstraint.h"
+#include "Components/SpawningPool.h"
+#include "Components/MeleeWeapon.h"
+#include "Components/Railgun.h"
+
 TestGameGameMode::TestGameGameMode()
 {}
 
-
 TestGameGameMode::~TestGameGameMode()
 {}
+
 GameObject* MakeTestSphere(Scene* Scene)
 {
 	GameObject* go = Scene::CreateDebugSphere(nullptr);
@@ -37,9 +41,9 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<RigidbodyComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
 #if TDSIM_ENABLED
-	return; 
+	return;
 #endif
-#if 1
+
 	GameObject* go = new GameObject("Player Test");
 	player = go;
 	Material* mat = Material::GetDefaultMaterial();
@@ -59,33 +63,30 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	lock.LockXRot = true;
 	lock.LockZRot = true;
 	go->GetComponent<RigidbodyComponent>()->SetLockFlags(lock);
-	
+
 	GameObject* Cam = new GameObject("PlayerCamera");
 	Cam->SetParent(go);
-	
+
 	player->CameraObject = Cam;
 	Scene->AddGameobjectToScene(Cam);
 	Scene->AddGameobjectToScene(go);
 
 	WeaponManager* manager = go->AttachComponent(new WeaponManager());
-	manager->Weapons[0] = go->AttachComponent(new Weapon());
-	manager->Weapons[1] = go->AttachComponent(new Weapon());
-	manager->Weapons[2] = go->AttachComponent(new Weapon());	
-	go = new GameObject("Gun Test");
-	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Weapons\\Rifle\\Textures\\Variation 06\\Rifle_06_Albedo.png"));
-	MeshLoader::FMeshLoadingSettings set;
-	set.FlipUVs = true;
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Weapons\\Rifle\\Rifle.fbx", set), mat));
-	go->GetTransform()->SetPos(glm::vec3(0, 2, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
-	Scene->AddGameobjectToScene(go);
-	manager->Weapons[0]->SetWeaponModel(go, player->CameraObject);
+	manager->Weapons[0] = go->AttachComponent(new Weapon(Weapon::WeaponType::Rifle,Scene,player));
+	manager->Weapons[1] = go->AttachComponent(new Weapon(Weapon::WeaponType::ShotGun, Scene, player));
+	manager->Weapons[2] = go->AttachComponent(new Railgun( Scene, player));
+	manager->Melee = go->AttachComponent(new MeleeWeapon());
 	AISystem::Get()->GetDirector<TestGame_Director>()->SetPlayer(player->GetOwner());
 	SpawnSKull(glm::vec3(20, 5, 0));
 	SpawnSKull(glm::vec3(-15, 5, 0));
-#endif
+
+
+
+	GameObject* AiTest = Scene::CreateDebugSphere(nullptr);
+	AiTest->AttachComponent(new SpawningPool());
+	AiTest->SetPosition(glm::vec3(50, -8, 10));
+	Scene->AddGameobjectToScene(AiTest);
+
 #if 0
 	GameObject* AiTest = MakeTestSphere(Scene);
 	AiTest->SetPosition(glm::vec3(50, -2, 0));

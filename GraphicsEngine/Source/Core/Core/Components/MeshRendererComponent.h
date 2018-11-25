@@ -23,13 +23,14 @@ public:
 		return m_mesh;
 	}
 	void SetMaterial(Material * mat, int index);
+	CORE_API void SetVisiblity(bool state);
 private:
 	Mesh* m_mesh = nullptr;
 	// Inherited via Component
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
 
-
+	bool IsVisible = true;
 	// Inherited via Component
 	virtual void InitComponent() override;
 	virtual void ProcessSerialArchive(class Archive* Arch) override;

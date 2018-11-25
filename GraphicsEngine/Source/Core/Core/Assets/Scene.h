@@ -40,7 +40,10 @@ public:
 	void TickDeferredRemove();
 	CORE_API static GameObject* CreateDebugSphere(Scene* s);
 	float GetGravityStrength() const { return GravityStrength; }
+	GameMode* GetGameMode() { return CurrentGameMode; }
+	bool IsSceneDestorying()const { return IsDestruction; }
 private:
+	bool IsDestruction = false;
 	float GravityStrength = 20.0f;
 	std::vector<GameObject*> SceneObjects;	
 	std::vector<GameObject*> RenderSceneObjects;

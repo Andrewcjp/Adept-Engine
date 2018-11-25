@@ -16,12 +16,16 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid)
 	AudioEngine::RegisterObject(this);
 }
 
-GameObject::~GameObject()
+void GameObject::OnRemoveFromScene()
 {
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		m_Components[i]->OnDestroy();
 	}
+}
+
+GameObject::~GameObject()
+{
 	AudioEngine::DeRegisterObject(this);
 	for (int i = 0; i < m_Components.size(); i++)
 	{
@@ -297,4 +301,13 @@ void GameObject::MoveComponent(glm::vec3 newpos, glm::quat newrot, bool UpdatePh
 	{
 		PhysicsBodyComponent->MovePhysicsBody(newpos, newrot);
 	}
+}
+
+float GameObject::GetMass()
+{
+	if (PhysicsBodyComponent != nullptr)
+	{
+		return PhysicsBodyComponent->GetActor()->GetMass();
+	}
+	return 1.0f;
 }

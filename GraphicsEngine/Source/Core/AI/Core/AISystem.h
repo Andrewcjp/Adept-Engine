@@ -33,6 +33,8 @@ public:
 	AISystem();
 	~AISystem();
 	void SetupForScene(Scene * newscene);
+	void SceneStart();
+	void SceneEnd();
 	static void StartUp();
 	static void ShutDown();
 	void Tick(float dt);

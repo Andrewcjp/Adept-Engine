@@ -32,7 +32,9 @@ void ColliderComponent::BeginPlay()
 {}
 
 void ColliderComponent::Update(float)
-{}
+{
+	EditorUpdate();
+}
 
 void ColliderComponent::ProcessSerialArchive(Archive * A)
 {
@@ -63,7 +65,7 @@ void ColliderComponent::EditorUpdate()
 	{
 		switch (CollisionShapeType)
 		{
-			//todo: transition this to use a wireframe shader
+			//todo: transition this to use a wire frame shader
 		case EShapeType::eSPHERE:
 			DebugDrawers::DrawDebugSphere(GetOwner()->GetPosition(), Radius, glm::vec3(1));
 			break;
@@ -141,7 +143,7 @@ ShapeElem * ColliderComponent::GetColliderShape()
 		TriMeshElm* box = new TriMeshElm();
 		box->MeshAssetName = MeshName;
 #if USE_PHYSX
-		//LoadMesh();
+		LoadMesh();
 #endif
 		box->Scale = GetOwner()->GetTransform()->GetScale();
 		return box;
