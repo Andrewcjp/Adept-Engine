@@ -1,11 +1,9 @@
-
 #include "AIController.h"
-#include "Core/GameObject.h"
+#include "AISystem.h"
 #include "Core/Components/RigidbodyComponent.h"
-#include "Rendering/Core/DebugLineDrawer.h"
-#include "AI/Core/AISystem.h"
+#include "Core/GameObject.h"
 #include "Core/Platform/PlatformCore.h"
-
+#include "Rendering/Core/DebugLineDrawer.h"
 AIController::AIController()
 {}
 
@@ -61,18 +59,28 @@ void AIController::Update(float dt)
 				Path = nullptr;
 			}
 		}
-
+		const glm::vec3 DirToTarget = glm::normalize(GetOwner()->GetPosition() - CurrentTarget.GetTargetPos());
+		glm::vec3 DirToNode = glm::vec3(0, 0, 0);
 		if (Path != nullptr)
 		{
+			DirToNode = glm::normalize(Path->Positions[CurrentPathIndex] - GetOwner()->GetPosition());
 			//todo: rotation slower
-			glm::vec3 TargetDir = GetOwner()->GetPosition() - Path->Positions[CurrentPathIndex];
-			TargetDir.y = 0;
+			glm::vec3 TargetDir = DirToNode;
+			if (LookAtTarget)
+			{
+				TargetDir = DirToTarget;
+			}
+			TargetDir.y = 0;//todo: check this!
 			float angle = glm::degrees(glm::atan(TargetDir.x, TargetDir.z));
 			glm::quat rot = glm::angleAxis(angle, glm::vec3(0, 1, 0));
 			GetOwner()->GetTransform()->SetQrot(rot);
 		}
 		glm::vec3 finalvel = glm::vec3(0, 0, 0);
 		finalvel = GetOwner()->GetTransform()->GetForward() * Speed;
+		if (LookAtTarget)
+		{
+			finalvel = DirToNode * Speed;
+		}
 		finalvel.y = Rigidbody->GetActor()->GetLinearVelocity().y;
 		Rigidbody->GetActor()->SetLinearVelocity(finalvel);
 	}

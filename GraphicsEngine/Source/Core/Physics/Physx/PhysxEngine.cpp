@@ -64,7 +64,8 @@ void PhysxEngine::initPhysics()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 #endif
-	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+	//gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+	gMaterial = gPhysics->createMaterial(0.0f, 0.0f, 0.0f);
 #if 1
 	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	//gScene->addActor(*groundPlane);
@@ -84,7 +85,7 @@ void PhysxEngine::initPhysics()
 
 void PhysxEngine::stepPhysics(float Deltatime)
 {
-	
+
 	//Deltatime
 	gScene->simulate(Deltatime);
 	gScene->fetchResults(true);
@@ -131,7 +132,7 @@ EPhysicsDebugMode::Type PhysxEngine::GetCurrentMode()
 	return Get()->PhysicsDebugMode;
 }
 
-bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit,std::vector<RigidBody*>& IgnoredActors)
+bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, std::vector<RigidBody*>& IgnoredActors)
 {
 	return RayCastScene(startpos, direction, distance, outhit, false, IgnoredActors);
 }
@@ -142,12 +143,12 @@ bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float di
 
 ConstraintInstance * PhysxEngine::CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup)
 {
-	PxD6Joint* PD6Joint = PxD6JointCreate(PxGetPhysics(), A->GetActor(),PxTransform(GLMtoPXvec3(A->GetPosition()), GLMtoPXQuat(A->GetRotation())),
+	PxD6Joint* PD6Joint = PxD6JointCreate(PxGetPhysics(), A->GetActor(), PxTransform(GLMtoPXvec3(A->GetPosition()), GLMtoPXQuat(A->GetRotation())),
 		B->GetActor(), PxTransform(GLMtoPXvec3(B->GetPosition()), GLMtoPXQuat(B->GetRotation())));
 
 	if (PD6Joint == nullptr)
 	{
-		
+
 		return false;
 	}
 
@@ -175,7 +176,7 @@ bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float di
 	{
 		cast = gEdtiorScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlag::eDEFAULT);
 	}
-	else 
+	else
 	{
 		PxQueryFilterData fd;
 		fd.flags |= PxQueryFlag::ePREFILTER; // note the OR with the default value
@@ -189,6 +190,7 @@ bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float di
 		outhit->position = PXvec3ToGLM(hit.getAnyHit(0).position);
 		outhit->HitBody = (RigidBody*)hit.block.actor->userData;
 		outhit->Distance = hit.getAnyHit(0).distance;
+		outhit->Normal = PXvec3ToGLM(hit.getAnyHit(0).normal);
 		return true;
 	}
 	return false;

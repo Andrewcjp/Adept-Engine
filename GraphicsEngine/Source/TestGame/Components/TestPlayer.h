@@ -23,11 +23,13 @@ private:
 	glm::vec3 RelativeSpeed = glm::vec3();
 	const float MaxSpeed = 10.0f;
 	const float Acceleration = 35.0f;
+	float MaxWalkableAngle = 40.0f;
 	float jumpHeight = 10;
 	RigidbodyComponent* RB = nullptr;
 	CameraComponent* Cam = nullptr;
 	float LookSensitivty = 0.1f;
 	bool IsGrounded = false;
 	const float AirSpeedFactor = 0.2f;
+	bool Frontblocked = false;
 };
 

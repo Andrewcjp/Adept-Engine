@@ -3,7 +3,7 @@
 #include "Core/Components/Core_Components_inc.h"
 #include "Editor/EditorWindow.h"
 #include "Core/Utils/DebugDrawers.h"
-
+#include <glm/gtx/vector_angle.hpp>
 TestPlayer::TestPlayer()
 {}
 
@@ -27,10 +27,24 @@ void TestPlayer::CheckForGround()
 	glm::vec3 down = -GetOwner()->GetTransform()->GetRight();
 	std::vector<RigidBody*> IgnoreActors;
 	IgnoreActors.push_back(RB->GetActor());
-	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 3, &hit, IgnoreActors))
+	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 3.0f, &hit, IgnoreActors))
 	{
-		IsGrounded = true;
+		const float angle = glm::degrees(glm::angle(glm::vec3(0, 1, 0), hit.Normal));
+		if (angle < MaxWalkableAngle)
+		{
+			IsGrounded = true;
+		}
 	}
+
+	/*Frontblocked = false;
+	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition() + GetOwner()->GetTransform()->GetForward() *1.5f, down, 3, &hit, IgnoreActors))
+	{
+		const float angle = glm::degrees(glm::angle(glm::vec3(0, 1, 0), hit.Normal));
+		if (angle > MaxWalkableAngle)
+		{
+			Frontblocked = true;
+		}
+	}*/
 }
 
 void TestPlayer::BeginPlay()
@@ -83,6 +97,7 @@ void TestPlayer::UpdateMovement(float delta)
 	{
 		Speed = AirSpeedFactor;
 	}
+
 	if (Input::GetKey('a'))
 	{
 		TargetVel -= right * Speed;
@@ -99,27 +114,38 @@ void TestPlayer::UpdateMovement(float delta)
 	{
 		TargetVel += fwd * Speed;
 	}
+	float friction = 0.1f;
+	if (TargetVel == glm::vec3(0))
+	{
+		friction = 0.5f;
+	}
 	if (IsGrounded)
 	{
-		float friction = 0.1f;
-		if (TargetVel == glm::vec3(0))
-		{
-			friction = 0.5f;
-		}
 		RelativeSpeed -= RelativeSpeed * 20.0f*friction*delta;
+	}
+	else
+	{
+		RelativeSpeed -= RelativeSpeed * 5.0f*friction*delta;
 	}
 	glm::vec3 CurrentVel = RB->GetVelocity();
 	RelativeSpeed += (TargetVel*Acceleration*delta);
 	RelativeSpeed = glm::clamp(RelativeSpeed, -glm::vec3(MaxSpeed), glm::vec3(MaxSpeed));
 	glm::vec3 NewVel = (RelativeSpeed.z*GetOwner()->GetTransform()->GetForward()) + (RelativeSpeed.x*GetOwner()->GetTransform()->GetUp());
-	NewVel.y = RB->GetVelocity().y;
-	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
-	{
-		NewVel += GetOwner()->GetTransform()->GetRight() * jumpHeight;
-	}
+	NewVel.y = CurrentVel.y;
 	if (RB != nullptr)
 	{
-		RB->SetLinearVelocity(NewVel + ExtraVel);
+#if 1
+		const glm::vec3 tVel = NewVel + ExtraVel;
+		glm::vec3 correction = tVel - RB->GetVelocity();
+		correction.y = 0.0f;
+		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25));
+#else
+		RB->SetLinearVelocity(NewVel);
+#endif
+	}
+	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
+	{
+		RB->GetActor()->AddForce(glm::vec3(0, 1, 0) * 10000);
 	}
 }
 

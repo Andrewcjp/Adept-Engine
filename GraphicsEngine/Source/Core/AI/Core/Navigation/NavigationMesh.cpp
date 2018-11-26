@@ -112,7 +112,7 @@ void NavigationMesh::queue_insert(DLTENode* statePointer)
 	}
 
 }
-void NavigationMesh::queue_remove(DLTENode s)
+void NavigationMesh::QueueRemove(DLTENode s)
 {
 	if (!queue.empty())
 	{
@@ -244,7 +244,7 @@ void NavigationMesh::GridLTE()
 				ptr->g = ptr->rhs;
 				for (size_t i = 0; i < temporaryDeque.size(); i++)
 				{
-					update_state(temporaryDeque[i]);
+					UpdateState(temporaryDeque[i]);
 				}
 			}
 			else
@@ -252,9 +252,9 @@ void NavigationMesh::GridLTE()
 				ptr->g = FloatMAX;
 				for (size_t i = 0; i < temporaryDeque.size(); i++)
 				{
-					update_state(temporaryDeque[i]);
+					UpdateState(temporaryDeque[i]);
 				}
-				update_state(ptr);
+				UpdateState(ptr);
 			}
 		}
 	}
@@ -321,7 +321,7 @@ int NavigationMesh::traversal_cost(DLTENode sFrom, DLTENode sTo)
 	return edgeCost;
 }
 
-void NavigationMesh::update_state(DLTENode* statePointer)
+void NavigationMesh::UpdateState(DLTENode* statePointer)
 {
 	if (statePointer->Point.x != goalnode->Point.x || statePointer->Point.y != goalnode->Point.y)
 	{
@@ -343,7 +343,7 @@ void NavigationMesh::update_state(DLTENode* statePointer)
 		}
 	}
 	// if s is in queue, then remove
-	queue_remove(*statePointer);
+	QueueRemove(*statePointer);
 
 	if (statePointer->g != statePointer->rhs)
 	{
@@ -604,15 +604,15 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 	}
 	NavigationPath* outputPath = new NavigationPath();
 	*outpath = outputPath;
-	NavTriangle* StartTri = FindTriangleFromWorldPos(Startpoint);
+	Tri* StartTri = Plane->FindTriangleFromWorldPos(Startpoint);
 	if (StartTri == nullptr)
 	{
-		//return ENavRequestStatus::FailedPointOffNavMesh;
+		return ENavRequestStatus::FailedPointOffNavMesh;
 	}
-	NavTriangle* EndTri = FindTriangleFromWorldPos(EndPos);
+	Tri* EndTri = Plane->FindTriangleFromWorldPos(EndPos);
 	if (EndTri == nullptr)
 	{
-		//return ENavRequestStatus::FailedPointOffNavMesh;
+		return ENavRequestStatus::FailedPointOffNavMesh;
 	}
 	//DebugLineDrawer::Get()->AddLine(StartTri->avgcentre, StartTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);
 	//DebugLineDrawer::Get()->AddLine(EndTri->avgcentre, EndTri->avgcentre + glm::vec3(0, 10, 0), glm::vec3(0, 1, 1), 100);

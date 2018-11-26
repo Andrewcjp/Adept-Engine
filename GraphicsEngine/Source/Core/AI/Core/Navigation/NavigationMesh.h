@@ -109,7 +109,7 @@ public:
 	float * queue_top_key();
 	DLTENode * queue_pop();
 	void queue_insert(DLTENode * statePointer);
-	void queue_remove(DLTENode s);
+	void QueueRemove(DLTENode s);
 	NavigationMesh::DLTENode get_start();
 	NavigationMesh::DLTENode get_goal();
 	void Reset();
@@ -118,7 +118,7 @@ public:
 	void GridLTE();
 	std::deque<DLTENode*> neighbors(DLTENode s);
 	int traversal_cost(DLTENode sFrom, DLTENode sTo);
-	void update_state(DLTENode * statePointer);
+	void UpdateState(DLTENode * statePointer);
 	void RenderGrid();
 	void RenderMesh();
 	void GenTestMesh();

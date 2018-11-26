@@ -25,6 +25,7 @@ public:
 		bool IsSemiAuto = false;
 		glm::vec3 WeaponRelativePos = glm::vec3(0,0,0);
 		float DamagePerShot = 10.0f;
+		int MaxAmmoCount = 100;
 	};
 	const WeaponSettings& GetCurrentSettings() { return CurrentSettings; }
 	void SetCurrentSettings(WeaponSettings NewSettings);
@@ -34,6 +35,7 @@ public:
 protected:
 	TestPlayer* Player = nullptr;
 	float ProjectileSpeed = 50.0f;
+	int CurrentAmmoCount = 10;
 private:
 	void CreateModel(Scene* s, GameObject* cameraobj);
 	float CurrentCoolDown = 0.0f;

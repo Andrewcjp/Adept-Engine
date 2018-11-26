@@ -3,21 +3,26 @@
 #include "Audio/AudioEngine.h"
 #include "TestPlayer.h"
 
-
 Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player)
 {
 	if (T == Rifle)
 	{
 		CurrentSettings.FireDelay = 0.135f;
+		CurrentSettings.DamagePerShot = 20;
+		CurrentSettings.MaxAmmoCount = 250;
 	}
 	else if (T == ShotGun)
 	{
 		CurrentSettings.FireDelay = 0.350f;
 		CurrentSettings.PelletCount = 5;
+		CurrentSettings.DamagePerShot = 20;
+		CurrentSettings.MaxAmmoCount = 20;
 	}
 	else if (T == RailGun)
 	{
 		CurrentSettings.FireDelay = 0.850f;
+		CurrentSettings.DamagePerShot = 150;
+		CurrentSettings.MaxAmmoCount = 20;
 	}
 	Player = player;
 	CurrentWeaponType = T;
@@ -95,7 +100,7 @@ void Weapon::Fire()
 	rb->SetGravity(false);
 	rb->SetLinearVelocity(Forward*ProjectileSpeed);
 	Projectile* Proj = newgo->AttachComponent(new Projectile());
-	Proj->SetDamage(10);
+	Proj->SetDamage(CurrentSettings.DamagePerShot);
 	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
 	GameObject::FinishGameObjectSpawn(newgo);
 	CurrentCoolDown = CurrentSettings.FireDelay;
