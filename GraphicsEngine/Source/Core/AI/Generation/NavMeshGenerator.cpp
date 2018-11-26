@@ -8,8 +8,15 @@
 #include "AI/CORE/Navigation/NavigationMesh.h"
 #include "Core/Utils/VectorUtils.h"
 #include "Core/Utils/MathUtils.h"
+#include "Core/Platform/PlatformCore.h"
 NavMeshGenerator::NavMeshGenerator()
-{}
+{
+	Tri t;
+	t.points[0] = glm::vec3(11, 0, 0);
+	t.points[1] = glm::vec3(10, 0, 1);
+	t.points[2] = glm::vec3(10, 0, -1);
+	//ensure(t.IsPointInsideTri(glm::vec3(100,0,100)));
+}
 
 NavMeshGenerator::~NavMeshGenerator()
 {}
@@ -311,7 +318,7 @@ void NavPlane::RemoveDupeNavPoints()
 	for (int i = 0; i < RemoveList.size(); i++)
 	{
 		VectorUtils::Remove(NavPoints, RemoveList[i]);
-	}	
+	}
 }
 
 void Link(DLTENode* a, DLTENode*b)
@@ -411,6 +418,7 @@ bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
 	//the check points
 	return true;
 }
+
 Tri* NavPlane::FindTriangleFromWorldPos(glm::vec3 worldpos)
 {
 	for (int i = 0; i < Triangles.size(); i++)
@@ -423,20 +431,22 @@ Tri* NavPlane::FindTriangleFromWorldPos(glm::vec3 worldpos)
 	return nullptr;
 }
 
-float Tri::side(glm::vec2 v1, glm::vec2 v2, glm::vec2 point)
+bool PointInTriangle(glm::vec3 p, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 {
-	return (v2.y - v1.y)*(point.x - v1.x) + (-v2.x + v1.x)*(point.y - v1.y);
-}
+	float s = p0.z * p2.x - p0.x * p2.z + (p2.z - p0.z) * p.x + (p0.x - p2.x) * p.z;
+	float t = p0.x * p1.z - p0.z * p1.x + (p0.z - p1.z) * p.x + (p1.x - p0.x) * p.z;
 
-bool Tri::pointInTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 point)
-{
-	bool checkSide1 = side(v1.xz, v2.xz, point.xz) >= 0;
-	bool checkSide2 = side(v2.xz, v3.xz, point.xz) >= 0;
-	bool checkSide3 = side(v3.xz, v1.xz, point.xz) >= 0;
-	return checkSide1 && checkSide2 && checkSide3;
+	if ((s < 0) != (t < 0))
+		return false;
+
+	float A = -p1.z * p2.x + p0.z * (p2.x - p1.x) + p0.x * (p1.z - p2.z) + p1.x * p2.z;
+
+	return A < 0 ?
+		(s <= 0 && s + t >= A) :
+		(s >= 0 && s + t <= A);
 }
 
 bool Tri::IsPointInsideTri(glm::vec3 point)
 {
-	return pointInTriangle(points[0], points[1], points[2], point);
+	return PointInTriangle(point, points[0], points[1], points[2]);
 }
