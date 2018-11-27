@@ -30,6 +30,7 @@ public:
 	float Radius = 1.0f;
 	glm::vec3 BoxExtents = glm::vec3(1, 1, 1);
 	float Height = 1.0f;
+	bool IsTrigger = false;
 private:
 	EShapeType::Type CollisionShapeType = EShapeType::eBOX;
 

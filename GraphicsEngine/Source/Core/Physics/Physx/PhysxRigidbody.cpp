@@ -256,6 +256,10 @@ void PhysxRigidbody::InitBody()
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			Dynamicactor->attachShape(*Shapes[i]);
+			if (BodyData.IsTrigger)
+			{
+				Shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+			}
 		}
 		Dynamicactor->setAngularDamping(BodyData.AngularDamping);
 		Dynamicactor->setLinearDamping(BodyData.LinearDamping);
@@ -267,6 +271,7 @@ void PhysxRigidbody::InitBody()
 		{
 			PxRigidBodyExt::updateMassAndInertia(*Dynamicactor, PhysicsMat->density);
 		}
+		
 		CommonActorPtr = Dynamicactor;
 	}
 	else if (BodyType == EBodyType::RigidStatic)

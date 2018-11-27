@@ -326,6 +326,7 @@ void Engine::CreateApplicationWindow(int width, int height)
 #include "Test/TDTest.h"
 void Engine::TestTDPhysics()
 {
+	TD::TDTest::TypeTest();
 	TD::TDTest::RunAllTests();
 }
 

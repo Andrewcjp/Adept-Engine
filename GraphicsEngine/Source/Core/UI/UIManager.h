@@ -1,7 +1,7 @@
 #pragma once
-#include "UI/Core/CollisionRect.h"
-#include <functional>
+#include "Core/CollisionRect.h"
 #include "Core/EngineTypes.h"
+#include <functional>
 #define UISTATS 0
 class TextRenderer;
 class UIWidget;
@@ -14,11 +14,12 @@ class UIGraph;
 class UIPopoutbox;
 class Inspector;
 class UIAssetManager;
+class UIWidgetContext;
 class UIManager
 {
 public:
 	static UIManager* instance;
-
+	CORE_API static UIManager* Get();
 	UIManager();
 	UIManager(int w, int h);
 	void InitCommonUI();
@@ -58,7 +59,11 @@ public:
 	void CleanUpWidgets();
 	static void CloseDropDown();
 	IntRect GetEditorRect();
+	void AddWidgetContext(UIWidgetContext*c);
+	void RemoveWidgetContext(UIWidgetContext*c);
+	static UIWidgetContext* GetDefaultContext();
 private:
+	std::vector<UIWidgetContext*> Contexts;
 	UIWidget * DropdownCurrent = nullptr;
 	std::vector<UIWidget*> WidgetsToRemove;//todo: use queue? and handle large deletes?
 	static UIWidget* CurrentContext;
@@ -69,14 +74,10 @@ private:
 	int m_width = 0;
 	int m_height = 0;
 	UIBox* bottom;
-	std::unique_ptr<TextRenderer> textrender;
-	std::vector<UIWidget*> widgets;
 	UIListBox* box;
 	float LastHeight = 0;
 	float YHeight = 25;
 	float XSpacing = 25;
-	DebugLineDrawer* LineBatcher;
-	UIDrawBatcher* DrawBatcher;
 	CollisionRect ViewportRect;
 	UIPopoutbox* testbox;
 	UIAssetManager* AssetManager;

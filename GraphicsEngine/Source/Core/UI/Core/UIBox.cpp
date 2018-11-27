@@ -1,6 +1,8 @@
 #include "UIBox.h"
 #include "UI/UIManager.h"
 #include "UIDrawBatcher.h"
+#include "UIWidget.h"
+#include "UIWidgetContext.h"
 UIBox::UIBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
 	Init();
@@ -21,23 +23,23 @@ void UIBox::ResizeView(int w, int h, int x, int y)
 	float xpos = (float)x;
 	float ypos = (float)y;
 
-	if (UIDrawBatcher::instance != nullptr)
+	if (OwningContext != nullptr)
 	{
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos, ypos), true, Colour, BackgoundColour);
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos, ypos), true, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
 
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + w, ypos + h), true, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w, ypos + h), true, Colour, BackgoundColour);
 
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
 
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
-		UIDrawBatcher::instance->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
+		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
 	}
 }
 

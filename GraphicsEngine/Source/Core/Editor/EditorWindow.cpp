@@ -119,7 +119,7 @@ void EditorWindow::ExitPlayMode()
 	mEditorCore->SetSelectedObject(nullptr);
 	Log::OutS << "Exiting play mode" << Log::OutS;
 	Renderer->SetScene(CurrentScene);
-	CurrentScene->EndScene();
+	CurrentPlayScene->EndScene();
 	EditorCamera->SetEnabled(true);
 	IsPlayingScene = false;
 	IsRunning = false;

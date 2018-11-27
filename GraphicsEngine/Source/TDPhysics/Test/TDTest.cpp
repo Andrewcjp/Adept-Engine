@@ -15,7 +15,13 @@ namespace TD
 
 	TDTest::~TDTest()
 	{}
-
+	void TDTest::TypeTest()
+	{
+		TDShapeFlags t;
+		t.SetFlagValue(TDShapeFlags::ESimulation, true);
+		DebugEnsure(t.GetFlagValue(TDShapeFlags::ESimulation));
+		DebugEnsure(t.GetFlagValue(TDShapeFlags::Limit) == false);
+	}
 	void TDTest::RunAllTests()
 	{
 		TDAABB* A = new TDAABB();

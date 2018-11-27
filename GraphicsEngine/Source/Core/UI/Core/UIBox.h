@@ -5,7 +5,7 @@ class UIBox :
 	public UIWidget
 {
 public:
-	UIBox(int w, int h, int x = 0, int y = 0);
+	CORE_API UIBox(int w, int h, int x = 0, int y = 0);
 	
 	virtual void ResizeView(int w, int h, int x, int y) override;
 	~UIBox();

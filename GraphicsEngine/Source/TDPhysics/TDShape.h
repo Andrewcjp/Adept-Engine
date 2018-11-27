@@ -37,7 +37,9 @@ namespace TD
 			return dynamic_cast<T*>(shape);
 		}
 		glm::vec3 GetPos();
+		TDShapeFlags& GetFlags(){return Falgs;}
 	protected:
+		TDShapeFlags Falgs;
 		TDShapeType::Type ShapeType = TDShapeType::eLimit;
 		TDPhysicalMaterial ShapeMaterial = TDPhysicalMaterial();
 		TDActor* Owner = nullptr;

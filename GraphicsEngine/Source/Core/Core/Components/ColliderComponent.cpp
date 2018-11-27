@@ -8,6 +8,7 @@
 #include "RigidbodyComponent.h"
 #include "Core/Assets/AssetManager.h"
 #include "core/Utils/DebugDrawers.h"
+#include "Physics/SimTD/TDRigidBody.h"
 ColliderComponent::ColliderComponent()
 {
 	TypeID = CompoenentRegistry::BaseComponentTypes::ColliderComp;
@@ -184,6 +185,7 @@ void ColliderComponent::SceneInitComponent()
 		{
 			tempcol->Shapes.push_back(cc->GetColliderShape());
 		}
+	//	Actor->GetBodyData().IsTrigger = IsTrigger;
 		Actor->SetGravity(false);
 		Actor->AttachCollider(tempcol);
 		Actor->InitBody();
@@ -210,7 +212,7 @@ void ColliderComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& pr
 	}
 	else if (CollisionShapeType == EShapeType::eSPHERE)
 	{
-		group.SubProps.push_back(Inspector::CreateProperty("Raduis", EditValueType::Float, &Radius));
+		group.SubProps.push_back(Inspector::CreateProperty("Radius", EditValueType::Float, &Radius));
 	}
 	else if (CollisionShapeType == EShapeType::ePLANE)
 	{

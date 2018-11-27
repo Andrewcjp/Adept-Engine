@@ -7,10 +7,9 @@
 #include "RHI/RHI_inc.h"
 #include "Core/Platform/PlatformCore.h"
 #include "RHI/RHITypes.h"
-UIDrawBatcher* UIDrawBatcher::instance = nullptr;
+
 UIDrawBatcher::UIDrawBatcher()
 {
-	instance = this;
 	Shader = ShaderComplier::GetShader<Shader_UIBatch>();
 	Init();
 	Current_Max_Verts = UIMin;
@@ -71,6 +70,10 @@ void UIDrawBatcher::SendToGPU()
 	if (BatchedVerts.size() > Current_Max_Verts)
 	{
 		ReallocBuffer((int)BatchedVerts.size() + 10);
+	}
+	for (int i = 0; i < BatchedVerts.size(); i++)
+	{
+		BatchedVerts[i].position += Offset;
 	}
 	VertexBuffer->UpdateVertexBuffer(&BatchedVerts[0], sizeof(UIVertex)*BatchedVerts.size());
 }

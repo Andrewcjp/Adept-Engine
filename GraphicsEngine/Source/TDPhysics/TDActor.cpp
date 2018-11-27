@@ -2,6 +2,7 @@
 #include "TDShape.h"
 #include "Shapes/TDSphere.h"
 #include "Shapes/TDAABB.h"
+#include "Utils/MemoryUtils.h"
 namespace TD
 {
 
@@ -31,7 +32,8 @@ namespace TD
 
 	void TDActor::Release()
 	{
-
+		SafeDelete(AABB);
+		MemoryUtils::DeleteVector(AttachedShapes);
 	}
 
 	TDTransform * TDActor::GetTransfrom()
@@ -54,11 +56,10 @@ namespace TD
 	{
 		return AttachedShapes;
 	}
-	void TDActor::ComputeKE()
-	{
 
-	}
+	void TDActor::ComputeKE()
+	{}
+
 	void TDActor::ValidateKE()
-	{
-	}
+	{}
 }

@@ -117,7 +117,7 @@ void TestGameGameMode::SpawnSKull(glm::vec3 Position)
 
 void TestGameGameMode::EndPlay()
 {
-
+	GameMode::EndPlay();
 }
 
 void TestGameGameMode::Update()

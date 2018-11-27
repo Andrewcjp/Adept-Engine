@@ -133,4 +133,22 @@ namespace TD
 		float distance = 0.0f;
 		TDConstraintType::Type Type;
 	};
+	class TD_API TDFlagsBase
+	{
+	public:
+		void SetFlagValue(int flag, bool value);
+		bool GetFlagValue(int flag);
+		void SetFlags(int flags);
+	private:
+		int Flags = 0;
+	};
+	class TD_API TDShapeFlags :public TDFlagsBase
+	{
+	public:
+		enum Type
+		{
+			ESimulation = (1 << 0),
+			Limit = (1 << 1),
+		};
+	};
 };

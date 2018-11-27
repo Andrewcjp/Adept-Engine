@@ -1,5 +1,7 @@
 #pragma once
 
+class UIWidgetContext;
+
 typedef unsigned long long UINT_PTR;
 #define USE_BATCHED_DRAW 1
 class UIWidget
@@ -13,12 +15,13 @@ public:
 
 	Aligment AligmentStruct;
 	static glm::vec3 DefaultColour;
-	UIWidget(int w, int h, int x = 0, int y = 0);
+	CORE_API UIWidget(int w, int h, int x = 0, int y = 0);
 	~UIWidget();
 	virtual void Render() = 0;
 	virtual void ResizeView(int w, int h, int x = 0, int y =  0);
-	void SetScaled(float Width, float height, float xoff = 0.0f, float yoff = 0.0f);
+	CORE_API void SetScaled(float Width, float height, float xoff = 0.0f, float yoff = 0.0f);
 	virtual void UpdateScaled();
+	void SetOwner(UIWidgetContext* wc);
 	glm::vec3 Colour;
 	virtual void UpdateData();
 	virtual void MouseMove(int x, int y);
@@ -38,7 +41,7 @@ public:
 	}
 	int Priority = 0;
 	bool operator<(UIWidget* that) const;
-
+	void InvalidateRenderstate();
 
 	float WidthScale = 0;
 	float HeightScale = 0;
@@ -48,6 +51,7 @@ public:
 protected:
 	float TextDefaultScale = 0.3f;
 	bool IsActive = true;
+	UIWidgetContext* OwningContext = nullptr;
 private:
 	//Is this widget Pixel Indepent?
 	bool UseScaled = false;
