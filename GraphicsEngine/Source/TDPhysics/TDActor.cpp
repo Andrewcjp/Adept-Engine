@@ -54,4 +54,11 @@ namespace TD
 	{
 		return AttachedShapes;
 	}
+	void TDActor::ComputeKE()
+	{
+
+	}
+	void TDActor::ValidateKE()
+	{
+	}
 }

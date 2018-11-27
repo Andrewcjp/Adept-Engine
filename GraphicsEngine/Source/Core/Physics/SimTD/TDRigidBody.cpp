@@ -182,4 +182,9 @@ TD::TDActor* TDRigidBody::GetActor()
 	return CommonActorPTr;
 }
 
+float TDRigidBody::GetMass()
+{
+	return Actor->GetBodyMass();
+}
+
 #endif

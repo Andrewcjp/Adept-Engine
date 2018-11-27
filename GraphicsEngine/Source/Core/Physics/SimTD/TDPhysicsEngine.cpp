@@ -23,7 +23,7 @@ void TDPhysicsEngine::initPhysics()
 	TDRigidStatic* Actor = new TD::TDRigidStatic();
 	Actor->GetTransfrom()->SetPos(glm::vec3(0, 0, 0));
 	Actor->AttachShape(new TDPlane());
-	TDPhysicsEngine::GetScene()->AddToScene(Actor);
+	//TDPhysicsEngine::GetScene()->AddToScene(Actor);
 	DECLARE_TIMER_GROUP(GROUP_PhysicsEngine, "Physics Engine");
 	PerfManager::Get()->AddTimer("ResolveCollisions", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("ResolveConstraints", GROUP_PhysicsEngine);

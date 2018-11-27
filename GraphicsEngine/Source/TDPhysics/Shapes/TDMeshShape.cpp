@@ -35,6 +35,7 @@ namespace TD
 	{
 		glm::vec3 normal = glm::normalize(glm::cross(Points[1] - Points[0], Points[2] - Points[0]));
 		TDPlane result = TDPlane(normal);
+		result.PlaneDistance = glm::dot(normal, Points[0]);
 		return result;
 	}
 
@@ -72,7 +73,7 @@ namespace TD
 
 	glm::vec3 Edge::ClosestPoint(const Edge& line, const glm::vec3& point)
 	{
-		glm::vec3 lVec = line.pointa - line.pointb; // Line Vector
+		glm::vec3 lVec = line.pointb - line.pointa; // Line Vector
 		// Project "point" onto the "Line Vector", computing:
 		// closest(t) = start + t * (end - start)
 		// T is how far along the line the projected point is
@@ -83,6 +84,7 @@ namespace TD
 		// Return projected position of t
 		return line.pointa + lVec * t;
 	}
+
 	bool TDMeshShape::MeshSphere(TDSphere * s, ContactData* contactbuffer)
 	{
 
@@ -93,22 +95,25 @@ namespace TD
 			glm::vec3 ContactPoint = glm::vec3();
 			if (Mesh->GetTriangles()[i]->TriangleSphere(s, ContactPoint, Depth))
 			{
-				contactbuffer->Contact(ContactPoint, Mesh->GetTriangles()[i]->Normal, Depth);
+				const glm::vec3 normal = Mesh->GetTriangles()[i]->Normal;
+				contactbuffer->Contact(ContactPoint, normal, Depth);
+				DebugEnsure(Depth > -1.0f);
+				DebugEnsure(Depth < 0.0f);
 #if !BUILD_SHIPPING
 				Mesh->GetTriangles()[i]->DebugDraw();
 #endif
-				//return true;
 			}
 
 		}
 		return false;
 	}
+
 	bool TDTriangle::TriangleSphere(TDSphere * s, glm::vec3 & out_Contact, float & depth)
 	{
 		glm::vec3 closest = ClosestPoint(s->GetPos());
 		out_Contact = closest;
 		float magSq = glm::length2(closest - s->GetPos());
-		depth = (magSq - s->Radius * s->Radius);
+		depth = (magSq - (s->Radius * s->Radius));
 		return magSq <= s->Radius * s->Radius;
 	}
 
@@ -173,14 +178,6 @@ namespace TD
 			}
 			Triangles.push_back(new TDTriangle(posa, posb, posc, Normal));
 		}
-		//for (int i = 0; i < inds.size(); i += 3)
-		//{
-		//glm::vec3* data = new glm::vec3[3];
-		//data[0] = v[inds[i]].m_position;
-		//data[1] = v[inds[i + 1]].m_position;
-		//data[2] = v[inds[i + 2]].m_position;
-		//Points.push_back(data);
-
 	}
 
 	void TDMesh::CookMesh()
