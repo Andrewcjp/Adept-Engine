@@ -33,7 +33,7 @@ GameObject* MakeTestSphere(Scene* Scene)
 void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
-#if 1
+#if 0
 	GameObject* A = MakeTestSphere(Scene);
 	GameObject* B = MakeTestSphere(Scene);
 	A->SetPosition(glm::vec3(0, 20, 0));

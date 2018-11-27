@@ -69,7 +69,19 @@ namespace TD
 	{
 		return SleepTimer > SleepMaxTimer;
 	}
-
+	float TDRigidDynamic::comput()
+	{
+		return 0.5f* (GetBodyMass() * glm::length(GetLinearVelocity())*glm::length(GetLinearVelocity()));
+	}
+	void TDRigidDynamic::ComputeKE()
+	{
+		PreSimKE = comput();
+	}
+	void TDRigidDynamic::ValidateKE()
+	{
+		const float postsim = comput();
+		DebugEnsure(postsim == PreSimKE);
+	}
 	void TDRigidDynamic::ResetForceThisFrame()
 	{
 		DeltaLinearVel = glm::vec3();

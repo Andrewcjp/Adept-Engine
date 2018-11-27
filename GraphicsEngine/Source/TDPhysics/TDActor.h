@@ -32,7 +32,10 @@ namespace TD
 			return dynamic_cast<T*>(actor);
 		}
 		TDAABB* AABB = nullptr;
+		virtual void ComputeKE();
+		virtual void ValidateKE();
 	protected:
+		float PreSimKE = 0.0f;
 		TD_API virtual ~TDActor();
 		TDScene* OwningScene = nullptr;
 		friend class TDScene;

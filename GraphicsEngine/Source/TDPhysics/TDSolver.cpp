@@ -7,10 +7,9 @@
 #include "TDScene.h"
 #include "TDSimConfig.h"
 #include <sstream>
-
 #define USE_LINEAR_PROJECTION 1
 #define USE_THREADED_COLLISION_DETECTION 0
-#define TEST_T 0
+
 namespace TD
 {
 	TDSolver::TDSolver()
@@ -29,7 +28,6 @@ namespace TD
 #endif
 		for (int i = 0; i < scene->GetDynamicActors().size(); i++)
 		{
-
 			IntergrateActor(scene->GetDynamicActors()[i], dt, scene);
 		}
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
@@ -136,6 +134,11 @@ namespace TD
 			NarrowPhasePairs[i].data.Reset();//reset before check collisions again
 			ProcessCollisions(&NarrowPhasePairs[i]);
 		}
+		for (int i = 0; i < NarrowPhasePairs.size(); i++)
+		{
+			NarrowPhasePairs[i].first->ComputeKE();
+			NarrowPhasePairs[i].second->ComputeKE();
+		}
 		for (int Iterations = 0; Iterations < SolverIterations; Iterations++)
 		{
 
@@ -153,19 +156,19 @@ namespace TD
 			const int threadcount = std::min(TDPhysics::GetTaskGraph()->GetThreadCount(), (int)NarrowPhasePairs.size() / BatchSize + 1);
 			TDPhysics::GetTaskGraph()->RunTaskOnGraph(ProcessCollisionsFunc, threadcount);
 #else
-
-#endif
-#if TEST_T
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{
-				NarrowPhasePairs[i].data.Reset();//reset before check collisions again
-				ProcessCollisions(&NarrowPhasePairs[i]);
-			}
-#endif
-			for (int i = 0; i < NarrowPhasePairs.size(); i++)
-			{
+				NarrowPhasePairs[i].first->ComputeKE();
+				NarrowPhasePairs[i].second->ComputeKE();
 				ProcessResponsePair(&NarrowPhasePairs[i]);
 			}
+#endif
+
+		}
+		for (int i = 0; i < NarrowPhasePairs.size(); i++)
+		{
+			NarrowPhasePairs[i].first->ValidateKE();
+			NarrowPhasePairs[i].second->ValidateKE();
 		}
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::ResolveCollisions);
@@ -224,11 +227,9 @@ namespace TD
 	}
 	void TDSolver::PostIntergrate(CollisionPair* pair)
 	{
-#if !TEST_T
 		TDShape* A = pair->first->GetAttachedShapes()[0];
 		TDShape* B = pair->second->GetAttachedShapes()[0];
 		RunPostFixup(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()), &pair->data);
-#endif
 	}
 
 	void TDSolver::ResolveConstraints(TDScene * scene)
@@ -241,9 +242,30 @@ namespace TD
 
 	void TDSolver::RunPostFixup(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data)
 	{
+		///todo:: this is broke- write a unit test?
+		if (data->ContactCount == 0)
+		{
+			return;
+		}
+		//return;
+		glm::vec3 AVG;
 		for (int i = 0; i < data->ContactCount; i++)
 		{
-			TDPhysics::DrawDebugPoint(data->ContactPoints[i], glm::vec3(0, 1, 0), 0.0f);
+			AVG += data->Direction[i];
+		}
+		AVG /= data->ContactCount;
+
+		float AVGdepth = 0.0f;
+		for (int i = 0; i < data->ContactCount; i++)
+		{
+			AVGdepth += data->depth[i];
+		}
+		AVGdepth /= data->ContactCount;
+
+		//for (int i = 0; i < data->ContactCount; i++)
+		int i = 0;
+		{
+			TDPhysics::DrawDebugPoint(data->ContactPoints[i], AVG, 0.0f);
 			float invmassA = 0.0f;
 			if (A != nullptr)
 			{
@@ -256,18 +278,18 @@ namespace TD
 			}
 			float InvMassSum = invmassA + invmassB;
 #if USE_LINEAR_PROJECTION
-			const float Slack = 0.01f;
+			const float Slack = 0.1f;
 			const float LinearProjectionPercent = 0.45f;
-			float depth = fmaxf(data->depth[i] - Slack, 0.0f);
+			float depth = fmaxf(AVGdepth - Slack, 0.0f);
 			float scalar = depth / InvMassSum;
-			const glm::vec3 Reporjections = data->Direction[i] * scalar * LinearProjectionPercent;
+			const glm::vec3 Reporjections = AVG * scalar * LinearProjectionPercent;
 			if (A != nullptr)
 			{
-				A->GetTransfrom()->SetPos(A->GetTransfrom()->GetPos() + (Reporjections * invmassA) / data->ContactCount);
+				A->GetTransfrom()->SetPos(A->GetTransfrom()->GetPos() + (Reporjections * invmassA) /*/ data->ContactCount*/);
 			}
 			if (B != nullptr)
 			{
-				B->GetTransfrom()->SetPos(B->GetTransfrom()->GetPos() - (Reporjections * invmassB) / data->ContactCount);
+				B->GetTransfrom()->SetPos(B->GetTransfrom()->GetPos() - (Reporjections * invmassB) /*/ data->ContactCount*/);
 			}
 		}
 #endif
@@ -320,9 +342,6 @@ namespace TD
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - impluse * invmassB);
 		}
-#if TEST_T
-		RunPostFixup(A, B, data);
-#endif
 		//Apply Friction
 		glm::vec3 tangent = RelVel - (RelNrm * glm::dot(RelVel, RelNrm));
 		if (glm::length2(tangent) == 0)

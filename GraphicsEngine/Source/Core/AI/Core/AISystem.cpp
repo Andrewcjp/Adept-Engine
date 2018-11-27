@@ -85,7 +85,7 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 	ENavRequestStatus::Type result = mesh->CalculatePath(Startpoint, EndPos, outpath);
 	if (result != ENavRequestStatus::Complete)
 	{
-		Log::LogMessage("CalculatePath Failed", Log::Severity::Warning);
+		Log::LogMessage("CalculatePath Failed"+ NavigationMesh::GetErrorCodeAsString(result), Log::Severity::Warning);
 	}
 	return result;
 }

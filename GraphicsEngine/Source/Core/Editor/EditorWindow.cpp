@@ -79,7 +79,6 @@ void EditorWindow::PostInitWindow(int w, int h)
 #endif
 
 	AISystem::Get()->GenerateMesh();
-	AISystem::Get()->mesh->GenTestMesh();
 }
 
 void EditorWindow::EnterPlayMode()
@@ -188,7 +187,6 @@ void EditorWindow::Update()
 	}
 
 	DebugDrawers::DrawDebugCapsule(glm::vec3(0, 10, 0), 1, 2, glm::quat(glm::radians(glm::vec3(90, 0, 0))), glm::vec3(1, 0, 0));
-	AISystem::Get()->mesh->DrawNavMeshLines();
 	if (!IsPlayingScene || IsEditorEjected())
 	{
 		EditorCamera->Update(DeltaTime);

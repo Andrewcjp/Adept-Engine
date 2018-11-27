@@ -1,14 +1,11 @@
-
 #include "NavMeshGenerator.h"
+#include "AI/Core/Navigation/DLTEPathfinder.h"
 #include "Core/Platform/PlatformCore.h"
-#include "Core/Platform/Logger.h"
-#include "Physics/PhysicsEngine.h"
 #include "Core/Utils/DebugDrawers.h"
-#include "AI/Generation/ThirdParty/delaunator.hpp"
-#include "AI/CORE/Navigation/NavigationMesh.h"
 #include "Core/Utils/VectorUtils.h"
-#include "Core/Utils/MathUtils.h"
-#include "Core/Platform/PlatformCore.h"
+#include "Physics/PhysicsEngine.h"
+#include "ThirdParty/delaunator.hpp"
+
 NavMeshGenerator::NavMeshGenerator()
 {
 	Tri t;
@@ -404,7 +401,7 @@ bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
 		}
 	}
 #else
-	float CurrentPoint = FloatMAX;
+	float CurrentPoint = MathUtils::FloatMAX;
 	for (int i = 0; i < NavPoints.size(); i++)
 	{
 		const float newdist = glm::distance2(NavPoints[i]->GetPos(this), pos);

@@ -38,7 +38,10 @@ namespace TD
 		void ResetForceThisFrame();
 		void UpdateSleepTimer(float DT);
 		bool IsBodyAsleep()const;
+		float comput();
 		bool IsAffectedByGravity()const { return UseGravity; };
+		virtual void ComputeKE();
+		void ValidateKE();
 	private:
 		void ComputeInertiaTensor();
 		bool CheckSleep(glm::vec3 & value);

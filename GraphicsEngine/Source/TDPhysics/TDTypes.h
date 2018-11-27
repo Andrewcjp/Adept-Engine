@@ -87,7 +87,6 @@ namespace TD
 		{
 			Blocking = true;
 			ContactPoints[ContactCount] = position;
-
 			if (normal != glm::vec3(0))
 			{
 				Direction[ContactCount] = glm::normalize(normal);

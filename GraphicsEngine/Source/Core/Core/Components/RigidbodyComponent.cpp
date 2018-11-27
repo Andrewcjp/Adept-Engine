@@ -30,10 +30,12 @@ void RigidbodyComponent::OnTransformUpdate()
 		//	actor->SetPositionAndRotation(GetOwner()->GetTransform()->GetPos(), GetOwner()->GetTransform()->GetQuatRot());
 	}
 }
+
 RigidBody * RigidbodyComponent::GetActor()
 {
 	return actor;
 }
+
 void RigidbodyComponent::SetGravity(bool active)
 {
 	if (actor != nullptr)
