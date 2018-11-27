@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "ai/CORE/AIDirector.h"
+#include "UI/GameUI/GameHud.h"
 Game::Game(CompoenentRegistry* Reg)
 {
 }
@@ -49,4 +50,9 @@ GameMode * Game::CreateGameMode()
 AIDirector * Game::CreateAIDirector()
 {
 	return new AIDirector();
+}
+
+GameHud * Game::CreateGameHUD()
+{
+	return new GameHud();
 }

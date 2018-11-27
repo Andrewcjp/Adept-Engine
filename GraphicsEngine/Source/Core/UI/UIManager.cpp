@@ -2,8 +2,11 @@
 #include "Core/GameObject.h"
 #include "Core/UIDrawBatcher.h"
 #include "Core/UIPopoutbox.h"
+#include "Core/UIWidgetContext.h"
+#include "Core/Utils/VectorUtils.h"
 #include "Editor/EditorCore.h"
 #include "Editor/EditorWindow.h"
+#include "EditorUI/EditorUI.h"
 #include "EditorUI/UIAssetManager.h"
 #include "GameUI/DebugConsole.h"
 #include "GameUI/UIDropDown.h"
@@ -13,19 +16,24 @@
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
+UIManager * UIManager::Get()
+{
+	return instance;
+}
 UIManager::UIManager()
 {}
 
 UIManager::UIManager(int w, int h)
 {
+	instance = this;
 	BottomHeight = 0.2f;
 	TopHeight = 0.1f;
 	RightWidth = 0.2f;
 	LeftWidth = 0.2f;
-	LineBatcher = new DebugLineDrawer(true);
-	DrawBatcher = new UIDrawBatcher();
+
+	new EditorUI();
 	Initalise(w, h);
-	instance = this;
+
 	InitCommonUI();
 #if WITH_EDITOR
 	InitEditorUI();
@@ -33,7 +41,7 @@ UIManager::UIManager(int w, int h)
 }
 void UIManager::InitCommonUI()
 {
-	UIGraph* graph = new UIGraph(LineBatcher, 250, 150, 15, 25);
+	UIGraph* graph = new UIGraph(Contexts[0]->GetLineBatcher(), 250, 150, 15, 25);
 	Graph = graph;
 	AddWidget(graph);
 	graph->SetEnabled(false);
@@ -50,7 +58,7 @@ void UIManager::InitEditorUI()
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
 	AddWidget(TOP);
 
-	
+
 
 	inspector = new Inspector(m_width, GetScaledHeight(0.2f), 0, 0);
 	inspector->SetScaled(RightWidth, 1.0f - (TopHeight), 1 - RightWidth);
@@ -112,20 +120,15 @@ void UIManager::AlertBox(std::string MSg)
 
 UIManager::~UIManager()
 {
-	textrender.reset();
-	for (int i = 0; i < widgets.size(); i++)
-	{
-		delete widgets[i];
-	}
-	delete LineBatcher;
-	delete DrawBatcher;
+	MemoryUtils::DeleteVector(Contexts);
+	SafeDelete(TextRenderer::instance);//todo: improve ownership
 }
 
 void UIManager::Initalise(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	textrender = std::make_unique<TextRenderer>(m_width, m_height);
+	new TextRenderer(width, height);
 }
 
 Inspector* UIManager::GetInspector()
@@ -145,121 +148,93 @@ void UIManager::RenderTextToScreen(int id, std::string text, glm::vec3 colour)
 
 void UIManager::RenderTextToScreen(std::string text, float x, float y, float scale, glm::vec3 colour)
 {
-	textrender->RenderFromAtlas(text, x, y, scale, colour, false);
+	TextRenderer::instance->RenderFromAtlas(text, x, y, scale, colour, false);
 }
 
 void UIManager::UpdateSize(int width, int height)
 {
-	LineBatcher->OnResize(width, height);
-	DrawBatcher->ClearVertArray();
 	m_width = width;
 	m_height = height;
-	ViewportRect = CollisionRect(GetScaledWidth(0.60f), GetScaledHeight(0.60f), GetScaledWidth(LeftWidth), GetScaledHeight(BottomHeight));
-
-	struct less_than_key
+#if WITH_EDITOR
+	for (int i = 0; i < Contexts.size(); i++)
 	{
-		bool operator() (UIWidget* struct1, UIWidget* struct2)
+		if (i > 0)
 		{
-			return (struct1->Priority > struct2->Priority);
+			Contexts[i]->UpdateSize(GetScaledWidth(0.60f), GetScaledHeight(0.60f), GetScaledWidth(RightWidth), GetScaledWidth(TopHeight));
 		}
-	};
-
-	std::sort(widgets.begin(), widgets.end(), less_than_key());
-
-	for (int i = (int)widgets.size() - 1; i >= 0; i--)
-	{
-		widgets[i]->UpdateScaled();
+		else
+		{
+			Contexts[i]->UpdateSize(width, height, 0, 0);
+		}
 	}
-
-	textrender->UpdateSize(width, height);
-	DrawBatcher->SendToGPU();
+#else
+	for (int i = 0; i < Contexts.size(); i++)
+	{
+		Contexts[i]->UpdateSize(width, height, TODO, TODO);
+	}
+#endif
 }
 
 void UIManager::AddWidget(UIWidget * widget)
 {
-	widgets.push_back(widget);
+	Contexts[0]->AddWidget(widget);
 }
 
 void UIManager::UpdateBatches()
 {
-	if (instance != nullptr)
+	for (int i = 0; i < instance->Contexts.size(); i++)
 	{
-		instance->UpdateSize(instance->m_width, instance->m_height);
+		instance->Contexts[i]->MarkRenderStateDirty();
 	}
 }
 
 void UIManager::UpdateWidgets()
 {
-	for (int i = 0; i < widgets.size(); i++)
+	for (int i = 0; i < Contexts.size(); i++)
 	{
-		widgets[i]->UpdateData();
+		Contexts[i]->UpdateWidgets();
 	}
-	CleanUpWidgets();
 }
 
 void UIManager::RenderWidgets()
 {
-	//todo: move to not run every frame?
-	DrawBatcher->RenderBatches();
-
-#if UISTATS
-	PerfManager::StartTimer("Line");
-#endif
-	LineBatcher->GenerateLines();
-	LineBatcher->RenderLines();
-#if UISTATS
-	PerfManager::EndTimer("Line");
-#endif
-	//todo: GC?
+	for (int i = 0; i < Contexts.size(); i++)
+	{
+		Contexts[i]->RenderWidgets();
+	}
 }
 
 void UIManager::RenderWidgetText()
 {
-	for (int i = 0; i < widgets.size(); i++)
+	for (int i = 0; i < Contexts.size(); i++)
 	{
-		if (widgets[i]->GetEnabled())
-		{
-			widgets[i]->Render();
-		}
+		Contexts[i]->RenderWidgetText();
 	}
 }
 
 //todo: prevent issue with adding while itoring!
 void UIManager::MouseMove(int x, int y)
 {
-	for (int i = 0; i < widgets.size(); i++)
+	for (int i = 0; i < Contexts.size(); i++)
 	{
-		if (!widgets[i]->IsPendingKill)
-		{
-			widgets[i]->MouseMove(x, y);
-		}
+		Contexts[i]->MouseMove(x, y);
 	}
-	Blocking = !(ViewportRect.Contains(x, y));
-#if 0
-	widgets[2]->Colour = Blocking ? glm::vec3(1) : glm::vec3(0);
-	UpdateBatches();
-#endif
+
 }
 
 void UIManager::MouseClick(int x, int y)
 {
-	for (int i = (int)widgets.size() - 1; i >= 0; i--)
+	for (int i = 0; i < Contexts.size(); i++)
 	{
-		if (!widgets[i]->IsPendingKill)
-		{
-			widgets[i]->MouseClick(x, y);
-		}
+		Contexts[i]->MouseClick(x, y);
 	}
 }
 
 void UIManager::MouseClickUp(int x, int y)
 {
-	for (int i = 0; i < widgets.size(); i++)
+	for (int i = 0; i < Contexts.size(); i++)
 	{
-		if (!widgets[i]->IsPendingKill)
-		{
-			widgets[i]->MouseClickUp(x, y);
-		}
+		Contexts[i]->MouseClickUp(x, y);
 	}
 }
 
@@ -350,30 +325,30 @@ void UIManager::SetCurrentcontext(UIWidget * widget)
 
 void UIManager::RemoveWidget(UIWidget* widget)
 {
-	widget->IsPendingKill = true;
-	WidgetsToRemove.push_back(widget);
+	/*widget->IsPendingKill = true;
+	WidgetsToRemove.push_back(widget);*/
 }
 
 void UIManager::CleanUpWidgets()
 {
-	if (WidgetsToRemove.empty())
-	{
-		return;
-	}
-	for (int x = 0; x < widgets.size(); x++)
-	{
-		for (int i = 0; i < WidgetsToRemove.size(); i++)
-		{
-			if (widgets[x] == WidgetsToRemove[i])//todo: performance of this?
-			{
-				widgets.erase(widgets.begin() + x);
-				SafeDelete(widgets[i]);
-				break;
-			}
-		}
-	}
-	WidgetsToRemove.clear();
-	UpdateBatches();
+	//if (WidgetsToRemove.empty())
+	//{
+	//	return;
+	//}
+	//for (int x = 0; x < widgets.size(); x++)
+	//{
+	//	for (int i = 0; i < WidgetsToRemove.size(); i++)
+	//	{
+	//		if (widgets[x] == WidgetsToRemove[i])//todo: performance of this?
+	//		{
+	//			widgets.erase(widgets.begin() + x);
+	//			SafeDelete(widgets[i]);
+	//			break;
+	//		}
+	//	}
+	//}
+	//WidgetsToRemove.clear();
+	//UpdateBatches();
 }
 
 void UIManager::CloseDropDown()
@@ -394,5 +369,22 @@ IntRect UIManager::GetEditorRect()
 	rect.Max.x = GetScaledWidth(0.8f - RightWidth);
 	rect.Max.y = GetScaledHeight(0.9f - BottomHeight);
 	return rect;
+}
+
+void UIManager::AddWidgetContext(UIWidgetContext * c)
+{
+	c->Initalise(m_width, m_height);
+	Contexts.push_back(c);
+	UpdateSize(m_width, m_height);
+}
+
+void UIManager::RemoveWidgetContext(UIWidgetContext * c)
+{
+	VectorUtils::Remove(Contexts, c);
+}
+
+UIWidgetContext * UIManager::GetDefaultContext()
+{
+	return instance->Contexts[0];
 }
 

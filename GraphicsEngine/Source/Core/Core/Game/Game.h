@@ -4,6 +4,7 @@
 #include "Core/Platform/Logger.h"
 #include "Core/Game/Gamemode.h"
 class AIDirector;
+class GameHud;
 class  Game
 {
 public:
@@ -17,6 +18,7 @@ public:
 	CORE_API class ExtraComponentRegister* GetECR();
 	CORE_API virtual GameMode* CreateGameMode();
 	CORE_API virtual AIDirector* CreateAIDirector();
+	CORE_API virtual GameHud* CreateGameHUD();
 	void Init();
 protected:
 	ExtraComponentRegister * ECR = nullptr;

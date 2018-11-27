@@ -794,6 +794,7 @@ void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 		nullptr,
 		IID_PPV_ARGS(&TempRes)));
 	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_GENERIC_READ);
+	PostUploadState = D3D12_RESOURCE_STATE_GENERIC_READ;
 }
 static inline UINT AlignForUavCounter(UINT bufferSize)
 {

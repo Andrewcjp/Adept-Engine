@@ -196,7 +196,10 @@ namespace TD
 			std::swap(A, B);
 			std::swap(AType, BType);
 		}
-
+		if (!A->GetFlags().GetFlagValue(TDShapeFlags::ESimulation) || !B->GetFlags().GetFlagValue(TDShapeFlags::ESimulation))
+		{
+			return;
+		}
 		ContactMethod con = ContactMethodTable[AType][BType];
 		DebugEnsure(con);
 		con(A, B, &pair->data);

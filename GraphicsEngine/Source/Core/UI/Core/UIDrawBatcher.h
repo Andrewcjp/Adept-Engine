@@ -11,7 +11,7 @@ struct UIVertex
 class UIDrawBatcher
 {
 public:
-	static UIDrawBatcher* instance;
+	
 	UIDrawBatcher();
 	void Init();
 	void ReallocBuffer(int NewSize);
@@ -22,6 +22,7 @@ public:
 	void AddVertex(glm::vec2 pos, bool Back, glm::vec3 frontcol = glm::vec3(1,1,1), glm::vec3 backcol = glm::vec3(0));
 	void ClearVertArray();
 	void CleanUp();
+	glm::ivec2 Offset = glm::ivec2(0);
 private:	
 	class Shader_UIBatch* Shader;
 	int UIMin = 300;

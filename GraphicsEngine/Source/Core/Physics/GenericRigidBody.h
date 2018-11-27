@@ -13,6 +13,7 @@ struct BodyInstanceData
 	float Mass = 1.0f;
 	bool UseAutoMass = false;
 	bool Gravity = true;
+	bool IsTrigger = false;
 };
 
 class Component;

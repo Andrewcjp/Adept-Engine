@@ -15,6 +15,7 @@ TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(ty
 TDRigidBody::~TDRigidBody()
 {
 	TDPhysicsEngine::GetScene()->RemoveActor(Actor);
+	SafeDelete(Actor);
 }
 
 glm::vec3 TDRigidBody::GetPosition() const
@@ -44,7 +45,6 @@ glm::vec3 TDRigidBody::GetLinearVelocity()const
 
 void TDRigidBody::AttachCollider(Collider * col)
 {
-	//Actor->AttachShape(new TD::TDSphere());
 	for (int i = 0; i < col->Shapes.size(); i++)
 	{
 		ShapeElem* Shape = col->Shapes[i];
@@ -76,6 +76,7 @@ void TDRigidBody::AttachCollider(Collider * col)
 			break;
 		}
 		}
+		newShape->GetFlags().SetFlagValue(TDShapeFlags::ESimulation, !BodyData.IsTrigger);
 		shapes.push_back(newShape);
 	}
 }
@@ -111,7 +112,8 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 
 	TD::TDMesh* newmesh = new TD::TDMesh(desc);
 	newmesh->CookMesh();
-	/*std::vector<TDTriangle*> tris = newmesh->GetTriangles();
+#if 0
+	std::vector<TDTriangle*> tris = newmesh->GetTriangles();
 	for (int i = 0; i < tris.size(); i++)
 	{
 		const int sides = 3;
@@ -120,19 +122,20 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 			const int next = (x + 1) % sides;
 			DebugDrawers::DrawDebugLine(tris[i]->Points[x], tris[i]->Points[next], glm::vec3(1), false, 100.0f);
 		}
-	}*/
-
+	}
+#endif
 
 	return newmesh;
 }
+
 void TDRigidBody::SetBodyData(BodyInstanceData data)
 {
-
+	BodyData = data;
 }
 
 BodyInstanceData TDRigidBody::GetBodyData()
 {
-	return BodyInstanceData();
+	return BodyData;
 }
 
 void TDRigidBody::SetLinearVelocity(glm::vec3 velocity)

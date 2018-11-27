@@ -23,7 +23,7 @@ namespace TD
 		TDActorType::Type GetActorType() const;
 		TDScene* GetScene() const;
 		void Release();
-		TD_API TDTransform* GetTransfrom();	
+		TD_API TDTransform* GetTransfrom();
 		virtual void AttachShape(TDShape* newShape);
 		std::vector<TDShape*>& GetAttachedShapes();
 		template<class T>
@@ -42,8 +42,6 @@ namespace TD
 		std::vector<TDShape*> AttachedShapes;
 		TDActorType::Type ActorType;
 		TDTransform Transform;
-
-		
 
 	};
 }

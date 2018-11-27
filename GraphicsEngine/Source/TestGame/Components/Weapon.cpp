@@ -95,14 +95,18 @@ void Weapon::Fire()
 	glm::vec3 Position = Player->CameraObject->GetPosition() + Forward * 4;
 	GameObject* newgo = GameObject::Instantiate(Position);
 	newgo->GetTransform()->SetScale(glm::vec3(0.3f));
-	newgo->AttachComponent(new ColliderComponent());
+	ColliderComponent* cc = newgo->AttachComponent(new ColliderComponent());
 	RigidbodyComponent* rb = newgo->AttachComponent(new RigidbodyComponent());
+	BodyInstanceData t;
+	t.IsTrigger = true;
+	rb->SetLockFlags(t);
 	rb->SetGravity(false);
 	rb->SetLinearVelocity(Forward*ProjectileSpeed);
 	Projectile* Proj = newgo->AttachComponent(new Projectile());
 	Proj->SetDamage(CurrentSettings.DamagePerShot);
 	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
 	GameObject::FinishGameObjectSpawn(newgo);
+	
 	CurrentCoolDown = CurrentSettings.FireDelay;
 	OnFire();
 }

@@ -3,6 +3,7 @@
 #include "Core/Components/CompoenentRegistry.h"
 #include "Core/Platform/PlatformCore.h"
 #include "AI/TestGame_Director.h"
+#include "TestGameHud.h"
 TestGame::TestGame(CompoenentRegistry* Reg) :Game(Reg)
 {
 	ECR = new TGExtraComponentRegister();
@@ -24,4 +25,9 @@ GameMode * TestGame::CreateGameMode()
 AIDirector * TestGame::CreateAIDirector()
 {
 	return new TestGame_Director();
+}
+
+GameHud* TestGame::CreateGameHUD()
+{
+	return new TestGameHud();
 }

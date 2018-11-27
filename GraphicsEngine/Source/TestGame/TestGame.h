@@ -10,6 +10,9 @@ public:
 	~TestGame();
 	virtual GameMode* CreateGameMode() override;
 	AIDirector * CreateAIDirector() override;
+
+	virtual GameHud* CreateGameHUD() override;
+
 };
    
  

@@ -1,5 +1,6 @@
 #include "UIWidget.h"
 #include "UI/UIManager.h"
+#include "UI/Core/UIWidgetContext.h"
 glm::vec3 DefaultColour = glm::vec3(1);
 UIWidget::UIWidget(int w, int h, int x, int y)
 {
@@ -9,6 +10,7 @@ UIWidget::UIWidget(int w, int h, int x, int y)
 	X = x;
 	Y = y;
 	Colour = glm::vec3(0.5f);
+	OwningContext = UIManager::GetDefaultContext();
 }
 
 UIWidget::~UIWidget()
@@ -37,6 +39,10 @@ void UIWidget::UpdateScaled()
 		ResizeView(UIManager::GetScaledWidth(WidthScale), UIManager::GetScaledHeight(HeightScale),
 			UIManager::GetScaledWidth(XoffsetScale), UIManager::GetScaledHeight(YoffsetScale));
 	}
+}
+void UIWidget::SetOwner(UIWidgetContext * wc)
+{
+	OwningContext = wc;
 }
 void UIWidget::UpdateData()
 {
@@ -71,5 +77,13 @@ void UIWidget::SetEnabled(bool state)
 bool UIWidget::operator<(UIWidget* that) const
 {
 	return (this->Priority > that->Priority);
+}
+
+void UIWidget::InvalidateRenderstate()
+{
+	if (OwningContext)
+	{
+		OwningContext->MarkRenderStateDirty();
+	}
 }
 
