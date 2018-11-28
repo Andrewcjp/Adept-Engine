@@ -1,6 +1,7 @@
 #include "UILabel.h"
 #include "UI/UIManager.h"
 #include "Rendering/Renderers/TextRenderer.h"
+#include "UIWidgetContext.h"
 UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
 	MText = text;
@@ -9,14 +10,13 @@ UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h,
 
 
 UILabel::~UILabel()
-{
-}
+{}
 //todo: Fit in box
 void UILabel::Render()
 {
 	if (TextRenderer::instance != nullptr)
 	{
-		UIManager::instance->RenderTextToScreen(MText, (float)X +10/*+ (mwidth / 2)*/, (float)Y + ((mheight / 2.0f) - (TextScale )), TextScale,glm::vec3(1));
+		UIManager::instance->RenderTextToScreen(MText, OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale)), TextScale, glm::vec3(1));
 	}
 }
 

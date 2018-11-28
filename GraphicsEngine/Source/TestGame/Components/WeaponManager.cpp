@@ -25,6 +25,14 @@ void WeaponManager::BeginPlay()
 	Weapons[0]->SetState(true);
 }
 
+void WeaponManager::AddAmmo(Weapon::WeaponType Type, int amount)
+{
+	if (Type < Weapon::Limit)
+	{
+		Weapons[Type]->AddAmmo(amount);
+	}
+}
+
 Weapon * WeaponManager::GetCurrentWeapon()
 {
 	return Weapons[CurrentIndex];
@@ -54,6 +62,13 @@ void WeaponManager::TryToMelee()
 	Melee->Fire();
 }
 
+std::string WeaponManager::GetCurrentWeaponinfoString()
+{
+	std::stringstream ss;
+	ss << Weapons[CurrentIndex]->GetCurrentAmmo() << " / " << Weapons[CurrentIndex]->GetCurrentSettings().MaxAmmoCount;
+	return ss.str();
+}
+
 void WeaponManager::Update(float delta)
 {
 #if WITH_EDTIOR
@@ -80,6 +95,6 @@ void WeaponManager::Update(float delta)
 	}
 	if (Input::GetKeyDown('F'))
 	{
-		Melee->Fire();
+		TryToMelee();
 	}
 }

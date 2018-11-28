@@ -5,9 +5,9 @@ class Weapon : public Component
 {
 public:
 	enum WeaponType
-	{
-		ShotGun,
+	{		
 		Rifle,
+		ShotGun,
 		RailGun,
 		Limit,
 	};
@@ -26,15 +26,19 @@ public:
 		glm::vec3 WeaponRelativePos = glm::vec3(0,0,0);
 		float DamagePerShot = 10.0f;
 		int MaxAmmoCount = 100;
+		float ProjectileSpeed = 50.0f;
 	};
 	const WeaponSettings& GetCurrentSettings() { return CurrentSettings; }
 	void SetCurrentSettings(WeaponSettings NewSettings);
+	void PlayFireSound();
 	virtual void Fire();
 	void SetState(bool state);
 	virtual void OnFire() {};
+	int GetCurrentAmmo() { return CurrentAmmoCount; }
+	void AddAmmo(int amt);
 protected:
 	TestPlayer* Player = nullptr;
-	float ProjectileSpeed = 50.0f;
+	
 	int CurrentAmmoCount = 10;
 private:
 	void CreateModel(Scene* s, GameObject* cameraobj);

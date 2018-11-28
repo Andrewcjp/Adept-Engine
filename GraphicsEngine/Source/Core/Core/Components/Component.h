@@ -26,6 +26,7 @@ public:
 #endif
 
 	CORE_API virtual void OnCollide(CollisonData data) {};
+	CORE_API virtual void OnTrigger(CollisonData data) {};
 	CORE_API virtual void OnDestroy();
 protected:
 	int TypeID = -1;

@@ -67,7 +67,7 @@ void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset
 {
 	LineBatcher->OnResize(width, height);
 	DrawBatcher->ClearVertArray();
-	DrawBatcher->Offset = glm::vec2(Xoffset, yoffset);
+	SetOffset(glm::ivec2(Xoffset, yoffset));
 	m_width = width;
 	m_height = height;
 	ViewportRect = CollisionRect(GetScaledWidth(0.60f), GetScaledHeight(0.60f), GetScaledWidth(1), GetScaledHeight(1));
@@ -193,4 +193,10 @@ UIDrawBatcher* UIWidgetContext::GetBatcher() const
 DebugLineDrawer * UIWidgetContext::GetLineBatcher() const
 {
 	return LineBatcher;
+}
+
+void UIWidgetContext::SetOffset(glm::ivec2 newoff)
+{
+	GetBatcher()->Offset = newoff;
+	Offset = newoff;
 }

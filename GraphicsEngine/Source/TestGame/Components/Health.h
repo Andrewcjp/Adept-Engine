@@ -6,6 +6,8 @@ public:
 	~Health();
 	void TakeDamage(float amt);
 	float MaxHealth = 100.0f;
+	float GetCurrentHealth() { return CurrentHealth; }
+	void AddHealth(float amt);
 private:
 	
 	float CurrentHealth = 100.0f;

@@ -4,6 +4,8 @@
 #include "Editor/EditorWindow.h"
 #include "Core/Utils/DebugDrawers.h"
 #include <glm/gtx/vector_angle.hpp>
+#include "Health.h"
+#include "WeaponManager.h"
 TestPlayer::TestPlayer()
 {}
 
@@ -18,6 +20,13 @@ void TestPlayer::InitComponent()
 void TestPlayer::OnCollide(CollisonData data)
 {
 
+}
+
+std::string TestPlayer::GetInfoString()
+{
+	std::stringstream ss;
+	ss << Manager->GetCurrentWeaponinfoString() << " Health " << Mhealth->GetCurrentHealth();
+	return ss.str();
 }
 
 void TestPlayer::CheckForGround()
@@ -49,6 +58,8 @@ void TestPlayer::CheckForGround()
 
 void TestPlayer::BeginPlay()
 {
+	Mhealth = GetOwner()->GetComponent<Health>();
+	Manager = GetOwner()->GetComponent<WeaponManager>();
 	RB = GetOwner()->GetComponent<RigidbodyComponent>();
 	RB->IsKineimatic = true;
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(90, 90, 0)));

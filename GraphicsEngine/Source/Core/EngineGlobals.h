@@ -6,6 +6,9 @@
 #define PHYSX_ENABLED 0
 #define TDSIM_ENABLED 1
 #endif
+#if PHYSX_ENABLED && TDSIM_ENABLED
+#error "Two physics engines enabled only one is allowed";
+#endif
 #define NO_GEN_CONTEXT 0
 
 #define BUILD_D3D11 0

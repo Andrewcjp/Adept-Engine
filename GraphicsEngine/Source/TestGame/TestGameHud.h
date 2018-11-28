@@ -1,5 +1,8 @@
 #pragma once
 #include "UI/GameUI/GameHud.h"
+
+class UILabel;
+class TestGameGameMode;
 class TestGameHud : public GameHud
 {
 public:
@@ -13,6 +16,8 @@ public:
 
 
 	virtual void OnDestory() override;
-
+private:
+	UILabel* ammoCounter = nullptr;
+	TestGameGameMode* Mode;
 };
 

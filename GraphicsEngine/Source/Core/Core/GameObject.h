@@ -6,6 +6,7 @@
 #endif
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
+#include "EngineTypes.h"
 class Component;
 class MeshRendererComponent;
 class GameObject
@@ -14,7 +15,7 @@ class GameObject
 #endif
 {
 public:
-
+	TagContainer Tags;
 	enum EMoblity { Static, Dynamic };
 	CORE_API GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
 	CORE_API ~GameObject();
@@ -72,6 +73,7 @@ public:
 	CORE_API glm::vec3 GetPosition();
 	CORE_API glm::quat GetRotation();
 	void BroadCast_OnCollide(CollisonData Data);
+	void BroadCast_OnTrigger(CollisonData Data);
 	int GetAudioId()
 	{
 		return AudioId;		

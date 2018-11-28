@@ -6,6 +6,7 @@
 #include "Components/MeshRendererComponent.h"
 #include "Components/RigidbodyComponent.h"
 #include "Platform/PlatformCore.h"
+
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
 {
 	Name = name;
@@ -290,6 +291,13 @@ void GameObject::BroadCast_OnCollide(CollisonData Data)
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		m_Components[i]->OnCollide(Data);
+	}
+}
+void GameObject::BroadCast_OnTrigger(CollisonData Data)
+{
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components[i]->OnTrigger(Data);
 	}
 }
 

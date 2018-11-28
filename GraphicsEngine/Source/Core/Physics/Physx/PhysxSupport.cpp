@@ -60,9 +60,41 @@ void PhysxCallBackHandler::onSleep(PxActor ** actors, PxU32 count)
 	DebugEnsure(false);
 }
 
-void PhysxCallBackHandler::onTrigger(PxTriggerPair * pairs, PxU32 count)
+void PhysxCallBackHandler::onTrigger(PxTriggerPair * Pairs, PxU32 count)
 {
-	DebugEnsure(false);
+	for (unsigned int PairIdx = 0; PairIdx < count; PairIdx++)
+	{
+		Collider* ColliderA = nullptr;
+		Collider* ColliderB = nullptr;
+		if (Pairs[PairIdx].triggerShape->userData != nullptr)
+		{
+			ColliderA = (Collider*)Pairs[PairIdx].triggerShape->userData;
+		}
+		if (Pairs[PairIdx].otherShape->userData != nullptr)
+		{
+			ColliderB = (Collider*)Pairs[PairIdx].otherShape->userData;
+		}
+		if (ColliderB == nullptr || ColliderA == nullptr)
+		{
+			Log::LogMessage("untracked Trigger Collision ", Log::Severity::Warning);
+			return;
+		}
+		CollisonData Data;
+		//todo: check order here!
+		Data.Hitcollider = ColliderA;
+		Data.OtherCollider = ColliderB;
+
+		if (ColliderA->GetOwner() != nullptr && ColliderA->GetOwner()->GetOwnerComponent() != nullptr && ColliderA->GetOwner()->GetOwnerComponent()->GetOwner() != nullptr)
+		{
+			ColliderA->GetOwner()->GetOwnerComponent()->GetOwner()->BroadCast_OnTrigger(Data);
+		}
+		Data.Hitcollider = ColliderB;
+		Data.OtherCollider = ColliderA;
+		if (ColliderB->GetOwner() != nullptr && ColliderB->GetOwner()->GetOwnerComponent() != nullptr && ColliderB->GetOwner()->GetOwnerComponent()->GetOwner() != nullptr)
+		{
+			ColliderB->GetOwner()->GetOwnerComponent()->GetOwner()->BroadCast_OnTrigger(Data);
+		}
+	}
 }
 
 void PhysxCallBackHandler::onAdvance(const PxRigidBody * const * bodyBuffer, const PxTransform * poseBuffer, const PxU32 count)

@@ -97,3 +97,29 @@ RigidBody * GenericCollider::GetOwner()
 {
 	return Owner;
 }
+
+void GenericCollider::SetEnabled(bool state)
+{
+#if PHYSX_ENABLED
+	if (state)
+	{
+		Shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+		if (IsTrigger)
+		{
+			Shape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+			Shape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, true);
+		}
+		else
+		{
+			Shape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, true);
+		}
+	}
+	else
+	{
+		Shape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+		Shape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, false);
+		Shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, false);
+	}
+#else
+#endif
+}

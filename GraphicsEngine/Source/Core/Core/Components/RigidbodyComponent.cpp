@@ -72,13 +72,11 @@ void RigidbodyComponent::SceneInitComponent()
 	{
 		actor = new RigidBody(EBodyType::RigidDynamic, *GetOwner()->GetTransform());
 		std::vector<ColliderComponent*> colliders = GetOwner()->GetAllComponentsOfType<ColliderComponent>();
-		Collider* tempcol = new Collider();
 		for (ColliderComponent* cc : colliders)
 		{
 			cc->TransferToRigidbody();
-			tempcol->Shapes.push_back(cc->GetColliderShape());
-		}
-		actor->AttachCollider(tempcol);
+			actor->AttachCollider(cc->GetCollider());
+		}	
 		actor->SetBodyData(LockData);
 		actor->SetOwnerComponent(this);
 		actor->InitBody();

@@ -98,12 +98,13 @@ void EditorWindow::EnterPlayMode()
 	CurrentPlayScene = new Scene();
 	Saver->LoadScene(CurrentPlayScene, EditorPlaySceneTempFile);
 	Renderer->SetScene(CurrentPlayScene);
-	CurrentPlayScene->StartScene();
-#endif
-	EditorCamera->SetEnabled(false);
 	IsRunning = true;
 	IsPlayingScene = true;
 	ShouldTickScene = true;
+	CurrentPlayScene->StartScene();
+#endif
+	EditorCamera->SetEnabled(false);
+
 	PerfManager::Get()->EndSingleActionTimer(PlayStatTimer);
 	PerfManager::Get()->LogSingleActionTimer(PlayStatTimer);
 	PerfManager::Get()->FlushSingleActionTimer(PlayStatTimer);

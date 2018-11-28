@@ -32,7 +32,7 @@ Scene::~Scene()
 
 void Scene::UpdateScene(float deltatime)
 {
-	AISystem::Get()->Tick(deltatime);
+	AISystem::Get()->Tick(deltatime); 
 	CurrentGameMode->Update();
 	if (SceneObjects.size() == 0)
 	{

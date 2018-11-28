@@ -27,3 +27,19 @@ struct IntRect
 		Max = max;
 	}
 };
+struct Tag
+{
+	CORE_API Tag() {}
+	Tag(std::string s)
+	{
+		name = s;
+	}
+	std::string name;
+	bool operator==(const Tag& t);
+};
+struct TagContainer
+{
+	std::vector<Tag> Tags;
+	CORE_API bool Contains(Tag t);
+	CORE_API void Add(std::string name);
+};
