@@ -1,4 +1,5 @@
 #pragma once
+#include "Weapon.h"
 const int MAX_WEAPON_COUNT = 3;
 class Weapon;
 class MeleeWeapon;
@@ -14,10 +15,11 @@ public:
 	void SwitchWeaponUp(bool Direction);
 	void SwitchWeapon(int index);
 	void TryToMelee();
+	std::string GetCurrentWeaponinfoString();
 	MeleeWeapon* Melee = nullptr;
 
 	virtual void BeginPlay() override;
-
+	void AddAmmo(Weapon::WeaponType Type, int amount);
 private:
 	
 	void Update(float delta) override;

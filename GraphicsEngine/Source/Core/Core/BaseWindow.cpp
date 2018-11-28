@@ -126,7 +126,7 @@ void BaseWindow::Render()
 #endif
 
 	Update();
-	if (ShouldTickScene)
+	if (ShouldTickScene && false)
 	{
 		Engine::GetGame()->Update();
 		PerfManager::StartTimer("Scene Update");

@@ -21,6 +21,12 @@ void Health::TakeDamage(float amt)
 	}
 }
 
+void Health::AddHealth(float amt)
+{
+	CurrentHealth += amt;
+	CurrentHealth = glm::clamp(CurrentHealth, 0.0f, MaxHealth);
+}
+
 void Health::SceneInitComponent()
 {
 	CurrentHealth = MaxHealth;

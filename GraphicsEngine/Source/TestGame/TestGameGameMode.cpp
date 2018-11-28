@@ -4,15 +4,16 @@
 #include "AI/SkullChaser.h"
 #include "AI/TestGame_Director.h"
 #include "Components/Health.h"
+#include "Components/MeleeWeapon.h"
+#include "Components/Pickup.h"
 #include "Components/Projectile.h"
+#include "Components/Railgun.h"
+#include "Components/SpawningPool.h"
 #include "Components/TestPlayer.h"
 #include "Components/Weapon.h"
 #include "Components/WeaponManager.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "Physics/GenericConstraint.h"
-#include "Components/SpawningPool.h"
-#include "Components/MeleeWeapon.h"
-#include "Components/Railgun.h"
 
 TestGameGameMode::TestGameGameMode()
 {}
@@ -46,6 +47,7 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 
 	GameObject* go = new GameObject("Player Test");
 	player = go;
+	player->Tags.Add("player");
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	mat->GetProperties()->Roughness = 0.0f;
@@ -57,7 +59,7 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	go->AttachComponent(new RigidbodyComponent());
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
-
+	go->AttachComponent(new Health());
 	TestPlayer* player = go->AttachComponent(new TestPlayer());
 	BodyInstanceData lock;
 	lock.LockXRot = true;
@@ -72,21 +74,24 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	Scene->AddGameobjectToScene(go);
 
 	WeaponManager* manager = go->AttachComponent(new WeaponManager());
-	manager->Weapons[0] = go->AttachComponent(new Weapon(Weapon::WeaponType::Rifle,Scene,player));
-	manager->Weapons[1] = go->AttachComponent(new Weapon(Weapon::WeaponType::ShotGun, Scene, player));
-	manager->Weapons[2] = go->AttachComponent(new Railgun( Scene, player));
+	manager->Weapons[Weapon::WeaponType::Rifle] = go->AttachComponent(new Weapon(Weapon::WeaponType::Rifle, Scene, player));
+	manager->Weapons[Weapon::WeaponType::ShotGun] = go->AttachComponent(new Weapon(Weapon::WeaponType::ShotGun, Scene, player));
+	manager->Weapons[Weapon::WeaponType::RailGun] = go->AttachComponent(new Railgun(Scene, player));
 	manager->Melee = go->AttachComponent(new MeleeWeapon());
+	cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eSPHERE);
+	cc->Radius = 10.0f;
+	cc->IsTrigger = true;
+	manager->Melee->Collider = cc;
 	AISystem::Get()->GetDirector<TestGame_Director>()->SetPlayer(player->GetOwner());
-	SpawnSKull(glm::vec3(20, 5, 0));
+	//	SpawnSKull(glm::vec3(20, 5, 0));
 	SpawnSKull(glm::vec3(-15, 5, 0));
-
-
 
 	GameObject* AiTest = Scene::CreateDebugSphere(nullptr);
 	AiTest->AttachComponent(new SpawningPool());
 	AiTest->SetPosition(glm::vec3(50, -8, 10));
 	Scene->AddGameobjectToScene(AiTest);
-
+	Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
 #if 0
 	GameObject* AiTest = MakeTestSphere(Scene);
 	AiTest->SetPosition(glm::vec3(50, -2, 0));
@@ -122,5 +127,5 @@ void TestGameGameMode::EndPlay()
 
 void TestGameGameMode::Update()
 {
-
+	GameMode::Update();
 }

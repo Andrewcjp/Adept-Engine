@@ -106,7 +106,6 @@ void UIManager::CreateDropDown(std::vector<std::string> &options, float width, f
 	AddWidget(testbox3);
 	testbox3->UpdateScaled();
 	instance->DropdownCurrent = testbox3;
-	//UIManager::UpdateBatches();
 }
 
 void UIManager::AlertBox(std::string MSg)

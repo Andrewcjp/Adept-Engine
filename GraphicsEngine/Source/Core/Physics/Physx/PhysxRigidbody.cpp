@@ -5,6 +5,8 @@
 #include "Physics/PhysicsTypes.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Engine.h"
+#include "../GenericRigidBody.h"
+#include "Core/Components/ColliderComponent.h"
 using namespace physx;
 PhysxRigidbody::~PhysxRigidbody()
 {
@@ -148,7 +150,6 @@ physx::PxConvexMesh* PhysxRigidbody::GenerateConvexMesh(std::string Filename, gl
 }
 void PhysxRigidbody::AttachCollider(Collider * col)
 {
-
 	PMaterial = PhysxEngine::GetDefaultMaterial();
 	PxShape* newShape = nullptr;
 	for (int i = 0; i < col->Shapes.size(); i++)
@@ -164,38 +165,38 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 		case EShapeType::eBOX:
 		{
 			BoxElem* BoxShape = (BoxElem*)Shape;
-			newShape = PhysxEngine::GetGPhysics()->createShape(PxBoxGeometry(PhysxEngine::GLMtoPXvec3(BoxShape->Extents)), *PMaterial);
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxBoxGeometry(PhysxEngine::GLMtoPXvec3(BoxShape->Extents)), *PMaterial, !col->IsTrigger);
 			break;
 		}
 		case EShapeType::eSPHERE:
 		{
 			SphereElem* SphereShape = (SphereElem*)Shape;
-			newShape = PhysxEngine::GetGPhysics()->createShape(PxSphereGeometry(SphereShape->raduis), *PMaterial);
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxSphereGeometry(SphereShape->raduis), *PMaterial, !col->IsTrigger);
 			break;
 		}
 		case EShapeType::eCAPSULE:
 		{
 			CapsuleElm* SphereShape = (CapsuleElm*)Shape;
-			newShape = PhysxEngine::GetGPhysics()->createShape(PxCapsuleGeometry(SphereShape->raduis, SphereShape->height), *PMaterial);
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxCapsuleGeometry(SphereShape->raduis, SphereShape->height), *PMaterial, !col->IsTrigger);
 			break;
 		}
 		case EShapeType::ePLANE:
 		{
 			PlaneElm* SphereShape = (PlaneElm*)Shape;
-			newShape = PhysxEngine::GetGPhysics()->createShape(PxPlaneGeometry(), *PMaterial);
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxPlaneGeometry(), *PMaterial, !col->IsTrigger);
 			newShape->setLocalPose(PxTransform(PhysxEngine::GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(0, 1, 0, 0)));
 			break;
 		}
 		case EShapeType::eCONVEXMESH:
 		{
 			ConvexMeshElm* SphereShape = (ConvexMeshElm*)Shape;
-			newShape = PhysxEngine::GetGPhysics()->createShape(PxConvexMeshGeometry(GenerateConvexMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial);
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxConvexMeshGeometry(GenerateConvexMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial, !col->IsTrigger);
 			break;
 		}
 		case EShapeType::eTRIANGLEMESH:
 		{
 			TriMeshElm* SphereShape = (TriMeshElm*)Shape;
-			newShape = PhysxEngine::GetGPhysics()->createShape(PxTriangleMeshGeometry(GenerateTriangleMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial);
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxTriangleMeshGeometry(GenerateTriangleMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial, !col->IsTrigger);
 			break;
 		}
 		}
@@ -203,6 +204,8 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 		newShape->userData = col;
 		Shapes.push_back(newShape);
 	}
+	col->Shape = newShape;
+	col->SetEnabled(col->ComponentOwner->IsEnabled());
 	AttachedColliders.push_back(col);
 	col->SetOwner(this);
 }
@@ -255,11 +258,7 @@ void PhysxRigidbody::InitBody()
 		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(PhysxEngine::GLMtoPXvec3(transform.GetPos()), PhysxEngine::GLMtoPXQuat(transform.GetQuatRot())));
 		for (int i = 0; i < Shapes.size(); i++)
 		{
-			Dynamicactor->attachShape(*Shapes[i]);
-			if (BodyData.IsTrigger)
-			{
-				Shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-			}
+			Dynamicactor->attachShape(*Shapes[i]);			
 		}
 		Dynamicactor->setAngularDamping(BodyData.AngularDamping);
 		Dynamicactor->setLinearDamping(BodyData.LinearDamping);
@@ -271,7 +270,7 @@ void PhysxRigidbody::InitBody()
 		{
 			PxRigidBodyExt::updateMassAndInertia(*Dynamicactor, PhysicsMat->density);
 		}
-		
+
 		CommonActorPtr = Dynamicactor;
 	}
 	else if (BodyType == EBodyType::RigidStatic)

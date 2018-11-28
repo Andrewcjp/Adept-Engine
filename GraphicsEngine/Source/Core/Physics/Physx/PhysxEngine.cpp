@@ -26,7 +26,7 @@ PhysxEngine * PhysxEngine::Get()
 
 void PhysxEngine::initPhysics()
 {
-	//PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
+	PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 #if ENABLEPVD
 	gPvd = PxCreatePvd(*gFoundation);
@@ -80,7 +80,7 @@ void PhysxEngine::initPhysics()
 	go->SetRotation(glm::vec3(90, 0, 0));
 	//DebugFloor->
 #endif
-	Log::OutS << "Physx Initalised" << Log::OutS;
+	Log::OutS << "PhysX initialized" << Log::OutS;
 }
 
 void PhysxEngine::stepPhysics(float Deltatime)

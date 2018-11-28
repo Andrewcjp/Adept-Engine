@@ -11,6 +11,7 @@
 #include "AI/Core/AIDirector.h"
 #include "Core/Components/Component.h"
 #include "AI/Core/SpawnMarker.h"
+#include "../Components/MeleeWeapon.h"
 
 TestGame_Director::TestGame_Director()
 {}
@@ -64,6 +65,10 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	AIController* Controller = newAI->AttachComponent(new AIController());
 	newAI->AttachComponent(new Health());
+	newAI->AttachComponent(new MeleeWeapon());
+	cc = newAI->AttachComponent(new ColliderComponent());
+	cc->IsTrigger = true;
+	cc->SetCollisonShape(EShapeType::eSPHERE);
 	return newAI;
 }
 

@@ -23,6 +23,7 @@ Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player)
 		CurrentSettings.FireDelay = 0.850f;
 		CurrentSettings.DamagePerShot = 150;
 		CurrentSettings.MaxAmmoCount = 20;
+		CurrentSettings.ProjectileSpeed = 150.0f;
 	}
 	Player = player;
 	CurrentWeaponType = T;
@@ -60,7 +61,6 @@ void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 		WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -2, 3));//z,y,x
 		WeaponModel->GetTransform()->SetScale(glm::vec3(0.4f));
 	}
-
 	s->AddGameobjectToScene(go);
 }
 
@@ -82,13 +82,41 @@ void Weapon::SetCurrentSettings(WeaponSettings NewSettings)
 	CurrentSettings = NewSettings;
 }
 
+void Weapon::PlayFireSound()
+{
+	switch (CurrentWeaponType)
+	{
+	default:
+		break;
+	case ShotGun:
+		AudioEngine::PostEvent("Play_Shotgun", GetOwner());
+		break;
+	case Rifle:
+		AudioEngine::PostEvent("Play_Rifle", GetOwner());
+		break;
+	case RailGun:
+		AudioEngine::PostEvent("Play_Gauss", GetOwner());
+		break;
+	case Limit:
+		break;
+	}
+}
+
 void Weapon::Fire()
 {
 	if (CurrentCoolDown > 0)
 	{
 		return;
 	}
-	AudioEngine::PostEvent("Play_Shotgun", GetOwner());
+	CurrentCoolDown = CurrentSettings.FireDelay;
+	if (CurrentAmmoCount <= 0)
+	{
+		AudioEngine::PostEvent("EmptyClick", GetOwner());
+		return;
+	}
+	CurrentAmmoCount--;
+	PlayFireSound();
+
 	//Create projectile!
 	const glm::vec3 Forward = CameraComponent::GetMainCamera()->GetForward();
 	TestPlayer* Player = GetOwner()->GetComponent<TestPlayer>();
@@ -96,18 +124,14 @@ void Weapon::Fire()
 	GameObject* newgo = GameObject::Instantiate(Position);
 	newgo->GetTransform()->SetScale(glm::vec3(0.3f));
 	ColliderComponent* cc = newgo->AttachComponent(new ColliderComponent());
+	cc->IsTrigger = true;
 	RigidbodyComponent* rb = newgo->AttachComponent(new RigidbodyComponent());
-	BodyInstanceData t;
-	t.IsTrigger = true;
-	rb->SetLockFlags(t);
 	rb->SetGravity(false);
-	rb->SetLinearVelocity(Forward*ProjectileSpeed);
+	rb->SetLinearVelocity(Forward*CurrentSettings.ProjectileSpeed);
 	Projectile* Proj = newgo->AttachComponent(new Projectile());
 	Proj->SetDamage(CurrentSettings.DamagePerShot);
 	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
 	GameObject::FinishGameObjectSpawn(newgo);
-	
-	CurrentCoolDown = CurrentSettings.FireDelay;
 	OnFire();
 }
 
@@ -117,5 +141,11 @@ void Weapon::SetState(bool state)
 	{
 		WeaponModel->GetMeshRenderer()->SetVisiblity(state);
 	}
+}
+
+void Weapon::AddAmmo(int amt)
+{
+	CurrentAmmoCount += amt;
+	CurrentAmmoCount = glm::clamp(CurrentAmmoCount, 0, CurrentSettings.MaxAmmoCount);
 }
 

@@ -7,6 +7,7 @@
 GameHud::GameHud()
 {}
 
+
 GameHud::~GameHud()
 {}
 
@@ -27,6 +28,11 @@ void GameHud::Destory()
 	UIManager::Get()->RemoveWidgetContext(Context);
 	SafeDelete(Context);
 	OnDestory();
+}
+
+void GameHud::SetGameMode(GameMode * gm)
+{
+	gameMode = gm;
 }
 
 void GameHud::OnDestory()

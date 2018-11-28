@@ -30,6 +30,8 @@ public:
 	void MouseClickUp(int x, int y);
 	UIDrawBatcher* GetBatcher() const;
 	DebugLineDrawer* GetLineBatcher()const;
+	void SetOffset(glm::ivec2 newoff);
+	glm::ivec2 Offset = glm::ivec2(0);
 private:
 	int m_width = 0;
 	int m_height = 0;

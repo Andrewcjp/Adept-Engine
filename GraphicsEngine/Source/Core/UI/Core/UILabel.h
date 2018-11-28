@@ -5,7 +5,7 @@ class UILabel :
 	public UIWidget
 {
 public:
-	UILabel(std::string  text, int w, int h, int x, int y);
+	CORE_API UILabel(std::string  text, int w, int h, int x, int y);
 	virtual ~UILabel();
 
 	// Inherited via UIWidget

@@ -1,19 +1,18 @@
-//
 #include "ColliderComponent.h"
-#include "Core/Engine.h"
-#include "Physics/PhysicsEngine.h"
 #include "CompoenentRegistry.h"
 #include "Core/Assets/Archive.h"
-#include "Core/GameObject.h"
-#include "RigidbodyComponent.h"
 #include "Core/Assets/AssetManager.h"
-#include "core/Utils/DebugDrawers.h"
+#include "Core/Engine.h"
+#include "Core/GameObject.h"
+#include "Core/Utils/DebugDrawers.h"
+#include "Physics/PhysicsEngine.h"
 #include "Physics/SimTD/TDRigidBody.h"
+#include "RigidbodyComponent.h"
+
 ColliderComponent::ColliderComponent()
 {
 	TypeID = CompoenentRegistry::BaseComponentTypes::ColliderComp;
 }
-
 
 ColliderComponent::~ColliderComponent()
 {
@@ -22,6 +21,15 @@ ColliderComponent::~ColliderComponent()
 		Actor->SetOwnerComponent(nullptr);
 	}
 	SafeDelete(Actor);
+}
+
+void ColliderComponent::SetEnabled(bool State)
+{
+	Enabled = State;
+	if (CurrentCollider)
+	{
+		CurrentCollider->SetEnabled(Enabled);
+	}
 }
 
 void ColliderComponent::InitComponent()
@@ -64,22 +72,32 @@ void ColliderComponent::EditorUpdate()
 {
 	if (PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::ShowShapes)
 	{
+		glm::vec3 colour = glm::vec3(1);
+		if (IsTrigger)
+		{
+			colour = glm::vec3(0, 1, 0);
+		}
+		if (!Enabled)
+		{
+			colour = glm::vec3(0.3f);
+		}
 		switch (CollisionShapeType)
 		{
 			//todo: transition this to use a wire frame shader
 		case EShapeType::eSPHERE:
-			DebugDrawers::DrawDebugSphere(GetOwner()->GetPosition(), Radius, glm::vec3(1));
+			DebugDrawers::DrawDebugSphere(GetOwner()->GetPosition(), Radius, colour);
 			break;
 		case EShapeType::eCAPSULE:
-			DebugDrawers::DrawDebugCapsule(GetOwner()->GetPosition(), Height, Radius, GetOwner()->GetRotation());
+			DebugDrawers::DrawDebugCapsule(GetOwner()->GetPosition(), Height, Radius, GetOwner()->GetRotation(), colour);
 			break;
 		case EShapeType::eTRIANGLEMESH:
+			return;
 			for (int i = 0; i < Points.size(); i++)
 			{
 				for (int x = 0; x < 3; x++)
 				{
 					const int next = (x + 1) % 3;
-					DebugDrawers::DrawDebugLine(Points[i][x], Points[i][next], glm::vec3(1), false, 0.0f);
+					DebugDrawers::DrawDebugLine(Points[i][x], Points[i][next], colour, false, 0.0f);
 				}
 			}
 			break;
@@ -153,9 +171,20 @@ ShapeElem * ColliderComponent::GetColliderShape()
 	return nullptr;
 }
 
+Collider * ColliderComponent::GetCollider()
+{
+	if (CurrentCollider == nullptr)
+	{
+		CurrentCollider = new Collider();
+		CurrentCollider->ComponentOwner = this;
+	}
+	CurrentCollider->Shapes.push_back(GetColliderShape());
+	CurrentCollider->IsTrigger = IsTrigger;
+	return CurrentCollider;
+}
+
 void ColliderComponent::LoadMesh()
 {
-
 	MeshLoader::FMeshLoadingSettings set;
 	std::vector<OGLVertex> v;
 	std::vector<int> inds;
@@ -172,26 +201,24 @@ void ColliderComponent::LoadMesh()
 	}
 }
 
-
 void ColliderComponent::SceneInitComponent()
 {
-	if ((GetOwner() != nullptr && GetOwner()->GetComponent<RigidbodyComponent>() == nullptr) || GetOwner() == nullptr)
+	RigidComp = GetOwner()->GetComponent<RigidbodyComponent>();
+	if ((GetOwner() != nullptr && RigidComp == nullptr) || GetOwner() == nullptr)
 	{
-		//A gameobject without a rigidbody should be setup as a static rigidbody
+		//A game object without a rigid body should be setup as a static rigid body
 		Actor = new RigidBody(EBodyType::RigidStatic, GetOwner()->GetPosition());
 		std::vector<ColliderComponent*> colliders = GetOwner()->GetAllComponentsOfType<ColliderComponent>();
-		Collider* tempcol = new Collider();
 		for (ColliderComponent* cc : colliders)
 		{
-			tempcol->Shapes.push_back(cc->GetColliderShape());
+			Actor->AttachCollider(cc->GetCollider());
 		}
-	//	Actor->GetBodyData().IsTrigger = IsTrigger;
 		Actor->SetGravity(false);
-		Actor->AttachCollider(tempcol);
 		Actor->InitBody();
 		Actor->SetOwnerComponent(this);
 	}
 }
+
 void ColliderComponent::TransferToRigidbody()
 {
 	SafeDelete(Actor);

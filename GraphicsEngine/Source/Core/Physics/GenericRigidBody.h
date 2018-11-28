@@ -13,10 +13,11 @@ struct BodyInstanceData
 	float Mass = 1.0f;
 	bool UseAutoMass = false;
 	bool Gravity = true;
-	bool IsTrigger = false;
 };
 
 class Component;
+class ColliderComponent;
+namespace physx { class PxShape; }
 /*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/
 class GenericRigidBody
 {
@@ -93,7 +94,14 @@ public:
 	std::vector<ShapeElem*> Shapes;
 	CORE_API void SetOwner(RigidBody* newowner);
 	CORE_API RigidBody * GetOwner();
+	bool IsTrigger = false;
+#if PHYSX_ENABLED
+	physx::PxShape* Shape = nullptr;
+#endif
+	void SetEnabled(bool state);
+	ColliderComponent* ComponentOwner = nullptr;
 protected:
 	RigidBody* Owner = nullptr;
+	
 };
 

@@ -13,6 +13,7 @@ void GameMode::BeginPlay(Scene* Scene)
 {
 	CurrentScene = Scene;
 	Hud = Engine::GetGame()->CreateGameHUD();
+	Hud->SetGameMode(this);
 	Hud->Start();
 }
 
@@ -26,7 +27,9 @@ void GameMode::EndPlay()
 }
 
 void GameMode::Update()
-{}
+{
+	Hud->Update();
+}
 
 GameHud * GameMode::GetCurrentHudInstance()
 {

@@ -1,6 +1,9 @@
 #pragma once
 #include "Core/Components/Core_Components_FWD.h"
 #include "Core/Components/Component.h"
+
+class Health;
+class WeaponManager;
 class TestPlayer :public Component
 {
 public:
@@ -10,6 +13,8 @@ public:
 	// Inherited via Component
 	virtual void InitComponent() override;
 	void OnCollide(CollisonData data) override;
+
+	std::string GetInfoString();
 	
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
@@ -17,6 +22,7 @@ public:
 	GameObject* CameraObject = nullptr;
 	bool GetIsGrounded() const { return IsGrounded; }
 	glm::vec3 ExtraVel = glm::vec3();
+	WeaponManager* Manager = nullptr;
 private:
 	void CheckForGround();
 	void UpdateMovement(float delta);
@@ -31,5 +37,7 @@ private:
 	bool IsGrounded = false;
 	const float AirSpeedFactor = 0.2f;
 	bool Frontblocked = false;
+	Health* Mhealth = nullptr;
+	
 };
 

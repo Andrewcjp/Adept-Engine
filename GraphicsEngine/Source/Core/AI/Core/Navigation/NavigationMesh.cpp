@@ -125,6 +125,7 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 	{
 		//we are within a nav triangle so we path straight to the point 
 		outputPath->Positions.push_back(EndPos);
+		return ENavRequestStatus::Complete;
 	}
 	DPathFinder->Plane = Plane;
 	DPathFinder->SetTarget(EndPos, Startpoint);
