@@ -72,7 +72,6 @@ void TestPlayer::BeginPlay()
 void TestPlayer::Update(float delta)
 {
 	const float EyeHeight = 1.9f;
-	//	DebugDrawers::DrawDebugCapsule(CameraObject->GetPosition() - glm::vec3(0, EyeHeight / 2.0f, 0), EyeHeight / 2.0f, 2.0f, glm::quat(glm::radians(glm::vec3(90, 0, 0))));
 #if WITH_EDITOR
 	if (EditorWindow::GetInstance()->IsEditorEjected())
 	{

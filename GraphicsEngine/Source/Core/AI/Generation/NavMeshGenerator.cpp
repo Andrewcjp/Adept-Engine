@@ -148,10 +148,6 @@ NavPlane* NavMeshGenerator::GetPlane(float Z, std::vector<NavPlane*>& list)
 	NavPlane* plane = nullptr;
 	for (int i = 0; i < list.size(); i++)
 	{
-		if (Z > -9)
-		{
-			float t = 0;
-		}
 		if (MathUtils::AlmostEqual(list[i]->ZHeight, Z, PlaneTolerance))
 		{
 			return list[i];
@@ -259,9 +255,9 @@ void HeightField::InitGrid(glm::vec3 Pos, int x, int y)
 	RootPos = Pos;
 	CentreOffset = glm::vec3((x / 2)*GridSpacing, 0, (y / 2)*GridSpacing);
 	GridData = new float[Width*Height];
-	for (int x = 0; x < Width*Height; x++)
+	for (int zx = 0; zx < Width*Height; zx++)
 	{
-		GridData[x] = -std::numeric_limits<float>::max();
+		GridData[zx] = -std::numeric_limits<float>::max();
 	}
 }
 

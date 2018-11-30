@@ -15,6 +15,8 @@
 #include "Core/Platform/Logger.h"
 #include "Core/GameObject.h"
 #include "Core/Assets/AssetManager.h"
+#include "Core/Platform/PlatformCore.h"
+#include "Core/Utils/MathUtils.h"
 //wwise Libs
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dsound.lib")
@@ -167,19 +169,30 @@ void AudioEngine::LoadBanks()
 	LoadBank("Init.bnk");
 	LoadBank("Core.bnk");
 	AK::SoundEngine::RegisterGameObj(GAME_OBJECT_ID_DEFAULT, "DEFAULT");
+	AK::SoundEngine::SetDefaultListeners(&GAME_OBJECT_ID_DEFAULT, 1);
 }
+void AudioEngine::MakeDefaultListener(GameObject* g)
+{
+	CurrnetMainListener = g;
+	AkGameObjectID id = (AkGameObjectID)g->GetAudioId();
+	AK::SoundEngine::SetDefaultListeners(&id, 1);
+}
+
 void AudioEngine::RegisterObject(GameObject* obj)
 {
 	AK::SoundEngine::RegisterGameObj(obj->GetAudioId(), obj->GetName().c_str());
 }
+
 void AudioEngine::DeRegisterObject(GameObject* obj)
 {
 	AK::SoundEngine::UnregisterGameObj(obj->GetAudioId());
 }
+
 void AudioEngine::StopAll()
 {
 	AK::SoundEngine::StopAll();
 }
+
 int AudioEngine::GetNextAudioId()
 {
 	Instance->NextAudioId++;
@@ -190,5 +203,27 @@ void AudioEngine::LoadBank(std::string Name)
 	const std::string BankLocation = AssetManager::GetContentPath() + "Banks\\" + Name;
 	AkBankID bankID; // Not used. These banks can be unloaded with their file name.
 	AKRESULT eResult = AK::SoundEngine::LoadBank(BankLocation.c_str(), AK_DEFAULT_POOL_ID, bankID);
-	assert(eResult == AK_Success);	
+	assert(eResult == AK_Success);
+}
+
+AkVector ConvertToAK(glm::vec3& value)
+{
+	AkVector newvec;
+	newvec.X = value.x;
+	newvec.Y = value.y;
+	newvec.Z = value.z;
+	return newvec;
+}
+
+void AudioEngine::UpdateWiseTransfrom(GameObject * go)
+{
+	AkTransform trans;
+	trans.SetPosition(ConvertToAK(go->GetPosition()));
+	CheckNAN(go->GetPosition());
+	AkVector fwd = ConvertToAK(glm::normalize(go->GetTransform()->GetForward()));
+	AkVector up = ConvertToAK(glm::normalize(go->GetTransform()->GetUp()));
+	trans.SetOrientation(fwd, up);
+	//todo: rotations
+	AKRESULT ar = AK::SoundEngine::SetPosition(go->GetAudioId(), trans);
+	check(ar == AKRESULT::AK_Success);
 }

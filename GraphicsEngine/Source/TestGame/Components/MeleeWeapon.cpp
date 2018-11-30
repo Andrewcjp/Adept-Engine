@@ -16,7 +16,7 @@ void MeleeWeapon::Fire()
 	{
 		return;
 	}
-	AudioEngine::PostEvent("Melee_Move");
+	AudioEngine::PostEvent("Melee_Move",GetOwner());
 	//do a box cast or something!
 	Collider->SetEnabled(true);
 	CurrentAttackTime = AttackLength;
@@ -42,11 +42,15 @@ void MeleeWeapon::OnTrigger(CollisonData data)
 	{
 		return;
 	}
+	if (data.OtherCollider->IsTrigger)
+	{
+		return;
+	}
 	Health* h = data.OtherCollider->GetGameObject()->GetComponent<Health>();
-	if (h != nullptr && !data.OtherCollider->GetGameObject()->Tags.Contains(Tag("player")))
+	if (h != nullptr && h->GetOwner() != GetOwner())
 	{
 		h->TakeDamage(AttackDamage);
-		AudioEngine::PostEvent("Melee_Hit");
+		AudioEngine::PostEvent("Melee_Hit", GetOwner());
 	}
 }
 

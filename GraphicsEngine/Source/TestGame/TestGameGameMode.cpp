@@ -14,6 +14,7 @@
 #include "Components/WeaponManager.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "Physics/GenericConstraint.h"
+#include "Audio/AudioEngine.h"
 
 TestGameGameMode::TestGameGameMode()
 {}
@@ -67,6 +68,7 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	go->GetComponent<RigidbodyComponent>()->SetBodyData(lock);
 
 	GameObject* Cam = new GameObject("PlayerCamera");
+	AudioEngine::Get()->MakeDefaultListener(Cam);
 	Cam->SetParent(go);
 
 	player->CameraObject = Cam;

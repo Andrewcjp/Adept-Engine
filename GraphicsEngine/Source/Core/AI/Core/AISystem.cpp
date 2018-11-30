@@ -41,7 +41,7 @@ void AISystem::SceneEnd()
 
 void AISystem::StartUp()
 {
-	Instance = new AISystem();
+	Instance = new AISystem();	
 }
 
 void AISystem::ShutDown()

@@ -4,6 +4,7 @@
 #include "Core/Assets/Scene.h"
 #include "Rendering/Renderers/RenderEngine.h"
 #include "Core/Game/Game.h"
+#include "AI/Core/AISystem.h"
 GameWindow::GameWindow()
 {}
 
@@ -21,6 +22,8 @@ void GameWindow::PostInitWindow(int width, int height)
 	CurrentScene = new Scene();
 	CurrentScene->LoadExampleScene(nullptr,false);
 	Renderer->SetScene(CurrentScene);
+	AISystem::Get()->GenerateMesh();//todo: load in package!
+	Engine::GetGame()->BeginPlay();
 	CurrentScene->StartScene();
 }
 

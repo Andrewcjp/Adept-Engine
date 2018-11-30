@@ -65,11 +65,13 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	AIController* Controller = newAI->AttachComponent(new AIController());
 	newAI->AttachComponent(new Health());
-	newAI->AttachComponent(new MeleeWeapon());
+	MeleeWeapon* mw = newAI->AttachComponent(new MeleeWeapon());
 	cc = newAI->AttachComponent(new ColliderComponent());
 	cc->IsTrigger = true;
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	cc->SetEnabled(false);
+	cc->Radius = 4.0f;
+	mw->Collider = cc;
 	return newAI;
 }
 

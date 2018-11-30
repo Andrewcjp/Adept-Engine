@@ -30,7 +30,7 @@ NVAPIManager::NVAPIManager()
 		std::string Data = "GPU_" + std::to_string(i);
 		GpuData[i].push_back(Data);
 		NvAPI_ShortString name;
-		NvAPI_Status ret = NvAPI_GPU_GetFullName(GPUHandles[i], name);
+		ret = NvAPI_GPU_GetFullName(GPUHandles[i], name);
 		if (ret == NVAPI_OK)
 		{
 			GpuData[i].push_back(name);
@@ -77,7 +77,6 @@ void NVAPIManager::SampleClocks()
 
 	//KHZ
 	unsigned int CoreClock = 0;
-	unsigned int PROCESSORClock = 0;
 	SampleData = "";
 	if (GPUCount == 0)
 	{

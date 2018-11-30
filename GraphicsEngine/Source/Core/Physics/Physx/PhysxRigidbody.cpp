@@ -183,7 +183,7 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 		}
 		case EShapeType::ePLANE:
 		{
-			PlaneElm* SphereShape = (PlaneElm*)Shape;
+			//PlaneElm* SphereShape = (PlaneElm*)Shape;
 			newShape = PhysxEngine::GetGPhysics()->createShape(PxPlaneGeometry(), *PMaterial, UseExclusiveShapes);
 			newShape->setLocalPose(PxTransform(PhysxEngine::GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(0, 1, 0, 0)));
 			break;

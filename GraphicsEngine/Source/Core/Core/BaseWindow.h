@@ -29,6 +29,7 @@ public:
 	bool ShowText = false;
 	bool ExtendedPerformanceStats = false;
 	static Scene* GetScene();
+	bool IsScenePaused() { return PauseState; }
 protected:
 	virtual Scene* GetCurrentScene();
 	//callbacks
@@ -57,7 +58,7 @@ protected:
 	int FrameRateLimit = 0;
 	double TargetDeltaTime = 0.0;
 	void LoadScene(std::string RelativePath);
-
+	bool PauseState = false;
 private:
 	void PostFrameOne();
 	void RenderText();

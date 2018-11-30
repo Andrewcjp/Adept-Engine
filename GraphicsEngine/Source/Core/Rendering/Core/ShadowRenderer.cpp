@@ -298,8 +298,6 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	{
 		return;
 	}
-	int lastpointshadow = 0;
-	int lastdirshadow = 0;
 	for (size_t i = 0; i < lights.size(); i++)
 	{
 		if (lights[i]->GetDoesShadow() == false)

@@ -7,6 +7,7 @@
 #include "Components/RigidbodyComponent.h"
 #include "Platform/PlatformCore.h"
 
+
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
 {
 	Name = name;
@@ -136,6 +137,7 @@ void GameObject::Update(float delta)
 	{
 		m_transform->Update();
 	}
+	AudioEngine::UpdateWiseTransfrom(this);
 }
 
 void GameObject::BeginPlay()

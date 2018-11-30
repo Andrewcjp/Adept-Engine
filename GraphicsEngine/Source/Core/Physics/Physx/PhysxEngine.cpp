@@ -25,7 +25,7 @@ PhysxEngine * PhysxEngine::Get()
 
 void PhysxEngine::initPhysics()
 {
-	//PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
+	PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 #if ENABLEPVD
 	gPvd = PxCreatePvd(*gFoundation);
@@ -47,7 +47,7 @@ void PhysxEngine::initPhysics()
 	sceneDesc.simulationEventCallback = CallBackHandler;
 	//todo!
 	int cpucount = std::thread::hardware_concurrency();
-	unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
+	//unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
 	gDispatcher = PxDefaultCpuDispatcherCreate(6);
 	sceneDesc.cpuDispatcher = gDispatcher;
 	sceneDesc.filterShader = CollisionFilterShader;
@@ -66,7 +66,7 @@ void PhysxEngine::initPhysics()
 	//gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 	gMaterial = gPhysics->createMaterial(0.0f, 0.0f, 0.0f);
 #if 1
-	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
+//	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	//gScene->addActor(*groundPlane);
 #else
 	GameObject* go = new GameObject();
