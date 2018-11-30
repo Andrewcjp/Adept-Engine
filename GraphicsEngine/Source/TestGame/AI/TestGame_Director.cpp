@@ -1,6 +1,9 @@
 #include "TestGame_Director.h"
 #include "AI/Core/AIController.h"
+#include "AI/Core/AIDirector.h"
+#include "AI/Core/SpawnMarker.h"
 #include "Core/Components/ColliderComponent.h"
+#include "Core/Components/Component.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "Core/Components/RigidbodyComponent.h"
 #include "DemonImp.h"
@@ -8,10 +11,7 @@
 #include "DemonRiotShield.h"
 #include "SkullChaser.h"
 #include "Source/TestGame/Components/Health.h"
-#include "AI/Core/AIDirector.h"
-#include "Core/Components/Component.h"
-#include "AI/Core/SpawnMarker.h"
-#include "../Components/MeleeWeapon.h"
+#include "Source/TestGame/Components/MeleeWeapon.h"
 
 TestGame_Director::TestGame_Director()
 {}

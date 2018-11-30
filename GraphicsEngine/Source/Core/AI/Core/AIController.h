@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Components/Component.h"
 #include "AI/Core/Navigation/NavigationMesh.h"
+#include "Core/Types/WeakObjectPtr.h"
 class GameObject;
 class RigidbodyComponent;
 class AIController : public Component
@@ -16,7 +17,7 @@ private:
 	struct Target 
 	{
 		glm::vec3 StaticPos = glm::vec3(0,0,0);
-		GameObject* MovingTarget = nullptr;
+		WeakObjectPtr<GameObject> MovingTarget;
 		glm::vec3 GetTargetPos();
 		bool IsValid = false;
 	};

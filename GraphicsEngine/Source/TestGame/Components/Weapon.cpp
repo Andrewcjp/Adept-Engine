@@ -38,7 +38,7 @@ void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	WeaponModel = go;
-	WeaponModel->GetTransform()->SetParent(cameraobj->GetTransform());
+	WeaponModel->SetParent(cameraobj);
 	if (CurrentWeaponType == WeaponType::Rifle)
 	{
 		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Weapons\\Rifle\\Textures\\Variation 06\\Rifle_06_Albedo.png"));

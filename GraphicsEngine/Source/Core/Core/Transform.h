@@ -1,5 +1,6 @@
 #pragma once
 #include "Rendering/Core/Camera.h"
+#include "Types/WeakObjectPtr.h"
 #define USE_TRANSFORM_CACHING 0
 class Transform
 {
@@ -17,7 +18,7 @@ public:
 	CORE_API void AddRotation(glm::vec3& rot);
 	CORE_API void RotateAboutAxis(glm::vec3& axis, float amt);
 	CORE_API void SetQrot(const glm::quat& val);
-	CORE_API void SetParent(Transform* Parent);
+	void SetParent(GameObject* Parent);
 	void TranslatePos(const glm::vec3 & pos);
 	void MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up);
 	CORE_API void SetLocalPosition(glm::vec3 localpos);
@@ -47,7 +48,7 @@ private:
 	glm::vec3 _scale;
 	glm::quat _qrot;
 	glm::mat4 parentMatrix;
-	Transform* parent = nullptr;
+	WeakObjectPtr<GameObject> parent;
 
 	glm::vec3 oldpos =  glm::vec3();
 	glm::vec3 oldscale = glm::vec3();

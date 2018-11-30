@@ -217,6 +217,7 @@ AkVector ConvertToAK(glm::vec3& value)
 
 void AudioEngine::UpdateWiseTransfrom(GameObject * go)
 {
+	return;
 	AkTransform trans;
 	trans.SetPosition(ConvertToAK(go->GetPosition()));
 	CheckNAN(go->GetPosition());

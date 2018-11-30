@@ -27,7 +27,7 @@ bool BTValue::IsValid()
 	case EBTBBValueType::Integer:
 		break;
 	case EBTBBValueType::Object:
-		return ObjectPtr != nullptr;
+		return ObjectPtr.IsValid();
 		break;
 	}
 	return true;

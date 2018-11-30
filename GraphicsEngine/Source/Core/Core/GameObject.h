@@ -7,11 +7,13 @@
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
 #include "EngineTypes.h"
+#include "Types/WeakObjectPtr.h"
 class Component;
 class MeshRendererComponent;
-class GameObject
+class GameObject :
+	public IGarbageCollectable<GameObject>,
 #if WITH_EDITOR
-	: public IInspectable
+	 public IInspectable
 #endif
 {
 public:

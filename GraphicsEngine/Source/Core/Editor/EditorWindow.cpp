@@ -235,7 +235,10 @@ void EditorWindow::Update()
 			SaveScene();
 		}
 	}
-
+	if (Input::GetVKey(VK_CONTROL) && Input::GetKeyDown('P'))
+	{
+		EnterPlayMode();		
+	}
 	if (Input::GetKeyDown(VK_F1))
 	{
 		ShowHud = !ShowHud;
