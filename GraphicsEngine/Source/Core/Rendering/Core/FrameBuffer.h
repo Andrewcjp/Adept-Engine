@@ -4,7 +4,7 @@
 class FrameBuffer : public IRHIResourse
 {
 public:	
-	RHI_API FrameBuffer(class DeviceContext* device, RHIFrameBufferDesc& Desc);
+	RHI_API FrameBuffer(class DeviceContext* device, const RHIFrameBufferDesc& Desc);
 	RHI_API virtual ~FrameBuffer();
 	
 	int GetWidth() const { return m_width; }

@@ -14,6 +14,8 @@ namespace AK
     namespace EVENTS
     {
         static const AkUniqueID EMPTYCLICK = 2242963996U;
+        static const AkUniqueID MELEE_HIT = 1255748329U;
+        static const AkUniqueID MELEE_MOVE = 3724628701U;
         static const AkUniqueID PLAY_GAUSS = 1709851261U;
         static const AkUniqueID PLAY_RIFLE = 1920272688U;
         static const AkUniqueID PLAY_SHOTGUN = 992244U;

@@ -1,9 +1,11 @@
 #include "FrameBuffer.h"
 #include "RHI/DeviceContext.h"
 #include "Core/Performance/PerfManager.h"
-FrameBuffer::FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc)
+FrameBuffer::FrameBuffer(DeviceContext * device,const RHIFrameBufferDesc & Desc)
 {
 	BufferDesc = Desc;
+	const RHIFrameBufferDesc& T = Desc;
+	BufferDesc = T;
 	m_width = BufferDesc.Width;
 	m_height = BufferDesc.Height;
 }

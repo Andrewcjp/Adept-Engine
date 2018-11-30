@@ -29,7 +29,7 @@ public:
 	RHI_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
 	RHI_API static Mesh * CreateMesh(const char * path);
 	RHI_API static Mesh * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
-	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc);
+	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc);
 	RHI_API static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 	RHI_API static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
 	RHI_API static RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr);
@@ -90,7 +90,7 @@ public:
 	virtual bool InitWindow(int w, int h) = 0;
 	virtual bool DestoryRHI() = 0;
 	virtual BaseTexture* CreateTexture(DeviceContext* Device = nullptr) = 0;
-	virtual FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc) = 0;
+	virtual FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc) = 0;
 	virtual ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
 	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;
 	virtual RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr) = 0;

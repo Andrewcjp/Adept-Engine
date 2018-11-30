@@ -15,7 +15,7 @@ public:
 	virtual void OnTrigger(CollisonData data) override;
 
 	virtual void BeginPlay() override;
-
+	float AttackDamage = 50.0f;
 private:
 	float AttackLength = 0.2f;
 	float CurrentAttackTime = 0.0f;

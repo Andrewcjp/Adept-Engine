@@ -244,7 +244,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(50, 0, -5));
 	go->AttachComponent(new SpawnMarker());
 	AddGameobjectToScene(go);
-	return;
+#if 0
 	go = CreateDebugSphere(nullptr);
 	cc = go->AttachComponent(new ColliderComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 15, 10));
@@ -277,6 +277,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			}
 		}
 	}
+#endif
 
 
 #if 0

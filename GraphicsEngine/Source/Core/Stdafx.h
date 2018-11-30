@@ -5,6 +5,7 @@
 #pragma once
 #define NOMINMAX
 #define GLM_FORCE_SWIZZLE
+#pragma warning(push,3)
 #include "EngineGlobals.h"
 #include <algorithm>
 #include <glm/glm.hpp>
@@ -24,3 +25,18 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#pragma warning(pop)
+#if 0
+#pragma warning(push,4)
+#pragma warning(push,4)
+#pragma warning(disable:4100)//C4189
+#pragma warning(disable:4505)//this is detect false positives
+#pragma warning(disable:4238)
+#endif
+#pragma warning(3:4189)
+#pragma warning(3:4458)
+#pragma warning(3:4457)
+#pragma warning(3:4456)
+#pragma warning(3:4189)
+#pragma warning(3:4702)
+//#pragma warning(3:4100) //unreferenced formal parameter 

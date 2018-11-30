@@ -17,7 +17,7 @@ public:
 	virtual void SceneInitComponent() override;
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
 	CORE_API glm::vec3 GetVelocity();
-	CORE_API void SetLockFlags(BodyInstanceData data);
+	CORE_API void SetBodyData(BodyInstanceData data);
 	CORE_API BodyInstanceData GetLockFlags();
 	void OnTransformUpdate() override ;
 	CORE_API void SetGravity(bool active);

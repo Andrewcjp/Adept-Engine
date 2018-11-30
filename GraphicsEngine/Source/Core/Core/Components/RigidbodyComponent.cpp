@@ -118,7 +118,7 @@ void RigidbodyComponent::ProcessSerialArchive(Archive * A)
 	Component::ProcessSerialArchive(A);
 }
 
-void RigidbodyComponent::SetLockFlags(BodyInstanceData data)
+void RigidbodyComponent::SetBodyData(BodyInstanceData data)
 {
 	LockData = data;
 	if (actor)

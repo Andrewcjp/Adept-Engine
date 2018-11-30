@@ -160,7 +160,7 @@ void WindowsWindow::AddMenus(HWND hwnd)
 	HMENU hMenu;
 	HMENU hGOMenu = CreateMenu();
 	HMENU hdebugMenu = CreateMenu();
-	HMENU hRenderMenu = CreateMenu();
+//	HMENU hRenderMenu = CreateMenu();
 	HMENU hMenubar = CreateMenu();
 	hMenu = CreateMenu();
 	//file menu
@@ -208,7 +208,7 @@ void WindowsWindow::SetMousePos(IntPoint & point)
 
 char WindowsWindow::GetVirtualKeyAsChar(unsigned int key)
 {
-	return (UINT)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
+	return (char)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
 }
 
 short WindowsWindow::GetCharAsVirtualKey(char c)

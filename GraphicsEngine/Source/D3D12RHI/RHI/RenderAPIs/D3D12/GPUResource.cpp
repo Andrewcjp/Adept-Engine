@@ -1,6 +1,4 @@
-
 #include "GPUResource.h"
-#include <algorithm>
 #include "D3D12DeviceContext.h"
 CreateChecker(GPUResource);
 GPUResource::GPUResource()
@@ -33,10 +31,8 @@ void GPUResource::SetName(LPCWSTR name)
 
 void GPUResource::CreateHeap()
 {
-
 	Block.Heaps.push_back(nullptr);
 
-	ID3D12Heap*  pHeap = Block.Heaps[0];
 	int RemainingSize = 1 * TILE_SIZE;
 	D3D12_HEAP_DESC heapDesc = {};
 

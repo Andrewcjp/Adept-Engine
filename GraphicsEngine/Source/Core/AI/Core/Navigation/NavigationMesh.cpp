@@ -74,7 +74,7 @@ void NavigationMesh::SmoothPath(NavigationPath* path)
 	{
 		return;
 	}
-	return;
+#if 0
 	const int SamplingFactor = 8;
 	const int Points = 2;
 	for (int i = 0; i < path->Positions.size() - Points; i += Points + SamplingFactor)
@@ -101,6 +101,7 @@ void NavigationMesh::SmoothPath(NavigationPath* path)
 		}
 #endif
 	}
+#endif
 }
 
 ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)

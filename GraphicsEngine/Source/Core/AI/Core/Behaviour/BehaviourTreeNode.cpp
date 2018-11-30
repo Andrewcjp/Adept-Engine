@@ -60,7 +60,6 @@ BTMoveToNode::BTMoveToNode(BTValue * GoalPos)
 
 EBTNodeReturn::Type BTMoveToNode::ExecuteNode()
 {
-	NavigationPath* path = nullptr;
 	if (ParentTree->Target == nullptr)
 	{
 		return EBTNodeReturn::Failure;

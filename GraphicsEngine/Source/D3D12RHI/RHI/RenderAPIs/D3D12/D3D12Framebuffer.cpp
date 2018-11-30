@@ -1,7 +1,6 @@
 
 #include "D3D12Framebuffer.h"
 #include "GPUResource.h"
-#include <algorithm>
 #include "DescriptorHeap.h"
 #include "Core/Performance/PerfManager.h"
 #include "D3D12DeviceContext.h"
@@ -352,7 +351,7 @@ void D3D12FrameBuffer::Release()
 	SafeRelease(CrossHeap);
 }
 
-D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
+D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 	CurrentDevice = (D3D12DeviceContext*)device;
 	Init();

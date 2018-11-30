@@ -35,13 +35,14 @@ void StripD3DShader(ID3DBlob** blob)
 {
 #if !BUILD_SHIPPING
 	return;
-#endif
+#else
 	if (*blob == nullptr)
 	{
 		return;
 	}
 	UINT stripflags = D3DCOMPILER_STRIP_REFLECTION_DATA | D3DCOMPILER_STRIP_DEBUG_INFO | D3DCOMPILER_STRIP_TEST_BLOBS;
 	D3DStripShader(*blob, (*blob)->GetBufferSize(), stripflags, blob);
+#endif
 }
 
 D3D_SHADER_MACRO* D3D12Shader::ParseDefines()

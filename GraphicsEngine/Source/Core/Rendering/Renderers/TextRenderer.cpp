@@ -307,7 +307,6 @@ TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
 			ox = 0;
 		}
 
-		int offset = ((ox + oy * h));
 		//scan into texture
 		int lastoff = 0;
 		for (int suby = 0; suby < g->bitmap.rows; suby++)

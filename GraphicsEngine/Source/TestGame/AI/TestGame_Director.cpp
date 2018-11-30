@@ -69,6 +69,7 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 	cc = newAI->AttachComponent(new ColliderComponent());
 	cc->IsTrigger = true;
 	cc->SetCollisonShape(EShapeType::eSPHERE);
+	cc->SetEnabled(false);
 	return newAI;
 }
 
@@ -76,10 +77,11 @@ GameObject* TestGame_Director::SpawnImp(glm::vec3 pos)
 {
 	GameObject* newImp = CreateAI(pos);
 	newImp->SetName("IMP");
+	newImp->GetTransform()->SetScale(glm::vec3(2, 1, 1));
 	newImp->AttachComponent(new DemonImp());
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	newImp->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
+	newImp->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Model test.obj"), mat));
 	newImp->GetTransform()->SetScale(glm::vec3(1, 2, 1));
 	scene->AddGameobjectToScene(newImp);
 	return newImp;

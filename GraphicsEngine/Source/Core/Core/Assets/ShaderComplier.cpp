@@ -44,8 +44,9 @@ bool ShaderComplier::ShouldBuildDebugShaders()
 {
 #if _DEBUG && WITH_EDITOR
 	return !Engine::GetIsCooking();
-#endif
+#else
 	return GenDebugShaders.GetBoolValue();
+#endif	
 }
 
 void ShaderComplier::ComplieShader(ShaderType & type, DeviceContext* Context)

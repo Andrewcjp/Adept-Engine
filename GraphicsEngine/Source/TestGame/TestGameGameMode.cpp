@@ -64,14 +64,13 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	BodyInstanceData lock;
 	lock.LockXRot = true;
 	lock.LockZRot = true;
-	go->GetComponent<RigidbodyComponent>()->SetLockFlags(lock);
+	go->GetComponent<RigidbodyComponent>()->SetBodyData(lock);
 
 	GameObject* Cam = new GameObject("PlayerCamera");
 	Cam->SetParent(go);
 
 	player->CameraObject = Cam;
-	Scene->AddGameobjectToScene(Cam);
-	Scene->AddGameobjectToScene(go);
+
 
 	WeaponManager* manager = go->AttachComponent(new WeaponManager());
 	manager->Weapons[Weapon::WeaponType::Rifle] = go->AttachComponent(new Weapon(Weapon::WeaponType::Rifle, Scene, player));
@@ -83,6 +82,8 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	cc->Radius = 10.0f;
 	cc->IsTrigger = true;
 	manager->Melee->Collider = cc;
+	Scene->AddGameobjectToScene(Cam);
+	Scene->AddGameobjectToScene(go);
 	AISystem::Get()->GetDirector<TestGame_Director>()->SetPlayer(player->GetOwner());
 	//	SpawnSKull(glm::vec3(20, 5, 0));
 	SpawnSKull(glm::vec3(-15, 5, 0));

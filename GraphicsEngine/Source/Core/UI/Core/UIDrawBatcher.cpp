@@ -1,5 +1,3 @@
-
-#include <algorithm>
 #include "UIDrawBatcher.h"
 #include "UI/UIManager.h"
 #include "Rendering/Shaders/Shader_UIBatch.h"

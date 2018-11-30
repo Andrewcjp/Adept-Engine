@@ -74,7 +74,6 @@ bool ShaderGraph::Complie()
 	bool Pre = true;
 	int TargetMarkerindex = 0;
 	int DeclareStartindex = 0;
-	int postIndex = 0;
 	for (int i = 0; i < split.size(); i++)
 	{
 		if (split[i].find(TargetDefineMarker) != -1)

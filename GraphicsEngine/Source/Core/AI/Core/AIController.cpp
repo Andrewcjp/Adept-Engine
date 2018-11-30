@@ -4,6 +4,8 @@
 #include "Core/GameObject.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Rendering/Core/DebugLineDrawer.h"
+#include "Core/Utils/DebugDrawers.h"
+
 AIController::AIController()
 {}
 
@@ -30,6 +32,7 @@ void AIController::MoveTo(GameObject * target)
 void AIController::InitComponent()
 {
 	Rigidbody = GetOwner()->GetComponent<RigidbodyComponent>();
+	Rigidbody->IsKineimatic = true;
 }
 
 glm::vec3 ProjectPosition(glm::vec3 pos)
@@ -48,7 +51,7 @@ void AIController::Update(float dt)
 	{
 		//Point at the Next path node
 		CurrentPathIndex = glm::clamp(CurrentPathIndex, 0, (int)Path->Positions.size() - 1);
-		float distance = glm::distance(ProjectPosition(GetOwner()->GetPosition()), Path->Positions[CurrentPathIndex]);
+		float distance = glm::distance(ProjectPosition(GetOwner()->GetPosition()), ProjectPosition(Path->Positions[CurrentPathIndex]));
 		if (distance <= PathNodeArriveRaduis)
 		{
 			//we have arrived close enough to this node
@@ -57,27 +60,14 @@ void AIController::Update(float dt)
 			{
 				//path complete!
 				Path = nullptr;
+				return;
 			}
 		}
-		const glm::vec3 DirToTarget = glm::normalize(GetOwner()->GetPosition() - CurrentTarget.GetTargetPos());
-		glm::vec3 DirToNode = glm::vec3(0, 0, 0);
-		if (Path != nullptr)
-		{
-			DirToNode = glm::normalize(Path->Positions[CurrentPathIndex] - GetOwner()->GetPosition());
-			//todo: rotation slower
-			glm::vec3 TargetDir = DirToNode;
-			if (LookAtTarget)
-			{
-				TargetDir = DirToTarget;
-			}
-			TargetDir.y = 0;//todo: check this!
-			float angle = glm::degrees(glm::atan(TargetDir.x, TargetDir.z));
-			glm::quat rot = glm::angleAxis(angle, glm::vec3(0, 1, 0));
-			GetOwner()->GetTransform()->SetQrot(rot);
-		}
+		glm::vec3 DirToNode = glm::normalize(Path->Positions[CurrentPathIndex] - GetOwner()->GetPosition());;
+
 		glm::vec3 finalvel = glm::vec3(0, 0, 0);
 		finalvel = GetOwner()->GetTransform()->GetForward() * Speed;
-		if (LookAtTarget)
+		if (true)
 		{
 			finalvel = DirToNode * Speed;
 		}
@@ -88,6 +78,28 @@ void AIController::Update(float dt)
 	{
 		Rigidbody->GetActor()->SetLinearVelocity(glm::vec3(0, Rigidbody->GetActor()->GetLinearVelocity().y, 0));
 	}
+
+	glm::vec3 DirToTarget = glm::vec3(0, 0, 0);
+	if (LookAtTarget)
+	{
+		DirToTarget = glm::normalize(CurrentTarget.GetTargetPos() - GetOwner()->GetPosition());
+	}
+	else if (Path != nullptr && Path->Positions.size() > 0)
+	{
+		DirToTarget = glm::normalize(ProjectPosition(Path->Positions[CurrentPathIndex]) - ProjectPosition(GetOwner()->GetPosition()));
+	}
+	float angle = glm::degrees(glm::atan(DirToTarget.x, DirToTarget.z));
+	if (DirToTarget.length() == 0.0f)
+	{
+		angle = LastAngle;
+	}
+	else
+	{
+		angle = glm::mix(angle, LastAngle, TurnRatio);
+		LastAngle = angle;
+	}
+	glm::quat rot = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
+	GetOwner()->GetTransform()->SetQrot(rot);
 }
 
 void AIController::ReplanPath()

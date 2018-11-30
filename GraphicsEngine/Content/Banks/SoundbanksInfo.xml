@@ -22,6 +22,8 @@
 			<Path>Core.bnk</Path>
 			<IncludedEvents>
 				<Event Id="2242963996" Name="EmptyClick" ObjectPath="\Events\Default Work Unit\EmptyClick"/>
+				<Event Id="1255748329" Name="Melee_Hit" ObjectPath="\Events\Default Work Unit\Melee_Hit"/>
+				<Event Id="3724628701" Name="Melee_Move" ObjectPath="\Events\Default Work Unit\Melee_Move"/>
 				<Event Id="1709851261" Name="Play_Gauss" ObjectPath="\Events\Default Work Unit\Play_Gauss"/>
 				<Event Id="1920272688" Name="Play_Rifle" ObjectPath="\Events\Default Work Unit\Play_Rifle"/>
 				<Event Id="992244" Name="Play_Shotgun" ObjectPath="\Events\Default Work Unit\Play_Shotgun"/>
@@ -30,6 +32,10 @@
 				<File Id="44284441" Language="SFX">
 					<ShortName>.005.wav.wav</ShortName>
 					<Path>SFX\.005.wav_BD03BF26.wem</Path>
+				</File>
+				<File Id="230676780" Language="SFX">
+					<ShortName>.107.wav.wav</ShortName>
+					<Path>SFX\.107.wav_BD03BF26.wem</Path>
 				</File>
 				<File Id="319483686" Language="SFX">
 					<ShortName>Noise_Close_OneShot_Shotgun_Wave 0 0 0.wav</ShortName>
@@ -50,6 +56,10 @@
 				<File Id="856034344" Language="SFX">
 					<ShortName>Sheel.wav</ShortName>
 					<Path>SFX\Sheel_BD03BF26.wem</Path>
+				</File>
+				<File Id="931568223" Language="SFX">
+					<ShortName>.025.wav.wav</ShortName>
+					<Path>SFX\.025.wav_BD03BF26.wem</Path>
 				</File>
 				<File Id="948375436" Language="SFX">
 					<ShortName>Empty.wav</ShortName>

@@ -10,7 +10,8 @@ public:
 	~AIController();
 	CORE_API void MoveTo(glm::vec3 pos);
 	CORE_API void MoveTo(GameObject* target);
-	bool LookAtTarget = true;
+	bool LookAtTarget = false;
+	float TurnRatio = 0.5f;
 private:
 	struct Target 
 	{
@@ -27,8 +28,9 @@ private:
 	const float ThresholdToRequestReplan = 1.0f;
 	NavigationPath* Path;
 	RigidbodyComponent* Rigidbody = nullptr;
-	float Speed = 15.0f;
+	float Speed = 10.0f;
 	int CurrentPathIndex = 0;
-	const float PathNodeArriveRaduis = 2.0f;
+	const float PathNodeArriveRaduis = 4.0f;
+	float LastAngle = 0.0f;
 };
 

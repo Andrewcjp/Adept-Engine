@@ -3,7 +3,6 @@
 #include "TDRigidBody.h"
 #include <thread>
 #include "Core/GameObject.h"
-#include <algorithm>
 #include "Shapes/TDPlane.h"
 #include "TDSimConfig.h"
 #include "Core/Performance/PerfManager.h"

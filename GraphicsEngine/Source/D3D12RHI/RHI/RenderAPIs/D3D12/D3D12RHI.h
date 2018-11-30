@@ -56,7 +56,7 @@ private:
 	DeviceContext* GetDefaultDevice() override;
 	DeviceContext* GetDeviceContext(int index = 0) override;
 	BaseTexture* CreateTexture(DeviceContext* Device = nullptr) override;
-	FrameBuffer* CreateFrameBuffer(DeviceContext* Device, RHIFrameBufferDesc& Desc) override;
+	FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc) override;
 	ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) override;
 	RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;
 	RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr) override;
