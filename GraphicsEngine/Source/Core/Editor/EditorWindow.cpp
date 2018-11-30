@@ -163,15 +163,20 @@ void EditorWindow::DuringPhysicsUpdate()
 
 void EditorWindow::FixedUpdate()
 {
-	if (IsPlayingScene)
+	if (IsSceneRunning())
 	{
 		CurrentPlayScene->FixedUpdateScene(TickRate);
 	}
 }
 
+bool EditorWindow::IsSceneRunning()
+{
+	return IsPlayingScene && !PauseState;
+}
+
 void EditorWindow::Update()
 {
-	if (IsPlayingScene && CurrentPlayScene != nullptr)
+	if (IsSceneRunning() && CurrentPlayScene != nullptr)
 	{
 		PerfManager::StartTimer("Scene Update");
 		CurrentPlayScene->UpdateScene(DeltaTime);
@@ -181,13 +186,11 @@ void EditorWindow::Update()
 			CurrentPlayScene->EditorUpdateScene();
 		}
 	}
-	else
+	else if(!IsScenePaused())
 	{
 		CurrentScene->EditorUpdateScene();
 		AISystem::Get()->EditorTick();
 	}
-
-	DebugDrawers::DrawDebugCapsule(glm::vec3(0, 10, 0), 1, 2, glm::quat(glm::radians(glm::vec3(90, 0, 0))), glm::vec3(1, 0, 0));
 	if (!IsPlayingScene || IsEditorEjected())
 	{
 		EditorCamera->Update(DeltaTime);

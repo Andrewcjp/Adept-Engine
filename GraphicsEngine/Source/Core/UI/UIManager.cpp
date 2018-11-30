@@ -169,7 +169,7 @@ void UIManager::UpdateSize(int width, int height)
 #else
 	for (int i = 0; i < Contexts.size(); i++)
 	{
-		Contexts[i]->UpdateSize(width, height, TODO, TODO);
+		Contexts[i]->UpdateSize(width, height, 0, 0);
 	}
 #endif
 }

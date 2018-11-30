@@ -55,10 +55,9 @@ void BaseWindow::InitilseWindow()
 
 	UI = new UIManager(m_width, m_height);
 	Input::Startup();
-	fprintf(stdout, "Scene initialized\n");
+	Log::LogMessage("Scene initialized");
 	LineDrawer = new DebugLineDrawer();
 	Saver = new SceneJSerialiser();
-
 }
 
 void BaseWindow::FixedUpdate()
@@ -87,7 +86,7 @@ void BaseWindow::Render()
 		AccumTickTime = 0;
 		PerfManager::StartTimer("FTick");
 		float TimeStep = Engine::GetPhysicsDeltaTime();
-		if (TimeStep > 0)
+		if (TimeStep > 0 && !IsScenePaused())
 		{
 			{
 				SCOPE_CYCLE_COUNTER("stepPhysics");
@@ -119,20 +118,30 @@ void BaseWindow::Render()
 	{
 		RHI::GetRHIClass()->TriggerBackBufferScreenShot();
 	}
+	if (Input::GetKeyDown(VK_F1))
+	{
+		ShowText = !ShowText;
+	}
 	if (Input::GetKeyDown(VK_F2))
 	{
 		ExtendedPerformanceStats = !ExtendedPerformanceStats;
 	}
+	if (Input::GetKeyDown(VK_F8))
+	{
+		PauseState = !PauseState;
+	}
 #endif
 
 	Update();
-	if (ShouldTickScene && false)
+#if !WITH_EDITOR
+	if (ShouldTickScene)
 	{
 		Engine::GetGame()->Update();
 		PerfManager::StartTimer("Scene Update");
 		CurrentScene->UpdateScene(DeltaTime);
 		PerfManager::EndTimer("Scene Update");
 	}
+#endif
 
 	PerfManager::StartTimer("Render");
 	Renderer->Render();
@@ -340,13 +349,13 @@ void BaseWindow::Resize(int width, int height)
 void BaseWindow::DestroyRenderWindow()
 {
 	RHI::WaitForGPU();
+	CurrentScene->EndScene();
+	SafeDelete(CurrentScene);
 	ImageIO::ShutDown();
 	Renderer->DestoryRenderWindow();
-	delete LineDrawer;
+	SafeDelete(LineDrawer);
 	SafeDelete(UI);
-	SafeDelete(Renderer);
-	CurrentScene->EndScene();
-	delete CurrentScene;
+	SafeDelete(Renderer);		
 	Input::ShutDown();
 }
 

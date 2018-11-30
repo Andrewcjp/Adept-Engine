@@ -43,7 +43,9 @@ void ColliderComponent::BeginPlay()
 
 void ColliderComponent::Update(float)
 {
+#if WITH_EDITOR
 	EditorUpdate();
+#endif
 }
 
 void ColliderComponent::ProcessSerialArchive(Archive * A)
@@ -68,7 +70,7 @@ EShapeType::Type ColliderComponent::GetCollisonShape()
 {
 	return CollisionShapeType;
 }
-
+#if WITH_EDITOR
 void ColliderComponent::EditorUpdate()
 {
 	if (PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::ShowShapes)
@@ -108,7 +110,7 @@ void ColliderComponent::EditorUpdate()
 		}
 	}
 }
-
+#endif
 void ColliderComponent::SetCollisonShape(EShapeType::Type newtype)
 {
 	CollisionShapeType = newtype;

@@ -34,6 +34,7 @@ protected:
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
 	void FixedUpdate() override;
+	bool IsSceneRunning();
 	void LoadScene(); 
 	void RefreshScene();
 	void ProcessMenu(unsigned short command) override;

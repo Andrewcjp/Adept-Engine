@@ -36,7 +36,6 @@ public:
 		Blurweights = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 		Blurweights->CreateConstantBuffer(sizeof(float) * 11, 1);
 		std::vector<float> Weights = Shader_Blur::CalcGaussWeights(2.5f);
-		int blurRadius = (int)Weights.size() / 2;
 		Blurweights->UpdateConstantBuffer(Weights.data(), 0);
 	}
 	~Shader_BlurVert()

@@ -4,6 +4,7 @@
 #include "AI/Core/Behaviour/BTBlackboard.h"
 #include "AI/Core/Behaviour/BaseDecorator.h"
 #include "AI/Core/Services/Service_PlayerCheck.h"
+#include "TestGameBTNodes.h"
 
 BT_Imp::BT_Imp()
 {}
@@ -22,5 +23,8 @@ void BT_Imp::SetupTree()
 	selector->Services.push_back(new Service_PlayerCheck(obj));
 	selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.5f));
 	selector->AddChildNode<BTMoveToNode>(new BTMoveToNode(obj));
+	selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.1f));
+	selector->AddChildNode<BTWaitNode>(new BTAttackNode());
+
 }
  

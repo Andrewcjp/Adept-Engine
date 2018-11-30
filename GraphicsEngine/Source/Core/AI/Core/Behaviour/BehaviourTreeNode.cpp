@@ -53,6 +53,9 @@ EBTNodeReturn::Type BehaviourTreeNode::HandleExecuteNode()
 	return returnvalue;
 }
 
+void BehaviourTreeNode::OnAddedToTree()
+{}
+
 BTMoveToNode::BTMoveToNode(BTValue * GoalPos)
 {
 	BBValues.push_back(GoalPos);

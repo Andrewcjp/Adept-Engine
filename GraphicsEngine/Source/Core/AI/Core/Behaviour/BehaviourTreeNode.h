@@ -29,6 +29,7 @@ public:
 	CORE_API BehaviourTreeNode() {}
 	CORE_API virtual ~BehaviourTreeNode() {}
 	CORE_API virtual EBTNodeReturn::Type HandleExecuteNode();
+	CORE_API virtual void OnAddedToTree();
 	BehaviourTreeNode* Parent = nullptr;
 	std::vector<BehaviourTreeNode*> Children;
 	BehaviourTree* ParentTree = nullptr;
@@ -37,6 +38,7 @@ public:
 	{
 		Children.push_back(node);
 		node->ParentTree = ParentTree;
+		node->OnAddedToTree();
 		return (T*)node;
 	}
 	std::vector<BTValue*> BBValues;
