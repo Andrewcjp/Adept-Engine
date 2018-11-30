@@ -132,7 +132,6 @@ bool NavMeshGenerator::ValidateQuad(const int GirdStep, float FirstHeight, Heigh
 NavPlane * NavMeshGenerator::GetPlane(float Z)
 {
 	const float PlaneTolerance = 5.0f;
-	NavPlane* plane = nullptr;
 	for (int i = 0; i < planes.size(); i++)
 	{
 		if (MathUtils::AlmostEqual(planes[i]->ZHeight, Z, PlaneTolerance))

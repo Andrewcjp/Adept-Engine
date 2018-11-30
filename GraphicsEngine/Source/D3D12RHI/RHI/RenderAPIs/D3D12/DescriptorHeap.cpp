@@ -1,6 +1,5 @@
 
 #include "DescriptorHeap.h"
-#include <algorithm>
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
 #include "Core/Utils/StringUtil.h"

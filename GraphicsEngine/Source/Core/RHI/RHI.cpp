@@ -283,7 +283,7 @@ Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Sett
 	return newmesh;
 }
 
-FrameBuffer * RHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc & Desc)
+FrameBuffer* RHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc)
 {
 	if (Device == nullptr)
 	{

@@ -3,7 +3,7 @@
 #include "Rendering/Core/GPUStateCache.h"
 #include "Core/GameObject.h"
 #include "Core/Utils/MemoryUtils.h"
-#include <algorithm>
+
 Shader_Main::Shader_Main(bool LoadForward)
 {
 	m_Shader = RHI::CreateShaderProgam();

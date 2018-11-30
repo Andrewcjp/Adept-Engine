@@ -5,7 +5,6 @@
 #include "Core/GameObject.h"
 #include "Core/Engine.h"
 #define ENABLEPVD !(NDEBUG)
-#include <algorithm>
 #include "PhysxSupport.h"
 #include "Core/Components/ColliderComponent.h"
 using namespace physx;
@@ -26,7 +25,7 @@ PhysxEngine * PhysxEngine::Get()
 
 void PhysxEngine::initPhysics()
 {
-	PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
+	//PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 #if ENABLEPVD
 	gPvd = PxCreatePvd(*gFoundation);

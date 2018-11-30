@@ -1,5 +1,5 @@
 #pragma once
-#include <algorithm>
+
 
 //Console vars can also be set though the launch arguments
 namespace ECVarType

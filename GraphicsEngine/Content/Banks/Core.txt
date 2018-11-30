@@ -1,15 +1,19 @@
 Event	ID	Name			Wwise Object Path	Notes
 	992244	Play_Shotgun			\Default Work Unit\Play_Shotgun	
+	1255748329	Melee_Hit			\Default Work Unit\Melee_Hit	
 	1709851261	Play_Gauss			\Default Work Unit\Play_Gauss	
 	1920272688	Play_Rifle			\Default Work Unit\Play_Rifle	
 	2242963996	EmptyClick			\Default Work Unit\EmptyClick	
+	3724628701	Melee_Move			\Default Work Unit\Melee_Move	
 
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	44284441	_005_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.005.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Gauss\_005_wav		250976
+	230676780	_107_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.107.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\_107_wav		70624
 	319483686	Noise_Close_OneShot_Shotgun_Wave 0 0 0	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\Noise_Close_OneShot_Shotgun_Wave 0 0 0_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Noise_Close_OneShot_Shotgun_Wave 0 0 0		170288
 	526678843	_106_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.106.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Gauss\_106_wav		161632
 	569859752	Fire_Heavy	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\Fire_Heavy_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Fire_Heavy		107488
 	598616023	_141_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.141.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\_141_wav		68320
 	856034344	Sheel	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\Sheel_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Sheel		120288
+	931568223	_025_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.025.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\_025_wav		110688
 	948375436	Empty	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\Empty_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Empty		22624
 
