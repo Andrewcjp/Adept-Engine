@@ -1,6 +1,7 @@
 #include "Transform.h"
 #include "Core/Assets/Archive.h"
 #include "Utils/MathUtils.h"
+#include "GameObject.h"
 
 Transform::Transform(const glm::vec3 & pos, const glm::vec3 & rot, const glm::vec3 & scale) :
 	_pos(pos),
@@ -42,7 +43,11 @@ glm::quat Transform::GetQuatRot()
 
 Transform * Transform::GetParent() const
 {
-	return parent;
+	if (parent.IsValid())
+	{
+		return parent->GetTransform();
+	}
+	return nullptr;
 }
 
 bool Transform::IsChanged()
@@ -87,13 +92,13 @@ glm::mat4 Transform::GetModel()
 	glm::mat4 posMat = glm::translate(_pos);
 	glm::mat4 scaleMat = glm::scale(_scale);
 	glm::mat4 rotMat = glm::toMat4(_qrot);
-	if (parent != nullptr
+	if (parent.IsValid()
 #if USE_TRANSFORM_CACHING		
 		&& parent->IsChanged()
 #endif
-	)
+		)
 	{
-		parentMatrix = parent->GetModel();
+		parentMatrix = parent->GetTransform()->GetModel();
 	}
 	else
 	{
@@ -170,13 +175,13 @@ void Transform::SetQrot(const glm::quat & val)
 	_qrot = val;
 }
 
-void Transform::SetParent(Transform * Parent)
+void Transform::SetParent(GameObject* Parent)
 {
 	UpdateModel = true;
 	parent = Parent;
 	if (Parent != nullptr)
 	{
-		Parent->UpdateModel = true;
+		Parent->GetTransform()->UpdateModel = true;
 	}
 }
 
@@ -193,11 +198,19 @@ void Transform::MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up)
 
 void Transform::SetLocalPosition(glm::vec3 localpos)
 {
-	glm::mat4 LocalMAtrix = parent->GetModel();
-	glm::vec4 newpos = glm::vec4(localpos, 1.0f)*glm::inverse(LocalMAtrix);
-	newpos = newpos * LocalMAtrix;
-	CheckNAN(newpos);
-	SetPos(newpos);
+	if (parent.IsValid())
+	{
+		glm::mat4 LocalMAtrix = parent->GetTransform()->GetModel();
+		glm::vec4 newpos = glm::vec4(localpos, 1.0f)*glm::inverse(LocalMAtrix);
+		newpos = newpos * LocalMAtrix;
+		CheckNAN(newpos);
+		SetPos(newpos);
+	}
+	else
+	{
+		CheckNAN(localpos);
+		SetPos(localpos);
+	}
 }
 
 glm::vec3 Transform::GetPos() const
@@ -207,10 +220,17 @@ glm::vec3 Transform::GetPos() const
 
 void Transform::SetLocalRotation(glm::quat localrot)
 {
-	glm::mat4 LocalMAtrix = parent->GetModel();
-	glm::quat rotation = glm::quat(glm::toMat4(localrot)*glm::inverse(LocalMAtrix));
-	rotation = glm::toMat4(rotation) *LocalMAtrix;
-	SetQrot(GetQuatRot()* rotation);
+	if (parent.IsValid())
+	{
+		glm::mat4 LocalMAtrix = parent->GetTransform()->GetModel();
+		glm::quat rotation = glm::quat(glm::toMat4(localrot)*glm::inverse(LocalMAtrix));
+		rotation = glm::toMat4(rotation) *LocalMAtrix;
+		SetQrot(GetQuatRot()* rotation);
+	}
+	else
+	{
+		SetQrot(localrot);//todo: what todo?
+	}
 }
 
 glm::vec3 Transform::GetEulerRot() const

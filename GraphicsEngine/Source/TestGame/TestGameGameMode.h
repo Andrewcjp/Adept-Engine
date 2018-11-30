@@ -9,8 +9,8 @@ public:
 	void SpawnSKull(glm::vec3 Position);
 	virtual void EndPlay();
 	virtual void Update();
-	GameObject* GetPlayer() { return player; };
+	GameObject* GetPlayer() { return MPlayer.Get(); };
 private:
-	GameObject* player = nullptr;
+	WeakObjectPtr<GameObject> MPlayer;
 };
 

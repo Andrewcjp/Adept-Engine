@@ -1,4 +1,6 @@
 #pragma once
+#include "Core/Types/WeakObjectPtr.h"
+#include "Core/GameObject.h"
 namespace EBTBBValueType
 {
 	enum Type
@@ -23,7 +25,7 @@ struct BTValue
 	}
 	bool IsValid();
 	bool CheckZero();
-	void* ObjectPtr = nullptr;
+	WeakObjectPtr<GameObject> ObjectPtr = nullptr;
 private:
 	void* GetValuePtr()
 	{
@@ -39,7 +41,7 @@ private:
 			return &Vector;
 			break;
 		case EBTBBValueType::Object:
-			return ObjectPtr;
+			return ObjectPtr.Get();
 			break;
 		}
 		return nullptr;

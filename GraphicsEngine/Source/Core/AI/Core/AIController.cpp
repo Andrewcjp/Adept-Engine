@@ -116,7 +116,7 @@ void AIController::ReplanPath()
 
 glm::vec3 AIController::Target::GetTargetPos()
 {
-	if (MovingTarget != nullptr)
+	if (MovingTarget.IsValid())
 	{
 		return MovingTarget->GetPosition();
 	}

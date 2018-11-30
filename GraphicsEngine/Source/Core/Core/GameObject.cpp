@@ -211,7 +211,7 @@ std::vector<Component*> GameObject::GetComponents()
 void GameObject::SetParent(GameObject * Parent)
 {
 	mParent = Parent;
-	GetTransform()->SetParent(mParent->GetTransform());
+	GetTransform()->SetParent(mParent);
 }
 #if WITH_EDITOR
 std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()
