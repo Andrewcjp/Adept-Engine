@@ -19,6 +19,6 @@ void TestBTTree::SetupTree()
 	BTValue* obj = Blackboard->AddValue(EBTBBValueType::Object);
 	obj->ObjectPtr = nullptr;
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
-	selector->Decorators.push_back(new BaseDecorator(obj, EDecoratorTestType::NotNull)); 
+	selector->AddDecorator(new BaseDecorator(obj, EDecoratorTestType::NotNull)); 
 	selector->AddChildNode<BTMoveToNode>(new BTMoveToNode(posptr));
 }

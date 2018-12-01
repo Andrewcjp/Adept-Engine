@@ -27,8 +27,7 @@ void ColliderComponent::SetEnabled(bool State)
 {	
 	Enabled = State;
 	if (CurrentCollider)
-	{
-		
+	{		
 		CurrentCollider->SetEnabled(Enabled);
 	}
 }

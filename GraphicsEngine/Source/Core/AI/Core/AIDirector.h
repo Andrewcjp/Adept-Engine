@@ -1,4 +1,6 @@
 #pragma once
+#include "Core/Types/WeakObjectPtr.h"
+#include "Core/GameObject.h"
 namespace EAIDirectorDifficulty
 {
 	enum Type
@@ -11,7 +13,6 @@ namespace EAIDirectorDifficulty
 	};
 }
 class Scene;
-class GameObject;
 class SpawnMarker;
 class AIDirector
 {
@@ -25,7 +26,7 @@ public:
 	std::vector<SpawnMarker*> spawnmarkers;
 protected:
 	Scene* scene = nullptr;
-	GameObject* Player = nullptr;
+	WeakObjectPtr<GameObject> Player;
 	
 
 };

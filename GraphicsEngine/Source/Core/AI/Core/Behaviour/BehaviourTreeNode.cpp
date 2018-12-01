@@ -38,10 +38,21 @@ EBTNodeReturn::Type BehaviourTreeNode::HandleExecuteNode()
 				continue;
 			}
 			returnvalue = Children[i]->HandleExecuteNode();
-			if (returnvalue == EBTNodeReturn::Failure)
+			if (ReturnOnFailure)
 			{
-				return returnvalue;
+				if (returnvalue == EBTNodeReturn::Failure)
+				{
+					return returnvalue;
+				}
 			}
+			else
+			{
+				if (returnvalue == EBTNodeReturn::Success)
+				{
+					return returnvalue;
+				}
+			}
+		
 			if (returnvalue == EBTNodeReturn::Running)
 			{
 				RunningChild = Children[i];
@@ -130,6 +141,17 @@ EBTNodeReturn::Type BTSelectorNode::HandleExecuteNode()
 EBTNodeReturn::Type BTSelectorNode::ExecuteNode()
 {
 	return EBTNodeReturn::Success;
+}
+
+void BTSelectorNode::AddDecorator(BaseDecorator * dec)
+{
+	Decorators.push_back(dec);
+}
+
+void BTSelectorNode::AddService(ServiceBase * Service)
+{
+	Services.push_back(Service);
+	Service->Owner = ParentTree;
 }
 
 EBTNodeReturn::Type BTWaitNode::ExecuteNode()

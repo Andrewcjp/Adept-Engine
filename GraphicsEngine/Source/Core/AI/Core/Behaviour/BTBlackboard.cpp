@@ -48,3 +48,71 @@ bool BTValue::CheckZero()
 	}
 	return true;
 }
+bool BTValue::CheckGreater(float value, bool equal)
+{
+	if (equal)
+	{
+		switch (ValueType)
+		{
+		case EBTBBValueType::Vector:
+			return Vector.length() >= value;
+			break;
+		case EBTBBValueType::Float:
+			return FloatValue >= 0.0f;
+			break;
+		case EBTBBValueType::Integer:
+			return IntValue >= value;
+			break;
+		}
+	}
+	else
+	{
+		switch (ValueType)
+		{
+		case EBTBBValueType::Vector:
+			return Vector.length() > value;
+			break;
+		case EBTBBValueType::Float:
+			return FloatValue > 0.0f;
+			break;
+		case EBTBBValueType::Integer:
+			return IntValue > value;
+			break;
+		}
+	}
+	return true;
+}
+bool BTValue::CheckLess(float value, bool equal)
+{
+	if (equal)
+	{
+		switch (ValueType)
+		{
+		case EBTBBValueType::Vector:
+			return Vector.length() <= value;
+			break;
+		case EBTBBValueType::Float:
+			return FloatValue <= value;
+			break;
+		case EBTBBValueType::Integer:
+			return IntValue <= value;
+			break;
+		}
+	}
+	else
+	{
+		switch (ValueType)
+		{
+		case EBTBBValueType::Vector:
+			return Vector.length() < value;
+			break;
+		case EBTBBValueType::Float:
+			return FloatValue < value;
+			break;
+		case EBTBBValueType::Integer:
+			return IntValue < value;
+			break;
+		}
+	}
+	return true;
+}

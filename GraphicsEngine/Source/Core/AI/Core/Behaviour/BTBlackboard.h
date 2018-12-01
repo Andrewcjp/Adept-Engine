@@ -25,6 +25,8 @@ struct BTValue
 	}
 	bool IsValid();
 	bool CheckZero();
+	bool CheckGreater(float value, bool equal);
+	bool CheckLess(float value, bool equal);
 	WeakObjectPtr<GameObject> ObjectPtr = nullptr;
 private:
 	void* GetValuePtr()
