@@ -34,13 +34,13 @@ bool BaseDecorator::RunCheck()
 		return !ConditonalValue->CheckZero();
 	case EDecoratorTestType::Zero:
 		return ConditonalValue->CheckZero();
-	case EDecoratorTestType::GreaterThan:
+	case EDecoratorTestType::GreaterThanEqual:
 		return ConditonalValue->CheckGreater(CheckValue, true);
-	case EDecoratorTestType::LessThan:
+	case EDecoratorTestType::LessThanEqual:
 		return ConditonalValue->CheckLess(CheckValue, true);
-	case EDecoratorTestType::Greater:
+	case EDecoratorTestType::GreaterThan:
 		return ConditonalValue->CheckGreater(CheckValue, false);
-	case EDecoratorTestType::Less:
+	case EDecoratorTestType::LessThan:
 		return ConditonalValue->CheckLess(CheckValue, false);
 	}
 	ensure(false);

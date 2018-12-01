@@ -80,7 +80,9 @@ namespace TD
 		{
 			Solver->ResolveCollisions(Scenes[i]);
 			Solver->IntergrateScene(Scenes[i], deltaTime);
+#if !BUILD_FULLRELEASE
 			Scenes[i]->DebugRender();
+#endif
 		}
 	}
 

@@ -9,7 +9,7 @@ class Unit_TestsModule : ModuleDef
         SourceFileSearchDir = "Unit_Tests";
        // PCH = "TDPCH";
         // ModuleDepends.Add("Core");
-        NeedsCore = false;
+        NeedsCore = true;
         ModuleOutputType = ModuleDef.ModuleType.EXE;
         UseCorePCH = false;
         UseConsoleSubSystem = true;

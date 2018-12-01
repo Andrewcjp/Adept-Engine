@@ -1,16 +1,12 @@
 
 #include "Cooker.h"
 #include <experimental/filesystem>
-#include "Core/Engine.h"
 #include "Core/Utils/FileUtils.h"
-#include <map>
 #include "Core/Assets/AssetManager.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/ConsoleVariable.h"
-#include "Core/Assets/ShaderComplier.h"
-#include "RHI/RHI.h"
-#include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
+
 static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);
 Cooker::Cooker()
 {
@@ -18,7 +14,7 @@ Cooker::Cooker()
 #if _DEBUG
 	BuildDebug = false;
 #endif
-	ShouldComplie = false;
+	ShouldComplie = true;
 	BuildConfig = "ShippingReleasePackage";
 	if (BuildDebug)
 	{

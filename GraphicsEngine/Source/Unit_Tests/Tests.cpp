@@ -3,7 +3,6 @@
 #define CORE_API 
 #define FROMTEST
 #include "Core/Types/FString.cpp"
-#include "Core/Utils/StringUtil.cpp"
 
 TEST_CASE("FString Contains ", "[FString]")
 {
