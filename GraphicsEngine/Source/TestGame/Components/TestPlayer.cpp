@@ -1,9 +1,6 @@
 #include "TestPlayer.h"
-#include "EngineHeader.h"
 #include "Core/Components/Core_Components_inc.h"
 #include "Editor/EditorWindow.h"
-#include "Core/Utils/DebugDrawers.h"
-#include <glm/gtx/vector_angle.hpp>
 #include "Health.h"
 #include "WeaponManager.h"
 TestPlayer::TestPlayer()
@@ -155,7 +152,7 @@ void TestPlayer::UpdateMovement(float delta)
 	}
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
-		RB->GetActor()->AddForce(glm::vec3(0, 1, 0) * 10000);
+		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 100)/delta);
 	}
 }
 

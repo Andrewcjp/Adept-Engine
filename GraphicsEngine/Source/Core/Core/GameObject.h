@@ -11,9 +11,9 @@
 class Component;
 class MeshRendererComponent;
 class GameObject :
-	public IGarbageCollectable<GameObject>,
+	public IGarbageCollectable<GameObject>
 #if WITH_EDITOR
-	 public IInspectable
+	, public IInspectable
 #endif
 {
 public:

@@ -22,7 +22,7 @@ void BT_Knight::SetupTree()
 	BTValue* Distance = Blackboard->AddValue(EBTBBValueType::Float);
 	RootNode->ReturnOnFailure = false;
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
-	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThan, 10));
+	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 10));
 	selector->AddService(new Service_PlayerCheck(obj, Distance));	
 	selector->AddChildNode<BTWaitNode>(new BTAttackNode());
 	selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.1f));

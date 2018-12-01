@@ -14,6 +14,7 @@
 #include <glm/gtx/scalar_multiplication.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/vector_angle.hpp>
 #include <ios>
 #include <iostream>
 #include <map>

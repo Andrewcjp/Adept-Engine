@@ -8,10 +8,10 @@ namespace EDecoratorTestType
 		NotNull,
 		NotZero,
 		Zero,
+		LessThanEqual,
+		GreaterThanEqual,
 		LessThan,
 		GreaterThan,
-		Less,
-		Greater,
 		Limit
 	};
 }
