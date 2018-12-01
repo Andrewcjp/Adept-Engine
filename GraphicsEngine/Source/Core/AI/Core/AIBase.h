@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Components/Component.h"
+#include "Core/Types/WeakObjectPtr.h"
 class AIController;
 class BehaviourTree;
 class AIBase : public Component
@@ -8,7 +9,7 @@ public:
 	CORE_API AIBase();
 	CORE_API ~AIBase();
 	//todo: AI director will know this/search scene for tagged object
-	GameObject* Player = nullptr;
+	WeakObjectPtr<GameObject> Player;
 
 	CORE_API virtual void OnDestroy() override;
 

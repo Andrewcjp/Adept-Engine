@@ -10,6 +10,15 @@ BaseDecorator::BaseDecorator(BTValue* value, EDecoratorTestType::Type t)
 	TestType = t;
 }
 
+BaseDecorator::BaseDecorator(BTValue * value, EDecoratorTestType::Type t, float checkValue) :BaseDecorator(value, t)
+{
+	CheckValue = checkValue;
+	if (value->ValueType == EBTBBValueType::Object)
+	{
+		Log::LogMessage("Object Type variables cannot be compared > or < ", Log::Warning);
+	}
+}
+
 BaseDecorator::~BaseDecorator()
 {}
 
@@ -24,7 +33,15 @@ bool BaseDecorator::RunCheck()
 	case EDecoratorTestType::NotZero:
 		return !ConditonalValue->CheckZero();
 	case EDecoratorTestType::Zero:
-		return ConditonalValue->CheckZero(); 
+		return ConditonalValue->CheckZero();
+	case EDecoratorTestType::GreaterThan:
+		return ConditonalValue->CheckGreater(CheckValue, true);
+	case EDecoratorTestType::LessThan:
+		return ConditonalValue->CheckLess(CheckValue, true);
+	case EDecoratorTestType::Greater:
+		return ConditonalValue->CheckGreater(CheckValue, false);
+	case EDecoratorTestType::Less:
+		return ConditonalValue->CheckLess(CheckValue, false);
 	}
 	ensure(false);
 	return false;

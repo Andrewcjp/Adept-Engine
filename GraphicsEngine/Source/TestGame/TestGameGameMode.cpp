@@ -107,7 +107,7 @@ void TestGameGameMode::SpawnSKull(glm::vec3 Position)
 {
 	GameObject* skull = GameObject::Instantiate(Position);
 	SkullChaser* c = skull->AttachComponent(new SkullChaser());
-	c->Player = MPlayer.Get();
+	c->Player = MPlayer;
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	mat->GetProperties()->Roughness = 0.0f;

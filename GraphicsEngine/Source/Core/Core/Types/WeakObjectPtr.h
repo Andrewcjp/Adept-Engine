@@ -30,11 +30,6 @@ public:
 		}
 		Reset();
 	}
-	/*WeakObjectPtr<T> operator=(T* t)
-	{
-
-		return *this;
-	}*/
 	void operator=(T* t)
 	{
 		Init(t);
@@ -42,7 +37,7 @@ public:
 	T* operator->() const
 	{
 		return Get();
-	} 
+	}
 	T operator*() const
 	{
 		return *Get();
@@ -50,6 +45,15 @@ public:
 private:
 	void Init(T* ptr)
 	{
+		if (RawPtr == ptr)
+		{
+			return;
+		}
+		if (RawPtr != nullptr)
+		{
+			//we already have one assigned so
+			RawPtr->RemoveRef(this);//clear the ref to the other object
+		}
 		RawPtr = ptr;
 		if (RawPtr != nullptr)
 		{
@@ -64,9 +68,7 @@ class IGarbageCollectable
 {
 public:
 	IGarbageCollectable()
-	{
-
-	}
+	{}
 	void RegisterWeak(WeakObjectPtr<T>* newref)
 	{
 		Refs.push_back(newref);

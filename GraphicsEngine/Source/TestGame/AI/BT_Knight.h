@@ -1,10 +1,10 @@
 #pragma once
 #include "AI/Core/Behaviour/BehaviourTree.h"
-class BT_Imp :public BehaviourTree
+class BT_Knight :public BehaviourTree
 {
 public:
-	BT_Imp();
-	~BT_Imp();
+	BT_Knight();
+	~BT_Knight();
 
 	virtual void SetupTree() override;
 

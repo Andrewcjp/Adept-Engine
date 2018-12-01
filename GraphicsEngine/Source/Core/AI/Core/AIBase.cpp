@@ -31,7 +31,7 @@ void AIBase::SetupBrain()
 
 void AIBase::Update(float dt)
 {
-	if (Player != nullptr)
+	if (Player.IsValid())
 	{
 		DistanceToPlayer = glm::distance(Player->GetPosition(), GetOwner()->GetPosition());
 	}

@@ -6,7 +6,7 @@
 #include "Core/Components/Component.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "Core/Components/RigidbodyComponent.h"
-#include "DemonImp.h"
+#include "HellKnight.h"
 #include "DemonOrb.h"
 #include "DemonRiotShield.h"
 #include "SkullChaser.h"
@@ -80,7 +80,7 @@ GameObject* TestGame_Director::SpawnImp(glm::vec3 pos)
 	GameObject* newImp = CreateAI(pos);
 	newImp->SetName("IMP");
 	newImp->GetTransform()->SetScale(glm::vec3(2, 1, 1));
-	newImp->AttachComponent(new DemonImp());
+	newImp->AttachComponent(new HellKnight());
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	newImp->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Model test.obj"), mat));

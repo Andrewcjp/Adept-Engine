@@ -22,7 +22,7 @@ void AIDirector::Tick()
 
 GameObject * AIDirector::GetPlayerObject()
 {
-	return Player;
+	return Player.Get();
 }
 
 void AIDirector::SetPlayer(GameObject* player)

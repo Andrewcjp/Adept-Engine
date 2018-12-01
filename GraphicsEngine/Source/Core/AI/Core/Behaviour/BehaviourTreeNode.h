@@ -42,6 +42,7 @@ public:
 		return (T*)node;
 	}
 	std::vector<BTValue*> BBValues;
+	bool ReturnOnFailure = true;
 protected:
 	BehaviourTreeNode* RunningChild = nullptr;
 	virtual EBTNodeReturn::Type ExecuteNode();
@@ -60,6 +61,9 @@ public:
 	CORE_API BTSelectorNode() { ExecuteChilds = false; }
 	virtual EBTNodeReturn::Type HandleExecuteNode() override;
 	virtual EBTNodeReturn::Type ExecuteNode() override;
+	CORE_API void AddDecorator(BaseDecorator* dec);
+	CORE_API void AddService(ServiceBase* Service);
+private:
 	std::vector<BaseDecorator*> Decorators;//Conditionals for this selector
 	std::vector<ServiceBase*> Services;//services update value for decorators to check
 	bool ContinueUntilFail = true;

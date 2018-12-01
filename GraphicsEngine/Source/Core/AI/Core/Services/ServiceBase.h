@@ -9,6 +9,7 @@ public:
 	void HandleInit();
 	virtual EBTNodeReturn::Type GetServiceStatus();
 	std::string Name = "";
+	BehaviourTree* Owner = nullptr;
 protected:
 	virtual void Tick();
 	virtual void Init();

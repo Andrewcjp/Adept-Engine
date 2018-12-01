@@ -1,10 +1,10 @@
 #pragma once
 #include "AI/Core/AIBase.h"
-class DemonImp : public AIBase
+class HellKnight : public AIBase
 {
 public:
-	DemonImp();
-	~DemonImp();
+	HellKnight();
+	~HellKnight();
 protected:
 	virtual void SetupBrain() override;
 
