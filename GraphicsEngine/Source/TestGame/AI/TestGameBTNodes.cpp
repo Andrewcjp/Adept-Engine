@@ -1,6 +1,5 @@
 #include "TestGameBTNodes.h"
 #include "AI/Core/Behaviour/BehaviourTree.h"
-#include "AI/Core/Behaviour/BehaviourTreeNode.h"
 #include "B_AIBase.h"
 #include "Source/TestGame/Components/MeleeWeapon.h"
 #include "AI/Core/Behaviour/BTBlackboard.h"

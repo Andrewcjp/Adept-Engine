@@ -98,7 +98,7 @@ void BaseWindow::Render()
 			}
 			FixedUpdate();
 		}
-		else
+		else if(!IsScenePaused())
 		{
 			Log::LogMessage("Delta Time was Negative", Log::Severity::Warning);
 		}
