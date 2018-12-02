@@ -1,6 +1,7 @@
 #pragma once
 #include "AI/Core/AIBase.h"
-class DemonOrb : public AIBase
+#include "B_AIBase.h"
+class DemonOrb : public B_AIBase
 {
 public:
 	DemonOrb();

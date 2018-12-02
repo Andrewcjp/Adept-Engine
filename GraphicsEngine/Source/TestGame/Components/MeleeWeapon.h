@@ -7,7 +7,7 @@ class MeleeWeapon : public Weapon
 public:
 	MeleeWeapon();
 	~MeleeWeapon();
-	virtual void Fire() override;
+	virtual bool Fire() override;
 	ColliderComponent* Collider = nullptr;
 
 	virtual void Update(float delta) override;

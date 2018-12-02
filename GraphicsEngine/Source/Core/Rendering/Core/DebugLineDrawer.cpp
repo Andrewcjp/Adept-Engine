@@ -42,7 +42,7 @@ DebugLineDrawer::~DebugLineDrawer()
 
 void DebugLineDrawer::GenerateLines()
 {
-	if (Lines.size() == 0)
+	if (Lines.size() == 0 && VertsOnGPU == 0)
 	{
 		return;
 	}

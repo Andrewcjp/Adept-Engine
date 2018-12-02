@@ -16,12 +16,11 @@ public:
 protected:
 	CORE_API virtual void SetupBrain();
 	CORE_API virtual void Update(float dt) override;
+	CORE_API virtual void InitComponent() override;
 	float DistanceToPlayer = -1.0f;
 	AIController* Controller = nullptr;
 	BehaviourTree* BTTree = nullptr;
 private:
-	CORE_API virtual void InitComponent() override;
 
-	
 };
 

@@ -217,6 +217,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	Asset_Shader* ColourMat = new Asset_Shader();
 	ColourMat->SetupSingleColour();
+#if 0
 	go = new GameObject("Size Guide");
 	mat = ColourMat->GetMaterialInstance();
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\sizeguide.obj"), mat));
@@ -224,6 +225,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
+#endif
 	go = new GameObject("Test");
 	mat = ColourMat->GetMaterialInstance();
 	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));

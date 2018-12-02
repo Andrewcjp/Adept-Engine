@@ -6,12 +6,13 @@
 #include "Core/Components/Component.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "Core/Components/RigidbodyComponent.h"
-#include "HellKnight.h"
+#include "Source/TestGame/AI/HellKnight/HellKnight.h"
 #include "DemonOrb.h"
 #include "DemonRiotShield.h"
 #include "SkullChaser.h"
 #include "Source/TestGame/Components/Health.h"
 #include "Source/TestGame/Components/MeleeWeapon.h"
+#include "PossessedSoldier/PossessedSoldier.h"
 
 TestGame_Director::TestGame_Director()
 {}
@@ -24,7 +25,8 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		SpawnAI(glm::vec3(50, 10, 0), EAIType::Imp);
+	//	SpawnAI(glm::vec3(50, 10, 0), EAIType::Imp);
+		SpawnAI(GetSpawnPos() + glm::vec3(0, 0, 3), EAIType::PossessedSoldier);
 		once = true;
 	}
 }
@@ -38,23 +40,36 @@ void TestGame_Director::NotifySpawningPoolDestruction()
 {
 	//lock the area
 	//Spawn A Wave!
-	SpawnAI(GetSpawnPos(), EAIType::Imp);
+	//SpawnAI(GetSpawnPos(), EAIType::Imp);
+	SpawnAI(GetSpawnPos() + glm::vec3(0, 0, 3), EAIType::PossessedSoldier);
 }
 
 GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 {
+	GameObject* NewAi = nullptr;
 	switch (type)
 	{
 	case EAIType::Imp:
-		return SpawnImp(SpawnPos);
+		NewAi = SpawnImp(SpawnPos);
+		break;
+	case EAIType::PossessedSoldier:
+		NewAi = SpawnSoldier(SpawnPos);
+		break;
 	case EAIType::Rioter:
-		return SpawnRioter(SpawnPos);
+		NewAi = SpawnRioter(SpawnPos);
+		break;
 	case EAIType::Orb:
-		return SpawnOrb(SpawnPos);
+		NewAi = SpawnOrb(SpawnPos);
+		break;
 	case EAIType::Skull:
-		return SpawnSkull(SpawnPos);
+		NewAi = SpawnSkull(SpawnPos);
+		break;
 	}
-	return nullptr;
+	if (NewAi)
+	{
+		scene->AddGameobjectToScene(NewAi);
+	}
+	return NewAi;
 }
 
 GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
@@ -85,8 +100,20 @@ GameObject* TestGame_Director::SpawnImp(glm::vec3 pos)
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	newImp->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Model test.obj"), mat));
 	newImp->GetTransform()->SetScale(glm::vec3(1, 2, 1));
-	scene->AddGameobjectToScene(newImp);
+
 	return newImp;
+}
+
+GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
+{
+	GameObject* NewPossessed = CreateAI(pos);
+	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
+	t->MainWeapon = NewPossessed->AttachComponent(new Weapon(Weapon::Rifle, scene, nullptr));
+	Material* mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	NewPossessed->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Model test.obj"), mat));
+	NewPossessed->GetTransform()->SetScale(glm::vec3(1, 1, 1));
+	return NewPossessed;
 }
 
 GameObject* TestGame_Director::SpawnRioter(glm::vec3 pos)

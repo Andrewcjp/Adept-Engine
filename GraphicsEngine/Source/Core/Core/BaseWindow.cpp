@@ -241,7 +241,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 			Instance->ShowText = !Instance->ShowText;
 			return true;
 		}
-		else if(command.find("stats") != -1)
+		else if (command.find("stats") != -1)
 		{
 			Instance->ExtendedPerformanceStats = !Instance->ExtendedPerformanceStats;
 			return true;
@@ -280,6 +280,28 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 				else
 				{
 					AISystem::SetDebugMode(EAIDebugMode::All);
+				}
+			}
+			return true;
+		}
+		else if (command.find("physdebug") != -1)
+		{
+			StringUtils::RemoveChar(command, "physdebug");
+			StringUtils::RemoveChar(command, " ");
+			if (command.length() > 0)
+			{
+				int mode = glm::clamp(stoi(command), 0, (int)EPhysicsDebugMode::Limit);
+				PhysicsEngine::Get()->SetPhysicsDebugMode((EPhysicsDebugMode::Type)mode);
+			}
+			else
+			{
+				if (PhysicsEngine::GetCurrentMode() != EPhysicsDebugMode::None)
+				{
+					PhysicsEngine::Get()->SetPhysicsDebugMode(EPhysicsDebugMode::None);
+				}
+				else
+				{
+					PhysicsEngine::Get()->SetPhysicsDebugMode(EPhysicsDebugMode::All);
 				}
 			}
 			return true;
@@ -355,7 +377,7 @@ void BaseWindow::DestroyRenderWindow()
 	Renderer->DestoryRenderWindow();
 	SafeDelete(LineDrawer);
 	SafeDelete(UI);
-	SafeDelete(Renderer);		
+	SafeDelete(Renderer);
 	Input::ShutDown();
 }
 

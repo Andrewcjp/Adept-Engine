@@ -17,25 +17,34 @@ void Railgun::Update(float delta)
 	if (timer > 0.0f)
 	{
 		timer -= delta;
-		Player->ExtraVel = vector * 10;
+		if (Player != nullptr)
+		{
+			Player->ExtraVel = vector * 10;
+		}
 	}
 	else
 	{
-		Player->ExtraVel = glm::vec3(0);
+		if (Player != nullptr)
+		{
+			Player->ExtraVel = glm::vec3(0);
+		}
 	}
 }
 
 void Railgun::OnFire()
 {
-	timer = 0.2f;
-	vector = -Player->CameraObject->GetTransform()->GetForward();
-	float thres = 0.02f;
-	if (!Player->GetIsGrounded())
+	if (Player != nullptr)
 	{
-		vector.xz *= glm::vec2(3);
-		thres = 0.16f;
+		timer = 0.2f;
+		vector = -Player->CameraObject->GetTransform()->GetForward();
+		float thres = 0.02f;
+		if (!Player->GetIsGrounded())
+		{
+			vector.xz *= glm::vec2(3);
+			thres = 0.16f;
+		}
+		vector.y = glm::clamp(vector.y, -thres, thres);
 	}
-	vector.y = glm::clamp(vector.y, -thres, thres);
 }
 //small jump when grounded
 //force over time
