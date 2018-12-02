@@ -28,5 +28,10 @@ void GenericPhysicsEngine::AddBoxCollisionToEditor(GameObject* obj)
 
 }
 
+void GenericPhysicsEngine::SetPhysicsDebugMode(EPhysicsDebugMode::Type mode)
+{
+	PhysicsDebugMode = mode;
+}
+
 
 

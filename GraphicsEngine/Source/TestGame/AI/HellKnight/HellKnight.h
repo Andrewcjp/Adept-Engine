@@ -1,6 +1,6 @@
 #pragma once
-#include "AI/Core/AIBase.h"
-class HellKnight : public AIBase
+#include "Source/TestGame/AI/B_AIBase.h"
+class HellKnight : public B_AIBase
 {
 public:
 	HellKnight();

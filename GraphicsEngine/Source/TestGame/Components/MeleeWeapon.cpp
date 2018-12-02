@@ -10,16 +10,17 @@ MeleeWeapon::MeleeWeapon()
 MeleeWeapon::~MeleeWeapon()
 {}
 
-void MeleeWeapon::Fire()
+bool MeleeWeapon::Fire()
 {
 	if (CurrentAttackTime > 0.0f)
 	{
-		return;
+		return false;
 	}
 	AudioEngine::PostEvent("Melee_Move",GetOwner());
 	//do a box cast or something!
 	Collider->SetEnabled(true);
 	CurrentAttackTime = AttackLength;
+	return true;
 }
 
 void MeleeWeapon::Update(float delta)

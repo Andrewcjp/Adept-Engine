@@ -24,10 +24,10 @@ ColliderComponent::~ColliderComponent()
 }
 
 void ColliderComponent::SetEnabled(bool State)
-{	
+{
 	Enabled = State;
 	if (CurrentCollider)
-	{		
+	{
 		CurrentCollider->SetEnabled(Enabled);
 	}
 }
@@ -69,10 +69,11 @@ EShapeType::Type ColliderComponent::GetCollisonShape()
 {
 	return CollisionShapeType;
 }
+
 #if WITH_EDITOR
 void ColliderComponent::EditorUpdate()
 {
-	if (PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::ShowShapes)
+	if (PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::ShowShapes || PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::All)
 	{
 		glm::vec3 colour = glm::vec3(1);
 		if (IsTrigger)
@@ -110,6 +111,7 @@ void ColliderComponent::EditorUpdate()
 	}
 }
 #endif
+
 void ColliderComponent::SetCollisonShape(EShapeType::Type newtype)
 {
 	CollisionShapeType = newtype;

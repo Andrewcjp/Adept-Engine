@@ -4,6 +4,10 @@ class Projectile : public Component
 {
 public:
 	Projectile();
+	Projectile(GameObject* owner)
+	{
+		Owner = owner;
+	}
 	~Projectile();
 
 	// Inherited via Component
@@ -15,5 +19,6 @@ public:
 
 private:
 	float DamageValue = 0.0f;
+	GameObject* Owner = nullptr;
 };
 

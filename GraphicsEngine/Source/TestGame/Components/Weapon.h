@@ -31,7 +31,7 @@ public:
 	const WeaponSettings& GetCurrentSettings() { return CurrentSettings; }
 	void SetCurrentSettings(WeaponSettings NewSettings);
 	void PlayFireSound();
-	virtual void Fire();
+	virtual bool Fire();
 	void SetState(bool state);
 	virtual void OnFire() {};
 	int GetCurrentAmmo() { return CurrentAmmoCount; }
@@ -47,4 +47,5 @@ private:
 	WeaponType CurrentWeaponType = WeaponType::Rifle;
 	WeaponSettings CurrentSettings = WeaponSettings();
 	GameObject* WeaponModel = nullptr;
+	GameObject* WeaponRoot = nullptr;
 };

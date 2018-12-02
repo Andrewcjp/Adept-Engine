@@ -2,6 +2,7 @@
 #include "Projectile.h"
 #include "Audio/AudioEngine.h"
 #include "TestPlayer.h"
+#include "Core/Utils/DebugDrawers.h"
 
 Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player)
 {
@@ -10,6 +11,7 @@ Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player)
 		CurrentSettings.FireDelay = 0.135f;
 		CurrentSettings.DamagePerShot = 20;
 		CurrentSettings.MaxAmmoCount = 250;
+		CurrentAmmoCount = 250;
 	}
 	else if (T == ShotGun)
 	{
@@ -27,7 +29,11 @@ Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player)
 	}
 	Player = player;
 	CurrentWeaponType = T;
-	CreateModel(scene, player->CameraObject);
+	if (player != nullptr)
+	{
+		WeaponRoot = player->CameraObject;
+		CreateModel(scene, player->CameraObject);
+	}
 }
 
 void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
@@ -69,7 +75,10 @@ Weapon::~Weapon()
 
 void Weapon::InitComponent()
 {
-
+	if (WeaponRoot == nullptr)
+	{
+		WeaponRoot = GetOwner();
+	}
 }
 
 void Weapon::Update(float delta)
@@ -102,25 +111,34 @@ void Weapon::PlayFireSound()
 	}
 }
 
-void Weapon::Fire()
+bool Weapon::Fire()
 {
 	if (CurrentCoolDown > 0)
 	{
-		return;
+		return false;
 	}
 	CurrentCoolDown = CurrentSettings.FireDelay;
 	if (CurrentAmmoCount <= 0)
 	{
 		AudioEngine::PostEvent("EmptyClick", GetOwner());
-		return;
+		return false;
 	}
 	CurrentAmmoCount--;
 	PlayFireSound();
 
 	//Create projectile!
-	const glm::vec3 Forward = CameraComponent::GetMainCamera()->GetForward();
-	TestPlayer* Player = GetOwner()->GetComponent<TestPlayer>();
-	glm::vec3 Position = Player->CameraObject->GetPosition() + Forward * 4;
+	glm::vec3 Forward = WeaponRoot->GetTransform()->GetForward();
+	glm::vec3 offset = glm::vec3(0);
+	if (Player != nullptr)
+	{
+		Forward = CameraComponent::GetMainCamera()->GetForward();
+	}
+	else
+	{
+		offset.y = 1;
+	}
+	glm::vec3 Position = offset + WeaponRoot->GetPosition() + Forward * 4;
+	DebugDrawers::DrawDebugLine(Position, Position + Forward * 10, glm::vec3(1), false, 1);
 	GameObject* newgo = GameObject::Instantiate(Position);
 	newgo->GetTransform()->SetScale(glm::vec3(0.3f));
 	ColliderComponent* cc = newgo->AttachComponent(new ColliderComponent());
@@ -128,16 +146,17 @@ void Weapon::Fire()
 	RigidbodyComponent* rb = newgo->AttachComponent(new RigidbodyComponent());
 	rb->SetGravity(false);
 	rb->SetLinearVelocity(Forward*CurrentSettings.ProjectileSpeed);
-	Projectile* Proj = newgo->AttachComponent(new Projectile());
+	Projectile* Proj = newgo->AttachComponent(new Projectile(GetOwner()));
 	Proj->SetDamage(CurrentSettings.DamagePerShot);
 	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
 	GameObject::FinishGameObjectSpawn(newgo);
 	OnFire();
+	return true;
 }
 
 void Weapon::SetState(bool state)
 {
-	if (WeaponModel->GetMeshRenderer() != nullptr)
+	if (WeaponModel != nullptr && WeaponModel->GetMeshRenderer() != nullptr)
 	{
 		WeaponModel->GetMeshRenderer()->SetVisiblity(state);
 	}

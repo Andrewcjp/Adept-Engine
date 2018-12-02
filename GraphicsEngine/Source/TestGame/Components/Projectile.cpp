@@ -19,7 +19,7 @@ void Projectile::InitComponent()
 void Projectile::OnCollide(CollisonData data)
 {
 	Health* H = data.OtherCollider->GetGameObject()->GetComponent<Health>();
-	if (H != nullptr)
+	if (H != nullptr && H->GetOwner() != Owner)
 	{
 		H->TakeDamage(DamageValue);
 	}
@@ -29,7 +29,7 @@ void Projectile::OnCollide(CollisonData data)
 void Projectile::OnTrigger(CollisonData data)
 {
 	Health* H = data.OtherCollider->GetGameObject()->GetComponent<Health>();
-	if (H != nullptr)
+	if (H != nullptr && H->GetOwner() != Owner)
 	{
 		H->TakeDamage(DamageValue);
 	}

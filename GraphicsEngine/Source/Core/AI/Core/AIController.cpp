@@ -29,6 +29,12 @@ void AIController::MoveTo(GameObject * target)
 	ReplanPath();
 }
 
+void AIController::SetLookAt(glm::vec3 pos)
+{
+	CurrentTarget.IsValid = true;
+	CurrentTarget.StaticPos = pos;
+}
+
 void AIController::InitComponent()
 {
 	Rigidbody = GetOwner()->GetComponent<RigidbodyComponent>();
@@ -45,7 +51,7 @@ void AIController::Update(float dt)
 {
 	if (CurrentTarget.IsValid && RHI::GetFrameCount() % 60 == 0)
 	{
-		ReplanPath();
+		//ReplanPath();
 	}
 	if (CurrentTarget.IsValid && Rigidbody != nullptr && Path != nullptr && Path->Positions.size() > 0)
 	{

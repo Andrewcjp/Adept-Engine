@@ -43,7 +43,8 @@ public:
 	static bool						GetIsCooking();
 	static Engine*					Get();
 	static const EngineSettings*	GetSettings() { return &EngineInstance->Settings; }
-	static float					GetPhysicsDeltaTime();
+	CORE_API static float			GetPhysicsDeltaTime();
+	CORE_API static float			GetDeltaTime();
 private:
 	static void						Exit(int code = 0);
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;

@@ -6,6 +6,8 @@ namespace EPhysicsDebugMode {
 		None,
 		ShowShapes,
 		ShowContacts,
+		ShowBroadPhaseShapes,//only valid for TDPhysics 
+		All,
 		Limit
 	};
 }
@@ -24,7 +26,7 @@ public:
 
 	//old:
 	void AddBoxCollisionToEditor(GameObject * obj);
-	
+	void SetPhysicsDebugMode(EPhysicsDebugMode::Type mode);
 protected:
 	EPhysicsDebugMode::Type PhysicsDebugMode = EPhysicsDebugMode::None;
 	

@@ -57,17 +57,17 @@ Engine::Engine()
 #endif
 	ModuleManager::Get()->PreLoadModules();
 	AssetManager::StartAssetManager();
-	PerfManager::StartPerfManager();	
+	PerfManager::StartPerfManager();
 	PhysEngine = new PhysicsEngine();
 	if (PhysEngine != nullptr)
 	{
 		PhysEngine->initPhysics();
-	}	
+	}
 	CompRegistry = new CompoenentRegistry();
 #if RUNTESTS
 	FString::RunFStringTests();
 #endif
-	
+
 	AudioEngine::Startup();
 }
 
@@ -76,7 +76,7 @@ Engine::~Engine()
 	Log::ShutDownLogger();
 }
 void Engine::PreInit()
-{	
+{
 	TestTDPhysics();
 	LoadGame();
 	if (IsCooking)
@@ -296,6 +296,15 @@ float Engine::GetPhysicsDeltaTime()
 	if (EngineInstance != nullptr)
 	{
 		return std::min(PerfManager::GetDeltaTime(), GetSettings()->MaxPhysicsTimeStep);
+	}
+	return 0.0f;
+}
+
+float Engine::GetDeltaTime()
+{
+	if (EngineInstance != nullptr)
+	{
+		return std::min(PerfManager::GetDeltaTime(), 1.0f / 5.0f);
 	}
 	return 0.0f;
 }
