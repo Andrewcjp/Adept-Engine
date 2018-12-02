@@ -1,22 +1,22 @@
 #include "TestGame_Director.h"
 #include "AI/Core/AIController.h"
-#include "AI/Core/AIDirector.h"
 #include "AI/Core/SpawnMarker.h"
 #include "Core/Components/ColliderComponent.h"
-#include "Core/Components/Component.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "Core/Components/RigidbodyComponent.h"
-#include "Source/TestGame/AI/HellKnight/HellKnight.h"
 #include "DemonOrb.h"
 #include "DemonRiotShield.h"
+#include "HellKnight/HellKnight.h"
+#include "PossessedSoldier/PossessedSoldier.h"
 #include "SkullChaser.h"
 #include "Source/TestGame/Components/Health.h"
 #include "Source/TestGame/Components/MeleeWeapon.h"
-#include "PossessedSoldier/PossessedSoldier.h"
 
 TestGame_Director::TestGame_Director()
-{}
-
+{
+	StateSets = new DirectorStateSet();
+	StateSets->SetDefault();
+}
 
 TestGame_Director::~TestGame_Director()
 {}
@@ -25,23 +25,76 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-	//	SpawnAI(glm::vec3(50, 10, 0), EAIType::Imp);
-		SpawnAI(GetSpawnPos() + glm::vec3(0, 0, 3), EAIType::PossessedSoldier);
+		//SpawnAI(GetSpawnPos() + glm::vec3(0, 0, 3), EAIType::PossessedSoldier);
 		once = true;
+	}
+	CurrentSpawnScore = GetSpawnedScore();
+	if (CurrnetStage != EWaveStage::Limit)
+	{
+		TryMoveNextState();
+		DifficultyScoreMax = 3;
+		if (CurrentSpawnScore < DifficultyScoreMax)//limit the AI spawned on a per difficulty level
+		{
+			TickNewAIQueue();//todo: delay?
+		}//currently this will not handle 
 	}
 }
 
-glm::vec3 TestGame_Director::GetSpawnPos()
+int TestGame_Director::GetSpawnedScore()
 {
-	return spawnmarkers[0]->GetOwner()->GetPosition();
+	int total = 0;
+	if (CurrentlySpawnedAI.size() == 0)
+	{
+		return 0;
+	}
+	for (int i = (int)CurrentlySpawnedAI.size() - 1; i >= 0; i--)
+	{
+		if (CurrentlySpawnedAI[i]->Object.IsValid())
+		{
+			total += GetAiScore(CurrentlySpawnedAI[i]->type);
+		}
+		else
+		{
+			CurrentlySpawnedAI.erase(CurrentlySpawnedAI.begin() + i);
+		}
+	}
+	return total;
+}
+
+void TestGame_Director::TickNewAIQueue()
+{
+	if (IncomingAI.size() == 0)
+	{
+		return;
+	}
+	EAIType::Type NewAiType = IncomingAI.front();
+	const int NewAIScore = GetAiScore(NewAiType);
+	if (CurrentSpawnScore + NewAIScore > DifficultyScoreMax)
+	{
+		return;//wait until score free for this ai
+	}
+
+	IncomingAI.pop();
+
+	SpawnedAi* ai = new SpawnedAi();
+	ai->Object = SpawnAI(GetSpawnPos(), NewAiType);
+	ai->type = NewAiType;
+	CurrentlySpawnedAI.push_back(ai);
+}
+
+float randvalue = 1.0f;
+glm::vec3 TestGame_Director::GetSpawnPos()
+{//todo: random offsets to avoid stacking
+	glm::vec3 offset = glm::vec3(randvalue, 0, 0);
+	randvalue += 4.0;
+	return spawnmarkers[0]->GetOwner()->GetPosition() + offset;
 }
 
 void TestGame_Director::NotifySpawningPoolDestruction()
 {
 	//lock the area
 	//Spawn A Wave!
-	//SpawnAI(GetSpawnPos(), EAIType::Imp);
-	SpawnAI(GetSpawnPos() + glm::vec3(0, 0, 3), EAIType::PossessedSoldier);
+	SetState(EWaveStage::Starting);
 }
 
 GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
@@ -49,7 +102,7 @@ GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 	GameObject* NewAi = nullptr;
 	switch (type)
 	{
-	case EAIType::Imp:
+	case EAIType::HellKnight:
 		NewAi = SpawnImp(SpawnPos);
 		break;
 	case EAIType::PossessedSoldier:
@@ -93,7 +146,7 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 GameObject* TestGame_Director::SpawnImp(glm::vec3 pos)
 {
 	GameObject* newImp = CreateAI(pos);
-	newImp->SetName("IMP");
+	newImp->SetName("Hell Knight");
 	newImp->GetTransform()->SetScale(glm::vec3(2, 1, 1));
 	newImp->AttachComponent(new HellKnight());
 	Material* mat = Material::GetDefaultMaterial();
@@ -107,6 +160,7 @@ GameObject* TestGame_Director::SpawnImp(glm::vec3 pos)
 GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 {
 	GameObject* NewPossessed = CreateAI(pos);
+	NewPossessed->SetName("Possessed Soldier");
 	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
 	t->MainWeapon = NewPossessed->AttachComponent(new Weapon(Weapon::Rifle, scene, nullptr));
 	Material* mat = Material::GetDefaultMaterial();
@@ -137,4 +191,101 @@ GameObject* TestGame_Director::SpawnSkull(glm::vec3 pos)
 	return NewSkullChaser;
 }
 
+void TestGame_Director::EnqueueWave(const DirectorState * state)
+{
+	for (int i = 0; i < state->WaveSize; )
+	{
+		if (state->MaxScoreSpawned > 4)
+		{
+			i += 4;
+			IncomingAI.emplace(EAIType::HellKnight);
+		}
+		else
+		{
+			IncomingAI.emplace(EAIType::PossessedSoldier);
+			i++;
+		}
+	}
 
+	// fill the wave queue with relevant Units
+}
+
+void TestGame_Director::TryMoveNextState()
+{
+	if (IncomingAI.size() > 0)//if AI are still being spawned we are not ready for more yet...
+	{
+		return;
+	}
+	const DirectorState* state = StateSets->GetState(CurrnetStage);
+	if (CurrentSpawnScore <= state->NextStageThreshold)//has the player killed enough AI to progress to the next wave?
+	{
+		SetState((EWaveStage::Type)(1 + (int)CurrnetStage));
+	}
+}
+
+std::string TestGame_Director::GetStateName(EWaveStage::Type state)
+{
+	switch (state)
+	{
+	case EWaveStage::Starting:
+		return "Starting";
+	case EWaveStage::SecondWaveSpawns:
+		return "SecondWaveSpawns";
+	case EWaveStage::HeavySpawns:
+		return "HeavySpawns";
+	case EWaveStage::EndState:
+		return "EndState";
+	default:
+		break;
+	}
+	return "Limit";
+}
+
+void TestGame_Director::SetState(EWaveStage::Type newstate)
+{
+	Log::LogMessage("Moved to state " + GetStateName(newstate));
+	CurrnetStage = newstate;
+	if (CurrnetStage == EWaveStage::Limit)
+	{
+		Log::LogMessage("Wave Complete");
+	}
+	else
+	{
+		EnqueueWave(StateSets->GetState(CurrnetStage));
+	}
+}
+
+int TestGame_Director::GetAiScore(EAIType::Type t)
+{
+	switch (t)
+	{
+	default:
+		break;
+	case EAIType::HellKnight:
+		return 2;
+	case EAIType::PossessedSoldier:
+		return 1;
+
+	}
+	return 0;
+}
+
+void DirectorStateSet::SetDefault()
+{
+	States[EWaveStage::Starting].MaxScoreSpawned = 1;
+	States[EWaveStage::Starting].WaveSize = 2;
+	States[EWaveStage::Starting].NextStageThreshold = 2;
+
+	States[EWaveStage::SecondWaveSpawns].MaxScoreSpawned = 2;
+	States[EWaveStage::SecondWaveSpawns].WaveSize = 3;
+	States[EWaveStage::SecondWaveSpawns].NextStageThreshold = 2;
+
+	States[EWaveStage::HeavySpawns].MaxScoreSpawned = 6;
+	States[EWaveStage::HeavySpawns].WaveSize = 6;
+	States[EWaveStage::HeavySpawns].NextStageThreshold = 0;
+
+	States[EWaveStage::EndState].MaxScoreSpawned = 0;
+	States[EWaveStage::EndState].WaveSize = 0;
+	States[EWaveStage::EndState].NextStageThreshold = 0;
+
+}

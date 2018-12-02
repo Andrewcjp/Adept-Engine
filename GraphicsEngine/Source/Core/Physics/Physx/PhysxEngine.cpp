@@ -25,7 +25,7 @@ PhysxEngine * PhysxEngine::Get()
 
 void PhysxEngine::initPhysics()
 {
-	PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
+	//PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 #if ENABLEPVD
 	gPvd = PxCreatePvd(*gFoundation);

@@ -30,7 +30,7 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	{
 		instance = this;
 	}
-	ResizeVertexStream(CurrentVertStreamLength);
+	ResizeVertexStream(CurrentVertStreamLength + 1);
 }
 
 DebugLineDrawer::~DebugLineDrawer()
@@ -154,14 +154,14 @@ void DebugLineDrawer::ClearLines()
 
 void DebugLineDrawer::InsertVertex(VERTEX v)
 {
+	if (InsertPtr >= CurrentVertStreamLength)
+	{
+		ResizeVertexStream(CurrentVertStreamLength + 10);
+	}
 	if (InsertPtr < CurrentVertStreamLength)
 	{
 		VertArray[InsertPtr] = v;
 		InsertPtr++;
-	}
-	else
-	{
-		__debugbreak();
 	}
 }
 
