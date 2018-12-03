@@ -7,7 +7,7 @@ class B_AIBase : public AIBase
 public:
 	B_AIBase();
 	~B_AIBase();
-	bool FireAt(glm::vec3 pos, int rounds);
+	bool FireAt(glm::vec3 pos);
 
 	Weapon* MainWeapon = nullptr;
 private:

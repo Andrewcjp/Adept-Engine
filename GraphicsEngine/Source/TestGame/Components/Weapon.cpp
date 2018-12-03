@@ -3,8 +3,9 @@
 #include "Audio/AudioEngine.h"
 #include "TestPlayer.h"
 #include "Core/Utils/DebugDrawers.h"
+#include "Core/Performance/PerfManager.h"
 
-Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player)
+Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player, GameObject* root)
 {
 	if (T == Rifle)
 	{
@@ -27,12 +28,25 @@ Weapon::Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player)
 		CurrentSettings.MaxAmmoCount = 20;
 		CurrentSettings.ProjectileSpeed = 150.0f;
 	}
+	else if (T == AIRifle)
+	{
+		CurrentSettings.FireDelay = 0.135f;
+		CurrentSettings.DamagePerShot = 10;
+		CurrentSettings.MaxAmmoCount = 250;
+		CurrentSettings.ShowProjectile = true;
+		CurrentAmmoCount = 250;
+	}
 	Player = player;
 	CurrentWeaponType = T;
 	if (player != nullptr)
 	{
 		WeaponRoot = player->CameraObject;
 		CreateModel(scene, player->CameraObject);
+	}
+	else if (root != nullptr)
+	{
+		WeaponRoot = root;
+		CreateModel(scene, root);
 	}
 }
 
@@ -45,7 +59,7 @@ void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 	go->GetTransform()->SetScale(glm::vec3(1));
 	WeaponModel = go;
 	WeaponModel->SetParent(cameraobj);
-	if (CurrentWeaponType == WeaponType::Rifle)
+	if (CurrentWeaponType == WeaponType::Rifle || CurrentWeaponType == WeaponType::AIRifle)
 	{
 		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Weapons\\Rifle\\Textures\\Variation 06\\Rifle_06_Albedo.png"));
 		MeshLoader::FMeshLoadingSettings set;
@@ -106,6 +120,9 @@ void Weapon::PlayFireSound()
 	case RailGun:
 		AudioEngine::PostEvent("Play_Gauss", GetOwner());
 		break;
+	case AIRifle:
+		AudioEngine::PostEvent("AI_Rifle_Fire", GetOwner());
+		break;
 	case Limit:
 		break;
 	}
@@ -123,6 +140,7 @@ bool Weapon::Fire()
 		AudioEngine::PostEvent("EmptyClick", GetOwner());
 		return false;
 	}
+	PerfManager::StartTimer("Weapon::Fire");
 	CurrentAmmoCount--;
 	PlayFireSound();
 
@@ -148,9 +166,14 @@ bool Weapon::Fire()
 	rb->SetLinearVelocity(Forward*CurrentSettings.ProjectileSpeed);
 	Projectile* Proj = newgo->AttachComponent(new Projectile(GetOwner()));
 	Proj->SetDamage(CurrentSettings.DamagePerShot);
-	newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
+	//todo: speed this up!
+	if (CurrentSettings.ShowProjectile)
+	{
+		newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
+	}
 	GameObject::FinishGameObjectSpawn(newgo);
 	OnFire();
+	PerfManager::EndTimer("Weapon::Fire");
 	return true;
 }
 

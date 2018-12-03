@@ -16,16 +16,20 @@ BT_PossessedSoldier::~BT_PossessedSoldier()
 
 void BT_PossessedSoldier::SetupTree()
 {
-	BTValue* posptr = Blackboard->AddValue(EBTBBValueType::Vector);
-	posptr->Vector = glm::vec3(1, 1, 1);
 	BTValue* obj = Blackboard->AddValue(EBTBBValueType::Object);
 	BTValue* Distance = Blackboard->AddValue(EBTBBValueType::Float);
 	RootNode->ReturnOnFailure = false;
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 50));
+	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::GreaterThan, 10));
 	selector->AddService(new Service_PlayerCheck(obj, Distance));
-	selector->AddChildNode<BTWaitNode>(new BTRifleAttackNode(obj));
+	selector->AddChildNode<BTRifleAttackNode>(new BTRifleAttackNode(obj));
 	selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.4f));
+
+	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
+	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 10));
+	selector->AddChildNode<BTRifleAttackNode>(new BTMeleeAttackNode());
+
 	//sub node
 	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(obj, EDecoratorTestType::NotNull));

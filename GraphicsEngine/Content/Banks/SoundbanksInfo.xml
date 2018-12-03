@@ -21,6 +21,7 @@
 			<ShortName>Core</ShortName>
 			<Path>Core.bnk</Path>
 			<IncludedEvents>
+				<Event Id="578598015" Name="AI_Rifle_Fire" ObjectPath="\Events\Default Work Unit\AI_Rifle_Fire"/>
 				<Event Id="2242963996" Name="EmptyClick" ObjectPath="\Events\Default Work Unit\EmptyClick"/>
 				<Event Id="1255748329" Name="Melee_Hit" ObjectPath="\Events\Default Work Unit\Melee_Hit"/>
 				<Event Id="3724628701" Name="Melee_Move" ObjectPath="\Events\Default Work Unit\Melee_Move"/>
@@ -33,37 +34,33 @@
 					<ShortName>.005.wav.wav</ShortName>
 					<Path>SFX\.005.wav_BD03BF26.wem</Path>
 				</File>
+				<File Id="79194439" Language="SFX">
+					<ShortName>.218.wav.wav</ShortName>
+					<Path>SFX\.218.wav_BD03BF26.wem</Path>
+				</File>
+				<File Id="86458832" Language="SFX">
+					<ShortName>Shootgun.wav</ShortName>
+					<Path>SFX\Shootgun_BD03BF26.wem</Path>
+				</File>
+				<File Id="215302347" Language="SFX">
+					<ShortName>.301.wav.wav</ShortName>
+					<Path>SFX\.301.wav_BD03BF26.wem</Path>
+				</File>
 				<File Id="230676780" Language="SFX">
 					<ShortName>.107.wav.wav</ShortName>
 					<Path>SFX\.107.wav_BD03BF26.wem</Path>
-				</File>
-				<File Id="319483686" Language="SFX">
-					<ShortName>Noise_Close_OneShot_Shotgun_Wave 0 0 0.wav</ShortName>
-					<Path>SFX\Noise_Close_OneShot_Shotgun_Wave 0 0 0_BD03BF26.wem</Path>
 				</File>
 				<File Id="526678843" Language="SFX">
 					<ShortName>.106.wav.wav</ShortName>
 					<Path>SFX\.106.wav_BD03BF26.wem</Path>
 				</File>
-				<File Id="569859752" Language="SFX">
-					<ShortName>Fire_Heavy.wav</ShortName>
-					<Path>SFX\Fire_Heavy_BD03BF26.wem</Path>
-				</File>
-				<File Id="598616023" Language="SFX">
-					<ShortName>.141.wav.wav</ShortName>
-					<Path>SFX\.141.wav_BD03BF26.wem</Path>
-				</File>
-				<File Id="856034344" Language="SFX">
-					<ShortName>Sheel.wav</ShortName>
-					<Path>SFX\Sheel_BD03BF26.wem</Path>
+				<File Id="585412086" Language="SFX">
+					<ShortName>.229.wav.wav</ShortName>
+					<Path>SFX\.229.wav_BD03BF26.wem</Path>
 				</File>
 				<File Id="931568223" Language="SFX">
 					<ShortName>.025.wav.wav</ShortName>
 					<Path>SFX\.025.wav_BD03BF26.wem</Path>
-				</File>
-				<File Id="948375436" Language="SFX">
-					<ShortName>Empty.wav</ShortName>
-					<Path>SFX\Empty_BD03BF26.wem</Path>
 				</File>
 			</IncludedMemoryFiles>
 		</SoundBank>

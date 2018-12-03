@@ -60,6 +60,7 @@ void DLTEPathfinder::Reset()
 	{
 		Plane->NavPoints[i]->Reset();
 	}
+	Queue->Clear();
 }
 
 void DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
@@ -319,4 +320,9 @@ void DLTEQueue::Remove(DLTENode s)
 			}
 		}
 	}
+}
+
+void DLTEQueue::Clear()
+{
+	queue.clear();
 }

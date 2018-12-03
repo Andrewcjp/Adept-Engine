@@ -144,6 +144,8 @@ void Transform::SetEulerRot(const glm::vec3 & rot)
 	glm::quat QuatAroundZ = glm::angleAxis(glm::radians(rot.z), glm::vec3(0.0, 0.0, 1.0));
 	glm::quat finalOrientation = QuatAroundX * QuatAroundY * QuatAroundZ;
 	this->_qrot = finalOrientation;
+	CheckNAN(finalOrientation);
+	CheckNAN(_qrot);
 	//this->_qrot = glm::quat(glm::radians(rot));
 }
 
@@ -167,12 +169,14 @@ void Transform::RotateAboutAxis(glm::vec3 & axis, float amt)
 	oldqrot = this->_qrot;
 	this->_qrot *= glm::angleAxis(glm::radians(amt), axis);
 	GetModel();
+	CheckNAN(_qrot);
 }
 
 void Transform::SetQrot(const glm::quat & val)
 {
 	UpdateModel = true;
 	_qrot = val;
+	CheckNAN(_qrot);
 }
 
 void Transform::SetParent(GameObject* Parent)
@@ -189,6 +193,7 @@ void Transform::TranslatePos(const glm::vec3 & pos)
 {
 	UpdateModel = true;
 	_pos += pos;
+	CheckNAN(_pos);
 }
 
 void Transform::MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up)

@@ -63,14 +63,14 @@ void Pickup::SpawnPickup(glm::vec3 position, PickupType::Type type, int value)
 	{
 		Material* mat = Material::GetDefaultMaterial();
 		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-		obj->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
+		obj->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\cubeuv.obj"), mat));
 	}
 	break;
 	case PickupType::Health:
 	{
 		Material* mat = Material::GetDefaultMaterial();
 		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-		obj->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
+		obj->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\HealthPickup.obj"), mat));
 	}
 	break;
 	default:

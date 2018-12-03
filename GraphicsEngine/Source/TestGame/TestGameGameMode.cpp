@@ -48,14 +48,13 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 
 	SpawnPlayer(glm::vec3(0, 10, 10), Scene);
 
-	////SpawnSKull(glm::vec3(20, 5, 0));
-	//SpawnSKull(glm::vec3(-15, 5, 0));
-
-	GameObject* AiTest = Scene::CreateDebugSphere(nullptr);
+	GameObject* AiTest = new GameObject();
+	AiTest->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\SpawningPool.obj"), Material::GetDefaultMaterial()));
 	AiTest->AttachComponent(new SpawningPool());
-	AiTest->SetPosition(glm::vec3(50, -8, 10));
+	AiTest->SetPosition(glm::vec3(50, -9, 10));
 	Scene->AddGameobjectToScene(AiTest);
 	Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
+	Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
 #if 0
 	GameObject* AiTest = MakeTestSphere(Scene);
 	AiTest->SetPosition(glm::vec3(50, -2, 0));

@@ -58,7 +58,7 @@ bool BTValue::CheckGreater(float value, bool equal)
 			return Vector.length() >= value;
 			break;
 		case EBTBBValueType::Float:
-			return FloatValue >= 0.0f;
+			return FloatValue >= value;
 			break;
 		case EBTBBValueType::Integer:
 			return IntValue >= value;
@@ -73,7 +73,7 @@ bool BTValue::CheckGreater(float value, bool equal)
 			return Vector.length() > value;
 			break;
 		case EBTBBValueType::Float:
-			return FloatValue > 0.0f;
+			return FloatValue > value;
 			break;
 		case EBTBBValueType::Integer:
 			return IntValue > value;

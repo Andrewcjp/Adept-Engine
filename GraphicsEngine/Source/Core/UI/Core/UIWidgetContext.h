@@ -31,8 +31,13 @@ public:
 	UIDrawBatcher* GetBatcher() const;
 	DebugLineDrawer* GetLineBatcher()const;
 	void SetOffset(glm::ivec2 newoff);
+	void RenderTextToScreen(int id, std::string text);
+	void RenderTextToScreen(int id, std::string text, glm::vec3 colour);
+	void RenderTextToScreen(std::string text, float x, float y, float scale, glm::vec3 colour);
 	glm::ivec2 Offset = glm::ivec2(0);
 private:
+	const float YHeight = 25;
+	const float XSpacing = 25;
 	int m_width = 0;
 	int m_height = 0;
 	CollisionRect ViewportRect;

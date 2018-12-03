@@ -71,6 +71,7 @@ public:
 	DLTENode * Pop();
 	void Insert(DLTENode * statePointer);
 	void Remove(DLTENode s);
+	void Clear();
 private:
 	std::deque<DLTENode*> queue;
 	DLTENode* emptyState = nullptr;
