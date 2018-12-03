@@ -1,5 +1,6 @@
 #include "Health.h"
 #include "Core/GameObject.h"
+#include "Audio/AudioEngine.h"
 
 
 Health::Health()
@@ -18,6 +19,10 @@ void Health::TakeDamage(float amt)
 	if (CurrentHealth <= 0)
 	{
 		GetOwner()->Destory();
+	}
+	if (GetOwner()->Tags.Contains(Tag("player")))
+	{
+		AudioEngine::PostEvent("Melee_Hit", GetOwner());
 	}
 }
 

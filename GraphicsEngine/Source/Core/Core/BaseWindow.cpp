@@ -78,6 +78,7 @@ void BaseWindow::Render()
 		PerfManager::Instance->StartCPUTimer();
 		PerfManager::Instance->StartFrameTimer();
 	}
+	TextRenderer::instance->Reset();
 	AccumTickTime += DeltaTime;
 	Input::Get()->ProcessInput(DeltaTime);
 	AudioEngine::ProcessAudio();
@@ -98,7 +99,7 @@ void BaseWindow::Render()
 			}
 			FixedUpdate();
 		}
-		else if(!IsScenePaused())
+		else if (!IsScenePaused())
 		{
 			Log::LogMessage("Delta Time was Negative", Log::Severity::Warning);
 		}
@@ -167,7 +168,7 @@ void BaseWindow::Render()
 	{
 		PostProcessing::Instance->ExecPPStackFinal(nullptr);
 	}
-	TextRenderer::instance->Reset();
+
 	PerfManager::StartTimer("TEXT");
 	if (UI != nullptr && ShowHud && LoadText)
 	{
@@ -232,7 +233,7 @@ void BaseWindow::Render()
 	PerfManager::NotifyEndOfFrame(true);
 }
 
-bool BaseWindow::ProcessDebugCommand(std::string command)
+bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response)
 {
 	if (Instance != nullptr)
 	{
@@ -255,55 +256,12 @@ bool BaseWindow::ProcessDebugCommand(std::string command)
 				RHI::GetRenderSettings()->RenderScale = glm::clamp(stof(command), 0.1f, 5.0f);
 				Instance->Resize(Instance->m_width, Instance->m_height);
 			}
+			response = "renderscale " + std::to_string(RHI::GetRenderSettings()->RenderScale);
 			return true;
 		}
 		else if (command.find("exit") != -1)
 		{
 			Engine::RequestExit(0);
-			return true;
-		}
-		else if (command.find("aidebug") != -1)
-		{
-			StringUtils::RemoveChar(command, "aidebug");
-			StringUtils::RemoveChar(command, " ");
-			if (command.length() > 0)
-			{
-				int mode = glm::clamp(stoi(command), 0, (int)EAIDebugMode::Limit);
-				AISystem::SetDebugMode((EAIDebugMode::Type)mode);
-			}
-			else
-			{
-				if (AISystem::GetDebugMode() != EAIDebugMode::None)
-				{
-					AISystem::SetDebugMode(EAIDebugMode::None);
-				}
-				else
-				{
-					AISystem::SetDebugMode(EAIDebugMode::All);
-				}
-			}
-			return true;
-		}
-		else if (command.find("physdebug") != -1)
-		{
-			StringUtils::RemoveChar(command, "physdebug");
-			StringUtils::RemoveChar(command, " ");
-			if (command.length() > 0)
-			{
-				int mode = glm::clamp(stoi(command), 0, (int)EPhysicsDebugMode::Limit);
-				PhysicsEngine::Get()->SetPhysicsDebugMode((EPhysicsDebugMode::Type)mode);
-			}
-			else
-			{
-				if (PhysicsEngine::GetCurrentMode() != EPhysicsDebugMode::None)
-				{
-					PhysicsEngine::Get()->SetPhysicsDebugMode(EPhysicsDebugMode::None);
-				}
-				else
-				{
-					PhysicsEngine::Get()->SetPhysicsDebugMode(EPhysicsDebugMode::All);
-				}
-			}
 			return true;
 		}
 	}

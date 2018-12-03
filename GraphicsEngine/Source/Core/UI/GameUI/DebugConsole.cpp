@@ -2,17 +2,19 @@
 #include "Core/EngineInc.h"
 #include "Core/Input/Input.h"
 #include "Core/MinWindows.h"
+#include "Core/Platform/ConsoleVariable.h"
 #include "Editor/EditorWindow.h"
-
 #include "UI/Core/UILabel.h"
 #include "UI/EditorUI/UIEditField.h"
 #include "UI/UIManager.h"
 #include "UIGraph.h"
 #include <cctype>
+
 DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 {
 	EditField = new UIBox(w, h, x, y);
 	Textlabel = new UILabel(">", w, 30, x, y);
+	ResponseLabel = new UILabel("", w, 30, x, y);
 	Textlabel->TextScale = 0.3f;
 	EditField->SetEnabled(false);
 	LastText = ">";
@@ -31,6 +33,7 @@ void DebugConsole::Render()
 	if (IsOpen)
 	{
 		Textlabel->Render();
+		ResponseLabel->Render();
 	}
 }
 
@@ -46,26 +49,29 @@ void DebugConsole::Open()
 
 void DebugConsole::ResizeView(int w, int h, int x, int y)
 {
-	EditField->ResizeView(w, 30, x, y);
-	Textlabel->ResizeView(w, 30, x, y);
+	EditField->ResizeView(w, h, x, y);
+	const int size = 40;
+	Textlabel->ResizeView(w, size, x, y + h);
+	ResponseLabel->ResizeView(w, size, x, y + h / 2);
 }
 
+static ConsoleVariable showgraph("showgraph", 0, ECVarType::ConsoleAndLaunch);
 void DebugConsole::ExecCommand(std::string command)
 {
 	LastCommand = command;
-	StringUtils::RemoveChar(command, ">"); 
-	if (!BaseWindow::ProcessDebugCommand(command))
+	StringUtils::RemoveChar(command, ">");
+	ConsoleVariable* Var = nullptr;
+	std::string Response = "Command Unknown: " + command;
+	if (!BaseWindow::ProcessDebugCommand(command, Response))
 	{
-		if (command.find("showgraph") != -1)
+		if (ConsoleVariableManager::TrySetCVar(command, &Var))
 		{
-			if (UIManager::instance != nullptr)
-			{
-				UIManager::instance->Graph->SetEnabled(!UIManager::instance->Graph->GetEnabled());
-			}
+			Response = Var->GetName() + " " + Var->GetValueString();
 		}
 	}
-
-	Close();
+	ResponseLabel->SetText(Response);
+	UIManager::instance->Graph->SetEnabled(showgraph.GetBoolValue());
+	ClearInput();
 }
 
 void DebugConsole::Close()
@@ -73,10 +79,16 @@ void DebugConsole::Close()
 	IsOpen = false;
 	EditField->SetEnabled(false);
 	UIManager::UpdateBatches();
+	ClearInput();
+	Textlabel->SetText(nextext);
+	UIManager::SetCurrentcontext(nullptr);
+}
+
+void DebugConsole::ClearInput()
+{
 	nextext = ">";
 	LastText = ">";
 	Textlabel->SetText(nextext);
-	UIManager::SetCurrentcontext(nullptr);
 }
 
 void DebugConsole::ProcessKeyDown(UINT_PTR key)
@@ -85,9 +97,8 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 	{
 		nextext = ">";
 	}
-	else if (key == VK_RETURN) 
+	else if (key == VK_RETURN)
 	{
-		UIManager::SetCurrentcontext(nullptr);
 		ExecCommand(nextext);
 	}
 	else if (key == VK_ESCAPE)
@@ -114,7 +125,7 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 		{
 			Close();
 		}
-		else if(c != 0)
+		else if (c != 0)
 		{
 			nextext.append(1, (char)std::tolower(c));
 		}

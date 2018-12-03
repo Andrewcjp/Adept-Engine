@@ -4,9 +4,9 @@
 #include "Logger.h"
 ConsoleVariableManager* ConsoleVariableManager::Instance = nullptr;
 
-ConsoleVariable::ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype, bool needv)
+ConsoleVariable::ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype, bool NeedsValue)
 {
-	NeedsValue = needv;
+	NeedsValue = NeedsValue;
 	CurrentValue = DefaultValue;
 	if (cvartype != ECVarType::LaunchOnly)
 	{
@@ -21,10 +21,37 @@ ConsoleVariable::ConsoleVariable(std::string name, int DefaultValue, ECVarType::
 	std::transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
 }
 
-bool GetValueClean(std::string value,int& outvalue)
+ConsoleVariable::ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype, bool NeedsValue)
 {
-	if (value.find('-') != -1)	{
-		
+	NeedsValue = NeedsValue;
+	FloatValue = DefaultValue;
+	if (cvartype != ECVarType::LaunchOnly)
+	{
+		ConsoleVariableManager::Get()->ConsoleVars.push_back(this);
+	}
+	if (cvartype != ECVarType::ConsoleOnly)
+	{
+		ConsoleVariableManager::Get()->LaunchArgs.push_back(this);
+	}
+
+	Name = name;
+	std::transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
+	IsFloat = true;
+}
+
+std::string ConsoleVariable::GetValueString()
+{
+	if (IsFloat)
+	{
+		return std::to_string(GetFloatValue());
+	}
+	return	std::to_string(GetIntValue());
+}
+
+bool GetValueClean(std::string value, int& outvalue)
+{
+	if (value.find('-') != -1)
+	{		
 		outvalue = -1;
 		return false;
 	}
@@ -49,7 +76,7 @@ void ConsoleVariableManager::SetupVars(std::string LaunchArgString)
 					{
 						int parsedvalue = -1;
 						if (GetValueClean(SplitArgs[i + 1], parsedvalue))
-						{								
+						{
 							i++;
 						}
 						else
@@ -71,4 +98,42 @@ void ConsoleVariableManager::SetupVars(std::string LaunchArgString)
 			}
 		}
 	}
+}
+
+bool ConsoleVariableManager::TrySetCVar(std::string command, ConsoleVariable** Var)
+{
+	if (command.length() == 0)
+	{
+		return false;
+	}
+	std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+	std::vector<std::string> SplitArgs = StringUtils::Split(command, ' ');
+	if (SplitArgs.size() == 0)
+	{
+		return false;
+	}
+	for (ConsoleVariable* CV : Instance->ConsoleVars)
+	{
+		if (CV->GetName() == SplitArgs[0])
+		{
+			*Var = CV;
+			if (SplitArgs.size() > 1)
+			{
+				if (CV->IsFloat)
+				{
+					float value = stof(SplitArgs[1]);
+					CV->SetValueF(value);
+				}
+				else
+				{
+					int value = stoi(SplitArgs[1]);
+					CV->SetValue(value);
+				}
+
+				return true;
+			}
+			return true;
+		}
+	}
+	return false;
 }

@@ -84,7 +84,7 @@ void PhysxEngine::initPhysics()
 
 void PhysxEngine::stepPhysics(float Deltatime)
 {
-
+	GenericPhysicsEngine::stepPhysics(Deltatime);
 	//Deltatime
 	gScene->simulate(Deltatime);
 	gScene->fetchResults(true);

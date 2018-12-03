@@ -35,7 +35,10 @@ public:
 	void RenderTextToScreen(int id, std::string text, glm::vec3 colour);
 	void RenderTextToScreen(std::string text, float x, float y, float scale, glm::vec3 colour);
 	glm::ivec2 Offset = glm::ivec2(0);
+	void SetEnabled(bool state);
+	bool GetEnabled() const { return Enabled; }
 private:
+	bool Enabled = true;
 	const float YHeight = 25;
 	const float XSpacing = 25;
 	int m_width = 0;

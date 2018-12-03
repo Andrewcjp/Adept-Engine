@@ -58,9 +58,9 @@
 					<ShortName>.229.wav.wav</ShortName>
 					<Path>SFX\.229.wav_BD03BF26.wem</Path>
 				</File>
-				<File Id="931568223" Language="SFX">
-					<ShortName>.025.wav.wav</ShortName>
-					<Path>SFX\.025.wav_BD03BF26.wem</Path>
+				<File Id="891127962" Language="SFX">
+					<ShortName>Hit_1.wav</ShortName>
+					<Path>SFX\Hit_1_BD03BF26.wem</Path>
 				</File>
 			</IncludedMemoryFiles>
 		</SoundBank>

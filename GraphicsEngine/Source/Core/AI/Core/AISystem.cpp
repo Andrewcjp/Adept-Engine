@@ -5,7 +5,8 @@
 #include "Core/Engine.h"
 #include "Core/Game/Game.h"
 #include "Navigation/NavigationMesh.h"
-
+#include "Core/Platform/ConsoleVariable.h"
+static ConsoleVariable DebugModeVar("aidebug", 0, ECVarType::ConsoleAndLaunch);
 AISystem* AISystem::Instance = nullptr;
 AISystem::AISystem()
 {
@@ -47,10 +48,11 @@ void AISystem::StartUp()
 void AISystem::ShutDown()
 {
 	SafeDelete(Instance);
-}
+} 
 
 void AISystem::Tick(float dt)
 {
+	SetDebugMode(DebugModeVar.GetAsEnum<EAIDebugMode::Type>());
 	Director->Tick();
 	BTManager->Tick(dt);
 	if (AISystem::GetDebugMode() == EAIDebugMode::NavMesh || AISystem::GetDebugMode() == EAIDebugMode::All)
@@ -60,6 +62,7 @@ void AISystem::Tick(float dt)
 }
 void AISystem::EditorTick()
 {
+	SetDebugMode(DebugModeVar.GetAsEnum<EAIDebugMode::Type>());
 	if (AISystem::GetDebugMode() == EAIDebugMode::NavMesh || AISystem::GetDebugMode() == EAIDebugMode::All)
 	{
 		mesh->RenderMesh();
