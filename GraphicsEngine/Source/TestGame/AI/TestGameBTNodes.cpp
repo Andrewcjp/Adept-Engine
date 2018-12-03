@@ -44,7 +44,7 @@ void BTRifleAttackNode::Run()
 		CurrentDelay = 0.0f;
 		return;
 	}
-	if (Controller->FireAt(Target->GetPosition(), 1))//we could fire this round
+	if (Controller->FireAt(Target->GetPosition()))//we could fire this round
 	{
 		RemainingRounds--;
 	}

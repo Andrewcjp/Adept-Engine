@@ -20,14 +20,14 @@ class TextRenderer
 {
 public:
 	static TextRenderer* instance;
-	TextRenderer(int width, int height);
+	TextRenderer(int width, int height, bool SetInstance = false);
 	~TextRenderer();
 
 	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1),bool Reset = false);
 	void Finish();
 	void Reset();
 	void LoadText();
-	void UpdateSize(int width, int height);
+	void UpdateSize(int width, int height, glm::ivec2 offset = glm::ivec2(0));
 	void NotifyFrameEnd();
 	bool RunOnSecondDevice = false;
 private:	
@@ -50,7 +50,7 @@ private:
 		float t;
 		glm::vec3 colour;
 	};
-
+	glm::ivec2 UITextOffset;
 	std::vector<point> coords;
 	int currentsize = 0;
 	const int MAX_BUFFER_SIZE = 10000;

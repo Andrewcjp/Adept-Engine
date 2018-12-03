@@ -32,7 +32,7 @@ Scene::~Scene()
 
 void Scene::UpdateScene(float deltatime)
 {
-	AISystem::Get()->Tick(deltatime); 
+	AISystem::Get()->Tick(deltatime);
 	CurrentGameMode->Update();
 	if (SceneObjects.size() == 0)
 	{
@@ -107,7 +107,8 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\textures_terrain_ground_marsrock_ground_01_tiled_c.dds"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.UVScale = glm::vec2(20);
-	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Room1.obj", set), mat));//TerrrainTest
+	const char* Name = "models\\Room1.obj";
+	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	r->SetMaterial(mat, 1);
@@ -118,7 +119,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #if 1
 	cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
-	cc->SetTriangleMeshAssetName("models\\Room1.obj");
+	cc->SetTriangleMeshAssetName(Name);
 #endif
 	AddGameobjectToScene(go);
 
@@ -246,6 +247,16 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(50, 0, -5));
 	go->AttachComponent(new SpawnMarker());
 	AddGameobjectToScene(go);
+
+	go = new GameObject("spawn");
+	go->GetTransform()->SetPos(glm::vec3(50, 0, 10));
+	go->AttachComponent(new SpawnMarker());
+	AddGameobjectToScene(go);
+
+	go = new GameObject("spawn");
+	go->GetTransform()->SetPos(glm::vec3(60, 0, -5));
+	go->AttachComponent(new SpawnMarker());
+	AddGameobjectToScene(go);
 #if 0
 	go = CreateDebugSphere(nullptr);
 	cc = go->AttachComponent(new ColliderComponent());
@@ -278,7 +289,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				AddGameobjectToScene(go);
 			}
 		}
-	}
+}
 #endif
 
 
@@ -301,7 +312,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
-			}
+		}
 		}
 #endif
 	}

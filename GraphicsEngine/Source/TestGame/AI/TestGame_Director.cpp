@@ -25,7 +25,7 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		//SpawnAI(GetSpawnPos() + glm::vec3(0, 0, 3), EAIType::PossessedSoldier);
+		SpawnAI(GetSpawnPos() + glm::vec3(0, 0, 3), EAIType::PossessedSoldier);
 		once = true;
 	}
 	CurrentSpawnScore = GetSpawnedScore();
@@ -82,12 +82,19 @@ void TestGame_Director::TickNewAIQueue()
 	CurrentlySpawnedAI.push_back(ai);
 }
 
+int GetRand(int min, int max)
+{
+	return min + (rand() % static_cast<int>(max - min + 1));
+}
+
 float randvalue = 1.0f;
 glm::vec3 TestGame_Director::GetSpawnPos()
 {//todo: random offsets to avoid stacking
 	glm::vec3 offset = glm::vec3(randvalue, 0, 0);
 	randvalue += 4.0;
-	return spawnmarkers[0]->GetOwner()->GetPosition() + offset;
+	const int index = GetRand(0, (int)spawnmarkers.size() - 1);
+	//todo: cast to check
+	return spawnmarkers[index]->GetOwner()->GetPosition() + offset;
 }
 
 void TestGame_Director::NotifySpawningPoolDestruction()
@@ -162,11 +169,15 @@ GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 	GameObject* NewPossessed = CreateAI(pos);
 	NewPossessed->SetName("Possessed Soldier");
 	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
-	t->MainWeapon = NewPossessed->AttachComponent(new Weapon(Weapon::Rifle, scene, nullptr));
+
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	NewPossessed->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Model test.obj"), mat));
 	NewPossessed->GetTransform()->SetScale(glm::vec3(1, 1, 1));
+	GameObject* WeaponBone = new GameObject();
+	t->MainWeapon = WeaponBone->AttachComponent(new Weapon(Weapon::AIRifle, scene, nullptr, WeaponBone));
+	WeaponBone->SetParent(NewPossessed);
+	scene->AddGameobjectToScene(WeaponBone);
 	return NewPossessed;
 }
 
@@ -206,7 +217,7 @@ void TestGame_Director::EnqueueWave(const DirectorState * state)
 			i++;
 		}
 	}
-
+	randvalue = 0.0f;
 	// fill the wave queue with relevant Units
 }
 

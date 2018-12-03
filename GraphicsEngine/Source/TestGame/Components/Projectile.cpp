@@ -13,7 +13,7 @@ Projectile::~Projectile()
 
 void Projectile::InitComponent()
 {
-
+	LifeTime = 5.0f;
 }
 
 void Projectile::OnCollide(CollisonData data)
@@ -34,4 +34,13 @@ void Projectile::OnTrigger(CollisonData data)
 		H->TakeDamage(DamageValue);
 	}
 	GetOwner()->Destory();
+}
+
+ void Projectile::Update(float delta)
+{
+	 LifeTime -= delta;
+	 if (LifeTime <= 0.0f)
+	 {
+		 GetOwner()->Destory();
+	 }
 }

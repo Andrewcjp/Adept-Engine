@@ -7,7 +7,7 @@
 
 #define MAXWIDTH 1024
 TextRenderer* TextRenderer::instance = nullptr;
-TextRenderer::TextRenderer(int width, int height)
+TextRenderer::TextRenderer(int width, int height, bool SetInstance /*= false*/)
 {
 	m_width = width;
 	m_height = height;
@@ -15,7 +15,10 @@ TextRenderer::TextRenderer(int width, int height)
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	LoadText();
-	instance = this;
+	if (SetInstance)
+	{
+		instance = this;
+	}
 	coords.reserve(100 * 6);
 	UpdateSize(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());
 }
@@ -23,11 +26,11 @@ TextRenderer::TextRenderer(int width, int height)
 
 TextRenderer::~TextRenderer()
 {
-	delete TextAtlas;
-	delete m_TextShader;
+	SafeDelete(TextAtlas);
+	SafeDelete(m_TextShader);
 	EnqueueSafeRHIRelease(VertexBuffer);
 	coords.empty();
-	EnqueueSafeRHIRelease(Renderbuffer);	
+	EnqueueSafeRHIRelease(Renderbuffer);
 	EnqueueSafeRHIRelease(TextCommandList);
 }
 
@@ -40,6 +43,8 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	m_TextShader->SetShaderActive();
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
+	//x += UITextOffset.x;
+	//y += UITextOffset.y;
 	scale = scale * ScaleFactor;
 	if (UseFrameBuffer)
 	{
@@ -136,7 +141,10 @@ void TextRenderer::Finish()
 {
 	TextCommandList->SetRenderTarget(nullptr);
 	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, EGPUTIMERS::Text);
-	TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(TextCommandList);
+	if (instance == this)
+	{
+		TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(TextCommandList);
+	}
 	TextCommandList->Execute();
 	TextCommandList->GetDevice()->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	currentsize = 0;
@@ -165,7 +173,7 @@ void TextRenderer::Finish()
 #else
 		FrameBuffer::CopyHelper(Renderbuffer, RHI::GetDeviceContext(0));
 #endif
-	}
+}
 }
 void TextRenderer::Reset()
 {
@@ -230,7 +238,7 @@ void TextRenderer::LoadText()
 
 }
 
-void TextRenderer::UpdateSize(int width, int height)
+void TextRenderer::UpdateSize(int width, int height, glm::ivec2 offset)
 {
 	m_width = width;
 	m_height = height;
@@ -239,6 +247,7 @@ void TextRenderer::UpdateSize(int width, int height)
 		m_TextShader->Height = m_height;
 		m_TextShader->Width = m_width;
 	}
+	UITextOffset = offset;
 }
 
 void TextRenderer::NotifyFrameEnd()

@@ -92,7 +92,16 @@ void AIController::Update(float dt)
 	}
 	else if (Path != nullptr && Path->Positions.size() > 0)
 	{
-		DirToTarget = glm::normalize(ProjectPosition(Path->Positions[CurrentPathIndex]) - ProjectPosition(GetOwner()->GetPosition()));
+		glm::vec3 dir = ProjectPosition(Path->Positions[CurrentPathIndex]) - ProjectPosition(GetOwner()->GetPosition());
+		if (glm::length(dir) != 0.0f)
+		{
+			DirToTarget = glm::normalize(dir);
+		}
+		else
+		{
+			DirToTarget = glm::vec3(1, 0, 0);
+		}
+		CheckNAN(DirToTarget);
 	}
 	float angle = glm::degrees(glm::atan(DirToTarget.x, DirToTarget.z));
 	if (DirToTarget.length() == 0.0f)

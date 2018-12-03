@@ -89,8 +89,6 @@ private:
 	std::vector<SpawnedAi*> CurrentlySpawnedAI;
 	AIDirector_DifficultyPreset CurrentPreset = AIDirector_DifficultyPreset();
 	bool once = false;
-	int CurrentWaveSize = 0;
-	int RemainingTokens = 0;
 	int DifficultyScoreMax = 5;
 	int CurrentSpawnScore = 0;
 	

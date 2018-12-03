@@ -21,6 +21,7 @@ void TestGameHud::OnStart()
 	Mode = (TestGameGameMode*)gameMode;
 	ammoCounter = new UILabel("0/0", 0, 0, 0, 0);
 	ammoCounter->SetScaled(0.2f, 0.2f);
+	ammoCounter->TextScale = 0.45f;
 	Context->AddWidget(ammoCounter);
 }
 

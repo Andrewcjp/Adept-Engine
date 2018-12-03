@@ -17,8 +17,12 @@ public:
 	void OnCollide(CollisonData data) override;
 	virtual void OnTrigger(CollisonData data) override;
 
+
+	virtual void Update(float delta) override;
+
 private:
 	float DamageValue = 0.0f;
 	GameObject* Owner = nullptr;
+	float LifeTime = 0.0f;
 };
 

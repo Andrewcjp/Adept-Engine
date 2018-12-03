@@ -14,9 +14,9 @@ UILabel::~UILabel()
 //todo: Fit in box
 void UILabel::Render()
 {
-	if (TextRenderer::instance != nullptr)
+	if (OwningContext)
 	{
-		UIManager::instance->RenderTextToScreen(MText, OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale)), TextScale, glm::vec3(1));
+		OwningContext->RenderTextToScreen(MText, OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale)), TextScale, glm::vec3(1));
 	}
 }
 

@@ -4,7 +4,7 @@
 #include "Stdafx.h"
 #include "UIDrawBatcher.h"
 #include "UIWidget.h"
-
+#include "Core/Platform/PlatformCore.h"
 
 UIWidgetContext::UIWidgetContext()
 {}
@@ -33,6 +33,7 @@ void UIWidgetContext::UpdateWidgets()
 }
 void UIWidgetContext::RenderWidgetText()
 {
+	TextRender->Reset();
 	for (int i = 0; i < widgets.size(); i++)
 	{
 		if (widgets[i]->GetEnabled())
@@ -40,16 +41,20 @@ void UIWidgetContext::RenderWidgetText()
 			widgets[i]->Render();
 		}
 	}
+	TextRender->Finish();
 }
+
 void UIWidgetContext::RemoveWidget(UIWidget* widget)
 {
 	widget->IsPendingKill = true;
 	WidgetsToRemove.push_back(widget);
 }
+
 int UIWidgetContext::GetScaledWidth(float PC)
 {
 	return (int)rint(PC *(GetWidth()));
 }
+
 int UIWidgetContext::GetWidth()
 {
 	return m_width;
@@ -59,10 +64,12 @@ int UIWidgetContext::GetHeight()
 {
 	return m_height;
 }
+
 int UIWidgetContext::GetScaledHeight(float PC)
 {
 	return (int)rint(PC *(GetHeight()));
 }
+
 void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset)
 {
 	LineBatcher->OnResize(width, height);
@@ -87,7 +94,7 @@ void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset
 		widgets[i]->UpdateScaled();
 	}
 
-	//textrender->UpdateSize(width, height);
+	//TextRender->UpdateSize(width, height,Offset);
 	DrawBatcher->SendToGPU();
 }
 
@@ -112,6 +119,7 @@ void UIWidgetContext::CleanUpWidgets()
 	WidgetsToRemove.clear();
 	MarkRenderStateDirty();
 }
+
 void UIWidgetContext::UpdateBatches()
 {
 	UpdateSize(m_width, m_height, DrawBatcher->Offset.x, DrawBatcher->Offset.y);
@@ -119,9 +127,11 @@ void UIWidgetContext::UpdateBatches()
 
 void UIWidgetContext::Initalise(int width, int height)
 {
+	ensure((width > 0 && height > 0));
 	m_width = width;
 	m_height = height;
-	//TextRender = new TextRenderer(m_width, m_height);
+	TextRender = new TextRenderer(m_width, m_height);
+	TextRender->UpdateSize(width, height);
 	DrawBatcher = new UIDrawBatcher();
 	LineBatcher = new DebugLineDrawer(true);
 }
@@ -199,4 +209,19 @@ void UIWidgetContext::SetOffset(glm::ivec2 newoff)
 {
 	GetBatcher()->Offset = newoff;
 	Offset = newoff;
+}
+
+void UIWidgetContext::RenderTextToScreen(int id, std::string text)
+{
+	RenderTextToScreen(id, text, glm::vec3(0.6, 1.0f, 0.2f));
+}
+
+void UIWidgetContext::RenderTextToScreen(int id, std::string text, glm::vec3 colour)
+{
+	RenderTextToScreen(text, XSpacing, static_cast<float>(m_height - (YHeight*id)), 0.5f, colour);
+}
+
+void UIWidgetContext::RenderTextToScreen(std::string text, float x, float y, float scale, glm::vec3 colour)
+{
+	TextRender->RenderFromAtlas(text, x, y, scale, colour, false);
 }

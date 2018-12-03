@@ -6,6 +6,7 @@
 #include "NavigationObstacle.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "DLTEPathfinder.h"
+#include "Core/Performance/PerfManager.h"
 
 
 NavigationMesh::NavigationMesh()
@@ -37,6 +38,7 @@ void NavigationMesh::RenderMesh()
 
 ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
 {
+	CheckNAN(Startpoint);
 	Startpoint.y = 0;
 	EndPos.y = 0;
 	switch (AISystem::GetPathMode())
@@ -105,7 +107,7 @@ void NavigationMesh::SmoothPath(NavigationPath* path)
 }
 
 ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
-{
+{	
 	if (Plane == nullptr)
 	{
 		return ENavRequestStatus::Failed;
@@ -128,6 +130,8 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 		outputPath->Positions.push_back(EndPos);
 		return ENavRequestStatus::Complete;
 	}
+	const char* TimerName = "Path Compute";
+	PerfManager::Get()->StartSingleActionTimer(TimerName);
 	DPathFinder->Plane = Plane;
 	DPathFinder->SetTarget(EndPos, Startpoint);
 	DPathFinder->Execute(outputPath->Positions);
@@ -146,7 +150,9 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 			}
 		}
 	}
-
+	PerfManager::Get()->EndSingleActionTimer(TimerName);
+	PerfManager::Get()->LogSingleActionTimer(TimerName);
+	PerfManager::Get()->FlushSingleActionTimer(TimerName);
 	return ENavRequestStatus::Complete;
 }
 

@@ -9,10 +9,11 @@ public:
 		Rifle,
 		ShotGun,
 		RailGun,
+		AIRifle,
 		Limit,
 	};
 	Weapon() {}
-	Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player);
+	Weapon(Weapon::WeaponType T, Scene* scene, TestPlayer* player, GameObject* root = nullptr);
 	~Weapon();
 
 	// Inherited via Component
@@ -27,6 +28,7 @@ public:
 		float DamagePerShot = 10.0f;
 		int MaxAmmoCount = 100;
 		float ProjectileSpeed = 50.0f;
+		bool ShowProjectile = false;
 	};
 	const WeaponSettings& GetCurrentSettings() { return CurrentSettings; }
 	void SetCurrentSettings(WeaponSettings NewSettings);
@@ -36,6 +38,7 @@ public:
 	virtual void OnFire() {};
 	int GetCurrentAmmo() { return CurrentAmmoCount; }
 	void AddAmmo(int amt);
+	
 protected:
 	TestPlayer* Player = nullptr;
 	

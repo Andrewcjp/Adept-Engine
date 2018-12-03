@@ -30,7 +30,8 @@ UIManager::UIManager(int w, int h)
 	TopHeight = 0.1f;
 	RightWidth = 0.2f;
 	LeftWidth = 0.2f;
-
+	m_width = w;
+	m_height = h;
 	new EditorUI();
 	Initalise(w, h);
 
@@ -127,7 +128,7 @@ void UIManager::Initalise(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	new TextRenderer(width, height);
+	new TextRenderer(width, height, true);
 }
 
 Inspector* UIManager::GetInspector()
@@ -154,6 +155,11 @@ void UIManager::UpdateSize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
+	if (TextRenderer::instance)
+	{
+		TextRenderer::instance->UpdateSize(width, height);
+	}
+	
 #if WITH_EDITOR
 	for (int i = 0; i < Contexts.size(); i++)
 	{
