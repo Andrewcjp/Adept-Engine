@@ -225,3 +225,9 @@ void UIWidgetContext::RenderTextToScreen(std::string text, float x, float y, flo
 {
 	TextRender->RenderFromAtlas(text, x, y, scale, colour, false);
 }
+
+void UIWidgetContext::SetEnabled(bool state)
+{
+	Enabled = state;
+	UpdateBatches();
+}

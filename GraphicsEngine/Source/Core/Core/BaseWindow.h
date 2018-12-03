@@ -23,7 +23,7 @@ public:
 	static int GetHeight();
 	RenderEngine * GetCurrentRenderer();
 
-	static bool ProcessDebugCommand(std::string command);
+	static bool ProcessDebugCommand(std::string command, std::string & response);
 	static class Camera* GetCurrentCamera();
 	bool ShowHud = true;
 	bool ShowText = false;

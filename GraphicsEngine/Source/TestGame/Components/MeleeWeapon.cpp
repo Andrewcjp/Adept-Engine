@@ -51,7 +51,7 @@ void MeleeWeapon::OnTrigger(CollisonData data)
 	if (h != nullptr && h->GetOwner() != GetOwner())
 	{
 		h->TakeDamage(AttackDamage);
-		AudioEngine::PostEvent("Melee_Hit", GetOwner());
+		/*AudioEngine::PostEvent("Melee_Hit", GetOwner());*/
 	}
 }
 

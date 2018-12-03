@@ -15,5 +15,5 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	230676780	_107_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.107.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\_107_wav		70624
 	526678843	_106_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.106.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Gauss\_106_wav		161632
 	585412086	Fire	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.229.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Fire		220000
-	931568223	_025_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.025.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\_025_wav		110688
+	891127962	Hit_1	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\Hit_1_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Hit_1		55392
 

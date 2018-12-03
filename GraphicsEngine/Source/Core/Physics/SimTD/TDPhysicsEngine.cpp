@@ -91,6 +91,7 @@ void TDPhysicsEngine::TimerCallbackHandler(bool IsStart, TDPerfCounters::Type ty
 
 void TDPhysicsEngine::stepPhysics(float Deltatime)
 {
+	GenericPhysicsEngine::stepPhysics(Deltatime);
 	TDPhysics::Get()->StartStep(Deltatime);
 }
 

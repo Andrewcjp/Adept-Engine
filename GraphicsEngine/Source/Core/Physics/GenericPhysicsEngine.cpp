@@ -1,14 +1,17 @@
 #include "GenericPhysicsEngine.h"
 #include "GenericRigidBody.h"
-#include <thread>
 #include "Core/GameObject.h"
-
+#include "Core/Platform/ConsoleVariable.h"
+#include "Core/Utils/TypeUtils.h"
+static ConsoleVariable DebugMode("physdebug", 0, ECVarType::ConsoleAndLaunch);
 
 void GenericPhysicsEngine::initPhysics()
 {}
 
 void GenericPhysicsEngine::stepPhysics(float Deltatime)
-{}
+{
+	SetPhysicsDebugMode(DebugMode.GetAsEnum<EPhysicsDebugMode::Type>());
+}
 
 void GenericPhysicsEngine::cleanupPhysics()
 {}

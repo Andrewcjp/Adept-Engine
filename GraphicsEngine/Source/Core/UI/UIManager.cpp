@@ -47,7 +47,7 @@ void UIManager::InitCommonUI()
 	AddWidget(graph);
 	graph->SetEnabled(false);
 	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
-	wid->SetScaled(1.0f, 0.05f, 0.0f, 0);
+	wid->SetScaled(1.0f, 0.07f, 0.0f, 0.93f);
 	AddWidget(wid);
 }
 #if WITH_EDITOR
@@ -159,7 +159,7 @@ void UIManager::UpdateSize(int width, int height)
 	{
 		TextRenderer::instance->UpdateSize(width, height);
 	}
-	
+
 #if WITH_EDITOR
 	for (int i = 0; i < Contexts.size(); i++)
 	{

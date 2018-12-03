@@ -348,6 +348,7 @@ TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
 	{
 		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::GetDeviceContext(0));
 	}
+	Texture->TextureName = "TextAtlas";
 	Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
 
 	//printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);

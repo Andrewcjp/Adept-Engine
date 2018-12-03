@@ -3,6 +3,7 @@
 #include "Editor/EditorWindow.h"
 #include "Health.h"
 #include "WeaponManager.h"
+#include "Core/Platform/ConsoleVariable.h"
 TestPlayer::TestPlayer()
 {}
 
@@ -10,14 +11,10 @@ TestPlayer::~TestPlayer()
 {}
 
 void TestPlayer::InitComponent()
-{
-
-}
+{}
 
 void TestPlayer::OnCollide(CollisonData data)
-{
-
-}
+{}
 
 std::string TestPlayer::GetInfoString()
 {
@@ -66,6 +63,7 @@ void TestPlayer::BeginPlay()
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
 }
 
+static ConsoleVariable Sensitivity("sensitivity", 1.0f, ECVarType::ConsoleOnly);
 void TestPlayer::Update(float delta)
 {
 	const float EyeHeight = 1.9f;
@@ -79,6 +77,7 @@ void TestPlayer::Update(float delta)
 	UpdateMovement(delta);
 
 	glm::vec2 axis = Input::GetMouseInputAsAxis();
+	axis *= Sensitivity.GetFloatValue();
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
 	glm::quat YRot = glm::quat(glm::radians(glm::vec3(rot.x + -axis.x*LookSensitivty, 0, 90)));
 	GetOwner()->SetRotation(YRot);
@@ -152,7 +151,7 @@ void TestPlayer::UpdateMovement(float delta)
 	}
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
-		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 100)/delta);
+		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 100) / delta);
 	}
 }
 

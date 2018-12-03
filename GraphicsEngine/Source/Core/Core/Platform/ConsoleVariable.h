@@ -1,4 +1,5 @@
 #pragma once
+#include "../Utils/TypeUtils.h"
 
 
 //Console vars can also be set though the launch arguments
@@ -15,7 +16,8 @@ namespace ECVarType
 class ConsoleVariable
 {
 public:
-	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly,bool NeedsValue = false);
+	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = false);
+	CORE_API ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = false);
 	~ConsoleVariable() {}
 	const std::string& GetName()const
 	{
@@ -34,6 +36,10 @@ public:
 	{
 		CurrentValue = value;
 	}
+	void SetValueF(float value)
+	{
+		FloatValue = value;
+	}
 	int GetIntValue()
 	{
 		return CurrentValue;
@@ -42,9 +48,21 @@ public:
 	{
 		return NeedsValue;
 	}
+	float GetFloatValue()
+	{
+		return FloatValue;
+	}
+	template<class T>
+	T GetAsEnum()
+	{
+		return TypeUtils::GetFromInt<T>(CurrentValue);
+	}
+	std::string GetValueString();
+	bool IsFloat = false;
 private:
 	std::string Name = "";
 	int CurrentValue = 0;
+	float FloatValue = 0.0f;
 	bool NeedsValue = false;
 };
 
@@ -67,4 +85,5 @@ public:
 		//todo: gather from config
 	}
 	static void SetupVars(std::string LaunchArgString);
+	static bool TrySetCVar(std::string command, ConsoleVariable ** Var);
 };
