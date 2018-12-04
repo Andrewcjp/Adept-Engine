@@ -15,7 +15,6 @@ namespace TD
 	TDSolver::TDSolver()
 	{
 		SolverIterations = TDPhysics::GetCurrentSimConfig()->SolverIterationCount;
-		Broadphase = new TDBroadphase();
 	}
 
 	TDSolver::~TDSolver()
@@ -30,16 +29,27 @@ namespace TD
 		{
 			IntergrateActor(scene->GetDynamicActors()[i], dt, scene);
 		}
+		SimulationCallbackPairs.clear();
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			PostIntergrate(&NarrowPhasePairs[i]);
+			AddContact(&NarrowPhasePairs[i]);
 			NarrowPhasePairs[i].data.Reset();
 		}
+		TDPhysics::Get()->SimulationContactCallback(SimulationCallbackPairs);
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::IntergrateScene);
 #endif
 	}
-
+	void TDSolver::AddContact(CollisionPair*pair)
+	{
+		if (!pair->IsNew)
+		{
+			return;
+		}
+		pair->IsNew = false;
+		SimulationCallbackPairs.push_back(new ContactPair(pair->first->GetAttachedShapes()[0], pair->second->GetAttachedShapes()[0]));
+	}
 	void TDSolver::IntergrateActor(TDRigidDynamic * actor, float dt, TDScene * Scene)
 	{
 		if (actor->IsBodyAsleep())
@@ -113,12 +123,8 @@ namespace TD
 			}
 		}
 #else
-		for (int i = 0; i < scene->GetActors().size(); i++)
-		{
-			Broadphase->UpdateActor(scene->GetActors()[i]);
-		}
-		Broadphase->ConstructPairs();
-		NarrowPhasePairs = Broadphase->NarrowPhasePairs;
+		scene->UpdateBroadPhase();
+		NarrowPhasePairs = scene->GetPairs();
 #endif
 		//printf(ReportbroadPhaseStats().c_str());
 	}
@@ -265,8 +271,8 @@ namespace TD
 		}
 		AVGdepth /= data->ContactCount;
 
-		//for (int i = 0; i < data->ContactCount; i++)
-		int i = 0;
+		for (int i = 0; i < data->ContactCount; i++)
+			//int i = 0;
 		{
 			TDPhysics::DrawDebugPoint(data->ContactPoints[i], AVG, 0.0f);
 			float invmassA = 0.0f;
@@ -283,20 +289,21 @@ namespace TD
 #if USE_LINEAR_PROJECTION
 			const float Slack = 0.1f;
 			const float LinearProjectionPercent = 0.45f;
-			float depth = fmaxf(AVGdepth - Slack, 0.0f);
+			float depth = fmaxf(data->depth[i] - Slack, 0.0f);
 			float scalar = depth / InvMassSum;
-			const glm::vec3 Reporjections = AVG * scalar * LinearProjectionPercent;
+			const glm::vec3 Reporjections = data->Direction[i] * scalar * LinearProjectionPercent;
 			if (A != nullptr)
 			{
-				A->GetTransfrom()->SetPos(A->GetTransfrom()->GetPos() + (Reporjections * invmassA) /*/ data->ContactCount*/);
+				A->GetTransfrom()->SetPos(A->GetTransfrom()->GetPos() + (Reporjections * invmassA) / data->ContactCount);
 			}
 			if (B != nullptr)
 			{
-				B->GetTransfrom()->SetPos(B->GetTransfrom()->GetPos() - (Reporjections * invmassB) /*/ data->ContactCount*/);
+				B->GetTransfrom()->SetPos(B->GetTransfrom()->GetPos() - (Reporjections * invmassB) / data->ContactCount);
 			}
-		}
 #endif
+		}
 	}
+
 	void TDSolver::ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, const TDPhysicalMaterial * AMaterial, const TDPhysicalMaterial * BMaterial, int contactindex)
 	{
 		glm::vec3 RelVel = glm::vec3(0, 0, 0);
@@ -358,7 +365,8 @@ namespace TD
 		{
 			jt /= (float)data->ContactCount;
 		}
-		if (jt == 0)
+		
+		if (jt == 0) 
 		{
 			return;
 		}

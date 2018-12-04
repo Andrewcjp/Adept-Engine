@@ -53,7 +53,7 @@ void AIController::Update(float dt)
 	{
 		//ReplanPath();
 	}
-	if (CurrentTarget.IsValid && Rigidbody != nullptr && Path != nullptr && Path->Positions.size() > 0)
+	if (CurrentTarget.IsValid && Rigidbody != nullptr && Path != nullptr && Path->PathReady && Path->Positions.size() > 0)
 	{
 		//Point at the Next path node
 		CurrentPathIndex = glm::clamp(CurrentPathIndex, 0, (int)Path->Positions.size() - 1);
@@ -121,7 +121,7 @@ void AIController::ReplanPath()
 {
 	if (AISystem::Get()->mesh != nullptr)
 	{
-		ENavRequestStatus::Type Status = AISystem::Get()->mesh->CalculatePath(GetOwner()->GetPosition(), CurrentTarget.GetTargetPos(), &Path);
+		ENavRequestStatus::Type Status = AISystem::Get()->CalculatePath(GetOwner()->GetPosition(), CurrentTarget.GetTargetPos(), &Path);
 		if (Status != ENavRequestStatus::Complete)
 		{
 			Log::LogMessage("Path planning Failed:" + NavigationMesh::GetErrorCodeAsString(Status), Log::Severity::Warning);

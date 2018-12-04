@@ -43,6 +43,7 @@ public:
 	}
 	static physx::PxPhysics* GetGPhysics();
 	static physx::PxScene * GetPlayScene();
+	static physx::PxScene * GetCurrnetScene();
 	static physx::PxMaterial* GetDefaultMaterial();
 	physx::PxMaterial* CreatePhysxMat(PhysicalMaterial* mat);
 	static 	physx::PxCooking* GetCooker();

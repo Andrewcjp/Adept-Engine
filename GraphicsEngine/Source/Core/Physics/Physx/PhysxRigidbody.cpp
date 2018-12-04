@@ -10,7 +10,7 @@ using namespace physx;
 PhysxRigidbody::~PhysxRigidbody()
 {
 	//PMaterial->release(); //Not released as we don't own it the shape does
-	PhysxEngine::GetPlayScene()->removeActor(*CommonActorPtr);
+	PhysxEngine::GetCurrnetScene()->removeActor(*CommonActorPtr);
 	CommonActorPtr->release();
 	MemoryUtils::DeleteVector(AttachedColliders);
 	for (int i = 0; i < Shapes.size(); i++)
@@ -285,7 +285,7 @@ void PhysxRigidbody::InitBody()
 	}
 	UpdateBodyState();
 	CommonActorPtr->userData = this;
-	PhysxEngine::GetPlayScene()->addActor(*CommonActorPtr);
+	PhysxEngine::GetCurrnetScene()->addActor(*CommonActorPtr);
 }
 float PhysxRigidbody::GetMass()
 {

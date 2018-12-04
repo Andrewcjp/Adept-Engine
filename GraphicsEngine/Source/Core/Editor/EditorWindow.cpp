@@ -96,11 +96,11 @@ void EditorWindow::EnterPlayMode()
 #if PLAYMODE_USE_SAVED
 	Saver->SaveScene(CurrentScene, EditorPlaySceneTempFile);
 	CurrentPlayScene = new Scene();
-	Saver->LoadScene(CurrentPlayScene, EditorPlaySceneTempFile);
-	Renderer->SetScene(CurrentPlayScene);
 	IsRunning = true;
 	IsPlayingScene = true;
 	ShouldTickScene = true;
+	Saver->LoadScene(CurrentPlayScene, EditorPlaySceneTempFile);
+	Renderer->SetScene(CurrentPlayScene);
 	CurrentPlayScene->StartScene();
 #endif
 	EditorCamera->SetEnabled(false);

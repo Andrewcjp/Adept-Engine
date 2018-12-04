@@ -75,12 +75,14 @@ void TestPlayer::Update(float delta)
 #endif
 	CheckForGround();
 	UpdateMovement(delta);
-
+	//GetOwner()->SetPosition(glm::vec3(0, 2, 0));
+	//return;
 	glm::vec2 axis = Input::GetMouseInputAsAxis();
 	axis *= Sensitivity.GetFloatValue();
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
 	glm::quat YRot = glm::quat(glm::radians(glm::vec3(rot.x + -axis.x*LookSensitivty, 0, 90)));
 	GetOwner()->SetRotation(YRot);
+	
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
 	if (CameraObject)
 	{
@@ -95,6 +97,7 @@ void TestPlayer::Update(float delta)
 
 void TestPlayer::UpdateMovement(float delta)
 {
+	//return;
 	glm::vec3 TargetVel = glm::vec3(0, 0, 0);
 	glm::vec3 right = glm::vec3(1, 0, 0);
 	glm::vec3 fwd = glm::vec3(0, 0, 1);
@@ -140,11 +143,11 @@ void TestPlayer::UpdateMovement(float delta)
 	NewVel.y = CurrentVel.y;
 	if (RB != nullptr)
 	{
-#if 1
+#if 0
 		const glm::vec3 tVel = NewVel + ExtraVel;
 		glm::vec3 correction = tVel - RB->GetVelocity();
 		correction.y = 0.0f;
-		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25));
+		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25));//todo: Force Is diffrent to Physx!
 #else
 		RB->SetLinearVelocity(NewVel);
 #endif

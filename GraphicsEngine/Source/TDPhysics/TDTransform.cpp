@@ -37,6 +37,7 @@ namespace TD
 
 	glm::quat TDTransform::GetQuatRot() const
 	{
+		CheckNAN(_qrot);
 		return _qrot;
 	}
 
@@ -100,6 +101,7 @@ namespace TD
 		UpdateModel = true;
 		oldqrot = this->_qrot;
 		this->_qrot = glm::quat(glm::radians(rot));
+		CheckNAN(_qrot);
 	}
 
 	void TDTransform::SetScale(const glm::vec3 & scale)
@@ -120,6 +122,7 @@ namespace TD
 		UpdateModel = true;
 		oldqrot = this->_qrot;
 		this->_qrot *= glm::angleAxis((amt), glm::normalize(axis));
+		CheckNAN(_qrot);
 		GetModel();
 	}
 
@@ -127,6 +130,7 @@ namespace TD
 	{
 		UpdateModel = true;
 		_qrot = val;
+		CheckNAN(_qrot);
 		GetModel();
 	}
 

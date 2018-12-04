@@ -10,3 +10,4 @@
 #include "TDRigidStatic.h"
 #include "TDTransform.h"
 #include "Constraints/TDConstraint.h"
+#include "TDSimulationCallbacks.h"

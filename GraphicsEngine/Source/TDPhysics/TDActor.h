@@ -34,6 +34,7 @@ namespace TD
 		TDAABB* AABB = nullptr;
 		virtual void ComputeKE();
 		virtual void ValidateKE();
+		void* UserData = nullptr;
 	protected:
 		float PreSimKE = 0.0f;
 		TD_API virtual ~TDActor();

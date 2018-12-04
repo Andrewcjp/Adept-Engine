@@ -6,6 +6,7 @@
 #include "CompoenentRegistry.h"
 #include "Core/Assets/Scene.h"
 #include "ColliderComponent.h"
+#include "../Utils/MathUtils.h"
 RigidbodyComponent::RigidbodyComponent()
 {
 	DoesFixedUpdate = true;
@@ -53,6 +54,8 @@ void RigidbodyComponent::FixedUpdate(float delta)
 	if (actor != nullptr)
 	{
 		//todo: fix transform feedback issue in PHYSX
+		CheckNAN(actor->GetPosition());
+		CheckNAN(actor->GetRotation());
 		GetOwner()->MoveComponent(actor->GetPosition(), IsKineimatic ? GetOwner()->GetTransform()->GetQuatRot() : actor->GetRotation(), false);
 	}
 }

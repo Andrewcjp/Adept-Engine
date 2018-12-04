@@ -68,7 +68,12 @@ std::string WeaponManager::GetCurrentWeaponinfoString()
 	ss << Weapons[CurrentIndex]->GetCurrentAmmo() << " / " << Weapons[CurrentIndex]->GetCurrentSettings().MaxAmmoCount;
 	return ss.str();
 }
-
+void WeaponManager::SetWeaponActive(int index) 
+{
+	Weapons[CurrentIndex]->SetState(false);
+	CurrentIndex = index;
+	Weapons[CurrentIndex]->SetState(true);
+}
 void WeaponManager::Update(float delta)
 {
 #if WITH_EDTIOR
@@ -96,5 +101,17 @@ void WeaponManager::Update(float delta)
 	if (Input::GetKeyDown('F'))
 	{
 		TryToMelee();
+	}
+	if (Input::GetKeyDown('1'))
+	{
+		SetWeaponActive(0);
+	}
+	if (Input::GetKeyDown('2'))
+	{
+		SetWeaponActive(1);
+	}
+	if (Input::GetKeyDown('3'))
+	{
+		SetWeaponActive(2);
 	}
 }

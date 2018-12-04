@@ -16,6 +16,7 @@ public:
 	void SwitchWeapon(int index);
 	void TryToMelee();
 	std::string GetCurrentWeaponinfoString();
+	void SetWeaponActive(int index);
 	MeleeWeapon* Melee = nullptr;
 
 	virtual void BeginPlay() override;

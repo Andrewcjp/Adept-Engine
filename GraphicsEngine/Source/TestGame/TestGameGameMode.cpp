@@ -43,7 +43,7 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<RigidbodyComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
 #if TDSIM_ENABLED
-	return;
+	//return;
 #endif
 
 	SpawnPlayer(glm::vec3(0, 10, 10), Scene);

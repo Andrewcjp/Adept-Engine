@@ -5,7 +5,7 @@
 #include "UIDrawBatcher.h"
 #include "UIWidget.h"
 #include "Core/Platform/PlatformCore.h"
-
+#include "UI/UIManager.h"
 UIWidgetContext::UIWidgetContext()
 {}
 
@@ -94,7 +94,7 @@ void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset
 		widgets[i]->UpdateScaled();
 	}
 
-	//TextRender->UpdateSize(width, height,Offset);
+	TextRender->UpdateSize(UIManager::instance->GetWidth(), UIManager::instance->GetHeight(), Offset);
 	DrawBatcher->SendToGPU();
 }
 

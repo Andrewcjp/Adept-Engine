@@ -16,6 +16,7 @@ namespace TD
 		TDSolver();
 		~TDSolver();
 		void IntergrateScene(TDScene* scene, float dt);
+		void AddContact(CollisionPair * pair);
 		void ResolveCollisions(TDScene* scene);
 		std::string ReportbroadPhaseStats();
 		static void ProcessCollisions(CollisionPair * A);
@@ -23,7 +24,7 @@ namespace TD
 		void PostIntergrate(CollisionPair * pair);
 		void ResolveConstraints(TDScene* scene);
 		static void RunPostFixup(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data);
-		TDBroadphase* Broadphase = nullptr;
+
 	private:
 		int SolverIterations = 5;
 		static void ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, const TDPhysicalMaterial * AMaterial, const TDPhysicalMaterial * BMateria, int contactindexl);
@@ -31,7 +32,7 @@ namespace TD
 		void ProcessBroadPhase(TDScene * scene);
 		int BroadPhaseCount = 0;
 		std::vector<CollisionPair> NarrowPhasePairs;
-		
+		std::vector<ContactPair*> SimulationCallbackPairs;
 	};
 }
 

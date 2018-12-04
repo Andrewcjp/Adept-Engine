@@ -230,6 +230,7 @@ void Transform::SetLocalRotation(glm::quat localrot)
 		glm::mat4 LocalMAtrix = parent->GetTransform()->GetModel();
 		glm::quat rotation = glm::quat(glm::toMat4(localrot)*glm::inverse(LocalMAtrix));
 		rotation = glm::toMat4(rotation) *LocalMAtrix;
+		CheckNAN(rotation);
 		SetQrot(GetQuatRot()* rotation);
 	}
 	else
