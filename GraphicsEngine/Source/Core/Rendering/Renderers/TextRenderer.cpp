@@ -33,7 +33,10 @@ TextRenderer::~TextRenderer()
 	EnqueueSafeRHIRelease(Renderbuffer);
 	EnqueueSafeRHIRelease(TextCommandList);
 }
-
+void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
+{
+	instance->RenderFromAtlas(text, x, y, scale, color);
+}
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color, bool reset/* = true*/)
 {
 	if (reset)

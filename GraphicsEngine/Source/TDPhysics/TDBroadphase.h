@@ -52,8 +52,10 @@ namespace TD
 	struct BPCollisionPair
 	{
 		BPCollisionPair(SAPEndPoint* a, SAPEndPoint* b);
-		TDAABB* A;
-		TDAABB* B;
+		TDAABB* A = nullptr;
+		TDAABB* B = nullptr;
+		SAPEndPoint* Apoint = nullptr;
+		SAPEndPoint* BPoint = nullptr;
 	};
 	class SweepAndPrune
 	{

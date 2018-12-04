@@ -476,6 +476,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 		}
 		CurrentHeight -= Height;
 	}
+	CurrentHeight -= 10;
 	y = CurrentHeight;
 #endif
 }

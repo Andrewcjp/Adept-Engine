@@ -95,15 +95,15 @@ namespace TD
 	class TDActor;
 	struct CollisionPair
 	{
-		CollisionPair(TDActor* A, TDActor* B)
-		{
-			first = A;
-			second = B;
-		}
+		CollisionPair(TDActor* A, TDActor* B);
 		TDActor* first = nullptr;
 		TDActor* second = nullptr;
 		ContactData data;
-		bool IsNew = true;
+		bool IsTriggerPair = false;
+		bool operator==(const CollisionPair& rhs)
+		{
+			return (this->first == rhs.first && this->second == rhs.second) || (this->first == rhs.second && this->first == rhs.second);
+		}
 	};
 	namespace TDConstraintType
 	{
@@ -149,6 +149,18 @@ namespace TD
 			ShapeA = a;
 			ShapeB = b;
 		}
+		bool operator==(const ContactPair* A)
+		{
+			return this->ShapeA == A->ShapeA && this->ShapeB == A->ShapeB || (this->ShapeB == A->ShapeA && this->ShapeA == A->ShapeB);
+		}
+		bool operator==(const ContactPair& A)
+		{
+			return this->ShapeA == A.ShapeA && this->ShapeB == A.ShapeB || (this->ShapeB == A.ShapeA && this->ShapeA == A.ShapeB);
+		}
+		/*bool operator==(const ContactPair& lhs, const ContactPair& rhs)
+		{
+			return this->ShapeA == A->ShapeA && this->ShapeB == A->ShapeB || (this->ShapeB == A->ShapeA && this->ShapeA == A->ShapeB);
+		}*/
 	};
 
 };

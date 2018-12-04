@@ -47,8 +47,19 @@ namespace TD
 	}
 
 	void TDPhysics::SimulationContactCallback(std::vector<ContactPair*>& SimulationCallbackPairs)
+	{		
+		if (SimulationCallbackPairs.size() != 0)
+		{
+			Callbacks->OnContact(*SimulationCallbackPairs.data(), (int)SimulationCallbackPairs.size());
+		}
+	}
+
+	void TDPhysics::TriggerSimulationContactCallback(std::vector<ContactPair*>& SimulationCallbackPairs)
 	{
-		Callbacks->OnContact(*SimulationCallbackPairs.data(),(int) SimulationCallbackPairs.size());
+		if (SimulationCallbackPairs.size() != 0)
+		{
+			Callbacks->OnTrigger(*SimulationCallbackPairs.data(), (int)SimulationCallbackPairs.size());
+		}
 	}
 
 	TDPhysics::TDPhysics()

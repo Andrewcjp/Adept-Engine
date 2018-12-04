@@ -6,6 +6,7 @@
 #include "TDPhysics.h"
 #include "TDSimConfig.h"
 #include "Utils/MemoryUtils.h"
+#include "Core/Utils/VectorUtils.h"
 namespace TD
 {
 	using namespace MemoryUtils::VectorUtils;
@@ -34,8 +35,17 @@ namespace TD
 			{
 				continue;
 			}
-			NarrowPhasePairs.push_back(CollisionPair(SAP->Pairs[i]->A->Owner, SAP->Pairs[i]->B->Owner));
+			CollisionPair newpair = CollisionPair(SAP->Pairs[i]->A->Owner, SAP->Pairs[i]->B->Owner);
+			if (!VectorUtils::Contains(NarrowPhasePairs, newpair))
+			{
+				NarrowPhasePairs.push_back(newpair);
+			}
+			else
+			{
+				float t = 0;
+			}
 		}
+		DebugEnsure(NarrowPhasePairs.size());
 	}
 
 	void TDBroadphase::AddToPhase(TDActor * actor)
@@ -80,7 +90,16 @@ namespace TD
 			}
 		}
 	}
-
+	void RemovePair(BPCollisionPair* point, std::vector<BPCollisionPair*> & points)
+	{
+		for (int i = 0; i < points.size(); i++)
+		{
+			if ((points[i]->A == point->A || points[i]->B == point->B))
+			{
+				points.erase(points.begin() + i);
+			}
+		}
+	}
 	void SweepAndPrune::RemoveObject(TDAABB* bb)
 	{
 		SAPBox* box = nullptr;
@@ -101,7 +120,9 @@ namespace TD
 		RemoveItemO(box->Max[1], Ypoints);
 		RemoveItemO(box->Min[2], Zpoints);
 		RemoveItemO(box->Max[2], Zpoints);
-		Pairs.clear();//TODO: this might be bad!
+		RemovePair(new BPCollisionPair(box->Min[0], box->Max[0]), Pairs);
+		RemovePair(new BPCollisionPair(box->Min[1], box->Max[1]), Pairs);
+		RemovePair(new BPCollisionPair(box->Min[2], box->Max[2]), Pairs);
 		RemoveItemO(box, Bodies);
 		SafeDelete(box);
 	}
@@ -114,17 +135,16 @@ namespace TD
 		SAPSortAxis(Zpoints);
 	}
 
+
 	void RemoveItem(BPCollisionPair* point, std::vector<BPCollisionPair*> & points)
 	{
 		for (int i = 0; i < points.size(); i++)
 		{
-			if (points[i]->A == point->A && points[i]->B == point->B)
+			if ((points[i]->A == point->A && points[i]->B == point->B) || (points[i]->A == point->B && points[i]->B == point->A))
 			{
 				points.erase(points.begin() + i);
-				return;
 			}
 		}
-		//	__debugbreak();
 	}
 
 	bool CheckBB(SAPEndPoint* a, SAPEndPoint* b)
@@ -186,6 +206,8 @@ namespace TD
 
 	BPCollisionPair::BPCollisionPair(SAPEndPoint * a, SAPEndPoint * b)
 	{
+		Apoint = a;
+		BPoint = b;
 		A = a->Owner->Owner;
 		B = b->Owner->Owner;
 	}

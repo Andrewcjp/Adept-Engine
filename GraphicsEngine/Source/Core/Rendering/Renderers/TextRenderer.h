@@ -23,6 +23,8 @@ public:
 	TextRenderer(int width, int height, bool SetInstance = false);
 	~TextRenderer();
 
+	CORE_API static void RenderText(std::string text, float x, float y, float scale, glm::vec3 color);
+
 	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1),bool Reset = false);
 	void Finish();
 	void Reset();

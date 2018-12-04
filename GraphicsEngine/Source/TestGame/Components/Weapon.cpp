@@ -161,6 +161,7 @@ bool Weapon::Fire()
 	newgo->GetTransform()->SetScale(glm::vec3(0.3f));
 	ColliderComponent* cc = newgo->AttachComponent(new ColliderComponent());
 	cc->IsTrigger = true;
+	cc->SetCollisonShape(EShapeType::eSPHERE);
 	RigidbodyComponent* rb = newgo->AttachComponent(new RigidbodyComponent());
 	rb->SetGravity(false);
 	rb->SetLinearVelocity(Forward*CurrentSettings.ProjectileSpeed);

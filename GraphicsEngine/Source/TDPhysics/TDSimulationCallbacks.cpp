@@ -16,6 +16,6 @@ namespace TD
 
 	void TDSimulationCallbacks::OnTrigger(const ContactPair * Contacts, int numContacts)
 	{
-
+		//__debugbreak();
 	}
 };

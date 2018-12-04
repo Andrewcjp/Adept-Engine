@@ -85,7 +85,7 @@ namespace TD
 		const float postsim = comput();
 		if (AttachedShapes.size() != 2)
 		{
-			DebugEnsure(postsim == PreSimKE);
+			//DebugEnsure(postsim == PreSimKE);
 		}
 	}
 
