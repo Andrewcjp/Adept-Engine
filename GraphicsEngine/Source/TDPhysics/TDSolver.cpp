@@ -7,6 +7,7 @@
 #include "TDScene.h"
 #include "TDSimConfig.h"
 #include <sstream>
+#include "Utils/VectorUtils.h"
 #define USE_LINEAR_PROJECTION 1
 #define USE_THREADED_COLLISION_DETECTION 0
 
@@ -29,7 +30,9 @@ namespace TD
 		{
 			IntergrateActor(scene->GetDynamicActors()[i], dt, scene);
 		}
+		OldSimulationCallbackPairs = SimulationCallbackPairs;
 		SimulationCallbackPairs.clear();
+		SimulationTriggerCallbackPairs.clear();
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			PostIntergrate(&NarrowPhasePairs[i]);
@@ -37,18 +40,38 @@ namespace TD
 			NarrowPhasePairs[i].data.Reset();
 		}
 		TDPhysics::Get()->SimulationContactCallback(SimulationCallbackPairs);
+		TDPhysics::Get()->TriggerSimulationContactCallback(SimulationTriggerCallbackPairs);
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::IntergrateScene);
 #endif
 	}
-	void TDSolver::AddContact(CollisionPair*pair)
+	bool compare(TD::ContactPair* A, TD::ContactPair* B)
 	{
-		if (!pair->IsNew)
+		return B->ShapeA == A->ShapeA && B->ShapeB == A->ShapeB || (B->ShapeB == A->ShapeA && B->ShapeA == A->ShapeB);
+	}
+	void TDSolver::AddContact(CollisionPair* pair)
+	{
+		if (!pair->data.Blocking)
 		{
 			return;
 		}
-		pair->IsNew = false;
-		SimulationCallbackPairs.push_back(new ContactPair(pair->first->GetAttachedShapes()[0], pair->second->GetAttachedShapes()[0]));
+		ContactPair* newpair = new ContactPair(pair->first->GetAttachedShapes()[0], pair->second->GetAttachedShapes()[0]);
+		if (!VectorUtils::Contains_F<ContactPair*>(SimulationCallbackPairs, newpair, compare) && !VectorUtils::Contains_F<ContactPair*>(OldSimulationCallbackPairs, newpair, compare))
+		{
+			if (pair->IsTriggerPair)
+			{
+				if (!VectorUtils::Contains_F<ContactPair*>(SimulationTriggerCallbackPairs, newpair, compare))
+				{
+					SimulationTriggerCallbackPairs.push_back(newpair);
+				}
+			}
+			else
+			{
+				SimulationCallbackPairs.push_back(newpair);
+			}
+			return;
+		}
+		SafeDelete(newpair);
 	}
 	void TDSolver::IntergrateActor(TDRigidDynamic * actor, float dt, TDScene * Scene)
 	{
@@ -135,6 +158,7 @@ namespace TD
 		TDPhysics::StartTimer(TDPerfCounters::ResolveCollisions);
 #endif
 		ProcessBroadPhase(scene);
+		DebugEnsure(NarrowPhasePairs.size());
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			NarrowPhasePairs[i].data.Reset();//reset before check collisions again
@@ -202,10 +226,7 @@ namespace TD
 			std::swap(A, B);
 			std::swap(AType, BType);
 		}
-		if (!A->GetFlags().GetFlagValue(TDShapeFlags::ESimulation) || !B->GetFlags().GetFlagValue(TDShapeFlags::ESimulation))
-		{
-			return;
-		}
+
 		ContactMethod con = ContactMethodTable[AType][BType];
 		DebugEnsure(con);
 		con(A, B, &pair->data);
@@ -213,6 +234,10 @@ namespace TD
 
 	void TDSolver::ProcessResponsePair(CollisionPair* pair)
 	{
+		if (pair->IsTriggerPair)
+		{
+			return;
+		}
 		TDShape* A = pair->first->GetAttachedShapes()[0];
 		TDShape* B = pair->second->GetAttachedShapes()[0];
 		if (pair->data.Blocking)
@@ -236,6 +261,10 @@ namespace TD
 	}
 	void TDSolver::PostIntergrate(CollisionPair* pair)
 	{
+		if (pair->IsTriggerPair)
+		{
+			return;
+		}
 		TDShape* A = pair->first->GetAttachedShapes()[0];
 		TDShape* B = pair->second->GetAttachedShapes()[0];
 		RunPostFixup(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()), &pair->data);
@@ -365,8 +394,7 @@ namespace TD
 		{
 			jt /= (float)data->ContactCount;
 		}
-		
-		if (jt == 0) 
+		if (jt == 0)
 		{
 			return;
 		}

@@ -1,20 +1,20 @@
 #include "EditorWindow.h"
-#include "Core/Input/Input.h"
-#include "Rendering/Renderers/ForwardRenderer.h"
-#include "Core/Version.h"
-#include "UI/UIManager.h"
-#include "EditorGizmos.h"
-#include "Core/Assets/AssetManager.h"
-#include "EditorObjectSelector.h"
-#include "Core/Assets/SceneJSerialiser.h"
-#include "Core/Game/Game.h"
-#include "Editor/Editor_Camera.h"
-#include "EditorCore.h"
-#include "Core/Platform/PlatformCore.h"
-#include "Audio/AudioEngine.h"
 #include "AI/Core/AISystem.h"
 #include "AI/Core/Navigation/NavigationMesh.h"
+#include "Audio/AudioEngine.h"
+#include "Core/Assets/AssetManager.h"
+#include "Core/Assets/SceneJSerialiser.h"
+#include "Core/Game/Game.h"
+#include "Core/Input/Input.h"
+#include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/DebugDrawers.h"
+#include "Core/Version.h"
+#include "Editor_Camera.h"
+#include "EditorCore.h"
+#include "EditorGizmos.h"
+#include "EditorObjectSelector.h"
+#include "Rendering/Renderers/ForwardRenderer.h"
+#include "UI/UIManager.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -122,10 +122,11 @@ void EditorWindow::ExitPlayMode()
 	Renderer->SetScene(CurrentScene);
 	CurrentPlayScene->EndScene();
 	EditorCamera->SetEnabled(true);
+	SafeDelete(CurrentPlayScene);
 	IsPlayingScene = false;
 	IsRunning = false;
 	ShouldTickScene = false;
-	SafeDelete(CurrentPlayScene);
+
 }
 
 void EditorWindow::DestroyRenderWindow()

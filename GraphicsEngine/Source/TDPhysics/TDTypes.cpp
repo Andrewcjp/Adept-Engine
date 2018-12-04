@@ -1,5 +1,7 @@
 #include "TDTypes.h"
 #include "Utils/MathUtils.h"
+#include "TDActor.h"
+#include "TDShape.h"
 
 TD::TDPhysicalMaterial::TDPhysicalMaterial()
 {
@@ -53,4 +55,11 @@ bool TD::TDFlagsBase::GetFlagValue(int flag)
 void TD::TDFlagsBase::SetFlags(int flags)
 {
 	Flags = Flags;
+}
+
+TD::CollisionPair::CollisionPair(TDActor * A, TDActor * B)
+{
+	first = A;
+	second = B;
+	IsTriggerPair = first->GetAttachedShapes()[0]->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || second->GetAttachedShapes()[0]->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
 }

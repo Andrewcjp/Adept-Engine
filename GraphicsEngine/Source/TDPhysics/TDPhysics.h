@@ -60,6 +60,7 @@ namespace TD
 		TDSolver* Solver = nullptr;
 		static Threading::TaskGraph* GetTaskGraph();
 		void SimulationContactCallback(std::vector<ContactPair*> & SimulationCallbackPairs);
+		void TriggerSimulationContactCallback(std::vector<ContactPair*> & SimulationCallbackPairs);
 	private:
 		TDPhysics();
 		~TDPhysics();

@@ -61,6 +61,7 @@ Scene * GameObject::GetScene()
 {
 	return OwnerScene;
 }
+
 void GameObject::Internal_SetScene(Scene * scene)
 {
 	OwnerScene = scene;

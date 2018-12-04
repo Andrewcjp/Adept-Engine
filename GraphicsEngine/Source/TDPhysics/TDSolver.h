@@ -33,6 +33,8 @@ namespace TD
 		int BroadPhaseCount = 0;
 		std::vector<CollisionPair> NarrowPhasePairs;
 		std::vector<ContactPair*> SimulationCallbackPairs;
+		std::vector<ContactPair*> SimulationTriggerCallbackPairs;
+		std::vector<ContactPair*> OldSimulationCallbackPairs;
 	};
 }
 
