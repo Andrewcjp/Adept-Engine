@@ -1,13 +1,13 @@
 #include "TDPhysicsEngine.h"
 #if TDSIM_ENABLED
-#include "TDRigidBody.h"
-#include <thread>
 #include "Core/GameObject.h"
-#include "Shapes/TDPlane.h"
-#include "TDSimConfig.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/DebugDrawers.h"
-#include "../GenericConstraint.h"
+#include "Physics/GenericConstraint.h"
+#include "Shapes/TDPlane.h"
+#include "TDRigidBody.h"
+#include "TDSimConfig.h"
+#include "Editor/EditorWindow.h"
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::initPhysics()
 {
@@ -19,6 +19,7 @@ void TDPhysicsEngine::initPhysics()
 	TDPhysics::Get()->StartUp();
 	Instance = this;
 	PlayScene = TDPhysics::Get()->CreateScene();
+	EditorScene = TDPhysics::Get()->CreateScene();
 	TDRigidStatic* Actor = new TD::TDRigidStatic();
 	Actor->GetTransfrom()->SetPos(glm::vec3(0, 0, 0));
 	Actor->AttachShape(new TDPlane());
@@ -92,7 +93,7 @@ void TDPhysicsEngine::TimerCallbackHandler(bool IsStart, TDPerfCounters::Type ty
 void TDPhysicsEngine::stepPhysics(float Deltatime)
 {
 	GenericPhysicsEngine::stepPhysics(Deltatime);
-	TDPhysics::Get()->StartStep(Deltatime);
+	TDPhysics::Get()->StartStep(PlayScene,Deltatime);
 }
 
 void TDPhysicsEngine::cleanupPhysics()
@@ -146,7 +147,15 @@ RigidBody * TDPhysicsEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 
 }
 TDScene * TDPhysicsEngine::GetScene()
 {
+#if WITH_EDITOR
+	if (EditorWindow::GetInstance()->IsInPlayMode())
+	{
+		return Instance->PlayScene;
+	}
+	return Instance->EditorScene;
+#else
 	return Instance->PlayScene;
+#endif	
 }
 TDPhysicsEngine * TDPhysicsEngine::Get()
 {

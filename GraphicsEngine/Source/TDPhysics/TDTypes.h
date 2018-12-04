@@ -1,5 +1,7 @@
 #pragma once
-#include "Utils/MathUtils.h"
+
+
+namespace TD { class TDShape; }
 
 namespace TD
 {
@@ -83,23 +85,7 @@ namespace TD
 		glm::vec3 Direction[MAX_CONTACT_POINTS_COUNT];
 		float depth[MAX_CONTACT_POINTS_COUNT];
 		int ContactCount = 0;
-		void Contact(glm::vec3 position, glm::vec3 normal, float seperation)
-		{
-			Blocking = true;
-			ContactPoints[ContactCount] = position;
-			if (normal != glm::vec3(0))
-			{
-				Direction[ContactCount] = glm::normalize(normal);
-			}
-			else
-			{
-				Direction[ContactCount] = glm::vec3(0, 1, 0);
-			}
-			depth[ContactCount] = fabsf(seperation);
-			CheckNAN(normal);
-			CheckNAN(position);
-			ContactCount++;
-		}
+		void Contact(glm::vec3 position, glm::vec3 normal, float seperation);
 		void Reset();
 	};
 	struct RayCastPayload
@@ -117,6 +103,7 @@ namespace TD
 		TDActor* first = nullptr;
 		TDActor* second = nullptr;
 		ContactData data;
+		bool IsNew = true;
 	};
 	namespace TDConstraintType
 	{
@@ -148,7 +135,20 @@ namespace TD
 		enum Type
 		{
 			ESimulation = (1 << 0),
+			ETrigger = (2 << 0),
 			Limit = (1 << 1),
 		};
 	};
+	struct ContactPair
+	{
+		TDShape* ShapeA = nullptr;
+		TDShape* ShapeB = nullptr;
+		ContactPair() {};
+		ContactPair(TDShape* a, TDShape* b)
+		{
+			ShapeA = a;
+			ShapeB = b;
+		}
+	};
+
 };

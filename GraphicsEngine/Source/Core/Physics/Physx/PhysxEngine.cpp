@@ -7,6 +7,7 @@
 #define ENABLEPVD !(NDEBUG)
 #include "PhysxSupport.h"
 #include "Core/Components/ColliderComponent.h"
+#include "Editor/EditorWindow.h"
 using namespace physx;
 physx::PxFilterFlags CollisionFilterShader(
 	physx::PxFilterObjectAttributes /*attributes0*/, physx::PxFilterData /*filterData0*/,
@@ -85,7 +86,6 @@ void PhysxEngine::initPhysics()
 void PhysxEngine::stepPhysics(float Deltatime)
 {
 	GenericPhysicsEngine::stepPhysics(Deltatime);
-	//Deltatime
 	gScene->simulate(Deltatime);
 	gScene->fetchResults(true);
 }
@@ -113,6 +113,20 @@ physx::PxScene * PhysxEngine::GetPlayScene()
 {
 	return Engine::GetPhysEngineInstance()->gScene;
 }
+
+physx::PxScene * PhysxEngine::GetCurrnetScene()
+{
+#if WITH_EDITOR
+	if (EditorWindow::GetInstance()->IsInPlayMode())
+	{
+		return GetPlayScene();
+	}
+	return Engine::GetPhysEngineInstance()->gEdtiorScene;
+#else
+	return GetPlayScene();
+#endif
+}
+
 physx::PxMaterial * PhysxEngine::GetDefaultMaterial()
 {
 	return Engine::GetPhysEngineInstance()->gMaterial;

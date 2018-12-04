@@ -18,7 +18,7 @@ namespace TD
 		else
 		{
 			__debugbreak();
-		}	
+		}
 	}
 
 	TDBroadphase::~TDBroadphase()
@@ -30,6 +30,10 @@ namespace TD
 		NarrowPhasePairs.clear();
 		for (int i = 0; i < SAP->Pairs.size(); i++)
 		{
+			if (SAP->Pairs[i]->A->Owner == SAP->Pairs[i]->B->Owner)
+			{
+				continue;
+			}
 			NarrowPhasePairs.push_back(CollisionPair(SAP->Pairs[i]->A->Owner, SAP->Pairs[i]->B->Owner));
 		}
 	}
@@ -44,7 +48,7 @@ namespace TD
 	}
 
 	void TDBroadphase::UpdateActor(TDActor* actor)
-	{		
+	{
 		if (actor->AABB->Position != actor->GetTransfrom()->GetPos())
 		{
 			actor->AABB->Position = actor->GetTransfrom()->GetPos();
@@ -97,6 +101,7 @@ namespace TD
 		RemoveItemO(box->Max[1], Ypoints);
 		RemoveItemO(box->Min[2], Zpoints);
 		RemoveItemO(box->Max[2], Zpoints);
+		Pairs.clear();//TODO: this might be bad!
 		RemoveItemO(box, Bodies);
 		SafeDelete(box);
 	}
@@ -119,7 +124,7 @@ namespace TD
 				return;
 			}
 		}
-	//	__debugbreak();
+		//	__debugbreak();
 	}
 
 	bool CheckBB(SAPEndPoint* a, SAPEndPoint* b)

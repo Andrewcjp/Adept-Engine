@@ -100,6 +100,9 @@ RigidBody * GenericCollider::GetOwner()
 
 void GenericCollider::SetEnabled(bool state)
 {
+	if (Shape == nullptr) {
+		return;
+	}
 #if PHYSX_ENABLED
 	if (state)
 	{
@@ -120,6 +123,26 @@ void GenericCollider::SetEnabled(bool state)
 		Shape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, false);
 		Shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, false);
 	}
-#else
+#elif TDSIM_ENABLED
+	if (state)
+	{
+		//Shape->GetFlags.SetFlags((physx::PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+		if (IsTrigger)
+		{
+			Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ESimulation, false);
+			Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ETrigger, true);
+		}
+		else
+		{
+			Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ESimulation, true);
+		}
+	}
+	else
+	{
+		Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ESimulation, false);
+		Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ETrigger, false);
+		//Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ESimulation, false);
+	}
+
 #endif
 }

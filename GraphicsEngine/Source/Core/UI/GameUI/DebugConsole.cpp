@@ -51,8 +51,8 @@ void DebugConsole::ResizeView(int w, int h, int x, int y)
 {
 	EditField->ResizeView(w, h, x, y);
 	const int size = 40;
-	Textlabel->ResizeView(w, size, x, y + h);
-	ResponseLabel->ResizeView(w, size, x, y + h / 2);
+	Textlabel->ResizeView(w, size, x, y+10);
+	ResponseLabel->ResizeView(w, size, x, y);
 }
 
 static ConsoleVariable showgraph("showgraph", 0, ECVarType::ConsoleAndLaunch);

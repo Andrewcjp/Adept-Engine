@@ -13,12 +13,14 @@ namespace TD
 	TDScene::TDScene()
 	{
 		AcclerationTree = new TDOctTree();
+		Broadphase = new TDBroadphase();
 	}
 
 
 	TDScene::~TDScene()
 	{
 		SafeDelete(AcclerationTree);
+		SafeDelete(Broadphase);
 	}
 #if !BUILD_FULLRELEASE
 	void TDScene::DebugRender()
@@ -39,7 +41,7 @@ namespace TD
 		{
 			DynamicActors.push_back(Dynamic);
 		}
-		TDPhysics::Get()->Solver->Broadphase->AddToPhase(Actor);
+		Broadphase->AddToPhase(Actor);
 	}
 
 	void TDScene::AddConstraint(TDConstraint* con)
@@ -68,7 +70,7 @@ namespace TD
 		{
 			RemoveFromVector(DynamicActors, Dynamic);
 		}
-		TDPhysics::Get()->Solver->Broadphase->RemoveFromPhase(Actor);
+		Broadphase->RemoveFromPhase(Actor);
 	}
 
 	bool TDScene::RayCastScene(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)
@@ -81,6 +83,20 @@ namespace TD
 		TDPhysics::EndTimer(TDPerfCounters::IntersectionTests);
 #endif
 		return result;
+	}
+
+	void TDScene::UpdateBroadPhase()
+	{
+		for (int i = 0; i < SceneActors.size(); i++)
+		{
+			Broadphase->UpdateActor(SceneActors[i]);
+		}
+		Broadphase->ConstructPairs();
+	}
+
+	std::vector<CollisionPair>& TDScene::GetPairs()
+	{
+		return Broadphase->NarrowPhasePairs;
 	}
 
 	bool TDScene::RayCastSceneInternal(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)

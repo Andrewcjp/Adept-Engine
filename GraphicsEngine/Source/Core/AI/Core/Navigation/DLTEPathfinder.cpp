@@ -4,6 +4,7 @@
 #include "Core/Utils/DebugDrawers.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Logger.h"
+#include "AI/Core/AISystem.h"
 
 DLTEPathfinder::DLTEPathfinder()
 {
@@ -115,7 +116,10 @@ void DLTEPathfinder::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 	Plane->ResolvePositionToNode(Target, &goalnode);
 	Plane->ResolvePositionToNode(Origin, &startnode);
 	Origin.y = -10.0f;
-	DebugDrawers::DrawDebugSphere(Origin, 0.25f, glm::vec3(0.5f), 16, false, 1);
+	if (AISystem::GetDebugMode() == EAIDebugMode::PathOnly || AISystem::GetDebugMode() == EAIDebugMode::All)
+	{
+		DebugDrawers::DrawDebugSphere(Origin, 0.25f, glm::vec3(0.5f), 16, false, 1);
+	}
 }
 
 void DLTEPathfinder::GridLTE()

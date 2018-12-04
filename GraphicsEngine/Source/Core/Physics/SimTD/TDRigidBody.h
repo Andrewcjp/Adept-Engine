@@ -28,6 +28,7 @@ public:
 	TD::TDActor* GetActor();
 	float GetMass();
 private:
+	std::vector<Collider*> AttachedColliders;
 	Transform m_transform;
 	TD::TDRigidDynamic* Actor = nullptr;
 	TD::TDRigidStatic* StaticActor = nullptr;

@@ -17,7 +17,7 @@ namespace MathUtils
 		}
 	}
 
-	void CheckNAN_(glm::quat value)
+	void MathUtils::CheckNAN_(glm::quat value)
 	{
 		glm::vec4::bool_type t = glm::isnan(value);
 		if (t.x == true || t.y == true || t.z == true || t.w == true)

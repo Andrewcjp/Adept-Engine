@@ -55,6 +55,7 @@ void AISystem::Tick(float dt)
 	SetDebugMode(DebugModeVar.GetAsEnum<EAIDebugMode::Type>());
 	Director->Tick();
 	BTManager->Tick(dt);
+	mesh->TickPathFinding();
 	if (AISystem::GetDebugMode() == EAIDebugMode::NavMesh || AISystem::GetDebugMode() == EAIDebugMode::All)
 	{
 		mesh->RenderMesh();
@@ -85,7 +86,12 @@ EAINavigationMode::Type AISystem::GetPathMode()
 
 ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
 {
+#if 0
 	ENavRequestStatus::Type result = mesh->CalculatePath(Startpoint, EndPos, outpath);
+#else
+	ENavRequestStatus::Type result = ENavRequestStatus::Complete;
+	mesh->EnqueuePathRequest(Startpoint, EndPos, outpath);
+#endif
 	if (result != ENavRequestStatus::Complete)
 	{
 		Log::LogMessage("CalculatePath Failed"+ NavigationMesh::GetErrorCodeAsString(result), Log::Severity::Warning);

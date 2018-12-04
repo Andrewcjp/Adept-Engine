@@ -8,6 +8,7 @@
 #include "Utils/Threading.h"
 #include "Constraints/TDSpringJoint.h"
 #include "Constraints/TDDistanceJoint.h"
+#include "TDSimulationCallbacks.h"
 namespace TD
 {
 	TDPhysics* TDPhysics::Instance = nullptr;
@@ -34,13 +35,20 @@ namespace TD
 			Get()->GetCurrentSimConfig()->DebugLineCallBack(LineStart, LineEnd, Colour, lifetime);
 		}
 	}
+
 	void TDPhysics::DrawDebugPoint(glm::vec3 pos, glm::vec3 colour, float Lifetime)
 	{
 		DrawDebugLine(pos, pos + glm::vec3(0, 1, 0), colour, Lifetime);
 	}
+
 	Threading::TaskGraph * TDPhysics::GetTaskGraph()
 	{
 		return Instance->TDTaskGraph;
+	}
+
+	void TDPhysics::SimulationContactCallback(std::vector<ContactPair*>& SimulationCallbackPairs)
+	{
+		Callbacks->OnContact(*SimulationCallbackPairs.data(),(int) SimulationCallbackPairs.size());
 	}
 
 	TDPhysics::TDPhysics()
@@ -72,16 +80,20 @@ namespace TD
 	{
 		TDTaskGraph = new Threading::TaskGraph(CurrentSimConfig->TaskGraphThreadCount);
 		Solver = new TDSolver();
+		if (Callbacks == nullptr)
+		{
+			Callbacks = new TDSimulationCallbacks();
+		}
 	}
 
-	void TDPhysics::StartStep(float deltaTime)
+	void TDPhysics::StartStep(TDScene* scene, float TimeStep)
 	{
-		for (int i = 0; i < Scenes.size(); i++)
+		//for (int i = 0; i < Scenes.size(); i++)
 		{
-			Solver->ResolveCollisions(Scenes[i]);
-			Solver->IntergrateScene(Scenes[i], deltaTime);
+			Solver->ResolveCollisions(scene);
+			Solver->IntergrateScene(scene, TimeStep);
 #if !BUILD_FULLRELEASE
-			Scenes[i]->DebugRender();
+			scene->DebugRender();
 #endif
 		}
 	}
@@ -116,7 +128,7 @@ namespace TD
 		TDConstraint* constaint;
 		if (desc.Type == TDConstraintType::Spring)
 		{
-			constaint =  new TDSpringJoint(BodyA, BodyB, desc);
+			constaint = new TDSpringJoint(BodyA, BodyB, desc);
 		}
 		else
 		{

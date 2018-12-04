@@ -83,7 +83,7 @@ protected:
 	BodyInstanceData BodyData;
 	Component* OwningComponent = nullptr;
 };
-
+namespace TD { class TDShape; };
 /*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/
 class GenericCollider
 {
@@ -97,6 +97,8 @@ public:
 	bool IsTrigger = false;
 #if PHYSX_ENABLED
 	physx::PxShape* Shape = nullptr;
+#elif TDSIM_ENABLED
+	TD::TDShape* Shape = nullptr;
 #endif
 	void SetEnabled(bool state);
 	ColliderComponent* ComponentOwner = nullptr;

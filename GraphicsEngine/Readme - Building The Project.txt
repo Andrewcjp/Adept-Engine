@@ -7,3 +7,7 @@ Visual Studio 15 or 17
 Building the Project:
 1. Run EngineBuildTool.exe located in the root directory of the engine.
 2. Open EngineSolution.sln
+3. Ensure all projects are built before first run.
+
+
+To Disable Unity build run the BuildTool with -nounity

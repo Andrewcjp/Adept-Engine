@@ -6,6 +6,7 @@
 #include "Shapes/TDBox.h"
 #include "Shapes/TDMeshShape.h"
 #include "Core/Utils/DebugDrawers.h"
+#include "Core/Components/ColliderComponent.h"
 
 TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(type)
 {
@@ -14,8 +15,10 @@ TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(ty
 
 TDRigidBody::~TDRigidBody()
 {
-	TDPhysicsEngine::GetScene()->RemoveActor(Actor);
+	TDPhysicsEngine::GetScene()->RemoveActor(CommonActorPTr);
+	CommonActorPTr = nullptr;
 	SafeDelete(Actor);
+	SafeDelete(StaticActor);
 }
 
 glm::vec3 TDRigidBody::GetPosition() const
@@ -76,8 +79,17 @@ void TDRigidBody::AttachCollider(Collider * col)
 			break;
 		}
 		}
-		newShape->GetFlags().SetFlagValue(TDShapeFlags::ESimulation, !BodyData.IsTrigger);
+		if (col->IsTrigger)
+		{
+			newShape->GetFlags().SetFlagValue(TDShapeFlags::ESimulation, false);
+			newShape->GetFlags().SetFlagValue(TDShapeFlags::ETrigger, true);
+		}
+		col->Shape = newShape;
+		col->SetEnabled(col->ComponentOwner->IsEnabled());
+		AttachedColliders.push_back(col);
+		col->SetOwner(this);
 		shapes.push_back(newShape);
+		newShape->UserData = col;
 	}
 }
 
@@ -101,7 +113,7 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 	desc.Points.Stride = sizeof(glm::vec3);
 	desc.Points.DataPtr = verts.data();
 
-	desc.Indices.Count = indices.size() / 2;
+	desc.Indices.Count = indices.size() /*/ 2*/;
 	desc.Indices.Stride = sizeof(int);
 	desc.Indices.DataPtr = indices.data();
 
@@ -148,15 +160,24 @@ void TDRigidBody::SetLinearVelocity(glm::vec3 velocity)
 
 void TDRigidBody::InitBody()
 {
-	Actor = new TD::TDRigidDynamic();
+	if (BodyType == EBodyType::RigidStatic)
+	{
+		StaticActor = new TD::TDRigidStatic();
+		CommonActorPTr = StaticActor;
+	}
+	else
+	{
+		Actor = new TD::TDRigidDynamic();
+		Actor->SetGravity(data.Gravity);
+		CommonActorPTr = Actor;
+	}
+	CommonActorPTr->GetTransfrom()->SetPos(m_transform.GetPos());
 	for (TD::TDShape* s : shapes)
 	{
-		Actor->AttachShape(s);
+		CommonActorPTr->AttachShape(s);
 	}
-	Actor->GetTransfrom()->SetPos(m_transform.GetPos());
-	Actor->SetGravity(data.Gravity);
-	TDPhysicsEngine::GetScene()->AddToScene(Actor);
-	CommonActorPTr = Actor;
+	TDPhysicsEngine::GetScene()->AddToScene(CommonActorPTr);
+	CommonActorPTr->UserData = this;
 }
 
 void TDRigidBody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)

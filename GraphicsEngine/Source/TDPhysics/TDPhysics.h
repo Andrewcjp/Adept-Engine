@@ -1,6 +1,8 @@
 #pragma once
 #include "TDTypes.h"
 
+namespace TD { class TDSimulationCallbacks; }
+
 namespace TD
 {
 	class TDScene;
@@ -26,7 +28,7 @@ namespace TD
 		*\brief Starts the step of the Simulator.
 		*\param TimeStep for the Simulator to use
 		*/
-		TD_API void StartStep(float TimeStep);
+		TD_API void StartStep(TDScene* scene, float TimeStep);
 		/**
 		*\brief Destroy the Simulator.
 		*
@@ -57,6 +59,7 @@ namespace TD
 		static void DrawDebugPoint(glm::vec3 pos, glm::vec3 colour, float Lifetime);
 		TDSolver* Solver = nullptr;
 		static Threading::TaskGraph* GetTaskGraph();
+		void SimulationContactCallback(std::vector<ContactPair*> & SimulationCallbackPairs);
 	private:
 		TDPhysics();
 		~TDPhysics();
@@ -65,6 +68,7 @@ namespace TD
 		std::vector<TDScene*> Scenes;
 		static TDPhysics* Instance;
 		TDSimConfig* CurrentSimConfig = nullptr;
+		TDSimulationCallbacks* Callbacks = nullptr;
 
 	};
 

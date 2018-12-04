@@ -33,6 +33,7 @@ public:
 	static EPhysicsDebugMode::Type GetCurrentMode();
 private:
 	TDScene* PlayScene = nullptr;
+	TDScene* EditorScene = nullptr;
 	static TDPhysicsEngine* Instance;
 };
 #endif

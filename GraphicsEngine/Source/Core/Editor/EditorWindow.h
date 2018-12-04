@@ -29,12 +29,17 @@ public:
 	IntRect GetViewPortRect();
 	void Eject();
 	CORE_API bool IsEditorEjected();
+	bool IsInPlayMode()
+	{
+		return IsPlayingScene;
+	};
 protected:
+	bool IsSceneRunning();
 	Scene* GetCurrentScene() override;
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
 	void FixedUpdate() override;
-	bool IsSceneRunning();
+	
 	void LoadScene(); 
 	void RefreshScene();
 	void ProcessMenu(unsigned short command) override;
