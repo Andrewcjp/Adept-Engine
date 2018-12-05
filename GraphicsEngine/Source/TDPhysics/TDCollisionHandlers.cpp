@@ -241,14 +241,14 @@ namespace TD
 		// t must be positive
 		if (t >= 0.0f)
 		{
-			if( t <= distance)
+			if (t <= distance)
 			{
 				HitData->Normal = glm::vec3(plane->Normal);
 				HitData->Point = Origin + Dir * t;
 				HitData->Distance = t;
 				HitData->BlockingHit = true;
 				return true;
-			}			
+			}
 		}
 
 		return false;
@@ -271,6 +271,7 @@ namespace TD
 
 	bool TD::TDIntersectionHandlers::IntersectMesh(InterSectionArgs)
 	{
-		return false;
+		TDMeshShape* mesh = TDShape::CastShape<TDMeshShape>(Shape);
+		return mesh->IntersectTriangle(Origin, Dir, distance, HitData);
 	}
 };

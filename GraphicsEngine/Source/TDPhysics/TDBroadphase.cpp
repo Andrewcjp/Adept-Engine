@@ -7,6 +7,7 @@
 #include "TDSimConfig.h"
 #include "Utils/MemoryUtils.h"
 #include "Core/Utils/VectorUtils.h"
+#include "Utils/MathUtils.h"
 namespace TD
 {
 	using namespace MemoryUtils::VectorUtils;
@@ -33,16 +34,16 @@ namespace TD
 		{
 			if (SAP->Pairs[i]->A->Owner == SAP->Pairs[i]->B->Owner)
 			{
-				continue;
+				continue;//How? Just HOW?
+			}
+			if (SAP->Pairs[i]->A->Owner->GetActorType() == TDActorType::RigidStatic && SAP->Pairs[i]->B->Owner->GetActorType() == TDActorType::RigidStatic)
+			{
+				continue;//static - static collisions make no sense.
 			}
 			CollisionPair newpair = CollisionPair(SAP->Pairs[i]->A->Owner, SAP->Pairs[i]->B->Owner);
 			if (!VectorUtils::Contains(NarrowPhasePairs, newpair))
 			{
 				NarrowPhasePairs.push_back(newpair);
-			}
-			else
-			{
-				float t = 0;
 			}
 		}
 		DebugEnsure(NarrowPhasePairs.size());
@@ -52,6 +53,7 @@ namespace TD
 	{
 		SAP->AddObject(actor->AABB);
 	}
+
 	void TDBroadphase::RemoveFromPhase(TDActor * actor)
 	{
 		SAP->RemoveObject(actor->AABB);
@@ -59,7 +61,7 @@ namespace TD
 
 	void TDBroadphase::UpdateActor(TDActor* actor)
 	{
-		if (actor->AABB->Position != actor->GetTransfrom()->GetPos())
+		if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
 		{
 			actor->AABB->Position = actor->GetTransfrom()->GetPos();
 			SAP->UpdateObject(new SAPBox(actor->AABB), actor->AABB);
@@ -90,6 +92,7 @@ namespace TD
 			}
 		}
 	}
+
 	void RemovePair(BPCollisionPair* point, std::vector<BPCollisionPair*> & points)
 	{
 		for (int i = 0; i < points.size(); i++)
@@ -100,6 +103,7 @@ namespace TD
 			}
 		}
 	}
+
 	void SweepAndPrune::RemoveObject(TDAABB* bb)
 	{
 		SAPBox* box = nullptr;

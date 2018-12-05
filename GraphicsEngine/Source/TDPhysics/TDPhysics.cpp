@@ -50,7 +50,7 @@ namespace TD
 	{		
 		if (SimulationCallbackPairs.size() != 0)
 		{
-			Callbacks->OnContact(*SimulationCallbackPairs.data(), (int)SimulationCallbackPairs.size());
+			Callbacks->OnContact((const ContactPair**)SimulationCallbackPairs.data(), (int)SimulationCallbackPairs.size());
 		}
 	}
 
@@ -58,7 +58,7 @@ namespace TD
 	{
 		if (SimulationCallbackPairs.size() != 0)
 		{
-			Callbacks->OnTrigger(*SimulationCallbackPairs.data(), (int)SimulationCallbackPairs.size());
+			Callbacks->OnTrigger((const ContactPair**)SimulationCallbackPairs.data(), (int)SimulationCallbackPairs.size());//todo: remove cast!
 		}
 	}
 
@@ -91,6 +91,7 @@ namespace TD
 	{
 		TDTaskGraph = new Threading::TaskGraph(CurrentSimConfig->TaskGraphThreadCount);
 		Solver = new TDSolver();
+		Callbacks = GetCurrentSimConfig()->CallBackHandler;
 		if (Callbacks == nullptr)
 		{
 			Callbacks = new TDSimulationCallbacks();
@@ -116,6 +117,7 @@ namespace TD
 		MemoryUtils::DeleteVector(Scenes);
 		SafeDelete(Solver);
 		SafeDelete(Instance);
+		SafeDelete(Callbacks);
 	}
 
 	TDPhysics * TDPhysics::Get()

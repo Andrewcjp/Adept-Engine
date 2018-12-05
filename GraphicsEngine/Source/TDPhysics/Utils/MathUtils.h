@@ -8,6 +8,7 @@
 namespace MathUtils
 {
 	bool AlmostEqual(float a, float b, float epsilon);
+	bool AlmostEqual(glm::vec3 a, glm::vec3 b, float epsilon);
 	void CheckNAN_(glm::vec3 value);
 	void CheckNAN_(glm::quat value);
 	const int MAX_int = std::numeric_limits<int>::max();

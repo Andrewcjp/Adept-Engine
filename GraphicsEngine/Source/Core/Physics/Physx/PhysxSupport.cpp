@@ -77,7 +77,7 @@ void PhysxCallBackHandler::onTrigger(PxTriggerPair * Pairs, PxU32 count)
 		if (ColliderB == nullptr || ColliderA == nullptr)
 		{
 			Log::LogMessage("untracked Trigger Collision ", Log::Severity::Warning);
-			return;
+			continue;
 		}
 		CollisonData Data;
 		//todo: check order here!

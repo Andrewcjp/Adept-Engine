@@ -8,6 +8,7 @@
 #include "TDRigidBody.h"
 #include "TDSimConfig.h"
 #include "Editor/EditorWindow.h"
+#include "TDSupport.h"
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::initPhysics()
 {
@@ -15,6 +16,7 @@ void TDPhysicsEngine::initPhysics()
 	TDSimConfig* config = new TDSimConfig();
 	config->PerfCounterCallBack = (TDSimConfig::FPrefCounterCallBack)&TimerCallbackHandler;
 	config->DebugLineCallBack = (TDSimConfig::FDebugLineCallBack)&DebugLineCallbackHandler;
+	config->CallBackHandler = new TDSupport();
 	TDPhysics::CreatePhysics(TD_VERSION_NUMBER, config);
 	TDPhysics::Get()->StartUp();
 	Instance = this;
@@ -114,11 +116,22 @@ bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, floa
 	}
 	return false;// RayCastScene(startpos, direction, distance, hit, false);
 }
+
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors)
 {
 	RaycastData data;
-	return PlayScene->RayCastScene(startpos, direction, distance, &data);
+	PlayScene->RayCastScene(startpos, direction, distance, &data);
+	if (data.BlockingHit)
+	{
+		outhit->Distance = data.Distance;
+		outhit->Normal = data.Normal;
+		outhit->position = data.Point;
+		
+		return true;
+	}
+	return false;
 }
+
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors)
 {
 
