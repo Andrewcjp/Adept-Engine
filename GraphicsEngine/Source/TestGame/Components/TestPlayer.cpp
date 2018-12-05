@@ -83,7 +83,7 @@ void TestPlayer::Update(float delta)
 	glm::quat YRot = glm::quat(glm::radians(glm::vec3(rot.x + -axis.x*LookSensitivty, 0, 90)));
 	GetOwner()->SetRotation(YRot);	
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
-	Log::LogMessage(glm::to_string(axis) + " axis");
+//	Log::LogMessage(glm::to_string(axis) + " axis");
 	if (CameraObject)
 	{
 		CameraObject->GetTransform()->SetLocalRotation(newrot);
@@ -154,7 +154,7 @@ void TestPlayer::UpdateMovement(float delta)
 	}
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
-		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 100) / delta);
+		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 100)/* / delta*/);
 	}
 }
 

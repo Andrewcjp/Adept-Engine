@@ -38,7 +38,7 @@ public:
 	static void LockCursor(bool state);
 	CORE_API static bool GetMouseWheelUp();
 	CORE_API static bool GetMouseWheelDown();
-
+	int MovesPerFrame = 0;
 private:
 	static Input* instance;
 	Input();

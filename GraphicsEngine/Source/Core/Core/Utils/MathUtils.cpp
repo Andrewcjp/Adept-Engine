@@ -8,6 +8,14 @@ namespace MathUtils
 		return fabs(a - b) <= epsilon;
 	}
 
+	bool AlmostEqual(glm::vec3 a, glm::vec3 b, float epsilon)
+	{
+		const float SqEpsi = epsilon * epsilon;
+		const float distanceSQ = glm::distance2(a, b);
+
+		return distanceSQ <= SqEpsi;
+	}
+
 	void MathUtils::CheckNAN_(glm::vec3 value)
 	{
 		glm::vec3::bool_type t = glm::isnan(value);

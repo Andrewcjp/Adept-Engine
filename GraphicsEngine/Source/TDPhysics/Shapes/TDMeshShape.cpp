@@ -3,6 +3,7 @@
 #include "TDPlane.h"
 #include "TDSphere.h"
 #include "TDPhysics.h"
+#include "TDCollisionHandlers.h"
 
 namespace TD
 {
@@ -105,6 +106,74 @@ namespace TD
 			}
 
 		}
+		return false;
+	}
+
+	bool TDMeshShape::IntersectTriangle(glm::vec3 Origin, glm::vec3 Dir, float distance, RaycastData* HitData)
+	{
+		for (int i = 0; i < Mesh->GetTriangles().size(); i++)
+		{
+			if (Mesh->GetTriangles()[i]->Intersect(Origin, Dir, distance, HitData))
+			{
+				return true;//todo: Multicast!
+			}
+		}
+		return false;
+	}
+
+	glm::vec3 Project(const glm::vec3& length, const glm::vec3& direction)
+	{
+		float dot = glm::dot(length, direction);
+		float magSq = glm::length2(direction);
+		return direction * (dot / magSq);
+	}
+	glm::vec3 TDTriangle::GetBarycentric(const glm::vec3& p)
+	{
+		glm::vec3 ap = p - Points[0];
+		glm::vec3 bp = p - Points[1];
+		glm::vec3 cp = p - Points[2];
+
+		glm::vec3 ab = Points[1] - Points[0];
+		glm::vec3 ac = Points[2] - Points[0];
+		glm::vec3 bc = Points[2] - Points[1];
+		glm::vec3 cb = Points[1] - Points[2];
+		glm::vec3 ca = Points[0] - Points[2];
+
+		glm::vec3 v = ab - Project(ab, cb);
+		float a = 1.0f - (glm::dot(v, ap) / glm::dot(v, ab));
+
+		v = bc - Project(bc, ac);
+		float b = 1.0f - (glm::dot(v, bp) / glm::dot(v, bc));
+
+		v = ca - Project(ca, ab);
+		float c = 1.0f - (glm::dot(v, cp) / glm::dot(v, ca));
+		return glm::vec3(a, b, c);
+	}
+
+	bool TDTriangle::Intersect(glm::vec3 Origin, glm::vec3 Dir, float distance, RaycastData* HitData)
+	{
+		TDPlane plane = MakeFromTriangle();
+		if (!TDIntersectionHandlers::IntersectPlane(&plane, Origin, Dir, distance, HitData))
+		{
+			return false;
+		}
+		float t = HitData->Distance;
+		if (t > distance)
+		{
+			return false;
+		}
+		glm::vec3 BaryCoords = GetBarycentric(Origin + Dir * t);
+		if ((BaryCoords.x >= 0.0f && BaryCoords.x <= 1.0f) &&
+			(BaryCoords.y >= 0.0f && BaryCoords.y <= 1.0f) &&
+			(BaryCoords.z >= 0.0f && BaryCoords.z <= 1.0f))
+		{
+			HitData->BlockingHit = true;
+			HitData->Distance = t;
+			HitData->Normal = plane.Normal;
+			HitData->Point = Origin + Dir * t;
+			return true;
+		}
+		HitData->BlockingHit = false;		
 		return false;
 	}
 
