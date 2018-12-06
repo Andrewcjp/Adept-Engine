@@ -20,10 +20,9 @@ public:
 	void cleanupPhysics();
 
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors);
-	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors = std::vector<RigidBody*>());
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit);
 	CORE_API ConstraintInstance* CreateConstraint(RigidBody* A, RigidBody* B, ConstaintSetup Setup);
-	void AddBoxCollisionToEditor(GameObject * obj);
+
 
 	static glm::vec3 PXvec3ToGLM(physx::PxVec3 val)
 	{

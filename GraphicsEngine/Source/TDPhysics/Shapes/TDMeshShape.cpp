@@ -34,7 +34,7 @@ namespace TD
 	}
 	TD::TDPlane TDTriangle::MakeFromTriangle()
 	{
-		glm::vec3 normal = glm::normalize(glm::cross(Points[1] - Points[0], Points[2] - Points[0]));
+		const glm::vec3 normal = glm::normalize(glm::cross(Points[1] - Points[0], Points[2] - Points[0]));
 		TDPlane result = TDPlane(normal);
 		result.PlaneDistance = glm::dot(normal, Points[0]);
 		return result;
@@ -129,24 +129,24 @@ namespace TD
 	}
 	glm::vec3 TDTriangle::GetBarycentric(const glm::vec3& p)
 	{
-		glm::vec3 ap = p - Points[0];
-		glm::vec3 bp = p - Points[1];
-		glm::vec3 cp = p - Points[2];
+		const glm::vec3 ap = p - Points[0];
+		const glm::vec3 bp = p - Points[1];
+		const glm::vec3 cp = p - Points[2];
 
-		glm::vec3 ab = Points[1] - Points[0];
-		glm::vec3 ac = Points[2] - Points[0];
-		glm::vec3 bc = Points[2] - Points[1];
-		glm::vec3 cb = Points[1] - Points[2];
-		glm::vec3 ca = Points[0] - Points[2];
+		const glm::vec3 ab = Points[1] - Points[0];
+		const glm::vec3 ac = Points[2] - Points[0];
+		const glm::vec3 bc = Points[2] - Points[1];
+		const glm::vec3 cb = Points[1] - Points[2];
+		const glm::vec3 ca = Points[0] - Points[2];
 
 		glm::vec3 v = ab - Project(ab, cb);
-		float a = 1.0f - (glm::dot(v, ap) / glm::dot(v, ab));
+		const float a = 1.0f - (glm::dot(v, ap) / glm::dot(v, ab));
 
 		v = bc - Project(bc, ac);
-		float b = 1.0f - (glm::dot(v, bp) / glm::dot(v, bc));
+		const float b = 1.0f - (glm::dot(v, bp) / glm::dot(v, bc));
 
 		v = ca - Project(ca, ab);
-		float c = 1.0f - (glm::dot(v, cp) / glm::dot(v, ca));
+		const float c = 1.0f - (glm::dot(v, cp) / glm::dot(v, ca));
 		return glm::vec3(a, b, c);
 	}
 
@@ -157,7 +157,7 @@ namespace TD
 		{
 			return false;
 		}
-		float t = HitData->Distance;
+		const float t = HitData->Distance;
 		if (t > distance)
 		{
 			return false;

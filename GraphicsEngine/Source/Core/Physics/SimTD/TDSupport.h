@@ -1,4 +1,5 @@
 #pragma once
+#if TDSIM_ENABLED
 #include "TDSimulationCallbacks.h"
 class TDSupport :public TD::TDSimulationCallbacks
 {
@@ -10,4 +11,5 @@ public:
 	virtual void OnTrigger(const ContactPair** Contacts, int numContacts) override;
 
 };
+#endif
 

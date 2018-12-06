@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+#if TDSIM_ENABLED
 #include "TDSupport.h"
 #include "Core/Components/Component.h"
 #include "Core/GameObject.h"
@@ -88,3 +88,4 @@ void TDSupport::OnTrigger(const ContactPair** Contacts, int numContacts)
 		}
 	}
 }
+#endif

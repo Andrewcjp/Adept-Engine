@@ -66,7 +66,7 @@ void BaseWindow::FixedUpdate()
 }
 
 void BaseWindow::Render()
-{
+{	
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->ClearStats();

@@ -18,22 +18,22 @@ void GenericPhysicsEngine::cleanupPhysics()
 
 bool GenericPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {
-	return RayCastScene(startpos, direction, distance, hit, false);
+	return RayCastScene(startpos, direction, distance, hit, std::vector<RigidBody*>());
 }
 
-bool GenericPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene)
+bool GenericPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * hit, std::vector<RigidBody*>& IgnoredActors)
 {
 	return false;
-}
-
-void GenericPhysicsEngine::AddBoxCollisionToEditor(GameObject* obj)
-{
-
 }
 
 void GenericPhysicsEngine::SetPhysicsDebugMode(EPhysicsDebugMode::Type mode)
 {
 	PhysicsDebugMode = mode;
+}
+
+ConstraintInstance * GenericPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup)
+{
+	return nullptr;
 }
 
 

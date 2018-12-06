@@ -55,6 +55,12 @@ bool Input::GetMouseWheelDown()
 	return Get()->MouseWheelDownThisFrame;
 }
 
+void Input::ResetMouse()
+{
+	MouseAxis = glm::vec2();
+	MouseSampleCount = 0;
+}
+
 void Input::ProcessInput(const float)
 {
 	IsActiveWindow = PlatformWindow::IsActiveWindow();
@@ -62,7 +68,6 @@ void Input::ProcessInput(const float)
 	{
 		return;//block input!
 	}
-	
 }
 
 bool Input::MouseLBDown(int, int)
@@ -81,7 +86,7 @@ bool Input::MouseMove(int x, int y, double)
 	{
 		return false;
 	}
-	if (CurrentFrame != RHI::GetFrameCount())
+	//if (CurrentFrame != RHI::GetFrameCount())
 	{
 		MousePosScreen = IntPoint(x, y);
 		int height, width = 0;
@@ -91,8 +96,9 @@ bool Input::MouseMove(int x, int y, double)
 		IntPoint Point = PlatformWindow::GetApplication()->GetMousePos();
 		if (!IsUsingHPMI())
 		{
-			MouseAxis.x = (float)(halfheight - (float)Point.x);
-			MouseAxis.y = -(float)(halfwidth - (float)Point.y);
+			MouseAxis.x += (float)(halfheight - (float)Point.x);
+			MouseAxis.y += -(float)(halfwidth - (float)Point.y);
+			MouseSampleCount++;
 		}
 		Point.x = halfheight;
 		Point.y = halfwidth;
@@ -283,6 +289,10 @@ glm::vec2 Input::GetMouseInputAsAxis()
 {
 	if (instance != nullptr)
 	{
+		if (glm::length2(instance->MouseAxis) > 0.0f)
+		{
+			return instance->MouseAxis / std::min(instance->MouseSampleCount, 1);
+		}
 		return instance->MouseAxis;
 	}
 	return glm::vec2();

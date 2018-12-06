@@ -1,8 +1,11 @@
 #pragma once
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
-namespace EPhysicsDebugMode {
-	enum Type {
+#include "GenericConstraint.h"
+namespace EPhysicsDebugMode
+{
+	enum Type
+	{
 		None,
 		ShowShapes,
 		ShowContacts,
@@ -19,16 +22,12 @@ public:
 	void initPhysics();
 	void stepPhysics(float Deltatime);
 	void cleanupPhysics();
-
-	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene);
-	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * hit);
-
-
-	//old:
-	void AddBoxCollisionToEditor(GameObject * obj);
+	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit);
+	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * hit, std::vector<RigidBody*>& IgnoredActors);
 	void SetPhysicsDebugMode(EPhysicsDebugMode::Type mode);
+	ConstraintInstance * CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup);
 protected:
 	EPhysicsDebugMode::Type PhysicsDebugMode = EPhysicsDebugMode::None;
-	
+
 };
 

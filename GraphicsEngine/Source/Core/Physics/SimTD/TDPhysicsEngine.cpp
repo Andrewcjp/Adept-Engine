@@ -40,6 +40,12 @@ ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody 
 	TDPhysics::Get()->CreateConstraint(A->GetActor(), B->GetActor(), desc);
 	return nullptr;
 }
+
+ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup)
+{
+	return nullptr;
+}
+
 void TDPhysicsEngine::DebugLineCallbackHandler(glm::vec3 start, glm::vec3 end, glm::vec3 Colour, float lifetime)
 {
 	DebugDrawers::DrawDebugLine(start, end, Colour, false, lifetime);
@@ -95,69 +101,33 @@ void TDPhysicsEngine::TimerCallbackHandler(bool IsStart, TDPerfCounters::Type ty
 void TDPhysicsEngine::stepPhysics(float Deltatime)
 {
 	GenericPhysicsEngine::stepPhysics(Deltatime);
-	TDPhysics::Get()->StartStep(PlayScene,Deltatime);
+	TDPhysics::Get()->StartStep(PlayScene, Deltatime);
 }
 
 void TDPhysicsEngine::cleanupPhysics()
 {}
 
-RigidBody* TDPhysicsEngine::CreatePrimitiveRigidBody(glm::vec3 position, glm::vec3 velocity, float scale)
-{
-	return nullptr;
-}
 
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {
-	RaycastData data;
-	PlayScene->RayCastScene(startpos, direction, distance, &data);
-	if (data.BlockingHit)
-	{
-		return true;
-	}
-	return false;// RayCastScene(startpos, direction, distance, hit, false);
+	return RayCastScene(startpos, direction, distance, hit, std::vector<RigidBody*>());
 }
 
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors)
 {
 	RaycastData data;
-	PlayScene->RayCastScene(startpos, direction, distance, &data);
+	GetScene()->RayCastScene(startpos, direction, distance, &data);
 	if (data.BlockingHit)
 	{
 		outhit->Distance = data.Distance;
 		outhit->Normal = data.Normal;
 		outhit->position = data.Point;
-		
+
 		return true;
 	}
 	return false;
 }
 
-bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors)
-{
-
-	return false;
-}
-
-bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene)
-{
-	return false;
-}
-
-void TDPhysicsEngine::AddBoxCollisionToEditor(GameObject* obj)
-{
-
-}
-
-std::vector<RigidBody*> TDPhysicsEngine::createStack(const glm::vec3 & t, int size, float halfExtent)
-{
-	return std::vector<RigidBody*>();
-}
-
-
-RigidBody * TDPhysicsEngine::FirePrimitiveAtScene(glm::vec3 position, glm::vec3 velocity, float scale)
-{
-	return nullptr;
-}
 TDScene * TDPhysicsEngine::GetScene()
 {
 #if WITH_EDITOR
@@ -170,6 +140,7 @@ TDScene * TDPhysicsEngine::GetScene()
 	return Instance->PlayScene;
 #endif	
 }
+
 TDPhysicsEngine * TDPhysicsEngine::Get()
 {
 	return Instance;
