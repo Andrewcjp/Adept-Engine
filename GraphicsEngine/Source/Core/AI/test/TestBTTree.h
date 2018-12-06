@@ -1,4 +1,5 @@
 #pragma once
+#if !BUILD_SHIPPING
 #include "AI/Core/Behaviour/BehaviourTree.h"
 class TestBTTree : public BehaviourTree
 {
@@ -9,4 +10,4 @@ public:
 	virtual void SetupTree() override;
 
 };
-
+#endif

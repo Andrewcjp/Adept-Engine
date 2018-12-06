@@ -1,4 +1,4 @@
-
+#if !BUILD_SHIPPING
 #include "TestBTTree.h"
 #include "AI/Core/Behaviour/BehaviourTreeNode.h"
 #include "AI/Core/Behaviour/BTBlackboard.h"
@@ -22,3 +22,4 @@ void TestBTTree::SetupTree()
 	selector->AddDecorator(new BaseDecorator(obj, EDecoratorTestType::NotNull)); 
 	selector->AddChildNode<BTMoveToNode>(new BTMoveToNode(posptr));
 }
+#endif

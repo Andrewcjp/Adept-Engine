@@ -10,5 +10,6 @@ class TestGameModule : ModuleDef
         SolutionFolderPath = "Game";
         PCH = "TestGamePCH";
         UseCorePCH = false;
+        IsGameModule = true;
     }
 }

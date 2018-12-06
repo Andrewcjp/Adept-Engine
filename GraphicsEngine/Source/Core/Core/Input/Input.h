@@ -38,8 +38,11 @@ public:
 	static void LockCursor(bool state);
 	CORE_API static bool GetMouseWheelUp();
 	CORE_API static bool GetMouseWheelDown();
-	int MovesPerFrame = 0;
+	
+	void ResetMouse();
+	int MouseSampleCount = 0;
 private:
+
 	static Input* instance;
 	Input();
 	~Input();

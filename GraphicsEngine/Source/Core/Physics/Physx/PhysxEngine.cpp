@@ -67,8 +67,8 @@ void PhysxEngine::initPhysics()
 	//gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 	gMaterial = gPhysics->createMaterial(0.0f, 0.0f, 0.0f);
 #if 1
-//	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
-	//gScene->addActor(*groundPlane);
+	//	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
+		//gScene->addActor(*groundPlane);
 #else
 	GameObject* go = new GameObject();
 	go->SetPosition(glm::vec3(0, 0, 0));
@@ -145,13 +145,10 @@ EPhysicsDebugMode::Type PhysxEngine::GetCurrentMode()
 	return Get()->PhysicsDebugMode;
 }
 
-bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, std::vector<RigidBody*>& IgnoredActors)
-{
-	return RayCastScene(startpos, direction, distance, outhit, false, IgnoredActors);
-}
 bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {
-	return RayCastScene(startpos, direction, distance, hit, false);
+	std::vector<RigidBody*> T;
+	return RayCastScene(startpos, direction, distance, hit, T);
 }
 
 ConstraintInstance * PhysxEngine::CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup)
@@ -169,35 +166,19 @@ ConstraintInstance * PhysxEngine::CreateConstraint(RigidBody * A, RigidBody * B,
 	return nullptr;
 }
 
-void PhysxEngine::AddBoxCollisionToEditor(GameObject* obj)
-{
-	PxRigidStatic* st = gPhysics->createRigidStatic(PxTransform(GLMtoPXvec3(obj->GetTransform()->GetPos())));
-	PxRigidActorExt::createExclusiveShape(*st, PxBoxGeometry(2, 2, 2), *gMaterial);
-
-	gEdtiorScene->addActor(*st);
-	//obj->SelectionShape = st;
-}
-
-bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, bool CastEdtiorScene, std::vector<RigidBody*>& IgnoredActors)
+bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* outhit, std::vector<RigidBody*>& IgnoredActors)
 {
 	PxRaycastBuffer hit;
 	//const PxU32 bufferSize = 256;        // [in] size of 'hitBuffer'
 	//PxRaycastHit hitBuffer[bufferSize];  // [out] User provided buffer for results
 	//PxRaycastBuffer hit(hitBuffer, bufferSize); // [out] Blocking and touching hits stored here
-	bool cast;
-	if (CastEdtiorScene)
-	{
-		cast = gEdtiorScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlag::eDEFAULT);
-	}
-	else
-	{
-		PxQueryFilterData fd;
-		fd.flags |= PxQueryFlag::ePREFILTER; // note the OR with the default value
-		FPxQueryFilterCallback* filter = new FPxQueryFilterCallback();
-		filter->IgnoredBodies = IgnoredActors;
-		cast = gScene->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlags(PxHitFlag::eDEFAULT), fd, filter);
-		delete filter;
-	}
+
+	PxQueryFilterData fd;
+	fd.flags |= PxQueryFlag::ePREFILTER; // note the OR with the default value
+	FPxQueryFilterCallback* filter = new FPxQueryFilterCallback();
+	filter->IgnoredBodies = IgnoredActors;
+	GetCurrnetScene()->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlags(PxHitFlag::eDEFAULT), fd, filter);
+	SafeDelete(filter);
 	if (hit.hasBlock)
 	{
 		outhit->position = PXvec3ToGLM(hit.getAnyHit(0).position);

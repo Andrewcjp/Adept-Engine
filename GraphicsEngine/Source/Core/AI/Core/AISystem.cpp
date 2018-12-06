@@ -101,12 +101,9 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 
 void AISystem::GenerateMesh()
 {
-#if TDSIM_ENABLED
-	return;
-#endif
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
-	mesh->Plane = n->GetPlane(-17);
+	mesh->Plane = n->GetPlane(-17); 
 }
 
 EAIDebugMode::Type AISystem::GetDebugMode()

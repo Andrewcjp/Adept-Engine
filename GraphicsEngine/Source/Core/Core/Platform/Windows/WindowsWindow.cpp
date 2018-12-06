@@ -125,7 +125,11 @@ int WindowsWindow::Run()
 	MSG msg = MSG();
 
 	while (!m_terminate)
-	{
+	{		
+		if (Input::Get())
+		{
+			Input::Get()->ResetMouse();
+		}
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			//peek for windows message
@@ -136,7 +140,6 @@ int WindowsWindow::Run()
 			}
 			else
 			{
-
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
