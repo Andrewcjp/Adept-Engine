@@ -1,29 +1,23 @@
 #include "TDScene.h"
-#include "TDOctTree.h"
-#include "TDRigidDynamic.h"
-#include "TDTypes.h"
+#include "Shapes/TDAABB.h"
+#include "TDBroadphase.h"
 #include "TDCollisionHandlers.h"
 #include "TDPhysics.h"
-#include "TDSolver.h"
-#include "TDBroadphase.h"
-#include "TDActor.h"
-#include "Shapes/TDAABB.h"
+#include "TDRigidDynamic.h"
 #include "Utils/MemoryUtils.h"
 namespace TD
 {
 	TDScene::TDScene()
 	{
-		AcclerationTree = new TDOctTree();
 		Broadphase = new TDBroadphase();
 	}
 
-
 	TDScene::~TDScene()
 	{
-		SafeDelete(AcclerationTree);
 		SafeDelete(Broadphase);
 		MemoryUtils::DeleteVector(SceneActors);
 	}
+
 #if !BUILD_FULLRELEASE
 	void TDScene::DebugRender()
 	{
@@ -33,6 +27,7 @@ namespace TD
 		}
 	}
 #endif
+
 	void TDScene::AddToScene(TDActor * Actor)
 	{
 		Actor->Init();
@@ -111,6 +106,7 @@ namespace TD
 			TDActor* actor = SceneActors[i];
 			if (TDIntersectionHandlers::IntersectAABB(actor->AABB, Ray))
 			{
+				Ray->HitData->Reset();
 				for (int j = 0; j < actor->GetAttachedShapes().size(); j++)
 				{
 					TDShape* currentshape = actor->GetAttachedShapes()[j];

@@ -1,10 +1,10 @@
-#include "Source/TDPhysics/TDPCH.h"
 #include "TDBVH.h"
-#include "Shapes/TDMeshShape.h"
 #include "Shapes/TDAABB.h"
-#include <list>
+#include "Shapes/TDMeshShape.h"
 #include "TDCollisionHandlers.h"
 #include <queue>
+#include "TDPhysics.h"
+#include "TDSimConfig.h"
 namespace TD
 {
 
@@ -28,13 +28,14 @@ namespace TD
 		{
 			Root->TrianglesIndexs.push_back(i);
 		}
-		SplitBVH(Root, Mesh, 5);
+		MaxDepth = TDPhysics::GetCurrentSimConfig()->MaxBVHDepth;
+		SplitBVH(Root, Mesh, 0);
 	}
 
 	void TDBVH::SplitBVH(BVHNode * node, TDMesh * model, int depth)
 	{
-		depth--;
-		if (depth <= 0)
+		depth++;
+		if (depth >= MaxDepth)
 		{
 			return;
 		}
@@ -217,6 +218,7 @@ namespace TD
 					// Only push children whos bounds intersect the test geometry
 					if (TDIntersectionHandlers::IntersectAABB(iterator->children[i].bounds, ray))
 					{
+						ray->HitData->Reset();
 						toProcess.emplace(&iterator->children[i]);
 					}
 				}

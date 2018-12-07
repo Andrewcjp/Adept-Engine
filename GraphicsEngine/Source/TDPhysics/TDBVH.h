@@ -23,6 +23,8 @@ namespace TD
 		bool TraverseForRay(RayCast * ray);
 		TDMesh* TargetMesh = nullptr;
 		BVHNode* Root = nullptr;
+	private:
+		int MaxDepth = 10;
 	};
 
 	struct BVHNode

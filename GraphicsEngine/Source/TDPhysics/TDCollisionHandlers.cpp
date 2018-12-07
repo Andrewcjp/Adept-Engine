@@ -268,10 +268,7 @@ namespace TD
 		{
 			if (t <= Ray->Distance)
 			{
-				Ray->HitData->Normal = glm::vec3(plane->Normal);
-				Ray->HitData->Point = Ray->Origin + Ray->Dir * t;
-				Ray->HitData->Distance = t;
-				Ray->HitData->BlockingHit = true;
+				Ray->HitData->AddContact(Ray->Origin + Ray->Dir * t, plane->Normal, t);
 				return true;
 			}
 		}
@@ -321,7 +318,7 @@ namespace TD
 		float tmax = fminf(fminf(fmaxf(t1, t2), fmaxf(t3, t4)), fmaxf(t5, t6));
 
 		// if tmax < 0, ray is intersecting AABB
-		// but entire AABB is behing it's origin
+		// but entire AABB is being it's origin
 		if (tmax < 0)
 		{
 			return false;
@@ -343,10 +340,6 @@ namespace TD
 
 		if (Ray->HitData)
 		{
-			Ray->HitData->Distance = t_result;
-			Ray->HitData->BlockingHit = true;
-			Ray->HitData->Point = Ray->Origin + Ray->Dir* t_result;
-
 			glm::vec3 normals[] = {
 				glm::vec3(-1, 0, 0),
 				glm::vec3(1, 0, 0),
@@ -361,11 +354,11 @@ namespace TD
 			{
 				if (MathUtils::AlmostEqual(t_result, t[i], FLT_EPSILON))
 				{
-					Ray->HitData->Normal = normals[i];
+					Ray->HitData->AddContact(Ray->Origin + Ray->Dir* t_result, normals[i], t_result);
+					return true;
 				}
 			}
 		}
-
 		return true;
 	}
 };

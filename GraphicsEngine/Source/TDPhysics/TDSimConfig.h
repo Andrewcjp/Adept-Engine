@@ -18,6 +18,8 @@ namespace TD
 		int TaskGraphThreadCount = 0;
 		//! An instance of a Class to Handle any callbacks
 		TDSimulationCallbacks* CallBackHandler = nullptr;
+		//! The MaxDepth a Bounding Volume Hierarchy can be 
+		int MaxBVHDepth = 7;
 
 		TDBroadphaseMethod::Type BroadphaseMethod = TDBroadphaseMethod::SAP;
 		typedef void(*FPrefCounterCallBack)(bool/*Is start of timer*/, TDPerfCounters::Type/*Timer ID*/);
