@@ -25,7 +25,7 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		SpawnAI(GetSpawnPos() + glm::vec3(0, 0, 3), EAIType::HellKnight);
+		SpawnAI(GetSpawnPos() + glm::vec3(0, 20, 3), EAIType::HellKnight);
 		once = true;
 	}
 	CurrentSpawnScore = GetSpawnedScore();
@@ -140,6 +140,7 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	AIController* Controller = newAI->AttachComponent(new AIController());
 	newAI->AttachComponent(new Health());
+
 	MeleeWeapon* mw = newAI->AttachComponent(new MeleeWeapon());
 	cc = newAI->AttachComponent(new ColliderComponent());
 	cc->IsTrigger = true;
@@ -147,6 +148,7 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 	cc->SetEnabled(false);
 	cc->Radius = 4.0f;
 	mw->Collider = cc;
+
 	return newAI;
 }
 

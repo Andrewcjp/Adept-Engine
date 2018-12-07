@@ -4,6 +4,8 @@
 #include "TDSphere.h"
 #include "TDPhysics.h"
 #include "TDCollisionHandlers.h"
+#include "TDAABB.h"
+#include "TDBVH.h"
 
 namespace TD
 {
@@ -15,11 +17,22 @@ namespace TD
 
 
 	TDMeshShape::~TDMeshShape()
-	{}
+	{
+		SafeDelete(Mesh);
+	}
 
 	glm::vec3 TDMeshShape::GetBoundBoxHExtents()
 	{
-		return glm::vec3(10000);//todo: this!
+		if (Mesh != nullptr)
+		{
+			return(Mesh->Max - Mesh->Min) * 0.5f;
+		}
+		return glm::vec3(10);//todo: this!
+	}
+
+	TDAABB * TDMeshShape::GetAABB()
+	{
+		return Mesh->GetBVH()->Root->bounds;
 	}
 
 	TDTriangle::TDTriangle(glm::vec3 a, glm::vec3 b, glm::vec3 c)
@@ -88,7 +101,7 @@ namespace TD
 
 	bool TDMeshShape::MeshSphere(TDSphere * s, ContactData* contactbuffer)
 	{
-
+#if 0
 		//normal is triangles normal!
 		for (int i = 0; i < Mesh->GetTriangles().size(); i++)
 		{
@@ -106,18 +119,43 @@ namespace TD
 			}
 
 		}
+#else
+		//Mesh->GetBVH()->Render();
+		TDTriangle* OutTri = nullptr;
+		float Depth = 0.0f;
+		glm::vec3 ContactPoint = glm::vec3();
+		if (Mesh->GetBVH()->TraverseForSphere(s, ContactPoint, Depth, &OutTri))
+		{
+			if (OutTri == nullptr)
+			{
+				return false;
+			}
+			const glm::vec3 normal = OutTri->Normal;
+			contactbuffer->Contact(ContactPoint, normal, Depth);
+			DebugEnsure(Depth > -1.0f);
+			DebugEnsure(Depth < 0.0f);
+#if !BUILD_SHIPPING
+			OutTri->DebugDraw(0.0f);
+#endif
+		}
+
+#endif
 		return false;
 	}
 
-	bool TDMeshShape::IntersectTriangle(glm::vec3 Origin, glm::vec3 Dir, float distance, RaycastData* HitData)
+	bool TDMeshShape::IntersectTriangle(RayCast* ray)
 	{
+#if 0
 		for (int i = 0; i < Mesh->GetTriangles().size(); i++)
 		{
-			if (Mesh->GetTriangles()[i]->Intersect(Origin, Dir, distance, HitData))
+			if (Mesh->GetTriangles()[i]->Intersect(ray))
 			{
 				return true;//todo: Multicast!
 			}
 		}
+#else
+		return Mesh->GetBVH()->TraverseForRay(ray);
+#endif
 		return false;
 	}
 
@@ -150,30 +188,30 @@ namespace TD
 		return glm::vec3(a, b, c);
 	}
 
-	bool TDTriangle::Intersect(glm::vec3 Origin, glm::vec3 Dir, float distance, RaycastData* HitData)
+	bool TDTriangle::Intersect(RayCast* ray)
 	{
 		TDPlane plane = MakeFromTriangle();
-		if (!TDIntersectionHandlers::IntersectPlane(&plane, Origin, Dir, distance, HitData))
+		if (!TDIntersectionHandlers::IntersectPlane(&plane, ray))
 		{
 			return false;
 		}
-		const float t = HitData->Distance;
-		if (t > distance)
+		const float t = ray->HitData->Distance;
+		if (t > ray->Distance)
 		{
 			return false;
 		}
-		glm::vec3 BaryCoords = GetBarycentric(Origin + Dir * t);
+		glm::vec3 BaryCoords = GetBarycentric(ray->Origin + ray->Dir * t);
 		if ((BaryCoords.x >= 0.0f && BaryCoords.x <= 1.0f) &&
 			(BaryCoords.y >= 0.0f && BaryCoords.y <= 1.0f) &&
 			(BaryCoords.z >= 0.0f && BaryCoords.z <= 1.0f))
 		{
-			HitData->BlockingHit = true;
-			HitData->Distance = t;
-			HitData->Normal = plane.Normal;
-			HitData->Point = Origin + Dir * t;
+			ray->HitData->BlockingHit = true;
+			ray->HitData->Distance = t;
+			ray->HitData->Normal = plane.Normal;
+			ray->HitData->Point = ray->Origin + ray->Dir * t;
 			return true;
 		}
-		HitData->BlockingHit = false;		
+		ray->HitData->BlockingHit = false;
 		return false;
 	}
 
@@ -217,12 +255,12 @@ namespace TD
 		return c3;
 	}
 
-	void TDTriangle::DebugDraw()
+	void TDTriangle::DebugDraw(float time)
 	{
 		for (int i = 0; i < 3; i++)
 		{
 			const int next = (i + 1) % 3;
-			TDPhysics::DrawDebugLine(Points[i], Points[next], glm::vec3(1), 0.0f);
+			TDPhysics::DrawDebugLine(Points[i], Points[next], glm::vec3(1), time);
 		}
 	}
 
@@ -247,10 +285,131 @@ namespace TD
 			}
 			Triangles.push_back(new TDTriangle(posa, posb, posc, Normal));
 		}
+		CookMesh();
 	}
-
+	TDMesh::~TDMesh()
+	{
+		SafeDelete(BVH);
+	}
+	TDAABB* TDMesh::FromMinMax(const glm::vec3& min, const glm::vec3& max)
+	{
+		TDAABB* r = new TDAABB();
+		r->HalfExtends = (max - min) * 0.5f;
+		r->Position = (min + max) * 0.5f;
+		return r;
+	}
 	void TDMesh::CookMesh()
 	{
+		Min = Triangles[0]->Points[0];
+		Max = Triangles[0]->Points[0];
+		for (int i = 0; i < Triangles.size(); i++)
+		{
+			for (int x = 0; x < 3; x++)
+			{
+				Min = glm::min(Min, Triangles[i]->Points[x]);
+				Max = glm::max(Max, Triangles[i]->Points[x]);
+			}
+		}
+		BVH = new TDBVH();
+
+		BVH->BuildAccelerationStructure(this);
 
 	}
+	struct Interval
+	{
+		float min;
+		float max;
+	};
+	Interval GetInterval(const TDAABB* aabb, const glm::vec3& axis)
+	{
+		glm::vec3 i = aabb->GetMin();
+		glm::vec3 a = aabb->GetMax();
+
+		glm::vec3 vertex[8] = {
+			glm::vec3(i.x, a.y, a.z),
+			glm::vec3(i.x, a.y, i.z),
+			glm::vec3(i.x, i.y, a.z),
+			glm::vec3(i.x, i.y, i.z),
+			glm::vec3(a.x, a.y, a.z),
+			glm::vec3(a.x, a.y, i.z),
+			glm::vec3(a.x, i.y, a.z),
+			glm::vec3(a.x, i.y, i.z)
+		};
+
+		Interval result;
+		result.min = result.max = glm::dot(axis, vertex[0]);
+
+		for (int i = 1; i < 8; ++i)
+		{
+			float projection = glm::dot(axis, vertex[i]);
+			result.min = (projection < result.min) ? projection : result.min;
+			result.max = (projection > result.max) ? projection : result.max;
+		}
+
+		return result;
+	}
+	Interval GetInterval(const TDTriangle* triangle, const glm::vec3& axis)
+	{
+		Interval result;
+
+		result.min = glm::dot(axis, triangle->Points[0]);
+		result.max = result.min;
+		for (int i = 1; i < 3; ++i)
+		{
+			float value = glm::dot(axis, triangle->Points[i]);
+			result.min = fminf(result.min, value);
+			result.max = fmaxf(result.max, value);
+		}
+
+		return result;
+	}
+	bool OverlapOnAxis(const TDAABB* aabb, const TDTriangle* triangle, const glm::vec3& axis)
+	{
+		Interval a = GetInterval(aabb, axis);
+		Interval b = GetInterval(triangle, axis);
+		return ((b.min <= a.max) && (a.min <= b.max));
+	}
+
+	bool TDTriangle::TriangleAABB(const TDAABB* a)
+	{
+		// Compute the edge vectors of the triangle  (ABC)
+		glm::vec3 f0 = Points[1] - Points[0];
+		glm::vec3 f1 = Points[2] - Points[1];
+		glm::vec3 f2 = Points[0] - Points[2];
+
+		// Compute the face normals of the AABB
+		glm::vec3 u0(1.0f, 0.0f, 0.0f);
+		glm::vec3 u1(0.0f, 1.0f, 0.0f);
+		glm::vec3 u2(0.0f, 0.0f, 1.0f);
+
+		glm::vec3 test[13] = {
+			// 3 Normals of AABB
+			u0, // AABB Axis 1
+			u1, // AABB Axis 2
+			u2, // AABB Axis 3
+			// 1 Normal of the Triangle
+			glm::cross(f0, f1),
+			// 9 Axis, cross products of all edges
+			glm::cross(u0, f0),
+			glm::cross(u0, f1),
+			glm::cross(u0, f2),
+			glm::cross(u1, f0),
+			glm::cross(u1, f1),
+			glm::cross(u1, f2),
+			glm::cross(u2, f0),
+			glm::cross(u2, f1),
+			glm::cross(u2, f2)
+		};
+
+		for (int i = 0; i < 13; ++i)
+		{
+			if (!OverlapOnAxis(a, this, test[i]))
+			{
+				return false; // Seperating axis found
+			}
+		}
+
+		return true; // Seperating axis not found
+	}
+
 }

@@ -235,12 +235,14 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
+	go->GetTransform()->SetPos(glm::vec3(70, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
+#if 0
 	cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	go->AttachComponent(new RigidbodyComponent());
+#endif
 	AddGameobjectToScene(go);
 
 	go = new GameObject("spawn");

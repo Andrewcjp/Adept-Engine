@@ -88,9 +88,19 @@ namespace TD
 		void Contact(glm::vec3 position, glm::vec3 normal, float seperation);
 		void Reset();
 	};
-	struct RayCastPayload
+	struct RayCast
 	{
-
+		RayCast(glm::vec3 origin, glm::vec3 dir, float distance, RaycastData* hitData)
+		{
+			Origin = origin;
+			Dir = dir;
+			Distance = distance;
+			HitData = hitData;
+		}
+		glm::vec3 Origin;
+		glm::vec3 Dir;
+		float Distance;
+		RaycastData* HitData = nullptr;
 	};
 	class TDActor;
 	struct CollisionPair

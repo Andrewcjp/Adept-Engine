@@ -6,6 +6,7 @@
 #include "Shapes/TDPlane.h"
 #include "Shapes/TDSphere.h"
 #include "TDShape.h"
+#include "Core/Utils/MathUtils.h"
 namespace TD
 {
 	bool TD::TDCollisionHandlers::InvalidCollisonPair(CollisionHandlerArgs)
@@ -82,6 +83,30 @@ namespace TD
 		return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
 			(aMin.y <= bMax.y && aMax.y >= bMin.y) &&
 			(aMin.z <= bMax.z && aMax.z >= bMin.z);
+	}
+	glm::vec3 ClosestPoint(const TDAABB* aabb, const glm::vec3& point)
+	{
+		glm::vec3 result = point;
+		glm::vec3 min = aabb->GetMin();
+		glm::vec3 max = aabb->GetMax();
+
+		result.x = (result.x < min.x) ? min.x : result.x;
+		result.y = (result.y < min.y) ? min.y : result.y;
+		result.z = (result.z < min.z) ? min.z : result.z;
+
+		result.x = (result.x > max.x) ? max.x : result.x;
+		result.y = (result.y > max.y) ? max.y : result.y;
+		result.z = (result.z > max.z) ? max.z : result.z;
+
+		return result;
+	}
+
+	bool TD::TDCollisionHandlers::SphereAABB(TDSphere* sphere, const TDAABB* aabb)
+	{
+		glm::vec3 closestPoint = ClosestPoint(aabb, sphere->GetPos());
+		float distSq = glm::length2(sphere->GetPos() - closestPoint);
+		float radiusSq = sphere->Radius * sphere->Radius;
+		return distSq <= radiusSq;//=
 	}
 
 	bool TD::TDCollisionHandlers::CollideSphereCapsule(CollisionHandlerArgs)
@@ -225,8 +250,8 @@ namespace TD
 	{
 		TDPlane* plane = TDShape::CastShape<TDPlane>(Shape);
 
-		float nd = glm::dot(Dir, plane->Normal);
-		float pn = glm::dot(Origin, plane->Normal);
+		float nd = glm::dot(Ray->Dir, plane->Normal);
+		float pn = glm::dot(Ray->Origin, plane->Normal);
 
 		// nd must be negative, and not 0
 		// if nd is positive, the ray and plane normals
@@ -241,12 +266,12 @@ namespace TD
 		// t must be positive
 		if (t >= 0.0f)
 		{
-			if (t <= distance)
+			if (t <= Ray->Distance)
 			{
-				HitData->Normal = glm::vec3(plane->Normal);
-				HitData->Point = Origin + Dir * t;
-				HitData->Distance = t;
-				HitData->BlockingHit = true;
+				Ray->HitData->Normal = glm::vec3(plane->Normal);
+				Ray->HitData->Point = Ray->Origin + Ray->Dir * t;
+				Ray->HitData->Distance = t;
+				Ray->HitData->BlockingHit = true;
 				return true;
 			}
 		}
@@ -272,6 +297,75 @@ namespace TD
 	bool TD::TDIntersectionHandlers::IntersectMesh(InterSectionArgs)
 	{
 		TDMeshShape* mesh = TDShape::CastShape<TDMeshShape>(Shape);
-		return mesh->IntersectTriangle(Origin, Dir, distance, HitData);
+		return mesh->IntersectTriangle(Ray);
+	}
+
+	bool TDIntersectionHandlers::IntersectAABB(InterSectionArgs)
+	{
+		TDAABB* aabb = TDShape::CastShape<TDAABB>(Shape);
+
+		glm::vec3 min = aabb->GetMin();
+		glm::vec3 max = aabb->GetMax();
+
+		// Any component of direction could be 0!
+		// Address this by using a small number, close to
+		// 0 in case any of directions components are 0
+		float t1 = (min.x - Ray->Origin.x) / Ray->Dir.x;
+		float t2 = (max.x - Ray->Origin.x) / Ray->Dir.x;
+		float t3 = (min.y - Ray->Origin.y) / Ray->Dir.y;
+		float t4 = (max.y - Ray->Origin.y) / Ray->Dir.y;
+		float t5 = (min.z - Ray->Origin.z) / Ray->Dir.z;
+		float t6 = (max.z - Ray->Origin.z) / Ray->Dir.z;
+
+		float tmin = fmaxf(fmaxf(fminf(t1, t2), fminf(t3, t4)), fminf(t5, t6));
+		float tmax = fminf(fminf(fmaxf(t1, t2), fmaxf(t3, t4)), fmaxf(t5, t6));
+
+		// if tmax < 0, ray is intersecting AABB
+		// but entire AABB is behing it's origin
+		if (tmax < 0)
+		{
+			return false;
+		}
+
+		// if tmin > tmax, ray doesn't intersect AABB
+		if (tmin > tmax)
+		{
+			return false;
+		}
+
+		float t_result = tmin;
+
+		// If tmin is < 0, tmax is closer
+		if (tmin < 0.0f)
+		{
+			t_result = tmax;
+		}
+
+		if (Ray->HitData)
+		{
+			Ray->HitData->Distance = t_result;
+			Ray->HitData->BlockingHit = true;
+			Ray->HitData->Point = Ray->Origin + Ray->Dir* t_result;
+
+			glm::vec3 normals[] = {
+				glm::vec3(-1, 0, 0),
+				glm::vec3(1, 0, 0),
+				glm::vec3(0, -1, 0),
+				glm::vec3(0, 1, 0),
+				glm::vec3(0, 0, -1),
+				glm::vec3(0, 0, 1)
+			};
+			float t[] = { t1, t2, t3, t4, t5, t6 };
+
+			for (int i = 0; i < 6; ++i)
+			{
+				if (MathUtils::AlmostEqual(t_result, t[i], FLT_EPSILON))
+				{
+					Ray->HitData->Normal = normals[i];
+				}
+			}
+		}
+
+		return true;
 	}
 };

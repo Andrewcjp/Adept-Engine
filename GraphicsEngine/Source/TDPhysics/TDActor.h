@@ -19,6 +19,7 @@ namespace TD
 	{
 	public:
 		TD_API TDActor();
+		TD_API virtual ~TDActor();
 		virtual void Init();
 		TDActorType::Type GetActorType() const;
 		TDScene* GetScene() const;
@@ -37,7 +38,7 @@ namespace TD
 		void* UserData = nullptr;
 	protected:
 		float PreSimKE = 0.0f;
-		TD_API virtual ~TDActor();
+		
 		TDScene* OwningScene = nullptr;
 		friend class TDScene;
 		std::vector<TDShape*> AttachedShapes;
