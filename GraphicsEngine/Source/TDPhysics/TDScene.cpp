@@ -8,6 +8,7 @@
 #include "TDBroadphase.h"
 #include "TDActor.h"
 #include "Shapes/TDAABB.h"
+#include "Utils/MemoryUtils.h"
 namespace TD
 {
 	TDScene::TDScene()
@@ -21,6 +22,7 @@ namespace TD
 	{
 		SafeDelete(AcclerationTree);
 		SafeDelete(Broadphase);
+		MemoryUtils::DeleteVector(SceneActors);
 	}
 #if !BUILD_FULLRELEASE
 	void TDScene::DebugRender()
@@ -78,7 +80,8 @@ namespace TD
 #if !BUILD_FULLRELEASE
 		TDPhysics::StartTimer(TDPerfCounters::IntersectionTests);
 #endif
-		bool result = RayCastSceneInternal(Origin, Dir, Distance, HitData);
+		RayCast ray(Origin, Dir, Distance, HitData);
+		bool result = RayCastSceneInternal(&ray);
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::IntersectionTests);
 #endif
@@ -99,24 +102,26 @@ namespace TD
 		return Broadphase->NarrowPhasePairs;
 	}
 
-	bool TDScene::RayCastSceneInternal(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)
+	bool TDScene::RayCastSceneInternal(RayCast* Ray)
 	{
-		//todo: make go fast!
 		//todo: MultiCast 
 		bool Hit = false;
 		for (int i = 0; i < SceneActors.size(); i++)
 		{
 			TDActor* actor = SceneActors[i];
-			for (int j = 0; j < actor->GetAttachedShapes().size(); j++)
+			if (TDIntersectionHandlers::IntersectAABB(actor->AABB, Ray))
 			{
-				TDShape* currentshape = actor->GetAttachedShapes()[j];
-				DebugEnsure(currentshape);
-				IntersectionMethod con = IntersectionMethodTable[currentshape->GetShapeType()];
-				DebugEnsure(con);
-				Hit = con(currentshape, Origin, Dir, Distance, HitData);
-				if (Hit)
+				for (int j = 0; j < actor->GetAttachedShapes().size(); j++)
 				{
-					return true;
+					TDShape* currentshape = actor->GetAttachedShapes()[j];
+					DebugEnsure(currentshape);
+					IntersectionMethod con = IntersectionMethodTable[currentshape->GetShapeType()];
+					DebugEnsure(con);
+					Hit = con(currentshape, Ray);
+					if (Hit)
+					{
+						return true;
+					}
 				}
 			}
 		}

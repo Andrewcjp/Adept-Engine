@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TDShape.h"
+#include "TDTypes.h"
 
 namespace TD
 {
@@ -38,8 +39,10 @@ namespace TD
 		//Invalid Pair
 		static bool InvalidCollisonPair(CollisionHandlerArgs);
 		static bool CollideAABBAABB(TDAABB * A, TDAABB * b);
+		static bool SphereAABB(TDSphere * sphere, const TDAABB * aabb);
+
 	};
-#define InterSectionArgs TDShape* Shape,glm::vec3 Origin,glm::vec3 Dir,float distance,RaycastData* HitData
+#define InterSectionArgs TDShape* Shape,RayCast * Ray
 	struct TDIntersectionHandlers
 	{
 		static bool IntersectSphere(InterSectionArgs);
@@ -48,6 +51,7 @@ namespace TD
 		static bool IntersectBox(InterSectionArgs);
 		static bool IntersectConvex(InterSectionArgs);
 		static bool IntersectMesh(InterSectionArgs);
+		static bool IntersectAABB(InterSectionArgs);
 	};
 
 	typedef bool(*IntersectionMethod)(InterSectionArgs);

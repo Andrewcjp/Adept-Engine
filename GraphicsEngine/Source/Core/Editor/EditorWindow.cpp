@@ -87,6 +87,7 @@ void EditorWindow::EnterPlayMode()
 	{
 		return;
 	}
+	
 	Log::OutS << "Entering play mode" << Log::OutS;
 	const std::string PlayStatTimer = "Scene Play";
 	PerfManager::Get()->StartSingleActionTimer(PlayStatTimer);
@@ -104,7 +105,10 @@ void EditorWindow::EnterPlayMode()
 	CurrentPlayScene->StartScene();
 #endif
 	EditorCamera->SetEnabled(false);
-
+	if (StartSimulate)
+	{
+		Eject();
+	}
 	PerfManager::Get()->EndSingleActionTimer(PlayStatTimer);
 	PerfManager::Get()->LogSingleActionTimer(PlayStatTimer);
 	PerfManager::Get()->FlushSingleActionTimer(PlayStatTimer);
@@ -126,7 +130,7 @@ void EditorWindow::ExitPlayMode()
 	IsPlayingScene = false;
 	IsRunning = false;
 	ShouldTickScene = false;
-
+	StartSimulate = false;
 }
 
 void EditorWindow::DestroyRenderWindow()
@@ -239,6 +243,11 @@ void EditorWindow::Update()
 	if (Input::GetVKey(VK_CONTROL) && Input::GetKeyDown('P'))
 	{
 		EnterPlayMode();		
+	}
+	if (Input::GetVKey(VK_CONTROL) && Input::GetKeyDown('O'))
+	{
+		StartSimulate = true;
+		EnterPlayMode();
 	}
 	if (Input::GetKeyDown(VK_F1))
 	{

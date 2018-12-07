@@ -3,6 +3,7 @@
 #include "Shapes/TDSphere.h"
 #include "Shapes/TDAABB.h"
 #include "Utils/MemoryUtils.h"
+#include "Shapes/TDMeshShape.h"
 namespace TD
 {
 
@@ -13,11 +14,16 @@ namespace TD
 	}
 
 	TDActor::~TDActor()
-	{}
+	{
+		MemoryUtils::DeleteVector(AttachedShapes);
+	}
 
 	void TDActor::Init()
 	{
-		AABB->Position = Transform.GetPos();
+		if (ActorType == TDActorType::RigidDynamic)
+		{
+			AABB->Position = Transform.GetPos();
+		}		
 	}
 
 	TDActorType::Type TDActor::GetActorType() const
@@ -50,6 +56,11 @@ namespace TD
 		AttachedShapes.push_back(newShape);
 		newShape->SetOwner(this);
 		AABB->HalfExtends = newShape->GetBoundBoxHExtents();
+		if (newShape->GetShapeType() == TDShapeType::eTRIANGLEMESH)
+		{
+			AABB = ((TDMeshShape*)newShape)->GetAABB();
+			AABB->Owner = this;
+		}
 	}
 
 	std::vector<TDShape*>& TDActor::GetAttachedShapes()

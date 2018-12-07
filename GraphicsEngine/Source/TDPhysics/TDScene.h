@@ -28,7 +28,7 @@ namespace TD
 		void UpdateBroadPhase();
 		std::vector<CollisionPair>& GetPairs();
 	private:
-		bool RayCastSceneInternal(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData);
+		bool RayCastSceneInternal(RayCast* ray);
 		glm::vec3 GravityForce = glm::vec3(0, -9.81, 0);
 		TDOctTree* AcclerationTree = nullptr;
 		//todo: remove

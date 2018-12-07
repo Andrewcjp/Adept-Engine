@@ -1,6 +1,10 @@
 #pragma once
 #include "TDShape.h"
 
+namespace TD { struct RayCast; }
+
+namespace TD { class TDBVH; }
+
 namespace TD
 {
 	class TDTriangle;
@@ -13,8 +17,9 @@ namespace TD
 		TD_API ~TDMeshShape();
 
 		virtual glm::vec3 GetBoundBoxHExtents() override;
+		TDAABB* GetAABB();
 		bool MeshSphere(TDSphere * s, ContactData* contactbuffer);
-		bool IntersectTriangle(glm::vec3 Origin, glm::vec3 Dir, float distance, RaycastData * HitData);
+		bool IntersectTriangle(RayCast* ray);
 	private:
 		TDMesh* Mesh = nullptr;
 	};
@@ -41,10 +46,15 @@ namespace TD
 	{
 	public:
 		TD_API TDMesh(const TDTriangleMeshDesc& desc);
-
+		~TDMesh();
 		TD_API std::vector<TDTriangle*> & GetTriangles() { return Triangles; }
+		static TDAABB * FromMinMax(const glm::vec3 & min, const glm::vec3 & max);
 		TD_API virtual void CookMesh();
+		glm::vec3 Max;
+		glm::vec3 Min;
+		TDBVH* GetBVH() { return BVH; }
 	private:
+		TDBVH* BVH = nullptr;
 		std::vector<TDTriangle*> Triangles;
 	};
 	class TDTriangle
@@ -58,10 +68,11 @@ namespace TD
 		TDPlane MakeFromTriangle();
 		bool PointInTriangle(const glm::vec3 & p);
 		glm::vec3 GetBarycentric(const glm::vec3 & p);
-		bool Intersect(glm::vec3 Origin, glm::vec3 Dir, float distance, RaycastData * HitData);
+		bool Intersect(RayCast* ray);
 		bool TriangleSphere(TDSphere * s, glm::vec3 & out_Contact, float & depth);
 		glm::vec3 ClosestPoint(const glm::vec3 & p);
-		void DebugDraw();
+		void DebugDraw(float time);
+		bool TriangleAABB(const TDAABB * a);
 	};
 	struct Edge
 	{

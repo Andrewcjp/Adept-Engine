@@ -47,6 +47,7 @@ protected:
 	void Update() override;
 	void SaveScene();	
 private:
+	bool StartSimulate = false;
 	static EditorWindow* instance;
 	EditorGizmos* gizmos;
 	EditorObjectSelector* selector;

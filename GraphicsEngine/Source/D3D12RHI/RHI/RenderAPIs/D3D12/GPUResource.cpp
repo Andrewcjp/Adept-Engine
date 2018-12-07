@@ -136,7 +136,12 @@ ID3D12Resource * GPUResource::GetResource()
 void GPUResource::Release()
 {
 	IRHIResourse::Release();
-	SafeRelease(resource);
+	if (resource != nullptr)
+	{
+		int refcount = resource->Release();
+		resource = nullptr;
+	}
+	//SafeRelease(resource);
 	RemoveCheckerRef(GPUResource, this);
 }
 

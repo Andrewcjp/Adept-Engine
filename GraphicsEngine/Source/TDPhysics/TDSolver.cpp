@@ -158,7 +158,7 @@ namespace TD
 		TDPhysics::StartTimer(TDPerfCounters::ResolveCollisions);
 #endif
 		ProcessBroadPhase(scene);
-		DebugEnsure(NarrowPhasePairs.size());
+//		DebugEnsure(NarrowPhasePairs.size());
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			NarrowPhasePairs[i].data.Reset();//reset before check collisions again
