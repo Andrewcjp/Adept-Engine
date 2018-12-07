@@ -1,7 +1,6 @@
 #include "TDTypes.h"
-#include "Utils/MathUtils.h"
-#include "TDActor.h"
 #include "TDShape.h"
+#include "Utils/MathUtils.h"
 
 TD::TDPhysicalMaterial::TDPhysicalMaterial()
 {
@@ -62,4 +61,21 @@ TD::CollisionPair::CollisionPair(TDActor * A, TDActor * B)
 	first = A;
 	second = B;
 	IsTriggerPair = first->GetAttachedShapes()[0]->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || second->GetAttachedShapes()[0]->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
+}
+
+void TD::RaycastData::AddContact(glm::vec3 point, glm::vec3 normal, float depth)
+{
+	BlockingHit = true;
+	Points[Count].Distance = depth;
+	Points[Count].Point = point;
+	Points[Count].Normal = normal;
+	Count++;
+	DebugEnsure(Count == 1);
+}
+
+void TD::RaycastData::Reset()
+{
+	Points[MAX_CONTACT_POINTS_COUNT];
+	BlockingHit = false;
+	Count = 0;
 }

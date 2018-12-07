@@ -2,13 +2,13 @@
 #include "TDActor.h"
 #include "TDTypes.h"
 
-namespace TD { class TDBroadphase; }
 namespace TD
 {
 	class TDOctTree;
 	class TDRigidDynamic;
 	struct RaycastData;
 	class TDConstraint;
+	class TDBroadphase;
 	class TDScene
 	{
 	public:
@@ -30,7 +30,6 @@ namespace TD
 	private:
 		bool RayCastSceneInternal(RayCast* ray);
 		glm::vec3 GravityForce = glm::vec3(0, -9.81, 0);
-		TDOctTree* AcclerationTree = nullptr;
 		//todo: remove
 		std::vector<TDActor*> SceneActors;
 		std::vector<TDRigidDynamic*> DynamicActors;

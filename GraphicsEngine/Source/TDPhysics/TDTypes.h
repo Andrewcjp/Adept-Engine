@@ -1,10 +1,10 @@
 #pragma once
 
-
-namespace TD { class TDShape; }
-
 namespace TD
 {
+	class TDShape;
+	class TDActor;
+	const int MAX_CONTACT_POINTS_COUNT = 50;
 	struct TD_API TDPhysicalMaterial
 	{
 		TDPhysicalMaterial();
@@ -17,14 +17,22 @@ namespace TD
 			return new TDPhysicalMaterial();
 		}
 	};
-	struct RaycastData
+	struct Contact
 	{
-		bool BlockingHit = false;
-		bool StartPenetrating = false;
 		float Distance = 0.0f;
 		glm::vec3 Point = glm::vec3();
 		glm::vec3 Normal = glm::vec3();
 	};
+	struct RaycastData
+	{
+		bool BlockingHit = false;
+		bool StartPenetrating = false;
+		Contact Points[MAX_CONTACT_POINTS_COUNT];
+		int Count = 0;
+		void AddContact(glm::vec3 Point, glm::vec3 Normal, float Depth);
+		void Reset();
+	};
+
 	namespace TDShapeType
 	{
 		enum Type
@@ -38,6 +46,7 @@ namespace TD
 			eLimit
 		};
 	}
+
 	namespace TDForceMode
 	{
 		enum Type
@@ -47,6 +56,7 @@ namespace TD
 			Limit,
 		};
 	}
+
 	namespace TDBodyType
 	{
 		enum Type
@@ -56,6 +66,7 @@ namespace TD
 			Limit
 		};
 	}
+
 	namespace TDPerfCounters
 	{
 		enum Type
@@ -67,6 +78,7 @@ namespace TD
 			eLimit
 		};
 	}
+
 	namespace TDBroadphaseMethod
 	{
 		enum Type
@@ -77,7 +89,7 @@ namespace TD
 			Limit
 		};
 	}
-	const int MAX_CONTACT_POINTS_COUNT = 50;
+	
 	struct ContactData
 	{
 		glm::vec3 ContactPoints[MAX_CONTACT_POINTS_COUNT];
@@ -88,6 +100,7 @@ namespace TD
 		void Contact(glm::vec3 position, glm::vec3 normal, float seperation);
 		void Reset();
 	};
+
 	struct RayCast
 	{
 		RayCast(glm::vec3 origin, glm::vec3 dir, float distance, RaycastData* hitData)
@@ -102,7 +115,7 @@ namespace TD
 		float Distance;
 		RaycastData* HitData = nullptr;
 	};
-	class TDActor;
+
 	struct CollisionPair
 	{
 		CollisionPair(TDActor* A, TDActor* B);
@@ -115,6 +128,7 @@ namespace TD
 			return (this->first == rhs.first && this->second == rhs.second) || (this->first == rhs.second && this->first == rhs.second);
 		}
 	};
+
 	namespace TDConstraintType
 	{
 		enum Type
@@ -125,11 +139,13 @@ namespace TD
 			Limit
 		};
 	}
+
 	struct ConstraintDesc
 	{
 		float distance = 0.0f;
 		TDConstraintType::Type Type;
 	};
+
 	class TD_API TDFlagsBase
 	{
 	public:
@@ -139,6 +155,7 @@ namespace TD
 	private:
 		int Flags = 0;
 	};
+
 	class TD_API TDShapeFlags :public TDFlagsBase
 	{
 	public:
@@ -149,6 +166,7 @@ namespace TD
 			Limit = (1 << 1),
 		};
 	};
+
 	struct ContactPair
 	{
 		TDShape* ShapeA = nullptr;
@@ -167,10 +185,6 @@ namespace TD
 		{
 			return this->ShapeA == A.ShapeA && this->ShapeB == A.ShapeB || (this->ShapeB == A.ShapeA && this->ShapeA == A.ShapeB);
 		}
-		/*bool operator==(const ContactPair& lhs, const ContactPair& rhs)
-		{
-			return this->ShapeA == A->ShapeA && this->ShapeB == A->ShapeB || (this->ShapeB == A->ShapeA && this->ShapeA == A->ShapeB);
-		}*/
 	};
 
 };

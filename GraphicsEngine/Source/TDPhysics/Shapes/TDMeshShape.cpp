@@ -195,20 +195,20 @@ namespace TD
 		{
 			return false;
 		}
-		const float t = ray->HitData->Distance;
+		const float t = ray->HitData->Points[0].Distance;
 		if (t > ray->Distance)
 		{
+			ray->HitData->Reset();
 			return false;
 		}
+		ray->HitData->Reset();
 		glm::vec3 BaryCoords = GetBarycentric(ray->Origin + ray->Dir * t);
 		if ((BaryCoords.x >= 0.0f && BaryCoords.x <= 1.0f) &&
 			(BaryCoords.y >= 0.0f && BaryCoords.y <= 1.0f) &&
 			(BaryCoords.z >= 0.0f && BaryCoords.z <= 1.0f))
 		{
 			ray->HitData->BlockingHit = true;
-			ray->HitData->Distance = t;
-			ray->HitData->Normal = plane.Normal;
-			ray->HitData->Point = ray->Origin + ray->Dir * t;
+			ray->HitData->AddContact(ray->Origin + ray->Dir * t, plane.Normal, t);
 			return true;
 		}
 		ray->HitData->BlockingHit = false;

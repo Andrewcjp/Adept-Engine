@@ -119,9 +119,9 @@ bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, floa
 	GetScene()->RayCastScene(startpos, direction, distance, &data);
 	if (data.BlockingHit)
 	{
-		outhit->Distance = data.Distance;
-		outhit->Normal = data.Normal;
-		outhit->position = data.Point;
+		outhit->Distance = data.Points[0].Distance;
+		outhit->Normal = data.Points[0].Normal;
+		outhit->position = data.Points[0].Point;
 
 		return true;
 	}
