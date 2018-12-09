@@ -21,6 +21,7 @@ namespace TD
 		//! The MaxDepth a Bounding Volume Hierarchy can be 
 		int MaxBVHDepth = 7;
 
+		int TargetTrianglesPerBVHNode = 500;
 		TDBroadphaseMethod::Type BroadphaseMethod = TDBroadphaseMethod::SAP;
 		typedef void(*FPrefCounterCallBack)(bool/*Is start of timer*/, TDPerfCounters::Type/*Timer ID*/);
 		//! Callback Used for performance tracking in profile builds 

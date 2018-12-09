@@ -57,10 +57,7 @@ DLTENode DLTEPathfinder::get_goal()
 
 void DLTEPathfinder::Reset()
 {
-	for (int i = 0; i < Plane->NavPoints.size(); i++)
-	{
-		Plane->NavPoints[i]->Reset();
-	}
+	Plane->Reset();
 	Queue->Clear();
 }
 
@@ -254,7 +251,7 @@ void DLTEPathfinder::UpdateState(DLTENode* statePointer)
 
 glm::vec3 DLTENode::GetPos(NavPlane* p)
 {
-	return glm::vec3(Point.x, 10 + p->ZHeight, Point.y);
+	return glm::vec3(Point.x, 10 + p->GetHeight(), Point.y);
 }
 
 DLTEQueue::DLTEQueue()

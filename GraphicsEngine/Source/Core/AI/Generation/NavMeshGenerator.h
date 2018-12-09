@@ -1,18 +1,17 @@
 #pragma once
 
 class Scene;
-struct NavPlane;
+class NavPlane;
 struct HeightField;
+struct DLTENode;
 class NavMeshGenerator
 {
 public:
 	NavMeshGenerator();
 	~NavMeshGenerator();
 	void Voxelise(Scene * TargetScene);
-
 	bool ValidateQuad(const int GirdStep, float FirstHeight, HeightField* Field, glm::ivec2 &offset);
-	NavPlane* GetPlane(float z);
-	
+	NavPlane* GetPlane(float z);	
 	//Take the scene and generate a navigation mesh for it.
 	void GenerateMesh(NavPlane* target);
 private:
@@ -36,25 +35,29 @@ private:
 	glm::vec3 CentreOffset = glm::vec3(0, 0, 0);
 	float GridSpacing = 2.5f;
 };
-struct DLTENode;
+
 struct Tri
 {
 	glm::vec3 points[3];
 	DLTENode* Nodes[3];
-	float side(glm::vec2 v1, glm::vec2  v2, glm::vec2 point);
-	bool pointInTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 point);
 	bool IsPointInsideTri(glm::vec3 point);
 };
-struct NavPlane
+
+class NavPlane
 {
-	std::vector<glm::vec3> Points;
-	std::vector<Tri> Triangles;
-	float ZHeight = 0.0f;
+public:
 	void RemoveDupeNavPoints();
 	void BuildNavPoints();
 	void BuildMeshLinks();
-	void RenderMesh();
-	std::vector<DLTENode*> NavPoints;
+	void RenderMesh(bool Near);	
 	bool ResolvePositionToNode(glm::vec3 pos, DLTENode** node);
 	Tri * FindTriangleFromWorldPos(glm::vec3 worldpos);
+	void Reset();
+	float GetHeight();
+	std::vector<glm::vec3> Points;
+	std::vector<Tri> Triangles;
+	float ZHeight = 0.0f;
+private:
+	std::vector<DLTENode*> NavPoints;	
+
 };

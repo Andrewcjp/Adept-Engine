@@ -229,7 +229,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 	std::stringstream ss;
 	ss << "Pruned " << PrunedTris << "/" << TotalTriCount;
 	Log::LogMessage(ss.str());
-	target->RenderMesh();
+	target->RenderMesh(false);
 }
 
 void HeightField::SetValue(int x, int y, float value)
@@ -361,16 +361,30 @@ void NavPlane::BuildMeshLinks()
 		}
 	}
 }
-void NavPlane::RenderMesh()
+void NavPlane::RenderMesh(bool Near)
 {
-	return;
-	for (int i = 0; i < NavPoints.size(); i++)
+	if (Near)
 	{
-		for (int x = 0; x < NavPoints[i]->NearNodes.size(); x++)
+		for (int i = 0; i < NavPoints.size(); i++)
 		{
-			float value = (float)x + 1 / (float)NavPoints[i]->NearNodes.size();
-			glm::vec3 dir = NavPoints[i]->GetPos(this) - NavPoints[i]->NearNodes[x]->GetPos(this);
-			DebugDrawers::DrawDebugLine(NavPoints[i]->GetPos(this), NavPoints[i]->GetPos(this) + dir / 2, glm::vec3(value), false, 1000);
+			for (int x = 0; x < NavPoints[i]->NearNodes.size(); x++)
+			{
+				float value = (float)x + 1 / (float)NavPoints[i]->NearNodes.size();
+				glm::vec3 dir = NavPoints[i]->GetPos(this) - NavPoints[i]->NearNodes[x]->GetPos(this);
+				DebugDrawers::DrawDebugLine(NavPoints[i]->GetPos(this), NavPoints[i]->GetPos(this) + dir / 2, glm::vec3(value), false, 1000);
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < Triangles.size(); i++)
+		{
+			const int sides = 3;
+			for (int x = 0; x < sides; x++)
+			{
+				const int next = (x + 1) % sides;
+				DebugDrawers::DrawDebugLine(Triangles[i].points[x], Triangles[i].points[next], glm::vec3(1), false, 0.0f);
+			}
 		}
 	}
 }
@@ -421,6 +435,19 @@ Tri* NavPlane::FindTriangleFromWorldPos(glm::vec3 worldpos)
 		}
 	}
 	return nullptr;
+}
+
+void NavPlane::Reset()
+{
+	for (int i = 0; i < NavPoints.size(); i++)
+	{
+		NavPoints[i]->Reset();
+	}
+}
+
+float NavPlane::GetHeight()
+{
+	return ZHeight;
 }
 
 bool PointInTriangle(glm::vec3 p, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)

@@ -25,15 +25,7 @@ void NavigationMesh::RenderMesh()
 	{
 		return;
 	}
-	for (int i = 0; i < Plane->Triangles.size(); i++)
-	{
-		const int sides = 3;
-		for (int x = 0; x < sides; x++)
-		{
-			const int next = (x + 1) % sides;
-			DebugDrawers::DrawDebugLine(Plane->Triangles[i].points[x], Plane->Triangles[i].points[next], glm::vec3(1), false, 0.0f);
-		}
-	}
+	Plane->RenderMesh(false);
 }
 
 ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)

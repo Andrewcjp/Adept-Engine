@@ -29,6 +29,7 @@ namespace TD
 			Root->TrianglesIndexs.push_back(i);
 		}
 		MaxDepth = TDPhysics::GetCurrentSimConfig()->MaxBVHDepth;
+		Targetcount = TDPhysics::GetCurrentSimConfig()->TargetTrianglesPerBVHNode;
 		SplitBVH(Root, Mesh, 0);
 	}
 
@@ -36,6 +37,10 @@ namespace TD
 	{
 		depth++;
 		if (depth >= MaxDepth)
+		{
+			return;
+		}
+		if (node->numTriangles < Targetcount)
 		{
 			return;
 		}
@@ -193,9 +198,7 @@ namespace TD
 		while (!toProcess.empty())
 		{
 			BVHNode* iterator = toProcess.front();
-
 			toProcess.pop();
-
 			if (iterator->numTriangles >= 0)
 			{
 				// Iterate trough all triangles of the node
@@ -204,13 +207,11 @@ namespace TD
 					// Triangle indices in BVHNode index the mesh
 					if (TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]]->Intersect(ray))
 					{
-						iterator->bounds->DebugRender(glm::vec3(0, 1, 0));
 						return true;
 						RetValue = true;
 					}
 				}
 			}
-			iterator->bounds->DebugRender(glm::vec3(1, 0, 0));
 			if (iterator->children.size())
 			{
 				for (int i = 0; i < 8; i++)
