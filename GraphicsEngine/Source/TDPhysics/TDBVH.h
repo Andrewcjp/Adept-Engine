@@ -25,6 +25,7 @@ namespace TD
 		BVHNode* Root = nullptr;
 	private:
 		int MaxDepth = 10;
+		int Targetcount = 100;
 	};
 
 	struct BVHNode

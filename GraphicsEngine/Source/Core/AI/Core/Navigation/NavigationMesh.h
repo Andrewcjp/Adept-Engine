@@ -22,7 +22,7 @@ namespace ENavRequestStatus
 	};
 }
 class NavigationObstacle;
-struct NavPlane;
+class NavPlane;
 class DLTEPathfinder;
 class NavigationMesh
 {

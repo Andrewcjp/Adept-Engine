@@ -6,6 +6,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include "../Utils/VectorUtils.h"
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
 {
@@ -17,7 +18,7 @@ void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
 }
 
 //todo: this should be optimized; construct a sumed transfrom map?
-bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const aiScene* scene, aiMatrix4x4& transfrom)
+bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const aiScene* scene, aiMatrix4x4& transfrom, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	for (unsigned int i = 0; i < nodes.size(); i++)
 	{
@@ -26,11 +27,15 @@ bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const 
 			if (scene->mMeshes[nodes[i]->mMeshes[j]] == mesh)
 			{
 				aiNode* curerntnode = nodes[i];
+				if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, std::string(curerntnode->mName.C_Str())))
+				{
+					return false;
+				}
 				while (curerntnode != scene->mRootNode)
 				{
 					transfrom *= curerntnode->mTransformation;
 					curerntnode = curerntnode->mParent;
-				}
+				}				
 				return true;
 			}
 		}
@@ -39,9 +44,9 @@ bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const 
 }
 
 void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
-{	
+{
 	ArchiveProp(Scale);
-	ArchiveProp(UVScale); 
+	ArchiveProp(UVScale);
 	ArchiveProp(InitOnAllDevices);
 	ArchiveProp(CreatePhysxMesh);
 	ArchiveProp(GenerateIndexed);
@@ -74,10 +79,17 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
 		const aiMesh* model = scene->mMeshes[i];
+		if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, std::string(model->mName.C_Str())))
+		{
+			continue;
+		}
 		const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 		aiMatrix4x4 transfrom;
-		const bool ValidTransfrom = FindMeshInNodeTree(NodeArray, model, scene, transfrom);
-		DebugEnsure(ValidTransfrom);
+		const bool ValidTransfrom = FindMeshInNodeTree(NodeArray, model, scene, transfrom,Settings);
+		if (!ValidTransfrom)
+		{
+			continue;
+		}
 		for (unsigned int i = 0; i < model->mNumVertices; i++)
 		{
 			aiVector3D* pPos = &(model->mVertices[i]);

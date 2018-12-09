@@ -2,7 +2,7 @@
 #include "Core/Utils/MathUtils.h"
 struct DLTENode;
 class DLTEQueue;
-struct NavPlane;
+class NavPlane;
 class DLTEPathfinder
 {
 public:
@@ -31,7 +31,7 @@ const size_t DIRECTIONS_WIDTH = 8;
 const size_t DIRECTIONS_HEIGHT = 2;
 const int DIRECTIONS[DIRECTIONS_WIDTH][DIRECTIONS_HEIGHT] = { { 0, 1 },{ 0, -1 },{ 1, 0 },{ -1, 0 },{ 1, 1 },{ 1, -1 },{ -1, 1 },{ -1, -1 } };
 class NavigationObstacle;
-struct NavPlane;
+class NavPlane;
 struct Tri;
 struct DLTENode
 {

@@ -78,14 +78,14 @@ namespace TD
 			eLimit
 		};
 	}
-
+	/// Broadphase Method
 	namespace TDBroadphaseMethod
 	{
 		enum Type
 		{
-			SAP,
-			HSAP,
-			MBP,
+			SAP,///< Sweep and Prune
+			HSAP,///< Hierarchical Sweep and Prune
+			MBP,///< Multi Box Pruning
 			Limit
 		};
 	}
