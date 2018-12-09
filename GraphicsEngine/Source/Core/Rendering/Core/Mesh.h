@@ -7,6 +7,7 @@
 #include "RHI/RHI.h"
 #include "Core/Assets/MeshLoader.h"
 class Material;
+struct SkeletalMeshEntry;
 struct MeshEntity
 {
 	RHIBuffer * VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
@@ -15,6 +16,7 @@ struct MeshEntity
 	void Release();
 	bool LoadSucessful = false;
 	int MaterialIndex = 0;
+	int BaseVertex = 0;
 };
 class Mesh :public IRHIResourse
 {
@@ -41,6 +43,7 @@ private:
 	*\brief MeshEntity holds all the information to render a mesh section there might be multiple per mesh object
 	*/
 	std::vector<MeshEntity*> SubMeshes;
+	SkeletalMeshEntry* pSkeletalEntity = nullptr;
 	int MaterialCount = 0;
 	bool DoesShadow = true;
 };

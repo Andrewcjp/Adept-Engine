@@ -218,6 +218,15 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	Asset_Shader* ColourMat = new Asset_Shader();
 	ColourMat->SetupSingleColour();
+
+
+	go = new GameObject("anim Test");
+	mat = ColourMat->GetMaterialInstance();
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("boblampclean.md5anim"), mat));
+	go->GetTransform()->SetPos(glm::vec3(50, 20, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	AddGameobjectToScene(go);
 #if 0
 	go = new GameObject("Size Guide");
 	mat = ColourMat->GetMaterialInstance();
@@ -282,7 +291,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				if (z == 0)
 				{
 					cc->SetCollisonShape(EShapeType::eSPHERE);
-				}
+}
 				else
 				{
 					cc->SetCollisonShape(EShapeType::eSPHERE);
@@ -291,7 +300,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				AddGameobjectToScene(go);
 			}
 		}
-}
+	}
 #endif
 
 
@@ -314,7 +323,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
-		}
+				}
 		}
 #endif
 	}

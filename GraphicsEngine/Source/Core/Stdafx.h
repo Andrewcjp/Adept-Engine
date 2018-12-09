@@ -7,6 +7,7 @@
 #define GLM_FORCE_SWIZZLE
 #pragma warning(push,3)
 #include "EngineGlobals.h"
+#include "Core/Platform/PlatformTypes.h"
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

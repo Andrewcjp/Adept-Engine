@@ -7,6 +7,9 @@
 #include "Material.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/SerialHelpers.h"
+#include "Core/Assets/ShaderComplier.h"
+#include "../Shaders/Shader_SkeletalMesh.h"
+#include "Core/Engine.h"
 
 Mesh::Mesh()
 {}
@@ -30,22 +33,35 @@ void Mesh::Release()
 
 Mesh::~Mesh()
 {}
-void Mesh::Render(RHICommandList * list, bool SetMaterial)
 
+void Mesh::Render(RHICommandList * list, bool SetMaterial)
 {
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
-		for (int i = 0; i < SubMeshes.size(); i++)
+		if (pSkeletalEntity != nullptr && SetMaterial)
 		{
-			if (SubMeshes[i]->LoadSucessful)
+			pSkeletalEntity->Tick(Engine::GetDeltaTime());
+			int i = 0;
+			list->SetPipelineStateObject(ShaderComplier::GetShader<Shader_SkeletalMesh>());
+			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms,list);
+			list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()]);
+			list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]);
+			list->DrawIndexedPrimitive((int)pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
+		}
+		else
+		{
+			for (int i = 0; i < SubMeshes.size(); i++)
 			{
-				if (SetMaterial)
+				if (SubMeshes[i]->LoadSucessful)
 				{
-					TryPushMaterial(list, SubMeshes[i]->MaterialIndex);
+					if (SetMaterial)
+					{
+						TryPushMaterial(list, SubMeshes[i]->MaterialIndex);
+					}
+					list->SetVertexBuffer(SubMeshes[i]->VertexBuffers[list->GetDeviceIndex()]);
+					list->SetIndexBuffer(SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()]);
+					list->DrawIndexedPrimitive((int)SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
 				}
-				list->SetVertexBuffer(SubMeshes[i]->VertexBuffers[list->GetDeviceIndex()]);
-				list->SetIndexBuffer(SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()]);
-				list->DrawIndexedPrimitive((int)SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
 			}
 		}
 	}
@@ -66,10 +82,14 @@ void Mesh::TryPushMaterial(RHICommandList* list, int index)
 void Mesh::LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	ImportSettings = Settings;
-	MeshLoader::LoadMeshFromFile(filename, Settings, SubMeshes);
+	MeshLoader::LoadMeshFromFile(filename, Settings, SubMeshes, &pSkeletalEntity);
 	if (SubMeshes.size() == 0)
 	{
 		Log::LogMessage("Failed to load mesh " + filename, Log::Severity::Error);
+	}
+	if (pSkeletalEntity != nullptr)
+	{
+		float t = 0;
 	}
 }
 

@@ -17,6 +17,7 @@ ParticleSystemManager::~ParticleSystemManager()
 
 void ParticleSystemManager::Init()
 {
+	return;
 	GPU_ParticleData = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	RHIBufferDesc desc;
 	desc.Accesstype = EBufferAccessType::GPUOnly;
@@ -217,7 +218,7 @@ void ParticleSystemManager::Sync()
 
 void ParticleSystemManager::Simulate()
 {
-	//return;
+	return;
 	CmdList->ResetList();
 	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
@@ -273,7 +274,7 @@ void ParticleSystemManager::Simulate()
 
 void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 {
-	//return;
+	return;
 	RenderList->ResetList();
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
 	RenderList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleDraw>(), BufferTarget);

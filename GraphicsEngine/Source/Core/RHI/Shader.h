@@ -77,8 +77,8 @@ public:
 				Visiblity = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_PIXEL;
 			}
 		}
-		ShaderParamType Type;
-		RHI_SHADER_VISIBILITY Visiblity;
+		ShaderParamType Type = ShaderParamType::CBV;
+		RHI_SHADER_VISIBILITY Visiblity = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL;
 		int SignitureSlot = 0;
 		int RegisterSlot = 0;
 		int NumDescriptors = 1;

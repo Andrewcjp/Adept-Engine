@@ -66,6 +66,7 @@ IRHIResourse::~IRHIResourse()
 
 void IRHIResourse::Release()
 {
+	DebugEnsure(!IsReleased);
 	IsReleased = true;
 }
 #if NAME_RHI_PRIMS

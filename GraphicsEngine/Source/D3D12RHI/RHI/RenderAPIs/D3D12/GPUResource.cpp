@@ -138,7 +138,9 @@ void GPUResource::Release()
 	IRHIResourse::Release();
 	if (resource != nullptr)
 	{
-		int refcount = resource->Release();
+		int refcount = resource->AddRef();
+		refcount = resource->Release();
+		resource->Release();
 		resource = nullptr;
 	}
 	//SafeRelease(resource);
