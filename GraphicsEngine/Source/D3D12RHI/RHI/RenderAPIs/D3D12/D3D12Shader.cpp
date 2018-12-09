@@ -124,6 +124,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 
 	if (!FileUtils::File_ExistsTest(path))
 	{
+		__debugbreak();
 		return EShaderError::SHADER_ERROR_NOFILE;
 	}
 	if (ShaderType == EShaderType::SHADER_COMPUTE)
@@ -244,7 +245,7 @@ bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const 
 	ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 	return true;
 #else	
-	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, FullShaderName) && false)
+	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, FullShaderName))
 	{
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 		return true;
@@ -458,7 +459,7 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 		}
 #endif
 	}
-	D3D12_SHADER_VISIBILITY BaseSRVVis;
+	D3D12_SHADER_VISIBILITY BaseSRVVis = D3D12_SHADER_VISIBILITY_ALL;
 	if (output.IsCompute)
 	{
 		BaseSRVVis = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
@@ -540,8 +541,27 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, NUMSamples, &samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ID3DBlob* signature;
-	ID3DBlob* error;
-	ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
+	ID3DBlob* pErrorBlob;
+	HRESULT hr =  (D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &pErrorBlob));
+	std::string Log = "Serialize Root Signature Compile Output: ";
+	if (pErrorBlob != nullptr)
+	{
+		Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+		if (FAILED(hr))
+		{
+			Log::LogMessage(Log, Log::Severity::Error);
+			PlatformApplication::DisplayMessageBox("Shader Complie Error", Log);
+			pErrorBlob->Release();
+#ifndef NDEBUG
+			__debugbreak();
+#endif
+			Engine::RequestExit(-1);
+		}
+		else
+		{
+			Log::LogMessage(Log, Log::Severity::Warning);
+		}
+	}
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output.m_rootSignature)));
 
 	output.m_rootSignature->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
