@@ -35,8 +35,8 @@ public:
 #define NUM_BONES_PER_VEREX 4
 struct VertexBoneData
 {
-	unsigned int IDs[NUM_BONES_PER_VEREX];
-	float Weights[NUM_BONES_PER_VEREX];
+	unsigned int IDs[NUM_BONES_PER_VEREX] = {0};
+	float Weights[NUM_BONES_PER_VEREX] = {0.0f};
 	void AddBoneData(uint BoneID, float Weight);
 };
 struct BoneInfo
@@ -55,7 +55,7 @@ struct SkeletalMeshEntry
 	float CurrnetTime = 0.0f;
 	float GetMaxTime() { return MaxTime; };
 	void Tick(float Delta);
-	void LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones);
+	void LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones, int BaseVertex);
 	const aiNodeAnim * FindNodeAnim(const aiAnimation * pAnimation, const std::string NodeName);
 	std::map<std::string, uint> m_BoneMapping;
 	std::vector<BoneInfo> m_BoneInfo;

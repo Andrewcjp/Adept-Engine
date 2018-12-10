@@ -8,7 +8,7 @@
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/SerialHelpers.h"
 #include "Core/Assets/ShaderComplier.h"
-#include "../Shaders/Shader_SkeletalMesh.h"
+#include "Rendering/Shaders/Shader_SkeletalMesh.h"
 #include "Core/Engine.h"
 
 Mesh::Mesh()
@@ -41,12 +41,15 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 		if (pSkeletalEntity != nullptr && SetMaterial)
 		{
 			pSkeletalEntity->Tick(Engine::GetDeltaTime());
-			int i = 0;
+			
 			list->SetPipelineStateObject(ShaderComplier::GetShader<Shader_SkeletalMesh>());
 			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms,list);
-			list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()]);
-			list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]);
-			list->DrawIndexedPrimitive((int)pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
+			for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)
+			{
+				list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()]);
+				list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]);
+				list->DrawIndexedPrimitive((int)pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
+			}
 		}
 		else
 		{

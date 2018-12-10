@@ -82,6 +82,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	std::vector<OGLVertex> vertices;
 	std::vector<int> indices;
 	std::vector<aiNode*> NodeArray;
+	SkeletalMeshEntry* SKel = nullptr;
 	TraverseNodeTree(NodeArray, scene->mRootNode);
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
@@ -103,8 +104,10 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 			const aiVector3D* pNormal = model->HasNormals() ? &(model->mNormals[i]) : &aiZeroVector;
 			const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
 			const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
-
-			*pPos = transfrom * (*pPos);
+			if (!scene->HasAnimations())
+			{
+				*pPos = transfrom * (*pPos);
+			}
 
 			OGLVertex vert(glm::vec3(pPos->x, pPos->y, pPos->z),
 				glm::vec2(pTexCoord->x, pTexCoord->y)*Settings.UVScale,
@@ -134,14 +137,16 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		MeshEntity* newmesh = nullptr;
 		if (HasAnim)
 		{
-			SkeletalMeshEntry* SKel = new SkeletalMeshEntry(scene->mAnimations[0]);
-			*pSkeletalEntity = SKel;
-			SKel->InitScene(scene);
-
+			if (SKel == nullptr)
+			{
+				SKel = new SkeletalMeshEntry(scene->mAnimations[0]);
+				*pSkeletalEntity = SKel;
+				SKel->InitScene(scene);
+			}
 			std::vector<VertexBoneData> Bones;
 			Bones.resize(model->mNumVertices);
-			SKel->LoadBones(i, model, Bones);
-
+			int BaseVertex = 0;
+			SKel->LoadBones(i, model, Bones, BaseVertex);
 			for (int i = 0; i < vertices.size(); i++)
 			{
 				vertices[i].m_boneIDs = glm::ivec4(Bones[i].IDs[0], Bones[i].IDs[1], Bones[i].IDs[2], Bones[i].IDs[3]);
@@ -238,11 +243,11 @@ SkeletalMeshEntry::SkeletalMeshEntry(aiAnimation* anim)
 {
 	if (anim->mTicksPerSecond != 0)
 	{
-		MaxTime = anim->mDuration / anim->mTicksPerSecond;
+		MaxTime = (float)anim->mDuration / (float)anim->mTicksPerSecond;
 	}
 	else
 	{
-		MaxTime = anim->mDuration / 30.0f;
+		MaxTime = (float)anim->mDuration / 30.0f;
 	}
 }
 
@@ -257,23 +262,27 @@ void SkeletalMeshEntry::Tick(float Delta)
 
 	ReadNodes(CurrnetTime, Scene->mRootNode, glm::mat4(1));
 
-
 	FinalBoneTransforms.resize(m_NumBones);
-
 	for (int i = 0; i < m_NumBones; i++)
 	{
 		FinalBoneTransforms[i] = m_BoneInfo[i].FinalTransformation;
 	}
 }
 
+glm::mat3x3 ToGLM(aiMatrix3x3& mat)
+{
+	return glm::rowMajor3(glm::mat3(mat.a1, mat.a2, mat.a3, mat.b1, mat.b2, mat.b3, mat.c1, mat.c2, mat.c3));
+}
+
 glm::mat4 ToGLM(aiMatrix4x4& mat)
 {
-	return glm::mat4(mat.a1, mat.a2, mat.a3, mat.a4, mat.b1, mat.b2, mat.b3, mat.b4, mat.c1, mat.c2, mat.c3, mat.c4, mat.d1, mat.d2, mat.d3, mat.d4);
+	return glm::rowMajor4(glm::mat4(mat.a1, mat.a2, mat.a3, mat.a4, mat.b1, mat.b2, mat.b3, mat.b4, mat.c1, mat.c2, mat.c3, mat.c4, mat.d1, mat.d2, mat.d3, mat.d4));//assimp uses column major mats 
+	//we use row major ones
 }
 
 glm::mat4 ToGLM(const aiMatrix4x4& mat)
 {
-	return glm::mat4(mat.a1, mat.a2, mat.a3, mat.a4, mat.b1, mat.b2, mat.b3, mat.b4, mat.c1, mat.c2, mat.c3, mat.c4, mat.d1, mat.d2, mat.d3, mat.d4);
+	return glm::rowMajor4(glm::mat4(mat.a1, mat.a2, mat.a3, mat.a4, mat.b1, mat.b2, mat.b3, mat.b4, mat.c1, mat.c2, mat.c3, mat.c4, mat.d1, mat.d2, mat.d3, mat.d4));
 }
 
 glm::vec3 ToGLM(aiVector3D& vec)
@@ -281,7 +290,7 @@ glm::vec3 ToGLM(aiVector3D& vec)
 	return glm::vec3(vec.x, vec.y, vec.z);
 }
 
-void SkeletalMeshEntry::LoadBones(uint MeshIndex, const aiMesh* pMesh, std::vector<VertexBoneData>& Bones)
+void SkeletalMeshEntry::LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones, int BaseVertex)
 {
 	for (uint i = 0; i < pMesh->mNumBones; i++)
 	{
@@ -305,12 +314,13 @@ void SkeletalMeshEntry::LoadBones(uint MeshIndex, const aiMesh* pMesh, std::vect
 
 		for (uint j = 0; j < pMesh->mBones[i]->mNumWeights; j++)
 		{
-			uint VertexID = /*MeshEntities[MeshIndex]->BaseVertex + */pMesh->mBones[i]->mWeights[j].mVertexId;
+			uint VertexID =/* MeshEntities[MeshIndex]->BaseVertex */BaseVertex + pMesh->mBones[i]->mWeights[j].mVertexId;
 			float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
 			Bones[VertexID].AddBoneData(BoneIndex, Weight);
 		}
 	}
 }
+
 const aiNodeAnim* SkeletalMeshEntry::FindNodeAnim(const aiAnimation* pAnimation, const std::string NodeName)
 {
 	for (uint i = 0; i < pAnimation->mNumChannels; i++)
@@ -326,10 +336,7 @@ const aiNodeAnim* SkeletalMeshEntry::FindNodeAnim(const aiAnimation* pAnimation,
 	return NULL;
 }
 
-glm::mat3x3 ToGLM(aiMatrix3x3& mat)
-{
-	return glm::mat3(mat.a1, mat.a2, mat.a3, mat.b1, mat.b2, mat.b3, mat.c1, mat.c2, mat.c3);
-}
+
 
 void SkeletalMeshEntry::InitScene(const aiScene* sc)
 {
@@ -467,7 +474,7 @@ void SkeletalMeshEntry::ReadNodes(float time, const aiNode * pNode, const glm::m
 		// Interpolate translation and generate translation transformation matrix
 		aiVector3D Translation;
 		CalcInterpolatedPosition(Translation, time, pNodeAnim);
-		glm::mat4 TranslationM = glm::translate(ToGLM(Translation));
+		glm::mat4x4 TranslationM = glm::translate(ToGLM(Translation));
 
 		// Combine the above transformations
 		NodeTransformation = TranslationM * RotationM * ScalingM;
@@ -494,7 +501,7 @@ void VertexBoneData::AddBoneData(uint BoneID, float Weight)
 		if (Weights[i] == 0.0)
 		{
 			IDs[i] = BoneID;
-			Weights[i] = Weight;
+			Weights[i] = glm::clamp(Weight, 0.0f, 1.0f);
 			return;
 		}
 	}

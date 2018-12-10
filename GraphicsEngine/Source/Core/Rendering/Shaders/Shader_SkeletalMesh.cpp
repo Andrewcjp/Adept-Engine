@@ -11,9 +11,9 @@ Shader_SkeletalMesh::Shader_SkeletalMesh(DeviceContext* dev) :Shader(dev)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
 	m_Shader->AttachAndCompileShaderFromFile("Anim_vs", EShaderType::SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Gen/Test2", EShaderType::SHADER_FRAGMENT);
+	m_Shader->AttachAndCompileShaderFromFile("Gen\\Test2", EShaderType::SHADER_FRAGMENT);
 	BonesBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	BonesBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), MAX_BONES);
+	BonesBuffer->CreateConstantBuffer(sizeof(BoneData), 1);
 }
 //Anim_vs
 
@@ -47,7 +47,8 @@ void Shader_SkeletalMesh::PushBones(std::vector<glm::mat4x4>& bonetrans, RHIComm
 	}
 	for (int i = 0; i < bonetrans.size(); i++)
 	{
-		BonesBuffer->UpdateConstantBuffer(glm::value_ptr(bonetrans[i]), i);
+		boneD.Bones[i] = bonetrans[i];
 	}
+	BonesBuffer->UpdateConstantBuffer(&boneD, 0);
 	list->SetConstantBufferView(BonesBuffer, 0, 9);
 }

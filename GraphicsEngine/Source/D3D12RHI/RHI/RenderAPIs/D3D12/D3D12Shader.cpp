@@ -18,6 +18,14 @@ D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = (D3D12DeviceContext*)Device;
 	CacheBlobs = !NoShaderCache.GetBoolValue();
+	if (D3D12RHI::DetectGPUDebugger())
+	{
+		CacheBlobs = false;
+	}
+	if (!CacheBlobs)
+	{
+		Log::LogMessage("Shader Cache Disabled",Log::Warning);
+	}
 }
 
 D3D12Shader::~D3D12Shader()

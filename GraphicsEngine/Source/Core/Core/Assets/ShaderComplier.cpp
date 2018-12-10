@@ -1,11 +1,10 @@
-
 #include "ShaderComplier.h"
-#include "RHI/Shader.h"
-#include "Core/Platform/ConsoleVariable.h"
+#include "Asset_Shader.h"
 #include "Core/Engine.h"
-#include "Core/Utils/StringUtil.h"
 #include "Core/Performance/PerfManager.h"
-#include "Core/Assets/Asset_Shader.h"
+#include "Core/Platform/ConsoleVariable.h"
+#include "Core/Utils/StringUtil.h"
+#include "RHI/Shader.h"
 ShaderComplier * ShaderComplier::Instance = nullptr;
 static ConsoleVariable GenDebugShaders("DebugShaders", 0, ECVarType::LaunchOnly);
 ShaderComplier::ShaderComplier()
