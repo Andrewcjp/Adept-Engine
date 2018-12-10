@@ -42,4 +42,4 @@
 #pragma warning(3:4456)
 #pragma warning(3:4189)
 #pragma warning(3:4702)
-#endif
+#endif//C4150 incomplete ptr

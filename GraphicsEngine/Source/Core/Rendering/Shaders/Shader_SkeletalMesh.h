@@ -11,6 +11,12 @@ public:
 	void PushBones(std::vector<glm::mat4x4>& bonetrans, RHICommandList* list);
 private:
 	RHIBuffer* BonesBuffer = nullptr;
-	const int MAX_BONES = 100;
+	static const int MAX_BONES = 100;
+	
+	struct BoneData
+	{
+		glm::mat4x4 Bones[MAX_BONES];
+	};
+	BoneData boneD;
 };
 

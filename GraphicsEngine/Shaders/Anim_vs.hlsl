@@ -32,22 +32,20 @@ cbuffer Bones : register(b5)
 PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TEXCOORD, float4 Tangent : TANGENT0, uint4 BoneIds : BLENDINDICES, float4 Weights : TEXCOORD2)
 {
 	PSInput result = (PSInput)0;
-	row_major matrix SumTrans = bones[BoneIds[0]] * Weights[0];
-	SumTrans += bones[BoneIds[1]] * Weights[1];
-	SumTrans += bones[BoneIds[2]] * Weights[2];
-	SumTrans += bones[BoneIds[3]] * Weights[3];
+	row_major matrix SumTrans = bones[BoneIds.x] * Weights.x;
+	SumTrans += bones[BoneIds.y] * Weights.y;
+	SumTrans += bones[BoneIds.z] * Weights.z;
+	SumTrans += bones[BoneIds.w] * Weights.w;
 
 	float4 final_pos = position;
+	final_pos.w = 1.0f;
 	final_pos = mul(final_pos, SumTrans);
 	final_pos = mul(final_pos, Model);
 	result.WorldPos = final_pos;
 
-
 	final_pos = mul(final_pos, View);
 	final_pos = mul(final_pos, Projection);
 	result.position = final_pos;
-
-
 
 	result.uv = uv.xy;
 	result.Normal = mul(normal, SumTrans);
