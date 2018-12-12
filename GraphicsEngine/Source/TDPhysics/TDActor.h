@@ -33,9 +33,13 @@ namespace TD
 			return dynamic_cast<T*>(actor);
 		}
 		TDAABB* AABB = nullptr;
+#if VALIDATE_KE
 		virtual void ComputeKE();
 		virtual void ValidateKE();
+#endif
 		void* UserData = nullptr;
+		void UpdateAABBPos(glm::vec3 pos);
+		void SetAABBLocalPos(glm::vec3 localpos) { LocalAABBPos = localpos; }
 	protected:
 		float PreSimKE = 0.0f;
 		
@@ -44,6 +48,7 @@ namespace TD
 		std::vector<TDShape*> AttachedShapes;
 		TDActorType::Type ActorType;
 		TDTransform Transform;
+		glm::vec3 LocalAABBPos;
 
 	};
 }

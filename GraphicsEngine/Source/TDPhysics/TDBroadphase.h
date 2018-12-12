@@ -8,23 +8,26 @@ namespace TD
 	class TDActor;
 	class TDAABB;
 	class SweepAndPrune;
-	//!This class handles executing the Broadphase and holds the results for the TDsolver to use.
+	struct SAPBox;
+	///This class handles executing the Broadphase and holds the results for the TDsolver to use.
 	class TDBroadphase
 	{
 	public:
 		TDBroadphase();
 		~TDBroadphase();
+		///Populate the NarrowPhasePairs List from the Currnet Selected BroadPhase
 		void ConstructPairs();
 		std::vector<CollisionPair> NarrowPhasePairs;
 		///Register an actor with the current BroadPhase 
 		void AddToPhase(TDActor* actor);
+		///Remove an Actor from the currnet BroadPhase
 		void RemoveFromPhase(TDActor * actor);
+		///Update the Actors position the 
 		void UpdateActor(TDActor * actor);
 	private:
-		std::vector<TDActor*> actors;
 		SweepAndPrune* SAP = nullptr;
 	};
-	struct SAPBox;
+	//A Point On a SAP axis
 	struct SAPEndPoint
 	{
 		SAPEndPoint() {};
@@ -34,21 +37,25 @@ namespace TD
 			IsMinPoint = ismin;
 			Owner = owner;
 		}
-		int ActorId = 0;//todo: map
+		///PTR to the owning SAPBox
 		SAPBox* Owner = nullptr;
+		///Position on the Axis
 		float Value = 0.0f;
-		bool IsMinPoint = false;//todo: could encode in actor id!
+		bool IsMinPoint = false;//todo: could encode in actor id for speed!
 	};
+	//The SAP reprsentation of a AABB
 	struct SAPBox
 	{
 		SAPEndPoint* Min[3];
 		SAPEndPoint* Max[3];
-		int Id = 0;
+		//int Id = 0;
 		TDAABB* Owner = nullptr;
 		SAPBox() {};
 		SAPBox(TDAABB* bb);
+		///Update the Positions of this object on all of the SAP axes (not to be confused with an AXE) 
 		void Update(TDAABB* AABB);
 	};
+	///Container for Pairs of SAP end points
 	struct BPCollisionPair
 	{
 		BPCollisionPair(SAPEndPoint* a, SAPEndPoint* b);
@@ -57,21 +64,23 @@ namespace TD
 		SAPEndPoint* Apoint = nullptr;
 		SAPEndPoint* BPoint = nullptr;
 	};
+	///This class holds all data relating to the SAP broadPhase method 
 	class SweepAndPrune
 	{
 	public:
 		void AddObject(TDAABB* box);
 		void UpdateObject(SAPBox* box, TDAABB* AABB);
 		void RemoveObject(TDAABB* box);
+		///Sorts all the Axes
 		void Sort();
-		void SAPSortAxis(std::vector<SAPEndPoint *>& AxisPoints);
-		
+		///List of Generated Pairs
 		std::vector<BPCollisionPair*> Pairs;
 	private:
+		void SAPSortAxis(std::vector<SAPEndPoint *>& AxisPoints);
 		std::vector<SAPEndPoint*> Xpoints;
 		std::vector<SAPEndPoint*> Ypoints;
 		std::vector<SAPEndPoint*> Zpoints;
-		std::vector<SAPBox*>Bodies;
+		std::vector<SAPBox*> Bodies;
 	};
 };
 

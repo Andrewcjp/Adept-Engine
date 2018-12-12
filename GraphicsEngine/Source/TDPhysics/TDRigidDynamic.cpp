@@ -70,6 +70,7 @@ namespace TD
 		return SleepTimer > SleepMaxTimer;
 	}
 
+#if VALIDATE_KE
 	float TDRigidDynamic::comput()
 	{
 		return 0.5f* (GetBodyMass() * glm::length(GetLinearVelocity())*glm::length(GetLinearVelocity()));
@@ -85,10 +86,11 @@ namespace TD
 		const float postsim = comput();
 		if (AttachedShapes.size() != 2)
 		{
-			//DebugEnsure(postsim == PreSimKE);
+			DebugEnsure(postsim == PreSimKE);
 		}
 	}
-
+#endif
+	
 	void TDRigidDynamic::ResetForceThisFrame()
 	{
 		DeltaLinearVel = glm::vec3();
@@ -140,7 +142,7 @@ namespace TD
 		float iz = 0.0f;
 		float iw = 0.0f;
 
-		if (true)
+		if (true)//todo: check this
 		{
 			float r2 = 1.0;
 			float fraction = (2.0f / 5.0f);
@@ -184,6 +186,11 @@ namespace TD
 		glm::vec3 torque = glm::cross(pos - centerOfMass, force);
 		AddTorque(torque);
 		AddForce(force, true);
+	}
+
+	void TDRigidDynamic::SetBodyMass(float Mass)
+	{
+		BodyMass = Mass;
 	}
 
 }

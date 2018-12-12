@@ -164,11 +164,13 @@ namespace TD
 			NarrowPhasePairs[i].data.Reset();//reset before check collisions again
 			ProcessCollisions(&NarrowPhasePairs[i]);
 		}
+#if VALIDATE_KE
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			NarrowPhasePairs[i].first->ComputeKE();
 			NarrowPhasePairs[i].second->ComputeKE();
 		}
+#endif
 		for (int Iterations = 0; Iterations < SolverIterations; Iterations++)
 		{
 
@@ -188,18 +190,22 @@ namespace TD
 #else
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{
+#if VALIDATE_KE
 				NarrowPhasePairs[i].first->ComputeKE();
 				NarrowPhasePairs[i].second->ComputeKE();
+#endif
 				ProcessResponsePair(&NarrowPhasePairs[i]);
 			}
 #endif
 
 		}
+#if VALIDATE_KE
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			NarrowPhasePairs[i].first->ValidateKE();
 			NarrowPhasePairs[i].second->ValidateKE();
 		}
+#endif
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::ResolveCollisions);
 #endif
@@ -280,30 +286,14 @@ namespace TD
 
 	void TDSolver::RunPostFixup(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data)
 	{
-		///todo:: this is broke- write a unit test?
 		if (data->ContactCount == 0)
 		{
 			return;
 		}
-		//return;
-		glm::vec3 AVG;
-		for (int i = 0; i < data->ContactCount; i++)
-		{
-			AVG += data->Direction[i];
-		}
-		AVG /= data->ContactCount;
-
-		float AVGdepth = 0.0f;
-		for (int i = 0; i < data->ContactCount; i++)
-		{
-			AVGdepth += data->depth[i];
-		}
-		AVGdepth /= data->ContactCount;
 
 		for (int i = 0; i < data->ContactCount; i++)
-			//int i = 0;
 		{
-			TDPhysics::DrawDebugPoint(data->ContactPoints[i], AVG, 0.0f);
+			TDPhysics::DrawDebugPoint(data->ContactPoints[i], data->Direction[i], 0.0f);
 			float invmassA = 0.0f;
 			if (A != nullptr)
 			{

@@ -26,6 +26,16 @@ void GameObject::OnRemoveFromScene()
 	}
 }
 
+void GameObject::ValidateObjectInWorld()
+{
+	const glm::vec3 WorldBounds = glm::vec3(10000);
+	if (GetPosition().x > WorldBounds.x || GetPosition().y > WorldBounds.y || GetPosition().z > WorldBounds.z ||
+		GetPosition().x < -WorldBounds.x || GetPosition().y < -WorldBounds.y || GetPosition().z < -WorldBounds.z)
+	{
+		Destory();
+	}
+}
+
 GameObject::~GameObject()
 {
 	AudioEngine::DeRegisterObject(this);
@@ -139,6 +149,7 @@ void GameObject::Update(float delta)
 		m_transform->Update();
 	}
 	AudioEngine::UpdateWiseTransfrom(this);
+	ValidateObjectInWorld();
 }
 
 void GameObject::BeginPlay()

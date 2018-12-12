@@ -81,6 +81,7 @@ public:
 		return AudioId;		
 	}
 	void OnRemoveFromScene();
+	void ValidateObjectInWorld();
 private:
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);

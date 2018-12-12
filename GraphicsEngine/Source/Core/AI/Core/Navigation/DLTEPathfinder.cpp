@@ -21,6 +21,7 @@ float DLTEPathfinder::Heuristic(DLTENode sFrom, DLTENode sTo)
 	float distance = 0.0f;
 	sFrom.Point.x > sTo.Point.x ? distance = sFrom.Point.x - sTo.Point.x : distance = sTo.Point.x - sFrom.Point.x;
 	sFrom.Point.y > sTo.Point.y ? distance += sFrom.Point.y - sTo.Point.y : distance += sTo.Point.y - sFrom.Point.y;
+	distance += fmaxf(sFrom.TraversalCost, sTo.TraversalCost);
 	return distance;
 }
 
@@ -83,7 +84,7 @@ void DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 				}
 			}
 		}
-		/* if get_start().g == Max float then there is no path */
+		// if Start Node g cost is FloatMAX then there is no path so abort
 		if (get_start().g == MathUtils::FloatMAX)
 		{
 			break;
@@ -112,9 +113,9 @@ void DLTEPathfinder::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 {
 	Plane->ResolvePositionToNode(Target, &goalnode);
 	Plane->ResolvePositionToNode(Origin, &startnode);
-	Origin.y = -10.0f;
 	if (AISystem::GetDebugMode() == EAIDebugMode::PathOnly || AISystem::GetDebugMode() == EAIDebugMode::All)
 	{
+		Origin.y = -10.0f;
 		DebugDrawers::DrawDebugSphere(Origin, 0.25f, glm::vec3(0.5f), 16, false, 1);
 	}
 }
@@ -162,54 +163,20 @@ void DLTEPathfinder::GridLTE()
 
 std::deque<DLTENode*> DLTEPathfinder::neighbors(DLTENode s)
 {
-	std::deque<DLTENode*> temporaryDeque;
-#if 0
-	DLTENode* temporaryStatePointer;
-	std::string coordinates;
-	int temporaryX;
-	int temporaryY;
-	for (size_t i = 0; i != DIRECTIONS_WIDTH; ++i)
-	{
-		temporaryX = s.Point.x + DIRECTIONS[i][0];
-		temporaryY = s.Point.y + DIRECTIONS[i][1];
-		//coordinates = coordinates_to_string(temporaryX, temporaryY);
-		/*if (grid.find(coordinates) == grid.end())
-		{
-			temporaryStatePointer = new state();
-			temporaryStatePointer->x = temporaryX;
-			temporaryStatePointer->y = temporaryY;
-			grid[coordinates] = temporaryStatePointer;
-		}
-		else
-		{
-			temporaryStatePointer = grid[coordinates];
-		}*/
-		//todo: link the navmesh graph here
-		//search though the current nodes connections which will be assigned at bake time
-		temporaryStatePointer = &grid[temporaryX][temporaryY];
-		if (temporaryY >= 0 && temporaryX >= 0)
-		{
-			ensure(temporaryY >= 0);
-			ensure(temporaryX >= 0);
-			temporaryDeque.push_back(temporaryStatePointer);
-		}
-
-	}
-#else
+	std::deque<DLTENode*> temporaryQueue;
 	for (int i = 0; i < s.NearNodes.size(); i++)
 	{
-		temporaryDeque.push_back(s.NearNodes[i]);
+		temporaryQueue.push_back(s.NearNodes[i]);
 	}
-#endif
-	DebugEnsure(temporaryDeque.size());
-	return temporaryDeque;
+	//DebugEnsure(temporaryDeque.size());
+	return temporaryQueue;
 }
 int DLTEPathfinder::ComputeCost(DLTENode sFrom, DLTENode sTo)
 {
 	int edgeCost = 1;
 	for (size_t i = 0; i < DIRECTIONS_WIDTH; ++i)
 	{
-		if (sFrom.Point.x + DIRECTIONS[i][0] == sTo.Point.x && sFrom.Point.y + DIRECTIONS[i][1] == sTo.Point.y)
+		if (sFrom.Point.x/* + DIRECTIONS[i][0]*/ == sTo.Point.x && sFrom.Point.y /*+ DIRECTIONS[i][1]*/ == sTo.Point.y)//todo: check this
 		{
 			edgeCost = sFrom.edgeCost[i];
 			break;

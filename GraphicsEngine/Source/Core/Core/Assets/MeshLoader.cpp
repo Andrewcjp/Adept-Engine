@@ -358,6 +358,12 @@ uint SkeletalMeshEntry::FindPosition(float AnimationTime, const aiNodeAnim* pNod
 	return 0;
 }
 
+void SkeletalMeshEntry::Release()
+{
+	MemoryUtils::DeleteReleaseableVector(MeshEntities);
+
+}
+
 
 uint SkeletalMeshEntry::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {

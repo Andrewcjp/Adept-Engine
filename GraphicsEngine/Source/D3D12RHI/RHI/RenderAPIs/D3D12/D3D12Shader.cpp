@@ -548,8 +548,8 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 
 	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, NUMSamples, &samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-	ID3DBlob* signature;
-	ID3DBlob* pErrorBlob;
+	ID3DBlob* signature = nullptr;
+	ID3DBlob* pErrorBlob = nullptr;
 	HRESULT hr =  (D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &pErrorBlob));
 	std::string Log = "Serialize Root Signature Compile Output: ";
 	if (pErrorBlob != nullptr)

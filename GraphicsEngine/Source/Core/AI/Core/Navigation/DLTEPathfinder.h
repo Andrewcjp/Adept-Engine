@@ -57,11 +57,17 @@ struct DLTENode
 	float g = MathUtils::FloatMAX;
 	float rhs = MathUtils::FloatMAX;
 	bool Blocked = false;
+	///World pos In 2D space
 	glm::vec2 Point = glm::vec2(0, 0);
+	///Array of Edge costs for this node
 	int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1, 1, 1, 1, 1 };
+	///List of Nodes that are linked to This one
 	std::vector<DLTENode*> NearNodes;
 	Tri* OwnerTri = nullptr;
+	///The cost to Traverse This Node
+	float TraversalCost = 1.0f;
 };
+///A Wrapper Around std::Deque to hold DLTE nodes
 class DLTEQueue
 {
 public:
