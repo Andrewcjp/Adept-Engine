@@ -75,15 +75,18 @@ Engine::~Engine()
 {
 	Log::ShutDownLogger();
 }
+
 void Engine::PreInit()
 {
 	TestTDPhysics();
 	LoadGame();
 	if (IsCooking)
 	{
+		CreateApplication();
 		RunCook();
 	}
 }
+
 void Engine::OnRender()
 {
 	if (m_appwnd != nullptr)

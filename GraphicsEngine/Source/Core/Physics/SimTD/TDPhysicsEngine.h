@@ -23,7 +23,7 @@ public:
 	static TDScene* GetScene();
 	static TDPhysicsEngine* Get();
 	static EPhysicsDebugMode::Type GetCurrentMode();
-	ConstraintInstance * CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup);
+	CORE_API ConstraintInstance * CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup);
 private:
 	TDScene* PlayScene = nullptr;
 	TDScene* EditorScene = nullptr;

@@ -24,7 +24,9 @@ namespace TD
 	}
 
 	TDBroadphase::~TDBroadphase()
-	{}
+	{
+		SafeDelete(SAP);
+	}
 
 	void TDBroadphase::ConstructPairs()
 	{
@@ -46,7 +48,6 @@ namespace TD
 				NarrowPhasePairs.push_back(newpair);
 			}
 		}
-//		DebugEnsure(NarrowPhasePairs.size());
 	}
 
 	void TDBroadphase::AddToPhase(TDActor * actor)
@@ -61,9 +62,9 @@ namespace TD
 
 	void TDBroadphase::UpdateActor(TDActor* actor)
 	{
-		if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f) && actor->GetActorType() == TDActorType::RigidDynamic )
+		if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
 		{
-			actor->AABB->Position = actor->GetTransfrom()->GetPos();
+			actor->UpdateAABBPos(actor->GetTransfrom()->GetPos());
 			SAP->UpdateObject(new SAPBox(actor->AABB), actor->AABB);
 		}
 	}

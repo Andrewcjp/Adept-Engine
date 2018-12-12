@@ -63,6 +63,7 @@ struct SkeletalMeshEntry
 	std::vector<glm::mat4x4> FinalBoneTransforms;
 	void InitScene(const aiScene* sc);
 	uint FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim);
+	void Release();
 private:
 	const aiScene* Scene = nullptr;
 	uint FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim);

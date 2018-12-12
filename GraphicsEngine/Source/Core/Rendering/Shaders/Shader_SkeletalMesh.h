@@ -12,7 +12,6 @@ public:
 private:
 	RHIBuffer* BonesBuffer = nullptr;
 	static const int MAX_BONES = 100;
-	
 	struct BoneData
 	{
 		glm::mat4x4 Bones[MAX_BONES];

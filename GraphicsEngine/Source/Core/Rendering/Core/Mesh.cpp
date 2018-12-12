@@ -29,6 +29,7 @@ void Mesh::Release()
 	IRHIResourse::Release();
 	MemoryUtils::DeleteReleaseableVector(SubMeshes);
 	MemoryUtils::DeleteVector(Materials);
+	SafeRelease(pSkeletalEntity);	
 }
 
 Mesh::~Mesh()
@@ -86,13 +87,9 @@ void Mesh::LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettin
 {
 	ImportSettings = Settings;
 	MeshLoader::LoadMeshFromFile(filename, Settings, SubMeshes, &pSkeletalEntity);
-	if (SubMeshes.size() == 0)
+	if (SubMeshes.size() == 0 && pSkeletalEntity == nullptr)
 	{
 		Log::LogMessage("Failed to load mesh " + filename, Log::Severity::Error);
-	}
-	if (pSkeletalEntity != nullptr)
-	{
-		float t = 0;
 	}
 }
 

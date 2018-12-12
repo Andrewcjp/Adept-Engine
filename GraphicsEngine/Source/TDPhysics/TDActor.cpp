@@ -20,10 +20,7 @@ namespace TD
 
 	void TDActor::Init()
 	{
-		if (ActorType == TDActorType::RigidDynamic)
-		{
-			AABB->Position = Transform.GetPos();
-		}		
+		UpdateAABBPos(Transform.GetPos());
 	}
 
 	TDActorType::Type TDActor::GetActorType() const
@@ -60,6 +57,7 @@ namespace TD
 		{
 			AABB = ((TDMeshShape*)newShape)->GetAABB();
 			AABB->Owner = this;
+			LocalAABBPos = AABB->Position;
 		}
 	}
 
@@ -68,9 +66,19 @@ namespace TD
 		return AttachedShapes;
 	}
 
+#if VALIDATE_KE
 	void TDActor::ComputeKE()
 	{}
 
 	void TDActor::ValidateKE()
 	{}
+#endif
+
+	void TDActor::UpdateAABBPos(glm::vec3 pos)
+	{
+		if (AABB != nullptr) 
+		{
+			AABB->Position = pos + LocalAABBPos;
+		}
+	}
 }
