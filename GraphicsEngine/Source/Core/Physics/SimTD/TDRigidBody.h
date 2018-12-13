@@ -25,8 +25,8 @@ public:
 	CORE_API void InitBody();
 	void SetPositionAndRotation(glm::vec3 pos, glm::quat rot);
 	CORE_API void SetGravity(bool state);
-	TD::TDActor* GetActor();
-	float GetMass();
+	CORE_API TD::TDActor* GetActor();
+	CORE_API float GetMass();
 private:
 	std::vector<Collider*> AttachedColliders;
 	Transform m_transform;

@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Components/Component.h"
-#include "AI/Core/Navigation/NavigationMesh.h"
+#include "AI/Core/Navigation/NavigationManager.h"
 #include "Core/Types/WeakObjectPtr.h"
 class GameObject;
 class RigidbodyComponent;
@@ -29,7 +29,7 @@ private:
 	void Update(float dt) override;
 	void ReplanPath();
 	const float ThresholdToRequestReplan = 1.0f;
-	NavigationPath* Path;
+	NavigationPath Path;
 	RigidbodyComponent* Rigidbody = nullptr;
 
 	int CurrentPathIndex = 0;

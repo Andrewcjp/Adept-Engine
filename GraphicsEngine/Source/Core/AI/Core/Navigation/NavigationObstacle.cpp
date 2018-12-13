@@ -1,6 +1,6 @@
 
 #include "NavigationObstacle.h"
-#include "NavigationMesh.h"
+#include "NavigationManager.h"
 
 NavigationObstacle::NavigationObstacle()
 {
@@ -11,7 +11,7 @@ NavigationObstacle::~NavigationObstacle()
 {
 }
 
-void NavigationObstacle::LinkToMesh(NavigationMesh * parentmesh)
+void NavigationObstacle::LinkToMesh(NavigationManager * parentmesh)
 {
 	ParentMesh = parentmesh;
 }

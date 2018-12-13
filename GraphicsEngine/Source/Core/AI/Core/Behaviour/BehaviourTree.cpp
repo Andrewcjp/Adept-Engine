@@ -26,19 +26,15 @@ void BehaviourTree::RunTree(float dt)
 		return;
 	}
 	CoolDownTime = UpdateRate;
-	//if (RunningNode != nullptr)
-	//{
-	//	EBTNodeReturn::Type res = RunningNode->HandleExecuteNode();
-	//	if (res == EBTNodeReturn::Running)
-	//	{
-	//		return;
-	//	}
-	//	RunningNode = nullptr;
-	//}
 	RootNode->HandleExecuteNode();
+
+	if (DebugCurrnetNode != nullptr && Target != nullptr)
+	{
+		Log::LogTextToScreen("AI " + Target->GetName() + "Current Node " + DebugCurrnetNode->GetDebugName(), UpdateRate);
+	}
 }
 
 void BehaviourTree::SetupTree()
 {
-	
+
 }

@@ -66,7 +66,7 @@ void BaseWindow::FixedUpdate()
 }
 
 void BaseWindow::Render()
-{	
+{
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->ClearStats();
@@ -427,30 +427,32 @@ RenderEngine * BaseWindow::GetCurrentRenderer()
 
 void BaseWindow::RenderText()
 {
-	if (!ShowText)
+	int offset = 0;
+	if (ShowText)
 	{
-		return;
-	}
-	std::stringstream stream;
-	stream << std::fixed << std::setprecision(2);
-	stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
-	if (RHI::GetRenderSettings()->IsDeferred)
-	{
-		stream << "DEF ";
-	}
-	stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
-	stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
-	UI->RenderTextToScreen(1, stream.str());
-	stream.str("");
+		std::stringstream stream;
+		stream << std::fixed << std::setprecision(2);
+		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
+		if (RHI::GetRenderSettings()->IsDeferred)
+		{
+			stream << "DEF ";
+		}
+		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
+		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
+		UI->RenderTextToScreen(1, stream.str());
+		stream.str("");
 
-	if (RHI::GetRHIClass() != nullptr && ExtendedPerformanceStats)
-	{
-		PerfManager::RenderGpuData(10, (int)(m_height - m_height / 8));
-	}
+		if (RHI::GetRHIClass() != nullptr && ExtendedPerformanceStats)
+		{
+			PerfManager::RenderGpuData(10, (int)(m_height - m_height / 8));
+		}
 
-	if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)
-	{
-		PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));
-		PerfManager::Instance->DrawAllStats((int)(m_width / 1.5f), (int)(m_height / 1.2), true);
+		if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)
+		{
+			PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));
+			PerfManager::Instance->DrawAllStats((int)(m_width / 1.5f), (int)(m_height / 1.2), true);
+		}
+		offset += 2;
 	}
+	Log::Get()->RenderText(UI, offset);
 }

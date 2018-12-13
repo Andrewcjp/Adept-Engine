@@ -1,6 +1,6 @@
 #include "EditorWindow.h"
 #include "AI/Core/AISystem.h"
-#include "AI/Core/Navigation/NavigationMesh.h"
+#include "AI/Core/Navigation/NavigationManager.h"
 #include "Audio/AudioEngine.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/SceneJSerialiser.h"

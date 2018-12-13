@@ -14,8 +14,8 @@ public:
 private:
 	float Heuristic(const DLTENode* sFrom, const  DLTENode* sTo);
 	float * ComputeKeys(const DLTENode* sTo, DLTENode * sFromPointer);
-	DLTENode get_start();
-	DLTENode get_goal();
+	DLTENode* get_start();
+	DLTENode* get_goal();
 	void Reset();
 	void ComputeDLTE();
 	std::deque<DLTENode*> GetNeighbors(DLTENode* s);

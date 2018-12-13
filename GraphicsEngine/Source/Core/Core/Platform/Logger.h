@@ -2,6 +2,14 @@
 #include <sstream>
 #include <ios>
 
+class UIManager;
+
+struct ScreenLogEntry
+{
+	float LifeTime = 0.0f;
+	std::string Data = "";
+};
+
 class Log
 {
 public:
@@ -31,13 +39,17 @@ public:
 	};
 	static StreamWrapper OutS;
 	CORE_API static void LogMessage(std::string msg, Severity s = Severity::Message);
+	CORE_API static void LogTextToScreen(std::string msg, float LifeTime = 0.0f, bool showinLog = false);
 	static void StartLogger();
 	static void ShutDownLogger();
+	static Log* Get();
+	void RenderText(UIManager* Manager, int offset);
 private:
 	Log();
 	static Log* Instance;
 	void FlushToLogFile();
 	std::vector<std::string> LogData;
+	std::vector<ScreenLogEntry> ScreenLogLines;
 	std::string LogFilePath = "";
 	int LastIndex = 0;
 };

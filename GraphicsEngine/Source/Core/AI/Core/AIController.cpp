@@ -53,23 +53,23 @@ void AIController::Update(float dt)
 	{
 		//ReplanPath();
 	}
-	if (CurrentTarget.IsValid && Rigidbody != nullptr && Path != nullptr && Path->PathReady && Path->Positions.size() > 0)
+	if (CurrentTarget.IsValid && Rigidbody != nullptr && !Path.PathComplete && Path.PathReady && Path.Positions.size() > 0)
 	{
 		//Point at the Next path node
-		CurrentPathIndex = glm::clamp(CurrentPathIndex, 0, (int)Path->Positions.size() - 1);
-		float distance = glm::distance(ProjectPosition(GetOwner()->GetPosition()), ProjectPosition(Path->Positions[CurrentPathIndex]));
+		CurrentPathIndex = glm::clamp(CurrentPathIndex, 0, (int)Path.Positions.size() - 1);
+		float distance = glm::distance(ProjectPosition(GetOwner()->GetPosition()), ProjectPosition(Path.Positions[CurrentPathIndex]));
 		if (distance <= PathNodeArriveRaduis)
 		{
 			//we have arrived close enough to this node
 			CurrentPathIndex++;
-			if (CurrentPathIndex >= Path->Positions.size())
+			if (CurrentPathIndex >= Path.Positions.size())
 			{
 				//path complete!
-				Path = nullptr;
+				Path.EndPath();
 				return;
 			}
 		}
-		glm::vec3 DirToNode = glm::normalize(Path->Positions[CurrentPathIndex] - GetOwner()->GetPosition());;
+		glm::vec3 DirToNode = glm::normalize(Path.Positions[CurrentPathIndex] - GetOwner()->GetPosition());;
 
 		glm::vec3 finalvel = glm::vec3(0, 0, 0);
 		finalvel = GetOwner()->GetTransform()->GetForward() * Speed;
@@ -90,9 +90,9 @@ void AIController::Update(float dt)
 	{
 		DirToTarget = glm::normalize(CurrentTarget.GetTargetPos() - GetOwner()->GetPosition());
 	}
-	else if (Path != nullptr && Path->Positions.size() > 0)
+	else if (Path.PathReady && !Path.PathComplete && Path.Positions.size() > 0)
 	{
-		glm::vec3 dir = ProjectPosition(Path->Positions[CurrentPathIndex]) - ProjectPosition(GetOwner()->GetPosition());
+		glm::vec3 dir = ProjectPosition(Path.Positions[CurrentPathIndex]) - ProjectPosition(GetOwner()->GetPosition());
 		if (glm::length(dir) != 0.0f)
 		{
 			DirToTarget = glm::normalize(dir);
@@ -124,7 +124,7 @@ void AIController::ReplanPath()
 		ENavRequestStatus::Type Status = AISystem::Get()->CalculatePath(GetOwner()->GetPosition(), CurrentTarget.GetTargetPos(), &Path);
 		if (Status != ENavRequestStatus::Complete)
 		{
-			Log::LogMessage("Path planning Failed:" + NavigationMesh::GetErrorCodeAsString(Status), Log::Severity::Warning);
+			Log::LogMessage("Path planning Failed:" + NavigationManager::GetErrorCodeAsString(Status), Log::Severity::Warning);
 		}
 	}
 }
