@@ -12,15 +12,16 @@ public:
 	void Execute(std::vector<glm::vec3>& path);
 	NavPlane* Plane = nullptr;
 private:
-	float Heuristic(DLTENode sFrom, DLTENode sTo);
-	float * ComputeKeys(DLTENode sTo, DLTENode * sFromPointer);
+	float Heuristic(const DLTENode* sFrom, const  DLTENode* sTo);
+	float * ComputeKeys(const DLTENode* sTo, DLTENode * sFromPointer);
 	DLTENode get_start();
 	DLTENode get_goal();
 	void Reset();
-	void GridLTE();
-	std::deque<DLTENode*> neighbors(DLTENode s);
-	int ComputeCost(DLTENode sFrom, DLTENode sTo);
+	void ComputeDLTE();
+	std::deque<DLTENode*> GetNeighbors(DLTENode* s);
+	int ComputeCost(DLTENode* sFrom, DLTENode* sTo);
 	void UpdateState(DLTENode * statePointer);
+	///Priority offset for Edge cost changes
 	int kM = 0;
 	DLTENode* goalnode = nullptr;
 	DLTENode* startnode = nullptr;

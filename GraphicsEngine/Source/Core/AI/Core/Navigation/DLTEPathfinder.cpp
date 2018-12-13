@@ -16,20 +16,18 @@ DLTEPathfinder::~DLTEPathfinder()
 	SafeDelete(Queue);
 }
 
-float DLTEPathfinder::Heuristic(DLTENode sFrom, DLTENode sTo)
+float DLTEPathfinder::Heuristic(const DLTENode* sFrom, const DLTENode* sTo)
 {
-	float distance = 0.0f;
-	sFrom.Point.x > sTo.Point.x ? distance = sFrom.Point.x - sTo.Point.x : distance = sTo.Point.x - sFrom.Point.x;
-	sFrom.Point.y > sTo.Point.y ? distance += sFrom.Point.y - sTo.Point.y : distance += sTo.Point.y - sFrom.Point.y;
-	distance += fmaxf(sFrom.TraversalCost, sTo.TraversalCost);
+	float distance = glm::distance(sFrom->Point, sTo->Point);
+	distance += fmaxf(sFrom->TraversalCost, sTo->TraversalCost);
 	return distance;
 }
 
-float * DLTEPathfinder::ComputeKeys(DLTENode sTo, DLTENode * sFromPointer)
+float * DLTEPathfinder::ComputeKeys(const DLTENode* sTo, DLTENode * sFromPointer)
 {
-	float heuristicValue = Heuristic(*sFromPointer, sTo);
-	sFromPointer->rhs <= sFromPointer->g ? sFromPointer->key[0] = sFromPointer->rhs + heuristicValue + kM : sFromPointer->key[0] = sFromPointer->g + heuristicValue + kM;
-	sFromPointer->rhs <= sFromPointer->g ? sFromPointer->key[1] = sFromPointer->rhs : sFromPointer->key[1] = sFromPointer->g;
+	float heuristicValue = Heuristic(sFromPointer, sTo);
+	sFromPointer->key[0] = glm::min(sFromPointer->g, sFromPointer->rhs) + heuristicValue + kM;
+	sFromPointer->key[1] = glm::min(sFromPointer->g, sFromPointer->rhs) + heuristicValue + kM;
 	return sFromPointer->key;
 }
 
@@ -65,17 +63,22 @@ void DLTEPathfinder::Reset()
 void DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 {
 	Reset();
-	GridLTE();
+	ComputeDLTE();
 	while (get_start().Point.x != get_goal().Point.x || get_start().Point.y != get_goal().Point.y)
 	{
-		std::deque<DLTENode*> temporaryDeque = neighbors(get_start());
+		// if Start Node g cost is FloatMAX then there is no path so abort
+		if (get_start().g == MathUtils::FloatMAX)
+		{
+			break;
+		}
+		std::deque<DLTENode*> temporaryDeque = GetNeighbors(&get_start());
 		DLTENode* temporaryState = temporaryDeque[0];//there should always be a node returned
 		DLTENode* secondTemporaryState;
-		for (size_t i = 1; i != temporaryDeque.size(); ++i)
+		for (size_t i = 1; i < temporaryDeque.size(); i++)
 		{
 			secondTemporaryState = temporaryDeque[i];
-			int temp_cost{ ComputeCost(get_start(), *temporaryState) };
-			int temp_cost2{ ComputeCost(get_start(), *secondTemporaryState) };
+			int temp_cost = ComputeCost(&get_start(), temporaryState);
+			int temp_cost2 = ComputeCost(&get_start(), secondTemporaryState);
 			if (secondTemporaryState->g != MathUtils::MAX_int)
 			{
 				if (temporaryState->g == MathUtils::MAX_int || secondTemporaryState->g + temp_cost2 < temporaryState->g + temp_cost)
@@ -83,11 +86,6 @@ void DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 					temporaryState = secondTemporaryState;
 				}
 			}
-		}
-		// if Start Node g cost is FloatMAX then there is no path so abort
-		if (get_start().g == MathUtils::FloatMAX)
-		{
-			break;
 		}
 		path.push_back(glm::vec3(startnode->Point.x, 1, startnode->Point.y));
 		startnode = temporaryState;
@@ -120,26 +118,28 @@ void DLTEPathfinder::SetTarget(glm::vec3 Target, glm::vec3 Origin)
 	}
 }
 
-void DLTEPathfinder::GridLTE()
+void DLTEPathfinder::ComputeDLTE()
 {
 	Queue->Insert(goalnode);
 	startnode->g = MathUtils::FloatMAX;
 	startnode->rhs = MathUtils::FloatMAX;
 	goalnode->g = MathUtils::FloatMAX;
 	goalnode->rhs = 0;
-	ComputeKeys(*startnode, goalnode);
+	ComputeKeys(startnode, goalnode);
 	DLTENode* ptr = nullptr;
-	while (KeyLessThan(Queue->TopKey(), ComputeKeys(*startnode, startnode)) || startnode->rhs != startnode->g)
+	while (KeyLessThan(Queue->TopKey(), ComputeKeys(startnode, startnode)) || startnode->rhs != startnode->g)
 	{
+		float* Kold = new float[2];
+		Kold = Queue->TopKey();
 		ptr = Queue->Pop();
 		ensure(ptr);
-		if (KeyLessThan(Queue->TopKey(), ComputeKeys(*startnode, ptr)))
+		if (KeyLessThan(Kold, ComputeKeys(startnode, ptr)))
 		{
 			Queue->Insert(ptr);//possible path node 
 		}
 		else
 		{
-			std::deque<DLTENode*> temporaryDeque{ neighbors(*ptr) };
+			std::deque<DLTENode*> temporaryDeque = GetNeighbors(ptr);
 			if (ptr->g > ptr->rhs)
 			{
 				ptr->g = ptr->rhs;
@@ -161,48 +161,48 @@ void DLTEPathfinder::GridLTE()
 	}
 }
 
-std::deque<DLTENode*> DLTEPathfinder::neighbors(DLTENode s)
+std::deque<DLTENode*> DLTEPathfinder::GetNeighbors(DLTENode* s)
 {
 	std::deque<DLTENode*> temporaryQueue;
-	for (int i = 0; i < s.NearNodes.size(); i++)
+	for (int i = 0; i < s->NearNodes.size(); i++)
 	{
-		temporaryQueue.push_back(s.NearNodes[i]);
+		temporaryQueue.push_back(s->NearNodes[i]);
 	}
 	//DebugEnsure(temporaryDeque.size());
 	return temporaryQueue;
 }
-int DLTEPathfinder::ComputeCost(DLTENode sFrom, DLTENode sTo)
+int DLTEPathfinder::ComputeCost(DLTENode* sFrom, DLTENode* sTo)
 {
 	int edgeCost = 1;
-	for (size_t i = 0; i < DIRECTIONS_WIDTH; ++i)
+	for (size_t i = 0; i < DIRECTIONS_WIDTH; ++i) //todo: replanting
 	{
-		if (sFrom.Point.x/* + DIRECTIONS[i][0]*/ == sTo.Point.x && sFrom.Point.y /*+ DIRECTIONS[i][1]*/ == sTo.Point.y)//todo: check this
-		{
-			edgeCost = sFrom.edgeCost[i];
-			break;
-		}
+		//if (sFrom.Point.x/* + DIRECTIONS[i][0]*/ == sTo.Point.x && sFrom.Point.y /*+ DIRECTIONS[i][1]*/ == sTo.Point.y)//todo: check this
+		//{
+		//	edgeCost = sFrom.edgeCost[i];
+		//	break;
+		//}
 	}
-	return edgeCost;
+	return 1;
 }
 
 void DLTEPathfinder::UpdateState(DLTENode* statePointer)
 {
 	if (statePointer->Point.x != goalnode->Point.x || statePointer->Point.y != goalnode->Point.y)
 	{
-		std::deque<DLTENode*> temporaryDeque = neighbors(*statePointer);
+		std::deque<DLTENode*> temporaryDeque = GetNeighbors(statePointer);
 		DLTENode* temporaryStatePointer = temporaryDeque[0];
 		if (temporaryStatePointer->g != MathUtils::MAX_int)
 		{
-			statePointer->rhs = temporaryStatePointer->g + ComputeCost(*statePointer, *temporaryStatePointer);
+			statePointer->rhs = temporaryStatePointer->g + ComputeCost(statePointer, temporaryStatePointer);
 		}
-		int temp_cost;
+		int min_cost = 0;//Find the min cost node
 		for (size_t i = 1; i < temporaryDeque.size(); ++i)
 		{
 			temporaryStatePointer = temporaryDeque[i];
-			temp_cost = ComputeCost(*statePointer, *temporaryStatePointer);
-			if (temporaryStatePointer->g != MathUtils::MAX_int && statePointer->rhs > temporaryStatePointer->g + temp_cost)
+			min_cost = ComputeCost(statePointer, temporaryStatePointer);
+			if (temporaryStatePointer->g != MathUtils::MAX_int && statePointer->rhs > temporaryStatePointer->g + min_cost)
 			{
-				statePointer->rhs = temporaryStatePointer->g + temp_cost;
+				statePointer->rhs = temporaryStatePointer->g + min_cost;
 			}
 		}
 	}
@@ -210,7 +210,7 @@ void DLTEPathfinder::UpdateState(DLTENode* statePointer)
 	Queue->Remove(*statePointer);
 	if (statePointer->g != statePointer->rhs)
 	{
-		ComputeKeys(*startnode, statePointer);
+		ComputeKeys(startnode, statePointer);
 		Queue->Insert(statePointer);
 	}
 }

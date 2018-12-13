@@ -5,22 +5,18 @@
 #include "Core/Utils/VectorUtils.h"
 #include "Physics/PhysicsEngine.h"
 #include "ThirdParty/delaunator.hpp"
+#include "Core/Performance/PerfManager.h"
 
 NavMeshGenerator::NavMeshGenerator()
-{
-	Tri t;
-	t.points[0] = glm::vec3(11, 0, 0);
-	t.points[1] = glm::vec3(10, 0, 1);
-	t.points[2] = glm::vec3(10, 0, -1);
-	//ensure(t.IsPointInsideTri(glm::vec3(100,0,100)));
-}
+{}
 
 NavMeshGenerator::~NavMeshGenerator()
 {}
 
-const float startHeight = 10.0f;
+
 void NavMeshGenerator::Voxelise(Scene* TargetScene)
 {
+	PerfManager::Get()->StartSingleActionTimer(VoxeliseTimer);
 	const float worldMin = -10e10f;
 	//Find bounds of Scene
 
@@ -112,6 +108,9 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 			GenerateMesh(planes[i]);
 		}
 	}
+	PerfManager::Get()->EndSingleActionTimer(VoxeliseTimer);
+	PerfManager::Get()->LogSingleActionTimer(VoxeliseTimer);
+	PerfManager::Get()->FlushSingleActionTimer(VoxeliseTimer);
 }
 
 bool NavMeshGenerator::ValidateQuad(const int GirdStep, float FirstHeight, HeightField* Field, glm::ivec2 &offset)
@@ -229,7 +228,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 	std::stringstream ss;
 	ss << "Pruned " << PrunedTris << "/" << TotalTriCount;
 	Log::LogMessage(ss.str());
-	target->RenderMesh(false);
+	//target->RenderMesh(false);
 }
 
 void HeightField::SetValue(int x, int y, float value)
@@ -371,7 +370,7 @@ void NavPlane::RenderMesh(bool Near)
 			{
 				float value = (float)x + 1 / (float)NavPoints[i]->NearNodes.size();
 				glm::vec3 dir = NavPoints[i]->GetPos(this) - NavPoints[i]->NearNodes[x]->GetPos(this);
-				DebugDrawers::DrawDebugLine(NavPoints[i]->GetPos(this), NavPoints[i]->GetPos(this) + dir / 2, glm::vec3(value), false, 1000);
+				DebugDrawers::DrawDebugLine(NavPoints[i]->GetPos(this), NavPoints[i]->GetPos(this) + dir / 3, glm::vec3(value), false, 1000);
 			}
 		}
 	}

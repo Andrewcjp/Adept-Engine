@@ -105,6 +105,7 @@ void AISystem::GenerateMesh()
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
 	mesh->Plane = n->GetPlane(-17); 
+	
 }
 
 EAIDebugMode::Type AISystem::GetDebugMode()
