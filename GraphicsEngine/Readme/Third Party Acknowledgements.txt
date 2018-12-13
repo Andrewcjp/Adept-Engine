@@ -4,7 +4,7 @@ https://glm.g-truc.net/0.9.9/index.html
 Delaunator
 Vova Bilonenko, https://github.com/delfrrr/delaunator-cpp
 
-Clipper
+Clipper(Currently Unused)
 Angus johnson, http://www.angusj.com/delphi/clipper.php
 
 Free Type
