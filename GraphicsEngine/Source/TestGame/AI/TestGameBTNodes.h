@@ -11,7 +11,7 @@ public:
 	BTMeleeAttackNode();
 
 	virtual void OnAddedToTree() override;
-
+	virtual std::string GetDebugName() override { return "BTMeleeAttackNode"; }
 protected:
 	EBTNodeReturn::Type ExecuteNode() override;//todo: fix!
 private:
@@ -29,7 +29,7 @@ public:
 	float DelayBetween = 0.016f;
 
 	virtual void OnAddedToTree() override;
-
+	virtual std::string GetDebugName() override { return "BTRifleAttackNode"; }
 protected:
 	void Run();
 	void Reset();

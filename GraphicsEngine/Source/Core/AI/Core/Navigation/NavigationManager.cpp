@@ -1,4 +1,4 @@
-#include "NavigationMesh.h"
+#include "NavigationManager.h"
 #include "AI/Core/AISystem.h"
 #include "AI/Generation/NavMeshGenerator.h"
 #include "Core/Utils/DebugDrawers.h"
@@ -7,19 +7,20 @@
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "DLTEPathfinder.h"
 #include "Core/Performance/PerfManager.h"
+#include "RHI/RHI.h"
 
 #define THREAD_PATHFINDING 0
-NavigationMesh::NavigationMesh()
+NavigationManager::NavigationManager()
 {
 	DPathFinder = new DLTEPathfinder();
 }
 
-NavigationMesh::~NavigationMesh()
+NavigationManager::~NavigationManager()
 {
 	SafeDelete(DPathFinder);
 }
 
-void NavigationMesh::RenderMesh()
+void NavigationManager::RenderMesh()
 {
 	if (Plane == nullptr)
 	{
@@ -28,26 +29,20 @@ void NavigationMesh::RenderMesh()
 	Plane->RenderMesh(true);
 }
 
-ENavRequestStatus::Type NavigationMesh::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+ENavRequestStatus::Type NavigationManager::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath* outputPath)
 {
 	CheckNAN(Startpoint);
 	Startpoint.y = 0;
 	EndPos.y = 0;
+	outputPath->Positions.clear();
 	switch (AISystem::GetPathMode())
 	{
 	case EAINavigationMode::AStar:
-		return CalculatePath_ASTAR(Startpoint, EndPos, outpath);
+		return CalculatePath_ASTAR(Startpoint, EndPos, outputPath);
 	case EAINavigationMode::DStarLTE:
-		return CalculatePath_DSTAR_LTE(Startpoint, EndPos, outpath);
-	case EAINavigationMode::DStarBoardPhase:
-		return CalculatePath_DSTAR_BoardPhase(Startpoint, EndPos, outpath);
+		return CalculatePath_DSTAR_LTE(Startpoint, EndPos, outputPath);
 	}
 	return ENavRequestStatus::Failed;
-}
-
-ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_BoardPhase(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
-{
-	return ENavRequestStatus::FailedNotSupported;
 }
 
 glm::vec3 GetPointOnBezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t)
@@ -62,7 +57,7 @@ glm::vec3 GetPointOnBezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::v
 	return pointOnCurve;
 }
 
-void NavigationMesh::SmoothPath(NavigationPath* path)
+void NavigationManager::SmoothPath(NavigationPath* path)
 {
 	if (path->Positions.size() < 4)
 	{
@@ -99,14 +94,12 @@ void NavigationMesh::SmoothPath(NavigationPath* path)
 }
 
 
-ENavRequestStatus::Type NavigationMesh::ValidateRequest(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+ENavRequestStatus::Type NavigationManager::ValidateRequest(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath)
 {
 	if (Plane == nullptr)
 	{
 		return ENavRequestStatus::Failed;
 	}
-	NavigationPath* outputPath = new NavigationPath();
-	*outpath = outputPath;
 	Tri* StartTri = Plane->FindTriangleFromWorldPos(Startpoint);
 	if (StartTri == nullptr)
 	{
@@ -120,15 +113,14 @@ ENavRequestStatus::Type NavigationMesh::ValidateRequest(glm::vec3 Startpoint, gl
 	if (StartTri == EndTri)
 	{
 		//we are within a nav triangle so we path straight to the point 
-		outputPath->Positions.push_back(EndPos);
-		outputPath->PathReady = true;
+		outpath->Positions.push_back(EndPos);
+		outpath->PathReady = true;
 	}
 	return ENavRequestStatus::Complete;
 }
 
-ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+ENavRequestStatus::Type NavigationManager::CalculatePath_DSTAR_LTE(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outputPath)
 {
-	NavigationPath* outputPath = *outpath;
 	const char* TimerName = "Path Compute";
 	PerfManager::Get()->StartSingleActionTimer(TimerName);
 	DPathFinder->Plane = Plane;
@@ -153,27 +145,28 @@ ENavRequestStatus::Type NavigationMesh::CalculatePath_DSTAR_LTE(glm::vec3 Startp
 	PerfManager::Get()->LogSingleActionTimer(TimerName);
 	PerfManager::Get()->FlushSingleActionTimer(TimerName);
 	outputPath->PathReady = true;
+	outputPath->PathComplete = false;
 	return ENavRequestStatus::Complete;
 }
 
-ENavRequestStatus::Type NavigationMesh::CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+ENavRequestStatus::Type NavigationManager::CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath)
 {
 	return ENavRequestStatus::FailedNotSupported;
 }
 
-void NavigationMesh::RegisterObstacle(NavigationObstacle * NewObstacle)
+void NavigationManager::RegisterObstacle(NavigationObstacle * NewObstacle)
 {
 	Obstacles.push_back(NewObstacle);
 	NewObstacle->LinkToMesh(this);
 	NotifyNavMeshUpdate();
 }
 
-void NavigationMesh::NotifyNavMeshUpdate()
+void NavigationManager::NotifyNavMeshUpdate()
 {
 	NavMeshNeedsUpdate = true;
 }
 
-std::string NavigationMesh::GetErrorCodeAsString(ENavRequestStatus::Type t)
+std::string NavigationManager::GetErrorCodeAsString(ENavRequestStatus::Type t)
 {
 	switch (t)
 	{
@@ -189,10 +182,11 @@ std::string NavigationMesh::GetErrorCodeAsString(ENavRequestStatus::Type t)
 	return "Unknown Error";
 }
 
-void NavigationMesh::TickPathFinding()
+void NavigationManager::TickPathFinding()
 {
-#if THREAD_PATHFINDING
 	
+#if THREAD_PATHFINDING
+
 #else
 	SCOPE_CYCLE_COUNTER("PathFind Tick");
 	for (int i = 0; i < RequestsPerFrame; i++)
@@ -203,25 +197,40 @@ void NavigationMesh::TickPathFinding()
 		}
 		NavPathRequest* req = Requests.front();
 		Requests.pop();
-		CalculatePath(req->StartPos, req->EndPos, req->NavPathObject);
+		if (req->IsRequestValid)
+		{
+			CalculatePath(req->StartPos, req->EndPos, req->NavPathObject);
+		}
+		req->NavPathObject->Request = nullptr;
+		req->NavPathObject = nullptr;
+		SafeDelete(req);
 	}
 #endif
 }
 
-ENavRequestStatus::Type NavigationMesh::EnqueuePathRequest(glm::vec3 startpos, glm::vec3 endpos, NavigationPath ** outpath)
+ENavRequestStatus::Type NavigationManager::EnqueuePathRequest(glm::vec3 startpos, glm::vec3 endpos, NavigationPath* outpath)
 {
 	ENavRequestStatus::Type result = ValidateRequest(startpos, endpos, outpath);
-	if (result != ENavRequestStatus::Complete || (*outpath)->Positions.size() > 0)
+	if (result != ENavRequestStatus::Complete)
 	{
 		return result;
 	}
 	NavPathRequest* req = new NavPathRequest();
+	if (outpath->Request != nullptr)
+	{
+		return ENavRequestStatus::Failed;
+	}
 	req->NavPathObject = outpath;
 	req->StartPos = startpos;
 	req->EndPos = endpos;
+	req->IsRequestValid = true;
+	outpath->Request = req;
 	Requests.emplace(req);
 	return ENavRequestStatus::Complete;
 }
 
-
-
+void NavigationPath::EndPath()
+{
+	PathComplete = false;
+	Positions.clear();
+}

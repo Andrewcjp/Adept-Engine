@@ -13,6 +13,7 @@ public:
 	GameObject* Target = nullptr;
 	BTBlackboard* Blackboard = nullptr;
 	BehaviourTreeNode* RunningNode = nullptr;
+	BehaviourTreeNode* DebugCurrnetNode = nullptr;
 private:
 	float CoolDownTime = 0.0f;
 	float UpdateRate = 0.2f;

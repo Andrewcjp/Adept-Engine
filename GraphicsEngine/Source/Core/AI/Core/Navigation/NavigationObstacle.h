@@ -1,14 +1,14 @@
 #pragma once
 #include "Core/Components/Component.h"
-class NavigationMesh;
+class NavigationManager;
 class NavigationObstacle : public Component
 {
 public:
 	NavigationObstacle();
 	~NavigationObstacle();
-	void LinkToMesh(NavigationMesh* parentmesh);
+	void LinkToMesh(NavigationManager* parentmesh);
 private:
-	NavigationMesh* ParentMesh = nullptr;
+	NavigationManager* ParentMesh = nullptr;
 	
 
 	// Inherited via Component

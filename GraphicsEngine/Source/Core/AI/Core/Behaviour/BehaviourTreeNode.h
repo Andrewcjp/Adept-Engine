@@ -30,6 +30,7 @@ public:
 	CORE_API virtual ~BehaviourTreeNode() {}
 	CORE_API virtual EBTNodeReturn::Type HandleExecuteNode();
 	CORE_API virtual void OnAddedToTree();
+	CORE_API virtual std::string GetDebugName();
 	BehaviourTreeNode* Parent = nullptr;
 	std::vector<BehaviourTreeNode*> Children;
 	BehaviourTree* ParentTree = nullptr;
@@ -54,6 +55,7 @@ class BTMoveToNode :public BehaviourTreeNode
 public:
 	CORE_API BTMoveToNode(BTValue* GoalPos);
 	virtual EBTNodeReturn::Type ExecuteNode() override;
+	CORE_API virtual std::string GetDebugName() override { return "BTMoveToNode"; };
 };
 class BTSelectorNode :public BehaviourTreeNode
 {
@@ -63,6 +65,9 @@ public:
 	virtual EBTNodeReturn::Type ExecuteNode() override;
 	CORE_API void AddDecorator(BaseDecorator* dec);
 	CORE_API void AddService(ServiceBase* Service);
+
+	CORE_API virtual std::string GetDebugName() override;
+
 private:
 	std::vector<BaseDecorator*> Decorators;//Conditionals for this selector
 	std::vector<ServiceBase*> Services;//services update value for decorators to check
@@ -77,6 +82,7 @@ public:
 		TargetTime = Time;
 		Remaining = TargetTime;
 	}
+	CORE_API virtual std::string GetDebugName() override { return "BTWaitNode"; };
 protected:
 	CORE_API EBTNodeReturn::Type ExecuteNode() override;//todo: fix!
 private:

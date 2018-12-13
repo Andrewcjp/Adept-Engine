@@ -1,6 +1,6 @@
 #pragma once
-#include "Navigation/NavigationMesh.h"
-class NavigationMesh;
+#include "Navigation/NavigationManager.h"
+class NavigationManager;
 class AIDirector;
 class Scene;
 class BehaviourTreeManager;
@@ -40,9 +40,9 @@ public:
 	void Tick(float dt);
 	void EditorTick();
 	CORE_API static AISystem* Get();
-	NavigationMesh* mesh = nullptr;
+	NavigationManager* mesh = nullptr;
 	static EAINavigationMode::Type GetPathMode();
-	ENavRequestStatus::Type CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath ** outpath);
+	ENavRequestStatus::Type CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath);
 	template<class T>
 	static T* GetDirector()
 	{

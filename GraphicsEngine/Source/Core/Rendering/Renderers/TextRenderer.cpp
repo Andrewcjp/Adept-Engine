@@ -176,8 +176,9 @@ void TextRenderer::Finish()
 #else
 		FrameBuffer::CopyHelper(Renderbuffer, RHI::GetDeviceContext(0));
 #endif
+	}
 }
-}
+
 void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();

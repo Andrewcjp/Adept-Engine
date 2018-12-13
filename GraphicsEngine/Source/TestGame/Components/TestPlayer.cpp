@@ -81,9 +81,9 @@ void TestPlayer::Update(float delta)
 	axis *= Sensitivity.GetFloatValue();
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
 	glm::quat YRot = glm::quat(glm::radians(glm::vec3(rot.x + -axis.x*LookSensitivty, 0, 90)));
-	GetOwner()->SetRotation(YRot);	
+	GetOwner()->SetRotation(YRot);
 	glm::quat newrot = glm::quat(glm::radians(glm::vec3(axis.y*LookSensitivty, 0, 0)));
-//	Log::LogMessage(glm::to_string(axis) + " axis");
+	//	Log::LogMessage(glm::to_string(axis) + " axis");
 	if (CameraObject)
 	{
 		CameraObject->GetTransform()->SetLocalRotation(newrot);
@@ -143,11 +143,11 @@ void TestPlayer::UpdateMovement(float delta)
 	NewVel.y = CurrentVel.y;
 	if (RB != nullptr)
 	{
-#if 0
+#if 1
 		const glm::vec3 tVel = NewVel + ExtraVel;
 		glm::vec3 correction = tVel - RB->GetVelocity();
 		correction.y = 0.0f;
-		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25));//todo: Add Force Is different to Physx!
+		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25) / RB->GetActor()->GetMass());//todo: Add Force Is different to Physx!
 #else
 		RB->SetLinearVelocity(NewVel);
 #endif

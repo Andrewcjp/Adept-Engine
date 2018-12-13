@@ -4,14 +4,14 @@
 #include "Behaviour/BehaviourTreeManager.h"
 #include "Core/Engine.h"
 #include "Core/Game/Game.h"
-#include "Navigation/NavigationMesh.h"
+#include "Navigation/NavigationManager.h"
 #include "Core/Platform/ConsoleVariable.h"
 static ConsoleVariable DebugModeVar("aidebug", 0, ECVarType::ConsoleAndLaunch);
 AISystem* AISystem::Instance = nullptr;
 AISystem::AISystem()
 {
 	CurrentMode = EAINavigationMode::DStarLTE;
-	mesh = new NavigationMesh();
+	mesh = new NavigationManager();
 	BTManager = new BehaviourTreeManager();
 
 	DebugModeVar.SetValue(EAIDebugMode::PathOnly);
@@ -84,7 +84,7 @@ EAINavigationMode::Type AISystem::GetPathMode()
 	return Instance->CurrentMode;
 }
 
-ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath** outpath)
+ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath)
 {
 #if 0
 	ENavRequestStatus::Type result = mesh->CalculatePath(Startpoint, EndPos, outpath);
@@ -94,7 +94,7 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 #endif
 	if (result != ENavRequestStatus::Complete)
 	{
-		Log::LogMessage("CalculatePath Failed"+ NavigationMesh::GetErrorCodeAsString(result), Log::Severity::Warning);
+		Log::LogMessage("CalculatePath Failed"+ NavigationManager::GetErrorCodeAsString(result), Log::Severity::Warning);
 	}
 	return result;
 }

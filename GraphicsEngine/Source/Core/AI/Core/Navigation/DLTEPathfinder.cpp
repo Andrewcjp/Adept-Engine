@@ -44,14 +44,14 @@ bool KeyLessThan(float* keyFrom, float* keyTo)
 	return false;
 }
 
-DLTENode DLTEPathfinder::get_start()
+DLTENode* DLTEPathfinder::get_start()
 {
-	return *startnode;
+	return startnode;
 }
 
-DLTENode DLTEPathfinder::get_goal()
+DLTENode* DLTEPathfinder::get_goal()
 {
-	return *goalnode;
+	return goalnode;
 }
 
 void DLTEPathfinder::Reset()
@@ -64,21 +64,21 @@ void DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 {
 	Reset();
 	ComputeDLTE();
-	while (get_start().Point.x != get_goal().Point.x || get_start().Point.y != get_goal().Point.y)
+	while (get_start()->Point.x != get_goal()->Point.x || get_start()->Point.y != get_goal()->Point.y)
 	{
 		// if Start Node g cost is FloatMAX then there is no path so abort
-		if (get_start().g == MathUtils::FloatMAX)
+		if (get_start()->g == MathUtils::FloatMAX)
 		{
 			break;
 		}
-		std::deque<DLTENode*> temporaryDeque = GetNeighbors(&get_start());
+		std::deque<DLTENode*> temporaryDeque = GetNeighbors(get_start());
 		DLTENode* temporaryState = temporaryDeque[0];//there should always be a node returned
 		DLTENode* secondTemporaryState;
 		for (size_t i = 1; i < temporaryDeque.size(); i++)
 		{
 			secondTemporaryState = temporaryDeque[i];
-			int temp_cost = ComputeCost(&get_start(), temporaryState);
-			int temp_cost2 = ComputeCost(&get_start(), secondTemporaryState);
+			int temp_cost = ComputeCost(get_start(), temporaryState);
+			int temp_cost2 = ComputeCost(get_start(), secondTemporaryState);
 			if (secondTemporaryState->g != MathUtils::MAX_int)
 			{
 				if (temporaryState->g == MathUtils::MAX_int || secondTemporaryState->g + temp_cost2 < temporaryState->g + temp_cost)
@@ -171,6 +171,7 @@ std::deque<DLTENode*> DLTEPathfinder::GetNeighbors(DLTENode* s)
 	//DebugEnsure(temporaryDeque.size());
 	return temporaryQueue;
 }
+
 int DLTEPathfinder::ComputeCost(DLTENode* sFrom, DLTENode* sTo)
 {
 	int edgeCost = 1;

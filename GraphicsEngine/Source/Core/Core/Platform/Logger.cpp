@@ -4,10 +4,12 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Utils/FileUtils.h"
+#include "UI/UIManager.h"
+
 Log::StreamWrapper Log::OutS;
 Log* Log::Instance = nullptr;
 
-void Log::LogOutput(std::string data,bool ForceFlush/* = false*/)
+void Log::LogOutput(std::string data, bool ForceFlush/* = false*/)
 {
 	if (Instance == nullptr)
 	{
@@ -39,7 +41,22 @@ void Log::LogMessage(std::string msg, Severity s)
 	}
 	data.append(msg);
 	data.append("\n");
-	LogOutput(data,s == Severity::Error);
+	LogOutput(data, s == Severity::Error);
+}
+
+void Log::LogTextToScreen(std::string msg, float LifeTime /*= 0.0f*/, bool showinLog /*= false*/)
+{
+	if (Instance != nullptr)
+	{
+		ScreenLogEntry entry;
+		entry.LifeTime = LifeTime;
+		entry.Data = msg;
+		Instance->ScreenLogLines.push_back(entry);
+		if (showinLog)
+		{
+			LogMessage(msg, Log::Severity::Message);
+		}
+	}
 }
 
 void Log::StartLogger()
@@ -51,6 +68,27 @@ void Log::ShutDownLogger()
 {
 	Instance->FlushToLogFile();
 	SafeDelete(Instance);
+}
+
+Log * Log::Get()
+{
+	return Instance;
+}
+
+void Log::RenderText(UIManager* Manager, int offset)
+{
+	if (Manager != nullptr)
+	{
+		for (int i = ScreenLogLines.size() - 1; i >= 0; i--)
+		{
+			Manager->RenderTextToScreen(offset + i, ScreenLogLines[i].Data);
+			ScreenLogLines[i].LifeTime -= Engine::GetDeltaTime();
+			if (ScreenLogLines[i].LifeTime <= 0.0f)
+			{
+				ScreenLogLines.erase(ScreenLogLines.begin() + i);
+			}			
+		}
+	}
 }
 
 Log::Log()

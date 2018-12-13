@@ -10,6 +10,7 @@
 
 EBTNodeReturn::Type BehaviourTreeNode::ExecuteNode()
 {
+	ParentTree->DebugCurrnetNode = this;
 	return EBTNodeReturn::Success;
 }
 
@@ -67,6 +68,11 @@ EBTNodeReturn::Type BehaviourTreeNode::HandleExecuteNode()
 void BehaviourTreeNode::OnAddedToTree()
 {}
 
+std::string BehaviourTreeNode::GetDebugName()
+{
+	return "Base";
+}
+
 BTMoveToNode::BTMoveToNode(BTValue * GoalPos)
 {
 	BBValues.push_back(GoalPos);
@@ -74,6 +80,7 @@ BTMoveToNode::BTMoveToNode(BTValue * GoalPos)
 
 EBTNodeReturn::Type BTMoveToNode::ExecuteNode()
 {
+	BehaviourTreeNode::ExecuteNode();
 	if (ParentTree->Target == nullptr)
 	{
 		return EBTNodeReturn::Failure;
@@ -154,8 +161,14 @@ void BTSelectorNode::AddService(ServiceBase * Service)
 	Service->Owner = ParentTree;
 }
 
+std::string BTSelectorNode::GetDebugName()
+{
+	return "BTSelectorNode";
+}
+
 EBTNodeReturn::Type BTWaitNode::ExecuteNode()
 {
+	BehaviourTreeNode::ExecuteNode();
 	if (Remaining > 0.0f)
 	{
 		Remaining -= PerfManager::GetDeltaTime();
