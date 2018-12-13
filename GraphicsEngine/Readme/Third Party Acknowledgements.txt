@@ -23,4 +23,4 @@ DirectX 12
 Microsoft Corporation, https://docs.microsoft.com/en-us/windows/desktop/direct3d12/directx-12-programming-guide
 
 Vulkan
-khronos Group Inc, https://www.khronos.org/vulkan/
+Khronos Group Inc, https://www.khronos.org/vulkan/
