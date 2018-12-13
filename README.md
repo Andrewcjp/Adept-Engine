@@ -1,35 +1,26 @@
 # Graphics Engine
 
-A Work In progress Cross Api Game engine currently supporting:
+A cross graphics API Game engine:
 
-D3D12
+Currently supporting: D3D12, Vulkan(WIP)
 
-Vulkan
+Renderer Features:
+-PBR Lighting Pipeline
+-Shadow mapping (static and dynamic)
+-MultiGPU Shadow mapping
+-GPU Particle System(WIP)
+-Asynchronous Shadow Mapping (WIP)
+-UI system
+-PostProcessing
 
-Uses:
+Engine Features:
+-Custom Build Tool 
+-Module System
 
-Text Using FreeType, 
-GLM for maths, 
-GLEW, 
-Physics using Nvidia's PhysX,
-Serialization using RapidJson. 
-
-D3D12 Renderer Supports:
-
-Diffuse Lighting, 
-Texture Mapping, 
-Shadow mapping (static and dynamic),
+Physics Features:
+-Physx Support
+-TdPhysics Engine
 
 
 
-In progress:
-Super Scaling
-UI Rendering, 
-Text Rendering, 
-Grass system (instanced Rendering), 
-Particle system (CPU), 
-Parallax Mapping, 
-Normal Mapping,
-Deferred Rendering, 
-FXAA,
 
