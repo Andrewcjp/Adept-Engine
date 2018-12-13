@@ -24,3 +24,6 @@ Microsoft Corporation, https://docs.microsoft.com/en-us/windows/desktop/direct3d
 
 Vulkan
 Khronos Group Inc, https://www.khronos.org/vulkan/
+
+RapidJson
+Tencent ,https://github.com/Tencent/rapidjson
