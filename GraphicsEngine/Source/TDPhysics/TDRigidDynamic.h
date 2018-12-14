@@ -52,7 +52,7 @@ namespace TD
 
 		TD_API bool				IsAffectedByGravity()const { return UseGravity; };
 #if VALIDATE_KE
-		float					comput();
+		float					Compute_KE();
 		void					ComputeKE();
 		void					ValidateKE();
 #endif

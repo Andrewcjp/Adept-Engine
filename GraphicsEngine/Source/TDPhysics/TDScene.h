@@ -29,7 +29,7 @@ namespace TD
 		std::vector<CollisionPair>& GetPairs();
 	private:
 		bool RayCastSceneInternal(RayCast* ray);
-		glm::vec3 GravityForce = glm::vec3(0, -20.0f, 0);
+		glm::vec3 GravityForce = glm::vec3(0, -30.0f, 0);
 		//todo: remove
 		std::vector<TDActor*> SceneActors;
 		std::vector<TDRigidDynamic*> DynamicActors;

@@ -1,13 +1,13 @@
 #include "TDRigidDynamic.h"
 #include "TDPhysics.h"
 #include "TDSimConfig.h"
+#include "TDSolver.h"
 
 namespace TD
 {
 	TDRigidDynamic::TDRigidDynamic()
 	{
 		ActorType = TDActorType::RigidDynamic;
-		BodyMass = 10.0f;
 		CachedsqSleepZeroThreshold = TDPhysics::GetCurrentSimConfig()->BodySleepZeroThreshold;
 		CachedsqSleepZeroThreshold = CachedsqSleepZeroThreshold * CachedsqSleepZeroThreshold;//All compares are done Squared
 		ComputeInertiaTensor();
@@ -33,14 +33,16 @@ namespace TD
 
 	void TDRigidDynamic::AddForce(glm::vec3 Force, bool AsForce)
 	{
+		glm::vec3 Addition = glm::vec3();
 		if (AsForce)
 		{
-			DeltaLinearVel = Force;
+			Addition = Force * GetInvBodyMass();
 		}
 		else
 		{
-			DeltaLinearVel = Force * BodyMass;
+			Addition = Force;
 		}
+		DeltaLinearVel += Addition;
 	}
 
 	bool TDRigidDynamic::CheckSleep(glm::vec3 & value)
@@ -71,26 +73,26 @@ namespace TD
 	}
 
 #if VALIDATE_KE
-	float TDRigidDynamic::comput()
+	float TDRigidDynamic::Compute_KE()
 	{
 		return 0.5f* (GetBodyMass() * glm::length(GetLinearVelocity())*glm::length(GetLinearVelocity()));
 	}
 
 	void TDRigidDynamic::ComputeKE()
 	{
-		PreSimKE = comput();
+		PreSimKE = Compute_KE();
 	}
 
 	void TDRigidDynamic::ValidateKE()
 	{
-		const float postsim = comput();
+		const float postsim = Compute_KE();
 		if (AttachedShapes.size() != 2)
 		{
 			DebugEnsure(postsim == PreSimKE);
 		}
 	}
 #endif
-	
+
 	void TDRigidDynamic::ResetForceThisFrame()
 	{
 		DeltaLinearVel = glm::vec3();
@@ -108,7 +110,7 @@ namespace TD
 	}
 
 	float TDRigidDynamic::GetInvBodyMass()
-	{
+	{//todo: cache this
 		if (BodyMass <= FLT_EPSILON)
 		{
 			return 0.0f;
@@ -191,6 +193,7 @@ namespace TD
 	void TDRigidDynamic::SetBodyMass(float Mass)
 	{
 		BodyMass = Mass;
+		ComputeInertiaTensor();
 	}
 
 }

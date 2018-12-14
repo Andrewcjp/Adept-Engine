@@ -178,6 +178,7 @@ void TDRigidBody::InitBody()
 	}
 	TDPhysicsEngine::GetScene()->AddToScene(CommonActorPTr);
 	CommonActorPTr->UserData = this;
+	UpdateBodyState();
 }
 
 void TDRigidBody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)
@@ -209,6 +210,14 @@ TD::TDActor* TDRigidBody::GetActor()
 float TDRigidBody::GetMass()
 {
 	return Actor->GetBodyMass();
+}
+
+void TDRigidBody::UpdateBodyState()
+{
+	if (Actor != nullptr)
+	{
+		Actor->SetBodyMass(BodyData.Mass);
+	}
 }
 
 #endif

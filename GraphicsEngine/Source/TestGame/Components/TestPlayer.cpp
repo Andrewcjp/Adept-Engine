@@ -147,14 +147,15 @@ void TestPlayer::UpdateMovement(float delta)
 		const glm::vec3 tVel = NewVel + ExtraVel;
 		glm::vec3 correction = tVel - RB->GetVelocity();
 		correction.y = 0.0f;
-		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25) / RB->GetActor()->GetMass());//todo: Add Force Is different to Physx!
+		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25));
 #else
 		RB->SetLinearVelocity(NewVel);
 #endif
 	}
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
-		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 100)/* / delta*/);
+		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 1000)/* / delta*/);
 	}
+	Log::LogTextToScreen("Speed: " + glm::to_string(RB->GetVelocity()));
 }
 

@@ -35,6 +35,9 @@ private:
 	TD::TDActor* CommonActorPTr = nullptr;
 	std::vector<TD::TDShape*> shapes;
 	BodyInstanceData data;
+protected:
+	virtual void UpdateBodyState() override;
+
 };
 
 #endif

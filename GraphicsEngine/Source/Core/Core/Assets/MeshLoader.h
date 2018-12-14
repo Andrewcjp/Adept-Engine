@@ -32,6 +32,7 @@ public:
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);
 	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices);
 };
+
 #define NUM_BONES_PER_VEREX 4
 struct VertexBoneData
 {
@@ -39,6 +40,7 @@ struct VertexBoneData
 	float Weights[NUM_BONES_PER_VEREX] = {0.0f};
 	void AddBoneData(uint BoneID, float Weight);
 };
+
 struct BoneInfo
 {
 	glm::mat4 BoneOffset;

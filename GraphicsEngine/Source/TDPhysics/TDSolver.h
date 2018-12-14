@@ -24,13 +24,17 @@ namespace TD
 		void PostIntergrate(CollisionPair * pair);
 		void ResolveConstraints(TDScene* scene);
 		static void RunPostFixup(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data);
-
+		///Returns the current time step for the current processed scene
+		static float GetTimeStep();
+		static TDSolver* Get();
 	private:
+		static TDSolver* Instance;
 		int SolverIterations = 5;
 		static void ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, const TDPhysicalMaterial * AMaterial, const TDPhysicalMaterial * BMateria, int contactindexl);
 		void IntergrateActor(TDRigidDynamic * actor, float dt, TDScene * Scene);
 		void ProcessBroadPhase(TDScene * scene);
 		int BroadPhaseCount = 0;
+		float CurrentTimeStep = 0.0f;
 		std::vector<CollisionPair> NarrowPhasePairs;
 		std::vector<ContactPair*> SimulationCallbackPairs;
 		std::vector<ContactPair*> SimulationTriggerCallbackPairs;

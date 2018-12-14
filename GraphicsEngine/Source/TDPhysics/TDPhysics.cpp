@@ -1,14 +1,14 @@
-
 #include "TDPhysics.h"
-#include "TDSolver.h"
+#include "Constraints/TDDistanceJoint.h"
+#include "Constraints/TDSpringJoint.h"
 #include "TDScene.h"
+#include "TDSimConfig.h"
+#include "TDSimulationCallbacks.h"
+#include "TDSolver.h"
 #include "TDVersion.h"
 #include "Utils/MemoryUtils.h"
-#include "TDSimConfig.h"
 #include "Utils/Threading.h"
-#include "Constraints/TDSpringJoint.h"
-#include "Constraints/TDDistanceJoint.h"
-#include "TDSimulationCallbacks.h"
+
 namespace TD
 {
 	TDPhysics* TDPhysics::Instance = nullptr;
