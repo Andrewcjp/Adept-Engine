@@ -6,14 +6,14 @@ Currently supporting: D3D12, Vulkan(WIP)
 
 Renderer Features:
 
-* Flexible Render Hardware Interface
+* Flexible RHI (Render Hardware Interface)
 * PBR Lighting Pipeline
 * Shadow mapping (static and dynamic)
 * MultiGPU Shadow mapping
-* GPU Particle System(WIP)
+* GPU Particle System (WIP)
 * Asynchronous Shadow Mapping (WIP)
 * UI system
-* PostProcessing
+* Post Processing Stack
 
 Engine Features:
 
@@ -24,12 +24,12 @@ Engine Features:
 Physics Features:
 
 * Physx Support
-* TdPhysics Engine
+* TD Physics Engine
 
 AI Features:
 
 * D* Lite for path finding
-* Asynchronous Path finding requests (WIP)
+* Asynchronous path finding request system(WIP)
 * Behavior tree system
 
 

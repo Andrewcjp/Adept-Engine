@@ -9,6 +9,7 @@
 #include "Core/Utils/VectorUtils.h"
 #include "assimp/anim.h"
 
+
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
 {

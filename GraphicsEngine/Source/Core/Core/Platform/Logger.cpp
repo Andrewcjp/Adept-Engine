@@ -79,7 +79,7 @@ void Log::RenderText(UIManager* Manager, int offset)
 {
 	if (Manager != nullptr)
 	{
-		for (int i = ScreenLogLines.size() - 1; i >= 0; i--)
+		for (int i = (int)ScreenLogLines.size() - 1; i >= 0; i--)
 		{
 			Manager->RenderTextToScreen(offset + i, ScreenLogLines[i].Data);
 			ScreenLogLines[i].LifeTime -= Engine::GetDeltaTime();

@@ -16,6 +16,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/vector_angle.hpp>
+#include <glm/gtx/matrix_major_storage.hpp>
 #include <ios>
 #include <iostream>
 #include <map>

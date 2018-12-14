@@ -13,8 +13,10 @@
 
 namespace TD
 {
+	TDSolver* TDSolver::Instance = nullptr;
 	TDSolver::TDSolver()
 	{
+		Instance = this;
 		SolverIterations = TDPhysics::GetCurrentSimConfig()->SolverIterationCount;
 	}
 
@@ -23,6 +25,7 @@ namespace TD
 
 	void TDSolver::IntergrateScene(TDScene* scene, float dt)
 	{
+		CurrentTimeStep = dt;
 #if !BUILD_FULLRELEASE
 		TDPhysics::StartTimer(TDPerfCounters::IntergrateScene);
 #endif
@@ -80,13 +83,14 @@ namespace TD
 			actor->UpdateSleepTimer(dt);
 			return;
 		}
-		glm::vec3 Veldelta = actor->GetLinearVelocityDelta() / actor->GetInvBodyMass();
 		if (actor->IsAffectedByGravity())
 		{
-			Veldelta += Scene->GetGravity();
+			actor->AddForce(Scene->GetGravity(), true);
 		}
+		glm::vec3 Veldelta = actor->GetLinearVelocityDelta();
 		glm::vec3 BodyVelocity = actor->GetLinearVelocity();
 		BodyVelocity += Veldelta * dt;
+		BodyVelocity *= 0.98f;
 		actor->SetLinearVelocity(BodyVelocity);
 		const glm::vec3 startpos = actor->GetTransfrom()->GetPos();
 		actor->GetTransfrom()->SetPos(startpos + (BodyVelocity*dt));
@@ -94,7 +98,7 @@ namespace TD
 		glm::vec3 AVelDelta = glm::vec4(actor->GetAngularVelocityDelta(), 0.0f)*actor->GetInertiaTensor();
 		glm::vec3 BodyAngVel = actor->GetAngularVelocity();
 		BodyAngVel += AVelDelta * dt;
-
+		BodyAngVel *= 0.98f;
 #if 0		
 		const glm::vec3 startRot = actor->GetTransfrom()->GetEulerRot();
 		actor->GetTransfrom()->SetQrot(glm::quat(startRot + (BodyAngVel*dt)));
@@ -158,7 +162,7 @@ namespace TD
 		TDPhysics::StartTimer(TDPerfCounters::ResolveCollisions);
 #endif
 		ProcessBroadPhase(scene);
-//		DebugEnsure(NarrowPhasePairs.size());
+		//		DebugEnsure(NarrowPhasePairs.size());
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			NarrowPhasePairs[i].data.Reset();//reset before check collisions again
@@ -197,7 +201,6 @@ namespace TD
 				ProcessResponsePair(&NarrowPhasePairs[i]);
 			}
 #endif
-
 		}
 #if VALIDATE_KE
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
@@ -323,6 +326,20 @@ namespace TD
 		}
 	}
 
+	float TDSolver::GetTimeStep()
+	{
+		if (Get())
+		{
+			return Get()->CurrentTimeStep;
+		}
+		return 0.0f;
+	}
+
+	TD::TDSolver* TDSolver::Get()
+	{
+		return Instance;
+	}
+
 	void TDSolver::ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, const TDPhysicalMaterial * AMaterial, const TDPhysicalMaterial * BMaterial, int contactindex)
 	{
 		glm::vec3 RelVel = glm::vec3(0, 0, 0);
@@ -371,6 +388,7 @@ namespace TD
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - impluse * invmassB);
 		}
+
 		//Apply Friction
 		glm::vec3 tangent = RelVel - (RelNrm * glm::dot(RelVel, RelNrm));
 		if (glm::length2(tangent) == 0)

@@ -120,23 +120,19 @@ namespace TD
 
 		}
 #else
-		//Mesh->GetBVH()->Render();
-		TDTriangle* OutTri = nullptr;
-		float Depth = 0.0f;
-		glm::vec3 ContactPoint = glm::vec3();
-		if (Mesh->GetBVH()->TraverseForSphere(s, ContactPoint, Depth, &OutTri))
+		std::vector<TriangleInterection> InterSections;
+		if (Mesh->GetBVH()->TraverseForSphere(s, InterSections))
 		{
-			if (OutTri == nullptr)
+			for (int i = 0; i < InterSections.size(); i++)
 			{
-				return false;
-			}
-			const glm::vec3 normal = OutTri->Normal;
-			contactbuffer->Contact(ContactPoint, normal, Depth);
-			DebugEnsure(Depth > -1.0f);
-			DebugEnsure(Depth < 0.0f);
+				const glm::vec3 normal = InterSections[i].Tri->Normal;
+				contactbuffer->Contact(InterSections[i].Point, normal, InterSections[i].depth);
+				DebugEnsure(InterSections[i].depth > -1.0f);
+				DebugEnsure(InterSections[i].depth < 0.0f);
 #if !BUILD_SHIPPING
-			OutTri->DebugDraw(0.0f);
+				InterSections[i].Tri->DebugDraw(0.0f);
 #endif
+			}
 		}
 
 #endif
@@ -412,4 +408,4 @@ namespace TD
 		return true; // Seperating axis not found
 	}
 
-}
+			}

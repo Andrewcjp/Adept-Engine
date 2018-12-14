@@ -122,7 +122,7 @@ namespace TD
 		}
 	}
 
-	bool TDBVH::TraverseForSphere(TDSphere * A, glm::vec3 & out_Contact, float & depth, TDTriangle** Out_TRi)
+	bool TDBVH::TraverseForSphere(TDSphere * A, std::vector<TriangleInterection>& contacts)
 	{
 		std::queue<BVHNode*> toProcess;
 		toProcess.emplace(Root);
@@ -131,20 +131,19 @@ namespace TD
 		while (!toProcess.empty())
 		{
 			BVHNode* iterator = toProcess.front();
-
 			toProcess.pop();
-
 			if (iterator->numTriangles >= 0)
 			{
 				// Iterate trough all triangles of the node
 				for (int i = 0; i < iterator->numTriangles; ++i)
 				{
 					// Triangle indices in BVHNode index the mesh
-					if (TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]]->TriangleSphere(A, out_Contact, depth))
+					TriangleInterection t;
+					if (TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]]->TriangleSphere(A, t.Point, t.depth))
 					{
-						*Out_TRi = TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]];
+						t.Tri = TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]];
+						contacts.push_back(t);
 						iterator->bounds->DebugRender(glm::vec3(0, 1, 0));
-						return true;
 						RetValue = true;
 					}
 				}
@@ -164,6 +163,7 @@ namespace TD
 		}
 		return RetValue;
 	}
+
 	void TDBVH::Render()
 	{
 		std::queue<BVHNode*> toProcess;
@@ -189,6 +189,7 @@ namespace TD
 			}
 		}
 	}
+
 	bool TDBVH::TraverseForRay(RayCast* ray)
 	{
 		std::queue<BVHNode*> toProcess;
