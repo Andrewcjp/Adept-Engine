@@ -1,6 +1,5 @@
 
 #include "RHICommandList.h"
-#include "Rendering/Core/FrameBuffer.h"
 #include "DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
 
@@ -83,7 +82,7 @@ void RHICommandList::ResolveTimers()
 	}
 	else
 	{
-
+		GetDevice()->GetTimeManager()->ResolveTimeHeaps(this);
 	}
 }
 

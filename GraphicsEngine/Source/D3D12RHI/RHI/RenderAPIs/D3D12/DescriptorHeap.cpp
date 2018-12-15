@@ -2,8 +2,6 @@
 #include "DescriptorHeap.h"
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
-#include "Core/Utils/StringUtil.h"
-#include "Core/Utils/RefChecker.h"
 CreateChecker(DescriptorHeap);
 DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {

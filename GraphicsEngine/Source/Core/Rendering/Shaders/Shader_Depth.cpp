@@ -38,9 +38,6 @@ Shader_Depth::~Shader_Depth()
 	EnqueueSafeRHIRelease(ConstantBuffer);
 }
 
-void Shader_Depth::SetShaderActive()
-{}
-
 std::vector<Shader::ShaderParameter> Shader_Depth::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> Output;

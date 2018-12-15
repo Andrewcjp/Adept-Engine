@@ -1,12 +1,12 @@
 #include "RHI.h"
 #include "Core/Assets/AssetManager.h"
-#include "RHI_inc.h"
 #include "Core/Assets/ImageIO.h"
-#include "Core/Module/ModuleManager.h"
-#include "Core/Platform/PlatformCore.h"
 #include "Core/Assets/ShaderComplier.h"
-#include "Rendering/Core/ParticleSystemManager.h"
+#include "Core/Module/ModuleManager.h"
 #include "Core/Platform/ConsoleVariable.h"
+#include "Core/Platform/PlatformCore.h"
+#include "Rendering/Core/ParticleSystemManager.h"
+#include "RHI_inc.h"
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);

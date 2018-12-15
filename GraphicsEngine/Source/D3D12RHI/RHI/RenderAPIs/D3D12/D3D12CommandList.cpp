@@ -1,24 +1,10 @@
-
 #include "D3D12CommandList.h"
-#include "D3D12RHI.h"
-#include "Rendering/Core/RenderBaseTypes.h"
-#include "Core/Utils/StringUtil.h"
-#include "D3D12CBV.h"
-
-#include "D3D12Texture.h"
-#include "RHI/RHI_inc.h"
-#include "D3D12Framebuffer.h"
-#include "RHI/DeviceContext.h"
-#include "DescriptorHeap.h"
 #include "Core/Performance/PerfManager.h"
-#include "D3D12Helpers.h"
-#include "GPUResource.h"
-#include "Rendering/Core/GPUStateCache.h"
-#include "Core/Utils/MemoryUtils.h"
+#include "D3D12CBV.h"
 #include "D3D12DeviceContext.h"
-#include "Core/Platform/PlatformCore.h"
+#include "D3D12Framebuffer.h"
 #include "DescriptorHeap.h"
-#include "D3D12DeviceContext.h"
+#include "GPUResource.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
@@ -29,7 +15,7 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 	}
 	if (ListType == ECommandListType::Copy)
 	{
-		//copy queues don't have pipline states!
+		//copy queues don't have pipeline states!
 		CreateCommandList();
 	}
 }

@@ -1,14 +1,10 @@
 
 #include "D3D12Helpers.h"
-#include "Core/Asserts.h"
 #include "GPUResource.h"
 #include "D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
-#include "Core/Assets/AssetTypes.h"
-#include "Core/Platform/PlatformCore.h"
 #include <SOIL.h>
 #include "Core/Utils/FileUtils.h"
-#include "GPUResource.h"
 #include "DescriptorHeap.h"
 #include "D3D12CBV.h"
 

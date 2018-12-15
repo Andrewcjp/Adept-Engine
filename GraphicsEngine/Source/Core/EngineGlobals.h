@@ -88,3 +88,21 @@ void UNUSED_PARAM(T const&)
 //Utility Marcos
 #define SafeDelete(Target)if(Target != nullptr){delete Target; Target= nullptr;}
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
+
+//RHI Optimization
+#if defined(ALLOW_SINGLE_RHI)
+#if BUILD_VULKAN && !BUILD_D3D12
+#define USE_SINGLE_RHI 1
+#elif !BUILD_VULKAN && BUILD_D3D12
+#define USE_SINGLE_RHI 0
+#else
+#define USE_SINGLE_RHI 0
+#endif
+#else
+#define USE_SINGLE_RHI 0
+#endif
+#if USE_SINGLE_RHI 
+#define RHI_VIRTUAL   
+#else
+#define RHI_VIRTUAL virtual
+#endif

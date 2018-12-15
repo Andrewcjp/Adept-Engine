@@ -1,4 +1,5 @@
 #pragma once
+#include "RHI\RHITypes.h"
 
 namespace MemoryUtils
 {

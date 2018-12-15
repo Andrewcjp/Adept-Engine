@@ -15,15 +15,6 @@ Shader::~Shader()
 	delete m_Shader;
 }
 
-void Shader::SetShaderActive()
-{
-	if (m_Shader != nullptr)
-	{
-		
-	}
-}
-
-
 ShaderProgramBase * Shader::GetShaderProgram()
 {
 	return m_Shader;

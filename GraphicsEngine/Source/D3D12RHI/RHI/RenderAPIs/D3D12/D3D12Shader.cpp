@@ -1,15 +1,11 @@
-
 #include "D3D12Shader.h"
-#include "D3D12RHI.h"
-#include "Core/Utils/FileUtils.h"
-#include "Core/Utils/StringUtil.h"
-#include "Core/Asserts.h"
-#include "RHI/DeviceContext.h"
-#include "D3D12DeviceContext.h"
-#include "Core/Performance/PerfManager.h"
 #include "Core/Assets/AssetManager.h"
-#include <d3dcompiler.h>
+#include "Core/Performance/PerfManager.h"
 #include "Core/Platform/ConsoleVariable.h"
+#include "Core/Utils/FileUtils.h"
+#include "D3D12DeviceContext.h"
+#include "D3D12RHI.h"
+#include <d3dcompiler.h>
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
 #if !BUILD_SHIPPING
 D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();

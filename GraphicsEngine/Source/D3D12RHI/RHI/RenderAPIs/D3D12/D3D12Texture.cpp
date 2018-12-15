@@ -4,14 +4,11 @@
 #include "Core/Engine.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/FileUtils.h"
-#include "Core/Utils/StringUtil.h"
 #include "GPUResource.h"
-#include "RHI/DeviceContext.h"
 #include "ThirdParty/NVDDS/DDSTextureLoader12.h"
 #include "DescriptorHeap.h"
 #include "D3D12Texture.h"
 #include "D3D12DeviceContext.h"
-#include "Core/Utils/RefChecker.h"
 
 CreateChecker(D3D12Texture);
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0

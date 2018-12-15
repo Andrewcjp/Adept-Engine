@@ -6,6 +6,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "RHI/DeviceContext.h"
 #include "Rendering/Core/SceneRenderer.h"
+#include "RHI/RHITypes.h"
 
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
