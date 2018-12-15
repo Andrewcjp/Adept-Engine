@@ -1,15 +1,13 @@
-
 #include "D3D12TimeManager.h"
-#include "D3D12CommandList.h"
-#include <iomanip>
 #include "Core/Performance/PerfManager.h"
+#include "D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h" 
 #if PIX_ENABLED
 #define PROFILE_BUILD 
 #include <pix3.h>
 #endif
-#include "Core/Utils/StringUtil.h"
+
 D3D12TimeManager::D3D12TimeManager(DeviceContext* context) :RHITimeManager(context)
 {
 	Init(context);
@@ -98,7 +96,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::ParticleSimulation, "Particle Sim");
 	SetTimerName(EGPUTIMERS::GPU0WaitOnGPU1, "GPU0 Wait On GPU1");
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy");
-	
+
 #endif
 }
 
@@ -303,6 +301,7 @@ void D3D12TimeManager::EndTotalGPUTimer(RHICommandList* ComandList)
 {
 #if ENABLE_GPUTIMERS
 	EndTotalGPUTimer(((D3D12CommandList*)ComandList)->GetCommandList());
+	ResolveTimeHeaps(ComandList);
 #endif
 }
 
@@ -311,8 +310,11 @@ void D3D12TimeManager::EndTotalGPUTimer(ID3D12GraphicsCommandList* ComandList)
 #if ENABLE_GPUTIMERS
 	TimerStarted = false;
 	EndTimer(ComandList, 0, false);
-	ComandList->ResolveQueryData(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, MaxTimerCount * 2, m_timestampResultBuffers, 0);
 #endif
+}
+void D3D12TimeManager::ResolveTimeHeaps(RHICommandList* CommandList)
+{
+	((D3D12CommandList*)CommandList)->GetCommandList()->ResolveQueryData(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, MaxTimerCount * 2, m_timestampResultBuffers, 0);
 }
 
 void D3D12TimeManager::ResolveCopyTimeHeaps(RHICommandList* CommandList)

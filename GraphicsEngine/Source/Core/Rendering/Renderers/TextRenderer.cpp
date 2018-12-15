@@ -43,7 +43,6 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	{
 		Reset();
 	}
-	m_TextShader->SetShaderActive();
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	//x += UITextOffset.x;

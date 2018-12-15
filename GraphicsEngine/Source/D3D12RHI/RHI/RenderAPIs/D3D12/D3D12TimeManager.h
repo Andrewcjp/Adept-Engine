@@ -29,6 +29,7 @@ public:
 	void EndTimer(ID3D12GraphicsCommandList * ComandList, int index, bool IsCopy);
 
 	void EndTotalGPUTimer(ID3D12GraphicsCommandList * ComandList);
+	void ResolveTimeHeaps(RHICommandList * CommandList) override;
 	void ResolveCopyTimeHeaps(RHICommandList * ComandList) override;
 private:
 	float AVGgpuTimeMS = 0;

@@ -1,6 +1,5 @@
 #pragma once
 #include "RHI/Shader.h"
-#include <string>
 #define CUBE_SIDES 6
 #include "Rendering/Core/FrameBuffer.h"
 
@@ -26,10 +25,8 @@ public:
 	Shader_Depth(DeviceContext* device, bool LoadGeo);
 	void UpdateBuffer(RHICommandList * list, LightData * data, int index);
 	~Shader_Depth();
-	void SetShaderActive() override;
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
-	bool LoadGeomShader = true;	
-	
+	bool LoadGeomShader = true;		
 private:
 	RHIBuffer * ConstantBuffer = nullptr;
 	float znear = 1;

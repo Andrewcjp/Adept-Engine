@@ -94,7 +94,6 @@ public:
 	Shader();
 	Shader(DeviceContext* context);
 	virtual ~Shader();
-	virtual void SetShaderActive();
 	RHI_API ShaderProgramBase* GetShaderProgram();
 	virtual const std::string GetName();
 

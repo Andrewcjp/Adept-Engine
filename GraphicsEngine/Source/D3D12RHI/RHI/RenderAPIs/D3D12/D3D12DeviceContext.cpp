@@ -1,7 +1,5 @@
 
 #include "D3D12DeviceContext.h"
-#include "Core/Asserts.h"
-#include "D3D12Helpers.h"
 #include "D3D12TimeManager.h"
 #include "D3D12CommandList.h"
 #include "D3D12RHI.h"

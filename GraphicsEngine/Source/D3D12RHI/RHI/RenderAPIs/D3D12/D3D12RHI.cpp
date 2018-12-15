@@ -1,27 +1,15 @@
-﻿
+﻿#include "D3D12RHI.h"
 #include "D3D12RHI.h"
-#include "RHI/RHI.h"
-#include "RHI/RHI_inc.h"
-#include "RHI/RHITypes.h"
-#include "include\glm\gtx\transform.hpp"
-#include "GPUResource.h"
-#include "D3D12TimeManager.h"
-#include "Core/Platform/PlatformCore.h"
-#include "Rendering/Core/Mesh.h"
-#include "Core/Performance/PerfManager.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Assets/ImageIO.h"
-#include "RHI/RenderAPIs/D3D12/D3D12Texture.h"
-#include "RHI/RenderAPIs/D3D12/D3D12Shader.h"
-#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "D3D12DeviceContext.h"
-#include <DXProgrammableCapture.h>  
-#include <dxgidebug.h>
-#include <D3Dcompiler.h>
 #include "Core/Platform/ConsoleVariable.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
+#include "D3D12CommandList.h"
+#include "D3D12DeviceContext.h"
+#include "D3D12Framebuffer.h"
+#include "D3D12TimeManager.h"
+#include "GPUResource.h"
+#include <dxgidebug.h>
+#include <DXProgrammableCapture.h>  
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);

@@ -1,14 +1,13 @@
 #pragma once
-
+#include "Core/Assets/AssetTypes.h"
+#include "Core/Assets/MeshLoader.h"
 #include "Core/EngineInc_fwd.h"
+#include "Core/Module/ModuleInterface.h"
+#include "Core/Utils/MemoryUtils.h"
+#include "Rendering/Renderers/RenderSettings.h"
+#include "RHI_inc_fwd.h"
 #include "RHI_inc_fwd.h"
 #include "RHITypes.h"
-#include "Core/Assets/AssetTypes.h"
-#include "Rendering/Renderers/RenderSettings.h"
-#include "Core/Utils/MemoryUtils.h"
-#include "Core/Assets/MeshLoader.h"
-#include "Core/Module/ModuleInterface.h"
-#include "RHI_inc_fwd.h"
 #define MAX_GPU_DEVICE_COUNT 2
 class RHI
 {
@@ -86,24 +85,24 @@ private:
 class RHI_API RHIClass
 {
 public:
-	virtual bool InitRHI() = 0;
-	virtual bool InitWindow(int w, int h) = 0;
-	virtual bool DestoryRHI() = 0;
-	virtual BaseTexture* CreateTexture(DeviceContext* Device = nullptr) = 0;
-	virtual FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc) = 0;
-	virtual ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
-	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;
-	virtual RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr) = 0;
-	virtual RHIUAV* CreateUAV(DeviceContext* Device = nullptr) = 0;
-	virtual RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr) = 0;
-	virtual DeviceContext* GetDefaultDevice() = 0;
-	virtual DeviceContext* GetDeviceContext(int index = 0) = 0;
-	virtual void RHISwapBuffers() = 0;
-	virtual void RHIRunFirstFrame() = 0;
-	virtual void SetFullScreenState(bool state) = 0;
-	virtual void ResizeSwapChain(int width, int height) = 0;
-	virtual void WaitForGPU() = 0;
-	virtual void TriggerBackBufferScreenShot() = 0;
+	RHI_VIRTUAL bool InitRHI() = 0;
+	RHI_VIRTUAL bool InitWindow(int w, int h) = 0;
+	RHI_VIRTUAL bool DestoryRHI() = 0;
+	RHI_VIRTUAL BaseTexture* CreateTexture(DeviceContext* Device = nullptr) = 0;
+	RHI_VIRTUAL FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc) = 0;
+	RHI_VIRTUAL ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
+	RHI_VIRTUAL RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;
+	RHI_VIRTUAL RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr) = 0;
+	RHI_VIRTUAL RHIUAV* CreateUAV(DeviceContext* Device = nullptr) = 0;
+	RHI_VIRTUAL RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr) = 0;
+	RHI_VIRTUAL DeviceContext* GetDefaultDevice() = 0;
+	RHI_VIRTUAL DeviceContext* GetDeviceContext(int index = 0) = 0;
+	RHI_VIRTUAL void RHISwapBuffers() = 0;
+	RHI_VIRTUAL void RHIRunFirstFrame() = 0;
+	RHI_VIRTUAL void SetFullScreenState(bool state) = 0;
+	RHI_VIRTUAL void ResizeSwapChain(int width, int height) = 0;
+	RHI_VIRTUAL void WaitForGPU() = 0;
+	RHI_VIRTUAL void TriggerBackBufferScreenShot() = 0;
 };
 
 class RHIModule : public IModuleInterface
