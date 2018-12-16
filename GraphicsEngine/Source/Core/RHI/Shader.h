@@ -32,7 +32,10 @@ class Shader
 {
 public:
 
-	enum ShaderParamType { SRV, UAV, CBV, RootConstant };
+	enum ShaderParamType
+	{
+		SRV, UAV, CBV, RootConstant
+	};
 	enum RHI_SHADER_VISIBILITY
 	{
 		SHADER_VISIBILITY_ALL = 0,
@@ -84,21 +87,12 @@ public:
 		int NumDescriptors = 1;
 		int RegisterSpace = 0;
 	};
-	//todo: migrate to New system
-	typedef struct _MVPStruct
-	{
-		glm::mat4 M;
-		glm::mat4 V;
-		glm::mat4 P;
-	}MVPStruct;
+
 	Shader();
 	Shader(DeviceContext* context);
 	virtual ~Shader();
 	RHI_API ShaderProgramBase* GetShaderProgram();
 	virtual const std::string GetName();
-
-	const int ShadowFarPlane = 500;
-	virtual bool SupportsAPI(ERenderSystemType Type);
 	virtual std::vector<ShaderParameter> GetShaderParameters();
 	virtual std::vector<VertexElementDESC> GetVertexFormat();
 	virtual bool IsComputeShader();

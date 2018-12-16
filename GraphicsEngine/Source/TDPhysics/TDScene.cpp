@@ -10,7 +10,7 @@ namespace TD
 	TDScene::TDScene()
 	{
 		Broadphase = new TDBroadphase();
-		GravityForce = glm::vec3(0, -30.0f, 0);
+		GravityForce = glm::vec3(0, -20.0f, 0);
 	}
 
 	TDScene::~TDScene()
@@ -93,7 +93,7 @@ namespace TD
 		Broadphase->ConstructPairs();
 	}
 
-	std::vector<CollisionPair>& TDScene::GetPairs()
+	std::vector<ActorCollisionPair>& TDScene::GetPairs()
 	{
 		return Broadphase->NarrowPhasePairs;
 	}

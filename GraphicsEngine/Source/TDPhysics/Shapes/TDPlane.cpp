@@ -9,7 +9,7 @@ namespace TD
 	}
 
 
-	TDPlane::TDPlane()
+	TDPlane::TDPlane() :TDShape()
 	{
 		ShapeType = TDShapeType::ePLANE;
 	}

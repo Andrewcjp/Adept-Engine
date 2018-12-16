@@ -1,5 +1,6 @@
 #pragma once
 #include "TDActor.h"
+#include "TDTypes.h"
 namespace TD
 {
 	class TDRigidDynamic : public TDActor
@@ -22,7 +23,7 @@ namespace TD
 		///Sets the bodies Linear Velocity
 		TD_API void				SetLinearVelocity(glm::vec3 newvel);
 		///Add a force to this Body in Newtons 
-		TD_API void				AddForce(glm::vec3 Force, bool AsForce);
+		TD_API void				AddForce(glm::vec3 Force, TDForceMode::Type ForceMode);
 
 		//Angular Motion		
 		//**\returns a 4x4 Matrix containing the Inertia Tensor 

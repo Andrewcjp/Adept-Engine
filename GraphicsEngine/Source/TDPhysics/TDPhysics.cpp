@@ -102,6 +102,7 @@ namespace TD
 	{
 		//for (int i = 0; i < Scenes.size(); i++)
 		{
+			Solver->FinishAccumlateForces(scene);
 			Solver->ResolveCollisions(scene);
 			Solver->IntergrateScene(scene, TimeStep);
 #if !BUILD_FULLRELEASE

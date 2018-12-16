@@ -4,12 +4,16 @@
 
 TD::TDPhysicalMaterial::TDPhysicalMaterial()
 {
-	Restitution = 0.2f;
+	Restitution = 0.5f;
 }
 
 void TD::ContactData::Contact(glm::vec3 position, glm::vec3 normal, float seperation)
 {
 	Blocking = true;
+	if (ContactCount >= MAX_CONTACT_POINTS_COUNT)
+	{
+		return;
+	}
 	ContactPoints[ContactCount] = position;
 	if (normal != glm::vec3(0))
 	{
@@ -56,11 +60,30 @@ void TD::TDFlagsBase::SetFlags(int flags)
 	Flags = Flags;
 }
 
-TD::CollisionPair::CollisionPair(TDActor * A, TDActor * B)
+TD::ActorCollisionPair::ActorCollisionPair(TDActor * A, TDActor * B)
 {
 	first = A;
 	second = B;
-	IsTriggerPair = first->GetAttachedShapes()[0]->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || second->GetAttachedShapes()[0]->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
+	CreateShapePairs();
+}
+
+void TD::ActorCollisionPair::CreateShapePairs()
+{
+	for (int i = 0; i < first->GetAttachedShapes().size(); i++)
+	{
+		for (int j = 0; j < second->GetAttachedShapes().size(); j++)
+		{
+			ShapePairs.push_back(ShapeCollisionPair(first->GetAttachedShapes()[i], second->GetAttachedShapes()[j]));
+		}
+	}
+}
+
+void TD::ActorCollisionPair::Reset()
+{
+	for (int i = 0; i < ShapePairs.size(); i++)
+	{
+		ShapePairs[i].Data.Reset();
+	}
 }
 
 void TD::RaycastData::AddContact(glm::vec3 point, glm::vec3 normal, float depth)
@@ -78,4 +101,14 @@ void TD::RaycastData::Reset()
 	Points[MAX_CONTACT_POINTS_COUNT];
 	BlockingHit = false;
 	Count = 0;
+}
+
+TD::ShapeCollisionPair::ShapeCollisionPair(TDShape * a, TDShape * b)
+{
+	A = a;
+	B = b;
+	AOwner = A->GetOwner();
+	BOwner = B->GetOwner();
+	IsTriggerPair = A->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || B->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
+	SimPair = A->GetFlags().GetFlagValue(TDShapeFlags::ESimulation) && B->GetFlags().GetFlagValue(TDShapeFlags::ESimulation);
 }

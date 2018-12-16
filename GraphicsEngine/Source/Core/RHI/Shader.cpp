@@ -25,16 +25,6 @@ std::vector<Shader::ShaderParameter> Shader::GetShaderParameters()
 	return std::vector<Shader::ShaderParameter>();
 }
 
-bool Shader::SupportsAPI(ERenderSystemType Type)
-{
-	switch (Type)
-	{
-	case RenderSystemOGL:
-		return true;
-	}                                        
-	return false;
-}
-
 std::vector<Shader::VertexElementDESC> Shader::GetVertexFormat()
 {
 	std::vector<Shader::VertexElementDESC> out;

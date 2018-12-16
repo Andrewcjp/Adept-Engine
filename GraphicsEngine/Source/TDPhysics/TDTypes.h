@@ -8,7 +8,7 @@ namespace TD
 	struct TD_API TDPhysicalMaterial
 	{
 		TDPhysicalMaterial();
-		float StaticFriction = 0.2f;
+		float StaticFriction = 0.6f;
 		float DynamicFirction = 0.6f;
 		float Restitution = 0.2f;
 		float density = 1.0;
@@ -53,6 +53,7 @@ namespace TD
 		{
 			AsAcceleration,
 			AsForce,
+			AsVelocityChange,
 			Limit,
 		};
 	}
@@ -115,18 +116,32 @@ namespace TD
 		float Distance;
 		RaycastData* HitData = nullptr;
 	};
-
-	struct CollisionPair
+	///Holds the collision data about two shapes
+	struct ShapeCollisionPair
 	{
-		CollisionPair(TDActor* A, TDActor* B);
+		ShapeCollisionPair(TDShape* A, TDShape* B);
+		TDShape* A = nullptr;
+		TDActor* AOwner = nullptr;
+		TDShape* B = nullptr;
+		TDActor* BOwner = nullptr;
+		ContactData Data;
+		bool IsTriggerPair = false;
+		///Does this pair simulate physics?
+		bool SimPair = false;
+	};
+	///Holds the collision data about Two actors and their shapes in ShapeCollisionPairs
+	struct ActorCollisionPair
+	{
+		ActorCollisionPair(TDActor* A, TDActor* B);
 		TDActor* first = nullptr;
 		TDActor* second = nullptr;
-		ContactData data;
-		bool IsTriggerPair = false;
-		bool operator==(const CollisionPair& rhs)
+		void CreateShapePairs();
+		bool operator==(const ActorCollisionPair& rhs)
 		{
 			return (this->first == rhs.first && this->second == rhs.second) || (this->first == rhs.second && this->first == rhs.second);
 		}
+		std::vector<ShapeCollisionPair> ShapePairs;
+		void Reset();
 	};
 
 	namespace TDConstraintType

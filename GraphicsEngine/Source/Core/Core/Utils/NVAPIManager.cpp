@@ -1,9 +1,5 @@
-
 #include "NVAPIManager.h"
-#include "Core/Asserts.h"
-#include "Core/Platform/Logger.h"
 #include "Rendering/Renderers/TextRenderer.h"
-#include "Core/Platform/PlatformCore.h"
 
 #define NVAPI_GPU_UTILIZATION_DOMAIN_GPU 0
 #define NVAPI_GPU_UTILIZATION_DOMAIN_FB  1
@@ -14,16 +10,21 @@ NVAPIManager::NVAPIManager()
 {
 #if NVAPI_PRESENT 
 	NvAPI_Status ret = NVAPI_OK;
-
 	ret = NvAPI_Initialize();
 	if (ret != NVAPI_OK)
 	{
-		printf("NvAPI_Initialize() failed = 0x%x", ret);
+		Log::LogMessage("NvAPI_Initialize Failed Code: " + std::to_string(ret), Log::Warning);
+		IsOnline = false;
 		return; // Initialization failed
 	}
 
 	ret = NvAPI_EnumPhysicalGPUs(GPUHandles, &GPUCount);
-	ensure(ret == NVAPI_OK);
+	if (ret != NVAPI_OK)
+	{
+		Log::LogMessage("EnumPhysicalGPUs Failed", Log::Warning);
+		IsOnline = false;
+		return;
+	}
 	for (unsigned int i = 0; i < GPUCount; i++)
 	{
 		GpuData.push_back(std::vector<std::string>());
@@ -37,6 +38,7 @@ NVAPIManager::NVAPIManager()
 		}
 		GpuData[i].resize(StaticProps + DynamicProps);
 	}
+	IsOnline = true;
 #endif
 }
 
@@ -44,17 +46,20 @@ NVAPIManager::NVAPIManager()
 NVAPIManager::~NVAPIManager()
 {
 #if NVAPI_PRESENT 
-	NvAPI_Unload();
+	if (IsOnline)
+	{
+		NvAPI_Unload();
+	}
 #endif
-}
-
-std::string NVAPIManager::GetClockData()
-{
-	return SampleData;
 }
 
 void NVAPIManager::RenderGPUStats(int statx, int starty)
 {
+#if NVAPI_PRESENT
+	if (!IsOnline)
+	{
+		return;
+	}
 	int Ysize = 20;
 	int Xsize = 200;
 	if (GpuData[0].size() == 0)
@@ -68,13 +73,17 @@ void NVAPIManager::RenderGPUStats(int statx, int starty)
 			TextRenderer::instance->RenderFromAtlas(GpuData[x][i], (float)statx + x * Xsize, (float)starty - Ysize * i, 0.35f);
 		}
 	}
-
+#endif
 }
 
 void NVAPIManager::SampleClocks()
 {
 #if NVAPI_PRESENT 
-
+	if (!IsOnline)
+	{
+		SampleData = "NO NV GPUS";
+		return;
+	}
 	//KHZ
 	unsigned int CoreClock = 0;
 	SampleData = "";
@@ -105,7 +114,7 @@ void NVAPIManager::SampleClocks()
 		ret = NvAPI_GPU_GetDynamicPstatesInfoEx(GPUHandles[i], &PstatesInfo);
 		if (ret == NVAPI_OK)
 		{
-			Data = ("Graphics: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage) + "%");			
+			Data = ("Graphics: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage) + "%");
 		}
 		GpuData[i][index] = Data;
 		index++;

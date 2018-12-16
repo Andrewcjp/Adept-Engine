@@ -127,8 +127,8 @@ namespace TD
 			{
 				const glm::vec3 normal = InterSections[i].Tri->Normal;
 				contactbuffer->Contact(InterSections[i].Point, normal, InterSections[i].depth);
-				DebugEnsure(InterSections[i].depth > -1.0f);
-				DebugEnsure(InterSections[i].depth < 0.0f);
+//				DebugEnsure(InterSections[i].depth > -1.0f);
+//				DebugEnsure(InterSections[i].depth < 0.0f);
 #if !BUILD_SHIPPING
 				InterSections[i].Tri->DebugDraw(0.0f);
 #endif
