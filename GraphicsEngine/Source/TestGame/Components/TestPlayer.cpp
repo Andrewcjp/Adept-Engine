@@ -144,17 +144,18 @@ void TestPlayer::UpdateMovement(float delta)
 	if (RB != nullptr)
 	{
 #if 1
-		const glm::vec3 tVel = NewVel + ExtraVel;
+		const glm::vec3 tVel = NewVel /*+ ExtraVel*/;
 		glm::vec3 correction = tVel - RB->GetVelocity();
 		correction.y = 0.0f;
-		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25));
+		Log::LogTextToScreen("Correction: " + glm::to_string(correction));
+		RB->GetActor()->AddForce(correction * (IsGrounded ? 10 : 2.5f));
 #else
 		RB->SetLinearVelocity(NewVel);
 #endif
 	}
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
-		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 1000)/* / delta*/);
+		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 10) / delta);
 	}
 	Log::LogTextToScreen("Speed: " + glm::to_string(RB->GetVelocity()));
 }

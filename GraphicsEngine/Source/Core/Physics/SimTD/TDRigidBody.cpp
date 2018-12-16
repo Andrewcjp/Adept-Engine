@@ -38,7 +38,7 @@ void TDRigidBody::AddTorque(glm::vec3 torque)
 
 void TDRigidBody::AddForce(glm::vec3 force, EForceMode::Type Mode)
 {
-	Actor->AddForce(force, (Mode == EForceMode::AsForce));
+	Actor->AddForce(force, (Mode == EForceMode::AsForce) ? TDForceMode::AsAcceleration : TDForceMode::AsForce);
 }
 
 glm::vec3 TDRigidBody::GetLinearVelocity()const
@@ -66,10 +66,17 @@ void TDRigidBody::AttachCollider(Collider * col)
 			break;
 		}
 		case EShapeType::eCAPSULE:
+		{
+			CapsuleElm* SphereShape = (CapsuleElm*)Shape;
+			newShape = new TD::TDSphere();//todo: Capsule
+			((TD::TDSphere*)newShape)->Radius = SphereShape->raduis;
+			break;
+		}
 		case EShapeType::eSPHERE:
 		{
 			SphereElem* SphereShape = (SphereElem*)Shape;
 			newShape = new TD::TDSphere();
+			((TD::TDSphere*)newShape)->Radius = SphereShape->raduis;
 			break;
 		}
 		case EShapeType::eTRIANGLEMESH:

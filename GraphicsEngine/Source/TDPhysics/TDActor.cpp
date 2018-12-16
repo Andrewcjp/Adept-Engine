@@ -11,6 +11,7 @@ namespace TD
 	{
 		AABB = new TDAABB();
 		AABB->Owner = this;
+		
 	}
 
 	TDActor::~TDActor()

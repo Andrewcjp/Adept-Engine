@@ -38,9 +38,12 @@ namespace TD
 		SimulationTriggerCallbackPairs.clear();
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
-			PostIntergrate(&NarrowPhasePairs[i]);
-			AddContact(&NarrowPhasePairs[i]);
-			NarrowPhasePairs[i].data.Reset();
+			for (int p = 0; p < NarrowPhasePairs[i].ShapePairs.size(); p++)
+			{
+				PostIntergrate(&(NarrowPhasePairs[i].ShapePairs[p]));
+				AddContact(&(NarrowPhasePairs[i].ShapePairs[p]));
+			}
+			NarrowPhasePairs[i].Reset();
 		}
 		TDPhysics::Get()->SimulationContactCallback(SimulationCallbackPairs);
 		TDPhysics::Get()->TriggerSimulationContactCallback(SimulationTriggerCallbackPairs);
@@ -52,13 +55,13 @@ namespace TD
 	{
 		return B->ShapeA == A->ShapeA && B->ShapeB == A->ShapeB || (B->ShapeB == A->ShapeA && B->ShapeA == A->ShapeB);
 	}
-	void TDSolver::AddContact(CollisionPair* pair)
+	void TDSolver::AddContact(ShapeCollisionPair * pair)
 	{
-		if (!pair->data.Blocking)
+		if (!pair->Data.Blocking)
 		{
 			return;
 		}
-		ContactPair* newpair = new ContactPair(pair->first->GetAttachedShapes()[0], pair->second->GetAttachedShapes()[0]);
+		ContactPair* newpair = new ContactPair(pair->A, pair->B);
 		if (!VectorUtils::Contains_F<ContactPair*>(SimulationCallbackPairs, newpair, compare) && !VectorUtils::Contains_F<ContactPair*>(OldSimulationCallbackPairs, newpair, compare))
 		{
 			if (pair->IsTriggerPair)
@@ -68,7 +71,7 @@ namespace TD
 					SimulationTriggerCallbackPairs.push_back(newpair);
 				}
 			}
-			else
+			else if (pair->SimPair)
 			{
 				SimulationCallbackPairs.push_back(newpair);
 			}
@@ -83,14 +86,11 @@ namespace TD
 			actor->UpdateSleepTimer(dt);
 			return;
 		}
-		if (actor->IsAffectedByGravity())
-		{
-			actor->AddForce(Scene->GetGravity(), true);
-		}
 		glm::vec3 Veldelta = actor->GetLinearVelocityDelta();
 		glm::vec3 BodyVelocity = actor->GetLinearVelocity();
 		BodyVelocity += Veldelta * dt;
-		BodyVelocity *= 0.98f;
+		float DampingDT = 0.05f *dt;
+		BodyVelocity *= (1.0 - DampingDT);
 		actor->SetLinearVelocity(BodyVelocity);
 		const glm::vec3 startpos = actor->GetTransfrom()->GetPos();
 		actor->GetTransfrom()->SetPos(startpos + (BodyVelocity*dt));
@@ -155,7 +155,17 @@ namespace TD
 #endif
 		//printf(ReportbroadPhaseStats().c_str());
 	}
-
+	void TDSolver::FinishAccumlateForces(TDScene* scene)
+	{
+		for (int i = 0; i < scene->GetDynamicActors().size(); i++)
+		{
+			TDRigidDynamic* actor = scene->GetDynamicActors()[i];
+			if (actor->IsAffectedByGravity())
+			{
+				actor->AddForce(scene->GetGravity(), TDForceMode::AsAcceleration);
+			}
+		}
+	}
 	void TDSolver::ResolveCollisions(TDScene* scene)
 	{
 #if !BUILD_FULLRELEASE
@@ -165,8 +175,11 @@ namespace TD
 		//		DebugEnsure(NarrowPhasePairs.size());
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
-			NarrowPhasePairs[i].data.Reset();//reset before check collisions again
-			ProcessCollisions(&NarrowPhasePairs[i]);
+			NarrowPhasePairs[i].Reset();//reset before check collisions again
+			for (int p = 0; p < NarrowPhasePairs[i].ShapePairs.size(); p++)
+			{
+				ProcessCollisions(&(NarrowPhasePairs[i].ShapePairs[p]));
+			}
 		}
 #if VALIDATE_KE
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
@@ -194,11 +207,14 @@ namespace TD
 #else
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{
-#if VALIDATE_KE
-				NarrowPhasePairs[i].first->ComputeKE();
-				NarrowPhasePairs[i].second->ComputeKE();
-#endif
-				ProcessResponsePair(&NarrowPhasePairs[i]);
+				//#if VALIDATE_KE
+				//				NarrowPhasePairs[i].first->ComputeKE();
+				//				NarrowPhasePairs[i].second->ComputeKE();
+				//#endif
+				for (int p = 0; p < NarrowPhasePairs[i].ShapePairs.size(); p++)
+				{
+					ProcessResponsePair(&(NarrowPhasePairs[i].ShapePairs[p]));
+				}
 			}
 #endif
 		}
@@ -221,62 +237,52 @@ namespace TD
 		return ss.str();
 	}
 
-	void TDSolver::ProcessCollisions(CollisionPair * pair)
+	void TDSolver::ProcessCollisions(ShapeCollisionPair * Pair)
 	{
-		TDShape* A = pair->first->GetAttachedShapes()[0];
-		TDShape* B = pair->second->GetAttachedShapes()[0];
+		TDShape* A = Pair->A;
+		TDShape* B = Pair->B;
 		TDShapeType::Type AType = A->GetShapeType();
 		TDShapeType::Type BType = B->GetShapeType();
 
 		const bool flip = (AType > BType);
 		if (flip)
 		{
-			std::swap(pair->first, pair->second);
+			std::swap(Pair->A, Pair->B);
 			std::swap(A, B);
 			std::swap(AType, BType);
 		}
 
 		ContactMethod con = ContactMethodTable[AType][BType];
 		DebugEnsure(con);
-		con(A, B, &pair->data);
+		con(A, B, &Pair->Data);
 	}
 
-	void TDSolver::ProcessResponsePair(CollisionPair* pair)
+	void TDSolver::ProcessResponsePair(ShapeCollisionPair * pair)
 	{
-		if (pair->IsTriggerPair)
+		if (pair->IsTriggerPair || !pair->SimPair)
 		{
 			return;
 		}
-		TDShape* A = pair->first->GetAttachedShapes()[0];
-		TDShape* B = pair->second->GetAttachedShapes()[0];
-		if (pair->data.Blocking)
+		TDShape* A = pair->A;
+		TDShape* B = pair->B;
+		if (pair->Data.Blocking)
 		{
-			int depthest = 0;
-			float current = 0.0;
-			for (int i = 0; i < pair->data.ContactCount; i++)
-			{
-				if (current < pair->data.depth[i])
-				{
-					current = pair->data.depth[i];
-					depthest = i;
-				}
-			}
-			for (int i = 0; i < pair->data.ContactCount; i++)
+			for (int i = 0; i < pair->Data.ContactCount; i++)
 			{
 				ProcessCollisionResponse(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()),
-					&pair->data, A->GetPhysicalMaterial(), B->GetPhysicalMaterial(), i);
+					&pair->Data, A->GetPhysicalMaterial(), B->GetPhysicalMaterial(), i);
 			}
 		}
 	}
-	void TDSolver::PostIntergrate(CollisionPair* pair)
+	void TDSolver::PostIntergrate(ShapeCollisionPair * pair)
 	{
-		if (pair->IsTriggerPair)
+		if (pair->IsTriggerPair || !pair->SimPair)
 		{
 			return;
 		}
-		TDShape* A = pair->first->GetAttachedShapes()[0];
-		TDShape* B = pair->second->GetAttachedShapes()[0];
-		RunPostFixup(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()), &pair->data);
+		TDShape* A = pair->A;
+		TDShape* B = pair->B;
+		RunPostFixup(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()), &pair->Data);
 	}
 
 	void TDSolver::ResolveConstraints(TDScene * scene)
@@ -309,7 +315,7 @@ namespace TD
 			}
 			float InvMassSum = invmassA + invmassB;
 #if USE_LINEAR_PROJECTION
-			const float Slack = 0.1f;
+			const float Slack = 0.01f;
 			const float LinearProjectionPercent = 0.45f;
 			float depth = fmaxf(data->depth[i] - Slack, 0.0f);
 			float scalar = depth / InvMassSum;
@@ -379,6 +385,7 @@ namespace TD
 		{
 			j /= (float)data->ContactCount;
 		}
+
 		const glm::vec3 impluse = RelNrm * j;
 		if (A != nullptr)
 		{

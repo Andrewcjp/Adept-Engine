@@ -42,7 +42,7 @@ namespace TD
 			{
 				continue;//static - static collisions make no sense.
 			}
-			CollisionPair newpair = CollisionPair(SAP->Pairs[i]->A->Owner, SAP->Pairs[i]->B->Owner);
+			ActorCollisionPair newpair = ActorCollisionPair(SAP->Pairs[i]->A->Owner, SAP->Pairs[i]->B->Owner);
 			if (!VectorUtils::Contains(NarrowPhasePairs, newpair))
 			{
 				NarrowPhasePairs.push_back(newpair);

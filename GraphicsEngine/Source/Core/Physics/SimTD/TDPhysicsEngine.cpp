@@ -23,9 +23,10 @@ void TDPhysicsEngine::initPhysics()
 	PlayScene = TDPhysics::Get()->CreateScene();
 	EditorScene = TDPhysics::Get()->CreateScene();
 	TDRigidStatic* Actor = new TD::TDRigidStatic();
-	Actor->GetTransfrom()->SetPos(glm::vec3(0, 0, 0));
+	Actor->GetTransfrom()->SetPos(glm::vec3(0, 1, 0));
 	Actor->AttachShape(new TDPlane());
-	//TDPhysicsEngine::GetScene()->AddToScene(Actor);
+	//PlayScene->AddToScene(Actor);
+	
 	DECLARE_TIMER_GROUP(GROUP_PhysicsEngine, "Physics Engine");
 	PerfManager::Get()->AddTimer("ResolveCollisions", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("ResolveConstraints", GROUP_PhysicsEngine);
@@ -131,7 +132,7 @@ bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, floa
 TDScene * TDPhysicsEngine::GetScene()
 {
 #if WITH_EDITOR
-	if (EditorWindow::GetInstance()->IsInPlayMode())
+	if (EditorWindow::GetInstance() != nullptr && EditorWindow::GetInstance()->IsInPlayMode())
 	{
 		return Instance->PlayScene;
 	}

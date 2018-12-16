@@ -16,10 +16,10 @@ class NVAPIManager
 public:
 	NVAPIManager();
 	~NVAPIManager(); 
-	std::string GetClockData();
 	void RenderGPUStats(int x, int y);
 	void SampleClocks();
 private:
+	bool IsOnline = false;
 	int StaticProps = 2;
 	int DynamicProps = 4;
 	std::string SampleData;

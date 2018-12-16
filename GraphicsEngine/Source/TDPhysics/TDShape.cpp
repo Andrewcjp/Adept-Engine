@@ -4,7 +4,9 @@
 namespace TD
 {
 	TDShape::TDShape()
-	{}
+	{
+		Flags.SetFlagValue(TDShapeFlags::ESimulation, true);
+	}
 
 
 	TDShape::~TDShape()

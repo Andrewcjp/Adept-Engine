@@ -26,10 +26,10 @@ namespace TD
 		TD_API void RemoveActor(TDActor* Actor);
 		TD_API bool RayCastScene(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData* HitData);
 		void UpdateBroadPhase();
-		std::vector<CollisionPair>& GetPairs();
+		std::vector<ActorCollisionPair>& GetPairs();
 	private:
 		bool RayCastSceneInternal(RayCast* ray);
-		glm::vec3 GravityForce = glm::vec3(0, -30.0f, 0);
+		glm::vec3 GravityForce = glm::vec3(0, -20.0f, 0);
 		//todo: remove
 		std::vector<TDActor*> SceneActors;
 		std::vector<TDRigidDynamic*> DynamicActors;

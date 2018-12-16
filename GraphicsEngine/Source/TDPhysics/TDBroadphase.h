@@ -15,12 +15,12 @@ namespace TD
 	public:
 		TDBroadphase();
 		~TDBroadphase();
-		///Populate the NarrowPhasePairs List from the Currnet Selected BroadPhase
+		///Populate the NarrowPhasePairs List from the current Selected BroadPhase
 		void ConstructPairs();
-		std::vector<CollisionPair> NarrowPhasePairs;
+		std::vector<ActorCollisionPair> NarrowPhasePairs;
 		///Register an actor with the current BroadPhase 
 		void AddToPhase(TDActor* actor);
-		///Remove an Actor from the currnet BroadPhase
+		///Remove an Actor from the current BroadPhase
 		void RemoveFromPhase(TDActor * actor);
 		///Update the Actors position the 
 		void UpdateActor(TDActor * actor);

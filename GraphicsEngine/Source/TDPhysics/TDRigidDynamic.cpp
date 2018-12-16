@@ -31,14 +31,14 @@ namespace TD
 		return DeltaAngularVel;
 	}
 
-	void TDRigidDynamic::AddForce(glm::vec3 Force, bool AsForce)
+	void TDRigidDynamic::AddForce(glm::vec3 Force, TDForceMode::Type ForceMode)
 	{
 		glm::vec3 Addition = glm::vec3();
-		if (AsForce)
+		if (ForceMode == TDForceMode::AsForce)
 		{
 			Addition = Force * GetInvBodyMass();
 		}
-		else
+		else if (ForceMode == TDForceMode::AsAcceleration)
 		{
 			Addition = Force;
 		}
@@ -86,9 +86,15 @@ namespace TD
 	void TDRigidDynamic::ValidateKE()
 	{
 		const float postsim = Compute_KE();
-		if (AttachedShapes.size() != 2)
+		//if (AttachedShapes.size() != 2)
 		{
-			DebugEnsure(postsim == PreSimKE);
+			float DelteE = (postsim - PreSimKE);
+
+			if (postsim != PreSimKE)
+			{
+				printf("Delta E %f\n", DelteE);
+			}
+			//DebugEnsure(postsim == PreSimKE);
 		}
 	}
 #endif
@@ -187,7 +193,7 @@ namespace TD
 		glm::vec3 centerOfMass = GetTransfrom()->GetPos();
 		glm::vec3 torque = glm::cross(pos - centerOfMass, force);
 		AddTorque(torque);
-		AddForce(force, true);
+		AddForce(force, TDForceMode::AsForce);
 	}
 
 	void TDRigidDynamic::SetBodyMass(float Mass)
