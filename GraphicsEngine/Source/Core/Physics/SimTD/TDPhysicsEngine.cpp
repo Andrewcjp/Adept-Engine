@@ -10,7 +10,7 @@
 #include "Editor/EditorWindow.h"
 #include "TDSupport.h"
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
-void TDPhysicsEngine::initPhysics()
+void TDPhysicsEngine::InitPhysics()
 {
 	//TDSolver
 	TDSimConfig* config = new TDSimConfig();
@@ -39,11 +39,6 @@ ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody 
 	TD::ConstraintDesc desc;
 	desc.Type = TDConstraintType::Spring;
 	TDPhysics::Get()->CreateConstraint(A->GetActor(), B->GetActor(), desc);
-	return nullptr;
-}
-
-ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup)
-{
 	return nullptr;
 }
 
@@ -99,13 +94,13 @@ void TDPhysicsEngine::TimerCallbackHandler(bool IsStart, TDPerfCounters::Type ty
 	}
 }
 
-void TDPhysicsEngine::stepPhysics(float Deltatime)
+void TDPhysicsEngine::StepPhysics(float Deltatime)
 {
-	GenericPhysicsEngine::stepPhysics(Deltatime);
+	GenericPhysicsEngine::StepPhysics(Deltatime);
 	TDPhysics::Get()->StartStep(PlayScene, Deltatime);
 }
 
-void TDPhysicsEngine::cleanupPhysics()
+void TDPhysicsEngine::CleanupPhysics()
 {}
 
 

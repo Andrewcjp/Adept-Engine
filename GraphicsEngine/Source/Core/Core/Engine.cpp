@@ -61,7 +61,7 @@ Engine::Engine()
 	PhysEngine = new PhysicsEngine();
 	if (PhysEngine != nullptr)
 	{
-		PhysEngine->initPhysics();
+		PhysEngine->InitPhysics();
 	}
 	CompRegistry = new CompoenentRegistry();
 #if RUNTESTS
@@ -107,7 +107,7 @@ void Engine::Destory()
 	RHI::DestoryRHI();
 	if (PhysEngine != nullptr)
 	{
-		PhysEngine->cleanupPhysics();
+		PhysEngine->CleanupPhysics();
 	}
 	AISystem::ShutDown();
 	AudioEngine::Shutdown();

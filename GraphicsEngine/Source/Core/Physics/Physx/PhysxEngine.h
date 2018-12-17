@@ -14,10 +14,10 @@ class PhysxEngine : public GenericPhysicsEngine
 {
 public:
 	static PhysxEngine * Get();
-	void initPhysics();
-	void stepPhysics(float Deltatime);
+	void InitPhysics();
+	void StepPhysics(float Deltatime);
 
-	void cleanupPhysics();
+	void CleanupPhysics();
 
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors);
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit);

@@ -5,17 +5,17 @@
 #include "Core/Utils/TypeUtils.h"
 static ConsoleVariable DebugMode("physdebug", 0, ECVarType::ConsoleAndLaunch);
 
-void GenericPhysicsEngine::initPhysics()
+void GenericPhysicsEngine::InitPhysics()
 {
 	DebugMode.SetValue(EPhysicsDebugMode::None); 
 }
 
-void GenericPhysicsEngine::stepPhysics(float Deltatime)
+void GenericPhysicsEngine::StepPhysics(float Deltatime)
 {
 	SetPhysicsDebugMode(DebugMode.GetAsEnum<EPhysicsDebugMode::Type>());
 }
 
-void GenericPhysicsEngine::cleanupPhysics()
+void GenericPhysicsEngine::CleanupPhysics()
 {}
 
 bool GenericPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
@@ -33,10 +33,9 @@ void GenericPhysicsEngine::SetPhysicsDebugMode(EPhysicsDebugMode::Type mode)
 	PhysicsDebugMode = mode;
 }
 
-ConstraintInstance * GenericPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, ConstaintSetup Setup)
+ConstraintInstance * GenericPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, const ConstaintSetup & Setup)
 {
 	return nullptr;
 }
-
 
 

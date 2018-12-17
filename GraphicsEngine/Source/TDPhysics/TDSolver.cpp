@@ -61,6 +61,17 @@ namespace TD
 		{
 			return;
 		}
+		if (!pair->IsTriggerPair && !pair->SimPair)
+		{
+			return;
+		}
+		if (pair->IsTriggerPair)
+		{
+			if (!pair->IsPairValidForTrigger())
+			{
+				return;
+			}
+		}
 		ContactPair* newpair = new ContactPair(pair->A, pair->B);
 		if (!VectorUtils::Contains_F<ContactPair*>(SimulationCallbackPairs, newpair, compare) && !VectorUtils::Contains_F<ContactPair*>(OldSimulationCallbackPairs, newpair, compare))
 		{
@@ -89,7 +100,7 @@ namespace TD
 		glm::vec3 Veldelta = actor->GetLinearVelocityDelta();
 		glm::vec3 BodyVelocity = actor->GetLinearVelocity();
 		BodyVelocity += Veldelta * dt;
-		float DampingDT = 0.05f *dt;
+		float DampingDT = actor->GetLinearDamping() *dt;
 		BodyVelocity *= (1.0 - DampingDT);
 		actor->SetLinearVelocity(BodyVelocity);
 		const glm::vec3 startpos = actor->GetTransfrom()->GetPos();

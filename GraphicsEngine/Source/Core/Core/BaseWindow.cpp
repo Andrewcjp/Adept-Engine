@@ -91,7 +91,7 @@ void BaseWindow::Render()
 		{
 			{
 				SCOPE_CYCLE_COUNTER("stepPhysics");
-				Engine::PhysEngine->stepPhysics(TimeStep);
+				Engine::PhysEngine->StepPhysics(TimeStep);
 			}
 			if (ShouldTickScene)
 			{

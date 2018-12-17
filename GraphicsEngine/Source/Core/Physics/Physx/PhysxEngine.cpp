@@ -24,7 +24,7 @@ PhysxEngine * PhysxEngine::Get()
 	return Engine::GetPhysEngineInstance();
 }
 
-void PhysxEngine::initPhysics()
+void PhysxEngine::InitPhysics()
 {
 	//PhysicsDebugMode = EPhysicsDebugMode::ShowShapes;
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
@@ -83,14 +83,14 @@ void PhysxEngine::initPhysics()
 	Log::OutS << "PhysX initialized" << Log::OutS;
 }
 
-void PhysxEngine::stepPhysics(float Deltatime)
+void PhysxEngine::StepPhysics(float Deltatime)
 {
-	GenericPhysicsEngine::stepPhysics(Deltatime);
+	GenericPhysicsEngine::StepPhysics(Deltatime);
 	gScene->simulate(Deltatime);
 	gScene->fetchResults(true);
 }
 
-void PhysxEngine::cleanupPhysics()
+void PhysxEngine::CleanupPhysics()
 {
 	gScene->release();
 	gEdtiorScene->release();
