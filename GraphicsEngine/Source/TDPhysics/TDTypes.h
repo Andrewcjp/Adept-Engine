@@ -128,6 +128,7 @@ namespace TD
 		bool IsTriggerPair = false;
 		///Does this pair simulate physics?
 		bool SimPair = false;
+		bool IsPairValidForTrigger();
 	};
 	///Holds the collision data about Two actors and their shapes in ShapeCollisionPairs
 	struct ActorCollisionPair

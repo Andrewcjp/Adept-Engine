@@ -52,6 +52,8 @@ namespace TD
 		TD_API bool				IsBodyAsleep()const;
 
 		TD_API bool				IsAffectedByGravity()const { return UseGravity; };
+		TD_API void				SetLinearDamping(float amt);
+		TD_API float			GetLinearDamping()const;
 #if VALIDATE_KE
 		float					Compute_KE();
 		void					ComputeKE();
@@ -73,6 +75,7 @@ namespace TD
 		float					CachedsqSleepZeroThreshold = 0.0f;
 		float					SleepTimer = 0.0f;
 		float					SleepMaxTimer = 10.0f;
+		float					LinearDamping = 0.05f;
 	};
 
 }

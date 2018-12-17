@@ -72,6 +72,16 @@ namespace TD
 		return SleepTimer > SleepMaxTimer;
 	}
 
+	void TDRigidDynamic::SetLinearDamping(float amt)
+	{
+		LinearDamping = amt;
+	}
+
+	float TDRigidDynamic::GetLinearDamping() const
+	{
+		return LinearDamping;
+	}
+
 #if VALIDATE_KE
 	float TDRigidDynamic::Compute_KE()
 	{
@@ -92,7 +102,7 @@ namespace TD
 
 			if (postsim != PreSimKE)
 			{
-				printf("Delta E %f\n", DelteE);
+				/*printf("Delta E %f\n", DelteE);*/
 			}
 			//DebugEnsure(postsim == PreSimKE);
 		}

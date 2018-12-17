@@ -1,10 +1,10 @@
 #include "TestPlayer.h"
 #include "Core/Components/Core_Components_inc.h"
+#include "Core/Platform/ConsoleVariable.h"
 #include "Editor/EditorWindow.h"
 #include "Health.h"
-#include "WeaponManager.h"
-#include "Core/Platform/ConsoleVariable.h"
 #include "Rendering/Renderers/TextRenderer.h"
+#include "WeaponManager.h"
 TestPlayer::TestPlayer()
 {}
 

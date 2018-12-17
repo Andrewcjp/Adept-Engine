@@ -112,3 +112,14 @@ TD::ShapeCollisionPair::ShapeCollisionPair(TDShape * a, TDShape * b)
 	IsTriggerPair = A->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || B->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
 	SimPair = A->GetFlags().GetFlagValue(TDShapeFlags::ESimulation) && B->GetFlags().GetFlagValue(TDShapeFlags::ESimulation);
 }
+
+bool TD::ShapeCollisionPair::IsPairValidForTrigger()
+{
+	if (!IsTriggerPair)
+	{
+		return false;
+	}
+	const bool IsAReady = A->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || A->GetFlags().GetFlagValue(TDShapeFlags::ESimulation);
+	const bool IsBReady = B->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || B->GetFlags().GetFlagValue(TDShapeFlags::ESimulation);
+	return IsAReady && IsBReady;
+}

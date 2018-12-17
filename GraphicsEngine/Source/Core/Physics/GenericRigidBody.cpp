@@ -26,7 +26,7 @@ void GenericRigidBody::AddTorque(glm::vec3 torque)
 
 void GenericRigidBody::AddForce(glm::vec3 force, EForceMode::Type Mode)
 {
-	
+
 }
 
 
@@ -100,7 +100,8 @@ RigidBody * GenericCollider::GetOwner()
 
 void GenericCollider::SetEnabled(bool state)
 {
-	if (Shape == nullptr) {
+	if (Shape == nullptr)
+	{
 		return;
 	}
 #if PHYSX_ENABLED
@@ -141,7 +142,6 @@ void GenericCollider::SetEnabled(bool state)
 	{
 		Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ESimulation, false);
 		Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ETrigger, false);
-		//Shape->GetFlags().SetFlagValue(TD::TDShapeFlags::ESimulation, false);
 	}
 
 #endif
