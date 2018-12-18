@@ -26,15 +26,15 @@ std::vector<Shader::ShaderParameter> Shader_SkeletalMesh::GetShaderParameters()
 {
 	std::vector<Shader::ShaderParameter> Output;
 	Shader_Main::GetMainShaderSig(Output);
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 9, 5));
+	Output.push_back(ShaderParameter(ShaderParamType::CBV, 8, 5));
 	return Output;
 }
 
 std::vector<Shader::VertexElementDESC> Shader_SkeletalMesh::GetVertexFormat()
 {
 	std::vector<Shader::VertexElementDESC> foamt = Shader_Main::GetMainVertexFormat();//ends on 32 
-	foamt.push_back(VertexElementDESC{ "BLENDINDICES", 0, FORMAT_R32G32B32A32_UINT, 0, 44,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-	foamt.push_back(VertexElementDESC{ "TEXCOORD", 2, FORMAT_R32G32B32A32_FLOAT, 0, 44 + 12,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	foamt.push_back(VertexElementDESC{ "BLENDINDICES", 0, FORMAT_R32G32B32A32_UINT, 0, 44, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	foamt.push_back(VertexElementDESC{ "TEXCOORD", 2, FORMAT_R32G32B32A32_FLOAT, 0, 44 + 16, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	return foamt;
 }
 
@@ -50,5 +50,5 @@ void Shader_SkeletalMesh::PushBones(std::vector<glm::mat4x4>& bonetrans, RHIComm
 		boneD.Bones[i] = bonetrans[i];
 	}
 	BonesBuffer->UpdateConstantBuffer(&boneD, 0);
-	list->SetConstantBufferView(BonesBuffer, 0, 9);
+	list->SetConstantBufferView(BonesBuffer, 0, 8);
 }

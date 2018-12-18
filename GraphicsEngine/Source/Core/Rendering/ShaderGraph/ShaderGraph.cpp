@@ -11,7 +11,7 @@ ShaderGraph::ShaderGraph(FString Name)
 	GraphName = Name;
 	CoreGraphProperties = new CoreProps();
 	MaterialBinds = new Material::TextureBindSet();
-	CurrentSlot = MainShaderRSBinds::Limit + 1;
+	CurrentSlot = MainShaderRSBinds::Limit;
 }
 
 ShaderGraph::~ShaderGraph()

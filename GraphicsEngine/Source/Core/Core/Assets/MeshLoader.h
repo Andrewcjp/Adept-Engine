@@ -56,6 +56,7 @@ struct SkeletalMeshEntry
 	
 	float CurrnetTime = 0.0f;
 	float GetMaxTime() { return MaxTime; };
+	void RenderBones();
 	void Tick(float Delta);
 	void LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones, int BaseVertex);
 	const aiNodeAnim * FindNodeAnim(const aiAnimation * pAnimation, const std::string NodeName);

@@ -222,7 +222,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	go = new GameObject("anim Test");
 	mat = ColourMat->GetMaterialInstance();
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("boblampclean.md5mesh"), mat));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("boblampclean.md5mesh"/*"Mutant Swiping.fbx"*/), mat));
 	go->GetTransform()->SetPos(glm::vec3(50, 20, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));

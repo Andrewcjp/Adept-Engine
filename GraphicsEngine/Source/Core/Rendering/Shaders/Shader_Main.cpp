@@ -38,7 +38,7 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DiffuseIr, 10));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::SpecBlurMap, 11));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::EnvBRDF, 12));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::Limit, 13));
+	//out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::Limit, 13));
 }
 
 std::vector<Shader::VertexElementDESC> Shader_Main::GetMainVertexFormat()
