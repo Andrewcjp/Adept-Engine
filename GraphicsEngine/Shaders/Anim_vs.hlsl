@@ -48,7 +48,7 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 	result.position = final_pos;
 
 	result.uv = uv.xy;
-	result.Normal = mul(float4(0,1,0,0), SumTrans);// mul(normal, SumTrans);
+	result.Normal = normal;// mul(normal, SumTrans);
 	if (HasNormalMap)
 	{
 		const float3 BiTangent = (mul(float4(cross(normal.xyz, Tangent.xyz).xyz, 0.0), Model)).xyz;

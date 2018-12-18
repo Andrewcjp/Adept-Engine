@@ -24,6 +24,9 @@ public:
 	}
 	void SetMaterial(Material * mat, int index);
 	CORE_API void SetVisiblity(bool state);
+	void LoadAnimation(std::string filename);
+	void LoadAnimation(std::string filename, MeshLoader::FMeshLoadingSettings & Settings);
+	void PlayAnim(std::string name);
 private:
 	Mesh* m_mesh = nullptr;
 	// Inherited via Component

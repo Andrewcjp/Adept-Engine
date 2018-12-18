@@ -35,6 +35,7 @@ public:
 	void SetShadow(bool state);
 	bool GetDoesShadow();
 	MeshLoader::FMeshLoadingSettings ImportSettings;
+	SkeletalMeshEntry* GetSkeletalMesh()const;
 private:
 	RHI_API void Release() override;
 	int FrameCreated = 0;

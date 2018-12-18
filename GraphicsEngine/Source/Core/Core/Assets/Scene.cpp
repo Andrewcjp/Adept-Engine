@@ -222,9 +222,11 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	go = new GameObject("anim Test");
 	mat = ColourMat->GetMaterialInstance();
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("boblampclean.md5mesh"/*"Mutant Swiping.fbx"*/), mat));
+	MeshRendererComponent* mrc = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Creature NPC Pack\\mutant.fbx"), mat));
+	mrc->LoadAnimation("Creature NPC Pack\\mutant swiping.fbx");
+	mrc->PlayAnim("mixamo.com");
 	go->GetTransform()->SetPos(glm::vec3(50, 20, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
+	//go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
 #if 0

@@ -12,6 +12,7 @@ struct aiAnimation;
 struct aiNode;
 struct aiAnimation;
 struct aiNodeAnim;
+struct aiAnimation;
 
 ///class that loads mesh data into a Mesh Entity;
 class MeshLoader
@@ -29,6 +30,7 @@ public:
 		void Serialize(Archive* A);
 		std::vector<std::string> IgnoredMeshObjectNames;
 	};
+	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh,FMeshLoadingSettings& Settings);
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);
 	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices);
 };
@@ -58,15 +60,18 @@ struct SkeletalMeshEntry
 	float GetMaxTime() { return MaxTime; };
 	void RenderBones();
 	void Tick(float Delta);
-	void LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones, int BaseVertex);
+	void PlayAnimation(std::string name);
+	void LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones);
 	const aiNodeAnim * FindNodeAnim(const aiAnimation * pAnimation, const std::string NodeName);
 	std::map<std::string, uint> m_BoneMapping;
+	std::map<std::string, const aiAnimation*> AnimNameMap;
 	std::vector<BoneInfo> m_BoneInfo;
 	std::vector<MeshEntity*> MeshEntities;
 	std::vector<glm::mat4x4> FinalBoneTransforms;
 	void InitScene(const aiScene* sc);
 	uint FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim);
 	void Release();
+	void SetAnim(const aiAnimation* anim);
 private:
 	const aiScene* Scene = nullptr;
 	uint FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim);
@@ -74,8 +79,9 @@ private:
 	void CalcInterpolatedScaling(aiVector3D & Out, float AnimationTime, const aiNodeAnim * pNodeAnim);
 	void CalcInterpolatedPosition(aiVector3D & Out, float AnimationTime, const aiNodeAnim * pNodeAnim);
 	void CalcInterpolatedRotation(aiQuaternion & Out, float AnimationTime, const aiNodeAnim * pNodeAnim);
-	void ReadNodes(float time, const aiNode* pNode, const glm::mat4 ParentTransfrom);
+	void ReadNodes(float time, const aiNode* pNode, const glm::mat4 ParentTransfrom, const aiAnimation* Anim);
 	float MaxTime = 0.0f;
 	int m_NumBones = 0;
 	glm::mat4 ModelInvTransfrom;
+	const aiAnimation* CurrentAnim = nullptr;
 };

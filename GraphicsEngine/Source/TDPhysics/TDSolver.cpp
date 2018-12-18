@@ -196,7 +196,7 @@ namespace TD
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			NarrowPhasePairs[i].first->ComputeKE();
-			NarrowPhasePairs[i].second->ComputeKE();
+			NarrowPhasePairs[i].second->ComputeKE();//todo: crash here
 		}
 #endif
 		for (int Iterations = 0; Iterations < SolverIterations; Iterations++)

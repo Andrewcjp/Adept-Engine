@@ -67,6 +67,30 @@ void MeshRendererComponent::SetVisiblity(bool state)
 	IsVisible = state;
 }
 
+void MeshRendererComponent::LoadAnimation(std::string filename)
+{
+	LoadAnimation(filename, MeshLoader::FMeshLoadingSettings());
+}
+
+void MeshRendererComponent::LoadAnimation(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
+{
+	if (m_mesh == nullptr || m_mesh->GetSkeletalMesh()  == nullptr)
+	{
+		return;
+	}
+	std::string accpath = AssetManager::GetContentPath();
+	accpath.append(filename);
+	MeshLoader::LoadAnimOnly(accpath, m_mesh->GetSkeletalMesh(), Settings);
+}
+
+void MeshRendererComponent::PlayAnim(std::string name)
+{
+	if (m_mesh != nullptr && m_mesh->GetSkeletalMesh() != nullptr)
+	{
+		m_mesh->GetSkeletalMesh()->PlayAnimation(name);
+	}
+}
+
 void MeshRendererComponent::BeginPlay()
 {}
 
