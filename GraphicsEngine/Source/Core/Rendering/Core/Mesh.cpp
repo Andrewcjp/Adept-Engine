@@ -129,6 +129,11 @@ bool Mesh::GetDoesShadow()
 	return DoesShadow;
 }
 
+SkeletalMeshEntry * Mesh::GetSkeletalMesh() const
+{
+	return pSkeletalEntity;
+}
+
 MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices)
 {
 	if (vertices.size() == 0 || indices.size() == 0)
