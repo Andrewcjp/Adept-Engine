@@ -37,11 +37,11 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 		if (pSkeletalEntity != nullptr && SetMaterial)
 		{
 			pSkeletalEntity->Tick(Engine::GetDeltaTime());
-			
+			TryPushMaterial(list, 0);
 			list->SetPipelineStateObject(ShaderComplier::GetShader<Shader_SkeletalMesh>());
-			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms,list);
+			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
 			for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)
-			{
+			{				
 				list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()]);
 				list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]);
 				list->DrawIndexedPrimitive((int)pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);

@@ -8,6 +8,7 @@
 #include <assimp/scene.h>
 #include "Core/Utils/VectorUtils.h"
 #include "assimp/anim.h"
+#include "../Utils/DebugDrawers.h"
 
 
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -244,11 +245,36 @@ SkeletalMeshEntry::SkeletalMeshEntry(aiAnimation* anim)
 {
 	if (anim->mTicksPerSecond != 0)
 	{
-		MaxTime = (float)anim->mDuration / (float)anim->mTicksPerSecond;
+		MaxTime = (float)anim->mDuration /*/ (float)anim->mTicksPerSecond*/;
 	}
 	else
 	{
 		MaxTime = (float)anim->mDuration / 30.0f;
+	}
+	float ticksperSecond = anim->mTicksPerSecond;
+	if (ticksperSecond == 0)
+	{
+		ticksperSecond = 30.0f;
+	}
+	float TimeInTicks = anim->mDuration * ticksperSecond;
+	MaxTime = anim->mDuration/ticksperSecond;
+
+}
+
+glm::vec3 GetPos(glm::mat4 model)
+{
+	return glm::vec3(model[3][0], model[3][1], model[3][2]);
+}
+
+void SkeletalMeshEntry::RenderBones()
+{
+	for (int i = 0; i < FinalBoneTransforms.size(); i++)
+	{
+		const float C = 1.0f;//i / 32.0f;
+		if (i == 29)
+		{
+			DebugDrawers::DrawDebugSphere(GetPos(FinalBoneTransforms[i]), 0.5f, glm::vec3(C, 0, 0));
+		}
 	}
 }
 
@@ -256,11 +282,10 @@ void SkeletalMeshEntry::Tick(float Delta)
 {
 	CurrnetTime += Delta;
 	CurrnetTime = glm::clamp(CurrnetTime, 0.0f, MaxTime);
-	if (CurrnetTime == MaxTime)
+	if (CurrnetTime >= MaxTime)
 	{
 		CurrnetTime = 0.0f;
 	}
-
 	ReadNodes(CurrnetTime, Scene->mRootNode, glm::mat4(1));
 
 	FinalBoneTransforms.resize(m_NumBones);
@@ -268,6 +293,7 @@ void SkeletalMeshEntry::Tick(float Delta)
 	{
 		FinalBoneTransforms[i] = m_BoneInfo[i].FinalTransformation;
 	}
+	//RenderBones();
 }
 
 glm::mat3x3 ToGLM(aiMatrix3x3& mat)
@@ -318,6 +344,7 @@ void SkeletalMeshEntry::LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vec
 			uint VertexID =/* MeshEntities[MeshIndex]->BaseVertex */BaseVertex + pMesh->mBones[i]->mWeights[j].mVertexId;
 			float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
 			Bones[VertexID].AddBoneData(BoneIndex, Weight);
+			//Log::LogOutput("ID: " + std::to_string(VertexID) + " Bone:" + std::to_string(BoneIndex)+"\n");
 		}
 	}
 }
@@ -327,7 +354,6 @@ const aiNodeAnim* SkeletalMeshEntry::FindNodeAnim(const aiAnimation* pAnimation,
 	for (uint i = 0; i < pAnimation->mNumChannels; i++)
 	{
 		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
-
 		if (std::string(pNodeAnim->mNodeName.data) == NodeName)
 		{
 			return pNodeAnim;
@@ -336,8 +362,6 @@ const aiNodeAnim* SkeletalMeshEntry::FindNodeAnim(const aiAnimation* pAnimation,
 
 	return NULL;
 }
-
-
 
 void SkeletalMeshEntry::InitScene(const aiScene* sc)
 {
@@ -362,9 +386,7 @@ uint SkeletalMeshEntry::FindPosition(float AnimationTime, const aiNodeAnim* pNod
 void SkeletalMeshEntry::Release()
 {
 	MemoryUtils::DeleteReleaseableVector(MeshEntities);
-
 }
-
 
 uint SkeletalMeshEntry::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
@@ -417,6 +439,7 @@ void SkeletalMeshEntry::CalcInterpolatedScaling(aiVector3D& Out, float Animation
 	aiVector3D Delta = End - Start;
 	Out = Start + Factor * Delta;
 }
+
 void SkeletalMeshEntry::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
 	if (pNodeAnim->mNumPositionKeys == 1)
@@ -436,6 +459,7 @@ void SkeletalMeshEntry::CalcInterpolatedPosition(aiVector3D& Out, float Animatio
 	aiVector3D Delta = End - Start;
 	Out = Start + Factor * Delta;
 }
+
 void SkeletalMeshEntry::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
 	// we need at least two values to interpolate...
@@ -459,6 +483,7 @@ void SkeletalMeshEntry::CalcInterpolatedRotation(aiQuaternion& Out, float Animat
 
 void SkeletalMeshEntry::ReadNodes(float time, const aiNode * pNode, const glm::mat4 ParentTransfrom)
 {
+	float Animtime = time * Scene->mAnimations[0]->mTicksPerSecond;
 	std::string NodeName(pNode->mName.data);
 
 	const aiAnimation* Anim = Scene->mAnimations[0];//todo: multi anims
@@ -470,17 +495,17 @@ void SkeletalMeshEntry::ReadNodes(float time, const aiNode * pNode, const glm::m
 	{
 		// Interpolate scaling and generate scaling transformation matrix
 		aiVector3D Scaling;
-		CalcInterpolatedScaling(Scaling, time, pNodeAnim);
+		CalcInterpolatedScaling(Scaling, Animtime, pNodeAnim);
 		glm::mat4 ScalingM = glm::scale(ToGLM(Scaling));
 
 		// Interpolate rotation and generate rotation transformation matrix
 		aiQuaternion RotationQ;
-		CalcInterpolatedRotation(RotationQ, time, pNodeAnim);
+		CalcInterpolatedRotation(RotationQ, Animtime, pNodeAnim);
 		glm::mat4 RotationM = glm::mat4(ToGLM(RotationQ.GetMatrix()));
 
 		// Interpolate translation and generate translation transformation matrix
 		aiVector3D Translation;
-		CalcInterpolatedPosition(Translation, time, pNodeAnim);
+		CalcInterpolatedPosition(Translation, Animtime, pNodeAnim);
 		glm::mat4x4 TranslationM = glm::translate(ToGLM(Translation));
 
 		// Combine the above transformations
