@@ -72,12 +72,12 @@ namespace TD
 		Broadphase->RemoveFromPhase(Actor);
 	}
 
-	bool TDScene::RayCastScene(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData * HitData)
+	bool TDScene::RayCastScene(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData* HitData, TDQuerryFilter* Filter /*= nullptr*/)
 	{
 #if !BUILD_FULLRELEASE
 		TDPhysics::StartTimer(TDPerfCounters::IntersectionTests);
 #endif
-		RayCast ray(Origin, Dir, Distance, HitData);
+		RayCast ray(Origin, Dir, Distance, HitData, Filter);
 		bool result = RayCastSceneInternal(&ray);
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::IntersectionTests);
@@ -112,11 +112,15 @@ namespace TD
 				for (int j = 0; j < actor->GetAttachedShapes().size(); j++)
 				{
 					TDShape* currentshape = actor->GetAttachedShapes()[j];
+					if (!Ray->PreFilter(actor,currentshape))
+					{
+						continue;
+					}
 					DebugEnsure(currentshape);
 					IntersectionMethod con = IntersectionMethodTable[currentshape->GetShapeType()];
 					DebugEnsure(con);
 					Hit = con(currentshape, Ray);
-					if (Hit)
+					if (Hit && Ray->PostFilter())
 					{
 						return true;
 					}
