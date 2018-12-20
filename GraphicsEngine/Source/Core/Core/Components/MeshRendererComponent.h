@@ -12,7 +12,7 @@ public:
 	virtual ~MeshRendererComponent();
 	void SetUpMesh(Mesh * Mesh, Material * materal);
 
-	void Render(bool DepthOnly,class RHICommandList * list);
+	void Render(bool DepthOnly, class RHICommandList * list);
 	/*void Render(bool DepthOnly);*/
 	Material* GetMaterial(int index);
 #if WITH_EDITOR
@@ -24,9 +24,9 @@ public:
 	}
 	void SetMaterial(Material * mat, int index);
 	CORE_API void SetVisiblity(bool state);
-	void LoadAnimation(std::string filename);
-	void LoadAnimation(std::string filename, MeshLoader::FMeshLoadingSettings & Settings);
-	void PlayAnim(std::string name);
+	CORE_API void LoadAnimation(std::string filename, std::string name);
+	void LoadAnimation(std::string filename, std::string name, MeshLoader::FMeshLoadingSettings & Settings);
+	CORE_API void PlayAnim(std::string name);
 private:
 	Mesh* m_mesh = nullptr;
 	// Inherited via Component

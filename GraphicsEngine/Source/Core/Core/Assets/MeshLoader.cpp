@@ -58,11 +58,11 @@ void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
 }
 ///this loads only an animation from a file and adds it to a Skeletal mesh
 ///Todo: validate bones are the same
-bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry* SkeletalMesh, FMeshLoadingSettings& Settings)
+bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name, FMeshLoadingSettings& Settings)
 {
 	Assimp::Importer* importer = new Assimp::Importer();
 	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
-if (Settings.GenerateIndexed)
+	if (Settings.GenerateIndexed)
 	{
 		Flags |= aiProcess_JoinIdenticalVertices;
 	}
@@ -71,9 +71,19 @@ if (Settings.GenerateIndexed)
 	{
 		return false;
 	}
+
 	for (uint i = 0; i < scene->mNumAnimations; i++)
 	{
-		SkeletalMesh->AnimNameMap.emplace(std::string(scene->mAnimations[i]->mName.C_Str()), scene->mAnimations[i]);
+		std::string Animname = Name;
+		if (Animname.length() == 0)
+		{
+			Animname = scene->mAnimations[i]->mName.C_Str();
+		}
+		if (i > 0)
+		{
+			Animname += std::to_string(i);
+		}
+		SkeletalMesh->AnimNameMap.emplace(Animname, scene->mAnimations[i]);
 	}
 	return true;
 }
@@ -325,6 +335,10 @@ void SkeletalMeshEntry::PlayAnimation(std::string name)
 	{
 		SetAnim(itor->second);
 	}
+	else
+	{
+		Log::LogMessage("Failed find animation " + name);
+	}
 }
 
 glm::mat3x3 ToGLM(aiMatrix3x3& mat)
@@ -369,12 +383,14 @@ void SkeletalMeshEntry::LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vec
 		{
 			BoneIndex = m_BoneMapping[BoneName];
 		}
-
 		for (uint j = 0; j < pMesh->mBones[i]->mNumWeights; j++)
 		{
 			const uint VertexID = pMesh->mBones[i]->mWeights[j].mVertexId;
 			const float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
-			Bones[VertexID].AddBoneData(BoneIndex, Weight);
+			if (Weight > 0.1f)
+			{
+				Bones[VertexID].AddBoneData(BoneIndex, Weight);
+			}
 		}
 	}
 }
@@ -460,7 +476,7 @@ void SkeletalMeshEntry::CalcInterpolatedScaling(aiVector3D& Out, float Animation
 	float DeltaTime = (float)(pNodeAnim->mScalingKeys[NextScalingIndex].mTime - pNodeAnim->mScalingKeys[ScalingIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime) / DeltaTime;
 	//assert(Factor >= 0.0f && Factor <= 1.0f);
-	
+	Factor = glm::clamp(Factor, 0.0f, 1.0f);
 	const aiVector3D& Start = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
 	const aiVector3D& End = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
 	aiVector3D Delta = End - Start;
@@ -480,7 +496,8 @@ void SkeletalMeshEntry::CalcInterpolatedPosition(aiVector3D& Out, float Animatio
 	assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
 	float DeltaTime = (float)(pNodeAnim->mPositionKeys[NextPositionIndex].mTime - pNodeAnim->mPositionKeys[PositionIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mPositionKeys[PositionIndex].mTime) / DeltaTime;
-//	assert(Factor >= 0.0f && Factor <= 1.0f);
+	//	assert(Factor >= 0.0f && Factor <= 1.0f);
+	Factor = glm::clamp(Factor, 0.0f, 1.0f);
 	const aiVector3D& Start = pNodeAnim->mPositionKeys[PositionIndex].mValue;
 	const aiVector3D& End = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
 	aiVector3D Delta = End - Start;
@@ -502,6 +519,7 @@ void SkeletalMeshEntry::CalcInterpolatedRotation(aiQuaternion& Out, float Animat
 	float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
 	//assert(Factor >= 0.0f && Factor <= 1.0f);
+	Factor = glm::clamp(Factor, 0.0f, 1.0f);
 	const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
 	const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
 	aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
@@ -560,6 +578,20 @@ void VertexBoneData::AddBoneData(uint BoneID, float Weight)
 			return;
 		}
 	}
+	Log::LogMessage("NUM_BONES_PER_VEREX exceeded");
+	int Lowest = 0;
+	float value = 2.0f;
+	for (uint i = 0; i < NUM_BONES_PER_VEREX; i++)
+	{
+		if (Weights[i] < value)
+		{
+			Lowest = i;
+			value = Weights[i];
+		}
+	}
+	IDs[Lowest] = BoneID;
+	Weights[Lowest] = glm::clamp(Weight, 0.0f, 1.0f);
+
 	// should never get here - more bones than we have space for
 	//assert(0);
 }

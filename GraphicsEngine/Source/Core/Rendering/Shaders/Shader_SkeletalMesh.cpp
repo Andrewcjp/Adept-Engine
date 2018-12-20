@@ -10,8 +10,9 @@ Shader_SkeletalMesh::Shader_SkeletalMesh(DeviceContext* dev) :Shader(dev)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TEST", "1"));
 	m_Shader->AttachAndCompileShaderFromFile("Anim_vs", EShaderType::SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Gen\\Test2", EShaderType::SHADER_FRAGMENT);
+	m_Shader->AttachAndCompileShaderFromFile("Gen\\Default", EShaderType::SHADER_FRAGMENT);
 	BonesBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	BonesBuffer->CreateConstantBuffer(sizeof(BoneData), 1);
 }
@@ -27,6 +28,7 @@ std::vector<Shader::ShaderParameter> Shader_SkeletalMesh::GetShaderParameters()
 	std::vector<Shader::ShaderParameter> Output;
 	Shader_Main::GetMainShaderSig(Output);
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 8, 5));
+	Output.push_back(ShaderParameter(ShaderParamType::SRV, 9, 20));
 	return Output;
 }
 

@@ -6,13 +6,18 @@
 #include "Behaviour/BehaviourTreeManager.h"
 #include "Behaviour/BehaviourTree.h"
 #include "Core/Platform/PlatformCore.h"
+#include "AnimationController.h"
+#include "Core/Components/MeshRendererComponent.h"
+#include "Rendering/Core/Mesh.h"
 
 AIBase::AIBase()
 {}
 
 
 AIBase::~AIBase()
-{}
+{
+	SafeDelete(AnimController);
+}
 
 void AIBase::OnDestroy()
 {
@@ -35,10 +40,22 @@ void AIBase::Update(float dt)
 	{
 		DistanceToPlayer = glm::distance(Player->GetPosition(), GetOwner()->GetPosition());
 	}
+	if (AnimController != nullptr)
+	{
+		AnimController->Tick(dt);
+	}
 }
 
 void AIBase::InitComponent()
 {
 	Controller = GetOwner()->GetComponent<AIController>();
 	SetupBrain();
+	MeshRendererComponent* mrc = GetOwner()->GetComponentInChildren<MeshRendererComponent>();
+	if (mrc != nullptr)
+	{
+		AnimController = new AnimationController();
+		AnimController->Mesh = mrc->GetMesh()->GetSkeletalMesh();
+		AnimController->Owner = this;
+	}
+
 }

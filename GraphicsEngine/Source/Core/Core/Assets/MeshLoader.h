@@ -30,11 +30,11 @@ public:
 		void Serialize(Archive* A);
 		std::vector<std::string> IgnoredMeshObjectNames;
 	};
-	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh,FMeshLoadingSettings& Settings);
+	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name,FMeshLoadingSettings& Settings);
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);
 	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices);
 };
-
+//todo: up to 8 
 #define NUM_BONES_PER_VEREX 4
 struct VertexBoneData
 {

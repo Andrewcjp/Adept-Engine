@@ -53,6 +53,8 @@ public:
 	template<class T>
 	std::vector<T*> GetAllComponentsOfType();
 	template<class T>
+	T * GetComponentInChildren();
+	template<class T>
 	T* AttachComponent(T*Component)
 	{
 		return (T*)IN_AttachComponent(Component);
@@ -133,4 +135,18 @@ inline std::vector<T*> GameObject::GetAllComponentsOfType()
 		}
 	}
 	return Comps;
+}
+
+template<class T>
+inline T* GameObject::GetComponentInChildren()
+{
+	for (int i = 0; i < Children.size(); i++)
+	{
+		T* Target = Children[i]->GetComponent<T>();
+		if (Target != nullptr)
+		{
+			return Target;
+		}
+	}
+	return nullptr;
 }
