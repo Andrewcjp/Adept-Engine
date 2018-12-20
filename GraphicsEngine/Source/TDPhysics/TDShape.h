@@ -6,7 +6,6 @@ namespace TD
 	class TD_API TDShape
 	{
 	public:
-		TDShape();
 		virtual ~TDShape();
 		/**
 		*\brief  Sets the Physical Material of this shape
@@ -40,6 +39,8 @@ namespace TD
 		TDShapeFlags& GetFlags(){return Flags;}
 		void* UserData = nullptr;
 	protected:
+		TDShape();
+		
 		TDShapeFlags Flags;
 		TDShapeType::Type ShapeType = TDShapeType::eLimit;
 		TDPhysicalMaterial ShapeMaterial = TDPhysicalMaterial();

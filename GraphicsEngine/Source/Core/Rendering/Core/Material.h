@@ -45,6 +45,7 @@ public:
 	CORE_API static Material* GetDefaultMaterial();
 	CORE_API static Shader* GetDefaultMaterialShader();
 	void ProcessSerialArchive(class Archive* A);
+	static constexpr const char* DefuseBindName = "DiffuseMap";
 private:
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);

@@ -25,7 +25,7 @@ public:
 	void SetMaterial(Material * mat, int index);
 	CORE_API void SetVisiblity(bool state);
 	CORE_API void LoadAnimation(std::string filename, std::string name);
-	void LoadAnimation(std::string filename, std::string name, MeshLoader::FMeshLoadingSettings & Settings);
+	CORE_API void LoadAnimation(std::string filename, std::string name, MeshLoader::FMeshLoadingSettings & Settings);
 	CORE_API void PlayAnim(std::string name);
 private:
 	Mesh* m_mesh = nullptr;

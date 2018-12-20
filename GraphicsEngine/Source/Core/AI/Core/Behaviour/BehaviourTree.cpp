@@ -16,6 +16,10 @@ BehaviourTree::~BehaviourTree()
 
 void BehaviourTree::RunTree(float dt)
 {
+	if (!Active)
+	{
+		return;
+	}
 	if (RootNode == nullptr)
 	{
 		return;

@@ -49,6 +49,10 @@ glm::vec3 ProjectPosition(glm::vec3 pos)
 
 void AIController::Update(float dt)
 {
+	if (!Active)
+	{
+		return;
+	}
 	if (CurrentTarget.IsValid && RHI::GetFrameCount() % 60 == 0)
 	{
 		//ReplanPath();

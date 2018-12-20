@@ -83,7 +83,8 @@ bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * Skeletal
 		{
 			Animname += std::to_string(i);
 		}
-		SkeletalMesh->AnimNameMap.emplace(Animname, scene->mAnimations[i]);
+		Settings.AnimSettings.AssimpAnim = scene->mAnimations[i];
+		SkeletalMesh->AnimNameMap.emplace(Animname, Settings.AnimSettings);
 	}
 	return true;
 }
@@ -119,7 +120,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		}
 		for (uint i = 0; i < scene->mNumAnimations; i++)
 		{
-			SKel->AnimNameMap.emplace(std::string(/*scene->mAnimations[i]->mName.C_Str()*/"root"), scene->mAnimations[i]);
+			SKel->AnimNameMap.emplace(std::string(/*scene->mAnimations[i]->mName.C_Str()*/"root"), AnimationClip(scene->mAnimations[i]));
 		}
 	}
 
@@ -281,16 +282,16 @@ SkeletalMeshEntry::SkeletalMeshEntry(aiAnimation* anim)
 	SetAnim(anim);
 }
 
-void SkeletalMeshEntry::SetAnim(const aiAnimation * anim)
+void SkeletalMeshEntry::SetAnim(const AnimationClip& anim)
 {
 	CurrentAnim = anim;
-	if (anim->mTicksPerSecond != 0)
+	if (anim.AssimpAnim->mTicksPerSecond != 0)
 	{
-		MaxTime = (float)anim->mDuration / (float)anim->mTicksPerSecond;
+		MaxTime = (float)anim.AssimpAnim->mDuration / (float)anim.AssimpAnim->mTicksPerSecond;
 	}
 	else
 	{
-		MaxTime = (float)anim->mDuration / 30.0f;
+		MaxTime = (float)anim.AssimpAnim->mDuration / 30.0f;
 	}
 }
 
@@ -313,13 +314,13 @@ void SkeletalMeshEntry::RenderBones()
 
 void SkeletalMeshEntry::Tick(float Delta)
 {
-	CurrnetTime += Delta;
+	CurrnetTime += Delta * CurrentAnim.Rate;
 	CurrnetTime = glm::clamp(CurrnetTime, 0.0f, MaxTime);
 	if (CurrnetTime >= MaxTime)
 	{
 		CurrnetTime = 0.0f;
 	}
-	ReadNodes(CurrnetTime, Scene->mRootNode, glm::mat4(1), CurrentAnim);
+	ReadNodes(CurrnetTime, Scene->mRootNode, glm::mat4(1), CurrentAnim.AssimpAnim);
 	FinalBoneTransforms.resize(m_NumBones);
 	for (int i = 0; i < m_NumBones; i++)
 	{

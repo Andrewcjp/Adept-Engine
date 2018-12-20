@@ -68,7 +68,7 @@ public:
 	glm::vec3 GetSpawnPos();
 	void NotifySpawningPoolDestruction();
 	GameObject* SpawnAI(glm::vec3 SpawnPos, EAIType::Type type);
-	GameObject * CreateAI(glm::vec3 pos);
+	GameObject * CreateAI(glm::vec3 pos, float AttackRaduis);
 	GameObject * SpawnHellKnight(glm::vec3 pos);
 	GameObject * SpawnSoldier(glm::vec3 pos);
 	GameObject * SpawnRioter(glm::vec3 pos);

@@ -122,7 +122,7 @@ namespace TD
 		}
 	}
 
-	bool TDBVH::TraverseForSphere(TDSphere * A, std::vector<TriangleInterection>& contacts)
+	bool TDBVH::TraverseForSphere(TDSphere * A, std::vector<TriangleInterection>& contacts, int MaxContactCount)
 	{
 		std::queue<BVHNode*> toProcess;
 		toProcess.emplace(Root);
@@ -145,6 +145,13 @@ namespace TD
 						contacts.push_back(t);
 						iterator->bounds->DebugRender(glm::vec3(0, 1, 0));
 						RetValue = true;
+						if (MaxContactCount != 0)
+						{
+							if (contacts.size() >= MaxContactCount)
+							{
+								return RetValue;
+							}
+						}
 					}
 				}
 			}

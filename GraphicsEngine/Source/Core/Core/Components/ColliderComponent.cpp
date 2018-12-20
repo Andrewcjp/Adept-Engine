@@ -33,18 +33,14 @@ void ColliderComponent::SetEnabled(bool State)
 }
 
 void ColliderComponent::InitComponent()
-{
-
-}
+{}
 
 void ColliderComponent::BeginPlay()
 {}
 
 void ColliderComponent::Update(float)
 {
-#if WITH_EDITOR
-	EditorUpdate();
-#endif
+	RenderShape();
 }
 
 void ColliderComponent::ProcessSerialArchive(Archive * A)
@@ -72,6 +68,12 @@ EShapeType::Type ColliderComponent::GetCollisonShape()
 
 #if WITH_EDITOR
 void ColliderComponent::EditorUpdate()
+{
+	RenderShape();
+}
+#endif
+
+void ColliderComponent::RenderShape()
 {
 	if (PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::ShowShapes || PhysicsEngine::GetCurrentMode() == EPhysicsDebugMode::All)
 	{
@@ -110,7 +112,6 @@ void ColliderComponent::EditorUpdate()
 		}
 	}
 }
-#endif
 
 void ColliderComponent::SetCollisonShape(EShapeType::Type newtype)
 {

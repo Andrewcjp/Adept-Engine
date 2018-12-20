@@ -24,7 +24,7 @@ public:
 	void SceneInitComponent()override;
 	void TransferToRigidbody();
 	void SetTriangleMeshAssetName(std::string name);
-
+	void RenderShape();
 #if WITH_EDITOR
 	virtual void EditorUpdate();
 	void GetInspectorProps(std::vector<InspectorProperyGroup>& props);

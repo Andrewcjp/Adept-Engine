@@ -1,7 +1,9 @@
-#include "Source/TestGame/TestGamePCH.h"
 #include "B_AIBase.h"
-#include "../Components/Weapon.h"
+#include "Core/GameObject.h"
 #include "Core/Utils/MathUtils.h"
+#include "Source/TestGame/Components/Health.h"
+#include "Source/TestGame/Components/Weapon.h"
+#include "Source/TestGame/TestGamePCH.h"
 
 
 B_AIBase::B_AIBase()
@@ -24,8 +26,15 @@ bool B_AIBase::FireAt(glm::vec3 pos)
 	return MainWeapon->Fire();
 }
 
+void B_AIBase::OnDead()
+{
+	AIBase::SetDead();
+}
+
  void B_AIBase::InitComponent()
 {
 	 AIBase::InitComponent();
 	 MainWeapon = GetOwner()->GetComponent<Weapon>();
+	 Health* H = GetOwner()->GetComponent<Health>();
+	 H->BindDeathCallback(std::bind(&B_AIBase::OnDead, this));
 }

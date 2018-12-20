@@ -1,13 +1,13 @@
 
 #include "AIBase.h"
 #include "Core/GameObject.h"
-#include "AI/Core/AIController.h"
+#include "AIController.h"
 #include "AISystem.h"
-#include "Behaviour/BehaviourTreeManager.h"
-#include "Behaviour/BehaviourTree.h"
-#include "Core/Platform/PlatformCore.h"
 #include "AnimationController.h"
+#include "Behaviour/BehaviourTree.h"
+#include "Behaviour/BehaviourTreeManager.h"
 #include "Core/Components/MeshRendererComponent.h"
+#include "Core/Platform/PlatformCore.h"
 #include "Rendering/Core/Mesh.h"
 
 AIBase::AIBase()
@@ -24,6 +24,24 @@ void AIBase::OnDestroy()
 	AISystem::Get()->GetBTManager()->RemoveTree(BTTree);
 }
 
+void AIBase::SetDead()
+{
+	SetBrainEnabled(false);
+	if (AnimController != nullptr)
+	{
+		AnimController->SetState(EGenericAnimtionStates::Dead);
+	}
+	IsDying = true;
+	DeathTimer = DeathLength;
+}
+
+void AIBase::SetBrainEnabled(bool state)
+{
+	Active = state;
+	BTTree->Active = state;
+	Controller->Active = state;
+}
+
 void AIBase::SetupBrain()
 {
 	ensureMsgf(BTTree != nullptr, "AI missing Behaviour Tree");
@@ -36,13 +54,25 @@ void AIBase::SetupBrain()
 
 void AIBase::Update(float dt)
 {
-	if (Player.IsValid())
-	{
-		DistanceToPlayer = glm::distance(Player->GetPosition(), GetOwner()->GetPosition());
-	}
 	if (AnimController != nullptr)
 	{
 		AnimController->Tick(dt);
+	}
+	if (IsDying)
+	{
+		DeathTimer -= dt;
+		if (DeathTimer <= 0.0f)
+		{
+			GetOwner()->Destory();
+		}
+	}
+	if (!Active)
+	{
+		return;
+	}
+	if (Player.IsValid())
+	{
+		DistanceToPlayer = glm::distance(Player->GetPosition(), GetOwner()->GetPosition());
 	}
 }
 
@@ -58,4 +88,9 @@ void AIBase::InitComponent()
 		AnimController->Owner = this;
 	}
 
+}
+
+AnimationController * AIBase::CreateAnimationController()
+{
+	return new AnimationController();
 }

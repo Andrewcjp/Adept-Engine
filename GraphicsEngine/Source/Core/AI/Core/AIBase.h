@@ -17,7 +17,10 @@ public:
 	{
 		return AnimController;
 	}
+	///Called when health depleted - disables this AI and plays the Death anim
+	CORE_API void SetDead();
 protected:
+	CORE_API virtual void SetBrainEnabled(bool state);
 	CORE_API virtual void SetupBrain();
 	CORE_API virtual void Update(float dt) override;
 	CORE_API virtual void InitComponent() override;
@@ -25,7 +28,11 @@ protected:
 	AIController* Controller = nullptr;
 	BehaviourTree* BTTree = nullptr;
 	AnimationController* AnimController = nullptr;
+	CORE_API virtual AnimationController* CreateAnimationController();
+	float DeathLength = 1.0f;
 private:
-
+	bool Active = true;
+	float DeathTimer = 0.0f;
+	bool IsDying = false;
 };
 

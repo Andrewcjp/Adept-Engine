@@ -6,6 +6,7 @@
 #include "TDCollisionHandlers.h"
 #include "TDAABB.h"
 #include "TDBVH.h"
+#include "TDShape.h"
 
 namespace TD
 {
@@ -120,15 +121,16 @@ namespace TD
 
 		}
 #else
+		const bool IsTrigger = s->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
 		std::vector<TriangleInterection> InterSections;
-		if (Mesh->GetBVH()->TraverseForSphere(s, InterSections))
+		if (Mesh->GetBVH()->TraverseForSphere(s, InterSections, IsTrigger ? 1 : 0))
 		{
 			for (int i = 0; i < InterSections.size(); i++)
 			{
 				const glm::vec3 normal = InterSections[i].Tri->Normal;
 				contactbuffer->Contact(InterSections[i].Point, normal, InterSections[i].depth);
-//				DebugEnsure(InterSections[i].depth > -1.0f);
-//				DebugEnsure(InterSections[i].depth < 0.0f);
+				//				DebugEnsure(InterSections[i].depth > -1.0f);
+				//				DebugEnsure(InterSections[i].depth < 0.0f);
 #if !BUILD_SHIPPING
 				InterSections[i].Tri->DebugDraw(0.0f);
 #endif
@@ -408,4 +410,4 @@ namespace TD
 		return true; // Seperating axis not found
 	}
 
-			}
+}

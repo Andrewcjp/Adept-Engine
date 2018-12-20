@@ -31,6 +31,7 @@ namespace TD
 
 	void TDScene::AddToScene(TDActor * Actor)
 	{
+		DebugEnsure(Actor->GetActorType() != TDActorType::Limit);
 		Actor->Init();
 		SceneActors.push_back(Actor);
 		Actor->OwningScene = this;

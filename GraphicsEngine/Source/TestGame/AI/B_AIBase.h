@@ -8,11 +8,9 @@ public:
 	B_AIBase();
 	~B_AIBase();
 	bool FireAt(glm::vec3 pos);
-
+	void OnDead();
 	Weapon* MainWeapon = nullptr;
 private:
-
-
 	virtual void InitComponent() override;
 
 };

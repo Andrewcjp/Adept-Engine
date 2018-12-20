@@ -3,6 +3,15 @@ if an asset is not listed here it was created for this project
 
 Asset: Rifle.fbx & heavy.fbx and textures.
 Source: http://devassets.com/assets/sci-fi-weapons/
+License: Free (No Direct redistribute) 
+License Terms: http://devassets.com/guidelines/
+
+Asset: Mutant.fbx & animations
+Source: https://www.mixamo.com
+License: Free 
+License Terms: https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html
+
+
 
 
 

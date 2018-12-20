@@ -9,7 +9,7 @@
 ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {
-	DefaultTexture = AssetManager::DirectLoadTextureAsset(/*"\\texture\\T_GridSmall_01_D.png"*/"Creature NPC Pack\\Mutant_diffuse.png");
+	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
 	ensureFatalMsgf(DefaultTexture, "Failed to Load Fallback Texture");
 	DefaultTexture->AddRef();	
 }
