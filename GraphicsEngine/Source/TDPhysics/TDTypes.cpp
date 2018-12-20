@@ -1,6 +1,7 @@
 #include "TDTypes.h"
 #include "TDShape.h"
 #include "Utils/MathUtils.h"
+#include "TDQuerryFilter.h"
 
 TD::TDPhysicalMaterial::TDPhysicalMaterial()
 {
@@ -111,6 +112,13 @@ TD::ShapeCollisionPair::ShapeCollisionPair(TDShape * a, TDShape * b)
 	BOwner = B->GetOwner();
 	IsTriggerPair = A->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || B->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
 	SimPair = A->GetFlags().GetFlagValue(TDShapeFlags::ESimulation) && B->GetFlags().GetFlagValue(TDShapeFlags::ESimulation);
+	if (!SimPair && IsTriggerPair)
+	{
+		if (A->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) && B->GetFlags().GetFlagValue(TDShapeFlags::ETrigger))
+		{
+			IsTriggerPair = false;
+		}
+	}
 }
 
 bool TD::ShapeCollisionPair::IsPairValidForTrigger()
@@ -122,4 +130,22 @@ bool TD::ShapeCollisionPair::IsPairValidForTrigger()
 	const bool IsAReady = A->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || A->GetFlags().GetFlagValue(TDShapeFlags::ESimulation);
 	const bool IsBReady = B->GetFlags().GetFlagValue(TDShapeFlags::ETrigger) || B->GetFlags().GetFlagValue(TDShapeFlags::ESimulation);
 	return IsAReady && IsBReady;
+}
+
+bool TD::RayCast::PreFilter(TDActor* actor, TDShape* Shape)
+{
+	if (InterSectionFilter != nullptr)
+	{
+		return InterSectionFilter->PreFilter(actor, Shape, this);
+	}
+	return true;
+}
+
+bool TD::RayCast::PostFilter()
+{
+	if (InterSectionFilter != nullptr)
+	{
+		return InterSectionFilter->PostFilter(HitData, this);
+	}
+	return true;
 }

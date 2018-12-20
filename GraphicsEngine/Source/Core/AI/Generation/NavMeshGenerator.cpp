@@ -360,6 +360,7 @@ void NavPlane::BuildMeshLinks()
 		}
 	}
 }
+
 void NavPlane::RenderMesh(bool Near)
 {
 	if (Near)

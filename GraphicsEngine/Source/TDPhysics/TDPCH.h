@@ -22,5 +22,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <functional>
 
 #define VALIDATE_KE 1

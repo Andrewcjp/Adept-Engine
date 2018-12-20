@@ -1,5 +1,7 @@
 #pragma once
 
+namespace TD { class TDQuerryFilter; }
+
 namespace TD
 {
 	class TDShape;
@@ -104,17 +106,21 @@ namespace TD
 
 	struct RayCast
 	{
-		RayCast(glm::vec3 origin, glm::vec3 dir, float distance, RaycastData* hitData)
+		RayCast(glm::vec3 origin, glm::vec3 dir, float distance, RaycastData* hitData,TDQuerryFilter* Filter)
 		{
 			Origin = origin;
 			Dir = dir;
 			Distance = distance;
 			HitData = hitData;
+			InterSectionFilter = Filter;
 		}
 		glm::vec3 Origin;
 		glm::vec3 Dir;
 		float Distance;
 		RaycastData* HitData = nullptr;
+		TDQuerryFilter* InterSectionFilter = nullptr;
+		bool PreFilter(TDActor* actor, TDShape* Shape);
+		bool PostFilter();
 	};
 	///Holds the collision data about two shapes
 	struct ShapeCollisionPair
@@ -202,5 +208,5 @@ namespace TD
 			return this->ShapeA == A.ShapeA && this->ShapeB == A.ShapeB || (this->ShapeB == A.ShapeA && this->ShapeA == A.ShapeB);
 		}
 	};
-
+	typedef void(*CollisionFilterFunction)(TDShape* A,TDShape* B);
 };
