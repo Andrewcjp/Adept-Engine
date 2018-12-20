@@ -37,6 +37,7 @@ namespace EGenericAnimtionStates
 		Idle,
 		Walking,
 		Attack,
+		Dead,
 		Limit
 	};
 }

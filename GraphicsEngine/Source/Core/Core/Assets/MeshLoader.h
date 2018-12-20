@@ -13,7 +13,19 @@ struct aiNode;
 struct aiAnimation;
 struct aiNodeAnim;
 struct aiAnimation;
-
+///Represents one animation clip and all its props
+struct AnimationClip
+{
+	AnimationClip(const aiAnimation* Assimpanim, float AnimRate = 1.0f)
+	{
+		AssimpAnim = Assimpanim;
+		Rate = AnimRate;
+	}
+	AnimationClip()
+	{}
+	float Rate = 1.0f;
+	const aiAnimation* AssimpAnim = nullptr;
+};
 ///class that loads mesh data into a Mesh Entity;
 class MeshLoader
 {
@@ -29,6 +41,7 @@ public:
 		bool FlipUVs = false;
 		void Serialize(Archive* A);
 		std::vector<std::string> IgnoredMeshObjectNames;
+		AnimationClip AnimSettings;
 	};
 	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name,FMeshLoadingSettings& Settings);
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);
@@ -64,14 +77,14 @@ struct SkeletalMeshEntry
 	void LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones);
 	const aiNodeAnim * FindNodeAnim(const aiAnimation * pAnimation, const std::string NodeName);
 	std::map<std::string, uint> m_BoneMapping;
-	std::map<std::string, const aiAnimation*> AnimNameMap;
+	std::map<std::string, AnimationClip> AnimNameMap;
 	std::vector<BoneInfo> m_BoneInfo;
 	std::vector<MeshEntity*> MeshEntities;
 	std::vector<glm::mat4x4> FinalBoneTransforms;
 	void InitScene(const aiScene* sc);
 	uint FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim);
 	void Release();
-	void SetAnim(const aiAnimation* anim);
+	void SetAnim(const AnimationClip& anim);
 private:
 	const aiScene* Scene = nullptr;
 	uint FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim);
@@ -83,5 +96,5 @@ private:
 	float MaxTime = 0.0f;
 	int m_NumBones = 0;
 	glm::mat4 ModelInvTransfrom;
-	const aiAnimation* CurrentAnim = nullptr;
+	AnimationClip CurrentAnim;
 };

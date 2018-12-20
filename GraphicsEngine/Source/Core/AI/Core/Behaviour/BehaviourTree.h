@@ -14,6 +14,7 @@ public:
 	BTBlackboard* Blackboard = nullptr;
 	BehaviourTreeNode* RunningNode = nullptr;
 	BehaviourTreeNode* DebugCurrnetNode = nullptr;
+	bool Active = true;
 private:
 	float CoolDownTime = 0.0f;
 	float UpdateRate = 0.2f;

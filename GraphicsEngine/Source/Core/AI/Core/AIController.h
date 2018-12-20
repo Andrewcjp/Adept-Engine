@@ -15,6 +15,7 @@ public:
 	float TurnRatio = 0.5f;
 	float Speed = 10.0f;
 	CORE_API void SetLookAt(glm::vec3 pos);
+	bool Active = true;
 private:
 	struct Target 
 	{

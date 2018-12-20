@@ -12,17 +12,34 @@ Health::~Health()
 
 void Health::TakeDamage(float amt)
 {
+	if (DeathCalled)
+	{
+		Log::LogMessage("Hit dead object");
+		return;
+	}
 	std::stringstream ss;
 	ss << "object: " << GetOwner()->GetName() << " took damage " << amt;
 	Log::LogMessage(ss.str());
 	CurrentHealth -= amt;
-	if (CurrentHealth <= 0)
+	if (CurrentHealth <= 0 && Damageable)
 	{
-		GetOwner()->Destory();
+		if (DeathCallback != nullptr)
+		{
+			DeathCallback();
+		}
+		else
+		{
+			GetOwner()->Destory();
+		}
+		DeathCalled = true;
 	}
 	if (GetOwner()->Tags.Contains(Tag("player")))
 	{
 		AudioEngine::PostEvent("Melee_Hit", GetOwner());
+	}
+	if (!Damageable)
+	{
+		CurrentHealth = MaxHealth;
 	}
 }
 

@@ -93,17 +93,17 @@ namespace TD
 				}
 			}
 			template<class T>
-			void RemoveItemO(T* point, std::vector<T*> & points)
+			bool RemoveItemO(T* point, std::vector<T*> & points)
 			{
 				for (int i = 0; i < points.size(); i++)
 				{
 					if (points[i]->Owner == point->Owner)
 					{
 						points.erase(points.begin() + i);
-						return;
+						return true;
 					}
 				}
-				__debugbreak();
+				return false;
 			}
 		};
 	};

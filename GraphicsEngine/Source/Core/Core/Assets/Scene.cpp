@@ -217,34 +217,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 
 	Asset_Shader* ColourMat = new Asset_Shader();
-	ColourMat->SetupSingleColour();
-
-	MeshLoader::FMeshLoadingSettings AnimSetting;
-	AnimSetting.FlipUVs = true;
-	MeshRendererComponent* mrc;
-	//go = new GameObject("anim Test");
-	//mat = Material::GetDefaultMaterial();
-	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Creature NPC Pack\\Mutant_diffuse.png"));
-	//MeshLoader::FMeshLoadingSettings AnimSetting;
-	//AnimSetting.FlipUVs = true;
-	// mrc= go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Creature NPC Pack\\mutant.fbx", AnimSetting), mat));
-	//mrc->LoadAnimation("Creature NPC Pack\\mutant swiping.fbx");
-	//mrc->PlayAnim("mixamo.com");
-	//go->GetTransform()->SetPos(glm::vec3(50, 20, 0));
-	////go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
-	//go->GetTransform()->SetScale(glm::vec3(1));
-	//AddGameobjectToScene(go);
-
-	//go = new GameObject("anim Test");
-	//mat = Material::GetDefaultMaterial();
-	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Creature NPC Pack\\Mutant_diffuse.png"));
-	//mrc = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Marrie\\Walking.fbx", AnimSetting), mat));
-	////mrc->LoadAnimation("Creature NPC Pack\\mutant swiping.fbx");
-	//mrc->PlayAnim("root");
-	//go->GetTransform()->SetPos(glm::vec3(50, 20, 0));
-	////go->GetTransform()->SetEulerRot(glm::vec3(-90, 0, 0));
-	//go->GetTransform()->SetScale(glm::vec3(1));
-	//AddGameobjectToScene(go);
+	ColourMat->SetupSingleColour(); 
 #if 0
 	go = new GameObject("Size Guide");
 	mat = ColourMat->GetMaterialInstance();

@@ -132,7 +132,7 @@ GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 	return NewAi;
 }
 
-GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
+GameObject * TestGame_Director::CreateAI(glm::vec3 pos, float AttackRaduis)
 {
 	GameObject* newAI = GameObject::Instantiate(pos);
 	newAI->AttachComponent(new RigidbodyComponent());
@@ -145,14 +145,14 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 	cc->IsTrigger = true;
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	cc->SetEnabled(false);
-	cc->Radius = 4.0f;
+	cc->Radius = AttackRaduis;
 	mw->Collider = cc;
 	return newAI;
 }
 
 GameObject* TestGame_Director::SpawnHellKnight(glm::vec3 pos)
 {
-	GameObject* newImp = CreateAI(pos);
+	GameObject* newImp = CreateAI(pos, 4.0f);
 	newImp->SetName("Hell Knight");
 	
 	GameObject* MeshC = new GameObject();
@@ -167,6 +167,8 @@ GameObject* TestGame_Director::SpawnHellKnight(glm::vec3 pos)
 	mrc->LoadAnimation("Creature NPC Pack\\mutant swiping.fbx","Attack");
 	mrc->LoadAnimation("Creature NPC Pack\\mutant idle.fbx", "Idle");
 	mrc->LoadAnimation("Creature NPC Pack\\mutant run.fbx", "Walking");
+	AnimSetting.AnimSettings.Rate = 2.0f;
+	mrc->LoadAnimation("Creature NPC Pack\\mutant dying.fbx", "Death", AnimSetting);
 	mrc->PlayAnim("Attack");
 	MeshC->GetTransform()->SetScale(glm::vec3(0.02f));
 	scene->AddGameobjectToScene(MeshC);
@@ -176,7 +178,7 @@ GameObject* TestGame_Director::SpawnHellKnight(glm::vec3 pos)
 
 GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 {
-	GameObject* NewPossessed = CreateAI(pos);
+	GameObject* NewPossessed = CreateAI(pos, 4.0f);
 	NewPossessed->SetName("Possessed Soldier");
 	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
 
@@ -193,21 +195,21 @@ GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 
 GameObject* TestGame_Director::SpawnRioter(glm::vec3 pos)
 {
-	GameObject* NewRioter = CreateAI(pos);
+	GameObject* NewRioter = CreateAI(pos, 4.0f);
 	NewRioter->AttachComponent(new DemonRiotShield());
 	return NewRioter;
 }
 
 GameObject* TestGame_Director::SpawnOrb(glm::vec3 pos)
 {
-	GameObject* newOrb = CreateAI(pos);
+	GameObject* newOrb = CreateAI(pos, 4.0f);
 	newOrb->AttachComponent(new DemonOrb());
 	return newOrb;
 }
 
 GameObject* TestGame_Director::SpawnSkull(glm::vec3 pos)
 {
-	GameObject* NewSkullChaser = CreateAI(pos);
+	GameObject* NewSkullChaser = CreateAI(pos, 4.0f);
 	NewSkullChaser->AttachComponent(new SkullChaser());
 	return NewSkullChaser;
 }

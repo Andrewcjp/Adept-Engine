@@ -14,7 +14,7 @@ Cooker::Cooker()
 #if _DEBUG
 	BuildDebug = false;
 #endif
-	ShouldComplie = false;
+	ShouldComplie = true;
 	BuildConfig = "ShippingReleasePackage";
 	if (BuildDebug)
 	{

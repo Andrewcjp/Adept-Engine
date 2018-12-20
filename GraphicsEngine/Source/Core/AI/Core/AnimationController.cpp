@@ -1,10 +1,10 @@
-#include "Source/Core/Stdafx.h"
 #include "AnimationController.h"
-#include "Core/Platform/Logger.h"
 #include "Core/Assets/MeshLoader.h"
 #include "Core/Components/Component.h"
 #include "Core/GameObject.h"
+#include "Core/Platform/Logger.h"
 #include "Physics/SimTD/TDRigidBody.h"
+#include "Stdafx.h"
 
 
 AnimationController::AnimationController()
@@ -20,13 +20,16 @@ void AnimationController::InitDefaultStateMap()
 	StateMap.emplace((int)EGenericAnimtionStates::Idle, new AnimationState("Idle"));
 	StateMap.emplace((int)EGenericAnimtionStates::Attack, new AnimationState("Attack"));
 	StateMap.emplace((int)EGenericAnimtionStates::Walking, new AnimationState("Walking"));
+	StateMap.emplace((int)EGenericAnimtionStates::Dead, new AnimationState("Death"));
 }
+
 void AnimationController::SetState(EGenericAnimtionStates::Type state)
 {
 	if (GetCurrentEnumState() == state)
 	{
 		return;
 	}
+	//one of the few okay uses of auto 
 	auto Itor = StateMap.find((int)state);
 	if (Itor != StateMap.end())
 	{
@@ -43,6 +46,10 @@ void AnimationController::OnTick(float dt)
 {
 	if (Owner != nullptr)
 	{
+		if (CurrentEnumState == EGenericAnimtionStates::Dead)//One way 
+		{
+			return;
+		}
 		if (AttackTimer > 0.0f)
 		{
 			AttackTimer -= dt;

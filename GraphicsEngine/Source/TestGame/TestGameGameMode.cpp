@@ -109,7 +109,8 @@ void TestGameGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	go->AttachComponent(new RigidbodyComponent());
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
-	go->AttachComponent(new Health());
+	Health* H = go->AttachComponent(new Health());
+	H->Damageable = false;
 	TestPlayer* player = go->AttachComponent(new TestPlayer());
 	BodyInstanceData lock;
 	lock.LockXRot = true;

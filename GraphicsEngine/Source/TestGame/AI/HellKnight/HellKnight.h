@@ -8,5 +8,8 @@ public:
 protected:
 	virtual void SetupBrain() override;
 
+
+	virtual AnimationController* CreateAnimationController() override;
+
 };
 

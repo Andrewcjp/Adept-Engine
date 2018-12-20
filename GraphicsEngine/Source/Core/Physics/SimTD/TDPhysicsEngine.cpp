@@ -12,6 +12,7 @@
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::InitPhysics()
 {
+	GenericPhysicsEngine::InitPhysics();
 	//TDSolver
 	TDSimConfig* config = new TDSimConfig();
 	config->PerfCounterCallBack = (TDSimConfig::FPrefCounterCallBack)&TimerCallbackHandler;

@@ -8,6 +8,7 @@
 #include "Utils/MemoryUtils.h"
 #include "Core/Utils/VectorUtils.h"
 #include "Utils/MathUtils.h"
+
 namespace TD
 {
 	using namespace MemoryUtils::VectorUtils;
@@ -43,6 +44,7 @@ namespace TD
 				continue;//static - static collisions make no sense.
 			}
 			ActorCollisionPair newpair = ActorCollisionPair(SAP->Pairs[i]->A->Owner, SAP->Pairs[i]->B->Owner);
+			DebugEnsure(newpair.ShapePairs.size() != 0);
 			if (!VectorUtils::Contains(NarrowPhasePairs, newpair))
 			{
 				NarrowPhasePairs.push_back(newpair);
@@ -94,15 +96,26 @@ namespace TD
 		}
 	}
 
-	void RemovePair(BPCollisionPair* point, std::vector<BPCollisionPair*> & points)
+	int RemovePair(BPCollisionPair* point, std::vector<BPCollisionPair*> & points, TDActor* owner)
 	{
+		int removecount = 0;
 		for (int i = 0; i < points.size(); i++)
 		{
-			if ((points[i]->A == point->A || points[i]->B == point->B))
+			if (points[i]->A == point->A || points[i]->B == point->B || points[i]->A == point->B || points[i]->B == point->A)
 			{
 				points.erase(points.begin() + i);
+				removecount++;
 			}
 		}
+		for (int i = 0; i < points.size(); i++)
+		{
+			if (points[i]->A->Owner == owner || points[i]->B->Owner == owner)
+			{
+				points.erase(points.begin() + i);
+				removecount++;
+			}
+		}
+		return removecount;
 	}
 
 	void SweepAndPrune::RemoveObject(TDAABB* bb)
@@ -125,9 +138,9 @@ namespace TD
 		RemoveItemO(box->Max[1], Ypoints);
 		RemoveItemO(box->Min[2], Zpoints);
 		RemoveItemO(box->Max[2], Zpoints);
-		RemovePair(new BPCollisionPair(box->Min[0], box->Max[0]), Pairs);
-		RemovePair(new BPCollisionPair(box->Min[1], box->Max[1]), Pairs);
-		RemovePair(new BPCollisionPair(box->Min[2], box->Max[2]), Pairs);
+		int Count = RemovePair(new BPCollisionPair(box->Min[0], box->Max[0]), Pairs, bb->Owner);
+		Count += RemovePair(new BPCollisionPair(box->Min[1], box->Max[1]), Pairs, bb->Owner);
+		Count += RemovePair(new BPCollisionPair(box->Min[2], box->Max[2]), Pairs, bb->Owner);
 		RemoveItemO(box, Bodies);
 		SafeDelete(box);
 	}

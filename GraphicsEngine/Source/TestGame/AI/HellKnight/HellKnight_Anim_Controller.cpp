@@ -3,7 +3,9 @@
 
 
 HellKnight_Anim_Controller::HellKnight_Anim_Controller()
-{}
+{
+	
+}
 
 
 HellKnight_Anim_Controller::~HellKnight_Anim_Controller()

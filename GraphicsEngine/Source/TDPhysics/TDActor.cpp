@@ -16,7 +16,7 @@ namespace TD
 
 	TDActor::~TDActor()
 	{
-		MemoryUtils::DeleteVector(AttachedShapes);
+		Release();
 	}
 
 	void TDActor::Init()
