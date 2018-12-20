@@ -110,7 +110,7 @@ GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 	switch (type)
 	{
 	case EAIType::HellKnight:
-		NewAi = SpawnImp(SpawnPos);
+		NewAi = SpawnHellKnight(SpawnPos);
 		break;
 	case EAIType::PossessedSoldier:
 		NewAi = SpawnSoldier(SpawnPos);
@@ -150,17 +150,27 @@ GameObject* TestGame_Director::CreateAI(glm::vec3 pos)
 	return newAI;
 }
 
-GameObject* TestGame_Director::SpawnImp(glm::vec3 pos)
+GameObject* TestGame_Director::SpawnHellKnight(glm::vec3 pos)
 {
 	GameObject* newImp = CreateAI(pos);
 	newImp->SetName("Hell Knight");
-	newImp->GetTransform()->SetScale(glm::vec3(2, 1, 1));
-	newImp->AttachComponent(new HellKnight());
+	
+	GameObject* MeshC = new GameObject();
+	MeshC->SetParent(newImp);
+	MeshC->GetTransform()->SetLocalPosition(glm::vec3(0, -1.5, 0));
 	Material* mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	newImp->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Model test.obj"), mat));
-	newImp->GetTransform()->SetScale(glm::vec3(1, 2, 1));
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Creature NPC Pack\\Mutant_diffuse.png"));
 
+	MeshLoader::FMeshLoadingSettings AnimSetting;
+	AnimSetting.FlipUVs = true;
+	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Creature NPC Pack\\mutant.fbx", AnimSetting), mat));
+	mrc->LoadAnimation("Creature NPC Pack\\mutant swiping.fbx","Attack");
+	mrc->LoadAnimation("Creature NPC Pack\\mutant idle.fbx", "Idle");
+	mrc->LoadAnimation("Creature NPC Pack\\mutant run.fbx", "Walking");
+	mrc->PlayAnim("Attack");
+	MeshC->GetTransform()->SetScale(glm::vec3(0.02f));
+	scene->AddGameobjectToScene(MeshC);
+	newImp->AttachComponent(new HellKnight());
 	return newImp;
 }
 

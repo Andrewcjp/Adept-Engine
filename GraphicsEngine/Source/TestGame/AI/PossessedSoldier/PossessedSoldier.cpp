@@ -6,9 +6,9 @@
 PossessedSoldier::PossessedSoldier()
 {}
 
-
 PossessedSoldier::~PossessedSoldier()
 {}
+
 void PossessedSoldier::SetupBrain()
 {
 	BTTree = new BT_PossessedSoldier();

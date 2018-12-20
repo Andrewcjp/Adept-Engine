@@ -4,6 +4,7 @@
 #include "Source/TestGame/Components/MeleeWeapon.h"
 #include "AI/Core/Behaviour/BTBlackboard.h"
 #include "AI/Core/AIController.h"
+#include "AI/Core/AnimationController.h"
 
 BTMeleeAttackNode::BTMeleeAttackNode()
 {}
@@ -18,6 +19,10 @@ EBTNodeReturn::Type BTMeleeAttackNode::ExecuteNode()
 	if (weapon != nullptr)
 	{
 		weapon->Fire();
+	}
+	if (ParentTree->Target->GetComponent<AIBase>()->GetAnimController())
+	{
+		ParentTree->Target->GetComponent<AIBase>()->GetAnimController()->TriggerAttack(1.5f);
 	}
 	return EBTNodeReturn::Success;
 }

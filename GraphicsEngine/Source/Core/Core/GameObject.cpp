@@ -224,6 +224,10 @@ void GameObject::SetParent(GameObject * Parent)
 {
 	mParent = Parent;
 	GetTransform()->SetParent(mParent);
+	if (mParent != nullptr)
+	{
+		mParent->Children.push_back(this);
+	}	
 }
 #if WITH_EDITOR
 std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()

@@ -67,12 +67,12 @@ void MeshRendererComponent::SetVisiblity(bool state)
 	IsVisible = state;
 }
 
-void MeshRendererComponent::LoadAnimation(std::string filename)
+void MeshRendererComponent::LoadAnimation(std::string filename, std::string name)
 {
-	LoadAnimation(filename, MeshLoader::FMeshLoadingSettings());
+	LoadAnimation(filename,name, MeshLoader::FMeshLoadingSettings());
 }
 
-void MeshRendererComponent::LoadAnimation(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
+void MeshRendererComponent::LoadAnimation(std::string filename,std::string name, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	if (m_mesh == nullptr || m_mesh->GetSkeletalMesh()  == nullptr)
 	{
@@ -80,7 +80,7 @@ void MeshRendererComponent::LoadAnimation(std::string filename, MeshLoader::FMes
 	}
 	std::string accpath = AssetManager::GetContentPath();
 	accpath.append(filename);
-	MeshLoader::LoadAnimOnly(accpath, m_mesh->GetSkeletalMesh(), Settings);
+	MeshLoader::LoadAnimOnly(accpath, m_mesh->GetSkeletalMesh(), name, Settings);
 }
 
 void MeshRendererComponent::PlayAnim(std::string name)

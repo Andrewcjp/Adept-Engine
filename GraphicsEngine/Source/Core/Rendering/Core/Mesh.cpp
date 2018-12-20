@@ -5,6 +5,7 @@
 #include "Core/Assets/SerialHelpers.h"
 #include "Rendering/Shaders/Shader_SkeletalMesh.h"
 #include "Core/Engine.h"
+#include "Core/Assets/ImageIO.h"
 
 Mesh::Mesh()
 {}
@@ -37,8 +38,9 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 		if (pSkeletalEntity != nullptr && SetMaterial)
 		{
 			pSkeletalEntity->Tick(Engine::GetDeltaTime());
-			TryPushMaterial(list, 0);
+			
 			list->SetPipelineStateObject(ShaderComplier::GetShader<Shader_SkeletalMesh>());
+			list->SetTexture(ImageIO::GetDefaultTexture(), 9);
 			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
 			for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)
 			{				
