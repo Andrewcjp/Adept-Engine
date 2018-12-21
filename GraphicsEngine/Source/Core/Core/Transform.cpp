@@ -223,6 +223,11 @@ glm::vec3 Transform::GetPos() const
 	return glm::vec3(CacheModel[3][0], CacheModel[3][1], CacheModel[3][2]);
 }
 
+glm::vec3 Transform::GetScale() const
+{
+	return glm::vec3(CacheModel[0][0], CacheModel[1][1], CacheModel[2][2]);
+}
+
 void Transform::SetLocalRotation(glm::quat localrot)
 {
 	if (parent.IsValid())
@@ -244,7 +249,4 @@ glm::vec3 Transform::GetEulerRot() const
 	return glm::degrees(_rot);
 }
 
-glm::vec3 Transform::GetScale() const
-{
-	return glm::vec3(CacheModel[0][0], CacheModel[1][1], CacheModel[2][2]);
-}
+

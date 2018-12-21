@@ -61,27 +61,32 @@ namespace TD
 	}
 	void TDTransform::Update()
 	{
-		oldpos = _pos;
-		oldqrot = _qrot;
-		oldscale = _scale;
+		UpdateModel = true;
+		GetModel();
 	}
 
 	glm::mat4 TDTransform::GetModel()
 	{
-		if (!UpdateModel)
+		if (UpdateModel)
 		{
-			return CacheModel;
+			glm::mat4 posMat = glm::translate(_pos);
+			glm::mat4 scaleMat = glm::scale(_scale);
+			glm::mat4 rotMat = glm::toMat4(_qrot);
+			CacheLocalModel = (posMat * rotMat * scaleMat);
+			UpdateModel = false;
 		}
-		glm::mat4 posMat = glm::translate(_pos);
-		glm::mat4 scaleMat = glm::scale(_scale);
-		glm::mat4 rotMat = glm::toMat4(_qrot);
-		if (parent != nullptr && parent->IsChanged())
+		if (parent != nullptr)
 		{
 			parentMatrix = parent->GetModel();
+			CacheModel = parentMatrix * CacheLocalModel;
 		}
-		CacheModel = posMat * rotMat * scaleMat;
+		else
+		{
+			//	parentMatrix = glm::mat4(1);
+			CacheModel = CacheLocalModel;
+		}
+
 		_rot = glm::eulerAngles(_qrot);
-		UpdateModel = false;
 		return CacheModel;
 	}
 
@@ -94,6 +99,7 @@ namespace TD
 		oldpos = _pos;
 		_pos = pos;
 		CheckNAN(_pos);
+		GetModel();
 	}
 
 	void TDTransform::SetEulerRot(const glm::vec3 & rot)
@@ -102,6 +108,7 @@ namespace TD
 		oldqrot = this->_qrot;
 		this->_qrot = glm::quat(glm::radians(rot));
 		CheckNAN(_qrot);
+		GetModel();
 	}
 
 	void TDTransform::SetScale(const glm::vec3 & scale)
@@ -110,10 +117,12 @@ namespace TD
 		this->oldscale = this->_scale;
 		this->_scale = scale;
 		CheckNAN(_scale);
+		GetModel();
 	}
 
 	void TDTransform::AddRotation(glm::vec3 & rot)
 	{
+		UpdateModel = true;
 		this->_rot += rot;
 	}
 
@@ -138,12 +147,14 @@ namespace TD
 	{
 		UpdateModel = true;
 		parent = Parent;
+		GetModel();
 	}
 
 	void TDTransform::TranslatePos(const glm::vec3 & pos)
 	{
 		UpdateModel = true;
 		_pos += pos;
+		GetModel();
 	}
 
 	void TDTransform::MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up)
@@ -154,5 +165,16 @@ namespace TD
 	glm::vec3 TDTransform::GetEulerRot() const
 	{
 		return _rot;
+	}
+
+	glm::vec3 TDTransform::GetPos()
+	{
+		//GetModel();
+		return glm::vec3(CacheModel[3][0], CacheModel[3][1], CacheModel[3][2]);
+	}
+
+	glm::vec3 TDTransform::GetScale() const
+	{
+		return glm::vec3(CacheModel[0][0], CacheModel[1][1], CacheModel[2][2]);
 	}
 }
