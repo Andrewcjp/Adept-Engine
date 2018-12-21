@@ -11,7 +11,13 @@ Source: https://www.mixamo.com
 License: Free 
 License Terms: https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html
 
+CGTader Assets:
+License Terms: https://help.cgtrader.com/terms-of-use-and-licenses/licenses-and-rights/what-is-the-difference-between-the-royalty-free-and-editorial-licenses
 
+Asset: Military crate.fbx
+Source: https://www.cgtrader.com/free-3d-models/industrial/other/sci-fi-box-38641f63-d155-4e48-9ef9-2187be879ce1
+License: Royalty Free 
 
-
-
+Asset: Military crate.fbx
+Source: https://www.cgtrader.com/free-3d-models/industrial/tool/military-crate-36914d1f-5811-4165-a8c6-9a94489e65c7
+License: Royalty Free 

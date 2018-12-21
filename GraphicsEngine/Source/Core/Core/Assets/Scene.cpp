@@ -216,6 +216,42 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
 
+
+
+	go = new GameObject("Rock");
+	//mat = NormalMapShader->GetMaterialInstance();
+	mat = Material::GetDefaultMaterial();
+	//mat->GetProperties()->Metallic = 0.0f;
+	//mat->GetProperties()->Roughness = 1.0f;
+
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_2\\Crate_Diffuse.png"/*, setting*/));//Crate_Diffuse
+	set = MeshLoader::FMeshLoadingSettings();
+	set.FlipUVs = true;
+	set.Scale = glm::vec3(.01f);
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_2\\Crate_Cube.fbx",set), mat));
+	go->GetTransform()->SetPos(glm::vec3(20, 10, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	AddGameobjectToScene(go);
+
+	go = new GameObject("Rock");
+	//mat = NormalMapShader->GetMaterialInstance();
+	mat = Material::GetDefaultMaterial();
+	//mat->GetProperties()->Metallic = 0.0f;
+	//mat->GetProperties()->Roughness = 1.0f;
+
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"/*, setting*/));//Crate_Diffuse
+	set = MeshLoader::FMeshLoadingSettings();
+	set.FlipUVs = true;
+	set.Scale = glm::vec3(.01f);
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_1\\Box_low.fbx", set), mat));
+	go->GetTransform()->SetPos(glm::vec3(30, 10, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	AddGameobjectToScene(go);
+
+	//Military crate.fbx
+
 	Asset_Shader* ColourMat = new Asset_Shader();
 	ColourMat->SetupSingleColour(); 
 #if 0
