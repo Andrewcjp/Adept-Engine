@@ -13,6 +13,7 @@ struct BodyInstanceData
 	float Mass = 1.0f;
 	bool UseAutoMass = false;
 	bool Gravity = true;
+	PhysicalMaterial* Mat = nullptr;
 };
 
 class Component;
@@ -77,11 +78,13 @@ public:
 
 	Component* GetOwnerComponent() const { return OwningComponent; }
 	void SetOwnerComponent(Component* newowner) { OwningComponent = newowner; }
+	PhysicalMaterial* PhysicsMat = nullptr;
 protected:
 	virtual void UpdateBodyState() {};
 	EBodyType::Type BodyType;
 	BodyInstanceData BodyData;
 	Component* OwningComponent = nullptr;
+
 };
 namespace TD { class TDShape; };
 /*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/

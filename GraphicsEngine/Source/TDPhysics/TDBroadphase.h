@@ -69,7 +69,7 @@ namespace TD
 	{
 	public:
 		void AddObject(TDAABB* box);
-		void UpdateObject(SAPBox* box, TDAABB* AABB);
+		void UpdateObject(TDAABB* AABB);
 		void RemoveObject(TDAABB* box);
 		///Sorts all the Axes
 		void Sort();

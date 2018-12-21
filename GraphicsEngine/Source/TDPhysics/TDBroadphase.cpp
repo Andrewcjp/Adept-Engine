@@ -44,7 +44,7 @@ namespace TD
 				continue;//static - static collisions make no sense.
 			}
 			ActorCollisionPair newpair = ActorCollisionPair(SAP->Pairs[i]->A->Owner, SAP->Pairs[i]->B->Owner);
-			DebugEnsure(newpair.ShapePairs.size() != 0);
+			//DebugEnsure(newpair.ShapePairs.size() != 0);
 			if (!VectorUtils::Contains(NarrowPhasePairs, newpair))
 			{
 				NarrowPhasePairs.push_back(newpair);
@@ -64,10 +64,10 @@ namespace TD
 
 	void TDBroadphase::UpdateActor(TDActor* actor)
 	{
-		if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
+		//if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
 		{
 			actor->UpdateAABBPos(actor->GetTransfrom()->GetPos());
-			SAP->UpdateObject(new SAPBox(actor->AABB), actor->AABB);
+			SAP->UpdateObject(actor->AABB);
 		}
 	}
 
@@ -85,15 +85,17 @@ namespace TD
 		Zpoints.push_back(box->Max[2]);
 	}
 
-	void SweepAndPrune::UpdateObject(SAPBox* box, TDAABB* AABB)
+	void SweepAndPrune::UpdateObject(TDAABB* AABB)
 	{
 		for (int i = 0; i < Bodies.size(); i++)
 		{
 			if (Bodies[i]->Owner == AABB)
 			{
 				Bodies[i]->Update(AABB);
+				return;
 			}
 		}
+		DebugEnsure(false);
 	}
 
 	int RemovePair(BPCollisionPair* point, std::vector<BPCollisionPair*> & points, TDActor* owner)

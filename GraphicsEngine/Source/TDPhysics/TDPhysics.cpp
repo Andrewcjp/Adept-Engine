@@ -30,7 +30,7 @@ namespace TD
 
 	void TDPhysics::DrawDebugLine(glm::vec3 LineStart, glm::vec3 LineEnd, glm::vec3 Colour, float lifetime)
 	{
-		return;
+		//return;
 		if (Get()->GetCurrentSimConfig()->DebugLineCallBack != nullptr)
 		{
 			Get()->GetCurrentSimConfig()->DebugLineCallBack(LineStart, LineEnd, Colour, lifetime);

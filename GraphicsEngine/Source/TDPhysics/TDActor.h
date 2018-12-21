@@ -26,7 +26,7 @@ namespace TD
 		void Release();
 		TD_API TDTransform* GetTransfrom();
 		virtual void AttachShape(TDShape* newShape);
-		std::vector<TDShape*>& GetAttachedShapes();
+		TD_API std::vector<TDShape*>& GetAttachedShapes();
 		void UpdateTransfrom();
 		template<class T>
 		static T* ActorCast(TDActor* actor)

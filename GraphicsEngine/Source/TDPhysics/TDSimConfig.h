@@ -28,6 +28,8 @@ namespace TD
 		FPrefCounterCallBack PerfCounterCallBack;
 		typedef void(*FDebugLineCallBack)(glm::vec3 LineStart, glm::vec3 LineEnd, glm::vec3 Colour, float lifetime);
 		FDebugLineCallBack DebugLineCallBack;
+		///Time Taken for a contact to expire meaning on the next contact the callback would be triggered again.
+		int ContactExpireFrameCount = 10;
 
 	};
 };

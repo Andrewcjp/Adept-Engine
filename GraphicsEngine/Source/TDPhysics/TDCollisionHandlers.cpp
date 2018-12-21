@@ -32,10 +32,10 @@ namespace TD
 		TDSphere* SphereA = TDShape::CastShape<TDSphere>(A);
 		TDSphere* SphereB = TDShape::CastShape<TDSphere>(B);
 
-		glm::vec3 CollisonNormal = SphereA->GetOwner()->GetTransfrom()->GetPos() - SphereB->GetOwner()->GetTransfrom()->GetPos();
+		glm::vec3 CollisonNormal = SphereA->GetPos() - SphereB->GetPos();
 		const float Distancesq = glm::length2(CollisonNormal);
 		const float RaduisSum = SphereA->Radius + SphereB->Radius;
-		const float inflatedSum = RaduisSum + 0.0f;//mContactDistance
+		const float inflatedSum = RaduisSum + 0.1f;//mContactDistance
 		if (Distancesq >= inflatedSum * inflatedSum)
 		{
 			return false;
@@ -44,7 +44,7 @@ namespace TD
 		//this would normally be a simple normalization of the CollisonNormal but the small number case has to handled here.
 		if (magn <= 0.00001f)//the sphere are almost completely overlapped 
 		{
-			CollisonNormal = glm::vec3(1.0f, 0.0f, 0.0f);
+			CollisonNormal = glm::vec3(10.0f, 10.0f, 10.0f);
 		}
 		else
 		{
@@ -59,8 +59,8 @@ namespace TD
 	{
 		TDSphere* Sphere = TDShape::CastShape<TDSphere>(A);
 
-		TDTransform* ATransform = A->GetOwner()->GetTransfrom();
-		TDTransform* BTransform = B->GetOwner()->GetTransfrom();
+		TDTransform* ATransform = A->GetTransfrom();
+		TDTransform* BTransform = B->GetTransfrom();
 		glm::vec3 SpherePos = glm::inverse(BTransform->GetModel())*glm::vec4(ATransform->GetPos(), 0);
 		//BTransform->TransfromToLocalSpace()
 		const float Seperation = SpherePos.y - Sphere->Radius;
@@ -84,6 +84,7 @@ namespace TD
 			(aMin.y <= bMax.y && aMax.y >= bMin.y) &&
 			(aMin.z <= bMax.z && aMax.z >= bMin.z);
 	}
+
 	glm::vec3 ClosestPoint(const TDAABB* aabb, const glm::vec3& point)
 	{
 		glm::vec3 result = point;
@@ -116,8 +117,8 @@ namespace TD
 
 	glm::vec3 ClosestPoint(TDBox* obb, const glm::vec3& point)
 	{
-		glm::vec3 result = obb->GetOwner()->GetTransfrom()->GetPos();
-		glm::vec3 dir = point - obb->GetOwner()->GetTransfrom()->GetPos();
+		glm::vec3 result = obb->GetPos();
+		glm::vec3 dir = point - obb->GetPos();
 		for (int i = 0; i < 3; ++i)
 		{
 			glm::vec3 axis = obb->Rotation[i];
@@ -140,7 +141,7 @@ namespace TD
 		//todo: check this
 		TDSphere* sphere = TDShape::CastShape<TDSphere>(A);
 		TDBox* box = TDShape::CastShape<TDBox>(B);
-		glm::vec3 closestPoint = ClosestPoint(box, sphere->GetOwner()->GetTransfrom()->GetPos());
+		glm::vec3 closestPoint = ClosestPoint(box, sphere->GetPos());
 		float distSq = glm::length2(sphere->GetPos() - closestPoint);
 		float radiusSq = sphere->Radius * sphere->Radius;
 		const float sepeation = radiusSq - distSq;

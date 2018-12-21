@@ -143,7 +143,7 @@ namespace TD
 					{
 						t.Tri = TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]];
 						contacts.push_back(t);
-						iterator->bounds->DebugRender(glm::vec3(0, 1, 0));
+						//iterator->bounds->DebugRender(glm::vec3(0, 1, 0));
 						RetValue = true;
 						if (MaxContactCount != 0)
 						{
@@ -155,7 +155,7 @@ namespace TD
 					}
 				}
 			}
-			iterator->bounds->DebugRender(glm::vec3(1, 0, 0));
+		//	iterator->bounds->DebugRender(glm::vec3(1, 0, 0));
 			if (iterator->children.size())
 			{
 				for (int i = 0; i < 8; i++)
