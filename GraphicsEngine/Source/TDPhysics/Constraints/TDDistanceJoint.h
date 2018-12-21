@@ -7,7 +7,7 @@ namespace TD
 	public:
 		TDDistanceJoint(TDActor * BodyA, TDActor * BodyB, const ConstraintDesc & desc);
 		~TDDistanceJoint();
-		virtual void Resolve() override;
+		virtual void Resolve(float dt) override;
 
 	};
 

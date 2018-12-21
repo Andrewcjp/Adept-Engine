@@ -64,7 +64,7 @@ namespace TD
 
 	void TDBroadphase::UpdateActor(TDActor* actor)
 	{
-		//if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
+		if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
 		{
 			actor->UpdateAABBPos(actor->GetTransfrom()->GetPos());
 			SAP->UpdateObject(actor->AABB);

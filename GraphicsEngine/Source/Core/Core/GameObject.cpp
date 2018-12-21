@@ -6,6 +6,7 @@
 #include "Components/MeshRendererComponent.h"
 #include "Components/RigidbodyComponent.h"
 #include "Platform/PlatformCore.h"
+#include "Components/ColliderComponent.h"
 
 
 GameObject::GameObject(std::string name, EMoblity stat, int oid)
@@ -207,6 +208,12 @@ Component* GameObject::IN_AttachComponent(Component * Component)
 		ensure(PhysicsBodyComponent == nullptr);
 		PhysicsBodyComponent = NewRigidbody;
 	}
+	ColliderComponent* NewCollider = dynamic_cast<ColliderComponent*>(Component);
+	if (NewCollider != nullptr)
+	{
+		//ensure(PhyscsCollider == nullptr);
+		PhyscsCollider = NewCollider;
+	}
 	Component->Internal_SetOwner(this);
 	if (OwnerScene != nullptr)
 	{
@@ -323,9 +330,16 @@ void GameObject::MoveComponent(glm::vec3 newpos, glm::quat newrot, bool UpdatePh
 {
 	GetTransform()->SetPos(newpos);
 	GetTransform()->SetQrot(newrot);
-	if (PhysicsBodyComponent != nullptr && UpdatePhysics)
+	if (UpdatePhysics)
 	{
-		PhysicsBodyComponent->MovePhysicsBody(newpos, newrot);
+		if (PhysicsBodyComponent != nullptr)
+		{
+			PhysicsBodyComponent->MovePhysicsBody(newpos, newrot);
+		}
+		else if (PhyscsCollider != nullptr)
+		{
+			PhyscsCollider->MovePhysicsBody(newpos, newrot);
+		}
 	}
 }
 

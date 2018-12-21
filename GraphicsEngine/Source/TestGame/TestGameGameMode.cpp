@@ -22,10 +22,17 @@ TestGameGameMode::TestGameGameMode()
 TestGameGameMode::~TestGameGameMode()
 {}
 
-GameObject* MakeTestSphere(Scene* Scene)
+GameObject* MakeTestSphere(Scene* Scene, bool Static = false)
 {
 	GameObject* go = Scene::CreateDebugSphere(nullptr);
-	go->AttachComponent(new RigidbodyComponent());
+	if (!Static)
+	{
+		go->AttachComponent(new RigidbodyComponent());
+	}
+	else
+	{
+		go->SetPosition(glm::vec3(10, 20, 0));
+	}
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	Scene->AddGameobjectToScene(go);
@@ -35,12 +42,12 @@ GameObject* MakeTestSphere(Scene* Scene)
 void TestGameGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
-#if 0
-	GameObject* A = MakeTestSphere(Scene);
-	GameObject* B = MakeTestSphere(Scene);
-	A->SetPosition(glm::vec3(0, 20, 0));
+#if 1
+	GameObject* A = MakeTestSphere(Scene, true);
+	GameObject* B = MakeTestSphere(Scene);	
+	B->SetPosition(glm::vec3(10, 10, 0));
 	ConstaintSetup data;
-	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<RigidbodyComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
+	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<ColliderComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
 #if TDSIM_ENABLED
 	//return;
@@ -133,7 +140,7 @@ void TestGameGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	cc->Radius = 2.0f;
 	cc->IsTrigger = true;
-	
+
 	manager->Melee->Collider = cc;
 	Scene->AddGameobjectToScene(Cam);
 	Scene->AddGameobjectToScene(go);

@@ -33,7 +33,7 @@ namespace TD
 		{
 			IntergrateActor(scene->GetDynamicActors()[i], dt, scene);
 		}
-
+		ResolveConstraints(scene, dt);
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			for (int p = 0; p < NarrowPhasePairs[i].ShapePairs.size(); p++)
@@ -344,11 +344,11 @@ namespace TD
 		RunPostFixup(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()), &pair->Data);
 	}
 
-	void TDSolver::ResolveConstraints(TDScene * scene)
+	void TDSolver::ResolveConstraints(TDScene* scene, float dt)
 	{
 		for (int i = 0; i < scene->GetConstraints().size(); i++)
 		{
-			scene->GetConstraints()[i]->Resolve();
+			scene->GetConstraints()[i]->Resolve(dt);
 		}
 	}
 

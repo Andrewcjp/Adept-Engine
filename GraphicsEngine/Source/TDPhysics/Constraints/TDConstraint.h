@@ -9,8 +9,8 @@ namespace TD
 	public:
 		TDConstraint(TDActor * BodyA, TDActor * BodyB, const ConstraintDesc & desc);
 		virtual ~TDConstraint();
-		virtual void Resolve();
-	private:
+		virtual void Resolve(float dt);
+	protected:
 		TDActor* BodyA = nullptr;
 		TDActor* BodyB = nullptr;
 		ConstraintDesc Desc;

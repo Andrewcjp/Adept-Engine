@@ -22,6 +22,7 @@ public:
 	Collider* GetCollider();
 	void LoadMesh();
 	void SceneInitComponent()override;
+	void MovePhysicsBody(glm::vec3 newpos, glm::quat newrot);
 	void TransferToRigidbody();
 	void SetTriangleMeshAssetName(std::string name);
 	void RenderShape();
@@ -34,7 +35,14 @@ public:
 	glm::vec3 BoxExtents = glm::vec3(1, 1, 1);
 	float Height = 1.0f;
 	bool IsTrigger = false;
-	bool IsEnabled()const { return Enabled; }
+	bool IsEnabled()const
+	{
+		return Enabled;
+	}
+	RigidBody* GetActor()
+	{
+		return Actor;
+	}
 private:
 	CORE_API ShapeElem* GetColliderShape();
 	EShapeType::Type CollisionShapeType = EShapeType::eBOX;

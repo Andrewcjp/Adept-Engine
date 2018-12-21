@@ -13,8 +13,8 @@ namespace TD
 	TDConstraint::~TDConstraint()
 	{}
 
-	void TDConstraint::Resolve()
-	{
+	void TDConstraint::Resolve(float dt)
+{
 	
 	}
 };
