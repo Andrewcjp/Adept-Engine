@@ -285,7 +285,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				}
 				else
 				{
-					cc->SetCollisonShape(EShapeType::eSPHERE);
+					cc->SetCollisonShape(EShapeType::eBOX);
 				}
 				go->AttachComponent(new RigidbodyComponent());
 				AddGameobjectToScene(go);

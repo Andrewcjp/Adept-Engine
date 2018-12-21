@@ -27,6 +27,7 @@ public:
 	CORE_API void SetGravity(bool state);
 	CORE_API TD::TDActor* GetActor();
 	CORE_API float GetMass();
+	void SetPhysicsMaterial(PhysicalMaterial* Mat);
 private:
 	std::vector<Collider*> AttachedColliders;
 	Transform m_transform;
@@ -35,6 +36,7 @@ private:
 	TD::TDActor* CommonActorPTr = nullptr;
 	std::vector<TD::TDShape*> shapes;
 	BodyInstanceData data;
+	TD::TDPhysicalMaterial* TDMaterial = nullptr;
 protected:
 	virtual void UpdateBodyState() override;
 

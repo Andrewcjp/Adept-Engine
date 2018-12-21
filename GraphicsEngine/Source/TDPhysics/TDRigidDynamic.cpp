@@ -2,6 +2,8 @@
 #include "TDPhysics.h"
 #include "TDSimConfig.h"
 #include "TDSolver.h"
+#include "TDActor.h"
+#include "Shapes\TDSphere.h"
 
 namespace TD
 {
@@ -162,7 +164,15 @@ namespace TD
 
 		if (true)//todo: check this
 		{
-			float r2 = 1.0;
+			float r2 = 1.0f;
+			if (AttachedShapes.size() > 0)
+			{
+				if (AttachedShapes[0]->GetShapeType() == TDShapeType::eSPHERE)
+				{
+					TDSphere* S = TDShape::CastShape<TDSphere>(AttachedShapes[0]);
+					r2 = S->Radius* S->Radius;
+				}
+			}
 			float fraction = (2.0f / 5.0f);
 
 			ix = r2 * BodyMass * fraction;

@@ -10,12 +10,19 @@ namespace TD
 	struct ContactData;
 	struct TDPhysicalMaterial;
 	class TDBroadphase;
+	struct ContactCallBack
+	{
+		ContactPair* Pair;
+		int LastUsedTime = 0;
+		bool Sent = false;
+	};
 	class TDSolver
 	{
 	public:
 		TDSolver();
 		~TDSolver();
 		void IntergrateScene(TDScene* scene, float dt);
+		void TickContacts();
 		void AddContact(ShapeCollisionPair * pair);
 		void ResolveCollisions(TDScene* scene);
 		std::string ReportbroadPhaseStats();
@@ -38,9 +45,11 @@ namespace TD
 		int BroadPhaseCount = 0;
 		float CurrentTimeStep = 0.0f;
 		std::vector<ActorCollisionPair> NarrowPhasePairs;
-		std::vector<ContactPair*> SimulationCallbackPairs;
-		std::vector<ContactPair*> SimulationTriggerCallbackPairs;
-		std::vector<ContactPair*> OldSimulationCallbackPairs;
+		//callbacks
+		std::vector<ContactPair*> NewSimulationCallbackPairs;		
+		std::vector<ContactPair*> NewSimulationTriggerCallbackPairs;
+		std::vector<ContactCallBack> TriggerCallbacks;
+		std::vector<ContactCallBack> ContactCallbacks;
 	};
 }
 

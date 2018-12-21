@@ -7,7 +7,7 @@ static ConsoleVariable DebugMode("physdebug", 0, ECVarType::ConsoleAndLaunch);
 
 void GenericPhysicsEngine::InitPhysics()
 {
-	DebugMode.SetValue(EPhysicsDebugMode::ShowShapes); 
+	DebugMode.SetValue(EPhysicsDebugMode::ShowBroadPhaseShapes); 
 }
 
 void GenericPhysicsEngine::StepPhysics(float Deltatime)

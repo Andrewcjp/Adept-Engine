@@ -115,6 +115,9 @@ void TestGameGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	BodyInstanceData lock;
 	lock.LockXRot = true;
 	lock.LockZRot = true;
+	lock.Mat = new PhysicalMaterial();
+	lock.Mat->Bouncyness = 0.0f;
+	lock.Mat->StaticFriction = 0.0f;
 	go->GetComponent<RigidbodyComponent>()->SetBodyData(lock);
 
 	GameObject* Cam = new GameObject("PlayerCamera");
@@ -128,8 +131,9 @@ void TestGameGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	manager->Melee = go->AttachComponent(new MeleeWeapon());
 	cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);
-	cc->Radius = 10.0f;
+	cc->Radius = 2.0f;
 	cc->IsTrigger = true;
+	
 	manager->Melee->Collider = cc;
 	Scene->AddGameobjectToScene(Cam);
 	Scene->AddGameobjectToScene(go);

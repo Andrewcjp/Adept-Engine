@@ -23,6 +23,7 @@ public:
 	static TDScene* GetScene();
 	static TDPhysicsEngine* Get();
 	static EPhysicsDebugMode::Type GetCurrentMode();
+	static TD::TDPhysicalMaterial* CreatePhysicsMaterial(PhysicalMaterial* Mat);
 private:
 	TDScene* PlayScene = nullptr;
 	TDScene* EditorScene = nullptr;

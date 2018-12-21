@@ -95,7 +95,10 @@ void TDRigidBody::AttachCollider(Collider * col)
 		col->SetEnabled(col->ComponentOwner->IsEnabled());
 		AttachedColliders.push_back(col);
 		col->SetOwner(this);
-		shapes.push_back(newShape);
+		//if (!col->IsTrigger)
+		{
+			shapes.push_back(newShape);
+		}
 		newShape->UserData = col;
 	}
 }
@@ -150,6 +153,7 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 void TDRigidBody::SetBodyData(BodyInstanceData data)
 {
 	BodyData = data;
+	UpdateBodyState();
 }
 
 BodyInstanceData TDRigidBody::GetBodyData()
@@ -219,12 +223,32 @@ float TDRigidBody::GetMass()
 	return Actor->GetBodyMass();
 }
 
+void TDRigidBody::SetPhysicsMaterial(PhysicalMaterial * Mat)
+{
+	PhysicsMat = Mat;
+	if (Mat == nullptr)
+	{
+		return;
+	}
+	SafeDelete(TDMaterial);
+	TDMaterial = TDPhysicsEngine::CreatePhysicsMaterial(PhysicsMat);
+}
+
 void TDRigidBody::UpdateBodyState()
 {
 	if (Actor != nullptr)
 	{
 		Actor->SetBodyMass(BodyData.Mass);
+		SetPhysicsMaterial(BodyData.Mat);
+		if (PhysicsMat != nullptr && TDMaterial != nullptr)
+		{
+			for (int i = 0; i < Actor->GetAttachedShapes().size(); i++)
+			{
+				Actor->GetAttachedShapes()[i]->SetPhysicalMaterial(*TDMaterial);//for now copy 
+			}
+		}
 	}
+
 }
 
 #endif

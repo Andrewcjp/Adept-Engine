@@ -10,8 +10,7 @@ namespace TD
 	TDActor::TDActor()
 	{
 		AABB = new TDAABB();
-		AABB->Owner = this;
-		
+		AABB->Owner = this;		
 	}
 
 	TDActor::~TDActor()
@@ -54,6 +53,7 @@ namespace TD
 		AttachedShapes.push_back(newShape);
 		newShape->SetOwner(this);
 		AABB->HalfExtends = newShape->GetBoundBoxHExtents();
+		//todo: max and min
 		if (newShape->GetShapeType() == TDShapeType::eTRIANGLEMESH)
 		{
 			AABB = ((TDMeshShape*)newShape)->GetAABB();

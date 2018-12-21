@@ -36,7 +36,7 @@ private:
 
 	std::vector<physx::PxShape*> Shapes;
 	Transform transform;
-	PhysicalMaterial* PhysicsMat = nullptr;
+
 	physx::PxMaterial* PMaterial = nullptr;
 };
 #endif
