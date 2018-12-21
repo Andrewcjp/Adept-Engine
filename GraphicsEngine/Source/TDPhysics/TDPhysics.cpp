@@ -140,14 +140,18 @@ namespace TD
 		{
 			return nullptr;
 		}
-		TDConstraint* constaint;
+		TDConstraint* constaint = nullptr;
 		if (desc.Type == TDConstraintType::Spring)
 		{
 			constaint = new TDSpringJoint(BodyA, BodyB, desc);
 		}
-		else
+		else if(desc.Type == TDConstraintType::Distance)
 		{
 			constaint = new TDDistanceJoint(BodyA, BodyB, desc);
+		}
+		if (constaint == nullptr)
+		{
+			return nullptr;
 		}
 		BodyA->GetScene()->AddConstraint(constaint);
 		return constaint;

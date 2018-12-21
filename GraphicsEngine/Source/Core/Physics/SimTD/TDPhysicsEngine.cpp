@@ -9,6 +9,7 @@
 #include "TDSimConfig.h"
 #include "Editor/EditorWindow.h"
 #include "TDSupport.h"
+#include "TD_ConstraintInstance.h"
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::InitPhysics()
 {
@@ -27,7 +28,7 @@ void TDPhysicsEngine::InitPhysics()
 	Actor->GetTransfrom()->SetPos(glm::vec3(0, 1, 0));
 	Actor->AttachShape(new TDPlane());
 	//PlayScene->AddToScene(Actor);
-	
+
 	DECLARE_TIMER_GROUP(GROUP_PhysicsEngine, "Physics Engine");
 	PerfManager::Get()->AddTimer("ResolveCollisions", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("ResolveConstraints", GROUP_PhysicsEngine);
@@ -39,8 +40,8 @@ ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody 
 {
 	TD::ConstraintDesc desc;
 	desc.Type = TDConstraintType::Spring;
-	TDPhysics::Get()->CreateConstraint(A->GetActor(), B->GetActor(), desc);
-	return nullptr;
+
+	return new TD_ConstraintInstance(TDPhysics::Get()->CreateConstraint(A->GetActor(), B->GetActor(), desc), Setup);
 }
 
 void TDPhysicsEngine::DebugLineCallbackHandler(glm::vec3 start, glm::vec3 end, glm::vec3 Colour, float lifetime)

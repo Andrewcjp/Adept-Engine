@@ -1,5 +1,7 @@
 #include "Source/TDPhysics/TDPCH.h"
 #include "TDDistanceJoint.h"
+#include "TDActor.h"
+#include "TDTransform.h"
 namespace TD
 {
 
@@ -9,9 +11,10 @@ namespace TD
 	TDDistanceJoint::~TDDistanceJoint()
 	{}
 
-	void TDDistanceJoint::Resolve()
+	void TDDistanceJoint::Resolve(float dt)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		BodyB->GetTransfrom()->SetPos(glm::vec3(0, 15, 0));
+		BodyA->GetTransfrom()->SetPos(glm::vec3(0, 10, 0));
 	}
 
 };

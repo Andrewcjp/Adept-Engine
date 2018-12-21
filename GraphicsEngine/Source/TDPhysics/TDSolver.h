@@ -29,7 +29,7 @@ namespace TD
 		static void ProcessCollisions(ShapeCollisionPair * A);
 		void ProcessResponsePair(ShapeCollisionPair * pair);
 		void PostIntergrate(ShapeCollisionPair * pair);
-		void ResolveConstraints(TDScene* scene);
+		void ResolveConstraints(TDScene* scene, float dt);
 		static void RunPostFixup(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data);
 		///Returns the current time step for the current processed scene
 		static float GetTimeStep();

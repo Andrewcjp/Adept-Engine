@@ -8,6 +8,7 @@ Transform::Transform(const glm::vec3 & pos, const glm::vec3 & rot, const glm::ve
 	_qrot(glm::quat(rot)),
 	_scale(scale)
 {
+	GetModel();
 	parentMatrix = glm::mat4(1);//Identity
 }
 glm::vec3 Transform::GetForward()

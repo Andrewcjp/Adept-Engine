@@ -105,6 +105,7 @@ private:
 #endif
 	Scene* OwnerScene;
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;
+	class ColliderComponent* PhyscsCollider = nullptr;
 	int AudioId = 0;
 };
 

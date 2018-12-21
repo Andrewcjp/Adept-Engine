@@ -8,6 +8,7 @@ namespace TD
 		_qrot(glm::quat(rot)),
 		_scale(scale)
 	{
+		GetModel();
 		parentMatrix = glm::mat4(1);//Identity
 	}
 	glm::vec3 TDTransform::GetForward()

@@ -224,6 +224,14 @@ void ColliderComponent::SceneInitComponent()
 	}
 }
 
+void ColliderComponent::MovePhysicsBody(glm::vec3 newpos, glm::quat newrot)
+{
+	if (Actor != nullptr)
+	{
+		Actor->SetPositionAndRotation(newpos, newrot);
+		//Log::LogMessage(glm::to_string(newrot));
+	}
+}
 void ColliderComponent::TransferToRigidbody()
 {
 	SafeDelete(Actor);
