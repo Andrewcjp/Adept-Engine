@@ -140,6 +140,7 @@ namespace TD
 		actor->SetAngularVelocity(BodyAngVel);
 		actor->UpdateSleepTimer(dt);
 		actor->ResetForceThisFrame();
+		actor->UpdateTransfrom();
 	}
 #define USE_PHASE 1
 	void TDSolver::ProcessBroadPhase(TDScene* scene)

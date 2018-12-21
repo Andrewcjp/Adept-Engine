@@ -89,6 +89,7 @@ namespace TD
 	{
 		for (int i = 0; i < SceneActors.size(); i++)
 		{
+			SceneActors[i]->UpdateTransfrom();
 			Broadphase->UpdateActor(SceneActors[i]);
 		}
 		Broadphase->ConstructPairs();

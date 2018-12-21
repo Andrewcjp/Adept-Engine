@@ -3,32 +3,32 @@
 #include "TDActor.h"
 namespace TD
 {
-	class TD_API TDShape
+	class  TDShape
 	{
 	public:
-		virtual ~TDShape();
+		TD_API virtual ~TDShape();
 		/**
 		*\brief  Sets the Physical Material of this shape
 		*\param mat to use
 		*/
-		void SetPhysicalMaterial(TDPhysicalMaterial mat);
+		TD_API void SetPhysicalMaterial(TDPhysicalMaterial mat);
 		/**
 		*\brief  Gets a const PTR to the shapes current physical material
 		*\return Const PTR to a Physics material
 		*/
-		const TDPhysicalMaterial* GetPhysicalMaterial()const;
+		TD_API const TDPhysicalMaterial* GetPhysicalMaterial()const;
 		/**
-		*\brief Returns the type of this shape 
+		*\brief Returns the type of this shape
 		*/
-		TDShapeType::Type GetShapeType()const;
+		TD_API TDShapeType::Type GetShapeType()const;
 		/**
 		*\brief Sets the TDActor which owns this shape
 		*/
-		void SetOwner(TDActor* newowner);
+		TD_API void SetOwner(TDActor* newowner);
 		/**
 		*\brief Get the TDActor which owns this shape
 		*/
-		TDActor* GetOwner();
+		TD_API TDActor* GetOwner();
 		virtual glm::vec3 GetBoundBoxHExtents();
 		template<class T>
 		static T* CastShape(class TDShape* shape)
@@ -36,11 +36,15 @@ namespace TD
 			return dynamic_cast<T*>(shape);
 		}
 		glm::vec3 GetPos();
-		TDShapeFlags& GetFlags(){return Flags;}
+		TD_API TDShapeFlags& GetFlags()
+		{
+			return Flags;
+		}
 		void* UserData = nullptr;
+		TDTransform* GetTransfrom();
 	protected:
 		TDShape();
-		
+		TDTransform Transfrom;
 		TDShapeFlags Flags;
 		TDShapeType::Type ShapeType = TDShapeType::eLimit;
 		TDPhysicalMaterial ShapeMaterial = TDPhysicalMaterial();

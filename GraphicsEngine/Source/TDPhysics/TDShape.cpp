@@ -31,6 +31,7 @@ namespace TD
 	void TDShape::SetOwner(TDActor * newowner)
 	{
 		Owner = newowner;
+		Transfrom.SetParent(Owner->GetTransfrom());
 	}
 
 	TDActor * TDShape::GetOwner()
@@ -45,10 +46,20 @@ namespace TD
 
 	glm::vec3 TDShape::GetPos()
 	{
+#if 0
 		if (GetOwner() != nullptr)
 		{
 			return GetOwner()->GetTransfrom()->GetPos();
 		}
 		return glm::vec3();
+#else
+		return Transfrom.GetPos();
+#endif
 	}
+
+	TD::TDTransform* TDShape::GetTransfrom()
+	{
+		return &Transfrom;
+	}
+
 }

@@ -26,9 +26,9 @@ namespace TD
 		glm::mat4 GetModel();
 		//------------------------------------------------------
 		//getters
-		glm::vec3 GetPos() const { return _pos; }
-		glm::vec3 GetEulerRot() const;
-		glm::vec3 GetScale() const { return _scale; }
+		TD_API glm::vec3 GetPos() ;
+		TD_API glm::vec3 GetEulerRot() const;
+		TD_API glm::vec3 GetScale() const;
 		glm::vec3 GetForward();
 		glm::vec3 GetUp();
 		glm::vec3 GetRight();
@@ -41,6 +41,7 @@ namespace TD
 	private:
 		//cached matrixs;
 		glm::mat4 CacheModel;
+		glm::mat4 CacheLocalModel;
 		bool UpdateModel = true;
 
 		glm::vec3 _pos;

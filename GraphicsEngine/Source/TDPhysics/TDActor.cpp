@@ -66,7 +66,13 @@ namespace TD
 	{
 		return AttachedShapes;
 	}
-
+	void TDActor::UpdateTransfrom()
+	{
+		for (int i = 0; i < AttachedShapes.size(); i++)
+		{
+			AttachedShapes[i]->GetTransfrom()->Update();
+		}
+	}
 #if VALIDATE_KE
 	void TDActor::ComputeKE()
 	{}
