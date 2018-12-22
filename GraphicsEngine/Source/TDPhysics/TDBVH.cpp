@@ -5,6 +5,8 @@
 #include <queue>
 #include "TDPhysics.h"
 #include "TDSimConfig.h"
+#include "TDShape.h"
+#include "Shapes/TDBox.h"
 namespace TD
 {
 
@@ -155,7 +157,7 @@ namespace TD
 					}
 				}
 			}
-		//	iterator->bounds->DebugRender(glm::vec3(1, 0, 0));
+			//	iterator->bounds->DebugRender(glm::vec3(1, 0, 0));
 			if (iterator->children.size())
 			{
 				for (int i = 0; i < 8; i++)
@@ -166,6 +168,27 @@ namespace TD
 						toProcess.emplace(&iterator->children[i]);
 					}
 				}
+			}
+		}
+		return RetValue;
+	}
+
+	bool TDBVH::TraverseForBox(TDBox * A, std::vector<TriangleInterection>& contacts, int MaxContactCount)
+	{
+		bool RetValue = false;
+		for (int i = 0; i < TargetMesh->GetTriangles().size(); i++)
+		{
+			TriangleInterection t;
+			if (TargetMesh->GetTriangles()[i]->TriangleBox(A))
+			{
+				t.Tri = TargetMesh->GetTriangles()[i];
+				glm::vec3 ContactPoint = A->ClosestPoint(t.Tri->GetPos());
+				const float time= 10.0f;
+				TDPhysics::DrawDebugPoint(ContactPoint, glm::vec3(0, 1, 0), time);
+				TDPhysics::DrawDebugPoint(A->ClosestPoint(t.Tri->GetPos()), glm::vec3(1, 0, 0), time);
+				t.depth = glm::length(t.Tri->ClosestPoint(A->GetPos()) - A->ClosestPoint(t.Tri->GetPos()))/16;
+				contacts.push_back(t);
+				RetValue = true;
 			}
 		}
 		return RetValue;

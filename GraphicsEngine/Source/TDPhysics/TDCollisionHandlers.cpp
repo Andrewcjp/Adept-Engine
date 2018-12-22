@@ -35,7 +35,7 @@ namespace TD
 		glm::vec3 CollisonNormal = SphereA->GetPos() - SphereB->GetPos();
 		const float Distancesq = glm::length2(CollisonNormal);
 		const float RaduisSum = SphereA->Radius + SphereB->Radius;
-		const float inflatedSum = RaduisSum + 0.1f;//mContactDistance
+		const float inflatedSum = RaduisSum /*+ 0.1f*/;//mContactDistance
 		if (Distancesq >= inflatedSum * inflatedSum)
 		{
 			return false;
@@ -80,9 +80,10 @@ namespace TD
 		const glm::vec3 aMax = A->GetMax();
 		const glm::vec3 bMin = B->GetMin();
 		const glm::vec3 bMax = B->GetMax();
-		return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
-			(aMin.y <= bMax.y && aMax.y >= bMin.y) &&
-			(aMin.z <= bMax.z && aMax.z >= bMin.z);
+		const bool result = (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
+			   (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
+			   (aMin.z <= bMax.z && aMax.z >= bMin.z);
+		return result;
 	}
 
 	glm::vec3 ClosestPoint(const TDAABB* aabb, const glm::vec3& point)
@@ -239,7 +240,9 @@ namespace TD
 
 	bool TD::TDCollisionHandlers::CollideBoxMesh(CollisionHandlerArgs)
 	{
-		return false;
+		TDBox* Box = TDShape::CastShape<TDBox>(A);
+		TDMeshShape* mesh = TDShape::CastShape<TDMeshShape>(B);
+		return mesh->MeshBox(Box, contactbuffer);
 	}
 
 	bool TD::TDIntersectionHandlers::IntersectSphere(InterSectionArgs)

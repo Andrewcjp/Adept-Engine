@@ -27,7 +27,7 @@ void WeaponManager::BeginPlay()
 
 void WeaponManager::AddAmmo(Weapon::WeaponType Type, int amount)
 {
-	if (Type < Weapon::Limit)
+	if (Type < MAX_WEAPON_COUNT)
 	{
 		Weapons[Type]->AddAmmo(amount);
 	}
@@ -110,8 +110,10 @@ void WeaponManager::Update(float delta)
 	{
 		SetWeaponActive(1);
 	}
+#if USE_SHOTGUN
 	if (Input::GetKeyDown('3'))
 	{
 		SetWeaponActive(2);
 	}
+#endif
 }

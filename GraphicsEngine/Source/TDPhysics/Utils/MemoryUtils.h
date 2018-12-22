@@ -83,7 +83,7 @@ namespace TD
 			template<class T>
 			void RemoveItem(T* point, std::vector<T*> & points)
 			{
-				for (int i = 0; i < points.size(); i++)
+				for (int i = (int)points.size() - 1; i >= 0; i--)
 				{
 					if (points[i] == point)
 					{
@@ -95,7 +95,7 @@ namespace TD
 			template<class T>
 			bool RemoveItemO(T* point, std::vector<T*> & points)
 			{
-				for (int i = 0; i < points.size(); i++)
+				for (int i = (int)points.size() - 1; i >= 0; i--)
 				{
 					if (points[i]->Owner == point->Owner)
 					{

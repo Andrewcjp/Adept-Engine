@@ -18,7 +18,10 @@ class GameObject :
 {
 public:
 	TagContainer Tags;
-	enum EMoblity { Static, Dynamic };
+	enum EMoblity
+	{
+		Static, Dynamic
+	};
 	CORE_API GameObject(std::string name = "", EMoblity stat = EMoblity::Static, int ObjectID = -1);
 	CORE_API ~GameObject();
 	CORE_API static GameObject* Instantiate(glm::vec3 Pos, glm::quat Rotation = glm::quat());
@@ -36,10 +39,19 @@ public:
 
 	EMoblity GetMobility();
 	Mesh* GetMesh();
-	MeshRendererComponent* GetMeshRenderer() const{ return m_MeshRenderer; }
-	std::string GetName() { return Name; }
+	MeshRendererComponent* GetMeshRenderer() const
+	{
+		return m_MeshRenderer;
+	}
+	std::string GetName()
+	{
+		return Name;
+	}
 	CORE_API RigidBody* GetRigidbody();
-	void SetName(std::string name) { Name = name; }
+	void SetName(std::string name)
+	{
+		Name = name;
+	}
 	bool HasCached = false;
 
 
@@ -80,7 +92,7 @@ public:
 	void BroadCast_OnTrigger(CollisonData Data);
 	int GetAudioId()
 	{
-		return AudioId;		
+		return AudioId;
 	}
 	void OnRemoveFromScene();
 	void ValidateObjectInWorld();
@@ -101,7 +113,7 @@ private:
 	std::vector<GameObject*> Children;
 #if WITH_EDITOR
 	virtual std::vector<InspectorProperyGroup> GetInspectorFields() override;
-	
+
 #endif
 	Scene* OwnerScene;
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;

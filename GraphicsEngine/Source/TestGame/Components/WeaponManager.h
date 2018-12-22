@@ -1,8 +1,9 @@
 #pragma once
 #include "Weapon.h"
-const int MAX_WEAPON_COUNT = 3;
+const int MAX_WEAPON_COUNT = 2;
 class Weapon;
 class MeleeWeapon;
+#define USE_SHOTGUN 0
 class WeaponManager :public Component
 {
 public:

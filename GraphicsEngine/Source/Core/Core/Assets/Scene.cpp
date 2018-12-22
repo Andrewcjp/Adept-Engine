@@ -295,16 +295,16 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(60, 0, -5));
 	go->AttachComponent(new SpawnMarker());
 	AddGameobjectToScene(go);
-#if 0
-	go = CreateDebugSphere(nullptr);
-	cc = go->AttachComponent(new ColliderComponent());
-	go->GetTransform()->SetPos(glm::vec3(0, 15, 10));
-	cc->SetCollisonShape(EShapeType::eSPHERE);
-	go->AttachComponent(new RigidbodyComponent());
-	AddGameobjectToScene(go);
-	glm::vec3 startpos = glm::vec3(0, 10, 0);
+#if 1
+	//go = CreateDebugSphere(nullptr);
+	//cc = go->AttachComponent(new ColliderComponent());
+	//go->GetTransform()->SetPos(glm::vec3(0, 15, 10));
+	//cc->SetCollisonShape(EShapeType::eSPHERE);
+	//go->AttachComponent(new RigidbodyComponent());
+	//AddGameobjectToScene(go);
+	glm::vec3 startpos = glm::vec3(5, 0, 0); 
 	float stride = 5.0f;
-	int size = 4;
+	int size = 5;
 	int zsize = 2;
 	for (int x = 0; x < size; x++)
 	{
@@ -314,14 +314,14 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			{
 				go = CreateDebugSphere(nullptr);
 				cc = go->AttachComponent(new ColliderComponent());
-				go->GetTransform()->SetPos(glm::vec3(x *stride, 15 + z * stride, y*stride));
+				go->GetTransform()->SetPos(startpos + glm::vec3(x *stride, 15 + z * stride, y*stride));
 				if (z == 0)
 				{
 					cc->SetCollisonShape(EShapeType::eSPHERE);
 				}
 				else
 				{
-					cc->SetCollisonShape(EShapeType::eBOX);
+					cc->SetCollisonShape(EShapeType::eSPHERE);
 				}
 				go->AttachComponent(new RigidbodyComponent());
 				AddGameobjectToScene(go);
