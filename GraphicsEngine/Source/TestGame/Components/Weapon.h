@@ -6,9 +6,9 @@ class Weapon : public Component
 public:
 	enum WeaponType
 	{		
-		Rifle,
-		ShotGun,
+		Rifle,		
 		RailGun,
+		ShotGun,
 		AIRifle,
 		Limit,
 	};

@@ -2,6 +2,8 @@
 
 #include "TDTypes.h"
 
+namespace TD { class TDBFBE; }
+
 namespace TD
 {
 	class TDScene;
@@ -17,6 +19,14 @@ namespace TD
 		~TDBroadphase();
 		///Populate the NarrowPhasePairs List from the current Selected BroadPhase
 		void ConstructPairs();
+
+		void BFBEGetPairs();
+
+		void SapGetPairs();
+#if !BUILD_FULLRELEASE
+		///Development only validates the Broadphase is not missing any interactions 
+		void Validate();
+#endif
 		std::vector<ActorCollisionPair> NarrowPhasePairs;
 		///Register an actor with the current BroadPhase 
 		void AddToPhase(TDActor* actor);
@@ -24,8 +34,11 @@ namespace TD
 		void RemoveFromPhase(TDActor * actor);
 		///Update the Actors position the 
 		void UpdateActor(TDActor * actor);
+
+		TDScene* TargetScene = nullptr;
 	private:
 		SweepAndPrune* SAP = nullptr;
+		TDBFBE* BFBE = nullptr;
 	};
 	//A Point On a SAP axis
 	struct SAPEndPoint
@@ -43,7 +56,7 @@ namespace TD
 		float Value = 0.0f;
 		bool IsMinPoint = false;//todo: could encode in actor id for speed!
 	};
-	//The SAP reprsentation of a AABB
+	//The SAP representation of a AABB
 	struct SAPBox
 	{
 		SAPEndPoint* Min[3];
@@ -54,11 +67,13 @@ namespace TD
 		SAPBox(TDAABB* bb);
 		///Update the Positions of this object on all of the SAP axes (not to be confused with an AXE) 
 		void Update(TDAABB* AABB);
+		bool IsDead = false;
 	};
 	///Container for Pairs of SAP end points
 	struct BPCollisionPair
 	{
-		BPCollisionPair(SAPEndPoint* a, SAPEndPoint* b);
+		BPCollisionPair(TDAABB* a, TDAABB* b);
+		//BPCollisionPair(SAPEndPoint* a, SAPEndPoint* b);
 		TDAABB* A = nullptr;
 		TDAABB* B = nullptr;
 		SAPEndPoint* Apoint = nullptr;

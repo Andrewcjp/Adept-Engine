@@ -1,6 +1,8 @@
 #pragma once
 #include "TDShape.h"
 
+namespace TD { class TDBox; }
+
 namespace TD { struct RayCast; }
 
 namespace TD { class TDBVH; }
@@ -19,6 +21,7 @@ namespace TD
 		virtual glm::vec3 GetBoundBoxHExtents() override;
 		TDAABB* GetAABB();
 		bool MeshSphere(TDSphere * s, ContactData* contactbuffer);
+		bool MeshBox(TDBox * Box, ContactData * Contacts);
 		bool IntersectTriangle(RayCast* ray);
 	private:
 		TDMesh* Mesh = nullptr;
@@ -73,6 +76,10 @@ namespace TD
 		glm::vec3 ClosestPoint(const glm::vec3 & p);
 		void DebugDraw(float time);
 		bool TriangleAABB(const TDAABB * a);
+		bool TriangleBox(TDBox * Box);
+		glm::vec3 GetPos();
+	private:
+		glm::vec3 posAVG;
 	};
 	struct Edge
 	{

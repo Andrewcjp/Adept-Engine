@@ -59,6 +59,7 @@ protected:
 	double TargetDeltaTime = 0.0;
 	void LoadScene(std::string RelativePath);
 	bool PauseState = false;
+	bool StepOnce = false;
 private:
 	void PostFrameOne();
 	void RenderText();

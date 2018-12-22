@@ -45,6 +45,7 @@ namespace TD
 			eBOX,
 			eCONVEXMESH,
 			eTRIANGLEMESH,
+			eAABB,
 			eLimit
 		};
 	}
@@ -89,6 +90,7 @@ namespace TD
 			SAP,///< Sweep and Prune
 			HSAP,///< Hierarchical Sweep and Prune
 			MBP,///< Multi Box Pruning
+			BFBE,///< Brute force Box elimination  
 			Limit
 		};
 	}
@@ -143,9 +145,9 @@ namespace TD
 		TDActor* first = nullptr;
 		TDActor* second = nullptr;
 		void CreateShapePairs();
-		bool operator==(const ActorCollisionPair& rhs)
+		bool operator==(const ActorCollisionPair& rhs)//order matters - for SAP
 		{
-			return (this->first == rhs.first && this->second == rhs.second) || (this->first == rhs.second && this->first == rhs.second);
+			return (this->first == rhs.first && this->second == rhs.second);
 		}
 		std::vector<ShapeCollisionPair> ShapePairs;
 		void Reset();

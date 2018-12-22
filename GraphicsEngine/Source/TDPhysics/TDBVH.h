@@ -1,5 +1,7 @@
 #pragma once
 
+namespace TD { class TDBox; }
+
 namespace TD
 {
 	class TDMesh;
@@ -23,6 +25,7 @@ namespace TD
 		void SplitBVH(BVHNode* node, TDMesh* model, int depth);
 		void FreeBVHNode(BVHNode* node);
 		bool TraverseForSphere(TDSphere * A, std::vector<TriangleInterection>& contacts, int MaxContactCount);
+		bool TraverseForBox(TDBox* A, std::vector<TriangleInterection>& contacts, int MaxContactCount);
 		void Render();
 		bool TraverseForRay(RayCast * ray);
 		TDMesh* TargetMesh = nullptr;

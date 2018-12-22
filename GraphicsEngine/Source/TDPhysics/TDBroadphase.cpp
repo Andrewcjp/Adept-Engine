@@ -8,6 +8,8 @@
 #include "Utils/MemoryUtils.h"
 #include "Core/Utils/VectorUtils.h"
 #include "Utils/MathUtils.h"
+#include "TDBFBE.h"
+#include "TDScene.h"
 
 namespace TD
 {
@@ -18,6 +20,10 @@ namespace TD
 		{
 			SAP = new SweepAndPrune();
 		}
+		else if (TDPhysics::GetCurrentSimConfig()->BroadphaseMethod == TDBroadphaseMethod::BFBE)
+		{
+			BFBE = new TDBFBE();
+		}
 		else
 		{
 			__debugbreak();
@@ -27,9 +33,46 @@ namespace TD
 	TDBroadphase::~TDBroadphase()
 	{
 		SafeDelete(SAP);
+		SafeDelete(BFBE);
 	}
 
 	void TDBroadphase::ConstructPairs()
+	{
+		if (TDPhysics::GetCurrentSimConfig()->BroadphaseMethod == TDBroadphaseMethod::SAP)
+		{
+			SapGetPairs();
+		}
+		else if (TDPhysics::GetCurrentSimConfig()->BroadphaseMethod == TDBroadphaseMethod::BFBE)
+		{
+			BFBEGetPairs();
+		}
+#if !BUILD_FULLRELEASE
+		Validate();
+#endif
+	}
+	void TDBroadphase::BFBEGetPairs()
+	{
+		NarrowPhasePairs.clear();
+		for (int i = 0; i < TargetScene->GetActors().size(); i++)
+		{
+			for (int j = i; j < TargetScene->GetActors().size(); j++)
+			{
+				TDActor* Actor = TargetScene->GetActors()[i];
+				TDActor* Actorb = TargetScene->GetActors()[j];
+				if (TargetScene->GetActors()[i] == TargetScene->GetActors()[j])
+				{
+					continue;
+				}
+				if (TargetScene->GetActors()[i]->GetActorType() == TDActorType::RigidStatic && TargetScene->GetActors()[j]->GetActorType() == TDActorType::RigidStatic)
+				{
+					continue;
+				}
+
+				NarrowPhasePairs.push_back(ActorCollisionPair(Actor, Actorb));
+			}
+		}
+	}
+	void TDBroadphase::SapGetPairs()
 	{
 		SAP->Sort();
 		NarrowPhasePairs.clear();
@@ -51,23 +94,76 @@ namespace TD
 			}
 		}
 	}
-
+	bool CheckBB(SAPEndPoint* a, SAPEndPoint* b)
+	{
+		return TDCollisionHandlers::CollideAABBAABB(a->Owner->Owner, b->Owner->Owner);
+	}
+#if !BUILD_FULLRELEASE
+	void TDBroadphase::Validate()
+	{
+		return;
+		int CorrectedCount = 0;
+		for (int i = 0; i < TargetScene->GetActors().size(); i++)
+		{
+			for (int j = i; j < TargetScene->GetActors().size(); j++)
+			{
+				TDActor* Actor = TargetScene->GetActors()[i];
+				TDActor* Actorb = TargetScene->GetActors()[j];
+				if (TargetScene->GetActors()[i] == TargetScene->GetActors()[j])
+				{
+					continue;
+				}
+				if (Actor->GetActorType() == TDActorType::RigidStatic && Actorb->GetActorType() == TDActorType::RigidStatic)
+				{
+					continue;
+				}
+				if (TDCollisionHandlers::CollideAABBAABB(Actor->AABB, Actorb->AABB))
+				{
+					if (!VectorUtils::Contains(NarrowPhasePairs, ActorCollisionPair(Actor, Actorb)))
+					{
+					//	NarrowPhasePairs.push_back(ActorCollisionPair(Actor, Actorb));
+						CorrectedCount++;
+						//__debugbreak();
+					}
+				}
+				/*NarrowPhasePairs.push_back(ActorCollisionPair(Actor, Actorb));*/
+			}
+		}
+		for (int i = 0; i < NarrowPhasePairs.size(); i++)
+		{
+			//TDPhysics::DrawDebugLine(NarrowPhasePairs[i].first->GetTransfrom()->GetPos(), NarrowPhasePairs[i].second->GetTransfrom()->GetPos(), glm::vec3(0, 1, 0), 0.0f);
+		}
+		if (CorrectedCount > 0)
+		{
+			printf("CorrectedCount %d\n", CorrectedCount);
+		}
+	}
+#endif
 	void TDBroadphase::AddToPhase(TDActor * actor)
 	{
-		SAP->AddObject(actor->AABB);
+		if (SAP != nullptr)
+		{
+			SAP->AddObject(actor->AABB);
+		}
 	}
 
 	void TDBroadphase::RemoveFromPhase(TDActor * actor)
 	{
-		SAP->RemoveObject(actor->AABB);
+		if (SAP != nullptr)
+		{
+			SAP->RemoveObject(actor->AABB);
+		}
 	}
 
 	void TDBroadphase::UpdateActor(TDActor* actor)
 	{
-		if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
+	//	if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
 		{
 			actor->UpdateAABBPos(actor->GetTransfrom()->GetPos());
-			SAP->UpdateObject(actor->AABB);
+			if (SAP != nullptr)
+			{
+				SAP->UpdateObject(actor->AABB);
+			}
 		}
 	}
 
@@ -101,17 +197,25 @@ namespace TD
 	int RemovePair(BPCollisionPair* point, std::vector<BPCollisionPair*> & points, TDActor* owner)
 	{
 		int removecount = 0;
-		for (int i = 0; i < points.size(); i++)
+		//for (int i = 0; i < points.size(); i++)
+		//{
+		//	if (points[i]->A == point->A || points[i]->B == point->B || points[i]->A == point->B || points[i]->B == point->A)
+		//	{
+		//		points.erase(points.begin() + i);
+		//		removecount++;
+		//	}
+		//}
+		for (int i = (int)points.size() - 1; i >= 0; i--)
 		{
-			if (points[i]->A == point->A || points[i]->B == point->B || points[i]->A == point->B || points[i]->B == point->A)
+			if (points[i]->A->Owner == owner || points[i]->B->Owner == owner)
 			{
 				points.erase(points.begin() + i);
 				removecount++;
 			}
 		}
-		for (int i = 0; i < points.size(); i++)
+		for (int i = (int)points.size() - 1; i >= 0; i--)
 		{
-			if (points[i]->A->Owner == owner || points[i]->B->Owner == owner)
+			if (points[i]->A->IsDead || points[i]->B->IsDead)
 			{
 				points.erase(points.begin() + i);
 				removecount++;
@@ -140,11 +244,13 @@ namespace TD
 		RemoveItemO(box->Max[1], Ypoints);
 		RemoveItemO(box->Min[2], Zpoints);
 		RemoveItemO(box->Max[2], Zpoints);
-		int Count = RemovePair(new BPCollisionPair(box->Min[0], box->Max[0]), Pairs, bb->Owner);
-		Count += RemovePair(new BPCollisionPair(box->Min[1], box->Max[1]), Pairs, bb->Owner);
-		Count += RemovePair(new BPCollisionPair(box->Min[2], box->Max[2]), Pairs, bb->Owner);
+		bb->IsDead = true;
+		int Count = RemovePair(new BPCollisionPair(bb, bb), Pairs, bb->Owner);
+		Count += RemovePair(new BPCollisionPair(box->Min[1]->Owner->Owner, box->Max[1]->Owner->Owner), Pairs, bb->Owner);
+		//Count += RemovePair(new BPCollisionPair(box->Min[2], box->Max[2]), Pairs, bb->Owner);
 		RemoveItemO(box, Bodies);
-		SafeDelete(box);
+		box->IsDead = true;
+		//	SafeDelete(box);
 	}
 
 	void SweepAndPrune::Sort()
@@ -158,19 +264,15 @@ namespace TD
 
 	void RemoveItem(BPCollisionPair* point, std::vector<BPCollisionPair*> & points)
 	{
-		for (int i = 0; i < points.size(); i++)
+		for (int i = (int)points.size() - 1; i >= 0; i--)
 		{
-			if ((points[i]->A == point->A && points[i]->B == point->B) || (points[i]->A == point->B && points[i]->B == point->A))
+			if ((points[i]->A == point->A && points[i]->B == point->B) /*|| (points[i]->A == point->B && points[i]->B == point->A)*/)
 			{
 				points.erase(points.begin() + i);
 			}
 		}
 	}
 
-	bool CheckBB(SAPEndPoint* a, SAPEndPoint* b)
-	{
-		return TDCollisionHandlers::CollideAABBAABB(a->Owner->Owner, b->Owner->Owner);
-	}
 
 	void SweepAndPrune::SAPSortAxis(std::vector<SAPEndPoint*>& AxisPoints)
 	{
@@ -182,17 +284,26 @@ namespace TD
 			while (i >= 0 && AxisPoints[i]->Value > Key)
 			{
 				SAPEndPoint* spoint = AxisPoints[i];
+				if (spoint->Owner->IsDead || KeyPoint->Owner->IsDead)
+				{
+					__debugbreak();
+				}
 				if (KeyPoint->IsMinPoint && !spoint->IsMinPoint)
 				{
 					//pair!
 					if (CheckBB(KeyPoint, spoint))
 					{
-						Pairs.push_back(new BPCollisionPair(spoint, KeyPoint));
+						Pairs.push_back(new BPCollisionPair(spoint->Owner->Owner, KeyPoint->Owner->Owner));
+					}
+					else
+					{
+						/*	spoint->Owner->Owner->DebugRender(glm::vec3(1, 0, 0),10.5f);
+							KeyPoint->Owner->Owner->DebugRender(glm::vec3(1, 0, 0),10.5f);*/
 					}
 				}
 				if (!KeyPoint->IsMinPoint && spoint->IsMinPoint)
 				{
-					RemoveItem(new BPCollisionPair(spoint, KeyPoint), Pairs);
+					RemoveItem(new BPCollisionPair(spoint->Owner->Owner, KeyPoint->Owner->Owner), Pairs);
 				}
 				AxisPoints[i + 1] = spoint;
 				i = i - 1;
@@ -221,14 +332,19 @@ namespace TD
 
 		Max[0]->Value = AABB->GetMax().x;
 		Max[1]->Value = AABB->GetMax().y;
-		Max[2]->Value = AABB->GetMax().x;
+		Max[2]->Value = AABB->GetMax().z;
 	}
 
-	BPCollisionPair::BPCollisionPair(SAPEndPoint * a, SAPEndPoint * b)
+	/*BPCollisionPair::BPCollisionPair(SAPEndPoint * a, SAPEndPoint * b)
 	{
 		Apoint = a;
 		BPoint = b;
 		A = a->Owner->Owner;
 		B = b->Owner->Owner;
+	}*/
+	BPCollisionPair::BPCollisionPair(TDAABB * a, TDAABB * b)
+	{
+		A = a;
+		B = b;
 	}
 }

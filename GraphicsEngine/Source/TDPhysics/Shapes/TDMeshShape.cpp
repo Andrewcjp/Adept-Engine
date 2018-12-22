@@ -7,6 +7,8 @@
 #include "TDAABB.h"
 #include "TDBVH.h"
 #include "TDShape.h"
+#include "TDTransform.h"
+#include "TDBox.h"
 
 namespace TD
 {
@@ -41,6 +43,7 @@ namespace TD
 		Points[0] = a;
 		Points[1] = b;
 		Points[2] = c;
+		posAVG = (a + b + c) / 3;
 	}
 	TDTriangle::TDTriangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 normal) :TDTriangle(a, b, c)
 	{
@@ -119,7 +122,7 @@ namespace TD
 #endif
 			}
 
-		}
+}
 #else
 		const bool IsTrigger = s->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
 		std::vector<TriangleInterection> InterSections;
@@ -138,23 +141,31 @@ namespace TD
 		}
 
 #endif
-		return false;
+		return contactbuffer->Blocking;
+	}
+	bool TDMeshShape::MeshBox(TDBox* Box, ContactData* Contacts)
+	{
+		const bool IsTrigger = Box->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
+		std::vector<TriangleInterection> InterSections;
+		if (Mesh->GetBVH()->TraverseForBox(Box, InterSections, IsTrigger ? 1 : 0))
+		{
+			for (int i = 0; i < InterSections.size(); i++)
+			{
+				const glm::vec3 normal = InterSections[i].Tri->Normal;
+				Contacts->Contact(InterSections[i].Point, normal, InterSections[i].depth);
+				//				DebugEnsure(InterSections[i].depth > -1.0f);
+				//				DebugEnsure(InterSections[i].depth < 0.0f);
+#if !BUILD_SHIPPING
+				InterSections[i].Tri->DebugDraw(0.0f);
+#endif
+			}
+		}
+		return Contacts->Blocking;
 	}
 
 	bool TDMeshShape::IntersectTriangle(RayCast* ray)
 	{
-#if 0
-		for (int i = 0; i < Mesh->GetTriangles().size(); i++)
-		{
-			if (Mesh->GetTriangles()[i]->Intersect(ray))
-			{
-				return true;//todo: Multicast!
-			}
-		}
-#else
 		return Mesh->GetBVH()->TraverseForRay(ray);
-#endif
-		return false;
 	}
 
 	glm::vec3 Project(const glm::vec3& length, const glm::vec3& direction)
@@ -361,9 +372,54 @@ namespace TD
 
 		return result;
 	}
+	Interval GetInterval(TDBox* obb, const glm::vec3& axis)
+	{
+		glm::vec3 vertex[8];
+
+		glm::vec3 C = obb->GetPos();	// OBB Center
+		glm::vec3 E = obb->HalfExtends;		// OBB Extents
+		//const float* o = obb->GetTransfrom;
+		//glm::vec3 A[] = {			// OBB Axis
+		//	glm::vec3(o[0], o[1], o[2]),
+		//	glm::vec3(o[3], o[4], o[5]),
+		//	glm::vec3(o[6], o[7], o[8]),
+		//};
+		glm::mat3x3 A = glm::mat3(obb->GetTransfrom()->GetQuatRot());
+		glm::vec3 u0 = glm::vec3(A[0][0], A[1][0], A[2][0]);
+		glm::vec3 u1 = glm::vec3(A[0][1], A[1][1], A[2][1]);//todo: wrong way round?
+		glm::vec3 u2 = glm::vec3(A[0][2], A[1][2], A[2][2]);
+
+		vertex[0] = C + A[0] * E[0] + A[1] * E[1] + A[2] * E[2];
+		vertex[1] = C - A[0] * E[0] + A[1] * E[1] + A[2] * E[2];
+		vertex[2] = C + A[0] * E[0] - A[1] * E[1] + A[2] * E[2];
+		vertex[3] = C + A[0] * E[0] + A[1] * E[1] - A[2] * E[2];
+		vertex[4] = C - A[0] * E[0] - A[1] * E[1] - A[2] * E[2];
+		vertex[5] = C + A[0] * E[0] - A[1] * E[1] - A[2] * E[2];
+		vertex[6] = C - A[0] * E[0] + A[1] * E[1] - A[2] * E[2];
+		vertex[7] = C - A[0] * E[0] - A[1] * E[1] + A[2] * E[2];
+
+		Interval result;
+		result.min = result.max = glm::dot(axis, vertex[0]);
+
+		for (int i = 1; i < 8; ++i)
+		{
+			float projection = glm::dot(axis, vertex[i]);
+			result.min = (projection < result.min) ? projection : result.min;
+			result.max = (projection > result.max) ? projection : result.max;
+		}
+
+		return result;
+	}
 	bool OverlapOnAxis(const TDAABB* aabb, const TDTriangle* triangle, const glm::vec3& axis)
 	{
 		Interval a = GetInterval(aabb, axis);
+		Interval b = GetInterval(triangle, axis);
+		return ((b.min <= a.max) && (a.min <= b.max));
+	}
+
+	bool OverlapOnAxis(TDBox* obb, const TDTriangle* triangle, const glm::vec3& axis)
+	{
+		Interval a = GetInterval(obb, axis);
 		Interval b = GetInterval(triangle, axis);
 		return ((b.min <= a.max) && (a.min <= b.max));
 	}
@@ -403,11 +459,56 @@ namespace TD
 		{
 			if (!OverlapOnAxis(a, this, test[i]))
 			{
-				return false; // Seperating axis found
+				return false; // Separating axis found
 			}
 		}
 
-		return true; // Seperating axis not found
+		return true; // Separating axis not found
 	}
 
+	bool TDTriangle::TriangleBox(TDBox * Box)
+	{
+		// Compute the edge vectors of the triangle  (ABC)
+		glm::vec3 f0 = Points[1] - Points[0];
+		glm::vec3 f1 = Points[2] - Points[1];
+		glm::vec3 f2 = Points[0] - Points[2];
+
+		// Compute the face normals of the Box / OBB
+		glm::mat3x3 orientation = glm::mat3(Box->GetTransfrom()->GetQuatRot());
+		glm::vec3 u0 = glm::vec3(orientation[0][0], orientation[1][0], orientation[2][0]);
+		glm::vec3 u1 = glm::vec3(orientation[0][1], orientation[1][1], orientation[2][1]);
+		glm::vec3 u2 = glm::vec3(orientation[0][2], orientation[1][2], orientation[2][2]);
+		glm::vec3 test[13] = {
+			// 3 Normals of AABB
+			u0, // AABB Axis 1
+			u1, // AABB Axis 2
+			u2, // AABB Axis 3
+			// 1 Normal of the Triangle
+			glm::cross(f0, f1),
+			// 9 Axis, cross products of all edges
+			glm::cross(u0, f0),
+			glm::cross(u0, f1),
+			glm::cross(u0, f2),
+			glm::cross(u1, f0),
+			glm::cross(u1, f1),
+			glm::cross(u1, f2),
+			glm::cross(u2, f0),
+			glm::cross(u2, f1),
+			glm::cross(u2, f2)
+		};
+
+		for (int i = 0; i < 13; ++i)
+		{
+			if (!OverlapOnAxis(Box, this, test[i]))
+			{
+				return false; // Separating axis found
+			}
+		}
+
+		return true; // Separating axis not found
+	}
+	glm::vec3 TDTriangle::GetPos()
+	{
+		return posAVG;
+	}
 }

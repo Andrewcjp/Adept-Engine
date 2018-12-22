@@ -17,8 +17,8 @@ TDRigidBody::~TDRigidBody()
 {
 	TDPhysicsEngine::GetScene()->RemoveActor(CommonActorPTr);
 	CommonActorPTr = nullptr;
-	SafeDelete(Actor);
-	SafeDelete(StaticActor);
+	//SafeDelete(Actor);
+	//SafeDelete(StaticActor);
 }
 
 glm::vec3 TDRigidBody::GetPosition() const

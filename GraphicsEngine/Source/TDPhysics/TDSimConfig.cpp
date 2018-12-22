@@ -9,4 +9,5 @@ TD::TDSimConfig::TDSimConfig()
 	SolverIterationCount = 5;
 	int cpucount = std::thread::hardware_concurrency();
 	TaskGraphThreadCount = std::max((int)1, cpucount - 2);
+	BroadphaseMethod = TDBroadphaseMethod::SAP;
 }

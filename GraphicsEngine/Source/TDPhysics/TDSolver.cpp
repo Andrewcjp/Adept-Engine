@@ -197,7 +197,7 @@ namespace TD
 				{
 					continue;
 				}
-				NarrowPhasePairs.push_back(CollisionPair(Actor, Actorb));
+				NarrowPhasePairs.push_back(ActorCollisionPair(Actor, Actorb));
 			}
 		}
 #else

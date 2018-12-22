@@ -10,6 +10,7 @@ namespace TD
 	TDScene::TDScene()
 	{
 		Broadphase = new TDBroadphase();
+		Broadphase->TargetScene = this;
 		GravityForce = glm::vec3(0, -20.0f, 0);
 	}
 

@@ -131,6 +131,16 @@ void BaseWindow::Render()
 	{
 		PauseState = !PauseState;
 	}
+	if (StepOnce)
+	{
+		PauseState = true;
+		StepOnce = false;
+	}
+	if (Input::GetKeyDown(VK_F7) && PauseState)
+	{
+		PauseState = false;
+		StepOnce = true;
+	}
 #endif
 
 	Update();

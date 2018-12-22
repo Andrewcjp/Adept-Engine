@@ -60,8 +60,8 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	AiTest->AttachComponent(new SpawningPool());
 	AiTest->SetPosition(glm::vec3(35, -9, 10));
 	Scene->AddGameobjectToScene(AiTest);
-	Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
-	Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
+	//Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
+	//Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
 #if 0
 	GameObject* AiTest = MakeTestSphere(Scene);
 	AiTest->SetPosition(glm::vec3(50, -2, 0));

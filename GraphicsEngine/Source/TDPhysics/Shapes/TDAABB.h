@@ -10,11 +10,12 @@ namespace TD
 		~TDAABB();
 		glm::vec3 GetMin()const;
 		glm::vec3 GetMax()const;
-		void DebugRender(glm::vec3 colour = glm::vec3(1));
+		void DebugRender(glm::vec3 colour = glm::vec3(1), float time = 0.0f);
 
 		glm::vec3 HalfExtends = glm::vec3(size, size, size);
 		glm::vec3 Position = glm::vec3(0,0,0);
 		TDActor* Owner = nullptr;
+		bool IsDead = false;
 	private:		
 		const float size = 10.0f;
 	};
