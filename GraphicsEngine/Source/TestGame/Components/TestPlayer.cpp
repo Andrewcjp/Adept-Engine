@@ -163,13 +163,14 @@ void TestPlayer::UpdateMovement(float delta)
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
 		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 10) / delta);
+		AudioEngine::PostEvent("Jump", GetOwner());
 	}
 }
 
 void TestPlayer::TickAudio()
 {
 	CurrnetTime -= Engine::GetDeltaTime();
-	if (CurrnetTime > 0.0f)
+	if (CurrnetTime > 0.0f || !IsGrounded)
 	{
 		return;
 	}
@@ -178,7 +179,7 @@ void TestPlayer::TickAudio()
 	{
 		float pc = vel / 40;
 		Log::LogTextToScreen("PC:" + std::to_string(pc));
-		CurrnetTime = glm::clamp(0.25f *1.0f - pc, 0.15f, 1.0f);
+		CurrnetTime = glm::clamp(0.35f *1.0f - pc, 0.25f, 1.0f);
 		AudioEngine::PostEvent("Step", GetOwner());
 	}
 }
