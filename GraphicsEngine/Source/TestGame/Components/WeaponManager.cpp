@@ -3,6 +3,7 @@
 #include "Core/Input/Input.h"
 #include "Weapon.h"
 #include "MeleeWeapon.h"
+#include "Audio/AudioEngine.h"
 
 WeaponManager::WeaponManager()
 {}
@@ -40,13 +41,17 @@ Weapon * WeaponManager::GetCurrentWeapon()
 
 void WeaponManager::SwitchWeaponUp(bool Direction)
 {
+	AudioEngine::PostEvent("Change_Weapon");
+	Weapons[CurrentIndex]->SetState(false);
 	if (CurrentIndex == 0 && !Direction)
 	{
 		CurrentIndex = MAX_WEAPON_COUNT - 1;
+		Weapons[CurrentIndex]->SetState(true);
 		return;
 	}
 	CurrentIndex += Direction ? 1 : -1;
 	CurrentIndex %= MAX_WEAPON_COUNT;
+	Weapons[CurrentIndex]->SetState(true);
 }
 
 void WeaponManager::SwitchWeapon(int index)
@@ -68,11 +73,16 @@ std::string WeaponManager::GetCurrentWeaponinfoString()
 	ss << Weapons[CurrentIndex]->GetCurrentAmmo() << " / " << Weapons[CurrentIndex]->GetCurrentSettings().MaxAmmoCount;
 	return ss.str();
 }
-void WeaponManager::SetWeaponActive(int index) 
+void WeaponManager::SetWeaponActive(int index)
 {
+	if (CurrentIndex == index)
+	{
+		return;
+	}
 	Weapons[CurrentIndex]->SetState(false);
 	CurrentIndex = index;
 	Weapons[CurrentIndex]->SetState(true);
+	AudioEngine::PostEvent("Change_Weapon", GetOwner());
 }
 void WeaponManager::Update(float delta)
 {
@@ -88,15 +98,11 @@ void WeaponManager::Update(float delta)
 	}
 	if (Input::GetMouseWheelUp())
 	{
-		Weapons[CurrentIndex]->SetState(false);
 		SwitchWeaponUp(true);
-		Weapons[CurrentIndex]->SetState(true);
 	}
 	if (Input::GetMouseWheelDown())
 	{
-		Weapons[CurrentIndex]->SetState(false);
 		SwitchWeaponUp(false);
-		Weapons[CurrentIndex]->SetState(true);
 	}
 	if (Input::GetKeyDown('F'))
 	{
