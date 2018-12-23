@@ -239,40 +239,59 @@ bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSetti
 		Log::OutS << "Mesh load failed!: " << filename << Log::OutS;
 		return false;
 	}
-	const aiMesh* model = scene->mMeshes[0];
-	const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
-	for (unsigned int i = 0; i < model->mNumVertices; i++)
+	std::vector<aiNode*> NodeArray;
+	TraverseNodeTree(NodeArray, scene->mRootNode);
+	int basevert = 0;
+	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
-		const aiVector3D* pPos = &(model->mVertices[i]);
-		const aiVector3D* pNormal = &(model->mNormals[i]);
-		const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
-		const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
-
-		OGLVertex vert(glm::vec3(pPos->x, pPos->y, pPos->z),
-			glm::vec2(pTexCoord->x, pTexCoord->y),
-			glm::vec3(pNormal->x, pNormal->y, pNormal->z),
-			glm::vec3(pTangent->x, pTangent->y, pTangent->z));
-
-		vertices.push_back(vert);
-	}
-	if (Settings.Scale != DefaultScale)
-	{
-		for (int i = 0; i < vertices.size(); i++)
+		const aiMesh* model = scene->mMeshes[i];//todo: temp!
+		if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, std::string(model->mName.C_Str())))
 		{
-			glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz, 1.0f);
-			Pos = Pos * glm::scale(Settings.Scale);
-			vertices[i].m_position = Pos.xyz;
+			continue;
 		}
-	}
-	for (unsigned int i = 0; i < model->mNumFaces; i++)
-	{
-		const aiFace& face = model->mFaces[i];
-		ensure(face.mNumIndices == 3);
-		indices.push_back(face.mIndices[0]);
-		indices.push_back(face.mIndices[1]);
-		indices.push_back(face.mIndices[2]);
-	}
 
+		const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
+		aiMatrix4x4 transfrom;
+		const bool ValidTransfrom = FindMeshInNodeTree(NodeArray, model, scene, transfrom, Settings);
+		if (!ValidTransfrom)
+		{
+			continue;
+		}
+		for (unsigned int i = 0; i < model->mNumVertices; i++)
+		{
+			aiVector3D* pPos = &(model->mVertices[i]);
+			const aiVector3D* pNormal = &(model->mNormals[i]);
+			const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
+			const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
+
+			*pPos = transfrom * (*pPos);
+
+			OGLVertex vert(glm::vec3(pPos->x, pPos->y, pPos->z),
+				glm::vec2(pTexCoord->x, pTexCoord->y),
+				glm::vec3(pNormal->x, pNormal->y, pNormal->z),
+				glm::vec3(pTangent->x, pTangent->y, pTangent->z));
+
+			vertices.push_back(vert);
+		}
+		if (Settings.Scale != DefaultScale)
+		{
+			for (int i = 0; i < vertices.size(); i++)
+			{
+				glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz, 1.0f);
+				Pos = Pos * glm::scale(Settings.Scale);
+				vertices[i].m_position = Pos.xyz;
+			}
+		}
+		for (unsigned int i = 0; i < model->mNumFaces; i++)
+		{
+			const aiFace& face = model->mFaces[i];
+			ensure(face.mNumIndices == 3);
+			indices.push_back(basevert + face.mIndices[0]);
+			indices.push_back(basevert + face.mIndices[1]);
+			indices.push_back(basevert + face.mIndices[2]);
+		}
+		basevert += model->mNumVertices;
+	}
 	importer.FreeScene();
 	return true;
 }
