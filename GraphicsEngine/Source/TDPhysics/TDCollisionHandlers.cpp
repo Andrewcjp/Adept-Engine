@@ -301,7 +301,7 @@ namespace TD
 		glm::vec3 normal = -test[Minindex];
 		const glm::vec3 NormalRayEnd = Point + (normal * 100);
 		const glm::vec3 FurtherestExtent = ABox->ClosestPoint(NormalRayEnd);
-		float depth = glm::length(FurtherestExtent - Point) / 32;
+		float depth = 1.0f-glm::length(FurtherestExtent - Point);
 		//TDPhysics::DrawDebugLine(Point, Point + normal * 2, glm::vec3(1, 1, 1), 0.0f);
 		contactbuffer->Contact(Point, normal, depth);//todo: depth is not right here
 		return true;//No axis are separate so intersection is present
