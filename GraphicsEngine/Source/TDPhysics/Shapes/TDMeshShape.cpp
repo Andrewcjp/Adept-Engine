@@ -9,6 +9,8 @@
 #include "TDShape.h"
 #include "TDTransform.h"
 #include "TDBox.h"
+#include "TDSAT.h"
+#include "TDSimConfig.h"
 
 namespace TD
 {
@@ -17,7 +19,6 @@ namespace TD
 		ShapeType = TDShapeType::eTRIANGLEMESH;
 		Mesh = mesh;
 	}
-
 
 	TDMeshShape::~TDMeshShape()
 	{
@@ -266,6 +267,10 @@ namespace TD
 
 	void TDTriangle::DebugDraw(float time)
 	{
+		if (!TDPhysics::GetCurrentSimConfig()->ShowContacts)
+		{
+			return;
+		}
 		for (int i = 0; i < 3; i++)
 		{
 			const int next = (i + 1) % 3;
@@ -324,39 +329,7 @@ namespace TD
 		BVH->BuildAccelerationStructure(this);
 
 	}
-	struct Interval
-	{
-		float min;
-		float max;
-	};
-	Interval GetInterval(const TDAABB* aabb, const glm::vec3& axis)
-	{
-		glm::vec3 i = aabb->GetMin();
-		glm::vec3 a = aabb->GetMax();
-
-		glm::vec3 vertex[8] = {
-			glm::vec3(i.x, a.y, a.z),
-			glm::vec3(i.x, a.y, i.z),
-			glm::vec3(i.x, i.y, a.z),
-			glm::vec3(i.x, i.y, i.z),
-			glm::vec3(a.x, a.y, a.z),
-			glm::vec3(a.x, a.y, i.z),
-			glm::vec3(a.x, i.y, a.z),
-			glm::vec3(a.x, i.y, i.z)
-		};
-
-		Interval result;
-		result.min = result.max = glm::dot(axis, vertex[0]);
-
-		for (int i = 1; i < 8; ++i)
-		{
-			float projection = glm::dot(axis, vertex[i]);
-			result.min = (projection < result.min) ? projection : result.min;
-			result.max = (projection > result.max) ? projection : result.max;
-		}
-
-		return result;
-	}
+	
 	Interval GetInterval(const TDTriangle* triangle, const glm::vec3& axis)
 	{
 		Interval result;
@@ -372,6 +345,7 @@ namespace TD
 
 		return result;
 	}
+
 	Interval GetInterval(TDBox* obb, const glm::vec3& axis)
 	{
 		glm::vec3 vertex[8];
@@ -410,9 +384,10 @@ namespace TD
 
 		return result;
 	}
+
 	bool OverlapOnAxis(const TDAABB* aabb, const TDTriangle* triangle, const glm::vec3& axis)
 	{
-		Interval a = GetInterval(aabb, axis);
+		Interval a = TDSAT::GetInterval(aabb, axis);
 		Interval b = GetInterval(triangle, axis);
 		return ((b.min <= a.max) && (a.min <= b.max));
 	}
@@ -504,9 +479,9 @@ namespace TD
 				return false; // Separating axis found
 			}
 		}
-
 		return true; // Separating axis not found
 	}
+
 	glm::vec3 TDTriangle::GetPos()
 	{
 		return posAVG;

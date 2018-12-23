@@ -175,6 +175,7 @@ namespace TD
 
 	bool TDBVH::TraverseForBox(TDBox * A, std::vector<TriangleInterection>& contacts, int MaxContactCount)
 	{
+#if 0
 		bool RetValue = false;
 		for (int i = 0; i < TargetMesh->GetTriangles().size(); i++)
 		{
@@ -182,15 +183,67 @@ namespace TD
 			if (TargetMesh->GetTriangles()[i]->TriangleBox(A))
 			{
 				t.Tri = TargetMesh->GetTriangles()[i];
-				glm::vec3 ContactPoint = A->ClosestPoint(t.Tri->GetPos());
-				const float time= 10.0f;
-				TDPhysics::DrawDebugPoint(ContactPoint, glm::vec3(0, 1, 0), time);
-				TDPhysics::DrawDebugPoint(A->ClosestPoint(t.Tri->GetPos()), glm::vec3(1, 0, 0), time);
-				t.depth = glm::length(t.Tri->ClosestPoint(A->GetPos()) - A->ClosestPoint(t.Tri->GetPos()))/16;
+				const glm::vec3 ContactPoint = A->ClosestPoint(t.Tri->GetPos());
+				const glm::vec3 NormalRayEnd = ContactPoint - (t.Tri->Normal * 100);
+				const glm::vec3 FurtherestExtent = A->ClosestPoint(NormalRayEnd);
+				t.depth = glm::length(FurtherestExtent - ContactPoint);
+				t.Point = ContactPoint;
 				contacts.push_back(t);
 				RetValue = true;
 			}
 		}
+#else
+		std::queue<BVHNode*> toProcess;
+		toProcess.emplace(Root);
+		bool RetValue = false;
+		// Recursively walk the BVH tree
+		while (!toProcess.empty())
+		{
+			BVHNode* iterator = toProcess.front();
+			toProcess.pop();
+			if (iterator->numTriangles >= 0)
+			{
+				// Iterate trough all triangles of the node
+				for (int i = 0; i < iterator->numTriangles; ++i)
+				{
+					// Triangle indices in BVHNode index the mesh
+
+					if (TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]]->TriangleBox(A))
+					{
+						TriangleInterection t;
+						t.Tri = TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]];
+						const glm::vec3 ContactPoint = A->ClosestPoint(t.Tri->GetPos());
+						const glm::vec3 NormalRayEnd = ContactPoint - (t.Tri->Normal * 100);
+						const glm::vec3 FurtherestExtent = A->ClosestPoint(NormalRayEnd);
+						t.depth = glm::length(FurtherestExtent - ContactPoint);
+						t.Point = ContactPoint;
+						contacts.push_back(t);
+						//iterator->bounds->DebugRender(glm::vec3(0, 1, 0));
+						RetValue = true;
+						if (MaxContactCount != 0)
+						{
+							if (contacts.size() >= MaxContactCount)
+							{
+								return RetValue;
+							}
+						}
+					}
+				}
+			}
+			//	iterator->bounds->DebugRender(glm::vec3(1, 0, 0));
+			if (iterator->children.size())
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					// Only push children whos bounds intersect the test geometry
+					if (TDCollisionHandlers::AABBOBB(iterator->children[i].bounds, A))
+					{
+						toProcess.emplace(&iterator->children[i]);
+					}
+				}
+			}
+		}
+#endif
 		return RetValue;
 	}
 

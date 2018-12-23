@@ -107,6 +107,13 @@ void AIController::Update(float dt)
 		}
 		CheckNAN(DirToTarget);
 	}
+	else
+	{
+		if (CurrentTarget.IsValid)
+		{
+			DirToTarget = glm::normalize(CurrentTarget.GetTargetPos() - GetOwner()->GetPosition());
+		}
+	}
 	float angle = glm::degrees(glm::atan(DirToTarget.x, DirToTarget.z));
 	if (DirToTarget.length() == 0.0f)
 	{

@@ -361,7 +361,7 @@ namespace TD
 
 		for (int i = 0; i < data->ContactCount; i++)
 		{
-			TDPhysics::DrawDebugPoint(data->ContactPoints[i], data->Direction[i], 0.0f);
+			//TDPhysics::DrawDebugPoint(data->ContactPoints[i], data->Direction[i], 0.0f);
 			float invmassA = 0.0f;
 			if (A != nullptr)
 			{

@@ -30,7 +30,8 @@ namespace TD
 		FDebugLineCallBack DebugLineCallBack;
 		///Time Taken for a contact to expire meaning on the next contact the callback would be triggered again.
 		int ContactExpireFrameCount = 10;
-
+		bool ShowBroadPhaseShapes = false;
+		bool ShowContacts = false;
 	};
 };
 

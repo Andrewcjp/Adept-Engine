@@ -1,5 +1,6 @@
 #include "TDAABB.h"
 #include "TDPhysics.h"
+#include "TDSimConfig.h"
 namespace TD
 {
 	TDAABB::TDAABB()
@@ -32,7 +33,10 @@ namespace TD
 
 	void TDAABB::DebugRender(glm::vec3 colour /*= glm::vec3(1)*/, float time /*= 0.0f*/)
 	{
-		//return;
+		if (!TDPhysics::GetCurrentSimConfig()->ShowBroadPhaseShapes)
+		{
+			return;
+		}
 		TDPhysics::DrawDebugLine(Position + glm::vec3(HalfExtends.x, HalfExtends.y, HalfExtends.z), Position + glm::vec3(HalfExtends.x, -HalfExtends.y, HalfExtends.z), colour, time);
 		TDPhysics::DrawDebugLine(Position + glm::vec3(HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, HalfExtends.z), colour, time);
 		TDPhysics::DrawDebugLine(Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, HalfExtends.y, HalfExtends.z), colour, time);

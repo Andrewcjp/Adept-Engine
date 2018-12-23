@@ -161,7 +161,9 @@ bool Weapon::Fire()
 		offset.y = 1;
 	}
 	glm::vec3 Position = offset + WeaponRoot->GetPosition() + Forward * 4;
+#if WITH_EDITOR
 	DebugDrawers::DrawDebugLine(Position, Position + Forward * 10, glm::vec3(1), false, 1);
+#endif
 	GameObject* newgo = GameObject::Instantiate(Position);
 	newgo->GetTransform()->SetScale(glm::vec3(0.3f));
 	ColliderComponent* cc = newgo->AttachComponent(new ColliderComponent());

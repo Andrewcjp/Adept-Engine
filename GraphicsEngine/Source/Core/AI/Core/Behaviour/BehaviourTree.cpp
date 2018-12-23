@@ -2,7 +2,7 @@
 #include "BehaviourTree.h"
 #include "BehaviourTreeNode.h"
 #include "BTBlackboard.h"
-
+#include "AI/Core/AISystem.h"
 
 BehaviourTree::BehaviourTree()
 {
@@ -32,7 +32,7 @@ void BehaviourTree::RunTree(float dt)
 	CoolDownTime = UpdateRate;
 	RootNode->HandleExecuteNode();
 
-	if (DebugCurrnetNode != nullptr && Target != nullptr)
+	if (DebugCurrnetNode != nullptr && Target != nullptr && (AISystem::GetDebugMode() == EAIDebugMode::BT || AISystem::GetDebugMode() == EAIDebugMode::All))
 	{
 		Log::LogTextToScreen("AI " + Target->GetName() + "Current Node " + DebugCurrnetNode->GetDebugName(), UpdateRate);
 	}

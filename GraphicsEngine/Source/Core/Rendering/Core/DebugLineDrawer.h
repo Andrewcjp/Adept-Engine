@@ -22,7 +22,7 @@ public:
 	void RenderLines(glm::mat4& matrix);
 
 	void RenderLines();	
-	void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
+	CORE_API void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
 	void OnResize(int newwidth, int newheight);
 	void FlushDebugLines();
 	CORE_API static DebugLineDrawer* Get();
