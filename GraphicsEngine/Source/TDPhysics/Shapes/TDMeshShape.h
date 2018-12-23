@@ -55,7 +55,7 @@ namespace TD
 		TD_API virtual void CookMesh();
 		glm::vec3 Max;
 		glm::vec3 Min;
-		TDBVH* GetBVH() { return BVH; }
+		TDBVH* GetBVH() { return BVH; }		
 	private:
 		TDBVH* BVH = nullptr;
 		std::vector<TDTriangle*> Triangles;
@@ -71,7 +71,7 @@ namespace TD
 		TDPlane MakeFromTriangle();
 		bool PointInTriangle(const glm::vec3 & p);
 		glm::vec3 GetBarycentric(const glm::vec3 & p);
-		bool Intersect(RayCast* ray);
+		bool Intersect(RayCast* ray, TDMeshShape* owner);
 		bool TriangleSphere(TDSphere * s, glm::vec3 & out_Contact, float & depth);
 		glm::vec3 ClosestPoint(const glm::vec3 & p);
 		void DebugDraw(float time);

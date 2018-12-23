@@ -273,7 +273,7 @@ namespace TD
 		}
 	}
 
-	bool TDBVH::TraverseForRay(RayCast* ray)
+	bool TDBVH::TraverseForRay(RayCast * ray, TDMeshShape* shape)
 	{
 		std::queue<BVHNode*> toProcess;
 		toProcess.emplace(Root);
@@ -289,7 +289,7 @@ namespace TD
 				for (int i = 0; i < iterator->numTriangles; ++i)
 				{
 					// Triangle indices in BVHNode index the mesh
-					if (TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]]->Intersect(ray))
+					if (TargetMesh->GetTriangles()[iterator->TrianglesIndexs[i]]->Intersect(ray, shape))
 					{
 						return true;
 						RetValue = true;

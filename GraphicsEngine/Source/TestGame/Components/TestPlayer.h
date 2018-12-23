@@ -26,6 +26,7 @@ public:
 private:
 	void CheckForGround();
 	void UpdateMovement(float delta);
+	void TickAudio();
 	glm::vec3 RelativeSpeed = glm::vec3();
 	const float MaxSpeed = 10.0f;
 	const float Acceleration = 35.0f;
@@ -35,9 +36,11 @@ private:
 	CameraComponent* Cam = nullptr;
 	float LookSensitivty = 0.1f;
 	bool IsGrounded = false;
+	bool LastFrameGrounded = false;
 	const float AirSpeedFactor = 0.2f;
 	bool Frontblocked = false;
 	Health* Mhealth = nullptr;
 	glm::vec3 CurrnetRot = glm::vec3(0);
+	float CurrnetTime = 0.0f;
 };
 

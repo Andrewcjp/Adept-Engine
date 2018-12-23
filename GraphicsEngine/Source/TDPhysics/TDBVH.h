@@ -1,7 +1,4 @@
 #pragma once
-
-namespace TD { class TDBox; }
-
 namespace TD
 {
 	class TDMesh;
@@ -10,6 +7,8 @@ namespace TD
 	class TDSphere;
 	struct BVHNode;
 	struct RayCast;
+	class TDBox;
+	class TDMeshShape;
 	struct TriangleInterection
 	{
 		glm::vec3 Point = glm::vec3();
@@ -27,7 +26,7 @@ namespace TD
 		bool TraverseForSphere(TDSphere * A, std::vector<TriangleInterection>& contacts, int MaxContactCount);
 		bool TraverseForBox(TDBox* A, std::vector<TriangleInterection>& contacts, int MaxContactCount);
 		void Render();
-		bool TraverseForRay(RayCast * ray);
+		bool TraverseForRay(RayCast * ray, TDMeshShape* shape);
 		TDMesh* TargetMesh = nullptr;
 		BVHNode* Root = nullptr;
 	private:

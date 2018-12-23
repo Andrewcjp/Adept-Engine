@@ -87,12 +87,13 @@ void TD::ActorCollisionPair::Reset()
 	}
 }
 
-void TD::RaycastData::AddContact(glm::vec3 point, glm::vec3 normal, float depth)
+void TD::RaycastData::AddContact(glm::vec3 point, glm::vec3 normal, float depth,TDShape* shape)
 {
 	BlockingHit = true;
 	Points[Count].Distance = depth;
 	Points[Count].Point = point;
 	Points[Count].Normal = normal;
+	Points[Count].Shape = shape;
 	Count++;
 	DebugEnsure(Count == 1);
 }

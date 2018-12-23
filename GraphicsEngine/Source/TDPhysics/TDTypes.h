@@ -24,6 +24,7 @@ namespace TD
 		float Distance = 0.0f;
 		glm::vec3 Point = glm::vec3();
 		glm::vec3 Normal = glm::vec3();
+		TDShape* Shape = nullptr;
 	};
 	struct RaycastData
 	{
@@ -31,8 +32,9 @@ namespace TD
 		bool StartPenetrating = false;
 		Contact Points[MAX_CONTACT_POINTS_COUNT];
 		int Count = 0;
-		void AddContact(glm::vec3 Point, glm::vec3 Normal, float Depth);
+		void AddContact(glm::vec3 Point, glm::vec3 Normal, float Depth, TDShape* shape);
 		void Reset();
+
 	};
 
 	namespace TDShapeType

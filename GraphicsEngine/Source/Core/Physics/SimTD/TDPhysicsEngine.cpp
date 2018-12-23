@@ -10,6 +10,7 @@
 #include "Editor/EditorWindow.h"
 #include "TDSupport.h"
 #include "TD_ConstraintInstance.h"
+#include "../Physics_fwd.h"
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::InitPhysics()
 {
@@ -120,7 +121,7 @@ bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, floa
 		outhit->Distance = data.Points[0].Distance;
 		outhit->Normal = data.Points[0].Normal;
 		outhit->position = data.Points[0].Point;
-
+		outhit->HitBody = ((Collider*)data.Points[0].Shape->UserData)->GetOwner();
 		return true;
 	}
 	return false;

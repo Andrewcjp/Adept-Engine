@@ -6,6 +6,7 @@
 #include "Rendering/Renderers/TextRenderer.h"
 #include "WeaponManager.h"
 #include "Core/Utils/DebugDrawers.h"
+#include "Audio/AudioEngine.h"
 TestPlayer::TestPlayer()
 {}
 
@@ -16,7 +17,10 @@ void TestPlayer::InitComponent()
 {}
 
 void TestPlayer::OnCollide(CollisonData data)
-{}
+{
+	
+
+}
 
 std::string TestPlayer::GetInfoString()
 {
@@ -32,7 +36,7 @@ void TestPlayer::CheckForGround()
 	glm::vec3 down = -GetOwner()->GetTransform()->GetUp();
 	std::vector<RigidBody*> IgnoreActors;
 	IgnoreActors.push_back(RB->GetActor());
-	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 3.0f, &hit, IgnoreActors))
+	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 2.0f, &hit, IgnoreActors))
 	{
 		const float angle = glm::degrees(glm::angle(glm::vec3(0, 1, 0), hit.Normal));
 		if (angle < MaxWalkableAngle)
@@ -50,6 +54,10 @@ void TestPlayer::CheckForGround()
 			Frontblocked = true;
 		}
 	}*/
+	if (IsGrounded && !LastFrameGrounded)
+	{
+		AudioEngine::PostEvent("Land", GetOwner());
+	}
 }
 
 void TestPlayer::BeginPlay()
@@ -92,6 +100,8 @@ void TestPlayer::Update(float delta)
 		CameraComponent::GetMainCamera()->SetPos(CameraObject->GetTransform()->GetPos());
 	}
 	Input::SetCursorState(true, false);
+	TickAudio();
+	LastFrameGrounded = IsGrounded;
 }
 
 void TestPlayer::UpdateMovement(float delta)
@@ -149,10 +159,26 @@ void TestPlayer::UpdateMovement(float delta)
 #else
 		RB->SetLinearVelocity(NewVel);
 #endif
-	}
+}
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
 		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 10) / delta);
 	}
-	}
+}
 
+void TestPlayer::TickAudio()
+{
+	CurrnetTime -= Engine::GetDeltaTime();
+	if (CurrnetTime > 0.0f)
+	{
+		return;
+	}
+	float vel = glm::length(glm::vec2(RB->GetVelocity().xz));
+	if (vel >= 5.0f)
+	{
+		float pc = vel / 40;
+		Log::LogTextToScreen("PC:" + std::to_string(pc));
+		CurrnetTime = glm::clamp(0.25f *1.0f - pc, 0.15f, 1.0f);
+		AudioEngine::PostEvent("Step", GetOwner());
+	}
+}

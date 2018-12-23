@@ -1,6 +1,8 @@
 Event	ID	Name			Wwise Object Path	Notes
 	992244	Play_Shotgun			\Default Work Unit\Play_Shotgun	
 	578598015	AI_Rifle_Fire			\Default Work Unit\AI_Rifle_Fire	
+	621108255	Step			\Default Work Unit\Step	
+	674522502	Land			\Default Work Unit\Land	
 	1255748329	Melee_Hit			\Default Work Unit\Melee_Hit	
 	1709851261	Play_Gauss			\Default Work Unit\Play_Gauss	
 	1920272688	Play_Rifle			\Default Work Unit\Play_Rifle	
@@ -11,9 +13,12 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	44284441	_005_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.005.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Gauss\_005_wav		250976
 	79194439	Empty2	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.218.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Empty2		56160
 	86458832	Shootgun	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\Shootgun_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Shootgun		420576
+	196990562	DeskStep_1	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\DeskStep_1_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Step\DeskStep_1		1624
 	215302347	_301_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.301.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\_301_wav		275936
 	230676780	_107_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.107.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\_107_wav		70624
 	526678843	_106_wav	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.106.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Gauss\_106_wav		161632
 	585412086	Fire	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\.229.wav_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Fire		220000
+	811307670	DeskStep_2	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\DeskStep_2_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Step\DeskStep_2		5024
+	861025917	DeskLand	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\DeskLand_56D34C19.wem		\Actor-Mixer Hierarchy\Default Work Unit\DeskLand		13376
 	891127962	Hit_1	C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\SFX\Hit_1_BD03BF26.wem		\Actor-Mixer Hierarchy\Default Work Unit\Hit_1		55392
 

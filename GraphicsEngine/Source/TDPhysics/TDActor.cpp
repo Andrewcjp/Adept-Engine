@@ -36,7 +36,7 @@ namespace TD
 	void TDActor::Release()
 	{
 		SafeDelete(AABB);
-		//MemoryUtils::DeleteVector(AttachedShapes);
+		MemoryUtils::DeleteVector(AttachedShapes);
 	}
 
 	TDTransform * TDActor::GetTransfrom()
