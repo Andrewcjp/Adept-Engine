@@ -9,7 +9,7 @@ public:
 	DLTEPathfinder();
 	~DLTEPathfinder();
 	void SetTarget(glm::vec3 Target, glm::vec3 Origin);
-	void Execute(std::vector<glm::vec3>& path);
+	bool Execute(std::vector<glm::vec3>& path);
 	NavPlane* Plane = nullptr;
 private:
 	float Heuristic(const DLTENode* sFrom, const  DLTENode* sTo);
@@ -44,6 +44,7 @@ struct DLTENode
 	{
 		Point.x = pos.x;
 		Point.y = pos.z;
+		Point.z = pos.y;
 		Reset();
 	}
 	void Reset()
@@ -59,7 +60,7 @@ struct DLTENode
 	float rhs = MathUtils::FloatMAX;
 	bool Blocked = false;
 	///World pos In 2D space
-	glm::vec2 Point = glm::vec2(0, 0);
+	glm::vec3 Point = glm::vec3(0);
 	///Array of Edge costs for this node
 	int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1, 1, 1, 1, 1 };
 	///List of Nodes that are linked to This one

@@ -101,7 +101,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	LightComponent* lc = nullptr;
 	Material* mat = nullptr;
 	ColliderComponent* cc = nullptr;
-#if 0
+#if 1
 	go = new GameObject("Terrain");
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\textures_terrain_ground_marsrock_ground_01_tiled_c.dds"));

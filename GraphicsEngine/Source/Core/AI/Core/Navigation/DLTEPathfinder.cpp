@@ -60,7 +60,7 @@ void DLTEPathfinder::Reset()
 	Queue->Clear();
 }
 
-void DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
+bool DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 {
 	Reset();
 	ComputeDLTE();
@@ -69,7 +69,7 @@ void DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 		// if Start Node g cost is FloatMAX then there is no path so abort
 		if (get_start()->g == MathUtils::FloatMAX)
 		{
-			break;
+			return false;
 		}
 		std::deque<DLTENode*> temporaryDeque = GetNeighbors(get_start());
 		DLTENode* temporaryState = temporaryDeque[0];//there should always be a node returned
@@ -105,6 +105,7 @@ void DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 			//}
 
 	}
+	return true;
 }
 
 void DLTEPathfinder::SetTarget(glm::vec3 Target, glm::vec3 Origin)
@@ -219,7 +220,7 @@ void DLTEPathfinder::UpdateState(DLTENode* statePointer)
 
 glm::vec3 DLTENode::GetPos(NavPlane* p)
 {
-	return glm::vec3(Point.x, 10 + p->GetHeight(), Point.y);
+	return glm::vec3(Point.x, /*10 + p->GetHeight()*/Point.z, Point.y);
 }
 
 DLTEQueue::DLTEQueue()
