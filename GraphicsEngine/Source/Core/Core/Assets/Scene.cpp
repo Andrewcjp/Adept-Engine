@@ -101,7 +101,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	LightComponent* lc = nullptr;
 	Material* mat = nullptr;
 	ColliderComponent* cc = nullptr;
-
+#if 0
 	go = new GameObject("Terrain");
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\textures_terrain_ground_marsrock_ground_01_tiled_c.dds"));
@@ -122,7 +122,25 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	cc->SetTriangleMeshAssetName(Name);
 #endif
 	AddGameobjectToScene(go);
+#else
+	go = new GameObject("Terrain");
+	mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
+	MeshLoader::FMeshLoadingSettings set;
+	set.UVScale = glm::vec2(20);
+	const char* Name = "Terrain\\Room1.obj";
+	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
+	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+#if 1
+	cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
+	cc->SetTriangleMeshAssetName(Name);
+#endif
+	AddGameobjectToScene(go);
 
+#endif
 	go = new GameObject("Camera");
 	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
