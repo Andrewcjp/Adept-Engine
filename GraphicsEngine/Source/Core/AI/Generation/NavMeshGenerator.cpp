@@ -13,9 +13,10 @@ NavMeshGenerator::NavMeshGenerator()
 NavMeshGenerator::~NavMeshGenerator()
 {}
 
-
+const float PlaneTolerance = 50.0f;
 void NavMeshGenerator::Voxelise(Scene* TargetScene)
 {
+	Log::LogMessage("Started Nav Mesh Generation");
 	PerfManager::Get()->StartSingleActionTimer(VoxeliseTimer);
 	const float worldMin = -10e10f;
 	//Find bounds of Scene
@@ -130,7 +131,7 @@ bool NavMeshGenerator::ValidateQuad(const int GirdStep, float FirstHeight, Heigh
 
 NavPlane * NavMeshGenerator::GetPlane(float Z)
 {
-	const float PlaneTolerance = 5.0f;
+
 	for (int i = 0; i < planes.size(); i++)
 	{
 		if (MathUtils::AlmostEqual(planes[i]->ZHeight, Z, PlaneTolerance))
@@ -143,7 +144,6 @@ NavPlane * NavMeshGenerator::GetPlane(float Z)
 
 NavPlane* NavMeshGenerator::GetPlane(float Z, std::vector<NavPlane*>& list)
 {
-	const float PlaneTolerance = 5.0f;
 	NavPlane* plane = nullptr;
 	for (int i = 0; i < list.size(); i++)
 	{
@@ -161,7 +161,7 @@ NavPlane* NavMeshGenerator::GetPlane(float Z, std::vector<NavPlane*>& list)
 void NavMeshGenerator::GenerateMesh(NavPlane* target)
 {
 	std::vector<double> Points;
-	int Mod = (int)target->Points.size() % 3;
+	int Mod = (int)target->Points.size() % 2;
 	int DropAfter = (int)target->Points.size() - 1 - Mod;
 	for (int i = 0; i < target->Points.size(); i++)
 	{
@@ -170,26 +170,27 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			continue;
 		}
 		Points.push_back(target->Points[i].x);
-		Points.push_back(startHeight - target->Points[i].y);
+		//Points.push_back(startHeight - target->Points[i].y);
 		Points.push_back(target->Points[i].z);
 	}
 
 	//ensure(Points.size() % 3 == 0);
 	delaunator::Delaunator d(Points);
+
 	for (std::size_t i = 0; i < d.triangles.size(); i += 3)
 	{
 		Tri newrti;
-#if 1
+#if 0
 		newrti.points[0] = (glm::vec3(d.coords[2 * d.triangles[i]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i] + 1]));
 		newrti.points[1] = (glm::vec3(d.coords[2 * d.triangles[i + 1]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i + 1] + 1]));
 		newrti.points[2] = (glm::vec3(d.coords[2 * d.triangles[i + 2]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i + 2] + 1]));
 #else
-		newrti.points[0] = (glm::vec3(d.coords[2 * d.triangles[i]], d.coords[2 * d.triangles[i] + 2], d.coords[2 * d.triangles[i] + 1]));
-		newrti.points[1] = (glm::vec3(d.coords[2 * d.triangles[i + 1]], d.coords[2 * d.triangles[i + 1] + 2], d.coords[2 * d.triangles[i + 1] + 1]));
-		newrti.points[2] = (glm::vec3(d.coords[2 * d.triangles[i + 2]], d.coords[2 * d.triangles[i + 2] + 2], d.coords[2 * d.triangles[i + 2] + 1]));
+		newrti.points[0] = (glm::vec3(d.coords[2 * d.triangles[i]], startHeight - target->Points[d.triangles[i]].y, d.coords[2 * d.triangles[i] + 1]));
+		newrti.points[1] = (glm::vec3(d.coords[2 * d.triangles[i + 1]], startHeight - target->Points[d.triangles[i + 1]].y, d.coords[2 * d.triangles[i + 1] + 1]));
+		newrti.points[2] = (glm::vec3(d.coords[2 * d.triangles[i + 2]], startHeight - target->Points[d.triangles[i + 2]].y, d.coords[2 * d.triangles[i + 2] + 1]));
 
 #endif
-		if (true)
+		if (false)
 		{
 			std::swap(newrti.points[0].x, newrti.points[0].z);
 			std::swap(newrti.points[1].x, newrti.points[1].z);
@@ -199,6 +200,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 	}
 	//the delaunator Can generate triangles that stretch over invalid regions 
 	//so: prune triangles that are invalid
+#if 1
 	TotalTriCount = (int)target->Triangles.size();
 	for (int i = (int)target->Triangles.size() - 1; i >= 0; i--)
 	{
@@ -210,6 +212,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 		avgpos /= 3;
 		RayHit hiot;
 		avgpos.y = startHeight;
+#if 0
 		//DebugDrawers::DrawDebugLine(avgpos, avgpos + glm::vec3(0, target->ZHeight, 0), glm::vec3(0, 1, 0), false, 100);
 		const bool CastHit = PhysicsEngine::Get()->RayCastScene(avgpos, glm::vec3(0, -1, 0), 50, &hiot);
 		if (!CastHit || !MathUtils::AlmostEqual(hiot.Distance, -target->ZHeight, 5.0f))
@@ -217,7 +220,19 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;
 		}
+#else
+		glm::vec3 dir = glm::cross(target->Triangles[i].points[1] - target->Triangles[i].points[0], target->Triangles[i].points[2] - target->Triangles[i].points[0]);
+		glm::vec3 norm = glm::normalize(dir);
+
+		float angle = glm::dot(norm, glm::vec3(0, 1, 0));
+		if (angle < 0.7f)//remove tris that are angled wrong
+		{
+			target->Triangles.erase(target->Triangles.begin() + i);
+			PrunedTris++;
+		}
+#endif
 	}
+#endif
 #if 0
 	for (int i = 0; i < target->Triangles.size(); i++)
 	{
@@ -227,7 +242,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			const int next = (x + 1) % sides;
 			//DebugDrawers::DrawDebugLine(target->Triangles[i].points[x], target->Triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
 		}
-	}
+}
 #endif
 	target->BuildNavPoints();
 	target->RemoveDupeNavPoints();
@@ -355,7 +370,7 @@ void NavPlane::BuildMeshLinks()
 		Link(Triangles[i].Nodes[1], Triangles[i].Nodes[2]);
 		Link(Triangles[i].Nodes[2], Triangles[i].Nodes[0]);
 	}
-
+	
 	for (int x = 0; x < NavPoints.size(); x++)
 	{
 		for (int y = 0; y < NavPoints.size(); y++)

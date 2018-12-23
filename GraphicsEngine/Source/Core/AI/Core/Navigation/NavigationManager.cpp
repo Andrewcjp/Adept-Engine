@@ -93,7 +93,6 @@ void NavigationManager::SmoothPath(NavigationPath* path)
 #endif
 }
 
-
 ENavRequestStatus::Type NavigationManager::ValidateRequest(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath)
 {
 	if (Plane == nullptr)
@@ -125,7 +124,10 @@ ENavRequestStatus::Type NavigationManager::CalculatePath_DSTAR_LTE(glm::vec3 Sta
 	PerfManager::Get()->StartSingleActionTimer(TimerName);
 	DPathFinder->Plane = Plane;
 	DPathFinder->SetTarget(EndPos, Startpoint);
-	DPathFinder->Execute(outputPath->Positions);
+	if (!DPathFinder->Execute(outputPath->Positions))
+	{
+		return ENavRequestStatus::Failed;
+	}
 
 	outputPath->Positions.push_back(EndPos);
 	SmoothPath(outputPath);
