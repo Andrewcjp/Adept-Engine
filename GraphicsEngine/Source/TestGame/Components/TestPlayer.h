@@ -38,6 +38,6 @@ private:
 	const float AirSpeedFactor = 0.2f;
 	bool Frontblocked = false;
 	Health* Mhealth = nullptr;
-	
+	glm::vec3 CurrnetRot = glm::vec3(0);
 };
 
