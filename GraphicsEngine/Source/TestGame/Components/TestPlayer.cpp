@@ -147,7 +147,9 @@ void TestPlayer::UpdateMovement(float delta)
 		const glm::vec3 tVel = NewVel /*+ ExtraVel*/;
 		glm::vec3 correction = tVel - RB->GetVelocity();
 		correction.y = 0.0f;
+#if WITH_EDITOR
 		Log::LogTextToScreen("Correction: " + glm::to_string(correction));
+#endif
 		RB->GetActor()->AddForce(correction * (IsGrounded ? 10 : 2.5f));
 #else
 		RB->SetLinearVelocity(NewVel);
@@ -157,6 +159,8 @@ void TestPlayer::UpdateMovement(float delta)
 	{
 		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 10) / delta);
 	}
+#if WITH_EDITOR
 	Log::LogTextToScreen("Speed: " + glm::to_string(RB->GetVelocity()));
+#endif
 }
 

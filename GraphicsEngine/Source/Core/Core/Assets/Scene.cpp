@@ -304,7 +304,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//AddGameobjectToScene(go);
 	glm::vec3 startpos = glm::vec3(5, 0, 0); 
 	float stride = 5.0f;
-	int size = 5;
+	int size = 1;
 	int zsize = 2;
 	for (int x = 0; x < size; x++)
 	{
@@ -317,11 +317,11 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				go->GetTransform()->SetPos(startpos + glm::vec3(x *stride, 15 + z * stride, y*stride));
 				if (z == 0)
 				{
-					cc->SetCollisonShape(EShapeType::eSPHERE);
+					cc->SetCollisonShape(EShapeType::eBOX);
 				}
 				else
 				{
-					cc->SetCollisonShape(EShapeType::eSPHERE);
+					cc->SetCollisonShape(EShapeType::eBOX);
 				}
 				go->AttachComponent(new RigidbodyComponent());
 				AddGameobjectToScene(go);

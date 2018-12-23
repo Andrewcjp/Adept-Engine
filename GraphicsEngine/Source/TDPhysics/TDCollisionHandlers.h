@@ -3,6 +3,8 @@
 #include "TDShape.h"
 #include "TDTypes.h"
 
+namespace TD { class TDBox; }
+
 namespace TD
 {
 #define CollisionHandlerArgs TDShape* A, TDShape* B, ContactData* contactbuffer
@@ -39,6 +41,7 @@ namespace TD
 		//Invalid Pair
 		static bool InvalidCollisonPair(CollisionHandlerArgs);
 		static bool CollideAABBAABB(TDAABB * A, TDAABB * b);
+		static bool AABBOBB(TDAABB* A, TDBox* B);
 		static bool SphereAABB(TDSphere * sphere, const TDAABB * aabb);
 
 	};

@@ -16,8 +16,8 @@ public:
 	void RenderWidgetText();
 	CORE_API void RemoveWidget(UIWidget * widget);
 	int GetScaledWidth(float PC);
-	int GetWidth();
-	int GetHeight();
+	CORE_API int GetWidth();
+	CORE_API int GetHeight();
 	int GetScaledHeight(float PC);
 	void UpdateSize(int width, int height, int Xoffset, int yoffset);
 	void CleanUpWidgets();
@@ -29,7 +29,7 @@ public:
 	void MouseClick(int x, int y);
 	void MouseClickUp(int x, int y);
 	UIDrawBatcher* GetBatcher() const;
-	DebugLineDrawer* GetLineBatcher()const;
+	CORE_API DebugLineDrawer* GetLineBatcher()const;
 	void SetOffset(glm::ivec2 newoff);
 	void RenderTextToScreen(int id, std::string text);
 	void RenderTextToScreen(int id, std::string text, glm::vec3 colour);

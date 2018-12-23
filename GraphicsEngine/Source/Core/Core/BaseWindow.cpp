@@ -437,7 +437,7 @@ RenderEngine * BaseWindow::GetCurrentRenderer()
 
 void BaseWindow::RenderText()
 {
-	int offset = 0;
+	int offset = 1;
 	if (ShowText)
 	{
 		std::stringstream stream;
@@ -462,7 +462,7 @@ void BaseWindow::RenderText()
 			PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));
 			PerfManager::Instance->DrawAllStats((int)(m_width / 1.5f), (int)(m_height / 1.2), true);
 		}
-		offset += 2;
+		offset = 2;
 	}
 	Log::Get()->RenderText(UI, offset);
 }

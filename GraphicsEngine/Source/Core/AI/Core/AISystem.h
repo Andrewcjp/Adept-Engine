@@ -22,6 +22,7 @@ namespace EAIDebugMode
 		None,
 		NavMesh,
 		PathOnly,
+		BT,
 		All,
 		Limit
 	};

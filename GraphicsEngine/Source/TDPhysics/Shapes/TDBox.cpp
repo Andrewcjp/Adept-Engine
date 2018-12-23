@@ -15,6 +15,7 @@ namespace TD
 	{
 		return HalfExtends;
 	}
+
 	glm::vec3 TDBox::ClosestPoint(const glm::vec3& point)
 	{
 		glm::vec3 result = GetPos();

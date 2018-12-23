@@ -170,18 +170,25 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			continue;
 		}
 		Points.push_back(target->Points[i].x);
-		Points.push_back(0.0f);
+		Points.push_back(startHeight - target->Points[i].y);
 		Points.push_back(target->Points[i].z);
 	}
 
-	ensure(Points.size() % 3 == 0);
+	//ensure(Points.size() % 3 == 0);
 	delaunator::Delaunator d(Points);
 	for (std::size_t i = 0; i < d.triangles.size(); i += 3)
 	{
 		Tri newrti;
+#if 1
 		newrti.points[0] = (glm::vec3(d.coords[2 * d.triangles[i]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i] + 1]));
 		newrti.points[1] = (glm::vec3(d.coords[2 * d.triangles[i + 1]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i + 1] + 1]));
 		newrti.points[2] = (glm::vec3(d.coords[2 * d.triangles[i + 2]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i + 2] + 1]));
+#else
+		newrti.points[0] = (glm::vec3(d.coords[2 * d.triangles[i]], d.coords[2 * d.triangles[i] + 2], d.coords[2 * d.triangles[i] + 1]));
+		newrti.points[1] = (glm::vec3(d.coords[2 * d.triangles[i + 1]], d.coords[2 * d.triangles[i + 1] + 2], d.coords[2 * d.triangles[i + 1] + 1]));
+		newrti.points[2] = (glm::vec3(d.coords[2 * d.triangles[i + 2]], d.coords[2 * d.triangles[i + 2] + 2], d.coords[2 * d.triangles[i + 2] + 1]));
+
+#endif
 		if (true)
 		{
 			std::swap(newrti.points[0].x, newrti.points[0].z);
@@ -283,7 +290,10 @@ void NavPlane::RemoveDupeNavPoints()
 			{
 				if (NavPoints[x]->Point == NavPoints[y]->Point)
 				{
-					if (VectorUtils::Contains<DLTENode*>(RemoveList, NavPoints[x], [](DLTENode*a, DLTENode* b) {return a->Point == b->Point; }))
+					if (VectorUtils::Contains<DLTENode*>(RemoveList, NavPoints[x], [](DLTENode*a, DLTENode* b)
+					{
+						return a->Point == b->Point;
+					}))
 					{
 						continue;
 					}

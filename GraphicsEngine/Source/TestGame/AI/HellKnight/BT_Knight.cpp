@@ -24,7 +24,7 @@ void BT_Knight::SetupTree()
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 10));
 	selector->AddService(new Service_PlayerCheck(obj, Distance));	
-	selector->AddChildNode<BTWaitNode>(new BTMeleeAttackNode());
+	selector->AddChildNode<BTMeleeAttackNode>(new BTMeleeAttackNode());
 	selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.4f));
 	//sub node
 	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());

@@ -1,12 +1,11 @@
 #include "TDCollisionHandlers.h"
 #include "Shapes/TDAABB.h"
 #include "Shapes/TDBox.h"
-#include "Shapes/TDBox.h"
 #include "Shapes/TDMeshShape.h"
 #include "Shapes/TDPlane.h"
 #include "Shapes/TDSphere.h"
-#include "TDShape.h"
 #include "Core/Utils/MathUtils.h"
+#include "TDSAT.h"
 namespace TD
 {
 	bool TD::TDCollisionHandlers::InvalidCollisonPair(CollisionHandlerArgs)
@@ -81,9 +80,41 @@ namespace TD
 		const glm::vec3 bMin = B->GetMin();
 		const glm::vec3 bMax = B->GetMax();
 		const bool result = (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
-			   (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
-			   (aMin.z <= bMax.z && aMax.z >= bMin.z);
+			(aMin.y <= bMax.y && aMax.y >= bMin.y) &&
+			(aMin.z <= bMax.z && aMax.z >= bMin.z);
 		return result;
+	}
+
+	bool TDCollisionHandlers::AABBOBB(TDAABB * A, TDBox * B)
+	{
+		glm::mat3 o1 = glm::mat3(B->GetTransfrom()->GetQuatRot());
+
+		glm::vec3 test[15] = 
+		{
+			glm::vec3(1, 0, 0), // AABB axis 1
+			glm::vec3(0, 1, 0), // AABB axis 2
+			glm::vec3(0, 0, 1), // AABB axis 3
+			glm::vec3(o1[0][0], o1[1][0], o1[2][0]),
+			glm::vec3(o1[0][1], o1[1][1], o1[2][1]),
+			glm::vec3(o1[0][2], o1[1][2], o1[2][2]),
+		};
+
+		for (int i = 0; i < 3; ++i)
+		{ 
+			//Again, Fill out rest of axis
+			test[6 + i * 3 + 0] = glm::cross(test[i], test[0]);
+			test[6 + i * 3 + 1] = glm::cross(test[i], test[1]);
+			test[6 + i * 3 + 2] = glm::cross(test[i], test[2]);
+		}
+
+		for (int i = 0; i < 15; ++i)
+		{
+			if (!TDSAT::OverlapOnAxis(A, B, test[i]))
+			{
+				return false; // Separating axis found
+			}
+		}
+		return true; //No axises are separate
 	}
 
 	glm::vec3 ClosestPoint(const TDAABB* aabb, const glm::vec3& point)
@@ -230,7 +261,50 @@ namespace TD
 	//Box
 	bool TD::TDCollisionHandlers::CollideBoxBox(CollisionHandlerArgs)
 	{
-		return false;
+		TDBox* ABox = TDShape::CastShape< TDBox>(A);
+		TDBox* BBox = TDShape::CastShape< TDBox>(B);
+		glm::mat3 o1 = glm::mat3(ABox->GetTransfrom()->GetQuatRot());
+		glm::mat3 o2 = glm::mat3(BBox->GetTransfrom()->GetQuatRot());
+
+		glm::vec3 test[15] =
+		{
+			glm::vec3(o1[0][0], o1[1][0], o1[2][0]),
+			glm::vec3(o1[0][1], o1[1][1], o1[2][1]),
+			glm::vec3(o1[0][2], o1[1][2], o1[2][2]),
+			glm::vec3(o2[0][0], o2[1][0], o2[2][0]),
+			glm::vec3(o2[0][1], o2[1][1], o2[2][1]),
+			glm::vec3(o2[0][2], o2[1][2], o2[2][2]),
+		};
+
+		for (int i = 0; i < 3; ++i)
+		{ // Fill out rest of axis
+			test[6 + i * 3 + 0] = glm::cross(test[i], test[0]);
+			test[6 + i * 3 + 1] = glm::cross(test[i], test[1]);
+			test[6 + i * 3 + 2] = glm::cross(test[i], test[2]);
+		}
+		int Minindex = 0;
+		float minValue = 10000;
+		for (int i = 0; i < 15; i++)
+		{
+			float v = 1000;
+			if (!TDSAT::OverlapOnAxis(ABox, BBox, test[i], v))
+			{
+				return false; // Separating axis found
+			}
+			if (minValue > v && i < 6)
+			{
+				minValue = v;
+				Minindex = i;
+			}
+		}
+		const glm::vec3 Point = ABox->ClosestPoint(BBox->GetPos());
+		glm::vec3 normal = -test[Minindex];
+		const glm::vec3 NormalRayEnd = Point + (normal * 100);
+		const glm::vec3 FurtherestExtent = ABox->ClosestPoint(NormalRayEnd);
+		float depth = glm::length(FurtherestExtent - Point) / 32;
+		//TDPhysics::DrawDebugLine(Point, Point + normal * 2, glm::vec3(1, 1, 1), 0.0f);
+		contactbuffer->Contact(Point, normal, depth);//todo: depth is not right here
+		return true;//No axis are separate so intersection is present
 	}
 
 	bool TD::TDCollisionHandlers::CollideBoxConvex(CollisionHandlerArgs)

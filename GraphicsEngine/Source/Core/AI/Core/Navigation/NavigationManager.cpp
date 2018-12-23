@@ -26,7 +26,7 @@ void NavigationManager::RenderMesh()
 	{
 		return;
 	}
-	Plane->RenderMesh(true);
+	Plane->RenderMesh(false);
 }
 
 ENavRequestStatus::Type NavigationManager::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath* outputPath)
