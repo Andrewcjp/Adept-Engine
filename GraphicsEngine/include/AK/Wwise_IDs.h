@@ -15,11 +15,13 @@ namespace AK
     {
         static const AkUniqueID AI_RIFLE_FIRE = 578598015U;
         static const AkUniqueID EMPTYCLICK = 2242963996U;
+        static const AkUniqueID LAND = 674522502U;
         static const AkUniqueID MELEE_HIT = 1255748329U;
         static const AkUniqueID MELEE_MOVE = 3724628701U;
         static const AkUniqueID PLAY_GAUSS = 1709851261U;
         static const AkUniqueID PLAY_RIFLE = 1920272688U;
         static const AkUniqueID PLAY_SHOTGUN = 992244U;
+        static const AkUniqueID STEP = 621108255U;
     } // namespace EVENTS
 
     namespace GAME_PARAMETERS

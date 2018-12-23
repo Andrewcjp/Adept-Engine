@@ -23,11 +23,13 @@
 			<IncludedEvents>
 				<Event Id="578598015" Name="AI_Rifle_Fire" ObjectPath="\Events\Default Work Unit\AI_Rifle_Fire"/>
 				<Event Id="2242963996" Name="EmptyClick" ObjectPath="\Events\Default Work Unit\EmptyClick"/>
+				<Event Id="674522502" Name="Land" ObjectPath="\Events\Default Work Unit\Land"/>
 				<Event Id="1255748329" Name="Melee_Hit" ObjectPath="\Events\Default Work Unit\Melee_Hit"/>
 				<Event Id="3724628701" Name="Melee_Move" ObjectPath="\Events\Default Work Unit\Melee_Move"/>
 				<Event Id="1709851261" Name="Play_Gauss" ObjectPath="\Events\Default Work Unit\Play_Gauss"/>
 				<Event Id="1920272688" Name="Play_Rifle" ObjectPath="\Events\Default Work Unit\Play_Rifle"/>
 				<Event Id="992244" Name="Play_Shotgun" ObjectPath="\Events\Default Work Unit\Play_Shotgun"/>
+				<Event Id="621108255" Name="Step" ObjectPath="\Events\Default Work Unit\Step"/>
 			</IncludedEvents>
 			<IncludedMemoryFiles>
 				<File Id="44284441" Language="SFX">
@@ -41,6 +43,10 @@
 				<File Id="86458832" Language="SFX">
 					<ShortName>Shootgun.wav</ShortName>
 					<Path>SFX\Shootgun_BD03BF26.wem</Path>
+				</File>
+				<File Id="196990562" Language="SFX">
+					<ShortName>DeskStep_1.wav</ShortName>
+					<Path>SFX\DeskStep_1_BD03BF26.wem</Path>
 				</File>
 				<File Id="215302347" Language="SFX">
 					<ShortName>.301.wav.wav</ShortName>
@@ -57,6 +63,14 @@
 				<File Id="585412086" Language="SFX">
 					<ShortName>.229.wav.wav</ShortName>
 					<Path>SFX\.229.wav_BD03BF26.wem</Path>
+				</File>
+				<File Id="811307670" Language="SFX">
+					<ShortName>DeskStep_2.wav</ShortName>
+					<Path>SFX\DeskStep_2_BD03BF26.wem</Path>
+				</File>
+				<File Id="861025917" Language="SFX">
+					<ShortName>DeskLand.wav</ShortName>
+					<Path>SFX\DeskLand_56D34C19.wem</Path>
 				</File>
 				<File Id="891127962" Language="SFX">
 					<ShortName>Hit_1.wav</ShortName>

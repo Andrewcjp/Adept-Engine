@@ -18,6 +18,7 @@ namespace TD
 	{
 		ShapeType = TDShapeType::eTRIANGLEMESH;
 		Mesh = mesh;
+
 	}
 
 	TDMeshShape::~TDMeshShape()
@@ -123,7 +124,7 @@ namespace TD
 #endif
 			}
 
-}
+		}
 #else
 		const bool IsTrigger = s->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
 		std::vector<TriangleInterection> InterSections;
@@ -166,7 +167,7 @@ namespace TD
 
 	bool TDMeshShape::IntersectTriangle(RayCast* ray)
 	{
-		return Mesh->GetBVH()->TraverseForRay(ray);
+		return Mesh->GetBVH()->TraverseForRay(ray, this);
 	}
 
 	glm::vec3 Project(const glm::vec3& length, const glm::vec3& direction)
@@ -198,7 +199,7 @@ namespace TD
 		return glm::vec3(a, b, c);
 	}
 
-	bool TDTriangle::Intersect(RayCast* ray)
+	bool TDTriangle::Intersect(RayCast* ray, TDMeshShape* owner)
 	{
 		TDPlane plane = MakeFromTriangle();
 		if (!TDIntersectionHandlers::IntersectPlane(&plane, ray))
@@ -218,7 +219,7 @@ namespace TD
 			(BaryCoords.z >= 0.0f && BaryCoords.z <= 1.0f))
 		{
 			ray->HitData->BlockingHit = true;
-			ray->HitData->AddContact(ray->Origin + ray->Dir * t, plane.Normal, t);
+			ray->HitData->AddContact(ray->Origin + ray->Dir * t, plane.Normal, t, owner);
 			return true;
 		}
 		ray->HitData->BlockingHit = false;
@@ -329,7 +330,7 @@ namespace TD
 		BVH->BuildAccelerationStructure(this);
 
 	}
-	
+
 	Interval GetInterval(const TDTriangle* triangle, const glm::vec3& axis)
 	{
 		Interval result;

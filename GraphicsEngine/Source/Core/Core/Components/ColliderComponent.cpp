@@ -20,7 +20,7 @@ ColliderComponent::~ColliderComponent()
 	{
 		Actor->SetOwnerComponent(nullptr);
 	}
-	//SafeDelete(Actor);
+	SafeDelete(Actor);
 }
 
 void ColliderComponent::SetEnabled(bool State)

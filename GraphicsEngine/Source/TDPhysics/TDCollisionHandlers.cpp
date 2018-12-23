@@ -324,7 +324,7 @@ namespace TD
 		return false;
 	}
 
-	bool TD::TDIntersectionHandlers::IntersectPlane(InterSectionArgs)//TDShape* Shape,glm::vec3 Origin,glm::vec3 Dir,float distance
+	bool TD::TDIntersectionHandlers::IntersectPlane(InterSectionArgs)//TDShape* Shape,Ray
 	{
 		TDPlane* plane = TDShape::CastShape<TDPlane>(Shape);
 
@@ -346,7 +346,7 @@ namespace TD
 		{
 			if (t <= Ray->Distance)
 			{
-				Ray->HitData->AddContact(Ray->Origin + Ray->Dir * t, plane->Normal, t);
+				Ray->HitData->AddContact(Ray->Origin + Ray->Dir * t, plane->Normal, t,Shape);
 				return true;
 			}
 		}
@@ -432,7 +432,7 @@ namespace TD
 			{
 				if (MathUtils::AlmostEqual(t_result, t[i], FLT_EPSILON))
 				{
-					Ray->HitData->AddContact(Ray->Origin + Ray->Dir* t_result, normals[i], t_result);
+					Ray->HitData->AddContact(Ray->Origin + Ray->Dir* t_result, normals[i], t_result,Shape);
 					return true;
 				}
 			}
