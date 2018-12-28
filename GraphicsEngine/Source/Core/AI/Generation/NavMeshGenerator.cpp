@@ -17,6 +17,8 @@ const float PlaneTolerance = 50.0f;
 void NavMeshGenerator::Voxelise(Scene* TargetScene)
 {
 	Log::LogMessage("Started Nav Mesh Generation");
+
+
 	PerfManager::Get()->StartSingleActionTimer(VoxeliseTimer);
 	const float worldMin = -10e10f;
 	//Find bounds of Scene
@@ -28,6 +30,7 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 	glm::vec3 pos = Field->GetPosition(GridSize / 2, GridSize / 2);
 	//ensure(pos == glm::vec3(0, 0, 0));
 	//Create height field from scene
+
 	int ValidPointCount = 0;
 	const float distance = 50;
 	for (int x = 0; x < GridSize; x++)
@@ -230,6 +233,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;
 		}
+	//	Log::LogMessage("Pruning Points scene " + std::to_string(i) + "/" + std::to_string(target->Triangles.size()), Log::Severity::Progress);
 #endif
 	}
 #endif
@@ -242,7 +246,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			const int next = (x + 1) % sides;
 			//DebugDrawers::DrawDebugLine(target->Triangles[i].points[x], target->Triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
 		}
-}
+	}
 #endif
 	target->BuildNavPoints();
 	target->RemoveDupeNavPoints();
@@ -370,7 +374,7 @@ void NavPlane::BuildMeshLinks()
 		Link(Triangles[i].Nodes[1], Triangles[i].Nodes[2]);
 		Link(Triangles[i].Nodes[2], Triangles[i].Nodes[0]);
 	}
-	
+
 	for (int x = 0; x < NavPoints.size(); x++)
 	{
 		for (int y = 0; y < NavPoints.size(); y++)

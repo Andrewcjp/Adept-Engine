@@ -12,6 +12,10 @@ namespace TD
 		glm::vec3 GetMax()const;
 		void DebugRender(glm::vec3 colour = glm::vec3(1), float time = 0.0f);
 
+		glm::vec3 ClosestPoint(const glm::vec3 & point) const;
+
+		static TDAABB * CreateFromMinMax(const glm::vec3 & min, const glm::vec3 & max);
+
 		glm::vec3 HalfExtends = glm::vec3(size, size, size);
 		glm::vec3 Position = glm::vec3(0,0,0);
 		TDActor* Owner = nullptr;

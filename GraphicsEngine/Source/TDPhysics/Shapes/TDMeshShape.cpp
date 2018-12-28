@@ -107,25 +107,6 @@ namespace TD
 
 	bool TDMeshShape::MeshSphere(TDSphere * s, ContactData* contactbuffer)
 	{
-#if 0
-		//normal is triangles normal!
-		for (int i = 0; i < Mesh->GetTriangles().size(); i++)
-		{
-			float Depth = 0.0f;
-			glm::vec3 ContactPoint = glm::vec3();
-			if (Mesh->GetTriangles()[i]->TriangleSphere(s, ContactPoint, Depth))
-			{
-				const glm::vec3 normal = Mesh->GetTriangles()[i]->Normal;
-				contactbuffer->Contact(ContactPoint, normal, Depth);
-				DebugEnsure(Depth > -1.0f);
-				DebugEnsure(Depth < 0.0f);
-#if !BUILD_SHIPPING
-				Mesh->GetTriangles()[i]->DebugDraw();
-#endif
-			}
-
-		}
-#else
 		const bool IsTrigger = s->GetFlags().GetFlagValue(TDShapeFlags::ETrigger);
 		std::vector<TriangleInterection> InterSections;
 		if (Mesh->GetBVH()->TraverseForSphere(s, InterSections, IsTrigger ? 1 : 0))
@@ -141,8 +122,6 @@ namespace TD
 #endif
 			}
 		}
-
-#endif
 		return contactbuffer->Blocking;
 	}
 	bool TDMeshShape::MeshBox(TDBox* Box, ContactData* Contacts)
@@ -302,17 +281,14 @@ namespace TD
 		}
 		CookMesh();
 	}
+
 	TDMesh::~TDMesh()
 	{
 		SafeDelete(BVH);
 	}
-	TDAABB* TDMesh::FromMinMax(const glm::vec3& min, const glm::vec3& max)
-	{
-		TDAABB* r = new TDAABB();
-		r->HalfExtends = (max - min) * 0.5f;
-		r->Position = (min + max) * 0.5f;
-		return r;
-	}
+
+
+
 	void TDMesh::CookMesh()
 	{
 		Min = Triangles[0]->Points[0];
@@ -326,78 +302,7 @@ namespace TD
 			}
 		}
 		BVH = new TDBVH();
-
 		BVH->BuildAccelerationStructure(this);
-
-	}
-
-	Interval GetInterval(const TDTriangle* triangle, const glm::vec3& axis)
-	{
-		Interval result;
-
-		result.min = glm::dot(axis, triangle->Points[0]);
-		result.max = result.min;
-		for (int i = 1; i < 3; ++i)
-		{
-			float value = glm::dot(axis, triangle->Points[i]);
-			result.min = fminf(result.min, value);
-			result.max = fmaxf(result.max, value);
-		}
-
-		return result;
-	}
-
-	Interval GetInterval(TDBox* obb, const glm::vec3& axis)
-	{
-		glm::vec3 vertex[8];
-
-		glm::vec3 C = obb->GetPos();	// OBB Center
-		glm::vec3 E = obb->HalfExtends;		// OBB Extents
-		//const float* o = obb->GetTransfrom;
-		//glm::vec3 A[] = {			// OBB Axis
-		//	glm::vec3(o[0], o[1], o[2]),
-		//	glm::vec3(o[3], o[4], o[5]),
-		//	glm::vec3(o[6], o[7], o[8]),
-		//};
-		glm::mat3x3 A = glm::mat3(obb->GetTransfrom()->GetQuatRot());
-		glm::vec3 u0 = glm::vec3(A[0][0], A[1][0], A[2][0]);
-		glm::vec3 u1 = glm::vec3(A[0][1], A[1][1], A[2][1]);//todo: wrong way round?
-		glm::vec3 u2 = glm::vec3(A[0][2], A[1][2], A[2][2]);
-
-		vertex[0] = C + A[0] * E[0] + A[1] * E[1] + A[2] * E[2];
-		vertex[1] = C - A[0] * E[0] + A[1] * E[1] + A[2] * E[2];
-		vertex[2] = C + A[0] * E[0] - A[1] * E[1] + A[2] * E[2];
-		vertex[3] = C + A[0] * E[0] + A[1] * E[1] - A[2] * E[2];
-		vertex[4] = C - A[0] * E[0] - A[1] * E[1] - A[2] * E[2];
-		vertex[5] = C + A[0] * E[0] - A[1] * E[1] - A[2] * E[2];
-		vertex[6] = C - A[0] * E[0] + A[1] * E[1] - A[2] * E[2];
-		vertex[7] = C - A[0] * E[0] - A[1] * E[1] + A[2] * E[2];
-
-		Interval result;
-		result.min = result.max = glm::dot(axis, vertex[0]);
-
-		for (int i = 1; i < 8; ++i)
-		{
-			float projection = glm::dot(axis, vertex[i]);
-			result.min = (projection < result.min) ? projection : result.min;
-			result.max = (projection > result.max) ? projection : result.max;
-		}
-
-		return result;
-	}
-
-	bool OverlapOnAxis(const TDAABB* aabb, const TDTriangle* triangle, const glm::vec3& axis)
-	{
-		Interval a = TDSAT::GetInterval(aabb, axis);
-		Interval b = GetInterval(triangle, axis);
-		return ((b.min <= a.max) && (a.min <= b.max));
-	}
-
-	bool OverlapOnAxis(TDBox* obb, const TDTriangle* triangle, const glm::vec3& axis)
-	{
-		Interval a = GetInterval(obb, axis);
-		Interval b = GetInterval(triangle, axis);
-		return ((b.min <= a.max) && (a.min <= b.max));
 	}
 
 	bool TDTriangle::TriangleAABB(const TDAABB* a)
@@ -433,7 +338,7 @@ namespace TD
 
 		for (int i = 0; i < 13; ++i)
 		{
-			if (!OverlapOnAxis(a, this, test[i]))
+			if (!TDSAT::OverlapOnAxis(a, this, test[i]))
 			{
 				return false; // Separating axis found
 			}
@@ -475,7 +380,7 @@ namespace TD
 
 		for (int i = 0; i < 13; ++i)
 		{
-			if (!OverlapOnAxis(Box, this, test[i]))
+			if (!TDSAT::OverlapOnAxis(Box, this, test[i]))
 			{
 				return false; // Separating axis found
 			}

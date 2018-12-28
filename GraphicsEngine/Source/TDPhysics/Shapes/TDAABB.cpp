@@ -50,4 +50,27 @@ namespace TD
 		TDPhysics::DrawDebugLine(Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, -HalfExtends.z), colour, time);
 		TDPhysics::DrawDebugLine(Position + glm::vec3(-HalfExtends.x, HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, HalfExtends.y, -HalfExtends.z), colour, time);
 	}
+	glm::vec3 TDAABB::ClosestPoint(const glm::vec3& point)const
+	{
+		glm::vec3 result = point;
+		glm::vec3 min = GetMin();
+		glm::vec3 max = GetMax();
+
+		result.x = (result.x < min.x) ? min.x : result.x;
+		result.y = (result.y < min.y) ? min.y : result.y;
+		result.z = (result.z < min.z) ? min.z : result.z;
+
+		result.x = (result.x > max.x) ? max.x : result.x;
+		result.y = (result.y > max.y) ? max.y : result.y;
+		result.z = (result.z > max.z) ? max.z : result.z;
+
+		return result;
+	}
+	TDAABB* TDAABB::CreateFromMinMax(const glm::vec3 & min, const glm::vec3 & max)
+	{
+		TDAABB* r = new TDAABB();
+		r->HalfExtends = (max - min) * 0.5f;
+		r->Position = (min + max) * 0.5f;
+		return r;
+	}
 };

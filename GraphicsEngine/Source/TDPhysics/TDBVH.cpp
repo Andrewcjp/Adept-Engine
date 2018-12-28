@@ -23,7 +23,7 @@ namespace TD
 	{
 		TargetMesh = Mesh;
 		Root = new BVHNode();
-		Root->bounds = TDMesh::FromMinMax(Mesh->Min, Mesh->Max);
+		Root->bounds = TDAABB::CreateFromMinMax(Mesh->Min, Mesh->Max);
 		Root->children.clear();
 		Root->numTriangles = (int)Mesh->GetTriangles().size();
 		for (int i = 0; i < Mesh->GetTriangles().size(); i++)
@@ -175,24 +175,6 @@ namespace TD
 
 	bool TDBVH::TraverseForBox(TDBox * A, std::vector<TriangleInterection>& contacts, int MaxContactCount)
 	{
-#if 0
-		bool RetValue = false;
-		for (int i = 0; i < TargetMesh->GetTriangles().size(); i++)
-		{
-			TriangleInterection t;
-			if (TargetMesh->GetTriangles()[i]->TriangleBox(A))
-			{
-				t.Tri = TargetMesh->GetTriangles()[i];
-				const glm::vec3 ContactPoint = A->ClosestPoint(t.Tri->GetPos());
-				const glm::vec3 NormalRayEnd = ContactPoint - (t.Tri->Normal * 100);
-				const glm::vec3 FurtherestExtent = A->ClosestPoint(NormalRayEnd);
-				t.depth = glm::length(FurtherestExtent - ContactPoint);
-				t.Point = ContactPoint;
-				contacts.push_back(t);
-				RetValue = true;
-			}
-		}
-#else
 		std::queue<BVHNode*> toProcess;
 		toProcess.emplace(Root);
 		bool RetValue = false;
@@ -243,7 +225,6 @@ namespace TD
 				}
 			}
 		}
-#endif
 		return RetValue;
 	}
 

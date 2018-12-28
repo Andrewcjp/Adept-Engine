@@ -16,6 +16,7 @@ public:
 	enum Severity
 	{
 		Message,
+		Progress,
 		Warning,
 		Error
 	};

@@ -2,6 +2,7 @@
 #include "TDSAT.h"
 #include "Shapes/TDBox.h"
 #include "Shapes/TDAABB.h"
+#include "Shapes/TDMeshShape.h"
 namespace TD
 {
 
@@ -11,12 +12,6 @@ namespace TD
 
 		glm::vec3 C = obb->GetPos();	// OBB Center
 		glm::vec3 E = obb->HalfExtends;		// OBB Extents
-		//const float* o = obb->GetTransfrom;
-		//glm::vec3 A[] = {			// OBB Axis
-		//	glm::vec3(o[0], o[1], o[2]),
-		//	glm::vec3(o[3], o[4], o[5]),
-		//	glm::vec3(o[6], o[7], o[8]),
-		//};
 		glm::mat3x3 A = glm::mat3(obb->GetTransfrom()->GetQuatRot());
 		glm::vec3 u0 = glm::vec3(A[0][0], A[1][0], A[2][0]);
 		glm::vec3 u1 = glm::vec3(A[0][1], A[1][1], A[2][1]);//todo: wrong way round?
@@ -84,5 +79,33 @@ namespace TD
 		Interval b = GetInterval(obb2, axis);
 		return ((b.min <= a.max) && (a.min <= b.max));
 	}
+	Interval TDSAT::GetInterval(const TDTriangle* triangle, const glm::vec3& axis)
+	{
+		Interval result;
 
+		result.min = glm::dot(axis, triangle->Points[0]);
+		result.max = result.min;
+		for (int i = 1; i < 3; ++i)
+		{
+			float value = glm::dot(axis, triangle->Points[i]);
+			result.min = fminf(result.min, value);
+			result.max = fmaxf(result.max, value);
+		}
+
+		return result;
+	}
+
+	bool TDSAT::OverlapOnAxis(const TDAABB* aabb, const TDTriangle* triangle, const glm::vec3& axis)
+	{
+		Interval a = TDSAT::GetInterval(aabb, axis);
+		Interval b = GetInterval(triangle, axis);
+		return ((b.min <= a.max) && (a.min <= b.max));
+	}
+
+	bool TDSAT::OverlapOnAxis(TDBox* obb, const TDTriangle* triangle, const glm::vec3& axis)
+	{
+		Interval a = GetInterval(obb, axis);
+		Interval b = GetInterval(triangle, axis);
+		return ((b.min <= a.max) && (a.min <= b.max));
+	}
 };

@@ -63,12 +63,12 @@ void NavigationManager::SmoothPath(NavigationPath* path)
 	{
 		return;
 	}
-#if 0
+#if 1
 	const int SamplingFactor = 8;
-	const int Points = 2;
+	const int Points = 2; 
 	for (int i = 0; i < path->Positions.size() - Points; i += Points + SamplingFactor)
 	{
-#if 0
+#if 1
 		glm::vec3 point1 = GetPointOnBezierCurve(path->Positions[i], path->Positions[i + 1], path->Positions[i + 2], path->Positions[i + 3], 0.2f);
 		glm::vec3 point2 = GetPointOnBezierCurve(path->Positions[i], path->Positions[i + 1], path->Positions[i + 2], path->Positions[i + 3], 0.4f);
 		glm::vec3 point3 = GetPointOnBezierCurve(path->Positions[i], path->Positions[i + 1], path->Positions[i + 2], path->Positions[i + 3], 0.6f);

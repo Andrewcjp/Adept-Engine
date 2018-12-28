@@ -51,7 +51,6 @@ namespace TD
 		TD_API TDMesh(const TDTriangleMeshDesc& desc);
 		~TDMesh();
 		TD_API std::vector<TDTriangle*> & GetTriangles() { return Triangles; }
-		static TDAABB * FromMinMax(const glm::vec3 & min, const glm::vec3 & max);
 		TD_API virtual void CookMesh();
 		glm::vec3 Max;
 		glm::vec3 Min;
