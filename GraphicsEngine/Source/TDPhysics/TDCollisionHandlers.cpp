@@ -89,7 +89,7 @@ namespace TD
 	{
 		glm::mat3 o1 = glm::mat3(B->GetTransfrom()->GetQuatRot());
 
-		glm::vec3 test[15] = 
+		glm::vec3 test[15] =
 		{
 			glm::vec3(1, 0, 0), // AABB axis 1
 			glm::vec3(0, 1, 0), // AABB axis 2
@@ -100,7 +100,7 @@ namespace TD
 		};
 
 		for (int i = 0; i < 3; ++i)
-		{ 
+		{
 			//Again, Fill out rest of axis
 			test[6 + i * 3 + 0] = glm::cross(test[i], test[0]);
 			test[6 + i * 3 + 1] = glm::cross(test[i], test[1]);
@@ -117,29 +117,12 @@ namespace TD
 		return true; //No axises are separate
 	}
 
-	glm::vec3 ClosestPoint(const TDAABB* aabb, const glm::vec3& point)
-	{
-		glm::vec3 result = point;
-		glm::vec3 min = aabb->GetMin();
-		glm::vec3 max = aabb->GetMax();
-
-		result.x = (result.x < min.x) ? min.x : result.x;
-		result.y = (result.y < min.y) ? min.y : result.y;
-		result.z = (result.z < min.z) ? min.z : result.z;
-
-		result.x = (result.x > max.x) ? max.x : result.x;
-		result.y = (result.y > max.y) ? max.y : result.y;
-		result.z = (result.z > max.z) ? max.z : result.z;
-
-		return result;
-	}
-
 	bool TD::TDCollisionHandlers::SphereAABB(TDSphere* sphere, const TDAABB* aabb)
 	{
-		glm::vec3 closestPoint = ClosestPoint(aabb, sphere->GetPos());
+		glm::vec3 closestPoint = aabb->ClosestPoint(sphere->GetPos());
 		float distSq = glm::length2(sphere->GetPos() - closestPoint);
 		float radiusSq = sphere->Radius * sphere->Radius;
-		return distSq <= radiusSq;//=
+		return distSq <= radiusSq;
 	}
 
 	bool TD::TDCollisionHandlers::CollideSphereCapsule(CollisionHandlerArgs)
@@ -147,33 +130,13 @@ namespace TD
 		return false;
 	}
 
-	glm::vec3 ClosestPoint(TDBox* obb, const glm::vec3& point)
-	{
-		glm::vec3 result = obb->GetPos();
-		glm::vec3 dir = point - obb->GetPos();
-		for (int i = 0; i < 3; ++i)
-		{
-			glm::vec3 axis = obb->Rotation[i];
-			float distance = glm::dot(dir, axis);
 
-			if (distance > obb->HalfExtends[i])
-			{
-				distance = obb->HalfExtends[i];
-			}
-			if (distance < -obb->HalfExtends[i])
-			{
-				distance = -obb->HalfExtends[i];
-			}
-			result = result + (axis * distance);
-		}
-		return result;
-	}
 	bool TD::TDCollisionHandlers::CollideSphereBox(CollisionHandlerArgs)
 	{
 		//todo: check this
 		TDSphere* sphere = TDShape::CastShape<TDSphere>(A);
 		TDBox* box = TDShape::CastShape<TDBox>(B);
-		glm::vec3 closestPoint = ClosestPoint(box, sphere->GetPos());
+		glm::vec3 closestPoint = box->ClosestPoint(sphere->GetPos());
 		float distSq = glm::length2(sphere->GetPos() - closestPoint);
 		float radiusSq = sphere->Radius * sphere->Radius;
 		const float sepeation = radiusSq - distSq;
@@ -220,7 +183,7 @@ namespace TD
 		if (fabsf(dist) <= pLen)
 		{
 			const float seperation = pLen - dist;
-			glm::vec3 point = ClosestPoint(box, box->GetPos());
+			glm::vec3 point = box->ClosestPoint(box->GetPos());//todo: this is suspect
 			contactbuffer->Contact(box->GetPos(), plane->GetNormal(), abs(seperation));
 			return true;
 		}
@@ -301,7 +264,7 @@ namespace TD
 		glm::vec3 normal = -test[Minindex];
 		const glm::vec3 NormalRayEnd = Point + (normal * 100);
 		const glm::vec3 FurtherestExtent = ABox->ClosestPoint(NormalRayEnd);
-		float depth = 1.0f-glm::length(FurtherestExtent - Point);
+		float depth = 1.0f - glm::length(FurtherestExtent - Point);
 		//TDPhysics::DrawDebugLine(Point, Point + normal * 2, glm::vec3(1, 1, 1), 0.0f);
 		contactbuffer->Contact(Point, normal, depth);//todo: depth is not right here
 		return true;//No axis are separate so intersection is present
@@ -346,7 +309,7 @@ namespace TD
 		{
 			if (t <= Ray->Distance)
 			{
-				Ray->HitData->AddContact(Ray->Origin + Ray->Dir * t, plane->Normal, t,Shape);
+				Ray->HitData->AddContact(Ray->Origin + Ray->Dir * t, plane->Normal, t, Shape);
 				return true;
 			}
 		}
@@ -432,7 +395,7 @@ namespace TD
 			{
 				if (MathUtils::AlmostEqual(t_result, t[i], FLT_EPSILON))
 				{
-					Ray->HitData->AddContact(Ray->Origin + Ray->Dir* t_result, normals[i], t_result,Shape);
+					Ray->HitData->AddContact(Ray->Origin + Ray->Dir* t_result, normals[i], t_result, Shape);
 					return true;
 				}
 			}

@@ -40,7 +40,14 @@ void Log::LogMessage(std::string msg, Severity s)
 		break;
 	}
 	data.append(msg);
-	data.append("\n");
+	if (s == Severity::Progress)
+	{
+		data.append(std::string(msg.length(), '\b'));
+	}
+	else
+	{
+		data.append("\n");
+	}
 	LogOutput(data, s == Severity::Error);
 }
 
@@ -86,7 +93,7 @@ void Log::RenderText(UIManager* Manager, int offset)
 			if (ScreenLogLines[i].LifeTime <= 0.0f)
 			{
 				ScreenLogLines.erase(ScreenLogLines.begin() + i);
-			}			
+			}
 		}
 	}
 }
