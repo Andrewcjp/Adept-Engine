@@ -14,7 +14,7 @@ AISystem::AISystem()
 	mesh = new NavigationManager();
 	BTManager = new BehaviourTreeManager();
 
-	DebugModeVar.SetValue(EAIDebugMode::None);
+	DebugModeVar.SetValue(EAIDebugMode::PathOnly);
 }
 
 AISystem::~AISystem()

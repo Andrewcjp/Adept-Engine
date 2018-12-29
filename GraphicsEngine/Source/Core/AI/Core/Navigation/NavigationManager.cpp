@@ -63,34 +63,40 @@ void NavigationManager::SmoothPath(NavigationPath* path)
 	{
 		return;
 	}
-#if 1
-	const int SamplingFactor = 8;
-	const int Points = 2; 
-	for (int i = 0; i < path->Positions.size() - Points; i += Points + SamplingFactor)
+	const float tollecance = 0.1f;
+	float change = tollecance;
+	const float weight_data = 0.25f;
+	const float weight_smooth = 0.1f;
+	int StartValue = 1;
+	const int SampleSize = 2;//Smooth path without loosing too much definition
+	for (int sec = 0; sec < path->Positions.size() / SampleSize; sec++)
 	{
-#if 1
-		glm::vec3 point1 = GetPointOnBezierCurve(path->Positions[i], path->Positions[i + 1], path->Positions[i + 2], path->Positions[i + 3], 0.2f);
-		glm::vec3 point2 = GetPointOnBezierCurve(path->Positions[i], path->Positions[i + 1], path->Positions[i + 2], path->Positions[i + 3], 0.4f);
-		glm::vec3 point3 = GetPointOnBezierCurve(path->Positions[i], path->Positions[i + 1], path->Positions[i + 2], path->Positions[i + 3], 0.6f);
-		glm::vec3 point4 = GetPointOnBezierCurve(path->Positions[i], path->Positions[i + 1], path->Positions[i + 2], path->Positions[i + 3], 0.8f);
-		path->Positions[i] = point1;
-		path->Positions[i + 1] = point2;
-		path->Positions[i + 2] = point3;
-		path->Positions[i + 3] = point4;
-#else
-		glm::vec3 dir = path->Positions[i] - path->Positions[i + 1];
-		glm::vec3 controlPoint = path->Positions[i] + glm::normalize(dir) * 10;
-		glm::vec3 controlPoint2 = path->Positions[i + 1] - glm::normalize(dir) * 10;
-		for (int s = 0; s < SamplingFactor; s++)
+		if (sec != 0)
 		{
-			const float t = (float)s / (float)SamplingFactor;
-
-			glm::vec3 point1 = GetPointOnBezierCurve(controlPoint, path->Positions[i], path->Positions[i + 1], controlPoint2, t);
-			path->Positions.insert(path->Positions.begin() + i + s / Points, point1);
+			StartValue = sec * SampleSize;
 		}
-#endif
+		while (change >= tollecance)
+		{
+			change = 0.0f;
+			for (int i = StartValue; i < glm::min((int)path->Positions.size() - 2, StartValue + SampleSize); i++)
+			{
+
+				for (int j = 0; j < 3; j++)
+				{
+					float x_i = path->Positions[i][j];
+					float y_i = path->Positions[i][j];
+					float Y_prev = path->Positions[i - 1][j];
+					float Y_next = path->Positions[i + 1][j];
+					float y_i_saved = y_i;
+
+					y_i += weight_data * (x_i - y_i) + weight_smooth * (Y_next + Y_prev - (2 * y_i));
+					path->Positions[i][j] = y_i;
+					change += abs(y_i - y_i_saved);
+				}
+			}
+		}		
+		change = tollecance;
 	}
-#endif
 }
 
 ENavRequestStatus::Type NavigationManager::ValidateRequest(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath)
@@ -130,7 +136,20 @@ ENavRequestStatus::Type NavigationManager::CalculatePath_DSTAR_LTE(glm::vec3 Sta
 	}
 
 	outputPath->Positions.push_back(EndPos);
+	RenderPath(outputPath, glm::vec3(1, 0, 0));
 	SmoothPath(outputPath);
+	RenderPath(outputPath);
+
+	PerfManager::Get()->EndSingleActionTimer(TimerName);
+	PerfManager::Get()->LogSingleActionTimer(TimerName);
+	PerfManager::Get()->FlushSingleActionTimer(TimerName);
+	outputPath->PathReady = true;
+	outputPath->PathComplete = false;
+	return ENavRequestStatus::Complete;
+}
+
+void NavigationManager::RenderPath(NavigationPath * outputPath, glm::vec3 Colour /*= glm::vec3(1)*/)
+{
 	if (AISystem::GetDebugMode() == EAIDebugMode::PathOnly || AISystem::GetDebugMode() == EAIDebugMode::All)
 	{
 		for (int i = 0; i < outputPath->Positions.size(); i++)
@@ -138,17 +157,11 @@ ENavRequestStatus::Type NavigationManager::CalculatePath_DSTAR_LTE(glm::vec3 Sta
 			if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::Get() != nullptr)
 			{
 				const float height = -10.0f;
-				DebugLineDrawer::Get()->AddLine(glm::vec3(outputPath->Positions[i].x, height, outputPath->Positions[i].z),
-					glm::vec3(outputPath->Positions[i + 1].x, height, outputPath->Positions[i + 1].z), glm::vec3(0, 1, 0), 1.0f);
+				DebugLineDrawer::Get()->AddLine(glm::vec3(outputPath->Positions[i].x, outputPath->Positions[i].y, outputPath->Positions[i].z),
+					glm::vec3(outputPath->Positions[i + 1].x, outputPath->Positions[i + 1].y, outputPath->Positions[i + 1].z), Colour, 1.0f);
 			}
 		}
 	}
-	PerfManager::Get()->EndSingleActionTimer(TimerName);
-	PerfManager::Get()->LogSingleActionTimer(TimerName);
-	PerfManager::Get()->FlushSingleActionTimer(TimerName);
-	outputPath->PathReady = true;
-	outputPath->PathComplete = false;
-	return ENavRequestStatus::Complete;
 }
 
 ENavRequestStatus::Type NavigationManager::CalculatePath_ASTAR(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath)
@@ -186,7 +199,7 @@ std::string NavigationManager::GetErrorCodeAsString(ENavRequestStatus::Type t)
 
 void NavigationManager::TickPathFinding()
 {
-	
+
 #if THREAD_PATHFINDING
 
 #else

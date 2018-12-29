@@ -25,7 +25,7 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		SpawnAI(GetSpawnPos() + glm::vec3(0, 20, 3), EAIType::HellKnight);
+		SpawnAI(glm::vec3(0, 20, 0), EAIType::HellKnight);
 		once = true;
 	}
 	CurrentSpawnScore = GetSpawnedScore();
