@@ -132,6 +132,7 @@ ENavRequestStatus::Type NavigationManager::CalculatePath_DSTAR_LTE(glm::vec3 Sta
 	DPathFinder->SetTarget(EndPos, Startpoint);
 	if (!DPathFinder->Execute(outputPath->Positions))
 	{
+		Log::LogMessage("Failed to find path");
 		return ENavRequestStatus::Failed;
 	}
 

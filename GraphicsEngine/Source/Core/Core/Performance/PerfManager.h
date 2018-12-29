@@ -32,6 +32,7 @@ public:
 	CORE_API static long get_nanos();
 	static PerfManager* Instance;
 	CORE_API static PerfManager* Get();
+	static void EndAndLogTimer(std::string name);
 	static void StartPerfManager();
 	static void ShutdownPerfManager();
 	PerfManager();

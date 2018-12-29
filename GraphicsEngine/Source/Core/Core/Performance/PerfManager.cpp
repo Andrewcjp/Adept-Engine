@@ -25,6 +25,13 @@ PerfManager * PerfManager::Get()
 	return Instance;
 }
 
+void PerfManager::EndAndLogTimer(std::string name)
+{
+	PerfManager::Get()->EndSingleActionTimer(name);
+	PerfManager::Get()->LogSingleActionTimer(name);
+	PerfManager::Get()->FlushSingleActionTimer(name);
+}
+
 void PerfManager::StartPerfManager()
 {
 	if (Instance == nullptr)
