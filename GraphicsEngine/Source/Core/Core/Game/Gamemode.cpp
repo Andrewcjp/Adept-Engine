@@ -1,4 +1,6 @@
 #include "Gamemode.h"
+#include "Core/Assets/Scene.h"
+#include "Core/BaseWindow.h"
 #include "Core/Engine.h"
 #include "Game.h"
 #include "UI/GameUI/GameHud.h"
@@ -28,10 +30,36 @@ void GameMode::EndPlay()
 
 void GameMode::Update()
 {
-	Hud->Update();
+	
 }
 
 GameHud * GameMode::GetCurrentHudInstance()
 {
 	return Hud;
+}
+
+bool GameMode::IsGamePaused()
+{
+	return ((BaseWindow*)Engine::Get()->GetRenderWindow())->IsScenePaused();
+}
+
+void GameMode::OnPause()
+{}
+
+void GameMode::OnUnPause()
+{}
+
+void GameMode::AlwaysUpdate()
+{
+	Hud->Update();
+}
+
+void GameMode::SetPauseState(bool state)
+{
+	((BaseWindow*)Engine::Get()->GetRenderWindow())->SetPauseState(state);
+}
+
+void GameMode::RestartLevel()
+{
+	((BaseWindow*)Engine::Get()->GetRenderWindow())->ReLoadCurrentScene();
 }

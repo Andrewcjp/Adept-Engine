@@ -28,7 +28,7 @@ public:
 	void ReportDeviceData();
 	static bool DetectGPUDebugger();
 	//temp To be RHI'D	
-	std::string GetMemory();
+	std::string ReportMemory() override;
 	static void HandleDeviceFailure();
 private:
 	void DestroyContext();

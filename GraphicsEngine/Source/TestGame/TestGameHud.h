@@ -3,6 +3,7 @@
 
 class UILabel;
 class TestGameGameMode;
+class UIButton;
 class TestGameHud : public GameHud
 {
 public:
@@ -10,14 +11,16 @@ public:
 	~TestGameHud();
 
 	virtual void OnStart() override;
-
-
+	void UnPause();
+	void CloseGame();
+	void Restart();
 	virtual void OnUpdate() override;
-
-
 	virtual void OnDestory() override;
 private:
 	UILabel* ammoCounter = nullptr;
 	TestGameGameMode* Mode;
+	UIButton* ResumeBtn = nullptr;
+	UIButton* ExitBtn = nullptr;
+	UIButton* RestartBtn = nullptr;
 };
 

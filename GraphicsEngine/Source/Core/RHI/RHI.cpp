@@ -320,6 +320,11 @@ void RHI::InitialiseContextWindow(int w, int h)
 	GetRHIClass()->InitWindow(w, h);
 }
 
+std::string RHI::ReportMemory()
+{
+	return GetRHIClass()->ReportMemory();
+}
+
 void RHI::RHISwapBuffers()
 {
 	GetRHIClass()->RHISwapBuffers();

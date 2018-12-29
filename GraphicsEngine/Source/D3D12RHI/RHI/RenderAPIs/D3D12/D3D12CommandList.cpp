@@ -441,6 +441,7 @@ void D3D12CommandList::SetScreenBackBufferAsRT()
 		CurrentRenderTarget = nullptr;
 	}
 	ensureMsgf(Device->GetDeviceIndex() == 0, "Only the Primary Device Is allowed to write to the backbuffer");
+	ensure(m_IsOpen);
 	D3D12RHI::Instance->SetScreenRenderTarget(CurrentCommandList);
 	D3D12RHI::Instance->RenderToScreen(CurrentCommandList);
 }

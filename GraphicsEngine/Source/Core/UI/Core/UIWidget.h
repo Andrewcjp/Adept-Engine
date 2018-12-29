@@ -34,8 +34,8 @@ public:
 	int Y;
 	virtual void ProcessKeyDown(UINT_PTR key);
 	void ProcessKeyUp(UINT_PTR);
-	void SetEnabled(bool state);
-	bool GetEnabled()
+	CORE_API void SetEnabled(bool state);
+	CORE_API bool GetEnabled()
 	{
 		return IsActive;
 	}
@@ -48,6 +48,7 @@ public:
 	float XoffsetScale = 0;
 	float YoffsetScale = 0;
 	bool IsPendingKill = false;
+	virtual void OnOwnerSet(UIWidgetContext* wc){};
 protected:
 	float TextDefaultScale = 0.3f;
 	bool IsActive = true;

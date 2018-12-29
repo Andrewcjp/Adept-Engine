@@ -22,5 +22,5 @@ public:
 	virtual bool			MouseRBUp(int x, int y) = 0;
 	virtual bool			MouseMove(int x, int y) = 0;
 	virtual void			ProcessMenu(unsigned short command) = 0;
-
+	virtual void			OnWindowContextLost() = 0;
 };

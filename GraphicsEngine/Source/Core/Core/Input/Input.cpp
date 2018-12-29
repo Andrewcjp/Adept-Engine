@@ -10,6 +10,7 @@ Input* Input::instance = nullptr;
 void Input::Startup()
 {
 	instance = new Input();
+	
 }
 
 void Input::ShutDown()
@@ -28,6 +29,7 @@ void Input::ReciveMouseAxisData(glm::vec2 data)
 Input::Input()
 {
 	UseHighPrecisionMouseInput = false;
+	ProcessInput();
 }
 
 Input::~Input()
@@ -42,7 +44,18 @@ void Input::Clear()
 {
 	KeyMap.clear();
 	MouseWheelUpThisFrame = false;
-	MouseWheelDownThisFrame = false;
+	MouseWheelDownThisFrame = false;	
+	DidJustPause = false;
+}
+
+void Input::ForceClear()
+{
+	Clear();
+	for (int i = 0; i < MAX_MOUSE_BUTTON_COUNT; i++)
+	{
+		instance->MouseKeyData[i] = false;
+	}
+	DidJustPause = true;
 }
 
 bool Input::GetMouseWheelUp()
@@ -61,9 +74,16 @@ void Input::ResetMouse()
 	MouseSampleCount = 0;
 }
 
-void Input::ProcessInput(const float)
+void Input::ProcessInput()
 {
+	bool PreviousValue = IsActiveWindow;
 	IsActiveWindow = PlatformWindow::IsActiveWindow();
+	if (!IsActiveWindow && PreviousValue)
+	{
+#if !_DEBUG
+		Engine::Get()->GetRenderWindow()->OnWindowContextLost();
+#endif
+	}
 	if (UIManager::GetCurrentContext() != nullptr)
 	{
 		return;//block input!
@@ -185,6 +205,10 @@ void Input::LockCursor(bool state)
 
 void Input::ReciveMouseDownMessage(int Button, bool state)
 {
+	if (instance->DidJustPause)
+	{
+		return;
+	}
 	if (instance != nullptr)
 	{
 		if (MAX_MOUSE_BUTTON_COUNT > Button && Button >= 0)

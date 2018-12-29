@@ -31,13 +31,20 @@ void Mesh::Release()
 Mesh::~Mesh()
 {}
 
+void Mesh::Tick(float dt)
+{
+	if (pSkeletalEntity != nullptr)
+	{
+		pSkeletalEntity->Tick(dt);
+	}
+}
+
 void Mesh::Render(RHICommandList * list, bool SetMaterial)
 {
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
 		if (pSkeletalEntity != nullptr && SetMaterial)
-		{
-			pSkeletalEntity->Tick(Engine::GetDeltaTime());
+		{		
 			//todo: integrate into material system
 			list->SetPipelineStateObject(ShaderComplier::GetShader<Shader_SkeletalMesh>());			
 			list->SetTexture(Materials[0]->GetTexturebind(Material::DefuseBindName), 9);

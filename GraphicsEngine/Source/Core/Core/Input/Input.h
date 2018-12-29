@@ -11,6 +11,8 @@ public:
 	CORE_API static Input* Get();
 	void Clear();
 
+	void ForceClear();
+
 	//input processing
 	CORE_API static bool GetKeyDown(int c);
 	CORE_API static bool GetKeyUp(int c);
@@ -19,7 +21,7 @@ public:
 	CORE_API static glm::vec2 GetMouseInputAsAxis();
 	CORE_API static IntPoint GetMousePos();
 
-	void   ProcessInput(const float delatime);
+	void ProcessInput();
 	bool   MouseLBDown(int x, int y);
 	bool   MouseLBUp(int x, int y);
 	bool   MouseMove(int x, int y, double deltatime);
@@ -41,6 +43,7 @@ public:
 	
 	void ResetMouse();
 	int MouseSampleCount = 0;
+	bool DidJustPause = false;
 private:
 
 	static Input* instance;
@@ -50,7 +53,7 @@ private:
 	glm::vec2 MouseAxis;
 	IntPoint MousePosScreen;
 	std::map<int, bool> KeyMap;
-	bool IsActiveWindow = false;
+	bool IsActiveWindow = true;
 	IntPoint CentrePoint;
 	bool MouseKeyData[MAX_MOUSE_BUTTON_COUNT] = { false };
 	bool UseHighPrecisionMouseInput = true;

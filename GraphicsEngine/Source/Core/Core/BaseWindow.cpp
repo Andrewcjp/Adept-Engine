@@ -80,7 +80,7 @@ void BaseWindow::Render()
 	}
 	TextRenderer::instance->Reset();
 	AccumTickTime += DeltaTime;
-	Input::Get()->ProcessInput(DeltaTime);
+	Input::Get()->ProcessInput();
 	AudioEngine::ProcessAudio();
 	if (IsRunning)
 	{
@@ -129,7 +129,7 @@ void BaseWindow::Render()
 	}
 	if (Input::GetKeyDown(VK_F8))
 	{
-		PauseState = !PauseState;
+		SetPauseState(!PauseState);
 	}
 	if (StepOnce)
 	{
@@ -141,16 +141,26 @@ void BaseWindow::Render()
 		PauseState = false;
 		StepOnce = true;
 	}
+#if !WITH_EDITOR
+	if (Input::GetKeyDown(VK_ESCAPE))
+	{
+		SetPauseState(true);
+	}
+#endif
 #endif
 
 	Update();
 #if !WITH_EDITOR
 	if (ShouldTickScene)
 	{
-		Engine::GetGame()->Update();
-		PerfManager::StartTimer("Scene Update");
-		CurrentScene->UpdateScene(DeltaTime);
-		PerfManager::EndTimer("Scene Update");
+		CurrentScene->AlwaysUpdate(DeltaTime);
+		if (!IsScenePaused())
+		{
+			Engine::GetGame()->Update();
+			PerfManager::StartTimer("Scene Update");
+			CurrentScene->UpdateScene(DeltaTime);
+			PerfManager::EndTimer("Scene Update");
+		}
 	}
 #endif
 
@@ -292,6 +302,36 @@ Scene * BaseWindow::GetScene()
 	return Instance->GetCurrentScene();
 }
 
+void BaseWindow::SetPauseState(bool State)
+{
+	PauseState = State;
+	if (PauseState)
+	{
+		Input::SetCursorState(false, true);
+	}
+	else
+	{
+		Input::Get()->ForceClear();
+	}
+}
+
+void BaseWindow::OnWindowContextLost()
+{
+	PauseState = true;
+}
+
+void BaseWindow::ReLoadCurrentScene()
+{
+	CurrentScene->EndScene();
+	Renderer->SetScene(nullptr);
+	SafeDelete(CurrentScene);
+	CurrentScene = new Scene();
+	CurrentScene->LoadExampleScene(nullptr, false);
+	Renderer->SetScene(CurrentScene);
+	Engine::GetGame()->BeginPlay();
+	CurrentScene->StartScene();
+}
+
 Scene * BaseWindow::GetCurrentScene()
 {
 	return CurrentScene;
@@ -302,7 +342,7 @@ void BaseWindow::LoadScene(std::string RelativePath)
 	std::string Startdir = Engine::GetExecutionDir();
 	Startdir.append(RelativePath);
 	Renderer->SetScene(nullptr);
-	delete CurrentScene;
+	SafeDelete(CurrentScene);
 	CurrentScene = new Scene();
 	if (Saver)
 	{
@@ -462,7 +502,11 @@ void BaseWindow::RenderText()
 			PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));
 			PerfManager::Instance->DrawAllStats((int)(m_width / 1.5f), (int)(m_height / 1.2), true);
 		}
-		offset = 2;
+		if (ExtendedPerformanceStats)
+		{
+			UI->RenderTextToScreen(2, RHI::ReportMemory());
+		}
+		offset = 3;
 	}
 	Log::Get()->RenderText(UI, offset);
 }

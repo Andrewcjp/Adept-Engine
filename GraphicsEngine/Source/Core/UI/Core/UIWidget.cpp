@@ -43,6 +43,7 @@ void UIWidget::UpdateScaled()
 void UIWidget::SetOwner(UIWidgetContext * wc)
 {
 	OwningContext = wc;
+	OnOwnerSet(wc);
 }
 void UIWidget::UpdateData()
 {

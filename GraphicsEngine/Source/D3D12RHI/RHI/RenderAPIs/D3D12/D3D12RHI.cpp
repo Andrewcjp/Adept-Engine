@@ -99,7 +99,7 @@ void D3D12RHI::ReportDeviceData()
 	{
 		if (DeviceContexts[i] != nullptr)
 		{
-		//	DeviceContexts[i]->
+			//	DeviceContexts[i]->
 		}
 	}
 }
@@ -125,7 +125,7 @@ void D3D12RHI::DisplayDeviceDebug()
 	//Log::OutS << "Primary Adaptor Has " << GetMemory() << Log::OutS;1
 }
 
-std::string D3D12RHI::GetMemory()
+std::string D3D12RHI::ReportMemory()
 {
 	if (RHI::GetFrameCount() % 60 == 0 || !HasSetup)
 	{
@@ -137,12 +137,10 @@ std::string D3D12RHI::GetMemory()
 			}
 		}
 	}
-	std::string output = GetPrimaryDevice()->GetMemoryReport();
-
-	if (GetSecondaryDevice() != nullptr)
+	std::string output = "";
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
-		output.append(" Sec:");
-		output.append(GetSecondaryDevice()->GetMemoryReport());
+		output.append("GPU" + std::to_string(i) + ": " + DeviceContexts[i]->GetMemoryReport()+" ");
 	}
 	return output;
 }
@@ -212,7 +210,7 @@ void D3D12RHI::LoadPipeLine()
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
-					infoqueue[i]->AddMessage(D3D12_MESSAGE_CATEGORY::D3D12_MESSAGE_CATEGORY_INITIALIZATION, D3D12_MESSAGE_SEVERITY_WARNING,D3D12_MESSAGE_ID::D3D12_MESSAGE_ID_LIVE_SAMPLER, "Init complete");
+					infoqueue[i]->AddMessage(D3D12_MESSAGE_CATEGORY::D3D12_MESSAGE_CATEGORY_INITIALIZATION, D3D12_MESSAGE_SEVERITY_WARNING, D3D12_MESSAGE_ID::D3D12_MESSAGE_ID_LIVE_SAMPLER, "Init complete");
 					infoqueue[i]->Release();
 				}
 			}
@@ -220,6 +218,7 @@ void D3D12RHI::LoadPipeLine()
 	}
 #endif
 	DisplayDeviceDebug();
+	Log::LogMessage(ReportMemory());
 }
 
 void D3D12RHI::HandleDeviceFailure()

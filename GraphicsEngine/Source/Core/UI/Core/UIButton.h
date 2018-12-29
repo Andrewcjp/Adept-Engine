@@ -7,7 +7,7 @@ class UIButton :
 	public UIBox
 {
 public:
-	UIButton(int w, int h, int x = 0, int y = 0);
+	CORE_API UIButton(int w, int h, int x = 0, int y = 0);
 	virtual ~UIButton();
 	void Render()override;
 	UILabel * GetLabel();
@@ -19,11 +19,12 @@ public:
 	{
 		Target = t;
 	}
-	void SetText(std::string t);
+	CORE_API void SetText(std::string t);
 	glm::vec3 NormalColour = glm::vec3(0.5f);
 	glm::vec3 Hovercolour  = glm::vec3(1, 0, 0);
 	glm::vec3 SelectedColour = glm::vec3(0, 0, 0.5f);
 	void SetSelected(bool state);
+	virtual void OnOwnerSet(UIWidgetContext* wc) override;
 private:
 	bool IsActiveSelect = false;
 	bool WasSelected = false;
