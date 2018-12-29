@@ -18,8 +18,11 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 {
 	Log::LogMessage("Started Nav Mesh Generation");
 
-
+	Log::LogMessage("Started Height field creation");
 	PerfManager::Get()->StartSingleActionTimer(VoxeliseTimer);
+	const std::string HeightFieldTimer = "Navigation Mesh HeightField generation";
+	const std::string FilterTimer = "Navigation Mesh Point Filtering";
+	const std::string GenerateMeshTimer = "Navigation Mesh generation";
 	const float worldMin = -10e10f;
 	//Find bounds of Scene
 
@@ -30,7 +33,7 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 	glm::vec3 pos = Field->GetPosition(GridSize / 2, GridSize / 2);
 	//ensure(pos == glm::vec3(0, 0, 0));
 	//Create height field from scene
-
+	PerfManager::Get()->StartSingleActionTimer(HeightFieldTimer);
 	int ValidPointCount = 0;
 	const float distance = 50;
 	for (int x = 0; x < GridSize; x++)
@@ -52,15 +55,60 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 			}
 		}
 	}
+	
+	Log::LogMessage("Height field contains " + std::to_string(ValidPointCount) + " Points");
+	PerfManager::EndAndLogTimer(HeightFieldTimer);
+	Log::LogMessage("Finished Height field creation");
 	//to handle overhangs z partitioning will be used
 	//Process Height Field to NavMesh
 	//Perfect Quad Simplification 
-
-	const int GirdStep = 20;
-	const int QuadSize = 2;//GridSize / GirdStep;
-	for (int x = 0; x < GridSize; x += QuadSize)
+	Log::LogMessage("Started Point Filtering");
+	PerfManager::Get()->StartSingleActionTimer(FilterTimer);
+	for (int i = 10; i > 1; i--)
 	{
-		for (int y = 0; y < GridSize; y += QuadSize)
+		GridFilter(GridSize, Field, worldMin, i);
+	}
+	PerfManager::EndAndLogTimer(FilterTimer);
+	Log::LogMessage("Finished Point Filtering");
+	//slopes will be handled with overall angle delta between point
+	//plane object will take in points and create triangles which will then be simplified down to as few tri as possible
+	PerfManager::Get()->StartSingleActionTimer(GenerateMeshTimer);
+	for (int x = 0; x < GridSize; x++)
+	{
+		for (int y = 0; y < GridSize; y++)
+		{
+			//flood fill?
+			//compute a plane of points near to a level?
+			float PointHeight = Field->GetValue(x, y);
+			if (PointHeight <= worldMin)
+			{
+				continue;
+			}
+			NavPlane* plane = GetPlane(PointHeight, planes);
+			plane->Points.push_back(Field->GetPosition(x, y));
+		}
+	}
+
+	for (int i = 0; i < planes.size(); i++)
+	{
+		if (planes[i]->Points.size() > 20)
+		{
+			Log::LogMessage("Generating mesh with " + std::to_string(planes[i]->Points.size()) + " Points");
+			GenerateMesh(planes[i]);
+		}
+	}
+	PerfManager::EndAndLogTimer(GenerateMeshTimer);
+	PerfManager::EndAndLogTimer(VoxeliseTimer);
+	Log::LogMessage("Finished Nav Mesh Generation");
+}
+
+void NavMeshGenerator::GridFilter(const int GridSize, HeightField* Field, const float worldMin, int QuadSize)
+{
+	const int GirdStep = 1;
+	//const int QuadSize = 5;//GridSize / GirdStep;
+	for (int x = 0; x < GridSize; x += GirdStep)
+	{
+		for (int y = 0; y < GridSize; y += GirdStep)
 		{
 			//check all are same height 
 			//then set to reject height except 4 verts
@@ -83,38 +131,7 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 			}
 		}
 	}
-	std::stringstream ss;
-	ss << "Quad Stage Removed " << RemovedQuadsPoints << "/" << ValidPointCount;
-	Log::LogMessage(ss.str());
-	//slopes will be handled with overall angle delta between point
-	//plane object will take in points and create triangles which will then be simplified down to as few tri as possible
-
-	for (int x = 0; x < GridSize; x++)
-	{
-		for (int y = 0; y < GridSize; y++)
-		{
-			//flood fill?
-			//compute a plane of points near to a level?
-			float PointHeight = Field->GetValue(x, y);
-			if (PointHeight <= worldMin)
-			{
-				continue;
-			}
-			NavPlane* plane = GetPlane(PointHeight, planes);
-			plane->Points.push_back(Field->GetPosition(x, y));
-		}
-	}
-
-	for (int i = 0; i < planes.size(); i++)
-	{
-		if (planes[i]->Points.size() > 20)
-		{
-			GenerateMesh(planes[i]);
-		}
-	}
-	PerfManager::Get()->EndSingleActionTimer(VoxeliseTimer);
-	PerfManager::Get()->LogSingleActionTimer(VoxeliseTimer);
-	PerfManager::Get()->FlushSingleActionTimer(VoxeliseTimer);
+	Log::LogMessage("Quad Stage of size " + std::to_string(QuadSize) + " Removed " + std::to_string(RemovedQuadsPoints) + " Points");
 }
 
 bool NavMeshGenerator::ValidateQuad(const int GirdStep, float FirstHeight, HeightField* Field, glm::ivec2 &offset)
@@ -163,6 +180,7 @@ NavPlane* NavMeshGenerator::GetPlane(float Z, std::vector<NavPlane*>& list)
 
 void NavMeshGenerator::GenerateMesh(NavPlane* target)
 {
+	Log::LogMessage("Triangle Generation start");
 	std::vector<double> Points;
 	int Mod = (int)target->Points.size() % 2;
 	int DropAfter = (int)target->Points.size() - 1 - Mod;
@@ -233,7 +251,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;
 		}
-	//	Log::LogMessage("Pruning Points scene " + std::to_string(i) + "/" + std::to_string(target->Triangles.size()), Log::Severity::Progress);
+		//	Log::LogMessage("Pruning Points scene " + std::to_string(i) + "/" + std::to_string(target->Triangles.size()), Log::Severity::Progress);
 #endif
 	}
 #endif
@@ -246,7 +264,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			const int next = (x + 1) % sides;
 			//DebugDrawers::DrawDebugLine(target->Triangles[i].points[x], target->Triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
 		}
-	}
+		}
 #endif
 	target->BuildNavPoints();
 	target->RemoveDupeNavPoints();
@@ -255,7 +273,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 	ss << "Pruned " << PrunedTris << "/" << TotalTriCount;
 	Log::LogMessage(ss.str());
 	//target->RenderMesh(false);
-}
+	}
 
 void HeightField::SetValue(int x, int y, float value)
 {
@@ -437,7 +455,7 @@ bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
 			CurrentPoint = newdist;
 			*node = triangle->Nodes[i];
 		}
-	}
+			}
 #else
 	float CurrentPoint = MathUtils::FloatMAX;
 	for (int i = 0; i < NavPoints.size(); i++)
@@ -452,7 +470,7 @@ bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
 #endif
 	//the check points
 	return true;
-}
+		}
 
 Tri* NavPlane::FindTriangleFromWorldPos(glm::vec3 worldpos)
 {

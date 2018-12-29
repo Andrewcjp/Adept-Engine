@@ -12,6 +12,9 @@ public:
 	///Takes a Scene (editor or Play) and Fires rays into it to build a Nav mesh 
 	///Needs Physics representations to be loaded and valid.
 	void Voxelise(Scene * TargetScene);
+
+	void GridFilter(const int GridSize, HeightField* Field, const float worldMin, int QuadSize);
+
 	bool ValidateQuad(const int GirdStep, float FirstHeight, HeightField* Field, glm::ivec2 &offset);
 	///\returns the plane at the requested z height. Nullptr if not found.
 	NavPlane* GetPlane(float z);
@@ -29,7 +32,7 @@ private:
 	int TotalTriCount = 0;	
 	const std::string VoxeliseTimer = "Navigation Mesh Voxelise";	
 };
-///Contains a list of distances repersenting the Scene.
+///Contains a list of distances representing the Scene.
 struct HeightField
 {
 	void SetValue(int x, int y, float value);
@@ -66,6 +69,7 @@ public:
 	std::vector<glm::vec3> Points;
 	std::vector<Tri> Triangles;
 	float ZHeight = 0.0f;
+	
 private:
 	std::vector<DLTENode*> NavPoints;
 
