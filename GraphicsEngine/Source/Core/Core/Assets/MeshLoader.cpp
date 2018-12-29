@@ -209,7 +209,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 			newmesh->MaterialIndex = model->mMaterialIndex;
 		}
 
-		vertices.clear();
+		vertices.clear(); 
 		indices.clear();
 	}
 	if (!scene->HasAnimations())//todo: extract Animations to Smaller and fast format

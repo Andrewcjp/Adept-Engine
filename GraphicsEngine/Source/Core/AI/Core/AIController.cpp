@@ -2,12 +2,13 @@
 #include "AISystem.h"
 #include "Core/Components/RigidbodyComponent.h"
 #include "Core/GameObject.h"
-#include "Core/Platform/PlatformCore.h"
+#include "Core/Platform/ConsoleVariable.h"
 #include "Rendering/Core/DebugLineDrawer.h"
-#include "Core/Utils/DebugDrawers.h"
-
+static ConsoleVariable FreezeAIOption("freezeai", 0, ECVarType::ConsoleAndLaunch);
 AIController::AIController()
-{}
+{
+	FreezeAIOption.SetValue(1);
+}
 
 
 AIController::~AIController()
@@ -49,6 +50,10 @@ glm::vec3 ProjectPosition(glm::vec3 pos)
 
 void AIController::Update(float dt)
 {
+	if (FreezeAIOption.GetBoolValue())
+	{
+		return;
+	}
 	if (!Active)
 	{
 		return;
