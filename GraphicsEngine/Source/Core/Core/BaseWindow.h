@@ -30,6 +30,10 @@ public:
 	bool ExtendedPerformanceStats = false;
 	static Scene* GetScene();
 	bool IsScenePaused() { return PauseState; }
+	void SetPauseState(bool State);
+
+	virtual void OnWindowContextLost() override;
+	void ReLoadCurrentScene();
 protected:
 	virtual Scene* GetCurrentScene();
 	//callbacks

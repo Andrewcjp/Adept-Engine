@@ -5,6 +5,7 @@ UIButton::UIButton(int w, int h, int x, int y) : UIBox(w, h, x, y)
 {
 	Init();
 	Label = new UILabel(Labelstring, 1, 0, x, y);
+	Label->SetOwner(OwningContext);
 	Colour = NormalColour;
 	Priority = 2;//buttons need to draw on top of panels
 }
@@ -41,6 +42,10 @@ void UIButton::MouseMove(int x, int y)
 
 bool UIButton::MouseClick(int x, int y)
 {
+	if (!GetEnabled())
+	{
+		return false;
+	}
 	if (Rect.Contains(x, y))
 	{
 		if (Target)
@@ -78,4 +83,9 @@ void UIButton::SetSelected( bool t)
 	IsActiveSelect = t;
 	Colour = IsActiveSelect ? SelectedColour : NormalColour;
 	UIManager::UpdateBatches();
+}
+
+void UIButton::OnOwnerSet(UIWidgetContext * wc)
+{
+	Label->SetOwner(wc);
 }

@@ -29,7 +29,10 @@ Scene::~Scene()
 	SafeRHIRefRelease(LightingData.DiffuseMap);
 	SafeDelete(CurrentGameMode);
 }
-
+void Scene::AlwaysUpdate(float deltatime)
+{
+	CurrentGameMode->AlwaysUpdate();
+}
 void Scene::UpdateScene(float deltatime)
 {
 	AISystem::Get()->Tick(deltatime);

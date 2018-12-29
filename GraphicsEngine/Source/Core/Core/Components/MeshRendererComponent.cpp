@@ -94,8 +94,13 @@ void MeshRendererComponent::PlayAnim(std::string name)
 void MeshRendererComponent::BeginPlay()
 {}
 
-void MeshRendererComponent::Update(float)
-{}
+void MeshRendererComponent::Update(float dt)
+{
+	if (m_mesh != nullptr)
+	{
+		m_mesh->Tick(dt);
+	}
+}
 
 void MeshRendererComponent::InitComponent()
 {}

@@ -25,6 +25,7 @@ public:
 	Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings);
 
 	RHI_API ~Mesh();
+	void Tick(float dt);
 	void Render(RHICommandList * list, bool SetMaterial = false);
 	void TryPushMaterial(RHICommandList * list, int index);
 	void LoadMeshFromFile(std::string filename, MeshLoader::FMeshLoadingSettings & Settings);

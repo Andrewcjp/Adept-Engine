@@ -34,12 +34,12 @@ public:
 	RHI_API static RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr);
 	RHI_API static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	RHI_API static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
-
+	
 	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
 	RHI_API static DeviceContext* GetDefaultDevice();
 	static void InitialiseContext();
 	static void InitialiseContextWindow(int w, int h);
-	
+	static std::string ReportMemory();
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
 	static void SetFullScreenState(bool state);
@@ -103,6 +103,7 @@ public:
 	RHI_VIRTUAL void ResizeSwapChain(int width, int height) = 0;
 	RHI_VIRTUAL void WaitForGPU() = 0;
 	RHI_VIRTUAL void TriggerBackBufferScreenShot() = 0;
+	RHI_VIRTUAL std::string ReportMemory() = 0;
 };
 
 class RHIModule : public IModuleInterface

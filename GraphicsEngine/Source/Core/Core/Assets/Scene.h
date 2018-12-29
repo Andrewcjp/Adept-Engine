@@ -8,6 +8,7 @@ class Scene
 public:
 	Scene(bool EditScene = false);
 	~Scene();
+	void AlwaysUpdate(float deltatime);
 	void UpdateScene(float deltatime);
 #if WITH_EDITOR
 	void EditorUpdateScene();

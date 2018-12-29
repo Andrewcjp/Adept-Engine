@@ -14,6 +14,7 @@ NavMeshGenerator::~NavMeshGenerator()
 {}
 
 const float PlaneTolerance = 50.0f;
+const float Scale = 0.75f;
 void NavMeshGenerator::Voxelise(Scene* TargetScene)
 {
 	Log::LogMessage("Started Nav Mesh Generation");
@@ -40,7 +41,7 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 	{
 		for (int y = 0; y < GridSize; y++)
 		{
-			glm::vec3 xypos = Field->GetPosition(x, y);
+			glm::vec3 xypos = Field->GetPosition(x, y)*Scale;
 			xypos.y = startHeight;
 			RayHit hiot;
 			if (PhysicsEngine::Get()->RayCastScene(xypos, glm::vec3(0, -1, 0), distance, &hiot))
@@ -55,21 +56,24 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 			}
 		}
 	}
-	
+
 	Log::LogMessage("Height field contains " + std::to_string(ValidPointCount) + " Points");
 	PerfManager::EndAndLogTimer(HeightFieldTimer);
 	Log::LogMessage("Finished Height field creation");
 	//to handle overhangs z partitioning will be used
 	//Process Height Field to NavMesh
 	//Perfect Quad Simplification 
+#if 1
 	Log::LogMessage("Started Point Filtering");
 	PerfManager::Get()->StartSingleActionTimer(FilterTimer);
+
 	for (int i = 10; i > 1; i--)
 	{
 		GridFilter(GridSize, Field, worldMin, i);
 	}
 	PerfManager::EndAndLogTimer(FilterTimer);
 	Log::LogMessage("Finished Point Filtering");
+#endif
 	//slopes will be handled with overall angle delta between point
 	//plane object will take in points and create triangles which will then be simplified down to as few tri as possible
 	PerfManager::Get()->StartSingleActionTimer(GenerateMeshTimer);
@@ -85,7 +89,10 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 				continue;
 			}
 			NavPlane* plane = GetPlane(PointHeight, planes);
-			plane->Points.push_back(Field->GetPosition(x, y));
+			glm::vec3 point = Field->GetPosition(x, y);
+			point.x *= Scale;
+			point.z *= Scale;
+			plane->Points.push_back(point);
 		}
 	}
 
@@ -191,36 +198,18 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 			continue;
 		}
 		Points.push_back(target->Points[i].x);
-		//Points.push_back(startHeight - target->Points[i].y);
 		Points.push_back(target->Points[i].z);
 	}
-
-	//ensure(Points.size() % 3 == 0);
 	delaunator::Delaunator d(Points);
-
 	for (std::size_t i = 0; i < d.triangles.size(); i += 3)
 	{
 		Tri newrti;
-#if 0
-		newrti.points[0] = (glm::vec3(d.coords[2 * d.triangles[i]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i] + 1]));
-		newrti.points[1] = (glm::vec3(d.coords[2 * d.triangles[i + 1]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i + 1] + 1]));
-		newrti.points[2] = (glm::vec3(d.coords[2 * d.triangles[i + 2]], startHeight + target->ZHeight, d.coords[2 * d.triangles[i + 2] + 1]));
-#else
 		newrti.points[0] = (glm::vec3(d.coords[2 * d.triangles[i]], startHeight - target->Points[d.triangles[i]].y, d.coords[2 * d.triangles[i] + 1]));
 		newrti.points[1] = (glm::vec3(d.coords[2 * d.triangles[i + 1]], startHeight - target->Points[d.triangles[i + 1]].y, d.coords[2 * d.triangles[i + 1] + 1]));
 		newrti.points[2] = (glm::vec3(d.coords[2 * d.triangles[i + 2]], startHeight - target->Points[d.triangles[i + 2]].y, d.coords[2 * d.triangles[i + 2] + 1]));
-
-#endif
-		if (false)
-		{
-			std::swap(newrti.points[0].x, newrti.points[0].z);
-			std::swap(newrti.points[1].x, newrti.points[1].z);
-			std::swap(newrti.points[2].x, newrti.points[2].z);
-		}
 		target->Triangles.push_back(newrti);
 	}
-	//the delaunator Can generate triangles that stretch over invalid regions 
-	//so: prune triangles that are invalid
+
 #if 1
 	TotalTriCount = (int)target->Triangles.size();
 	for (int i = (int)target->Triangles.size() - 1; i >= 0; i--)
@@ -233,38 +222,29 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 		avgpos /= 3;
 		RayHit hiot;
 		avgpos.y = startHeight;
-#if 0
-		//DebugDrawers::DrawDebugLine(avgpos, avgpos + glm::vec3(0, target->ZHeight, 0), glm::vec3(0, 1, 0), false, 100);
-		const bool CastHit = PhysicsEngine::Get()->RayCastScene(avgpos, glm::vec3(0, -1, 0), 50, &hiot);
-		if (!CastHit || !MathUtils::AlmostEqual(hiot.Distance, -target->ZHeight, 5.0f))
-		{
-			target->Triangles.erase(target->Triangles.begin() + i);
-			PrunedTris++;
-		}
-#else
+
 		glm::vec3 dir = glm::cross(target->Triangles[i].points[1] - target->Triangles[i].points[0], target->Triangles[i].points[2] - target->Triangles[i].points[0]);
 		glm::vec3 norm = glm::normalize(dir);
 
 		float angle = glm::dot(norm, glm::vec3(0, 1, 0));
-		if (angle < 0.7f)//remove tris that are angled wrong
+		if (angle < 0.7f)//remove triangles that are angled wrong
 		{
 			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;
+			continue;
 		}
-		//	Log::LogMessage("Pruning Points scene " + std::to_string(i) + "/" + std::to_string(target->Triangles.size()), Log::Severity::Progress);
+#if 1
+		//the delaunator Can generate triangles that stretch over invalid regions 
+		//so: prune triangles that are invalid
+		const bool CastHit = PhysicsEngine::Get()->RayCastScene(avgpos, glm::vec3(0, -1, 0), 50, &hiot);
+		if (!CastHit || !MathUtils::AlmostEqual(hiot.Distance, -target->ZHeight, PlaneTolerance))
+		{
+			target->Triangles.erase(target->Triangles.begin() + i);
+			PrunedTris++;
+
+		}
 #endif
 	}
-#endif
-#if 0
-	for (int i = 0; i < target->Triangles.size(); i++)
-	{
-		const int sides = 3;
-		for (int x = 0; x < sides; x++)
-		{
-			const int next = (x + 1) % sides;
-			//DebugDrawers::DrawDebugLine(target->Triangles[i].points[x], target->Triangles[i].points[next], -glm::vec3(target->ZHeight / startHeight), false, 1000);
-		}
-		}
 #endif
 	target->BuildNavPoints();
 	target->RemoveDupeNavPoints();
@@ -273,7 +253,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 	ss << "Pruned " << PrunedTris << "/" << TotalTriCount;
 	Log::LogMessage(ss.str());
 	//target->RenderMesh(false);
-	}
+}
 
 void HeightField::SetValue(int x, int y, float value)
 {
@@ -455,7 +435,7 @@ bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
 			CurrentPoint = newdist;
 			*node = triangle->Nodes[i];
 		}
-			}
+	}
 #else
 	float CurrentPoint = MathUtils::FloatMAX;
 	for (int i = 0; i < NavPoints.size(); i++)
@@ -470,7 +450,7 @@ bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
 #endif
 	//the check points
 	return true;
-		}
+	}
 
 Tri* NavPlane::FindTriangleFromWorldPos(glm::vec3 worldpos)
 {

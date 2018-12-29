@@ -175,7 +175,7 @@ void UIWidgetContext::MouseMove(int x, int y)
 
 void UIWidgetContext::MouseClick(int x, int y)
 {
-	for (int i = (int)widgets.size() - 1; i >= 0; i--)
+	for (int i = 0; i < widgets.size(); i++)
 	{
 		if (!widgets[i]->IsPendingKill)
 		{
