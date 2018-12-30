@@ -338,6 +338,10 @@ void D3D12Texture::UpdateSRV()
 	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Format = format;
+	if (MaxMip != -1)
+	{
+		MipLevelsReadyNow = 1;
+	}
 	if (CurrentTextureType == ETextureType::Type_CubeMap)
 	{
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;

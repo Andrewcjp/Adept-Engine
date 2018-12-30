@@ -52,7 +52,7 @@ public:
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
 
 private:
-	std::string GetPSOHash(Shader * shader, const RHIPipeRenderTargetDesc & statedesc);
+	std::string GetPSOHash(Shader * shader, const PipeLineState& statedesc);
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList * CurrentCommandList = nullptr;

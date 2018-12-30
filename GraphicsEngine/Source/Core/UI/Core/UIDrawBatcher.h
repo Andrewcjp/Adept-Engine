@@ -23,12 +23,13 @@ public:
 	void ClearVertArray();
 	void CleanUp();
 	glm::ivec2 Offset = glm::ivec2(0);
+	RHICommandList* commandlist = nullptr;
 private:	
 	class Shader_UIBatch* Shader;
 	int UIMin = 300;
 	std::vector<UIVertex> BatchedVerts;
 	RHIBuffer* VertexBuffer = nullptr;
-	RHICommandList* commandlist = nullptr;
+	
 	const int Max_Verts = 10000;
 	int Current_Max_Verts = UIMin;
 };

@@ -15,6 +15,7 @@
 #include "Core/Assets/ImageIO.h"
 #include "Audio/AudioEngine.h"
 #include "AI/Core/AISystem.h"
+#include "UI/Core/UIWidgetContext.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -251,6 +252,11 @@ void BaseWindow::Render()
 		}
 	}
 	PerfManager::NotifyEndOfFrame(true);
+	if (RestartNextFrame)
+	{
+		ReLoadCurrentScene();
+		RestartNextFrame = false;
+	}
 }
 
 bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response)
@@ -320,6 +326,15 @@ void BaseWindow::OnWindowContextLost()
 	PauseState = true;
 }
 
+void BaseWindow::EnqueueRestart()
+{
+	RestartNextFrame = true;
+	for (int i = 0; i < UI->GetContexts().size(); i++)
+	{
+		UI->GetContexts()[i]->DisplayLoadingScreen();
+	}	
+}
+
 void BaseWindow::ReLoadCurrentScene()
 {
 	CurrentScene->EndScene();
@@ -330,6 +345,10 @@ void BaseWindow::ReLoadCurrentScene()
 	Renderer->SetScene(CurrentScene);
 	Engine::GetGame()->BeginPlay();
 	CurrentScene->StartScene();
+	for (int i = 0; i < UI->GetContexts().size(); i++)
+	{
+		UI->GetContexts()[i]->HideScreen();
+	}
 }
 
 Scene * BaseWindow::GetCurrentScene()

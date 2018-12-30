@@ -262,12 +262,17 @@ struct RHI_API RHIPipeRenderTargetDesc
 	eTEXTURE_FORMAT DSVFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
 	int NumRenderTargets = 0;
 };
-
+enum TMP_BlendMode
+{
+	Text,
+	Full
+};
 struct RHI_API PipeLineState
 {
 	bool DepthTest = true;
 	bool Cull = true;
 	bool Blending = false;
+	TMP_BlendMode Mode = Text;
 	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
 	bool DepthWrite = true;

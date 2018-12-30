@@ -22,5 +22,6 @@ private:
 	UIButton* ResumeBtn = nullptr;
 	UIButton* ExitBtn = nullptr;
 	UIButton* RestartBtn = nullptr;
+	bool LastState = false;
 };
 

@@ -18,6 +18,9 @@ D3D12Shader::D3D12Shader(DeviceContext* Device)
 	{
 		CacheBlobs = false;
 	}
+#if !WITH_EDITOR
+	CacheBlobs = true;
+#endif
 	if (!CacheBlobs)
 	{
 		Log::LogMessage("Shader Cache Disabled",Log::Warning);
@@ -310,8 +313,13 @@ D3D12PiplineShader D3D12Shader::CreatePipelineShader(D3D12PiplineShader &output,
 	{
 		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		psoDesc.BlendState.AlphaToCoverageEnable = true;
-		psoDesc.BlendState.IndependentBlendEnable = FALSE;
-		psoDesc.BlendState.RenderTarget[0].BlendEnable = TRUE;
+		psoDesc.BlendState.IndependentBlendEnable = true;
+		psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
+		if (Depthtest.Mode == Full)
+		{
+			psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
+			psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
+		}
 	}
 	else
 	{

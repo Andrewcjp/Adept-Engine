@@ -33,8 +33,10 @@ public:
 	void SetPauseState(bool State);
 
 	virtual void OnWindowContextLost() override;
-	void ReLoadCurrentScene();
+	void EnqueueRestart();
+	
 protected:
+	void ReLoadCurrentScene();
 	virtual Scene* GetCurrentScene();
 	//callbacks
 	virtual void PostInitWindow(int width, int height) {};
@@ -76,5 +78,6 @@ private:
 	bool LoadText = true;
 	bool Once = true;
 	double AccumTickTime = 0.0f;
+	bool RestartNextFrame = false;
 };
 

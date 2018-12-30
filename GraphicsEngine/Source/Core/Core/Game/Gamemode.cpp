@@ -61,5 +61,5 @@ void GameMode::SetPauseState(bool state)
 
 void GameMode::RestartLevel()
 {
-	((BaseWindow*)Engine::Get()->GetRenderWindow())->ReLoadCurrentScene();
+	((BaseWindow*)Engine::Get()->GetRenderWindow())->EnqueueRestart();
 }

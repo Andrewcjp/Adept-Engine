@@ -19,6 +19,8 @@ public:
 	std::string  TextureName;
 	std::string  TexturePath;
 	ETextureType GetType(){return CurrentTextureType; }
+	int MaxMip = -1;
+	virtual void UpdateSRV() = 0;
 protected:
 	ETextureType CurrentTextureType = ETextureType::Type_2D;
 };

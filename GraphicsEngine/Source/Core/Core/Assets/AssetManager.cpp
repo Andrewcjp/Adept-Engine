@@ -284,11 +284,20 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 #else
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist in the DDC Generating Now" << Log::OutS;
 		//generate one! BC1_UNORM  
-		std::string Args = " " + GetScriptPath();
-		Args.append(settings.GetTypeString());
+		std::string Args = " ";
+		if (settings.ForceMipCount == 1)
+		{
+			Args.append(" -m 1 ");
+		}
+		else
+		{
+			Args.append("-pow2");
+		}
+		Args.append(" -y ");
+		Args.append(" -f "+settings.GetTypeString());
 		Args.append('"' + Fileref.GetFullPathToAsset() + '"' + " ");
-		Args.append(GetDDCPath());
-		PlatformApplication::ExecuteHostScript(GetTextureGenScript(), Args);
+		Log::LogMessage("Start app with " + Args);
+		PlatformApplication::ExecuteHostScript(GetScriptPath() + "Texconv.exe", Args, GetDDCPath(), false);
 		if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath))
 		{
 			Fileref.IsDDC = true;
@@ -374,7 +383,7 @@ std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit, std
 }
 
 std::string TextureImportSettings::GetTypeString()
-{	
+{
 	switch (Compression)
 	{
 	case ECompressionSetting::None:
@@ -383,7 +392,7 @@ std::string TextureImportSettings::GetTypeString()
 	case ECompressionSetting::FP16:
 		return " FP16 ";
 	case ECompressionSetting::BRGA:
-		return " BGRA ";		
+		return " BGRA ";
 	case ECompressionSetting::BC1:
 		return " BC1_UNORM ";
 		break;

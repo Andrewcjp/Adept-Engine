@@ -208,11 +208,12 @@ void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* B
 	IN_CreatePipelineState(shader);
 }
 
-std::string D3D12CommandList::GetPSOHash(Shader* shader, const RHIPipeRenderTargetDesc & statedesc)
+std::string D3D12CommandList::GetPSOHash(Shader * shader, const PipeLineState& statedesc)
 {
 	std::string hash = "";
 	hash += shader->GetName();
-	hash += std::to_string((int)statedesc.RTVFormats[0]);
+	hash += std::to_string((int)statedesc.RenderTargetDesc.RTVFormats[0]);
+	hash += std::to_string(statedesc.Blending);
 	return hash;
 }
 
@@ -223,10 +224,12 @@ void D3D12CommandList::SetPipelineStateObject(Shader * shader, FrameBuffer * Buf
 		ensure(!Buffer->IsPendingKill());
 	}
 	bool IsChanged = false;
-	std::string Hash = GetPSOHash(shader, Currentpipestate.RenderTargetDesc);
+	std::string Hash = GetPSOHash(shader, Currentpipestate);
 	if (Buffer != nullptr)
 	{
-		Hash = GetPSOHash(shader, Buffer->GetPiplineRenderDesc());
+		PipeLineState teststate = Currentpipestate;
+		teststate.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
+		Hash = GetPSOHash(shader, teststate);
 	}
 	if (PSOCache.find(Hash) != PSOCache.end())
 	{
@@ -295,7 +298,7 @@ void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
 	{
 		CreateCommandList();
 	}
-	const std::string Hash = GetPSOHash(shader, Currentpipestate.RenderTargetDesc);
+	const std::string Hash = GetPSOHash(shader, Currentpipestate);
 
 	PSOCache.try_emplace(Hash, CurrentPipelinestate);
 }
@@ -467,7 +470,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 			GPUStateCache::instance->TextureBuffers[slot] = nullptr;
 		}
 		return;
-	}
+	} 
 	else
 	{
 		GPUStateCache::instance->TextureBuffers[slot] = DBuffer;
