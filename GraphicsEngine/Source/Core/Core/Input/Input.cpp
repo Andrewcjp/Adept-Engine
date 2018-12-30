@@ -80,7 +80,7 @@ void Input::ProcessInput()
 	IsActiveWindow = PlatformWindow::IsActiveWindow();
 	if (!IsActiveWindow && PreviousValue)
 	{
-#if !_DEBUG
+#if !_DEBUG && !WITH_EDITOR
 		Engine::Get()->GetRenderWindow()->OnWindowContextLost();
 #endif
 	}
