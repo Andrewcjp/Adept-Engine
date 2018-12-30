@@ -62,6 +62,10 @@ public:
 	void AddWidgetContext(UIWidgetContext*c);
 	void RemoveWidgetContext(UIWidgetContext*c);
 	static UIWidgetContext* GetDefaultContext();
+	std::vector<UIWidgetContext*>& GetContexts()
+	{
+		return Contexts;
+	}
 private:
 	std::vector<UIWidgetContext*> Contexts;
 	UIWidget * DropdownCurrent = nullptr;

@@ -140,7 +140,10 @@ std::string D3D12RHI::ReportMemory()
 	std::string output = "";
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
-		output.append("GPU" + std::to_string(i) + ": " + DeviceContexts[i]->GetMemoryReport()+" ");
+		if (DeviceContexts[i] != nullptr)
+		{
+			output.append("GPU" + std::to_string(i) + ": " + DeviceContexts[i]->GetMemoryReport() + " ");
+		}
 	}
 	return output;
 }

@@ -12,7 +12,7 @@ public:
 	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) {} ;
 	virtual void CreateTextureFromData(void * data, int type, int width, int height, int bits) override;
 	virtual void CreateAsNull() override;
-	void UpdateSRV();	
+	void UpdateSRV() override;	
 	ID3D12Resource* GetResource();
 	int width = 0;
 	int height = 0;

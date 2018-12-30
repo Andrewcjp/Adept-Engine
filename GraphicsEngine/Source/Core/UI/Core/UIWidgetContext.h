@@ -5,6 +5,8 @@ class UIWidget;
 class DebugLineDrawer;
 class UIDrawBatcher;
 class TextRenderer;
+class Shader_TexturedUI;
+class BaseTexture;
 ///Contains all the widgets and drawers for this HUD or editor
 class UIWidgetContext
 {
@@ -37,6 +39,11 @@ public:
 	glm::ivec2 Offset = glm::ivec2(0);
 	void SetEnabled(bool state);
 	bool GetEnabled() const { return Enabled; }
+	CORE_API void DisplayPause();
+	CORE_API void DisplayLoadingScreen();
+	CORE_API void HideScreen();
+	bool ShowQuadPostUI = false;
+	bool ShowQuadpreUI = false;
 private:
 	bool Enabled = true;
 	const float YHeight = 25;
@@ -50,5 +57,8 @@ private:
 	DebugLineDrawer* LineBatcher = nullptr;
 	UIDrawBatcher* DrawBatcher = nullptr;
 	bool RenderStateDirty = true;
+	Shader_TexturedUI* Quad = nullptr;
+	BaseTexture* LoadingTex = nullptr;
+	BaseTexture* PauseTex = nullptr;
 };
 

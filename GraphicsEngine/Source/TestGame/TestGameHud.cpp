@@ -77,6 +77,15 @@ void TestGameHud::OnUpdate()
 		Context->GetLineBatcher()->AddLine(glm::vec3(0, 1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, 1, 0)*Crosshairsize, glm::vec3(1));
 		Context->GetLineBatcher()->AddLine(glm::vec3(0, -1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, -1, 0)*Crosshairsize, glm::vec3(1));
 	}
+	if (gameMode->IsGamePaused() && !LastState)
+	{
+		Context->DisplayPause();
+	}
+	else if(!gameMode->IsGamePaused() && LastState)
+	{
+		Context->HideScreen();
+	}
+	LastState = gameMode->IsGamePaused();
 	ResumeBtn->SetEnabled(gameMode->IsGamePaused());
 	ExitBtn->SetEnabled(gameMode->IsGamePaused());
 	RestartBtn->SetEnabled(gameMode->IsGamePaused());

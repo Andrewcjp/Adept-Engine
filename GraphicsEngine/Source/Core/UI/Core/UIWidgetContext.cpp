@@ -6,11 +6,24 @@
 #include "UIWidget.h"
 #include "Core/Platform/PlatformCore.h"
 #include "UI/UIManager.h"
+#include "Rendering/Shaders/Shader_TexturedUI.h"
+#include "Core/Assets/AssetManager.h"
+#include "RHI/BaseTexture.h"
 UIWidgetContext::UIWidgetContext()
-{}
+{
+	Quad = new Shader_TexturedUI(RHI::GetDefaultDevice());
+	TextureImportSettings set;
+	set.ForceMipCount = 1;
+	PauseTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\PauseScreen.png");
+	LoadingTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\Loading screen.png",set);
+	LoadingTex->MaxMip = 1;
+	LoadingTex->UpdateSRV();
+	Quad->Texture = PauseTex; 
+	//DisplayPause();
+}
 
 UIWidgetContext::~UIWidgetContext()
-{
+{ 
 	SafeDelete(TextRender);
 	SafeDelete(LineBatcher);
 	SafeDelete(DrawBatcher);
@@ -42,6 +55,10 @@ void UIWidgetContext::RenderWidgetText()
 		}
 	}
 	TextRender->Finish();
+	if (ShowQuadPostUI)
+	{
+		Quad->Render();
+	}
 }
 
 void UIWidgetContext::RemoveWidget(UIWidget* widget)
@@ -143,6 +160,10 @@ void UIWidgetContext::RenderWidgets()
 		UpdateBatches();
 		RenderStateDirty = false;
 	}
+	if (ShowQuadpreUI)
+	{
+		Quad->Render();
+	}
 	//todo: move to not run every frame?
 	DrawBatcher->RenderBatches();
 
@@ -155,6 +176,7 @@ void UIWidgetContext::RenderWidgets()
 	PerfManager::EndTimer("Line");
 #endif
 	//todo: GC?
+
 }
 
 void UIWidgetContext::MarkRenderStateDirty()
@@ -230,4 +252,26 @@ void UIWidgetContext::SetEnabled(bool state)
 {
 	Enabled = state;
 	UpdateBatches();
+}
+
+void UIWidgetContext::DisplayPause()
+{
+	HideScreen();
+	ShowQuadpreUI = true;
+	Quad->Texture = PauseTex;
+	Quad->blend = true;
+}
+
+void UIWidgetContext::DisplayLoadingScreen()
+{
+	HideScreen();
+	ShowQuadPostUI = true;
+	Quad->Texture = LoadingTex;
+	Quad->blend = false;
+}
+
+void UIWidgetContext::HideScreen()
+{
+	ShowQuadPostUI = false;
+	ShowQuadpreUI = false;
 }

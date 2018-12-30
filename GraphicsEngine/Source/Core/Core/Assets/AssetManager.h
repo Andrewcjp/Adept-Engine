@@ -40,6 +40,7 @@ struct TextureImportSettings
 	ECompressionSetting::Type Compression = ECompressionSetting::BRGA;
 	bool DirectLoad = false;
 	std::string GetTypeString();
+	int ForceMipCount = -1;
 };
 class AssetManager
 {
