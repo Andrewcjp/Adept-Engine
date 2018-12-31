@@ -17,12 +17,18 @@ BT_PossessedSoldier::~BT_PossessedSoldier()
 void BT_PossessedSoldier::SetupTree()
 {
 	BTValue* obj = Blackboard->AddValue(EBTBBValueType::Object);
+	BTValue* RayCheckValid = Blackboard->AddValue(EBTBBValueType::Integer);
 	BTValue* Distance = Blackboard->AddValue(EBTBBValueType::Float);
 	RootNode->ReturnOnFailure = false;
-	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
+	BTSelectorNode* selector = nullptr;
+	//Firstly try melee
+
+	//secondly Shoot the Player if Can be seen (RayCheckValid)
+	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 50));
 	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::GreaterThan, 10));
-	selector->AddService(new Service_PlayerCheck(obj, Distance));
+	selector->AddDecorator(new BaseDecorator(RayCheckValid, EDecoratorTestType::GreaterThanEqual, 1));
+	selector->AddService(new Service_PlayerCheck(obj, Distance, RayCheckValid));
 	selector->AddChildNode<BTRifleAttackNode>(new BTRifleAttackNode(obj));
 	selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.4f));
 
@@ -32,7 +38,7 @@ void BT_PossessedSoldier::SetupTree()
 	selector->AddChildNode<BTRifleAttackNode>(new BTMeleeAttackNode());
 #endif
 
-	//sub node
+	//Thirdly  Out of range move to the player
 	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(obj, EDecoratorTestType::NotNull));
 	selector->AddService(new Service_PlayerCheck(obj));

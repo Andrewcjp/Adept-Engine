@@ -25,7 +25,7 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		SpawnAI(glm::vec3(0, 20, 0), EAIType::HellKnight);
+		SpawnAI(glm::vec3(0, 20, 0), EAIType::PossessedSoldier);
 		once = true;
 	}
 	CurrentSpawnScore = GetSpawnedScore();
@@ -180,15 +180,28 @@ GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 {
 	GameObject* NewPossessed = CreateAI(pos, 4.0f);
 	NewPossessed->SetName("Possessed Soldier");
-	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
-
+	
+	GameObject* MeshC = new GameObject();
+	MeshC->SetParent(NewPossessed);
+	MeshC->GetTransform()->SetLocalPosition(glm::vec3(0, -1.5, 0));
 	Material* mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	NewPossessed->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Model test.obj"), mat));
-	NewPossessed->GetTransform()->SetScale(glm::vec3(1, 1, 1));
+	MeshLoader::FMeshLoadingSettings AnimSetting;
+	AnimSetting.FlipUVs = true;
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Possessed\\vanguard_diffuse.png"));
+	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Possessed\\Rifle Walk.fbx", AnimSetting), mat));
+	mrc->LoadAnimation("Possessed\\Rifle Walk.fbx", "Attack");
+	mrc->LoadAnimation("Possessed\\Idle Aiming.fbx", "Idle");
+	mrc->LoadAnimation("Possessed\\Rifle Walk.fbx", "Walking");
+	mrc->LoadAnimation("Possessed\\Dying.fbx", "Death");
+	mrc->PlayAnim("Idle");
+	MeshC->GetTransform()->SetScale(glm::vec3(0.015f));
+	scene->AddGameobjectToScene(MeshC);
 	GameObject* WeaponBone = new GameObject();
+	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
 	t->MainWeapon = WeaponBone->AttachComponent(new Weapon(Weapon::AIRifle, scene, nullptr, WeaponBone));
 	WeaponBone->SetParent(NewPossessed);
+	WeaponBone->GetTransform()->SetLocalPosition(glm::vec3(0, 3, 0));
+	WeaponBone->GetTransform()->SetScale(glm::vec3(0.5));
 	scene->AddGameobjectToScene(WeaponBone);
 	return NewPossessed;
 }

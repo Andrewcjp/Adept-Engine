@@ -31,10 +31,12 @@ namespace EBodyType
 		Limit
 	};
 }
+class GameObject;
 typedef struct _RayHit
 {
 	glm::vec3 position = glm::vec3();
 	RigidBody* HitBody = nullptr;
+	GameObject* HitObject = nullptr;
 	bool StartInside = false;
 	float Distance = 0.0f;
 	glm::vec3 Normal = glm::vec3();
