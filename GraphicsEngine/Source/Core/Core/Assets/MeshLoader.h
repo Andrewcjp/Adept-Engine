@@ -42,6 +42,7 @@ public:
 		void Serialize(Archive* A);
 		std::vector<std::string> IgnoredMeshObjectNames;
 		AnimationClip AnimSettings;
+		bool AllowInstanceing = false;//Temp
 	};
 	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name,FMeshLoadingSettings& Settings);
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);

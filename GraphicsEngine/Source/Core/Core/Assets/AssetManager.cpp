@@ -55,15 +55,6 @@ const std::string AssetManager::GetDDCPath()
 	return "";
 }
 
-const std::string AssetManager::GetTextureGenScript()
-{
-	if (instance != nullptr)
-	{
-		return instance->TextureGenScriptPath;
-	}
-	return "";
-}
-
 const std::string AssetManager::GetScriptPath()
 {
 	if (instance != nullptr)
@@ -123,12 +114,7 @@ void AssetManager::SetupPaths()
 		PlatformApplication::DisplayMessageBox("Error", "No Shader Dir");
 		Engine::RequestExit(-1);
 	}
-	TextureGenScriptPath = RootDir + "\\Scripts\\ConvertToDDS.bat";
 	ScriptDirPath = RootDir + "\\Scripts\\";
-	if (!FileUtils::File_ExistsTest(TextureGenScriptPath))
-	{
-		PlatformApplication::DisplayMessageBox("Error", "Texture Get Script Missing");
-	}
 #endif
 }
 

@@ -76,7 +76,6 @@ public:
 	CORE_API static const std::string GetContentPath();
 	CORE_API static const std::string GetDDCPath();
 	CORE_API static const std::string GetScriptPath();
-	CORE_API static const std::string GetTextureGenScript();
 	CORE_API static const std::string GetRootDir();
 	CORE_API static const std::string GetGeneratedDir();
 	CORE_API static const std::string DirectGetGeneratedDir();
@@ -107,7 +106,6 @@ private:
 	std::string ContentDirPath = "";
 	std::string ShaderDirPath = "";
 	std::string DDCDirPath = "";
-	std::string TextureGenScriptPath = "";
 	std::string ScriptDirPath = "";
 	std::string GeneratedDirPath = "";
 	std::string LoadShaderIncludeFile(std::string name, int limit, std::string Relative = std::string());

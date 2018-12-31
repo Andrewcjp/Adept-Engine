@@ -7,7 +7,7 @@
 static ConsoleVariable FreezeAIOption("freezeai", 0, ECVarType::ConsoleAndLaunch);
 AIController::AIController()
 {
-	FreezeAIOption.SetValue(1);
+	FreezeAIOption.SetValue(0);
 }
 
 

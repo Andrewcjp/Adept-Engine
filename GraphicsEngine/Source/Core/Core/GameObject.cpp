@@ -40,10 +40,7 @@ void GameObject::ValidateObjectInWorld()
 GameObject::~GameObject()
 {
 	AudioEngine::DeRegisterObject(this);
-	for (int i = 0; i < m_Components.size(); i++)
-	{
-		SafeDelete(m_Components[i]);
-	}
+	MemoryUtils::DeleteVector(m_Components);
 	SafeDelete(m_transform);
 }
 
@@ -91,6 +88,10 @@ void GameObject::Destory()
 	if (GetScene() && !IsDead)
 	{
 		GetScene()->RemoveGameObject(this);
+		for (int i = 0; i < Children.size(); i++)
+		{
+			Children[i]->Destory();
+		}
 		IsDead = true;
 	}
 }

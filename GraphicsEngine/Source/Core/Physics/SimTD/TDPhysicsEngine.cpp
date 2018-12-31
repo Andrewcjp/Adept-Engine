@@ -11,6 +11,7 @@
 #include "TDSupport.h"
 #include "TD_ConstraintInstance.h"
 #include "../Physics_fwd.h"
+#include "../GenericRigidBody.h"
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::InitPhysics()
 {
@@ -122,6 +123,7 @@ bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, floa
 		outhit->Normal = data.Points[0].Normal;
 		outhit->position = data.Points[0].Point;
 		outhit->HitBody = ((Collider*)data.Points[0].Shape->UserData)->GetOwner();
+		outhit->HitObject = outhit->HitBody->GetOwnerComponent()->GetOwner();
 		return true;
 	}
 	return false;

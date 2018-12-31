@@ -178,7 +178,7 @@ void TestPlayer::TickAudio()
 	if (vel >= 5.0f)
 	{
 		float pc = vel / 40;
-		Log::LogTextToScreen("PC:" + std::to_string(pc));
+		//Log::LogTextToScreen("PC:" + std::to_string(pc));
 		CurrnetTime = glm::clamp(0.35f *1.0f - pc, 0.25f, 1.0f);
 		AudioEngine::PostEvent("Step", GetOwner());
 	}

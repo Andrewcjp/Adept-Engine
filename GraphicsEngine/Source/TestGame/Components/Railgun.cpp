@@ -1,9 +1,5 @@
-#include "Source/TestGame/TestGamePCH.h"
 #include "Railgun.h"
 #include "TestPlayer.h"
-#include "Weapon.h"
-#include "Core/Components/RigidbodyComponent.h"
-#include "Physics/SimTD/TDRigidBody.h"
 
 Railgun::Railgun(Scene* scene, TestPlayer* cameraobj) :Weapon(Weapon::RailGun, scene, cameraobj)
 {}

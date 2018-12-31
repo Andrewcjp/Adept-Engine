@@ -19,7 +19,6 @@ UIWidgetContext::UIWidgetContext()
 	LoadingTex->MaxMip = 1;
 	LoadingTex->UpdateSRV();
 	Quad->Texture = PauseTex; 
-	//DisplayPause();
 }
 
 UIWidgetContext::~UIWidgetContext()
