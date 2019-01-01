@@ -15,6 +15,7 @@
 #include "Core/Components/Core_Components_inc.h"
 #include "Physics/GenericConstraint.h"
 #include "Audio/AudioEngine.h"
+#include "TestGameHud.h"
 
 TestGameGameMode::TestGameGameMode()
 {}
@@ -100,6 +101,14 @@ void TestGameGameMode::Update()
 	GameMode::Update();
 }
 
+void TestGameGameMode::OnPlayerDeath()
+{
+	GetPlayer()->Destory();
+	TestGameHud* Tghud = (TestGameHud*)Hud;
+	Tghud->ShowRestart();
+	
+}
+
 void TestGameGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 {
 	GameObject* go = new GameObject("Player Test");
@@ -117,7 +126,7 @@ void TestGameGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	Health* H = go->AttachComponent(new Health());
-	H->Damageable = false;
+	H->BindDeathCallback(std::bind(&TestGameGameMode::OnPlayerDeath,this));
 	TestPlayer* player = go->AttachComponent(new TestPlayer());
 	BodyInstanceData lock;
 	lock.LockXRot = true;

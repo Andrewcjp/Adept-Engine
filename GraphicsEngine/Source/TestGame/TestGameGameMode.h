@@ -9,6 +9,7 @@ public:
 	void SpawnSKull(glm::vec3 Position);
 	virtual void EndPlay();
 	virtual void Update();
+	void OnPlayerDeath();
 	GameObject* GetPlayer() { return MPlayer.Get(); };
 	void SpawnPlayer(glm::vec3 Pos, Scene* scene);
 private:
