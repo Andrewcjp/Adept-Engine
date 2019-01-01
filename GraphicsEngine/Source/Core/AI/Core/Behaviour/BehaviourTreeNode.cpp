@@ -81,11 +81,11 @@ BTMoveToNode::BTMoveToNode(BTValue * GoalPos)
 EBTNodeReturn::Type BTMoveToNode::ExecuteNode()
 {
 	BehaviourTreeNode::ExecuteNode();
-	if (ParentTree->Target == nullptr)
+	if (ParentTree->AIGameObject == nullptr)
 	{
 		return EBTNodeReturn::Failure;
 	}
-	AIController* controller = ParentTree->Target->GetComponent<AIController>();
+	AIController* controller = ParentTree->AIGameObject->GetComponent<AIController>();
 
 	if (BBValues[0]->ValueType == EBTBBValueType::Object)
 	{

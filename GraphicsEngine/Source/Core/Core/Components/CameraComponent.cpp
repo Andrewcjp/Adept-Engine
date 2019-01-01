@@ -13,7 +13,12 @@ CameraComponent::CameraComponent()
 void CameraComponent::InitComponent()
 {
 	MCamera = new Camera(GetOwner()->GetTransform()->GetPos(), 75.0f, 1.77f, 0.1f, 1000.0f);
-
+#if 0
+	MCamera->SetUpAndForward(GetOwner()->GetTransform()->GetForward(), glm::vec3(0, 1, 0));
+#else
+	MCamera->SetPos(glm::vec3(0, 2, 20));
+	MCamera->SetUpAndForward(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+#endif
 }
 void CameraComponent::SceneInitComponent()
 {
@@ -23,14 +28,13 @@ CameraComponent::~CameraComponent()
 {
 
 	GetOwner()->GetScene()->RemoveCamera(MCamera);
-	delete MCamera;
+	SafeDelete(MCamera);
 }
 
 void CameraComponent::BeginPlay()
-{
-}
+{}
 
-void CameraComponent::Update(float )
+void CameraComponent::Update(float)
 {
 	if (MCamera != nullptr)
 	{

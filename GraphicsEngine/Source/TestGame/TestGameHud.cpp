@@ -9,10 +9,13 @@
 #include "Components/TestPlayer.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "UI/Core/UIButton.h"
+#include "Components/Health.h"
 
 
 TestGameHud::TestGameHud()
-{}
+{
+
+}
 
 
 TestGameHud::~TestGameHud()
@@ -46,10 +49,12 @@ void TestGameHud::OnStart()
 	ExitBtn->SetText("Quit");
 	Context->AddWidget(ExitBtn);
 }
+
 void TestGameHud::UnPause()
 {
 	gameMode->SetPauseState(false);
 }
+
 void TestGameHud::CloseGame()
 {
 	Engine::RequestExit(0);
@@ -65,30 +70,44 @@ void TestGameHud::OnUpdate()
 	if (Mode->GetPlayer() != nullptr)
 	{
 		TestPlayer* player = Mode->GetPlayer()->GetComponent<TestPlayer>();
+		ammoCounter->SetEnabled(true);
 		if (player != nullptr)
 		{
 			ammoCounter->SetText(player->GetInfoString());
 		}
 		const float Crosshairsize = 30.0f;
 		const float CentreExclude = 7.0f;
-		glm::vec3 ScreenCentre = glm::vec3(Context->Offset, 0) + glm::vec3(Context->GetWidth() / 2, Context->GetHeight() / 2, 0);
-		Context->GetLineBatcher()->AddLine(glm::vec3(1, 0, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(1, 0, 0) * Crosshairsize, glm::vec3(1));
-		Context->GetLineBatcher()->AddLine(glm::vec3(-1, 0, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(-1, 0, 0) * Crosshairsize, glm::vec3(1));
-		Context->GetLineBatcher()->AddLine(glm::vec3(0, 1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, 1, 0)*Crosshairsize, glm::vec3(1));
-		Context->GetLineBatcher()->AddLine(glm::vec3(0, -1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, -1, 0)*Crosshairsize, glm::vec3(1));
+		if (!gameMode->IsGamePaused())
+		{
+			const glm::vec3 ScreenCentre = glm::vec3(Context->Offset, 0) + glm::vec3(Context->GetWidth() / 2, Context->GetHeight() / 2, 0);
+			Context->GetLineBatcher()->AddLine(glm::vec3(1, 0, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(1, 0, 0) * Crosshairsize, glm::vec3(1));
+			Context->GetLineBatcher()->AddLine(glm::vec3(-1, 0, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(-1, 0, 0) * Crosshairsize, glm::vec3(1));
+			Context->GetLineBatcher()->AddLine(glm::vec3(0, 1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, 1, 0)*Crosshairsize, glm::vec3(1));
+			Context->GetLineBatcher()->AddLine(glm::vec3(0, -1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, -1, 0)*Crosshairsize, glm::vec3(1));
+		}
+		if (gameMode->IsGamePaused() && !LastState)
+		{
+			Context->DisplayPause();
+		}
+		else if (!gameMode->IsGamePaused() && LastState)
+		{
+			Context->HideScreen();
+		}
+		LastState = gameMode->IsGamePaused();
+		ResumeBtn->SetEnabled(gameMode->IsGamePaused());
+		ExitBtn->SetEnabled(gameMode->IsGamePaused());
+		RestartBtn->SetEnabled(gameMode->IsGamePaused());
 	}
-	if (gameMode->IsGamePaused() && !LastState)
-	{
-		Context->DisplayPause();
-	}
-	else if(!gameMode->IsGamePaused() && LastState)
-	{
-		Context->HideScreen();
-	}
-	LastState = gameMode->IsGamePaused();
-	ResumeBtn->SetEnabled(gameMode->IsGamePaused());
-	ExitBtn->SetEnabled(gameMode->IsGamePaused());
-	RestartBtn->SetEnabled(gameMode->IsGamePaused());
+
+}
+
+void TestGameHud::ShowRestart()
+{
+	ExitBtn->SetEnabled(true);
+	RestartBtn->SetEnabled(true);
+	ammoCounter->SetEnabled(false);
+	Context->DisplayPause();
+	Input::SetCursorState(false, true);
 }
 
 void TestGameHud::OnDestory()

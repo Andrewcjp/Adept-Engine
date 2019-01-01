@@ -45,9 +45,9 @@ void AIBase::SetBrainEnabled(bool state)
 void AIBase::SetupBrain()
 {
 	ensureMsgf(BTTree != nullptr, "AI missing Behaviour Tree");
-	if (BTTree->Target == nullptr)
+	if (BTTree->AIGameObject == nullptr)
 	{
-		BTTree->Target = GetOwner();
+		BTTree->AIGameObject = GetOwner();
 	}
 	AISystem::Get()->GetBTManager()->AddTree(BTTree);
 }

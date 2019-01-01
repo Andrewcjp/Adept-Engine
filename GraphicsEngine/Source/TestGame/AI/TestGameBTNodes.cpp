@@ -11,7 +11,7 @@ BTMeleeAttackNode::BTMeleeAttackNode()
 
 void BTMeleeAttackNode::OnAddedToTree()
 {
-	weapon = ParentTree->Target->GetComponent<MeleeWeapon>();
+	weapon = ParentTree->AIGameObject->GetComponent<MeleeWeapon>();
 }
 
 EBTNodeReturn::Type BTMeleeAttackNode::ExecuteNode()
@@ -20,16 +20,16 @@ EBTNodeReturn::Type BTMeleeAttackNode::ExecuteNode()
 	{
 		weapon->Fire();
 	}
-	if (ParentTree->Target->GetComponent<AIBase>()->GetAnimController())
+	if (ParentTree->AIGameObject->GetComponent<AIBase>()->GetAnimController())
 	{
-		ParentTree->Target->GetComponent<AIBase>()->GetAnimController()->TriggerAttack(1.5f);
+		ParentTree->AIGameObject->GetComponent<AIBase>()->GetAnimController()->TriggerAttack(1.5f);
 	}
 	return EBTNodeReturn::Success;
 }
 
 void BTRifleAttackNode::OnAddedToTree()
 {
-	Controller = ParentTree->Target->GetComponent<B_AIBase>();
+	Controller = ParentTree->AIGameObject->GetComponent<B_AIBase>();
 	Reset();
 }
 
@@ -53,7 +53,7 @@ void BTRifleAttackNode::Run()
 	{
 		RemainingRounds--;
 	}
-	AIController* controller = ParentTree->Target->GetComponent<AIController>();
+	AIController* controller = ParentTree->AIGameObject->GetComponent<AIController>();
 	controller->SetLookAt(Target->GetPosition());
 	controller->LookAtTarget = true;
 }

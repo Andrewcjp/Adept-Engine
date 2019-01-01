@@ -32,9 +32,9 @@ void BehaviourTree::RunTree(float dt)
 	CoolDownTime = UpdateRate;
 	RootNode->HandleExecuteNode();
 
-	if (DebugCurrnetNode != nullptr && Target != nullptr && (AISystem::GetDebugMode() == EAIDebugMode::BT || AISystem::GetDebugMode() == EAIDebugMode::All))
+	if (DebugCurrnetNode != nullptr && AIGameObject != nullptr && (AISystem::GetDebugMode() == EAIDebugMode::BT || AISystem::GetDebugMode() == EAIDebugMode::All))
 	{
-		Log::LogTextToScreen("AI " + Target->GetName() + "Current Node " + DebugCurrnetNode->GetDebugName(), UpdateRate);
+		Log::LogTextToScreen("AI " + AIGameObject->GetName() + "Current Node " + DebugCurrnetNode->GetDebugName(), UpdateRate);
 	}
 }
 

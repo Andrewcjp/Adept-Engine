@@ -15,6 +15,7 @@ public:
 	void CloseGame();
 	void Restart();
 	virtual void OnUpdate() override;
+	void ShowRestart();
 	virtual void OnDestory() override;
 private:
 	UILabel* ammoCounter = nullptr;

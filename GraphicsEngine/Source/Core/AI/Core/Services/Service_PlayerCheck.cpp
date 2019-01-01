@@ -32,7 +32,7 @@ void Service_PlayerCheck::Tick()
 	{
 		if (t != nullptr)
 		{
-			glm::vec3 vec = t->GetPosition() - Owner->Target->GetPosition();
+			glm::vec3 vec = t->GetPosition() - Owner->AIGameObject->GetPosition();
 			DistanceValue->FloatValue = glm::length(vec);
 		}
 		else
@@ -40,22 +40,22 @@ void Service_PlayerCheck::Tick()
 			DistanceValue->FloatValue = MathUtils::FloatMAX;
 		}
 	}
-	if (RayCheckValue != nullptr)
+	if (RayCheckValue != nullptr && t != nullptr)
 	{
-		const glm::vec3 DirToPlayer = glm::normalize(t->GetPosition() - Owner->Target->GetPosition());
+		const glm::vec3 DirToPlayer = glm::normalize(t->GetPosition() - Owner->AIGameObject->GetPosition());
 		RayHit hit;
 		std::vector<RigidBody*> IgnoreActors;
-		if (Owner->Target != nullptr)
+		if (Owner->AIGameObject != nullptr)
 		{
-			RigidbodyComponent* CMP = Owner->Target->GetComponent<RigidbodyComponent>();
+			RigidbodyComponent* CMP = Owner->AIGameObject->GetComponent<RigidbodyComponent>();
 			if (CMP != nullptr)
 			{
 				IgnoreActors.push_back(CMP->GetActor());
 			}
 		}
-		if (Engine::GetPhysEngineInstance()->RayCastScene(Owner->Target->GetPosition(), DirToPlayer, VisionDistance, &hit, IgnoreActors))
+		if (Engine::GetPhysEngineInstance()->RayCastScene(Owner->AIGameObject->GetPosition(), DirToPlayer, VisionDistance, &hit, IgnoreActors))
 		{
-			DebugDrawers::DrawDebugLine(Owner->Target->GetPosition(), Owner->Target->GetPosition() + DirToPlayer * VisionDistance, (hit.HitObject == t) ? glm::vec3(1) :glm::vec3(1,0,0), false, 0.5f);
+			DebugDrawers::DrawDebugLine(Owner->AIGameObject->GetPosition(), Owner->AIGameObject->GetPosition() + DirToPlayer * VisionDistance, (hit.HitObject == t) ? glm::vec3(1) :glm::vec3(1,0,0), false, 0.5f);
 			DebugDrawers::DrawDebugSphere(hit.position, 1.0f, glm::vec3(1),12,false,0.5);
 			RayCheckValue->IntValue = (hit.HitObject == t);
 		}
