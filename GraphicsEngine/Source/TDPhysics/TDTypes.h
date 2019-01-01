@@ -33,6 +33,7 @@ namespace TD
 		Contact Points[MAX_CONTACT_POINTS_COUNT];
 		int Count = 0;
 		void AddContact(glm::vec3 Point, glm::vec3 Normal, float Depth, TDShape* shape);
+		void SortClosest();
 		void Reset();
 
 	};

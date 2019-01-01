@@ -63,7 +63,7 @@ void NavMeshGenerator::Voxelise(Scene* TargetScene)
 	//to handle overhangs z partitioning will be used
 	//Process Height Field to NavMesh
 	//Perfect Quad Simplification 
-#if 1
+#if 0
 	Log::LogMessage("Started Point Filtering");
 	PerfManager::Get()->StartSingleActionTimer(FilterTimer);
 

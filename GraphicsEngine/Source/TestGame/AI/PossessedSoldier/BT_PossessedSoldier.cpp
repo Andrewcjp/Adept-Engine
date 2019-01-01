@@ -36,6 +36,7 @@ void BT_PossessedSoldier::SetupTree()
 	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 3));
 	selector->AddChildNode<BTRifleAttackNode>(new BTMeleeAttackNode());
+	//selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.3f));
 #endif
 
 	//Thirdly  Out of range move to the player

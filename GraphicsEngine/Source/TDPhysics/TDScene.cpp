@@ -104,13 +104,13 @@ namespace TD
 	bool TDScene::RayCastSceneInternal(RayCast* Ray)
 	{
 		//todo: MultiCast 
+		bool DidAnyHit = false;
 		bool Hit = false;
 		for (int i = 0; i < SceneActors.size(); i++)
 		{
 			TDActor* actor = SceneActors[i];
 			if (TDIntersectionHandlers::IntersectAABB(actor->AABB, Ray))
 			{
-				Ray->HitData->Reset();
 				for (int j = 0; j < actor->GetAttachedShapes().size(); j++)
 				{
 					TDShape* currentshape = actor->GetAttachedShapes()[j];
@@ -124,11 +124,15 @@ namespace TD
 					Hit = con(currentshape, Ray);
 					if (Hit && Ray->PostFilter())
 					{
-						return true;
+						DidAnyHit = true;
 					}
 				}
 			}
 		}
-		return false;
+		if (DidAnyHit)
+		{
+			Ray->HitData->SortClosest();
+		}
+		return DidAnyHit;
 	}
 }
