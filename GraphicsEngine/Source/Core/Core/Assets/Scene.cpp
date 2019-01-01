@@ -300,17 +300,17 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 
 	go = new GameObject("spawn");
-	go->GetTransform()->SetPos(glm::vec3(50, 0, -5));
+	go->GetTransform()->SetPos(glm::vec3(30, 5, -5));
 	go->AttachComponent(new SpawnMarker());
 	AddGameobjectToScene(go);
 
 	go = new GameObject("spawn");
-	go->GetTransform()->SetPos(glm::vec3(50, 0, 10));
+	go->GetTransform()->SetPos(glm::vec3(-30, 5, -5));
 	go->AttachComponent(new SpawnMarker());
 	AddGameobjectToScene(go);
 
 	go = new GameObject("spawn");
-	go->GetTransform()->SetPos(glm::vec3(60, 0, -5));
+	go->GetTransform()->SetPos(glm::vec3(6, 0, -5));
 	go->AttachComponent(new SpawnMarker());
 	AddGameobjectToScene(go);
 #if 1
