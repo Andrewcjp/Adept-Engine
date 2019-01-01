@@ -8,6 +8,7 @@
 #include "Core/Engine.h"
 #include "Physics/SimTD/TDPhysicsEngine.h"
 #include "Core/Utils/DebugDrawers.h"
+#include "Core/Components/RigidbodyComponent.h"
 
 
 Service_PlayerCheck::Service_PlayerCheck(BTValue* ValueTarget, BTValue* distanceValue, BTValue* RayCheck)
@@ -43,7 +44,16 @@ void Service_PlayerCheck::Tick()
 	{
 		const glm::vec3 DirToPlayer = glm::normalize(t->GetPosition() - Owner->Target->GetPosition());
 		RayHit hit;
-		if (Engine::GetPhysEngineInstance()->RayCastScene(Owner->Target->GetPosition(), DirToPlayer, VisionDistance, &hit))
+		std::vector<RigidBody*> IgnoreActors;
+		if (Owner->Target != nullptr)
+		{
+			RigidbodyComponent* CMP = Owner->Target->GetComponent<RigidbodyComponent>();
+			if (CMP != nullptr)
+			{
+				IgnoreActors.push_back(CMP->GetActor());
+			}
+		}
+		if (Engine::GetPhysEngineInstance()->RayCastScene(Owner->Target->GetPosition(), DirToPlayer, VisionDistance, &hit, IgnoreActors))
 		{
 			DebugDrawers::DrawDebugLine(Owner->Target->GetPosition(), Owner->Target->GetPosition() + DirToPlayer * VisionDistance, (hit.HitObject == t) ? glm::vec3(1) :glm::vec3(1,0,0), false, 0.5f);
 			DebugDrawers::DrawDebugSphere(hit.position, 1.0f, glm::vec3(1),12,false,0.5);

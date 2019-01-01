@@ -58,7 +58,7 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	GameObject* AiTest = new GameObject();
 	AiTest->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\SpawningPool.obj"), Material::GetDefaultMaterial()));
 	AiTest->AttachComponent(new SpawningPool());
-	AiTest->SetPosition(glm::vec3(35, -9, 10));
+	AiTest->SetPosition(glm::vec3(0, 0, 10));
 	Scene->AddGameobjectToScene(AiTest);
 	//Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
 	//Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);

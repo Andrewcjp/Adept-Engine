@@ -2,6 +2,7 @@
 #include "TDShape.h"
 #include "Utils/MathUtils.h"
 #include "TDQuerryFilter.h"
+#include <algorithm>
 
 TD::TDPhysicalMaterial::TDPhysicalMaterial()
 {
@@ -87,7 +88,7 @@ void TD::ActorCollisionPair::Reset()
 	}
 }
 
-void TD::RaycastData::AddContact(glm::vec3 point, glm::vec3 normal, float depth,TDShape* shape)
+void TD::RaycastData::AddContact(glm::vec3 point, glm::vec3 normal, float depth, TDShape* shape)
 {
 	BlockingHit = true;
 	Points[Count].Distance = depth;
@@ -95,7 +96,19 @@ void TD::RaycastData::AddContact(glm::vec3 point, glm::vec3 normal, float depth,
 	Points[Count].Normal = normal;
 	Points[Count].Shape = shape;
 	Count++;
-	DebugEnsure(Count == 1);
+}
+
+bool FooPred(const TD::Contact& first, const TD::Contact& second)
+{
+	if (first.Distance < second.Distance)
+	{
+		return true;
+	}
+	return false;
+}
+void TD::RaycastData::SortClosest()
+{
+	std::sort(Points, Points + Count, FooPred);
 }
 
 void TD::RaycastData::Reset()

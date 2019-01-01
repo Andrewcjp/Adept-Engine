@@ -5,7 +5,7 @@
 #include "Physics/GenericRigidBody.h"
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
-
+#include "Core/Utils/VectorUtils.h"
 
 TDSupport::TDSupport()
 {}
@@ -89,3 +89,18 @@ void TDSupport::OnTrigger(const ContactPair** Contacts, int numContacts)
 	}
 }
 #endif
+
+bool IgnoreFilter::PreFilter(TD::TDActor* actor, TD::TDShape* Shape, const TD::RayCast* raydata)
+{
+	RigidBody* rb = (RigidBody*)actor->UserData;
+	if (VectorUtils::Contains(IgnoreActors, rb))
+	{
+		return false;
+	}
+	return true;
+}
+
+bool IgnoreFilter::PostFilter(TD::RaycastData* Hit, const TD::RayCast* raydata)
+{
+	return true;
+}

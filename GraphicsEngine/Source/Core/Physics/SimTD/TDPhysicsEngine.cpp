@@ -3,15 +3,16 @@
 #include "Core/GameObject.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/DebugDrawers.h"
+#include "Editor/EditorWindow.h"
 #include "Physics/GenericConstraint.h"
+#include "Physics/GenericRigidBody.h"
+#include "Physics/Physics_fwd.h"
 #include "Shapes/TDPlane.h"
+#include "TD_ConstraintInstance.h"
 #include "TDRigidBody.h"
 #include "TDSimConfig.h"
-#include "Editor/EditorWindow.h"
-#include "TDSupport.h"
-#include "TD_ConstraintInstance.h"
-#include "../Physics_fwd.h"
-#include "../GenericRigidBody.h"
+#include "TDSupport.h" 
+
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::InitPhysics()
 {
@@ -36,7 +37,7 @@ void TDPhysicsEngine::InitPhysics()
 	PerfManager::Get()->AddTimer("ResolveConstraints", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("IntergrateScene", GROUP_PhysicsEngine);
 	PerfManager::Get()->AddTimer("IntersectionTests", GROUP_PhysicsEngine);
-	
+
 }
 ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, const ConstaintSetup& Setup)
 {
@@ -116,7 +117,10 @@ bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, floa
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * outhit, std::vector<RigidBody*>& IgnoredActors)
 {
 	RaycastData data;
-	GetScene()->RayCastScene(startpos, direction, distance, &data);
+	IgnoreFilter* Filter = new IgnoreFilter();
+	Filter->IgnoreActors = IgnoredActors;
+	GetScene()->RayCastScene(startpos, direction, distance, &data, Filter);
+	SafeDelete(Filter);
 	if (data.BlockingHit)
 	{
 		outhit->Distance = data.Points[0].Distance;

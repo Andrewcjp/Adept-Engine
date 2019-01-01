@@ -14,7 +14,7 @@ AISystem::AISystem()
 	mesh = new NavigationManager();
 	BTManager = new BehaviourTreeManager();
 
-	DebugModeVar.SetValue(EAIDebugMode::NavMesh);
+	DebugModeVar.SetValue(EAIDebugMode::PathOnly);
 }
 
 AISystem::~AISystem()
@@ -90,7 +90,7 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 	ENavRequestStatus::Type result = mesh->CalculatePath(Startpoint, EndPos, outpath);
 #else
 	ENavRequestStatus::Type result = ENavRequestStatus::Complete;
-	mesh->EnqueuePathRequest(Startpoint, EndPos, outpath);
+	result = mesh->EnqueuePathRequest(Startpoint, EndPos, outpath);
 #endif
 	if (result != ENavRequestStatus::Complete)
 	{
@@ -101,7 +101,7 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 
 void AISystem::GenerateMesh()
 {
-	//return;
+	return;
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
 	mesh->Plane = n->GetPlane(-17); 

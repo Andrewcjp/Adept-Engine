@@ -20,6 +20,7 @@ namespace TD
 		glm::vec3 Position = glm::vec3(0,0,0);
 		TDActor* Owner = nullptr;
 		bool IsDead = false;
+		bool IsPartOfAcceleration = true;//todo:
 	private:		
 		const float size = 10.0f;
 	};

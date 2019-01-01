@@ -284,7 +284,32 @@ namespace TD
 
 	bool TD::TDIntersectionHandlers::IntersectSphere(InterSectionArgs)
 	{
-		return false;
+		TDSphere* sphere = TDShape::CastShape<TDSphere>(Shape);
+		glm::vec3 e = sphere->GetPos() - Ray->Origin;
+		float rSq = sphere->Radius * sphere->Radius;
+
+		float eSq = glm::length2(e);
+		float a = glm::dot(e, glm::normalize(Ray->Dir));
+		float bSq = /*sqrtf(*/eSq - (a * a)/*)*/;
+		float f = sqrt(fabsf((rSq)- /*(b * b)*/bSq));
+
+		// Assume normal intersection!
+		float t = a - f;
+
+		// No collision has happened
+		if (rSq - (eSq - a * a) < 0.0f)
+		{
+			return false;
+		}
+		// Ray starts inside the sphere
+		else if (eSq < rSq)
+		{
+			// Just reverse direction
+			t = a + f;
+		}
+		const glm::vec3 Point = Ray->Origin + Ray->Dir* t;
+		Ray->HitData->AddContact(Point, Point - sphere->GetPos(), t,Shape);
+		return true;
 	}
 
 	bool TD::TDIntersectionHandlers::IntersectPlane(InterSectionArgs)//TDShape* Shape,Ray
@@ -395,7 +420,10 @@ namespace TD
 			{
 				if (MathUtils::AlmostEqual(t_result, t[i], FLT_EPSILON))
 				{
-					Ray->HitData->AddContact(Ray->Origin + Ray->Dir* t_result, normals[i], t_result, Shape);
+					if (!aabb->IsPartOfAcceleration)//Don't add a Contact if this is a Broadphase or BVH AABB
+					{
+						Ray->HitData->AddContact(Ray->Origin + Ray->Dir* t_result, normals[i], t_result, Shape);
+					}
 					return true;
 				}
 			}
