@@ -17,7 +17,7 @@ void EditorGizmos::UpdateAxis(float amt, Axis axis)
 {
 	if (ModeIndex == CurrentGizmoMode::Translate)
 	{
-		glm::vec3 newpos = target->GetTransform()->GetPos();
+		glm::vec3 newpos = target->GetPosition();
 		switch (axis)
 		{
 		case AxisX:
@@ -78,16 +78,16 @@ void EditorGizmos::Update(float deltatime)
 		{
 			if (Input::GetKey('z'))
 			{
-				UpdateAxis((float)(XStartPos - Input::GetMouseInputAsAxis().x)*Scale);
+				UpdateAxis((float)(XStartPos - Input::GetMousePos().x)*Scale);
 			}
 			else
 			{
-				UpdateAxis((float)(YStartPos - Input::GetMouseInputAsAxis().y)*Scale);
+				UpdateAxis((float)(YStartPos - Input::GetMousePos().y)*Scale);
 			}
 
 		}
-		YStartPos = (int)Input::GetMouseInputAsAxis().y;
-		XStartPos = (int)Input::GetMouseInputAsAxis().x;
+		YStartPos = (int)Input::GetMousePos().y;
+		XStartPos = (int)Input::GetMousePos().x;
 		DidFirst = true;
 	}
 	else

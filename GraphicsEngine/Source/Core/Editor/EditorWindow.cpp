@@ -259,7 +259,7 @@ void EditorWindow::Update()
 	}
 	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking() && IsEditorEjected())
 	{
-		mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
+		//mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
 	}
 }
 IntRect EditorWindow::GetViewPortRect()
