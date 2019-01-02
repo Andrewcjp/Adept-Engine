@@ -67,13 +67,13 @@ void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 		set.IgnoredMeshObjectNames.push_back("R_Bullet");
 		set.IgnoredMeshObjectNames.push_back("R_Sight");
 		set.IgnoredMeshObjectNames.push_back("R_Grip");
-		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Weapons\\Rifle\\Rifle.fbx", set), mat));
+		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Rifle.fbx", set), mat));
 		WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -1, 2.5));
 		WeaponModel->GetTransform()->SetScale(glm::vec3(0.5f));
 	}
 	else if (CurrentWeaponType == WeaponType::ShotGun)
 	{
-
+		//unused!
 	}
 	else if (CurrentWeaponType == WeaponType::RailGun)
 	{
@@ -82,7 +82,7 @@ void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 		set.FlipUVs = true;
 		set.IgnoredMeshObjectNames.push_back("C_Bullet");
 		set.IgnoredMeshObjectNames.push_back("C_Sight");
-		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Weapons\\Heavy\\Heavy.fbx", set), mat));
+		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Heavy.fbx", set), mat));
 		WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -2, 3));//z,y,x
 		WeaponModel->GetTransform()->SetScale(glm::vec3(0.4f));
 	}

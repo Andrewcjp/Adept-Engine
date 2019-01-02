@@ -198,12 +198,13 @@ int AudioEngine::GetNextAudioId()
 	Instance->NextAudioId++;
 	return Instance->NextAudioId;
 }
+
 void AudioEngine::LoadBank(std::string Name)
 {
-	const std::string BankLocation = AssetManager::GetContentPath() + "Banks\\" + Name;
+	const std::string BankLocation = AssetManager::GetContentPath() + "AlwaysCook\\Banks\\" + Name;
 	AkBankID bankID; // Not used. These banks can be unloaded with their file name.
 	AKRESULT eResult = AK::SoundEngine::LoadBank(BankLocation.c_str(), AK_DEFAULT_POOL_ID, bankID);
-	assert(eResult == AK_Success);
+	ensure(eResult == AK_Success);
 }
 
 AkVector ConvertToAK(glm::vec3& value)
