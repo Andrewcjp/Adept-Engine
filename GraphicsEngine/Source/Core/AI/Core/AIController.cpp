@@ -137,11 +137,7 @@ void AIController::ReplanPath()
 {
 	if (AISystem::Get()->mesh != nullptr)
 	{
-		ENavRequestStatus::Type Status = AISystem::Get()->CalculatePath(GetOwner()->GetPosition(), CurrentTarget.GetTargetPos(), &Path);
-		if (Status != ENavRequestStatus::Complete)
-		{
-			Log::LogMessage("Path planning Failed:" + NavigationManager::GetErrorCodeAsString(Status), Log::Severity::Warning);
-		}
+		AISystem::Get()->CalculatePath(GetOwner()->GetPosition(), CurrentTarget.GetTargetPos(), &Path);
 	}
 }
 

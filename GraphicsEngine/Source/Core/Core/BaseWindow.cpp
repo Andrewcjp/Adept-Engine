@@ -44,6 +44,7 @@ void BaseWindow::InitilseWindow()
 {
 	Log::OutS << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
+	MeshLoader::Get();
 	if (RHI::GetRenderSettings()->IsDeferred)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -401,6 +402,7 @@ void BaseWindow::DestroyRenderWindow()
 	CurrentScene->EndScene();
 	SafeDelete(CurrentScene);
 	ImageIO::ShutDown();
+	MeshLoader::ShutDown();
 	Renderer->DestoryRenderWindow();
 	SafeDelete(LineDrawer);
 	SafeDelete(UI);

@@ -19,7 +19,7 @@ MeshRendererComponent::MeshRendererComponent(Mesh* Mesh, Material* materal) :Mes
 
 MeshRendererComponent::~MeshRendererComponent()
 {
-	EnqueueSafeRHIRelease(m_mesh);
+//todo: safe mesh removal
 }
 
 void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)
@@ -69,12 +69,12 @@ void MeshRendererComponent::SetVisiblity(bool state)
 
 void MeshRendererComponent::LoadAnimation(std::string filename, std::string name)
 {
-	LoadAnimation(filename,name, MeshLoader::FMeshLoadingSettings());
+	LoadAnimation(filename, name, MeshLoader::FMeshLoadingSettings());
 }
 
-void MeshRendererComponent::LoadAnimation(std::string filename,std::string name, MeshLoader::FMeshLoadingSettings& Settings)
+void MeshRendererComponent::LoadAnimation(std::string filename, std::string name, MeshLoader::FMeshLoadingSettings& Settings)
 {
-	if (m_mesh == nullptr || m_mesh->GetSkeletalMesh()  == nullptr)
+	if (m_mesh == nullptr || m_mesh->GetSkeletalMesh() == nullptr)
 	{
 		return;
 	}
@@ -107,7 +107,7 @@ void MeshRendererComponent::InitComponent()
 
 void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 {
-	Component::ProcessSerialArchive(A);	
+	Component::ProcessSerialArchive(A);
 	if (A->IsReading())
 	{
 		std::string Assetname;
@@ -116,7 +116,7 @@ void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 		set.Serialize(A);
 		if (!Assetname.empty())
 		{
-			m_mesh = RHI::CreateMesh(Assetname.c_str(),set);
+			m_mesh = RHI::CreateMesh(Assetname.c_str(), set);
 		}
 	}
 	else

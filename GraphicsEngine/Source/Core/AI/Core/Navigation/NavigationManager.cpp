@@ -67,6 +67,7 @@ void NavigationManager::SmoothPath(NavigationPath* path)
 	float change = tollecance;
 	const float weight_data = 0.25f;
 	const float weight_smooth = 0.1f;
+	const int IterationLimit = 30;
 	int StartValue = 1;
 	const int SampleSize = 2;//Smooth path without loosing too much definition
 	for (int sec = 0; sec < path->Positions.size() / SampleSize; sec++)
@@ -75,8 +76,10 @@ void NavigationManager::SmoothPath(NavigationPath* path)
 		{
 			StartValue = sec * SampleSize;
 		}
-		while (change >= tollecance)
+		int CurrnetItor = 0;
+		while (change >= tollecance && CurrnetItor < IterationLimit)
 		{
+			CurrnetItor++;
 			change = 0.0f;
 			for (int i = StartValue; i < glm::min((int)path->Positions.size() - 2, StartValue + SampleSize); i++)
 			{

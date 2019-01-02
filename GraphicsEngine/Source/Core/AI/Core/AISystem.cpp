@@ -86,15 +86,10 @@ EAINavigationMode::Type AISystem::GetPathMode()
 
 ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath)
 {
-#if 0
-	ENavRequestStatus::Type result = mesh->CalculatePath(Startpoint, EndPos, outpath);
-#else
-	ENavRequestStatus::Type result = ENavRequestStatus::Complete;
-	result = mesh->EnqueuePathRequest(Startpoint, EndPos, outpath);
-#endif
+	ENavRequestStatus::Type result = mesh->EnqueuePathRequest(Startpoint, EndPos, outpath);
 	if (result != ENavRequestStatus::Complete)
 	{
-		Log::LogMessage("CalculatePath Failed"+ NavigationManager::GetErrorCodeAsString(result), Log::Severity::Warning);
+		Log::LogMessage("CalculatePath Failure "+ NavigationManager::GetErrorCodeAsString(result), Log::Severity::Warning);
 	}
 	return result;
 }
@@ -104,8 +99,7 @@ void AISystem::GenerateMesh()
 	return;
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
-	mesh->Plane = n->GetPlane(-17); 
-	
+	mesh->Plane = n->GetPlane(-17); 	
 }
 
 EAIDebugMode::Type AISystem::GetDebugMode()

@@ -13,6 +13,7 @@ struct aiNode;
 struct aiAnimation;
 struct aiNodeAnim;
 struct aiAnimation;
+class Mesh;
 ///Represents one animation clip and all its props
 struct AnimationClip
 {
@@ -42,11 +43,19 @@ public:
 		void Serialize(Archive* A);
 		std::vector<std::string> IgnoredMeshObjectNames;
 		AnimationClip AnimSettings;
-		bool AllowInstanceing = false;//Temp
+		bool AllowInstancing = true;//Temp
 	};
 	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name,FMeshLoadingSettings& Settings);
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);
 	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices);
+	Mesh* TryLoadFromCache(std::string Path);
+	static MeshLoader* Get();
+	static void RegisterLoad(std::string path, Mesh* mesh);
+	static void ShutDown();
+	void DestoryMeshes();
+private:
+	static MeshLoader* Instance;
+	std::map<std::string,Mesh*> CreatedMeshes;
 };
 //todo: up to 8 
 #define NUM_BONES_PER_VEREX 4
