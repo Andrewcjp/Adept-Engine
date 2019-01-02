@@ -2,14 +2,12 @@
 #include "Archive.h"
 #include "Core/EngineInc.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Utils/DebugDrawers.h"
 #include "Rendering/Core/Mesh.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include "Core/Utils/VectorUtils.h"
-#include "assimp/anim.h"
-#include "../Utils/DebugDrawers.h"
-
+MeshLoader* MeshLoader::Instance = nullptr;
 
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
@@ -294,6 +292,17 @@ bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSetti
 	}
 	importer.FreeScene();
 	return true;
+}
+
+
+
+MeshLoader* MeshLoader::Get()
+{
+	if (Instance == nullptr)
+	{
+		Instance = new MeshLoader();
+	}
+	return Instance;
 }
 
 SkeletalMeshEntry::SkeletalMeshEntry(aiAnimation* anim)
@@ -614,4 +623,39 @@ void VertexBoneData::AddBoneData(uint BoneID, float Weight)
 
 	// should never get here - more bones than we have space for
 	//assert(0);
+}
+
+void MeshLoader::RegisterLoad(std::string path, Mesh * mesh)
+{
+	Get()->CreatedMeshes.emplace(path, mesh);
+}
+
+void MeshLoader::ShutDown()
+{
+	Instance->DestoryMeshes();
+	SafeDelete(Instance);
+}
+
+void MeshLoader::DestoryMeshes()
+{
+	std::map<std::string, Mesh*>::iterator it;
+	for (it = CreatedMeshes.begin(); it != CreatedMeshes.end(); it++)
+	{
+		EnqueueSafeRHIRelease(it->second);
+	}
+}
+
+Mesh * MeshLoader::TryLoadFromCache(std::string Path)
+{
+	auto Itor =  CreatedMeshes.find(Path);
+	if (Itor != CreatedMeshes.end())
+	{
+		if (Itor->second->GetSkeletalMesh() != nullptr)//execute Copy
+		{
+			return nullptr;
+		}
+		Itor->second->AddRef();
+		return Itor->second;
+	}
+	return nullptr;
 }

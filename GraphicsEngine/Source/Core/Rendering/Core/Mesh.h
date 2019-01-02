@@ -1,11 +1,11 @@
 #pragma once
 #include <iostream>
-
 #include "RenderBaseTypes.h"
 #include "Mesh.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/RHI.h"
 #include "Core/Assets/MeshLoader.h"
+#include "Core/IRefCount.h"
 class Material;
 struct SkeletalMeshEntry;
 struct MeshEntity
@@ -18,7 +18,7 @@ struct MeshEntity
 	int MaterialIndex = 0;
 	int BaseVertex = 0;
 };
-class Mesh :public IRHIResourse
+class Mesh : public IRefCount, public IRHIResourse
 {
 public:
 	RHI_API Mesh();

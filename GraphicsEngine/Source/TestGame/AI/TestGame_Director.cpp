@@ -11,6 +11,7 @@
 #include "SkullChaser.h"
 #include "Source/TestGame/Components/Health.h"
 #include "Source/TestGame/Components/MeleeWeapon.h"
+#include "Core/Performance/PerfManager.h"
 
 TestGame_Director::TestGame_Director()
 {
@@ -106,6 +107,7 @@ void TestGame_Director::NotifySpawningPoolDestruction()
 
 GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 {
+	SCOPE_STARTUP_COUNTER("SpawnAI");
 	GameObject* NewAi = nullptr;
 	switch (type)
 	{
@@ -129,6 +131,7 @@ GameObject* TestGame_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 	{
 		scene->AddGameobjectToScene(NewAi);
 	}
+	PerfManager::EndAndLogTimer("SpawnAI");
 	return NewAi;
 }
 
@@ -187,6 +190,7 @@ GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 	Material* mat = Material::GetDefaultMaterial();
 	MeshLoader::FMeshLoadingSettings AnimSetting;
 	AnimSetting.FlipUVs = true;
+	AnimSetting.AllowInstancing = false;
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Possessed\\vanguard_diffuse.png"));
 	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Possessed\\Rifle Walk.fbx", AnimSetting), mat));
 	mrc->LoadAnimation("Possessed\\Rifle Walk.fbx", "Attack");

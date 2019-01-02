@@ -73,6 +73,7 @@ void TestPlayer::BeginPlay()
 }
 
 static ConsoleVariable Sensitivity("sensitivity", 1.0f, ECVarType::ConsoleOnly);
+static ConsoleVariable GodMode("god", 0, ECVarType::ConsoleAndLaunch);
 void TestPlayer::Update(float delta)
 {
 #if WITH_EDITOR
@@ -102,6 +103,7 @@ void TestPlayer::Update(float delta)
 	Input::SetCursorState(true, false);
 	TickAudio();
 	LastFrameGrounded = IsGrounded;
+	Mhealth->Damageable = !GodMode.GetBoolValue();
 }
 
 void TestPlayer::UpdateMovement(float delta)

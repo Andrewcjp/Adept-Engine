@@ -175,8 +175,6 @@ const MultiGPUMode * RHI::GetMGPUMode()
 	return &CurrentMGPUMode;
 }
 
-
-
 RHI * RHI::Get()
 {
 	return instance;
@@ -184,7 +182,11 @@ RHI * RHI::Get()
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
-	ensure(!Resource->IsPendingKill());
+	//ensure(!Resource->IsPendingKill());
+	if (Resource->IsPendingKill())
+	{
+		return;
+	}
 	if (Get()->IsFlushingDeleteQueue)
 	{
 		SafeRHIRelease(Resource);
@@ -272,6 +274,14 @@ Mesh * RHI::CreateMesh(const char * path)
 
 Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings)
 {
+	if (Settings.AllowInstancing)
+	{
+		Mesh* New = MeshLoader::Get()->TryLoadFromCache(path);
+		if (New != nullptr && New->GetSkeletalMesh() == nullptr)
+		{
+			return New;
+		}
+	}
 	///todo asset paths
 	std::string accpath = AssetManager::GetContentPath();
 	std::string apath = "";/// ("\\models\\");
@@ -280,6 +290,10 @@ Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Sett
 	AssetManager::RegisterMeshAssetLoad(apath);
 	Mesh* newmesh = new Mesh(accpath, Settings);
 	newmesh->AssetName = path;
+	if (Settings.AllowInstancing)
+	{
+		MeshLoader::RegisterLoad(path, newmesh);
+	}
 	return newmesh;
 }
 

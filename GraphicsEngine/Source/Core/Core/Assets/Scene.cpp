@@ -246,7 +246,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
 	set.Scale = glm::vec3(.01f);
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_2\\Crate_Cube.fbx",set), mat));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_2\\Crate_Cube.fbx", set), mat));
 	go->GetTransform()->SetPos(glm::vec3(20, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
@@ -271,7 +271,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//Military crate.fbx
 
 	Asset_Shader* ColourMat = new Asset_Shader();
-	ColourMat->SetupSingleColour(); 
+	ColourMat->SetupSingleColour();
 #if 0
 	go = new GameObject("Size Guide");
 	mat = ColourMat->GetMaterialInstance();
@@ -292,10 +292,18 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(70, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-#if 0
+	AddGameobjectToScene(go);
+
+	go = new GameObject("Door1");
+	mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Terrain\\Door.obj"), mat));
+	go->GetTransform()->SetPos(glm::vec3(0, 0, 25));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+#if 1
 	cc = go->AttachComponent(new ColliderComponent());
-	cc->SetCollisonShape(EShapeType::eSPHERE);
-	go->AttachComponent(new RigidbodyComponent());
+	cc->SetCollisonShape(EShapeType::eBOX);
 #endif
 	AddGameobjectToScene(go);
 
@@ -320,7 +328,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//cc->SetCollisonShape(EShapeType::eSPHERE);
 	//go->AttachComponent(new RigidbodyComponent());
 	//AddGameobjectToScene(go);
-	glm::vec3 startpos = glm::vec3(5, 0, 0); 
+	glm::vec3 startpos = glm::vec3(5, 0, 0);
 	float stride = 5.0f;
 	int size = 1;
 	int zsize = 2;
@@ -345,7 +353,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				AddGameobjectToScene(go);
 			}
 		}
-}
+	}
 #endif
 
 
@@ -368,7 +376,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
-		}
+			}
 		}
 #endif
 	}
