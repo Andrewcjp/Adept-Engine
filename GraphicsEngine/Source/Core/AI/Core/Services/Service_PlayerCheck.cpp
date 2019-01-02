@@ -42,7 +42,9 @@ void Service_PlayerCheck::Tick()
 	}
 	if (RayCheckValue != nullptr && t != nullptr)
 	{
-		const glm::vec3 DirToPlayer = glm::normalize(t->GetPosition() - Owner->AIGameObject->GetPosition());
+		const glm::vec3 Offset = glm::vec3(0, 2, 0);
+		const glm::vec3 Pos = Owner->AIGameObject->GetPosition() + Offset;
+		const glm::vec3 DirToPlayer = glm::normalize(t->GetPosition() - Pos);
 		RayHit hit;
 		std::vector<RigidBody*> IgnoreActors;
 		if (Owner->AIGameObject != nullptr)
@@ -53,10 +55,11 @@ void Service_PlayerCheck::Tick()
 				IgnoreActors.push_back(CMP->GetActor());
 			}
 		}
-		if (Engine::GetPhysEngineInstance()->RayCastScene(Owner->AIGameObject->GetPosition(), DirToPlayer, VisionDistance, &hit, IgnoreActors))
+
+		if (Engine::GetPhysEngineInstance()->RayCastScene(Pos, DirToPlayer, VisionDistance, &hit, IgnoreActors))
 		{
-			DebugDrawers::DrawDebugLine(Owner->AIGameObject->GetPosition(), Owner->AIGameObject->GetPosition() + DirToPlayer * VisionDistance, (hit.HitObject == t) ? glm::vec3(1) :glm::vec3(1,0,0), false, 0.5f);
-			DebugDrawers::DrawDebugSphere(hit.position, 1.0f, glm::vec3(1),12,false,0.5);
+			DebugDrawers::DrawDebugLine(Pos, Pos + DirToPlayer * VisionDistance, (hit.HitObject == t) ? glm::vec3(1) : glm::vec3(1, 0, 0), false, 0.5f);
+			DebugDrawers::DrawDebugSphere(hit.position, 1.0f, glm::vec3(1), 12, false, 0.5);
 			RayCheckValue->IntValue = (hit.HitObject == t);
 		}
 		else

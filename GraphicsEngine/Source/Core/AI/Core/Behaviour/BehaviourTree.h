@@ -2,6 +2,7 @@
 class BehaviourTreeNode;
 class GameObject;
 class BTBlackboard;
+class AIBase;
 class BehaviourTree
 {
 public:
@@ -14,6 +15,7 @@ public:
 	BTBlackboard* Blackboard = nullptr;
 	BehaviourTreeNode* RunningNode = nullptr;
 	BehaviourTreeNode* DebugCurrnetNode = nullptr;
+	AIBase* AIBasePtr = nullptr;
 	bool Active = true;
 private:
 	float CoolDownTime = 0.0f;

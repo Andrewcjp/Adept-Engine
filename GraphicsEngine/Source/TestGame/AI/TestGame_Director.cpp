@@ -12,15 +12,20 @@
 #include "Source/TestGame/Components/Health.h"
 #include "Source/TestGame/Components/MeleeWeapon.h"
 #include "Core/Performance/PerfManager.h"
-
+#include "AttackController.h"
+#include "Core/Platform/ConsoleVariable.h"
 TestGame_Director::TestGame_Director()
 {
 	StateSets = new DirectorStateSet();
 	StateSets->SetDefault();
+	PlayerAttackController = new AttackController();
+	PlayerAttackController->OwningDirector = this;
 }
 
 TestGame_Director::~TestGame_Director()
-{}
+{
+	SafeDelete(PlayerAttackController);
+}
 
 void TestGame_Director::Tick()
 {
@@ -298,6 +303,20 @@ void TestGame_Director::SetState(EWaveStage::Type newstate)
 	{
 		EnqueueWave(StateSets->GetState(CurrnetStage));
 	}
+}
+
+AttackController * TestGame_Director::GetPlayerAttackController()
+{
+	return PlayerAttackController;
+}
+static ConsoleVariable NoAttackMode("NOATK", 1, ECVarType::ConsoleAndLaunch);
+int TestGame_Director::GetMaxAttackingAI()
+{
+	if (NoAttackMode.GetBoolValue())
+	{
+		return 0;
+	}
+	return CurrentPreset.MaxAttackingAI;
 }
 
 int TestGame_Director::GetAiScore(EAIType::Type t)
