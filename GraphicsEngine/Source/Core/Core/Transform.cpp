@@ -78,7 +78,7 @@ void Transform::Serilise(Archive * A)
 	ArchiveProp(_scale);
 }
 
-glm::mat4 Transform::GetModel()
+glm::mat4 Transform::GetModel(bool NoParent)
 {
 #if USE_TRANSFORM_CACHING
 	if (!UpdateModel && parent == nullptr)
@@ -97,7 +97,7 @@ glm::mat4 Transform::GetModel()
 #if USE_TRANSFORM_CACHING		
 		&& parent->IsChanged()
 #endif
-		)
+		 && !NoParent)
 	{
 		parentMatrix = parent->GetTransform()->GetModel();
 	}

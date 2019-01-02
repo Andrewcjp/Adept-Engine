@@ -22,6 +22,11 @@ void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
 //todo: this should be optimized; construct a sumed transfrom map?
 bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const aiScene* scene, aiMatrix4x4& transfrom, MeshLoader::FMeshLoadingSettings& Settings)
 {
+	if (nodes.size() == 0)
+	{
+		transfrom = scene->mRootNode->mTransformation;
+		return true;
+	}
 	for (unsigned int i = 0; i < nodes.size(); i++)
 	{
 		for (unsigned int j = 0; j < nodes[i]->mNumMeshes; j++)
@@ -59,10 +64,11 @@ void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
 bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name, FMeshLoadingSettings& Settings)
 {
 	Assimp::Importer* importer = new Assimp::Importer();
-	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
+
+	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_LimitBoneWeights | aiProcess_SplitByBoneCount;
 	if (Settings.GenerateIndexed)
 	{
-		Flags |= aiProcess_JoinIdenticalVertices;
+		Flags |= aiProcess_JoinIdenticalVertices;//aiProcess_MakeLeftHanded, aiProcess_OptimizeMeshes
 	}
 	const aiScene* scene = importer->ReadFile(filename.c_str(), Flags);
 	if (scene == nullptr)
@@ -90,7 +96,8 @@ bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * Skeletal
 bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity)
 {
 	Assimp::Importer* importer = new Assimp::Importer();
-	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
+	importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
+	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_LimitBoneWeights /*aiProcess_OptimizeGraph*/ | aiProcess_SplitByBoneCount;
 	if (Settings.GenerateIndexed)
 	{
 		Flags |= aiProcess_JoinIdenticalVertices;
@@ -146,7 +153,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 			const aiVector3D* pNormal = model->HasNormals() ? &(model->mNormals[i]) : &aiZeroVector;
 			const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
 			const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
-			if (!scene->HasAnimations())
+		//	if (!scene->HasAnimations())
 			{
 				*pPos = transfrom * (*pPos);
 			}
@@ -207,7 +214,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 			newmesh->MaterialIndex = model->mMaterialIndex;
 		}
 
-		vertices.clear(); 
+		vertices.clear();
 		indices.clear();
 	}
 	if (!scene->HasAnimations())//todo: extract Animations to Smaller and fast format
@@ -328,20 +335,24 @@ glm::vec3 GetPos(glm::mat4 model)
 	return glm::vec3(model[3][0], model[3][1], model[3][2]);
 }
 
-void SkeletalMeshEntry::RenderBones()
+void SkeletalMeshEntry::RenderBones(Transform* T)
 {
 	for (int i = 0; i < FinalBoneTransforms.size(); i++)
 	{
 		const float C = 1.0f;
-		if (i == 29)
+		//if (i == 29)
 		{
-			DebugDrawers::DrawDebugSphere(GetPos(FinalBoneTransforms[i]), 0.5f, glm::vec3(C, 0, 0));
+			glm::mat4x4 Model = (T->GetModel(true));
+			glm::vec3 LocalSpacePos = GetPos(FinalBoneTransforms[i]);
+			LocalSpacePos = glm::vec4(LocalSpacePos, 1.0f) * Model;
+			DebugDrawers::DrawDebugSphere(LocalSpacePos, 0.2f, glm::vec3(C, 0, 0));
 		}
 	}
 }
 
 void SkeletalMeshEntry::Tick(float Delta)
 {
+
 	CurrnetTime += Delta * CurrentAnim.Rate;
 	CurrnetTime = glm::clamp(CurrnetTime, 0.0f, MaxTime);
 	if (CurrnetTime >= MaxTime)
@@ -351,10 +362,10 @@ void SkeletalMeshEntry::Tick(float Delta)
 	ReadNodes(CurrnetTime, Scene->mRootNode, glm::mat4(1), CurrentAnim.AssimpAnim);
 	FinalBoneTransforms.resize(m_NumBones);
 	for (int i = 0; i < m_NumBones; i++)
-	{
-		FinalBoneTransforms[i] = m_BoneInfo[i].FinalTransformation;
+	{//Summing of transform is wonrG!
+		FinalBoneTransforms[i] = glm::mat4(1);// m_BoneInfo[i].FinalTransformation;
 	}
-	//RenderBones();
+
 }
 
 void SkeletalMeshEntry::PlayAnimation(std::string name)
@@ -416,7 +427,7 @@ void SkeletalMeshEntry::LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vec
 		{
 			const uint VertexID = pMesh->mBones[i]->mWeights[j].mVertexId;
 			const float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
-			if (Weight > 0.1f)
+			if (Weight >= 0.1f)
 			{
 				Bones[VertexID].AddBoneData(BoneIndex, Weight);
 			}
@@ -489,7 +500,7 @@ uint SkeletalMeshEntry::FindScaling(float AnimationTime, const aiNodeAnim* pNode
 	}
 	return 0;
 }
-
+#define NO_INTERP 1
 
 void SkeletalMeshEntry::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
@@ -500,6 +511,10 @@ void SkeletalMeshEntry::CalcInterpolatedScaling(aiVector3D& Out, float Animation
 	}
 
 	uint ScalingIndex = FindScaling(AnimationTime, pNodeAnim);
+#if NO_INTERP
+	Out = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
+	return;
+#endif
 	uint NextScalingIndex = (ScalingIndex + 1);
 	assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
 	float DeltaTime = (float)(pNodeAnim->mScalingKeys[NextScalingIndex].mTime - pNodeAnim->mScalingKeys[ScalingIndex].mTime);
@@ -521,6 +536,10 @@ void SkeletalMeshEntry::CalcInterpolatedPosition(aiVector3D& Out, float Animatio
 	}
 
 	uint PositionIndex = FindPosition(AnimationTime, pNodeAnim);
+#if NO_INTERP
+	Out = pNodeAnim->mPositionKeys[PositionIndex].mValue;
+	return;
+#endif
 	uint NextPositionIndex = (PositionIndex + 1);
 	assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
 	float DeltaTime = (float)(pNodeAnim->mPositionKeys[NextPositionIndex].mTime - pNodeAnim->mPositionKeys[PositionIndex].mTime);
@@ -543,6 +562,11 @@ void SkeletalMeshEntry::CalcInterpolatedRotation(aiQuaternion& Out, float Animat
 	}
 
 	uint RotationIndex = FindRotation(AnimationTime, pNodeAnim);
+#if NO_INTERP
+	Out = pNodeAnim->mRotationKeys[RotationIndex].mValue;
+	return;
+#endif
+
 	uint NextRotationIndex = (RotationIndex + 1);
 	assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
 	float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
@@ -571,7 +595,7 @@ void SkeletalMeshEntry::ReadNodes(float time, const aiNode* pNode, const glm::ma
 		// Interpolate rotation and generate rotation transformation matrix
 		aiQuaternion RotationQ;
 		CalcInterpolatedRotation(RotationQ, Animtime, pNodeAnim);
-		glm::mat4 RotationM = glm::mat4(ToGLM(RotationQ.GetMatrix()));
+		glm::mat4 RotationM = glm::mat4(glm::normalize(glm::quat(ToGLM(RotationQ.GetMatrix()))));
 
 		// Interpolate translation and generate translation transformation matrix
 		aiVector3D Translation;
@@ -579,11 +603,10 @@ void SkeletalMeshEntry::ReadNodes(float time, const aiNode* pNode, const glm::ma
 		glm::mat4x4 TranslationM = glm::translate(ToGLM(Translation));
 
 		// Combine the above transformations
-		NodeTransformation = TranslationM * RotationM * ScalingM;
-
+		NodeTransformation = ScalingM * RotationM * TranslationM;
 	}
 	glm::mat4 GlobalTransformation = ParentTransfrom * NodeTransformation;
-
+	
 	if (m_BoneMapping.find(NodeName) != m_BoneMapping.end())
 	{
 		uint BoneIndex = m_BoneMapping[NodeName];
@@ -647,7 +670,7 @@ void MeshLoader::DestoryMeshes()
 
 Mesh * MeshLoader::TryLoadFromCache(std::string Path)
 {
-	auto Itor =  CreatedMeshes.find(Path);
+	auto Itor = CreatedMeshes.find(Path);
 	if (Itor != CreatedMeshes.end())
 	{
 		if (Itor->second->GetSkeletalMesh() != nullptr)//execute Copy

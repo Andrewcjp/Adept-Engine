@@ -1,14 +1,13 @@
 #include "TestGameBTNodes.h"
-#include "AI/Core/Behaviour/BehaviourTree.h"
-#include "B_AIBase.h"
-#include "Source/TestGame/Components/MeleeWeapon.h"
-#include "AI/Core/Behaviour/BTBlackboard.h"
 #include "AI/Core/AIController.h"
-#include "AI/Core/AnimationController.h"
-#include "PossessedSoldier/PossessedSoldier.h"
-#include "TestGame_Director.h"
 #include "AI/Core/AISystem.h"
+#include "AI/Core/AnimationController.h"
+#include "AI/Core/Behaviour/BehaviourTree.h"
+#include "AI/Core/Behaviour/BTBlackboard.h"
 #include "AttackController.h"
+#include "PossessedSoldier/PossessedSoldier.h"
+#include "Source/TestGame/Components/MeleeWeapon.h"
+#include "TestGame_Director.h"
 
 BTMeleeAttackNode::BTMeleeAttackNode()
 {}

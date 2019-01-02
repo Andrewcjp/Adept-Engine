@@ -7,7 +7,7 @@ class Transform
 public:
 	CORE_API Transform(const glm::vec3& pos = glm::vec3(), const glm::vec3& rot = glm::vec3(), const glm::vec3& scale = glm::vec3(1, 1, 1));
 
-	CORE_API glm::mat4 GetModel();
+	CORE_API glm::mat4 GetModel(bool NoParent = false);
 	glm::mat4 GetMVP(Camera* camera);
 	glm::mat4 GetTransFormView();
 	///------------------------------------------------------

@@ -14,6 +14,7 @@ struct aiAnimation;
 struct aiNodeAnim;
 struct aiAnimation;
 class Mesh;
+class Transform;
 ///Represents one animation clip and all its props
 struct AnimationClip
 {
@@ -81,7 +82,7 @@ struct SkeletalMeshEntry
 	
 	float CurrnetTime = 0.0f;
 	float GetMaxTime() { return MaxTime; };
-	void RenderBones();
+	void RenderBones(Transform* T);
 	void Tick(float Delta);
 	void PlayAnimation(std::string name);
 	void LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones);

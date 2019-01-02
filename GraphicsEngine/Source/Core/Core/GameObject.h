@@ -38,7 +38,7 @@ public:
 	void Render(bool ignoremat, RHICommandList* list);
 
 	EMoblity GetMobility();
-	Mesh* GetMesh();
+	CORE_API Mesh* GetMesh();
 	MeshRendererComponent* GetMeshRenderer() const
 	{
 		return m_MeshRenderer;

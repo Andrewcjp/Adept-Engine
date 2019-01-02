@@ -2,6 +2,9 @@
 #include "PossessedSoldier.h"
 #include "AI/Core/AIController.h"
 #include "Source/TestGame/AI/HellKnight/HellKnight_Anim_Controller.h"
+#include "Core/GameObject.h"
+#include "Core/Components/MeshRendererComponent.h"
+#include "Core/Utils/DebugDrawers.h"
 
 
 PossessedSoldier::PossessedSoldier()
@@ -20,6 +23,24 @@ AnimationController* PossessedSoldier::CreateAnimationController()
 {
 	return new HellKnight_Anim_Controller();
 }
+
+void PossessedSoldier::Update(float dt)
+{
+	AIBase::Update(dt);
+	if (VisualMesh != nullptr)
+	{
+		glm::vec3 pos = VisualMesh->GetMeshRenderer()->GetPosOfBone("mixamorig:LeftHand");
+		//DebugDrawers::DrawDebugSphere(pos, 0.5f, glm::vec3(1,0,0));
+		//glm::mat4x4 Model = (WeaponBone->GetTransform()->GetModel());
+		//pos = glm::vec4(pos, 1.0f) * (Model);
+		//pos += glm::vec3(-0.5f,0.65,0);
+		DebugDrawers::DrawDebugSphere(pos, 0.5f, glm::vec3(1));
+		//WeaponBone->GetTransform()->SetLocalPosition(pos);
+		//WeaponBone->SetPosition(pos);
+		//WeaponBone->GetTransform()->SetLocalPosition();
+	}
+}
+
 void PossessedSoldier::LookAt(glm::vec3 pos)
 {
 	//glm::vec3 DirToTarget = pos - WeaponBone->GetPosition();

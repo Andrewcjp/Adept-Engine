@@ -6,6 +6,8 @@
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/AssetManager.h"
 #include "Editor/Inspector.h"
+#include "Component.h"
+#include "../GameObject.h"
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
@@ -19,7 +21,7 @@ MeshRendererComponent::MeshRendererComponent(Mesh* Mesh, Material* materal) :Mes
 
 MeshRendererComponent::~MeshRendererComponent()
 {
-//todo: safe mesh removal
+	//todo: safe mesh removal
 }
 
 void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)
@@ -91,6 +93,14 @@ void MeshRendererComponent::PlayAnim(std::string name)
 	}
 }
 
+glm::vec3 MeshRendererComponent::GetPosOfBone(std::string Name)
+{
+	glm::vec3 LocalSpacePos = GetMesh()->GetPosOfBone(Name);
+	glm::mat4x4 Model = (GetOwner()->GetTransform()->GetModel());
+	LocalSpacePos = glm::vec4(LocalSpacePos, 1.0f) * Model;
+	return LocalSpacePos;
+}
+
 void MeshRendererComponent::BeginPlay()
 {}
 
@@ -99,6 +109,10 @@ void MeshRendererComponent::Update(float dt)
 	if (m_mesh != nullptr)
 	{
 		m_mesh->Tick(dt);
+		if (m_mesh->GetSkeletalMesh())
+		{
+			m_mesh->GetSkeletalMesh()->RenderBones(GetOwner()->GetTransform());
+		}
 	}
 }
 
