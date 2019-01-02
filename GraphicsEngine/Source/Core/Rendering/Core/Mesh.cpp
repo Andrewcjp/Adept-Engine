@@ -25,7 +25,7 @@ void Mesh::Release()
 	IRHIResourse::Release();
 	MemoryUtils::DeleteReleaseableVector(SubMeshes);
 	MemoryUtils::DeleteVector(Materials);
-	SafeRelease(pSkeletalEntity);	
+	SafeRelease(pSkeletalEntity);
 }
 
 Mesh::~Mesh()
@@ -44,13 +44,13 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
 		if (pSkeletalEntity != nullptr && SetMaterial)
-		{		
+		{
 			//todo: integrate into material system
-			list->SetPipelineStateObject(ShaderComplier::GetShader<Shader_SkeletalMesh>());			
+			list->SetPipelineStateObject(ShaderComplier::GetShader<Shader_SkeletalMesh>());
 			list->SetTexture(Materials[0]->GetTexturebind(Material::DefuseBindName), 9);
 			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
 			for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)
-			{				
+			{
 				list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()]);
 				list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]);
 				list->DrawIndexedPrimitive((int)pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
@@ -141,6 +141,24 @@ bool Mesh::GetDoesShadow()
 SkeletalMeshEntry * Mesh::GetSkeletalMesh() const
 {
 	return pSkeletalEntity;
+}
+
+glm::vec3 Mesh::GetPosOfBone(std::string Name)
+{
+	if (GetSkeletalMesh() == nullptr)
+	{
+		return glm::vec3();
+	}
+	auto itor = GetSkeletalMesh()->m_BoneMapping.find(Name);
+	if (itor == GetSkeletalMesh()->m_BoneMapping.end())
+	{
+		Log::LogMessage("No Bone Called " + Name,Log::Warning);
+		return glm::vec3();
+	}
+	uint boneID = itor->second;
+	glm::mat4x4 Boneitor = GetSkeletalMesh()->FinalBoneTransforms[boneID];
+
+	return glm::vec3(Boneitor[3][0], Boneitor[3][1], Boneitor[3][2]);
 }
 
 MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices)

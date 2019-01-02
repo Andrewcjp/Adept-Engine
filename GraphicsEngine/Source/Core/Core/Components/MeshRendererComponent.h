@@ -27,6 +27,7 @@ public:
 	CORE_API void LoadAnimation(std::string filename, std::string name);
 	CORE_API void LoadAnimation(std::string filename, std::string name, MeshLoader::FMeshLoadingSettings & Settings);
 	CORE_API void PlayAnim(std::string name);
+	CORE_API glm::vec3 GetPosOfBone(std::string Name);
 private:
 	Mesh* m_mesh = nullptr;
 	// Inherited via Component

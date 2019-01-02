@@ -31,7 +31,7 @@ void TestGame_Director::Tick()
 {
 	if (!once)
 	{
-		SpawnAI(glm::vec3(0, 20, 0), EAIType::PossessedSoldier);
+		SpawnAI(glm::vec3(-5, 20, 0), EAIType::PossessedSoldier);
 		once = true;
 	}
 	CurrentSpawnScore = GetSpawnedScore();
@@ -197,21 +197,25 @@ GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 	AnimSetting.FlipUVs = true;
 	AnimSetting.AllowInstancing = false;
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Texture\\vanguard_diffuse.png"));
-	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Possessed\\Dying.fbx", AnimSetting), mat));
-	mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Attack");
-	mrc->LoadAnimation("AlwaysCook\\Possessed\\Idle Aiming.fbx", "Idle");
-	mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Walking");
-	mrc->LoadAnimation("AlwaysCook\\Possessed\\Death.fbx", "Death");
+	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Possessed\\vanguard.fbx", AnimSetting), mat));
+	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Attack");
+	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Idle Aiming.fbx", "Idle");
+	//mrc->LoadAnimation("AlwaysCook\\Possessed\\vanguard_t_choonyung@Idle.fbx", "Idle");
+	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Walking");
+	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Death.fbx", "Death");//Rifle Punch
+	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Punch.fbx", "Melee");
+
 	mrc->PlayAnim("Idle");
 	MeshC->GetTransform()->SetScale(glm::vec3(0.015f));
 	scene->AddGameobjectToScene(MeshC);
 	GameObject* WeaponBone = new GameObject();
 	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
 	t->WeaponBone = WeaponBone;
+	t->VisualMesh = MeshC;
 	t->MainWeapon = WeaponBone->AttachComponent(new Weapon(Weapon::AIRifle, scene, nullptr, WeaponBone));
 	WeaponBone->SetParent(NewPossessed);
 	WeaponBone->GetTransform()->SetLocalPosition(glm::vec3(0, 2.5, 0));
-	WeaponBone->GetTransform()->SetScale(glm::vec3(0.5));
+	WeaponBone->GetTransform()->SetScale(glm::vec3(0.25));
 	scene->AddGameobjectToScene(WeaponBone);
 	ColliderComponent* cc = NewPossessed->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);

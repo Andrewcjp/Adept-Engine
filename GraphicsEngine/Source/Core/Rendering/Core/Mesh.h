@@ -37,6 +37,7 @@ public:
 	bool GetDoesShadow();
 	MeshLoader::FMeshLoadingSettings ImportSettings;
 	SkeletalMeshEntry* GetSkeletalMesh()const;
+	glm::vec3 GetPosOfBone(std::string Name);
 private:
 	RHI_API void Release() override;
 	int FrameCreated = 0;
