@@ -33,6 +33,7 @@ public:
 	//todo: refactor
 	float Radius = 1.0f;
 	glm::vec3 BoxExtents = glm::vec3(1, 1, 1);
+	glm::vec3 LocalOffset = glm::vec3(0, 0, 0);
 	float Height = 1.0f;
 	bool IsTrigger = false;
 	bool IsEnabled()const

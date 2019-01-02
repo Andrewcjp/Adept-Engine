@@ -408,12 +408,11 @@ namespace TD
 	void TDSolver::ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, const TDPhysicalMaterial * AMaterial, const TDPhysicalMaterial * BMaterial, int contactindex)
 	{
 		glm::vec3 RelVel = glm::vec3(0, 0, 0);
+#if USE_ROT
 		glm::vec3 r1;
 		glm::vec3 r2;
 		glm::mat4 i1;
 		glm::mat4 i2;
-
-#if USE_ROT
 		if (A != nullptr)
 		{
 			r1 = data->ContactPoints[contactindex] - A->GetTransfrom()->GetPos();

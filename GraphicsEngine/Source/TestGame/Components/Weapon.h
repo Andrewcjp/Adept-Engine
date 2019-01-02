@@ -38,7 +38,7 @@ public:
 	virtual void OnFire() {};
 	int GetCurrentAmmo() { return CurrentAmmoCount; }
 	void AddAmmo(int amt);
-	
+	glm::vec3 AIForward = glm::vec3(0, 0, 0);
 protected:
 	TestPlayer* Player = nullptr;
 	

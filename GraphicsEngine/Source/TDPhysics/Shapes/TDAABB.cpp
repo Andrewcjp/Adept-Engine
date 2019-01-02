@@ -66,11 +66,20 @@ namespace TD
 
 		return result;
 	}
+
 	TDAABB* TDAABB::CreateFromMinMax(const glm::vec3 & min, const glm::vec3 & max)
 	{
 		TDAABB* r = new TDAABB();
 		r->HalfExtends = (max - min) * 0.5f;
 		r->Position = (min + max) * 0.5f;
 		return r;
+	}
+
+	void TDAABB::AddAABB(TDAABB* other)
+	{
+		glm::vec3 max = glm::max(Position + HalfExtends, other->Position + other->HalfExtends);
+		glm::vec3 min = glm::min(Position - HalfExtends, other->Position - other->HalfExtends);
+		HalfExtends = (max - min) * 0.5f;
+		Position = (min + max) * 0.5f;
 	}
 };

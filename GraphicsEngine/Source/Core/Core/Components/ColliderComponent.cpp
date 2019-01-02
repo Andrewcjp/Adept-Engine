@@ -90,10 +90,10 @@ void ColliderComponent::RenderShape()
 		{
 			//todo: transition this to use a wire frame shader
 		case EShapeType::eSPHERE:
-			DebugDrawers::DrawDebugSphere(GetOwner()->GetPosition(), Radius, colour);
+			DebugDrawers::DrawDebugSphere(GetOwner()->GetPosition() + LocalOffset, Radius, colour);
 			break;
 		case EShapeType::eCAPSULE:
-			DebugDrawers::DrawDebugCapsule(GetOwner()->GetPosition(), Height, Radius, GetOwner()->GetRotation(), colour);
+			DebugDrawers::DrawDebugCapsule(GetOwner()->GetPosition() + LocalOffset, Height, Radius, GetOwner()->GetRotation(), colour);
 			break;
 		case EShapeType::eTRIANGLEMESH:
 			return;
