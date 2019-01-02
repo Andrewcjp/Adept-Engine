@@ -158,8 +158,9 @@ bool Weapon::Fire()
 	}
 	else
 	{
-		offset.y = 1;
+		Forward = AIForward;
 	}
+
 	glm::vec3 Position = offset + WeaponRoot->GetPosition() + Forward * 4;
 #if WITH_EDITOR
 	DebugDrawers::DrawDebugLine(Position, Position + Forward * 10, glm::vec3(1), false, 1);

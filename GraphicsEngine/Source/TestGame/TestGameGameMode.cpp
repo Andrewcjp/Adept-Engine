@@ -149,8 +149,9 @@ void TestGameGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	cc->Radius = 2.0f;
 	cc->IsTrigger = true;
-
 	manager->Melee->Collider = cc;
+
+
 	Scene->AddGameobjectToScene(Cam);
 	Scene->AddGameobjectToScene(go);
 	AISystem::Get()->GetDirector<TestGame_Director>()->SetPlayer(player->GetOwner());

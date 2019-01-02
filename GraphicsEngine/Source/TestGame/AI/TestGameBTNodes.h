@@ -27,7 +27,7 @@ public:
 	};
 	int RoundCount = 4;
 	float DelayBetween = 0.016f;
-
+	float CoolDownTime = 0.4f;
 	virtual void OnAddedToTree() override;
 	virtual std::string GetDebugName() override { return "BTRifleAttackNode"; }
 protected:
@@ -35,6 +35,8 @@ protected:
 	void Reset();
 	EBTNodeReturn::Type ExecuteNode() override;//todo: fix!
 private:
+	float CurrentBurstCoolDown = 0.0f;
+
 	float CurrentDelay = 0.0f;
 	int RemainingRounds = 0;
 	B_AIBase* Controller = nullptr;

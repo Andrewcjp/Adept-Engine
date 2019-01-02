@@ -1,5 +1,6 @@
 
 #include "TDShape.h"
+#include "Shapes\TDAABB.h"
 
 namespace TD
 {
@@ -32,6 +33,7 @@ namespace TD
 	{
 		Owner = newowner;
 		Transfrom.SetParent(Owner->GetTransfrom());
+		Transfrom.SetLocalPosition(LocalPos);
 	}
 
 	TDActor * TDShape::GetOwner()
@@ -42,6 +44,14 @@ namespace TD
 	glm::vec3 TDShape::GetBoundBoxHExtents()
 	{
 		return glm::vec3(1, 1, 1);
+	}
+
+	TDAABB TDShape::GetBB()
+	{
+		TDAABB Box;
+		Box.Position = GetTransfrom()->GetPos();
+		Box.HalfExtends = GetBoundBoxHExtents();
+		return Box;
 	}
 
 	glm::vec3 TDShape::GetPos()

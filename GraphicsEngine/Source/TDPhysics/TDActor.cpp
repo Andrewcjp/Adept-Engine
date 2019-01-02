@@ -49,10 +49,19 @@ namespace TD
 		if (newShape == nullptr)
 		{
 			return;
+		}		
+		newShape->SetOwner(this);
+		if (AttachedShapes.size() == 0)
+		{
+			AABB->HalfExtends = newShape->GetBoundBoxHExtents();
+			AABB->Position = newShape->GetPos();
+		}
+		else
+		{
+			TDAABB Box = newShape->GetBB();
+			AABB->AddAABB(&Box);
 		}
 		AttachedShapes.push_back(newShape);
-		newShape->SetOwner(this);
-		AABB->HalfExtends = newShape->GetBoundBoxHExtents();
 		//todo: max and min
 		if (newShape->GetShapeType() == TDShapeType::eTRIANGLEMESH)
 		{

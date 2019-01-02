@@ -30,7 +30,7 @@ void BT_PossessedSoldier::SetupTree()
 	selector->AddDecorator(new BaseDecorator(RayCheckValid, EDecoratorTestType::GreaterThanEqual, 1));
 	selector->AddService(new Service_PlayerCheck(obj, Distance, RayCheckValid));
 	selector->AddChildNode<BTRifleAttackNode>(new BTRifleAttackNode(obj));
-	selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.4f));
+	//selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.4f));
 
 #if 1
 	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());

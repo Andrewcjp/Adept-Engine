@@ -77,6 +77,7 @@ void TDRigidBody::AttachCollider(Collider * col)
 			SphereElem* SphereShape = (SphereElem*)Shape;
 			newShape = new TD::TDSphere();
 			((TD::TDSphere*)newShape)->Radius = SphereShape->raduis;
+			
 			break;
 		}
 		case EShapeType::eTRIANGLEMESH:
@@ -95,6 +96,7 @@ void TDRigidBody::AttachCollider(Collider * col)
 		col->SetEnabled(col->ComponentOwner->IsEnabled());
 		AttachedColliders.push_back(col);
 		col->SetOwner(this);
+		newShape->LocalPos = col->ComponentOwner->LocalOffset;
 		//if (!col->IsTrigger)
 		{
 			shapes.push_back(newShape);

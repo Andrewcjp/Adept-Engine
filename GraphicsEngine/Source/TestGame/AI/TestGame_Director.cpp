@@ -202,11 +202,16 @@ GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 	scene->AddGameobjectToScene(MeshC);
 	GameObject* WeaponBone = new GameObject();
 	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
+	t->WeaponBone = WeaponBone;
 	t->MainWeapon = WeaponBone->AttachComponent(new Weapon(Weapon::AIRifle, scene, nullptr, WeaponBone));
 	WeaponBone->SetParent(NewPossessed);
-	WeaponBone->GetTransform()->SetLocalPosition(glm::vec3(0, 3, 0));
+	WeaponBone->GetTransform()->SetLocalPosition(glm::vec3(0, 2.5, 0));
 	WeaponBone->GetTransform()->SetScale(glm::vec3(0.5));
 	scene->AddGameobjectToScene(WeaponBone);
+	ColliderComponent* cc = NewPossessed->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eSPHERE);
+	cc->Radius = 2.0f;
+	cc->LocalOffset = glm::vec3(0, 3, 0);
 	return NewPossessed;
 }
 

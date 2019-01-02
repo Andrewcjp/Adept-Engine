@@ -178,4 +178,20 @@ namespace TD
 	{
 		return glm::vec3(CacheModel[0][0], CacheModel[1][1], CacheModel[2][2]);
 	}
+	void TDTransform::SetLocalPosition(glm::vec3 localpos)
+	{
+		if (parent)
+		{
+			glm::mat4 LocalMAtrix = parent->GetModel();
+			glm::vec4 newpos = glm::vec4(localpos, 1.0f)*glm::inverse(LocalMAtrix);
+			newpos = newpos * LocalMAtrix;
+			CheckNAN(newpos);
+			SetPos(newpos);
+		}
+		else
+		{
+			CheckNAN(localpos);
+			SetPos(localpos);
+		}
+	}
 }

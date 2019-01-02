@@ -19,6 +19,7 @@
 #define SafeDelete(Target)if(Target != nullptr){delete Target; Target= nullptr;}
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
 #include "TDAsserts.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>

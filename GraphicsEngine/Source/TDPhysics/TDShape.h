@@ -30,6 +30,7 @@ namespace TD
 		*/
 		TD_API TDActor* GetOwner();
 		virtual glm::vec3 GetBoundBoxHExtents();
+		TDAABB GetBB();
 		template<class T>
 		static T* CastShape(class TDShape* shape)
 		{
@@ -42,6 +43,7 @@ namespace TD
 		}
 		void* UserData = nullptr;
 		TDTransform* GetTransfrom();
+		glm::vec3 LocalPos = glm::vec3(0);//Local pos Before attached to Body
 	protected:
 		TDShape();
 		TDTransform Transfrom;

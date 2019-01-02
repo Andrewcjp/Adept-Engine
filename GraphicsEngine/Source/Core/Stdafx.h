@@ -5,6 +5,7 @@
 #pragma once
 #define NOMINMAX
 #define GLM_FORCE_SWIZZLE
+#define GLM_ENABLE_EXPERIMENTAL
 #pragma warning(push,3)
 #include "EngineGlobals.h"
 #include "Core/Platform/PlatformTypes.h"
