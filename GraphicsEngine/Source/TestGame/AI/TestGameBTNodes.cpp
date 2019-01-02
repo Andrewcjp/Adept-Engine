@@ -6,6 +6,9 @@
 #include "AI/Core/AIController.h"
 #include "AI/Core/AnimationController.h"
 #include "PossessedSoldier/PossessedSoldier.h"
+#include "TestGame_Director.h"
+#include "AI/Core/AISystem.h"
+#include "AttackController.h"
 
 BTMeleeAttackNode::BTMeleeAttackNode()
 {}
@@ -17,6 +20,14 @@ void BTMeleeAttackNode::OnAddedToTree()
 
 EBTNodeReturn::Type BTMeleeAttackNode::ExecuteNode()
 {
+	TestGame_Director* Director = AISystem::GetDirector<TestGame_Director>();
+	if (Director != nullptr)
+	{
+		if (!Director->GetPlayerAttackController()->CanGetToken(ParentTree->AIBasePtr))
+		{
+			return EBTNodeReturn::Failure;
+		}
+	}
 	if (weapon != nullptr)
 	{
 		weapon->Fire();
@@ -25,6 +36,7 @@ EBTNodeReturn::Type BTMeleeAttackNode::ExecuteNode()
 	{
 		ParentTree->AIGameObject->GetComponent<AIBase>()->GetAnimController()->TriggerAttack(1.5f);
 	}
+	Director->GetPlayerAttackController()->ReleaseToken(ParentTree->AIBasePtr);
 	return EBTNodeReturn::Success;
 }
 
@@ -43,7 +55,6 @@ void BTRifleAttackNode::Run()
 		return;
 	}
 	CurrentDelay = DelayBetween;
-
 	GameObject* Target = Value->GetValue<GameObject>();
 	if (Target == nullptr)
 	{
@@ -81,6 +92,14 @@ void BTRifleAttackNode::Reset()
 
 EBTNodeReturn::Type BTRifleAttackNode::ExecuteNode()
 {
+	TestGame_Director* Director = AISystem::GetDirector<TestGame_Director>();
+	if (Director != nullptr)
+	{
+		if (!Director->GetPlayerAttackController()->CanGetToken(ParentTree->AIBasePtr))
+		{
+			return EBTNodeReturn::Failure;
+		}
+	}
 	Run();
 	if (CurrentDelay > 0.0f && RemainingRounds > 0)
 	{
@@ -91,5 +110,6 @@ EBTNodeReturn::Type BTRifleAttackNode::ExecuteNode()
 		return EBTNodeReturn::Running;
 	}
 	Reset();
+	Director->GetPlayerAttackController()->ReleaseToken(ParentTree->AIBasePtr);
 	return EBTNodeReturn::Success;
 }

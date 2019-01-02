@@ -6,7 +6,7 @@ struct AIDirector_DifficultyPreset
 	int WaveEnemyCount = 1;
 	//when closer to 1 more high level AI will be spawned
 	float SizeWeighting = 0.5f;//normal value;
-
+	int MaxAttackingAI = 3;
 };
 namespace EAIType
 {
@@ -57,11 +57,12 @@ private:
 	DirectorState States[EWaveStage::Limit];
 };
 class GameObject;
+class AttackController;
 class TestGame_Director : public AIDirector
 {
 public:
 	TestGame_Director();
-	~TestGame_Director();
+	virtual ~TestGame_Director();
 	void Tick() override;
 	int GetSpawnedScore();
 	void TickNewAIQueue();
@@ -78,6 +79,8 @@ public:
 	void TryMoveNextState();
 	static std::string GetStateName(EWaveStage::Type state);
 	void SetState(EWaveStage::Type newstate);
+	AttackController* GetPlayerAttackController();
+	int GetMaxAttackingAI();
 private:
 	struct SpawnedAi
 	{
@@ -94,5 +97,6 @@ private:
 	
 	DirectorStateSet* StateSets = nullptr;
 	EWaveStage::Type CurrnetStage = EWaveStage::Limit;
+	AttackController* PlayerAttackController = nullptr;//For single player 
 };
 

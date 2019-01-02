@@ -18,7 +18,7 @@ class AIDirector
 {
 public:
 	CORE_API AIDirector();
-	CORE_API ~AIDirector();
+	CORE_API virtual ~AIDirector();
 	void SetScene(Scene* newscene);
 	CORE_API virtual void Tick();
 	CORE_API GameObject* GetPlayerObject();

@@ -40,5 +40,5 @@ void BehaviourTree::RunTree(float dt)
 
 void BehaviourTree::SetupTree()
 {
-
+	AIBasePtr = AIGameObject->GetComponent<AIBase>();
 }

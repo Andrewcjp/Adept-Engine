@@ -1,4 +1,28 @@
 Debug commands:
 Open the console with '`'
+CMD Name , Type, Description
+Debugging:
+aidebug <mode> :  0 Is Disabled,
+PhysDebug <mode> :
+noatk boolean : If set to true AI will be unable to attack the player, however the player is still damageable
+god boolean : If set The player is not damageable
 
-aidebug <mode> :  
+
+
+Settings:
+Sensitivity float : changes the players mouse sensitivity 
+
+Debug Keys:
+Esc, F8 Pause the game
+F7 Step one frame forwards
+
+
+Player Controls:
+WASD - Move Forward, Left,Back and right
+Mouse 1 - Fire
+Scroll Wheel - Change Weapons
+Alpha 1 - Select weapon 1
+Alpha 2 - Select Weapon 2
+Space - Jump
+E - Interact
+F - Melee
