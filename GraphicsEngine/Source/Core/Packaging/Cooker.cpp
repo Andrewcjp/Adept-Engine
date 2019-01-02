@@ -92,18 +92,19 @@ void Cooker::CopyToOutput()
 			contentItemCount++;
 			CopyAssetToOutput(it->first);
 		}*/
-#if 1
+#if 0
 		CopyFolderToOutput(AssetManager::GetContentPath(), "\\Content\\");
 #else
 		CopyFolderToOutput(AssetManager::GetContentPath() + "models", "\\Content\\models");
+		CopyFolderToOutput(AssetManager::GetContentPath() + "AlwaysCook", "\\Content\\AlwaysCook");
 #endif
 		CopyFolderToOutput(AssetManager::GetDDCPath(), "\\DerivedDataCache\\");
 		//copy font
-		CopyAssetToOutput("\\Content\\fonts\\arial.ttf");
+		//CopyAssetToOutput("\\Content\\fonts\\arial.ttf");
 		CopyAssetToOutput("\\DerivedDataCache\\T_GridSmall_01_D.DDS");
 		//temp
 		CopyAssetToOutput("\\Content\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds");
-		CopyAssetToOutput("\\Content\\texture\\house_diffuse.tga");
+		//CopyAssetToOutput("\\Content\\texture\\house_diffuse.tga");
 		Log::LogMessage("Copied " + std::to_string(contentItemCount) + " Items");
 
 		Log::OutS << "**********Stage Complete**********" << Log::OutS;

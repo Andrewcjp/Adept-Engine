@@ -42,7 +42,8 @@ void ShaderComplier::FreeAllGlobalShaders()
 bool ShaderComplier::ShouldBuildDebugShaders()
 {
 #if _DEBUG && WITH_EDITOR
-	return !Engine::GetIsCooking();
+	//return !Engine::GetIsCooking();
+	return false;
 #else
 	return GenDebugShaders.GetBoolValue();
 #endif	

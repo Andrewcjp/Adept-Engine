@@ -222,7 +222,7 @@ void TextRenderer::LoadText()
 		Log::OutS << "ERROR::FREETYPE: Could not init FreeType Library" << Log::OutS;
 	}
 	std::string fontpath = AssetManager::GetContentPath();
-	fontpath.append("\\fonts\\arial.ttf");
+	fontpath.append("\\AlwaysCook\\fonts\\arial.ttf");
 	if (FT_New_Face(ft, fontpath.c_str(), 0, &face))
 	{
 		Log::OutS << "ERROR::FREETYPE: Failed to load font" << Log::OutS;

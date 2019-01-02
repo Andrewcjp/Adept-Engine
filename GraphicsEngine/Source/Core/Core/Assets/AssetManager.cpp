@@ -236,11 +236,13 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImportSettings settings, DeviceContext* Device)
 {
 	AssetPathRef Fileref = AssetPathRef(name);
+#if WITH_EDITOR
 	if (!FileUtils::File_ExistsTest(Fileref.GetFullPathToAsset()))
 	{
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist" << Log::OutS;
 		return nullptr;
 	}
+#endif
 	//todo: Deal with TGA to DDS 
 	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ name.find(".tga") != -1 || settings.DirectLoad)
 	{

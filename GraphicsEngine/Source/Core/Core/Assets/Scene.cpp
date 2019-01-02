@@ -130,7 +130,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.UVScale = glm::vec2(20);
-	const char* Name = "Terrain\\Room1.obj";
+	const char* Name = "\\AlwaysCook\\Terrain\\Room1.obj";
 	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -218,21 +218,21 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//col->Radius = 1.0f;
 	AddGameobjectToScene(go);
 
-	go = new GameObject("Rock");
-	//mat = NormalMapShader->GetMaterialInstance();
-	mat = Material::GetDefaultMaterial();
-	mat->GetProperties()->Metallic = 0.0f;
-	mat->GetProperties()->Roughness = 1.0f;
-	TextureImportSettings setting;
-	setting.Compression = ECompressionSetting::BRGA;
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Terrain\\Rock1.tif", setting));//Rock1_nmp
-	//setting.Compression = ECompressionSetting::None;
-	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("Terrain\\Rock1_nmp.tif", setting));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Terrain\\Rock1A.fbx"), mat));
-	go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
-	AddGameobjectToScene(go);
+	//go = new GameObject("Rock");
+	////mat = NormalMapShader->GetMaterialInstance();
+	//mat = Material::GetDefaultMaterial();
+	//mat->GetProperties()->Metallic = 0.0f;
+	//mat->GetProperties()->Roughness = 1.0f;
+	//TextureImportSettings setting;
+	//setting.Compression = ECompressionSetting::BRGA;
+	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Terrain\\Rock1.tif", setting));//Rock1_nmp
+	////setting.Compression = ECompressionSetting::None;
+	////mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("Terrain\\Rock1_nmp.tif", setting));
+	//go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Terrain\\Rock1A.fbx"), mat));
+	//go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
+	//go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	//go->GetTransform()->SetScale(glm::vec3(1));
+	//AddGameobjectToScene(go);
 
 
 
@@ -297,7 +297,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go = new GameObject("Door1");
 	mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Terrain\\Door.obj"), mat));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\Door.obj"), mat));
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 25));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
