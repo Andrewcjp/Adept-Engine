@@ -117,7 +117,7 @@ void Engine::Destory()
 
 void Engine::LoadGame()
 {
-	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>("TestGame");
+	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>("BleedOutGame");
 	ensure(Gamemodule);
 	if (Gamemodule == nullptr)
 	{

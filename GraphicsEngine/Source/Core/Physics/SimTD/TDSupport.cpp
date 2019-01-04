@@ -88,7 +88,7 @@ void TDSupport::OnTrigger(const ContactPair** Contacts, int numContacts)
 		}
 	}
 }
-#endif
+
 
 bool IgnoreFilter::PreFilter(TD::TDActor* actor, TD::TDShape* Shape, const TD::RayCast* raydata)
 {
@@ -104,3 +104,4 @@ bool IgnoreFilter::PostFilter(TD::RaycastData* Hit, const TD::RayCast* raydata)
 {
 	return true;
 }
+#endif

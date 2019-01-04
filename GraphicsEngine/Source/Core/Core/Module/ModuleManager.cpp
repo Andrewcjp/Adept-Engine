@@ -31,7 +31,7 @@ void ModuleManager::ShutDown()
 
 void ModuleManager::SetupPreLoadModules()
 {
-	ModulesNames.push_back("TestGame");
+	ModulesNames.push_back("BleedOutGame");
 	ModulesNames.push_back("D3D12RHI");
 	ModulesNames.push_back("VulkanRHI");
 }

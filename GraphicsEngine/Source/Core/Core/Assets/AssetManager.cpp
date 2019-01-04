@@ -284,7 +284,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 		Args.append(" -y ");
 		Args.append(" -f "+settings.GetTypeString());
 		Args.append('"' + Fileref.GetFullPathToAsset() + '"' + " ");
-		Log::LogMessage("Start app with " + Args);
+		//Log::LogMessage("Started Texconv.exe with: " + Args);
 		PlatformApplication::ExecuteHostScript(GetScriptPath() + "Texconv.exe", Args, GetDDCPath(), false);
 		if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath))
 		{

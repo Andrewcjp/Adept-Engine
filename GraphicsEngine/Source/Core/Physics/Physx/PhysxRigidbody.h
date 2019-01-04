@@ -21,7 +21,7 @@ public:
 	void AttachCollider(Collider* col);
 	void SetPhysicalMaterial(PhysicalMaterial* newmat);
 
-	void UpdateBodyState() override;
+	void UpdateBodyState() ;
 
 	physx::PxRigidActor* GetActor() { return CommonActorPtr; }
 	void InitBody();

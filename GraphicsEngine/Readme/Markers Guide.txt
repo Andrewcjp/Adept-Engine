@@ -1,0 +1,14 @@
+Physics:
+The TDPhysics Module Contains all simulation code
+EngineGlobals.h defines TDSIM_ENABLED or PHYSX_ENABLED
+Physics_Fwd.h contains type defines for each physics engine.
+
+
+AI:
+Source/Core/AI Contains All Engine AI related Classes
+Source/BleedOutGame Contains all Game classes including AI
+
+
+
+
+
