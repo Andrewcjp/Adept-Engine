@@ -22,6 +22,7 @@ namespace ENavRequestStatus
 	{
 		Failed,
 		FailedPointOffNavMesh,
+		FailedStartPointOffNavMesh,
 		FailedNotSupported,
 		Complete,
 	};

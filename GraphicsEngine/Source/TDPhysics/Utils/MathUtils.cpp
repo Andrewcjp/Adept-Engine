@@ -40,4 +40,14 @@ namespace MathUtils
 		float magSq = glm::length2(direction);
 		return direction * (dot / magSq);
 	}
+
+	float MakeSafeForDivide(float value, float MinValue)
+	{
+		if (MathUtils::AlmostEqual(value, 0.0f, FLT_EPSILON))
+		{
+			return MinValue;
+		}
+		return value;
+	}
+
 };

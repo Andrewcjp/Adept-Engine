@@ -69,7 +69,7 @@ public:
 	glm::vec3 GetSpawnPos();
 	void NotifySpawningPoolDestruction();
 	GameObject* SpawnAI(glm::vec3 SpawnPos, EAIType::Type type);
-	GameObject * CreateAI(glm::vec3 pos, float AttackRaduis);
+	GameObject * CreateAI(glm::vec3 pos, float AttackRaduis, float BaseRaduis);
 	GameObject * SpawnHellKnight(glm::vec3 pos);
 	GameObject * SpawnSoldier(glm::vec3 pos);
 	GameObject * SpawnRioter(glm::vec3 pos);
@@ -98,5 +98,8 @@ private:
 	DirectorStateSet* StateSets = nullptr;
 	EWaveStage::Type CurrnetStage = EWaveStage::Limit;
 	AttackController* PlayerAttackController = nullptr;//For single player 
+	int SpawnDelay = 60;
+	float AISpawnDelay = 0.5f;
+	float CurrentSpawnDelay = 0.0f;
 };
 

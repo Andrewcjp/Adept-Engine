@@ -48,8 +48,7 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	GameObject* B = MakeTestSphere(Scene);
 	B->SetPosition(glm::vec3(10, 10, 0));
 	ConstaintSetup data;
-	data.Desc.Dampening = 0.2f;
-	data.Desc.SpringK = 1.0f;
+//	data.Desc.Dampening = 0.2f;
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<ColliderComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
 

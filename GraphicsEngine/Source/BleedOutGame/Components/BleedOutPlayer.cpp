@@ -36,7 +36,7 @@ void BleedOutPlayer::CheckForGround()
 	glm::vec3 down = -GetOwner()->GetTransform()->GetUp();
 	std::vector<RigidBody*> IgnoreActors;
 	IgnoreActors.push_back(RB->GetActor());
-	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 2.0f, &hit, IgnoreActors))
+	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 2.5f, &hit, IgnoreActors))
 	{
 		const float angle = glm::degrees(glm::angle(glm::vec3(0, 1, 0), hit.Normal));
 		if (angle < MaxWalkableAngle)

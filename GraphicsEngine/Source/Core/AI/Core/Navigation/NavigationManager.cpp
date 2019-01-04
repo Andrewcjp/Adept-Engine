@@ -111,7 +111,19 @@ ENavRequestStatus::Type NavigationManager::ValidateRequest(glm::vec3 Startpoint,
 	Tri* StartTri = Plane->FindTriangleFromWorldPos(Startpoint);
 	if (StartTri == nullptr)
 	{
-		return ENavRequestStatus::FailedPointOffNavMesh;
+		DLTENode* node;
+		if (Plane->ResolvePositionToNode(Startpoint, &node))
+		{
+			if (node == nullptr)
+			{
+				return ENavRequestStatus::FailedStartPointOffNavMesh;
+			}
+			StartTri = node->OwnerTri;
+		}
+		else
+		{
+			return ENavRequestStatus::FailedStartPointOffNavMesh;
+		}
 	}
 	Tri* EndTri = Plane->FindTriangleFromWorldPos(EndPos);
 	if (EndTri == nullptr)
@@ -193,10 +205,13 @@ std::string NavigationManager::GetErrorCodeAsString(ENavRequestStatus::Type t)
 		return "No Path";
 	case ENavRequestStatus::FailedPointOffNavMesh:
 		return "Point Off NavMesh";
+	case ENavRequestStatus::FailedStartPointOffNavMesh:
+		return "Start Point Off NavMesh";
 	case ENavRequestStatus::FailedNotSupported:
 		return "Not Supported";
 	case ENavRequestStatus::Complete:
 		return "Complete";
+
 	}
 	return "Unknown Error";
 }

@@ -256,7 +256,7 @@ void PhysxRigidbody::InitBody()
 
 	if (BodyType == EBodyType::RigidDynamic)
 	{
-		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(PhysxEngine::GLMtoPXvec3(transform.GetPos()), PhysxEngine::GLMtoPXQuat(transform.GetQuatRot())));
+		Dynamicactor = PhysxEngine::GetGPhysics()->createRigidDynamic(PxTransform(PhysxEngine::GLMtoPXvec3(transform.GetPos()), PhysxEngine::GLMtoPXQuat(/*transform.GetQuatRot()*/glm::quat(0.0f, 0.0f, 0.0f, 1.0f))));
 		for (int i = 0; i < Shapes.size(); i++)
 		{
 			Dynamicactor->attachShape(*Shapes[i]);

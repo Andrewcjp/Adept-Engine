@@ -64,8 +64,8 @@ void PhysxEngine::InitPhysics()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 #endif
-	//gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
-	gMaterial = gPhysics->createMaterial(0.0f, 0.0f, 0.0f);
+	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+	//gMaterial = gPhysics->createMaterial(0.0f, 0.0f, 0.0f);
 #if 1
 	//	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 		//gScene->addActor(*groundPlane);

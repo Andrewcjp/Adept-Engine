@@ -232,7 +232,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	set.FlipUVs = true;
 	set.Scale = glm::vec3(.01f);
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_2\\Crate_Cube.fbx", set), mat));
-	go->GetTransform()->SetPos(glm::vec3(20, 10, 0));
+	go->GetTransform()->SetPos(glm::vec3(18, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	cc = go->AttachComponent(new ColliderComponent());
@@ -317,7 +317,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//AddGameobjectToScene(go);
 	glm::vec3 startpos = glm::vec3(5, -5, 0);
 	float stride = 5.0f;
-	int size = 1;
+	int size = 2;
 	int zsize = 2;
 	for (int x = 0; x < size; x++)
 	{
@@ -325,19 +325,23 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		{
 			for (int z = 0; z < zsize; z++)
 			{
-				go = new GameObject("Tst box");
-				mat = Material::GetDefaultMaterial();
-				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-				go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_1\\Box_low.fbx"), mat));
-				cc = go->AttachComponent(new ColliderComponent());
-				go->GetTransform()->SetPos(startpos + glm::vec3(x *stride, 15 + z * stride, y*stride));
-				//if (z == 0)
+				if (x == 0)
 				{
+					go = new GameObject("Tst box");
+					mat = Material::GetDefaultMaterial();
+					mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+					go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_1\\Box_low.fbx"), mat));
+					cc = go->AttachComponent(new ColliderComponent());
 					cc->SetCollisonShape(EShapeType::eBOX);
 				}
-
-				RigidbodyComponent* rb = go->AttachComponent(new RigidbodyComponent());
-				rb->GetBodyData().LockZPosition = true;
+				else
+				{
+					go = CreateDebugSphere(nullptr);
+					cc = go->AttachComponent(new ColliderComponent());
+					cc->SetCollisonShape(EShapeType::eSPHERE);
+				}
+				go->AttachComponent(new RigidbodyComponent());
+				go->GetTransform()->SetPos(startpos + glm::vec3(x *stride, 15 + z * stride, y*stride));
 				AddGameobjectToScene(go);
 			}
 		}
@@ -364,10 +368,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
+			}
 		}
-	}
 #endif
-}
+	}
 
 void Scene::RemoveCamera(Camera * Cam)
 {
