@@ -24,6 +24,7 @@ namespace TD
 	}
 	void TDTest::RunAllTests()
 	{
+		TypeTest();
 		TDAABB* A = new TDAABB();
 		A->Position = glm::vec3(5, 0, 0);
 		A->HalfExtends = glm::vec3(1.25);

@@ -1,6 +1,6 @@
 #pragma once
 #ifdef TDPHYSICS_EXPORT
-#if 1
+#if !BUILD_FULLRELEASE
 #define DebugEnsure(condition) if(!(condition)){ __debugbreak();}
 #define AssertDebugBreak() __debugbreak();
 #else

@@ -61,6 +61,8 @@ namespace TD
 		static Threading::TaskGraph* GetTaskGraph();
 		void SimulationContactCallback(std::vector<ContactPair*> & SimulationCallbackPairs);
 		void TriggerSimulationContactCallback(std::vector<ContactPair*> & SimulationCallbackPairs);
+		TD_API void SetDebugShowBroadPhaseShapes(bool state);
+		TD_API void SetDebugShowContacts(bool state);
 	private:
 		TDPhysics();
 		~TDPhysics();

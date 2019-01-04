@@ -19,8 +19,6 @@ public:
 	glm::vec3 GetLinearVelocity() const;
 	void AttachCollider(Collider* col);
 	TD::TDMesh * GenerateTriangleMesh(std::string Filename, glm::vec3 scale);
-	CORE_API void SetBodyData(BodyInstanceData data);
-	CORE_API BodyInstanceData GetBodyData();
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
 	CORE_API void InitBody();
 	void SetPositionAndRotation(glm::vec3 pos, glm::quat rot);
@@ -28,6 +26,7 @@ public:
 	CORE_API TD::TDActor* GetActor();
 	CORE_API float GetMass();
 	void SetPhysicsMaterial(PhysicalMaterial* Mat);
+	void UpdateBodyState();
 private:
 	std::vector<Collider*> AttachedColliders;
 	Transform m_transform;
@@ -35,11 +34,7 @@ private:
 	TD::TDRigidStatic* StaticActor = nullptr;
 	TD::TDActor* CommonActorPTr = nullptr;
 	std::vector<TD::TDShape*> shapes;
-	BodyInstanceData data;
 	TD::TDPhysicalMaterial* TDMaterial = nullptr;
-protected:
-	virtual void UpdateBodyState() override;
-
 };
 
 #endif

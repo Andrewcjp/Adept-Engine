@@ -227,7 +227,7 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 		glm::vec3 norm = glm::normalize(dir);
 
 		float angle = glm::dot(norm, glm::vec3(0, 1, 0));
-		if (angle < 0.7f)//remove triangles that are angled wrong
+		if (angle < 0.5f)//remove triangles that are angled wrong
 		{
 			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;

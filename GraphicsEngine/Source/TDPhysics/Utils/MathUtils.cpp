@@ -34,4 +34,10 @@ namespace MathUtils
 		}
 	}
 
+	glm::vec3 VectorProject(const glm::vec3 length, const glm::vec3 direction)
+	{
+		float dot = glm::dot(length, direction);
+		float magSq = glm::length2(direction);
+		return direction * (dot / magSq);
+	}
 };

@@ -11,9 +11,7 @@ namespace TD
 		~TDSpringJoint();
 
 		virtual void Resolve(float dt) override;
-		float restingLength = 5.0f;
-		float b = 0.1f;
-		float k = 1.0f;
+
 	private:
 		TDRigidDynamic* ADynamic = nullptr;
 		TDRigidDynamic* BDynamic = nullptr;

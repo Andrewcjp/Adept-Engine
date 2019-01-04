@@ -32,6 +32,7 @@ namespace TD
 		int ContactExpireFrameCount = 10;
 		bool ShowBroadPhaseShapes = false;
 		bool ShowContacts = false;
+		bool EXP_EnableRot = false;
 	};
 };
 

@@ -25,4 +25,6 @@
 #include <glm/gtx/quaternion.hpp>
 #include <functional>
 
-#define VALIDATE_KE 1
+#define VALIDATE_KE 0
+#define BUILD_DEBUG_RENDER 1
+#define ALLOW_ROT 0

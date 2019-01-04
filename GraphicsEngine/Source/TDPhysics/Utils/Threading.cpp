@@ -52,6 +52,7 @@ namespace TD
 			thread->JobReady.WaitForSignal(-1);
 			if (thread->IsRequestedToExit())
 			{
+				thread->JobDone.Signal();//we have quit 
 				break;
 			}
 
@@ -61,6 +62,7 @@ namespace TD
 			}
 			thread->JobDone.Signal();
 		}
+		
 		return 0;
 	}
 };
@@ -80,7 +82,7 @@ void TD::Threading::TaskGraph::Shutdown()
 	{
 		Threads[i]->RequestToExit();
 		Threads[i]->JobReady.Signal();
-		Threads[i]->WaitForFunctionCompletion();
+		//Threads[i]->WaitForFunctionCompletion();
 		SafeDelete(Threads[i]);
 	}
 }

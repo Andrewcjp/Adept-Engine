@@ -89,6 +89,7 @@ bool DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 		}
 		path.push_back(glm::vec3(startnode->Point.x, 1, startnode->Point.y));
 		startnode = temporaryState;
+		//todo: Finish Path Re planning
 		//GridLTE();
 		//	std::cout << dStarLite.get_start().x << " " << dStarLite.get_start().y << std::endl;
 			/* if any edge cost has changed */

@@ -41,9 +41,9 @@ void TDPhysicsEngine::InitPhysics()
 }
 ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, const ConstaintSetup& Setup)
 {
-	TD::ConstraintDesc desc;
-	desc.Type = TDConstraintType::Spring;
-
+	TD::ConstraintDesc desc;	
+	desc = Setup.Desc;
+	desc.Type = TDConstraintType::Spring;//todo: other constaints!
 	return new TD_ConstraintInstance(TDPhysics::Get()->CreateConstraint(A->GetActor(), B->GetActor(), desc), Setup);
 }
 
@@ -103,11 +103,14 @@ void TDPhysicsEngine::StepPhysics(float Deltatime)
 {
 	GenericPhysicsEngine::StepPhysics(Deltatime);
 	TDPhysics::Get()->StartStep(PlayScene, Deltatime);
+	TDPhysics::Get()->SetDebugShowBroadPhaseShapes(GetCurrentMode() == EPhysicsDebugMode::ShowBroadPhaseShapes || GetCurrentMode() == EPhysicsDebugMode::All);
+	TDPhysics::Get()->SetDebugShowContacts(GetCurrentMode() == EPhysicsDebugMode::ShowContacts || GetCurrentMode() == EPhysicsDebugMode::All);
 }
 
 void TDPhysicsEngine::CleanupPhysics()
-{}
-
+{
+	TDPhysics::Get()->ShutDown();
+}
 
 bool TDPhysicsEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit* hit)
 {

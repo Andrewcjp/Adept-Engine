@@ -146,6 +146,11 @@ bool TD::ShapeCollisionPair::IsPairValidForTrigger()
 	return IsAReady && IsBReady;
 }
 
+void TD::RayCast::Validate()
+{
+	Dir = glm::normalize(Dir);
+}
+
 bool TD::RayCast::PreFilter(TDActor* actor, TDShape* Shape)
 {
 	if (InterSectionFilter != nullptr)

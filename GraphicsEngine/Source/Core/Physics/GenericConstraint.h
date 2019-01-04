@@ -1,5 +1,8 @@
 #pragma once
 #include "Physics/Physics_fwd.h"
+#if TDSIM_ENABLED
+#include "TDTypes.h"
+#endif
 namespace EConstaintMotion
 {
 	enum Type
@@ -26,6 +29,9 @@ struct ConstaintSetup
 
 	bool EnableProjection = false;
 	float ProjectionLinearTolerance;
+#if TDSIM_ENABLED //Todo: Abstract! For now TD is close Enough
+	TD::ConstraintDesc Desc;
+#endif
 };
 
 /*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/

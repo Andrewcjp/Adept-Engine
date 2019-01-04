@@ -22,6 +22,11 @@ namespace TD
 		TD_API void SetQrot(const glm::quat& val);
 		void SetParent(TDTransform* Parent);
 		void TranslatePos(const glm::vec3 & pos);
+		/**
+		 * @param  Fwd
+		 * @param  up
+		 * @return void
+		 */
 		void MakeRotationFromXY(const glm::vec3 & Fwd, const glm::vec3 & up);
 		glm::mat4 GetModel();
 		//------------------------------------------------------

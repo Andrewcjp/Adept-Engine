@@ -26,6 +26,7 @@ namespace TD
 	private:
 		TDMesh* Mesh = nullptr;
 	};
+
 	struct ArrayEntryDesc
 	{
 		size_t Count = 0;
@@ -37,6 +38,7 @@ namespace TD
 			return (T*)(((unsigned char*)DataPtr) + Stride * index);
 		}
 	};
+
 	class TDTriangleMeshDesc
 	{
 	public:
@@ -45,6 +47,7 @@ namespace TD
 		ArrayEntryDesc Indices;
 		bool HasPerVertexNormals = true;
 	};
+
 	class TDMesh
 	{
 	public:
@@ -59,6 +62,7 @@ namespace TD
 		TDBVH* BVH = nullptr;
 		std::vector<TDTriangle*> Triangles;
 	};
+
 	class TDTriangle
 	{
 	public:
@@ -80,16 +84,17 @@ namespace TD
 	private:
 		glm::vec3 posAVG;
 	};
+
 	struct Edge
 	{
-		glm::vec3 pointa;
-		glm::vec3 pointb;
+		glm::vec3 PointA;
+		glm::vec3 PointB;
 		Edge() {};
 		Edge(glm::vec3 a, glm::vec3 b)
 		{
-			pointa = a;
-			pointb = b;
+			PointA = a;
+			PointB = b;
 		}
-		static glm::vec3 ClosestPoint(const Edge & line, const glm::vec3 & point);
+		glm::vec3 ClosestPoint(const glm::vec3 point);
 	};
 }

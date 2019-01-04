@@ -77,7 +77,7 @@ void TDRigidBody::AttachCollider(Collider * col)
 			SphereElem* SphereShape = (SphereElem*)Shape;
 			newShape = new TD::TDSphere();
 			((TD::TDSphere*)newShape)->Radius = SphereShape->raduis;
-			
+
 			break;
 		}
 		case EShapeType::eTRIANGLEMESH:
@@ -152,17 +152,6 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 	return newmesh;
 }
 
-void TDRigidBody::SetBodyData(BodyInstanceData data)
-{
-	BodyData = data;
-	UpdateBodyState();
-}
-
-BodyInstanceData TDRigidBody::GetBodyData()
-{
-	return BodyData;
-}
-
 void TDRigidBody::SetLinearVelocity(glm::vec3 velocity)
 {
 	if (Actor)
@@ -181,7 +170,7 @@ void TDRigidBody::InitBody()
 	else
 	{
 		Actor = new TD::TDRigidDynamic();
-		Actor->SetGravity(data.Gravity);
+		Actor->SetGravity(BodyData.Gravity);
 		CommonActorPTr = Actor;
 	}
 	CommonActorPTr->GetTransfrom()->SetPos(m_transform.GetPos());
@@ -211,7 +200,7 @@ void TDRigidBody::SetGravity(bool state)
 	}
 	else
 	{
-		data.Gravity = state;
+		BodyData.Gravity = state;
 	}
 }
 
@@ -249,8 +238,17 @@ void TDRigidBody::UpdateBodyState()
 				Actor->GetAttachedShapes()[i]->SetPhysicalMaterial(*TDMaterial);//for now copy 
 			}
 		}
-	}
+		
+		Actor->GetFlags().SetFlagValue(TDActorFlags::EKinematic, BodyData.IsKinematic);
 
+		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockPosX, BodyData.LockXPosition);
+		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockPosY, BodyData.LockYPosition);
+		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockPosZ, BodyData.LockZPosition);
+
+		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotX, BodyData.LockXRot);
+		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotY, BodyData.LockYRot);
+		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotZ, BodyData.LockZRot);
+	}
 }
 
 #endif

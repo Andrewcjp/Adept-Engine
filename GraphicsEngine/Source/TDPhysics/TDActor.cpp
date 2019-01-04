@@ -4,13 +4,14 @@
 #include "Shapes/TDAABB.h"
 #include "Utils/MemoryUtils.h"
 #include "Shapes/TDMeshShape.h"
+#include "TDRigidDynamic.h"
 namespace TD
 {
 
 	TDActor::TDActor()
 	{
 		AABB = new TDAABB();
-		AABB->Owner = this;		
+		AABB->Owner = this;
 	}
 
 	TDActor::~TDActor()
@@ -49,7 +50,7 @@ namespace TD
 		if (newShape == nullptr)
 		{
 			return;
-		}		
+		}
 		newShape->SetOwner(this);
 		if (AttachedShapes.size() == 0)
 		{
@@ -92,11 +93,37 @@ namespace TD
 	{}
 #endif
 
+	TDRigidDynamic * TDActor::RigidCast(TDActor * actor)
+	{
+		TDRigidDynamic* Dynamic = TDActor::ActorCast<TDRigidDynamic>(actor);
+		if (Dynamic == nullptr)
+		{
+			return nullptr;
+		}
+		if (Dynamic->GetFlags().GetFlagValue(TDActorFlags::EKinematic))
+		{
+			// Returning null will cause this to act like a rigid static in collisions
+			return nullptr;
+		}
+		return Dynamic;
+	}
+
 	void TDActor::UpdateAABBPos(glm::vec3 pos)
 	{
-		if (AABB != nullptr) 
+		if (AABB != nullptr)
 		{
 			AABB->Position = pos + LocalAABBPos;
 		}
 	}
+
+	void TDActor::SetAABBLocalPos(glm::vec3 localpos)
+	{
+		LocalAABBPos = localpos;
+	}
+
+	TDActorFlags& TDActor::GetFlags()
+	{
+		return ActorFlags;
+	}
+
 }

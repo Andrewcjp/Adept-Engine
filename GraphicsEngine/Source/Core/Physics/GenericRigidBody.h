@@ -14,11 +14,15 @@ struct BodyInstanceData
 	bool UseAutoMass = false;
 	bool Gravity = true;
 	PhysicalMaterial* Mat = nullptr;
+	bool IsKinematic = false;
 };
 
 class Component;
 class ColliderComponent;
-namespace physx { class PxShape; }
+namespace physx
+{
+	class PxShape;
+}
 /*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/
 class GenericRigidBody
 {
@@ -76,17 +80,27 @@ public:
 	void SetBodyData(BodyInstanceData data);
 	BodyInstanceData& GetBodyData();
 
-	Component* GetOwnerComponent() const { return OwningComponent; }
-	void SetOwnerComponent(Component* newowner) { OwningComponent = newowner; }
+	Component* GetOwnerComponent() const
+	{
+		return OwningComponent;
+	}
+	void SetOwnerComponent(Component* newowner)
+	{
+		OwningComponent = newowner;
+	}
 	PhysicalMaterial* PhysicsMat = nullptr;
+	void UpdateBodyState(){};
 protected:
-	virtual void UpdateBodyState() {};
+
 	EBodyType::Type BodyType;
 	BodyInstanceData BodyData;
 	Component* OwningComponent = nullptr;
 
 };
-namespace TD { class TDShape; };
+namespace TD
+{
+	class TDShape;
+};
 /*! This class is used as the compile time base class for the rigid body class as only one physics engine can be used at once*/
 class GenericCollider
 {
@@ -107,6 +121,6 @@ public:
 	ColliderComponent* ComponentOwner = nullptr;
 protected:
 	RigidBody* Owner = nullptr;
-	
+
 };
 
