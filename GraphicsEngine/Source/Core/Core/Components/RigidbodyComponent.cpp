@@ -80,7 +80,7 @@ void RigidbodyComponent::SceneInitComponent()
 		{
 			cc->TransferToRigidbody();
 			actor->AttachCollider(cc->GetCollider());
-		}	
+		}
 		actor->SetBodyData(BodyData);
 		actor->SetOwnerComponent(this);
 		actor->InitBody();

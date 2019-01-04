@@ -21,9 +21,12 @@ public:
 	void AttachCollider(Collider* col);
 	void SetPhysicalMaterial(PhysicalMaterial* newmat);
 
-	void UpdateBodyState() ;
+	void UpdateBodyState();
 
-	physx::PxRigidActor* GetActor() { return CommonActorPtr; }
+	physx::PxRigidActor* GetActor()
+	{
+		return CommonActorPtr;
+	}
 	void InitBody();
 	CORE_API float GetMass();
 private:

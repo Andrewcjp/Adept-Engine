@@ -23,7 +23,7 @@ D3D12Shader::D3D12Shader(DeviceContext* Device)
 #endif
 	if (!CacheBlobs)
 	{
-		Log::LogMessage("Shader Cache Disabled",Log::Warning);
+		Log::LogMessage("Shader Cache Disabled", Log::Warning);
 	}
 }
 
@@ -554,7 +554,7 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 
 	ID3DBlob* signature = nullptr;
 	ID3DBlob* pErrorBlob = nullptr;
-	HRESULT hr =  (D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &pErrorBlob));
+	HRESULT hr = (D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &pErrorBlob));
 	std::string Log = "Serialize Root Signature Compile Output: ";
 	if (pErrorBlob != nullptr)
 	{

@@ -48,7 +48,7 @@ void FreeLookComponent::Update(float delta)
 	}
 	if (Input::GetKey('s'))
 	{
-		Form->TranslatePos(-Forward *delta);
+		Form->TranslatePos(-Forward * delta);
 	}
 	if (Input::GetKey('d'))
 	{

@@ -11,7 +11,7 @@ ImageIO::ImageIO()
 {
 	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
 	ensureFatalMsgf(DefaultTexture, "Failed to Load Fallback Texture");
-	DefaultTexture->AddRef();	
+	DefaultTexture->AddRef();
 }
 
 ImageIO::~ImageIO()

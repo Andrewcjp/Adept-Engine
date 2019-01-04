@@ -51,7 +51,7 @@ std::string ConsoleVariable::GetValueString()
 bool GetValueClean(std::string value, int& outvalue)
 {
 	if (value.find('-') != -1)
-	{		
+	{
 		outvalue = -1;
 		return false;
 	}

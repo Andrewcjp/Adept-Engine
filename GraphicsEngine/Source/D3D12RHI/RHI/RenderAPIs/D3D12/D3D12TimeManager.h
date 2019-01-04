@@ -18,7 +18,7 @@ public:
 	void UpdateTimers() override;
 	std::string GetTimerData() override;
 	void SetTimerName(int index, std::string Name) override;
-	
+
 	void StartTotalGPUTimer(RHICommandList * ComandList) override;
 	void StartTimer(RHICommandList * ComandList, int index) override;
 	void EndTimer(RHICommandList * ComandList, int index) override;
@@ -58,7 +58,7 @@ private:
 #endif
 	int MaxIndexInUse = 0;
 	void Init(DeviceContext * context);
-	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, UINT64 ClockFreq, bool CopyList,int offset);
+	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, UINT64 ClockFreq, bool CopyList, int offset);
 
 	MovingAverage avg = MovingAverage(AVGTIME);
 	ID3D12QueryHeap* m_timestampQueryHeaps;

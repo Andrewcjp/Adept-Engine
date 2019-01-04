@@ -7,12 +7,14 @@ public:
 	D3D12Texture(class DeviceContext * inDevice = nullptr);
 	virtual ~D3D12Texture();
 	bool CreateFromFile(AssetPathRef  FileName) override;
-	virtual void Bind(int unit) {};
+	virtual void Bind(int unit)
+	{};
 	void BindToSlot(ID3D12GraphicsCommandList * list, int slot);
-	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha) {} ;
+	virtual void CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha)
+	{};
 	virtual void CreateTextureFromData(void * data, int type, int width, int height, int bits) override;
 	virtual void CreateAsNull() override;
-	void UpdateSRV() override;	
+	void UpdateSRV() override;
 	ID3D12Resource* GetResource();
 	int width = 0;
 	int height = 0;

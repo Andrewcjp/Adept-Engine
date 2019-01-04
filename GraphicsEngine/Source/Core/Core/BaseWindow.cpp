@@ -333,7 +333,7 @@ void BaseWindow::EnqueueRestart()
 	for (int i = 0; i < UI->GetContexts().size(); i++)
 	{
 		UI->GetContexts()[i]->DisplayLoadingScreen();
-	}	
+	}
 }
 
 void BaseWindow::ReLoadCurrentScene()

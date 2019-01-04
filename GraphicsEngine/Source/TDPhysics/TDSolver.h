@@ -41,7 +41,7 @@ namespace TD
 		float CurrentTimeStep = 0.0f;
 		std::vector<ActorCollisionPair> NarrowPhasePairs;
 		//callbacks
-		std::vector<ContactPair*> NewSimulationCallbackPairs;		
+		std::vector<ContactPair*> NewSimulationCallbackPairs;
 		std::vector<ContactPair*> NewSimulationTriggerCallbackPairs;
 		std::vector<ContactCallBack> TriggerCallbacks;
 		std::vector<ContactCallBack> ContactCallbacks;

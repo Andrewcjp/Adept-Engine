@@ -10,7 +10,10 @@ public:
 	virtual void EndPlay();
 	virtual void Update();
 	void OnPlayerDeath();
-	GameObject* GetPlayer() { return MPlayer.Get(); };
+	GameObject* GetPlayer()
+	{
+		return MPlayer.Get();
+	};
 	void SpawnPlayer(glm::vec3 Pos, Scene* scene);
 private:
 	WeakObjectPtr<GameObject> MPlayer;

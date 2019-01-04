@@ -40,7 +40,7 @@ public:
 	static void LockCursor(bool state);
 	CORE_API static bool GetMouseWheelUp();
 	CORE_API static bool GetMouseWheelDown();
-	
+
 	void ResetMouse();
 	int MouseSampleCount = 0;
 	bool DidJustPause = false;

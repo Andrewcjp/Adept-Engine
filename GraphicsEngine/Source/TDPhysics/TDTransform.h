@@ -31,7 +31,7 @@ namespace TD
 		glm::mat4 GetModel();
 		//------------------------------------------------------
 		//getters
-		TD_API glm::vec3 GetPos() ;
+		TD_API glm::vec3 GetPos();
 		TD_API glm::vec3 GetEulerRot() const;
 		TD_API glm::vec3 GetScale() const;
 		void SetLocalPosition(glm::vec3 localpos);

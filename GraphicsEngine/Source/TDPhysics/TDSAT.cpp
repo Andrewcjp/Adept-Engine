@@ -10,7 +10,7 @@ namespace TD
 		glm::vec3 vertex[VertCount];
 
 		const glm::vec3 Centre = box->GetPos();
-		const glm::vec3 HalfExtends = box->HalfExtends;		
+		const glm::vec3 HalfExtends = box->HalfExtends;
 		glm::mat3x3 Rotation = glm::mat3(box->GetTransfrom()->GetQuatRot());
 		glm::vec3 u0 = glm::vec3(Rotation[0][0], Rotation[1][0], Rotation[2][0]);
 		glm::vec3 u1 = glm::vec3(Rotation[0][1], Rotation[1][1], Rotation[2][1]);//todo: wrong way round?

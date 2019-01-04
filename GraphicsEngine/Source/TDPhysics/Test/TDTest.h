@@ -1,5 +1,5 @@
 #pragma once
-namespace TD 
+namespace TD
 {
 	class TDTest
 	{

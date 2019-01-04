@@ -15,14 +15,14 @@ UIWidgetContext::UIWidgetContext()
 	TextureImportSettings set;
 	set.ForceMipCount = 1;
 	PauseTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\PauseScreen.png");
-	LoadingTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\Loading screen.png",set);
+	LoadingTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\Loading screen.png", set);
 	LoadingTex->MaxMip = 1;
 	LoadingTex->UpdateSRV();
-	Quad->Texture = PauseTex; 
+	Quad->Texture = PauseTex;
 }
 
 UIWidgetContext::~UIWidgetContext()
-{ 
+{
 	SafeDelete(TextRender);
 	SafeDelete(LineBatcher);
 	SafeDelete(DrawBatcher);

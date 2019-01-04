@@ -6,13 +6,13 @@ DECLARE_GLOBAL_SHADER(Text_Shader);
 Text_Shader::Text_Shader(DeviceContext* context)
 {
 	m_Shader = RHI::CreateShaderProgam(context);
-	
+
 	m_Shader->AttachAndCompileShaderFromFile("text_vs_Atlas", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("text_fs_Atlas", EShaderType::SHADER_FRAGMENT);
-	
-	CBV = RHI::CreateRHIBuffer(ERHIBufferType::Constant,context);
+
+	CBV = RHI::CreateRHIBuffer(ERHIBufferType::Constant, context);
 	CBV->CreateConstantBuffer(sizeof(Data), 1);
-} 
+}
 
 std::vector<Shader::ShaderParameter> Text_Shader::GetShaderParameters()
 {

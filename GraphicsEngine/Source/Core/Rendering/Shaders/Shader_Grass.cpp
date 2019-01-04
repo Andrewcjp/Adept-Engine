@@ -5,7 +5,7 @@
 Shader_Grass::Shader_Grass()
 {
 	m_Shader = RHI::CreateShaderProgam();
-	
+
 	m_Shader->AttachAndCompileShaderFromFile("Grass", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Grass", EShaderType::SHADER_FRAGMENT);
 }
@@ -33,6 +33,5 @@ void Shader_Grass::UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Ligh
 #endif
 }
 
-void Shader_Grass::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
-{
-}
+void Shader_Grass::UpdateD3D11Uniforms(Transform *, Camera *, std::vector<Light*> lights)
+{}

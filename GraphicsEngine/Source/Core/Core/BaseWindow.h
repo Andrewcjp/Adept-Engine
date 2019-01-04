@@ -8,7 +8,7 @@ class BaseWindow : public RenderWindow
 public:
 	BaseWindow();
 	virtual ~BaseWindow();
-	virtual bool CreateRenderWindow( int width, int height) override final;
+	virtual bool CreateRenderWindow(int width, int height) override final;
 	virtual void Render() override final;
 	virtual void Resize(int width, int height) override final;
 	virtual void DestroyRenderWindow() override;
@@ -29,23 +29,32 @@ public:
 	bool ShowText = false;
 	bool ExtendedPerformanceStats = false;
 	static Scene* GetScene();
-	bool IsScenePaused() { return PauseState; }
+	bool IsScenePaused()
+	{
+		return PauseState;
+	}
 	void SetPauseState(bool State);
 
 	virtual void OnWindowContextLost() override;
 	void EnqueueRestart();
-	
+
 protected:
 	void ReLoadCurrentScene();
 	virtual Scene* GetCurrentScene();
 	//callbacks
-	virtual void PostInitWindow(int width, int height) {};
-	virtual void PreRender() {};
-	virtual void PostRender() {};
-	virtual void PostMainPass() {};
-	virtual void PreDestory() {};
+	virtual void PostInitWindow(int width, int height)
+	{};
+	virtual void PreRender()
+	{};
+	virtual void PostRender()
+	{};
+	virtual void PostMainPass()
+	{};
+	virtual void PreDestory()
+	{};
 	virtual void FixedUpdate();
-	virtual void Update() {};
+	virtual void Update()
+	{};
 
 	//Sub Modules
 	class RenderEngine * Renderer = nullptr;
@@ -54,11 +63,12 @@ protected:
 	class Scene* CurrentScene = nullptr;
 	class Editor_Camera* EditorCamera = nullptr;
 	class SceneJSerialiser* Saver = nullptr;
-	
+
 	float DeltaTime = 0.0;
 	const float TickRate = 1.0f / 60.0f;
 
-	virtual void WindowUI() {};
+	virtual void WindowUI()
+	{};
 	bool IsRunning = false;
 	bool ShouldTickScene = false;
 	int FrameRateLimit = 0;

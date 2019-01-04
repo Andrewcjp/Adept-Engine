@@ -7,7 +7,7 @@ class PhysxCallBackHandler :public physx::PxSimulationEventCallback
 {
 	// Inherited via PxSimulationEventCallback
 	void onContact(const PxContactPairHeader& PairHeader, const PxContactPair* Pairs, PxU32 NumPairs);
-	
+
 	virtual void onConstraintBreak(PxConstraintInfo * constraints, PxU32 count) override;
 
 	virtual void onWake(PxActor ** actors, PxU32 count) override;

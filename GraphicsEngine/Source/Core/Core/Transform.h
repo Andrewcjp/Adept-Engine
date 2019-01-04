@@ -50,7 +50,7 @@ private:
 	glm::mat4 parentMatrix;
 	WeakObjectPtr<GameObject> parent;
 
-	glm::vec3 oldpos =  glm::vec3();
+	glm::vec3 oldpos = glm::vec3();
 	glm::vec3 oldscale = glm::vec3();
 	glm::quat oldqrot = glm::vec3();
 };

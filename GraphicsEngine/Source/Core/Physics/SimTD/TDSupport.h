@@ -21,7 +21,7 @@ public:
 class IgnoreFilter :public TD::TDQuerryFilter
 {
 public:
-	
+
 	virtual bool PreFilter(TD::TDActor* actor, TD::TDShape* Shape, const TD::RayCast* raydata) override;
 	virtual bool PostFilter(TD::RaycastData* Hit, const TD::RayCast* raydata) override;
 	std::vector<RigidBody*> IgnoreActors;

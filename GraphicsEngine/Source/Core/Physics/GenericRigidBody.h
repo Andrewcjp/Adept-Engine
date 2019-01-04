@@ -89,7 +89,8 @@ public:
 		OwningComponent = newowner;
 	}
 	PhysicalMaterial* PhysicsMat = nullptr;
-	void UpdateBodyState(){};
+	void UpdateBodyState()
+	{};
 protected:
 
 	EBodyType::Type BodyType;

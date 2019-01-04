@@ -6,7 +6,7 @@ AssetPathRef::AssetPathRef(std::string Filename)
 {
 	if (Filename.find("\\") == 0)
 	{
-		Filename.erase(0,1);//trim leading whitespace
+		Filename.erase(0, 1);//trim leading whitespace
 	}
 
 	std::vector<std::string> split = StringUtils::Split(Filename, '.');

@@ -12,14 +12,13 @@ UIGraph::UIGraph(DebugLineDrawer* linebatch, int w, int h, int x, int y) :UIWidg
 }
 
 UIGraph::~UIGraph()
-{
-}
+{}
 
 void UIGraph::Render()
 {
-	LineBatcher->AddLine(glm::vec3(X, Y,0), glm::vec3(X, Y + mheight, 0), glm::vec3(1, 1, 1));
+	LineBatcher->AddLine(glm::vec3(X, Y, 0), glm::vec3(X, Y + mheight, 0), glm::vec3(1, 1, 1));
 	LineBatcher->AddLine(glm::vec3(X + mwidth, Y, 0), glm::vec3(X + mwidth, Y + mheight, 0), glm::vec3(1, 1, 1));
-	LineBatcher->AddLine(glm::vec3(X, Y,0), glm::vec3(X + mwidth, Y, 0), glm::vec3(1, 1, 1));
+	LineBatcher->AddLine(glm::vec3(X, Y, 0), glm::vec3(X + mwidth, Y, 0), glm::vec3(1, 1, 1));
 	//render points;
 	RenderPoints(GPUpoints, glm::vec3(1, 1, 0));
 	RenderPoints(CPUpoints, glm::vec3(1, 0, 0));
@@ -49,7 +48,7 @@ void UIGraph::UpdateData()
 {
 	CurrentFrameCounter--;
 	if (CurrentFrameCounter > 0)
-	{		
+	{
 		return;
 	}
 	CurrentFrameCounter = FramesPerSample;

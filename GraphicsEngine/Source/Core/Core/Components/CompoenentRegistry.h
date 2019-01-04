@@ -6,7 +6,7 @@ public:
 	CORE_API ~CompoenentRegistry();
 	CORE_API void RegisterComponent(std::string name, int id);
 	CORE_API static CompoenentRegistry* GetInstance();
-	
+
 	enum BaseComponentTypes
 	{
 		LightComp,
@@ -19,7 +19,7 @@ public:
 		SpawnMarkerComp,
 		Limit
 	};
-	
+
 	static class Component* CreateAdditonalComponent(int id);
 	static Component * CreateBaseComponent(BaseComponentTypes id);
 	CORE_API void RegisterExtraComponents(class ExtraComponentRegister* ECR);

@@ -16,7 +16,7 @@ bool MeleeWeapon::Fire()
 	{
 		return false;
 	}
-	AudioEngine::PostEvent("Melee_Move",GetOwner());
+	AudioEngine::PostEvent("Melee_Move", GetOwner());
 	//do a box cast or something!
 	Collider->SetEnabled(true);
 	CurrentAttackTime = AttackLength;

@@ -7,7 +7,7 @@ Shader_NodeGraph::Shader_NodeGraph(ShaderGraph* graph) :Shader_Main(true)
 {
 	if (RHI::GetRenderSettings()->IsDeferred)
 	{
-		m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);		
+		m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
 	}
 	else
 	{

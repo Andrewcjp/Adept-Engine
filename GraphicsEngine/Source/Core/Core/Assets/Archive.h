@@ -44,8 +44,8 @@ public:
 			{
 				T* newc = new T();
 				rapidjson::Value* cv = &t[i];
-				CurrentReadHead = cv->MemberBegin();				
-				func(this, newc);				
+				CurrentReadHead = cv->MemberBegin();
+				func(this, newc);
 				if (newc != nullptr)
 				{
 					Value.push_back(newc);
@@ -71,7 +71,7 @@ public:
 		}
 	}
 	template<class K, class T>
-	void LinkPropertyMap(std::map<K,T> & Value, const char * PropName, std::function<void(Archive*, T*)> func)
+	void LinkPropertyMap(std::map<K, T> & Value, const char * PropName, std::function<void(Archive*, T*)> func)
 	{
 		if (IsReading())
 		{
@@ -86,7 +86,7 @@ public:
 				K Key;
 				LinkProperty(Key, "Pair.first");
 				func(this, &newc);
-				Value.emplace(Key,newc);
+				Value.emplace(Key, newc);
 			}
 			CurrentReadHead = starthead;
 			CurrentReadHead++;

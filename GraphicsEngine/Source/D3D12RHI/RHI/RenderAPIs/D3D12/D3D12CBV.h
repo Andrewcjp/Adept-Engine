@@ -8,7 +8,7 @@ public:
 		MainCBV = 1,
 		LightCBV = 2,
 		MPCBV = 3
-	}; 
+	};
 	D3D12CBV(class DeviceContext* Device);
 	~D3D12CBV();
 	void SetDescriptorHeaps(ID3D12GraphicsCommandList * list);

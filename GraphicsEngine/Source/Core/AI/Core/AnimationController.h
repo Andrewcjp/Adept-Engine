@@ -21,7 +21,7 @@ class Transisiton
 	void SetDefault();
 	void Tick(float Dt);
 	void Reset();
-	void SetUp(AnimationState* Src,AnimationState* Dst);
+	void SetUp(AnimationState* Src, AnimationState* Dst);
 	bool IsComplete()const;
 private:
 	AnimationState* Src = nullptr;
@@ -64,7 +64,7 @@ protected:
 private:
 	AnimationState* CurrnetState = nullptr;
 	Transisiton CurrentTransition;
-	std::map<int,AnimationState*> StateMap;
+	std::map<int, AnimationState*> StateMap;
 	EGenericAnimtionStates::Type CurrentEnumState = EGenericAnimtionStates::Limit;
 };
 

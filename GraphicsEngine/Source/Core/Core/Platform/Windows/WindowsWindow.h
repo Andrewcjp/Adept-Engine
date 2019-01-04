@@ -20,13 +20,13 @@ private:
 	HCURSOR						Cursor;
 	HCURSOR						Cursors[GenericWindow::CursorType::Limit];
 
-public:	
+public:
 	WindowsWindow();
 	virtual						~WindowsWindow();
 	void						GetDesktopResolution(int& horizontal, int& vertical);
 	IntPoint					GetMousePos();
 	void						SetMousePos(IntPoint& point);
-	char						GetVirtualKeyAsChar(unsigned int key);	
+	char						GetVirtualKeyAsChar(unsigned int key);
 	short						GetCharAsVirtualKey(char c);
 	bool						IsKeyDown(short key);
 	static void					SetCursorType(GenericWindow::CursorType Type);

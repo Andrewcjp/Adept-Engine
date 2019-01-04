@@ -9,7 +9,8 @@ struct IntPoint
 {
 	int x = 0;
 	int y = 0;
-	IntPoint() {}
+	IntPoint()
+	{}
 	IntPoint(int X, int Y)
 	{
 		x = X;
@@ -20,7 +21,8 @@ struct IntRect
 {
 	IntPoint Min;
 	IntPoint Max;
-	IntRect() {}
+	IntRect()
+	{}
 	IntRect(IntPoint min, IntPoint max)
 	{
 		Min = min;
@@ -29,7 +31,8 @@ struct IntRect
 };
 struct Tag
 {
-	CORE_API Tag() {}
+	CORE_API Tag()
+	{}
 	Tag(std::string s)
 	{
 		name = s;

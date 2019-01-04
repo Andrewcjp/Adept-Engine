@@ -1,6 +1,6 @@
 #pragma once
 #include "Source/BleedOutGame/AI/B_AIBase.h"
-class PossessedSoldier:public B_AIBase
+class PossessedSoldier :public B_AIBase
 {
 public:
 	PossessedSoldier();

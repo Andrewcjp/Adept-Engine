@@ -41,7 +41,7 @@ void TDPhysicsEngine::InitPhysics()
 }
 ConstraintInstance * TDPhysicsEngine::CreateConstraint(RigidBody * A, RigidBody * B, const ConstaintSetup& Setup)
 {
-	TD::ConstraintDesc desc;	
+	TD::ConstraintDesc desc;
 	desc = Setup.Desc;
 	desc.Type = TDConstraintType::Spring;//todo: other constaints!
 	return new TD_ConstraintInstance(TDPhysics::Get()->CreateConstraint(A->GetActor(), B->GetActor(), desc), Setup);

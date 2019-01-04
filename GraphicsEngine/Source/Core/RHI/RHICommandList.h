@@ -25,7 +25,7 @@ struct RHIBufferDesc
 class RHI_API RHIBuffer : public IRHIResourse
 {
 public:
-	
+
 	ERHIBufferType::Type CurrentBufferType;
 	RHIBuffer(ERHIBufferType::Type type);
 	RHI_VIRTUAL void CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype = EBufferAccessType::Static) = 0;
@@ -38,14 +38,18 @@ public:
 	RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
 	RHI_VIRTUAL void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) = 0;
 	RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) = 0;
-	RHI_VIRTUAL ~RHIBuffer() {}
-	size_t GetVertexCount() { return VertexCount; }
+	RHI_VIRTUAL ~RHIBuffer()
+	{}
+	size_t GetVertexCount()
+	{
+		return VertexCount;
+	}
 	int GetCounterOffset()
 	{
 		return CounterOffset;
-	} 
+	}
 	class RHIUAV* GetUAV();
-protected: 
+protected:
 	RHIBufferDesc Desc;
 	size_t VertexCount = 0;
 	int CounterOffset = 0;
@@ -57,7 +61,8 @@ class RHI_API RHIUAV : public IRHIResourse
 {
 public:
 	RHIUAV();
-	RHI_VIRTUAL ~RHIUAV() {};
+	RHI_VIRTUAL ~RHIUAV()
+	{};
 	RHI_VIRTUAL void Bind(class RHICommandList* list, int slot) = 0;
 	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target) = 0;
 	RHI_VIRTUAL void CreateUAVFromTexture(class BaseTexture* target) = 0;
@@ -68,7 +73,7 @@ class FrameBuffer;
 class RHI_API RHICommandList : public IRHIResourse
 {
 public:
-	RHICommandList(ECommandListType::Type type,DeviceContext* context);
+	RHICommandList(ECommandListType::Type type, DeviceContext* context);
 	RHI_VIRTUAL ~RHICommandList();
 	RHI_VIRTUAL void ResetList() = 0;
 	RHI_VIRTUAL void SetRenderTarget(FrameBuffer* target, int SubResourceIndex = 0) = 0;
@@ -104,8 +109,10 @@ public:
 	void EndTimer(int TimerId);
 	void ResolveTimers();
 	//MultiGPU
-	RHI_VIRTUAL void CopyResourceToSharedMemory(FrameBuffer* Buffer) {};
-	RHI_VIRTUAL void CopyResourceFromSharedMemory(FrameBuffer* Buffer) {};
+	RHI_VIRTUAL void CopyResourceToSharedMemory(FrameBuffer* Buffer)
+	{};
+	RHI_VIRTUAL void CopyResourceFromSharedMemory(FrameBuffer* Buffer)
+	{};
 	bool IsGraphicsList()const;
 	bool IsCopyList() const;
 	bool IsComputeList() const;
@@ -122,7 +129,8 @@ class RHI_API RHITextureArray : public IRHIResourse
 {
 public:
 	RHITextureArray(DeviceContext* device, int inNumEntries);;
-	RHI_VIRTUAL ~RHITextureArray() {};
+	RHI_VIRTUAL ~RHITextureArray()
+	{};
 	RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot) = 0;
 	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot) = 0;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex) = 0;

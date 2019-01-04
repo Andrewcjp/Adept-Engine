@@ -23,7 +23,7 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(Device)
 	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
 	{
 		ConstantBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
-		ConstantBuffer->CreateConstantBuffer(sizeof(LightData), RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS,true);
+		ConstantBuffer->CreateConstantBuffer(sizeof(LightData), RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, true);
 	}
 }
 

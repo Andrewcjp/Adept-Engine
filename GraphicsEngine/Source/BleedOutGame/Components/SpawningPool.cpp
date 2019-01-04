@@ -4,17 +4,15 @@
 #include "Source/BleedOutGame/BleedOutGameMode.h"
 
 SpawningPool::SpawningPool()
-{
-}
+{}
 
 
 SpawningPool::~SpawningPool()
-{
-}
+{}
 
 void SpawningPool::InitComponent()
 {
-	
+
 }
 
 void SpawningPool::OnDestroy()
@@ -42,5 +40,4 @@ void SpawningPool::Update(float delta)
 }
 
 void SpawningPool::SceneInitComponent()
-{
-}
+{}

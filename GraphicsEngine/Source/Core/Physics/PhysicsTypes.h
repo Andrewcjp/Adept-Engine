@@ -13,9 +13,9 @@ namespace EShapeType
 		eLimit
 	};
 }
-namespace EForceMode 
+namespace EForceMode
 {
-	enum Type 
+	enum Type
 	{
 		AsAcceleration,
 		AsForce,
@@ -43,8 +43,12 @@ typedef struct _RayHit
 }RayHit;
 struct ShapeElem
 {
-	ShapeElem() {};
-	EShapeType::Type GetType() { return ShapeType; }
+	ShapeElem()
+	{};
+	EShapeType::Type GetType()
+	{
+		return ShapeType;
+	}
 protected:
 	EShapeType::Type ShapeType = EShapeType::eLimit;
 };
@@ -66,7 +70,7 @@ struct SphereElem :public ShapeElem
 };
 struct PlaneElm :public ShapeElem
 {
-	glm::vec3 scale = glm::vec3(0,1,0);
+	glm::vec3 scale = glm::vec3(0, 1, 0);
 	PlaneElm()
 	{
 		ShapeType = EShapeType::ePLANE;

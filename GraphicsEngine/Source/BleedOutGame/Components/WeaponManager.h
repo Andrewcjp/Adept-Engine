@@ -11,7 +11,7 @@ public:
 	~WeaponManager();
 	void InitComponent() override;
 
-	Weapon* Weapons[MAX_WEAPON_COUNT]; 
+	Weapon* Weapons[MAX_WEAPON_COUNT];
 	Weapon* GetCurrentWeapon();
 	void SwitchWeaponUp(bool Direction);
 	void SwitchWeapon(int index);
@@ -23,7 +23,7 @@ public:
 	virtual void BeginPlay() override;
 	void AddAmmo(Weapon::WeaponType Type, int amount);
 private:
-	
+
 	void Update(float delta) override;
 	int CurrentIndex = 0;
 };

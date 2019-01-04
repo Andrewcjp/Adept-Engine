@@ -21,8 +21,8 @@ public:
 	virtual void SetPipelineState(PipeLineState state) override;
 	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
 
-	
-	
+
+
 	virtual void SetPipelineStateObject(class Shader* shader, class FrameBuffer* Buffer = nullptr)override;
 	void IN_CreatePipelineState(Shader * shader);
 

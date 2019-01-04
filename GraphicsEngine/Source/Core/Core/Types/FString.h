@@ -3,13 +3,13 @@
 class  FString
 {
 public:
-	 FString();
-	 CORE_API FString(std::string input,bool Hash = false);
-	 CORE_API FString(const char* text, bool Hash = false);
-	 CORE_API ~FString();
-	 CORE_API bool Contains(FString Target);
-	 std::string& ToSString();
-	 std::wstring& ToWideString();
+	FString();
+	CORE_API FString(std::string input, bool Hash = false);
+	CORE_API FString(const char* text, bool Hash = false);
+	CORE_API ~FString();
+	CORE_API bool Contains(FString Target);
+	std::string& ToSString();
+	std::wstring& ToWideString();
 	bool operator==(const FString &b) const;
 	CORE_API void SetupHash();
 #if RUNTESTS

@@ -10,11 +10,14 @@ public:
 	void test();
 	void SolidColour();
 	void CreateDefault();
-	
+
 	bool Complie();
 	class Shader* GetGeneratedShader();
 	const Material::TextureBindSet* GetMaterialData();
-	FString& GetGraphName() { return GraphName; }
+	FString& GetGraphName()
+	{
+		return GraphName;
+	}
 	void AddNodetoGraph(class ShaderGraphNode* Node);
 	void AddTexDecleration(std::string data, std::string name);
 private:

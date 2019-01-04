@@ -3,13 +3,11 @@
 #include "NavigationManager.h"
 
 NavigationObstacle::NavigationObstacle()
-{
-}
+{}
 
 
 NavigationObstacle::~NavigationObstacle()
-{
-}
+{}
 
 void NavigationObstacle::LinkToMesh(NavigationManager * parentmesh)
 {

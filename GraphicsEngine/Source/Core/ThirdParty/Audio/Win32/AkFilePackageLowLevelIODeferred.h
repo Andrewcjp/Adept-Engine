@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -36,8 +36,10 @@ class CAkFilePackageLowLevelIODeferred
 	: public CAkFilePackageLowLevelIO<CAkDefaultIOHookDeferred>
 {
 public:
-	CAkFilePackageLowLevelIODeferred() {}
-	virtual ~CAkFilePackageLowLevelIODeferred() {}
+	CAkFilePackageLowLevelIODeferred()
+	{}
+	virtual ~CAkFilePackageLowLevelIODeferred()
+	{}
 
 	// Override Cancel: The Windows platform SDK only permits cancellations of all transfers 
 	// for a given file handle. Since the packaged files share the same handle, we cannot do this.
@@ -45,15 +47,15 @@ public:
 		AkFileDesc &			in_fileDesc,		// File descriptor.
 		AkAsyncIOTransferInfo & io_transferInfo,	// Transfer info to cancel.
 		bool & io_bCancelAllTransfersForThisFile	// Flag indicating whether all transfers should be cancelled for this file (see notes in function description).
-		)
+	)
 	{
-		if ( !IsInPackage( in_fileDesc ) )
+		if (!IsInPackage(in_fileDesc))
 		{
 			CAkDefaultIOHookDeferred::Cancel(
 				in_fileDesc,		// File descriptor.
 				io_transferInfo,	// Transfer info to cancel.
 				io_bCancelAllTransfersForThisFile	// Flag indicating whether all transfers should be cancelled for this file (see notes in function description).
-				);
+			);
 		}
 	}
 };

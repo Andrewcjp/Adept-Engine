@@ -11,7 +11,7 @@ struct UIVertex
 class UIDrawBatcher
 {
 public:
-	
+
 	UIDrawBatcher();
 	void Init();
 	void ReallocBuffer(int NewSize);
@@ -19,17 +19,17 @@ public:
 	void SendToGPU();
 	void RenderBatches();
 	void Render(RHICommandList * list);
-	void AddVertex(glm::vec2 pos, bool Back, glm::vec3 frontcol = glm::vec3(1,1,1), glm::vec3 backcol = glm::vec3(0));
+	void AddVertex(glm::vec2 pos, bool Back, glm::vec3 frontcol = glm::vec3(1, 1, 1), glm::vec3 backcol = glm::vec3(0));
 	void ClearVertArray();
 	void CleanUp();
 	glm::ivec2 Offset = glm::ivec2(0);
 	RHICommandList* commandlist = nullptr;
-private:	
+private:
 	class Shader_UIBatch* Shader;
 	int UIMin = 300;
 	std::vector<UIVertex> BatchedVerts;
 	RHIBuffer* VertexBuffer = nullptr;
-	
+
 	const int Max_Verts = 10000;
 	int Current_Max_Verts = UIMin;
 };

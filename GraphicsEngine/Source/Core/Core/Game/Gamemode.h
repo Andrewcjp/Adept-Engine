@@ -19,6 +19,6 @@ public:
 protected:
 	Scene* CurrentScene = nullptr;
 	GameHud* Hud = nullptr;
-	
+
 };
 

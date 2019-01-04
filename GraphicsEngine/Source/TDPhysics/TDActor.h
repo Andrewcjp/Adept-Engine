@@ -2,7 +2,10 @@
 #include "TDTransform.h"
 #include "TDTypes.h"
 
-namespace TD { class TDRigidDynamic; }
+namespace TD
+{
+	class TDRigidDynamic;
+}
 namespace TD
 {
 	class TDAABB;

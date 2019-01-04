@@ -10,8 +10,7 @@ UIButton::UIButton(int w, int h, int x, int y) : UIBox(w, h, x, y)
 	Priority = 2;//buttons need to draw on top of panels
 }
 UIButton::~UIButton()
-{
-}
+{}
 void UIButton::Render()
 {
 	UIBox::Render();
@@ -28,7 +27,7 @@ void UIButton::MouseMove(int x, int y)
 		WasSelected = true;
 		UIManager::UpdateBatches();
 		Colour = Hovercolour;
-	} 
+	}
 	else
 	{
 		Colour = IsActiveSelect ? SelectedColour : NormalColour;
@@ -78,7 +77,7 @@ void UIButton::SetText(std::string  t)
 	Labelstring = t;
 }
 
-void UIButton::SetSelected( bool t)
+void UIButton::SetSelected(bool t)
 {
 	IsActiveSelect = t;
 	Colour = IsActiveSelect ? SelectedColour : NormalColour;

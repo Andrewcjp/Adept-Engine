@@ -3,10 +3,8 @@
 
 
 MeshColliderComponent::MeshColliderComponent()
-{
-}
+{}
 
 
 MeshColliderComponent::~MeshColliderComponent()
-{
-}
+{}

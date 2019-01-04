@@ -23,13 +23,13 @@ void BT_Knight::SetupTree()
 	RootNode->ReturnOnFailure = false;
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 10));
-	selector->AddService(new Service_PlayerCheck(obj, Distance));	
+	selector->AddService(new Service_PlayerCheck(obj, Distance));
 	selector->AddChildNode<BTMeleeAttackNode>(new BTMeleeAttackNode());
 	selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.4f));
 	//sub node
 	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(obj, EDecoratorTestType::NotNull));
-	selector->AddService(new Service_PlayerCheck(obj));	
+	selector->AddService(new Service_PlayerCheck(obj));
 	selector->AddChildNode<BTMoveToNode>(new BTMoveToNode(obj));
 	//selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.2f));
 

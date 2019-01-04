@@ -25,7 +25,7 @@ public:
 	};
 	GPUResource();
 	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState);
-	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState,DeviceContext* Device);
+	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState, DeviceContext* Device);
 	~GPUResource();
 	void SetName(LPCWSTR name);
 	void CreateHeap();

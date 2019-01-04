@@ -3,13 +3,11 @@
 
 
 ExtraComponentRegister::ExtraComponentRegister()
-{
-}
+{}
 
 
 ExtraComponentRegister::~ExtraComponentRegister()
-{
-}
+{}
 
 Component * ExtraComponentRegister::CreateExtraComponent(int id)
 {

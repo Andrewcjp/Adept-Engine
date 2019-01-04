@@ -42,7 +42,10 @@ public:
 	void							HandleKeyUp(unsigned int key);
 	static bool						GetIsCooking();
 	static Engine*					Get();
-	static const EngineSettings*	GetSettings() { return &EngineInstance->Settings; }
+	static const EngineSettings*	GetSettings()
+	{
+		return &EngineInstance->Settings;
+	}
 	CORE_API static float			GetPhysicsDeltaTime();
 	CORE_API static float			GetDeltaTime();
 private:

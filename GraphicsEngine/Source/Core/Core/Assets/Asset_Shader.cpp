@@ -16,14 +16,14 @@ Asset_Shader::Asset_Shader(bool GenDefault)
 void Asset_Shader::SetupSingleColour()
 {
 	Graph = new ShaderGraph("Test2");
-	Graph->SolidColour();	
+	Graph->SolidColour();
 	Graph->Complie();
 }
 
 void Asset_Shader::SetupTestMat()
 {
 	Graph = new ShaderGraph("Colour");
-	Graph->test();	
+	Graph->test();
 	Graph->Complie();
 }
 

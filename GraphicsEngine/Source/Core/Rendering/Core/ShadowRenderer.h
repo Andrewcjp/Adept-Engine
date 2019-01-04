@@ -8,7 +8,7 @@ public:
 	ShadowRenderer(class SceneRenderer* SceneRender);
 	~ShadowRenderer();
 	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index);
-	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects,class Shader_Main* mainshader = nullptr);
+	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, class Shader_Main* mainshader = nullptr);
 	void RunPointShadowPass(RHICommandList * List, const std::vector<GameObject*>& ShadowObjects, Shader_Main * mainshader);
 	void PreSampleShadows(const std::vector<GameObject*>& ShadowObjects, Shader_Main * mainshader);
 	void RenderPointShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject*>& ShadowObjects);
@@ -35,7 +35,7 @@ private:
 	RHITextureArray* ShadowDirectionalArray = nullptr;
 	//Should be on both devices as constant data
 	RHIBuffer* GeometryProjections = nullptr;
-	
+
 	struct ShadowLightInteraction
 	{
 		ShadowLightInteraction(class DeviceContext * Context, bool IsPoint, int MapSize);
@@ -43,7 +43,7 @@ private:
 		void PreSampleShadows(RHICommandList* List);
 		FrameBuffer* ShadowMap = nullptr;
 		Shader_Depth* Shader = nullptr;
-	
+
 		//PreSampled Buffer used to reduce Daa transfer
 		FrameBuffer* PreSampledBuffer = nullptr;
 
@@ -53,7 +53,7 @@ private:
 	};
 	std::vector<ShadowLightInteraction*> LightInteractions;
 
-	
+
 	class Shader_ShadowSample* ShadowPreSampleShader = nullptr;
 	RHICommandList* ShadowPreSamplingList = nullptr;
 	SceneRenderer* Scenerenderer = nullptr;

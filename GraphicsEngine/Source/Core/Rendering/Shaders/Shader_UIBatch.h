@@ -10,11 +10,11 @@ class Shader_UIBatch :
 public:
 	Shader_UIBatch(class DeviceContext* dev);
 	virtual ~Shader_UIBatch();
-	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;	
+	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 	void PushTOGPU(RHICommandList * list);
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	void UpdateUniforms(glm::mat4x4 Proj);
-private:   
+private:
 	UnifromData data;
 	RHIBuffer* UniformBuffer = nullptr;
 };

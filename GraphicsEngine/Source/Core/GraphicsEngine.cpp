@@ -67,10 +67,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		PlatformWindow* myapp = PlatformWindow::CreateApplication(engine, hInstance, lpCmdLine, nCmdShow);
 		exitcode = myapp->Run();
 		myapp->DestroyApplication();
-	}	
+	}
 	engine->Destory();
 	SafeDelete(engine);
-	
+
 #if USE_SEP_CONSOLE
 	fclose(pf_out);
 	//Free the console window

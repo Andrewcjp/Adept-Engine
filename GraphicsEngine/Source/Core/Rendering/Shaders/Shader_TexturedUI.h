@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI\Shader.h"
 class DeviceContext;
-class Shader_TexturedUI: public Shader
+class Shader_TexturedUI : public Shader
 {
 public:
 	Shader_TexturedUI(DeviceContext* d);

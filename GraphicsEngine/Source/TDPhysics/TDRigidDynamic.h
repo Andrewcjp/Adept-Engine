@@ -51,7 +51,10 @@ namespace TD
 		/**\returns true if the body is asleep*/
 		TD_API bool				IsBodyAsleep()const;
 
-		TD_API bool				IsAffectedByGravity()const { return UseGravity; };
+		TD_API bool				IsAffectedByGravity()const
+		{
+			return UseGravity;
+		};
 		TD_API void				SetLinearDamping(float amt);
 		TD_API float			GetLinearDamping()const;
 #if VALIDATE_KE

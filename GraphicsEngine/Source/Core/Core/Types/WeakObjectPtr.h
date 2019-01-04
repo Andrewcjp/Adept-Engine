@@ -75,7 +75,7 @@ public:
 	}
 	virtual ~IGarbageCollectable()
 	{
- 		Destory();
+		Destory();
 	}
 	void Destory()
 	{

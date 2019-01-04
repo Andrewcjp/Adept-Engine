@@ -57,7 +57,8 @@ namespace D3DX12Residency
 		{
 		public:
 
-			ScopedLock() : pCS(nullptr) {};
+			ScopedLock() : pCS(nullptr)
+			{};
 			ScopedLock(CriticalSection* pCSIn) : pCS(pCSIn)
 			{
 				if (pCS)
@@ -131,7 +132,10 @@ namespace D3DX12Residency
 			LastGPUSyncPoint = InitialGPUSyncPoint;
 		}
 
-		inline bool IsInitialized() { return pUnderlying != nullptr; }
+		inline bool IsInitialized()
+		{
+			return pUnderlying != nullptr;
+		}
 
 		// Wether the object is resident or not
 		RESIDENCY_STATUS ResidencyStatus;
@@ -170,8 +174,7 @@ namespace D3DX12Residency
 			IsOpen(false),
 			OutOfMemory(false),
 			pSyncManager(nullptr)
-		{
-		};
+		{};
 
 		~ResidencySet()
 		{
@@ -432,9 +435,13 @@ namespace D3DX12Residency
 		// Represents a time on a particular queue that a resource was used
 		struct QueueSyncPoint
 		{
-			QueueSyncPoint() : pFence(nullptr), LastUsedValue(0) {};
+			QueueSyncPoint() : pFence(nullptr), LastUsedValue(0)
+			{};
 
-			inline bool IsCompleted() { return LastUsedValue <= pFence->pFence->GetCompletedValue(); }
+			inline bool IsCompleted()
+			{
+				return LastUsedValue <= pFence->pFence->GetCompletedValue();
+			}
 
 			inline void WaitForCompletion(HANDLE Event)
 			{
@@ -449,7 +456,8 @@ namespace D3DX12Residency
 		struct DeviceWideSyncPoint
 		{
 			DeviceWideSyncPoint(UINT32 NumQueues, UINT64 Generation) :
-				GenerationID(Generation), NumQueueSyncPoints(NumQueues) {};
+				GenerationID(Generation), NumQueueSyncPoints(NumQueues)
+			{};
 
 			// Create the whole structure in one allocation for locality
 			static DeviceWideSyncPoint* CreateSyncPoint(UINT32 NumQueues, UINT64 Generation)
@@ -731,7 +739,7 @@ namespace D3DX12Residency
 #if !RESIDENCY_SINGLE_THREADED
 				if (SUCCEEDED(hr))
 				{
-					AsyncWorkThread = CreateThread(nullptr, 0, AsyncThreadStart, (void*) this, 0, nullptr);
+					AsyncWorkThread = CreateThread(nullptr, 0, AsyncThreadStart, (void*)this, 0, nullptr);
 
 					if (AsyncWorkThread == INVALID_HANDLE_VALUE)
 					{
@@ -836,7 +844,7 @@ namespace D3DX12Residency
 				HRESULT hr = GetFence(Queue, QueueFence);
 
 				// The signal and increment need to be atomic
-				if(SUCCEEDED(hr))
+				if (SUCCEEDED(hr))
 				{
 					Internal::ScopedLock Lock(&ExecutionCS);
 					*pGPUSyncPoint = QueueFence->FenceValue;
@@ -1457,8 +1465,7 @@ namespace D3DX12Residency
 	public:
 		ResidencyManager() :
 			Manager(&SyncManager)
-		{
-		}
+		{}
 
 		// NOTE: DeviceNodeIndex is an index not a mask. The majority of D3D12 uses bit masks to identify a GPU node whereas DXGI uses 0 based indices.
 		FORCEINLINE HRESULT Initialize(ID3D12Device* ParentDevice, UINT DeviceNodeIndex, IDXGIAdapter3* ParentAdapter, UINT32 MaxLatency)

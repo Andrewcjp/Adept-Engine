@@ -72,7 +72,7 @@ void Shader_EnvMap::ProcessTexture(BaseTexture * Target)
 	{
 		CmdList->SetRenderTarget(CubeBuffer, 0);
 		CmdList->SetConstantBufferView(ShaderData, i, 1);
-		Cube->Render(CmdList,true);
+		Cube->Render(CmdList, true);
 	}
 	CmdList->Execute();
 }

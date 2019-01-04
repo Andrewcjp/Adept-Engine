@@ -16,7 +16,7 @@ public:
 	struct RHI_API ScopeCycleCounter
 	{
 		ScopeCycleCounter(const char* Name);
-		ScopeCycleCounter(const char* Name,const char* group);
+		ScopeCycleCounter(const char* Name, const char* group);
 		~ScopeCycleCounter();
 	private:
 		int StatId = -1;
@@ -73,7 +73,7 @@ public:
 	};
 	CORE_API TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y, bool IncludeGPUStats = false);
-	
+
 	void UpdateStats();
 	void SampleSlowStats();
 	void ClearStats();
@@ -93,7 +93,7 @@ private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);
 	void InEndTimer(int targetTimer);
-	
+
 	class NVAPIManager* NVApiManager = nullptr;
 	std::string GetTimerName(int id);
 	std::map<std::string, long> SingleActionTimers;
@@ -102,7 +102,7 @@ private:
 
 	std::map<int, long> TimersStartStamps;
 	std::map<int, long> TimersEndStamps;
-	
+
 	std::map<std::string, int> TimerIDs;
 	std::map<std::string, int> GroupIDS;
 	std::map<int, float> TimerOutput;

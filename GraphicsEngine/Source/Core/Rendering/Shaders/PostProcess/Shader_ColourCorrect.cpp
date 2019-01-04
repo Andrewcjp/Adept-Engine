@@ -2,17 +2,17 @@
 #include "Shader_ColourCorrect.h"
 DECLARE_GLOBAL_SHADER(Shader_ColourCorrect);
 
-Shader_ColourCorrect::Shader_ColourCorrect(DeviceContext* dev):Shader(dev)
+Shader_ColourCorrect::Shader_ColourCorrect(DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();
-	
-	
+
+
 
 	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Pass_fs_12", EShaderType::SHADER_FRAGMENT);
 
-	
-	
+
+
 }
 
 Shader_ColourCorrect::~Shader_ColourCorrect()

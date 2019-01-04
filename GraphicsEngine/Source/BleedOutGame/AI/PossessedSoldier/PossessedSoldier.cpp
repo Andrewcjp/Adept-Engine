@@ -51,5 +51,5 @@ void PossessedSoldier::LookAt(glm::vec3 pos)
 	////glm::quat rot = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
 	////WeaponBone->GetTransform()->SetQrot(rot);
 	//WeaponBone->GetTransform()->SetQrot(glm::normalize(glm::quatLookAtRH(DirToTarget, glm::vec3(1, 0, 0))));
-	
+
 }

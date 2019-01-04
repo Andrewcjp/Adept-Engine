@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -63,23 +63,23 @@ public:
 
 	AKRESULT AddBasePath(const AkOSChar*   in_pszBasePath);
 
-	AKRESULT Open( 
+	AKRESULT Open(
 		const AkOSChar* in_pszFileName,     // File name.
 		AkOpenMode      in_eOpenMode,       // Open mode.
 		AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
 		bool			in_bOverlapped,		// Overlapped IO open
 		AkFileDesc &    out_fileDesc        // Returned file descriptor.
-		);
+	);
 
-	
-	AKRESULT Open( 
+
+	AKRESULT Open(
 		AkFileID        in_fileID,          // File ID.
 		AkOpenMode      in_eOpenMode,       // Open mode.
 		AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
 		bool			in_bOverlapped,		// Overlapped IO open
 		AkFileDesc &    out_fileDesc        // Returned file descriptor.
-		);
-	
+	);
+
 	//
 	// Path resolving services.
 	// ------------------------------------------------------
@@ -93,7 +93,7 @@ public:
 		AkOpenMode			in_eOpenMode,		// File open mode (read, write, ...).
 		AkOSChar *			out_pszFullFilePath, // Full file path.
 		AkOSChar*			in_pszBasePath = NULL	// Base path to use.  If null, the first suitable location will be given.		
-		);  
+	);
 
 protected:
 

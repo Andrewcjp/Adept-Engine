@@ -5,12 +5,15 @@
 #include "core/Transform.h"
 #include "TDPhysicsAPI.h"
 
-namespace TD { class TDMesh; }
+namespace TD
+{
+	class TDMesh;
+}
 
 class TDRigidBody :public GenericRigidBody
 {
 public:
-	TDRigidBody(EBodyType::Type type,Transform T);
+	TDRigidBody(EBodyType::Type type, Transform T);
 	~TDRigidBody();
 	glm::vec3 GetPosition()const;
 	glm::quat GetRotation()const;

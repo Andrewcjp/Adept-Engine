@@ -67,7 +67,7 @@ private:
 	void WaitForGPU() override;
 	void RHISwapBuffers() override;
 	void RHIRunFirstFrame() override;
-	
+
 	void ResizeSwapChain(int x, int y) override;
 
 private:

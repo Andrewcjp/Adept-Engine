@@ -30,7 +30,7 @@ void GameWindow::PostInitWindow(int width, int height)
 #else
 	InitMM();
 #endif
-	
+
 }
 
 void GameWindow::InitMM()
@@ -48,7 +48,7 @@ void GameWindow::InitMM()
 	MMContext->AddWidget(RestartBtn);
 
 	UIButton *ExitBtn = new UIButton(0, 0);
-	ExitBtn->SetScaled(xSize, ySize, 0.1f - xSize / 2, 0.5f - (ySize+ Padding) * 2);
+	ExitBtn->SetScaled(xSize, ySize, 0.1f - xSize / 2, 0.5f - (ySize + Padding) * 2);
 	ExitBtn->BindTarget(std::bind(&GameWindow::ExitGame, this));
 	ExitBtn->SetText("Quit");
 	MMContext->AddWidget(ExitBtn);

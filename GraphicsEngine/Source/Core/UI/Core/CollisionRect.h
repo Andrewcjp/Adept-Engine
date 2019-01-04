@@ -2,7 +2,8 @@
 class CollisionRect
 {
 public:
-	CollisionRect() {}
+	CollisionRect()
+	{}
 	CollisionRect(int w, int h, int x, int y);
 	~CollisionRect();
 	bool Contains(int x, int y);

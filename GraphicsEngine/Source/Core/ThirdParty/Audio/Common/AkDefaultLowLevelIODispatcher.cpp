@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -41,23 +41,22 @@ written agreement between you and Audiokinetic Inc.
 
 
 CAkDefaultLowLevelIODispatcher::CAkDefaultLowLevelIODispatcher()
-:m_uNumDevices( 0 )
+	:m_uNumDevices(0)
 {
 	RemoveAllDevices();
 }
 
 CAkDefaultLowLevelIODispatcher::~CAkDefaultLowLevelIODispatcher()
-{
-}
+{}
 
 // Returns a file descriptor for a given file name (string).
-AKRESULT CAkDefaultLowLevelIODispatcher::Open( 
-    const AkOSChar* in_pszFileName,     // File name.
-    AkOpenMode      in_eOpenMode,       // Open mode.
-    AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
+AKRESULT CAkDefaultLowLevelIODispatcher::Open(
+	const AkOSChar* in_pszFileName,     // File name.
+	AkOpenMode      in_eOpenMode,       // Open mode.
+	AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
 	bool &			io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-    AkFileDesc &    out_fileDesc        // Returned file descriptor.
-    )
+	AkFileDesc &    out_fileDesc        // Returned file descriptor.
+)
 {
 	// Here, you need to define a strategy to determine which device is going to handle this file's I/O.
 	// You could use some naming convention, or use the AkFileSystemFlags or file name extension if it depends 
@@ -71,36 +70,36 @@ AKRESULT CAkDefaultLowLevelIODispatcher::Open(
 
 	AKRESULT eResult = AK_FileNotFound;
 	AkUInt32 uDevice = 0;
-	while ( uDevice < AK_MAX_IO_DEVICES
-			&& eResult != AK_Success )
+	while (uDevice < AK_MAX_IO_DEVICES
+		&& eResult != AK_Success)
 	{
-		if ( m_arDevices[uDevice] )
+		if (m_arDevices[uDevice])
 		{
-			eResult = m_arDevices[uDevice]->Open( 
+			eResult = m_arDevices[uDevice]->Open(
 				in_pszFileName,     // File name.
 				in_eOpenMode,       // Open mode.
 				in_pFlags,			// Special flags. Can pass NULL.
 				io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
 				out_fileDesc        // Returned file descriptor.
-				);
-			AKASSERT( io_bSyncOpen || !"It is illegal to reset io_bSyncOpen" );
+			);
+			AKASSERT(io_bSyncOpen || !"It is illegal to reset io_bSyncOpen");
 		}
 		++uDevice;
 	}
 
-	return eResult; 
+	return eResult;
 }
 
 // Returns a file descriptor for a given file ID.
-AKRESULT CAkDefaultLowLevelIODispatcher::Open( 
-    AkFileID        in_fileID,          // File ID.
-    AkOpenMode      in_eOpenMode,       // Open mode.
-    AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
+AKRESULT CAkDefaultLowLevelIODispatcher::Open(
+	AkFileID        in_fileID,          // File ID.
+	AkOpenMode      in_eOpenMode,       // Open mode.
+	AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
 	bool &			io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-    AkFileDesc &    out_fileDesc        // Returned file descriptor.
-    )
+	AkFileDesc &    out_fileDesc        // Returned file descriptor.
+)
 {
-    // Here, you need to define a strategy to determine which device is going to handle this file's I/O.
+	// Here, you need to define a strategy to determine which device is going to handle this file's I/O.
 	// You could use the AkFileSystemFlags if it depends on file type, or define a map, or read the mapping 
 	// from an XML file... it is up to the game's organization.
 	// Since this default implementation doesn't know anything about that, it forwards the calls to each 
@@ -109,50 +108,50 @@ AKRESULT CAkDefaultLowLevelIODispatcher::Open(
 	// Disable deferred opening because devices may usually return AK_Success if io_bSyncOpen=false,
 	// and we count on the fact that they will return AK_Fail to select the proper device.
 	io_bSyncOpen = true;
-    
+
 	AKRESULT eResult = AK_FileNotFound;
 	AkUInt32 uDevice = 0;
-	while ( uDevice < AK_MAX_IO_DEVICES
-			&& eResult != AK_Success )
+	while (uDevice < AK_MAX_IO_DEVICES
+		&& eResult != AK_Success)
 	{
-		if ( m_arDevices[uDevice] )
+		if (m_arDevices[uDevice])
 		{
-			eResult = m_arDevices[uDevice]->Open( 
+			eResult = m_arDevices[uDevice]->Open(
 				in_fileID,          // File ID.
 				in_eOpenMode,       // Open mode.
 				in_pFlags,			// Special flags. Can pass NULL.
 				io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
 				out_fileDesc        // Returned file descriptor.
-				);
-			AKASSERT( io_bSyncOpen || !"It is illegal to reset io_bSyncOpen" );
+			);
+			AKASSERT(io_bSyncOpen || !"It is illegal to reset io_bSyncOpen");
 		}
 		++uDevice;
 	}
 
-	return eResult; 
+	return eResult;
 }
 
 AKRESULT CAkDefaultLowLevelIODispatcher::AddDevice(
 	AK::StreamMgr::IAkFileLocationResolver *	in_pHook
-	)
+)
 {
 	// Add the device in a free slot.
-	for ( AkUInt32 uRecord = 0; uRecord < AK_MAX_IO_DEVICES; uRecord++ )
+	for (AkUInt32 uRecord = 0; uRecord < AK_MAX_IO_DEVICES; uRecord++)
 	{
-		if ( !m_arDevices[uRecord] )
+		if (!m_arDevices[uRecord])
 		{
 			m_arDevices[uRecord] = in_pHook;
 			++m_uNumDevices;
 			return AK_Success;
 		}
 	}
-	AKASSERT( !"Cannot hold any more I/O devices" );
+	AKASSERT(!"Cannot hold any more I/O devices");
 	return AK_Fail;
 }
 
 void CAkDefaultLowLevelIODispatcher::RemoveAllDevices()
 {
-	for ( AkUInt32 uRecord = 0; uRecord < AK_MAX_IO_DEVICES; uRecord++ )
+	for (AkUInt32 uRecord = 0; uRecord < AK_MAX_IO_DEVICES; uRecord++)
 		m_arDevices[uRecord] = NULL;
 	m_uNumDevices = 0;
 }

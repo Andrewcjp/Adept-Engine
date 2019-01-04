@@ -18,7 +18,8 @@ class ConsoleVariable
 public:
 	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = false);
 	CORE_API ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = false);
-	~ConsoleVariable() {}
+	~ConsoleVariable()
+	{}
 	const std::string& GetName()const
 	{
 		return Name;

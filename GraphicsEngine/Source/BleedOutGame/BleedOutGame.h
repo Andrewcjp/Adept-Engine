@@ -6,7 +6,7 @@ class BleedOutGame :
 	public Game
 {
 public:
-	BleedOutGame(class CompoenentRegistry* Reg); 
+	BleedOutGame(class CompoenentRegistry* Reg);
 	~BleedOutGame();
 	virtual GameMode* CreateGameMode() override;
 	AIDirector * CreateAIDirector() override;
@@ -14,16 +14,16 @@ public:
 	virtual GameHud* CreateGameHUD() override;
 
 };
-   
- 
+
+
 class BleedOutGameModule :public GameModule
 {
 	Game* GetGamePtr(CompoenentRegistry* Reg) override
 	{
 		return new BleedOutGame(Reg);
-	} 
+	}
 };
- 
+
 #ifdef STATIC_MODULE
 IMPLEMENT_MODULE_STATIC(BleedOutGameModule, BleedOutGame);
 #else

@@ -24,7 +24,7 @@ public:
 	void ProcessKeyDown(UINT_PTR key)override;
 	void SendValue();
 	bool CheckValidInput(char c);
-	
+
 private:
 	UILabel* Namelabel = nullptr;
 	UILabel* Textlabel = nullptr;

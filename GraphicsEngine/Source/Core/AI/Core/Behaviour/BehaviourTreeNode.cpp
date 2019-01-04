@@ -53,7 +53,7 @@ EBTNodeReturn::Type BehaviourTreeNode::HandleExecuteNode()
 					return returnvalue;
 				}
 			}
-		
+
 			if (returnvalue == EBTNodeReturn::Running)
 			{
 				RunningChild = Children[i];

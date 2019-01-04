@@ -1,6 +1,6 @@
 #pragma once
 class GenericWindow
-{	
+{
 public:
 	enum CursorType
 	{
@@ -9,7 +9,8 @@ public:
 		IBeam,
 		Limit
 	};
-	void Destory() {};
+	void Destory()
+	{};
 
 };
 

@@ -12,8 +12,14 @@ public:
 
 	// Inherited via Component
 	virtual void InitComponent() override;
-	void SetDamage(float Damage) { DamageValue = Damage; }
-	float GetDamage()const { return DamageValue; }
+	void SetDamage(float Damage)
+	{
+		DamageValue = Damage;
+	}
+	float GetDamage()const
+	{
+		return DamageValue;
+	}
 	void OnCollide(CollisonData data) override;
 	virtual void OnTrigger(CollisonData data) override;
 

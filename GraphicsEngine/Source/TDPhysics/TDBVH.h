@@ -14,7 +14,7 @@ namespace TD
 		glm::vec3 Point = glm::vec3();
 		TDTriangle* Tri = nullptr;
 		float depth = 0;
-	};	
+	};
 	class TDBVH
 	{
 	public:

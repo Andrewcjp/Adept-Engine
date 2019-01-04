@@ -450,7 +450,7 @@ bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
 #endif
 	//the check points
 	return true;
-	}
+}
 
 Tri* NavPlane::FindTriangleFromWorldPos(glm::vec3 worldpos)
 {

@@ -32,7 +32,8 @@ namespace ECompressionSetting
 }
 struct TextureImportSettings
 {
-	TextureImportSettings() {}
+	TextureImportSettings()
+	{}
 	TextureImportSettings(bool Forceload)
 	{
 		DirectLoad = Forceload;
@@ -67,8 +68,14 @@ public:
 	CORE_API std::string LoadFileWithInclude(std::string name);
 
 	bool GetShaderAsset(std::string path, ShaderAsset &asset);
-	std::map<std::string, TextureAsset>* GetTextureMap() { return &TextureAssetsMap; }
-	std::map<std::string, std::string>* GetMeshMap() { return &MeshFileMap; }
+	std::map<std::string, TextureAsset>* GetTextureMap()
+	{
+		return &TextureAssetsMap;
+	}
+	std::map<std::string, std::string>* GetMeshMap()
+	{
+		return &MeshFileMap;
+	}
 
 	static void RegisterMeshAssetLoad(std::string name);
 	CORE_API static BaseTexture * DirectLoadTextureAsset(std::string name, TextureImportSettings settigns = TextureImportSettings(), class DeviceContext * Device = nullptr);

@@ -9,7 +9,7 @@ public:
 	void LinkToMesh(NavigationManager* parentmesh);
 private:
 	NavigationManager* ParentMesh = nullptr;
-	
+
 
 	// Inherited via Component
 	virtual void InitComponent() override;

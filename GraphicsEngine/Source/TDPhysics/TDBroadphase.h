@@ -2,7 +2,10 @@
 
 #include "TDTypes.h"
 
-namespace TD { class TDBFBE; }
+namespace TD
+{
+	class TDBFBE;
+}
 
 namespace TD
 {
@@ -43,7 +46,8 @@ namespace TD
 	//A Point On a SAP axis
 	struct SAPEndPoint
 	{
-		SAPEndPoint() {};
+		SAPEndPoint()
+		{};
 		SAPEndPoint(float value, bool ismin, SAPBox* owner)
 		{
 			Value = value;
@@ -63,7 +67,8 @@ namespace TD
 		SAPEndPoint* Max[3];
 		//int Id = 0;
 		TDAABB* Owner = nullptr;
-		SAPBox() {};
+		SAPBox()
+		{};
 		SAPBox(TDAABB* bb);
 		///Update the Positions of this object on all of the SAP axes (not to be confused with an AXE) 
 		void Update(TDAABB* AABB);

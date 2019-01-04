@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -45,22 +45,21 @@ written agreement between you and Audiokinetic Inc.
 #define MAX_FILETITLE_SIZE          (MAX_NUMBER_STRING_SIZE+MAX_EXTENSION_SIZE+1)   // null-terminated
 
 template< class TYPE > inline
-const TYPE& AkTemplMax( const TYPE& in_left, const TYPE& in_right )
+const TYPE& AkTemplMax(const TYPE& in_left, const TYPE& in_right)
 {
-	return ( in_left < in_right ) ? in_right : in_left;
+	return (in_left < in_right) ? in_right : in_left;
 }
 
 
 CAkFileLocationBase::CAkFileLocationBase()
 {
 	m_szBasePath[0] = '\0';
-    m_szBankPath[0] = '\0';
-    m_szAudioSrcPath[0] = '\0';
+	m_szBankPath[0] = '\0';
+	m_szAudioSrcPath[0] = '\0';
 }
 
 CAkFileLocationBase::~CAkFileLocationBase()
-{
-}
+{}
 
 // String overload.
 // Returns AK_Success if input flags are supported and the resulting path is not too long.
@@ -70,43 +69,43 @@ AKRESULT CAkFileLocationBase::GetFullFilePath(
 	AkFileSystemFlags * in_pFlags,			// Special flags. Can be NULL.
 	AkOpenMode			in_eOpenMode,		// File open mode (read, write, ...).
 	AkOSChar*			out_pszFullFilePath // Full file path.
-	)
+)
 {
-    if ( !in_pszFileName )
-    {
-        AKASSERT( !"Invalid file name" );
-        return AK_InvalidParameter;
-    }
-
-	// Prepend string path (basic file system logic).
-
-    // Compute file name with file system paths.
-	size_t uiPathSize = AKPLATFORM::OsStrLen( in_pszFileName );
-
-    if ( uiPathSize >= AK_MAX_PATH )
+	if (!in_pszFileName)
 	{
-		AKASSERT( !"Input string too large" );
+		AKASSERT(!"Invalid file name");
 		return AK_InvalidParameter;
 	}
 
-	AKPLATFORM::SafeStrCpy( out_pszFullFilePath, m_szBasePath, AK_MAX_PATH );
+	// Prepend string path (basic file system logic).
 
-    if ( in_pFlags 
-		&& in_eOpenMode == AK_OpenModeRead )
-    {
-        // Add bank path if file is an AK sound bank.
-        if ( in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC &&
-             in_pFlags->uCodecID == AKCODECID_BANK )
+	// Compute file name with file system paths.
+	size_t uiPathSize = AKPLATFORM::OsStrLen(in_pszFileName);
+
+	if (uiPathSize >= AK_MAX_PATH)
+	{
+		AKASSERT(!"Input string too large");
+		return AK_InvalidParameter;
+	}
+
+	AKPLATFORM::SafeStrCpy(out_pszFullFilePath, m_szBasePath, AK_MAX_PATH);
+
+	if (in_pFlags
+		&& in_eOpenMode == AK_OpenModeRead)
+	{
+		// Add bank path if file is an AK sound bank.
+		if (in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC &&
+			in_pFlags->uCodecID == AKCODECID_BANK)
 		{
-			uiPathSize += AKPLATFORM::OsStrLen( m_szBankPath );
-			if ( uiPathSize >= AK_MAX_PATH )
+			uiPathSize += AKPLATFORM::OsStrLen(m_szBankPath);
+			if (uiPathSize >= AK_MAX_PATH)
 			{
-				AKASSERT( !"Path is too large" );
-				return AK_Fail;        
+				AKASSERT(!"Path is too large");
+				return AK_Fail;
 			}
-			AKPLATFORM::SafeStrCat( out_pszFullFilePath, m_szBankPath, AK_MAX_PATH );
+			AKPLATFORM::SafeStrCat(out_pszFullFilePath, m_szBankPath, AK_MAX_PATH);
 		}
-		
+
 		// Note: Standard streaming files do not use this overload. On the other hand, streaming external 
 		// sources use it if you use AkExternalSourceInfo::szFile instead of AkExternalSourceInfo::idFile.		
 
@@ -116,7 +115,7 @@ AKRESULT CAkFileLocationBase::GetFullFilePath(
 		// you should modify this section to handle your FileIDs properly.
 		/*if (in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC_EXTERNAL)
 		{
-			
+
 		}*/
 	}
 
@@ -138,13 +137,13 @@ AKRESULT CAkFileLocationBase::GetFullFilePath(
 	}
 
 	// Append file title.
-	uiPathSize += AKPLATFORM::OsStrLen( out_pszFullFilePath );
-	if ( uiPathSize >= AK_MAX_PATH )
+	uiPathSize += AKPLATFORM::OsStrLen(out_pszFullFilePath);
+	if (uiPathSize >= AK_MAX_PATH)
 	{
-		AKASSERT( !"File name string too large" );
+		AKASSERT(!"File name string too large");
 		return AK_Fail;
 	}
-	AKPLATFORM::SafeStrCat( out_pszFullFilePath, in_pszFileName, AK_MAX_PATH );
+	AKPLATFORM::SafeStrCat(out_pszFullFilePath, in_pszFileName, AK_MAX_PATH);
 	return AK_Success;
 }
 
@@ -161,43 +160,43 @@ AKRESULT CAkFileLocationBase::GetFullFilePath(
 	AkFileSystemFlags *	in_pFlags,			// Special flags. 
 	AkOpenMode			/* in_eOpenMode*/,	// File open mode (read, write, ...).
 	AkOSChar *			out_pszFullFilePath	// Full file path.
-	)
+)
 {
-    // If the file descriptor could not be found, or if the script-based FS does not exist,
-    // map file ID to file descriptor (string based) for Audiokinetic IDs.
-	
-	if ( !in_pFlags ||
-         !(in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC || in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC_EXTERNAL))
+	// If the file descriptor could not be found, or if the script-based FS does not exist,
+	// map file ID to file descriptor (string based) for Audiokinetic IDs.
+
+	if (!in_pFlags ||
+		!(in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC || in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC_EXTERNAL))
 	{
-		AKASSERT( !"Unhandled file type" );
+		AKASSERT(!"Unhandled file type");
 		return AK_Fail;
 	}
 
 	// Compute file name with file system paths.
-	size_t uiPathSize = AKPLATFORM::OsStrLen( m_szBasePath );
-	
+	size_t uiPathSize = AKPLATFORM::OsStrLen(m_szBasePath);
+
 	// Copy base path. 
-	AKPLATFORM::SafeStrCpy( out_pszFullFilePath, m_szBasePath, AK_MAX_PATH );
+	AKPLATFORM::SafeStrCpy(out_pszFullFilePath, m_szBasePath, AK_MAX_PATH);
 	// Concatenate path for AK banks or streamed audio files (everything except banks).
-	if ( in_pFlags->uCodecID == AKCODECID_BANK )
+	if (in_pFlags->uCodecID == AKCODECID_BANK)
 	{
-		uiPathSize += AKPLATFORM::OsStrLen( m_szBankPath );
-		if ( uiPathSize >= AK_MAX_PATH )
+		uiPathSize += AKPLATFORM::OsStrLen(m_szBankPath);
+		if (uiPathSize >= AK_MAX_PATH)
 		{
-			AKASSERT( !"Path is too large" );
+			AKASSERT(!"Path is too large");
 			return AK_Fail;
 		}
-		AKPLATFORM::SafeStrCat( out_pszFullFilePath, m_szBankPath, AK_MAX_PATH );
+		AKPLATFORM::SafeStrCat(out_pszFullFilePath, m_szBankPath, AK_MAX_PATH);
 	}
 	else
 	{
-		uiPathSize += AKPLATFORM::OsStrLen( m_szAudioSrcPath );
-		if ( uiPathSize >= AK_MAX_PATH )
+		uiPathSize += AKPLATFORM::OsStrLen(m_szAudioSrcPath);
+		if (uiPathSize >= AK_MAX_PATH)
 		{
-			AKASSERT( !"Path is too large" );
+			AKASSERT(!"Path is too large");
 			return AK_Fail;
 		}
-		AKPLATFORM::SafeStrCat( out_pszFullFilePath, m_szAudioSrcPath, AK_MAX_PATH );
+		AKPLATFORM::SafeStrCat(out_pszFullFilePath, m_szAudioSrcPath, AK_MAX_PATH);
 	}
 
 	// Externally supplied source (see External Sources in SDK doc)
@@ -206,47 +205,47 @@ AKRESULT CAkFileLocationBase::GetFullFilePath(
 	// you should modify this section to handle your FileIDs properly.
 	/*if (in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC_EXTERNAL)
 	{
-		
+
 	}*/
-	
+
 	// Add language directory name if needed.
-	if ( in_pFlags->bIsLanguageSpecific )
+	if (in_pFlags->bIsLanguageSpecific)
 	{
-		size_t uLanguageStrLen = AKPLATFORM::OsStrLen( AK::StreamMgr::GetCurrentLanguage() );
-		if ( uLanguageStrLen > 0 )
+		size_t uLanguageStrLen = AKPLATFORM::OsStrLen(AK::StreamMgr::GetCurrentLanguage());
+		if (uLanguageStrLen > 0)
 		{
-			uiPathSize += ( uLanguageStrLen + 1 );
-			if ( uiPathSize >= AK_MAX_PATH )
+			uiPathSize += (uLanguageStrLen + 1);
+			if (uiPathSize >= AK_MAX_PATH)
 			{
-				AKASSERT( !"Path is too large" );
+				AKASSERT(!"Path is too large");
 				return AK_Fail;
 			}
-			AKPLATFORM::SafeStrCat( out_pszFullFilePath, AK::StreamMgr::GetCurrentLanguage(), AK_MAX_PATH );
-			AKPLATFORM::SafeStrCat( out_pszFullFilePath, AK_PATH_SEPARATOR, AK_MAX_PATH );
+			AKPLATFORM::SafeStrCat(out_pszFullFilePath, AK::StreamMgr::GetCurrentLanguage(), AK_MAX_PATH);
+			AKPLATFORM::SafeStrCat(out_pszFullFilePath, AK_PATH_SEPARATOR, AK_MAX_PATH);
 		}
 	}
-	
+
 	// Append file title.
-	if ( ( uiPathSize + MAX_FILETITLE_SIZE ) <= AK_MAX_PATH )
+	if ((uiPathSize + MAX_FILETITLE_SIZE) <= AK_MAX_PATH)
 	{
 		AkOSChar * pszTitle = out_pszFullFilePath + uiPathSize;
-		if ( in_pFlags->uCodecID == AKCODECID_BANK )
-			AK_OSPRINTF( pszTitle, MAX_FILETITLE_SIZE, ID_TO_STRING_FORMAT_BANK, (unsigned int)in_fileID );
+		if (in_pFlags->uCodecID == AKCODECID_BANK)
+			AK_OSPRINTF(pszTitle, MAX_FILETITLE_SIZE, ID_TO_STRING_FORMAT_BANK, (unsigned int)in_fileID);
 		else
-			AK_OSPRINTF( pszTitle, MAX_FILETITLE_SIZE, ID_TO_STRING_FORMAT_WEM, (unsigned int)in_fileID );
+			AK_OSPRINTF(pszTitle, MAX_FILETITLE_SIZE, ID_TO_STRING_FORMAT_WEM, (unsigned int)in_fileID);
 	}
 	else
 	{
-		AKASSERT( !"String buffer too small" );
+		AKASSERT(!"String buffer too small");
 		return AK_Fail;
 	}
-	
+
 	return AK_Success;
 }
 
 AKRESULT CAkFileLocationBase::SetBasePath(
-    const AkOSChar*   in_pszBasePath
-    )
+	const AkOSChar*   in_pszBasePath
+)
 {
 	size_t len = AKPLATFORM::OsStrLen(in_pszBasePath) + 2;	//+2 for possible missing slash
 	if (len + AkTemplMax(AKPLATFORM::OsStrLen(m_szBankPath), AKPLATFORM::OsStrLen(m_szAudioSrcPath)) + AKPLATFORM::OsStrLen(AK::StreamMgr::GetCurrentLanguage()) + 1 >= AK_MAX_PATH)
@@ -255,7 +254,7 @@ AKRESULT CAkFileLocationBase::SetBasePath(
 	}
 
 	//Copy the base path EVEN if the directory does not exist.
-	AKPLATFORM::SafeStrCpy( m_szBasePath, in_pszBasePath, AK_MAX_PATH );
+	AKPLATFORM::SafeStrCpy(m_szBasePath, in_pszBasePath, AK_MAX_PATH);
 	if (len > 2) // Ensure path has terminating separator, and validate existence of directory, except for an empty directory (==current directory)
 	{
 		if (m_szBasePath[len - 3] != (AkOSChar)AK_PATH_SEPARATOR[0])
@@ -270,31 +269,31 @@ AKRESULT CAkFileLocationBase::SetBasePath(
 			return AK_PathNotFound;
 		}
 	}
-	
+
 	return AK_Success;
 }
 
 AKRESULT CAkFileLocationBase::SetBankPath(
-    const AkOSChar*   in_pszBankPath
-    )
+	const AkOSChar*   in_pszBankPath
+)
 {
-    if ( AKPLATFORM::OsStrLen( m_szBasePath ) + AkTemplMax( AKPLATFORM::OsStrLen( in_pszBankPath ), AKPLATFORM::OsStrLen( m_szAudioSrcPath ) ) + AKPLATFORM::OsStrLen( AK::StreamMgr::GetCurrentLanguage() ) + 1 >= AK_MAX_PATH )
+	if (AKPLATFORM::OsStrLen(m_szBasePath) + AkTemplMax(AKPLATFORM::OsStrLen(in_pszBankPath), AKPLATFORM::OsStrLen(m_szAudioSrcPath)) + AKPLATFORM::OsStrLen(AK::StreamMgr::GetCurrentLanguage()) + 1 >= AK_MAX_PATH)
 	{
 		return AK_InvalidParameter;
 	}
-	AKPLATFORM::SafeStrCpy( m_szBankPath, in_pszBankPath, AK_MAX_PATH );
+	AKPLATFORM::SafeStrCpy(m_szBankPath, in_pszBankPath, AK_MAX_PATH);
 	return AK_Success;
 }
 
 AKRESULT CAkFileLocationBase::SetAudioSrcPath(
-    const AkOSChar*   in_pszAudioSrcPath
-    )
+	const AkOSChar*   in_pszAudioSrcPath
+)
 {
-    if ( AKPLATFORM::OsStrLen( m_szBasePath ) + AkTemplMax( AKPLATFORM::OsStrLen( m_szBankPath ), AKPLATFORM::OsStrLen( in_pszAudioSrcPath ) ) + AKPLATFORM::OsStrLen( AK::StreamMgr::GetCurrentLanguage() ) + 1 >= AK_MAX_PATH )
+	if (AKPLATFORM::OsStrLen(m_szBasePath) + AkTemplMax(AKPLATFORM::OsStrLen(m_szBankPath), AKPLATFORM::OsStrLen(in_pszAudioSrcPath)) + AKPLATFORM::OsStrLen(AK::StreamMgr::GetCurrentLanguage()) + 1 >= AK_MAX_PATH)
 	{
 		return AK_InvalidParameter;
 	}
-	AKPLATFORM::SafeStrCpy( m_szAudioSrcPath, in_pszAudioSrcPath, AK_MAX_PATH );
+	AKPLATFORM::SafeStrCpy(m_szAudioSrcPath, in_pszAudioSrcPath, AK_MAX_PATH);
 	return AK_Success;
 }
 

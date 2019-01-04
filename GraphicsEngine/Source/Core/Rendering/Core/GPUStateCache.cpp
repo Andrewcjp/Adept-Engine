@@ -3,10 +3,8 @@
 
 GPUStateCache*  GPUStateCache::instance;
 GPUStateCache::GPUStateCache()
-{
-}
+{}
 
 
 GPUStateCache::~GPUStateCache()
-{
-}
+{}

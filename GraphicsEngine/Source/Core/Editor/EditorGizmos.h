@@ -21,7 +21,7 @@ public:
 		AxisX,
 		AxisY
 	};
-	
+
 	EditorGizmos();
 	~EditorGizmos();
 	void UpdateAxis(float amt, Axis axis);
