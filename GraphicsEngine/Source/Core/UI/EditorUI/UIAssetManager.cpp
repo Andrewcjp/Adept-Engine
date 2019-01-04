@@ -4,13 +4,12 @@
 #include "UI/UIManager.h"
 UIAssetManager::UIAssetManager() :UIBox(1, 1, 1, 1)
 {
-	leftpanel = new UIListBox(1,1,1,1);
+	leftpanel = new UIListBox(1, 1, 1, 1);
 }
 
 
 UIAssetManager::~UIAssetManager()
-{
-}
+{}
 
 void UIAssetManager::ResizeView(int w, int h, int x, int y)
 {
@@ -19,8 +18,7 @@ void UIAssetManager::ResizeView(int w, int h, int x, int y)
 }
 
 void UIAssetManager::MouseMove(int x, int y)
-{
-}
+{}
 
 bool UIAssetManager::MouseClick(int x, int y)
 {

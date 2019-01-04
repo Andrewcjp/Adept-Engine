@@ -238,7 +238,7 @@ void TDRigidBody::UpdateBodyState()
 				Actor->GetAttachedShapes()[i]->SetPhysicalMaterial(*TDMaterial);//for now copy 
 			}
 		}
-		
+
 		Actor->GetFlags().SetFlagValue(TDActorFlags::EKinematic, BodyData.IsKinematic);
 
 		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockPosX, BodyData.LockXPosition);

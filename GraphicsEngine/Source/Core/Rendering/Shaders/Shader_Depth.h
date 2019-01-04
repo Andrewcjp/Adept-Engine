@@ -26,10 +26,10 @@ public:
 	void UpdateBuffer(RHICommandList * list, LightData * data, int index);
 	~Shader_Depth();
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
-	bool LoadGeomShader = true;		
+	bool LoadGeomShader = true;
 private:
 	RHIBuffer * ConstantBuffer = nullptr;
 	float znear = 1;
-	float zfar = 50; 
+	float zfar = 50;
 };
 

@@ -42,7 +42,7 @@ void Inspector::Refresh()
 	CreateEditor();
 }
 
-Inspector::InspectorPropery Inspector::CreateProperty(std::string name, EditValueType::Type type, void * Valueptr,bool EditorEffect)
+Inspector::InspectorPropery Inspector::CreateProperty(std::string name, EditValueType::Type type, void * Valueptr, bool EditorEffect)
 {
 	Inspector::InspectorPropery NameProp;
 	NameProp.name = name;

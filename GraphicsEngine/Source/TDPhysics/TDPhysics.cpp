@@ -48,7 +48,7 @@ namespace TD
 	}
 
 	void TDPhysics::SimulationContactCallback(std::vector<ContactPair*>& SimulationCallbackPairs)
-	{		
+	{
 		if (SimulationCallbackPairs.size() != 0)
 		{
 			Callbacks->OnContact((const ContactPair**)SimulationCallbackPairs.data(), (int)SimulationCallbackPairs.size());
@@ -111,11 +111,11 @@ namespace TD
 
 	void TDPhysics::StartStep(TDScene* scene, float TimeStep)
 	{
-			Solver->FinishAccumlateForces(scene);
-			Solver->ResolveCollisions(scene);
-			Solver->IntergrateScene(scene, TimeStep);
+		Solver->FinishAccumlateForces(scene);
+		Solver->ResolveCollisions(scene);
+		Solver->IntergrateScene(scene, TimeStep);
 #if BUILD_DEBUG_RENDER
-			scene->DebugRender();
+		scene->DebugRender();
 #endif
 	}
 
@@ -152,7 +152,7 @@ namespace TD
 		{
 			constaint = new TDSpringJoint(BodyA, BodyB, desc);
 		}
-		else if(desc.Type == TDConstraintType::Distance)
+		else if (desc.Type == TDConstraintType::Distance)
 		{
 			constaint = new TDDistanceJoint(BodyA, BodyB, desc);
 		}

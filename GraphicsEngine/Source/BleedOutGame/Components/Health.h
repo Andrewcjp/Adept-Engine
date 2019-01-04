@@ -7,7 +7,10 @@ public:
 	~Health();
 	void TakeDamage(float amt);
 	float MaxHealth = 100.0f;
-	float GetCurrentHealth() { return CurrentHealth; }
+	float GetCurrentHealth()
+	{
+		return CurrentHealth;
+	}
 	void AddHealth(float amt);
 
 	void BindDeathCallback(std::function<void()> t)

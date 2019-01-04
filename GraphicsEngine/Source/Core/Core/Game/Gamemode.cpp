@@ -30,7 +30,7 @@ void GameMode::EndPlay()
 
 void GameMode::Update()
 {
-	
+
 }
 
 GameHud * GameMode::GetCurrentHudInstance()

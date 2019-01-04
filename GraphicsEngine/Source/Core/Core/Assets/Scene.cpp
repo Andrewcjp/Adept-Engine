@@ -335,7 +335,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				{
 					cc->SetCollisonShape(EShapeType::eBOX);
 				}
-				
+
 				RigidbodyComponent* rb = go->AttachComponent(new RigidbodyComponent());
 				rb->GetBodyData().LockZPosition = true;
 				AddGameobjectToScene(go);
@@ -364,10 +364,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
+		}
 	}
-}
 #endif
-	}
+}
 
 void Scene::RemoveCamera(Camera * Cam)
 {

@@ -196,7 +196,7 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 		Get()->DeferredDeleteQueue.push_back(RHIResourseStamped(Resource, RHI::GetFrameCount()));
 		Resource->PendingKill = true;
 	}
-	
+
 }
 
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
@@ -322,7 +322,7 @@ DeviceContext * RHI::GetDefaultDevice()
 }
 
 void RHI::InitialiseContext()
-{	
+{
 	GetRHIClass()->InitRHI();
 	CurrentMGPUMode.ValidateSettings();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();

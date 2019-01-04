@@ -13,8 +13,7 @@ UIPanel::UIPanel(int w, int  h, int  x, int y) :UIBox(w, h, x, y)
 
 
 UIPanel::~UIPanel()
-{
-}
+{}
 
 void UIPanel::AddSubWidget(UIWidget * w)
 {

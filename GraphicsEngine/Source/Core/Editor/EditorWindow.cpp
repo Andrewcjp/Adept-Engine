@@ -87,7 +87,7 @@ void EditorWindow::EnterPlayMode()
 	{
 		return;
 	}
-	
+
 	Log::OutS << "Entering play mode" << Log::OutS;
 	const std::string PlayStatTimer = "Scene Play";
 	PerfManager::Get()->StartSingleActionTimer(PlayStatTimer);
@@ -191,7 +191,7 @@ void EditorWindow::Update()
 			CurrentPlayScene->EditorUpdateScene();
 		}
 	}
-	else if(!IsScenePaused())
+	else if (!IsScenePaused())
 	{
 		CurrentScene->EditorUpdateScene();
 		AISystem::Get()->EditorTick();
@@ -242,7 +242,7 @@ void EditorWindow::Update()
 	}
 	if (Input::GetVKey(VK_CONTROL) && Input::GetKeyDown('P'))
 	{
-		EnterPlayMode();		
+		EnterPlayMode();
 	}
 	if (Input::GetVKey(VK_CONTROL) && Input::GetKeyDown('O'))
 	{

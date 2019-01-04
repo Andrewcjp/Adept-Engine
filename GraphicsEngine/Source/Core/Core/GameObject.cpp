@@ -235,7 +235,7 @@ void GameObject::SetParent(GameObject * Parent)
 	if (mParent != nullptr)
 	{
 		mParent->Children.push_back(this);
-	}	
+	}
 }
 #if WITH_EDITOR
 std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()

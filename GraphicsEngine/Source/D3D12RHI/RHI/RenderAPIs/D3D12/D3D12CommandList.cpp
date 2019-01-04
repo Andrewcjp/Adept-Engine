@@ -470,7 +470,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 			GPUStateCache::instance->TextureBuffers[slot] = nullptr;
 		}
 		return;
-	} 
+	}
 	else
 	{
 		GPUStateCache::instance->TextureBuffers[slot] = DBuffer;

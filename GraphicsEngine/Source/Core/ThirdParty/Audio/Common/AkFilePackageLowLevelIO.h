@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -62,8 +62,9 @@ class AkFilePackageReader
 {
 public:
 	AkFilePackageReader()
-		: m_pStream( NULL ), m_uBlockSize( 0 ) {}
-	~AkFilePackageReader() 
+		: m_pStream(NULL), m_uBlockSize(0)
+	{}
+	~AkFilePackageReader()
 	{
 		// IMPORTANT: Do not close file. This object can be copied.
 	}
@@ -72,7 +73,7 @@ public:
 		const AkOSChar*	in_pszFilePackageName,	// File package name. Location is resolved using base class' Open().
 		bool in_bReadFromSFXOnlyDir		// If true, the file package is opened from the language agnostic directory only. Otherwise, it tries to open it 
 										// from the current language-specific directory first, and then from the common directory if it fails, similarly to the soundbanks loader of the Sound Engine (Default).
-		)
+	)
 	{
 		AkFileSystemFlags flags;
 		flags.uCompanyID = AKCOMPANYID_AUDIOKINETIC;
@@ -82,14 +83,14 @@ public:
 		flags.bIsLanguageSpecific = !in_bReadFromSFXOnlyDir;
 
 		AKRESULT eResult = AK::IAkStreamMgr::Get()->CreateStd(
-            in_pszFilePackageName,
-            &flags,
+			in_pszFilePackageName,
+			&flags,
 			AK_OpenModeRead,
 			m_pStream,
-			true );
+			true);
 
-		if ( eResult != AK_Success 
-			&& !in_bReadFromSFXOnlyDir )
+		if (eResult != AK_Success
+			&& !in_bReadFromSFXOnlyDir)
 		{
 			// Try again, in SFX-only directory.
 			flags.bIsLanguageSpecific = false;
@@ -98,7 +99,7 @@ public:
 				&flags,
 				AK_OpenModeRead,
 				m_pStream,
-				true );
+				true);
 		}
 
 		return eResult;
@@ -110,73 +111,73 @@ public:
 		AkUInt32 &		out_uSizeRead,		// Returned size read.
 		AkPriority		in_priority = AK_DEFAULT_PRIORITY,	// Priority heuristic.
 		AkReal32		in_fThroughput = 0	// Throughput heuristic. 0 means "not set", and results in "immediate".
-		)
+	)
 	{
-		AKASSERT( m_pStream );
-		AkReal32 fDeadline = ( in_fThroughput > 0 ) ? in_uSizeToRead / in_fThroughput : 0;
-		return m_pStream->Read( 
-			in_pBuffer, 
+		AKASSERT(m_pStream);
+		AkReal32 fDeadline = (in_fThroughput > 0) ? in_uSizeToRead / in_fThroughput : 0;
+		return m_pStream->Read(
+			in_pBuffer,
 			in_uSizeToRead,
 			true,
 			in_priority,
 			fDeadline,
-			out_uSizeRead );
+			out_uSizeRead);
 	}
 
-	AKRESULT Seek( 
+	AKRESULT Seek(
 		AkUInt32		in_uPosition,
 		AkUInt32 &		out_uRealOffset
-		)
+	)
 	{
 		AkInt64 iRealOffset;
-		AKRESULT eResult = m_pStream->SetPosition( in_uPosition, AK_MoveBegin, &iRealOffset );
-		AKASSERT( eResult == AK_Success || !"Failed changing stream position" );
+		AKRESULT eResult = m_pStream->SetPosition(in_uPosition, AK_MoveBegin, &iRealOffset);
+		AKASSERT(eResult == AK_Success || !"Failed changing stream position");
 		out_uRealOffset = (AkUInt32)iRealOffset;
 		return eResult;
 	}
 
 	void Close()
 	{
-		if ( m_pStream )
+		if (m_pStream)
 			m_pStream->Destroy();
 		m_pStream = NULL;
 	}
 
-	void SetName( 
-		const AkOSChar* 
+	void SetName(
+		const AkOSChar*
 #ifndef AK_OPTIMIZED
-		in_pszName 
+		in_pszName
 #endif
-		)
+	)
 	{
 #ifndef AK_OPTIMIZED
-		AKASSERT( m_pStream );
-		m_pStream->SetStreamName( in_pszName );
+		AKASSERT(m_pStream);
+		m_pStream->SetStreamName(in_pszName);
 #endif
 	}
 
 	AkUInt64 GetSize()
 	{
-		AKASSERT( m_pStream );
+		AKASSERT(m_pStream);
 		AkStreamInfo info;
-		m_pStream->GetInfo( info );
+		m_pStream->GetInfo(info);
 		return info.uSize;
 	}
 
 	AkUInt32 GetBlockSize()
 	{
-		AKASSERT( m_pStream );
+		AKASSERT(m_pStream);
 		// AK::IAkStdStream::GetBlockSize() is costly. Cache block size.
-		if ( !m_uBlockSize )
+		if (!m_uBlockSize)
 			m_uBlockSize = m_pStream->GetBlockSize();
 		return m_uBlockSize;
 	}
 
 	AkFileHandle GetHandle()
 	{
-		AKASSERT( m_pStream );
+		AKASSERT(m_pStream);
 		AkFileDesc * pFileDesc = (AkFileDesc*)m_pStream->GetFileDescriptor();
-		AKASSERT( pFileDesc );
+		AKASSERT(pFileDesc);
 		return pFileDesc->hFile;
 	}
 
@@ -207,23 +208,23 @@ public:
 	// Factory for disk package.
 	// Instantiates a file package object, queries its file handle once and keep in package.
 	// Also keeps a copy of its reader object, which is used to close the file handle on destruction.
-	static CAkDiskPackage * Create( 
+	static CAkDiskPackage * Create(
 		AkFilePackageReader & in_reader,		// File package reader.
 		const AkOSChar*		in_pszPackageName,	// Name of the file package (for memory monitoring).
 		AkMemPoolId			in_memPoolID,		// Memory pool in which the package is created with its lookup table.
 		AkUInt32 			in_uHeaderSize,		// File package header size, including the size of the header chunk AKPK_HEADER_CHUNK_DEF_SIZE.
 		AkUInt32 &			out_uReservedHeaderSize, // Size reserved for header, taking mem align into account.
 		AkUInt8 *&			out_pHeaderBuffer	// Returned address of memory for header.
-		)
+	)
 	{
-		CAkDiskPackage * pPackage = CAkFilePackage::Create<CAkDiskPackage>( 
+		CAkDiskPackage * pPackage = CAkFilePackage::Create<CAkDiskPackage>(
 			in_pszPackageName,
 			in_memPoolID,
 			in_uHeaderSize,
 			in_reader.GetBlockSize(),
 			out_uReservedHeaderSize,
-			out_pHeaderBuffer );
-		if ( pPackage )
+			out_pHeaderBuffer);
+		if (pPackage)
 		{
 			pPackage->m_reader = in_reader;				// Copy reader.
 			pPackage->m_hFile = in_reader.GetHandle();	// Cache handle.
@@ -231,9 +232,9 @@ public:
 		return pPackage;
 	}
 
-	CAkDiskPackage( AkUInt32 in_uPackageID, AkUInt32 in_uHeaderSize, AkMemPoolId in_poolID, void * in_pToRelease, bool in_bIsInternalPool )
-		: CAkFilePackage( in_uPackageID, in_uHeaderSize, in_poolID, in_pToRelease, in_bIsInternalPool )
-	{ }
+	CAkDiskPackage(AkUInt32 in_uPackageID, AkUInt32 in_uHeaderSize, AkMemPoolId in_poolID, void * in_pToRelease, bool in_bIsInternalPool)
+		: CAkFilePackage(in_uPackageID, in_uHeaderSize, in_poolID, in_pToRelease, in_bIsInternalPool)
+	{}
 
 	// Override Destroy(): Close 
 	virtual void Destroy()
@@ -245,12 +246,18 @@ public:
 	// Fills an AkFileHandle with a value that will be useable by the low-level I/O hook.
 	// Disk packages return the package's system handle: the hook reads from the package file itself, with
 	// proper offset, to get the data it needs.
-	inline void GetHandleForFileDesc( AkFileHandle & out_hFile ) { out_hFile = m_hFile; }
+	inline void GetHandleForFileDesc(AkFileHandle & out_hFile)
+	{
+		out_hFile = m_hFile;
+	}
 
-	AkFileDesc* GetFileDesc() {return m_reader.GetFileDesc();}
+	AkFileDesc* GetFileDesc()
+	{
+		return m_reader.GetFileDesc();
+	}
 
 protected:
-	
+
 	AkFilePackageReader	m_reader;	// READER object. Holds the stream used to read the package. Closed only upon package destruction.
 	AkFileHandle		m_hFile;	// Platform-independent file handle (cached from READER).
 };
@@ -272,12 +279,12 @@ class CAkFilePackageLowLevelIO : public T_LLIOHOOK_FILELOC
 {
 public:
 
-    CAkFilePackageLowLevelIO();
-    virtual ~CAkFilePackageLowLevelIO();
+	CAkFilePackageLowLevelIO();
+	virtual ~CAkFilePackageLowLevelIO();
 
 	// File package loading:
-    // Opens a package file, parses its header, fills LUT.
-    // Overrides of Open() will search files in loaded LUTs first, then use default Low-Level I/O 
+	// Opens a package file, parses its header, fills LUT.
+	// Overrides of Open() will search files in loaded LUTs first, then use default Low-Level I/O 
 	// services if they cannot be found.
 	// Any number of packages can be loaded at a time. Each LUT is searched until a match is found.
 	// Returns AK_Success if successful, AK_InvalidLanguage if the current language 
@@ -285,34 +292,34 @@ public:
 	// Also returns a package ID which can be used to unload it (see UnloadFilePackage()).
 	// WARNING: This method is not thread safe. Ensure there are no I/O occurring on this device
 	// when loading a file package.
-    virtual AKRESULT LoadFilePackage(
-        const AkOSChar* in_pszFilePackageName,	// File package name. Location is resolved using base class' Open().
+	virtual AKRESULT LoadFilePackage(
+		const AkOSChar* in_pszFilePackageName,	// File package name. Location is resolved using base class' Open().
 		AkUInt32 &		out_uPackageID,			// Returned package ID.
 		AkMemPoolId		in_memPoolID = AK_DEFAULT_POOL_ID	// Memory pool in which the LUT is written. Passing AK_DEFAULT_POOL_ID will create a new pool automatically. 
 								// Note that the bulk of the package's data is stored in VRAM, which is allocated through the VRAM allocation hook.
-        );
-	
+	);
+
 	// Unload a file package.
 	// Returns AK_Success if in_uPackageID exists, AK_Fail otherwise.
 	// WARNING: This method is not thread safe. Ensure there are no I/O occurring on this device
 	// when unloading a file package.
-	virtual AKRESULT UnloadFilePackage( 
+	virtual AKRESULT UnloadFilePackage(
 		AkUInt32	in_uPackageID			// Returned package ID.
-		);
+	);
 
 	// Unload all file packages.
 	// Returns AK_Success;
 	// WARNING: This method is not thread safe. Ensure there are no I/O occurring on this device
 	// when unloading a file package.
-    virtual AKRESULT UnloadAllFilePackages();
+	virtual AKRESULT UnloadAllFilePackages();
 
 
 	//
 	// Overriden base class policies.
 	// ---------------------------------------------------------------
 
-    // Clean up.
-    void Term();
+	// Clean up.
+	void Term();
 
 protected:
 
@@ -323,87 +330,88 @@ protected:
 	// Override Open (string): Search file in each LUT first. If it cannot be found, use base class services.
 	// If the file is found in the LUTs, open is always synchronous.
 	// Applies to AK soundbanks only.
-    virtual AKRESULT Open( 
-        const AkOSChar* in_pszFileName,     // File name.
-        AkOpenMode      in_eOpenMode,       // Open mode.
-        AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
+	virtual AKRESULT Open(
+		const AkOSChar* in_pszFileName,     // File name.
+		AkOpenMode      in_eOpenMode,       // Open mode.
+		AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
 		bool &			io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-        AkFileDesc &    out_fileDesc        // Returned file descriptor.
-        );
+		AkFileDesc &    out_fileDesc        // Returned file descriptor.
+	);
 
-    // Override Open (ID): Search file in each LUT first. If it cannot be found, use base class services.
-    // If the file is found in the LUTs, open is always synchronous.
-	virtual AKRESULT Open( 
-        AkFileID        in_fileID,          // File ID.
-        AkOpenMode      in_eOpenMode,       // Open mode.
-        AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
+	// Override Open (ID): Search file in each LUT first. If it cannot be found, use base class services.
+	// If the file is found in the LUTs, open is always synchronous.
+	virtual AKRESULT Open(
+		AkFileID        in_fileID,          // File ID.
+		AkOpenMode      in_eOpenMode,       // Open mode.
+		AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
 		bool &			io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-        AkFileDesc &    out_fileDesc        // Returned file descriptor.
-        );
+		AkFileDesc &    out_fileDesc        // Returned file descriptor.
+	);
 
-    //
+	//
 	// IAkLowLevelIOHook interface overriden methods.
 	// ---------------------------------------------------------------
 
 	// Override Close: Do not close handle if file descriptor is part of the current packaged file.
-    virtual AKRESULT Close(
-        AkFileDesc &	in_fileDesc			// File descriptor.
-        );
+	virtual AKRESULT Close(
+		AkFileDesc &	in_fileDesc			// File descriptor.
+	);
 
 	// Override GetBlockSize: Get the block size of the LUT if a file package is loaded.
 	virtual AkUInt32 GetBlockSize(
-        AkFileDesc &	in_fileDesc			// File descriptor.
-        );
+		AkFileDesc &	in_fileDesc			// File descriptor.
+	);
 
 protected:
 
 	// Language change handling.
-    // ------------------------------------------
+	// ------------------------------------------
 
 	// Handler for global language change.
-	static AK_FUNC( void, LanguageChangeHandler )( 
+	static AK_FUNC(void, LanguageChangeHandler)(
 		const AkOSChar * const in_pLanguageName,// New language name.
 		void * in_pCookie						// Cookie that was passed to AddLanguageChangeObserver().
 		)
 	{
-		((CAkFilePackageLowLevelIO<T_LLIOHOOK_FILELOC, T_PACKAGE>*)in_pCookie)->OnLanguageChange( in_pLanguageName );
+		((CAkFilePackageLowLevelIO<T_LLIOHOOK_FILELOC, T_PACKAGE>*)in_pCookie)->OnLanguageChange(in_pLanguageName);
 	}
 
 	// Updates language of all loaded packages. Packages keep a language ID to help them find 
 	// language-specific assets quickly.
-	void OnLanguageChange( 
+	void OnLanguageChange(
 		const AkOSChar * const in_pLanguageName	// New language name.
-		);
+	);
 
 
 	// File package handling methods.
-    // ------------------------------------------
+	// ------------------------------------------
 
 	// Loads a file package, with a given file package reader.
 	AKRESULT _LoadFilePackage(
-        const AkOSChar*			in_pszFilePackageName,	// File package name. Location is resolved using base class' Open().
+		const AkOSChar*			in_pszFilePackageName,	// File package name. Location is resolved using base class' Open().
 		AkFilePackageReader &	in_reader,				// File package reader.
 		AkPriority				in_readerPriority,		// File package reader priority heuristic.
 		AkMemPoolId				in_memPoolID,			// Memory pool in which the LUT is written. Passing AK_DEFAULT_POOL_ID will create a new pool automatically. 
 		T_PACKAGE *&			out_pPackage			// Returned package
-        );
+	);
 
-    // Searches the LUT to find the file data associated with the FileID.
-    // Returns AK_Success if the file is found.
+	// Searches the LUT to find the file data associated with the FileID.
+	// Returns AK_Success if the file is found.
 	template <class T_FILEID>
-    AKRESULT FindPackagedFile( 
+	AKRESULT FindPackagedFile(
 		T_PACKAGE *			in_pPackage,	// Package to search into.
 		T_FILEID			in_fileID,		// File ID.
 		AkFileSystemFlags * in_pFlags,		// Special flags. Can pass NULL.
 		AkFileDesc &		out_fileDesc	// Returned file descriptor.
-		);
+	);
 
-	virtual void InitFileDesc( T_PACKAGE * /*in_pPackage*/, AkFileDesc & /*io_fileDesc*/){};
-	
+	virtual void InitFileDesc(T_PACKAGE * /*in_pPackage*/, AkFileDesc & /*io_fileDesc*/)
+	{};
+
 	// Returns true if file described by in_fileDesc is in a package.
-	inline bool IsInPackage( 
+	inline bool IsInPackage(
 		const AkFileDesc & in_fileDesc		// File descriptor.
-		)
+	)
 	{
 		return in_fileDesc.uCustomParamSize > 0;
 	}

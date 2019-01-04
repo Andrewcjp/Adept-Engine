@@ -326,7 +326,7 @@ void D3D12ReadBackCopyHelper::WriteToFile(std::string Ref)
 
 	std::string path = Ref;
 	FileUtils::CreateDirectoriesToFullPath(path);
-	path.append(GenericPlatformMisc::GetDateTimeString());	
+	path.append(GenericPlatformMisc::GetDateTimeString());
 	if (DDS)
 	{
 		path.append(".DDS");

@@ -16,7 +16,8 @@ static AssetFileType::Type ParseAssetFileType(std::string Data);
 struct AssetPathRef
 {
 	RHI_API AssetPathRef(std::string Filename);
-	RHI_API AssetPathRef() {};
+	RHI_API AssetPathRef()
+	{};
 	RHI_API const std::string GetFullPathToAsset()const;
 	RHI_API const std::string GetNoExtPathToAsset() const;
 	RHI_API const std::string GetRelativePathToAsset()const;

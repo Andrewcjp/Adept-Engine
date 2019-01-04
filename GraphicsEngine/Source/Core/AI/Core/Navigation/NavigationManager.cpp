@@ -97,7 +97,7 @@ void NavigationManager::SmoothPath(NavigationPath* path)
 					change += abs(y_i - y_i_saved);
 				}
 			}
-		}		
+		}
 		change = tollecance;
 	}
 }

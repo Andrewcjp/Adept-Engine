@@ -282,7 +282,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 			Args.append("-pow2");
 		}
 		Args.append(" -y ");
-		Args.append(" -f "+settings.GetTypeString());
+		Args.append(" -f " + settings.GetTypeString());
 		Args.append('"' + Fileref.GetFullPathToAsset() + '"' + " ");
 		//Log::LogMessage("Started Texconv.exe with: " + Args);
 		PlatformApplication::ExecuteHostScript(GetScriptPath() + "Texconv.exe", Args, GetDDCPath(), false);

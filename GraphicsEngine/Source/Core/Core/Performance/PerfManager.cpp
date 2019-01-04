@@ -316,7 +316,7 @@ void PerfManager::SetDeltaTime(float Time)
 	{
 		Instance->DeltaTime = Time;
 		Instance->ClampedDT = Time;
-		Instance->ClampedDT = std::min(Instance->ClampedDT,(1.0f / 10.0f));
+		Instance->ClampedDT = std::min(Instance->ClampedDT, (1.0f / 10.0f));
 	}
 }
 void PerfManager::NotifyEndOfFrame(bool Final)

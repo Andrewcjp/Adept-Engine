@@ -50,8 +50,10 @@ private:
 class ShaderGraphNode
 {
 public:
-	ShaderGraphNode() {};
-	virtual ~ShaderGraphNode() {};
+	ShaderGraphNode()
+	{};
+	virtual ~ShaderGraphNode()
+	{};
 	virtual std::string GetComplieCode() = 0;
 	class ShaderGraph* Root = nullptr;
 };
@@ -59,8 +61,10 @@ public:
 class SGN_MathNode : public ShaderGraphNode
 {
 public:
-	SGN_MathNode() {};
-	~SGN_MathNode() {};
+	SGN_MathNode()
+	{};
+	~SGN_MathNode()
+	{};
 	virtual std::string GetComplieCode()
 	{
 		return "";
@@ -75,7 +79,8 @@ public:
 		Value = value;
 		TargetProp = Prop;
 	};
-	~SGN_Constant() {};
+	~SGN_Constant()
+	{};
 	glm::vec3 Value = glm::vec3(0, 0, 0);
 	PropertyLink* TargetProp = nullptr;
 	virtual std::string GetComplieCode()
@@ -121,7 +126,8 @@ public:
 		texType = Type;
 	};
 	TextureType::Type texType;
-	~SGN_Texture() {};
+	~SGN_Texture()
+	{};
 	PropertyLink* TargetProp = nullptr;
 	std::string Texname;
 
@@ -136,7 +142,8 @@ public:
 		TargetProp = Prop;
 		CodeSnip = code;
 	};
-	~SGN_CodeSnippet() {};
+	~SGN_CodeSnippet()
+	{};
 	PropertyLink* TargetProp = nullptr;
 	std::string CodeSnip;
 	virtual std::string GetComplieCode();

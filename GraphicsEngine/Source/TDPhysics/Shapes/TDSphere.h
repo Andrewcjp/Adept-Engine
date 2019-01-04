@@ -1,12 +1,12 @@
 #pragma once
 #include "TDShape.h"
-namespace TD 
+namespace TD
 {
 	class TDSphere :public TDShape
 	{
 	public:
 		TD_API TDSphere();
-		 ~TDSphere();
+		~TDSphere();
 		float Radius = 1;
 		virtual glm::vec3 GetBoundBoxHExtents() override;
 

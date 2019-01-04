@@ -49,7 +49,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	DeviceContext* pointlightdevice = RHI::GetDeviceContext(0);
 	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
 	{
-		PointLightShader = ShaderComplier::GetShader<Shader_Depth>(pointlightdevice,true); 
+		PointLightShader = ShaderComplier::GetShader<Shader_Depth>(pointlightdevice, true);
 		GeometryProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant, pointlightdevice);
 		GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, true);
 		PointShadowList = RHI::CreateCommandList(ECommandListType::Graphics, pointlightdevice);
@@ -366,7 +366,7 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 		//desc.DepthClearValue = 0.0f;
 		ShadowMap = RHI::CreateFrameBuffer(Context, desc);
 	}
-	Shader = new Shader_Depth( Context, IsPoint);
+	Shader = new Shader_Depth(Context, IsPoint);
 	if (Context->GetDeviceIndex() != 0)
 	{
 		NeedsSample = true;
@@ -382,7 +382,7 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 ShadowRenderer::ShadowLightInteraction::~ShadowLightInteraction()
 {
 	SafeDelete(Shader)
-	EnqueueSafeRHIRelease(ShadowMap);
+		EnqueueSafeRHIRelease(ShadowMap);
 	EnqueueSafeRHIRelease(PreSampledBuffer);
 }
 

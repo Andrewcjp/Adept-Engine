@@ -1,5 +1,8 @@
 #pragma once
-namespace FileUtils { class CSVWriter; }
+namespace FileUtils
+{
+	class CSVWriter;
+}
 
 namespace EBenchMarkerMode
 {
@@ -42,7 +45,7 @@ public:
 private:
 	EBenchMarkerMode::Type CurrentMode = EBenchMarkerMode::Off;
 	void CapturePerfMarkers();
-	
+
 	void WriteSummaryToDisk();
 	std::string GetCoreTimerSummary(ECoreStatName::Type CoreStat);
 	std::string GetTimerSummary(std::string statname);

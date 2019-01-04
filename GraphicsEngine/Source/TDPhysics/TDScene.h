@@ -19,10 +19,22 @@ namespace TD
 #endif
 		TD_API void AddToScene(TDActor* Actor);
 		void AddConstraint(TDConstraint* con);
-		std::vector<TDActor*>& GetActors() { return SceneActors; };
-		std::vector<TDRigidDynamic*>& GetDynamicActors() { return DynamicActors; };
-		std::vector<TDConstraint*>& GetConstraints() { return Constraints; };
-		glm::vec3 GetGravity()const { return GravityForce; }
+		std::vector<TDActor*>& GetActors()
+		{
+			return SceneActors;
+		};
+		std::vector<TDRigidDynamic*>& GetDynamicActors()
+		{
+			return DynamicActors;
+		};
+		std::vector<TDConstraint*>& GetConstraints()
+		{
+			return Constraints;
+		};
+		glm::vec3 GetGravity()const
+		{
+			return GravityForce;
+		}
 		TD_API void RemoveActor(TDActor* Actor);
 		TD_API bool RayCastScene(glm::vec3 Origin, glm::vec3 Dir, float Distance, RaycastData* HitData, TDQuerryFilter* Filter = nullptr);
 		void UpdateBroadPhase();

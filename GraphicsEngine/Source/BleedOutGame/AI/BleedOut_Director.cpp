@@ -162,7 +162,7 @@ GameObject* BleedOut_Director::SpawnHellKnight(glm::vec3 pos)
 {
 	GameObject* newKnight = CreateAI(pos, 4.0f);
 	newKnight->SetName("Hell Knight");
-	
+
 	GameObject* MeshC = new GameObject();
 	MeshC->SetParent(newKnight);
 	MeshC->GetTransform()->SetLocalPosition(glm::vec3(0, -1.5, 0));
@@ -172,7 +172,7 @@ GameObject* BleedOut_Director::SpawnHellKnight(glm::vec3 pos)
 	MeshLoader::FMeshLoadingSettings AnimSetting;
 	AnimSetting.FlipUVs = true;
 	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Creature NPC Pack\\mutant.fbx", AnimSetting), mat));
-	mrc->LoadAnimation("AlwaysCook\\Creature NPC Pack\\mutant swiping.fbx","Attack");
+	mrc->LoadAnimation("AlwaysCook\\Creature NPC Pack\\mutant swiping.fbx", "Attack");
 	mrc->LoadAnimation("AlwaysCook\\Creature NPC Pack\\mutant idle.fbx", "Idle");
 	mrc->LoadAnimation("AlwaysCook\\Creature NPC Pack\\mutant run.fbx", "Walking");
 	AnimSetting.AnimSettings.Rate = 2.0f;
@@ -192,7 +192,7 @@ GameObject* BleedOut_Director::SpawnSoldier(glm::vec3 pos)
 {
 	GameObject* NewPossessed = CreateAI(pos, 4.0f);
 	NewPossessed->SetName("Possessed Soldier");
-	
+
 	GameObject* MeshC = new GameObject();
 	MeshC->SetParent(NewPossessed);
 	MeshC->GetTransform()->SetLocalPosition(glm::vec3(0, -1.5, 0));

@@ -3,7 +3,10 @@
 #include "TDShape.h"
 #include "TDTypes.h"
 
-namespace TD { class TDBox; }
+namespace TD
+{
+	class TDBox;
+}
 
 namespace TD
 {
@@ -37,7 +40,7 @@ namespace TD
 		//Convex Collisions
 		static bool CollideConvexConvex(CollisionHandlerArgs);
 		static bool CollideConvexMesh(CollisionHandlerArgs);
-		
+
 		//Invalid Pair
 		static bool InvalidCollisonPair(CollisionHandlerArgs);
 		static bool CollideAABBAABB(TDAABB * A, TDAABB * b);

@@ -11,7 +11,7 @@ TestBTTree::TestBTTree()
 
 TestBTTree::~TestBTTree()
 {}
-  
+
 void TestBTTree::SetupTree()
 {
 	BTValue* posptr = Blackboard->AddValue(EBTBBValueType::Vector);
@@ -19,7 +19,7 @@ void TestBTTree::SetupTree()
 	BTValue* obj = Blackboard->AddValue(EBTBBValueType::Object);
 	obj->ObjectPtr = nullptr;
 	BTSelectorNode* selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
-	selector->AddDecorator(new BaseDecorator(obj, EDecoratorTestType::NotNull)); 
+	selector->AddDecorator(new BaseDecorator(obj, EDecoratorTestType::NotNull));
 	selector->AddChildNode<BTMoveToNode>(new BTMoveToNode(posptr));
 }
 #endif

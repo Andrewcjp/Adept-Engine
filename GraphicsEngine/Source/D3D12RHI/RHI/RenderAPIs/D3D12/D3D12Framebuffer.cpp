@@ -658,7 +658,7 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 	}
 	if (BufferDesc.NeedsDepthStencil)
 	{
-		
+
 		if (!BufferDesc.CubeMapAddressAsOne)
 		{
 			for (int i = 0; i < BufferDesc.TextureDepth; i++)

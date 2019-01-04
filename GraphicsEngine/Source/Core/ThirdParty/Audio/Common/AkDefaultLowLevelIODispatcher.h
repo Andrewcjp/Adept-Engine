@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -51,26 +51,26 @@ class CAkDefaultLowLevelIODispatcher : public AK::StreamMgr::IAkFileLocationReso
 {
 public:
 
-    CAkDefaultLowLevelIODispatcher( );
-    virtual ~CAkDefaultLowLevelIODispatcher( );
+	CAkDefaultLowLevelIODispatcher();
+	virtual ~CAkDefaultLowLevelIODispatcher();
 
-    // Returns a file descriptor for a given file name (string).
-    virtual AKRESULT Open( 
-        const AkOSChar*			in_pszFileName,		// File name.
+	// Returns a file descriptor for a given file name (string).
+	virtual AKRESULT Open(
+		const AkOSChar*			in_pszFileName,		// File name.
 		AkOpenMode				in_eOpenMode,		// Open mode.
-        AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
+		AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
 		bool &					io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-        AkFileDesc &			out_fileDesc        // Returned file descriptor.
-        );
+		AkFileDesc &			out_fileDesc        // Returned file descriptor.
+	);
 
-    // Returns a file descriptor for a given file ID.
-    virtual AKRESULT Open( 
-        AkFileID				in_fileID,          // File ID.
-        AkOpenMode				in_eOpenMode,       // Open mode.
-        AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
+	// Returns a file descriptor for a given file ID.
+	virtual AKRESULT Open(
+		AkFileID				in_fileID,          // File ID.
+		AkOpenMode				in_eOpenMode,       // Open mode.
+		AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
 		bool &					io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-        AkFileDesc &			out_fileDesc        // Returned file descriptor.
-        );
+		AkFileDesc &			out_fileDesc        // Returned file descriptor.
+	);
 
 
 	// 
@@ -79,13 +79,13 @@ public:
 
 	// Add a "device" (actually, a File Location Resolver) to the dispatcher's list. 
 	// The first device added will be the first device queried.
-    virtual AKRESULT AddDevice(
+	virtual AKRESULT AddDevice(
 		AK::StreamMgr::IAkFileLocationResolver *	in_pHook
-        );
+	);
 
 	// Remove all devices from the dispatcher's array.
 	virtual void RemoveAllDevices();
-    
+
 protected:
 
 	// List of devices.

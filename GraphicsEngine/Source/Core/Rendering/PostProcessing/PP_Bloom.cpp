@@ -14,8 +14,8 @@ PP_Bloom::~PP_Bloom()
 {
 	delete BlurEffect;
 	delete Compost;
-	EnqueueSafeRHIRelease( BloomBuffer);
-	EnqueueSafeRHIRelease( UAV);
+	EnqueueSafeRHIRelease(BloomBuffer);
+	EnqueueSafeRHIRelease(UAV);
 }
 
 void PP_Bloom::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
@@ -27,8 +27,8 @@ void PP_Bloom::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	UAV->Bind(list, 1);
 	list->SetFrameBufferTexture(InputTexture, 0);
 	const int ThreadCount = 8;
-	list->Dispatch(InputTexture->GetWidth()  / ThreadCount, InputTexture->GetHeight() / ThreadCount, 1);
-	list->UAVBarrier(UAV);	
+	list->Dispatch(InputTexture->GetWidth() / ThreadCount, InputTexture->GetHeight() / ThreadCount, 1);
+	list->UAVBarrier(UAV);
 }
 
 void PP_Bloom::PostSetUpData()
@@ -66,13 +66,13 @@ void PP_Bloom::PostInitEffect(FrameBuffer * Target)
 		EnqueueSafeRHIRelease(BloomBuffer);
 	}
 	RHIFrameBufferDesc Desc = Target->GetDescription();
-	
+
 	Desc.Width = Target->GetWidth();
-	Desc.Height = Target->GetHeight() ;
+	Desc.Height = Target->GetHeight();
 	Desc.StartingState = GPU_RESOURCE_STATES::D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	BloomBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
 	//BloomBuffer->
-	
+
 	UAV->CreateUAVFromFrameBuffer(BloomBuffer);
 	BlurEffect->InitEffect(BloomBuffer);
 	Compost->InitEffect(BloomBuffer);

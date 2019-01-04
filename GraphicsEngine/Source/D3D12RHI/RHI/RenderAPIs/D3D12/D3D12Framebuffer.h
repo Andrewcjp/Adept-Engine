@@ -26,7 +26,7 @@ public:
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	bool							CheckDevice(int index);
 	void							Resize(int width, int height) override;
-	
+
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
 	//Cross Adaptor
 	void SetupCopyToDevice(DeviceContext* device) override;
@@ -39,7 +39,7 @@ public:
 	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
 	DeviceContext* GetTargetDevice();
 	DeviceContext* GetDevice() override;
-	GPUResource* GetResource(int index);	
+	GPUResource* GetResource(int index);
 	void Release() override;
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;

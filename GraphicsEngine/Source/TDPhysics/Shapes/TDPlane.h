@@ -13,7 +13,7 @@ namespace TD
 
 		glm::vec3 ClosestPoint(const glm::vec3& point);
 
-		glm::vec3 Normal = glm::vec3(0,1,0);
+		glm::vec3 Normal = glm::vec3(0, 1, 0);
 		float PlaneDistance = 0.0f;
 	};
 }

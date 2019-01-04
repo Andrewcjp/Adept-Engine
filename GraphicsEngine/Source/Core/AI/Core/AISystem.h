@@ -7,7 +7,7 @@ class BehaviourTreeManager;
 class NavMeshGenerator;
 namespace EAINavigationMode
 {
-	enum Type 
+	enum Type
 	{
 		AStar,
 		DStarLTE,
@@ -58,7 +58,7 @@ public:
 	static void SetDebugMode(EAIDebugMode::Type mode);
 private:
 	NavMeshGenerator* n = nullptr;
-	BehaviourTreeManager* BTManager = nullptr; 
+	BehaviourTreeManager* BTManager = nullptr;
 	AIDirector* Director = nullptr;
 	static AISystem* Instance;
 	EAINavigationMode::Type CurrentMode = EAINavigationMode::Limit;

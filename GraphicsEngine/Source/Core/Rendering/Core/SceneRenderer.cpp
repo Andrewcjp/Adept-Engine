@@ -225,13 +225,13 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 {
 	commandlist->ClearFrameBuffer(Map->CapturedTexture);
 	PipeLineState s;
-//	s.Cull = false;
+	//	s.Cull = false;
 	s.DepthTest = false;
 	commandlist->SetPipelineState(s);
 	for (int i = 0; i < 6; i++)
 	{
 		commandlist->SetConstantBufferView(RelfectionProbeProjections, i, MainShaderRSBinds::MVCBV);
-		commandlist->SetRenderTarget(Map->CapturedTexture, i);		
-		RenderScene(commandlist, false, Map->CapturedTexture,true);
+		commandlist->SetRenderTarget(Map->CapturedTexture, i);
+		RenderScene(commandlist, false, Map->CapturedTexture, true);
 	}
 }

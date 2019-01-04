@@ -2,7 +2,8 @@
 #include <functional>
 struct ShaderInit
 {
-	ShaderInit() {}
+	ShaderInit()
+	{}
 	ShaderInit(void* Valueptr, int DataSize)
 	{
 		Data = malloc(DataSize);

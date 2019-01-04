@@ -36,11 +36,11 @@ void Projectile::OnTrigger(CollisonData data)
 	GetOwner()->Destory();
 }
 
- void Projectile::Update(float delta)
+void Projectile::Update(float delta)
 {
-	 LifeTime -= delta;
-	 if (LifeTime <= 0.0f)
-	 {
-		 GetOwner()->Destory();
-	 }
+	LifeTime -= delta;
+	if (LifeTime <= 0.0f)
+	{
+		GetOwner()->Destory();
+	}
 }

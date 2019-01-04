@@ -1,7 +1,7 @@
 #include "Shader_SSAO.h"
 #include "RHI/RHI.h"
 
-float lerp(float a,float b,float f)
+float lerp(float a, float b, float f)
 {
 	return a + f * (b - a);
 }
@@ -12,7 +12,7 @@ Shader_SSAO::Shader_SSAO()
 	//Initialise OGL shader
 	m_Shader = RHI::CreateShaderProgam();
 
-	
+
 	m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_FRAGMENT);
 
@@ -62,8 +62,7 @@ Shader_SSAO::Shader_SSAO()
 
 
 Shader_SSAO::~Shader_SSAO()
-{
-}
+{}
 
 void Shader_SSAO::RenderPlane()
 {
@@ -87,7 +86,7 @@ void Shader_SSAO::RenderPlane()
 #endif
 }
 
-void Shader_SSAO::UpdateOGLUniforms(Transform * , Camera * c, std::vector<Light*> lights)
+void Shader_SSAO::UpdateOGLUniforms(Transform *, Camera * c, std::vector<Light*> lights)
 {
 #if BUILD_OPENGL
 	noisetex->Bind(NoiseTextureUnit);
@@ -106,6 +105,5 @@ void Shader_SSAO::Resize(int width, int height)
 	mheight = height;
 }
 
-void Shader_SSAO::UpdateD3D11Uniforms(Transform * , Camera * , std::vector<Light*> lights)
-{
-}
+void Shader_SSAO::UpdateD3D11Uniforms(Transform *, Camera *, std::vector<Light*> lights)
+{}

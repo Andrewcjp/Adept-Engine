@@ -10,7 +10,7 @@ Input* Input::instance = nullptr;
 void Input::Startup()
 {
 	instance = new Input();
-	
+
 }
 
 void Input::ShutDown()
@@ -44,7 +44,7 @@ void Input::Clear()
 {
 	KeyMap.clear();
 	MouseWheelUpThisFrame = false;
-	MouseWheelDownThisFrame = false;	
+	MouseWheelDownThisFrame = false;
 	DidJustPause = false;
 }
 

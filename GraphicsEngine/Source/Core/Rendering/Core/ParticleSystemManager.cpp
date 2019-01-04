@@ -84,7 +84,7 @@ void ParticleSystemManager::Init()
 		indices[i] = i;
 	}
 	DeadParticleIndexs->UpdateBufferData(indices, MAX_PARTICLES, EBufferResourceState::UnorderedAccess);
-	
+
 	delete[] indices;
 
 	//test
@@ -112,7 +112,7 @@ void ParticleSystemManager::SetupCommandBuffer()
 	Data[1].dispatchArgs.ThreadGroupCountY = 1;
 	Data[1].dispatchArgs.ThreadGroupCountZ = 1;
 	DispatchCommandBuffer->UpdateBufferData(Data, sizeof(IndirectDispatchArgs) * 2, EBufferResourceState::UnorderedAccess);
-	
+
 
 #if USE_INDIRECTCOMPUTE
 	CmdList->SetUpCommandSigniture(sizeof(DispatchArgs), true);
@@ -136,7 +136,7 @@ void ParticleSystemManager::SetupCommandBuffer()
 		cmdbuffer[i].data = 0;
 	}
 	RenderCommandBuffer->UpdateBufferData(cmdbuffer.data(), cmdbuffer.size(), EBufferResourceState::UnorderedAccess);
-	
+
 
 
 	RenderList = RHI::CreateCommandList();
@@ -207,7 +207,7 @@ void ParticleSystemManager::ShutDown()
 
 void ParticleSystemManager::Sync()
 {
-	
+
 	CmdList->UAVBarrier(AliveParticleIndexs->GetUAV());
 	CmdList->UAVBarrier(DeadParticleIndexs->GetUAV());
 	CmdList->UAVBarrier(CounterBuffer->GetUAV());

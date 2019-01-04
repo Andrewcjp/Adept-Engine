@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -43,7 +43,7 @@ written agreement between you and Audiokinetic Inc.
 // Examples of streaming initialization:
 // 
 // Standalone (registered as the one and only File Location Resolver):
-/* 
+/*
 	// Create Stream Manager.
 	AkStreamMgrSettings stmSettings;
 	AK::StreamMgr::GetDefaultSettings( stmSettings );
@@ -60,7 +60,7 @@ written agreement between you and Audiokinetic Inc.
 //
 // As part of a system with multiple devices (the File Location Resolver is 
 // implemented by CAkDefaultLowLevelIODispatcher):
-/* 
+/*
 	// Create Stream Manager.
 	AkStreamMgrSettings stmSettings;
 	AK::StreamMgr::GetDefaultSettings( stmSettings );
@@ -101,8 +101,8 @@ written agreement between you and Audiokinetic Inc.
 //		 File location is resolved using simple path concatenation logic.
 //-----------------------------------------------------------------------------
 class CAkDefaultIOHookBlocking : public AK::StreamMgr::IAkFileLocationResolver
-								,public AK::StreamMgr::IAkIOHookBlocking
-								,public CAkMultipleFileLocation
+	, public AK::StreamMgr::IAkIOHookBlocking
+	, public CAkMultipleFileLocation
 {
 public:
 
@@ -114,8 +114,8 @@ public:
 	// it creates a streaming device with scheduler type AK_SCHEDULER_BLOCKING.
 	AKRESULT Init(
 		const AkDeviceSettings &	in_deviceSettings,	// Device settings.
-		bool						in_bAsyncOpen=AK_ASYNC_OPEN_DEFAULT	// If true, files are opened asynchronously when possible.
-		);
+		bool						in_bAsyncOpen = AK_ASYNC_OPEN_DEFAULT	// If true, files are opened asynchronously when possible.
+	);
 	void Term();
 
 
@@ -124,22 +124,22 @@ public:
 	//-----------------------------------------------------------------------------
 
 	// Returns a file descriptor for a given file name (string).
-    virtual AKRESULT Open( 
-        const AkOSChar*			in_pszFileName,		// File name.
+	virtual AKRESULT Open(
+		const AkOSChar*			in_pszFileName,		// File name.
 		AkOpenMode				in_eOpenMode,		// Open mode.
-        AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
+		AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
 		bool &					io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-        AkFileDesc &			out_fileDesc        // Returned file descriptor.
-        );
+		AkFileDesc &			out_fileDesc        // Returned file descriptor.
+	);
 
-    // Returns a file descriptor for a given file ID.
-    virtual AKRESULT Open( 
-        AkFileID				in_fileID,          // File ID.
-        AkOpenMode				in_eOpenMode,       // Open mode.
-        AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
+	// Returns a file descriptor for a given file ID.
+	virtual AKRESULT Open(
+		AkFileID				in_fileID,          // File ID.
+		AkOpenMode				in_eOpenMode,       // Open mode.
+		AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
 		bool &					io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-        AkFileDesc &			out_fileDesc        // Returned file descriptor.
-        );
+		AkFileDesc &			out_fileDesc        // Returned file descriptor.
+	);
 
 
 	//
@@ -148,34 +148,34 @@ public:
 
 	// Reads data from a file (synchronous). 
 	virtual AKRESULT Read(
-        AkFileDesc &			in_fileDesc,        // File descriptor.
+		AkFileDesc &			in_fileDesc,        // File descriptor.
 		const AkIoHeuristics &	in_heuristics,		// Heuristics for this data transfer.
-        void *					out_pBuffer,        // Buffer to be filled with data.
-        AkIOTransferInfo &		io_transferInfo		// Synchronous data transfer info. 
-        );
+		void *					out_pBuffer,        // Buffer to be filled with data.
+		AkIOTransferInfo &		io_transferInfo		// Synchronous data transfer info. 
+	);
 
-    // Writes data to a file (synchronous). 
+	// Writes data to a file (synchronous). 
 	virtual AKRESULT Write(
 		AkFileDesc &			in_fileDesc,        // File descriptor.
 		const AkIoHeuristics &	in_heuristics,		// Heuristics for this data transfer.
-        void *					in_pData,           // Data to be written.
-        AkIOTransferInfo &		io_transferInfo		// Synchronous data transfer info. 
-        );
+		void *					in_pData,           // Data to be written.
+		AkIOTransferInfo &		io_transferInfo		// Synchronous data transfer info. 
+	);
 
 	// Cleans up a file.
-    virtual AKRESULT Close(
-        AkFileDesc &			in_fileDesc			// File descriptor.
-        );
+	virtual AKRESULT Close(
+		AkFileDesc &			in_fileDesc			// File descriptor.
+	);
 
 	// Returns the block size for the file or its storage device. 
 	virtual AkUInt32 GetBlockSize(
-        AkFileDesc &  			in_fileDesc			// File descriptor.
-        );
+		AkFileDesc &  			in_fileDesc			// File descriptor.
+	);
 
 	// Returns a description for the streaming device above this low-level hook.
-    virtual void GetDeviceDesc(
-        AkDeviceDesc &  		out_deviceDesc      // Device description.
-        );
+	virtual void GetDeviceDesc(
+		AkDeviceDesc &  		out_deviceDesc      // Device description.
+	);
 
 	// Returns custom profiling data: 1 if file opens are asynchronous, 0 otherwise.
 	virtual AkUInt32 GetDeviceData();

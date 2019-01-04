@@ -128,14 +128,14 @@ void DebugDrawers::FlushAllLines()
 void DrawDebugBox(glm::vec3 const& Center, glm::vec3 const& Box, const glm::quat& Rotation, glm::vec3 const& Color, bool bPersistentLines, float LifeTime)
 {
 	// no debug line drawing on dedicated server
-	
+
 	{
 		// this means foreground lines can't be persistent 
 		//ULineBatchComponent* const LineBatcher = GetDebugLineBatcher(InWorld, bPersistentLines, LifeTime, (DepthPriority == SDPG_Foreground));
 		//if (LineBatcher != NULL)
 		{
-			
-			
+
+
 
 			/*Transform T;
 			T.SetQrot(Rotation);

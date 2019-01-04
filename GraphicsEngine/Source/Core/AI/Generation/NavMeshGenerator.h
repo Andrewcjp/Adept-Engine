@@ -29,8 +29,8 @@ private:
 	//stats 
 	int RemovedQuadsPoints = 0;
 	int PrunedTris = 0;
-	int TotalTriCount = 0;	
-	const std::string VoxeliseTimer = "Navigation Mesh Voxelise";	
+	int TotalTriCount = 0;
+	const std::string VoxeliseTimer = "Navigation Mesh Voxelise";
 };
 ///Contains a list of distances representing the Scene.
 struct HeightField
@@ -69,7 +69,7 @@ public:
 	std::vector<glm::vec3> Points;
 	std::vector<Tri> Triangles;
 	float ZHeight = 0.0f;
-	
+
 private:
 	std::vector<DLTENode*> NavPoints;
 

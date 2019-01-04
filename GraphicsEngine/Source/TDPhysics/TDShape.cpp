@@ -24,7 +24,7 @@ namespace TD
 	}
 
 	TDShapeType::Type TDShape::GetShapeType() const
-	{ 
+	{
 		DebugEnsure((ShapeType != TDShapeType::eLimit));
 		return ShapeType;
 	}

@@ -17,8 +17,7 @@ void AIDirector::SetScene(Scene * newscene)
 }
 
 void AIDirector::Tick()
-{
-}
+{}
 
 GameObject * AIDirector::GetPlayerObject()
 {

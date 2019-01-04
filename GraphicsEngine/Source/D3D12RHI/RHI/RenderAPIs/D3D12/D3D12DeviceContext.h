@@ -57,7 +57,8 @@ private:
 class GPUSyncPoint
 {
 public:
-	GPUSyncPoint() {}
+	GPUSyncPoint()
+	{}
 	~GPUSyncPoint();
 	void Init(ID3D12Device * device, ID3D12Device * SecondDevice);
 	void InitGPUOnly(ID3D12Device* device);
@@ -69,7 +70,7 @@ public:
 private:
 	HANDLE m_fenceEvent;
 	ID3D12Fence* m_fence = nullptr;
-	ID3D12Fence* secondaryFence = nullptr;	
+	ID3D12Fence* secondaryFence = nullptr;
 	UINT64 m_fenceValue = 0;
 };
 
@@ -122,7 +123,7 @@ public:
 		CopyEngineHasWork = false;
 	}
 	RHICommandList* GetInterGPUCopyList();
-private:	
+private:
 	GPUFenceSync GraphicsSync;
 	GPUFenceSync CopySync;
 	GPUFenceSync InterGPUSync;
@@ -135,7 +136,7 @@ private:
 	ID3D12Device* m_Device = nullptr;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	ID3D12CommandQueue* m_commandQueue = nullptr;
-	
+
 	int CurrentFrameIndex = 0;
 
 	//device info
@@ -147,7 +148,7 @@ private:
 	ID3D12CommandAllocator* m_CopyCommandAllocator = nullptr;
 	ID3D12CommandQueue* m_CopyCommandQueue = nullptr;
 	ID3D12CommandQueue* m_ComputeCommandQueue = nullptr;
-	ID3D12GraphicsCommandList* m_IntraCopyList= nullptr;
+	ID3D12GraphicsCommandList* m_IntraCopyList = nullptr;
 	ID3D12CommandAllocator* m_SharedCopyCommandAllocator[RHI::CPUFrameCount] = { nullptr };
 	ID3D12CommandQueue* m_SharedCopyCommandQueue = nullptr;
 	//Sync controllers for each queue

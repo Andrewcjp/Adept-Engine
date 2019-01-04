@@ -5,7 +5,7 @@
 class Shader_Blur : public Shader
 {
 public:
-	
+
 	Shader_Blur(DeviceContext* dev) :Shader(dev)
 	{
 		m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));

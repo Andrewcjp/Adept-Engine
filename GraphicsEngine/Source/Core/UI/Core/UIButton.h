@@ -21,7 +21,7 @@ public:
 	}
 	CORE_API void SetText(std::string t);
 	glm::vec3 NormalColour = glm::vec3(0.5f);
-	glm::vec3 Hovercolour  = glm::vec3(1, 0, 0);
+	glm::vec3 Hovercolour = glm::vec3(1, 0, 0);
 	glm::vec3 SelectedColour = glm::vec3(0, 0, 0.5f);
 	void SetSelected(bool state);
 	virtual void OnOwnerSet(UIWidgetContext* wc) override;
@@ -32,7 +32,7 @@ private:
 
 	CollisionRect Rect;
 	std::function<void()> Target;
-	UILabel* Label = nullptr;                   
+	UILabel* Label = nullptr;
 
 };
 

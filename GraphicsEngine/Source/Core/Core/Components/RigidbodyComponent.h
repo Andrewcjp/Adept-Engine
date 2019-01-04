@@ -19,7 +19,7 @@ public:
 	CORE_API glm::vec3 GetVelocity();
 	CORE_API void SetBodyData(BodyInstanceData data);
 	CORE_API BodyInstanceData& GetBodyData();
-	void OnTransformUpdate() override ;
+	void OnTransformUpdate() override;
 	CORE_API void SetGravity(bool active);
 	CORE_API RigidBody* GetActor();
 	bool IsKineimatic = false;
@@ -34,7 +34,8 @@ private:
 
 	float mass = 1.0f;
 	// Inherited via Component
-	virtual void InitComponent()override {} ;
+	virtual void InitComponent()override
+	{};
 	glm::vec3 InitalVelocity = glm::vec3(0);
 
 };

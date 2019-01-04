@@ -14,8 +14,7 @@ UIWidget::UIWidget(int w, int h, int x, int y)
 }
 
 UIWidget::~UIWidget()
-{
-}
+{}
 
 void UIWidget::ResizeView(int w, int h, int x, int y)
 {
@@ -46,11 +45,9 @@ void UIWidget::SetOwner(UIWidgetContext * wc)
 	OnOwnerSet(wc);
 }
 void UIWidget::UpdateData()
-{
-}
+{}
 void UIWidget::MouseMove(int, int)
-{
-}
+{}
 
 bool UIWidget::MouseClick(int, int)
 {
@@ -58,16 +55,13 @@ bool UIWidget::MouseClick(int, int)
 }
 
 void UIWidget::MouseClickUp(int, int)
-{
-}
+{}
 
 void UIWidget::PostBatchRender()
-{
-}
+{}
 
 void UIWidget::ProcessKeyDown(UINT_PTR)
-{
-}
+{}
 void UIWidget::ProcessKeyUp(UINT_PTR)
 {}
 void UIWidget::SetEnabled(bool state)

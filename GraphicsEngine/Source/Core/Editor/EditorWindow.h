@@ -16,8 +16,11 @@ class EditorWindow : public BaseWindow
 {
 public:
 	void PostInitWindow(int w, int h) override;
-	 
-	CORE_API static EditorWindow* GetInstance() { return instance; }
+
+	CORE_API static EditorWindow* GetInstance()
+	{
+		return instance;
+	}
 	EditorWindow();
 	virtual ~EditorWindow();
 	void EnterPlayMode();
@@ -39,13 +42,13 @@ protected:
 	void PrePhysicsUpdate();
 	void DuringPhysicsUpdate();
 	void FixedUpdate() override;
-	
-	void LoadScene(); 
+
+	void LoadScene();
 	void RefreshScene();
 	void ProcessMenu(unsigned short command) override;
 	void WindowUI() override;
 	void Update() override;
-	void SaveScene();	
+	void SaveScene();
 private:
 	bool StartSimulate = false;
 	static EditorWindow* instance;

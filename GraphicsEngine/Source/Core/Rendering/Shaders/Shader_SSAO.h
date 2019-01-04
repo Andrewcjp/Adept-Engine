@@ -17,7 +17,7 @@ private:
 	int mwidth = 0;
 	int mheight = 0;
 	// Inherited via Shader
-	
+
 
 	// Inherited via Shader
 	void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights);

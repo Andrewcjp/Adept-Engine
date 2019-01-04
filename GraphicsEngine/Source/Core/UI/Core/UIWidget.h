@@ -18,7 +18,7 @@ public:
 	CORE_API UIWidget(int w, int h, int x = 0, int y = 0);
 	~UIWidget();
 	virtual void Render() = 0;
-	virtual void ResizeView(int w, int h, int x = 0, int y =  0);
+	virtual void ResizeView(int w, int h, int x = 0, int y = 0);
 	CORE_API void SetScaled(float Width, float height, float xoff = 0.0f, float yoff = 0.0f);
 	virtual void UpdateScaled();
 	void SetOwner(UIWidgetContext* wc);
@@ -48,7 +48,8 @@ public:
 	float XoffsetScale = 0;
 	float YoffsetScale = 0;
 	bool IsPendingKill = false;
-	virtual void OnOwnerSet(UIWidgetContext* wc){};
+	virtual void OnOwnerSet(UIWidgetContext* wc)
+	{};
 protected:
 	float TextDefaultScale = 0.3f;
 	bool IsActive = true;

@@ -3,5 +3,5 @@
 class CORE_API GenericPlatformMisc
 {
 public:
-	 static std::string GetDateTimeString();
+	static std::string GetDateTimeString();
 };

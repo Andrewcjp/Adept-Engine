@@ -19,4 +19,3 @@ protected:
 	GameMode* gameMode = nullptr;
 };
 
- 

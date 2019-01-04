@@ -18,7 +18,7 @@ private:
 	PP_Blur * BlurEffect = nullptr;
 	class Shader_Bloom* BloomShader = nullptr;
 	RHIUAV* UAV = nullptr;
-	
+
 	class PP_CompostPass* Compost = nullptr;
 };
 

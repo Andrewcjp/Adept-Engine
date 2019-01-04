@@ -25,20 +25,20 @@ public:
 
 	CORE_API static void RenderText(std::string text, float x, float y, float scale, glm::vec3 color);
 
-	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1),bool Reset = false);
+	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1), bool Reset = false);
 	void Finish();
 	void Reset();
 	void LoadText();
 	void UpdateSize(int width, int height, glm::ivec2 offset = glm::ivec2(0));
 	void NotifyFrameEnd();
 	bool RunOnSecondDevice = false;
-private:	
+private:
 	bool UseFrameBuffer = false;
 	int TextDataLength = 0;
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;
 	FT_Library ft;
-	FT_Face face;	
+	FT_Face face;
 	RHIBuffer* VertexBuffer = nullptr;
 	RHICommandList* TextCommandList = nullptr;
 	//when run on second gpu
@@ -77,7 +77,7 @@ private:
 			float tx;	// x offset of glyph in texture coordinates
 			float ty;	// y offset of glyph in texture coordinates
 		} c[128];		// character information
-		
+
 		atlas(FT_Face face, int height, bool RunOnSecondDevice);
 		~atlas();
 	};

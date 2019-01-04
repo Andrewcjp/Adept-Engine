@@ -1,7 +1,10 @@
 #pragma once
 #include "TDTypes.h"
 
-namespace TD { class TDSimulationCallbacks; }
+namespace TD
+{
+	class TDSimulationCallbacks;
+}
 
 namespace TD
 {
@@ -9,7 +12,10 @@ namespace TD
 	class TDSolver;
 	class TDSimConfig;
 	class TDConstraint;
-	namespace Threading { class TaskGraph; }
+	namespace Threading
+	{
+		class TaskGraph;
+	}
 	class TDPhysics
 	{
 	public:

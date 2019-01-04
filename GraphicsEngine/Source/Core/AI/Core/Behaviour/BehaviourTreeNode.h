@@ -26,8 +26,10 @@ class BaseDecorator;
 class BehaviourTreeNode
 {
 public:
-	CORE_API BehaviourTreeNode() {}
-	CORE_API virtual ~BehaviourTreeNode() {}
+	CORE_API BehaviourTreeNode()
+	{}
+	CORE_API virtual ~BehaviourTreeNode()
+	{}
 	CORE_API virtual EBTNodeReturn::Type HandleExecuteNode();
 	CORE_API virtual void OnAddedToTree();
 	CORE_API virtual std::string GetDebugName();
@@ -55,12 +57,18 @@ class BTMoveToNode :public BehaviourTreeNode
 public:
 	CORE_API BTMoveToNode(BTValue* GoalPos);
 	virtual EBTNodeReturn::Type ExecuteNode() override;
-	CORE_API virtual std::string GetDebugName() override { return "BTMoveToNode"; };
+	CORE_API virtual std::string GetDebugName() override
+	{
+		return "BTMoveToNode";
+	};
 };
 class BTSelectorNode :public BehaviourTreeNode
 {
 public:
-	CORE_API BTSelectorNode() { ExecuteChilds = false; }
+	CORE_API BTSelectorNode()
+	{
+		ExecuteChilds = false;
+	}
 	virtual EBTNodeReturn::Type HandleExecuteNode() override;
 	virtual EBTNodeReturn::Type ExecuteNode() override;
 	CORE_API void AddDecorator(BaseDecorator* dec);
@@ -82,7 +90,10 @@ public:
 		TargetTime = Time;
 		Remaining = TargetTime;
 	}
-	CORE_API virtual std::string GetDebugName() override { return "BTWaitNode"; };
+	CORE_API virtual std::string GetDebugName() override
+	{
+		return "BTWaitNode";
+	};
 protected:
 	CORE_API EBTNodeReturn::Type ExecuteNode() override;//todo: fix!
 private:

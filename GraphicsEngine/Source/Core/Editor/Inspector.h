@@ -10,23 +10,26 @@ class Inspector : public UIWidget
 {
 public:
 
-	
+
 	struct PType
 	{
 		EditValueType::Type type;
-		union 
+		union
 		{
 			float fvalue;
 			int ivalue;
 		};
-		union  
+		union
 		{
 			std::function<float()> fTarget;
 			std::function<int()> iTarget;
 		};
-		~PType() {};
-		PType() {};
-		PType(PType&) {};
+		~PType()
+		{};
+		PType()
+		{};
+		PType(PType&)
+		{};
 		PType operator=(PType t)
 		{
 			t.fTarget = fTarget;
@@ -37,7 +40,7 @@ public:
 	};
 	struct PropertyField
 	{
-		
+
 		PropertyField(EditValueType::Type t, PType ptype)
 		{
 			type = t;
@@ -57,8 +60,9 @@ public:
 		{
 
 		};
-		class GameObject* ParentObject  = nullptr;
-		~PropertyField() {};
+		class GameObject* ParentObject = nullptr;
+		~PropertyField()
+		{};
 	};
 	struct InspectorPropery
 	{
@@ -67,7 +71,7 @@ public:
 		EditValueType::Type type;
 		bool ChangesEditor = false;
 	};
-	
+
 	Inspector(int w, int h, int x, int y);
 	~Inspector();
 	void SetSelectedObject(IInspectable* target);

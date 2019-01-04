@@ -5,7 +5,7 @@
 Shader_UpSample::Shader_UpSample()
 {
 	m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));
-	
+
 	m_Shader->AttachAndCompileShaderFromFile("UpSampleCS", EShaderType::SHADER_COMPUTE);
 }
 

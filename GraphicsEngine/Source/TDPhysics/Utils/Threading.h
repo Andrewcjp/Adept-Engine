@@ -69,7 +69,7 @@ namespace TD
 
 		class TaskGraph
 		{
-		public: 
+		public:
 			TaskGraph(int ThreadCount);
 			void Shutdown();
 			/**

@@ -1,6 +1,6 @@
 #pragma once
 #include "PostProcessEffectBase.h"
-class PP_CompostPass: public PostProcessEffectBase
+class PP_CompostPass : public PostProcessEffectBase
 {
 public:
 	PP_CompostPass();

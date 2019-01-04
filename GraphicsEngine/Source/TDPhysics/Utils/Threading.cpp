@@ -62,7 +62,7 @@ namespace TD
 			}
 			thread->JobDone.Signal();
 		}
-		
+
 		return 0;
 	}
 };

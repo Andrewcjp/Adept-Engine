@@ -27,7 +27,7 @@ public:
 protected:
 	Scene* scene = nullptr;
 	WeakObjectPtr<GameObject> Player;
-	
+
 
 };
 

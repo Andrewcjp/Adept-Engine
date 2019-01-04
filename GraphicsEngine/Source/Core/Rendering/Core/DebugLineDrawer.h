@@ -13,7 +13,7 @@ typedef struct _WLineItem
 }WLine;
 class DebugLineDrawer
 {
-public:	
+public:
 	DebugLineDrawer(bool DOnly = false);
 	~DebugLineDrawer();
 	void GenerateLines();
@@ -21,7 +21,7 @@ public:
 	void CreateLineVerts(WLine & line);
 	void RenderLines(glm::mat4& matrix);
 
-	void RenderLines();	
+	void RenderLines();
 	CORE_API void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
 	void OnResize(int newwidth, int newheight);
 	void FlushDebugLines();
@@ -55,6 +55,9 @@ private:
 	int InsertPtr = 0;
 	void ResizeVertexStream(int newsize);
 	void ResetVertexStream();
-	int GetArraySize() { return InsertPtr; }
+	int GetArraySize()
+	{
+		return InsertPtr;
+	}
 };
 

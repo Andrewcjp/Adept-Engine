@@ -7,11 +7,14 @@
 class IRefCount
 {
 public:
-	void AddRef() { refcount++; };
+	void AddRef()
+	{
+		refcount++;
+	};
 	void ReleaseRef()
 	{
 		RemoveRef();
-	}	
+	}
 	int GetRefCount()
 	{
 		return refcount;

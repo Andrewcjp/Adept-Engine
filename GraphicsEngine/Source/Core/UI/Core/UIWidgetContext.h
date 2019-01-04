@@ -38,7 +38,10 @@ public:
 	void RenderTextToScreen(std::string text, float x, float y, float scale, glm::vec3 colour);
 	glm::ivec2 Offset = glm::ivec2(0);
 	void SetEnabled(bool state);
-	bool GetEnabled() const { return Enabled; }
+	bool GetEnabled() const
+	{
+		return Enabled;
+	}
 	CORE_API void DisplayPause();
 	CORE_API void DisplayLoadingScreen();
 	CORE_API void HideScreen();

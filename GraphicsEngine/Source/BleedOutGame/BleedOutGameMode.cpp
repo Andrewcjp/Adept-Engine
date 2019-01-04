@@ -45,14 +45,14 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	GameMode::BeginPlay(Scene);
 #if 1
 	GameObject* A = MakeTestSphere(Scene, true);
-	GameObject* B = MakeTestSphere(Scene);	
+	GameObject* B = MakeTestSphere(Scene);
 	B->SetPosition(glm::vec3(10, 10, 0));
 	ConstaintSetup data;
 	data.Desc.Dampening = 0.2f;
 	data.Desc.SpringK = 1.0f;
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<ColliderComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
-	
+
 	SpawnPlayer(glm::vec3(0, 10, 10), Scene);
 
 	GameObject* AiTest = new GameObject();
@@ -105,7 +105,7 @@ void BleedOutGameMode::OnPlayerDeath()
 	GetPlayer()->Destory();
 	BleedOutHud* Tghud = (BleedOutHud*)Hud;
 	Tghud->ShowRestart();
-	
+
 }
 
 void BleedOutGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
@@ -125,7 +125,7 @@ void BleedOutGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	Health* H = go->AttachComponent(new Health());
-	H->BindDeathCallback(std::bind(&BleedOutGameMode::OnPlayerDeath,this));
+	H->BindDeathCallback(std::bind(&BleedOutGameMode::OnPlayerDeath, this));
 	BleedOutPlayer* player = go->AttachComponent(new BleedOutPlayer());
 	BodyInstanceData lock;
 	lock.LockXRot = true;

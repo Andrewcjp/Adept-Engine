@@ -9,8 +9,7 @@ CollisionRect::CollisionRect(int w, int h, int x, int y)
 }
 
 CollisionRect::~CollisionRect()
-{
-}
+{}
 
 bool CollisionRect::Contains(int x, int y)
 {

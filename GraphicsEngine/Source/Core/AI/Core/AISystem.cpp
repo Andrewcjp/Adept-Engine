@@ -26,7 +26,7 @@ AISystem::~AISystem()
 void AISystem::SetupForScene(Scene* newscene)
 {
 	SceneStart();
-	Director->SetScene(newscene);	
+	Director->SetScene(newscene);
 }
 
 void AISystem::SceneStart()
@@ -42,13 +42,13 @@ void AISystem::SceneEnd()
 
 void AISystem::StartUp()
 {
-	Instance = new AISystem();	
+	Instance = new AISystem();
 }
 
 void AISystem::ShutDown()
 {
 	SafeDelete(Instance);
-} 
+}
 
 void AISystem::Tick(float dt)
 {
@@ -89,7 +89,7 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 	ENavRequestStatus::Type result = mesh->EnqueuePathRequest(Startpoint, EndPos, outpath);
 	if (result != ENavRequestStatus::Complete)
 	{
-		Log::LogMessage("CalculatePath Failure "+ NavigationManager::GetErrorCodeAsString(result), Log::Severity::Warning);
+		Log::LogMessage("CalculatePath Failure " + NavigationManager::GetErrorCodeAsString(result), Log::Severity::Warning);
 	}
 	return result;
 }
@@ -99,7 +99,7 @@ void AISystem::GenerateMesh()
 	return;
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
-	mesh->Plane = n->GetPlane(-17); 	
+	mesh->Plane = n->GetPlane(-17);
 }
 
 EAIDebugMode::Type AISystem::GetDebugMode()

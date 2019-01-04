@@ -37,7 +37,7 @@ public:
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
 	static void CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::ShaderParameter> Parms, DeviceContext* context);
-	
+
 	static void CreateDefaultRootSig(D3D12PiplineShader & output);
 	void Init();
 	void CreateComputePipelineShader();

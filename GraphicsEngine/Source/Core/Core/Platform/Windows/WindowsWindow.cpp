@@ -125,7 +125,7 @@ int WindowsWindow::Run()
 	MSG msg = MSG();
 
 	while (!m_terminate)
-	{		
+	{
 		if (Input::Get())
 		{
 			Input::Get()->ResetMouse();
@@ -155,7 +155,7 @@ int WindowsWindow::Run()
 
 void WindowsWindow::Kill()
 {
-	app->m_terminate = TRUE;	
+	app->m_terminate = TRUE;
 }
 
 void WindowsWindow::AddMenus(HWND hwnd)
@@ -163,7 +163,7 @@ void WindowsWindow::AddMenus(HWND hwnd)
 	HMENU hMenu;
 	HMENU hGOMenu = CreateMenu();
 	HMENU hdebugMenu = CreateMenu();
-//	HMENU hRenderMenu = CreateMenu();
+	//	HMENU hRenderMenu = CreateMenu();
 	HMENU hMenubar = CreateMenu();
 	hMenu = CreateMenu();
 	//file menu

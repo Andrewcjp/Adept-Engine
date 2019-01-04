@@ -15,12 +15,18 @@ public:
 	void OnCollide(CollisonData data) override;
 
 	std::string GetInfoString();
-	
+
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
-	RigidbodyComponent* GetRBody() { return RB; }
+	RigidbodyComponent* GetRBody()
+	{
+		return RB;
+	}
 	GameObject* CameraObject = nullptr;
-	bool GetIsGrounded() const { return IsGrounded; }
+	bool GetIsGrounded() const
+	{
+		return IsGrounded;
+	}
 	glm::vec3 ExtraVel = glm::vec3();
 	WeaponManager* Manager = nullptr;
 private:

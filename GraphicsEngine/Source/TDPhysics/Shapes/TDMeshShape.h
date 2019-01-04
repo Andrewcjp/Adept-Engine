@@ -1,11 +1,20 @@
 #pragma once
 #include "TDShape.h"
 
-namespace TD { class TDBox; }
+namespace TD
+{
+	class TDBox;
+}
 
-namespace TD { struct RayCast; }
+namespace TD
+{
+	struct RayCast;
+}
 
-namespace TD { class TDBVH; }
+namespace TD
+{
+	class TDBVH;
+}
 
 namespace TD
 {
@@ -53,11 +62,17 @@ namespace TD
 	public:
 		TD_API TDMesh(const TDTriangleMeshDesc& desc);
 		~TDMesh();
-		TD_API std::vector<TDTriangle*> & GetTriangles() { return Triangles; }
+		TD_API std::vector<TDTriangle*> & GetTriangles()
+		{
+			return Triangles;
+		}
 		TD_API virtual void CookMesh();
 		glm::vec3 Max;
 		glm::vec3 Min;
-		TDBVH* GetBVH() { return BVH; }		
+		TDBVH* GetBVH()
+		{
+			return BVH;
+		}
 	private:
 		TDBVH* BVH = nullptr;
 		std::vector<TDTriangle*> Triangles;
@@ -66,7 +81,8 @@ namespace TD
 	class TDTriangle
 	{
 	public:
-		TDTriangle() {};
+		TDTriangle()
+		{};
 		TDTriangle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 		TDTriangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 normal);
 		glm::vec3 Points[3];
@@ -89,7 +105,8 @@ namespace TD
 	{
 		glm::vec3 PointA;
 		glm::vec3 PointB;
-		Edge() {};
+		Edge()
+		{};
 		Edge(glm::vec3 a, glm::vec3 b)
 		{
 			PointA = a;

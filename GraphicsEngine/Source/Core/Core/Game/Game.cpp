@@ -2,30 +2,28 @@
 #include "ai/CORE/AIDirector.h"
 #include "UI/GameUI/GameHud.h"
 Game::Game(CompoenentRegistry* Reg)
-{
-}
+{}
 
 
 Game::~Game()
-{
-}
+{}
 void Game::Init()
 {
-	
+
 }
 void Game::Update()
 {
-	
+
 }
 
 void Game::BeginPlay()
 {
-	
+
 }
 
 void Game::EndPlay()
 {
-	
+
 }
 
 float Game::GetTickRate()

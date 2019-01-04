@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -65,14 +65,14 @@ AKRESULT CAkMultipleFileLocation::Open(
 	AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
 	bool			in_bOverlapped,		// Overlapped IO open
 	AkFileDesc &    out_fileDesc        // Returned file descriptor.
-	)
+)
 {
 	AkOSChar szFullFilePath[AK_MAX_PATH];
 	if (m_Locations.IsEmpty())
 	{
 		// Get the full file path, using path concatenation logic.
 
-		if (GetFullFilePath(in_pszFileName, in_pFlags, in_eOpenMode, szFullFilePath ) == AK_Success)
+		if (GetFullFilePath(in_pszFileName, in_pFlags, in_eOpenMode, szFullFilePath) == AK_Success)
 		{
 			AKRESULT res = CAkFileHelpers::Open(szFullFilePath, in_eOpenMode, in_bOverlapped, out_fileDesc);
 			if (res == AK_Success)
@@ -101,29 +101,29 @@ AKRESULT CAkMultipleFileLocation::Open(
 			}
 		}
 	}
-	return AK_Fail;    
+	return AK_Fail;
 }
 
-AKRESULT CAkMultipleFileLocation::Open( 
-										AkFileID        in_fileID,          // File ID.
-										AkOpenMode      in_eOpenMode,       // Open mode.
-										AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
-										bool			in_bOverlapped,		// Overlapped IO open
-										AkFileDesc &    out_fileDesc        // Returned file descriptor.
-										)
+AKRESULT CAkMultipleFileLocation::Open(
+	AkFileID        in_fileID,          // File ID.
+	AkOpenMode      in_eOpenMode,       // Open mode.
+	AkFileSystemFlags * in_pFlags,      // Special flags. Can pass NULL.
+	bool			in_bOverlapped,		// Overlapped IO open
+	AkFileDesc &    out_fileDesc        // Returned file descriptor.
+)
 {
-	if ( !in_pFlags ||
+	if (!in_pFlags ||
 		!(in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC || in_pFlags->uCompanyID == AKCOMPANYID_AUDIOKINETIC_EXTERNAL))
 	{
-		AKASSERT( !"Unhandled file type" );
+		AKASSERT(!"Unhandled file type");
 		return AK_Fail;
 	}
 
-	AkOSChar pszTitle[MAX_FILETITLE_SIZE+1];
-	if ( in_pFlags->uCodecID == AKCODECID_BANK )
-		AK_OSPRINTF( pszTitle, MAX_FILETITLE_SIZE, ID_TO_STRING_FORMAT_BANK, (unsigned int)in_fileID );
+	AkOSChar pszTitle[MAX_FILETITLE_SIZE + 1];
+	if (in_pFlags->uCodecID == AKCODECID_BANK)
+		AK_OSPRINTF(pszTitle, MAX_FILETITLE_SIZE, ID_TO_STRING_FORMAT_BANK, (unsigned int)in_fileID);
 	else
-		AK_OSPRINTF( pszTitle, MAX_FILETITLE_SIZE, ID_TO_STRING_FORMAT_WEM, (unsigned int)in_fileID );
+		AK_OSPRINTF(pszTitle, MAX_FILETITLE_SIZE, ID_TO_STRING_FORMAT_WEM, (unsigned int)in_fileID);
 
 	return Open(pszTitle, in_eOpenMode, in_pFlags, in_bOverlapped, out_fileDesc);
 }
@@ -137,22 +137,22 @@ AKRESULT CAkMultipleFileLocation::GetFullFilePath(
 	AkOpenMode			in_eOpenMode,		// File open mode (read, write, ...).
 	AkOSChar*			out_pszFullFilePath, // Full file path.
 	AkOSChar*			in_pszBasePath		// Base path to use, might be null	
-	)
+)
 {
-    if ( !in_pszFileName )
-    {
-        AKASSERT( !"Invalid file name" );
-        return AK_InvalidParameter;
-    }
+	if (!in_pszFileName)
+	{
+		AKASSERT(!"Invalid file name");
+		return AK_InvalidParameter;
+	}
 
 	// Prepend string path (basic file system logic).
 
-    // Compute file name with file system paths.
-	size_t uiPathSize = AKPLATFORM::OsStrLen( in_pszFileName );
+	// Compute file name with file system paths.
+	size_t uiPathSize = AKPLATFORM::OsStrLen(in_pszFileName);
 
-    if ( uiPathSize >= AK_MAX_PATH )
+	if (uiPathSize >= AK_MAX_PATH)
 	{
-		AKASSERT( !"Input string too large" );
+		AKASSERT(!"Input string too large");
 		return AK_InvalidParameter;
 	}
 
@@ -174,49 +174,49 @@ AKRESULT CAkMultipleFileLocation::GetFullFilePath(
 	}
 
 
-    if ( in_pFlags && in_eOpenMode == AK_OpenModeRead )
-    {        
+	if (in_pFlags && in_eOpenMode == AK_OpenModeRead)
+	{
 		// Add language directory name if needed.
-		if ( in_pFlags->bIsLanguageSpecific )
+		if (in_pFlags->bIsLanguageSpecific)
 		{
-			size_t uLanguageStrLen = AKPLATFORM::OsStrLen( AK::StreamMgr::GetCurrentLanguage() );
-			if ( uLanguageStrLen > 0 )
+			size_t uLanguageStrLen = AKPLATFORM::OsStrLen(AK::StreamMgr::GetCurrentLanguage());
+			if (uLanguageStrLen > 0)
 			{
-				uiPathSize += ( uLanguageStrLen + 1 );
-				if ( uiPathSize >= AK_MAX_PATH )
+				uiPathSize += (uLanguageStrLen + 1);
+				if (uiPathSize >= AK_MAX_PATH)
 				{
-					AKASSERT( !"Path is too large" );
+					AKASSERT(!"Path is too large");
 					return AK_Fail;
 				}
-				AKPLATFORM::SafeStrCat( out_pszFullFilePath, AK::StreamMgr::GetCurrentLanguage(), AK_MAX_PATH );
-				AKPLATFORM::SafeStrCat( out_pszFullFilePath, AK_PATH_SEPARATOR, AK_MAX_PATH );
+				AKPLATFORM::SafeStrCat(out_pszFullFilePath, AK::StreamMgr::GetCurrentLanguage(), AK_MAX_PATH);
+				AKPLATFORM::SafeStrCat(out_pszFullFilePath, AK_PATH_SEPARATOR, AK_MAX_PATH);
 			}
 		}
 	}
-        
-    // Append file title.
-	uiPathSize += AKPLATFORM::OsStrLen( out_pszFullFilePath );
-	if ( uiPathSize >= AK_MAX_PATH )
+
+	// Append file title.
+	uiPathSize += AKPLATFORM::OsStrLen(out_pszFullFilePath);
+	if (uiPathSize >= AK_MAX_PATH)
 	{
-		AKASSERT( !"File name string too large" );
+		AKASSERT(!"File name string too large");
 		return AK_Fail;
 	}
-	AKPLATFORM::SafeStrCat( out_pszFullFilePath, in_pszFileName, AK_MAX_PATH );
+	AKPLATFORM::SafeStrCat(out_pszFullFilePath, in_pszFileName, AK_MAX_PATH);
 	return AK_Success;
 }
 
 AKRESULT CAkMultipleFileLocation::AddBasePath(const AkOSChar* in_pszBasePath)
 {
 	AkUInt32 origLen = (AkUInt32)AKPLATFORM::OsStrLen(in_pszBasePath);
-    AkUInt32 newByteSize = origLen + 1;	// One for the trailing \0
-    if(origLen && in_pszBasePath[origLen - 1] != AK_PATH_SEPARATOR[0])
-    {
-        newByteSize++; // Add space for a trailing slash
-    }
+	AkUInt32 newByteSize = origLen + 1;	// One for the trailing \0
+	if (origLen && in_pszBasePath[origLen - 1] != AK_PATH_SEPARATOR[0])
+	{
+		newByteSize++; // Add space for a trailing slash
+	}
 
-    // Make sure the new base path is not too long in case language gets appended
-    // Format of the test is: basePath/Language/.
-	if ( origLen + 1 + AKPLATFORM::OsStrLen( AK::StreamMgr::GetCurrentLanguage() + 1 ) >= AK_MAX_PATH )
+	// Make sure the new base path is not too long in case language gets appended
+	// Format of the test is: basePath/Language/.
+	if (origLen + 1 + AKPLATFORM::OsStrLen(AK::StreamMgr::GetCurrentLanguage() + 1) >= AK_MAX_PATH)
 		return AK_InvalidParameter;
 
 	FilePath * pPath = (FilePath*)AkAlloc(AK::StreamMgr::GetPoolID(), sizeof(FilePath) + sizeof(AkOSChar)*(newByteSize - 1));
@@ -224,9 +224,9 @@ AKRESULT CAkMultipleFileLocation::AddBasePath(const AkOSChar* in_pszBasePath)
 		return AK_InsufficientMemory;
 
 	// Copy the base path EVEN if the directory does not exist.
-	AKPLATFORM::SafeStrCpy( pPath->szPath, in_pszBasePath, origLen + 1);
-    
-    // Add the trailing slash, if necessary
+	AKPLATFORM::SafeStrCpy(pPath->szPath, in_pszBasePath, origLen + 1);
+
+	// Add the trailing slash, if necessary
 	if (origLen)// UWP is not soo happy of the trailing slash on an empty string.
 	{
 		if (in_pszBasePath[origLen - 1] != AK_PATH_SEPARATOR[0])
@@ -238,8 +238,8 @@ AKRESULT CAkMultipleFileLocation::AddBasePath(const AkOSChar* in_pszBasePath)
 	pPath->pNextLightItem = NULL;
 	m_Locations.AddFirst(pPath);
 
-	AKRESULT eDirectoryResult = CAkFileHelpers::CheckDirectoryExists( in_pszBasePath );
-	if( eDirectoryResult == AK_Fail ) // AK_NotImplemented could be returned and should be ignored.
+	AKRESULT eDirectoryResult = CAkFileHelpers::CheckDirectoryExists(in_pszBasePath);
+	if (eDirectoryResult == AK_Fail) // AK_NotImplemented could be returned and should be ignored.
 	{
 		return AK_PathNotFound;
 	}

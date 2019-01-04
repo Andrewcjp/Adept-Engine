@@ -45,12 +45,12 @@ class SceneRenderer
 public:
 	SceneRenderer(class Scene* Target);
 	~SceneRenderer();
-	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr,bool IsCubemap =false);
+	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false);
 	void Init();
 	void UpdateReflectionParams(glm::vec3 lightPos);
 	void UpdateCBV();
 	void UpdateUnformBufferEntry(const SceneConstantBuffer & bufer, int index);
-	
+
 	void SetActiveIndex(RHICommandList * list, int index, int DeviceIndex);
 	void UpdateMV(Camera * c);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);

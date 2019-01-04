@@ -23,7 +23,7 @@ public:
 	ModuleManager();
 	~ModuleManager();
 	void ShutDown();
-	
+
 	template<class T>
 	T* GetModule(FString Name)
 	{
@@ -45,8 +45,8 @@ public:
 private:
 	std::vector<FString> ModulesNames;
 	void SetupPreLoadModules();
-	
-	void UnloadModule(FString name);	
+
+	void UnloadModule(FString name);
 	static ModuleManager* Instance;
 	IModuleInterface * LoadModule(FString Name);
 	struct ModuleInfo

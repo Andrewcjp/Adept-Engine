@@ -24,7 +24,7 @@ void ShaderGraph::test()
 	AddNodetoGraph(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(1, 1, 1)));
 #else
 	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
-	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->NormalDir, "NORMALMAP",TextureType::Normal));
+	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->NormalDir, "NORMALMAP", TextureType::Normal));
 #endif
 }
 

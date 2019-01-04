@@ -29,7 +29,7 @@ void PP_CompostPass::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	{
 		//	buffer->MakeReadyForRead(dlist);
 	}
-	list->SetFrameBufferTexture(InputFramebuffer,0);
+	list->SetFrameBufferTexture(InputFramebuffer, 0);
 
 	RenderScreenQuad(list);
 #if TEST
@@ -47,7 +47,7 @@ void PP_CompostPass::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 void PP_CompostPass::PostSetUpData()
 {
 	CurrentShader = new Shader_Compost(RHI::GetDeviceContext(0));
-	CMDlist = RHI::CreateCommandList(ECommandListType::Graphics,RHI::GetDeviceContext(0));
+	CMDlist = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
 }
 
 void PP_CompostPass::PostInitEffect(FrameBuffer* Target)

@@ -333,11 +333,11 @@ public:
 	void SetDebugName(std::string Name);
 	const char* ObjectSufix = "";
 #if NAME_RHI_PRIMS	
-	const char* GetDebugName();	
+	const char* GetDebugName();
 #endif
 private:
 #if NAME_RHI_PRIMS
-	const char* FinalName = "";	
+	const char* FinalName = "";
 	const char* DebugName = "";
 #endif
 	bool PendingKill = false;

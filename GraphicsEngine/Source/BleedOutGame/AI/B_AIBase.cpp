@@ -31,10 +31,10 @@ void B_AIBase::OnDead()
 	AIBase::SetDead();
 }
 
- void B_AIBase::InitComponent()
+void B_AIBase::InitComponent()
 {
-	 AIBase::InitComponent();
-	 MainWeapon = GetOwner()->GetComponent<Weapon>();
-	 Health* H = GetOwner()->GetComponent<Health>();
-	 H->BindDeathCallback(std::bind(&B_AIBase::OnDead, this));
+	AIBase::InitComponent();
+	MainWeapon = GetOwner()->GetComponent<Weapon>();
+	Health* H = GetOwner()->GetComponent<Health>();
+	H->BindDeathCallback(std::bind(&B_AIBase::OnDead, this));
 }

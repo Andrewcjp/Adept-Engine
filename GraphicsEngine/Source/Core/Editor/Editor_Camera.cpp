@@ -45,7 +45,7 @@ void Editor_Camera::Update(float delatime)
 		}
 		if (Input::GetKey('s'))
 		{
-			MainCam->MoveForward(-movespeed*delatime);
+			MainCam->MoveForward(-movespeed * delatime);
 		}
 		if (Input::GetKey('a'))
 		{
@@ -53,7 +53,7 @@ void Editor_Camera::Update(float delatime)
 		}
 		if (Input::GetKey('d'))
 		{
-			MainCam->MoveRight(-movespeed*delatime);
+			MainCam->MoveRight(-movespeed * delatime);
 		}
 		if (Input::GetKey('e'))
 		{
@@ -61,12 +61,12 @@ void Editor_Camera::Update(float delatime)
 		}
 		if (Input::GetKey('q'))
 		{
-			MainCam->MoveUp(-movespeed*delatime);
+			MainCam->MoveUp(-movespeed * delatime);
 		}
 		glm::vec2 axis = Input::GetMouseInputAsAxis();
 		MainCam->RotateY(axis.x*sensitvity);
 		MainCam->Pitch(axis.y*sensitvity);
-		
+
 	}
 	else
 	{

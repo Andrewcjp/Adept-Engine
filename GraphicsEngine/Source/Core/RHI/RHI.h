@@ -35,7 +35,7 @@ public:
 	RHI_API static RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr);
 	RHI_API static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	RHI_API static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
-	
+
 	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
 	RHI_API static DeviceContext* GetDefaultDevice();
 	static void InitialiseContext();
@@ -48,7 +48,7 @@ public:
 	static void ResizeSwapChain(int width, int height);
 	static void DestoryContext();
 
-	
+
 	RHI_API static bool BlockCommandlistExec();
 	RHI_API static bool AllowCPUAhead();
 	RHI_API static int GetDeviceCount();

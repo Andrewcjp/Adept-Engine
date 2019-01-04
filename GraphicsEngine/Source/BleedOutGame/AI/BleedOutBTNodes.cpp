@@ -72,10 +72,10 @@ void BTRifleAttackNode::Run()
 	if (Sol != nullptr)
 	{
 		Sol->LookAt(Target->GetPosition());
-		const glm::vec3 dir = Target->GetPosition()- (ParentTree->AIGameObject->GetPosition()+glm::vec3(0,2,0));
+		const glm::vec3 dir = Target->GetPosition() - (ParentTree->AIGameObject->GetPosition() + glm::vec3(0, 2, 0));
 		Controller->MainWeapon->AIForward = glm::normalize(dir);
 	}
-	
+
 	if (RemainingRounds == 0)
 	{
 		CurrentBurstCoolDown = CoolDownTime;

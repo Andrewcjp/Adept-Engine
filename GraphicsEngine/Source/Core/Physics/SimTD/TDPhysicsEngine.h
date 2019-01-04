@@ -13,7 +13,7 @@ class TDPhysicsEngine : public GenericPhysicsEngine
 {
 public:
 	void InitPhysics();
-	CORE_API ConstraintInstance * CreateConstraint(RigidBody * A, RigidBody * B,const ConstaintSetup& Setup);
+	CORE_API ConstraintInstance * CreateConstraint(RigidBody * A, RigidBody * B, const ConstaintSetup& Setup);
 	static void DebugLineCallbackHandler(glm::vec3 start, glm::vec3 end, glm::vec3 Colour, float lifetime);
 	static void TimerCallbackHandler(bool IsStart, TDPerfCounters::Type type);
 	void StepPhysics(float Deltatime);

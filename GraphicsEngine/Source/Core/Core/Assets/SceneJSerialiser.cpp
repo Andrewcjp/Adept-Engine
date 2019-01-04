@@ -7,12 +7,10 @@
 #include "Core/Utils/FileUtils.h"
 
 SceneJSerialiser::SceneJSerialiser()
-{
-}
+{}
 
 SceneJSerialiser::~SceneJSerialiser()
-{
-}
+{}
 
 void SceneJSerialiser::SaveScene(Scene* target, std::string path)
 {
@@ -21,14 +19,14 @@ void SceneJSerialiser::SaveScene(Scene* target, std::string path)
 	SceneArchive->Write();
 }
 
-void SceneJSerialiser::LoadScene(Scene* target,std::string path)
+void SceneJSerialiser::LoadScene(Scene* target, std::string path)
 {
 	if (!FileUtils::File_ExistsTest(path))
 	{
 		return;
 	}
 	SceneArchive = new Archive(path, false);
-	SceneArchive->LinkProperty(target,"GOS");	
+	SceneArchive->LinkProperty(target, "GOS");
 }
 
 std::string SceneJSerialiser::GetFile(std::string filename)
@@ -46,7 +44,7 @@ std::string SceneJSerialiser::GetFile(std::string filename)
 	}
 	else
 	{
-		Log::OutS  << "failed to load " << filename << Log::OutS;
+		Log::OutS << "failed to load " << filename << Log::OutS;
 	}
 	return out;
 }
@@ -68,7 +66,7 @@ bool SceneJSerialiser::WriteToFile(std::string filename, std::string data)
 	}
 	else
 	{
-		Log::OutS  << "failed to save " << filename << Log::OutS;
+		Log::OutS << "failed to save " << filename << Log::OutS;
 		return false;
 	}
 	return true;

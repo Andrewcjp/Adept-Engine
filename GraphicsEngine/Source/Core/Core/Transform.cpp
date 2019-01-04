@@ -97,7 +97,7 @@ glm::mat4 Transform::GetModel(bool NoParent)
 #if USE_TRANSFORM_CACHING		
 		&& parent->IsChanged()
 #endif
-		 && !NoParent)
+		&& !NoParent)
 	{
 		parentMatrix = parent->GetTransform()->GetModel();
 	}

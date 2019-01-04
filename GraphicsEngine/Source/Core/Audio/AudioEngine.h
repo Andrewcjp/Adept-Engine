@@ -10,7 +10,7 @@ public:
 	CORE_API static void PostEvent(FString name, class GameObject* Obj = nullptr);
 	void LoadBanks();
 	CORE_API void MakeDefaultListener(GameObject * g);
-	
+
 	static void RegisterObject(GameObject * obj);
 	static void DeRegisterObject(GameObject * obj);
 	static void StopAll();

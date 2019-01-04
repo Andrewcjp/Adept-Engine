@@ -47,7 +47,7 @@ struct DirectorState
 	int NextStageThreshold = 0;//once the current spawned score drops below this the director moves to the next state
 };
 struct DirectorStateSet
-{	
+{
 	const DirectorState* GetState(EWaveStage::Type t) const
 	{
 		return &States[t];
@@ -94,7 +94,7 @@ private:
 	bool once = false;
 	int DifficultyScoreMax = 5;
 	int CurrentSpawnScore = 0;
-	
+
 	DirectorStateSet* StateSets = nullptr;
 	EWaveStage::Type CurrnetStage = EWaveStage::Limit;
 	AttackController* PlayerAttackController = nullptr;//For single player 

@@ -13,8 +13,7 @@ UIListBox::UIListBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 
 
 UIListBox::~UIListBox()
-{
-}
+{}
 
 void UIListBox::Render()
 {

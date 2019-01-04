@@ -13,20 +13,38 @@ public:
 #if WITH_EDITOR
 	void EditorUpdateScene();
 #endif
-	void OnFrameEnd(); 
+	void OnFrameEnd();
 	void FixedUpdateScene(float deltatime);
 	CORE_API void AddGameobjectToScene(GameObject* gameobject);
 	void CopyScene(Scene * newscene);
-	std::vector<GameObject*>* GetObjects() { return &SceneObjects; }
-	std::vector<GameObject*>* GetMeshObjects() { return &RenderSceneObjects; }
+	std::vector<GameObject*>* GetObjects()
+	{
+		return &SceneObjects;
+	}
+	std::vector<GameObject*>* GetMeshObjects()
+	{
+		return &RenderSceneObjects;
+	}
 	void StartScene();
 	void LoadDefault();
 	void LoadExampleScene(RenderEngine * Renderer, bool IsDeferredMode);
-	std::vector<Light*>* GetLights() { return &Lights; }
-	Camera* GetCurrentRenderCamera() { return CurrentCamera; }
-	void AddCamera(Camera* cam) { Cameras.emplace_back(cam); CurrentCamera = cam; }//todo: Camera priority
+	std::vector<Light*>* GetLights()
+	{
+		return &Lights;
+	}
+	Camera* GetCurrentRenderCamera()
+	{
+		return CurrentCamera;
+	}
+	void AddCamera(Camera* cam)
+	{
+		Cameras.emplace_back(cam); CurrentCamera = cam;
+	}//todo: Camera priority
 	void RemoveCamera(Camera* Cam);
-	void AddLight(Light* Light) { Lights.emplace_back(Light); }//todo: Camera priority
+	void AddLight(Light* Light)
+	{
+		Lights.emplace_back(Light);
+	}//todo: Camera priority
 	void RemoveLight(Light* Light);
 	void RemoveGameObject(GameObject * object);
 	bool StaticSceneNeedsUpdate = false;
@@ -36,17 +54,32 @@ public:
 		BaseTexture* SkyBox = nullptr;
 		BaseTexture* DiffuseMap = nullptr;
 	};
-	LightingEnviromentData* GetLightingData() { return &LightingData; }
-	bool IsEditorScene() { return bEditorScene; }
+	LightingEnviromentData* GetLightingData()
+	{
+		return &LightingData;
+	}
+	bool IsEditorScene()
+	{
+		return bEditorScene;
+	}
 	void TickDeferredRemove();
 	CORE_API static GameObject* CreateDebugSphere(Scene* s);
-	float GetGravityStrength() const { return GravityStrength; }
-	GameMode* GetGameMode() { return CurrentGameMode; }
-	bool IsSceneDestorying()const { return IsDestruction; }
+	float GetGravityStrength() const
+	{
+		return GravityStrength;
+	}
+	GameMode* GetGameMode()
+	{
+		return CurrentGameMode;
+	}
+	bool IsSceneDestorying()const
+	{
+		return IsDestruction;
+	}
 private:
 	bool IsDestruction = false;
 	float GravityStrength = 20.0f;
-	std::vector<GameObject*> SceneObjects;	
+	std::vector<GameObject*> SceneObjects;
 	std::vector<GameObject*> RenderSceneObjects;
 	std::vector<Light*> Lights;
 	std::vector<Camera*> Cameras;

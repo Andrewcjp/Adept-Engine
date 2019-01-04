@@ -168,7 +168,7 @@ void Archive::LinkProperty(Scene* Value, const char * PropName)
 {
 	int VersionNumber = SERAL_VERSION_NUMBER;
 	if (IsReading())
-	{		
+	{
 		CurrentReadHead = doc.MemberBegin();
 	}
 	if (!IsReading())

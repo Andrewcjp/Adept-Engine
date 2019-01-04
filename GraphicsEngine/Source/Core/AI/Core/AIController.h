@@ -17,9 +17,9 @@ public:
 	CORE_API void SetLookAt(glm::vec3 pos);
 	bool Active = true;
 private:
-	struct Target 
+	struct Target
 	{
-		glm::vec3 StaticPos = glm::vec3(0,0,0);
+		glm::vec3 StaticPos = glm::vec3(0, 0, 0);
 		WeakObjectPtr<GameObject> MovingTarget;
 		glm::vec3 GetTargetPos();
 		bool IsValid = false;

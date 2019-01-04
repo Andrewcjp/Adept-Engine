@@ -115,7 +115,7 @@ namespace TD
 				for (int j = 0; j < actor->GetAttachedShapes().size(); j++)
 				{
 					TDShape* currentshape = actor->GetAttachedShapes()[j];
-					if (!Ray->PreFilter(actor,currentshape))
+					if (!Ray->PreFilter(actor, currentshape))
 					{
 						continue;
 					}

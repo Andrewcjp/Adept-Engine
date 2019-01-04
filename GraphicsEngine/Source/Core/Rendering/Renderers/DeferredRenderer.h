@@ -10,9 +10,10 @@
 class DeferredRenderer :public RenderEngine
 {
 public:
-	void OnRender() override;	
+	void OnRender() override;
 	void PostInit()override;
-	DeferredRenderer(int width, int height) :RenderEngine(width, height) {}
+	DeferredRenderer(int width, int height) :RenderEngine(width, height)
+	{}
 	virtual ~DeferredRenderer();
 	virtual void Resize(int width, int height) override;
 	virtual void DestoryRenderWindow() override;
@@ -28,8 +29,8 @@ private:
 	FrameBuffer* GFrameBuffer = nullptr;
 	RHICommandList* WriteList = nullptr;
 	RHICommandList* LightingList = nullptr;
-	bool once = true;	
+	bool once = true;
 	FrameBuffer*	OutputBuffer = nullptr;
-	Shader_SSAO*	SSAOShader;	
+	Shader_SSAO*	SSAOShader;
 };
 

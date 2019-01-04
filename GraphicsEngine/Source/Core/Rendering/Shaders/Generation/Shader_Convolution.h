@@ -21,12 +21,12 @@ public:
 		void RenderScreenQuad(RHICommandList * list);
 	};
 private:
-	
+
 	RHICommandList* CmdList = nullptr;
 	RHIBuffer* ShaderData = nullptr;
-	
+
 	struct SData
-	{		
+	{
 		glm::mat4x4 VP;
 		int faceID = 0;
 	};

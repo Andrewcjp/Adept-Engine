@@ -5,14 +5,15 @@ class Weapon : public Component
 {
 public:
 	enum WeaponType
-	{		
-		Rifle,		
+	{
+		Rifle,
 		RailGun,
 		ShotGun,
 		AIRifle,
 		Limit,
 	};
-	Weapon() {}
+	Weapon()
+	{}
 	Weapon(Weapon::WeaponType T, Scene* scene, BleedOutPlayer* player, GameObject* root = nullptr);
 	~Weapon();
 
@@ -21,27 +22,34 @@ public:
 	virtual void Update(float delta) override;
 	struct WeaponSettings
 	{
-		float FireDelay = 0.2f;		
+		float FireDelay = 0.2f;
 		int PelletCount = 1;
 		bool IsSemiAuto = false;
-		glm::vec3 WeaponRelativePos = glm::vec3(0,0,0);
+		glm::vec3 WeaponRelativePos = glm::vec3(0, 0, 0);
 		float DamagePerShot = 10.0f;
 		int MaxAmmoCount = 100;
 		float ProjectileSpeed = 50.0f;
 		bool ShowProjectile = false;
 	};
-	const WeaponSettings& GetCurrentSettings() { return CurrentSettings; }
+	const WeaponSettings& GetCurrentSettings()
+	{
+		return CurrentSettings;
+	}
 	void SetCurrentSettings(WeaponSettings NewSettings);
 	void PlayFireSound();
 	virtual bool Fire();
 	void SetState(bool state);
-	virtual void OnFire() {};
-	int GetCurrentAmmo() { return CurrentAmmoCount; }
+	virtual void OnFire()
+	{};
+	int GetCurrentAmmo()
+	{
+		return CurrentAmmoCount;
+	}
 	void AddAmmo(int amt);
 	glm::vec3 AIForward = glm::vec3(0, 0, 0);
 protected:
 	BleedOutPlayer* Player = nullptr;
-	
+
 	int CurrentAmmoCount = 10;
 private:
 	void CreateModel(Scene* s, GameObject* cameraobj);

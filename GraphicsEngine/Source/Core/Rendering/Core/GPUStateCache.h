@@ -36,7 +36,7 @@ public:
 	{
 		return (instance->uniformBufferState == buffer);
 	}
-	static void UpdateCurrentUniformBuffer( int state)
+	static void UpdateCurrentUniformBuffer(int state)
 	{
 		instance->uniformBufferState = state;
 	}

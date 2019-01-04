@@ -6,7 +6,7 @@ namespace TD
 	{
 	public:
 		TDAABB();
-		TDAABB(glm::vec3 Pos,glm::vec3 size);
+		TDAABB(glm::vec3 Pos, glm::vec3 size);
 		~TDAABB();
 		glm::vec3 GetMin()const;
 		glm::vec3 GetMax()const;
@@ -19,11 +19,11 @@ namespace TD
 		void AddAABB(TDAABB * other);
 
 		glm::vec3 HalfExtends = glm::vec3(size, size, size);
-		glm::vec3 Position = glm::vec3(0,0,0);
+		glm::vec3 Position = glm::vec3(0, 0, 0);
 		TDActor* Owner = nullptr;
 		bool IsDead = false;
 		bool IsPartOfAcceleration = true;//todo:
-	private:		
+	private:
 		const float size = 10.0f;
 	};
 }

@@ -5,7 +5,7 @@ released in source code form as part of the SDK installer package.
 Commercial License Usage
 
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
 
@@ -43,7 +43,7 @@ written agreement between you and Audiokinetic Inc.
 // Examples of streaming initialization:
 // 
 // Standalone (registered as the one and only File Location Resolver):
-/* 
+/*
 	// Create Stream Manager.
 	AkStreamMgrSettings stmSettings;
 	AK::StreamMgr::GetDefaultSettings( stmSettings );
@@ -60,7 +60,7 @@ written agreement between you and Audiokinetic Inc.
 //
 // As part of a system with multiple devices (the File Location Resolver is 
 // implemented by CAkDefaultLowLevelIODispatcher):
-/* 
+/*
 	// Create Stream Manager.
 	AkStreamMgrSettings stmSettings;
 	AK::StreamMgr::GetDefaultSettings( stmSettings );
@@ -102,8 +102,8 @@ written agreement between you and Audiokinetic Inc.
 //		 File location is resolved using simple path concatenation logic.
 //-----------------------------------------------------------------------------
 class CAkDefaultIOHookDeferred : public AK::StreamMgr::IAkFileLocationResolver
-								,public AK::StreamMgr::IAkIOHookDeferred
-								,public CAkMultipleFileLocation
+	, public AK::StreamMgr::IAkIOHookDeferred
+	, public CAkMultipleFileLocation
 {
 public:
 
@@ -115,84 +115,84 @@ public:
 	// it creates a streaming device with scheduler type AK_SCHEDULER_DEFERRED_LINED_UP.
 	AKRESULT Init(
 		const AkDeviceSettings &	in_deviceSettings,	// Device settings.
-		bool						in_bAsyncOpen=AK_ASYNC_OPEN_DEFAULT	// If true, files are opened asynchronously when possible.
-		);
+		bool						in_bAsyncOpen = AK_ASYNC_OPEN_DEFAULT	// If true, files are opened asynchronously when possible.
+	);
 	void Term();
 
 	//
 	// IAkFileLocationAware interface.
 	//-----------------------------------------------------------------------------
 
-    // Returns a file descriptor for a given file name (string).
-    virtual AKRESULT Open( 
-        const AkOSChar*			in_pszFileName,		// File name.
+	// Returns a file descriptor for a given file name (string).
+	virtual AKRESULT Open(
+		const AkOSChar*			in_pszFileName,		// File name.
 		AkOpenMode				in_eOpenMode,		// Open mode.
-        AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
+		AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
 		bool &					io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-        AkFileDesc &			out_fileDesc        // Returned file descriptor.
-        );
+		AkFileDesc &			out_fileDesc        // Returned file descriptor.
+	);
 
-    // Returns a file descriptor for a given file ID.
-    virtual AKRESULT Open( 
-        AkFileID				in_fileID,          // File ID.
-        AkOpenMode				in_eOpenMode,       // Open mode.
-        AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
+	// Returns a file descriptor for a given file ID.
+	virtual AKRESULT Open(
+		AkFileID				in_fileID,          // File ID.
+		AkOpenMode				in_eOpenMode,       // Open mode.
+		AkFileSystemFlags *		in_pFlags,			// Special flags. Can pass NULL.
 		bool &					io_bSyncOpen,		// If true, the file must be opened synchronously. Otherwise it is left at the File Location Resolver's discretion. Return false if Open needs to be deferred.
-        AkFileDesc &			out_fileDesc        // Returned file descriptor.
-        );
+		AkFileDesc &			out_fileDesc        // Returned file descriptor.
+	);
 
 
 	//
 	// IAkIOHookDeferred interface.
 	//-----------------------------------------------------------------------------
 
-    // Reads data from a file (asynchronous).
-    virtual AKRESULT Read(
+	// Reads data from a file (asynchronous).
+	virtual AKRESULT Read(
 		AkFileDesc &			in_fileDesc,        // File descriptor.
 		const AkIoHeuristics &	in_heuristics,		// Heuristics for this data transfer.
 		AkAsyncIOTransferInfo & io_transferInfo		// Asynchronous data transfer info.
-		);
+	);
 
-    // Writes data to a file (asynchronous).
-    virtual AKRESULT Write(
+	// Writes data to a file (asynchronous).
+	virtual AKRESULT Write(
 		AkFileDesc &			in_fileDesc,        // File descriptor.
 		const AkIoHeuristics &	in_heuristics,		// Heuristics for this data transfer.
 		AkAsyncIOTransferInfo & io_transferInfo		// Platform-specific asynchronous IO operation info.
-		);
+	);
 
-    // Notifies that a transfer request is cancelled. It will be flushed by the streaming device when completed.
-    virtual void Cancel(
+	// Notifies that a transfer request is cancelled. It will be flushed by the streaming device when completed.
+	virtual void Cancel(
 		AkFileDesc &			in_fileDesc,		// File descriptor.
 		AkAsyncIOTransferInfo & io_transferInfo,	// Transfer info to cancel.
 		bool & io_bCancelAllTransfersForThisFile	// Flag indicating whether all transfers should be cancelled for this file (see notes in function description).
-		);
+	);
 
 	// Cleans up a file.
 	virtual AKRESULT Close(
-        AkFileDesc &			in_fileDesc			// File descriptor.
-        );
+		AkFileDesc &			in_fileDesc			// File descriptor.
+	);
 
 	// Returns the block size for the file or its storage device. 
 	virtual AkUInt32 GetBlockSize(
-        AkFileDesc &  			in_fileDesc			// File descriptor.
-        );
+		AkFileDesc &  			in_fileDesc			// File descriptor.
+	);
 
 	// Returns a description for the streaming device above this low-level hook.
-    virtual void GetDeviceDesc(
-        AkDeviceDesc &  		out_deviceDesc      // Description of associated low-level I/O device.
-        );
+	virtual void GetDeviceDesc(
+		AkDeviceDesc &  		out_deviceDesc      // Description of associated low-level I/O device.
+	);
 
 	// Returns custom profiling data: 1 if file opens are asynchronous, 0 otherwise.
 	virtual AkUInt32 GetDeviceData();
 
 protected:
-	
+
 	// Local callback for overlapped I/O.
 	static VOID CALLBACK FileIOCompletionRoutine(
 		DWORD dwErrorCode,
 		DWORD dwNumberOfBytesTransfered,
 		LPOVERLAPPED lpOverlapped
-		);
+	);
 
 protected:
 
@@ -207,23 +207,23 @@ protected:
 	// which is executed by the I/O thread when it is in an alertable state.
 	// If you release overlapped objects from your own thread, a lock is mandatory.
 	// Note 3: we use the hEvent field to store a pointer to the AkAsyncIOTransferInfo structure.
-	
+
 	// Get a free slot for an OVERLAPPED I/O transfer.
 	OVERLAPPED * GetFreeOverlapped(
 		AkAsyncIOTransferInfo * in_pTransfer	// Transfer that will use this OVERLAPPED. Its address is stored in OVERLAPPED::hEvent.
-		)
+	)
 	{
-		OVERLAPPED * pOverlapped = (OVERLAPPED*)AK::MemoryMgr::GetBlock( m_poolID );
-		AKASSERT( pOverlapped || !"Too many concurrent transfers in the Low-Level IO" );
+		OVERLAPPED * pOverlapped = (OVERLAPPED*)AK::MemoryMgr::GetBlock(m_poolID);
+		AKASSERT(pOverlapped || !"Too many concurrent transfers in the Low-Level IO");
 		pOverlapped->hEvent = in_pTransfer;
 		return pOverlapped;
 	}
 	// Release a slot after an OVERLAPPED I/O transfer.
 	static inline void ReleaseOverlapped(
 		OVERLAPPED * in_pOverlapped				// OVERLAPPED structure to release. 
-		)
+	)
 	{
-		AK::MemoryMgr::ReleaseBlock( m_poolID, in_pOverlapped );
+		AK::MemoryMgr::ReleaseBlock(m_poolID, in_pOverlapped);
 	}
 };
 

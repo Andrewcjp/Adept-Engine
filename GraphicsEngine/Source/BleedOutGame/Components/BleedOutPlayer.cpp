@@ -18,7 +18,7 @@ void BleedOutPlayer::InitComponent()
 
 void BleedOutPlayer::OnCollide(CollisonData data)
 {
-	
+
 
 }
 
@@ -65,7 +65,7 @@ void BleedOutPlayer::BeginPlay()
 	Mhealth = GetOwner()->GetComponent<Health>();
 	Manager = GetOwner()->GetComponent<WeaponManager>();
 	RB = GetOwner()->GetComponent<RigidbodyComponent>();
-//	RB->IsKineimatic = true;
+	//	RB->IsKineimatic = true;
 	CameraObject->SetParent(GetOwner());
 	const float EyeHeight = 2.0f;
 	CameraObject->GetTransform()->SetLocalPosition(glm::vec3(0, EyeHeight, 0));
@@ -161,7 +161,7 @@ void BleedOutPlayer::UpdateMovement(float delta)
 #else
 		RB->SetLinearVelocity(NewVel);
 #endif
-}
+	}
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
 		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 10) / delta);

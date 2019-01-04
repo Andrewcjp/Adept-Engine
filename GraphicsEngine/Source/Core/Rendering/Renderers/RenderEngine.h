@@ -20,12 +20,13 @@ public:
 	void Init();
 	void ProcessScene();
 	void PrepareData();
-	virtual void PostInit() =0;
+	virtual void PostInit() = 0;
 	virtual void Resize(int width, int height);
-	virtual void DestoryRenderWindow() {};
+	virtual void DestoryRenderWindow()
+	{};
 	//called on play start and in editor when statics are changed
 	void StaticUpdate();
-	virtual void OnStaticUpdate() =0;
+	virtual void OnStaticUpdate() = 0;
 	virtual void SetScene(Scene* sc);
 	virtual void SetEditorCamera(class Editor_Camera* cam);
 	class SceneRenderer* SceneRender = nullptr;
@@ -42,8 +43,8 @@ protected:
 	void PostProcessPass();
 	int			m_width = 0;
 	int			m_height = 0;
-	
-	Scene* MainScene = nullptr; 
+
+	Scene* MainScene = nullptr;
 	Camera* MainCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;
 	Shader_Main* MainShader = nullptr;

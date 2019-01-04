@@ -46,7 +46,7 @@ public:
 		AnimationClip AnimSettings;
 		bool AllowInstancing = true;//Temp
 	};
-	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name,FMeshLoadingSettings& Settings);
+	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name, FMeshLoadingSettings& Settings);
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);
 	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices);
 	Mesh* TryLoadFromCache(std::string Path);
@@ -56,14 +56,14 @@ public:
 	void DestoryMeshes();
 private:
 	static MeshLoader* Instance;
-	std::map<std::string,Mesh*> CreatedMeshes;
+	std::map<std::string, Mesh*> CreatedMeshes;
 };
 //todo: up to 8 
 #define NUM_BONES_PER_VEREX 4
 struct VertexBoneData
 {
-	unsigned int IDs[NUM_BONES_PER_VEREX] = {0};
-	float Weights[NUM_BONES_PER_VEREX] = {0.0f};
+	unsigned int IDs[NUM_BONES_PER_VEREX] = { 0 };
+	float Weights[NUM_BONES_PER_VEREX] = { 0.0f };
 	void AddBoneData(uint BoneID, float Weight);
 };
 
@@ -79,9 +79,12 @@ struct BoneInfo
 struct SkeletalMeshEntry
 {
 	SkeletalMeshEntry(aiAnimation* anim);
-	
+
 	float CurrnetTime = 0.0f;
-	float GetMaxTime() { return MaxTime; };
+	float GetMaxTime()
+	{
+		return MaxTime;
+	};
 	void RenderBones(Transform* T);
 	void Tick(float Delta);
 	void PlayAnimation(std::string name);
