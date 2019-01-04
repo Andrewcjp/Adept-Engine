@@ -1,5 +1,8 @@
 #pragma once
 #include "TDTransform.h"
+#include "TDTypes.h"
+
+namespace TD { class TDRigidDynamic; }
 namespace TD
 {
 	class TDAABB;
@@ -33,23 +36,28 @@ namespace TD
 		{
 			return dynamic_cast<T*>(actor);
 		}
+		///Special case function to handle kinematics 
+		static TDRigidDynamic* RigidCast(TDActor* actor);
+		/// The AABB used for the Broadphase Representation of this object 
 		TDAABB* AABB = nullptr;
+		///User Defined Data - Normally used to link to engine object of this shape.
+		void* UserData = nullptr;
+		void UpdateAABBPos(glm::vec3 pos);
+		void SetAABBLocalPos(glm::vec3 localpos);
+		TD_API TDActorFlags& GetFlags();
 #if VALIDATE_KE
 		virtual void ComputeKE();
 		virtual void ValidateKE();
-#endif
-		void* UserData = nullptr;
-		void UpdateAABBPos(glm::vec3 pos);
-		void SetAABBLocalPos(glm::vec3 localpos) { LocalAABBPos = localpos; }
-	protected:
 		float PreSimKE = 0.0f;
-		
+#endif
+	protected:
 		TDScene* OwningScene = nullptr;
 		friend class TDScene;
 		std::vector<TDShape*> AttachedShapes;
 		TDActorType::Type ActorType;
 		TDTransform Transform;
 		glm::vec3 LocalAABBPos;
+		TDActorFlags ActorFlags;
 
 	};
 }

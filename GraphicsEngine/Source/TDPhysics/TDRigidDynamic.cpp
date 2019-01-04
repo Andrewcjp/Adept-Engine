@@ -4,6 +4,7 @@
 #include "TDSolver.h"
 #include "TDActor.h"
 #include "Shapes\TDSphere.h"
+#include "Shapes\TDBox.h"
 
 namespace TD
 {
@@ -110,6 +111,47 @@ namespace TD
 		}
 	}
 #endif
+	void TDRigidDynamic::PostSimFixup()
+	{
+		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosX))
+		{
+			glm::vec3 pos = Transform.GetPos();
+			pos.x = 0.0f;
+			Transform.SetPos(pos);
+		}
+		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosY))
+		{
+			glm::vec3 pos = Transform.GetPos();
+			pos.y = 0.0f;
+			Transform.SetPos(pos);
+		}
+		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosZ))
+		{
+			glm::vec3 pos = Transform.GetPos();
+			pos.z = 0.0f;
+			Transform.SetPos(pos);
+		}
+#if ALLOW_ROT
+		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotX))
+		{
+			glm::vec3 rot = Transform.GetEulerRot();
+			rot.x = 0.0f;
+			Transform.SetEulerRot(rot);
+		}
+		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotY))
+		{
+			glm::vec3 rot = Transform.GetEulerRot();
+			rot.y = 0.0f;
+			Transform.SetEulerRot(rot);
+		}
+		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotZ))
+		{
+			glm::vec3 rot = Transform.GetEulerRot();
+			rot.z = 0.0f;
+			Transform.SetEulerRot(rot);
+		}
+#endif
+	}
 
 	void TDRigidDynamic::ResetForceThisFrame()
 	{
@@ -148,6 +190,7 @@ namespace TD
 
 	glm::vec3 TDRigidDynamic::GetAngularVelocity()
 	{
+		//AngularVel = glm::vec3(0);
 		return AngularVel;
 	}
 
@@ -171,15 +214,31 @@ namespace TD
 				{
 					TDSphere* S = TDShape::CastShape<TDSphere>(AttachedShapes[0]);
 					r2 = S->Radius* S->Radius;
+					float fraction = (2.0f / 5.0f);
+
+					ix = r2 * BodyMass * fraction;
+					iy = r2 * BodyMass * fraction;
+					iz = r2 * BodyMass * fraction;
+					iw = 1.0f;
+				}
+				else if (AttachedShapes[0]->GetShapeType() == TDShapeType::eBOX)
+				{
+					TDBox* Box = TDShape::CastShape<TDBox>(AttachedShapes[0]);
+					glm::vec3 size = Box->HalfExtends* 2.0f;
+					float fraction = (1.0f / 12.0f);
+
+					float x2 = size.x * size.x;
+					float y2 = size.y * size.y;
+					float z2 = size.z * size.z;
+
+					ix = (y2 + z2) * GetBodyMass() * fraction;
+					iy = (x2 + z2) * GetBodyMass() * fraction;
+					iz = (x2 + y2) * GetBodyMass() * fraction;
+					iw = 1.0f;
 				}
 			}
-			float fraction = (2.0f / 5.0f);
-
-			ix = r2 * BodyMass * fraction;
-			iy = r2 * BodyMass * fraction;
-			iz = r2 * BodyMass * fraction;
-			iw = 1.0f;
 		}
+
 		InertaTensor = glm::inverse(glm::mat4x4(
 			ix, 0, 0, 0,
 			0, iy, 0, 0,

@@ -18,14 +18,14 @@ public:
 	CORE_API void SetLinearVelocity(glm::vec3 velocity);
 	CORE_API glm::vec3 GetVelocity();
 	CORE_API void SetBodyData(BodyInstanceData data);
-	CORE_API BodyInstanceData GetLockFlags();
+	CORE_API BodyInstanceData& GetBodyData();
 	void OnTransformUpdate() override ;
 	CORE_API void SetGravity(bool active);
 	CORE_API RigidBody* GetActor();
 	bool IsKineimatic = false;
 private:
 	RigidBody* actor = nullptr;
-	BodyInstanceData LockData;
+	BodyInstanceData BodyData;
 	// Inherited via Component
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<InspectorProperyGroup>& props) override;

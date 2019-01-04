@@ -152,13 +152,14 @@ glm::vec3 Mesh::GetPosOfBone(std::string Name)
 	auto itor = GetSkeletalMesh()->m_BoneMapping.find(Name);
 	if (itor == GetSkeletalMesh()->m_BoneMapping.end())
 	{
-		Log::LogMessage("No Bone Called " + Name,Log::Warning);
+		Log::LogMessage("No Bone Called " + Name, Log::Warning);
 		return glm::vec3();
 	}
 	uint boneID = itor->second;
 	glm::mat4x4 Boneitor = GetSkeletalMesh()->FinalBoneTransforms[boneID];
-
-	return glm::vec3(Boneitor[3][0], Boneitor[3][1], Boneitor[3][2]);
+	//glm::vec3 LocalPois = glm::vec3(1, 1, 1);
+	//LocalPois = Boneitor * glm::vec4(LocalPois, 0.0f);
+	return  glm::vec3(Boneitor[3][0], Boneitor[3][1], Boneitor[3][2]);
 }
 
 MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices)

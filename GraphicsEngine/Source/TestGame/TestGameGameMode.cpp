@@ -48,12 +48,11 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	GameObject* B = MakeTestSphere(Scene);	
 	B->SetPosition(glm::vec3(10, 10, 0));
 	ConstaintSetup data;
+	data.Desc.Dampening = 0.2f;
+	data.Desc.SpringK = 1.0f;
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<ColliderComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
-#if TDSIM_ENABLED
-	//return;
-#endif
-
+	
 	SpawnPlayer(glm::vec3(0, 10, 10), Scene);
 
 	GameObject* AiTest = new GameObject();
@@ -61,8 +60,8 @@ void TestGameGameMode::BeginPlay(Scene* Scene)
 	AiTest->AttachComponent(new SpawningPool());
 	AiTest->SetPosition(glm::vec3(0, 0, 10));
 	Scene->AddGameobjectToScene(AiTest);
-	//Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
-	//Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
+	Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
+	Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
 #if 0
 	GameObject* AiTest = MakeTestSphere(Scene);
 	AiTest->SetPosition(glm::vec3(50, -2, 0));

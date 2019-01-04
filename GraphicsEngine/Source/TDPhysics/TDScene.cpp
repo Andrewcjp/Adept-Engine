@@ -20,7 +20,7 @@ namespace TD
 		MemoryUtils::DeleteVector(SceneActors);
 	}
 
-#if !BUILD_FULLRELEASE
+#if BUILD_DEBUG_RENDER
 	void TDScene::DebugRender()
 	{
 		for (int i = 0; i < SceneActors.size(); i++)
@@ -103,6 +103,7 @@ namespace TD
 
 	bool TDScene::RayCastSceneInternal(RayCast* Ray)
 	{
+		Ray->Validate();
 		//todo: MultiCast 
 		bool DidAnyHit = false;
 		bool Hit = false;

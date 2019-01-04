@@ -50,6 +50,7 @@ namespace TD
 		TDPhysics::DrawDebugLine(Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, -HalfExtends.z), colour, time);
 		TDPhysics::DrawDebugLine(Position + glm::vec3(-HalfExtends.x, HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, HalfExtends.y, -HalfExtends.z), colour, time);
 	}
+
 	glm::vec3 TDAABB::ClosestPoint(const glm::vec3& point)const
 	{
 		glm::vec3 result = point;

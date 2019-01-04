@@ -14,7 +14,7 @@ namespace TD
 	public:
 		TDScene();
 		~TDScene();
-#if !BUILD_FULLRELEASE
+#if BUILD_DEBUG_RENDER
 		void DebugRender();
 #endif
 		TD_API void AddToScene(TDActor* Actor);

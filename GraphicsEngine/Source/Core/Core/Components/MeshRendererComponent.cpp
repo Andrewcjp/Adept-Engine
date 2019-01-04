@@ -97,7 +97,7 @@ glm::vec3 MeshRendererComponent::GetPosOfBone(std::string Name)
 {
 	glm::vec3 LocalSpacePos = GetMesh()->GetPosOfBone(Name);
 	glm::mat4x4 Model = (GetOwner()->GetTransform()->GetModel());
-	LocalSpacePos = glm::vec4(LocalSpacePos, 1.0f) * Model;
+	//LocalSpacePos = Model * glm::vec4(LocalSpacePos, 1.0f);
 	return LocalSpacePos;
 }
 

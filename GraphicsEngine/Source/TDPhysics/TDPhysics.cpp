@@ -63,6 +63,16 @@ namespace TD
 		}
 	}
 
+	void TDPhysics::SetDebugShowBroadPhaseShapes(bool state)
+	{
+		GetCurrentSimConfig()->ShowBroadPhaseShapes = state;
+	}
+
+	void TDPhysics::SetDebugShowContacts(bool state)
+	{
+		GetCurrentSimConfig()->ShowContacts = state;
+	}
+
 	TDPhysics::TDPhysics()
 	{}
 
@@ -73,7 +83,7 @@ namespace TD
 	{
 		if (BuildID != TD_VERSION_NUMBER)
 		{
-			//todo: message!
+			printf("BuildID Incorrect Init Failed");
 			return nullptr;
 		}
 		if (Instance == nullptr)
@@ -101,15 +111,12 @@ namespace TD
 
 	void TDPhysics::StartStep(TDScene* scene, float TimeStep)
 	{
-		//for (int i = 0; i < Scenes.size(); i++)
-		{
 			Solver->FinishAccumlateForces(scene);
 			Solver->ResolveCollisions(scene);
 			Solver->IntergrateScene(scene, TimeStep);
-#if !BUILD_FULLRELEASE
+#if BUILD_DEBUG_RENDER
 			scene->DebugRender();
 #endif
-		}
 	}
 
 	void TDPhysics::ShutDown()
@@ -118,8 +125,8 @@ namespace TD
 		SafeDelete(TDTaskGraph);
 		MemoryUtils::DeleteVector(Scenes);
 		SafeDelete(Solver);
-		SafeDelete(Instance);
 		SafeDelete(Callbacks);
+		SafeDelete(Instance);//This is the same as Delete THIS		
 	}
 
 	TDPhysics * TDPhysics::Get()

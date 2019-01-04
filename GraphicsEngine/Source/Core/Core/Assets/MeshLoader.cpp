@@ -153,7 +153,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 			const aiVector3D* pNormal = model->HasNormals() ? &(model->mNormals[i]) : &aiZeroVector;
 			const aiVector3D* pTexCoord = model->HasTextureCoords(0) ? &(model->mTextureCoords[0][i]) : &aiZeroVector;
 			const aiVector3D* pTangent = model->HasTangentsAndBitangents() ? &(model->mTangents[i]) : &aiZeroVector;
-		//	if (!scene->HasAnimations())
+			//	if (!scene->HasAnimations())
 			{
 				*pPos = transfrom * (*pPos);
 			}
@@ -342,9 +342,9 @@ void SkeletalMeshEntry::RenderBones(Transform* T)
 		const float C = 1.0f;
 		//if (i == 29)
 		{
-			glm::mat4x4 Model = (T->GetModel(true));
+			glm::mat4x4 Model = (T->GetModel());
 			glm::vec3 LocalSpacePos = GetPos(FinalBoneTransforms[i]);
-			LocalSpacePos = glm::vec4(LocalSpacePos, 1.0f) * Model;
+			LocalSpacePos = glm::vec4(LocalSpacePos, 1.0f) * glm::transpose(Model);
 			DebugDrawers::DrawDebugSphere(LocalSpacePos, 0.2f, glm::vec3(C, 0, 0));
 		}
 	}
@@ -363,7 +363,7 @@ void SkeletalMeshEntry::Tick(float Delta)
 	FinalBoneTransforms.resize(m_NumBones);
 	for (int i = 0; i < m_NumBones; i++)
 	{//Summing of transform is wonrG!
-		FinalBoneTransforms[i] = glm::mat4(1);// m_BoneInfo[i].FinalTransformation;
+		FinalBoneTransforms[i] = m_BoneInfo[i].FinalTransformation;
 	}
 
 }
@@ -603,10 +603,33 @@ void SkeletalMeshEntry::ReadNodes(float time, const aiNode* pNode, const glm::ma
 		glm::mat4x4 TranslationM = glm::translate(ToGLM(Translation));
 
 		// Combine the above transformations
-		NodeTransformation = ScalingM * RotationM * TranslationM;
+		NodeTransformation = TranslationM * RotationM * ScalingM;
+
+		//NodeTransformation = glm::transpose(NodeTransformation);
+		//NodeTransformation = glm::mat4(1);
 	}
-	glm::mat4 GlobalTransformation = ParentTransfrom * NodeTransformation;
-	
+
+	glm::mat4x4 ParentComp = glm::mat4(1);
+#if 0
+	const aiNode* CurrentNode = pNode;
+	std::vector<glm::mat4>  Transforms;
+	while (CurrentNode != Scene->mRootNode)
+	{
+		ParentComp *= ToGLM(CurrentNode->mTransformation);
+		Transforms.push_back(ToGLM(CurrentNode->mTransformation));
+		CurrentNode = CurrentNode->mParent;
+	}
+	for (int i = 0; i < Transforms.size(); i++)
+	{
+		ParentComp *= Transforms[i];
+	}
+#endif
+	if (pNode->mParent != nullptr)
+	{
+		//ParentComp = ToGLM(pNode->mParent->mTransformation);
+		ParentComp = ParentTransfrom;
+	}
+	glm::mat4 GlobalTransformation = (ParentComp)* ToGLM(pNode->mTransformation)*NodeTransformation;
 	if (m_BoneMapping.find(NodeName) != m_BoneMapping.end())
 	{
 		uint BoneIndex = m_BoneMapping[NodeName];

@@ -22,4 +22,5 @@ namespace MathUtils
 		}
 		return type;
 	}
+	glm::vec3 VectorProject(const glm::vec3 length, const glm::vec3 direction);
 };

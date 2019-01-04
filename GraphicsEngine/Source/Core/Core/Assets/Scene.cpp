@@ -218,21 +218,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//col->Radius = 1.0f;
 	AddGameobjectToScene(go);
 
-	//go = new GameObject("Rock");
-	////mat = NormalMapShader->GetMaterialInstance();
-	//mat = Material::GetDefaultMaterial();
-	//mat->GetProperties()->Metallic = 0.0f;
-	//mat->GetProperties()->Roughness = 1.0f;
-	//TextureImportSettings setting;
-	//setting.Compression = ECompressionSetting::BRGA;
-	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Terrain\\Rock1.tif", setting));//Rock1_nmp
-	////setting.Compression = ECompressionSetting::None;
-	////mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("Terrain\\Rock1_nmp.tif", setting));
-	//go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Terrain\\Rock1A.fbx"), mat));
-	//go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
-	//go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	//go->GetTransform()->SetScale(glm::vec3(1));
-	//AddGameobjectToScene(go);
 
 
 
@@ -250,14 +235,13 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(20, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
+	cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eBOX);
+	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
 	go = new GameObject("Rock");
-	//mat = NormalMapShader->GetMaterialInstance();
 	mat = Material::GetDefaultMaterial();
-	//mat->GetProperties()->Metallic = 0.0f;
-	//mat->GetProperties()->Roughness = 1.0f;
-
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"/*, setting*/));//Crate_Diffuse
 	set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
@@ -266,6 +250,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetPos(glm::vec3(30, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
+	cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eBOX);
+	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
 	//Military crate.fbx
@@ -328,7 +315,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//cc->SetCollisonShape(EShapeType::eSPHERE);
 	//go->AttachComponent(new RigidbodyComponent());
 	//AddGameobjectToScene(go);
-	glm::vec3 startpos = glm::vec3(5, 0, 0);
+	glm::vec3 startpos = glm::vec3(5, -5, 0);
 	float stride = 5.0f;
 	int size = 1;
 	int zsize = 2;
@@ -338,18 +325,19 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		{
 			for (int z = 0; z < zsize; z++)
 			{
-				go = CreateDebugSphere(nullptr);
+				go = new GameObject("Tst box");
+				mat = Material::GetDefaultMaterial();
+				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+				go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_1\\Box_low.fbx"), mat));
 				cc = go->AttachComponent(new ColliderComponent());
 				go->GetTransform()->SetPos(startpos + glm::vec3(x *stride, 15 + z * stride, y*stride));
-				if (z == 0)
+				//if (z == 0)
 				{
 					cc->SetCollisonShape(EShapeType::eBOX);
 				}
-				else
-				{
-					cc->SetCollisonShape(EShapeType::eBOX);
-				}
-				go->AttachComponent(new RigidbodyComponent());
+				
+				RigidbodyComponent* rb = go->AttachComponent(new RigidbodyComponent());
+				rb->GetBodyData().LockZPosition = true;
 				AddGameobjectToScene(go);
 			}
 		}
@@ -376,8 +364,8 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
-			}
-		}
+	}
+}
 #endif
 	}
 

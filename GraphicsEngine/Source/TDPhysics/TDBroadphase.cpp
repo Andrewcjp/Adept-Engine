@@ -1,16 +1,14 @@
-
 #include "TDBroadphase.h"
-#include "Shapes/TDAABB.h"
-#include "TDCollisionHandlers.h"
-#include <algorithm>
-#include "TDPhysics.h"
-#include "TDSimConfig.h"
-#include "Utils/MemoryUtils.h"
 #include "Core/Utils/VectorUtils.h"
-#include "Utils/MathUtils.h"
+#include "Shapes/TDAABB.h"
 #include "TDBFBE.h"
+#include "TDCollisionHandlers.h"
+#include "TDPhysics.h"
 #include "TDScene.h"
-
+#include "TDSimConfig.h"
+#include "Utils/MathUtils.h"
+#include "Utils/MemoryUtils.h"
+#define VALIDATE_BP 0
 namespace TD
 {
 	using namespace MemoryUtils::VectorUtils;
@@ -26,7 +24,7 @@ namespace TD
 		}
 		else
 		{
-			__debugbreak();
+			printf("Error: Unsupported Broadphase Used!\n");
 		}
 	}
 
@@ -46,7 +44,7 @@ namespace TD
 		{
 			BFBEGetPairs();
 		}
-#if !BUILD_FULLRELEASE
+#if VALIDATE_BP
 		Validate();
 #endif
 	}
@@ -98,10 +96,9 @@ namespace TD
 	{
 		return TDCollisionHandlers::CollideAABBAABB(a->Owner->Owner, b->Owner->Owner);
 	}
-#if !BUILD_FULLRELEASE
+#if VALIDATE_BP
 	void TDBroadphase::Validate()
 	{
-		return;
 		int CorrectedCount = 0;
 		for (int i = 0; i < TargetScene->GetActors().size(); i++)
 		{
@@ -157,7 +154,7 @@ namespace TD
 
 	void TDBroadphase::UpdateActor(TDActor* actor)
 	{
-	//	if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
+		if (!MathUtils::AlmostEqual(actor->AABB->Position, actor->GetTransfrom()->GetPos(), 0.001f))
 		{
 			actor->UpdateAABBPos(actor->GetTransfrom()->GetPos());
 			if (SAP != nullptr)
@@ -196,21 +193,13 @@ namespace TD
 
 	int RemovePair(BPCollisionPair* point, std::vector<BPCollisionPair*> & points, TDActor* owner)
 	{
-		int removecount = 0;
-		//for (int i = 0; i < points.size(); i++)
-		//{
-		//	if (points[i]->A == point->A || points[i]->B == point->B || points[i]->A == point->B || points[i]->B == point->A)
-		//	{
-		//		points.erase(points.begin() + i);
-		//		removecount++;
-		//	}
-		//}
+		int RemovedCount = 0;
 		for (int i = (int)points.size() - 1; i >= 0; i--)
 		{
 			if (points[i]->A->Owner == owner || points[i]->B->Owner == owner)
 			{
 				points.erase(points.begin() + i);
-				removecount++;
+				RemovedCount++;
 			}
 		}
 		for (int i = (int)points.size() - 1; i >= 0; i--)
@@ -218,10 +207,10 @@ namespace TD
 			if (points[i]->A->IsDead || points[i]->B->IsDead)
 			{
 				points.erase(points.begin() + i);
-				removecount++;
+				RemovedCount++;
 			}
 		}
-		return removecount;
+		return RemovedCount;
 	}
 
 	void SweepAndPrune::RemoveObject(TDAABB* bb)
@@ -245,12 +234,11 @@ namespace TD
 		RemoveItemO(box->Min[2], Zpoints);
 		RemoveItemO(box->Max[2], Zpoints);
 		bb->IsDead = true;
-		int Count = RemovePair(new BPCollisionPair(bb, bb), Pairs, bb->Owner);
-		Count += RemovePair(new BPCollisionPair(box->Min[1]->Owner->Owner, box->Max[1]->Owner->Owner), Pairs, bb->Owner);
-		//Count += RemovePair(new BPCollisionPair(box->Min[2], box->Max[2]), Pairs, bb->Owner);
+		RemovePair(new BPCollisionPair(bb, bb), Pairs, bb->Owner);
+		RemovePair(new BPCollisionPair(box->Min[1]->Owner->Owner, box->Max[1]->Owner->Owner), Pairs, bb->Owner);
 		RemoveItemO(box, Bodies);
 		box->IsDead = true;
-		//	SafeDelete(box);
+		SafeDelete(box);
 	}
 
 	void SweepAndPrune::Sort()
@@ -284,21 +272,12 @@ namespace TD
 			while (i >= 0 && AxisPoints[i]->Value > Key)
 			{
 				SAPEndPoint* spoint = AxisPoints[i];
-				if (spoint->Owner->IsDead || KeyPoint->Owner->IsDead)
-				{
-					__debugbreak();
-				}
 				if (KeyPoint->IsMinPoint && !spoint->IsMinPoint)
 				{
 					//pair!
 					if (CheckBB(KeyPoint, spoint))
 					{
 						Pairs.push_back(new BPCollisionPair(spoint->Owner->Owner, KeyPoint->Owner->Owner));
-					}
-					else
-					{
-						/*	spoint->Owner->Owner->DebugRender(glm::vec3(1, 0, 0),10.5f);
-							KeyPoint->Owner->Owner->DebugRender(glm::vec3(1, 0, 0),10.5f);*/
 					}
 				}
 				if (!KeyPoint->IsMinPoint && spoint->IsMinPoint)
@@ -335,13 +314,6 @@ namespace TD
 		Max[2]->Value = AABB->GetMax().z;
 	}
 
-	/*BPCollisionPair::BPCollisionPair(SAPEndPoint * a, SAPEndPoint * b)
-	{
-		Apoint = a;
-		BPoint = b;
-		A = a->Owner->Owner;
-		B = b->Owner->Owner;
-	}*/
 	BPCollisionPair::BPCollisionPair(TDAABB * a, TDAABB * b)
 	{
 		A = a;

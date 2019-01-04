@@ -1,11 +1,10 @@
 #pragma once
-
-namespace TD { class TDQuerryFilter; }
-
+#include "TDPCH.h"
 namespace TD
 {
 	class TDShape;
 	class TDActor;
+	class TDQuerryFilter;
 	const int MAX_CONTACT_POINTS_COUNT = 50;
 	struct TD_API TDPhysicalMaterial
 	{
@@ -97,7 +96,7 @@ namespace TD
 			Limit
 		};
 	}
-	
+
 	struct ContactData
 	{
 		glm::vec3 ContactPoints[MAX_CONTACT_POINTS_COUNT];
@@ -111,7 +110,7 @@ namespace TD
 
 	struct RayCast
 	{
-		RayCast(glm::vec3 origin, glm::vec3 dir, float distance, RaycastData* hitData,TDQuerryFilter* Filter)
+		RayCast(glm::vec3 origin, glm::vec3 dir, float distance, RaycastData* hitData, TDQuerryFilter* Filter)
 		{
 			Origin = origin;
 			Dir = dir;
@@ -119,6 +118,7 @@ namespace TD
 			HitData = hitData;
 			InterSectionFilter = Filter;
 		}
+		void Validate();
 		glm::vec3 Origin;
 		glm::vec3 Dir;
 		float Distance;
@@ -170,6 +170,10 @@ namespace TD
 	struct ConstraintDesc
 	{
 		float distance = 0.0f;
+		glm::vec3 Offset;
+		float RestLength = 5.0f;
+		float Dampening = 0.1f;
+		float SpringK = 1.0f;
 		TDConstraintType::Type Type;
 	};
 
@@ -189,16 +193,31 @@ namespace TD
 		enum Type
 		{
 			ESimulation = (1 << 0),
-			ETrigger = (2 << 0),
+			ETrigger = (1 << 1),
 			Limit = (1 << 1),
 		};
 	};
-
+	class TD_API TDActorFlags : public TDFlagsBase
+	{
+	public:
+		enum
+		{
+			EKinematic = (1 << 0),
+			ELockPosX = (1 << 1),
+			ELockPosY = (1 << 2),
+			ELockPosZ = (1 << 3),
+			ELockRotX = (1 << 4),
+			ELockRotY = (1 << 5),
+			ELockRotZ = (1 << 6),
+			Limit = (1 << 1),
+		};
+	};
 	struct ContactPair
 	{
 		TDShape* ShapeA = nullptr;
 		TDShape* ShapeB = nullptr;
-		ContactPair() {};
+		ContactPair()
+		{};
 		ContactPair(TDShape* a, TDShape* b)
 		{
 			ShapeA = a;
@@ -213,5 +232,5 @@ namespace TD
 			return this->ShapeA == A.ShapeA && this->ShapeB == A.ShapeB || (this->ShapeB == A.ShapeA && this->ShapeA == A.ShapeB);
 		}
 	};
-	typedef void(*CollisionFilterFunction)(TDShape* A,TDShape* B);
+	typedef void(*CollisionFilterFunction)(TDShape* A, TDShape* B);
 };

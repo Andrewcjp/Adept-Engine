@@ -160,11 +160,11 @@ GameObject * TestGame_Director::CreateAI(glm::vec3 pos, float AttackRaduis)
 
 GameObject* TestGame_Director::SpawnHellKnight(glm::vec3 pos)
 {
-	GameObject* newImp = CreateAI(pos, 4.0f);
-	newImp->SetName("Hell Knight");
+	GameObject* newKnight = CreateAI(pos, 4.0f);
+	newKnight->SetName("Hell Knight");
 	
 	GameObject* MeshC = new GameObject();
-	MeshC->SetParent(newImp);
+	MeshC->SetParent(newKnight);
 	MeshC->GetTransform()->SetLocalPosition(glm::vec3(0, -1.5, 0));
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Texture\\Mutant_diffuse.png"));
@@ -180,8 +180,12 @@ GameObject* TestGame_Director::SpawnHellKnight(glm::vec3 pos)
 	mrc->PlayAnim("Attack");
 	MeshC->GetTransform()->SetScale(glm::vec3(0.02f));
 	scene->AddGameobjectToScene(MeshC);
-	newImp->AttachComponent(new HellKnight());
-	return newImp;
+	newKnight->AttachComponent(new HellKnight());
+	ColliderComponent* cc = newKnight->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eSPHERE);
+	cc->Radius = 2.5f;
+	cc->LocalOffset = glm::vec3(0, 3, 0);
+	return newKnight;
 }
 
 GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
@@ -199,11 +203,11 @@ GameObject* TestGame_Director::SpawnSoldier(glm::vec3 pos)
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Texture\\vanguard_diffuse.png"));
 	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Possessed\\vanguard.fbx", AnimSetting), mat));
 	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Attack");
-	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Idle Aiming.fbx", "Idle");
+	mrc->LoadAnimation("AlwaysCook\\Possessed\\Idle Aiming.fbx", "Idle");
 	//mrc->LoadAnimation("AlwaysCook\\Possessed\\vanguard_t_choonyung@Idle.fbx", "Idle");
-	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Walking");
-	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Death.fbx", "Death");//Rifle Punch
-	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Punch.fbx", "Melee");
+	mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Walking");
+	mrc->LoadAnimation("AlwaysCook\\Possessed\\Death.fbx", "Death");//Rifle Punch
+	mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Punch.fbx", "Melee");
 
 	mrc->PlayAnim("Idle");
 	MeshC->GetTransform()->SetScale(glm::vec3(0.015f));

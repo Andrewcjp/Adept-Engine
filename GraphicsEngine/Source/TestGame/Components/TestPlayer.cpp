@@ -65,7 +65,7 @@ void TestPlayer::BeginPlay()
 	Mhealth = GetOwner()->GetComponent<Health>();
 	Manager = GetOwner()->GetComponent<WeaponManager>();
 	RB = GetOwner()->GetComponent<RigidbodyComponent>();
-	RB->IsKineimatic = true;
+//	RB->IsKineimatic = true;
 	CameraObject->SetParent(GetOwner());
 	const float EyeHeight = 2.0f;
 	CameraObject->GetTransform()->SetLocalPosition(glm::vec3(0, EyeHeight, 0));

@@ -10,12 +10,8 @@ namespace TD
 	{}
 
 	void TDSimulationCallbacks::OnContact(const ContactPair** Contacts, int numContacts)
-	{
-
-	}
+	{}
 
 	void TDSimulationCallbacks::OnTrigger(const ContactPair** Contacts, int numContacts)
-	{
-		//__debugbreak();
-	}
+	{}
 };

@@ -7,6 +7,7 @@
 #include "Core/Assets/Scene.h"
 #include "ColliderComponent.h"
 #include "../Utils/MathUtils.h"
+#include "../Assets/Archive.h"
 RigidbodyComponent::RigidbodyComponent()
 {
 	DoesFixedUpdate = true;
@@ -45,7 +46,7 @@ void RigidbodyComponent::SetGravity(bool active)
 	}
 	else
 	{
-		LockData.Gravity = active;
+		BodyData.Gravity = active;
 	}
 }
 
@@ -80,11 +81,11 @@ void RigidbodyComponent::SceneInitComponent()
 			cc->TransferToRigidbody();
 			actor->AttachCollider(cc->GetCollider());
 		}	
-		actor->SetBodyData(LockData);
+		actor->SetBodyData(BodyData);
 		actor->SetOwnerComponent(this);
 		actor->InitBody();
 		actor->SetLinearVelocity(InitalVelocity);
-		actor->SetGravity(LockData.Gravity);
+		actor->SetGravity(BodyData.Gravity);
 	}
 }
 
@@ -119,18 +120,23 @@ void RigidbodyComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& p
 void RigidbodyComponent::ProcessSerialArchive(Archive * A)
 {
 	Component::ProcessSerialArchive(A);
+	ArchiveProp(BodyData.IsKinematic);
 }
 
 void RigidbodyComponent::SetBodyData(BodyInstanceData data)
 {
-	LockData = data;
+	BodyData = data;
 	if (actor)
 	{
-		actor->SetBodyData(LockData);
+		actor->SetBodyData(BodyData);
 	}
 }
 
-BodyInstanceData RigidbodyComponent::GetLockFlags()
+BodyInstanceData& RigidbodyComponent::GetBodyData()
 {
-	return LockData;
+	if (actor != nullptr)
+	{
+		return actor->GetBodyData();
+	}
+	return BodyData;
 }

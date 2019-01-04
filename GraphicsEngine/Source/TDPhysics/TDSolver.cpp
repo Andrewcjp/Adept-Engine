@@ -6,10 +6,12 @@
 #include "TDRigidDynamic.h"
 #include "TDScene.h"
 #include "TDSimConfig.h"
-#include <sstream>
+#include "Utils/Threading.h"
 #include "Utils/VectorUtils.h"
+#include <sstream>
 #define USE_LINEAR_PROJECTION 1
 #define USE_THREADED_COLLISION_DETECTION 0
+
 
 namespace TD
 {
@@ -42,6 +44,11 @@ namespace TD
 				AddContact(&(NarrowPhasePairs[i].ShapePairs[p]));
 			}
 			NarrowPhasePairs[i].Reset();
+		}
+		//Ask RigidDynmaics to Process Lock flags etc after the sim step is complete
+		for (int i = 0; i < scene->GetDynamicActors().size(); i++)
+		{
+			//scene->GetDynamicActors()[i]->PostSimFixup();
 		}
 		TDPhysics::Get()->SimulationContactCallback(NewSimulationCallbackPairs);
 		TDPhysics::Get()->TriggerSimulationContactCallback(NewSimulationTriggerCallbackPairs);
@@ -130,6 +137,10 @@ namespace TD
 
 	void TDSolver::IntergrateActor(TDRigidDynamic * actor, float dt, TDScene * Scene)
 	{
+		if (actor->GetFlags().GetFlagValue(TDActorFlags::EKinematic))
+		{
+			return;//Kinematics Don't integrate!
+		}
 		if (actor->IsBodyAsleep())
 		{
 			actor->UpdateSleepTimer(dt);
@@ -149,7 +160,7 @@ namespace TD
 		BodyAngVel += AVelDelta * dt;
 		DampingDT = actor->GetLinearDamping() *dt;
 		BodyAngVel *= (1.0 - DampingDT);
-#if 1		
+#if 0		
 		const glm::vec3 startRot = actor->GetTransfrom()->GetEulerRot();
 		actor->GetTransfrom()->SetQrot(glm::quat(startRot + (BodyAngVel*dt)));
 #else
@@ -181,31 +192,13 @@ namespace TD
 		actor->ResetForceThisFrame();
 		actor->UpdateTransfrom();
 	}
-#define USE_PHASE 1
+
 	void TDSolver::ProcessBroadPhase(TDScene* scene)
 	{
-		BroadPhaseCount = 0;
-#if 0
-		NarrowPhasePairs.clear();
-		for (int i = 0; i < scene->GetActors().size(); i++)
-		{
-			for (int j = i; j < scene->GetActors().size(); j++)
-			{
-				TDActor* Actor = scene->GetActors()[i];
-				TDActor* Actorb = scene->GetActors()[j];
-				if (scene->GetActors()[i] == scene->GetActors()[j])
-				{
-					continue;
-				}
-				NarrowPhasePairs.push_back(ActorCollisionPair(Actor, Actorb));
-			}
-		}
-#else
 		scene->UpdateBroadPhase();
 		NarrowPhasePairs = scene->GetPairs();
-#endif
-		//printf(ReportbroadPhaseStats().c_str());
 	}
+
 	void TDSolver::FinishAccumlateForces(TDScene* scene)
 	{
 		for (int i = 0; i < scene->GetDynamicActors().size(); i++)
@@ -217,13 +210,31 @@ namespace TD
 			}
 		}
 	}
+
 	void TDSolver::ResolveCollisions(TDScene* scene)
 	{
 #if !BUILD_FULLRELEASE
 		TDPhysics::StartTimer(TDPerfCounters::ResolveCollisions);
 #endif
 		ProcessBroadPhase(scene);
-		//		DebugEnsure(NarrowPhasePairs.size());
+#if USE_THREADED_COLLISION_DETECTION
+		const int BatchSize = 50;
+		std::function <void(int)> ProcessCollisionsFunc = [&](int threadIndex)
+		{
+
+			const int StartingIndex = threadIndex * BatchSize;
+			int ThisBatchcount = glm::min(StartingIndex + BatchSize, (int)NarrowPhasePairs.size());
+			for (int i = StartingIndex; i < ThisBatchcount; i++)
+			{
+				for (int p = 0; p < NarrowPhasePairs[i].ShapePairs.size(); p++)
+				{
+					ProcessCollisions(&(NarrowPhasePairs[i].ShapePairs[p]));
+				}
+			}
+		};
+		int threadcount = glm::min(TDPhysics::GetTaskGraph()->GetThreadCount(), (int)NarrowPhasePairs.size() / BatchSize + 1);
+		TDPhysics::GetTaskGraph()->RunTaskOnGraph(ProcessCollisionsFunc, threadcount);
+#else
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
 			NarrowPhasePairs[i].Reset();//reset before check collisions again
@@ -232,6 +243,7 @@ namespace TD
 				ProcessCollisions(&(NarrowPhasePairs[i].ShapePairs[p]));
 			}
 		}
+#endif
 #if VALIDATE_KE
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
@@ -239,36 +251,36 @@ namespace TD
 			NarrowPhasePairs[i].second->ComputeKE();//todo: crash here
 		}
 #endif
+#if USE_THREADED_COLLISION_DETECTION
+		std::function <void(int)> ProcessResponsePairFunc = [&](int threadIndex)
+		{
+			const int StartingIndex = threadIndex * BatchSize;
+			int ThisBatchcount = glm::min(StartingIndex + BatchSize, (int)NarrowPhasePairs.size());
+			for (int i = StartingIndex; i < ThisBatchcount; i++)
+			{
+				for (int Iterations = 0; Iterations < SolverIterations; Iterations++)
+				{
+					for (int p = 0; p < NarrowPhasePairs[i].ShapePairs.size(); p++)
+					{
+						ProcessResponsePair(&(NarrowPhasePairs[i].ShapePairs[p]));
+					}
+				}
+			}
+		};
+		threadcount = glm::min(TDPhysics::GetTaskGraph()->GetThreadCount(), (int)NarrowPhasePairs.size() / BatchSize + 1);
+		TDPhysics::GetTaskGraph()->RunTaskOnGraph(ProcessResponsePairFunc, threadcount);
+#else
 		for (int Iterations = 0; Iterations < SolverIterations; Iterations++)
 		{
-
-#if USE_THREADED_COLLISION_DETECTION
-			const int BatchSize = 50;
-			std::function <void(int)> ProcessCollisionsFunc = [&](int threadIndex)
-			{
-				const int StartingIndex = threadIndex * BatchSize;
-				int ThisBatchcount = std::min(StartingIndex + BatchSize, (int)NarrowPhasePairs.size());
-				for (int i = StartingIndex; i < ThisBatchcount; i++)
-				{
-					ProcessCollisions(&NarrowPhasePairs[i]);
-				}
-			};
-			const int threadcount = std::min(TDPhysics::GetTaskGraph()->GetThreadCount(), (int)NarrowPhasePairs.size() / BatchSize + 1);
-			TDPhysics::GetTaskGraph()->RunTaskOnGraph(ProcessCollisionsFunc, threadcount);
-#else
 			for (int i = 0; i < NarrowPhasePairs.size(); i++)
 			{
-				//#if VALIDATE_KE
-				//				NarrowPhasePairs[i].first->ComputeKE();
-				//				NarrowPhasePairs[i].second->ComputeKE();
-				//#endif
 				for (int p = 0; p < NarrowPhasePairs[i].ShapePairs.size(); p++)
 				{
 					ProcessResponsePair(&(NarrowPhasePairs[i].ShapePairs[p]));
 				}
 			}
-#endif
 		}
+#endif		
 #if VALIDATE_KE
 		for (int i = 0; i < NarrowPhasePairs.size(); i++)
 		{
@@ -279,13 +291,6 @@ namespace TD
 #if !BUILD_FULLRELEASE
 		TDPhysics::EndTimer(TDPerfCounters::ResolveCollisions);
 #endif
-	}
-
-	std::string TDSolver::ReportbroadPhaseStats()
-	{
-		std::stringstream ss;
-		ss << "removed " << BroadPhaseCount << " intersections\n";
-		return ss.str();
 	}
 
 	void TDSolver::ProcessCollisions(ShapeCollisionPair * Pair)
@@ -310,10 +315,6 @@ namespace TD
 		ContactMethod con = ContactMethodTable[AType][BType];
 		DebugEnsure(con);
 		con(A, B, &Pair->Data);
-		if (!Pair->Data.Blocking && AType == BType && AType == TDShapeType::eSPHERE)
-		{
-			float t = 0;
-		}
 	}
 
 	void TDSolver::ProcessResponsePair(ShapeCollisionPair * pair)
@@ -328,11 +329,12 @@ namespace TD
 		{
 			for (int i = 0; i < pair->Data.ContactCount; i++)
 			{
-				ProcessCollisionResponse(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()),
+				ProcessCollisionResponse(TDActor::RigidCast(A->GetOwner()), TDActor::RigidCast(B->GetOwner()),
 					&pair->Data, A->GetPhysicalMaterial(), B->GetPhysicalMaterial(), i);
 			}
 		}
 	}
+
 	void TDSolver::PostIntergrate(ShapeCollisionPair * pair)
 	{
 		if (pair->IsTriggerPair || !pair->SimPair)
@@ -341,7 +343,7 @@ namespace TD
 		}
 		TDShape* A = pair->A;
 		TDShape* B = pair->B;
-		RunPostFixup(TDActor::ActorCast<TDRigidDynamic>(A->GetOwner()), TDActor::ActorCast<TDRigidDynamic>(B->GetOwner()), &pair->Data);
+		RunPostFixup(TDActor::RigidCast(A->GetOwner()), TDActor::RigidCast(B->GetOwner()), &pair->Data);
 	}
 
 	void TDSolver::ResolveConstraints(TDScene* scene, float dt)
@@ -358,10 +360,8 @@ namespace TD
 		{
 			return;
 		}
-
 		for (int i = 0; i < data->ContactCount; i++)
 		{
-			//TDPhysics::DrawDebugPoint(data->ContactPoints[i], data->Direction[i], 0.0f);
 			float invmassA = 0.0f;
 			if (A != nullptr)
 			{
@@ -391,24 +391,11 @@ namespace TD
 		}
 	}
 
-	float TDSolver::GetTimeStep()
-	{
-		if (Get())
-		{
-			return Get()->CurrentTimeStep;
-		}
-		return 0.0f;
-	}
 
-	TD::TDSolver* TDSolver::Get()
-	{
-		return Instance;
-	}
-#define USE_ROT 0
 	void TDSolver::ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, const TDPhysicalMaterial * AMaterial, const TDPhysicalMaterial * BMaterial, int contactindex)
 	{
 		glm::vec3 RelVel = glm::vec3(0, 0, 0);
-#if USE_ROT
+#if ALLOW_ROT
 		glm::vec3 r1;
 		glm::vec3 r2;
 		glm::mat4 i1;
@@ -417,7 +404,6 @@ namespace TD
 		{
 			r1 = data->ContactPoints[contactindex] - A->GetTransfrom()->GetPos();
 			i1 = A->GetInertiaTensor();
-
 		}
 		if (B != nullptr)
 		{
@@ -425,9 +411,10 @@ namespace TD
 			i2 = B->GetInertiaTensor();
 		}
 #endif
+
 		if (A != nullptr && B != nullptr)
 		{
-#if USE_ROT
+#if ALLOW_ROT
 			RelVel = (B->GetLinearVelocity() + glm::cross(B->GetAngularVelocity(), r2)) - (A->GetLinearVelocity() + glm::cross(A->GetAngularVelocity(), r1));
 #else
 			RelVel = A->GetLinearVelocity() - B->GetLinearVelocity();
@@ -435,7 +422,7 @@ namespace TD
 		}
 		else if (B != nullptr)
 		{
-#if USE_ROT
+#if ALLOW_ROT
 			RelVel = B->GetLinearVelocity() + glm::cross(B->GetAngularVelocity(), r2);
 #else
 			RelVel = B->GetLinearVelocity();
@@ -444,7 +431,7 @@ namespace TD
 		}
 		else if (A != nullptr)
 		{
-#if USE_ROT
+#if ALLOW_ROT
 			RelVel = A->GetLinearVelocity() + glm::cross(A->GetAngularVelocity(), r1);
 #else
 			RelVel = A->GetLinearVelocity();
@@ -472,14 +459,14 @@ namespace TD
 
 		glm::vec3 d2 = glm::vec3(0);
 		glm::vec3 d3 = glm::vec3(0);
-#if USE_ROT
+#if ALLOW_ROT
 		if (A != nullptr)
 		{
-			d2 = glm::cross(glm::vec3(i1 * glm::vec4(glm::cross(r1, RelNrm), 0.0f)), r1);
+			d2 = glm::cross(glm::vec3(glm::vec4(glm::cross(r1, RelNrm), 0.0f)*i1), r1);
 		}
 		if (B != nullptr)
 		{
-			d3 = glm::cross(glm::vec3(i2 * glm::vec4(glm::cross(r2, RelNrm), 0.0f)), r2);
+			d3 = glm::cross(glm::vec3(glm::vec4(glm::cross(r2, RelNrm), 0.0f)*i2), r2);
 		}
 		float denominator = InvMassSum + glm::dot(RelNrm, d2 + d3);
 #else
@@ -487,6 +474,10 @@ namespace TD
 #endif
 
 		float j = numerator / denominator;
+		if (denominator == 0.0f)
+		{
+			j = 0.0f;
+		}
 		if (data->ContactCount > 0 && j != 0.0f)
 		{
 			j /= (float)data->ContactCount;
@@ -501,7 +492,16 @@ namespace TD
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - impluse * invmassB);
 		}
-
+#if ALLOW_ROT
+		if (A != nullptr)
+		{
+			A->SetAngularVelocity(A->GetAngularVelocity() + glm::vec3(glm::vec4(glm::cross(r1, impluse), 0.0f)*i1));
+		}
+		if (B != nullptr)
+		{
+			B->SetAngularVelocity(B->GetAngularVelocity() - glm::vec3(glm::vec4(glm::cross(r2, impluse), 0.0f)*i2));
+		}
+#endif
 		//Apply Friction
 		glm::vec3 tangent = RelVel - (RelNrm * glm::dot(RelVel, RelNrm));
 		if (glm::length2(tangent) == 0)
@@ -510,14 +510,14 @@ namespace TD
 		}
 		tangent = glm::normalize(tangent);
 		numerator = -glm::dot(RelVel, tangent);
-#if USE_ROT
+#if ALLOW_ROT
 		if (A != nullptr)
 		{
-			d2 = glm::cross(glm::vec3(i1 * glm::vec4(glm::cross(r1, tangent), 0.0f)), r1);
+			d2 = glm::cross(glm::vec3(glm::vec4(glm::cross(r1, tangent), 0.0f)*i1), r1);
 		}
 		if (B != nullptr)
 		{
-			d3 = glm::cross(glm::vec3(i2 * glm::vec4(glm::cross(r2, tangent), 0.0f)), r2);
+			d3 = glm::cross(glm::vec3(glm::vec4(glm::cross(r2, tangent), 0.0f)*i2), r2);
 		}
 		denominator = InvMassSum + glm::dot(tangent, d2 + d3);
 #else
@@ -527,10 +527,6 @@ namespace TD
 		if (data->ContactCount > 0 && jt != 0.0f)
 		{
 			jt /= (float)data->ContactCount;
-		}
-		if (jt == 0)
-		{
-			return;
 		}
 		//todo: when to use dynamic friction?
 		float friction = sqrtf(AMaterial->StaticFriction * BMaterial->StaticFriction);
@@ -551,7 +547,7 @@ namespace TD
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - FrictionImpluse * invmassB);
 		}
-#if USE_ROT
+#if ALLOW_ROT
 		if (A != nullptr)
 		{
 			A->SetAngularVelocity(A->GetAngularVelocity() + glm::vec3(i1 * glm::vec4(glm::cross(r1, FrictionImpluse), 0.0f)));

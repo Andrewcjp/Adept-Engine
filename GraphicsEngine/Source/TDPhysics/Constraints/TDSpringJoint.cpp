@@ -32,10 +32,10 @@ namespace TD
 			relVel = BDynamic->GetLinearVelocity();
 		}
 
-		float x = glm::length(relPos) - restingLength;
+		float x = glm::length(relPos) - Desc.RestLength;
 		float v = glm::length(relVel);
-
-		float F = (-k * x) + (-b * v);
+		//Standard Spring Equation!
+		float F = (-Desc.SpringK * x) + (-Desc.Dampening * v);
 
 		glm::vec3 impulse = glm::normalize(relPos) * F;
 		if (ADynamic != nullptr)
