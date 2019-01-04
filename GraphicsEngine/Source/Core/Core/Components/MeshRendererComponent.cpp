@@ -111,7 +111,7 @@ void MeshRendererComponent::Update(float dt)
 		m_mesh->Tick(dt);
 		if (m_mesh->GetSkeletalMesh())
 		{
-			m_mesh->GetSkeletalMesh()->RenderBones(GetOwner()->GetTransform());
+		//	m_mesh->GetSkeletalMesh()->RenderBones(GetOwner()->GetTransform());
 		}
 	}
 }

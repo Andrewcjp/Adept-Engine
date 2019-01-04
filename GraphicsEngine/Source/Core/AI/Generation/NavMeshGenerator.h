@@ -62,7 +62,7 @@ public:
 	void BuildNavPoints();
 	void BuildMeshLinks();
 	void RenderMesh(bool Near);
-	bool ResolvePositionToNode(glm::vec3 pos, DLTENode** node);
+	bool ResolvePositionToNode(glm::vec3 pos, DLTENode** node, bool Zmatch = false);
 	Tri * FindTriangleFromWorldPos(glm::vec3 worldpos);
 	void Reset();
 	float GetHeight();

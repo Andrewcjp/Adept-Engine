@@ -195,7 +195,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 				vertices[i].m_boneIDs = glm::ivec4(Bones[i].IDs[0], Bones[i].IDs[1], Bones[i].IDs[2], Bones[i].IDs[3]);
 				vertices[i].m_weights = glm::vec4(Bones[i].Weights[0], Bones[i].Weights[1], Bones[i].Weights[2], Bones[i].Weights[3]);
 			}
-			newmesh = new MeshEntity(Settings, vertices, indices);
+			newmesh = new MeshEntity(Settings, vertices, indices);	
 			SKel->MeshEntities.push_back(newmesh);
 		}
 		else
@@ -500,7 +500,7 @@ uint SkeletalMeshEntry::FindScaling(float AnimationTime, const aiNodeAnim* pNode
 	}
 	return 0;
 }
-#define NO_INTERP 1
+#define NO_INTERP 0
 
 void SkeletalMeshEntry::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {

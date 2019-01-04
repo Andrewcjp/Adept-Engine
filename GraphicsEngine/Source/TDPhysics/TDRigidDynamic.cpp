@@ -111,44 +111,32 @@ namespace TD
 		}
 	}
 #endif
-	void TDRigidDynamic::PostSimFixup()
+	void TDRigidDynamic::UpdateLockState()
 	{
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosX))
 		{
-			glm::vec3 pos = Transform.GetPos();
-			pos.x = 0.0f;
-			Transform.SetPos(pos);
+			DeltaLinearVel.x = 0.0f;
 		}
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosY))
 		{
-			glm::vec3 pos = Transform.GetPos();
-			pos.y = 0.0f;
-			Transform.SetPos(pos);
+			DeltaLinearVel.y = 0.0f;
 		}
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosZ))
 		{
-			glm::vec3 pos = Transform.GetPos();
-			pos.z = 0.0f;
-			Transform.SetPos(pos);
+			DeltaLinearVel.z = 0.0f;
 		}
 #if ALLOW_ROT
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotX))
 		{
-			glm::vec3 rot = Transform.GetEulerRot();
-			rot.x = 0.0f;
-			Transform.SetEulerRot(rot);
+			DeltaAngularVel.x = 0.0f;
 		}
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotY))
 		{
-			glm::vec3 rot = Transform.GetEulerRot();
-			rot.y = 0.0f;
-			Transform.SetEulerRot(rot);
+			DeltaAngularVel.y = 0.0f;
 		}
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotZ))
 		{
-			glm::vec3 rot = Transform.GetEulerRot();
-			rot.z = 0.0f;
-			Transform.SetEulerRot(rot);
+			DeltaAngularVel.z = 0.0f;
 		}
 #endif
 	}
@@ -248,6 +236,7 @@ namespace TD
 
 	glm::mat4x4 TDRigidDynamic::GetInertiaTensor()
 	{
+		ComputeInertiaTensor();
 		return InertaTensor;
 	}
 

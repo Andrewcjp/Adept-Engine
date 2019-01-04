@@ -146,6 +146,7 @@ namespace TD
 			actor->UpdateSleepTimer(dt);
 			return;
 		}
+		actor->UpdateLockState();
 		glm::vec3 Veldelta = actor->GetLinearVelocityDelta();
 		glm::vec3 BodyVelocity = actor->GetLinearVelocity();
 		BodyVelocity += Veldelta * dt;
@@ -160,9 +161,9 @@ namespace TD
 		BodyAngVel += AVelDelta * dt;
 		DampingDT = actor->GetLinearDamping() *dt;
 		BodyAngVel *= (1.0 - DampingDT);
-#if 0		
+#if 1
 		const glm::vec3 startRot = actor->GetTransfrom()->GetEulerRot();
-		actor->GetTransfrom()->SetQrot(glm::quat(startRot + (BodyAngVel*dt)));
+		actor->GetTransfrom()->SetQrot(glm::quat((startRot + (BodyAngVel*dt))));
 #else
 		float w = glm::length2(BodyAngVel);
 		// Integrate the rotation using closed form quaternion integrator
@@ -181,7 +182,7 @@ namespace TD
 			s /= w;
 
 			const glm::vec3 pqr = BodyAngVel * s;
-			glm::quat quatvel = glm::quat(pqr.x, pqr.y, pqr.z, 0.0f);
+			glm::quat quatvel = glm::quat(pqr.x, pqr.z, pqr.y, 0.0f);
 			glm::quat result = quatvel * actor->GetTransfrom()->GetQuatRot();
 			result += actor->GetTransfrom()->GetQuatRot() * q;
 			actor->GetTransfrom()->SetQrot(glm::normalize(result));
@@ -415,7 +416,7 @@ namespace TD
 		if (A != nullptr && B != nullptr)
 		{
 #if ALLOW_ROT
-			RelVel = (B->GetLinearVelocity() + glm::cross(B->GetAngularVelocity(), r2)) - (A->GetLinearVelocity() + glm::cross(A->GetAngularVelocity(), r1));
+			RelVel = (A->GetLinearVelocity() + glm::cross(A->GetAngularVelocity(), r1)) - (B->GetLinearVelocity() + glm::cross(B->GetAngularVelocity(), r2));
 #else
 			RelVel = A->GetLinearVelocity() - B->GetLinearVelocity();
 #endif
@@ -454,7 +455,7 @@ namespace TD
 		}
 		const float InvMassSum = invmassA + invmassB;
 		//Coefficient of Restitution min of both materials 
-		const float CoR = fminf(AMaterial->Restitution, BMaterial->Restitution);
+		const float CoR = glm::min(AMaterial->Restitution, BMaterial->Restitution);
 		float numerator = (-(1.0f + CoR) * glm::dot(RelVel, RelNrm));
 
 		glm::vec3 d2 = glm::vec3(0);
@@ -504,11 +505,12 @@ namespace TD
 #endif
 		//Apply Friction
 		glm::vec3 tangent = RelVel - (RelNrm * glm::dot(RelVel, RelNrm));
-		if (glm::length2(tangent) == 0)
+		if (glm::length2(tangent) == 0.0f)
 		{
 			return;// no Size to tangent
 		}
 		tangent = glm::normalize(tangent);
+		
 		numerator = -glm::dot(RelVel, tangent);
 #if ALLOW_ROT
 		if (A != nullptr)

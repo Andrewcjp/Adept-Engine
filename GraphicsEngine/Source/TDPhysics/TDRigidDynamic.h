@@ -63,7 +63,7 @@ namespace TD
 		void					ValidateKE();
 #endif
 		//Handles Locking of rotaiton and position etc.
-		void					PostSimFixup();
+		void					UpdateLockState();
 	private:
 		void					ComputeInertiaTensor();
 		bool					CheckSleep(glm::vec3 & value);

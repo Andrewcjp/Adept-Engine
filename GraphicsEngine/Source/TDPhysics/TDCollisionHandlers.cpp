@@ -4,7 +4,7 @@
 #include "Shapes/TDMeshShape.h"
 #include "Shapes/TDPlane.h"
 #include "Shapes/TDSphere.h"
-#include "Core/Utils/MathUtils.h"
+#include "Utils/MathUtils.h"
 #include "TDSAT.h"
 namespace TD
 {
@@ -300,6 +300,7 @@ namespace TD
 		return mesh->IntersectTriangle(Ray);
 	}
 
+
 	bool TDIntersectionHandlers::IntersectAABB(InterSectionArgs)
 	{
 		TDAABB* aabb = TDShape::CastShape<TDAABB>(Shape);
@@ -307,16 +308,16 @@ namespace TD
 		glm::vec3 min = aabb->GetMin();
 		glm::vec3 max = aabb->GetMax();
 		//It is possible for some of these denominators top be 0.0f so Min with a Small number
-		const float MinValue = 0.0000001f;
-		float t1 = (min.x - Ray->Origin.x) / glm::min(Ray->Dir.x, MinValue);
-		float t2 = (max.x - Ray->Origin.x) / glm::min(Ray->Dir.x, MinValue);
-		float t3 = (min.y - Ray->Origin.y) / glm::min(Ray->Dir.y, MinValue);
-		float t4 = (max.y - Ray->Origin.y) / glm::min(Ray->Dir.y, MinValue);
-		float t5 = (min.z - Ray->Origin.z) / glm::min(Ray->Dir.z, MinValue);
-		float t6 = (max.z - Ray->Origin.z) / glm::min(Ray->Dir.z, MinValue);
+		const float MinValue = 0.00001f;
+		float t1 = (min.x - Ray->Origin.x) / MathUtils::MakeSafeForDivide(Ray->Dir.x, MinValue);
+		float t2 = (max.x - Ray->Origin.x) / MathUtils::MakeSafeForDivide(Ray->Dir.x, MinValue);
+		float t3 = (min.y - Ray->Origin.y) / MathUtils::MakeSafeForDivide(Ray->Dir.y, MinValue);
+		float t4 = (max.y - Ray->Origin.y) / MathUtils::MakeSafeForDivide(Ray->Dir.y, MinValue);
+		float t5 = (min.z - Ray->Origin.z) / MathUtils::MakeSafeForDivide(Ray->Dir.z, MinValue);
+		float t6 = (max.z - Ray->Origin.z) / MathUtils::MakeSafeForDivide(Ray->Dir.z, MinValue);
 
-		float tmin = fmaxf(fmaxf(fminf(t1, t2), fminf(t3, t4)), fminf(t5, t6));
-		float tmax = fminf(fminf(fmaxf(t1, t2), fmaxf(t3, t4)), fmaxf(t5, t6));
+		float tmin = glm::max(glm::max(glm::min(t1, t2), glm::min(t3, t4)), glm::min(t5, t6));
+		float tmax = glm::min(glm::min(glm::max(t1, t2), glm::max(t3, t4)), glm::max(t5, t6));
 
 		if (tmax < 0.0f)
 		{
@@ -347,7 +348,7 @@ namespace TD
 				glm::vec3(0, 0, -1),
 				glm::vec3(0, 0, 1)
 			};
-			float t[] = { t1, t2, t3, t4, t5, t6 };//Al the computed mins and maxes
+			float t[] = { t1, t2, t3, t4, t5, t6 };//All the computed mins and maxes
 			const int BOX_SIDES = 6;
 			for (int i = 0; i < BOX_SIDES; i++)
 			{

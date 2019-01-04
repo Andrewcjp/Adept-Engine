@@ -225,25 +225,25 @@ void NavMeshGenerator::GenerateMesh(NavPlane* target)
 
 		glm::vec3 dir = glm::cross(target->Triangles[i].points[1] - target->Triangles[i].points[0], target->Triangles[i].points[2] - target->Triangles[i].points[0]);
 		glm::vec3 norm = glm::normalize(dir);
-
 		float angle = glm::dot(norm, glm::vec3(0, 1, 0));
-		if (angle < 0.5f)//remove triangles that are angled wrong
+		if (angle < 0.75f)//remove triangles that are angled wrong
 		{
 			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;
 			continue;
 		}
-#if 1
+#if 0
 		//the delaunator Can generate triangles that stretch over invalid regions 
 		//so: prune triangles that are invalid
-		const bool CastHit = PhysicsEngine::Get()->RayCastScene(avgpos, glm::vec3(0, -1, 0), 50, &hiot);
-		if (!CastHit || !MathUtils::AlmostEqual(hiot.Distance, -target->ZHeight, PlaneTolerance))
+		const bool CastHit = PhysicsEngine::Get()->RayCastScene(avgpos + glm::vec3(0, 3, 0), glm::vec3(0, -1, 0), 50, &hiot);
+		if (!CastHit /*|| !MathUtils::AlmostEqual(hiot.Distance, -target->ZHeight, PlaneTolerance)*/)
 		{
 			target->Triangles.erase(target->Triangles.begin() + i);
 			PrunedTris++;
 
 		}
 #endif
+
 	}
 #endif
 	target->BuildNavPoints();
@@ -416,7 +416,7 @@ void NavPlane::RenderMesh(bool Near)
 	}
 }
 
-bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
+bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode** node, bool Zmatch /*= false*/)
 {
 #if 0
 	//Triangle phase first 
@@ -440,7 +440,12 @@ bool NavPlane::ResolvePositionToNode(glm::vec3 pos, DLTENode ** node)
 	float CurrentPoint = MathUtils::FloatMAX;
 	for (int i = 0; i < NavPoints.size(); i++)
 	{
-		const float newdist = glm::distance2(NavPoints[i]->GetPos(this), pos);
+		const glm::vec3 NodePos = NavPoints[i]->GetPos(this);
+		if (Zmatch && MathUtils::AlmostEqual(NodePos.z, pos.z, 0.01f))
+		{
+			continue;
+		}
+		const float newdist = glm::distance2(NodePos, pos);
 		if (newdist < CurrentPoint)
 		{
 			CurrentPoint = newdist;

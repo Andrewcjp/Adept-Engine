@@ -1,9 +1,12 @@
 #include "BleedOut_Director.h"
 #include "AI/Core/AIController.h"
 #include "AI/Core/SpawnMarker.h"
+#include "AttackController.h"
 #include "Core/Components/ColliderComponent.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "Core/Components/RigidbodyComponent.h"
+#include "Core/Performance/PerfManager.h"
+#include "Core/Platform/ConsoleVariable.h"
 #include "DemonOrb.h"
 #include "DemonRiotShield.h"
 #include "HellKnight/HellKnight.h"
@@ -11,9 +14,7 @@
 #include "SkullChaser.h"
 #include "Source/BleedOutGame/Components/Health.h"
 #include "Source/BleedOutGame/Components/MeleeWeapon.h"
-#include "Core/Performance/PerfManager.h"
-#include "AttackController.h"
-#include "Core/Platform/ConsoleVariable.h"
+
 BleedOut_Director::BleedOut_Director()
 {
 	StateSets = new DirectorStateSet();
@@ -29,11 +30,12 @@ BleedOut_Director::~BleedOut_Director()
 
 void BleedOut_Director::Tick()
 {
-	if (!once)
+	if (!once && SpawnDelay < 0)
 	{
 		SpawnAI(glm::vec3(-5, 20, 0), EAIType::PossessedSoldier);
 		once = true;
 	}
+	SpawnDelay--;
 	CurrentSpawnScore = GetSpawnedScore();
 	if (CurrnetStage != EWaveStage::Limit)
 	{
@@ -69,6 +71,13 @@ int BleedOut_Director::GetSpawnedScore()
 
 void BleedOut_Director::TickNewAIQueue()
 {
+	//prevent AI from spawning to quickly for Lag and Game play (but mainly Lag)
+	CurrentSpawnDelay -= Engine::GetDeltaTime();
+	if (CurrentSpawnDelay > 0.0f)
+	{
+		return;
+	}
+	CurrentSpawnDelay = AISpawnDelay;
 	if (IncomingAI.size() == 0)
 	{
 		return;
@@ -140,12 +149,13 @@ GameObject* BleedOut_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 	return NewAi;
 }
 
-GameObject * BleedOut_Director::CreateAI(glm::vec3 pos, float AttackRaduis)
+GameObject * BleedOut_Director::CreateAI(glm::vec3 pos, float AttackRaduis, float BaseRaduis)
 {
 	GameObject* newAI = GameObject::Instantiate(pos);
 	newAI->AttachComponent(new RigidbodyComponent());
 	ColliderComponent* cc = newAI->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
+	cc->Radius = BaseRaduis;
 	AIController* Controller = newAI->AttachComponent(new AIController());
 	newAI->AttachComponent(new Health());
 	MeleeWeapon* mw = newAI->AttachComponent(new MeleeWeapon());
@@ -160,7 +170,7 @@ GameObject * BleedOut_Director::CreateAI(glm::vec3 pos, float AttackRaduis)
 
 GameObject* BleedOut_Director::SpawnHellKnight(glm::vec3 pos)
 {
-	GameObject* newKnight = CreateAI(pos, 4.0f);
+	GameObject* newKnight = CreateAI(pos, 4.0f, 1.0f);
 	newKnight->SetName("Hell Knight");
 
 	GameObject* MeshC = new GameObject();
@@ -178,19 +188,19 @@ GameObject* BleedOut_Director::SpawnHellKnight(glm::vec3 pos)
 	AnimSetting.AnimSettings.Rate = 2.0f;
 	mrc->LoadAnimation("AlwaysCook\\Creature NPC Pack\\mutant dying.fbx", "Death", AnimSetting);
 	mrc->PlayAnim("Attack");
-	MeshC->GetTransform()->SetScale(glm::vec3(0.02f));
+	MeshC->GetTransform()->SetScale(glm::vec3(0.01f));
 	scene->AddGameobjectToScene(MeshC);
 	newKnight->AttachComponent(new HellKnight());
 	ColliderComponent* cc = newKnight->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);
-	cc->Radius = 2.5f;
-	cc->LocalOffset = glm::vec3(0, 3, 0);
+	cc->Radius = 1.25f;
+	cc->LocalOffset = glm::vec3(0, 1.75f, 0);
 	return newKnight;
 }
 
 GameObject* BleedOut_Director::SpawnSoldier(glm::vec3 pos)
 {
-	GameObject* NewPossessed = CreateAI(pos, 4.0f);
+	GameObject* NewPossessed = CreateAI(pos, 4.0f, 0.75f);
 	NewPossessed->SetName("Possessed Soldier");
 
 	GameObject* MeshC = new GameObject();
@@ -210,7 +220,7 @@ GameObject* BleedOut_Director::SpawnSoldier(glm::vec3 pos)
 	mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Punch.fbx", "Melee");
 
 	mrc->PlayAnim("Idle");
-	MeshC->GetTransform()->SetScale(glm::vec3(0.015f));
+	MeshC->GetTransform()->SetScale(glm::vec3(0.008f));
 	scene->AddGameobjectToScene(MeshC);
 	GameObject* WeaponBone = new GameObject();
 	PossessedSoldier* t = NewPossessed->AttachComponent(new PossessedSoldier());
@@ -223,28 +233,28 @@ GameObject* BleedOut_Director::SpawnSoldier(glm::vec3 pos)
 	scene->AddGameobjectToScene(WeaponBone);
 	ColliderComponent* cc = NewPossessed->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);
-	cc->Radius = 2.0f;
-	cc->LocalOffset = glm::vec3(0, 3, 0);
+	cc->Radius = 0.75f;
+	cc->LocalOffset = glm::vec3(0, 1.5, 0);
 	return NewPossessed;
 }
 
 GameObject* BleedOut_Director::SpawnRioter(glm::vec3 pos)
 {
-	GameObject* NewRioter = CreateAI(pos, 4.0f);
+	GameObject* NewRioter = CreateAI(pos, 4.0f, 1.0f);
 	NewRioter->AttachComponent(new DemonRiotShield());
 	return NewRioter;
 }
 
 GameObject* BleedOut_Director::SpawnOrb(glm::vec3 pos)
 {
-	GameObject* newOrb = CreateAI(pos, 4.0f);
+	GameObject* newOrb = CreateAI(pos, 4.0f, 1.0f);
 	newOrb->AttachComponent(new DemonOrb());
 	return newOrb;
 }
 
 GameObject* BleedOut_Director::SpawnSkull(glm::vec3 pos)
 {
-	GameObject* NewSkullChaser = CreateAI(pos, 4.0f);
+	GameObject* NewSkullChaser = CreateAI(pos, 4.0f, 1.0f);
 	NewSkullChaser->AttachComponent(new SkullChaser());
 	return NewSkullChaser;
 }
