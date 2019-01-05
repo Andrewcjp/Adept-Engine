@@ -29,7 +29,7 @@ public:
 		Value = obj;
 	};
 	int RoundCount = 4;
-	float DelayBetween = 0.016f;
+	float DelayBetween = 0.1f;
 	float CoolDownTime = 0.4f;
 	virtual void OnAddedToTree() override;
 	virtual std::string GetDebugName() override

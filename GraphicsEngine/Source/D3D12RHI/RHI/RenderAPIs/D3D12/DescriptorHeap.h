@@ -22,6 +22,10 @@ public:
 	{
 		return mHeap;
 	};
+	std::string GetDebugName()
+	{
+		return "DescriptorHeap";
+	}
 private:
 	ID3D12DescriptorHeap * mHeap = nullptr;
 	class D3D12DeviceContext* Device = nullptr;

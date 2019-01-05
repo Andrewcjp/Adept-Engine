@@ -54,3 +54,8 @@ GameHud * Game::CreateGameHUD()
 {
 	return new GameHud();
 }
+
+ std::vector<std::string> Game::GetPreLoadAssets()
+{
+	return std::vector<std::string>();
+}

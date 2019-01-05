@@ -27,6 +27,9 @@ Weapon::Weapon(Weapon::WeaponType T, Scene* scene, BleedOutPlayer* player, GameO
 		CurrentSettings.DamagePerShot = 150;
 		CurrentSettings.MaxAmmoCount = 20;
 		CurrentSettings.ProjectileSpeed = 150.0f;
+		CurrentSettings.Recoil = 10.0f;
+		CurrentSettings.MaxRecoil = 2.0f;
+		CurrentSettings.RecoilReduce = 1.5f;
 	}
 	else if (T == AIRifle)
 	{
@@ -68,7 +71,7 @@ void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 		set.IgnoredMeshObjectNames.push_back("R_Sight");
 		set.IgnoredMeshObjectNames.push_back("R_Grip");
 		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Rifle.fbx", set), mat));
-		WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -1, 2.5));
+		RootPos = glm::vec3(1.2, -1, 2.5);
 		WeaponModel->GetTransform()->SetScale(glm::vec3(0.5f));
 	}
 	else if (CurrentWeaponType == WeaponType::ShotGun)
@@ -83,7 +86,7 @@ void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 		set.IgnoredMeshObjectNames.push_back("C_Bullet");
 		set.IgnoredMeshObjectNames.push_back("C_Sight");
 		go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Heavy.fbx", set), mat));
-		WeaponModel->GetTransform()->SetLocalPosition(glm::vec3(1.2, -2, 3));//z,y,x
+		RootPos = glm::vec3(1.2, -2, 3);//z,y,x
 		WeaponModel->GetTransform()->SetScale(glm::vec3(0.4f));
 	}
 	s->AddGameobjectToScene(go);
@@ -103,6 +106,12 @@ void Weapon::InitComponent()
 void Weapon::Update(float delta)
 {
 	CurrentCoolDown -= delta;
+	if (WeaponModel != nullptr)
+	{
+		CurrnetRecoil -= CurrentSettings.RecoilReduce * delta;
+		CurrnetRecoil = glm::clamp(CurrnetRecoil, 0.0f, CurrentSettings.MaxRecoil);
+		WeaponModel->GetTransform()->SetLocalPosition(RootPos - glm::vec3(0, 0, CurrnetRecoil));
+	}
 }
 
 void Weapon::SetCurrentSettings(WeaponSettings NewSettings)
@@ -148,7 +157,7 @@ bool Weapon::Fire()
 	PerfManager::StartTimer("Weapon::Fire");
 	CurrentAmmoCount--;
 	PlayFireSound();
-
+	Recoil(CurrentSettings.Recoil);
 	//Create projectile!
 	glm::vec3 Forward = WeaponRoot->GetTransform()->GetForward();
 	glm::vec3 offset = glm::vec3(0);
@@ -162,9 +171,6 @@ bool Weapon::Fire()
 	}
 
 	glm::vec3 Position = offset + WeaponRoot->GetPosition() + Forward * 4;
-#if WITH_EDITOR
-	DebugDrawers::DrawDebugLine(Position, Position + Forward * 10, glm::vec3(1), false, 1);
-#endif
 	GameObject* newgo = GameObject::Instantiate(Position);
 	newgo->GetTransform()->SetScale(glm::vec3(0.3f));
 	ColliderComponent* cc = newgo->AttachComponent(new ColliderComponent());
@@ -198,5 +204,10 @@ void Weapon::AddAmmo(int amt)
 {
 	CurrentAmmoCount += amt;
 	CurrentAmmoCount = glm::clamp(CurrentAmmoCount, 0, CurrentSettings.MaxAmmoCount);
+}
+
+void Weapon::Recoil(float amt)
+{
+	CurrnetRecoil += amt;
 }
 

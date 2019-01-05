@@ -17,6 +17,7 @@ public:
 	BehaviourTreeNode* DebugCurrnetNode = nullptr;
 	AIBase* AIBasePtr = nullptr;
 	bool Active = true;
+	CORE_API float GetTickDeltaTime();
 private:
 	float CoolDownTime = 0.0f;
 	float UpdateRate = 0.2f;

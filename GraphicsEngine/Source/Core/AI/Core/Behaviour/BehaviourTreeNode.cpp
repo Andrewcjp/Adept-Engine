@@ -6,7 +6,7 @@
 #include "BehaviourTree.h"
 #include "BTBlackboard.h"
 #include "Core/GameObject.h"
-#include "Core/Performance/PerfManager.h"
+#include "Core/Engine.h"
 
 EBTNodeReturn::Type BehaviourTreeNode::ExecuteNode()
 {
@@ -169,9 +169,9 @@ std::string BTSelectorNode::GetDebugName()
 EBTNodeReturn::Type BTWaitNode::ExecuteNode()
 {
 	BehaviourTreeNode::ExecuteNode();
-	if (Remaining > 0.0f)
+	if (Remaining >= 0.0f)
 	{
-		Remaining -= PerfManager::GetDeltaTime();
+		Remaining -= ParentTree->GetTickDeltaTime();
 		return EBTNodeReturn::Running;
 	}
 	Remaining = TargetTime;

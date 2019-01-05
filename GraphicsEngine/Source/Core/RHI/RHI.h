@@ -6,7 +6,6 @@
 #include "Core/Utils/MemoryUtils.h"
 #include "Rendering/Renderers/RenderSettings.h"
 #include "RHI_inc_fwd.h"
-#include "RHI_inc_fwd.h"
 #include "RHITypes.h"
 
 #define MAX_GPU_DEVICE_COUNT 2

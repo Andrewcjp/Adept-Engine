@@ -7,6 +7,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "RHI_inc.h"
+#include "Core/Utils/RefChecker.h"
 RHI* RHI::instance = nullptr;
 MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
@@ -384,7 +385,7 @@ void RHI::DestoryContext()
 	if (Get())
 	{
 		Get()->TickDeferredDeleteQueue(true);
-		GetRHIClass()->DestoryRHI();
+		GetRHIClass()->DestoryRHI(); 
 	}
 #if DETECT_MEMORY_LEAKS
 	RefCheckerContainer::LogAllRefCounters();
@@ -397,5 +398,5 @@ RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)
 	{
 		Device = RHI::GetDefaultDevice();
 	}
-	return GetRHIClass()->CreateTextureArray(Device, Length);;
+	return GetRHIClass()->CreateTextureArray(Device, Length);
 }
