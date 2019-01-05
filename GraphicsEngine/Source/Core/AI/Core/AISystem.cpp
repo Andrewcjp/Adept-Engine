@@ -96,7 +96,7 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 
 void AISystem::GenerateMesh()
 {
-	///return;
+	return;
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
 	mesh->Plane = n->GetPlane(-17);

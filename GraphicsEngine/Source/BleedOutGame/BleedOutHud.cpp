@@ -144,8 +144,9 @@ void BleedOutHud::OnDestory()
 
 }
 
-void BleedOutHud::DisplayText(std::string Test, float Time)
+void BleedOutHud::DisplayText(std::string Text, float Time)
 {
 	DisplayTimeRemaining = Time;
+	ObjectiveText->SetText(Text);
 	ObjectiveText->SetEnabled(true);
 }

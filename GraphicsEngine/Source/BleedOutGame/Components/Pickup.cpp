@@ -43,8 +43,8 @@ void Pickup::OnTrigger(CollisonData data)
 		default:
 			break;
 		}
-	}
-	GetOwner()->Destory();
+		GetOwner()->Destory();
+	}	
 }
 
 void Pickup::SpawnPickup(glm::vec3 position, PickupType::Type type, int value)
@@ -59,6 +59,7 @@ void Pickup::SpawnPickup(glm::vec3 position, PickupType::Type type, int value)
 	//cc->SetEnabled(false);
 	switch (type)
 	{
+	case PickupType::Gauss_Ammo:
 	case PickupType::Rifle_Ammo:
 	{
 		Material* mat = Material::GetDefaultMaterial();
