@@ -159,14 +159,22 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #else
 	go = new GameObject("Terrain");
 	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	MeshLoader::FMeshLoadingSettings set;
+#if 0
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\MeduimMap.png"));
+	set.UVScale = glm::vec2(1);
+#else
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	set.UVScale = glm::vec2(20);
-	
+#endif
+	set.FlipUVs = true;
 	const char* Name = "\\AlwaysCook\\Terrain\\Room1.obj";
 	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
 	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
+	r->SetMaterial(mat, 1);
+	mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\BoxObject.png"));
 	r->SetMaterial(mat, 2);
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -206,10 +214,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddLight(glm::vec3(0, 5, 34), false, 75.0f);
 	AddLight(glm::vec3(0, 4, -50), false, 75.0f);
 
-	AddLight(glm::vec3(22, 7, -18), false, 75.0f);
+	AddLight(glm::vec3(24, 7, -21), false, 75.0f);
 	AddLight(glm::vec3(33, 6, -3), false, 75.0f);
 
-	AddLight(glm::vec3(-22, 7, -18), false, 75.0f);
+	AddLight(glm::vec3(-24, 7, -21), false, 75.0f);
 	AddLight(glm::vec3(-33, 6, -3), false, 75.0f);
 
 	go = new GameObject("Rock");

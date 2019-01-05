@@ -2,11 +2,10 @@ Debug commands:
 Open the console with '`'
 CMD Name , Type, Description
 Debugging:
-aidebug <mode> :  0 Is Disabled,
-PhysDebug <mode> :
-noatk boolean : If set to true AI will be unable to attack the player, however the player is still damageable
-god boolean : If set The player is not damageable
-
+aidebug <mode> :  0 Is Disabled, 1 is show navigation Mesh, 2 is Show Path only,3 is debug Behavior trees, 4 is aLL
+physdebug <mode> : 0 Is Disabled, 1 is show Collision Shapes, 2 is Show contacts, 3 is show BroadPhase Shapes, 4 is ALL
+noatk boolean : If set to 1 AI will be unable to attack the player, however the player is still damageable
+god boolean : If set to 1 The player is not damageable
 
 
 Settings:
@@ -14,15 +13,18 @@ Sensitivity float : changes the players mouse sensitivity
 
 Debug Keys:
 Esc, F8 Pause the game
-F7 Step one frame forwards
+F7 Steps one frame forwards
 
 
 Player Controls:
 WASD - Move Forward, Left,Back and right
 Mouse 1 - Fire
 Scroll Wheel - Change Weapons
-Alpha 1 - Select weapon 1
+Alpha 1 - Select Weapon 1
 Alpha 2 - Select Weapon 2
 Space - Jump
 E - Interact
 F - Melee
+
+
+Other Readmes are located in Source/Readme

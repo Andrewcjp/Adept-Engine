@@ -3,6 +3,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Health.h"
 #include "Audio/AudioEngine.h"
+#include "../BleedOutGameMode.h"
 
 MeleeWeapon::MeleeWeapon()
 {}
@@ -65,4 +66,5 @@ void MeleeWeapon::BeginPlay()
 	{
 		Collider->SetEnabled(false);
 	}
+	AttackDamage = 50.0f * DifficultyPreset::Get()->MeleeDamageMulti;
 }

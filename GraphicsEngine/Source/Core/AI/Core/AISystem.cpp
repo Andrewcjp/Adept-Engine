@@ -14,7 +14,7 @@ AISystem::AISystem()
 	mesh = new NavigationManager();
 	BTManager = new BehaviourTreeManager();
 
-	DebugModeVar.SetValue(EAIDebugMode::BT);
+	DebugModeVar.SetValue(EAIDebugMode::None);
 }
 
 AISystem::~AISystem()
@@ -96,7 +96,9 @@ ENavRequestStatus::Type AISystem::CalculatePath(glm::vec3 Startpoint, glm::vec3 
 
 void AISystem::GenerateMesh()
 {
+#if _DEBUG
 	return;
+#endif
 	n = new NavMeshGenerator();
 	n->Voxelise(nullptr);
 	mesh->Plane = n->GetPlane(-17);

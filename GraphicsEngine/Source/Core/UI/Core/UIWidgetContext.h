@@ -23,7 +23,7 @@ public:
 	int GetScaledHeight(float PC);
 	void UpdateSize(int width, int height, int Xoffset, int yoffset);
 	void CleanUpWidgets();
-	void UpdateBatches();
+	CORE_API void UpdateBatches();
 	void Initalise(int width, int height);
 	void RenderWidgets();
 	void MarkRenderStateDirty();

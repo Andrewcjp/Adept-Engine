@@ -32,10 +32,6 @@ BleedOut_Director::~BleedOut_Director()
 
 void BleedOut_Director::Tick()
 {
-	if (GameMode == nullptr)
-	{
-		GameMode = (BleedOutGameMode*)scene->GetGameMode();
-	}
 	if (!once && SpawnDelay < 0)
 	{
 		SpawnAI(glm::vec3(-5, 20, 0), EAIType::PossessedSoldier);
@@ -348,7 +344,16 @@ int BleedOut_Director::GetMaxAttackingAI()
 	{
 		return 0;
 	}	
-	return GameMode->GetDifficultyPreset().MaxAttackingAI;
+	return GameMode->GetDifficultyPreset()->MaxAttackingAI;
+}
+
+const DifficultyPreset* BleedOut_Director::GetDifficultyPreset()
+{
+	if (GameMode == nullptr)
+	{
+		return nullptr;
+	}
+	return GameMode->GetDifficultyPreset();
 }
 
 int BleedOut_Director::GetAiScore(EAIType::Type t)
