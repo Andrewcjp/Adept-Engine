@@ -83,7 +83,7 @@ void Scene::StartScene()
 	{
 		SceneObjects[i]->BeginPlay();
 	}
-	
+
 }
 
 void Scene::LoadDefault()
@@ -93,6 +93,37 @@ void Scene::LoadDefault()
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(2));
 	go->AttachComponent(new CameraComponent());
+	AddGameobjectToScene(go);
+}
+
+void Scene::AddLight(glm::vec3 Pos, bool Shadow, float BrightNess)
+{
+	GameObject *go = new GameObject("Point Light");
+	go->GetTransform()->SetPos(Pos);
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	LightComponent* lc = go->AttachComponent(new LightComponent());
+	lc->SetShadow(Shadow);
+	lc->SetLightType(Light::Point);
+	lc->SetIntensity(BrightNess);
+	AddGameobjectToScene(go);
+}
+
+void Scene::SpawnBox(glm::vec3 pos)
+{
+	GameObject *go = new GameObject("Rock");
+	Material *mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_2\\Crate_Diffuse.png"));
+	MeshLoader::FMeshLoadingSettings set = MeshLoader::FMeshLoadingSettings();
+	set.FlipUVs = true;
+	set.Scale = glm::vec3(.01f);
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_2\\Crate_Cube.fbx", set), mat));
+	go->GetTransform()->SetPos(pos);
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	ColliderComponent*	cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eBOX);
+	cc->LocalOffset = glm::vec3(0, 1, 0);
+	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 }
 //load an example scene
@@ -131,8 +162,12 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.UVScale = glm::vec2(20);
+	
 	const char* Name = "\\AlwaysCook\\Terrain\\Room1.obj";
 	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
+	mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	r->SetMaterial(mat, 2);
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
@@ -164,82 +199,18 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 
 #endif
+	//sun
+	AddLight(glm::vec3(-8, 27, -12), true, 2500.0f);
 
-#if 1
-	go = new GameObject("Point Light");
-	go->GetTransform()->SetPos(glm::vec3(38, 10, 20));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(true);
-	lc->SetLightType(Light::Point);
-	lc->SetIntensity(500.0f);
-	AddGameobjectToScene(go);
+	AddLight(glm::vec3(0, 10, -20), false, 200.0f);
+	AddLight(glm::vec3(0, 5, 34), false, 75.0f);
+	AddLight(glm::vec3(0, 4, -50), false, 75.0f);
 
-	go = new GameObject("Point Light");
-	go->GetTransform()->SetPos(glm::vec3(10, 20, 20));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(true);
-	lc->SetLightType(Light::Point);
-	lc->SetIntensity(500.0f);
-	AddGameobjectToScene(go);
+	AddLight(glm::vec3(22, 7, -18), false, 75.0f);
+	AddLight(glm::vec3(33, 6, -3), false, 75.0f);
 
-	go = new GameObject("Point Light");
-	go->GetTransform()->SetPos(glm::vec3(3, 15, 20));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(true);
-	lc->SetLightType(Light::Point);
-	lc->SetIntensity(500.0f);
-	AddGameobjectToScene(go);
-
-	for (int i = 0; i < 1; i++)
-	{
-		go = new GameObject("Point Light");
-		go->GetTransform()->SetPos(glm::vec3(20 + (10 * i), 5, 20));
-		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-		lc = (LightComponent*)go->AttachComponent(new LightComponent());
-		lc->SetShadow(true);
-		lc->SetLightType(Light::Point);
-		lc->SetIntensity(500.0f);
-		AddGameobjectToScene(go);
-	}
-#endif	
-
-	go = new GameObject("Test");
-	mat = NormalMapShader->GetMaterialInstance();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg"));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(10, 10, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
-	//ColliderComponent* col = go->AttachComponent(new ColliderComponent());
-	//col->SetCollisonShape(EShapeType::eSPHERE);
-	//col->Radius = 1.0f;
-	AddGameobjectToScene(go);
-
-
-
-
-	go = new GameObject("Rock");
-	//mat = NormalMapShader->GetMaterialInstance();
-	mat = Material::GetDefaultMaterial();
-	//mat->GetProperties()->Metallic = 0.0f;
-	//mat->GetProperties()->Roughness = 1.0f;
-
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_2\\Crate_Diffuse.png"/*, setting*/));//Crate_Diffuse
-	set = MeshLoader::FMeshLoadingSettings();
-	set.FlipUVs = true;
-	set.Scale = glm::vec3(.01f);
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_2\\Crate_Cube.fbx", set), mat));
-	go->GetTransform()->SetPos(glm::vec3(18, 10, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
-	cc = go->AttachComponent(new ColliderComponent());
-	cc->SetCollisonShape(EShapeType::eBOX);
-	go->AttachComponent(new RigidbodyComponent());
-	AddGameobjectToScene(go);
+	AddLight(glm::vec3(-22, 7, -18), false, 75.0f);
+	AddLight(glm::vec3(-33, 6, -3), false, 75.0f);
 
 	go = new GameObject("Rock");
 	mat = Material::GetDefaultMaterial();
@@ -256,38 +227,18 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
 
-	//Military crate.fbx
-
 	Asset_Shader* ColourMat = new Asset_Shader();
 	ColourMat->SetupSingleColour();
-#if 0
-	go = new GameObject("Size Guide");
-	mat = ColourMat->GetMaterialInstance();
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\sizeguide.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(50, -10, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
-	AddGameobjectToScene(go);
-#endif
-	go = new GameObject("Test");
-	mat = ColourMat->GetMaterialInstance();
-	//mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	mat->GetProperties()->Roughness = 0.0f;
-	mat->GetProperties()->Metallic = 1.0f;
 
-	//mat->SetNormalMap(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2_normal.jpg", true));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(70, 10, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
-	AddGameobjectToScene(go);
+	SpawnBox(glm::vec3(17, 1, -12));
+	SpawnBox(glm::vec3(17, 1, -9));
+	SpawnBox(glm::vec3(14, 1, -12));
 
 	SpawnDoor("EntryDoor", glm::vec3(0, 0, 25));
-
 	SpawnDoor("ExitDoor", glm::vec3(0, 0, -34));
 
 	go = new GameObject("spawn");
-	go->GetTransform()->SetPos(glm::vec3(30, 5, -5));
+	go->GetTransform()->SetPos(glm::vec3(30, 5, -2));
 	go->AttachComponent(new SpawnMarker());
 	AddGameobjectToScene(go);
 
@@ -309,7 +260,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//AddGameobjectToScene(go);
 	glm::vec3 startpos = glm::vec3(5, -5, 0);
 	float stride = 5.0f;
-	int size = 2;
+	int size = 1;
 	int zsize = 2;
 	for (int x = 0; x < size; x++)
 	{
@@ -319,9 +270,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			{
 				if (x == 0)
 				{
-					go = new GameObject("Tst box");
+					go = new GameObject("Test box");
 					mat = Material::GetDefaultMaterial();
-					mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+					mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"));
 					go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_1\\Box_low.fbx"), mat));
 					cc = go->AttachComponent(new ColliderComponent());
 					cc->SetCollisonShape(EShapeType::eBOX);
@@ -373,7 +324,7 @@ void Scene::SpawnDoor(std::string name, glm::vec3 pos)
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\Door.obj"), mat));
 	go->GetTransform()->SetPos(pos);
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
+	go->GetTransform()->SetScale(glm::vec3(1.1f));
 	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eBOX);
 	cc->LocalOffset = glm::vec3(0, 2, 0);

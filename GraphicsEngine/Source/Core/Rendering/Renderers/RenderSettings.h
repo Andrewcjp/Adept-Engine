@@ -37,6 +37,6 @@ struct RenderConstants
 {
 	int MAX_DYNAMIC_POINT_SHADOWS;
 	int MAX_DYNAMIC_DIRECTIONAL_SHADOWS;
-	int MAX_LIGHTS = 4;
+	int MAX_LIGHTS;
 	RenderConstants();
 };

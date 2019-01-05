@@ -60,8 +60,9 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	AiTest->AttachComponent(new SpawningPool());
 	AiTest->SetPosition(glm::vec3(0, 0, 10));
 	Scene->AddGameobjectToScene(AiTest);
-	Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
-	Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
+	Pickup::SpawnPickup(glm::vec3(0, 1, -20), PickupType::Rifle_Ammo, 100);
+	Pickup::SpawnPickup(glm::vec3(0, 1, -22), PickupType::Gauss_Ammo, 100);
+	//Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
 	CollectDoors();
 }
 
@@ -93,6 +94,20 @@ void BleedOutGameMode::EndPlay()
 void BleedOutGameMode::Update()
 {
 	GameMode::Update();
+	if (GetPlayer() != nullptr)
+	{
+		float distance = glm::length(GetPlayer()->GetPosition() - glm::vec3(0, 1, -45));
+		if (distance < 5)
+		{
+			GameHud->DisplayText("Level Complete", 1000);
+			GameHud->ShowRestart();		
+			GetPlayer()->Destory();			
+		}
+	}
+	else
+	{
+		Input::SetCursorState(false, true);
+	}
 }
 
 void BleedOutGameMode::OnPlayerDeath()
@@ -100,7 +115,6 @@ void BleedOutGameMode::OnPlayerDeath()
 	GetPlayer()->Destory();
 	BleedOutHud* Tghud = (BleedOutHud*)Hud;
 	Tghud->ShowRestart();
-
 }
 
 void BleedOutGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
@@ -157,7 +171,7 @@ void BleedOutGameMode::CollectDoors()
 	New.Down();
 	Doors.push_back(New);
 	New = Door();
-	New.Init(CurrentScene->FindByName("ExitDoor"));	
+	New.Init(CurrentScene->FindByName("ExitDoor"));
 	Doors.push_back(New);
 }
 

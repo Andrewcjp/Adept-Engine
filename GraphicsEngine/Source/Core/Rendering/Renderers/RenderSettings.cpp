@@ -38,4 +38,5 @@ RenderConstants::RenderConstants()
 {
 	MAX_DYNAMIC_POINT_SHADOWS = 4;
 	MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
+	MAX_LIGHTS = 8;
 }
