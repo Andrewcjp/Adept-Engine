@@ -17,7 +17,7 @@ GameWindow::~GameWindow()
 #define SKIP_MM 0
 void GameWindow::PostInitWindow(int width, int height)
 {
-	//FrameRateLimit = 60;
+	FrameRateLimit = 60;
 	Log::OutS << "Game Loaded" << Log::OutS;
 
 	//LoadScene("\\asset\\scene\\testscene.scene");

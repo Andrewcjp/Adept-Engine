@@ -47,8 +47,8 @@ void BTRifleAttackNode::OnAddedToTree()
 
 void BTRifleAttackNode::Run()
 {
-	CurrentDelay -= Engine::GetDeltaTime();
-	CurrentBurstCoolDown -= Engine::GetDeltaTime();
+	CurrentDelay -= ParentTree->GetTickDeltaTime();
+	CurrentBurstCoolDown -= ParentTree->GetTickDeltaTime();
 	if (CurrentDelay > 0.0f || CurrentBurstCoolDown > 0.0f)
 	{
 		return;

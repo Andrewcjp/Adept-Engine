@@ -19,6 +19,7 @@ public:
 	CORE_API virtual GameMode* CreateGameMode();
 	CORE_API virtual AIDirector* CreateAIDirector();
 	CORE_API virtual GameHud* CreateGameHUD();
+	CORE_API virtual std::vector<std::string> GetPreLoadAssets();
 	void Init();
 protected:
 	ExtraComponentRegister * ECR = nullptr;

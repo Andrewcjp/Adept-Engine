@@ -26,15 +26,15 @@ void BT_PossessedSoldier::SetupTree()
 	//secondly Shoot the Player if Can be seen (RayCheckValid)
 	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
 	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 50));
-	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::GreaterThan, 10));
+	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::GreaterThan, 5));
 	selector->AddDecorator(new BaseDecorator(RayCheckValid, EDecoratorTestType::GreaterThanEqual, 1));
 	selector->AddService(new Service_PlayerCheck(obj, Distance, RayCheckValid));
 	selector->AddChildNode<BTRifleAttackNode>(new BTRifleAttackNode(obj));
-	//selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.4f));
+	selector->AddChildNode<BTWaitNode>(new BTWaitNode(4.0f));
 
 #if 1
 	selector = RootNode->AddChildNode<BTSelectorNode>(new BTSelectorNode());
-	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 3));
+	selector->AddDecorator(new BaseDecorator(Distance, EDecoratorTestType::LessThanEqual, 5));
 	selector->AddChildNode<BTRifleAttackNode>(new BTMeleeAttackNode());
 	//selector->AddChildNode<BTWaitNode>(new BTWaitNode(0.3f));
 #endif

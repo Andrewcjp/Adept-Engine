@@ -1,7 +1,7 @@
 #pragma once
 //Used to Detect Object leaks!
 
-#define DETECT_MEMORY_LEAKS 1
+
 #if DETECT_MEMORY_LEAKS
 class RefCheckerContainer
 {
@@ -43,10 +43,13 @@ public:
 	}
 	int LogRefs()
 	{
-		check(Refs.size() == 0);
+		//check(Refs.size() == 0);
 		if (Refs.size() != 0)
 		{
-			Log::LogMessage("Objects Leaked!", Log::Error);
+			for (int i = 0; i < Refs.size(); i++)
+			{
+				Log::LogMessage("Object Leaked " + std::string(Refs[i]->GetDebugName()), Log::Error);
+			}
 		}
 		return (int)Refs.size();
 	}

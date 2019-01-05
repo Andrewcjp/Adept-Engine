@@ -12,7 +12,7 @@ public:
 	AIDirector * CreateAIDirector() override;
 
 	virtual GameHud* CreateGameHUD() override;
-
+	std::vector<std::string> GetPreLoadAssets() override;
 };
 
 

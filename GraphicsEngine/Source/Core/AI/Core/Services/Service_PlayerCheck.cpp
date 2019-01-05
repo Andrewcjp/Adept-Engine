@@ -58,8 +58,8 @@ void Service_PlayerCheck::Tick()
 
 		if (Engine::GetPhysEngineInstance()->RayCastScene(Pos, DirToPlayer, VisionDistance, &hit, IgnoreActors))
 		{
-			/*DebugDrawers::DrawDebugLine(Pos, Pos + DirToPlayer * VisionDistance, (hit.HitObject == t) ? glm::vec3(1) : glm::vec3(1, 0, 0), false, 0.5f);
-			DebugDrawers::DrawDebugSphere(hit.position, 1.0f, glm::vec3(1), 12, false, 0.5);*/
+			DebugDrawers::DrawDebugLine(Pos, Pos + DirToPlayer * VisionDistance, (hit.HitObject == t) ? glm::vec3(1) : glm::vec3(1, 0, 0), false, 0.5f);
+			//DebugDrawers::DrawDebugSphere(hit.position, 1.0f, glm::vec3(1), 12, false, 0.5);*/
 			RayCheckValue->IntValue = (hit.HitObject == t);
 		}
 		else

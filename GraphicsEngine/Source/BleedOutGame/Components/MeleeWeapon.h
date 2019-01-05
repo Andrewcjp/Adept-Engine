@@ -19,5 +19,7 @@ public:
 private:
 	float AttackLength = 0.2f;
 	float CurrentAttackTime = 0.0f;
+	float AttackCooldown = 0.5f;
+	float CurrentAttackCoolDown = 0.0f;
 };
 

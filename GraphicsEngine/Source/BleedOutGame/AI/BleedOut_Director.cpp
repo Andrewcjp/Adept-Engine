@@ -341,7 +341,7 @@ AttackController * BleedOut_Director::GetPlayerAttackController()
 	return PlayerAttackController;
 }
 
-static ConsoleVariable NoAttackMode("NOATK", 1, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable NoAttackMode("NOATK", 0, ECVarType::ConsoleAndLaunch);
 int BleedOut_Director::GetMaxAttackingAI()
 {
 	if (NoAttackMode.GetBoolValue())

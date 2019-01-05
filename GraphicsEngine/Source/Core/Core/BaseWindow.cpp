@@ -16,6 +16,7 @@
 #include "Audio/AudioEngine.h"
 #include "AI/Core/AISystem.h"
 #include "UI/Core/UIWidgetContext.h"
+#include "Assets/AssetManager.h"
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -60,6 +61,11 @@ void BaseWindow::InitilseWindow()
 	Log::LogMessage("Scene initialized");
 	LineDrawer = new DebugLineDrawer();
 	Saver = new SceneJSerialiser();
+	std::vector<std::string> PreLoadTextures = Engine::GetGame()->GetPreLoadAssets();
+	for (int i = 0; i < PreLoadTextures.size(); i++)
+	{
+		AssetManager::DirectLoadTextureAsset(PreLoadTextures[i]);
+	}
 }
 
 void BaseWindow::FixedUpdate()

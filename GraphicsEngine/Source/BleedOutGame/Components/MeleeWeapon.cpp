@@ -16,19 +16,23 @@ bool MeleeWeapon::Fire()
 	{
 		return false;
 	}
+	if (CurrentAttackCoolDown > 0.0f)
+	{
+		return false;
+	}
 	AudioEngine::PostEvent("Melee_Move", GetOwner());
-	//do a box cast or something!
 	Collider->SetEnabled(true);
 	CurrentAttackTime = AttackLength;
+	CurrentAttackCoolDown = AttackCooldown;
 	return true;
 }
 
 void MeleeWeapon::Update(float delta)
 {
 	Weapon::Update(delta);
+	CurrentAttackCoolDown -= delta;
 	if (CurrentAttackTime >= 0.0f)
 	{
-		//todo: attack time and attack delay
 		CurrentAttackTime -= delta;
 	}
 	else if (Collider != nullptr)

@@ -42,3 +42,8 @@ void BehaviourTree::SetupTree()
 {
 	AIBasePtr = AIGameObject->GetComponent<AIBase>();
 }
+
+float BehaviourTree::GetTickDeltaTime()
+{
+	return UpdateRate;
+}
