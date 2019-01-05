@@ -4,6 +4,9 @@
 #include "Source/BleedOutGame/Components/Health.h"
 #include "Source/BleedOutGame/Components/Weapon.h"
 #include "Source/BleedOutGame/BleedOutPCH.h"
+#include "AI/Core/AISystem.h"
+#include "BleedOut_Director.h"
+#include "../BleedOutGameMode.h"
 
 
 B_AIBase::B_AIBase()
@@ -29,6 +32,19 @@ bool B_AIBase::FireAt(glm::vec3 pos)
 void B_AIBase::OnDead()
 {
 	AIBase::SetDead();
+	Health* H = GetOwner()->GetComponent<Health>();
+	if (H != nullptr)
+	{
+		float AMt = H->MaxHealth *GameMode->GetDifficultyPreset().AITransferPC;
+		H = GameMode->GetPlayer()->GetComponent<Health>();
+		H->AddHealth(AMt);
+	}
+}
+
+void B_AIBase::SceneInitComponent()
+{
+	AIBase::SceneInitComponent();
+	GameMode = (BleedOutGameMode*)GetOwner()->GetScene()->GetGameMode();
 }
 
 void B_AIBase::InitComponent()

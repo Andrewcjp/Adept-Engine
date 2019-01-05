@@ -7,6 +7,7 @@
 #include "WeaponManager.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "Audio/AudioEngine.h"
+#include <iomanip>
 BleedOutPlayer::BleedOutPlayer()
 {}
 
@@ -25,8 +26,28 @@ void BleedOutPlayer::OnCollide(CollisonData data)
 std::string BleedOutPlayer::GetInfoString()
 {
 	std::stringstream ss;
-	ss << Manager->GetCurrentWeaponinfoString() << " Health " << Mhealth->GetCurrentHealth();
+	ss << Manager->GetCurrentWeaponinfoString() << " Health "<< std::fixed << std::setprecision(1) << Mhealth->GetCurrentHealth();
+	ss << " Time to Death " << std::setprecision(2) << SecondsLeft<<"s ";
 	return ss.str();
+}
+
+glm::vec3 BleedOutPlayer::GetColour()
+{
+	float H = Mhealth->GetCurrentHealth();
+	if (H >= 50)
+	{
+		return glm::vec3(1);
+	}
+	if (H <= 1)
+	{
+		return glm::vec3(1, 0, 0);
+	}
+	return glm::mix(glm::vec3(1, 0, 0), glm::vec3(1), H / 50);
+}
+
+float BleedOutPlayer::GetPlayerHealth()
+{
+	return Mhealth->GetCurrentHealth();
 }
 
 void BleedOutPlayer::CheckForGround()
@@ -71,7 +92,11 @@ void BleedOutPlayer::BeginPlay()
 	CameraObject->GetTransform()->SetLocalPosition(glm::vec3(0, EyeHeight, 0));
 	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
 }
-
+void BleedOutPlayer::TickBleedout()
+{
+	Mhealth->TakeDamage(BleedOutRate*Engine::GetDeltaTime(), true);
+	SecondsLeft = Mhealth->GetCurrentHealth() / BleedOutRate;
+}
 static ConsoleVariable Sensitivity("sensitivity", 1.0f, ECVarType::ConsoleOnly);
 static ConsoleVariable GodMode("god", 0, ECVarType::ConsoleAndLaunch);
 void BleedOutPlayer::Update(float delta)
@@ -82,6 +107,7 @@ void BleedOutPlayer::Update(float delta)
 		return;
 	}
 #endif
+	TickBleedout();
 	CheckForGround();
 	UpdateMovement(delta);
 

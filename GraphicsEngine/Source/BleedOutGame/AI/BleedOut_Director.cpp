@@ -14,6 +14,7 @@
 #include "SkullChaser.h"
 #include "Source/BleedOutGame/Components/Health.h"
 #include "Source/BleedOutGame/Components/MeleeWeapon.h"
+#include "../BleedOutGameMode.h"
 
 BleedOut_Director::BleedOut_Director()
 {
@@ -21,6 +22,7 @@ BleedOut_Director::BleedOut_Director()
 	StateSets->SetDefault();
 	PlayerAttackController = new AttackController();
 	PlayerAttackController->OwningDirector = this;
+	
 }
 
 BleedOut_Director::~BleedOut_Director()
@@ -30,6 +32,10 @@ BleedOut_Director::~BleedOut_Director()
 
 void BleedOut_Director::Tick()
 {
+	if (GameMode == nullptr)
+	{
+		GameMode = (BleedOutGameMode*)scene->GetGameMode();
+	}
 	if (!once && SpawnDelay < 0)
 	{
 		SpawnAI(glm::vec3(-5, 20, 0), EAIType::PossessedSoldier);
@@ -46,6 +52,7 @@ void BleedOut_Director::Tick()
 			TickNewAIQueue();//todo: delay?
 		}//currently this will not handle 
 	}
+	
 }
 
 int BleedOut_Director::GetSpawnedScore()
@@ -117,6 +124,8 @@ void BleedOut_Director::NotifySpawningPoolDestruction()
 	//lock the area
 	//Spawn A Wave!
 	SetState(EWaveStage::Starting);
+	
+	GameMode->SetRoomLocked();
 }
 
 GameObject* BleedOut_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
@@ -288,6 +297,10 @@ void BleedOut_Director::TryMoveNextState()
 	if (CurrentSpawnScore <= state->NextStageThreshold)//has the player killed enough AI to progress to the next wave?
 	{
 		SetState((EWaveStage::Type)(1 + (int)CurrnetStage));
+		if (CurrnetStage == EWaveStage::EndState)
+		{
+			GameMode->UnlockNextRoom();
+		}
 	}
 }
 
@@ -327,14 +340,15 @@ AttackController * BleedOut_Director::GetPlayerAttackController()
 {
 	return PlayerAttackController;
 }
+
 static ConsoleVariable NoAttackMode("NOATK", 1, ECVarType::ConsoleAndLaunch);
 int BleedOut_Director::GetMaxAttackingAI()
 {
 	if (NoAttackMode.GetBoolValue())
 	{
 		return 0;
-	}
-	return CurrentPreset.MaxAttackingAI;
+	}	
+	return GameMode->GetDifficultyPreset().MaxAttackingAI;
 }
 
 int BleedOut_Director::GetAiScore(EAIType::Type t)

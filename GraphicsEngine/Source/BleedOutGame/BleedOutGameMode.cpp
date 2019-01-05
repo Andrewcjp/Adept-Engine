@@ -43,12 +43,13 @@ GameObject* MakeTestSphere(Scene* Scene, bool Static = false)
 void BleedOutGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
+	GameHud = (BleedOutHud*)Hud;
 #if 1
 	GameObject* A = MakeTestSphere(Scene, true);
 	GameObject* B = MakeTestSphere(Scene);
 	B->SetPosition(glm::vec3(10, 10, 0));
 	ConstaintSetup data;
-//	data.Desc.Dampening = 0.2f;
+	//	data.Desc.Dampening = 0.2f;
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<ColliderComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
 
@@ -61,12 +62,7 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	Scene->AddGameobjectToScene(AiTest);
 	Pickup::SpawnPickup(glm::vec3(0, 1, -10), PickupType::Rifle_Ammo, 10);
 	Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
-#if 0
-	GameObject* AiTest = MakeTestSphere(Scene);
-	AiTest->SetPosition(glm::vec3(50, -2, 0));
-	AIController* controller = AiTest->AttachComponent(new AIController());
-	controller->MoveTo(player->GetOwner());
-#endif
+	CollectDoors();
 }
 
 void BleedOutGameMode::SpawnSKull(glm::vec3 Position)
@@ -126,6 +122,7 @@ void BleedOutGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	Health* H = go->AttachComponent(new Health());
 	H->BindDeathCallback(std::bind(&BleedOutGameMode::OnPlayerDeath, this));
 	BleedOutPlayer* player = go->AttachComponent(new BleedOutPlayer());
+	player->BleedOutRate = GetDifficultyPreset().BeedOutSpeed;
 	BodyInstanceData lock;
 	lock.LockXRot = true;
 	lock.LockZRot = true;
@@ -148,9 +145,60 @@ void BleedOutGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	cc->Radius = 2.0f;
 	cc->IsTrigger = true;
 	manager->Melee->Collider = cc;
-
-
 	Scene->AddGameobjectToScene(Cam);
 	Scene->AddGameobjectToScene(go);
 	AISystem::Get()->GetDirector<BleedOut_Director>()->SetPlayer(player->GetOwner());
+}
+
+void BleedOutGameMode::CollectDoors()
+{
+	Door New = Door();
+	New.Init(CurrentScene->FindByName("EntryDoor"));
+	New.Down();
+	Doors.push_back(New);
+	New = Door();
+	New.Init(CurrentScene->FindByName("ExitDoor"));	
+	Doors.push_back(New);
+}
+
+void BleedOutGameMode::SetRoomLocked()
+{
+	for (int i = 0; i < Doors.size(); i++)
+	{
+		Doors[i].Up();
+	}
+}
+
+void BleedOutGameMode::UnlockNextRoom()
+{
+	Doors[0].Down();
+	Doors[1].Down();//todo: next room 
+}
+
+const DifficultyPreset& BleedOutGameMode::GetDifficultyPreset()
+{
+	return CurrentDifficluty;
+}
+
+void BleedOutGameMode::CompleteGame()
+{
+	IsGameComplete = true;
+	GameHud->DisplayText("Level Complete", 10.0f);
+}
+
+void Door::Init(GameObject * Obj)
+{
+	Door = Obj;
+	UpPos = Obj->GetPosition();
+	DownPos = UpPos - glm::vec3(0, 10, 0);
+}
+
+void Door::Down()
+{
+	Door->SetPosition(DownPos);
+}
+
+void Door::Up()
+{
+	Door->SetPosition(UpPos);
 }

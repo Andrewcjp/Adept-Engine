@@ -28,6 +28,9 @@ public:
 	void StartScene();
 	void LoadDefault();
 	void LoadExampleScene(RenderEngine * Renderer, bool IsDeferredMode);
+
+	void SpawnDoor(std::string name, glm::vec3 pos);
+
 	std::vector<Light*>* GetLights()
 	{
 		return &Lights;
@@ -76,6 +79,8 @@ public:
 	{
 		return IsDestruction;
 	}
+	int FindAllOfName(std::string name, std::vector<GameObject*>& Objects);
+	CORE_API GameObject * FindByName(std::string name);
 private:
 	bool IsDestruction = false;
 	float GravityStrength = 20.0f;

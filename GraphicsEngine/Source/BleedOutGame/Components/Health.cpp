@@ -10,16 +10,19 @@ Health::Health()
 Health::~Health()
 {}
 
-void Health::TakeDamage(float amt)
+void Health::TakeDamage(float amt, bool BlockSound /*= false*/)
 {
 	if (DeathCalled)
 	{
 		Log::LogMessage("Hit dead object");
 		return;
 	}
-	std::stringstream ss;
-	ss << "object: " << GetOwner()->GetName() << " took damage " << amt;
-	Log::LogMessage(ss.str());
+	if (!BlockSound)
+	{
+		std::stringstream ss;
+		ss << "object: " << GetOwner()->GetName() << " took damage " << amt;
+		Log::LogMessage(ss.str());
+	}
 	CurrentHealth -= amt;
 	if (CurrentHealth <= 0 && Damageable)
 	{
@@ -33,7 +36,7 @@ void Health::TakeDamage(float amt)
 		}
 		DeathCalled = true;
 	}
-	if (GetOwner()->Tags.Contains(Tag("player")))
+	if (GetOwner()->Tags.Contains(Tag("player")) && !BlockSound)
 	{
 		AudioEngine::PostEvent("Melee_Hit", GetOwner());
 	}

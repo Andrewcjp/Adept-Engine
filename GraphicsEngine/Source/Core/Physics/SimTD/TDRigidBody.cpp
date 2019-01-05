@@ -62,7 +62,7 @@ void TDRigidBody::AttachCollider(Collider * col)
 		case EShapeType::eBOX:
 		{
 			BoxElem* BoxShape = (BoxElem*)Shape;
-			newShape = new TD::TDBox();
+			newShape = new TD::TDBox(BoxShape->Extents);
 			break;
 		}
 		case EShapeType::eCAPSULE:
@@ -185,10 +185,10 @@ void TDRigidBody::InitBody()
 
 void TDRigidBody::SetPositionAndRotation(glm::vec3 pos, glm::quat rot)
 {
-	if (Actor)
+	if (CommonActorPTr)
 	{
-		Actor->GetTransfrom()->SetPos(pos);
-		Actor->GetTransfrom()->SetQrot(rot);
+		CommonActorPTr->GetTransfrom()->SetPos(pos);
+		CommonActorPTr->GetTransfrom()->SetQrot(rot);
 	}
 }
 

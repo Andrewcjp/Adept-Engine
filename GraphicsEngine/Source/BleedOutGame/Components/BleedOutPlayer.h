@@ -17,6 +17,7 @@ public:
 	std::string GetInfoString();
 
 	virtual void BeginPlay() override;
+	void TickBleedout();
 	virtual void Update(float delta) override;
 	RigidbodyComponent* GetRBody()
 	{
@@ -29,6 +30,9 @@ public:
 	}
 	glm::vec3 ExtraVel = glm::vec3();
 	WeaponManager* Manager = nullptr;
+	glm::vec3 GetColour();
+	float BleedOutRate = 1.0f;
+	float GetPlayerHealth();
 private:
 	void CheckForGround();
 	void UpdateMovement(float delta);
@@ -48,5 +52,7 @@ private:
 	Health* Mhealth = nullptr;
 	glm::vec3 CurrnetRot = glm::vec3(0);
 	float CurrnetTime = 0.0f;
+	
+	float SecondsLeft = 0.0f;
 };
 

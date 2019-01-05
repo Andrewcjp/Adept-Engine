@@ -8,6 +8,11 @@ namespace TD
 		ShapeType = TDShapeType::eBOX;
 	}
 
+	TDBox::TDBox(glm::vec3 Extends):TDBox()
+	{
+		HalfExtends = Extends;
+	}
+
 	TDBox::~TDBox()
 	{}
 

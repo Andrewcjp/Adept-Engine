@@ -47,6 +47,7 @@ void ColliderComponent::ProcessSerialArchive(Archive * A)
 {
 	Component::ProcessSerialArchive(A);
 	ArchiveProp_Enum(CollisionShapeType, EShapeType::Type);
+	ArchiveProp(LocalOffset);
 	if (CollisionShapeType == EShapeType::eBOX)
 	{
 		ArchiveProp(BoxExtents);
@@ -98,7 +99,6 @@ void ColliderComponent::RenderShape()
 			DebugDrawers::DrawDebugSphere(GetOwner()->GetPosition() + LocalOffset, Radius, colour);
 			break;
 		case EShapeType::eTRIANGLEMESH:
-			return;
 			for (int i = 0; i < Points.size(); i++)
 			{
 				for (int x = 0; x < 3; x++)

@@ -6,6 +6,7 @@ UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h,
 {
 	MText = text;
 	TextScale = TextDefaultScale;
+	Colour = glm::vec3(1);
 }
 
 
@@ -16,7 +17,7 @@ void UILabel::Render()
 {
 	if (OwningContext)
 	{
-		OwningContext->RenderTextToScreen(MText, OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale)), TextScale, glm::vec3(1));
+		OwningContext->RenderTextToScreen(MText, OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale)), TextScale, Colour);
 	}
 }
 

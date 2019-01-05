@@ -5,7 +5,7 @@ class Health : public Component
 public:
 	Health();
 	~Health();
-	void TakeDamage(float amt);
+	void TakeDamage(float amt, bool BlockSound = false);
 	float MaxHealth = 100.0f;
 	float GetCurrentHealth()
 	{

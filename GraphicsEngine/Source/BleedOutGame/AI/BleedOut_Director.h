@@ -1,13 +1,7 @@
 #pragma once
 #include "AI/Core/AIDirector.h"
 #include "Core/Types/WeakObjectPtr.h"
-struct AIDirector_DifficultyPreset
-{
-	int WaveEnemyCount = 1;
-	//when closer to 1 more high level AI will be spawned
-	float SizeWeighting = 0.5f;//normal value;
-	int MaxAttackingAI = 3;
-};
+
 namespace EAIType
 {
 	enum Type
@@ -58,6 +52,7 @@ private:
 };
 class GameObject;
 class AttackController;
+class BleedOutGameMode;
 class BleedOut_Director : public AIDirector
 {
 public:
@@ -90,11 +85,10 @@ private:
 	int GetAiScore(EAIType::Type);
 	std::queue<EAIType::Type> IncomingAI;
 	std::vector<SpawnedAi*> CurrentlySpawnedAI;
-	AIDirector_DifficultyPreset CurrentPreset = AIDirector_DifficultyPreset();
 	bool once = false;
 	int DifficultyScoreMax = 5;
 	int CurrentSpawnScore = 0;
-
+	BleedOutGameMode* GameMode = nullptr;
 	DirectorStateSet* StateSets = nullptr;
 	EWaveStage::Type CurrnetStage = EWaveStage::Limit;
 	AttackController* PlayerAttackController = nullptr;//For single player 
