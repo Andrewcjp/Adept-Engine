@@ -83,6 +83,7 @@ void Scene::StartScene()
 	{
 		SceneObjects[i]->BeginPlay();
 	}
+	
 }
 
 void Scene::LoadDefault()
@@ -281,18 +282,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
 
-	go = new GameObject("Door1");
-	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\Door.obj"), mat));
-	go->GetTransform()->SetPos(glm::vec3(0, 0, 25));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(1));
-#if 1
-	cc = go->AttachComponent(new ColliderComponent());
-	cc->SetCollisonShape(EShapeType::eBOX);
-#endif
-	AddGameobjectToScene(go);
+	SpawnDoor("EntryDoor", glm::vec3(0, 0, 25));
+
+	SpawnDoor("ExitDoor", glm::vec3(0, 0, -34));
 
 	go = new GameObject("spawn");
 	go->GetTransform()->SetPos(glm::vec3(30, 5, -5));
@@ -368,10 +360,26 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));
 			AddGameobjectToScene(go);
-			}
 		}
-#endif
 	}
+#endif
+}
+
+void Scene::SpawnDoor(std::string name, glm::vec3 pos)
+{
+	GameObject* go = new GameObject(name);
+	Material* mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\Door.obj"), mat));
+	go->GetTransform()->SetPos(pos);
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	ColliderComponent* cc = go->AttachComponent(new ColliderComponent());
+	cc->SetCollisonShape(EShapeType::eBOX);
+	cc->LocalOffset = glm::vec3(0, 2, 0);
+	cc->BoxExtents = glm::vec3(3, 3, 1);
+	AddGameobjectToScene(go);
+}
 
 void Scene::RemoveCamera(Camera * Cam)
 {
@@ -458,6 +466,30 @@ GameObject * Scene::CreateDebugSphere(Scene* s)
 		s->AddGameobjectToScene(go);
 	}
 	return go;
+}
+
+int Scene::FindAllOfName(std::string name, std::vector<GameObject*>& Objects)
+{
+	for (int i = 0; i < SceneObjects.size(); i++)
+	{
+		if (SceneObjects[i]->GetName() == name)
+		{
+			Objects.push_back(SceneObjects[i]);
+		}
+	}
+	return (int)Objects.size();
+}
+
+GameObject* Scene::FindByName(std::string name)
+{
+	for (int i = 0; i < SceneObjects.size(); i++)
+	{
+		if (SceneObjects[i]->GetName() == name)
+		{
+			return SceneObjects[i];
+		}
+	}
+	return nullptr;
 }
 
 void Scene::AddGameobjectToScene(GameObject* gameobject)

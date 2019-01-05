@@ -56,6 +56,7 @@ namespace TD
 		{
 			AABB->HalfExtends = newShape->GetBoundBoxHExtents();
 			AABB->Position = newShape->GetPos();
+			LocalAABBPos = newShape->LocalPos;
 		}
 		else
 		{

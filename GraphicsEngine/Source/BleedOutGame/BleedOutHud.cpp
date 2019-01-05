@@ -28,6 +28,16 @@ void BleedOutHud::OnStart()
 	ammoCounter->SetScaled(0.2f, 0.2f);
 	ammoCounter->TextScale = 0.45f;
 	Context->AddWidget(ammoCounter);
+	
+	InteractText = new UILabel("E To Interact", 0, 0, 0, 0);
+	InteractText->SetScaled(0.2f, 0.2f, 0.45f, 0.3f);
+	InteractText->TextScale = 0.5f;
+	Context->AddWidget(InteractText);
+
+	ObjectiveText = new UILabel("Objective: Reach the exit before time runs out", 0, 0, 0, 0);
+	ObjectiveText->SetScaled(0.2f, 0.2f, 0.3f, 0.6f);
+	ObjectiveText->TextScale = 0.65f;
+	Context->AddWidget(ObjectiveText);
 
 	ResumeBtn = new UIButton(0, 0);
 	const float xSize = 0.1f;
@@ -48,6 +58,8 @@ void BleedOutHud::OnStart()
 	ExitBtn->BindTarget(std::bind(&BleedOutHud::CloseGame, this));
 	ExitBtn->SetText("Quit");
 	Context->AddWidget(ExitBtn);
+	ShowInteractPrompt(false);
+	DisplayText("Objective: Reach the exit before time runs out", 3.0f);
 }
 
 void BleedOutHud::UnPause()
@@ -70,20 +82,27 @@ void BleedOutHud::OnUpdate()
 	if (Mode->GetPlayer() != nullptr)
 	{
 		BleedOutPlayer* player = Mode->GetPlayer()->GetComponent<BleedOutPlayer>();
+		const glm::vec3 UIColour = player->GetColour();
 		ammoCounter->SetEnabled(true);
 		if (player != nullptr)
 		{
+			ObjectiveText->Colour = UIColour;
+			ammoCounter->Colour = UIColour;
 			ammoCounter->SetText(player->GetInfoString());
+			if (player->GetPlayerHealth() <= 20)
+			{
+				DisplayText("LowHealth", 0.0016f);
+			}
 		}
 		const float Crosshairsize = 30.0f;
 		const float CentreExclude = 7.0f;
 		if (!gameMode->IsGamePaused())
 		{
 			const glm::vec3 ScreenCentre = glm::vec3(Context->Offset, 0) + glm::vec3(Context->GetWidth() / 2, Context->GetHeight() / 2, 0);
-			Context->GetLineBatcher()->AddLine(glm::vec3(1, 0, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(1, 0, 0) * Crosshairsize, glm::vec3(1));
-			Context->GetLineBatcher()->AddLine(glm::vec3(-1, 0, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(-1, 0, 0) * Crosshairsize, glm::vec3(1));
-			Context->GetLineBatcher()->AddLine(glm::vec3(0, 1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, 1, 0)*Crosshairsize, glm::vec3(1));
-			Context->GetLineBatcher()->AddLine(glm::vec3(0, -1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, -1, 0)*Crosshairsize, glm::vec3(1));
+			Context->GetLineBatcher()->AddLine(glm::vec3(1, 0, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(1, 0, 0) * Crosshairsize, UIColour);
+			Context->GetLineBatcher()->AddLine(glm::vec3(-1, 0, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(-1, 0, 0) * Crosshairsize, UIColour);
+			Context->GetLineBatcher()->AddLine(glm::vec3(0, 1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, 1, 0)*Crosshairsize, UIColour);
+			Context->GetLineBatcher()->AddLine(glm::vec3(0, -1, 0)*CentreExclude + ScreenCentre, ScreenCentre + glm::vec3(0, -1, 0)*Crosshairsize, UIColour);
 		}
 		if (gameMode->IsGamePaused() && !LastState)
 		{
@@ -97,8 +116,18 @@ void BleedOutHud::OnUpdate()
 		ResumeBtn->SetEnabled(gameMode->IsGamePaused());
 		ExitBtn->SetEnabled(gameMode->IsGamePaused());
 		RestartBtn->SetEnabled(gameMode->IsGamePaused());
+		DisplayTimeRemaining -= Engine::GetDeltaTime();
+		if (DisplayTimeRemaining <= 0)
+		{
+			ObjectiveText->SetEnabled(false);
+		}	
+		ShowInteractPrompt(false);
 	}
+}
 
+void BleedOutHud::ShowInteractPrompt(bool state)
+{
+	InteractText->SetEnabled(state); 
 }
 
 void BleedOutHud::ShowRestart()
@@ -113,4 +142,10 @@ void BleedOutHud::ShowRestart()
 void BleedOutHud::OnDestory()
 {
 
+}
+
+void BleedOutHud::DisplayText(std::string Test, float Time)
+{
+	DisplayTimeRemaining = Time;
+	ObjectiveText->SetEnabled(true);
 }

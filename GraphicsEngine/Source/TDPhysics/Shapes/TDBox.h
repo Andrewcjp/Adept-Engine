@@ -6,6 +6,7 @@ namespace TD
 	{
 	public:
 		TD_API TDBox();
+		TD_API TDBox(glm::vec3 HalfExtends);
 		~TDBox();
 		glm::vec3 HalfExtends = glm::vec3(1, 1, 1);
 		glm::mat3 Rotation = glm::mat3();

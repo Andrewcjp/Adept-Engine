@@ -2,6 +2,7 @@
 #include "AI/Core/AISystem.h"
 #include "Source/BleedOutGame/AI/BleedOut_Director.h"
 #include "Source/BleedOutGame/BleedOutGameMode.h"
+#include "Source/BleedOutGame/BleedOutHud.h"
 
 SpawningPool::SpawningPool()
 {}
@@ -25,12 +26,14 @@ void SpawningPool::OnDestroy()
 
 void SpawningPool::Update(float delta)
 {
+
 	BleedOutGameMode* t = (BleedOutGameMode*)GetOwnerScene()->GetGameMode();
 	if (t->GetPlayer() != nullptr)
 	{
 		const float distancetoplayer = glm::distance(GetOwner()->GetPosition(), t->GetPlayer()->GetPosition());
 		if (distancetoplayer < 5)
 		{
+			((BleedOutHud*)t->GetCurrentHudInstance())->ShowInteractPrompt(true);
 			if (Input::GetKeyDown('E'))
 			{
 				GetOwner()->Destory();
