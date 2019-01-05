@@ -178,10 +178,19 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		for (unsigned int i = 0; i < model->mNumFaces; i++)
 		{
 			const aiFace& face = model->mFaces[i];
-			ensure(face.mNumIndices == 3);
+		//	ensure(face.mNumIndices == 3);
 			indices.push_back(face.mIndices[0]);
 			indices.push_back(face.mIndices[1]);
-			indices.push_back(face.mIndices[2]);
+			if (face.mNumIndices != 3)
+			{
+				indices.push_back(0);
+			}
+			else
+			{
+				indices.push_back(face.mIndices[2]);
+			}
+
+			
 		}
 		MeshEntity* newmesh = nullptr;
 		if (HasAnim)

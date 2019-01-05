@@ -1,6 +1,7 @@
 #pragma once
 #include "AI/Core/AIDirector.h"
 #include "Core/Types/WeakObjectPtr.h"
+#include "../BleedOutGameMode.h"
 
 namespace EAIType
 {
@@ -76,6 +77,8 @@ public:
 	void SetState(EWaveStage::Type newstate);
 	AttackController* GetPlayerAttackController();
 	int GetMaxAttackingAI();
+	const DifficultyPreset* GetDifficultyPreset();
+	BleedOutGameMode* GameMode = nullptr;
 private:
 	struct SpawnedAi
 	{
@@ -88,7 +91,7 @@ private:
 	bool once = false;
 	int DifficultyScoreMax = 5;
 	int CurrentSpawnScore = 0;
-	BleedOutGameMode* GameMode = nullptr;
+	
 	DirectorStateSet* StateSets = nullptr;
 	EWaveStage::Type CurrnetStage = EWaveStage::Limit;
 	AttackController* PlayerAttackController = nullptr;//For single player 

@@ -29,7 +29,7 @@ void Input::ReciveMouseAxisData(glm::vec2 data)
 Input::Input()
 {
 	UseHighPrecisionMouseInput = false;
-	ProcessInput();
+	//ProcessInput();
 }
 
 Input::~Input()

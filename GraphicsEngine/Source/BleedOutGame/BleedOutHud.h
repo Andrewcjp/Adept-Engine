@@ -18,7 +18,7 @@ public:
 	void ShowInteractPrompt(bool state);
 	void ShowRestart();
 	virtual void OnDestory() override;
-	void DisplayText(std::string Test, float Time);
+	void DisplayText(std::string Test, float Time, float Xoffset);
 private:
 	UILabel* ObjectiveText = nullptr;
 	UILabel* InteractText = nullptr;

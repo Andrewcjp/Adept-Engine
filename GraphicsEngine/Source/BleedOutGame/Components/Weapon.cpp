@@ -1,9 +1,10 @@
 #include "Weapon.h"
-#include "Projectile.h"
 #include "Audio/AudioEngine.h"
 #include "BleedOutPlayer.h"
-#include "Core/Utils/DebugDrawers.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Utils/DebugDrawers.h"
+#include "Projectile.h"
+#include "Source/BleedOutGame/BleedOutGameMode.h"
 
 Weapon::Weapon(Weapon::WeaponType T, Scene* scene, BleedOutPlayer* player, GameObject* root)
 {
@@ -34,11 +35,12 @@ Weapon::Weapon(Weapon::WeaponType T, Scene* scene, BleedOutPlayer* player, GameO
 	else if (T == AIRifle)
 	{
 		CurrentSettings.FireDelay = 0.135f;
-		CurrentSettings.DamagePerShot = 10;
+		CurrentSettings.DamagePerShot = 10 * DifficultyPreset::Get()->RifleDamageMulti;
 		CurrentSettings.MaxAmmoCount = 250;
 		CurrentSettings.ShowProjectile = true;
 		CurrentAmmoCount = 250;
 	}
+	CurrentSettings.ShowProjectile = true;
 	Player = player;
 	CurrentWeaponType = T;
 	if (player != nullptr)

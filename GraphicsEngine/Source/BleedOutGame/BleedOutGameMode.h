@@ -10,6 +10,9 @@ struct DifficultyPreset
 	int MaxAttackingAI = 3;
 	float BeedOutSpeed = 1.5f;
 	float AITransferPC = 0.2f;
+	float MeleeDamageMulti = 1.0f;
+	float RifleDamageMulti = 1.0f;
+	static const DifficultyPreset* Get();
 };
 
 struct Door
@@ -40,7 +43,7 @@ public:
 	void CollectDoors();
 	void SetRoomLocked();
 	void UnlockNextRoom();
-	const DifficultyPreset& GetDifficultyPreset();
+	const DifficultyPreset* GetDifficultyPreset();
 	void CompleteGame();
 	bool IsGameComplete = false;
 private:

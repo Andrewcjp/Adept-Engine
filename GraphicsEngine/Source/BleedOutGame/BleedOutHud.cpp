@@ -28,7 +28,7 @@ void BleedOutHud::OnStart()
 	ammoCounter->SetScaled(0.2f, 0.2f);
 	ammoCounter->TextScale = 0.45f;
 	Context->AddWidget(ammoCounter);
-	
+
 	InteractText = new UILabel("E To Interact", 0, 0, 0, 0);
 	InteractText->SetScaled(0.2f, 0.2f, 0.45f, 0.3f);
 	InteractText->TextScale = 0.5f;
@@ -59,7 +59,7 @@ void BleedOutHud::OnStart()
 	ExitBtn->SetText("Quit");
 	Context->AddWidget(ExitBtn);
 	ShowInteractPrompt(false);
-	DisplayText("Objective: Reach the exit before time runs out", 3.0f);
+	DisplayText("Objective: Reach the exit before time runs out", 3.0f, 0.0f);
 }
 
 void BleedOutHud::UnPause()
@@ -91,7 +91,7 @@ void BleedOutHud::OnUpdate()
 			ammoCounter->SetText(player->GetInfoString());
 			if (player->GetPlayerHealth() <= 20)
 			{
-				DisplayText("LowHealth", 0.0016f);
+				DisplayText("Low Health", 0.064f, 0.15f);
 			}
 		}
 		const float Crosshairsize = 30.0f;
@@ -120,14 +120,14 @@ void BleedOutHud::OnUpdate()
 		if (DisplayTimeRemaining <= 0)
 		{
 			ObjectiveText->SetEnabled(false);
-		}	
+		}
 		ShowInteractPrompt(false);
 	}
 }
 
 void BleedOutHud::ShowInteractPrompt(bool state)
 {
-	InteractText->SetEnabled(state); 
+	InteractText->SetEnabled(state);
 }
 
 void BleedOutHud::ShowRestart()
@@ -144,9 +144,11 @@ void BleedOutHud::OnDestory()
 
 }
 
-void BleedOutHud::DisplayText(std::string Text, float Time)
+void BleedOutHud::DisplayText(std::string Test, float Time, float Xoffset)
 {
 	DisplayTimeRemaining = Time;
-	ObjectiveText->SetText(Text);
+	ObjectiveText->SetText(Test);	
+	ObjectiveText->SetScaled(0.2f, 0.2f, 0.3f + Xoffset, 0.6f);
 	ObjectiveText->SetEnabled(true);
+	Context->UpdateBatches();
 }

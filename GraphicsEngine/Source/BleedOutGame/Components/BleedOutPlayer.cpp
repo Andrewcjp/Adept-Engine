@@ -26,8 +26,8 @@ void BleedOutPlayer::OnCollide(CollisonData data)
 std::string BleedOutPlayer::GetInfoString()
 {
 	std::stringstream ss;
-	ss << Manager->GetCurrentWeaponinfoString() << " Health "<< std::fixed << std::setprecision(1) << Mhealth->GetCurrentHealth();
-	ss << " Time to Death " << std::setprecision(2) << SecondsLeft<<"s ";
+	ss << Manager->GetCurrentWeaponinfoString() << " Health " << std::fixed << std::setprecision(1) << Mhealth->GetCurrentHealth();
+	ss << " Time to Death " << std::setprecision(2) << SecondsLeft << "s ";
 	return ss.str();
 }
 
@@ -90,7 +90,7 @@ void BleedOutPlayer::BeginPlay()
 	CameraObject->SetParent(GetOwner());
 	const float EyeHeight = 2.0f;
 	CameraObject->GetTransform()->SetLocalPosition(glm::vec3(0, EyeHeight, 0));
-	const glm::vec3 rot = GetOwner()->GetTransform()->GetEulerRot();
+	CurrnetRot.y = 180.0f;
 }
 void BleedOutPlayer::TickBleedout()
 {

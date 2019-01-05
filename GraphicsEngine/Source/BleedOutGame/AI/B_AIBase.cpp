@@ -35,7 +35,7 @@ void B_AIBase::OnDead()
 	Health* H = GetOwner()->GetComponent<Health>();
 	if (H != nullptr)
 	{
-		float AMt = H->MaxHealth *GameMode->GetDifficultyPreset().AITransferPC;
+		float AMt = H->MaxHealth *GameMode->GetDifficultyPreset()->AITransferPC;
 		if (GameMode->GetPlayer() != nullptr)
 		{
 			H = GameMode->GetPlayer()->GetComponent<Health>();
