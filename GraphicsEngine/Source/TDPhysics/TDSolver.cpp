@@ -396,47 +396,59 @@ namespace TD
 	void TDSolver::ProcessCollisionResponse(TDRigidDynamic * A, TDRigidDynamic * B, ContactData * data, const TDPhysicalMaterial * AMaterial, const TDPhysicalMaterial * BMaterial, int contactindex)
 	{
 		glm::vec3 RelVel = glm::vec3(0, 0, 0);
-#if ALLOW_ROT
+
 		glm::vec3 r1;
 		glm::vec3 r2;
 		glm::mat4 i1;
 		glm::mat4 i2;
-		if (A != nullptr)
+		if (TDPhysics::GetCurrentSimConfig()->EXP_EnableRot)
 		{
-			r1 = data->ContactPoints[contactindex] - A->GetTransfrom()->GetPos();
-			i1 = A->GetInertiaTensor();
+			if (A != nullptr)
+			{
+				r1 = data->ContactPoints[contactindex] - A->GetTransfrom()->GetPos();
+				i1 = A->GetInertiaTensor();
+			}
+			if (B != nullptr)
+			{
+				r2 = data->ContactPoints[contactindex] - B->GetTransfrom()->GetPos();
+				i2 = B->GetInertiaTensor();
+			}
 		}
-		if (B != nullptr)
-		{
-			r2 = data->ContactPoints[contactindex] - B->GetTransfrom()->GetPos();
-			i2 = B->GetInertiaTensor();
-		}
-#endif
 
 		if (A != nullptr && B != nullptr)
 		{
-#if ALLOW_ROT
-			RelVel = (A->GetLinearVelocity() + glm::cross(A->GetAngularVelocity(), r1)) - (B->GetLinearVelocity() + glm::cross(B->GetAngularVelocity(), r2));
-#else
-			RelVel = A->GetLinearVelocity() - B->GetLinearVelocity();
-#endif
+			if (TDPhysics::GetCurrentSimConfig()->EXP_EnableRot)
+			{
+				RelVel = (A->GetLinearVelocity() + glm::cross(A->GetAngularVelocity(), r1)) - (B->GetLinearVelocity() + glm::cross(B->GetAngularVelocity(), r2));
+			}
+			else
+			{
+				RelVel = A->GetLinearVelocity() - B->GetLinearVelocity();
+			}
 		}
 		else if (B != nullptr)
 		{
-#if ALLOW_ROT
-			RelVel = B->GetLinearVelocity() + glm::cross(B->GetAngularVelocity(), r2);
-#else
-			RelVel = B->GetLinearVelocity();
-#endif
-
+			if (TDPhysics::GetCurrentSimConfig()->EXP_EnableRot)
+			{
+				RelVel = B->GetLinearVelocity() + glm::cross(B->GetAngularVelocity(), r2);
+			}
+			else
+			{
+				RelVel = B->GetLinearVelocity();
+			}
 		}
 		else if (A != nullptr)
 		{
-#if ALLOW_ROT
-			RelVel = A->GetLinearVelocity() + glm::cross(A->GetAngularVelocity(), r1);
-#else
-			RelVel = A->GetLinearVelocity();
-#endif
+
+			if (TDPhysics::GetCurrentSimConfig()->EXP_EnableRot)
+			{
+				RelVel = A->GetLinearVelocity() + glm::cross(A->GetAngularVelocity(), r1);
+			}
+			else
+			{
+				RelVel = A->GetLinearVelocity();
+			}
+
 		}
 		const glm::vec3 RelNrm = glm::normalize(data->Direction[contactindex]);
 		if (glm::dot(RelVel, RelNrm) > 0.0f)
@@ -460,20 +472,24 @@ namespace TD
 
 		glm::vec3 d2 = glm::vec3(0);
 		glm::vec3 d3 = glm::vec3(0);
-#if ALLOW_ROT
-		if (A != nullptr)
-		{
-			d2 = glm::cross(glm::vec3(glm::vec4(glm::cross(r1, RelNrm), 0.0f)*i1), r1);
-		}
-		if (B != nullptr)
-		{
-			d3 = glm::cross(glm::vec3(glm::vec4(glm::cross(r2, RelNrm), 0.0f)*i2), r2);
-		}
-		float denominator = InvMassSum + glm::dot(RelNrm, d2 + d3);
-#else
-		float denominator = InvMassSum;
-#endif
+		float denominator = 0.0f;
 
+		if (TDPhysics::GetCurrentSimConfig()->EXP_EnableRot)
+		{
+			if (A != nullptr)
+			{
+				d2 = glm::cross(glm::vec3(glm::vec4(glm::cross(r1, RelNrm), 0.0f)*i1), r1);
+			}
+			if (B != nullptr)
+			{
+				d3 = glm::cross(glm::vec3(glm::vec4(glm::cross(r2, RelNrm), 0.0f)*i2), r2);
+			}
+			denominator = InvMassSum + glm::dot(RelNrm, d2 + d3);
+		}
+		else
+		{
+			denominator = InvMassSum;
+		}
 		float j = numerator / denominator;
 		if (denominator == 0.0f)
 		{
@@ -493,16 +509,20 @@ namespace TD
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - impluse * invmassB);
 		}
-#if ALLOW_ROT
-		if (A != nullptr)
+
+		if (TDPhysics::GetCurrentSimConfig()->EXP_EnableRot)
 		{
-			A->SetAngularVelocity(A->GetAngularVelocity() + glm::vec3(glm::vec4(glm::cross(r1, impluse), 0.0f)*i1));
+			if (A != nullptr)
+			{
+				A->SetAngularVelocity(A->GetAngularVelocity() + glm::vec3(glm::vec4(glm::cross(r1, impluse), 0.0f)*i1));
+			}
+			if (B != nullptr)
+			{
+				B->SetAngularVelocity(B->GetAngularVelocity() - glm::vec3(glm::vec4(glm::cross(r2, impluse), 0.0f)*i2));
+			}
 		}
-		if (B != nullptr)
-		{
-			B->SetAngularVelocity(B->GetAngularVelocity() - glm::vec3(glm::vec4(glm::cross(r2, impluse), 0.0f)*i2));
-		}
-#endif
+
+
 		//Apply Friction
 		glm::vec3 tangent = RelVel - (RelNrm * glm::dot(RelVel, RelNrm));
 		if (glm::length2(tangent) == 0.0f)
@@ -510,21 +530,26 @@ namespace TD
 			return;// no Size to tangent
 		}
 		tangent = glm::normalize(tangent);
-		
+
 		numerator = -glm::dot(RelVel, tangent);
-#if ALLOW_ROT
-		if (A != nullptr)
+
+		if (TDPhysics::GetCurrentSimConfig()->EXP_EnableRot)
 		{
-			d2 = glm::cross(glm::vec3(glm::vec4(glm::cross(r1, tangent), 0.0f)*i1), r1);
+			if (A != nullptr)
+			{
+				d2 = glm::cross(glm::vec3(glm::vec4(glm::cross(r1, tangent), 0.0f)*i1), r1);
+			}
+			if (B != nullptr)
+			{
+				d3 = glm::cross(glm::vec3(glm::vec4(glm::cross(r2, tangent), 0.0f)*i2), r2);
+			}
+			denominator = InvMassSum + glm::dot(tangent, d2 + d3);
 		}
-		if (B != nullptr)
+		else
 		{
-			d3 = glm::cross(glm::vec3(glm::vec4(glm::cross(r2, tangent), 0.0f)*i2), r2);
+			denominator = InvMassSum;
 		}
-		denominator = InvMassSum + glm::dot(tangent, d2 + d3);
-#else
-		denominator = InvMassSum;
-#endif
+
 		float jt = numerator / denominator;
 		if (data->ContactCount > 0 && jt != 0.0f)
 		{
@@ -549,15 +574,17 @@ namespace TD
 		{
 			B->SetLinearVelocity(B->GetLinearVelocity() - FrictionImpluse * invmassB);
 		}
-#if ALLOW_ROT
-		if (A != nullptr)
+
+		if (TDPhysics::GetCurrentSimConfig()->EXP_EnableRot)
 		{
-			A->SetAngularVelocity(A->GetAngularVelocity() + glm::vec3(i1 * glm::vec4(glm::cross(r1, FrictionImpluse), 0.0f)));
+			if (A != nullptr)
+			{
+				A->SetAngularVelocity(A->GetAngularVelocity() + glm::vec3(i1 * glm::vec4(glm::cross(r1, FrictionImpluse), 0.0f)));
+			}
+			if (B != nullptr)
+			{
+				B->SetAngularVelocity(B->GetAngularVelocity() - glm::vec3(i2 * glm::vec4(glm::cross(r2, FrictionImpluse), 0.0f)));
+			}
 		}
-		if (B != nullptr)
-		{
-			B->SetAngularVelocity(B->GetAngularVelocity() - glm::vec3(i2 * glm::vec4(glm::cross(r2, FrictionImpluse), 0.0f)));
-		}
-#endif
 	}
 }

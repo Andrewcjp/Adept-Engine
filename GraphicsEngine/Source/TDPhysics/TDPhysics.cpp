@@ -94,6 +94,9 @@ namespace TD
 			{
 				Instance->CurrentSimConfig = new TDSimConfig();
 			}
+#if !ALLOW_ROT
+			Instance->CurrentSimConfig->EXP_EnableRot = true;
+#endif
 		}
 		return Instance;
 	}

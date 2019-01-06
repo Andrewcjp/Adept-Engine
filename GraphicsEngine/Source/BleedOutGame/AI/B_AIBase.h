@@ -1,8 +1,10 @@
 #pragma once
 #include "AI/Core/AIBase.h"
+#include "../Components/BleedOutPlayer.h"
 
 class Weapon;
 class BleedOutGameMode;
+class RigidbodyComponent;
 class B_AIBase : public AIBase
 {
 public:
@@ -16,8 +18,12 @@ public:
 
 protected:
 	BleedOutGameMode* GameMode = nullptr;
+
+	virtual void Update(float dt) override;
+
 private:
 	virtual void InitComponent() override;
-
+	WalkAudio Walk;
+	RigidbodyComponent* RB = nullptr;
 };
 

@@ -269,7 +269,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	glm::vec3 startpos = glm::vec3(5, -5, 0);
 	float stride = 5.0f;
 	int size = 1;
-	int zsize = 2;
+	int zsize = 1;
 	for (int x = 0; x < size; x++)
 	{
 		for (int y = 0; y < size; y++)
@@ -328,8 +328,10 @@ void Scene::SpawnDoor(std::string name, glm::vec3 pos)
 {
 	GameObject* go = new GameObject(name);
 	Material* mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\Door.obj"), mat));
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\DoorTex.png"));
+	MeshLoader::FMeshLoadingSettings set;
+	set.FlipUVs = true;
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\Door.obj", set), mat));
 	go->GetTransform()->SetPos(pos);
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1.1f));

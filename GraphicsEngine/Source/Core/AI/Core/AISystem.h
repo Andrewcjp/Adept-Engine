@@ -27,6 +27,7 @@ namespace EAIDebugMode
 		Limit
 	};
 }
+
 struct NavigationPath;
 class AISystem
 {

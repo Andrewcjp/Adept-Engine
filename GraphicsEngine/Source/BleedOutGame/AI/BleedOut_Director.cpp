@@ -34,7 +34,7 @@ void BleedOut_Director::Tick()
 {
 	if (!once && SpawnDelay < 0)
 	{
-		SpawnAI(glm::vec3(-5, 20, 0), EAIType::PossessedSoldier);
+		SpawnAI(glm::vec3(-5, 20, 0), EAIType::HellKnight);
 		once = true;
 	}
 	SpawnDelay--;
@@ -157,7 +157,10 @@ GameObject* BleedOut_Director::SpawnAI(glm::vec3 SpawnPos, EAIType::Type type)
 GameObject * BleedOut_Director::CreateAI(glm::vec3 pos, float AttackRaduis, float BaseRaduis)
 {
 	GameObject* newAI = GameObject::Instantiate(pos);
-	newAI->AttachComponent(new RigidbodyComponent());
+	RigidbodyComponent*  rb = newAI->AttachComponent(new RigidbodyComponent());
+	rb->GetBodyData().LockXRot = true;
+	rb->GetBodyData().LockYRot = true;
+	rb->GetBodyData().LockZRot = true;
 	ColliderComponent* cc = newAI->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	cc->Radius = BaseRaduis;
@@ -217,12 +220,10 @@ GameObject* BleedOut_Director::SpawnSoldier(glm::vec3 pos)
 	AnimSetting.AllowInstancing = false;
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Texture\\vanguard_diffuse.png"));
 	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Possessed\\vanguard.fbx", AnimSetting), mat));
-	//mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Attack");
 	mrc->LoadAnimation("AlwaysCook\\Possessed\\Idle Aiming.fbx", "Idle");
-	//mrc->LoadAnimation("AlwaysCook\\Possessed\\vanguard_t_choonyung@Idle.fbx", "Idle");
 	mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Walk.fbx", "Walking");
-	mrc->LoadAnimation("AlwaysCook\\Possessed\\Death.fbx", "Death");//Rifle Punch
-	mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Punch.fbx", "Melee");
+	mrc->LoadAnimation("AlwaysCook\\Possessed\\Death.fbx", "Death");
+	mrc->LoadAnimation("AlwaysCook\\Possessed\\Rifle Punch.fbx", "Attack");
 
 	mrc->PlayAnim("Idle");
 	MeshC->GetTransform()->SetScale(glm::vec3(0.008f));

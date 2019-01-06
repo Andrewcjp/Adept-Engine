@@ -1,9 +1,9 @@
 #include "MeleeWeapon.h"
+#include "Audio/AudioEngine.h"
 #include "Core/Components/ColliderComponent.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Health.h"
-#include "Audio/AudioEngine.h"
-#include "../BleedOutGameMode.h"
+#include "Source/BleedOutGame/BleedOutGameMode.h"
 
 MeleeWeapon::MeleeWeapon()
 {}
@@ -21,7 +21,14 @@ bool MeleeWeapon::Fire()
 	{
 		return false;
 	}
-	AudioEngine::PostEvent("Melee_Move", GetOwner());
+	if (IsAi)
+	{
+		AudioEngine::PostEvent("AIMelee_Move", GetOwner());
+	}
+	else
+	{
+		AudioEngine::PostEvent("Melee_Move", GetOwner());
+	}
 	Collider->SetEnabled(true);
 	CurrentAttackTime = AttackLength;
 	CurrentAttackCoolDown = AttackCooldown;

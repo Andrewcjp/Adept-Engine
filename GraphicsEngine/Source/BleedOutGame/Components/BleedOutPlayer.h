@@ -4,6 +4,11 @@
 
 class Health;
 class WeaponManager;
+struct WalkAudio
+{
+	float CurrnetTime = 0.0f;
+	void Tick(GameObject* object, bool IsGrounded, glm::vec3 speed, bool isAI);
+};
 class BleedOutPlayer :public Component
 {
 public:
@@ -51,8 +56,9 @@ private:
 	bool Frontblocked = false;
 	Health* Mhealth = nullptr;
 	glm::vec3 CurrnetRot = glm::vec3(0);
-	float CurrnetTime = 0.0f;
+	WalkAudio Walk;
 	
 	float SecondsLeft = 0.0f;
 };
+
 

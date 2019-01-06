@@ -63,3 +63,8 @@ void GameMode::RestartLevel()
 {
 	((BaseWindow*)Engine::Get()->GetRenderWindow())->EnqueueRestart();
 }
+
+void GameMode::SetDiffcultyLevel(EGameDifficulty::Type Level)
+{
+	CurrnetLevel = Level;
+}

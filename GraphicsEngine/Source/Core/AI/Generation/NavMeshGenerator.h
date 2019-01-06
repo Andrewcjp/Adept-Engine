@@ -1,4 +1,13 @@
 #pragma once
+namespace ENavMeshType
+{
+	enum Type
+	{
+		Static,
+		Dynamic,
+		Limit
+	};
+}
 class Scene;
 class NavPlane;
 struct HeightField;
@@ -69,7 +78,8 @@ public:
 	std::vector<glm::vec3> Points;
 	std::vector<Tri> Triangles;
 	float ZHeight = 0.0f;
-
+	ENavMeshType::Type MeshType = ENavMeshType::Static;
+	bool IsNavDirty = false;
 private:
 	std::vector<DLTENode*> NavPoints;
 

@@ -50,7 +50,11 @@ AudioEngine::AudioEngine()
 {}
 AudioEngine::~AudioEngine()
 {}
-
+static void CallBack(AK::Monitor::ErrorCode in_eErrorCode, const AkOSChar *in_pszError, AK::Monitor::ErrorLevel in_eErrorLevel, AkPlayingID in_playingID, AkGameObjectID in_gameObjID)
+{
+	std::wstring str(in_pszError);
+	Log::LogMessage("AK: " + std::to_string(in_eErrorCode) + " " + StringUtils::ConvertWideToString(str));
+}
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 bool AudioEngine::Init()
 {
@@ -118,8 +122,10 @@ bool AudioEngine::Init()
 		return false;
 	}
 #endif // AK_OPTIMIZED
+	AK::Monitor::SetLocalOutput(AK::Monitor::ErrorLevel_All, &CallBack);
 	Log::LogMessage("WWise Initalised");
 	LoadBanks();
+
 	return true;
 }
 void AudioEngine::Terminate()
@@ -147,6 +153,7 @@ void AudioEngine::ProcessAudio()
 	AK::SoundEngine::RenderAudio();
 }
 const AkGameObjectID GAME_OBJECT_ID_DEFAULT = 0;
+
 void AudioEngine::PostEvent(FString name, GameObject * Obj)
 {
 	int outputid = 0;
@@ -163,6 +170,7 @@ void AudioEngine::PostEvent(FString name, GameObject * Obj)
 		Log::LogMessage("Failed to post event \"" + name.ToSString() + "\"", Log::Severity::Error);
 	}
 }
+
 
 void AudioEngine::LoadBanks()
 {

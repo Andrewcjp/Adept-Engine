@@ -15,6 +15,10 @@ BTMeleeAttackNode::BTMeleeAttackNode()
 void BTMeleeAttackNode::OnAddedToTree()
 {
 	weapon = ParentTree->AIGameObject->GetComponent<MeleeWeapon>();
+	if (weapon != nullptr)
+	{
+		weapon->IsAi = true;
+	}
 }
 
 EBTNodeReturn::Type BTMeleeAttackNode::ExecuteNode()

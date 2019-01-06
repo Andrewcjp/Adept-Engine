@@ -16,6 +16,7 @@ public:
 
 	virtual void BeginPlay() override;
 	float AttackDamage = 50.0f;
+	bool IsAi = false;
 private:
 	float AttackLength = 0.2f;
 	float CurrentAttackTime = 0.0f;

@@ -7,6 +7,7 @@
 #include "AI/Core/AISystem.h"
 #include "BleedOut_Director.h"
 #include "../BleedOutGameMode.h"
+#include "Core/Components/RigidbodyComponent.h"
 
 
 B_AIBase::B_AIBase()
@@ -50,10 +51,20 @@ void B_AIBase::SceneInitComponent()
 	GameMode = (BleedOutGameMode*)GetOwner()->GetScene()->GetGameMode();
 }
 
+void B_AIBase::Update(float dt)
+{
+	AIBase::Update(dt);
+	if (RB != nullptr)
+	{
+		Walk.Tick(GetOwner(), true, RB->GetVelocity(), true);
+	}
+}
+
 void B_AIBase::InitComponent()
 {
 	AIBase::InitComponent();
 	MainWeapon = GetOwner()->GetComponent<Weapon>();
 	Health* H = GetOwner()->GetComponent<Health>();
 	H->BindDeathCallback(std::bind(&B_AIBase::OnDead, this));
+	RB = GetOwner()->GetComponent<RigidbodyComponent>();
 }

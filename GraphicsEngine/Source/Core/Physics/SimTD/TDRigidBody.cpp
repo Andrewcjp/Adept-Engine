@@ -7,6 +7,7 @@
 #include "Shapes/TDMeshShape.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "Core/Components/ColliderComponent.h"
+#include "Core/Platform/ConsoleVariable.h"
 
 TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(type)
 {
@@ -224,7 +225,7 @@ void TDRigidBody::SetPhysicsMaterial(PhysicalMaterial * Mat)
 	SafeDelete(TDMaterial);
 	TDMaterial = TDPhysicsEngine::CreatePhysicsMaterial(PhysicsMat);
 }
-
+static ConsoleVariable FullRot("frot", 0, ECVarType::LaunchOnly);
 void TDRigidBody::UpdateBodyState()
 {
 	if (Actor != nullptr)
@@ -244,10 +245,18 @@ void TDRigidBody::UpdateBodyState()
 		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockPosX, BodyData.LockXPosition);
 		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockPosY, BodyData.LockYPosition);
 		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockPosZ, BodyData.LockZPosition);
-
-		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotX, BodyData.LockXRot);
+		
 		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotY, BodyData.LockYRot);
+		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotX, BodyData.LockXRot);
 		Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotZ, BodyData.LockZRot);
+
+		if (!FullRot.GetBoolValue())
+		{
+			//Todo:
+			//This is on a Launch option as full rotations aren't stable enough
+			Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotX, true);
+			Actor->GetFlags().SetFlagValue(TDActorFlags::ELockRotZ, true);
+		}		
 	}
 }
 

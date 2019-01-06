@@ -1,5 +1,6 @@
 #pragma once
 #include "EngineHeader.h"
+#include "Core\Game\Gamemode.h"
 
 class BleedOutHud;
 struct DifficultyPreset
@@ -13,6 +14,7 @@ struct DifficultyPreset
 	float MeleeDamageMulti = 1.0f;
 	float RifleDamageMulti = 1.0f;
 	static const DifficultyPreset* Get();
+	void Init(EGameDifficulty::Type Level);
 };
 
 struct Door

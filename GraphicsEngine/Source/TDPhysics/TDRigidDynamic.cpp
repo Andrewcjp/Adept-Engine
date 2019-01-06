@@ -116,29 +116,33 @@ namespace TD
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosX))
 		{
 			DeltaLinearVel.x = 0.0f;
+			LinearVelocity.x = 0.0f;
 		}
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosY))
 		{
 			DeltaLinearVel.y = 0.0f;
+			LinearVelocity.y = 0.0f;
 		}
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockPosZ))
 		{
 			DeltaLinearVel.z = 0.0f;
+			LinearVelocity.z = 0.0f;
 		}
-#if ALLOW_ROT
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotX))
 		{
 			DeltaAngularVel.x = 0.0f;
+			AngularVel.x = 0.0f;
 		}
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotY))
 		{
 			DeltaAngularVel.y = 0.0f;
+			AngularVel.y = 0.0f;
 		}
 		if (ActorFlags.GetFlagValue(TDActorFlags::ELockRotZ))
 		{
 			DeltaAngularVel.z = 0.0f;
+			AngularVel.z = 0.0f;
 		}
-#endif
 	}
 
 	void TDRigidDynamic::ResetForceThisFrame()

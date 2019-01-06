@@ -12,7 +12,8 @@
 #include "TDRigidBody.h"
 #include "TDSimConfig.h"
 #include "TDSupport.h" 
-
+#include "Core/Platform/ConsoleVariable.h"
+static ConsoleVariable EXP_Rotations("rot", 0, ECVarType::LaunchOnly);
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::InitPhysics()
 {
@@ -22,6 +23,7 @@ void TDPhysicsEngine::InitPhysics()
 	config->PerfCounterCallBack = (TDSimConfig::FPrefCounterCallBack)&TimerCallbackHandler;
 	config->DebugLineCallBack = (TDSimConfig::FDebugLineCallBack)&DebugLineCallbackHandler;
 	config->CallBackHandler = new TDSupport();
+	config->EXP_EnableRot = EXP_Rotations.GetBoolValue();
 	TDPhysics::CreatePhysics(TD_VERSION_NUMBER, config);
 	TDPhysics::Get()->StartUp();
 	Instance = this;
