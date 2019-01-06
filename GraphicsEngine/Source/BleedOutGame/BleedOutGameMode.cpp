@@ -50,18 +50,18 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	GameObject* B = MakeTestSphere(Scene);
 	B->SetPosition(glm::vec3(10, 10, 0));
 	ConstaintSetup data;
-	//	data.Desc.Dampening = 0.2f;
+	data.Desc.Dampening = 0.5f;
 	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<ColliderComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
 
 	SpawnPlayer(glm::vec3(0, 5, 35), Scene);
-	
+
 	GameObject* AiTest = new GameObject();
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\Spawner.png"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.FlipUVs = true;
-	AiTest->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\SpawningPool.obj",set), mat));
+	AiTest->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\SpawningPool.obj", set), mat));
 	AiTest->AttachComponent(new SpawningPool());
 	AiTest->SetPosition(glm::vec3(0, 0, 10));
 	Scene->AddGameobjectToScene(AiTest);

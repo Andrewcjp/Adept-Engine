@@ -30,13 +30,12 @@ namespace TD
 		else  if (BDynamic != nullptr)
 		{
 			relVel = BDynamic->GetLinearVelocity();
-		}
+		}	
 
 		float x = glm::length(relPos) - Desc.RestLength;
 		float v = glm::length(relVel);
 		//Standard Spring Equation!
-		float F = (-Desc.SpringK * x) + (-Desc.Dampening * v);
-
+		float F = (-Desc.SpringK * x) +(-Desc.Dampening * v);
 		glm::vec3 impulse = glm::normalize(relPos) * F;
 		if (ADynamic != nullptr)
 		{
@@ -47,5 +46,4 @@ namespace TD
 			BDynamic->SetLinearVelocity(BDynamic->GetLinearVelocity() + (impulse * -1.0f * BDynamic->GetInvBodyMass()));
 		}
 	}
-
 };

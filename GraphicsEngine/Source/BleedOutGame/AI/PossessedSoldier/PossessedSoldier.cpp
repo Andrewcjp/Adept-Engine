@@ -26,13 +26,11 @@ AnimationController* PossessedSoldier::CreateAnimationController()
 
 void PossessedSoldier::Update(float dt)
 {
-	AIBase::Update(dt);
+	B_AIBase::Update(dt);
 	if (VisualMesh != nullptr)
 	{
-		glm::vec3 pos = VisualMesh->GetMeshRenderer()->GetPosOfBone("mixamorig:LeftHand");
-
-		DebugDrawers::DrawDebugSphere(pos, 0.5f, glm::vec3(1));
-
+		/*	glm::vec3 pos = VisualMesh->GetMeshRenderer()->GetPosOfBone("mixamorig:LeftHand");
+			DebugDrawers::DrawDebugSphere(pos, 0.5f, glm::vec3(1));*/
 	}
 }
 

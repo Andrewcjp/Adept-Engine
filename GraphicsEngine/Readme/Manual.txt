@@ -7,7 +7,6 @@ physdebug <mode> : 0 Is Disabled, 1 is show Collision Shapes, 2 is Show contacts
 noatk boolean : If set to 1 AI will be unable to attack the player, however the player is still damageable
 god boolean : If set to 1 The player is not damageable
 
-
 Settings:
 Sensitivity float : changes the players mouse sensitivity 
 
@@ -30,13 +29,14 @@ F - Melee
 Other Readmes are located in Source/Readme
 
 Minimum Specs:
-GPU: GTX 660 or Better (Needs to support DX12)
+GPU: GTX 660 or Better (Needs to support DX12)  
+GPU RAM: 2GB or Greater
 CPU: any MultiCore x86_64 
 OS: Win 10
 
 Known Issues:
 Warning: warranty VOID if game restarted via the in game menu - Due to a Intermittent crash when freeing Graphics resources
 Rotations: Due to Stability issues in edge cases Rotations in all but Y axis are disabled/locked.
-Animations are Incorrect - This is due to transform summing issue with assimp and the engine.
+Animations are Incorrect - This is due to transform summing issue between assimp(model Loader) and the engine.
 
 
