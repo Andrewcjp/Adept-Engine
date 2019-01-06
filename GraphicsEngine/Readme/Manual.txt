@@ -29,7 +29,14 @@ F - Melee
 
 Other Readmes are located in Source/Readme
 
+Minimum Specs:
+GPU: GTX 660 or Better (Needs to support DX12)
+CPU: any MultiCore x86_64 
+OS: Win 10
+
 Known Issues:
 Warning: warranty VOID if game restarted via the in game menu - Due to a Intermittent crash when freeing Graphics resources
 Rotations: Due to Stability issues in edge cases Rotations in all but Y axis are disabled/locked.
+Animations are Incorrect - This is due to transform summing issue with assimp and the engine.
+
 

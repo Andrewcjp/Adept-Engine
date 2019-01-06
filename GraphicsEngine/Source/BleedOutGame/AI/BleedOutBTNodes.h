@@ -1,6 +1,7 @@
 #pragma once
 #include "AI/Core/Behaviour/BehaviourTreeNode.h"
-
+/*!  \addtogroup Game_AI
+* @{ */
 class MeleeWeapon;
 class B_AIBase;
 struct BTValue;

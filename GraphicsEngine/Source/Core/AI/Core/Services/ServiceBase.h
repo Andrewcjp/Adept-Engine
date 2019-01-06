@@ -1,5 +1,7 @@
 #pragma once
 #include "AI/Core/Behaviour/BehaviourTreeNode.h"
+/*!  \addtogroup AI
+* @{ */
 class ServiceBase
 {
 public:

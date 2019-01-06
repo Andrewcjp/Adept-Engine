@@ -1,4 +1,6 @@
 #pragma once
+/*!  \addtogroup AI
+* @{ */
 namespace EBTNodeType
 {
 	enum Type

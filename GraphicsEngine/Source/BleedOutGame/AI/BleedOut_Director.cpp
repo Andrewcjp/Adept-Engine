@@ -14,15 +14,13 @@
 #include "SkullChaser.h"
 #include "Source/BleedOutGame/Components/Health.h"
 #include "Source/BleedOutGame/Components/MeleeWeapon.h"
-#include "../BleedOutGameMode.h"
 
 BleedOut_Director::BleedOut_Director()
 {
 	StateSets = new DirectorStateSet();
 	StateSets->SetDefault();
 	PlayerAttackController = new AttackController();
-	PlayerAttackController->OwningDirector = this;
-	
+	PlayerAttackController->OwningDirector = this;	
 }
 
 BleedOut_Director::~BleedOut_Director()
@@ -34,7 +32,7 @@ void BleedOut_Director::Tick()
 {
 	if (!once && SpawnDelay < 0)
 	{
-		SpawnAI(glm::vec3(-5, 20, 0), EAIType::HellKnight);
+		SpawnAI(glm::vec3(-5, 20, 0), EAIType::PossessedSoldier);
 		once = true;
 	}
 	SpawnDelay--;
@@ -203,6 +201,11 @@ GameObject* BleedOut_Director::SpawnHellKnight(glm::vec3 pos)
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	cc->Radius = 1.25f;
 	cc->LocalOffset = glm::vec3(0, 1.75f, 0);
+	Health* H = newKnight->GetComponent<Health>();
+	if (H != nullptr)
+	{
+		H->MaxHealth = 300.0f;
+	}
 	return newKnight;
 }
 

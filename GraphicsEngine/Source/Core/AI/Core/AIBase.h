@@ -4,12 +4,14 @@
 class AIController;
 class BehaviourTree;
 class AnimationController;
+/*!  \addtogroup AI
+* @{ */
 class AIBase : public Component
 {
 public:
 	CORE_API AIBase();
 	CORE_API virtual ~AIBase();
-	//todo: AI director will know this/search scene for tagged object
+	
 	WeakObjectPtr<GameObject> Player;
 
 	CORE_API virtual void OnDestroy() override;

@@ -14,7 +14,7 @@ void HellKnight::SetupBrain()
 {
 	BTTree = new BT_Knight();
 	Controller->Speed = 15.0f;
-	DeathLength = 2.0f;
+	DeathLength = 1.2f;
 	AIBase::SetupBrain();
 }
 

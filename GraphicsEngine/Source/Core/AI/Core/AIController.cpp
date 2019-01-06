@@ -58,10 +58,7 @@ void AIController::Update(float dt)
 	{
 		return;
 	}
-	if (CurrentTarget.IsValid && RHI::GetFrameCount() % 60 == 0)
-	{
-		//ReplanPath();
-	}
+
 	if (CurrentTarget.IsValid && Rigidbody != nullptr && !Path.PathComplete && Path.PathReady && Path.Positions.size() > 0)
 	{
 		//Point at the Next path node

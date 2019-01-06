@@ -1,4 +1,6 @@
 #pragma once
+/*!  \addtogroup AI
+* @{ */
 struct BTValue;
 namespace EDecoratorTestType
 {

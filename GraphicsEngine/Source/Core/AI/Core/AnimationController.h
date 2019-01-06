@@ -1,5 +1,7 @@
 #pragma once
-
+/*! \defgroup AI Engine AI Classes
+*\addtogroup AI
+* @{ */
 struct SkeletalMeshEntry;
 class AIBase;
 ///This class Acts as a base for animation controllers

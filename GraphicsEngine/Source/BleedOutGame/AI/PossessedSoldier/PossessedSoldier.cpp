@@ -30,26 +30,9 @@ void PossessedSoldier::Update(float dt)
 	if (VisualMesh != nullptr)
 	{
 		glm::vec3 pos = VisualMesh->GetMeshRenderer()->GetPosOfBone("mixamorig:LeftHand");
-		//DebugDrawers::DrawDebugSphere(pos, 0.5f, glm::vec3(1,0,0));
-		//glm::mat4x4 Model = (WeaponBone->GetTransform()->GetModel());
-		//pos = glm::vec4(pos, 1.0f) * (Model);
-		//pos += glm::vec3(-0.5f,0.65,0);
+
 		DebugDrawers::DrawDebugSphere(pos, 0.5f, glm::vec3(1));
-		//WeaponBone->GetTransform()->SetLocalPosition(pos);
-		//WeaponBone->SetPosition(pos);
-		//WeaponBone->GetTransform()->SetLocalPosition();
+
 	}
 }
 
-void PossessedSoldier::LookAt(glm::vec3 pos)
-{
-	//glm::vec3 DirToTarget = pos - WeaponBone->GetPosition();
-	//DirToTarget.z = 0;
-	//DirToTarget.x = 0;
-	//DirToTarget = glm::normalize(DirToTarget);
-	////float angle = glm::degrees(glm::atan(DirToTarget.x, DirToTarget.z));
-	////glm::quat rot = glm::angleAxis(glm::radians(angle), glm::vec3(0, 1, 0));
-	////WeaponBone->GetTransform()->SetQrot(rot);
-	//WeaponBone->GetTransform()->SetQrot(glm::normalize(glm::quatLookAtRH(DirToTarget, glm::vec3(1, 0, 0))));
-
-}

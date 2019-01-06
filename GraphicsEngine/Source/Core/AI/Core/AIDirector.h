@@ -4,6 +4,8 @@
 
 class Scene;
 class SpawnMarker;
+/*!  \addtogroup AI
+* @{ */
 class AIDirector
 {
 public:

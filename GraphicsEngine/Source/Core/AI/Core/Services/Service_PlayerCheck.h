@@ -1,6 +1,7 @@
 #pragma once
 #include "ServiceBase.h"
-
+/*!  \addtogroup AI
+* @{ */
 struct BTValue;
 
 class Service_PlayerCheck :public ServiceBase
