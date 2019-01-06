@@ -55,17 +55,20 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 #endif
 
 	SpawnPlayer(glm::vec3(0, 5, 35), Scene);
-
+	
 	GameObject* AiTest = new GameObject();
-	AiTest->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\SpawningPool.obj"), Material::GetDefaultMaterial()));
+	Material* mat = Material::GetDefaultMaterial();
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\Spawner.png"));
+	MeshLoader::FMeshLoadingSettings set;
+	set.FlipUVs = true;
+	AiTest->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\SpawningPool.obj",set), mat));
 	AiTest->AttachComponent(new SpawningPool());
 	AiTest->SetPosition(glm::vec3(0, 0, 10));
 	Scene->AddGameobjectToScene(AiTest);
 	Pickup::SpawnPickup(glm::vec3(0, 1, -20), PickupType::Rifle_Ammo, 100);
 	Pickup::SpawnPickup(glm::vec3(0, 1, -22), PickupType::Gauss_Ammo, 100);
-	//Pickup::SpawnPickup(glm::vec3(0, 1, -12), PickupType::Health, 10);
 	CollectDoors();
-	
+	CurrentDifficluty.Init(CurrnetLevel);
 }
 
 void BleedOutGameMode::SpawnSKull(glm::vec3 Position)
@@ -102,7 +105,7 @@ void BleedOutGameMode::Update()
 		if (distance < 5)
 		{
 			CompleteGame();
-			GetPlayer()->Destory();			
+			GetPlayer()->Destory();
 		}
 	}
 	else
@@ -228,4 +231,35 @@ const DifficultyPreset* DifficultyPreset::Get()
 		return AISystem::Get()->GetDirector<BleedOut_Director>()->GetDifficultyPreset();
 	}
 	return nullptr;
+}
+
+void DifficultyPreset::Init(EGameDifficulty::Type Level)
+{
+	if (Level == EGameDifficulty::Easy)
+	{
+		WaveEnemyCount = 1;
+		MaxAttackingAI = 2;
+		BeedOutSpeed = 1.5f;
+		AITransferPC = 0.4f;
+		MeleeDamageMulti = 0.5f;
+		RifleDamageMulti = 0.5f;
+	}
+	else if (Level == EGameDifficulty::Normal)
+	{
+		WaveEnemyCount = 1;
+		MaxAttackingAI = 3;
+		BeedOutSpeed = 1.5f;
+		AITransferPC = 0.2f;
+		MeleeDamageMulti = 0.7f;
+		RifleDamageMulti = 1.0f;
+	}
+	else
+	{
+		WaveEnemyCount = 2;
+		MaxAttackingAI = 4;
+		BeedOutSpeed = 2.0f;
+		AITransferPC = 0.2f;
+		MeleeDamageMulti = 1.0f;
+		RifleDamageMulti = 2.0f;
+	}
 }

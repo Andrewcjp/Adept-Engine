@@ -186,7 +186,11 @@ bool Weapon::Fire()
 	//todo: speed this up!
 	if (CurrentSettings.ShowProjectile)
 	{
-		newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Models\\Sphere.obj"), Material::GetDefaultMaterial()));
+		Material* mat = Material::GetDefaultMaterial();
+		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Texture\\ProjectileTex.png"));
+		MeshLoader::FMeshLoadingSettings set;
+		set.FlipUVs = true;
+		newgo->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Projectile.obj",set), mat));
 	}
 	GameObject::FinishGameObjectSpawn(newgo);
 	OnFire();

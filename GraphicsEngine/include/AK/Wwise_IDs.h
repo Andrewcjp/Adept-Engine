@@ -14,6 +14,8 @@ namespace AK
     namespace EVENTS
     {
         static const AkUniqueID AI_RIFLE_FIRE = 578598015U;
+        static const AkUniqueID AIMELEE_MOVE = 2204661023U;
+        static const AkUniqueID AISTEP = 3054978241U;
         static const AkUniqueID CHANGE_WEAPON = 2723093104U;
         static const AkUniqueID EMPTYCLICK = 2242963996U;
         static const AkUniqueID JUMP = 3833651337U;

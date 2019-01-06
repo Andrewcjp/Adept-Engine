@@ -19,7 +19,7 @@ F7 Steps one frame forwards
 Player Controls:
 WASD - Move Forward, Left,Back and right
 Mouse 1 - Fire
-Scroll Wheel - Change Weapons
+Scroll Wheel - Change Weapons 
 Alpha 1 - Select Weapon 1
 Alpha 2 - Select Weapon 2
 Space - Jump
@@ -28,3 +28,8 @@ F - Melee
 
 
 Other Readmes are located in Source/Readme
+
+Known Issues:
+Warning: warranty VOID if game restarted via the in game menu - Due to a Intermittent crash when freeing Graphics resources
+Rotations: Due to Stability issues in edge cases Rotations in all but Y axis are disabled/locked.
+

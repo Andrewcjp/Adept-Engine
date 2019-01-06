@@ -1,17 +1,7 @@
 #pragma once
 #include "Core/Types/WeakObjectPtr.h"
 #include "Core/GameObject.h"
-namespace EAIDirectorDifficulty
-{
-	enum Type
-	{
-		Easy,
-		Normal,
-		Hard,
-		Extreme,
-		Limit
-	};
-}
+
 class Scene;
 class SpawnMarker;
 class AIDirector

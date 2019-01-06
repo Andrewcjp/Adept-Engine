@@ -197,17 +197,29 @@ void BleedOutPlayer::UpdateMovement(float delta)
 
 void BleedOutPlayer::TickAudio()
 {
+	Walk.Tick(GetOwner(), IsGrounded, RB->GetVelocity(), false);
+}
+
+void WalkAudio::Tick(GameObject* object,bool IsGrounded,glm::vec3 speed, bool isAI)
+{
 	CurrnetTime -= Engine::GetDeltaTime();
 	if (CurrnetTime > 0.0f || !IsGrounded)
 	{
 		return;
 	}
-	float vel = glm::length(glm::vec2(RB->GetVelocity().xz));
+	float vel = glm::length(glm::vec2(speed.xz));
 	if (vel >= 5.0f)
 	{
 		float pc = vel / 40;
 		//Log::LogTextToScreen("PC:" + std::to_string(pc));
 		CurrnetTime = glm::clamp(0.35f *1.0f - pc, 0.25f, 1.0f);
-		AudioEngine::PostEvent("Step", GetOwner());
+		if (isAI)
+		{
+			AudioEngine::PostEvent("AiStep", object);
+		}
+		else
+		{
+			AudioEngine::PostEvent("Step", object);
+		}		
 	}
 }

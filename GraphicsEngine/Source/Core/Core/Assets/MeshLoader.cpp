@@ -147,6 +147,13 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		{
 			continue;
 		}
+		//Hacky hack!
+		glm::vec2 UVScale = Settings.UVScale;
+		if (std::string(model->mName.C_Str()) == "Cube.001_Cube.002")
+		{
+			UVScale = glm::vec2(1);
+		}
+		//End Hacky hack
 		for (unsigned int i = 0; i < model->mNumVertices; i++)
 		{
 			aiVector3D* pPos = &(model->mVertices[i]);
@@ -159,7 +166,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 			}
 
 			OGLVertex vert(glm::vec3(pPos->x, pPos->y, pPos->z),
-				glm::vec2(pTexCoord->x, pTexCoord->y)*Settings.UVScale,
+				glm::vec2(pTexCoord->x, pTexCoord->y)*UVScale,
 				glm::vec3(pNormal->x, pNormal->y, pNormal->z),
 				glm::vec3(pTangent->x, pTangent->y, pTangent->z));
 

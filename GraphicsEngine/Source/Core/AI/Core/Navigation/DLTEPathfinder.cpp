@@ -1,4 +1,3 @@
-#include "Source/Core/Stdafx.h"
 #include "DLTEPathfinder.h"
 #include "AI/Generation/NavMeshGenerator.h"
 #include "Core/Utils/DebugDrawers.h"
@@ -64,6 +63,7 @@ bool DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 {
 	Reset();
 	ComputeDLTE();
+	DLTENode* LastState = get_start();
 	while (get_start()->Point.x != get_goal()->Point.x || get_start()->Point.y != get_goal()->Point.y)
 	{
 		// if Start Node g cost is FloatMAX then there is no path so abort
@@ -90,20 +90,15 @@ bool DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 		path.push_back(glm::vec3(startnode->Point.x, 1, startnode->Point.y));
 		startnode = temporaryState;
 		//todo: Finish Path Re planning
-		//GridLTE();
-		//	std::cout << dStarLite.get_start().x << " " << dStarLite.get_start().y << std::endl;
-			/* if any edge cost has changed */
-			//if (changesDetected)
-			//{
-			//	dStarLite.set_k_m(dStarLite.get_k_m() + dStarLite.heuristic(lastState, dStarLite.get_start()));
-			//	lastState = dStarLite.get_start();
-			//	// for all directed changes (u, v), update_cost (u, v) and then update_state(v)
-			//	dStarLite.update_cost(4, dStarLite.get_state_pointer(1, 2), *(dStarLite.get_state_pointer(1, 3)));
-			//	dStarLite.update_state(dStarLite.get_state_pointer(1, 3));
-			//	// end for all
-			//	dStarLite.compute_shortest_path();
-			//	changesDetected = false;
-			//}
+		if (Plane->MeshType == ENavMeshType::Dynamic && Plane->IsNavDirty)
+		{				
+			kM += Heuristic(LastState, startnode);
+			//UpdateCost(4,)
+			//Update the cost of nodes that have changed
+			ComputeDLTE();
+			Plane->IsNavDirty = false;
+		}
+
 
 	}
 	return true;
@@ -177,16 +172,22 @@ std::deque<DLTENode*> DLTEPathfinder::GetNeighbors(DLTENode* s)
 int DLTEPathfinder::ComputeCost(DLTENode* sFrom, DLTENode* sTo)
 {
 	int edgeCost = 1;
-	for (size_t i = 0; i < DIRECTIONS_WIDTH; ++i) //todo: replanting
+	for (size_t i = 0; i < DIRECTIONS_COUNT; ++i) //todo: re planning for dynamic Nav meshes
 	{
-		//if (sFrom.Point.x/* + DIRECTIONS[i][0]*/ == sTo.Point.x && sFrom.Point.y /*+ DIRECTIONS[i][1]*/ == sTo.Point.y)//todo: check this
-		//{
-		//	edgeCost = sFrom.edgeCost[i];
-		//	break;
-		//}
 	}
 	return 1;
 }
+void DLTEPathfinder::UpdateCost(float cost, DLTENode* sFrom, DLTENode sTo)
+{
+	for (size_t i = 0; i < sFrom->NearNodes.size(); i++)
+	{
+		for (int i = 0; i < sFrom->NearNodes.size(); i++)
+		{
+			sFrom->edgeCost[i] = cost;
+		}	
+	}
+}
+
 
 void DLTEPathfinder::UpdateState(DLTENode* statePointer)
 {

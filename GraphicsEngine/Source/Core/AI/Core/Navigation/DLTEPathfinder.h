@@ -20,17 +20,16 @@ private:
 	void ComputeDLTE();
 	std::deque<DLTENode*> GetNeighbors(DLTENode* s);
 	int ComputeCost(DLTENode* sFrom, DLTENode* sTo);
+	void UpdateCost(float cost, DLTENode * sFrom, DLTENode sTo);
 	void UpdateState(DLTENode * statePointer);
 	///Priority offset for Edge cost changes
-	int kM = 0;
+	float kM = 0;
 	DLTENode* goalnode = nullptr;
 	DLTENode* startnode = nullptr;
 	DLTEQueue* Queue = nullptr;
 };
 
-const size_t DIRECTIONS_WIDTH = 8;
-const size_t DIRECTIONS_HEIGHT = 2;
-const int DIRECTIONS[DIRECTIONS_WIDTH][DIRECTIONS_HEIGHT] = { { 0, 1 },{ 0, -1 },{ 1, 0 },{ -1, 0 },{ 1, 1 },{ 1, -1 },{ -1, 1 },{ -1, -1 } };
+const size_t DIRECTIONS_COUNT = 8;
 class NavigationObstacle;
 class NavPlane;
 struct Tri;
@@ -62,7 +61,7 @@ struct DLTENode
 	///World pos In 2D space
 	glm::vec3 Point = glm::vec3(0);
 	///Array of Edge costs for this node
-	int edgeCost[DIRECTIONS_WIDTH] = { 1, 1, 1, 1, 1, 1, 1, 1 };
+	float edgeCost[DIRECTIONS_COUNT] = { 1, 1, 1, 1, 1, 1, 1, 1 };
 	///List of Nodes that are linked to This one
 	std::vector<DLTENode*> NearNodes;
 	Tri* OwnerTri = nullptr;

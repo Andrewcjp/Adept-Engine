@@ -3,7 +3,7 @@
 	<RootPaths>
 		<ProjectRoot>C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\</ProjectRoot>
 		<SourceFilesRoot>C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\</SourceFilesRoot>
-		<SoundBanksRoot>C:\Users\AANdr\Dropbox\Engine\Engine\Repo\GraphicsEngine\Content\Banks\</SoundBanksRoot>
+		<SoundBanksRoot>C:\Users\AANdr\Dropbox\Engine\Engine\Repo\GraphicsEngine\Content\AlwaysCook\Banks\</SoundBanksRoot>
 		<ExternalSourcesInputFile></ExternalSourcesInputFile>
 		<ExternalSourcesOutputRoot>C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\GeneratedSoundBanks\Windows</ExternalSourcesOutputRoot>
 	</RootPaths>
@@ -22,6 +22,8 @@
 			<Path>Core.bnk</Path>
 			<IncludedEvents>
 				<Event Id="578598015" Name="AI_Rifle_Fire" ObjectPath="\Events\Default Work Unit\AI_Rifle_Fire"/>
+				<Event Id="2204661023" Name="AIMelee_Move" ObjectPath="\Events\Default Work Unit\AIMelee_Move"/>
+				<Event Id="3054978241" Name="AiStep" ObjectPath="\Events\Default Work Unit\AiStep"/>
 				<Event Id="2723093104" Name="Change_Weapon" ObjectPath="\Events\Default Work Unit\Change_Weapon"/>
 				<Event Id="2242963996" Name="EmptyClick" ObjectPath="\Events\Default Work Unit\EmptyClick"/>
 				<Event Id="3833651337" Name="Jump" ObjectPath="\Events\Default Work Unit\Jump"/>
@@ -52,11 +54,15 @@
 				</File>
 				<File Id="138777934" Language="SFX">
 					<ShortName>.300.wav.wav</ShortName>
-					<Path>SFX\.300.wav_56D34C19.wem</Path>
+					<Path>SFX\.300.wav_BD03BF26.wem</Path>
 				</File>
 				<File Id="144040963" Language="SFX">
 					<ShortName>.025.wav.wav</ShortName>
 					<Path>SFX\.025.wav_BD03BF26.wem</Path>
+				</File>
+				<File Id="196990562" Language="SFX">
+					<ShortName>DeskStep_1.wav</ShortName>
+					<Path>SFX\DeskStep_1_BD03BF26.wem</Path>
 				</File>
 				<File Id="215302347" Language="SFX">
 					<ShortName>.301.wav.wav</ShortName>
@@ -72,7 +78,7 @@
 				</File>
 				<File Id="333465165" Language="SFX">
 					<ShortName>Footsteep (1).wav</ShortName>
-					<Path>SFX\Footsteep (1)_56D34C19.wem</Path>
+					<Path>SFX\Footsteep (1)_BD03BF26.wem</Path>
 				</File>
 				<File Id="526678843" Language="SFX">
 					<ShortName>.106.wav.wav</ShortName>
@@ -84,11 +90,15 @@
 				</File>
 				<File Id="630071651" Language="SFX">
 					<ShortName>Footsteep (2).wav</ShortName>
-					<Path>SFX\Footsteep (2)_56D34C19.wem</Path>
+					<Path>SFX\Footsteep (2)_BD03BF26.wem</Path>
 				</File>
 				<File Id="800593728" Language="SFX">
 					<ShortName>Weapon change.wav</ShortName>
 					<Path>SFX\Weapon change_BD03BF26.wem</Path>
+				</File>
+				<File Id="811307670" Language="SFX">
+					<ShortName>DeskStep_2.wav</ShortName>
+					<Path>SFX\DeskStep_2_BD03BF26.wem</Path>
 				</File>
 				<File Id="861025917" Language="SFX">
 					<ShortName>DeskLand.wav</ShortName>
@@ -100,7 +110,7 @@
 				</File>
 				<File Id="1058232083" Language="SFX">
 					<ShortName>.233.wav.wav</ShortName>
-					<Path>SFX\.233.wav_56D34C19.wem</Path>
+					<Path>SFX\.233.wav_BD03BF26.wem</Path>
 				</File>
 			</IncludedMemoryFiles>
 		</SoundBank>
