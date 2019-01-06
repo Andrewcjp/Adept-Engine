@@ -184,7 +184,7 @@ std::string BenchMarker::ProcessTimerData(PerformanceLogStat* PLS)
 			continue;
 		}
 		AVG += data[i];
-		Max = fmaxf(Max, data[i]);
+		Max = glm::max(Max, data[i]);
 		Min = fminf(Min, data[i]);
 	}
 	AVG /= data.size();

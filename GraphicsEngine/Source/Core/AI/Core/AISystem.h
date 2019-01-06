@@ -27,7 +27,8 @@ namespace EAIDebugMode
 		Limit
 	};
 }
-
+/*!  \addtogroup AI
+* @{ */
 struct NavigationPath;
 class AISystem
 {
@@ -43,7 +44,9 @@ public:
 	void EditorTick();
 	CORE_API static AISystem* Get();
 	NavigationManager* mesh = nullptr;
+	///\returns the current pathfinding mode
 	static EAINavigationMode::Type GetPathMode();
+	///Adds a path request to the system - the path will not be ready until at best a frame later
 	ENavRequestStatus::Type CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath * outpath);
 	template<class T>
 	static T* GetDirector()

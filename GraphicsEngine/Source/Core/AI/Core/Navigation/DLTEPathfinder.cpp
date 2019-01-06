@@ -18,7 +18,7 @@ DLTEPathfinder::~DLTEPathfinder()
 float DLTEPathfinder::Heuristic(const DLTENode* sFrom, const DLTENode* sTo)
 {
 	float distance = glm::distance(sFrom->Point, sTo->Point);
-	distance += fmaxf(sFrom->TraversalCost, sTo->TraversalCost);
+	distance += glm::max(sFrom->TraversalCost, sTo->TraversalCost);
 	return distance;
 }
 
@@ -98,8 +98,6 @@ bool DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 			ComputeDLTE();
 			Plane->IsNavDirty = false;
 		}
-
-
 	}
 	return true;
 }
@@ -177,7 +175,7 @@ int DLTEPathfinder::ComputeCost(DLTENode* sFrom, DLTENode* sTo)
 	}
 	return 1;
 }
-void DLTEPathfinder::UpdateCost(float cost, DLTENode* sFrom, DLTENode sTo)
+void DLTEPathfinder::UpdateLinkCost(float cost, DLTENode* sFrom, DLTENode sTo)
 {
 	for (size_t i = 0; i < sFrom->NearNodes.size(); i++)
 	{

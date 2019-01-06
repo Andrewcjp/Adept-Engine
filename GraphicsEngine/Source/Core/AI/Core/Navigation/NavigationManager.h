@@ -1,5 +1,7 @@
 #pragma once
 #include "Core/Utils/MathUtils.h"
+/*!  \addtogroup AI
+* @{ */
 struct NavPathRequest;
 struct NavigationPath
 {
@@ -33,16 +35,16 @@ class DLTEPathfinder;
 class NavigationManager
 {
 public:
-
 	NavigationManager();
 	~NavigationManager();
 	void RenderMesh();
-
 	void RegisterObstacle(NavigationObstacle* NewObstacle);
 	void NotifyNavMeshUpdate();
 	static std::string GetErrorCodeAsString(ENavRequestStatus::Type t);
 	NavPlane* Plane = nullptr;
+	///Process outstanding path requests 
 	void TickPathFinding();
+	///Adds a new Path request to the path finding engine.
 	ENavRequestStatus::Type EnqueuePathRequest(glm::vec3 startpos, glm::vec3 endpos, NavigationPath* outpath);
 private:
 	ENavRequestStatus::Type CalculatePath(glm::vec3 Startpoint, glm::vec3 EndPos, NavigationPath* outputPath);

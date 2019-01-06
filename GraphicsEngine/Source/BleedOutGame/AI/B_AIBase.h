@@ -1,7 +1,9 @@
 #pragma once
 #include "AI/Core/AIBase.h"
-#include "../Components/BleedOutPlayer.h"
-
+#include "Source/BleedOutGame/Components/BleedOutPlayer.h"
+/*! \defgroup Game_AI Game AI Classes  
+*\addtogroup Game_AI
+* @{ */
 class Weapon;
 class BleedOutGameMode;
 class RigidbodyComponent;

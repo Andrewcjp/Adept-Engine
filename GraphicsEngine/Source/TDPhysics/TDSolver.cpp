@@ -377,7 +377,7 @@ namespace TD
 #if USE_LINEAR_PROJECTION
 			const float Slack = 0.01f;
 			const float LinearProjectionPercent = 0.45f;
-			float depth = fmaxf(data->depth[i] - Slack, 0.0f);
+			float depth = glm::max(data->depth[i] - Slack, 0.0f);
 			float scalar = depth / InvMassSum;
 			const glm::vec3 Reporjections = data->Direction[i] * scalar * LinearProjectionPercent;
 			if (A != nullptr)

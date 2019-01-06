@@ -1,11 +1,12 @@
 #pragma once
 #include "Source/BleedOutGame/AI/B_AIBase.h"
+/*!  \addtogroup Game_AI
+* @{ */
 class PossessedSoldier :public B_AIBase
 {
 public:
 	PossessedSoldier();
 	~PossessedSoldier();
-	void LookAt(glm::vec3 pos);
 	GameObject* WeaponBone = nullptr;
 	GameObject* VisualMesh = nullptr;
 protected:

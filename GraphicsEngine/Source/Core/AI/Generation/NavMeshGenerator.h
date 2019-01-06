@@ -1,4 +1,6 @@
 #pragma once
+/*!  \addtogroup AI
+* @{ */
 namespace ENavMeshType
 {
 	enum Type
@@ -21,9 +23,9 @@ public:
 	///Takes a Scene (editor or Play) and Fires rays into it to build a Nav mesh 
 	///Needs Physics representations to be loaded and valid.
 	void Voxelise(Scene * TargetScene);
-
+	///Used to reduce Triangles By check for Grid of Nodes
 	void GridFilter(const int GridSize, HeightField* Field, const float worldMin, int QuadSize);
-
+	///Determines if a set of nodes is a valid Quad  
 	bool ValidateQuad(const int GirdStep, float FirstHeight, HeightField* Field, glm::ivec2 &offset);
 	///\returns the plane at the requested z height. Nullptr if not found.
 	NavPlane* GetPlane(float z);

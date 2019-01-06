@@ -4,12 +4,16 @@
 #include "Core/Types/WeakObjectPtr.h"
 class GameObject;
 class RigidbodyComponent;
+/*!  \addtogroup AI
+* @{ */
 class AIController : public Component
 {
 public:
 	CORE_API AIController();
 	~AIController();
+	///Try to find a path to a position
 	CORE_API void MoveTo(glm::vec3 pos);
+	///Try to find a path to a Target and will repath if target moves
 	CORE_API void MoveTo(GameObject* target);
 	bool LookAtTarget = false;
 	float TurnRatio = 0.5f;

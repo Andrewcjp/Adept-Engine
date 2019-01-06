@@ -72,14 +72,8 @@ void BTRifleAttackNode::Run()
 	AIController* controller = ParentTree->AIGameObject->GetComponent<AIController>();
 	controller->SetLookAt(Target->GetPosition());
 	controller->LookAtTarget = true;
-	PossessedSoldier* Sol = ParentTree->AIGameObject->GetComponent<PossessedSoldier>();
-	if (Sol != nullptr)
-	{
-		Sol->LookAt(Target->GetPosition());
-		const glm::vec3 dir = Target->GetPosition() - (ParentTree->AIGameObject->GetPosition() + glm::vec3(0, 2, 0));
-		Controller->MainWeapon->AIForward = glm::normalize(dir);
-	}
-
+	const glm::vec3 dir = Target->GetPosition() - (ParentTree->AIGameObject->GetPosition() + glm::vec3(0, 2, 0));
+	Controller->MainWeapon->AIForward = glm::normalize(dir);
 	if (RemainingRounds == 0)
 	{
 		CurrentBurstCoolDown = CoolDownTime;

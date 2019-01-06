@@ -1,5 +1,7 @@
 #pragma once
 #include "Core/Utils/MathUtils.h"
+/*!  \addtogroup AI
+* @{ */
 struct DLTENode;
 class DLTEQueue;
 class NavPlane;
@@ -20,7 +22,7 @@ private:
 	void ComputeDLTE();
 	std::deque<DLTENode*> GetNeighbors(DLTENode* s);
 	int ComputeCost(DLTENode* sFrom, DLTENode* sTo);
-	void UpdateCost(float cost, DLTENode * sFrom, DLTENode sTo);
+	void UpdateLinkCost(float cost, DLTENode * sFrom, DLTENode sTo);
 	void UpdateState(DLTENode * statePointer);
 	///Priority offset for Edge cost changes
 	float kM = 0;
@@ -57,7 +59,6 @@ struct DLTENode
 	float key[2];
 	float g = MathUtils::FloatMAX;
 	float rhs = MathUtils::FloatMAX;
-	bool Blocked = false;
 	///World pos In 2D space
 	glm::vec3 Point = glm::vec3(0);
 	///Array of Edge costs for this node

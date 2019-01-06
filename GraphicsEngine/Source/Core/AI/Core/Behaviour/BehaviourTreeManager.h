@@ -1,8 +1,11 @@
 #pragma once
-
+/*!  \addtogroup AI
+* @{ */
 class BehaviourTree;
+///this class Handles Owning and Ticking all Behavior Trees in the scene.
 class BehaviourTreeManager
 {
+	
 public:
 	BehaviourTreeManager();
 	~BehaviourTreeManager();

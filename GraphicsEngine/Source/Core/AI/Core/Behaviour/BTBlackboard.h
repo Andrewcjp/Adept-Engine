@@ -1,4 +1,6 @@
 #pragma once
+/*!  \addtogroup AI
+* @{ */
 #include "Core/Types/WeakObjectPtr.h"
 #include "Core/GameObject.h"
 namespace EBTBBValueType

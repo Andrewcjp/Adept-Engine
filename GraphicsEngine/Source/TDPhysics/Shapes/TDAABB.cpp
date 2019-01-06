@@ -28,7 +28,7 @@ namespace TD
 	{
 		glm::vec3 point1 = Position + HalfExtends;
 		glm::vec3 point2 = Position - HalfExtends;
-		return glm::vec3(fmaxf(point1.x, point2.x), fmaxf(point1.y, point2.y), fmaxf(point1.z, point2.z));
+		return glm::vec3(glm::max(point1.x, point2.x), glm::max(point1.y, point2.y), glm::max(point1.z, point2.z));
 	}
 
 	void TDAABB::DebugRender(glm::vec3 colour /*= glm::vec3(1)*/, float time /*= 0.0f*/)

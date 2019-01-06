@@ -1,5 +1,6 @@
 #pragma once
-
+/*!  \addtogroup Game_AI
+* @{ */
 class AIBase;
 class BleedOut_Director;
 //this class handles weather an AI can attack a Player object

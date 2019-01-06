@@ -2,7 +2,8 @@
 #include "AI/Core/AIDirector.h"
 #include "Core/Types/WeakObjectPtr.h"
 #include "../BleedOutGameMode.h"
-
+/*!  \addtogroup Game_AI
+* @{ */
 namespace EAIType
 {
 	enum Type

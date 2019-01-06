@@ -92,7 +92,7 @@ namespace TD
 		{
 			float value = glm::dot(axis, triangle->Points[i]);
 			result.min = fminf(result.min, value);
-			result.max = fmaxf(result.max, value);
+			result.max = glm::max(result.max, value);
 		}
 
 		return result;

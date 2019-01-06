@@ -1,5 +1,7 @@
 #pragma once
 #include "AI/Core/Behaviour/BehaviourTree.h"
+/*!  \addtogroup Game_AI
+* @{ */
 class BT_PossessedSoldier : public BehaviourTree
 {
 public:
