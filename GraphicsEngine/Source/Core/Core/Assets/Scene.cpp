@@ -116,7 +116,7 @@ void Scene::SpawnBox(glm::vec3 pos)
 	MeshLoader::FMeshLoadingSettings set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
 	set.Scale = glm::vec3(.01f);
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_2\\Crate_Cube.fbx", set), mat));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Crate_Cube.fbx", set), mat));
 	go->GetTransform()->SetPos(pos);
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
@@ -226,7 +226,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
 	set.Scale = glm::vec3(.01f);
-	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_1\\Box_low.fbx", set), mat));
+	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Box_low.fbx", set), mat));
 	go->GetTransform()->SetPos(glm::vec3(30, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
@@ -281,7 +281,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 					go = new GameObject("Test box");
 					mat = Material::GetDefaultMaterial();
 					mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"));
-					go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Props\\Crate_1\\Box_low.fbx"), mat));
+					go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Box_low.fbx"), mat));
 					cc = go->AttachComponent(new ColliderComponent());
 					cc->SetCollisonShape(EShapeType::eBOX);
 				}

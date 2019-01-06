@@ -237,7 +237,7 @@ GameObject* BleedOut_Director::SpawnSoldier(glm::vec3 pos)
 	t->VisualMesh = MeshC;
 	t->MainWeapon = WeaponBone->AttachComponent(new Weapon(Weapon::AIRifle, scene, nullptr, WeaponBone));
 	WeaponBone->SetParent(NewPossessed);
-	WeaponBone->GetTransform()->SetLocalPosition(glm::vec3(0, 2.5, 0));
+	WeaponBone->GetTransform()->SetLocalPosition(glm::vec3(-0.6, 2.2, 0));
 	WeaponBone->GetTransform()->SetScale(glm::vec3(0.25));
 	scene->AddGameobjectToScene(WeaponBone);
 	ColliderComponent* cc = NewPossessed->AttachComponent(new ColliderComponent());
