@@ -43,6 +43,10 @@ void B_AIBase::OnDead()
 			H->AddHealth(AMt);
 		}
 	}
+	if (Mesh != nullptr)
+	{
+		Mesh->GetTransform()->SetLocalPosition(DeathOffset);
+	}
 }
 
 void B_AIBase::SceneInitComponent()

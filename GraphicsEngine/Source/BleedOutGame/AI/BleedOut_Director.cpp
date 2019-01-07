@@ -196,7 +196,9 @@ GameObject* BleedOut_Director::SpawnHellKnight(glm::vec3 pos)
 	mrc->PlayAnim("Attack");
 	MeshC->GetTransform()->SetScale(glm::vec3(0.01f));
 	scene->AddGameobjectToScene(MeshC);
-	newKnight->AttachComponent(new HellKnight());
+	HellKnight* n = newKnight->AttachComponent(new HellKnight());
+	n->Mesh = MeshC;
+	
 	ColliderComponent* cc = newKnight->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eSPHERE);
 	cc->Radius = 1.25f;
@@ -236,6 +238,7 @@ GameObject* BleedOut_Director::SpawnSoldier(glm::vec3 pos)
 	t->WeaponBone = WeaponBone;
 	t->VisualMesh = MeshC;
 	t->MainWeapon = WeaponBone->AttachComponent(new Weapon(Weapon::AIRifle, scene, nullptr, WeaponBone));
+	t->Mesh = MeshC;
 	WeaponBone->SetParent(NewPossessed);
 	WeaponBone->GetTransform()->SetLocalPosition(glm::vec3(-0.6, 2.2, 0));
 	WeaponBone->GetTransform()->SetScale(glm::vec3(0.25));
