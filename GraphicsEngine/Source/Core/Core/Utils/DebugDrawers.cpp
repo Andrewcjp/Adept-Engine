@@ -125,69 +125,20 @@ void DebugDrawers::FlushAllLines()
 {
 	DebugLineDrawer::Get()->FlushDebugLines();
 }
-void DrawDebugBox(glm::vec3 const& Center, glm::vec3 const& Box, const glm::quat& Rotation, glm::vec3 const& Color, bool bPersistentLines, float LifeTime)
+
+void DebugDrawers::DrawDebugBox(glm::vec3 const& Position, glm::vec3 const& HalfExtends, const glm::quat& Rotation, glm::vec3 const& colour, bool bPersistentLines, float time)
 {
-	// no debug line drawing on dedicated server
-
-	{
-		// this means foreground lines can't be persistent 
-		//ULineBatchComponent* const LineBatcher = GetDebugLineBatcher(InWorld, bPersistentLines, LifeTime, (DepthPriority == SDPG_Foreground));
-		//if (LineBatcher != NULL)
-		{
-
-
-
-			/*Transform T;
-			T.SetQrot(Rotation);
-			FVector Start = T.TransformPosition((Box.x, Box.y, Box.x));
-			FVector End = Transform.TransformPosition(FVector(Box.X, -Box.Y, Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(Box.X, -Box.Y, Box.Z));
-			End = Transform.TransformPosition(FVector(-Box.X, -Box.Y, Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(-Box.X, -Box.Y, Box.Z));
-			End = Transform.TransformPosition(FVector(-Box.X, Box.Y, Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(-Box.X, Box.Y, Box.Z));
-			End = Transform.TransformPosition(FVector(Box.X, Box.Y, Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(Box.X, Box.Y, -Box.Z));
-			End = Transform.TransformPosition(FVector(Box.X, -Box.Y, -Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(Box.X, -Box.Y, -Box.Z));
-			End = Transform.TransformPosition(FVector(-Box.X, -Box.Y, -Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(-Box.X, -Box.Y, -Box.Z));
-			End = Transform.TransformPosition(FVector(-Box.X, Box.Y, -Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(-Box.X, Box.Y, -Box.Z));
-			End = Transform.TransformPosition(FVector(Box.X, Box.Y, -Box.Z));
-			new(Lines)FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(Box.X, Box.Y, Box.Z));
-			End = Transform.TransformPosition(FVector(Box.X, Box.Y, -Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(Box.X, -Box.Y, Box.Z));
-			End = Transform.TransformPosition(FVector(Box.X, -Box.Y, -Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(-Box.X, -Box.Y, Box.Z));
-			End = Transform.TransformPosition(FVector(-Box.X, -Box.Y, -Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			Start = Transform.TransformPosition(FVector(-Box.X, Box.Y, Box.Z));
-			End = Transform.TransformPosition(FVector(-Box.X, Box.Y, -Box.Z));
-			new(Lines) FBatchedLine(Center + Start, Center + End, Color, LineLifeTime, Thickness, DepthPriority);
-
-			LineBatcher->DrawLines(Lines);*/
-		}
-	}
+	//todo: Rotations!
+	DrawDebugLine(Position + glm::vec3(HalfExtends.x, HalfExtends.y, HalfExtends.z), Position + glm::vec3(HalfExtends.x, -HalfExtends.y, HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, HalfExtends.y, HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(-HalfExtends.x, HalfExtends.y, HalfExtends.z), Position + glm::vec3(HalfExtends.x, HalfExtends.y, HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(HalfExtends.x, HalfExtends.y, -HalfExtends.z), Position + glm::vec3(HalfExtends.x, -HalfExtends.y, -HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(HalfExtends.x, -HalfExtends.y, -HalfExtends.z), Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, -HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, -HalfExtends.z), Position + glm::vec3(-HalfExtends.x, HalfExtends.y, -HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(-HalfExtends.x, HalfExtends.y, -HalfExtends.z), Position + glm::vec3(HalfExtends.x, HalfExtends.y, -HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(HalfExtends.x, HalfExtends.y, HalfExtends.z), Position + glm::vec3(HalfExtends.x, HalfExtends.y, -HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(HalfExtends.x, -HalfExtends.y, -HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, -HalfExtends.z), colour, time);
+	DrawDebugLine(Position + glm::vec3(-HalfExtends.x, HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, HalfExtends.y, -HalfExtends.z), colour, time);
 }

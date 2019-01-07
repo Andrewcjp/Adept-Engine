@@ -95,6 +95,7 @@ void ColliderComponent::RenderShape()
 			DebugDrawers::DrawDebugCapsule(GetOwner()->GetPosition() + LocalOffset, Height, Radius, GetOwner()->GetRotation(), colour);
 			break;
 #endif
+
 		case EShapeType::eSPHERE:
 			DebugDrawers::DrawDebugSphere(GetOwner()->GetPosition() + LocalOffset, Radius, colour);
 			break;
@@ -109,7 +110,7 @@ void ColliderComponent::RenderShape()
 			}
 			break;
 		case EShapeType::eBOX:
-
+			DebugDrawers::DrawDebugBox(GetOwner()->GetPosition() + LocalOffset, BoxExtents, glm::quat(), colour, false, 0.0f);
 			break;
 		}
 	}

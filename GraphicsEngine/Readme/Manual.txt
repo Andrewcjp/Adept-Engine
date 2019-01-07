@@ -36,7 +36,7 @@ OS: Win 10
 
 Known Issues:
 Warning: warranty VOID if game restarted via the in game menu - Due to a Intermittent crash when freeing Graphics resources
-Rotations: Due to Stability issues in edge cases Rotations in all but Y axis are disabled/locked.
-Animations are Incorrect - This is due to transform summing issue between assimp(model Loader) and the engine.
+Rotations: Due to Stability issues in edge cases rotations in all but the Y axis are disabled/locked.
+Animations are Incorrect/Stretchy - This is due to transform summing issue between assimp(model Loader) and the engine.
 
 
