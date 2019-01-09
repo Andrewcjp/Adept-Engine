@@ -15,6 +15,9 @@ namespace Shader_Depth_RSSlots
 class Shader_Depth :public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER_ARGS(Shader_Depth, bool);
+	DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_ON, Shader_Depth, bool, true);
+	DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_OFF, Shader_Depth, bool, false);
 	struct LightData
 	{
 		glm::mat4 View;

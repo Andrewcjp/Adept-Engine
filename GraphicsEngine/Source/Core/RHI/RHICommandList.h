@@ -85,10 +85,16 @@ public:
 	RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
 	RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;
 	//If frame buffer is null the screen will be the render target!
+	[[deprecated("Use SetPipelineStateDesc")]]
 	RHI_VIRTUAL void CreatePipelineState(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
 	//uses the Cached PiplineStates
-	RHI_VIRTUAL void SetPipelineStateObject(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
-	RHI_VIRTUAL void SetPipelineState(PipeLineState state) = 0;
+	[[deprecated("Use SetPipelineStateDesc")]]
+	RHI_VIRTUAL void SetPipelineStateObject_OLD(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
+	[[deprecated("Use SetPipelineStateDesc")]]
+	RHI_VIRTUAL void SetPipelineState_OLD(PipeLineState state) = 0;
+	///Not Const Desc as they hash on demand
+	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) = 0;
+	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
 	RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset) = 0;
 	RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
 	RHI_VIRTUAL void SetTexture(class BaseTexture* texture, int slot) = 0;

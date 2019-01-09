@@ -1,6 +1,6 @@
 
 #include "Shader_UpSample.h"
-
+//IMPLEMENT_GLOBAL_SHADER(Shader_UpSample);
 
 Shader_UpSample::Shader_UpSample()
 {

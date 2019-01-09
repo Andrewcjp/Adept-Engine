@@ -2,7 +2,7 @@
 #include "RHI/ShaderProgramBase.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/RHI.h"
-DECLARE_GLOBAL_SHADER(Shader_Deferred);
+IMPLEMENT_GLOBAL_SHADER(Shader_Deferred);
 Shader_Deferred::Shader_Deferred(class DeviceContext* dev) :Shader(dev)
 {
 	float g_quad_vertex_buffer_data[] = {

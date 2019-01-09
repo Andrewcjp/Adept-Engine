@@ -8,7 +8,7 @@
 #include "Core/EngineInc.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Core/Platform/PlatformCore.h"
-DECLARE_GLOBAL_SHADER(Shader_Skybox);
+IMPLEMENT_GLOBAL_SHADER(Shader_Skybox);
 Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
 	MeshLoader::FMeshLoadingSettings settings = {};
@@ -32,12 +32,12 @@ void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 	{
 		state.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 		state.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
-		List->SetPipelineState(state);
+		List->SetPipelineState_OLD(state);
 		List->CreatePipelineState(this);
 	}
 	else
 	{
-		List->SetPipelineState(state);
+		List->SetPipelineState_OLD(state);
 		List->CreatePipelineState(this, Buffer);
 	}
 }

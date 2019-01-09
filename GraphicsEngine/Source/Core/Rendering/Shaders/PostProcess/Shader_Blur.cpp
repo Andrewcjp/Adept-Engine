@@ -1,8 +1,8 @@
 
 #include "Shader_Blur.h"
-DECLARE_GLOBAL_SHADER(Shader_Blur);
-DECLARE_GLOBAL_SHADER(Shader_BlurVert);
 
+IMPLEMENT_GLOBAL_SHADER(Shader_BlurVert);
+IMPLEMENT_GLOBAL_SHADER(Shader_Blur);
 Shader_Blur::~Shader_Blur()
 {
 

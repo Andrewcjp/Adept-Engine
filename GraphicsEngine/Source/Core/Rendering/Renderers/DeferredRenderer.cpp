@@ -49,7 +49,7 @@ void DeferredRenderer::PostInit()
 	WriteList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
 	WriteList->CreatePipelineState(Material::GetDefaultMaterialShader(), GFrameBuffer);
 	LightingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
-	LightingList->SetPipelineState(PipeLineState{ false,false,false });
+	LightingList->SetPipelineState_OLD(PipeLineState{ false,false,false });
 	LightingList->CreatePipelineState(DeferredShader);
 	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyBox->Init(FilterBuffer, GFrameBuffer);

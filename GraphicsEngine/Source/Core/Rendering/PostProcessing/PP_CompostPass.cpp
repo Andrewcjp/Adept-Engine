@@ -56,7 +56,7 @@ void PP_CompostPass::PostInitEffect(FrameBuffer* Target)
 	state.RenderTargetDesc.NumRenderTargets = 1;
 	state.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
 	state.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
-	CMDlist->SetPipelineState(state);
+	CMDlist->SetPipelineState_OLD(state);
 	CMDlist->CreatePipelineState(CurrentShader);
 }
 

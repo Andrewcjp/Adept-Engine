@@ -3,6 +3,7 @@
 class Shader_ShadowSample : public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER(Shader_ShadowSample);
 	Shader_ShadowSample(DeviceContext * Context);
 	~Shader_ShadowSample();
 	std::vector<Shader::ShaderParameter> GetShaderParameters();

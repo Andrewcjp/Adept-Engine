@@ -21,6 +21,7 @@ class Shader_Deferred :
 	public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER(Shader_Deferred);
 	Shader_Deferred(class DeviceContext* dev);
 	~Shader_Deferred();
 

@@ -3,7 +3,7 @@
 #include "RHI/RHI.h"
 #include "RHI/RHICommandList.h"
 
-DECLARE_GLOBAL_SHADER(Shader_TexturedUI);
+IMPLEMENT_GLOBAL_SHADER(Shader_TexturedUI);
 Shader_TexturedUI::Shader_TexturedUI(DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -15,14 +15,13 @@ Shader_TexturedUI::Shader_TexturedUI(DeviceContext* dev) :Shader(dev)
 	m_Shader->AttachAndCompileShaderFromFile("Compost_fs", EShaderType::SHADER_FRAGMENT);
 	Init();
 	list = RHI::CreateCommandList(ECommandListType::Graphics, dev);
-	PipeLineState state = PipeLineState{ false,false,true };
-	state.Mode = Full;
-	list->SetPipelineState(state);
-	list->CreatePipelineState(this);
-
-	state.Blending = false;
-	list->SetPipelineState(state);
-	list->CreatePipelineState(this);
+	RHIPipeLineStateDesc desc;
+	desc.ShaderInUse = this;
+	desc.InitOLD(false, false, true);
+	desc.Mode = Full;
+	BlendPSO = RHI::CreatePipelineStateObject(desc);
+	desc.Blending = false;
+	NoBlendPSO = RHI::CreatePipelineStateObject(desc);
 }
 
 void Shader_TexturedUI::Init()
@@ -46,11 +45,16 @@ Shader_TexturedUI::~Shader_TexturedUI()
 
 void Shader_TexturedUI::Render()
 {
-	PipeLineState state = PipeLineState{ false,false,blend };
-	list->SetPipelineState(state);
+
 	list->ResetList();
-	list->CreatePipelineState(this);
-	list->SetPipelineStateObject(this);
+	if (blend)
+	{
+		list->SetPipelineStateObject(BlendPSO);
+	}
+	else
+	{
+		list->SetPipelineStateObject(NoBlendPSO);
+	}
 	list->SetScreenBackBufferAsRT();
 	list->SetTexture(Texture, 0);
 	list->SetVertexBuffer(VertexBuffer);

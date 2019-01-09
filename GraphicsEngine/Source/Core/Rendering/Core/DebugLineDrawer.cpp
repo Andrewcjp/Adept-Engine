@@ -24,7 +24,7 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	PipeLineState state = {};
 	state.DepthTest = false;
 	state.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
-	CmdList->SetPipelineState(state);
+	CmdList->SetPipelineState_OLD(state);
 	CmdList->CreatePipelineState(LineShader);
 	if (!DOnly)
 	{

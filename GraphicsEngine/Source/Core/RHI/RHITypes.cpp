@@ -1,6 +1,7 @@
 
 #include "RHITypes.h"
 #include "Core/Utils/StringUtil.h"
+#include "Shader.h"
 
 RHIFrameBufferDesc RHIFrameBufferDesc::CreateColour(int width, int height)
 {
@@ -85,3 +86,77 @@ const char * IRHIResourse::GetDebugName()
 void IRHIResourse::SetDebugName(std::string Name)
 {}
 #endif
+
+void RHIPipeLineStateDesc::InitOLD(bool Depth, bool shouldcull, bool Blend)
+{
+	DepthTest = Depth;
+	Cull = shouldcull;
+	Blending = Blend;
+}
+
+bool RHIPipeLineStateDesc::Validate()
+{
+	return true;
+}
+
+RHIPipeLineStateObject::RHIPipeLineStateObject(const RHIPipeLineStateDesc & desc)
+{
+	Desc = desc;
+}
+
+RHIPipeLineStateObject::~RHIPipeLineStateObject()
+{}
+
+size_t RHIPipeLineStateObject::GetDescHash()
+{
+	return Desc.GetHash();
+}
+
+void RHIPipeLineStateObject::Complie()
+{
+
+}
+
+bool RHIPipeLineStateObject::Equals(RHIPipeLineStateObject * other)
+{
+	//todo:
+	return false;
+}
+
+bool RHIPipeLineStateObject::IsReady() const
+{
+	return IsComplied;
+}
+
+const RHIPipeLineStateDesc & RHIPipeLineStateObject::GetDesc()
+{
+	return Desc;
+}
+
+size_t RHIPipeLineStateDesc::GetHash()
+{
+	if (UniqueHash == 0)
+	{
+		CalulateHash();
+	}
+	return UniqueHash;
+}
+
+void RHIPipeLineStateDesc::CalulateHash()
+{
+	//todo: hash all members
+	std::string Data = "";
+	Data += ShaderInUse->GetName();
+	Data += Blending;
+	Data += Cull;
+	Data += Mode;
+	Data += std::to_string((int)RenderTargetDesc.RTVFormats[0]);
+	UniqueHash = std::hash<std::string>{} (Data);
+}
+
+bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
+{
+	//todo: way to get the complier to gen this?
+	return ShaderInUse == ShaderInUse && Cull == Cull && RenderTargetDesc.RTVFormats[0] == RenderTargetDesc.RTVFormats[0] && Blending == Blending;
+}
+

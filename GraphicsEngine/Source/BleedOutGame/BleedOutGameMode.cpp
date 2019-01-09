@@ -51,7 +51,7 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	B->SetPosition(glm::vec3(10, 10, 0));
 	ConstaintSetup data;
 	data.Desc.Dampening = 0.5f;
-	ConstraintInstance* aint = Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<ColliderComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
+	Engine::GetPhysEngineInstance()->CreateConstraint(A->GetComponent<ColliderComponent>()->GetActor(), B->GetComponent<RigidbodyComponent>()->GetActor(), data);
 #endif
 
 	SpawnPlayer(glm::vec3(0, 5, 35), Scene);

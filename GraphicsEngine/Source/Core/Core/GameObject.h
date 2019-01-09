@@ -116,7 +116,7 @@ private:
 	virtual std::vector<InspectorProperyGroup> GetInspectorFields() override;
 
 #endif
-	Scene* OwnerScene;
+	Scene* OwnerScene = nullptr;
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;
 	class ColliderComponent* PhyscsCollider = nullptr;
 	int AudioId = 0;

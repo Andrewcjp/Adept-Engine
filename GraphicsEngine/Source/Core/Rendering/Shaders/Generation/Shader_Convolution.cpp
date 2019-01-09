@@ -5,7 +5,7 @@
 #include "RHI/RHICommandList.h"
 #include "RHI/BaseTexture.h"
 #include "Core/Platform/PlatformCore.h"
-DECLARE_GLOBAL_SHADER(Shader_Convolution);
+IMPLEMENT_GLOBAL_SHADER(Shader_Convolution);
 Shader_Convolution::Shader_Convolution(class DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -21,7 +21,7 @@ Shader_Convolution::~Shader_Convolution()
 	EnqueueSafeRHIRelease(ShaderData);
 	EnqueueSafeRHIRelease(CubeBuffer);
 	EnqueueSafeRHIRelease(Cube);
-	delete (Test);
+	SafeDelete(Test);
 }
 
 void Shader_Convolution::init()
@@ -31,7 +31,7 @@ void Shader_Convolution::init()
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	CubeBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
 	CmdList = RHI::CreateCommandList();
-	CmdList->SetPipelineState(PipeLineState{ false,false,false });
+	CmdList->SetPipelineState_OLD(PipeLineState{ false,false,false });
 	CmdList->CreatePipelineState(this, CubeBuffer);
 	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);

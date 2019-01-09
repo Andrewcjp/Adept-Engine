@@ -4,6 +4,7 @@ class Text_Shader :
 	public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER(Text_Shader);
 	Text_Shader(class DeviceContext* context);
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;

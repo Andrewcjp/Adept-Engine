@@ -1,7 +1,7 @@
 
 #include "Shader_ShadowSample.h"
 #include "Rendering/Shaders/Shader_Main.h"
-DECLARE_GLOBAL_SHADER(Shader_ShadowSample);
+IMPLEMENT_GLOBAL_SHADER(Shader_ShadowSample);
 Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context)
 {
 	m_Shader = RHI::CreateShaderProgam(Context);

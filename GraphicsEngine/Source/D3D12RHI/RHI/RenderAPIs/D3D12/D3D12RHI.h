@@ -30,6 +30,9 @@ public:
 	//temp To be RHI'D	
 	std::string ReportMemory() override;
 	static void HandleDeviceFailure();
+
+	virtual RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) override;
+
 private:
 	void DestroyContext();
 	void PresentFrame();

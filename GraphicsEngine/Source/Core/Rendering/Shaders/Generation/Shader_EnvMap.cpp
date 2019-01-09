@@ -2,7 +2,7 @@
 #include "Shader_EnvMap.h"
 #include "Rendering/Core/Mesh.h"
 #include "RHI/RHI_inc.h"
-DECLARE_GLOBAL_SHADER(Shader_EnvMap);
+IMPLEMENT_GLOBAL_SHADER(Shader_EnvMap);
 Shader_EnvMap::Shader_EnvMap(class DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();
@@ -36,7 +36,7 @@ void Shader_EnvMap::Init()
 	QuadDraw = new Shader_Convolution::QuadDrawer();
 	QuadDraw->init();
 	CmdList = RHI::CreateCommandList();
-	CmdList->SetPipelineState(PipeLineState{ false,false,false });
+	CmdList->SetPipelineState_OLD(PipeLineState{ false,false,false });
 	CmdList->CreatePipelineState(this, EnvBRDFBuffer);
 	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);

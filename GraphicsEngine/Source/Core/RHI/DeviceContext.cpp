@@ -5,10 +5,14 @@
 #include "RHITimeManager.h"
 
 DeviceContext::DeviceContext()
-{}
+{
+	PSOCache = new PipelineStateObjectCache();
+}
 
 DeviceContext::~DeviceContext()
-{}
+{
+	SafeDelete(PSOCache);
+}
 
 
 void DeviceContext::ResetDeviceAtEndOfFrame()
@@ -47,4 +51,9 @@ bool DeviceContext::ShouldInsertTimer()
 void DeviceContext::OnInsertStallTimer()
 {
 	InsertStallTimer = false;
+}
+
+PipelineStateObjectCache * DeviceContext::GetPSOCache() const
+{
+	return PSOCache;
 }

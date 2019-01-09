@@ -11,5 +11,6 @@ class BleedOutGameModule : ModuleDef
         PCH = "BleedOutPCH";
         UseCorePCH = false;
         IsGameModule = true;
+        UseUnity = true;
     }
 }

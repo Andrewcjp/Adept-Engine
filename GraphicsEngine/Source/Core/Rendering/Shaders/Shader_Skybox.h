@@ -4,6 +4,7 @@
 class Shader_Skybox : public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER(Shader_Skybox);
 	Shader_Skybox(class DeviceContext* dev);
 	void Init(FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	virtual ~Shader_Skybox();

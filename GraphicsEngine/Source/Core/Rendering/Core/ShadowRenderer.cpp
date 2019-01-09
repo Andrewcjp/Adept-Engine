@@ -334,14 +334,14 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	}
 	PipeLineState pipestate = PipeLineState{ true,false,false };
 	pipestate.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
-	PointShadowList->SetPipelineState(pipestate);
-	PointShadowList->SetPipelineStateObject(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
+	PointShadowList->SetPipelineState_OLD(pipestate);
+	PointShadowList->SetPipelineStateObject_OLD(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
 
-	PointShadowListALT->SetPipelineState(pipestate);
-	PointShadowListALT->SetPipelineStateObject(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
+	PointShadowListALT->SetPipelineState_OLD(pipestate);
+	PointShadowListALT->SetPipelineStateObject_OLD(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
 
-	DirectionalShadowList->SetPipelineState(pipestate);
-	DirectionalShadowList->SetPipelineStateObject(DirectionalLightShader, DirectionalLightBuffer);
+	DirectionalShadowList->SetPipelineState_OLD(pipestate);
+	DirectionalShadowList->SetPipelineStateObject_OLD(DirectionalLightShader, DirectionalLightBuffer);
 
 }
 

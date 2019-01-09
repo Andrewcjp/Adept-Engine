@@ -34,7 +34,8 @@ public:
 	virtual class RHITimeManager* GetTimeManager() = 0;
 	void InsertStallTimerMarker();
 	bool ShouldInsertTimer();
-	void OnInsertStallTimer();
+	void OnInsertStallTimer(); 
+	PipelineStateObjectCache* GetPSOCache() const;
 protected:
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
@@ -44,5 +45,6 @@ protected:
 	RHICommandList* InterGPUCopyList = nullptr;
 	RHICommandList* GPUCopyList = nullptr;
 	CapabilityData Caps_Data = CapabilityData();
+	PipelineStateObjectCache* PSOCache = nullptr;
 };
 

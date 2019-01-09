@@ -46,7 +46,7 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 		if (pSkeletalEntity != nullptr && SetMaterial)
 		{
 			//todo: integrate into material system
-			list->SetPipelineStateObject(ShaderComplier::GetShader<Shader_SkeletalMesh>());
+			list->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_SkeletalMesh>());
 			list->SetTexture(Materials[0]->GetTexturebind(Material::DefuseBindName), 9);
 			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
 			for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)

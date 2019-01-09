@@ -2,6 +2,17 @@
 #include "RHI/RHICommandList.h"
 #include "D3D12Shader.h"
 #include "Core/Utils/RefChecker.h"
+class D3D12PipeLineStateObject :public RHIPipeLineStateObject
+{
+public:
+	D3D12PipeLineStateObject(const RHIPipeLineStateDesc& desc,DeviceContext* con);
+	~D3D12PipeLineStateObject();
+	virtual void Complie() override;
+	ID3D12RootSignature* RootSig = nullptr;
+	ID3D12PipelineState* PSO = nullptr;
+};
+
+
 class D3D12CommandList : public RHICommandList
 {
 public:
@@ -18,12 +29,11 @@ public:
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
-	virtual void SetPipelineState(PipeLineState state) override;
+	virtual void SetPipelineState_OLD(PipeLineState state) override;
 	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
-
-
-
-	virtual void SetPipelineStateObject(class Shader* shader, class FrameBuffer* Buffer = nullptr)override;
+	virtual void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
+	void PushState();
+	virtual void SetPipelineStateObject_OLD(class Shader* shader, class FrameBuffer* Buffer = nullptr)override;
 	void IN_CreatePipelineState(Shader * shader);
 
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
@@ -45,11 +55,12 @@ public:
 	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer)override;
 	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer)override;
 	void Release()override;
-	bool IsOpen()
-	{
-		return m_IsOpen;
-	}
+	bool IsOpen();
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
+
+
+
+	virtual void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
 
 private:
 	std::string GetPSOHash(Shader * shader, const PipeLineState& statedesc);
@@ -71,6 +82,7 @@ private:
 
 	ID3D12CommandSignature* CommandSig = nullptr;
 	std::string CurrnetPsoKey = "";
+	RHIPipeLineStateObject* CurrnetPSO = nullptr;
 };
 
 class D3D12RHIUAV : public RHIUAV

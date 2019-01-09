@@ -1,5 +1,9 @@
 #pragma once
 #include "Core/Types/FString.h"
+
+class Shader;
+class FrameBuffer;
+class DeviceContext;
 #define MRT_MAX 8
 #define NAME_RHI_PRIMS !BUILD_SHIPPING
 enum eTextureDimension
@@ -277,6 +281,50 @@ struct RHI_API PipeLineState
 	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
 	bool DepthWrite = true;
 	RHIPipeRenderTargetDesc RenderTargetDesc = RHIPipeRenderTargetDesc();
+};
+
+struct RHI_API RHIPipeLineStateDesc
+{
+	//Hold both root signature and shader blobs
+	Shader* ShaderInUse = nullptr;	
+	FrameBuffer* FrameBufferTarget = nullptr;
+	void InitOLD(bool Depth, bool shouldcull, bool Blend);
+	bool DepthTest = true;
+	bool Cull = true;
+	bool Blending = false;
+	TMP_BlendMode Mode = Text;
+	bool DepthWrite = true;
+	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
+	RHIPipeRenderTargetDesc RenderTargetDesc = RHIPipeRenderTargetDesc();
+	//Validation in cases without a validation layer or engine limitations (e.g. multi-GPU)
+	bool Validate();
+	DeviceContext* OwningDevice = nullptr;
+	size_t GetHash();
+	void CalulateHash();
+	bool operator==(const RHIPipeLineStateDesc other)const;
+private:
+	size_t UniqueHash = 0;
+};
+
+class RHI_API RHIPipeLineStateObject
+{
+public:
+	RHIPipeLineStateObject(const RHIPipeLineStateDesc& desc);
+	virtual ~RHIPipeLineStateObject();
+	size_t GetDescHash();
+	virtual void Complie();
+	//Compare based on Description
+	bool Equals(RHIPipeLineStateObject* other);
+	bool IsReady() const;
+	const RHIPipeLineStateDesc& GetDesc();
+
+	protected:
+	
+	bool IsComplied = false;
+	RHIPipeLineStateDesc Desc;
+protected:
+	DeviceContext* Device = nullptr;
 };
 
 struct RHIFrameBufferDesc

@@ -1,10 +1,11 @@
 #pragma once
 #include "RHI\Shader.h"
-//As this shader is a Genration one it currently holds its own processing code. This might change later.
+//As this shader is a generation one it currently holds its own processing code. This might change later.
 class Shader_Convolution :
 	public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER(Shader_Convolution);
 	Shader_Convolution(class DeviceContext* dev);
 	~Shader_Convolution();
 	void init();

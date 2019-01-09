@@ -1,6 +1,6 @@
 #include "Shader_ParticleDraw.h"
 #include "RHI/RHI.h"
-DECLARE_GLOBAL_SHADER(Shader_ParticleDraw)
+
 
 Shader_ParticleDraw::Shader_ParticleDraw(DeviceContext* device) :Shader(device)
 {

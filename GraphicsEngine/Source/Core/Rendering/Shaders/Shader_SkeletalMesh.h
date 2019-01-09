@@ -3,6 +3,7 @@
 class Shader_SkeletalMesh : public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER(Shader_SkeletalMesh);
 	Shader_SkeletalMesh(class DeviceContext* dev);
 	~Shader_SkeletalMesh();
 

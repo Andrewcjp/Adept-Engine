@@ -162,7 +162,7 @@ GameObject * BleedOut_Director::CreateAI(glm::vec3 pos, float AttackRaduis, floa
 	ColliderComponent* cc = newAI->AttachComponent(new ColliderComponent());
 	cc->SetCollisonShape(EShapeType::eCAPSULE);
 	cc->Radius = BaseRaduis;
-	AIController* Controller = newAI->AttachComponent(new AIController());
+	newAI->AttachComponent(new AIController());
 	newAI->AttachComponent(new Health());
 	MeleeWeapon* mw = newAI->AttachComponent(new MeleeWeapon());
 	cc = newAI->AttachComponent(new ColliderComponent());

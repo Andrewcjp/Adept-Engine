@@ -1,9 +1,9 @@
 
 #include "Shader_ParticleCompute.h"
-DECLARE_GLOBAL_SHADER(Shader_ParticleCompute);
-DECLARE_GLOBAL_SHADER(Shader_StartSimulation);
-DECLARE_GLOBAL_SHADER(Shader_EndSimulation);
-DECLARE_GLOBAL_SHADER(Shader_ParticleEmit);
+IMPLEMENT_GLOBAL_SHADER(Shader_ParticleCompute);
+IMPLEMENT_GLOBAL_SHADER(Shader_StartSimulation);
+IMPLEMENT_GLOBAL_SHADER(Shader_EndSimulation);
+IMPLEMENT_GLOBAL_SHADER(Shader_ParticleEmit);
 Shader_ParticleCompute::Shader_ParticleCompute(DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam();

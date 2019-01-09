@@ -70,7 +70,7 @@ void NVAPIManager::RenderGPUStats(int statx, int starty)
 	{
 		for (int i = 0; i < GpuData[x].size(); i++)
 		{
-			TextRenderer::instance->RenderFromAtlas(GpuData[x][i], (float)statx + x * Xsize, (float)starty - Ysize * i, 0.35f);
+			TextRenderer::instance->RenderFromAtlas(GpuData[x][i], (float)statx + x * Xsize, (float)starty - Ysize * i, 0.35f, Colours[x]);
 		}
 	}
 #endif
@@ -114,6 +114,9 @@ void NVAPIManager::SampleClocks()
 		ret = NvAPI_GPU_GetDynamicPstatesInfoEx(GPUHandles[i], &PstatesInfo);
 		if (ret == NVAPI_OK)
 		{
+			int Utilzieation = PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage;
+			float PC = Utilzieation / 80;
+			Colours[i] = glm::mix(glm::vec3(1, 0, 0), glm::vec3(1), PC);
 			Data = ("Graphics: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage) + "%");
 		}
 		GpuData[i][index] = Data;
@@ -138,4 +141,4 @@ void NVAPIManager::SampleClocks()
 #else 
 	SampleData = "NVAPI Not Present";
 #endif
-}
+	}
