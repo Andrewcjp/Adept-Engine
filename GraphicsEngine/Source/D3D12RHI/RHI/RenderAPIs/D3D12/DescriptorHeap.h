@@ -10,7 +10,7 @@ public:
 		RenderBuffers,
 		Streaming
 	};
-	DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	~DescriptorHeap();
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuAddress(int index);
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUAddress(int index);

@@ -164,7 +164,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		&heapHandle));
 
 	HRESULT openSharedHandleResult = Target->OpenSharedHandle(heapHandle, IID_PPV_ARGS(&TWO_CrossHeap));
-
+	ensure(openSharedHandleResult == S_OK);
 	// We can close the handle after opening the cross-adapter shared resource.
 	CloseHandle(heapHandle);
 	//target

@@ -41,7 +41,7 @@ void ParticleSystemManager::Init()
 	CounterBuffer->UpdateIndexBuffer(&count, sizeof(Counters));
 
 	CmdList = RHI::CreateCommandList(ECommandListType::Compute);
-	CmdList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleCompute>());
+	CmdList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_ParticleCompute>());
 	SetupCommandBuffer();
 
 
@@ -147,8 +147,8 @@ void ParticleSystemManager::SetupCommandBuffer()
 	pls.RenderTargetDesc.NumRenderTargets = 1;
 	pls.RenderTargetDesc.DSVFormat = FORMAT_D32_FLOAT;
 	pls.Blending = true;
-	RenderList->SetPipelineState(pls);
-	RenderList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleDraw>());
+	RenderList->SetPipelineState_OLD(pls);
+	RenderList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_ParticleDraw>());
 #if 1//USE_INDIRECTCOMPUTE
 	RenderList->SetUpCommandSigniture(sizeof(IndirectArgs), false);
 #endif
@@ -222,7 +222,7 @@ void ParticleSystemManager::Simulate()
 	CmdList->ResetList();
 	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
-	CmdList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_StartSimulation>());
+	CmdList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_StartSimulation>());
 	CounterBuffer->GetUAV()->Bind(CmdList, 0);
 	DispatchCommandBuffer->GetUAV()->Bind(CmdList, 1);
 	emitcount++;
@@ -232,7 +232,7 @@ void ParticleSystemManager::Simulate()
 	Sync();
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::IndirectArgs);
 
-	CmdList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleEmit>());
+	CmdList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_ParticleEmit>());
 	CounterBuffer->GetUAV()->Bind(CmdList, 1);
 	GPU_ParticleData->GetUAV()->Bind(CmdList, 0);
 	AliveParticleIndexs->GetUAV()->Bind(CmdList, 2);
@@ -244,7 +244,7 @@ void ParticleSystemManager::Simulate()
 	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
 #endif
 	Sync();
-	CmdList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleCompute>());
+	CmdList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_ParticleCompute>());
 	GPU_ParticleData->GetUAV()->Bind(CmdList, 0);
 	CounterBuffer->GetUAV()->Bind(CmdList, 1);
 	AliveParticleIndexs->BindBufferReadOnly(CmdList, 2);
@@ -256,7 +256,7 @@ void ParticleSystemManager::Simulate()
 	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
 #endif
 	Sync();
-	CmdList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_EndSimulation>());
+	CmdList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_EndSimulation>());
 	AliveParticleIndexs_PostSim->BindBufferReadOnly(CmdList, 0);
 	RenderCommandBuffer->GetUAV()->Bind(CmdList, 1);
 	CounterBuffer->GetUAV()->Bind(CmdList, 2);
@@ -277,7 +277,7 @@ void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 	return;
 	RenderList->ResetList();
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
-	RenderList->SetPipelineStateObject(ShaderComplier::GetShader<Shader_ParticleDraw>(), BufferTarget);
+	RenderList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_ParticleDraw>(), BufferTarget);
 	RenderList->SetRenderTarget(BufferTarget);
 	RenderList->SetVertexBuffer(VertexBuffer);
 	RenderList->SetConstantBufferView(ParticleRenderConstants, 0, 2);

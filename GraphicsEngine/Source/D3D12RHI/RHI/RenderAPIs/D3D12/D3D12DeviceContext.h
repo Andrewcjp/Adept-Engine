@@ -47,9 +47,9 @@ public:
 		CloseHandle(m_fenceEvent);
 	}
 private:
-	ID3D12CommandQueue* Queue;
-	UINT64 m_fenceValues[RHI::CPUFrameCount];
-	ID3D12Fence* m_fence;
+	ID3D12CommandQueue* Queue = nullptr;
+	UINT64 m_fenceValues[RHI::CPUFrameCount] = {0};
+	ID3D12Fence* m_fence = nullptr;
 	int m_frameIndex = 0;
 	HANDLE m_fenceEvent;
 };
@@ -73,7 +73,7 @@ private:
 	ID3D12Fence* secondaryFence = nullptr;
 	UINT64 m_fenceValue = 0;
 };
-
+class D3D12TimeManager;
 //once this class has been completed it will be RHI split
 class D3D12DeviceContext : public DeviceContext
 {
@@ -158,6 +158,6 @@ private:
 	GPUSyncPoint GpuWaitSyncPoint;
 	GPUSyncPoint CrossAdaptorSync;
 
-	class D3D12TimeManager* TimeManager = nullptr;
+	D3D12TimeManager* TimeManager = nullptr;
 };
 

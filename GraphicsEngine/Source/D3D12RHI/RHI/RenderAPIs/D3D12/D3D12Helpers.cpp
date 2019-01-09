@@ -322,8 +322,6 @@ void D3D12ReadBackCopyHelper::WriteToFile(std::string Ref)
 	UINT64 pTotalBytes = 0;
 	Device->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
 	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
-	const unsigned char * Pioint = ((const unsigned char *)pData);
-
 	std::string path = Ref;
 	FileUtils::CreateDirectoriesToFullPath(path);
 	path.append(GenericPlatformMisc::GetDateTimeString());

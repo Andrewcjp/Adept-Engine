@@ -322,6 +322,18 @@ DeviceContext * RHI::GetDefaultDevice()
 	return GetRHIClass()->GetDefaultDevice();
 }
 
+RHIPipeLineStateObject * RHI::CreatePipelineStateObject(const RHIPipeLineStateDesc & Desc, DeviceContext * Device)
+{	
+	if (Device == nullptr)
+	{
+		Device = RHI::GetDefaultDevice();
+	}
+	RHIPipeLineStateObject* PSO = GetRHIClass()->CreatePSO(Desc, Device);
+	PSO->Complie();
+	Device->GetPSOCache()->AddToCache(PSO);
+	return PSO;
+}
+
 void RHI::InitialiseContext()
 {
 	GetRHIClass()->InitRHI();
@@ -400,3 +412,20 @@ RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)
 	}
 	return GetRHIClass()->CreateTextureArray(Device, Length);
 }
+
+RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateDesc& desc)
+{
+	auto itor = PSOMap.find(desc.GetHash());
+	if (itor == PSOMap.end())
+	{
+		return RHI::CreatePipelineStateObject(desc, Device);
+	}
+	ensure(itor->second->GetDesc() == desc);
+	return itor->second;
+}
+
+void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
+{
+	PSOMap.emplace(object->GetDescHash(), object);
+}
+

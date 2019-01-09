@@ -43,11 +43,11 @@ void Material::SetMaterialActive(RHICommandList* list)
 #if 1
 	if (GetProperties()->ShaderInUse != nullptr)
 	{
-		list->SetPipelineStateObject(GetProperties()->ShaderInUse);
+		list->SetPipelineStateObject_OLD(GetProperties()->ShaderInUse);
 	}
 	else
 	{
-		list->SetPipelineStateObject(Material::GetDefaultMaterialShader()/*, FrameBuffer*/);
+		list->SetPipelineStateObject_OLD(Material::GetDefaultMaterialShader()/*, FrameBuffer*/);
 	}
 #endif
 	for (auto const& Pair : CurrentBindSet->BindMap)

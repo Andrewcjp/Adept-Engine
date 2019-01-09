@@ -34,9 +34,9 @@ public:
 	RHI_API static RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr);
 	RHI_API static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	RHI_API static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
-
 	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
 	RHI_API static DeviceContext* GetDefaultDevice();
+	RHI_API static RHIPipeLineStateObject* CreatePipelineStateObject(const RHIPipeLineStateDesc& Desc, DeviceContext* Device = nullptr);
 	static void InitialiseContext();
 	static void InitialiseContextWindow(int w, int h);
 	static std::string ReportMemory();
@@ -104,10 +104,23 @@ public:
 	RHI_VIRTUAL void WaitForGPU() = 0;
 	RHI_VIRTUAL void TriggerBackBufferScreenShot() = 0;
 	RHI_VIRTUAL std::string ReportMemory() = 0;
+	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) = 0;
 };
 
 class RHIModule : public IModuleInterface
 {
 public:
 	virtual RHIClass* GetRHIClass() = 0;
+};
+
+//PSOs are cached on per device basis
+class PipelineStateObjectCache
+{
+public:
+	CORE_API RHIPipeLineStateObject* GetFromCache(RHIPipeLineStateDesc& desc);
+	CORE_API void AddToCache(RHIPipeLineStateObject* object);
+private:
+	DeviceContext* Device = nullptr;
+	//uint is the hash of the pso desc.
+	std::map<size_t, RHIPipeLineStateObject*> PSOMap;
 };

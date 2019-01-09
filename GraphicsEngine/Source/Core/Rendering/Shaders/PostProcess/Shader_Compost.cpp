@@ -1,7 +1,7 @@
 
 #include "Shader_Compost.h"
 #include "RHI/DeviceContext.h"
-DECLARE_GLOBAL_SHADER(Shader_Compost);
+IMPLEMENT_GLOBAL_SHADER(Shader_Compost);
 Shader_Compost::Shader_Compost(DeviceContext * context) :Shader(context)
 {
 	m_Shader = RHI::CreateShaderProgam();

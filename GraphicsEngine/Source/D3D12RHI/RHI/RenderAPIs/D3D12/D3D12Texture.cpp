@@ -171,7 +171,7 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 	}
 	else if (name.GetExtention().find("tga") != -1)
 	{
-		if (ImageIO::LoadTGA(name.GetFullPathToAsset().c_str(), &buffer, &width, &height, &bpp, &nChannels) != E_IMAGEIO_SUCCESS)
+		if (ImageIO::LoadTGA(name.GetFullPathToAsset().c_str(), &buffer, &Width, &Height, &bpp, &nChannels) != E_IMAGEIO_SUCCESS)
 		{
 			return false;
 		}
@@ -179,23 +179,23 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 	}
 	else
 	{
-		if (ImageIO::LoadTexture2D(name.GetFullPathToAsset().c_str(), &buffer, &width, &height, &nChannels) != E_IMAGEIO_SUCCESS)
+		if (ImageIO::LoadTexture2D(name.GetFullPathToAsset().c_str(), &buffer, &Width, &Height, &nChannels) != E_IMAGEIO_SUCCESS)
 		{
 			return false;
 		}
 	}
 
 #if USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME
-	if (width == 0 || height == 0)
+	if (Width == 0 || Height == 0)
 	{
 		return;
 	}
-	unsigned char*  finalbuffer = GenerateMips(Miplevels - 1, width, height, buffer);
+	unsigned char*  finalbuffer = GenerateMips(Miplevels - 1, Width, Height, buffer);
 	MipLevelsReadyNow = Miplevels;
 #else 
 	unsigned char*  finalbuffer = buffer;
 #endif
-	CreateTextureFromData(finalbuffer, 0, width, height, 4);
+	CreateTextureFromData(finalbuffer, 0, Width, Height, 4);
 	delete finalbuffer;
 	return true;
 }

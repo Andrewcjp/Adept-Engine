@@ -4,6 +4,7 @@
 class Shader_EnvMap : public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER(Shader_EnvMap);
 	Shader_EnvMap(class DeviceContext* dev);
 	~Shader_EnvMap();
 	std::vector<ShaderParameter> GetShaderParameters() override;

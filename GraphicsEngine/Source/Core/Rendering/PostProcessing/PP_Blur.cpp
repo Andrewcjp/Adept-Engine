@@ -52,10 +52,10 @@ void PP_Blur::PostInitEffect(FrameBuffer* Target)
 	}
 	else
 	{
-		CMDlist->SetPipelineState(PipeLineState{ false,false,true });
+		CMDlist->SetPipelineState_OLD(PipeLineState{ false,false,true });
 		CMDlist->CreatePipelineState(BlurShader);
 
-		VertcmdList->SetPipelineState(PipeLineState{ false,false,true });
+		VertcmdList->SetPipelineState_OLD(PipeLineState{ false,false,true });
 		VertcmdList->CreatePipelineState(VertBlur);
 	}
 	UAV = RHI::CreateUAV(RHI::GetDeviceContext(0));

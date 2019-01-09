@@ -1,13 +1,11 @@
 #include "Shader_Depth.h"
 #include "RHI/RHI.h"
 #include "Shader_Main.h"
-DECLARE_GLOBAL_SHADER_ARGS(Shader_Depth, bool);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_ON, Shader_Depth, bool, true);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_OFF, Shader_Depth, bool, false);
+IMPLEMENT_GLOBAL_SHADER(Shader_Depth);
 Shader_Depth::Shader_Depth(bool LoadGeo) :Shader_Depth(RHI::GetDeviceContext(0), LoadGeo)
 {}
 
-Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(Device)
+Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 {
 	LoadGeomShader = LoadGeo;
 	m_Shader = RHI::CreateShaderProgam(Device);

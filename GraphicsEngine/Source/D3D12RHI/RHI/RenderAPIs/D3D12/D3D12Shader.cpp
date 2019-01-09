@@ -6,6 +6,7 @@
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
 #include <d3dcompiler.h>
+#include "D3D12CommandList.h"
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
 #if !BUILD_SHIPPING
 D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
@@ -140,18 +141,16 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	}
 
 	std::string ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
-	LPCWSTR filename = StringUtils::ConvertStringToWide(path).c_str();
 	ID3DBlob* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
 	UINT compileFlags = 0;
 	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
-		UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;//D3DCOMPILE_PARTIAL_PRECISION
+		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;//D3DCOMPILE_PARTIAL_PRECISION
 	}
 	else
 	{
-		UINT compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS;
-		//	compileFlags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
+		compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS;
 	}
 	D3D_SHADER_MACRO* defines = ParseDefines();
 	switch (ShaderType)
@@ -281,6 +280,16 @@ D3D12PiplineShader D3D12Shader::CreateComputePipelineShader(D3D12PiplineShader &
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&output.m_pipelineState)));
 	return output;
 }
+void D3D12Shader::CreateComputePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, const RHIPipeLineStateDesc& Depthtest,
+	DeviceContext* context)
+{
+	SCOPE_STARTUP_COUNTER("Create Compute PSO");
+	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
+	computePsoDesc.pRootSignature = output->RootSig;
+	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(blobs->csBlob);
+	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&output->PSO)));
+
+}
 
 D3D12PiplineShader D3D12Shader::CreatePipelineShader(D3D12PiplineShader &output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest,
 	DeviceContext* context)
@@ -345,6 +354,68 @@ D3D12PiplineShader D3D12Shader::CreatePipelineShader(D3D12PiplineShader &output,
 	return output;
 }
 
+void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, const RHIPipeLineStateDesc& Depthtest,
+	DeviceContext* context)
+{
+	SCOPE_STARTUP_COUNTER("Create PSO");
+	ensure(blobs->vsBlob != nullptr);
+	ensure(blobs->fsBlob != nullptr);
+	if (context == nullptr)
+	{
+		context = RHI::GetDeviceContext(0);
+	}
+	// Describe and create the graphics pipeline state object (PSO).
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = { 0 };
+	psoDesc.InputLayout.pInputElementDescs = inputDisc;
+	psoDesc.InputLayout.NumElements = DescCount;
+	psoDesc.pRootSignature = output->RootSig;
+	psoDesc.VS = CD3DX12_SHADER_BYTECODE(blobs->vsBlob);
+	psoDesc.PS = CD3DX12_SHADER_BYTECODE(blobs->fsBlob);
+	if (blobs->gsBlob != nullptr)
+	{
+		psoDesc.GS = CD3DX12_SHADER_BYTECODE(blobs->gsBlob);
+	}
+	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	if (Depthtest.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+	{
+		//psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON;
+	}
+	psoDesc.RasterizerState.CullMode = Depthtest.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
+	if (Depthtest.Blending)
+	{
+		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.BlendState.AlphaToCoverageEnable = true;
+		psoDesc.BlendState.IndependentBlendEnable = true;
+		psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
+		if (Depthtest.Mode == Full)
+		{
+			psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
+			psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
+		}
+	}
+	else
+	{
+		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	}
+	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState.DepthEnable = Depthtest.DepthTest;
+	psoDesc.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)Depthtest.DepthCompareFunction;
+	psoDesc.DepthStencilState.DepthWriteMask = Depthtest.DepthWrite ? D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ZERO;
+	psoDesc.DepthStencilState.StencilEnable = false;
+	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)Depthtest.RasterMode;
+	psoDesc.NumRenderTargets = Depthtest.RenderTargetDesc.NumRenderTargets;
+	psoDesc.SampleDesc.Count = 1;
+
+	for (int i = 0; i < 8; i++)
+	{
+		psoDesc.RTVFormats[i] = D3D12Helpers::ConvertFormat(Depthtest.RenderTargetDesc.RTVFormats[i]);
+	}
+	psoDesc.DSVFormat = D3D12Helpers::ConvertFormat(Depthtest.RenderTargetDesc.DSVFormat);
+
+	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
+
+}
 D3D12Shader::ShaderBlobs * D3D12Shader::GetShaderBlobs()
 {
 	return &mBlolbs;
@@ -439,6 +510,13 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 	return true;
 }
 
+void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context)
+{
+	D3D12PiplineShader t;
+	CreateRootSig(t, Params, context);
+	(output)->RootSig = t.m_rootSignature;
+}
+
 void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context)
 {
 	SCOPE_STARTUP_COUNTER("CreateRootSig");
@@ -508,12 +586,6 @@ void D3D12Shader::CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::
 	}
 	//todo: Samplers
 
-	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 #define NUMSamples 3
 	D3D12_STATIC_SAMPLER_DESC samplers[NUMSamples];
 
@@ -628,12 +700,7 @@ void D3D12Shader::CreateDefaultRootSig(D3D12PiplineShader &output)
 	rootParameters[3].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
 	rootParameters[4].InitAsDescriptorTable(1, &ranges[1], D3D12_SHADER_VISIBILITY_PIXEL);
 	//rootParameters[3].InitAsShaderResourceView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
-	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
 	D3D12_STATIC_SAMPLER_DESC samplers[2];
 
 	D3D12_STATIC_SAMPLER_DESC sampler = {};

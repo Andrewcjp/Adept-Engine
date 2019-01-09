@@ -2,10 +2,9 @@
 #include "Shader_Line.h"
 #include "Core/Assets/ShaderComplier.h"
 
-DECLARE_GLOBAL_SHADER_ARGS(Shader_Line, bool);
+IMPLEMENT_GLOBAL_SHADER(Shader_Line)
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Line_2D_ON, Shader_Line, bool, true);
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Line_2D_OFF, Shader_Line, bool, false);
-
 Shader_Line::Shader_Line(DeviceContext* device, bool is2D) : Shader(Device)
 {
 	m_Shader = RHI::CreateShaderProgam();

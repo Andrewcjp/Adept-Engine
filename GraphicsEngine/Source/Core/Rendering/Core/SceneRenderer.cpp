@@ -227,7 +227,7 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 	PipeLineState s;
 	//	s.Cull = false;
 	s.DepthTest = false;
-	commandlist->SetPipelineState(s);
+	commandlist->SetPipelineState_OLD(s);
 	for (int i = 0; i < 6; i++)
 	{
 		commandlist->SetConstantBufferView(RelfectionProbeProjections, i, MainShaderRSBinds::MVCBV);

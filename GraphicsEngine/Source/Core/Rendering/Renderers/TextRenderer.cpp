@@ -4,6 +4,7 @@
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "Rendering/Shaders/Text_Shader.h"
 #include "RHI/DeviceContext.h"
+#include "RHI/RHITypes.h"
 
 #define MAXWIDTH 1024
 TextRenderer* TextRenderer::instance = nullptr;
@@ -196,9 +197,12 @@ void TextRenderer::LoadText()
 	VertexBuffer->CreateVertexBuffer(sizeof(point), (sizeof(point) * 6) * MAX_BUFFER_SIZE, EBufferAccessType::Dynamic);//max text length?
 
 	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(RunOnSecondDevice));
-	TextCommandList->SetPipelineState(PipeLineState{ false,false ,true });
-	TextCommandList->CreatePipelineState(m_TextShader);
-
+	RHIPipeLineStateDesc Desc;
+	Desc.Blending = true;
+	Desc.Cull = false;
+	Desc.DepthTest = false;
+	Desc.ShaderInUse = m_TextShader;
+	TextCommandList->SetPipelineStateDesc(Desc);
 	if (UseFrameBuffer)
 	{
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());

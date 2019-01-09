@@ -156,3 +156,5 @@ RHITextureArray::RHITextureArray(DeviceContext * device, int inNumEntries)
 	NumEntries = inNumEntries;
 	ObjectSufix = "(TexArray)";
 }
+
+

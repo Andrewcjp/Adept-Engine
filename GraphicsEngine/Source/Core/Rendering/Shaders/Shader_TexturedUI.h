@@ -4,6 +4,7 @@ class DeviceContext;
 class Shader_TexturedUI : public Shader
 {
 public:
+	DECLARE_GLOBAL_SHADER(Shader_TexturedUI);
 	Shader_TexturedUI(DeviceContext* d);
 
 	~Shader_TexturedUI();
@@ -18,5 +19,7 @@ private:
 	RHIBuffer * VertexBuffer = nullptr;
 	void Init();
 	RHICommandList* list = nullptr;
+	RHIPipeLineStateObject* BlendPSO = nullptr;
+	RHIPipeLineStateObject* NoBlendPSO = nullptr;
 };
 

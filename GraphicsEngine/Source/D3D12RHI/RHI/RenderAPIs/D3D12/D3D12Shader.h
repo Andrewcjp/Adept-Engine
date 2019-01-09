@@ -3,6 +3,8 @@
 #include "RHI/Shader.h"
 #include "D3D12Helpers.h"
 #include "Core/Utils/RefChecker.h"
+
+class D3D12PipeLineStateObject;
 struct D3D12PiplineShader
 {
 	D3D12PiplineShader();
@@ -32,10 +34,14 @@ public:
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint = "") override;
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type) override;
 	static D3D12PiplineShader CreateComputePipelineShader(D3D12PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, PipeLineState Depthtest, DeviceContext * context);
+	static void CreateComputePipelineShader(D3D12PipeLineStateObject * output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, const RHIPipeLineStateDesc & Depthtest, DeviceContext * context);
 	static D3D12PiplineShader CreatePipelineShader(D3D12PiplineShader & output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs* blobs, PipeLineState Depthtest, DeviceContext* context);
+
+	static	void CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, const RHIPipeLineStateDesc & Depthtest, DeviceContext * context);
 
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
+	static void CreateRootSig(D3D12PipeLineStateObject * output, std::vector<Shader::ShaderParameter> Params, DeviceContext * context);
 	static void CreateRootSig(D3D12PiplineShader &output, std::vector<Shader::ShaderParameter> Parms, DeviceContext* context);
 
 	static void CreateDefaultRootSig(D3D12PiplineShader & output);

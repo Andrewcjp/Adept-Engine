@@ -3,7 +3,7 @@
 #include "Shader_Main.h"
 #include "Core/Platform/PlatformCore.h"
 
-DECLARE_GLOBAL_SHADER(Shader_SkeletalMesh);
+IMPLEMENT_GLOBAL_SHADER(Shader_SkeletalMesh);
 Shader_SkeletalMesh::Shader_SkeletalMesh(DeviceContext* dev) :Shader(dev)
 {
 	m_Shader = RHI::CreateShaderProgam(dev);

@@ -1,6 +1,6 @@
 
 #include "Shader_Bloom.h"
-DECLARE_GLOBAL_SHADER(Shader_Bloom);
+IMPLEMENT_GLOBAL_SHADER(Shader_Bloom);
 //Handles Threshold Pass for Bloom!
 Shader_Bloom::Shader_Bloom(DeviceContext* device) :Shader(device)
 {

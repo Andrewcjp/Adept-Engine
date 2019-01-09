@@ -27,6 +27,8 @@ private:
 #if NVAPI_PRESENT 
 	NvU32 GPUCount = 0;
 	NvPhysicalGpuHandle GPUHandles[NVAPI_MAX_PHYSICAL_GPUS];
+	glm::vec3 Colours[NVAPI_MAX_PHYSICAL_GPUS] = {glm::vec3(1)};
 #endif
+	
 };
 

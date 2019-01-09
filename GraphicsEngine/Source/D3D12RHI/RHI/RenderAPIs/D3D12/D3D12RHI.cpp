@@ -1,5 +1,4 @@
 ﻿#include "D3D12RHI.h"
-#include "D3D12RHI.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Platform/ConsoleVariable.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
@@ -40,7 +39,7 @@ void D3D12RHI::DestroyContext()
 	SafeRelease(m_dsvHeap);
 	SafeRelease(m_SetupCommandList);
 	SafeRelease(factory);
-	delete ScreenShotter;
+	SafeDelete(ScreenShotter);
 	ReportObjects();
 }
 
@@ -230,6 +229,13 @@ void D3D12RHI::HandleDeviceFailure()
 	HRESULT HR;
 	HR = Instance->GetPrimaryDevice()->GetDevice()->GetDeviceRemovedReason();
 	ensureMsgf(HR == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(HR));
+}
+
+RHIPipeLineStateObject* D3D12RHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
+{
+	D3D12PipeLineStateObject* NewObject = new D3D12PipeLineStateObject(Desc,Device);
+	NewObject->Complie();
+	return NewObject;
 }
 
 void D3D12RHI::CreateSwapChainRTs()
@@ -580,8 +586,6 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 		}
 		// Check to see if the adapter supports Direct3D 12, but don't create the
 		// actual device yet.
-		HRESULT r = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr);
-
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 		{
 			if (ForcingIndex && adapterIndex != TargetIndex)

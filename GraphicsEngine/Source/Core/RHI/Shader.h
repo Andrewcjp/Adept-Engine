@@ -6,26 +6,30 @@
 #include "ShaderProgramBase.h"
 #include "Core/Assets/ShaderComplier.h"
 //this is a basis for a shader 
-//shaders will derive from this class so that the correct unifroms can be updated
+//shaders will derive from this class so that the correct uniforms can be updated
 
-//Static Object adds a Function ptr for the consructor to the shader complier
-//Declare Permitation 
+//Static Object adds a Function ptr for the constructor to the shader complier
+//Declare Permutation 
 #define DECLARE_GLOBAL_SHADER(Type)\
-Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
+static Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
 {\
 	return new Type(Data.Context);\
 }\
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0)
+NAME_SHADER(Type)
 
 #define DECLARE_GLOBAL_SHADER_ARGS(Type,Datatype)\
-Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
+static Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
 {\
 	return new Type(Data.Context,*((Datatype*)Data.Data));\
 }\
 
+#define IMPLEMENT_GLOBAL_SHADER(Type)\
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0)
+
+
 #define DECLARE_GLOBAL_SHADER_PERMIUTATION(Name,Type,Datatype,DataValue)\
 Datatype  _Type_##Name = DataValue; \
-ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue), &ConstructCompiledInstance_##Type, ShaderInit(&_Type_##Name, sizeof(Datatype))); \
+/*static*/ ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue), &##Type::ConstructCompiledInstance_##Type, ShaderInit(&_Type_##Name, sizeof(Datatype))); \
 
 #define NAME_SHADER(Type) const std::string GetName() override{return #Type;}
 class Shader
