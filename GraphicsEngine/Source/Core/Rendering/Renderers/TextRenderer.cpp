@@ -308,7 +308,6 @@ TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
 	{
 		FinalData[i] = '\0';
 	}
-	int soff = 0;
 	for (int i = 0; i < 128; i++)
 	{
 		if (FT_Load_Char(face, i, FT_LOAD_RENDER))

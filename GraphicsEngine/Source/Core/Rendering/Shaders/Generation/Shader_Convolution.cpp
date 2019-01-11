@@ -31,8 +31,11 @@ void Shader_Convolution::init()
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	CubeBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
 	CmdList = RHI::CreateCommandList();
-	CmdList->SetPipelineState_OLD(PipeLineState{ false,false,false });
-	CmdList->CreatePipelineState(this, CubeBuffer);
+	RHIPipeLineStateDesc desc;
+	desc.InitOLD(false, false, false);
+	desc.ShaderInUse = this;
+	desc.FrameBufferTarget = CubeBuffer;
+	CmdList->SetPipelineStateDesc(desc);
 	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);

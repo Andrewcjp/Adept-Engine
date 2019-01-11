@@ -62,18 +62,17 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyBox->Init(FilterBuffer, nullptr);
 	MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
-	PipeLineState state;
-	state.Cull = false;
-	//MainCommandList->SetPipelineState(state);
-	//finally init the pipeline!
-	MainCommandList->CreatePipelineState(Material::GetDefaultMaterialShader(), FilterBuffer);
-
+	RHIPipeLineStateDesc desc;
+	desc.ShaderInUse = Material::GetDefaultMaterialShader();
+	desc.FrameBufferTarget = FilterBuffer;
+	MainCommandList->SetPipelineStateDesc(desc);
 	NAME_RHI_OBJECT(MainCommandList);
 	/*VKanRHI::Get()->thelist = MainCommandList;*/
 	CubemapCaptureList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
-	//finally init the pipeline!
-	CubemapCaptureList->CreatePipelineState(Material::GetDefaultMaterialShader(), FilterBuffer);
-
+	desc = RHIPipeLineStateDesc();
+	desc.ShaderInUse = Material::GetDefaultMaterialShader();
+	desc.FrameBufferTarget = FilterBuffer;
+	CubemapCaptureList->SetPipelineStateDesc(desc);
 }
 
 void ForwardRenderer::CubeMapPass()

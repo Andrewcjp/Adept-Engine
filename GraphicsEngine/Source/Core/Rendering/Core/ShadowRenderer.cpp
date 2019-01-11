@@ -64,7 +64,12 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	ShadowPreSamplingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(1));
 	if (LightInteractions.size() > 2)
 	{
-		ShadowPreSamplingList->CreatePipelineState(ShadowPreSampleShader, LightInteractions[2]->PreSampledBuffer);
+		//ShadowPreSamplingList->CreatePipelineState(ShadowPreSampleShader, LightInteractions[2]->PreSampledBuffer);
+		RHIPipeLineStateDesc desc;
+		desc.ShaderInUse = ShadowPreSampleShader;
+		desc.FrameBufferTarget = LightInteractions[2]->PreSampledBuffer;
+		ShadowPreSamplingList->SetPipelineStateDesc(desc);
+
 	}
 #endif
 }
@@ -332,17 +337,16 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 		}
 	}
-	PipeLineState pipestate = PipeLineState{ true,false,false };
-	pipestate.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
-	PointShadowList->SetPipelineState_OLD(pipestate);
-	PointShadowList->SetPipelineStateObject_OLD(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
-
-	PointShadowListALT->SetPipelineState_OLD(pipestate);
-	PointShadowListALT->SetPipelineStateObject_OLD(PointLightShader, LightInteractions[0]->ShadowMap);//all shadow buffers for cube maps are the same!
-
-	DirectionalShadowList->SetPipelineState_OLD(pipestate);
-	DirectionalShadowList->SetPipelineStateObject_OLD(DirectionalLightShader, DirectionalLightBuffer);
-
+	RHIPipeLineStateDesc desc;
+	desc.InitOLD(true, false, false);	
+	desc.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
+	desc.ShaderInUse = PointLightShader;
+	desc.FrameBufferTarget = LightInteractions[0]->ShadowMap;
+	PointShadowList->SetPipelineStateDesc(desc);
+	PointShadowListALT->SetPipelineStateDesc(desc);
+	desc.ShaderInUse = DirectionalLightShader;
+	desc.FrameBufferTarget = DirectionalLightBuffer;
+	DirectionalShadowList->SetPipelineStateDesc(desc);
 }
 
 void ShadowRenderer::Unbind(RHICommandList * list)

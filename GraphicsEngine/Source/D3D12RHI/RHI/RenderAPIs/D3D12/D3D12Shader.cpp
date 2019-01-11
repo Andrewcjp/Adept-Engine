@@ -510,9 +510,10 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 	return true;
 }
 
-void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context)
+void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context,bool compute)
 {
 	D3D12PiplineShader t;
+	t.IsCompute = compute;
 	CreateRootSig(t, Params, context);
 	(output)->RootSig = t.m_rootSignature;
 }

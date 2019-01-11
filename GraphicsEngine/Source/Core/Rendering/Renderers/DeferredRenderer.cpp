@@ -47,10 +47,15 @@ void DeferredRenderer::PostInit()
 	DeferredShader = ShaderComplier::GetShader<Shader_Deferred>();
 	GFrameBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), RHIFrameBufferDesc::CreateGBuffer(m_width, m_height));
 	WriteList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
-	WriteList->CreatePipelineState(Material::GetDefaultMaterialShader(), GFrameBuffer);
+	RHIPipeLineStateDesc desc;
+	desc.ShaderInUse = Material::GetDefaultMaterialShader();
+	desc.FrameBufferTarget = GFrameBuffer;
+	WriteList->SetPipelineStateDesc(desc);
 	LightingList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
-	LightingList->SetPipelineState_OLD(PipeLineState{ false,false,false });
-	LightingList->CreatePipelineState(DeferredShader);
+	desc = RHIPipeLineStateDesc();
+	desc.InitOLD(false, false, false);
+	desc.ShaderInUse = DeferredShader;
+	LightingList->SetPipelineStateDesc(desc);
 	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyBox->Init(FilterBuffer, GFrameBuffer);
 }
@@ -135,7 +140,7 @@ void DeferredRenderer::DestoryRenderWindow()
 	EnqueueSafeRHIRelease(GFrameBuffer);
 	EnqueueSafeRHIRelease(WriteList);
 	EnqueueSafeRHIRelease(LightingList);
-	EnqueueSafeRHIRelease(OutputBuffer);
+	EnqueueSafeRHIRelease(OutputBuffer); 
 }
 
 void DeferredRenderer::FinaliseRender()

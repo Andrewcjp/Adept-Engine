@@ -53,7 +53,6 @@ private:
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;
 	IntPoint						IntialScreenSize;
-	bool							Deferredmode = false;
 	bool							ShouldRunCook = false;
 	static Game*					mgame;
 	bool							isWindowVaild = false;

@@ -84,14 +84,6 @@ public:
 	RHI_VIRTUAL void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;
 	RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
 	RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;
-	//If frame buffer is null the screen will be the render target!
-	[[deprecated("Use SetPipelineStateDesc")]]
-	RHI_VIRTUAL void CreatePipelineState(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
-	//uses the Cached PiplineStates
-	[[deprecated("Use SetPipelineStateDesc")]]
-	RHI_VIRTUAL void SetPipelineStateObject_OLD(class Shader* shader, class FrameBuffer* Buffer = nullptr) = 0;
-	[[deprecated("Use SetPipelineStateDesc")]]
-	RHI_VIRTUAL void SetPipelineState_OLD(PipeLineState state) = 0;
 	///Not Const Desc as they hash on demand
 	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) = 0;
 	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;

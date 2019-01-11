@@ -17,7 +17,7 @@ void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	UAV->Bind(list, 1);
 	list->SetFrameBufferTexture(InputTexture, 0);
 
-	list->SetConstantBufferView(VertBlur->Blurweights, 0, 2);
+	list->SetConstantBufferView(VertBlurShader->Blurweights, 0, 2);
 	list->Dispatch(InputTexture->GetWidth() / ThreadCount, InputTexture->GetHeight(), 1);
 	list->UAVBarrier(UAV);
 	Cache = InputTexture;
@@ -26,7 +26,7 @@ void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 void PP_Blur::PostSetUpData()
 {
 	BlurShader = ShaderComplier::GetShader<Shader_Blur>();
-	VertBlur = ShaderComplier::GetShader<Shader_BlurVert>();
+	VertBlurShader = ShaderComplier::GetShader<Shader_BlurVert>();
 	CMDlist = RHI::CreateCommandList(ECommandListType::Compute);
 	VertcmdList = RHI::CreateCommandList(ECommandListType::Compute);
 }
@@ -37,7 +37,7 @@ void PP_Blur::PostPass()
 	RHICommandList* list = VertcmdList;
 	UAV->Bind(VertcmdList, 1);
 	VertcmdList->SetFrameBufferTexture(Cache, 0);
-	VertcmdList->SetConstantBufferView(VertBlur->Blurweights, 0, 2);
+	VertcmdList->SetConstantBufferView(VertBlurShader->Blurweights, 0, 2);
 
 
 	list->Dispatch(Cache->GetWidth(), Cache->GetHeight() / ThreadCount, 1);
@@ -52,11 +52,12 @@ void PP_Blur::PostInitEffect(FrameBuffer* Target)
 	}
 	else
 	{
-		CMDlist->SetPipelineState_OLD(PipeLineState{ false,false,true });
-		CMDlist->CreatePipelineState(BlurShader);
-
-		VertcmdList->SetPipelineState_OLD(PipeLineState{ false,false,true });
-		VertcmdList->CreatePipelineState(VertBlur);
+		RHIPipeLineStateDesc desc;
+		desc.InitOLD(false, false, true);
+		desc.ShaderInUse = BlurShader;
+		CMDlist->SetPipelineStateDesc(desc);
+		desc.ShaderInUse = VertBlurShader;
+		VertcmdList->SetPipelineStateDesc(desc);
 	}
 	UAV = RHI::CreateUAV(RHI::GetDeviceContext(0));
 	UAV->CreateUAVFromFrameBuffer(Target);

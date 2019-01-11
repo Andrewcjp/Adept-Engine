@@ -36,8 +36,11 @@ void Shader_EnvMap::Init()
 	QuadDraw = new Shader_Convolution::QuadDrawer();
 	QuadDraw->init();
 	CmdList = RHI::CreateCommandList();
-	CmdList->SetPipelineState_OLD(PipeLineState{ false,false,false });
-	CmdList->CreatePipelineState(this, EnvBRDFBuffer);
+	RHIPipeLineStateDesc desc;
+	desc.InitOLD(false, false, false);
+	desc.ShaderInUse = this;
+	desc.FrameBufferTarget = EnvBRDFBuffer;
+	CmdList->SetPipelineStateDesc(desc);
 	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
