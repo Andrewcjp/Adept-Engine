@@ -19,8 +19,10 @@ void UIDrawBatcher::Init()
 	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
 	const int vertexBufferSize = sizeof(UIVertex) * Current_Max_Verts;
 	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, EBufferAccessType::Dynamic);
-	commandlist->SetPipelineState_OLD(PipeLineState{ false , false });
-	commandlist->CreatePipelineState(Shader);
+	RHIPipeLineStateDesc desc;
+	desc.InitOLD(false, false, false);
+	desc.ShaderInUse = Shader;
+	commandlist->SetPipelineStateDesc(desc);
 }
 void UIDrawBatcher::ReallocBuffer(int NewSize)
 {

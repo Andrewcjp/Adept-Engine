@@ -208,10 +208,6 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 	CurrentCommandList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
 }
 
-void D3D12CommandList::SetPipelineState_OLD(PipeLineState state)
-{
-	Currentpipestate = state;
-}
 
 D3D12PipeLineStateObject::D3D12PipeLineStateObject(const RHIPipeLineStateDesc& desc, DeviceContext* con) :RHIPipeLineStateObject(desc)
 {
@@ -243,7 +239,7 @@ void D3D12PipeLineStateObject::Complie()
 	ensure((Desc.ShaderInUse->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(Desc.ShaderInUse->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
-	D3D12Shader::CreateRootSig(this, Desc.ShaderInUse->GetShaderParameters(), Device);
+	D3D12Shader::CreateRootSig(this, Desc.ShaderInUse->GetShaderParameters(), Device,Desc.ShaderInUse->IsComputeShader());
 	if (Desc.ShaderInUse->IsComputeShader())
 	{
 		D3D12Shader::CreateComputePipelineShader(this, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Desc, Device);
@@ -283,22 +279,7 @@ void D3D12CommandList::PushState()
 		}
 	}
 }
-void D3D12CommandList::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
-{
-	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
-	if (Buffer != nullptr)
-	{
-		ensure(!Buffer->IsPendingKill());
-		Currentpipestate.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
-	}
-	if (Currentpipestate.RenderTargetDesc.NumRenderTargets == 0 && Currentpipestate.RenderTargetDesc.DSVFormat == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
-	{
-		Currentpipestate.RenderTargetDesc.NumRenderTargets = 1;
-		Currentpipestate.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-		Currentpipestate.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
-	}
-	IN_CreatePipelineState(shader);
-}
+
 
 std::string D3D12CommandList::GetPSOHash(Shader * shader, const PipeLineState& statedesc)
 {
@@ -307,92 +288,6 @@ std::string D3D12CommandList::GetPSOHash(Shader * shader, const PipeLineState& s
 	hash += std::to_string((int)statedesc.RenderTargetDesc.RTVFormats[0]);
 	hash += std::to_string(statedesc.Blending);
 	return hash;
-}
-
-void D3D12CommandList::SetPipelineStateObject_OLD(Shader * shader, FrameBuffer * Buffer)
-{
-	if (Buffer != nullptr)
-	{
-		ensure(!Buffer->IsPendingKill());
-	}
-	bool IsChanged = false;
-	std::string Hash = GetPSOHash(shader, Currentpipestate);
-	if (Buffer != nullptr)
-	{
-		PipeLineState teststate = Currentpipestate;
-		teststate.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
-		Hash = GetPSOHash(shader, teststate);
-	}
-	if (PSOCache.find(Hash) != PSOCache.end())
-	{
-		if (PSOCache.at(Hash) != CurrentPipelinestate)
-		{
-			CurrentPipelinestate = PSOCache.at(Hash);
-			CurrnetPsoKey = Hash;
-			IsChanged = true;
-		}
-	}
-	else
-	{
-		CreatePipelineState(shader, Buffer);
-		IsChanged = true;
-		if (RHI::GetFrameCount() > 2)
-		{
-			Log::LogMessage("Created a PSO at runtime", Log::Severity::Warning);
-		}
-	}
-	if (IsChanged && IsOpen())
-	{
-		CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
-		if (IsGraphicsList())
-		{
-			CurrentCommandList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
-		}
-		else
-		{
-			CurrentCommandList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
-		}
-	}
-}
-
-void D3D12CommandList::IN_CreatePipelineState(Shader * shader)
-{
-	if (shader->IsComputeShader())
-	{
-		ensure(ListType == ECommandListType::Compute);
-	}
-	else
-	{
-		ensure(ListType == ECommandListType::Graphics);
-	}
-
-	CurrentPipelinestate.IsCompute = (ListType == ECommandListType::Compute);
-	D3D12Shader* target = (D3D12Shader*)shader->GetShaderProgram();
-	ensure(target != nullptr);
-	ensure((shader->GetShaderParameters().size() > 0));
-	ensure((shader->GetVertexFormat().size() > 0));
-	D3D12_INPUT_ELEMENT_DESC* desc;
-	D3D12Shader::ParseVertexFormat(shader->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
-	D3D12Shader::CreateRootSig(CurrentPipelinestate, shader->GetShaderParameters(), Device);
-
-	VertexDesc = *desc;
-	Params = shader->GetShaderParameters();
-
-	if (ListType == ECommandListType::Graphics)
-	{
-		D3D12Shader::CreatePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, Device);
-	}
-	else if (ListType == ECommandListType::Compute)
-	{
-		D3D12Shader::CreateComputePipelineShader(CurrentPipelinestate, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Currentpipestate, Device);
-	}
-	if (CurrentCommandList == nullptr)
-	{
-		CreateCommandList();
-	}
-	const std::string Hash = GetPSOHash(shader, Currentpipestate);
-
-	PSOCache.try_emplace(Hash, CurrentPipelinestate);
 }
 
 void D3D12CommandList::CreateCommandList()
@@ -414,8 +309,12 @@ void D3D12CommandList::CreateCommandList()
 	else if (ListType == ECommandListType::Compute)
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentCommandList)));
-		CurrentCommandList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
-		CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
+		
+		if (CurrentPipelinestate.m_pipelineState != nullptr)
+		{
+			CurrentCommandList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
+			CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
+		}
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Copy)

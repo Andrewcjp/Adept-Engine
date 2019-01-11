@@ -8,7 +8,7 @@ public:
 	virtual void ExecPass(RHICommandList * list, FrameBuffer * InputTexture) override;
 private:
 	class Shader_Blur* BlurShader = nullptr;
-	class Shader_BlurVert* VertBlur = nullptr;
+	class Shader_BlurVert* VertBlurShader = nullptr;
 	// Inherited via PostProcessEffectBase
 	void PostPass() override;
 	virtual void PostSetUpData() override;

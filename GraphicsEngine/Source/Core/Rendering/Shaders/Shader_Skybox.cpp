@@ -23,22 +23,31 @@ Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List = RHI::CreateCommandList();
-	PipeLineState state = {};
-	state.DepthWrite = false;
-	state.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
-	state.Cull = false;
-
+	RHIPipeLineStateDesc desc;
+	desc.DepthWrite = false;
+	desc.Cull = false;
+	desc.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
+	//PipeLineState state = {};
+	//state.DepthWrite = false;
+	//state.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
+	//state.Cull = false;
+	desc.ShaderInUse = this;
+	desc.FrameBufferTarget = Buffer;
 	if (DepthSourceBuffer != nullptr)
 	{
-		state.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
-		state.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
-		List->SetPipelineState_OLD(state);
-		List->CreatePipelineState(this);
+		//state.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
+		//state.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
+		//List->SetPipelineState_OLD(state);
+		//List->CreatePipelineState(this);		
+		desc.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
+		desc.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
+		List->SetPipelineStateDesc(desc);
 	}
 	else
 	{
-		List->SetPipelineState_OLD(state);
-		List->CreatePipelineState(this, Buffer);
+		List->SetPipelineStateDesc(desc);
+		//List->SetPipelineState_OLD(state);
+		//List->CreatePipelineState(this, Buffer);
 	}
 }
 

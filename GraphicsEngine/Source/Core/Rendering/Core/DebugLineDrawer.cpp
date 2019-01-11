@@ -21,11 +21,11 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);
 	ReallocBuffer(CurrentMaxVerts);
 	CmdList = RHI::CreateCommandList();
-	PipeLineState state = {};
-	state.DepthTest = false;
-	state.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
-	CmdList->SetPipelineState_OLD(state);
-	CmdList->CreatePipelineState(LineShader);
+	RHIPipeLineStateDesc desc;
+	desc.DepthTest = false;
+	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	desc.ShaderInUse = LineShader;
+	CmdList->SetPipelineStateDesc(desc);
 	if (!DOnly)
 	{
 		instance = this;

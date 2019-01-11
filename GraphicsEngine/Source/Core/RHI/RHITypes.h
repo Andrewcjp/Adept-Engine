@@ -303,6 +303,13 @@ struct RHI_API RHIPipeLineStateDesc
 	size_t GetHash();
 	void CalulateHash();
 	bool operator==(const RHIPipeLineStateDesc other)const;
+	static RHIPipeLineStateDesc CreateDefault(Shader* shader,FrameBuffer* FB = nullptr)
+	{
+		RHIPipeLineStateDesc desc;
+		desc.ShaderInUse = shader;
+		desc.FrameBufferTarget = FB;
+		return desc;
+	}
 private:
 	size_t UniqueHash = 0;
 };

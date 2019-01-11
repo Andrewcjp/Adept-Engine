@@ -57,8 +57,10 @@ void PP_Bloom::PostInitEffect(FrameBuffer * Target)
 	}
 	else
 	{
-		CMDlist->SetPipelineState_OLD(PipeLineState{ false,false,true });
-		CMDlist->CreatePipelineState(BloomShader);
+		RHIPipeLineStateDesc desc;
+		desc.InitOLD(false, false, true);
+		desc.ShaderInUse = BloomShader;
+		CMDlist->SetPipelineStateDesc(desc);
 	}
 	UAV = RHI::CreateUAV(RHI::GetDeviceContext(0));
 	if (BloomBuffer != nullptr)

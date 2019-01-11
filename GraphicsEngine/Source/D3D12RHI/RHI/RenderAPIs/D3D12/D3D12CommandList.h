@@ -29,13 +29,8 @@ public:
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
-	virtual void SetPipelineState_OLD(PipeLineState state) override;
-	virtual void CreatePipelineState(class Shader * shader, class FrameBuffer* Buffer = nullptr) override;
 	virtual void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 	void PushState();
-	virtual void SetPipelineStateObject_OLD(class Shader* shader, class FrameBuffer* Buffer = nullptr)override;
-	void IN_CreatePipelineState(Shader * shader);
-
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetTexture(class BaseTexture * texture, int slot) override;

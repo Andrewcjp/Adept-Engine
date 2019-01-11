@@ -31,7 +31,7 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	{
 		BindMvBuffer(CommandList);
 	}
-	for (size_t i = 0; i < (*TargetScene->GetMeshObjects()).size(); i++)
+	for (int i = 0; i < (*TargetScene->GetMeshObjects()).size(); i++)
 	{
 		GameObject* CurrentObj = (*TargetScene->GetMeshObjects())[i];
 		SetActiveIndex(CommandList, (int)i, CommandList->GetDeviceIndex());
@@ -224,10 +224,10 @@ void SceneRenderer::UpdateRelflectionProbes(std::vector<RelfectionProbe*> & prob
 void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* commandlist)
 {
 	commandlist->ClearFrameBuffer(Map->CapturedTexture);
-	PipeLineState s;
-	//	s.Cull = false;
-	s.DepthTest = false;
-	commandlist->SetPipelineState_OLD(s);
+	//PipeLineState s;
+	////	s.Cull = false;
+	//s.DepthTest = false;
+	//commandlist->SetPipelineState_OLD(s);
 	for (int i = 0; i < 6; i++)
 	{
 		commandlist->SetConstantBufferView(RelfectionProbeProjections, i, MainShaderRSBinds::MVCBV);

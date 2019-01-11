@@ -71,7 +71,6 @@ bool ShaderGraph::Complie()
 	std::string PreFile = "";
 	std::string PostFile = "";
 	std::string MidFile = "";
-	bool Pre = true;
 	int TargetMarkerindex = 0;
 	int DeclareStartindex = 0;
 	for (int i = 0; i < split.size(); i++)
