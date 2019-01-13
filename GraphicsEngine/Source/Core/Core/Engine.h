@@ -7,6 +7,7 @@
 class RenderWindow;
 class EditorWindow;
 class Game;
+namespace Threading { class TaskGraph; }
 class Engine
 {
 public:
@@ -48,6 +49,7 @@ public:
 	}
 	CORE_API static float			GetPhysicsDeltaTime();
 	CORE_API static float			GetDeltaTime();
+	static Threading::TaskGraph*	GetTaskGraph();
 private:
 	static void						Exit(int code = 0);
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
@@ -59,5 +61,6 @@ private:
 	RenderWindow*					m_appwnd = nullptr;
 	bool							IsCooking = false;
 	EngineSettings					Settings;
+	Threading::TaskGraph*			TaskGraph = nullptr;
 };
 

@@ -4,6 +4,8 @@
 #include <time.h>
 
 #include "Core/Utils/MovingAverage.h"
+
+class BenchMarker;
 #define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter CYCLECOUNTER(name);
 #define SCOPE_CYCLE_COUNTER_GROUP(name,group) PerfManager::ScopeCycleCounter CYCLECOUNTER(name,group);
 #define SCOPE_STARTUP_COUNTER(name) PerfManager::ScopeStartupCounter STARTUPCOUNTER(name);
@@ -88,7 +90,7 @@ public:
 	void LogSingleActionTimers();
 	void LogSingleActionTimer(std::string name);
 	void FlushSingleActionTimer(std::string name);
-	void WriteLogStreams(class BenchMarker* Bencher);
+	void WriteLogStreams();
 private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);

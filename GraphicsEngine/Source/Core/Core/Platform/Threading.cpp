@@ -1,8 +1,10 @@
 
 #include "Threading.h"
+#include <algorithm>
+#include <typeinfo>
+
 namespace Threading
 {
-
 	Event::Event()
 	{
 		Handle = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -49,15 +51,61 @@ namespace Threading
 			thread->JobReady.WaitForSignal(-1);
 			if (thread->IsRequestedToExit())
 			{
+				thread->JobDone.Signal();//we have quit 
 				break;
 			}
 
 			if (thread->FunctionToRun != nullptr)
 			{
-				thread->FunctionToRun();
+				thread->FunctionToRun(thread->ThreadIndex);
 			}
 			thread->JobDone.Signal();
 		}
+
 		return 0;
 	}
-};
+
+	TaskGraph::TaskGraph(int Count)
+	{
+		ThreadCount = Count;
+		Threads = new Thread*[ThreadCount];
+		for (int i = 0; i < ThreadCount; i++)
+		{
+			Threads[i] = new Thread(i);
+		}
+	}
+
+	void TaskGraph::Shutdown()
+	{
+		for (int i = 0; i < ThreadCount; i++)
+		{
+			Threads[i]->RequestToExit();
+			Threads[i]->JobReady.Signal();
+			//Threads[i]->WaitForFunctionCompletion();
+			SafeDelete(Threads[i]);
+		}
+	}
+
+	void TaskGraph::RunTaskOnGraph(std::function<void(int)> function, int threadstouse)
+	{
+		if (threadstouse == 0)
+		{
+			threadstouse = ThreadCount;
+		}
+		threadstouse = std::min(threadstouse, ThreadCount);
+		for (int i = 0; i < threadstouse; i++)
+		{
+			Threads[i]->StartFunction(function);
+		}
+
+		for (int i = 0; i < threadstouse; i++)
+		{
+			Threads[i]->WaitForFunctionCompletion();
+		}
+	}
+
+	int TaskGraph::GetThreadCount() const
+	{
+		return ThreadCount;
+	}
+}

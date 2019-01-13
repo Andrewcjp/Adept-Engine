@@ -7,7 +7,7 @@
 #include "TDSolver.h"
 #include "TDVersion.h"
 #include "Utils/MemoryUtils.h"
-#include "Utils/Threading.h"
+#include "Utils/TDThreading.h"
 
 namespace TD
 {
@@ -42,7 +42,7 @@ namespace TD
 		DrawDebugLine(pos, pos + glm::vec3(0, 1, 0), colour, Lifetime);
 	}
 
-	Threading::TaskGraph * TDPhysics::GetTaskGraph()
+	TDThreading::TaskGraph * TDPhysics::GetTaskGraph()
 	{
 		return Instance->TDTaskGraph;
 	}
@@ -103,7 +103,7 @@ namespace TD
 
 	void TDPhysics::StartUp()
 	{
-		TDTaskGraph = new Threading::TaskGraph(CurrentSimConfig->TaskGraphThreadCount);
+		TDTaskGraph = new TDThreading::TaskGraph(CurrentSimConfig->TaskGraphThreadCount);
 		Solver = new TDSolver();
 		Callbacks = GetCurrentSimConfig()->CallBackHandler;
 		if (Callbacks == nullptr)

@@ -18,6 +18,8 @@
 #include "AI/Core/AISystem.h"
 #include "Platform/Windows/WindowsWindow.h"
 #include "GameWindow.h"
+#include <thread>
+#include "Platform/Threading.h"
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
@@ -67,13 +69,19 @@ Engine::Engine()
 #if RUNTESTS
 	FString::RunFStringTests();
 #endif
-
+	  
 	AudioEngine::Startup();
+	int cpucount = std::thread::hardware_concurrency();
+	unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
+	TaskGraph = new Threading::TaskGraph(threadsToCreate);
+	Log::LogMessage("TaskGraph Created with " + std::to_string(threadsToCreate) + " Threads");
 }
 
 Engine::~Engine()
 {
 	Log::ShutDownLogger();
+	TaskGraph->Shutdown();
+	SafeDelete(TaskGraph);
 }
 
 void Engine::PreInit()
@@ -310,6 +318,11 @@ float Engine::GetDeltaTime()
 		return std::min(PerfManager::GetDeltaTime(), 1.0f / 5.0f);
 	}
 	return 0.0f;
+}
+
+Threading::TaskGraph * Engine::GetTaskGraph()
+{
+	return Get()->TaskGraph;
 }
 
 void Engine::CreateApplicationWindow(int width, int height)

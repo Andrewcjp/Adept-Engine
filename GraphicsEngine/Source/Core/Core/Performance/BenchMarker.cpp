@@ -83,7 +83,7 @@ void BenchMarker::WriteCoreStat(ECoreStatName::Type stat, float value)
 
 void BenchMarker::CapturePerfMarkers()
 {
-	PerfManager::Get()->WriteLogStreams(this);
+	PerfManager::Get()->WriteLogStreams();
 }
 
 void BenchMarker::WriteFullStatsHeader(bool OnlyCoreStats)
