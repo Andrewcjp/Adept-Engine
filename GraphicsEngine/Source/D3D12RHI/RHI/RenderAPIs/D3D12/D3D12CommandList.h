@@ -63,7 +63,6 @@ private:
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList * CurrentCommandList = nullptr;
 	bool m_IsOpen = false;
-	D3D12PiplineShader				CurrentPipelinestate;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();
 	std::vector<Shader::ShaderParameter> Params;
@@ -72,11 +71,8 @@ private:
 	class D3D12Texture* Texture = nullptr;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
-	PipeLineState Currentpipestate;
-	std::map<std::string, D3D12PiplineShader> PSOCache;
 
 	ID3D12CommandSignature* CommandSig = nullptr;
-	std::string CurrnetPsoKey = "";
 	RHIPipeLineStateObject* CurrnetPSO = nullptr;
 };
 

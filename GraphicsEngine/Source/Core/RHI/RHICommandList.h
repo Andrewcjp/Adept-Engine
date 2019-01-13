@@ -94,7 +94,6 @@ public:
 	RHI_VIRTUAL void SetScreenBackBufferAsRT() = 0;
 	RHI_VIRTUAL void ClearScreen() = 0;
 	RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
-	//todo: complete this
 	RHI_VIRTUAL void UAVBarrier(RHIUAV* target) = 0;
 	RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	//Indirect

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "RHI/RHI_inc.h"
+
+class GPUStateCache;
 struct CapabilityData
 {
 	bool SupportsCopyTimeStamps = false;
@@ -36,6 +38,9 @@ public:
 	bool ShouldInsertTimer();
 	void OnInsertStallTimer(); 
 	PipelineStateObjectCache* GetPSOCache() const;
+	void UpdatePSOTracker(RHIPipeLineStateObject* PSO);
+	int GetNodeIndex();
+	GPUStateCache* GetStateCache()const;
 protected:
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
@@ -46,5 +51,9 @@ protected:
 	RHICommandList* GPUCopyList = nullptr;
 	CapabilityData Caps_Data = CapabilityData();
 	PipelineStateObjectCache* PSOCache = nullptr;
+	RHIPipeLineStateObject* CurrentGPUPSO = nullptr;
+	//For creating a fake device in Linked adapter mode
+	int NodeIndex = 0;
+	GPUStateCache* StateCache = nullptr;
 };
 
