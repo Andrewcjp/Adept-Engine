@@ -17,7 +17,7 @@ ParticleSystemManager::~ParticleSystemManager()
 
 void ParticleSystemManager::Init()
 {
-	return;
+	//return;
 	GPU_ParticleData = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	RHIBufferDesc desc;
 	desc.Accesstype = EBufferAccessType::GPUOnly;
@@ -151,14 +151,14 @@ void ParticleSystemManager::SetupCommandBuffer()
 	//RenderList->SetPipelineState_OLD(pls);
 	//RenderList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_ParticleDraw>());
 	RHIPipeLineStateDesc pdesc;
-	pdesc.Cull = true;
+	pdesc.Cull = false;
 	pdesc.RenderTargetDesc = RHIPipeRenderTargetDesc();
 	pdesc.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	pdesc.RenderTargetDesc.NumRenderTargets = 1;
 	pdesc.RenderTargetDesc.DSVFormat = FORMAT_D32_FLOAT;
-	pdesc.Blending = true;
+	pdesc.Blending = false;
 	pdesc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
-	CmdList->SetPipelineStateDesc(pdesc);
+	RenderList->SetPipelineStateDesc(pdesc);
 #if 1//USE_INDIRECTCOMPUTE
 	RenderList->SetUpCommandSigniture(sizeof(IndirectArgs), false);
 #endif
@@ -222,13 +222,31 @@ void ParticleSystemManager::Sync()
 	CmdList->UAVBarrier(DeadParticleIndexs->GetUAV());
 	CmdList->UAVBarrier(CounterBuffer->GetUAV());
 	CmdList->UAVBarrier(DispatchCommandBuffer->GetUAV());
-
+	CmdList->UAVBarrier(AliveParticleIndexs_PostSim->GetUAV());
 	CmdList->UAVBarrier(GPU_ParticleData->GetUAV());
+}
+
+RHIBuffer* ParticleSystemManager::GetPreSimList()
+{
+	if (Flip)
+	{
+		return AliveParticleIndexs_PostSim;
+	}
+	return AliveParticleIndexs;
+}
+
+RHIBuffer* ParticleSystemManager::GetPostSimList()
+{
+	if (Flip)
+	{
+		return AliveParticleIndexs;
+	}
+	return AliveParticleIndexs_PostSim;
 }
 
 void ParticleSystemManager::Simulate()
 {
-	return;
+	//return;
 	CmdList->ResetList();
 	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
@@ -245,7 +263,7 @@ void ParticleSystemManager::Simulate()
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ParticleEmit>()));
 	CounterBuffer->GetUAV()->Bind(CmdList, 1);
 	GPU_ParticleData->GetUAV()->Bind(CmdList, 0);
-	AliveParticleIndexs->GetUAV()->Bind(CmdList, 2);
+	GetPreSimList()->GetUAV()->Bind(CmdList, 2);
 
 	DeadParticleIndexs->GetUAV()->Bind(CmdList, 3);
 #if USE_INDIRECTCOMPUTE
@@ -257,9 +275,9 @@ void ParticleSystemManager::Simulate()
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ParticleCompute>()));
 	GPU_ParticleData->GetUAV()->Bind(CmdList, 0);
 	CounterBuffer->GetUAV()->Bind(CmdList, 1);
-	AliveParticleIndexs->BindBufferReadOnly(CmdList, 2);
+	GetPreSimList()->BindBufferReadOnly(CmdList, 2);
 	DeadParticleIndexs->GetUAV()->Bind(CmdList, 3);
-	AliveParticleIndexs_PostSim->GetUAV()->Bind(CmdList, 4);
+	GetPostSimList()->GetUAV()->Bind(CmdList, 4);
 #if USE_INDIRECTCOMPUTE
 	CmdList->ExecuteIndiect(1, DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else
@@ -268,7 +286,7 @@ void ParticleSystemManager::Simulate()
 	Sync();
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_EndSimulation>()));
 
-	AliveParticleIndexs_PostSim->BindBufferReadOnly(CmdList, 0);
+	GetPostSimList()->BindBufferReadOnly(CmdList, 0);
 	RenderCommandBuffer->GetUAV()->Bind(CmdList, 1);
 	CounterBuffer->GetUAV()->Bind(CmdList, 2);
 #if USE_INDIRECTCOMPUTE
@@ -285,12 +303,14 @@ void ParticleSystemManager::Simulate()
 
 void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 {
-	return;
+	//return;
 	RenderList->ResetList();
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
 	desc.FrameBufferTarget = BufferTarget;
+	desc.Cull = false;
+	desc.Blending = true;
 	RenderList->SetPipelineStateDesc(desc);
 	RenderList->SetRenderTarget(BufferTarget);
 	RenderList->SetVertexBuffer(VertexBuffer);
@@ -313,4 +333,5 @@ void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 	RenderList->Execute();
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	Flip = !Flip;
 }

@@ -44,7 +44,7 @@ float4 FSMain(VSData input) : SV_Target
     }
     if (newPosVelo[index].Lifetime <= 0.0f)
     {
-       // discard;
+       discard;
     }
     Colour.a += 0.3f;
     return Colour;

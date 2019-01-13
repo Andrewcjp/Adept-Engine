@@ -29,6 +29,10 @@ public:
 	static ParticleSystemManager* Get();
 	void ShutDown();
 	void Sync();
+	RHIBuffer * GetPreSimList();
+	RHIBuffer * GetPostSimList();
+	void BindPreSimAliveList(RHICommandList * list, int slot);
+	void BindPostSimAliveList(RHICommandList * list, int slot);
 	void Simulate();
 	void Render(FrameBuffer * BufferTarget);
 private:
@@ -66,5 +70,6 @@ private:
 	int emitcount = 0;
 	//TEst
 	BaseTexture* TEstTex = nullptr;
+	bool Flip = false;
 };
 
