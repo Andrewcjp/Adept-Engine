@@ -14,13 +14,10 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     Counter.Store(PARTICLECOUNTER_OFFSET_EMITCOUNT, Ecount);
     IndirectCommandBuffer.Store(0, Ecount);
     IndirectCommandBuffer.Store(12, count + Ecount);
-	//reset the particle count
-		
+	//reset the particle count		
     uint LastFrameAliveCount = Counter.Load(PARTICLECOUNTER_OFFSET_ALIVECOUNT_AFTERSIMULATION);
     Counter.Store(PARTICLECOUNTER_OFFSET_ALIVECOUNT, LastFrameAliveCount);
-
     Counter.Store(PARTICLECOUNTER_OFFSET_ALIVECOUNT_AFTERSIMULATION, 0);
-
 }
 
 

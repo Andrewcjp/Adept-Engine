@@ -1,10 +1,10 @@
 #include "Particle_Common.hlsl"
 RWStructuredBuffer<PosVelo> newPosVelo	: register(u0);	// UAV
 RWByteAddressBuffer CounterBuffer: register(u1);
-StructuredBuffer<uint> AliveIndexs :register(t2);
+StructuredBuffer<uint> AliveIndexs :register(t0);
 RWStructuredBuffer<uint> DeadIndexs :register(u2);
 RWStructuredBuffer<uint> PostSim_AliveIndex :register(u3);
-[numthreads(20, 1, 1)]
+[numthreads(1, 1, 1)]
 void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint GI : SV_GroupIndex)
 {	
 	const float timeStep = 1.0f / 60.0f;
@@ -13,7 +13,7 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
 	if (DTid.x < aliveCount)
 	{
         const uint index = AliveIndexs[DTid.x];        
-		if (newPosVelo[index].Lifetime > 0.0f /*|| true*/)
+		if (newPosVelo[index].Lifetime > 0.0f)
 		{
 			const float4 Gravity = float4(0, -9.81, 0, 0);
 			newPosVelo[index].vel += Gravity* timeStep;			
@@ -24,7 +24,7 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
 			CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_ALIVECOUNT_AFTERSIMULATION, 1, NewAliveIndex);
 			PostSim_AliveIndex[NewAliveIndex] = index;
 		}
-		else
+		else 
 		{
 			uint DeadParticle;
 			CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_DEADCOUNT, 1, DeadParticle);
