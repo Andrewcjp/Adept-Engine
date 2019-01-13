@@ -1,9 +1,7 @@
 #pragma once
 //macro That Removes ref and deletes the object if the count == 0; Also Nulls the pointer for safety
-//#define SafeRefRelease(target)if(target != nullptr && (target)->GetRefCount() > 1){(target)->ReleaseRef();}else{delete (target); (target) = nullptr;}
 #define SafeRefRelease(target) SafeRHIRefRelease(target);
-#define SafeRHIRefRelease(target)if(target != nullptr && (target)->GetRefCount() > 1){(target)->ReleaseRef();}else\
-{if((target) != nullptr && (target)->GetRefCount() == 1){ (target)->ReleaseRef();EnqueueSafeRHIRelease(target);}}
+#define SafeRHIRefRelease(target) if(target != nullptr){if(target->ReleaseRef()){EnqueueSafeRHIRelease(target); target = nullptr;}}
 class IRefCount
 {
 public:
@@ -11,7 +9,7 @@ public:
 	{
 		refcount++;
 	};
-	void ReleaseRef()
+	void DecrementRef()
 	{
 		RemoveRef();
 	}
@@ -19,6 +17,22 @@ public:
 	{
 		return refcount;
 	};
+	bool ReleaseRef()
+	{
+		if (GetRefCount() > 1)
+		{
+			DecrementRef();
+		}
+		else
+		{
+			if (GetRefCount() == 1)
+			{
+				DecrementRef();
+				return false;
+			}
+		}
+		return false;
+	}
 private:
 	void RemoveRef()
 	{

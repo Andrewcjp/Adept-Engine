@@ -420,7 +420,7 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 	{
 		return RHI::CreatePipelineStateObject(desc, Device);
 	}
-	ensure(itor->second->GetDesc() == desc);
+	//ensure(itor->second->GetDesc() == desc);
 	return itor->second;
 }
 

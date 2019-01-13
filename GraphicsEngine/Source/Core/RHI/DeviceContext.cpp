@@ -3,10 +3,12 @@
 #include "Core/Asserts.h"
 #include "RHITypes.h"
 #include "RHITimeManager.h"
+#include "Core/Performance/PerfManager.h"
 
 DeviceContext::DeviceContext()
 {
 	PSOCache = new PipelineStateObjectCache();
+	StateCache = new GPUStateCache();
 }
 
 DeviceContext::~DeviceContext()
@@ -56,4 +58,23 @@ void DeviceContext::OnInsertStallTimer()
 PipelineStateObjectCache * DeviceContext::GetPSOCache() const
 {
 	return PSOCache;
+}
+
+void DeviceContext::UpdatePSOTracker(RHIPipeLineStateObject * PSO)
+{
+	if (CurrentGPUPSO != PSO)
+	{
+		SCOPE_CYCLE_COUNTER_GROUP("PSO switches", "RHI");
+	}
+	CurrentGPUPSO = PSO;
+}
+
+int DeviceContext::GetNodeIndex()
+{
+	return NodeIndex;
+}
+
+GPUStateCache * DeviceContext::GetStateCache() const
+{
+	return StateCache;
 }

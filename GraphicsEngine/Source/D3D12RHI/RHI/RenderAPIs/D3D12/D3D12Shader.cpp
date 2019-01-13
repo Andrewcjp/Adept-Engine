@@ -15,7 +15,7 @@ D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = (D3D12DeviceContext*)Device;
 	CacheBlobs = !NoShaderCache.GetBoolValue();
-	if (D3D12RHI::DetectGPUDebugger())
+	//if (D3D12RHI::DetectGPUDebugger())
 	{
 		CacheBlobs = false;
 	}
@@ -146,11 +146,11 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	UINT compileFlags = 0;
 	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
-		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;//D3DCOMPILE_PARTIAL_PRECISION
+		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
 	}
 	else
 	{
-		compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS;
+		compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS |D3DCOMPILE_WARNINGS_ARE_ERRORS;
 	}
 	D3D_SHADER_MACRO* defines = ParseDefines();
 	switch (ShaderType)

@@ -5,6 +5,7 @@
 #include "D3D12Framebuffer.h"
 #include "DescriptorHeap.h"
 #include "GPUResource.h"
+#include "Rendering/Core/GPUStateCache.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
@@ -24,13 +25,8 @@ void D3D12CommandList::Release()
 {
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12CommandList, this);
-	MemoryUtils::DeleteReleaseableMap<std::string, D3D12PiplineShader>(PSOCache);
 	SafeRelease(CurrentCommandList);
 	MemoryUtils::DeleteReleaseableCArray(m_commandAllocator, RHI::CPUFrameCount);
-	if (PSOCache.size() == 0)
-	{
-		CurrentPipelinestate.Release();
-	}
 	SafeRelease(CommandSig);
 }
 
@@ -60,19 +56,23 @@ void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 	{
 		return;
 	}
-	CurrnetPSO = Device->GetPSOCache()->GetFromCache(Desc);
-	SetPipelineStateObject(CurrnetPSO);
+	if (CurrentRenderTarget != nullptr)
+	{
+		//todo: this might cause issues need to check this behavior
+		Desc.FrameBufferTarget = CurrentRenderTarget;
+	}
+	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
 }
 
 void D3D12CommandList::PushPrimitiveTopology()
 {
 	if (IsGraphicsList())
 	{
-		if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE)
+		if (CurrnetPSO->GetDesc().RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE)
 		{
 			CurrentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 		}
-		else if (Currentpipestate.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+		else if (CurrnetPSO->GetDesc().RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
 		{
 			CurrentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		}
@@ -93,15 +93,7 @@ void D3D12CommandList::ResetList()
 		CreateCommandList();
 	}
 	ensure(CurrentCommandList != nullptr);
-	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState));
-	if (ListType == ECommandListType::Graphics)
-	{
-		CurrentCommandList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
-	}
-	else if (ListType == ECommandListType::Compute)
-	{
-		CurrentCommandList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
-	}
+	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], IsCopyList() ? nullptr : ((D3D12PipeLineStateObject*)CurrnetPSO)->PSO));
 	HandleStallTimer();
 	PushState();
 }
@@ -219,6 +211,8 @@ D3D12PipeLineStateObject::~D3D12PipeLineStateObject()
 
 void D3D12PipeLineStateObject::Complie()
 {
+	ensure(PSO == nullptr);
+	ensure(RootSig == nullptr);
 	ensure(Desc.ShaderInUse);
 	if (Desc.FrameBufferTarget != nullptr)
 	{
@@ -239,7 +233,7 @@ void D3D12PipeLineStateObject::Complie()
 	ensure((Desc.ShaderInUse->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(Desc.ShaderInUse->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
-	D3D12Shader::CreateRootSig(this, Desc.ShaderInUse->GetShaderParameters(), Device,Desc.ShaderInUse->IsComputeShader());
+	D3D12Shader::CreateRootSig(this, Desc.ShaderInUse->GetShaderParameters(), Device, Desc.ShaderInUse->IsComputeShader());
 	if (Desc.ShaderInUse->IsComputeShader())
 	{
 		D3D12Shader::CreateComputePipelineShader(this, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Desc, Device);
@@ -252,6 +246,7 @@ void D3D12PipeLineStateObject::Complie()
 
 void D3D12CommandList::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
+	Device->UpdatePSOTracker(Object);
 	CurrnetPSO = Object;
 	if (CurrentCommandList == nullptr)
 	{
@@ -262,8 +257,9 @@ void D3D12CommandList::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 
 void D3D12CommandList::PushState()
 {
-	if (IsOpen())
+	if (IsOpen() && !IsCopyList())
 	{
+		Device->UpdatePSOTracker(CurrnetPSO);
 		D3D12PipeLineStateObject* DPSO = (D3D12PipeLineStateObject*)CurrnetPSO;
 		if (DPSO != nullptr)
 		{
@@ -298,30 +294,20 @@ void D3D12CommandList::CreateCommandList()
 	}
 	if (ListType == ECommandListType::Graphics)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentCommandList)));
-		CurrentCommandList->SetGraphicsRootSignature(CurrentPipelinestate.m_rootSignature);
-		if (CurrentPipelinestate.m_pipelineState != nullptr)
-		{
-			CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
-		}
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], ((D3D12PipeLineStateObject*)CurrnetPSO)->PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Compute)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentCommandList)));
-		
-		if (CurrentPipelinestate.m_pipelineState != nullptr)
-		{
-			CurrentCommandList->SetComputeRootSignature(CurrentPipelinestate.m_rootSignature);
-			CurrentCommandList->SetPipelineState(CurrentPipelinestate.m_pipelineState);
-		}
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], ((D3D12PipeLineStateObject*)CurrnetPSO)->PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Copy)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], CurrentPipelinestate.m_pipelineState, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], nullptr, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
+	PushState();
 	D3D12Helpers::NameRHIObject(CurrentCommandList, this);
 }
 
@@ -385,7 +371,7 @@ void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
 		commandSignatureDesc.ByteStride = commandSize;
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : CurrentPipelinestate.m_rootSignature, IID_PPV_ARGS(&CommandSig)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : ((D3D12PipeLineStateObject*)CurrnetPSO)->RootSig, IID_PPV_ARGS(&CommandSig)));
 		NAME_D3D12_OBJECT(CommandSig);
 	}
 	else
@@ -402,7 +388,7 @@ void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
 		commandSignatureDesc.ByteStride = commandSize;
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : CurrentPipelinestate.m_rootSignature, IID_PPV_ARGS(&CommandSig)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : ((D3D12PipeLineStateObject*)CurrnetPSO)->RootSig, IID_PPV_ARGS(&CommandSig)));
 		NAME_D3D12_OBJECT(CommandSig);
 	}
 }
@@ -452,21 +438,10 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
-#if 0
-	if (buffer == nullptr)
+	if (Device->GetStateCache()->RenderTargetCheckAndUpdate(buffer))
 	{
-		if (GPUStateCache::instance->TextureBuffers[slot] != nullptr)
-		{
-			((D3D12FrameBuffer*)GPUStateCache::instance->TextureBuffers[slot])->UnBind(CurrentCommandList);
-			GPUStateCache::instance->TextureBuffers[slot] = nullptr;
-		}
 		return;
 	}
-	else
-	{
-		GPUStateCache::instance->TextureBuffers[slot] = DBuffer;
-	}
-#endif
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
 }
@@ -477,6 +452,10 @@ void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 	ensure(texture);
 	ensure(!texture->IsPendingKill());
 	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()), "Attempted to Bind texture that is not on this device");
+	if (Device->GetStateCache()->TextureCheckAndUpdate(texture, slot))
+	{
+		return;
+	}
 	if (CurrentCommandList != nullptr)
 	{
 		Texture->BindToSlot(CurrentCommandList, slot);

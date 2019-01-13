@@ -40,16 +40,6 @@ Material::~Material()
 
 void Material::SetMaterialActive(RHICommandList* list)
 {
-#if 0
-	if (GetProperties()->ShaderInUse != nullptr)
-	{
-		list->SetPipelineStateObject_OLD(GetProperties()->ShaderInUse);
-	}
-	else
-	{
-		list->SetPipelineStateObject_OLD(Material::GetDefaultMaterialShader()/*, FrameBuffer*/);
-	}
-#else
 	RHIPipeLineStateDesc desc;
 	if (GetProperties()->ShaderInUse != nullptr)
 	{
@@ -61,7 +51,7 @@ void Material::SetMaterialActive(RHICommandList* list)
 		desc.ShaderInUse = Material::GetDefaultMaterialShader();
 		list->SetPipelineStateDesc(desc);
 	}
-#endif
+
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
 		if (Pair.second.TextureObj == nullptr)

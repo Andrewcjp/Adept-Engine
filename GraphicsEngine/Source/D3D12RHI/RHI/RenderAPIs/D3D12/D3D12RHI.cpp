@@ -234,7 +234,6 @@ void D3D12RHI::HandleDeviceFailure()
 RHIPipeLineStateObject* D3D12RHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
 {
 	D3D12PipeLineStateObject* NewObject = new D3D12PipeLineStateObject(Desc,Device);
-	NewObject->Complie();
 	return NewObject;
 }
 

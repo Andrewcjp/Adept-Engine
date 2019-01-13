@@ -84,7 +84,7 @@ void RenderEngine::Init()
 	envMap = ShaderComplier::GetShader<Shader_EnvMap>();
 	envMap->Init();
 
-	GPUStateCache::Create();
+
 	PostInit();
 	//400mb
 	Post = new PostProcessing();

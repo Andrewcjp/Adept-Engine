@@ -157,6 +157,6 @@ void RHIPipeLineStateDesc::CalulateHash()
 bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 {
 	//todo: way to get the complier to gen this?
-	return ShaderInUse == ShaderInUse && Cull == Cull && RenderTargetDesc.RTVFormats[0] == RenderTargetDesc.RTVFormats[0] && Blending == Blending;
+	return ShaderInUse == other.ShaderInUse && Cull == other.Cull && RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] && Blending == other.Blending;
 }
 
