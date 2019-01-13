@@ -11,7 +11,7 @@ namespace TD
 	class TDSolver;
 	class TDSimConfig;
 	class TDConstraint;
-	namespace Threading
+	namespace TDThreading
 	{
 		class TaskGraph;
 	}
@@ -63,7 +63,7 @@ namespace TD
 		static void DrawDebugLine(glm::vec3 LineStart, glm::vec3 LineEnd, glm::vec3 Colour, float lifetime);
 		static void DrawDebugPoint(glm::vec3 pos, glm::vec3 colour, float Lifetime);
 		TDSolver* Solver = nullptr;
-		static Threading::TaskGraph* GetTaskGraph();
+		static TDThreading::TaskGraph* GetTaskGraph();
 		void SimulationContactCallback(std::vector<ContactPair*> & SimulationCallbackPairs);
 		void TriggerSimulationContactCallback(std::vector<ContactPair*> & SimulationCallbackPairs);
 		TD_API void SetDebugShowBroadPhaseShapes(bool state);
@@ -71,7 +71,7 @@ namespace TD
 	private:
 		TDPhysics();
 		~TDPhysics();
-		Threading::TaskGraph* TDTaskGraph = nullptr;
+		TDThreading::TaskGraph* TDTaskGraph = nullptr;
 
 		std::vector<TDScene*> Scenes;
 		static TDPhysics* Instance;

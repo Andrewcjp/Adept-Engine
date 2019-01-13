@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI/RHI.h"
 #define MAX_PARTICLES 1000
-#define USE_INDIRECTCOMPUTE 0
+#define USE_INDIRECTCOMPUTE 1
 class ParticleSystemManager
 {
 public:
@@ -31,8 +31,6 @@ public:
 	void Sync();
 	RHIBuffer * GetPreSimList();
 	RHIBuffer * GetPostSimList();
-	void BindPreSimAliveList(RHICommandList * list, int slot);
-	void BindPostSimAliveList(RHICommandList * list, int slot);
 	void Simulate();
 	void Render(FrameBuffer * BufferTarget);
 private:

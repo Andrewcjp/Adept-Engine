@@ -37,7 +37,7 @@ public:
 
 	virtual void OnWindowContextLost() override;
 	void EnqueueRestart();
-
+	void SetFrameRateLimit(int limit);
 protected:
 	void ReLoadCurrentScene();
 	virtual Scene* GetCurrentScene();
@@ -71,7 +71,6 @@ protected:
 	{};
 	bool IsRunning = false;
 	bool ShouldTickScene = false;
-	int FrameRateLimit = 0;
 	double TargetDeltaTime = 0.0;
 	void LoadScene(std::string RelativePath);
 	bool PauseState = false;

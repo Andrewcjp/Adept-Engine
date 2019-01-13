@@ -1,10 +1,10 @@
 
-#include "Threading.h"
+#include "TDThreading.h"
 #include <algorithm>
 #include <typeinfo>
 namespace TD
 {
-	using namespace Threading;
+	using namespace TDThreading;
 
 	Event::Event()
 	{
@@ -67,7 +67,7 @@ namespace TD
 	}
 };
 
-TD::Threading::TaskGraph::TaskGraph(int Count)
+TD::TDThreading::TaskGraph::TaskGraph(int Count)
 {
 	ThreadCount = Count;
 	Threads = new Thread*[ThreadCount];
@@ -76,7 +76,7 @@ TD::Threading::TaskGraph::TaskGraph(int Count)
 		Threads[i] = new Thread(i);
 	}
 }
-void TD::Threading::TaskGraph::Shutdown()
+void TD::TDThreading::TaskGraph::Shutdown()
 {
 	for (int i = 0; i < ThreadCount; i++)
 	{
@@ -86,7 +86,7 @@ void TD::Threading::TaskGraph::Shutdown()
 		SafeDelete(Threads[i]);
 	}
 }
-void TD::Threading::TaskGraph::RunTaskOnGraph(std::function<void(int)> function, int threadstouse)
+void TD::TDThreading::TaskGraph::RunTaskOnGraph(std::function<void(int)> function, int threadstouse)
 {
 	if (threadstouse == 0)
 	{
@@ -104,7 +104,7 @@ void TD::Threading::TaskGraph::RunTaskOnGraph(std::function<void(int)> function,
 	}
 }
 
-int TD::Threading::TaskGraph::GetThreadCount() const
+int TD::TDThreading::TaskGraph::GetThreadCount() const
 {
 	return ThreadCount;
 }

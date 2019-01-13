@@ -577,7 +577,7 @@ void PerfManager::FlushSingleActionTimer(std::string name)
 	}
 }
 
-void PerfManager::WriteLogStreams(BenchMarker * Bencher)
+void PerfManager::WriteLogStreams()
 {
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{

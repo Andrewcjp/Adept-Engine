@@ -49,7 +49,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 {
 	ShowHud = false;
 	ShowText = true;
-	FrameRateLimit = 60;
+	SetFrameRateLimit(60);
 	Log::OutS << "Loading Editor v" << EDITOR_VERSION << Log::OutS;
 	CurrentScene = new Scene(true);
 	EditorCamera = new Editor_Camera();

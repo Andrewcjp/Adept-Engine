@@ -4,7 +4,7 @@
 #include <thread>
 namespace TD
 {
-	namespace Threading
+	namespace TDThreading
 	{
 		class Event
 		{

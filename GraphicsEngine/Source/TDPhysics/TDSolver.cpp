@@ -6,7 +6,7 @@
 #include "TDRigidDynamic.h"
 #include "TDScene.h"
 #include "TDSimConfig.h"
-#include "Utils/Threading.h"
+#include "Utils/TDThreading.h"
 #include "Utils/VectorUtils.h"
 #include <sstream>
 #define USE_LINEAR_PROJECTION 1

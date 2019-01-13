@@ -1,4 +1,3 @@
-
 #include "BaseWindow.h"
 #include "Engine.h"
 #include "Rendering/Core/DebugLineDrawer.h"
@@ -17,6 +16,9 @@
 #include "AI/Core/AISystem.h"
 #include "UI/Core/UIWidgetContext.h"
 #include "Assets/AssetManager.h"
+#include "Platform/ConsoleVariable.h"
+
+static ConsoleVariable FPSCap("maxfps", 60, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
@@ -237,9 +239,9 @@ void BaseWindow::Render()
 	}
 	PerfManager::NotifyEndOfFrame();
 	//frameRate limit
-	if (FrameRateLimit != 0)
+	if (FPSCap.GetIntValue() != 0)
 	{
-		TargetDeltaTime = 1.0f / (FrameRateLimit + 1);
+		TargetDeltaTime = 1.0f / (FPSCap.GetIntValue() + 1);
 		//in MS
 		const double WaitTime = std::max((TargetDeltaTime)-(PerfManager::GetDeltaTime()), 0.0)*1000.0f;
 		double WaitEndTime = PlatformApplication::Seconds() + (WaitTime / 1000.0);
@@ -270,12 +272,13 @@ bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response
 {
 	if (Instance != nullptr)
 	{
-		if (command.find("fps") != -1)
-		{
-			Instance->ShowText = !Instance->ShowText;
-			return true;
-		}
-		else if (command.find("stats") != -1)
+		/*	if (command.find("fps") != -1)
+			{
+				Instance->ShowText = !Instance->ShowText;
+				return true;
+			}
+			else */
+		if (command.find("stats") != -1)
 		{
 			Instance->ExtendedPerformanceStats = !Instance->ExtendedPerformanceStats;
 			return true;
@@ -340,6 +343,11 @@ void BaseWindow::EnqueueRestart()
 	{
 		UI->GetContexts()[i]->DisplayLoadingScreen();
 	}
+}
+
+void BaseWindow::SetFrameRateLimit(int limit)
+{
+	FPSCap.SetValue(limit);
 }
 
 void BaseWindow::ReLoadCurrentScene()
