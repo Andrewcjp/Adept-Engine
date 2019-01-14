@@ -8,7 +8,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "RHI/RHITypes.h"
 #include "../Shaders/Shader_Deferred.h"
-#define GPU_SINGLE_PRESAMPLE 1
+#define GPU_SINGLE_PRESAMPLE 0
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
 ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)

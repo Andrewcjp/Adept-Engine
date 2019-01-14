@@ -17,6 +17,8 @@
 #include "UI/Core/UIWidgetContext.h"
 #include "Assets/AssetManager.h"
 #include "Platform/ConsoleVariable.h"
+#include "Rendering/Core/GPUPerformanceGraph.h"
+#include "UI/GameUI/UIGraph.h"
 
 static ConsoleVariable FPSCap("maxfps", 60, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
@@ -67,7 +69,9 @@ void BaseWindow::InitilseWindow()
 	for (int i = 0; i < PreLoadTextures.size(); i++)
 	{
 		AssetManager::DirectLoadTextureAsset(PreLoadTextures[i]);
-	}
+	} 
+	GPUPerfGraph = new GPUPerformanceGraph();
+	GPUPerfGraph->TwoDrawer = UI->Graph->LineBatcher;
 }
 
 void BaseWindow::FixedUpdate()
@@ -190,6 +194,7 @@ void BaseWindow::Render()
 	Renderer->FinaliseRender();
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
+	GPUPerfGraph->Render();
 	if (UI != nullptr)
 	{
 		UI->UpdateWidgets();
@@ -213,6 +218,7 @@ void BaseWindow::Render()
 		RenderText();
 		WindowUI();
 	}
+
 	PerfManager::EndTimer("TEXT");
 	TextRenderer::instance->Finish();
 

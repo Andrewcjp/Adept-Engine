@@ -3,6 +3,7 @@
 #include "Rendering/Renderers/RenderSettings.h"
 class Input;
 class Scene;
+class GPUPerformanceGraph;
 class BaseWindow : public RenderWindow
 {
 public:
@@ -88,5 +89,6 @@ private:
 	bool Once = true;
 	double AccumTickTime = 0.0f;
 	bool RestartNextFrame = false;
+	GPUPerformanceGraph* GPUPerfGraph = nullptr;
 };
 
