@@ -7,14 +7,13 @@ static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly)
 MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;
-	SplitShadowWork = true;
+	SplitShadowWork = false;
 	ComputePerFrameShadowDataOnExCard = true;
 	PSComputeWorkSplit = false;
 }
 
 void MultiGPUMode::ValidateSettings()
 {
-	return;
 	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1)
 	{
 		MainPassSFR = false;

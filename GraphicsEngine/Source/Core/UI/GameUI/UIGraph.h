@@ -11,8 +11,9 @@ public:
 	void RenderPoints(std::vector<float>& inpoints, glm::vec3 colour);
 	void AddPoint(std::vector<float>& inpoints, float value);
 	void UpdateData() override;
-private:
 	DebugLineDrawer* LineBatcher;
+private:
+
 	std::vector<float> GPUpoints;
 	std::vector<float> CPUpoints;
 	std::vector<float> FrameTimepoints;

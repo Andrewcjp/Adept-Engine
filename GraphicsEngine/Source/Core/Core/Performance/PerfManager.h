@@ -91,6 +91,7 @@ public:
 	void LogSingleActionTimer(std::string name);
 	void FlushSingleActionTimer(std::string name);
 	void WriteLogStreams();
+	std::vector<PerfManager::TimerData*> GetAllGPUTimers(std::string group);
 private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);
