@@ -66,3 +66,8 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos, TextureCube Shadow
 	}
 	return output;
 }
+
+float GetShadowPreSampled(float2 UV, Texture2D Map)
+{
+	return 1.0f;
+}

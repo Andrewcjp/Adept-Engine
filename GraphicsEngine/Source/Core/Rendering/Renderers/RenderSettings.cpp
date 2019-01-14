@@ -7,13 +7,14 @@ static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly)
 MultiGPUMode::MultiGPUMode()
 {
 	MainPassSFR = false;
-	SplitShadowWork = false;
+	SplitShadowWork = true;
 	ComputePerFrameShadowDataOnExCard = true;
 	PSComputeWorkSplit = false;
 }
 
 void MultiGPUMode::ValidateSettings()
 {
+	return;
 	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1)
 	{
 		MainPassSFR = false;
@@ -27,6 +28,7 @@ RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 2048;
 	IsDeferred = UseDeferredMode.GetBoolValue();
+	IsDeferred = true;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;

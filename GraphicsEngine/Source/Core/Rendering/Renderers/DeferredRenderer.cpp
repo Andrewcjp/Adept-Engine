@@ -55,6 +55,7 @@ void DeferredRenderer::PostInit()
 	desc = RHIPipeLineStateDesc();
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = DeferredShader;
+	desc.FrameBufferTarget = FilterBuffer;
 	LightingList->SetPipelineStateDesc(desc);
 	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyBox->Init(FilterBuffer, GFrameBuffer);

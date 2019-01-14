@@ -27,6 +27,7 @@ public:
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc() = 0;
 	RHI_API virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough);
 	virtual void MakeReadyForComputeUse(RHICommandList* List) = 0;
+	virtual void MakeReadyForCopy(RHICommandList * list) = 0;
 protected:
 	RHIFrameBufferDesc BufferDesc;
 

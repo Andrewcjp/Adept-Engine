@@ -93,7 +93,12 @@ void D3D12CommandList::ResetList()
 		CreateCommandList();
 	}
 	ensure(CurrentCommandList != nullptr);
-	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], IsCopyList() ? nullptr : ((D3D12PipeLineStateObject*)CurrnetPSO)->PSO));
+	ID3D12PipelineState* PSO = nullptr;
+	if (CurrnetPSO != nullptr)
+	{
+		PSO = ((D3D12PipeLineStateObject*)CurrnetPSO)->PSO;
+	}
+	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], PSO));
 	HandleStallTimer();
 	PushState();
 }
@@ -214,19 +219,8 @@ void D3D12PipeLineStateObject::Complie()
 	ensure(PSO == nullptr);
 	ensure(RootSig == nullptr);
 	ensure(Desc.ShaderInUse);
-	if (Desc.FrameBufferTarget != nullptr)
-	{
-		Desc.RenderTargetDesc = Desc.FrameBufferTarget->GetPiplineRenderDesc();
-	}
-	if (Desc.RenderTargetDesc.NumRenderTargets == 0 && Desc.RenderTargetDesc.DSVFormat == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
-	{
-		//push the default
-		Desc.RenderTargetDesc.NumRenderTargets = 1;
-		Desc.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-		Desc.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
-	}
+	Desc.Build();
 	int VertexDesc_ElementCount = 0;
-
 	D3D12Shader* target = (D3D12Shader*)Desc.ShaderInUse->GetShaderProgram();
 	ensure(target != nullptr);
 	ensure((Desc.ShaderInUse->GetShaderParameters().size() > 0));
@@ -246,6 +240,8 @@ void D3D12PipeLineStateObject::Complie()
 
 void D3D12CommandList::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
+	ensure(Object);
+	ensure(Object->GetDevice() == Device);
 	Device->UpdatePSOTracker(Object);
 	CurrnetPSO = Object;
 	if (CurrentCommandList == nullptr)
@@ -292,14 +288,19 @@ void D3D12CommandList::CreateCommandList()
 	{
 		return;
 	}
+	ID3D12PipelineState* PSO = nullptr;
+	if (CurrnetPSO != nullptr)
+	{
+		PSO = ((D3D12PipeLineStateObject*)CurrnetPSO)->PSO;
+	}
 	if (ListType == ECommandListType::Graphics)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], ((D3D12PipeLineStateObject*)CurrnetPSO)->PSO, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Compute)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], ((D3D12PipeLineStateObject*)CurrnetPSO)->PSO, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Copy)

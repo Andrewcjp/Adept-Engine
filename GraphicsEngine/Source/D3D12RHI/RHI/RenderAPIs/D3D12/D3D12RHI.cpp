@@ -9,6 +9,7 @@
 #include "GPUResource.h"
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
+#include "D3D12Helpers.h"
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
@@ -237,6 +238,11 @@ RHIPipeLineStateObject* D3D12RHI::CreatePSO(const RHIPipeLineStateDesc& Desc, De
 	return NewObject;
 }
 
+void D3D12RHI::TriggerWriteBackResources()
+{
+	D3D12ReadBackCopyHelper::Get()->TriggerWriteBackAll();
+}
+
 void D3D12RHI::CreateSwapChainRTs()
 {
 	// Create frame resources.
@@ -369,7 +375,7 @@ void D3D12RHI::InitSwapChain()
 	SafeRelease(factory);
 	CreateSwapChainRTs();
 
-	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
+	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0],true);
 	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, GetPrimaryDevice()->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
 }

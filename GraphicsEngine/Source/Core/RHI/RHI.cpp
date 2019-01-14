@@ -413,19 +413,33 @@ RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)
 	return GetRHIClass()->CreateTextureArray(Device, Length);
 }
 
+PipelineStateObjectCache::PipelineStateObjectCache(DeviceContext * dev)
+{
+	Device = dev;
+}
+
 RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateDesc& desc)
 {
+#if PSO_USE_FULL_STRING_MAPS
+	auto itor = PSOMap.find(desc.GetString());
+#else
 	auto itor = PSOMap.find(desc.GetHash());
+#endif
+	desc.Build();
 	if (itor == PSOMap.end())
 	{
 		return RHI::CreatePipelineStateObject(desc, Device);
 	}
-	//ensure(itor->second->GetDesc() == desc);
+	ensure(itor->second->GetDesc() == desc);
 	return itor->second;
 }
 
 void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
 {
+#if PSO_USE_FULL_STRING_MAPS
+	PSOMap.emplace(object->GetDescString(), object);
+#else
 	PSOMap.emplace(object->GetDescHash(), object);
+#endif
 }
 

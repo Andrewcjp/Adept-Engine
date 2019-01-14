@@ -497,7 +497,7 @@ void PerfManager::UpdateGPUStat(int id, float newtime)
 		{
 			data->Active = true;
 		}
-		TimerOutput.at(id) = newtime;
+		TimerOutput.at(id) = glm::abs(newtime);
 	}
 }
 

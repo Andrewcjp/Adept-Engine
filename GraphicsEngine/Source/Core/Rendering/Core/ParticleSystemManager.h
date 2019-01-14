@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI/RHI.h"
 #define MAX_PARTICLES 1000
-#define USE_INDIRECTCOMPUTE 1
+#define USE_INDIRECTCOMPUTE 0
 class ParticleSystemManager
 {
 public:

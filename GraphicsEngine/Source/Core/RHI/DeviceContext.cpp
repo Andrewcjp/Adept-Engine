@@ -7,7 +7,7 @@
 
 DeviceContext::DeviceContext()
 {
-	PSOCache = new PipelineStateObjectCache();
+	PSOCache = new PipelineStateObjectCache(this);
 	StateCache = new GPUStateCache();
 }
 

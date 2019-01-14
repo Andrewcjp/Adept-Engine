@@ -96,7 +96,6 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::ParticleSimulation, "Particle Sim");
 	SetTimerName(EGPUTIMERS::GPU0WaitOnGPU1, "GPU0 Wait On GPU1");
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy");
-
 #endif
 }
 
@@ -113,7 +112,7 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 		if (TimeDeltas[i].Used)
 		{
 			UINT64 delta = pTimestamps[TimeDeltas[i].Endindex] - pTimestamps[TimeDeltas[i].Startindex];
-			float gpuTimeMS = (float)(delta * 1000) / (float)ClockFreq;
+			float gpuTimeMS = glm::abs((float)(delta * 1000) / (float)ClockFreq);
 			TimeDeltas[i].RawTime = gpuTimeMS;
 			TimeDeltas[i].avg.Add(gpuTimeMS);
 		}

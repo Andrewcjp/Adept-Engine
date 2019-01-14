@@ -33,7 +33,7 @@ public:
 	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
 	void CopyToDevice(ID3D12GraphicsCommandList * list);
 	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
-	void MakeReadyForCopy(ID3D12GraphicsCommandList * list);
+	void MakeReadyForCopy_In(ID3D12GraphicsCommandList * list);
 
 	virtual void MakeReadyForComputeUse(RHICommandList* List) override;
 	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
@@ -44,6 +44,7 @@ public:
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
+	void MakeReadyForCopy(RHICommandList * list) override;
 	DescriptorHeap* SrvHeap = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;
 	DescriptorHeap* DSVHeap = nullptr;
@@ -75,6 +76,7 @@ private:
 	DescriptorHeap* SharedSRVHeap = nullptr;
 	class GPUResource* SharedTarget = nullptr;
 	RHIPipeRenderTargetDesc RenderTargetDesc = {};
+
 };
 
 CreateChecker(D3D12FrameBuffer);
