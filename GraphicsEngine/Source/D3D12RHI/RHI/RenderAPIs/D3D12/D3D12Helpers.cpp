@@ -7,6 +7,7 @@
 #include "Core/Utils/FileUtils.h"
 #include "DescriptorHeap.h"
 #include "D3D12CBV.h"
+#include "Core/Assets/AssetManager.h"
 
 void D3D12Helpers::NameRHIObject(DescriptorHeap * Object, IRHIResourse * resource, std::string OtherData)
 {
@@ -262,6 +263,10 @@ D3D12_RESOURCE_STATES D3D12Helpers::ConvertBufferResourceState(EBufferResourceSt
 
 void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
 {
+	if (Cmdlist == nullptr)
+	{
+		return;
+	}
 	Cmdlist->ResetList();
 	D3D12_RESOURCE_STATES InitalState = Target->GetCurrentState();
 	Target->SetResourceState(Cmdlist->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -275,20 +280,45 @@ void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
 	Cmdlist->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
 
 	Target->SetResourceState(Cmdlist->GetCommandList(), InitalState);
-	Device->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
-	Cmdlist->Execute(DeviceContextQueue::InterCopy);
-	Device->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+	if (UseCopy)
+	{
+		Device->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+		Cmdlist->Execute(DeviceContextQueue::InterCopy);
+		Device->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+	}
+	else
+	{
+		Cmdlist->Execute();
+	}
 }
 
-D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext * context, GPUResource* target)
+D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext* context, GPUResource* inTarget, bool Exclude /*= false*/)
 {
+	if (!Exclude)
+	{
+		Get()->Helpers.push_back(this);
+	}
+	if (context == nullptr || inTarget == nullptr)
+	{
+		return;
+	}
+	ensure(inTarget);
 	Device = (D3D12DeviceContext*)context;
-	Cmdlist = (D3D12CommandList*)RHI::CreateCommandList(ECommandListType::Copy, context);
-	Target = target;
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+	if (UseCopy)
+	{
+		Cmdlist = (D3D12CommandList*)RHI::CreateCommandList(ECommandListType::Copy, context);
+	}
+	else
+	{
+		Cmdlist = (D3D12CommandList*)RHI::CreateCommandList(ECommandListType::Graphics, context);
+	}
+
+	Target = inTarget;
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout[6];
 	UINT64 pTotalBytes = 0;
-	Device->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
-	UINT64 textureSize = D3D12Helpers::Align(layout.Footprint.RowPitch * layout.Footprint.Height);
+	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
+	Device->GetDevice()->GetCopyableFootprints(&Desc, 0, Desc.DepthOrArraySize, 0, layout, nullptr, nullptr, &pTotalBytes);
+	UINT64 textureSize = D3D12Helpers::Align(layout[0].Footprint.RowPitch * layout[0].Footprint.Height);
 
 	// Create a buffer with the same layout as the render target texture.
 	D3D12_RESOURCE_DESC crossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_NONE);
@@ -307,24 +337,69 @@ D3D12ReadBackCopyHelper::D3D12ReadBackCopyHelper(DeviceContext * context, GPURes
 
 D3D12ReadBackCopyHelper::~D3D12ReadBackCopyHelper()
 {
-	//Only Destoryed at the end of the RHI Lifetime
+	//Only Destroyed at the end of the RHI Lifetime
 	SafeRHIRelease(WriteBackResource);
 	SafeRHIRelease(Cmdlist);
 }
 
 void D3D12ReadBackCopyHelper::WriteToFile(std::string Ref)
 {
+	if (Cmdlist == nullptr)
+	{
+		return;
+	}
+	Device->CPUWaitForAll();
 	const bool DDS = false;
+
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout[6];
+	UINT64 pTotalBytes = 0;
+	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
+	Device->GetDevice()->GetCopyableFootprints(&Desc, 0, Desc.DepthOrArraySize, 0, layout, nullptr, nullptr, &pTotalBytes);
+
+	std::string path = Ref;
+
+	FileUtils::CreateDirectoriesToFullPath(path);
+	path.append(Target->GetDebugName());
+	path.append("  ");
+	path.append(GenericPlatformMisc::GetDateTimeString());
+
+	for (int i = 0; i < 1/*Desc.DepthOrArraySize*/; i++)
+	{
+		std::string SubName = path + "_" + std::to_string(i);
+		SaveData(pTotalBytes, i, &layout[i], SubName, DDS);
+	}
+
+}
+
+void D3D12ReadBackCopyHelper::SaveData(UINT64 pTotalBytes, int subresouse, D3D12_PLACED_SUBRESOURCE_FOOTPRINT * layout, std::string &path, const bool DDS)
+{
 	const D3D12_RANGE emptyRange = {};
 	D3D12_RANGE readRange = {};
-	ThrowIfFailed(WriteBackResource->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&pData + readRange.Begin)));//+begin?
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
-	UINT64 pTotalBytes = 0;
-	Device->GetDevice()->GetCopyableFootprints(&Target->GetResource()->GetDesc(), 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
-	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
-	std::string path = Ref;
-	FileUtils::CreateDirectoriesToFullPath(path);
-	path.append(GenericPlatformMisc::GetDateTimeString());
+	ThrowIfFailed(WriteBackResource->GetResource()->Map(subresouse, &readRange, reinterpret_cast<void**>(&pData + readRange.Begin)));//+begin?
+	BYTE* RawData = (BYTE*)malloc(pTotalBytes);
+	ZeroMemory(RawData, pTotalBytes);
+	BYTE* source = static_cast<BYTE*>(pData);
+	BYTE* WritePtr = RawData;
+	int ChannelCount = 4;
+	if (layout->Footprint.Format == DXGI_FORMAT_R8_UNORM)
+	{
+		ChannelCount = 1;
+	}
+
+	for (size_t i = 0; i < layout->Footprint.Height; i++)
+	{
+		memcpy(WritePtr, source, layout->Footprint.Width * ChannelCount); // for 4 bytes per pixel
+		source += layout[0].Footprint.RowPitch;
+		WritePtr += layout->Footprint.Width * ChannelCount;
+	}
+	WriteBackResource->GetResource()->Unmap(0, &emptyRange);
+
+	//remove the Alpha Value from the texture for BMPs
+	for (int i = 0; i < layout->Footprint.Height*layout->Footprint.Width*ChannelCount; i += ChannelCount)
+	{
+		BYTE* Ptr = (RawData + i + 3);
+		*Ptr = 255;
+	}
 	if (DDS)
 	{
 		path.append(".DDS");
@@ -333,26 +408,31 @@ void D3D12ReadBackCopyHelper::WriteToFile(std::string Ref)
 	{
 		path.append(".bmp");
 	}
-	BYTE* RawData = (BYTE*)malloc(pTotalBytes);
-	ZeroMemory(RawData, pTotalBytes);
-	BYTE* source = static_cast<BYTE*>(pData);
-	BYTE* WritePtr = RawData;
-	const int ChannelCount = 4;
-	for (size_t i = 0; i < Desc.Height; i++)
-	{
-		memcpy(WritePtr, source, Desc.Width * ChannelCount); // for 4 bytes per pixel
-		source += layout.Footprint.RowPitch;
-		WritePtr += Desc.Width * ChannelCount;
-	}
-	WriteBackResource->GetResource()->Unmap(0, &emptyRange);
-
-	//remove the Alpha Value from the texture for BMPs
-	for (int i = 0; i < Desc.Height*Desc.Width*ChannelCount; i += ChannelCount)
-	{
-		BYTE* Ptr = (RawData + i + 3);
-		*Ptr = 255;
-	}
 	//de align
-	SOIL_save_image(path.c_str(), DDS ? SOIL_SAVE_TYPE_DDS : SOIL_SAVE_TYPE_BMP, (int)Desc.Width, Desc.Height, ChannelCount, RawData);
-
+	SOIL_save_image(path.c_str(), DDS ? SOIL_SAVE_TYPE_DDS : SOIL_SAVE_TYPE_BMP, (int)layout->Footprint.Width, layout->Footprint.Height, ChannelCount, RawData);
 }
+
+D3D12ReadBackCopyHelper * D3D12ReadBackCopyHelper::Get()
+{
+	if (Instance == nullptr)
+	{
+		Instance = new D3D12ReadBackCopyHelper(nullptr, nullptr, true);
+	}
+	return Instance;
+}
+
+void D3D12ReadBackCopyHelper::SaveResource(int i)
+{
+	WriteBackRenderTarget();
+	WriteToFile(AssetManager::DirectGetGeneratedDir());
+}
+
+void D3D12ReadBackCopyHelper::TriggerWriteBackAll()
+{
+	for (int i = 0; i < Helpers.size(); i++)
+	{
+		Helpers[i]->SaveResource(i);
+	}
+}
+
+D3D12ReadBackCopyHelper* D3D12ReadBackCopyHelper::Instance = nullptr;

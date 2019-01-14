@@ -45,17 +45,30 @@ public:
 //Used to Copy Back resources for read
 //Run outside the RHI
 struct AssetPathRef;
+class DeviceContext;
+class GPUResource;
 class D3D12ReadBackCopyHelper
 {
 public:
 	void WriteBackRenderTarget();
-	D3D12ReadBackCopyHelper(class DeviceContext* context, class GPUResource* Target);
+	D3D12ReadBackCopyHelper(DeviceContext* context, GPUResource* Target, bool Exclude = false);
 	~D3D12ReadBackCopyHelper();
 	void WriteToFile(std::string Ref);
+
+	void SaveData(UINT64 pTotalBytes, int subresouse, D3D12_PLACED_SUBRESOURCE_FOOTPRINT * layout, std::string & path, const bool DDS);
+
+	void SaveData(UINT64 pTotalBytes, D3D12_RESOURCE_DESC &Desc, D3D12_PLACED_SUBRESOURCE_FOOTPRINT * layout, std::string &path, const bool DDS);
+
+	static D3D12ReadBackCopyHelper* Get();
+	void SaveResource(int i);
+	void TriggerWriteBackAll();
 private:
+	bool UseCopy = false;
+	static D3D12ReadBackCopyHelper* Instance;
 	GPUResource * WriteBackResource = nullptr;
 	GPUResource* Target = nullptr;
 	class D3D12DeviceContext* Device = nullptr;
 	class D3D12CommandList* Cmdlist = nullptr;
 	void* pData = nullptr;
+	std::vector<D3D12ReadBackCopyHelper*> Helpers;
 };

@@ -2,6 +2,7 @@
 #include "RHITypes.h"
 #include "Core/Utils/StringUtil.h"
 #include "Shader.h"
+#include "Rendering/Core/FrameBuffer.h"
 
 RHIFrameBufferDesc RHIFrameBufferDesc::CreateColour(int width, int height)
 {
@@ -112,15 +113,14 @@ size_t RHIPipeLineStateObject::GetDescHash()
 	return Desc.GetHash();
 }
 
+std::string RHIPipeLineStateObject::GetDescString()
+{
+	return Desc.GetString();
+}
+
 void RHIPipeLineStateObject::Complie()
 {
 
-}
-
-bool RHIPipeLineStateObject::Equals(RHIPipeLineStateObject * other)
-{
-	//todo:
-	return false;
 }
 
 bool RHIPipeLineStateObject::IsReady() const
@@ -131,6 +131,11 @@ bool RHIPipeLineStateObject::IsReady() const
 const RHIPipeLineStateDesc & RHIPipeLineStateObject::GetDesc()
 {
 	return Desc;
+}
+
+DeviceContext* RHIPipeLineStateObject::GetDevice() const
+{
+	return Device;
 }
 
 size_t RHIPipeLineStateDesc::GetHash()
@@ -145,18 +150,54 @@ size_t RHIPipeLineStateDesc::GetHash()
 void RHIPipeLineStateDesc::CalulateHash()
 {
 	//todo: hash all members
-	std::string Data = "";
-	Data += ShaderInUse->GetName();
-	Data += Blending;
-	Data += Cull;
-	Data += Mode;
-	Data += std::to_string((int)RenderTargetDesc.RTVFormats[0]);
-	UniqueHash = std::hash<std::string>{} (Data);
+	StringPreHash = "";
+	StringPreHash += ShaderInUse->GetName();
+	StringPreHash += std::to_string(Blending);
+	StringPreHash += std::to_string(Cull);
+	StringPreHash += std::to_string(Mode);
+	for (int i = 0; i < MRT_MAX; i++)
+	{
+		StringPreHash += std::to_string((int)RenderTargetDesc.RTVFormats[i]);
+	}
+	UniqueHash = std::hash<std::string>{} (StringPreHash);
 }
 
 bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 {
 	//todo: way to get the complier to gen this?
-	return ShaderInUse == other.ShaderInUse && Cull == other.Cull && RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] && Blending == other.Blending;
+	if (ShaderInUse != nullptr && other.ShaderInUse != nullptr)
+	{
+		if (ShaderInUse->GetName() != other.ShaderInUse->GetName())
+		{
+			return false;
+		}
+	}
+	else if (ShaderInUse != other.ShaderInUse)
+	{
+		return false;
+	}
+	//todo: compare
+	return Cull == other.Cull && /*RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] &&*/ Blending == other.Blending;
+}
+
+void RHIPipeLineStateDesc::Build()
+{
+	if (FrameBufferTarget != nullptr)
+	{
+		RenderTargetDesc = FrameBufferTarget->GetPiplineRenderDesc();
+	}
+	if (RenderTargetDesc.NumRenderTargets == 0 && RenderTargetDesc.DSVFormat == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+	{
+		//push the default
+		RenderTargetDesc.NumRenderTargets = 1;
+		RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+		RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	}
+}
+
+std::string RHIPipeLineStateDesc::GetString()
+{
+	CalulateHash();
+	return StringPreHash;
 }
 

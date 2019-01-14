@@ -36,12 +36,9 @@ struct VS_OUTPUT
 	float2 uv : TEXCOORD0;
 };
 
-
 float4 main(VS_OUTPUT input) : SV_Target
 {
-	/*float out2 = PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
-	return float4(out2, 0, 0, 1.0f);*/
-
+	//return float4(PerSampledShadow.Sample(g_Clampsampler, input.uv).r,0.0,0.0,1.0f);
 
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv);
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv);
@@ -58,14 +55,19 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
 	float3 prefilteredColor = SpecularBlurMap.SampleLevel(defaultSampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
-	//return float4(irData, 1.0f);
-	//return float4(0,0,0, 1.0f);
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
-		if (lights[i].HasShadow && lights[i].type == 1)
+		if (i == 2)
 		{
-			LightColour *= 1.0 - ShadowCalculationCube(pos.xyz, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
+			LightColour *= 1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
+		}
+		else
+		{
+			if (lights[i].HasShadow && lights[i].type == 1)
+			{
+				LightColour *= 1.0 - ShadowCalculationCube(pos.xyz, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
+			}
 		}
 		output += LightColour;
 	}

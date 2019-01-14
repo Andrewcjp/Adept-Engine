@@ -35,7 +35,7 @@ void PP_CompostPass::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 #if TEST
 	if (TextRenderer::instance->RunOnSecondDevice)
 	{
-		buffer->MakeReadyForCopy(dlist);
+		buffer->MakeReadyForCopy_In(dlist);
 	}
 	if (buffer->GetDescription().AllowUnordedAccess)
 	{

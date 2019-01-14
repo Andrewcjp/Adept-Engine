@@ -33,6 +33,9 @@ public:
 
 	virtual RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) override;
 
+
+	RHI_VIRTUAL void TriggerWriteBackResources() override;
+
 private:
 	void DestroyContext();
 	void PresentFrame();

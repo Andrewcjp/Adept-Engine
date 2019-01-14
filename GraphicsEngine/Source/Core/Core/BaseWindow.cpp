@@ -129,6 +129,10 @@ void BaseWindow::Render()
 	{
 		RHI::GetRHIClass()->TriggerBackBufferScreenShot();
 	}
+	if (Input::Get()->GetKeyDown(VK_F6))
+	{
+		RHI::GetRHIClass()->TriggerWriteBackResources();
+	}
 	if (Input::GetKeyDown(VK_F1))
 	{
 		ShowText = !ShowText;

@@ -277,7 +277,12 @@ void D3D12FrameBuffer::MakeReadyForRead(ID3D12GraphicsCommandList * list)
 	SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-void D3D12FrameBuffer::MakeReadyForCopy(ID3D12GraphicsCommandList * list)
+void D3D12FrameBuffer::MakeReadyForCopy(RHICommandList * list)
+{
+	MakeReadyForCopy_In(((D3D12CommandList*)list)->GetCommandList());
+}
+
+void D3D12FrameBuffer::MakeReadyForCopy_In(ID3D12GraphicsCommandList * list)
 {
 	SharedTarget->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);//D3D12_RESOURCE_STATE_COPY_DEST
 }
@@ -489,7 +494,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 
 		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
 	}
-
+	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 }
 
 void D3D12FrameBuffer::Init()

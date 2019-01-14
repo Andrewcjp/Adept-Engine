@@ -210,9 +210,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	//sun
 	AddLight(glm::vec3(-8, 27, -12), true, 2500.0f);
 
-	AddLight(glm::vec3(0, 10, -20), false, 200.0f);
-	AddLight(glm::vec3(0, 5, 34), false, 75.0f);
-	AddLight(glm::vec3(0, 4, -50), false, 75.0f);
+	AddLight(glm::vec3(0, 10, -20), true, 200.0f);
+	AddLight(glm::vec3(0, 5, 34), true, 75.0f);
+	AddLight(glm::vec3(0, 4, -50), true, 75.0f);
 
 	AddLight(glm::vec3(24, 7, -21), false, 75.0f);
 	AddLight(glm::vec3(33, 6, -3), false, 75.0f);

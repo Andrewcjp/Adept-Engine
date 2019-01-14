@@ -283,10 +283,10 @@ struct RHI_API PipeLineState
 	RHIPipeRenderTargetDesc RenderTargetDesc = RHIPipeRenderTargetDesc();
 };
 
-struct RHI_API RHIPipeLineStateDesc
+struct  RHIPipeLineStateDesc
 {
 	//Hold both root signature and shader blobs
-	Shader* ShaderInUse = nullptr;	
+	Shader* ShaderInUse = nullptr;
 	FrameBuffer* FrameBufferTarget = nullptr;
 	void InitOLD(bool Depth, bool shouldcull, bool Blend);
 	bool DepthTest = true;
@@ -298,36 +298,37 @@ struct RHI_API RHIPipeLineStateDesc
 	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
 	RHIPipeRenderTargetDesc RenderTargetDesc = RHIPipeRenderTargetDesc();
 	//Validation in cases without a validation layer or engine limitations (e.g. multi-GPU)
-	bool Validate();
+	RHI_API bool Validate();
 	DeviceContext* OwningDevice = nullptr;
-	size_t GetHash();
-	void CalulateHash();
-	bool operator==(const RHIPipeLineStateDesc other)const;
-	static RHIPipeLineStateDesc CreateDefault(Shader* shader,FrameBuffer* FB = nullptr)
+	RHI_API size_t GetHash();
+	RHI_API void CalulateHash();
+	RHI_API bool operator==(const RHIPipeLineStateDesc other)const;
+	static RHIPipeLineStateDesc CreateDefault(Shader* shader, FrameBuffer* FB = nullptr)
 	{
 		RHIPipeLineStateDesc desc;
 		desc.ShaderInUse = shader;
 		desc.FrameBufferTarget = FB;
 		return desc;
 	}
+	RHI_API void Build();
+	std::string GetString();
 private:
 	size_t UniqueHash = 0;
+	std::string StringPreHash;
 };
 
-class RHI_API RHIPipeLineStateObject
+class  RHIPipeLineStateObject
 {
 public:
-	RHIPipeLineStateObject(const RHIPipeLineStateDesc& desc);
-	virtual ~RHIPipeLineStateObject();
-	size_t GetDescHash();
-	virtual void Complie();
-	//Compare based on Description
-	bool Equals(RHIPipeLineStateObject* other);
-	bool IsReady() const;
-	const RHIPipeLineStateDesc& GetDesc();
-
-	protected:
-	
+	RHI_API RHIPipeLineStateObject(const RHIPipeLineStateDesc& desc);
+	RHI_API virtual ~RHIPipeLineStateObject();
+	RHI_API size_t GetDescHash();
+	RHI_API std::string GetDescString();
+	RHI_API virtual void Complie();
+	RHI_API bool IsReady() const;
+	RHI_API const RHIPipeLineStateDesc& GetDesc();
+	RHI_API DeviceContext* GetDevice()const;
+protected:
 	bool IsComplied = false;
 	RHIPipeLineStateDesc Desc;
 protected:
