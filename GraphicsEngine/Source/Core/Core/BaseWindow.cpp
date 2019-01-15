@@ -20,7 +20,7 @@
 #include "Rendering/Core/GPUPerformanceGraph.h"
 #include "UI/GameUI/UIGraph.h"
 
-static ConsoleVariable FPSCap("maxfps", 60, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {

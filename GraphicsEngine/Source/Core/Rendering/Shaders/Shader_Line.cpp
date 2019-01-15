@@ -7,7 +7,6 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Line_2D_ON, Shader_Line, bool, true);
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Line_2D_OFF, Shader_Line, bool, false);
 Shader_Line::Shader_Line(DeviceContext* device, bool is2D) : Shader(Device)
 {
-	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TWOD_ONLY", is2D ? "1" : "0"));
 
 	m_Shader->AttachAndCompileShaderFromFile("debugline_vs", EShaderType::SHADER_VERTEX);

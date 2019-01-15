@@ -4,8 +4,6 @@ IMPLEMENT_GLOBAL_SHADER(Shader_Bloom);
 //Handles Threshold Pass for Bloom!
 Shader_Bloom::Shader_Bloom(DeviceContext* device) :Shader(device)
 {
-	m_Shader = RHI::CreateShaderProgam(Device);
-
 	m_Shader->AttachAndCompileShaderFromFile("BloomThreshold_CS", EShaderType::SHADER_COMPUTE);
 }
 

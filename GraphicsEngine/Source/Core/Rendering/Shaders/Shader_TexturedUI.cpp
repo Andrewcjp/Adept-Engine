@@ -6,11 +6,6 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_TexturedUI);
 Shader_TexturedUI::Shader_TexturedUI(DeviceContext* dev) :Shader(dev)
 {
-	m_Shader = RHI::CreateShaderProgam();
-	if (m_Shader == nullptr)
-	{
-		return;
-	}
 	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Compost_fs", EShaderType::SHADER_FRAGMENT);
 	Init();

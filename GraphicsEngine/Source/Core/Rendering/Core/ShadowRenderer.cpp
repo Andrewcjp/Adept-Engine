@@ -392,7 +392,7 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 		desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
 		PreSampledBuffer = RHI::CreateFrameBuffer(Context, desc);
 #else
-		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColourDepth(2048, 661);
+		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColourDepth(2048, 512);
 		desc.IsShared = true;
 		desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 		desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;

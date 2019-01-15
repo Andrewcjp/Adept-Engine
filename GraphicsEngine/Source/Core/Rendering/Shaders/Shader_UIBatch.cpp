@@ -4,13 +4,6 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_UIBatch);
 Shader_UIBatch::Shader_UIBatch(class DeviceContext* dev) :Shader(dev)
 {
-	m_Shader = RHI::CreateShaderProgam();
-	if (m_Shader == nullptr)
-	{
-		return;
-	}
-
-
 	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_fs", EShaderType::SHADER_FRAGMENT);
 

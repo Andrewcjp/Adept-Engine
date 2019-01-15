@@ -8,7 +8,6 @@ Shader_Depth::Shader_Depth(bool LoadGeo) :Shader_Depth(RHI::GetDeviceContext(0),
 Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 {
 	LoadGeomShader = LoadGeo;
-	m_Shader = RHI::CreateShaderProgam(Device);
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", LoadGeomShader ? "0" : "1"));
 	m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs_12", EShaderType::SHADER_VERTEX);
 	if (LoadGeomShader)

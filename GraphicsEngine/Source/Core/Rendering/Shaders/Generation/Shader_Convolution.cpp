@@ -8,7 +8,6 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_Convolution);
 Shader_Convolution::Shader_Convolution(class DeviceContext* dev) :Shader(dev)
 {
-	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->AttachAndCompileShaderFromFile("CubeMap_Convoluter_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("CubeMap_Convoluter_fs", EShaderType::SHADER_FRAGMENT);
 

@@ -10,11 +10,11 @@ Shader_SSAO::Shader_SSAO()
 	/*noisetex = new OGLTexture();
 	noisetex->GenerateNoiseTex();*/
 	//Initialise OGL shader
-	m_Shader = RHI::CreateShaderProgam();
+	//m_Shader = RHI::CreateShaderProgam();
 
 
-	m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_FRAGMENT);
+	//m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_VERTEX);
+	//m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_FRAGMENT);
 
 
 	//	glBindFragDataLocation(m_Shader->GetProgramHandle(), 0, "FragColor");

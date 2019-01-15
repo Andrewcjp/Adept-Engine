@@ -4,7 +4,6 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_ParticleDraw);
 Shader_ParticleDraw::Shader_ParticleDraw(DeviceContext* device) :Shader(device)
 {
-	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->AttachAndCompileShaderFromFile("Particles\\ParticleDraw", EShaderType::SHADER_VERTEX, "VSMain");
 	m_Shader->AttachAndCompileShaderFromFile("Particles\\ParticleDraw", EShaderType::SHADER_FRAGMENT, "FSMain");
 }

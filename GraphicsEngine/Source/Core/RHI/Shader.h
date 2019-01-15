@@ -35,7 +35,6 @@ Datatype  _Type_##Name = DataValue; \
 class Shader
 {
 public:
-
 	enum ShaderParamType
 	{
 		SRV, UAV, CBV, RootConstant

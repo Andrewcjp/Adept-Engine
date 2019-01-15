@@ -5,8 +5,7 @@ IMPLEMENT_GLOBAL_SHADER(Shader_StartSimulation);
 IMPLEMENT_GLOBAL_SHADER(Shader_EndSimulation);
 IMPLEMENT_GLOBAL_SHADER(Shader_ParticleEmit);
 Shader_ParticleCompute::Shader_ParticleCompute(DeviceContext* dev) :Shader(dev)
-{
-	m_Shader = RHI::CreateShaderProgam();
+{	
 	m_Shader->AttachAndCompileShaderFromFile("Particles\\ParticleSimulate_CS", EShaderType::SHADER_COMPUTE);
 }
 
@@ -26,7 +25,6 @@ std::vector<Shader::ShaderParameter> Shader_ParticleCompute::GetShaderParameters
 
 Shader_StartSimulation::Shader_StartSimulation(DeviceContext* dev) :Shader(dev)
 {
-	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->AttachAndCompileShaderFromFile("Particles\\StartUpdate_CS", EShaderType::SHADER_COMPUTE);
 }
 
@@ -44,7 +42,6 @@ std::vector<Shader::ShaderParameter> Shader_StartSimulation::GetShaderParameters
 
 Shader_EndSimulation::Shader_EndSimulation(DeviceContext* dev) :Shader(dev)
 {
-	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->AttachAndCompileShaderFromFile("Particles\\FinishUpdate_CS", EShaderType::SHADER_COMPUTE);
 }
 
@@ -62,7 +59,6 @@ std::vector<Shader::ShaderParameter> Shader_EndSimulation::GetShaderParameters()
 
 Shader_ParticleEmit::Shader_ParticleEmit(DeviceContext* dev) :Shader(dev)
 {
-	m_Shader = RHI::CreateShaderProgam();
 	m_Shader->AttachAndCompileShaderFromFile("Particles\\ParticleEmit_CS", EShaderType::SHADER_COMPUTE);
 }
 
