@@ -311,7 +311,7 @@ struct  RHIPipeLineStateDesc
 		return desc;
 	}
 	RHI_API void Build();
-	std::string GetString();
+	RHI_API std::string GetString();
 private:
 	size_t UniqueHash = 0;
 	std::string StringPreHash;
@@ -328,6 +328,7 @@ public:
 	RHI_API bool IsReady() const;
 	RHI_API const RHIPipeLineStateDesc& GetDesc();
 	RHI_API DeviceContext* GetDevice()const;
+	RHI_API virtual void Release();
 protected:
 	bool IsComplied = false;
 	RHIPipeLineStateDesc Desc;

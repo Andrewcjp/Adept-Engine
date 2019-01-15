@@ -323,7 +323,7 @@ DeviceContext * RHI::GetDefaultDevice()
 }
 
 RHIPipeLineStateObject * RHI::CreatePipelineStateObject(const RHIPipeLineStateDesc & Desc, DeviceContext * Device)
-{	
+{
 	if (Device == nullptr)
 	{
 		Device = RHI::GetDefaultDevice();
@@ -397,7 +397,7 @@ void RHI::DestoryContext()
 	if (Get())
 	{
 		Get()->TickDeferredDeleteQueue(true);
-		GetRHIClass()->DestoryRHI(); 
+		GetRHIClass()->DestoryRHI();
 	}
 #if DETECT_MEMORY_LEAKS
 	RefCheckerContainer::LogAllRefCounters();
@@ -418,14 +418,20 @@ PipelineStateObjectCache::PipelineStateObjectCache(DeviceContext * dev)
 	Device = dev;
 }
 
+PipelineStateObjectCache::~PipelineStateObjectCache()
+{
+	Destory();
+}
+
 RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateDesc& desc)
 {
+	desc.Build();
 #if PSO_USE_FULL_STRING_MAPS
 	auto itor = PSOMap.find(desc.GetString());
 #else
 	auto itor = PSOMap.find(desc.GetHash());
 #endif
-	desc.Build();
+	
 	if (itor == PSOMap.end())
 	{
 		return RHI::CreatePipelineStateObject(desc, Device);
@@ -441,5 +447,14 @@ void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
 #else
 	PSOMap.emplace(object->GetDescHash(), object);
 #endif
+}
+
+void PipelineStateObjectCache::Destory()
+{
+	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
+	{
+		itor->second->Release();
+	}
+	PSOMap.clear();
 }
 

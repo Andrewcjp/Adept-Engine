@@ -186,8 +186,7 @@ bool WindowsApplication::CopyFileToTarget(std::string Target, std::string Dest)
 	{
 		return true;
 	}
-	DWORD LastError = GetLastError();
-	HRESULT hr = HRESULT_FROM_WIN32(LastError);
+	DWORD LastError = GetLastError();	
 	if (LastError == ERROR_ALREADY_EXISTS)
 	{
 		return true;
@@ -204,8 +203,7 @@ bool WindowsApplication::TryCreateDirectory(const std::string & name)
 	}
 	else
 	{
-		LastError = GetLastError();
-		HRESULT hr = HRESULT_FROM_WIN32(LastError);
+		LastError = GetLastError();		
 		if (LastError == ERROR_ALREADY_EXISTS)
 		{
 			return true;

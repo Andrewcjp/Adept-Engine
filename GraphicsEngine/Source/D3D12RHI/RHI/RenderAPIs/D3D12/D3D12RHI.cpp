@@ -153,7 +153,7 @@ void D3D12RHI::LoadPipeLine()
 #ifdef _DEBUG
 #define RUNDEBUG 1
 #else 
-#define RUNDEBUG 0
+#define RUNDEBUG 1
 #endif
 
 	UINT dxgiFactoryFlags = 0;
@@ -237,12 +237,12 @@ RHIPipeLineStateObject* D3D12RHI::CreatePSO(const RHIPipeLineStateDesc& Desc, De
 	D3D12PipeLineStateObject* NewObject = new D3D12PipeLineStateObject(Desc,Device);
 	return NewObject;
 }
-
+#if ALLOW_RESOURCE_CAPTURE
 void D3D12RHI::TriggerWriteBackResources()
 {
 	D3D12ReadBackCopyHelper::Get()->TriggerWriteBackAll();
 }
-
+#endif
 void D3D12RHI::CreateSwapChainRTs()
 {
 	// Create frame resources.

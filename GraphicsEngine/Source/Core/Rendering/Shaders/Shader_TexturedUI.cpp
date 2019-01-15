@@ -37,15 +37,18 @@ void Shader_TexturedUI::Init()
 	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
-
 }
 
 Shader_TexturedUI::~Shader_TexturedUI()
-{}
+{
+	EnqueueSafeRHIRelease(list);
+	EnqueueSafeRHIRelease(VertexBuffer);
+	NoBlendPSO->Release();
+	BlendPSO->Release();
+}
 
 void Shader_TexturedUI::Render()
 {
-
 	list->ResetList();
 	if (blend)
 	{

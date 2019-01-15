@@ -16,6 +16,10 @@ ImageIO::ImageIO()
 
 ImageIO::~ImageIO()
 {
+	for (int i = 0; i < LoadedTextures.size(); i++)
+	{
+		SafeRefRelease(LoadedTextures[i]);
+	}
 	SafeRefRelease(DefaultTexture);
 }
 
@@ -84,7 +88,7 @@ void ImageIO::ShutDown()
 {
 	if (instance)
 	{
-		delete instance;
+		SafeDelete(instance);
 	}
 }
 

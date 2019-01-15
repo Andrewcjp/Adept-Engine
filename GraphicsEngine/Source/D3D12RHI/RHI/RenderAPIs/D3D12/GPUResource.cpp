@@ -11,7 +11,8 @@ GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalSt
 {
 	AddCheckerRef(GPUResource, this);
 	resource = Target;
-	NAME_D3D12_OBJECT(Target);
+	SetName(L"GPU Resource");
+	SetDebugName("GPU Reouse");
 	CurrentResourceState = InitalState;
 	Device = (D3D12DeviceContext*)device;
 }

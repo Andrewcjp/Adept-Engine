@@ -9,6 +9,7 @@
 #include "RHITypes.h"
 #define PSO_USE_FULL_STRING_MAPS 1
 #define MAX_GPU_DEVICE_COUNT 2
+#define ALLOW_RESOURCE_CAPTURE 0
 class RHI
 {
 public:
@@ -105,7 +106,9 @@ public:
 	RHI_VIRTUAL void TriggerBackBufferScreenShot() = 0;
 	RHI_VIRTUAL std::string ReportMemory() = 0;
 	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) = 0;
+#if ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() = 0;
+#endif
 };
 
 class RHIModule : public IModuleInterface
@@ -119,8 +122,10 @@ class PipelineStateObjectCache
 {
 public:
 	PipelineStateObjectCache(DeviceContext* dev);
+	~PipelineStateObjectCache();
 	CORE_API RHIPipeLineStateObject* GetFromCache(RHIPipeLineStateDesc& desc);
 	CORE_API void AddToCache(RHIPipeLineStateObject* object);
+	void Destory();
 private:
 	DeviceContext* Device = nullptr;
 	//uint is the hash of the pso desc.

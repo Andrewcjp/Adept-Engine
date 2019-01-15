@@ -91,7 +91,7 @@ bool DLTEPathfinder::Execute(std::vector<glm::vec3>& path)
 		startnode = temporaryState;
 		//todo: Finish Path Re planning
 		if (Plane->MeshType == ENavMeshType::Dynamic && Plane->IsNavDirty)
-		{				
+		{
 			kM += Heuristic(LastState, startnode);
 			//UpdateCost(4,)
 			//Update the cost of nodes that have changed
@@ -169,20 +169,17 @@ std::deque<DLTENode*> DLTEPathfinder::GetNeighbors(DLTENode* s)
 
 int DLTEPathfinder::ComputeCost(DLTENode* sFrom, DLTENode* sTo)
 {
-	int edgeCost = 1;
-	for (size_t i = 0; i < DIRECTIONS_COUNT; ++i) //todo: re planning for dynamic Nav meshes
-	{
-	}
+	//int edgeCost = 1;
+	//for (size_t i = 0; i < DIRECTIONS_COUNT; ++i) //todo: re planning for dynamic Nav meshes
+	//{
+	//}
 	return 1;
 }
 void DLTEPathfinder::UpdateLinkCost(float cost, DLTENode* sFrom, DLTENode sTo)
 {
-	for (size_t i = 0; i < sFrom->NearNodes.size(); i++)
+	for (int i = 0; i < sFrom->NearNodes.size(); i++)
 	{
-		for (int i = 0; i < sFrom->NearNodes.size(); i++)
-		{
-			sFrom->edgeCost[i] = cost;
-		}	
+		sFrom->edgeCost[i] = cost;
 	}
 }
 

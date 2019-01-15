@@ -133,9 +133,9 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	std::vector<int> indices;
 	std::vector<aiNode*> NodeArray;
 	TraverseNodeTree(NodeArray, scene->mRootNode);
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+	for (unsigned int modeli = 0; modeli < scene->mNumMeshes; modeli++)
 	{
-		const aiMesh* model = scene->mMeshes[i];
+		const aiMesh* model = scene->mMeshes[modeli];
 		if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, std::string(model->mName.C_Str())))
 		{
 			continue;
@@ -185,33 +185,23 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		for (unsigned int i = 0; i < model->mNumFaces; i++)
 		{
 			const aiFace& face = model->mFaces[i];
-		//	ensure(face.mNumIndices == 3);
+			ensure(face.mNumIndices == 3);
 			indices.push_back(face.mIndices[0]);
 			indices.push_back(face.mIndices[1]);
-			if (face.mNumIndices != 3)
-			{
-				indices.push_back(0);
-			}
-			else
-			{
-				indices.push_back(face.mIndices[2]);
-			}
-
-			
+			indices.push_back(face.mIndices[2]);
 		}
 		MeshEntity* newmesh = nullptr;
 		if (HasAnim)
 		{
 			std::vector<VertexBoneData> Bones;
 			Bones.resize(model->mNumVertices);
-			int BaseVertex = 0;
-			SKel->LoadBones(i, model, Bones);
+			SKel->LoadBones(modeli, model, Bones);
 			for (int i = 0; i < vertices.size(); i++)
 			{
 				vertices[i].m_boneIDs = glm::ivec4(Bones[i].IDs[0], Bones[i].IDs[1], Bones[i].IDs[2], Bones[i].IDs[3]);
 				vertices[i].m_weights = glm::vec4(Bones[i].Weights[0], Bones[i].Weights[1], Bones[i].Weights[2], Bones[i].Weights[3]);
 			}
-			newmesh = new MeshEntity(Settings, vertices, indices);	
+			newmesh = new MeshEntity(Settings, vertices, indices);
 			SKel->MeshEntities.push_back(newmesh);
 		}
 		else
@@ -263,9 +253,9 @@ bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSetti
 	std::vector<aiNode*> NodeArray;
 	TraverseNodeTree(NodeArray, scene->mRootNode);
 	int basevert = 0;
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+	for (unsigned int modeli = 0; modeli < scene->mNumMeshes; modeli++)
 	{
-		const aiMesh* model = scene->mMeshes[i];//todo: temp!
+		const aiMesh* model = scene->mMeshes[modeli];//todo: temp!
 		if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, std::string(model->mName.C_Str())))
 		{
 			continue;
@@ -650,7 +640,7 @@ void SkeletalMeshEntry::ReadNodes(float time, const aiNode* pNode, const glm::ma
 	{
 		uint BoneIndex = m_BoneMapping[NodeName];
 		m_BoneInfo[BoneIndex].FinalTransformation = ModelInvTransfrom * GlobalTransformation * m_BoneInfo[BoneIndex].BoneOffset;
-	}
+}
 
 	for (uint i = 0; i < pNode->mNumChildren; i++)
 	{

@@ -395,7 +395,7 @@ void D3D12ReadBackCopyHelper::SaveData(UINT64 pTotalBytes, int subresouse, D3D12
 	WriteBackResource->GetResource()->Unmap(0, &emptyRange);
 
 	//remove the Alpha Value from the texture for BMPs
-	for (int i = 0; i < layout->Footprint.Height*layout->Footprint.Width*ChannelCount; i += ChannelCount)
+	for (uint i = 0; i < layout->Footprint.Height*layout->Footprint.Width*ChannelCount; i += ChannelCount)
 	{
 		BYTE* Ptr = (RawData + i + 3);
 		*Ptr = 255;

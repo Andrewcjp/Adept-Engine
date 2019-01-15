@@ -10,6 +10,9 @@ public:
 	virtual void Complie() override;
 	ID3D12RootSignature* RootSig = nullptr;
 	ID3D12PipelineState* PSO = nullptr;
+
+	virtual void Release() override;
+
 };
 
 

@@ -2,6 +2,7 @@
 #include <locale>
 #include <codecvt>
 #include <algorithm>
+#include <iomanip>
 void StringUtils::RemoveChar(std::string &target, std::string charater)
 {
 	size_t targetnum = target.find(charater);
@@ -63,4 +64,11 @@ const char* StringUtils::CopyStringToCharArray(std::string String)
 	char* tmp = new char[String.length() + 1];
 	strcpy_s(tmp, String.length() + 1, String.c_str());
 	return tmp;
+}
+
+std::string StringUtils::ToStringFloat(float value, int Places /*= 2*/)
+{
+	std::stringstream stream;
+	stream << std::fixed << std::setprecision(Places) << value;
+	return stream.str();
 }
