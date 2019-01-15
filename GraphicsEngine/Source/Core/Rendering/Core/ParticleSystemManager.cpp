@@ -141,15 +141,6 @@ void ParticleSystemManager::SetupCommandBuffer()
 
 
 	RenderList = RHI::CreateCommandList();
-	//PipeLineState pls = PipeLineState();
-	//pls.Cull = false;
-	//pls.RenderTargetDesc = RHIPipeRenderTargetDesc();
-	//pls.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-	//pls.RenderTargetDesc.NumRenderTargets = 1;
-	//pls.RenderTargetDesc.DSVFormat = FORMAT_D32_FLOAT;
-	//pls.Blending = true;
-	//RenderList->SetPipelineState_OLD(pls);
-	//RenderList->SetPipelineStateObject_OLD(ShaderComplier::GetShader<Shader_ParticleDraw>());
 	RHIPipeLineStateDesc pdesc;
 	pdesc.Cull = false;
 	pdesc.RenderTargetDesc = RHIPipeRenderTargetDesc();

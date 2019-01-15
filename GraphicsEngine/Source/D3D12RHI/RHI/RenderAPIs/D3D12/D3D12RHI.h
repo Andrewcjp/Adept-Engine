@@ -32,10 +32,9 @@ public:
 	static void HandleDeviceFailure();
 
 	virtual RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) override;
-
-
+#if	ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() override;
-
+#endif
 private:
 	void DestroyContext();
 	void PresentFrame();

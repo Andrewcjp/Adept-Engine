@@ -111,10 +111,10 @@ void UIManager::CreateDropDown(std::vector<std::string> &options, float width, f
 
 void UIManager::AlertBox(std::string MSg)
 {
-	UIPopoutbox* testbox = new UIPopoutbox(100, 300, 250, 150);
-	testbox->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
-	testbox->SetText(MSg);
-	AddWidget(testbox);
+	UIPopoutbox* testboxx = new UIPopoutbox(100, 300, 250, 150);
+	testboxx->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
+	testboxx->SetText(MSg);
+	AddWidget(testboxx);
 	UIManager::UpdateBatches();
 }
 

@@ -135,7 +135,7 @@ private:
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;
 	ID3D12Device* m_Device = nullptr;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
-	ID3D12CommandQueue* m_commandQueue = nullptr;
+	ID3D12CommandQueue* m_MainCommandQueue = nullptr;
 
 	int CurrentFrameIndex = 0;
 
@@ -159,5 +159,7 @@ private:
 	GPUSyncPoint CrossAdaptorSync;
 
 	D3D12TimeManager* TimeManager = nullptr;
+
+	GPUSyncPoint GPUWaitPoints[DeviceContextQueue::LIMIT];
 };
 

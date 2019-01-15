@@ -13,6 +13,7 @@ inline void NAME_D3D12_SetName(ID3D12Object* pObject, LPCWSTR name)
 }
 #define NAME_D3D12_OBJECT(x) NAME_D3D12_SetName(x, L#x)
 #define NAME_RHI_OBJ(x) D3D12Helpers::NameRHIObject(x,this,#x);
+#define REF_CHECK(x) if(x != nullptr){x->AddRef();int t = x->Release();ensure(t == 1)};
 #else
 inline void SetName(ID3D12Object*, LPCWSTR)
 {}
@@ -56,8 +57,6 @@ public:
 	void WriteToFile(std::string Ref);
 
 	void SaveData(UINT64 pTotalBytes, int subresouse, D3D12_PLACED_SUBRESOURCE_FOOTPRINT * layout, std::string & path, const bool DDS);
-
-	void SaveData(UINT64 pTotalBytes, D3D12_RESOURCE_DESC &Desc, D3D12_PLACED_SUBRESOURCE_FOOTPRINT * layout, std::string &path, const bool DDS);
 
 	static D3D12ReadBackCopyHelper* Get();
 	void SaveResource(int i);

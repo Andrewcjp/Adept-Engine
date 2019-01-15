@@ -201,7 +201,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	NAME_RHI_OBJ(SharedSRVHeap);
 	SharedTarget = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST);
-
+	NAME_RHI_OBJ(SharedTarget);
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
 	SrvDesc.Format = readFormat;
 	SrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
@@ -224,7 +224,6 @@ void D3D12FrameBuffer::CopyToDevice(ID3D12GraphicsCommandList* list)
 	// Copy the intermediate render target into the shared buffer using the
 	// memory layout prescribed by the render target.
 	ID3D12Device* Host = CurrentDevice->GetDevice();
-	ID3D12Device* Target = OtherDevice->GetDevice();
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
 	GPUResource* TargetResource = RenderTarget[0];
 	if (BufferDesc.RenderTargetCount == 0)
@@ -250,7 +249,6 @@ void D3D12FrameBuffer::MakeReadyOnTarget(ID3D12GraphicsCommandList* list)
 
 	PerfManager::StartTimer("MakeReadyOnTarget");
 	ID3D12Device* Host = CurrentDevice->GetDevice();
-	ID3D12Device* Target = OtherDevice->GetDevice();
 	// Copy the buffer in the shared heap into a texture that the secondary
 	// adapter can sample from.	
 	// Copy the shared buffer contents into the texture using the memory
@@ -468,33 +466,35 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	}
 	else
 	{
-		D3D12_RENDER_TARGET_VIEW_DESC RenderTargetDesc = {};
-		RenderTargetDesc.Format = Format;
-		RenderTargetDesc.ViewDimension = D3D12Helpers::ConvertDimensionRTV(ViewDimension);
+		D3D12_RENDER_TARGET_VIEW_DESC RTDesc = {};
+		RTDesc.Format = Format;
+		RTDesc.ViewDimension = D3D12Helpers::ConvertDimensionRTV(ViewDimension);
 		if (BufferDesc.CubeMapAddressAsOne)
 		{
-			RenderTargetDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
+			RTDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
 			for (int i = 0; i < BufferDesc.MipCount; i++)
 			{
 				//write create rtvs for all the mips
-				RenderTargetDesc.Texture2D.MipSlice = i;
-				CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
+				RTDesc.Texture2D.MipSlice = i;
+				CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RTDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
 			}
 		}
 		else
 		{
 			for (int i = 0; i < BufferDesc.TextureDepth; i++)
 			{
-				RenderTargetDesc.Texture2DArray.ArraySize = 1;
-				RenderTargetDesc.Texture2DArray.FirstArraySlice = i;
-				CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RenderTargetDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
+				RTDesc.Texture2DArray.ArraySize = 1;
+				RTDesc.Texture2DArray.FirstArraySlice = i;
+				CurrentDevice->GetDevice()->CreateRenderTargetView(NewResource, &RTDesc, Heapptr->GetCPUAddress(OffsetInHeap + i));
 			}
 
 		}
 
 		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
 	}
+#if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
+#endif
 }
 
 void D3D12FrameBuffer::Init()

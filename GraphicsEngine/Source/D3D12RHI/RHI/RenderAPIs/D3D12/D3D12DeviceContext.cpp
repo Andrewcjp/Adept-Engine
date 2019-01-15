@@ -20,7 +20,7 @@ D3D12DeviceContext::D3D12DeviceContext()
 
 D3D12DeviceContext::~D3D12DeviceContext()
 {
-	SafeRelease(m_commandQueue);
+	SafeRelease(m_MainCommandQueue);
 
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
@@ -28,7 +28,7 @@ D3D12DeviceContext::~D3D12DeviceContext()
 		SafeRelease(m_SharedCopyCommandAllocator[i]);
 	}
 	SafeRelease(m_CopyCommandAllocator);
-	delete TimeManager;
+	SafeDelete(TimeManager);
 	SafeRHIRelease(GPUCopyList);
 	SafeRHIRelease(InterGPUCopyList);
 	SafeRelease(m_IntraCopyList);
@@ -103,8 +103,8 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
-	m_commandQueue->SetName(L"Core Device Command Queue");
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_MainCommandQueue)));
+	DEVICE_NAME_OBJECT(m_MainCommandQueue);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_commandAllocator[i])));
@@ -128,7 +128,6 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator[i])));
 	}
 	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_SharedCopyCommandAllocator[0], nullptr, IID_PPV_ARGS(&m_IntraCopyList)));
-	m_SharedCopyCommandQueue->SetName(L"m_SharedCopyCommandQueue");
 	m_IntraCopyList->Close();
 
 	GraphicsQueueSync.Init(GetDevice());
@@ -149,6 +148,11 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	CopySync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Copy), GetDevice());
 	InterGPUSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::InterCopy), GetDevice());
 	ComputeSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Compute), GetDevice());
+
+	for (int i = 0; i < DeviceContextQueue::LIMIT; i++)
+	{
+		GPUWaitPoints[i].InitGPUOnly(GetDevice());
+	}
 }
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
@@ -182,7 +186,7 @@ ID3D12CommandAllocator * D3D12DeviceContext::GetSharedCommandAllocator()
 
 ID3D12CommandQueue * D3D12DeviceContext::GetCommandQueue()
 {
-	return m_commandQueue;
+	return m_MainCommandQueue;
 }
 
 void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
@@ -231,7 +235,7 @@ void D3D12DeviceContext::DestoryDevice()
 
 void D3D12DeviceContext::WaitForGpu()
 {
-	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
+	GraphicsQueueSync.CreateSyncPoint(m_MainCommandQueue);
 }
 
 void D3D12DeviceContext::WaitForCopy()
@@ -347,7 +351,7 @@ void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceCont
 
 void D3D12DeviceContext::CPUWaitForAll()
 {
-	GraphicsQueueSync.CreateSyncPoint(m_commandQueue);
+	GraphicsQueueSync.CreateSyncPoint(m_MainCommandQueue);
 	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
 	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
 	ComputeQueueSync.CreateSyncPoint(m_ComputeCommandQueue);
@@ -358,7 +362,7 @@ ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQue
 	switch (value)
 	{
 	case DeviceContextQueue::Graphics:
-		return m_commandQueue;
+		return m_MainCommandQueue;
 		break;
 	case DeviceContextQueue::Compute:
 		return m_ComputeCommandQueue;
@@ -376,7 +380,7 @@ ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQue
 void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("InsertGPUWait", "RHI");
-	GpuWaitSyncPoint.GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
+	GPUWaitPoints[SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
 }
 
 void D3D12DeviceContext::WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
@@ -470,6 +474,7 @@ void GPUSyncPoint::CrossGPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12Com
 }
 void GPUSyncPoint::GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * targetqueue)
 {
+	//Breaks!
 	// Schedule a Signal command in the queue.
 	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
 

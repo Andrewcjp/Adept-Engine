@@ -216,6 +216,10 @@ D3D12PipeLineStateObject::~D3D12PipeLineStateObject()
 
 void D3D12PipeLineStateObject::Complie()
 {
+	if (RHI::GetFrameCount() > 10)
+	{
+		Log::LogMessage("Created PSO at runtime", Log::Severity::Error);
+	}
 	ensure(PSO == nullptr);
 	ensure(RootSig == nullptr);
 	ensure(Desc.ShaderInUse);
@@ -236,6 +240,14 @@ void D3D12PipeLineStateObject::Complie()
 	{
 		D3D12Shader::CreatePipelineShader(this, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Desc, Device);
 	}
+	PSO->SetName(StringUtils::ConvertStringToWide(Desc.GetString()).c_str());
+	//	REF_CHECK(RootSig);
+}
+
+void D3D12PipeLineStateObject::Release()
+{
+	SafeRelease(PSO);
+	SafeRelease(RootSig);
 }
 
 void D3D12CommandList::SetPipelineStateObject(RHIPipeLineStateObject* Object)
@@ -639,9 +651,6 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
 {
 	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
-#if _DEBUG
-	D3D12_RESOURCE_STATES s = D3D12Helpers::ConvertBufferResourceState(State);
-#endif
 	m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), D3D12Helpers::ConvertBufferResourceState(State));
 }
 

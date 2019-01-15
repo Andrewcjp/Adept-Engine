@@ -133,7 +133,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	Asset_Shader* NormalMapShader = new Asset_Shader();
 	NormalMapShader->SetupTestMat();
 	GameObject* go = nullptr;
-	LightComponent* lc = nullptr;
 	Material* mat = nullptr;
 	ColliderComponent* cc = nullptr;
 #if 0

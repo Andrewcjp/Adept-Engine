@@ -115,7 +115,7 @@ void NVAPIManager::SampleClocks()
 		if (ret == NVAPI_OK)
 		{
 			int Utilzieation = PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage;
-			float PC = Utilzieation / 80;
+			float PC = (float)Utilzieation / 80.0f;
 			Colours[i] = glm::mix(glm::vec3(1, 0, 0), glm::vec3(1), PC);
 			Data = ("Graphics: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage) + "%");
 		}

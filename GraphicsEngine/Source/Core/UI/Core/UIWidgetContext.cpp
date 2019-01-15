@@ -23,6 +23,7 @@ UIWidgetContext::UIWidgetContext()
 
 UIWidgetContext::~UIWidgetContext()
 {
+	SafeDelete(Quad);
 	SafeDelete(TextRender);
 	SafeDelete(LineBatcher);
 	SafeDelete(DrawBatcher);

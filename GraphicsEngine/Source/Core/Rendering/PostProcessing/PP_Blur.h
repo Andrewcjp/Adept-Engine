@@ -4,7 +4,7 @@ class PP_Blur : public PostProcessEffectBase
 {
 public:
 	PP_Blur();
-	~PP_Blur();
+	virtual ~PP_Blur();
 	virtual void ExecPass(RHICommandList * list, FrameBuffer * InputTexture) override;
 private:
 	class Shader_Blur* BlurShader = nullptr;

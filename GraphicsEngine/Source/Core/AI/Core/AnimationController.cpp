@@ -105,12 +105,11 @@ void Transisiton::Reset()
 	Length = 0.0f;
 }
 
-void Transisiton::SetUp(AnimationState * Src, AnimationState * Dst)
+void Transisiton::SetUp(AnimationState * src, AnimationState * dst)
 {
 	Reset();
-	this->Src = Src;
-	this->Dst = Dst;
-
+	Src = src;
+	Dst = dst;
 }
 
 bool Transisiton::IsComplete() const

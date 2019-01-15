@@ -52,12 +52,6 @@ void PP_CompostPass::PostSetUpData()
 
 void PP_CompostPass::PostInitEffect(FrameBuffer* Target)
 {
-	//PipeLineState state = PipeLineState{ false,false,true };
-	//state.RenderTargetDesc.NumRenderTargets = 1;
-	//state.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-	//state.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
-	//CMDlist->SetPipelineState_OLD(state);
-	//CMDlist->CreatePipelineState(CurrentShader);
 	RHIPipeLineStateDesc desc;
 	desc.RenderTargetDesc.NumRenderTargets = 1;
 	desc.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;

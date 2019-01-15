@@ -138,6 +138,11 @@ DeviceContext* RHIPipeLineStateObject::GetDevice() const
 	return Device;
 }
 
+void RHIPipeLineStateObject::Release()
+{
+
+}
+
 size_t RHIPipeLineStateDesc::GetHash()
 {
 	if (UniqueHash == 0)
@@ -193,6 +198,7 @@ void RHIPipeLineStateDesc::Build()
 		RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
 		RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
 	}
+	CalulateHash();
 }
 
 std::string RHIPipeLineStateDesc::GetString()

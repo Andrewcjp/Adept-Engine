@@ -69,7 +69,7 @@ void BaseWindow::InitilseWindow()
 	for (int i = 0; i < PreLoadTextures.size(); i++)
 	{
 		AssetManager::DirectLoadTextureAsset(PreLoadTextures[i]);
-	} 
+	}
 	GPUPerfGraph = new GPUPerformanceGraph();
 	GPUPerfGraph->TwoDrawer = UI->Graph->LineBatcher;
 }
@@ -120,11 +120,7 @@ void BaseWindow::Render()
 		PerfManager::EndTimer("FTick");
 	}
 
-#if 1
-	/*if (input->GetKeyDown(VK_ESCAPE))
-	{
-		PostQuitMessage(0);
-	}*/
+
 	if (Input::Get()->GetKeyDown(VK_F11))
 	{
 		RHI::ToggleFullScreenState();
@@ -135,7 +131,9 @@ void BaseWindow::Render()
 	}
 	if (Input::Get()->GetKeyDown(VK_F6))
 	{
+#if ALLOW_RESOURCE_CAPTURE
 		RHI::GetRHIClass()->TriggerWriteBackResources();
+#endif
 	}
 	if (Input::GetKeyDown(VK_F1))
 	{
@@ -144,6 +142,7 @@ void BaseWindow::Render()
 	if (Input::GetKeyDown(VK_F2))
 	{
 		ExtendedPerformanceStats = !ExtendedPerformanceStats;
+		GPUPerfGraph->SetEnabled(ExtendedPerformanceStats);
 	}
 	if (Input::GetKeyDown(VK_F8))
 	{
@@ -164,7 +163,6 @@ void BaseWindow::Render()
 	{
 		SetPauseState(true);
 	}
-#endif
 #endif
 
 	Update();
@@ -255,7 +253,6 @@ void BaseWindow::Render()
 		//in MS
 		const double WaitTime = std::max((TargetDeltaTime)-(PerfManager::GetDeltaTime()), 0.0)*1000.0f;
 		double WaitEndTime = PlatformApplication::Seconds() + (WaitTime / 1000.0);
-		double LastTime = PlatformApplication::Seconds();
 		if (WaitTime > 0)
 		{
 			if (WaitTime > 5)
