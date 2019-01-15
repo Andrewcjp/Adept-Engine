@@ -7,12 +7,12 @@ Shader::Shader()
 Shader::Shader(DeviceContext * context)
 {
 	Device = context;
-	//	m_Shader = RHI::CreateShaderProgam(context);
+	m_Shader = RHI::CreateShaderProgam(context);
 }
 
 Shader::~Shader()
 {
-	delete m_Shader;
+	SafeDelete(m_Shader);
 }
 
 ShaderProgramBase * Shader::GetShaderProgram()

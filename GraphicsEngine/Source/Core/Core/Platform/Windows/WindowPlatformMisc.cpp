@@ -7,3 +7,9 @@ void WindowPlatformMisc::LogPlatformOutput(FString data)
 {
 	OutputDebugString(data.ToWideString().c_str());
 }
+
+void WindowPlatformMisc::SetConsoleOutputColour(int colour)
+{
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, colour);
+}

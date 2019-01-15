@@ -1,15 +1,13 @@
-
 #include "Logger.h"
-#include "Core/Utils/StringUtil.h"
-#include "Core/Platform/PlatformCore.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Utils/FileUtils.h"
+#include "PlatformCore.h"
 #include "UI/UIManager.h"
 
 Log::StreamWrapper Log::OutS;
 Log* Log::Instance = nullptr;
 
-void Log::LogOutput(std::string data, bool ForceFlush/* = false*/)
+CORE_API  void Log::LogOutput(std::string data, int colour, bool ForceFlush /*= false*/)
 {
 	if (Instance == nullptr)
 	{
@@ -21,22 +19,23 @@ void Log::LogOutput(std::string data, bool ForceFlush/* = false*/)
 		Instance->FlushToLogFile();
 	}
 	PlatformMisc::LogPlatformOutput(data);
+	PlatformMisc::SetConsoleOutputColour(colour);
 	printf(data.c_str());
 }
 
 void Log::LogMessage(std::string msg, Severity s)
 {
 	std::string data = "";
+	int colour = 7;
 	switch (s)
 	{
-	case Severity::Message:
-		//data.append("Message:");
-		break;
 	case Severity::Warning:
 		data.append("Warning: ");
+		colour = 6;
 		break;
 	case Severity::Error:
 		data.append("Error: ");
+		colour = 4;
 		break;
 	}
 	data.append(msg);
@@ -48,7 +47,7 @@ void Log::LogMessage(std::string msg, Severity s)
 	{
 		data.append("\n");
 	}
-	LogOutput(data, s == Severity::Error);
+	LogOutput(data, colour, s == Severity::Error);
 }
 
 void Log::LogTextToScreen(std::string msg, float LifeTime /*= 0.0f*/, bool showinLog /*= false*/)

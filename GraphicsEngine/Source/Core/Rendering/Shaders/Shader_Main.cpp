@@ -4,10 +4,8 @@
 #include "Core/GameObject.h"
 #include "Core/Utils/MemoryUtils.h"
 
-Shader_Main::Shader_Main(bool LoadForward)
+Shader_Main::Shader_Main(bool LoadForward):Shader(RHI::GetDefaultDevice())
 {
-	m_Shader = RHI::CreateShaderProgam();
-
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));

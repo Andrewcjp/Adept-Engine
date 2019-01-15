@@ -2,9 +2,8 @@
 #include "Shader_ShadowSample.h"
 #include "Rendering/Shaders/Shader_Main.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_ShadowSample);
-Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context)
+Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context):Shader(Context)
 {
-	m_Shader = RHI::CreateShaderProgam(Context);
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_fs", EShaderType::SHADER_FRAGMENT);
 }

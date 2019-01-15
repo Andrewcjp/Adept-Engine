@@ -20,7 +20,7 @@ public:
 		Warning,
 		Error
 	};
-	CORE_API static void LogOutput(std::string data, bool ForceFlush = false);
+	CORE_API static void LogOutput(std::string data, int colour, bool ForceFlush = false);
 	struct StreamWrapper
 	{
 		std::stringstream Out;
@@ -33,7 +33,7 @@ public:
 		StreamWrapper& operator<<(const StreamWrapper& dt)
 		{
 			Out << "\n";
-			Log::LogOutput(Out.str());
+			Log::LogOutput(Out.str(), 7);
 			Out.str("");
 			return *this;
 		}

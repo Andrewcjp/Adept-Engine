@@ -241,7 +241,6 @@ void D3D12PipeLineStateObject::Complie()
 		D3D12Shader::CreatePipelineShader(this, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Desc, Device);
 	}
 	PSO->SetName(StringUtils::ConvertStringToWide(Desc.GetString()).c_str());
-	//	REF_CHECK(RootSig);
 }
 
 void D3D12PipeLineStateObject::Release()

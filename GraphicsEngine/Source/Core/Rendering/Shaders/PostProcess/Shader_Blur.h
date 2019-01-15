@@ -9,8 +9,6 @@ public:
 	
 	Shader_Blur(DeviceContext* dev) :Shader(dev)
 	{
-		m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));
-
 		m_Shader->AttachAndCompileShaderFromFile("BlurCS", EShaderType::SHADER_COMPUTE);
 	}
 	~Shader_Blur();
@@ -32,8 +30,6 @@ public:
 	DECLARE_GLOBAL_SHADER(Shader_BlurVert);
 	Shader_BlurVert(DeviceContext* dev) :Shader(dev)
 	{
-		m_Shader = RHI::CreateShaderProgam(RHI::GetDeviceContext(0));
-
 		m_Shader->AttachAndCompileShaderFromFile("BlurCS", EShaderType::SHADER_COMPUTE, "VertBlurCS");
 		Blurweights = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 		Blurweights->CreateConstantBuffer(sizeof(float) * 11, 1);

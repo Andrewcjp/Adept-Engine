@@ -5,6 +5,7 @@
 #include "Core/MinWindows.h"
 #include "Core/Platform/Logger.h"
 #include <VersionHelpers.h>
+#include <comdef.h>
 double WindowsApplication::SecondsPerCycle = 0.0f;
 
 WindowsApplication::WindowsApplication()
@@ -41,6 +42,9 @@ void* WindowsApplication::GetDllHandle(FString Name)
 #if _DEBUG
 		DWORD LastError = GetLastError();
 		HRESULT hr = HRESULT_FROM_WIN32(LastError);
+		_com_error err(hr);
+		LPCTSTR errMsg = err.ErrorMessage();
+		Log::LogMessage("DLL \"" + Name.ToSString() + "\" load failed: " + StringUtils::ConvertWideToString(errMsg), Log::Severity::Error);
 #endif
 	}
 	return Handle;
@@ -186,7 +190,7 @@ bool WindowsApplication::CopyFileToTarget(std::string Target, std::string Dest)
 	{
 		return true;
 	}
-	DWORD LastError = GetLastError();	
+	DWORD LastError = GetLastError();
 	if (LastError == ERROR_ALREADY_EXISTS)
 	{
 		return true;
@@ -203,7 +207,7 @@ bool WindowsApplication::TryCreateDirectory(const std::string & name)
 	}
 	else
 	{
-		LastError = GetLastError();		
+		LastError = GetLastError();
 		if (LastError == ERROR_ALREADY_EXISTS)
 		{
 			return true;

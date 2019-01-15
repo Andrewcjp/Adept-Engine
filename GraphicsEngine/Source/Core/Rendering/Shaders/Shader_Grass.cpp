@@ -4,8 +4,6 @@
 
 Shader_Grass::Shader_Grass()
 {
-	m_Shader = RHI::CreateShaderProgam();
-
 	m_Shader->AttachAndCompileShaderFromFile("Grass", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Grass", EShaderType::SHADER_FRAGMENT);
 }
