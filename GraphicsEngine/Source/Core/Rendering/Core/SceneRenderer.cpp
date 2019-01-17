@@ -156,6 +156,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 		newitem.Direction = lights[i]->GetDirection();
 		newitem.type = lights[i]->GetType();
 		newitem.HasShadow = lights[i]->GetDoesShadow();
+		newitem.PreSampled[0] = lights[i]->ExecOnAlt;
 		newitem.ShadowID = lights[i]->GetShadowId();
 		if (lights[i]->GetType() == Light::Directional || lights[i]->GetType() == Light::Spot)
 		{

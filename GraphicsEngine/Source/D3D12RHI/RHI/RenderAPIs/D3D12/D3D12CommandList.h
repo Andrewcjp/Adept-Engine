@@ -144,18 +144,18 @@ private:
 	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };
 
-
 class D3D12RHITextureArray : public RHITextureArray
 {
 public:
 	//todo: Ensure Framebuffer srv matches!
 	D3D12RHITextureArray(DeviceContext* device, int inNumEntries);
 	virtual ~D3D12RHITextureArray();
-	virtual void AddFrameBufferBind(FrameBuffer* Buffer, int slot)override;
-	virtual void BindToShader(RHICommandList* list, int slot)override;
-	virtual void SetIndexNull(int TargetIndex);
+	RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot)override;
+	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot)override;
+	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr);
 private:
 	void Release() override;
+	void Clear() override;
 	class DescriptorHeap* Heap = nullptr;
 	std::vector<D3D12FrameBuffer*> LinkedBuffers;
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};

@@ -8,6 +8,7 @@ struct Light
 	int ShadowID;
 	int DirShadowID;
 	int HasShadow;
+	int4 PreSampled;
 };
 //PBR functions!
 static const float PI = 3.14159265359;

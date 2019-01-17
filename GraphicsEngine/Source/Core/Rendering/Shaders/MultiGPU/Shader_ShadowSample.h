@@ -9,5 +9,6 @@ public:
 	std::vector<Shader::ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 	static const int ShadowSRV = 3;
+	static const int PreSampleCBV = 4;
 };
 

@@ -58,7 +58,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
-		if (i == 2)
+		if (lights[i].PreSampled.x)
 		{
 			LightColour *= 1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
 		}

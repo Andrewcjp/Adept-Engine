@@ -18,10 +18,13 @@ struct PSInput
 
 TextureCube g_Shadow_texture: register(t0);
 
+cbuffer PreSampleData : register(b3)
+{
+	int index;
+};
+
 float4 main(PSInput input) : SV_TARGET
 {
-//return float4(1,1,1,1);
-	//return float4(lights[2].LPosition,1.0f);
-	return float4(ShadowCalculationCube(input.WorldPos.xyz,lights[2],g_Shadow_texture),0,0,0);
+	return float4(ShadowCalculationCube(input.WorldPos.xyz,lights[index],g_Shadow_texture),0,0,0);
 }
 

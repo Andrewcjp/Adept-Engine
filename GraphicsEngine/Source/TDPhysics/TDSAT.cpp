@@ -4,7 +4,7 @@
 #include "Shapes/TDMeshShape.h"
 namespace TD
 {
-	SatInterval TDSAT::GetInterval(TDBox* box, const glm::vec3 axis)
+	TDSAT::SatInterval TDSAT::GetInterval(TDBox* box, const glm::vec3 axis)
 	{
 		const int VertCount = 8;
 		glm::vec3 vertex[VertCount];
@@ -46,7 +46,7 @@ namespace TD
 		return ((b.min <= a.max) && (a.min <= b.max));
 	}
 
-	SatInterval TDSAT::GetInterval(const TDAABB* aabb, const glm::vec3 axis)
+	TDSAT::SatInterval TDSAT::GetInterval(const TDAABB* aabb, const glm::vec3 axis)
 	{
 		glm::vec3 min = aabb->GetMin();
 		glm::vec3 Max = aabb->GetMax();
@@ -82,7 +82,7 @@ namespace TD
 		return ((b.min <= a.max) && (a.min <= b.max));
 	}
 
-	SatInterval TDSAT::GetInterval(const TDTriangle* triangle, const glm::vec3 axis)
+	TDSAT::SatInterval TDSAT::GetInterval(const TDTriangle* triangle, const glm::vec3 axis)
 	{
 		SatInterval result;
 		result.min = glm::dot(axis, triangle->Points[0]);

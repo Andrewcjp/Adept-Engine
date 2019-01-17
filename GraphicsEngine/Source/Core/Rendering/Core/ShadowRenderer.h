@@ -40,11 +40,10 @@ private:
 	{
 		ShadowLightInteraction(class DeviceContext * Context, bool IsPoint, int MapSize);
 		~ShadowLightInteraction();
-		void PreSampleShadows(RHICommandList* List);
 		FrameBuffer* ShadowMap = nullptr;
 		Shader_Depth* Shader = nullptr;
-
-		//PreSampled Buffer used to reduce Daa transfer
+		Light* lightPtr = nullptr;
+		//PreSampled Buffer used to reduce Data transfer
 		FrameBuffer* PreSampledBuffer = nullptr;
 
 		bool NeedsSample = false;

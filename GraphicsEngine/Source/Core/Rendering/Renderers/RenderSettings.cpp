@@ -10,6 +10,7 @@ MultiGPUMode::MultiGPUMode()
 	SplitShadowWork = true;
 	ComputePerFrameShadowDataOnExCard = true;
 	PSComputeWorkSplit = false;
+	AsyncShadows = true;
 }
 
 void MultiGPUMode::ValidateSettings()
@@ -20,12 +21,13 @@ void MultiGPUMode::ValidateSettings()
 		SplitShadowWork = false;
 		ComputePerFrameShadowDataOnExCard = false;
 		PSComputeWorkSplit = false;
+		AsyncShadows = false;
 	}
 }
 
 RenderSettings::RenderSettings()
 {
-	ShadowMapSize = 512;
+	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	IsDeferred = true;
 	if (IsDeferred)

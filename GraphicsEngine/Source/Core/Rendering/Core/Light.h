@@ -68,6 +68,7 @@ public:
 	glm::mat4 DirView;
 	glm::mat4 Projection;
 	glm::vec3 m_lightColor = glm::vec3(1, 1, 1);
+	bool ExecOnAlt = false;
 private:
 	float m_intesity = 10;
 	glm::vec3 m_position = glm::vec3(0, 0, 0);

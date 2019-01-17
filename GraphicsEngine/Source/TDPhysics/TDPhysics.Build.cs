@@ -12,5 +12,6 @@ class TDPhysicsModule : ModuleDef
         NeedsCore = false;
         ModuleOutputType = ModuleDef.ModuleType.DLL;
         UseCorePCH = false;
+        UseUnity = true;
     }
 }

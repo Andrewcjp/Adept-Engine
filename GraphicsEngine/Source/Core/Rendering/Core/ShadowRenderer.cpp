@@ -1,13 +1,13 @@
 #include "ShadowRenderer.h"
-#include "Rendering/Shaders/Shader_Main.h"
-#include "Rendering\Shaders\Shader_Depth.h"
-#include "Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
 #include "Core/GameObject.h"
 #include "Core/Performance/PerfManager.h"
+#include "Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
+#include "Rendering/Shaders/Shader_Deferred.h"
+#include "Rendering/Shaders/Shader_Depth.h"
+#include "Rendering/Shaders/Shader_Main.h"
 #include "RHI/DeviceContext.h"
-#include "Rendering/Core/SceneRenderer.h"
 #include "RHI/RHITypes.h"
-#include "../Shaders/Shader_Deferred.h"
+#include "SceneRenderer.h"
 #define GPU_SINGLE_PRESAMPLE 0
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
@@ -24,6 +24,10 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 		ShadowDirectionalArray->AddFrameBufferBind(DirectionalLightBuffers[i], i);
 	}
 	ShadowCubeArray = RHI::CreateTextureArray(RHI::GetDeviceContext(0), RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS);
+	for (int i = 0; i < RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS; i++)
+	{
+		//ShadowCubeArray->SetIndexNull(i);
+	}
 #if !TEST_PRESAMPLE
 	for (int i = 0; i < MAX_POINT_SHADOWS; i++)
 	{
@@ -37,7 +41,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 #else 
 	DeviceContext* AltDevice = RHI::GetDeviceContext(1);
 #endif
-
+#if 0
 	const int ShadowMapSize = RHI::GetRenderSettings()->ShadowMapSize;
 	for (int i = 0; i < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS; i++)
 	{
@@ -52,6 +56,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 			ShadowCubeArray->AddFrameBufferBind(LightInteractions[i]->ShadowMap, i);
 		}
 	}
+#endif
 #endif
 	DeviceContext* pointlightdevice = RHI::GetDeviceContext(0);
 	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
@@ -70,12 +75,15 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	ShadowPreSampleShader = ShaderComplier::GetShader<Shader_ShadowSample>(pointlightdevice);
 	ShadowPreSamplingList = RHI::CreateCommandList(ECommandListType::Graphics, AltDevice);
 	NAME_RHI_OBJECT(ShadowPreSamplingList);
-	if (LightInteractions.size() > 2)
+	//if (LightInteractions.size() > 2)
 	{
 		//ShadowPreSamplingList->CreatePipelineState(ShadowPreSampleShader, LightInteractions[2]->PreSampledBuffer);
 		RHIPipeLineStateDesc desc;
 		desc.ShaderInUse = ShadowPreSampleShader;
-		desc.FrameBufferTarget = LightInteractions[2]->PreSampledBuffer;
+		desc.RenderTargetDesc.NumRenderTargets = 1;
+		desc.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
+		desc.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+		//desc.FrameBufferTarget = LightInteractions[0]->PreSampledBuffer;
 		ShadowPreSamplingList->SetPipelineStateDesc(desc);
 
 	}
@@ -164,10 +172,12 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 	list->StartTimer(EGPUTIMERS::ShadowPreSample);
 	for (int SNum = 0; SNum < (int)ShadowingPointLights.size(); SNum++)
 	{
-		if (!LightInteractions[SNum]->NeedsSample || SNum != 2)
+		if (!LightInteractions[SNum]->NeedsSample)
 		{
 			continue;
 		}
+		int Constant = SNum;
+		list->SetRootConstant(Shader_ShadowSample::PreSampleCBV, 1, &Constant, 0);
 		list->SetFrameBufferTexture(LightInteractions[SNum]->ShadowMap, Shader_ShadowSample::ShadowSRV);
 		list->SetRenderTarget(LightInteractions[SNum]->PreSampledBuffer);
 		list->ClearFrameBuffer(LightInteractions[SNum]->PreSampledBuffer);
@@ -199,7 +209,14 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 			continue;
 		}
 #if !GPU_SINGLE_PRESAMPLE
-		FrameBuffer::CopyHelper(LightInteractions[SNum]->PreSampledBuffer, RHI::GetDeviceContext(0));
+		if (RHI::GetMGPUMode()->AsyncShadows)
+		{
+			FrameBuffer::CopyHelper_Async_OneFrame(LightInteractions[SNum]->PreSampledBuffer, RHI::GetDeviceContext(0));
+		}
+		else
+		{
+			FrameBuffer::CopyHelper(LightInteractions[SNum]->PreSampledBuffer, RHI::GetDeviceContext(0));
+		}
 #endif
 	}
 }
@@ -216,7 +233,6 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, Shader_Main * mai
 		Shader_Depth* TargetShader = LightInteractions[SNum]->Shader;
 		list->SetRenderTarget(TargetBuffer);
 		list->ClearFrameBuffer(TargetBuffer);
-		//list->SetPipelineStateObject(TargetShader);
 		UpdateGeometryShaderParams(ShadowingPointLights[SNum]->GetPosition(), ShadowingPointLights[SNum]->Projection, SNum);
 		list->SetConstantBufferView(GeometryProjections, SNum, Shader_Depth_RSSlots::GeometryProjections);
 		Shader_Depth::LightData data = {};
@@ -292,11 +308,17 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
 #if 1
-		list->SetFrameBufferTexture(LightInteractions[2]->PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
+		for (int i = 0; i < LightInteractions.size(); i++)
+		{
+			if (LightInteractions[i]->lightPtr->ExecOnAlt)
+			{
+				list->SetFrameBufferTexture(LightInteractions[i]->PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
+			}
+	}
 #else
 		list->SetFrameBufferTexture(LightInteractions[2]->PreSampledBuffer, 10);
 #endif
-	}
+}
 #endif
 }
 
@@ -347,6 +369,29 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 		}
 	}
+
+	ShadowingPointLights[0]->ExecOnAlt = true;
+
+	//testing
+	ShadowCubeArray->Clear();//removes all refs to any buffer we had last frame!
+	MemoryUtils::DeleteVector(LightInteractions);
+
+	const int ShadowMapSize = RHI::GetRenderSettings()->ShadowMapSize;
+	for (int i = 0; i < ShadowingPointLights.size(); i++)
+	{
+		ShadowLightInteraction* sli = new ShadowLightInteraction(RHI::GetDeviceContext(ShadowingPointLights[i]->ExecOnAlt ? 1 : 0), true, ShadowMapSize);
+		sli->lightPtr = ShadowingPointLights[i];
+		if (sli->lightPtr->ExecOnAlt)
+		{
+			ShadowCubeArray->SetIndexNull(i, sli->ShadowMap);
+		}
+		else
+		{
+			ShadowCubeArray->AddFrameBufferBind(sli->ShadowMap, i);
+		}
+		LightInteractions.push_back(sli);
+	}
+
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(true, false, false);
 	desc.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
@@ -364,9 +409,13 @@ void ShadowRenderer::Unbind(RHICommandList * list)
 #if !GPU_SINGLE_PRESAMPLE
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
-		//D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)LightInteractions[2]->PreSampledBuffer;
-		//dBuffer->MakeReadyForCopy(((D3D12CommandList*)list)->GetCommandList());
-		LightInteractions[2]->PreSampledBuffer->MakeReadyForCopy(list);
+		for (int i = 0; i < LightInteractions.size(); i++)
+		{
+			if (LightInteractions[i]->lightPtr->ExecOnAlt)
+			{
+				LightInteractions[i]->PreSampledBuffer->MakeReadyForCopy(list);
+			}
+		}
 	}
 #endif
 }
@@ -378,7 +427,6 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 	{
 		int size = (Context->GetDeviceIndex() == 0) ? MapSize : MapSize / 1;
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateCubeDepth(size, size);
-		//desc.DepthClearValue = 0.0f;
 		ShadowMap = RHI::CreateFrameBuffer(Context, desc);
 	}
 	Shader = new Shader_Depth(Context, IsPoint);
@@ -392,7 +440,8 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 		desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
 		PreSampledBuffer = RHI::CreateFrameBuffer(Context, desc);
 #else
-		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColourDepth(2048, 512);
+		const int size = 2048;
+		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColourDepth(size, size);
 		desc.IsShared = true;
 		desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 		desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
@@ -407,9 +456,4 @@ ShadowRenderer::ShadowLightInteraction::~ShadowLightInteraction()
 	SafeDelete(Shader);
 	EnqueueSafeRHIRelease(ShadowMap);
 	EnqueueSafeRHIRelease(PreSampledBuffer);
-}
-
-void ShadowRenderer::ShadowLightInteraction::PreSampleShadows(RHICommandList * List)
-{
-
 }
