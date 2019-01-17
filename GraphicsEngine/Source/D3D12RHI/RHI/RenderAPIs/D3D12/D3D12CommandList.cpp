@@ -971,8 +971,13 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 }
 
 //Makes a descriptor Null Using the first frame buffers Description
-void D3D12RHITextureArray::SetIndexNull(int TargetIndex)
+void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*= nullptr*/)
 {
+	if (Buffer != nullptr)
+	{
+		D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
+		NullHeapDesc = dBuffer->GetSrvDesc(0);
+	}
 	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Heap->GetCPUAddress(TargetIndex));
 }
 
@@ -983,5 +988,17 @@ void D3D12RHITextureArray::Release()
 	SafeDelete(Heap);
 }
 
+void D3D12RHITextureArray::Clear()
+{
+	if (LinkedBuffers.size() == 0)
+	{
+		return;
+	}
+	for (int i = 0; i < LinkedBuffers.size(); i++)
+	{
+		SetIndexNull(i);//clear all buffers;
+	}
+	LinkedBuffers.clear();
+}
 
 

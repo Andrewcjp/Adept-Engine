@@ -7,7 +7,7 @@
 #include "TDScene.h"
 #include "TDSimConfig.h"
 #include "Utils/TDThreading.h"
-#include "Utils/VectorUtils.h"
+//#include "Utils/VectorUtils.h"
 #include <sstream>
 #define USE_LINEAR_PROJECTION 1
 #define USE_THREADED_COLLISION_DETECTION 0

@@ -2,7 +2,7 @@
 #include "Shader_ShadowSample.h"
 #include "Rendering/Shaders/Shader_Main.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_ShadowSample);
-Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context):Shader(Context)
+Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context) :Shader(Context)
 {
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_fs", EShaderType::SHADER_FRAGMENT);
@@ -21,6 +21,7 @@ std::vector<Shader::ShaderParameter> Shader_ShadowSample::GetShaderParameters()
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 1));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 2));
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, ShadowSRV, 0));
+	Output.push_back(ShaderParameter(Shader::RootConstant, PreSampleCBV, 3));
 	return Output;
 }
 

@@ -5,7 +5,6 @@
 
 typedef struct _LightUniformBuffer
 {
-
 	glm::vec3 position;
 	float t;
 	glm::vec3 color;
@@ -16,7 +15,8 @@ typedef struct _LightUniformBuffer
 	int type;//type 1 == point, type 0 == directional, type 2 == spot
 	int ShadowID;
 	int DirShadowID;
-	int HasShadow;
+	int HasShadow = 0;
+	int PreSampled[4];//padding sucks!
 
 }LightUniformBuffer;
 

@@ -30,6 +30,7 @@ struct MultiGPUMode
 	bool ComputePerFrameShadowDataOnExCard = false;
 	//split Particle system compute work across both cards.
 	bool PSComputeWorkSplit = false;
+	bool AsyncShadows = false;
 	void ValidateSettings();
 };
 //Props Are Set in the Constructor 
