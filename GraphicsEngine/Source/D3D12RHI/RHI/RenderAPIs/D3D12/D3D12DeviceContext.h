@@ -48,7 +48,7 @@ public:
 	}
 private:
 	ID3D12CommandQueue* Queue = nullptr;
-	UINT64 m_fenceValues[RHI::CPUFrameCount] = {0};
+	UINT64 m_fenceValues[RHI::CPUFrameCount] = { 0 };
 	ID3D12Fence* m_fence = nullptr;
 	int m_frameIndex = 0;
 	HANDLE m_fenceEvent;
@@ -66,7 +66,8 @@ public:
 	void CreateSyncPoint(ID3D12CommandQueue* queue);
 	void CrossGPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * otherDeviceQeue);
 	void GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * targetqueue);
-
+	void Signal(ID3D12CommandQueue * queue, int value = -1);
+	void Wait(ID3D12CommandQueue * queue, int value = -1);
 private:
 	HANDLE m_fenceEvent;
 	ID3D12Fence* m_fence = nullptr;
@@ -160,6 +161,18 @@ private:
 
 	D3D12TimeManager* TimeManager = nullptr;
 
-	GPUSyncPoint GPUWaitPoints[DeviceContextQueue::LIMIT];
+	GPUSyncPoint GPUWaitPoints[RHI::CPUFrameCount][DeviceContextQueue::LIMIT];
 };
 
+class D3D12GPUSyncEvent : public RHIGPUSyncEvent
+{
+public:
+	D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * device);
+	~D3D12GPUSyncEvent();
+	virtual void Signal() override;
+	virtual void Wait() override;
+private:
+	GPUSyncPoint Point[RHI::CPUFrameCount];
+	ID3D12CommandQueue* WaitingQueue = nullptr;
+	ID3D12CommandQueue* SignalQueue = nullptr;
+};

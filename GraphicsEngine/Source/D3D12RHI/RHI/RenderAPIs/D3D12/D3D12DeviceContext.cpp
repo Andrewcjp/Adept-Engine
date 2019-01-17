@@ -65,6 +65,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 {
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
+	VendorID = Adaptordesc.VendorId;
 	ReportData();
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
@@ -149,9 +150,12 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	InterGPUSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::InterCopy), GetDevice());
 	ComputeSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Compute), GetDevice());
 
-	for (int i = 0; i < DeviceContextQueue::LIMIT; i++)
+	for (int x = 0; x < RHI::CPUFrameCount; x++)
 	{
-		GPUWaitPoints[i].InitGPUOnly(GetDevice());
+		for (int i = 0; i < DeviceContextQueue::LIMIT; i++)
+		{
+			GPUWaitPoints[x][i].InitGPUOnly(GetDevice());
+		}
 	}
 }
 
@@ -245,9 +249,23 @@ void D3D12DeviceContext::WaitForCopy()
 
 void D3D12DeviceContext::ReportData()
 {
+	std::string VendorString = "";
+	if (IsDeviceNVIDIA())
+	{
+		VendorString = "NVIDIA";
+	}
+	else if (IsDeviceAMD())
+	{
+		VendorString = "AMD";
+	}
+	else if (IsDeviceIntel())
+	{
+		VendorString = "Intel";
+	}
+
 	//Memory and name
 	std::stringstream ss;
-	ss << "Adapter Name: \"" << StringUtils::ConvertWideToString(Adaptordesc.Description) << "\" Dedicated Video Memory: " << std::setprecision(3) << Adaptordesc.DedicatedVideoMemory / 1e9 << "GB ";
+	ss << VendorString << " Adapter Name: \"" << StringUtils::ConvertWideToString(Adaptordesc.Description) << "\" Dedicated Video Memory: " << std::setprecision(3) << Adaptordesc.DedicatedVideoMemory / 1e9 << "GB ";
 	Log::LogMessage(ss.str());
 }
 
@@ -380,7 +398,7 @@ ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQue
 void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("InsertGPUWait", "RHI");
-	GPUWaitPoints[SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
+	GPUWaitPoints[CurrentFrameIndex][SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
 }
 
 void D3D12DeviceContext::WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
@@ -482,6 +500,25 @@ void GPUSyncPoint::GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQ
 	m_fenceValue++;
 }
 
+void GPUSyncPoint::Signal(ID3D12CommandQueue * queue, int value)
+{
+	if (value != -1)
+	{
+		m_fenceValue = value;
+	}
+	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
+}
+
+void GPUSyncPoint::Wait(ID3D12CommandQueue * queue, int value)
+{
+	if (value != -1)
+	{
+		m_fenceValue = value;
+	}
+	ThrowIfFailed(queue->Wait(m_fence, m_fenceValue));
+	m_fenceValue++;
+}
+
 void GPUFenceSync::Init(ID3D12CommandQueue * TargetQueue, ID3D12Device* device)
 {
 	Queue = TargetQueue;
@@ -522,4 +559,31 @@ void GPUFenceSync::MoveNextFrame(int SyncIndex)
 
 	// Set the fence value for the next frame.
 	m_fenceValues[m_frameIndex] = currentFenceValue + 1;
+}
+CreateChecker(D3D12GPUSyncEvent);
+D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, DeviceContextQueue::Type SignalQueueEnum, DeviceContext * device) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
+{
+	AddCheckerRef(D3D12GPUSyncEvent, this);
+	D3D12DeviceContext* d3dc = (D3D12DeviceContext*)Device;
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	{
+		Point[i].InitGPUOnly(d3dc->GetDevice());
+	}
+	WaitingQueue = d3dc->GetCommandQueueFromEnum(WaitingQueueEnum);
+	SignalQueue = d3dc->GetCommandQueueFromEnum(SignalQueueEnum);
+}
+
+D3D12GPUSyncEvent::~D3D12GPUSyncEvent()
+{
+	RemoveCheckerRef(D3D12GPUSyncEvent, this);
+}
+
+void D3D12GPUSyncEvent::Signal()
+{
+	Point[Device->GetCpuFrameIndex()].Signal(SignalQueue);
+}
+
+void D3D12GPUSyncEvent::Wait()
+{
+	Point[Device->GetCpuFrameIndex()].Wait(WaitingQueue);
 }

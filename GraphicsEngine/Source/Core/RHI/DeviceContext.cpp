@@ -78,3 +78,28 @@ GPUStateCache * DeviceContext::GetStateCache() const
 {
 	return StateCache;
 }
+
+bool DeviceContext::IsDeviceNVIDIA()
+{
+	return VendorID == 0x10DE;
+}
+
+bool DeviceContext::IsDeviceAMD()
+{
+	return VendorID = 0x1002;
+}
+
+bool DeviceContext::IsDeviceIntel()
+{
+	return VendorID == 0x8086;
+}
+
+RHIGPUSyncEvent::RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * device)
+{
+	Device = device;
+}
+
+RHIGPUSyncEvent::~RHIGPUSyncEvent()
+{
+
+}

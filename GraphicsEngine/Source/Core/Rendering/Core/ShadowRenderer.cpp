@@ -369,9 +369,10 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 		}
 	}
-
-	ShadowingPointLights[0]->ExecOnAlt = true;
-
+	if (RHI::GetMGPUMode()->SplitShadowWork)
+	{
+		ShadowingPointLights[0]->ExecOnAlt = true;
+	}
 	//testing
 	ShadowCubeArray->Clear();//removes all refs to any buffer we had last frame!
 	MemoryUtils::DeleteVector(LightInteractions);

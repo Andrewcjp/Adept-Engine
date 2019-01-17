@@ -7,6 +7,7 @@ struct CapabilityData
 {
 	bool SupportsCopyTimeStamps = false;
 };
+
 class RHI_API DeviceContext
 {
 public:
@@ -36,11 +37,14 @@ public:
 	virtual class RHITimeManager* GetTimeManager() = 0;
 	void InsertStallTimerMarker();
 	bool ShouldInsertTimer();
-	void OnInsertStallTimer(); 
+	void OnInsertStallTimer();
 	PipelineStateObjectCache* GetPSOCache() const;
 	void UpdatePSOTracker(RHIPipeLineStateObject* PSO);
 	int GetNodeIndex();
 	GPUStateCache* GetStateCache()const;
+	bool IsDeviceNVIDIA();
+	bool IsDeviceAMD();
+	bool IsDeviceIntel();
 protected:
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
@@ -55,5 +59,20 @@ protected:
 	//For creating a fake device in Linked adapter mode
 	int NodeIndex = 0;
 	GPUStateCache* StateCache = nullptr;
+	uint VendorID = 0;
 };
 
+class RHIGPUSyncEvent
+{
+public:
+	RHI_API RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device);
+	RHI_API virtual ~RHIGPUSyncEvent();
+	RHI_API virtual void Signal() = 0;
+	RHI_API virtual void Wait() = 0;
+	const char* GetDebugName()
+	{
+		return "GPUSyncEvent";
+	}
+protected:
+	DeviceContext* Device = nullptr;
+};
