@@ -90,6 +90,9 @@ void ParticleSystemManager::Init()
 
 	//test
 	TEstTex = AssetManager::DirectLoadTextureAsset("texture\\smoke.png", true);
+
+
+	ComputeCompleteEvent = RHI::CreateSyncEvent(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
 void ParticleSystemManager::SetupCommandBuffer()
@@ -204,6 +207,7 @@ void ParticleSystemManager::ShutDown()
 	EnqueueSafeRHIRelease(DeadParticleIndexs);
 	EnqueueSafeRHIRelease(TEstTex);
 	EnqueueSafeRHIRelease(AliveParticleIndexs_PostSim);
+	SafeDelete(ComputeCompleteEvent);
 }
 
 void ParticleSystemManager::Sync()
@@ -239,13 +243,16 @@ void ParticleSystemManager::Simulate()
 {
 	return;
 	CmdList->ResetList();
+#if !USE_INDIRECTCOMPUTE
 	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
+#endif
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_StartSimulation>()));
 	CounterBuffer->GetUAV()->Bind(CmdList, 0);
 	DispatchCommandBuffer->GetUAV()->Bind(CmdList, 1);
 	emitcount++;
 	int on = (emitcount % 10 == 0);
+	on = 1;
 	CmdList->SetRootConstant(2, 1, &on, 0);
 	CmdList->Dispatch(1, 1, 1);
 	Sync();
@@ -287,16 +294,23 @@ void ParticleSystemManager::Simulate()
 #endif
 	Sync();
 	RenderCommandBuffer->SetBufferState(CmdList, EBufferResourceState::IndirectArgs);
+#if !USE_INDIRECTCOMPUTE
 	CmdList->EndTimer(EGPUTIMERS::ParticleSimulation);
+#endif
 	CmdList->Execute();
-	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	ComputeCompleteEvent->Signal();
+	ComputeCompleteEvent->Wait();
+	//CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+
 }
 
 void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 {
 	return;
 	RenderList->ResetList();
+#if !USE_INDIRECTCOMPUTE
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
+#endif
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
 	desc.FrameBufferTarget = BufferTarget;
@@ -321,7 +335,9 @@ void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 #endif
 	GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
 	RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
+#if !USE_INDIRECTCOMPUTE
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
+#endif
 	RenderList->Execute();
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	Flip = !Flip;

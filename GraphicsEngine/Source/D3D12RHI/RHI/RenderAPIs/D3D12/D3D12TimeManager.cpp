@@ -112,7 +112,7 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 		if (TimeDeltas[i].Used)
 		{
 			UINT64 delta = pTimestamps[TimeDeltas[i].Endindex] - pTimestamps[TimeDeltas[i].Startindex];
-			float gpuTimeMS = glm::abs((float)(delta * 1000) / (float)ClockFreq);
+			float gpuTimeMS = glm::max(glm::abs((float)(delta * 1000) / (float)ClockFreq), 0.0f);
 			TimeDeltas[i].RawTime = gpuTimeMS;
 			TimeDeltas[i].avg.Add(gpuTimeMS);
 		}

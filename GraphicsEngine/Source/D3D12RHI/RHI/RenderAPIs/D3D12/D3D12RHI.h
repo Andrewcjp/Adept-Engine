@@ -35,6 +35,9 @@ public:
 #if	ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() override;
 #endif
+
+	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device) override;
+
 private:
 	void DestroyContext();
 	void PresentFrame();

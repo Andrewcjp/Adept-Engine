@@ -21,7 +21,7 @@ public:
 private:
 	bool IsOnline = false;
 	int StaticProps = 2;
-	int DynamicProps = 4;
+	int DynamicProps = 5;
 	std::string SampleData;
 	std::vector<std::vector<std::string>> GpuData;
 #if NVAPI_PRESENT 

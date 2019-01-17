@@ -119,6 +119,14 @@ void NVAPIManager::SampleClocks()
 			Colours[i] = glm::mix(glm::vec3(1, 0, 0), glm::vec3(1), PC);
 			Data = ("Graphics: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage) + "%");
 		}
+#if 1
+		GpuData[i][index] = Data;
+		index++;
+		if (ret == NVAPI_OK)
+		{
+			Data = ("FrameBuffer: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_FB].percentage) + "%");
+		}
+#endif
 		GpuData[i][index] = Data;
 		index++;
 		if (ret == NVAPI_OK)

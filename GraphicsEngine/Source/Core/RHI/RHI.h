@@ -7,6 +7,8 @@
 #include "Rendering/Renderers/RenderSettings.h"
 #include "RHI_inc_fwd.h"
 #include "RHITypes.h"
+
+class RHIGPUSyncEvent;
 #define PSO_USE_FULL_STRING_MAPS 1
 #define MAX_GPU_DEVICE_COUNT 2
 #define ALLOW_RESOURCE_CAPTURE 0
@@ -48,7 +50,7 @@ public:
 	static void ResizeSwapChain(int width, int height);
 	static void DestoryContext();
 
-
+	RHI_API static RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device = nullptr);
 	RHI_API static bool BlockCommandlistExec();
 	RHI_API static bool AllowCPUAhead();
 	RHI_API static int GetDeviceCount();
@@ -106,6 +108,7 @@ public:
 	RHI_VIRTUAL void TriggerBackBufferScreenShot() = 0;
 	RHI_VIRTUAL std::string ReportMemory() = 0;
 	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) = 0;
+	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device) = 0;
 #if ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() = 0;
 #endif

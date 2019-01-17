@@ -134,6 +134,15 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 	return GetRHIClass()->CreateCommandList(Type, Device);
 }
 
+RHIGPUSyncEvent * RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device)
+{
+	if (Device == nullptr)
+	{
+		Device = RHI::GetDefaultDevice();
+	}
+	return GetRHIClass()->CreateSyncEvent(WaitingQueue,SignalQueue,Device);
+}
+
 bool RHI::BlockCommandlistExec()
 {
 	return false;

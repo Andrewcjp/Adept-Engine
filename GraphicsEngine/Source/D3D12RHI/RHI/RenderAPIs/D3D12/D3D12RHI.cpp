@@ -242,7 +242,13 @@ void D3D12RHI::TriggerWriteBackResources()
 {
 	D3D12ReadBackCopyHelper::Get()->TriggerWriteBackAll();
 }
+
 #endif
+RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device)
+{
+	return new D3D12GPUSyncEvent(WaitingQueue, SignalQueue, Device);
+}
+
 void D3D12RHI::CreateSwapChainRTs()
 {
 	// Create frame resources.
