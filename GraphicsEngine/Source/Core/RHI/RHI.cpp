@@ -8,8 +8,9 @@
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "RHI_inc.h"
 #include "Core/Utils/RefChecker.h"
+#include "SFRController.h"
+#include "Core/Assets/Archive.h"
 RHI* RHI::instance = nullptr;
-MultiGPUMode RHI::CurrentMGPUMode = MultiGPUMode();
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
 
 RHI::RHI(ERenderSystemType system)
@@ -140,7 +141,7 @@ RHIGPUSyncEvent * RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, De
 	{
 		Device = RHI::GetDefaultDevice();
 	}
-	return GetRHIClass()->CreateSyncEvent(WaitingQueue,SignalQueue,Device);
+	return GetRHIClass()->CreateSyncEvent(WaitingQueue, SignalQueue, Device);
 }
 
 bool RHI::BlockCommandlistExec()
@@ -182,12 +183,27 @@ bool RHI::UseAdditionalGPUs()
 
 const MultiGPUMode * RHI::GetMGPUMode()
 {
-	return &CurrentMGPUMode;
+	return &instance->CurrentMGPUMode;
 }
 
 RHI * RHI::Get()
 {
 	return instance;
+}
+
+SFRController * RHI::GetSplitController()
+{
+	return instance->SFR_Controller;
+}
+
+void RHI::LoadSettings()
+{
+
+}
+
+void RHI::SaveSettings()
+{
+
 }
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
@@ -346,9 +362,12 @@ RHIPipeLineStateObject * RHI::CreatePipelineStateObject(const RHIPipeLineStateDe
 void RHI::InitialiseContext()
 {
 	GetRHIClass()->InitRHI();
-	CurrentMGPUMode.ValidateSettings();
+	instance->LoadSettings();
+	instance->CurrentMGPUMode.ValidateSettings();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
 	ParticleSystemManager::Get();
+	instance->SFR_Controller = new SFRController();
+	instance->SaveSettings();
 }
 
 void RHI::InitialiseContextWindow(int w, int h)
@@ -440,7 +459,7 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 #else
 	auto itor = PSOMap.find(desc.GetHash());
 #endif
-	
+
 	if (itor == PSOMap.end())
 	{
 		return RHI::CreatePipelineStateObject(desc, Device);

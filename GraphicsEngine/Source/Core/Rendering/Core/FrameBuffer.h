@@ -16,8 +16,10 @@ public:
 		return m_height;
 	}
 	virtual class DeviceContext* GetDevice() = 0;
+	void HandleInit();
 	RHI_API RHIFrameBufferDesc& GetDescription();
-	RHI_API virtual void Resize(int width, int height);
+	void Resize(int width, int height);
+	RHI_API virtual void HandleResize();
 
 	int m_width = 0;
 	int m_height = 0;
@@ -31,8 +33,11 @@ public:
 	
 	virtual void MakeReadyForComputeUse(RHICommandList* List) = 0;
 	virtual void MakeReadyForCopy(RHICommandList * list) = 0;
+	///Needs to called before buffer is read for final present
+	RHI_API virtual void ResolveSFR();
 protected:
 	RHIFrameBufferDesc BufferDesc;
-
+	SFRNode* SFR_Node = nullptr;
+	DeviceContext* Device = nullptr;
 };
 

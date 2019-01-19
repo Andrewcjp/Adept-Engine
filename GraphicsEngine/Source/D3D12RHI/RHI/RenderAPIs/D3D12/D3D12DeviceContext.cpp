@@ -66,6 +66,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
 	VendorID = Adaptordesc.VendorId;
+
 	ReportData();
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,

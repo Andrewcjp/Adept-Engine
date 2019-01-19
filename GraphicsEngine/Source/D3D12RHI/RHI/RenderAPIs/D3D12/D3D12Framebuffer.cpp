@@ -99,10 +99,12 @@ bool D3D12FrameBuffer::CheckDevice(int index)
 	return false;
 }
 
-void D3D12FrameBuffer::Resize(int width, int height)
+void D3D12FrameBuffer::HandleResize()
 {
-	m_width = width;
-	m_height = height;
+	m_width = BufferDesc.Width;
+	m_height = BufferDesc.Height;
+	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
+	m_scissorRect = CD3DX12_RECT(BufferDesc.ScissorRect.x, BufferDesc.ScissorRect.y, BufferDesc.ScissorRect.z, BufferDesc.ScissorRect.w);
 	CurrentDevice->CPUWaitForAll();
 	if (OtherDevice != nullptr)
 	{
@@ -294,8 +296,7 @@ void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, Fram
 {
 	D3D12FrameBuffer * DPassBuffer = (D3D12FrameBuffer*)PassThrough;
 	ID3D12GraphicsCommandList* list = ((D3D12CommandList*)List)->GetCommandList();
-	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
-	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
+
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
 	if (DPassBuffer->RenderTarget[0])
@@ -499,6 +500,8 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 
 void D3D12FrameBuffer::Init()
 {
+	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
+	m_scissorRect = CD3DX12_RECT(BufferDesc.ScissorRect.x, BufferDesc.ScissorRect.y, BufferDesc.ScissorRect.z, BufferDesc.ScissorRect.w);
 	//update RenderTargetDesc
 	RenderTargetDesc.NumRenderTargets = BufferDesc.RenderTargetCount;
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
@@ -588,8 +591,6 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 
 void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex)
 {
-	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
-	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
 

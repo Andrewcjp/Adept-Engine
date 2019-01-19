@@ -9,6 +9,8 @@
 #include "RHITypes.h"
 
 class RHIGPUSyncEvent;
+class SFRController;
+class RHIClass;
 #define PSO_USE_FULL_STRING_MAPS 1
 #define MAX_GPU_DEVICE_COUNT 2
 #define ALLOW_RESOURCE_CAPTURE 0
@@ -69,12 +71,16 @@ public:
 	static const MultiGPUMode* GetMGPUMode();
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
 	static RHI* Get();
+	static SFRController* GetSplitController();
+	void LoadSettings();
+	void SaveSettings();
 private:
+	SFRController* SFR_Controller = nullptr;
 	void TickDeferredDeleteQueue(bool Flush = false);
 	static RHI* instance;
 	ERenderSystemType CurrentSystem;
-	static MultiGPUMode CurrentMGPUMode;
-	class RHIClass* CurrentRHI = nullptr;
+	MultiGPUMode CurrentMGPUMode = MultiGPUMode();
+	RHIClass* CurrentRHI = nullptr;
 	RenderConstants M_RenderConsants;
 	RenderSettings RenderSettings = {};
 	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;

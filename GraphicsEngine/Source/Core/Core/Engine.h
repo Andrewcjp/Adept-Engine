@@ -62,5 +62,6 @@ private:
 	bool							IsCooking = false;
 	EngineSettings					Settings;
 	Threading::TaskGraph*			TaskGraph = nullptr;
+	
 };
 

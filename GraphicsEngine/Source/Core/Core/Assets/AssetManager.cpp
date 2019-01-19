@@ -6,6 +6,7 @@
 #include "Core/Utils/FileUtils.h"
 #include "Core/Platform/PlatformCore.h"
 #include "ImageIO.h"
+#include "IniHandler.h"
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
@@ -25,6 +26,7 @@ void AssetManager::StartAssetManager()
 	if (instance == nullptr)
 	{
 		instance = new AssetManager();
+		instance->Init();
 	}
 }
 
@@ -89,6 +91,11 @@ const std::string AssetManager::DirectGetGeneratedDir()
 	return GeneratedDirPath;
 }
 
+const std::string AssetManager::GetSettingsDir()
+{
+	return instance->SettingsDir;
+}
+
 void AssetManager::SetupPaths()
 {
 	RootDir = Engine::GetExecutionDir();
@@ -116,15 +123,15 @@ void AssetManager::SetupPaths()
 	}
 	ScriptDirPath = RootDir + "\\Scripts\\";
 #endif
+	SettingsDir = Engine::GetExecutionDir() + "\\Config";
+
 }
 
 AssetManager::AssetManager()
 {
 	SetupPaths();
 	PlatformApplication::TryCreateDirectory(GetDDCPath());
-#if !BUILD_SHIPPING
-	LoadFromShaderDir();
-#endif
+
 #if 0//BUILD_PACKAGE
 	LoadTexturesFromDir();
 #else
@@ -132,8 +139,17 @@ AssetManager::AssetManager()
 #endif
 	//Log::OutS  << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << Log::OutS;
 	//Log::OutS  << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << Log::OutS;
-}
 
+}
+void AssetManager::Init()
+{
+#if !BUILD_SHIPPING
+	//LoadFromShaderDir();
+#endif
+	INISaver = new IniHandler();
+	INISaver->LoadMainCFG();
+	INISaver->SaveAllConfigProps();
+}
 AssetManager * AssetManager::Get()
 {
 	if (instance == nullptr)

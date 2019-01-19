@@ -192,6 +192,7 @@ void RenderEngine::ShadowPass()
 
 void RenderEngine::PostProcessPass()
 {
+	FilterBuffer->ResolveSFR();
 	Post->ExecPPStack(FilterBuffer);
 }
 

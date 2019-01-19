@@ -25,7 +25,7 @@ public:
 	void							CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap, DeviceContext * target);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	bool							CheckDevice(int index);
-	void							Resize(int width, int height) override;
+	void							HandleResize() override;
 
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
 	//Cross Adaptor
