@@ -4,14 +4,25 @@
 #include "Core/Platform/ConsoleVariable.h"
 #include "Core/Assets/Archive.h"
 static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
+static ConsoleVariable UseSFR("UseSFR", false, ECVarType::LaunchOnly);
+static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly);
+static ConsoleVariable AsyncShadow("AsyncShadow", false, ECVarType::LaunchOnly);
+static ConsoleVariable SplitPS("SplitPS", false, ECVarType::LaunchOnly);
+static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOnExCard", false, ECVarType::LaunchOnly);
 
 MultiGPUMode::MultiGPUMode()
 {
-	MainPassSFR = true;
-	SplitShadowWork = false;
-	ComputePerFrameShadowDataOnExCard = true;
-	PSComputeWorkSplit = false;
-	AsyncShadows = false; 
+	//UseSFR.SetValue(true);
+	SyncSettings();
+}
+
+void MultiGPUMode::SyncSettings()
+{
+	MainPassSFR = UseSFR.GetBoolValue();
+	SplitShadowWork = SplitShadows.GetBoolValue();
+	AsyncShadows = AsyncShadow.GetBoolValue();
+	PSComputeWorkSplit = SplitPS.GetBoolValue();
+	ComputePerFrameShadowDataOnExCard = PreComputePerFrameShadowData.GetBoolValue();
 }
 
 void MultiGPUMode::ValidateSettings()
@@ -24,14 +35,6 @@ void MultiGPUMode::ValidateSettings()
 		PSComputeWorkSplit = false;
 		AsyncShadows = false;
 	}
-}
-
-void MultiGPUMode::Seralise(Archive * A)
-{
-	ArchiveProp(MainPassSFR);
-	ArchiveProp(SplitShadowWork);
-	ArchiveProp(PSComputeWorkSplit);
-	ArchiveProp(AsyncShadows);
 }
 
 RenderSettings::RenderSettings()

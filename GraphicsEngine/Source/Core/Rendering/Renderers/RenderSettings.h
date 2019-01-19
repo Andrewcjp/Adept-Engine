@@ -1,4 +1,5 @@
 #pragma once
+#include "Core\Platform\ConsoleVariable.h"
 
 class Archive;
 namespace AAMode
@@ -22,9 +23,10 @@ public:
 	bool IsDeferred = false;
 };
 //Props Are Set in the Constructor 
-struct MultiGPUMode 
+struct MultiGPUMode
 {
 	MultiGPUMode();
+	void SyncSettings();
 	bool MainPassSFR = false;
 	//Splits the Work per Shadow light across the cards
 	bool SplitShadowWork = false;
@@ -34,7 +36,6 @@ struct MultiGPUMode
 	bool PSComputeWorkSplit = false;
 	bool AsyncShadows = false;
 	void ValidateSettings();
-	void Seralise(Archive* A);
 };
 //Props Are Set in the Constructor 
 struct RenderConstants
