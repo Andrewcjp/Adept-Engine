@@ -1,16 +1,13 @@
-#include "Source/Core/Stdafx.h"
 #include "IniHandler.h"
 #include "AssetManager.h"
+#include "Core/Platform/ConsoleVariable.h"
 #include "Core/Platform/IOHandler.h"
-#include "../Platform/ConsoleVariable.h"
-#include "../Performance/BenchMarker.h"
-#include "../Utils/FileUtils.h"
+#include "Core/Utils/FileUtils.h"
 
 IniHandler::IniHandler()
 {
-	MainCFGfile = AssetManager::GetSettingsDir() + "\\test.ini";
+	MainCFGfile = AssetManager::GetSettingsDir() + "\\CFG.ini";
 }
-
 
 IniHandler::~IniHandler()
 {}
@@ -30,6 +27,9 @@ void IniHandler::SaveAllConfigProps()
 void IniHandler::LoadMainCFG()
 {
 	std::vector <std::string> lines;
-	IOHandler::LoadTextFile(MainCFGfile, lines);
+	if (!IOHandler::LoadTextFile(MainCFGfile, lines))
+	{
+		return;
+	}
 	ConsoleVariableManager::Get()->SetupCVarsFromCFG(lines);
 }

@@ -4,11 +4,22 @@
 #include "Logger.h"
 ConsoleVariableManager* ConsoleVariableManager::Instance = nullptr;
 
-ConsoleVariable::ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype, bool NeedsValue)
+ConsoleVariable::ConsoleVariable(std::string name, int defaultValue, ECVarType::Type cvartype, bool NeedsValue) :ConsoleVariable(name, cvartype, NeedsValue)
+{
+	CurrentValue.Int_Value = defaultValue;
+	DefaultValue.Int_Value = defaultValue;
+}
+ConsoleVariable::ConsoleVariable(std::string name, float defaultValue, ECVarType::Type cvartype, bool NeedsValue) : ConsoleVariable(name, cvartype, NeedsValue)
+{
+	CurrentValue.F_Value = defaultValue;
+	DefaultValue.F_Value = defaultValue;
+	IsFloat = true;
+}
+
+ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue)
 {
 	Type = cvartype;
 	NeedsValue = NeedsValue;
-	CurrentValue = DefaultValue;
 	if (cvartype != ECVarType::LaunchOnly)
 	{
 		ConsoleVariableManager::Get()->ConsoleVars.push_back(this);
@@ -20,24 +31,6 @@ ConsoleVariable::ConsoleVariable(std::string name, int DefaultValue, ECVarType::
 	ConsoleVariableManager::Get()->AllVars.push_back(this);
 	Name = name;
 	std::transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
-}
-
-ConsoleVariable::ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype, bool NeedsValue)
-{
-	NeedsValue = NeedsValue;
-	FloatValue = DefaultValue;
-	if (cvartype != ECVarType::LaunchOnly)
-	{
-		ConsoleVariableManager::Get()->ConsoleVars.push_back(this);
-	}
-	if (cvartype != ECVarType::ConsoleOnly)
-	{
-		ConsoleVariableManager::Get()->LaunchArgs.push_back(this);
-	}
-	ConsoleVariableManager::Get()->AllVars.push_back(this);
-	Name = name;
-	std::transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
-	IsFloat = true;
 }
 
 std::string ConsoleVariable::GetValueString()
@@ -119,7 +112,10 @@ void ConsoleVariableManager::GetCFGVariables(std::vector<std::string> &Lines)
 {
 	for (ConsoleVariable* CV : Instance->AllVars)
 	{
-		Lines.push_back(CV->GetName() + " " + std::to_string(CV->GetIntValue()));
+		if (!CV->IsDefaultValue())
+		{
+			Lines.push_back(CV->GetName() + " " + std::to_string(CV->GetIntValue()));
+		}
 	}
 }
 
@@ -200,4 +196,41 @@ bool ConsoleVariableManager::TrySetCVar(std::string command, ConsoleVariable** V
 		}
 	}
 	return false;
+}
+
+void IConsoleSettings::GetVariables(std::vector<ConsoleVariable*>& VarArray)
+{
+	Seralise();
+	for (auto itor = VarMap.begin(); itor != VarMap.end(); itor++)
+	{
+		itor->second.Cvar = new ConsoleVariable(itor->first, 0, ECVarType::ConsoleAndLaunch, false);
+		VarArray.push_back(itor->second.Cvar);
+	}
+}
+
+void IConsoleSettings::GatherData()
+{
+	IsReading = true;
+	Seralise();
+}
+
+void IConsoleSettings::LinkProp(std::string name, int* value)
+{
+	if (IsReading)
+	{
+		IConsoleSettingsVar* Var = nullptr;
+		auto itor = VarMap.find(name);
+		if (itor != VarMap.end())
+		{
+			Var = &itor->second;
+		}
+		if (Var != nullptr && Var->Cvar != nullptr)
+		{
+			*value = Var->Cvar->GetIntValue();
+		}
+	}
+	else
+	{
+		VarMap.emplace(name, IConsoleSettingsVar(value));
+	}
 }

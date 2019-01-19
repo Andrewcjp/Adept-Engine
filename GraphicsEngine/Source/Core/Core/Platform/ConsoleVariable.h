@@ -33,41 +33,56 @@ public:
 
 	bool GetBoolValue() const
 	{
-		return CurrentValue;
+		return CurrentValue.Int_Value;
 	}
 	void SetValue(int value)
 	{
-		CurrentValue = value;
+		CurrentValue.Int_Value = value;
 	}
 	void SetValueF(float value)
 	{
-		FloatValue = value;
+		CurrentValue.F_Value = value;
 	}
-	int GetIntValue()
+	int GetIntValue() const
 	{
-		return CurrentValue;
+		return CurrentValue.Int_Value;
 	}
-	bool IsValueVar()
+	bool IsValueVar() const
 	{
 		return NeedsValue;
 	}
-	float GetFloatValue()
+	float GetFloatValue() const
 	{
-		return FloatValue;
+		return CurrentValue.F_Value;
 	}
 	template<class T>
 	T GetAsEnum()
 	{
-		return TypeUtils::GetFromInt<T>(CurrentValue);
+		return TypeUtils::GetFromInt<T>(CurrentValue.Int_Value);
 	}
+	bool IsDefaultValue()const
+	{
+		if (IsFloat)
+		{
+			return CurrentValue.F_Value == DefaultValue.F_Value;
+		}
+		return CurrentValue.Int_Value == DefaultValue.Int_Value;
+	}
+
 	std::string GetValueString();
 	bool IsFloat = false;
 	ECVarType::Type Type;
 private:
+	ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue);
 	std::string Name = "";
-	int CurrentValue = 0;
-	float FloatValue = 0.0f;
 	bool NeedsValue = false;
+	union ValueUnion
+	{
+		int Int_Value;
+		float F_Value;
+	};
+	ValueUnion CurrentValue;
+	ValueUnion DefaultValue;
 };
 
 class ConsoleVariableManager
@@ -83,4 +98,34 @@ public:
 	void GetCFGVariables(std::vector<std::string>& Lines);
 	static void SetupVars(std::string LaunchArgString);
 	static bool TrySetCVar(std::string command, ConsoleVariable ** Var);
+};
+struct IConsoleSettingsVar
+{
+	IConsoleSettingsVar(){}
+	IConsoleSettingsVar(int* value)
+	{
+		Propptr = value;
+	}
+	IConsoleSettingsVar(float* value)
+	{
+		Propptr = value;
+		IsFloat = true;
+	}
+	void* Propptr = nullptr;
+	ConsoleVariable* Cvar = nullptr;
+	bool IsFloat = false;
+};
+class IConsoleSettings
+{
+public:
+	void GetVariables(std::vector<ConsoleVariable*> & VarArray);
+
+protected:
+
+	virtual void Seralise() = 0;
+
+	void LinkProp(std::string name, int* value);
+	void GatherData();
+	std::map<std::string, IConsoleSettingsVar> VarMap;
+	bool IsReading = false;
 };
