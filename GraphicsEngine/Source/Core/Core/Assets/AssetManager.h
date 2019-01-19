@@ -4,6 +4,7 @@
 #include "Core/Engine.h"
 #include "AssetTypes.h"
 class BaseTexture;
+class IniHandler;
 struct TextureAsset
 {
 	int Nchannels;
@@ -86,8 +87,10 @@ public:
 	CORE_API static const std::string GetRootDir();
 	CORE_API static const std::string GetGeneratedDir();
 	CORE_API static const std::string DirectGetGeneratedDir();
+	CORE_API static const std::string GetSettingsDir();
 private:
 	AssetManager();
+	void Init();
 	bool HasCookedData = false;
 
 	std::map<std::string, std::string> ShaderSourceMap;
@@ -110,6 +113,7 @@ private:
 	//Cached Paths
 	void SetupPaths();
 	std::string RootDir = "";
+	std::string SettingsDir= "";
 	std::string ContentDirPath = "";
 	std::string ShaderDirPath = "";
 	std::string DDCDirPath = "";
@@ -118,5 +122,6 @@ private:
 	std::string LoadShaderIncludeFile(std::string name, int limit, std::string Relative = std::string());
 	static const std::string DDCName;
 	const int MaxIncludeTreeLength = 10;
+	IniHandler* INISaver = nullptr;
 };
 

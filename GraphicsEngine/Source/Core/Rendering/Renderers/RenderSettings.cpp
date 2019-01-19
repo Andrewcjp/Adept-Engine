@@ -2,15 +2,16 @@
 #include "RenderSettings.h"
 #include "RHI/RHI.h"
 #include "Core/Platform/ConsoleVariable.h"
+#include "Core/Assets/Archive.h"
 static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
 
 MultiGPUMode::MultiGPUMode()
 {
-	MainPassSFR = false;
+	MainPassSFR = true;
 	SplitShadowWork = false;
 	ComputePerFrameShadowDataOnExCard = true;
 	PSComputeWorkSplit = false;
-	AsyncShadows = false;
+	AsyncShadows = false; 
 }
 
 void MultiGPUMode::ValidateSettings()
@@ -23,6 +24,14 @@ void MultiGPUMode::ValidateSettings()
 		PSComputeWorkSplit = false;
 		AsyncShadows = false;
 	}
+}
+
+void MultiGPUMode::Seralise(Archive * A)
+{
+	ArchiveProp(MainPassSFR);
+	ArchiveProp(SplitShadowWork);
+	ArchiveProp(PSComputeWorkSplit);
+	ArchiveProp(AsyncShadows);
 }
 
 RenderSettings::RenderSettings()

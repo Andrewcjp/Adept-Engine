@@ -6,6 +6,7 @@ ConsoleVariableManager* ConsoleVariableManager::Instance = nullptr;
 
 ConsoleVariable::ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype, bool NeedsValue)
 {
+	Type = cvartype;
 	NeedsValue = NeedsValue;
 	CurrentValue = DefaultValue;
 	if (cvartype != ECVarType::LaunchOnly)
@@ -16,7 +17,7 @@ ConsoleVariable::ConsoleVariable(std::string name, int DefaultValue, ECVarType::
 	{
 		ConsoleVariableManager::Get()->LaunchArgs.push_back(this);
 	}
-
+	ConsoleVariableManager::Get()->AllVars.push_back(this);
 	Name = name;
 	std::transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
 }
@@ -33,7 +34,7 @@ ConsoleVariable::ConsoleVariable(std::string name, float DefaultValue, ECVarType
 	{
 		ConsoleVariableManager::Get()->LaunchArgs.push_back(this);
 	}
-
+	ConsoleVariableManager::Get()->AllVars.push_back(this);
 	Name = name;
 	std::transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
 	IsFloat = true;
@@ -57,6 +58,69 @@ bool GetValueClean(std::string value, int& outvalue)
 	}
 	outvalue = stoi(value);
 	return true;
+}
+
+ConsoleVariableManager* ConsoleVariableManager::Get()
+{
+	if (Instance == nullptr)
+	{
+		Instance = new ConsoleVariableManager();
+	}
+	return Instance;
+}
+
+void ConsoleVariableManager::SetupCVarsFromCFG(std::vector<std::string>& VarLines)
+{
+	for (int i = 0; i < VarLines.size(); i++)
+	{
+		ProcessVarString(VarLines[i], false);
+	}
+}
+
+void ConsoleVariableManager::ProcessVarString(std::string value, bool LaunchOnly)
+{
+	std::transform(value.begin(), value.end(), value.begin(), ::tolower);
+	std::vector<std::string> SplitArgs = StringUtils::Split(value, ' ');
+	for (ConsoleVariable* CV : Instance->AllVars)
+	{
+		if (LaunchOnly && (CV->Type == ECVarType::LaunchOnly || CV->Type == ECVarType::ConsoleAndLaunch))
+		{
+			continue;
+		}
+		for (int i = 0; i < SplitArgs.size(); i++)
+		{
+			std::string Arg = SplitArgs[i];
+			if (Arg.compare(CV->GetName()) == 0)
+			{
+				if (i + 1 < SplitArgs.size())
+				{
+					int parsedvalue = -1;
+					if (GetValueClean(SplitArgs[i + 1], parsedvalue))
+					{
+						i++;
+					}
+					else
+					{
+						Log::LogMessage("Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
+					}
+					CV->SetValue(parsedvalue);
+				}
+				else
+				{
+					Log::LogMessage("Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
+					CV->SetValue(-1);
+				}
+			}
+		}
+	}
+}
+
+void ConsoleVariableManager::GetCFGVariables(std::vector<std::string> &Lines)
+{
+	for (ConsoleVariable* CV : Instance->AllVars)
+	{
+		Lines.push_back(CV->GetName() + " " + std::to_string(CV->GetIntValue()));
+	}
 }
 
 void ConsoleVariableManager::SetupVars(std::string LaunchArgString)

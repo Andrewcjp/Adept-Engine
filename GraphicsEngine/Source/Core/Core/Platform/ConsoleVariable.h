@@ -10,6 +10,8 @@ namespace ECVarType
 		ConsoleOnly,
 		LaunchOnly,
 		ConsoleAndLaunch,
+		SavedOnly, //< not sure what is quite is in the category but okay.
+		Limit
 	};
 }
 
@@ -60,6 +62,7 @@ public:
 	}
 	std::string GetValueString();
 	bool IsFloat = false;
+	ECVarType::Type Type;
 private:
 	std::string Name = "";
 	int CurrentValue = 0;
@@ -73,18 +76,11 @@ public:
 	static ConsoleVariableManager * Instance;
 	std::vector<ConsoleVariable*> ConsoleVars;
 	std::vector<ConsoleVariable*> LaunchArgs;
-	static ConsoleVariableManager* Get()
-	{
-		if (Instance == nullptr)
-		{
-			Instance = new ConsoleVariableManager();
-		}
-		return Instance;
-	}
-	static void SetupCVars()
-	{
-		//todo: gather from config
-	}
+	std::vector<ConsoleVariable*> AllVars;
+	static ConsoleVariableManager* Get();
+	void SetupCVarsFromCFG(std::vector<std::string> & VarLines);
+	void ProcessVarString(std::string value, bool LaunchOnly);
+	void GetCFGVariables(std::vector<std::string>& Lines);
 	static void SetupVars(std::string LaunchArgString);
 	static bool TrySetCVar(std::string command, ConsoleVariable ** Var);
 };

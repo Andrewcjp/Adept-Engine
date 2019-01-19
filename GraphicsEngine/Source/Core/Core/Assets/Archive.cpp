@@ -164,6 +164,32 @@ void Archive::LinkProperty(std::vector<Component*> & Value, const char * PropNam
 	}
 }
 
+void Archive::HandleArchiveBody(std::string Name)
+{
+	int VersionNumber = SERAL_VERSION_NUMBER;
+	if (IsReading())
+	{
+		CurrentReadHead = doc.MemberBegin();
+	}
+	if (!IsReading())
+	{
+		rapidjson::Value* jsongovalue = new rapidjson::Value(rapidjson::kObjectType);
+		valueptr = jsongovalue;
+		IN_ArchiveProp(VersionNumber);
+	//	
+	}
+	else
+	{
+		Scope_PopReadHead(CurrentReadHead);
+		IN_ArchiveProp(VersionNumber);
+		ensureFatalMsgf(SERAL_VERSION_NUMBER == VersionNumber, "Incorrect Version from file");
+	}
+}
+void Archive::EndHeaderWrite(std::string Name)
+{
+	SerialHelpers::addJsonValue(doc, doc.GetAllocator(), Name, *valueptr);
+}
+
 void Archive::LinkProperty(Scene* Value, const char * PropName)
 {
 	int VersionNumber = SERAL_VERSION_NUMBER;

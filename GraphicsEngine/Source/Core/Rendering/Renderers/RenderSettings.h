@@ -1,4 +1,6 @@
 #pragma once
+
+class Archive;
 namespace AAMode
 {
 	enum Type
@@ -20,7 +22,7 @@ public:
 	bool IsDeferred = false;
 };
 //Props Are Set in the Constructor 
-struct MultiGPUMode
+struct MultiGPUMode 
 {
 	MultiGPUMode();
 	bool MainPassSFR = false;
@@ -32,6 +34,7 @@ struct MultiGPUMode
 	bool PSComputeWorkSplit = false;
 	bool AsyncShadows = false;
 	void ValidateSettings();
+	void Seralise(Archive* A);
 };
 //Props Are Set in the Constructor 
 struct RenderConstants

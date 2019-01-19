@@ -375,6 +375,9 @@ public:
 	int DepthMipCount = 1;
 	bool CubeMapAddressAsOne = true;
 	GPU_RESOURCE_STATES::Type StartingState = GPU_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
+	glm::vec4 ViewPort = glm::vec4();
+	glm::vec4 ScissorRect = glm::vec4();
+	bool IncludedInSFR = false;
 };
 
 class RHI_API IRHIResourse
@@ -421,4 +424,13 @@ struct IndirectDispatchArgs
 	int ThreadGroupCountX;
 	int ThreadGroupCountY;
 	int ThreadGroupCountZ;
+};
+
+struct SFRNode
+{
+	float SFR_PercentSize = 0.5f;
+	float SFR_VerticalPercentSize = 1.0f;
+	float SFR_Offset = 0.5f;
+	float SFR_VerticalOffset = 1.0f;
+	//Link to framebuffers - then call resize!
 };

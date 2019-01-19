@@ -23,7 +23,6 @@ void ForwardRenderer::Resize(int width, int height)
 	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 	HandleCameraResize();
 	RenderEngine::Resize(width, height);
-
 }
 
 ForwardRenderer::~ForwardRenderer()
@@ -48,8 +47,6 @@ void ForwardRenderer::PostInit()
 	SkyBox->test = probes[0]->CapturedTexture;
 #endif
 	//probes.push_back(new RelfectionProbe());
-
-
 }
 
 void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
@@ -58,6 +55,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(GetScaledWidth(), GetScaledHeight());
 	Desc.AllowUnordedAccess = true;
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+	Desc.IncludedInSFR = true;
 	FilterBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
 	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyBox->Init(FilterBuffer, nullptr);
