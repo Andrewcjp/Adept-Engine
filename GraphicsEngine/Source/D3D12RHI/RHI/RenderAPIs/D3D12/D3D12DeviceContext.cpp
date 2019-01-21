@@ -60,7 +60,7 @@ void D3D12DeviceContext::CheckFeatures()
 		Caps_Data.SupportsCopyTimeStamps = FeatureData.CopyQueueTimestampQueriesSupported;
 	}*/
 }
-
+static ConsoleVariable EnableStablePower("StablePower", false, ECVarType::LaunchOnly, true);
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
@@ -139,8 +139,6 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
 	//todo: validate the device capablities 
-	//GetDevice()->SetStablePowerState(false);
-
 	TimeManager = new D3D12TimeManager(this);
 	GPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
 	InterGPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
@@ -157,6 +155,10 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		{
 			GPUWaitPoints[x][i].InitGPUOnly(GetDevice());
 		}
+	}
+	if (EnableStablePower.GetBoolValue())
+	{
+		GetDevice()->SetStablePowerState(true);
 	}
 }
 

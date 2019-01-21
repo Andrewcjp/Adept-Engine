@@ -57,7 +57,7 @@ enum ERenderSystemType
 template <class T>
 void UNUSED_PARAM(T const&)
 {}
-#include "Core\Asserts.h"
+
 
 #define DLLEXPORT __declspec(dllexport)
 #define DLLIMPORT __declspec(dllimport)
@@ -108,3 +108,8 @@ void UNUSED_PARAM(T const&)
 #endif
 
 #define DETECT_MEMORY_LEAKS !BUILD_SHIPPING
+
+
+#define PROPERTY()
+#define UCLASS()
+#define CLASS_BODY() void ProcessSerialArchive(Archive* A);

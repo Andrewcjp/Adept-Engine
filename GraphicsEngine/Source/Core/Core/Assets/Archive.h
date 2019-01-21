@@ -8,18 +8,18 @@ public:
 	~Archive();
 
 	//Basic Types
-	void LinkProperty(int & Value, const char * PropName);
-	void LinkProperty(float & Value, const char * PropName);
-	void LinkProperty(bool & Value, const char * PropName);
-	void LinkProperty(std::string & Value, const char * PropName);
-	void LinkProperty(glm::vec3 & Value, const char* PropName);
-	void LinkProperty(glm::vec2 & value, const char* PropName);
+	CORE_API void LinkProperty(int & Value, const char * PropName);
+	CORE_API void LinkProperty(float & Value, const char * PropName);
+	CORE_API void LinkProperty(bool & Value, const char * PropName);
+	CORE_API void LinkProperty(std::string & Value, const char * PropName);
+	CORE_API void LinkProperty(glm::vec3 & Value, const char* PropName);
+	CORE_API void LinkProperty(glm::vec2 & value, const char* PropName);
 	//Complex Core Types
-	void LinkProperty(std::vector<class Component*>& Value, const char * PropName);
+	CORE_API void LinkProperty(std::vector<class Component*>& Value, const char * PropName);
 	void HandleArchiveBody(std::string Name);
 	void EndHeaderWrite(std::string Name);
-	void LinkProperty(class Transform * Value, const char * PropName);
-	void LinkProperty(class Scene * Value, const char * PropName);
+	CORE_API void LinkProperty(class Transform * Value, const char * PropName);
+	CORE_API void LinkProperty(class Scene * Value, const char * PropName);
 
 	void Write();
 	bool IsReading()const;

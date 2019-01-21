@@ -196,16 +196,6 @@ SFRController * RHI::GetSplitController()
 	return instance->SFR_Controller;
 }
 
-void RHI::LoadSettings()
-{
-
-}
-
-void RHI::SaveSettings()
-{
-
-}
-
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 	//ensure(!Resource->IsPendingKill());
@@ -362,12 +352,23 @@ RHIPipeLineStateObject * RHI::CreatePipelineStateObject(const RHIPipeLineStateDe
 void RHI::InitialiseContext()
 {
 	GetRHIClass()->InitRHI();
-	instance->LoadSettings();
-	instance->CurrentMGPUMode.ValidateSettings();
+	instance->ValidateSettings();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
 	ParticleSystemManager::Get();
 	instance->SFR_Controller = new SFRController();
-	instance->SaveSettings();
+}
+
+void RHI::ValidateSettings()
+{
+	CurrentMGPUMode.ValidateSettings();
+	if (CurrentMGPUMode.SplitShadowWork)
+	{
+		ensureMsgf(RenderSettings.IsDeferred,"Multigpu shadows only supported on Deferred renderer");
+	}
+	if (CurrentMGPUMode.MainPassSFR)
+	{
+		ensureMsgf(!RenderSettings.IsDeferred, "SFR only supported in forward rendering mode");
+	}
 }
 
 void RHI::InitialiseContextWindow(int w, int h)

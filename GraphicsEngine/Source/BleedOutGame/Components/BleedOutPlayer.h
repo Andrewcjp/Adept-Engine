@@ -9,9 +9,11 @@ struct WalkAudio
 	float CurrnetTime = 0.0f;
 	void Tick(GameObject* object, bool IsGrounded, glm::vec3 speed, bool isAI);
 };
+UCLASS()
 class BleedOutPlayer :public Component
 {
 public:
+	CLASS_BODY();
 	BleedOutPlayer();
 	~BleedOutPlayer();
 
@@ -33,6 +35,7 @@ public:
 	{
 		return IsGrounded;
 	}
+	PROPERTY();
 	glm::vec3 ExtraVel = glm::vec3();
 	WeaponManager* Manager = nullptr;
 	glm::vec3 GetColour();

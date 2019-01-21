@@ -43,6 +43,7 @@ public:
 	RHI_API static DeviceContext* GetDefaultDevice();
 	RHI_API static RHIPipeLineStateObject* CreatePipelineStateObject(const RHIPipeLineStateDesc& Desc, DeviceContext* Device = nullptr);
 	static void InitialiseContext();
+	void ValidateSettings();
 	static void InitialiseContextWindow(int w, int h);
 	static std::string ReportMemory();
 	static void RHISwapBuffers();
@@ -72,8 +73,6 @@ public:
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
 	static RHI* Get();
 	static SFRController* GetSplitController();
-	void LoadSettings();
-	void SaveSettings();
 private:
 	SFRController* SFR_Controller = nullptr;
 	void TickDeferredDeleteQueue(bool Flush = false);

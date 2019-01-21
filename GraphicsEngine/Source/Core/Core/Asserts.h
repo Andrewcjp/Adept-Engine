@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Engine.h"
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)
@@ -11,7 +12,7 @@
 #endif
 #if DOFULLCHECK
 #define ensure(condition) {if(!(condition)){ AssertDebugBreak();std::string Message = "Ensure Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition ;\
-Log::LogMessage(Message,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error", Message); exit(1359);}}
+Log::LogMessage(Message,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error", Message); Engine::RequestExit(-1);}}
 
 #define ensureMsgf(condition,Message) ensureFatalMsgf(condition,Message);
 
@@ -31,7 +32,7 @@ Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageB
 #endif
 #if DOCHECK
 #define ensureFatalMsgf(condition,Message) if(!(condition)){ AssertDebugBreak();std::string data = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition  "\n" Message ; \
-Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error",data); exit(1359);}
+Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error",data); Engine::RequestExit(-1);}
 #else
 #define ensureFatalMsgf(condition,Message);
 #endif

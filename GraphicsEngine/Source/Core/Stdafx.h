@@ -7,8 +7,6 @@
 #define GLM_FORCE_SWIZZLE
 #define GLM_ENABLE_EXPERIMENTAL
 #pragma warning(push,3)
-#include "EngineGlobals.h"
-#include "Core/Platform/PlatformTypes.h"
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -55,4 +53,9 @@
 //Unreachable code
 //#pragma warning(3:4702)
 #endif//C4150 incomplete ptr
+
+//Start Engine Headers
+#include "EngineGlobals.h"
+#include "Core/Platform/PlatformTypes.h"
+#include "Core/Asserts.h"
 

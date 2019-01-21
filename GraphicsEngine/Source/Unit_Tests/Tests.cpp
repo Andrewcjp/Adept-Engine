@@ -2,8 +2,9 @@
 #define RHI_API
 #define CORE_API 
 #define FROMTEST
-#include "Core/Types/FString.cpp"
-
+#include <include/glm/glm.hpp>
+#include "Core/Types/FString.h"
+#pragma comment(lib, "BleedOut.lib")
 TEST_CASE("FString Contains ", "[FString]")
 {
 	FString test = FString("hello");
