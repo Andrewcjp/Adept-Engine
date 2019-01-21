@@ -8,11 +8,12 @@ static ConsoleVariable UseSFR("UseSFR", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly);
 static ConsoleVariable AsyncShadow("AsyncShadow", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitPS("SplitPS", false, ECVarType::LaunchOnly);
-static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOnExCard", false, ECVarType::LaunchOnly);
+static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOnExCard", true, ECVarType::LaunchOnly);
 
 MultiGPUMode::MultiGPUMode()
 {
 	//UseSFR.SetValue(true);
+	SplitShadows.SetValue(true);
 	SyncSettings();
 }
 
@@ -34,7 +35,7 @@ void MultiGPUMode::ValidateSettings()
 		ComputePerFrameShadowDataOnExCard = false;
 		PSComputeWorkSplit = false;
 		AsyncShadows = false;
-	}
+	}	
 }
 
 RenderSettings::RenderSettings()

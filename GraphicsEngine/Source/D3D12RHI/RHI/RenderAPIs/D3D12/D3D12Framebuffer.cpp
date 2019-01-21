@@ -104,7 +104,7 @@ void D3D12FrameBuffer::HandleResize()
 	m_width = BufferDesc.Width;
 	m_height = BufferDesc.Height;
 	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
-	m_scissorRect = CD3DX12_RECT(BufferDesc.ScissorRect.x, BufferDesc.ScissorRect.y, BufferDesc.ScissorRect.z,BufferDesc.ScissorRect.w);
+	m_scissorRect = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
 	CurrentDevice->CPUWaitForAll();
 	if (OtherDevice != nullptr)
 	{
@@ -501,7 +501,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 void D3D12FrameBuffer::Init()
 {
 	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
-	m_scissorRect = CD3DX12_RECT(BufferDesc.ScissorRect.x, BufferDesc.ScissorRect.y, BufferDesc.ScissorRect.z, BufferDesc.ScissorRect.w);
+	m_scissorRect = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
 	//update RenderTargetDesc
 	RenderTargetDesc.NumRenderTargets = BufferDesc.RenderTargetCount;
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)

@@ -10,7 +10,7 @@ public:
 	CORE_API bool Contains(FString Target);
 	std::string& ToSString();
 	std::wstring& ToWideString();
-	bool operator==(const FString &b) const;
+	CORE_API bool operator==(const FString &b) const;
 	CORE_API void SetupHash();
 #if RUNTESTS
 	static void RunFStringTests();

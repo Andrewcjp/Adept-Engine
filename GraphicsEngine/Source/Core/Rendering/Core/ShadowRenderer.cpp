@@ -314,7 +314,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 			{
 				list->SetFrameBufferTexture(LightInteractions[i]->PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
 			}
-	}
+		}
 #else
 		list->SetFrameBufferTexture(LightInteractions[2]->PreSampledBuffer, 10);
 #endif

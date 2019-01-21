@@ -8,6 +8,8 @@
 #include "Core/Utils/DebugDrawers.h"
 #include "Audio/AudioEngine.h"
 #include <iomanip>
+#include "BleedOutPlayer.generated.h"
+
 BleedOutPlayer::BleedOutPlayer()
 {}
 
