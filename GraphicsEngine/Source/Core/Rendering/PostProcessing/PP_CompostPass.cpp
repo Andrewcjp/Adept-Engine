@@ -10,38 +10,13 @@ PP_CompostPass::PP_CompostPass()
 
 PP_CompostPass::~PP_CompostPass()
 {
-	delete CurrentShader;
+	SafeDelete(CurrentShader);
 }
-#define TEST 0
-#if TEST
-#include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
-#include "RHI/RenderAPIs/D3D12/GPUResource.h"
-#endif
 void PP_CompostPass::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
-#if TEST
-	ID3D12GraphicsCommandList* dlist = ((D3D12CommandList*)list)->GetCommandList();
-	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)InputFramebuffer;
-#endif
 	list->SetScreenBackBufferAsRT();
-	if (TextRenderer::instance->RunOnSecondDevice)
-	{
-		//	buffer->MakeReadyForRead(dlist);
-	}
 	list->SetFrameBufferTexture(InputFramebuffer, 0);
-
 	RenderScreenQuad(list);
-#if TEST
-	if (TextRenderer::instance->RunOnSecondDevice)
-	{
-		buffer->MakeReadyForCopy_In(dlist);
-	}
-	if (buffer->GetDescription().AllowUnordedAccess)
-	{
-		buffer->GetResource(0)->SetResourceState(dlist, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	}
-#endif
 }
 
 void PP_CompostPass::PostSetUpData()

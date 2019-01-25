@@ -153,7 +153,7 @@ void D3D12RHI::LoadPipeLine()
 #ifdef _DEBUG
 #define RUNDEBUG 1
 #else 
-#define RUNDEBUG 1
+#define RUNDEBUG 0
 #endif
 
 	UINT dxgiFactoryFlags = 0;

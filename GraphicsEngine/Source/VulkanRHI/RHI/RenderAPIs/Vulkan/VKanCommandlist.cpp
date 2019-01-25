@@ -1,6 +1,7 @@
-#include "stdafx.h"
+
 #include "VKanCommandlist.h"
 #include "VkanBuffers.h"
+#if BUILD_VULKAN
 
 VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * context) :RHICommandList(type, context)
 {
@@ -50,11 +51,7 @@ void VKanCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 
 }
 
-void VKanCommandlist::CreatePipelineState(Shader * shader, class FrameBuffer* Buffer)
-{}
 
-void VKanCommandlist::SetPipelineState(PipeLineState state)
-{}
 
 void VKanCommandlist::UpdateConstantBuffer(void * data, int offset)
 {
@@ -102,14 +99,15 @@ void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQ
 
 }
 
-void VKanCommandlist::WaitForCompletion()
-{}
 
-void VKanCommandlist::SetPipelineStateObject(Shader * shader, FrameBuffer * Buffer/* = nullptr*/)
-{}
+ void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
 {}
+
 
 void VKanCommandlist::SetUpCommandSigniture(int commandSize, bool Dispatch)
 {}
@@ -120,6 +118,11 @@ void VKanCommandlist::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBu
 void VKanCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
 {}
 
+
+ void VKanCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
 
 void VkanUAV::Bind(RHICommandList * list, int slot)
 {}
@@ -139,5 +142,13 @@ void VkanTextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 void VkanTextureArray::BindToShader(RHICommandList * list, int slot)
 {}
 
-void VkanTextureArray::SetIndexNull(int TargetIndex)
-{}
+void VkanTextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*= nullptr*/)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void VkanTextureArray::Clear()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+#endif

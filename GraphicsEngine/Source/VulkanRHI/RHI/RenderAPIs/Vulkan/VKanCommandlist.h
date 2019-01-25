@@ -2,6 +2,8 @@
 #include "RHI/RHICommandList.h"
 #include "RHI/Shader.h"
 #include "VKanRHI.h"
+#if BUILD_VULKAN
+
 class VKanCommandlist :
 	public RHICommandList
 {
@@ -16,11 +18,9 @@ public:
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
-	virtual void CreatePipelineState(Shader * shader, class FrameBuffer* Buffer = nullptr) override;
-	virtual void SetPipelineState(PipeLineState state) override;
+
 	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
-	virtual void SetTexture(BaseTexture * texture, int slot) override;
 	virtual void SetScreenBackBufferAsRT() override;
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
@@ -35,13 +35,20 @@ public:
 	// Inherited via RHICommandList
 	virtual void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0) override;
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
-	virtual void WaitForCompletion() override;
-	virtual void SetPipelineStateObject(Shader * shader, FrameBuffer * Buffer = nullptr) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset) override;
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset) override;
 	VkCommandBuffer CommandBuffer;
+
+	 RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
+
+
+	 RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
+
+
+	 RHI_VIRTUAL void SetTexture(class BaseTexture* texture, int slot) override;
+
 private:
 	
 };
@@ -65,5 +72,7 @@ public:
 	// Inherited via RHITextureArray
 	virtual void AddFrameBufferBind(FrameBuffer * Buffer, int slot) override;
 	virtual void BindToShader(RHICommandList * list, int slot) override;
-	virtual void SetIndexNull(int TargetIndex) override;
+	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) override;
+	RHI_VIRTUAL void Clear() override;
 };
+#endif

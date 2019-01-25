@@ -10,7 +10,6 @@ public:
 	virtual void ResetDeviceAtEndOfFrame() override;
 	virtual void SampleVideoMemoryInfo() override;
 	virtual std::string GetMemoryReport() override;
-	virtual void MoveNextFrame() override;
 	virtual void DestoryDevice() override;
 	virtual void WaitForGpu() override;
 	virtual void WaitForCopy() override;

@@ -1,7 +1,4 @@
-#include "stdafx.h"
 #include "VKanRHI.h"
-#include <stdio.h>
-#include <iostream>
 #include "Core/Module/ModuleManager.h"
 #include "VKanCommandlist.h"
 #include "VKanShader.h"
@@ -10,24 +7,18 @@
 #include "Core/Platform/PlatformCore.h"
 #include "VkanBuffers.h"
 #include "VkanDeviceContext.h"
-#include <iostream>
 #include <fstream>
-#include <stdexcept>
-#include <algorithm>
-#include <vector>
-#include <cstring>
-#include <cstdlib>
-#include "VkanBuffers.h"
 #include <set>
-#include "VKanCommandlist.h"
+
+#include "Core/Platform/Windows/WindowsWindow.h"
+
+#if BUILD_VULKAN
+
 VKanRHI* VKanRHI::RHIinstance = nullptr;
-
-//#define GLFW_INCLUDE_VULKAN
-//#include <GLFW/glfw3.h>
-
 
 VKanRHI::VKanRHI()
 {
+
 	//win32Hinst = win32inst;
 	RHIinstance = this;
 }
@@ -45,15 +36,6 @@ void VKanRHI::createGraphicsPipeline23()
 	createSwapRT();
 }
 
-#include "Core/Platform/PlatformCore.h"
-bool VKanRHI::InitRHI()
-{
-	win32Hinst = PlatformWindow::GetHInstance();
-	win32HWND = PlatformWindow::GetHWND();
-	initVulkan();
-	Device = new VkanDeviceContext();
-	return true;
-}
 
 //private:
 
@@ -76,10 +58,36 @@ BaseTexture * VKanRHI::CreateTexture(DeviceContext * Device)
 {
 	return new VKanTexture();
 }
-FrameBuffer * VKanRHI::CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc & Desc)
+
+FrameBuffer* VKanRHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc)
 {
 	return new VKanFramebuffer(Device, Desc);
 }
+void VKanRHI::SetFullScreenState(bool state)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+std::string VKanRHI::ReportMemory()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+RHIPipeLineStateObject* VKanRHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+RHIGPUSyncEvent* VKanRHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+#if ALLOW_RESOURCE_CAPTURE
+void VKanRHI::TriggerWriteBackResources()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+#endif
 ShaderProgramBase * VKanRHI::CreateShaderProgam(DeviceContext * Device/* = nullptr*/)
 {
 	return new VKanShader();
@@ -88,7 +96,7 @@ RHITextureArray * VKanRHI::CreateTextureArray(DeviceContext * Device, int Length
 {
 	return new VkanTextureArray(Device, Length);
 }
-RHIBuffer * VKanRHI::CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext * Device)
+RHIBuffer * VKanRHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext * Device)
 {
 	return new VKanBuffer(type, Device);
 }
@@ -102,11 +110,11 @@ RHICommandList * VKanRHI::CreateCommandList(ECommandListType::Type Type/* = ECom
 }
 DeviceContext * VKanRHI::GetDefaultDevice()
 {
-	return Device;
+	return TDevice;
 }
 DeviceContext * VKanRHI::GetDeviceContext(int index)
 {
-	return Device;
+	return TDevice;
 }
 
 void VKanRHI::RHISwapBuffers()
@@ -115,8 +123,7 @@ void VKanRHI::RHISwapBuffers()
 }
 void VKanRHI::RHIRunFirstFrame()
 {}
-void VKanRHI::ToggleFullScreenState()
-{}
+
 void VKanRHI::ResizeSwapChain(int width, int height)
 {}
 void VKanRHI::WaitForGPU()
@@ -829,6 +836,7 @@ void  VKanRHI::createSyncObjects()
 
 void  VKanRHI::drawFrame()
 {
+	
 	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -963,8 +971,8 @@ VkExtent2D  VKanRHI::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabiliti
 	{
 		VkExtent2D actualExtent = { WIDTH, HEIGHT };
 
-		actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-		actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+		actualExtent.width = glm::max(capabilities.minImageExtent.width, glm::min(capabilities.maxImageExtent.width, actualExtent.width));
+		actualExtent.height = glm::max(capabilities.minImageExtent.height, glm::min(capabilities.maxImageExtent.height, actualExtent.height));
 
 		return actualExtent;
 	}
@@ -1158,7 +1166,7 @@ void VKanRHI::initVulkan()
 	createGraphicsPipeline();
 	createFramebuffers();
 	createCommandPool();
-	buffer = new VKanBuffer(RHIBuffer::Constant, nullptr);
+	buffer = new VKanBuffer(ERHIBufferType::Constant, nullptr);
 	glm::vec4 data = glm::vec4(1, 1, 1, 1);
 	buffer->CreateConstantBuffer(sizeof(data), 1);
 	buffer->UpdateConstantBuffer(glm::value_ptr(data), 0);
@@ -1184,3 +1192,16 @@ void  VKanRHI::setupDebugCallback()
 		throw std::runtime_error("failed to set up debug callback!");
 	}
 }
+
+
+bool VKanRHI::InitRHI()
+{
+	win32Hinst = PlatformWindow::GetHInstance();
+	win32HWND = PlatformWindow::GetHWND();
+	initVulkan();
+	TDevice = new VkanDeviceContext();
+	return true;
+}
+
+
+#endif

@@ -293,7 +293,6 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, Shader_Main
 
 void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 {
-#if 1
 	if (RHI::GetRenderSettings()->IsDeferred)
 	{
 		ShadowDirectionalArray->BindToShader(list, 5);
@@ -304,10 +303,9 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 		ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
 		ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
 	}
-	//#else
+
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
-#if 1
 		for (int i = 0; i < LightInteractions.size(); i++)
 		{
 			if (LightInteractions[i]->lightPtr->ExecOnAlt)
@@ -315,11 +313,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 				list->SetFrameBufferTexture(LightInteractions[i]->PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
 			}
 		}
-#else
-		list->SetFrameBufferTexture(LightInteractions[2]->PreSampledBuffer, 10);
-#endif
-}
-#endif
+	}
 }
 
 void ShadowRenderer::ClearShadowLights()
@@ -441,7 +435,7 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 		desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
 		PreSampledBuffer = RHI::CreateFrameBuffer(Context, desc);
 #else
-		const int size = 2048;
+		const int size = 512;
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColourDepth(size, size);
 		desc.IsShared = true;
 		desc.DeviceToCopyTo = RHI::GetDeviceContext(0);

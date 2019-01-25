@@ -1,9 +1,9 @@
-#include "stdafx.h"
 #include "VKanShader.h"
 #include <ios>
 #include <iostream>
 #include <fstream>
 #include "Core/Assets/AssetManager.h"
+#if BUILD_VULKAN
 
 VKanShader::VKanShader()
 {}
@@ -239,3 +239,5 @@ void VKanShader::SetupPSO()
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 }
+
+#endif

@@ -63,6 +63,7 @@ void D3D12DeviceContext::CheckFeatures()
 static ConsoleVariable EnableStablePower("StablePower", false, ECVarType::LaunchOnly, true);
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
+	//EnableStablePower.SetValue(true);
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
 	VendorID = Adaptordesc.VendorId;

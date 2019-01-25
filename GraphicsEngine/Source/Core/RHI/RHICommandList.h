@@ -136,3 +136,19 @@ protected:
 	int NumEntries = 1;
 
 };
+
+struct RHI_API RHISubPass
+{
+	static const int MaxFrameBuffersInRenderSubPass = 10;
+	FrameBuffer* FrameBuffersUsedInPass[MaxFrameBuffersInRenderSubPass] = {};
+};
+class RHIRenderPass
+{
+public:
+	RHI_API RHIRenderPass();
+	RHI_API virtual ~RHIRenderPass();
+	void AddSubPass(RHISubPass* Pass);
+	virtual void Complie();
+private:
+	std::vector<RHISubPass*> SubPasses;
+};

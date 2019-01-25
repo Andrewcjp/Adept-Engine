@@ -3,7 +3,7 @@ using EngineBuildTool;
 class CoreTargetRules : TargetRules
 {
     bool BuildPhysx = true;
-    bool BuildVulkan = false;
+    bool BuildVulkan = true;
     public CoreTargetRules()
     {
         LibSearchPaths.Add(new LibSearchPath("\\64", LibBuildConfig.General));

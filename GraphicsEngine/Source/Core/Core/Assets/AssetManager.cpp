@@ -124,7 +124,7 @@ void AssetManager::SetupPaths()
 	ScriptDirPath = RootDir + "\\Scripts\\";
 #endif
 	SettingsDir = Engine::GetExecutionDir() + "\\Config";
-
+	PlatformApplication::TryCreateDirectory(SettingsDir);
 }
 
 AssetManager::AssetManager()
