@@ -8,5 +8,8 @@ class VulkanRHIModule : ModuleDef
         ModuleName = "VulkanRHI";
         SourceFileSearchDir = "VulkanRHI";
         ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
+        UseCorePCH = false;
+        PCH = "VulkanRHIPCH";
+        UseUnity = true;
     }
 }

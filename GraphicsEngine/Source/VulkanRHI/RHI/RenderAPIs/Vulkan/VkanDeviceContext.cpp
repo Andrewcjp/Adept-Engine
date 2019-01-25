@@ -22,9 +22,6 @@ std::string VkanDeviceContext::GetMemoryReport()
 	return std::string();
 }
 
-void VkanDeviceContext::MoveNextFrame()
-{}
-
 void VkanDeviceContext::DestoryDevice()
 {}
 

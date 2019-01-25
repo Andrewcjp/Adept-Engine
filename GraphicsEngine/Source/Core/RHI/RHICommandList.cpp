@@ -157,4 +157,16 @@ RHITextureArray::RHITextureArray(DeviceContext * device, int inNumEntries)
 	ObjectSufix = "(TexArray)";
 }
 
+RHIRenderPass::RHIRenderPass()
+{}
 
+RHIRenderPass::~RHIRenderPass()
+{}
+
+void RHIRenderPass::AddSubPass(RHISubPass * Pass)
+{
+	SubPasses.push_back(Pass);
+}
+
+void RHIRenderPass::Complie()
+{}

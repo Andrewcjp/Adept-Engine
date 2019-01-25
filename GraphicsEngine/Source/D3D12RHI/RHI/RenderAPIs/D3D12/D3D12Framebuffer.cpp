@@ -1,10 +1,9 @@
-
 #include "D3D12Framebuffer.h"
-#include "GPUResource.h"
-#include "DescriptorHeap.h"
 #include "Core/Performance/PerfManager.h"
-#include "D3D12DeviceContext.h"
 #include "D3D12CommandList.h"
+#include "D3D12DeviceContext.h"
+#include "DescriptorHeap.h"
+#include "GPUResource.h"
 #define CUBE_SIDES 6
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)

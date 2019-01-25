@@ -298,12 +298,9 @@ Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Sett
 			return New;
 		}
 	}
-	///todo asset paths
 	std::string accpath = AssetManager::GetContentPath();
-	std::string apath = "";/// ("\\models\\");
-	apath.append(path);
-	accpath.append(apath);//todo remove
-	AssetManager::RegisterMeshAssetLoad(apath);
+	accpath.append(path);
+	AssetManager::RegisterMeshAssetLoad(path);
 	Mesh* newmesh = new Mesh(accpath, Settings);
 	newmesh->AssetName = path;
 	if (Settings.AllowInstancing)

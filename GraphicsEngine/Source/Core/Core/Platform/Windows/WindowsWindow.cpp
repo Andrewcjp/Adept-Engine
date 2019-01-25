@@ -8,6 +8,7 @@
 #include "Core/EngineTypes.h"
 #include "Core/Input/Input.h"
 #include "Core/Platform/Windows/WindowsApplication.h"
+#include <timeapi.h>
 #pragma comment(lib, "winmm.lib")
 
 WindowsWindow* WindowsWindow::app = nullptr;

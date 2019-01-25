@@ -31,7 +31,6 @@ public:
 	void LoadText();
 	void UpdateSize(int width, int height, glm::ivec2 offset = glm::ivec2(0));
 	void NotifyFrameEnd();
-	bool RunOnSecondDevice = false;
 private:
 	bool UseFrameBuffer = false;
 	int TextDataLength = 0;
@@ -78,7 +77,7 @@ private:
 			float ty;	// y offset of glyph in texture coordinates
 		} c[128];		// character information
 
-		atlas(FT_Face face, int height, bool RunOnSecondDevice);
+		atlas(FT_Face face, int height);
 		~atlas();
 	};
 	atlas* TextAtlas;

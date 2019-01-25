@@ -101,6 +101,7 @@ void D3D12CommandList::ResetList()
 	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], PSO));
 	HandleStallTimer();
 	PushState();
+
 }
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
@@ -418,7 +419,7 @@ void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * D
 
 }
 
-ID3D12GraphicsCommandList * D3D12CommandList::GetCommandList()
+ID3D12GraphicsCommandList3* D3D12CommandList::GetCommandList()
 {
 	ensure(m_IsOpen);
 	return CurrentCommandList;
@@ -456,6 +457,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	}
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
+
 }
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)

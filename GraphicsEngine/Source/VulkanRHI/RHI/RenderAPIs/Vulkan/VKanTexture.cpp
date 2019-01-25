@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "VKanTexture.h"
 
 #if BUILD_VULKAN
@@ -13,10 +12,14 @@ bool VKanTexture::CreateFromFile(AssetPathRef FileName)
 {
 	return true;
 }
-void VKanTexture::CreateTextureAsRenderTarget(int width, int height, bool depthonly, bool alpha)
-{}
 void VKanTexture::CreateTextureFromData(void * data, int type, int width, int height, int bits)
 {}
 void VKanTexture::CreateAsNull()
 {}
+
+void VKanTexture::UpdateSRV()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 #endif

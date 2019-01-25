@@ -1,5 +1,8 @@
-#include "Core/Platform/PlatformCore.h"
 #include "VkanBuffers.h"
+#include "Core/Platform/PlatformCore.h"
+#include "VKanRHI.h"
+#if BUILD_VULKAN
+
 uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
 	VkPhysicalDeviceMemoryProperties memProperties;
@@ -123,3 +126,4 @@ void VKanBuffer::UpdateBufferData(void * data, size_t length, EBufferResourceSta
 
 void VKanBuffer::CreateBuffer(RHIBufferDesc Desc)
 {}
+#endif

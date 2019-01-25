@@ -39,3 +39,8 @@ float VkanTimeManager::GetTotalTime()
 
 void VkanTimeManager::ResolveCopyTimeHeaps(RHICommandList * ComandList)
 {}
+
+void VkanTimeManager::ResolveTimeHeaps(RHICommandList * CommandList)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}

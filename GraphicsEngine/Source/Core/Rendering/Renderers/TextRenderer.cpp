@@ -12,7 +12,7 @@ TextRenderer::TextRenderer(int width, int height, bool SetInstance /*= false*/)
 {
 	m_width = width;
 	m_height = height;
-	m_TextShader = new Text_Shader(RHI::GetDeviceContext(RunOnSecondDevice));
+	m_TextShader = new Text_Shader(RHI::GetDeviceContext(0));
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	LoadText();
@@ -152,51 +152,21 @@ void TextRenderer::Finish()
 	TextCommandList->Execute();
 	TextCommandList->GetDevice()->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	currentsize = 0;
-
-	if (RunOnSecondDevice)
-	{
-#if 0
-		PerfManager::StartTimer("RunOnSecondDevice");
-		DeviceContext* HostDevice = RHI::GetDeviceContext(1);
-		DeviceContext* TargetDevice = RHI::GetDeviceContext(0);
-
-		RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();
-		CopyList->ResetList();
-		CopyList->CopyResourceToSharedMemory(Renderbuffer);
-		CopyList->Execute(DeviceContextQueue::InterCopy);
-		HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
-		RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
-		TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
-
-		CopyList = TargetDevice->GetInterGPUCopyList();
-		CopyList->ResetList();
-		CopyList->CopyResourceFromSharedMemory(Renderbuffer);
-		CopyList->Execute(DeviceContextQueue::InterCopy);
-		TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
-		PerfManager::EndTimer("RunOnSecondDevice");
-#else
-		FrameBuffer::CopyHelper(Renderbuffer, RHI::GetDeviceContext(0));
-#endif
-	}
 }
 
 void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();
 	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, EGPUTIMERS::Text);
-	if (RunOnSecondDevice)
-	{
-		TextCommandList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(TextCommandList);
-	}
 	currentsize = 0;
 }
 
 void TextRenderer::LoadText()
 {
-	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDeviceContext(RunOnSecondDevice));
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDeviceContext(0));
 	VertexBuffer->CreateVertexBuffer(sizeof(point), (sizeof(point) * 6) * MAX_BUFFER_SIZE, EBufferAccessType::Dynamic);//max text length?
 
-	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(RunOnSecondDevice));
+	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
 	RHIPipeLineStateDesc Desc;
 	Desc.Blending = true;
 	Desc.Cull = false;
@@ -207,18 +177,9 @@ void TextRenderer::LoadText()
 	{
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());
 		desc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 0.0f);
-		if (RunOnSecondDevice)
-		{
-			desc.IsShared = true;
-			desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
-		}
-		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(RunOnSecondDevice), desc);
+		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), desc);
 		PostProcessing::Instance->AddCompostPass(Renderbuffer);
 		RHI::AddLinkedFrameBuffer(Renderbuffer);
-		if (RunOnSecondDevice)
-		{
-			Renderbuffer->SetupCopyToDevice(RHI::GetDeviceContext(0));
-		}
 	}
 
 	if (FT_Init_FreeType(&ft))
@@ -238,7 +199,7 @@ void TextRenderer::LoadText()
 
 	// Load first 128 characters of ASCII set
 	//Freetype is awesome!
-	TextAtlas = new atlas(face, facesize, RunOnSecondDevice);
+	TextAtlas = new atlas(face, facesize);
 	// Destroy FreeType once we're finished
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
@@ -263,9 +224,8 @@ void TextRenderer::NotifyFrameEnd()
 	NeedsClearRT = true;
 }
 
-TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
+TextRenderer::atlas::atlas(FT_Face face, int height)
 {
-
 	FT_Set_Pixel_Sizes(face, 0, height);
 	FT_GlyphSlot g = face->glyph;
 
@@ -347,17 +307,9 @@ TextRenderer::atlas::atlas(FT_Face face, int height, bool RunOnSecondDevice)
 		rowh = std::max(rowh, (unsigned int)g->bitmap.rows);
 		ox += g->bitmap.width + 1;
 	}
-	if (RunOnSecondDevice)
-	{
-		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::GetDeviceContext(1));
-	}
-	else
-	{
-		Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::GetDeviceContext(0));
-	}
+	Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::GetDeviceContext(0));	
 	Texture->TextureName = "TextAtlas";
 	Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
-
 	//printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
 }
 

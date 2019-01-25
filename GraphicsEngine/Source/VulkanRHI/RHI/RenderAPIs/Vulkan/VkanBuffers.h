@@ -1,10 +1,11 @@
 #pragma once
 #include "RHI/RHICommandList.h"
-#include "VKanRHI.h"
+#include "vulkan/vulkan_core.h"
+#if BUILD_VULKAN
 class VKanBuffer : public RHIBuffer
 {
 public:
-	VKanBuffer(RHIBuffer::BufferType type, DeviceContext* device) :RHIBuffer(type) {}
+	VKanBuffer(ERHIBufferType::Type type, DeviceContext* device) :RHIBuffer(type) {}
 	virtual ~VKanBuffer() {};
 
 	// Inherited via RHIBuffer
@@ -27,3 +28,4 @@ public:
 	}
 	int StructSize = 0;
 };
+#endif

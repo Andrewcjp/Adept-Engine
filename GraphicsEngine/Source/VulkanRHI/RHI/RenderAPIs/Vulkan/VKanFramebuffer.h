@@ -4,7 +4,7 @@
 class VKanFramebuffer : public FrameBuffer
 {
 public:
-	VKanFramebuffer(DeviceContext * device, RHIFrameBufferDesc & Desc);
+	VKanFramebuffer(DeviceContext * device,const RHIFrameBufferDesc & Desc);
 
 
 	// Inherited via FrameBuffer
@@ -13,6 +13,9 @@ public:
 	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
 
 	virtual void MakeReadyForComputeUse(RHICommandList * List) override;
+
+	virtual void MakeReadyForCopy(RHICommandList * list) override;
+
 private:
 	RHIPipeRenderTargetDesc desc;
 };

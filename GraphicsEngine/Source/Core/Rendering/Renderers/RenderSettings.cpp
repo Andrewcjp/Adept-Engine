@@ -14,7 +14,7 @@ MultiGPUMode::MultiGPUMode()
 {
 	//UseSFR.SetValue(true);
 	SplitShadows.SetValue(true);
-	SyncSettings();
+	SyncSettings();  	
 }
 
 void MultiGPUMode::SyncSettings()
@@ -42,7 +42,7 @@ RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = false;
+	IsDeferred = true;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;

@@ -1,10 +1,8 @@
-#include "stdafx.h"
+
 #include "VKanFramebuffer.h"
 #if BUILD_VULKAN
 
-#endif
-
-VKanFramebuffer::VKanFramebuffer(DeviceContext * device, RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
+VKanFramebuffer::VKanFramebuffer(DeviceContext * device,const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 
 }
@@ -21,3 +19,9 @@ const RHIPipeRenderTargetDesc & VKanFramebuffer::GetPiplineRenderDesc()
 
 void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList * List)
 {}
+
+void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+#endif

@@ -1,4 +1,5 @@
 #pragma once
+#include "EngineGlobals.h"
 #include "RHI/RHI.h"
 #if BUILD_VULKAN
 #define FRAME_LAG 2
@@ -113,17 +114,16 @@ public:
 	virtual bool InitWindow(int w, int h) override;
 	virtual bool DestoryRHI() override;
 	virtual BaseTexture * CreateTexture(DeviceContext * Device = nullptr) override;
-	virtual FrameBuffer * CreateFrameBuffer(DeviceContext * Device, RHIFrameBufferDesc & Desc) override;
+	virtual FrameBuffer * CreateFrameBuffer(DeviceContext * Device,const RHIFrameBufferDesc & Desc) override;
 	virtual ShaderProgramBase * CreateShaderProgam(DeviceContext * Device = nullptr) override;
 	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;
-	virtual RHIBuffer * CreateRHIBuffer(RHIBuffer::BufferType type, DeviceContext * Device = nullptr) override;
+	virtual RHIBuffer * CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext * Device = nullptr) override;
 	virtual RHIUAV * CreateUAV(DeviceContext * Device = nullptr) override;
 	virtual RHICommandList * CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext * Device = nullptr) override;
 	virtual DeviceContext * GetDefaultDevice() override;
 	virtual DeviceContext * GetDeviceContext(int index = 0) override;
 	virtual void RHISwapBuffers() override;
 	virtual void RHIRunFirstFrame() override;
-	virtual void ToggleFullScreenState() override;
 	virtual void ResizeSwapChain(int width, int height) override;
 	virtual void WaitForGPU() override;
 	virtual void TriggerBackBufferScreenShot() override;
@@ -145,11 +145,18 @@ public:
 	bool checkValidationLayerSupport();
 	static std::vector<char> readFile(const std::string & filename);
 	void initVulkan();
-	class VkanDeviceContext* Device = nullptr;
+	class VkanDeviceContext* TDevice = nullptr;
 	class VKanBuffer* buffer = nullptr;
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 	class VKanShader* Shadertest = nullptr;
 	class VKanCommandlist* cmdlist = nullptr;
+	RHI_VIRTUAL void SetFullScreenState(bool state) override;
+	RHI_VIRTUAL std::string ReportMemory() override;
+	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) override;
+	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device) override;
+#if ALLOW_RESOURCE_CAPTURE
+	RHI_VIRTUAL void TriggerWriteBackResources() override;
+#endif
 };
 #endif

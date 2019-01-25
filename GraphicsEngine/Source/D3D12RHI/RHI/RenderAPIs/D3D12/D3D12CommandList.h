@@ -46,7 +46,7 @@ public:
 	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
 
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset);
-	ID3D12GraphicsCommandList* GetCommandList();
+	ID3D12GraphicsCommandList3* GetCommandList();
 	void CreateCommandList();
 	void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
 
@@ -64,7 +64,8 @@ private:
 	std::string GetPSOHash(Shader * shader, const PipeLineState& statedesc);
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
-	ID3D12GraphicsCommandList * CurrentCommandList = nullptr;
+	ID3D12GraphicsCommandList3* CurrentCommandList = nullptr;
+	ID3D12GraphicsCommandList4* CurrentADVCommandList = nullptr;
 	bool m_IsOpen = false;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();

@@ -16,5 +16,8 @@ public:
 	virtual void EndTotalGPUTimer(RHICommandList * ComandList) override;
 	virtual float GetTotalTime() override;
 	virtual void ResolveCopyTimeHeaps(RHICommandList * ComandList) override;
+
+	virtual void ResolveTimeHeaps(RHICommandList * CommandList) override;
+
 };
 
