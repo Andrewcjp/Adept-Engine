@@ -1,6 +1,7 @@
 
 #include "VKanCommandlist.h"
 #include "VkanBuffers.h"
+#include "RHI\RHITypes.h"
 #if BUILD_VULKAN
 
 VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * context) :RHICommandList(type, context)
@@ -100,9 +101,9 @@ void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQ
 }
 
 
- void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
+void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	
 }
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
@@ -119,9 +120,9 @@ void VKanCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Da
 {}
 
 
- void VKanCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
+void VKanCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	
 }
 
 void VkanUAV::Bind(RHICommandList * list, int slot)
@@ -144,11 +145,23 @@ void VkanTextureArray::BindToShader(RHICommandList * list, int slot)
 
 void VkanTextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*= nullptr*/)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	
 }
 
 void VkanTextureArray::Clear()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	
 }
 #endif
+
+VkanipeLineStateObject::VkanipeLineStateObject(const RHIPipeLineStateDesc & desc, DeviceContext * con) :RHIPipeLineStateObject(desc)
+{}
+
+VkanipeLineStateObject::~VkanipeLineStateObject()
+{}
+
+void VkanipeLineStateObject::Complie()
+{}
+
+void VkanipeLineStateObject::Release()
+{}

@@ -42,16 +42,21 @@ void BenchMarker::StopBenchMark()
 
 void BenchMarker::StartCapture()
 {
+	Log::LogMessage("Performance Capture Started");
 	CurrentMode = EBenchMarkerMode::Capturing;
 	SummaryOutputFileName = AssetManager::GetGeneratedDir() + "\\PerfLog.txt";
 	CSV = new FileUtils::CSVWriter(AssetManager::GetGeneratedDir() + "\\PerfData.csv");
 }
 
 void BenchMarker::EndCapture()
-{
+{	
+	if (CurrentMode != EBenchMarkerMode::Off)
+	{
+		Log::LogMessage("Performance Capture finished");
+		WriteSummaryToDisk();
+		WriteCSV(false);
+	}
 	CurrentMode = EBenchMarkerMode::Off;
-	WriteSummaryToDisk();
-	WriteCSV(false);
 }
 
 void BenchMarker::WriteStat(int statid, float value)
@@ -83,7 +88,7 @@ void BenchMarker::WriteCoreStat(ECoreStatName::Type stat, float value)
 
 void BenchMarker::CapturePerfMarkers()
 {
-	PerfManager::Get()->WriteLogStreams();
+	PerfManager::Get()->WriteLogStreams(true);
 }
 
 void BenchMarker::WriteFullStatsHeader(bool OnlyCoreStats)

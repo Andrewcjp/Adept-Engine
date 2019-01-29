@@ -208,7 +208,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
-	if (CurrentFrameIndex == 0)
+	//if (CurrentFrameIndex == 0)
 	{
 		GetTimeManager()->UpdateTimers();
 	}

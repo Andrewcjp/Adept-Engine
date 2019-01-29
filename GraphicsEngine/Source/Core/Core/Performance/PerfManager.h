@@ -57,8 +57,8 @@ public:
 	void EndFrameTimer();
 	static float GetGPUTime();
 	static float GetCPUTime();
-	CORE_API static float GetDeltaTime();
-	CORE_API static float GetDeltaTimeRaw();
+	static float GetDeltaTime();
+	static float GetDeltaTimeRaw();
 	static void SetDeltaTime(float Time);
 	static void NotifyEndOfFrame(bool Final = false);
 	bool ShowAllStats = false;
@@ -79,6 +79,8 @@ public:
 	void UpdateStats();
 	void SampleSlowStats();
 	void ClearStats();
+	//Resets all AVGs
+	void ResetStats();
 	void DrawStatsGroup(int x, int & y, std::string GroupFilter, bool IncludeGPU);
 	CORE_API void UpdateGPUStat(int id, float newtime);
 	CORE_API int GetTimerIDByName(std::string name);
@@ -90,8 +92,10 @@ public:
 	void LogSingleActionTimers();
 	void LogSingleActionTimer(std::string name);
 	void FlushSingleActionTimer(std::string name);
-	void WriteLogStreams();
+	void WriteLogStreams(bool UseRaw);
 	std::vector<PerfManager::TimerData*> GetAllGPUTimers(std::string group);
+	CORE_API static void StartBenchMark();
+	CORE_API static void EndBenchMark();
 private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);
@@ -143,5 +147,6 @@ private:
 	float CurrentSlowStatsUpdate = 0.0f;
 
 	BenchMarker* Bencher = nullptr;
+	bool DidJustReset = false;
 };
 

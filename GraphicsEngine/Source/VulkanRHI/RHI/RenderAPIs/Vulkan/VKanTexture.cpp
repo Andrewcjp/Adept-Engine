@@ -18,8 +18,6 @@ void VKanTexture::CreateAsNull()
 {}
 
 void VKanTexture::UpdateSRV()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
+{}
 
 #endif

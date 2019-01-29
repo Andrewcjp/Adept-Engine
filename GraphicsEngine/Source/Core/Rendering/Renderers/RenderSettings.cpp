@@ -1,8 +1,4 @@
-
 #include "RenderSettings.h"
-#include "RHI/RHI.h"
-#include "Core/Platform/ConsoleVariable.h"
-#include "Core/Assets/Archive.h"
 static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
 static ConsoleVariable UseSFR("UseSFR", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly);
@@ -13,8 +9,13 @@ static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOn
 MultiGPUMode::MultiGPUMode()
 {
 	//UseSFR.SetValue(true);
-	SplitShadows.SetValue(true);
-	SyncSettings();  	
+	//SplitShadows.SetValue(true);
+	SyncSettings();
+}
+
+std::string BoolToString(bool value)
+{
+	return value ? "enabled" : "disabled";
 }
 
 void MultiGPUMode::SyncSettings()
@@ -23,19 +24,23 @@ void MultiGPUMode::SyncSettings()
 	SplitShadowWork = SplitShadows.GetBoolValue();
 	AsyncShadows = AsyncShadow.GetBoolValue();
 	PSComputeWorkSplit = SplitPS.GetBoolValue();
-	ComputePerFrameShadowDataOnExCard = PreComputePerFrameShadowData.GetBoolValue();
+	ComputePerFrameShadowDataOnExCard = PreComputePerFrameShadowData.GetBoolValue();		
 }
 
 void MultiGPUMode::ValidateSettings()
 {
-	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1)
+	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1 || !RHI::IsD3D12())
 	{
 		MainPassSFR = false;
 		SplitShadowWork = false;
 		ComputePerFrameShadowDataOnExCard = false;
 		PSComputeWorkSplit = false;
 		AsyncShadows = false;
-	}	
+	}
+	Log::LogMessage("SFR " + BoolToString(MainPassSFR));
+	Log::LogMessage("Split shadows " + BoolToString(SplitShadowWork));
+	Log::LogMessage("AsyncShadows " + BoolToString(AsyncShadows));
+	Log::LogMessage("Particle System MultiGPU " + BoolToString(PSComputeWorkSplit));
 }
 
 RenderSettings::RenderSettings()

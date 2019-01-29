@@ -65,27 +65,27 @@ FrameBuffer* VKanRHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBuf
 }
 void VKanRHI::SetFullScreenState(bool state)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 std::string VKanRHI::ReportMemory()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return "";
 }
 
 RHIPipeLineStateObject* VKanRHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return new VkanipeLineStateObject(Desc, Device);
 }
 
 RHIGPUSyncEvent* VKanRHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return nullptr;
 }
 #if ALLOW_RESOURCE_CAPTURE
 void VKanRHI::TriggerWriteBackResources()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 #endif
 ShaderProgramBase * VKanRHI::CreateShaderProgam(DeviceContext * Device/* = nullptr*/)
@@ -836,7 +836,7 @@ void  VKanRHI::createSyncObjects()
 
 void  VKanRHI::drawFrame()
 {
-	
+
 	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -1038,7 +1038,6 @@ bool  VKanRHI::checkDeviceExtensionSupport(VkPhysicalDevice device)
 
 	return requiredExtensions.empty();
 }
-
 QueueFamilyIndices  VKanRHI::findQueueFamilies(VkPhysicalDevice device)
 {
 	QueueFamilyIndices indices;

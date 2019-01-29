@@ -326,10 +326,10 @@ void PerfManager::NotifyEndOfFrame(bool Final)
 	{
 		PerfManager::Instance->EndFrameTimer();
 		if (Final)
-		{
-			Instance->UpdateStatsTimer();
-			Instance->Internal_NotifyEndOfFrame();
+		{			
 			Instance->UpdateStats();
+			Instance->Internal_NotifyEndOfFrame();
+			Instance->UpdateStatsTimer();
 		}
 	}
 }
@@ -342,7 +342,7 @@ void PerfManager::Internal_NotifyEndOfFrame()
 	}
 	for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
 	{
-		TimerData*  data = &AVGTimers.at(it->first);
+		TimerData*  data = &AVGTimers.at(it->first);	
 		data->AVG->Add(it->second);
 		it->second = 0.0f;
 		data->LastCallCount = data->CallCount;
@@ -378,7 +378,7 @@ void PerfManager::UpdateStatsTimer()
 		SampleSlowStats();
 	}
 	StatAccum += GetDeltaTime();
-	if (StatAccum > StatsTickRate || !LockStatsRate)
+	if (StatAccum >= StatsTickRate || !LockStatsRate)
 	{
 		Capture = true;
 		StatAccum = 0.0f;
@@ -391,11 +391,12 @@ void PerfManager::UpdateStatsTimer()
 
 void PerfManager::UpdateStats()
 {
-#if STATS
-	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	if (!Capture)
 	{
-		it->second.Time = it->second.AVG->GetCurrentAverage();
+		return;
 	}
+#if STATS
+	ClearStats();
 	Bencher->TickBenchMarker();
 #endif
 }
@@ -410,7 +411,13 @@ void PerfManager::ClearStats()
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		it->second.Time = it->second.AVG->GetCurrentAverage();
+		if (DidJustReset)
+		{
+			it->second.AVG->clear();
+			it->second.AVG->Add(it->second.Time);
+		}
 	}
+	DidJustReset = false;
 }
 std::vector<PerfManager::TimerData*> PerfManager::GetAllGPUTimers(std::string group)
 {
@@ -425,6 +432,26 @@ std::vector<PerfManager::TimerData*> PerfManager::GetAllGPUTimers(std::string gr
 		Output.push_back(&it->second);
 	}
 	return Output;
+}
+
+void PerfManager::StartBenchMark()
+{
+	Instance->ResetStats();
+	Instance->Bencher->StartBenchMark();
+}
+
+void PerfManager::EndBenchMark()
+{
+	Instance->Bencher->StopBenchMark();
+}
+
+void PerfManager::ResetStats()
+{
+	/*for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	{
+		it->second.AVG->clear();
+	}*/
+	DidJustReset = true;
 }
 
 void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool IncludeGPU)
@@ -591,11 +618,22 @@ void PerfManager::FlushSingleActionTimer(std::string name)
 	}
 }
 
-void PerfManager::WriteLogStreams()
+void PerfManager::WriteLogStreams(bool UseRaw)
 {
+	if (!Capture)
+	{
+		return;
+	}
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
-		Bencher->WriteStat(it->first, it->second.Time);
+		if (UseRaw)
+		{
+			Bencher->WriteStat(it->first, it->second.AVG->GetRaw());
+		}
+		else
+		{
+			Bencher->WriteStat(it->first, it->second.Time);
+		}
 	}
 	Bencher->WriteCoreStat(ECoreStatName::FrameTime, GetAVGFrameTime() * 1000);
 	Bencher->WriteCoreStat(ECoreStatName::FrameRate, GetAVGFrameRate());

@@ -1,18 +1,15 @@
-
 #include "Shader_ShadowSample.h"
 #include "Rendering/Shaders/Shader_Main.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_ShadowSample);
 Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context) :Shader(Context)
 {
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_SHADOW_SAMPLES", std::to_string(RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS)));
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_fs", EShaderType::SHADER_FRAGMENT);
 }
 
-
 Shader_ShadowSample::~Shader_ShadowSample()
-{
-
-}
+{}
 
 std::vector<Shader::ShaderParameter> Shader_ShadowSample::GetShaderParameters()
 {
@@ -21,7 +18,7 @@ std::vector<Shader::ShaderParameter> Shader_ShadowSample::GetShaderParameters()
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 1));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 2));
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, ShadowSRV, 0));
-	Output.push_back(ShaderParameter(Shader::RootConstant, PreSampleCBV, 3));
+	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, PreSampleCBV, 3));
 	return Output;
 }
 

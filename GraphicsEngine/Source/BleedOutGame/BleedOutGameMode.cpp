@@ -16,6 +16,7 @@
 #include "Physics/GenericConstraint.h"
 #include "Audio/AudioEngine.h"
 #include "BleedOutHud.h"
+#include "Benching/LevelBenchMarker.h"
 
 BleedOutGameMode::BleedOutGameMode()
 {}
@@ -39,10 +40,20 @@ GameObject* MakeTestSphere(Scene* Scene, bool Static = false)
 	Scene->AddGameobjectToScene(go);
 	return go;
 }
+void BleedOutGameMode::SpawnSpectator(glm::vec3 pos)
+{
+	GameObject* Cam = new GameObject("PlayerCamera");
+	AudioEngine::Get()->MakeDefaultListener(Cam);
+	CameraComponent* c = Cam->AttachComponent(new CameraComponent());
+	c->AllowRotSync = true;
+	MPlayer = Cam;
+	CurrentScene->AddGameobjectToScene(Cam);
+}
 
 void BleedOutGameMode::BeginPlay(Scene* Scene)
 {
 	GameMode::BeginPlay(Scene);
+#if !RUN_ONLY_BENCHER
 	AISystem::Get()->GetDirector<BleedOut_Director>()->GameMode = this;
 	GameHud = (BleedOutHud*)Hud;
 #if 1
@@ -69,6 +80,13 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	Pickup::SpawnPickup(glm::vec3(0, 1, -22), PickupType::Gauss_Ammo, 100);
 	CollectDoors();
 	CurrentDifficluty.Init(CurrnetLevel);
+#else
+	BenchMarker = new LevelBenchMarker();
+	SpawnSpectator(glm::vec3(0, 0, 0));
+	BenchMarker->CameraObject = MPlayer.Get();
+	BenchMarker->Init();
+#endif
+
 }
 
 void BleedOutGameMode::SpawnSKull(glm::vec3 Position)
@@ -99,6 +117,10 @@ void BleedOutGameMode::EndPlay()
 void BleedOutGameMode::Update()
 {
 	GameMode::Update();
+	if (BenchMarker != nullptr)
+	{
+		BenchMarker->Update();
+	}
 	if (GetPlayer() != nullptr)
 	{
 		float distance = glm::length(GetPlayer()->GetPosition() - glm::vec3(0, 1, -45));

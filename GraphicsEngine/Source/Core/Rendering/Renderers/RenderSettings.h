@@ -35,6 +35,7 @@ struct MultiGPUMode
 	//split Particle system compute work across both cards.
 	bool PSComputeWorkSplit = false;
 	bool AsyncShadows = false;
+	int MAX_PRESAMPLED_SHADOWS = 1;
 	void ValidateSettings();
 };
 //Props Are Set in the Constructor 
