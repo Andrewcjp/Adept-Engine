@@ -23,6 +23,9 @@ BleedOutHud::~BleedOutHud()
 
 void BleedOutHud::OnStart()
 {
+#if RUN_ONLY_BENCHER
+	return;
+#endif
 	Mode = (BleedOutGameMode*)gameMode;
 	ammoCounter = new UILabel("0/0", 0, 0, 0, 0);
 	ammoCounter->SetScaled(0.2f, 0.2f);
@@ -79,6 +82,9 @@ void BleedOutHud::Restart()
 
 void BleedOutHud::OnUpdate()
 {
+#if RUN_ONLY_BENCHER
+	return;
+#endif
 	if (Mode->GetPlayer() != nullptr)
 	{
 		BleedOutPlayer* player = Mode->GetPlayer()->GetComponent<BleedOutPlayer>();

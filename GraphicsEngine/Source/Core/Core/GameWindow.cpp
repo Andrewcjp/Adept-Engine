@@ -16,7 +16,7 @@ GameWindow::GameWindow()
 
 GameWindow::~GameWindow()
 {}
-#define SKIP_MM 0
+#define SKIP_MM 1
 void GameWindow::PostInitWindow(int width, int height)
 {
 	SetFrameRateLimit(0);

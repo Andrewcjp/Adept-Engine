@@ -64,6 +64,15 @@ float* MovingAverage::GetArray()
 	return Array;
 }
 
+float MovingAverage::GetRaw()
+{
+	if (Index == -1)
+	{
+		return 0.0f;
+	}
+	return Array[Index];
+}
+
 unsigned short MovingAverage::GetFilterLength()
 {
 	return FilterLength;

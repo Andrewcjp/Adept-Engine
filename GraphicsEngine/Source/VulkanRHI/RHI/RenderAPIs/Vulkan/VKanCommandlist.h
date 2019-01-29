@@ -3,7 +3,15 @@
 #include "RHI/Shader.h"
 #include "VKanRHI.h"
 #if BUILD_VULKAN
+class VkanipeLineStateObject :public RHIPipeLineStateObject
+{
+public:
+	VkanipeLineStateObject(const RHIPipeLineStateDesc& desc, DeviceContext* con);
+	~VkanipeLineStateObject();
+	virtual void Complie() override;
+	virtual void Release() override;
 
+};
 class VKanCommandlist :
 	public RHICommandList
 {

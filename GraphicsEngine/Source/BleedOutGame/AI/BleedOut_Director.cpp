@@ -30,6 +30,9 @@ BleedOut_Director::~BleedOut_Director()
 
 void BleedOut_Director::Tick()
 {
+#if RUN_ONLY_BENCHER
+	return;
+#endif
 	if (!once && SpawnDelay < 0)
 	{
 		SpawnAI(glm::vec3(-5, 20, 0), EAIType::PossessedSoldier);

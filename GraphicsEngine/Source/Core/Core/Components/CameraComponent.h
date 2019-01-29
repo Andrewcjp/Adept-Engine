@@ -5,7 +5,7 @@ class CameraComponent :
 	public Component
 {
 public:
-	CameraComponent();
+	CORE_API CameraComponent();
 	void InitComponent() override final;
 	void SceneInitComponent() override final;
 	~CameraComponent();
@@ -15,8 +15,10 @@ public:
 	virtual void Update(float delta) override;
 	CORE_API static Camera* GetMainCamera();
 	virtual void ProcessSerialArchive(class Archive* A) override;
+	///hack!
+	bool AllowRotSync = false;
 private:
-	Camera* MCamera;
+	Camera* MCamera = nullptr;
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<InspectorProperyGroup>& props) override;
 #endif

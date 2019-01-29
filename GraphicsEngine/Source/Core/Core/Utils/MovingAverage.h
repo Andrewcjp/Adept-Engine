@@ -13,6 +13,7 @@ public:
 	float GetCurrentAverage();
 	void clear();
 	float* GetArray();
+	float GetRaw();
 private:
 	const static unsigned short default_filter_length = 5;
 	// Length of the filter

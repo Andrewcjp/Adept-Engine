@@ -26,18 +26,10 @@ void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 	desc.DepthWrite = false;
 	desc.Cull = false;
 	desc.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
-	//PipeLineState state = {};
-	//state.DepthWrite = false;
-	//state.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
-	//state.Cull = false;
 	desc.ShaderInUse = this;
 	desc.FrameBufferTarget = Buffer;
 	if (DepthSourceBuffer != nullptr)
-	{
-		//state.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
-		//state.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
-		//List->SetPipelineState_OLD(state);
-		//List->CreatePipelineState(this);		
+	{		
 		desc.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 		desc.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
 		List->SetPipelineStateDesc(desc);
@@ -45,8 +37,6 @@ void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 	else
 	{
 		List->SetPipelineStateDesc(desc);
-		//List->SetPipelineState_OLD(state);
-		//List->CreatePipelineState(this, Buffer);
 	}
 }
 
@@ -60,6 +50,10 @@ Shader_Skybox::~Shader_Skybox()
 void Shader_Skybox::SetSkyBox(BaseTexture * tex)
 {
 	ensure(tex->GetType() == BaseTexture::ETextureType::Type_CubeMap);
+	if (SkyBoxTexture == tex)
+	{
+		return;
+	}
 	if (SkyBoxTexture != nullptr)
 	{
 		SafeRHIRefRelease(SkyBoxTexture);

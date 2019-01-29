@@ -25,6 +25,10 @@ cbuffer PreSampleData : register(b3)
 
 float4 main(PSInput input) : SV_TARGET
 {
+#if MAX_SHADOW_SAMPLES == 1
 	return float4(ShadowCalculationCube(input.WorldPos.xyz,lights[index],g_Shadow_texture),0,0,0);
+#else
+	return float4(ShadowCalculationCube(input.WorldPos.xyz, lights[index], g_Shadow_texture), 0, 0, 0);
+#endif
 }
 

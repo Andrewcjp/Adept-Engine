@@ -16,17 +16,19 @@ void CameraComponent::InitComponent()
 #if 0
 	MCamera->SetUpAndForward(GetOwner()->GetTransform()->GetForward(), glm::vec3(0, 1, 0));
 #else
+	//Hack!
 	MCamera->SetPos(glm::vec3(0, 2, 20));
 	MCamera->SetUpAndForward(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+	//End hack
 #endif
 }
 void CameraComponent::SceneInitComponent()
 {
 	GetOwner()->GetScene()->AddCamera(MCamera);
 }
+
 CameraComponent::~CameraComponent()
 {
-
 	GetOwner()->GetScene()->RemoveCamera(MCamera);
 	SafeDelete(MCamera);
 }
@@ -40,7 +42,11 @@ void CameraComponent::Update(float)
 	{
 		Transform* T = GetOwner()->GetTransform();
 		MCamera->SetPos(T->GetPos());
-		//MCamera->SetUpAndForward(T->GetForward(), T->GetUp());
+		//todo: remove this hack !
+		if (AllowRotSync)
+		{
+			MCamera->SetUpAndForward(T->GetForward(), T->GetUp());
+		}
 	}
 }
 

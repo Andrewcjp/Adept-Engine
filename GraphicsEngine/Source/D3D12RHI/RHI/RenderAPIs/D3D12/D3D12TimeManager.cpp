@@ -130,12 +130,14 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 void D3D12TimeManager::UpdateTimers()
 {
 #if ENABLE_GPUTIMERS
-	if (m_CopytimestampResultBuffers != nullptr)
+	if (Device->GetCpuFrameIndex() == 0)
 	{
-		ProcessTimeStampHeaps(EGPUCOPYTIMERS::LIMIT, m_CopytimestampResultBuffers, m_copyCommandQueueTimestampFrequencies, true, CopyOffset);
+		if (m_CopytimestampResultBuffers != nullptr)
+		{
+			ProcessTimeStampHeaps(EGPUCOPYTIMERS::LIMIT, m_CopytimestampResultBuffers, m_copyCommandQueueTimestampFrequencies, true, CopyOffset);
+		}
+		ProcessTimeStampHeaps(MaxTimerCount, m_timestampResultBuffers, m_directCommandQueueTimestampFrequencies, false, 0);
 	}
-	ProcessTimeStampHeaps(MaxTimerCount, m_timestampResultBuffers, m_directCommandQueueTimestampFrequencies, false, 0);
-
 	AVGgpuTimeMS = TimeDeltas[0].avg.GetCurrentAverage();
 	for (int i = 0; i < TotalMaxTimerCount; i++)
 	{

@@ -1,8 +1,9 @@
 #pragma once
 #include "EngineHeader.h"
 #include "Core\Game\Gamemode.h"
-
+#define RUN_ONLY_BENCHER 1
 class BleedOutHud;
+class LevelBenchMarker;
 struct DifficultyPreset
 {
 	int WaveEnemyCount = 1;
@@ -32,6 +33,7 @@ class BleedOutGameMode :public GameMode
 public:
 	BleedOutGameMode();
 	~BleedOutGameMode();
+	void SpawnSpectator(glm::vec3 pos);
 	virtual void BeginPlay(Scene* Scene);
 	void SpawnSKull(glm::vec3 Position);
 	virtual void EndPlay();
@@ -53,6 +55,7 @@ private:
 	std::vector<Door> Doors;
 	DifficultyPreset CurrentDifficluty;
 	BleedOutHud* GameHud = nullptr;
+	LevelBenchMarker* BenchMarker = nullptr;
 };
 
 
