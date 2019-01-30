@@ -22,7 +22,6 @@ public:
 	virtual void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) override;
 	virtual void CPUWaitForAll() override;
 	virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) override;
-	virtual void WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) override;
 	virtual RHITimeManager * GetTimeManager() override;
 private:
 	class VkanTimeManager* TimeManager = nullptr;

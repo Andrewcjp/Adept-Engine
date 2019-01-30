@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Utils/MovingAverage.h"
-#include "RHI/RHITypes.h"
 #include "RHI/RHITimeManager.h"
+#include "RHI/RHITypes.h"
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
 #if __has_include(<pix3.h>)
@@ -9,11 +9,14 @@
 #else
 #define PIX_ENABLED 0
 #endif
+
+class DeviceContext;
+class D3D12DeviceContext;
 class D3D12TimeManager : public RHITimeManager
 {
 public:
 
-	D3D12TimeManager(class DeviceContext* context);
+	D3D12TimeManager(DeviceContext* context);
 	~D3D12TimeManager();
 	void UpdateTimers() override;
 	std::string GetTimerData() override;
@@ -68,7 +71,7 @@ private:
 	GPUTimer TimeDeltas[TotalMaxTimerCount] = {};
 	ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;
 	ID3D12Resource* m_CopytimestampResultBuffers = nullptr;
-	class D3D12DeviceContext* Device = nullptr;
+	D3D12DeviceContext* Device = nullptr;
 #if PIX_ENABLED
 	std::wstring PixTimerNames[TotalMaxTimerCount] = {};
 	LPCWSTR GetTimerNameForPIX(int index);

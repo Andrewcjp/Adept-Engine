@@ -17,10 +17,10 @@ public:
 
 	GameObject* CameraObject = nullptr;
 	float FlightSpeed = 10;
-	float CompltionDistance = 0.25f;
+	float CompletionDistance = 0.75f;
 
 private:
-	int PreHeat = 20;
+	int PreHeat = 120;
 	std::vector<SplineNodes> Points;
 	int CurrnetPointIndex = 0;
 };

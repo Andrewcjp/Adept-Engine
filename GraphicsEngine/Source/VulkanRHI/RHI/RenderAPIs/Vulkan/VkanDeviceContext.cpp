@@ -62,9 +62,6 @@ void VkanDeviceContext::CPUWaitForAll()
 void VkanDeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {}
 
-void VkanDeviceContext::WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
-{}
-
 RHITimeManager * VkanDeviceContext::GetTimeManager()
 {
 	return TimeManager;

@@ -208,10 +208,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
-	//if (CurrentFrameIndex == 0)
-	{
-		GetTimeManager()->UpdateTimers();
-	}
+	GetTimeManager()->UpdateTimers();
 	GetCommandAllocator()->Reset();
 	GetSharedCommandAllocator()->Reset();
 	ResetCopyEngine();
@@ -403,11 +400,6 @@ void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, De
 {
 	SCOPE_CYCLE_COUNTER_GROUP("InsertGPUWait", "RHI");
 	GPUWaitPoints[CurrentFrameIndex][SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
-}
-
-void D3D12DeviceContext::WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
-{
-
 }
 
 RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()

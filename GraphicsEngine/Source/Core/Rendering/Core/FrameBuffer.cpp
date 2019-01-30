@@ -25,8 +25,8 @@ void FrameBuffer::HandleInit()
 		SFR_Node = RHI::GetSplitController()->GetNode(Device->GetDeviceIndex());
 		BufferDesc.ViewPort = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
 		const float start = BufferDesc.Width*SFR_Node->SFR_Offset;
-		BufferDesc.Width = BufferDesc.Width*SFR_Node->SFR_PercentSize;
-		BufferDesc.Height = BufferDesc.Height*SFR_Node->SFR_VerticalPercentSize;		
+		BufferDesc.Width = glm::iround(BufferDesc.Width*SFR_Node->SFR_PercentSize);
+		BufferDesc.Height = glm::iround(BufferDesc.Height*SFR_Node->SFR_VerticalPercentSize);
 		BufferDesc.ScissorRect = glm::ivec4(start, 0, start + BufferDesc.Width, BufferDesc.Height);
 	}
 }
