@@ -118,7 +118,6 @@ public:
 	void CPUWaitForAll();
 	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);
 	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
-	void WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
 	void ResetWork()
 	{
 		CopyEngineHasWork = false;

@@ -417,6 +417,12 @@ void PerfManager::ClearStats()
 			it->second.AVG->Add(it->second.Time);
 		}
 	}
+	if (DidJustReset)
+	{
+		const float AVG = CPUAVG.GetCurrentAverage();
+		CPUAVG.clear();
+		CPUAVG.Add(AVG);
+	}
 	DidJustReset = false;
 }
 std::vector<PerfManager::TimerData*> PerfManager::GetAllGPUTimers(std::string group)
@@ -626,6 +632,10 @@ void PerfManager::WriteLogStreams(bool UseRaw)
 	}
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
+		if (!it->second.Active)
+		{
+			continue;
+		}
 		if (UseRaw)
 		{
 			Bencher->WriteStat(it->first, it->second.AVG->GetRaw());
@@ -640,8 +650,6 @@ void PerfManager::WriteLogStreams(bool UseRaw)
 	Bencher->WriteCoreStat(ECoreStatName::CPU, GetCPUTime());
 	Bencher->WriteCoreStat(ECoreStatName::GPU, GetGPUTime());
 }
-
-
 
 PerfManager::ScopeStartupCounter::ScopeStartupCounter(const char* name)
 {

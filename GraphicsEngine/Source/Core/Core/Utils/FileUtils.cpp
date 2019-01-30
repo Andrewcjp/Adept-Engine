@@ -1,12 +1,8 @@
-
 #include "FileUtils.h"
-
-#include "Core/Platform/Logger.h"
-#include "StringUtil.h"
-#include "Core/Platform/PlatformCore.h"
 #include "Core/Assets/AssetManager.h"
-#include <iostream>
+#include "Core/Platform/PlatformCore.h"
 #include <fstream>
+
 bool FileUtils::File_ExistsTest(const std::string & name, bool Silent)
 {
 	struct stat buffer;

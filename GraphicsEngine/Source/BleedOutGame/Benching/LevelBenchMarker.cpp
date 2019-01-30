@@ -43,12 +43,12 @@ void LevelBenchMarker::Update()
 	glm::vec3 CurrentPos = CameraObject->GetPosition();
 	glm::vec3 NextPos = Points[CurrnetPointIndex].Pos;
 	float distanceToNextPos = glm::distance2(NextPos, CurrentPos);
-	if (CurrnetPointIndex == Points.size() - 1 && distanceToNextPos < CompltionDistance*CompltionDistance)
+	if (CurrnetPointIndex == Points.size() - 1 && distanceToNextPos < CompletionDistance*CompletionDistance)
 	{
 		End();
 		return;
 	}
-	if (distanceToNextPos < CompltionDistance*CompltionDistance)
+	if (distanceToNextPos < CompletionDistance*CompletionDistance)
 	{
 		CurrnetPointIndex++;
 	}
@@ -61,7 +61,7 @@ void LevelBenchMarker::Update()
 		return;
 	}
 	const glm::vec3 N_Dir = glm::normalize(dir);
-	glm::vec3 NewPos = /*glm::mix(CurrentPos, NextPos, 0.01f);*/CurrentPos + N_Dir * 50 * Engine::GetDeltaTime();
+	glm::vec3 NewPos = /*glm::mix(CurrentPos, NextPos, 0.01f);*/CurrentPos + N_Dir * 10 * Engine::GetDeltaTime();
 	CameraObject->SetPosition(NewPos);
 
 

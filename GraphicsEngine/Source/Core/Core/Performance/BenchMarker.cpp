@@ -12,7 +12,7 @@ BenchMarker::BenchMarker()
 	CoreStats[ECoreStatName::FrameRate] = new PerformanceLogStat("Frame Rate");
 	CoreStats[ECoreStatName::CPU] = new PerformanceLogStat("CPU");
 	CoreStats[ECoreStatName::GPU] = new PerformanceLogStat("GPU");
-	StartCapture();
+	//StartCapture();
 }
 
 BenchMarker::~BenchMarker()
@@ -55,6 +55,7 @@ void BenchMarker::EndCapture()
 		Log::LogMessage("Performance Capture finished");
 		WriteSummaryToDisk();
 		WriteCSV(false);
+		StatLogs.clear();
 	}
 	CurrentMode = EBenchMarkerMode::Off;
 }
@@ -72,7 +73,12 @@ void BenchMarker::WriteStat(int statid, float value)
 	{
 		stat = new BenchMarker::PerformanceLogStat();
 		stat->id = statid;
-		stat->name = PerfManager::Get()->GetTimerData(statid)->name;
+		PerfManager::TimerData* data = PerfManager::Get()->GetTimerData(statid);
+		stat->name = data->name;
+		if (data->IsGPUTimer)
+		{
+			stat->name.append(" (GPU)");
+		}
 		stat->AddData(value);
 		StatLogs.emplace(statid, stat);
 	}

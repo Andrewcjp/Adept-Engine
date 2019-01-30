@@ -31,7 +31,6 @@ public:
 	int CurrentFrameIndex = 0;
 	virtual void CPUWaitForAll() = 0;
 	virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
-	virtual void WaitForGPU(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
 	const CapabilityData& GetCaps();
 	RHICommandList* GetInterGPUCopyList();
 	virtual class RHITimeManager* GetTimeManager() = 0;

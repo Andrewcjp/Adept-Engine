@@ -59,9 +59,8 @@ void D3D12TimeManager::Init(DeviceContext* context)
 			IID_PPV_ARGS(&m_CopytimestampResultBuffers)));
 
 		ThrowIfFailed(Device->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&m_CopytimestampQueryHeaps)));
+		ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Copy)->GetTimestampFrequency(&m_copyCommandQueueTimestampFrequencies));
 	}
-
-	ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Copy)->GetTimestampFrequency(&m_copyCommandQueueTimestampFrequencies));
 #endif
 	ThrowIfFailed(Device->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
 
