@@ -44,7 +44,11 @@ D3D12DeviceContext::~D3D12DeviceContext()
 }
 
 void D3D12DeviceContext::CheckFeatures()
-{
+{	
+	//todo: validate the device capabilities 
+	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
+	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
+
 	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData;
 	ZeroMemory(&FeatureData, sizeof(FeatureData));
 	HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS3, &FeatureData, sizeof(FeatureData));
@@ -52,14 +56,15 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		Caps_Data.SupportsCopyTimeStamps = FeatureData.CopyQueueTimestampQueriesSupported;
 	}
-	/*D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData;
-	ZeroMemory(&FeatureData, sizeof(FeatureData));
-	HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData, sizeof(FeatureData));
+	D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData5;
+	ZeroMemory(&FeatureData5, sizeof(FeatureData5));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData5, sizeof(FeatureData5));
 	if (SUCCEEDED(hr))
 	{
-		Caps_Data.SupportsCopyTimeStamps = FeatureData.CopyQueueTimestampQueriesSupported;
-	}*/
+		FeatureData5.RaytracingTier;
+	}
 }
+
 static ConsoleVariable EnableStablePower("StablePower", false, ECVarType::LaunchOnly, true);
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
@@ -137,9 +142,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	CopyQueueSync.Init(GetDevice());
 	ComputeQueueSync.Init(GetDevice());
 	GpuWaitSyncPoint.InitGPUOnly(GetDevice());
-	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
-	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
-	//todo: validate the device capablities 
+
 	TimeManager = new D3D12TimeManager(this);
 	GPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
 	InterGPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
@@ -149,7 +152,6 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	CopySync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Copy), GetDevice());
 	InterGPUSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::InterCopy), GetDevice());
 	ComputeSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Compute), GetDevice());
-
 	for (int x = 0; x < RHI::CPUFrameCount; x++)
 	{
 		for (int i = 0; i < DeviceContextQueue::LIMIT; i++)
@@ -161,7 +163,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	{
 		GetDevice()->SetStablePowerState(true);
 	}
-}
+	}
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
 {

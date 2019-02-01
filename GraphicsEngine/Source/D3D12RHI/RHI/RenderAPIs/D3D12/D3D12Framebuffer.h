@@ -31,8 +31,8 @@ public:
 	//Cross Adaptor
 	void SetupCopyToDevice(DeviceContext* device) override;
 	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
-	void CopyToDevice(ID3D12GraphicsCommandList * list);
-	void MakeReadyOnTarget(ID3D12GraphicsCommandList * list);
+	void CopyToHostMemory(ID3D12GraphicsCommandList * list);
+	void CopyFromHostMemory(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy_In(ID3D12GraphicsCommandList * list);
 
 	virtual void MakeReadyForComputeUse(RHICommandList* List) override;
@@ -41,6 +41,10 @@ public:
 	DeviceContext* GetDevice() override;
 	GPUResource* GetResource(int index);
 	void Release() override;
+
+
+	RHI_API virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
+
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
@@ -74,7 +78,7 @@ private:
 	ID3D12Resource* FinalOut = nullptr;
 	CD3DX12_RESOURCE_DESC renderTargetDesc;
 	DescriptorHeap* SharedSRVHeap = nullptr;
-	class GPUResource* SharedTarget = nullptr;
+	class GPUResource* TargetCopy = nullptr;
 	RHIPipeRenderTargetDesc RenderTargetDesc = {};
 
 };

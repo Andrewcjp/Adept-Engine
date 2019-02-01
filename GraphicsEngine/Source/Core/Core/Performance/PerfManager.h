@@ -72,6 +72,7 @@ public:
 		int CallCount = 0;
 		int LastCallCount = 0;
 		bool IsGPUTimer = false;
+		float GPUStartOffset = 0.0f;//Offset in MS from start of frame (GPU main timestamp)
 	};
 	CORE_API TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y, bool IncludeGPUStats = false);

@@ -10,7 +10,7 @@
 #include "Rendering/Core/RelfectionProbe.h"
 #include "Editor/EditorWindow.h"
 #include "Editor/EditorCore.h"
-
+#define CUBEMAPS 0
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 
@@ -32,7 +32,10 @@ void ForwardRenderer::OnRender()
 {
 	ShadowPass();
 	CubeMapPass();
-	MainPass();
+	for (int i = 0; i < DevicesInUse; i++)
+	{
+		MainPass(Objects[i].MainCommandList);
+	}
 	RenderSkybox();
 	PostProcessPass();
 }
@@ -41,7 +44,18 @@ void ForwardRenderer::OnRender()
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 void ForwardRenderer::PostInit()
 {
-	SetupOnDevice(RHI::GetDeviceContext(0));
+	if (RHI::GetMGPUMode()->MainPassSFR)
+	{
+		DevicesInUse = 2;
+	}
+	else
+	{
+		DevicesInUse = 1;
+	}
+	for (int i = 0; i < DevicesInUse; i++)
+	{
+		SetupOnDevice(RHI::GetDeviceContext(i));
+	}
 #if DEBUG_CUBEMAPS
 	SkyBox->test = Conv->CubeBuffer;
 	SkyBox->test = probes[0]->CapturedTexture;
@@ -56,25 +70,37 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	Desc.AllowUnordedAccess = true;
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	Desc.IncludedInSFR = true;
-	FilterBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
+	if (TargetDevice->GetDeviceIndex() > 0)
+	{
+		Desc.IsShared = true;
+		Desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
+	}
+	Objects[TargetDevice->GetDeviceIndex()].FrameBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
 	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
-	SkyBox->Init(FilterBuffer, nullptr);
-	MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
+	SkyBox->Init(Objects[TargetDevice->GetDeviceIndex()].FrameBuffer, nullptr);
+	Objects[TargetDevice->GetDeviceIndex()].MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = Material::GetDefaultMaterialShader();
-	desc.FrameBufferTarget = FilterBuffer;
-	MainCommandList->SetPipelineStateDesc(desc);
-	NAME_RHI_OBJECT(MainCommandList);
+	desc.FrameBufferTarget = Objects[TargetDevice->GetDeviceIndex()].FrameBuffer;
+	Objects[TargetDevice->GetDeviceIndex()].MainCommandList->SetPipelineStateDesc(desc);
+	NAME_RHI_OBJECT(Objects[TargetDevice->GetDeviceIndex()].MainCommandList);
+	if (TargetDevice->GetDeviceIndex() == 0)
+	{
+		FilterBuffer = Objects[TargetDevice->GetDeviceIndex()].FrameBuffer;
+	}
+#if CUBEMAPS
 	/*VKanRHI::Get()->thelist = MainCommandList;*/
 	CubemapCaptureList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
 	desc = RHIPipeLineStateDesc();
 	desc.ShaderInUse = Material::GetDefaultMaterialShader();
 	desc.FrameBufferTarget = FilterBuffer;
 	CubemapCaptureList->SetPipelineStateDesc(desc);
+#endif
 }
 
 void ForwardRenderer::CubeMapPass()
 {
+#if CUBEMAPS
 	CubemapCaptureList->ResetList();
 	if (mShadowRenderer != nullptr)
 	{
@@ -89,38 +115,64 @@ void ForwardRenderer::CubeMapPass()
 	SceneRender->UpdateRelflectionProbes(probes, CubemapCaptureList);
 
 	CubemapCaptureList->Execute();
+#endif
 }
 
-void ForwardRenderer::MainPass()
+void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 {
-	MainCommandList->ResetList();
-
-	MainCommandList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(MainCommandList);
-	MainCommandList->GetDevice()->GetTimeManager()->StartTimer(MainCommandList, EGPUTIMERS::MainPass);
-	MainCommandList->SetScreenBackBufferAsRT();
-	MainCommandList->ClearScreen();
+	Cmdlist->ResetList();
+	if (Cmdlist->GetDeviceIndex() == 1)
+	{
+		Cmdlist->GetDevice()->GetTimeManager()->StartTotalGPUTimer(Cmdlist);
+	}
+	Cmdlist->GetDevice()->GetTimeManager()->StartTimer(Cmdlist, EGPUTIMERS::MainPass);
+	if (Cmdlist->GetDeviceIndex() == 0)
+	{
+		Cmdlist->SetScreenBackBufferAsRT();
+		Cmdlist->ClearScreen();
+	}
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->BindShadowMapsToTextures(MainCommandList);
+		//mShadowRenderer->BindShadowMapsToTextures(Cmdlist);
 	}
-	MainCommandList->SetRenderTarget(FilterBuffer);
-	MainCommandList->ClearFrameBuffer(FilterBuffer);
-	MainCommandList->SetFrameBufferTexture(Conv->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+	Cmdlist->SetRenderTarget(Objects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	Cmdlist->ClearFrameBuffer(Objects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-		MainCommandList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
+		//Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 	}
-	MainCommandList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
-
+	if (Cmdlist->GetDeviceIndex() == 0)
+	{
+		Cmdlist->SetFrameBufferTexture(Conv->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+		Cmdlist->SetFrameBufferTexture(envMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
+	}
 
 	SceneRender->UpdateMV(MainCamera);
-	SceneRender->RenderScene(MainCommandList, false, FilterBuffer);
+	SceneRender->RenderScene(Cmdlist, false, Objects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 
-	MainCommandList->SetRenderTarget(nullptr);
-	MainCommandList->GetDevice()->GetTimeManager()->EndTimer(MainCommandList, EGPUTIMERS::MainPass);
-	mShadowRenderer->Unbind(MainCommandList);
-	MainCommandList->Execute();
-	ParticleSystemManager::Get()->Render(FilterBuffer);
+	Cmdlist->SetRenderTarget(nullptr);
+	Cmdlist->GetDevice()->GetTimeManager()->EndTimer(Cmdlist, EGPUTIMERS::MainPass);
+	mShadowRenderer->Unbind(Cmdlist);
+	if (Cmdlist->GetDeviceIndex() == 0 && DevicesInUse > 1)
+	{
+		Objects[1].FrameBuffer->MakeReadyForCopy(Cmdlist);
+	}
+	if (Cmdlist->GetDeviceIndex() == 1)
+	{
+		Cmdlist->GetDevice()->GetTimeManager()->EndTotalGPUTimer(Cmdlist);
+	}
+	FilterBuffer->MakeReadyForCopy(Cmdlist);
+	Cmdlist->Execute();
+
+	if (Cmdlist->GetDeviceIndex() == 0)
+	{
+		ParticleSystemManager::Get()->Render(FilterBuffer);
+	}
+	if (Cmdlist->GetDeviceIndex() == 1)
+	{
+		Objects[1].FrameBuffer->ResolveSFR(FilterBuffer);
+	}
 }
 
 void ForwardRenderer::RenderSkybox()
@@ -130,7 +182,8 @@ void ForwardRenderer::RenderSkybox()
 
 void ForwardRenderer::DestoryRenderWindow()
 {
-	EnqueueSafeRHIRelease(MainCommandList);
+	EnqueueSafeRHIRelease(Objects[0].MainCommandList);
+	EnqueueSafeRHIRelease(Objects[1].MainCommandList);
 	EnqueueSafeRHIRelease(CubemapCaptureList);
 }
 

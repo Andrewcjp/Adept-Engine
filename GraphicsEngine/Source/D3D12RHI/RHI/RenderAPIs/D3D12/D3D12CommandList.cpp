@@ -335,7 +335,7 @@ void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 	ensure(!Buffer->IsPendingKill());
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
 	ensure(Device == buffer->GetDevice());
-	buffer->CopyToDevice(CurrentCommandList);
+	buffer->CopyToHostMemory(CurrentCommandList);
 }
 
 void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
@@ -343,7 +343,7 @@ void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
 	ensure(!Buffer->IsPendingKill());
 	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
 	ensure(Device == buffer->GetTargetDevice());
-	buffer->MakeReadyOnTarget(CurrentCommandList);
+	buffer->CopyFromHostMemory(CurrentCommandList);
 }
 
 void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
@@ -457,7 +457,6 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	}
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
-
 }
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
@@ -465,6 +464,11 @@ void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 	Texture = (D3D12Texture*)texture;
 	ensure(texture);
 	ensure(!texture->IsPendingKill());
+	if (!Texture->CheckDevice(Device->GetDeviceIndex()))
+	{
+		//Hack!
+		return;
+	}
 	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()), "Attempted to Bind texture that is not on this device");
 	if (Device->GetStateCache()->TextureCheckAndUpdate(texture, slot))
 	{
