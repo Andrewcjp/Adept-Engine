@@ -107,7 +107,7 @@ void UNUSED_PARAM(T const&)
 #define RHI_VIRTUAL virtual
 #endif
 
-#define DETECT_MEMORY_LEAKS !BUILD_SHIPPING
+#define DETECT_MEMORY_LEAKS 0//!BUILD_SHIPPING
 
 
 #define PROPERTY()

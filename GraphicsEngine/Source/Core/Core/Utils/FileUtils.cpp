@@ -50,7 +50,7 @@ bool FileUtils::CreateDirectoriesToFullPath(std::string Path)
 		return true;
 	}
 	std::vector<std::string> split = StringUtils::Split(Path, '\\');
-	std::string FirstPath = "";// AssetManager::GetRootDir();
+	std::string FirstPath = "";
 	for (int i = 0; i < split.size(); i++)
 	{
 		if (split[i].find(".") != -1)

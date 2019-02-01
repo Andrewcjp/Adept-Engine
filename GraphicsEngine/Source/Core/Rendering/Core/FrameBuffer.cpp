@@ -10,10 +10,12 @@ FrameBuffer::FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc
 	BufferDesc = Desc;
 	const RHIFrameBufferDesc& T = Desc;
 	BufferDesc = T;
+	Device = device;
 	m_width = BufferDesc.Width;
 	m_height = BufferDesc.Height;
-	Device = device;
 	HandleInit();
+	//m_width = BufferDesc.Width;
+	//m_height = BufferDesc.Height;
 }
 
 void FrameBuffer::HandleInit()
@@ -24,15 +26,31 @@ void FrameBuffer::HandleInit()
 	{
 		SFR_Node = RHI::GetSplitController()->GetNode(Device->GetDeviceIndex());
 		BufferDesc.ViewPort = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
-		const float start = BufferDesc.Width*SFR_Node->SFR_Offset;
-		BufferDesc.Width = glm::iround(BufferDesc.Width*SFR_Node->SFR_PercentSize);
-		BufferDesc.Height = glm::iround(BufferDesc.Height*SFR_Node->SFR_VerticalPercentSize);
-		BufferDesc.ScissorRect = glm::ivec4(start, 0, start + BufferDesc.Width, BufferDesc.Height);
+		const float start = BufferDesc.Width*SFR_Node->SFR_Offset;//Offset is in whole buffer space
+		const int SFrBufferWidth = glm::iround(BufferDesc.Width*SFR_Node->SFR_PercentSize);
+		const int SFrBufferHeight = glm::iround(BufferDesc.Height*SFR_Node->SFR_VerticalPercentSize);
+		if (Device->GetDeviceIndex() > 0)
+		{
+			BufferDesc.Width = SFrBufferWidth;
+			BufferDesc.Height = SFrBufferHeight;
+		}
+		BufferDesc.ScissorRect = glm::ivec4(start, 0, start + SFrBufferWidth, SFrBufferHeight);
 	}
+
 }
 
 FrameBuffer::~FrameBuffer()
 {}
+
+inline int FrameBuffer::GetWidth() const
+{
+	return m_width;
+}
+
+inline int FrameBuffer::GetHeight() const
+{
+	return m_height;
+}
 
 RHIFrameBufferDesc & FrameBuffer::GetDescription()
 {
@@ -72,7 +90,7 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice)
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy);
 
-	//TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	CopyList = TargetDevice->GetInterGPUCopyList();
 	CopyList->ResetList();
 
@@ -85,11 +103,58 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice)
 	PerfManager::EndTimer("RunOnSecondDevice");
 }
 
+void FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List)
+{
+
+}
+
 void FrameBuffer::BindDepthWithColourPassthrough(RHICommandList * list, FrameBuffer * PassThrough)
 {}
 
-void FrameBuffer::ResolveSFR()
+void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 {
+	if (!NeedsSFRResolve())
+	{
+		return;
+	}
+	/*CopyHelper(this, RHI::GetDeviceContext(0));*/
+	DeviceContext* TargetDevice = RHI::GetDeviceContext(0);
+	FrameBuffer* Target = this;
+	DeviceContext* HostDevice = Target->GetDevice();
+	if (TargetDevice == HostDevice)
+	{
+		return;
+	}
+	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+	HostDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();
+	CopyList->ResetList();
+	CopyList->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
+	CopyList->CopyResourceToSharedMemory(Target);
+	CopyList->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
+	CopyList->ResolveTimers();
+	CopyList->Execute(DeviceContextQueue::InterCopy);
+	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy);
+
+	TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	CopyList = TargetDevice->GetInterGPUCopyList();
+	CopyList->ResetList();
+
+	CopyList->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
+	CopyList->CopyResourceFromSharedMemory(Target);
+	CopyList->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
+	Target->CopyToOtherBuffer(SumBuffer, CopyList);
+	CopyList->ResolveTimers();
+	CopyList->Execute(DeviceContextQueue::InterCopy);
+	TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+	//Copy to display device collect all devices
+	//reset the Viewport to be correct
+}
+
+bool FrameBuffer::NeedsSFRResolve() const
+{
+	return BufferDesc.IncludedInSFR && RHI::GetMGPUMode()->MainPassSFR;
 }
 
 void FrameBuffer::CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetDevice)
@@ -112,7 +177,7 @@ void FrameBuffer::CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetD
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy);
 
-	//TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	CopyList = TargetDevice->GetInterGPUCopyList();
 	CopyList->ResetList();
 	CopyList->StartTimer(EGPUCOPYTIMERS::MGPUCopy);

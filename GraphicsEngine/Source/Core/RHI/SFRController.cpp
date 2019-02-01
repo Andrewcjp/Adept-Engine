@@ -23,6 +23,7 @@ SFRNode * SFRController::GetNode(int DeviceIndex)
 
 void SFRController::Init()
 {
+	//todo: rewrite
 	float SplitPc = 1.0f / RHI::GetDeviceCount();
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
@@ -31,4 +32,9 @@ void SFRController::Init()
 		Node->SFR_Offset = i * SplitPc;
 		Nodes.push_back(Node);
 	}
+	const float splittest = 0.5f;
+	Nodes[0]->SFR_PercentSize = splittest;
+	Nodes[0]->SFR_Offset = 0.0f;
+	Nodes[1]->SFR_PercentSize = 1.0 - splittest;
+	Nodes[1]->SFR_Offset = splittest;
 }
