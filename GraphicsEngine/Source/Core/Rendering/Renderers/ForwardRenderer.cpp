@@ -34,9 +34,13 @@ void ForwardRenderer::OnRender()
 	CubeMapPass();
 	for (int i = 0; i < DevicesInUse; i++)
 	{
-		MainPass(Objects[i].MainCommandList);
+		MainPass(DeviceObjects[i].MainCommandList);
 	}
 	RenderSkybox();
+	if (DevicesInUse > 1)
+	{
+		DeviceObjects[1].FrameBuffer->ResolveSFR(FilterBuffer);
+	}
 	PostProcessPass();
 }
 
@@ -44,14 +48,7 @@ void ForwardRenderer::OnRender()
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 void ForwardRenderer::PostInit()
 {
-	if (RHI::GetMGPUMode()->MainPassSFR)
-	{
-		DevicesInUse = 2;
-	}
-	else
-	{
-		DevicesInUse = 1;
-	}
+	
 	for (int i = 0; i < DevicesInUse; i++)
 	{
 		SetupOnDevice(RHI::GetDeviceContext(i));
@@ -75,18 +72,19 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 		Desc.IsShared = true;
 		Desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 	}
-	Objects[TargetDevice->GetDeviceIndex()].FrameBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
-	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
-	SkyBox->Init(Objects[TargetDevice->GetDeviceIndex()].FrameBuffer, nullptr);
-	Objects[TargetDevice->GetDeviceIndex()].MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
+	DeviceObjects[TargetDevice->GetDeviceIndex()].FrameBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
+	//SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
+	DDOs[TargetDevice->GetDeviceIndex()].SkyboxShader = new Shader_Skybox(TargetDevice);
+	DDOs[TargetDevice->GetDeviceIndex()].SkyboxShader->Init(DeviceObjects[TargetDevice->GetDeviceIndex()].FrameBuffer, nullptr);
+	DeviceObjects[TargetDevice->GetDeviceIndex()].MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = Material::GetDefaultMaterialShader();
-	desc.FrameBufferTarget = Objects[TargetDevice->GetDeviceIndex()].FrameBuffer;
-	Objects[TargetDevice->GetDeviceIndex()].MainCommandList->SetPipelineStateDesc(desc);
-	NAME_RHI_OBJECT(Objects[TargetDevice->GetDeviceIndex()].MainCommandList);
+	desc.FrameBufferTarget = DeviceObjects[TargetDevice->GetDeviceIndex()].FrameBuffer;
+	DeviceObjects[TargetDevice->GetDeviceIndex()].MainCommandList->SetPipelineStateDesc(desc);
+	NAME_RHI_OBJECT(DeviceObjects[TargetDevice->GetDeviceIndex()].MainCommandList);
 	if (TargetDevice->GetDeviceIndex() == 0)
 	{
-		FilterBuffer = Objects[TargetDevice->GetDeviceIndex()].FrameBuffer;
+		FilterBuffer = DeviceObjects[TargetDevice->GetDeviceIndex()].FrameBuffer;
 	}
 #if CUBEMAPS
 	/*VKanRHI::Get()->thelist = MainCommandList;*/
@@ -135,28 +133,25 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	{
 		//mShadowRenderer->BindShadowMapsToTextures(Cmdlist);
 	}
-	Cmdlist->SetRenderTarget(Objects[Cmdlist->GetDeviceIndex()].FrameBuffer);
-	Cmdlist->ClearFrameBuffer(Objects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-		//Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
+		Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 	}
-	if (Cmdlist->GetDeviceIndex() == 0)
-	{
-		Cmdlist->SetFrameBufferTexture(Conv->CubeBuffer, MainShaderRSBinds::DiffuseIr);
-		Cmdlist->SetFrameBufferTexture(envMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
-	}
+	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 
 	SceneRender->UpdateMV(MainCamera);
-	SceneRender->RenderScene(Cmdlist, false, Objects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	SceneRender->RenderScene(Cmdlist, false, DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 
 	Cmdlist->SetRenderTarget(nullptr);
 	Cmdlist->GetDevice()->GetTimeManager()->EndTimer(Cmdlist, EGPUTIMERS::MainPass);
 	mShadowRenderer->Unbind(Cmdlist);
 	if (Cmdlist->GetDeviceIndex() == 0 && DevicesInUse > 1)
 	{
-		Objects[1].FrameBuffer->MakeReadyForCopy(Cmdlist);
+		DeviceObjects[1].FrameBuffer->MakeReadyForCopy(Cmdlist);
 	}
 	if (Cmdlist->GetDeviceIndex() == 1)
 	{
@@ -165,25 +160,26 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	FilterBuffer->MakeReadyForCopy(Cmdlist);
 	Cmdlist->Execute();
 
-	if (Cmdlist->GetDeviceIndex() == 0)
+	if (Cmdlist->GetDeviceIndex() == 0 && false)
 	{
 		ParticleSystemManager::Get()->Render(FilterBuffer);
 	}
-	if (Cmdlist->GetDeviceIndex() == 1)
-	{
-		Objects[1].FrameBuffer->ResolveSFR(FilterBuffer);
-	}
+
 }
 
 void ForwardRenderer::RenderSkybox()
 {
-	SkyBox->Render(SceneRender, FilterBuffer, nullptr);
+	if (DevicesInUse > 1)
+	{
+		DDOs[1].SkyboxShader->Render(SceneRender, DeviceObjects[1].FrameBuffer, nullptr);
+	}
+	DDOs[0].SkyboxShader->Render(SceneRender, FilterBuffer, nullptr);
 }
 
 void ForwardRenderer::DestoryRenderWindow()
 {
-	EnqueueSafeRHIRelease(Objects[0].MainCommandList);
-	EnqueueSafeRHIRelease(Objects[1].MainCommandList);
+	EnqueueSafeRHIRelease(DeviceObjects[0].MainCommandList);
+	EnqueueSafeRHIRelease(DeviceObjects[1].MainCommandList);
 	EnqueueSafeRHIRelease(CubemapCaptureList);
 }
 

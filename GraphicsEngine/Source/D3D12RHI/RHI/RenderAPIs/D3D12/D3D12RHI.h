@@ -63,7 +63,7 @@ private:
 	bool DestoryRHI() override;
 	DeviceContext* GetDefaultDevice() override;
 	DeviceContext* GetDeviceContext(int index = 0) override;
-	BaseTexture* CreateTexture(DeviceContext* Device = nullptr) override;
+	BaseTexture* CreateTexture(const RHITextureDesc& Desc, DeviceContext* Device = nullptr) override;
 	FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc) override;
 	ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) override;
 	RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;

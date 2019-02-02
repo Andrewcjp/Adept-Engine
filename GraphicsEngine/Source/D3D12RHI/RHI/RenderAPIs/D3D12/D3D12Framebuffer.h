@@ -43,7 +43,7 @@ public:
 	void Release() override;
 
 
-	RHI_API virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
+	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
 
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
@@ -68,7 +68,7 @@ private:
 	class GPUResource* DepthStencil = nullptr;
 	class GPUResource* RenderTarget[8] = {};
 
-	//device Shareing
+	//device Sharing
 	class D3D12DeviceContext* OtherDevice = nullptr;
 	ID3D12Heap* CrossHeap = nullptr;
 	ID3D12Heap* TWO_CrossHeap = nullptr;

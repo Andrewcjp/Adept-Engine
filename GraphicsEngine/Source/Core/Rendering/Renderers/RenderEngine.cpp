@@ -72,24 +72,58 @@ void RenderEngine::PreRender()
 //init common to both renderers
 void RenderEngine::Init()
 {
+	if (RHI::GetMGPUMode()->MainPassSFR)
+	{
+		DevicesInUse = 2;
+	}
+	else
+	{
+		DevicesInUse = 1;
+	}
 	mShadowRenderer = new ShadowRenderer(SceneRender);
 	if (MainScene != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 	}
-
-	Conv = ShaderComplier::GetShader<Shader_Convolution>();
-	Conv->init();
-
-	envMap = ShaderComplier::GetShader<Shader_EnvMap>();
-	envMap->Init();
-
-
+	InitProcessingShaders(RHI::GetDeviceContext(0));
+	InitProcessingShaders(RHI::GetDeviceContext(1));
 	PostInit();
 	//400mb
 	Post = new PostProcessing();
 	Post->Init(FilterBuffer);
 	SceneRender->Init();
+}
+
+void RenderEngine::InitProcessingShaders(DeviceContext* dev)
+{
+	if (dev->GetDeviceIndex() == 0)
+	{
+		DDOs[dev->GetDeviceIndex()].ConvShader = ShaderComplier::GetShader<Shader_Convolution>(dev);
+		DDOs[dev->GetDeviceIndex()].EnvMap = ShaderComplier::GetShader<Shader_EnvMap>(dev);
+	}
+	else
+	{
+		DDOs[dev->GetDeviceIndex()].ConvShader = new Shader_Convolution(dev);
+		DDOs[dev->GetDeviceIndex()].EnvMap = new Shader_EnvMap(dev);
+	}
+	DDOs[dev->GetDeviceIndex()].ConvShader->init();
+	DDOs[dev->GetDeviceIndex()].EnvMap->Init();
+}
+
+void RenderEngine::ProcessSceneGPU(DeviceContext* dev)
+{
+	Scene::LightingEnviromentData* Data = MainScene->GetLightingData();
+	DDOs[dev->GetDeviceIndex()].ConvShader->TargetCubemap = Data->SkyBox;
+	DDOs[dev->GetDeviceIndex()].EnvMap->TargetCubemap = Data->SkyBox;
+	dev->UpdateCopyEngine();
+	dev->CPUWaitForAll();
+	dev->ResetCopyEngine();
+	if (Data->DiffuseMap == nullptr)
+	{
+		DDOs[dev->GetDeviceIndex()].ConvShader->ComputeConvolution(DDOs[dev->GetDeviceIndex()].ConvShader->TargetCubemap);
+	}
+	DDOs[dev->GetDeviceIndex()].EnvMap->ComputeEnvBRDF();
+
 }
 
 void RenderEngine::ProcessScene()
@@ -103,17 +137,8 @@ void RenderEngine::ProcessScene()
 	{
 		return;
 	}
-	Scene::LightingEnviromentData* Data = MainScene->GetLightingData();
-	Conv->TargetCubemap = Data->SkyBox;
-	envMap->TargetCubemap = Data->SkyBox;
-	RHI::GetDeviceContext(0)->UpdateCopyEngine();
-	RHI::GetDeviceContext(0)->CPUWaitForAll();
-	RHI::GetDeviceContext(0)->ResetCopyEngine();
-	if (Data->DiffuseMap == nullptr)
-	{
-		Conv->ComputeConvolution(Conv->TargetCubemap);
-	}
-	envMap->ComputeEnvBRDF();
+	ProcessSceneGPU(RHI::GetDeviceContext(0));
+	ProcessSceneGPU(RHI::GetDeviceContext(1));
 }
 
 void RenderEngine::PrepareData()
@@ -159,7 +184,11 @@ void RenderEngine::SetScene(Scene * sc)
 		return;
 	}
 	SceneRender->SetScene(sc);
-	SkyBox->SetSkyBox(sc->GetLightingData()->SkyBox);
+	DDOs[0].SkyboxShader->SetSkyBox(sc->GetLightingData()->SkyBox);
+	if (DDOs[1].SkyboxShader != nullptr)
+	{
+		DDOs[1].SkyboxShader->SetSkyBox(sc->GetLightingData()->SkyBox);
+	}
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
@@ -191,7 +220,7 @@ void RenderEngine::ShadowPass()
 }
 
 void RenderEngine::PostProcessPass()
-{	
+{
 	Post->ExecPPStack(FilterBuffer);
 }
 

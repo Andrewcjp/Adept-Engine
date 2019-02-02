@@ -3,7 +3,7 @@
 #include "Core/IRefCount.h"
 #include "RHI/RHITypes.h"
 #include "Core/EngineInc_fwd.h"
-class BaseTexture : public IRefCount, public IRHIResourse
+class BaseTexture : public IRefCount, public IRHIResourse, public IRHISharedDeviceObject<BaseTexture>
 {
 public:
 	enum ETextureType
@@ -23,6 +23,8 @@ public:
 	}
 	int MaxMip = -1;
 	virtual void UpdateSRV() = 0;
+	RHI_API DeviceContext* GetContext() const;
 protected:
 	ETextureType CurrentTextureType = ETextureType::Type_2D;
+	DeviceContext* Context = nullptr;
 };

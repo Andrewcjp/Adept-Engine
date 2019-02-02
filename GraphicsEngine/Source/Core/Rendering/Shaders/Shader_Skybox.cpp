@@ -21,7 +21,7 @@ Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 
 void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
-	List = RHI::CreateCommandList();
+	List = RHI::CreateCommandList(ECommandListType::Graphics,Device);
 	RHIPipeLineStateDesc desc;
 	desc.DepthWrite = false;
 	desc.Cull = false;
@@ -81,8 +81,9 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 #endif
 	SceneRender->BindMvBuffer(List, 1);
 	CubeModel->Render(List);
-
-	Buffer->MakeReadyForComputeUse(List);
+	List->SetRenderTarget(nullptr);
+	//Buffer->MakeReadyForComputeUse(List);
+	Buffer->MakeReadyForCopy(List);
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
 	List->Execute();
 }

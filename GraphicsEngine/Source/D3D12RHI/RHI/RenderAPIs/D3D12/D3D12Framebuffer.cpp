@@ -233,14 +233,14 @@ void D3D12FrameBuffer::CopyToHostMemory(ID3D12GraphicsCommandList* list)
 	}
 	TargetResource->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
-	CD3DX12_BOX box(BufferDesc.ScissorRect.x, 0, m_width, m_height);
+	CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width, m_height);
 	const int count = BufferDesc.TextureDepth;
 	for (int i = 0; i < count; i++)
 	{
 		Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
 		CD3DX12_TEXTURE_COPY_LOCATION dest(PrimaryRes, renderTargetLayout);
 		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);
-		list->CopyTextureRegion(&dest, BufferDesc.ScissorRect.x, 0, 0, &src, &box);
+		list->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x, 0, 0, &src, &box);
 	}
 	PerfManager::EndTimer("CopyToDevice");
 }
@@ -265,8 +265,8 @@ void D3D12FrameBuffer::CopyFromHostMemory(ID3D12GraphicsCommandList* list)
 		Host->GetCopyableFootprints(&secondaryAdapterTexture, offset, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
 		CD3DX12_TEXTURE_COPY_LOCATION src(Stagedres, textureLayout);
 		//CD3DX12_BOX box(0, 0, m_width, m_height);
-		CD3DX12_BOX box(BufferDesc.ScissorRect.x, 0, m_width, m_height);
-		list->CopyTextureRegion(&dest, BufferDesc.ScissorRect.x, 0, 0, &src, &box);
+		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width, m_height);
+		list->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x, 0, 0, &src, &box);
 	}
 	PerfManager::EndTimer("MakeReadyOnTarget");
 }
@@ -364,13 +364,7 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	ensure(OtherBuffer);
 	D3D12FrameBuffer* OtherB = (D3D12FrameBuffer*)OtherBuffer;
 	D3D12CommandList* CMdList = (D3D12CommandList*)List;
-	ID3D12Device* Host = CurrentDevice->GetDevice();
-	// Copy the buffer in the shared heap into a texture that the secondary
-	// adapter can sample from.	
-	// Copy the shared buffer contents into the texture using the memory
-	// layout prescribed by the texture.
 	D3D12_RESOURCE_DESC secondaryAdapterTexture = OtherB->RenderTarget[0]->GetResource()->GetDesc();
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
 	OtherB->RenderTarget[0]->SetResourceState(CMdList->GetCommandList(), D3D12_RESOURCE_STATE_COPY_DEST);
 	TargetCopy->SetResourceState(CMdList->GetCommandList(), D3D12_RESOURCE_STATE_COPY_SOURCE);
 	const int count = BufferDesc.TextureDepth;
@@ -378,12 +372,10 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	{
 		int offset = i;
 		CD3DX12_TEXTURE_COPY_LOCATION dest(OtherB->RenderTarget[0]->GetResource(), offset);
-		//Host->GetCopyableFootprints(&secondaryAdapterTexture, offset, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
 		CD3DX12_TEXTURE_COPY_LOCATION src(TargetCopy->GetResource(), offset);
-		//CD3DX12_BOX box(0, 0, m_width, m_height);
-		const int PXoffset = 10;
-		CD3DX12_BOX box(BufferDesc.ScissorRect.x, 0, /*BufferDesc.Width*/m_width - PXoffset, m_height);
-		CMdList->GetCommandList()->CopyTextureRegion(&dest, BufferDesc.ScissorRect.x + PXoffset, 0, 0, &src, &box);
+		const int PXoffset = 1;
+		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width - PXoffset, m_height);
+		CMdList->GetCommandList()->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x + PXoffset, 0, 0, &src, &box);
 	}
 }
 

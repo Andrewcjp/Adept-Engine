@@ -278,7 +278,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath) && !PlatformApplication::CheckFileSrcNewer(GetRootDir() + DDCRelFilepath, Fileref.GetFullPathToAsset()) || Fileref.IsDDC)
 	{
 		Fileref.IsDDC = true;
-		return RHI::CreateTexture(Fileref, Device);
+			return RHI::CreateTexture(Fileref, Device);		
 	}
 	else
 	{

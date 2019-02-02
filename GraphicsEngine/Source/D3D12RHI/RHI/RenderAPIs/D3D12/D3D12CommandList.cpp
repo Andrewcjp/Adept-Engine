@@ -461,14 +461,21 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 {
-	Texture = (D3D12Texture*)texture;
+	
 	ensure(texture);
 	ensure(!texture->IsPendingKill());
+	Texture = (D3D12Texture*)texture;
 	if (!Texture->CheckDevice(Device->GetDeviceIndex()))
 	{
 		//Hack!
-		return;
-	}
+		texture = texture->GetOnOtherDevice(Device);
+		if (texture == nullptr)
+		{
+			Log::LogMessage("Failed to Bind Texture on Device", Log::Error);
+			return;
+		}
+		Texture = (D3D12Texture*)texture;
+	}	
 	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()), "Attempted to Bind texture that is not on this device");
 	if (Device->GetStateCache()->TextureCheckAndUpdate(texture, slot))
 	{

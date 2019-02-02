@@ -10,7 +10,6 @@ Shader_Convolution::Shader_Convolution(class DeviceContext* dev) :Shader(dev)
 {
 	m_Shader->AttachAndCompileShaderFromFile("CubeMap_Convoluter_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("CubeMap_Convoluter_fs", EShaderType::SHADER_FRAGMENT);
-
 }
 
 
@@ -28,14 +27,14 @@ void Shader_Convolution::init()
 	const int Size = 1024;
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateCubeColourDepth(Size, Size);
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-	CubeBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
-	CmdList = RHI::CreateCommandList();
+	CubeBuffer = RHI::CreateFrameBuffer(Device, Desc);
+	CmdList = RHI::CreateCommandList(ECommandListType::Graphics,Device);
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = this;
 	desc.FrameBufferTarget = CubeBuffer;
 	CmdList->SetPipelineStateDesc(desc);
-	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant,Device);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] =
@@ -56,6 +55,7 @@ void Shader_Convolution::init()
 	}
 	MeshLoader::FMeshLoadingSettings set;
 	set.Scale = glm::vec3(0.1f);
+	set.InitOnAllDevices = true;
 	Cube = RHI::CreateMesh("models\\SkyBoxCube.obj", set);
 }
 
@@ -95,7 +95,7 @@ Shader_Convolution::QuadDrawer::~QuadDrawer()
 	EnqueueSafeRHIRelease(VertexBuffer);
 }
 
-void Shader_Convolution::QuadDrawer::init()
+void Shader_Convolution::QuadDrawer::init(DeviceContext* dev)
 {
 	float g_quad_vertex_buffer_data[] = {
 		-1.0f, -1.0f, 0.0f,0.0f,
@@ -105,7 +105,7 @@ void Shader_Convolution::QuadDrawer::init()
 		1.0f, -1.0f, 0.0f,0.0f,
 		1.0f,  1.0f, 0.0f,0.0f,
 	};
-	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, dev);
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 }
