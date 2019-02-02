@@ -6,8 +6,18 @@
 
 #include "Rendering/Core/FrameBuffer.h"
 #include "RenderSettings.h"
-
 class Scene;
+class ShadowRenderer;
+class PostProcessing;
+class Shader_Skybox;
+class Shader_Convolution;
+class Shader_EnvMap;
+struct DeviceDependentObjects
+{
+	Shader_EnvMap* EnvMap = nullptr;
+	Shader_Convolution* ConvShader = nullptr;
+	Shader_Skybox* SkyboxShader = nullptr;
+};
 class RenderEngine
 {
 public:
@@ -18,6 +28,8 @@ public:
 	virtual void OnRender() = 0;
 	virtual void FinaliseRender() = 0;
 	void Init();
+	void InitProcessingShaders(DeviceContext * dev);
+	void ProcessSceneGPU(DeviceContext * dev);
 	void ProcessScene();
 	void PrepareData();
 	virtual void PostInit() = 0;
@@ -37,8 +49,6 @@ public:
 	int GetScaledHeight();
 	void HandleCameraResize();
 protected:
-	class Shader_Convolution * Conv = nullptr;
-	class Shader_EnvMap* envMap = nullptr;
 	void ShadowPass();
 	void PostProcessPass();
 	int			m_width = 0;
@@ -48,10 +58,11 @@ protected:
 	Camera* MainCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;
 	Shader_Main* MainShader = nullptr;
-	class ShadowRenderer* mShadowRenderer = nullptr;
-	class PostProcessing* Post = nullptr;
+	ShadowRenderer* mShadowRenderer = nullptr;
+	PostProcessing* Post = nullptr;
 	FrameBuffer* FilterBuffer = nullptr;
-	class Shader_Skybox* SkyBox = nullptr;
 	bool once = true;
+	DeviceDependentObjects DDOs[MAX_GPU_DEVICE_COUNT];
+	int DevicesInUse = 1;
 };
 

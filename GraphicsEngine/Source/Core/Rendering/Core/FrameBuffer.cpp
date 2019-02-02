@@ -117,7 +117,6 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	{
 		return;
 	}
-	/*CopyHelper(this, RHI::GetDeviceContext(0));*/
 	DeviceContext* TargetDevice = RHI::GetDeviceContext(0);
 	FrameBuffer* Target = this;
 	DeviceContext* HostDevice = Target->GetDevice();

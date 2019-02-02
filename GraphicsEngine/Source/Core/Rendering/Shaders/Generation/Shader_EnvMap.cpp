@@ -27,19 +27,19 @@ void Shader_EnvMap::Init()
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateCubeColourDepth(Size, Size);
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	Desc.MipCount = MaxMipLevels;//generate mips for Each level of reflection
-	CubeBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
+	CubeBuffer = RHI::CreateFrameBuffer(Device, Desc);
 	Desc = RHIFrameBufferDesc::CreateColour(Size, Size);
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-	EnvBRDFBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
+	EnvBRDFBuffer = RHI::CreateFrameBuffer(Device, Desc);
 	QuadDraw = new Shader_Convolution::QuadDrawer();
-	QuadDraw->init();
-	CmdList = RHI::CreateCommandList();
+	QuadDraw->init(Device);
+	CmdList = RHI::CreateCommandList(ECommandListType::Graphics, Device);
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = this;
 	desc.FrameBufferTarget = EnvBRDFBuffer;
 	CmdList->SetPipelineStateDesc(desc);
-	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] =
@@ -61,6 +61,7 @@ void Shader_EnvMap::Init()
 
 	MeshLoader::FMeshLoadingSettings set;
 	set.Scale = glm::vec3(0.1f);
+	set.InitOnAllDevices = true;
 	Cube = RHI::CreateMesh("models\\SkyBoxCube.obj", set);
 }
 

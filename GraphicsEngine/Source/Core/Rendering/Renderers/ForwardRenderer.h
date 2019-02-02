@@ -19,7 +19,7 @@
 #include "RHI/RHICommandList.h"
 
 #define USED3D12DebugP 1
-struct DeviceObjects
+struct ForwardRenderDeviceObject
 {
 	RHICommandList* MainCommandList = nullptr;
 	FrameBuffer* FrameBuffer = nullptr;
@@ -40,10 +40,9 @@ public:
 	void Resize(int width, int height) override;
 
 private:
-	int DevicesInUse = 1;
 	void MainPass(RHICommandList * Cmdlist);
 	void RenderSkybox();
-	DeviceObjects Objects[2];
+	ForwardRenderDeviceObject DeviceObjects[MAX_GPU_DEVICE_COUNT];
 	RHICommandList* CubemapCaptureList = nullptr;
 	//debug
 #if USED3D12DebugP

@@ -28,7 +28,7 @@ public:
 	static const int CPUFrameCount = 2;
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
-	RHI_API static BaseTexture* CreateTexture(AssetPathRef, DeviceContext* Device = nullptr);
+	RHI_API static BaseTexture* CreateTexture(AssetPathRef, DeviceContext* Device = nullptr, RHITextureDesc Desc = RHITextureDesc());
 	RHI_API static BaseTexture* CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device = nullptr);
 	RHI_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
 	RHI_API static Mesh * CreateMesh(const char * path);
@@ -96,7 +96,7 @@ public:
 	RHI_VIRTUAL bool InitRHI() = 0;
 	RHI_VIRTUAL bool InitWindow(int w, int h) = 0;
 	RHI_VIRTUAL bool DestoryRHI() = 0;
-	RHI_VIRTUAL BaseTexture* CreateTexture(DeviceContext* Device = nullptr) = 0;
+	RHI_VIRTUAL BaseTexture* CreateTexture(const RHITextureDesc& Desc,DeviceContext* Device = nullptr) = 0;
 	RHI_VIRTUAL FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc) = 0;
 	RHI_VIRTUAL ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
 	RHI_VIRTUAL RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;

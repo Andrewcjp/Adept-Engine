@@ -239,7 +239,7 @@ void RHI::DestoryRHI()
 }
 
 #define NOLOADTEX 0
-BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device)
+BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHITextureDesc Desc)
 {
 	if (Device == nullptr)
 	{
@@ -257,10 +257,16 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device)
 	{
 		return newtex;
 	}
-	newtex = GetRHIClass()->CreateTexture(Device);
+	newtex = GetRHIClass()->CreateTexture(Desc, Device);
 	if (!newtex->CreateFromFile(path))
 	{
 		return ImageIO::GetDefaultTexture();
+	}
+	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0)
+	{
+		BaseTexture* other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
+		newtex->RegisterOtherDeviceTexture(other);
+		other->CreateFromFile(path);
 	}
 	ImageIO::RegisterTextureLoad(newtex);
 	return newtex;
@@ -268,7 +274,7 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device)
 
 BaseTexture * RHI::CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device)
 {
-	return GetRHIClass()->CreateTexture(Device);
+	return GetRHIClass()->CreateTexture(RHITextureDesc(), Device);
 }
 
 BaseTexture * RHI::CreateNullTexture(DeviceContext * Device)
@@ -278,7 +284,7 @@ BaseTexture * RHI::CreateNullTexture(DeviceContext * Device)
 		Device = RHI::GetDefaultDevice();
 	}
 	BaseTexture* newtex = nullptr;
-	newtex = GetRHIClass()->CreateTexture(Device);
+	newtex = GetRHIClass()->CreateTexture(RHITextureDesc(), Device);
 	newtex->CreateAsNull();
 	return newtex;
 }
@@ -360,7 +366,7 @@ void RHI::ValidateSettings()
 	CurrentMGPUMode.ValidateSettings();
 	if (CurrentMGPUMode.SplitShadowWork)
 	{
-		ensureMsgf(RenderSettings.IsDeferred,"Multigpu shadows only supported on Deferred renderer");
+		ensureMsgf(RenderSettings.IsDeferred, "Multigpu shadows only supported on Deferred renderer");
 	}
 	if (CurrentMGPUMode.MainPassSFR)
 	{

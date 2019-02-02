@@ -43,6 +43,7 @@ struct TextureImportSettings
 	bool DirectLoad = false;
 	std::string GetTypeString();
 	int ForceMipCount = -1;
+	bool InitOnAllDevices = true;
 };
 class AssetManager
 {

@@ -234,7 +234,7 @@ void D3D12RHI::HandleDeviceFailure()
 
 RHIPipeLineStateObject* D3D12RHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
 {
-	D3D12PipeLineStateObject* NewObject = new D3D12PipeLineStateObject(Desc,Device);
+	D3D12PipeLineStateObject* NewObject = new D3D12PipeLineStateObject(Desc, Device);
 	return NewObject;
 }
 #if ALLOW_RESOURCE_CAPTURE
@@ -381,7 +381,7 @@ void D3D12RHI::InitSwapChain()
 	SafeRelease(factory);
 	CreateSwapChainRTs();
 
-	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0],true);
+	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0], true);
 	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, GetPrimaryDevice()->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
 }
@@ -650,7 +650,7 @@ void D3D12RHI::TriggerBackBufferScreenShot()
 	RunScreenShot = true;
 }
 
-BaseTexture * D3D12RHI::CreateTexture(DeviceContext* Device)
+BaseTexture * D3D12RHI::CreateTexture(const RHITextureDesc& Desc, DeviceContext* Device)
 {
 	if (Device == nullptr)
 	{

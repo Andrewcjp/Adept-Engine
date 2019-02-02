@@ -38,7 +38,7 @@ void DeferredRenderer::OnRender()
 
 void DeferredRenderer::RenderSkybox()
 {
-	SkyBox->Render(SceneRender, FilterBuffer, GFrameBuffer);
+	//SkyBox->Render(SceneRender, FilterBuffer, GFrameBuffer);
 }
 
 void DeferredRenderer::PostInit()
@@ -57,8 +57,8 @@ void DeferredRenderer::PostInit()
 	desc.ShaderInUse = DeferredShader;
 	desc.FrameBufferTarget = FilterBuffer;
 	LightingList->SetPipelineStateDesc(desc);
-	SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
-	SkyBox->Init(FilterBuffer, GFrameBuffer);
+	/*SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
+	SkyBox->Init(FilterBuffer, GFrameBuffer);*/
 }
 
 void DeferredRenderer::GeometryPass()
@@ -102,12 +102,12 @@ void DeferredRenderer::LightingPass()
 	LightingList->SetFrameBufferTexture(GFrameBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	LightingList->SetFrameBufferTexture(GFrameBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	LightingList->SetFrameBufferTexture(GFrameBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
-	LightingList->SetFrameBufferTexture(Conv->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
+	LightingList->SetFrameBufferTexture(DDOs[0].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
 		LightingList->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
 	}
-	LightingList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
+	LightingList->SetFrameBufferTexture(DDOs[0].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
 
 	SceneRender->BindLightsBuffer(LightingList, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRender->BindMvBuffer(LightingList, DeferredLightingShaderRSBinds::MVCBV);
@@ -141,7 +141,7 @@ void DeferredRenderer::DestoryRenderWindow()
 	EnqueueSafeRHIRelease(GFrameBuffer);
 	EnqueueSafeRHIRelease(WriteList);
 	EnqueueSafeRHIRelease(LightingList);
-	EnqueueSafeRHIRelease(OutputBuffer); 
+	EnqueueSafeRHIRelease(OutputBuffer);
 }
 
 void DeferredRenderer::FinaliseRender()

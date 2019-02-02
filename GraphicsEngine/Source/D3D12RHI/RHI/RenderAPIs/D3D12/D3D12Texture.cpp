@@ -16,6 +16,7 @@ float D3D12Texture::MipCreationTime = 0;
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 {
 	AddCheckerRef(D3D12Texture, this);
+	Context = inDevice;
 	if (inDevice == nullptr)
 	{
 		Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();

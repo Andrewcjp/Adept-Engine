@@ -18,7 +18,7 @@ public:
 	{
 		~QuadDrawer();
 		RHIBuffer* VertexBuffer = nullptr;
-		void init();
+		void init(DeviceContext* dev);
 		void RenderScreenQuad(RHICommandList * list);
 	};
 private:

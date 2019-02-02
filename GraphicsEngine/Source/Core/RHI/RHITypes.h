@@ -434,3 +434,32 @@ struct SFRNode
 	float SFR_VerticalOffset = 1.0f;
 	//Link to framebuffers - then call resize!
 };
+
+struct RHITextureDesc
+{
+	bool InitOnALLDevices = true;
+};
+
+//Interface for multiple objects linking to the same "object" (texture or buffer) on different devices
+template <class T>
+class IRHISharedDeviceObject
+{
+public:
+	void RegisterOtherDeviceTexture(T * Other)
+	{
+		SharedObjects.push_back(Other);
+	}
+	T * GetOnOtherDevice(DeviceContext * Con)
+	{
+		for (int i = 0; i < SharedObjects.size(); i++)
+		{
+			if (Con == SharedObjects[i]->GetContext())
+			{
+				return SharedObjects[i];
+			}
+		}
+		return nullptr;
+	}
+private:
+	std::vector<T*> SharedObjects;
+};
