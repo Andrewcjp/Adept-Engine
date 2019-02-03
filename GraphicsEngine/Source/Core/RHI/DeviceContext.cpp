@@ -1,9 +1,9 @@
-
 #include "DeviceContext.h"
 #include "Core/Asserts.h"
 #include "RHITypes.h"
 #include "RHITimeManager.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Platform/PlatformCore.h"
 
 DeviceContext::DeviceContext()
 {
@@ -19,6 +19,7 @@ DeviceContext::~DeviceContext()
 
 void DeviceContext::ResetDeviceAtEndOfFrame()
 {
+	CopyListPoolFreeIndex = 0;
 	if (CurrentFrameIndex == 0)
 	{
 		GetTimeManager()->UpdateTimers();
@@ -92,6 +93,35 @@ bool DeviceContext::IsDeviceAMD()
 bool DeviceContext::IsDeviceIntel()
 {
 	return VendorID == 0x8086;
+}
+
+RHICommandList * DeviceContext::GetCopyList(int Index)
+{
+	if (Index < 0 || Index > COPYLIST_POOL_SIZE)
+	{
+		ensure(false);
+		return nullptr;
+	}
+	if (CopyListPool[Index] == nullptr)
+	{
+		CopyListPool[Index] = RHI::CreateCommandList(ECommandListType::Copy, this);
+	}
+	return CopyListPool[Index];
+}
+
+RHICommandList * DeviceContext::GetNextFreeCopyList()
+{
+	RHICommandList* retvalue = GetCopyList(CopyListPoolFreeIndex);
+	CopyListPoolFreeIndex++;
+	return retvalue;
+}
+
+void DeviceContext::InitCopyListPool()
+{
+	for (int i = 0; i < RHI::GetRenderConstants()->DEFAULT_COPYLIST_POOL_SIZE; i++)
+	{
+		GetCopyList(i);
+	}
 }
 
 RHIGPUSyncEvent::RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * device)

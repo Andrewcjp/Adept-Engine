@@ -8,7 +8,7 @@ static ConsoleVariable IsActive("GPG", 0, ECVarType::ConsoleAndLaunch);
 
 GPUPerformanceGraph::GPUPerformanceGraph()
 {
-	StartPos = glm::vec3(100, 100, 0);
+	StartPos = glm::vec3(250, 150, 0);
 	Scale = 50;
 }
 
@@ -33,7 +33,7 @@ void GPUPerformanceGraph::RenderGPU(int index)
 	{
 		return;
 	}
-	const glm::vec3 LocalPos = StartPos + glm::vec3(0, index * 30, 0);
+	const glm::vec3 LocalPos = StartPos + glm::vec3(0, index * 30 * 3, 0);
 	float MaxValue = data[0]->AVG->GetCurrentAverage()*Scale;
 	DrawBaseLine(MaxValue, index, LocalPos);
 	float CurrentValue = 0.0f;
@@ -50,13 +50,21 @@ void GPUPerformanceGraph::SetEnabled(bool state)
 
 void GPUPerformanceGraph::DrawLine(PerfManager::TimerData * data, glm::vec3 LocalOffset, float& CurrnetValue, int index)
 {
+	CurrnetValue = data->GPUStartOffset*Scale;
 	float Length = (data->AVG->GetCurrentAverage() * Scale);
 	if (Length < 1.0f)
 	{
 		CurrnetValue += Length;
 		return;
 	}
-
+	if (data->TimerType == ECommandListType::Copy)
+	{
+		LocalOffset.y -= 30.0f * 2;
+	}
+	else if (data->TimerType == ECommandListType::Compute)
+	{
+		LocalOffset.y -= 30.0f;
+	}
 	const glm::vec3 Colour = glm::vec3(1);
 	const glm::vec3 EndPos = LocalOffset + glm::vec3(CurrnetValue + Length, 0, 0);
 	TwoDrawer->AddLine(LocalOffset + glm::vec3(CurrnetValue, 0, 0), EndPos, Colour);
@@ -89,7 +97,9 @@ void GPUPerformanceGraph::DrawBaseLine(float Time, int GPUindex, glm::vec3 pos)
 	TwoDrawer->AddLine(pos + glm::vec3(0, EndLineHeight, 0), EndPos + glm::vec3(0, EndLineHeight, 0), Colour);
 	TwoDrawer->AddLine(pos + glm::vec3(0, 0, 0), pos + glm::vec3(0, EndLineHeight, 0), Colour);
 	TwoDrawer->AddLine(EndPos + glm::vec3(0, 0, 0), EndPos + glm::vec3(0, EndLineHeight, 0), Colour);
-
-	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex), pos.x - 70.0f, EndPos.y - 5.0f + 10.0f, 0.4f, glm::vec3(1));
+	const float Offset = 70.0f* 2.5;
+	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Graphics", pos.x - Offset, EndPos.y + 5.0f, 0.4f, glm::vec3(1));
+	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Compute", pos.x - Offset, EndPos.y + 5.0f - 30.0f, 0.4f, glm::vec3(1));
+	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Copy", pos.x - Offset, EndPos.y + 5.0f - 30.0f * 2, 0.4f, glm::vec3(1));
 	TextRenderer::instance->RenderText(StringUtils::ToStringFloat(Time / Scale) + "ms", EndPos.x + 10.0f, EndPos.y - 5.0f + 10.0f, 0.4f, glm::vec3(1));
 }

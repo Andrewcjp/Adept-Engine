@@ -535,7 +535,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 #endif
 }
 
-void PerfManager::UpdateGPUStat(int id, float newtime)
+CORE_API void PerfManager::UpdateGPUStat(int id, float newtime, float OffsetToMain)
 {
 	if (TimerOutput.find(id) != TimerOutput.end())
 	{
@@ -543,8 +543,9 @@ void PerfManager::UpdateGPUStat(int id, float newtime)
 		if (data != nullptr)
 		{
 			data->Active = true;
+			data->GPUStartOffset = OffsetToMain;
 		}
-		TimerOutput.at(id) = glm::abs(newtime);
+		TimerOutput.at(id) = glm::abs(newtime);		
 	}
 }
 

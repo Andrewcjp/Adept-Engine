@@ -7,7 +7,7 @@ struct CapabilityData
 {
 	bool SupportsCopyTimeStamps = false;
 };
-
+const int COPYLIST_POOL_SIZE = 4;
 class RHI_API DeviceContext
 {
 public:
@@ -44,7 +44,11 @@ public:
 	bool IsDeviceNVIDIA();
 	bool IsDeviceAMD();
 	bool IsDeviceIntel();
+	//Copy lists are pooled (because why not)
+	RHICommandList* GetCopyList(int Index);
+	RHICommandList* GetNextFreeCopyList();
 protected:
+	void InitCopyListPool();
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
 	bool InsertStallTimer = false;
@@ -59,6 +63,8 @@ protected:
 	int NodeIndex = 0;
 	GPUStateCache* StateCache = nullptr;
 	uint VendorID = 0;
+	int CopyListPoolFreeIndex = 0;
+	RHICommandList* CopyListPool[COPYLIST_POOL_SIZE] = {nullptr};
 };
 
 class RHIGPUSyncEvent

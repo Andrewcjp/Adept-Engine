@@ -247,6 +247,7 @@ namespace EGPUCOPYTIMERS
 	{
 		Total,
 		MGPUCopy,
+		SFRMerge,
 		LIMIT
 	};
 }
