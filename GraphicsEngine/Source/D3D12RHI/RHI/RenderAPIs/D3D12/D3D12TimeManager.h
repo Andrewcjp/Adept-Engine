@@ -20,7 +20,7 @@ public:
 	~D3D12TimeManager();
 	void UpdateTimers() override;
 	std::string GetTimerData() override;
-	void SetTimerName(int index, std::string Name) override;
+	void SetTimerName(int index, std::string Name, ECommandListType::Type type = ECommandListType::Graphics) override;
 
 	void StartTotalGPUTimer(RHICommandList * ComandList) override;
 	void StartTimer(RHICommandList * ComandList, int index) override;
@@ -45,6 +45,9 @@ private:
 		bool Used = false;
 		int Statid = -1;
 		float RawTime = 0.0f;
+		UINT64 StartTS = 0;
+		float StartOffset = 0.0f;
+		MovingAverage StartOffsetavg = MovingAverage(AVGTIME);
 	};
 	int StatsGroupId = -1;
 	bool TimerStarted = false;

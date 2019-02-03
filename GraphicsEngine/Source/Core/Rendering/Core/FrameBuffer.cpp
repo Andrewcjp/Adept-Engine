@@ -135,15 +135,31 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	CopyList->Execute(DeviceContextQueue::InterCopy);
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy);
-
-	TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	//use a sync point here
+#if 1//_DEBUG
+	TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);//Move this to pre SFR merge
+#endif
 	CopyList = TargetDevice->GetInterGPUCopyList();
 	CopyList->ResetList();
 
 	CopyList->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
 	CopyList->CopyResourceFromSharedMemory(Target);
 	CopyList->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
+#if 0
+	//CopyList->StartTimer(EGPUCOPYTIMERS::SFRMerge);
+	//Target->CopyToOtherBuffer(SumBuffer, CopyList);
+	//CopyList->EndTimer(EGPUCOPYTIMERS::SFRMerge);
+	CopyList->ResolveTimers();
+#endif
+	CopyList->Execute(DeviceContextQueue::InterCopy);
+
+	TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	//TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+	CopyList = TargetDevice->GetCopyList(1);
+	CopyList->ResetList();
+	CopyList->StartTimer(EGPUCOPYTIMERS::SFRMerge);
 	Target->CopyToOtherBuffer(SumBuffer, CopyList);
+	CopyList->EndTimer(EGPUCOPYTIMERS::SFRMerge);
 	CopyList->ResolveTimers();
 	CopyList->Execute(DeviceContextQueue::InterCopy);
 	TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);

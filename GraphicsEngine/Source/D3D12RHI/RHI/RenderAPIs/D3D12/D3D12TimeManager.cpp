@@ -92,9 +92,10 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::PostProcess, "Post Processing");
 	SetTimerName(EGPUTIMERS::ShadowPreSample, "Shadow PreSample");
 	SetTimerName(EGPUTIMERS::ParticleDraw, "Particle Draw");
-	SetTimerName(EGPUTIMERS::ParticleSimulation, "Particle Sim");
+	SetTimerName(EGPUTIMERS::ParticleSimulation, "Particle Sim", ECommandListType::Compute);
 	SetTimerName(EGPUTIMERS::GPU0WaitOnGPU1, "GPU0 Wait On GPU1");
-	SetTimerName(CopyOffset + EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy");
+	SetTimerName(CopyOffset + EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy", ECommandListType::Copy);
+	SetTimerName(CopyOffset + EGPUCOPYTIMERS::SFRMerge, "SFR Merge", ECommandListType::Copy);
 #endif
 }
 
@@ -114,6 +115,21 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 			float gpuTimeMS = glm::max(glm::abs((float)(delta * 1000) / (float)ClockFreq), 0.0f);
 			TimeDeltas[i].RawTime = gpuTimeMS;
 			TimeDeltas[i].avg.Add(gpuTimeMS);
+			if (i == 0)
+			{
+				TimeDeltas[i].StartTS = (pTimestamps[TimeDeltas[i].Startindex]);
+			}
+			else
+			{
+				const UINT64 CurrentTimeStamp = pTimestamps[TimeDeltas[i].Startindex];
+				UINT64 Delta = (pTimestamps[TimeDeltas[i].Startindex] - TimeDeltas[0].StartTS);
+				TimeDeltas[i].StartOffset = glm::max((float)(Delta) * 1000 / (float)ClockFreq, 0.0f);
+				if (TimeDeltas[i].StartOffset > 100 && IsCopyList)
+				{
+					continue;//ignore large values
+				}
+				TimeDeltas[i].StartOffsetavg.Add(TimeDeltas[i].StartOffset);
+			}
 		}
 		else
 		{
@@ -131,11 +147,11 @@ void D3D12TimeManager::UpdateTimers()
 #if ENABLE_GPUTIMERS
 	if (Device->GetCpuFrameIndex() == 0)
 	{
+		ProcessTimeStampHeaps(MaxTimerCount, m_timestampResultBuffers, m_directCommandQueueTimestampFrequencies, false, 0);
 		if (m_CopytimestampResultBuffers != nullptr)
 		{
 			ProcessTimeStampHeaps(EGPUCOPYTIMERS::LIMIT, m_CopytimestampResultBuffers, m_copyCommandQueueTimestampFrequencies, true, CopyOffset);
 		}
-		ProcessTimeStampHeaps(MaxTimerCount, m_timestampResultBuffers, m_directCommandQueueTimestampFrequencies, false, 0);
 	}
 	AVGgpuTimeMS = TimeDeltas[0].avg.GetCurrentAverage();
 	for (int i = 0; i < TotalMaxTimerCount; i++)
@@ -144,7 +160,7 @@ void D3D12TimeManager::UpdateTimers()
 		{
 			continue;
 		}
-		PerfManager::Get()->UpdateGPUStat(TimeDeltas[i].Statid, TimeDeltas[i].RawTime);
+		PerfManager::Get()->UpdateGPUStat(TimeDeltas[i].Statid, TimeDeltas[i].RawTime, TimeDeltas[i].StartOffsetavg.GetCurrentAverage());
 	}
 	for (int i = 0; i < TotalMaxTimerCount; i++)
 	{
@@ -175,7 +191,7 @@ std::string D3D12TimeManager::GetTimerData()
 #endif
 }
 
-void D3D12TimeManager::SetTimerName(int index, std::string Name)
+void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListType::Type type)
 {
 	if (index >= TotalMaxTimerCount)
 	{
@@ -192,6 +208,7 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name)
 		PerfManager::TimerData* data = PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid);
 		data->name = Name;
 		data->IsGPUTimer = true;
+		data->TimerType = type;
 	}
 #if PIX_ENABLED
 	PixTimerNames[index] = StringUtils::ConvertStringToWide(Name);
@@ -201,7 +218,7 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name)
 LPCWSTR D3D12TimeManager::GetTimerNameForPIX(int index)
 {
 	return PixTimerNames[index].c_str();
-}
+	}
 #endif
 
 void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
@@ -218,7 +235,7 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
 	{
 		PIXBeginEvent(List->GetCommandList(), 0, GetTimerNameForPIX(index));
-	}
+}
 #endif
 #endif
 }
@@ -238,7 +255,7 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	{
 
 		PIXEndEvent(List->GetCommandList());
-	}
+}
 #endif
 #endif
 }

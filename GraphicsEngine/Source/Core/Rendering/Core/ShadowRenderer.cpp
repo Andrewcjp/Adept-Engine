@@ -8,7 +8,7 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHITypes.h"
 #include "SceneRenderer.h"
-#define GPU_SINGLE_PRESAMPLE 0
+#define SINGLE_GPU_PRESAMPLE 0
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
 ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
@@ -36,7 +36,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	}
 #else
 
-#if GPU_SINGLE_PRESAMPLE
+#if SINGLE_GPU_PRESAMPLE
 	DeviceContext* AltDevice = RHI::GetDeviceContext(0);
 #else 
 	DeviceContext* AltDevice = RHI::GetDeviceContext(1);
@@ -208,7 +208,7 @@ void ShadowRenderer::PreSampleShadows(const std::vector<GameObject*>& ShadowObje
 		{
 			continue;
 		}
-#if !GPU_SINGLE_PRESAMPLE
+#if !SINGLE_GPU_PRESAMPLE
 		if (RHI::GetMGPUMode()->AsyncShadows)
 		{
 			FrameBuffer::CopyHelper_Async_OneFrame(LightInteractions[SNum]->PreSampledBuffer, RHI::GetDeviceContext(0));
@@ -401,7 +401,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 
 void ShadowRenderer::Unbind(RHICommandList * list)
 {
-#if !GPU_SINGLE_PRESAMPLE
+#if !SINGLE_GPU_PRESAMPLE
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
 		for (int i = 0; i < LightInteractions.size(); i++)
@@ -425,12 +425,12 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 		ShadowMap = RHI::CreateFrameBuffer(Context, desc);
 	}
 	Shader = new Shader_Depth(Context, IsPoint);
-#if !GPU_SINGLE_PRESAMPLE
+#if !SINGLE_GPU_PRESAMPLE
 	if (Context->GetDeviceIndex() != 0)
 #endif
 	{
 		NeedsSample = true;
-#if GPU_SINGLE_PRESAMPLE
+#if SINGLE_GPU_PRESAMPLE
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColourDepth(2048, 661);
 		desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
 		PreSampledBuffer = RHI::CreateFrameBuffer(Context, desc);

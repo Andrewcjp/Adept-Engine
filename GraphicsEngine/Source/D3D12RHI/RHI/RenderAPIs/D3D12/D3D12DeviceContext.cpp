@@ -44,7 +44,7 @@ D3D12DeviceContext::~D3D12DeviceContext()
 }
 
 void D3D12DeviceContext::CheckFeatures()
-{	
+{
 	//todo: validate the device capabilities 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
@@ -163,7 +163,8 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	{
 		GetDevice()->SetStablePowerState(true);
 	}
-	}
+	InitCopyListPool();
+}
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
 {

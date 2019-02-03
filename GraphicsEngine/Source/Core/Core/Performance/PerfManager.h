@@ -73,6 +73,7 @@ public:
 		int LastCallCount = 0;
 		bool IsGPUTimer = false;
 		float GPUStartOffset = 0.0f;//Offset in MS from start of frame (GPU main timestamp)
+		ECommandListType::Type TimerType = ECommandListType::Graphics;
 	};
 	CORE_API TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y, bool IncludeGPUStats = false);
@@ -83,7 +84,7 @@ public:
 	//Resets all AVGs
 	void ResetStats();
 	void DrawStatsGroup(int x, int & y, std::string GroupFilter, bool IncludeGPU);
-	CORE_API void UpdateGPUStat(int id, float newtime);
+	CORE_API void UpdateGPUStat(int id, float newtime, float OffsetToMain);
 	CORE_API int GetTimerIDByName(std::string name);
 	CORE_API int GetGroupId(std::string name);
 

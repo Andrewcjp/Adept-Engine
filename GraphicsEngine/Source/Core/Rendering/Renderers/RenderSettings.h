@@ -44,5 +44,6 @@ struct RenderConstants
 	int MAX_DYNAMIC_POINT_SHADOWS;
 	int MAX_DYNAMIC_DIRECTIONAL_SHADOWS;
 	int MAX_LIGHTS;
+	int DEFAULT_COPYLIST_POOL_SIZE;
 	RenderConstants();
 };
