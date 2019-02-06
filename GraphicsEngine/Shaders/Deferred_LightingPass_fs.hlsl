@@ -71,9 +71,5 @@ float4 main(VS_OUTPUT input) : SV_Target
 		}
 		output += LightColour;
 	}
-	float gamma = 1.0f / 2.2f;
-
-	//output = output / (output + float3(1.0, 1.0, 1.0));
-	//output = pow(output, float3(gamma, gamma, gamma));
 	return float4(output,1.0f);
 }

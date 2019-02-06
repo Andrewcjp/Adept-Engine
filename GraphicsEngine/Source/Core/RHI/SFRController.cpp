@@ -23,6 +23,10 @@ SFRNode * SFRController::GetNode(int DeviceIndex)
 
 void SFRController::Init()
 {
+	if (RHI::GetDeviceCount() == 1)
+	{
+		return;
+	}
 	//todo: rewrite
 	float SplitPc = 1.0f / RHI::GetDeviceCount();
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)

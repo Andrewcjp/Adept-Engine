@@ -47,6 +47,7 @@ class CoreTargetRules : TargetRules
         CoreModule.ModuleDepends.Add("TDPhysics");
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "BleedOut";
+        CoreModule.IsCoreModule = true;
       ///  CoreModule.UnityBuildExcludedFolders.Add("AI");
         return CoreModule;
     }

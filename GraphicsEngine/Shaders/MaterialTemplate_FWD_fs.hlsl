@@ -76,9 +76,8 @@ float4 main(PSInput input) : SV_TARGET
 	const float MAX_REFLECTION_LOD = 11.0;
 	float3 R = reflect(-ViewDir, Normal);
 	float2 envBRDF = envBRDFTexture.Sample(g_sampler,float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
-	float3 prefilteredColor = SpecularBlurMap.SampleLevel(g_sampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;//textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+	float3 prefilteredColor = SpecularBlurMap.SampleLevel(g_sampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
 	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF);
-	//return float4(texturecolour.xyz, 1.0f);
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
@@ -86,7 +85,7 @@ float4 main(PSInput input) : SV_TARGET
 		{
 			colour *= CalcUnshadowedAmountPCF2x2(lights[i], input.WorldPos, g_Shadow_texture[lights[i].ShadowID]).r;
 		}
-		if (lights[i].HasShadow && lights[i].type == 1)
+		else if (lights[i].HasShadow && lights[i].type == 1)
 		{
 			colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
 		}

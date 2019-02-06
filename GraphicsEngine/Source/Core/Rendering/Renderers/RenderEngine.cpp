@@ -96,6 +96,10 @@ void RenderEngine::Init()
 
 void RenderEngine::InitProcessingShaders(DeviceContext* dev)
 {
+	if (dev == nullptr)
+	{
+		return;
+	}
 	if (dev->GetDeviceIndex() == 0)
 	{
 		DDOs[dev->GetDeviceIndex()].ConvShader = ShaderComplier::GetShader<Shader_Convolution>(dev);
@@ -112,6 +116,10 @@ void RenderEngine::InitProcessingShaders(DeviceContext* dev)
 
 void RenderEngine::ProcessSceneGPU(DeviceContext* dev)
 {
+	if (dev == nullptr)
+	{
+		return;
+	}
 	Scene::LightingEnviromentData* Data = MainScene->GetLightingData();
 	DDOs[dev->GetDeviceIndex()].ConvShader->TargetCubemap = Data->SkyBox;
 	DDOs[dev->GetDeviceIndex()].EnvMap->TargetCubemap = Data->SkyBox;

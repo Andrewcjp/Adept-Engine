@@ -131,7 +131,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	}
 	if (mShadowRenderer != nullptr)
 	{
-		//mShadowRenderer->BindShadowMapsToTextures(Cmdlist);
+		mShadowRenderer->BindShadowMapsToTextures(Cmdlist);
 	}
 	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
