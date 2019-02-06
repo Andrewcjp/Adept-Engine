@@ -101,7 +101,7 @@ public:
 	RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
 	RHI_VIRTUAL void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset) = 0;
 	DeviceContext* GetDevice();
-	int GetDeviceIndex();
+	int GetDeviceIndex() const;
 	void StartTimer(int TimerId);
 	void EndTimer(int TimerId);
 	void ResolveTimers();

@@ -2,23 +2,37 @@
 
 #include "RHI/RHI_inc_fwd.h"
 
+class Shader_ShadowSample;
+class DeviceContext;
+//holds all objects need to run shadows on a device.
+struct DeviceShadowObjects
+{
+	RHICommandList* PointLightShadowList = nullptr;
+	RHITextureArray* ShadowCubeArray = nullptr;
+	RHITextureArray* ShadowDirectionalArray = nullptr;
+	RHIBuffer* GeometryProjections = nullptr;
+	RHICommandList*  DirectionalShadowList = nullptr;
+	RHICommandList* ShadowPreSamplingList = nullptr;
+};
 class ShadowRenderer
 {
 public:
 	ShadowRenderer(class SceneRenderer* SceneRender);
 	~ShadowRenderer();
-	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index);
+	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index, int DeviceIndex);
 	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, class Shader_Main* mainshader = nullptr);
-	void RunPointShadowPass(RHICommandList * List, const std::vector<GameObject*>& ShadowObjects, Shader_Main * mainshader);
-	void PreSampleShadows(const std::vector<GameObject*>& ShadowObjects, Shader_Main * mainshader);
-	void RenderPointShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject*>& ShadowObjects);
-	void RenderDirectionalShadows(RHICommandList * list, Shader_Main * mainshader, const std::vector<GameObject *> & ShadowObjects);
+	void RenderOnDevice(DeviceContext * con, const std::vector<GameObject*>& ShadowObjects);
+	void RunPointShadowPass(RHICommandList * List, const std::vector<GameObject*>& ShadowObjects);
+	void PreSampleShadows(RHICommandList* list, const std::vector<GameObject*>& ShadowObjects);
+	void RenderPointShadows(RHICommandList * list, const std::vector<GameObject*>& ShadowObjects);
+	void RenderDirectionalShadows(RHICommandList * list, const std::vector<GameObject *> & ShadowObjects);
 	void BindShadowMapsToTextures(RHICommandList* list);
 	void ClearShadowLights();
 	void InitShadows(std::vector<Light*> lights);
 	bool UseCache = false;
 	bool Renderered = false;
 	void Unbind(RHICommandList* list);
+	void SetupOnDevice(DeviceContext* Context);
 private:
 	std::vector<Light*> ShadowingDirectionalLights;
 	std::vector<Light*> ShadowingPointLights;
@@ -28,33 +42,32 @@ private:
 
 	FrameBuffer* DirectionalLightBuffer = nullptr;
 	std::vector<FrameBuffer*> DirectionalLightBuffers;
-	RHICommandList* PointShadowList = nullptr;
-	RHICommandList* PointShadowListALT = nullptr;
-	RHICommandList*  DirectionalShadowList = nullptr;
-	RHITextureArray* ShadowCubeArray = nullptr;
-	RHITextureArray* ShadowDirectionalArray = nullptr;
-	//Should be on both devices as constant data
-	RHIBuffer* GeometryProjections = nullptr;
-
 	struct ShadowLightInteraction
 	{
-		ShadowLightInteraction(class DeviceContext * Context, bool IsPoint, int MapSize);
+		ShadowLightInteraction(DeviceContext * Context, bool IsPoint, int MapSize);
 		~ShadowLightInteraction();
-		FrameBuffer* ShadowMap = nullptr;
+		void SetupCopy(DeviceContext* TargetDev);
 		Shader_Depth* Shader = nullptr;
 		Light* lightPtr = nullptr;
-		//PreSampled Buffer used to reduce Data transfer
-		FrameBuffer* PreSampledBuffer = nullptr;
 
-		bool NeedsSample = false;
+		FrameBuffer* ShadowMaps[MAX_GPU_DEVICE_COUNT] = { nullptr };
 		bool IsPointLight = false;
 		int DeviceIndex = 0;
+		DeviceContext* DevContext;
+		bool SampleOnAllDevices = false;
+		//Get the correct Frame buffer for the lists device
+		FrameBuffer* GetShadowMap(const RHICommandList* list);
+
+		//PreSampled Buffer used to reduce Data transfer	
+		FrameBuffer* PreSampledBuffer = nullptr;
+		bool NeedsSample = false;
+		int TargetDeviceIndex = 0;
 	};
 	std::vector<ShadowLightInteraction*> LightInteractions;
-
-
-	class Shader_ShadowSample* ShadowPreSampleShader = nullptr;
-	RHICommandList* ShadowPreSamplingList = nullptr;
+	Shader_ShadowSample* ShadowPreSampleShader = nullptr;
 	SceneRenderer* Scenerenderer = nullptr;
+
+	DeviceShadowObjects DSOs[MAX_GPU_DEVICE_COUNT];
+	bool AllDevicesNeedToRead = false;
 };
 

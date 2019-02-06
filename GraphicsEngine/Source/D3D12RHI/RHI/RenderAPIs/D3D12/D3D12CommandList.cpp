@@ -284,7 +284,6 @@ void D3D12CommandList::PushState()
 	}
 }
 
-
 std::string D3D12CommandList::GetPSOHash(Shader * shader, const PipeLineState& statedesc)
 {
 	std::string hash = "";
@@ -348,6 +347,7 @@ void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
 
 void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 {
+	ensure(buffer);
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
 	((D3D12FrameBuffer*)buffer)->ClearBuffer(CurrentCommandList);
@@ -461,7 +461,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 {
-	
+
 	ensure(texture);
 	ensure(!texture->IsPendingKill());
 	Texture = (D3D12Texture*)texture;
@@ -475,7 +475,7 @@ void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 			return;
 		}
 		Texture = (D3D12Texture*)texture;
-	}	
+	}
 	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()), "Attempted to Bind texture that is not on this device");
 	if (Device->GetStateCache()->TextureCheckAndUpdate(texture, slot))
 	{

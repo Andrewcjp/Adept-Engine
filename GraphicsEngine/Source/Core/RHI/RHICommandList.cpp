@@ -32,7 +32,7 @@ DeviceContext * RHICommandList::GetDevice()
 	return Device;
 }
 
-int RHICommandList::GetDeviceIndex()
+int RHICommandList::GetDeviceIndex() const
 {
 	if (Device != nullptr)
 	{
