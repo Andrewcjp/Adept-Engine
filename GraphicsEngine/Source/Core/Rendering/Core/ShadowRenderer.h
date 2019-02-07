@@ -13,6 +13,7 @@ struct DeviceShadowObjects
 	RHIBuffer* GeometryProjections = nullptr;
 	RHICommandList*  DirectionalShadowList = nullptr;
 	RHICommandList* ShadowPreSamplingList = nullptr;
+	void Release();
 };
 class ShadowRenderer
 {
@@ -50,18 +51,17 @@ private:
 		Shader_Depth* Shader = nullptr;
 		Light* lightPtr = nullptr;
 
-		FrameBuffer* ShadowMaps[MAX_GPU_DEVICE_COUNT] = { nullptr };
+		FrameBuffer* ShadowMap = nullptr;
 		bool IsPointLight = false;
 		int DeviceIndex = 0;
 		DeviceContext* DevContext;
 		bool SampleOnAllDevices = false;
-		//Get the correct Frame buffer for the lists device
-		FrameBuffer* GetShadowMap(const RHICommandList* list);
-
 		//PreSampled Buffer used to reduce Data transfer	
 		FrameBuffer* PreSampledBuffer = nullptr;
 		bool NeedsSample = false;
 		int TargetDeviceIndex = 0;
+
+		bool IsResident(DeviceContext* dev)const;
 	};
 	std::vector<ShadowLightInteraction*> LightInteractions;
 	Shader_ShadowSample* ShadowPreSampleShader = nullptr;

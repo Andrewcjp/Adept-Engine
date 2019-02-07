@@ -991,6 +991,11 @@ void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*=
 		D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
 		NullHeapDesc = dBuffer->GetSrvDesc(0);
 	}
+	if (NullHeapDesc.Format == DXGI_FORMAT_UNKNOWN)
+	{
+		Log::LogMessage("Texture Array Slot Cannot be set null without format",Log::Error);
+		return;
+	}
 	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Heap->GetCPUAddress(TargetIndex));
 }
 

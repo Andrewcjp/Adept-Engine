@@ -38,7 +38,7 @@ void DeferredRenderer::OnRender()
 
 void DeferredRenderer::RenderSkybox()
 {
-	//SkyBox->Render(SceneRender, FilterBuffer, GFrameBuffer);
+	DDOs[0].SkyboxShader->Render(SceneRender, FilterBuffer, GFrameBuffer);
 }
 
 void DeferredRenderer::PostInit()
@@ -57,8 +57,8 @@ void DeferredRenderer::PostInit()
 	desc.ShaderInUse = DeferredShader;
 	desc.FrameBufferTarget = FilterBuffer;
 	LightingList->SetPipelineStateDesc(desc);
-	/*SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
-	SkyBox->Init(FilterBuffer, GFrameBuffer);*/
+	DDOs[0].SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
+	DDOs[0].SkyboxShader->Init(FilterBuffer, GFrameBuffer);	
 }
 
 void DeferredRenderer::GeometryPass()
