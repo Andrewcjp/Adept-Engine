@@ -8,7 +8,7 @@ static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOn
 
 MultiGPUMode::MultiGPUMode()
 {
-	//UseSFR.SetValue(true);
+	UseSFR.SetValue(true);
 	//SplitShadows.SetValue(true);
 	SyncSettings();
 }

@@ -69,6 +69,10 @@ public:
 	glm::mat4 Projection;
 	glm::vec3 m_lightColor = glm::vec3(1, 1, 1);
 	bool ExecOnAlt = false;
+	//Multi GPU Data
+	//Should the shadow be sampled on this card or copied
+	bool GPUShadowResidentMask[MAX_GPU_DEVICE_COUNT] = { true };
+	//bool GPU[MAX_GPU_DEVICE_COUNT] = { true,true };
 private:
 	float m_intesity = 10;
 	glm::vec3 m_position = glm::vec3(0, 0, 0);
