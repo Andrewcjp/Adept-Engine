@@ -13,6 +13,7 @@ struct DeviceShadowObjects
 	RHIBuffer* GeometryProjections = nullptr;
 	RHICommandList*  DirectionalShadowList = nullptr;
 	RHICommandList* ShadowPreSamplingList = nullptr;
+	FrameBuffer* PreSampledBuffer = nullptr;
 	void Release();
 };
 class ShadowRenderer
@@ -33,6 +34,7 @@ public:
 	bool UseCache = false;
 	bool Renderered = false;
 	void Unbind(RHICommandList* list);
+	void InitPreSampled(DeviceContext * dev, DeviceContext * Targetdev);
 	static eTEXTURE_FORMAT GetPreSampledTextureFormat();
 	void SetupOnDevice(DeviceContext* Context);
 private:
@@ -58,7 +60,7 @@ private:
 		DeviceContext* DevContext;
 		bool SampleOnAllDevices = false;
 		//PreSampled Buffer used to reduce Data transfer	
-		FrameBuffer* PreSampledBuffer = nullptr;
+
 		bool NeedsSample = false;
 		int TargetDeviceIndex = 0;
 

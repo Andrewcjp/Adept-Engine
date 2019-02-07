@@ -12,8 +12,8 @@ Texture2D envBRDFTexture: register(t12);
 Texture2D PerSampledShadow: register(t13);
 
 
-Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t4,space1);
-TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5,space2);
+Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t4, space1);
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
 
 
 #include "Lighting.hlsl"
@@ -35,7 +35,7 @@ struct VS_OUTPUT
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
 };
-
+#define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
 	//return float4(PerSampledShadow.Sample(g_Clampsampler, input.uv).r,0.0,0.0,1.0f);
@@ -60,7 +60,19 @@ float4 main(VS_OUTPUT input) : SV_Target
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
 		if (lights[i].PreSampled.x)
 		{
-			LightColour *= 1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv).r;
+#if SHOW_SHADOW
+			const float vis = (1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv)[lights[i].PreSampled.y]);
+			if (vis == 0.0f)
+			{
+				LightColour = float3(0,1,0);
+			}
+			else
+			{
+				LightColour *= vis;
+			}
+#else
+			LightColour *= (1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv)[lights[i].PreSampled.y]);
+#endif
 		}
 		else
 		{

@@ -150,6 +150,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 {
 	for (int devindex = 0; devindex < RHI::GetDeviceCount(); devindex++)
 	{
+		int PreSampleIndex = 0;
 		for (int i = 0; i < lights.size(); i++)
 		{
 			if (i >= MAX_POSSIBLE_LIGHTS || i >= RHI::GetRenderConstants()->MAX_LIGHTS)
@@ -164,6 +165,11 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			newitem.HasShadow = lights[i]->GetDoesShadow();
 			//assume if not resident its pre-sampled
 			newitem.PreSampled[0] = !lights[i]->GPUShadowResidentMask[devindex];
+			newitem.PreSampled[1] = PreSampleIndex;
+			if (newitem.PreSampled[0])
+			{
+				PreSampleIndex++;
+			}			
 			newitem.ShadowID = lights[i]->GetShadowId();
 			if (lights[i]->GetType() == Light::Directional || lights[i]->GetType() == Light::Spot)
 			{
