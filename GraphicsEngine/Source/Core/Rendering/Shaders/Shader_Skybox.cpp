@@ -83,7 +83,10 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 	CubeModel->Render(List);
 	List->SetRenderTarget(nullptr);
 	//Buffer->MakeReadyForComputeUse(List);
-	Buffer->MakeReadyForCopy(List);
+	if (List->GetDeviceIndex() == 0)
+	{
+		Buffer->MakeReadyForCopy(List);
+	}
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
 	List->Execute();
 }

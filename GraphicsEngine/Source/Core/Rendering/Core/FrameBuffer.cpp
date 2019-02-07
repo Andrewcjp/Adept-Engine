@@ -137,7 +137,7 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy);
 	//use a sync point here?
 #if 1//_DEBUG
-	TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);//Move this to pre SFR merge
+	TargetDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);//the CPU is ahead of the gpu so resource is still in use! (ithink)
 #endif
 	CopyList = TargetDevice->GetInterGPUCopyList();
 	CopyList->ResetList();

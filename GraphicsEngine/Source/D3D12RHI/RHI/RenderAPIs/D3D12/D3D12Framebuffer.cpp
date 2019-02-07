@@ -139,7 +139,6 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	}
 	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, m_width, m_height, BufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
 
-
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
 	UINT64 pTotalBytes = 0;
 	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);

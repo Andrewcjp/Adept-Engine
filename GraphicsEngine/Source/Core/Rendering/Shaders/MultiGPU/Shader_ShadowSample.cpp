@@ -4,6 +4,7 @@ IMPLEMENT_GLOBAL_SHADER(Shader_ShadowSample);
 Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context) :Shader(Context)
 {
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_SHADOW_SAMPLES", std::to_string(RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_fs", EShaderType::SHADER_FRAGMENT);
 }
@@ -17,8 +18,12 @@ std::vector<Shader::ShaderParameter> Shader_ShadowSample::GetShaderParameters()
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 1));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 2));
-	Output.push_back(ShaderParameter(ShaderParamType::SRV, ShadowSRV, 0));
+	///Output.push_back(ShaderParameter(ShaderParamType::SRV, ShadowSRV, 0));
+	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, ShadowSRV, 0, 2);
+	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS;
+	Output.push_back(parm);
 	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, PreSampleCBV, 3));
+	Output[Output.size() - 1].NumDescriptors = 4;
 	return Output;
 }
 
