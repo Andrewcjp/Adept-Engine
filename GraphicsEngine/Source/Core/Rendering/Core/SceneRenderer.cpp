@@ -15,7 +15,7 @@ SceneRenderer::SceneRenderer(Scene* Target)
 
 SceneRenderer::~SceneRenderer()
 {
-	EnqueueSafeRHIRelease(CLightBuffer);
+	MemoryUtils::RHIUtil::DeleteRHICArray(CLightBuffer, MAX_GPU_DEVICE_COUNT);
 	EnqueueSafeRHIRelease(CMVBuffer);
 	EnqueueSafeRHIRelease(GameObjectTransformBuffer);
 	EnqueueSafeRHIRelease(RelfectionProbeProjections);
@@ -46,8 +46,12 @@ void SceneRenderer::Init()
 		SceneBuffer.push_back(SceneConstantBuffer());
 	}
 	UpdateTransformBufferSize(MaxConstant);
-	CLightBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	CLightBuffer->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
+
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		CLightBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
+	}
 	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), 1, true);
 	RelfectionProbeProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
@@ -144,56 +148,60 @@ SceneConstantBuffer SceneRenderer::CreateUnformBufferEntry(GameObject * t)
 
 void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 {
-	for (int i = 0; i < lights.size(); i++)
+	for (int devindex = 0; devindex < RHI::GetDeviceCount(); devindex++)
 	{
-		if (i >= MAX_POSSIBLE_LIGHTS || i >= RHI::GetRenderConstants()->MAX_LIGHTS)
+		for (int i = 0; i < lights.size(); i++)
 		{
-			continue;
-		}
-		LightUniformBuffer newitem;
-		newitem.position = lights[i]->GetPosition();
-		newitem.color = glm::vec3(lights[i]->GetColor());
-		newitem.Direction = lights[i]->GetDirection();
-		newitem.type = lights[i]->GetType();
-		newitem.HasShadow = lights[i]->GetDoesShadow();
-		newitem.PreSampled[0] = lights[i]->ExecOnAlt;
-		newitem.ShadowID = lights[i]->GetShadowId();
-		if (lights[i]->GetType() == Light::Directional || lights[i]->GetType() == Light::Spot)
-		{
-			glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
-			glm::vec3 position = glm::vec3(0, 20, 50);
-			position = lights[i]->GetPosition();
-			LightView = glm::lookAtLH<float>(position, position + newitem.Direction, glm::vec3(0, 0, 1));//world up
-			float size = 100.0f;
-			glm::mat4 proj;
-			if (lights[i]->GetType() == Light::Spot)
+			if (i >= MAX_POSSIBLE_LIGHTS || i >= RHI::GetRenderConstants()->MAX_LIGHTS)
 			{
-				proj = glm::perspective<float>(glm::radians(45.0f), 1.0f, 2.0f, 50.0f);
-				LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), lights[i]->GetPosition() + newitem.Direction, glm::vec3(0, 0, 1));//world up
+				continue;
 			}
-			else
+			LightUniformBuffer newitem;
+			newitem.position = lights[i]->GetPosition();
+			newitem.color = glm::vec3(lights[i]->GetColor());
+			newitem.Direction = lights[i]->GetDirection();
+			newitem.type = lights[i]->GetType();
+			newitem.HasShadow = lights[i]->GetDoesShadow();
+			//assume if not resident its pre-sampled
+			newitem.PreSampled[0] = !lights[i]->GPUShadowResidentMask[devindex];
+			newitem.ShadowID = lights[i]->GetShadowId();
+			if (lights[i]->GetType() == Light::Directional || lights[i]->GetType() == Light::Spot)
 			{
-				proj = glm::orthoLH<float>(-size, size, -size, size, -200, 100);
+				glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
+				glm::vec3 position = glm::vec3(0, 20, 50);
+				position = lights[i]->GetPosition();
+				LightView = glm::lookAtLH<float>(position, position + newitem.Direction, glm::vec3(0, 0, 1));//world up
+				float size = 100.0f;
+				glm::mat4 proj;
+				if (lights[i]->GetType() == Light::Spot)
+				{
+					proj = glm::perspective<float>(glm::radians(45.0f), 1.0f, 2.0f, 50.0f);
+					LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), lights[i]->GetPosition() + newitem.Direction, glm::vec3(0, 0, 1));//world up
+				}
+				else
+				{
+					proj = glm::orthoLH<float>(-size, size, -size, size, -200, 100);
+				}
+				lights[i]->Projection = proj;
+				lights[i]->DirView = LightView;
+				newitem.LightVP = proj * LightView;
 			}
-			lights[i]->Projection = proj;
-			lights[i]->DirView = LightView;
-			newitem.LightVP = proj * LightView;
+			if (lights[i]->GetType() == Light::Point)
+			{
+				float znear = 1.0f;
+				float zfar = 500;
+				glm::mat4 proj = glm::perspectiveLH<float>(glm::radians(90.0f), 1.0f, znear, zfar);
+				lights[i]->Projection = proj;
+			}
+			LightsBuffer.Light[i] = newitem;
 		}
-		if (lights[i]->GetType() == Light::Point)
-		{
-			float znear = 1.0f;
-			float zfar = 500;
-			glm::mat4 proj = glm::perspectiveLH<float>(glm::radians(90.0f), 1.0f, znear, zfar);
-			lights[i]->Projection = proj;
-		}
-		LightsBuffer.Light[i] = newitem;
+		CLightBuffer[devindex]->UpdateConstantBuffer(&LightsBuffer, 0);
 	}
-	CLightBuffer->UpdateConstantBuffer(&LightsBuffer, 0);
 }
 
 void SceneRenderer::BindLightsBuffer(RHICommandList*  list, int Override)
 {
-	list->SetConstantBufferView(CLightBuffer, 0, Override);
+	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, Override);
 }
 
 void SceneRenderer::BindMvBuffer(RHICommandList * list)

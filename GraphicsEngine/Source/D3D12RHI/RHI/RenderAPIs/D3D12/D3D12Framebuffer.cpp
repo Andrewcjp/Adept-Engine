@@ -278,6 +278,10 @@ void D3D12FrameBuffer::MakeReadyForRead(ID3D12GraphicsCommandList * list)
 
 void D3D12FrameBuffer::MakeReadyForCopy(RHICommandList * list)
 {
+	if (BufferDesc.IsShared)
+	{
+		ensure(Device != list->GetDevice());//Make ready for copy only applies to the target GPU
+	}
 	MakeReadyForCopy_In(((D3D12CommandList*)list)->GetCommandList());
 }
 
@@ -522,7 +526,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-}
+	}
 
 void D3D12FrameBuffer::Init()
 {

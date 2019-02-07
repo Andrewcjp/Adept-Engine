@@ -20,10 +20,10 @@ DeviceContext::~DeviceContext()
 void DeviceContext::ResetDeviceAtEndOfFrame()
 {
 	CopyListPoolFreeIndex = 0;
-	if (CurrentFrameIndex == 0)
+	/*if (CurrentFrameIndex == 0)
 	{
 		GetTimeManager()->UpdateTimers();
-	}
+	}*/
 }
 
 void DeviceContext::DestoryDevice()
