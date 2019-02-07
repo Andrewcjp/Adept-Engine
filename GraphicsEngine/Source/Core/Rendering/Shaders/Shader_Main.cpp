@@ -36,6 +36,9 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DiffuseIr, 10));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::SpecBlurMap, 11));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::EnvBRDF, 12));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::PreSampledShadows, 13));
+	out.push_back(ShaderParameter(ShaderParamType::RootConstant, MainShaderRSBinds::ResolutionCBV, 5));
+	out[out.size() - 1].NumDescriptors = 2;
 	//out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::Limit, 13));
 }
 

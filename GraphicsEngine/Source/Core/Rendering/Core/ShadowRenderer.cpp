@@ -312,6 +312,13 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 	{
 		//Object->ShadowDirectionalArray->BindToShader(list, 5);
 		Object->ShadowCubeArray->BindToShader(list, 6);
+		if (RHI::GetMGPUMode()->SplitShadowWork)
+		{
+			if (DSOs[1].PreSampledBuffer != nullptr)
+			{
+				list->SetFrameBufferTexture(DSOs[1].PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
+			}
+		}
 	}
 	else
 	{
@@ -320,15 +327,16 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 			//Object->ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
 			Object->ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
 		}
-	}
-
-	if (RHI::GetMGPUMode()->SplitShadowWork)
-	{
-		if (DSOs[1].PreSampledBuffer != nullptr)
+		if (RHI::GetMGPUMode()->SplitShadowWork)
 		{
-			list->SetFrameBufferTexture(DSOs[1].PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
+			if (DSOs[1].PreSampledBuffer != nullptr)
+			{
+				list->SetFrameBufferTexture(DSOs[1].PreSampledBuffer, MainShaderRSBinds::PreSampledShadows);
+			}
 		}
 	}
+
+	
 }
 
 void ShadowRenderer::ClearShadowLights()
@@ -464,13 +472,6 @@ void ShadowRenderer::Unbind(RHICommandList * list)
 #if !SINGLE_GPU_PRESAMPLE
 	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
-		//for (int i = 0; i < LightInteractions.size(); i++)
-		//{
-		//	if (LightInteractions[i]->PreSampledBuffer != nullptr/* && LightInteractions[i]->DeviceIndex == list->GetDeviceIndex()*/)
-		//	{
-		//		LightInteractions[i]->PreSampledBuffer->MakeReadyForCopy(list);
-		//	}
-		//}
 		const int Device = 1;
 		if (DSOs[Device].PreSampledBuffer != nullptr)
 		{
@@ -517,7 +518,9 @@ void ShadowRenderer::InitPreSampled(DeviceContext* dev, DeviceContext* Targetdev
 	desc.IsShared = true;
 	desc.DeviceToCopyTo = Targetdev;
 	desc.RTFormats[0] = ShadowRenderer::GetPreSampledTextureFormat();
+	desc.LinkToBackBufferScaleFactor = 1.0f;//todo: setting?
 	DSOs[dev->GetDeviceIndex()].PreSampledBuffer = RHI::CreateFrameBuffer(dev, desc);
+	RHI::AddLinkedFrameBuffer(DSOs[dev->GetDeviceIndex()].PreSampledBuffer);
 }
 eTEXTURE_FORMAT ShadowRenderer::GetPreSampledTextureFormat()
 {
@@ -528,7 +531,7 @@ eTEXTURE_FORMAT ShadowRenderer::GetPreSampledTextureFormat()
 	}
 	else if (MaxShadows == 2)
 	{
-		return  eTEXTURE_FORMAT::FORMAT_R8G8_UNORM;
+		return eTEXTURE_FORMAT::FORMAT_R8G8_UNORM;
 	}
 	//todo: don't copy alpha channel of 3 lights !
 	return eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;

@@ -48,7 +48,7 @@ void ForwardRenderer::OnRender()
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 void ForwardRenderer::PostInit()
 {
-	
+
 	for (int i = 0; i < DevicesInUse; i++)
 	{
 		SetupOnDevice(RHI::GetDeviceContext(i));
@@ -135,7 +135,11 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	}
 	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
-
+	if (RHI::GetMGPUMode()->SplitShadowWork)
+	{
+		glm::ivec2 Res = glm::ivec2(GetScaledWidth(), GetScaledHeight());
+		Cmdlist->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);
+	}
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
 		Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);

@@ -67,7 +67,7 @@ public:
 	static class RHIClass* GetRHIClass();
 	static void WaitForGPU();
 	static const RenderConstants* GetRenderConstants();
-	static void AddLinkedFrameBuffer(FrameBuffer* target);
+	static void AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize = false);
 	static RenderSettings* GetRenderSettings();
 	static const MultiGPUMode* GetMGPUMode();
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
@@ -88,6 +88,8 @@ private:
 	std::vector<RHIResourseStamped> DeferredDeleteQueue;
 	bool IsFlushingDeleteQueue = false;
 	bool IsFullScreen = false;
+	int SwapChainWidth = 0;
+	int SwapChainHeight = 0;
 };
 
 class RHI_API RHIClass

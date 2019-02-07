@@ -379,6 +379,7 @@ public:
 	glm::vec4 ViewPort = glm::vec4();
 	glm::vec4 ScissorRect = glm::vec4();
 	bool IncludedInSFR = false;
+	float LinkToBackBufferScaleFactor = 1.0f;
 };
 
 class RHI_API IRHIResourse
