@@ -13,6 +13,8 @@ namespace MainShaderRSBinds
 		DiffuseIr = 5,
 		SpecBlurMap = 6,
 		EnvBRDF = 7,
+		PreSampledShadows = 8,
+		ResolutionCBV = 9,
 		Limit
 	};
 }

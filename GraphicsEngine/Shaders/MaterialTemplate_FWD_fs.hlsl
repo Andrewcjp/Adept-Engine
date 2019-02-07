@@ -31,28 +31,33 @@ struct PSInput
 	float4 WorldPos:TANGENT0;
 	row_major float3x3 TBN:TANGENT1;
 };
+Texture2D g_texture : register(t20);
+Texture2D NormalMapTexture : register(t21);
 
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t0, space1);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t1, space2);
 
-
 TextureCube DiffuseIrMap : register(t10);
 TextureCube SpecularBlurMap: register(t11);
 Texture2D envBRDFTexture: register(t12);
+//PreSampled
 Texture2D PerSampledShadow: register(t13);
+cbuffer Resolution : register(b5)
+{
+	int2 Res;
+};
 
-Texture2D g_texture : register(t20);
-Texture2D NormalMapTexture : register(t21);
 
+float FWD_GetPresampledShadow(float2 pos, int index)
+{
+	float vis = (1.0 - PerSampledShadow.Sample(g_Clampsampler, pos.xy)[index]);
+	return vis;
+}
 //Declares
 float4 main(PSInput input) : SV_TARGET
 {
-	float2 Pos = input.position.xy / input.position.w;
-	////Pos.x = (Pos.x + 1) / 2;
-	////Pos.y = (Pos.y + 1) / 2;
+	const float2 ScreenPos = input.position.xy / Res; //Compute Position  for this pixel in 0-1 space
 	float3 Normal = input.Normal.xyz;
-	float out2 = PerSampledShadow.Sample(g_Clampsampler, Pos.xy).r;
-	//return float4(out2,0, 0, 1.0f);
 #if !TEST
 	float3 texturecolour = float3(0, 0, 0);// g_texture.Sample(g_sampler, input.uv).rgb;
 #else
@@ -64,7 +69,7 @@ float4 main(PSInput input) : SV_TARGET
 #if TEST
 	texturecolour = Diffuse;
 #endif
-	
+
 	if (HasNormalMap == 1)
 	{
 		/*Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
@@ -81,7 +86,11 @@ float4 main(PSInput input) : SV_TARGET
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
-		if (lights[i].HasShadow && lights[i].type == 0)
+		if (lights[i].HasShadow && lights[i].PreSampled.x)
+		{
+			colour *= FWD_GetPresampledShadow(ScreenPos,lights[i].PreSampled.y);
+		}
+		else if (lights[i].HasShadow && lights[i].type == 0)
 		{
 			colour *= CalcUnshadowedAmountPCF2x2(lights[i], input.WorldPos, g_Shadow_texture[lights[i].ShadowID]).r;
 		}
