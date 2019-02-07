@@ -33,6 +33,7 @@ public:
 	bool UseCache = false;
 	bool Renderered = false;
 	void Unbind(RHICommandList* list);
+	static eTEXTURE_FORMAT GetPreSampledTextureFormat();
 	void SetupOnDevice(DeviceContext* Context);
 private:
 	std::vector<Light*> ShadowingDirectionalLights;

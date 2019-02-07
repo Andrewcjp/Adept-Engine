@@ -66,7 +66,7 @@ public:
 	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
 private:
 	void UpdateTransformBufferSize(int NewSize);
-	RHIBuffer * CLightBuffer = nullptr;
+	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	RHIBuffer* CMVBuffer = nullptr;
 	RHIBuffer* GameObjectTransformBuffer = nullptr;
 

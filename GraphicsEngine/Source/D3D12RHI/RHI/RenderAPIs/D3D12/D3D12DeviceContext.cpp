@@ -211,6 +211,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
+	DeviceContext::ResetDeviceAtEndOfFrame();
 	GetTimeManager()->UpdateTimers();
 	GetCommandAllocator()->Reset();
 	GetSharedCommandAllocator()->Reset();
@@ -309,6 +310,7 @@ void D3D12DeviceContext::ResetCopyEngine()
 	{
 		GPUCopyList->ResetList();
 	}
+	
 }
 
 void D3D12DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * list)

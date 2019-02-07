@@ -7,6 +7,7 @@
 #include "Rendering/Shaders/Shader_Main.h"
 #include "RHI/DeviceContext.h"
 #include "SceneRenderer.h"
+#include "Core/Platform/PlatformCore.h"
 #define SINGLE_GPU_PRESAMPLE 0
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
@@ -22,7 +23,6 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	ShadowPreSampleShader = ShaderComplier::GetShader<Shader_ShadowSample>();
 	SetupOnDevice(RHI::GetDeviceContext(0));
 	SetupOnDevice(RHI::GetDeviceContext(1));
-
 }
 
 ShadowRenderer::~ShadowRenderer()
@@ -88,7 +88,7 @@ void ShadowRenderer::SetupOnDevice(DeviceContext * Context)
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = ShadowPreSampleShader;
 	desc.RenderTargetDesc.NumRenderTargets = 1;
-	desc.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
+	desc.RenderTargetDesc.RTVFormats[0] = GetPreSampledTextureFormat();
 	desc.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
 	Objects->ShadowPreSamplingList->SetPipelineStateDesc(desc);
 }
@@ -111,7 +111,7 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, c
 void ShadowRenderer::RenderOnDevice(DeviceContext* con, const std::vector<GameObject*>& ShadowObjects)
 {
 	DeviceShadowObjects* Object = &DSOs[con->GetDeviceIndex()];
-	if (ShadowingDirectionalLights.size() > 0)
+	if (ShadowingDirectionalLights.size() > 0 && false)
 	{
 		Object->DirectionalShadowList->ResetList();
 		Object->DirectionalShadowList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(Object->DirectionalShadowList);
@@ -145,12 +145,19 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 	SCOPE_CYCLE_COUNTER("PreSampleShadows");
 	list->ResetList();
 	list->StartTimer(EGPUTIMERS::ShadowPreSample);
-	for (int SNum = 0; SNum < (int)ShadowingPointLights.size(); SNum++)
+	int SampledLightInteractions = 0;
+	for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
 	{
 		if (!LightInteractions[SNum]->NeedsSample)
 		{
 			continue;
 		}
+		if (LightInteractions[SNum]->DeviceIndex != list->GetDeviceIndex())
+		{
+			continue;
+		}
+		ensure(SampledLightInteractions < RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS);
+		SampledLightInteractions++;
 		int Constant = SNum;
 		list->SetRootConstant(Shader_ShadowSample::PreSampleCBV, 1, &Constant, 0);
 		list->SetFrameBufferTexture(LightInteractions[SNum]->ShadowMap, Shader_ShadowSample::ShadowSRV);
@@ -175,11 +182,18 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 		list->SetRenderTarget(nullptr);
 	}
 	list->EndTimer(EGPUTIMERS::ShadowPreSample);
-	list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
+	if (RHI::GetMGPUMode()->SplitShadowWork && !RHI::GetMGPUMode()->MainPassSFR && list->GetDeviceIndex() != 0)
+	{
+		list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
+	}
 	list->Execute();
-	for (int SNum = 0; SNum < (int)ShadowingPointLights.size(); SNum++)
+	for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
 	{
 		if (!LightInteractions[SNum]->NeedsSample)
+		{
+			continue;
+		}
+		if (LightInteractions[SNum]->DeviceIndex != list->GetDeviceIndex())
 		{
 			continue;
 		}
@@ -266,7 +280,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, const std::
 			}
 			ShadowObjects[i]->Render(true, list);
 		}
-		//list->SetRenderTarget(nullptr);
+		list->SetRenderTarget(nullptr);
 	}
 }
 
@@ -291,7 +305,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 	{
 		for (int i = 0; i < LightInteractions.size(); i++)
 		{
-			if (LightInteractions[i]->lightPtr->ExecOnAlt && LightInteractions[i]->PreSampledBuffer != nullptr)
+			if (LightInteractions[i]->PreSampledBuffer != nullptr)
 			{
 				list->SetFrameBufferTexture(LightInteractions[i]->PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
 			}
@@ -346,14 +360,12 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 		}
 	}
-	//if (RHI::GetMGPUMode()->SplitShadowWork)
+	if (RHI::GetMGPUMode()->SplitShadowWork)
 	{
-		//ShadowingPointLights[0]->ExecOnAlt = true;
+		//ShadowingPointLights[1]->GPUShadowResidentMask[1] = true;
+		//ShadowingPointLights[1]->GPUShadowCopyDeviceTarget[1] = 0;
 		ShadowingPointLights[0]->GPUShadowResidentMask[1] = true;
-		for (int i = 0; i < 4; i++)
-		{
-			//ShadowingPointLights[i]->GPUShadowResidentMask[1] = true;
-		}
+		ShadowingPointLights[0]->GPUShadowCopyDeviceTarget[1] = 0;
 	}
 
 	//removes all refs to any buffer we had last frame!
@@ -386,20 +398,21 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 				SafeDelete(sli);
 				continue;
 			}
-			if (ShadowingPointLights[spli]->GPUShadowResidentMask[i])
+			if (DSOs[i].ShadowCubeArray != nullptr)
 			{
-				if (DSOs[i].ShadowCubeArray != nullptr)
+				if (ShadowingPointLights[spli]->GPUShadowResidentMask[i])
 				{
 					DSOs[i].ShadowCubeArray->AddFrameBufferBind(sli->ShadowMap, spli);
 				}
-			}
-			else
-			{
-				if (DSOs[i].ShadowCubeArray != nullptr)
+				else
 				{
 					DSOs[i].ShadowCubeArray->SetIndexNull(spli, sli->ShadowMap);
 				}
-				sli->SetupCopy(RHI::GetDeviceContext(0));
+			}
+			const int Device_CopyTarget = ShadowingPointLights[spli]->GPUShadowCopyDeviceTarget[i];
+			if (Device_CopyTarget != -1 && Device_CopyTarget != i)//Set and not Current device
+			{
+				sli->SetupCopy(RHI::GetDeviceContext(Device_CopyTarget));
 			}
 			sli->lightPtr = ShadowingPointLights[spli];
 			LightInteractions.push_back(sli);
@@ -424,7 +437,7 @@ void ShadowRenderer::Unbind(RHICommandList * list)
 	{
 		for (int i = 0; i < LightInteractions.size(); i++)
 		{
-			if (LightInteractions[i]->lightPtr->ExecOnAlt && LightInteractions[i]->PreSampledBuffer != nullptr)
+			if (LightInteractions[i]->PreSampledBuffer != nullptr/* && LightInteractions[i]->DeviceIndex == list->GetDeviceIndex()*/)
 			{
 				LightInteractions[i]->PreSampledBuffer->MakeReadyForCopy(list);
 			}
@@ -470,23 +483,25 @@ void ShadowRenderer::ShadowLightInteraction::SetupCopy(DeviceContext * TargetDev
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColourDepth(size, size);
 		desc.IsShared = true;
 		desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
-		const int MaxShadows = RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS;
-		if (MaxShadows == 1)
-		{
-			desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
-		}
-		else if (MaxShadows == 2)
-		{
-			desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8_UNORM;
-		}
-		else  if (MaxShadows >= 3)
-		{
-			//todo: don't copy alpha channel of 3 lights !
-			desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-		}
+		desc.RTFormats[0] = ShadowRenderer::GetPreSampledTextureFormat();
 		PreSampledBuffer = RHI::CreateFrameBuffer(DevContext, desc);
 #endif
 	}
+}
+
+eTEXTURE_FORMAT ShadowRenderer::GetPreSampledTextureFormat()
+{
+	const int MaxShadows = RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS;
+	if (MaxShadows == 1)
+	{
+		return eTEXTURE_FORMAT::FORMAT_R8_UNORM;
+	}
+	else if (MaxShadows == 2)
+	{
+		return  eTEXTURE_FORMAT::FORMAT_R8G8_UNORM;
+	}
+	//todo: don't copy alpha channel of 3 lights !
+	return eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
 }
 
 bool ShadowRenderer::ShadowLightInteraction::IsResident(DeviceContext * dev) const
@@ -495,7 +510,7 @@ bool ShadowRenderer::ShadowLightInteraction::IsResident(DeviceContext * dev) con
 }
 
 void DeviceShadowObjects::Release()
-{	
+{
 	EnqueueSafeRHIRelease(GeometryProjections);
 	EnqueueSafeRHIRelease(ShadowCubeArray);
 	EnqueueSafeRHIRelease(ShadowDirectionalArray);

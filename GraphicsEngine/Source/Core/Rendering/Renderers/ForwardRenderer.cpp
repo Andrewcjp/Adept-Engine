@@ -119,10 +119,10 @@ void ForwardRenderer::CubeMapPass()
 void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 {
 	Cmdlist->ResetList();
-	if (Cmdlist->GetDeviceIndex() == 1)
-	{
-		Cmdlist->GetDevice()->GetTimeManager()->StartTotalGPUTimer(Cmdlist);
-	}
+	//if (Cmdlist->GetDeviceIndex() == 1)
+	//{
+	//	Cmdlist->GetDevice()->GetTimeManager()->StartTotalGPUTimer(Cmdlist);
+	//}
 	Cmdlist->GetDevice()->GetTimeManager()->StartTimer(Cmdlist, EGPUTIMERS::MainPass);
 	if (Cmdlist->GetDeviceIndex() == 0)
 	{
