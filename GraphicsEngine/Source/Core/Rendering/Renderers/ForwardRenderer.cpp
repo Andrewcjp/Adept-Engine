@@ -157,10 +157,6 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	{
 		DeviceObjects[1].FrameBuffer->MakeReadyForCopy(Cmdlist);
 	}
-	if (Cmdlist->GetDeviceIndex() == 1)
-	{
-		Cmdlist->GetDevice()->GetTimeManager()->EndTotalGPUTimer(Cmdlist);
-	}
 	FilterBuffer->MakeReadyForCopy(Cmdlist);
 	Cmdlist->Execute();
 
@@ -168,7 +164,6 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	{
 		ParticleSystemManager::Get()->Render(FilterBuffer);
 	}
-
 }
 
 void ForwardRenderer::RenderSkybox()

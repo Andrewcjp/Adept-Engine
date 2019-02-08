@@ -305,7 +305,7 @@ void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, Fram
 {
 	D3D12FrameBuffer * DPassBuffer = (D3D12FrameBuffer*)PassThrough;
 	ID3D12GraphicsCommandList* list = ((D3D12CommandList*)List)->GetCommandList();
-
+	((D3D12CommandList*)List)->CurrentRenderTarget = DPassBuffer;
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
 	if (DPassBuffer->RenderTarget[0])
@@ -317,6 +317,7 @@ void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, Fram
 		DepthStencil->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
 	list->OMSetRenderTargets(DPassBuffer->BufferDesc.RenderTargetCount, &DPassBuffer->RTVHeap->GetCPUAddress(0), true, &DSVHeap->GetCPUAddress(0));
+
 }
 
 DeviceContext * D3D12FrameBuffer::GetTargetDevice()

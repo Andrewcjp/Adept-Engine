@@ -124,6 +124,7 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	{
 		return;
 	}
+	ensure(Target->GetDescription().IsShared);
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	HostDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();

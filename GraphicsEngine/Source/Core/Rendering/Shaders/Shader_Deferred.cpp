@@ -13,11 +13,11 @@ Shader_Deferred::Shader_Deferred(class DeviceContext* dev) :Shader(dev)
 		1.0f, -1.0f, 0.0f,0.0f,
 		1.0f,  1.0f, 0.0f,0.0f,
 	};
-	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex,dev);
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 
-	//Initialise shader
+	//Initialize shader
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));

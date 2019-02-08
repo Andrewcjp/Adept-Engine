@@ -59,7 +59,7 @@ public:
 
 
 	virtual void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
-
+	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 private:
 	std::string GetPSOHash(Shader * shader, const PipeLineState& statedesc);
 	void PushPrimitiveTopology();
@@ -73,7 +73,7 @@ private:
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
 	class D3D12Texture* Texture = nullptr;
-	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
+	
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 
 	ID3D12CommandSignature* CommandSig = nullptr;

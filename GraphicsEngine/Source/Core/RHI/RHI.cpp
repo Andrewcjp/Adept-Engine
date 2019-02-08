@@ -356,14 +356,6 @@ void RHI::InitialiseContext()
 void RHI::ValidateSettings()
 {
 	CurrentMGPUMode.ValidateSettings();
-	if (CurrentMGPUMode.SplitShadowWork)
-	{
-		//ensureMsgf(RenderSettings.IsDeferred, "Multigpu shadows only supported on Deferred renderer");
-	}
-	if (CurrentMGPUMode.MainPassSFR)
-	{
-		ensureMsgf(!RenderSettings.IsDeferred, "SFR only supported in forward rendering mode");
-	}
 }
 
 void RHI::InitialiseContextWindow(int w, int h)
