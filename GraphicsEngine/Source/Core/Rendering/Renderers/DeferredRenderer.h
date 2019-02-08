@@ -6,12 +6,22 @@
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/Shaders/Shader_SSAO.h"
 #include "Rendering/Core/FrameBuffer.h"
+struct DeferredDeviceObjects
+{
+	FrameBuffer* GFrameBuffer = nullptr;
+	RHICommandList* WriteList = nullptr;
+	RHICommandList* LightingList = nullptr;
+	FrameBuffer*	OutputBuffer = nullptr;
+	Shader_Deferred* DeferredShader = nullptr;
+};
 
 class DeferredRenderer :public RenderEngine
 {
 public:
 	void OnRender() override;
+	void RenderOnDevice(DeviceContext * con);
 	void PostInit()override;
+	void SetUpOnDevice(DeviceContext * con);
 	DeferredRenderer(int width, int height) :RenderEngine(width, height)
 	{}
 	virtual ~DeferredRenderer();
@@ -20,17 +30,16 @@ public:
 	virtual void FinaliseRender() override;
 	virtual void OnStaticUpdate() override;
 private:
-	void GeometryPass();
-	void LightingPass();
+	void GeometryPass(RHICommandList* List);
+	void LightingPass(RHICommandList* List);
 	void SSAOPass();
-	void RenderSkybox();
+	void RenderSkybox(DeviceContext* con);
 	Shader_WDeferred* DeferredWriteShader = nullptr;
-	Shader_Deferred* DeferredShader = nullptr;
-	FrameBuffer* GFrameBuffer = nullptr;
-	RHICommandList* WriteList = nullptr;
-	RHICommandList* LightingList = nullptr;
+	
+
 	bool once = true;
-	FrameBuffer*	OutputBuffer = nullptr;
+
 	Shader_SSAO*	SSAOShader;
+	DeferredDeviceObjects DDDOs[MAX_GPU_DEVICE_COUNT];
 };
 
