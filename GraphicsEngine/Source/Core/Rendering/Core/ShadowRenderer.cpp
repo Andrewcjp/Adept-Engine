@@ -91,7 +91,7 @@ void ShadowRenderer::SetupOnDevice(DeviceContext * Context)
 	desc.RenderTargetDesc.RTVFormats[0] = GetPreSampledTextureFormat();
 	desc.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
 	Objects->ShadowPreSamplingList->SetPipelineStateDesc(desc);
-	if (Context->GetDeviceIndex() == 1)
+	if (Context->GetDeviceIndex() == 1 || DeviceZeroNeedsPreSample)
 	{
 		InitPreSampled(Context, RHI::GetDefaultDevice());
 	}
@@ -499,20 +499,23 @@ ShadowRenderer::ShadowLightInteraction::~ShadowLightInteraction()
 {
 	SafeDelete(Shader);
 	EnqueueSafeRHIRelease(ShadowMap);
-	//EnqueueSafeRHIRelease(PreSampledBuffer);
 }
 
 void ShadowRenderer::ShadowLightInteraction::SetupCopy(DeviceContext * TargetDev)
 {
-#if !SINGLE_GPU_PRESAMPLE
-	if (DevContext->GetDeviceIndex() != 0)
-#endif
+	if (TargetDev->GetDeviceIndex() == 0)
 	{
 		NeedsSample = true;
 	}
 }
+
 void ShadowRenderer::InitPreSampled(DeviceContext* dev, DeviceContext* Targetdev)
 {
+	if (DSOs[dev->GetDeviceIndex()].PreSampledBuffer != nullptr)
+	{
+		RHI::RemoveLinkedFrameBuffer(DSOs[dev->GetDeviceIndex()].PreSampledBuffer);
+		EnqueueSafeRHIRelease(DSOs[dev->GetDeviceIndex()].PreSampledBuffer);
+	}
 	const int size = 512;
 	RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColourDepth(size, size);
 	desc.IsShared = true;
@@ -550,5 +553,5 @@ void DeviceShadowObjects::Release()
 	EnqueueSafeRHIRelease(PointLightShadowList);
 	EnqueueSafeRHIRelease(DirectionalShadowList);
 	EnqueueSafeRHIRelease(ShadowPreSamplingList);
-
+	EnqueueSafeRHIRelease(PreSampledBuffer);
 }

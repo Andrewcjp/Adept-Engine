@@ -7,7 +7,7 @@
 Log::StreamWrapper Log::OutS;
 Log* Log::Instance = nullptr;
 
-CORE_API  void Log::LogOutput(std::string data, int colour, bool ForceFlush /*= false*/)
+CORE_API void Log::LogOutput(std::string data, int colour, bool ForceFlush /*= false*/)
 {
 	if (Instance == nullptr)
 	{
@@ -18,9 +18,25 @@ CORE_API  void Log::LogOutput(std::string data, int colour, bool ForceFlush /*= 
 	{
 		Instance->FlushToLogFile();
 	}
-	PlatformMisc::LogPlatformOutput(data);
+	PlatformMisc::LogPlatformOutput(data); 
 	PlatformMisc::SetConsoleOutputColour(colour);
 	printf(data.c_str());
+}
+
+void Log::LogBoolTerm(std::string PreText, bool value, int ForceOffset)
+{
+	LogOutput(PreText, 7);
+	if (ForceOffset != -1)
+	{
+		const int NeededPad = ForceOffset - (int)PreText.size();
+		if (NeededPad > 0)
+		{
+			std::string Pad = std::string(NeededPad, ' ');
+			LogOutput(Pad, 7);
+		}
+	}
+	LogOutput("[" + StringUtils::BoolToString(value) + "]", value ? 2 : 4);
+	LogOutput("\n", 7);
 }
 
 void Log::LogMessage(std::string msg, Severity s)

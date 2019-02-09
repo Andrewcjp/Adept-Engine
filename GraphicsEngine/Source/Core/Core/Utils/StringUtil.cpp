@@ -72,3 +72,8 @@ std::string StringUtils::ToStringFloat(float value, int Places /*= 2*/)
 	stream << std::fixed << std::setprecision(Places) << value;
 	return stream.str();
 }
+
+std::string StringUtils::BoolToString(bool value)
+{
+	return value ? "enabled" : "disabled";
+}

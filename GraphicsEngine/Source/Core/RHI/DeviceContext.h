@@ -7,7 +7,7 @@ struct CapabilityData
 {
 	bool SupportsCopyTimeStamps = false;
 };
-const int COPYLIST_POOL_SIZE = 4;
+const int COPYLIST_MAX_POOL_SIZE = 4;
 class RHI_API DeviceContext
 {
 public:
@@ -64,7 +64,7 @@ protected:
 	GPUStateCache* StateCache = nullptr;
 	uint VendorID = 0;
 	int CopyListPoolFreeIndex = 0;
-	RHICommandList* CopyListPool[COPYLIST_POOL_SIZE] = {nullptr};
+	RHICommandList* CopyListPool[COPYLIST_MAX_POOL_SIZE] = {nullptr};
 };
 
 class RHIGPUSyncEvent

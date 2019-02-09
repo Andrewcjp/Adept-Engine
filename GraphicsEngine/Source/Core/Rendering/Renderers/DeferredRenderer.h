@@ -13,6 +13,7 @@ struct DeferredDeviceObjects
 	RHICommandList* LightingList = nullptr;
 	FrameBuffer*	OutputBuffer = nullptr;
 	Shader_Deferred* DeferredShader = nullptr;
+	void Release();
 };
 
 class DeferredRenderer :public RenderEngine

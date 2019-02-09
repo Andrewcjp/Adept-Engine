@@ -9,4 +9,6 @@ namespace StringUtils
 	CORE_API std::vector<std::string> Split(std::string Target, char c);
 	CORE_API const char* CopyStringToCharArray(std::string String);
 	CORE_API std::string ToStringFloat(float value, int Places = 2);
+	CORE_API std::string BoolToString(bool value);
+
 }

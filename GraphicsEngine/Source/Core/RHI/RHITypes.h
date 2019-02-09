@@ -380,6 +380,7 @@ public:
 	glm::vec4 ScissorRect = glm::vec4();
 	bool IncludedInSFR = false;
 	float LinkToBackBufferScaleFactor = 1.0f;
+	int SFR_FullWidth = 0;
 };
 
 class RHI_API IRHIResourse
@@ -447,6 +448,14 @@ template <class T>
 class IRHISharedDeviceObject
 {
 public:
+	virtual ~IRHISharedDeviceObject()
+	{
+		for (int i = 0; i < SharedObjects.size(); i++)
+		{
+			EnqueueSafeRHIRelease(SharedObjects[i]);
+		}
+	}
+	//Todo: ref count both sides for now just link
 	void RegisterOtherDeviceTexture(T * Other)
 	{
 		SharedObjects.push_back(Other);

@@ -20,6 +20,13 @@ RenderEngine::RenderEngine(int width, int height)
 RenderEngine::~RenderEngine()
 {
 	DestoryRenderWindow();
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		if (i != 0)
+		{
+			DDOs[i].Release();
+		}
+	}
 	SafeDelete(SceneRender);
 	SafeDelete(mShadowRenderer);
 	SafeDelete(Post);
@@ -165,7 +172,8 @@ void RenderEngine::PrepareData()
 void RenderEngine::Resize(int width, int height)
 {
 	Post->Resize(FilterBuffer);
-	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << Log::OutS;
+	int ApoxPValue = glm::iround((float)GetScaledWidth() / (16.0f / 9.0f));
+	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() <<" approx: "<<ApoxPValue<<"P "<< Log::OutS;
 }
 
 void RenderEngine::StaticUpdate()
@@ -274,4 +282,15 @@ void RenderEngine::HandleCameraResize()
 Shader * RenderEngine::GetMainShader()
 {
 	return MainShader;
+}
+
+DeviceDependentObjects::~DeviceDependentObjects()
+{
+	SafeDelete(SkyboxShader);
+}
+
+void DeviceDependentObjects::Release()
+{
+	SafeDelete(EnvMap);
+	SafeDelete(ConvShader);
 }

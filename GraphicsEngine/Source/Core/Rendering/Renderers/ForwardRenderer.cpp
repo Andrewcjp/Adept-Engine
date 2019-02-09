@@ -1,7 +1,6 @@
 #include "ForwardRenderer.h"
 #include "RHI/RHI.h"
 #include "Core/Components/MeshRendererComponent.h"
-
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "Core/Engine.h"
 #include "RHI/DeviceContext.h"
@@ -10,6 +9,9 @@
 #include "Rendering/Core/RelfectionProbe.h"
 #include "Editor/EditorWindow.h"
 #include "Editor/EditorCore.h"
+#include "Rendering/Shaders/Generation/Shader_Convolution.h"
+#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
+
 #define CUBEMAPS 0
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
@@ -21,6 +23,10 @@ void ForwardRenderer::Resize(int width, int height)
 	m_width = width;
 	m_height = height;
 	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+	if (DeviceObjects[1].FrameBuffer != nullptr)
+	{
+		DeviceObjects[1].FrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+	}
 	HandleCameraResize();
 	RenderEngine::Resize(width, height);
 }
@@ -44,8 +50,6 @@ void ForwardRenderer::OnRender()
 	PostProcessPass();
 }
 
-#include "Rendering/Shaders/Generation/Shader_Convolution.h"
-#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 void ForwardRenderer::PostInit()
 {
 
@@ -73,7 +77,6 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 		Desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 	}
 	DeviceObjects[TargetDevice->GetDeviceIndex()].FrameBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
-	//SkyBox = ShaderComplier::GetShader<Shader_Skybox>();
 	DDOs[TargetDevice->GetDeviceIndex()].SkyboxShader = new Shader_Skybox(TargetDevice);
 	DDOs[TargetDevice->GetDeviceIndex()].SkyboxShader->Init(DeviceObjects[TargetDevice->GetDeviceIndex()].FrameBuffer, nullptr);
 	DeviceObjects[TargetDevice->GetDeviceIndex()].MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
@@ -177,8 +180,12 @@ void ForwardRenderer::RenderSkybox()
 
 void ForwardRenderer::DestoryRenderWindow()
 {
-	EnqueueSafeRHIRelease(DeviceObjects[0].MainCommandList);
-	EnqueueSafeRHIRelease(DeviceObjects[1].MainCommandList);
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		EnqueueSafeRHIRelease(DeviceObjects[i].MainCommandList);
+		EnqueueSafeRHIRelease(DeviceObjects[i].FrameBuffer);
+	}
+	FilterBuffer = nullptr;
 	EnqueueSafeRHIRelease(CubemapCaptureList);
 }
 

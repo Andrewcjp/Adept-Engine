@@ -12,7 +12,7 @@ GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalSt
 	AddCheckerRef(GPUResource, this);
 	resource = Target;
 	SetName(L"GPU Resource");
-	SetDebugName("GPU Reouse");
+	SetDebugName("GPU Resource");
 	CurrentResourceState = InitalState;
 	Device = (D3D12DeviceContext*)device;
 }
@@ -85,6 +85,10 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList* List, D3D12_RESOUR
 {
 	if (newstate != CurrentResourceState)
 	{
+#if LOG_RESOURCE_TRANSITIONS
+		Log::LogMessage("GPU" + std::to_string(Device->GetDeviceIndex()) + ": Transition: Resource \"" + std::string(GetDebugName()) + "\" From " +
+			D3D12Helpers::ResouceStateToString(CurrentResourceState) + " TO " + D3D12Helpers::ResouceStateToString(newstate));
+#endif
 		List->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
 		CurrentResourceState = newstate;
 		TargetState = newstate;

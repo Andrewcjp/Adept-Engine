@@ -281,7 +281,8 @@ void D3D12CommandList::PushState()
 				CurrentCommandList->SetComputeRootSignature(DPSO->RootSig);
 			}
 		}
-	}
+	}	
+
 }
 
 std::string D3D12CommandList::GetPSOHash(Shader * shader, const PipeLineState& statedesc)
@@ -748,7 +749,7 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 		D3D12_RESOURCE_STATE_COPY_DEST, // start in the copy destination state
 		nullptr, // optimized clear value must be null for this type of resource
 		IID_PPV_ARGS(&TempRes)));
-	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_COPY_DEST);
+	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_COPY_DEST, Device);
 	// we can give resource heaps a name so when we debug with the graphics debugger we know what resource we are looking at
 
 	// create upload heap to upload index buffer
@@ -775,7 +776,7 @@ void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&TempRes)));
-	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_GENERIC_READ);
+	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_GENERIC_READ, Device);
 	PostUploadState = D3D12_RESOURCE_STATE_GENERIC_READ;
 }
 static inline UINT AlignForUavCounter(UINT bufferSize)
@@ -805,7 +806,7 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 			nullptr,
 			IID_PPV_ARGS(&TempRes)));
-		m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, Device);
 	}
 	else if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
