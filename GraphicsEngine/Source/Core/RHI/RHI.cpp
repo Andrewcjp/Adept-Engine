@@ -188,6 +188,11 @@ SFRController * RHI::GetSplitController()
 	return instance->SFR_Controller;
 }
 
+void RHI::FlushDeferredDeleteQueue()
+{
+	Get()->TickDeferredDeleteQueue(true);
+}
+
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 	//ensure(!Resource->IsPendingKill());
@@ -412,6 +417,11 @@ void RHI::AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize /*= false*/)
 			}
 		}
 	}
+}
+
+void RHI::RemoveLinkedFrameBuffer(FrameBuffer * target)
+{
+	VectorUtils::Remove(instance->FrameBuffersLinkedToSwapChain, target);
 }
 
 void RHI::ResizeSwapChain(int width, int height)

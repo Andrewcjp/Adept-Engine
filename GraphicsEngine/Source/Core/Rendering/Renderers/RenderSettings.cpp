@@ -5,7 +5,7 @@ static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly
 static ConsoleVariable AsyncShadow("AsyncShadow", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitPS("SplitPS", false, ECVarType::LaunchOnly);
 static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOnExCard", true, ECVarType::LaunchOnly);
-
+static ConsoleVariable SFRSplitShadowsVar("SFRSplitShadows", true, ECVarType::LaunchOnly);
 MultiGPUMode::MultiGPUMode()
 {
 	UseSFR.SetValue(true);
@@ -14,10 +14,6 @@ MultiGPUMode::MultiGPUMode()
 	SyncSettings();
 }
 
-std::string BoolToString(bool value)
-{
-	return value ? "enabled" : "disabled";
-}
 
 void MultiGPUMode::SyncSettings()
 {
@@ -25,7 +21,8 @@ void MultiGPUMode::SyncSettings()
 	SplitShadowWork = SplitShadows.GetBoolValue();
 	AsyncShadows = AsyncShadow.GetBoolValue();
 	PSComputeWorkSplit = SplitPS.GetBoolValue();
-	ComputePerFrameShadowDataOnExCard = PreComputePerFrameShadowData.GetBoolValue();		
+	ComputePerFrameShadowDataOnExCard = PreComputePerFrameShadowData.GetBoolValue();
+	SFRSplitShadows = SFRSplitShadowsVar.GetBoolValue();
 }
 
 void MultiGPUMode::ValidateSettings()
@@ -38,10 +35,12 @@ void MultiGPUMode::ValidateSettings()
 		PSComputeWorkSplit = false;
 		AsyncShadows = false;
 	}
-	Log::LogMessage("SFR " + BoolToString(MainPassSFR));
-	Log::LogMessage("Split shadows " + BoolToString(SplitShadowWork));
-	Log::LogMessage("AsyncShadows " + BoolToString(AsyncShadows));
-	Log::LogMessage("Particle System MultiGPU " + BoolToString(PSComputeWorkSplit));
+	int Offset = 30;
+	Log::LogBoolTerm("SFR ", MainPassSFR, Offset);
+	Log::LogBoolTerm("Split shadows ", SplitShadowWork, Offset);
+	Log::LogBoolTerm("Split SFR shadows ", SFRSplitShadows, Offset);
+	Log::LogBoolTerm("Async Shadows ", AsyncShadows, Offset);
+	Log::LogBoolTerm("Particle System MultiGPU ", PSComputeWorkSplit, Offset);
 }
 
 RenderSettings::RenderSettings()
@@ -53,7 +52,7 @@ RenderSettings::RenderSettings()
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
-	RenderScale = 1.0f;
+	RenderScale = 2.0f;
 }
 
 RenderConstants::RenderConstants()

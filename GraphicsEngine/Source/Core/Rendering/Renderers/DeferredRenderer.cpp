@@ -1,15 +1,11 @@
 #include "DeferredRenderer.h"
-#include "Rendering/Core/Mesh.h"
-#include "RHI/RHI.h"
-#include "Core/Components/MeshRendererComponent.h"
 #include "Core/Assets/Scene.h"
-#include "Rendering/PostProcessing/PostProcessing.h"
+#include "Core/Components/MeshRendererComponent.h"
 #include "Editor/Editor_Camera.h"
-#include "Rendering\Shaders\Shader_Skybox.h"
-#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
-#include "Rendering/Shaders/Generation/Shader_Convolution.h"
-#include "RHI/DeviceContext.h"
 #include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
+#include "Rendering/Shaders/Shader_Skybox.h"
+#include "RHI/DeviceContext.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -188,10 +184,10 @@ DeferredRenderer::~DeferredRenderer()
 
 void DeferredRenderer::DestoryRenderWindow()
 {
-	//EnqueueSafeRHIRelease(GFrameBuffer);
-	//EnqueueSafeRHIRelease(WriteList);
-	//EnqueueSafeRHIRelease(LightingList);
-//	EnqueueSafeRHIRelease(OutputBuffer);
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		DDDOs[i].Release();
+	}
 }
 
 void DeferredRenderer::FinaliseRender()
@@ -199,3 +195,11 @@ void DeferredRenderer::FinaliseRender()
 
 void DeferredRenderer::OnStaticUpdate()
 {}
+
+void DeferredDeviceObjects::Release()
+{
+	EnqueueSafeRHIRelease(GFrameBuffer);
+	EnqueueSafeRHIRelease(WriteList);
+	EnqueueSafeRHIRelease(LightingList);
+	EnqueueSafeRHIRelease(OutputBuffer);
+}

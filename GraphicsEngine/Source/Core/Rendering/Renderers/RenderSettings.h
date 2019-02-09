@@ -36,6 +36,7 @@ struct MultiGPUMode
 	bool PSComputeWorkSplit = false;
 	bool AsyncShadows = false;
 	int MAX_PRESAMPLED_SHADOWS = 1;
+	bool SFRSplitShadows = false;
 	void ValidateSettings();
 };
 //Props Are Set in the Constructor 

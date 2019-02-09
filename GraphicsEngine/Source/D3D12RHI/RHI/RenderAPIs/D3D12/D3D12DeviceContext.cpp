@@ -20,6 +20,7 @@ D3D12DeviceContext::D3D12DeviceContext()
 
 D3D12DeviceContext::~D3D12DeviceContext()
 {
+	DestoryDevice();
 	SafeRelease(m_MainCommandQueue);
 
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
@@ -239,7 +240,8 @@ std::string D3D12DeviceContext::GetMemoryReport()
 
 void D3D12DeviceContext::DestoryDevice()
 {
-
+	DeviceContext::DestoryDevice();
+	RHI::FlushDeferredDeleteQueue();
 }
 
 void D3D12DeviceContext::WaitForGpu()

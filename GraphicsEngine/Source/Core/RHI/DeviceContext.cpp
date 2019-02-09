@@ -16,19 +16,17 @@ DeviceContext::~DeviceContext()
 	SafeDelete(PSOCache);
 }
 
-
 void DeviceContext::ResetDeviceAtEndOfFrame()
 {
-	CopyListPoolFreeIndex = 0;
-	/*if (CurrentFrameIndex == 0)
-	{
-		GetTimeManager()->UpdateTimers();
-	}*/
+	CopyListPoolFreeIndex = 0;//reset the copy pool indexer
 }
 
 void DeviceContext::DestoryDevice()
-{
-
+{ 
+	for (int i = 0; i < COPYLIST_MAX_POOL_SIZE; i++)
+	{
+		EnqueueSafeRHIRelease(CopyListPool[i]);
+	}
 }
 
 const CapabilityData & DeviceContext::GetCaps()
@@ -97,7 +95,7 @@ bool DeviceContext::IsDeviceIntel()
 
 RHICommandList * DeviceContext::GetCopyList(int Index)
 {
-	if (Index < 0 || Index > COPYLIST_POOL_SIZE)
+	if (Index < 0 || Index > COPYLIST_MAX_POOL_SIZE)
 	{
 		ensure(false);
 		return nullptr;

@@ -251,29 +251,24 @@ RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue
 
 void D3D12RHI::CreateSwapChainRTs()
 {
-	// Create frame resources.
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+	// Create a RTV for each frame.
+	for (UINT n = 0; n < RHI::CPUFrameCount; n++)
 	{
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-
-		// Create a RTV for each frame.
-		for (UINT n = 0; n < RHI::CPUFrameCount; n++)
-		{
-			ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_SwaprenderTargets[n])));
-			GetDisplayDevice()->CreateRenderTargetView(m_SwaprenderTargets[n], nullptr, rtvHandle);
-			m_RenderTargetResources[n] = new GPUResource(m_SwaprenderTargets[n], D3D12_RESOURCE_STATE_PRESENT);
-			rtvHandle.Offset(1, m_rtvDescriptorSize);
-		}
-		NAME_D3D12_OBJECT(m_SwaprenderTargets[1]);
-		NAME_D3D12_OBJECT(m_SwaprenderTargets[0]);
-
+		ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_SwaprenderTargets[n])));
+		GetDisplayDevice()->CreateRenderTargetView(m_SwaprenderTargets[n], nullptr, rtvHandle);
+		m_RenderTargetResources[n] = new GPUResource(m_SwaprenderTargets[n], D3D12_RESOURCE_STATE_PRESENT, RHI::GetDefaultDevice());
+		rtvHandle.Offset(1, m_rtvDescriptorSize);
 	}
+	NAME_D3D12_OBJECT(m_SwaprenderTargets[1]);
+	NAME_D3D12_OBJECT(m_SwaprenderTargets[0]);
 }
 
 void D3D12RHI::ReleaseSwapRTs()
 {
 	for (UINT n = 0; n < RHI::CPUFrameCount; n++)
 	{
-		delete m_RenderTargetResources[n];
+		SafeDelete(m_RenderTargetResources[n]);
 	}
 	SafeRelease(m_depthStencil);
 }
@@ -290,7 +285,7 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 		ReleaseSwapRTs();
 		if (ScreenShotter != nullptr)
 		{
-			delete ScreenShotter;
+			SafeDelete(ScreenShotter);
 		}
 		ThrowIfFailed(m_swapChain->ResizeBuffers(RHI::CPUFrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 		CreateSwapChainRTs();
@@ -520,6 +515,9 @@ void D3D12RHI::PresentFrame()
 	{
 		HasSetup = true;
 	}
+#if LOG_RESOURCE_TRANSITIONS
+	Log::LogMessage("-----Frame END------");
+#endif
 }
 
 void D3D12RHI::ClearRenderTarget(ID3D12GraphicsCommandList* MainList)

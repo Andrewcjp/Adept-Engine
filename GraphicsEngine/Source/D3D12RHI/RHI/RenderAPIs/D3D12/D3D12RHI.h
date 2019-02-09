@@ -12,6 +12,7 @@
 #include "Core/Utils/RefChecker.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
+
 class D3D12DeviceContext;
 class D3D12RHI : public RHIClass
 {
@@ -77,7 +78,7 @@ private:
 	void RHIRunFirstFrame() override;
 
 	void ResizeSwapChain(int x, int y) override;
-
+	
 private:
 	bool IsFullScreen = false;
 	D3D12DeviceContext * GetPrimaryDevice();

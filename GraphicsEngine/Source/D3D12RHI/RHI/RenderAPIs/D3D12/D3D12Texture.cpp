@@ -238,7 +238,7 @@ bool D3D12Texture::LoadDDS(std::string filename)
 		IID_PPV_ARGS(&textureUploadHeap)));
 	NAME_D3D12_OBJECT(textureUploadHeap);
 	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, (UINT)subresources.size(), subresources.data());
-	TextureResource = new GPUResource(m_texture, D3D12_RESOURCE_STATE_COPY_DEST);
+	TextureResource = new GPUResource(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, Device);
 	m_texture->SetName(L"Loaded Texture");
 	Device->NotifyWorkForCopyEngine();
 	D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(textureUploadHeap);
@@ -324,7 +324,7 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 	Texturedatarray[0] = textureData;
 	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
 
-	TextureResource = new GPUResource(m_texture, D3D12_RESOURCE_STATE_COPY_DEST);
+	TextureResource = new GPUResource(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, Device);
 	D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(textureUploadHeap);
 	Device->NotifyWorkForCopyEngine();
 	m_texture->SetName(L"Texture");

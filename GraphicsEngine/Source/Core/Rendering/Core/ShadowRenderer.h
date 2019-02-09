@@ -38,6 +38,7 @@ public:
 	static eTEXTURE_FORMAT GetPreSampledTextureFormat();
 	void SetupOnDevice(DeviceContext* Context);
 private:
+	bool DeviceZeroNeedsPreSample = false;
 	std::vector<Light*> ShadowingDirectionalLights;
 	std::vector<Light*> ShadowingPointLights;
 

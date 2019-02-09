@@ -14,8 +14,6 @@ FrameBuffer::FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc
 	m_width = BufferDesc.Width;
 	m_height = BufferDesc.Height;
 	HandleInit();
-	//m_width = BufferDesc.Width;
-	//m_height = BufferDesc.Height;
 }
 
 void FrameBuffer::HandleInit()
@@ -24,6 +22,7 @@ void FrameBuffer::HandleInit()
 	BufferDesc.ScissorRect = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
 	if (RHI::GetMGPUMode()->MainPassSFR && BufferDesc.IncludedInSFR)
 	{
+		BufferDesc.SFR_FullWidth = BufferDesc.Width;
 		SFR_Node = RHI::GetSplitController()->GetNode(Device->GetDeviceIndex());
 		BufferDesc.ViewPort = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
 		const float start = BufferDesc.Width*SFR_Node->SFR_Offset;//Offset is in whole buffer space
@@ -31,9 +30,8 @@ void FrameBuffer::HandleInit()
 		const int SFrBufferHeight = glm::iround(BufferDesc.Height*SFR_Node->SFR_VerticalPercentSize);
 		if (Device->GetDeviceIndex() > 0)
 		{
-			BufferDesc.Width = SFrBufferWidth;
-			BufferDesc.Height = SFrBufferHeight;
-		}
+			Log::LogMessage("Sfr Buffer Updated to " + std::to_string(SFrBufferWidth) + "X" + std::to_string(SFrBufferHeight));
+		}		
 		BufferDesc.ScissorRect = glm::ivec4(start, 0, start + SFrBufferWidth, SFrBufferHeight);
 	}
 

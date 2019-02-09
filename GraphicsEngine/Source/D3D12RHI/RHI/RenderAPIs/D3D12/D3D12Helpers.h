@@ -41,6 +41,7 @@ public:
 	{
 		return (size + alignment - 1) & ~(alignment - 1);
 	}
+	static std::string ResouceStateToString(D3D12_RESOURCE_STATES state);
 };
 
 //Used to Copy Back resources for read

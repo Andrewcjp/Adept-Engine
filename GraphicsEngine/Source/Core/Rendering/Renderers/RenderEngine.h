@@ -14,9 +14,11 @@ class Shader_Convolution;
 class Shader_EnvMap;
 struct DeviceDependentObjects
 {
+	~DeviceDependentObjects();
 	Shader_EnvMap* EnvMap = nullptr;
 	Shader_Convolution* ConvShader = nullptr;
 	Shader_Skybox* SkyboxShader = nullptr;
+	void Release();
 };
 class RenderEngine
 {
@@ -34,8 +36,7 @@ public:
 	void PrepareData();
 	virtual void PostInit() = 0;
 	virtual void Resize(int width, int height);
-	virtual void DestoryRenderWindow()
-	{};
+	virtual void DestoryRenderWindow(){};
 	//called on play start and in editor when statics are changed
 	void StaticUpdate();
 	virtual void OnStaticUpdate() = 0;

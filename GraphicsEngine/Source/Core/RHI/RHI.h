@@ -14,6 +14,7 @@ class RHIClass;
 #define PSO_USE_FULL_STRING_MAPS 1
 #define MAX_GPU_DEVICE_COUNT 2
 #define ALLOW_RESOURCE_CAPTURE 0
+#define LOG_RESOURCE_TRANSITIONS 0
 class RHI
 {
 public:
@@ -68,11 +69,13 @@ public:
 	static void WaitForGPU();
 	static const RenderConstants* GetRenderConstants();
 	static void AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize = false);
+	static void RemoveLinkedFrameBuffer(FrameBuffer* target);
 	static RenderSettings* GetRenderSettings();
 	static const MultiGPUMode* GetMGPUMode();
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
 	static RHI* Get();
 	static SFRController* GetSplitController();
+	RHI_API static void FlushDeferredDeleteQueue();
 private:
 	SFRController* SFR_Controller = nullptr;
 	void TickDeferredDeleteQueue(bool Flush = false);

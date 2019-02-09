@@ -118,6 +118,16 @@ void D3D12FrameBuffer::HandleResize()
 	{
 		DepthStencil->Release();
 	}
+	if (OtherDevice != nullptr)
+	{
+		SafeRelease(CrossHeap);
+		SafeRelease(PrimaryRes);
+		SafeRelease(FinalOut);
+		SafeRelease(Stagedres);
+		SafeRelease(SharedSRVHeap);	
+		SafeRelease(TargetCopy);
+		SafeRelease(TWO_CrossHeap);
+	}
 	Init();
 	if (OtherDevice != nullptr)
 	{
@@ -137,7 +147,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	{
 		readFormat = DXGI_FORMAT_R32_FLOAT;
 	}
-	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, m_width, m_height, BufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
+	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, BufferDesc.Width, m_height, BufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
 
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
 	UINT64 pTotalBytes = 0;
@@ -197,10 +207,10 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		nullptr,
 		IID_PPV_ARGS(&FinalOut)
 	));
-
+	
 	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	NAME_RHI_OBJ(SharedSRVHeap);
-	TargetCopy = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST);
+	TargetCopy = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST, OtherDevice);
 	NAME_RHI_OBJ(TargetCopy);
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
 	SrvDesc.Format = readFormat;
@@ -232,7 +242,7 @@ void D3D12FrameBuffer::CopyToHostMemory(ID3D12GraphicsCommandList* list)
 	}
 	TargetResource->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
-	CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width, m_height);
+	CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, BufferDesc.SFR_FullWidth, m_height);
 	const int count = BufferDesc.TextureDepth;
 	for (int i = 0; i < count; i++)
 	{
@@ -264,7 +274,7 @@ void D3D12FrameBuffer::CopyFromHostMemory(ID3D12GraphicsCommandList* list)
 		Host->GetCopyableFootprints(&secondaryAdapterTexture, offset, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
 		CD3DX12_TEXTURE_COPY_LOCATION src(Stagedres, textureLayout);
 		//CD3DX12_BOX box(0, 0, m_width, m_height);
-		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width, m_height);
+		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, BufferDesc.SFR_FullWidth, m_height);
 		list->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x, 0, 0, &src, &box);
 	}
 	PerfManager::EndTimer("MakeReadyOnTarget");
@@ -342,23 +352,23 @@ void D3D12FrameBuffer::Release()
 	if (BufferDesc.NeedsDepthStencil)
 	{
 		DepthStencil->Release();
-		SafeDelete(DSVHeap);
+		SafeRelease(DSVHeap);
 	}
 	SafeRelease(NullHeap);
 	if (BufferDesc.RenderTargetCount > 0)
 	{
-		SafeDelete(RTVHeap);
+		SafeRelease(RTVHeap);
 	}
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
 		RenderTarget[i]->Release();
 	}
-	SafeDelete(SrvHeap);
+	SafeRelease(SrvHeap);
 	SafeRelease(PrimaryRes);
 	SafeRelease(Stagedres);
 	SafeRelease(FinalOut);
 	SafeRelease(SharedSRVHeap);
-	SafeDelete(TargetCopy);
+	SafeRelease(TargetCopy);
 	SafeRelease(TWO_CrossHeap);
 	SafeRelease(CrossHeap);
 }
@@ -377,7 +387,7 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 		int offset = i;
 		CD3DX12_TEXTURE_COPY_LOCATION dest(OtherB->RenderTarget[0]->GetResource(), offset);
 		CD3DX12_TEXTURE_COPY_LOCATION src(TargetCopy->GetResource(), offset);
-		const int PXoffset = 1;
+		const int PXoffset = 0;
 		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width - PXoffset, m_height);
 		CMdList->GetCommandList()->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x + PXoffset, 0, 0, &src, &box);
 	}
@@ -470,7 +480,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		&ClearValue,
 		IID_PPV_ARGS(&NewResource)
 	));
-	*Resourceptr = new GPUResource(NewResource, ResourceState);
+	*Resourceptr = new GPUResource(NewResource, ResourceState, Device);
 
 	if (IsDepthStencil)
 	{
