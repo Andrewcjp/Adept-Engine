@@ -26,7 +26,7 @@ void DeferredRenderer::OnRender()
 	}
 #endif
 	ShadowPass();
-	if (RHI::GetMGPUMode()->MainPassSFR)
+	if (RHI::GetMGPUSettings()->MainPassSFR)
 	{
 		RenderOnDevice(RHI::GetDeviceContext(1));
 	}
@@ -54,7 +54,7 @@ void DeferredRenderer::RenderSkybox(DeviceContext* con)
 void DeferredRenderer::PostInit()
 {
 	SetUpOnDevice(RHI::GetDeviceContext(0));
-	if (RHI::GetMGPUMode()->MainPassSFR)
+	if (RHI::GetMGPUSettings()->MainPassSFR)
 	{
 		SetUpOnDevice(RHI::GetDeviceContext(1));
 	}

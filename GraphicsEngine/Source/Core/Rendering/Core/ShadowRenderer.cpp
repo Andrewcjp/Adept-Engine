@@ -15,7 +15,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 {
 	Scenerenderer = sceneRenderer;
 	DirectionalLightShader = ShaderComplier::GetShader_Default<Shader_Depth>(false);
-	if (RHI::GetMGPUMode()->MainPassSFR)
+	if (RHI::GetMGPUSettings()->MainPassSFR)
 	{
 		AllDevicesNeedToRead = true;
 	}
@@ -54,6 +54,23 @@ void ShadowRenderer::UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 sh
 	DSOs[DeviceIndex].GeometryProjections->UpdateConstantBuffer(transforms, index);
 }
 
+#define USE32BITDepth 1
+eTEXTURE_FORMAT ShadowRenderer::GetDepthType()
+{
+#if USE32BITDepth
+	return eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+#else
+	return eTEXTURE_FORMAT::FORMAT_D16_UNORM;
+#endif
+}
+eTEXTURE_FORMAT ShadowRenderer::GetDepthReadType()
+{
+#if USE32BITDepth
+	return eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
+#else
+	return eTEXTURE_FORMAT::FORMAT_R16_UNORM;
+#endif
+}
 void ShadowRenderer::SetupOnDevice(DeviceContext * Context)
 {
 	if (Context == nullptr)
@@ -89,7 +106,7 @@ void ShadowRenderer::SetupOnDevice(DeviceContext * Context)
 	desc.ShaderInUse = ShadowPreSampleShader;
 	desc.RenderTargetDesc.NumRenderTargets = 1;
 	desc.RenderTargetDesc.RTVFormats[0] = GetPreSampledTextureFormat();
-	desc.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	desc.RenderTargetDesc.DSVFormat = GetDepthType();
 	Objects->ShadowPreSamplingList->SetPipelineStateDesc(desc);
 	if (Context->GetDeviceIndex() == 1 || DeviceZeroNeedsPreSample)
 	{
@@ -127,7 +144,7 @@ void ShadowRenderer::RenderOnDevice(DeviceContext* con, const std::vector<GameOb
 	if (ShadowingPointLights.size() > 0)
 	{
 		RunPointShadowPass(Object->PointLightShadowList, ShadowObjects);
-		if (RHI::GetMGPUMode()->SplitShadowWork)
+		if (RHI::GetMGPUSettings()->SplitShadowWork)
 		{
 			PreSampleShadows(Object->ShadowPreSamplingList, ShadowObjects);
 		}
@@ -155,7 +172,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 	list->StartTimer(EGPUTIMERS::ShadowPreSample);
 	//ensure(SampledLightInteractions < RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS);
 	const int DeviceIndex = list->GetDeviceIndex();
-	const int MaxShadow = RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS;
+	const int MaxShadow = RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS;
 	int ShaderData[4] = { 0 };
 	int CurrnetIndex = 0;
 	for (int i = 0; i < LightInteractions.size(); i++)
@@ -195,11 +212,6 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 	{
 		if (ShadowObjects[i]->GetMesh() == nullptr)
 		{
-			//object should not be rendered to the depth map
-			continue;
-		}
-		if (ShadowObjects[i]->GetMesh()->GetDoesShadow() == false)
-		{
 			continue;
 		}
 		Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());
@@ -209,7 +221,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 	list->SetRenderTarget(nullptr);
 
 	list->EndTimer(EGPUTIMERS::ShadowPreSample);
-	if (RHI::GetMGPUMode()->SplitShadowWork && !RHI::GetMGPUMode()->MainPassSFR && list->GetDeviceIndex() != 0)
+	if (RHI::GetMGPUSettings()->SplitShadowWork && !RHI::GetMGPUSettings()->MainPassSFR && list->GetDeviceIndex() != 0)
 	{
 		list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
 	}
@@ -218,7 +230,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 #if !SINGLE_GPU_PRESAMPLE
 	if (DSOs[list->GetDeviceIndex()].PreSampledBuffer != nullptr)
 	{
-		if (RHI::GetMGPUMode()->AsyncShadows)
+		if (RHI::GetMGPUSettings()->AsyncShadows)
 		{
 			FrameBuffer::CopyHelper_Async_OneFrame(DSOs[list->GetDeviceIndex()].PreSampledBuffer, RHI::GetDeviceContext(0));
 		}
@@ -312,7 +324,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 	{
 		//Object->ShadowDirectionalArray->BindToShader(list, 5);
 		Object->ShadowCubeArray->BindToShader(list, 6);
-		if (RHI::GetMGPUMode()->SplitShadowWork)
+		if (RHI::GetMGPUSettings()->SplitShadowWork)
 		{
 			if (DSOs[1].PreSampledBuffer != nullptr)
 			{
@@ -327,7 +339,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 			//Object->ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
 			Object->ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
 		}
-		if (RHI::GetMGPUMode()->SplitShadowWork)
+		if (RHI::GetMGPUSettings()->SplitShadowWork)
 		{
 			if (DSOs[1].PreSampledBuffer != nullptr)
 			{
@@ -336,7 +348,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 		}
 	}
 
-	
+
 }
 
 void ShadowRenderer::ClearShadowLights()
@@ -386,7 +398,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			}
 		}
 	}
-	if (RHI::GetMGPUMode()->SplitShadowWork)
+	if (RHI::GetMGPUSettings()->SplitShadowWork)
 	{
 		ShadowingPointLights[1]->GPUShadowResidentMask[0] = false;
 		ShadowingPointLights[1]->GPUShadowResidentMask[1] = true;
@@ -395,7 +407,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		ShadowingPointLights[0]->GPUShadowResidentMask[1] = true;
 		ShadowingPointLights[0]->GPUShadowCopyDeviceTarget[1] = 0;
 	}
-	if (RHI::GetMGPUMode()->MainPassSFR)
+	if (RHI::GetMGPUSettings()->MainPassSFR)
 	{
 		for (int l = 0; l < ShadowingPointLights.size(); l++)
 		{
@@ -470,7 +482,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 void ShadowRenderer::Unbind(RHICommandList * list)
 {
 #if !SINGLE_GPU_PRESAMPLE
-	if (RHI::GetMGPUMode()->SplitShadowWork)
+	if (RHI::GetMGPUSettings()->SplitShadowWork)
 	{
 		const int Device = 1;
 		if (DSOs[Device].PreSampledBuffer != nullptr)
@@ -487,8 +499,10 @@ ShadowRenderer::ShadowLightInteraction::ShadowLightInteraction(DeviceContext * C
 	DeviceIndex = Context->GetDeviceIndex();
 	if (IsPoint)
 	{
-		int size = (Context->GetDeviceIndex() == 0) ? MapSize : MapSize / 1;
+		int size = (Context->GetDeviceIndex() == 0) ? MapSize : glm::iround(MapSize * RHI::GetMGPUSettings()->SecondCardShadowScaleFactor);
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateCubeDepth(size, size);
+		desc.DepthFormat = ShadowRenderer::GetDepthType();
+		desc.DepthReadFormat = ShadowRenderer::GetDepthReadType();
 		ShadowMap = RHI::CreateFrameBuffer(Context, desc);
 	}
 	Shader = new Shader_Depth(Context, IsPoint);
@@ -527,7 +541,7 @@ void ShadowRenderer::InitPreSampled(DeviceContext* dev, DeviceContext* Targetdev
 }
 eTEXTURE_FORMAT ShadowRenderer::GetPreSampledTextureFormat()
 {
-	const int MaxShadows = RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS;
+	const int MaxShadows = RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS;
 	if (MaxShadows == 1)
 	{
 		return eTEXTURE_FORMAT::FORMAT_R8_UNORM;

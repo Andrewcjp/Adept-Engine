@@ -20,9 +20,9 @@ void FrameBuffer::HandleInit()
 {
 	BufferDesc.ViewPort = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
 	BufferDesc.ScissorRect = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
-	if (RHI::GetMGPUMode()->MainPassSFR && BufferDesc.IncludedInSFR)
-	{
-		BufferDesc.SFR_FullWidth = BufferDesc.Width;
+	BufferDesc.SFR_FullWidth = BufferDesc.Width;
+	if (RHI::GetMGPUSettings()->MainPassSFR && BufferDesc.IncludedInSFR)
+	{		
 		SFR_Node = RHI::GetSplitController()->GetNode(Device->GetDeviceIndex());
 		BufferDesc.ViewPort = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
 		const float start = BufferDesc.Width*SFR_Node->SFR_Offset;//Offset is in whole buffer space
@@ -34,7 +34,11 @@ void FrameBuffer::HandleInit()
 		}		
 		BufferDesc.ScissorRect = glm::ivec4(start, 0, start + SFrBufferWidth, SFrBufferHeight);
 	}
-
+	if (BufferDesc.DeviceToCopyTo != nullptr)
+	{
+		Device->AddTransferBuffer(this);
+		BufferDesc.DeviceToCopyTo->AddTransferBuffer(this);
+	}
 }
 
 FrameBuffer::~FrameBuffer()
@@ -160,9 +164,23 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	//reset the Viewport to be correct
 }
 
+int FrameBuffer::GetTransferSize()
+{
+	if (!DidTransferLastFrame)
+	{
+		return 0;
+	}
+	return CrossGPUBytes;
+}
+
+void FrameBuffer::ResetTransferStat()
+{
+	DidTransferLastFrame = false;
+}
+
 bool FrameBuffer::NeedsSFRResolve() const
 {
-	return BufferDesc.IncludedInSFR && RHI::GetMGPUMode()->MainPassSFR;
+	return BufferDesc.IncludedInSFR && RHI::GetMGPUSettings()->MainPassSFR;
 }
 
 void FrameBuffer::CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetDevice)

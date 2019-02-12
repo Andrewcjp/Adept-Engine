@@ -8,12 +8,12 @@ static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOn
 static ConsoleVariable SFRSplitShadowsVar("SFRSplitShadows", true, ECVarType::LaunchOnly);
 MultiGPUMode::MultiGPUMode()
 {
-	UseSFR.SetValue(true);
-	//SplitShadows.SetValue(true);
+	//UseSFR.SetValue(true);
+	SplitShadows.SetValue(true);
 	MAX_PRESAMPLED_SHADOWS = 2;
+	SecondCardShadowScaleFactor = 1.0f;
 	SyncSettings();
 }
-
 
 void MultiGPUMode::SyncSettings()
 {
@@ -52,7 +52,7 @@ RenderSettings::RenderSettings()
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
-	RenderScale = 2.0f;
+	RenderScale = 1.0f;
 }
 
 RenderConstants::RenderConstants()

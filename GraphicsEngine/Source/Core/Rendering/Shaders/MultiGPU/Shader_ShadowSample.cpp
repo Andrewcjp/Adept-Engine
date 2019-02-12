@@ -3,7 +3,7 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_ShadowSample);
 Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context) :Shader(Context)
 {
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_SHADOW_SAMPLES", std::to_string(RHI::GetMGPUMode()->MAX_PRESAMPLED_SHADOWS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_SHADOW_SAMPLES", std::to_string(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("ShadowSample_fs", EShaderType::SHADER_FRAGMENT);

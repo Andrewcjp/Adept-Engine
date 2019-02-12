@@ -79,7 +79,7 @@ void RenderEngine::PreRender()
 //init common to both renderers
 void RenderEngine::Init()
 {
-	if (RHI::GetMGPUMode()->MainPassSFR)
+	if (RHI::GetMGPUSettings()->MainPassSFR)
 	{
 		DevicesInUse = 2;
 	}

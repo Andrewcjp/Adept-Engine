@@ -4,6 +4,7 @@
 #include "RHITimeManager.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Rendering/Renderers/TextRenderer.h"
 
 DeviceContext::DeviceContext()
 {
@@ -22,7 +23,7 @@ void DeviceContext::ResetDeviceAtEndOfFrame()
 }
 
 void DeviceContext::DestoryDevice()
-{ 
+{
 	for (int i = 0; i < COPYLIST_MAX_POOL_SIZE; i++)
 	{
 		EnqueueSafeRHIRelease(CopyListPool[i]);
@@ -113,6 +114,62 @@ RHICommandList * DeviceContext::GetNextFreeCopyList()
 	CopyListPoolFreeIndex++;
 	return retvalue;
 }
+
+void DeviceContext::TickTransferStats()
+{
+	GetTransferBytes();
+	if (BytesToTransfer == 0)
+	{
+		return;
+	}
+	PerfManager::TimerData* t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("MGPU Copy" + std::to_string(GetDeviceIndex())));
+	if (t == nullptr)
+	{
+		return;
+	}
+	//SFR
+	float transferTimeInS = t->Time / 10e3;
+	float MB = (float)BytesToTransfer / 10e6;
+	float TransferSpeedBPerS = (float)BytesToTransfer / transferTimeInS;//1024
+	std::stringstream ss;
+	ss << "GPU_" << GetDeviceIndex() << " transferring " << std::fixed << std::setprecision(2) << MB << "Mb @ " << TransferSpeedBPerS / 10e9 << "GB/s Taking " << t->Time << "ms";
+	TextRenderer::instance->RenderFromAtlas(ss.str(), 100, 20 + 20 * GetDeviceIndex(), 0.35f);
+}
+int DeviceContext::GetTransferBytes()
+{
+	BytesToTransfer = 0;
+	for (int i = 0; i < BuffersWithTransfers.size(); i++)
+	{
+		BytesToTransfer += BuffersWithTransfers[i]->GetTransferSize();
+	}
+	return BytesToTransfer;
+}
+
+void DeviceContext::AddTransferBuffer(FrameBuffer * buffer)
+{
+	for (int i = 0; i < BuffersWithTransfers.size(); i++)
+	{
+		if (BuffersWithTransfers[i] == buffer)
+		{
+			return;
+		}
+	}
+	BuffersWithTransfers.push_back(buffer);
+}
+
+void DeviceContext::RemoveTransferBuffer(FrameBuffer * buffer)
+{
+	VectorUtils::Remove(BuffersWithTransfers, buffer);
+}
+
+void DeviceContext::ResetStat()
+{
+	for (int i = 0; i < BuffersWithTransfers.size(); i++)
+	{
+		BuffersWithTransfers[i]->ResetTransferStat();
+	}
+}
+
 
 void DeviceContext::InitCopyListPool()
 {
