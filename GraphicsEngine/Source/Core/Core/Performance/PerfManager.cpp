@@ -367,6 +367,10 @@ void PerfManager::DrawAllStats(int x, int y, bool IncludeGPUStats)
 	{
 		DrawStatsGroup(x, y, it->first, IncludeGPUStats);
 	}
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		RHI::GetDeviceContext(i)->TickTransferStats();
+	}
 #endif
 }
 void PerfManager::UpdateStatsTimer()

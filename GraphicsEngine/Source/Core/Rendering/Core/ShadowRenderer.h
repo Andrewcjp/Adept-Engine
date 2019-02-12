@@ -22,6 +22,8 @@ public:
 	ShadowRenderer(class SceneRenderer* SceneRender);
 	~ShadowRenderer();
 	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index, int DeviceIndex);
+	static eTEXTURE_FORMAT GetDepthType();
+	static eTEXTURE_FORMAT GetDepthReadType();
 	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, class Shader_Main* mainshader = nullptr);
 	void RenderOnDevice(DeviceContext * con, const std::vector<GameObject*>& ShadowObjects);
 	void RunPointShadowPass(RHICommandList * List, const std::vector<GameObject*>& ShadowObjects);

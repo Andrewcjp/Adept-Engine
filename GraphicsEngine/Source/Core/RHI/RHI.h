@@ -71,7 +71,7 @@ public:
 	static void AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize = false);
 	static void RemoveLinkedFrameBuffer(FrameBuffer* target);
 	static RenderSettings* GetRenderSettings();
-	static const MultiGPUMode* GetMGPUMode();
+	static const MultiGPUMode* GetMGPUSettings();
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
 	static RHI* Get();
 	static SFRController* GetSplitController();

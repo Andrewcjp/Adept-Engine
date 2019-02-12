@@ -138,7 +138,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	}
 	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
-	if (RHI::GetMGPUMode()->SplitShadowWork)
+	if (RHI::GetMGPUSettings()->SplitShadowWork)
 	{
 		glm::ivec2 Res = glm::ivec2(GetScaledWidth(), GetScaledHeight());
 		Cmdlist->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);

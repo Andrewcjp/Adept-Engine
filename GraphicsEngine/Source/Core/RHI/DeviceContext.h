@@ -8,47 +8,52 @@ struct CapabilityData
 	bool SupportsCopyTimeStamps = false;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
-class RHI_API DeviceContext
+class  DeviceContext
 {
 public:
-	DeviceContext();
-	virtual ~DeviceContext();
+	RHI_API DeviceContext();
+	RHI_API virtual ~DeviceContext();
 
-	virtual void ResetDeviceAtEndOfFrame() = 0;
-	virtual void SampleVideoMemoryInfo() = 0;
-	virtual std::string GetMemoryReport() = 0;
-	virtual void DestoryDevice() = 0;
-	virtual void WaitForGpu() = 0;
-	virtual void WaitForCopy() = 0;
-	virtual void ResetSharingCopyList() = 0;
-	virtual void NotifyWorkForCopyEngine() = 0;
-	virtual void UpdateCopyEngine() = 0;
-	virtual void ResetCopyEngine() = 0;
+	RHI_API virtual void ResetDeviceAtEndOfFrame() = 0;
+	RHI_API virtual void SampleVideoMemoryInfo() = 0;
+	RHI_API virtual std::string GetMemoryReport() = 0;
+	RHI_API virtual void DestoryDevice() = 0;
+	RHI_API virtual void WaitForGpu() = 0;
+	RHI_API virtual void WaitForCopy() = 0;
+	RHI_API virtual void ResetSharingCopyList() = 0;
+	RHI_API virtual void NotifyWorkForCopyEngine() = 0;
+	RHI_API virtual void UpdateCopyEngine() = 0;
+	RHI_API virtual void ResetCopyEngine() = 0;
 
-	virtual int GetDeviceIndex() = 0;
-	virtual int GetCpuFrameIndex() = 0;
-	virtual void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
+	RHI_API virtual int GetDeviceIndex() = 0;
+	RHI_API virtual int GetCpuFrameIndex() = 0;
+	RHI_API virtual void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
 	int CurrentFrameIndex = 0;
-	virtual void CPUWaitForAll() = 0;
-	virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
-	const CapabilityData& GetCaps();
-	RHICommandList* GetInterGPUCopyList();
-	virtual class RHITimeManager* GetTimeManager() = 0;
-	void InsertStallTimerMarker();
-	bool ShouldInsertTimer();
-	void OnInsertStallTimer();
-	PipelineStateObjectCache* GetPSOCache() const;
-	void UpdatePSOTracker(RHIPipeLineStateObject* PSO);
-	int GetNodeIndex();
-	GPUStateCache* GetStateCache()const;
-	bool IsDeviceNVIDIA();
-	bool IsDeviceAMD();
-	bool IsDeviceIntel();
+	RHI_API virtual void CPUWaitForAll() = 0;
+	RHI_API virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
+	RHI_API const CapabilityData& GetCaps();
+	RHI_API RHICommandList* GetInterGPUCopyList();
+	RHI_API virtual class RHITimeManager* GetTimeManager() = 0;
+	RHI_API void InsertStallTimerMarker();
+	RHI_API bool ShouldInsertTimer();
+	RHI_API void OnInsertStallTimer();
+	RHI_API PipelineStateObjectCache* GetPSOCache() const;
+	RHI_API void UpdatePSOTracker(RHIPipeLineStateObject* PSO);
+	RHI_API int GetNodeIndex();
+	RHI_API GPUStateCache* GetStateCache()const;
+	RHI_API bool IsDeviceNVIDIA();
+	RHI_API bool IsDeviceAMD();
+	RHI_API bool IsDeviceIntel();
 	//Copy lists are pooled (because why not)
-	RHICommandList* GetCopyList(int Index);
-	RHICommandList* GetNextFreeCopyList();
+	RHI_API RHICommandList* GetCopyList(int Index);
+	RHI_API RHICommandList* GetNextFreeCopyList();
+	RHI_API void TickTransferStats();
+	RHI_API int GetTransferBytes();
+	RHI_API void AddTransferBuffer(FrameBuffer* buffer);
+	RHI_API void RemoveTransferBuffer(FrameBuffer* buffer);
+	void ResetStat();
 protected:
-	void InitCopyListPool();
+	RHI_API void InitCopyListPool();
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;
 	bool InsertStallTimer = false;
@@ -65,6 +70,8 @@ protected:
 	uint VendorID = 0;
 	int CopyListPoolFreeIndex = 0;
 	RHICommandList* CopyListPool[COPYLIST_MAX_POOL_SIZE] = {nullptr};
+	int BytesToTransfer = 0;
+	std::vector<FrameBuffer*> BuffersWithTransfers;
 };
 
 class RHIGPUSyncEvent

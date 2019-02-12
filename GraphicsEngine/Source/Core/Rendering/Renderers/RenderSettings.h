@@ -37,6 +37,7 @@ struct MultiGPUMode
 	bool AsyncShadows = false;
 	int MAX_PRESAMPLED_SHADOWS = 1;
 	bool SFRSplitShadows = false;
+	float SecondCardShadowScaleFactor = 1.0f;
 	void ValidateSettings();
 };
 //Props Are Set in the Constructor 

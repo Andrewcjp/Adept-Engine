@@ -42,6 +42,8 @@ public:
 		return (size + alignment - 1) & ~(alignment - 1);
 	}
 	static std::string ResouceStateToString(D3D12_RESOURCE_STATES state);
+	static size_t GetBytesPerPixel(DXGI_FORMAT fmt);
+	static size_t BitsPerPixel(DXGI_FORMAT fmt);
 };
 
 //Used to Copy Back resources for read

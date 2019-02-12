@@ -173,7 +173,7 @@ bool RHI::UseAdditionalGPUs()
 	return true;
 }
 
-const MultiGPUMode * RHI::GetMGPUMode()
+const MultiGPUMode * RHI::GetMGPUSettings()
 {
 	return &instance->CurrentMGPUMode;
 }

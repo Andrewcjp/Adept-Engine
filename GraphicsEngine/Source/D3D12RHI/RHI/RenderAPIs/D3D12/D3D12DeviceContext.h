@@ -82,6 +82,8 @@ public:
 	D3D12DeviceContext();
 	virtual ~D3D12DeviceContext();
 
+	void LogFeatureData(std::string name, bool value);
+
 	void MoveNextFrame(int SyncIndex);
 	//RHI
 	void ResetDeviceAtEndOfFrame();

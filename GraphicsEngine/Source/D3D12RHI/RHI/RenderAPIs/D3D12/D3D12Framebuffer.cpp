@@ -124,7 +124,7 @@ void D3D12FrameBuffer::HandleResize()
 		SafeRelease(PrimaryRes);
 		SafeRelease(FinalOut);
 		SafeRelease(Stagedres);
-		SafeRelease(SharedSRVHeap);	
+		SafeRelease(SharedSRVHeap);
 		SafeRelease(TargetCopy);
 		SafeRelease(TWO_CrossHeap);
 	}
@@ -133,6 +133,7 @@ void D3D12FrameBuffer::HandleResize()
 	{
 		SetupCopyToDevice(OtherDevice);
 	}
+
 }
 
 void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
@@ -153,7 +154,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	UINT64 pTotalBytes = 0;
 	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
 	UINT64 textureSize = D3D12Helpers::Align(layout.Footprint.RowPitch * layout.Footprint.Height);
-
+	CrossGPUBytes = (int)textureSize;
 	// Create a buffer with the same layout as the render target texture.
 	D3D12_RESOURCE_DESC crossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER);
 
@@ -207,7 +208,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		nullptr,
 		IID_PPV_ARGS(&FinalOut)
 	));
-	
+
 	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	NAME_RHI_OBJ(SharedSRVHeap);
 	TargetCopy = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST, OtherDevice);
@@ -252,6 +253,7 @@ void D3D12FrameBuffer::CopyToHostMemory(ID3D12GraphicsCommandList* list)
 		list->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x, 0, 0, &src, &box);
 	}
 	PerfManager::EndTimer("CopyToDevice");
+	DidTransferLastFrame = true;
 }
 
 void D3D12FrameBuffer::CopyFromHostMemory(ID3D12GraphicsCommandList* list)
@@ -273,11 +275,14 @@ void D3D12FrameBuffer::CopyFromHostMemory(ID3D12GraphicsCommandList* list)
 		CD3DX12_TEXTURE_COPY_LOCATION dest(FinalOut, offset);
 		Host->GetCopyableFootprints(&secondaryAdapterTexture, offset, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
 		CD3DX12_TEXTURE_COPY_LOCATION src(Stagedres, textureLayout);
-		//CD3DX12_BOX box(0, 0, m_width, m_height);
 		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, BufferDesc.SFR_FullWidth, m_height);
 		list->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x, 0, 0, &src, &box);
 	}
+	int Pixelsize = (BufferDesc.SFR_FullWidth - (int)BufferDesc.ScissorRect.x)*m_height;
+	CrossGPUBytes = Pixelsize * (int)D3D12Helpers::GetBytesPerPixel(secondaryAdapterTexture.Format);
+
 	PerfManager::EndTimer("MakeReadyOnTarget");
+	DidTransferLastFrame = true;
 }
 
 void D3D12FrameBuffer::MakeReadyForRead(ID3D12GraphicsCommandList * list)
@@ -536,7 +541,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-	}
+}
 
 void D3D12FrameBuffer::Init()
 {

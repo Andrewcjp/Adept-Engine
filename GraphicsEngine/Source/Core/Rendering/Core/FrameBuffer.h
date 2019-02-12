@@ -25,8 +25,11 @@ public:
 	virtual void MakeReadyForCopy(RHICommandList * list) = 0;
 	///Needs to called before buffer is read for final present
 	void ResolveSFR(FrameBuffer* SumBuffer);
-	
+	int GetTransferSize();
+	void ResetTransferStat();
 protected:
+	int CrossGPUBytes = 0;
+	bool DidTransferLastFrame = false;
 	int m_width = 0;
 	int m_height = 0;
 	RHI_API bool NeedsSFRResolve() const;

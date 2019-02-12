@@ -44,11 +44,25 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	}*/
 }
 
+void D3D12DeviceContext::LogFeatureData(std::string name, bool value)
+{
+	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " " + name + " " + (value ? "true " : "false "));
+}
+
 void D3D12DeviceContext::CheckFeatures()
 {
 	//todo: validate the device capabilities 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
+	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " CrossAdapterRowMajorTextureSupported " + (options.CrossAdapterRowMajorTextureSupported ? "true " : "false "));
+	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " CrossNodeSharingTier " + std::to_string(options.CrossNodeSharingTier));
+
+	D3D12_FEATURE_DATA_ARCHITECTURE1 ARCHDAta = {};
+	ARCHDAta.NodeIndex = 0;
+	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, reinterpret_cast<void*>(&ARCHDAta), sizeof(ARCHDAta)));
+	LogFeatureData("UMA", ARCHDAta.UMA);
+	LogFeatureData("TileBasedRenderer", ARCHDAta.TileBasedRenderer);
+	LogFeatureData("IsolatedMMU", ARCHDAta.IsolatedMMU);
 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData;
 	ZeroMemory(&FeatureData, sizeof(FeatureData));
@@ -312,7 +326,7 @@ void D3D12DeviceContext::ResetCopyEngine()
 	{
 		GPUCopyList->ResetList();
 	}
-	
+
 }
 
 void D3D12DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * list)
