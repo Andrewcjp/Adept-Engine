@@ -207,3 +207,11 @@ std::string RHIPipeLineStateDesc::GetString()
 	return StringPreHash;
 }
 
+void SFRNode::AddBuffer(FrameBuffer * b)
+{
+	if (VectorUtils::Contains(NodesBuffers, b))
+	{
+		return;
+	}
+	NodesBuffers.push_back(b);
+}

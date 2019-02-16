@@ -73,7 +73,7 @@ void BenchMarker::WriteStat(int statid, float value)
 	{
 		stat = new BenchMarker::PerformanceLogStat();
 		stat->id = statid;
-		PerfManager::TimerData* data = PerfManager::Get()->GetTimerData(statid);
+		TimerData* data = PerfManager::Get()->GetTimerData(statid);
 		stat->name = data->name;
 		if (data->IsGPUTimer)
 		{

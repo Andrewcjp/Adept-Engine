@@ -12,7 +12,7 @@ struct MeshEntity
 {
 	RHIBuffer * VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	RHIBuffer* IndexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
-	MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<int> &indices);
+	MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<IndType> &indices);
 	void Release();
 	bool LoadSucessful = false;
 	int MaterialIndex = 0;

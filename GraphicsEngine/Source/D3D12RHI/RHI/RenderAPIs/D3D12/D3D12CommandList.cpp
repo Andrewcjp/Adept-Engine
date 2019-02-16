@@ -6,6 +6,7 @@
 #include "DescriptorHeap.h"
 #include "GPUResource.h"
 #include "Rendering/Core/GPUStateCache.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
@@ -843,7 +844,12 @@ void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 	TotalByteSize = ByteSize;
 	CreateStaticBuffer(ByteSize);
 	m_IndexBufferView.BufferLocation = m_DataBuffer->GetResource()->GetGPUVirtualAddress();
+#if USE_16BIT_INDICIES
+	m_IndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+#else
 	m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+#endif
+	
 	m_IndexBufferView.SizeInBytes = TotalByteSize;
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }

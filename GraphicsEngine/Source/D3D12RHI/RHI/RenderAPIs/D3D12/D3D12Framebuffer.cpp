@@ -104,29 +104,37 @@ void D3D12FrameBuffer::HandleResize()
 	m_height = BufferDesc.Height;
 	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
 	m_scissorRect = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
-	CurrentDevice->CPUWaitForAll();
-	if (OtherDevice != nullptr)
+#if 1
+	if (!RHI::GetMGPUSettings()->MainPassSFR)
 	{
-		OtherDevice->CPUWaitForAll();
+		CurrentDevice->CPUWaitForAll();
+		if (OtherDevice != nullptr)
+		{
+			OtherDevice->CPUWaitForAll();
+		}
 	}
-
+#endif
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		RenderTarget[i]->Release();
+		EnqueueSafeRHIRelease(RenderTarget[i]);
 	}
 	if (DepthStencil)
 	{
-		DepthStencil->Release();
+		EnqueueSafeRHIRelease(DepthStencil);
 	}
 	if (OtherDevice != nullptr)
 	{
+		EnqueueSafeRHIRelease(TargetCopy);
+		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(TWO_CrossHeap);
+#if 0
+		
+		//SafeRelease(TWO_CrossHeap);
 		SafeRelease(CrossHeap);
 		SafeRelease(PrimaryRes);
 		SafeRelease(FinalOut);
 		SafeRelease(Stagedres);
 		SafeRelease(SharedSRVHeap);
-		SafeRelease(TargetCopy);
-		SafeRelease(TWO_CrossHeap);
+#endif
 	}
 	Init();
 	if (OtherDevice != nullptr)
@@ -392,7 +400,7 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 		int offset = i;
 		CD3DX12_TEXTURE_COPY_LOCATION dest(OtherB->RenderTarget[0]->GetResource(), offset);
 		CD3DX12_TEXTURE_COPY_LOCATION src(TargetCopy->GetResource(), offset);
-		const int PXoffset = 0;
+		const int PXoffset = 10;
 		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width - PXoffset, m_height);
 		CMdList->GetCommandList()->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x + PXoffset, 0, 0, &src, &box);
 	}

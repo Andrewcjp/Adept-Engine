@@ -350,7 +350,7 @@ void PerfManager::Internal_NotifyEndOfFrame()
 	}
 }
 
-PerfManager::TimerData * PerfManager::GetTimerData(int id)
+TimerData * PerfManager::GetTimerData(int id)
 {
 	if (AVGTimers.find(id) != AVGTimers.end())
 	{
@@ -429,9 +429,9 @@ void PerfManager::ClearStats()
 	}
 	DidJustReset = false;
 }
-std::vector<PerfManager::TimerData*> PerfManager::GetAllGPUTimers(std::string group)
+std::vector<TimerData*> PerfManager::GetAllGPUTimers(std::string group)
 {
-	std::vector<PerfManager::TimerData*> Output;
+	std::vector<TimerData*> Output;
 	const int GroupFilterId = GetGroupId(group);
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
@@ -543,7 +543,7 @@ CORE_API void PerfManager::UpdateGPUStat(int id, float newtime, float OffsetToMa
 {
 	if (TimerOutput.find(id) != TimerOutput.end())
 	{
-		PerfManager::TimerData* data = PerfManager::Instance->GetTimerData(id);
+		TimerData* data = PerfManager::Instance->GetTimerData(id);
 		if (data != nullptr)
 		{
 			data->Active = true;

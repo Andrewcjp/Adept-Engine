@@ -435,6 +435,9 @@ struct SFRNode
 	float SFR_VerticalPercentSize = 1.0f;
 	float SFR_Offset = 0.5f;
 	float SFR_VerticalOffset = 1.0f;
+	struct TimerData* SFRDriveTimer = nullptr;
+	std::vector<FrameBuffer*> NodesBuffers;
+	void AddBuffer(FrameBuffer* b);
 	//Link to framebuffers - then call resize!
 };
 

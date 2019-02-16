@@ -158,7 +158,7 @@ void D3D12RHI::LoadPipeLine()
 
 	UINT dxgiFactoryFlags = 0;
 #if RUNDEBUG //nsight needs this off
-	if (!ForceNoDebug.GetBoolValue())
+	if (!ForceNoDebug.GetBoolValue() && !DetectGPUDebugger())
 	{	//EnableShaderBasedValidation();
 
 // Enable the debug layer (requires the Graphics Tools "optional feature").
@@ -244,9 +244,9 @@ void D3D12RHI::TriggerWriteBackResources()
 }
 
 #endif
-RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device)
+RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
 {
-	return new D3D12GPUSyncEvent(WaitingQueue, SignalQueue, Device);
+	return new D3D12GPUSyncEvent(WaitingQueue, SignalQueue, Device, SignalDevice);
 }
 
 void D3D12RHI::CreateSwapChainRTs()
@@ -379,6 +379,11 @@ void D3D12RHI::InitSwapChain()
 	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0], true);
 	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, GetPrimaryDevice()->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
+
+	if (RHI::GetDeviceCount() > 1)
+	{
+		AsyncSync = (D3D12GPUSyncEvent*)RHI::CreateSyncEvent(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics, RHI::GetDeviceContext(0), RHI::GetDeviceContext(1));
+	}
 }
 
 void D3D12RHI::SetFullScreenState(bool state)
@@ -466,6 +471,12 @@ D3D12RHI * D3D12RHI::Get()
 
 void D3D12RHI::PresentFrame()
 {
+	if (RHI::GetMGPUSettings()->AsyncShadows)
+	{
+		/*RHI::GetDeviceContext(0)->GPUWaitForOtherGPU(RHI::GetDeviceContext(1), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);*/
+		AsyncSync->SignalWait();
+		RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	}
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(GetPrimaryDevice()->GetCommandAllocator(), nullptr);
@@ -493,6 +504,7 @@ void D3D12RHI::PresentFrame()
 
 	UpdateAllCopyEngines();
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		if (DeviceContexts[i] != nullptr)

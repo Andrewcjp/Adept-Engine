@@ -8,6 +8,7 @@
 #include "Core/Utils/DebugDrawers.h"
 #include "Core/Components/ColliderComponent.h"
 #include "Core/Platform/ConsoleVariable.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 
 TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(type)
 {
@@ -108,8 +109,9 @@ void TDRigidBody::AttachCollider(Collider * col)
 
 TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 scale)
 {
+	
 	std::vector<OGLVertex> vertices;
-	std::vector<int> indices;
+	std::vector<IndType> indices;
 	MeshLoader::FMeshLoadingSettings t;
 	t.Scale = scale;
 	MeshLoader::LoadMeshFromFile_Direct(Filename, t, vertices, indices);
@@ -127,7 +129,7 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 	desc.Points.DataPtr = verts.data();
 
 	desc.Indices.Count = indices.size() /*/ 2*/;
-	desc.Indices.Stride = sizeof(int);
+	desc.Indices.Stride = sizeof(IndType);
 	desc.Indices.DataPtr = indices.data();
 
 	desc.HasPerVertexNormals = true;
@@ -136,6 +138,7 @@ TD::TDMesh* TDRigidBody::GenerateTriangleMesh(std::string Filename, glm::vec3 sc
 	desc.Normals.DataPtr = normals.data();
 
 	TD::TDMesh* newmesh = new TD::TDMesh(desc);
+	return newmesh;
 	newmesh->CookMesh();
 #if 0
 	std::vector<TDTriangle*> tris = newmesh->GetTriangles();

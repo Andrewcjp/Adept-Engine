@@ -205,7 +205,7 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListTyp
 	PerfManager::Get()->AddTimer(TimeDeltas[index].Statid, StatsGroupId);
 	if (PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid) != nullptr)
 	{
-		PerfManager::TimerData* data = PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid);
+		TimerData* data = PerfManager::Get()->GetTimerData(TimeDeltas[index].Statid);
 		data->name = Name;
 		data->IsGPUTimer = true;
 		data->TimerType = type;

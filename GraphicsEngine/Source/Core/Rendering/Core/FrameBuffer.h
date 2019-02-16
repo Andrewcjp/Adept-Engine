@@ -10,10 +10,11 @@ public:
 	RHI_API int GetWidth() const;
 	RHI_API int GetHeight() const;
 	virtual DeviceContext* GetDevice() = 0;
-	void HandleInit();
+
 	RHI_API RHIFrameBufferDesc& GetDescription();
 	void Resize(int width, int height);
-	RHI_API virtual void HandleResize();
+	RHI_API void SFRResize();
+	
 	virtual void SetupCopyToDevice(DeviceContext* device){};
 	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice);
 	RHI_API virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List);
@@ -28,6 +29,8 @@ public:
 	int GetTransferSize();
 	void ResetTransferStat();
 protected:
+	RHI_API virtual void HandleResize();
+	void HandleInit();
 	int CrossGPUBytes = 0;
 	bool DidTransferLastFrame = false;
 	int m_width = 0;

@@ -179,7 +179,7 @@ void BaseWindow::Render()
 		}
 	}
 #endif
-
+	RHI::Tick();
 	PerfManager::StartTimer("Render");
 	Renderer->Render();
 	PerfManager::StartTimer("LineDrawer");
