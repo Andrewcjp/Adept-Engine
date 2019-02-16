@@ -398,11 +398,14 @@ void BaseWindow::PostFrameOne()
 	Log::OutS << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << Log::OutS;
 }
 
-void BaseWindow::Resize(int width, int height)
+void BaseWindow::Resize(int width, int height, bool force /*= false*/)
 {
-	if (width == m_width && height == m_height || width == 0 || height == 0)
+	if (!force)
 	{
-		return;
+		if (width == m_width && height == m_height || width == 0 || height == 0)
+		{
+			return;
+		}
 	}
 	m_width = width;
 	m_height = height;
@@ -491,6 +494,11 @@ bool BaseWindow::MouseMove(int x, int y)
 		UI->MouseMove(x, y);
 	}
 	return true;
+}
+
+void BaseWindow::StaticResize()
+{
+	Instance->Resize(Instance->m_width, Instance->m_height, true);
 }
 
 //getters

@@ -64,6 +64,7 @@ void GPUPerformanceGraph::DrawLine(TimerData * data, glm::vec3 LocalOffset, floa
 	else if (data->TimerType == ECommandListType::Compute)
 	{
 		LocalOffset.y -= 30.0f;
+		//CurrnetValue = 0.0f;
 	}
 	const glm::vec3 Colour = glm::vec3(1);
 	const glm::vec3 EndPos = LocalOffset + glm::vec3(CurrnetValue + Length, 0, 0);

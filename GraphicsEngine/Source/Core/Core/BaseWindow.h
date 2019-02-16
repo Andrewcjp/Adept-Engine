@@ -11,14 +11,14 @@ public:
 	virtual ~BaseWindow();
 	virtual bool CreateRenderWindow(int width, int height) override final;
 	virtual void Render() override final;
-	virtual void Resize(int width, int height) override final;
+	virtual void Resize(int width, int height, bool force = false) override final;
 	virtual void DestroyRenderWindow() override;
 	bool MouseLBDown(int x, int y) override;
 	bool MouseLBUp(int x, int y) override;
 	bool MouseRBDown(int x, int y) override;
 	bool MouseRBUp(int x, int y) override;
 	bool MouseMove(int x, int y) override final;
-
+	CORE_API static void StaticResize();
 	//getters
 	static int GetWidth();
 	static int GetHeight();

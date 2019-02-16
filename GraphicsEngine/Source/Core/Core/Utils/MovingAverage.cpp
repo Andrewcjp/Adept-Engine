@@ -32,8 +32,10 @@ void MovingAverage::clear()
 	{
 		Array[i] = 0;
 	}
+	Sum = 0;
+	Average = 0.0f;
 }
-
+#include "Core/Platform/PlatformCore.h"
 void MovingAverage::Add(float x)
 {
 	Index = (Index + 1) % FilterLength;
@@ -52,6 +54,9 @@ void MovingAverage::Add(float x)
 	{
 		Average = Sum / (Index + 1);
 	}
+	Sum = glm::max(Sum, 0.0f);
+	Average = glm::max(Average, 0.0f);
+	//ensure(Sum >= 0.0f);
 }
 
 float MovingAverage::GetCurrentAverage()

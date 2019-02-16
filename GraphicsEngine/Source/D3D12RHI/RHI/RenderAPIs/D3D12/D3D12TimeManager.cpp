@@ -63,7 +63,8 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	}
 #endif
 	ThrowIfFailed(Device->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
-
+	ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Compute)->GetTimestampFrequency(&m_ComputeQueueFreqency));
+	ensure(m_ComputeQueueFreqency == m_directCommandQueueTimestampFrequencies);
 	int TimerItor = 0;
 	for (int i = 0; i < TotalMaxTimerCount; i++)
 	{
@@ -98,13 +99,14 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::SFRMerge, "SFR Merge", ECommandListType::Copy);
 #endif
 }
-
+#pragma optimize("",off)
 void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBuffer, UINT64 ClockFreq, bool IsCopyList, int offset)
 {
 	D3D12_RANGE readRange = {};
 	const D3D12_RANGE emptyRange = {};
 	void* pData = nullptr;
 	ThrowIfFailed(ResultBuffer->Map(0, &readRange, &pData));
+	//D3D12 WARNING: ID3D12CommandQueue::ExecuteCommandLists: Readback Resource (0x00000263E4FEB560:'Unnamed ID3D12Resource Object') still has mapped subresorces when executing a command list that performs a copy operation to the resource.This may be ok if any data read from the readback resources was flushed by calling Unmap() after the resourcecopy operation completed. [ EXECUTION WARNING #927: EXECUTECOMMANDLISTS_GPU_WRITTEN_READBACK_RESOURCE_MAPPED]
 
 	const UINT64* pTimestamps = reinterpret_cast<UINT64*>(static_cast<UINT8*>(pData) + readRange.Begin);
 	for (int i = offset; i < offset + count; i++)
@@ -112,6 +114,11 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 		if (TimeDeltas[i].Used)
 		{
 			UINT64 delta = pTimestamps[TimeDeltas[i].Endindex] - pTimestamps[TimeDeltas[i].Startindex];
+			if (pTimestamps[TimeDeltas[i].Endindex] < pTimestamps[TimeDeltas[i].Startindex])
+			{
+				Log::LogMessage("Negative GPU timestamps", Log::Warning);
+				continue;
+			}
 			float gpuTimeMS = glm::max(glm::abs((float)(delta * 1000) / (float)ClockFreq), 0.0f);
 			TimeDeltas[i].RawTime = gpuTimeMS;
 			TimeDeltas[i].avg.Add(gpuTimeMS);
@@ -123,8 +130,18 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 			{
 				const UINT64 CurrentTimeStamp = pTimestamps[TimeDeltas[i].Startindex];
 				UINT64 Delta = (pTimestamps[TimeDeltas[i].Startindex] - TimeDeltas[0].StartTS);
+				bool IsNegative = false;
+				if (CurrentTimeStamp < TimeDeltas[0].StartTS)
+				{
+					Delta = TimeDeltas[0].StartTS - CurrentTimeStamp;
+					IsNegative = true;
+				}
 				TimeDeltas[i].StartOffset = glm::max((float)(Delta) * 1000 / (float)ClockFreq, 0.0f);
-				if (TimeDeltas[i].StartOffset > 100 && IsCopyList)
+				if (IsNegative)
+				{
+					TimeDeltas[i].StartOffset = -TimeDeltas[i].StartOffset;
+				}
+				if (TimeDeltas[i].StartOffset > 1000)
 				{
 					continue;//ignore large values
 				}
@@ -141,7 +158,7 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 	ResultBuffer->Unmap(0, &emptyRange);
 
 }
-
+#pragma optimize("",on)
 void D3D12TimeManager::UpdateTimers()
 {
 #if ENABLE_GPUTIMERS
@@ -189,7 +206,7 @@ std::string D3D12TimeManager::GetTimerData()
 #else
 	return "GPU TIMERS DISABLED";
 #endif
-}
+		}
 
 void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListType::Type type)
 {
@@ -218,7 +235,7 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListTyp
 LPCWSTR D3D12TimeManager::GetTimerNameForPIX(int index)
 {
 	return PixTimerNames[index].c_str();
-	}
+}
 #endif
 
 void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
@@ -235,10 +252,10 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
 	{
 		PIXBeginEvent(List->GetCommandList(), 0, GetTimerNameForPIX(index));
-}
+	}
 #endif
 #endif
-}
+	}
 
 void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 {
@@ -255,10 +272,10 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	{
 
 		PIXEndEvent(List->GetCommandList());
-}
+	}
 #endif
 #endif
-}
+	}
 
 float D3D12TimeManager::GetTotalTime()
 {

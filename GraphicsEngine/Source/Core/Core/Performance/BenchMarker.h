@@ -42,16 +42,18 @@ public:
 	void TickBenchMarker();
 	void WriteStat(int statid, float value);
 	void WriteCoreStat(ECoreStatName::Type stat, float value);
+	CORE_API void SetTestFileSufix(std::string suffix);
 private:
 	EBenchMarkerMode::Type CurrentMode = EBenchMarkerMode::Off;
 	void CapturePerfMarkers();
 
-	void WriteSummaryToDisk();
+	void WriteSummaryToDisk(bool log = false);
 	std::string GetCoreTimerSummary(ECoreStatName::Type CoreStat);
 	std::string GetTimerSummary(std::string statname);
 	std::string GetTimerSummary(int Statid);
 	void WriteFullStatsHeader(bool OnlyCoreStats);
 	void WriteCSV(bool OnlyCoreStats);
+	std::string FileSuffix = "";
 	//This contains a single stat and all its data for the duration of the stat collection
 	struct PerformanceLogStat
 	{

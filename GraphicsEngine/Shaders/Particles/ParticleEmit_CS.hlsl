@@ -23,10 +23,10 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
 
 			newPosVelo[newParticleIndex] = (PosVelo)0;
 			newPosVelo[newParticleIndex].pos = float4(0, 20, 0, 2);
-			int Tweak = newParticleIndex % 5;
+			int Tweak = newParticleIndex % 10;
 			newPosVelo[newParticleIndex].vel = float4(Tweak, 5, 5, 0);
-			newPosVelo[newParticleIndex].Lifetime = 2;
-			newPosVelo[newParticleIndex].Size = 1.2;
+			newPosVelo[newParticleIndex].Lifetime = 20;
+			newPosVelo[newParticleIndex].Size = 0.1f;
 		}
 	}
 }

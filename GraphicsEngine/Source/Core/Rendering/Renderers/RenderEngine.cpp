@@ -247,12 +247,26 @@ Camera * RenderEngine::GetMainCam()
 
 int RenderEngine::GetScaledWidth()
 {
-	return (int)(m_width * RHI::GetRenderSettings()->RenderScale);
+	if (RHI::GetRenderSettings()->LockBackBuffer)
+	{
+		return RHI::GetRenderSettings()->LockedWidth;
+	}
+	else
+	{
+		return (int)(m_width * RHI::GetRenderSettings()->RenderScale);
+	}
 }
 
 int RenderEngine::GetScaledHeight()
 {
-	return (int)(m_height * RHI::GetRenderSettings()->RenderScale);
+	if (RHI::GetRenderSettings()->LockBackBuffer)
+	{
+		return RHI::GetRenderSettings()->LockedHeight;
+	}
+	else
+	{
+		return (int)(m_height * RHI::GetRenderSettings()->RenderScale);
+	}
 }
 
 void RenderEngine::HandleCameraResize()

@@ -217,11 +217,18 @@ ID3D12CommandQueue * D3D12DeviceContext::GetCommandQueue()
 
 void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 {
+	//force Queue sync at the end of frame
+	if (!AllowCrossFrameAsyncCompute)
+	{
+		InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+		InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	}
 	GraphicsSync.MoveNextFrame(SyncIndex);
 	CopySync.MoveNextFrame(SyncIndex);
 	InterGPUSync.MoveNextFrame(SyncIndex);
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
+
 }
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()

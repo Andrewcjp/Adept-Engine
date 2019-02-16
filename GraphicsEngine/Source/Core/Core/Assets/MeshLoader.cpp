@@ -57,7 +57,7 @@ void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
 	ArchiveProp(InitOnAllDevices);
 	ArchiveProp(CreatePhysxMesh);
 	ArchiveProp(GenerateIndexed);
-	ArchiveProp(FlipUVs);
+	ArchiveProp(FlipUVs); 
 }
 ///this loads only an animation from a file and adds it to a Skeletal mesh
 ///Todo: validate bones are the same

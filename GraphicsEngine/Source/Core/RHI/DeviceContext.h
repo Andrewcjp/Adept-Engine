@@ -53,6 +53,7 @@ public:
 	RHI_API void RemoveTransferBuffer(FrameBuffer* buffer);
 	void ResetStat();
 protected:
+	bool AllowCrossFrameAsyncCompute = false;
 	RHI_API void InitCopyListPool();
 	bool LogDeviceDebug = true;
 	int DeviceIndex = 0;

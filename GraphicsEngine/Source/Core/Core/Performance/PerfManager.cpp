@@ -7,6 +7,7 @@
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Utils/NVAPIManager.h"
 #include "BenchMarker.h"
+#pragma optimize("",off)
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()
@@ -326,7 +327,7 @@ void PerfManager::NotifyEndOfFrame(bool Final)
 	{
 		PerfManager::Instance->EndFrameTimer();
 		if (Final)
-		{			
+		{
 			Instance->UpdateStats();
 			Instance->Internal_NotifyEndOfFrame();
 			Instance->UpdateStatsTimer();
@@ -342,7 +343,7 @@ void PerfManager::Internal_NotifyEndOfFrame()
 	}
 	for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
 	{
-		TimerData*  data = &AVGTimers.at(it->first);	
+		TimerData*  data = &AVGTimers.at(it->first);
 		data->AVG->Add(it->second);
 		it->second = 0.0f;
 		data->LastCallCount = data->CallCount;
@@ -426,6 +427,8 @@ void PerfManager::ClearStats()
 		const float AVG = CPUAVG.GetCurrentAverage();
 		CPUAVG.clear();
 		CPUAVG.Add(AVG);
+		FrameAccum = 0;
+		FrameTimeAccum = 0.0f;
 	}
 	DidJustReset = false;
 }
@@ -444,8 +447,12 @@ std::vector<TimerData*> PerfManager::GetAllGPUTimers(std::string group)
 	return Output;
 }
 
-void PerfManager::StartBenchMark()
+void PerfManager::StartBenchMark(std::string name)
 {
+	if (name.length() > 0)
+	{
+		Instance->Bencher->SetTestFileSufix(name);
+	}
 	Instance->ResetStats();
 	Instance->Bencher->StartBenchMark();
 }
@@ -549,7 +556,7 @@ CORE_API void PerfManager::UpdateGPUStat(int id, float newtime, float OffsetToMa
 			data->Active = true;
 			data->GPUStartOffset = OffsetToMain;
 		}
-		TimerOutput.at(id) = glm::abs(newtime);		
+		TimerOutput.at(id) = glm::abs(newtime);
 	}
 }
 

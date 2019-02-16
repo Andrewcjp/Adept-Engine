@@ -241,9 +241,12 @@ RHIBuffer* ParticleSystemManager::GetPostSimList()
 
 void ParticleSystemManager::Simulate()
 {
-	return;
+	if (!RHI::GetRenderSettings()->EnableGPUParticles)
+	{
+		return;
+	}
 	CmdList->ResetList();
-#if !USE_INDIRECTCOMPUTE
+#if PARTICLE_STATS
 	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
 #endif
 	DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
@@ -252,7 +255,7 @@ void ParticleSystemManager::Simulate()
 	DispatchCommandBuffer->GetUAV()->Bind(CmdList, 1);
 	emitcount++;
 	int on = (emitcount % 10 == 0);
-	on = 1;
+	on = 100;
 	CmdList->SetRootConstant(2, 1, &on, 0);
 	CmdList->Dispatch(1, 1, 1);
 	Sync();
@@ -271,6 +274,8 @@ void ParticleSystemManager::Simulate()
 #endif
 	Sync();
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ParticleCompute>()));
+	float DT = Engine::GetDeltaTime();
+	CmdList->SetRootConstant(5, 1, &DT, 0);
 	GPU_ParticleData->GetUAV()->Bind(CmdList, 0);
 	CounterBuffer->GetUAV()->Bind(CmdList, 1);
 	GetPreSimList()->BindBufferReadOnly(CmdList, 2);
@@ -294,7 +299,7 @@ void ParticleSystemManager::Simulate()
 #endif
 	Sync();
 	RenderCommandBuffer->SetBufferState(CmdList, EBufferResourceState::IndirectArgs);
-#if !USE_INDIRECTCOMPUTE
+#if PARTICLE_STATS
 	CmdList->EndTimer(EGPUTIMERS::ParticleSimulation);
 #endif
 	CmdList->Execute();
@@ -306,9 +311,12 @@ void ParticleSystemManager::Simulate()
 
 void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 {
-	return;
+	if (!RHI::GetRenderSettings()->EnableGPUParticles)
+	{
+		return;
+	}
 	RenderList->ResetList();
-#if !USE_INDIRECTCOMPUTE
+#if PARTICLE_STATS
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
 #endif
 	RHIPipeLineStateDesc desc;
@@ -324,18 +332,18 @@ void ParticleSystemManager::Render(FrameBuffer* BufferTarget)
 	GPU_ParticleData->BindBufferReadOnly(RenderList, 1);
 	RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::IndirectArgs);
 	RenderList->SetTexture(TEstTex, 3);
-#if USE_INDIRECTCOMPUTE
-	RenderList->ExecuteIndiect(MAX_PARTICLES, RenderCommandBuffer, 0, nullptr, 0);
+#if USE_INDIRECTRENDER
+	RenderList->ExecuteIndiect(MAX_PARTICLES, RenderCommandBuffer, 0, CounterBuffer, 0);
 #else
 	for (int i = 0; i < MAX_PARTICLES; i++)
 	{
 		RenderList->SetRootConstant(0, 1, &i, 0);
 		RenderList->DrawPrimitive(6, 1, 0, 0);
-	}
+}
 #endif
 	GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
 	RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
-#if !USE_INDIRECTCOMPUTE
+#if PARTICLE_STATS
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 #endif
 	RenderList->Execute();
