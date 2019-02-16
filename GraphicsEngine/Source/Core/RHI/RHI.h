@@ -71,7 +71,7 @@ public:
 	static const RenderConstants* GetRenderConstants();
 	static void AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize = false);
 	static void RemoveLinkedFrameBuffer(FrameBuffer* target);
-	static RenderSettings* GetRenderSettings();
+	RHI_API static RenderSettings* GetRenderSettings();
 	RHI_API static const MultiGPUMode* GetMGPUSettings();
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
 	static RHI* Get();

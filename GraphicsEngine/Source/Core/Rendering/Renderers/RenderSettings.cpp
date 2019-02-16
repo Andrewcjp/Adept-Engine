@@ -9,8 +9,8 @@ static ConsoleVariable SFRSplitShadowsVar("SFRSplitShadows", false, ECVarType::L
 MultiGPUMode::MultiGPUMode()
 {
 	//UseSFR.SetValue(true);
-	SplitShadows.SetValue(true);
-	AsyncShadow.SetValue(true);
+	//SplitShadows.SetValue(true);
+	//AsyncShadow.SetValue(true);
 	MAX_PRESAMPLED_SHADOWS = 1;
 	SecondCardShadowScaleFactor = 1.0f;
 	SyncSettings();
@@ -53,11 +53,36 @@ RenderSettings::RenderSettings()
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	IsDeferred = false;
+	EnableGPUParticles = false;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
+	LockBackBuffer = true;
+	if (LockBackBuffer)
+	{
+		SetRes(BBTestMode::HD);
+	}
+}
+
+void RenderSettings::SetRes(BBTestMode::Type Mode)
+{
+	switch (Mode)
+	{
+	case BBTestMode::HD:
+		LockedWidth = 1920;
+		LockedHeight = 1080;
+		break;
+	case BBTestMode::QHD:
+		LockedWidth = 2560;
+		LockedHeight = 1440;
+		break;
+	case BBTestMode::UHD:
+		LockedWidth = 3840;
+		LockedHeight = 2160;
+		break;
+	}
 }
 
 RenderConstants::RenderConstants()
@@ -66,4 +91,21 @@ RenderConstants::RenderConstants()
 	MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
 	MAX_LIGHTS = 8;
 	DEFAULT_COPYLIST_POOL_SIZE = 4;
+}
+
+std::string RenderSettings::ToString(BBTestMode::Type t)
+{
+	switch (t)
+	{
+	case BBTestMode::HD:
+		return "HD 1080P";
+		break;
+	case BBTestMode::QHD:
+		return "QHD 1440P";
+		break;
+	case BBTestMode::UHD:
+		return "UHD 2160P";
+		break;
+	}
+	return "?";
 }

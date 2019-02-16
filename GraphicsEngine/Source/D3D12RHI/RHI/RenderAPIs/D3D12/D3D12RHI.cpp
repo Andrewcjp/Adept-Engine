@@ -471,12 +471,12 @@ D3D12RHI * D3D12RHI::Get()
 
 void D3D12RHI::PresentFrame()
 {
-	if (RHI::GetMGPUSettings()->AsyncShadows)
-	{
-		/*RHI::GetDeviceContext(0)->GPUWaitForOtherGPU(RHI::GetDeviceContext(1), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);*/
-		AsyncSync->SignalWait();
-		RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
-	}
+	//if (RHI::GetMGPUSettings()->AsyncShadows)
+	//{
+	//	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
+	//	AsyncSync->SignalWait();
+	//	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	//}
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(GetPrimaryDevice()->GetCommandAllocator(), nullptr);

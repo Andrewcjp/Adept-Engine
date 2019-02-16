@@ -70,6 +70,7 @@ private:
 	ID3D12QueryHeap* m_timestampQueryHeaps;
 	ID3D12Resource* m_timestampResultBuffers;
 	UINT64 m_directCommandQueueTimestampFrequencies = 1;
+	UINT64 m_ComputeQueueFreqency = 1;
 	UINT64 m_copyCommandQueueTimestampFrequencies = 1;
 	GPUTimer TimeDeltas[TotalMaxTimerCount] = {};
 	ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;

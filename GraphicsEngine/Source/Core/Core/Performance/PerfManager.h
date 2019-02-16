@@ -96,7 +96,7 @@ public:
 	void FlushSingleActionTimer(std::string name);
 	void WriteLogStreams(bool UseRaw);
 	std::vector<TimerData*> GetAllGPUTimers(std::string group);
-	CORE_API static void StartBenchMark();
+	CORE_API static void StartBenchMark(std::string name = std::string());
 	CORE_API static void EndBenchMark();
 private:
 	void Internal_NotifyEndOfFrame();

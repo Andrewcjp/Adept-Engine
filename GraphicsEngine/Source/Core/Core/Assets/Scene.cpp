@@ -108,7 +108,7 @@ void Scene::AddLight(glm::vec3 Pos, bool Shadow, float BrightNess)
 	AddGameobjectToScene(go);
 }
 
-void Scene::SpawnBox(glm::vec3 pos)
+GameObject* Scene::SpawnBox(glm::vec3 pos)
 {
 	GameObject *go = new GameObject("Rock");
 	Material *mat = Material::GetDefaultMaterial();
@@ -125,6 +125,7 @@ void Scene::SpawnBox(glm::vec3 pos)
 	cc->LocalOffset = glm::vec3(0, 1, 0);
 	go->AttachComponent(new RigidbodyComponent());
 	AddGameobjectToScene(go);
+	return go;
 }
 //load an example scene
 void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)

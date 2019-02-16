@@ -163,7 +163,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	FilterBuffer->MakeReadyForCopy(Cmdlist);
 	Cmdlist->Execute();
 
-	if (Cmdlist->GetDeviceIndex() == 0 && false)
+	if (Cmdlist->GetDeviceIndex() == 0)
 	{
 		ParticleSystemManager::Get()->Render(FilterBuffer);
 	}

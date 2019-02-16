@@ -50,6 +50,9 @@ public:
 	const DifficultyPreset* GetDifficultyPreset();
 	void CompleteGame();
 	bool IsGameComplete = false;
+	GameObject* TestObject = nullptr;
+	float CurrentPos = 0.0f;
+	bool FWD = true;
 private:
 	WeakObjectPtr<GameObject> MPlayer;
 	std::vector<Door> Doors;

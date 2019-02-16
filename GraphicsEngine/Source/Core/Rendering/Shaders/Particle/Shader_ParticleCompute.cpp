@@ -20,6 +20,7 @@ std::vector<Shader::ShaderParameter> Shader_ParticleCompute::GetShaderParameters
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 2, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 3, 2));
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 4, 3));
+	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 5, 0));
 	return Output;
 }
 

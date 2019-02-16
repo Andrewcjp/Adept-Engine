@@ -44,16 +44,16 @@ void BenchMarker::StartCapture()
 {
 	Log::LogMessage("Performance Capture Started");
 	CurrentMode = EBenchMarkerMode::Capturing;
-	SummaryOutputFileName = AssetManager::GetGeneratedDir() + "\\PerfLog.txt";
-	CSV = new FileUtils::CSVWriter(AssetManager::GetGeneratedDir() + "\\PerfData.csv");
+	SummaryOutputFileName = AssetManager::GetGeneratedDir();
+	CSV = new FileUtils::CSVWriter(AssetManager::GetGeneratedDir() + "\\PerfData_" + FileSuffix + ".csv");
 }
 
 void BenchMarker::EndCapture()
-{	
+{
 	if (CurrentMode != EBenchMarkerMode::Off)
 	{
 		Log::LogMessage("Performance Capture finished");
-		WriteSummaryToDisk();
+		WriteSummaryToDisk(true);
 		WriteCSV(false);
 		StatLogs.clear();
 	}
@@ -92,6 +92,13 @@ void BenchMarker::WriteCoreStat(ECoreStatName::Type stat, float value)
 	}
 }
 
+void BenchMarker::SetTestFileSufix(std::string suffix)
+{
+	FileSuffix = suffix;
+	SafeDelete(CSV);
+	CSV = new FileUtils::CSVWriter(AssetManager::GetGeneratedDir() + "\\PerfData_" + FileSuffix + ".csv");
+}
+
 void BenchMarker::CapturePerfMarkers()
 {
 	PerfManager::Get()->WriteLogStreams(true);
@@ -114,7 +121,7 @@ void BenchMarker::WriteFullStatsHeader(bool OnlyCoreStats)
 	CSV->AddLineBreak();
 }
 
-void BenchMarker::WriteSummaryToDisk()
+void BenchMarker::WriteSummaryToDisk(bool log /*= false*/)
 {
 	std::string summary = "";
 	summary += GetCoreTimerSummary(ECoreStatName::FrameRate);
@@ -125,7 +132,11 @@ void BenchMarker::WriteSummaryToDisk()
 	summary.append("\n");
 	summary += GetCoreTimerSummary(ECoreStatName::GPU);
 	summary.append("\n");
-	FileUtils::WriteToFile(SummaryOutputFileName, summary);
+	FileUtils::WriteToFile(SummaryOutputFileName + "\\PerfLog_" + FileSuffix + ".txt", summary);
+	if (log)
+	{
+		Log::LogMessage(summary);
+	}
 }
 
 std::string BenchMarker::GetCoreTimerSummary(ECoreStatName::Type CoreStat)

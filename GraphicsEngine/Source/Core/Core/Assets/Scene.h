@@ -28,7 +28,7 @@ public:
 	void StartScene();
 	void LoadDefault();
 	void AddLight(glm::vec3 Pos, bool Shadow, float BrightNess);
-	void SpawnBox(glm::vec3 pos);
+	CORE_API GameObject* SpawnBox(glm::vec3 pos);
 	void LoadExampleScene(RenderEngine * Renderer, bool IsDeferredMode);
 
 	void SpawnDoor(std::string name, glm::vec3 pos);

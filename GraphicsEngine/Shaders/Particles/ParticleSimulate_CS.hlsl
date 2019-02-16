@@ -4,10 +4,14 @@ RWByteAddressBuffer CounterBuffer: register(u1);
 StructuredBuffer<uint> AliveIndexs :register(t0);
 RWStructuredBuffer<uint> DeadIndexs :register(u2);
 RWStructuredBuffer<uint> PostSim_AliveIndex :register(u3);
+cbuffer emitData: register(b0)
+{
+	float TickRate;
+};
 [numthreads(1, 1, 1)]
 void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint GI : SV_GroupIndex)
 {	
-	const float timeStep = 1.0f / 60.0f;
+	const float timeStep = TickRate;
     uint aliveCount = CounterBuffer.Load(PARTICLECOUNTER_OFFSET_ALIVECOUNT);
 
 	if (DTid.x < aliveCount)

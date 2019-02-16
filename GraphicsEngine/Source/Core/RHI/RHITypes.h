@@ -234,9 +234,9 @@ namespace EGPUTIMERS
 		Skybox,
 		PostProcess,
 		Present,
-		ShadowPreSample,
 		ParticleDraw,
 		ParticleSimulation,
+		ShadowPreSample,
 		GPU0WaitOnGPU1,
 		LIMIT
 	};

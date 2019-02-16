@@ -85,6 +85,7 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	SpawnSpectator(glm::vec3(0, 0, 0));
 	BenchMarker->CameraObject = MPlayer.Get();
 	BenchMarker->Init();
+	TestObject = Scene->SpawnBox(glm::vec3(1, 1, 1));
 #endif
 
 }
@@ -121,6 +122,7 @@ void BleedOutGameMode::Update()
 	{
 		BenchMarker->Update();
 	}
+#if 0
 	if (GetPlayer() != nullptr)
 	{
 		float distance = glm::length(GetPlayer()->GetPosition() - glm::vec3(0, 1, -45));
@@ -134,6 +136,31 @@ void BleedOutGameMode::Update()
 	{
 		Input::SetCursorState(false, true);
 	}
+#endif
+	if (TestObject != nullptr)
+	{
+		const float Flip = 20;
+		float spd = 10.0f;
+		if (FWD)
+		{
+			CurrentPos += spd*Engine::GetDeltaTime();
+		}
+		else
+		{
+			CurrentPos -= spd*Engine::GetDeltaTime();
+		}
+		TestObject->SetPosition(glm::vec3(CurrentPos, 10, 0));
+		if (CurrentPos > Flip)
+		{
+			FWD = false;
+		}
+		else if(CurrentPos < -Flip)
+		{
+			FWD = true;
+		}
+
+	}
+
 }
 
 void BleedOutGameMode::OnPlayerDeath()

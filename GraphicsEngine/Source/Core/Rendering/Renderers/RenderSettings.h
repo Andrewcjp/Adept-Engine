@@ -12,6 +12,17 @@ namespace AAMode
 		SMAA,
 	};
 }
+namespace BBTestMode
+{
+	enum Type
+	{
+		HD, 
+		QHD,
+		UHD, 
+		Limit
+	};
+	
+}
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
@@ -21,6 +32,12 @@ public:
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
 	int ShadowMapSize = 2048;
 	bool IsDeferred = false;
+	bool EnableGPUParticles = true;
+	bool LockBackBuffer = false;
+	int LockedWidth = 0;
+	int LockedHeight = 0;
+	RHI_API void SetRes(BBTestMode::Type t);
+	RHI_API static std::string ToString(BBTestMode::Type t);
 };
 //Props Are Set in the Constructor 
 struct MultiGPUMode
