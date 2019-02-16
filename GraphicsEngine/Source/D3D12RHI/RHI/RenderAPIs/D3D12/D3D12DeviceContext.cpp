@@ -578,23 +578,40 @@ void GPUFenceSync::MoveNextFrame(int SyncIndex)
 	m_fenceValues[m_frameIndex] = currentFenceValue + 1;
 }
 CreateChecker(D3D12GPUSyncEvent);
-D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, DeviceContextQueue::Type SignalQueueEnum, DeviceContext * device) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
+D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, DeviceContextQueue::Type SignalQueueEnum, DeviceContext * device, DeviceContext* OtherDevice) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
 {
 	AddCheckerRef(D3D12GPUSyncEvent, this);
 	D3D12DeviceContext* d3dc = (D3D12DeviceContext*)Device;
-	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	if (OtherDevice == nullptr)
 	{
-		Point[i].InitGPUOnly(d3dc->GetDevice());
+		for (int i = 0; i < RHI::CPUFrameCount; i++)
+		{
+			Point[i].InitGPUOnly(d3dc->GetDevice());
+		}
+		WaitingQueue = d3dc->GetCommandQueueFromEnum(WaitingQueueEnum);
+		SignalQueue = d3dc->GetCommandQueueFromEnum(SignalQueueEnum);
 	}
-	WaitingQueue = d3dc->GetCommandQueueFromEnum(WaitingQueueEnum);
-	SignalQueue = d3dc->GetCommandQueueFromEnum(SignalQueueEnum);
+	else
+	{
+		SignalingDevice = OtherDevice;
+		D3D12DeviceContext* sDevice = (D3D12DeviceContext*)SignalingDevice;
+		for (int i = 0; i < RHI::CPUFrameCount; i++)
+		{
+			Point[i].Init(sDevice->GetDevice(), d3dc->GetDevice());
+		}
+		WaitingQueue = d3dc->GetCommandQueueFromEnum(WaitingQueueEnum);
+		SignalQueue = sDevice->GetCommandQueueFromEnum(SignalQueueEnum);
+	}
 }
 
 D3D12GPUSyncEvent::~D3D12GPUSyncEvent()
 {
 	RemoveCheckerRef(D3D12GPUSyncEvent, this);
 }
-
+void D3D12GPUSyncEvent::SignalWait()
+{
+	Point[Device->GetCpuFrameIndex()].CrossGPUCreateSyncPoint(SignalQueue, WaitingQueue);
+}
 void D3D12GPUSyncEvent::Signal()
 {
 	Point[Device->GetCpuFrameIndex()].Signal(SignalQueue);

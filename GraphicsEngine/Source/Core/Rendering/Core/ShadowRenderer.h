@@ -16,6 +16,7 @@ struct DeviceShadowObjects
 	FrameBuffer* PreSampledBuffer = nullptr;
 	void Release();
 };
+#define USE_GS_FOR_CUBE_SHADOWS 1
 class ShadowRenderer
 {
 public:
@@ -27,6 +28,7 @@ public:
 	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, class Shader_Main* mainshader = nullptr);
 	void RenderOnDevice(DeviceContext * con, const std::vector<GameObject*>& ShadowObjects);
 	void RunPointShadowPass(RHICommandList * List, const std::vector<GameObject*>& ShadowObjects);
+	void AsyncCopy(int Index);
 	void PreSampleShadows(RHICommandList* list, const std::vector<GameObject*>& ShadowObjects);
 	void RenderPointShadows(RHICommandList * list, const std::vector<GameObject*>& ShadowObjects);
 	void RenderDirectionalShadows(RHICommandList * list, const std::vector<GameObject *> & ShadowObjects);

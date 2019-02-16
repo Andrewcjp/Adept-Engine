@@ -15,6 +15,7 @@ struct aiNodeAnim;
 struct aiAnimation;
 class Mesh;
 class Transform;
+
 ///Represents one animation clip and all its props
 struct AnimationClip
 {
@@ -48,7 +49,7 @@ public:
 	};
 	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name, FMeshLoadingSettings& Settings);
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);
-	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices);
+	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<IndType>& indices);
 	Mesh* TryLoadFromCache(std::string Path);
 	static MeshLoader* Get();
 	static void RegisterLoad(std::string path, Mesh* mesh);

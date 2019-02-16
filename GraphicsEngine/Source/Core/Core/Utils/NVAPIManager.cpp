@@ -34,7 +34,11 @@ NVAPIManager::NVAPIManager()
 		ret = NvAPI_GPU_GetFullName(GPUHandles[i], name);
 		if (ret == NVAPI_OK)
 		{
-			GpuData[i].push_back(name);
+			std::string named = name;
+			NvU32 LaneCount = 0;
+			NvAPI_GPU_GetCurrentPCIEDownstreamWidth(GPUHandles[i], &LaneCount);
+			named += "(x" + std::to_string(LaneCount) + ")";
+			GpuData[i].push_back(named);
 		}
 		GpuData[i].resize(StaticProps + DynamicProps);
 	}

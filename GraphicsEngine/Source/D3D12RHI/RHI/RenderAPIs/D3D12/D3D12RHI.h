@@ -14,6 +14,7 @@
 #include "Core/Platform/PlatformCore.h"
 
 class D3D12DeviceContext;
+class D3D12GPUSyncEvent;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -37,7 +38,7 @@ public:
 	RHI_VIRTUAL void TriggerWriteBackResources() override;
 #endif
 
-	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device) override;
+	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) override;
 
 private:
 	void DestroyContext();
@@ -80,6 +81,7 @@ private:
 	void ResizeSwapChain(int x, int y) override;
 	
 private:
+	D3D12GPUSyncEvent* AsyncSync = nullptr;
 	bool IsFullScreen = false;
 	D3D12DeviceContext * GetPrimaryDevice();
 	D3D12DeviceContext* GetSecondaryDevice();

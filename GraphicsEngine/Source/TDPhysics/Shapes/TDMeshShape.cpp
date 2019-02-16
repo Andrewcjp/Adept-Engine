@@ -241,6 +241,7 @@ namespace TD
 	{
 		//takes in data in most compatible format and turns it into the TD internal one
 		//todo: data stride!
+		return;
 		for (int i = 0; i < desc.Indices.Count; i += 3)
 		{
 			glm::vec3 posa = *desc.Points.GetFromArray<glm::vec3>(*desc.Indices.GetFromArray<int>(i));

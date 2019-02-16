@@ -11,7 +11,19 @@ class BenchMarker;
 #define SCOPE_STARTUP_COUNTER(name) PerfManager::ScopeStartupCounter STARTUPCOUNTER(name);
 #define DECLARE_TIMER_GROUP(name,GroupName) int name = PerfManager::Get()->GetGroupId(GroupName); 
 #define DECLARE_TIMER(name,Group)int name =  PerfManager::Get()->AddTimer(#name, Group);
-
+struct TimerData
+{
+	float Time = 0.0f;
+	MovingAverage* AVG = nullptr;
+	std::string name;
+	int GroupId = 0;
+	bool Active = false;
+	int CallCount = 0;
+	int LastCallCount = 0;
+	bool IsGPUTimer = false;
+	float GPUStartOffset = 0.0f;//Offset in MS from start of frame (GPU main timestamp)
+	ECommandListType::Type TimerType = ECommandListType::Graphics;
+};
 class PerfManager
 {
 public:
@@ -62,19 +74,7 @@ public:
 	static void SetDeltaTime(float Time);
 	static void NotifyEndOfFrame(bool Final = false);
 	bool ShowAllStats = false;
-	struct TimerData
-	{
-		float Time = 0.0f;
-		MovingAverage* AVG = nullptr;
-		std::string name;
-		int GroupId = 0;
-		bool Active = false;
-		int CallCount = 0;
-		int LastCallCount = 0;
-		bool IsGPUTimer = false;
-		float GPUStartOffset = 0.0f;//Offset in MS from start of frame (GPU main timestamp)
-		ECommandListType::Type TimerType = ECommandListType::Graphics;
-	};
+
 	CORE_API TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y, bool IncludeGPUStats = false);
 
@@ -95,7 +95,7 @@ public:
 	void LogSingleActionTimer(std::string name);
 	void FlushSingleActionTimer(std::string name);
 	void WriteLogStreams(bool UseRaw);
-	std::vector<PerfManager::TimerData*> GetAllGPUTimers(std::string group);
+	std::vector<TimerData*> GetAllGPUTimers(std::string group);
 	CORE_API static void StartBenchMark();
 	CORE_API static void EndBenchMark();
 private:

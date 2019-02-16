@@ -9,7 +9,7 @@ static ConsoleVariable IsActive("GPG", 0, ECVarType::ConsoleAndLaunch);
 GPUPerformanceGraph::GPUPerformanceGraph()
 {
 	StartPos = glm::vec3(250, 150, 0);
-	Scale = 50;
+	Scale = 25;
 }
 
 GPUPerformanceGraph::~GPUPerformanceGraph()
@@ -28,7 +28,7 @@ void GPUPerformanceGraph::Render()
 
 void GPUPerformanceGraph::RenderGPU(int index)
 {
-	std::vector<PerfManager::TimerData*> data = PerfManager::Get()->GetAllGPUTimers("GPU_" + std::to_string(index));
+	std::vector<TimerData*> data = PerfManager::Get()->GetAllGPUTimers("GPU_" + std::to_string(index));
 	if (data.size() == 0)
 	{
 		return;
@@ -48,7 +48,7 @@ void GPUPerformanceGraph::SetEnabled(bool state)
 	IsActive.SetValue(state);
 }
 
-void GPUPerformanceGraph::DrawLine(PerfManager::TimerData * data, glm::vec3 LocalOffset, float& CurrnetValue, int index)
+void GPUPerformanceGraph::DrawLine(TimerData * data, glm::vec3 LocalOffset, float& CurrnetValue, int index)
 {
 	CurrnetValue = data->GPUStartOffset*Scale;
 	float Length = (data->AVG->GetCurrentAverage() * Scale);

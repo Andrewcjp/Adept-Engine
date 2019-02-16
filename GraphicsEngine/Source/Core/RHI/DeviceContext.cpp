@@ -122,18 +122,18 @@ void DeviceContext::TickTransferStats()
 	{
 		return;
 	}
-	PerfManager::TimerData* t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("MGPU Copy" + std::to_string(GetDeviceIndex())));
+	TimerData* t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("MGPU Copy" + std::to_string(GetDeviceIndex())));
 	if (t == nullptr)
 	{
 		return;
 	}
 	//SFR
-	float transferTimeInS = t->Time / 10e3;
-	float MB = (float)BytesToTransfer / 10e6;
+	float transferTimeInS = t->Time / 10e3f;
+	float MB = (float)BytesToTransfer / 10e6f;
 	float TransferSpeedBPerS = (float)BytesToTransfer / transferTimeInS;//1024
 	std::stringstream ss;
 	ss << "GPU_" << GetDeviceIndex() << " transferring " << std::fixed << std::setprecision(2) << MB << "Mb @ " << TransferSpeedBPerS / 10e9 << "GB/s Taking " << t->Time << "ms";
-	TextRenderer::instance->RenderFromAtlas(ss.str(), 100, 20 + 20 * GetDeviceIndex(), 0.35f);
+	TextRenderer::instance->RenderFromAtlas(ss.str(), 100.0f, 20.0f + 20 * GetDeviceIndex(), 0.35f);
 }
 int DeviceContext::GetTransferBytes()
 {

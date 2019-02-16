@@ -127,13 +127,13 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 	return GetRHIClass()->CreateCommandList(Type, Device);
 }
 
-RHIGPUSyncEvent * RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device)
+RHIGPUSyncEvent * RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
 {
 	if (Device == nullptr)
 	{
 		Device = RHI::GetDefaultDevice();
 	}
-	return GetRHIClass()->CreateSyncEvent(WaitingQueue, SignalQueue, Device);
+	return GetRHIClass()->CreateSyncEvent(WaitingQueue, SignalQueue, Device, SignalDevice);
 }
 
 bool RHI::BlockCommandlistExec()
@@ -191,6 +191,11 @@ SFRController * RHI::GetSplitController()
 void RHI::FlushDeferredDeleteQueue()
 {
 	Get()->TickDeferredDeleteQueue(true);
+}
+
+void RHI::Tick()
+{
+	instance->SFR_Controller->Tick();
 }
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
@@ -491,7 +496,7 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 	if (itor == PSOMap.end())
 	{
 		return RHI::CreatePipelineStateObject(desc, Device);
-}
+	}
 	ensure(itor->second->GetDesc() == desc);
 	return itor->second;
 }

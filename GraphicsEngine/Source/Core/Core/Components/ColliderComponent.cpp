@@ -8,6 +8,7 @@
 #include "Physics/PhysicsEngine.h"
 #include "Physics/SimTD/TDRigidBody.h"
 #include "RigidbodyComponent.h"
+#include "Rendering/Core/RenderBaseTypes.h"
 
 ColliderComponent::ColliderComponent()
 {
@@ -195,7 +196,7 @@ void ColliderComponent::LoadMesh()
 {
 	MeshLoader::FMeshLoadingSettings set;
 	std::vector<OGLVertex> v;
-	std::vector<int> inds;
+	std::vector<IndType> inds;
 	set.GenerateIndexed = true;
 	MeshLoader::LoadMeshFromFile_Direct(MeshName, set, v, inds);
 	Points.clear();
@@ -211,6 +212,7 @@ void ColliderComponent::LoadMesh()
 
 void ColliderComponent::SceneInitComponent()
 {
+	return;
 	RigidComp = GetOwner()->GetComponent<RigidbodyComponent>();
 	if ((GetOwner() != nullptr && RigidComp == nullptr) || GetOwner() == nullptr)
 	{

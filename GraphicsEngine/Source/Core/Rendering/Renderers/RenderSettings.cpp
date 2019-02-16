@@ -5,12 +5,13 @@ static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly
 static ConsoleVariable AsyncShadow("AsyncShadow", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitPS("SplitPS", false, ECVarType::LaunchOnly);
 static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOnExCard", true, ECVarType::LaunchOnly);
-static ConsoleVariable SFRSplitShadowsVar("SFRSplitShadows", true, ECVarType::LaunchOnly);
+static ConsoleVariable SFRSplitShadowsVar("SFRSplitShadows", false, ECVarType::LaunchOnly);
 MultiGPUMode::MultiGPUMode()
 {
 	//UseSFR.SetValue(true);
 	SplitShadows.SetValue(true);
-	MAX_PRESAMPLED_SHADOWS = 2;
+	AsyncShadow.SetValue(true);
+	MAX_PRESAMPLED_SHADOWS = 1;
 	SecondCardShadowScaleFactor = 1.0f;
 	SyncSettings();
 }
@@ -33,6 +34,10 @@ void MultiGPUMode::ValidateSettings()
 		SplitShadowWork = false;
 		ComputePerFrameShadowDataOnExCard = false;
 		PSComputeWorkSplit = false;
+		AsyncShadows = false;
+	}
+	if (!SplitShadowWork)
+	{
 		AsyncShadows = false;
 	}
 	int Offset = 30;

@@ -130,7 +130,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	}
 
 	std::vector<OGLVertex> vertices;
-	std::vector<int> indices;
+	std::vector<IndType> indices;
 	std::vector<aiNode*> NodeArray;
 	TraverseNodeTree(NodeArray, scene->mRootNode);
 	for (unsigned int modeli = 0; modeli < scene->mNumMeshes; modeli++)
@@ -231,7 +231,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	return true;
 }
 
-bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<int>& indices)
+bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<IndType>& indices)
 {
 	Assimp::Importer importer;
 	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;

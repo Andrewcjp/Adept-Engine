@@ -162,7 +162,7 @@ glm::vec3 Mesh::GetPosOfBone(std::string Name)
 	return  glm::vec3(Boneitor[3][0], Boneitor[3][1], Boneitor[3][2]);
 }
 
-MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex>& vertices, std::vector<int>& indices)
+MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex>& vertices, std::vector<IndType>& indices)
 {
 	if (vertices.size() == 0 || indices.size() == 0)
 	{
@@ -176,7 +176,7 @@ MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<O
 		IndexBuffers[i] = RHI::CreateRHIBuffer(ERHIBufferType::Index, RHI::GetDeviceContext(i));
 		VertexBuffers[i]->CreateVertexBuffer(sizeof(OGLVertex), sizeof(OGLVertex)* (int)vertices.size(), EBufferAccessType::Static);
 		VertexBuffers[i]->UpdateVertexBuffer(vertices.data(), vertices.size());
-		IndexBuffers[i]->CreateIndexBuffer(sizeof(int), sizeof(int)* (int)indices.size());
+		IndexBuffers[i]->CreateIndexBuffer(sizeof(IndType), sizeof(IndType)* (int)indices.size());
 		IndexBuffers[i]->UpdateIndexBuffer(indices.data(), indices.size());
 	}
 	indices.clear();

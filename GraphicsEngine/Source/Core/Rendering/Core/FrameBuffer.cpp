@@ -24,6 +24,7 @@ void FrameBuffer::HandleInit()
 	if (RHI::GetMGPUSettings()->MainPassSFR && BufferDesc.IncludedInSFR)
 	{		
 		SFR_Node = RHI::GetSplitController()->GetNode(Device->GetDeviceIndex());
+		SFR_Node->AddBuffer(this);
 		BufferDesc.ViewPort = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
 		const float start = BufferDesc.Width*SFR_Node->SFR_Offset;//Offset is in whole buffer space
 		const int SFrBufferWidth = glm::iround(BufferDesc.Width*SFR_Node->SFR_PercentSize);
@@ -65,6 +66,11 @@ void FrameBuffer::Resize(int width, int height)
 	BufferDesc.Height = height;
 	HandleInit();
 	HandleResize();
+}
+
+void FrameBuffer::SFRResize()
+{
+	Resize(m_width, m_height);
 }
 
 void FrameBuffer::HandleResize()

@@ -15,6 +15,7 @@ class RHIClass;
 #define MAX_GPU_DEVICE_COUNT 2
 #define ALLOW_RESOURCE_CAPTURE 0
 #define LOG_RESOURCE_TRANSITIONS 0
+
 class RHI
 {
 public:
@@ -54,7 +55,7 @@ public:
 	static void ResizeSwapChain(int width, int height);
 	static void DestoryContext();
 
-	RHI_API static RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device = nullptr);
+	RHI_API static RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device = nullptr, DeviceContext * SignalDevice = nullptr);
 	RHI_API static bool BlockCommandlistExec();
 	RHI_API static bool AllowCPUAhead();
 	RHI_API static int GetDeviceCount();
@@ -71,11 +72,12 @@ public:
 	static void AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize = false);
 	static void RemoveLinkedFrameBuffer(FrameBuffer* target);
 	static RenderSettings* GetRenderSettings();
-	static const MultiGPUMode* GetMGPUSettings();
+	RHI_API static const MultiGPUMode* GetMGPUSettings();
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
 	static RHI* Get();
 	static SFRController* GetSplitController();
 	RHI_API static void FlushDeferredDeleteQueue();
+	static void Tick();
 private:
 	SFRController* SFR_Controller = nullptr;
 	void TickDeferredDeleteQueue(bool Flush = false);
@@ -118,7 +120,7 @@ public:
 	RHI_VIRTUAL void TriggerBackBufferScreenShot() = 0;
 	RHI_VIRTUAL std::string ReportMemory() = 0;
 	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) = 0;
-	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device) = 0;
+	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) = 0;
 #if ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() = 0;
 #endif

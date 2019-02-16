@@ -16,4 +16,3 @@ float main(GSOutput input) : SV_Depth
 	return LightDistance;
 #endif
 }
-

@@ -93,6 +93,10 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 	{
 		List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
 	}
+	if (RHI::GetMGPUSettings()->MainPassSFR && List->GetDeviceIndex() == 0)
+	{
+		List->InsertGPUStallTimer();
+	}
 	List->Execute();
 }
 

@@ -168,12 +168,14 @@ private:
 class D3D12GPUSyncEvent : public RHIGPUSyncEvent
 {
 public:
-	D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * device);
+	D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * device, DeviceContext* OtherDevice);
 	~D3D12GPUSyncEvent();
+	void SignalWait();
 	virtual void Signal() override;
 	virtual void Wait() override;
 private:
 	GPUSyncPoint Point[RHI::CPUFrameCount];
 	ID3D12CommandQueue* WaitingQueue = nullptr;
 	ID3D12CommandQueue* SignalQueue = nullptr;
+	DeviceContext* SignalingDevice = nullptr;
 };

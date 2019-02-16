@@ -15,7 +15,7 @@ public:
 	void RenderGPU(int index);
 
 	void SetEnabled(bool state);
-	void DrawLine(PerfManager::TimerData * data, glm::vec3 pos, float& CurrnetValue, int index);
+	void DrawLine(TimerData * data, glm::vec3 pos, float& CurrnetValue, int index);
 	void DrawBaseLine(float Time, int GPUindex, glm::vec3 pos);
 	glm::vec3 StartPos = glm::vec3(0);
 	float MaxLength = 100.0f;
