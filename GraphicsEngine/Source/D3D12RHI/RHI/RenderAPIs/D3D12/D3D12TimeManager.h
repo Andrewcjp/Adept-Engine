@@ -35,6 +35,8 @@ public:
 	void ResolveTimeHeaps(RHICommandList * CommandList) override;
 	void ResolveCopyTimeHeaps(RHICommandList * ComandList) override;
 private:
+	static UINT64 GPU0_TS;
+	UINT64 StartTimeStamp = 0;
 	float AVGgpuTimeMS = 0;
 	struct GPUTimer
 	{

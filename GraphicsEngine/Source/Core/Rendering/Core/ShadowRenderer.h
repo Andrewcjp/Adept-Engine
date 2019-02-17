@@ -76,6 +76,7 @@ private:
 	SceneRenderer* Scenerenderer = nullptr;
 
 	DeviceShadowObjects DSOs[MAX_GPU_DEVICE_COUNT];
+	bool NeedsCopyPreSample[MAX_GPU_DEVICE_COUNT] = {false,false};
 	bool AllDevicesNeedToRead = false;
 };
 

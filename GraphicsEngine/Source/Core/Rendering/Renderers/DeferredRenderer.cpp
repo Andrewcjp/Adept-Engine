@@ -169,6 +169,7 @@ void DeferredRenderer::Resize(int width, int height)
 		if (DDDOs[i].GFrameBuffer)
 		{
 			DDDOs[i].GFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+			DDDOs[i].OutputBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 		}
 	}
 
