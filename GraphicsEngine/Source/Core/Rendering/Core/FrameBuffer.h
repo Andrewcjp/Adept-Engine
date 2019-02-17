@@ -16,7 +16,7 @@ public:
 	RHI_API void SFRResize();
 	
 	virtual void SetupCopyToDevice(DeviceContext* device){};
-	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice);
+	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice, EGPUCOPYTIMERS::Type Stat = EGPUCOPYTIMERS::MGPUCopy);
 	RHI_API virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List);
 	static void CopyHelper_Async_OneFrame(FrameBuffer * Target, DeviceContext * TargetDevice);
 	static void CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetDevice);

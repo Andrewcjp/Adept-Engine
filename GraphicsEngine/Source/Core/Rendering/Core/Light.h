@@ -72,7 +72,9 @@ public:
 	//Should the shadow be sampled on this card or copied
 	bool GPUShadowResidentMask[MAX_GPU_DEVICE_COUNT] = { true };
 	//If a shadow is resident on this device which one should we copy it too?
-	int GPUShadowCopyDeviceTarget[MAX_GPU_DEVICE_COUNT] = { -1 };
+	int GPUShadowCopyDeviceTarget[MAX_GPU_DEVICE_COUNT] = { -1 ,-1};
+	void SetShadowResdent(int DeviceIndex, int CopyTarget);
+
 private:
 	float m_intesity = 10;
 	glm::vec3 m_position = glm::vec3(0, 0, 0);

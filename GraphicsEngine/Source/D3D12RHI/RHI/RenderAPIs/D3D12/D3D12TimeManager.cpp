@@ -97,6 +97,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::GPU0WaitOnGPU1, "GPU0 Wait On GPU1");
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy", ECommandListType::Copy);
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::SFRMerge, "SFR Merge", ECommandListType::Copy);
+	SetTimerName(CopyOffset + EGPUCOPYTIMERS::ShadowCopy, "Shadow Copy", ECommandListType::Copy);
 #endif
 }
 #pragma optimize("",off)
@@ -122,18 +123,25 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 			float gpuTimeMS = glm::max(glm::abs((float)(delta * 1000) / (float)ClockFreq), 0.0f);
 			TimeDeltas[i].RawTime = gpuTimeMS;
 			TimeDeltas[i].avg.Add(gpuTimeMS);
+
 			if (i == 0)
 			{
 				TimeDeltas[i].StartTS = (pTimestamps[TimeDeltas[i].Startindex]);
+				StartTimeStamp = TimeDeltas[i].StartTS;
+				if (Device->GetDeviceIndex() == 0)
+				{
+					GPU0_TS = TimeDeltas[i].StartTS;
+				}
+				//StartTimeStamp = GPU0_TS;
 			}
 			else
 			{
 				const UINT64 CurrentTimeStamp = pTimestamps[TimeDeltas[i].Startindex];
-				UINT64 Delta = (pTimestamps[TimeDeltas[i].Startindex] - TimeDeltas[0].StartTS);
+				UINT64 Delta = (pTimestamps[TimeDeltas[i].Startindex] - StartTimeStamp);
 				bool IsNegative = false;
-				if (CurrentTimeStamp < TimeDeltas[0].StartTS)
+				if (CurrentTimeStamp < StartTimeStamp)
 				{
-					Delta = TimeDeltas[0].StartTS - CurrentTimeStamp;
+					Delta = StartTimeStamp - CurrentTimeStamp;
 					IsNegative = true;
 				}
 				TimeDeltas[i].StartOffset = glm::max((float)(Delta) * 1000 / (float)ClockFreq, 0.0f);
@@ -206,7 +214,7 @@ std::string D3D12TimeManager::GetTimerData()
 #else
 	return "GPU TIMERS DISABLED";
 #endif
-		}
+}
 
 void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListType::Type type)
 {
@@ -235,7 +243,7 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListTyp
 LPCWSTR D3D12TimeManager::GetTimerNameForPIX(int index)
 {
 	return PixTimerNames[index].c_str();
-}
+	}
 #endif
 
 void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
@@ -252,10 +260,10 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
 	{
 		PIXBeginEvent(List->GetCommandList(), 0, GetTimerNameForPIX(index));
-	}
+}
 #endif
 #endif
-	}
+}
 
 void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 {
@@ -272,7 +280,7 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	{
 
 		PIXEndEvent(List->GetCommandList());
-	}
+}
 #endif
 #endif
 	}
@@ -359,3 +367,5 @@ void D3D12TimeManager::ResolveCopyTimeHeaps(RHICommandList* CommandList)
 	List->GetCommandList()->ResolveQueryData(m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, EGPUCOPYTIMERS::LIMIT * 2, m_CopytimestampResultBuffers, 0);
 #endif
 }
+
+UINT64 D3D12TimeManager::GPU0_TS = 0;

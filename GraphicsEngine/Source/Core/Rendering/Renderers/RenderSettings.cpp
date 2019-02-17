@@ -8,10 +8,11 @@ static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOn
 static ConsoleVariable SFRSplitShadowsVar("SFRSplitShadows", false, ECVarType::LaunchOnly);
 MultiGPUMode::MultiGPUMode()
 {
-	//UseSFR.SetValue(true);
+	UseSFR.SetValue(true);
 	//SplitShadows.SetValue(true);
 	//AsyncShadow.SetValue(true);
-	MAX_PRESAMPLED_SHADOWS = 1;
+	SFRSplitShadowsVar.SetValue(true);
+	MAX_PRESAMPLED_SHADOWS = 4;
 	SecondCardShadowScaleFactor = 1.0f;
 	SyncSettings();
 }
@@ -40,19 +41,33 @@ void MultiGPUMode::ValidateSettings()
 	{
 		AsyncShadows = false;
 	}
+	if (MainPassSFR)
+	{
+		AsyncShadows = false;
+		SplitShadowWork = false;
+	}
+	else
+	{
+		SFRSplitShadows = false;
+	}
 	int Offset = 30;
 	Log::LogBoolTerm("SFR ", MainPassSFR, Offset);
-	Log::LogBoolTerm("Split shadows ", SplitShadowWork, Offset);
 	Log::LogBoolTerm("Split SFR shadows ", SFRSplitShadows, Offset);
+	Log::LogBoolTerm("Split shadows ", SplitShadowWork, Offset);
 	Log::LogBoolTerm("Async Shadows ", AsyncShadows, Offset);
-	Log::LogBoolTerm("Particle System MultiGPU ", PSComputeWorkSplit, Offset);
+	//Log::LogBoolTerm("Particle System MultiGPU ", PSComputeWorkSplit, Offset);
+}
+
+bool MultiGPUMode::UseSplitShadows() const
+{
+	return SplitShadowWork || SFRSplitShadows;
 }
 
 RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = false;
+	IsDeferred = true;
 	EnableGPUParticles = false;
 	if (IsDeferred)
 	{

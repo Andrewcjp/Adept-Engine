@@ -12,3 +12,10 @@ Light::Light(glm::vec3 positon, float intesity, LightType type, glm::vec3 LightC
 
 Light::~Light()
 {}
+
+void Light::SetShadowResdent(int DeviceIndex, int CopyTarget)
+{
+	GPUShadowResidentMask[DeviceIndex] = true;
+	GPUShadowResidentMask[CopyTarget] = false;
+	GPUShadowCopyDeviceTarget[DeviceIndex] = CopyTarget;
+}

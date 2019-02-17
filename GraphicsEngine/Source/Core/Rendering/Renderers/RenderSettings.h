@@ -56,6 +56,7 @@ struct MultiGPUMode
 	bool SFRSplitShadows = false;
 	float SecondCardShadowScaleFactor = 1.0f;
 	void ValidateSettings();
+	bool UseSplitShadows()const;
 };
 //Props Are Set in the Constructor 
 struct RenderConstants
