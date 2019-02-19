@@ -30,6 +30,7 @@ EditorWindow::~EditorWindow()
 	//Clean up the Mesh
 	SafeDelete(CurrentPlayScene);
 	SafeDelete(CurrentScene);
+	instance = nullptr;
 }
 
 Scene * EditorWindow::GetCurrentScene()

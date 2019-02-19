@@ -27,6 +27,7 @@ UIWidgetContext::~UIWidgetContext()
 	SafeDelete(TextRender);
 	SafeDelete(LineBatcher);
 	SafeDelete(DrawBatcher);
+	MemoryUtils::DeleteVector(widgets);
 }
 
 void UIWidgetContext::AddWidget(UIWidget * widget)

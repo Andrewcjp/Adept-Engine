@@ -19,7 +19,7 @@ Inspector::Inspector(int w, int h, int x, int y)
 	Backgroundbox = new UIBox(w, h, x, y);
 	//Backgroundbox->BackgoundColour = glm::vec3(0);
 	CreateEditor();
-	assert(Instance == nullptr);
+	ensure(Instance == nullptr);
 
 	Instance = this;
 
@@ -27,7 +27,9 @@ Inspector::Inspector(int w, int h, int x, int y)
 
 
 Inspector::~Inspector()
-{}
+{
+	Instance = nullptr;
+}
 
 void Inspector::SetSelectedObject(IInspectable * newTarget)
 {

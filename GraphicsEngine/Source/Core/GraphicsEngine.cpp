@@ -40,13 +40,31 @@ void ErrorExit(LPTSTR lpszFunction)
 	ExitProcess(dw);
 }
 
+int RunLoop(LPSTR lpCmdLine, int nCmdShow, HINSTANCE hInstance, EnginePersistentData* EPD)
+{
+	int exitcode = 0;
+	Engine* engine = new Engine(EPD);
+	engine->ProcessCommandLineInput((const CHAR *)lpCmdLine, nCmdShow);
+	engine->PreInit();
+	if (!engine->GetIsCooking())
+	{
+		PlatformWindow* myapp = PlatformWindow::CreateApplication(engine, hInstance, lpCmdLine, nCmdShow);
+		exitcode = myapp->Run();
+		myapp->DestroyApplication();
+	}
+	engine->Destory();
+	SafeDelete(engine);
+	EPD->launchCount++;
+	return exitcode;
+}
+
 int APIENTRY WinMain(HINSTANCE hInstance,
 	HINSTANCE,
 	LPSTR    lpCmdLine,
 	int       nCmdShow)
 {
 
-	int exitcode = 0;
+
 #if USE_SEP_CONSOLE
 	//Allocate a console window
 	//so that messages can be redirected to stdout
@@ -58,19 +76,12 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	FILE* pf_out;
 	freopen_s(&pf_out, "CONOUT$", "w", stdout);
 #endif
-
-	Engine* engine = new Engine();
-	engine->ProcessCommandLineInput((const CHAR *)lpCmdLine, nCmdShow);
-	engine->PreInit();
-	if (!engine->GetIsCooking())
+	EnginePersistentData EPD = EnginePersistentData();
+	int exitcode = 0;
+	do
 	{
-		PlatformWindow* myapp = PlatformWindow::CreateApplication(engine, hInstance, lpCmdLine, nCmdShow);
-		exitcode = myapp->Run();
-		myapp->DestroyApplication();
-	}
-	engine->Destory();
-	SafeDelete(engine);
-
+		exitcode = RunLoop(lpCmdLine, nCmdShow, hInstance, &EPD);
+	} while (EPD.Restart);
 #if USE_SEP_CONSOLE
 	fclose(pf_out);
 	//Free the console window

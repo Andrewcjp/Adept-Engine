@@ -16,7 +16,7 @@ public:
 	Aligment AligmentStruct;
 	static glm::vec3 DefaultColour;
 	CORE_API UIWidget(int w, int h, int x = 0, int y = 0);
-	~UIWidget();
+	virtual ~UIWidget();
 	virtual void Render() = 0;
 	virtual void ResizeView(int w, int h, int x = 0, int y = 0);
 	CORE_API void SetScaled(float Width, float height, float xoff = 0.0f, float yoff = 0.0f);

@@ -20,9 +20,21 @@ namespace BBTestMode
 		QHD,
 		UHD, 
 		Limit
-	};
-	
+	};	
 }
+struct MGPUMode
+{
+	enum Type
+	{
+		None,
+		SFR,
+		SFR_SHADOWS,
+		MULTI_SHADOWS,
+		ASYNC_SHADOWS,
+		Limit
+	};
+	RHI_API static std::string ToString(MGPUMode::Type t);
+};
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
@@ -57,6 +69,7 @@ struct MultiGPUMode
 	float SecondCardShadowScaleFactor = 1.0f;
 	void ValidateSettings();
 	bool UseSplitShadows()const;
+	MGPUMode::Type CurrnetTestMode = MGPUMode::Limit;
 };
 //Props Are Set in the Constructor 
 struct RenderConstants
