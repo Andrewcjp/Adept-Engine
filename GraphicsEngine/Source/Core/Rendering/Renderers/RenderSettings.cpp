@@ -1,4 +1,6 @@
 #include "RenderSettings.h"
+#include "Core\Engine.h"
+#include "GraphicsEngine.h"
 static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
 static ConsoleVariable UseSFR("UseSFR", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly);
@@ -11,10 +13,14 @@ MultiGPUMode::MultiGPUMode()
 	UseSFR.SetValue(true);
 	//SplitShadows.SetValue(true);
 	//AsyncShadow.SetValue(true);
-	SFRSplitShadowsVar.SetValue(true);
+	//SFRSplitShadowsVar.SetValue(true);
 	MAX_PRESAMPLED_SHADOWS = 4;
 	SecondCardShadowScaleFactor = 1.0f;
 	SyncSettings();
+	if (Engine::GetEPD()->Restart)
+	{
+		CurrnetTestMode = Engine::GetEPD()->MutliGPuMode;
+	}
 }
 
 void MultiGPUMode::SyncSettings()
@@ -29,6 +35,33 @@ void MultiGPUMode::SyncSettings()
 
 void MultiGPUMode::ValidateSettings()
 {
+	if (CurrnetTestMode != MGPUMode::Limit)
+	{
+		MainPassSFR = false;
+		SplitShadowWork = false;
+		ComputePerFrameShadowDataOnExCard = false;
+		PSComputeWorkSplit = false;
+		AsyncShadows = false;
+		switch (CurrnetTestMode)
+		{
+		case MGPUMode::SFR:
+			MainPassSFR = true;
+			break;
+		case MGPUMode::ASYNC_SHADOWS:
+			AsyncShadows = true;
+			SplitShadowWork = true;
+			break;
+		case MGPUMode::MULTI_SHADOWS:
+			SplitShadowWork = true;
+			break;
+		case MGPUMode::SFR_SHADOWS:
+			MainPassSFR = true;
+			SFRSplitShadows = true;
+			break;
+		}
+	}
+
+
 	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1 || !RHI::IsD3D12())
 	{
 		MainPassSFR = false;
@@ -74,15 +107,13 @@ RenderSettings::RenderSettings()
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
-	LockBackBuffer = true;
-	if (LockBackBuffer)
-	{
-		SetRes(BBTestMode::HD);
-	}
+	SetRes(BBTestMode::Limit);
+
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
 {
+	LockBackBuffer = true;
 	switch (Mode)
 	{
 	case BBTestMode::HD:
@@ -96,6 +127,9 @@ void RenderSettings::SetRes(BBTestMode::Type Mode)
 	case BBTestMode::UHD:
 		LockedWidth = 3840;
 		LockedHeight = 2160;
+		break;
+	case BBTestMode::Limit:
+		LockBackBuffer = false;
 		break;
 	}
 }
@@ -123,4 +157,29 @@ std::string RenderSettings::ToString(BBTestMode::Type t)
 		break;
 	}
 	return "?";
+}
+
+std::string MGPUMode::ToString(MGPUMode::Type t)
+{
+	switch (t)
+	{
+	case MGPUMode::None:
+		return "NONE";
+		break;
+	case MGPUMode::SFR:
+		return "SFR";
+		break;
+	case MGPUMode::SFR_SHADOWS:
+		return "SFR_SHADOWS";
+		break;
+	case MGPUMode::MULTI_SHADOWS:
+		return "MULTI_SHADOWS";
+		break;
+	case MGPUMode::ASYNC_SHADOWS:
+		return "ASYNC_SHADOWS";
+		break;
+	case MGPUMode::Limit:
+		break;
+	}
+	return std::string();
 }

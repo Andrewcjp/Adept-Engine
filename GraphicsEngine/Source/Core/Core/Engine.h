@@ -7,11 +7,15 @@
 class RenderWindow;
 class EditorWindow;
 class Game;
-namespace Threading { class TaskGraph; }
+struct EnginePersistentData;
+namespace Threading
+{
+	class TaskGraph;
+}
 class Engine
 {
 public:
-	Engine();
+	Engine(EnginePersistentData* epd);
 	~Engine();
 	CORE_API static class CompoenentRegistry* CompRegistry;
 	static PhysicsEngine*			PhysEngine;
@@ -50,7 +54,10 @@ public:
 	CORE_API static float			GetPhysicsDeltaTime();
 	CORE_API static float			GetDeltaTime();
 	static Threading::TaskGraph*	GetTaskGraph();
+	static bool IsSecondLoad();
+	CORE_API static EnginePersistentData* GetEPD();
 private:
+	EnginePersistentData*			EPD = nullptr;
 	static void						Exit(int code = 0);
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;
@@ -62,6 +69,6 @@ private:
 	bool							IsCooking = false;
 	EngineSettings					Settings;
 	Threading::TaskGraph*			TaskGraph = nullptr;
-	
+
 };
 

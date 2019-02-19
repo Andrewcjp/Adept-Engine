@@ -208,6 +208,7 @@ void ParticleSystemManager::ShutDown()
 	EnqueueSafeRHIRelease(TEstTex);
 	EnqueueSafeRHIRelease(AliveParticleIndexs_PostSim);
 	SafeDelete(ComputeCompleteEvent);
+	SafeDelete(Instance);
 }
 
 void ParticleSystemManager::Sync()

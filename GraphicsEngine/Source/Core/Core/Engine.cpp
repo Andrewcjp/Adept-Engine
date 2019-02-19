@@ -20,6 +20,7 @@
 #include "GameWindow.h"
 #include <thread>
 #include "Platform/Threading.h"
+#include "GraphicsEngine.h"
 float Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
@@ -44,8 +45,9 @@ std::string Engine::GetExecutionDir()
 	return std::string(ws.begin(), ws.end());
 }
 
-Engine::Engine()
+Engine::Engine(EnginePersistentData* epd)
 {
+	EPD = epd;
 	EngineInstance = this;
 	Log::StartLogger();
 	PlatformApplication::Init();
@@ -106,7 +108,7 @@ void Engine::OnRender()
 void Engine::OnDestoryWindow()
 {
 	m_appwnd->DestroyRenderWindow();
-	m_appwnd = nullptr;
+	SafeDelete(m_appwnd);
 }
 
 void Engine::Destory()
@@ -294,10 +296,10 @@ bool Engine::GetIsCooking()
 
 Engine * Engine::Get()
 {
-	if (EngineInstance == nullptr)
+	/*if (EngineInstance == nullptr)
 	{
 		EngineInstance = new Engine();
-	}
+	}*/
 	return EngineInstance;
 }
 
@@ -323,6 +325,16 @@ float Engine::GetDeltaTime()
 Threading::TaskGraph * Engine::GetTaskGraph()
 {
 	return Get()->TaskGraph;
+}
+
+bool Engine::IsSecondLoad()
+{
+	return Get()->EPD->launchCount > 0;
+}
+
+EnginePersistentData * Engine::GetEPD()
+{
+	return Get()->EPD;
 }
 
 void Engine::CreateApplicationWindow(int width, int height)

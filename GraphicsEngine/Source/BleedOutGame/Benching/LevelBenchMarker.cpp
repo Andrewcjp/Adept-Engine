@@ -2,25 +2,41 @@
 #include "LevelBenchMarker.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/BaseWindow.h"
+#include "Core/Engine.h"
+#include "GraphicsEngine.h"
+#include "Rendering/Renderers/RenderSettings.h"
 
 
 LevelBenchMarker::LevelBenchMarker()
-{}
+{
+	PreHeatTime = 3.0f;
+	PreHeatTimer = PreHeatTime;
+}
 
 LevelBenchMarker::~LevelBenchMarker()
 {}
 
-void LevelBenchMarker::Setup()
+void LevelBenchMarker::AddAllRes(MGPUMode::Type mode)
 {
 	BenchSettings s = {};
 	s.TestResolution = BBTestMode::HD;
+	s.TestType = mode;
 	Settings.push_back(s);
 	s = BenchSettings();
 	s.TestResolution = BBTestMode::QHD;
+	s.TestType = mode;
 	Settings.push_back(s);
 	s = BenchSettings();
 	s.TestResolution = BBTestMode::UHD;
+	s.TestType = mode;
 	Settings.push_back(s);
+}
+
+void LevelBenchMarker::Setup()
+{
+	AddAllRes(MGPUMode::None);
+	AddAllRes(MGPUMode::SFR);
+	CloseOnFinish = true;
 }
 
 void LevelBenchMarker::Init()
@@ -32,18 +48,50 @@ void LevelBenchMarker::Init()
 	CurrnetPointIndex = 1;
 	Setup();//Name files
 	RHI::GetRenderSettings()->SetRes(Settings[0].TestResolution);
+	if (Engine::GetEPD()->Restart)
+	{
+		int index = Engine::GetEPD()->BenchIndex;
+		CurrentSettingsIndex = index;
+		TransitionToSetting(&Settings[index], index);
+	}
+	else
+	{
+		TransitionToSetting(&Settings[0], 0);
+	}
+}
+
+void LevelBenchMarker::TransitionToSetting(BenchSettings* setting, int index)
+{
+	if (setting->TestType != RHI::GetMGPUSettings()->CurrnetTestMode)
+	{
+		Engine::GetEPD()->Restart = true;
+		Engine::GetEPD()->MutliGPuMode = setting->TestType;
+		Engine::GetEPD()->BenchIndex = index;
+		Log::LogMessage("Rebooting to change MultiGPU Settings (Mode " + MGPUMode::ToString(setting->TestType) + ") ");
+		Engine::RequestExit(0);
+	}
+	RHI::GetRenderSettings()->SetRes(setting->TestResolution);
+	BaseWindow::StaticResize();
+	Restart();
+	CurrnetSetting = setting;
 }
 
 void LevelBenchMarker::End()
 {
 	PerfManager::EndBenchMark();
 	CurrentSettingsIndex++;
-	PreHeat = PreHeatFrames * 2;
+	PreHeatTimer = PreHeatTime;
 	if (CurrentSettingsIndex < Settings.size())
 	{
-		RHI::GetRenderSettings()->SetRes(Settings[CurrentSettingsIndex].TestResolution);
-		BaseWindow::StaticResize();
-		Restart();
+		TransitionToSetting(&Settings[CurrentSettingsIndex], CurrentSettingsIndex);
+	}
+	else
+	{
+		Engine::GetEPD()->Restart = false;
+		if (CloseOnFinish)
+		{
+			Engine::RequestExit(0);
+		}
 	}
 }
 
@@ -53,15 +101,15 @@ void LevelBenchMarker::Update()
 	{
 		return;
 	}
-	PreHeat--;
-	if (PreHeat > 0)
+	PreHeatTimer -= Engine::GetDeltaTime();
+	if (PreHeatTimer > 0.0f)
 	{
 		return;
 	}
-	if (PreHeat == 0)
+	if (Once)
 	{
-		PerfManager::StartBenchMark(RenderSettings::ToString(Settings[CurrentSettingsIndex].TestResolution));
-		PreHeat = -1;
+		PerfManager::StartBenchMark(RenderSettings::ToString(CurrnetSetting->TestResolution) + "_" + MGPUMode::ToString(CurrnetSetting->TestType));
+		Once = false;
 	}
 	if (Points.size() < 2 || CameraObject == nullptr)
 	{
@@ -111,4 +159,5 @@ void LevelBenchMarker::Restart()
 	glm::vec3 CurrentPos = Points[0].Pos;
 	glm::quat qrot = glm::lookAtLH(CurrentPos, CurrentPos + Points[0].Forward, glm::vec3(0, 1, 0));
 	CameraObject->SetRotation(qrot);
+	Once = true;
 }

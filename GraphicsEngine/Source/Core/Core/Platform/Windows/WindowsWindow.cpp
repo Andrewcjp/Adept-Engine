@@ -111,7 +111,7 @@ void WindowsWindow::DestroyApplication()
 	if (app != nullptr)
 	{
 		DestroyWindow(app->HWindow);
-		delete app;
+		SafeDelete(app);
 	}
 }
 
@@ -124,7 +124,7 @@ WindowsWindow* WindowsWindow::GetApplication()
 int WindowsWindow::Run()
 {
 	MSG msg = MSG();
-
+	bool DidJustBoot = Engine::IsSecondLoad();
 	while (!m_terminate)
 	{
 		if (Input::Get())
@@ -136,6 +136,11 @@ int WindowsWindow::Run()
 			//peek for windows message
 			if (msg.message == WM_QUIT)
 			{
+				if (DidJustBoot)
+				{
+					DidJustBoot = false;
+					continue;
+				}
 				Kill();
 				break;
 			}
@@ -151,6 +156,7 @@ int WindowsWindow::Run()
 		}
 	}
 	app->m_engine->OnDestoryWindow();
+	//clear queue
 	return (int)msg.wParam;
 }
 

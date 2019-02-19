@@ -45,7 +45,7 @@ void PerfManager::ShutdownPerfManager()
 {
 	if (Instance != nullptr)
 	{
-		delete Instance;
+		SafeDelete(Instance);
 	}
 }
 

@@ -30,7 +30,7 @@ BaseWindow::BaseWindow()
 
 BaseWindow::~BaseWindow()
 {
-
+	Instance = nullptr;
 }
 
 bool BaseWindow::CreateRenderWindow(int width, int height)
