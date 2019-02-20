@@ -478,7 +478,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	{
 
 		ShadowingPointLights[0]->SetShadowResdent(1, 0);
-		ShadowingPointLights[1]->SetShadowResdent(1, 0);
+		//ShadowingPointLights[1]->SetShadowResdent(1, 0);
 	}
 
 	if (RHI::GetMGPUSettings()->MainPassSFR)
@@ -494,16 +494,16 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 
 	if (RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
-		ShadowingPointLights[0]->SetShadowResdent(0, 1);
-		int ShadowsOnDev0 = 3;
-		for (int i = 0; i < ShadowsOnDev0; i++)
-		{
-			ShadowingPointLights[i]->SetShadowResdent(0, 1);
-		}
-		for (int i = ShadowsOnDev0; i < 4; i++)
+		ShadowingPointLights[0]->SetShadowResdent(1, 0);
+		int ShadowsOnDev0 = 2;
+		//for (int i = 0; i < ShadowsOnDev0; i++)
+		//{
+		//	ShadowingPointLights[i]->SetShadowResdent(0, 1);
+		//}
+		/*for (int i = ShadowsOnDev0; i < 4; i++)
 		{
 			ShadowingPointLights[i]->SetShadowResdent(1, 0);
-		}
+		}*/
 	}
 	//removes all refs to any buffer we had last frame!
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)

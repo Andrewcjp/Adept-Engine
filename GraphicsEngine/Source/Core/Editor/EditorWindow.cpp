@@ -206,14 +206,17 @@ void EditorWindow::Update()
 		gizmos->Update(0);
 		gizmos->SetTarget(mEditorCore->GetSelectedObject());
 		gizmos->RenderGizmos(LineDrawer);
-		if (UI != nullptr)
+		if (UI != nullptr && UI->GetInspector() != nullptr)
 		{
 			UI->GetInspector()->SetSelectedObject(mEditorCore->GetSelectedObject());
 		}
 	}
 	else
 	{
-		UI->GetInspector()->SetSelectedObject(nullptr);
+		if (UI->GetInspector() != nullptr)
+		{
+			UI->GetInspector()->SetSelectedObject(nullptr);
+		}
 	}
 	if (!Input::GetMouseButtonDown(1))
 	{

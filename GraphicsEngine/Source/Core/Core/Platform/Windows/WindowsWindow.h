@@ -37,7 +37,7 @@ public:
 	static void					DestroyApplication();
 	static WindowsWindow*		GetApplication();
 	int							Run();
-	static void						Kill();
+	static void Kill(int code);
 	static bool					IsActiveWindow();
 	void SetupHPMI();
 	CORE_API static HINSTANCE   GetHInstance();
