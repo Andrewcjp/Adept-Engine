@@ -9,6 +9,7 @@
 #include "Core/Input/Input.h"
 #include "Core/Platform/Windows/WindowsApplication.h"
 #include <timeapi.h>
+#include "GraphicsEngine.h"
 #pragma comment(lib, "winmm.lib")
 
 WindowsWindow* WindowsWindow::app = nullptr;
@@ -22,7 +23,7 @@ WindowsWindow::WindowsWindow()
 	{
 		// Error; application can't continue.
 		MessageBoxA(0, "Timer Error Aborting", "Error", 0);
-		Kill();
+		Kill(0);
 	}
 	Cursor = CopyCursor(LoadCursor(NULL, IDC_ARROW));
 	Cursor = SetCursor(Cursor);
@@ -141,7 +142,7 @@ int WindowsWindow::Run()
 					DidJustBoot = false;
 					continue;
 				}
-				Kill();
+				Kill(0);
 				break;
 			}
 			else
@@ -160,9 +161,13 @@ int WindowsWindow::Run()
 	return (int)msg.wParam;
 }
 
-void WindowsWindow::Kill()
+void WindowsWindow::Kill(int code)
 {
 	app->m_terminate = TRUE;
+	if (code != Engine::RestartCode)
+	{
+		Engine::GetEPD()->Restart = false;
+	}
 }
 
 void WindowsWindow::AddMenus(HWND hwnd)

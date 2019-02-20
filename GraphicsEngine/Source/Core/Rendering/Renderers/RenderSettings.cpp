@@ -107,7 +107,7 @@ RenderSettings::RenderSettings()
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
-	SetRes(BBTestMode::Limit);
+	SetRes(BBTestMode::UHD);
 
 }
 

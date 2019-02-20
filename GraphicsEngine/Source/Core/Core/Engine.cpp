@@ -244,9 +244,13 @@ bool Engine::GetWindowValid() const
 }
 void Engine::RequestExit(int code)
 {
+	if (code != RestartCode)
+	{
+		GetEPD()->Restart = false;
+	}
 	if (PlatformWindow::GetApplication() != nullptr)
 	{
-		PlatformWindow::Kill();
+		PlatformWindow::Kill(code);
 	}
 	else
 	{

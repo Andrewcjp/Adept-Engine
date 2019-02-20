@@ -22,6 +22,8 @@ public:
 	DebugLineDrawer* TwoDrawer = nullptr;
 	float Scale = 10.0f;
 private:
+	const float TextCharSize = 9.0f;//12.0f;
+	const float TextScale = 0.3f;
 	float EndLineHeight = 20;
 };
 

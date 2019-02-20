@@ -53,7 +53,11 @@ void UIManager::InitCommonUI()
 #if WITH_EDITOR
 void UIManager::InitEditorUI()
 {
+	UIBox* t = new UIBox(0, 0, 0, 0);
+	t->SetScaled(1.0f, 1.0f);
+	AddWidget(t);
 
+	return;
 	BottomHeight = 0.25f;
 	UIBox* TOP = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
@@ -268,6 +272,7 @@ void UIManager::SelectedCallback(int i)
 
 void UIManager::RefreshGameObjectList()
 {
+	return;
 #if WITH_EDITOR
 	if (box != nullptr && GameObjectsPtr != nullptr)
 	{
@@ -280,7 +285,10 @@ void UIManager::RefreshGameObjectList()
 			(*GameObjectsPtr)[i]->PostChangeProperties();
 			box->AddItem((*(GameObjectsPtr))[i]->GetName().c_str());
 		}
-		GetInspector()->Refresh();
+		if (GetInspector())
+		{
+			GetInspector()->Refresh();
+		}
 		UpdateBatches();
 	}
 #endif

@@ -35,7 +35,11 @@ void LevelBenchMarker::AddAllRes(MGPUMode::Type mode)
 void LevelBenchMarker::Setup()
 {
 	AddAllRes(MGPUMode::None);
-	AddAllRes(MGPUMode::SFR);
+	//AddAllRes(MGPUMode::SFR);
+	for (int i = 0; i < MGPUMode::Limit - 1; i++)
+	{
+		//AddAllRes((MGPUMode::Type)(MGPUMode::SFR + i));
+	}
 	CloseOnFinish = true;
 }
 
@@ -68,7 +72,7 @@ void LevelBenchMarker::TransitionToSetting(BenchSettings* setting, int index)
 		Engine::GetEPD()->MutliGPuMode = setting->TestType;
 		Engine::GetEPD()->BenchIndex = index;
 		Log::LogMessage("Rebooting to change MultiGPU Settings (Mode " + MGPUMode::ToString(setting->TestType) + ") ");
-		Engine::RequestExit(0);
+		Engine::RequestExit(Engine::RestartCode);
 	}
 	RHI::GetRenderSettings()->SetRes(setting->TestResolution);
 	BaseWindow::StaticResize();

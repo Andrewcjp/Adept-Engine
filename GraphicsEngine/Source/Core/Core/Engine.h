@@ -15,6 +15,7 @@ namespace Threading
 class Engine
 {
 public:
+	static const int RestartCode = -101;
 	Engine(EnginePersistentData* epd);
 	~Engine();
 	CORE_API static class CompoenentRegistry* CompRegistry;
