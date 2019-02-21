@@ -46,9 +46,19 @@ void LevelBenchMarker::Setup()
 void LevelBenchMarker::Init()
 {
 	CameraObject->SetPosition(glm::vec3(0, 0, 0));
-	Points.push_back(SplineNodes{ glm::vec3(0, 0, 0) ,glm::vec3(0,0,1) });
-	Points.push_back(SplineNodes{ glm::vec3(0, 10, 5),glm::vec3(0,0,-1) });
-	Points.push_back(SplineNodes{ glm::vec3(0, 10, 30) ,glm::vec3(0,0,1) });
+	//Points.push_back(SplineNodes{ glm::vec3(0, 0, 0) ,glm::vec3(0,0,1) });
+	//Points.push_back(SplineNodes{ glm::vec3(0, 10, 5),glm::vec3(0,0,-1) });
+	//Points.push_back(SplineNodes{ glm::vec3(0, 10, 30) ,glm::vec3(0,0,1) });
+	//30 10 0
+	//0 8 16
+	//0 12 -30
+	//-33 12 0
+	Points.push_back(SplineNodes{ glm::vec3(0, 8, 16) ,glm::vec3(0,0,-1) });
+	Points.push_back(SplineNodes{ glm::vec3(30, 10, 0) ,glm::vec3(1,0,0) });
+	Points.push_back(SplineNodes{ glm::vec3(0, 12, -30) ,glm::vec3(0,0,1) });
+	Points.push_back(SplineNodes{ glm::vec3(-30, 12, 0) ,glm::vec3(-1,0,0) });
+	Points.push_back(Points[0]);
+
 	CurrnetPointIndex = 1;
 	Setup();//Name files
 	RHI::GetRenderSettings()->SetRes(Settings[0].TestResolution);
@@ -149,6 +159,7 @@ void LevelBenchMarker::Update()
 	{
 		return;
 	}
+	pc = glm::clamp(pc, 0.0f, 1.0f);
 	glm::quat qrot = glm::lookAtLH(CurrentPos, CurrentPos + Rot, glm::vec3(0, 1, 0));
 	glm::quat qendrot = glm::lookAtLH(CurrentPos, CurrentPos + Points[CurrnetPointIndex - 1].Forward, glm::vec3(0, 1, 0));
 

@@ -53,11 +53,13 @@ void UIManager::InitCommonUI()
 #if WITH_EDITOR
 void UIManager::InitEditorUI()
 {
+#if 0
 	UIBox* t = new UIBox(0, 0, 0, 0);
 	t->SetScaled(1.0f, 1.0f);
 	AddWidget(t);
 
 	return;
+#endif
 	BottomHeight = 0.25f;
 	UIBox* TOP = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
@@ -272,7 +274,6 @@ void UIManager::SelectedCallback(int i)
 
 void UIManager::RefreshGameObjectList()
 {
-	return;
 #if WITH_EDITOR
 	if (box != nullptr && GameObjectsPtr != nullptr)
 	{

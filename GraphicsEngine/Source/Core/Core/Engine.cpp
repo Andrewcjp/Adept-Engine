@@ -242,6 +242,7 @@ bool Engine::GetWindowValid() const
 {
 	return isWindowVaild;
 }
+
 void Engine::RequestExit(int code)
 {
 	if (code != RestartCode)

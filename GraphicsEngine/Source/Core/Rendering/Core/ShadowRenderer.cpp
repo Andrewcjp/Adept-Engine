@@ -476,7 +476,6 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	}
 	if (RHI::GetMGPUSettings()->SplitShadowWork)
 	{
-
 		ShadowingPointLights[0]->SetShadowResdent(1, 0);
 		//ShadowingPointLights[1]->SetShadowResdent(1, 0);
 	}
@@ -612,11 +611,7 @@ ShadowRenderer::ShadowLightInteraction::~ShadowLightInteraction()
 
 void ShadowRenderer::ShadowLightInteraction::SetupCopy(DeviceContext * TargetDev)
 {
-
-	//if (TargetDev->GetDeviceIndex() == 0)
-	{
-		NeedsSample = true;
-	}
+	NeedsSample = true;
 }
 
 void ShadowRenderer::InitPreSampled(DeviceContext* dev, DeviceContext* Targetdev)
