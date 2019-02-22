@@ -12,6 +12,7 @@ public:
 	{
 		glm::vec3 Pos;
 		glm::vec3 Forward;
+		float WaitTime = 0.3f;
 	};
 	LevelBenchMarker();
 	~LevelBenchMarker();
