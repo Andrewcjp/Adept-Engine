@@ -46,13 +46,6 @@ void LevelBenchMarker::Setup()
 void LevelBenchMarker::Init()
 {
 	CameraObject->SetPosition(glm::vec3(0, 0, 0));
-	//Points.push_back(SplineNodes{ glm::vec3(0, 0, 0) ,glm::vec3(0,0,1) });
-	//Points.push_back(SplineNodes{ glm::vec3(0, 10, 5),glm::vec3(0,0,-1) });
-	//Points.push_back(SplineNodes{ glm::vec3(0, 10, 30) ,glm::vec3(0,0,1) });
-	//30 10 0
-	//0 8 16
-	//0 12 -30
-	//-33 12 0
 	Points.push_back(SplineNodes{ glm::vec3(0, 8, 16) ,glm::vec3(0,0,-1) });
 	Points.push_back(SplineNodes{ glm::vec3(30, 10, 0) ,glm::vec3(1,0,0) });
 	Points.push_back(SplineNodes{ glm::vec3(0, 12, -30) ,glm::vec3(0,0,1) });
@@ -139,7 +132,8 @@ void LevelBenchMarker::Update()
 	}
 	if (distanceToNextPos < CompletionDistance*CompletionDistance)
 	{
-		CurrnetPointIndex++;
+		PreHeatTimer = Points[CurrnetPointIndex].WaitTime;
+		CurrnetPointIndex++;		
 	}
 	CurrnetPointIndex = glm::clamp(CurrnetPointIndex, 0, (int)Points.size() - 1);
 	glm::vec3 dir = (NextPos - CurrentPos);
