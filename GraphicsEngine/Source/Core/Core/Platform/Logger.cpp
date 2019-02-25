@@ -7,7 +7,7 @@
 Log::StreamWrapper Log::OutS;
 Log* Log::Instance = nullptr;
 
-CORE_API void Log::LogOutput(std::string data, int colour, bool ForceFlush /*= false*/)
+void Log::LogOutput(std::string data, int colour, bool ForceFlush /*= false*/)
 {
 	if (Instance == nullptr)
 	{
@@ -18,9 +18,9 @@ CORE_API void Log::LogOutput(std::string data, int colour, bool ForceFlush /*= f
 	{
 		Instance->FlushToLogFile();
 	}
-	PlatformMisc::LogPlatformOutput(data); 
+	PlatformMisc::LogPlatformOutput(data);
 	PlatformMisc::SetConsoleOutputColour(colour);
-	printf(data.c_str());
+	std::cout << (data.c_str());
 }
 
 void Log::LogBoolTerm(std::string PreText, bool value, int ForceOffset)

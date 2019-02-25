@@ -34,6 +34,7 @@ void MovingAverage::clear()
 	}
 	Sum = 0;
 	Average = 0.0f;
+	Index = -1;
 }
 #include "Core/Platform/PlatformCore.h"
 void MovingAverage::Add(float x)

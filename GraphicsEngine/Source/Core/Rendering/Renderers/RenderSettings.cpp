@@ -10,7 +10,7 @@ static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOn
 static ConsoleVariable SFRSplitShadowsVar("SFRSplitShadows", false, ECVarType::LaunchOnly);
 MultiGPUMode::MultiGPUMode()
 {
-	//UseSFR.SetValue(true);
+	
 	//SplitShadows.SetValue(true);
 	//AsyncShadow.SetValue(true);
 	//SFRSplitShadowsVar.SetValue(true);
@@ -19,12 +19,13 @@ MultiGPUMode::MultiGPUMode()
 	SyncSettings();
 	if (Engine::GetEPD()->Restart)
 	{
-		CurrnetTestMode = Engine::GetEPD()->MutliGPuMode;
+		CurrnetTestMode = Engine::GetEPD()->MultiGPUMode;
 	}
 	else
 	{
 		CurrnetTestMode = MGPUMode::None;
 	}
+	CurrnetTestMode = MGPUMode::SFR;
 }
 
 void MultiGPUMode::SyncSettings()

@@ -51,6 +51,7 @@ void PerfManager::ShutdownPerfManager()
 
 PerfManager::PerfManager()
 {
+	Instance = this;
 	ShowAllStats = true;
 	NVApiManager = new NVAPIManager();
 	Bencher = new BenchMarker();
@@ -345,7 +346,15 @@ void PerfManager::Internal_NotifyEndOfFrame()
 	{
 		TimerData*  data = &AVGTimers.at(it->first);
 		data->AVG->Add(it->second);
-		it->second = 0.0f;
+		if (!data->DirectUpdate)
+		{
+			it->second = 0.0f;			
+		}
+		else
+		{
+			data->AVG->clear();
+			data->AVG->Add(it->second);			
+		}
 		data->LastCallCount = data->CallCount;
 		data->CallCount = 0;
 	}
@@ -546,7 +555,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 #endif
 }
 
-CORE_API void PerfManager::UpdateGPUStat(int id, float newtime, float OffsetToMain)
+void PerfManager::UpdateStat(int id, float newtime, float GPUOffsetToMain)
 {
 	if (TimerOutput.find(id) != TimerOutput.end())
 	{
@@ -554,9 +563,13 @@ CORE_API void PerfManager::UpdateGPUStat(int id, float newtime, float OffsetToMa
 		if (data != nullptr)
 		{
 			data->Active = true;
-			data->GPUStartOffset = OffsetToMain;
+			data->GPUStartOffset = GPUOffsetToMain;
 		}
 		TimerOutput.at(id) = glm::abs(newtime);
+	}
+	else
+	{
+		TimerOutput.emplace(id, 0.0f);
 	}
 }
 

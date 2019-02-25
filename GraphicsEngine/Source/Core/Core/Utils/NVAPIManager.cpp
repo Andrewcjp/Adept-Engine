@@ -1,5 +1,6 @@
 #include "NVAPIManager.h"
 #include "Rendering/Renderers/TextRenderer.h"
+#include "../Performance/PerfManager.h"
 
 #define NVAPI_GPU_UTILIZATION_DOMAIN_GPU 0
 #define NVAPI_GPU_UTILIZATION_DOMAIN_FB  1
@@ -43,6 +44,17 @@ NVAPIManager::NVAPIManager()
 		GpuData[i].resize(StaticProps + DynamicProps);
 	}
 	IsOnline = true;
+	DECLARE_TIMER_GROUP(GROUP_CLOCKS, "GPU Data");
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		StatIds[i][Stats::GPU0_GRAPHICS_PC] = PerfManager::Get()->GetTimerIDByName("GPU" + std::to_string(i) + "_GRAPHICS_PC");
+		PerfManager::Get()->AddTimer(StatIds[i][Stats::GPU0_GRAPHICS_PC], GROUP_CLOCKS);
+		StatIds[i][Stats::GPU0_GRAPHICS_CLOCK] = PerfManager::Get()->GetTimerIDByName("GPU" + std::to_string(i) + "_GRAPHICS_CLOCK");
+		PerfManager::Get()->AddTimer(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK], GROUP_CLOCKS);
+		PerfManager::Get()->GetTimerData(StatIds[i][Stats::GPU0_GRAPHICS_PC])->DirectUpdate = true;
+		PerfManager::Get()->GetTimerData(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK])->DirectUpdate = true;
+	}
+
 #endif
 }
 
@@ -112,6 +124,8 @@ void NVAPIManager::SampleClocks()
 		{
 			CoreClock = clkFreqs.domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].frequency;
 			Data = ("Core: " + std::to_string(CoreClock / 1000) + "MHz");
+			PerfManager::Get()->UpdateStat(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK], CoreClock / 1000, 0);
+
 		}
 		GpuData[i][index] = Data;
 		index++;
@@ -122,6 +136,7 @@ void NVAPIManager::SampleClocks()
 			float PC = (float)Utilzieation / 80.0f;
 			Colours[i] = glm::mix(glm::vec3(1, 0, 0), glm::vec3(1), PC);
 			Data = ("Graphics: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage) + "%");
+			PerfManager::Get()->UpdateStat(StatIds[i][Stats::GPU0_GRAPHICS_PC], Utilzieation, 0);
 		}
 #if 1
 		GpuData[i][index] = Data;
@@ -153,4 +168,4 @@ void NVAPIManager::SampleClocks()
 #else 
 	SampleData = "NVAPI Not Present";
 #endif
-	}
+}

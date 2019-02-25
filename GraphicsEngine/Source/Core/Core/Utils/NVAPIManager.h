@@ -19,6 +19,12 @@ public:
 	void RenderGPUStats(int x, int y);
 	void SampleClocks();
 private:
+	enum Stats
+	{
+		GPU0_GRAPHICS_PC,
+		GPU0_GRAPHICS_CLOCK,
+		Limit
+	};
 	bool IsOnline = false;
 	int StaticProps = 2;
 	int DynamicProps = 5;
@@ -29,6 +35,6 @@ private:
 	NvPhysicalGpuHandle GPUHandles[NVAPI_MAX_PHYSICAL_GPUS];
 	glm::vec3 Colours[NVAPI_MAX_PHYSICAL_GPUS] = {glm::vec3(1)};
 #endif
-	
+	int StatIds[MAX_GPU_DEVICE_COUNT][Stats::Limit] = { 0 };
 };
 
