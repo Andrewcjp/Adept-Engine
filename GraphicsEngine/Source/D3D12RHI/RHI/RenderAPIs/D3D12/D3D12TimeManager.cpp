@@ -185,7 +185,7 @@ void D3D12TimeManager::UpdateTimers()
 		{
 			continue;
 		}
-		PerfManager::Get()->UpdateGPUStat(TimeDeltas[i].Statid, TimeDeltas[i].RawTime, TimeDeltas[i].StartOffsetavg.GetCurrentAverage());
+		PerfManager::Get()->UpdateStat(TimeDeltas[i].Statid, TimeDeltas[i].RawTime, TimeDeltas[i].StartOffsetavg.GetCurrentAverage());
 	}
 	for (int i = 0; i < TotalMaxTimerCount; i++)
 	{

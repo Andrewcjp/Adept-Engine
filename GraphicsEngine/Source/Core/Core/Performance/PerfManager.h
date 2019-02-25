@@ -18,6 +18,7 @@ struct TimerData
 	std::string name;
 	int GroupId = 0;
 	bool Active = false;
+	bool DirectUpdate = false;
 	int CallCount = 0;
 	int LastCallCount = 0;
 	bool IsGPUTimer = false;
@@ -84,7 +85,7 @@ public:
 	//Resets all AVGs
 	void ResetStats();
 	void DrawStatsGroup(int x, int & y, std::string GroupFilter, bool IncludeGPU);
-	CORE_API void UpdateGPUStat(int id, float newtime, float OffsetToMain);
+	CORE_API void UpdateStat(int id, float newtime, float GPUOffsetToMain);
 	CORE_API int GetTimerIDByName(std::string name);
 	CORE_API int GetGroupId(std::string name);
 

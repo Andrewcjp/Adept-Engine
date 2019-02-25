@@ -105,7 +105,7 @@ void BaseWindow::Render()
 		{
 			{
 				SCOPE_CYCLE_COUNTER("stepPhysics");
-				Engine::PhysEngine->StepPhysics(TimeStep);
+				//Engine::PhysEngine->StepPhysics(TimeStep);
 			}
 			if (ShouldTickScene)
 			{
@@ -119,8 +119,6 @@ void BaseWindow::Render()
 		}
 		PerfManager::EndTimer("FTick");
 	}
-
-
 	if (Input::Get()->GetKeyDown(VK_F11))
 	{
 		RHI::ToggleFullScreenState();

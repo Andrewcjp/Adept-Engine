@@ -34,7 +34,7 @@ void LevelBenchMarker::AddAllRes(MGPUMode::Type mode)
 
 void LevelBenchMarker::Setup()
 {
-	AddAllRes(MGPUMode::None);
+	 AddAllRes(MGPUMode::SFR);
 	//AddAllRes(MGPUMode::SFR);
 	for (int i = 0; i < MGPUMode::Limit - 1; i++)
 	{
@@ -72,7 +72,7 @@ void LevelBenchMarker::TransitionToSetting(BenchSettings* setting, int index)
 	if (setting->TestType != RHI::GetMGPUSettings()->CurrnetTestMode)
 	{
 		Engine::GetEPD()->Restart = true;
-		Engine::GetEPD()->MutliGPuMode = setting->TestType;
+		Engine::GetEPD()->MultiGPUMode = setting->TestType;
 		Engine::GetEPD()->BenchIndex = index;
 		Log::LogMessage("Rebooting to change MultiGPU Settings (Mode " + MGPUMode::ToString(setting->TestType) + ") ");
 		Engine::RequestExit(Engine::RestartCode);

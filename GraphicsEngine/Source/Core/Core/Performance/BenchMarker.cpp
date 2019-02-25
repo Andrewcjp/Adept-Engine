@@ -4,6 +4,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Utils/FileUtils.h"
 #include "RHI/RHI.h"
+#include <algorithm>
 
 
 BenchMarker::BenchMarker()
@@ -12,7 +13,6 @@ BenchMarker::BenchMarker()
 	CoreStats[ECoreStatName::FrameRate] = new PerformanceLogStat("Frame Rate");
 	CoreStats[ECoreStatName::CPU] = new PerformanceLogStat("CPU");
 	CoreStats[ECoreStatName::GPU] = new PerformanceLogStat("GPU");
-	//StartCapture();
 }
 
 BenchMarker::~BenchMarker()
@@ -124,14 +124,18 @@ void BenchMarker::WriteFullStatsHeader(bool OnlyCoreStats)
 void BenchMarker::WriteSummaryToDisk(bool log /*= false*/)
 {
 	std::string summary = "";
-	summary += GetCoreTimerSummary(ECoreStatName::FrameRate);
-	summary.append("\n");
-	summary += GetCoreTimerSummary(ECoreStatName::FrameTime);
-	summary.append("\n");
-	summary += GetCoreTimerSummary(ECoreStatName::CPU);
-	summary.append("\n");
-	summary += GetCoreTimerSummary(ECoreStatName::GPU);
-	summary.append("\n");
+	for (int i = 0; i < ECoreStatName::Limit; i++)
+	{
+		summary += GetCoreTimerSummary((ECoreStatName::Type)i);
+		summary.append("\n");
+	}
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		summary += GetTimerSummary("GPU" + std::to_string(i) + "_GRAPHICS_PC");
+		summary.append("\n");
+		summary += GetTimerSummary("GPU" + std::to_string(i) + "_GRAPHICS_CLOCK");
+		summary.append("\n");
+	}
 	FileUtils::WriteToFile(SummaryOutputFileName + "\\PerfLog_" + FileSuffix + ".txt", summary);
 	if (log)
 	{
@@ -192,7 +196,21 @@ void BenchMarker::WriteCSV(bool OnlyCoreStats)
 	}
 	CSV->Save();
 }
-
+float Percentile(std::vector<float> sequence, float excelPercentile)
+{
+	std::sort(sequence.begin(), sequence.end());
+	int N = sequence.size();
+	float n = (N - 1) * excelPercentile + 1;
+	// Another method: double n = (N + 1) * excelPercentile;
+	if (n == 1.0f) return sequence[0];
+	else if (n == N) return sequence[N - 1];
+	else
+	{
+		int k = (int)n;
+		float d = n - k;
+		return sequence[k - 1] + d * (sequence[k] - sequence[k - 1]);
+	}
+}
 std::string BenchMarker::ProcessTimerData(PerformanceLogStat* PLS)
 {
 	std::vector<float> data = PLS->GetData();
@@ -209,9 +227,9 @@ std::string BenchMarker::ProcessTimerData(PerformanceLogStat* PLS)
 		Max = glm::max(Max, data[i]);
 		Min = fminf(Min, data[i]);
 	}
-	AVG /= data.size();
+	AVG /= data.size() - 1;
 	std::stringstream stream;
-	stream << std::fixed << std::setprecision(3) << "Name: " << PLS->name << " AVG: " << AVG << " Min: " << Min << " Max: " << Max << " ";
+	stream << std::fixed << std::setprecision(3) << "Name: " << PLS->name << " AVG: " << AVG << " Min: " << Min << " Max: " << Max << " 1% Low: " << Percentile(data, 0.99) << " 0.1% Low: " << Percentile(data, 0.999) << " ";
 	return stream.str();
 }
 
