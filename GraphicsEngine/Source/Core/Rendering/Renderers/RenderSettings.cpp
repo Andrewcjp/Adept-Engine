@@ -24,8 +24,7 @@ MultiGPUMode::MultiGPUMode()
 	else
 	{
 		CurrnetTestMode = MGPUMode::None;
-	}
-	CurrnetTestMode = MGPUMode::SFR_SHADOWS;
+	}	
 	PreSampleBufferScale = 1.0f;
 	//ShowSplit = true;
 }

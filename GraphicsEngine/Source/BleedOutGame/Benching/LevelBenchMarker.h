@@ -17,6 +17,7 @@ public:
 	LevelBenchMarker();
 	~LevelBenchMarker();
 	void AddAllRes(MGPUMode::Type mode);
+	void AddSetting(BBTestMode::Type res, MGPUMode::Type type);
 	void Setup();
 	void Init();
 	void TransitionToSetting(BenchSettings * setting, int index);
