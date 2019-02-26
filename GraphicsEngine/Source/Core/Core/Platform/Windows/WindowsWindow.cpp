@@ -89,12 +89,17 @@ void WindowsWindow::SetVisible(bool visible)
 	ShowWindow(HWindow, visible ? SW_SHOW : SW_HIDE);
 }
 
+void WindowsWindow::Maximize()
+{
+	ShowWindow(HWindow,SW_MAXIMIZE);
+}
+
 bool WindowsWindow::CreateOSWindow(int width, int height)
 {
 	app->HWindow = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
 		L"RenderWindow", L"BleedOut", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
-
+	Maximize();
 	return true;
 }
 

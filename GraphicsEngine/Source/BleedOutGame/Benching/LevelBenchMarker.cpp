@@ -31,10 +31,17 @@ void LevelBenchMarker::AddAllRes(MGPUMode::Type mode)
 	s.TestType = mode;
 	Settings.push_back(s);
 }
-
+void LevelBenchMarker::AddSetting(BBTestMode::Type res, MGPUMode::Type type)
+{
+	BenchSettings s = BenchSettings();
+	s.TestResolution = res;
+	s.TestType = type;
+	Settings.push_back(s);
+}
 void LevelBenchMarker::Setup()
 {
-	 AddAllRes(MGPUMode::SFR);
+	//AddSetting(BBTestMode::UHD, MGPUMode::None);
+	AddAllRes(MGPUMode::SFR);
 	//AddAllRes(MGPUMode::SFR);
 	for (int i = 0; i < MGPUMode::Limit - 1; i++)
 	{

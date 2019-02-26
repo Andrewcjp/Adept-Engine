@@ -17,7 +17,9 @@ BenchMarker::BenchMarker()
 
 BenchMarker::~BenchMarker()
 {
+#if _DEBUG
 	WriteSummaryToDisk();
+#endif
 }
 
 void BenchMarker::TickBenchMarker()
@@ -127,14 +129,15 @@ void BenchMarker::WriteSummaryToDisk(bool log /*= false*/)
 	for (int i = 0; i < ECoreStatName::Limit; i++)
 	{
 		summary += GetCoreTimerSummary((ECoreStatName::Type)i);
-		summary.append("\n");
 	}
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		summary += GetTimerSummary("GPU" + std::to_string(i) + "_GRAPHICS_PC");
-		summary.append("\n");
 		summary += GetTimerSummary("GPU" + std::to_string(i) + "_GRAPHICS_CLOCK");
-		summary.append("\n");
+		summary += GetTimerSummary("MGPU Copy" + std::to_string(i));
+		summary += GetTimerSummary("Shadow Copy" + std::to_string(i));
+		summary += GetTimerSummary("Shadow Copy2" + std::to_string(i));
+		summary += GetTimerSummary("GPU0 Wait On GPU1" + std::to_string(i));
 	}
 	FileUtils::WriteToFile(SummaryOutputFileName + "\\PerfLog_" + FileSuffix + ".txt", summary);
 	if (log)
@@ -159,7 +162,7 @@ std::string BenchMarker::GetTimerSummary(int Statid)
 	std::map<int, PerformanceLogStat*>::iterator finditor = StatLogs.find(Statid);
 	if (finditor == StatLogs.end())
 	{
-		output = "No data";
+		output = "No data\n";
 		return output;
 	}
 	return ProcessTimerData(finditor->second, (finditor->second == CoreStats[ECoreStatName::FrameRate]));
@@ -237,7 +240,7 @@ std::string BenchMarker::ProcessTimerData(PerformanceLogStat * PLS, bool Flip /*
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(3) << "Name: " << PLS->name
 		<< " AVG: " << AVG << " Min: " << Min << " Max: " << Max << " 1% Low: "
-		<< Percentile(data, Flip ? 0.01f : 0.99f) << " 0.1% Low: " << Percentile(data, Flip ? 0.001f : 0.999f) << " ";
+		<< Percentile(data, Flip ? 0.01f : 0.99f) << " 0.1% Low: " << Percentile(data, Flip ? 0.001f : 0.999f) << " \n";
 	return stream.str();
 }
 
