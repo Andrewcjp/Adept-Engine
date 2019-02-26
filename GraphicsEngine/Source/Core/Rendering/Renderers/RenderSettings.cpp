@@ -25,7 +25,9 @@ MultiGPUMode::MultiGPUMode()
 	{
 		CurrnetTestMode = MGPUMode::None;
 	}
-	CurrnetTestMode = MGPUMode::SFR;
+	CurrnetTestMode = MGPUMode::SFR_SHADOWS;
+	PreSampleBufferScale = 1.0f;
+	//ShowSplit = true;
 }
 
 void MultiGPUMode::SyncSettings()
@@ -105,14 +107,14 @@ RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = true;
+	IsDeferred = false;
 	EnableGPUParticles = false;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
-	SetRes(BBTestMode::UHD);
+	SetRes(BBTestMode::HD);
 
 }
 

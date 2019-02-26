@@ -69,7 +69,7 @@ public:
 	void Signal(ID3D12CommandQueue * queue, int value = -1);
 	void Wait(ID3D12CommandQueue * queue, int value = -1);
 private:
-	HANDLE m_fenceEvent;
+	HANDLE m_fenceEvent = 0;
 	ID3D12Fence* m_fence = nullptr;
 	ID3D12Fence* secondaryFence = nullptr;
 	UINT64 m_fenceValue = 0;

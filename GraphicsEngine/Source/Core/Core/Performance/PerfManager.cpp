@@ -7,7 +7,7 @@
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Utils/NVAPIManager.h"
 #include "BenchMarker.h"
-#pragma optimize("",off)
+
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 long PerfManager::get_nanos()

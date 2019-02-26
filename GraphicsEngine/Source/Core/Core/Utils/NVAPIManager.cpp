@@ -124,7 +124,7 @@ void NVAPIManager::SampleClocks()
 		{
 			CoreClock = clkFreqs.domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].frequency;
 			Data = ("Core: " + std::to_string(CoreClock / 1000) + "MHz");
-			PerfManager::Get()->UpdateStat(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK], CoreClock / 1000, 0);
+			PerfManager::Get()->UpdateStat(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK], CoreClock / 1000.0f, 0);
 
 		}
 		GpuData[i][index] = Data;
@@ -136,7 +136,7 @@ void NVAPIManager::SampleClocks()
 			float PC = (float)Utilzieation / 80.0f;
 			Colours[i] = glm::mix(glm::vec3(1, 0, 0), glm::vec3(1), PC);
 			Data = ("Graphics: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage) + "%");
-			PerfManager::Get()->UpdateStat(StatIds[i][Stats::GPU0_GRAPHICS_PC], Utilzieation, 0);
+			PerfManager::Get()->UpdateStat(StatIds[i][Stats::GPU0_GRAPHICS_PC], (float)Utilzieation, 0);
 		}
 #if 1
 		GpuData[i][index] = Data;

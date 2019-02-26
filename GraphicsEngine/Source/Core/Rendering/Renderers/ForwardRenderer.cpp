@@ -11,6 +11,7 @@
 #include "Editor/EditorCore.h"
 #include "Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
+#include "RHI/SFRController.h"
 
 #define CUBEMAPS 0
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
@@ -138,7 +139,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	}
 	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
-	if (RHI::GetMGPUSettings()->SplitShadowWork)
+	if (RHI::GetMGPUSettings()->SplitShadowWork || RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		glm::ivec2 Res = glm::ivec2(GetScaledWidth(), GetScaledHeight());
 		Cmdlist->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);

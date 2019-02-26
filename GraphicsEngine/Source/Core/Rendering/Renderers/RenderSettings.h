@@ -67,6 +67,8 @@ struct MultiGPUMode
 	int MAX_PRESAMPLED_SHADOWS = 1;
 	bool SFRSplitShadows = false;
 	float SecondCardShadowScaleFactor = 1.0f;
+	float PreSampleBufferScale = 1.0f;
+	bool ShowSplit = false;
 	void ValidateSettings();
 	bool UseSplitShadows()const;
 	MGPUMode::Type CurrnetTestMode = MGPUMode::Limit;

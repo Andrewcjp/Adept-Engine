@@ -15,7 +15,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 {
 	Scenerenderer = sceneRenderer;
 	DirectionalLightShader = ShaderComplier::GetShader_Default<Shader_Depth>(false);
-	if (RHI::GetMGPUSettings()->SFRSplitShadows)
+	if (RHI::GetMGPUSettings()->SFRSplitShadows || true)
 	{
 		DeviceZeroNeedsPreSample = true;
 	}
@@ -285,7 +285,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 			{
 				if (NeedsCopyPreSample[0])
 				{
-					FrameBuffer::CopyHelper(DSOs[list->GetDeviceIndex()].PreSampledBuffer, RHI::GetDeviceContext(1), EGPUCOPYTIMERS::ShadowCopy);
+					FrameBuffer::CopyHelper(DSOs[list->GetDeviceIndex()].PreSampledBuffer, RHI::GetDeviceContext(1), EGPUCOPYTIMERS::ShadowCopy2);
 				}
 			}
 			else
@@ -477,7 +477,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	if (RHI::GetMGPUSettings()->SplitShadowWork)
 	{
 		ShadowingPointLights[0]->SetShadowResdent(1, 0);
-		//ShadowingPointLights[1]->SetShadowResdent(1, 0);
+		ShadowingPointLights[1]->SetShadowResdent(0, 1);
 	}
 
 	if (RHI::GetMGPUSettings()->MainPassSFR)
@@ -495,14 +495,14 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	{
 		ShadowingPointLights[0]->SetShadowResdent(1, 0);
 		int ShadowsOnDev0 = 2;
-		//for (int i = 0; i < ShadowsOnDev0; i++)
-		//{
-		//	ShadowingPointLights[i]->SetShadowResdent(0, 1);
-		//}
-		/*for (int i = ShadowsOnDev0; i < 4; i++)
+		for (int i = 0; i < ShadowsOnDev0; i++)
+		{
+			ShadowingPointLights[i]->SetShadowResdent(0, 1);
+		}
+		for (int i = ShadowsOnDev0; i < 4; i++)
 		{
 			ShadowingPointLights[i]->SetShadowResdent(1, 0);
-		}*/
+		}
 	}
 	//removes all refs to any buffer we had last frame!
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
@@ -626,7 +626,7 @@ void ShadowRenderer::InitPreSampled(DeviceContext* dev, DeviceContext* Targetdev
 	desc.IsShared = true;
 	desc.DeviceToCopyTo = Targetdev;
 	desc.RTFormats[0] = ShadowRenderer::GetPreSampledTextureFormat();
-	desc.LinkToBackBufferScaleFactor = 1.0f;//todo: setting?
+	desc.LinkToBackBufferScaleFactor = RHI::GetMGPUSettings()->PreSampleBufferScale;//todo: setting?
 	DSOs[dev->GetDeviceIndex()].PreSampledBuffer = RHI::CreateFrameBuffer(dev, desc);
 	RHI::AddLinkedFrameBuffer(DSOs[dev->GetDeviceIndex()].PreSampledBuffer);
 }

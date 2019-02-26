@@ -60,6 +60,7 @@ void RenderEngine::PreRender()
 	{
 		StaticUpdate();
 	}
+	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
