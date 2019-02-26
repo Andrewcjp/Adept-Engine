@@ -124,17 +124,23 @@ void DeviceContext::TickTransferStats()
 	}
 	float TotalTime = 0;
 	TimerData* t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("MGPU Copy" + std::to_string(GetDeviceIndex())));
-	TotalTime += t->Time;
 	if (t == nullptr)
 	{
 		return;
 	}
+	TotalTime += t->Time;
 	t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Shadow Copy" + std::to_string(GetDeviceIndex())));
-	TotalTime += t->Time;
 	if (t == nullptr)
 	{
 		return;
 	}
+	TotalTime += t->Time;
+	t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Shadow Copy2" + std::to_string(GetDeviceIndex())));
+	if (t == nullptr)
+	{
+		return;
+	}
+	TotalTime += t->Time;
 	//SFR
 	float transferTimeInS = TotalTime / 10e3f;
 	float MB = (float)BytesToTransfer / 10e6f;

@@ -14,14 +14,15 @@ public:
 	RHI_API RHIFrameBufferDesc& GetDescription();
 	void Resize(int width, int height);
 	RHI_API void SFRResize();
-	
-	virtual void SetupCopyToDevice(DeviceContext* device){};
-	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice, EGPUCOPYTIMERS::Type Stat = EGPUCOPYTIMERS::MGPUCopy);
+
+	virtual void SetupCopyToDevice(DeviceContext* device)
+	{};
+	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice, EGPUCOPYTIMERS::Type Stat = EGPUCOPYTIMERS::MGPUCopy, DeviceContextQueue::Type CopyQ = DeviceContextQueue::Copy);
 	RHI_API virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List);
 	static void CopyHelper_Async_OneFrame(FrameBuffer * Target, DeviceContext * TargetDevice);
 	static void CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetDevice);
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc() = 0;
-	RHI_API virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough);	
+	RHI_API virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough);
 	virtual void MakeReadyForComputeUse(RHICommandList* List) = 0;
 	virtual void MakeReadyForCopy(RHICommandList * list) = 0;
 	///Needs to called before buffer is read for final present

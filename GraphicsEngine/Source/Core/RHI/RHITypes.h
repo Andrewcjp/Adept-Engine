@@ -248,6 +248,7 @@ namespace EGPUCOPYTIMERS
 		Total,
 		MGPUCopy,
 		ShadowCopy,
+		ShadowCopy2,
 		SFRMerge,
 		LIMIT
 	};

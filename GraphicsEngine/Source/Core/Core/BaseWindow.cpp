@@ -168,7 +168,7 @@ void BaseWindow::Render()
 	if (ShouldTickScene)
 	{
 		CurrentScene->AlwaysUpdate(DeltaTime);
-		if (!IsScenePaused())
+		//if (!IsScenePaused())
 		{
 			Engine::GetGame()->Update();
 			PerfManager::StartTimer("Scene Update");

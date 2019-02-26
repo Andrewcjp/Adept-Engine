@@ -400,7 +400,11 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 		int offset = i;
 		CD3DX12_TEXTURE_COPY_LOCATION dest(OtherB->RenderTarget[0]->GetResource(), offset);
 		CD3DX12_TEXTURE_COPY_LOCATION src(TargetCopy->GetResource(), offset);
-		const int PXoffset = 10;
+		int PXoffset = 0;
+		if (RHI::GetMGPUSettings()->ShowSplit)
+		{
+			PXoffset = 10;
+		}
 		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width - PXoffset, m_height);
 		CMdList->GetCommandList()->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x + PXoffset, 0, 0, &src, &box);
 	}

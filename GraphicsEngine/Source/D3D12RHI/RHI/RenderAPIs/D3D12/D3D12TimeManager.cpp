@@ -98,9 +98,10 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy", ECommandListType::Copy);
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::SFRMerge, "SFR Merge", ECommandListType::Copy);
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::ShadowCopy, "Shadow Copy", ECommandListType::Copy);
+	SetTimerName(CopyOffset + EGPUCOPYTIMERS::ShadowCopy2, "2Shadow Copy2", ECommandListType::Copy);
 #endif
 }
-#pragma optimize("",off)
+
 void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBuffer, UINT64 ClockFreq, bool IsCopyList, int offset)
 {
 	D3D12_RANGE readRange = {};
@@ -166,7 +167,7 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 	ResultBuffer->Unmap(0, &emptyRange);
 
 }
-#pragma optimize("",on)
+
 void D3D12TimeManager::UpdateTimers()
 {
 #if ENABLE_GPUTIMERS

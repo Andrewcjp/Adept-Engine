@@ -77,7 +77,7 @@ private:
 		std::vector<float> Data;
 	};
 	FileUtils::CSVWriter* CSV = nullptr;
-	std::string ProcessTimerData(PerformanceLogStat * PLS);
+	std::string ProcessTimerData(PerformanceLogStat * PLS, bool Flip  = false);
 	std::map<int, PerformanceLogStat*> StatLogs;
 	const int DiskFlushRate = 100;
 	std::string SummaryOutputFileName = "";

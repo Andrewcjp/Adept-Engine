@@ -162,7 +162,7 @@ std::string BenchMarker::GetTimerSummary(int Statid)
 		output = "No data";
 		return output;
 	}
-	return ProcessTimerData(finditor->second);
+	return ProcessTimerData(finditor->second, (finditor->second == CoreStats[ECoreStatName::FrameRate]));
 }
 
 void BenchMarker::WriteCSV(bool OnlyCoreStats)
@@ -196,10 +196,11 @@ void BenchMarker::WriteCSV(bool OnlyCoreStats)
 	}
 	CSV->Save();
 }
+
 float Percentile(std::vector<float> sequence, float excelPercentile)
 {
 	std::sort(sequence.begin(), sequence.end());
-	int N = sequence.size();
+	int N = (int)sequence.size();
 	float n = (N - 1) * excelPercentile + 1;
 	// Another method: double n = (N + 1) * excelPercentile;
 	if (n == 1.0f) return sequence[0];
@@ -211,9 +212,14 @@ float Percentile(std::vector<float> sequence, float excelPercentile)
 		return sequence[k - 1] + d * (sequence[k] - sequence[k - 1]);
 	}
 }
-std::string BenchMarker::ProcessTimerData(PerformanceLogStat* PLS)
+
+std::string BenchMarker::ProcessTimerData(PerformanceLogStat * PLS, bool Flip /*= false*/)
 {
 	std::vector<float> data = PLS->GetData();
+	if (data.size() == 0)
+	{
+		return "NoData";
+	}
 	float AVG = 0;
 	float Max = 0;
 	float Min = FLT_MAX;
@@ -229,7 +235,9 @@ std::string BenchMarker::ProcessTimerData(PerformanceLogStat* PLS)
 	}
 	AVG /= data.size() - 1;
 	std::stringstream stream;
-	stream << std::fixed << std::setprecision(3) << "Name: " << PLS->name << " AVG: " << AVG << " Min: " << Min << " Max: " << Max << " 1% Low: " << Percentile(data, 0.99) << " 0.1% Low: " << Percentile(data, 0.999) << " ";
+	stream << std::fixed << std::setprecision(3) << "Name: " << PLS->name
+		<< " AVG: " << AVG << " Min: " << Min << " Max: " << Max << " 1% Low: "
+		<< Percentile(data, Flip ? 0.01f : 0.99f) << " 0.1% Low: " << Percentile(data, Flip ? 0.001f : 0.999f) << " ";
 	return stream.str();
 }
 
