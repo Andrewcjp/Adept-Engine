@@ -115,7 +115,7 @@ RHICommandList * DeviceContext::GetNextFreeCopyList()
 	return retvalue;
 }
 
-void DeviceContext::TickTransferStats()
+void DeviceContext::TickTransferStats(bool render)
 {
 	GetTransferBytes();
 	if (BytesToTransfer == 0)
@@ -124,30 +124,32 @@ void DeviceContext::TickTransferStats()
 	}
 	float TotalTime = 0;
 	TimerData* t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("MGPU Copy" + std::to_string(GetDeviceIndex())));
-	if (t == nullptr)
+	if (t != nullptr)
 	{
-		return;
+		TotalTime += t->Time;
 	}
-	TotalTime += t->Time;
 	t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Shadow Copy" + std::to_string(GetDeviceIndex())));
-	if (t == nullptr)
+	if (t != nullptr)
 	{
-		return;
+		TotalTime += t->Time;
 	}
-	TotalTime += t->Time;
 	t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Shadow Copy2" + std::to_string(GetDeviceIndex())));
-	if (t == nullptr)
+	if (t != nullptr)
 	{
-		return;
+		TotalTime += t->Time;
 	}
-	TotalTime += t->Time;
+
 	//SFR
 	float transferTimeInS = TotalTime / 10e3f;
 	float MB = (float)BytesToTransfer / 10e6f;
 	float TransferSpeedBPerS = (float)BytesToTransfer / transferTimeInS;//1024
-	std::stringstream ss;
-	ss << "GPU_" << GetDeviceIndex() << " transferring " << std::fixed << std::setprecision(2) << MB << "Mb @ " << TransferSpeedBPerS / 10e9 << "GB/s Taking " << TotalTime << "ms";
-	TextRenderer::instance->RenderFromAtlas(ss.str(), 100.0f, 20.0f + 20 * GetDeviceIndex(), 0.35f);
+	PerfManager::Get()->UpdateStat(PerfManager::Get()->GetTimerIDByName("TransferBytes" + std::to_string(GetDeviceIndex())), MB, 0);
+	if (render)
+	{
+		std::stringstream ss;
+		ss << "GPU_" << GetDeviceIndex() << " transferring " << std::fixed << std::setprecision(2) << MB << "Mb @ " << TransferSpeedBPerS / 10e9 << "GB/s Taking " << TotalTime << "ms";
+		TextRenderer::instance->RenderFromAtlas(ss.str(), 100.0f, 20.0f + 20 * GetDeviceIndex(), 0.35f);
+	}
 }
 int DeviceContext::GetTransferBytes()
 {
@@ -184,6 +186,10 @@ void DeviceContext::ResetStat()
 	}
 }
 
+void DeviceContext::PostInit()
+{
+	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");
+}
 
 void DeviceContext::InitCopyListPool()
 {
@@ -201,4 +207,9 @@ RHIGPUSyncEvent::RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceCo
 RHIGPUSyncEvent::~RHIGPUSyncEvent()
 {
 
+}
+
+int DeviceContext::GetDeviceIndex()
+{
+	return DeviceIndex;
 }

@@ -179,6 +179,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		GetDevice()->SetStablePowerState(true);
 	}
 	InitCopyListPool();
+	PostInit();
 }
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
@@ -374,11 +375,6 @@ void D3D12DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
 	{
 		WaitForGpu();
 	}
-}
-
-int D3D12DeviceContext::GetDeviceIndex()
-{
-	return DeviceIndex;
 }
 
 RHITimeManager * D3D12DeviceContext::GetTimeManager()

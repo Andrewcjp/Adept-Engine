@@ -138,6 +138,7 @@ void BenchMarker::WriteSummaryToDisk(bool log /*= false*/)
 		summary += GetTimerSummary("Shadow Copy" + std::to_string(i));
 		summary += GetTimerSummary("Shadow Copy2" + std::to_string(i));
 		summary += GetTimerSummary("GPU0 Wait On GPU1" + std::to_string(i));
+		summary += GetTimerSummary("TransferBytes" + std::to_string(i));
 	}
 	FileUtils::WriteToFile(SummaryOutputFileName + "\\PerfLog_" + FileSuffix + ".txt", summary);
 	if (log)

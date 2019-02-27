@@ -112,7 +112,6 @@ public:
 	void ExecuteCopyCommandList(ID3D12GraphicsCommandList * list);
 	void ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock = false);
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
-	int GetDeviceIndex();
 	class RHITimeManager* GetTimeManager()override;
 	int GetCpuFrameIndex();
 	void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
