@@ -85,7 +85,7 @@ public:
 	//Resets all AVGs
 	void ResetStats();
 	void DrawStatsGroup(int x, int & y, std::string GroupFilter, bool IncludeGPU);
-	CORE_API void UpdateStat(int id, float newtime, float GPUOffsetToMain);
+	CORE_API void UpdateStat(int id, float newtime, float GPUOffsetToMain, bool Direct = false);
 	CORE_API int GetTimerIDByName(std::string name);
 	CORE_API int GetGroupId(std::string name);
 

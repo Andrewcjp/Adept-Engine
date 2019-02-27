@@ -344,6 +344,10 @@ void PerfManager::Internal_NotifyEndOfFrame()
 	}
 	for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
 	{
+		if (AVGTimers.find(it->first) == AVGTimers.end())
+		{
+			continue;
+		}
 		TimerData*  data = &AVGTimers.at(it->first);
 		data->AVG->Add(it->second);
 		if (!data->DirectUpdate)
@@ -379,7 +383,7 @@ void PerfManager::DrawAllStats(int x, int y, bool IncludeGPUStats)
 	}
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
-		RHI::GetDeviceContext(i)->TickTransferStats();
+		RHI::GetDeviceContext(i)->TickTransferStats(true);
 	}
 #endif
 }
@@ -400,6 +404,10 @@ void PerfManager::UpdateStatsTimer()
 	else
 	{
 		Capture = false;
+	}
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		RHI::GetDeviceContext(i)->TickTransferStats(false);
 	}
 }
 
@@ -555,7 +563,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 #endif
 }
 
-void PerfManager::UpdateStat(int id, float newtime, float GPUOffsetToMain)
+void PerfManager::UpdateStat(int id, float newtime, float GPUOffsetToMain, bool Direct /*= false*/)
 {
 	if (TimerOutput.find(id) != TimerOutput.end())
 	{
@@ -564,6 +572,10 @@ void PerfManager::UpdateStat(int id, float newtime, float GPUOffsetToMain)
 		{
 			data->Active = true;
 			data->GPUStartOffset = GPUOffsetToMain;
+			if (Direct)
+			{
+				data->DirectUpdate = true;
+			}
 		}
 		TimerOutput.at(id) = glm::abs(newtime);
 	}

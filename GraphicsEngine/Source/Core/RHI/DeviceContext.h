@@ -25,7 +25,7 @@ public:
 	RHI_API virtual void UpdateCopyEngine() = 0;
 	RHI_API virtual void ResetCopyEngine() = 0;
 
-	RHI_API virtual int GetDeviceIndex() = 0;
+	RHI_API  int GetDeviceIndex();
 	RHI_API virtual int GetCpuFrameIndex() = 0;
 	RHI_API virtual void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
 	int CurrentFrameIndex = 0;
@@ -47,12 +47,13 @@ public:
 	//Copy lists are pooled (because why not)
 	RHI_API RHICommandList* GetCopyList(int Index);
 	RHI_API RHICommandList* GetNextFreeCopyList();
-	RHI_API void TickTransferStats();
+	RHI_API void TickTransferStats(bool render);
 	RHI_API int GetTransferBytes();
 	RHI_API void AddTransferBuffer(FrameBuffer* buffer);
 	RHI_API void RemoveTransferBuffer(FrameBuffer* buffer);
 	void ResetStat();
 protected:
+	RHI_API void PostInit();
 	bool AllowCrossFrameAsyncCompute = false;
 	RHI_API void InitCopyListPool();
 	bool LogDeviceDebug = true;
