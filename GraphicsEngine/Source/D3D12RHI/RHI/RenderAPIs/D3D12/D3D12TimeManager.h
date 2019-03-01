@@ -51,6 +51,7 @@ private:
 		float StartOffset = 0.0f;
 		MovingAverage StartOffsetavg = MovingAverage(AVGTIME);
 	};
+	UINT64 OffsetToGPUZero = 0; 
 	int StatsGroupId = -1;
 	bool TimerStarted = false;
 #if GPUTIMERS_FULL
@@ -66,18 +67,27 @@ private:
 #endif
 	int MaxIndexInUse = 0;
 	void Init(DeviceContext * context);
+
+	void UpdateTimeStampFreq();
+
 	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, UINT64 ClockFreq, bool CopyList, int offset);
 
 	MovingAverage avg = MovingAverage(AVGTIME);
-	ID3D12QueryHeap* m_timestampQueryHeaps;
-	ID3D12Resource* m_timestampResultBuffers;
+
 	UINT64 m_directCommandQueueTimestampFrequencies = 1;
 	UINT64 m_ComputeQueueFreqency = 1;
 	UINT64 m_copyCommandQueueTimestampFrequencies = 1;
 	GPUTimer TimeDeltas[TotalMaxTimerCount] = {};
-	ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;
-	ID3D12Resource* m_CopytimestampResultBuffers = nullptr;
+
 	D3D12DeviceContext* Device = nullptr;
+	struct QuerryBuffers
+	{
+		ID3D12QueryHeap* m_timestampQueryHeaps = nullptr;
+		ID3D12Resource* m_timestampResultBuffers = nullptr;
+		ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;
+		ID3D12Resource* m_CopytimestampResultBuffers = nullptr;
+	};
+	QuerryBuffers Buffers[RHI::CPUFrameCount] = {0};
 #if PIX_ENABLED
 	std::wstring PixTimerNames[TotalMaxTimerCount] = {};
 	LPCWSTR GetTimerNameForPIX(int index);

@@ -16,7 +16,7 @@ public:
 
 	void SetEnabled(bool state);
 	void DrawLine(TimerData * data, glm::vec3 pos, float& CurrnetValue, int index);
-	void DrawBaseLine(float Time, int GPUindex, glm::vec3 pos);
+	void DrawBaseLine(TimerData * Timer, int GPUindex, glm::vec3 pos);
 	glm::vec3 StartPos = glm::vec3(0);
 	float MaxLength = 100.0f;
 	DebugLineDrawer* TwoDrawer = nullptr;

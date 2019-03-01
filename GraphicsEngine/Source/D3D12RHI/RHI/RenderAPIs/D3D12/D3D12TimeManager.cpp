@@ -16,10 +16,13 @@ D3D12TimeManager::D3D12TimeManager(DeviceContext* context) :RHITimeManager(conte
 D3D12TimeManager::~D3D12TimeManager()
 {
 #if ENABLE_GPUTIMERS
-	SafeRelease(m_timestampQueryHeaps);
-	SafeRelease(m_timestampResultBuffers);
-	SafeRelease(m_CopytimestampResultBuffers);
-	SafeRelease(m_CopytimestampQueryHeaps);
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	{
+		SafeRelease(Buffers[i].m_timestampQueryHeaps);
+		SafeRelease(Buffers[i].m_timestampResultBuffers);
+		SafeRelease(Buffers[i].m_CopytimestampResultBuffers);
+		SafeRelease(Buffers[i].m_CopytimestampQueryHeaps);
+	}
 #endif
 }
 
@@ -32,38 +35,40 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	const UINT resultCount = MaxTimeStamps;//sync with count;
 	const UINT resultBufferSize = resultCount * sizeof(UINT64);
 
-	D3D12_QUERY_HEAP_DESC timestampHeapDesc = {};
-	timestampHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
-	timestampHeapDesc.Count = resultCount;
 
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(resultBufferSize),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,
-		IID_PPV_ARGS(&m_timestampResultBuffers)));
-
-	ThrowIfFailed(Device->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&m_timestampQueryHeaps)));
-#if GPUTIMERS_FULL
-	if (Device->GetCaps().SupportsCopyTimeStamps)
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
-		timestampHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP;
-		UINT CopyResultBuffesize = EGPUCOPYTIMERS::LIMIT * 2 * sizeof(UINT64);
+		D3D12_QUERY_HEAP_DESC timestampHeapDesc = {};
+		timestampHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
+		timestampHeapDesc.Count = resultCount;
 		ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(CopyResultBuffesize),
+			&CD3DX12_RESOURCE_DESC::Buffer(resultBufferSize),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
-			IID_PPV_ARGS(&m_CopytimestampResultBuffers)));
+			IID_PPV_ARGS(&Buffers[i].m_timestampResultBuffers)));
 
-		ThrowIfFailed(Device->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&m_CopytimestampQueryHeaps)));
-		ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Copy)->GetTimestampFrequency(&m_copyCommandQueueTimestampFrequencies));
-	}
+		ThrowIfFailed(Device->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&Buffers[i].m_timestampQueryHeaps)));
+#if GPUTIMERS_FULL
+		if (Device->GetCaps().SupportsCopyTimeStamps)
+		{
+			timestampHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP;
+			UINT CopyResultBuffesize = EGPUCOPYTIMERS::LIMIT * 2 * sizeof(UINT64);
+			ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(CopyResultBuffesize),
+				D3D12_RESOURCE_STATE_COPY_DEST,
+				nullptr,
+				IID_PPV_ARGS(&Buffers[i].m_CopytimestampResultBuffers)));
+
+			ThrowIfFailed(Device->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&Buffers[i].m_CopytimestampQueryHeaps)));
+		}
 #endif
-	ThrowIfFailed(Device->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
-	ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Compute)->GetTimestampFrequency(&m_ComputeQueueFreqency));
+	}
+	UpdateTimeStampFreq();
+
 	ensure(m_ComputeQueueFreqency == m_directCommandQueueTimestampFrequencies);
 	int TimerItor = 0;
 	for (int i = 0; i < TotalMaxTimerCount; i++)
@@ -100,6 +105,19 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::ShadowCopy, "Shadow Copy", ECommandListType::Copy);
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::ShadowCopy2, "2Shadow Copy2", ECommandListType::Copy);
 #endif
+	UpdateTimeStampFreq();
+}
+
+void D3D12TimeManager::UpdateTimeStampFreq()
+{
+	ThrowIfFailed(Device->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
+	ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Compute)->GetTimestampFrequency(&m_ComputeQueueFreqency));
+#if GPUTIMERS_FULL
+	if (Device->GetCaps().SupportsCopyTimeStamps)
+	{
+		ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Copy)->GetTimestampFrequency(&m_copyCommandQueueTimestampFrequencies));
+	}
+#endif
 }
 
 void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBuffer, UINT64 ClockFreq, bool IsCopyList, int offset)
@@ -133,7 +151,15 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 				{
 					GPU0_TS = TimeDeltas[i].StartTS;
 				}
-				//StartTimeStamp = GPU0_TS;
+				else
+				{
+					//OffsetToGPUZero = GPU0_TS - StartTimeStamp;
+					//Log::LogTextToScreen("Delta: " + std::to_string(OffsetToGPUZero));
+					//StartTimeStamp = GPU0_TS;
+					TimeDeltas[i].StartOffset = glm::max((float)(OffsetToGPUZero) * 1000 / (float)ClockFreq, 0.0f);
+					TimeDeltas[i].StartOffsetavg.Add(TimeDeltas[i].StartOffset);
+				}
+
 			}
 			else
 			{
@@ -145,10 +171,15 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 					Delta = StartTimeStamp - CurrentTimeStamp;
 					IsNegative = true;
 				}
-				TimeDeltas[i].StartOffset = glm::max((float)(Delta) * 1000 / (float)ClockFreq, 0.0f);
+
 				if (IsNegative)
 				{
-					TimeDeltas[i].StartOffset = -TimeDeltas[i].StartOffset;
+					TimeDeltas[i].StartOffset = glm::max((float)(Delta) * 1000 / (float)ClockFreq, 0.0f);
+					TimeDeltas[i].StartOffset = (TimeDeltas[0].StartOffset - TimeDeltas[i].StartOffset);
+				}
+				else
+				{
+					TimeDeltas[i].StartOffset = glm::max((float)(Delta + OffsetToGPUZero) * 1000 / (float)ClockFreq, 0.0f);
 				}
 				if (TimeDeltas[i].StartOffset > 1000)
 				{
@@ -171,14 +202,14 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 void D3D12TimeManager::UpdateTimers()
 {
 #if ENABLE_GPUTIMERS
-	if (Device->GetCpuFrameIndex() == 0)
+
+	UpdateTimeStampFreq();
+	ProcessTimeStampHeaps(MaxTimerCount, Buffers[Device->GetCpuFrameIndex()].m_timestampResultBuffers, m_directCommandQueueTimestampFrequencies, false, 0);
+	if (Buffers[Device->GetCpuFrameIndex()].m_CopytimestampResultBuffers != nullptr)
 	{
-		ProcessTimeStampHeaps(MaxTimerCount, m_timestampResultBuffers, m_directCommandQueueTimestampFrequencies, false, 0);
-		if (m_CopytimestampResultBuffers != nullptr)
-		{
-			ProcessTimeStampHeaps(EGPUCOPYTIMERS::LIMIT, m_CopytimestampResultBuffers, m_copyCommandQueueTimestampFrequencies, true, CopyOffset);
-		}
+		ProcessTimeStampHeaps(EGPUCOPYTIMERS::LIMIT, Buffers[Device->GetCpuFrameIndex()].m_CopytimestampResultBuffers, m_copyCommandQueueTimestampFrequencies, true, CopyOffset);
 	}
+
 	AVGgpuTimeMS = TimeDeltas[0].avg.GetCurrentAverage();
 	for (int i = 0; i < TotalMaxTimerCount; i++)
 	{
@@ -244,7 +275,7 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListTyp
 LPCWSTR D3D12TimeManager::GetTimerNameForPIX(int index)
 {
 	return PixTimerNames[index].c_str();
-	}
+}
 #endif
 
 void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
@@ -261,7 +292,7 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
 	{
 		PIXBeginEvent(List->GetCommandList(), 0, GetTimerNameForPIX(index));
-}
+	}
 #endif
 #endif
 }
@@ -281,10 +312,10 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	{
 
 		PIXEndEvent(List->GetCommandList());
-}
-#endif
-#endif
 	}
+#endif
+#endif
+}
 
 float D3D12TimeManager::GetTotalTime()
 {
@@ -299,12 +330,12 @@ void D3D12TimeManager::StartTimer(ID3D12GraphicsCommandList * ComandList, int in
 #if  GPUTIMERS_FULL
 		ensure(index < EGPUCOPYTIMERS::LIMIT);
 		index += CopyOffset;
-		ComandList->EndQuery(m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Startindex);
+		ComandList->EndQuery(Buffers[Device->GetCpuFrameIndex()].m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Startindex);
 #endif
 	}
 	else
 	{
-		ComandList->EndQuery(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Startindex);
+		ComandList->EndQuery(Buffers[Device->GetCpuFrameIndex()].m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Startindex);
 	}
 	TimeDeltas[index].Used = true;
 #endif
@@ -318,12 +349,12 @@ void D3D12TimeManager::EndTimer(ID3D12GraphicsCommandList* ComandList, int index
 #if GPUTIMERS_FULL
 		ensure(index < EGPUCOPYTIMERS::LIMIT);
 		index += CopyOffset;
-		ComandList->EndQuery(m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Endindex);
+		ComandList->EndQuery(Buffers[Device->GetCpuFrameIndex()].m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Endindex);
 #endif
 	}
 	else
 	{
-		ComandList->EndQuery(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Endindex);
+		ComandList->EndQuery(Buffers[Device->GetCpuFrameIndex()].m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, TimeDeltas[index].Endindex);
 	}
 #endif
 }
@@ -357,7 +388,7 @@ void D3D12TimeManager::EndTotalGPUTimer(ID3D12GraphicsCommandList* ComandList)
 }
 void D3D12TimeManager::ResolveTimeHeaps(RHICommandList* CommandList)
 {
-	((D3D12CommandList*)CommandList)->GetCommandList()->ResolveQueryData(m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, MaxTimerCount * 2, m_timestampResultBuffers, 0);
+	((D3D12CommandList*)CommandList)->GetCommandList()->ResolveQueryData(Buffers[Device->GetCpuFrameIndex()].m_timestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, MaxTimerCount * 2, Buffers[Device->GetCpuFrameIndex()].m_timestampResultBuffers, 0);
 }
 
 void D3D12TimeManager::ResolveCopyTimeHeaps(RHICommandList* CommandList)
@@ -365,7 +396,7 @@ void D3D12TimeManager::ResolveCopyTimeHeaps(RHICommandList* CommandList)
 #if ENABLE_GPUTIMERS && GPUTIMERS_FULL
 	ensure(CommandList->IsCopyList());
 	D3D12CommandList* List = (D3D12CommandList*)CommandList;
-	List->GetCommandList()->ResolveQueryData(m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, EGPUCOPYTIMERS::LIMIT * 2, m_CopytimestampResultBuffers, 0);
+	List->GetCommandList()->ResolveQueryData(Buffers[Device->GetCpuFrameIndex()].m_CopytimestampQueryHeaps, D3D12_QUERY_TYPE_TIMESTAMP, 0, EGPUCOPYTIMERS::LIMIT * 2, Buffers[Device->GetCpuFrameIndex()].m_CopytimestampResultBuffers, 0);
 #endif
 }
 

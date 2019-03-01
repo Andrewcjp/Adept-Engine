@@ -78,14 +78,14 @@ void FrameBuffer::HandleResize()
 
 }
 
-void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat,DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)
+void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)
 {
 	PerfManager::StartTimer("RunOnSecondDevice");
 	DeviceContext* HostDevice = Target->GetDevice();
 	if (TargetDevice == HostDevice)
 	{
 		return;
-	}	
+	}
 	CopyQ = DeviceContextQueue::InterCopy;
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 	HostDevice->InsertGPUWait(CopyQ, DeviceContextQueue::Graphics);
@@ -96,7 +96,10 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice,
 	CopyList->EndTimer(Stat);
 	CopyList->ResolveTimers();
 	CopyList->Execute(CopyQ);
-	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
+	//if (!RHI::GetMGPUSettings()->AsyncShadows)
+	{
+		HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
+	}
 	//RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), CopyQ, CopyQ);
 	//if (!RHI::GetMGPUSettings()->SFRSplitShadows)
 	{

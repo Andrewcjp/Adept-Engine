@@ -3,7 +3,9 @@
 #include "BehaviourTreeNode.h"
 #include "BTBlackboard.h"
 #include "AI/Core/AISystem.h"
-
+#ifndef WITH_UNITY
+#include "AI/Core/AIBase.h"
+#endif
 BehaviourTree::BehaviourTree()
 {
 	Blackboard = new BTBlackboard();

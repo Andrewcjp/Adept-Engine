@@ -9,7 +9,9 @@
 #include "Core/Components/ColliderComponent.h"
 #include "Core/Platform/ConsoleVariable.h"
 #include "Rendering/Core/RenderBaseTypes.h"
-
+#ifndef WITH_UNITY
+#include "Core/GameObject.h"
+#endif
 TDRigidBody::TDRigidBody(EBodyType::Type type, Transform T) :GenericRigidBody(type)
 {
 	m_transform = T;
