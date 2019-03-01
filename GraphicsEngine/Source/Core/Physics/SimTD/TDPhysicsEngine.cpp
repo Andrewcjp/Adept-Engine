@@ -2,17 +2,21 @@
 #if TDSIM_ENABLED
 #include "Core/GameObject.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Platform/ConsoleVariable.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "Editor/EditorWindow.h"
 #include "Physics/GenericConstraint.h"
 #include "Physics/GenericRigidBody.h"
 #include "Physics/Physics_fwd.h"
+#include "Physics/PhysicsTypes.h"
 #include "Shapes/TDPlane.h"
 #include "TD_ConstraintInstance.h"
 #include "TDRigidBody.h"
 #include "TDSimConfig.h"
 #include "TDSupport.h" 
-#include "Core/Platform/ConsoleVariable.h"
+#ifndef WITH_UNITY
+#include "Core/Components/Component.h"
+#endif
 static ConsoleVariable EXP_Rotations("rot", 0, ECVarType::LaunchOnly);
 TDPhysicsEngine* TDPhysicsEngine::Instance = nullptr;
 void TDPhysicsEngine::InitPhysics()

@@ -4,7 +4,9 @@
 #include "Core/GameObject.h"
 #include "Core/Platform/Logger.h"
 #include "Physics/SimTD/TDRigidBody.h"
-#include "Stdafx.h"
+#ifndef WITH_UNITY
+#include "AI/Core/AIBase.h"
+#endif
 
 
 AnimationController::AnimationController()
