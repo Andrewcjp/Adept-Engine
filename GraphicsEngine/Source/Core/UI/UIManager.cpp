@@ -36,7 +36,7 @@ UIManager::UIManager(int w, int h)
 	Initalise(w, h);
 
 	InitCommonUI();
-#if WITH_EDITOR
+#if EDITORUI
 	InitEditorUI();
 #endif
 }
@@ -166,7 +166,7 @@ void UIManager::UpdateSize(int width, int height)
 		TextRenderer::instance->UpdateSize(width, height);
 	}
 
-#if WITH_EDITOR
+#if EDITORUI
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		if (i > 0)
@@ -251,10 +251,12 @@ void UIManager::MouseClickUp(int x, int y)
 
 void UIManager::InitGameobjectList(std::vector<GameObject*>*gos)
 {
+#if EDITORUI
 	GameObjectsPtr = gos;
 	box = new UIListBox(GetScaledWidth(0.15f), GetScaledHeight(.8f), 0, GetScaledHeight(0.2f));
 	AddWidget(box);
 	RefreshGameObjectList();
+#endif
 }
 
 void UIManager::UpdateGameObjectList(std::vector<GameObject*>*gos)
@@ -264,7 +266,7 @@ void UIManager::UpdateGameObjectList(std::vector<GameObject*>*gos)
 
 void UIManager::SelectedCallback(int i)
 {
-#if WITH_EDITOR
+#if EDITORUI
 	if (instance)
 	{
 		EditorWindow::GetEditorCore()->SetSelectedObjectIndex(i);
@@ -274,7 +276,7 @@ void UIManager::SelectedCallback(int i)
 
 void UIManager::RefreshGameObjectList()
 {
-#if WITH_EDITOR
+#if EDITORUI
 	if (box != nullptr && GameObjectsPtr != nullptr)
 	{
 		box->RemoveAll();

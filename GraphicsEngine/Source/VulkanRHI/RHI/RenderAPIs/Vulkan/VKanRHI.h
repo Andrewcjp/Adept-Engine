@@ -1,11 +1,13 @@
 #pragma once
 #include "EngineGlobals.h"
 #include "RHI/RHI.h"
+
+class VkanDeviceContext;
 #if BUILD_VULKAN
 #define FRAME_LAG 2
 #undef NOMINMAX
 #define VK_USE_PLATFORM_WIN32_KHR
-#include <include/vulkan/vulkan.h>
+#include <include/vulkan/vulkan.hpp>
 #include <vulkan/vk_sdk_platform.h>
 template<class t>
 struct optional
@@ -44,6 +46,20 @@ struct SwapChainSupportDetails
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
 };
+#ifdef NDEBUG
+const bool enableValidationLayers = true;
+#else
+const bool enableValidationLayers = true;
+#endif
+const std::vector<const char*> validationLayers = {
+	"VK_LAYER_LUNARG_standard_validation"
+
+};
+
+const std::vector<const char*> deviceExtensions = {
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
 class VKanRHI : public RHIClass
 {
 public:
@@ -52,19 +68,21 @@ public:
 	void createGraphicsPipeline23();
 	void createGraphicsPipeline();
 	void createFramebuffers();
-	void createCommandPool();
+	VkCommandPool createCommandPool();
 	void createDescriptorPool();
 	void createDescriptorSets();
-	void createCommandBuffers();
+
 	void ReadyCmdList(VkCommandBuffer * buffer);
 	void CreateDescriptorSet();
 	void createSyncObjects();
 	void drawFrame();
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+	VkShaderModule createShaderModule(const std::vector<uint32_t>& code);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
 	void createSwapRT() {};
-	void DebugRender();
+
+	static VkanDeviceContext* GetVDefaultDevice();
 	virtual bool InitRHI() override;
 	HWND	win32HWND;
 	static VKanRHI* RHIinstance;
@@ -76,16 +94,12 @@ public:
 #endif
 	HINSTANCE win32Hinst;
 
+	VkanDeviceContext* DevCon = nullptr;
 
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT callback;
 	VkSurfaceKHR surface;
 
-	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-	VkDevice device;
-
-	VkQueue graphicsQueue;
-	VkQueue presentQueue;
 
 	VkSwapchainKHR swapChain;
 	std::vector<VkImage> swapChainImages;
@@ -97,8 +111,8 @@ public:
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
-
 	VkCommandPool commandPool;
+
 	std::vector<VkCommandBuffer> commandBuffers;
 	std::vector<VkCommandBuffer> ListcmdBuffers;
 	std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -113,7 +127,6 @@ public:
 	
 	virtual bool InitWindow(int w, int h) override;
 	virtual bool DestoryRHI() override;
-	virtual BaseTexture * CreateTexture(DeviceContext * Device = nullptr) override;
 	virtual FrameBuffer * CreateFrameBuffer(DeviceContext * Device,const RHIFrameBufferDesc & Desc) override;
 	virtual ShaderProgramBase * CreateShaderProgam(DeviceContext * Device = nullptr) override;
 	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;
@@ -129,18 +142,17 @@ public:
 	virtual void TriggerBackBufferScreenShot() override;
 	void cleanup();
 	void createInstance();
+	static VkInstance * GetInstance();
 	void setupDebugCallback();
 	void createSurface();
-	void pickPhysicalDevice();
-	void createLogicalDevice();
 	void createSwapChain();
 	void createImageViews();
 	void createRenderPass();
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR & capabilities);
-	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-	bool isDeviceSuitable(VkPhysicalDevice device);
-	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+	static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
+	static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();
 	static std::vector<char> readFile(const std::string & filename);
@@ -154,9 +166,14 @@ public:
 	RHI_VIRTUAL void SetFullScreenState(bool state) override;
 	RHI_VIRTUAL std::string ReportMemory() override;
 	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) override;
-	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device) override;
 #if ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() override;
 #endif
+
+	RHI_VIRTUAL BaseTexture* CreateTexture(const RHITextureDesc& Desc, DeviceContext* Device = nullptr) override;
+
+
+	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) override;
+
 };
 #endif

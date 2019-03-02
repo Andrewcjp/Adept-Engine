@@ -92,7 +92,9 @@ void BaseWindow::Render()
 		PerfManager::Instance->StartCPUTimer();
 		PerfManager::Instance->StartFrameTimer();
 	}
+#if !BASIC_RENDER_ONLY
 	TextRenderer::instance->Reset();
+#endif
 	AccumTickTime += DeltaTime;
 	Input::Get()->ProcessInput();
 	AudioEngine::ProcessAudio();
@@ -140,8 +142,12 @@ void BaseWindow::Render()
 	if (Input::GetKeyDown(VK_F2))
 	{
 		ExtendedPerformanceStats = !ExtendedPerformanceStats;
-		GPUPerfGraph->SetEnabled(ExtendedPerformanceStats);
 	}
+	if (Input::GetKeyDown(VK_F3))
+	{
+		GPUPerfGraph->SetEnabled(!GPUPerfGraph->IsEnabled());
+	}
+
 	if (Input::GetKeyDown(VK_F8))
 	{
 		SetPauseState(!PauseState);
@@ -179,6 +185,7 @@ void BaseWindow::Render()
 #endif
 	RHI::Tick();
 	PerfManager::StartTimer("Render");
+#if !BASIC_RENDER_ONLY
 	Renderer->Render();
 	PerfManager::StartTimer("LineDrawer");
 	LineDrawer->GenerateLines();
@@ -219,7 +226,7 @@ void BaseWindow::Render()
 	TextRenderer::instance->Finish();
 
 	PerfManager::EndTimer("UI");
-
+#endif
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->EndCPUTimer();

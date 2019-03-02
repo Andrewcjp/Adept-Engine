@@ -47,6 +47,11 @@ void GPUPerformanceGraph::RenderGPU(int index)
 	}
 }
 
+bool GPUPerformanceGraph::IsEnabled() const
+{
+	return IsActive.GetBoolValue();
+}
+
 void GPUPerformanceGraph::SetEnabled(bool state)
 {
 	IsActive.SetValue(state);

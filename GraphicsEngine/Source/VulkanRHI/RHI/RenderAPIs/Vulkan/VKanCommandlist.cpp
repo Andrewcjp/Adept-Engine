@@ -2,22 +2,29 @@
 #include "VKanCommandlist.h"
 #include "VkanBuffers.h"
 #include "RHI\RHITypes.h"
+#include "VKanRHI.h"
+#include "VkanDeviceContext.h"
 #if BUILD_VULKAN
 
 VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * context) :RHICommandList(type, context)
 {
 
-
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = VKanRHI::RHIinstance->commandPool;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
-
-	if (vkAllocateCommandBuffers(VKanRHI::RHIinstance->device, &allocInfo, &CommandBuffer) != VK_SUCCESS)
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
-		throw std::runtime_error("failed to allocate command buffers!");
+		Pools[i].Pool = VKanRHI::RHIinstance->createCommandPool();
+
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = Pools[i].Pool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = 1;
+
+		if (vkAllocateCommandBuffers(VKanRHI::GetVDefaultDevice()->device, &allocInfo, &Pools[i].Buffer) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to allocate command buffers!");
+		}
 	}
+
 }
 
 VKanCommandlist::~VKanCommandlist()
@@ -25,7 +32,10 @@ VKanCommandlist::~VKanCommandlist()
 
 void VKanCommandlist::ResetList()
 {
-	VKanRHI::RHIinstance->ReadyCmdList(&CommandBuffer);
+	CommandBuffer = Pools[VKanRHI::RHIinstance->currentFrame].Buffer;
+	vkResetCommandPool(VKanRHI::GetVDefaultDevice()->device, Pools[VKanRHI::RHIinstance->currentFrame].Pool, 0);
+	vkResetCommandBuffer(Pools[VKanRHI::RHIinstance->currentFrame].Buffer, 0);
+	VKanRHI::RHIinstance->ReadyCmdList(&Pools[VKanRHI::RHIinstance->currentFrame].Buffer);
 }
 
 
@@ -67,6 +77,11 @@ void VKanCommandlist::SetConstantBufferView(RHIBuffer * buffer, int offset, int 
 void VKanCommandlist::SetTexture(BaseTexture * texture, int slot)
 {}
 
+VkCommandBuffer* VKanCommandlist::GetCommandBuffer()
+{
+	return &Pools[VKanRHI::RHIinstance->currentFrame].Buffer;
+}
+
 
 void VKanCommandlist::SetScreenBackBufferAsRT()
 {}
@@ -103,7 +118,7 @@ void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQ
 
 void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
-	
+
 }
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
@@ -122,7 +137,7 @@ void VKanCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Da
 
 void VKanCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {
-	
+
 }
 
 void VkanUAV::Bind(RHICommandList * list, int slot)
@@ -145,12 +160,12 @@ void VkanTextureArray::BindToShader(RHICommandList * list, int slot)
 
 void VkanTextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*= nullptr*/)
 {
-	
+
 }
 
 void VkanTextureArray::Clear()
 {
-	
+
 }
 #endif
 

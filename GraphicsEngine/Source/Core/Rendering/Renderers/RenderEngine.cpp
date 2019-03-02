@@ -206,12 +206,14 @@ void RenderEngine::SetScene(Scene * sc)
 	{
 		DDOs[1].SkyboxShader->SetSkyBox(sc->GetLightingData()->SkyBox);
 	}
+#if !BASIC_RENDER_ONLY
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
 		ProcessScene();
 	}
+#endif
 	if (sc == nullptr)
 	{
 		MainCamera = nullptr;
@@ -230,10 +232,12 @@ void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 
 void RenderEngine::ShadowPass()
 {
+#if !BASIC_RENDER_ONLY
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetMeshObjects(), MainShader);
 	}
+#endif
 }
 
 void RenderEngine::PostProcessPass()

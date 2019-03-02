@@ -96,9 +96,9 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice,
 	CopyList->EndTimer(Stat);
 	CopyList->ResolveTimers();
 	CopyList->Execute(CopyQ);
-	//if (!RHI::GetMGPUSettings()->AsyncShadows)
+	if (!RHI::GetMGPUSettings()->AsyncShadows)
 	{
-		HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
+		//HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 	}
 	//RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), CopyQ, CopyQ);
 	//if (!RHI::GetMGPUSettings()->SFRSplitShadows)
@@ -149,7 +149,7 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	CopyList->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
 	CopyList->ResolveTimers();
 	CopyList->Execute(DeviceContextQueue::InterCopy);
-	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+	//HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy);
 	//use a sync point here?
 #if 1//_DEBUG

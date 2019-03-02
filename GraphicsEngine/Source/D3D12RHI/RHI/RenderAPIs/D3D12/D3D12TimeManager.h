@@ -88,6 +88,8 @@ private:
 		ID3D12Resource* m_CopytimestampResultBuffers = nullptr;
 	};
 	QuerryBuffers Buffers[RHI::CPUFrameCount] = {0};
+	UINT64 GPUtime = 0;
+	UINT64 CPUtime = 0;
 #if PIX_ENABLED
 	std::wstring PixTimerNames[TotalMaxTimerCount] = {};
 	LPCWSTR GetTimerNameForPIX(int index);

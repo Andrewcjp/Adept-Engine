@@ -153,13 +153,25 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 				}
 				else
 				{
-					//OffsetToGPUZero = GPU0_TS - StartTimeStamp;
+
 					//Log::LogTextToScreen("Delta: " + std::to_string(OffsetToGPUZero));
-					//StartTimeStamp = GPU0_TS;
-					TimeDeltas[i].StartOffset = glm::max((float)(OffsetToGPUZero) * 1000 / (float)ClockFreq, 0.0f);
+#if 1
+					//OffsetToGPUZero = GPU0_TS - StartTimeStamp;
+					if (OffsetToGPUZero != 0)
+					{
+						TimeDeltas[i].StartOffset = glm::max((float)(OffsetToGPUZero) * 1000 / (float)ClockFreq, 0.0f);
+					}
+					else
+					{
+						TimeDeltas[i].StartOffset = 0;
+					}
+#else
+					StartTimeStamp = GPU0_TS;
+					TimeDeltas[i].StartOffset = glm::max((float)(StartTimeStamp) * 1000 / (float)ClockFreq, 0.0f);
+#endif
+
 					TimeDeltas[i].StartOffsetavg.Add(TimeDeltas[i].StartOffset);
 				}
-
 			}
 			else
 			{
@@ -181,7 +193,7 @@ void D3D12TimeManager::ProcessTimeStampHeaps(int count, ID3D12Resource* ResultBu
 				{
 					TimeDeltas[i].StartOffset = glm::max((float)(Delta + OffsetToGPUZero) * 1000 / (float)ClockFreq, 0.0f);
 				}
-				if (TimeDeltas[i].StartOffset > 1000)
+				if (TimeDeltas[i].StartOffset > 1000 || TimeDeltas[i].StartOffset < -1000)
 				{
 					continue;//ignore large values
 				}
@@ -239,8 +251,8 @@ std::string D3D12TimeManager::GetTimerData()
 		if (i != 0)
 		{
 			TrackedTime += fabs(TimeDeltas[i].avg.GetCurrentAverage());
-		}
 	}
+}
 	stream << "Lost:" << AVGgpuTimeMS - TrackedTime;
 	return stream.str();
 #else
@@ -310,7 +322,6 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 #if PIX_ENABLED
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
 	{
-
 		PIXEndEvent(List->GetCommandList());
 	}
 #endif
@@ -382,8 +393,11 @@ void D3D12TimeManager::EndTotalGPUTimer(RHICommandList* ComandList)
 void D3D12TimeManager::EndTotalGPUTimer(ID3D12GraphicsCommandList* ComandList)
 {
 #if ENABLE_GPUTIMERS
-	TimerStarted = false;
-	EndTimer(ComandList, 0, false);
+	if (TimerStarted)
+	{
+		TimerStarted = false;
+		EndTimer(ComandList, 0, false);
+	}
 #endif
 }
 void D3D12TimeManager::ResolveTimeHeaps(RHICommandList* CommandList)

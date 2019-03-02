@@ -49,23 +49,30 @@ public:
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset) override;
 	VkCommandBuffer CommandBuffer;
 
-	 RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
+	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
 
 
-	 RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
+	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 
 
-	 RHI_VIRTUAL void SetTexture(class BaseTexture* texture, int slot) override;
-
+	RHI_VIRTUAL void SetTexture(class BaseTexture* texture, int slot) override;
+	VkCommandBuffer* GetCommandBuffer();
 private:
-	
+
+	struct CPUFrame
+	{
+		VkCommandPool Pool = nullptr;
+		VkCommandBuffer Buffer = nullptr;
+	};
+	CPUFrame Pools[RHI::CPUFrameCount] = { 0 };
 };
 
 
 class VkanUAV :public RHIUAV
 {
 public:
-	VkanUAV() {};
+	VkanUAV()
+	{};
 	// Inherited via RHIUAV
 	virtual void Bind(RHICommandList * list, int slot) override;
 	virtual void CreateUAVFromFrameBuffer(FrameBuffer * target) override;
