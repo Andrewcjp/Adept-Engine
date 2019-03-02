@@ -1,0 +1,125 @@
+bool GenerateSpirv(const ANSICHAR* Source, FCompilerInfo& CompilerInfo, FString& OutErrors, const FString& DumpDebugInfoPath, FSpirv& OutSpirv)
+{
+	glslang::TProgram* Program = new glslang::TProgram;
+
+	EShLanguage Stage = GetStage(CompilerInfo.Frequency);
+	glslang::TShader* Shader = new glslang::TShader(Stage);
+
+	// Skip to #version
+	const char* GlslSourceSkipHeader = strstr(Source, "#version");
+	Shader->setStrings(&GlslSourceSkipHeader, 1);
+
+	auto DoGenerate = [&]()
+	{
+		const int DefaultVersion = 100;// Options & EOptionDefaultDesktop ? 110 : 100;
+
+		EShMessages Messages = (EShMessages)(EShMsgDefault | EShMsgSpvRules | EShMsgVulkanRules);
+		if (!Shader->parse(&GSpirvResources, DefaultVersion, false, Messages))
+		{
+			OutErrors += ANSI_TO_TCHAR(Shader->getInfoLog());
+			return false;
+		}
+
+		Program->addShader(Shader);
+
+		if (!Program->link(Messages))
+		{
+			OutErrors += ANSI_TO_TCHAR(Program->getInfoLog());
+			return false;
+		}
+
+		if (!Program->getIntermediate(Stage))
+		{
+			OutErrors += ANSI_TO_TCHAR(Program->getInfoLog());
+			return false;
+		}
+
+		if (!Program->buildReflection())
+		{
+			OutErrors += ANSI_TO_TCHAR(Program->getInfoLog());
+			return false;
+		}
+
+		std::vector<unsigned int> Spirv;
+		glslang::GlslangToSpv(*Program->getIntermediate((EShLanguage)Stage), Spirv);
+
+		uint32 SizeInWords = Spirv.size();
+		OutSpirv.Data.AddZeroed(SizeInWords);
+		FMemory::Memcpy(OutSpirv.Data.GetData(), &Spirv[0], SizeInWords * sizeof(uint32));
+
+		if (CompilerInfo.bDebugDump)
+		{
+			// Binary SpirV
+			FString SpirvFile = DumpDebugInfoPath / (TEXT("Output.spv"));
+			glslang::OutputSpvBin(Spirv, TCHAR_TO_ANSI(*SpirvFile));
+
+			// Text spirv
+			FString SpirvTextFile = DumpDebugInfoPath / (TEXT("Output.spvasm"));
+			std::ofstream File;
+			File.open(TCHAR_TO_ANSI(*SpirvTextFile), std::fstream::out/* | std::fstream::binary*/);
+			if (File.is_open())
+			{
+				spv::Parameterize();
+				spv::Disassemble(File, Spirv);
+				File.close();
+			}
+		}
+		else if (CompilerInfo.Input.bSkipPreprocessedCache)
+		{
+			spv::Parameterize();
+			spv::Disassemble(std::cout, Spirv);
+		}
+
+		if (CompilerInfo.Input.bSkipPreprocessedCache)
+		{
+			Program->dumpReflection();
+		}
+
+		for (int32 Index = 0; Index < Program->getNumLiveUniformVariables(); ++Index)
+		{
+			const char* AnsiName = Program->getUniformName(Index);
+			FString Name = AnsiName ? ANSI_TO_TCHAR(AnsiName) : TEXT("NULL");
+			const auto* Type = Program->getAttributeTType(Index);
+			int32 Binding = -1;
+			if (Type && Type->getQualifier().hasBinding())
+			{
+				Binding = Type->getQualifier().layoutBinding;
+			}
+			else
+			{
+				Binding = Program->getUniformBinding(Index);
+			}
+			FSpirv::FEntry Entry(Name, Binding);
+			OutSpirv.ReflectionInfo.Add(Entry);
+		}
+
+		for (int32 Index = 0; Index < Program->getNumLiveUniformBlocks(); ++Index)
+		{
+			const char* AnsiName = Program->getUniformBlockName(Index);
+			FString Name = AnsiName ? ANSI_TO_TCHAR(AnsiName) : TEXT("NULL");
+			const auto* Type = Program->getUniformBlockTType(Index);
+			int32 Binding = -1;
+			if (Type && Type->getQualifier().hasBinding())
+			{
+				Binding = Type->getQualifier().layoutBinding;
+			}
+			else
+			{
+				Binding = Program->getUniformBinding(Index);
+			}
+			FSpirv::FEntry Entry(Name, Binding);
+			OutSpirv.ReflectionInfo.Add(Entry);
+		}
+
+		ComputeMovableWordIndices(OutSpirv);
+
+		return true;
+	};
+
+	bool bResult = DoGenerate();
+
+	delete Program;
+	delete Shader;
+
+	return bResult;
+}

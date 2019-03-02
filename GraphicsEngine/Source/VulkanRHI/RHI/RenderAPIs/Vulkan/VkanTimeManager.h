@@ -9,7 +9,7 @@ public:
 	// Inherited via RHITimeManager
 	virtual void UpdateTimers() override;
 	virtual std::string GetTimerData() override;
-	virtual void SetTimerName(int index, std::string Name) override;
+	void SetTimerName(int index, std::string Name);
 	virtual void StartTotalGPUTimer(RHICommandList * ComandList) override;
 	virtual void StartTimer(RHICommandList * ComandList, int index) override;
 	virtual void EndTimer(RHICommandList * ComandList, int index) override;
@@ -18,6 +18,9 @@ public:
 	virtual void ResolveCopyTimeHeaps(RHICommandList * ComandList) override;
 
 	virtual void ResolveTimeHeaps(RHICommandList * CommandList) override;
+
+
+	virtual void SetTimerName(int index, std::string Name, ECommandListType::Type type) override;
 
 };
 

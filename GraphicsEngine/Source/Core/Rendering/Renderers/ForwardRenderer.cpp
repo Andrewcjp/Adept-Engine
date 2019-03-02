@@ -37,6 +37,7 @@ ForwardRenderer::~ForwardRenderer()
 
 void ForwardRenderer::OnRender()
 {
+
 	ShadowPass();
 	CubeMapPass();
 	for (int i = 0; i < DevicesInUse; i++)
@@ -133,10 +134,12 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 		Cmdlist->SetScreenBackBufferAsRT();
 		Cmdlist->ClearScreen();
 	}
+#if !BASIC_RENDER_ONLY
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->BindShadowMapsToTextures(Cmdlist);
 	}
+#endif
 	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
 	if (RHI::GetMGPUSettings()->SplitShadowWork || RHI::GetMGPUSettings()->SFRSplitShadows)
@@ -156,7 +159,9 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 
 	Cmdlist->SetRenderTarget(nullptr);
 	Cmdlist->GetDevice()->GetTimeManager()->EndTimer(Cmdlist, EGPUTIMERS::MainPass);
+#if !BASIC_RENDER_ONLY
 	mShadowRenderer->Unbind(Cmdlist);
+#endif
 	if (Cmdlist->GetDeviceIndex() == 0 && DevicesInUse > 1)
 	{
 		DeviceObjects[1].FrameBuffer->MakeReadyForCopy(Cmdlist);

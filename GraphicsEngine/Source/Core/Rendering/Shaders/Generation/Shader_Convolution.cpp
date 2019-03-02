@@ -61,6 +61,9 @@ void Shader_Convolution::init()
 
 void Shader_Convolution::ComputeConvolution(BaseTexture* Target)
 {
+#if BASIC_RENDER_ONLY
+	return;
+#endif
 	ensure(Target->GetType() == BaseTexture::ETextureType::Type_CubeMap);
 	CmdList->ResetList();
 	CmdList->ClearFrameBuffer(CubeBuffer);

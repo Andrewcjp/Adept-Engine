@@ -10,10 +10,6 @@ static ConsoleVariable PreComputePerFrameShadowData("ComputePerFrameShadowDataOn
 static ConsoleVariable SFRSplitShadowsVar("SFRSplitShadows", false, ECVarType::LaunchOnly);
 MultiGPUMode::MultiGPUMode()
 {
-	
-	//SplitShadows.SetValue(true);
-	//AsyncShadow.SetValue(true);
-	//SFRSplitShadowsVar.SetValue(true);
 	MAX_PRESAMPLED_SHADOWS = 4;
 	SecondCardShadowScaleFactor = 1.0f;
 	SyncSettings();
@@ -23,8 +19,8 @@ MultiGPUMode::MultiGPUMode()
 	}
 	else
 	{
-		CurrnetTestMode = MGPUMode::SFR_SHADOWS;
-	}	
+		CurrnetTestMode = MGPUMode::ASYNC_SHADOWS;
+	}
 	PreSampleBufferScale = 1.0f;
 	//ShowSplit = true;
 }

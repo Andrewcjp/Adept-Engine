@@ -1,9 +1,10 @@
+
 using EngineBuildTool;
 
 class CoreTargetRules : TargetRules
 {
     bool BuildPhysx = true;
-    bool BuildVulkan = false;
+    bool BuildVulkan = true;
     public CoreTargetRules()
     {
         LibSearchPaths.Add(new LibSearchPath("\\64", LibBuildConfig.General));
@@ -20,12 +21,13 @@ class CoreTargetRules : TargetRules
         LibSearchPaths.Add(new LibSearchPath("\\WWise\\Release", LibBuildConfig.Optimized));
         if (BuildVulkan)
         {
-            LibSearchPaths.Add(new LibSearchPath("\\Vulkan", LibBuildConfig.General, true));
+            LibSearchPaths.Add(new LibSearchPath("\\Vulkan", LibBuildConfig.General));
         }
         else
         {
             ModuleExcludeList.Add("VulkanRHI");
         }
+
         if (BuildPhysx)
         {
             GlobalDefines.Add("USE_PHYSX");

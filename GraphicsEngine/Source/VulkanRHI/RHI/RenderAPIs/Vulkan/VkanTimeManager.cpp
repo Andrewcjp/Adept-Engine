@@ -20,6 +20,11 @@ std::string VkanTimeManager::GetTimerData()
 void VkanTimeManager::SetTimerName(int index, std::string Name)
 {}
 
+void VkanTimeManager::SetTimerName(int index, std::string Name, ECommandListType::Type type)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 void VkanTimeManager::StartTotalGPUTimer(RHICommandList * ComandList)
 {}
 

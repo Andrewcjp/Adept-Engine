@@ -13,7 +13,7 @@ public:
 	void Render();
 
 	void RenderGPU(int index);
-
+	bool IsEnabled()const;
 	void SetEnabled(bool state);
 	void DrawLine(TimerData * data, glm::vec3 pos, float& CurrnetValue, int index);
 	void DrawBaseLine(TimerData * Timer, int GPUindex, glm::vec3 pos);

@@ -48,7 +48,7 @@ Scene * EditorWindow::GetCurrentScene()
 #define TEST_SERIAL 0
 void EditorWindow::PostInitWindow(int w, int h)
 {
-	ShowHud = false;
+	ShowHud = true;
 	ShowText = true;
 	//SetFrameRateLimit(30);
 	Log::OutS << "Loading Editor v" << EDITOR_VERSION << Log::OutS;
@@ -158,7 +158,11 @@ EditorCore * EditorWindow::GetEditorCore()
 
 bool EditorWindow::UseSmallerViewPort()
 {
+#if EDITORUI
 	return ShowHud;
+#else
+	return false;
+#endif
 }
 
 void EditorWindow::PrePhysicsUpdate()
@@ -253,7 +257,7 @@ void EditorWindow::Update()
 		StartSimulate = true;
 		EnterPlayMode();
 	}
-	if (Input::GetKeyDown(VK_F1))
+	if (Input::GetKeyDown(VK_F8))
 	{
 		ShowHud = !ShowHud;
 	}

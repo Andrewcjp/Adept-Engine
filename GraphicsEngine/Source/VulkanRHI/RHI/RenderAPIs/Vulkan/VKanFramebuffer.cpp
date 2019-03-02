@@ -21,7 +21,5 @@ void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList * List)
 {}
 
 void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
+{}
 #endif

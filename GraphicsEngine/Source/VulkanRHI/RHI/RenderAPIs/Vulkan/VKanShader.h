@@ -2,6 +2,8 @@
 #if BUILD_VULKAN
 #include "RHI/ShaderProgramBase.h"
 #include "VKanRHI.h"
+
+
 class VKanShader : public ShaderProgramBase
 {
 public:
@@ -9,18 +11,11 @@ public:
 	~VKanShader();
 
 	// Inherited via ShaderProgramBase
-	//virtual void CreateShaderProgram() override;
-	//virtual EShaderError AttachAndCompileShaderFromFile(const char * filename, EShaderType type) override;
-	//virtual void BuildShaderProgram() override;
-	//virtual void DeleteShaderProgram() override;
-	//virtual void ActivateShaderProgram() override;
-	//virtual void DeactivateShaderProgram() override;
-
-	// Inherited via ShaderProgramBase
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type) override;
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint) override;
 	static std::vector<char> readFile(const std::string & filename);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+	static std::vector<uint32_t> ComplieShader(std::string data, bool frag = false);
 	void CreateTestShader();
 	void SetupPSO();
 	void CreateRenderPass() {};
@@ -28,6 +23,8 @@ public:
 	VkPipelineLayout pipelineLayout;
 	VkRenderPass renderPass;
 	VkExtent2D swapChainExtent;
+private:
+
 };
 
 #endif

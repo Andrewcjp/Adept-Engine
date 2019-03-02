@@ -67,6 +67,9 @@ void Shader_EnvMap::Init()
 
 void Shader_EnvMap::ProcessTexture(BaseTexture * Target)
 {
+#if BASIC_RENDER_ONLY
+	return;
+#endif
 	CmdList->ResetList();
 	CmdList->ClearFrameBuffer(CubeBuffer);
 	CmdList->SetTexture(Target, 0);

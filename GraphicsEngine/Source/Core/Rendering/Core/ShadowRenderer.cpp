@@ -477,7 +477,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	if (RHI::GetMGPUSettings()->SplitShadowWork)
 	{
 		ShadowingPointLights[0]->SetShadowResdent(1, 0);
-		ShadowingPointLights[1]->SetShadowResdent(0, 1);
+		//ShadowingPointLights[1]->SetShadowResdent(1, 0);
 	}
 
 	if (RHI::GetMGPUSettings()->MainPassSFR)
@@ -494,7 +494,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	if (RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		ShadowingPointLights[0]->SetShadowResdent(1, 0);
-		int ShadowsOnDev0 = 2;
+		int ShadowsOnDev0 = 4;
 		for (int i = 0; i < ShadowsOnDev0; i++)
 		{
 			ShadowingPointLights[i]->SetShadowResdent(0, 1);

@@ -3,6 +3,7 @@
 #include "Core/EngineTypes.h"
 #include <functional>
 #define UISTATS 0
+#define EDITORUI 0
 class TextRenderer;
 class UIWidget;
 class GameObject;
