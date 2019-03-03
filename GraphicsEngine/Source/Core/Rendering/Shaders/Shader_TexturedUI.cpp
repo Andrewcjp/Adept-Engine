@@ -8,6 +8,7 @@ Shader_TexturedUI::Shader_TexturedUI(DeviceContext* dev) :Shader(dev)
 {
 	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Compost_fs", EShaderType::SHADER_FRAGMENT);
+#if !BASIC_RENDER_ONLY
 	Init();
 	list = RHI::CreateCommandList(ECommandListType::Graphics, dev);
 	RHIPipeLineStateDesc desc;
@@ -17,6 +18,7 @@ Shader_TexturedUI::Shader_TexturedUI(DeviceContext* dev) :Shader(dev)
 	BlendPSO = RHI::CreatePipelineStateObject(desc);
 	desc.Blending = false;
 	NoBlendPSO = RHI::CreatePipelineStateObject(desc);
+#endif
 }
 
 void Shader_TexturedUI::Init()
@@ -38,8 +40,8 @@ Shader_TexturedUI::~Shader_TexturedUI()
 {
 	EnqueueSafeRHIRelease(list);
 	EnqueueSafeRHIRelease(VertexBuffer);
-	NoBlendPSO->Release();
-	BlendPSO->Release();
+	SafeRelease(NoBlendPSO);
+	SafeRelease(BlendPSO);
 }
 
 void Shader_TexturedUI::Render()

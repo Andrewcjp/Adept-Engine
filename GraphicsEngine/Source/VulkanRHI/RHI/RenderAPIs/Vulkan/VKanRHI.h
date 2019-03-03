@@ -3,6 +3,7 @@
 #include "RHI/RHI.h"
 
 class VkanDeviceContext;
+class VkanPipeLineStateObject;
 #if BUILD_VULKAN
 #define FRAME_LAG 2
 #undef NOMINMAX
@@ -66,7 +67,6 @@ public:
 	VKanRHI();
 	~VKanRHI();
 	void createGraphicsPipeline23();
-	void createGraphicsPipeline();
 	void createFramebuffers();
 	VkCommandPool createCommandPool();
 	void createDescriptorPool();
@@ -75,9 +75,9 @@ public:
 	void ReadyCmdList(VkCommandBuffer * buffer);
 	void CreateDescriptorSet();
 	void createSyncObjects();
+	void CreateNewObjects();
 	void drawFrame();
-	VkShaderModule createShaderModule(const std::vector<char>& code);
-	VkShaderModule createShaderModule(const std::vector<uint32_t>& code);
+
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
 	void createSwapRT() {};
@@ -108,18 +108,14 @@ public:
 	std::vector<VkImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	RHICommandList* thelist;
-	VkRenderPass renderPass;
-	VkPipelineLayout pipelineLayout;
-	VkPipeline graphicsPipeline;
 	VkCommandPool commandPool;
 
 	std::vector<VkCommandBuffer> commandBuffers;
-	std::vector<VkCommandBuffer> ListcmdBuffers;
 	std::vector<VkSemaphore> imageAvailableSemaphores;
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	size_t currentFrame = 0;
-
+	VkanPipeLineStateObject* PSO;
 
 	VkDescriptorSetLayout descriptorSetLayout;
 
@@ -147,7 +143,6 @@ public:
 	void createSurface();
 	void createSwapChain();
 	void createImageViews();
-	void createRenderPass();
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR & capabilities);
 	static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
