@@ -13,5 +13,6 @@ class VulkanRHIModule : ModuleDef
         UseUnity = true;
         AdditonalLibSearchPaths.Add(new LibSearchPath("\\Vulkan\\Release", LibBuildConfig.Optimized));
         AdditonalLibSearchPaths.Add(new LibSearchPath("\\Vulkan\\Debug", LibBuildConfig.Debug));
+        PreProcessorDefines.Add("WITH_VK");
     }
 }
