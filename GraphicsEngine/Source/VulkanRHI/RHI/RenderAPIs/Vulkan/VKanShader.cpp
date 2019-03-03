@@ -194,13 +194,13 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 
 	std::string PreprocessedGLSL;
 
-	if (!Shader->preprocess(&DefaultTBuiltInResource, DefaultVersion, ENoProfile, false, false, Messages, &PreprocessedGLSL, inc))
-	{
-		throw std::runtime_error("GLSL Preprocessing Failed");
-	}
+	//if (!Shader->preprocess(&DefaultTBuiltInResource, DefaultVersion, ENoProfile, false, false, Messages, &PreprocessedGLSL, inc))
+	//{
+	//	throw std::runtime_error("GLSL Preprocessing Failed");
+	//}
 
-	const char* PreprocessedCStr = PreprocessedGLSL.c_str();
-	Shader->setStrings(&PreprocessedCStr, 1);
+	//const char* PreprocessedCStr = PreprocessedGLSL.c_str();
+	//Shader->setStrings(&PreprocessedCStr, 1);
 
 	if (!Shader->parse(&DefaultTBuiltInResource, DefaultVersion, ENoProfile, false, false, Messages, inc))
 	{
@@ -215,7 +215,7 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 		Log::LogMessage(Program->getInfoDebugLog());
 		__debugbreak();
 	}
-	//Program->mapIO();
+	Program->mapIO();
 	if (!Program->getIntermediate(Stage))
 	{
 		Log::LogMessage(Program->getInfoDebugLog());
@@ -224,8 +224,12 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	//Program->buildReflection();
 	spv::SpvBuildLogger logger;
 	glslang::SpvOptions spvOptions;
+	spvOptions.disableOptimizer = true;
+	spvOptions.validate = true;
 	glslang::GlslangToSpv(*Program->getIntermediate((EShLanguage)Stage), OutSpirv, &logger, &spvOptions);
-
+	std::string root = AssetManager::GetShaderPath() + "\\VKan\\";
+	root += std::string((Stage == EShLanguage::EShLangVertex) ? "vert.spv" : "frag.spv");
+	glslang::OutputSpvBin(OutSpirv, root.c_str());
 
 	return true;
 }
@@ -234,7 +238,9 @@ std::vector<uint32_t> VKanShader::ComplieShader(std::string name, bool frag /*= 
 	std::string data = AssetManager::Get()->LoadFileWithInclude(name);
 	std::string errors = "";
 	std::vector<uint32_t> spirv = std::vector<uint32_t>();
-	GenerateSpirv(data, ComplieInfo{ EShLanguage::EShLangVertex }, errors, spirv);
+	ComplieInfo t;
+	t.stage = frag ? EShLanguage::EShLangFragment : EShLanguage::EShLangVertex;
+	GenerateSpirv(data, t, errors, spirv);
 	return spirv;
 }
 
