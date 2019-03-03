@@ -27,7 +27,9 @@ void ShaderComplier::ComplieAllGlobalShaders()
 	SCOPE_STARTUP_COUNTER("ComplieAllGlobalShaders");
 	for (std::map<std::string, ShaderType>::iterator it = GlobalShaderMap.begin(); it != GlobalShaderMap.end(); ++it)
 	{
+#if !BASIC_RENDER_ONLY
 		ComplieShader(it->second, RHI::GetDefaultDevice());
+#endif
 	}
 }
 

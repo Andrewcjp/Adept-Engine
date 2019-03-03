@@ -4,6 +4,7 @@
 #include "RHI\RHITypes.h"
 #include "VKanRHI.h"
 #include "VkanDeviceContext.h"
+#include "VkanPipeLineStateObject.h"
 #if BUILD_VULKAN
 
 VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * context) :RHICommandList(type, context)
@@ -36,14 +37,11 @@ void VKanCommandlist::ResetList()
 	vkResetCommandPool(VKanRHI::GetVDefaultDevice()->device, Pools[VKanRHI::RHIinstance->currentFrame].Pool, 0);
 	vkResetCommandBuffer(Pools[VKanRHI::RHIinstance->currentFrame].Buffer, 0);
 	VKanRHI::RHIinstance->ReadyCmdList(&Pools[VKanRHI::RHIinstance->currentFrame].Buffer);
+
 }
-
-
 
 void VKanCommandlist::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
 {}
-
-
 
 void VKanCommandlist::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
@@ -118,7 +116,20 @@ void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQ
 
 void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
+	VkanPipeLineStateObject* VObject = (VkanPipeLineStateObject*)Object;
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = VObject->RenderPass;
+	renderPassInfo.framebuffer = VKanRHI::RHIinstance->swapChainFramebuffers[VKanRHI::RHIinstance->currentFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = VKanRHI::RHIinstance->swapChainExtent;
 
+	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	renderPassInfo.clearValueCount = 1;
+	renderPassInfo.pClearValues = &clearColor;
+
+	vkCmdBeginRenderPass(CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
 }
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
@@ -168,15 +179,3 @@ void VkanTextureArray::Clear()
 
 }
 #endif
-
-VkanipeLineStateObject::VkanipeLineStateObject(const RHIPipeLineStateDesc & desc, DeviceContext * con) :RHIPipeLineStateObject(desc)
-{}
-
-VkanipeLineStateObject::~VkanipeLineStateObject()
-{}
-
-void VkanipeLineStateObject::Complie()
-{}
-
-void VkanipeLineStateObject::Release()
-{}

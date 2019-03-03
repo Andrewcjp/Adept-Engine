@@ -11,6 +11,7 @@
 #include <set>
 
 #include "Core/Platform/Windows/WindowsWindow.h"
+#include "VkanPipeLineStateObject.h"
 
 #if BUILD_VULKAN
 
@@ -63,6 +64,7 @@ BaseTexture* VKanRHI::CreateTexture(const RHITextureDesc& Desc, DeviceContext* D
 
 FrameBuffer* VKanRHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc)
 {
+	//ensureMsgf(Desc.PSO, "Vulkan Needs a PSO to create a framebuffer");
 	return new VKanFramebuffer(Device, Desc);
 }
 void VKanRHI::SetFullScreenState(bool state)
@@ -77,7 +79,7 @@ std::string VKanRHI::ReportMemory()
 
 RHIPipeLineStateObject* VKanRHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
 {
-	return new VkanipeLineStateObject(Desc, Device);
+	return new VkanPipeLineStateObject(Desc, Device);
 }
 
 RHIGPUSyncEvent* VKanRHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
@@ -209,9 +211,9 @@ void VKanRHI::cleanup()
 		vkDestroyFramebuffer(DevCon->device, framebuffer, nullptr);
 	}
 
-	vkDestroyPipeline(DevCon->device, graphicsPipeline, nullptr);
-	vkDestroyPipelineLayout(DevCon->device, pipelineLayout, nullptr);
-	vkDestroyRenderPass(DevCon->device, renderPass, nullptr);
+//	vkDestroyPipeline(DevCon->device, graphicsPipeline, nullptr);
+//	vkDestroyPipelineLayout(DevCon->device, pipelineLayout, nullptr);
+//	vkDestroyRenderPass(DevCon->device, renderPass, nullptr);
 	for (auto imageView : swapChainImageViews)
 	{
 		vkDestroyImageView(DevCon->device, imageView, nullptr);
@@ -381,175 +383,8 @@ void  VKanRHI::createImageViews()
 	}
 }
 
-void  VKanRHI::createRenderPass()
-{
-	VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format = swapChainImageFormat;
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-	VkAttachmentReference colorAttachmentRef = {};
-	colorAttachmentRef.attachment = 0;
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
-
-	VkSubpassDependency dependency = {};
-	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependency.dstSubpass = 0;
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.srcAccessMask = 0;
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-	VkRenderPassCreateInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
-	renderPassInfo.subpassCount = 1;
-	renderPassInfo.pSubpasses = &subpass;
-	renderPassInfo.dependencyCount = 1;
-	renderPassInfo.pDependencies = &dependency;
-
-	if (vkCreateRenderPass(DevCon->device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create render pass!");
-	}
-}
 #include "Core/Assets/AssetManager.h"
-void  VKanRHI::createGraphicsPipeline()
-{
-	std::string root = AssetManager::GetShaderPath() + "VKan\\";
 
-	std::vector<uint32_t> vertShaderCode;
-	std::vector<uint32_t>  fragShaderCode; /*= VKanShader::readFile(root + "frag.spv");*/
-#if 1
-	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
-	fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
-
-#endif
-	std::vector<char> ss = VKanShader::readFile(root + "vert.spv");
-	std::vector<char> sss = VKanShader::readFile(root + "frag.spv");
-	VkShaderModule vertShaderModule = createShaderModule(ss);
-	VkShaderModule fragShaderModule = createShaderModule(sss);
-	//
-	//fragShaderModule = createShaderModule(fragShaderCode);
-	//vertShaderModule = createShaderModule(vertShaderCode);
-	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
-	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	vertShaderStageInfo.module = vertShaderModule;
-	vertShaderStageInfo.pName = "main";
-
-	VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
-	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	fragShaderStageInfo.module = fragShaderModule;
-	fragShaderStageInfo.pName = "main";
-
-	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-
-	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
-	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-	VkViewport viewport = {};
-	viewport.x = 0.0f;
-	viewport.y = 0.0f;
-	viewport.width = (float)swapChainExtent.width;
-	viewport.height = (float)swapChainExtent.height;
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
-
-	VkRect2D scissor = {};
-	scissor.offset = { 0, 0 };
-	scissor.extent = swapChainExtent;
-
-	VkPipelineViewportStateCreateInfo viewportState = {};
-	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	viewportState.viewportCount = 1;
-	viewportState.pViewports = &viewport;
-	viewportState.scissorCount = 1;
-	viewportState.pScissors = &scissor;
-
-	VkPipelineRasterizationStateCreateInfo rasterizer = {};
-	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	rasterizer.depthClampEnable = VK_FALSE;
-	rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-	rasterizer.depthBiasEnable = VK_FALSE;
-
-	VkPipelineMultisampleStateCreateInfo multisampling = {};
-	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	multisampling.sampleShadingEnable = VK_FALSE;
-	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colorBlendAttachment.blendEnable = VK_FALSE;
-
-	VkPipelineColorBlendStateCreateInfo colorBlending = {};
-	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	colorBlending.logicOpEnable = VK_FALSE;
-	colorBlending.logicOp = VK_LOGIC_OP_COPY;
-	colorBlending.attachmentCount = 1;
-	colorBlending.pAttachments = &colorBlendAttachment;
-	colorBlending.blendConstants[0] = 0.0f;
-	colorBlending.blendConstants[1] = 0.0f;
-	colorBlending.blendConstants[2] = 0.0f;
-	colorBlending.blendConstants[3] = 0.0f;
-	CreateDescriptorSet();
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 1;
-	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-	pipelineLayoutInfo.pushConstantRangeCount = 0;
-
-	if (vkCreatePipelineLayout(DevCon->device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create pipeline layout!");
-	}
-
-	VkGraphicsPipelineCreateInfo pipelineInfo = {};
-	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	pipelineInfo.stageCount = 2;
-	pipelineInfo.pStages = shaderStages;
-	pipelineInfo.pVertexInputState = &vertexInputInfo;
-	pipelineInfo.pInputAssemblyState = &inputAssembly;
-	pipelineInfo.pViewportState = &viewportState;
-	pipelineInfo.pRasterizationState = &rasterizer;
-	pipelineInfo.pMultisampleState = &multisampling;
-	pipelineInfo.pColorBlendState = &colorBlending;
-	pipelineInfo.layout = pipelineLayout;
-	pipelineInfo.renderPass = renderPass;
-	pipelineInfo.subpass = 0;
-	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-	if (vkCreateGraphicsPipelines(DevCon->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create graphics pipeline!");
-	}
-
-	vkDestroyShaderModule(DevCon->device, fragShaderModule, nullptr);
-	vkDestroyShaderModule(DevCon->device, vertShaderModule, nullptr);
-}
 
 void  VKanRHI::createFramebuffers()
 {
@@ -563,7 +398,7 @@ void  VKanRHI::createFramebuffers()
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = renderPass;
+		framebufferInfo.renderPass = PSO->RenderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = swapChainExtent.width;
@@ -617,7 +452,7 @@ void VKanRHI::createDescriptorSets()
 	allocInfo.descriptorPool = descriptorPool;
 	allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
 	allocInfo.pSetLayouts = layouts.data();
-
+	
 	descriptorSets.resize(swapChainImages.size());
 	if (vkAllocateDescriptorSets(DevCon->device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
 	{
@@ -687,17 +522,22 @@ void  VKanRHI::createSyncObjects()
 		}
 	}
 }
-void VKanRHI::ReadyCmdList(VkCommandBuffer* buffer)
+void VKanRHI::CreateNewObjects()
+{
+	PSO = new VkanPipeLineStateObject(RHIPipeLineStateDesc(), DevCon);
+	PSO->Complie();
+}
+void VKanRHI::ReadyCmdList(VkCommandBuffer* vbuffer)
 {
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-	if (vkBeginCommandBuffer(*buffer, &beginInfo) != VK_SUCCESS)
+	if (vkBeginCommandBuffer(*vbuffer, &beginInfo) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
-
+#if 0
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass;
@@ -709,10 +549,10 @@ void VKanRHI::ReadyCmdList(VkCommandBuffer* buffer)
 	renderPassInfo.clearValueCount = 1;
 	renderPassInfo.pClearValues = &clearColor;
 
-	vkCmdBeginRenderPass(*buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	vkCmdBindPipeline(*buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-	vkCmdBindDescriptorSets(*buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[0], 0, nullptr);
+	vkCmdBeginRenderPass(*vbuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBindPipeline(*vbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+#endif
+	vkCmdBindDescriptorSets(*vbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PSO->PipelineLayout, 0, 1, &descriptorSets[0], 0, nullptr);
 }
 
 void  VKanRHI::drawFrame()
@@ -737,26 +577,15 @@ void  VKanRHI::drawFrame()
 		cmdlist = new VKanCommandlist(ECommandListType::Graphics, nullptr);
 	}
 	cmdlist->ResetList();
+	cmdlist->SetPipelineStateObject(PSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->DrawPrimitive(3, 1, 0, 0);
 	cmdlist->Execute();
-#if 1
+
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = cmdlist->GetCommandBuffer();
 	//submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
-#else
-	if (thelist != nullptr)
-	{
-		VKanCommandlist* vklist = (VKanCommandlist*)thelist;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &vklist->CommandBuffer;
-	}
-	else
-	{
-		submitInfo.commandBufferCount = ListcmdBuffers.size();
-		submitInfo.pCommandBuffers = ListcmdBuffers.data();
-	}
-#endif
+
 
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
@@ -766,7 +595,6 @@ void  VKanRHI::drawFrame()
 	{
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
-	ListcmdBuffers.clear();
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
@@ -785,36 +613,7 @@ void  VKanRHI::drawFrame()
 	vkDeviceWaitIdle(DevCon->device);
 
 }
-VkShaderModule VKanRHI::createShaderModule(const std::vector<char>& code)
-{
-	VkShaderModuleCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-	VkShaderModule shaderModule;
-	if (vkCreateShaderModule(DevCon->device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create shader module!");
-	}
-
-	return shaderModule;
-}
-VkShaderModule VKanRHI::createShaderModule(const std::vector<uint32_t>& code)
-{
-	VkShaderModuleCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-	VkShaderModule shaderModule;
-	if (vkCreateShaderModule(DevCon->device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create shader module!");
-	}
-
-	return shaderModule;
-}
 
 VkSurfaceFormatKHR VKanRHI::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
@@ -1006,8 +805,10 @@ void VKanRHI::initVulkan()
 	//createLogicalDevice();
 	createSwapChain();
 	createImageViews();
-	createRenderPass();
-	createGraphicsPipeline();
+	CreateDescriptorSet();
+	CreateNewObjects();
+	
+//	createGraphicsPipeline();
 	createFramebuffers();
 	commandPool = createCommandPool();
 	buffer = new VKanBuffer(ERHIBufferType::Constant, nullptr);
@@ -1018,6 +819,7 @@ void VKanRHI::initVulkan()
 	createDescriptorSets();
 
 	createSyncObjects();
+
 }
 
 

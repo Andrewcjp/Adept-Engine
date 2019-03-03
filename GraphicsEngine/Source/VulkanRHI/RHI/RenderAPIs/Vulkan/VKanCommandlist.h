@@ -3,15 +3,6 @@
 #include "RHI/Shader.h"
 #include "VKanRHI.h"
 #if BUILD_VULKAN
-class VkanipeLineStateObject :public RHIPipeLineStateObject
-{
-public:
-	VkanipeLineStateObject(const RHIPipeLineStateDesc& desc, DeviceContext* con);
-	~VkanipeLineStateObject();
-	virtual void Complie() override;
-	virtual void Release() override;
-
-};
 class VKanCommandlist :
 	public RHICommandList
 {
@@ -21,6 +12,7 @@ public:
 
 	// Inherited via RHICommandList
 	virtual void ResetList() override;
+
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
 
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;

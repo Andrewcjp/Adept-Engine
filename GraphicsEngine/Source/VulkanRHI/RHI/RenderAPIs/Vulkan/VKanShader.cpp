@@ -217,7 +217,7 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	}
 	Program->mapIO();
 	if (!Program->getIntermediate(Stage))
-	{
+	{ 
 		Log::LogMessage(Program->getInfoDebugLog());
 		__debugbreak();
 	}
@@ -290,8 +290,8 @@ void VKanShader::SetupPSO()
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
 	//todo:
-	viewport.width = swapChainExtent.width;
-	viewport.height = swapChainExtent.height;
+	viewport.width = (float)swapChainExtent.width;
+	viewport.height = (float)swapChainExtent.height;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 

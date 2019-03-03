@@ -383,6 +383,7 @@ public:
 	bool IncludedInSFR = false;
 	float LinkToBackBufferScaleFactor = 1.0f;
 	int SFR_FullWidth = 0;
+	RHIPipeLineStateObject* PSO = nullptr;
 };
 
 class RHI_API IRHIResourse
