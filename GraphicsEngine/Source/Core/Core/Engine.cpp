@@ -148,7 +148,11 @@ void Engine::CreateApplication()
 {
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
+#if BUILD_VULKAN
 		RHI::InitRHI(/*RenderSystemD3D12*/RenderSystemVulkan);
+#else
+		RHI::InitRHI(RenderSystemD3D12);
+#endif
 	}
 	else
 	{

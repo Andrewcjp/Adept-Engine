@@ -4,7 +4,7 @@ using EngineBuildTool;
 class CoreTargetRules : TargetRules
 {
     bool BuildPhysx = true;
-    bool BuildVulkan = true;
+    bool BuildVulkan = false;
     public CoreTargetRules()
     {
         LibSearchPaths.Add(new LibSearchPath("\\64", LibBuildConfig.General));
@@ -50,6 +50,10 @@ class CoreTargetRules : TargetRules
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "BleedOut";
         CoreModule.IsCoreModule = true;
+        if (BuildVulkan)
+        {
+            CoreModule.PreProcessorDefines.Add("WITH_VK");
+        }
       ///  CoreModule.UnityBuildExcludedFolders.Add("AI");
         return CoreModule;
     }
