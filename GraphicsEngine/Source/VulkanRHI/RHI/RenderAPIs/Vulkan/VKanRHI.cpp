@@ -428,16 +428,16 @@ void  VKanRHI::createRenderPass()
 void  VKanRHI::createGraphicsPipeline()
 {
 	std::string root = AssetManager::GetShaderPath() + "VKan\\";
-	std::vector<char> ss = VKanShader::readFile(root + "vert.spv");
-	std::vector<char> sss = VKanShader::readFile(root + "frag.spv");
+
 	std::vector<uint32_t> vertShaderCode;
 	std::vector<uint32_t>  fragShaderCode; /*= VKanShader::readFile(root + "frag.spv");*/
-#if 0
+#if 1
 	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
 	fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
 
 #endif
-
+	std::vector<char> ss = VKanShader::readFile(root + "vert.spv");
+	std::vector<char> sss = VKanShader::readFile(root + "frag.spv");
 	VkShaderModule vertShaderModule = createShaderModule(ss);
 	VkShaderModule fragShaderModule = createShaderModule(sss);
 	//
