@@ -2,6 +2,7 @@
 #include "RHI/RHITypes.h"
 
 class DeviceContext;
+class RHIGPUSyncEvent;
 class FrameBuffer : public IRHIResourse
 {
 public:
@@ -31,6 +32,8 @@ public:
 	void ResetTransferStat();
 protected:
 	RHI_API virtual void HandleResize();
+	void SetupFences();
+	void CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ);
 	void HandleInit();
 	int CrossGPUBytes = 0;
 	bool DidTransferLastFrame = false;
@@ -40,5 +43,8 @@ protected:
 	RHIFrameBufferDesc BufferDesc;
 	SFRNode* SFR_Node = nullptr;
 	DeviceContext* Device = nullptr;
+	RHIGPUSyncEvent* CopyFence = nullptr;
+	RHIGPUSyncEvent* DeviceFence = nullptr;
+	RHIGPUSyncEvent* TargetCopyFence = nullptr;
 };
 

@@ -19,6 +19,7 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
+//	ForceSingleGPU.SetValue(true);
 }
 
 D3D12RHI::~D3D12RHI()
@@ -382,7 +383,7 @@ void D3D12RHI::InitSwapChain()
 
 	if (RHI::GetDeviceCount() > 1)
 	{
-		AsyncSync = (D3D12GPUSyncEvent*)RHI::CreateSyncEvent(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics, RHI::GetDeviceContext(0), RHI::GetDeviceContext(1));
+		AsyncSync = (D3D12GPUSyncEvent*)RHI::CreateSyncEvent(DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy, RHI::GetDeviceContext(0), RHI::GetDeviceContext(1));
 	}
 }
 
@@ -471,12 +472,13 @@ D3D12RHI * D3D12RHI::Get()
 
 void D3D12RHI::PresentFrame()
 {
-	//if (RHI::GetMGPUSettings()->AsyncShadows)
-	//{
-	//	RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
-	//	AsyncSync->SignalWait();
-	//	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
-	//}
+	////if (RHI::GetMGPUSettings()->AsyncShadows)
+	////{
+	//AsyncSync->SignalWait();
+	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
+	//RHI::GetDeviceContext(0)->GPUWaitForOtherGPU(RHI::GetDeviceContext(1), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
+	//RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
+	////}
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(GetPrimaryDevice()->GetCommandAllocator(), nullptr);
