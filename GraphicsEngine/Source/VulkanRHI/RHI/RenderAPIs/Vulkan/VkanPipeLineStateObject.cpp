@@ -24,7 +24,7 @@ void VkanPipeLineStateObject::Complie()
 
 void VkanPipeLineStateObject::Release()
 {}
-
+#include "Core/Platform/PlatformCore.h"
 void  VkanPipeLineStateObject::CreateRenderPass()
 {
 	VkAttachmentDescription colorAttachment = {};
@@ -73,20 +73,24 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 {
 	std::string root = AssetManager::GetShaderPath() + "VKan\\";
 
-	std::vector<uint32_t> vertShaderCode;
-	std::vector<uint32_t>  fragShaderCode; /*= VKanShader::readFile(root + "frag.spv");*/
+	std::vector<char> vertShaderCode;
+	std::vector<char>  fragShaderCode; /*= VKanShader::readFile(root + "frag.spv");*/
 #if 1
 	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
 	fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
-
+	VKanShader::ComplieShader("VKan\\Shadow.hlsl", false, true);
 #endif
+#if 0
 	std::vector<char> ss = VKanShader::readFile(root + "vert.spv");
 	std::vector<char> sss = VKanShader::readFile(root + "frag.spv");
-	VkShaderModule vertShaderModule = createShaderModule(ss);
-	VkShaderModule fragShaderModule = createShaderModule(sss);
-	//
-	//fragShaderModule = createShaderModule(fragShaderCode);
-	//vertShaderModule = createShaderModule(vertShaderCode);
+
+	for (int i = 0; i < vertShaderCode.size(); i++)
+	{
+		ensure(vertShaderCode[i] == ss[i]);
+	}
+#endif
+	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;

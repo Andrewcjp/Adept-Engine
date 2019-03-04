@@ -15,7 +15,7 @@ public:
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint) override;
 	static std::vector<char> readFile(const std::string & filename);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
-	static std::vector<uint32_t> ComplieShader(std::string data, bool frag = false);
+	static std::vector<char> ComplieShader(std::string name, bool frag = false, bool HLSL = false);
 	void CreateTestShader();
 	void SetupPSO();
 	void CreateRenderPass() {};

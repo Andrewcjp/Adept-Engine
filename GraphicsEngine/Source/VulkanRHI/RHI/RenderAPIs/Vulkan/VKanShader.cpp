@@ -59,6 +59,7 @@ VkShaderModule VKanShader::createShaderModule(const std::vector<char>& code)
 struct ComplieInfo
 {
 	EShLanguage stage;
+	bool HLSL = false;
 };
 const TBuiltInResource DefaultTBuiltInResource = {
 	/* .MaxLights = */ 32,
@@ -171,7 +172,7 @@ public:
 	virtual void releaseInclude(glslang::TShader::Includer::IncludeResult*) override
 	{}
 };
-bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::string& OutErrors, std::vector<uint32_t>& OutSpirv)
+bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::string& OutErrors, std::vector<char>& OutSpirv)
 {
 	glslang::InitializeProcess();
 	glslang::TProgram* Program = new glslang::TProgram();
@@ -181,10 +182,21 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	const char* GlslSourceSkipHeader = Source.c_str();
 	Shader->setStrings(&GlslSourceSkipHeader, 1);
 	EShMessages Messages = (EShMessages)(EShMsgDefault | EShMsgDebugInfo | EShMsgSpvRules | EShMsgVulkanRules);
+	if (CompilerInfo.HLSL)
+	{
+		Messages = (EShMessages)(Messages | EShMsgReadHlsl);
+	}
 	int ClientInputSemanticsVersion = 100; // maps to, say, #define VULKAN 100
 	glslang::EShTargetClientVersion VulkanClientVersion = glslang::EShTargetVulkan_1_0;
 	glslang::EShTargetLanguageVersion TargetVersion = glslang::EShTargetSpv_1_0;
-	Shader->setEnvInput(glslang::EShSourceGlsl, Stage, glslang::EShClientVulkan, ClientInputSemanticsVersion);
+	if (CompilerInfo.HLSL)
+	{
+		Shader->setEnvInput(glslang::EShSourceHlsl, Stage, glslang::EShClientVulkan, ClientInputSemanticsVersion);
+	}
+	else
+	{
+		Shader->setEnvInput(glslang::EShSourceGlsl, Stage, glslang::EShClientVulkan, ClientInputSemanticsVersion);
+	}
 	Shader->setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 	Shader->setEnvTarget(glslang::EShTargetSpv, TargetVersion);
 	Shader->setEntryPoint("main");
@@ -217,7 +229,7 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	}
 	Program->mapIO();
 	if (!Program->getIntermediate(Stage))
-	{ 
+	{
 		Log::LogMessage(Program->getInfoDebugLog());
 		__debugbreak();
 	}
@@ -226,20 +238,36 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	glslang::SpvOptions spvOptions;
 	spvOptions.disableOptimizer = true;
 	spvOptions.validate = true;
-	glslang::GlslangToSpv(*Program->getIntermediate((EShLanguage)Stage), OutSpirv, &logger, &spvOptions);
+	std::vector<uint32_t> WordSpirv;
+	glslang::GlslangToSpv(*Program->getIntermediate((EShLanguage)Stage), WordSpirv, &logger, &spvOptions);
+#if 0
 	std::string root = AssetManager::GetShaderPath() + "\\VKan\\";
+	if (CompilerInfo.HLSL)
+	{
+		root += "HLSL_";
+	}
 	root += std::string((Stage == EShLanguage::EShLangVertex) ? "vert.spv" : "frag.spv");
-	glslang::OutputSpvBin(OutSpirv, root.c_str());
-
+	glslang::OutputSpvBin(WordSpirv, root.c_str());
+#endif
+	//convert word code to byte code - why is it the output
+	for (int i = 0; i < WordSpirv.size(); i++)
+	{
+		char* BytePointer = (char*)&WordSpirv[i];
+		OutSpirv.push_back(BytePointer[0]);
+		OutSpirv.push_back(BytePointer[1]);
+		OutSpirv.push_back(BytePointer[2]);
+		OutSpirv.push_back(BytePointer[3]);
+	}
 	return true;
 }
-std::vector<uint32_t> VKanShader::ComplieShader(std::string name, bool frag /*= false*/)
+std::vector<char> VKanShader::ComplieShader(std::string name, bool frag /*= false*/, bool HLSL /*= false*/)
 {
 	std::string data = AssetManager::Get()->LoadFileWithInclude(name);
 	std::string errors = "";
-	std::vector<uint32_t> spirv = std::vector<uint32_t>();
+	std::vector<char> spirv = std::vector<char>();
 	ComplieInfo t;
 	t.stage = frag ? EShLanguage::EShLangFragment : EShLanguage::EShLangVertex;
+	t.HLSL = HLSL;
 	GenerateSpirv(data, t, errors, spirv);
 	return spirv;
 }
