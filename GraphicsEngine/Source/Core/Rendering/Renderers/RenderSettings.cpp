@@ -19,7 +19,7 @@ MultiGPUMode::MultiGPUMode()
 	}
 	else
 	{
-		CurrnetTestMode = MGPUMode::ASYNC_SHADOWS;
+		CurrnetTestMode = MGPUMode::None;
 	}
 	PreSampleBufferScale = 1.0f;
 	//ShowSplit = true;

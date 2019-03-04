@@ -68,11 +68,12 @@ public:
 	void GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * targetqueue);
 	void Signal(ID3D12CommandQueue * queue, int value = -1);
 	void Wait(ID3D12CommandQueue * queue, int value = -1);
+	UINT64 m_fenceValue = 0;
 private:
 	HANDLE m_fenceEvent = 0;
 	ID3D12Fence* m_fence = nullptr;
 	ID3D12Fence* secondaryFence = nullptr;
-	UINT64 m_fenceValue = 0;
+	
 };
 class D3D12TimeManager;
 //once this class has been completed it will be RHI split
@@ -157,8 +158,8 @@ private:
 	GPUSyncPoint CopyQueueSync;
 	GPUSyncPoint ComputeQueueSync;
 	GPUSyncPoint GpuWaitSyncPoint;
-	GPUSyncPoint CrossAdaptorSync;
 
+	GPUSyncPoint CrossAdaptorSync[RHI::CPUFrameCount];
 	D3D12TimeManager* TimeManager = nullptr;
 
 	GPUSyncPoint GPUWaitPoints[RHI::CPUFrameCount][DeviceContextQueue::LIMIT];

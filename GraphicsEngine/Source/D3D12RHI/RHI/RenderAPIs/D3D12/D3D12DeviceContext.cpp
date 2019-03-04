@@ -184,7 +184,8 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
 {
-	CrossAdaptorSync.Init(GetDevice(), other->GetDevice());
+	CrossAdaptorSync[0].Init(GetDevice(), other->GetDevice());
+	CrossAdaptorSync[1].Init(GetDevice(), other->GetDevice());
 }
 
 ID3D12Device * D3D12DeviceContext::GetDevice()
@@ -224,6 +225,10 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 		InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 		InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	}
+#if 0
+	InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+#endif
 	GraphicsSync.MoveNextFrame(SyncIndex);
 	CopySync.MoveNextFrame(SyncIndex);
 	InterGPUSync.MoveNextFrame(SyncIndex);
@@ -389,7 +394,7 @@ int D3D12DeviceContext::GetCpuFrameIndex()
 
 void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
-	CrossAdaptorSync.CrossGPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), ((D3D12DeviceContext*)OtherGPU)->GetCommandQueueFromEnum(WaitingQueue));
+	CrossAdaptorSync[GetCpuFrameIndex()].CrossGPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), ((D3D12DeviceContext*)OtherGPU)->GetCommandQueueFromEnum(WaitingQueue));
 }
 
 void D3D12DeviceContext::CPUWaitForAll()
@@ -423,7 +428,7 @@ ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQue
 void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("InsertGPUWait", "RHI");
-	GPUWaitPoints[CurrentFrameIndex][SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
+	GPUWaitPoints[0][SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
 }
 
 RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()

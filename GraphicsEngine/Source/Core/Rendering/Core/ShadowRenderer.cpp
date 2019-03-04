@@ -274,6 +274,10 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 	{
 		list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
 	}
+	if (list->GetDeviceIndex() == 1)
+	{
+		list->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+	}
 	list->Execute();
 
 #if !SINGLE_GPU_PRESAMPLE
@@ -494,7 +498,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	if (RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		ShadowingPointLights[0]->SetShadowResdent(1, 0);
-		int ShadowsOnDev0 = 4;
+		int ShadowsOnDev0 = 3;
 		for (int i = 0; i < ShadowsOnDev0; i++)
 		{
 			ShadowingPointLights[i]->SetShadowResdent(0, 1);
@@ -616,6 +620,10 @@ void ShadowRenderer::ShadowLightInteraction::SetupCopy(DeviceContext * TargetDev
 
 void ShadowRenderer::InitPreSampled(DeviceContext* dev, DeviceContext* Targetdev)
 {
+	if (Targetdev == nullptr)
+	{
+		return;
+	}
 	if (DSOs[dev->GetDeviceIndex()].PreSampledBuffer != nullptr)
 	{
 		RHI::RemoveLinkedFrameBuffer(DSOs[dev->GetDeviceIndex()].PreSampledBuffer);
