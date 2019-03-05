@@ -129,6 +129,7 @@ void FrameBuffer::CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * Targe
 }
 void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)
 {
+	
 	PerfManager::StartTimer("RunOnSecondDevice");
 	DeviceContext* HostDevice = Target->GetDevice();
 	if (TargetDevice == HostDevice)
@@ -190,6 +191,7 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	{
 		return;
 	}
+
 	DeviceContext* TargetDevice = RHI::GetDeviceContext(0);
 	FrameBuffer* Target = this;
 	DeviceContext* HostDevice = Target->GetDevice();
