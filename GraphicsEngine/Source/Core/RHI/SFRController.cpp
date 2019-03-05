@@ -92,6 +92,6 @@ void SFRController::Init()
 		Node->SFRDriveTimer = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Main Pass" + std::to_string(i)));
 		Nodes.push_back(Node);
 	}
-	const float splittest = 0.5f;
+	const float splittest = RHI::GetMGPUSettings()->SFRRatio;
 	DualUpdatePC(splittest);
 }

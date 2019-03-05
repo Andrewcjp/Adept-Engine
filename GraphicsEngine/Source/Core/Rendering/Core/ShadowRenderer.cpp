@@ -289,7 +289,8 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 			{
 				if (NeedsCopyPreSample[0])
 				{
-					FrameBuffer::CopyHelper(DSOs[list->GetDeviceIndex()].PreSampledBuffer, RHI::GetDeviceContext(1), EGPUCOPYTIMERS::ShadowCopy2);
+					//SFR shadows is delaying all graphics work unitl copy complete point
+					//FrameBuffer::CopyHelper(DSOs[list->GetDeviceIndex()].PreSampledBuffer, RHI::GetDeviceContext(1), EGPUCOPYTIMERS::ShadowCopy2);
 				}
 			}
 			else
@@ -480,8 +481,12 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	}
 	if (RHI::GetMGPUSettings()->SplitShadowWork)
 	{
-		ShadowingPointLights[0]->SetShadowResdent(1, 0);
+		//ShadowingPointLights[0]->SetShadowResdent(1, 0);
 		//ShadowingPointLights[1]->SetShadowResdent(1, 0);
+		for (int i = 0; i < RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS;i++)
+		{
+			ShadowingPointLights[i]->SetShadowResdent(1, 0);
+		}
 	}
 
 	if (RHI::GetMGPUSettings()->MainPassSFR)
@@ -498,14 +503,14 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	if (RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		ShadowingPointLights[0]->SetShadowResdent(1, 0);
-		int ShadowsOnDev0 = 3;
+		int ShadowsOnDev0 = RHI::GetMGPUSettings()->ShadowLightsOnDev1;
 		for (int i = 0; i < ShadowsOnDev0; i++)
 		{
-			ShadowingPointLights[i]->SetShadowResdent(0, 1);
+			ShadowingPointLights[i]->SetShadowResdent(1, 0);
 		}
 		for (int i = ShadowsOnDev0; i < 4; i++)
 		{
-			ShadowingPointLights[i]->SetShadowResdent(1, 0);
+			ShadowingPointLights[i]->SetShadowResdent(0, 1);
 		}
 	}
 	//removes all refs to any buffer we had last frame!
@@ -558,16 +563,18 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			sli->lightPtr = ShadowingPointLights[spli];
 			LightInteractions.push_back(sli);
 		}
-
-		RHIPipeLineStateDesc desc;
-		desc.InitOLD(true, false, false);
-		desc.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
-		desc.ShaderInUse = PointLightShader;
-		desc.FrameBufferTarget = LightInteractions[0]->ShadowMap;
-		DSOs[i].PointLightShadowList->SetPipelineStateDesc(desc);
-		desc.ShaderInUse = DirectionalLightShader;
-		desc.FrameBufferTarget = DirectionalLightBuffer;
-		DSOs[i].DirectionalShadowList->SetPipelineStateDesc(desc);
+		if (LightInteractions.size() > 0)
+		{
+			RHIPipeLineStateDesc desc;
+			desc.InitOLD(true, false, false);
+			desc.RenderTargetDesc = LightInteractions[0]->ShadowMap->GetPiplineRenderDesc();
+			desc.ShaderInUse = PointLightShader;
+			desc.FrameBufferTarget = LightInteractions[0]->ShadowMap;
+			DSOs[i].PointLightShadowList->SetPipelineStateDesc(desc);
+			desc.ShaderInUse = DirectionalLightShader;
+			desc.FrameBufferTarget = DirectionalLightBuffer;
+			DSOs[i].DirectionalShadowList->SetPipelineStateDesc(desc);
+		}
 	}
 }
 

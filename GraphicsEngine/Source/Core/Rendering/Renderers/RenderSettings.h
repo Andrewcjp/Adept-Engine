@@ -28,9 +28,21 @@ struct MGPUMode
 	{
 		None,
 		SFR,
-		SFR_SHADOWS,
-		MULTI_SHADOWS,
-		ASYNC_SHADOWS,
+		SFR_RATIOOPTIMIZED,
+		SFR_SHADOWS_0,
+		SFR_SHADOWS_1,
+		SFR_SHADOWS_2,
+		SFR_SHADOWS_3,
+		SFR_SHADOWS_4,
+		SFR_SHADOWS_RATIOOPTIMIZED,
+		MULTI_SHADOWS_1,
+		MULTI_SHADOWS_2,
+		MULTI_SHADOWS_3,
+		MULTI_SHADOWS_4,
+		ASYNC_SHADOWS_1,
+		ASYNC_SHADOWS_2,
+		ASYNC_SHADOWS_3,
+		ASYNC_SHADOWS_4,
 		Limit
 	};
 	RHI_API static std::string ToString(MGPUMode::Type t);
@@ -65,10 +77,12 @@ struct MultiGPUMode
 	bool PSComputeWorkSplit = false;
 	bool AsyncShadows = false;
 	int MAX_PRESAMPLED_SHADOWS = 1;
+	int ShadowLightsOnDev1 = 1;
 	bool SFRSplitShadows = false;
 	float SecondCardShadowScaleFactor = 1.0f;
 	float PreSampleBufferScale = 1.0f;
 	bool ShowSplit = false;
+	float SFRRatio = 0.5;
 	void ValidateSettings();
 	bool UseSplitShadows()const;
 	MGPUMode::Type CurrnetTestMode = MGPUMode::Limit;
