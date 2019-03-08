@@ -133,7 +133,7 @@ void DeviceContext::TickTransferStats(bool render)
 	{
 		TotalTime += t->Time;
 	}
-	t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Shadow Copy2" + std::to_string(GetDeviceIndex())));
+	t = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("2Shadow Copy2" + std::to_string(GetDeviceIndex())));
 	if (t != nullptr)
 	{
 		TotalTime += t->Time;

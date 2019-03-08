@@ -291,6 +291,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 				{
 					//SFR shadows is delaying all graphics work unitl copy complete point
 					//FrameBuffer::CopyHelper(DSOs[list->GetDeviceIndex()].PreSampledBuffer, RHI::GetDeviceContext(1), EGPUCOPYTIMERS::ShadowCopy2);
+					FrameBuffer::CopyHelper_NewSync(DSOs[list->GetDeviceIndex()].PreSampledBuffer, RHI::GetDeviceContext(1), EGPUCOPYTIMERS::ShadowCopy2);
 				}
 			}
 			else

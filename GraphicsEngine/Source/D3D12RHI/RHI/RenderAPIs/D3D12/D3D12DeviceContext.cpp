@@ -42,6 +42,7 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	{
 		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
 	}*/
+
 }
 
 void D3D12DeviceContext::LogFeatureData(std::string name, bool value)

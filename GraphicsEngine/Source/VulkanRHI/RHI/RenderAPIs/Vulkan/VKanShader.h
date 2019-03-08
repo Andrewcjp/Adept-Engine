@@ -11,7 +11,6 @@ public:
 	~VKanShader();
 
 	// Inherited via ShaderProgramBase
-	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type) override;
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint) override;
 	static std::vector<char> readFile(const std::string & filename);
 	VkShaderModule createShaderModule(const std::vector<char>& code);

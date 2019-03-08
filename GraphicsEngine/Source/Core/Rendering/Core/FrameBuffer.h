@@ -30,10 +30,11 @@ public:
 	void ResolveSFR(FrameBuffer* SumBuffer);
 	int GetTransferSize();
 	void ResetTransferStat();
+	static void CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ = DeviceContextQueue::Copy);
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();
-	void CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ);
+
 	void HandleInit();
 	int CrossGPUBytes = 0;
 	bool DidTransferLastFrame = false;
