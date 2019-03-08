@@ -77,8 +77,10 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	std::vector<char>  fragShaderCode; /*= VKanShader::readFile(root + "frag.spv");*/
 #if 1
 	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
-	fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
-	VKanShader::ComplieShader("VKan\\Shadow.hlsl", false, true);
+//	fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
+	fragShaderCode = VKanShader::ComplieShader("VKan\\TriHLSL", true, true);
+
+
 #endif
 #if 0
 	std::vector<char> ss = VKanShader::readFile(root + "vert.spv");
@@ -101,8 +103,8 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	fragShaderStageInfo.module = fragShaderModule;
+//	fragShaderStageInfo.pName = "main";
 	fragShaderStageInfo.pName = "main";
-
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};

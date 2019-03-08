@@ -117,14 +117,18 @@ void MultiGPUMode::ValidateSettings()
 			SFRSplitShadows = true;
 			break;
 		case MGPUMode::SFR_SHADOWS_RATIOOPTIMIZED:
-			ShadowLightsOnDev1 = 1;
 			MainPassSFR = true;
 			SFRSplitShadows = true;
+#if 1
+			ShadowLightsOnDev1 = 1;
 			SFRRatio = 0.9f;
+#else
+			ShadowLightsOnDev1 = 1;
+			SFRRatio = 0.6f;
+#endif
 			break;
 		}
 	}
-
 
 	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1 || !RHI::IsD3D12())
 	{

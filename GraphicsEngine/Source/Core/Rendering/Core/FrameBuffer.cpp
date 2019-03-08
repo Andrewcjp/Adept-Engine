@@ -14,6 +14,7 @@ FrameBuffer::FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc
 	m_width = BufferDesc.Width;
 	m_height = BufferDesc.Height;
 	HandleInit();
+	SetupFences();
 }
 
 void FrameBuffer::HandleInit()
@@ -66,6 +67,7 @@ void FrameBuffer::Resize(int width, int height)
 	BufferDesc.Height = height;
 	HandleInit();
 	HandleResize();
+	
 }
 
 void FrameBuffer::SFRResize()
@@ -96,16 +98,15 @@ void FrameBuffer::CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * Targe
 	CopyQ = DeviceContextQueue::InterCopy;
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 	HostDevice->InsertGPUWait(CopyQ, DeviceContextQueue::Graphics);
-
-
 	RHICommandList* CopyList = HostDevice->GetNextFreeCopyList();
+	//Target->CopyFence->Wait();
 	CopyList->ResetList();
 	CopyList->StartTimer(Stat);
 	CopyList->CopyResourceToSharedMemory(Target);
 	CopyList->EndTimer(Stat);
 	CopyList->ResolveTimers();
 	CopyList->Execute(CopyQ);
-	CopyFence->Signal();
+	//Target->CopyFence->Signal();
 	//if (!RHI::GetMGPUSettings()->AsyncShadows)
 	{
 		HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
@@ -123,13 +124,13 @@ void FrameBuffer::CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * Targe
 	CopyList->EndTimer(Stat);
 	CopyList->ResolveTimers();
 	CopyList->Execute(CopyQ);
-	TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
+	//TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 	PerfManager::EndTimer("RunOnSecondDevice");
 	//Multi shadow are missing a sync!
 }
 void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)
 {
-	
+
 	PerfManager::StartTimer("RunOnSecondDevice");
 	DeviceContext* HostDevice = Target->GetDevice();
 	if (TargetDevice == HostDevice)

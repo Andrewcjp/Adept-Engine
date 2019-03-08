@@ -15,14 +15,15 @@ VKanShader::VKanShader()
 VKanShader::~VKanShader()
 {}
 
-
-EShaderError::Type VKanShader::AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type)
-{
-	return EShaderError::Type();
-}
 EShaderError::Type VKanShader::AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint)
 {
-	return EShaderError::Type();
+	if (type != EShaderType::SHADER_VERTEX && type != EShaderType::SHADER_FRAGMENT)
+	{
+		return EShaderError::Type();
+	}
+
+	//VKanShader::ComplieShader(filename, (type == EShaderType::SHADER_FRAGMENT), true);
+	return EShaderError::SHADER_ERROR_NONE;
 }
 
 std::vector<char> VKanShader::readFile(const std::string& filename)
@@ -262,6 +263,10 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 }
 std::vector<char> VKanShader::ComplieShader(std::string name, bool frag /*= false*/, bool HLSL /*= false*/)
 {
+	if (HLSL)
+	{
+		name.append(".hlsl");
+	}
 	std::string data = AssetManager::Get()->LoadFileWithInclude(name);
 	std::string errors = "";
 	std::vector<char> spirv = std::vector<char>();
