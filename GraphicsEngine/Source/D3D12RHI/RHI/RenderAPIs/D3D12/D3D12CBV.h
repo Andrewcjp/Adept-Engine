@@ -16,12 +16,10 @@ public:
 	template<typename  T>
 	void UpdateCBV(T& buffer, int offset)
 	{
-		memcpy(m_pCbvDataBegin + (offset * CB_Size), &buffer, sizeof(buffer));
+		/*memcpy(m_pCbvDataBegin + (offset * CB_Size), &buffer, sizeof(buffer));*/
+		UpdateCBV(buffer, offset, sizeof(buffer));
 	}
-	void UpdateCBV(void* buffer, int offset, int size)
-	{
-		memcpy(m_pCbvDataBegin + (offset * CB_Size), buffer, size);
-	}
+	void UpdateCBV(void* buffer, int offset, int size);
 	void InitCBV(int StructSize, int Elementcount = 1);
 	void SetName(LPCWSTR name);
 private:
@@ -31,5 +29,6 @@ private:
 	int InitalBufferCount = 10;
 	int CB_Size = 0;
 	class D3D12DeviceContext* Device = nullptr;
+	int SizeInBytes = 0;
 };
 

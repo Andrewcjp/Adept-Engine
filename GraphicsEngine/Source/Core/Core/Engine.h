@@ -33,7 +33,7 @@ public:
 	static void						RunCook();
 	void							CreateApplicationWindow(int width, int height);
 	void							TestTDPhysics();
-	static float					StartTime;
+	static long						StartTime;
 	static void						SetGame(Game* game);
 	static Game*					GetGame();
 	void							ProcessCommandLineInput(class FString Text, int length);

@@ -21,7 +21,7 @@
 #include <thread>
 #include "Platform/Threading.h"
 #include "GraphicsEngine.h"
-float Engine::StartTime = 0;
+long Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
 PhysicsEngine* Engine::PhysEngine = nullptr;
@@ -48,10 +48,11 @@ std::string Engine::GetExecutionDir()
 Engine::Engine(EnginePersistentData* epd)
 {
 	EPD = epd;
+	
 	EngineInstance = this;
 	Log::StartLogger();
 	PlatformApplication::Init();
-	StartTime = (float)PerfManager::get_nanos();
+	StartTime = PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
 	Log::OutS << "Loading Engine v" << ENGINE_VERSION << Log::OutS;
 #if PHYSX_ENABLED
@@ -112,7 +113,7 @@ void Engine::OnDestoryWindow()
 }
 
 void Engine::Destory()
-{
+{	
 	RHI::DestoryContext();
 	RHI::DestoryRHI();
 	if (PhysEngine != nullptr)
@@ -121,7 +122,9 @@ void Engine::Destory()
 	}
 	AISystem::ShutDown();
 	AudioEngine::Shutdown();
-	ModuleManager::Get()->ShutDown();
+	ModuleManager::Get()->ShutDown();	
+	EPD->BenchTime += fabs((float)(PerfManager::get_nanos() - Engine::StartTime) / 1e6f);
+	Log::LogMessage("Engine was active for " + std::to_string(EPD->BenchTime)+"ms ");
 	PerfManager::ShutdownPerfManager();
 }
 

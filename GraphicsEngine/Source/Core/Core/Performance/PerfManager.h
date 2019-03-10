@@ -44,13 +44,15 @@ public:
 	private:
 		const char* Name = "";
 	};
-	CORE_API static long get_nanos();
+	CORE_API static unsigned long get_nanos();
+	long GetSeconds();
 	static PerfManager* Instance;
 	CORE_API static PerfManager* Get();
-	CORE_API static void EndAndLogTimer(std::string name);
+	CORE_API static float EndAndLogTimer(std::string name);
 	static void StartPerfManager();
 	static void ShutdownPerfManager();
 	PerfManager();
+	CORE_API void Test();
 	~PerfManager();
 	CORE_API int AddTimer(const char * countername, const char * group);
 	CORE_API int AddTimer(const char * countername, int groupId);
@@ -90,7 +92,7 @@ public:
 	CORE_API int GetGroupId(std::string name);
 
 	CORE_API void StartSingleActionTimer(std::string Name);
-	CORE_API void EndSingleActionTimer(std::string Name);
+	CORE_API float EndSingleActionTimer(std::string Name);
 	void FlushSingleActionTimers();
 	void LogSingleActionTimers();
 	void LogSingleActionTimer(std::string name);
@@ -106,7 +108,7 @@ private:
 
 	class NVAPIManager* NVApiManager = nullptr;
 	std::string GetTimerName(int id);
-	std::map<std::string, long> SingleActionTimers;
+	std::map<std::string, unsigned long> SingleActionTimers;
 	std::map<std::string, float> SingleActionTimersAccum;
 	void UpdateStatsTimer();
 

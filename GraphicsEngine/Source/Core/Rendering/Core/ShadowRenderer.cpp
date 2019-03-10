@@ -20,7 +20,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 		DeviceZeroNeedsPreSample = true;
 	}
 	PointLightShader = ShaderComplier::GetShader<Shader_Depth>(RHI::GetDefaultDevice(), true);
-	ShadowPreSampleShader = ShaderComplier::GetShader<Shader_ShadowSample>();
+	ShadowPreSampleShader = ShaderComplier::GetShader_Default<Shader_ShadowSample,int>(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS);
 	SetupOnDevice(RHI::GetDeviceContext(0));
 	SetupOnDevice(RHI::GetDeviceContext(1));
 }

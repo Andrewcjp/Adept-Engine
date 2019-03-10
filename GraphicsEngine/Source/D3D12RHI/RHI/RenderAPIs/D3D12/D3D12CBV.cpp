@@ -44,6 +44,13 @@ void D3D12CBV::SetGpuView(ID3D12GraphicsCommandList * list, int offset, int slot
 	}
 }
 
+void D3D12CBV::UpdateCBV(void* buffer, int offset, int size)
+{
+	//access volition
+	ensure((offset*CB_Size) + size <= SizeInBytes);
+	memcpy(m_pCbvDataBegin + (offset * CB_Size), buffer, size);
+}
+
 void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 {
 	InitalBufferCount = Elementcount;
@@ -54,10 +61,11 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap)));
 
 	CB_Size = (StructSize + 255) & ~255;
+	SizeInBytes = InitalBufferCount * CB_Size;
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(InitalBufferCount * CB_Size),//1024 * 64
+		&CD3DX12_RESOURCE_DESC::Buffer(SizeInBytes),//1024 * 64
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&m_constantBuffer)));
@@ -73,6 +81,14 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 	// app closes. Keeping things mapped for the lifetime of the resource is okay.
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
 	ThrowIfFailed(m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
+#if 1//validate CBV
+	int DataSize = 1;
+	for (int i = 0; i < SizeInBytes; i++)
+	{
+		unsigned char y = 10;
+		memcpy(m_pCbvDataBegin + i * DataSize, &y, DataSize);
+	}
+#endif
 	//memcpy(m_pCbvDataBegin, &m_constantBufferData, sizeof(m_constantBufferData));
 }
 void D3D12CBV::SetName(LPCWSTR name)
