@@ -9,7 +9,14 @@
 
 LevelBenchMarker::LevelBenchMarker()
 {
+#if 1
+	PreHeatTime = 1.0f;
+	FlightSpeed = 20;
+#else
+	FlightSpeed = 10;
 	PreHeatTime = 3.0f;
+#endif
+
 	PreHeatTimer = PreHeatTime;
 }
 
@@ -31,6 +38,7 @@ void LevelBenchMarker::AddAllRes(MGPUMode::Type mode)
 	s.TestType = mode;
 	Settings.push_back(s);
 }
+
 void LevelBenchMarker::AddSetting(BBTestMode::Type res, MGPUMode::Type type)
 {
 	BenchSettings s = BenchSettings();
@@ -38,6 +46,7 @@ void LevelBenchMarker::AddSetting(BBTestMode::Type res, MGPUMode::Type type)
 	s.TestType = type;
 	Settings.push_back(s);
 }
+
 void LevelBenchMarker::Setup()
 {
 	//AddSetting(BBTestMode::UHD, MGPUMode::None);
@@ -71,6 +80,7 @@ void LevelBenchMarker::Init()
 	{
 		TransitionToSetting(&Settings[0], 0);
 	}
+
 }
 
 void LevelBenchMarker::TransitionToSetting(BenchSettings* setting, int index)
@@ -92,6 +102,11 @@ void LevelBenchMarker::TransitionToSetting(BenchSettings* setting, int index)
 void LevelBenchMarker::End()
 {
 	PerfManager::EndBenchMark();
+	float time = PerfManager::Get()->EndAndLogTimer(TimerName);
+	float BnechRuntime = (time * (int)MGPUMode::Limit * 3) / 1000;
+	BnechRuntime += PreHeatTime* (int)MGPUMode::Limit * 3;
+	Log::LogMessage("took " + std::to_string(time / 1000) + "s Expected Time " + std::to_string(BnechRuntime / 60) + "mins ");
+
 	CurrentSettingsIndex++;
 	PreHeatTimer = PreHeatTime;
 	if (CurrentSettingsIndex < Settings.size())
@@ -122,6 +137,7 @@ void LevelBenchMarker::Update()
 	if (Once)
 	{
 		PerfManager::StartBenchMark(RenderSettings::ToString(CurrnetSetting->TestResolution) + "_" + MGPUMode::ToString(CurrnetSetting->TestType));
+		PerfManager::Get()->StartSingleActionTimer(TimerName);
 		Once = false;
 	}
 	if (Points.size() < 2 || CameraObject == nullptr)
@@ -139,7 +155,7 @@ void LevelBenchMarker::Update()
 	if (distanceToNextPos < CompletionDistance*CompletionDistance)
 	{
 		PreHeatTimer = Points[CurrnetPointIndex].WaitTime;
-		CurrnetPointIndex++;		
+		CurrnetPointIndex++;
 	}
 	CurrnetPointIndex = glm::clamp(CurrnetPointIndex, 0, (int)Points.size() - 1);
 	glm::vec3 dir = (NextPos - CurrentPos);
@@ -148,7 +164,7 @@ void LevelBenchMarker::Update()
 		return;
 	}
 	const glm::vec3 N_Dir = glm::normalize(dir);
-	glm::vec3 NewPos = /*glm::mix(CurrentPos, NextPos, 0.01f);*/CurrentPos + N_Dir * 10 * Engine::GetDeltaTime();
+	glm::vec3 NewPos = /*glm::mix(CurrentPos, NextPos, 0.01f);*/CurrentPos + N_Dir * FlightSpeed * Engine::GetDeltaTime();
 	CameraObject->SetPosition(NewPos);
 	Rot = Points[CurrnetPointIndex].Forward;
 	glm::vec3 LastPoint = Points[CurrnetPointIndex - 1].Pos;

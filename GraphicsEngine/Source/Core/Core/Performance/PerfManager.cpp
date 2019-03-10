@@ -7,16 +7,26 @@
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Utils/NVAPIManager.h"
 #include "BenchMarker.h"
-
+#include "../Platform/Windows/WindowsApplication.h"
+#include <chrono>
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
-long PerfManager::get_nanos()
+unsigned long PerfManager::get_nanos()
 {
+#if 0
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
 	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec;
+#else
+	return (unsigned long)std::chrono::high_resolution_clock::now().time_since_epoch().count();
+#endif
 }
-
+long PerfManager::GetSeconds()
+{
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	return (long)ts.tv_sec*1000L +ts.tv_nsec/1000000L;
+}
 PerfManager * PerfManager::Get()
 {
 	if (Instance == nullptr)
@@ -26,11 +36,12 @@ PerfManager * PerfManager::Get()
 	return Instance;
 }
 
-void PerfManager::EndAndLogTimer(std::string name)
+float PerfManager::EndAndLogTimer(std::string name)
 {
-	PerfManager::Get()->EndSingleActionTimer(name);
+	float time = PerfManager::Get()->EndSingleActionTimer(name);
 	PerfManager::Get()->LogSingleActionTimer(name);
 	PerfManager::Get()->FlushSingleActionTimer(name);
+	return time;
 }
 
 void PerfManager::StartPerfManager()
@@ -55,8 +66,18 @@ PerfManager::PerfManager()
 	ShowAllStats = true;
 	NVApiManager = new NVAPIManager();
 	Bencher = new BenchMarker();
+	//Test();
 }
-
+void PerfManager::Test()
+{
+	StartSingleActionTimer("test");
+	int testtime = 5000;
+	PlatformApplication::Sleep(testtime);
+	PlatformApplication::Sleep(10);
+	float output = EndSingleActionTimer("test");
+	ensure(output >= testtime);
+	ensure(output <= testtime);
+}
 PerfManager::~PerfManager()
 {
 	SafeDelete(NVApiManager);
@@ -352,12 +373,12 @@ void PerfManager::Internal_NotifyEndOfFrame()
 		data->AVG->Add(it->second);
 		if (!data->DirectUpdate)
 		{
-			it->second = 0.0f;			
+			it->second = 0.0f;
 		}
 		else
 		{
 			data->AVG->clear();
-			data->AVG->Add(it->second);			
+			data->AVG->Add(it->second);
 		}
 		data->LastCallCount = data->CallCount;
 		data->CallCount = 0;
@@ -608,27 +629,29 @@ void PerfManager::StartSingleActionTimer(std::string Name)
 {
 	if (SingleActionTimers.find(Name) != SingleActionTimers.end())
 	{
-		SingleActionTimers.at(Name) = get_nanos();
+		SingleActionTimers.at(Name) = GetSeconds();
 	}
 	else
 	{
-		SingleActionTimers.emplace(Name, get_nanos());
+		SingleActionTimers.emplace(Name, GetSeconds());
 		SingleActionTimersAccum.emplace(Name, 0.0f);
 	}
 }
 
-void PerfManager::EndSingleActionTimer(std::string Name)
+float PerfManager::EndSingleActionTimer(std::string Name)
 {
 	if (SingleActionTimers.find(Name) != SingleActionTimers.end())
 	{
-		float TimeInMS = (float)(get_nanos() - SingleActionTimers.at(Name)) / TimeMS;
+		float TimeInMS = (float)(GetSeconds() - SingleActionTimers.at(Name)) /*/ TimeMS*/;
 		SingleActionTimersAccum.at(Name) += TimeInMS;
+		return TimeInMS;
 	}
 	else
 	{
 		SingleActionTimers.emplace(Name, 0);
 		SingleActionTimersAccum.emplace(Name, 0.0f);
 	}
+	return 0.0f;
 }
 
 void PerfManager::FlushSingleActionTimers()

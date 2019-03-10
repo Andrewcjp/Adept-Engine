@@ -29,6 +29,7 @@ public:
 	float CompletionDistance = 0.75f;
 
 private:
+	const std::string TimerName = "Bench Mark Time";
 	bool CloseOnFinish = false;
 	BenchSettings* CurrnetSetting = nullptr;
 	int CurrentSettingsIndex = 0;

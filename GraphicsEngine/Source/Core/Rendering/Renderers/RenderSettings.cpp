@@ -19,10 +19,11 @@ MultiGPUMode::MultiGPUMode()
 	}
 	else
 	{
-		CurrnetTestMode = MGPUMode::SFR_SHADOWS_RATIOOPTIMIZED;
+		CurrnetTestMode = MGPUMode::MULTI_SHADOWS_4;
 	}
 	PreSampleBufferScale = 1.0f;
 	Log::LogMessage("There are " + std::to_string(MGPUMode::Limit) + " Test cases");
+	Log::LogMessage("Starting In Mode: " + MGPUMode::ToString(CurrnetTestMode) + "( " + std::to_string((int)CurrnetTestMode) + " / " + std::to_string((int)MGPUMode::Limit) + ")");
 	//ShowSplit = true;
 }
 
@@ -106,7 +107,7 @@ void MultiGPUMode::ValidateSettings()
 			MainPassSFR = true;
 			SFRSplitShadows = true;
 			break;
-		case MGPUMode::SFR_SHADOWS_3:
+		case MGPUMode::SFR_SHADOWS_3://6 mins
 			ShadowLightsOnDev1 = 3;
 			MainPassSFR = true;
 			SFRSplitShadows = true;
@@ -247,8 +248,10 @@ std::string MGPUMode::ToString(MGPUMode::Type t)
 		return "SFR_SHADOWS_3";
 	case MGPUMode::SFR_SHADOWS_4:
 		return "SFR_SHADOWS_4";
+	case MGPUMode::SFR_SHADOWS_RATIOOPTIMIZED:
+		return "SFR_SHADOWS_RATIOOPTIMIZED";
 	case MGPUMode::MULTI_SHADOWS_1:
-		return "MULTI_SHADOWS";
+		return "MULTI_SHADOWS_1";
 	case MGPUMode::MULTI_SHADOWS_2:
 		return "MULTI_SHADOWS_2";
 	case MGPUMode::MULTI_SHADOWS_3:
@@ -256,7 +259,7 @@ std::string MGPUMode::ToString(MGPUMode::Type t)
 	case MGPUMode::MULTI_SHADOWS_4:
 		return "MULTI_SHADOWS_4";
 	case MGPUMode::ASYNC_SHADOWS_1:
-		return "ASYNC_SHADOWS";
+		return "ASYNC_SHADOWS_1";
 	case MGPUMode::ASYNC_SHADOWS_2:
 		return "ASYNC_SHADOWS_2";
 	case MGPUMode::ASYNC_SHADOWS_3:
@@ -264,7 +267,9 @@ std::string MGPUMode::ToString(MGPUMode::Type t)
 	case MGPUMode::ASYNC_SHADOWS_4:
 		return "ASYNC_SHADOWS_4";
 	case MGPUMode::Limit:
+		return "LIMIT";
+	default:
 		break;
 	}
-	return std::string();
+	return "ERROR";
 }

@@ -82,6 +82,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	{
 		exitcode = RunLoop(lpCmdLine, nCmdShow, hInstance, &EPD);
 	} while (EPD.Restart);
+	printf("Engine was active for %f", EPD.BenchTime);
 #if USE_SEP_CONSOLE
 	fclose(pf_out);
 	//Free the console window
