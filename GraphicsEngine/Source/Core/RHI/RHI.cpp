@@ -413,17 +413,32 @@ void RHI::AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize /*= false*/)
 		instance->FrameBuffersLinkedToSwapChain.push_back(target);
 		if (!NoResize)
 		{
-			const int Width = (int)(target->GetDescription().LinkToBackBufferScaleFactor* instance->SwapChainWidth);
-			const int Height = (int)(target->GetDescription().LinkToBackBufferScaleFactor* instance->SwapChainHeight);
-			target->Resize(Width, Height);
-			if (target->GetDescription().LinkToBackBufferScaleFactor != 1.0f)
-			{
-				Log::LogMessage("SwapChain Linked Buffer was created at " + std::to_string(Width) + "X" + std::to_string(Height));
-			}
+			ResizeFrameBuffer(target);
 		}
 	}
 }
 
+void RHI::ResizeFrameBuffer(FrameBuffer* target)
+{
+	int Width = 0;
+	int Height = 0;
+	if (RHI::GetRenderSettings()->LockBackBuffer)
+	{
+		Width = (int)(target->GetDescription().LinkToBackBufferScaleFactor* RHI::GetRenderSettings()->LockedWidth);
+		Height = (int)(target->GetDescription().LinkToBackBufferScaleFactor* RHI::GetRenderSettings()->LockedHeight);
+	}
+	else
+	{
+		Width = (int)(target->GetDescription().LinkToBackBufferScaleFactor* instance->SwapChainWidth);
+		Height = (int)(target->GetDescription().LinkToBackBufferScaleFactor* instance->SwapChainHeight);
+	}
+	target->Resize(Width, Height);
+	if (target->GetDescription().LinkToBackBufferScaleFactor != 1.0f)
+	{
+		Log::LogMessage("SwapChain Linked Buffer was created at " + std::to_string(Width) + "X" + std::to_string(Height));
+	}
+
+}
 void RHI::RemoveLinkedFrameBuffer(FrameBuffer * target)
 {
 	VectorUtils::Remove(instance->FrameBuffersLinkedToSwapChain, target);
@@ -436,14 +451,7 @@ void RHI::ResizeSwapChain(int width, int height)
 	GetRHIClass()->ResizeSwapChain(width, height);
 	for (int i = 0; i < instance->FrameBuffersLinkedToSwapChain.size(); i++)
 	{
-		FrameBuffer* Ptr = instance->FrameBuffersLinkedToSwapChain[i];
-		const int Width = (int)(Ptr->GetDescription().LinkToBackBufferScaleFactor* width);
-		const int Height = (int)(Ptr->GetDescription().LinkToBackBufferScaleFactor* height);
-		Ptr->Resize(Width, Height);
-		if (Ptr->GetDescription().LinkToBackBufferScaleFactor != 1.0f)
-		{
-			Log::LogMessage("SwapChain Linked Buffer " + std::to_string(i) + " Resized to " + std::to_string(Width) + "X" + std::to_string(Height));
-		}
+		ResizeFrameBuffer(instance->FrameBuffersLinkedToSwapChain[i]);
 	}
 }
 
@@ -470,7 +478,7 @@ RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)
 	if (Device == nullptr)
 	{
 		Device = RHI::GetDefaultDevice();
-	}
+}
 	return GetRHIClass()->CreateTextureArray(Device, Length);
 }
 
@@ -499,7 +507,7 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 	}
 	ensure(itor->second->GetDesc() == desc);
 	return itor->second;
-}
+	}
 
 void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
 {
@@ -515,7 +523,7 @@ void PipelineStateObjectCache::Destory()
 	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
 	{
 		itor->second->Release();
-	}
+}
 	PSOMap.clear();
 }
 
