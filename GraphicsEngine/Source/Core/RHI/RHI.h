@@ -70,6 +70,7 @@ public:
 	static void WaitForGPU();
 	static const RenderConstants* GetRenderConstants();
 	static void AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize = false);
+	
 	static void RemoveLinkedFrameBuffer(FrameBuffer* target);
 	RHI_API static RenderSettings* GetRenderSettings();
 	RHI_API static const MultiGPUMode* GetMGPUSettings();
@@ -79,6 +80,7 @@ public:
 	RHI_API static void FlushDeferredDeleteQueue();
 	static void Tick();
 private:
+	static void ResizeFrameBuffer(FrameBuffer * target);
 	SFRController* SFR_Controller = nullptr;
 	void TickDeferredDeleteQueue(bool Flush = false);
 	static RHI* instance;
