@@ -20,9 +20,9 @@ D3D12DeviceContext::D3D12DeviceContext()
 
 D3D12DeviceContext::~D3D12DeviceContext()
 {
+
 	DestoryDevice();
 	SafeRelease(m_MainCommandQueue);
-
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		SafeRelease(m_commandAllocator[i]);
