@@ -17,6 +17,8 @@ D3D12CBV::~D3D12CBV()
 {
 	if (m_constantBuffer)
 	{
+		CD3DX12_RANGE readRange(0, 0);
+		m_constantBuffer->Unmap(0, &readRange);
 		m_constantBuffer->Release();
 	}
 	if (m_cbvHeap)

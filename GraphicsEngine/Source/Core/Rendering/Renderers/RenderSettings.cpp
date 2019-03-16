@@ -19,7 +19,7 @@ MultiGPUMode::MultiGPUMode()
 	}
 	else
 	{
-		CurrnetTestMode = MGPUMode::ASYNC_SHADOWS_1;
+		CurrnetTestMode = MGPUMode::None;
 	}
 	PreSampleBufferScale = 1.0f;
 	Log::LogMessage("There are " + std::to_string(MGPUMode::Limit) + " Test cases");
