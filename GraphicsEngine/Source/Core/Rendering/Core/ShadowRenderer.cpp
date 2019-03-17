@@ -20,7 +20,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 		DeviceZeroNeedsPreSample = true;
 	}
 	PointLightShader = ShaderComplier::GetShader<Shader_Depth>(RHI::GetDefaultDevice(), true);
-	ShadowPreSampleShader = ShaderComplier::GetShader_Default<Shader_ShadowSample,int>(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS);
+	ShadowPreSampleShader = ShaderComplier::GetShader_Default<Shader_ShadowSample, int>(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS);
 	SetupOnDevice(RHI::GetDeviceContext(0));
 	SetupOnDevice(RHI::GetDeviceContext(1));
 }
@@ -484,7 +484,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	{
 		//ShadowingPointLights[0]->SetShadowResdent(1, 0);
 		//ShadowingPointLights[1]->SetShadowResdent(1, 0);
-		for (int i = 0; i < RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS;i++)
+		for (int i = 0; i < RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS; i++)
 		{
 			ShadowingPointLights[i]->SetShadowResdent(1, 0);
 		}
@@ -523,7 +523,24 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		}
 	}
 	MemoryUtils::DeleteVector(LightInteractions);
+	//Report Stats;
+	std::string report = "Shadow Report: ";
 
+	int Lights1 = 0;
+	int lights0 = 0;
+	for (int i = 0; i < ShadowingPointLights.size(); i++)
+	{
+		if (ShadowingPointLights[i]->GPUShadowResidentMask[0])
+		{
+			lights0++;
+		}
+		if (ShadowingPointLights[i]->GPUShadowResidentMask[1])
+		{
+			Lights1++;
+		}
+	}
+	report += " GPU 0: " + std::to_string(lights0) + " GPU1: " + std::to_string(Lights1);
+	Log::LogMessage(report);
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		if (i >= RHI::GetDeviceCount())

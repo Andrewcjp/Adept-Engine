@@ -83,7 +83,7 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 	// app closes. Keeping things mapped for the lifetime of the resource is okay.
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
 	ThrowIfFailed(m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
-#if 1//validate CBV
+#if 0//validate CBV
 	int DataSize = 1;
 	for (int i = 0; i < SizeInBytes; i++)
 	{
@@ -91,8 +91,8 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 		memcpy(m_pCbvDataBegin + i * DataSize, &y, DataSize);
 	}
 #endif
-	//memcpy(m_pCbvDataBegin, &m_constantBufferData, sizeof(m_constantBufferData));
 }
+
 void D3D12CBV::SetName(LPCWSTR name)
 {
 	m_cbvHeap->SetName(name);
