@@ -19,7 +19,7 @@ MultiGPUMode::MultiGPUMode()
 	}
 	else
 	{
-		CurrnetTestMode = MGPUMode::None;
+		CurrnetTestMode = MGPUMode::SFR_SHADOWS_1;
 	}
 	PreSampleBufferScale = 1.0f;
 	Log::LogMessage("There are " + std::to_string(MGPUMode::Limit) + " Test cases");
@@ -99,21 +99,29 @@ void MultiGPUMode::ValidateSettings()
 			break;
 		case MGPUMode::SFR_SHADOWS_1:
 			ShadowLightsOnDev1 = 1;
+			MAX_PRESAMPLED_SHADOWS = 1;
+			MAX_PRESAMPLED_SHADOWS_GPU0 = 4 - MAX_PRESAMPLED_SHADOWS;
 			MainPassSFR = true;
 			SFRSplitShadows = true;
 			break;
 		case MGPUMode::SFR_SHADOWS_2:
 			ShadowLightsOnDev1 = 2;
+			MAX_PRESAMPLED_SHADOWS = 2;
+			MAX_PRESAMPLED_SHADOWS_GPU0 = 4 - MAX_PRESAMPLED_SHADOWS;
 			MainPassSFR = true;
 			SFRSplitShadows = true;
 			break;
 		case MGPUMode::SFR_SHADOWS_3://6 mins
 			ShadowLightsOnDev1 = 3;
+			MAX_PRESAMPLED_SHADOWS = 3;
+			MAX_PRESAMPLED_SHADOWS_GPU0 = 4 - MAX_PRESAMPLED_SHADOWS;
 			MainPassSFR = true;
 			SFRSplitShadows = true;
 			break;
 		case MGPUMode::SFR_SHADOWS_4:
 			ShadowLightsOnDev1 = 4;
+			MAX_PRESAMPLED_SHADOWS = 4;
+			MAX_PRESAMPLED_SHADOWS_GPU0 = 4 - MAX_PRESAMPLED_SHADOWS;
 			MainPassSFR = true;
 			SFRSplitShadows = true;
 			break;

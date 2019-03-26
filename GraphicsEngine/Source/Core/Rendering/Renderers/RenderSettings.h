@@ -77,6 +77,7 @@ struct MultiGPUMode
 	bool PSComputeWorkSplit = false;
 	bool AsyncShadows = false;
 	int MAX_PRESAMPLED_SHADOWS = 1;
+	int MAX_PRESAMPLED_SHADOWS_GPU0 = 4;
 	int ShadowLightsOnDev1 = 1;
 	bool SFRSplitShadows = false;
 	float SecondCardShadowScaleFactor = 1.0f;

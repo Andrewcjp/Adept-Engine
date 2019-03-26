@@ -39,7 +39,7 @@ public:
 	bool Renderered = false;
 	void Unbind(RHICommandList* list);
 	void InitPreSampled(DeviceContext * dev, DeviceContext * Targetdev);
-	static eTEXTURE_FORMAT GetPreSampledTextureFormat();
+	static eTEXTURE_FORMAT GetPreSampledTextureFormat(int deviceindex);
 	void SetupOnDevice(DeviceContext* Context);
 private:
 	bool DeviceZeroNeedsPreSample = false;
@@ -73,6 +73,7 @@ private:
 	};
 	std::vector<ShadowLightInteraction*> LightInteractions;
 	Shader_ShadowSample* ShadowPreSampleShader = nullptr;
+	Shader_ShadowSample* ShadowPreSampleShader_GPU0 = nullptr;
 	SceneRenderer* Scenerenderer = nullptr;
 
 	DeviceShadowObjects DSOs[MAX_GPU_DEVICE_COUNT];
