@@ -51,10 +51,18 @@ void LevelBenchMarker::Setup()
 {
 	//AddSetting(BBTestMode::UHD, MGPUMode::None);
 	//AddAllRes(MGPUMode::SFR);
+#if 1
+	//AddAllRes(MGPUMode::SFR_SHADOWS_2);
+	for (int i = 3; i < 9; i++)
+	{
+		AddAllRes((MGPUMode::Type)(i));
+	}
+#else
 	for (int i = 0; i < MGPUMode::Limit; i++)
 	{
 		AddAllRes((MGPUMode::Type)(i));
 	}
+#endif
 	CloseOnFinish = true;
 }
 
@@ -104,7 +112,7 @@ void LevelBenchMarker::End()
 	PerfManager::EndBenchMark();
 	float time = PerfManager::Get()->EndAndLogTimer(TimerName);
 	float BnechRuntime = (time * (int)MGPUMode::Limit * 3) / 1000;
-	BnechRuntime += PreHeatTime* (int)MGPUMode::Limit * 3;
+	BnechRuntime += PreHeatTime * (int)MGPUMode::Limit * 3;
 	Log::LogMessage("took " + std::to_string(time / 1000) + "s Expected Time " + std::to_string(BnechRuntime / 60) + "mins ");
 
 	CurrentSettingsIndex++;
