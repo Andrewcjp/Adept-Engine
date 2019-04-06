@@ -59,8 +59,8 @@ void ShaderComplier::ComplieShader(ShaderType & type, DeviceContext* Context)
 		type.CompliedShader = type.Constructor(type.ShaderInitalizer);
 	}
 }
-//todo: compile materials too
-//todo: device index
+//#Shader_Complier compile materials too
+//#Shader_Complier device index
 ShaderType* ShaderComplier::GetShaderFromGlobalMap(std::string name)
 {
 	StringUtils::RemoveChar(name, "class ");

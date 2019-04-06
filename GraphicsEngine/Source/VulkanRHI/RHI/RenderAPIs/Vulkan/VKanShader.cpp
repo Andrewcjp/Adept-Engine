@@ -322,7 +322,7 @@ void VKanShader::SetupPSO()
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	//todo:
+	//#VkanFramebuffers Set this
 	viewport.width = (float)swapChainExtent.width;
 	viewport.height = (float)swapChainExtent.height;
 	viewport.minDepth = 0.0f;

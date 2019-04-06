@@ -315,6 +315,7 @@ struct  RHIPipeLineStateDesc
 	}
 	RHI_API void Build();
 	RHI_API std::string GetString();
+	class RHIRenderPass* RenderPass = nullptr;
 private:
 	size_t UniqueHash = 0;
 	std::string StringPreHash;
@@ -461,7 +462,7 @@ public:
 			EnqueueSafeRHIRelease(SharedObjects[i]);
 		}
 	}
-	//Todo: ref count both sides for now just link
+	//#RHI_Multi: ref count both sides for now just link
 	void RegisterOtherDeviceTexture(T * Other)
 	{
 		SharedObjects.push_back(Other);

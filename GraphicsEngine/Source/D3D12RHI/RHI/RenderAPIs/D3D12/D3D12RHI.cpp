@@ -194,7 +194,7 @@ void D3D12RHI::LoadPipeLine()
 		Log::LogMessage("Failed to find select device index, Defaulting", Log::Severity::Warning);
 		FindAdaptors(factory, true);//force find an adapter
 	}
-	//todo: handle 3 GPU
+	//#DX12: handle 3 GPU
 	if (GetSecondaryDevice() != nullptr)
 	{
 		GetPrimaryDevice()->LinkAdaptors(GetSecondaryDevice());
@@ -493,7 +493,7 @@ void D3D12RHI::PresentFrame()
 	if (RunScreenShot && m_frameIndex == 0)
 	{
 		ScreenShotter->WriteBackRenderTarget();
-		//todo: should be an async task to write from GPU to disk also prevent capture before write is complete
+		//#DX12: should be an async task to write from GPU to disk also prevent capture before write is complete
 		ScreenShotter->WriteToFile(AssetManager::DirectGetGeneratedDir());
 		Log::LogMessage("Took ScreenShot");
 		RunScreenShot = false;
@@ -625,6 +625,7 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 			if (*Device == nullptr)
 			{
 				*Device = new D3D12DeviceContext();
+				//#SLI This needs to create more Devices 
 				(*Device)->CreateDeviceFromAdaptor(adapter, CurrentDeviceIndex);
 				CurrentDeviceIndex++;
 				if (ForceSingleGPU.GetBoolValue())

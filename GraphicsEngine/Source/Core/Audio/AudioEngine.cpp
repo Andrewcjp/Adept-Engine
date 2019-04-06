@@ -233,7 +233,7 @@ void AudioEngine::UpdateWiseTransfrom(GameObject * go)
 	AkVector fwd = ConvertToAK(glm::normalize(go->GetTransform()->GetForward()));
 	AkVector up = ConvertToAK(glm::normalize(go->GetTransform()->GetUp()));
 	trans.SetOrientation(fwd, up);
-	//todo: rotations
+	//#Audio rotations
 	AKRESULT ar = AK::SoundEngine::SetPosition(go->GetAudioId(), trans);
 	check(ar == AKRESULT::AK_Success);
 }

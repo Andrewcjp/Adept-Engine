@@ -142,7 +142,7 @@ void GameObject::Update(float delta)
 			m_Components[i]->Update(delta);
 			if (changed)
 			{
-				m_Components[i]->OnTransformUpdate();//todo:optmize Transform move!
+				m_Components[i]->OnTransformUpdate();//#Transform :optimize Transform move!
 			}
 		}
 	}

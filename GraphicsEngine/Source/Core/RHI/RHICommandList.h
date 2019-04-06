@@ -100,6 +100,10 @@ public:
 	RHI_VIRTUAL void SetUpCommandSigniture(int commandSize, bool Dispatch) = 0;
 	RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
 	RHI_VIRTUAL void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset) = 0;
+	//Render Passes
+	RHI_VIRTUAL void BeginRenderPass(class RHIRenderPassInfo& RenderPass);
+	RHI_VIRTUAL void EndRenderPass();
+
 	DeviceContext* GetDevice();
 	int GetDeviceIndex() const;
 	void StartTimer(int TimerId);
@@ -116,6 +120,7 @@ public:
 	void InsertGPUStallTimer();
 	void HandleStallTimer();
 protected:
+	bool IsInRenderPass = false;
 	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!
 	ECommandListType::Type ListType = ECommandListType::Graphics;
@@ -139,9 +144,12 @@ protected:
 
 struct RHI_API RHISubPass
 {
-	static const int MaxFrameBuffersInRenderSubPass = 10;
-	FrameBuffer* FrameBuffersUsedInPass[MaxFrameBuffersInRenderSubPass] = {};
+public:
+	FrameBuffer* ColourTargets[MAX_RENDERTARGETS] = { nullptr };
+	FrameBuffer* DepthTarget = { nullptr };
+	void Validate(){};
 };
+
 class RHIRenderPass
 {
 public:
@@ -151,4 +159,11 @@ public:
 	virtual void Complie();
 private:
 	std::vector<RHISubPass*> SubPasses;
+};
+class RHIRenderPassInfo
+{
+public:
+	RHIRenderPass* Pass;
+	FrameBuffer* TargetBuffer;
+	//TODO turn this to a desc to cache passes.
 };

@@ -15,7 +15,8 @@ class RHIClass;
 #define MAX_GPU_DEVICE_COUNT 2
 #define ALLOW_RESOURCE_CAPTURE 0
 #define LOG_RESOURCE_TRANSITIONS 0
-#define BASIC_RENDER_ONLY BUILD_VULKAN
+#define BASIC_RENDER_ONLY 0//BUILD_VULKAN
+#define MAX_RENDERTARGETS 8
 class RHI
 {
 public:
@@ -70,7 +71,7 @@ public:
 	static void WaitForGPU();
 	static const RenderConstants* GetRenderConstants();
 	static void AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize = false);
-	
+
 	static void RemoveLinkedFrameBuffer(FrameBuffer* target);
 	RHI_API static RenderSettings* GetRenderSettings();
 	RHI_API static const MultiGPUMode* GetMGPUSettings();
@@ -105,7 +106,8 @@ public:
 	RHI_VIRTUAL bool InitRHI() = 0;
 	RHI_VIRTUAL bool InitWindow(int w, int h) = 0;
 	RHI_VIRTUAL bool DestoryRHI() = 0;
-	RHI_VIRTUAL BaseTexture* CreateTexture(const RHITextureDesc& Desc,DeviceContext* Device = nullptr) = 0;
+
+	RHI_VIRTUAL BaseTexture* CreateTexture(const RHITextureDesc& Desc, DeviceContext* Device = nullptr) = 0;
 	RHI_VIRTUAL FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc) = 0;
 	RHI_VIRTUAL ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
 	RHI_VIRTUAL RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;

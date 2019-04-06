@@ -15,12 +15,14 @@ static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
 
 RHI::RHI(ERenderSystemType system)
 {
+	
 	CurrentSystem = system;
 	RHIModule* RHImodule = nullptr;
 	switch (CurrentSystem)
 	{
 #if BUILD_D3D12
 	case ERenderSystemType::RenderSystemD3D12:
+		Log::LogMessage("Loading DirectX 12 RHI");
 		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("D3D12RHI");
 		ensure(RHImodule);
 		CurrentRHI = RHImodule->GetRHIClass();
@@ -28,6 +30,7 @@ RHI::RHI(ERenderSystemType system)
 #endif
 #if BUILD_VULKAN
 	case ERenderSystemType::RenderSystemVulkan:
+		Log::LogMessage("Loading Vulkan RHI");
 		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("VulkanRHI");
 		ensure(RHImodule);
 		CurrentRHI = RHImodule->GetRHIClass();
@@ -247,8 +250,9 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHITe
 	{
 		Device = RHI::GetDefaultDevice();
 	}
+	//#Textures: Default Cube Map!
 #if NOLOADTEX
-	//TODO: Default Cube Map!
+	
 	if (ImageIO::GetDefaultTexture())
 	{
 		return ImageIO::GetDefaultTexture();

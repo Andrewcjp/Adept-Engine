@@ -13,7 +13,6 @@ DeviceContext * VKanFramebuffer::GetDevice()
 
 const RHIPipeRenderTargetDesc & VKanFramebuffer::GetPiplineRenderDesc()
 {
-	// TODO: insert return statement here
 	return desc;
 }
 
@@ -21,5 +20,7 @@ void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList * List)
 {}
 
 void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
+{}
+void VKanFramebuffer::TryInitBuffer(VKanRenderPass * RenderPass)
 {}
 #endif

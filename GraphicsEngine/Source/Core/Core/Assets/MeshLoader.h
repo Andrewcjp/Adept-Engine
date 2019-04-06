@@ -59,7 +59,7 @@ private:
 	static MeshLoader* Instance;
 	std::map<std::string, Mesh*> CreatedMeshes;
 };
-//todo: up to 8 
+//#Anim up to 8 
 #define NUM_BONES_PER_VEREX 4
 struct VertexBoneData
 {

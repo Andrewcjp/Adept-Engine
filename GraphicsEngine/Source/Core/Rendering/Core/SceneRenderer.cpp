@@ -135,7 +135,6 @@ SceneConstantBuffer SceneRenderer::CreateUnformBufferEntry(GameObject * t)
 	SceneConstantBuffer m_constantBufferData;
 	m_constantBufferData.M = t->GetTransform()->GetModel();
 	m_constantBufferData.HasNormalMap = false;
-	//todo: handle this !
 	if (t->GetMesh()->GetMaterial(0) != nullptr)
 	{
 		m_constantBufferData.HasNormalMap = t->GetMesh()->GetMaterial(0)->HasNormalMap();

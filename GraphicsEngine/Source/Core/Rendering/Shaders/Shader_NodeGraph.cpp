@@ -2,7 +2,7 @@
 #include "Shader_NodeGraph.h"
 #include "Rendering/ShaderGraph/ShaderGraph.h"
 
-//todo: refactor!
+//#Materals: refactor!
 Shader_NodeGraph::Shader_NodeGraph(ShaderGraph* graph) :Shader_Main(true)
 {
 	if (RHI::GetRenderSettings()->IsDeferred)

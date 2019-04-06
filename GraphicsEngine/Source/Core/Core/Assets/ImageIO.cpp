@@ -6,6 +6,7 @@
 #include "Core/Engine.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Platform/PlatformCore.h"
+//#Clean Remove this
 ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {

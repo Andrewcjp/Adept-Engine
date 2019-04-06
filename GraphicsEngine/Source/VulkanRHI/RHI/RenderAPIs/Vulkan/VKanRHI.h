@@ -154,6 +154,7 @@ public:
 	void initVulkan();
 	class VkanDeviceContext* TDevice = nullptr;
 	class VKanBuffer* buffer = nullptr;
+	class VKanRenderPass* Pass = nullptr;
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 	class VKanShader* Shadertest = nullptr;
