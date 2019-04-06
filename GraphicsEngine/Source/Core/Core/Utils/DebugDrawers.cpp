@@ -83,8 +83,8 @@ void DebugDrawers::DrawDebugLine(glm::vec3 const& LineStart, glm::vec3  const& L
 		AssertDebugBreak();
 		return;
 	}
-	//todo: persistent lines
-	//todo: thickness
+	//#Debug persistent lines
+	//#Debug thickness
 	DebugLineDrawer::Get()->AddLine(LineStart, LineEnd, Color, LifeTime);
 }
 

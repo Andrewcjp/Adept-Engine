@@ -6,7 +6,7 @@
 #include "VkanDeviceContext.h"
 #include "VkanPipeLineStateObject.h"
 #if BUILD_VULKAN
-
+#include "Core/Platform/PlatformCore.h"
 VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * context) :RHICommandList(type, context)
 {
 
@@ -45,6 +45,7 @@ void VKanCommandlist::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float 
 
 void VKanCommandlist::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
+	ensure(IsInRenderPass);
 	vkCmdDraw(CommandBuffer, VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 }
 
@@ -81,6 +82,8 @@ VkCommandBuffer* VKanCommandlist::GetCommandBuffer()
 }
 
 
+
+
 void VKanCommandlist::SetScreenBackBufferAsRT()
 {}
 
@@ -104,7 +107,7 @@ void VKanCommandlist::SetRenderTarget(FrameBuffer * target, int SubResourceIndex
 
 void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQueue::LIMIT*/)
 {
-	vkCmdEndRenderPass(CommandBuffer);
+
 	if (vkEndCommandBuffer(CommandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to record command buffer!");
@@ -113,14 +116,16 @@ void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQ
 
 }
 
-
-void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
+void VKanCommandlist::BeginRenderPass(RHIRenderPassInfo& RenderPassInfo)
 {
-	VkanPipeLineStateObject* VObject = (VkanPipeLineStateObject*)Object;
+	RHICommandList::BeginRenderPass(RenderPassInfo);
+	CurrnetRenderPass = (VKanRenderPass*)RenderPassInfo.Pass;
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = VObject->RenderPass;
+	renderPassInfo.renderPass = CurrnetRenderPass->RenderPass;
+
 	renderPassInfo.framebuffer = VKanRHI::RHIinstance->swapChainFramebuffers[VKanRHI::RHIinstance->currentFrame];
+
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = VKanRHI::RHIinstance->swapChainExtent;
 
@@ -129,6 +134,18 @@ void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 	renderPassInfo.pClearValues = &clearColor;
 
 	vkCmdBeginRenderPass(CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+void VKanCommandlist::EndRenderPass()
+{
+	RHICommandList::EndRenderPass();
+	vkCmdEndRenderPass(CommandBuffer);
+}
+
+void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
+{
+	VkanPipeLineStateObject* VObject = (VkanPipeLineStateObject*)Object;
+
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
 }
 
@@ -179,3 +196,5 @@ void VkanTextureArray::Clear()
 
 }
 #endif
+
+

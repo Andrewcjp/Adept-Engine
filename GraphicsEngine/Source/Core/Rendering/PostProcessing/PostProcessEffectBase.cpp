@@ -53,7 +53,7 @@ void PostProcessEffectBase::RunPass(FrameBuffer* InputTexture)
 
 void PostProcessEffectBase::RenderScreenQuad(RHICommandList * list)
 {
-	//todo: less than full screen!
+	//#PostProcess: less than full screen!
 	list->SetVertexBuffer(VertexBuffer);
 	list->DrawPrimitive(6, 1, 0, 0);
 }

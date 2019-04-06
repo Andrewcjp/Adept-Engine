@@ -159,7 +159,7 @@ D3D12_SRV_DIMENSION D3D12Helpers::ConvertDimension(eTextureDimension Dim)
 {
 	return (D3D12_SRV_DIMENSION)Dim;
 }
-//todo:!
+//#DX12 complete!
 D3D12_DSV_DIMENSION D3D12Helpers::ConvertDimensionDSV(eTextureDimension Dim)
 {
 	D3D12_DSV_DIMENSION NewDim;
@@ -263,7 +263,7 @@ D3D12_RESOURCE_STATES D3D12Helpers::ConvertBufferResourceState(EBufferResourceSt
 
 std::string D3D12Helpers::ResouceStateToString(D3D12_RESOURCE_STATES state)
 {
-	//todo: finish this!
+	//#DX12: finish this!
 	switch (state)
 	{
 	case D3D12_RESOURCE_STATE_COMMON:

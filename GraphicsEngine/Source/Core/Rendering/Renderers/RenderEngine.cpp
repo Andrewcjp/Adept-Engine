@@ -148,7 +148,7 @@ void RenderEngine::ProcessScene()
 	{
 		return;
 	}
-	//Todo: TEMP FIX!
+	//#Scene TEMP FIX!
 	if (RHI::GetFrameCount() > 10)
 	{
 		return;

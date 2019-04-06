@@ -44,12 +44,12 @@ public:
 	void AddCamera(Camera* cam)
 	{
 		Cameras.emplace_back(cam); CurrentCamera = cam;
-	}//todo: Camera priority
+	}//#Scene Camera priority
 	void RemoveCamera(Camera* Cam);
 	void AddLight(Light* Light)
 	{
 		Lights.emplace_back(Light);
-	}//todo: Camera priority
+	}
 	void RemoveLight(Light* Light);
 	void RemoveGameObject(GameObject * object);
 	bool StaticSceneNeedsUpdate = false;

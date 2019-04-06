@@ -15,6 +15,9 @@ void NameObject(ID3D12Object* pObject, std::wstring name, int id)
 #else
 #define DEVICE_NAME_OBJECT(x);
 #endif
+
+static ConsoleVariable EnableStablePower("StablePower", false, ECVarType::LaunchOnly, true);
+
 D3D12DeviceContext::D3D12DeviceContext()
 {}
 
@@ -52,18 +55,21 @@ void D3D12DeviceContext::LogFeatureData(std::string name, bool value)
 
 void D3D12DeviceContext::CheckFeatures()
 {
-	//todo: validate the device capabilities 
+	//#DX12: validate the device capabilities 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
+#if 0
 	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " CrossAdapterRowMajorTextureSupported " + (options.CrossAdapterRowMajorTextureSupported ? "true " : "false "));
 	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " CrossNodeSharingTier " + std::to_string(options.CrossNodeSharingTier));
-
+#endif
 	D3D12_FEATURE_DATA_ARCHITECTURE1 ARCHDAta = {};
 	ARCHDAta.NodeIndex = 0;
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, reinterpret_cast<void*>(&ARCHDAta), sizeof(ARCHDAta)));
+#if 0
 	LogFeatureData("UMA", ARCHDAta.UMA);
 	LogFeatureData("TileBasedRenderer", ARCHDAta.TileBasedRenderer);
 	LogFeatureData("IsolatedMMU", ARCHDAta.IsolatedMMU);
+#endif
 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData;
 	ZeroMemory(&FeatureData, sizeof(FeatureData));
@@ -77,11 +83,15 @@ void D3D12DeviceContext::CheckFeatures()
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData5, sizeof(FeatureData5));
 	if (SUCCEEDED(hr))
 	{
-		FeatureData5.RaytracingTier;
+		LogFeatureData("DXR Tier", FeatureData5.RaytracingTier);
+	}
+	else
+	{
+		Log::LogMessage("System does not support DXR");
 	}
 }
 
-static ConsoleVariable EnableStablePower("StablePower", false, ECVarType::LaunchOnly, true);
+
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
 	//EnableStablePower.SetValue(true);
@@ -115,8 +125,11 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		std::stringstream ss;
 		ss << "Device Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel);
 		Log::LogMessage(ss.str());
+		Log::LogMessage("Creating device with " + std::to_string(m_Device->GetNodeCount()) + " Nodes");
 	}
 	DeviceIndex = index;
+	//#SLI Mask needs to be set correctly to handle mixed SLI 
+	SetMaskFromIndex(0);
 	CheckFeatures();
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
@@ -126,7 +139,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
+	queueDesc.NodeMask = GetGPUMask();
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_MainCommandQueue)));
 	DEVICE_NAME_OBJECT(m_MainCommandQueue);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
@@ -236,7 +249,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-}
+	}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {

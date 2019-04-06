@@ -452,7 +452,7 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
 	}
-	//todo: Samplers
+	//#RHI: Samplers
 
 #define NUMSamples 3
 	D3D12_STATIC_SAMPLER_DESC samplers[NUMSamples];

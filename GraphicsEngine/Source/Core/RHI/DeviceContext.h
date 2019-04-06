@@ -52,6 +52,8 @@ public:
 	RHI_API void AddTransferBuffer(FrameBuffer* buffer);
 	RHI_API void RemoveTransferBuffer(FrameBuffer* buffer);
 	void ResetStat();
+	RHI_API uint GetGPUMask();
+	RHI_API void SetMaskFromIndex(int GPUIndex);
 protected:
 	RHI_API void PostInit();
 	bool AllowCrossFrameAsyncCompute = false;
@@ -71,9 +73,10 @@ protected:
 	GPUStateCache* StateCache = nullptr;
 	uint VendorID = 0;
 	int CopyListPoolFreeIndex = 0;
-	RHICommandList* CopyListPool[COPYLIST_MAX_POOL_SIZE] = {nullptr};
+	RHICommandList* CopyListPool[COPYLIST_MAX_POOL_SIZE] = { nullptr };
 	int BytesToTransfer = 0;
 	std::vector<FrameBuffer*> BuffersWithTransfers;
+	uint GPUMask = 0;
 };
 
 class RHIGPUSyncEvent

@@ -82,7 +82,7 @@ void SFRController::Init()
 	{
 		return;
 	}
-	//todo: rewrite
+	//#SFR: rewrite
 	float SplitPc = 1.0f / RHI::GetDeviceCount();
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{

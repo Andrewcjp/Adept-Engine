@@ -42,7 +42,7 @@ void CameraComponent::Update(float)
 	{
 		Transform* T = GetOwner()->GetTransform();
 		MCamera->SetPos(T->GetPos());
-		//todo: remove this hack !
+		//#Physx todo: remove this hack !
 		if (AllowRotSync)
 		{
 			MCamera->SetUpAndForward(T->GetForward(), T->GetUp());

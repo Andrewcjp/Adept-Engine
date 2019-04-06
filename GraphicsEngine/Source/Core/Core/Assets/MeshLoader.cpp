@@ -19,7 +19,7 @@ void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
 	}
 }
 
-//todo: this should be optimized; construct a sumed transfrom map?
+//#Anim: todo: this should be optimized; construct a sumed transfrom map?
 bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const aiScene* scene, aiMatrix4x4& transfrom, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	if (nodes.size() == 0)
@@ -60,7 +60,7 @@ void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
 	ArchiveProp(FlipUVs); 
 }
 ///this loads only an animation from a file and adds it to a Skeletal mesh
-///Todo: validate bones are the same
+///#Anim  validate bones are the same
 bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name, FMeshLoadingSettings& Settings)
 {
 	Assimp::Importer* importer = new Assimp::Importer();
@@ -223,7 +223,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		vertices.clear();
 		indices.clear();
 	}
-	if (!scene->HasAnimations())//todo: extract Animations to Smaller and fast format
+	if (!scene->HasAnimations())//#Anim extract Animations to Smaller and fast format
 	{
 		importer->FreeScene();
 		SafeDelete(importer);

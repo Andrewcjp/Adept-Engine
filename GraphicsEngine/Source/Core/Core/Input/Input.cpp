@@ -256,7 +256,7 @@ bool Input::GetKeyDown(int c)
 {
 	if (instance != nullptr)
 	{
-		//todo: use array of keys?
+		//#Input use array of keys?
 		if (instance->KeyMap.find((int)c) != instance->KeyMap.end())
 		{
 			return instance->KeyMap.at((int)c);
@@ -269,7 +269,7 @@ bool Input::GetKeyUp(int c)
 {
 	if (instance != nullptr)
 	{
-		//todo: use array of keys?
+		//#Input: use array of keys?
 		if (instance->KeyMap.find((int)c) != instance->KeyMap.end())
 		{
 			return !instance->KeyMap.at((int)c);

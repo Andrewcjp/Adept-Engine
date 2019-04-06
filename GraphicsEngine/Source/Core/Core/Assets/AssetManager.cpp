@@ -248,7 +248,7 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 	}
 }
 
-//todo: Check time stamps!
+//#Files: Check time stamps!
 BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImportSettings settings, DeviceContext* Device)
 {
 	AssetPathRef Fileref = AssetPathRef(name);
@@ -259,7 +259,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 		return nullptr;
 	}
 #endif
-	//todo: Deal with TGA to DDS 
+	//#Files: Deal with TGA to DDS 
 	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ name.find(".tga") != -1 || settings.DirectLoad)
 	{
 		return RHI::CreateTexture(Fileref, Device);

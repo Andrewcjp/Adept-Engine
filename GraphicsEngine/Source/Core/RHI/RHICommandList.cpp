@@ -25,7 +25,26 @@ RHICommandList::~RHICommandList()
 {}
 
 void RHICommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
-{}
+{
+
+}
+
+void RHICommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
+{
+
+}
+
+void RHICommandList::BeginRenderPass(class RHIRenderPassInfo& RenderPass)
+{
+	ensure(!IsInRenderPass);
+	IsInRenderPass = true;
+}
+
+void RHICommandList::EndRenderPass()
+{
+	ensure(IsInRenderPass);
+	IsInRenderPass = false;
+}
 
 DeviceContext * RHICommandList::GetDevice()
 {

@@ -186,6 +186,16 @@ void DeviceContext::ResetStat()
 	}
 }
 
+uint DeviceContext::GetGPUMask()
+{
+	return GPUMask;
+}
+//#SLI Create struct for GPU mask settings
+void DeviceContext::SetMaskFromIndex(int GPUIndex)
+{
+	GPUMask = (1 << GPUIndex);
+}
+
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");

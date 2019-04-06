@@ -10,7 +10,6 @@ public:
 	~VkanPipeLineStateObject();
 	virtual void Complie() override;
 	virtual void Release() override;
-	void CreateRenderPass();
 	void createGraphicsPipeline();
 	//Needs to contain Render pass and pipeline
 	VkShaderModule createShaderModule(const std::vector<char>& code);
@@ -18,8 +17,15 @@ public:
 //private:
 	VkPipeline Pipeline = VK_NULL_HANDLE;
 	VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
-	VkRenderPass RenderPass = VK_NULL_HANDLE;
 	VkanDeviceContext* VDevice = nullptr;
 	VkDescriptorSetLayout descriptorSetLayout;
+};
+class VKanRenderPass :public RHIRenderPass
+{
+public:
+	VKanRenderPass();
+	virtual void Complie() override;
+	VkRenderPass RenderPass = VK_NULL_HANDLE;
+	VkanDeviceContext* VDevice = nullptr;
 };
 #endif

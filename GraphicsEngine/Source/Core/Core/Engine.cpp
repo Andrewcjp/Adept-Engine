@@ -151,8 +151,8 @@ void Engine::CreateApplication()
 {
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
-#if BUILD_VULKAN
-		RHI::InitRHI(/*RenderSystemD3D12*/RenderSystemVulkan);
+#if BASIC_RENDER_ONLY
+		RHI::InitRHI(RenderSystemVulkan);
 #else
 		RHI::InitRHI(RenderSystemD3D12);
 #endif
@@ -317,7 +317,7 @@ Engine * Engine::Get()
 
 float Engine::GetPhysicsDeltaTime()
 {
-	//Todo: Smooth DT to avoid Spikes causing weird physics 
+	//#Physx: Smooth DT to avoid Spikes causing weird physics 
 	if (EngineInstance != nullptr)
 	{
 		return std::min(PerfManager::GetDeltaTime(), GetSettings()->MaxPhysicsTimeStep);

@@ -60,6 +60,8 @@ public:
 
 	virtual void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
+	RHI_VIRTUAL void BeginRenderPass(class RHIRenderPassInfo& RenderPass) override;
+	RHI_VIRTUAL void EndRenderPass() override;
 private:
 	std::string GetPSOHash(Shader * shader, const PipeLineState& statedesc);
 	void PushPrimitiveTopology();
@@ -148,7 +150,7 @@ private:
 class D3D12RHITextureArray : public RHITextureArray
 {
 public:
-	//todo: Ensure Framebuffer srv matches!
+	//#RHI: Ensure Framebuffer srv matches!
 	D3D12RHITextureArray(DeviceContext* device, int inNumEntries);
 	virtual ~D3D12RHITextureArray();
 	RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot)override;

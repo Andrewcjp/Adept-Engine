@@ -7,6 +7,7 @@
 #include "GPUResource.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "Rendering/Core/RenderBaseTypes.h"
+
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
@@ -63,6 +64,16 @@ void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 		Desc.FrameBufferTarget = CurrentRenderTarget;
 	}
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
+}
+
+void D3D12CommandList::BeginRenderPass(class RHIRenderPassInfo& RenderPass)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void D3D12CommandList::EndRenderPass()
+{
+	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void D3D12CommandList::PushPrimitiveTopology()
@@ -373,8 +384,8 @@ void D3D12CommandList::UAVBarrier(RHIUAV * target)
 
 void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
 {
-	//todo: RHI indirect commands
-	//todo: Care full there was an address out of scope issue here/
+	//#RHI: RHI indirect commands
+	//#Note: Care full there was an address out of scope issue here/
 	D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
 	ZeroMemory(&commandSignatureDesc, sizeof(commandSignatureDesc));
 	if (Dispatch)

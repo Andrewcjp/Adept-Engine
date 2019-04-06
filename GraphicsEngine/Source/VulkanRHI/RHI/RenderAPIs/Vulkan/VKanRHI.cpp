@@ -127,6 +127,7 @@ DeviceContext * VKanRHI::GetDeviceContext(int index)
 {
 	if (index != 0)
 	{
+		
 		return nullptr;
 	}
 	return TDevice;
@@ -211,9 +212,9 @@ void VKanRHI::cleanup()
 		vkDestroyFramebuffer(DevCon->device, framebuffer, nullptr);
 	}
 
-//	vkDestroyPipeline(DevCon->device, graphicsPipeline, nullptr);
-//	vkDestroyPipelineLayout(DevCon->device, pipelineLayout, nullptr);
-//	vkDestroyRenderPass(DevCon->device, renderPass, nullptr);
+	//	vkDestroyPipeline(DevCon->device, graphicsPipeline, nullptr);
+	//	vkDestroyPipelineLayout(DevCon->device, pipelineLayout, nullptr);
+	//	vkDestroyRenderPass(DevCon->device, renderPass, nullptr);
 	for (auto imageView : swapChainImageViews)
 	{
 		vkDestroyImageView(DevCon->device, imageView, nullptr);
@@ -398,7 +399,7 @@ void  VKanRHI::createFramebuffers()
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = PSO->RenderPass;
+		framebufferInfo.renderPass = Pass->RenderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = swapChainExtent.width;
@@ -452,7 +453,7 @@ void VKanRHI::createDescriptorSets()
 	allocInfo.descriptorPool = descriptorPool;
 	allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
 	allocInfo.pSetLayouts = layouts.data();
-	
+
 	descriptorSets.resize(swapChainImages.size());
 	if (vkAllocateDescriptorSets(DevCon->device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
 	{
@@ -524,8 +525,16 @@ void  VKanRHI::createSyncObjects()
 }
 void VKanRHI::CreateNewObjects()
 {
-	PSO = new VkanPipeLineStateObject(RHIPipeLineStateDesc(), DevCon);
+
+	Pass = new VKanRenderPass();
+	Pass->Complie();
+
+	RHIPipeLineStateDesc DEsc;
+	DEsc.RenderPass = Pass;
+	PSO = new VkanPipeLineStateObject(DEsc, DevCon);
 	PSO->Complie();
+
+
 }
 void VKanRHI::ReadyCmdList(VkCommandBuffer* vbuffer)
 {
@@ -577,16 +586,17 @@ void  VKanRHI::drawFrame()
 		cmdlist = new VKanCommandlist(ECommandListType::Graphics, nullptr);
 	}
 	cmdlist->ResetList();
+	RHIRenderPassInfo Info;
+	Info.Pass = Pass;
+	cmdlist->BeginRenderPass(Info);
 	cmdlist->SetPipelineStateObject(PSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->DrawPrimitive(3, 1, 0, 0);
+	cmdlist->EndRenderPass();
 	cmdlist->Execute();
 
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = cmdlist->GetCommandBuffer();
-	//submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
-
-
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
@@ -785,6 +795,14 @@ std::vector<char> VKanRHI::readFile(const std::string& filename)
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
+	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+	{
+		return false;
+	}
+	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+	{
+		return false;
+	}
 	//std::cout << "validation layer: " << pCallbackData->pMessage << std::endl;
 	Log::LogMessage("validation: " + std::string(pCallbackData->pMessage));
 	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
@@ -807,8 +825,8 @@ void VKanRHI::initVulkan()
 	createImageViews();
 	CreateDescriptorSet();
 	CreateNewObjects();
-	
-//	createGraphicsPipeline();
+
+	//	createGraphicsPipeline();
 	createFramebuffers();
 	commandPool = createCommandPool();
 	buffer = new VKanBuffer(ERHIBufferType::Constant, nullptr);

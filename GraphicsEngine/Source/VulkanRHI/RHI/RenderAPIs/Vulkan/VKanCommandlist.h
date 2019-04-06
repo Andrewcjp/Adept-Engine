@@ -2,6 +2,7 @@
 #include "RHI/RHICommandList.h"
 #include "RHI/Shader.h"
 #include "VKanRHI.h"
+#include "vulkan/vulkan_core.h"
 #if BUILD_VULKAN
 class VKanCommandlist :
 	public RHICommandList
@@ -49,6 +50,10 @@ public:
 
 	RHI_VIRTUAL void SetTexture(class BaseTexture* texture, int slot) override;
 	VkCommandBuffer* GetCommandBuffer();
+
+	RHI_VIRTUAL void BeginRenderPass(RHIRenderPassInfo& RenderPass) override;
+	RHI_VIRTUAL void EndRenderPass() override;
+
 private:
 
 	struct CPUFrame
@@ -57,6 +62,7 @@ private:
 		VkCommandBuffer Buffer = nullptr;
 	};
 	CPUFrame Pools[RHI::CPUFrameCount] = { 0 };
+	VKanRenderPass* CurrnetRenderPass = nullptr;
 };
 
 
@@ -82,4 +88,6 @@ public:
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) override;
 	RHI_VIRTUAL void Clear() override;
 };
+
+
 #endif

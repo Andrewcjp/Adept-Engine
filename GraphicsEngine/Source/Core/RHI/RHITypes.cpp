@@ -154,7 +154,7 @@ size_t RHIPipeLineStateDesc::GetHash()
 
 void RHIPipeLineStateDesc::CalulateHash()
 {
-	//todo: hash all members
+	//#RHI: hash all members
 	StringPreHash = "";
 	StringPreHash += ShaderInUse->GetName();
 	StringPreHash += std::to_string(Blending);
@@ -169,7 +169,7 @@ void RHIPipeLineStateDesc::CalulateHash()
 
 bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 {
-	//todo: way to get the complier to gen this?
+	//#RHI:way to get the complier to gen this?
 	if (ShaderInUse != nullptr && other.ShaderInUse != nullptr)
 	{
 		if (ShaderInUse->GetName() != other.ShaderInUse->GetName())
@@ -181,7 +181,7 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 	{
 		return false;
 	}
-	//todo: compare
+	//#RHI: compare all props
 	return Cull == other.Cull && /*RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] &&*/ Blending == other.Blending;
 }
 

@@ -52,11 +52,12 @@ void LevelBenchMarker::Setup()
 	//AddSetting(BBTestMode::UHD, MGPUMode::None);
 	//AddAllRes(MGPUMode::SFR);
 #if 1
-	//AddAllRes(MGPUMode::SFR_SHADOWS_2);
-	for (int i = 3; i < 9; i++)
+	//AddAllRes(MGPUMode::SFR_SHADOWS_0);
+	//AddAllRes(MGPUMode::ASYNC_SHADOWS_1);
+	/*for (int i = 3; i < 9; i++)
 	{
 		AddAllRes((MGPUMode::Type)(i));
-	}
+	}*/
 #else
 	for (int i = 0; i < MGPUMode::Limit; i++)
 	{
