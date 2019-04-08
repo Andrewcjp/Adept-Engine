@@ -52,7 +52,9 @@ NVAPIManager::NVAPIManager()
 		StatIds[i][Stats::GPU0_GRAPHICS_CLOCK] = PerfManager::Get()->GetTimerIDByName("GPU" + std::to_string(i) + "_GRAPHICS_CLOCK");
 		PerfManager::Get()->AddTimer(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK], GROUP_CLOCKS);
 		PerfManager::Get()->GetTimerData(StatIds[i][Stats::GPU0_GRAPHICS_PC])->DirectUpdate = true;
+		PerfManager::Get()->GetTimerData(StatIds[i][Stats::GPU0_GRAPHICS_PC])->HiddenFromDisplay = true;
 		PerfManager::Get()->GetTimerData(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK])->DirectUpdate = true;
+		PerfManager::Get()->GetTimerData(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK])->HiddenFromDisplay = true;
 	}
 
 #endif

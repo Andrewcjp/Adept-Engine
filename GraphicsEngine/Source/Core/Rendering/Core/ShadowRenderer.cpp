@@ -335,8 +335,8 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector
 		FrameBuffer* TargetBuffer = LightInteractions[SNum]->ShadowMap;
 		Shader_Depth* TargetShader = LightInteractions[SNum]->Shader;
 		Light* LightPtr = LightInteractions[SNum]->lightPtr;
-		list->SetRenderTarget(TargetBuffer);
-		list->ClearFrameBuffer(TargetBuffer);
+		RHIRenderPassInfo Info(TargetBuffer, ERenderPassLoadOp::Clear);
+		list->BeginRenderPass(Info);
 		UpdateGeometryShaderParams(LightPtr->GetPosition(), LightPtr->Projection, IndexOnGPU, list->GetDeviceIndex());
 		list->SetConstantBufferView(DSOs[list->GetDeviceIndex()].GeometryProjections, IndexOnGPU, Shader_Depth_RSSlots::GeometryProjections);
 		Shader_Depth::LightData data = {};
@@ -367,6 +367,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector
 #if !USE_GS_FOR_CUBE_SHADOWS
 		}
 #endif
+		list->EndRenderPass();
 		IndexOnGPU++;
 	}
 	if (list->GetDeviceIndex() == 0 && RHI::GetMGPUSettings()->SplitShadowWork)
