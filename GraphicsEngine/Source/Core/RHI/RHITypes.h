@@ -481,3 +481,23 @@ public:
 private:
 	std::vector<T*> SharedObjects;
 };
+
+struct ERenderPassStoreOp
+{
+	enum Type
+	{
+		Store,
+		DontCare,
+		Limit
+	};
+};
+struct ERenderPassLoadOp
+{
+	enum Type
+	{		
+		Load,
+		Clear,
+		DontCare,
+		Limit
+	};
+};

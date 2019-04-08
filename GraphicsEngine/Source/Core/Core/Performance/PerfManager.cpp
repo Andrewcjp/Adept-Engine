@@ -502,10 +502,6 @@ void PerfManager::EndBenchMark()
 
 void PerfManager::ResetStats()
 {
-	/*for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
-	{
-		it->second.AVG->clear();
-	}*/
 	DidJustReset = true;
 }
 
@@ -542,6 +538,10 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 			continue;
 		}
 		if (IncludeGPU && !it->second.IsGPUTimer)
+		{
+			continue;
+		}
+		if (it->second.HiddenFromDisplay)
 		{
 			continue;
 		}
@@ -593,10 +593,7 @@ void PerfManager::UpdateStat(int id, float newtime, float GPUOffsetToMain, bool 
 		{
 			data->Active = true;
 			data->GPUStartOffset = GPUOffsetToMain;
-			if (Direct)
-			{
-				data->DirectUpdate = true;
-			}
+			data->DirectUpdate = Direct;			
 		}
 		TimerOutput.at(id) = glm::abs(newtime);
 	}

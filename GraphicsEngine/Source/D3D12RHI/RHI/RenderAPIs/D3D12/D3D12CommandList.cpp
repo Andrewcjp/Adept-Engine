@@ -7,7 +7,11 @@
 #include "GPUResource.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "Rendering/Core/RenderBaseTypes.h"
-
+#if FORCE_RENDER_PASS_USE
+#define CHECKRPASS() ensure(IsInRenderPass);
+#else
+#define CHECKRPASS() 
+#endif
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
@@ -66,18 +70,24 @@ void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
 }
 
-void D3D12CommandList::BeginRenderPass(class RHIRenderPassInfo& RenderPass)
+void D3D12CommandList::BeginRenderPass(class RHIRenderPassInfo& info)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	RHICommandList::BeginRenderPass(info);
+	SetRenderTarget(info.TargetBuffer);
+	if (info.LoadOp == ERenderPassLoadOp::Clear)
+	{
+		ClearFrameBuffer(info.TargetBuffer);
+	}
 }
 
 void D3D12CommandList::EndRenderPass()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	RHICommandList::EndRenderPass();
 }
 
 void D3D12CommandList::PushPrimitiveTopology()
 {
+	CHECKRPASS();
 	if (IsGraphicsList())
 	{
 		if (CurrnetPSO->GetDesc().RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE)
@@ -113,11 +123,16 @@ void D3D12CommandList::ResetList()
 	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], PSO));
 	HandleStallTimer();
 	PushState();
-
 }
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
 {
+#if FORCE_RENDER_PASS_USE
+	if (!IsInRenderPass)
+	{
+		Log::LogMessage("SetRenderTarget is depreciated use the new render pass API", Log::Warning);
+	}
+#endif
 	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
 	{
@@ -138,6 +153,7 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 
 void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
+	CHECKRPASS();
 	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
 	PushPrimitiveTopology();
@@ -146,6 +162,7 @@ void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCou
 
 void D3D12CommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
 {
+	CHECKRPASS();
 	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
 	PushPrimitiveTopology();
@@ -201,7 +218,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 {
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
-	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
+	D3D12Buffer* dbuffer = static_cast<D3D12Buffer*>(buffer);
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
@@ -212,7 +229,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 {
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
-	D3D12Buffer* dbuffer = (D3D12Buffer*)buffer;
+	D3D12Buffer* dbuffer = static_cast<D3D12Buffer*>(buffer);
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
@@ -238,7 +255,7 @@ void D3D12PipeLineStateObject::Complie()
 	ensure(Desc.ShaderInUse);
 	Desc.Build();
 	int VertexDesc_ElementCount = 0;
-	D3D12Shader* target = (D3D12Shader*)Desc.ShaderInUse->GetShaderProgram();
+	D3D12Shader* target = static_cast<D3D12Shader*>(Desc.ShaderInUse->GetShaderProgram());
 	ensure(target != nullptr);
 	ensure((Desc.ShaderInUse->GetShaderParameters().size() > 0));
 	ensure((Desc.ShaderInUse->GetVertexFormat().size() > 0));
@@ -293,7 +310,7 @@ void D3D12CommandList::PushState()
 				CurrentCommandList->SetComputeRootSignature(DPSO->RootSig);
 			}
 		}
-	}	
+	}
 
 }
 
@@ -860,7 +877,7 @@ void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 #else
 	m_IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 #endif
-	
+
 	m_IndexBufferView.SizeInBytes = TotalByteSize;
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }
@@ -1011,7 +1028,7 @@ void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*=
 	}
 	if (NullHeapDesc.Format == DXGI_FORMAT_UNKNOWN)
 	{
-		Log::LogMessage("Texture Array Slot Cannot be set null without format",Log::Error);
+		Log::LogMessage("Texture Array Slot Cannot be set null without format", Log::Error);
 		return;
 	}
 	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Heap->GetCPUAddress(TargetIndex));

@@ -189,3 +189,9 @@ void RHIRenderPass::AddSubPass(RHISubPass * Pass)
 
 void RHIRenderPass::Complie()
 {}
+
+RHIRenderPassInfo::RHIRenderPassInfo(FrameBuffer * buffer, ERenderPassLoadOp::Type loadOp/* = ERenderPassLoadOp::Clear*/)
+{
+	LoadOp = loadOp;
+	TargetBuffer = buffer;
+}

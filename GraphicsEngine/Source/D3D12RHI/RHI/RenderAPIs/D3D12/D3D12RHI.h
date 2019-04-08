@@ -12,7 +12,7 @@
 #include "Core/Utils/RefChecker.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
-
+#define FORCE_RENDER_PASS_USE 0
 class D3D12DeviceContext;
 class D3D12GPUSyncEvent;
 class D3D12RHI : public RHIClass
