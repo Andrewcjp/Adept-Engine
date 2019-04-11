@@ -3,7 +3,7 @@
 #include "Core/Components/ColliderComponent.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Health.h"
-#include "Source/BleedOutGame/BleedOutGameMode.h"
+#include "BleedOutGameMode.h"
 
 MeleeWeapon::MeleeWeapon()
 {}

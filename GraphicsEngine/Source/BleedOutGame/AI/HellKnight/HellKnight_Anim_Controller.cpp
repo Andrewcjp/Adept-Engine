@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "HellKnight_Anim_Controller.h"
 
 

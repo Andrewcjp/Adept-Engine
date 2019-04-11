@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "IOHandler.h"
 #include <iosfwd>
 #include "Logger.h"

@@ -41,9 +41,9 @@ class CoreTargetRules : TargetRules
         CoreModule.SolutionFolderPath = "Engine/Core";
         CoreModule.SourceFileSearchDir = "Core";
         CoreModule.PCH = "Stdafx";
-        CoreModule.IncludeDirectories.Add("/Include");
-        CoreModule.IncludeDirectories.Add("");
-        CoreModule.IncludeDirectories.Add("/Include/freetype2");
+        CoreModule.IncludeDirectories.Add("/source/Include");
+        CoreModule.IncludeDirectories.Add("/source/Core");
+        CoreModule.IncludeDirectories.Add("/source/Include/freetype2");
         CoreModule.IncludeDirectories.Add("/source/TDPhysics");
         CoreModule.UseCorePCH = false;
         CoreModule.ModuleDepends.Add("TDPhysics");
@@ -54,7 +54,6 @@ class CoreTargetRules : TargetRules
         {
             CoreModule.PreProcessorDefines.Add("WITH_VK");
         }
-      ///  CoreModule.UnityBuildExcludedFolders.Add("AI");
         return CoreModule;
     }
 }

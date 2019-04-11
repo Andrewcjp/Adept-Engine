@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "TD_ConstraintInstance.h"
 
 TD_ConstraintInstance::TD_ConstraintInstance(TD::TDConstraint * con, ConstaintSetup setup) :GenericConstraint(setup)

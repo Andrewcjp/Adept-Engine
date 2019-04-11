@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/BleedOutGame/AI/B_AIBase.h"
+#include "AI/B_AIBase.h"
 /*!  \addtogroup Game_AI
 * @{ */
 class HellKnight : public B_AIBase

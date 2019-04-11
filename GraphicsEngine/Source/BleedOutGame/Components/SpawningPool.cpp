@@ -1,8 +1,8 @@
 #include "SpawningPool.h"
 #include "AI/Core/AISystem.h"
-#include "Source/BleedOutGame/AI/BleedOut_Director.h"
-#include "Source/BleedOutGame/BleedOutGameMode.h"
-#include "Source/BleedOutGame/BleedOutHud.h"
+#include "AI/BleedOut_Director.h"
+#include "BleedOutGameMode.h"
+#include "BleedOutHud.h"
 
 SpawningPool::SpawningPool()
 {}

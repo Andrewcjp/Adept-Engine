@@ -6,7 +6,7 @@
 #include "AI/Core/Behaviour/BTBlackboard.h"
 #include "AttackController.h"
 #include "PossessedSoldier/PossessedSoldier.h"
-#include "Source/BleedOutGame/Components/MeleeWeapon.h"
+#include "Components/MeleeWeapon.h"
 #include "BleedOut_Director.h"
 
 BTMeleeAttackNode::BTMeleeAttackNode()

@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "Shader_TexturedUI.h"
 #include "RHI/RHI.h"
 #include "RHI/RHICommandList.h"

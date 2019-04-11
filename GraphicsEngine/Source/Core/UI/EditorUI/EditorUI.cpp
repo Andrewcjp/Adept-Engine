@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "EditorUI.h"
 #include "UI/Core/UIWidgetContext.h"
 #include "UI/UIManager.h"

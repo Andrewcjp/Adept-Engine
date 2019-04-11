@@ -1,6 +1,6 @@
 #pragma once
 #include "AI/Core/AIBase.h"
-#include "Source/BleedOutGame/Components/BleedOutPlayer.h"
+#include "Components/BleedOutPlayer.h"
 /*! \defgroup Game_AI Game AI Classes
 *\addtogroup Game_AI
 * @{ */

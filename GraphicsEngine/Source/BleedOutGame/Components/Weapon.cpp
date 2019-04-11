@@ -4,7 +4,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "Projectile.h"
-#include "Source/BleedOutGame/BleedOutGameMode.h"
+#include "BleedOutGameMode.h"
 
 Weapon::Weapon(Weapon::WeaponType T, Scene* scene, BleedOutPlayer* player, GameObject* root)
 {
