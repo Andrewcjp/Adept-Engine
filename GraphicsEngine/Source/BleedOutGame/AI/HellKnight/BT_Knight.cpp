@@ -4,7 +4,7 @@
 #include "AI/Core/Behaviour/BTBlackboard.h"
 #include "AI/Core/Behaviour/BaseDecorator.h"
 #include "AI/Core/Services/Service_PlayerCheck.h"
-#include "Source/BleedOutGame/AI/BleedOutBTNodes.h"
+#include "AI/BleedOutBTNodes.h"
 
 
 BT_Knight::BT_Knight()

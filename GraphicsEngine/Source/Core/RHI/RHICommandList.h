@@ -1,17 +1,6 @@
 #pragma once
-
 #include "RHITypes.h"
 class DeviceContext;
-
-namespace EBufferAccessType
-{
-	enum Type
-	{
-		Static,
-		Dynamic,
-		GPUOnly
-	};
-};
 struct RHIBufferDesc
 {
 	int ElementCount = 0;
@@ -22,6 +11,7 @@ struct RHIBufferDesc
 	bool CreateSRV = false;
 	bool CreateUAV = false;
 };
+
 class RHI_API RHIBuffer : public IRHIResourse
 {
 public:
@@ -139,7 +129,6 @@ public:
 	RHI_VIRTUAL void Clear() = 0;
 protected:
 	int NumEntries = 1;
-
 };
 
 struct RHI_API RHISubPass
@@ -160,6 +149,7 @@ public:
 private:
 	std::vector<RHISubPass*> SubPasses;
 };
+
 class RHIRenderPassInfo
 {
 public:

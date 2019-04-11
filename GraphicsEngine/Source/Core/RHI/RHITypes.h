@@ -482,6 +482,7 @@ private:
 	std::vector<T*> SharedObjects;
 };
 
+//Render passes
 struct ERenderPassStoreOp
 {
 	enum Type
@@ -491,6 +492,7 @@ struct ERenderPassStoreOp
 		Limit
 	};
 };
+
 struct ERenderPassLoadOp
 {
 	enum Type
@@ -499,5 +501,15 @@ struct ERenderPassLoadOp
 		Clear,
 		DontCare,
 		Limit
+	};
+};
+
+namespace EBufferAccessType
+{
+	enum Type
+	{
+		Static,
+		Dynamic,
+		GPUOnly
 	};
 };

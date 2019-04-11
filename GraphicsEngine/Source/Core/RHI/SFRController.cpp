@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "SFRController.h"
 #include "RHI.h"
 #include "Core/Performance/PerfManager.h"

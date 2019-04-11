@@ -12,8 +12,8 @@
 #include "HellKnight/HellKnight.h"
 #include "PossessedSoldier/PossessedSoldier.h"
 #include "SkullChaser.h"
-#include "Source/BleedOutGame/Components/Health.h"
-#include "Source/BleedOutGame/Components/MeleeWeapon.h"
+#include "Components/Health.h"
+#include "Components/MeleeWeapon.h"
 
 BleedOut_Director::BleedOut_Director()
 {

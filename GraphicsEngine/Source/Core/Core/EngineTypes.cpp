@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "EngineTypes.h"
 
 bool TagContainer::Contains(Tag t)

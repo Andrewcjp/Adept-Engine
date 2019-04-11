@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "GameHud.h"
 #include "UI/Core/UIWidgetContext.h"
 #include "UI/UIManager.h"

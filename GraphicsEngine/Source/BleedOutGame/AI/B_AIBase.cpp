@@ -1,9 +1,9 @@
 #include "B_AIBase.h"
 #include "Core/GameObject.h"
 #include "Core/Utils/MathUtils.h"
-#include "Source/BleedOutGame/Components/Health.h"
-#include "Source/BleedOutGame/Components/Weapon.h"
-#include "Source/BleedOutGame/BleedOutPCH.h"
+#include "Components/Health.h"
+#include "Components/Weapon.h"
+
 #include "AI/Core/AISystem.h"
 #include "BleedOut_Director.h"
 #include "../BleedOutGameMode.h"

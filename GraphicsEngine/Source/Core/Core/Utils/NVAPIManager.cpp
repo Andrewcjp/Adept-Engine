@@ -1,6 +1,6 @@
 #include "NVAPIManager.h"
 #include "Rendering/Renderers/TextRenderer.h"
-#include "../Performance/PerfManager.h"
+#include "Core/Performance/PerfManager.h"
 
 #define NVAPI_GPU_UTILIZATION_DOMAIN_GPU 0
 #define NVAPI_GPU_UTILIZATION_DOMAIN_FB  1
@@ -56,10 +56,8 @@ NVAPIManager::NVAPIManager()
 		PerfManager::Get()->GetTimerData(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK])->DirectUpdate = true;
 		PerfManager::Get()->GetTimerData(StatIds[i][Stats::GPU0_GRAPHICS_CLOCK])->HiddenFromDisplay = true;
 	}
-
 #endif
 }
-
 
 NVAPIManager::~NVAPIManager()
 {

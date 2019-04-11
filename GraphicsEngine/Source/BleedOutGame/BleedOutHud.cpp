@@ -1,4 +1,4 @@
-#include "Source/Core/Stdafx.h"
+
 #include "BleedOutHud.h"
 #include "UI/UIManager.h"
 #include "UI/Core/UIBox.h"

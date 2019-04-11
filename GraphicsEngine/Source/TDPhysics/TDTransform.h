@@ -1,9 +1,9 @@
 #pragma once
-#include "include\glm\glm.hpp"
-#include "include\glm\gtx\transform.hpp"
-#include "include\glm\gtc\quaternion.hpp"
-#include "include\glm\gtx\quaternion.hpp"
-#include "include/glm/ext.hpp"
+#include "glm\glm.hpp"
+#include "glm\gtx\transform.hpp"
+#include "glm\gtc\quaternion.hpp"
+#include "glm\gtx\quaternion.hpp"
+#include "glm/ext.hpp"
 namespace TD
 {
 	class TDTransform

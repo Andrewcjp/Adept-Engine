@@ -8,7 +8,7 @@ class VkanPipeLineStateObject;
 #define FRAME_LAG 2
 #undef NOMINMAX
 #define VK_USE_PLATFORM_WIN32_KHR
-#include <include/vulkan/vulkan.hpp>
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vk_sdk_platform.h>
 template<class t>
 struct optional

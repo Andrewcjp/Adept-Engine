@@ -1,7 +1,7 @@
 #include "BT_PossessedSoldier.h"
 #include "PossessedSoldier.h"
 #include "AI/Core/AIController.h"
-#include "Source/BleedOutGame/AI/HellKnight/HellKnight_Anim_Controller.h"
+#include "AI/HellKnight/HellKnight_Anim_Controller.h"
 #include "Core/GameObject.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "Core/Utils/DebugDrawers.h"

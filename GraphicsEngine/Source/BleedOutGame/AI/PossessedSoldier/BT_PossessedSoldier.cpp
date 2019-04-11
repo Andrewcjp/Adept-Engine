@@ -3,8 +3,8 @@
 #include "AI/Core/Behaviour/BehaviourTreeNode.h"
 #include "AI/Core/Behaviour/BTBlackboard.h"
 #include "AI/Core/Services/Service_PlayerCheck.h"
-#include "Source/BleedOutGame/AI/BleedOutBTNodes.h"
-#include "Source/BleedOutGame/BleedOutPCH.h"
+#include "AI/BleedOutBTNodes.h"
+
 
 
 BT_PossessedSoldier::BT_PossessedSoldier()
