@@ -308,10 +308,6 @@ bool Engine::GetIsCooking()
 
 Engine * Engine::Get()
 {
-	/*if (EngineInstance == nullptr)
-	{
-		EngineInstance = new Engine();
-	}*/
 	return EngineInstance;
 }
 

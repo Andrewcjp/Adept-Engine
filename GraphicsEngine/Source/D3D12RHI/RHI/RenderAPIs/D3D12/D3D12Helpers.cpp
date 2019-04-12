@@ -477,7 +477,9 @@ void D3D12ReadBackCopyHelper::SaveData(UINT64 pTotalBytes, int subresouse, D3D12
 		path.append(".bmp");
 	}
 	//de align
+#if 0
 	SOIL_save_image(path.c_str(), DDS ? SOIL_SAVE_TYPE_DDS : SOIL_SAVE_TYPE_BMP, (int)layout->Footprint.Width, layout->Footprint.Height, ChannelCount, RawData);
+#endif
 }
 
 D3D12ReadBackCopyHelper * D3D12ReadBackCopyHelper::Get()
