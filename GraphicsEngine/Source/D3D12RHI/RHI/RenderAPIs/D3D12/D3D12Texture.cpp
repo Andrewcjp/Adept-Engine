@@ -199,6 +199,7 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 
 bool D3D12Texture::LoadDDS(std::string filename)
 {
+	UsingDDSLoad = true;
 	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	srvHeap->SetName(L"Texture SRV");
 	std::unique_ptr<uint8_t[]> ddsData;
@@ -270,28 +271,30 @@ void D3D12Texture::BindToSlot(ID3D12GraphicsCommandList* list, int slot)
 	}
 }
 
-void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int height, int bits)
+void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 {
+	Description = desc;
 	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	srvHeap->SetName(L"Texture SRV");
 	ID3D12Resource* textureUploadHeap;
 	// Describe and create a Texture2D.
 	D3D12_RESOURCE_DESC textureDesc = {};
-	if (type == RHI::TextureType::Text)
-	{
-		format = DXGI_FORMAT_R8_UNORM;
-		Miplevels = 1;
-		MipLevelsReadyNow = 1;
-		textureDesc.Alignment = 0;
-	}
-	textureDesc.MipLevels = Miplevels;// Miplevels;
-	textureDesc.Width = width;
-	textureDesc.Height = height;
+
+	textureDesc.MipLevels = desc.MipLevels;
+	textureDesc.Width = desc.Width;
+	textureDesc.Height = desc.Height;
 	textureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	textureDesc.DepthOrArraySize = 1;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Format = format;
+	if (UsingDDSLoad)
+	{
+		textureDesc.Format = format;
+	}
+	else
+	{
+		textureDesc.Format = D3D12Helpers::ConvertFormat(desc.Format);
+	}
 	textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	//format = textureDesc.Format;
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
@@ -314,9 +317,9 @@ void D3D12Texture::CreateTextureFromData(void * data, int type, int width, int h
 		IID_PPV_ARGS(&textureUploadHeap)));
 
 	D3D12_SUBRESOURCE_DATA textureData = {};
-	textureData.pData = data;
-	textureData.RowPitch = width * bits;
-	textureData.SlicePitch = textureData.RowPitch * height;
+	textureData.pData = desc.PtrToData;
+	textureData.RowPitch = desc.Width * desc.BitDepth;
+	textureData.SlicePitch = textureData.RowPitch * desc.Height;
 	Texturedatarray[0] = textureData;
 	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
 
@@ -334,7 +337,14 @@ void D3D12Texture::UpdateSRV()
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = format;
+	if (UsingDDSLoad)
+	{
+		srvDesc.Format = format;
+	}
+	else
+	{
+		srvDesc.Format = D3D12Helpers::ConvertFormat(Description.Format);
+	}
 	if (MaxMip != -1)
 	{
 		MipLevelsReadyNow = 1;
@@ -360,7 +370,7 @@ void D3D12Texture::UpdateSRV()
 
 		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow - testmip;
 		srvDesc.Texture2D.MostDetailedMip = testmip;
-	}
+}
 #endif
 	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, srvHeap->GetCPUAddress(0));
 }

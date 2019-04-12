@@ -52,7 +52,7 @@ void Shader_Skybox::SetSkyBox(BaseTexture * tex)
 #if BASIC_RENDER_ONLY
 	return;
 #endif
-	ensure(tex->GetType() == BaseTexture::ETextureType::Type_CubeMap);
+	ensure(tex->GetType() == ETextureType::Type_CubeMap);
 	if (SkyBoxTexture == tex)
 	{
 		return;

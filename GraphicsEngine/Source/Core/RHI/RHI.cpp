@@ -97,6 +97,11 @@ bool RHI::IsD3D12()
 	return (GetType() == RenderSystemD3D12);
 }
 
+bool RHI::IsVulkan()
+{
+	return  (GetType() == RenderSystemVulkan);
+}
+
 bool RHI::SupportsThreading()
 {
 	return (GetType() == RenderSystemD3D12) || (GetType() == RenderSystemVulkan);

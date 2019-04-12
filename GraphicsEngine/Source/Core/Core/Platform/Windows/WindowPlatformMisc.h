@@ -6,6 +6,7 @@ class WindowPlatformMisc :public GenericPlatformMisc
 public:
 	static void LogPlatformOutput(FString data);
 	static void SetConsoleOutputColour(int colour);
+	static size_t GenerateGUID();
 };
 
 typedef WindowPlatformMisc PlatformMisc;

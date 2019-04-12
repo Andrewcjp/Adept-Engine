@@ -176,13 +176,12 @@ void Archive::HandleArchiveBody(std::string Name)
 		rapidjson::Value* jsongovalue = new rapidjson::Value(rapidjson::kObjectType);
 		valueptr = jsongovalue;
 		IN_ArchiveProp(VersionNumber);
-	//	
 	}
 	else
-	{
-		Scope_PopReadHead(CurrentReadHead);
+	{		
+		CurrentReadHead = CurrentReadHead->value.MemberBegin();
 		IN_ArchiveProp(VersionNumber);
-		ensureFatalMsgf(SERAL_VERSION_NUMBER == VersionNumber, "Incorrect Version from file");
+		ensureFatalMsgf(SERAL_VERSION_NUMBER == VersionNumber, "Incorrect Version from file");		
 	}
 }
 void Archive::EndHeaderWrite(std::string Name)
