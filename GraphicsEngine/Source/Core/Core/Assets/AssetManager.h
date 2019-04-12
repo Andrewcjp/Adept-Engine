@@ -5,16 +5,17 @@
 #include "AssetTypes.h"
 class BaseTexture;
 class IniHandler;
-struct TextureAsset
-{
-	int Nchannels;
-	int Width;
-	int Height;
-	std::string name;
-	size_t ByteSize;
-	size_t NameSize;
-	unsigned char* image;
-};
+class BaseAsset;
+//struct TextureAsset
+//{
+//	int Nchannels;
+//	int Width;
+//	int Height;
+//	std::string name;
+//	size_t ByteSize;
+//	size_t NameSize;
+//	unsigned char* image;
+//};
 
 struct ShaderAsset
 {
@@ -48,32 +49,16 @@ struct TextureImportSettings
 class AssetManager
 {
 public:
-	enum AssetType
-	{
-		Texture,
-		Shader,
-		Meshr
-	};
-	struct Asset
-	{
-		AssetType type;
-		void* DataPtr;
-	};
+
 
 	static AssetManager* instance;
 	CORE_API static AssetManager* Get();
 	~AssetManager();
 	static void StartAssetManager();
 	void LoadFromShaderDir();
-
-	bool GetTextureAsset(std::string path, TextureAsset & asset, bool ABSPath = false);
 	CORE_API std::string LoadFileWithInclude(std::string name);
 
 	bool GetShaderAsset(std::string path, ShaderAsset &asset);
-	std::map<std::string, TextureAsset>* GetTextureMap()
-	{
-		return &TextureAssetsMap;
-	}
 	std::map<std::string, std::string>* GetMeshMap()
 	{
 		return &MeshFileMap;
@@ -89,13 +74,14 @@ public:
 	CORE_API static const std::string GetGeneratedDir();
 	CORE_API static const std::string DirectGetGeneratedDir();
 	CORE_API static const std::string GetSettingsDir();
+	BaseAsset * CreateOrGetAsset(std::string path);
+	void TestAsset();
 private:
 	AssetManager();
 	void Init();
 	bool HasCookedData = false;
 
 	std::map<std::string, std::string> ShaderSourceMap;
-	std::map<std::string, TextureAsset> TextureAssetsMap;
 	std::map<std::string, ShaderAsset> ShaderMap;
 	std::map<std::string, std::string> MeshFileMap;
 

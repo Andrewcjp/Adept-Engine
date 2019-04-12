@@ -307,9 +307,11 @@ TextRenderer::atlas::atlas(FT_Face face, int height)
 		rowh = std::max(rowh, (unsigned int)g->bitmap.rows);
 		ox += g->bitmap.width + 1;
 	}
-	Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::GetDeviceContext(0));	
+	Texture = RHI::CreateTextureWithData(w, h, 1, NULL, RHI::GetDeviceContext(0));
 	Texture->TextureName = "TextAtlas";
-	Texture->CreateTextureFromData(FinalData, RHI::TextureType::Text, w, h, 1);
+	TextureDescription desc = TextureDescription::DefaultTextTexture(w, h);
+	desc.PtrToData = FinalData;
+	Texture->CreateTextureFromDesc(desc);
 	//printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
 }
 

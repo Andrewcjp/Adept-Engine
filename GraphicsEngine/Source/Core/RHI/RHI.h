@@ -64,6 +64,7 @@ public:
 
 	static bool UseAdditionalGPUs();
 	static bool IsD3D12();
+	static bool IsVulkan();
 	static bool SupportsThreading();
 	static bool SupportsExplictMultiAdaptor();
 	RHI_API static ERenderSystemType GetType();

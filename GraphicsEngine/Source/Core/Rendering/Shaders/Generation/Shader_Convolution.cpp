@@ -28,13 +28,13 @@ void Shader_Convolution::init()
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateCubeColourDepth(Size, Size);
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	CubeBuffer = RHI::CreateFrameBuffer(Device, Desc);
-	CmdList = RHI::CreateCommandList(ECommandListType::Graphics,Device);
+	CmdList = RHI::CreateCommandList(ECommandListType::Graphics, Device);
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = this;
 	desc.FrameBufferTarget = CubeBuffer;
 	CmdList->SetPipelineStateDesc(desc);
-	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant,Device);
+	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] =
@@ -64,7 +64,7 @@ void Shader_Convolution::ComputeConvolution(BaseTexture* Target)
 #if BASIC_RENDER_ONLY
 	return;
 #endif
-	ensure(Target->GetType() == BaseTexture::ETextureType::Type_CubeMap);
+	ensure(Target->GetType() == ETextureType::Type_CubeMap);
 	CmdList->ResetList();
 	CmdList->ClearFrameBuffer(CubeBuffer);
 	CmdList->SetTexture(Target, 0);

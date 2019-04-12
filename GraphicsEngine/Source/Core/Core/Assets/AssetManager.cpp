@@ -7,6 +7,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "ImageIO.h"
 #include "IniHandler.h"
+#include "Asset types/BaseAsset.h"
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
@@ -96,6 +97,31 @@ const std::string AssetManager::GetSettingsDir()
 	return instance->SettingsDir;
 }
 
+BaseAsset* AssetManager::CreateOrGetAsset(std::string path)
+{
+	BaseAsset* Asset = nullptr;
+	if (FileUtils::File_ExistsTest(BaseAsset::GetMetaFileName(path)))
+	{
+		Asset = new BaseAsset();
+		Asset->LoadAsset(path);
+	}
+	else
+	{
+		//#Asset create the correct derived class here.
+		Asset = new BaseAsset();
+		Asset->GenerateNewAsset(path);
+		Asset->SaveAsset();
+	}
+	return Asset;
+}
+
+void AssetManager::TestAsset()
+{
+	std::string TestTarget = GetContentPath() + "model test.mtl";
+	BaseAsset* CreationTest = CreateOrGetAsset(TestTarget);
+	ensure(CreationTest);
+}
+
 void AssetManager::SetupPaths()
 {
 	RootDir = Engine::GetExecutionDir();
@@ -149,6 +175,8 @@ void AssetManager::Init()
 	INISaver = new IniHandler();
 	INISaver->LoadMainCFG();
 	INISaver->SaveAllConfigProps();
+
+	TestAsset();
 }
 AssetManager * AssetManager::Get()
 {
@@ -162,62 +190,6 @@ AssetManager * AssetManager::Get()
 AssetManager::~AssetManager()
 {}
 
-bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool ABSPath)
-{
-	if (HasCookedData)
-	{
-
-	}
-	else
-	{
-		if (TextureAssetsMap.find(path) == TextureAssetsMap.end())
-		{
-#if 0
-			TextureAsset newasset;
-			unsigned char* image = nullptr;
-			std::string fullpath = "";
-			if (ABSPath)
-			{
-				fullpath = path;
-			}
-			else
-			{
-				fullpath = Engine::GetExecutionDir();
-				fullpath.append(path);
-			}
-			if (fullpath.find(".tga") != -1)
-			{
-				int bpp = 0;
-				ImageIO::LoadTGA(fullpath.c_str(), &image, &newasset.Width, &newasset.Height, &bpp, &newasset.Nchannels);
-			}
-			else
-			{
-				image = SOIL_load_image(fullpath.c_str(), &newasset.Width, &newasset.Height, &newasset.Nchannels, SOIL_LOAD_RGBA);
-			}
-			if (image == nullptr)
-			{
-				Log::OutS << "Load texture Error " << fullpath << Log::OutS;
-				return false;
-			}
-			newasset.image = image;
-			newasset.ByteSize = (newasset.Width* newasset.Height) *(newasset.Nchannels * sizeof(unsigned char));
-			LoadedAssetSize += newasset.ByteSize;
-			StringUtils::RemoveChar(fullpath, Engine::GetExecutionDir());
-			newasset.name = fullpath;
-			newasset.NameSize = fullpath.length();
-			TextureAssetsMap.emplace(path, newasset);
-			asset = TextureAssetsMap.at(path);
-#endif
-		}
-		else
-		{
-			asset = TextureAssetsMap.at(path);
-			return true;
-		}
-		return true;
-	}
-	return false;
-}
 
 std::string AssetManager::LoadFileWithInclude(std::string name)
 {
@@ -280,8 +252,8 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath) && !PlatformApplication::CheckFileSrcNewer(GetRootDir() + DDCRelFilepath, Fileref.GetFullPathToAsset()) || Fileref.IsDDC)
 	{
 		Fileref.IsDDC = true;
-			return RHI::CreateTexture(Fileref, Device);		
-	}
+		return RHI::CreateTexture(Fileref, Device);
+}
 	else
 	{
 		//File is not a DDS
