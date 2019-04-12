@@ -178,13 +178,15 @@ EImageIOStatus ImageIO::LoadTGA(const char* filename, unsigned char** buffer, in
 }
 EImageIOStatus ImageIO::LoadTexture2D(const char* filename, unsigned char** buffer, int* width, int* height, int* nchan)
 {
+#if 0
 	*buffer = SOIL_load_image(filename, width, height, nchan, SOIL_LOAD_RGBA);
 	if (*buffer == nullptr)
 	{
 		Log::OutS << "Failed to Load Texture '" << filename << "'\n";
 		return EImageIOStatus::E_IMAGEIO_ERROR;
 	}
-	return EImageIOStatus::E_IMAGEIO_SUCCESS;
+#endif
+	return EImageIOStatus::E_IMAGEIO_ERROR;
 }
 
 EImageIOStatus ImageIO::LoadTextureCubeMap(const char* filename, unsigned char** buffer, int* width, int* height)

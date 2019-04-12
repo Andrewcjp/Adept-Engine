@@ -172,6 +172,7 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool A
 	{
 		if (TextureAssetsMap.find(path) == TextureAssetsMap.end())
 		{
+#if 0
 			TextureAsset newasset;
 			unsigned char* image = nullptr;
 			std::string fullpath = "";
@@ -206,6 +207,7 @@ bool AssetManager::GetTextureAsset(std::string path, TextureAsset &asset, bool A
 			newasset.NameSize = fullpath.length();
 			TextureAssetsMap.emplace(path, newasset);
 			asset = TextureAssetsMap.at(path);
+#endif
 		}
 		else
 		{

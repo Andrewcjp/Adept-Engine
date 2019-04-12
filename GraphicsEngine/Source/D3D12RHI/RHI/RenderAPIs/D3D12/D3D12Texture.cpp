@@ -99,10 +99,6 @@ unsigned char * D3D12Texture::GenerateMip(int& startwidth, int& startheight, int
 				buffer[x + 3 + (y*width)] = (unsigned char)output.a;
 			}
 		}
-		if (startheight != 2048)
-		{
-			//			SOIL_save_image(rpath.c_str(), SOIL_SAVE_TYPE_BMP, width, height, 4, buffer);
-		}
 	}
 	startheight = height;
 	startwidth = width;
