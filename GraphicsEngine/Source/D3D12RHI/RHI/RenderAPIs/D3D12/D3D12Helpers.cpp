@@ -3,7 +3,6 @@
 #include "GPUResource.h"
 #include "D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
-#include <SOIL.h>
 #include "Core/Utils/FileUtils.h"
 #include "DescriptorHeap.h"
 #include "D3D12CBV.h"

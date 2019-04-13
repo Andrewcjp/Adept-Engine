@@ -10,11 +10,8 @@ public:
 
 	// Inherited via FrameBuffer
 	virtual DeviceContext * GetDevice() override;
-
 	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
-
 	virtual void MakeReadyForComputeUse(RHICommandList * List) override;
-
 	virtual void MakeReadyForCopy(RHICommandList * list) override;
 	void TryInitBuffer(class VKanRenderPass* RenderPass);
 private:

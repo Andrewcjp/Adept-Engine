@@ -154,7 +154,7 @@ void Engine::CreateApplication()
 #if BASIC_RENDER_ONLY
 		RHI::InitRHI(RenderSystemVulkan);
 #else
-		RHI::InitRHI(RenderSystemD3D12);
+		RHI::InitRHI(RenderSystemD3D12); 
 #endif
 	}
 	else
