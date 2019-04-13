@@ -2,7 +2,6 @@
 #include "AssetManager.h"
 #include <fstream>
 #include <filesystem>
-#include <SOIL.h>
 #include "Core/Utils/FileUtils.h"
 #include "Core/Platform/PlatformCore.h"
 #include "ImageIO.h"
@@ -158,26 +157,16 @@ AssetManager::AssetManager()
 	SetupPaths();
 	PlatformApplication::TryCreateDirectory(GetDDCPath());
 
-#if 0//BUILD_PACKAGE
-	LoadTexturesFromDir();
-#else
-	//LoadCookedShaders();
-#endif
-	//Log::OutS  << "Shaders Loaded in " << ((PerfManager::get_nanos() - StartTime) / 1e6f) << "ms " << Log::OutS;
-	//Log::OutS  << "Texture Asset Memory " << (float)LoadedAssetSize / 1e6f << "mb " << Log::OutS;
-
 }
 void AssetManager::Init()
 {
-#if !BUILD_SHIPPING
-	//LoadFromShaderDir();
-#endif
 	INISaver = new IniHandler();
 	INISaver->LoadMainCFG();
 	INISaver->SaveAllConfigProps();
 
 	TestAsset();
 }
+
 AssetManager * AssetManager::Get()
 {
 	if (instance == nullptr)
@@ -189,7 +178,6 @@ AssetManager * AssetManager::Get()
 
 AssetManager::~AssetManager()
 {}
-
 
 std::string AssetManager::LoadFileWithInclude(std::string name)
 {
@@ -204,11 +192,6 @@ std::string AssetManager::LoadFileWithInclude(std::string name)
 		output = ShaderSourceMap.at(name);
 	}
 	return output;
-}
-
-bool AssetManager::GetShaderAsset(std::string path, ShaderAsset & asset)
-{
-	return false;
 }
 
 void AssetManager::RegisterMeshAssetLoad(std::string name)

@@ -1,8 +1,8 @@
-
 #include "Asset_Shader.h"
-#include "Rendering/ShaderGraph/ShaderGraph.h"
 #include "Rendering/Core/Material.h"
-#include "Core/assets/ShaderComplier.h"
+#include "Rendering/ShaderGraph/ShaderGraph.h"
+#include "ShaderComplier.h"
+
 Asset_Shader::Asset_Shader(bool GenDefault)
 {
 	if (GenDefault)

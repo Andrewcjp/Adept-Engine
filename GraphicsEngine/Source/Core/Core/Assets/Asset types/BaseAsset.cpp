@@ -20,7 +20,7 @@ void BaseAsset::LoadAsset(std::string SourceFile)
 
 void BaseAsset::GenerateNewAsset(std::string AssetSourcePath)
 {
-	//#Asset GUID type?
+	//#Asset GUID size_t type?
 	GUID = PlatformMisc::GenerateGUID();
 	PathToSource = AssetSourcePath;
 }

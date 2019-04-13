@@ -2,7 +2,7 @@
 #include "VKanFramebuffer.h"
 #if BUILD_VULKAN
 
-VKanFramebuffer::VKanFramebuffer(DeviceContext * device,const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
+VKanFramebuffer::VKanFramebuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 
 }
@@ -17,10 +17,26 @@ const RHIPipeRenderTargetDesc & VKanFramebuffer::GetPiplineRenderDesc()
 }
 
 void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList * List)
-{}
+{
+
+}
 
 void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
-{}
+{
+
+}
+
 void VKanFramebuffer::TryInitBuffer(VKanRenderPass * RenderPass)
-{}
+{
+	if (IsCreated)
+	{
+		return;
+	}
+
+
+	IsCreated = true;
+}
+
+
+
 #endif

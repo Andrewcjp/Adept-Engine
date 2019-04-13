@@ -178,7 +178,7 @@ RenderSettings::RenderSettings()
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	IsDeferred = false;
-	EnableGPUParticles = false;
+	EnableGPUParticles = true;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;

@@ -12,7 +12,7 @@ struct EAssetStatus
 		EnqueuedForUnLoad,
 	};
 };
-//#Asset Each asset should encode its type name into the meta data to create the corrrect version at the other end.
+//#Asset Each asset should encode its type name into the meta data to create the correct version at the other end.
 //#Asset Fast way to create assets of correct type.
 class BaseAsset
 {
@@ -27,7 +27,7 @@ public:
 	CORE_API int GetGUID() const;
 	CORE_API EAssetStatus::Type GetState() const;
 	//Has this asset been created?
-	bool IsValid()const;
+	bool IsValid() const;
 	static std::string GetMetaFileName(std::string path);
 private:
 	std::string PathToSource = "";

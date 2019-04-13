@@ -6,21 +6,6 @@
 class BaseTexture;
 class IniHandler;
 class BaseAsset;
-//struct TextureAsset
-//{
-//	int Nchannels;
-//	int Width;
-//	int Height;
-//	std::string name;
-//	size_t ByteSize;
-//	size_t NameSize;
-//	unsigned char* image;
-//};
-
-struct ShaderAsset
-{
-	std::string Name;
-};
 namespace ECompressionSetting
 {
 	enum Type
@@ -57,13 +42,6 @@ public:
 	static void StartAssetManager();
 	void LoadFromShaderDir();
 	CORE_API std::string LoadFileWithInclude(std::string name);
-
-	bool GetShaderAsset(std::string path, ShaderAsset &asset);
-	std::map<std::string, std::string>* GetMeshMap()
-	{
-		return &MeshFileMap;
-	}
-
 	static void RegisterMeshAssetLoad(std::string name);
 	CORE_API static BaseTexture * DirectLoadTextureAsset(std::string name, TextureImportSettings settigns = TextureImportSettings(), class DeviceContext * Device = nullptr);
 	CORE_API static const std::string GetShaderPath();
@@ -79,20 +57,9 @@ public:
 private:
 	AssetManager();
 	void Init();
-	bool HasCookedData = false;
 
 	std::map<std::string, std::string> ShaderSourceMap;
-	std::map<std::string, ShaderAsset> ShaderMap;
 	std::map<std::string, std::string> MeshFileMap;
-
-	bool PreLoadTextShaders = true;
-	bool UseCookedShaders = false;
-	bool CookShaders = true;
-	bool UseCookedtextures = true;
-
-	std::string TextureCooked = "asset/TextureCooked.bin";
-	size_t LoadedAssetSize = 0;
-	std::string FileSplit = "|FileStart|";
 
 	//include Handler
 	const char * includeText = "#include";

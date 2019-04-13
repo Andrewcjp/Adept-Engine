@@ -155,24 +155,13 @@ unsigned char* D3D12Texture::GenerateMips(int count, int StartWidth, int StartHe
 
 bool D3D12Texture::CLoad(AssetPathRef name)
 {
-
 	unsigned char *buffer = NULL;
-	int bpp = 0;
 	int nChannels;
-
 	TextureName = name.BaseName;
 	TexturePath = name.GetRelativePathToAsset();
 	if (name.GetFileType() == AssetFileType::DDS || name.IsDDC)
 	{
 		return LoadDDS(name.GetFullPathToAsset());
-	}
-	else if (name.GetExtention().find("tga") != -1)
-	{
-		if (ImageIO::LoadTGA(name.GetFullPathToAsset().c_str(), &buffer, &Width, &Height, &bpp, &nChannels) != E_IMAGEIO_SUCCESS)
-		{
-			return false;
-		}
-		Miplevels = 1;
 	}
 	else
 	{
@@ -370,7 +359,7 @@ void D3D12Texture::UpdateSRV()
 
 		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow - testmip;
 		srvDesc.Texture2D.MostDetailedMip = testmip;
-}
+	}
 #endif
 	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, srvHeap->GetCPUAddress(0));
 }
