@@ -237,6 +237,13 @@ void EditorWindow::Update()
 			gizmos->SwitchMode(CurrentGizmoMode::Scale);
 		}
 	}
+	if (Input::GetKeyDown('T'))
+	{
+		int currentmode = RHI::GetRenderSettings()->GetDebugRenderMode();
+		currentmode++;
+		currentmode = currentmode % (ERenderDebugOutput::Limit);
+		RHI::GetRenderSettings()->SetDebugRenderMode((ERenderDebugOutput::Type)currentmode);
+	}
 	if (Input::GetKeyDown(VK_ESCAPE))
 	{
 		ExitPlayMode();

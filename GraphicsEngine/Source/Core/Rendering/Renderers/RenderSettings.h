@@ -16,11 +16,11 @@ namespace BBTestMode
 {
 	enum Type
 	{
-		HD, 
+		HD,
 		QHD,
-		UHD, 
+		UHD,
 		Limit
-	};	
+	};
 }
 struct MGPUMode
 {
@@ -47,6 +47,17 @@ struct MGPUMode
 	};
 	RHI_API static std::string ToString(MGPUMode::Type t);
 };
+struct ERenderDebugOutput
+{
+	enum Type
+	{
+		Off,
+		GBuffer_Pos,
+		GBuffer_Normal,
+		GBuffer_Material,
+		Limit
+	};
+};
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
@@ -62,6 +73,10 @@ public:
 	int LockedHeight = 0;
 	RHI_API void SetRes(BBTestMode::Type t);
 	RHI_API static std::string ToString(BBTestMode::Type t);
+	RHI_API ERenderDebugOutput::Type GetDebugRenderMode();
+	RHI_API void SetDebugRenderMode(ERenderDebugOutput::Type mode);
+private:
+	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;
 };
 //Props Are Set in the Constructor 
 struct MultiGPUMode

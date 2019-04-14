@@ -34,9 +34,12 @@ private:
 	void GeometryPass(RHICommandList* List);
 	void LightingPass(RHICommandList* List);
 	void SSAOPass();
+#if ENABLE_RENDERER_DEBUGGING
+	void DebugPass();
+#endif
 	void RenderSkybox(DeviceContext* con);
 	Shader_WDeferred* DeferredWriteShader = nullptr;
-	
+	RHICommandList* DebugList = nullptr;
 
 	bool once = true;
 

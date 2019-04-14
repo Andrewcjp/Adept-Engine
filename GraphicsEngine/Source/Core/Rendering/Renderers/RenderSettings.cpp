@@ -24,7 +24,6 @@ MultiGPUMode::MultiGPUMode()
 	PreSampleBufferScale = 1.0f;
 	Log::LogMessage("There are " + std::to_string(MGPUMode::Limit) + " Test cases");
 	Log::LogMessage("Starting In Mode: " + MGPUMode::ToString(CurrnetTestMode) + "( " + std::to_string((int)CurrnetTestMode) + " / " + std::to_string((int)MGPUMode::Limit) + ")");
-	//ShowSplit = true;
 }
 
 void MultiGPUMode::SyncSettings()
@@ -165,7 +164,6 @@ void MultiGPUMode::ValidateSettings()
 	Log::LogBoolTerm("Split SFR shadows ", SFRSplitShadows, Offset);
 	Log::LogBoolTerm("Split shadows ", SplitShadowWork, Offset);
 	Log::LogBoolTerm("Async Shadows ", AsyncShadows, Offset);
-	//Log::LogBoolTerm("Particle System MultiGPU ", PSComputeWorkSplit, Offset);
 }
 
 bool MultiGPUMode::UseSplitShadows() const
@@ -177,15 +175,15 @@ RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = false;
-	EnableGPUParticles = true;
+	IsDeferred = true;
+	CurrentDebug = ERenderDebugOutput::Off;
+	EnableGPUParticles = false;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
 	SetRes(BBTestMode::HD);
-
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
@@ -234,6 +232,16 @@ std::string RenderSettings::ToString(BBTestMode::Type t)
 		break;
 	}
 	return "?";
+}
+
+ERenderDebugOutput::Type RenderSettings::GetDebugRenderMode()
+{
+	return CurrentDebug;
+}
+
+void RenderSettings::SetDebugRenderMode(ERenderDebugOutput::Type mode)
+{
+	CurrentDebug = mode;
 }
 
 std::string MGPUMode::ToString(MGPUMode::Type t)
