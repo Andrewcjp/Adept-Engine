@@ -18,11 +18,6 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/MathUtils.h"
 //wwise Libs
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "dsound.lib")
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "ws2_32.lib")
-
 
 AudioEngine* AudioEngine::Instance = nullptr;
 

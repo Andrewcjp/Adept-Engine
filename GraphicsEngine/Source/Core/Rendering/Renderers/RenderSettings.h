@@ -10,6 +10,7 @@ namespace AAMode
 		FXAA,
 		MSAA,
 		SMAA,
+		TAA,
 	};
 }
 namespace BBTestMode

@@ -96,7 +96,7 @@ void NVAPIManager::SampleClocks()
 {
 #if NVAPI_PRESENT 
 	if (!IsOnline)
-	{
+	{ 
 		SampleData = "NO NV GPUS";
 		return;
 	}

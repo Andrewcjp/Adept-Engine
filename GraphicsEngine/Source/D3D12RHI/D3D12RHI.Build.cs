@@ -13,5 +13,9 @@ class D3D12RHIModule : ModuleDef
         PCH = "D3D12RHIPCH";
         ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
         UseUnity = true;
+        SystemLibNames.Add("d3d12.lib");
+        SystemLibNames.Add("dxguid.lib");
+        SystemLibNames.Add("dxgi.lib");
+        SystemLibNames.Add("d3dcompiler.lib");
     }
 }

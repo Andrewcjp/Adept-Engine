@@ -3,8 +3,6 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include <strsafe.h>
-#pragma comment (lib, "opengl32.lib")
-#pragma comment (lib, "d3dcompiler.lib")
 #define USE_SEP_CONSOLE !BUILD_SHIPPING
 
 void ErrorExit(LPTSTR lpszFunction)

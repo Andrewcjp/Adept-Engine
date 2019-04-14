@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "Rendering/Core/Light.h"
+UCLASS();
 class LightComponent :
 	public Component
 {
@@ -23,9 +24,12 @@ public:
 #endif
 private:
 	Light* MLight = nullptr;
+	PROPERTY();
 	float CurrentIntensity = 0.0f;
 	Light::LightType CurrentType = Light::Point;
+	PROPERTY();
 	glm::vec3 CurrentColour = glm::vec3(1);
+	PROPERTY();
 	bool DoesShadow = false;
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<InspectorProperyGroup>& props) override;

@@ -34,6 +34,8 @@ class CoreTargetRules : TargetRules
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "BleedOut";
         CoreModule.IsCoreModule = true;
+        CoreModule.SystemLibNames.Add("winmm.lib");
+        CoreModule.SystemLibNames.Add("shlwapi.lib");
         string[] ThirdPartyModules = new string[] {
             "freetypeBuild",
             "assimpBuild",

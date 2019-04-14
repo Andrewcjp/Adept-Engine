@@ -19,7 +19,7 @@ MultiGPUMode::MultiGPUMode()
 	}
 	else
 	{
-		CurrnetTestMode = MGPUMode::None;
+		CurrnetTestMode = MGPUMode::None;		
 	}
 	PreSampleBufferScale = 1.0f;
 	Log::LogMessage("There are " + std::to_string(MGPUMode::Limit) + " Test cases");
@@ -175,7 +175,7 @@ RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = true;
+	IsDeferred = false;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = false;
 	if (IsDeferred)
@@ -223,13 +223,10 @@ std::string RenderSettings::ToString(BBTestMode::Type t)
 	{
 	case BBTestMode::HD:
 		return "HD 1080P";
-		break;
 	case BBTestMode::QHD:
 		return "QHD 1440P";
-		break;
 	case BBTestMode::UHD:
 		return "UHD 2160P";
-		break;
 	}
 	return "?";
 }
@@ -284,8 +281,6 @@ std::string MGPUMode::ToString(MGPUMode::Type t)
 		return "ASYNC_SHADOWS_4";
 	case MGPUMode::Limit:
 		return "LIMIT";
-	default:
-		break;
 	}
 	return "ERROR";
 }
