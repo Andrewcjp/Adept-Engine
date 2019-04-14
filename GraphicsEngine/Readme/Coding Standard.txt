@@ -1,0 +1,8 @@
+
+
+Naming:
+
+Enums: start with E
+	   Should be either name spaces or structs
+	   With the enum Type as a memeber 
+	   

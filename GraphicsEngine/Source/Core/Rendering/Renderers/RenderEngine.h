@@ -6,6 +6,7 @@
 
 #include "Rendering/Core/FrameBuffer.h"
 #include "RenderSettings.h"
+#define ENABLE_RENDERER_DEBUGGING WITH_EDITOR
 class Scene;
 class ShadowRenderer;
 class PostProcessing;

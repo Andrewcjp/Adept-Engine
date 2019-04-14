@@ -6,6 +6,7 @@
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "RHI/DeviceContext.h"
+#include "../Shaders/PostProcess/Shader_DebugOutput.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -42,7 +43,19 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con)
 {
 	DeferredDeviceObjects* d = &DDDOs[con->GetDeviceIndex()];
 	GeometryPass(d->WriteList);
-	LightingPass(d->LightingList);
+#if ENABLE_RENDERER_DEBUGGING
+	if (RHI::GetRenderSettings()->GetDebugRenderMode() == ERenderDebugOutput::Off)
+	{
+#endif
+		LightingPass(d->LightingList);
+#if ENABLE_RENDERER_DEBUGGING
+	}
+	else
+	{
+		DebugPass();
+	}
+#endif
+
 	RenderSkybox(con);
 }
 
@@ -93,6 +106,15 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	DDOs[con->GetDeviceIndex()].SkyboxShader = new Shader_Skybox(con);// ShaderComplier::GetShader<Shader_Skybox>();
 	DDOs[con->GetDeviceIndex()].SkyboxShader->Init(DDO->OutputBuffer, DDO->GFrameBuffer);
 
+	if (con->GetDeviceIndex() == 0)
+	{
+		DebugList = RHI::CreateCommandList();
+		desc = RHIPipeLineStateDesc();
+		desc.InitOLD(false, false, false);
+		desc.ShaderInUse = ShaderComplier::GetShader<Shader_DebugOutput>();
+		desc.FrameBufferTarget = DDO->OutputBuffer;
+		DebugList->SetPipelineStateDesc(desc);
+	}
 }
 
 void DeferredRenderer::GeometryPass(RHICommandList* List)
@@ -125,12 +147,22 @@ void DeferredRenderer::SSAOPass()
 	//SSAOShader->RenderPlane();
 	//SSAOBuffer->UnBind();
 }
-
+#if ENABLE_RENDERER_DEBUGGING
+void DeferredRenderer::DebugPass()
+{
+	DebugList->ResetList();
+	DebugList->SetRenderTarget(DDDOs[DebugList->GetDeviceIndex()].OutputBuffer);
+	DebugList->ClearFrameBuffer(DDDOs[DebugList->GetDeviceIndex()].OutputBuffer);
+	int currentDebugType = RHI::GetRenderSettings()->GetDebugRenderMode();
+	DebugList->SetFrameBufferTexture(DDDOs[DebugList->GetDeviceIndex()].GFrameBuffer, 0, currentDebugType - 1);
+	DDDOs[DebugList->GetDeviceIndex()].DeferredShader->RenderScreenQuad(DebugList);
+	DebugList->Execute();
+}
+#endif
 void DeferredRenderer::LightingPass(RHICommandList* List)
 {
 	List->ResetList();
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::DeferredLighting);
-
 	List->SetRenderTarget(DDDOs[List->GetDeviceIndex()].OutputBuffer);
 	List->ClearFrameBuffer(DDDOs[List->GetDeviceIndex()].OutputBuffer);
 	List->SetFrameBufferTexture(DDDOs[List->GetDeviceIndex()].GFrameBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
