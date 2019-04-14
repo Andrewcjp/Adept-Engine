@@ -10,7 +10,7 @@
 #include "Core/Platform/Windows/WindowsApplication.h"
 #include <timeapi.h>
 #include "GraphicsEngine.h"
-#pragma comment(lib, "winmm.lib")
+
 
 WindowsWindow* WindowsWindow::app = nullptr;
 WindowsWindow::WindowsWindow()

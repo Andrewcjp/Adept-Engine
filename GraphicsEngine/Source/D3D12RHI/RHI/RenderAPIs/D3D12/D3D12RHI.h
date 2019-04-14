@@ -2,10 +2,6 @@
 //this class is to wrap all d3d12 rhi stuff up in
 //and handle object creation
 //and prevent RHI.cpp from getting extremely large
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dxguid.lib")
-//#pragma comment(lib, "dxgidebug.lib")
 #include "d3d12Shader.h"
 #include "D3D12Texture.h"
 #include "D3D12Helpers.h"

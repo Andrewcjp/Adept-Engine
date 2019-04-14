@@ -208,9 +208,9 @@ void RHI::Tick()
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
-	//ensure(!Resource->IsPendingKill());
+	LogEnsure(!Resource->IsPendingKill());
 	if (Resource->IsPendingKill())
-	{
+	{		
 		return;
 	}
 	if (Get()->IsFlushingDeleteQueue)
@@ -222,7 +222,6 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 		Get()->DeferredDeleteQueue.push_back(RHIResourseStamped(Resource, RHI::GetFrameCount()));
 		Resource->PendingKill = true;
 	}
-
 }
 
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)

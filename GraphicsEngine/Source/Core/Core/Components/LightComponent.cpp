@@ -5,6 +5,7 @@
 #include "Core/Assets/Scene.h"
 #include "CompoenentRegistry.h"
 #include "Core/Assets/Archive.h"
+#include "Core/Components/LightComponent.generated.h"
 
 LightComponent::LightComponent() :Component()
 {
@@ -84,14 +85,14 @@ void LightComponent::PostChangeProperties()
 	}
 }
 #endif
-void LightComponent::ProcessSerialArchive(Archive * A)
-{
-	Component::ProcessSerialArchive(A);
-	ArchiveProp(CurrentIntensity);
-	ArchiveProp(DoesShadow);
-	ArchiveProp(CurrentColour);
-	ArchiveProp_Enum(CurrentType, Light::LightType);
-}
+//void LightComponent::ProcessSerialArchive(Archive * A)
+//{
+//	Component::ProcessSerialArchive(A);
+//	ArchiveProp(CurrentIntensity);
+//	ArchiveProp(DoesShadow);
+//	ArchiveProp(CurrentColour);
+//	ArchiveProp_Enum(CurrentType, Light::LightType);
+//}
 #if WITH_EDITOR
 void LightComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {

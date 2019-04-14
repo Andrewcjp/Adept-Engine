@@ -4,7 +4,7 @@
 #define FROMTEST
 #include <glm/glm.hpp>
 #include "Core/Types/FString.h"
-#pragma comment(lib, "BleedOut.lib")
+
 TEST_CASE("FString Contains ", "[FString]")
 {
 	FString test = FString("hello");

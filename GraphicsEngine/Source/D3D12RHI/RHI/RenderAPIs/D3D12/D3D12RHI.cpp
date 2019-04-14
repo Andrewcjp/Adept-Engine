@@ -10,8 +10,7 @@
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
 #include "D3D12Helpers.h"
-#pragma comment (lib, "opengl32.lib")
-#pragma comment (lib, "d3dcompiler.lib")
+
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
 static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly);

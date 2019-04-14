@@ -45,7 +45,7 @@ Scene * EditorWindow::GetCurrentScene()
 	}
 	return nullptr;
 }
-#define TEST_SERIAL 0
+#define TEST_SERIAL 1
 void EditorWindow::PostInitWindow(int w, int h)
 {
 	ShowHud = true;

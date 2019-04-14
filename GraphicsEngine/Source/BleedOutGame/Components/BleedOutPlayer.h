@@ -36,9 +36,10 @@ public:
 		return IsGrounded;
 	}
 	PROPERTY();
-	glm::vec3 ExtraVel = glm::vec3();
+	glm::vec3 ExtraVel = glm::vec3();	
 	WeaponManager* Manager = nullptr;
 	glm::vec3 GetColour();
+	PROPERTY();
 	float BleedOutRate = 1.0f;
 	float GetPlayerHealth();
 private:

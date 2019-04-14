@@ -23,13 +23,19 @@ Log::LogMessage(Message,Log::Severity::Error); PlatformApplication::DisplayMessa
 Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Error",data);}
 
 #define NoImpl(){AssertDebugBreak(); PlatformApplication::DisplayMessageBox("Error", "Feature Not Implmented \n" __FILE__ "@" LINE_STRING);}
+
+#define LogEnsure(condition) if(!(condition)){ /*AssertDebugBreak();*/std::string Message = "Ensure Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition ;\
+Log::LogMessage(Message,Log::Severity::Error);}
+
 #else
 #define check(condition);
 #define checkMsgf(condition,Message);
 #define ensure(condition);
 #define ensureMsgf(condition,Message);
 #define NoImpl();
+#define LogEnsure(condition);
 #endif
+
 #if DOCHECK
 #define ensureFatalMsgf(condition,Message) if(!(condition)){ AssertDebugBreak();std::string data = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition  "\n" Message ; \
 Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error",data); Engine::RequestExit(-1);}

@@ -13,7 +13,6 @@
 #include "UI/Core/UIWidget.h"
 #include "UI/UIManager.h"
 #include "Version.h"
-#pragma comment(lib, "shlwapi.lib")
 #include "Audio/AudioEngine.h"
 #include "AI/Core/AISystem.h"
 #include "Platform/Windows/WindowsWindow.h"

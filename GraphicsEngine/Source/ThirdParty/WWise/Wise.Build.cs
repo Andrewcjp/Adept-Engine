@@ -6,5 +6,7 @@ class WWiseBuild : ExternalModuleDef
     {
         ModuleRoot = "\\WWise\\";
         AddStandardFolders(false);
+        SystemLibNames.Add("dxguid.lib");
+        SystemLibNames.Add("ws2_32.lib");
     }
 }
