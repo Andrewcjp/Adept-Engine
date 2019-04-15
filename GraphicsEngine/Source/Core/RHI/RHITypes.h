@@ -274,16 +274,32 @@ enum TMP_BlendMode
 	Text,
 	Full
 };
-struct RHI_API PipeLineState
+struct RHIRender_Target_Blend_Desc
 {
-	bool DepthTest = true;
-	bool Cull = true;
-	bool Blending = false;
-	TMP_BlendMode Mode = Text;
-	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
+
+};
+
+struct RHIBlendState
+{
+	bool AlphaToCoverageEnable = false;
+	bool IndependentBlendEnable = false;
+	RHIRender_Target_Blend_Desc RenderTargetDescs[MRT_MAX];
+};
+struct RHIRasterizerDesc
+{
+	bool Cull = false;
+};
+struct RHIDepthStencilDesc
+{
+	bool DepthEnable = true;
 	bool DepthWrite = true;
-	RHIPipeRenderTargetDesc RenderTargetDesc = RHIPipeRenderTargetDesc();
+	/*D3D12_DEPTH_WRITE_MASK DepthWriteMask;
+	D3D12_COMPARISON_FUNC DepthFunc;
+	BOOL StencilEnable;
+	UINT8 StencilReadMask;
+	UINT8 StencilWriteMask;
+	D3D12_DEPTH_STENCILOP_DESC FrontFace;
+	D3D12_DEPTH_STENCILOP_DESC BackFace;*/
 };
 
 struct  RHIPipeLineStateDesc
@@ -292,14 +308,17 @@ struct  RHIPipeLineStateDesc
 	Shader* ShaderInUse = nullptr;
 	FrameBuffer* FrameBufferTarget = nullptr;
 	void InitOLD(bool Depth, bool shouldcull, bool Blend);
-	bool DepthTest = true;
 	bool Cull = true;
 	bool Blending = false;
 	TMP_BlendMode Mode = Text;
-	bool DepthWrite = true;
+	RHIBlendState BlendState;
+	RHIRasterizerDesc RasterizerState;
 	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
 	RHIPipeRenderTargetDesc RenderTargetDesc = RHIPipeRenderTargetDesc();
+	RHIDepthStencilDesc DepthStencilState;
+	int SampleCount = 1;
+
 	//Validation in cases without a validation layer or engine limitations (e.g. multi-GPU)
 	RHI_API bool Validate();
 	DeviceContext* OwningDevice = nullptr;
@@ -496,7 +515,7 @@ struct ERenderPassStoreOp
 struct ERenderPassLoadOp
 {
 	enum Type
-	{		
+	{
 		Load,
 		Clear,
 		DontCare,

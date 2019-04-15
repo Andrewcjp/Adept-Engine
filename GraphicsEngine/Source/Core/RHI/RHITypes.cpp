@@ -90,7 +90,7 @@ void IRHIResourse::SetDebugName(std::string Name)
 
 void RHIPipeLineStateDesc::InitOLD(bool Depth, bool shouldcull, bool Blend)
 {
-	DepthTest = Depth;
+	DepthStencilState.DepthEnable= Depth;
 	Cull = shouldcull;
 	Blending = Blend;
 }
