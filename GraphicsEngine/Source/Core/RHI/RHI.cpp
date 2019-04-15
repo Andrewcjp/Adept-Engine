@@ -15,7 +15,7 @@ static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
 
 RHI::RHI(ERenderSystemType system)
 {
-	
+
 	CurrentSystem = system;
 	RHIModule* RHImodule = nullptr;
 	switch (CurrentSystem)
@@ -210,7 +210,7 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 	LogEnsure(!Resource->IsPendingKill());
 	if (Resource->IsPendingKill())
-	{		
+	{
 		return;
 	}
 	if (Get()->IsFlushingDeleteQueue)
@@ -255,8 +255,7 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHITe
 		Device = RHI::GetDefaultDevice();
 	}
 	//#Textures: Default Cube Map!
-#if NOLOADTEX
-	
+#if NOLOADTEX	
 	if (ImageIO::GetDefaultTexture())
 	{
 		return ImageIO::GetDefaultTexture();
@@ -486,7 +485,7 @@ RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)
 	if (Device == nullptr)
 	{
 		Device = RHI::GetDefaultDevice();
-}
+	}
 	return GetRHIClass()->CreateTextureArray(Device, Length);
 }
 
@@ -515,7 +514,7 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 	}
 	ensure(itor->second->GetDesc() == desc);
 	return itor->second;
-	}
+}
 
 void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
 {
@@ -531,7 +530,7 @@ void PipelineStateObjectCache::Destory()
 	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
 	{
 		itor->second->Release();
-}
+	}
 	PSOMap.clear();
 }
 

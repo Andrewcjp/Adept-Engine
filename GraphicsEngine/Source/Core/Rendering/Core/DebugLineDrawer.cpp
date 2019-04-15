@@ -22,7 +22,7 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	ReallocBuffer(CurrentMaxVerts);
 	CmdList = RHI::CreateCommandList();
 	RHIPipeLineStateDesc desc;
-	desc.DepthTest = false;
+	desc.DepthStencilState.DepthEnable = false;
 	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	desc.ShaderInUse = LineShader;
 	CmdList->SetPipelineStateDesc(desc);

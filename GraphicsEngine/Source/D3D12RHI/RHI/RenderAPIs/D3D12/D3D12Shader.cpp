@@ -304,14 +304,19 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	if (Depthtest.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
 	{
-		//psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON;
+		if (context->GetDeviceIndex() == 0)
+		{
+			//Not fast raster, force consistent raster points 
+			//#Cull useful for render culling?
+			//psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON;
+		}
 	}
 	psoDesc.RasterizerState.CullMode = Depthtest.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
+	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState.AlphaToCoverageEnable = Depthtest.BlendState.AlphaToCoverageEnable;
+	psoDesc.BlendState.IndependentBlendEnable = Depthtest.BlendState.IndependentBlendEnable;
 	if (Depthtest.Blending)
 	{
-		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		psoDesc.BlendState.AlphaToCoverageEnable = true;
-		psoDesc.BlendState.IndependentBlendEnable = true;
 		psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
 		if (Depthtest.Mode == Full)
 		{
@@ -324,15 +329,14 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	}
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState.DepthEnable = Depthtest.DepthTest;
+	psoDesc.DepthStencilState.DepthEnable = Depthtest.DepthStencilState.DepthEnable;
 	psoDesc.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)Depthtest.DepthCompareFunction;
-	psoDesc.DepthStencilState.DepthWriteMask = Depthtest.DepthWrite ? D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ZERO;
+	psoDesc.DepthStencilState.DepthWriteMask = Depthtest.DepthStencilState.DepthWrite ? D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ZERO;
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)Depthtest.RasterMode;
 	psoDesc.NumRenderTargets = Depthtest.RenderTargetDesc.NumRenderTargets;
-	psoDesc.SampleDesc.Count = 1;
-
+	psoDesc.SampleDesc.Count = Depthtest.SampleCount;
 	for (int i = 0; i < 8; i++)
 	{
 		psoDesc.RTVFormats[i] = D3D12Helpers::ConvertFormat(Depthtest.RenderTargetDesc.RTVFormats[i]);

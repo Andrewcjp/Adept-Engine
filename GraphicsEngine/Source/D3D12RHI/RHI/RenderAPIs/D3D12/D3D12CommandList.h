@@ -63,7 +63,6 @@ public:
 	RHI_VIRTUAL void BeginRenderPass(class RHIRenderPassInfo& RenderPass) override;
 	RHI_VIRTUAL void EndRenderPass() override;
 private:
-	std::string GetPSOHash(Shader * shader, const PipeLineState& statedesc);
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	ID3D12GraphicsCommandList3* CurrentCommandList = nullptr;

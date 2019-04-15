@@ -23,7 +23,7 @@ void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	List = RHI::CreateCommandList(ECommandListType::Graphics,Device);
 	RHIPipeLineStateDesc desc;
-	desc.DepthWrite = false;
+	desc.DepthStencilState.DepthWrite = false;
 	desc.Cull = false;
 	desc.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
 	desc.ShaderInUse = this;

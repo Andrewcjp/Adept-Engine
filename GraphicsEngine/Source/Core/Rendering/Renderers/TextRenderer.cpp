@@ -170,7 +170,8 @@ void TextRenderer::LoadText()
 	RHIPipeLineStateDesc Desc;
 	Desc.Blending = true;
 	Desc.Cull = false;
-	Desc.DepthTest = false;
+	Desc.DepthStencilState.DepthEnable = false;
+	Desc.BlendState.AlphaToCoverageEnable = true;
 	Desc.ShaderInUse = m_TextShader;
 	TextCommandList->SetPipelineStateDesc(Desc);
 	if (UseFrameBuffer)

@@ -314,14 +314,6 @@ void D3D12CommandList::PushState()
 
 }
 
-std::string D3D12CommandList::GetPSOHash(Shader * shader, const PipeLineState& statedesc)
-{
-	std::string hash = "";
-	hash += shader->GetName();
-	hash += std::to_string((int)statedesc.RenderTargetDesc.RTVFormats[0]);
-	hash += std::to_string(statedesc.Blending);
-	return hash;
-}
 
 void D3D12CommandList::CreateCommandList()
 {
