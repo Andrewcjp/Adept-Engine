@@ -280,7 +280,7 @@ void D3D12Shader::CreateComputePipelineShader(D3D12PipeLineStateObject* output, 
 
 }
 
-void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, const RHIPipeLineStateDesc& Depthtest,
+void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, const RHIPipeLineStateDesc& PSODesc,
 	DeviceContext* context)
 {
 	SCOPE_STARTUP_COUNTER("Create PSO");
@@ -302,7 +302,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		psoDesc.GS = CD3DX12_SHADER_BYTECODE(blobs->gsBlob);
 	}
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	if (Depthtest.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+	if (PSODesc.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
 	{
 		if (context->GetDeviceIndex() == 0)
 		{
@@ -311,14 +311,14 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 			//psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON;
 		}
 	}
-	psoDesc.RasterizerState.CullMode = Depthtest.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
+	psoDesc.RasterizerState.CullMode = PSODesc.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.AlphaToCoverageEnable = Depthtest.BlendState.AlphaToCoverageEnable;
-	psoDesc.BlendState.IndependentBlendEnable = Depthtest.BlendState.IndependentBlendEnable;
-	if (Depthtest.Blending)
+	psoDesc.BlendState.AlphaToCoverageEnable = PSODesc.BlendState.AlphaToCoverageEnable;
+	psoDesc.BlendState.IndependentBlendEnable = PSODesc.BlendState.IndependentBlendEnable;
+	if (PSODesc.Blending)
 	{
 		psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
-		if (Depthtest.Mode == Full)
+		if (PSODesc.Mode == Full)
 		{
 			psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
 			psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
@@ -327,24 +327,25 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	else
 	{
 		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	}
+	} 
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState.DepthEnable = Depthtest.DepthStencilState.DepthEnable;
-	psoDesc.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)Depthtest.DepthCompareFunction;
-	psoDesc.DepthStencilState.DepthWriteMask = Depthtest.DepthStencilState.DepthWrite ? D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ZERO;
+	psoDesc.DepthStencilState.DepthEnable = PSODesc.DepthStencilState.DepthEnable; 
+	psoDesc.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)PSODesc.DepthCompareFunction;
+	psoDesc.DepthStencilState.DepthWriteMask = PSODesc.DepthStencilState.DepthWrite ? D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ZERO;
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)Depthtest.RasterMode;
-	psoDesc.NumRenderTargets = Depthtest.RenderTargetDesc.NumRenderTargets;
-	psoDesc.SampleDesc.Count = Depthtest.SampleCount;
+	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)PSODesc.RasterMode;
+	psoDesc.NumRenderTargets = PSODesc.RenderTargetDesc.NumRenderTargets;
+	psoDesc.SampleDesc.Count = PSODesc.SampleCount;
 	for (int i = 0; i < 8; i++)
 	{
-		psoDesc.RTVFormats[i] = D3D12Helpers::ConvertFormat(Depthtest.RenderTargetDesc.RTVFormats[i]);
+		psoDesc.RTVFormats[i] = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.RTVFormats[i]);
 	}
-	psoDesc.DSVFormat = D3D12Helpers::ConvertFormat(Depthtest.RenderTargetDesc.DSVFormat);
+	psoDesc.DSVFormat = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.DSVFormat);
 
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
 }
+
 D3D12Shader::ShaderBlobs * D3D12Shader::GetShaderBlobs()
 {
 	return &mBlolbs;
