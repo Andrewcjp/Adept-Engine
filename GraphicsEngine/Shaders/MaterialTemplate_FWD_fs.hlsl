@@ -83,10 +83,11 @@ float4 main(PSInput input) : SV_TARGET
 	float2 envBRDF = envBRDFTexture.Sample(g_sampler,float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
 	float3 prefilteredColor = SpecularBlurMap.SampleLevel(g_sampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
 	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF);
+	[unroll(4)]
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
-		if (lights[i].HasShadow && lights[i].PreSampled.x)
+		[flatten] if (lights[i].HasShadow && lights[i].PreSampled.x)
 		{
 			colour *= FWD_GetPresampledShadow(ScreenPos,lights[i].PreSampled.y);
 		}
