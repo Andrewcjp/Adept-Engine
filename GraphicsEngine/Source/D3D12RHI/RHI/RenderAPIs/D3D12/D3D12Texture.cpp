@@ -189,6 +189,7 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 bool D3D12Texture::LoadDDS(std::string filename)
 {
 	UsingDDSLoad = true;
+	ensure(srvHeap == nullptr);
 	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	srvHeap->SetName(L"Texture SRV");
 	std::unique_ptr<uint8_t[]> ddsData;
@@ -263,6 +264,7 @@ void D3D12Texture::BindToSlot(ID3D12GraphicsCommandList* list, int slot)
 void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 {
 	Description = desc;
+	ensure(srvHeap == nullptr);
 	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	srvHeap->SetName(L"Texture SRV");
 	ID3D12Resource* textureUploadHeap;
@@ -380,6 +382,7 @@ bool D3D12Texture::CheckDevice(int index)
 
 void D3D12Texture::CreateAsNull()
 {
+	ensure(srvHeap == nullptr);
 	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	srvHeap->SetName(L"Texture SRV");
 	UpdateSRV();

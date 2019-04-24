@@ -116,7 +116,7 @@ public:
 	class RHITimeManager* GetTimeManager()override;
 	int GetCpuFrameIndex();
 	void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
-
+	bool SupportsCommandList4();
 	void CPUWaitForAll();
 	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);
 	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
@@ -161,7 +161,7 @@ private:
 
 	GPUSyncPoint CrossAdaptorSync[RHI::CPUFrameCount];
 	D3D12TimeManager* TimeManager = nullptr;
-
+	bool SupportsCmdsList4 = false;
 	GPUSyncPoint GPUWaitPoints[RHI::CPUFrameCount][DeviceContextQueue::LIMIT];
 };
 

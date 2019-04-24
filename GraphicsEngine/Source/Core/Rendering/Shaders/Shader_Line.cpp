@@ -11,6 +11,7 @@ Shader_Line::Shader_Line(DeviceContext* device, bool is2D) : Shader(Device)
 
 	m_Shader->AttachAndCompileShaderFromFile("debugline_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("debugline_fs", EShaderType::SHADER_FRAGMENT);
+	IsTwo = is2D;
 }
 
 Shader_Line::~Shader_Line()
@@ -29,4 +30,13 @@ std::vector<Shader::ShaderParameter> Shader_Line::GetShaderParameters()
 	std::vector<Shader::ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
 	return Output;
+}
+
+const std::string Shader_Line::GetName()
+{
+	if (IsTwo)
+	{
+		return "Shader_Line_2";
+	}
+	return "Shader_Line_3";
 }

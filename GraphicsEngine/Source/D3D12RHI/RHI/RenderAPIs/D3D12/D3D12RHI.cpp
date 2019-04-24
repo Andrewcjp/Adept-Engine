@@ -380,10 +380,10 @@ void D3D12RHI::InitSwapChain()
 	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, GetPrimaryDevice()->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
 
-	if (RHI::GetDeviceCount() > 1)
-	{
-		AsyncSync = (D3D12GPUSyncEvent*)RHI::CreateSyncEvent(DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy, RHI::GetDeviceContext(0), RHI::GetDeviceContext(1));
-	}
+	//if (RHI::GetDeviceCount() > 1)
+	//{
+	//	AsyncSync = (D3D12GPUSyncEvent*)RHI::CreateSyncEvent(DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy, RHI::GetDeviceContext(0), RHI::GetDeviceContext(1));
+	//}
 }
 
 void D3D12RHI::SetFullScreenState(bool state)

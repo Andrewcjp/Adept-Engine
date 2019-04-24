@@ -82,9 +82,9 @@ void FrameBuffer::HandleResize()
 
 void FrameBuffer::SetupFences()
 {
-	CopyFence = RHI::CreateSyncEvent(DeviceContextQueue::Copy, DeviceContextQueue::Copy);
-	DeviceFence = RHI::CreateSyncEvent(DeviceContextQueue::Copy, DeviceContextQueue::Copy, RHI::GetDeviceContext(0), RHI::GetDeviceContext(1));
-	TargetCopyFence = RHI::CreateSyncEvent(DeviceContextQueue::Copy, DeviceContextQueue::Copy, RHI::GetDeviceContext(0), RHI::GetDeviceContext(0));
+	//CopyFence = RHI::CreateSyncEvent(DeviceContextQueue::Copy, DeviceContextQueue::Copy);
+	//DeviceFence = RHI::CreateSyncEvent(DeviceContextQueue::Copy, DeviceContextQueue::Copy, RHI::GetDeviceContext(0), RHI::GetDeviceContext(1));
+	//TargetCopyFence = RHI::CreateSyncEvent(DeviceContextQueue::Copy, DeviceContextQueue::Copy, RHI::GetDeviceContext(0), RHI::GetDeviceContext(0));
 }
 
 void FrameBuffer::CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)

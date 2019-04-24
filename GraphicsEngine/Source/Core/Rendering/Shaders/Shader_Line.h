@@ -10,5 +10,9 @@ public:
 	virtual ~Shader_Line();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+
+	virtual const std::string GetName() override;
+private:
+	bool IsTwo = false;
 };
 

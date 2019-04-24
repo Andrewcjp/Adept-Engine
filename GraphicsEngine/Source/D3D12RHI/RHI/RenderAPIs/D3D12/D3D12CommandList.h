@@ -56,8 +56,6 @@ public:
 	bool IsOpen();
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
 
-
-
 	virtual void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	RHI_VIRTUAL void BeginRenderPass(class RHIRenderPassInfo& RenderPass) override;
