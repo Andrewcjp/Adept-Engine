@@ -23,7 +23,6 @@ D3D12DeviceContext::D3D12DeviceContext()
 
 D3D12DeviceContext::~D3D12DeviceContext()
 {
-
 	DestoryDevice();
 	SafeRelease(m_MainCommandQueue);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
@@ -84,10 +83,12 @@ void D3D12DeviceContext::CheckFeatures()
 	if (SUCCEEDED(hr))
 	{
 		LogFeatureData("DXR Tier", FeatureData5.RaytracingTier);
+		SupportsCmdsList4 = true;
 	}
 	else
 	{
 		Log::LogMessage("System does not support DXR");
+		SupportsCmdsList4 = false;
 	}
 }
 
@@ -409,6 +410,11 @@ int D3D12DeviceContext::GetCpuFrameIndex()
 void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
 	CrossAdaptorSync[GetCpuFrameIndex()].CrossGPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), ((D3D12DeviceContext*)OtherGPU)->GetCommandQueueFromEnum(WaitingQueue));
+}
+
+bool D3D12DeviceContext::SupportsCommandList4()
+{
+	return SupportsCmdsList4;
 }
 
 void D3D12DeviceContext::CPUWaitForAll()

@@ -126,8 +126,9 @@ void D3D12FrameBuffer::HandleResize()
 	{
 		EnqueueSafeRHIRelease(TargetCopy);
 		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(TWO_CrossHeap);
-#if 0
-		
+		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(FinalOut);
+#if 1
+		//#DX12 Fix this resource allocation issue.
 		//SafeRelease(TWO_CrossHeap);
 		SafeRelease(CrossHeap);
 		SafeRelease(PrimaryRes);
@@ -216,9 +217,11 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		nullptr,
 		IID_PPV_ARGS(&FinalOut)
 	));
-
-	SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	NAME_RHI_OBJ(SharedSRVHeap);
+	if (SharedSRVHeap == nullptr)
+	{
+		SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		NAME_RHI_OBJ(SharedSRVHeap);	
+	}	
 	TargetCopy = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST, OtherDevice);
 	NAME_RHI_OBJ(TargetCopy);
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};

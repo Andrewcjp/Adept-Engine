@@ -54,8 +54,6 @@ void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentB
 	CurrentCommandList->ExecuteIndirect(CommandSig, MaxCommandCount, ((D3D12Buffer*)ArgumentBuffer)->GetResource()->GetResource(), ArgOffset, counterB, CountBufferOffset);
 }
 
-
-
 void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {
 	if (CurrnetPSO != nullptr && CurrnetPSO->GetDesc() == Desc)
@@ -340,6 +338,10 @@ void D3D12CommandList::CreateCommandList()
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], nullptr, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
+	}
+	if (mDeviceContext->SupportsCommandList4())
+	{
+		CurrentCommandList->QueryInterface(IID_PPV_ARGS(&CurrentADVCommandList));
 	}
 	PushState();
 	D3D12Helpers::NameRHIObject(CurrentCommandList, this);
