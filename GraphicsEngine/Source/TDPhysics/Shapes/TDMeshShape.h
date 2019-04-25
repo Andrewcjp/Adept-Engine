@@ -61,7 +61,7 @@ namespace TD
 	{
 	public:
 		TD_API TDMesh(const TDTriangleMeshDesc& desc);
-		~TDMesh();
+		virtual ~TDMesh();
 		TD_API std::vector<TDTriangle*> & GetTriangles()
 		{
 			return Triangles;

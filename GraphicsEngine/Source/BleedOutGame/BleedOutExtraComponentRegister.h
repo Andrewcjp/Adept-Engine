@@ -19,7 +19,7 @@ class BleedOutExtraComponentRegister :
 {
 public:
 	BleedOutExtraComponentRegister();
-	~BleedOutExtraComponentRegister();
+	virtual ~BleedOutExtraComponentRegister();
 	Component* CreateExtraComponent(int id)override;
 };
 

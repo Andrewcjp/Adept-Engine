@@ -30,6 +30,7 @@ struct TextureImportSettings
 	std::string GetTypeString();
 	int ForceMipCount = -1;
 	bool InitOnAllDevices = true;
+	bool IsCubeMap = false;
 };
 class AssetManager
 {

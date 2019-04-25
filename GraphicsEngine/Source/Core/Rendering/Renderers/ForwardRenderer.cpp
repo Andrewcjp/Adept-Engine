@@ -13,7 +13,7 @@
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "RHI/SFRController.h"
 
-#define CUBEMAPS 0
+#define CUBEMAPS 1
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 
@@ -53,17 +53,15 @@ void ForwardRenderer::OnRender()
 }
 
 void ForwardRenderer::PostInit()
-{
-
-	for (int i = 0; i < DevicesInUse; i++)
+{	for (int i = 0; i < DevicesInUse; i++)
 	{
 		SetupOnDevice(RHI::GetDeviceContext(i));
 	}
+	probes.push_back(new RelfectionProbe());
 #if DEBUG_CUBEMAPS
-	SkyBox->test = Conv->CubeBuffer;
-	SkyBox->test = probes[0]->CapturedTexture;
-#endif
-	//probes.push_back(new RelfectionProbe());
+	//SkyBox->test = Conv->CubeBuffer;
+	DDOs[0].SkyboxShader->test = probes[0]->CapturedTexture;
+#endif	
 }
 
 void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
@@ -109,12 +107,12 @@ void ForwardRenderer::CubeMapPass()
 	{
 		mShadowRenderer->BindShadowMapsToTextures(CubemapCaptureList);
 	}
-	CubemapCaptureList->SetFrameBufferTexture(Conv->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
 		CubemapCaptureList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 	}
-	CubemapCaptureList->SetFrameBufferTexture(envMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
+	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	SceneRender->UpdateRelflectionProbes(probes, CubemapCaptureList);
 
 	CubemapCaptureList->Execute();

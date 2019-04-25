@@ -41,6 +41,8 @@ Material::~Material()
 void Material::SetMaterialActive(RHICommandList* list)
 {
 	RHIPipeLineStateDesc desc;
+	desc.DepthStencilState.DepthEnable = true;
+	desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
 	if (GetProperties()->ShaderInUse != nullptr)
 	{
 		desc.ShaderInUse = GetProperties()->ShaderInUse;

@@ -9,7 +9,7 @@ class  Game
 {
 public:
 	CORE_API Game(class CompoenentRegistry* Reg);
-	CORE_API ~Game();
+	CORE_API virtual ~Game();
 	CORE_API virtual void  Update();
 	CORE_API  void BeginPlay();
 	CORE_API  void EndPlay();

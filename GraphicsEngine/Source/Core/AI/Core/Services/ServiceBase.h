@@ -6,7 +6,7 @@ class ServiceBase
 {
 public:
 	ServiceBase();
-	~ServiceBase();
+	virtual ~ServiceBase();
 	void HandleTick();
 	void HandleInit();
 	virtual EBTNodeReturn::Type GetServiceStatus();

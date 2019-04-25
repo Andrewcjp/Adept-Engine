@@ -79,7 +79,7 @@ private:
 	class Shader_NodeGraph* WorldDefaultMatShader = nullptr;
 	//Cube map captures
 	MVBuffer CubeMapViews[6];
-	float zNear = 0.0f;
+	float zNear = 0.1f;
 	float ZFar = 1000.0f;
 	RHIBuffer* RelfectionProbeProjections = nullptr;
 };

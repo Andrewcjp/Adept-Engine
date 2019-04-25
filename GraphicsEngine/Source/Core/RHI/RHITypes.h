@@ -238,6 +238,7 @@ namespace EGPUTIMERS
 		ParticleSimulation,
 		ShadowPreSample,
 		GPU0WaitOnGPU1,
+		CubemapCapture,
 		LIMIT
 	};
 }
@@ -467,6 +468,7 @@ struct SFRNode
 struct RHITextureDesc
 {
 	bool InitOnALLDevices = true;
+	bool IsCubeMap = false;
 };
 
 //Interface for multiple objects linking to the same "object" (texture or buffer) on different devices

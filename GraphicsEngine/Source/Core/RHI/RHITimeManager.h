@@ -6,7 +6,7 @@ class RHI_API RHITimeManager
 {
 public:
 	RHITimeManager(class DeviceContext* context);
-	~RHITimeManager();
+	virtual ~RHITimeManager();
 	virtual void UpdateTimers() = 0;
 	virtual std::string GetTimerData() = 0;
 	virtual void SetTimerName(int index, std::string Name, ECommandListType::Type type) = 0;

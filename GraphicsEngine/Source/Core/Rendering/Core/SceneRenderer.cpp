@@ -6,6 +6,7 @@
 #include "Rendering/Shaders/Shader_NodeGraph.h"
 #include "Rendering/Core/RelfectionProbe.h"
 #include "Rendering/Core/Material.h"
+#include "Core/Performance/PerfManager.h"
 SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;
@@ -168,7 +169,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			if (newitem.PreSampled[0])
 			{
 				PreSampleIndex++;
-			}			
+			}
 			newitem.ShadowID = lights[i]->GetShadowId();
 			if (lights[i]->GetType() == Light::Directional || lights[i]->GetType() == Light::Spot)
 			{
@@ -229,19 +230,19 @@ void SceneRenderer::ClearBuffer()
 }
 void SceneRenderer::UpdateRelflectionProbes(std::vector<RelfectionProbe*> & probes, RHICommandList* commandlist)
 {
+	SCOPE_CYCLE_COUNTER_GROUP("Update Relflection Probes","Render");
+	commandlist->StartTimer(EGPUTIMERS::CubemapCapture);
 	for (int i = 0; i < probes.size(); i++)
 	{
 		RelfectionProbe* Probe = probes[i];
 		RenderCubemap(Probe, commandlist);
 	}
+	commandlist->EndTimer(EGPUTIMERS::CubemapCapture);
 }
 void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* commandlist)
 {
+
 	commandlist->ClearFrameBuffer(Map->CapturedTexture);
-	//PipeLineState s;
-	////	s.Cull = false;
-	//s.DepthTest = false;
-	//commandlist->SetPipelineState_OLD(s);
 	for (int i = 0; i < 6; i++)
 	{
 		commandlist->SetConstantBufferView(RelfectionProbeProjections, i, MainShaderRSBinds::MVCBV);

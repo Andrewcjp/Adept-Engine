@@ -12,6 +12,7 @@ class RHIGPUSyncEvent;
 class SFRController;
 class RHIClass;
 #define PSO_USE_FULL_STRING_MAPS 1
+#define PSO_USE_MAP 0
 #define MAX_GPU_DEVICE_COUNT 2
 #define ALLOW_RESOURCE_CAPTURE 0
 #define LOG_RESOURCE_TRANSITIONS 0

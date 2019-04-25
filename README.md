@@ -9,26 +9,33 @@ Renderer Features:
 * Flexible RHI (Render Hardware Interface)
 * PBR Lighting Pipeline
 * Shadow mapping (static and dynamic)
-* MultiGPU Shadow mapping
 * GPU Particle System (WIP)
-* Asynchronous Shadow Mapping (WIP)
-* UI system
+* UI system (WIP)
 * Post Processing Stack
+
+Multi-GPU Features:
+
+* MultiGPU Shadow mapping
+* Asynchronous Shadow Mapping
+* Split frame rendering (SFR)
+* SFR with MultiGPU Shadow mapping
 
 Engine Features:
 
 * Custom Build Tool 
+* Custom header tool
 * Module System
 * Platform Abstraction Layer.
 
 Physics Features:
 
 * Physx Support
-* TD Physics Engine
+* Custom TD Physics Engine
 
 AI Features:
 
 * D* Lite for path finding
+* Navigation mesh generation 
 * Asynchronous path finding request system(WIP)
 * Behavior tree system
 

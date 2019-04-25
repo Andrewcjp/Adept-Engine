@@ -15,7 +15,7 @@ class D3D12RHI : public RHIClass
 {
 public:
 	D3D12RHI();
-	~D3D12RHI();
+	virtual ~D3D12RHI();
 	void SetScreenRenderTarget(ID3D12GraphicsCommandList * list);
 	void RenderToScreen(ID3D12GraphicsCommandList * list);
 	void ClearRenderTarget(ID3D12GraphicsCommandList * MainList);

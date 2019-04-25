@@ -41,15 +41,14 @@
 #pragma warning(3:4457)
 #pragma warning(3:4456)
 #pragma warning(3:4189)
+#pragma warning(3:4703)
 
-#pragma warning(4:4703)
-
-#pragma warning(4:4100)
-#pragma warning(4:4265)
-#pragma warning(4:4596)
-#pragma warning(4:4464)
-#pragma warning(4:4700)
-#pragma warning(4:4703)
+//#pragma warning(3:4100)
+#pragma warning(3:4265)
+#pragma warning(3:4596)
+//#pragma warning(3:4464)
+#pragma warning(3:4700)
+#pragma warning(3:4703)
 //Unreachable code
 //#pragma warning(3:4702)
 #endif//C4150 incomplete ptr

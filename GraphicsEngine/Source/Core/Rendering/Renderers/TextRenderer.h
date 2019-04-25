@@ -26,12 +26,14 @@ public:
 	CORE_API static void RenderText(std::string text, float x, float y, float scale, glm::vec3 color);
 
 	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1), bool Reset = false);
+	
 	void Finish();
 	void Reset();
 	void LoadText();
 	void UpdateSize(int width, int height, glm::ivec2 offset = glm::ivec2(0));
 	void NotifyFrameEnd();
 private:
+	void RenderAllText();
 	bool UseFrameBuffer = false;
 	int TextDataLength = 0;
 	int m_width, m_height = 0;
@@ -51,6 +53,7 @@ private:
 		float t;
 		glm::vec3 colour;
 	};
+	RHIPipeLineStateObject* PSO;
 	glm::ivec2 UITextOffset;
 	std::vector<point> coords;
 	int currentsize = 0;

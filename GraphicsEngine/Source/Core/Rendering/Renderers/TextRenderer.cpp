@@ -120,6 +120,7 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		};
 		currentsize += 6;
 	}
+#if 0
 	if (reset)
 	{
 		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*((int)text.length() * 6));
@@ -129,20 +130,26 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
 	}
 
-	TextCommandList->SetVertexBuffer(VertexBuffer);
-	TextCommandList->SetTexture(TextAtlas->Texture, 0);
-	TextCommandList->DrawPrimitive(c, 1, 0, 0);
-
 	///* Draw all the character on the screen in one go */
 	if (reset)
 	{
 		Finish();
 	}
+#endif
+}
 
+void TextRenderer::RenderAllText()
+{
+	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
+	TextCommandList->SetVertexBuffer(VertexBuffer);
+	TextCommandList->SetTexture(TextAtlas->Texture, 0);
+	TextCommandList->DrawPrimitive(currentsize, 1, 0, 0);
 }
 
 void TextRenderer::Finish()
 {
+
+	RenderAllText();
 	TextCommandList->SetRenderTarget(nullptr);
 	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, EGPUTIMERS::Text);
 	if (instance == this)
@@ -158,6 +165,7 @@ void TextRenderer::Reset()
 {
 	TextCommandList->ResetList();
 	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, EGPUTIMERS::Text);
+	TextCommandList->SetPipelineStateObject(PSO);
 	currentsize = 0;
 }
 
@@ -173,7 +181,9 @@ void TextRenderer::LoadText()
 	Desc.DepthStencilState.DepthEnable = false;
 	Desc.BlendState.AlphaToCoverageEnable = true;
 	Desc.ShaderInUse = m_TextShader;
-	TextCommandList->SetPipelineStateDesc(Desc);
+	Desc.Mode = Text;
+	PSO = RHI::CreatePipelineStateObject(Desc);
+	TextCommandList->SetPipelineStateObject(PSO);
 	if (UseFrameBuffer)
 	{
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());
