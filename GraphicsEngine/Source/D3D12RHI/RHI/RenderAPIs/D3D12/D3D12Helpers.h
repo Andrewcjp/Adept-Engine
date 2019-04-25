@@ -19,6 +19,7 @@ inline void SetName(ID3D12Object*, LPCWSTR)
 {}
 #define NAME_D3D12_OBJECT(x)
 #define NAME_RHI_OBJ(x)
+#define REF_CHECK(x)
 #endif
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
 class D3D12Helpers

@@ -135,7 +135,7 @@ void ShadowRenderer::SetupOnDevice(DeviceContext * Context)
 
 void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, Shader_Main* mainshader)
 {
-	SCOPE_CYCLE_COUNTER("Shadow CPU");
+	SCOPE_CYCLE_COUNTER_GROUP("Shadow CPU","Render");
 	if (UseCache)
 	{
 		if (Renderered)

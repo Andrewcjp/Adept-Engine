@@ -90,7 +90,7 @@ void IRHIResourse::SetDebugName(std::string Name)
 
 void RHIPipeLineStateDesc::InitOLD(bool Depth, bool shouldcull, bool Blend)
 {
-	DepthStencilState.DepthEnable= Depth;
+	DepthStencilState.DepthEnable = Depth;
 	Cull = shouldcull;
 	Blending = Blend;
 }
@@ -160,6 +160,9 @@ void RHIPipeLineStateDesc::CalulateHash()
 	StringPreHash += std::to_string(Blending);
 	StringPreHash += std::to_string(Cull);
 	StringPreHash += std::to_string(Mode);
+	StringPreHash += std::to_string(DepthStencilState.DepthEnable);
+	StringPreHash += std::to_string(DepthStencilState.DepthWrite);
+	StringPreHash += std::to_string(DepthCompareFunction);
 	for (int i = 0; i < MRT_MAX; i++)
 	{
 		StringPreHash += std::to_string((int)RenderTargetDesc.RTVFormats[i]);
@@ -182,7 +185,9 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 		return false;
 	}
 	//#RHI: compare all props
-	return Cull == other.Cull && /*RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] &&*/ Blending == other.Blending;
+	return Cull == other.Cull && DepthStencilState.DepthEnable == other.DepthStencilState.DepthEnable 
+		&& other.DepthCompareFunction == DepthCompareFunction
+		&&/*RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] &&*/ Blending == other.Blending;
 }
 
 void RHIPipeLineStateDesc::Build()

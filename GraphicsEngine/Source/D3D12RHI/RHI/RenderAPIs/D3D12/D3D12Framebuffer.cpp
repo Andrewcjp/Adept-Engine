@@ -127,7 +127,7 @@ void D3D12FrameBuffer::HandleResize()
 		EnqueueSafeRHIRelease(TargetCopy);
 		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(TWO_CrossHeap);
 		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(FinalOut);
-#if 1
+#if 0
 		//#DX12 Fix this resource allocation issue.
 		//SafeRelease(TWO_CrossHeap);
 		SafeRelease(CrossHeap);
@@ -220,8 +220,8 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	if (SharedSRVHeap == nullptr)
 	{
 		SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		NAME_RHI_OBJ(SharedSRVHeap);	
-	}	
+		NAME_RHI_OBJ(SharedSRVHeap);
+	}
 	TargetCopy = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST, OtherDevice);
 	NAME_RHI_OBJ(TargetCopy);
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
@@ -635,9 +635,7 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 	}
 	//	ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	lastboundslot = slot;
-
 	SrvHeap->BindHeap(list);
-
 	if (isCompute)
 	{
 		list->SetComputeRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
@@ -724,7 +722,6 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 	}
 	if (BufferDesc.NeedsDepthStencil)
 	{
-
 		if (!BufferDesc.CubeMapAddressAsOne)
 		{
 			for (int i = 0; i < BufferDesc.TextureDepth; i++)
@@ -739,13 +736,16 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 	}
 	if (BufferDesc.RenderTargetCount > 0)
 	{
-		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
-		{
-			list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
-		}
 		if (!BufferDesc.CubeMapAddressAsOne)
 		{
 			for (int i = 0; i < BufferDesc.TextureDepth; i++)
+			{
+				list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 			{
 				list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
 			}

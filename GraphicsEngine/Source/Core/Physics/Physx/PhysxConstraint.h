@@ -5,7 +5,7 @@ class PhysxConstraint : public GenericConstraint
 {
 public:
 	PhysxConstraint(ConstaintSetup setup);
-	~PhysxConstraint();
+	virtual ~PhysxConstraint();
 	virtual void UpdateConstraintData() override;
 };
 

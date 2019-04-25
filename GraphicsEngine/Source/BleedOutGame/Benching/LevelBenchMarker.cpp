@@ -49,17 +49,9 @@ void LevelBenchMarker::AddSetting(BBTestMode::Type res, MGPUMode::Type type)
 
 void LevelBenchMarker::Setup()
 {
+#if 0
 	//AddSetting(BBTestMode::UHD, MGPUMode::None);
-	//AddAllRes(MGPUMode::SFR);
-#if 1
-	//AddAllRes(MGPUMode::SFR_SHADOWS_0);
-	AddAllRes(MGPUMode::SFR_SHADOWS_RATIOOPTIMIZED);
-
-	//AddAllRes(MGPUMode::ASYNC_SHADOWS_1);
-	/*for (int i = 3; i < 9; i++)
-	{
-		AddAllRes((MGPUMode::Type)(i));
-	}*/
+//AddAllRes(MGPUMode::SFR);
 #else
 	for (int i = 0; i < MGPUMode::Limit; i++)
 	{

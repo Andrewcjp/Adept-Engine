@@ -18,7 +18,7 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
-//	ForceSingleGPU.SetValue(true);
+	//	ForceSingleGPU.SetValue(true);
 }
 
 D3D12RHI::~D3D12RHI()
@@ -106,6 +106,10 @@ void D3D12RHI::ReportDeviceData()
 
 bool D3D12RHI::DetectGPUDebugger()
 {
+	if (ForceNoDebug.GetBoolValue())
+	{
+		return true;
+	}
 	IDXGraphicsAnalysis* pGraphicsAnalysis;
 	HRESULT getAnalysis = DXGIGetDebugInterface1(0, __uuidof(pGraphicsAnalysis), reinterpret_cast<void**>(&pGraphicsAnalysis));
 	if (getAnalysis != S_OK)
@@ -459,7 +463,7 @@ void D3D12RHI::AddObjectToDeferredDeleteQueue(IUnknown* Target)
 {
 	for (UploadHeapStamped r : DeferredDeleteQueue)
 	{
-		ensure(r.first != Target);
+		LogEnsure(r.first != Target);
 	}
 	DeferredDeleteQueue.push_back(UploadHeapStamped(Target, RHI::GetFrameCount()));
 }

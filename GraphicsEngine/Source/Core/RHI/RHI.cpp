@@ -226,6 +226,8 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 {
+	//#DX12 Nsight crashes here for some reason
+	return;
 	IsFlushingDeleteQueue = true;
 	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 	{
@@ -256,7 +258,7 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHITe
 	}
 	//#Textures: Default Cube Map!
 #if NOLOADTEX	
-	if (ImageIO::GetDefaultTexture())
+	if (ImageIO::GetDefaultTexture() && !Desc.IsCubeMap)
 	{
 		return ImageIO::GetDefaultTexture();
 	}
@@ -502,6 +504,7 @@ PipelineStateObjectCache::~PipelineStateObjectCache()
 RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateDesc& desc)
 {
 	desc.Build();
+#if PSO_USE_MAP
 #if PSO_USE_FULL_STRING_MAPS
 	auto itor = PSOMap.find(desc.GetString());
 #else
@@ -514,6 +517,16 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 	}
 	ensure(itor->second->GetDesc() == desc);
 	return itor->second;
+#else
+	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
+	{
+		if (itor->second->GetDesc() == desc)
+		{
+			return itor->second;
+		}
+	}
+	return RHI::CreatePipelineStateObject(desc, Device);
+#endif
 }
 
 void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)

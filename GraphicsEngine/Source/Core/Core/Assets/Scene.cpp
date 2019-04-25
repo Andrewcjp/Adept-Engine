@@ -13,7 +13,9 @@
 Scene::Scene(bool EditorScene)
 {
 	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
-	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds");
+	TextureImportSettings s;
+	s.IsCubeMap = true;
+	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds", s);
 
 	LightingData.SkyBox->AddRef();
 	CurrentGameMode = Engine::GetGame()->CreateGameMode();
@@ -300,10 +302,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #endif
 
 
-#if 0
-	int size = 5;
-	glm::vec3 startPos = glm::vec3(10, 5, 30);
-	float stride = 5.0f;
+#if 1
+	size = 5;
+	glm::vec3 startPos = glm::vec3(0, 5, 0);
+	stride = 5.0f;
 	Material::MaterialProperties props;
 	for (int y = 0; y < size; y++)
 	{
@@ -314,7 +316,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			mat->GetProperties()->Roughness = x * (1.0f / (size - 1));
 			mat->GetProperties()->Metallic = y * (1.0f / (size - 1));
 			mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-			go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("Sphere.obj"), mat));
+			MeshLoader::FMeshLoadingSettings s;
+			s.AllowInstancing = false;
+			MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj",s), mat));
+			c->SetMaterial(mat,0);
 			go->GetTransform()->SetPos(startPos + glm::vec3(x*stride, y*stride, 0));
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));

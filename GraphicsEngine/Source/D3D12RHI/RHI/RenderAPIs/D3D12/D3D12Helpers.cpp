@@ -426,7 +426,9 @@ void D3D12ReadBackCopyHelper::WriteToFile(std::string Ref)
 	std::string path = Ref;
 
 	FileUtils::CreateDirectoriesToFullPath(path);
+#if NAME_RHI_PRIMS
 	path.append(Target->GetDebugName());
+#endif
 	path.append("  ");
 	path.append(GenericPlatformMisc::GetDateTimeString());
 

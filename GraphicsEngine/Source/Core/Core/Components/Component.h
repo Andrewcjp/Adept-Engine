@@ -26,7 +26,7 @@ public:
 	{};
 	CORE_API virtual void PostChangeProperties()
 	{};
-	CORE_API virtual void Component::GetInspectorProps(std::vector<InspectorProperyGroup> &props);
+	CORE_API virtual void GetInspectorProps(std::vector<InspectorProperyGroup> &props);
 #endif
 
 	CORE_API virtual void OnCollide(CollisonData data)

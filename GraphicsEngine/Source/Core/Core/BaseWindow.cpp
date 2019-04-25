@@ -72,6 +72,10 @@ void BaseWindow::InitilseWindow()
 	}
 	GPUPerfGraph = new GPUPerformanceGraph();
 	GPUPerfGraph->TwoDrawer = UI->Graph->LineBatcher;
+	PerfManager::Get()->AddTimer("Render", "Render");
+	PerfManager::Get()->AddTimer("UI", "Render");
+	PerfManager::Get()->AddTimer("LineDrawer", "Render");
+	PerfManager::Get()->AddTimer("TEXT", "Render");
 }
 
 void BaseWindow::FixedUpdate()
@@ -183,7 +187,7 @@ void BaseWindow::Render()
 		}
 	}
 #endif
-	RHI::Tick();
+	RHI::Tick();	
 	PerfManager::StartTimer("Render");
 #if !BASIC_RENDER_ONLY
 	Renderer->Render();

@@ -24,7 +24,7 @@ class BaseDecorator
 public:
 	CORE_API BaseDecorator(BTValue* value, EDecoratorTestType::Type t);
 	CORE_API BaseDecorator(BTValue* value, EDecoratorTestType::Type t, float CheckValue);
-	~BaseDecorator();
+	virtual ~BaseDecorator();
 	virtual bool RunCheck();
 	std::string Name = "";
 private:

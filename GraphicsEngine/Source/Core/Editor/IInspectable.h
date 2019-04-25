@@ -6,7 +6,7 @@ class IInspectable
 {
 public:
 	IInspectable();
-	~IInspectable();
+	virtual ~IInspectable();
 
 	//called when this item is instpected
 	virtual void OnInspected();

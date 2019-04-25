@@ -68,7 +68,10 @@ void SFRController::DualUpdatePC(float splittest)
 	Nodes[1]->SFR_Offset = splittest;
 	CurrnetPC = splittest;
 	LastPc = CurrnetPC;
-	Log::LogMessage("SFR updated to " + std::to_string(CurrnetPC));
+	if (RHI::GetMGPUSettings()->MainPassSFR || RHI::GetMGPUSettings()->SFRSplitShadows)
+	{
+		Log::LogMessage("SFR updated to " + std::to_string(CurrnetPC));
+	}
 }
 
 SFRNode * SFRController::GetNode(int DeviceIndex)

@@ -216,10 +216,12 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 		return nullptr;
 	}
 #endif
+	RHITextureDesc Desc;
+	Desc.IsCubeMap = settings.IsCubeMap;
 	//#Files: Deal with TGA to DDS 
 	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ name.find(".tga") != -1 || settings.DirectLoad)
 	{
-		return RHI::CreateTexture(Fileref, Device);
+		return RHI::CreateTexture(Fileref, Device, Desc);
 	}
 
 	if (Fileref.GetFileType() == AssetFileType::DDS)
@@ -235,8 +237,8 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath) && !PlatformApplication::CheckFileSrcNewer(GetRootDir() + DDCRelFilepath, Fileref.GetFullPathToAsset()) || Fileref.IsDDC)
 	{
 		Fileref.IsDDC = true;
-		return RHI::CreateTexture(Fileref, Device);
-}
+		return RHI::CreateTexture(Fileref, Device, Desc);
+	}
 	else
 	{
 		//File is not a DDS
@@ -262,7 +264,7 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 		if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath))
 		{
 			Fileref.IsDDC = true;
-			return RHI::CreateTexture(Fileref, Device);
+			return RHI::CreateTexture(Fileref, Device, Desc);
 		}
 		else
 		{

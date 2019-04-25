@@ -29,7 +29,7 @@ void PostProcessing::AddEffect(PostProcessEffectBase * effect)
 
 void PostProcessing::ExecPPStack(FrameBuffer* targetbuffer)
 {
-	SCOPE_CYCLE_COUNTER("PostProcessPass");
+	SCOPE_CYCLE_COUNTER_GROUP("PostProcessPass", "Render");
 	/*for (int i = 0; i < Effects.size(); i++)
 	{
 		Effects[i]->RunPass(list,targetbuffer);

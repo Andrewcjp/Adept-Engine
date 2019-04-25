@@ -19,7 +19,7 @@ class BaseAsset
 public:
 	//Blank assets can be created but are not valid
 	BaseAsset();
-	~BaseAsset();
+	virtual ~BaseAsset();
 	void LoadAsset(std::string SourceFile);
 	void GenerateNewAsset(std::string AssetSourcePath);
 	void SaveAsset();

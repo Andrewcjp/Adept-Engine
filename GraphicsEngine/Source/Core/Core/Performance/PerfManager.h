@@ -78,7 +78,6 @@ public:
 	static void SetDeltaTime(float Time);
 	static void NotifyEndOfFrame(bool Final = false);
 	bool ShowAllStats = false;
-
 	CORE_API TimerData* GetTimerData(int id);
 	void DrawAllStats(int x, int y, bool IncludeGPUStats = false);
 
