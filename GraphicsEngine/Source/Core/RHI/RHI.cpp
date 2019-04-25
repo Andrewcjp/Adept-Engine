@@ -227,7 +227,7 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 {
 	//#DX12 Nsight crashes here for some reason
-	return;
+	//return;
 	IsFlushingDeleteQueue = true;
 	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 	{
