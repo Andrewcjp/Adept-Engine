@@ -13,7 +13,7 @@
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "RHI/SFRController.h"
 
-#define CUBEMAPS 1
+#define CUBEMAPS 0
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 

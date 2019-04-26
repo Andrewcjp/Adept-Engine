@@ -72,6 +72,7 @@ public:
 	bool LockBackBuffer = false;
 	int LockedWidth = 0;
 	int LockedHeight = 0;
+	bool UseZPrePass = false;
 	RHI_API void SetRes(BBTestMode::Type t);
 	RHI_API static std::string ToString(BBTestMode::Type t);
 	RHI_API ERenderDebugOutput::Type GetDebugRenderMode();
@@ -101,7 +102,7 @@ struct MultiGPUMode
 	bool ShowSplit = false;
 	float SFRRatio = 0.5;
 	void ValidateSettings();
-	bool UseSplitShadows()const;
+	bool UseSplitShadows() const;
 	MGPUMode::Type CurrnetTestMode = MGPUMode::Limit;
 };
 //Props Are Set in the Constructor 

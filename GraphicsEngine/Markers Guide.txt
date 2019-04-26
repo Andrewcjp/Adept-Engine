@@ -1,0 +1,17 @@
+RHI:
+The D3D12 project holds all DirectX 12 code.
+
+Rendering:
+Rendering code is in Source/Core/Rendering
+Shadow techniques are in the Shadow Renderer class.
+SFR is implemented in the forward and deferred renderer classes.
+MultiGPUMode struct (in RenderSettings.h) controls which technique is active.
+
+Running the engine:
+Only the packages run the Benchmark.
+The benchmark will sequential loop though all the techniques.
+
+F1 - Show FPS
+F2 - Show stats
+F3 - Show timeline
+
