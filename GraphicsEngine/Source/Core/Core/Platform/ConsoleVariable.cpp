@@ -208,6 +208,9 @@ void IConsoleSettings::GetVariables(std::vector<ConsoleVariable*>& VarArray)
 	}
 }
 
+IConsoleSettings::~IConsoleSettings()
+{}
+
 void IConsoleSettings::GatherData()
 {
 	IsReading = true;

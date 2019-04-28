@@ -39,7 +39,7 @@ class GenericConstraint
 {
 public:
 	GenericConstraint(ConstaintSetup setup);
-	~GenericConstraint();
+	virtual ~GenericConstraint();
 	virtual void UpdateConstraintData();
 protected:
 	ConstaintSetup CurrentSetup;

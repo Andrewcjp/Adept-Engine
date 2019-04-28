@@ -6,10 +6,14 @@ Rendering code is in Source/Core/Rendering
 Shadow techniques are in the Shadow Renderer class.
 SFR is implemented in the forward and deferred renderer classes.
 MultiGPUMode struct (in RenderSettings.h) controls which technique is active.
+LevelBenchmarker class controls running the benchmark 
+	The Setup function adds the test cases.
+
+
 
 Running the engine:
 Only the packages run the Benchmark.
-The benchmark will sequential loop though all the techniques.
+The benchmark will sequentially loop though all the techniques.
 
 F1 - Show FPS
 F2 - Show stats
