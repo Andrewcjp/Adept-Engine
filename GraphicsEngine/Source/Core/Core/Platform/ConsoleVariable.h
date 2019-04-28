@@ -119,7 +119,7 @@ class IConsoleSettings
 {
 public:
 	void GetVariables(std::vector<ConsoleVariable*> & VarArray);
-
+	virtual ~IConsoleSettings();
 protected:
 
 	virtual void Seralise() = 0;
