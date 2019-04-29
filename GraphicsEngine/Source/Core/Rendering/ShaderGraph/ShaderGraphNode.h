@@ -6,7 +6,11 @@ namespace ShaderPropertyType
 	enum Type
 	{
 		Float,
-		Float3
+		Float2,
+		Float3,
+		Float4,
+		Bool,
+		Int,		
 	};
 }
 

@@ -9,7 +9,7 @@ public:
 	
 	Shader_Blur(DeviceContext* dev) :Shader(dev)
 	{
-		m_Shader->AttachAndCompileShaderFromFile("BlurCS", EShaderType::SHADER_COMPUTE);
+		m_Shader->AttachAndCompileShaderFromFile("PostProcess\\BlurCS", EShaderType::SHADER_COMPUTE);
 	}
 	~Shader_Blur();
 	bool IsComputeShader() override;
@@ -30,7 +30,7 @@ public:
 	DECLARE_GLOBAL_SHADER(Shader_BlurVert);
 	Shader_BlurVert(DeviceContext* dev) :Shader(dev)
 	{
-		m_Shader->AttachAndCompileShaderFromFile("BlurCS", EShaderType::SHADER_COMPUTE, "VertBlurCS");
+		m_Shader->AttachAndCompileShaderFromFile("PostProcess\\BlurCS", EShaderType::SHADER_COMPUTE, "VertBlurCS");
 		Blurweights = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 		Blurweights->CreateConstantBuffer(sizeof(float) * 11, 1);
 		std::vector<float> Weights = Shader_Blur::CalcGaussWeights(2.5f);

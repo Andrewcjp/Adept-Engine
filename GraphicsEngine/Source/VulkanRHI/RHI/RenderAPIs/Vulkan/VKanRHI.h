@@ -65,7 +65,7 @@ class VKanRHI : public RHIClass
 {
 public:
 	VKanRHI();
-	~VKanRHI();
+	virtual ~VKanRHI();
 	void createGraphicsPipeline23();
 	void createFramebuffers();
 	VkCommandPool createCommandPool();

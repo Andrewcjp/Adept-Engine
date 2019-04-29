@@ -4,8 +4,8 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_Compost);
 Shader_Compost::Shader_Compost(DeviceContext * context) :Shader(context)
 {
-	m_Shader->AttachAndCompileShaderFromFile("PostProcessBase_VS", EShaderType::SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Compost_fs", EShaderType::SHADER_FRAGMENT);
+	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\PostProcessBase_VS", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\Compost_fs", EShaderType::SHADER_FRAGMENT);
 }
 
 Shader_Compost::~Shader_Compost()
