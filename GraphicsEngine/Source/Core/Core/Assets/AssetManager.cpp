@@ -223,14 +223,14 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 	{
 		return RHI::CreateTexture(Fileref, Device, Desc);
 	}
-
+#if WITH_EDITOR
 	if (Fileref.GetFileType() == AssetFileType::DDS)
 	{
 		//Temp copy to DDC
 		ensure(PlatformApplication::CopyFileToTarget(Fileref.GetFullPathToAsset(), GetDDCPath() + Fileref.GetBaseNameExtention()));
 		Fileref.IsDDC = true;
 	}
-
+#endif
 	//check the DDC for A Generated one
 	std::string DDCRelFilepath = "\\" + DDCName + "\\" + Fileref.BaseName + ".DDS";
 	Fileref.DDCPath = DDCRelFilepath;

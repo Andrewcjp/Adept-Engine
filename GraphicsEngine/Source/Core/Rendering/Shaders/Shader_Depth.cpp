@@ -16,14 +16,14 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", "1"));
 #endif
 	
-	m_Shader->AttachAndCompileShaderFromFile("depthbasic_vs_12", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_vs_12", EShaderType::SHADER_VERTEX);
 	if (LoadGeomShader)
 	{
 #if USE_GS_FOR_CUBE_SHADOWS
-		m_Shader->AttachAndCompileShaderFromFile("depthbasic_geo", EShaderType::SHADER_GEOMETRY);
+		m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_geo", EShaderType::SHADER_GEOMETRY);
 #endif
 	}
-	m_Shader->AttachAndCompileShaderFromFile("depthbasic_fs_12", EShaderType::SHADER_FRAGMENT);
+	m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_fs_12", EShaderType::SHADER_FRAGMENT);
 	const int ShadowFarPlane = 500;
 	zfar = static_cast<float>(ShadowFarPlane);
 	if (RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS > 0)
