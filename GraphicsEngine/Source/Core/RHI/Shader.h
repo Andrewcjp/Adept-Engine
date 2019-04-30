@@ -99,6 +99,7 @@ public:
 	virtual std::vector<ShaderParameter> GetShaderParameters();
 	virtual std::vector<VertexElementDESC> GetVertexFormat();
 	virtual bool IsComputeShader();
+	virtual void ApplyToCommandList(RHICommandList* list);
 protected:
 	ShaderProgramBase * m_Shader = nullptr;
 	class DeviceContext* Device = nullptr;

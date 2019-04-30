@@ -8,6 +8,7 @@
 #include "Core/IRefCount.h"
 class Material;
 struct SkeletalMeshEntry;
+class MeshBatch;
 struct MeshEntity
 {
 	RHIBuffer * VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
@@ -38,6 +39,9 @@ public:
 	MeshLoader::FMeshLoadingSettings ImportSettings;
 	SkeletalMeshEntry* GetSkeletalMesh()const;
 	glm::vec3 GetPosOfBone(std::string Name);
+	MeshBatch* GetMeshBatch();
+	void PrepareDataForRender(GameObject* Parent);
+	bool IsVisible = true;
 private:
 	RHI_API void Release() override;
 	int FrameCreated = 0;
@@ -49,5 +53,6 @@ private:
 	SkeletalMeshEntry* pSkeletalEntity = nullptr;
 	int MaterialCount = 0;
 	bool DoesShadow = true;
+	RHIBuffer* PrimitiveTransfromBuffer;
 };
 

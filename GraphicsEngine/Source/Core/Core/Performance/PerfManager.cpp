@@ -25,7 +25,7 @@ long PerfManager::GetSeconds()
 {
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
-	return (long)ts.tv_sec*1000L +ts.tv_nsec/1000000L;
+	return (long)ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;
 }
 PerfManager * PerfManager::Get()
 {
@@ -500,6 +500,16 @@ void PerfManager::EndBenchMark()
 	Instance->Bencher->StopBenchMark();
 }
 
+void PerfManager::AddToCountTimer(std::string name, int amout)
+{
+	TimerData* D = Instance->GetTimerData(Instance->GetTimerIDByName(name));
+	if (D != nullptr && Instance->Capture)
+	{
+		D->CallCount += amout;
+		D->Active = true;
+	}
+}
+
 void PerfManager::ResetStats()
 {
 	DidJustReset = true;
@@ -593,7 +603,7 @@ void PerfManager::UpdateStat(int id, float newtime, float GPUOffsetToMain, bool 
 		{
 			data->Active = true;
 			data->GPUStartOffset = GPUOffsetToMain;
-			data->DirectUpdate = Direct;			
+			data->DirectUpdate = Direct;
 		}
 		TimerOutput.at(id) = glm::abs(newtime);
 	}

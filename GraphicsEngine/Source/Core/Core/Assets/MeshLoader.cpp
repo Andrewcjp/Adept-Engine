@@ -699,6 +699,7 @@ void MeshLoader::DestoryMeshes()
 
 Mesh * MeshLoader::TryLoadFromCache(std::string Path)
 {
+	return nullptr;
 	auto Itor = CreatedMeshes.find(Path);
 	if (Itor != CreatedMeshes.end())
 	{

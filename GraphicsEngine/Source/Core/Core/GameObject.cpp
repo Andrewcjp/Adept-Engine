@@ -121,6 +121,14 @@ void GameObject::Render(bool ignoremat, RHICommandList * list)
 		m_MeshRenderer->Render(ignoremat, list);
 	}
 }
+void GameObject::PrepareDataForRender()
+{
+	if (m_MeshRenderer != nullptr)
+	{
+		m_MeshRenderer->PrepareDataForRender();
+	}
+}
+
 void GameObject::FixedUpdate(float delta)
 {
 	for (int i = 0; i < m_Components.size(); i++)

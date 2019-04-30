@@ -1,6 +1,7 @@
 
 #include "Shader_Line.h"
 #include "Core/Assets/ShaderComplier.h"
+#include "RHI/RHICommandList.h"
 
 IMPLEMENT_GLOBAL_SHADER(Shader_Line)
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Line_2D_ON, Shader_Line, bool, true);
@@ -39,4 +40,9 @@ const std::string Shader_Line::GetName()
 		return "Shader_Line_2";
 	}
 	return "Shader_Line_3";
+}
+
+void Shader_Line::SetParameters(RHICommandList* List, RHIBuffer* UBO)
+{
+	List->SetConstantBufferView(UBO, 0, 0);
 }

@@ -7,11 +7,7 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_3, Shader_ShadowSample, i
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_4, Shader_ShadowSample, int, 4);
 Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context,int SampleCount) :Shader(Context)
 {
-#if 0
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_SHADOW_SAMPLES", std::to_string(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS)));
-#else
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_SHADOW_SAMPLES", std::to_string(SampleCount)));
-#endif
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->AttachAndCompileShaderFromFile("Shadow\\ShadowSample_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Shadow\\ShadowSample_fs", EShaderType::SHADER_FRAGMENT);

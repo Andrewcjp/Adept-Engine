@@ -165,9 +165,10 @@ void RenderEngine::PrepareData()
 	}
 	for (size_t i = 0; i < (*MainScene->GetMeshObjects()).size(); i++)
 	{
-		SceneRender->UpdateUnformBufferEntry(SceneRender->CreateUnformBufferEntry((*MainScene->GetMeshObjects())[i]), (int)i);
+	//	SceneRender->UpdateUnformBufferEntry(SceneRender->CreateUnformBufferEntry((*MainScene->GetMeshObjects())[i]), (int)i);
+		(*MainScene->GetMeshObjects())[i]->PrepareDataForRender();
 	}
-	SceneRender->UpdateCBV();
+	//SceneRender->UpdateCBV();
 }
 
 void RenderEngine::Resize(int width, int height)

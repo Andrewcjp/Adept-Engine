@@ -307,7 +307,7 @@ Mesh * RHI::CreateMesh(const char * path)
 
 Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings)
 {
-	if (Settings.AllowInstancing)
+	if (Settings.AllowInstancing && false)
 	{
 		Mesh* New = MeshLoader::Get()->TryLoadFromCache(path);
 		if (New != nullptr && New->GetSkeletalMesh() == nullptr)
