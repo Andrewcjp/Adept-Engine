@@ -29,6 +29,7 @@ public:
 	void UpdateBuffer(RHICommandList * list, LightData * data, int index);
 	~Shader_Depth();
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	void SetParameters(RHICommandList * List, RHIBuffer * Model, RHIBuffer * GeometryProjections, RHIBuffer * VPBuffer);
 	bool LoadGeomShader = true;
 private:
 	RHIBuffer * ConstantBuffer = nullptr;

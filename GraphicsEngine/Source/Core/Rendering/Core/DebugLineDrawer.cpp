@@ -126,7 +126,7 @@ void DebugLineDrawer::RenderLines(glm::mat4& matrix)
 		}
 #endif
 	}
-	CmdList->SetConstantBufferView(DataBuffer, 0, 0);
+	LineShader->SetParameters(CmdList, DataBuffer);
 	CmdList->DrawPrimitive((int)VertsOnGPU, 1, 0, 0);
 	CmdList->Execute();
 }

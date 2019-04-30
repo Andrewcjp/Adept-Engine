@@ -283,7 +283,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 					go = new GameObject("Test box");
 					mat = Material::GetDefaultMaterial();
 					mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"));
-					go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Box_low.fbx"), mat));
+					set = MeshLoader::FMeshLoadingSettings();
+					set.FlipUVs = true;
+					set.Scale = glm::vec3(.01f);
+					go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Box_low.fbx", set), mat));
 					cc = go->AttachComponent(new ColliderComponent());
 					cc->SetCollisonShape(EShapeType::eBOX);
 				}
@@ -318,8 +321,8 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 			MeshLoader::FMeshLoadingSettings s;
 			s.AllowInstancing = false;
-			MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj",s), mat));
-			c->SetMaterial(mat,0);
+			MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj", s), mat));
+			c->SetMaterial(mat, 0);
 			go->GetTransform()->SetPos(startPos + glm::vec3(x*stride, y*stride, 0));
 			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 			go->GetTransform()->SetScale(glm::vec3(1));

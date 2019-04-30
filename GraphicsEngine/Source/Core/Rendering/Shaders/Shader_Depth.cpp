@@ -15,7 +15,7 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 #else
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", "1"));
 #endif
-	
+
 	m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_vs_12", EShaderType::SHADER_VERTEX);
 	if (LoadGeomShader)
 	{
@@ -51,5 +51,12 @@ std::vector<Shader::ShaderParameter> Shader_Depth::GetShaderParameters()
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, Shader_Depth_RSSlots::GeometryProjections));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, Shader_Depth_RSSlots::VPBuffer));
 	return Output;
+}
+
+void Shader_Depth::SetParameters(RHICommandList* List, RHIBuffer* Model, RHIBuffer*GeometryProjections, RHIBuffer* VPBuffer)
+{
+	List->SetConstantBufferView(Model, 0, Shader_Depth_RSSlots::ModelBuffer);
+	List->SetConstantBufferView(GeometryProjections, 0, Shader_Depth_RSSlots::GeometryProjections);
+	List->SetConstantBufferView(VPBuffer, 0, Shader_Depth_RSSlots::VPBuffer);
 }
 

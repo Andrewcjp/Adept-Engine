@@ -6,6 +6,10 @@
 #include "Rendering/Shaders/Shader_SkeletalMesh.h"
 #include "Core/Engine.h"
 #include "Core/Assets/ImageIO.h"
+#include "Mesh/MeshBatch.h"
+#include "SceneRenderer.h"
+#include "Core/GameObject.h"
+#include "Core/Transform.h"
 
 Mesh::Mesh()
 {}
@@ -18,6 +22,8 @@ Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 	{
 		FrameCreated = -10;
 	}
+	PrimitiveTransfromBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	PrimitiveTransfromBuffer->CreateConstantBuffer(sizeof(MeshTransfromBuffer), 1);
 }
 
 void Mesh::Release()
@@ -115,6 +121,10 @@ Material * Mesh::GetMaterial(int index)
 	{
 		return Materials[index];
 	}
+	if (Materials.size() > 0)
+	{
+		return Materials[Materials.size() - 1];
+	}
 	return nullptr;
 }
 
@@ -160,6 +170,38 @@ glm::vec3 Mesh::GetPosOfBone(std::string Name)
 	//glm::vec3 LocalPois = glm::vec3(1, 1, 1);
 	//LocalPois = Boneitor * glm::vec4(LocalPois, 0.0f);
 	return  glm::vec3(Boneitor[3][0], Boneitor[3][1], Boneitor[3][2]);
+}
+
+MeshBatch * Mesh::GetMeshBatch()
+{
+	//todo: handle multiGPU
+	MeshBatch* B = new MeshBatch();
+
+	for (int i = 0; i < SubMeshes.size(); i++)
+	{
+		if (!SubMeshes[i]->LoadSucessful)
+		{
+			continue;
+		}
+		MeshBatchElement* e = new MeshBatchElement();
+		e->VertexBuffer = SubMeshes[i]->VertexBuffers[0];
+		e->IndexBuffer = SubMeshes[i]->IndexBuffers[0];
+		e->NumPrimitives = SubMeshes[i]->IndexBuffers[0]->GetVertexCount();
+		e->NumInstances = 1;
+		e->TransformBuffer = PrimitiveTransfromBuffer;
+		e->Material = GetMaterial(SubMeshes[i]->MaterialIndex);
+		e->IsVisible = IsVisible;
+		B->AddMeshElement(e);
+	}
+	B->CastShadow = GetDoesShadow();
+	return B;
+}
+
+void Mesh::PrepareDataForRender(GameObject* parent)
+{
+	MeshTransfromBuffer SCB = {};
+	SCB.M = parent->GetTransform()->GetModel();
+	PrimitiveTransfromBuffer->UpdateConstantBuffer(&SCB, 0);
 }
 
 MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex>& vertices, std::vector<IndType>& indices)

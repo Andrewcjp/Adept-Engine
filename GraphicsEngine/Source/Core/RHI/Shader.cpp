@@ -40,6 +40,9 @@ bool Shader::IsComputeShader()
 	return false;
 }
 
+void Shader::ApplyToCommandList(RHICommandList * list)
+{}
+
 const std::string Shader::GetName()
 {
 	return "_";

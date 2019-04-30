@@ -7,10 +7,12 @@
 #include "Rendering/Core/RelfectionProbe.h"
 #include "Rendering/Core/Material.h"
 #include "Core/Performance/PerfManager.h"
+#include "Mesh/MeshPipelineController.h"
 SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;
 	WorldDefaultMatShader = (Shader_NodeGraph*)Material::GetDefaultMaterialShader();
+	Controller = new MeshPipelineController();
 }
 
 
@@ -32,12 +34,16 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	{
 		BindMvBuffer(CommandList);
 	}
+#if 0
 	for (int i = 0; i < (*TargetScene->GetMeshObjects()).size(); i++)
 	{
 		GameObject* CurrentObj = (*TargetScene->GetMeshObjects())[i];
 		SetActiveIndex(CommandList, (int)i, CommandList->GetDeviceIndex());
 		CurrentObj->Render(PositionOnly, CommandList);
 	}
+#else	
+	Controller->RenderPass(ERenderPass::BasePass, CommandList);
+#endif
 }
 
 void SceneRenderer::Init()
@@ -223,6 +229,7 @@ void SceneRenderer::BindMvBuffer(RHICommandList * list, int slot)
 void SceneRenderer::SetScene(Scene * NewScene)
 {
 	TargetScene = NewScene;
+	Controller->TargetScene = TargetScene;
 }
 void SceneRenderer::ClearBuffer()
 {
@@ -230,7 +237,7 @@ void SceneRenderer::ClearBuffer()
 }
 void SceneRenderer::UpdateRelflectionProbes(std::vector<RelfectionProbe*> & probes, RHICommandList* commandlist)
 {
-	SCOPE_CYCLE_COUNTER_GROUP("Update Relflection Probes","Render");
+	SCOPE_CYCLE_COUNTER_GROUP("Update Relflection Probes", "Render");
 	commandlist->StartTimer(EGPUTIMERS::CubemapCapture);
 	for (int i = 0; i < probes.size(); i++)
 	{

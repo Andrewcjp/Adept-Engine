@@ -8,6 +8,7 @@
 #include "RHI/DeviceContext.h"
 #include "SceneRenderer.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Mesh/MeshPipelineController.h"
 #define SINGLE_GPU_PRESAMPLE 0
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
@@ -135,7 +136,7 @@ void ShadowRenderer::SetupOnDevice(DeviceContext * Context)
 
 void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, Shader_Main* mainshader)
 {
-	SCOPE_CYCLE_COUNTER_GROUP("Shadow CPU","Render");
+	SCOPE_CYCLE_COUNTER_GROUP("Shadow CPU", "Render");
 	if (UseCache)
 	{
 		if (Renderered)
@@ -321,6 +322,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 
 void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector<GameObject*>& ShadowObjects)
 {
+	Scenerenderer->Controller->GatherBatches();
 	int IndexOnGPU = 0;
 	for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
 	{
@@ -350,20 +352,8 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector
 		for (int Faces = 0; Faces < 6; Faces++)
 		{
 #endif
-			for (size_t i = 0; i < ShadowObjects.size(); i++)
-			{
-				if (ShadowObjects[i]->GetMesh() == nullptr)
-				{
-					//object should not be rendered to the depth map
-					continue;
-				}
-				if (ShadowObjects[i]->GetMesh()->GetDoesShadow() == false)
-				{
-					continue;
-				}
-				Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());//default to Shader_Depth_RSSlots::ModelBuffer
-				ShadowObjects[i]->Render(true, list);
-			}
+		
+			Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader);
 #if !USE_GS_FOR_CUBE_SHADOWS
 		}
 #endif

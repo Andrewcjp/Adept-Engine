@@ -12,6 +12,7 @@ public:
 	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
 
 	virtual const std::string GetName() override;
+	void SetParameters(RHICommandList* List, RHIBuffer * UBO);
 private:
 	bool IsTwo = false;
 };

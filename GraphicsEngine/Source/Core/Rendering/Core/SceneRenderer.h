@@ -2,7 +2,7 @@
 #include "RHI/RHI.h"
 #include "RHI/RHI_inc_fwd.h"
 #define MAX_POSSIBLE_LIGHTS 128
-
+class MeshPipelineController;
 typedef struct _LightUniformBuffer
 {
 	glm::vec3 position;
@@ -30,7 +30,7 @@ struct MVBuffer
 struct LightBufferW
 {
 	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];
-};
+}; 
 
 /*__declspec(align(32))*/ struct SceneConstantBuffer//CBV need to be 256 aligned
 {
@@ -38,6 +38,10 @@ struct LightBufferW
 	int HasNormalMap = 0;
 	float Roughness = 0.0f;
 	float Metallic = 0.0f;
+};
+struct MeshTransfromBuffer
+{
+	glm::mat4 M;
 };
 class RelfectionProbe;
 class SceneRenderer
@@ -64,6 +68,7 @@ public:
 	void UpdateRelflectionProbes(std::vector<RelfectionProbe*>& probes, RHICommandList * commandlist);
 
 	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
+	MeshPipelineController* Controller = nullptr;
 private:
 	void UpdateTransformBufferSize(int NewSize);
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };

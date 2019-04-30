@@ -67,6 +67,7 @@ void MeshRendererComponent::SetMaterial(Material * mat, int index)
 void MeshRendererComponent::SetVisiblity(bool state)
 {
 	IsVisible = state;
+	m_mesh->IsVisible = state;
 }
 
 void MeshRendererComponent::LoadAnimation(std::string filename, std::string name)
@@ -101,6 +102,11 @@ glm::vec3 MeshRendererComponent::GetPosOfBone(std::string Name)
 	return LocalSpacePos;
 }
 
+void MeshRendererComponent::PrepareDataForRender()
+{
+	m_mesh->PrepareDataForRender(GetOwner());
+}
+
 void MeshRendererComponent::BeginPlay()
 {}
 
@@ -111,7 +117,7 @@ void MeshRendererComponent::Update(float dt)
 		m_mesh->Tick(dt);
 		if (m_mesh->GetSkeletalMesh())
 		{
-		//	m_mesh->GetSkeletalMesh()->RenderBones(GetOwner()->GetTransform());
+			//	m_mesh->GetSkeletalMesh()->RenderBones(GetOwner()->GetTransform());
 		}
 	}
 }

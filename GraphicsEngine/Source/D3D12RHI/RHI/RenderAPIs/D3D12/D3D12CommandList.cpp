@@ -335,7 +335,7 @@ void D3D12CommandList::CreateCommandList()
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Copy)
-	{
+	{ 
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], nullptr, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
