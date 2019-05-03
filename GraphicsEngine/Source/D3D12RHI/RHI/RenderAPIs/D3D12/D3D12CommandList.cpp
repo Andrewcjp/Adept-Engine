@@ -7,6 +7,8 @@
 #include "GPUResource.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "Rendering/Core/RenderBaseTypes.h"
+#include "DescriptorHeapManager.h"
+#include "Descriptor.h"
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else
@@ -83,6 +85,31 @@ void D3D12CommandList::EndRenderPass()
 	RHICommandList::EndRenderPass();
 }
 
+void D3D12CommandList::AddHeap(DescriptorHeap * heap)
+{
+	ClearHeaps();
+	heaps.push_back(heap);
+}
+
+void D3D12CommandList::PushHeaps()
+{
+	if (heaps.size() == 0)
+	{
+		return;
+	}
+	std::vector<ID3D12DescriptorHeap*> ppHeaps;
+	for (int i = 0; i < heaps.size(); i++)
+	{
+		ppHeaps.push_back(heaps[i]->GetHeap());
+	}
+	CurrentCommandList->SetDescriptorHeaps(ppHeaps.size(), ppHeaps.data());	
+}
+
+void D3D12CommandList::ClearHeaps()
+{
+	heaps.clear();
+}
+
 void D3D12CommandList::PushPrimitiveTopology()
 {
 	CHECKRPASS();
@@ -121,6 +148,10 @@ void D3D12CommandList::ResetList()
 	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], PSO));
 	HandleStallTimer();
 	PushState();
+	if (ListType != ECommandListType::Copy)
+	{
+		mDeviceContext->GetHeapManager()->BindHeap(this);
+	}
 }
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
@@ -151,6 +182,8 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 
 void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
+	PushHeaps();
+	ClearHeaps();
 	CHECKRPASS();
 	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
@@ -160,6 +193,8 @@ void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCou
 
 void D3D12CommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
 {
+	PushHeaps();
+	ClearHeaps();
 	CHECKRPASS();
 	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
@@ -335,7 +370,7 @@ void D3D12CommandList::CreateCommandList()
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Copy)
-	{ 
+	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], nullptr, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
@@ -443,7 +478,7 @@ void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * D
 
 }
 
-ID3D12GraphicsCommandList3* D3D12CommandList::GetCommandList()
+CMDListType* D3D12CommandList::GetCommandList()
 {
 	ensure(m_IsOpen);
 	return CurrentCommandList;
@@ -507,7 +542,7 @@ void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 	}
 	if (CurrentCommandList != nullptr)
 	{
-		Texture->BindToSlot(CurrentCommandList, slot);
+		Texture->BindToSlot(this, slot);
 	}
 }
 
@@ -673,7 +708,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 	{
 		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
 	}
-	SRVBufferHeap->BindHeap(d3dlist->GetCommandList());
+	SRVBufferHeap->BindHeap(d3dlist);
 	if (list->IsComputeList())
 	{
 		d3dlist->GetCommandList()->SetComputeRootDescriptorTable(RSSlot, SRVBufferHeap->GetGpuAddress(0));
@@ -965,7 +1000,7 @@ void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 {
 	ensure(Device == list->GetDevice());
 	D3D12CommandList* DXList = ((D3D12CommandList*)list);
-	Heap->BindHeap(DXList->GetCommandList());
+	Heap->BindHeap(DXList);
 	if (list->IsComputeList())
 	{
 		DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, Heap->GetGpuAddress(0));
@@ -981,9 +1016,10 @@ void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)
 {
 	AddCheckerRef(D3D12RHITextureArray, this);
-	Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	D3D12Helpers::NameRHIObject(Heap, this);
 	Device = (D3D12DeviceContext*)device;
+	Heap = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumEntries);
+	//Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	//D3D12Helpers::NameRHIObject(Heap, this);
 }
 
 D3D12RHITextureArray::~D3D12RHITextureArray()
@@ -1008,8 +1044,7 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 	{
 		LinkedBuffers[i]->ReadyResourcesForRead(DXList->GetCommandList());
 	}
-	Heap->BindHeap(DXList->GetCommandList());
-	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGpuAddress(0));
+	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGPUAddress(0));
 }
 
 //Makes a descriptor Null Using the first frame buffers Description

@@ -156,12 +156,15 @@ void D3D12RHI::LoadPipeLine()
 {
 #ifdef _DEBUG
 #define RUNDEBUG 1
-#else 
+#else 	
 #define RUNDEBUG 0
 #endif
 
 	UINT dxgiFactoryFlags = 0;
 #if RUNDEBUG //nsight needs this off
+#if !_DEBUG
+	Log::LogMessage("Validation layer running", Log::Warning);
+#endif
 	if (!ForceNoDebug.GetBoolValue() && !DetectGPUDebugger())
 	{	//EnableShaderBasedValidation();
 

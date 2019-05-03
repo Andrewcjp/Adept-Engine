@@ -123,7 +123,6 @@ void DeferredRenderer::GeometryPass(RHICommandList* List)
 	{
 		SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 		PrepareData();
-		SceneRender->UpdateCBV();
 	}
 	SceneRender->UpdateMV(MainCamera);
 	List->ResetList();

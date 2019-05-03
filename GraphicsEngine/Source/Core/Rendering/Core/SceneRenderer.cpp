@@ -20,7 +20,7 @@ SceneRenderer::~SceneRenderer()
 {
 	MemoryUtils::RHIUtil::DeleteRHICArray(CLightBuffer, MAX_GPU_DEVICE_COUNT);
 	EnqueueSafeRHIRelease(CMVBuffer);
-	EnqueueSafeRHIRelease(GameObjectTransformBuffer);
+
 	EnqueueSafeRHIRelease(RelfectionProbeProjections);
 }
 
@@ -48,11 +48,7 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 
 void SceneRenderer::Init()
 {
-	for (int i = 0; i < MaxConstant; i++)
-	{
-		SceneBuffer.push_back(SceneConstantBuffer());
-	}
-	UpdateTransformBufferSize(MaxConstant);
+
 
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
@@ -88,39 +84,6 @@ void SceneRenderer::UpdateReflectionParams(glm::vec3 lightPos)
 	}
 }
 
-void SceneRenderer::UpdateCBV()
-{
-	for (int i = 0; i < MaxConstant; i++)
-	{
-		GameObjectTransformBuffer->UpdateConstantBuffer(&SceneBuffer[i], i);
-	}
-}
-
-void SceneRenderer::UpdateUnformBufferEntry(const SceneConstantBuffer &bufer, int index)
-{
-	if (index < MaxConstant)
-	{
-		SceneBuffer[index] = bufer;
-	}
-	else
-	{
-		UpdateTransformBufferSize(index + 10);
-	}
-}
-
-void SceneRenderer::UpdateTransformBufferSize(int NewSize)
-{
-	EnqueueSafeRHIRelease(GameObjectTransformBuffer);
-	GameObjectTransformBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	GameObjectTransformBuffer->CreateConstantBuffer(sizeof(SceneConstantBuffer), NewSize, true);
-	SceneBuffer.resize(NewSize);
-	MaxConstant = NewSize;
-}
-
-void SceneRenderer::SetActiveIndex(RHICommandList* list, int index, int DeviceIndex)
-{
-	list->SetConstantBufferView(GameObjectTransformBuffer, index, MainShaderRSBinds::GODataCBV);
-}
 
 void SceneRenderer::UpdateMV(Camera * c)
 {
@@ -231,10 +194,7 @@ void SceneRenderer::SetScene(Scene * NewScene)
 	TargetScene = NewScene;
 	Controller->TargetScene = TargetScene;
 }
-void SceneRenderer::ClearBuffer()
-{
-	SceneBuffer.empty();
-}
+
 void SceneRenderer::UpdateRelflectionProbes(std::vector<RelfectionProbe*> & probes, RHICommandList* commandlist)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("Update Relflection Probes", "Render");

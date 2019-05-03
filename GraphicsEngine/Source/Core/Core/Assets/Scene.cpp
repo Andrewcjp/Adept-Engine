@@ -211,10 +211,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #endif
 	//sun
 	AddLight(glm::vec3(-8, 27, -12), true, 2500.0f);
-
-	AddLight(glm::vec3(0, 10, -20), true, 200.0f);
-	AddLight(glm::vec3(0, 5, 34), true, 75.0f);
-	AddLight(glm::vec3(0, 4, -50), true, 75.0f);
+	bool ExtraShadows = false;
+	AddLight(glm::vec3(0, 10, -20), ExtraShadows, 200.0f);
+	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 75.0f);
+	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 75.0f);
 
 	AddLight(glm::vec3(24, 7, -21), false, 75.0f);
 	AddLight(glm::vec3(33, 6, -3), false, 75.0f);
@@ -240,12 +240,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	Asset_Shader* ColourMat = new Asset_Shader();
 	ColourMat->SetupSingleColour();
 
-	SpawnBox(glm::vec3(17, 1, -12));
-	SpawnBox(glm::vec3(17, 1, -9));
-	SpawnBox(glm::vec3(14, 1, -12));
 
-	SpawnDoor("EntryDoor", glm::vec3(0, 0, 25));
-	SpawnDoor("ExitDoor", glm::vec3(0, 0, -34));
 
 	go = new GameObject("spawn");
 	go->GetTransform()->SetPos(glm::vec3(30, 5, -2));
@@ -304,9 +299,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	}
 #endif
 
-
 #if 1
-	size = 5;
+	size = 3;
+	
 	glm::vec3 startPos = glm::vec3(0, 5, 0);
 	stride = 5.0f;
 	Material::MaterialProperties props;
@@ -314,22 +309,35 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	{
 		for (int x = 0; x < size; x++)
 		{
-			go = new GameObject("Water");
-			mat = Material::GetDefaultMaterial();
-			mat->GetProperties()->Roughness = x * (1.0f / (size - 1));
-			mat->GetProperties()->Metallic = y * (1.0f / (size - 1));
-			mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-			MeshLoader::FMeshLoadingSettings s;
-			s.AllowInstancing = false;
-			MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj", s), mat));
-			c->SetMaterial(mat, 0);
-			go->GetTransform()->SetPos(startPos + glm::vec3(x*stride, y*stride, 0));
-			go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-			go->GetTransform()->SetScale(glm::vec3(1));
-			AddGameobjectToScene(go);
+			for (int z = 0; z < size; z++)
+			{
+				go = new GameObject("Water");
+				mat = Material::GetDefaultMaterial();
+				mat->GetProperties()->Roughness = x * (1.0f / (size - 1));
+				mat->GetProperties()->Metallic = y * (1.0f / (size - 1));
+				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+				MeshLoader::FMeshLoadingSettings s;
+				s.AllowInstancing = false;
+				MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj", s), mat));
+				c->SetMaterial(mat, 0);
+				go->GetTransform()->SetPos(startPos + glm::vec3(x*stride, y*stride, z*stride));
+				go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+				go->GetTransform()->SetScale(glm::vec3(1));
+				AddGameobjectToScene(go);
+			}
 		}
 	}
+
 #endif
+
+	SpawnBox(glm::vec3(17, 1, -12));
+	SpawnBox(glm::vec3(17, 1, -9));
+	SpawnBox(glm::vec3(14, 1, -12));
+
+	SpawnDoor("EntryDoor", glm::vec3(0, 0, 25));
+	SpawnDoor("ExitDoor", glm::vec3(0, 0, -34));
+
+	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects()->size()));
 }
 
 void Scene::SpawnDoor(std::string name, glm::vec3 pos)

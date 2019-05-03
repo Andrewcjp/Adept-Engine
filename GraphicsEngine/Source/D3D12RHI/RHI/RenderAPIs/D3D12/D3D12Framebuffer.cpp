@@ -4,17 +4,19 @@
 #include "D3D12DeviceContext.h"
 #include "DescriptorHeap.h"
 #include "GPUResource.h"
+#include "Descriptor.h"
+#include "DescriptorHeapManager.h"
 #define CUBE_SIDES 6
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
 {
-	if (SrvHeap != nullptr)
+	/*if (SrvHeap != nullptr)
 	{
 		SrvHeap->Release();
 		delete SrvHeap;
-	}
-	SrvHeap = new DescriptorHeap(CurrentDevice, Num, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	NAME_RHI_OBJ(SrvHeap);
+	}*/
+	//SrvHeap = new DescriptorHeap(CurrentDevice, Num, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+//	NAME_RHI_OBJ(SrvHeap);
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -23,16 +25,16 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 	}
 }
 
-void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targetheap)
+void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc)
 {
-	CreateSRVInHeap(HeapOffset, targetheap, CurrentDevice);
+	CreateSRVInHeap(HeapOffset, desc, CurrentDevice);
 }
 
-void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targetheap, DeviceContext* target)
+void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceContext* target)
 {
 	if (BufferDesc.RenderTargetCount > 2)
 	{
-		((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), targetheap->GetCPUAddress(HeapOffset));
+		((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), desc->GetCPUAddress(HeapOffset));
 	}
 	else
 	{
@@ -45,12 +47,12 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorHeap* targethea
 		if (BufferDesc.RenderTargetCount == 0)
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
-			((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
+			((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), desc->GetCPUAddress(HeapOffset));
 		}
 		else
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
-			((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), targetheap->GetCPUAddress(HeapOffset));
+			((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), desc->GetCPUAddress(HeapOffset));
 		}
 	}
 }
@@ -379,7 +381,7 @@ void D3D12FrameBuffer::Release()
 	{
 		RenderTarget[i]->Release();
 	}
-	SafeRelease(SrvHeap);
+	//	SafeRelease(SrvHeap);
 	SafeRelease(PrimaryRes);
 	SafeRelease(Stagedres);
 	SafeRelease(FinalOut);
@@ -426,11 +428,17 @@ D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferD
 
 void D3D12FrameBuffer::UpdateSRV()
 {
-	if (SrvHeap == nullptr)
+	/*if (SrvHeap == nullptr)
 	{
 		SrvHeap = new DescriptorHeap(CurrentDevice, std::max(BufferDesc.RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		NAME_RHI_OBJ(SrvHeap);
+	}*/
+	if (SRVDesc == nullptr)
+	{
+		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount, 1));
+
 	}
+
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -438,13 +446,13 @@ void D3D12FrameBuffer::UpdateSRV()
 	}
 	if (BufferDesc.RenderTargetCount == 0)
 	{
-		CreateSRVInHeap(0, SrvHeap);
+		CreateSRVInHeap(0, SRVDesc);
 	}
 	else
 	{
 		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 		{
-			CreateSRVInHeap(i, SrvHeap);
+			CreateSRVInHeap(i, SRVDesc);
 		}
 	}
 }
@@ -619,6 +627,7 @@ void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, i
 
 void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex, DeviceContext* target, bool isCompute)
 {
+
 	if (BufferDesc.IsShared)
 	{
 		MakeReadyForRead(list);
@@ -626,24 +635,25 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 		{
 			if (target == OtherDevice)
 			{
-				SharedSRVHeap->BindHeap(list);
+				SharedSRVHeap->BindHeap_Old(list);
 				TargetCopy->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 				list->SetGraphicsRootDescriptorTable(slot, SharedSRVHeap->GetGpuAddress(Resourceindex));
 			}
 		}
 		return;
 	}
+	//UpdateSRV();
 	//	ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	lastboundslot = slot;
-	SrvHeap->BindHeap(list);
+	//SrvHeap->BindHeap_Old(list);
 	if (isCompute)
 	{
-		list->SetComputeRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
+		list->SetComputeRootDescriptorTable(slot, SRVDesc->GetGPUAddress(Resourceindex));
 	}
 	else
 	{
 		ReadyResourcesForRead(list, Resourceindex);
-		list->SetGraphicsRootDescriptorTable(slot, SrvHeap->GetGpuAddress(Resourceindex));
+		list->SetGraphicsRootDescriptorTable(slot, SRVDesc->GetGPUAddress(Resourceindex));
 	}
 }
 

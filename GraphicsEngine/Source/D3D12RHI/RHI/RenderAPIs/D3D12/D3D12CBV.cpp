@@ -29,8 +29,8 @@ D3D12CBV::~D3D12CBV()
 
 void D3D12CBV::SetDescriptorHeaps(ID3D12GraphicsCommandList* list)
 {
-	ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap };
-	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+	//ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap };
+	//list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 }
 
 void D3D12CBV::SetGpuView(ID3D12GraphicsCommandList * list, int offset, int slot, bool IsCompute)

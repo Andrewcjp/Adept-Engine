@@ -52,10 +52,10 @@ public:
 	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false);
 	void Init();
 	void UpdateReflectionParams(glm::vec3 lightPos);
-	void UpdateCBV();
+
 	void UpdateUnformBufferEntry(const SceneConstantBuffer & bufer, int index);
 
-	void SetActiveIndex(RHICommandList * list, int index, int DeviceIndex);
+
 	void UpdateMV(Camera * c);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	SceneConstantBuffer CreateUnformBufferEntry(GameObject * t);
@@ -64,22 +64,22 @@ public:
 	void BindMvBuffer(RHICommandList * list);
 	void BindMvBuffer(RHICommandList * list, int slot);
 	void SetScene(Scene* NewScene);
-	void ClearBuffer();
+
 	void UpdateRelflectionProbes(std::vector<RelfectionProbe*>& probes, RHICommandList * commandlist);
 
 	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
 	MeshPipelineController* Controller = nullptr;
 private:
-	void UpdateTransformBufferSize(int NewSize);
+
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	RHIBuffer* CMVBuffer = nullptr;
-	RHIBuffer* GameObjectTransformBuffer = nullptr;
+
 
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
 	struct MVBuffer MV_Buffer;
 	LightBufferW LightsBuffer;
-	int MaxConstant = 100;
-	std::vector<SceneConstantBuffer> SceneBuffer = std::vector<SceneConstantBuffer>();
+
+
 	class Scene* TargetScene = nullptr;
 	class Shader_NodeGraph* WorldDefaultMatShader = nullptr;
 	//Cube map captures

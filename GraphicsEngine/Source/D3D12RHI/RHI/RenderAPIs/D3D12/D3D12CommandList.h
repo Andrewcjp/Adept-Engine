@@ -14,7 +14,7 @@ public:
 	virtual void Release() override;
 
 };
-
+typedef ID3D12GraphicsCommandList CMDListType;
 
 class D3D12CommandList : public RHICommandList
 {
@@ -46,7 +46,7 @@ public:
 	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
 
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset);
-	ID3D12GraphicsCommandList3* GetCommandList();
+	CMDListType* GetCommandList();
 	void CreateCommandList();
 	void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
 
@@ -60,10 +60,14 @@ public:
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
 	RHI_VIRTUAL void BeginRenderPass(class RHIRenderPassInfo& RenderPass) override;
 	RHI_VIRTUAL void EndRenderPass() override;
+	void AddHeap(DescriptorHeap* heap);
+	void PushHeaps();
+	void ClearHeaps();
 private:
+	std::vector<DescriptorHeap*> heaps;
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
-	ID3D12GraphicsCommandList3* CurrentCommandList = nullptr;
+	CMDListType* CurrentCommandList = nullptr;
 	ID3D12GraphicsCommandList4* CurrentADVCommandList = nullptr;
 	bool m_IsOpen = false;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
@@ -156,7 +160,7 @@ public:
 private:
 	void Release() override;
 	void Clear() override;
-	class DescriptorHeap* Heap = nullptr;
+	class Descriptor* Heap = nullptr;
 	std::vector<D3D12FrameBuffer*> LinkedBuffers;
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
 	D3D12DeviceContext* Device = nullptr;
