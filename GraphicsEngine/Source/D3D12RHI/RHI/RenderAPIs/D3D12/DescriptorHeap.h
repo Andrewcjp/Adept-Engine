@@ -1,5 +1,7 @@
 #pragma once
 class DeviceContext;
+class D3D12CommandList;
+class Descriptor;
 class DescriptorHeap
 {
 public:
@@ -15,7 +17,8 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuAddress(int index);
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUAddress(int index);
 	void SetName(LPCWSTR name);
-	void BindHeap(ID3D12GraphicsCommandList* list);
+	
+	void BindHeap(D3D12CommandList * list);
 	void Release();
 	void SetPriority(EGPUMemoryPriority NewPriority);
 	ID3D12DescriptorHeap* GetHeap()
@@ -26,7 +29,12 @@ public:
 	{
 		return "DescriptorHeap";
 	}
+	void BindHeap_Old(ID3D12GraphicsCommandList* list);
+	void AddDescriptor(Descriptor* desc);
+	int GetNumberOfDescriptors();
+	int GetMaxSize();
 private:
+	std::vector<Descriptor*> ContainedDescriptors;
 	ID3D12DescriptorHeap * mHeap = nullptr;
 	class D3D12DeviceContext* Device = nullptr;
 	int DescriptorOffsetSize = 0;

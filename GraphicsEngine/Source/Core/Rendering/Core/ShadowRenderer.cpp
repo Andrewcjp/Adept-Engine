@@ -276,7 +276,8 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 		{
 			continue;
 		}
-		Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());
+		//#MESH Fix this
+//		Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());
 		ShadowObjects[i]->Render(true, list);
 	}
 
@@ -352,7 +353,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector
 		for (int Faces = 0; Faces < 6; Faces++)
 		{
 #endif
-		
+
 			Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader);
 #if !USE_GS_FOR_CUBE_SHADOWS
 		}
@@ -419,6 +420,8 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 		{
 			//Object->ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
 			Object->ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
+			
+			//list->SetFrameBufferTexture(LightInteractions[0]->ShadowMap, MainShaderRSBinds::PointShadow);
 		}
 		if (RHI::GetMGPUSettings()->UseSplitShadows())
 		{
@@ -550,6 +553,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		{
 			continue;
 		}
+
 		const int ShadowMapSize = RHI::GetRenderSettings()->ShadowMapSize;
 		for (int spli = 0; spli < ShadowingPointLights.size(); spli++)
 		{
@@ -584,6 +588,11 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			sli->lightPtr = ShadowingPointLights[spli];
 			LightInteractions.push_back(sli);
 		}
+		//#SHADOWS fix this 
+		/*for (int x = 0; x < 4; x++)
+		{
+			DSOs[i].ShadowCubeArray->SetIndexNull(x, LightInteractions[0]->ShadowMap);
+		}*/
 		if (LightInteractions.size() > 0)
 		{
 			RHIPipeLineStateDesc desc;

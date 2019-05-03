@@ -9,6 +9,9 @@
 #include "DescriptorHeap.h"
 #include "D3D12Texture.h"
 #include "D3D12DeviceContext.h"
+#include "D3D12CommandList.h"
+#include "DescriptorHeapManager.h"
+#include "Descriptor.h"
 
 CreateChecker(D3D12Texture);
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
@@ -189,9 +192,9 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 bool D3D12Texture::LoadDDS(std::string filename)
 {
 	UsingDDSLoad = true;
-	ensure(srvHeap == nullptr);
-	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	srvHeap->SetName(L"Texture SRV");
+	//ensure(srvHeap == nullptr);
+	//srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	//srvHeap->SetName(L"Texture SRV");
 	std::unique_ptr<uint8_t[]> ddsData;
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
 	bool IsCubeMap = false;
@@ -237,7 +240,7 @@ bool D3D12Texture::LoadDDS(std::string filename)
 void D3D12Texture::Release()
 {
 	SafeRelease(m_texture);
-	SafeRelease(srvHeap);
+	//	SafeRelease(srvHeap);
 	SafeRelease(TextureResource);
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12Texture, this);
@@ -251,22 +254,22 @@ bool D3D12Texture::CreateFromFile(AssetPathRef FileName)
 	return CLoad(FileName);
 }
 
-void D3D12Texture::BindToSlot(ID3D12GraphicsCommandList* list, int slot)
+void D3D12Texture::BindToSlot(D3D12CommandList* list, int slot)
 {
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
-		TextureResource->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		srvHeap->BindHeap(list);
-		list->SetGraphicsRootDescriptorTable(slot, srvHeap->GetGpuAddress(0));
+		TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		//		srvHeap->BindHeap(list);
+		list->GetCommandList()->SetGraphicsRootDescriptorTable(slot, SRVDesc->GetGPUAddress());//ask the current heap to bind us
 	}
 }
 
 void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 {
 	Description = desc;
-	ensure(srvHeap == nullptr);
-	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	srvHeap->SetName(L"Texture SRV");
+	//ensure(srvHeap == nullptr);
+	//srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	//srvHeap->SetName(L"Texture SRV");
 	ID3D12Resource* textureUploadHeap;
 	// Describe and create a Texture2D.
 	D3D12_RESOURCE_DESC textureDesc = {};
@@ -363,7 +366,14 @@ void D3D12Texture::UpdateSRV()
 		srvDesc.Texture2D.MostDetailedMip = testmip;
 	}
 #endif
-	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, srvHeap->GetCPUAddress(0));
+	//create descriptor
+	//add to heap
+	if (SRVDesc == nullptr)
+	{
+		SRVDesc = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
+
+	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, SRVDesc->GetCPUAddress());
 }
 
 ID3D12Resource * D3D12Texture::GetResource()
@@ -382,8 +392,8 @@ bool D3D12Texture::CheckDevice(int index)
 
 void D3D12Texture::CreateAsNull()
 {
-	ensure(srvHeap == nullptr);
-	srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	srvHeap->SetName(L"Texture SRV");
+	//ensure(srvHeap == nullptr);
+	//srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	//srvHeap->SetName(L"Texture SRV");
 	UpdateSRV();
 }

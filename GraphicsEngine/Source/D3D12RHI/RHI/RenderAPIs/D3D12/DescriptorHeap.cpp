@@ -2,6 +2,8 @@
 #include "DescriptorHeap.h"
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
+#include "D3D12CommandList.h"
+#include "Descriptor.h"
 CreateChecker(DescriptorHeap);
 DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
@@ -39,12 +41,35 @@ void DescriptorHeap::SetName(LPCWSTR name)
 	mHeap->SetName(name);
 }
 
-void DescriptorHeap::BindHeap(ID3D12GraphicsCommandList * list)
+void DescriptorHeap::BindHeap_Old(ID3D12GraphicsCommandList * list)
 {
+	//return;
 	ID3D12DescriptorHeap* ppHeaps[] = { mHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 }
 
+void DescriptorHeap::AddDescriptor(Descriptor * desc)
+{
+	//validate type.
+	ContainedDescriptors.push_back(desc);
+	desc->indexInHeap = ContainedDescriptors.size() - 1;
+}
+
+int DescriptorHeap::GetNumberOfDescriptors()
+{
+	return ContainedDescriptors.size();
+}
+
+int DescriptorHeap::GetMaxSize()
+{
+	return DescriptorCount;
+}
+
+void DescriptorHeap::BindHeap(D3D12CommandList * list)
+{
+	list->AddHeap(this);
+	list->PushHeaps();
+}
 void DescriptorHeap::Release()
 {
 	if (mHeap)

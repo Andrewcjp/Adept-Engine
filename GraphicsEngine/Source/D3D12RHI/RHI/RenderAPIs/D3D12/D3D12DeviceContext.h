@@ -76,6 +76,7 @@ private:
 	
 };
 class D3D12TimeManager;
+class DescriptorHeapManager;
 //once this class has been completed it will be RHI split
 class D3D12DeviceContext : public DeviceContext
 {
@@ -125,6 +126,7 @@ public:
 		CopyEngineHasWork = false;
 	}
 	RHICommandList* GetInterGPUCopyList();
+	DescriptorHeapManager* GetHeapManager();
 private:
 	GPUFenceSync GraphicsSync;
 	GPUFenceSync CopySync;
@@ -163,6 +165,7 @@ private:
 	D3D12TimeManager* TimeManager = nullptr;
 	bool SupportsCmdsList4 = false;
 	GPUSyncPoint GPUWaitPoints[RHI::CPUFrameCount][DeviceContextQueue::LIMIT];
+	DescriptorHeapManager* HeapManager = nullptr;
 };
 
 class D3D12GPUSyncEvent : public RHIGPUSyncEvent

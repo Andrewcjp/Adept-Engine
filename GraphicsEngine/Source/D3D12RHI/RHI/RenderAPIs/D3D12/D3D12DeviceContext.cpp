@@ -4,6 +4,7 @@
 #include "D3D12CommandList.h"
 #include "D3D12RHI.h"
 #include "Core/Performance/PerfManager.h"
+#include "DescriptorHeapManager.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -39,6 +40,7 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	SafeRelease(m_ComputeCommandQueue);
 	SafeRelease(m_CopyCommandQueue);
 	SafeRelease(m_Device);
+	SafeDelete(HeapManager);
 	SafeRelease(pDXGIAdapter);
 	/*if (pDXGIAdapter != nullptr)
 	{
@@ -135,7 +137,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
-
+	HeapManager = new DescriptorHeapManager(this);
 	// Describe and create the command queue.
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -195,6 +197,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	}
 	InitCopyListPool();
 	PostInit();
+	
 }
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
@@ -250,7 +253,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-	}
+}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
@@ -454,6 +457,11 @@ void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, De
 RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()
 {
 	return InterGPUCopyList;
+}
+
+DescriptorHeapManager * D3D12DeviceContext::GetHeapManager()
+{
+	return HeapManager;
 }
 
 GPUSyncPoint::~GPUSyncPoint()

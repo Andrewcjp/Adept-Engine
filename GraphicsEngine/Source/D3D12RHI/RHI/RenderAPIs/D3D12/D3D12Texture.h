@@ -3,6 +3,8 @@
 class DeviceContext;
 class DescriptorHeap;
 class D3D12DeviceContext;
+class D3D12CommandList;
+class Descriptor;
 class D3D12Texture : public BaseTexture
 {
 public:
@@ -10,7 +12,7 @@ public:
 	D3D12Texture(DeviceContext * inDevice = nullptr);
 	virtual ~D3D12Texture();
 	bool CreateFromFile(AssetPathRef FileName) override;
-	void BindToSlot(ID3D12GraphicsCommandList * list, int slot);
+	void BindToSlot(D3D12CommandList * list, int slot);
 	virtual void CreateTextureFromDesc(const TextureDescription& desc) override;
 	virtual void CreateAsNull() override;
 	void UpdateSRV() override;
@@ -34,7 +36,7 @@ private:
 	bool UsingDDSLoad = false;
 	ID3D12Resource* m_texture = nullptr;
 	GPUResource* TextureResource = nullptr;
-	DescriptorHeap* srvHeap = nullptr;
+	Descriptor* SRVDesc = nullptr;
 	int FrameCreated = -1;
 };
 

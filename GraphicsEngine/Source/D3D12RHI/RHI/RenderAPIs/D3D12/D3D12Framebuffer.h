@@ -4,6 +4,7 @@
 class DescriptorHeap;
 class GPUResource;
 class D3D12DeviceContext;
+class Descriptor;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
@@ -21,8 +22,8 @@ public:
 	void							UnBind(ID3D12GraphicsCommandList * list);
 	virtual void					ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
 	void							CreateSRVHeap(int Num);
-	void							CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap);
-	void							CreateSRVInHeap(int HeapOffset, DescriptorHeap * targetheap, DeviceContext * target);
+	void							CreateSRVInHeap(int HeapOffset, Descriptor* desc);
+	void							CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceContext * target);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	bool							CheckDevice(int index);
 	void							HandleResize() override;
@@ -49,7 +50,8 @@ private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(RHICommandList * list) override;
-	DescriptorHeap* SrvHeap = nullptr;
+	//DescriptorHeap* SrvHeap = nullptr;
+	Descriptor* SRVDesc = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;
 	DescriptorHeap* DSVHeap = nullptr;
 	DescriptorHeap* NullHeap = nullptr;
