@@ -3,6 +3,8 @@
 #include "D3D12RHI.h"
 #if BUILD_D3D12
 #include "D3D12DeviceContext.h"
+#include "DescriptorHeapManager.h"
+#include "Descriptor.h"
 D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 {
 	Device = (D3D12DeviceContext*)inDevice;
@@ -21,21 +23,11 @@ D3D12CBV::~D3D12CBV()
 		m_constantBuffer->Unmap(0, &readRange);
 		m_constantBuffer->Release();
 	}
-	if (m_cbvHeap)
-	{
-		m_cbvHeap->Release();
-	}
-}
 
-void D3D12CBV::SetDescriptorHeaps(ID3D12GraphicsCommandList* list)
-{
-	//ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap };
-	//list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 }
 
 void D3D12CBV::SetGpuView(ID3D12GraphicsCommandList * list, int offset, int slot, bool IsCompute)
 {
-	CD3DX12_GPU_DESCRIPTOR_HANDLE  cbvSrvHandle(m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
 	if (IsCompute)
 	{
 		list->SetComputeRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));
@@ -56,11 +48,6 @@ void D3D12CBV::UpdateCBV(void* buffer, int offset, int size)
 void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 {
 	InitalBufferCount = Elementcount;
-	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-	cbvHeapDesc.NumDescriptors = 1;
-	cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap)));
 
 	CB_Size = (StructSize + 255) & ~255;
 	SizeInBytes = InitalBufferCount * CB_Size;
@@ -71,13 +58,6 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&m_constantBuffer)));
-
-	// Describe and create a constant buffer view.
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
-
-	cbvDesc.SizeInBytes = CB_Size;	// CB size is required to be 256-byte aligned.
-	Device->GetDevice()->CreateConstantBufferView(&cbvDesc, m_cbvHeap->GetCPUDescriptorHandleForHeapStart());
 
 	// Map and initialize the constant buffer. We don't unmap this until the
 	// app closes. Keeping things mapped for the lifetime of the resource is okay.
@@ -95,6 +75,6 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 
 void D3D12CBV::SetName(LPCWSTR name)
 {
-	m_cbvHeap->SetName(name);
+	//CBVDesc->SetName(name);
 }
 #endif

@@ -77,7 +77,7 @@ float4 main(PSInput input) : SV_TARGET
 	}
 	
 	float Roughness = 0.5f;
-	float Metallic = 0.1f;
+	float Metallic = 0.0f;
 	float3 irData = DiffuseIrMap.Sample(g_sampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - input.WorldPos.xyz);
 	const float MAX_REFLECTION_LOD = 11.0;

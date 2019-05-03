@@ -12,6 +12,7 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUAddress(int index = 0);
 	int indexInHeap = 0;
 	D3D12_DESCRIPTOR_HEAP_TYPE GetType();
+	int GetSize();
 private:
 	int DescriptorCount = 1;
 	//TODO: descriptor in multiple heaps

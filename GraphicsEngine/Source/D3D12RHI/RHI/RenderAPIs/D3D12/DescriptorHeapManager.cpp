@@ -27,7 +27,7 @@ Descriptor * DescriptorHeapManager::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYP
 	MainHeap->AddDescriptor(D);
 	if (Device->GetDeviceIndex() == 0)
 	{
-		Log::LogMessage("Allocating Descriptor " + std::to_string(MainHeap->GetNumberOfDescriptors()) + "/" + std::to_string(MainHeap->GetMaxSize()));
+		Log::LogMessage("Allocating Descriptor " + std::to_string(MainHeap->GetNextFreeIndex()) + "/" + std::to_string(MainHeap->GetMaxSize()));
 	}
 	return D;
 }
