@@ -420,7 +420,7 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
 		{
 			//Object->ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
 			Object->ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
-			
+
 			//list->SetFrameBufferTexture(LightInteractions[0]->ShadowMap, MainShaderRSBinds::PointShadow);
 		}
 		if (RHI::GetMGPUSettings()->UseSplitShadows())
@@ -547,6 +547,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 	}
 	report += " GPU 0: " + std::to_string(lights0) + " GPU1: " + std::to_string(Lights1);
 	Log::LogMessage(report);
+	//#Shadows Refactor this
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		if (i >= RHI::GetDeviceCount())
@@ -588,11 +589,11 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			sli->lightPtr = ShadowingPointLights[spli];
 			LightInteractions.push_back(sli);
 		}
-		//#SHADOWS fix this 
-		/*for (int x = 0; x < 4; x++)
+		for (int x = ShadowingPointLights.size(); x < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS; x++)
 		{
 			DSOs[i].ShadowCubeArray->SetIndexNull(x, LightInteractions[0]->ShadowMap);
-		}*/
+		}
+
 		if (LightInteractions.size() > 0)
 		{
 			RHIPipeLineStateDesc desc;

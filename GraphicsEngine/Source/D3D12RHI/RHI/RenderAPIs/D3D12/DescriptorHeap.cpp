@@ -51,8 +51,8 @@ void DescriptorHeap::BindHeap_Old(ID3D12GraphicsCommandList * list)
 void DescriptorHeap::AddDescriptor(Descriptor * desc)
 {
 	//validate type.
-	ContainedDescriptors.push_back(desc);
-	desc->indexInHeap = ContainedDescriptors.size() - 1;
+	desc->indexInHeap = GetNextFreeIndex();
+	ContainedDescriptors.push_back(desc);	
 }
 
 int DescriptorHeap::GetNumberOfDescriptors()
@@ -63,6 +63,16 @@ int DescriptorHeap::GetNumberOfDescriptors()
 int DescriptorHeap::GetMaxSize()
 {
 	return DescriptorCount;
+}
+
+int DescriptorHeap::GetNextFreeIndex()
+{
+	int Count = 0;
+	for (int i = 0; i < ContainedDescriptors.size(); i++)
+	{
+		Count += ContainedDescriptors[i]->GetSize();
+	}
+	return Count;
 }
 
 void DescriptorHeap::BindHeap(D3D12CommandList * list)

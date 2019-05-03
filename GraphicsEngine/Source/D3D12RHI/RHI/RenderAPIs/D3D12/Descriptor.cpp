@@ -32,3 +32,8 @@ D3D12_DESCRIPTOR_HEAP_TYPE Descriptor::GetType()
 	return Type;
 }
 
+int Descriptor::GetSize()
+{
+	return DescriptorCount;
+}
+

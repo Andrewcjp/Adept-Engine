@@ -658,12 +658,10 @@ void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* l
 	const int index = Device->GetCpuFrameIndex();
 	if (CrossDevice)
 	{
-		CBV[Deviceindex][index]->SetDescriptorHeaps(list);
 		CBV[Deviceindex][index]->SetGpuView(list, offset, Slot, IsCompute);
 	}
 	else
 	{
-		CBV[0][index]->SetDescriptorHeaps(list);
 		CBV[0][index]->SetGpuView(list, offset, Slot, IsCompute);
 	}
 }

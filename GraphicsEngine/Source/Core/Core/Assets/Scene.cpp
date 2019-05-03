@@ -211,7 +211,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #endif
 	//sun
 	AddLight(glm::vec3(-8, 27, -12), true, 2500.0f);
-	bool ExtraShadows = false;
+	bool ExtraShadows = true;
 	AddLight(glm::vec3(0, 10, -20), ExtraShadows, 200.0f);
 	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 75.0f);
 	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 75.0f);

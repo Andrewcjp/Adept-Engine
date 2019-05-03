@@ -52,10 +52,6 @@ public:
 	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false);
 	void Init();
 	void UpdateReflectionParams(glm::vec3 lightPos);
-
-	void UpdateUnformBufferEntry(const SceneConstantBuffer & bufer, int index);
-
-
 	void UpdateMV(Camera * c);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	SceneConstantBuffer CreateUnformBufferEntry(GameObject * t);

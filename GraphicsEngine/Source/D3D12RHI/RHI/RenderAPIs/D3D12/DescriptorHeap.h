@@ -33,6 +33,7 @@ public:
 	void AddDescriptor(Descriptor* desc);
 	int GetNumberOfDescriptors();
 	int GetMaxSize();
+	int GetNextFreeIndex();
 private:
 	std::vector<Descriptor*> ContainedDescriptors;
 	ID3D12DescriptorHeap * mHeap = nullptr;
