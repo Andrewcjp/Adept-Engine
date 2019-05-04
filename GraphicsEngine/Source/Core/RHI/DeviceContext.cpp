@@ -196,6 +196,26 @@ void DeviceContext::SetMaskFromIndex(int GPUIndex)
 	GPUMask = (1 << GPUIndex);
 }
 
+bool DeviceContext::IsDedicated()
+{
+	return GPUType == EGPUType::Dedicated_Linked || GPUType == EGPUType::Dedicated;
+}
+
+bool DeviceContext::IsIntergrated()
+{
+#if !BUILD_SHIPPING
+	//development builds can use warp as IGPU
+	return GPUType == EGPUType::Intergrated || GPUType == EGPUType::Software;
+#else
+	return GPUType == EGPUType::Intergrated;
+#endif
+}
+
+EGPUType::Type DeviceContext::GetType()
+{
+	return GPUType;
+}
+
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");
@@ -222,4 +242,18 @@ RHIGPUSyncEvent::~RHIGPUSyncEvent()
 int DeviceContext::GetDeviceIndex()
 {
 	return DeviceIndex;
+}
+
+std::string EGPUType::ToString(EGPUType::Type type)
+{
+	switch (type)
+	{
+	case EGPUType::Dedicated:
+		return "Dedicated";
+	case EGPUType::Intergrated:
+		return "Intergrated";
+	case EGPUType::Software:
+		return "Software";
+	}
+	return "UNKNOWN";
 }

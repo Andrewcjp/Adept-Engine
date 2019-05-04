@@ -7,7 +7,9 @@ MeshBatch::MeshBatch()
 
 
 MeshBatch::~MeshBatch()
-{}
+{
+	MemoryUtils::DeleteVector(elements);
+}
 
 void MeshBatch::AddMeshElement(MeshBatchElement * element)
 {

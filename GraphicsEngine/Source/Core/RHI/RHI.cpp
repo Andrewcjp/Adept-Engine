@@ -165,13 +165,12 @@ int RHI::GetFrameCount()
 
 int RHI::GetDeviceCount()
 {
-	if (GetDeviceContext(1) != nullptr)
+	for (int i = MAX_GPU_DEVICE_COUNT-1; i >= 0; i--)
 	{
-		return 2;
-	}
-	if (GetDeviceContext(2) != nullptr)
-	{
-		return 3;
+		if (GetDeviceContext(i) != nullptr)
+		{
+			return i+1;
+		}
 	}
 	return 1;
 }

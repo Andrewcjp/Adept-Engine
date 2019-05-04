@@ -1,7 +1,7 @@
 #pragma once
 #ifdef USE_PHYSX
-#define PHYSX_ENABLED 0
-#define TDSIM_ENABLED 1
+#define PHYSX_ENABLED 1
+#define TDSIM_ENABLED 0
 #else
 #define PHYSX_ENABLED 0
 #define TDSIM_ENABLED 1

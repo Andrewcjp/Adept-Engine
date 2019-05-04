@@ -1,7 +1,7 @@
 #pragma once
 #if PHYSX_ENABLED
 #include "Physics/Physics_fwd.h"
-#include <include/physx/PxPhysicsAPI.h>
+#include <PxPhysicsAPI.h>
 using namespace physx;
 class PhysxCallBackHandler :public physx::PxSimulationEventCallback
 {

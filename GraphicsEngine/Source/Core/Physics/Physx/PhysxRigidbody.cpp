@@ -94,7 +94,7 @@ void PhysxRigidbody::SetAngularVelocity(glm::vec3 velocity)
 physx::PxTriangleMesh* PhysxRigidbody::GenerateTriangleMesh(std::string Filename, glm::vec3 scale)
 {
 	std::vector<OGLVertex> vertices;
-	std::vector<int> indices;
+	std::vector<IndType> indices;
 	MeshLoader::FMeshLoadingSettings t;
 	t.Scale = scale;
 	MeshLoader::LoadMeshFromFile_Direct(Filename, t, vertices, indices);
@@ -124,7 +124,7 @@ physx::PxTriangleMesh* PhysxRigidbody::GenerateTriangleMesh(std::string Filename
 physx::PxConvexMesh* PhysxRigidbody::GenerateConvexMesh(std::string Filename, glm::vec3 scale)
 {
 	std::vector<OGLVertex> vertices;
-	std::vector<int> indices;
+	std::vector<IndType> indices;
 	MeshLoader::FMeshLoadingSettings t;
 	t.Scale = scale;
 	MeshLoader::LoadMeshFromFile_Direct(Filename, t, vertices, indices);

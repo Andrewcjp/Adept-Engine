@@ -25,6 +25,7 @@ void MeshPipelineController::GatherBatches()
 	{
 		return;
 	}
+	MemoryUtils::DeleteVector(Batches);
 	Batches.clear();
 	for (int i = 0; i < (*TargetScene->GetMeshObjects()).size(); i++)
 	{

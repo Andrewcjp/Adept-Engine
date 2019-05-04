@@ -1,7 +1,18 @@
 #pragma once
 
 #include "RHI/RHI_inc.h"
-
+struct EGPUType
+{
+	enum Type
+	{
+		Dedicated,
+		Dedicated_Linked,
+		Intergrated,
+		Software,
+		Limit
+	};
+	RHI_API static std::string ToString(EGPUType::Type type);
+};
 class GPUStateCache;
 struct CapabilityData
 {
@@ -54,6 +65,9 @@ public:
 	void ResetStat();
 	RHI_API uint GetGPUMask();
 	RHI_API void SetMaskFromIndex(int GPUIndex);
+	RHI_API bool IsDedicated();
+	RHI_API bool IsIntergrated();
+	RHI_API EGPUType::Type GetType();
 protected:
 	RHI_API void PostInit();
 	bool AllowCrossFrameAsyncCompute = false;
@@ -77,6 +91,7 @@ protected:
 	int BytesToTransfer = 0;
 	std::vector<FrameBuffer*> BuffersWithTransfers;
 	uint GPUMask = 0;
+	EGPUType::Type GPUType = EGPUType::Limit;
 };
 
 class RHIGPUSyncEvent

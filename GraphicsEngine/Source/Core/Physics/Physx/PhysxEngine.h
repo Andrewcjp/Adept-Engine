@@ -4,8 +4,8 @@
 
 #include "Physics/GenericPhysicsEngine.h"
 #include "Physics/GenericConstraint.h"
-#include <include/physx/PxPhysicsAPI.h>
-#include "include/physx/foundation/PxSimpleTypes.h"
+#include <PxPhysicsAPI.h>
+#include "foundation/PxSimpleTypes.h"
 
 
 #define PVD_HOST "127.0.0.1"

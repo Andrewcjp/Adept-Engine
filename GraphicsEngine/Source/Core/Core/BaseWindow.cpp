@@ -187,7 +187,7 @@ void BaseWindow::Render()
 		}
 	}
 #endif
-	RHI::Tick();	
+	RHI::Tick();
 	PerfManager::StartTimer("Render");
 #if !BASIC_RENDER_ONLY
 	Renderer->Render();
@@ -563,7 +563,8 @@ void BaseWindow::RenderText()
 		}
 		if (ExtendedPerformanceStats)
 		{
-			UI->RenderTextToScreen(2, RHI::ReportMemory());
+			PlatformMemoryInfo info = PlatformMisc::GetMemoryInfo();
+			UI->RenderTextToScreen(2, RHI::ReportMemory() + " CPU ram " + StringUtils::ToStringFloat(info.GetWorkingSetInMB()) + "MB");
 		}
 		offset = 3;
 	}

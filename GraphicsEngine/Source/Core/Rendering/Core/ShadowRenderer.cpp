@@ -23,8 +23,11 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	PointLightShader = ShaderComplier::GetShader<Shader_Depth>(RHI::GetDefaultDevice(), true);
 	ShadowPreSampleShader = ShaderComplier::GetShader_Default<Shader_ShadowSample, int>(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS);
 	ShadowPreSampleShader_GPU0 = ShaderComplier::GetShader_Default<Shader_ShadowSample, int>(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS_GPU0);
-	SetupOnDevice(RHI::GetDeviceContext(0));
-	SetupOnDevice(RHI::GetDeviceContext(1));
+	
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		SetupOnDevice(RHI::GetDeviceContext(i));
+	}
 }
 
 ShadowRenderer::~ShadowRenderer()
