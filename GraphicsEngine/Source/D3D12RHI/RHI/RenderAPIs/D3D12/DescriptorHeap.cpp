@@ -5,8 +5,16 @@
 #include "D3D12CommandList.h"
 #include "Descriptor.h"
 CreateChecker(DescriptorHeap);
+DescriptorHeap::DescriptorHeap(DescriptorHeap * other,int newsize) :
+	DescriptorHeap(other->Device, newsize, other->HeapType, other->HeapFlags)
+{
+
+}
+
+
 DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
+	ensure(Num > 0);
 	Device = (D3D12DeviceContext*)inDevice;
 	srvHeapDesc.NumDescriptors = std::max(Num, 1);
 	DescriptorCount = Num;
@@ -17,11 +25,16 @@ DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTO
 	const std::string name = "Desc Heap Descs: " + std::to_string(srvHeapDesc.NumDescriptors);
 	SetName(StringUtils::ConvertStringToWide(name).c_str());
 	AddCheckerRef(DescriptorHeap, this);
+	HeapType = type;
+	HeapFlags = flags;
 }
 
 DescriptorHeap::~DescriptorHeap()
 {
-	Release();
+	if (!IsReleased)
+	{
+		Release();
+	}
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGpuAddress(int index)
@@ -46,13 +59,15 @@ void DescriptorHeap::BindHeap_Old(ID3D12GraphicsCommandList * list)
 	//return;
 	ID3D12DescriptorHeap* ppHeaps[] = { mHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
 }
 
 void DescriptorHeap::AddDescriptor(Descriptor * desc)
 {
 	//validate type.
 	desc->indexInHeap = GetNextFreeIndex();
-	ContainedDescriptors.push_back(desc);	
+	desc->Owner = this;
+	ContainedDescriptors.push_back(desc);
 }
 
 int DescriptorHeap::GetNumberOfDescriptors()
@@ -75,6 +90,32 @@ int DescriptorHeap::GetNextFreeIndex()
 	return Count;
 }
 
+void DescriptorHeap::MoveAllToHeap(DescriptorHeap * heap, int offset)
+{
+	for (int i = 0; i < ContainedDescriptors.size(); i++)
+	{
+		heap->AddDescriptor(ContainedDescriptors[i]);
+	}
+	bool IsCPUWriteOnly = HeapFlags |= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	if (!IsCPUWriteOnly)
+	{
+		Device->GetDevice()->CopyDescriptorsSimple(heap->GetNextFreeIndex(), heap->mHeap->GetCPUDescriptorHandleForHeapStart(), mHeap->GetCPUDescriptorHandleForHeapStart(), HeapType);
+	}
+	else
+	{
+		//recreate in new heap
+		for (int i = 0; i < heap->ContainedDescriptors.size(); i++)
+		{
+			heap->ContainedDescriptors[i]->Recreate();
+		}
+	}
+}
+
+D3D12DeviceContext * DescriptorHeap::GetDevice()
+{
+	return Device;
+}
+
 void DescriptorHeap::BindHeap(D3D12CommandList * list)
 {
 	list->AddHeap(this);
@@ -82,6 +123,7 @@ void DescriptorHeap::BindHeap(D3D12CommandList * list)
 }
 void DescriptorHeap::Release()
 {
+	IRHIResourse::Release();
 	if (mHeap)
 	{
 		RemoveCheckerRef(DescriptorHeap, this);

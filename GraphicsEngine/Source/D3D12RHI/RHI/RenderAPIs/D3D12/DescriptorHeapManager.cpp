@@ -2,6 +2,7 @@
 #include "DescriptorHeapManager.h"
 #include "DescriptorHeap.h"
 #include "Descriptor.h"
+#include "D3D12RHI.h"
 
 
 DescriptorHeapManager::DescriptorHeapManager(D3D12DeviceContext* d)
@@ -17,10 +18,17 @@ void DescriptorHeapManager::AllocateMainHeap(int size)
 }
 
 DescriptorHeapManager::~DescriptorHeapManager()
-{}
+{
+	SafeRelease(MainHeap);
+	SafeRelease(SamplerHeap);
+}
 
 Descriptor * DescriptorHeapManager::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size)
 {
+	if (MainHeap->GetNextFreeIndex() + size >= MainHeap->GetMaxSize())
+	{
+		Reallocate(&MainHeap, MainHeap->GetMaxSize() + std::max(10, size));
+	}
 	//handle over allocate!
 	Descriptor* D = new Descriptor();
 	D->Init(type, MainHeap, size);
@@ -40,4 +48,13 @@ DescriptorHeap * DescriptorHeapManager::GetMainHeap()
 void DescriptorHeapManager::BindHeap(D3D12CommandList * list)
 {
 	MainHeap->BindHeap(list);
+}
+
+void DescriptorHeapManager::Reallocate(DescriptorHeap** TargetHeap, int newsize)
+{
+	DescriptorHeap* OldHeap = *TargetHeap;
+	DescriptorHeap* newheap = new DescriptorHeap(OldHeap, newsize);
+	OldHeap->MoveAllToHeap(newheap);
+	RHI::AddToDeferredDeleteQueue(OldHeap);
+	*TargetHeap = newheap;
 }

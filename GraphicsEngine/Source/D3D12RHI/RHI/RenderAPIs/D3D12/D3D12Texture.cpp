@@ -373,7 +373,7 @@ void D3D12Texture::UpdateSRV()
 		SRVDesc = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 
-	Device->GetDevice()->CreateShaderResourceView(m_texture, &srvDesc, SRVDesc->GetCPUAddress());
+	SRVDesc->CreateShaderResourceView(m_texture, &srvDesc);
 }
 
 ID3D12Resource * D3D12Texture::GetResource()
