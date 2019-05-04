@@ -23,14 +23,15 @@ Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 		FrameCreated = -10;
 	}
 	PrimitiveTransfromBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	PrimitiveTransfromBuffer->CreateConstantBuffer(sizeof(MeshTransfromBuffer), 1);
+	PrimitiveTransfromBuffer->CreateConstantBuffer(sizeof(MeshTransfromBuffer), 1, true);
 }
 
 void Mesh::Release()
 {
 	IRHIResourse::Release();
 	MemoryUtils::DeleteReleaseableVector(SubMeshes);
-	MemoryUtils::DeleteVector(Materials);
+	//MemoryUtils::DeleteVector(Materials);
+	SafeRHIRelease(PrimitiveTransfromBuffer);
 	SafeRelease(pSkeletalEntity);
 }
 
@@ -220,6 +221,11 @@ MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<O
 		VertexBuffers[i]->UpdateVertexBuffer(vertices.data(), vertices.size());
 		IndexBuffers[i]->CreateIndexBuffer(sizeof(IndType), sizeof(IndType)* (int)indices.size());
 		IndexBuffers[i]->UpdateIndexBuffer(indices.data(), indices.size());
+		if (i > 0)
+		{
+			VertexBuffers[0]->RegisterOtherDeviceTexture(VertexBuffers[i]);
+			IndexBuffers[0]->RegisterOtherDeviceTexture(IndexBuffers[i]);
+		}
 	}
 	indices.clear();
 	vertices.clear();
@@ -230,4 +236,5 @@ void MeshEntity::Release()
 {
 	MemoryUtils::DeleteReleaseableCArray(VertexBuffers, MAX_GPU_DEVICE_COUNT);
 	MemoryUtils::DeleteReleaseableCArray(IndexBuffers, MAX_GPU_DEVICE_COUNT);
+
 }

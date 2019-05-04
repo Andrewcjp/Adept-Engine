@@ -270,17 +270,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 	list->ClearFrameBuffer(DSOs[DeviceIndex].PreSampledBuffer);
 	Scenerenderer->BindMvBuffer(list, Shader_Depth_RSSlots::VPBuffer);
 	Scenerenderer->BindLightsBuffer(list, 1);
-	for (size_t i = 0; i < ShadowObjects.size(); i++)
-	{
-		if (ShadowObjects[i]->GetMesh() == nullptr)
-		{
-			continue;
-		}
-		//#MESH Fix this
-//		Scenerenderer->SetActiveIndex(list, (int)i, list->GetDeviceIndex());
-		ShadowObjects[i]->Render(true, list);
-	}
-
+	Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, nullptr);
 	list->SetRenderTarget(nullptr);
 
 	list->EndTimer(EGPUTIMERS::ShadowPreSample);

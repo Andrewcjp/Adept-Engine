@@ -9,7 +9,7 @@ public:
 	~MeshDrawCommand();
 	RHIBuffer* Vertex;
 	RHIBuffer* Index;
-	RHIBuffer*  TransformUniformBuffer;
+	RHIBuffer* TransformUniformBuffer;
 	int FirstIndex = 0;
 	int NumPrimitves = 0;
 	int NumInstances = 0;

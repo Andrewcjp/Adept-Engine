@@ -42,8 +42,9 @@ public:
 	MeshBatch* GetMeshBatch();
 	void PrepareDataForRender(GameObject* Parent);
 	bool IsVisible = true;
-private:
 	RHI_API void Release() override;
+private:
+	
 	int FrameCreated = 0;
 	std::vector<Material*> Materials;
 	/**

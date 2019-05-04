@@ -32,23 +32,23 @@ TextRenderer::~TextRenderer()
 	EnqueueSafeRHIRelease(VertexBuffer);
 	coords.empty();
 	EnqueueSafeRHIRelease(Renderbuffer);
+	SafeRelease(PSO);
 	EnqueueSafeRHIRelease(TextCommandList);
 }
+
 void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
 {
 	instance->RenderFromAtlas(text, x, y, scale, color);
 }
+
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color, bool reset/* = true*/)
 {
-	//return;
 	if (reset)
 	{
 		Reset();
 	}
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
-	//x += UITextOffset.x;
-	//y += UITextOffset.y;
 	scale = scale * ScaleFactor;
 	if (UseFrameBuffer)
 	{
@@ -120,22 +120,6 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		};
 		currentsize += 6;
 	}
-#if 0
-	if (reset)
-	{
-		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*((int)text.length() * 6));
-	}
-	else
-	{
-		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
-	}
-
-	///* Draw all the character on the screen in one go */
-	if (reset)
-	{
-		Finish();
-	}
-#endif
 }
 
 void TextRenderer::RenderAllText()
@@ -148,7 +132,6 @@ void TextRenderer::RenderAllText()
 
 void TextRenderer::Finish()
 {
-
 	RenderAllText();
 	TextCommandList->SetRenderTarget(nullptr);
 	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, EGPUTIMERS::Text);

@@ -7,6 +7,7 @@
 #include "ImageIO.h"
 #include "IniHandler.h"
 #include "Asset types/BaseAsset.h"
+#include "../Asserts.h"
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
@@ -218,19 +219,22 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 #endif
 	RHITextureDesc Desc;
 	Desc.IsCubeMap = settings.IsCubeMap;
+
+	if (Fileref.GetFileType() == AssetFileType::DDS)
+	{		
+#if WITH_EDITOR
+		//Temp copy to DDC
+		ensure(PlatformApplication::CopyFileToTarget(Fileref.GetFullPathToAsset(), GetDDCPath() + Fileref.GetBaseNameExtention()));
+#endif
+		Fileref.IsDDC = true;
+	}
+
 	//#Files: Deal with TGA to DDS 
 	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ name.find(".tga") != -1 || settings.DirectLoad)
 	{
 		return RHI::CreateTexture(Fileref, Device, Desc);
 	}
-#if WITH_EDITOR
-	if (Fileref.GetFileType() == AssetFileType::DDS)
-	{
-		//Temp copy to DDC
-		ensure(PlatformApplication::CopyFileToTarget(Fileref.GetFullPathToAsset(), GetDDCPath() + Fileref.GetBaseNameExtention()));
-		Fileref.IsDDC = true;
-	}
-#endif
+
 	//check the DDC for A Generated one
 	std::string DDCRelFilepath = "\\" + DDCName + "\\" + Fileref.BaseName + ".DDS";
 	Fileref.DDCPath = DDCRelFilepath;
@@ -243,7 +247,9 @@ BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImpo
 	{
 		//File is not a DDS
 #if BUILD_PACKAGE
-		Log::OutS << "File '" << Fileref.Name << "' Is missing from the cooked data" << Log::OutS;
+		std::string Message = "File '" + Fileref.Name + "' Is missing from the cooked data";
+		Log::LogMessage(Message, Log::Severity::Error);
+		PlatformApplication::DisplayMessageBox("Error", Message);
 #else
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist in the DDC Generating Now" << Log::OutS;
 		//generate one! BC1_UNORM  

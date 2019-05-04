@@ -20,7 +20,7 @@ SceneRenderer::~SceneRenderer()
 {
 	MemoryUtils::RHIUtil::DeleteRHICArray(CLightBuffer, MAX_GPU_DEVICE_COUNT);
 	EnqueueSafeRHIRelease(CMVBuffer);
-
+	SafeDelete(Controller);
 	EnqueueSafeRHIRelease(RelfectionProbeProjections);
 }
 

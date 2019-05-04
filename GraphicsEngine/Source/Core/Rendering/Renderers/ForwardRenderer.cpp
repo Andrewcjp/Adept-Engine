@@ -33,7 +33,9 @@ void ForwardRenderer::Resize(int width, int height)
 }
 
 ForwardRenderer::~ForwardRenderer()
-{}
+{
+
+}
 
 void ForwardRenderer::OnRender()
 {
@@ -184,6 +186,7 @@ void ForwardRenderer::RenderSkybox()
 
 void ForwardRenderer::DestoryRenderWindow()
 {
+	MemoryUtils::DeleteVector(probes);
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		EnqueueSafeRHIRelease(DeviceObjects[i].MainCommandList);

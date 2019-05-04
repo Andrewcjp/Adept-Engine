@@ -19,7 +19,7 @@ MultiGPUMode::MultiGPUMode()
 	}
 	else
 	{
-		CurrnetTestMode = MGPUMode::None;		
+		CurrnetTestMode = MGPUMode::None;
 	}
 	PreSampleBufferScale = 1.0f;
 	Log::LogMessage("There are " + std::to_string(MGPUMode::Limit) + " Test cases");
@@ -136,6 +136,7 @@ void MultiGPUMode::ValidateSettings()
 #endif
 			break;
 		}
+
 	}
 
 	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1 || !RHI::IsD3D12())

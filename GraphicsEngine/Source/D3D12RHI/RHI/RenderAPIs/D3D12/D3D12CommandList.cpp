@@ -102,7 +102,7 @@ void D3D12CommandList::PushHeaps()
 	{
 		ppHeaps.push_back(heaps[i]->GetHeap());
 	}
-	CurrentCommandList->SetDescriptorHeaps(ppHeaps.size(), ppHeaps.data());	
+	CurrentCommandList->SetDescriptorHeaps((UINT)ppHeaps.size(), ppHeaps.data());
 }
 
 void D3D12CommandList::ClearHeaps()
@@ -252,6 +252,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = static_cast<D3D12Buffer*>(buffer);
+	dbuffer = IRHISharedDeviceObject<RHIBuffer>::GetObject<D3D12Buffer>(buffer, Device);
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
@@ -263,7 +264,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = static_cast<D3D12Buffer*>(buffer);
-	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
+	dbuffer = IRHISharedDeviceObject<RHIBuffer>::GetObject<D3D12Buffer>(buffer, Device);
 	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
 }
@@ -520,21 +521,10 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 
 void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 {
-
 	ensure(texture);
 	ensure(!texture->IsPendingKill());
 	Texture = (D3D12Texture*)texture;
-	if (!Texture->CheckDevice(Device->GetDeviceIndex()))
-	{
-		//Hack!
-		texture = texture->GetOnOtherDevice(Device);
-		if (texture == nullptr)
-		{
-			Log::LogMessage("Failed to Bind Texture on Device", Log::Error);
-			return;
-		}
-		Texture = (D3D12Texture*)texture;
-	}
+	Texture = IRHISharedDeviceObject<BaseTexture>::GetObject<D3D12Texture>(texture, Device);
 	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()), "Attempted to Bind texture that is not on this device");
 	if (Device->GetStateCache()->TextureCheckAndUpdate(texture, slot))
 	{
@@ -544,11 +534,6 @@ void D3D12CommandList::SetTexture(BaseTexture * texture, int slot)
 	{
 		Texture->BindToSlot(this, slot);
 	}
-}
-
-void D3D12CommandList::UpdateConstantBuffer(void * data, int offset)
-{
-	CurrentConstantBuffer->UpdateConstantBuffer(data, offset);
 }
 
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot)
@@ -570,6 +555,7 @@ D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext * inDevice) :R
 	{
 		Device = (D3D12DeviceContext*)inDevice;
 	}
+	Context = Device;
 }
 
 void D3D12Buffer::Release()
@@ -1065,7 +1051,7 @@ void D3D12RHITextureArray::Release()
 {
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12RHITextureArray, this);
-	SafeDelete(Heap);
+	SafeRelease(Heap);
 }
 
 void D3D12RHITextureArray::Clear()
