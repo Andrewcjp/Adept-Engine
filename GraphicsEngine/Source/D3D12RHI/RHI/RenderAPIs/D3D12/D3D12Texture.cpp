@@ -232,7 +232,6 @@ bool D3D12Texture::LoadDDS(std::string filename)
 	m_texture->SetName(L"Loaded Texture");
 	Device->NotifyWorkForCopyEngine();
 	D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(textureUploadHeap);
-	ddsData.release();
 	UpdateSRV();
 	return true;
 }

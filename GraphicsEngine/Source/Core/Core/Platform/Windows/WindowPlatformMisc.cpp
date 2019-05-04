@@ -3,6 +3,7 @@
 #include "Core/MinWindows.h"
 #include "Core/Platform/PlatformCore.h"
 #include <combaseapi.h>
+#include <Psapi.h>
 
 void WindowPlatformMisc::LogPlatformOutput(FString data)
 {
@@ -21,4 +22,19 @@ size_t WindowPlatformMisc::GenerateGUID()
 	HRESULT hCreateGuid = CoCreateGuid(&gidReference);
 	ensure(hCreateGuid == S_OK);
 	return gidReference.Data1;
+}
+
+PlatformMemoryInfo WindowPlatformMisc::GetMemoryInfo()
+{
+	PlatformMemoryInfo Info = {};
+	PROCESS_MEMORY_COUNTERS Data = {};
+	if (GetProcessMemoryInfo(GetCurrentProcess(), &Data, sizeof(PROCESS_MEMORY_COUNTERS)))
+	{
+		Info.WorkingSetSize = Data.WorkingSetSize;
+	}
+	else
+	{
+		Log::LogMessage("GetProcessMemoryInfo failed with code " + std::to_string(GetLastError()), Log::Error);
+	}
+	return Info;
 }

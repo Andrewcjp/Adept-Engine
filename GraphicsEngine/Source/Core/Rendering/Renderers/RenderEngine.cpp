@@ -10,6 +10,7 @@
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "Editor/EditorWindow.h"
 #include "Editor/EditorCore.h"
+
 RenderEngine::RenderEngine(int width, int height)
 {
 	m_width = width;

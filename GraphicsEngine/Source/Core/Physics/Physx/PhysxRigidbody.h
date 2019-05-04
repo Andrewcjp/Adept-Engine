@@ -3,7 +3,7 @@
 #include "Core/Transform.h"
 #include "Physics/GenericRigidBody.h"
 #include "Physics/PhysicsTypes.h"
-#include "physx/PxPhysicsAPI.h"
+#include "PxPhysicsAPI.h"
 class PhysxRigidbody : public GenericRigidBody
 {
 public:

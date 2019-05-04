@@ -66,6 +66,22 @@ void D3D12DeviceContext::CheckFeatures()
 	D3D12_FEATURE_DATA_ARCHITECTURE1 ARCHDAta = {};
 	ARCHDAta.NodeIndex = 0;
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, reinterpret_cast<void*>(&ARCHDAta), sizeof(ARCHDAta)));
+	if (ARCHDAta.UMA)
+	{
+		GPUType = EGPUType::Intergrated;
+	}
+	else
+	{
+		GPUType = EGPUType::Dedicated;
+	}
+	if (m_Device->GetNodeCount() > 1)
+	{
+		GPUType = EGPUType::Dedicated_Linked;
+	}
+	if (Adaptordesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+	{
+		GPUType = EGPUType::Software;
+	}
 #if 0
 	LogFeatureData("UMA", ARCHDAta.UMA);
 	LogFeatureData("TileBasedRenderer", ARCHDAta.TileBasedRenderer);
@@ -102,7 +118,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
 	VendorID = Adaptordesc.VendorId;
 
-	ReportData();
+
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
@@ -122,7 +138,8 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		));
 	}
 	DEVICE_NAME_OBJECT(m_Device);
-
+	CheckFeatures();
+	ReportData();
 	if (LogDeviceDebug)
 	{
 		std::stringstream ss;
@@ -133,7 +150,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	DeviceIndex = index;
 	//#SLI Mask needs to be set correctly to handle mixed SLI 
 	SetMaskFromIndex(0);
-	CheckFeatures();
+
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
@@ -197,7 +214,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	}
 	InitCopyListPool();
 	PostInit();
-	
+
 }
 
 void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
@@ -317,7 +334,7 @@ void D3D12DeviceContext::ReportData()
 
 	//Memory and name
 	std::stringstream ss;
-	ss << VendorString << " Adapter Name: \"" << StringUtils::ConvertWideToString(Adaptordesc.Description) << "\" Dedicated Video Memory: " << std::setprecision(3) << Adaptordesc.DedicatedVideoMemory / 1e9 << "GB ";
+	ss << VendorString << " Adapter Name: \"" << StringUtils::ConvertWideToString(Adaptordesc.Description) << "\" (" << EGPUType::ToString(GetType()) << ") " << " Dedicated Video Memory: " << std::setprecision(3) << Adaptordesc.DedicatedVideoMemory / 1e9 << "GB ";
 	Log::LogMessage(ss.str());
 }
 

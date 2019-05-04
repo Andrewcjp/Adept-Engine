@@ -165,6 +165,7 @@ void MultiGPUMode::ValidateSettings()
 	Log::LogBoolTerm("Split SFR shadows ", SFRSplitShadows, Offset);
 	Log::LogBoolTerm("Split shadows ", SplitShadowWork, Offset);
 	Log::LogBoolTerm("Async Shadows ", AsyncShadows, Offset);
+	Log::LogMessage("Using " + std::to_string(RHI::GetDeviceCount()) + " GPUS");
 }
 
 bool MultiGPUMode::UseSplitShadows() const

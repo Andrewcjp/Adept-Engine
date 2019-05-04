@@ -11,3 +11,8 @@ std::string GenericPlatformMisc::GetDateTimeString()
 	out << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday << "-" << (now->tm_hour) << "-" << (now->tm_min) << "-" << (now->tm_sec);
 	return out.str();
 }
+
+float PlatformMemoryInfo::GetWorkingSetInMB()
+{
+	return (float)WorkingSetSize / 1024.0f / 1024.0f;
+}

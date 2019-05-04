@@ -14,6 +14,7 @@
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
 static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly);
+static ConsoleVariable AllowWarp("AllowWarp", 0, ECVarType::LaunchOnly);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
@@ -567,14 +568,11 @@ DeviceContext * D3D12RHI::GetDeviceContext(int index)
 {
 	if (Instance != nullptr)
 	{
-		if (index == 0)
+		if (index >= MAX_GPU_DEVICE_COUNT)
 		{
-			return Instance->DeviceContexts[0];
+			return nullptr;
 		}
-		else if (index == 1)
-		{
-			return Instance->DeviceContexts[1];
-		}
+		return Instance->DeviceContexts[index];
 	}
 	return nullptr;
 }
@@ -602,7 +600,13 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 	{
 		DXGI_ADAPTER_DESC1 desc;
 		adapter->GetDesc1(&desc);
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+
+#if BUILD_SHIPPING
+		bool AllowSoft = false;
+#else
+		bool AllowSoft = AllowWarp.GetBoolValue();
+#endif
+		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE && !AllowSoft)
 		{
 			if (TargetIndex == adapterIndex)
 			{
@@ -641,7 +645,7 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 				}
 			}
 		}
-	}
+}
 	return (CurrentDeviceIndex != 0);
 }
 

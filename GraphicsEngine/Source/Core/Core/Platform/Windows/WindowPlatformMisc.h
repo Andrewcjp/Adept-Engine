@@ -7,6 +7,7 @@ public:
 	static void LogPlatformOutput(FString data);
 	static void SetConsoleOutputColour(int colour);
 	static size_t GenerateGUID();
+	static PlatformMemoryInfo GetMemoryInfo();
 };
 
 typedef WindowPlatformMisc PlatformMisc;

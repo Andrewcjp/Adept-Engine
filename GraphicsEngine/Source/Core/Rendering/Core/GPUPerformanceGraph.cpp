@@ -25,9 +25,10 @@ void GPUPerformanceGraph::Render()
 	{
 		return;
 	}
-	RenderGPU(0);
-	RenderGPU(1);
-	return;
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		RenderGPU(i);
+	}
 }
 
 void GPUPerformanceGraph::RenderGPU(int index)
