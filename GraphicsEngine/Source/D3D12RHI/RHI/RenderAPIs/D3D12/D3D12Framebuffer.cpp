@@ -34,7 +34,8 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceC
 {
 	if (BufferDesc.RenderTargetCount > 2)
 	{
-		((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), desc->GetCPUAddress(HeapOffset));
+		//((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), desc->GetCPUAddress(HeapOffset));
+		desc->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), HeapOffset);
 	}
 	else
 	{
@@ -47,12 +48,14 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceC
 		if (BufferDesc.RenderTargetCount == 0)
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
-			((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), desc->GetCPUAddress(HeapOffset));
+			//((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), desc->GetCPUAddress(HeapOffset));
+			desc->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), HeapOffset);
 		}
 		else
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
-			((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), desc->GetCPUAddress(HeapOffset));
+			//((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), desc->GetCPUAddress(HeapOffset));
+			desc->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), HeapOffset);
 		}
 	}
 }

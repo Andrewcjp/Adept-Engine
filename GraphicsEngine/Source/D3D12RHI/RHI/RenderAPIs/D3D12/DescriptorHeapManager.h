@@ -13,6 +13,7 @@ public:
 	Descriptor* AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type,int size = 1);
 	DescriptorHeap* GetMainHeap();
 	void BindHeap(D3D12CommandList* list);
+	static void Reallocate(DescriptorHeap** TargetHeat, int newsize);
 private:
 	D3D12DeviceContext* Device = nullptr;
 	DescriptorHeap* MainHeap = nullptr;
