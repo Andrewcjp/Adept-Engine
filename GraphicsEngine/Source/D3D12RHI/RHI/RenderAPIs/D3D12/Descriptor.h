@@ -1,7 +1,8 @@
 #pragma once
+#include "RHI\RHITypes.h"
 
 class DescriptorHeap;
-class Descriptor
+class Descriptor : public IRHIResourse
 {
 public:
 	Descriptor();
@@ -16,6 +17,9 @@ public:
 	DescriptorHeap* Owner;
 	void Recreate();
 	void CreateShaderResourceView(ID3D12Resource  *pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC *pDesc, int offset = 0);
+
+	virtual void Release() override;
+
 	//create shader view
 private:
 	int DescriptorCount = 1;

@@ -62,12 +62,6 @@ void VKanCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 }
 
 
-
-void VKanCommandlist::UpdateConstantBuffer(void * data, int offset)
-{
-
-}
-
 void VKanCommandlist::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
 {
 

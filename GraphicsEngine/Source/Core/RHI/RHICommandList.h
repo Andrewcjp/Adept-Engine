@@ -12,23 +12,23 @@ struct RHIBufferDesc
 	bool CreateUAV = false;
 };
 
-class RHI_API RHIBuffer : public IRHIResourse
+class  RHIBuffer : public IRHIResourse, public IRHISharedDeviceObject<RHIBuffer>
 {
 public:
 
 	ERHIBufferType::Type CurrentBufferType;
-	RHIBuffer(ERHIBufferType::Type type);
-	RHI_VIRTUAL void CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype = EBufferAccessType::Static) = 0;
-	RHI_VIRTUAL void CreateBuffer(RHIBufferDesc Desc) = 0;
-	RHI_VIRTUAL void CreateIndexBuffer(int Stride, int ByteSize) = 0;
-	RHI_VIRTUAL void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) = 0;
-	RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset) = 0;
-	RHI_VIRTUAL void UpdateVertexBuffer(void* data, size_t length) = 0;
-	RHI_VIRTUAL void UpdateIndexBuffer(void* data, size_t length) = 0;
-	RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
-	RHI_VIRTUAL void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) = 0;
-	RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) = 0;
-	RHI_VIRTUAL ~RHIBuffer()
+	RHI_API RHIBuffer(ERHIBufferType::Type type);
+	RHI_API RHI_VIRTUAL void CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype = EBufferAccessType::Static) = 0;
+	RHI_API RHI_VIRTUAL void CreateBuffer(RHIBufferDesc Desc) = 0;
+	RHI_API RHI_VIRTUAL void CreateIndexBuffer(int Stride, int ByteSize) = 0;
+	RHI_API RHI_VIRTUAL void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) = 0;
+	RHI_API RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset) = 0;
+	RHI_API RHI_VIRTUAL void UpdateVertexBuffer(void* data, size_t length) = 0;
+	RHI_API RHI_VIRTUAL void UpdateIndexBuffer(void* data, size_t length) = 0;
+	RHI_API RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
+	RHI_API RHI_VIRTUAL void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) = 0;
+	RHI_API RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) = 0;
+	RHI_API RHI_VIRTUAL ~RHIBuffer()
 	{}
 	size_t GetVertexCount()
 	{
@@ -39,8 +39,13 @@ public:
 		return CounterOffset;
 	}
 	class RHIUAV* GetUAV();
+	DeviceContext* GetContext()
+	{
+		return Context;
+	}
 protected:
-	RHIBufferDesc Desc;
+	DeviceContext* Context = nullptr;
+	RHIBufferDesc Desc = {};
 	size_t VertexCount = 0;
 	int CounterOffset = 0;
 	int TotalByteSize = 0;
@@ -77,7 +82,6 @@ public:
 	///Not Const Desc as they hash on demand
 	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) = 0;
 	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
-	RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset) = 0;
 	RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
 	RHI_VIRTUAL void SetTexture(class BaseTexture* texture, int slot) = 0;
 	RHI_VIRTUAL void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;

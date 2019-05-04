@@ -34,7 +34,6 @@ public:
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
 	virtual void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 	void PushState();
-	virtual void UpdateConstantBuffer(void * data, int offset) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetTexture(class BaseTexture * texture, int slot) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;

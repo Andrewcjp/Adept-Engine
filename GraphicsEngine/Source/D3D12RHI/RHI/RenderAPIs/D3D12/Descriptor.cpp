@@ -53,3 +53,8 @@ void Descriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D1
 	Recreate();
 }
 
+void Descriptor::Release()
+{
+	Owner->RemoveDescriptor(this);
+}
+

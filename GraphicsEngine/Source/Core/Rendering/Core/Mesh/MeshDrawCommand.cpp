@@ -5,11 +5,11 @@ MeshDrawCommand::MeshDrawCommand()
 {}
 
 MeshDrawCommand::~MeshDrawCommand()
-{}
+{
+	
+}
 
 void MeshDrawCommand::SubmitDraw(RHICommandList* Cmd)
 {
 	//list draw calls
-
-
 }

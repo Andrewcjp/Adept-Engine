@@ -22,6 +22,7 @@ MeshRendererComponent::MeshRendererComponent(Mesh* Mesh, Material* materal) :Mes
 MeshRendererComponent::~MeshRendererComponent()
 {
 	//todo: safe mesh removal
+	EnqueueSafeRHIRelease(m_mesh);
 }
 
 void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)

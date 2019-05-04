@@ -11,7 +11,8 @@ Shader_SkeletalMesh::Shader_SkeletalMesh(DeviceContext* dev) :Shader(dev)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TEST", "1"));
 	m_Shader->AttachAndCompileShaderFromFile("Anim_vs", EShaderType::SHADER_VERTEX);
-	m_Shader->AttachAndCompileShaderFromFile("Gen\\Default", EShaderType::SHADER_FRAGMENT);
+	//#TODO: fix me
+	//m_Shader->AttachAndCompileShaderFromFile("Gen\\Default", EShaderType::SHADER_FRAGMENT);
 	BonesBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	BonesBuffer->CreateConstantBuffer(sizeof(BoneData), 1);
 }

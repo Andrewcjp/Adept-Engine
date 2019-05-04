@@ -499,6 +499,22 @@ public:
 		}
 		return nullptr;
 	}
+	template<class R>
+	static R* GetObject(T* buffer, DeviceContext* Device)
+	{
+		if (!(((R*)buffer)->CheckDevice(Device->GetDeviceIndex())))
+		{
+			//Hack!
+			T* otherdevicebuffer = buffer->GetOnOtherDevice(Device);
+			if (otherdevicebuffer == nullptr)
+			{
+				Log::LogMessage("Failed to Bind object on Device", Log::Error);
+				return (R*)buffer;
+			}
+			return (R*)otherdevicebuffer;
+		}
+		return (R*)buffer;
+	}
 private:
 	std::vector<T*> SharedObjects;
 };

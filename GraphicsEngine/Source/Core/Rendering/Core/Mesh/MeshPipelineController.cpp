@@ -12,7 +12,12 @@ MeshPipelineController::MeshPipelineController()
 }
 
 MeshPipelineController::~MeshPipelineController()
-{}
+{
+	for (int i = 0; i < ERenderPass::Limit; i++)
+	{
+		SafeDelete(Processors[i]);
+	}
+}
 
 void MeshPipelineController::GatherBatches()
 {

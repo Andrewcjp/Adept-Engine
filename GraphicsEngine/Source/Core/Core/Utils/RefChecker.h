@@ -6,6 +6,8 @@
 class RefCheckerContainer
 {
 public:
+	virtual ~RefCheckerContainer()
+	{};
 	CORE_API virtual int LogRefs();
 	CORE_API static void LogAllRefCounters();
 	CORE_API static void Add(RefCheckerContainer* a);
@@ -22,7 +24,8 @@ public:
 	{
 		RefCheckerContainer::Add(this);
 	};
-
+	virtual ~RefChecker()
+	{};
 	T* AddRef(T* Ref)
 	{
 		Refs.push_back(Ref);
@@ -43,7 +46,7 @@ public:
 	}
 	int LogRefs()
 	{
-		check(Refs.size() == 0);
+		//check(Refs.size() == 0);
 		if (Refs.size() != 0)
 		{
 			for (int i = 0; i < Refs.size(); i++)

@@ -79,7 +79,7 @@ private:
 	ID3D12Resource* Stagedres = nullptr;
 	ID3D12Resource* FinalOut = nullptr;
 	CD3DX12_RESOURCE_DESC renderTargetDesc;
-	DescriptorHeap* SharedSRVHeap = nullptr;
+	Descriptor* SharedSRVHeap = nullptr;
 	class GPUResource* TargetCopy = nullptr;
 	RHIPipeRenderTargetDesc RenderTargetDesc = {};
 

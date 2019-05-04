@@ -179,6 +179,10 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		D3D12_HEAP_FLAG_SHARED | D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER);
 	//heapDesc.Properties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE;
 	//heapDesc.Properties.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;//l1?
+	if (CrossHeap != nullptr)
+	{
+		SafeRelease(CrossHeap);
+	}
 	Host->CreateHeap(&heapDesc, IID_PPV_ARGS(&CrossHeap));
 
 	ThrowIfFailed(Host->CreateSharedHandle(
@@ -192,6 +196,10 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	ensure(openSharedHandleResult == S_OK);
 	// We can close the handle after opening the cross-adapter shared resource.
 	CloseHandle(heapHandle);
+	if (PrimaryRes != nullptr)
+	{
+		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(PrimaryRes);
+	}
 	//target
 	ThrowIfFailed(Host->CreatePlacedResource(
 		CrossHeap,
@@ -200,7 +208,12 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,
 		IID_PPV_ARGS(&PrimaryRes)));
+	NAME_RHI_OBJ(PrimaryRes);
 	//source
+	if (Stagedres != nullptr)
+	{
+		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(Stagedres);
+	}
 	ThrowIfFailed(Target->CreatePlacedResource(
 		TWO_CrossHeap,
 		0,
@@ -208,12 +221,13 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 		D3D12_RESOURCE_STATE_COPY_SOURCE,
 		nullptr,
 		IID_PPV_ARGS(&Stagedres)));
-
+	NAME_RHI_OBJ(Stagedres);
 	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
 	depthOptimizedClearValue.Format = readFormat;
 	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
 	depthOptimizedClearValue.DepthStencil.Stencil = 0;
 	//renderTargetDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+
 	ThrowIfFailed(Target->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -224,8 +238,8 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	));
 	if (SharedSRVHeap == nullptr)
 	{
-		SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		NAME_RHI_OBJ(SharedSRVHeap);
+		//SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		SharedSRVHeap = OtherDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 	}
 	TargetCopy = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST, OtherDevice);
 	NAME_RHI_OBJ(TargetCopy);
@@ -638,9 +652,8 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 		{
 			if (target == OtherDevice)
 			{
-				SharedSRVHeap->BindHeap_Old(list);
 				TargetCopy->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-				list->SetGraphicsRootDescriptorTable(slot, SharedSRVHeap->GetGpuAddress(Resourceindex));
+				list->SetGraphicsRootDescriptorTable(slot, SharedSRVHeap->GetGPUAddress(Resourceindex));
 			}
 		}
 		return;

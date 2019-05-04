@@ -41,7 +41,6 @@ void DepthOnlyMeshProcessor::Process(MeshBatch* Batch)
 	}
 }
 
-
 void DepthOnlyMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
 {
 	for (int i = 0; i < DrawCommands.size(); i++)

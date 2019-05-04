@@ -9,9 +9,10 @@ MeshBatchProcessor::MeshBatchProcessor()
 	PerfManager::Get()->AddTimer("DrawCalls", "Render");
 }
 
-
 MeshBatchProcessor::~MeshBatchProcessor()
-{}
+{
+	Reset();
+}
 
 void MeshBatchProcessor::AddBatch(MeshBatch * Batch)
 {
@@ -26,6 +27,7 @@ void MeshBatchProcessor::Process(MeshBatch* batch)
 
 void MeshBatchProcessor::Reset()
 {
+	MemoryUtils::DeleteVector(DrawCommands);
 	DrawCommands.clear();
 	DrawCallsThisFrame = 0;
 }
