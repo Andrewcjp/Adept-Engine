@@ -41,15 +41,37 @@ void Descriptor::Recreate()
 {
 	if (TargetResource != nullptr)
 	{
-		Owner->GetDevice()->GetDevice()->CreateShaderResourceView(TargetResource, &ViewDesc, GetCPUAddress(SRVOffset));
+		if (DescriptorType == EDescriptorType::SRV)
+		{
+			Owner->GetDevice()->GetDevice()->CreateShaderResourceView(TargetResource, &SRVDesc, GetCPUAddress(OffsetInHeap));
+		}
+		else if (DescriptorType == EDescriptorType::UAV)
+		{
+			Owner->GetDevice()->GetDevice()->CreateUnorderedAccessView(TargetResource, UAVCounterResource, &UAVDesc, GetCPUAddress(OffsetInHeap));
+		}
+		else if (DescriptorType == EDescriptorType::CBV)
+		{
+
+		}
 	}
 }
 
-void Descriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC * pDesc,int offset )
+void Descriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC * pDesc, int offset)
 {
-	ViewDesc = *pDesc;
+	DescriptorType = EDescriptorType::SRV;
+	SRVDesc = *pDesc;
 	TargetResource = pResource;
-	SRVOffset = offset;
+	OffsetInHeap = offset;
+	Recreate();
+}
+
+void Descriptor::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Resource * pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC * pDesc, int offset)
+{
+	DescriptorType = EDescriptorType::UAV;
+	UAVDesc = *pDesc;
+	TargetResource = pResource;
+	UAVCounterResource = pCounterResource;
+	OffsetInHeap = offset;
 	Recreate();
 }
 

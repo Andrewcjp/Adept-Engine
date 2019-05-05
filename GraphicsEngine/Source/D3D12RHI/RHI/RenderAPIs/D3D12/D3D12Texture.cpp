@@ -258,7 +258,6 @@ void D3D12Texture::BindToSlot(D3D12CommandList* list, int slot)
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
 		TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		//		srvHeap->BindHeap(list);
 		list->GetCommandList()->SetGraphicsRootDescriptorTable(slot, SRVDesc->GetGPUAddress());//ask the current heap to bind us
 	}
 }
@@ -266,9 +265,6 @@ void D3D12Texture::BindToSlot(D3D12CommandList* list, int slot)
 void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 {
 	Description = desc;
-	//ensure(srvHeap == nullptr);
-	//srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	//srvHeap->SetName(L"Texture SRV");
 	ID3D12Resource* textureUploadHeap;
 	// Describe and create a Texture2D.
 	D3D12_RESOURCE_DESC textureDesc = {};

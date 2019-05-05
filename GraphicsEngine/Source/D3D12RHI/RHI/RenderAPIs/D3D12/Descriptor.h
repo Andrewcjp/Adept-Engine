@@ -1,6 +1,15 @@
 #pragma once
 #include "RHI\RHITypes.h"
-
+struct EDescriptorType
+{
+	enum Type
+	{
+		CBV,
+		SRV,
+		UAV,
+		Limit
+	};
+};
 class DescriptorHeap;
 class Descriptor : public IRHIResourse
 {
@@ -17,6 +26,7 @@ public:
 	DescriptorHeap* Owner;
 	void Recreate();
 	void CreateShaderResourceView(ID3D12Resource  *pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC *pDesc, int offset = 0);
+	void CreateUnorderedAccessView(ID3D12Resource *pResource, ID3D12Resource *pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC *pDesc, int offset = 0);
 
 	virtual void Release() override;
 
@@ -24,11 +34,13 @@ public:
 private:
 	int DescriptorCount = 1;
 	//TODO: descriptor in multiple heaps
-
+	EDescriptorType::Type DescriptorType = EDescriptorType::Limit;
 	D3D12_DESCRIPTOR_HEAP_TYPE Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	D3D12_SHADER_RESOURCE_VIEW_DESC ViewDesc = {};
+	D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+	D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
 	ID3D12Resource* TargetResource = nullptr;
-	int SRVOffset = 0;
+	ID3D12Resource* UAVCounterResource = nullptr;
+	int OffsetInHeap = 0;
 
 };
 
