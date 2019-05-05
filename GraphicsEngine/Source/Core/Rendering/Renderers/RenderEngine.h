@@ -13,6 +13,7 @@ class PostProcessing;
 class Shader_Skybox;
 class Shader_Convolution;
 class Shader_EnvMap;
+class DynamicResolutionScaler;
 struct DeviceDependentObjects
 {
 	~DeviceDependentObjects();
@@ -66,5 +67,6 @@ protected:
 	bool once = true;
 	DeviceDependentObjects DDOs[MAX_GPU_DEVICE_COUNT];
 	int DevicesInUse = 1;
+	DynamicResolutionScaler* Scaler = nullptr;
 };
 

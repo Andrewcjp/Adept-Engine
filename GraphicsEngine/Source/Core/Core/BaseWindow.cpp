@@ -305,10 +305,9 @@ bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response
 			StringUtils::RemoveChar(command, " ");
 			if (command.length() > 0)
 			{
-				RHI::GetRenderSettings()->RenderScale = glm::clamp(stof(command), 0.1f, 5.0f);
-				Instance->Resize(Instance->m_width, Instance->m_height);
+				RHI::GetRenderSettings()->SetRenderScale(glm::clamp(stof(command), 0.1f, 5.0f));
 			}
-			response = "renderscale " + std::to_string(RHI::GetRenderSettings()->RenderScale);
+			response = "render scale " + std::to_string(RHI::GetRenderSettings()->GetCurrentRenderScale());
 			return true;
 		}
 		else if (command.find("exit") != -1)
@@ -424,7 +423,7 @@ void BaseWindow::Resize(int width, int height, bool force /*= false*/)
 	}
 	if (Renderer != nullptr)
 	{
-		RHI::ResizeSwapChain(width, height);
+//		RHI::ResizeSwapChain(width, height);
 		Renderer->Resize(width, height);
 	}
 }

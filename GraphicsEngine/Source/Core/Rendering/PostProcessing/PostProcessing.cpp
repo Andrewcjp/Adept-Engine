@@ -88,9 +88,9 @@ void PostProcessing::Init(FrameBuffer* Target)
 }
 void PostProcessing::Resize(FrameBuffer* Target)
 {
-	Blur->InitEffect(Target);
-	Bloom->InitEffect(Target);
-	ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
+	//Blur->InitEffect(Target);
+	//Bloom->InitEffect(Target);
+	//ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
 }
 
 void PostProcessing::AddCompostPass(FrameBuffer * buffer)

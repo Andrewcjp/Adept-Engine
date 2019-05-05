@@ -50,7 +50,10 @@ void PostProcessEffectBase::RunPass(FrameBuffer* InputTexture)
 	CMDlist->Execute();
 	PostPass();
 }
+void PostProcessEffectBase::Resize(int width, int height)
+{
 
+}
 void PostProcessEffectBase::RenderScreenQuad(RHICommandList * list)
 {
 	//#PostProcess: less than full screen!

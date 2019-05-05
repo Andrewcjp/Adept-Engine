@@ -305,6 +305,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		if (app->m_engine->GetRenderWindow())
 		{
 			app->m_engine->GetRenderWindow()->Resize(LOWORD(lparam), HIWORD(lparam));
+			RHI::Get()->ResizeSwapChain(LOWORD(lparam), HIWORD(lparam));
 		}
 		else
 		{

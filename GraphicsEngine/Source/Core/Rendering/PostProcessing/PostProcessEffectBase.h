@@ -8,6 +8,7 @@ public:
 	virtual ~PostProcessEffectBase();
 
 	void RunPass(FrameBuffer * InputTexture);
+	void Resize(int width, int height);
 	void SetUpData();
 	void RenderScreenQuad(RHICommandList* list);
 	virtual void InitEffect(FrameBuffer* Target);
