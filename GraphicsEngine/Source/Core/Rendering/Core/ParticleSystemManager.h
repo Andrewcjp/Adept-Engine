@@ -1,6 +1,9 @@
 #pragma once
 #include "RHI/RHI.h"
-#define MAX_PARTICLES 1000000
+
+class Shader;
+struct ParticleSystem;
+
 #define USE_INDIRECTCOMPUTE 1
 #define USE_INDIRECTRENDER 1
 #define PARTICLE_STATS 1
@@ -9,8 +12,8 @@ class ParticleSystemManager
 public:
 	ParticleSystemManager();
 	~ParticleSystemManager();
-	void Init();
-	void SetupCommandBuffer();
+	void InitCommon();
+
 	void PreRenderUpdate(Camera * c);
 	struct ParticleData
 	{
@@ -24,31 +27,6 @@ public:
 		int data;
 		IndirectDrawArgs drawArguments;
 	};
-	struct DispatchArgs
-	{
-		IndirectDispatchArgs dispatchArgs;
-	};
-	static ParticleSystemManager* Get();
-	void ShutDown();
-	void Sync();
-	RHIBuffer * GetPreSimList();
-	RHIBuffer * GetPostSimList();
-	void Simulate();
-	void Render(FrameBuffer * BufferTarget);
-private:
-	RHIGPUSyncEvent* ComputeCompleteEvent = nullptr;
-	static ParticleSystemManager* Instance;
-	RHIBuffer * GPU_ParticleData = nullptr;
-	RHIBuffer * EmittedParticleData = nullptr;
-	RHIBuffer * DeadParticleIndexs = nullptr;
-	RHIBuffer * AliveParticleIndexs = nullptr;
-	RHIBuffer* AliveParticleIndexs_PostSim = nullptr;
-	int CurrentParticleCount = MAX_PARTICLES;
-	RHICommandList* CmdList = nullptr;
-	RHIBuffer* RenderCommandBuffer = nullptr;
-	RHIBuffer* DispatchCommandBuffer = nullptr;
-	//counters
-	RHIBuffer * CounterBuffer = nullptr;
 	struct Counters
 	{
 		unsigned int aliveCount = 0;
@@ -56,10 +34,32 @@ private:
 		unsigned int realEmitCount = 0;
 		unsigned int aliveCount_afterSimulation = 0;
 	};
+	struct DispatchArgs
+	{
+		IndirectDispatchArgs dispatchArgs;
+	};
+	static ParticleSystemManager* Get();
+	void ShutDown();
+	void Sync(ParticleSystem * system);
+	void Simulate();
+	void SimulateSystem(ParticleSystem* system);
 
+	void StartSimulate();
+
+	void StartRender();
+
+	void RenderSystem(ParticleSystem* system, FrameBuffer * BufferTarget);
+	void Render(FrameBuffer * BufferTarget);
+	void AddSystem(ParticleSystem* system);
+	void RemoveSystem(ParticleSystem* system);
+private:
+	ParticleSystem* Testsystem = nullptr;
+	static ParticleSystemManager* Instance;
+	RHICommandList* CmdList = nullptr;
 	//rendering
 	RHICommandList* RenderList = nullptr;
 	RHIBuffer* VertexBuffer = nullptr;
+	//This is common across all particle systems
 	RHIBuffer* ParticleRenderConstants = nullptr;
 	struct ParticleConstData
 	{
@@ -69,8 +69,8 @@ private:
 	};
 	ParticleConstData RenderData = ParticleConstData();
 	int emitcount = 0;
-	//TEst
-	BaseTexture* TEstTex = nullptr;
-	bool Flip = false;
+	std::vector<ParticleSystem*> ParticleSystems;
+	void SubmitCompute();
+	void SubmitRender();
 };
 

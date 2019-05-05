@@ -180,7 +180,7 @@ RenderSettings::RenderSettings()
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	IsDeferred = false;
 	CurrentDebug = ERenderDebugOutput::Off;
-	EnableGPUParticles = false;
+	EnableGPUParticles = true;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;

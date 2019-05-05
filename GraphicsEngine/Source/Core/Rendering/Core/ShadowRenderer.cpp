@@ -582,7 +582,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 			sli->lightPtr = ShadowingPointLights[spli];
 			LightInteractions.push_back(sli);
 		}
-		for (int x = ShadowingPointLights.size(); x < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS; x++)
+		for (int x = (int)ShadowingPointLights.size(); x < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS; x++)
 		{
 			DSOs[i].ShadowCubeArray->SetIndexNull(x, LightInteractions[0]->ShadowMap);
 		}

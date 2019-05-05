@@ -94,7 +94,7 @@ public:
 	ID3D12Resource * m_UAV = nullptr;
 	D3D12DeviceContext* Device = nullptr;
 	ID3D12Resource* UAVCounter = nullptr;
-	class DescriptorHeap* Heap = nullptr;
+	Descriptor* UAVDescriptor = nullptr;
 protected:
 	void Release() override;
 	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
@@ -143,7 +143,7 @@ private:
 	bool UploadComplete = false;
 	bool CrossDevice = false;
 	D3D12DeviceContext* Device = nullptr;
-	class DescriptorHeap* SRVBufferHeap = nullptr;
+	Descriptor* SRVDesc = nullptr;
 	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };
 
@@ -159,7 +159,7 @@ public:
 private:
 	void Release() override;
 	void Clear() override;
-	class Descriptor* Heap = nullptr;
+	class Descriptor* Desc = nullptr;
 	std::vector<D3D12FrameBuffer*> LinkedBuffers;
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
 	D3D12DeviceContext* Device = nullptr;

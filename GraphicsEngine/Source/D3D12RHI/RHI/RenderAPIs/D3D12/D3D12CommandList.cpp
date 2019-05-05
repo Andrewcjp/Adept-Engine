@@ -576,7 +576,7 @@ void D3D12Buffer::Release()
 		}
 	}
 	SafeRelease(m_DataBuffer);
-	SafeRelease(SRVBufferHeap);
+	SafeRelease(SRVDesc);
 	SafeRelease(UAV);
 }
 
@@ -697,14 +697,13 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 	{
 		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
 	}
-	SRVBufferHeap->BindHeap(d3dlist);
 	if (list->IsComputeList())
 	{
-		d3dlist->GetCommandList()->SetComputeRootDescriptorTable(RSSlot, SRVBufferHeap->GetGpuAddress(0));
+		d3dlist->GetCommandList()->SetComputeRootDescriptorTable(RSSlot, SRVDesc->GetGPUAddress(0));
 	}
 	else
 	{
-		d3dlist->GetCommandList()->SetGraphicsRootDescriptorTable(RSSlot, SRVBufferHeap->GetGpuAddress(0));
+		d3dlist->GetCommandList()->SetGraphicsRootDescriptorTable(RSSlot, SRVDesc->GetGPUAddress(0));
 	}
 }
 
@@ -716,7 +715,7 @@ void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Ty
 
 void D3D12Buffer::SetupBufferSRV()
 {
-	if (SRVBufferHeap == nullptr)
+	if (SRVDesc == nullptr)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -725,8 +724,8 @@ void D3D12Buffer::SetupBufferSRV()
 		srvDesc.Buffer.NumElements = ElementCount;
 		srvDesc.Buffer.StructureByteStride = ElementSize;
 		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		SRVBufferHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		Device->GetDevice()->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc, SRVBufferHeap->GetCPUAddress(0));
+		SRVDesc = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+		SRVDesc->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
 	}
 }
 
@@ -922,7 +921,7 @@ void D3D12RHIUAV::Release()
 {
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12RHIUAV, this);
-	Heap->Release();
+	SafeRelease(UAVDescriptor);
 	SafeRelease(UAVCounter);
 	SafeRelease(m_UAV);
 }
@@ -935,11 +934,14 @@ void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 	D3D12Buffer* d3dtarget = (D3D12Buffer*)target;
 	ensure(target->CurrentBufferType == ERHIBufferType::GPU);
 	ensure(d3dtarget->CheckDevice(Device->GetDeviceIndex()));
-	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	if (UAVDescriptor == nullptr)
+	{
+		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
 #if NAME_RHI_PRIMS
 	SetDebugName(d3dtarget->GetDebugName());
 #endif
-	D3D12Helpers::NameRHIObject(Heap, this);
+
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -948,55 +950,58 @@ void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 	destTextureUAVDesc.Buffer.StructureByteStride = d3dtarget->ElementSize;
 	destTextureUAVDesc.Buffer.CounterOffsetInBytes = d3dtarget->CounterOffset;
 	destTextureUAVDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-	Device->GetDevice()->CreateUnorderedAccessView(d3dtarget->GetResource()->GetResource(), d3dtarget->GetResource()->GetResource(), &destTextureUAVDesc, Heap->GetCPUAddress(0));
+	UAVDescriptor->CreateUnorderedAccessView(d3dtarget->GetResource()->GetResource(), d3dtarget->GetResource()->GetResource(), &destTextureUAVDesc);
 }
 
 void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 {
 	D3D12Texture* D3DTarget = (D3D12Texture*)target;
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
-	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	if (UAVDescriptor == nullptr)
+	{
+		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
 #if NAME_RHI_PRIMS
 	SetDebugName(D3DTarget->GetDebugName());
 #endif
-	D3D12Helpers::NameRHIObject(Heap, this);
+
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = ((D3D12Texture*)target)->GetResource()->GetDesc().Format;
 	destTextureUAVDesc.Texture2D.MipSlice = 1;
 	//todo: Counter UAV?
-	Device->GetDevice()->CreateUnorderedAccessView(((D3D12Texture*)target)->GetResource(), UAVCounter, &destTextureUAVDesc, Heap->GetCPUAddress(0));
+	UAVDescriptor->CreateUnorderedAccessView(((D3D12Texture*)target)->GetResource(), UAVCounter, &destTextureUAVDesc);
 }
 
 void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
 {
 	D3D12FrameBuffer* D3DTarget = (D3D12FrameBuffer*)target;
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
-	Heap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	if (UAVDescriptor == nullptr)
+	{
+		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
 #if NAME_RHI_PRIMS
 	SetDebugName(D3DTarget->GetDebugName());
 #endif
-	D3D12Helpers::NameRHIObject(Heap, this);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(target->GetDescription().RTFormats[0]);
 	destTextureUAVDesc.Texture2D.MipSlice = 0;
-	//todo:Counter UAV?
-	Device->GetDevice()->CreateUnorderedAccessView(((D3D12FrameBuffer*)target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc, Heap->GetCPUAddress(0));
+	UAVDescriptor->CreateUnorderedAccessView(((D3D12FrameBuffer*)target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc);
 }
 
 void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 {
 	ensure(Device == list->GetDevice());
 	D3D12CommandList* DXList = ((D3D12CommandList*)list);
-	Heap->BindHeap(DXList);
 	if (list->IsComputeList())
 	{
-		DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, Heap->GetGpuAddress(0));
+		DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, UAVDescriptor->GetGPUAddress(0));
 	}
 	else
 	{
-		DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGpuAddress(0));
+		DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, UAVDescriptor->GetGPUAddress(0));
 	}
 }
 
@@ -1006,9 +1011,7 @@ D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntri
 {
 	AddCheckerRef(D3D12RHITextureArray, this);
 	Device = (D3D12DeviceContext*)device;
-	Heap = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumEntries);
-	//Heap = new DescriptorHeap(device, NumEntries, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	//D3D12Helpers::NameRHIObject(Heap, this);
+	Desc = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumEntries);
 }
 
 D3D12RHITextureArray::~D3D12RHITextureArray()
@@ -1021,7 +1024,7 @@ void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
 	ensure(dBuffer->CheckDevice(Device->GetDeviceIndex()));
 	LinkedBuffers.push_back(dBuffer);
-	dBuffer->CreateSRVInHeap(slot, Heap);
+	dBuffer->CreateSRVInHeap(slot, Desc);
 	NullHeapDesc = dBuffer->GetSrvDesc(0);
 }
 
@@ -1033,7 +1036,7 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 	{
 		LinkedBuffers[i]->ReadyResourcesForRead(DXList->GetCommandList());
 	}
-	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Heap->GetGPUAddress(0));
+	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Desc->GetGPUAddress(0));
 }
 
 //Makes a descriptor Null Using the first frame buffers Description
@@ -1049,14 +1052,14 @@ void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*=
 		Log::LogMessage("Texture Array Slot Cannot be set null without format", Log::Error);
 		return;
 	}
-	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Heap->GetCPUAddress(TargetIndex));
+	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Desc->GetCPUAddress(TargetIndex));
 }
 
 void D3D12RHITextureArray::Release()
 {
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12RHITextureArray, this);
-	SafeRelease(Heap);
+	SafeRelease(Desc);
 }
 
 void D3D12RHITextureArray::Clear()
