@@ -3,6 +3,7 @@
 class Scene;
 class MeshBatchProcessor;
 class SceneRenderer;
+class MeshBatch;
 namespace ERenderPass
 {
 	enum Type

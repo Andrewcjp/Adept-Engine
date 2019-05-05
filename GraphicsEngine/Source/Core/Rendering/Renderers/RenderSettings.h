@@ -64,7 +64,7 @@ struct RenderSettings
 {
 	RenderSettings();
 public:
-	float RenderScale = 1;
+	
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
 	int ShadowMapSize = 2048;
 	bool IsDeferred = false;
@@ -77,7 +77,12 @@ public:
 	RHI_API static std::string ToString(BBTestMode::Type t);
 	RHI_API ERenderDebugOutput::Type GetDebugRenderMode();
 	RHI_API void SetDebugRenderMode(ERenderDebugOutput::Type mode);
+	bool EnableDynamicResolutionScaling = false;
+	int DynamicResolutionTargetFrameRate = 60;
+	void SetRenderScale(float newscale);
+	float GetCurrentRenderScale();
 private:
+	float RenderScale = 1;
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;
 };
 //Props Are Set in the Constructor 

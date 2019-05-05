@@ -10,12 +10,14 @@
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "Editor/EditorWindow.h"
 #include "Editor/EditorCore.h"
+#include "../Core/DynamicResolutionScaler.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
 	m_width = width;
 	m_height = height;
 	SceneRender = new SceneRenderer(nullptr);
+	Scaler = new DynamicResolutionScaler();
 }
 
 RenderEngine::~RenderEngine()
@@ -76,6 +78,7 @@ void RenderEngine::PreRender()
 		MainCamera = MainScene->GetCurrentRenderCamera();
 	}
 	ParticleSystemManager::Get()->PreRenderUpdate(MainCamera);
+	Scaler->Tick();
 }
 
 //init common to both renderers
@@ -166,17 +169,19 @@ void RenderEngine::PrepareData()
 	}
 	for (size_t i = 0; i < (*MainScene->GetMeshObjects()).size(); i++)
 	{
-	//	SceneRender->UpdateUnformBufferEntry(SceneRender->CreateUnformBufferEntry((*MainScene->GetMeshObjects())[i]), (int)i);
 		(*MainScene->GetMeshObjects())[i]->PrepareDataForRender();
 	}
-	//SceneRender->UpdateCBV();
 }
 
 void RenderEngine::Resize(int width, int height)
 {
 	Post->Resize(FilterBuffer);
+	if (MainCamera != nullptr)
+	{
+		MainCamera->UpdateProjection((float)width / (float)height);
+	}
 	int ApoxPValue = glm::iround((float)GetScaledWidth() / (16.0f / 9.0f));
-	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() <<" approx: "<<ApoxPValue<<"P "<< Log::OutS;
+	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << " approx: " << ApoxPValue << "P " << Log::OutS;
 }
 
 void RenderEngine::StaticUpdate()
@@ -260,7 +265,7 @@ int RenderEngine::GetScaledWidth()
 	}
 	else
 	{
-		return (int)(m_width * RHI::GetRenderSettings()->RenderScale);
+		return (int)(m_width * RHI::GetRenderSettings()->GetCurrentRenderScale());
 	}
 }
 
@@ -272,7 +277,7 @@ int RenderEngine::GetScaledHeight()
 	}
 	else
 	{
-		return (int)(m_height * RHI::GetRenderSettings()->RenderScale);
+		return (int)(m_height * RHI::GetRenderSettings()->GetCurrentRenderScale());
 	}
 }
 

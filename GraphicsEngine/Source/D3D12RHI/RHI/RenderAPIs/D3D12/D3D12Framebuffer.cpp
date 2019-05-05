@@ -109,7 +109,7 @@ void D3D12FrameBuffer::HandleResize()
 	m_height = BufferDesc.Height;
 	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
 	m_scissorRect = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
-#if 1
+#if 0
 	if (!RHI::GetMGPUSettings()->MainPassSFR)
 	{
 		CurrentDevice->CPUWaitForAll();
@@ -445,15 +445,9 @@ D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferD
 
 void D3D12FrameBuffer::UpdateSRV()
 {
-	/*if (SrvHeap == nullptr)
-	{
-		SrvHeap = new DescriptorHeap(CurrentDevice, std::max(BufferDesc.RenderTargetCount, 1), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		NAME_RHI_OBJ(SrvHeap);
-	}*/
 	if (SRVDesc == nullptr)
 	{
 		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount, 1));
-
 	}
 
 	if (NullHeap == nullptr)

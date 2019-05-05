@@ -1,6 +1,7 @@
 #include "RenderSettings.h"
 #include "Core\Engine.h"
 #include "GraphicsEngine.h"
+#include "Core\BaseWindow.h"
 static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
 static ConsoleVariable UseSFR("UseSFR", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly);
@@ -185,7 +186,8 @@ RenderSettings::RenderSettings()
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
-	SetRes(BBTestMode::HD);
+	//SetRes(BBTestMode::HD);
+	//EnableDynamicResolutionScaling = true;
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
@@ -241,6 +243,22 @@ ERenderDebugOutput::Type RenderSettings::GetDebugRenderMode()
 void RenderSettings::SetDebugRenderMode(ERenderDebugOutput::Type mode)
 {
 	CurrentDebug = mode;
+}
+
+void RenderSettings::SetRenderScale(float newscale)
+{
+	newscale = glm::clamp(newscale, 0.4f, 3.0f);
+	if (RenderScale == newscale)
+	{
+		return;
+	}
+	RenderScale = newscale;
+	BaseWindow::StaticResize();
+}
+
+float RenderSettings::GetCurrentRenderScale()
+{
+	return RenderScale;
 }
 
 std::string MGPUMode::ToString(MGPUMode::Type t)

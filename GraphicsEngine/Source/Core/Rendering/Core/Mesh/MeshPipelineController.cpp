@@ -4,7 +4,7 @@
 #include "DepthOnlyMeshProcessor.h"
 #include "Core\Performance\PerfManager.h"
 #include "BasePassMeshProcessor.h"
-
+#include "MeshBatch.h"
 
 MeshPipelineController::MeshPipelineController()
 {
