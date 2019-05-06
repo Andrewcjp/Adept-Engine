@@ -30,7 +30,7 @@ void Mesh::Release()
 {
 	IRHIResourse::Release();
 	MemoryUtils::DeleteReleaseableVector(SubMeshes);
-	//MemoryUtils::DeleteVector(Materials);
+	MemoryUtils::DeleteVector(Materials);
 	SafeRHIRelease(PrimitiveTransfromBuffer);
 	SafeRelease(pSkeletalEntity);
 }

@@ -8,13 +8,14 @@ namespace MainShaderRSBinds
 		GODataCBV = 0,
 		LightDataCBV = 1,
 		MVCBV = 2,
-		DirShadow = 3,
-		PointShadow = 4,
-		DiffuseIr = 5,
-		SpecBlurMap = 6,
-		EnvBRDF = 7,
-		PreSampledShadows = 8,
-		ResolutionCBV = 9,
+		MaterialData,
+		DirShadow ,
+		PointShadow ,
+		DiffuseIr,
+		SpecBlurMap,
+		EnvBRDF,
+		PreSampledShadows,
+		ResolutionCBV,
 		Limit
 	};
 }

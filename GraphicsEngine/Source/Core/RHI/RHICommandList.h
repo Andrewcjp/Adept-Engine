@@ -22,7 +22,7 @@ public:
 	RHI_API RHI_VIRTUAL void CreateBuffer(RHIBufferDesc Desc) = 0;
 	RHI_API RHI_VIRTUAL void CreateIndexBuffer(int Stride, int ByteSize) = 0;
 	RHI_API RHI_VIRTUAL void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) = 0;
-	RHI_API RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset) = 0;
+	RHI_API RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset = 0) = 0;
 	RHI_API RHI_VIRTUAL void UpdateVertexBuffer(void* data, size_t length) = 0;
 	RHI_API RHI_VIRTUAL void UpdateIndexBuffer(void* data, size_t length) = 0;
 	RHI_API RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
