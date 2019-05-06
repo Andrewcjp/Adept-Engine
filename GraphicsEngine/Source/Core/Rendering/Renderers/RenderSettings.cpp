@@ -180,12 +180,13 @@ RenderSettings::RenderSettings()
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	IsDeferred = false;
 	CurrentDebug = ERenderDebugOutput::Off;
-	EnableGPUParticles = true;
+	EnableGPUParticles = false;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
+	UseZPrePass = true;
 	//SetRes(BBTestMode::HD);
 	//EnableDynamicResolutionScaling = true;
 }

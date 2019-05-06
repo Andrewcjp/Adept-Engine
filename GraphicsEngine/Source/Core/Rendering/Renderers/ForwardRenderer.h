@@ -28,6 +28,7 @@ class ForwardRenderer : public RenderEngine
 {
 public:
 	ForwardRenderer(int width, int height);
+	void PreZPass(RHICommandList * Cmdlist);
 	virtual ~ForwardRenderer();
 	void OnRender() override;
 	void PostInit() override;

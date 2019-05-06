@@ -8,6 +8,7 @@
 #include "Core/EngineInc.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Core/Platform/PlatformCore.h"
+#include "../Core/ParticleSystemManager.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_Skybox);
 Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {

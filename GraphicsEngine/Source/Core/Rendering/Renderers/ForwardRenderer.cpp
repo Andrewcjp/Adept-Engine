@@ -12,11 +12,27 @@
 #include "Rendering/Shaders/Generation/Shader_Convolution.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "RHI/SFRController.h"
+#include "../Core/Mesh/MeshPipelineController.h"
+#include "../Core/Shader_PreZ.h"
 
 #define CUBEMAPS 0
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 
+}
+
+void ForwardRenderer::PreZPass(RHICommandList* Cmdlist)
+{
+	Cmdlist->StartTimer(EGPUTIMERS::PreZ);
+	RHIPipeLineStateDesc desc;
+	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), FilterBuffer);
+	desc.DepthCompareFunction = COMPARISON_FUNC_LESS;
+	desc.DepthStencilState.DepthWrite = true;
+	Cmdlist->SetPipelineStateDesc(desc);
+	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	SceneRender->RenderScene(Cmdlist, true, FilterBuffer);
+	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
 }
 
 void ForwardRenderer::Resize(int width, int height)
@@ -39,7 +55,6 @@ ForwardRenderer::~ForwardRenderer()
 
 void ForwardRenderer::OnRender()
 {
-
 	ShadowPass();
 	CubeMapPass();
 	for (int i = 0; i < DevicesInUse; i++)
@@ -47,15 +62,18 @@ void ForwardRenderer::OnRender()
 		MainPass(DeviceObjects[i].MainCommandList);
 	}
 	RenderSkybox();
+	ParticleSystemManager::Get()->Render(FilterBuffer);
 	if (DevicesInUse > 1)
 	{
 		DeviceObjects[1].FrameBuffer->ResolveSFR(FilterBuffer);
 	}
+
 	PostProcessPass();
 }
 
 void ForwardRenderer::PostInit()
-{	for (int i = 0; i < DevicesInUse; i++)
+{
+	for (int i = 0; i < DevicesInUse; i++)
 	{
 		SetupOnDevice(RHI::GetDeviceContext(i));
 	}
@@ -123,12 +141,15 @@ void ForwardRenderer::CubeMapPass()
 
 void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 {
+	const bool PREZ = RHI::GetRenderSettings()->UseZPrePass;
 	Cmdlist->ResetList();
-	//if (Cmdlist->GetDeviceIndex() == 1)
-	//{
-	//	Cmdlist->GetDevice()->GetTimeManager()->StartTotalGPUTimer(Cmdlist);
-	//}
+	if (PREZ)
+	{
+		PreZPass(Cmdlist);
+	}
 	Cmdlist->GetDevice()->GetTimeManager()->StartTimer(Cmdlist, EGPUTIMERS::MainPass);
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	Cmdlist->SetPipelineStateDesc(desc);
 	if (Cmdlist->GetDeviceIndex() == 0)
 	{
 		Cmdlist->SetScreenBackBufferAsRT();
@@ -141,7 +162,10 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	}
 #endif
 	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
-	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	if (!PREZ)
+	{
+		Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
+	}
 	if (RHI::GetMGPUSettings()->SplitShadowWork || RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		glm::ivec2 Res = glm::ivec2(GetScaledWidth(), GetScaledHeight());
@@ -169,10 +193,8 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	FilterBuffer->MakeReadyForCopy(Cmdlist);
 	Cmdlist->Execute();
 
-	if (Cmdlist->GetDeviceIndex() == 0)
-	{
-		ParticleSystemManager::Get()->Render(FilterBuffer);
-	}
+
+
 }
 
 void ForwardRenderer::RenderSkybox()
@@ -182,6 +204,7 @@ void ForwardRenderer::RenderSkybox()
 		DDOs[1].SkyboxShader->Render(SceneRender, DeviceObjects[1].FrameBuffer, nullptr);
 	}
 	DDOs[0].SkyboxShader->Render(SceneRender, FilterBuffer, nullptr);
+
 }
 
 void ForwardRenderer::DestoryRenderWindow()

@@ -34,16 +34,14 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	{
 		BindMvBuffer(CommandList);
 	}
-#if 0
-	for (int i = 0; i < (*TargetScene->GetMeshObjects()).size(); i++)
+	if (PositionOnly)
 	{
-		GameObject* CurrentObj = (*TargetScene->GetMeshObjects())[i];
-		SetActiveIndex(CommandList, (int)i, CommandList->GetDeviceIndex());
-		CurrentObj->Render(PositionOnly, CommandList);
+		Controller->RenderPass(ERenderPass::DepthOnly, CommandList);
 	}
-#else	
-	Controller->RenderPass(ERenderPass::BasePass, CommandList);
-#endif
+	else
+	{
+		Controller->RenderPass(ERenderPass::BasePass, CommandList);
+	}
 }
 
 void SceneRenderer::Init()

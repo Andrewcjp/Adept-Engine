@@ -90,6 +90,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::MainPass, "Main Pass");
 	SetTimerName(EGPUTIMERS::DeferredWrite, "Deferred Write");
 	SetTimerName(EGPUTIMERS::DeferredLighting, "Deferred Lighting");
+	SetTimerName(EGPUTIMERS::PreZ, "Pre-Z");
 	SetTimerName(EGPUTIMERS::Skybox, "Skybox");
 	SetTimerName(EGPUTIMERS::PointShadows, "Point Shadow");
 	SetTimerName(EGPUTIMERS::DirShadows, "Dir Shadow");
