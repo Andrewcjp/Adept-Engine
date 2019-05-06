@@ -14,6 +14,7 @@ DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 {
 	EditField = new UIBox(w, h, x, y);
 	Textlabel = new UILabel(">", w, 30, x, y);
+	SuggestBox = new UILabel("sugest", w, 30, x, y);
 	ResponseLabel = new UILabel("", w, 30, x, y);
 	Textlabel->TextScale = 0.3f;
 	EditField->SetEnabled(false);
@@ -34,6 +35,7 @@ void DebugConsole::Render()
 	{
 		Textlabel->Render();
 		ResponseLabel->Render();
+		SuggestBox->Render();
 	}
 }
 
@@ -53,11 +55,14 @@ void DebugConsole::ResizeView(int w, int h, int x, int y)
 	const int size = 40;
 	Textlabel->ResizeView(w, size, x, y + 10);
 	ResponseLabel->ResizeView(w, size, x, y);
+	SuggestBox->ResizeView(w, size, x, y - 15);
 }
 
-static ConsoleVariable showgraph("showgraph", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable showgraph("ui.showgraph", 0, ECVarType::ConsoleAndLaunch);
 void DebugConsole::ExecCommand(std::string command)
 {
+	SuggestBox->SetText("");
+	nextext = "";
 	LastCommand = command;
 	StringUtils::RemoveChar(command, ">");
 	ConsoleVariable* Var = nullptr;
@@ -81,6 +86,7 @@ void DebugConsole::Close()
 	UIManager::UpdateBatches();
 	ClearInput();
 	Textlabel->SetText(nextext);
+
 	UIManager::SetCurrentcontext(nullptr);
 }
 
@@ -118,6 +124,13 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 	{
 		nextext = LastCommand;
 	}
+	else if (key == VK_TAB)
+	{
+		if (CurrentTopCvar != nullptr)
+		{
+			nextext = ">" + CurrentTopCvar->GetName();
+		}
+	}
 	else
 	{
 		char c = (char)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
@@ -132,6 +145,7 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 	}
 	//todo: Cursor Movement
 	Textlabel->SetText(nextext);
+	UpdateSugestions();
 }
 
 void DebugConsole::UpdateData()
@@ -140,4 +154,46 @@ void DebugConsole::UpdateData()
 	{
 		Open();
 	}
+}
+void DebugConsole::UpdateSugestions()
+{
+	const int maxsuggestions = 10;
+	std::string output;
+	int Count = 0;
+	std::string cmd = nextext;
+	cmd.erase(0, 1);
+	for (int i = 0; i < ConsoleVariableManager::Instance->ConsoleVars.size(); i++)
+	{
+		ConsoleVariable* cv = ConsoleVariableManager::Instance->ConsoleVars[i];
+		if (MatchStart(cmd, cv->GetName()))
+		{
+			if (Count == 0)
+			{
+				CurrentTopCvar = cv;
+			}
+			output.append(cv->GetName() + ", ");
+			Count++;
+			if (Count > maxsuggestions)
+			{
+				break;
+			}
+		}
+	}
+	SuggestBox->SetText(output);
+}
+
+bool DebugConsole::MatchStart(std::string A, std::string B)
+{
+	if (A.length() > B.length())
+	{
+		return false;
+	}
+	for (int i = 0; i < A.length(); i++)
+	{
+		if (A[i] != B[i])
+		{
+			return false;
+		}
+	}
+	return true;
 }

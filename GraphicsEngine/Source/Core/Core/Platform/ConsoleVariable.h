@@ -101,7 +101,8 @@ public:
 };
 struct IConsoleSettingsVar
 {
-	IConsoleSettingsVar(){}
+	IConsoleSettingsVar()
+	{}
 	IConsoleSettingsVar(int* value)
 	{
 		Propptr = value;
