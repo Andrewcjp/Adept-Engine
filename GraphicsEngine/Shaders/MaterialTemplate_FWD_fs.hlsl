@@ -10,6 +10,11 @@ cbuffer GOConstantBuffer : register(b0)
 	//float Roughness;
 	//float Metallic;
 };
+cbuffer MateralConstantBuffer : register(b3)
+{
+	float Roughness;
+	float Metallic;
+};
 
 cbuffer LightBuffer : register(b1)
 {
@@ -75,9 +80,7 @@ float4 main(PSInput input) : SV_TARGET
 		/*Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
 		Normal = normalize(mul(Normal,input.TBN));*/
 	}
-	
-	float Roughness = 0.5f;
-	float Metallic = 0.0f;
+
 	float3 irData = DiffuseIrMap.Sample(g_sampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - input.WorldPos.xyz);
 	const float MAX_REFLECTION_LOD = 11.0;

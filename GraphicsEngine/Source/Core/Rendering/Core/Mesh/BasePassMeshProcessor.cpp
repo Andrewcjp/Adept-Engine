@@ -49,7 +49,7 @@ void BasePassMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
 		else
 		{
 			//leak!
-			Material::GetDefaultMaterial()->SetMaterialActive(List);
+			//Material::GetDefaultMaterial()->SetMaterialActive(List);
 		}
 		List->SetConstantBufferView(C->TransformUniformBuffer, 0, 0);
 		List->SetVertexBuffer(C->Vertex);

@@ -556,11 +556,6 @@ D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext * inDevice) :R
 		Device = (D3D12DeviceContext*)inDevice;
 	}
 	Context = Device;
-
-	if (Device->GetCpuFrameIndex() != 0)
-	{
-		__debugbreak();
-	}
 }
 
 void D3D12Buffer::Release()

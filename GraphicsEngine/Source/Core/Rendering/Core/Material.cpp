@@ -9,7 +9,20 @@
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/SerialHelpers.h"
 #include "Core/Assets/AssetManager.h"
+#include "RHI/RHI.h"
+#include "../Shaders/Shader_Main.h"
 Asset_Shader* Material::DefaultMaterial = nullptr;
+
+void Material::UpdateShaderData()
+{
+	MaterialData->UpdateConstantBuffer(&ShaderProperties);
+}
+
+void Material::SetMaterialData(MaterialShaderData Data)
+{
+	ShaderProperties = Data;
+	UpdateShaderData();
+}
 
 Material::Material(BaseTexture * Diff, MaterialProperties props) :Material(props)
 {
@@ -27,10 +40,13 @@ Material::Material(MaterialProperties props)
 	{
 		CurrentBindSet = new TextureBindSet(*Properties.TextureBinds);
 	}
+	MaterialData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	MaterialData->CreateConstantBuffer(sizeof(MaterialShaderData), 1);
 }
 
 Material::~Material()
 {
+	EnqueueSafeRHIRelease(MaterialData);
 	std::map<std::string, Material::TextureBindData>::iterator it;
 	for (it = CurrentBindSet->BindMap.begin(); it != CurrentBindSet->BindMap.end(); it++)
 	{
@@ -57,7 +73,7 @@ void Material::SetMaterialActive(RHICommandList* list)
 		desc.ShaderInUse = Material::GetDefaultMaterialShader();
 		list->SetPipelineStateDesc(desc);
 	}
-
+	list->SetConstantBufferView(MaterialData, 0, MainShaderRSBinds::MaterialData);
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
 		if (Pair.second.TextureObj == nullptr)
@@ -170,8 +186,8 @@ void SerialTextureBind(Archive * A, Material::TextureBindData* object)
 void Material::ProcessSerialArchive(Archive * A)
 {
 
-	ArchiveProp(Properties.Metallic);
-	ArchiveProp(Properties.Roughness);
+	ArchiveProp(ShaderProperties.Metallic);
+	ArchiveProp(ShaderProperties.Roughness);
 	if (A->IsReading())
 	{
 		std::string ShaderName = "";

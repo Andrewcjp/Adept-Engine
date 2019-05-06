@@ -4,7 +4,7 @@
 #include "Core/GameObject.h"
 #include "Core/Utils/MemoryUtils.h"
 
-Shader_Main::Shader_Main(bool LoadForward):Shader(RHI::GetDefaultDevice())
+Shader_Main::Shader_Main(bool LoadForward) :Shader(RHI::GetDefaultDevice())
 {
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
@@ -26,6 +26,7 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::GODataCBV, 0));
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::LightDataCBV, 1));
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::MVCBV, 2));
+	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::MaterialData, 3));
 	//two shadows
 	ShaderParameter parm = ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DirShadow, 0, 1);
 	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS;

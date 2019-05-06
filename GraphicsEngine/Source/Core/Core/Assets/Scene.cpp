@@ -316,8 +316,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			{
 				go = new GameObject("Water");
 				mat = Material::GetDefaultMaterial();
-				mat->GetProperties()->Roughness = x * (1.0f / (size - 1));
-				mat->GetProperties()->Metallic = y * (1.0f / (size - 1));
+				Material::MaterialShaderData data;
+				data.Roughness = x * (1.0f / (size - 1));
+				data.Metallic = y * (1.0f / (size - 1));
+				mat->SetMaterialData(data);
 				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 				MeshLoader::FMeshLoadingSettings s;
 				s.AllowInstancing = false;

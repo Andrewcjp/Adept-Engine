@@ -1,5 +1,7 @@
 #pragma once
 #include "RHI/BaseTexture.h"
+
+class RHIBuffer;
 class Material
 {
 public:
@@ -17,17 +19,20 @@ public:
 			BindMap.emplace(name, Material::TextureBindData{ nullptr, index ,Register });
 		}
 	};
-
+	struct MaterialShaderData
+	{
+		float Roughness = 1.0f;
+		float Metallic = 0.0f;
+	};
 	struct MaterialProperties
 	{
 		bool UseMainShader = true;
 		bool IsReflective = false;
-		float Roughness = 1.0f;
-		float Metallic = 0.0f;
 		class Shader* ShaderInUse = nullptr;
 		const TextureBindSet* TextureBinds = nullptr;
 	};
-
+	void UpdateShaderData();
+	void SetMaterialData(MaterialShaderData Data);
 	CORE_API Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
 	CORE_API Material(MaterialProperties props = MaterialProperties());
 	~Material();
@@ -46,10 +51,12 @@ public:
 	CORE_API static Shader* GetDefaultMaterialShader();
 	void ProcessSerialArchive(class Archive* A);
 	static constexpr const char* DefuseBindName = "DiffuseMap";
+	RHIBuffer* MaterialData = nullptr;
 private:
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);
 	MaterialProperties Properties;
+	MaterialShaderData ShaderProperties;
 	//bind to null
 	static class Asset_Shader* DefaultMaterial;
 };

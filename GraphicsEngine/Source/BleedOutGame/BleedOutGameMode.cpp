@@ -97,8 +97,6 @@ void BleedOutGameMode::SpawnSKull(glm::vec3 Position)
 	c->Player = MPlayer;
 	Material* mat = Material::GetDefaultMaterial();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-	mat->GetProperties()->Roughness = 0.0f;
-	mat->GetProperties()->Metallic = 1.0f;
 	skull->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Munkey.obj"), mat));
 	skull->AttachComponent(new ColliderComponent());
 	RigidbodyComponent* rb = skull->AttachComponent(new RigidbodyComponent());

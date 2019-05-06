@@ -96,21 +96,6 @@ void SceneRenderer::UpdateMV(glm::mat4 View, glm::mat4 Projection)
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
 }
 
-SceneConstantBuffer SceneRenderer::CreateUnformBufferEntry(GameObject * t)
-{
-	SceneConstantBuffer m_constantBufferData;
-	m_constantBufferData.M = t->GetTransform()->GetModel();
-	m_constantBufferData.HasNormalMap = false;
-	if (t->GetMesh()->GetMaterial(0) != nullptr)
-	{
-		m_constantBufferData.HasNormalMap = t->GetMesh()->GetMaterial(0)->HasNormalMap();
-		m_constantBufferData.Metallic = t->GetMesh()->GetMaterial(0)->GetProperties()->Metallic;
-		m_constantBufferData.Roughness = t->GetMesh()->GetMaterial(0)->GetProperties()->Roughness;
-	}
-	//used in the prepare stage for this frame!
-	return m_constantBufferData;
-}
-
 void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 {
 	for (int devindex = 0; devindex < RHI::GetDeviceCount(); devindex++)
