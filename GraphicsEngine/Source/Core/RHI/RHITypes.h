@@ -227,6 +227,7 @@ namespace EGPUTIMERS
 		PointShadows,
 		DirShadows,
 		MainPass,
+		PreZ,
 		DeferredWrite,
 		DeferredLighting,
 		UI,

@@ -47,7 +47,7 @@ void PhysxEngine::InitPhysics()
 	CallBackHandler = new PhysxCallBackHandler();
 	sceneDesc.simulationEventCallback = CallBackHandler;
 	//todo!
-	int cpucount = std::thread::hardware_concurrency();
+//	int cpucount = std::thread::hardware_concurrency();
 	//unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
 	gDispatcher = PxDefaultCpuDispatcherCreate(6);
 	sceneDesc.cpuDispatcher = gDispatcher;

@@ -49,7 +49,7 @@ public:
 	void StartRender();
 
 	void RenderSystem(ParticleSystem* system, FrameBuffer * BufferTarget);
-	void Render(FrameBuffer * BufferTarget);
+	void Render(FrameBuffer * BufferTarget, FrameBuffer* DephtTexture = nullptr);
 	void AddSystem(ParticleSystem* system);
 	void RemoveSystem(ParticleSystem* system);
 private:
@@ -72,5 +72,6 @@ private:
 	std::vector<ParticleSystem*> ParticleSystems;
 	void SubmitCompute();
 	void SubmitRender();
+	FrameBuffer* DepthBuffer = nullptr;
 };
 

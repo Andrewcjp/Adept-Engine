@@ -7,6 +7,7 @@
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "RHI/DeviceContext.h"
 #include "../Shaders/PostProcess/Shader_DebugOutput.h"
+#include "../Core/ParticleSystemManager.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -32,6 +33,7 @@ void DeferredRenderer::OnRender()
 		RenderOnDevice(RHI::GetDeviceContext(1));
 	}
 	RenderOnDevice(RHI::GetDeviceContext(0));
+	ParticleSystemManager::Get()->Render(DDDOs[0].OutputBuffer, DDDOs[0].GFrameBuffer);
 	if (DevicesInUse > 1)
 	{
 		DDDOs[1].OutputBuffer->ResolveSFR(FilterBuffer);

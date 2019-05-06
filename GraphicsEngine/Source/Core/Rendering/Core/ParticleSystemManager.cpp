@@ -6,7 +6,7 @@
 #include "RHI/DeviceContext.h"
 #include "Core/Assets/AssetManager.h"
 #include "GPUParticleSystem.h"
-
+static ConsoleVariable PauseVar("PSPause", 0, ECVarType::ConsoleOnly);
 ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
 
 ParticleSystemManager::ParticleSystemManager()
@@ -17,7 +17,7 @@ ParticleSystemManager::ParticleSystemManager()
 
 	AddSystem(Testsystem);
 	Testsystem = new ParticleSystem();
-	
+
 	Testsystem->EmitCountPerSecond = 10;
 	Testsystem->ParticleTexture = AssetManager::DirectLoadTextureAsset("texture\\billboardgrass0002.png", false);
 	Testsystem->ParticleTexture->AddRef();
@@ -120,7 +120,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	{
 		return;
 	}
-	if (!System->ShouldSimulate)
+	if (!System->ShouldSimulate || PauseVar.GetBoolValue())
 	{
 		return;
 	}
@@ -135,7 +135,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	Sync(System);
 	System->DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::IndirectArgs);
 
-	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ParticleEmit>()));
+	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(System->EmitShader));
 	System->CounterBuffer->GetUAV()->Bind(CmdList, 1);
 	System->GPU_ParticleData->GetUAV()->Bind(CmdList, 0);
 	System->GetPreSimList()->GetUAV()->Bind(CmdList, 2);
@@ -147,7 +147,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
 #endif
 	Sync(System);
-	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ParticleCompute>()));
+	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(System->SimulateShader));
 	float DT = Engine::GetDeltaTime();
 	CmdList->SetRootConstant(5, 1, &DT, 0);
 	System->GPU_ParticleData->GetUAV()->Bind(CmdList, 0);
@@ -172,6 +172,11 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
 #endif
 	Sync(System);
+	if (System->SortShader != nullptr)
+	{
+		//todo:
+
+	}
 	System->RenderCommandBuffer->SetBufferState(CmdList, EBufferResourceState::IndirectArgs);
 
 }
@@ -223,13 +228,25 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 	}
 
 	RHIPipeLineStateDesc desc;
-	desc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
+	desc.ShaderInUse = System->RenderShader;
 	desc.FrameBufferTarget = BufferTarget;
+	if (DepthBuffer != nullptr)
+	{
+		desc.RenderTargetDesc = BufferTarget->GetPiplineRenderDesc();
+		desc.RenderTargetDesc.DSVFormat = DepthBuffer->GetPiplineRenderDesc().DSVFormat;
+	}
 	desc.Cull = false;
 	desc.Blending = true;
 	desc.Mode = Full;
 	RenderList->SetPipelineStateDesc(desc);
-	RenderList->SetRenderTarget(BufferTarget);
+	if (DepthBuffer != nullptr)
+	{
+		DepthBuffer->BindDepthWithColourPassthrough(RenderList, BufferTarget);
+	}
+	else
+	{
+		RenderList->SetRenderTarget(BufferTarget);
+	}
 	RenderList->SetVertexBuffer(VertexBuffer);
 	RenderList->SetConstantBufferView(ParticleRenderConstants, 0, 2);
 	System->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
@@ -262,8 +279,9 @@ void ParticleSystemManager::Simulate()
 }
 
 
-void ParticleSystemManager::Render(FrameBuffer * BufferTarget)
+void ParticleSystemManager::Render(FrameBuffer * BufferTarget, FrameBuffer* DepthTexture)
 {
+	DepthBuffer = DepthTexture;
 	StartRender();
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{

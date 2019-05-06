@@ -4,6 +4,9 @@
 #include "RHI\RHICommandList.h"
 #include "Core\IRefCount.h"
 #include "ParticleSystemManager.h"
+#include "Core\Assets\ShaderComplier.h"
+#include "..\Shaders\Particle\Shader_ParticleCompute.h"
+#include "..\Shaders\Particle\Shader_ParticleDraw.h"
 
 void ParticleSystem::SwapBuffers()
 {
@@ -26,8 +29,17 @@ void ParticleSystem::Tick(float DT)
 	}
 }
 
+void ParticleSystem::SetDefaultShaders()
+{
+	SimulateShader = ShaderComplier::GetShader<Shader_ParticleCompute>();
+	EmitShader = ShaderComplier::GetShader<Shader_ParticleEmit>();
+	SortShader = nullptr;
+	RenderShader = ShaderComplier::GetShader<Shader_ParticleDraw>();
+}
+
 void ParticleSystem::Init()
 {
+	SetDefaultShaders();
 	MaxParticleCount = glm::min(MaxParticleCount, MAX_PARTICLES);
 	//return;
 	GPU_ParticleData = RHI::CreateRHIBuffer(ERHIBufferType::GPU);

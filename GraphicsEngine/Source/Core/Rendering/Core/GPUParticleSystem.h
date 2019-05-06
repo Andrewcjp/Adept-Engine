@@ -3,6 +3,7 @@
 //defines all data need to simulate and render a particle system
 struct ParticleSystem
 {
+	
 	//parameters are passed in though shaders
 	Shader* EmitShader = nullptr;
 	Shader* SimulateShader = nullptr;
@@ -36,6 +37,7 @@ struct ParticleSystem
 	bool ShouldSimulate = true;
 	void Tick(float dt);
 	int RealEmissionCount = 1;
+	void SetDefaultShaders();
 private:
 
 	float EmissionRate = 0.0f;

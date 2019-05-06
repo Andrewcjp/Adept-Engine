@@ -285,7 +285,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 {
 	SCOPE_STARTUP_COUNTER("Create PSO");
 	ensure(blobs->vsBlob != nullptr);
-	ensure(blobs->fsBlob != nullptr);
+	//	ensure(blobs->fsBlob != nullptr);
 	if (context == nullptr)
 	{
 		context = RHI::GetDeviceContext(0);
@@ -296,7 +296,10 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	psoDesc.InputLayout.NumElements = DescCount;
 	psoDesc.pRootSignature = output->RootSig;
 	psoDesc.VS = CD3DX12_SHADER_BYTECODE(blobs->vsBlob);
-	psoDesc.PS = CD3DX12_SHADER_BYTECODE(blobs->fsBlob);
+	if (blobs->fsBlob != nullptr)
+	{
+		psoDesc.PS = CD3DX12_SHADER_BYTECODE(blobs->fsBlob);
+	}
 	if (blobs->gsBlob != nullptr)
 	{
 		psoDesc.GS = CD3DX12_SHADER_BYTECODE(blobs->gsBlob);
@@ -318,10 +321,17 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	if (PSODesc.Blending)
 	{
 		psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
+
+		psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
 		if (PSODesc.Mode == Full)
 		{
+			psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 			psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
-			psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
+			psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND::D3D12_BLEND_INV_SRC_ALPHA;
+			psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+			psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+
 		}
 		else if (PSODesc.Mode == Text)
 		{
@@ -461,7 +471,7 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-	}
+		}
 	//#RHI: Samplers
 
 #define NUMSamples 3
@@ -537,7 +547,7 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 			output->RootSig->Release();
 		}
 	}*/
-}
+	}
 const std::string D3D12Shader::GetUniqueName(std::vector<Shader::ShaderParameter>& Params)
 {
 	std::string output = "Root sig Length = ";;
