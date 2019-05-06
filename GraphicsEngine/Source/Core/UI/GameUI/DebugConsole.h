@@ -13,6 +13,8 @@ public:
 	void Close();
 	void ProcessKeyDown(UINT_PTR key) override;
 	virtual void UpdateData() override;
+	void UpdateSugestions();
+	bool MatchStart(std::string A, std::string B);
 private:
 	void ExecCommand(std::string command);
 	void ClearInput();
@@ -22,6 +24,8 @@ private:
 	std::string LastCommand;
 	UILabel* Textlabel;
 	UILabel* ResponseLabel = nullptr;
+	UILabel* SuggestBox = nullptr;
 	UIBox* EditField;
+	ConsoleVariable* CurrentTopCvar = nullptr;
 };
 

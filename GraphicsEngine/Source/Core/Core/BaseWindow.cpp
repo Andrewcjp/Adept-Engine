@@ -19,7 +19,7 @@
 #include "Platform/ConsoleVariable.h"
 #include "Rendering/Core/GPUPerformanceGraph.h"
 #include "UI/GameUI/UIGraph.h"
-
+static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
@@ -145,7 +145,7 @@ void BaseWindow::Render()
 	}
 	if (Input::GetKeyDown(VK_F2))
 	{
-		ExtendedPerformanceStats = !ExtendedPerformanceStats;
+		ShowStats.SetValue(!ShowStats.GetBoolValue());
 	}
 	if (Input::GetKeyDown(VK_F3))
 	{
@@ -294,12 +294,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response
 				return true;
 			}
 			else */
-		if (command.find("stats") != -1)
-		{
-			Instance->ExtendedPerformanceStats = !Instance->ExtendedPerformanceStats;
-			return true;
-		}
-		else if (command.find("renderscale") != -1)
+		if (command.find("r.renderscale") != -1)
 		{
 			StringUtils::RemoveChar(command, "renderscale");
 			StringUtils::RemoveChar(command, " ");
@@ -423,7 +418,7 @@ void BaseWindow::Resize(int width, int height, bool force /*= false*/)
 	}
 	if (Renderer != nullptr)
 	{
-//		RHI::ResizeSwapChain(width, height);
+		//		RHI::ResizeSwapChain(width, height);
 		Renderer->Resize(width, height);
 	}
 }
@@ -536,10 +531,11 @@ RenderEngine * BaseWindow::GetCurrentRenderer()
 void BaseWindow::RenderText()
 {
 	int offset = 1;
+	std::stringstream stream;
+	stream << std::fixed << std::setprecision(2);
 	if (ShowText)
 	{
-		std::stringstream stream;
-		stream << std::fixed << std::setprecision(2);
+
 		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
 		if (RHI::GetRenderSettings()->IsDeferred)
 		{
@@ -548,24 +544,27 @@ void BaseWindow::RenderText()
 		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
 		UI->RenderTextToScreen(1, stream.str());
-		stream.str("");
 
-		if (RHI::GetRHIClass() != nullptr && ExtendedPerformanceStats)
+	}
+	stream.str("");
+	const bool ExtendedPerformanceStats = ShowStats.GetBoolValue();
+	if (ExtendedPerformanceStats)
+	{
+		if (RHI::GetRHIClass() != nullptr)
 		{
 			PerfManager::RenderGpuData(10, (int)(m_height - m_height / 8));
 		}
 
-		if (PerfManager::Instance != nullptr && ExtendedPerformanceStats)
+		if (PerfManager::Instance != nullptr)
 		{
 			PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));
 			PerfManager::Instance->DrawAllStats((int)(m_width / 1.5f), (int)(m_height / 1.2), true);
 		}
-		if (ExtendedPerformanceStats)
-		{
-			PlatformMemoryInfo info = PlatformMisc::GetMemoryInfo();
-			UI->RenderTextToScreen(2, RHI::ReportMemory() + " CPU ram " + StringUtils::ToStringFloat(info.GetWorkingSetInMB()) + "MB");
-		}
+
+		PlatformMemoryInfo info = PlatformMisc::GetMemoryInfo();
+		UI->RenderTextToScreen(2, RHI::ReportMemory() + " CPU ram " + StringUtils::ToStringFloat(info.GetWorkingSetInMB()) + "MB");
 		offset = 3;
 	}
+
 	Log::Get()->RenderText(UI, offset);
 }

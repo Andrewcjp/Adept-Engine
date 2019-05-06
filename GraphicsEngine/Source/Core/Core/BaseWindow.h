@@ -28,7 +28,6 @@ public:
 	static class Camera* GetCurrentCamera();
 	bool ShowHud = true;
 	bool ShowText = false;
-	bool ExtendedPerformanceStats = false;
 	static Scene* GetScene();
 	bool IsScenePaused()
 	{

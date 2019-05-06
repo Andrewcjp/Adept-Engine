@@ -3,7 +3,7 @@
 #include "MeshDrawCommand.h"
 #include "Core\Performance\PerfManager.h"
 #include "MeshBatch.h"
-static ConsoleVariable UseDynamicInstancing("UseDynamicInstancing", 0, ECVarType::ConsoleOnly);
+static ConsoleVariable UseDynamicInstancing("r.UseDynamicInstancing", 0, ECVarType::ConsoleOnly);
 
 MeshBatchProcessor::MeshBatchProcessor()
 {

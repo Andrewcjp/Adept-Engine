@@ -6,7 +6,8 @@
 #include "RHI/DeviceContext.h"
 #include "Core/Assets/AssetManager.h"
 #include "GPUParticleSystem.h"
-static ConsoleVariable PauseVar("PSPause", 0, ECVarType::ConsoleOnly);
+static ConsoleVariable PauseVar("PS.PauseSim", 0, ECVarType::ConsoleOnly);
+
 ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
 
 ParticleSystemManager::ParticleSystemManager()
