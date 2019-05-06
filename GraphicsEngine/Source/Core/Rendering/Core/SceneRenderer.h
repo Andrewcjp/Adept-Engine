@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI/RHI.h"
 #include "RHI/RHI_inc_fwd.h"
-#define MAX_POSSIBLE_LIGHTS 128
+#define MAX_POSSIBLE_LIGHTS 256
 class MeshPipelineController;
 typedef struct _LightUniformBuffer
 {

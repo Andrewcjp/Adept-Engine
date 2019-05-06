@@ -187,7 +187,7 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 	//#RHI: compare all props
 	return Cull == other.Cull && DepthStencilState.DepthEnable == other.DepthStencilState.DepthEnable 
 		&& other.DepthCompareFunction == DepthCompareFunction
-		&&/*RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] &&*/ Blending == other.Blending;
+		&&/*RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] &&*/ Blending == other.Blending && other.DepthStencilState.DepthWrite == DepthStencilState.DepthWrite;
 }
 
 void RHIPipeLineStateDesc::Build()

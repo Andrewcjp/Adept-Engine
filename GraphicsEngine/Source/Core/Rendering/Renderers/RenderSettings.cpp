@@ -2,6 +2,7 @@
 #include "Core\Engine.h"
 #include "GraphicsEngine.h"
 #include "Core\BaseWindow.h"
+#include "..\Core\SceneRenderer.h"
 static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
 static ConsoleVariable UseSFR("UseSFR", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly);
@@ -218,8 +219,9 @@ RenderConstants::RenderConstants()
 {
 	MAX_DYNAMIC_POINT_SHADOWS = 4;
 	MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
-	MAX_LIGHTS = 8;
+	MAX_LIGHTS = 16;
 	DEFAULT_COPYLIST_POOL_SIZE = 4;
+	MAX_LIGHTS = glm::min(MAX_POSSIBLE_LIGHTS, MAX_LIGHTS);
 }
 
 std::string RenderSettings::ToString(BBTestMode::Type t)

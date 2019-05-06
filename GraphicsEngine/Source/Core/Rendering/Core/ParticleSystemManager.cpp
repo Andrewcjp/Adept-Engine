@@ -226,7 +226,6 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 	{
 		return;
 	}
-
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = System->RenderShader;
 	desc.FrameBufferTarget = BufferTarget;
