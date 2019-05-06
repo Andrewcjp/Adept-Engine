@@ -215,12 +215,15 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddLight(glm::vec3(0, 10, -20), ExtraShadows, 200.0f);
 	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 75.0f);
 	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 75.0f);
+	//light testing
+	for (int i = 0; i < RHI::GetRenderConstants()->MAX_LIGHTS - 4; i += 4)
+	{
+		AddLight(glm::vec3(24, 7, -21), false, 75.0f);
+		AddLight(glm::vec3(33, 6, -3), false, 75.0f);
 
-	AddLight(glm::vec3(24, 7, -21), false, 75.0f);
-	AddLight(glm::vec3(33, 6, -3), false, 75.0f);
-
-	AddLight(glm::vec3(-24, 7, -21), false, 75.0f);
-	AddLight(glm::vec3(-33, 6, -3), false, 75.0f);
+		AddLight(glm::vec3(-24, 7, -21), false, 75.0f);
+		AddLight(glm::vec3(-33, 6, -3), false, 75.0f);
+	}
 
 	go = new GameObject("Rock");
 	mat = Material::GetDefaultMaterial();
@@ -301,7 +304,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 #if 1
 	size = 3;
-	
+
 	glm::vec3 startPos = glm::vec3(0, 5, 0);
 	stride = 5.0f;
 	Material::MaterialProperties props;

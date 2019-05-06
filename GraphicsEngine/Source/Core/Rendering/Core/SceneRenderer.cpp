@@ -46,8 +46,6 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 
 void SceneRenderer::Init()
 {
-
-
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
 		CLightBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
