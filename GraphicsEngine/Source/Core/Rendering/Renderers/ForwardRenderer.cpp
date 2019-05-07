@@ -180,7 +180,8 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 
 	SceneRender->UpdateMV(MainCamera);
 	SceneRender->RenderScene(Cmdlist, false, DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
-
+	//render the transprent object AFTER the main scene
+	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
 	Cmdlist->SetRenderTarget(nullptr);
 	Cmdlist->GetDevice()->GetTimeManager()->EndTimer(Cmdlist, EGPUTIMERS::MainPass);
 #if !BASIC_RENDER_ONLY

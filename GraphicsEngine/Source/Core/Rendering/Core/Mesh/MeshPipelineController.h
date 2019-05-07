@@ -10,6 +10,8 @@ namespace ERenderPass
 	{
 		DepthOnly,
 		BasePass,
+		TransparentPass,
+		PreZ,
 		Limit
 	};
 }

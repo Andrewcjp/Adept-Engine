@@ -1,13 +1,21 @@
 #pragma once
 #include "RHI/BaseTexture.h"
-
+struct EMaterialRenderType
+{
+	enum Type
+	{
+		Opaque,
+		Transparent,
+		Limit
+	};
+};
 class RHIBuffer;
 class Material
 {
 public:
 	struct TextureBindData
 	{
-		BaseTexture* TextureObj = nullptr;
+		SharedPtr<BaseTexture> TextureObj;
 		int RootSigSlot = 0;
 		int RegisterSlot = 0;
 	};
@@ -46,18 +54,21 @@ public:
 	CORE_API void SetNormalMap(BaseTexture * tex);
 	CORE_API void SetDiffusetexture(BaseTexture* tex);
 	bool HasNormalMap();
-	static void SetupDefaultMaterial();
-	CORE_API static Material* GetDefaultMaterial();
+	CORE_API static Material* CreateDefaultMaterialInstance();
+	static Material * GetDefaultMaterial();
 	CORE_API static Shader* GetDefaultMaterialShader();
 	void ProcessSerialArchive(class Archive* A);
 	static constexpr const char* DefuseBindName = "DiffuseMap";
 	RHIBuffer* MaterialData = nullptr;
+	EMaterialRenderType::Type GetRenderPassType();
+	EMaterialRenderType::Type MateralRenderType = EMaterialRenderType::Opaque;
 private:
+	
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);
 	MaterialProperties Properties;
 	MaterialShaderData ShaderProperties;
 	//bind to null
-	static class Asset_Shader* DefaultMaterial;
+
 };
 

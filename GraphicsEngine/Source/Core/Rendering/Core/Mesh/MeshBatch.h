@@ -1,5 +1,6 @@
 #pragma once
 
+class Material;
 struct MeshBatchElement
 {
 	RHIBuffer* VertexBuffer = nullptr;
@@ -7,8 +8,9 @@ struct MeshBatchElement
 	RHIBuffer* TransformBuffer = nullptr;
 	int NumPrimitives = 0;
 	int NumInstances = 0;
-	Material* Material = nullptr;
+	Material* MaterialInUse = nullptr;
 	bool IsVisible = true;
+	bool bTransparent = false;
 };
 
 class MeshBatch
@@ -21,5 +23,4 @@ public:
 	std::vector<MeshBatchElement*> elements;
 	bool CastShadow = true;
 };
-
 

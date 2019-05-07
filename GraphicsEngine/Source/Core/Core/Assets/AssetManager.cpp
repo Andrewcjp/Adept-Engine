@@ -8,6 +8,8 @@
 #include "IniHandler.h"
 #include "Asset types/BaseAsset.h"
 #include "../Asserts.h"
+#include "Asset_Shader.h"
+#include "Rendering/Core/Material.h"
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
@@ -29,6 +31,13 @@ void AssetManager::StartAssetManager()
 		instance = new AssetManager();
 		instance->Init();
 	}
+}
+
+void AssetManager::ShutDownAssetManager()
+{
+	SafeDelete(instance);
+	
+
 }
 
 const std::string AssetManager::GetContentPath()

@@ -41,6 +41,7 @@ public:
 	CORE_API static AssetManager* Get();
 	~AssetManager();
 	static void StartAssetManager();
+	static void ShutDownAssetManager();
 	void LoadFromShaderDir();
 	CORE_API std::string LoadFileWithInclude(std::string name);
 	static void RegisterMeshAssetLoad(std::string name);

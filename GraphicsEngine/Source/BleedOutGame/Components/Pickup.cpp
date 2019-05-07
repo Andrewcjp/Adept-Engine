@@ -62,7 +62,7 @@ void Pickup::SpawnPickup(glm::vec3 position, PickupType::Type type, int value)
 	case PickupType::Gauss_Ammo:
 	case PickupType::Rifle_Ammo:
 	{
-		Material* mat = Material::GetDefaultMaterial();
+		Material* mat = Material::CreateDefaultMaterialInstance();
 		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\ammoc03.jpg"));
 		MeshLoader::FMeshLoadingSettings set;
 		//set.FlipUVs = true;
@@ -71,7 +71,7 @@ void Pickup::SpawnPickup(glm::vec3 position, PickupType::Type type, int value)
 	break;
 	case PickupType::Health:
 	{
-		Material* mat = Material::GetDefaultMaterial();
+		Material* mat = Material::CreateDefaultMaterialInstance();
 		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 		obj->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\HealthPickup.obj"), mat));
 	}

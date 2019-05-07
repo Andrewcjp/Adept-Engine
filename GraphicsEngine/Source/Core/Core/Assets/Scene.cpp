@@ -113,7 +113,7 @@ void Scene::AddLight(glm::vec3 Pos, bool Shadow, float BrightNess)
 GameObject* Scene::SpawnBox(glm::vec3 pos)
 {
 	GameObject *go = new GameObject("Rock");
-	Material *mat = Material::GetDefaultMaterial();
+	Material *mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_2\\Crate_Diffuse.png"));
 	MeshLoader::FMeshLoadingSettings set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
@@ -160,7 +160,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 #else
 	go = new GameObject("Terrain");
-	mat = Material::GetDefaultMaterial();
+	mat = Material::CreateDefaultMaterialInstance();
 	MeshLoader::FMeshLoadingSettings set;
 #if 0
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\MeduimMap.png"));
@@ -172,10 +172,10 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	set.FlipUVs = true;
 	const char* Name = "\\AlwaysCook\\Terrain\\Room1.obj";
 	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
-	mat = Material::GetDefaultMaterial();
+	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	r->SetMaterial(mat, 1);
-	mat = Material::GetDefaultMaterial();
+	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\BoxObject.png"));
 	r->SetMaterial(mat, 2);
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
@@ -226,7 +226,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	}
 
 	go = new GameObject("Rock");
-	mat = Material::GetDefaultMaterial();
+	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"/*, setting*/));//Crate_Diffuse
 	set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
@@ -279,7 +279,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 				if (x == 0)
 				{
 					go = new GameObject("Test box");
-					mat = Material::GetDefaultMaterial();
+					mat = Material::CreateDefaultMaterialInstance();
 					mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"));
 					set = MeshLoader::FMeshLoadingSettings();
 					set.FlipUVs = true;
@@ -315,14 +315,14 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			for (int z = 0; z < size; z++)
 			{
 				go = new GameObject("Water");
-				mat = Material::GetDefaultMaterial();
+				mat = Material::CreateDefaultMaterialInstance();
 				Material::MaterialShaderData data;
 				data.Roughness = x * (1.0f / (size - 1));
 				data.Metallic = y * (1.0f / (size - 1));
 				mat->SetMaterialData(data);
 				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 				MeshLoader::FMeshLoadingSettings s;
-				s.AllowInstancing = false;
+				//s.AllowInstancing = false;
 				MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj", s), mat));
 				c->SetMaterial(mat, 0);
 				go->GetTransform()->SetPos(startPos + glm::vec3(x*stride, y*stride, z*stride));
@@ -342,13 +342,30 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	SpawnDoor("EntryDoor", glm::vec3(0, 0, 25));
 	SpawnDoor("ExitDoor", glm::vec3(0, 0, -34));
 
+	Asset_Shader* Transparent = new Asset_Shader(false);
+	Transparent->RenderType = EMaterialRenderType::Transparent;
+	Transparent->CreateGenDefault();
+
+	go = new GameObject("Water");
+	mat = Transparent->GetMaterial();
+	//mat->MateralRenderType = EMaterialRenderType::Transparent;
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+	MeshLoader::FMeshLoadingSettings s;
+	//s.AllowInstancing = false;
+	MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\RenderPlane.obj", s), mat));
+	c->SetMaterial(mat, 0);
+	go->GetTransform()->SetPos(glm::vec3(0, 12, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	AddGameobjectToScene(go);
+
 	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects()->size()));
 }
 
 void Scene::SpawnDoor(std::string name, glm::vec3 pos)
 {
 	GameObject* go = new GameObject(name);
-	Material* mat = Material::GetDefaultMaterial();
+	Material* mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\DoorTex.png"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.FlipUVs = true;
@@ -437,7 +454,7 @@ void Scene::TickDeferredRemove()
 GameObject * Scene::CreateDebugSphere(Scene* s)
 {
 	GameObject* go = new GameObject("Test Sphere");
-	Material* mat = Material::GetDefaultMaterial();
+	Material* mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Sphere.obj"), mat));
 	go->SetPosition(glm::vec3(0, 0, 0));

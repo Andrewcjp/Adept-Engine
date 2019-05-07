@@ -36,7 +36,6 @@ BaseWindow::~BaseWindow()
 bool BaseWindow::CreateRenderWindow(int width, int height)
 {
 	RHI::InitialiseContextWindow(width, height);
-	Material::SetupDefaultMaterial();//move!
 	m_height = height;
 	m_width = width;
 	InitilseWindow();
@@ -534,9 +533,7 @@ void BaseWindow::RenderText()
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
 	if (ShowText)
-	{
-
-		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
+	{		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
 		if (RHI::GetRenderSettings()->IsDeferred)
 		{
 			stream << "DEF ";

@@ -5,6 +5,8 @@
 #include "Core\Performance\PerfManager.h"
 #include "BasePassMeshProcessor.h"
 #include "MeshBatch.h"
+#include "TransparentPassMeshProcessor.h"
+#include "ZPrePassMeshProcessor.h"
 
 MeshPipelineController::MeshPipelineController()
 {
@@ -52,5 +54,7 @@ void MeshPipelineController::RenderPass(ERenderPass::Type type, RHICommandList* 
 void MeshPipelineController::Init()
 {
 	Processors[ERenderPass::DepthOnly] = new DepthOnlyMeshProcessor();
+	Processors[ERenderPass::TransparentPass] = new TransparentPassMeshProcessor();
+	Processors[ERenderPass::PreZ] = new ZPrePassMeshProcessor();
 	Processors[ERenderPass::BasePass] = new BasePassMeshProcessor();
 }

@@ -3,7 +3,8 @@
 //defines all data need to simulate and render a particle system
 struct ParticleSystem
 {
-	
+	~ParticleSystem()
+	{};
 	//parameters are passed in though shaders
 	Shader* EmitShader = nullptr;
 	Shader* SimulateShader = nullptr;
@@ -21,7 +22,7 @@ struct ParticleSystem
 	RHIBuffer* DispatchCommandBuffer = nullptr;
 	//counters
 	RHIBuffer * CounterBuffer = nullptr;
-	BaseTexture* ParticleTexture = nullptr;
+	SharedPtr<BaseTexture> ParticleTexture;
 	void Init();
 	void SetupCommandBuffer();
 	//System params

@@ -185,7 +185,7 @@ GameObject* BleedOut_Director::SpawnHellKnight(glm::vec3 pos)
 	GameObject* MeshC = new GameObject();
 	MeshC->SetParent(newKnight);
 	MeshC->GetTransform()->SetLocalPosition(glm::vec3(0, -1.5, 0));
-	Material* mat = Material::GetDefaultMaterial();
+	Material* mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Texture\\Mutant_diffuse.png"));
 
 	MeshLoader::FMeshLoadingSettings AnimSetting;
@@ -222,10 +222,10 @@ GameObject* BleedOut_Director::SpawnSoldier(glm::vec3 pos)
 	GameObject* MeshC = new GameObject();
 	MeshC->SetParent(NewPossessed);
 	MeshC->GetTransform()->SetLocalPosition(glm::vec3(0, -1.5, 0));
-	Material* mat = Material::GetDefaultMaterial();
+	Material* mat = Material::CreateDefaultMaterialInstance();
 	MeshLoader::FMeshLoadingSettings AnimSetting;
 	AnimSetting.FlipUVs = true;
-	AnimSetting.AllowInstancing = false;
+	//AnimSetting.AllowInstancing = false;
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Texture\\vanguard_diffuse.png"));
 	MeshRendererComponent* mrc = MeshC->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Possessed\\vanguard.fbx", AnimSetting), mat));
 	mrc->LoadAnimation("AlwaysCook\\Possessed\\Idle Aiming.fbx", "Idle");

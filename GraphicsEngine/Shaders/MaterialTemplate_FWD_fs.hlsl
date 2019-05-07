@@ -107,5 +107,5 @@ float4 main(PSInput input) : SV_TARGET
 		}
 		output += colour;
 	}
-	return float4(output.xyz,1.0f);
+	return float4(output.xyz,0.5f);
 }

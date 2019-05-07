@@ -68,7 +68,7 @@ void BleedOutGameMode::BeginPlay(Scene* Scene)
 	SpawnPlayer(glm::vec3(0, 5, 35), Scene);
 
 	GameObject* AiTest = new GameObject();
-	Material* mat = Material::GetDefaultMaterial();
+	Material* mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\Spawner.png"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.FlipUVs = true;
@@ -95,7 +95,7 @@ void BleedOutGameMode::SpawnSKull(glm::vec3 Position)
 	GameObject* skull = GameObject::Instantiate(Position);
 	SkullChaser* c = skull->AttachComponent(new SkullChaser());
 	c->Player = MPlayer;
-	Material* mat = Material::GetDefaultMaterial();
+	Material* mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	skull->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("models\\Munkey.obj"), mat));
 	skull->AttachComponent(new ColliderComponent());

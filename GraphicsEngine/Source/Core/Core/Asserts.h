@@ -42,3 +42,4 @@ Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageB
 #else
 #define ensureFatalMsgf(condition,Message);
 #endif
+#include "Core\Platform\PlatformCore.h"

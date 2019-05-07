@@ -22,7 +22,6 @@ private:
 	ImageIO();
 	~ImageIO();
 	static ImageIO* instance;
-	class BaseTexture* DefaultTexture = nullptr;
 	std::vector<class BaseTexture*> LoadedTextures;
 	bool IN_CheckIfLoaded(std::string name, BaseTexture ** out);
 };

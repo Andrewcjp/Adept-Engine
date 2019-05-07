@@ -58,7 +58,7 @@ Weapon::Weapon(Weapon::WeaponType T, Scene* scene, BleedOutPlayer* player, GameO
 void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 {
 	GameObject* go = new GameObject("Gun Test");
-	Material* mat = Material::GetDefaultMaterial();
+	Material* mat = Material::CreateDefaultMaterialInstance();
 	go->GetTransform()->SetPos(glm::vec3(0, 2, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
@@ -187,7 +187,7 @@ bool Weapon::Fire()
 	//todo: speed this up!
 	if (CurrentSettings.ShowProjectile)
 	{
-		Material* mat = Material::GetDefaultMaterial();
+		Material* mat = Material::CreateDefaultMaterialInstance();
 		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Texture\\ProjectileTex.png"));
 		MeshLoader::FMeshLoadingSettings set;
 		set.FlipUVs = true;

@@ -10,6 +10,10 @@
 #include "Core/Utils/RefChecker.h"
 #include "SFRController.h"
 #include "Core/Assets/Archive.h"
+#include "Rendering/Core/Material.h"
+#include "Core/Assets/Asset_Shader.h"
+#include "Rendering/Core/Defaults.h"
+
 RHI* RHI::instance = nullptr;
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
 
@@ -165,11 +169,11 @@ int RHI::GetFrameCount()
 
 int RHI::GetDeviceCount()
 {
-	for (int i = MAX_GPU_DEVICE_COUNT-1; i >= 0; i--)
+	for (int i = MAX_GPU_DEVICE_COUNT - 1; i >= 0; i--)
 	{
 		if (GetDeviceContext(i) != nullptr)
 		{
-			return i+1;
+			return i + 1;
 		}
 	}
 	return 1;
@@ -306,7 +310,7 @@ Mesh * RHI::CreateMesh(const char * path)
 
 Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings)
 {
-	if (Settings.AllowInstancing && false)
+	if (Settings.AllowInstancing)
 	{
 		Mesh* New = MeshLoader::Get()->TryLoadFromCache(path);
 		if (New != nullptr && New->GetSkeletalMesh() == nullptr)
@@ -369,6 +373,7 @@ void RHI::InitialiseContext()
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
 	ParticleSystemManager::Get();
 	instance->SFR_Controller = new SFRController();
+	Defaults::Start();
 }
 
 void RHI::ValidateSettings()
@@ -465,6 +470,7 @@ void RHI::ResizeSwapChain(int width, int height)
 
 void RHI::DestoryContext()
 {
+	Defaults::Shutdown();
 	if (GetRHIClass())
 	{
 		GetRHIClass()->WaitForGPU();

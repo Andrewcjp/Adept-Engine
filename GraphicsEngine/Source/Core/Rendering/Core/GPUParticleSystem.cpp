@@ -108,7 +108,6 @@ void ParticleSystem::Init()
 	if (ParticleTexture == nullptr)
 	{
 		ParticleTexture = AssetManager::DirectLoadTextureAsset("texture\\smoke.png", false);
-		ParticleTexture->AddRef();
 	}
 }
 
@@ -165,7 +164,6 @@ void ParticleSystem::Release()
 	EnqueueSafeRHIRelease(DispatchCommandBuffer);
 	EnqueueSafeRHIRelease(AliveParticleIndexs);
 	EnqueueSafeRHIRelease(DeadParticleIndexs);
-	EnqueueSafeRHIRelease(ParticleTexture);
 	EnqueueSafeRHIRelease(AliveParticleIndexs_PostSim);
 }
 
