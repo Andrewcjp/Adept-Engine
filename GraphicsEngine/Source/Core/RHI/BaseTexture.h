@@ -25,7 +25,7 @@ struct TextureDescription
 	ETextureType::Type TextureType = ETextureType::Type_2D;
 };
 
-class BaseTexture : public IRefCount, public IRHIResourse, public IRHISharedDeviceObject<BaseTexture>
+class BaseTexture :  public IRHIResourse, public IRHISharedDeviceObject<BaseTexture>
 {
 public:
 	CORE_API virtual ~BaseTexture();

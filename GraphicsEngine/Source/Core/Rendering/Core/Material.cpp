@@ -11,7 +11,9 @@
 #include "Core/Assets/AssetManager.h"
 #include "RHI/RHI.h"
 #include "../Shaders/Shader_Main.h"
-Asset_Shader* Material::DefaultMaterial = nullptr;
+#include "Defaults.h"
+#include "Core/ObjectBase/SharedPtr.h"
+
 
 void Material::UpdateShaderData()
 {
@@ -47,11 +49,7 @@ Material::Material(MaterialProperties props)
 Material::~Material()
 {
 	EnqueueSafeRHIRelease(MaterialData);
-	std::map<std::string, Material::TextureBindData>::iterator it;
-	for (it = CurrentBindSet->BindMap.begin(); it != CurrentBindSet->BindMap.end(); it++)
-	{
-		SafeRefRelease(it->second.TextureObj);
-	}
+	SafeDelete(CurrentBindSet);
 }
 
 void Material::SetMaterialActive(RHICommandList* list)
@@ -62,6 +60,12 @@ void Material::SetMaterialActive(RHICommandList* list)
 	if (RHI::GetRenderSettings()->UseZPrePass)
 	{
 		desc.DepthStencilState.DepthWrite = false;
+	}
+	if (MateralRenderType == EMaterialRenderType::Transparent)
+	{
+		desc.Blending = true;
+		desc.Cull = false;
+		desc.Mode = Full;
 	}
 	if (GetProperties()->ShaderInUse != nullptr)
 	{
@@ -82,7 +86,7 @@ void Material::SetMaterialActive(RHICommandList* list)
 		}
 		else
 		{
-			list->SetTexture(Pair.second.TextureObj, Pair.second.RootSigSlot);
+			list->SetTexture(Pair.second.TextureObj.Get(), Pair.second.RootSigSlot);
 		}
 	}
 }
@@ -91,11 +95,11 @@ void Material::UpdateBind(std::string Name, BaseTexture* NewTex)
 {
 	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
 	{
-		if (CurrentBindSet->BindMap.at(Name).TextureObj != NewTex)
+		if (CurrentBindSet->BindMap.at(Name).TextureObj.Get() != NewTex)
 		{
-			SafeRefRelease(CurrentBindSet->BindMap.at(Name).TextureObj);
+			//SafeRefRelease(CurrentBindSet->BindMap.at(Name).TextureObj.Get());
 			CurrentBindSet->BindMap.at(Name).TextureObj = NewTex;
-			NewTex->AddRef();
+			//NewTex->AddRef();
 		}
 	}
 	else
@@ -109,7 +113,7 @@ BaseTexture * Material::GetTexturebind(std::string Name)
 {
 	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
 	{
-		return CurrentBindSet->BindMap.at(Name).TextureObj;
+		return CurrentBindSet->BindMap.at(Name).TextureObj.Get();
 	}
 	return nullptr;
 }
@@ -148,22 +152,19 @@ bool Material::HasNormalMap()
 	return GetTexturebind("NORMALMAP") != nullptr;
 }
 
-void Material::SetupDefaultMaterial()
+Material * Material::CreateDefaultMaterialInstance()
 {
-	if (DefaultMaterial == nullptr)
-	{
-		DefaultMaterial = new Asset_Shader(true);
-	}
+	return Defaults::GetDefaultShaderAsset()->GetMaterialInstance();
 }
 
-Material * Material::GetDefaultMaterial()
+Material* Material::GetDefaultMaterial()
 {
-	return DefaultMaterial->GetMaterialInstance();
+	return Defaults::GetDefaultShaderAsset()->GetMaterial();
 }
 
 Shader * Material::GetDefaultMaterialShader()
 {
-	return DefaultMaterial->GetMaterialInstance()->GetProperties()->ShaderInUse;
+	return Defaults::GetDefaultShaderAsset()->GetMaterial()->GetProperties()->ShaderInUse;
 }
 
 void SerialTextureBind(Archive * A, Material::TextureBindData* object)
@@ -229,6 +230,11 @@ void Material::ProcessSerialArchive(Archive * A)
 	}
 	A->LinkPropertyMap<std::string, Material::TextureBindData>(CurrentBindSet->BindMap, "CurrentBindSet->BindMap", &SerialTextureBind);
 
+}
+
+EMaterialRenderType::Type Material::GetRenderPassType()
+{
+	return MateralRenderType;
 }
 
 void Material::SetupDefaultBinding(TextureBindSet* TargetSet)

@@ -11,20 +11,21 @@ struct SkeletalMeshEntry;
 class MeshBatch;
 struct MeshEntity
 {
-	RHIBuffer * VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
-	RHIBuffer* IndexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
+	SharedPtr<RHIBuffer> VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
+	SharedPtr<RHIBuffer> IndexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<IndType> &indices);
-	void Release();
+	MeshEntity();
+	void InstanceElement(MeshEntity * other, MeshLoader::FMeshLoadingSettings& Settings);
 	bool LoadSucessful = false;
 	int MaterialIndex = 0;
 	int BaseVertex = 0;
 };
-class Mesh : public IRefCount, public IRHIResourse
+class Mesh :  public IRHIResourse
 {
 public:
 	RHI_API Mesh();
 	Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings);
-
+	void InstanceFrom(Mesh* m);
 	RHI_API ~Mesh();
 	void Tick(float dt);
 	void Render(RHICommandList * list, bool SetMaterial = false);
@@ -44,7 +45,7 @@ public:
 	bool IsVisible = true;
 	RHI_API void Release() override;
 private:
-	
+
 	int FrameCreated = 0;
 	std::vector<Material*> Materials;
 	/**

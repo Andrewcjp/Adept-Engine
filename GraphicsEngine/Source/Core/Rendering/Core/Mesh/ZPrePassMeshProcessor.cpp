@@ -1,4 +1,4 @@
-#include "DepthOnlyMeshProcessor.h"
+#include "ZPrePassMeshProcessor.h"
 #include "Core\Assets\ShaderComplier.h"
 #include "RHI\RHICommandList.h"
 #include "MeshDrawCommand.h"
@@ -6,30 +6,35 @@
 #include "MeshBatch.h"
 
 
-DepthOnlyMeshProcessor::DepthOnlyMeshProcessor()
+ZPrePassMeshProcessor::ZPrePassMeshProcessor()
 {
 	Init();
 }
 
-DepthOnlyMeshProcessor::~DepthOnlyMeshProcessor()
+ZPrePassMeshProcessor::~ZPrePassMeshProcessor()
 {}
 
-void DepthOnlyMeshProcessor::Init()
+void ZPrePassMeshProcessor::Init()
 {
 
 }
-void DepthOnlyMeshProcessor::AddBatch(MeshBatch* Batch)
+void ZPrePassMeshProcessor::AddBatch(MeshBatch* Batch)
 {
-	if (Batch->CastShadow)
-	{
-		Process(Batch);
-	}
+	Process(Batch);
 }
 
-void DepthOnlyMeshProcessor::Process(MeshBatch* Batch)
+void ZPrePassMeshProcessor::Process(MeshBatch* Batch)
 {
 	for (int i = 0; i < Batch->elements.size(); i++)
 	{
+		if (!Batch->elements[i]->IsVisible)
+		{
+			continue;
+		}
+		if (Batch->elements[i]->bTransparent)
+		{
+			continue;
+		}
 		MeshDrawCommand* command = new MeshDrawCommand();
 		command->NumInstances = 1;
 		command->NumPrimitves = Batch->elements[i]->NumPrimitives;
@@ -40,7 +45,7 @@ void DepthOnlyMeshProcessor::Process(MeshBatch* Batch)
 	}
 }
 
-void DepthOnlyMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
+void ZPrePassMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
 {
 	for (int i = 0; i < DrawCommands.size(); i++)
 	{
@@ -51,6 +56,6 @@ void DepthOnlyMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader
 		List->DrawIndexedPrimitive(C->NumPrimitves, C->NumInstances, 0, 0, 0);
 		CountDrawCall();
 	}
-	
+
 }
 

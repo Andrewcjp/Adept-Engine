@@ -7,14 +7,13 @@
 #include "Core/Engine.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Rendering/Core/Defaults.h"
 //#Asset Move all texture loading here and add support of more formats
 //#Assets create common texture format holder? texture asset?
 ImageIO* ImageIO::instance = nullptr;
 ImageIO::ImageIO()
 {
-	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
-	ensureFatalMsgf(DefaultTexture, "Failed to Load Fallback Texture");
-	DefaultTexture->AddRef();
+
 }
 
 ImageIO::~ImageIO()
@@ -23,16 +22,11 @@ ImageIO::~ImageIO()
 	{
 		SafeRefRelease(LoadedTextures[i]);
 	}
-	SafeRefRelease(DefaultTexture);
 }
 
 BaseTexture * ImageIO::GetDefaultTexture()
 {
-	if (instance)
-	{
-		return instance->DefaultTexture;
-	}
-	return nullptr;
+	return Defaults::GetDefaultTexture();
 }
 
 void ImageIO::StartLoader()

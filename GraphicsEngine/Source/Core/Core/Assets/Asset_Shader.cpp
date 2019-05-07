@@ -7,10 +7,15 @@ Asset_Shader::Asset_Shader(bool GenDefault)
 {
 	if (GenDefault)
 	{
-		Graph = new ShaderGraph("");
-		Graph->CreateDefault();
-		Graph->Complie();
+		CreateGenDefault();
 	}
+}
+
+void Asset_Shader::CreateGenDefault()
+{
+	Graph = new ShaderGraph("");
+	Graph->CreateDefault();
+	Graph->Complie();
 }
 
 void Asset_Shader::SetupSingleColour()
@@ -27,8 +32,11 @@ void Asset_Shader::SetupTestMat()
 	Graph->Complie();
 }
 
+
 Asset_Shader::~Asset_Shader()
-{}
+{
+	SafeDelete(Instance);
+}
 
 void Asset_Shader::RegisterSelf()
 {
@@ -49,7 +57,17 @@ Material * Asset_Shader::GetMaterialInstance()
 	Material::MaterialProperties Props = Material::MaterialProperties();
 	Props.ShaderInUse = Graph->GetGeneratedShader();
 	Props.TextureBinds = Graph->GetMaterialData();
-	return new Material(Props);
+	Material* m = new Material(Props);
+	m->MateralRenderType = RenderType;
+	return m;
+}
+Material * Asset_Shader::GetMaterial()
+{
+	if (Instance == nullptr)
+	{
+		Instance = GetMaterialInstance();
+	}
+	return Instance;
 }
 void Asset_Shader::GetMaterialInstance(Material* mat)
 {
@@ -57,6 +75,7 @@ void Asset_Shader::GetMaterialInstance(Material* mat)
 	Material::MaterialProperties Props = Material::MaterialProperties();
 	mat->GetProperties()->ShaderInUse = Graph->GetGeneratedShader();
 	mat->GetProperties()->TextureBinds = Graph->GetMaterialData();
+	mat->MateralRenderType = RenderType;
 }
 
 std::string & Asset_Shader::GetName()

@@ -20,6 +20,7 @@
 #include <thread>
 #include "Platform/Threading.h"
 #include "GraphicsEngine.h"
+#include "Rendering/Core/Defaults.h"
 long Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
@@ -47,7 +48,7 @@ std::string Engine::GetExecutionDir()
 Engine::Engine(EnginePersistentData* epd)
 {
 	EPD = epd;
-	
+
 	EngineInstance = this;
 	Log::StartLogger();
 	PlatformApplication::Init();
@@ -61,6 +62,7 @@ Engine::Engine(EnginePersistentData* epd)
 #endif
 	ModuleManager::Get()->PreLoadModules();
 	AssetManager::StartAssetManager();
+	
 	PerfManager::StartPerfManager();
 	PhysEngine = new PhysicsEngine();
 	if (PhysEngine != nullptr)
@@ -71,7 +73,7 @@ Engine::Engine(EnginePersistentData* epd)
 #if RUNTESTS
 	FString::RunFStringTests();
 #endif
-	  
+
 	AudioEngine::Startup();
 	int cpucount = std::thread::hardware_concurrency();
 	unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
@@ -81,6 +83,7 @@ Engine::Engine(EnginePersistentData* epd)
 
 Engine::~Engine()
 {
+	AssetManager::ShutDownAssetManager();
 	Log::ShutDownLogger();
 	TaskGraph->Shutdown();
 	SafeDelete(TaskGraph);
@@ -112,7 +115,7 @@ void Engine::OnDestoryWindow()
 }
 
 void Engine::Destory()
-{	
+{
 	RHI::DestoryContext();
 	RHI::DestoryRHI();
 	if (PhysEngine != nullptr)
@@ -121,9 +124,9 @@ void Engine::Destory()
 	}
 	AISystem::ShutDown();
 	AudioEngine::Shutdown();
-	ModuleManager::Get()->ShutDown();	
+	ModuleManager::Get()->ShutDown();
 	EPD->BenchTime += fabs((float)(PerfManager::get_nanos() - Engine::StartTime) / 1e6f);
-	Log::LogMessage("Engine was active for " + std::to_string(EPD->BenchTime)+"ms ");
+	Log::LogMessage("Engine was active for " + std::to_string(EPD->BenchTime) + "ms ");
 	PerfManager::ShutdownPerfManager();
 }
 
@@ -153,9 +156,9 @@ void Engine::CreateApplication()
 #if BASIC_RENDER_ONLY
 		RHI::InitRHI(RenderSystemVulkan);
 #else
-		RHI::InitRHI(RenderSystemD3D12); 
+		RHI::InitRHI(RenderSystemD3D12);
 #endif
-	}
+}
 	else
 	{
 		RHI::InitRHI(ForcedRenderSystem);

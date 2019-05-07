@@ -8,6 +8,7 @@ Shader_NodeGraph::Shader_NodeGraph(ShaderGraph* graph) :Shader_Main(true)
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
 	std::string Data = "Gen\\" + graph->GetGraphName().ToSString();
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TEST", "1"));
+	
 	m_Shader->AttachAndCompileShaderFromFile(Data.c_str(), EShaderType::SHADER_FRAGMENT);
 	Matname = graph->GetGraphName().ToSString();
 	Graph = graph;

@@ -6,6 +6,7 @@
 #include "RHI/DeviceContext.h"
 #include "Core/Assets/AssetManager.h"
 #include "GPUParticleSystem.h"
+#include "Core/Utils/MemoryUtils.h"
 static ConsoleVariable PauseVar("PS.PauseSim", 0, ECVarType::ConsoleOnly);
 
 ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
@@ -21,13 +22,15 @@ ParticleSystemManager::ParticleSystemManager()
 
 	Testsystem->EmitCountPerSecond = 10;
 	Testsystem->ParticleTexture = AssetManager::DirectLoadTextureAsset("texture\\billboardgrass0002.png", false);
-	Testsystem->ParticleTexture->AddRef();
+	//Testsystem->ParticleTexture->AddRef();
 	Testsystem->Init();
 	AddSystem(Testsystem);
 }
 
 ParticleSystemManager::~ParticleSystemManager()
-{}
+{
+
+}
 
 void ParticleSystemManager::InitCommon()
 {
@@ -96,7 +99,8 @@ void ParticleSystemManager::ShutDown()
 {
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{
-		SafeRelease(ParticleSystems[i]);
+		ParticleSystems[i]->Release();
+		SafeDelete(ParticleSystems[i]);
 	}
 	EnqueueSafeRHIRelease(CmdList);
 	EnqueueSafeRHIRelease(RenderList);
@@ -252,7 +256,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 	System->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
 	System->GPU_ParticleData->BindBufferReadOnly(RenderList, 1);
 	System->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::IndirectArgs);
-	RenderList->SetTexture(System->ParticleTexture, 3);
+	RenderList->SetTexture(System->ParticleTexture.Get(), 3);
 #if USE_INDIRECTRENDER
 	RenderList->ExecuteIndiect(System->MaxParticleCount, System->RenderCommandBuffer, 0, System->CounterBuffer, 0);
 #else

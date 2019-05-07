@@ -58,4 +58,4 @@
 #include "EngineGlobals.h"
 #include "Core/Platform/PlatformTypes.h"
 #include "Core/Asserts.h"
-
+#include "Core/ObjectBase/SharedPtr.h"

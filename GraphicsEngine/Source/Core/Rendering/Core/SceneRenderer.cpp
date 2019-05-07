@@ -36,7 +36,7 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	}
 	if (PositionOnly)
 	{
-		Controller->RenderPass(ERenderPass::DepthOnly, CommandList);
+		Controller->RenderPass(ERenderPass::PreZ, CommandList);
 	}
 	else
 	{

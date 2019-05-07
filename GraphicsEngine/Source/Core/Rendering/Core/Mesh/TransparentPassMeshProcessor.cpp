@@ -1,24 +1,24 @@
 #include "Stdafx.h"
-#include "BasePassMeshProcessor.h"
+#include "TransparentPassMeshProcessor.h"
 #include "RHI\RHICommandList.h"
 #include "MeshDrawCommand.h"
 #include "MeshBatch.h"
 #include "..\Material.h"
 
 
-BasePassMeshProcessor::BasePassMeshProcessor()
+TransparentPassMeshProcessor::TransparentPassMeshProcessor()
 {}
 
 
-BasePassMeshProcessor::~BasePassMeshProcessor()
+TransparentPassMeshProcessor::~TransparentPassMeshProcessor()
 {}
 
-void BasePassMeshProcessor::AddBatch(MeshBatch* Batch)
+void TransparentPassMeshProcessor::AddBatch(MeshBatch* Batch)
 {
 	Process(Batch);
 }
 
-void BasePassMeshProcessor::Process(MeshBatch* Batch)
+void TransparentPassMeshProcessor::Process(MeshBatch* Batch)
 {
 	for (int i = 0; i < Batch->elements.size(); i++)
 	{
@@ -26,8 +26,8 @@ void BasePassMeshProcessor::Process(MeshBatch* Batch)
 		{
 			continue;
 		}
-		//transparent elemnets are rendered after opaque.
-		if (Batch->elements[i]->bTransparent)
+		//transparent elements are rendered after opaque.
+		if (!Batch->elements[i]->bTransparent)
 		{
 			continue;
 		}
@@ -42,7 +42,7 @@ void BasePassMeshProcessor::Process(MeshBatch* Batch)
 	}
 }
 
-void BasePassMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
+void TransparentPassMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
 {
 	for (int i = 0; i < DrawCommands.size(); i++)
 	{

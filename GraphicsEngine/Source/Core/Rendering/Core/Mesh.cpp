@@ -12,11 +12,7 @@
 #include "Core/Transform.h"
 
 Mesh::Mesh()
-{}
-
-Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 {
-	LoadMeshFromFile(filename, Settings);
 	FrameCreated = RHI::GetFrameCount();
 	if (FrameCreated == 0)
 	{
@@ -26,10 +22,31 @@ Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings)
 	PrimitiveTransfromBuffer->CreateConstantBuffer(sizeof(MeshTransfromBuffer), 1, true);
 }
 
+
+Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings) :Mesh()
+{
+	LoadMeshFromFile(filename, Settings);
+}
+
+void Mesh::InstanceFrom(Mesh * m)
+{
+	ImportSettings = m->ImportSettings;
+	for (int i = 0; i < m->SubMeshes.size(); i++)
+	{
+		MeshEntity* ME = new MeshEntity();
+		ME->InstanceElement(m->SubMeshes[i], m->ImportSettings);
+		SubMeshes.push_back(ME);
+	}
+	for (int i = 0; i < m->Materials.size(); i++)
+	{
+		Materials.push_back(m->Materials[i]);
+	}
+}
+
 void Mesh::Release()
 {
 	IRHIResourse::Release();
-	MemoryUtils::DeleteReleaseableVector(SubMeshes);
+	MemoryUtils::DeleteVector(SubMeshes);
 	MemoryUtils::DeleteVector(Materials);
 	SafeRHIRelease(PrimitiveTransfromBuffer);
 	SafeRelease(pSkeletalEntity);
@@ -58,8 +75,8 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
 			for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)
 			{
-				list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()]);
-				list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]);
+				list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()].Get());
+				list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()].Get());
 				list->DrawIndexedPrimitive((int)pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
 			}
 		}
@@ -73,8 +90,8 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 					{
 						TryPushMaterial(list, SubMeshes[i]->MaterialIndex);
 					}
-					list->SetVertexBuffer(SubMeshes[i]->VertexBuffers[list->GetDeviceIndex()]);
-					list->SetIndexBuffer(SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()]);
+					list->SetVertexBuffer(SubMeshes[i]->VertexBuffers[list->GetDeviceIndex()].Get());
+					list->SetIndexBuffer(SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()].Get());
 					list->DrawIndexedPrimitive((int)SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
 				}
 			}
@@ -175,6 +192,10 @@ glm::vec3 Mesh::GetPosOfBone(std::string Name)
 
 MeshBatch * Mesh::GetMeshBatch()
 {
+	if (RHI::GetFrameCount() <= FrameCreated + 1)
+	{
+		return nullptr;
+	}
 	//todo: handle multiGPU
 	MeshBatch* B = new MeshBatch();
 
@@ -185,13 +206,14 @@ MeshBatch * Mesh::GetMeshBatch()
 			continue;
 		}
 		MeshBatchElement* e = new MeshBatchElement();
-		e->VertexBuffer = SubMeshes[i]->VertexBuffers[0];
-		e->IndexBuffer = SubMeshes[i]->IndexBuffers[0];
+		e->VertexBuffer = SubMeshes[i]->VertexBuffers[0].Get();
+		e->IndexBuffer = SubMeshes[i]->IndexBuffers[0].Get();
 		e->NumPrimitives = SubMeshes[i]->IndexBuffers[0]->GetVertexCount();
 		e->NumInstances = 1;
 		e->TransformBuffer = PrimitiveTransfromBuffer;
-		e->Material = GetMaterial(SubMeshes[i]->MaterialIndex);
+		e->MaterialInUse = GetMaterial(SubMeshes[i]->MaterialIndex);
 		e->IsVisible = IsVisible;
+		e->bTransparent = e->MaterialInUse->GetRenderPassType() == EMaterialRenderType::Transparent;
 		B->AddMeshElement(e);
 	}
 	B->CastShadow = GetDoesShadow();
@@ -223,8 +245,8 @@ MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<O
 		IndexBuffers[i]->UpdateIndexBuffer(indices.data(), indices.size());
 		if (i > 0)
 		{
-			VertexBuffers[0]->RegisterOtherDeviceTexture(VertexBuffers[i]);
-			IndexBuffers[0]->RegisterOtherDeviceTexture(IndexBuffers[i]);
+			VertexBuffers[0]->RegisterOtherDeviceTexture(VertexBuffers[i].Get());
+			IndexBuffers[0]->RegisterOtherDeviceTexture(IndexBuffers[i].Get());
 		}
 	}
 	indices.clear();
@@ -232,9 +254,16 @@ MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<O
 	LoadSucessful = true;
 }
 
-void MeshEntity::Release()
-{
-	MemoryUtils::DeleteReleaseableCArray(VertexBuffers, MAX_GPU_DEVICE_COUNT);
-	MemoryUtils::DeleteReleaseableCArray(IndexBuffers, MAX_GPU_DEVICE_COUNT);
+MeshEntity::MeshEntity()
+{}
 
+void MeshEntity::InstanceElement(MeshEntity* other, MeshLoader::FMeshLoadingSettings& Settings)
+{
+	LoadSucessful = other->LoadSucessful;
+	const int count = Settings.InitOnAllDevices ? RHI::GetDeviceCount() : 1;
+	for (int i = 0; i < count; i++)
+	{
+		VertexBuffers[i] = other->VertexBuffers[i];
+		IndexBuffers[i] = other->IndexBuffers[i];
+	}
 }

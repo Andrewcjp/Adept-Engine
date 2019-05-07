@@ -57,7 +57,7 @@ void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
 	ArchiveProp(InitOnAllDevices);
 	ArchiveProp(CreatePhysxMesh);
 	ArchiveProp(GenerateIndexed);
-	ArchiveProp(FlipUVs); 
+	ArchiveProp(FlipUVs);
 }
 ///this loads only an animation from a file and adds it to a Skeletal mesh
 ///#Anim  validate bones are the same
@@ -477,7 +477,7 @@ uint SkeletalMeshEntry::FindPosition(float AnimationTime, const aiNodeAnim* pNod
 
 void SkeletalMeshEntry::Release()
 {
-	MemoryUtils::DeleteReleaseableVector(MeshEntities);
+	MemoryUtils::DeleteVector(MeshEntities);
 }
 
 uint SkeletalMeshEntry::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
@@ -640,7 +640,7 @@ void SkeletalMeshEntry::ReadNodes(float time, const aiNode* pNode, const glm::ma
 	{
 		uint BoneIndex = m_BoneMapping[NodeName];
 		m_BoneInfo[BoneIndex].FinalTransformation = ModelInvTransfrom * GlobalTransformation * m_BoneInfo[BoneIndex].BoneOffset;
-}
+	}
 
 	for (uint i = 0; i < pNode->mNumChildren; i++)
 	{
@@ -699,7 +699,6 @@ void MeshLoader::DestoryMeshes()
 
 Mesh * MeshLoader::TryLoadFromCache(std::string Path)
 {
-	return nullptr;
 	auto Itor = CreatedMeshes.find(Path);
 	if (Itor != CreatedMeshes.end())
 	{
@@ -707,8 +706,9 @@ Mesh * MeshLoader::TryLoadFromCache(std::string Path)
 		{
 			return nullptr;
 		}
-		Itor->second->AddRef();
-		return Itor->second;
+		Mesh* NewInstance = new Mesh();
+		NewInstance->InstanceFrom(Itor->second);
+		return NewInstance;
 	}
 	return nullptr;
 }

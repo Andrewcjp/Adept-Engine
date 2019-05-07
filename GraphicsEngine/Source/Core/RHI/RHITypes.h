@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Types/FString.h"
+#include "Core/IRefCount.h"
 
 class Shader;
 class FrameBuffer;
@@ -408,7 +409,7 @@ public:
 	RHIPipeLineStateObject* PSO = nullptr;
 };
 
-class RHI_API IRHIResourse
+class RHI_API IRHIResourse : public IRefCount
 {
 public:
 	virtual ~IRHIResourse();
