@@ -9,10 +9,11 @@
 #include "SceneRenderer.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Mesh/MeshPipelineController.h"
+#include "Culling/CullingManager.h"
 #define SINGLE_GPU_PRESAMPLE 0
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
-ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
+ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer, CullingManager* manager)
 {
 	Scenerenderer = sceneRenderer;
 	DirectionalLightShader = ShaderComplier::GetShader_Default<Shader_Depth>(false);
@@ -23,7 +24,7 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer)
 	PointLightShader = ShaderComplier::GetShader<Shader_Depth>(RHI::GetDefaultDevice(), true);
 	ShadowPreSampleShader = ShaderComplier::GetShader_Default<Shader_ShadowSample, int>(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS);
 	ShadowPreSampleShader_GPU0 = ShaderComplier::GetShader_Default<Shader_ShadowSample, int>(RHI::GetMGPUSettings()->MAX_PRESAMPLED_SHADOWS_GPU0);
-	
+	Culling = manager;
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
 		SetupOnDevice(RHI::GetDeviceContext(i));
@@ -328,6 +329,8 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector
 		{
 			continue;
 		}
+		Culling->UpdateCullingForShadowLight(LightInteractions[SNum]->lightPtr, Scenerenderer->GetScene());
+
 		FrameBuffer* TargetBuffer = LightInteractions[SNum]->ShadowMap;
 		Shader_Depth* TargetShader = LightInteractions[SNum]->Shader;
 		Light* LightPtr = LightInteractions[SNum]->lightPtr;

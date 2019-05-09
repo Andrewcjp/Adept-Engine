@@ -8,63 +8,24 @@ public:
 	static int LastId;
 	enum LightType
 	{
-		Directional, Point, Spot
+		Directional, Point, Spot,Area
 	};
 	Light(glm::vec3 positon, float intesity, LightType type = LightType::Point, glm::vec3 Lightcolor = glm::vec3(1, 1, 1), bool shadow = true);
 	~Light();
-	glm::vec3 GetPosition() const
-	{
-		return m_position;
-	}
-	glm::vec3 GetColor() const
-	{
-		return m_lightColor * m_intesity;
-	}
-	LightType GetType() const
-	{
-		return m_type;
-	}
-	void SetPostion(glm::vec3 pos)
-	{
-		m_position = pos;
-	}
-	void SetIntesity(float value)
-	{
-		m_intesity = value;
-	}
-	void SetLightType(LightType value)
-	{
-		m_type = value;
-	}
-	void SetShadow(bool state)
-	{
-		DoesShadow = state;
-	}
-	void SetDirection(const glm::vec3 &value)
-	{
-		m_direction = glm::normalize(value);
-	}
-	bool GetDoesShadow() const
-	{
-		return DoesShadow;
-	}
-	void SetShadowId(int id)
-	{
-		ShadowId = id;
-	}
-	int GetShadowId() const
-	{
-		return ShadowId;
-	}
+	glm::vec3 GetPosition() const;
+	glm::vec3 GetColor() const;
+	LightType GetType() const;
+	void SetPostion(glm::vec3 pos);
+	void SetIntesity(float value);
+	void SetLightType(LightType value);
+	void SetShadow(bool state);
+	void SetDirection(const glm::vec3 &value);
+	bool GetDoesShadow() const;
+	void SetShadowId(int id);
+	int GetShadowId() const;
 	int DirectionalShadowid = -1;
-	glm::vec3 GetDirection()const
-	{
-		return m_direction;
-	}
-	float GetIntesity()
-	{
-		return m_intesity;
-	}
+	glm::vec3 GetDirection()const;
+	float GetIntesity();
 	glm::mat4 DirView;
 	glm::mat4 Projection;
 	glm::vec3 m_lightColor = glm::vec3(1, 1, 1);
@@ -74,8 +35,12 @@ public:
 	//If a shadow is resident on this device which one should we copy it too?
 	int GPUShadowCopyDeviceTarget[MAX_GPU_DEVICE_COUNT] = { -1 ,-1};
 	void SetShadowResdent(int DeviceIndex, int CopyTarget);
-
+	float Distance = 512;
+	void Update();
+	float GetRange();
 private:
+	//the distance after the light is too dim
+	float FalloffRange = 0.0f;
 	float m_intesity = 10;
 	glm::vec3 m_position = glm::vec3(0, 0, 0);
 

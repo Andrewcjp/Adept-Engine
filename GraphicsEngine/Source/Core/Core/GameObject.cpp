@@ -46,15 +46,16 @@ CullingAABB * GameObject::GetBounds()
 	return nullptr;
 }
 
-bool GameObject::IsCulled()
+bool GameObject::IsCulled(ECullingPass::Type Pass)
 {
-	return CullingState;
+	return CullingStates[Pass];
 }
 
-void GameObject::SetCulledState(bool state)
+void GameObject::SetCulledState(ECullingPass::Type pass, bool state)
 {
-	CullingState = state;
+	CullingStates[pass] = state;
 }
+
 
 GameObject::~GameObject()
 {

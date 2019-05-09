@@ -20,7 +20,7 @@ void DepthOnlyMeshProcessor::Init()
 }
 void DepthOnlyMeshProcessor::AddBatch(MeshBatch* Batch)
 {
-	if (Batch->CastShadow)
+	if (Batch->CastShadow && !Batch->ShadowPassCulled)
 	{
 		Process(Batch);
 	}

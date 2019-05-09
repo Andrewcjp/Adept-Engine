@@ -236,7 +236,8 @@ MeshBatch * Mesh::GetMeshBatch()
 		e->bTransparent = e->MaterialInUse->GetRenderPassType() == EMaterialRenderType::Transparent;
 		B->AddMeshElement(e);
 	}
-	B->MainPassCulled = Renderer->GetOwner()->IsCulled();
+	B->MainPassCulled = Renderer->GetOwner()->IsCulled(ECullingPass::MainPass);
+	B->ShadowPassCulled = Renderer->GetOwner()->IsCulled(ECullingPass::ShadowPass);
 	B->CastShadow = GetDoesShadow();
 	return B;
 }

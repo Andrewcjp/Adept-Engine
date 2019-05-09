@@ -97,8 +97,8 @@ public:
 	void OnRemoveFromScene();
 	void ValidateObjectInWorld();
 	CullingAABB* GetBounds();
-	bool IsCulled();
-	void SetCulledState(bool state);
+	bool IsCulled(ECullingPass::Type Pass);
+	void SetCulledState(ECullingPass::Type pass, bool state);
 private:
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);
@@ -122,7 +122,7 @@ private:
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;
 	class ColliderComponent* PhyscsCollider = nullptr;
 	int AudioId = 0;
-	bool CullingState = false;
+	bool CullingStates[ECullingPass::Limit] = { false,false };
 };
 
 template<class T>

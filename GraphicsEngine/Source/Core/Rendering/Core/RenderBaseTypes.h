@@ -24,3 +24,13 @@ typedef short IndType;
 #else
 typedef int IndType;
 #endif
+
+namespace ECullingPass
+{
+	enum Type
+	{
+		ShadowPass,
+		MainPass,
+		Limit
+	};
+}

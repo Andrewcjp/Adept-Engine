@@ -9,6 +9,7 @@ struct Light
 	int DirShadowID;
 	int HasShadow;
 	int4 PreSampled;
+	float Range;
 };
 //PBR functions!
 static const float PI = 3.14159265359;
@@ -104,7 +105,10 @@ float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, floa
 {
 	float3 LightDirection = float3(0, 1, 0);
 	float distanceToLight = length(light.LPosition - FragPos);
-	//float attenuation = 1.0f;
+	if (distanceToLight > light.Range)
+	{
+		return float3(0, 0, 0);
+	}
 	float3 ViewDir = normalize(CamPos - FragPos);
 	if (light.type == 1)
 	{

@@ -107,6 +107,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			{
 				continue;
 			}
+			lights[i]->Update();
 			LightUniformBuffer newitem;
 			newitem.position = lights[i]->GetPosition();
 			newitem.color = glm::vec3(lights[i]->GetColor());
@@ -116,6 +117,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			//assume if not resident its pre-sampled
 			newitem.PreSampled[0] = !lights[i]->GPUShadowResidentMask[devindex];
 			newitem.PreSampled[1] = PreSampleIndex;
+			newitem.Range = lights[i]->GetRange();
 			if (newitem.PreSampled[0])
 			{
 				PreSampleIndex++;
@@ -159,7 +161,7 @@ void SceneRenderer::BindLightsBuffer(RHICommandList*  list, int Override)
 {
 	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, Override);
 }
-
+  
 void SceneRenderer::BindMvBuffer(RHICommandList * list)
 {
 	list->SetConstantBufferView(CMVBuffer, 0, MainShaderRSBinds::MVCBV);
@@ -186,6 +188,10 @@ void SceneRenderer::UpdateRelflectionProbes(std::vector<RelfectionProbe*> & prob
 		RenderCubemap(Probe, commandlist);
 	}
 	commandlist->EndTimer(EGPUTIMERS::CubemapCapture);
+}
+Scene * SceneRenderer::GetScene()
+{
+	return TargetScene;
 }
 void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* commandlist)
 {

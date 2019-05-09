@@ -23,5 +23,6 @@ public:
 	std::vector<MeshBatchElement*> elements;
 	bool CastShadow = true;
 	bool MainPassCulled = false;
+	bool ShadowPassCulled = false;
 };
 

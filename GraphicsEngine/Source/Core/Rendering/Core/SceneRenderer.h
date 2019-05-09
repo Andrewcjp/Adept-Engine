@@ -3,23 +3,26 @@
 #include "RHI/RHI_inc_fwd.h"
 #define MAX_POSSIBLE_LIGHTS 256
 class MeshPipelineController;
-typedef struct _LightUniformBuffer
+#pragma pack(push, 16)
+/*__declspec(align(32))*/ struct LightUniformBuffer
 {
 	glm::vec3 position;
 	float t;
 	glm::vec3 color;
 	float t2;
 	glm::vec3 Direction;
-	float t3;
+	float t4;
 	glm::mat4x4 LightVP;
 	int type;//type 1 == point, type 0 == directional, type 2 == spot
 	int ShadowID;
 	int DirShadowID;
 	int HasShadow = 0;
 	int PreSampled[4];//padding sucks!
-
-}LightUniformBuffer;
-
+	float Range;
+	float t3[3];
+};
+#pragma pack(pop)
+static_assert(sizeof(LightUniformBuffer) % 16 == 0, "LightUniformBuffer padding bad");
 struct MVBuffer
 {
 	glm::mat4 V;
@@ -30,7 +33,7 @@ struct MVBuffer
 struct LightBufferW
 {
 	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];
-}; 
+};
 
 struct MeshTransfromBuffer
 {
@@ -54,7 +57,7 @@ public:
 	void SetScene(Scene* NewScene);
 
 	void UpdateRelflectionProbes(std::vector<RelfectionProbe*>& probes, RHICommandList * commandlist);
-
+	Scene* GetScene();
 	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
 	MeshPipelineController* Controller = nullptr;
 private:
