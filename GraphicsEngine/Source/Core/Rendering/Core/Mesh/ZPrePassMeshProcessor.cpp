@@ -20,6 +20,10 @@ void ZPrePassMeshProcessor::Init()
 }
 void ZPrePassMeshProcessor::AddBatch(MeshBatch* Batch)
 {
+	if (Batch->MainPassCulled)
+	{
+		return;
+	}
 	Process(Batch);
 }
 

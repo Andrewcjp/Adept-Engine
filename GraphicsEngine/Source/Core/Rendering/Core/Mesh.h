@@ -6,9 +6,12 @@
 #include "RHI/RHI.h"
 #include "Core/Assets/MeshLoader.h"
 #include "Core/IRefCount.h"
+#include "Culling/CullingAABB.h"
 class Material;
 struct SkeletalMeshEntry;
 class MeshBatch;
+class CullingAABB;
+class MeshRendererComponent;
 struct MeshEntity
 {
 	SharedPtr<RHIBuffer> VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
@@ -19,8 +22,9 @@ struct MeshEntity
 	bool LoadSucessful = false;
 	int MaterialIndex = 0;
 	int BaseVertex = 0;
+	CullingAABB* AABB = nullptr;
 };
-class Mesh :  public IRHIResourse
+class Mesh : public IRHIResourse
 {
 public:
 	RHI_API Mesh();
@@ -44,8 +48,11 @@ public:
 	void PrepareDataForRender(GameObject* Parent);
 	bool IsVisible = true;
 	RHI_API void Release() override;
+	CullingAABB* GetBounds();
+	void UpdateBounds(glm::vec3 pos, glm::vec3 scale);
+	MeshRendererComponent* Renderer = nullptr;
 private:
-
+	CullingAABB MeshBounds;
 	int FrameCreated = 0;
 	std::vector<Material*> Materials;
 	/**

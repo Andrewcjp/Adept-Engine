@@ -11,6 +11,7 @@
 #include "Editor/EditorWindow.h"
 #include "Editor/EditorCore.h"
 #include "../Core/DynamicResolutionScaler.h"
+#include "../Core/Culling/CullingManager.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -18,6 +19,7 @@ RenderEngine::RenderEngine(int width, int height)
 	m_height = height;
 	SceneRender = new SceneRenderer(nullptr);
 	Scaler = new DynamicResolutionScaler();
+	Culling = new CullingManager();
 }
 
 RenderEngine::~RenderEngine()
@@ -33,6 +35,7 @@ RenderEngine::~RenderEngine()
 	SafeDelete(SceneRender);
 	SafeDelete(mShadowRenderer);
 	SafeDelete(Post);
+	SafeDelete(Culling);
 	EnqueueSafeRHIRelease(FilterBuffer);
 }
 
@@ -79,6 +82,8 @@ void RenderEngine::PreRender()
 	}
 	ParticleSystemManager::Get()->PreRenderUpdate(MainCamera);
 	Scaler->Tick();
+	Culling->UpdateMainPassCulling(MainCamera,MainScene);
+
 }
 
 //init common to both renderers

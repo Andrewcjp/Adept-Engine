@@ -142,3 +142,85 @@ void DebugDrawers::DrawDebugBox(glm::vec3 const& Position, glm::vec3 const& Half
 	DrawDebugLine(Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, -HalfExtends.y, -HalfExtends.z), colour, time);
 	DrawDebugLine(Position + glm::vec3(-HalfExtends.x, HalfExtends.y, HalfExtends.z), Position + glm::vec3(-HalfExtends.x, HalfExtends.y, -HalfExtends.z), colour, time);
 }
+
+DebugDrawers::FrustumData DebugDrawers::CreateFromCam(Camera* cam)
+{
+	FrustumData fd;
+	fd.FrustumAngle = cam->fov;
+	fd.FrustumAspectRatio = cam->AspectRatio;
+	fd.FrustumEndDist = cam->ZFar;
+	fd.FrustumStartDist = cam->zNear;
+	fd.Transform = cam->GetTransformMatrix();
+	return fd;
+}
+
+void DebugDrawers::DrawCameraFrustum(Camera* cam)
+{
+	DrawCameraFrustum(CreateFromCam(cam));
+}
+
+void DebugDrawers::DrawCameraFrustum(FrustumData cam)
+{
+	glm::vec3 Direction(1, 0, 0);
+	glm::vec3 LeftVector(0, 1, 0);
+	glm::vec3 UpVector(0, 0, 1);
+	glm::vec3 Verts[8];
+
+	// FOVAngle controls the horizontal angle.
+	const float HozHalfAngleInRadians = glm::radians(cam.FrustumAngle * 0.5f);
+
+	float HozLength = 0.0f;
+	float VertLength = 0.0f;
+
+	if (cam.FrustumAngle > 0.0f)
+	{
+		HozLength = cam.FrustumStartDist * glm::tan(HozHalfAngleInRadians);
+		VertLength = HozLength / cam.FrustumAspectRatio;
+	}
+	else
+	{
+		const float OrthoWidth = (cam.FrustumAngle == 0.0f) ? 1000.0f : -cam.FrustumAngle;
+		HozLength = OrthoWidth * 0.5f;
+		VertLength = HozLength / cam.FrustumAspectRatio;
+	}
+
+	// near plane verts
+	Verts[0] = (Direction * cam.FrustumStartDist) + (UpVector * VertLength) + (LeftVector * HozLength);
+	Verts[1] = (Direction * cam.FrustumStartDist) + (UpVector * VertLength) - (LeftVector * HozLength);
+	Verts[2] = (Direction * cam.FrustumStartDist) - (UpVector * VertLength) - (LeftVector * HozLength);
+	Verts[3] = (Direction * cam.FrustumStartDist) - (UpVector * VertLength) + (LeftVector * HozLength);
+
+	if (cam.FrustumAngle > 0.0f)
+	{
+		HozLength = cam.FrustumEndDist * glm::tan(HozHalfAngleInRadians);
+		VertLength = HozLength / cam.FrustumAspectRatio;
+	}
+
+	// far plane verts
+	Verts[4] = (Direction * cam.FrustumEndDist) + (UpVector * VertLength) + (LeftVector * HozLength);
+	Verts[5] = (Direction * cam.FrustumEndDist) + (UpVector * VertLength) - (LeftVector * HozLength);
+	Verts[6] = (Direction * cam.FrustumEndDist) - (UpVector * VertLength) - (LeftVector * HozLength);
+	Verts[7] = (Direction * cam.FrustumEndDist) - (UpVector * VertLength) + (LeftVector * HozLength);
+
+	for (int X = 0; X < 8; ++X)
+	{
+		Verts[X] = cam.Transform * glm::vec4(Verts[X], 1.0f);
+	}
+
+	glm::vec3 FrustumColor = glm::vec3(1, 1, 1);
+	DebugLineDrawer::Get()->AddLine(Verts[0], Verts[1], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[1], Verts[2], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[2], Verts[3], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[3], Verts[0], FrustumColor);
+
+	DebugLineDrawer::Get()->AddLine(Verts[4], Verts[5], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[5], Verts[6], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[6], Verts[7], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[7], Verts[4], FrustumColor);
+
+	DebugLineDrawer::Get()->AddLine(Verts[0], Verts[4], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[1], Verts[5], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[2], Verts[6], FrustumColor);
+	DebugLineDrawer::Get()->AddLine(Verts[3], Verts[7], FrustumColor);
+
+}

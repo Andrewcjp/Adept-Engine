@@ -96,7 +96,9 @@ public:
 	}
 	void OnRemoveFromScene();
 	void ValidateObjectInWorld();
-
+	CullingAABB* GetBounds();
+	bool IsCulled();
+	void SetCulledState(bool state);
 private:
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);
@@ -120,6 +122,7 @@ private:
 	class RigidbodyComponent* PhysicsBodyComponent = nullptr;
 	class ColliderComponent* PhyscsCollider = nullptr;
 	int AudioId = 0;
+	bool CullingState = false;
 };
 
 template<class T>

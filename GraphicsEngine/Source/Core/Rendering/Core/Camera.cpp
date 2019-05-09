@@ -32,6 +32,7 @@ void Camera::UpdateProjection(float aspect)
 	{
 		return;
 	}
+	AspectRatio = aspect;
 	if (UseLeftHanded)
 	{
 		this->projection = glm::perspectiveLH(glm::radians(fov), aspect, zNear, ZFar);
@@ -40,6 +41,15 @@ void Camera::UpdateProjection(float aspect)
 	{
 		this->projection = glm::perspective(glm::radians(fov), aspect, zNear, ZFar);
 	}
+}
+
+glm::mat4 Camera::GetTransformMatrix()
+{
+	glm::mat4 posMat = glm::translate(GetPosition());
+	glm::mat4 viewmat = glm::inverse(GetView());
+	glm::mat4 qrotation = glm::lookAt(glm::vec3(0, 0, 0), glm::normalize(up), (forward));
+	return posMat * qrotation;
+
 }
 
 void Camera::SetUpAndForward(glm::vec3 fward, glm::vec3 uup)

@@ -303,7 +303,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #endif
 
 #if 1
-	size = 3;
+	size = 10;
 
 	glm::vec3 startPos = glm::vec3(0, 5, 0);
 	stride = 5.0f;

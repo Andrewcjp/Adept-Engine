@@ -28,6 +28,7 @@ MeshRendererComponent::~MeshRendererComponent()
 void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)
 {
 	m_mesh = Mesh;
+	m_mesh->Renderer = this;
 	SetMaterial(materal, 0);
 }
 
@@ -106,6 +107,16 @@ glm::vec3 MeshRendererComponent::GetPosOfBone(std::string Name)
 void MeshRendererComponent::PrepareDataForRender()
 {
 	m_mesh->PrepareDataForRender(GetOwner());
+}
+
+void MeshRendererComponent::SceneInitComponent()
+{
+	m_mesh->UpdateBounds(GetOwner()->GetPosition(), GetOwner()->GetTransform()->GetScale());
+}
+
+void MeshRendererComponent::OnTransformUpdate()
+{
+	m_mesh->UpdateBounds(GetOwner()->GetPosition(), GetOwner()->GetTransform()->GetScale());
 }
 
 void MeshRendererComponent::BeginPlay()

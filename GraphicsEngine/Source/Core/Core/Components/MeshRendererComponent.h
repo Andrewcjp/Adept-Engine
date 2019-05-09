@@ -29,6 +29,12 @@ public:
 	CORE_API void PlayAnim(std::string name);
 	CORE_API glm::vec3 GetPosOfBone(std::string Name);
 	void PrepareDataForRender();
+
+	CORE_API virtual void SceneInitComponent() override;
+
+
+	CORE_API virtual void OnTransformUpdate() override;
+
 private:
 	Mesh* m_mesh = nullptr;
 	// Inherited via Component
