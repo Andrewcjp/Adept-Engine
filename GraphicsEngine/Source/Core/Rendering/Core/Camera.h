@@ -12,6 +12,7 @@ public:
 	float fov = 70.0f;
 	glm::mat4 GetViewProjection();
 	void UpdateProjection(float aspect);
+	glm::mat4 GetTransformMatrix();
 	glm::mat4 GetProjection()
 	{
 		return projection;
@@ -60,6 +61,7 @@ public:
 		projection = p;
 		oVioew = v;
 	}
+	float AspectRatio = 1.0f;
 protected:
 
 private:

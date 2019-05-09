@@ -37,6 +37,25 @@ void GameObject::ValidateObjectInWorld()
 	}
 }
 
+CullingAABB * GameObject::GetBounds()
+{
+	if (GetMesh() != nullptr)
+	{
+		return GetMesh()->GetBounds();
+	}
+	return nullptr;
+}
+
+bool GameObject::IsCulled()
+{
+	return CullingState;
+}
+
+void GameObject::SetCulledState(bool state)
+{
+	CullingState = state;
+}
+
 GameObject::~GameObject()
 {
 	AudioEngine::DeRegisterObject(this);

@@ -10,6 +10,9 @@
 #include "SceneRenderer.h"
 #include "Core/GameObject.h"
 #include "Core/Transform.h"
+#include "Culling/CullingAABB.h"
+#include "Core/Components/Component.h"
+#include "Core/Components/MeshRendererComponent.h"
 
 Mesh::Mesh()
 {
@@ -21,7 +24,6 @@ Mesh::Mesh()
 	PrimitiveTransfromBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	PrimitiveTransfromBuffer->CreateConstantBuffer(sizeof(MeshTransfromBuffer), 1, true);
 }
-
 
 Mesh::Mesh(std::string filename, MeshLoader::FMeshLoadingSettings& Settings) :Mesh()
 {
@@ -50,6 +52,24 @@ void Mesh::Release()
 	MemoryUtils::DeleteVector(Materials);
 	SafeRHIRelease(PrimitiveTransfromBuffer);
 	SafeRelease(pSkeletalEntity);
+}
+
+CullingAABB * Mesh::GetBounds()
+{
+	return &MeshBounds;
+}
+
+void Mesh::UpdateBounds(glm::vec3 pos, glm::vec3 scale)
+{
+	MeshBounds.Reset();
+	for (int i = 0; i < SubMeshes.size(); i++)
+	{
+		MeshBounds.AddAABB(SubMeshes[i]->AABB);
+	}
+	glm::vec3 localPos = MeshBounds.GetPos() * scale;
+	MeshBounds.SetPos(pos + localPos);
+	MeshBounds.SetScale(scale);
+
 }
 
 Mesh::~Mesh()
@@ -216,6 +236,7 @@ MeshBatch * Mesh::GetMeshBatch()
 		e->bTransparent = e->MaterialInUse->GetRenderPassType() == EMaterialRenderType::Transparent;
 		B->AddMeshElement(e);
 	}
+	B->MainPassCulled = Renderer->GetOwner()->IsCulled();
 	B->CastShadow = GetDoesShadow();
 	return B;
 }
@@ -249,6 +270,16 @@ MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<O
 			IndexBuffers[0]->RegisterOtherDeviceTexture(IndexBuffers[i].Get());
 		}
 	}
+	//compute AABB for this entity
+
+	glm::vec3 Min = glm::vec3();
+	glm::vec3 Max = glm::vec3();
+	for (int i = 0; i < indices.size(); i++)
+	{
+		Min = glm::min(Min, vertices[indices[i]].m_position);
+		Max = glm::max(Max, vertices[indices[i]].m_position);
+	}
+	AABB = CullingAABB::CreateFromMinMax(Min, Max);
 	indices.clear();
 	vertices.clear();
 	LoadSucessful = true;
@@ -266,4 +297,5 @@ void MeshEntity::InstanceElement(MeshEntity* other, MeshLoader::FMeshLoadingSett
 		VertexBuffers[i] = other->VertexBuffers[i];
 		IndexBuffers[i] = other->IndexBuffers[i];
 	}
+	AABB = new CullingAABB(other->AABB->GetPos(), other->AABB->GetHalfExtends_Unscaled());
 }

@@ -22,5 +22,6 @@ public:
 	//private:
 	std::vector<MeshBatchElement*> elements;
 	bool CastShadow = true;
+	bool MainPassCulled = false;
 };
 

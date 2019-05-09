@@ -23,11 +23,6 @@ public:
 	//Destructor
 	virtual ~SharedPtr()
 	{
-//		std::cout << "releasing SharedPtr! Ref count is " << m_Object->GetRefCount() - 1 << std::endl;
-		if (ObjectRaw != nullptr)
-		{
-			float t = 0;
-		}
 		SafeRefRelease(ObjectRaw);
 	}
 	// Copy Constructor
@@ -38,8 +33,6 @@ public:
 		{
 			m_Object->AddRef();
 		}		
-		//std::cout << "Copied SharedPtr! Ref count is "
-		//	<< m_Object->GetRefCount() << std::endl;
 	}
 	// Overloaded Assignment Operator
 	SharedPtr<T>& operator=(const SharedPtr<T>& other)
@@ -54,9 +47,9 @@ public:
 			ObjectRaw = other.ObjectRaw;
 			m_Object->AddRef();
 		}
-	//	std::cout << "Assigning SharedPtr! Ref count is " << m_Object->GetRefCount() << std::endl;
 		return *this;
 	}
+
 	SharedPtr<T>& operator=(T* object)
 	{
 		if (object != nullptr)
@@ -67,16 +60,19 @@ public:
 		}
 		return *this;
 	}
+
 	//Dereference operator
 	T& operator*()
 	{
 		return *m_Object;
 	}
+
 	//Member Access operator
 	T* operator->()
 	{
 		return ObjectRaw;
 	}
+
 	T* Get() const 
 	{
 		return ObjectRaw;

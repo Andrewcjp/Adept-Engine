@@ -15,6 +15,10 @@ BasePassMeshProcessor::~BasePassMeshProcessor()
 
 void BasePassMeshProcessor::AddBatch(MeshBatch* Batch)
 {
+	if (Batch->MainPassCulled)
+	{
+		return;
+	}
 	Process(Batch);
 }
 
@@ -31,6 +35,7 @@ void BasePassMeshProcessor::Process(MeshBatch* Batch)
 		{
 			continue;
 		}
+		
 		MeshDrawCommand* command = new MeshDrawCommand();
 		command->NumInstances = 1;
 		command->NumPrimitves = Batch->elements[i]->NumPrimitives;
