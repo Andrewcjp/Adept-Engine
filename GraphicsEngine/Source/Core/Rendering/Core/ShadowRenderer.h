@@ -4,6 +4,7 @@
 
 class Shader_ShadowSample;
 class DeviceContext;
+class CullingManager;
 //holds all objects need to run shadows on a device.
 struct DeviceShadowObjects
 {
@@ -20,7 +21,7 @@ struct DeviceShadowObjects
 class ShadowRenderer
 {
 public:
-	ShadowRenderer(class SceneRenderer* SceneRender);
+	ShadowRenderer(class SceneRenderer* SceneRender,CullingManager* culling);
 	~ShadowRenderer();
 	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index, int DeviceIndex);
 	static eTEXTURE_FORMAT GetDepthType();
@@ -45,7 +46,7 @@ private:
 	bool DeviceZeroNeedsPreSample = false;
 	std::vector<Light*> ShadowingDirectionalLights;
 	std::vector<Light*> ShadowingPointLights;
-
+	CullingManager* Culling = nullptr;
 	Shader_Depth* PointLightShader = nullptr;
 	Shader_Depth* DirectionalLightShader = nullptr;
 

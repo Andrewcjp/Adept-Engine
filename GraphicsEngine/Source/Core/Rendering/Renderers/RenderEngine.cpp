@@ -82,7 +82,7 @@ void RenderEngine::PreRender()
 	}
 	ParticleSystemManager::Get()->PreRenderUpdate(MainCamera);
 	Scaler->Tick();
-	Culling->UpdateMainPassCulling(MainCamera,MainScene);
+	Culling->UpdateMainPassCulling(MainCamera, MainScene);
 
 }
 
@@ -97,7 +97,7 @@ void RenderEngine::Init()
 	{
 		DevicesInUse = 1;
 	}
-	mShadowRenderer = new ShadowRenderer(SceneRender);
+	mShadowRenderer = new ShadowRenderer(SceneRender, Culling);
 	if (MainScene != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());

@@ -63,15 +63,7 @@ glm::mat4 Camera::GetView()
 	if (Override)
 	{
 		return oVioew;
-	}
-	glm::mat4 rotX = glm::rotate(rotation.x, glm::vec3(1.0, 0.0, 0.0));
-	glm::mat4 rotY = glm::rotate(rotation.y, glm::vec3(0.0, 1.0, 0.0));
-	glm::mat4 rotZ = glm::rotate(rotation.z, glm::vec3(0.0, 0.0, 1.0));
-	glm::mat4 rotMat = rotX * rotY * rotZ;
-	if (linkedtransform != nullptr && isfree == false)
-	{
-		//	rotMat *= glm::toMat4(linkedtransform->GetQuatRot());//apply the transform rotation
-	}
+	}	
 	glm::mat4 output;
 	if (UseLeftHanded)
 	{
@@ -83,6 +75,7 @@ glm::mat4 Camera::GetView()
 	}
 	return output;
 }
+
 glm::vec3 Camera::GetPosition()
 {
 	if (linkedtransform != nullptr && isfree == false)
@@ -91,6 +84,7 @@ glm::vec3 Camera::GetPosition()
 	}
 	return m_pos;
 }
+
 void Camera::MoveForward(float amt)
 {
 	m_pos += forward * amt*m_movespeed;
@@ -102,7 +96,6 @@ void Camera::MoveRight(float amt)
 	{
 		amt = -amt;
 	}
-	//printf("%f %f %f", m_pos.x, m_pos.y, m_pos.z);
 	m_pos += glm::cross(up, forward) * amt*m_movespeed;
 }
 
