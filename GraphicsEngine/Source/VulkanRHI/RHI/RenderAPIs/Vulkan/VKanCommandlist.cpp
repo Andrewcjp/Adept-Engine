@@ -165,7 +165,7 @@ void VKanCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 void VkanUAV::Bind(RHICommandList * list, int slot)
 {}
 
-void VkanUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
+void VkanUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
 {}
 
 void VkanUAV::CreateUAVFromTexture(BaseTexture * target)

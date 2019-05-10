@@ -62,9 +62,9 @@ void Shader_TexturedUI::Render()
 	list->Execute();
 }
 
-std::vector<Shader::ShaderParameter> Shader_TexturedUI::GetShaderParameters()
+std::vector<ShaderParameter> Shader_TexturedUI::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> out;
+	std::vector<ShaderParameter> out;
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	return out;
 }

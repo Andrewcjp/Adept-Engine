@@ -59,7 +59,7 @@ public:
 	RHI_VIRTUAL ~RHIUAV()
 	{};
 	RHI_VIRTUAL void Bind(class RHICommandList* list, int slot) = 0;
-	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target) = 0;
+	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, int mip = 0) = 0;
 	RHI_VIRTUAL void CreateUAVFromTexture(class BaseTexture* target) = 0;
 	RHI_VIRTUAL void CreateUAVFromRHIBuffer(class RHIBuffer* target) = 0;
 };
@@ -140,7 +140,8 @@ struct RHI_API RHISubPass
 public:
 	FrameBuffer* ColourTargets[MAX_RENDERTARGETS] = { nullptr };
 	FrameBuffer* DepthTarget = { nullptr };
-	void Validate(){};
+	void Validate()
+	{};
 };
 
 class RHIRenderPass
@@ -165,5 +166,5 @@ public:
 	//TODO turn this to a desc to cache passes.
 	ERenderPassLoadOp::Type LoadOp;
 protected:
-	
+
 };

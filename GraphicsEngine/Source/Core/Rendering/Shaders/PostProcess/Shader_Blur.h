@@ -15,7 +15,7 @@ public:
 	bool IsComputeShader() override;
 	virtual std::vector<ShaderParameter> GetShaderParameters() override
 	{
-		std::vector<Shader::ShaderParameter> Output;
+		std::vector<ShaderParameter> Output;
 		Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 		Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 0));
 		Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));
@@ -45,9 +45,9 @@ public:
 		return true;
 	}
 
-	std::vector<Shader::ShaderParameter> GetShaderParameters()override
+	std::vector<ShaderParameter> GetShaderParameters()override
 	{
-		std::vector<Shader::ShaderParameter> Output;
+		std::vector<ShaderParameter> Output;
 		Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 		Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 0));
 		Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));

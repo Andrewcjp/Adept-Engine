@@ -1,5 +1,6 @@
 #pragma once
 #include "RHI/ShaderBase.h"
+#include "ShaderBase.h"
 class ShaderProgramBase
 {
 protected:
@@ -22,7 +23,11 @@ public:
 		std::string Value;
 	};
 	void										ModifyCompileEnviroment(Shader_Define Define);
+	std::vector<ShaderParameter> GeneratedParams;
+	void NumberRS();
+	bool IsComputeShader();
 protected:
+
 	std::vector<Shader_Define> Defines;
 };
 

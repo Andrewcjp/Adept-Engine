@@ -31,6 +31,7 @@ namespace ECullingPass
 	{
 		ShadowPass,
 		MainPass,
+		ReflectionPass,
 		Limit
 	};
 }

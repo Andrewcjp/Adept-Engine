@@ -10,7 +10,7 @@ public:
 	virtual ~Shader_Skybox();
 	void SetSkyBox(BaseTexture* tex);
 	void Render(class SceneRenderer * SceneRender, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
-	std::vector<Shader::ShaderParameter> GetShaderParameters();
+	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 	BaseTexture* SkyBoxTexture = nullptr;
 #if DEBUG_CUBEMAPS

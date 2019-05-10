@@ -16,6 +16,7 @@ public:
 		ID3DBlob*					fsBlob = nullptr;
 		ID3DBlob*					csBlob = nullptr;
 		ID3DBlob*					gsBlob = nullptr;
+		ID3DBlob*					GetBlob(EShaderType::Type t);
 	};
 
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint = "") override;
@@ -26,7 +27,7 @@ public:
 
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
-	static void CreateRootSig(D3D12PipeLineStateObject * output, std::vector<Shader::ShaderParameter> Params, DeviceContext * context,bool iscompute);
+	static void CreateRootSig(D3D12PipeLineStateObject * output, std::vector<ShaderParameter> Params, DeviceContext * context,bool iscompute);
 
 	void Init();
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);
@@ -47,7 +48,7 @@ private:
 	const std::string GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type);
 	ID3DBlob ** GetCurrentBlob(EShaderType::Type type);
 	const std::string GetShaderInstanceHash();
-	static const std::string GetUniqueName(std::vector<Shader::ShaderParameter>& Params);
+	static const std::string GetUniqueName(std::vector<ShaderParameter>& Params);
 #if !BUILD_SHIPPING
 	struct ShaderStats
 	{

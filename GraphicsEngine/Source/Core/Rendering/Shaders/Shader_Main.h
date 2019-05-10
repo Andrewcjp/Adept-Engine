@@ -25,9 +25,9 @@ class Shader_Main :public Shader
 public:
 	Shader_Main(bool LoadForward = true);
 	~Shader_Main();
-	static void GetMainShaderSig(std::vector<Shader::ShaderParameter>& out);
+	static void GetMainShaderSig(std::vector<ShaderParameter>& out);
 	static std::vector<Shader::VertexElementDESC> GetMainVertexFormat();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
-	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	std::vector<ShaderParameter> GetShaderParameters() override;
 };
 

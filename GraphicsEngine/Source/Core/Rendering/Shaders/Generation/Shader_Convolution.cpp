@@ -78,9 +78,9 @@ void Shader_Convolution::ComputeConvolution(BaseTexture* Target)
 	CmdList->Execute();
 }
 
-std::vector<Shader::ShaderParameter> Shader_Convolution::GetShaderParameters()
+std::vector<ShaderParameter> Shader_Convolution::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 0));
 	return Output;

@@ -104,9 +104,9 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 	List->Execute();
 }
 
-std::vector<Shader::ShaderParameter> Shader_Skybox::GetShaderParameters()
+std::vector<ShaderParameter> Shader_Skybox::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> out;
+	std::vector<ShaderParameter> out;
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	out.push_back(ShaderParameter(ShaderParamType::CBV, 1, 0));
 	return out;

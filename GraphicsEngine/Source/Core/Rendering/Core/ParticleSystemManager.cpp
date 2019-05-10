@@ -155,11 +155,11 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(System->SimulateShader));
 	float DT = Engine::GetDeltaTime();
 	CmdList->SetRootConstant(5, 1, &DT, 0);
-	System->GPU_ParticleData->GetUAV()->Bind(CmdList, 0);
-	System->CounterBuffer->GetUAV()->Bind(CmdList, 1);
-	System->GetPreSimList()->BindBufferReadOnly(CmdList, 2);
-	System->DeadParticleIndexs->GetUAV()->Bind(CmdList, 3);
-	System->GetPostSimList()->GetUAV()->Bind(CmdList, 4);
+	System->GPU_ParticleData->GetUAV()->Bind(CmdList, System->SimulateShader->GetSlotForName("newPosVelo"));
+	System->CounterBuffer->GetUAV()->Bind(CmdList, System->SimulateShader->GetSlotForName("CounterBuffer"));
+	System->GetPreSimList()->BindBufferReadOnly(CmdList, System->SimulateShader->GetSlotForName("AliveIndexs"));
+	System->DeadParticleIndexs->GetUAV()->Bind(CmdList, System->SimulateShader->GetSlotForName("DeadIndexs"));
+	System->GetPostSimList()->GetUAV()->Bind(CmdList, System->SimulateShader->GetSlotForName("PostSim_AliveIndex"));
 #if USE_INDIRECTCOMPUTE
 	CmdList->ExecuteIndiect(1, System->DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else

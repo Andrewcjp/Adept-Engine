@@ -25,7 +25,7 @@ public:
 	Shader_Deferred(class DeviceContext* dev);
 	~Shader_Deferred();
 
-	std::vector<Shader::ShaderParameter> GetShaderParameters();
+	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 	void RenderScreenQuad(RHICommandList * list);
 

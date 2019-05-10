@@ -8,7 +8,7 @@ public:
 	~Shader_ParticleDraw();
 private:
 	std::vector<Shader::VertexElementDESC> GetVertexFormat()  override;
-	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	std::vector<ShaderParameter> GetShaderParameters() override;
 
 };
 

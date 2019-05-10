@@ -63,4 +63,17 @@ namespace VectorUtils
 		}
 		return false;
 	}
+	template<class T>
+	bool AddUnique(std::vector<T>& Vector, T & value)
+	{
+		for (int i = 0; i < Vector.size(); i++)
+		{
+			if (Vector[i] == value)
+			{
+				return false;
+			}
+		}
+		Vector.push_back(value);
+		return true;
+	}
 };

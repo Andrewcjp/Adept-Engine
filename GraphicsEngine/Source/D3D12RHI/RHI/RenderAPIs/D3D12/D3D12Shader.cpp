@@ -7,7 +7,8 @@
 #include "D3D12RHI.h"
 #include <d3dcompiler.h>
 #include "D3D12CommandList.h"
-static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
+#include "ShaderReflection.h"
+static ConsoleVariable NoShaderCache("NoShaderCache", 1, ECVarType::LaunchOnly);
 #if !BUILD_SHIPPING
 D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
 #endif
@@ -166,6 +167,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
 		break;
 	case EShaderType::SHADER_COMPUTE:
+		IsCompute = true;
 		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "cs_5_0",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
 		break;
@@ -208,6 +210,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	{
 		return EShaderError::SHADER_ERROR_CREATE;
 	}
+	ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams);
 	WriteBlobs(shadername, ShaderType);
 #if !BUILD_SHIPPING
 	stats.ShaderComplieCount++;
@@ -404,7 +407,7 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 	return true;
 }
 
-void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Shader::ShaderParameter> Params, DeviceContext* context, bool compute)
+void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<ShaderParameter> Params, DeviceContext* context, bool compute)
 {
 	REF_CHECK(output->RootSig);
 	SCOPE_STARTUP_COUNTER("CreateRootSig");
@@ -426,12 +429,12 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 	for (int i = 0; i < Params.size(); i++)
 	{
 		rootParameters[i] = CD3DX12_ROOT_PARAMETER1();
-		if (Params[i].Type == Shader::ShaderParamType::SRV)
+		if (Params[i].Type == ShaderParamType::SRV)
 		{
 			RangeNumber++;
 		}
 #if UAVRANGES
-		else if (Params[i].Type == Shader::ShaderParamType::UAV)
+		else if (Params[i].Type == ShaderParamType::UAV)
 		{
 			RangeNumber++;
 		}
@@ -449,16 +452,16 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 	}
 	for (int i = 0; i < Params.size(); i++)
 	{
-		if (Params[i].Type == Shader::ShaderParamType::SRV)
+		if (Params[i].Type == ShaderParamType::SRV)
 		{
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], compute ? BaseSRVVis : (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-		else if (Params[i].Type == Shader::ShaderParamType::CBV)
+		else if (Params[i].Type == ShaderParamType::CBV)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstantBufferView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
 		}
-		else if (Params[i].Type == Shader::ShaderParamType::UAV)
+		else if (Params[i].Type == ShaderParamType::UAV)
 		{
 #if !UAVRANGES
 			rootParameters[Params[i].SignitureSlot].InitAsUnorderedAccessView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
@@ -467,11 +470,11 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
 		}
-		else if (Params[i].Type == Shader::ShaderParamType::RootConstant)
+		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-		}
+	}
 	//#RHI: Samplers
 
 #define NUMSamples 3
@@ -547,23 +550,23 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 			output->RootSig->Release();
 		}
 	}*/
-	}
-const std::string D3D12Shader::GetUniqueName(std::vector<Shader::ShaderParameter>& Params)
+}
+const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Params)
 {
 	std::string output = "Root sig Length = ";;
 	output.append(std::to_string(Params.size()));
-	for (Shader::ShaderParameter sp : Params)
+	for (ShaderParameter sp : Params)
 	{
 		output += "T";
 		switch (sp.Type)
 		{
-		case Shader::ShaderParamType::CBV:
+		case ShaderParamType::CBV:
 			output += "CBV";
 			break;
-		case Shader::ShaderParamType::SRV:
+		case ShaderParamType::SRV:
 			output += "SRV";
 			break;
-		case Shader::ShaderParamType::UAV:
+		case ShaderParamType::UAV:
 			output += "UAV";
 			break;
 		default:
@@ -572,4 +575,20 @@ const std::string D3D12Shader::GetUniqueName(std::vector<Shader::ShaderParameter
 		output += ", ";
 	}
 	return output;
+}
+
+ID3DBlob * D3D12Shader::ShaderBlobs::GetBlob(EShaderType::Type t)
+{
+	switch (t)
+	{
+	case EShaderType::SHADER_VERTEX:
+		return vsBlob;
+	case EShaderType::SHADER_FRAGMENT:
+		return fsBlob;
+	case EShaderType::SHADER_GEOMETRY:
+		return gsBlob;
+	case EShaderType::SHADER_COMPUTE:
+		return csBlob;
+	}
+	return nullptr;
 }

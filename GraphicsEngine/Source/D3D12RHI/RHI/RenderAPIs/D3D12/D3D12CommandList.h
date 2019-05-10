@@ -71,7 +71,7 @@ private:
 	bool m_IsOpen = false;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();
-	std::vector<Shader::ShaderParameter> Params;
+	std::vector<ShaderParameter> Params;
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
 	class D3D12Texture* Texture = nullptr;
@@ -89,7 +89,7 @@ public:
 
 	~D3D12RHIUAV();
 	void CreateUAVFromTexture(class BaseTexture* target) override;
-	void CreateUAVFromFrameBuffer(class FrameBuffer* target) override;
+	void CreateUAVFromFrameBuffer(class FrameBuffer* target, int mip) override;
 	void Bind(RHICommandList* list, int slot) override;
 	ID3D12Resource * m_UAV = nullptr;
 	D3D12DeviceContext* Device = nullptr;

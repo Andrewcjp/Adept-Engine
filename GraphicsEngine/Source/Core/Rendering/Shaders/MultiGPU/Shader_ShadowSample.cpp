@@ -16,9 +16,9 @@ Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context,int SampleCount
 Shader_ShadowSample::~Shader_ShadowSample()
 {}
 
-std::vector<Shader::ShaderParameter> Shader_ShadowSample::GetShaderParameters()
+std::vector<ShaderParameter> Shader_ShadowSample::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 1));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 2));

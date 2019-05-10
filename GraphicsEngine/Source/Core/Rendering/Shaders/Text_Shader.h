@@ -6,7 +6,7 @@ class Text_Shader :
 public:
 	DECLARE_GLOBAL_SHADER(Text_Shader);
 	Text_Shader(class DeviceContext* context);
-	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	std::vector<ShaderParameter> GetShaderParameters() override;
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 	void Update(RHICommandList * lsit);
 	virtual ~Text_Shader();

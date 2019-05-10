@@ -41,7 +41,7 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceC
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
-		shadowSrvDesc.Texture2D.MipLevels = 1;
+		shadowSrvDesc.Texture2D.MipLevels = 1;//BufferDesc.MipCount;
 		shadowSrvDesc.Texture2DArray.MipLevels = 1;
 		shadowSrvDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -66,7 +66,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetInd
 	if (BufferDesc.RenderTargetCount > 2)
 	{
 		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
-		shadowSrvDesc.Texture2D.MipLevels = 1;
+		shadowSrvDesc.Texture2D.MipLevels = BufferDesc.MipCount;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[RenderTargetIndex]);
 	}
@@ -74,7 +74,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetInd
 	{
 		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
 		shadowSrvDesc.Texture2D.MipLevels = 1;
-		shadowSrvDesc.Texture2DArray.MipLevels = 1;
+		shadowSrvDesc.Texture2DArray.MipLevels = BufferDesc.MipCount;
 		shadowSrvDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		if (BufferDesc.RenderTargetCount == 0)

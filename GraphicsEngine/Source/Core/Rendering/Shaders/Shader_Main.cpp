@@ -21,7 +21,7 @@ std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
 	return GetMainVertexFormat();
 }
 
-void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
+void Shader_Main::GetMainShaderSig(std::vector<ShaderParameter>& out)
 {
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::GODataCBV, 0));
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::LightDataCBV, 1));
@@ -35,7 +35,10 @@ void Shader_Main::GetMainShaderSig(std::vector<Shader::ShaderParameter>& out)
 	parm.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS;
 	out.push_back(parm);
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::DiffuseIr, 10));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::SpecBlurMap, 11));
+
+	parm = ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::SpecBlurMap, 11,3);
+	parm.NumDescriptors = 1;
+	out.push_back(parm);
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::EnvBRDF, 12));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::PreSampledShadows, 13));
 	out.push_back(ShaderParameter(ShaderParamType::RootConstant, MainShaderRSBinds::ResolutionCBV, 5));
@@ -53,9 +56,9 @@ std::vector<Shader::VertexElementDESC> Shader_Main::GetMainVertexFormat()
 	return out;
 }
 
-std::vector<Shader::ShaderParameter> Shader_Main::GetShaderParameters()
+std::vector<ShaderParameter> Shader_Main::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	GetMainShaderSig(Output);
 	return Output;
 }

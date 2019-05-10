@@ -8,6 +8,7 @@
 #include "Rendering/Core/Material.h"
 #include "Core/Performance/PerfManager.h"
 #include "Mesh/MeshPipelineController.h"
+#include "FrameBufferProcessor.h"
 SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;
@@ -195,7 +196,6 @@ Scene * SceneRenderer::GetScene()
 }
 void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* commandlist)
 {
-
 	commandlist->ClearFrameBuffer(Map->CapturedTexture);
 	for (int i = 0; i < 6; i++)
 	{
@@ -203,4 +203,5 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 		commandlist->SetRenderTarget(Map->CapturedTexture, i);
 		RenderScene(commandlist, false, Map->CapturedTexture, true);
 	}
+	//FrameBufferProcessor::CreateMipChain(Map->CapturedTexture, commandlist);
 }

@@ -15,9 +15,9 @@ bool Shader_Bloom::IsComputeShader()
 	return true;
 }
 
-std::vector<Shader::ShaderParameter> Shader_Bloom::GetShaderParameters()
+std::vector<ShaderParameter> Shader_Bloom::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 0));
 	return Output;

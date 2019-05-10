@@ -15,7 +15,7 @@
 #include "../Core/Mesh/MeshPipelineController.h"
 #include "../Core/Shader_PreZ.h"
 
-#define CUBEMAPS 0
+#define CUBEMAPS 1
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 
@@ -134,7 +134,7 @@ void ForwardRenderer::CubeMapPass()
 	}
 	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	SceneRender->UpdateRelflectionProbes(probes, CubemapCaptureList);
-
+	
 	CubemapCaptureList->Execute();
 #endif
 }
@@ -173,14 +173,18 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist)
 	}
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
+#if CUBEMAPS
+		Cmdlist->SetFrameBufferTexture(probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
+#else
 		Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
+#endif
 	}
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 
 	SceneRender->UpdateMV(MainCamera);
 	SceneRender->RenderScene(Cmdlist, false, DeviceObjects[Cmdlist->GetDeviceIndex()].FrameBuffer);
-	//render the transprent object AFTER the main scene
+	//render the transparent objects AFTER the main scene
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
 	Cmdlist->SetRenderTarget(nullptr);
 	Cmdlist->GetDevice()->GetTimeManager()->EndTimer(Cmdlist, EGPUTIMERS::MainPass);

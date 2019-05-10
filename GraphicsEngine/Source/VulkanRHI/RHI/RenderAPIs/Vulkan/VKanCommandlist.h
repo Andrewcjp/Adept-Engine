@@ -72,7 +72,7 @@ public:
 	{};
 	// Inherited via RHIUAV
 	virtual void Bind(RHICommandList * list, int slot) override;
-	virtual void CreateUAVFromFrameBuffer(FrameBuffer * target) override;
+	virtual void CreateUAVFromFrameBuffer(FrameBuffer * target, int mip) override;
 	virtual void CreateUAVFromTexture(BaseTexture * target) override;
 	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
 };
