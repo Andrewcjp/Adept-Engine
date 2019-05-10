@@ -228,7 +228,7 @@ MeshBatch * Mesh::GetMeshBatch()
 		MeshBatchElement* e = new MeshBatchElement();
 		e->VertexBuffer = SubMeshes[i]->VertexBuffers[0].Get();
 		e->IndexBuffer = SubMeshes[i]->IndexBuffers[0].Get();
-		e->NumPrimitives = SubMeshes[i]->IndexBuffers[0]->GetVertexCount();
+		e->NumPrimitives = (int)SubMeshes[i]->IndexBuffers[0]->GetVertexCount();
 		e->NumInstances = 1;
 		e->TransformBuffer = PrimitiveTransfromBuffer;
 		e->MaterialInUse = GetMaterial(SubMeshes[i]->MaterialIndex);

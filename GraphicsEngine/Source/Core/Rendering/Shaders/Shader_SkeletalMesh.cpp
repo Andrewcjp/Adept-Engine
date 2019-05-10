@@ -23,9 +23,9 @@ Shader_SkeletalMesh::~Shader_SkeletalMesh()
 	EnqueueSafeRHIRelease(BonesBuffer);
 }
 
-std::vector<Shader::ShaderParameter> Shader_SkeletalMesh::GetShaderParameters()
+std::vector<ShaderParameter> Shader_SkeletalMesh::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	Shader_Main::GetMainShaderSig(Output);
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 8, 5));
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 9, 20));

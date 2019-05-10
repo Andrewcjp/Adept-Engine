@@ -44,9 +44,9 @@ Shader_Depth::~Shader_Depth()
 	EnqueueSafeRHIRelease(ConstantBuffer);
 }
 
-std::vector<Shader::ShaderParameter> Shader_Depth::GetShaderParameters()
+std::vector<ShaderParameter> Shader_Depth::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, Shader_Depth_RSSlots::ModelBuffer));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, Shader_Depth_RSSlots::GeometryProjections));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, Shader_Depth_RSSlots::VPBuffer));

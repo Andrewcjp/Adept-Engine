@@ -12,9 +12,9 @@ Shader_ColourCorrect::~Shader_ColourCorrect()
 {
 
 }
-std::vector<Shader::ShaderParameter> Shader_ColourCorrect::GetShaderParameters()
+std::vector<ShaderParameter> Shader_ColourCorrect::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> out;
+	std::vector<ShaderParameter> out;
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 1, 1));
 	return out;

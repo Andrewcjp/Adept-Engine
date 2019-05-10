@@ -20,28 +20,41 @@ ShaderProgramBase * Shader::GetShaderProgram()
 	return m_Shader;
 }
 
-std::vector<Shader::ShaderParameter> Shader::GetShaderParameters()
+std::vector<ShaderParameter> Shader::GetShaderParameters()
 {
-	return std::vector<Shader::ShaderParameter>();
+	m_Shader->NumberRS();
+	return m_Shader->GeneratedParams;
 }
 
 std::vector<Shader::VertexElementDESC> Shader::GetVertexFormat()
 {
+	//#SHADER reflect this!
 	std::vector<Shader::VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "NORMAL", 0, FORMAT_R32G32B32_FLOAT, 0, 12, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "TEXCOORD", 0,FORMAT_R32G32_FLOAT, 0, 24,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-
 	return out;
 }
 
 bool Shader::IsComputeShader()
 {
-	return false;
+	return m_Shader->IsComputeShader();
 }
 
 void Shader::ApplyToCommandList(RHICommandList * list)
 {}
+
+int Shader::GetSlotForName(std::string name)
+{
+	for (int i = 0; i < m_Shader->GeneratedParams.size(); i++)
+	{
+		if (m_Shader->GeneratedParams[i].Name == name)
+		{
+			return m_Shader->GeneratedParams[i].SignitureSlot;
+		}
+	}
+	return 0;
+}
 
 const std::string Shader::GetName()
 {

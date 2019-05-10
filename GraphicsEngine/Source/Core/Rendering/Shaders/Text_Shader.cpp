@@ -12,9 +12,9 @@ Text_Shader::Text_Shader(DeviceContext* context):Shader(context)
 	CBV->CreateConstantBuffer(sizeof(Data), 1);
 }
 
-std::vector<Shader::ShaderParameter> Text_Shader::GetShaderParameters()
+std::vector<ShaderParameter> Text_Shader::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> out;
+	std::vector<ShaderParameter> out;
 	out.resize(2);
 	out[0] = ShaderParameter(ShaderParamType::SRV, 0, 0);
 	out[1] = ShaderParameter(ShaderParamType::CBV, 1, 0);

@@ -7,7 +7,7 @@ public:
 	DECLARE_GLOBAL_SHADER(Shader_Compost);
 	Shader_Compost(class DeviceContext* context);
 	virtual ~Shader_Compost();
-	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	std::vector<ShaderParameter> GetShaderParameters() override;
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 };
 

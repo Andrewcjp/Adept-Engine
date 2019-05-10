@@ -32,9 +32,9 @@ Shader_Deferred::~Shader_Deferred()
 	EnqueueSafeRHIRelease(VertexBuffer);
 }
 
-std::vector<Shader::ShaderParameter> Shader_Deferred::GetShaderParameters()
+std::vector<ShaderParameter> Shader_Deferred::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> out;
+	std::vector<ShaderParameter> out;
 	out.push_back(ShaderParameter(ShaderParamType::CBV, DeferredLightingShaderRSBinds::LightDataCBV, 1));
 	out.push_back(ShaderParameter(ShaderParamType::CBV, DeferredLightingShaderRSBinds::MVCBV, 2));
 

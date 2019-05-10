@@ -9,6 +9,7 @@ RelfectionProbe::RelfectionProbe()
 	CubeDesc.Dimension = eTextureDimension::DIMENSION_TEXTURECUBE;
 	CubeDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	CubeDesc.TextureDepth = 6;
+	CubeDesc.MipCount = 11;
 	/*CubeDesc.DepthClearValue = 1.0f;*/
 	CubeDesc.CubeMapAddressAsOne = false;
 	CubeDesc.AllowUnordedAccess = false;

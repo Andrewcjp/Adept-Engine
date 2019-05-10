@@ -32,9 +32,9 @@ void Shader_UIBatch::PushTOGPU(RHICommandList* list)
 	list->SetConstantBufferView(UniformBuffer, 0, 0);
 }
 
-std::vector<Shader::ShaderParameter> Shader_UIBatch::GetShaderParameters()
+std::vector<ShaderParameter> Shader_UIBatch::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	Shader_Main::GetMainShaderSig(Output);
 	return Output;
 }

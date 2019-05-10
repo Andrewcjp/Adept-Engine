@@ -11,6 +11,7 @@ struct Light
 	int4 PreSampled;
 	float Range;
 };
+static const float MAX_REFLECTION_LOD = 11.0;
 //PBR functions!
 static const float PI = 3.14159265359;
 float DistributionGGX(float3 N, float3 H, float roughness)

@@ -12,9 +12,9 @@ Shader_DebugOutput::Shader_DebugOutput(DeviceContext* device) :Shader(device)
 Shader_DebugOutput::~Shader_DebugOutput()
 {}
 
-std::vector<Shader::ShaderParameter> Shader_DebugOutput::GetShaderParameters()
+std::vector<ShaderParameter> Shader_DebugOutput::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	return Output;
 }

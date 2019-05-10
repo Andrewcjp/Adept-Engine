@@ -6,7 +6,7 @@ public:
 	DECLARE_GLOBAL_SHADER(Shader_ColourCorrect);
 	Shader_ColourCorrect(class DeviceContext* dev);
 	~Shader_ColourCorrect();
-	std::vector<Shader::ShaderParameter> GetShaderParameters();
+	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 };
 

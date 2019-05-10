@@ -93,9 +93,9 @@ void Shader_EnvMap::ComputeEnvBRDF()
 	CmdList->Execute();
 }
 
-std::vector<Shader::ShaderParameter> Shader_EnvMap::GetShaderParameters()
+std::vector<ShaderParameter> Shader_EnvMap::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Output;
+	std::vector<ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 0));
 	return Output;

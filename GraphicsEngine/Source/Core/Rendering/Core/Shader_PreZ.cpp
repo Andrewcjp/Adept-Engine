@@ -11,7 +11,7 @@ Shader_PreZ::Shader_PreZ(DeviceContext* d) :Shader(d)
 Shader_PreZ::~Shader_PreZ()
 {}
 
-std::vector<Shader::ShaderParameter> Shader_PreZ::GetShaderParameters()
+std::vector<ShaderParameter> Shader_PreZ::GetShaderParameters()
 {
 	std::vector<ShaderParameter> out;
 	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::GODataCBV, 0));

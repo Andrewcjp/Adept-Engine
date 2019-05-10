@@ -89,7 +89,7 @@ void Light::Update()
 	//1.0 / (distanceToLight * distanceToLight);
 	float minValue = 0.001f;
 	FalloffRange = (minValue / m_intesity);
-	FalloffRange = glm::sqrt(1.0 / FalloffRange);
+	FalloffRange = glm::sqrt(1.0f / FalloffRange);
 }
 
 float Light::GetRange()

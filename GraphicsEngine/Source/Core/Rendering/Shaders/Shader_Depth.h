@@ -28,7 +28,7 @@ public:
 	Shader_Depth(DeviceContext* device, bool LoadGeo);
 	void UpdateBuffer(RHICommandList * list, LightData * data, int index);
 	~Shader_Depth();
-	std::vector<Shader::ShaderParameter> GetShaderParameters() override;
+	std::vector<ShaderParameter> GetShaderParameters() override;
 	void SetParameters(RHICommandList * List, RHIBuffer * Model, RHIBuffer * GeometryProjections, RHIBuffer * VPBuffer);
 	bool LoadGeomShader = true;
 private:

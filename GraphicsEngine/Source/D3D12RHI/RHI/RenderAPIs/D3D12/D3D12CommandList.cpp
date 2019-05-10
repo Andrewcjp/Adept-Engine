@@ -968,7 +968,7 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 	UAVDescriptor->CreateUnorderedAccessView(((D3D12Texture*)target)->GetResource(), UAVCounter, &destTextureUAVDesc);
 }
 
-void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
+void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
 {
 	D3D12FrameBuffer* D3DTarget = (D3D12FrameBuffer*)target;
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
@@ -982,7 +982,7 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target)
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(target->GetDescription().RTFormats[0]);
-	destTextureUAVDesc.Texture2D.MipSlice = 0;
+	destTextureUAVDesc.Texture2D.MipSlice = mip;
 	UAVDescriptor->CreateUnorderedAccessView(((D3D12FrameBuffer*)target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc);
 }
 

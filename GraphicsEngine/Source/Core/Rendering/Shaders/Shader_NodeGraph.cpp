@@ -24,9 +24,9 @@ std::vector<Shader::VertexElementDESC> Shader_NodeGraph::GetVertexFormat()
 	return Shader_Main::GetVertexFormat();
 }
 
-std::vector<Shader::ShaderParameter> Shader_NodeGraph::GetShaderParameters()
+std::vector<ShaderParameter> Shader_NodeGraph::GetShaderParameters()
 {
-	std::vector<Shader::ShaderParameter> Params = Shader_Main::GetShaderParameters();
+	std::vector<ShaderParameter> Params = Shader_Main::GetShaderParameters();
 	std::map<std::string, Material::TextureBindData>::const_iterator it;
 	for (it = Graph->GetMaterialData()->BindMap.begin(); it != Graph->GetMaterialData()->BindMap.end(); it++)
 	{
