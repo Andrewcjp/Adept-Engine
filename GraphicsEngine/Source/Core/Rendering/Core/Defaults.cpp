@@ -10,9 +10,7 @@ Defaults* Defaults::Instance = nullptr;
 Defaults::Defaults()
 {
 	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
-	ensureFatalMsgf(DefaultTexture, "Failed to Load Fallback Texture");
-	DefaultTexture->AddRef();
-
+	ensureFatalMsgf(DefaultTexture != nullptr, "Failed to Load Fallback Texture");
 	DefaultShaderMat = new Asset_Shader(true);
 }
 
@@ -33,7 +31,7 @@ void Defaults::Shutdown()
 	SafeDelete(Instance);
 }
 
-BaseTexture * Defaults::GetDefaultTexture()
+BaseTextureRef Defaults::GetDefaultTexture()
 {
 	return Instance->DefaultTexture;
 }

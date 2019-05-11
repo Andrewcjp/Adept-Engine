@@ -9,10 +9,10 @@ public:
 	~Shader_EnvMap();
 	std::vector<ShaderParameter> GetShaderParameters() override;
 	std::vector<VertexElementDESC> GetVertexFormat() override;
-	BaseTexture* TargetCubemap = nullptr;
+	BaseTextureRef TargetCubemap = nullptr;
 	FrameBuffer * CubeBuffer = nullptr;
 	void Init();
-	void ProcessTexture(BaseTexture* target);
+	void ProcessTexture(BaseTextureRef target);
 	void ComputeEnvBRDF();
 	FrameBuffer * EnvBRDFBuffer = nullptr;
 private:

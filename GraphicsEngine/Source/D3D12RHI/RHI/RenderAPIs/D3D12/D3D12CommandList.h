@@ -2,6 +2,7 @@
 #include "RHI/RHICommandList.h"
 #include "D3D12Shader.h"
 #include "Core/Utils/RefChecker.h"
+#include "RHI/BaseTexture.h"
 class D3D12PipeLineStateObject :public RHIPipeLineStateObject
 {
 public:
@@ -35,7 +36,7 @@ public:
 	virtual void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 	void PushState();
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
-	virtual void SetTexture(class BaseTexture * texture, int slot) override;
+	virtual void SetTexture(BaseTextureRef texture, int slot) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 
 	virtual void SetScreenBackBufferAsRT() override;
@@ -79,7 +80,6 @@ private:
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 
 	ID3D12CommandSignature* CommandSig = nullptr;
-	RHIPipeLineStateObject* CurrnetPSO = nullptr;
 };
 
 class D3D12RHIUAV : public RHIUAV

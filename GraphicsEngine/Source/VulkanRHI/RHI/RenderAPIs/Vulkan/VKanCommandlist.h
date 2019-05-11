@@ -47,7 +47,7 @@ public:
 	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 
 
-	RHI_VIRTUAL void SetTexture(class BaseTexture* texture, int slot) override;
+
 	VkCommandBuffer* GetCommandBuffer();
 
 	RHI_VIRTUAL void BeginRenderPass(RHIRenderPassInfo& RenderPass) override;

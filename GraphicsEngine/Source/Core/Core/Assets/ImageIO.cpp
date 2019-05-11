@@ -26,7 +26,7 @@ ImageIO::~ImageIO()
 
 BaseTexture * ImageIO::GetDefaultTexture()
 {
-	return Defaults::GetDefaultTexture();
+	return Defaults::GetDefaultTexture().Get();
 }
 
 void ImageIO::StartLoader()

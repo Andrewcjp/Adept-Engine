@@ -2,6 +2,8 @@
 #include "RHICommandList.h"
 #include "DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
+#include "RHITypes.h"
+#include "Shader.h"
 
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
@@ -194,4 +196,40 @@ RHIRenderPassInfo::RHIRenderPassInfo(FrameBuffer * buffer, ERenderPassLoadOp::Ty
 {
 	LoadOp = loadOp;
 	TargetBuffer = buffer;
+}
+
+void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, int slot)
+{}
+
+void RHICommandList::SetUAV(RHIUAV * uav, int slot)
+{}
+
+void RHICommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot)
+{
+	ensure(CurrentPSO);
+	SetConstantBufferView(buffer, offset, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(Slot));
+}
+
+void RHICommandList::SetTexture(BaseTextureRef texture, std::string slot)
+{
+	ensure(CurrentPSO);
+	SetTexture(texture, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
+}
+
+void RHICommandList::SetFrameBufferTexture(FrameBuffer * buffer, std::string slot, int Resourceindex)
+{
+	ensure(CurrentPSO);
+	SetFrameBufferTexture(buffer, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), Resourceindex);
+}
+
+void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, std::string slot)
+{
+	ensure(CurrentPSO);
+	SetRHIBufferReadOnly(buffer, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
+}
+
+void RHICommandList::SetUAV(RHIUAV * uav, std::string slot)
+{
+	ensure(CurrentPSO);
+	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
 }

@@ -65,7 +65,7 @@ void Shader_EnvMap::Init()
 	Cube = RHI::CreateMesh("models\\SkyBoxCube.obj", set);
 }
 
-void Shader_EnvMap::ProcessTexture(BaseTexture * Target)
+void Shader_EnvMap::ProcessTexture(BaseTextureRef Target)
 {
 #if BASIC_RENDER_ONLY
 	return;

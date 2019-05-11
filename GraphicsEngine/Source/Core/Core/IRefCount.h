@@ -1,4 +1,6 @@
 #pragma once
+#include "Asserts.h"
+
 //macro That Removes ref and deletes the object if the count == 0; Also Nulls the pointer for safety
 #define SafeRefRelease(target) SafeRHIRefRelease(target);
 #define SafeRHIRefRelease(target) if(target != nullptr){if(target->ReleaseRef() == 0){EnqueueSafeRHIRelease(target); target = nullptr;}}
@@ -19,19 +21,19 @@ public:
 	};
 	bool ReleaseRef()
 	{
-		if (GetRefCount() > 1)
+		if (GetRefCount() > 0)
 		{
 			DecrementRef();
 		}
 		else
 		{
-			if (GetRefCount() == 1)
+			if (GetRefCount() != 0)
 			{
-				DecrementRef();
-				return false;
+				__debugbreak();
 			}
+			return false;
 		}
-		return false;
+		return true;
 	}
 private:
 	void RemoveRef()

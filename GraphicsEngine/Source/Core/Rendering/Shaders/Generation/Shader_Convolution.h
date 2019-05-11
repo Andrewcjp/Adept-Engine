@@ -9,10 +9,10 @@ public:
 	Shader_Convolution(class DeviceContext* dev);
 	~Shader_Convolution();
 	void init();
-	void ComputeConvolution(BaseTexture * Target);
+	void ComputeConvolution(BaseTextureRef Target);
 	std::vector<ShaderParameter> GetShaderParameters() override;
 	std::vector<VertexElementDESC> GetVertexFormat() override;
-	BaseTexture* TargetCubemap = nullptr;
+	BaseTextureRef TargetCubemap = nullptr;
 	FrameBuffer * CubeBuffer = nullptr;
 	struct QuadDrawer
 	{

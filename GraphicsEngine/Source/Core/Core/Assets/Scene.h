@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/GameObject.h"
 #include "Rendering/Core/Light.h"
+#include "RHI/BaseTexture.h"
 class RenderEngine;
 class GameMode;
 class Scene
@@ -56,8 +57,8 @@ public:
 	void EndScene();
 	struct LightingEnviromentData
 	{
-		BaseTexture* SkyBox = nullptr;
-		BaseTexture* DiffuseMap = nullptr;
+		BaseTextureRef SkyBox = nullptr;
+		BaseTextureRef DiffuseMap = nullptr;
 	};
 	LightingEnviromentData* GetLightingData()
 	{

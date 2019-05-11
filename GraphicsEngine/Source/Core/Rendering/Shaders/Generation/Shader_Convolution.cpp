@@ -59,7 +59,7 @@ void Shader_Convolution::init()
 	Cube = RHI::CreateMesh("models\\SkyBoxCube.obj", set);
 }
 
-void Shader_Convolution::ComputeConvolution(BaseTexture* Target)
+void Shader_Convolution::ComputeConvolution(BaseTextureRef Target)
 {
 #if BASIC_RENDER_ONLY
 	return;

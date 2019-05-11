@@ -43,12 +43,12 @@ void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 
 Shader_Skybox::~Shader_Skybox()
 {
-	SafeRHIRefRelease(SkyBoxTexture);
+//	SafeRHIRefRelease(SkyBoxTexture);
 	EnqueueSafeRHIRelease(CubeModel);
 	EnqueueSafeRHIRelease(List);
 }
 
-void Shader_Skybox::SetSkyBox(BaseTexture * tex)
+void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 {
 #if BASIC_RENDER_ONLY
 	return;
@@ -58,12 +58,7 @@ void Shader_Skybox::SetSkyBox(BaseTexture * tex)
 	{
 		return;
 	}
-	if (SkyBoxTexture != nullptr)
-	{
-		SafeRHIRefRelease(SkyBoxTexture);
-	}
 	SkyBoxTexture = tex;
-	SkyBoxTexture->AddRef();
 }
 
 void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)

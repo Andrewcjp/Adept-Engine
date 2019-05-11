@@ -205,7 +205,10 @@ namespace ECommandListType
 	{
 		Graphics,
 		Compute,
-		Copy
+		Copy,
+		VideoEncode,
+		VideoDecode,
+		Limit
 	};
 }
 

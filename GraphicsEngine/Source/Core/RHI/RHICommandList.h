@@ -1,5 +1,6 @@
 #pragma once
 #include "RHITypes.h"
+#include "BaseTexture.h"
 class DeviceContext;
 struct RHIBufferDesc
 {
@@ -77,14 +78,24 @@ public:
 	//drawing
 	RHI_VIRTUAL void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
 	RHI_VIRTUAL void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;
-	RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
-	RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;
 	///Not Const Desc as they hash on demand
 	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) = 0;
 	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
+	//setters
+	RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
+	RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;
 	RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
-	RHI_VIRTUAL void SetTexture(class BaseTexture* texture, int slot) = 0;
+	RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot) = 0;
 	RHI_VIRTUAL void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;
+	void SetRHIBufferReadOnly(RHIBuffer* buffer, int slot);
+	void SetUAV(RHIUAV* uav, int slot);
+	//string setters
+	void SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot);
+	void SetTexture(BaseTextureRef texture, std::string slot);
+	void SetFrameBufferTexture(class FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
+	void SetRHIBufferReadOnly(RHIBuffer* buffer, std::string slot);
+	void SetUAV(RHIUAV* uav, std::string slot);
+
 	RHI_VIRTUAL void SetScreenBackBufferAsRT() = 0;
 	RHI_VIRTUAL void ClearScreen() = 0;
 	RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
@@ -114,6 +125,7 @@ public:
 	void InsertGPUStallTimer();
 	void HandleStallTimer();
 protected:
+	RHIPipeLineStateObject* CurrentPSO = nullptr;
 	bool IsInRenderPass = false;
 	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!
@@ -168,3 +180,6 @@ public:
 protected:
 
 };
+
+
+typedef  SharedPtr<RHIBuffer> RHIBufferRef;

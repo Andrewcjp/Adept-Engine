@@ -16,8 +16,6 @@ Scene::Scene(bool EditorScene)
 	TextureImportSettings s;
 	s.IsCubeMap = true;
 	LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\MarsSky.dds", s);
-
-	LightingData.SkyBox->AddRef();
 	CurrentGameMode = Engine::GetGame()->CreateGameMode();
 	bEditorScene = EditorScene;
 }
@@ -27,8 +25,8 @@ Scene::~Scene()
 	IsDestruction = true;
 	Lights.clear();//Scene Does not own these objects
 	MemoryUtils::DeleteVector(SceneObjects);
-	SafeRHIRefRelease(LightingData.SkyBox);
-	SafeRHIRefRelease(LightingData.DiffuseMap);
+//	SafeRHIRefRelease(LightingData.SkyBox);
+//	SafeRHIRefRelease(LightingData.DiffuseMap);
 	SafeDelete(CurrentGameMode);
 }
 void Scene::AlwaysUpdate(float deltatime)
