@@ -99,7 +99,6 @@ void Material::UpdateBind(std::string Name, BaseTexture* NewTex)
 		{
 			//SafeRefRelease(CurrentBindSet->BindMap.at(Name).TextureObj.Get());
 			CurrentBindSet->BindMap.at(Name).TextureObj = NewTex;
-			//NewTex->AddRef();
 		}
 	}
 	else
@@ -176,7 +175,6 @@ void SerialTextureBind(Archive * A, Material::TextureBindData* object)
 		std::string Name;
 		ArchiveProp_Alias(Name, object->TextureObj->TexturePath);
 		object->TextureObj = AssetManager::DirectLoadTextureAsset(Name);
-		object->TextureObj->AddRef();
 	}
 	else
 	{

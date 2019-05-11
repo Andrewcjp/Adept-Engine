@@ -8,11 +8,11 @@ public:
 	Shader_Skybox(class DeviceContext* dev);
 	void Init(FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	virtual ~Shader_Skybox();
-	void SetSkyBox(BaseTexture* tex);
+	void SetSkyBox(BaseTextureRef tex);
 	void Render(class SceneRenderer * SceneRender, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
-	BaseTexture* SkyBoxTexture = nullptr;
+	BaseTextureRef SkyBoxTexture = nullptr;
 #if DEBUG_CUBEMAPS
 	FrameBuffer* test = nullptr;
 #endif

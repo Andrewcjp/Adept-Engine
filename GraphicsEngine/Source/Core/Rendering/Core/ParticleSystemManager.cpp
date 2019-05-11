@@ -155,8 +155,8 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(System->SimulateShader));
 	float DT = Engine::GetDeltaTime();
 	CmdList->SetRootConstant(5, 1, &DT, 0);
-	System->GPU_ParticleData->GetUAV()->Bind(CmdList, System->SimulateShader->GetSlotForName("newPosVelo"));
-	System->CounterBuffer->GetUAV()->Bind(CmdList, System->SimulateShader->GetSlotForName("CounterBuffer"));
+	CmdList->SetUAV(System->GPU_ParticleData->GetUAV(), "newPosVelo");
+	CmdList->SetUAV(System->CounterBuffer->GetUAV(), "CounterBuffer");
 	System->GetPreSimList()->BindBufferReadOnly(CmdList, System->SimulateShader->GetSlotForName("AliveIndexs"));
 	System->DeadParticleIndexs->GetUAV()->Bind(CmdList, System->SimulateShader->GetSlotForName("DeadIndexs"));
 	System->GetPostSimList()->GetUAV()->Bind(CmdList, System->SimulateShader->GetSlotForName("PostSim_AliveIndex"));

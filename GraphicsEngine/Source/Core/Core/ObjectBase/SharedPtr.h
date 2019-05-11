@@ -32,7 +32,8 @@ public:
 		if (m_Object != nullptr)
 		{
 			m_Object->AddRef();
-		}		
+		}	
+		ObjectRaw = other.ObjectRaw;
 	}
 	// Overloaded Assignment Operator
 	SharedPtr<T>& operator=(const SharedPtr<T>& other)

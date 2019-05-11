@@ -1,6 +1,6 @@
 #pragma once
+#include "RHI\BaseTexture.h"
 
-class BaseTexture;
 class Material;
 class Asset_Shader;
 class Defaults
@@ -8,7 +8,7 @@ class Defaults
 public:
 	static void Start();
 	static void Shutdown();
-	static BaseTexture* GetDefaultTexture();
+	static BaseTextureRef GetDefaultTexture();
 	static Material* GetDefaultMaterial();
 
 	static Asset_Shader * GetDefaultShaderAsset();
@@ -18,6 +18,6 @@ private:
 	Defaults();
 	~Defaults();
 	static Defaults* Instance;
-	BaseTexture* DefaultTexture;
+	BaseTextureRef DefaultTexture;
 };
 

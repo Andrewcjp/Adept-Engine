@@ -22,7 +22,7 @@ struct ParticleSystem
 	RHIBuffer* DispatchCommandBuffer = nullptr;
 	//counters
 	RHIBuffer * CounterBuffer = nullptr;
-	SharedPtr<BaseTexture> ParticleTexture;
+	BaseTextureRef ParticleTexture;
 	void Init();
 	void SetupCommandBuffer();
 	//System params

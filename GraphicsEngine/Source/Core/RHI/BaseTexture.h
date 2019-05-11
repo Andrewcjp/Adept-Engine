@@ -44,3 +44,4 @@ protected:
 	DeviceContext* Context = nullptr;
 	TextureDescription Description;
 };
+typedef  SharedPtr<BaseTexture> BaseTextureRef;
