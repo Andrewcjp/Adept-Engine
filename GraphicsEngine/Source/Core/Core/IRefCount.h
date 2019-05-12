@@ -21,16 +21,9 @@ public:
 	};
 	bool ReleaseRef()
 	{
-		if (GetRefCount() > 0)
+		DecrementRef();
+		if (GetRefCount() <= 0)
 		{
-			DecrementRef();
-		}
-		else
-		{
-			if (GetRefCount() != 0)
-			{
-				__debugbreak();
-			}
 			return false;
 		}
 		return true;

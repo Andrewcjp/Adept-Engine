@@ -14,12 +14,10 @@ Defaults::Defaults()
 	DefaultShaderMat = new Asset_Shader(true);
 }
 
-
 Defaults::~Defaults()
 {
-	SafeRelease(DefaultTexture);
+	SafeDelete(DefaultShaderMat);
 }
-
 
 void Defaults::Start()
 {
@@ -45,3 +43,5 @@ Asset_Shader * Defaults::GetDefaultShaderAsset()
 {
 	return Instance->DefaultShaderMat;
 }
+
+

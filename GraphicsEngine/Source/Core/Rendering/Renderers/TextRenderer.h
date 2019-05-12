@@ -3,6 +3,7 @@
 #include <ft2build.h>
 #include <map>
 #include "RHI/RHI.h"
+#include "RHI/BaseTexture.h"
 
 #include FT_FREETYPE_H  
 class BaseTexture;
@@ -61,7 +62,7 @@ private:
 	bool NeedsClearRT = true;
 	struct atlas
 	{
-		BaseTexture* Texture;
+		BaseTextureRef Texture;
 		unsigned int w;			// width of texture in pixels
 		unsigned int h;			// height of texture in pixels
 

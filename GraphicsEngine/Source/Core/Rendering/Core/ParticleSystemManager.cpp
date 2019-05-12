@@ -94,8 +94,15 @@ ParticleSystemManager * ParticleSystemManager::Get()
 	}
 	return Instance;
 }
-
 void ParticleSystemManager::ShutDown()
+{
+	if (Instance != nullptr)
+	{
+		Instance->ShutDown_I();
+	}
+}
+
+void ParticleSystemManager::ShutDown_I()
 {
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{

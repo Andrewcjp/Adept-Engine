@@ -68,6 +68,7 @@ public:
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
 	int ShadowMapSize = 2048;
 	bool IsDeferred = false;
+	bool EnableVR = false;
 	bool EnableGPUParticles = true;
 	bool LockBackBuffer = false;
 	int LockedWidth = 0;

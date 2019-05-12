@@ -18,15 +18,15 @@ ImageIO::ImageIO()
 
 ImageIO::~ImageIO()
 {
-	for (int i = 0; i < LoadedTextures.size(); i++)
-	{
-		SafeRefRelease(LoadedTextures[i]);
-	}
+	//for (int i = 0; i < LoadedTextures.size(); i++)
+	//{
+	//	SafeRefRelease(LoadedTextures[i]);
+	//}
 }
 
-BaseTexture * ImageIO::GetDefaultTexture()
+BaseTextureRef ImageIO::GetDefaultTexture()
 {
-	return Defaults::GetDefaultTexture().Get();
+	return Defaults::GetDefaultTexture();
 }
 
 void ImageIO::StartLoader()
@@ -45,15 +45,15 @@ void ImageIO::ShutDown()
 	}
 }
 
-void ImageIO::RegisterTextureLoad(BaseTexture* newtex)
+void ImageIO::RegisterTextureLoad(BaseTextureRef newtex)
 {
-	if (instance && newtex)
+	if (instance && newtex != nullptr)
 	{
 		instance->LoadedTextures.push_back(newtex);
 	}
 }
 
-bool ImageIO::CheckIfLoaded(std::string name, BaseTexture ** out)
+bool ImageIO::CheckIfLoaded(std::string name, BaseTextureRef * out)
 {
 	if (instance)
 	{
@@ -62,7 +62,7 @@ bool ImageIO::CheckIfLoaded(std::string name, BaseTexture ** out)
 	return false;
 }
 
-bool ImageIO::IN_CheckIfLoaded(std::string name, BaseTexture ** out)
+bool ImageIO::IN_CheckIfLoaded(std::string name, BaseTextureRef * out)
 {
 	for (unsigned int i = 0; i < LoadedTextures.size(); i++)
 	{

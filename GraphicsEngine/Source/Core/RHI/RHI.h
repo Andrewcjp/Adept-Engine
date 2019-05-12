@@ -7,10 +7,17 @@
 #include "Rendering/Renderers/RenderSettings.h"
 #include "RHI_inc_fwd.h"
 #include "RHITypes.h"
+#include "BaseTexture.h"
+
 
 class RHIGPUSyncEvent;
 class SFRController;
 class RHIClass;
+class HMD;
+class HMDManager;
+struct VRSettings;
+
+
 #define PSO_USE_FULL_STRING_MAPS 1
 #define PSO_USE_MAP 0
 #define MAX_GPU_DEVICE_COUNT 3
@@ -32,7 +39,7 @@ public:
 	static const int CPUFrameCount = 2;
 	static void InitRHI(ERenderSystemType e);
 	static void DestoryRHI();
-	RHI_API static BaseTexture* CreateTexture(AssetPathRef, DeviceContext* Device = nullptr, RHITextureDesc Desc = RHITextureDesc());
+	RHI_API static BaseTextureRef CreateTexture(AssetPathRef, DeviceContext* Device = nullptr, RHITextureDesc Desc = RHITextureDesc());
 	RHI_API static BaseTexture* CreateTextureWithData(int with, int height, int nChannels, void * data, DeviceContext* Device = nullptr);
 	RHI_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
 	RHI_API static Mesh * CreateMesh(const char * path);
@@ -63,6 +70,12 @@ public:
 	RHI_API static int GetDeviceCount();
 	RHI_API static int GetFrameCount();
 
+	//VR
+	static bool SupportVR();
+	void DetectAndInitVR();
+	static HMD* GetHMD();
+	static HMDManager* GetHMDManager();
+	//checks
 	static bool UseAdditionalGPUs();
 	static bool IsD3D12();
 	static bool IsVulkan();
@@ -77,6 +90,7 @@ public:
 	static void RemoveLinkedFrameBuffer(FrameBuffer* target);
 	RHI_API static RenderSettings* GetRenderSettings();
 	RHI_API static const MultiGPUMode* GetMGPUSettings();
+	static VRSettings* GetVrSettings();
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
 	static RHI* Get();
 	static SFRController* GetSplitController();
@@ -100,6 +114,7 @@ private:
 	bool IsFullScreen = false;
 	int SwapChainWidth = 0;
 	int SwapChainHeight = 0;
+	HMDManager* HeadSetManager = nullptr;
 };
 
 class RHI_API RHIClass

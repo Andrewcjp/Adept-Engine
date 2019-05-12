@@ -45,7 +45,7 @@ public:
 	void LoadFromShaderDir();
 	CORE_API std::string LoadFileWithInclude(std::string name);
 	static void RegisterMeshAssetLoad(std::string name);
-	CORE_API static BaseTexture * DirectLoadTextureAsset(std::string name, TextureImportSettings settigns = TextureImportSettings(), class DeviceContext * Device = nullptr);
+	CORE_API static BaseTextureRef DirectLoadTextureAsset(std::string name, TextureImportSettings settigns = TextureImportSettings(), class DeviceContext * Device = nullptr);
 	CORE_API static const std::string GetShaderPath();
 	CORE_API static const std::string GetContentPath();
 	CORE_API static const std::string GetDDCPath();

@@ -690,11 +690,11 @@ void MeshLoader::ShutDown()
 
 void MeshLoader::DestoryMeshes()
 {
-	std::map<std::string, Mesh*>::iterator it;
-	for (it = CreatedMeshes.begin(); it != CreatedMeshes.end(); it++)
-	{
-		EnqueueSafeRHIRelease(it->second);
-	}
+	//std::map<std::string, Mesh*>::iterator it;
+	//for (it = CreatedMeshes.begin(); it != CreatedMeshes.end(); it++)
+	//{
+	//	EnqueueSafeRHIRelease(it->second);
+	//}
 }
 
 Mesh * MeshLoader::TryLoadFromCache(std::string Path)

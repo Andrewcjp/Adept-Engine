@@ -91,11 +91,11 @@ void Material::SetMaterialActive(RHICommandList* list)
 	}
 }
 
-void Material::UpdateBind(std::string Name, BaseTexture* NewTex)
+void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
 {
 	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
 	{
-		if (CurrentBindSet->BindMap.at(Name).TextureObj.Get() != NewTex)
+		if (CurrentBindSet->BindMap.at(Name).TextureObj != NewTex)
 		{
 			//SafeRefRelease(CurrentBindSet->BindMap.at(Name).TextureObj.Get());
 			CurrentBindSet->BindMap.at(Name).TextureObj = NewTex;
@@ -138,7 +138,7 @@ void Material::SetNormalMap(BaseTexture * tex)
 	}
 }
 
-void Material::SetDiffusetexture(BaseTexture * tex)
+void Material::SetDiffusetexture(BaseTextureRef tex)
 {
 	if (tex != nullptr)
 	{

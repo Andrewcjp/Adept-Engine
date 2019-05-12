@@ -9,6 +9,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "Mesh/MeshPipelineController.h"
 #include "FrameBufferProcessor.h"
+#include "../VR/VRCamera.h"
 SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;
@@ -25,7 +26,7 @@ SceneRenderer::~SceneRenderer()
 	EnqueueSafeRHIRelease(RelfectionProbeProjections);
 }
 
-void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly, FrameBuffer* FrameBuffer, bool IsCubemap)
+void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly, FrameBuffer* FrameBuffer, bool IsCubemap, int index /*=0*/)
 {
 	if (!PositionOnly)
 	{
@@ -33,7 +34,7 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	}
 	if (!IsCubemap)
 	{
-		BindMvBuffer(CommandList);
+		BindMvBuffer(CommandList, MainShaderRSBinds::MVCBV, index);
 	}
 	if (PositionOnly)
 	{
@@ -81,6 +82,11 @@ void SceneRenderer::UpdateReflectionParams(glm::vec3 lightPos)
 	}
 }
 
+void SceneRenderer::UpdateMV(VRCamera* c)
+{
+	UpdateMV(c->GetEyeCam(EEye::Left));
+	UpdateMV(c->GetEyeCam(EEye::Right));
+}
 
 void SceneRenderer::UpdateMV(Camera * c)
 {
@@ -162,15 +168,15 @@ void SceneRenderer::BindLightsBuffer(RHICommandList*  list, int Override)
 {
 	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, Override);
 }
-  
-void SceneRenderer::BindMvBuffer(RHICommandList * list)
-{
-	list->SetConstantBufferView(CMVBuffer, 0, MainShaderRSBinds::MVCBV);
-}
 
 void SceneRenderer::BindMvBuffer(RHICommandList * list, int slot)
 {
-	list->SetConstantBufferView(CMVBuffer, 0, slot);
+	BindMvBuffer(list, slot, 0);
+}
+
+void SceneRenderer::BindMvBuffer(RHICommandList * list, int slot, int index)
+{
+	list->SetConstantBufferView(CMVBuffer, index, slot);
 }
 
 void SceneRenderer::SetScene(Scene * NewScene)

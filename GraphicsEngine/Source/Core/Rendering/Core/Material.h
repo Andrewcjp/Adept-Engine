@@ -46,13 +46,13 @@ public:
 	~Material();
 	void SetMaterialActive(class RHICommandList * list);
 
-	void UpdateBind(std::string Name, BaseTexture * NewTex);
+	void UpdateBind(std::string Name, BaseTextureRef NewTex);
 	BaseTexture* GetTexturebind(std::string Name);
 	typedef std::pair<std::string, Material::TextureBindData> FlatMap;
 	CORE_API MaterialProperties* GetProperties();
 	void SetDisplacementMap(BaseTexture* tex);
 	CORE_API void SetNormalMap(BaseTexture * tex);
-	CORE_API void SetDiffusetexture(BaseTexture* tex);
+	CORE_API void SetDiffusetexture(BaseTextureRef tex);
 	bool HasNormalMap();
 	CORE_API static Material* CreateDefaultMaterialInstance();
 	static Material * GetDefaultMaterial();

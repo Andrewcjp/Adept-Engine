@@ -180,6 +180,7 @@ RenderSettings::RenderSettings()
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	IsDeferred = false;
+	EnableVR = true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;
 	if (IsDeferred)
@@ -188,7 +189,7 @@ RenderSettings::RenderSettings()
 	}
 	RenderScale = 1.0f;
 	UseZPrePass = true;
-	//SetRes(BBTestMode::HD);
+	SetRes(BBTestMode::HD);
 	//EnableDynamicResolutionScaling = true;
 }
 

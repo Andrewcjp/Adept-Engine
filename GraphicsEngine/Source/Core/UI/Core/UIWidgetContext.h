@@ -1,5 +1,6 @@
 #pragma once
 #include "UI/Core/CollisionRect.h"
+#include "RHI/BaseTexture.h"
 
 class UIWidget;
 class DebugLineDrawer;
@@ -61,7 +62,7 @@ private:
 	UIDrawBatcher* DrawBatcher = nullptr;
 	bool RenderStateDirty = true;
 	Shader_TexturedUI* Quad = nullptr;
-	BaseTexture* LoadingTex = nullptr;
-	BaseTexture* PauseTex = nullptr;
+	BaseTextureRef LoadingTex = nullptr;
+	BaseTextureRef PauseTex = nullptr;
 };
 

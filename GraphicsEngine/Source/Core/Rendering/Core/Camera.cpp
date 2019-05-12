@@ -2,6 +2,17 @@
 #include "Core/Transform.h"
 #include "Editor/EditorWindow.h"
 
+Camera::Camera()
+{
+	UseLeftHanded = (RHI::GetType() == RenderSystemD3D11 || RHI::GetType() == RenderSystemD3D12);
+	this->forward = glm::vec3(0.0f, 0.0f, 1.0f);
+	this->up = glm::vec3(0.0f, 1.0f, 0.0f);
+	ZFar = 1000;
+	zNear = 0.1f;
+	fov = 90;
+	UpdateProjection(1);
+}
+
 Camera::Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar)
 {
 	UseLeftHanded = (RHI::GetType() == RenderSystemD3D11 || RHI::GetType() == RenderSystemD3D12);
@@ -11,14 +22,7 @@ Camera::Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar)
 	this->zNear = zNear;
 	ZFar = zFar;
 	this->fov = fov;
-	if (UseLeftHanded)
-	{
-		this->projection = glm::perspectiveLH(glm::radians(fov), aspect, zNear, zFar);
-	}
-	else
-	{
-		this->projection = glm::perspective(glm::radians(fov), aspect, zNear, zFar);
-	}
+	UpdateProjection(aspect);
 }
 
 glm::mat4 Camera::GetViewProjection()

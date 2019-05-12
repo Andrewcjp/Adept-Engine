@@ -1,4 +1,5 @@
 #pragma once
+#include "RHI\BaseTexture.h"
 
 enum EImageIOStatus
 {
@@ -10,11 +11,11 @@ enum EImageIOStatus
 class ImageIO
 {
 public:
-	static BaseTexture* GetDefaultTexture();
+	static BaseTextureRef GetDefaultTexture();
 	static void StartLoader();
 	static void ShutDown();
-	static void RegisterTextureLoad(BaseTexture * newtex);
-	static bool CheckIfLoaded(std::string name, BaseTexture ** out);
+	static void RegisterTextureLoad(BaseTextureRef newtex);
+	static bool CheckIfLoaded(std::string name, BaseTextureRef * out);
 	CORE_API static EImageIOStatus LoadTexture2D(const char * filename, unsigned char ** buffer, int * width, int * height, int * nchan);
 	CORE_API static EImageIOStatus LoadTextureCubeMap(const char * filename, unsigned char ** buffer, int * width, int * height);
 
@@ -22,7 +23,7 @@ private:
 	ImageIO();
 	~ImageIO();
 	static ImageIO* instance;
-	std::vector<class BaseTexture*> LoadedTextures;
-	bool IN_CheckIfLoaded(std::string name, BaseTexture ** out);
+	std::vector<BaseTextureRef> LoadedTextures;
+	bool IN_CheckIfLoaded(std::string name, BaseTextureRef * out);
 };
 

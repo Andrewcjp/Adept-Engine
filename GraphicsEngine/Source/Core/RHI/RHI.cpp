@@ -13,6 +13,9 @@
 #include "Rendering/Core/Material.h"
 #include "Core/Assets/Asset_Shader.h"
 #include "Rendering/Core/Defaults.h"
+#include "Core/Utils/VectorUtils.h"
+#include "Rendering/VR/HMD.h"
+#include "Rendering/VR/HMDManager.h"
 
 RHI* RHI::instance = nullptr;
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
@@ -48,7 +51,9 @@ RHI::RHI(ERenderSystemType system)
 }
 
 RHI::~RHI()
-{}
+{
+	SafeDelete(HeadSetManager);
+}
 
 void RHI::InitRHI(ERenderSystemType e)
 {
@@ -179,6 +184,27 @@ int RHI::GetDeviceCount()
 	return 1;
 }
 
+bool RHI::SupportVR()
+{
+	return instance->RenderSettings.EnableVR;
+}
+
+void RHI::DetectAndInitVR()
+{
+	HeadSetManager = new HMDManager();
+	HeadSetManager->Init();
+}
+
+HMD * RHI::GetHMD()
+{
+	return instance->HeadSetManager->GetHMD();
+}
+
+HMDManager * RHI::GetHMDManager()
+{
+	return instance->HeadSetManager;
+}
+
 bool RHI::UseAdditionalGPUs()
 {
 	return true;
@@ -187,6 +213,11 @@ bool RHI::UseAdditionalGPUs()
 const MultiGPUMode * RHI::GetMGPUSettings()
 {
 	return &instance->CurrentMGPUMode;
+}
+
+VRSettings * RHI::GetVrSettings()
+{
+	return &instance->HeadSetManager->VrSettings;
 }
 
 RHI * RHI::Get()
@@ -212,9 +243,14 @@ void RHI::Tick()
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 	LogEnsure(!Resource->IsPendingKill());
+	ensure(Resource->GetRefCount() == 0);
 	if (Resource->IsPendingKill())
 	{
 		return;
+	}
+	if (VectorUtils::Contains(Get()->DeferredDeleteQueue, RHIResourseStamped(Resource, RHI::GetFrameCount())))
+	{
+		__debugbreak();
 	}
 	if (Get()->IsFlushingDeleteQueue)
 	{
@@ -253,7 +289,7 @@ void RHI::DestoryRHI()
 }
 
 #define NOLOADTEX 0
-BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHITextureDesc Desc)
+BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHITextureDesc Desc)
 {
 	if (Device == nullptr)
 	{
@@ -266,7 +302,7 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHITe
 		return ImageIO::GetDefaultTexture();
 	}
 #endif
-	BaseTexture* newtex = nullptr;
+	BaseTextureRef newtex = nullptr;
 	if (ImageIO::CheckIfLoaded(path.GetRelativePathToAsset(), &newtex))
 	{
 		return newtex;
@@ -278,11 +314,11 @@ BaseTexture * RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHITe
 	}
 	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0)
 	{
-		BaseTexture* other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
-		newtex->RegisterOtherDeviceTexture(other);
+		BaseTextureRef other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
+		newtex->RegisterOtherDeviceTexture(other.Get());
 		other->CreateFromFile(path);
 	}
-	ImageIO::RegisterTextureLoad(newtex);
+	ImageIO::RegisterTextureLoad(newtex.Get());
 	return newtex;
 }
 
@@ -374,6 +410,7 @@ void RHI::InitialiseContext()
 	ParticleSystemManager::Get();
 	instance->SFR_Controller = new SFRController();
 	Defaults::Start();
+	instance->DetectAndInitVR();
 }
 
 void RHI::ValidateSettings()
@@ -474,7 +511,7 @@ void RHI::DestoryContext()
 	if (GetRHIClass())
 	{
 		GetRHIClass()->WaitForGPU();
-		ParticleSystemManager::Get()->ShutDown();
+		ParticleSystemManager::ShutDown();
 	}
 	ShaderComplier::Get()->FreeAllGlobalShaders();
 	if (Get())
