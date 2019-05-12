@@ -1,5 +1,6 @@
 #pragma once
 #include "RHI\Shader.h"
+#include "RHI\BaseTexture.h"
 class DeviceContext;
 class Shader_TexturedUI : public Shader
 {
@@ -13,7 +14,7 @@ public:
 	virtual std::vector<ShaderParameter> GetShaderParameters() override;
 
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
-	BaseTexture* Texture = nullptr;
+	BaseTextureRef Texture = nullptr;
 	bool blend = true;
 private:
 	RHIBuffer * VertexBuffer = nullptr;

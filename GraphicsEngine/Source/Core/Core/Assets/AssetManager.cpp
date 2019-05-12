@@ -216,7 +216,7 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 }
 
 //#Files: Check time stamps!
-BaseTexture * AssetManager::DirectLoadTextureAsset(std::string name, TextureImportSettings settings, DeviceContext* Device)
+BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImportSettings settings, DeviceContext* Device)
 {
 	AssetPathRef Fileref = AssetPathRef(name);
 #if WITH_EDITOR

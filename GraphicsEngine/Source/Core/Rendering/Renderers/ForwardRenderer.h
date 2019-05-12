@@ -22,7 +22,9 @@
 struct ForwardRenderDeviceObject
 {
 	RHICommandList* MainCommandList = nullptr;
-	FrameBuffer* FrameBuffer = nullptr;
+	FrameBuffer* RightEyeFramebuffer = nullptr;
+	FrameBuffer* MainFrameBuffer = nullptr;
+
 };
 class ForwardRenderer : public RenderEngine
 {
@@ -34,6 +36,8 @@ public:
 	void PostInit() override;
 	void SetupOnDevice(DeviceContext * TargetDevice);
 	void CubeMapPass();
+
+	void RunMainPass();
 	
 	virtual void DestoryRenderWindow() override;
 	virtual void FinaliseRender() override;
@@ -41,7 +45,7 @@ public:
 	void Resize(int width, int height) override;
 
 private:
-	void MainPass(RHICommandList * Cmdlist);
+	void MainPass(RHICommandList * Cmdlist, FrameBuffer* targetbuffer, int index = 0);
 	void RenderSkybox();
 	ForwardRenderDeviceObject DeviceObjects[MAX_GPU_DEVICE_COUNT];
 	RHICommandList* CubemapCaptureList = nullptr;

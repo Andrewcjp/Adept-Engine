@@ -19,6 +19,8 @@
 #include "Platform/ConsoleVariable.h"
 #include "Rendering/Core/GPUPerformanceGraph.h"
 #include "UI/GameUI/UIGraph.h"
+#include "RHI/RHI.h"
+#include "Rendering/VR/HMDManager.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
@@ -87,6 +89,10 @@ void BaseWindow::Render()
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->ClearStats();
+	}
+	if (RHI::SupportVR())
+	{
+		RHI::GetHMDManager()->Update();
 	}
 	PreRender();
 	if (PerfManager::Instance != nullptr)

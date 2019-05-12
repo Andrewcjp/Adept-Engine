@@ -39,7 +39,8 @@ public:
 		IndirectDispatchArgs dispatchArgs;
 	};
 	static ParticleSystemManager* Get();
-	void ShutDown();
+	static void ShutDown();
+	void ShutDown_I();
 	void Sync(ParticleSystem * system);
 	void Simulate();
 	void SimulateSystem(ParticleSystem* system);

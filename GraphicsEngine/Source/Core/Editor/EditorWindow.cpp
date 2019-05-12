@@ -15,6 +15,7 @@
 #include "EditorObjectSelector.h"
 #include "Rendering/Renderers/ForwardRenderer.h"
 #include "UI/UIManager.h"
+#include "Rendering/VR/HMDManager.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -275,6 +276,29 @@ void EditorWindow::Update()
 	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking() && IsEditorEjected())
 	{
 		//mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
+	}
+	if (RHI::SupportVR())
+	{
+		if (Input::GetKeyDown('L'))
+		{
+			RHI::GetVrSettings()->MirrorMode = EVRMirrorMode::Right;
+		}
+		if (Input::GetKeyDown('K'))
+		{
+			RHI::GetVrSettings()->MirrorMode = EVRMirrorMode::Left;
+		}
+		if (Input::GetKeyDown('B'))
+		{
+			RHI::GetVrSettings()->MirrorMode = EVRMirrorMode::Both;
+		}
+		if (Input::GetKeyDown(219))
+		{
+			RHI::GetVrSettings()->EyeDistance += 0.1f;
+		}
+		if (Input::GetKeyDown(221))
+		{
+			RHI::GetVrSettings()->EyeDistance -= 0.1f;
+		}
 	}
 }
 IntRect EditorWindow::GetViewPortRect()

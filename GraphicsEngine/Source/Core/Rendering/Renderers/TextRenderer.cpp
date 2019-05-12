@@ -311,5 +311,5 @@ TextRenderer::atlas::atlas(FT_Face face, int height)
 
 TextRenderer::atlas::~atlas()
 {
-	EnqueueSafeRHIRelease(Texture);
+//	EnqueueSafeRHIRelease(Texture);
 }

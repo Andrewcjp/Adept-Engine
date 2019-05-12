@@ -1,6 +1,7 @@
 #pragma once
 #include "Rendering/Core/Camera.h"
 #include "Types/WeakObjectPtr.h"
+#include "GameObject.h"
 #define USE_TRANSFORM_CACHING 0
 class Transform
 {

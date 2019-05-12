@@ -483,10 +483,10 @@ class IRHISharedDeviceObject
 public:
 	virtual ~IRHISharedDeviceObject()
 	{
-		for (int i = 0; i < SharedObjects.size(); i++)
-		{
-			EnqueueSafeRHIRelease(SharedObjects[i]);
-		}
+		//for (int i = 0; i < SharedObjects.size(); i++)
+		//{
+		//	EnqueueSafeRHIRelease(SharedObjects[i]);
+		//}
 	}
 	//#RHI_Multi: ref count both sides for now just link
 	void RegisterOtherDeviceTexture(T * Other)

@@ -3,6 +3,7 @@
 #include "RHI/RHI_inc_fwd.h"
 #define MAX_POSSIBLE_LIGHTS 256
 class MeshPipelineController;
+class VRCamera;
 #pragma pack(push, 16)
 /*__declspec(align(32))*/ struct LightUniformBuffer
 {
@@ -45,15 +46,16 @@ class SceneRenderer
 public:
 	SceneRenderer(class Scene* Target);
 	~SceneRenderer();
-	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false);
+	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false, int index = 0);
 	void Init();
 	void UpdateReflectionParams(glm::vec3 lightPos);
+	void UpdateMV(VRCamera * c);
 	void UpdateMV(Camera * c);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	void UpdateLightBuffer(std::vector<Light*> lights);
 	void BindLightsBuffer(RHICommandList * list, int Override = -1);
-	void BindMvBuffer(RHICommandList * list);
 	void BindMvBuffer(RHICommandList * list, int slot);
+	void BindMvBuffer(RHICommandList * list, int slot, int index);
 	void SetScene(Scene* NewScene);
 
 	void UpdateRelflectionProbes(std::vector<RelfectionProbe*>& probes, RHICommandList * commandlist);

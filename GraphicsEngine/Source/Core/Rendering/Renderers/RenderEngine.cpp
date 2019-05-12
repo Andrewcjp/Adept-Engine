@@ -12,6 +12,7 @@
 #include "Editor/EditorCore.h"
 #include "../Core/DynamicResolutionScaler.h"
 #include "../Core/Culling/CullingManager.h"
+#include "RHI/RHI.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -184,6 +185,10 @@ void RenderEngine::Resize(int width, int height)
 	if (MainCamera != nullptr)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);
+	}
+	if (RHI::GetHMDManager())
+	{
+		RHI::GetHMD()->UpdateProjection((float)width / (float)height);
 	}
 	int ApoxPValue = glm::iround((float)GetScaledWidth() / (16.0f / 9.0f));
 	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << " approx: " << ApoxPValue << "P " << Log::OutS;
