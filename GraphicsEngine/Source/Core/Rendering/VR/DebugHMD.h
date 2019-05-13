@@ -7,6 +7,7 @@ public:
 	DebugHMD();
 	virtual ~DebugHMD();
 	float roty = 0.0f;
+	float rotx = 0.0f;
 	virtual void Update() override;
 
 };

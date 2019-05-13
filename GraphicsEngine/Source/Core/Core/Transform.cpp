@@ -142,11 +142,12 @@ void Transform::SetEulerRot(const glm::vec3 & rot)
 	UpdateModel = true;
 
 	oldqrot = this->_qrot;
-#if 0
+#if 1
 	glm::quat QuatAroundX = glm::angleAxis(glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));
 	glm::quat QuatAroundY = glm::angleAxis(glm::radians(rot.y), glm::vec3(0.0, 1.0, 0.0));
 	glm::quat QuatAroundZ = glm::angleAxis(glm::radians(rot.z), glm::vec3(0.0, 0.0, 1.0));
-	glm::quat finalOrientation = QuatAroundY * QuatAroundX * QuatAroundZ;
+	glm::quat finalOrientation = QuatAroundZ * QuatAroundY * QuatAroundX;
+	//finalOrientation = glm::normalize(finalOrientation);
 	this->_qrot = finalOrientation;
 	CheckNAN(finalOrientation);
 #endif
@@ -251,8 +252,16 @@ void Transform::SetLocalRotation(glm::quat localrot)
 	}
 }
 
-glm::vec3 Transform::GetEulerRot() const
+void Transform::Translate(glm::vec3 direction, float amt)
 {
+	UpdateModel = true;
+	oldpos = _pos;
+	_pos += direction * amt;
+}
+
+glm::vec3 Transform::GetEulerRot() 
+{
+	GetModel();
 	return glm::degrees(_rot);
 }
 

@@ -20,7 +20,7 @@
 #include "../Shaders/PostProcess/Shader_Compost.h"
 #include "../VR/HMDManager.h"
 
-#define CUBEMAPS 1
+#define CUBEMAPS 0
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 

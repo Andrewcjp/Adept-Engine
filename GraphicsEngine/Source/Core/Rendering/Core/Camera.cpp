@@ -67,7 +67,7 @@ glm::mat4 Camera::GetView()
 	if (Override)
 	{
 		return oVioew;
-	}	
+	}
 	glm::mat4 output;
 	if (UseLeftHanded)
 	{
@@ -223,6 +223,12 @@ void Camera::SetPos(glm::vec3 value)
 	CheckNAN(value);
 
 	m_pos = value;
+}
+
+void Camera::Sync(Transform * t)
+{
+	SetPos(t->GetPos());
+	SetUpAndForward(t->GetForward(), t->GetUp());
 }
 
 //old

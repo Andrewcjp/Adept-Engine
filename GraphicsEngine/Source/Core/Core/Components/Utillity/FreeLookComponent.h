@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/Components/Component.h"
 
+class EditorCameraController;
+
 class FreeLookComponent : public Component
 {
 public:
@@ -19,5 +21,6 @@ private:
 	float LookSensitivty = 0.001f;
 	class CameraComponent* CameraComp = nullptr;
 	class Camera* Cam = nullptr;
+	EditorCameraController* controller = nullptr;
 };
 
