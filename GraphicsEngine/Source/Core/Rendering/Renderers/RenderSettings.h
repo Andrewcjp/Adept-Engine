@@ -62,9 +62,10 @@ struct ERenderDebugOutput
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
+	
 	RenderSettings();
 public:
-	
+	bool IsUsingZPrePass() const;
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
 	int ShadowMapSize = 2048;
 	bool IsDeferred = false;

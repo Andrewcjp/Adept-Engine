@@ -22,30 +22,14 @@ Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 
 void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
-	List = RHI::CreateCommandList(ECommandListType::Graphics,Device);
-	RHIPipeLineStateDesc desc;
-	desc.DepthStencilState.DepthWrite = false;
-	desc.Cull = false;
-	desc.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
-	desc.ShaderInUse = this;
-	desc.FrameBufferTarget = Buffer;
-	if (DepthSourceBuffer != nullptr)
-	{		
-		desc.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
-		desc.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
-		List->SetPipelineStateDesc(desc);
-	}
-	else
-	{
-		List->SetPipelineStateDesc(desc);
-	}
+	//List = RHI::CreateCommandList(ECommandListType::Graphics, Device);
+	
 }
 
 Shader_Skybox::~Shader_Skybox()
 {
-//	SafeRHIRefRelease(SkyBoxTexture);
+	//	SafeRHIRefRelease(SkyBoxTexture);
 	EnqueueSafeRHIRelease(CubeModel);
-	EnqueueSafeRHIRelease(List);
 }
 
 void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
@@ -61,9 +45,24 @@ void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 	SkyBoxTexture = tex;
 }
 
-void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
+void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
-	List->ResetList();
+	RHIPipeLineStateDesc desc;
+	desc.DepthStencilState.DepthWrite = false;
+	desc.Cull = false;
+	desc.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
+	desc.ShaderInUse = this;
+	desc.FrameBufferTarget = Buffer;
+	if (DepthSourceBuffer != nullptr)
+	{
+		desc.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
+		desc.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
+		List->SetPipelineStateDesc(desc);
+	}
+	else
+	{
+		List->SetPipelineStateDesc(desc);
+	}
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::Skybox);
 	if (DepthSourceBuffer != nullptr)
 	{
@@ -81,7 +80,7 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 	SceneRender->BindMvBuffer(List, 1);
 	CubeModel->Render(List);
 	List->SetRenderTarget(nullptr);
-	
+
 	//Buffer->MakeReadyForComputeUse(List);
 	if (List->GetDeviceIndex() == 0)
 	{
@@ -96,7 +95,7 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, FrameBuffer* Buffer, Fram
 	{
 		List->InsertGPUStallTimer();
 	}
-	List->Execute();
+	//List->Execute();
 }
 
 std::vector<ShaderParameter> Shader_Skybox::GetShaderParameters()

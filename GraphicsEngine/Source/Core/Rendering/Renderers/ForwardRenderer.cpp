@@ -16,6 +16,9 @@
 #include "../Core/Shader_PreZ.h"
 #include "../VR/VRCamera.h"
 #include "../VR/HMD.h"
+#include "../Core/RenderingUtils.h"
+#include "../Shaders/PostProcess/Shader_Compost.h"
+#include "../VR/HMDManager.h"
 
 #define CUBEMAPS 1
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
@@ -23,7 +26,7 @@ ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, hei
 
 }
 
-void ForwardRenderer::PreZPass(RHICommandList* Cmdlist)
+void ForwardRenderer::PreZPass(RHICommandList* Cmdlist, FrameBuffer* target, int eyeindex)
 {
 	Cmdlist->StartTimer(EGPUTIMERS::PreZ);
 	RHIPipeLineStateDesc desc;
@@ -31,9 +34,9 @@ void ForwardRenderer::PreZPass(RHICommandList* Cmdlist)
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS;
 	desc.DepthStencilState.DepthWrite = true;
 	Cmdlist->SetPipelineStateDesc(desc);
-	Cmdlist->SetRenderTarget(DeviceObjects[Cmdlist->GetDeviceIndex()].MainFrameBuffer);
-	Cmdlist->ClearFrameBuffer(DeviceObjects[Cmdlist->GetDeviceIndex()].MainFrameBuffer);
-	SceneRender->RenderScene(Cmdlist, true, FilterBuffer);
+	Cmdlist->SetRenderTarget(target);
+	Cmdlist->ClearFrameBuffer(target);
+	SceneRender->RenderScene(Cmdlist, true, target, false, eyeindex);
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
 }
 
@@ -42,9 +45,9 @@ void ForwardRenderer::Resize(int width, int height)
 	m_width = width;
 	m_height = height;
 	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());
-	if (DeviceObjects[1].MainFrameBuffer != nullptr)
+	if (DDOs[1].MainFrameBuffer != nullptr)
 	{
-		DeviceObjects[1].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+		DDOs[1].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 	}
 	HandleCameraResize();
 	RenderEngine::Resize(width, height);
@@ -63,11 +66,12 @@ void ForwardRenderer::OnRender()
 	ParticleSystemManager::Get()->Render(FilterBuffer);
 	if (DevicesInUse > 1)
 	{
-		DeviceObjects[1].MainFrameBuffer->ResolveSFR(FilterBuffer);
+		DDOs[1].MainFrameBuffer->ResolveSFR(FilterBuffer);
 	}
-
-	PostProcessPass();
+	PresentToScreen();
+	//PostProcessPass();
 }
+
 
 void ForwardRenderer::PostInit()
 {
@@ -94,18 +98,22 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 		Desc.IsShared = true;
 		Desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 	}
-	DeviceObjects[TargetDevice->GetDeviceIndex()].MainFrameBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
+	DDOs[TargetDevice->GetDeviceIndex()].MainFrameBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
+	if (RHI::SupportVR())
+	{
+		DDOs[TargetDevice->GetDeviceIndex()].RightEyeFramebuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
+	}
 	DDOs[TargetDevice->GetDeviceIndex()].SkyboxShader = new Shader_Skybox(TargetDevice);
-	DDOs[TargetDevice->GetDeviceIndex()].SkyboxShader->Init(DeviceObjects[TargetDevice->GetDeviceIndex()].MainFrameBuffer, nullptr);
-	DeviceObjects[TargetDevice->GetDeviceIndex()].MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
+	DDOs[TargetDevice->GetDeviceIndex()].SkyboxShader->Init(DDOs[TargetDevice->GetDeviceIndex()].MainFrameBuffer, nullptr);
+	DDOs[TargetDevice->GetDeviceIndex()].MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = Material::GetDefaultMaterialShader();
-	desc.FrameBufferTarget = DeviceObjects[TargetDevice->GetDeviceIndex()].MainFrameBuffer;
-	DeviceObjects[TargetDevice->GetDeviceIndex()].MainCommandList->SetPipelineStateDesc(desc);
-	NAME_RHI_OBJECT(DeviceObjects[TargetDevice->GetDeviceIndex()].MainCommandList);
+	desc.FrameBufferTarget = DDOs[TargetDevice->GetDeviceIndex()].MainFrameBuffer;
+	DDOs[TargetDevice->GetDeviceIndex()].MainCommandList->SetPipelineStateDesc(desc);
+	NAME_RHI_OBJECT(DDOs[TargetDevice->GetDeviceIndex()].MainCommandList);
 	if (TargetDevice->GetDeviceIndex() == 0)
 	{
-		FilterBuffer = DeviceObjects[TargetDevice->GetDeviceIndex()].MainFrameBuffer;
+		FilterBuffer = DDOs[TargetDevice->GetDeviceIndex()].MainFrameBuffer;
 	}
 #if CUBEMAPS
 	/*VKanRHI::Get()->thelist = MainCommandList;*/
@@ -136,46 +144,42 @@ void ForwardRenderer::CubeMapPass()
 	CubemapCaptureList->Execute();
 #endif
 }
+
 void ForwardRenderer::RunMainPass()
 {
+	UpdateMVForMainPass();
 	if (RHI::SupportVR() && RHI::GetHMD() != nullptr)
 	{
-		VRCamera* VRCam = RHI::GetHMD()->GetVRCamera();
-		SceneRender->UpdateMV(VRCam);
-		DeviceObjects[0].MainCommandList->ResetList();
-		MainPass(DeviceObjects[0].MainCommandList, DeviceObjects[0].MainFrameBuffer, EEye::Left);
-		//MainPass(DeviceObjects[0].MainCommandList, DeviceObjects[0].RightEyeFramebuffer, EEye::Right);
-		DeviceObjects[0].MainCommandList->Execute();
-		RenderSkybox();
+		DDOs[0].MainCommandList->ResetList();
+		MainPass(DDOs[0].MainCommandList, DDOs[0].MainFrameBuffer, EEye::Left);
+		MainPass(DDOs[0].MainCommandList, DDOs[0].RightEyeFramebuffer, EEye::Right);
+		RenderSkybox(&DDOs[0]);
+		DDOs[0].MainCommandList->Execute();
 	}
 	else
 	{
-		SceneRender->UpdateMV(MainCamera);
 		for (int i = 0; i < DevicesInUse; i++)
 		{
-			DeviceObjects[i].MainCommandList->ResetList();
-			MainPass(DeviceObjects[i].MainCommandList, DeviceObjects[i].MainFrameBuffer);
-			DeviceObjects[i].MainCommandList->Execute();
+			DDOs[i].MainCommandList->ResetList();
+			MainPass(DDOs[i].MainCommandList, DDOs[i].MainFrameBuffer);
+			RenderSkybox(&DDOs[i]);
+			DDOs[i].MainCommandList->Execute();
 		}
-		RenderSkybox();
+
 	}
 }
 
 void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffer, int index)
 {
-	const bool PREZ = RHI::GetRenderSettings()->UseZPrePass;
+	const bool PREZ = RHI::GetRenderSettings()->IsUsingZPrePass();
 	if (PREZ)
 	{
-		PreZPass(Cmdlist);
+		PreZPass(Cmdlist, targetbuffer, index);
 	}
 	Cmdlist->GetDevice()->GetTimeManager()->StartTimer(Cmdlist, EGPUTIMERS::MainPass);
-	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), DeviceObjects[Cmdlist->GetDeviceIndex()].MainFrameBuffer);
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), DDOs[Cmdlist->GetDeviceIndex()].MainFrameBuffer);
 	Cmdlist->SetPipelineStateDesc(desc);
-	if (Cmdlist->GetDeviceIndex() == 0)
-	{
-		Cmdlist->SetScreenBackBufferAsRT();
-		Cmdlist->ClearScreen();
-	}
+
 #if !BASIC_RENDER_ONLY
 	if (mShadowRenderer != nullptr)
 	{
@@ -204,7 +208,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 
 
-	SceneRender->RenderScene(Cmdlist, false, targetbuffer, index);
+	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
 	//render the transparent objects AFTER the main scene
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
 	Cmdlist->SetRenderTarget(nullptr);
@@ -221,14 +225,9 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 
 }
 
-void ForwardRenderer::RenderSkybox()
+void ForwardRenderer::RenderSkybox(DeviceDependentObjects* Object)
 {
-	if (DevicesInUse > 1)
-	{
-		DDOs[1].SkyboxShader->Render(SceneRender, DeviceObjects[1].MainFrameBuffer, nullptr);
-	}
-	DDOs[0].SkyboxShader->Render(SceneRender, FilterBuffer, nullptr);
-
+	Object->SkyboxShader->Render(SceneRender, Object->MainCommandList, FilterBuffer, nullptr);
 }
 
 void ForwardRenderer::DestoryRenderWindow()
@@ -236,8 +235,8 @@ void ForwardRenderer::DestoryRenderWindow()
 	MemoryUtils::DeleteVector(probes);
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
-		EnqueueSafeRHIRelease(DeviceObjects[i].MainCommandList);
-		EnqueueSafeRHIRelease(DeviceObjects[i].MainFrameBuffer);
+		EnqueueSafeRHIRelease(DDOs[i].MainCommandList);
+		EnqueueSafeRHIRelease(DDOs[i].MainFrameBuffer);
 	}
 	FilterBuffer = nullptr;
 	EnqueueSafeRHIRelease(CubemapCaptureList);

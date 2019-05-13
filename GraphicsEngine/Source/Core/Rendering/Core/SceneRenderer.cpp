@@ -54,7 +54,7 @@ void SceneRenderer::Init()
 		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
 	}
 	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), 1, true);
+	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, true);
 	RelfectionProbeProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	RelfectionProbeProjections->CreateConstantBuffer(sizeof(MVBuffer), 6, true);
 
@@ -84,16 +84,16 @@ void SceneRenderer::UpdateReflectionParams(glm::vec3 lightPos)
 
 void SceneRenderer::UpdateMV(VRCamera* c)
 {
-	UpdateMV(c->GetEyeCam(EEye::Left));
-	UpdateMV(c->GetEyeCam(EEye::Right));
+	UpdateMV(c->GetEyeCam(EEye::Left), EEye::Left);
+	UpdateMV(c->GetEyeCam(EEye::Right), EEye::Right);
 }
 
-void SceneRenderer::UpdateMV(Camera * c)
+void SceneRenderer::UpdateMV(Camera * c, int index /*= 0*/)
 {
 	MV_Buffer.V = c->GetView();
 	MV_Buffer.P = c->GetProjection();
 	MV_Buffer.CameraPos = c->GetPosition();
-	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
+	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, index);
 }
 
 void SceneRenderer::UpdateMV(glm::mat4 View, glm::mat4 Projection)

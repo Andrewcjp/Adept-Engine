@@ -9,7 +9,7 @@ public:
 	void Init(FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	virtual ~Shader_Skybox();
 	void SetSkyBox(BaseTextureRef tex);
-	void Render(class SceneRenderer * SceneRender, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
+	void Render(class SceneRenderer * SceneRender, RHICommandList* list, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 	BaseTextureRef SkyBoxTexture = nullptr;
@@ -18,6 +18,6 @@ public:
 #endif
 private:
 	class Mesh* CubeModel = nullptr;
-	class RHICommandList* List = nullptr;
+	//class RHICommandList* List = nullptr;
 };
 

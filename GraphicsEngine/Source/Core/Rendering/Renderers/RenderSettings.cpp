@@ -174,12 +174,19 @@ bool MultiGPUMode::UseSplitShadows() const
 {
 	return SplitShadowWork || SFRSplitShadows;
 }
-
+bool RenderSettings::IsUsingZPrePass() const
+{
+	if (IsDeferred)
+	{
+		return false;
+	}
+	return UseZPrePass;
+}
 RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = false;
+	IsDeferred = true;
 	EnableVR = true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;

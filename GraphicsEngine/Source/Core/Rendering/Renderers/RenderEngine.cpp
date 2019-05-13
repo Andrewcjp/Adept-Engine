@@ -13,6 +13,10 @@
 #include "../Core/DynamicResolutionScaler.h"
 #include "../Core/Culling/CullingManager.h"
 #include "RHI/RHI.h"
+#include "../VR/HMD.h"
+#include "../VR/HMDManager.h"
+#include "../Core/RenderingUtils.h"
+#include "../Shaders/PostProcess/Shader_Compost.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -21,6 +25,7 @@ RenderEngine::RenderEngine(int width, int height)
 	SceneRender = new SceneRenderer(nullptr);
 	Scaler = new DynamicResolutionScaler();
 	Culling = new CullingManager();
+	ScreenWriteList = RHI::CreateCommandList(ECommandListType::Graphics);
 }
 
 RenderEngine::~RenderEngine()
@@ -262,6 +267,65 @@ void RenderEngine::PostProcessPass()
 	Post->ExecPPStack(FilterBuffer);
 }
 
+void RenderEngine::PresentToScreen()
+{
+	ScreenWriteList->ResetList();
+	ScreenWriteList->SetScreenBackBufferAsRT();
+	ScreenWriteList->ClearScreen();
+	if (RHI::SupportVR() && RHI::GetHMD() != nullptr)
+	{
+		if (RHI::GetVrSettings()->MirrorMode == EVRMirrorMode::Both)
+		{
+			RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VROutput>());
+			D.Cull = false;
+			ScreenWriteList->SetPipelineStateDesc(D);
+
+			ScreenWriteList->SetFrameBufferTexture(DDOs[0].MainFrameBuffer, EEye::Left);
+			ScreenWriteList->SetFrameBufferTexture(DDOs[0].RightEyeFramebuffer, EEye::Right);
+		}
+		else
+		{
+			RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_Compost>());
+			D.Cull = false;
+			ScreenWriteList->SetPipelineStateDesc(D);
+			if (RHI::GetVrSettings()->MirrorMode == EVRMirrorMode::Left)
+			{
+				ScreenWriteList->SetFrameBufferTexture(DDOs[0].MainFrameBuffer, 0);
+			}
+			else if (RHI::GetVrSettings()->MirrorMode == EVRMirrorMode::Right)
+			{
+				ScreenWriteList->SetFrameBufferTexture(DDOs[0].RightEyeFramebuffer, 0);
+			}
+		}
+
+	}
+	else
+	{
+		RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_Compost>());
+		D.Cull = false;
+		ScreenWriteList->SetPipelineStateDesc(D);
+		ScreenWriteList->SetFrameBufferTexture(DDOs[0].MainFrameBuffer, 0);
+	}
+	RenderingUtils::RenderScreenQuad(ScreenWriteList);
+	ScreenWriteList->Execute();
+}
+
+void RenderEngine::UpdateMVForMainPass()
+{
+	if (RHI::SupportVR() && RHI::GetHMD() != nullptr)
+	{
+
+		VRCamera* VRCam = RHI::GetHMD()->GetVRCamera();
+		SceneRender->UpdateMV(VRCam);
+	}
+	else
+	{
+		SceneRender->UpdateMV(MainCamera);
+	}
+}
+
+
+
 Camera * RenderEngine::GetMainCam()
 {
 	return MainCamera;
@@ -305,7 +369,7 @@ void RenderEngine::HandleCameraResize()
 			MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
 		}
 
-	}
+}
 #else
 	if (MainCamera != nullptr)
 	{
@@ -327,6 +391,5 @@ DeviceDependentObjects::~DeviceDependentObjects()
 
 void DeviceDependentObjects::Release()
 {
-	SafeDelete(EnvMap);
-	SafeDelete(ConvShader);
+
 }

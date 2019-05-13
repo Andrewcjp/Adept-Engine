@@ -12,12 +12,13 @@ public:
 	static Material* GetDefaultMaterial();
 
 	static Asset_Shader * GetDefaultShaderAsset();
-
+	static RHIBuffer* GetQuadBuffer();
 private:
 	Asset_Shader* DefaultShaderMat;
 	Defaults();
 	~Defaults();
 	static Defaults* Instance;
 	BaseTextureRef DefaultTexture;
+	RHIBuffer* VertexBuffer = nullptr;
 };
 

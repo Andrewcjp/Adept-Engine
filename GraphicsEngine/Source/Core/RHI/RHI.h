@@ -16,8 +16,8 @@ class RHIClass;
 class HMD;
 class HMDManager;
 struct VRSettings;
-
-
+//RHI defines
+#define SUPPORTVR 1
 #define PSO_USE_FULL_STRING_MAPS 1
 #define PSO_USE_MAP 0
 #define MAX_GPU_DEVICE_COUNT 3
@@ -75,6 +75,8 @@ public:
 	void DetectAndInitVR();
 	static HMD* GetHMD();
 	static HMDManager* GetHMDManager();
+	//is everything valid to render for vr?
+	static bool RenderVR();
 	//checks
 	static bool UseAdditionalGPUs();
 	static bool IsD3D12();
@@ -114,7 +116,9 @@ private:
 	bool IsFullScreen = false;
 	int SwapChainWidth = 0;
 	int SwapChainHeight = 0;
+#if SUPPORTVR
 	HMDManager* HeadSetManager = nullptr;
+#endif
 };
 
 class RHI_API RHIClass

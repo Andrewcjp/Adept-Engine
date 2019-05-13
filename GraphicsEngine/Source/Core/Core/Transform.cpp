@@ -2,6 +2,7 @@
 #include "Core/Assets/Archive.h"
 #include "Utils/MathUtils.h"
 #include "GameObject.h"
+#include "glm/gtx/euler_angles.hpp"
 
 Transform::Transform(const glm::vec3 & pos, const glm::vec3 & rot, const glm::vec3 & scale) :
 	_pos(pos),
@@ -139,13 +140,18 @@ void Transform::SetPos(const glm::vec3 & pos)
 void Transform::SetEulerRot(const glm::vec3 & rot)
 {
 	UpdateModel = true;
+
 	oldqrot = this->_qrot;
+#if 0
 	glm::quat QuatAroundX = glm::angleAxis(glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));
 	glm::quat QuatAroundY = glm::angleAxis(glm::radians(rot.y), glm::vec3(0.0, 1.0, 0.0));
 	glm::quat QuatAroundZ = glm::angleAxis(glm::radians(rot.z), glm::vec3(0.0, 0.0, 1.0));
-	glm::quat finalOrientation = QuatAroundX * QuatAroundY * QuatAroundZ;
+	glm::quat finalOrientation = QuatAroundY * QuatAroundX * QuatAroundZ;
 	this->_qrot = finalOrientation;
 	CheckNAN(finalOrientation);
+#endif
+	_qrot = glm::toQuat(glm::yawPitchRoll(glm::radians(rot.y), glm::radians(rot.x), glm::radians(rot.z)));
+
 	CheckNAN(_qrot);
 	//this->_qrot = glm::quat(glm::radians(rot));
 }
