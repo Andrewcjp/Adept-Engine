@@ -15,12 +15,26 @@ class Shader_Convolution;
 class Shader_EnvMap;
 class DynamicResolutionScaler;
 class CullingManager;
+class Shader_Deferred;
 struct DeviceDependentObjects
 {
 	~DeviceDependentObjects();
 	Shader_EnvMap* EnvMap = nullptr;
 	Shader_Convolution* ConvShader = nullptr;
 	Shader_Skybox* SkyboxShader = nullptr;
+	RHICommandList* MainCommandList = nullptr;
+
+	FrameBuffer* MainFrameBuffer = nullptr;
+#if SUPPORTVR
+	FrameBuffer* RightEyeFramebuffer = nullptr;
+#endif
+
+	FrameBuffer* Gbuffer = nullptr;
+	RHICommandList* GbufferWriteList = nullptr;
+	Shader_Deferred* DeferredShader = nullptr;
+#if SUPPORTVR
+	FrameBuffer* RightEyeGBuffer = nullptr;
+#endif
 	void Release();
 };
 class RenderEngine
@@ -39,7 +53,8 @@ public:
 	void PrepareData();
 	virtual void PostInit() = 0;
 	virtual void Resize(int width, int height);
-	virtual void DestoryRenderWindow(){};
+	virtual void DestoryRenderWindow()
+	{};
 	//called on play start and in editor when statics are changed
 	void StaticUpdate();
 	virtual void OnStaticUpdate() = 0;
@@ -52,9 +67,12 @@ public:
 	int GetScaledWidth();
 	int GetScaledHeight();
 	void HandleCameraResize();
+	virtual void PostProcessPass();
+	void PresentToScreen();
+	void UpdateMVForMainPass();
 protected:
 	void ShadowPass();
-	void PostProcessPass();
+
 	int			m_width = 0;
 	int			m_height = 0;
 
@@ -70,5 +88,7 @@ protected:
 	int DevicesInUse = 1;
 	DynamicResolutionScaler* Scaler = nullptr;
 	CullingManager* Culling = nullptr;
+	//used to write the final image to the back buffer
+	RHICommandList* ScreenWriteList = nullptr;
 };
 

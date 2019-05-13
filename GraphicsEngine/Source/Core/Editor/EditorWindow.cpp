@@ -293,11 +293,11 @@ void EditorWindow::Update()
 		}
 		if (Input::GetKeyDown(219))
 		{
-			RHI::GetVrSettings()->EyeDistance += 0.1f;
+			RHI::GetVrSettings()->EyeDistance -= 0.1f;
 		}
 		if (Input::GetKeyDown(221))
 		{
-			RHI::GetVrSettings()->EyeDistance -= 0.1f;
+			RHI::GetVrSettings()->EyeDistance += 0.1f;
 		}
 	}
 }

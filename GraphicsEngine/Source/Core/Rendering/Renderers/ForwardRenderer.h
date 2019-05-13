@@ -19,18 +19,12 @@
 #include "RHI/RHICommandList.h"
 
 #define USED3D12DebugP 1
-struct ForwardRenderDeviceObject
-{
-	RHICommandList* MainCommandList = nullptr;
-	FrameBuffer* RightEyeFramebuffer = nullptr;
-	FrameBuffer* MainFrameBuffer = nullptr;
 
-};
 class ForwardRenderer : public RenderEngine
 {
 public:
 	ForwardRenderer(int width, int height);
-	void PreZPass(RHICommandList * Cmdlist);
+	void PreZPass(RHICommandList * Cmdlist,FrameBuffer* target, int eyeindex = 0);
 	virtual ~ForwardRenderer();
 	void OnRender() override;
 	void PostInit() override;
@@ -46,8 +40,7 @@ public:
 
 private:
 	void MainPass(RHICommandList * Cmdlist, FrameBuffer* targetbuffer, int index = 0);
-	void RenderSkybox();
-	ForwardRenderDeviceObject DeviceObjects[MAX_GPU_DEVICE_COUNT];
+	void RenderSkybox(DeviceDependentObjects* object);
 	RHICommandList* CubemapCaptureList = nullptr;
 	//debug
 #if USED3D12DebugP

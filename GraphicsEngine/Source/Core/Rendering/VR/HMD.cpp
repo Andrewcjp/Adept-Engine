@@ -1,6 +1,7 @@
 #include "Stdafx.h"
 #include "HMD.h"
 #include "VRCamera.h"
+#include "DebugHMD.h"
 
 
 HMD::HMD()
@@ -13,7 +14,8 @@ HMD::~HMD()
 HMD * HMD::Create()
 {
 	//if needed return different HMD class
-	return new HMD();
+	
+	return new DebugHMD();
 }
 
 VRCamera * HMD::GetVRCamera()

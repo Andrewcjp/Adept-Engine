@@ -50,7 +50,7 @@ public:
 	void Init();
 	void UpdateReflectionParams(glm::vec3 lightPos);
 	void UpdateMV(VRCamera * c);
-	void UpdateMV(Camera * c);
+	void UpdateMV(Camera * c,int index = 0);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	void UpdateLightBuffer(std::vector<Light*> lights);
 	void BindLightsBuffer(RHICommandList * list, int Override = -1);

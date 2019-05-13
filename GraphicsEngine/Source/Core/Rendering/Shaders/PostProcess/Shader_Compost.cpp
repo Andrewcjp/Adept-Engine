@@ -25,3 +25,28 @@ std::vector<Shader::VertexElementDESC> Shader_Compost::GetVertexFormat()
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	return out;
 }
+
+IMPLEMENT_GLOBAL_SHADER(Shader_VROutput);
+Shader_VROutput::Shader_VROutput(DeviceContext * context) :Shader(context)
+{
+	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\PostProcessBase_VS", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\VrMirror_FS", EShaderType::SHADER_FRAGMENT);
+}
+
+Shader_VROutput::~Shader_VROutput()
+{}
+
+std::vector<ShaderParameter> Shader_VROutput::GetShaderParameters()
+{
+	std::vector<ShaderParameter> out;
+	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, 1, 1));
+	return out;
+}
+
+std::vector<Shader::VertexElementDESC> Shader_VROutput::GetVertexFormat()
+{
+	std::vector<VertexElementDESC> out;
+	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	return out;
+}

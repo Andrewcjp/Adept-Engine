@@ -6,5 +6,8 @@ class DebugHMD : public HMD
 public:
 	DebugHMD();
 	virtual ~DebugHMD();
+	float roty = 0.0f;
+	virtual void Update() override;
+
 };
 

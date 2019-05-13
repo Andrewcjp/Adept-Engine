@@ -8,6 +8,7 @@
 #include "RHI/DeviceContext.h"
 #include "../Shaders/PostProcess/Shader_DebugOutput.h"
 #include "../Core/ParticleSystemManager.h"
+#include "../VR/HMD.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -33,23 +34,37 @@ void DeferredRenderer::OnRender()
 		RenderOnDevice(RHI::GetDeviceContext(1));
 	}
 	RenderOnDevice(RHI::GetDeviceContext(0));
-	ParticleSystemManager::Get()->Render(DDDOs[0].OutputBuffer, DDDOs[0].GFrameBuffer);
+	ParticleSystemManager::Get()->Render(DDOs[0].MainFrameBuffer, DDOs[0].Gbuffer);
 	if (DevicesInUse > 1)
 	{
-		DDDOs[1].OutputBuffer->ResolveSFR(FilterBuffer);
+		DDOs[1].MainFrameBuffer->ResolveSFR(FilterBuffer);
 	}
-	PostProcessPass();
+	//PostProcessPass();
+	PresentToScreen();
 }
 
 void DeferredRenderer::RenderOnDevice(DeviceContext* con)
 {
-	DeferredDeviceObjects* d = &DDDOs[con->GetDeviceIndex()];
-	GeometryPass(d->WriteList);
+	DeviceDependentObjects* d = &DDOs[con->GetDeviceIndex()];
+	d->GbufferWriteList->ResetList();
+	UpdateMVForMainPass();
+	GeometryPass(d->GbufferWriteList, d->Gbuffer);
+	if (RHI::RenderVR())
+	{
+		GeometryPass(d->GbufferWriteList, d->RightEyeGBuffer,EEye::Right);
+	}
+	d->GbufferWriteList->Execute();
 #if ENABLE_RENDERER_DEBUGGING
 	if (RHI::GetRenderSettings()->GetDebugRenderMode() == ERenderDebugOutput::Off)
 	{
 #endif
-		LightingPass(d->LightingList);
+		d->MainCommandList->ResetList();
+		LightingPass(d->MainCommandList, d->Gbuffer, d->MainFrameBuffer);
+		if (RHI::RenderVR())
+		{
+			LightingPass(d->MainCommandList, d->RightEyeGBuffer, d->RightEyeFramebuffer);
+		}
+		d->MainCommandList->Execute();
 #if ENABLE_RENDERER_DEBUGGING
 	}
 	else
@@ -58,12 +73,12 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con)
 	}
 #endif
 
-	RenderSkybox(con);
+
 }
 
-void DeferredRenderer::RenderSkybox(DeviceContext* con)
+void DeferredRenderer::RenderSkybox(RHICommandList* list, FrameBuffer* Output, FrameBuffer* DepthSource)
 {
-	DDOs[con->GetDeviceIndex()].SkyboxShader->Render(SceneRender, DDDOs[con->GetDeviceIndex()].OutputBuffer, DDDOs[con->GetDeviceIndex()].GFrameBuffer);
+	DDOs[list->GetDeviceIndex()].SkyboxShader->Render(SceneRender, list, Output, DepthSource);
 }
 
 void DeferredRenderer::PostInit()
@@ -77,7 +92,7 @@ void DeferredRenderer::PostInit()
 
 void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 {
-	DeferredDeviceObjects* DDO = &DDDOs[con->GetDeviceIndex()];
+	DeviceDependentObjects* DDO = &DDOs[con->GetDeviceIndex()];
 	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(m_width, m_height);
 	FBDesc.IncludedInSFR = true;
 	if (con->GetDeviceIndex() > 0)
@@ -85,57 +100,63 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 		FBDesc.IsShared = true;
 		FBDesc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 	}
-	DDO->OutputBuffer = RHI::CreateFrameBuffer(con, FBDesc);
+	DDO->MainFrameBuffer = RHI::CreateFrameBuffer(con, FBDesc);
+	if (RHI::SupportVR())
+	{
+		DDO->RightEyeFramebuffer = RHI::CreateFrameBuffer(con, FBDesc);
+	}
 	if (con->GetDeviceIndex() == 0)
 	{
-		FilterBuffer = DDO->OutputBuffer;
+		FilterBuffer = DDO->MainFrameBuffer;
 	}
 	DDO->DeferredShader = new Shader_Deferred(con);
 	FBDesc = RHIFrameBufferDesc::CreateGBuffer(m_width, m_height);
 	FBDesc.IncludedInSFR = true;
-	DDO->GFrameBuffer = RHI::CreateFrameBuffer(con, FBDesc);
-	DDO->WriteList = RHI::CreateCommandList(ECommandListType::Graphics, con);
-	RHIPipeLineStateDesc desc;
-	desc.ShaderInUse = Material::GetDefaultMaterialShader();
-	desc.FrameBufferTarget = DDO->GFrameBuffer;
-	DDO->WriteList->SetPipelineStateDesc(desc);
-	DDO->LightingList = RHI::CreateCommandList(ECommandListType::Graphics, con);
-	desc = RHIPipeLineStateDesc();
-	desc.InitOLD(false, false, false);
-	desc.ShaderInUse = DDO->DeferredShader;
-	desc.FrameBufferTarget = DDO->OutputBuffer;
-	DDO->LightingList->SetPipelineStateDesc(desc);
+	DDO->Gbuffer = RHI::CreateFrameBuffer(con, FBDesc);
+	if (RHI::SupportVR())
+	{
+		DDO->RightEyeGBuffer = RHI::CreateFrameBuffer(con, FBDesc);
+	}
+	DDO->GbufferWriteList = RHI::CreateCommandList(ECommandListType::Graphics, con);
+
+	DDO->MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, con);
+
 	DDOs[con->GetDeviceIndex()].SkyboxShader = new Shader_Skybox(con);// ShaderComplier::GetShader<Shader_Skybox>();
-	DDOs[con->GetDeviceIndex()].SkyboxShader->Init(DDO->OutputBuffer, DDO->GFrameBuffer);
+	DDOs[con->GetDeviceIndex()].SkyboxShader->Init(DDO->MainFrameBuffer, DDO->Gbuffer);
 
 	if (con->GetDeviceIndex() == 0)
 	{
 		DebugList = RHI::CreateCommandList();
-		desc = RHIPipeLineStateDesc();
+		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 		desc.InitOLD(false, false, false);
 		desc.ShaderInUse = ShaderComplier::GetShader<Shader_DebugOutput>();
-		desc.FrameBufferTarget = DDO->OutputBuffer;
+		desc.FrameBufferTarget = DDO->MainFrameBuffer;
 		DebugList->SetPipelineStateDesc(desc);
 	}
 }
 
-void DeferredRenderer::GeometryPass(RHICommandList* List)
+void DeferredRenderer::GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, int eyeindex)
 {
 	if (MainScene->StaticSceneNeedsUpdate)
 	{
 		SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 		PrepareData();
 	}
-	SceneRender->UpdateMV(MainCamera);
-	List->ResetList();
+
+
+	RHIPipeLineStateDesc desc;
+	desc.DepthStencilState.DepthWrite = true;
+	desc.ShaderInUse = Material::GetDefaultMaterialShader();
+	desc.FrameBufferTarget = gbuffer;
+	List->SetPipelineStateDesc(desc);
 	List->GetDevice()->GetTimeManager()->StartTotalGPUTimer(List);
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::DeferredWrite);
-	List->SetRenderTarget(DDDOs[List->GetDeviceIndex()].GFrameBuffer);
-	List->ClearFrameBuffer(DDDOs[List->GetDeviceIndex()].GFrameBuffer);
-	SceneRender->RenderScene(List, false, DDDOs[List->GetDeviceIndex()].GFrameBuffer);
+	List->SetRenderTarget(gbuffer);
+	List->ClearFrameBuffer(gbuffer);
+	SceneRender->RenderScene(List, false, gbuffer, false, eyeindex);
 	List->SetRenderTarget(nullptr);
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::DeferredWrite);
-	List->Execute();
+
 }
 
 void DeferredRenderer::SSAOPass()
@@ -152,23 +173,28 @@ void DeferredRenderer::SSAOPass()
 void DeferredRenderer::DebugPass()
 {
 	DebugList->ResetList();
-	DebugList->SetRenderTarget(DDDOs[DebugList->GetDeviceIndex()].OutputBuffer);
-	DebugList->ClearFrameBuffer(DDDOs[DebugList->GetDeviceIndex()].OutputBuffer);
+	DebugList->SetRenderTarget(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer);
+	DebugList->ClearFrameBuffer(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer);
 	int currentDebugType = RHI::GetRenderSettings()->GetDebugRenderMode();
-	DebugList->SetFrameBufferTexture(DDDOs[DebugList->GetDeviceIndex()].GFrameBuffer, 0, currentDebugType - 1);
-	DDDOs[DebugList->GetDeviceIndex()].DeferredShader->RenderScreenQuad(DebugList);
+	DebugList->SetFrameBufferTexture(DDOs[DebugList->GetDeviceIndex()].Gbuffer, 0, currentDebugType - 1);
+	DDOs[DebugList->GetDeviceIndex()].DeferredShader->RenderScreenQuad(DebugList);
 	DebugList->Execute();
 }
 #endif
-void DeferredRenderer::LightingPass(RHICommandList* List)
+void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, FrameBuffer* output)
 {
-	List->ResetList();
+
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
+	desc.InitOLD(false, false, false);
+	desc.ShaderInUse = DDOs[List->GetDeviceIndex()].DeferredShader;
+	desc.FrameBufferTarget = DDOs[List->GetDeviceIndex()].MainFrameBuffer;
+	List->SetPipelineStateDesc(desc);
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::DeferredLighting);
-	List->SetRenderTarget(DDDOs[List->GetDeviceIndex()].OutputBuffer);
-	List->ClearFrameBuffer(DDDOs[List->GetDeviceIndex()].OutputBuffer);
-	List->SetFrameBufferTexture(DDDOs[List->GetDeviceIndex()].GFrameBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
-	List->SetFrameBufferTexture(DDDOs[List->GetDeviceIndex()].GFrameBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
-	List->SetFrameBufferTexture(DDDOs[List->GetDeviceIndex()].GFrameBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
+	List->SetRenderTarget(output);
+	List->ClearFrameBuffer(output);
+	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
+	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
+	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
@@ -181,7 +207,7 @@ void DeferredRenderer::LightingPass(RHICommandList* List)
 
 	mShadowRenderer->BindShadowMapsToTextures(List);
 
-	DDDOs[List->GetDeviceIndex()].DeferredShader->RenderScreenQuad(List);
+	DDOs[List->GetDeviceIndex()].DeferredShader->RenderScreenQuad(List);
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::DeferredLighting);
 	mShadowRenderer->Unbind(List);
 	List->SetRenderTarget(nullptr);
@@ -189,7 +215,7 @@ void DeferredRenderer::LightingPass(RHICommandList* List)
 	{
 		FilterBuffer->MakeReadyForCopy(List);
 	}
-	List->Execute();
+	RenderSkybox(List, output, GBuffer);
 }
 
 void DeferredRenderer::Resize(int width, int height)
@@ -199,10 +225,10 @@ void DeferredRenderer::Resize(int width, int height)
 	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
-		if (DDDOs[i].GFrameBuffer)
+		if (DDOs[i].Gbuffer)
 		{
-			DDDOs[i].GFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
-			DDDOs[i].OutputBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+			DDOs[i].Gbuffer->Resize(GetScaledWidth(), GetScaledHeight());
+			DDOs[i].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 		}
 	}
 
@@ -220,7 +246,7 @@ void DeferredRenderer::DestoryRenderWindow()
 {
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
-		DDDOs[i].Release();
+		DDOs[i].Release();
 	}
 }
 
@@ -229,11 +255,3 @@ void DeferredRenderer::FinaliseRender()
 
 void DeferredRenderer::OnStaticUpdate()
 {}
-
-void DeferredDeviceObjects::Release()
-{
-	EnqueueSafeRHIRelease(GFrameBuffer);
-	EnqueueSafeRHIRelease(WriteList);
-	EnqueueSafeRHIRelease(LightingList);
-	EnqueueSafeRHIRelease(OutputBuffer);
-}

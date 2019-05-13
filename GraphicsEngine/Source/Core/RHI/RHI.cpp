@@ -186,23 +186,42 @@ int RHI::GetDeviceCount()
 
 bool RHI::SupportVR()
 {
+#if SUPPORTVR
 	return instance->RenderSettings.EnableVR;
+#else
+	return false;
+#endif
 }
 
 void RHI::DetectAndInitVR()
 {
+#if SUPPORTVR
 	HeadSetManager = new HMDManager();
 	HeadSetManager->Init();
+#endif
 }
 
 HMD * RHI::GetHMD()
 {
+#if SUPPORTVR
 	return instance->HeadSetManager->GetHMD();
+#else
+	return nullptr;
+#endif
 }
 
 HMDManager * RHI::GetHMDManager()
 {
+#if SUPPORTVR
 	return instance->HeadSetManager;
+#else 
+	return nullptr;
+#endif
+}
+
+bool RHI::RenderVR()
+{
+	return SupportVR() && GetHMD() != nullptr;
 }
 
 bool RHI::UseAdditionalGPUs()

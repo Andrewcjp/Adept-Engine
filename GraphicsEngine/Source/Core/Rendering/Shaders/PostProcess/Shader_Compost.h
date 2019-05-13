@@ -11,3 +11,13 @@ public:
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 };
 
+class Shader_VROutput :
+	public Shader
+{
+public:
+	DECLARE_GLOBAL_SHADER(Shader_VROutput);
+	Shader_VROutput(class DeviceContext* context);
+	virtual ~Shader_VROutput();
+	std::vector<ShaderParameter> GetShaderParameters() override;
+	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+};

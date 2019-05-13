@@ -6,16 +6,6 @@
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/Shaders/Shader_SSAO.h"
 #include "Rendering/Core/FrameBuffer.h"
-struct DeferredDeviceObjects
-{
-	FrameBuffer* GFrameBuffer = nullptr;
-	RHICommandList* WriteList = nullptr;
-	RHICommandList* LightingList = nullptr;
-	FrameBuffer*	OutputBuffer = nullptr;
-	Shader_Deferred* DeferredShader = nullptr;
-	void Release();
-};
-
 class DeferredRenderer :public RenderEngine
 {
 public:
@@ -31,19 +21,18 @@ public:
 	virtual void FinaliseRender() override;
 	virtual void OnStaticUpdate() override;
 private:
-	void GeometryPass(RHICommandList* List);
-	void LightingPass(RHICommandList* List);
+	void GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, int eyeindex = 0);
+	void LightingPass(RHICommandList* List, FrameBuffer* GBuffer, FrameBuffer* output);
 	void SSAOPass();
 #if ENABLE_RENDERER_DEBUGGING
 	void DebugPass();
 #endif
-	void RenderSkybox(DeviceContext* con);
+	void RenderSkybox(RHICommandList* list, FrameBuffer* Output, FrameBuffer* DepthSource);
 	Shader_WDeferred* DeferredWriteShader = nullptr;
 	RHICommandList* DebugList = nullptr;
 
 	bool once = true;
 
 	Shader_SSAO*	SSAOShader;
-	DeferredDeviceObjects DDDOs[MAX_GPU_DEVICE_COUNT];
 };
 

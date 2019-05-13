@@ -18,6 +18,7 @@ VRCamera::~VRCamera()
 
 void VRCamera::UpdateTracking()
 {
+	RHI::GetVrSettings()->EyeDistance = glm::max(0.0f, RHI::GetVrSettings()->EyeDistance);
 	glm::vec3 Pos = transfrom.GetPos();
 	Pos -= transfrom.GetRight() * RHI::GetVrSettings()->EyeDistance;
 	Cameras[EEye::Left]->SetPos(Pos);
