@@ -6,6 +6,8 @@
 #define NOMINMAX
 #define GLM_FORCE_SWIZZLE
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_LEFT_HANDED
+#define GLM_FORCE_RADIANS 
 #pragma warning(push,3)
 #include <algorithm>
 #include <glm/glm.hpp>

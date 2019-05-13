@@ -2,6 +2,8 @@
 #include "Editor_Camera.h"
 #include "Core/Input/Input.h"
 #include "Editor/EditorWindow.h"
+#include "EditorCameraController.h"
+#include "Rendering/VR/VRCamera.h"
 #if WITH_EDITOR
 Editor_Camera::Editor_Camera(Camera* cam)
 {
@@ -14,64 +16,49 @@ Editor_Camera::Editor_Camera(Camera* cam)
 	{
 		MainCam = cam;
 	}
+	MainCamTransfrom.SetPos(glm::vec3(0, 10, 0));
 	IsActive = true;
 	sensitvity = 1.0f / 1000.0f;
+	Controller = new EditorCameraController();
 }
 
 
 Editor_Camera::~Editor_Camera()
 {
-	delete MainCam;
+	SafeDelete(MainCam);
 }
 
 void Editor_Camera::Update(float delatime)
 {
-	if (Input::GetVKey(0x02))
+	if (RHI::RenderVR())
 	{
-		Input::LockCursor(true);
-		Input::SetCursorVisible(false);
-		float movespeed = 100;
-		if (Input::GetVKey(0xA0))
-		{
-			movespeed = 1000;
-		}
-		else
-		{
-			movespeed = 100;
-		}
-		if (Input::GetKey('w'))
-		{
-			MainCam->MoveForward(movespeed*delatime);
-		}
-		if (Input::GetKey('s'))
-		{
-			MainCam->MoveForward(-movespeed * delatime);
-		}
-		if (Input::GetKey('a'))
-		{
-			MainCam->MoveRight(movespeed*delatime);
-		}
-		if (Input::GetKey('d'))
-		{
-			MainCam->MoveRight(-movespeed * delatime);
-		}
-		if (Input::GetKey('e'))
-		{
-			MainCam->MoveUp(movespeed*delatime);
-		}
-		if (Input::GetKey('q'))
-		{
-			MainCam->MoveUp(-movespeed * delatime);
-		}
-		glm::vec2 axis = Input::GetMouseInputAsAxis();
-		MainCam->RotateY(axis.x*sensitvity);
-		MainCam->Pitch(axis.y*sensitvity);
-
+		Controller->Target = RHI::GetHMD()->GetVRCamera()->GetTransfrom();
 	}
 	else
 	{
-		Input::LockCursor(false);
-		Input::SetCursorVisible(true);
+		Controller->Target = &MainCamTransfrom;
 	}
+	Controller->Update();
+
+	MainCam->Sync(&MainCamTransfrom);
+}
+
+Camera * Editor_Camera::GetCamera()
+{
+	if (RHI::RenderVR())
+	{
+		return RHI::GetHMD()->GetVRCamera()->GetEyeCam(EEye::Left);
+	}
+	return MainCam;
+}
+
+void Editor_Camera::SetVrCam(bool state)
+{
+	bIsVRCam = state;
+}
+
+bool Editor_Camera::IsVRCam() const
+{
+	return bIsVRCam;
 }
 #endif

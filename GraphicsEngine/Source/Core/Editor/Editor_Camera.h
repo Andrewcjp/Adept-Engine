@@ -1,5 +1,8 @@
 #pragma once
 #include "Rendering/Core/Camera.h"
+
+class VRCamera;
+class EditorCameraController;
 #if WITH_EDITOR
 class Editor_Camera
 {
@@ -15,13 +18,17 @@ public:
 	{
 		IsActive = state;
 	}
-	Camera* GetCamera()
-	{
-		return MainCam;
-	}
+	Camera* GetCamera();
+	//toggle between cams
+	void SetVrCam(bool state);
+	bool IsVRCam() const;
 private:
-	Camera* MainCam;
+	Transform MainCamTransfrom;
+	bool bIsVRCam = false;
+	Camera* MainCam = nullptr;
+	VRCamera* VRCam = nullptr;
 	float sensitvity = 0.5f;
 	bool IsActive = false;
+	EditorCameraController* Controller = nullptr;
 };
 #endif

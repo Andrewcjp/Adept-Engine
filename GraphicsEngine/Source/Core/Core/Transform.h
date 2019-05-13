@@ -26,7 +26,7 @@ public:
 	///------------------------------------------------------
 	//getters
 	CORE_API glm::vec3 GetPos() const;
-	CORE_API glm::vec3 GetEulerRot() const;
+	CORE_API glm::vec3 GetEulerRot();
 	CORE_API glm::vec3 GetScale() const;
 	CORE_API glm::vec3 GetForward();
 	CORE_API glm::vec3 GetUp();
@@ -39,6 +39,7 @@ public:
 	void Update();
 	void Serilise(class Archive* A);
 	CORE_API void SetLocalRotation(glm::quat localrot);
+	void Translate(glm::vec3 direction, float amt);
 private:
 	//cached matrixs;
 	glm::mat4 CacheModel;

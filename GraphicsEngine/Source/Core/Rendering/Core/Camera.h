@@ -62,6 +62,7 @@ public:
 		projection = p;
 		oVioew = v;
 	}
+	void Sync(Transform* t);
 	float AspectRatio = 1.0f;
 protected:
 
