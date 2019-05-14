@@ -172,7 +172,7 @@ void TextRenderer::LoadText()
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());
 		desc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 0.0f);
 		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), desc);
-		PostProcessing::Instance->AddCompostPass(Renderbuffer);
+		//PostProcessing::Instance->AddCompostPass(Renderbuffer);
 		RHI::AddLinkedFrameBuffer(Renderbuffer);
 	}
 

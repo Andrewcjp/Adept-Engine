@@ -23,7 +23,6 @@ void HMDManager::Init()
 	HeadSet->UpdateProjection(2.5);
 	RHI::GetRenderSettings()->LockedWidth = HeadSet->GetDimentions().x;
 	RHI::GetRenderSettings()->LockedHeight = HeadSet->GetDimentions().y;
-	//BaseWindow::StaticResize();
 }
 
 HMD * HMDManager::GetHMD()

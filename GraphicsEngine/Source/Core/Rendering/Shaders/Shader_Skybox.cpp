@@ -95,6 +95,7 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 	{
 		List->InsertGPUStallTimer();
 	}
+	Buffer->MakeReadyForComputeUse(List);
 	//List->Execute();
 }
 

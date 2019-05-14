@@ -50,7 +50,7 @@ void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTextur
 void PP_ColourCorrect::PostSetUpData()
 {
 	CurrentShader = ShaderComplier::GetShader<Shader_ColourCorrect>();
-	CMDlist = RHI::CreateCommandList();
+//	CMDlist = RHI::CreateCommandList();
 }
 
 void PP_ColourCorrect::PostInitEffect(FrameBuffer* Target)
@@ -69,6 +69,6 @@ void PP_ColourCorrect::PostInitEffect(FrameBuffer* Target)
 	state.RenderTargetDesc.NumRenderTargets = 1;
 	state.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
 	state.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
-	CMDlist->SetPipelineStateDesc(state);
+	//CMDlist->SetPipelineStateDesc(state);
 
 }

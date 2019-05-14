@@ -72,7 +72,7 @@ private:
 	int emitcount = 0;
 	std::vector<ParticleSystem*> ParticleSystems;
 	void SubmitCompute();
-	void SubmitRender();
+	void SubmitRender(FrameBuffer* buffer);
 	FrameBuffer* DepthBuffer = nullptr;
 };
 

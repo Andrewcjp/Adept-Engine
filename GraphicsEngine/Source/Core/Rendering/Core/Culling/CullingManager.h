@@ -8,7 +8,7 @@ public:
 	CullingManager();
 	~CullingManager();
 	void DebugRender(Camera * maincam, Scene* target);
-	void UpdateMainPassCulling(Camera * maincam, Scene * target);
+	void UpdateMainPassFrustumCulling(Camera * maincam, Scene * target);
 	void UpdateCullingForShadowLight(Light * light,Scene* target);
 private:
 	CullingFrustum Frustum;

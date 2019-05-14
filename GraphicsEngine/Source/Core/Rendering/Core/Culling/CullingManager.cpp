@@ -36,7 +36,7 @@ void CullingManager::DebugRender(Camera * maincam, Scene * target)
 	//Frustum.DebugRender();
 }
 
-void CullingManager::UpdateMainPassCulling(Camera * maincam, Scene * target)
+void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * target)
 {
 	DebugRender(maincam, target);
 	if (Freeze.GetBoolValue())

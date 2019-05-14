@@ -49,7 +49,7 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con)
 	d->GbufferWriteList->ResetList();
 	UpdateMVForMainPass();
 	GeometryPass(d->GbufferWriteList, d->Gbuffer);
-	if (RHI::RenderVR())
+	if (RHI::IsRenderingVR())
 	{
 		GeometryPass(d->GbufferWriteList, d->RightEyeGBuffer,EEye::Right);
 	}
@@ -60,7 +60,7 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con)
 #endif
 		d->MainCommandList->ResetList();
 		LightingPass(d->MainCommandList, d->Gbuffer, d->MainFrameBuffer);
-		if (RHI::RenderVR())
+		if (RHI::IsRenderingVR())
 		{
 			LightingPass(d->MainCommandList, d->RightEyeGBuffer, d->RightEyeFramebuffer);
 		}

@@ -10,18 +10,14 @@ CameraComponent::CameraComponent()
 {
 	TypeID = CompoenentRegistry::BaseComponentTypes::CameraComp;
 }
+
 void CameraComponent::InitComponent()
 {
 	MCamera = new Camera(GetOwner()->GetTransform()->GetPos(), 75.0f, 1.77f, 0.1f, 1000.0f);
-#if 0
-	MCamera->SetUpAndForward(GetOwner()->GetTransform()->GetForward(), glm::vec3(0, 1, 0));
-#else
-	//Hack!
-	MCamera->SetPos(glm::vec3(0, 2, 20));
-	MCamera->SetUpAndForward(glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
-	//End hack
-#endif
+	Transform* T = GetOwner()->GetTransform();
+	MCamera->Sync(T);
 }
+
 void CameraComponent::SceneInitComponent()
 {
 	GetOwner()->GetScene()->AddCamera(MCamera);
@@ -41,12 +37,7 @@ void CameraComponent::Update(float)
 	if (MCamera != nullptr)
 	{
 		Transform* T = GetOwner()->GetTransform();
-		MCamera->SetPos(T->GetPos());
-		//#Physx todo: remove this hack !
-		if (AllowRotSync)
-		{
-			MCamera->SetUpAndForward(T->GetForward(), T->GetUp());
-		}
+		MCamera->Sync(T);
 	}
 }
 

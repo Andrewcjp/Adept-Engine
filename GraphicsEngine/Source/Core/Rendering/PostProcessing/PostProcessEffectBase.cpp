@@ -26,7 +26,6 @@ void PostProcessEffectBase::SetUpData()
 
 PostProcessEffectBase::~PostProcessEffectBase()
 {
-	EnqueueSafeRHIRelease(CMDlist);
 	EnqueueSafeRHIRelease(VertexBuffer);
 }
 
@@ -35,21 +34,11 @@ void PostProcessEffectBase::InitEffect(FrameBuffer* Target)
 	PostInitEffect(Target);
 }
 
-void PostProcessEffectBase::RunPass(FrameBuffer* InputTexture)
+void PostProcessEffectBase::RunPass(RHICommandList* cmdlist, FrameBuffer* InputTexture)
 {
-	CMDlist->ResetList();
-	if (IsFirst)
-	{
-		CMDlist->GetDevice()->GetTimeManager()->StartTimer(CMDlist, EGPUTIMERS::PostProcess);
-	}
-	ExecPass(CMDlist, InputTexture);
-	if (IsLast)
-	{
-		CMDlist->GetDevice()->GetTimeManager()->EndTimer(CMDlist, EGPUTIMERS::PostProcess);
-	}
-	CMDlist->Execute();
-	PostPass();
+	ExecPass(cmdlist, InputTexture);
 }
+
 void PostProcessEffectBase::Resize(int width, int height)
 {
 

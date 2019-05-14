@@ -41,6 +41,16 @@ void FrameBuffer::HandleInit()
 		Device->AddTransferBuffer(this);
 		BufferDesc.DeviceToCopyTo->AddTransferBuffer(this);
 	}
+
+}
+
+void FrameBuffer::PostInit()
+{
+	if (BufferDesc.AllowUnordedAccess)
+	{
+		UAV = RHI::CreateUAV(Device);
+		UAV->CreateUAVFromFrameBuffer(this);
+	}
 }
 
 FrameBuffer::~FrameBuffer()
@@ -67,7 +77,7 @@ void FrameBuffer::Resize(int width, int height)
 	BufferDesc.Height = height;
 	HandleInit();
 	HandleResize();
-	
+
 }
 
 void FrameBuffer::SFRResize()
@@ -128,6 +138,23 @@ void FrameBuffer::CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * Targe
 	PerfManager::EndTimer("RunOnSecondDevice");
 	//Multi shadow are missing a sync!
 }
+
+void FrameBuffer::BindUAV(RHICommandList * list, int slot)
+{
+	ensure(BufferDesc.AllowUnordedAccess);
+	UAV->Bind(list, slot);
+}
+
+RHIUAV * FrameBuffer::GetUAV()
+{
+	return UAV;
+}
+
+void FrameBuffer::Release()
+{
+	EnqueueSafeRHIRelease(UAV);
+}
+
 void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)
 {
 

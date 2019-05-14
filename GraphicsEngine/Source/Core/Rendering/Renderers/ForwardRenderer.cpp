@@ -1,24 +1,15 @@
 #include "ForwardRenderer.h"
-#include "RHI/RHI.h"
-#include "Core/Components/MeshRendererComponent.h"
-#include "Rendering/PostProcessing/PostProcessing.h"
-#include "Core/Engine.h"
-#include "RHI/DeviceContext.h"
-#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Core/Mesh/MeshPipelineController.h"
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "Rendering/Core/RelfectionProbe.h"
-#include "Editor/EditorWindow.h"
-#include "Editor/EditorCore.h"
-#include "Rendering/Shaders/Generation/Shader_Convolution.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Core/Shader_PreZ.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
-#include "RHI/SFRController.h"
-#include "../Core/Mesh/MeshPipelineController.h"
-#include "../Core/Shader_PreZ.h"
+#include "Rendering/VR/HMD.h"
+#include "RHI/DeviceContext.h"
+#include "../Core/Culling/CullingManager.h"
+#include "RHI/RHI.h"
 #include "../VR/VRCamera.h"
-#include "../VR/HMD.h"
-#include "../Core/RenderingUtils.h"
-#include "../Shaders/PostProcess/Shader_Compost.h"
-#include "../VR/HMDManager.h"
 
 #define CUBEMAPS 0
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
@@ -68,8 +59,9 @@ void ForwardRenderer::OnRender()
 	{
 		DDOs[1].MainFrameBuffer->ResolveSFR(FilterBuffer);
 	}
+	PostProcessPass();
 	PresentToScreen();
-	//PostProcessPass();
+
 }
 
 
@@ -151,8 +143,12 @@ void ForwardRenderer::RunMainPass()
 	if (RHI::SupportVR() && RHI::GetHMD() != nullptr)
 	{
 		DDOs[0].MainCommandList->ResetList();
+		DDOs[0].MainCommandList->StartTimer(EGPUTIMERS::MainPass);
+		Culling->UpdateMainPassFrustumCulling(RHI::GetHMD()->GetVRCamera()->GetEyeCam(EEye::Left), MainScene);
 		MainPass(DDOs[0].MainCommandList, DDOs[0].MainFrameBuffer, EEye::Left);
+		Culling->UpdateMainPassFrustumCulling(RHI::GetHMD()->GetVRCamera()->GetEyeCam(EEye::Right), MainScene);
 		MainPass(DDOs[0].MainCommandList, DDOs[0].RightEyeFramebuffer, EEye::Right);
+		DDOs[0].MainCommandList->EndTimer(EGPUTIMERS::MainPass);
 		RenderSkybox(&DDOs[0]);
 		DDOs[0].MainCommandList->Execute();
 	}
@@ -176,7 +172,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	{
 		PreZPass(Cmdlist, targetbuffer, index);
 	}
-	Cmdlist->GetDevice()->GetTimeManager()->StartTimer(Cmdlist, EGPUTIMERS::MainPass);
+
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), DDOs[Cmdlist->GetDeviceIndex()].MainFrameBuffer);
 	Cmdlist->SetPipelineStateDesc(desc);
 
@@ -212,7 +208,6 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	//render the transparent objects AFTER the main scene
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
 	Cmdlist->SetRenderTarget(nullptr);
-	Cmdlist->GetDevice()->GetTimeManager()->EndTimer(Cmdlist, EGPUTIMERS::MainPass);
 #if !BASIC_RENDER_ONLY
 	mShadowRenderer->Unbind(Cmdlist);
 #endif
@@ -227,7 +222,11 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 
 void ForwardRenderer::RenderSkybox(DeviceDependentObjects* Object)
 {
-	Object->SkyboxShader->Render(SceneRender, Object->MainCommandList, FilterBuffer, nullptr);
+	Object->SkyboxShader->Render(SceneRender, Object->MainCommandList, Object->MainFrameBuffer, nullptr);
+	if (RHI::IsRenderingVR())
+	{
+		Object->SkyboxShader->Render(SceneRender, Object->MainCommandList, Object->RightEyeFramebuffer, nullptr);
+	}
 }
 
 void ForwardRenderer::DestoryRenderWindow()
