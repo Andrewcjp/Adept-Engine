@@ -23,7 +23,7 @@ Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 void Shader_Skybox::Init(FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
 {
 	//List = RHI::CreateCommandList(ECommandListType::Graphics, Device);
-	
+
 }
 
 Shader_Skybox::~Shader_Skybox()
@@ -45,7 +45,7 @@ void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 	SkyBoxTexture = tex;
 }
 
-void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer)
+void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer, bool Cubemap, int index)
 {
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthWrite = false;
@@ -70,33 +70,46 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 	}
 	else
 	{
-		List->SetRenderTarget(Buffer);
+		if (!Cubemap)
+		{
+			List->SetRenderTarget(Buffer);
+		}
 	}
 #if DEBUG_CUBEMAPS
 	List->SetFrameBufferTexture(test, 0);
 #else
 	List->SetTexture(SkyBoxTexture, 0);
 #endif
-	SceneRender->BindMvBuffer(List, 1);
-	CubeModel->Render(List);
-	List->SetRenderTarget(nullptr);
+	if (!Cubemap)
+	{
+		SceneRender->BindMvBuffer(List, 1);
+	}
+	else
+	{
+		SceneRender->SetMVForProbe(List, index, 1);
+	}
 
-	//Buffer->MakeReadyForComputeUse(List);
-	if (List->GetDeviceIndex() == 0)
+	CubeModel->Render(List);
+	if (!Cubemap)
 	{
-		Buffer->MakeReadyForCopy(List);
+		List->SetRenderTarget(nullptr);
+		//Buffer->MakeReadyForComputeUse(List);
+		if (List->GetDeviceIndex() == 0)
+		{
+			Buffer->MakeReadyForCopy(List);
+		}
+		List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
+		if (List->GetDeviceIndex() == 1)
+		{
+			List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
+		}
+		if (RHI::GetMGPUSettings()->MainPassSFR && List->GetDeviceIndex() == 0)
+		{
+			List->InsertGPUStallTimer();
+		}
+		Buffer->MakeReadyForComputeUse(List);
+		//List->Execute();
 	}
-	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
-	if (List->GetDeviceIndex() == 1)
-	{
-		List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
-	}
-	if (RHI::GetMGPUSettings()->MainPassSFR && List->GetDeviceIndex() == 0)
-	{
-		List->InsertGPUStallTimer();
-	}
-	Buffer->MakeReadyForComputeUse(List);
-	//List->Execute();
 }
 
 std::vector<ShaderParameter> Shader_Skybox::GetShaderParameters()

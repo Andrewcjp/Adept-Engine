@@ -9,6 +9,7 @@
 DepthOnlyMeshProcessor::DepthOnlyMeshProcessor()
 {
 	Init();
+	PassType = ERenderPass::DepthOnly;
 }
 
 DepthOnlyMeshProcessor::~DepthOnlyMeshProcessor()

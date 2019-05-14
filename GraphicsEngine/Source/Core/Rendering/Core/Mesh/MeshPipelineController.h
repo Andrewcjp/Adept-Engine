@@ -10,6 +10,7 @@ namespace ERenderPass
 	{
 		DepthOnly,
 		BasePass,
+		BasePass_Cubemap,
 		TransparentPass,
 		PreZ,
 		Limit
@@ -25,7 +26,7 @@ public:
 	void RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader = nullptr);
 
 	void Init();
-
+	
 	Scene* TargetScene = nullptr;
 private:
 	std::vector<MeshBatch*> Batches;

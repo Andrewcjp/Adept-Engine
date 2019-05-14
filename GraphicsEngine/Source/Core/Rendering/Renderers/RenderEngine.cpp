@@ -17,6 +17,8 @@
 #include "../VR/HMDManager.h"
 #include "../Core/RenderingUtils.h"
 #include "../Shaders/PostProcess/Shader_Compost.h"
+#include "../Core/Material.h"
+#include "../Core/RelfectionProbe.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -42,7 +44,6 @@ RenderEngine::~RenderEngine()
 	SafeDelete(mShadowRenderer);
 	SafeDelete(Post);
 	SafeDelete(Culling);
-	EnqueueSafeRHIRelease(FilterBuffer);
 }
 
 void RenderEngine::Render()
@@ -113,11 +114,20 @@ void RenderEngine::Init()
 	}
 	InitProcessingShaders(RHI::GetDeviceContext(0));
 	InitProcessingShaders(RHI::GetDeviceContext(1));
+	CubemapCaptureList = RHI::CreateCommandList(ECommandListType::Graphics);
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
+	desc.ShaderInUse = Material::GetDefaultMaterialShader();
+	desc.FrameBufferTarget = DDOs[0].MainFrameBuffer;
+	CubemapCaptureList->SetPipelineStateDesc(desc);
 	PostInit();
-	//400mb
 	Post = new PostProcessing();
-	Post->Init(FilterBuffer);
+	Post->Init(DDOs[0].MainFrameBuffer);
 	SceneRender->Init();
+	SceneRender->SB = DDOs[0].SkyboxShader;
+
+	//debug 
+	SceneRender->probes.push_back(new RelfectionProbe());
+	//SceneRender->probes[0]->ProbeMode = EReflectionProbeMode::ERealTime;
 }
 
 void RenderEngine::InitProcessingShaders(DeviceContext* dev)
@@ -189,7 +199,7 @@ void RenderEngine::PrepareData()
 
 void RenderEngine::Resize(int width, int height)
 {
-	Post->Resize(FilterBuffer);
+	Post->Resize(DDOs[0].MainFrameBuffer);
 	if (MainCamera != nullptr)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);
@@ -372,7 +382,7 @@ void RenderEngine::HandleCameraResize()
 			MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
 		}
 
-}
+	}
 #else
 	if (MainCamera != nullptr)
 	{
@@ -380,7 +390,7 @@ void RenderEngine::HandleCameraResize()
 	}
 #endif
 
-}
+	}
 
 Shader * RenderEngine::GetMainShader()
 {
@@ -395,4 +405,28 @@ DeviceDependentObjects::~DeviceDependentObjects()
 void DeviceDependentObjects::Release()
 {
 
+}
+
+void RenderEngine::CubeMapPass()
+{
+	if (!SceneRender->AnyProbesNeedUpdate())
+	{
+		return;
+	}
+	CubemapCaptureList->ResetList();
+	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader());
+	CubemapCaptureList->SetPipelineStateDesc(Desc);
+	if (mShadowRenderer != nullptr)
+	{
+		mShadowRenderer->BindShadowMapsToTextures(CubemapCaptureList);
+	}
+	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+	if (MainScene->GetLightingData()->SkyBox != nullptr)
+	{
+		CubemapCaptureList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
+	}
+	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
+	SceneRender->UpdateRelflectionProbes(CubemapCaptureList);
+
+	CubemapCaptureList->Execute();
 }

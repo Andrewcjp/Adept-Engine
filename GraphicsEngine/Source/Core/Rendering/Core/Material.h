@@ -1,5 +1,6 @@
 #pragma once
 #include "RHI/BaseTexture.h"
+#include "Mesh/MeshPipelineController.h"
 struct EMaterialRenderType
 {
 	enum Type
@@ -44,7 +45,7 @@ public:
 	CORE_API Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
 	CORE_API Material(MaterialProperties props = MaterialProperties());
 	~Material();
-	void SetMaterialActive(class RHICommandList * list);
+	void SetMaterialActive(class RHICommandList * list, ERenderPass::Type Pass);
 
 	void UpdateBind(std::string Name, BaseTextureRef NewTex);
 	BaseTexture* GetTexturebind(std::string Name);

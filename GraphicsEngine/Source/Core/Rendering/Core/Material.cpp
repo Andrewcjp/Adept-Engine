@@ -52,12 +52,12 @@ Material::~Material()
 	SafeDelete(CurrentBindSet);
 }
 
-void Material::SetMaterialActive(RHICommandList* list)
+void Material::SetMaterialActive(RHICommandList* list,ERenderPass::Type Pass)
 {
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthEnable = true;
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
-	if (RHI::GetRenderSettings()->IsUsingZPrePass())
+	if (RHI::GetRenderSettings()->IsUsingZPrePass() && Pass != ERenderPass::BasePass_Cubemap)
 	{
 		desc.DepthStencilState.DepthWrite = false;
 	}

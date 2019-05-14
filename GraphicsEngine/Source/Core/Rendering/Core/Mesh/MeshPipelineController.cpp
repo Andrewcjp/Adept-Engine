@@ -57,4 +57,5 @@ void MeshPipelineController::Init()
 	Processors[ERenderPass::TransparentPass] = new TransparentPassMeshProcessor();
 	Processors[ERenderPass::PreZ] = new ZPrePassMeshProcessor();
 	Processors[ERenderPass::BasePass] = new BasePassMeshProcessor();
+	Processors[ERenderPass::BasePass_Cubemap] = new BasePassMeshProcessor(true);
 }

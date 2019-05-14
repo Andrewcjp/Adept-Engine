@@ -6,8 +6,18 @@
 #include "..\Material.h"
 
 
-BasePassMeshProcessor::BasePassMeshProcessor()
-{}
+BasePassMeshProcessor::BasePassMeshProcessor(bool Cubemap)
+{
+	IsForCubemap = Cubemap;
+	if (IsForCubemap)
+	{
+		PassType = ERenderPass::BasePass_Cubemap;
+	}
+	else
+	{
+		PassType = ERenderPass::BasePass;
+	}
+}
 
 
 BasePassMeshProcessor::~BasePassMeshProcessor()
@@ -15,7 +25,7 @@ BasePassMeshProcessor::~BasePassMeshProcessor()
 
 void BasePassMeshProcessor::AddBatch(MeshBatch* Batch)
 {
-	if (Batch->MainPassCulled)
+	if (Batch->MainPassCulled && !IsForCubemap)
 	{
 		return;
 	}
@@ -54,11 +64,11 @@ void BasePassMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
 		MeshDrawCommand* C = DrawCommands[i];
 		if (C->TargetMaterial != nullptr)
 		{
-			C->TargetMaterial->SetMaterialActive(List);
+			C->TargetMaterial->SetMaterialActive(List, PassType);
 		}
 		else
 		{
-			Material::GetDefaultMaterial()->SetMaterialActive(List);
+			Material::GetDefaultMaterial()->SetMaterialActive(List, PassType);
 		}
 		List->SetConstantBufferView(C->TransformUniformBuffer, 0, 0);
 		List->SetVertexBuffer(C->Vertex);
