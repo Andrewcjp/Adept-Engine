@@ -182,6 +182,7 @@ bool RenderSettings::IsUsingZPrePass() const
 	}
 	return UseZPrePass;
 }
+
 RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;

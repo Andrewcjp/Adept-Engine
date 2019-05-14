@@ -118,16 +118,16 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 		}
 	}
 }
-
+//#TODO Remove
 void Mesh::TryPushMaterial(RHICommandList* list, int index)
 {
 	if (Materials.size() > index)
 	{
-		Materials[index]->SetMaterialActive(list);
+		//Materials[index]->SetMaterialActive(list);
 	}
 	else if (Materials.size() > 0)
 	{
-		Materials[Materials.size() - 1]->SetMaterialActive(list);
+		//Materials[Materials.size() - 1]->SetMaterialActive(list);
 	}
 }
 

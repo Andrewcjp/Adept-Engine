@@ -9,6 +9,7 @@
 ZPrePassMeshProcessor::ZPrePassMeshProcessor()
 {
 	Init();
+	PassType = ERenderPass::PreZ;
 }
 
 ZPrePassMeshProcessor::~ZPrePassMeshProcessor()

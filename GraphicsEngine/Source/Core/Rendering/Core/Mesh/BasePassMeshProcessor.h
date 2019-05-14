@@ -3,13 +3,14 @@
 class BasePassMeshProcessor :public MeshBatchProcessor
 {
 public:
-	BasePassMeshProcessor();
+	BasePassMeshProcessor(bool Cubemap = false);
 	~BasePassMeshProcessor();
 
 	virtual void AddBatch(MeshBatch* Batch) override;
 	virtual void Process(MeshBatch* Batch) override;
 	virtual void SubmitCommands(RHICommandList* List, Shader* shader) override;
-private:
 
+private:
+	bool IsForCubemap = false;
 };
 

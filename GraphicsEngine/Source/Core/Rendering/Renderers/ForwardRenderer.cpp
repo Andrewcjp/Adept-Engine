@@ -1,4 +1,5 @@
 #include "ForwardRenderer.h"
+#include "Rendering/Core/Culling/CullingManager.h"
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "Rendering/Core/RelfectionProbe.h"
@@ -6,12 +7,11 @@
 #include "Rendering/Core/Shader_PreZ.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/VR/HMD.h"
+#include "Rendering/VR/VRCamera.h"
 #include "RHI/DeviceContext.h"
-#include "../Core/Culling/CullingManager.h"
 #include "RHI/RHI.h"
-#include "../VR/VRCamera.h"
 
-#define CUBEMAPS 0
+
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
 {
 
@@ -21,7 +21,7 @@ void ForwardRenderer::PreZPass(RHICommandList* Cmdlist, FrameBuffer* target, int
 {
 	Cmdlist->StartTimer(EGPUTIMERS::PreZ);
 	RHIPipeLineStateDesc desc;
-	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), FilterBuffer);
+	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), DDOs[0].MainFrameBuffer);
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS;
 	desc.DepthStencilState.DepthWrite = true;
 	Cmdlist->SetPipelineStateDesc(desc);
@@ -35,7 +35,7 @@ void ForwardRenderer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+	DDOs[0].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 	if (DDOs[1].MainFrameBuffer != nullptr)
 	{
 		DDOs[1].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
@@ -54,10 +54,10 @@ void ForwardRenderer::OnRender()
 	ShadowPass();
 	CubeMapPass();
 	RunMainPass();
-	ParticleSystemManager::Get()->Render(FilterBuffer);
+	ParticleSystemManager::Get()->Render(DDOs[0].MainFrameBuffer);
 	if (DevicesInUse > 1)
 	{
-		DDOs[1].MainFrameBuffer->ResolveSFR(FilterBuffer);
+		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);
 	}
 	PostProcessPass();
 	PresentToScreen();
@@ -71,11 +71,7 @@ void ForwardRenderer::PostInit()
 	{
 		SetupOnDevice(RHI::GetDeviceContext(i));
 	}
-	probes.push_back(new RelfectionProbe());
-#if DEBUG_CUBEMAPS
-	//SkyBox->test = Conv->CubeBuffer;
-	DDOs[0].SkyboxShader->test = probes[0]->CapturedTexture;
-#endif	
+
 }
 
 void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
@@ -105,36 +101,8 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 	NAME_RHI_OBJECT(DDOs[TargetDevice->GetDeviceIndex()].MainCommandList);
 	if (TargetDevice->GetDeviceIndex() == 0)
 	{
-		FilterBuffer = DDOs[TargetDevice->GetDeviceIndex()].MainFrameBuffer;
+		DDOs[0].MainFrameBuffer = DDOs[TargetDevice->GetDeviceIndex()].MainFrameBuffer;
 	}
-#if CUBEMAPS
-	/*VKanRHI::Get()->thelist = MainCommandList;*/
-	CubemapCaptureList = RHI::CreateCommandList(ECommandListType::Graphics, TargetDevice);
-	desc = RHIPipeLineStateDesc();
-	desc.ShaderInUse = Material::GetDefaultMaterialShader();
-	desc.FrameBufferTarget = FilterBuffer;
-	CubemapCaptureList->SetPipelineStateDesc(desc);
-#endif
-}
-
-void ForwardRenderer::CubeMapPass()
-{
-#if CUBEMAPS
-	CubemapCaptureList->ResetList();
-	if (mShadowRenderer != nullptr)
-	{
-		mShadowRenderer->BindShadowMapsToTextures(CubemapCaptureList);
-	}
-	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
-	if (MainScene->GetLightingData()->SkyBox != nullptr)
-	{
-		CubemapCaptureList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
-	}
-	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
-	SceneRender->UpdateRelflectionProbes(probes, CubemapCaptureList);
-
-	CubemapCaptureList->Execute();
-#endif
 }
 
 void ForwardRenderer::RunMainPass()
@@ -194,11 +162,10 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	}
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-#if CUBEMAPS
-		Cmdlist->SetFrameBufferTexture(probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
-#else
-		Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
-#endif
+
+		Cmdlist->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
+	//	Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
+
 	}
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
@@ -231,13 +198,13 @@ void ForwardRenderer::RenderSkybox(DeviceDependentObjects* Object)
 
 void ForwardRenderer::DestoryRenderWindow()
 {
-	MemoryUtils::DeleteVector(probes);
+
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		EnqueueSafeRHIRelease(DDOs[i].MainCommandList);
 		EnqueueSafeRHIRelease(DDOs[i].MainFrameBuffer);
 	}
-	FilterBuffer = nullptr;
+	DDOs[0].MainFrameBuffer = nullptr;
 	EnqueueSafeRHIRelease(CubemapCaptureList);
 }
 

@@ -185,9 +185,9 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 		return false;
 	}
 	//#RHI: compare all props
-	return Cull == other.Cull && DepthStencilState.DepthEnable == other.DepthStencilState.DepthEnable 
+	return Cull == other.Cull && DepthStencilState.DepthEnable == other.DepthStencilState.DepthEnable
 		&& other.DepthCompareFunction == DepthCompareFunction
-		&&/*RenderTargetDesc.RTVFormats[0] == other.RenderTargetDesc.RTVFormats[0] &&*/ Blending == other.Blending && other.DepthStencilState.DepthWrite == DepthStencilState.DepthWrite;
+		&& RenderTargetDesc == other.RenderTargetDesc && Blending == other.Blending && other.DepthStencilState.DepthWrite == DepthStencilState.DepthWrite;
 }
 
 void RHIPipeLineStateDesc::Build()
@@ -219,4 +219,16 @@ void SFRNode::AddBuffer(FrameBuffer * b)
 		return;
 	}
 	NodesBuffers.push_back(b);
+}
+
+bool RHIPipeRenderTargetDesc::operator==(const RHIPipeRenderTargetDesc other) const
+{
+	for (int i = 0; i < MRT_MAX; i++)
+	{
+		if (other.RTVFormats[i] != RTVFormats[i])
+		{
+			return false;
+		}
+	}
+	return other.NumRenderTargets == NumRenderTargets && other.DSVFormat == DSVFormat;
 }

@@ -7,6 +7,7 @@
 #include "Rendering/Core/FrameBuffer.h"
 #include "RenderSettings.h"
 #define ENABLE_RENDERER_DEBUGGING WITH_EDITOR
+
 class Scene;
 class ShadowRenderer;
 class PostProcessing;
@@ -63,6 +64,7 @@ public:
 	class SceneRenderer* SceneRender = nullptr;
 	//getters
 	Shader* GetMainShader();
+
 	Camera* GetMainCam();
 	int GetScaledWidth();
 	int GetScaledHeight();
@@ -72,7 +74,7 @@ public:
 	void UpdateMVForMainPass();
 protected:
 	void ShadowPass();
-
+	void CubeMapPass();
 	int			m_width = 0;
 	int			m_height = 0;
 
@@ -82,7 +84,6 @@ protected:
 	Shader_Main* MainShader = nullptr;
 	ShadowRenderer* mShadowRenderer = nullptr;
 	PostProcessing* Post = nullptr;
-	FrameBuffer* FilterBuffer = nullptr;
 	bool once = true;
 	DeviceDependentObjects DDOs[MAX_GPU_DEVICE_COUNT];
 	int DevicesInUse = 1;
@@ -90,5 +91,6 @@ protected:
 	CullingManager* Culling = nullptr;
 	//used to write the final image to the back buffer
 	RHICommandList* ScreenWriteList = nullptr;
+	RHICommandList* CubemapCaptureList = nullptr;
 };
 

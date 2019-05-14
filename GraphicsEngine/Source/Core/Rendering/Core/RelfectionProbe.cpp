@@ -8,6 +8,7 @@ RelfectionProbe::RelfectionProbe()
 	CubeDesc = RHIFrameBufferDesc::CreateColourDepth(Dimentions.x, Dimentions.y);
 	CubeDesc.Dimension = eTextureDimension::DIMENSION_TEXTURECUBE;
 	CubeDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+	CubeDesc.DepthFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
 	CubeDesc.TextureDepth = 6;
 	CubeDesc.MipCount = 11;
 	/*CubeDesc.DepthClearValue = 1.0f;*/
@@ -21,4 +22,18 @@ RelfectionProbe::RelfectionProbe()
 RelfectionProbe::~RelfectionProbe()
 {
 	EnqueueSafeRHIRelease(CapturedTexture);
+}
+
+bool RelfectionProbe::NeedsCapture() const
+{
+	if (ProbeMode == EReflectionProbeMode::Baked)
+	{
+		return !IsCaptured;
+	}
+	return true;
+}
+
+void RelfectionProbe::SetCaptured()
+{
+	IsCaptured = true;
 }

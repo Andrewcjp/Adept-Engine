@@ -1,4 +1,5 @@
 #pragma once
+#include "MeshPipelineController.h"
 class MeshBatch;
 class MeshDrawCommand;
 class Shader;
@@ -20,6 +21,7 @@ protected:
 	void MergeCommands();
 	std::vector<MeshDrawCommand*> DrawCommands;
 	void CountDrawCall();
+	ERenderPass::Type PassType = ERenderPass::Limit;
 private:
 	int DrawCallsThisFrame = 0;
 

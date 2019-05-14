@@ -10,6 +10,7 @@
 #include "Mesh/MeshPipelineController.h"
 #include "FrameBufferProcessor.h"
 #include "../VR/VRCamera.h"
+#include "../Shaders/Shader_Skybox.h"
 SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;
@@ -21,6 +22,7 @@ SceneRenderer::SceneRenderer(Scene* Target)
 SceneRenderer::~SceneRenderer()
 {
 	MemoryUtils::RHIUtil::DeleteRHICArray(CLightBuffer, MAX_GPU_DEVICE_COUNT);
+	MemoryUtils::DeleteVector(probes);
 	EnqueueSafeRHIRelease(CMVBuffer);
 	SafeDelete(Controller);
 	EnqueueSafeRHIRelease(RelfectionProbeProjections);
@@ -42,7 +44,7 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	}
 	else
 	{
-		Controller->RenderPass(ERenderPass::BasePass, CommandList);
+		Controller->RenderPass(IsCubemap ? ERenderPass::BasePass_Cubemap : ERenderPass::BasePass, CommandList);
 	}
 }
 
@@ -185,7 +187,7 @@ void SceneRenderer::SetScene(Scene * NewScene)
 	Controller->TargetScene = TargetScene;
 }
 
-void SceneRenderer::UpdateRelflectionProbes(std::vector<RelfectionProbe*> & probes, RHICommandList* commandlist)
+void SceneRenderer::UpdateRelflectionProbes(RHICommandList* commandlist)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("Update Relflection Probes", "Render");
 	commandlist->StartTimer(EGPUTIMERS::CubemapCapture);
@@ -196,18 +198,45 @@ void SceneRenderer::UpdateRelflectionProbes(std::vector<RelfectionProbe*> & prob
 	}
 	commandlist->EndTimer(EGPUTIMERS::CubemapCapture);
 }
+
+bool SceneRenderer::AnyProbesNeedUpdate()
+{
+	for (int i = 0; i < probes.size(); i++)
+	{
+		if (probes[i]->NeedsCapture())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 Scene * SceneRenderer::GetScene()
 {
 	return TargetScene;
 }
+
 void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* commandlist)
 {
+	if (!Map->NeedsCapture())
+	{
+		return;
+	}
 	commandlist->ClearFrameBuffer(Map->CapturedTexture);
+	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), Map->CapturedTexture);
 	for (int i = 0; i < 6; i++)
 	{
-		commandlist->SetConstantBufferView(RelfectionProbeProjections, i, MainShaderRSBinds::MVCBV);
+		commandlist->SetPipelineStateDesc(Desc);
+		SetMVForProbe(commandlist, i, MainShaderRSBinds::MVCBV);
 		commandlist->SetRenderTarget(Map->CapturedTexture, i);
 		RenderScene(commandlist, false, Map->CapturedTexture, true);
+		SB->Render(this, commandlist, Map->CapturedTexture, nullptr, true, i);
 	}
+	Map->SetCaptured();
 	//FrameBufferProcessor::CreateMipChain(Map->CapturedTexture, commandlist);
+}
+
+void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
+{
+	list->SetConstantBufferView(RelfectionProbeProjections, index, Slot);
 }

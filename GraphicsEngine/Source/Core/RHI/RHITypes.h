@@ -274,6 +274,7 @@ struct RHI_API RHIPipeRenderTargetDesc
 	eTEXTURE_FORMAT RTVFormats[8] = { eTEXTURE_FORMAT::FORMAT_UNKNOWN };
 	eTEXTURE_FORMAT DSVFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
 	int NumRenderTargets = 0;
+	bool operator==(const RHIPipeRenderTargetDesc other) const;
 };
 enum TMP_BlendMode
 {

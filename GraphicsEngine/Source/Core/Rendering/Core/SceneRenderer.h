@@ -4,6 +4,7 @@
 #define MAX_POSSIBLE_LIGHTS 256
 class MeshPipelineController;
 class VRCamera;
+class Shader_Skybox;
 #pragma pack(push, 16)
 /*__declspec(align(32))*/ struct LightUniformBuffer
 {
@@ -50,7 +51,7 @@ public:
 	void Init();
 	void UpdateReflectionParams(glm::vec3 lightPos);
 	void UpdateMV(VRCamera * c);
-	void UpdateMV(Camera * c,int index = 0);
+	void UpdateMV(Camera * c, int index = 0);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	void UpdateLightBuffer(std::vector<Light*> lights);
 	void BindLightsBuffer(RHICommandList * list, int Override = -1);
@@ -58,10 +59,14 @@ public:
 	void BindMvBuffer(RHICommandList * list, int slot, int index);
 	void SetScene(Scene* NewScene);
 
-	void UpdateRelflectionProbes(std::vector<RelfectionProbe*>& probes, RHICommandList * commandlist);
+	void UpdateRelflectionProbes(RHICommandList * commandlist);
+	bool AnyProbesNeedUpdate();
 	Scene* GetScene();
 	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
+	void SetMVForProbe(RHICommandList * list, int index, int slot);
 	MeshPipelineController* Controller = nullptr;
+	Shader_Skybox* SB = nullptr;
+	std::vector< class RelfectionProbe*> probes;
 private:
 
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };

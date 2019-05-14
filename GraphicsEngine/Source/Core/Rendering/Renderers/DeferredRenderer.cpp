@@ -9,6 +9,8 @@
 #include "../Shaders/PostProcess/Shader_DebugOutput.h"
 #include "../Core/ParticleSystemManager.h"
 #include "../VR/HMD.h"
+#include "RenderEngine.h"
+#include "../Core/RelfectionProbe.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -29,6 +31,7 @@ void DeferredRenderer::OnRender()
 	}
 #endif
 	ShadowPass();
+	CubeMapPass();
 	if (RHI::GetMGPUSettings()->MainPassSFR)
 	{
 		RenderOnDevice(RHI::GetDeviceContext(1));
@@ -37,7 +40,7 @@ void DeferredRenderer::OnRender()
 	ParticleSystemManager::Get()->Render(DDOs[0].MainFrameBuffer, DDOs[0].Gbuffer);
 	if (DevicesInUse > 1)
 	{
-		DDOs[1].MainFrameBuffer->ResolveSFR(FilterBuffer);
+		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);
 	}
 	//PostProcessPass();
 	PresentToScreen();
@@ -107,7 +110,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	}
 	if (con->GetDeviceIndex() == 0)
 	{
-		FilterBuffer = DDO->MainFrameBuffer;
+		DDOs[0].MainFrameBuffer = DDO->MainFrameBuffer;
 	}
 	DDO->DeferredShader = new Shader_Deferred(con);
 	FBDesc = RHIFrameBufferDesc::CreateGBuffer(m_width, m_height);
@@ -199,6 +202,7 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
 		List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
+		//List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
 	}
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
 
@@ -213,7 +217,7 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	List->SetRenderTarget(nullptr);
 	if (List->GetDeviceIndex() == 0)
 	{
-		FilterBuffer->MakeReadyForCopy(List);
+		DDOs[0].MainFrameBuffer->MakeReadyForCopy(List);
 	}
 	RenderSkybox(List, output, GBuffer);
 }
@@ -222,7 +226,7 @@ void DeferredRenderer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	FilterBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+	DDOs[0].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		if (DDOs[i].Gbuffer)

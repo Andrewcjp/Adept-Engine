@@ -7,7 +7,9 @@
 
 
 TransparentPassMeshProcessor::TransparentPassMeshProcessor()
-{}
+{
+	PassType = ERenderPass::TransparentPass;
+}
 
 
 TransparentPassMeshProcessor::~TransparentPassMeshProcessor()
@@ -49,11 +51,11 @@ void TransparentPassMeshProcessor::SubmitCommands(RHICommandList* List, Shader* 
 		MeshDrawCommand* C = DrawCommands[i];
 		if (C->TargetMaterial != nullptr)
 		{
-			C->TargetMaterial->SetMaterialActive(List);
+			C->TargetMaterial->SetMaterialActive(List, PassType);
 		}
 		else
 		{
-			Material::GetDefaultMaterial()->SetMaterialActive(List);
+			Material::GetDefaultMaterial()->SetMaterialActive(List, PassType);
 		}
 		List->SetConstantBufferView(C->TransformUniformBuffer, 0, 0);
 		List->SetVertexBuffer(C->Vertex);
