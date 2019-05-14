@@ -76,7 +76,7 @@ public:
 	static HMD* GetHMD();
 	static HMDManager* GetHMDManager();
 	//is everything valid to render for vr?
-	static bool RenderVR();
+	static bool IsRenderingVR();
 	//checks
 	static bool UseAdditionalGPUs();
 	static bool IsD3D12();

@@ -92,13 +92,13 @@ D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetInd
 
 bool D3D12FrameBuffer::CheckDevice(int index)
 {
-	if (CurrentDevice != nullptr)
+	if (Device != nullptr)
 	{
 		if (OtherDevice != nullptr)
 		{
-			return (OtherDevice->GetDeviceIndex() == index) || (CurrentDevice->GetDeviceIndex() == index);
+			return (OtherDevice->GetDeviceIndex() == index) || (Device->GetDeviceIndex() == index);
 		}
-		return (CurrentDevice->GetDeviceIndex() == index);
+		return (Device->GetDeviceIndex() == index);
 	}
 	return false;
 }
@@ -148,6 +148,15 @@ void D3D12FrameBuffer::HandleResize()
 		SetupCopyToDevice(OtherDevice);
 	}
 
+}
+
+bool D3D12FrameBuffer::IsReadyForCompute() const
+{
+	if (RenderTarget[0] != nullptr)
+	{
+		return RenderTarget[0]->GetCurrentState() == D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	}
+	return false;
 }
 
 void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
@@ -382,6 +391,7 @@ GPUResource * D3D12FrameBuffer::GetResource(int index)
 
 void D3D12FrameBuffer::Release()
 {
+	FrameBuffer::Release();
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12FrameBuffer, this);
 	if (BufferDesc.NeedsDepthStencil)
@@ -441,6 +451,7 @@ D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferD
 		SetupCopyToDevice(BufferDesc.DeviceToCopyTo);
 	}
 	AddCheckerRef(D3D12FrameBuffer, this);
+	PostInit();
 }
 
 void D3D12FrameBuffer::UpdateSRV()
@@ -575,7 +586,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-}
+	}
 
 void D3D12FrameBuffer::Init()
 {

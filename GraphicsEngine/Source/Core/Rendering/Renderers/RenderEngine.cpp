@@ -88,8 +88,11 @@ void RenderEngine::PreRender()
 	}
 	ParticleSystemManager::Get()->PreRenderUpdate(MainCamera);
 	Scaler->Tick();
-	Culling->UpdateMainPassCulling(MainCamera, MainScene);
-
+	//if using VR FS culling in run just before each eye
+	if (!RHI::IsRenderingVR())
+	{
+		Culling->UpdateMainPassFrustumCulling(MainCamera, MainScene);
+	}
 }
 
 //init common to both renderers
@@ -264,7 +267,7 @@ void RenderEngine::ShadowPass()
 
 void RenderEngine::PostProcessPass()
 {
-	Post->ExecPPStack(FilterBuffer);
+	Post->ExecPPStack(&DDOs[0]);
 }
 
 void RenderEngine::PresentToScreen()

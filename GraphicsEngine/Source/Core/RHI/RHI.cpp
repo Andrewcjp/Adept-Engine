@@ -219,7 +219,7 @@ HMDManager * RHI::GetHMDManager()
 #endif
 }
 
-bool RHI::RenderVR()
+bool RHI::IsRenderingVR()
 {
 	return SupportVR() && GetHMD() != nullptr;
 }

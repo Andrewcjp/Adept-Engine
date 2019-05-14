@@ -219,12 +219,13 @@ void ParticleSystemManager::SubmitCompute()
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
-void ParticleSystemManager::SubmitRender()
+void ParticleSystemManager::SubmitRender(FrameBuffer * BufferTarget)
 {
 #if PARTICLE_STATS
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 #endif
-	RenderList->Execute();
+	BufferTarget->MakeReadyForComputeUse(RenderList);
+	RenderList->Execute();	
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 }
 
@@ -298,7 +299,7 @@ void ParticleSystemManager::Render(FrameBuffer * BufferTarget, FrameBuffer* Dept
 	{
 		RenderSystem(ParticleSystems[i], BufferTarget);
 	}
-	SubmitRender();
+	SubmitRender(BufferTarget);
 }
 
 void ParticleSystemManager::AddSystem(ParticleSystem * system)

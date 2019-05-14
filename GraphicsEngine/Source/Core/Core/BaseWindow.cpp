@@ -215,11 +215,6 @@ void BaseWindow::Render()
 	{
 		UI->RenderWidgets();
 	}
-	if (PostProcessing::Instance)
-	{
-		PostProcessing::Instance->ExecPPStackFinal(nullptr);
-	}
-
 	PerfManager::StartTimer("TEXT");
 	if (UI != nullptr && ShowHud && LoadText)
 	{

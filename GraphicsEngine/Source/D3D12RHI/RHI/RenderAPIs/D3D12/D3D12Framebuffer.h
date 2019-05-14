@@ -27,7 +27,7 @@ public:
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	bool							CheckDevice(int index);
 	void							HandleResize() override;
-
+	bool							IsReadyForCompute()const;
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
 	//Cross Adaptor
 	void SetupCopyToDevice(DeviceContext* device) override;

@@ -511,6 +511,10 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
 	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
+	if (ListType == ECommandListType::Compute)
+	{
+		ensure(DBuffer->IsReadyForCompute());
+	}
 	if (Device->GetStateCache()->RenderTargetCheckAndUpdate(buffer))
 	{
 		return;
