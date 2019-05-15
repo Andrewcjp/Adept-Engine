@@ -11,11 +11,7 @@ cbuffer GOConstantBuffer : register(b0)
 	//float Roughness;
 	//float Metallic;
 };
-cbuffer MateralConstantBuffer : register(b3)
-{
-	float Roughness;
-	float Metallic;
-};
+//BufferPoint
 
 cbuffer LightBuffer : register(b1)
 {

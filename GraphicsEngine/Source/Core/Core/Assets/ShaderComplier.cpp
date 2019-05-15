@@ -5,10 +5,14 @@
 #include "Core/Platform/ConsoleVariable.h"
 #include "Core/Utils/StringUtil.h"
 #include "RHI/Shader.h"
+#include "Rendering/ShaderGraph/ShaderGraph.h"
+#include "Rendering/ShaderGraph/ShaderGraphComplier.h"
 ShaderComplier * ShaderComplier::Instance = nullptr;
 static ConsoleVariable GenDebugShaders("DebugShaders", 0, ECVarType::LaunchOnly);
 ShaderComplier::ShaderComplier()
-{}
+{
+	MaterialCompiler = new ShaderGraphComplier();
+}
 
 ShaderComplier::~ShaderComplier()
 {}
@@ -85,17 +89,41 @@ void ShaderComplier::TickMaterialComplie()
 	}
 	for (int i = 0; i < MaterialShaderComplieQueue.size(); i++)
 	{
-		MaterialShader shader = MaterialShaderComplieQueue.front();
-		shader.ShaderAsset->Complie();
+		ComplieMateral(MaterialShaderComplieQueue.front());
 		MaterialShaderComplieQueue.pop();
 	}
 }
 
-void ShaderComplier::AddMaterial(Asset_Shader * shader)
+Shader_NodeGraph * ShaderComplier::GetMaterialShader(MaterialShaderComplieData Data)
 {
-	Get()->MaterialShaderMap.emplace(shader->GetName(), MaterialShader(shader));
-	Get()->MaterialShaderComplieQueue.emplace(shader);
+	auto itor = MaterialShaderMap.find(Data.ToString());
+	if (itor != MaterialShaderMap.end())
+	{
+		return itor->second;
+	}
+
+#if 0
+	//#AsyncComplie TODO
+	EnqeueueMaterialShadercomplie(Data);
+	return nullptr;
+#else
+	return ComplieMateral(Data);
+#endif
 }
+
+Shader_NodeGraph* ShaderComplier::ComplieMateral(MaterialShaderComplieData data)
+{
+	Shader_NodeGraph* s = MaterialCompiler->Complie(data);
+	ensure(s);
+	MaterialShaderMap.emplace(data.ToString(), s);
+	return s;
+}
+
+void ShaderComplier::EnqeueueMaterialShadercomplie(MaterialShaderComplieData data)
+{
+
+}
+
 
 ShaderType::ShaderType(std::string name, InitliserFunc constructor, ShaderInit & init)
 {

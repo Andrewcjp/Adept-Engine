@@ -14,7 +14,7 @@ public:
 	static Asset_Shader * GetDefaultShaderAsset();
 	static RHIBuffer* GetQuadBuffer();
 private:
-	Asset_Shader* DefaultShaderMat;
+	Material* DefaultMateral = nullptr;
 	Defaults();
 	~Defaults();
 	static Defaults* Instance;

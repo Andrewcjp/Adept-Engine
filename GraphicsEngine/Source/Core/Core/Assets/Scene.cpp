@@ -25,8 +25,8 @@ Scene::~Scene()
 	IsDestruction = true;
 	Lights.clear();//Scene Does not own these objects
 	MemoryUtils::DeleteVector(SceneObjects);
-//	SafeRHIRefRelease(LightingData.SkyBox);
-//	SafeRHIRefRelease(LightingData.DiffuseMap);
+	//	SafeRHIRefRelease(LightingData.SkyBox);
+	//	SafeRHIRefRelease(LightingData.DiffuseMap);
 	SafeDelete(CurrentGameMode);
 }
 void Scene::AlwaysUpdate(float deltatime)
@@ -305,7 +305,6 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	glm::vec3 startPos = glm::vec3(0, 5, 0);
 	stride = 5.0f;
-	Material::MaterialProperties props;
 	for (int y = 0; y < size; y++)
 	{
 		for (int x = 0; x < size; x++)
@@ -314,10 +313,8 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			{
 				go = new GameObject("Water");
 				mat = Material::CreateDefaultMaterialInstance();
-				Material::MaterialShaderData data;
-				data.Roughness = x * (1.0f / (size - 1));
-				data.Metallic = y * (1.0f / (size - 1));
-				mat->SetMaterialData(data);
+				mat->SetFloat("Roughness", x * (1.0f / (size - 1)));
+				mat->SetFloat("Metallic", y * (1.0f / (size - 1)));
 				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 				MeshLoader::FMeshLoadingSettings s;
 				//s.AllowInstancing = false;
@@ -340,13 +337,11 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	SpawnDoor("EntryDoor", glm::vec3(0, 0, 25));
 	SpawnDoor("ExitDoor", glm::vec3(0, 0, -34));
 
-	Asset_Shader* Transparent = new Asset_Shader(false);
-	Transparent->RenderType = EMaterialRenderType::Transparent;
-	Transparent->CreateGenDefault();
-
+#if 1
 	go = new GameObject("Water");
-	mat = Transparent->GetMaterial();
-	//mat->MateralRenderType = EMaterialRenderType::Transparent;
+	mat = Material::CreateDefaultMaterialInstance();
+	mat->MaterialCData.MaterialRenderType = EMaterialRenderType::Transparent;
+	mat->UpdateShaderData();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	MeshLoader::FMeshLoadingSettings s;
 	//s.AllowInstancing = false;
@@ -356,7 +351,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
-
+#endif
 	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects()->size()));
 }
 

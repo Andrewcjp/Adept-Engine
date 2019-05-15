@@ -6,12 +6,13 @@
 #include "Rendering/Shaders/Shader_NodeGraph.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/FileUtils.h"
+#include "MasterNode.h"
+#include "PBRMasterNode.h"
 ShaderGraph::ShaderGraph(FString Name)
 {
 	GraphName = Name;
-	CoreGraphProperties = new CoreProps();
-	MaterialBinds = new Material::TextureBindSet();
-	CurrentSlot = MainShaderRSBinds::Limit;
+	GraphMasterNode = new PBRMasterNode();//new PBRMasterNode();
+	MaterialBinds = new TextureBindSet();
 }
 
 ShaderGraph::~ShaderGraph()
@@ -23,8 +24,8 @@ void ShaderGraph::test()
 #if 0
 	AddNodetoGraph(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(1, 1, 1)));
 #else
-	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
-	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->NormalDir, "NORMALMAP", TextureType::Normal));
+	AddNodetoGraph(new SGN_Texture(GraphMasterNode->Diffusecolour, "DiffuseMap"));
+	AddNodetoGraph(new SGN_Texture(GraphMasterNode->NormalDir, "NORMALMAP", TextureType::Normal));
 #endif
 }
 
@@ -32,7 +33,7 @@ void ShaderGraph::SolidColour()
 {
 	GraphName = "Test2";
 #if 1
-	AddNodetoGraph(new SGN_Constant(CoreGraphProperties->Diffusecolour, glm::vec3(1, 1, 1)));
+	AddNodetoGraph(new SGN_Constant(GraphMasterNode->Diffusecolour, glm::vec3(1, 1, 1)));
 #else
 	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
 	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->NormalDir, "NORMALMAP", TextureType::Normal));
@@ -42,90 +43,33 @@ void ShaderGraph::SolidColour()
 void ShaderGraph::CreateDefault()
 {
 	GraphName = "Default";
-	AddNodetoGraph(new SGN_Texture(CoreGraphProperties->Diffusecolour, "DiffuseMap"));
+	AddNodetoGraph(new SGN_Texture(GraphMasterNode->Diffusecolour, "DiffuseMap"));
+	GraphMasterNode->GetProp("Roughness")->ExposeToShader(this);
+	GraphMasterNode->GetProp("Metallic")->ExposeToShader(this);
 }
-std::string ShaderGraph::GetTemplateName()
+
+std::string ShaderGraph::GetTemplateName(MaterialShaderComplieData& data)
 {
-	if (RHI::GetRenderSettings()->IsDeferred)
+	if (data.RenderPassUseage == EMaterialPassType::Deferred)
 	{
 		return "MaterialTemplate_DEF_W_fs.hlsl";
 	}
 	return "MaterialTemplate_FWD_fs.hlsl";
 }
 
-bool ShaderGraph::Complie()
+ParmeterBindSet ShaderGraph::GetParameters()
 {
-#if !WITH_EDITOR
-	//Temp For Default Materials
-	for (int i = 0; i < Nodes.size(); i++)
+	ParmeterBindSet BindSet;
+	for (int i = 0; i < BufferProps.size(); i++)
 	{
-		Nodes[i]->GetComplieCode();
+		BindSet.AddParameter(BufferProps[i]->Name, BufferProps[i]->Type);
 	}
-	return true;
-#else
-	std::string MainShader = AssetManager::instance->LoadFileWithInclude(GetTemplateName());
-	ensure(!MainShader.empty());
-	std::vector<std::string> split = StringUtils::Split(MainShader, '\n');
-	const std::string TargetMarker = "//Insert Marker";
-	const std::string TargetDefineMarker = "//Declares";
-	std::string PreFile = "";
-	std::string PostFile = "";
-	std::string MidFile = "";
-	int TargetMarkerindex = 0;
-	int DeclareStartindex = 0;
-	for (int i = 0; i < split.size(); i++)
-	{
-		if (split[i].find(TargetDefineMarker) != -1)
-		{
-			DeclareStartindex = i;
-		}
-		if (split[i].find(TargetMarker) != -1)
-		{
-			TargetMarkerindex = i;
-		}
-	}
-	for (int i = 0; i < split.size(); i++)
-	{
-		if (i < DeclareStartindex)
-		{
-			PreFile += split[i] + "\n";
-		}
-		if (i > DeclareStartindex && i < TargetMarkerindex)
-		{
-			MidFile += split[i] + "\n";
-		}
-
-		if (i > TargetMarkerindex)
-		{
-			PostFile += split[i] + "\n";
-		}
-	}
-
-	std::string ComplieOutput;
-	for (int i = 0; i < Nodes.size(); i++)
-	{
-		ComplieOutput += Nodes[i]->GetComplieCode();
-	}
-
-	PreFile += Declares + MidFile;
-
-	std::string Path = AssetManager::GetShaderPath() + "Gen\\" + GraphName.ToSString() + ".hlsl";
-	PlatformApplication::TryCreateDirectory(AssetManager::GetShaderPath() + "Gen");
-	return FileUtils::WriteToFile(Path, PreFile + ComplieOutput + PostFile);
-#endif
+	return BindSet;
 }
 
-Shader* ShaderGraph::GetGeneratedShader()
+TextureBindSet * ShaderGraph::GetMaterialData()
 {
-	if (GeneratedShader == nullptr)
-	{
-		GeneratedShader = new Shader_NodeGraph(this);
-	}
-	return GeneratedShader;
-}
-
-const Material::TextureBindSet * ShaderGraph::GetMaterialData()
-{
+	ensure(IsComplied);
 	return MaterialBinds;
 }
 
@@ -135,9 +79,14 @@ void ShaderGraph::AddNodetoGraph(ShaderGraphNode * Node)
 	Nodes.push_back(Node);
 }
 
+std::string ShaderGraph::GetCompliedCode()
+{
+	return CompliedCode;
+}
+
 void ShaderGraph::AddTexDecleration(std::string data, std::string name)
 {
-	//data cotains Texture2D g_texture 
+	//data contains Texture2D g_texture 
 	//: register(t20);
 	const std::string RegisterString = ": register(t" + std::to_string(TReg) + ");\n";
 	Declares += data + RegisterString;
@@ -145,4 +94,43 @@ void ShaderGraph::AddTexDecleration(std::string data, std::string name)
 	CurrentSlot++;
 	TReg++;
 }
+
+bool ShaderGraph::IsPropertyDefined(std::string name)
+{
+	return VectorUtils::Contains(DefinedVars, name);
+}
+
+void ShaderGraph::AddDefine(std::string name)
+{
+	DefinedVars.push_back(name);
+}
+
+void ShaderGraph::Complie()
+{
+	BuildConstantBuffer();
+	for (int i = 0; i < Nodes.size(); i++)
+	{
+		CompliedCode += Nodes[i]->GetComplieCode(this);
+	}
+	CompliedCode += GraphMasterNode->Complie(this);
+	IsComplied = true;
+}
+
+void ShaderGraph::BuildConstantBuffer()
+{
+	std::string data = "cbuffer MateralConstantBuffer : register(b3)\n{\n";
+
+	for (int i = 0; i < BufferProps.size(); i++)
+	{
+		data += BufferProps[i]->GetForBuffer() + "\n";
+	}
+	data += "};";
+	ConstantBufferCode = data;
+}
+
+std::string ShaderGraph::GetMaterialConstantBufferCode()
+{
+	return ConstantBufferCode;
+}
+
 

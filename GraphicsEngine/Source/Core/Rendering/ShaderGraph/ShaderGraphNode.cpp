@@ -2,11 +2,11 @@
 #include "ShaderGraphNode.h"
 #include "ShaderGraph.h"
 
-std::string SGN_Texture::GetComplieCode()
+std::string SGN_Texture::GetComplieCode(ShaderGraph* context)
 {
-	Root->AddTexDecleration("Texture2D " + Texname, Texname);
+	context->AddTexDecleration("Texture2D " + Texname, Texname);
 	std::stringstream Stream;
-	Stream << TargetProp->GetNameCode() << " = ";
+	Stream << TargetProp->GetNameCode(context) << " = ";
 	if (texType == TextureType::Colour)
 	{
 		Stream << Texname << ".Sample(g_sampler, input.uv).rgb; \n";
@@ -18,10 +18,54 @@ std::string SGN_Texture::GetComplieCode()
 	return Stream.str();
 }
 
-std::string SGN_CodeSnippet::GetComplieCode()
+std::string SGN_CodeSnippet::GetComplieCode(ShaderGraph* context)
 {
 	//Root->AddTexDecleration("Texture2D testexture ", Texname);
 	//std::stringstream Stream;
 	//Stream << TargetProp->GetNameCode() << " = " << "testexture.Sample(g_sampler, input.uv).rgb; \n";
 	return CodeSnip + "\n";
+}
+
+PropertyLink::PropertyLink(std::string name, ShaderPropertyType::Type t, std::string ddefault)
+{
+	Name = name;
+	Type = t;
+	DefaultValue = ddefault;
+}
+
+std::string PropertyLink::GetNameCode(ShaderGraph* context)
+{
+	std::string output = "";
+	if (context->IsPropertyDefined(Name))
+	{
+		output = Name;
+	}
+	else
+	{
+		context->AddDefine(Name);
+		output = ShaderPropertyTypeToString(Type) + " " + Name;
+	}
+	return output;
+}
+
+std::string PropertyLink::GenDefault(ShaderGraph * context)
+{
+	if (context->IsPropertyDefined(Name))
+	{
+		//dont set the default value if already in use
+		return "";
+	}
+	return ShaderPropertyTypeToString(Type) + " " + Name + " = " + DefaultValue + ";";
+}
+
+std::string PropertyLink::GetForBuffer()
+{
+	return ShaderPropertyTypeToString(Type) + " " + Name + ";";
+}
+
+void PropertyLink::ExposeToShader(ShaderGraph* context)
+{
+	context->AddDefine(Name);
+	Exposed = true;
+	context->BufferProps.push_back(this);
 }

@@ -1,18 +1,8 @@
 #pragma once
 #include "Core/EngineTypes.h"
+#include "ShaderGraph.h"
+#include "../Core/Mesh/MaterialTypes.h"
 
-namespace ShaderPropertyType
-{
-	enum Type
-	{
-		Float,
-		Float2,
-		Float3,
-		Float4,
-		Bool,
-		Int,		
-	};
-}
 
 static std::string ShaderPropertyTypeToString(ShaderPropertyType::Type type)
 {
@@ -28,28 +18,19 @@ static std::string ShaderPropertyTypeToString(ShaderPropertyType::Type type)
 class PropertyLink
 {
 public:
+	PropertyLink()
+	{}
+	PropertyLink(std::string name, ShaderPropertyType::Type t, std::string DefaultValue = "");
 	std::string Name = "";
 	ShaderPropertyType::Type Type = ShaderPropertyType::Float;
-	std::string GetNameCode()
-	{
-		std::string output = "";
-		if (IsDefined)
-		{
-			output = Name;
-		}
-		else
-		{
-			IsDefined = true;
-			output = ShaderPropertyTypeToString(Type) + " " + Name;
-		}
-		return output;
-	}
-	void SetDefined(bool state)
-	{
-		IsDefined = state;
-	}
+	std::string GetNameCode(ShaderGraph* context);
+	//called before the master node is complied to ensure all props are defaulted
+	std::string GenDefault(ShaderGraph* context);
+	std::string DefaultValue = "";
+	std::string GetForBuffer();
+	void ExposeToShader(ShaderGraph* context);
+	bool Exposed = false;
 private:
-	bool IsDefined = false;
 };
 class ShaderGraphNode
 {
@@ -58,7 +39,7 @@ public:
 	{};
 	virtual ~ShaderGraphNode()
 	{};
-	virtual std::string GetComplieCode() = 0;
+	virtual std::string GetComplieCode(ShaderGraph* context) = 0;
 	class ShaderGraph* Root = nullptr;
 };
 
@@ -69,7 +50,7 @@ public:
 	{};
 	~SGN_MathNode()
 	{};
-	virtual std::string GetComplieCode()
+	virtual std::string GetComplieCode(ShaderGraph* context)
 	{
 		return "";
 	}
@@ -87,31 +68,14 @@ public:
 	{};
 	glm::vec3 Value = glm::vec3(0, 0, 0);
 	PropertyLink* TargetProp = nullptr;
-	virtual std::string GetComplieCode()
+	virtual std::string GetComplieCode(ShaderGraph* context)
 	{
 		std::stringstream Stream;
-		Stream << TargetProp->GetNameCode() << " = " << "float3" << "(" << std::to_string(Value.x) << ", " << std::to_string(Value.y) << " ," << std::to_string(Value.z) << ");\n";
+		Stream << TargetProp->GetNameCode(context) << " = " << "float3" << "(" << std::to_string(Value.x) << ", " << std::to_string(Value.y) << " ," << std::to_string(Value.z) << ");\n";
 		return Stream.str();
 	}
 };
 
-class CoreProps
-{
-public:
-	PropertyLink * Diffusecolour = nullptr;
-	PropertyLink * NormalDir = nullptr;
-	CoreProps()
-	{
-		Diffusecolour = new PropertyLink();
-		Diffusecolour->Name = "Diffuse";
-		Diffusecolour->Type = ShaderPropertyType::Float3;
-
-		NormalDir = new PropertyLink();
-		NormalDir->Name = "Normal";
-		NormalDir->SetDefined(true);
-		NormalDir->Type = ShaderPropertyType::Float3;
-	}
-};
 namespace TextureType
 {
 	enum Type
@@ -120,6 +84,7 @@ namespace TextureType
 		Normal
 	};
 }
+
 class SGN_Texture : public ShaderGraphNode
 {
 public:
@@ -135,7 +100,7 @@ public:
 	PropertyLink* TargetProp = nullptr;
 	std::string Texname;
 
-	virtual std::string GetComplieCode();
+	virtual std::string GetComplieCode(ShaderGraph* context);
 };
 
 class SGN_CodeSnippet : public ShaderGraphNode
@@ -150,5 +115,5 @@ public:
 	{};
 	PropertyLink* TargetProp = nullptr;
 	std::string CodeSnip;
-	virtual std::string GetComplieCode();
+	virtual std::string GetComplieCode(ShaderGraph* context);
 };
