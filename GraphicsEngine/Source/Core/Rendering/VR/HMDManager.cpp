@@ -13,12 +13,11 @@ HMDManager::~HMDManager()
 
 void HMDManager::Init()
 {
-	return;
+	//return;
 	HeadSet = HMD::Create();
 	if (HeadSet != nullptr)
 	{
 		HeadSet->Init();
-		Log::LogMessage("Found VR HMD");
 	}
 	HeadSet->UpdateProjection(2.5);
 	RHI::GetRenderSettings()->LockedWidth = HeadSet->GetDimentions().x;

@@ -259,6 +259,11 @@ void RHI::Tick()
 	instance->SFR_Controller->Tick();
 }
 
+void RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
+{
+	GetRHIClass()->SubmitToVRComposter(fb, eye);
+}
+
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 	LogEnsure(!Resource->IsPendingKill());
@@ -608,3 +613,7 @@ void PipelineStateObjectCache::Destory()
 	PSOMap.clear();
 }
 
+void RHIClass::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
+{
+
+}

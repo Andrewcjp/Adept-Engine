@@ -8,6 +8,7 @@
 #include "RHI_inc_fwd.h"
 #include "RHITypes.h"
 #include "BaseTexture.h"
+#include "Rendering/VR/HMD.h"
 
 
 class RHIGPUSyncEvent;
@@ -98,6 +99,7 @@ public:
 	static SFRController* GetSplitController();
 	RHI_API static void FlushDeferredDeleteQueue();
 	static void Tick();
+	static void SubmitToVRComposter(FrameBuffer* fb, EEye::Type eye);
 private:
 	static void ResizeFrameBuffer(FrameBuffer * target);
 	SFRController* SFR_Controller = nullptr;
@@ -149,6 +151,7 @@ public:
 #if ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() = 0;
 #endif
+	RHI_VIRTUAL void SubmitToVRComposter(FrameBuffer* fb, EEye::Type eye);
 };
 
 class RHIModule : public IModuleInterface

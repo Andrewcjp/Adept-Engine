@@ -40,7 +40,8 @@ class CoreTargetRules : TargetRules
             "freetypeBuild",
             "assimpBuild",
             "nvapiBuild",
-            "WWiseBuild"
+            "WWiseBuild",
+            "OpenVRBuild"
         };
         CoreModule.ThirdPartyModules.AddRange(ThirdPartyModules);
         if (BuildPhysx)
