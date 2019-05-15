@@ -4,9 +4,9 @@ SamplerState g_Clampsampler : register(s1);
 Texture2D PosTexture : register(t0);
 Texture2D NormalTexture : register(t1);
 Texture2D AlbedoTexture : register(t2);
-
+#define MAX_CUBEMAPS 1
 TextureCube DiffuseIrMap : register(t10);
-TextureCube SpecularBlurMap: register(t11);
+TextureCube SpecularBlurMap[MAX_CUBEMAPS]: register(t11);
 Texture2D envBRDFTexture: register(t12);
 
 Texture2D PerSampledShadow: register(t13);
@@ -35,11 +35,10 @@ struct VS_OUTPUT
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
 };
+#include "ReflectionEnviroment.hlsl"
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
-	//return float4(PerSampledShadow.Sample(g_Clampsampler, input.uv).r,0.0,0.0,1.0f);
-
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv);
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv);
 	float3 Normal = normalize(Normalt.xyz);
@@ -50,10 +49,10 @@ float4 main(VS_OUTPUT input) : SV_Target
 
 	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - pos.xyz);
-	const float MAX_REFLECTION_LOD = 11.0;
+
 	float3 R = reflect(-ViewDir, Normal);
 	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
-	float3 prefilteredColor = SpecularBlurMap.SampleLevel(defaultSampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
+	float3 prefilteredColor = GetReflectionColor(R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{

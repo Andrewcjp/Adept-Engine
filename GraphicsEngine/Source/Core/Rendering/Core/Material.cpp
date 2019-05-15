@@ -48,7 +48,15 @@ void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 		desc.Mode = Full;
 	}
 	ShaderInterface->SetShader(MaterialCData);
-	desc.ShaderInUse = (Shader*)ShaderInterface->GetShader(EMaterialPassType::Forward);
+	if (Pass == ERenderPass::BasePass_Cubemap)
+	{
+		desc.ShaderInUse = (Shader*)ShaderInterface->GetShader(EMaterialPassType::Forward);
+	}
+	else
+	{
+		desc.ShaderInUse = (Shader*)ShaderInterface->GetShader(RHI::GetRenderSettings()->IsDeferred ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
+	}
+
 	list->SetPipelineStateDesc(desc);
 	list->SetConstantBufferView(MaterialDataBuffer, 0, MainShaderRSBinds::MaterialData);
 	for (auto const& Pair : CurrentBindSet->BindMap)

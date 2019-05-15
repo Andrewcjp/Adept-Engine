@@ -9,11 +9,11 @@ std::string SGN_Texture::GetComplieCode(ShaderGraph* context)
 	Stream << TargetProp->GetNameCode(context) << " = ";
 	if (texType == TextureType::Colour)
 	{
-		Stream << Texname << ".Sample(g_sampler, input.uv).rgb; \n";
+		Stream << Texname << ".Sample(defaultSampler, input.uv).rgb; \n";
 	}
 	else if (texType == TextureType::Normal)
 	{
-		Stream << "(" << Texname << ".Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;\n Normal = normalize(mul(Normal, input.TBN)); ";
+		Stream << "(" << Texname << ".Sample(defaultSampler, input.uv).xyz)*2.0 - 1.0;\n Normal = normalize(mul(Normal, input.TBN)); ";
 	}
 	return Stream.str();
 }

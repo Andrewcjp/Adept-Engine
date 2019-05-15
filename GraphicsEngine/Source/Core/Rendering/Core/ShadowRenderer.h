@@ -33,7 +33,7 @@ public:
 	void PreSampleShadows(RHICommandList* list, const std::vector<GameObject*>& ShadowObjects);
 	void RenderPointShadows(RHICommandList * list, const std::vector<GameObject*>& ShadowObjects);
 	void RenderDirectionalShadows(RHICommandList * list, const std::vector<GameObject *> & ShadowObjects);
-	void BindShadowMapsToTextures(RHICommandList* list);
+	void BindShadowMapsToTextures(RHICommandList* list,bool cubemap = false);
 	void ClearShadowLights();
 	void InitShadows(std::vector<Light*> lights);
 	bool UseCache = false;

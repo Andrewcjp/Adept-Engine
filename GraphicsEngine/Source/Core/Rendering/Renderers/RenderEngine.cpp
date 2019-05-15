@@ -418,7 +418,7 @@ void RenderEngine::CubeMapPass()
 	CubemapCaptureList->SetPipelineStateDesc(Desc);
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->BindShadowMapsToTextures(CubemapCaptureList);
+		mShadowRenderer->BindShadowMapsToTextures(CubemapCaptureList,true);
 	}
 	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)

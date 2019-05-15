@@ -42,7 +42,7 @@ std::string MasterNode::ComplieDefaultProps(ShaderGraph * g)
 
 std::string MasterNode::GetTemplateName(MaterialShaderComplieData & data)
 {
-	if (data.RenderPassUseage == EMaterialPassType::Deferred)
+	if (data.RenderPassUsage == EMaterialPassType::Deferred)
 	{
 		return "MaterialTemplate_DEF_W_fs.hlsl";
 	}

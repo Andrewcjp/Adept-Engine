@@ -540,16 +540,6 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateRootSignature(context->GetNodeIndex(), signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output->RootSig)));
 
 	output->RootSig->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
-	//	REF_CHECK(output->RootSig);
-	/*if (output->RootSig != nullptr)
-	{
-		output->RootSig->AddRef();
-		int t = output->RootSig->Release();
-		if (t > 1)
-		{
-			output->RootSig->Release();
-		}
-	}*/
 }
 const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Params)
 {
