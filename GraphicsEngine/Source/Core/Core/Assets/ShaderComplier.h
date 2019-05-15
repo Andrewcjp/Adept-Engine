@@ -1,5 +1,9 @@
 #pragma once
 #include <functional>
+#include "Rendering\Core\Mesh\MaterialTypes.h"
+
+class Shader_NodeGraph;
+class ShaderGraphComplier;
 struct ShaderInit
 {
 	ShaderInit()
@@ -20,15 +24,6 @@ struct ShaderType
 	InitliserFunc Constructor;
 	ShaderInit ShaderInitalizer;
 	Shader* CompliedShader = nullptr;
-};
-
-struct MaterialShader
-{
-	class Asset_Shader* ShaderAsset = nullptr;
-	MaterialShader(Asset_Shader* shader)
-	{
-		ShaderAsset = shader;
-	}
 };
 
 class ShaderComplier
@@ -92,11 +87,14 @@ public:
 	{
 		return GetShader<T>(RHI::GetDefaultDevice(), Data);
 	}
-	static void AddMaterial(class Asset_Shader* shader);
+	Shader_NodeGraph* GetMaterialShader(MaterialShaderComplieData Data);
+	Shader_NodeGraph* ComplieMateral(MaterialShaderComplieData data);
+	void EnqeueueMaterialShadercomplie(MaterialShaderComplieData data);
 private:
+	ShaderGraphComplier* MaterialCompiler = nullptr;
 	static ShaderComplier * Instance;
 	std::map<std::string, ShaderType> GlobalShaderMap;
-	std::map<std::string, MaterialShader> MaterialShaderMap;
-	std::queue<MaterialShader> MaterialShaderComplieQueue;
+	std::map<std::string, Shader_NodeGraph*> MaterialShaderMap;
+	std::queue<MaterialShaderComplieData> MaterialShaderComplieQueue;
 	bool ComplieShadersOnTheFly = false;
 };

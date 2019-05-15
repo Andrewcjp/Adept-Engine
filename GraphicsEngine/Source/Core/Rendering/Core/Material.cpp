@@ -1,58 +1,38 @@
 #include "Material.h"
-#include <iostream>
-#include "GPUStateCache.h"
-#include "RHI/Shader.h"
-#include "RHI/RHICommandList.h"
-#include "Core/Platform/PlatformCore.h"
-#include "Core/Assets/Asset_Shader.h"
-#include "Core/Assets/ImageIO.h"
 #include "Core/Assets/Archive.h"
-#include "Core/Assets/SerialHelpers.h"
+#include "Core/Assets/Asset_Shader.h"
 #include "Core/Assets/AssetManager.h"
-#include "RHI/RHI.h"
-#include "../Shaders/Shader_Main.h"
+#include "Core/Assets/ImageIO.h"
+#include "Core/Assets/SerialHelpers.h"
 #include "Defaults.h"
-#include "Core/ObjectBase/SharedPtr.h"
-
+#include "Rendering/Shaders/Shader_Main.h"
 
 void Material::UpdateShaderData()
 {
-	MaterialData->UpdateConstantBuffer(&ShaderProperties);
+	MaterialDataBuffer->UpdateConstantBuffer(ParmbindSet.GetDataPtr());
+	ShaderInterface->SetShader(MaterialCData);
 }
 
-void Material::SetMaterialData(MaterialShaderData Data)
+Material::Material(Asset_Shader * shader)
 {
-	ShaderProperties = Data;
-	UpdateShaderData();
-}
+	ShaderInterface = new MaterialShader(shader);
+	MaterialCData.Shader = shader;
+	Init();
+	CurrentBindSet = ShaderInterface->GetBinds();
+	ParmbindSet = ShaderInterface->GetParamBinds();
+	ParmbindSet.AllocateMemeory();
+	MaterialDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	MaterialDataBuffer->CreateConstantBuffer(ParmbindSet.GetSize(), 1);
 
-Material::Material(BaseTexture * Diff, MaterialProperties props) :Material(props)
-{
-	UpdateBind("DiffuseMap", Diff);
-}
-
-Material::Material(MaterialProperties props)
-{
-	Properties = props;
-	if (Properties.TextureBinds == nullptr)
-	{
-		CurrentBindSet = new TextureBindSet();
-	}
-	else
-	{
-		CurrentBindSet = new TextureBindSet(*Properties.TextureBinds);
-	}
-	MaterialData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	MaterialData->CreateConstantBuffer(sizeof(MaterialShaderData), 1);
 }
 
 Material::~Material()
 {
-	EnqueueSafeRHIRelease(MaterialData);
+	EnqueueSafeRHIRelease(MaterialDataBuffer);
 	SafeDelete(CurrentBindSet);
 }
 
-void Material::SetMaterialActive(RHICommandList* list,ERenderPass::Type Pass)
+void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 {
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthEnable = true;
@@ -61,23 +41,16 @@ void Material::SetMaterialActive(RHICommandList* list,ERenderPass::Type Pass)
 	{
 		desc.DepthStencilState.DepthWrite = false;
 	}
-	if (MateralRenderType == EMaterialRenderType::Transparent)
+	if (GetRenderPassType() == EMaterialRenderType::Transparent)
 	{
 		desc.Blending = true;
 		desc.Cull = false;
 		desc.Mode = Full;
 	}
-	if (GetProperties()->ShaderInUse != nullptr)
-	{
-		desc.ShaderInUse = GetProperties()->ShaderInUse;
-		list->SetPipelineStateDesc(desc);
-	}
-	else
-	{
-		desc.ShaderInUse = Material::GetDefaultMaterialShader();
-		list->SetPipelineStateDesc(desc);
-	}
-	list->SetConstantBufferView(MaterialData, 0, MainShaderRSBinds::MaterialData);
+	ShaderInterface->SetShader(MaterialCData);
+	desc.ShaderInUse = (Shader*)ShaderInterface->GetShader(EMaterialPassType::Forward);
+	list->SetPipelineStateDesc(desc);
+	list->SetConstantBufferView(MaterialDataBuffer, 0, MainShaderRSBinds::MaterialData);
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
 		if (Pair.second.TextureObj == nullptr)
@@ -91,20 +64,25 @@ void Material::SetMaterialActive(RHICommandList* list,ERenderPass::Type Pass)
 	}
 }
 
+void Material::Init()
+{
+	//todo: on demand complie?
+	ShaderInterface->GetOrComplie(MaterialCData);
+
+}
+
 void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
 {
 	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
 	{
 		if (CurrentBindSet->BindMap.at(Name).TextureObj != NewTex)
 		{
-			//SafeRefRelease(CurrentBindSet->BindMap.at(Name).TextureObj.Get());
 			CurrentBindSet->BindMap.at(Name).TextureObj = NewTex;
 		}
 	}
 	else
 	{
-		ensureMsgf(false, "Failed to Find Bind");
-		//SafeRefRelease(NewTex);
+		LogEnsure(false, "Failed to Find Bind");
 	}
 }
 
@@ -115,11 +93,6 @@ BaseTexture * Material::GetTexturebind(std::string Name)
 		return CurrentBindSet->BindMap.at(Name).TextureObj.Get();
 	}
 	return nullptr;
-}
-
-Material::MaterialProperties* Material::GetProperties()
-{
-	return &Properties;
 }
 
 void Material::SetDisplacementMap(BaseTexture * tex)
@@ -151,22 +124,13 @@ bool Material::HasNormalMap()
 	return GetTexturebind("NORMALMAP") != nullptr;
 }
 
-Material * Material::CreateDefaultMaterialInstance()
-{
-	return Defaults::GetDefaultShaderAsset()->GetMaterialInstance();
-}
-
 Material* Material::GetDefaultMaterial()
 {
-	return Defaults::GetDefaultShaderAsset()->GetMaterial();
+	return Defaults::GetDefaultMaterial();
 }
 
-Shader * Material::GetDefaultMaterialShader()
-{
-	return Defaults::GetDefaultShaderAsset()->GetMaterial()->GetProperties()->ShaderInUse;
-}
 
-void SerialTextureBind(Archive * A, Material::TextureBindData* object)
+void SerialTextureBind(Archive * A, TextureBindData* object)
 {
 	ArchiveProp(object->RegisterSlot);
 	ArchiveProp(object->RootSigSlot);
@@ -184,13 +148,13 @@ void SerialTextureBind(Archive * A, Material::TextureBindData* object)
 
 void Material::ProcessSerialArchive(Archive * A)
 {
-
-	ArchiveProp(ShaderProperties.Metallic);
-	ArchiveProp(ShaderProperties.Roughness);
+	//#Editor Save this
+	//ArchiveProp(ShaderProperties.Metallic);
+	//ArchiveProp(ShaderProperties.Roughness);
 	if (A->IsReading())
 	{
 		std::string ShaderName = "";
-		ArchiveProp_Alias(ShaderName, Properties.ShaderInUse->GetName());
+		//ArchiveProp_Alias(ShaderName, Properties.ShaderInUse->GetName());
 		//TEMP
 		Asset_Shader* NewShader = nullptr;
 		if (ShaderName == "Test")
@@ -205,34 +169,55 @@ void Material::ProcessSerialArchive(Archive * A)
 		}
 		else
 		{
-			Properties.ShaderInUse = Material::GetDefaultMaterialShader();
+			//Properties.ShaderInUse = Material::GetDefaultMaterialShader();
 		}
 		if (NewShader != nullptr)
 		{
-			NewShader->GetMaterialInstance(this);
+			//NewShader->GetMaterialInstance(this);
 			//CurrentBindSet->BindMap = Properties.TextureBinds;
 		}
 	}
 	else
 	{
 		std::string tmp = "";
-		if (Properties.ShaderInUse != nullptr)
+		/*if (Properties.ShaderInUse != nullptr)
 		{
 			tmp = Properties.ShaderInUse->GetName();
-		}
-		ArchiveProp_Alias(tmp, Properties.ShaderInUse->GetName());
+		}*/
+		//ArchiveProp_Alias(tmp, Properties.ShaderInUse->GetName());
 	}
 	if (A->IsReading())
 	{
 		CurrentBindSet->BindMap.clear();
 	}
-	A->LinkPropertyMap<std::string, Material::TextureBindData>(CurrentBindSet->BindMap, "CurrentBindSet->BindMap", &SerialTextureBind);
+	A->LinkPropertyMap<std::string, TextureBindData>(CurrentBindSet->BindMap, "CurrentBindSet->BindMap", &SerialTextureBind);
 
 }
 
 EMaterialRenderType::Type Material::GetRenderPassType()
 {
-	return MateralRenderType;
+	return MaterialCData.MaterialRenderType;
+}
+
+Shader * Material::GetDefaultMaterialShader()
+{
+	return (Shader*)GetDefaultMaterial()->GetShader();
+}
+
+Material * Material::CreateDefaultMaterialInstance()
+{
+	return new Material(new Asset_Shader(true));
+}
+
+Shader_NodeGraph * Material::GetShader()
+{
+	return ShaderInterface->GetShader(EMaterialPassType::Forward);
+}
+
+void Material::SetFloat(std::string name, float value)
+{
+	ParmbindSet.SetFloat(name, value);
+	UpdateShaderData();
 }
 
 void Material::SetupDefaultBinding(TextureBindSet* TargetSet)

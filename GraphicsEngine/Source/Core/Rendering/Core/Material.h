@@ -1,75 +1,45 @@
 #pragma once
 #include "RHI/BaseTexture.h"
 #include "Mesh/MeshPipelineController.h"
-struct EMaterialRenderType
-{
-	enum Type
-	{
-		Opaque,
-		Transparent,
-		Limit
-	};
-};
+#include "Mesh/MaterialShader.h"
+#include "Mesh/MaterialTypes.h"
+
+
 class RHIBuffer;
+class Shader_NodeGraph;
+class Asset_Shader;
+class MaterialShader;
 class Material
 {
 public:
-	struct TextureBindData
-	{
-		SharedPtr<BaseTexture> TextureObj;
-		int RootSigSlot = 0;
-		int RegisterSlot = 0;
-	};
-	struct TextureBindSet
-	{
-		std::map<std::string, Material::TextureBindData> BindMap;
-		void AddBind(std::string name, int index, int Register)
-		{
-			BindMap.emplace(name, Material::TextureBindData{ nullptr, index ,Register });
-		}
-	};
-	struct MaterialShaderData
-	{
-		float Roughness = 1.0f;
-		float Metallic = 0.0f;
-	};
-	struct MaterialProperties
-	{
-		bool UseMainShader = true;
-		bool IsReflective = false;
-		class Shader* ShaderInUse = nullptr;
-		const TextureBindSet* TextureBinds = nullptr;
-	};
+	
 	void UpdateShaderData();
-	void SetMaterialData(MaterialShaderData Data);
-	CORE_API Material(BaseTexture* Diff, MaterialProperties props = MaterialProperties());
-	CORE_API Material(MaterialProperties props = MaterialProperties());
+	CORE_API Material(Asset_Shader* shader);
 	~Material();
 	void SetMaterialActive(class RHICommandList * list, ERenderPass::Type Pass);
-
+	//creates this material after all props have been setup
+	void Init();
 	void UpdateBind(std::string Name, BaseTextureRef NewTex);
 	BaseTexture* GetTexturebind(std::string Name);
-	typedef std::pair<std::string, Material::TextureBindData> FlatMap;
-	CORE_API MaterialProperties* GetProperties();
+	typedef std::pair<std::string, TextureBindData> FlatMap;
 	void SetDisplacementMap(BaseTexture* tex);
 	CORE_API void SetNormalMap(BaseTexture * tex);
 	CORE_API void SetDiffusetexture(BaseTextureRef tex);
 	bool HasNormalMap();
-	CORE_API static Material* CreateDefaultMaterialInstance();
 	static Material * GetDefaultMaterial();
-	CORE_API static Shader* GetDefaultMaterialShader();
 	void ProcessSerialArchive(class Archive* A);
 	static constexpr const char* DefuseBindName = "DiffuseMap";
-	RHIBuffer* MaterialData = nullptr;
+	RHIBuffer* MaterialDataBuffer = nullptr;
 	EMaterialRenderType::Type GetRenderPassType();
-	EMaterialRenderType::Type MateralRenderType = EMaterialRenderType::Opaque;
+	MaterialShaderComplieData MaterialCData;
+	static Shader* GetDefaultMaterialShader();
+	CORE_API static Material* CreateDefaultMaterialInstance();
+	Shader_NodeGraph* GetShader();
+	void SetFloat(std::string name, float value);
 private:
-	
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);
-	MaterialProperties Properties;
-	MaterialShaderData ShaderProperties;
-	//bind to null
-
+	MaterialShader* ShaderInterface = nullptr;
+	ParmeterBindSet ParmbindSet;
 };
 

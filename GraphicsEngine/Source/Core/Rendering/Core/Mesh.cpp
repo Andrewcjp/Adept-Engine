@@ -173,7 +173,7 @@ void SerialMaterial(Archive * A, Material* object)
 
 void Mesh::ProcessSerialArchive(Archive * A)
 {
-	A->LinkPropertyArray<Material>(Materials, "Mats", SerialMaterial);
+//	A->LinkPropertyArray<Material>(Materials, "Mats", SerialMaterial);
 }
 
 void Mesh::SetShadow(bool state)

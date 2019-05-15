@@ -8,7 +8,7 @@
 #include <d3dcompiler.h>
 #include "D3D12CommandList.h"
 #include "ShaderReflection.h"
-static ConsoleVariable NoShaderCache("NoShaderCache", 1, ECVarType::LaunchOnly);
+static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
 #if !BUILD_SHIPPING
 D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
 #endif
@@ -121,6 +121,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #if !BUILD_SHIPPING
 		stats.ShaderLoadFromCacheCount++;
 #endif
+		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams,IsCompute);
 		return EShaderError::SHADER_ERROR_NONE;
 	}
 
@@ -210,7 +211,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	{
 		return EShaderError::SHADER_ERROR_CREATE;
 	}
-	ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams);
+	ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams, IsCompute);
 	WriteBlobs(shadername, ShaderType);
 #if !BUILD_SHIPPING
 	stats.ShaderComplieCount++;
@@ -288,7 +289,6 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 {
 	SCOPE_STARTUP_COUNTER("Create PSO");
 	ensure(blobs->vsBlob != nullptr);
-	//	ensure(blobs->fsBlob != nullptr);
 	if (context == nullptr)
 	{
 		context = RHI::GetDeviceContext(0);

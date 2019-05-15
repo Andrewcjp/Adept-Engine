@@ -11,8 +11,9 @@ Defaults::Defaults()
 {
 	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
 	ensureFatalMsgf(DefaultTexture != nullptr, "Failed to Load Fallback Texture");
-	DefaultShaderMat = new Asset_Shader(true);
 
+	DefaultMateral = new Material(new Asset_Shader(true));
+	DefaultMateral->Init();
 	float g_quad_vertex_buffer_data[] = {
 	-1.0f, -1.0f, 0.0f,0.0f,
 	1.0f, -1.0f, 0.0f,0.0f,
@@ -28,7 +29,7 @@ Defaults::Defaults()
 
 Defaults::~Defaults()
 {
-	SafeDelete(DefaultShaderMat);
+	//	SafeDelete(DefaultShaderMat);
 }
 
 void Defaults::Start()
@@ -48,13 +49,9 @@ BaseTextureRef Defaults::GetDefaultTexture()
 
 Material * Defaults::GetDefaultMaterial()
 {
-	return Instance->DefaultShaderMat->GetMaterial();
+	return Instance->DefaultMateral;
 }
 
-Asset_Shader * Defaults::GetDefaultShaderAsset()
-{
-	return Instance->DefaultShaderMat;
-}
 
 RHIBuffer * Defaults::GetQuadBuffer()
 {

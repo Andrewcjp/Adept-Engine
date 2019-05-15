@@ -32,53 +32,15 @@ void Asset_Shader::SetupTestMat()
 	Graph->Complie();
 }
 
-
 Asset_Shader::~Asset_Shader()
-{
-	SafeDelete(Instance);
-}
-
-void Asset_Shader::RegisterSelf()
-{
-	if (!IsRegistered)
-	{
-		ShaderComplier::AddMaterial(this);
-	}
-}
-
-void Asset_Shader::Complie()
-{
-	Graph->GetGeneratedShader();
-}
-
-Material * Asset_Shader::GetMaterialInstance()
-{
-	RegisterSelf();
-	Material::MaterialProperties Props = Material::MaterialProperties();
-	Props.ShaderInUse = Graph->GetGeneratedShader();
-	Props.TextureBinds = Graph->GetMaterialData();
-	Material* m = new Material(Props);
-	m->MateralRenderType = RenderType;
-	return m;
-}
-Material * Asset_Shader::GetMaterial()
-{
-	if (Instance == nullptr)
-	{
-		Instance = GetMaterialInstance();
-	}
-	return Instance;
-}
-void Asset_Shader::GetMaterialInstance(Material* mat)
-{
-	RegisterSelf();
-	Material::MaterialProperties Props = Material::MaterialProperties();
-	mat->GetProperties()->ShaderInUse = Graph->GetGeneratedShader();
-	mat->GetProperties()->TextureBinds = Graph->GetMaterialData();
-	mat->MateralRenderType = RenderType;
-}
+{}
 
 std::string & Asset_Shader::GetName()
 {
 	return Graph->GetGraphName().ToSString();
+}
+
+ShaderGraph * Asset_Shader::GetGraph()
+{
+	return Graph;
 }

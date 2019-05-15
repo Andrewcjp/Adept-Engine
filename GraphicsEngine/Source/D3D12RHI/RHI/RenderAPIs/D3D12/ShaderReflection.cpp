@@ -4,7 +4,7 @@
 #include <d3dcompiler.h>
 #include "Core\Utils\VectorUtils.h"
 
-void ShaderReflection::GatherRSBinds(ID3DBlob * target, std::vector<ShaderParameter> & shaderbinds)
+void ShaderReflection::GatherRSBinds(ID3DBlob * target, std::vector<ShaderParameter> & shaderbinds, bool & iscompute)
 {
 	ID3D12ShaderReflection* REF;
 	D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), IID_PPV_ARGS(&REF));
@@ -14,8 +14,12 @@ void ShaderReflection::GatherRSBinds(ID3DBlob * target, std::vector<ShaderParame
 	}
 	D3D12_SHADER_DESC desc;
 	REF->GetDesc(&desc);
-
-	for (int i = 0; i < desc.BoundResources; i++)
+	int ProgramTYpe = (desc.Version & 0xFFFF0000) >> 16;
+	if (ProgramTYpe == D3D12_SHADER_VERSION_TYPE::D3D12_SHVER_COMPUTE_SHADER)
+	{
+		iscompute = true;
+	}
+	for (unsigned int i = 0; i < desc.BoundResources; i++)
 	{
 		D3D12_SHADER_INPUT_BIND_DESC TMPdesc;
 		REF->GetResourceBindingDesc(i, &TMPdesc);
