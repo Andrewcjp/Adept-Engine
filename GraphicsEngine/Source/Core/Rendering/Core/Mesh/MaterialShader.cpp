@@ -46,6 +46,7 @@ void MaterialShader::SetShader(MaterialShaderComplieData& data)
 Shader_NodeGraph* MaterialShader::GetShader(EMaterialPassType::Type type)
 {
 	//todo:
+	CurrentData.RenderPassUsage = type;
 	return GetOrComplie(CurrentData);
 }
 
@@ -62,7 +63,7 @@ ParmeterBindSet MaterialShader::GetParamBinds()
 bool MaterialShaderComplieData::operator==(const MaterialShaderComplieData other) const
 {
 	//#Materals shader keyword
-	return RenderPassUseage == other.RenderPassUseage && MaterialRenderType == other.MaterialRenderType;
+	return RenderPassUsage == other.RenderPassUsage && MaterialRenderType == other.MaterialRenderType;
 }
 
 bool MaterialShaderComplieData::operator<(const MaterialShaderComplieData & o) const
@@ -72,5 +73,5 @@ bool MaterialShaderComplieData::operator<(const MaterialShaderComplieData & o) c
 
 std::string MaterialShaderComplieData::ToString()
 {
-	return Shader->GetName() + std::to_string(RenderPassUseage) + std::to_string(MaterialRenderType);
+	return Shader->GetName() + std::to_string(RenderPassUsage) + std::to_string(MaterialRenderType);
 }

@@ -1,5 +1,5 @@
 #include "Lighting.hlsl"
-SamplerState g_sampler : register(s0);
+SamplerState defaultSampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
 #include "Shadow.hlsl"
 
@@ -7,9 +7,6 @@ SamplerState g_Clampsampler : register(s1);
 cbuffer GOConstantBuffer : register(b0)
 {
 	row_major matrix Model;
-	//int HasNormalMap;
-	//float Roughness;
-	//float Metallic;
 };
 //BufferPoint
 
@@ -61,7 +58,7 @@ float4 main(PSInput input) : SV_TARGET
 	const float2 ScreenPos = input.position.xy / Res; //Compute Position  for this pixel in 0-1 space
 	float3 Normal = input.Normal.xyz;
 #if !TEST
-	float3 texturecolour = float3(0, 0, 0);// g_texture.Sample(g_sampler, input.uv).rgb;
+	float3 texturecolour = float3(0, 0, 0);// g_texture.Sample(defaultSampler, input.uv).rgb;
 #else
 	float3 texturecolour = float3(0, 0, 0);
 #endif
@@ -74,16 +71,16 @@ float4 main(PSInput input) : SV_TARGET
 
 	//if (HasNormalMap == 1)
 	{
-		/*Normal = (NormalMapTexture.Sample(g_sampler, input.uv).xyz)*2.0 - 1.0;
+		/*Normal = (NormalMapTexture.Sample(defaultSampler, input.uv).xyz)*2.0 - 1.0;
 		Normal = normalize(mul(Normal,input.TBN));*/
 	}
 	 
-	float3 irData = DiffuseIrMap.Sample(g_sampler, normalize(Normal)).rgb;
+	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - input.WorldPos.xyz);
 
 	float3 R = reflect(-ViewDir, Normal);
-	float2 envBRDF = envBRDFTexture.Sample(g_sampler,float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
-	//float3 prefilteredColor = SpecularBlurMap.SampleLevel(g_sampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
+	float2 envBRDF = envBRDFTexture.Sample(defaultSampler,float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
+	//float3 prefilteredColor = SpecularBlurMap.SampleLevel(defaultSampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
 	float3 prefilteredColor = GetReflectionColor(R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF);
 	  

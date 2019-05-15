@@ -14,6 +14,8 @@
 
 void DeferredRenderer::OnRender()
 {
+	PrepareData();
+	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
@@ -140,12 +142,6 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 
 void DeferredRenderer::GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, int eyeindex)
 {
-	if (MainScene->StaticSceneNeedsUpdate)
-	{
-		SceneRender->UpdateLightBuffer(*MainScene->GetLights());
-		PrepareData();
-	}
-
 
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthWrite = true;
@@ -201,8 +197,8 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-		List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
-		//List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
+		//List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
+		List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
 	}
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
 
@@ -258,4 +254,5 @@ void DeferredRenderer::FinaliseRender()
 {}
 
 void DeferredRenderer::OnStaticUpdate()
-{}
+{
+}

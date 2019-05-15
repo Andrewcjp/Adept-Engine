@@ -1,12 +1,12 @@
 Texture2D texColour : register(t0);
-SamplerState g_sampler: register (s0);
+SamplerState defaultSampler: register (s0);
 cbuffer GOConstantBuffer : register(b0)
 {
 	row_major matrix Model;
 	int HasNormalMap;
-	float Roughness;
-	float Metallic;
 };
+
+//BufferPoint
 
 struct PSInput
 {

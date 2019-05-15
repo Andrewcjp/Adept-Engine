@@ -391,10 +391,10 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, const std::
 	}
 }
 
-void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list)
+void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list,bool cubemap)
 {
 	DeviceShadowObjects* Object = &DSOs[list->GetDeviceIndex()];
-	if (RHI::GetRenderSettings()->IsDeferred)
+	if (RHI::GetRenderSettings()->IsDeferred && !cubemap)
 	{
 		//Object->ShadowDirectionalArray->BindToShader(list, 5);
 		Object->ShadowCubeArray->BindToShader(list, 6);
