@@ -10,6 +10,7 @@
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
 #include "D3D12Helpers.h"
+#include "../headers/openvr.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
@@ -255,6 +256,21 @@ void D3D12RHI::TriggerWriteBackResources()
 RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
 {
 	return new D3D12GPUSyncEvent(WaitingQueue, SignalQueue, Device, SignalDevice);
+}
+
+void D3D12RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
+{
+	vr::VRTextureBounds_t bounds;
+	bounds.uMin = 0.0f;
+	bounds.uMax = 1.0f;
+	bounds.vMin = 0.0f;
+	bounds.vMax = 1.0f;
+
+	vr::D3D12TextureData_t texture = {};
+	texture.m_pResource = ((D3D12FrameBuffer*)fb)->GetResource(0)->GetResource();
+	texture.m_pCommandQueue = DeviceContexts[0]->GetCommandQueueFromEnum(DeviceContextQueue::Graphics);
+	vr::Texture_t leftEyeTexture = { (void *)&texture, vr::TextureType_DirectX12, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit((vr::Hmd_Eye)eye, &leftEyeTexture, &bounds, vr::Submit_Default);
 }
 
 void D3D12RHI::CreateSwapChainRTs()
@@ -645,7 +661,7 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 				}
 			}
 		}
-}
+	}
 	return (CurrentDeviceIndex != 0);
 }
 

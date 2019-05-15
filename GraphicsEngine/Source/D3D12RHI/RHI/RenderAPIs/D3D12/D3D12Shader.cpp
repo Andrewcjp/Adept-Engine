@@ -121,7 +121,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #if !BUILD_SHIPPING
 		stats.ShaderLoadFromCacheCount++;
 #endif
-		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams,IsCompute);
+		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams, IsCompute);
 		return EShaderError::SHADER_ERROR_NONE;
 	}
 
@@ -550,6 +550,8 @@ const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Param
 		output += "T";
 		switch (sp.Type)
 		{
+		case ShaderParamType::RootConstant:
+			output += "RC";
 		case ShaderParamType::CBV:
 			output += "CBV";
 			break;

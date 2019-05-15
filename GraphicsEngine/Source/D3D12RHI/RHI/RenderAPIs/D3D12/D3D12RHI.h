@@ -35,7 +35,7 @@ public:
 #endif
 
 	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) override;
-
+	void SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye);
 private:
 	void DestroyContext();
 	void PresentFrame();

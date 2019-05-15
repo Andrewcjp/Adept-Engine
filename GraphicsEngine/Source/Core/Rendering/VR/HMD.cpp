@@ -2,6 +2,7 @@
 #include "HMD.h"
 #include "VRCamera.h"
 #include "DebugHMD.h"
+#include "ViveHMD.h"
 
 
 HMD::HMD()
@@ -14,7 +15,12 @@ HMD::~HMD()
 HMD * HMD::Create()
 {
 	//if needed return different HMD class
-	
+	if (ViveHMD::CanCreate())
+	{
+		Log::LogMessage("Found VR HMD");
+		return new ViveHMD();
+	}
+	Log::LogMessage("VR HMD Debug device used");
 	return new DebugHMD();
 }
 
@@ -46,4 +52,9 @@ void HMD::UpdateProjection(float aspect)
 glm::ivec2 HMD::GetDimentions()
 {
 	return glm::ivec2(1080, 1200);
+}
+
+bool HMD::IsActive()
+{
+	return false;
 }

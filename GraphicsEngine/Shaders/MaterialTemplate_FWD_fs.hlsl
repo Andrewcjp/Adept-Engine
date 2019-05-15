@@ -58,7 +58,7 @@ float4 main(PSInput input) : SV_TARGET
 	const float2 ScreenPos = input.position.xy / Res; //Compute Position  for this pixel in 0-1 space
 	float3 Normal = input.Normal.xyz;
 #if !TEST
-	float3 texturecolour = float3(0, 0, 0);// g_texture.Sample(defaultSampler, input.uv).rgb;
+	float3 texturecolour = float3(0, 0, 0);
 #else
 	float3 texturecolour = float3(0, 0, 0);
 #endif
