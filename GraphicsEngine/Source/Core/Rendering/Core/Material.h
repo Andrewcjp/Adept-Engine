@@ -38,6 +38,7 @@ public:
 	void SetFloat(std::string name, float value);
 	bool IsComplied();
 	void SetReceiveShadow(bool state);
+	Shader * GetShaderInstance(EMaterialPassType::Type pass);
 private:
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);

@@ -19,6 +19,8 @@ void DepthOnlyMeshProcessor::Init()
 {
 
 }
+
+
 void DepthOnlyMeshProcessor::AddBatch(MeshBatch* Batch)
 {
 	if (Batch->CastShadow && !Batch->ShadowPassCulled)
@@ -51,7 +53,6 @@ void DepthOnlyMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader
 		List->SetIndexBuffer(C->Index);
 		List->DrawIndexedPrimitive(C->NumPrimitves, C->NumInstances, 0, 0, 0);
 		CountDrawCall();
-	}
-	
+	}	
 }
 

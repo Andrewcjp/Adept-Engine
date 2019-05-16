@@ -239,6 +239,7 @@ MeshBatch * Mesh::GetMeshBatch()
 	B->MainPassCulled = Renderer->GetOwner()->IsCulled(ECullingPass::MainPass);
 	B->ShadowPassCulled = Renderer->GetOwner()->IsCulled(ECullingPass::ShadowPass);
 	B->CastShadow = GetDoesShadow();
+	B->Owner = Renderer->GetOwner();
 	return B;
 }
 

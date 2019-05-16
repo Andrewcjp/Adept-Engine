@@ -9,6 +9,10 @@
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
 #define FORCE_RENDER_PASS_USE 0
+#define AFTERMATH 0
+#if AFTERMATH
+#include <GFSDK_Aftermath.h>
+#endif
 class D3D12DeviceContext;
 class D3D12GPUSyncEvent;
 class D3D12RHI : public RHIClass
@@ -36,6 +40,11 @@ public:
 
 	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) override;
 	void SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye);
+#if AFTERMATH
+	void RunTheAfterMath();
+	std::vector<GFSDK_Aftermath_ContextHandle> handles;
+
+#endif
 private:
 	void DestroyContext();
 	void PresentFrame();
@@ -115,8 +124,11 @@ static inline void ThrowIfFailed(HRESULT hr)
 {
 	if (FAILED(hr))
 	{
+#if AFTERMATH
+		D3D12RHI::Get()->RunTheAfterMath();
+#endif
 		D3D12RHI::HandleDeviceFailure();
-		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
+ 		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }
 

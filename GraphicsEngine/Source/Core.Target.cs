@@ -33,6 +33,7 @@ class CoreTargetRules : TargetRules
         CoreModule.ModuleDepends.Add("TDPhysics");
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "BleedOut";
+        // CoreModule.OutputObjectName = "NvAftermath-Enable";
         CoreModule.IsCoreModule = true;
         CoreModule.SystemLibNames.Add("winmm.lib");
         CoreModule.SystemLibNames.Add("shlwapi.lib");
@@ -41,7 +42,8 @@ class CoreTargetRules : TargetRules
             "assimpBuild",
             "nvapiBuild",
             "WWiseBuild",
-            "OpenVRBuild"
+            "OpenVRBuild",
+            "AfterMathBuild"
         };
         CoreModule.ThirdPartyModules.AddRange(ThirdPartyModules);
         if (BuildPhysx)

@@ -269,6 +269,7 @@ namespace ERHIBufferType
 		GPU
 	};
 }
+//#RHI remove this?
 struct RHI_API RHIPipeRenderTargetDesc
 {
 	eTEXTURE_FORMAT RTVFormats[8] = { eTEXTURE_FORMAT::FORMAT_UNKNOWN };
@@ -411,6 +412,7 @@ public:
 	float LinkToBackBufferScaleFactor = 1.0f;
 	int SFR_FullWidth = 0;
 	RHIPipeLineStateObject* PSO = nullptr;
+	RHIPipeRenderTargetDesc GetRTDesc();
 };
 
 class RHI_API IRHIResourse : public IRefCount
@@ -439,6 +441,7 @@ private:
 //Releases the GPU side and deletes the CPU object
 #define SafeRHIRelease(Target) if(Target != nullptr){Target->Release(); delete Target; Target= nullptr;}
 #define EnqueueSafeRHIRelease(Target) if(Target != nullptr){RHI::AddToDeferredDeleteQueue(Target);}
+#define EnqueueSafeArrayRelease(x,length) for(int i= 0; i < length;i++){EnqueueSafeRHIRelease(x[i]);}
 #if NAME_RHI_PRIMS
 #define NAME_RHI_OBJECT(x) x->SetDebugName(#x);
 #else

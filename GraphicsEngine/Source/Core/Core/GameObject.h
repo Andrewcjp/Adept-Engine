@@ -28,6 +28,7 @@ public:
 	CORE_API static void FinishGameObjectSpawn(GameObject * Object);
 	CORE_API Transform* GetTransform();
 	CORE_API class Scene* GetScene();
+	void SetMoblity(EMoblity state);
 	void Internal_SetScene(Scene* scene);
 	CORE_API void Destory();
 	//Update

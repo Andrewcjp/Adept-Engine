@@ -204,7 +204,7 @@ void RenderEngine::Resize(int width, int height)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);
 	}
-	if (RHI::GetHMDManager())
+	if (RHI::IsRenderingVR())
 	{
 		RHI::GetHMD()->UpdateProjection((float)width / (float)height);
 	}

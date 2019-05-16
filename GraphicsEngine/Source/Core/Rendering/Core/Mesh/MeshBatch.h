@@ -24,5 +24,6 @@ public:
 	bool CastShadow = true;
 	bool MainPassCulled = false;
 	bool ShadowPassCulled = false;
+	GameObject* Owner = nullptr;
 };
 

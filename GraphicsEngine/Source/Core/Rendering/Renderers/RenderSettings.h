@@ -56,13 +56,15 @@ struct ERenderDebugOutput
 		GBuffer_Pos,
 		GBuffer_Normal,
 		GBuffer_Material,
+		GBuffer_RoughNess,
+		GBuffer_Metallic,
 		Limit
 	};
 };
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
-	
+
 	RenderSettings();
 public:
 	bool IsUsingZPrePass() const;
@@ -72,6 +74,7 @@ public:
 	bool EnableVR = false;
 	bool EnableGPUParticles = true;
 	bool LockBackBuffer = false;
+	bool UseGeometryShaderForShadows = true;
 	int LockedWidth = 0;
 	int LockedHeight = 0;
 	bool UseZPrePass = false;

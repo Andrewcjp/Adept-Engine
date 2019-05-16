@@ -5,7 +5,7 @@
 #include "D3D12RHI.h" 
 #if PIX_ENABLED
 #define PROFILE_BUILD 
-#include <pix3.h>
+#include <pix.h>
 #endif
 
 D3D12TimeManager::D3D12TimeManager(DeviceContext* context) :RHITimeManager(context)
@@ -108,6 +108,10 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(CopyOffset + EGPUCOPYTIMERS::ShadowCopy2, "2Shadow Copy2", ECommandListType::Copy);
 #endif
 	UpdateTimeStampFreq();
+#if AFTERMATH
+	GFSDK_Aftermath_Result result = GFSDK_Aftermath_DX12_Initialize(GFSDK_Aftermath_Version_API, GFSDK_Aftermath_FeatureFlags_Maximum, Device->GetDevice());
+	ensure(result == GFSDK_Aftermath_Result_Success);
+#endif
 }
 
 void D3D12TimeManager::UpdateTimeStampFreq()
@@ -253,8 +257,8 @@ std::string D3D12TimeManager::GetTimerData()
 		if (i != 0)
 		{
 			TrackedTime += fabs(TimeDeltas[i].avg.GetCurrentAverage());
+		}
 	}
-}
 	stream << "Lost:" << AVGgpuTimeMS - TrackedTime;
 	return stream.str();
 #else
@@ -305,8 +309,12 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 #if PIX_ENABLED
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
 	{
-		PIXBeginEvent(List->GetCommandList(), 0, GetTimerNameForPIX(index));
+		PIXBeginEvent(List->GetCommandList(), index, GetTimerNameForPIX(index));
 	}
+#endif
+#if AFTERMATH
+	const char* t = TimeDeltas[index].name.c_str();
+	GFSDK_Aftermath_SetEventMarker(List->AMHandle, &(t), TimeDeltas[index].name.size());
 #endif
 #endif
 }
@@ -322,10 +330,7 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	D3D12CommandList* List = (D3D12CommandList*)CommandList;
 	EndTimer(List->GetCommandList(), index, List->IsCopyList());
 #if PIX_ENABLED
-	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
-	{
-		PIXEndEvent(List->GetCommandList());
-	}
+	PIXEndEvent(List->GetCommandList());
 #endif
 #endif
 }

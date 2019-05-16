@@ -214,6 +214,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 75.0f);
 	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 75.0f);
 	//light testing
+#if 1
 	for (int i = 0; i < RHI::GetRenderConstants()->MAX_LIGHTS - 4; i += 4)
 	{
 		AddLight(glm::vec3(24, 7, -21), false, 75.0f);
@@ -222,7 +223,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		AddLight(glm::vec3(-24, 7, -21), false, 75.0f);
 		AddLight(glm::vec3(-33, 6, -3), false, 75.0f);
 	}
-
+#endif
 	go = new GameObject("Rock");
 	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"/*, setting*/));//Crate_Diffuse
@@ -312,6 +313,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 			for (int z = 0; z < size; z++)
 			{
 				go = new GameObject("Water");
+				go->SetMoblity(GameObject::Dynamic);
 				mat = Material::CreateDefaultMaterialInstance();
 				mat->SetFloat("Roughness", x * (1.0f / (size - 1)));
 				mat->SetFloat("Metallic", y * (1.0f / (size - 1)));

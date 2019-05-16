@@ -16,6 +16,16 @@ namespace ERenderPass
 		Limit
 	};
 }
+namespace EBatchFilter
+{
+	enum Type
+	{
+		ALL,
+		StaticOnly,
+		DynamicOnly,
+		Limit
+	};
+}
 class MeshPipelineController
 {
 public:
@@ -23,10 +33,10 @@ public:
 	~MeshPipelineController();
 	void GatherBatches();
 	//#todo: which one?
-	void RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader = nullptr);
+	void RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader = nullptr, EBatchFilter::Type Filter = EBatchFilter::ALL);
 
 	void Init();
-	
+
 	Scene* TargetScene = nullptr;
 private:
 	std::vector<MeshBatch*> Batches;

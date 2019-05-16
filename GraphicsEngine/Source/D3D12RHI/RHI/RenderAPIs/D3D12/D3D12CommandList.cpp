@@ -127,7 +127,11 @@ void D3D12CommandList::PushPrimitiveTopology()
 }
 
 D3D12CommandList::~D3D12CommandList()
-{}
+{
+#if AFTERMATH
+	GFSDK_Aftermath_ReleaseContextHandle(AMHandle);
+#endif
+}
 
 void D3D12CommandList::ResetList()
 {
@@ -381,6 +385,13 @@ void D3D12CommandList::CreateCommandList()
 	}
 	PushState();
 	D3D12Helpers::NameRHIObject(CurrentCommandList, this);
+#if AFTERMATH
+
+	GFSDK_Aftermath_DX12_CreateContextHandle(CurrentCommandList, &AMHandle);
+	D3D12RHI::Get()->handles.push_back(AMHandle);
+	const char* s = "asdasd";
+	GFSDK_Aftermath_SetEventMarker(AMHandle, nullptr, 0);
+#endif
 }
 
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
@@ -741,7 +752,7 @@ void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES E
 	{
 		UINT8* pVertexDataBegin;
 		MapBuffer(reinterpret_cast<void**>(&pVertexDataBegin));
-
+		//#DX12 invalid call near here?
 		memcpy(pVertexDataBegin, data, length);
 		UnMap();
 	}
@@ -1052,6 +1063,11 @@ void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*=
 		return;
 	}
 	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Desc->GetCPUAddress(TargetIndex));
+}
+
+void D3D12RHITextureArray::SetFrameBufferFormat(RHIFrameBufferDesc & desc)
+{
+	NullHeapDesc = D3D12FrameBuffer::GetSrvDesc(0, desc);
 }
 
 void D3D12RHITextureArray::Release()

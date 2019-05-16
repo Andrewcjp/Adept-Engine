@@ -40,7 +40,7 @@ void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 {
 	ShaderInterface->SetShader(MaterialCData);
 	Shader_NodeGraph* CurrentShader = nullptr;
-	if (Pass == ERenderPass::BasePass_Cubemap)
+	if (Pass == ERenderPass::BasePass_Cubemap || Pass == ERenderPass::TransparentPass)
 	{
 		CurrentShader = ShaderInterface->GetShader(EMaterialPassType::Forward);
 	}
@@ -48,7 +48,7 @@ void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 	{
 		CurrentShader = ShaderInterface->GetShader(RHI::GetRenderSettings()->IsDeferred ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
 	}
-	if (!CurrentShader->IsValid())
+	if (!CurrentShader->IsValid())//stack overflow!
 	{
 		Defaults::GetDefaultMaterial()->SetMaterialActive(list, Pass);
 		return;
@@ -56,6 +56,7 @@ void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthEnable = true;
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
+	desc.Cull = true;
 	if (RHI::GetRenderSettings()->IsUsingZPrePass() && Pass != ERenderPass::BasePass_Cubemap)
 	{
 		desc.DepthStencilState.DepthWrite = false;
@@ -88,8 +89,12 @@ void Material::Init()
 {
 	//debug
 	SetReceiveShadow(true);
-	//todo: on demand compile?
 	ShaderInterface->GetOrComplie(MaterialCData);
+}
+
+Shader* Material::GetShaderInstance(EMaterialPassType::Type pass)
+{
+	return ShaderInterface->GetShader(pass);
 }
 
 void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
@@ -103,7 +108,7 @@ void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
 	}
 	else
 	{
-		LogEnsure(false, "Failed to Find Bind");
+		LogEnsureMsgf(false, "Failed to Find Bind");
 	}
 }
 

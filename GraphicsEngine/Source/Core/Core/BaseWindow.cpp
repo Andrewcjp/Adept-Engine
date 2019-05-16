@@ -103,7 +103,10 @@ void BaseWindow::Render()
 		PerfManager::Instance->StartFrameTimer();
 	}
 #if !BASIC_RENDER_ONLY
-	TextRenderer::instance->Reset();
+	if (LoadText)
+	{
+		TextRenderer::instance->Reset();
+	}
 #endif
 	AccumTickTime += DeltaTime;
 	Input::Get()->ProcessInput();
@@ -226,9 +229,12 @@ void BaseWindow::Render()
 		RenderText();
 		WindowUI();
 	}
-
+	if (LoadText)
+	{
+		TextRenderer::instance->Finish();
+	}
 	PerfManager::EndTimer("TEXT");
-	TextRenderer::instance->Finish();
+	
 
 	PerfManager::EndTimer("UI");
 #endif

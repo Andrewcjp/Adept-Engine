@@ -73,7 +73,6 @@ IModuleInterface * ModuleManager::LoadModule(FString Name)
 		Info->Handle = PlatformApplication::GetDllHandle(Name);
 		if (Info->Handle == nullptr)
 		{
-
 			Info->ModuleStatus = ModuleLoadStatus::Status_LoadFailed;
 			return nullptr;
 		}

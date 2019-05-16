@@ -90,6 +90,11 @@ Scene * GameObject::GetScene()
 	return OwnerScene;
 }
 
+void GameObject::SetMoblity(EMoblity state)
+{
+	Mobilty = state;
+}
+
 void GameObject::Internal_SetScene(Scene * scene)
 {
 	OwnerScene = scene;

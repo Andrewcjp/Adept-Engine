@@ -47,6 +47,7 @@ void UIWidgetContext::UpdateWidgets()
 }
 void UIWidgetContext::RenderWidgetText()
 {
+	return;
 	TextRender->Reset();
 	for (int i = 0; i < widgets.size(); i++)
 	{

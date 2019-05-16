@@ -10,6 +10,15 @@ public:
 	{
 		Directional, Point, Spot,Area
 	};
+	//all shadow light make use of dual shadow maps with static caching and composting
+	enum ShadowCaptureType
+	{
+		Realtime,//always render everything (uses static caching) 
+		Realtime_OneSide,
+		Stationary,//does not use lightmapper but captures static objects updates when moved
+		Baked,//Light is computed in light mapping
+		Limit
+	};
 	Light(glm::vec3 positon, float intesity, LightType type = LightType::Point, glm::vec3 Lightcolor = glm::vec3(1, 1, 1), bool shadow = true);
 	~Light();
 	glm::vec3 GetPosition() const;
@@ -38,6 +47,10 @@ public:
 	float Distance = 512;
 	void Update();
 	float GetRange();
+	ShadowCaptureType ShadowMode = Realtime;//Baked;
+	int Resolution = 512;
+	//semi realtime lights can use a lower resolution RT for dynamic object and compost into a bigger one
+	int BakedResolution = 2048;
 private:
 	//the distance after the light is too dim
 	float FalloffRange = 0.0f;

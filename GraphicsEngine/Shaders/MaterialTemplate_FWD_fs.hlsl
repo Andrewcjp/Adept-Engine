@@ -12,6 +12,7 @@ cbuffer GOConstantBuffer : register(b0)
 
 cbuffer LightBuffer : register(b1)
 {
+	int LightCount;
 	Light lights[MAX_LIGHTS];
 };
 
@@ -84,11 +85,11 @@ float4 main(PSInput input) : SV_TARGET
 	float3 prefilteredColor = GetReflectionColor(R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF);
 	  
-	for (int i = 0; i < MAX_LIGHTS; i++)
+	for (int i = 0; i < LightCount; i++)
 	{
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
 #ifdef WITH_SHADOW
-		[flatten] if (lights[i].HasShadow && lights[i].PreSampled.x)
+		[branch] if (lights[i].HasShadow && lights[i].PreSampled.x)
 		{
 			colour *= FWD_GetPresampledShadow(ScreenPos,lights[i].PreSampled.y);
 		}

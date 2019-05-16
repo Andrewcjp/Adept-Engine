@@ -63,7 +63,11 @@ public:
 	void AddHeap(DescriptorHeap* heap);
 	void PushHeaps();
 	void ClearHeaps();
+#if AFTERMATH
+	GFSDK_Aftermath_ContextHandle AMHandle;
+#endif
 private:
+
 	std::vector<DescriptorHeap*> heaps;
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
@@ -156,6 +160,7 @@ public:
 	RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot)override;
 	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot)override;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr);
+	RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc);
 private:
 	void Release() override;
 	void Clear() override;
