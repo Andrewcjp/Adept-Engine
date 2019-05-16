@@ -6,10 +6,16 @@
 //#Materals: refactor!
 Shader_NodeGraph::Shader_NodeGraph(std::string Shadername, TextureBindSet* binds) :Shader_Main(true)
 {
+	ShaderFilename = Shadername;
+	Binds = binds;
+}
+
+void Shader_NodeGraph::Init()
+{
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TEST", "1"));
-	m_Shader->AttachAndCompileShaderFromFile(Shadername.c_str(), EShaderType::SHADER_FRAGMENT);
-	Binds = binds;
+	m_Shader->AttachAndCompileShaderFromFile(ShaderFilename.c_str(), EShaderType::SHADER_FRAGMENT);
+	HasComplied = true;
 }
 
 Shader_NodeGraph::~Shader_NodeGraph()
@@ -35,10 +41,23 @@ std::vector<ShaderParameter> Shader_NodeGraph::GetShaderParameters()
 
 const std::string Shader_NodeGraph::GetName()
 {
-	return Matname;
+	return ShaderFilename;
 }
 
 TextureBindSet * Shader_NodeGraph::GetBinds()
 {
 	return Binds;
+}
+
+bool Shader_NodeGraph::IsValid() const
+{
+	return HasComplied;
+}
+
+void Shader_NodeGraph::SetDefines(std::vector<std::string>& Define)
+{
+	for (int i = 0; i < Define.size(); i++)
+	{
+		m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define(Define[i], "1"));
+	}
 }

@@ -94,6 +94,7 @@ void BaseWindow::Render()
 	{
 		RHI::GetHMDManager()->Update();
 	}
+	ShaderComplier::Get()->TickMaterialComplie();
 	PreRender();
 	if (PerfManager::Instance != nullptr)
 	{
@@ -534,7 +535,8 @@ void BaseWindow::RenderText()
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
 	if (ShowText)
-	{		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
+	{
+		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
 		if (RHI::GetRenderSettings()->IsDeferred)
 		{
 			stream << "DEF ";

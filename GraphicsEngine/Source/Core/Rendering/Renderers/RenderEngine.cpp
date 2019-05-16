@@ -282,6 +282,7 @@ void RenderEngine::PostProcessPass()
 
 void RenderEngine::PresentToScreen()
 {
+
 	ScreenWriteList->ResetList();
 	ScreenWriteList->SetScreenBackBufferAsRT();
 	ScreenWriteList->ClearScreen();
@@ -321,13 +322,17 @@ void RenderEngine::PresentToScreen()
 	}
 	RenderingUtils::RenderScreenQuad(ScreenWriteList);
 	ScreenWriteList->Execute();
+	if (RHI::IsRenderingVR())
+	{
+		RHI::GetHMD()->OutputToEye(DDOs[0].MainFrameBuffer, EEye::Left);
+		RHI::GetHMD()->OutputToEye(DDOs[0].RightEyeFramebuffer, EEye::Right);
+	}
 }
 
 void RenderEngine::UpdateMVForMainPass()
 {
 	if (RHI::SupportVR() && RHI::GetHMD() != nullptr)
 	{
-
 		VRCamera* VRCam = RHI::GetHMD()->GetVRCamera();
 		SceneRender->UpdateMV(VRCam);
 	}
@@ -390,7 +395,7 @@ void RenderEngine::HandleCameraResize()
 	}
 #endif
 
-	}
+}
 
 Shader * RenderEngine::GetMainShader()
 {
@@ -418,7 +423,7 @@ void RenderEngine::CubeMapPass()
 	CubemapCaptureList->SetPipelineStateDesc(Desc);
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->BindShadowMapsToTextures(CubemapCaptureList,true);
+		mShadowRenderer->BindShadowMapsToTextures(CubemapCaptureList, true);
 	}
 	CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)

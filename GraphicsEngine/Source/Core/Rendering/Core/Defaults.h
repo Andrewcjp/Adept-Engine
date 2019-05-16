@@ -10,8 +10,6 @@ public:
 	static void Shutdown();
 	static BaseTextureRef GetDefaultTexture();
 	static Material* GetDefaultMaterial();
-
-	static Asset_Shader * GetDefaultShaderAsset();
 	static RHIBuffer* GetQuadBuffer();
 private:
 	Material* DefaultMateral = nullptr;

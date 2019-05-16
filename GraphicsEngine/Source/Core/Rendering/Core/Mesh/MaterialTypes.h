@@ -37,7 +37,7 @@ struct EMaterialRenderType
 //this data is used by a material to ask for the correct shader from the MaterialShader is owns.
 struct MaterialShaderComplieData
 {
-	EMaterialPassType::Type RenderPassUsage = EMaterialPassType::Both;
+	EMaterialPassType::Type RenderPassUsage = EMaterialPassType::Forward;
 	EMaterialRenderType::Type MaterialRenderType = EMaterialRenderType::Opaque;
 	Asset_Shader* Shader = nullptr;
 	//used to further customize shaders

@@ -87,6 +87,7 @@ float4 main(PSInput input) : SV_TARGET
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 colour = CalcColorFromLight(lights[i], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
+#ifdef WITH_SHADOW
 		[flatten] if (lights[i].HasShadow && lights[i].PreSampled.x)
 		{
 			colour *= FWD_GetPresampledShadow(ScreenPos,lights[i].PreSampled.y);
@@ -99,6 +100,7 @@ float4 main(PSInput input) : SV_TARGET
 		{
 			colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
 		}
+#endif
 		output += colour;
 	}
 	return float4(output.xyz,0.5f);

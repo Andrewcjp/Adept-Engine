@@ -7,6 +7,7 @@
 #include "RHI/Shader.h"
 #include "Rendering/ShaderGraph/ShaderGraph.h"
 #include "Rendering/ShaderGraph/ShaderGraphComplier.h"
+#include "Rendering/Shaders/Shader_NodeGraph.h"
 ShaderComplier * ShaderComplier::Instance = nullptr;
 static ConsoleVariable GenDebugShaders("DebugShaders", 0, ECVarType::LaunchOnly);
 ShaderComplier::ShaderComplier()
@@ -80,16 +81,29 @@ void ShaderComplier::AddShaderType(std::string Name, ShaderType type)
 {
 	GlobalShaderMap.emplace(Name, type);
 }
-
+#define DEBUG_SLOW_COMPLIE 1
 void ShaderComplier::TickMaterialComplie()
 {
+#if DEBUG_SLOW_COMPLIE
+	if (RHI::GetFrameCount() % 100 != 0)
+	{
+		return;
+	}
+#endif
 	if (MaterialShaderComplieQueue.empty())
 	{
 		return;
 	}
 	for (int i = 0; i < MaterialShaderComplieQueue.size(); i++)
 	{
-		ComplieMateral(MaterialShaderComplieQueue.front());
+#if DEBUG_SLOW_COMPLIE
+		if (i > 0)
+		{
+			continue;
+		}
+#endif
+		MaterialShaderPair pair = MaterialShaderComplieQueue.front();
+		ComplieMaterialShader(pair.Placeholder);
 		MaterialShaderComplieQueue.pop();
 	}
 }
@@ -101,14 +115,7 @@ Shader_NodeGraph * ShaderComplier::GetMaterialShader(MaterialShaderComplieData D
 	{
 		return itor->second;
 	}
-
-#if 0
-	//#AsyncComplie TODO
-	EnqeueueMaterialShadercomplie(Data);
-	return nullptr;
-#else
-	return ComplieMateral(Data);
-#endif
+	return EnqeueueMaterialShadercomplie(Data);
 }
 
 Shader_NodeGraph* ShaderComplier::ComplieMateral(MaterialShaderComplieData data)
@@ -119,9 +126,25 @@ Shader_NodeGraph* ShaderComplier::ComplieMateral(MaterialShaderComplieData data)
 	return s;
 }
 
-void ShaderComplier::EnqeueueMaterialShadercomplie(MaterialShaderComplieData data)
+void ShaderComplier::ComplieMaterialShader(Shader_NodeGraph* shader)
 {
+	shader->Init();
+}
 
+Shader_NodeGraph* ShaderComplier::EnqeueueMaterialShadercomplie(MaterialShaderComplieData data)
+{
+	MaterialShaderPair Pair;
+	Pair.Data = data;
+	Pair.Placeholder = ComplieMateral(data);
+	MaterialShaderComplieQueue.emplace(Pair);
+	Log::LogMessage("Added Material shader for compile (" + data.Shader->GetName() + ")");
+#if 0
+	//if (RHI::GetFrameCount() == 0)
+	//{
+	//	//TickMaterialComplie();
+	//}
+#endif
+	return Pair.Placeholder;
 }
 
 

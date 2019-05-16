@@ -286,11 +286,14 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 		Resource->PendingKill = true;
 	}
 }
-
+static ConsoleVariable IsWithNsight("Nsight", 0, ECVarType::LaunchOnly);
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 {
 	//#DX12 Nsight crashes here for some reason
-	return;
+	if (IsWithNsight.GetBoolValue())
+	{
+		return;
+	}
 	IsFlushingDeleteQueue = true;
 	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 	{
