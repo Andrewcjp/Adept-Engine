@@ -9,7 +9,6 @@ public:
 	PropertyLink * Diffusecolour = nullptr;
 	PropertyLink * NormalDir = nullptr;
 	std::string Complie(ShaderGraph* g);
-	virtual std::string GetNodeBody(ShaderGraph* g);
 	std::string ComplieDefaultProps(ShaderGraph* g);
 	virtual	std::string GetTemplateName(MaterialShaderComplieData& data);
 	PropertyLink* GetProp(std::string name);

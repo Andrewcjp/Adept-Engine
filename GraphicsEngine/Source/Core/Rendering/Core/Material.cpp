@@ -6,10 +6,15 @@
 #include "Core/Assets/SerialHelpers.h"
 #include "Defaults.h"
 #include "Rendering/Shaders/Shader_Main.h"
+#include "../Shaders/Shader_NodeGraph.h"
+#include "Core/Utils/VectorUtils.h"
 
 void Material::UpdateShaderData()
 {
-	MaterialDataBuffer->UpdateConstantBuffer(ParmbindSet.GetDataPtr());
+	if (MaterialDataBuffer != nullptr)
+	{
+		MaterialDataBuffer->UpdateConstantBuffer(ParmbindSet.GetDataPtr());
+	}
 	ShaderInterface->SetShader(MaterialCData);
 }
 
@@ -23,7 +28,6 @@ Material::Material(Asset_Shader * shader)
 	ParmbindSet.AllocateMemeory();
 	MaterialDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	MaterialDataBuffer->CreateConstantBuffer(ParmbindSet.GetSize(), 1);
-
 }
 
 Material::~Material()
@@ -34,6 +38,21 @@ Material::~Material()
 
 void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 {
+	ShaderInterface->SetShader(MaterialCData);
+	Shader_NodeGraph* CurrentShader = nullptr;
+	if (Pass == ERenderPass::BasePass_Cubemap)
+	{
+		CurrentShader = ShaderInterface->GetShader(EMaterialPassType::Forward);
+	}
+	else
+	{
+		CurrentShader = ShaderInterface->GetShader(RHI::GetRenderSettings()->IsDeferred ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
+	}
+	if (!CurrentShader->IsValid())
+	{
+		Defaults::GetDefaultMaterial()->SetMaterialActive(list, Pass);
+		return;
+	}
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthEnable = true;
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
@@ -47,15 +66,8 @@ void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 		desc.Cull = false;
 		desc.Mode = Full;
 	}
-	ShaderInterface->SetShader(MaterialCData);
-	if (Pass == ERenderPass::BasePass_Cubemap)
-	{
-		desc.ShaderInUse = (Shader*)ShaderInterface->GetShader(EMaterialPassType::Forward);
-	}
-	else
-	{
-		desc.ShaderInUse = (Shader*)ShaderInterface->GetShader(RHI::GetRenderSettings()->IsDeferred ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
-	}
+
+	desc.ShaderInUse = (Shader*)CurrentShader;
 
 	list->SetPipelineStateDesc(desc);
 	list->SetConstantBufferView(MaterialDataBuffer, 0, MainShaderRSBinds::MaterialData);
@@ -74,9 +86,10 @@ void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 
 void Material::Init()
 {
-	//todo: on demand complie?
+	//debug
+	SetReceiveShadow(true);
+	//todo: on demand compile?
 	ShaderInterface->GetOrComplie(MaterialCData);
-
 }
 
 void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
@@ -225,6 +238,24 @@ Shader_NodeGraph * Material::GetShader()
 void Material::SetFloat(std::string name, float value)
 {
 	ParmbindSet.SetFloat(name, value);
+	UpdateShaderData();
+}
+
+bool Material::IsComplied()
+{
+	return GetShader()->IsValid();
+}
+
+void Material::SetReceiveShadow(bool state)
+{
+	if (state)
+	{
+		MaterialCData.ShaderKeyWords.push_back("WITH_SHADOW");
+	}
+	else
+	{
+		VectorUtils::Remove(MaterialCData.ShaderKeyWords, std::string("WITH_SHADOW"));
+	}
 	UpdateShaderData();
 }
 

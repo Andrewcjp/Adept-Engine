@@ -12,7 +12,7 @@ class MaterialShader;
 class Material
 {
 public:
-	
+
 	void UpdateShaderData();
 	CORE_API Material(Asset_Shader* shader);
 	~Material();
@@ -36,6 +36,8 @@ public:
 	CORE_API static Material* CreateDefaultMaterialInstance();
 	Shader_NodeGraph* GetShader();
 	void SetFloat(std::string name, float value);
+	bool IsComplied();
+	void SetReceiveShadow(bool state);
 private:
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);

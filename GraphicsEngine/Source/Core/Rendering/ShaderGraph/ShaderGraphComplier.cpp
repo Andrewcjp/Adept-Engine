@@ -25,9 +25,10 @@ Shader_NodeGraph * ShaderGraphComplier::Complie(MaterialShaderComplieData & Data
 	}
 	//#Materals Different binds per permutation?
 	Shader_NodeGraph* Shader = new Shader_NodeGraph(ShaderPath, Data.Shader->GetGraph()->GetMaterialData());
-
+	Shader->SetDefines(Data.ShaderKeyWords);
 	return Shader;
 }
+
 bool replace(std::string& str, const std::string& from, const std::string& to)
 {
 	size_t start_pos = str.find(from);

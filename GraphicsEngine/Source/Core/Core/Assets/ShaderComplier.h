@@ -25,7 +25,11 @@ struct ShaderType
 	ShaderInit ShaderInitalizer;
 	Shader* CompliedShader = nullptr;
 };
-
+struct MaterialShaderPair
+{
+	Shader_NodeGraph* Placeholder;
+	MaterialShaderComplieData Data;
+};
 class ShaderComplier
 {
 public:
@@ -89,12 +93,14 @@ public:
 	}
 	Shader_NodeGraph* GetMaterialShader(MaterialShaderComplieData Data);
 	Shader_NodeGraph* ComplieMateral(MaterialShaderComplieData data);
-	void EnqeueueMaterialShadercomplie(MaterialShaderComplieData data);
+	void ComplieMaterialShader(Shader_NodeGraph * shader);
+	//returns a place holder object which will be populated later
+	Shader_NodeGraph* EnqeueueMaterialShadercomplie(MaterialShaderComplieData data);
 private:
 	ShaderGraphComplier* MaterialCompiler = nullptr;
 	static ShaderComplier * Instance;
 	std::map<std::string, ShaderType> GlobalShaderMap;
 	std::map<std::string, Shader_NodeGraph*> MaterialShaderMap;
-	std::queue<MaterialShaderComplieData> MaterialShaderComplieQueue;
+	std::queue<MaterialShaderPair> MaterialShaderComplieQueue;
 	bool ComplieShadersOnTheFly = false;
 };

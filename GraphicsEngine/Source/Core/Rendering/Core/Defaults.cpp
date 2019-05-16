@@ -4,6 +4,7 @@
 #include "Core\Platform\PlatformCore.h"
 #include "Core\IRefCount.h"
 #include "Core\Assets\Asset_Shader.h"
+#include "Core\Assets\ShaderComplier.h"
 
 Defaults* Defaults::Instance = nullptr;
 
@@ -14,6 +15,7 @@ Defaults::Defaults()
 
 	DefaultMateral = new Material(new Asset_Shader(true));
 	DefaultMateral->Init();
+	DefaultMateral->SetDiffusetexture(DefaultTexture);
 	float g_quad_vertex_buffer_data[] = {
 	-1.0f, -1.0f, 0.0f,0.0f,
 	1.0f, -1.0f, 0.0f,0.0f,
@@ -25,6 +27,7 @@ Defaults::Defaults()
 	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
+	ShaderComplier::Get()->TickMaterialComplie();
 }
 
 Defaults::~Defaults()

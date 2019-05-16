@@ -21,13 +21,7 @@ MasterNode::~MasterNode()
 std::string MasterNode::Complie(ShaderGraph* g)
 {
 	std::string output = ComplieDefaultProps(g);
-	output += GetNodeBody(g);
 	return output;
-}
-
-std::string MasterNode::GetNodeBody(ShaderGraph * g)
-{
-	return std::string();
 }
 
 std::string MasterNode::ComplieDefaultProps(ShaderGraph * g)
