@@ -162,6 +162,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			}
 			LightsBuffer.Light[i] = newitem;
 		}
+		LightsBuffer.LightCount = lights.size();
 		CLightBuffer[devindex]->UpdateConstantBuffer(&LightsBuffer, 0);
 	}
 }
@@ -239,4 +240,13 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
 {
 	list->SetConstantBufferView(RelfectionProbeProjections, index, Slot);
+}
+
+void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list)
+{
+	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterial()->GetShaderInstance(EMaterialPassType::Forward));
+	list->SetPipelineStateDesc(Desc);
+	BindMvBuffer(list, MainShaderRSBinds::MVCBV, 0);
+	BindLightsBuffer(list, MainShaderRSBinds::LightDataCBV);
+
 }

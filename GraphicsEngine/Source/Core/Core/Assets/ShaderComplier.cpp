@@ -138,10 +138,10 @@ Shader_NodeGraph* ShaderComplier::EnqeueueMaterialShadercomplie(MaterialShaderCo
 	Pair.Placeholder = ComplieMateral(data);
 	MaterialShaderComplieQueue.emplace(Pair);
 	Log::LogMessage("Added Material shader for compile (" + data.Shader->GetName() + ")");
-#if 0
+#if 1
 	//if (RHI::GetFrameCount() == 0)
 	//{
-	//	//TickMaterialComplie();
+	TickMaterialComplie();
 	//}
 #endif
 	return Pair.Placeholder;

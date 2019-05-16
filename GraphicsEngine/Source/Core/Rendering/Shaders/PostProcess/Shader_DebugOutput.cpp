@@ -16,5 +16,6 @@ std::vector<ShaderParameter> Shader_DebugOutput::GetShaderParameters()
 {
 	std::vector<ShaderParameter> Output;
 	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
+	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 1, 0));
 	return Output;
 }

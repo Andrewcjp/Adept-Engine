@@ -187,10 +187,10 @@ RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = false;
+	IsDeferred = true;
 	EnableVR = true;
 	CurrentDebug = ERenderDebugOutput::Off;
-	EnableGPUParticles = true;
+	EnableGPUParticles = false;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
@@ -198,6 +198,7 @@ RenderSettings::RenderSettings()
 	RenderScale = 1.0f;
 	UseZPrePass = true;
 	SetRes(BBTestMode::HD);
+	UseGeometryShaderForShadows = true;
 	//EnableDynamicResolutionScaling = true;
 }
 

@@ -20,7 +20,7 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
-	//	ForceSingleGPU.SetValue(true);
+	ForceSingleGPU.SetValue(true);
 }
 
 D3D12RHI::~D3D12RHI()
@@ -156,8 +156,11 @@ std::string D3D12RHI::ReportMemory()
 
 void D3D12RHI::LoadPipeLine()
 {
+
 #ifdef _DEBUG
+#if !AFTERMATH
 #define RUNDEBUG 1
+#endif
 #else 	
 #define RUNDEBUG 0
 #endif
@@ -321,7 +324,20 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 		ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
 	}
 }
-
+#if AFTERMATH
+#pragma optimize("",off)
+void D3D12RHI::RunTheAfterMath()
+{
+	//	GFSDK_Aftermath_GetData()
+	GFSDK_Aftermath_Device_Status state;
+	GFSDK_Aftermath_GetDeviceStatus(&state);
+	GFSDK_Aftermath_PageFaultInformation f;
+	GFSDK_Aftermath_GetPageFaultInformation(&f);
+	GFSDK_Aftermath_ContextData* data = new GFSDK_Aftermath_ContextData[handles.size()];
+	GFSDK_Aftermath_GetData(handles.size(), handles.data(), data);
+	__debugbreak();
+}
+#endif
 void D3D12RHI::CreateDepthStencil(int width, int height)
 {
 	//create the depth stencil for the screen

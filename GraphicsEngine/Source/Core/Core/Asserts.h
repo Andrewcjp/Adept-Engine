@@ -27,6 +27,9 @@ Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageB
 #define LogEnsure(condition) if(!(condition)){ /*AssertDebugBreak();*/std::string Message = "Ensure Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition ;\
 Log::LogMessage(Message,Log::Severity::Error);}
 
+#define LogEnsureMsgf(condition,Message) if(!condition){std::string data = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition  "\n" Message ;\
+Log::LogMessage(data,Log::Severity::Error);}
+
 #else
 #define check(condition);
 #define checkMsgf(condition,Message);
@@ -34,6 +37,7 @@ Log::LogMessage(Message,Log::Severity::Error);}
 #define ensureMsgf(condition,Message);
 #define NoImpl();
 #define LogEnsure(condition);
+#define LogEnsureMsgf(c,m);
 #endif
 
 #if DOCHECK

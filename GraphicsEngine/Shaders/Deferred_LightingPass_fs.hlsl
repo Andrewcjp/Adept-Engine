@@ -22,6 +22,7 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
 
 cbuffer LightBuffer : register(b1)
 {
+	int LightCount;
 	Light lights[MAX_LIGHTS];
 };
 cbuffer SceneConstantBuffer : register(b2)
@@ -39,13 +40,13 @@ struct VS_OUTPUT
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
+	
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv);
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv);
 	float3 Normal = normalize(Normalt.xyz);
 	float4 AlbedoSpec = AlbedoTexture.Sample(defaultSampler, input.uv);
 	float Roughness = AlbedoSpec.a;
 	float Metallic = Normalt.a;
-	//calc Ambient 
 
 	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - pos.xyz);
@@ -54,7 +55,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
 	float3 prefilteredColor = GetReflectionColor(R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
-	for (int i = 0; i < MAX_LIGHTS; i++)
+	for (int i = 0; i < LightCount; i++)
 	{
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
 		if (lights[i].PreSampled.x)

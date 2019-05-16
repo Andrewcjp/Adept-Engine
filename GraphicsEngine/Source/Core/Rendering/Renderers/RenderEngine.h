@@ -72,6 +72,7 @@ public:
 	virtual void PostProcessPass();
 	void PresentToScreen();
 	void UpdateMVForMainPass();
+	ShadowRenderer* mShadowRenderer = nullptr;
 protected:
 	void ShadowPass();
 	void CubeMapPass();
@@ -82,7 +83,7 @@ protected:
 	Camera* MainCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;
 	Shader_Main* MainShader = nullptr;
-	ShadowRenderer* mShadowRenderer = nullptr;
+	
 	PostProcessing* Post = nullptr;
 	bool once = true;
 	DeviceDependentObjects DDOs[MAX_GPU_DEVICE_COUNT];

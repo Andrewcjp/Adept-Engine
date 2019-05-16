@@ -34,7 +34,9 @@ struct MVBuffer
 
 struct LightBufferW
 {
-	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];
+	int LightCount;
+	int  pad[3];
+	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];	
 };
 
 struct MeshTransfromBuffer
@@ -58,7 +60,7 @@ public:
 	void BindMvBuffer(RHICommandList * list, int slot);
 	void BindMvBuffer(RHICommandList * list, int slot, int index);
 	void SetScene(Scene* NewScene);
-
+	void SetupBindsForForwardPass(RHICommandList* list);
 	void UpdateRelflectionProbes(RHICommandList * commandlist);
 	bool AnyProbesNeedUpdate();
 	Scene* GetScene();

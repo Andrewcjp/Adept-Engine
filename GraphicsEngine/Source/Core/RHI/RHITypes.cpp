@@ -61,6 +61,18 @@ RHIFrameBufferDesc RHIFrameBufferDesc::CreateGBuffer(int width, int height)
 	return newDesc;
 }
 
+RHIPipeRenderTargetDesc RHIFrameBufferDesc::GetRTDesc()
+{
+	RHIPipeRenderTargetDesc d;
+	d.NumRenderTargets = RenderTargetCount;
+	for (int i = 0; i < MRT_MAX; i++)
+	{
+		d.RTVFormats[i] = RTFormats[i];
+	}
+	d.DSVFormat = DepthFormat;
+	return d;
+}
+
 IRHIResourse::~IRHIResourse()
 {
 	DebugEnsure(IsReleased);

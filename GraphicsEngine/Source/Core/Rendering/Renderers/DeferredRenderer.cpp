@@ -44,7 +44,7 @@ void DeferredRenderer::OnRender()
 	{
 		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);
 	}
-	//PostProcessPass();
+	PostProcessPass();
 	PresentToScreen();
 }
 
@@ -56,7 +56,7 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con)
 	GeometryPass(d->GbufferWriteList, d->Gbuffer);
 	if (RHI::IsRenderingVR())
 	{
-		GeometryPass(d->GbufferWriteList, d->RightEyeGBuffer,EEye::Right);
+		GeometryPass(d->GbufferWriteList, d->RightEyeGBuffer, EEye::Right);
 	}
 	d->GbufferWriteList->Execute();
 #if ENABLE_RENDERER_DEBUGGING
@@ -100,6 +100,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	DeviceDependentObjects* DDO = &DDOs[con->GetDeviceIndex()];
 	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(m_width, m_height);
 	FBDesc.IncludedInSFR = true;
+	FBDesc.AllowUnordedAccess = true;
 	if (con->GetDeviceIndex() > 0)
 	{
 		FBDesc.IsShared = true;
@@ -175,18 +176,34 @@ void DeferredRenderer::DebugPass()
 	DebugList->SetRenderTarget(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer);
 	DebugList->ClearFrameBuffer(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer);
 	int currentDebugType = RHI::GetRenderSettings()->GetDebugRenderMode();
-	DebugList->SetFrameBufferTexture(DDOs[DebugList->GetDeviceIndex()].Gbuffer, 0, currentDebugType - 1);
+	int VisAlpha = 0;
+
+	if (currentDebugType == ERenderDebugOutput::GBuffer_RoughNess)
+	{
+		DebugList->SetFrameBufferTexture(DDOs[DebugList->GetDeviceIndex()].Gbuffer, 0, 2);
+		VisAlpha = 1;
+	}
+	else if (currentDebugType == ERenderDebugOutput::GBuffer_Metallic)
+	{
+		DebugList->SetFrameBufferTexture(DDOs[DebugList->GetDeviceIndex()].Gbuffer, 0, 1);
+		VisAlpha = 1;
+	}
+	else
+	{
+		DebugList->SetFrameBufferTexture(DDOs[DebugList->GetDeviceIndex()].Gbuffer, 0, currentDebugType - 1);
+	}
+	DebugList->SetRootConstant(1, 1, &VisAlpha, 0);
 	DDOs[DebugList->GetDeviceIndex()].DeferredShader->RenderScreenQuad(DebugList);
 	DebugList->Execute();
 }
 #endif
 void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, FrameBuffer* output)
 {
-
+	DeviceDependentObjects* Object = &DDOs[List->GetDeviceIndex()];
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 	desc.InitOLD(false, false, false);
-	desc.ShaderInUse = DDOs[List->GetDeviceIndex()].DeferredShader;
-	desc.FrameBufferTarget = DDOs[List->GetDeviceIndex()].MainFrameBuffer;
+	desc.ShaderInUse = Object->DeferredShader;
+	desc.FrameBufferTarget = Object->MainFrameBuffer;
 	List->SetPipelineStateDesc(desc);
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::DeferredLighting);
 	List->SetRenderTarget(output);
@@ -208,6 +225,12 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	mShadowRenderer->BindShadowMapsToTextures(List);
 
 	DDOs[List->GetDeviceIndex()].DeferredShader->RenderScreenQuad(List);
+
+	//transparent pass
+	GBuffer->BindDepthWithColourPassthrough(List, output);
+	SceneRender->SetupBindsForForwardPass(List);
+	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, List);
+
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::DeferredLighting);
 	mShadowRenderer->Unbind(List);
 	List->SetRenderTarget(nullptr);
@@ -254,5 +277,4 @@ void DeferredRenderer::FinaliseRender()
 {}
 
 void DeferredRenderer::OnStaticUpdate()
-{
-}
+{}

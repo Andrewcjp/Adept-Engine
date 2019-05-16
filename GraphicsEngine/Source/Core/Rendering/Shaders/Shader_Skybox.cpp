@@ -90,15 +90,15 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 	}
 
 	CubeModel->Render(List);
-	if (!Cubemap)
+	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
+	if (!Cubemap && false)
 	{
 		List->SetRenderTarget(nullptr);
 		//Buffer->MakeReadyForComputeUse(List);
 		if (List->GetDeviceIndex() == 0)
 		{
 			Buffer->MakeReadyForCopy(List);
-		}
-		List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
+		}		
 		if (List->GetDeviceIndex() == 1)
 		{
 			List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);

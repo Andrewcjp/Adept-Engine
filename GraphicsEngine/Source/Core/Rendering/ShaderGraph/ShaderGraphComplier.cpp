@@ -41,10 +41,12 @@ bool ShaderGraphComplier::ComplieGraph(MaterialShaderComplieData& data, std::str
 {
 #if !WITH_EDITOR
 	//Temp For Default Materials
-	for (int i = 0; i < Nodes.size(); i++)
+	ShaderGraph* Graph = data.Shader->GetGraph();
+	if (!Graph->IsComplied)
 	{
-		Nodes[i]->GetComplieCode();
+		Graph->Complie();
 	}
+	ShaderPath = "Gen\\" + Graph->GetGraphName().ToSString() + "_" + data.ToString();
 	return true;
 #else
 	ShaderGraph* Graph = data.Shader->GetGraph();

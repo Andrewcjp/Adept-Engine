@@ -125,8 +125,10 @@ void ForwardRenderer::RunMainPass()
 		for (int i = 0; i < DevicesInUse; i++)
 		{
 			DDOs[i].MainCommandList->ResetList();
+			DDOs[i].MainCommandList->StartTimer(EGPUTIMERS::MainPass);
 			MainPass(DDOs[i].MainCommandList, DDOs[i].MainFrameBuffer);
 			RenderSkybox(&DDOs[i]);
+			DDOs[i].MainCommandList->EndTimer(EGPUTIMERS::MainPass);
 			DDOs[i].MainCommandList->Execute();
 		}
 
@@ -178,12 +180,12 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 #if !BASIC_RENDER_ONLY
 	mShadowRenderer->Unbind(Cmdlist);
 #endif
-	if (Cmdlist->GetDeviceIndex() == 0 && DevicesInUse > 1)
-	{
-		//#TODO check
-		targetbuffer->MakeReadyForCopy(Cmdlist);
-	}
-	targetbuffer->MakeReadyForCopy(Cmdlist);
+	//if (Cmdlist->GetDeviceIndex() == 0 && DevicesInUse > 1)
+	//{
+	//	//#TODO check
+	//	targetbuffer->MakeReadyForCopy(Cmdlist);
+	//}
+	//targetbuffer->MakeReadyForCopy(Cmdlist);
 
 }
 

@@ -59,31 +59,35 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceC
 		}
 	}
 }
-
 D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetIndex)
 {
+	return GetSrvDesc(RenderTargetIndex, BufferDesc);
+}
+
+D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetIndex, RHIFrameBufferDesc& desc)
+{
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
-	if (BufferDesc.RenderTargetCount > 2)
+	if (desc.RenderTargetCount > 2)
 	{
-		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
-		shadowSrvDesc.Texture2D.MipLevels = BufferDesc.MipCount;
+		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimension);
+		shadowSrvDesc.Texture2D.MipLevels = desc.MipCount;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[RenderTargetIndex]);
+		shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(desc.RTFormats[RenderTargetIndex]);
 	}
 	else
 	{
-		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
+		shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimension);
 		shadowSrvDesc.Texture2D.MipLevels = 1;
-		shadowSrvDesc.Texture2DArray.MipLevels = BufferDesc.MipCount;
-		shadowSrvDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
+		shadowSrvDesc.Texture2DArray.MipLevels = desc.MipCount;
+		shadowSrvDesc.Texture2DArray.ArraySize = desc.TextureDepth;
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		if (BufferDesc.RenderTargetCount == 0)
+		if (desc.RenderTargetCount == 0)
 		{
-			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
+			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(desc.DepthReadFormat);
 		}
 		else
 		{
-			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
+			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(desc.RTFormats[0]);
 		}
 	}
 	return shadowSrvDesc;
@@ -586,7 +590,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-	}
+}
 
 void D3D12FrameBuffer::Init()
 {

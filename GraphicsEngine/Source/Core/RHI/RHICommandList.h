@@ -143,6 +143,7 @@ public:
 	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot) = 0;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) = 0;
 	RHI_VIRTUAL void Clear() = 0;
+	RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc) = 0;
 protected:
 	int NumEntries = 1;
 };

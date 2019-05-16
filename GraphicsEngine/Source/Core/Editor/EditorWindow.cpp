@@ -249,6 +249,10 @@ void EditorWindow::Update()
 	{
 		ExitPlayMode();
 	}
+	if (Input::GetKeyDown('P'))
+	{
+		Renderer->mShadowRenderer->InvalidateAllBakedShadows();
+	}
 	if (Input::GetVKey(VK_CONTROL))
 	{
 		if (Input::GetKeyDown('S'))

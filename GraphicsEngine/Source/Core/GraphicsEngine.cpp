@@ -42,6 +42,7 @@ int RunLoop(LPSTR lpCmdLine, int nCmdShow, HINSTANCE hInstance, EnginePersistent
 {
 	int exitcode = 0;
 	Engine* engine = new Engine(EPD);
+
 	engine->ProcessCommandLineInput((const CHAR *)lpCmdLine, nCmdShow);
 	engine->PreInit();
 	if (!engine->GetIsCooking())
