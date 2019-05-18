@@ -188,7 +188,7 @@ RenderSettings::RenderSettings()
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	IsDeferred = true;
-	EnableVR = true;
+	EnableVR = false;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = false;
 	if (IsDeferred)

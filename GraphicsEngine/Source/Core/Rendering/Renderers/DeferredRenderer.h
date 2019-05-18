@@ -4,7 +4,6 @@
 #include "Rendering/Shaders/Shader_Deferred.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "Rendering/Core/ShadowRenderer.h"
-#include "Rendering/Shaders/Shader_SSAO.h"
 #include "Rendering/Core/FrameBuffer.h"
 class DeferredRenderer :public RenderEngine
 {
@@ -32,7 +31,5 @@ private:
 	RHICommandList* DebugList = nullptr;
 
 	bool once = true;
-
-	Shader_SSAO*	SSAOShader;
 };
 

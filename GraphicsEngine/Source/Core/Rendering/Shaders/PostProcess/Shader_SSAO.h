@@ -4,7 +4,8 @@ class Shader_SSAO :
 	public Shader
 {
 public:
-	Shader_SSAO();
+	DECLARE_GLOBAL_SHADER(Shader_SSAO);
+	Shader_SSAO(DeviceContext* d);
 	~Shader_SSAO();
 	void RenderPlane();
 	void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights);

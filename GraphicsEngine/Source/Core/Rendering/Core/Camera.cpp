@@ -34,6 +34,10 @@ void Camera::UpdateProjection(float aspect)
 	{
 		return;
 	}
+	if (proj)
+	{
+		return;
+	}
 	AspectRatio = aspect;
 	if (UseLeftHanded)
 	{
@@ -68,6 +72,10 @@ void Camera::SetUpAndForward(glm::vec3 fward, glm::vec3 uup)
 glm::mat4 Camera::GetView()
 {
 	glm::mat4 output;
+	if (Override)
+	{
+		return ViewOverdide;
+	}
 	if (UseLeftHanded)
 	{
 		output = glm::lookAtLH(GetPosition(), GetPosition() + forward, up);
@@ -144,4 +152,15 @@ void Camera::Sync(Transform * t)
 {
 	m_pos = t->GetPos();
 	SetUpAndForward(t->GetForward(), t->GetUp());
+}
+
+void Camera::SetViewTransFrom(glm::mat4 ViewTransfrom)
+{
+	Override = true;
+	ViewOverdide = ViewTransfrom;
+}
+void Camera::SetProjection(glm::mat4 ViewTransfrom)
+{
+	projection = ViewTransfrom;
+	proj = true;
 }

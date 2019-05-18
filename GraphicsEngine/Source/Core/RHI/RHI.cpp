@@ -221,7 +221,7 @@ HMDManager * RHI::GetHMDManager()
 
 bool RHI::IsRenderingVR()
 {
-	return SupportVR() && GetHMD() != nullptr;
+	return SupportVR() && GetHMD() != nullptr && GetHMD()->IsActive();
 }
 
 bool RHI::UseAdditionalGPUs()

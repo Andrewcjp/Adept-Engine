@@ -40,6 +40,8 @@ public:
 	void Serilise(class Archive* A);
 	CORE_API void SetLocalRotation(glm::quat localrot);
 	void Translate(glm::vec3 direction, float amt);
+	void Set(glm::mat4 materix);
+	bool Slave = false;
 private:
 	//cached matrixs;
 	glm::mat4 CacheModel;
