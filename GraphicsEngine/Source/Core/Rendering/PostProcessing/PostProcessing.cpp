@@ -70,14 +70,15 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Bloom = new PP_Bloom();
 	Bloom->SetUpData();
 	Bloom->InitEffect(Target);
-	ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
+	//ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
 	AddEffect(Bloom);
 	//AddEffect(Blur);
 	//AddEffect(ColourCorrect);
 }
 void PostProcessing::Resize(FrameBuffer* Target)
 {
-	//Blur->InitEffect(Target);
+	//Bloom->InitEffect(Target);
+//	Blur->InitEffect(Target);
 	//Bloom->InitEffect(Target);
 	//ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
 }

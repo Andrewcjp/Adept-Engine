@@ -5,7 +5,7 @@
 #include "D3D12RHI.h" 
 #if PIX_ENABLED
 #define PROFILE_BUILD 
-#include <pix.h>
+#include "pix3.h"
 #endif
 
 D3D12TimeManager::D3D12TimeManager(DeviceContext* context) :RHITimeManager(context)
@@ -286,11 +286,11 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListTyp
 		data->TimerType = type;
 	}
 #if PIX_ENABLED
-	PixTimerNames[index] = StringUtils::ConvertStringToWide(Name);
+	PixTimerNames[index] = Name;
 #endif
 }
 #if PIX_ENABLED
-LPCWSTR D3D12TimeManager::GetTimerNameForPIX(int index)
+const char* D3D12TimeManager::GetTimerNameForPIX(int index)
 {
 	return PixTimerNames[index].c_str();
 }
@@ -309,6 +309,7 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 #if PIX_ENABLED
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
 	{
+		//PIXSetMarker(0, GetTimerNameForPIX(index));
 		PIXBeginEvent(List->GetCommandList(), index, GetTimerNameForPIX(index));
 	}
 #endif

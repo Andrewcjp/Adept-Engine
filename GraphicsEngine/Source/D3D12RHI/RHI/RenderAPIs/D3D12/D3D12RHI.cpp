@@ -25,7 +25,21 @@ D3D12RHI::D3D12RHI()
 
 D3D12RHI::~D3D12RHI()
 {}
+#if DRED
+void D3D12RHI::RunDred()
+{
+	//dred is in windows 19h1
+#if 0
+	ID3D12DeviceRemovedExtendedData* pDred;
+	(pDevice->QueryInterface(IID_PPV_ARGS(&pDred)));
 
+	D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT DredAutoBreadcrumbsOutput;
+	D3D12_DRED_PAGE_FAULT_OUTPUT DredPageFaultOutput;
+	VERIFY_SUCCEEDED(pDred->GetAutoBreadcrumbsOutput(&DredAutoBreadcrumbsOutput));
+	VERIFY_SUCCEEDED(pDred->GetPageFaultAllocationOutput(&DredPageFaultOutput));
+#endif
+}
+#endif
 void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be

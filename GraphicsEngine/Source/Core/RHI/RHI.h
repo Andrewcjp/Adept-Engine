@@ -86,7 +86,7 @@ public:
 	static bool SupportsExplictMultiAdaptor();
 	RHI_API static ERenderSystemType GetType();
 	static class RHIClass* GetRHIClass();
-	static void WaitForGPU();
+	RHI_API static void WaitForGPU();
 	static const RenderConstants* GetRenderConstants();
 	static void AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize = false);
 

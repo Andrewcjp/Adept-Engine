@@ -48,6 +48,10 @@ void FrameBuffer::PostInit()
 {
 	if (BufferDesc.AllowUnordedAccess)
 	{
+		if (UAV)
+		{
+			EnqueueSafeRHIRelease(UAV);
+		}
 		UAV = RHI::CreateUAV(Device);
 		UAV->CreateUAVFromFrameBuffer(this);
 	}
@@ -77,7 +81,7 @@ void FrameBuffer::Resize(int width, int height)
 	BufferDesc.Height = height;
 	HandleInit();
 	HandleResize();
-
+	PostInit();
 }
 
 void FrameBuffer::SFRResize()

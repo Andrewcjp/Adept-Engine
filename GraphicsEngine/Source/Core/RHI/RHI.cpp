@@ -294,11 +294,20 @@ void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 	{
 		return;
 	}
+	if (!Flush)
+	{
+		//	return;
+			//page fault!
+	}
 	IsFlushingDeleteQueue = true;
+	if (RHI::GetFrameCount() > 0)
+	{
+	//	return;
+	}
 	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 	{
 		const int CurrentFrame = RHI::GetFrameCount();
-		if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount < CurrentFrame || Flush)
+		if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount +2< CurrentFrame || Flush)
 		{
 			SafeRHIRelease(DeferredDeleteQueue[i].first);
 			DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
@@ -339,13 +348,13 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	{
 		return ImageIO::GetDefaultTexture();
 	}
-	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0)
+	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && false)
 	{
 		BaseTextureRef other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
-		newtex->RegisterOtherDeviceTexture(other.Get());
+		//newtex->RegisterOtherDeviceTexture(other.Get());
 		other->CreateFromFile(path);
 	}
-	ImageIO::RegisterTextureLoad(newtex.Get());
+	ImageIO::RegisterTextureLoad(newtex);
 	return newtex;
 }
 

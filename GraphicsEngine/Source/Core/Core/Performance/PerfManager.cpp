@@ -9,6 +9,7 @@
 #include "BenchMarker.h"
 #include "../Platform/Windows/WindowsApplication.h"
 #include <chrono>
+#include <pix3.h>
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 unsigned long PerfManager::get_nanos()
@@ -117,6 +118,7 @@ void PerfManager::StartTimer(const char * countername)
 	if (Instance != nullptr && PerfActive)
 	{
 		StartTimer(Instance->GetTimerIDByName(countername));
+		PIXBeginEvent(0,countername);
 	}
 #endif
 }
@@ -126,6 +128,7 @@ void PerfManager::EndTimer(const char * countername)
 	if (Instance != nullptr&& PerfActive)
 	{
 		EndTimer(Instance->GetTimerIDByName(countername));
+		PIXEndEvent();
 	}
 #endif
 }
