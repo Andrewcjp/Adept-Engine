@@ -146,12 +146,13 @@ void D3D12FrameBuffer::HandleResize()
 		SafeRelease(SharedSRVHeap);
 #endif
 	}
+	RHI::WaitForGPU();
 	Init();
 	if (OtherDevice != nullptr)
 	{
 		SetupCopyToDevice(OtherDevice);
 	}
-
+	RHI::WaitForGPU();
 }
 
 bool D3D12FrameBuffer::IsReadyForCompute() const

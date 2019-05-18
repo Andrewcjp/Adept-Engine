@@ -425,7 +425,8 @@ void BaseWindow::Resize(int width, int height, bool force /*= false*/)
 	}
 	if (Renderer != nullptr)
 	{
-		//		RHI::ResizeSwapChain(width, height);
+		RHI::WaitForGPU();
+		RHI::ResizeSwapChain(width, height);
 		Renderer->Resize(width, height);
 	}
 }

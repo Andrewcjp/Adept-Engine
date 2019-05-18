@@ -4,7 +4,7 @@
 #include "RHI/RHITypes.h"
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
-#if __has_include(<pix.h>)
+#if __has_include(<pix3.h>)
 #define PIX_ENABLED 1
 #else
 #define PIX_ENABLED 0
@@ -91,8 +91,8 @@ private:
 	UINT64 GPUtime = 0;
 	UINT64 CPUtime = 0;
 #if PIX_ENABLED
-	std::wstring PixTimerNames[TotalMaxTimerCount] = {};
-	LPCWSTR GetTimerNameForPIX(int index);
+	std::string PixTimerNames[TotalMaxTimerCount] = {};
+	const char* GetTimerNameForPIX(int index);
 #endif
 };
 

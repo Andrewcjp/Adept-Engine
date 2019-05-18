@@ -13,6 +13,8 @@
 #if AFTERMATH
 #include <GFSDK_Aftermath.h>
 #endif
+#define DRED 1
+
 class D3D12DeviceContext;
 class D3D12GPUSyncEvent;
 class D3D12RHI : public RHIClass
@@ -43,7 +45,9 @@ public:
 #if AFTERMATH
 	void RunTheAfterMath();
 	std::vector<GFSDK_Aftermath_ContextHandle> handles;
-
+#endif
+#if DRED
+	void RunDred();
 #endif
 private:
 	void DestroyContext();
