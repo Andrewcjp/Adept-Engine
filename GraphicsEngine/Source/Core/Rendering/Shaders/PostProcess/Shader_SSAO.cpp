@@ -5,7 +5,8 @@ float lerp(float a, float b, float f)
 {
 	return a + f * (b - a);
 }
-Shader_SSAO::Shader_SSAO()
+IMPLEMENT_GLOBAL_SHADER(Shader_SSAO);
+Shader_SSAO::Shader_SSAO(DeviceContext* d) :Shader(d)
 {
 	/*noisetex = new OGLTexture();
 	noisetex->GenerateNoiseTex();*/
@@ -13,7 +14,7 @@ Shader_SSAO::Shader_SSAO()
 	//m_Shader = RHI::CreateShaderProgam();
 
 
-	//m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_VERTEX);
+	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\SSAOCS", EShaderType::SHADER_COMPUTE);
 	//m_Shader->AttachAndCompileShaderFromFile("SSAO", EShaderType::SHADER_FRAGMENT);
 
 
@@ -21,25 +22,6 @@ Shader_SSAO::Shader_SSAO()
 
 	//
 	//
-#if BUILD_OPENGL
-	static const float g_quad_vertex_buffer_data[] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		1.0f,  1.0f, 0.0f,
-	};
-
-
-	glGenBuffers(1, &quad_vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
-
-	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "gPosition"), 0);
-	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "gNormal"), 1);
-	glUniform1i(glGetUniformLocation(m_Shader->GetProgramHandle(), "texNoise"), NoiseTextureUnit);
-#endif
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between 0.0 - 1.0
 	std::default_random_engine generator;
 

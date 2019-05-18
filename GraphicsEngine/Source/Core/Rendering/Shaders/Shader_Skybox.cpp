@@ -91,6 +91,7 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 
 	CubeModel->Render(List);
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
+	Buffer->MakeReadyForComputeUse(List);
 	if (!Cubemap && false)
 	{
 		List->SetRenderTarget(nullptr);

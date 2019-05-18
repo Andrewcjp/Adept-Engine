@@ -28,15 +28,20 @@ public:
 	CORE_API void SetPos(glm::vec3 pos);
 	void Sync(Transform* t);
 	float AspectRatio = 1.0f;
+	void SetViewTransFrom(glm::mat4 ViewTransfrom);
+	void SetProjection(glm::mat4 ViewTransfrom);
 protected:
 
 private:
 	bool Override = false;
+	bool proj = false;
+
 	glm::mat4 projection;
 	glm::vec3 m_pos;
 	glm::vec3 forward;
 	glm::vec3 up;
 	glm::quat qrot;
 	glm::vec3 rotation;
+	glm::mat4 ViewOverdide;
 };
 

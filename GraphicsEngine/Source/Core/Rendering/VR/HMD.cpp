@@ -36,9 +36,7 @@ void HMD::Init()
 }
 
 void HMD::Update()
-{
-	CameraInstance->UpdateTracking();
-}
+{}
 
 void HMD::OutputToEye(FrameBuffer * buffer, EEye::Type eye)
 {}

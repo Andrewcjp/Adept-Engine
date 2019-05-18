@@ -81,6 +81,11 @@ void Transform::Serilise(Archive * A)
 
 glm::mat4 Transform::GetModel(bool NoParent)
 {
+	if (Slave)
+	{
+		return CacheModel;
+	}
+
 #if USE_TRANSFORM_CACHING
 	if (!UpdateModel && parent == nullptr)
 	{
@@ -259,7 +264,14 @@ void Transform::Translate(glm::vec3 direction, float amt)
 	_pos += direction * amt;
 }
 
-glm::vec3 Transform::GetEulerRot() 
+void Transform::Set(glm::mat4 materix)
+{
+	Slave = true;
+	CacheModel = materix;
+	UpdateModel = false;
+}
+
+glm::vec3 Transform::GetEulerRot()
 {
 	GetModel();
 	return glm::degrees(_rot);

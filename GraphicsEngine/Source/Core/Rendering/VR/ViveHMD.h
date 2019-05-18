@@ -1,5 +1,6 @@
 #pragma once
 #include "HMD.h"
+#include "..\headers\openvr.h"
 namespace vr
 {
 	class IVRSystem;
@@ -21,6 +22,9 @@ public:
 	virtual bool IsActive() override;
 
 private:
+	glm::mat4 poses[vr::k_unMaxTrackedDeviceCount];
+	glm::mat4 HMDPose;
 	vr::IVRSystem* system;
+	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 };
 

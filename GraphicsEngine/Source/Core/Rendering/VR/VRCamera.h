@@ -6,7 +6,7 @@ class VRCamera
 public:
 	VRCamera();
 	~VRCamera();
-	void UpdateTracking();
+	void UpdateDebugTracking();
 	Camera* GetEyeCam(EEye::Type type);
 	Transform* GetTransfrom();
 

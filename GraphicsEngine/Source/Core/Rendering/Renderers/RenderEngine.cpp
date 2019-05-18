@@ -282,11 +282,10 @@ void RenderEngine::PostProcessPass()
 
 void RenderEngine::PresentToScreen()
 {
-
 	ScreenWriteList->ResetList();
 	ScreenWriteList->SetScreenBackBufferAsRT();
 	ScreenWriteList->ClearScreen();
-	if (RHI::SupportVR() && RHI::GetHMD() != nullptr)
+	if (RHI::IsRenderingVR())
 	{
 		if (RHI::GetVrSettings()->MirrorMode == EVRMirrorMode::Both)
 		{
@@ -311,7 +310,6 @@ void RenderEngine::PresentToScreen()
 				ScreenWriteList->SetFrameBufferTexture(DDOs[0].RightEyeFramebuffer, 0);
 			}
 		}
-
 	}
 	else
 	{
@@ -324,14 +322,14 @@ void RenderEngine::PresentToScreen()
 	ScreenWriteList->Execute();
 	if (RHI::IsRenderingVR())
 	{
-		RHI::GetHMD()->OutputToEye(DDOs[0].MainFrameBuffer, EEye::Left);
-		RHI::GetHMD()->OutputToEye(DDOs[0].RightEyeFramebuffer, EEye::Right);
+		RHI::GetHMD()->OutputToEye(DDOs[0].MainFrameBuffer, EEye::Right);
+		RHI::GetHMD()->OutputToEye(DDOs[0].RightEyeFramebuffer, EEye::Left);
 	}
 }
 
 void RenderEngine::UpdateMVForMainPass()
 {
-	if (RHI::SupportVR() && RHI::GetHMD() != nullptr)
+	if (RHI::IsRenderingVR())
 	{
 		VRCamera* VRCam = RHI::GetHMD()->GetVRCamera();
 		SceneRender->UpdateMV(VRCam);
