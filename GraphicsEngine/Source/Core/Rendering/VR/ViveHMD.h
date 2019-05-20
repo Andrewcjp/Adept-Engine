@@ -14,6 +14,8 @@ public:
 	static bool CanCreate();
 	void Init();
 
+	glm::vec3 Getpos(glm::mat4 matMVP);
+
 	virtual void Update() override;
 	virtual void OutputToEye(FrameBuffer* buffer, EEye::Type eye) override;
 	virtual glm::ivec2 GetDimentions() override;
@@ -29,5 +31,8 @@ private:
 	vr::IVRSystem* system;
 	Transform TransArray[vr::k_unMaxTrackedDeviceCount];
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
+	float RenderScale = 1.0f;
+	glm::vec3 Offset = glm::vec3(0, 5, 0);
+	glm::vec3 Scale = glm::vec3(10);
 };
 

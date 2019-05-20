@@ -5,8 +5,9 @@
 #include "Core/Utils/DebugDrawers.h"
 
 ViveHMD::ViveHMD()
-{}
-
+{
+	RenderScale = 0.6;
+}
 
 ViveHMD::~ViveHMD()
 {
@@ -85,13 +86,13 @@ static glm::quat GetRotation(glm::mat4 matrix)
 	q.z = _copysign(q.z, matrix[1][0] - matrix[0][1]);
 	return q;
 }
-glm::vec3 Getpos(glm::mat4 matMVP)
+glm::vec3 ViveHMD::Getpos(glm::mat4 matMVP)
 {
-	return glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3]);
+	return glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3])*Scale + Offset;
 }
 void RenderTransfrom(Transform t)
 {
-	glm::vec3 pos = t.GetPos()*10;
+	glm::vec3 pos = t.GetPos();
 	DebugDrawers::DrawDebugLine(pos, pos + t.GetUp(), glm::vec3(1, 0, 0));
 	DebugDrawers::DrawDebugLine(pos, pos + t.GetRight(), glm::vec3(0, 1, 0));
 	DebugDrawers::DrawDebugLine(pos, pos + t.GetForward(), glm::vec3(0, 0, 1));
@@ -123,73 +124,24 @@ void ViveHMD::Update()
 			poses[nDevice] = ConvertSteamVRMatrixToMatrix4_T(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
 			if (system->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_HMD)
 			{
-				//	poses[nDevice] = glm::inverse(poses[nDevice]);
-				glm::vec3 pos = glm::vec3(poses[nDevice][0][3], poses[nDevice][1][3], poses[nDevice][2][3]);
-				//glm::vec3(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking.m[0][3], m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking.m[1][3], m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking.m[2][3]);
-				//DebugDrawers::DrawDebugSphere(pos * 10, 2, glm::vec3(1));
-				posm = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
+				CameraInstance->GetTransfrom()->SetPos(Getpos(ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking)));
+				CameraInstance->GetTransfrom()->SetQrot(GetRotation(glm::inverse(poses[nDevice])));
 			}
 			else
 			{
 				TransArray[nDevice].SetPos(Getpos(ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking)));
 				TransArray[nDevice].SetQrot(GetRotation(glm::inverse(poses[nDevice])));
-				
+
 				RenderTransfrom(TransArray[nDevice]);
 			}
 		}
 	}
-	if (m_rTrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
+	if (!IsActive())
 	{
-		HMDPose = glm::inverse(poses[vr::k_unTrackedDeviceIndex_Hmd]);
-		
-		Rot = GetRotation(HMDPose);
-		//HMDPose = 
+		RenderTransfrom(*CameraInstance->GetTransfrom());
 	}
-	glm::mat4 matMVP;
-	for (uint32_t unTrackedDevice = 0; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++)
-	{
-		const vr::TrackedDevicePose_t & pose = m_rTrackedDevicePose[unTrackedDevice];
-		if (!pose.bPoseIsValid)
-			continue;
-
-		if (system->GetTrackedDeviceClass(unTrackedDevice) == vr::TrackedDeviceClass_Controller)
-			continue;
-
-		const glm::mat4 & matDeviceToTracking = poses[unTrackedDevice];
-		matMVP = HMDPose /** matDeviceToTracking*/;
-
-	}
-	glm::mat4 mToggle_YZ = glm::mat4(1, 0, 0, 0,
-		0, 0, 1, 0,
-		0, 1, 0, 0,
-		0, 0, 0, 1
-	);
-	//CameraInstance->GetTransfrom()->Set(glm::inverse(matMVP));
-	CameraInstance->GetTransfrom()->SetQrot(Rot);
-	matMVP = posm;
-	glm::vec3 offset = glm::vec3(0, 5, 0);
-	CameraInstance->GetTransfrom()->SetPos(glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3])+offset);
-
-	//CameraInstance->GetTransfrom()->Set(matMVP);
-#if 1
-	glm::vec3 pos = CameraInstance->GetTransfrom()->GetPos() * 10;
-	DebugDrawers::DrawDebugLine(pos, pos + CameraInstance->GetTransfrom()->GetUp(), glm::vec3(1, 0, 0));
-	DebugDrawers::DrawDebugLine(pos, pos + CameraInstance->GetTransfrom()->GetRight(), glm::vec3(0, 1, 0));
-	DebugDrawers::DrawDebugLine(pos, pos + CameraInstance->GetTransfrom()->GetForward(), glm::vec3(0, 0, 1));
-#endif
-
 	HMD::Update();
-#if 0
-	glm::mat4 TRANS = matMVP * glm::inverse(ConvertSteamVRMatrixToMatrix4(system->GetEyeToHeadTransform(vr::EVREye::Eye_Left)));
-	CameraInstance->GetEyeCam(EEye::Left)->SetProjection(ConvertSteamVRMatrixToMatrix4(system->GetProjectionMatrix(vr::Eye_Left, 0.1, 1000)));
-	CameraInstance->GetEyeCam(EEye::Left)->SetViewTransFrom(TRANS);
-	TRANS = matMVP * glm::inverse(ConvertSteamVRMatrixToMatrix4(system->GetEyeToHeadTransform(vr::Eye_Right)));
-	CameraInstance->GetEyeCam(EEye::Right)->SetProjection(ConvertSteamVRMatrixToMatrix4(system->GetProjectionMatrix(vr::Eye_Right, 0.1, 1000)));
-	CameraInstance->GetEyeCam(EEye::Right)->SetViewTransFrom(TRANS);
-#else
 	CameraInstance->UpdateDebugTracking();
-#endif
-
 }
 
 void ViveHMD::OutputToEye(FrameBuffer* buffer, EEye::Type eye)
@@ -201,7 +153,7 @@ glm::ivec2 ViveHMD::GetDimentions()
 {
 	uint32_t Width, height;
 	system->GetRecommendedRenderTargetSize(&Width, &height);
-	return glm::ivec2(Width, height);
+	return glm::ivec2(glm::iround(Width*RenderScale), glm::iround(height*RenderScale));
 }
 
 bool ViveHMD::IsActive()

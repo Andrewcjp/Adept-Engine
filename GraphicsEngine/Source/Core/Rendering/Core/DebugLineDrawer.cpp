@@ -5,6 +5,9 @@
 #include "Editor/EditorWindow.h"
 #include "Rendering/Shaders/Shader_Line.h"
 #include "RHI/RHICommandList.h"
+#include "Core/BaseWindow.h"
+#include "../Renderers/RenderEngine.h"
+#include "SceneRenderer.h"
 #if _DEBUG
 #pragma optimize("g",on)
 #pragma runtime_checks( "sc", off )  
@@ -12,6 +15,9 @@
 #endif
 
 DebugLineDrawer* DebugLineDrawer::instance = nullptr;
+
+DebugLineDrawer* DebugLineDrawer::twodinstance = nullptr;
+
 DebugLineDrawer::DebugLineDrawer(bool DOnly)
 {
 	Is2DOnly = DOnly;
@@ -20,28 +26,28 @@ DebugLineDrawer::DebugLineDrawer(bool DOnly)
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);
 	ReallocBuffer(CurrentMaxVerts);
-	CmdList = RHI::CreateCommandList();
-	RHIPipeLineStateDesc desc;
-	desc.DepthStencilState.DepthEnable = false;
-	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
-	desc.ShaderInUse = LineShader;
-	CmdList->SetPipelineStateDesc(desc);
 	if (!DOnly)
 	{
 		instance = this;
+	}
+	else
+	{
+		ensure(twodinstance == nullptr);
+		twodinstance = this;
 	}
 	ResizeVertexStream(CurrentVertStreamLength + 1);
 }
 
 DebugLineDrawer::~DebugLineDrawer()
 {
-	EnqueueSafeRHIRelease(CmdList);
+	//EnqueueSafeRHIRelease(CmdList);
 	EnqueueSafeRHIRelease(VertexBuffer);
 	EnqueueSafeRHIRelease(DataBuffer);
 }
 
 void DebugLineDrawer::GenerateLines()
 {
+	SCOPE_CYCLE_COUNTER("Line Generate");
 	if (Lines.size() == 0 && VertsOnGPU == 0)
 	{
 		return;
@@ -89,7 +95,7 @@ void DebugLineDrawer::RegenerateVertBuffer()
 
 void DebugLineDrawer::RenderLines()
 {
-	RenderLines(Projection);
+	//	RenderLines(Projection);
 }
 
 void DebugLineDrawer::ReallocBuffer(int NewSize)
@@ -106,18 +112,18 @@ void DebugLineDrawer::ReallocBuffer(int NewSize)
 	VertexBuffer->CreateVertexBuffer(sizeof(VERTEX), vertexBufferSize, EBufferAccessType::Dynamic);
 }
 
-void DebugLineDrawer::RenderLines(glm::mat4& matrix)
+void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, EEye::Type eye)
 {
-	if (VertsOnGPU == 0)
-	{
-		return;
-	}
-	CmdList->ResetList();
-	CmdList->SetScreenBackBufferAsRT();
+	RHIPipeLineStateDesc desc;
+	desc.DepthStencilState.DepthEnable = false;
+	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	desc.ShaderInUse = LineShader;
+	CmdList->SetPipelineStateDesc(desc);
+	CmdList->SetRenderTarget(Buffer);
 	CmdList->SetVertexBuffer(VertexBuffer);
+	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(CmdList, 0, eye);
 	if (!Is2DOnly)
 	{
-		DataBuffer->UpdateConstantBuffer(glm::value_ptr(matrix), 0);
 #if WITH_EDITOR
 		if (EditorWindow::GetInstance()->UseSmallerViewPort())
 		{
@@ -126,9 +132,11 @@ void DebugLineDrawer::RenderLines(glm::mat4& matrix)
 		}
 #endif
 	}
-	LineShader->SetParameters(CmdList, DataBuffer);
+	else
+	{
+		LineShader->SetParameters(CmdList, DataBuffer);		
+	}
 	CmdList->DrawPrimitive((int)VertsOnGPU, 1, 0, 0);
-	CmdList->Execute();
 }
 
 void DebugLineDrawer::FlushDebugLines()
@@ -220,6 +228,10 @@ void DebugLineDrawer::OnResize(int newwidth, int newheight)
 DebugLineDrawer * DebugLineDrawer::Get()
 {
 	return instance;
+}
+DebugLineDrawer * DebugLineDrawer::Get2()
+{
+	return twodinstance;
 }
 #if _DEBUG
 #pragma auto_inline( off ) 

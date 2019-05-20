@@ -244,6 +244,7 @@ namespace EGPUTIMERS
 		ShadowPreSample,
 		GPU0WaitOnGPU1,
 		CubemapCapture,
+		DebugRender,
 		LIMIT
 	};
 }

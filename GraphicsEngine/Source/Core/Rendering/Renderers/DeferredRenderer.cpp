@@ -11,6 +11,7 @@
 #include "../VR/HMD.h"
 #include "RenderEngine.h"
 #include "../Core/RelfectionProbe.h"
+#include "../VR/VRCamera.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -45,6 +46,19 @@ void DeferredRenderer::OnRender()
 		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);
 	}
 	PostProcessPass();
+	DDOs[0].DebugCommandList->ResetList();
+	DDOs[0].DebugCommandList->StartTimer(EGPUTIMERS::DebugRender);
+	if (RHI::IsRenderingVR())
+	{
+		RenderDebug(DDOs[0].MainFrameBuffer, DDOs[0].DebugCommandList, EEye::Left);
+		RenderDebug(DDOs[0].RightEyeFramebuffer, DDOs[0].DebugCommandList, EEye::Right);
+	}
+	else
+	{
+		RenderDebug(DDOs[0].MainFrameBuffer, DDOs[0].DebugCommandList, EEye::Left);
+	}
+	DDOs[0].DebugCommandList->EndTimer(EGPUTIMERS::DebugRender);
+	DDOs[0].DebugCommandList->Execute();
 	PresentToScreen();
 }
 
@@ -53,22 +67,26 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con)
 	DeviceDependentObjects* d = &DDOs[con->GetDeviceIndex()];
 	d->GbufferWriteList->ResetList();
 	UpdateMVForMainPass();
+	d->GbufferWriteList->StartTimer(EGPUTIMERS::DeferredWrite);
 	GeometryPass(d->GbufferWriteList, d->Gbuffer);
 	if (RHI::IsRenderingVR())
 	{
 		GeometryPass(d->GbufferWriteList, d->RightEyeGBuffer, EEye::Right);
 	}
+	d->GbufferWriteList->EndTimer(EGPUTIMERS::DeferredWrite);
 	d->GbufferWriteList->Execute();
 #if ENABLE_RENDERER_DEBUGGING
 	if (RHI::GetRenderSettings()->GetDebugRenderMode() == ERenderDebugOutput::Off)
 	{
 #endif
 		d->MainCommandList->ResetList();
+		d->MainCommandList->StartTimer(EGPUTIMERS::DeferredLighting);
 		LightingPass(d->MainCommandList, d->Gbuffer, d->MainFrameBuffer);
 		if (RHI::IsRenderingVR())
 		{
 			LightingPass(d->MainCommandList, d->RightEyeGBuffer, d->RightEyeFramebuffer);
 		}
+		d->MainCommandList->EndTimer(EGPUTIMERS::DeferredLighting);
 		d->MainCommandList->Execute();
 #if ENABLE_RENDERER_DEBUGGING
 	}
@@ -98,7 +116,7 @@ void DeferredRenderer::PostInit()
 void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 {
 	DeviceDependentObjects* DDO = &DDOs[con->GetDeviceIndex()];
-	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(m_width, m_height);
+	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(GetScaledWidth(), GetScaledHeight());
 	FBDesc.IncludedInSFR = true;
 	FBDesc.AllowUnordedAccess = true;
 	if (con->GetDeviceIndex() > 0)
@@ -116,7 +134,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 		DDOs[0].MainFrameBuffer = DDO->MainFrameBuffer;
 	}
 	DDO->DeferredShader = new Shader_Deferred(con);
-	FBDesc = RHIFrameBufferDesc::CreateGBuffer(m_width, m_height);
+	FBDesc = RHIFrameBufferDesc::CreateGBuffer(GetScaledWidth(), GetScaledHeight());
 	FBDesc.IncludedInSFR = true;
 	DDO->Gbuffer = RHI::CreateFrameBuffer(con, FBDesc);
 	DDO->Gbuffer->SetDebugName("GBuffer");
@@ -127,7 +145,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	DDO->GbufferWriteList = RHI::CreateCommandList(ECommandListType::Graphics, con);
 
 	DDO->MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, con);
-
+	DDO->DebugCommandList = RHI::CreateCommandList(ECommandListType::Graphics, con);
 	DDOs[con->GetDeviceIndex()].SkyboxShader = new Shader_Skybox(con);// ShaderComplier::GetShader<Shader_Skybox>();
 	DDOs[con->GetDeviceIndex()].SkyboxShader->Init(DDO->MainFrameBuffer, DDO->Gbuffer);
 
@@ -144,20 +162,17 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 
 void DeferredRenderer::GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, int eyeindex)
 {
-
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthWrite = true;
 	desc.ShaderInUse = Material::GetDefaultMaterialShader();
 	desc.FrameBufferTarget = gbuffer;
 	List->SetPipelineStateDesc(desc);
 	List->GetDevice()->GetTimeManager()->StartTotalGPUTimer(List);
-	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::DeferredWrite);
+
 	List->SetRenderTarget(gbuffer);
 	List->ClearFrameBuffer(gbuffer);
 	SceneRender->RenderScene(List, false, gbuffer, false, eyeindex);
 	List->SetRenderTarget(nullptr);
-	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::DeferredWrite);
-
 }
 
 void DeferredRenderer::SSAOPass()
@@ -207,7 +222,7 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	desc.ShaderInUse = Object->DeferredShader;
 	desc.FrameBufferTarget = Object->MainFrameBuffer;
 	List->SetPipelineStateDesc(desc);
-	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::DeferredLighting);
+
 	List->SetRenderTarget(output);
 	List->ClearFrameBuffer(output);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
@@ -232,15 +247,13 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	GBuffer->BindDepthWithColourPassthrough(List, output);
 	SceneRender->SetupBindsForForwardPass(List);
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, List);
-
-	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::DeferredLighting);
 	mShadowRenderer->Unbind(List);
 	List->SetRenderTarget(nullptr);
 	if (List->GetDeviceIndex() == 0)
 	{
 		DDOs[0].MainFrameBuffer->MakeReadyForCopy(List);
 	}
-	
+
 	RenderSkybox(List, output, GBuffer);
 	GBuffer->MakeReadyForComputeUse(List, true);
 }
@@ -277,11 +290,6 @@ void DeferredRenderer::DestoryRenderWindow()
 	}
 }
 
-void DeferredRenderer::FinaliseRender()
-{
-
-
-}
 
 void DeferredRenderer::OnStaticUpdate()
 {}

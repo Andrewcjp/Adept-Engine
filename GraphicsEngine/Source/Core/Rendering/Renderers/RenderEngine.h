@@ -36,6 +36,7 @@ struct DeviceDependentObjects
 #if SUPPORTVR
 	FrameBuffer* RightEyeGBuffer = nullptr;
 #endif
+	RHICommandList* DebugCommandList = nullptr;
 	void Release();
 };
 class RenderEngine
@@ -46,7 +47,6 @@ public:
 	void Render();
 	void PreRender();
 	virtual void OnRender() = 0;
-	virtual void FinaliseRender() = 0;
 	void Init();
 	void InitProcessingShaders(DeviceContext * dev);
 	void ProcessSceneGPU(DeviceContext * dev);
@@ -77,7 +77,8 @@ public:
 protected:
 	void ShadowPass();
 	void CubeMapPass();
-	void RenderDebug(FrameBuffer * FB);
+	void RenderDebug(FrameBuffer * FB, RHICommandList * list, EEye::Type eye);
+	void UpdateMainPassCulling(EEye::Type eye);
 	int			m_width = 0;
 	int			m_height = 0;
 

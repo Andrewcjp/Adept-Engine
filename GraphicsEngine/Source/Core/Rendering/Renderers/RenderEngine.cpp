@@ -19,6 +19,8 @@
 #include "../Shaders/PostProcess/Shader_Compost.h"
 #include "../Core/Material.h"
 #include "../Core/RelfectionProbe.h"
+#include "Core/Performance/PerfManager.h"
+#include "../Core/DebugLineDrawer.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -435,7 +437,15 @@ void RenderEngine::CubeMapPass()
 }
 
 
-void RenderEngine::RenderDebug(FrameBuffer* FB)
+void RenderEngine::RenderDebug(FrameBuffer* FB, RHICommandList* list, EEye::Type eye)
+{
+	PerfManager::StartTimer("LineDrawer");
+	DebugLineDrawer::Get()->RenderLines(FB, list, eye);
+	DebugLineDrawer::Get2()->RenderLines(FB, list, eye);
+	PerfManager::EndTimer("LineDrawer");
+}
+
+void RenderEngine::UpdateMainPassCulling(EEye::Type eye)
 {
 
 }

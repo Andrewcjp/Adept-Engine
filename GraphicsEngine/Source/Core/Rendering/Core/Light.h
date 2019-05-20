@@ -47,7 +47,7 @@ public:
 	float Distance = 512;
 	void Update();
 	float GetRange();
-	ShadowCaptureType ShadowMode = Realtime;//Baked;
+	ShadowCaptureType ShadowMode = Baked;//Baked;
 	int Resolution = 512;
 	//semi realtime lights can use a lower resolution RT for dynamic object and compost into a bigger one
 	int BakedResolution = 2048;

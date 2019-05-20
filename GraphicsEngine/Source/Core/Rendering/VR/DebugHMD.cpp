@@ -11,3 +11,8 @@ void DebugHMD::Update()
 {
 	CameraInstance->UpdateDebugTracking();
 }
+
+bool DebugHMD::IsActive()
+{
+	return true;
+}

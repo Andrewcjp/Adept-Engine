@@ -17,7 +17,6 @@ public:
 	virtual ~DeferredRenderer();
 	virtual void Resize(int width, int height) override;
 	virtual void DestoryRenderWindow() override;
-	virtual void FinaliseRender() override;
 	virtual void OnStaticUpdate() override;
 
 	virtual FrameBuffer* GetGBuffer() override;
