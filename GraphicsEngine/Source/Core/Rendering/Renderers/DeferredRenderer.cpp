@@ -119,6 +119,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	FBDesc = RHIFrameBufferDesc::CreateGBuffer(m_width, m_height);
 	FBDesc.IncludedInSFR = true;
 	DDO->Gbuffer = RHI::CreateFrameBuffer(con, FBDesc);
+	DDO->Gbuffer->SetDebugName("GBuffer");
 	if (RHI::SupportVR())
 	{
 		DDO->RightEyeGBuffer = RHI::CreateFrameBuffer(con, FBDesc);
@@ -194,6 +195,7 @@ void DeferredRenderer::DebugPass()
 	}
 	DebugList->SetRootConstant(1, 1, &VisAlpha, 0);
 	DDOs[DebugList->GetDeviceIndex()].DeferredShader->RenderScreenQuad(DebugList);
+	DDOs[DebugList->GetDeviceIndex()].Gbuffer->MakeReadyForComputeUse(DebugList, true);
 	DebugList->Execute();
 }
 #endif
@@ -238,7 +240,9 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	{
 		DDOs[0].MainFrameBuffer->MakeReadyForCopy(List);
 	}
+	
 	RenderSkybox(List, output, GBuffer);
+	GBuffer->MakeReadyForComputeUse(List, true);
 }
 
 void DeferredRenderer::Resize(int width, int height)
@@ -274,7 +278,15 @@ void DeferredRenderer::DestoryRenderWindow()
 }
 
 void DeferredRenderer::FinaliseRender()
-{}
+{
+
+
+}
 
 void DeferredRenderer::OnStaticUpdate()
 {}
+
+FrameBuffer* DeferredRenderer::GetGBuffer()
+{
+	return DDOs[0].Gbuffer;
+}

@@ -46,10 +46,12 @@ ShaderParameter ShaderReflection::ConvertParm(D3D12_SHADER_INPUT_BIND_DESC& desc
 	case D3D_SIT_CBUFFER:
 		S.Type = ShaderParamType::CBV;
 		break;
+	case D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_CONSUME_STRUCTURED:
 	case D3D_SHADER_INPUT_TYPE::D3D11_SIT_STRUCTURED:
 	case D3D_SIT_TEXTURE:
 		S.Type = ShaderParamType::SRV;
 		break;
+
 	case D3D_SIT_UAV_RWSTRUCTURED:
 	case D3D11_SIT_UAV_RWTYPED:
 	case D3D_SIT_UAV_RWBYTEADDRESS:

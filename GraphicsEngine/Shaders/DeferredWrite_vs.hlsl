@@ -28,7 +28,8 @@ VS_OUTPUT main( float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXC
 	final_pos = mul( final_pos, projection );
 
 	output.pos = final_pos;
-	output.normal = normal;
+
+	output.normal = mul(normal, world);
 	output.uv = uv;
 
     return output;

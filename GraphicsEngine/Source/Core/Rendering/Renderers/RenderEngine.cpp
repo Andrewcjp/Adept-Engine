@@ -433,3 +433,9 @@ void RenderEngine::CubeMapPass()
 
 	CubemapCaptureList->Execute();
 }
+
+
+void RenderEngine::RenderDebug(FrameBuffer* FB)
+{
+
+}

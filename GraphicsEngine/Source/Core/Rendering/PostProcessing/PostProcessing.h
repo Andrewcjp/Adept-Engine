@@ -20,6 +20,7 @@ public:
 	class PP_ColourCorrect* ColourCorrect = nullptr;
 	class PP_Blur* Blur = nullptr;
 	class PP_Bloom* Bloom = nullptr;
+	class PP_SSAO* SSAO = nullptr;
 private:
 	RHICommandList* CommandList = nullptr;
 };

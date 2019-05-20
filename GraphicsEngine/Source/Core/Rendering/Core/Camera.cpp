@@ -45,7 +45,7 @@ void Camera::UpdateProjection(float aspect)
 	}
 	else
 	{
-		projection = glm::perspective(glm::radians(fov), aspect, zNear, ZFar);
+		projection = glm::perspectiveRH(glm::radians(fov), aspect, zNear, ZFar);
 	}
 }
 

@@ -199,15 +199,24 @@ RHIRenderPassInfo::RHIRenderPassInfo(FrameBuffer * buffer, ERenderPassLoadOp::Ty
 }
 
 void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, int slot)
-{}
+{
+	buffer->BindBufferReadOnly(this, slot);
+}
 
 void RHICommandList::SetUAV(RHIUAV * uav, int slot)
-{}
+{
+	uav->Bind(this, slot);
+}
 
 void RHICommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot)
 {
 	ensure(CurrentPSO);
-	SetConstantBufferView(buffer, offset, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(Slot));
+	int index = CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(Slot);
+	if (index == -1)
+	{
+		return;
+	}
+	SetConstantBufferView(buffer, offset, index);
 }
 
 void RHICommandList::SetTexture(BaseTextureRef texture, std::string slot)
@@ -219,7 +228,12 @@ void RHICommandList::SetTexture(BaseTextureRef texture, std::string slot)
 void RHICommandList::SetFrameBufferTexture(FrameBuffer * buffer, std::string slot, int Resourceindex)
 {
 	ensure(CurrentPSO);
-	SetFrameBufferTexture(buffer, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), Resourceindex);
+	int index = CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot);
+	if (index == -1)
+	{
+		return;
+	}
+	SetFrameBufferTexture(buffer, index, Resourceindex);
 }
 
 void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, std::string slot)
@@ -231,5 +245,6 @@ void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, std::string slot)
 void RHICommandList::SetUAV(RHIUAV * uav, std::string slot)
 {
 	ensure(CurrentPSO);
+	ensure(uav);
 	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
 }

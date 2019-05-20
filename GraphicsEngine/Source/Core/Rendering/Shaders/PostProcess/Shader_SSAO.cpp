@@ -1,5 +1,6 @@
 #include "Shader_SSAO.h"
 #include "RHI/RHI.h"
+#include "Core/BaseWindow.h"
 
 float lerp(float a, float b, float f)
 {
@@ -40,8 +41,21 @@ Shader_SSAO::Shader_SSAO(DeviceContext* d) :Shader(d)
 		ssaoKernel.push_back(sample);
 	}
 
+	for (int i = 0; i < 64; i++)
+	{
+		CurrentData.samples[i] = ssaoKernel[i];
+	}
+	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	DataBuffer->CreateConstantBuffer(sizeof(CurrentData), 1);
 }
 
+void Shader_SSAO::Bind(RHICommandList* list)
+{
+	DataBuffer->UpdateConstantBuffer(&CurrentData);
+	CurrentData.projection = BaseWindow::GetCurrentCamera()->GetProjection();
+	CurrentData.view = BaseWindow::GetCurrentCamera()->GetView();
+	list->SetConstantBufferView(DataBuffer, 0, "Data");
+}
 
 Shader_SSAO::~Shader_SSAO()
 {}
@@ -89,3 +103,10 @@ void Shader_SSAO::Resize(int width, int height)
 
 void Shader_SSAO::UpdateD3D11Uniforms(Transform *, Camera *, std::vector<Light*> lights)
 {}
+
+IMPLEMENT_GLOBAL_SHADER(Shader_SSAO_Merge);
+
+Shader_SSAO_Merge::Shader_SSAO_Merge(DeviceContext * d):Shader(d)
+{
+	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\SSAOMergeCS", EShaderType::SHADER_COMPUTE);
+}

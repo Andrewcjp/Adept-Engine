@@ -59,6 +59,18 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceC
 		}
 	}
 }
+void D3D12FrameBuffer::CreateDepthSRV(int HeapOffset, Descriptor* desc)
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
+	shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
+	shadowSrvDesc.Texture2D.MipLevels = 1;//BufferDesc.MipCount;
+	shadowSrvDesc.Texture2DArray.MipLevels = 1;
+	shadowSrvDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
+	shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
+	desc->CreateShaderResourceView(DepthStencil->GetResource(), &shadowSrvDesc, HeapOffset);
+}
+
 D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetIndex)
 {
 	return GetSrvDesc(RenderTargetIndex, BufferDesc);
@@ -355,9 +367,16 @@ void D3D12FrameBuffer::MakeReadyForCopy_In(ID3D12GraphicsCommandList * list)
 	}
 }
 
-void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List)
+void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
 {
-	GetResource(0)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	}
+	if (Depth)
+	{
+		DepthStencil->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	}
 }
 
 void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, FrameBuffer* PassThrough)
@@ -463,7 +482,7 @@ void D3D12FrameBuffer::UpdateSRV()
 {
 	if (SRVDesc == nullptr)
 	{
-		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount, 1));
+		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount + 1, 2));
 	}
 
 	if (NullHeap == nullptr)
@@ -481,6 +500,10 @@ void D3D12FrameBuffer::UpdateSRV()
 		{
 			CreateSRVInHeap(i, SRVDesc);
 		}
+	}
+	if (BufferDesc.NeedsDepthStencil)
+	{
+		CreateDepthSRV(BufferDesc.RenderTargetCount, SRVDesc);
 	}
 }
 
@@ -674,7 +697,14 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 	//SrvHeap->BindHeap_Old(list);
 	if (isCompute)
 	{
-		list->SetComputeRootDescriptorTable(slot, SRVDesc->GetGPUAddress(Resourceindex));
+		if (Resourceindex == -1)
+		{
+			list->SetComputeRootDescriptorTable(slot, SRVDesc->GetGPUAddress(BufferDesc.RenderTargetCount));
+		}
+		else
+		{
+			list->SetComputeRootDescriptorTable(slot, SRVDesc->GetGPUAddress(Resourceindex));
+		}
 	}
 	else
 	{
