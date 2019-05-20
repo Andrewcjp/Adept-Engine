@@ -13,7 +13,7 @@ namespace EVRMirrorMode
 struct VRSettings
 {
 	EVRMirrorMode::Type MirrorMode = EVRMirrorMode::Both;
-	float EyeDistance = 0.2f;
+	float EyeDistance = -0.3f;
 };
 class HMD;
 class HMDManager

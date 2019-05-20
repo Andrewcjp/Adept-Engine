@@ -24,6 +24,7 @@ public:
 	void							CreateSRVHeap(int Num);
 	void							CreateSRVInHeap(int HeapOffset, Descriptor* desc);
 	void							CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceContext * target);
+	void CreateDepthSRV(int HeapOffset, Descriptor * desc);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	static D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex, RHIFrameBufferDesc & desc);
 	bool							CheckDevice(int index);
@@ -37,7 +38,7 @@ public:
 	void CopyFromHostMemory(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy_In(ID3D12GraphicsCommandList * list);
 
-	virtual void MakeReadyForComputeUse(RHICommandList* List) override;
+	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
 	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
 	DeviceContext* GetTargetDevice();
 	DeviceContext* GetDevice() override;

@@ -24,7 +24,7 @@ public:
 	static void CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetDevice);
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc() = 0;
 	RHI_API virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough);
-	virtual void MakeReadyForComputeUse(RHICommandList* List) = 0;
+	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) = 0;
 	virtual void MakeReadyForCopy(RHICommandList * list) = 0;
 	///Needs to called before buffer is read for final present
 	void ResolveSFR(FrameBuffer* SumBuffer);

@@ -19,6 +19,9 @@ public:
 	virtual void DestoryRenderWindow() override;
 	virtual void FinaliseRender() override;
 	virtual void OnStaticUpdate() override;
+
+	virtual FrameBuffer* GetGBuffer() override;
+
 private:
 	void GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, int eyeindex = 0);
 	void LightingPass(RHICommandList* List, FrameBuffer* GBuffer, FrameBuffer* output);

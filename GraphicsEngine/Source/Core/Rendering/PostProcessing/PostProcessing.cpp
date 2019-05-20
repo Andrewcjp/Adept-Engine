@@ -9,6 +9,7 @@
 #include "Core/Utils/MemoryUtils.h"
 #include "Core/Performance/PerfManager.h"
 #include "../Renderers/RenderEngine.h"
+#include "PP_SSAO.h"
 
 PostProcessing* PostProcessing::Instance = nullptr;
 PostProcessing::PostProcessing()
@@ -70,8 +71,13 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Bloom = new PP_Bloom();
 	Bloom->SetUpData();
 	Bloom->InitEffect(Target);
-	//ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
-	AddEffect(Bloom);
+	
+	SSAO = new PP_SSAO();
+	SSAO->SetUpData();
+	SSAO->InitEffect(Target);
+	//AddEffect(SSAO);
+
+	//AddEffect(Bloom);
 	//AddEffect(Blur);
 	//AddEffect(ColourCorrect);
 }

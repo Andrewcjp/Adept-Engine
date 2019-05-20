@@ -169,7 +169,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		break;
 	case EShaderType::SHADER_COMPUTE:
 		IsCompute = true;
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "cs_5_0",
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "cs_5_1",
 			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
 		break;
 	case EShaderType::SHADER_UNDEFINED:

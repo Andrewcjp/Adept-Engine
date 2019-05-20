@@ -37,6 +37,9 @@ public:
 	virtual void OnStaticUpdate() override;
 	void Resize(int width, int height) override;
 
+
+	virtual FrameBuffer* GetGBuffer() override;
+
 private:
 	void MainPass(RHICommandList * Cmdlist, FrameBuffer* targetbuffer, int index = 0);
 	void RenderSkybox(DeviceDependentObjects* object);

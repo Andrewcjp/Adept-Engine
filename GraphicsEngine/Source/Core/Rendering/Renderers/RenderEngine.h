@@ -61,6 +61,7 @@ public:
 	virtual void OnStaticUpdate() = 0;
 	virtual void SetScene(Scene* sc);
 	virtual void SetEditorCamera(class Editor_Camera* cam);
+	virtual FrameBuffer* GetGBuffer() = 0;
 	class SceneRenderer* SceneRender = nullptr;
 	//getters
 	Shader* GetMainShader();
@@ -76,6 +77,7 @@ public:
 protected:
 	void ShadowPass();
 	void CubeMapPass();
+	void RenderDebug(FrameBuffer * FB);
 	int			m_width = 0;
 	int			m_height = 0;
 

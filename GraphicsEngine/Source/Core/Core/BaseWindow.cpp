@@ -533,7 +533,7 @@ int BaseWindow::GetHeight()
 
 RenderEngine * BaseWindow::GetCurrentRenderer()
 {
-	return Renderer;
+	return Instance->Renderer;
 }
 
 void BaseWindow::RenderText()
