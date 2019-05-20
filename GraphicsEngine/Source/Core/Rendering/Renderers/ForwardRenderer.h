@@ -33,7 +33,7 @@ public:
 	void RunMainPass();
 	
 	virtual void DestoryRenderWindow() override;
-	virtual void FinaliseRender() override;
+
 	virtual void OnStaticUpdate() override;
 	void Resize(int width, int height) override;
 

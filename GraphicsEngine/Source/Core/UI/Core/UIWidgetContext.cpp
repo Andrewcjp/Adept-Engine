@@ -47,7 +47,6 @@ void UIWidgetContext::UpdateWidgets()
 }
 void UIWidgetContext::RenderWidgetText()
 {
-	return;
 	TextRender->Reset();
 	for (int i = 0; i < widgets.size(); i++)
 	{
@@ -152,7 +151,14 @@ void UIWidgetContext::Initalise(int width, int height)
 	TextRender = new TextRenderer(m_width, m_height);
 	TextRender->UpdateSize(width, height);
 	DrawBatcher = new UIDrawBatcher();
-	LineBatcher = new DebugLineDrawer(true);
+	if (DebugLineDrawer::Get2() == nullptr)
+	{
+		LineBatcher = new DebugLineDrawer(true);
+	}
+	else
+	{
+		LineBatcher = DebugLineDrawer::Get2();
+	}	
 }
 
 void UIWidgetContext::RenderWidgets()
@@ -172,8 +178,7 @@ void UIWidgetContext::RenderWidgets()
 #if UISTATS
 	PerfManager::StartTimer("Line");
 #endif
-	LineBatcher->GenerateLines();
-	LineBatcher->RenderLines();
+
 #if UISTATS
 	PerfManager::EndTimer("Line");
 #endif

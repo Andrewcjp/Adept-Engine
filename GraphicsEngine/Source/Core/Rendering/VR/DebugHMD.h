@@ -10,5 +10,8 @@ public:
 	float rotx = 0.0f;
 	virtual void Update() override;
 
+
+	virtual bool IsActive() override;
+
 };
 

@@ -199,15 +199,9 @@ void BaseWindow::Render()
 	RHI::Tick();
 	PerfManager::StartTimer("Render");
 #if !BASIC_RENDER_ONLY
-	Renderer->Render();
-	PerfManager::StartTimer("LineDrawer");
-	LineDrawer->GenerateLines();
-	if (Renderer->GetMainCam() != nullptr)
-	{
-		LineDrawer->RenderLines(Renderer->GetMainCam()->GetViewProjection());
-	}
-	PerfManager::EndTimer("LineDrawer");
-	Renderer->FinaliseRender();
+	DebugLineDrawer::Get2()->GenerateLines();
+	DebugLineDrawer::Get()->GenerateLines();
+	Renderer->Render();	
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
 	GPUPerfGraph->Render();

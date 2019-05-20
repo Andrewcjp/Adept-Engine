@@ -205,7 +205,6 @@ void ForwardRenderer::RenderSkybox(DeviceDependentObjects* Object)
 
 void ForwardRenderer::DestoryRenderWindow()
 {
-
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		EnqueueSafeRHIRelease(DDOs[i].MainCommandList);
@@ -213,11 +212,6 @@ void ForwardRenderer::DestoryRenderWindow()
 	}
 	DDOs[0].MainFrameBuffer = nullptr;
 	EnqueueSafeRHIRelease(CubemapCaptureList);
-}
-
-void ForwardRenderer::FinaliseRender()
-{
-
 }
 
 void ForwardRenderer::OnStaticUpdate()

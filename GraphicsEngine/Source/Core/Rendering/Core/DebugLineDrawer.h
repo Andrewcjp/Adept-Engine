@@ -19,23 +19,25 @@ public:
 	void GenerateLines();
 	void UpdateLineBuffer(int offset);
 	void CreateLineVerts(WLine & line);
-	void RenderLines(glm::mat4& matrix);
-
+	void RenderLines(FrameBuffer * Buffer, RHICommandList * list, EEye::Type eye);
 	void RenderLines();
 	CORE_API void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
 	void OnResize(int newwidth, int newheight);
 	void FlushDebugLines();
 	CORE_API static DebugLineDrawer* Get();
+	CORE_API static DebugLineDrawer* Get2();
 private:
 	void ReallocBuffer(int NewSize);
+
 	void RegenerateVertBuffer();
 	void ClearLines();
 	static DebugLineDrawer* instance;
+	static DebugLineDrawer* twodinstance;
 	std::vector<WLine> Lines;
 	class Shader_Line* LineShader = nullptr;
 	class RHIBuffer* DataBuffer = nullptr;
 	RHIBuffer* VertexBuffer = nullptr;
-	class RHICommandList* CmdList = nullptr;
+	//class RHICommandList* CmdList = nullptr;
 	glm::mat4 Projection;
 	size_t VertsOnGPU = 0;
 	struct VERTEX
