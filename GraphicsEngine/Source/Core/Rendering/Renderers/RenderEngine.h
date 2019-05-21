@@ -23,7 +23,7 @@ struct DeviceDependentObjects
 	Shader_EnvMap* EnvMap = nullptr;
 	Shader_Convolution* ConvShader = nullptr;
 	Shader_Skybox* SkyboxShader = nullptr;
-	RHICommandList* MainCommandList = nullptr;
+	RHICommandList* MainCommandList[EEye::Limit] = { nullptr };
 
 	FrameBuffer* MainFrameBuffer = nullptr;
 #if SUPPORTVR
@@ -31,13 +31,15 @@ struct DeviceDependentObjects
 #endif
 
 	FrameBuffer* Gbuffer = nullptr;
-	RHICommandList* GbufferWriteList = nullptr;
+	RHICommandList* GbufferWriteList[EEye::Limit] = { nullptr };
 	Shader_Deferred* DeferredShader = nullptr;
 #if SUPPORTVR
 	FrameBuffer* RightEyeGBuffer = nullptr;
 #endif
 	RHICommandList* DebugCommandList = nullptr;
 	void Release();
+	FrameBuffer* GetGBuffer(EEye::Type e);
+	FrameBuffer* GetMain(int e);
 };
 class RenderEngine
 {
@@ -79,6 +81,7 @@ protected:
 	void CubeMapPass();
 	void RenderDebug(FrameBuffer * FB, RHICommandList * list, EEye::Type eye);
 	void UpdateMainPassCulling(EEye::Type eye);
+	virtual void PostSizeUpdate();
 	int			m_width = 0;
 	int			m_height = 0;
 

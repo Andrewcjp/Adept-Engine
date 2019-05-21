@@ -9,6 +9,7 @@
 #include "RHITypes.h"
 #include "BaseTexture.h"
 #include "Rendering/VR/HMD.h"
+#include "RHIQuery.h"
 
 
 class RHIGPUSyncEvent;
@@ -54,6 +55,7 @@ public:
 	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
 	RHI_API static DeviceContext* GetDefaultDevice();
 	RHI_API static RHIPipeLineStateObject* CreatePipelineStateObject(const RHIPipeLineStateDesc& Desc, DeviceContext* Device = nullptr);
+	RHI_API static RHIQuery* CreateQuery(EGPUQueryType::Type type, DeviceContext* con = nullptr);
 	static void InitialiseContext();
 	void ValidateSettings();
 	static void InitialiseContextWindow(int w, int h);
@@ -64,7 +66,7 @@ public:
 	static void ToggleFullScreenState();
 	static void ResizeSwapChain(int width, int height);
 	static void DestoryContext();
-
+	static void BeginFrame();
 	RHI_API static RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device = nullptr, DeviceContext * SignalDevice = nullptr);
 	RHI_API static bool BlockCommandlistExec();
 	RHI_API static bool AllowCPUAhead();
@@ -101,6 +103,7 @@ public:
 	static void Tick();
 	static void SubmitToVRComposter(FrameBuffer* fb, EEye::Type eye);
 private:
+	static void ValidateDevice(DeviceContext*& con);
 	static void ResizeFrameBuffer(FrameBuffer * target);
 	SFRController* SFR_Controller = nullptr;
 	void TickDeferredDeleteQueue(bool Flush = false);
@@ -152,6 +155,7 @@ public:
 	RHI_VIRTUAL void TriggerWriteBackResources() = 0;
 #endif
 	RHI_VIRTUAL void SubmitToVRComposter(FrameBuffer* fb, EEye::Type eye);
+	RHI_VIRTUAL RHIQuery * CreateQuery(EGPUQueryType::Type type, DeviceContext * con) = 0;
 };
 
 class RHIModule : public IModuleInterface

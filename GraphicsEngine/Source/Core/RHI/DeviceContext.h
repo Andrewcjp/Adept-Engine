@@ -68,6 +68,10 @@ public:
 	RHI_API bool IsDedicated();
 	RHI_API bool IsIntergrated();
 	RHI_API EGPUType::Type GetType();
+
+	//events
+	RHI_API virtual void OnFrameStart();
+	RHI_API virtual void OnFrameEnd_PreSubmit();
 protected:
 	RHI_API void PostInit();
 	bool AllowCrossFrameAsyncCompute = false;

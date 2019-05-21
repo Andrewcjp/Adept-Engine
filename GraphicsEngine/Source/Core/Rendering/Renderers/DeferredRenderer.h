@@ -9,7 +9,7 @@ class DeferredRenderer :public RenderEngine
 {
 public:
 	void OnRender() override;
-	void RenderOnDevice(DeviceContext * con);
+	void RenderOnDevice(DeviceContext * con, EEye::Type Eye);
 	void PostInit()override;
 	void SetUpOnDevice(DeviceContext * con);
 	DeferredRenderer(int width, int height) :RenderEngine(width, height)

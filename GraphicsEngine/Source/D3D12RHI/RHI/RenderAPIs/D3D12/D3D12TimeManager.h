@@ -12,6 +12,7 @@
 
 class DeviceContext;
 class D3D12DeviceContext;
+class D3D12Query;
 class D3D12TimeManager : public RHITimeManager
 {
 public:
@@ -19,7 +20,6 @@ public:
 	D3D12TimeManager(DeviceContext* context);
 	~D3D12TimeManager();
 	void UpdateTimers() override;
-	std::string GetTimerData() override;
 	void SetTimerName(int index, std::string Name, ECommandListType::Type type = ECommandListType::Graphics) override;
 
 	void StartTotalGPUTimer(RHICommandList * ComandList) override;
@@ -28,30 +28,13 @@ public:
 	void EndTotalGPUTimer(RHICommandList * ComandList) override;
 
 	float GetTotalTime() override;
-	void StartTimer(ID3D12GraphicsCommandList * ComandList, int index, bool IsCopy);
-	void EndTimer(ID3D12GraphicsCommandList * ComandList, int index, bool IsCopy);
-
-	void EndTotalGPUTimer(ID3D12GraphicsCommandList * ComandList);
-	void ResolveTimeHeaps(RHICommandList * CommandList) override;
-	void ResolveCopyTimeHeaps(RHICommandList * ComandList) override;
+	void StartTimer(D3D12CommandList * ComandList, int index, bool IsCopy);
+	void EndTimer(D3D12CommandList * ComandList, int index, bool IsCopy);
 private:
-	static UINT64 GPU0_TS;
-	UINT64 StartTimeStamp = 0;
+
 	float AVGgpuTimeMS = 0;
-	struct GPUTimer
-	{
-		std::string name;
-		int Startindex = 0;
-		int Endindex = 1;
-		MovingAverage avg = MovingAverage(AVGTIME);
-		bool Used = false;
-		int Statid = -1;
-		float RawTime = 0.0f;
-		UINT64 StartTS = 0;
-		float StartOffset = 0.0f;
-		MovingAverage StartOffsetavg = MovingAverage(AVGTIME);
-	};
-	UINT64 OffsetToGPUZero = 0; 
+	
+
 	int StatsGroupId = -1;
 	bool TimerStarted = false;
 #if GPUTIMERS_FULL
@@ -65,34 +48,31 @@ private:
 	const int MaxTimeStamps = 2;
 	const bool EnableCopyTimers = false;
 #endif
+	std::string TimerNames[TotalMaxTimerCount];
 	int MaxIndexInUse = 0;
 	void Init(DeviceContext * context);
 
 	void UpdateTimeStampFreq();
 
-	void ProcessTimeStampHeaps(int count, ID3D12Resource * ResultBuffer, UINT64 ClockFreq, bool CopyList, int offset);
-
-	MovingAverage avg = MovingAverage(AVGTIME);
 
 	UINT64 m_directCommandQueueTimestampFrequencies = 1;
 	UINT64 m_ComputeQueueFreqency = 1;
 	UINT64 m_copyCommandQueueTimestampFrequencies = 1;
-	GPUTimer TimeDeltas[TotalMaxTimerCount] = {};
-
 	D3D12DeviceContext* Device = nullptr;
-	struct QuerryBuffers
-	{
-		ID3D12QueryHeap* m_timestampQueryHeaps = nullptr;
-		ID3D12Resource* m_timestampResultBuffers = nullptr;
-		ID3D12QueryHeap* m_CopytimestampQueryHeaps = nullptr;
-		ID3D12Resource* m_CopytimestampResultBuffers = nullptr;
-	};
-	QuerryBuffers Buffers[RHI::CPUFrameCount] = {0};
-	UINT64 GPUtime = 0;
-	UINT64 CPUtime = 0;
 #if PIX_ENABLED
 	std::string PixTimerNames[TotalMaxTimerCount] = {};
 	const char* GetTimerNameForPIX(int index);
 #endif
+	//contains all timestamps for a timer
+	struct TimerQ
+	{
+		std::string name = "";
+		std::vector<D3D12Query*> TimerQueries;
+		float TotalTime = 0.0f;
+		void Resolve(float freqnecy);
+	};
+	std::vector<TimerQ> TimerQueries;
+	TimerQ* GetTimer(std::string name);
+	void ResolveAllTimers();
 };
 

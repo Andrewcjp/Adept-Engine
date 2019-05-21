@@ -294,20 +294,11 @@ void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 	{
 		return;
 	}
-	if (!Flush)
-	{
-		//	return;
-			//page fault!
-	}
 	IsFlushingDeleteQueue = true;
-	if (RHI::GetFrameCount() > 0)
-	{
-	//	return;
-	}
 	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 	{
 		const int CurrentFrame = RHI::GetFrameCount();
-		if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount +2< CurrentFrame || Flush)
+		if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount + 2 < CurrentFrame || Flush)
 		{
 			SafeRHIRelease(DeferredDeleteQueue[i].first);
 			DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
@@ -348,10 +339,10 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	{
 		return ImageIO::GetDefaultTexture();
 	}
-	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && false)
+	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 0)
 	{
 		BaseTextureRef other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
-		//newtex->RegisterOtherDeviceTexture(other.Get());
+		newtex->RegisterOtherDeviceTexture(other.Get());
 		other->CreateFromFile(path);
 	}
 	ImageIO::RegisterTextureLoad(newtex);
@@ -438,6 +429,12 @@ RHIPipeLineStateObject * RHI::CreatePipelineStateObject(const RHIPipeLineStateDe
 	return PSO;
 }
 
+RHIQuery * RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
+{
+	ValidateDevice(con);
+	return GetRHIClass()->CreateQuery(type, con);
+}
+
 void RHI::InitialiseContext()
 {
 	GetRHIClass()->InitRHI();
@@ -504,6 +501,14 @@ void RHI::AddLinkedFrameBuffer(FrameBuffer* target, bool NoResize /*= false*/)
 	}
 }
 
+void RHI::ValidateDevice(DeviceContext *& con)
+{
+	if (con == nullptr)
+	{
+		con = RHI::GetDefaultDevice();
+	}
+}
+
 void RHI::ResizeFrameBuffer(FrameBuffer* target)
 {
 	int Width = 0;
@@ -558,6 +563,14 @@ void RHI::DestoryContext()
 #if DETECT_MEMORY_LEAKS
 	RefCheckerContainer::LogAllRefCounters();
 #endif
+}
+
+void RHI::BeginFrame()
+{
+	for (int i = 0; i < GetDeviceCount(); i++)
+	{
+		RHI::GetDeviceContext(i)->OnFrameStart();
+	}
 }
 
 RHITextureArray * RHI::CreateTextureArray(DeviceContext* Device, int Length)

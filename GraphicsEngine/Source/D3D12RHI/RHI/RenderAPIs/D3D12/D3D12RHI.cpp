@@ -11,6 +11,7 @@
 #include <DXProgrammableCapture.h>  
 #include "D3D12Helpers.h"
 #include "../headers/openvr.h"
+#include "D3D12Query.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
@@ -40,6 +41,13 @@ void D3D12RHI::RunDred()
 #endif
 }
 #endif
+
+
+RHIQuery * D3D12RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
+{
+	return new D3D12Query(type, con);
+}
+
 void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be
@@ -536,7 +544,7 @@ void D3D12RHI::PresentFrame()
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(GetPrimaryDevice()->GetCommandAllocator(), nullptr);
-		((D3D12TimeManager*)GetPrimaryDevice()->GetTimeManager())->EndTotalGPUTimer(m_SetupCommandList);
+//		((D3D12TimeManager*)GetPrimaryDevice()->GetTimeManager())->EndTotalGPUTimer(m_SetupCommandList);
 		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
 
 		m_SetupCommandList->Close();

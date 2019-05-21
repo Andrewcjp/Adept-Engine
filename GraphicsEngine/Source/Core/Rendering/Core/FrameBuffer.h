@@ -37,6 +37,9 @@ public:
 
 	RHI_API virtual void Release() override;
 
+
+	RHI_API virtual size_t GetSizeOnGPU() override;
+
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();

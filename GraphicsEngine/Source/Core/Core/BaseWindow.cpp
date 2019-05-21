@@ -85,11 +85,12 @@ void BaseWindow::FixedUpdate()
 }
 
 void BaseWindow::Render()
-{
+{	
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->ClearStats();
 	}
+	RHI::BeginFrame();
 	if (RHI::SupportVR())
 	{
 		RHI::GetHMDManager()->Update();

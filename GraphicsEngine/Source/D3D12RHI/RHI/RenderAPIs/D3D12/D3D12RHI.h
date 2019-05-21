@@ -49,6 +49,9 @@ public:
 #if DRED
 	void RunDred();
 #endif
+
+	virtual RHIQuery * CreateQuery(EGPUQueryType::Type type, DeviceContext * con) override;
+
 private:
 	void DestroyContext();
 	void PresentFrame();

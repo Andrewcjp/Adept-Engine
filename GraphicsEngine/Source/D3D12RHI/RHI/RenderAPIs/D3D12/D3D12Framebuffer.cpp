@@ -466,6 +466,8 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	}
 }
 
+
+
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 	CurrentDevice = (D3D12DeviceContext*)device;

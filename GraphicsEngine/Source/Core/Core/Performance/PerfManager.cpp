@@ -9,7 +9,7 @@
 #include "BenchMarker.h"
 #include "../Platform/Windows/WindowsApplication.h"
 #include <chrono>
-#include <pix3.h>
+//#include <pix3.h>
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 unsigned long PerfManager::get_nanos()
@@ -118,7 +118,7 @@ void PerfManager::StartTimer(const char * countername)
 	if (Instance != nullptr && PerfActive)
 	{
 		StartTimer(Instance->GetTimerIDByName(countername));
-		PIXBeginEvent(0,countername);
+		//PIXBeginEvent(0,countername);
 	}
 #endif
 }
@@ -128,7 +128,7 @@ void PerfManager::EndTimer(const char * countername)
 	if (Instance != nullptr&& PerfActive)
 	{
 		EndTimer(Instance->GetTimerIDByName(countername));
-		PIXEndEvent();
+		//PIXEndEvent();
 	}
 #endif
 }
@@ -457,6 +457,7 @@ void PerfManager::ClearStats()
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		it->second.Time = it->second.AVG->GetCurrentAverage();
+		it->second.Active = false;
 		if (DidJustReset)
 		{
 			it->second.AVG->clear();

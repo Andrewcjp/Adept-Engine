@@ -48,6 +48,9 @@ public:
 
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
 
+
+
+
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);

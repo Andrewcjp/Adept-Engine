@@ -5,6 +5,7 @@
 #include "D3D12RHI.h"
 #include "Core/Performance/PerfManager.h"
 #include "DescriptorHeapManager.h"
+#include "D3D12QueryHeap.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -35,6 +36,8 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	SafeDelete(TimeManager);
 	SafeRHIRelease(GPUCopyList);
 	SafeRHIRelease(InterGPUCopyList);
+	SafeDelete(TimeStampHeap);
+	SafeDelete(CopyTimeStampHeap);
 	SafeRelease(m_IntraCopyList);
 	SafeRelease(m_SharedCopyCommandQueue);
 	SafeRelease(m_ComputeCommandQueue);
@@ -212,6 +215,8 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	{
 		GetDevice()->SetStablePowerState(true);
 	}
+	TimeStampHeap = new D3D12QueryHeap(this, 8192, D3D12_QUERY_HEAP_TYPE_TIMESTAMP);
+	CopyTimeStampHeap = new D3D12QueryHeap(this, 512, D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP);
 	InitCopyListPool();
 	PostInit();
 
@@ -275,7 +280,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
 	DeviceContext::ResetDeviceAtEndOfFrame();
-	GetTimeManager()->UpdateTimers();
+
 	GetCommandAllocator()->Reset();
 	GetSharedCommandAllocator()->Reset();
 	ResetCopyEngine();
@@ -471,6 +476,11 @@ void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, De
 	GPUWaitPoints[0][SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
 }
 
+void D3D12DeviceContext::ResetWork()
+{
+	CopyEngineHasWork = false;
+}
+
 RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()
 {
 	return InterGPUCopyList;
@@ -479,6 +489,26 @@ RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()
 DescriptorHeapManager * D3D12DeviceContext::GetHeapManager()
 {
 	return HeapManager;
+}
+
+D3D12QueryHeap * D3D12DeviceContext::GetTimeStampHeap() 
+{
+	return TimeStampHeap;
+}
+
+D3D12QueryHeap * D3D12DeviceContext::GetCopyTimeStampHeap()
+{
+	return CopyTimeStampHeap;
+}
+
+void D3D12DeviceContext::OnFrameStart()
+{
+	GetTimeManager()->UpdateTimers();
+	TimeStampHeap->BeginQuerryBatch();
+	if (CopyTimeStampHeap)
+	{
+		CopyTimeStampHeap->BeginQuerryBatch();
+	}
 }
 
 GPUSyncPoint::~GPUSyncPoint()
