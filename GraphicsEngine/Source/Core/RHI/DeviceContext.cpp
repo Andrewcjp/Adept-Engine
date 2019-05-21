@@ -216,6 +216,12 @@ EGPUType::Type DeviceContext::GetType()
 	return GPUType;
 }
 
+void DeviceContext::OnFrameStart()
+{}
+
+void DeviceContext::OnFrameEnd_PreSubmit()
+{}
+
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");

@@ -431,6 +431,7 @@ public:
 #if NAME_RHI_PRIMS	
 	const char* GetDebugName();
 #endif
+	virtual size_t GetSizeOnGPU();	
 private:
 #if NAME_RHI_PRIMS
 	const char* FinalName = "";
@@ -438,6 +439,7 @@ private:
 #endif
 	bool PendingKill = false;
 	friend class RHI;
+
 };
 //Releases the GPU side and deletes the CPU object
 #define SafeRHIRelease(Target) if(Target != nullptr){Target->Release(); delete Target; Target= nullptr;}
@@ -559,4 +561,11 @@ namespace EBufferAccessType
 		Dynamic,
 		GPUOnly
 	};
+};
+
+class RHIUtils
+{
+public:
+	static size_t BitsPerPixel(eTEXTURE_FORMAT fmt);
+	static size_t GetPixelSize(eTEXTURE_FORMAT format);
 };

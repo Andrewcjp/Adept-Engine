@@ -15,7 +15,7 @@ HMD::~HMD()
 HMD * HMD::Create()
 {
 	//if needed return different HMD class
-	if (ViveHMD::CanCreate())
+	if (ViveHMD::CanCreate() && false)
 	{
 		Log::LogMessage("Found VR HMD");
 		return new ViveHMD();

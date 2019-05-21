@@ -21,6 +21,7 @@
 #include "../Core/RelfectionProbe.h"
 #include "Core/Performance/PerfManager.h"
 #include "../Core/DebugLineDrawer.h"
+#include "Core/Utils/StringUtil.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -130,6 +131,7 @@ void RenderEngine::Init()
 	//debug 
 	SceneRender->probes.push_back(new RelfectionProbe());
 	//SceneRender->probes[0]->ProbeMode = EReflectionProbeMode::ERealTime;
+	PostSizeUpdate();
 }
 
 void RenderEngine::InitProcessingShaders(DeviceContext* dev)
@@ -212,6 +214,7 @@ void RenderEngine::Resize(int width, int height)
 	}
 	int ApoxPValue = glm::iround((float)GetScaledWidth() / (16.0f / 9.0f));
 	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << " approx: " << ApoxPValue << "P " << Log::OutS;
+	PostSizeUpdate();
 }
 
 void RenderEngine::StaticUpdate()
@@ -412,6 +415,30 @@ void DeviceDependentObjects::Release()
 
 }
 
+FrameBuffer * DeviceDependentObjects::GetGBuffer(EEye::Type e)
+{
+	if (e == EEye::Left)
+	{
+		return Gbuffer;
+	}
+	else
+	{
+		return RightEyeGBuffer;
+	}
+}
+
+FrameBuffer * DeviceDependentObjects::GetMain(int e)
+{
+	if (e == EEye::Left)
+	{
+		return MainFrameBuffer;
+	}
+	else
+	{
+		return RightEyeFramebuffer;
+	}
+}
+
 void RenderEngine::CubeMapPass()
 {
 	if (!SceneRender->AnyProbesNeedUpdate())
@@ -448,4 +475,15 @@ void RenderEngine::RenderDebug(FrameBuffer* FB, RHICommandList* list, EEye::Type
 void RenderEngine::UpdateMainPassCulling(EEye::Type eye)
 {
 
+}
+
+void RenderEngine::PostSizeUpdate()
+{
+	std::string Data = "";
+	Data += "MainFrameBuffer Is " + StringUtils::ToStringFloat(DDOs[0].MainFrameBuffer->GetSizeOnGPU() / 1e6) + " MB";
+	if (DDOs[0].Gbuffer != nullptr)
+	{
+		Data += "\nGbuffer Is " + StringUtils::ToStringFloat(DDOs[0].Gbuffer->GetSizeOnGPU() / 1e6) + " MB";
+	}
+	Log::LogMessage(Data);
 }

@@ -37,9 +37,14 @@ void DeferredRenderer::OnRender()
 	CubeMapPass();
 	if (RHI::GetMGPUSettings()->MainPassSFR)
 	{
-		RenderOnDevice(RHI::GetDeviceContext(1));
+		RenderOnDevice(RHI::GetDeviceContext(1), EEye::Left);
 	}
-	RenderOnDevice(RHI::GetDeviceContext(0));
+	RenderOnDevice(RHI::GetDeviceContext(0), EEye::Left);
+	if (RHI::IsRenderingVR())
+	{
+		RenderOnDevice(RHI::GetDeviceContext(0), EEye::Right);
+	}
+
 	ParticleSystemManager::Get()->Render(DDOs[0].MainFrameBuffer, DDOs[0].Gbuffer);
 	if (DevicesInUse > 1)
 	{
@@ -62,32 +67,26 @@ void DeferredRenderer::OnRender()
 	PresentToScreen();
 }
 
-void DeferredRenderer::RenderOnDevice(DeviceContext* con)
+void DeferredRenderer::RenderOnDevice(DeviceContext* con, EEye::Type Eye)
 {
 	DeviceDependentObjects* d = &DDOs[con->GetDeviceIndex()];
-	d->GbufferWriteList->ResetList();
+	RHICommandList* WriteList = d->GbufferWriteList[Eye];
+	RHICommandList* MList = d->MainCommandList[Eye];
+	WriteList->ResetList();
 	UpdateMVForMainPass();
-	d->GbufferWriteList->StartTimer(EGPUTIMERS::DeferredWrite);
-	GeometryPass(d->GbufferWriteList, d->Gbuffer);
-	if (RHI::IsRenderingVR())
-	{
-		GeometryPass(d->GbufferWriteList, d->RightEyeGBuffer, EEye::Right);
-	}
-	d->GbufferWriteList->EndTimer(EGPUTIMERS::DeferredWrite);
-	d->GbufferWriteList->Execute();
+	WriteList->StartTimer(EGPUTIMERS::DeferredWrite);
+	GeometryPass(WriteList, d->GetGBuffer(Eye), Eye);
+	WriteList->EndTimer(EGPUTIMERS::DeferredWrite);
+	WriteList->Execute();
 #if ENABLE_RENDERER_DEBUGGING
 	if (RHI::GetRenderSettings()->GetDebugRenderMode() == ERenderDebugOutput::Off)
 	{
 #endif
-		d->MainCommandList->ResetList();
-		d->MainCommandList->StartTimer(EGPUTIMERS::DeferredLighting);
-		LightingPass(d->MainCommandList, d->Gbuffer, d->MainFrameBuffer);
-		if (RHI::IsRenderingVR())
-		{
-			LightingPass(d->MainCommandList, d->RightEyeGBuffer, d->RightEyeFramebuffer);
-		}
-		d->MainCommandList->EndTimer(EGPUTIMERS::DeferredLighting);
-		d->MainCommandList->Execute();
+		MList->ResetList();
+		MList->StartTimer(EGPUTIMERS::DeferredLighting);
+		LightingPass(MList, d->Gbuffer, d->GetMain(Eye));
+		MList->EndTimer(EGPUTIMERS::DeferredLighting);
+		MList->Execute();
 #if ENABLE_RENDERER_DEBUGGING
 	}
 	else
@@ -142,9 +141,11 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	{
 		DDO->RightEyeGBuffer = RHI::CreateFrameBuffer(con, FBDesc);
 	}
-	DDO->GbufferWriteList = RHI::CreateCommandList(ECommandListType::Graphics, con);
+	DDO->GbufferWriteList[0] = RHI::CreateCommandList(ECommandListType::Graphics, con);
+	DDO->MainCommandList[0] = RHI::CreateCommandList(ECommandListType::Graphics, con);
+	DDO->GbufferWriteList[1] = RHI::CreateCommandList(ECommandListType::Graphics, con);
+	DDO->MainCommandList[1] = RHI::CreateCommandList(ECommandListType::Graphics, con);
 
-	DDO->MainCommandList = RHI::CreateCommandList(ECommandListType::Graphics, con);
 	DDO->DebugCommandList = RHI::CreateCommandList(ECommandListType::Graphics, con);
 	DDOs[con->GetDeviceIndex()].SkyboxShader = new Shader_Skybox(con);// ShaderComplier::GetShader<Shader_Skybox>();
 	DDOs[con->GetDeviceIndex()].SkyboxShader->Init(DDO->MainFrameBuffer, DDO->Gbuffer);
@@ -276,7 +277,7 @@ void DeferredRenderer::Resize(int width, int height)
 	if (MainCamera != nullptr)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);
-	}
+	}	
 }
 
 DeferredRenderer::~DeferredRenderer()

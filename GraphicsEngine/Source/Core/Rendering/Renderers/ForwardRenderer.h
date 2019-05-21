@@ -29,8 +29,9 @@ public:
 	void OnRender() override;
 	void PostInit() override;
 	void SetupOnDevice(DeviceContext * TargetDevice);
+	void RenderOnDevice(DeviceContext* con);
+	void RunMainPass(DeviceDependentObjects* O, EEye::Type eye);
 
-	void RunMainPass();
 	
 	virtual void DestoryRenderWindow() override;
 
@@ -42,8 +43,6 @@ public:
 
 private:
 	void MainPass(RHICommandList * Cmdlist, FrameBuffer* targetbuffer, int index = 0);
-	void RenderSkybox(DeviceDependentObjects* object);
-
 	//debug
 #if USED3D12DebugP
 	class D3D12Plane* debugplane = nullptr;

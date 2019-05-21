@@ -159,6 +159,23 @@ void FrameBuffer::Release()
 	EnqueueSafeRHIRelease(UAV);
 }
 
+size_t FrameBuffer::GetSizeOnGPU()
+{
+	size_t Size = 0;
+	for (int i = 0; i < MRT_MAX; i++)
+	{
+		if (BufferDesc.RTFormats[i] != FORMAT_UNKNOWN)
+		{
+			Size += BufferDesc.Width*BufferDesc.Height*RHIUtils::GetPixelSize(BufferDesc.RTFormats[i]);
+		}
+	}
+	if (BufferDesc.NeedsDepthStencil)
+	{
+		Size += BufferDesc.Width*BufferDesc.Height*RHIUtils::GetPixelSize(BufferDesc.DepthFormat);
+	}
+	return Size;
+}
+
 void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)
 {
 

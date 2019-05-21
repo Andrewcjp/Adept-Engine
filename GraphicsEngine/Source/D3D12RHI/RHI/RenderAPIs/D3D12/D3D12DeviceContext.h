@@ -73,10 +73,11 @@ private:
 	HANDLE m_fenceEvent = 0;
 	ID3D12Fence* m_fence = nullptr;
 	ID3D12Fence* secondaryFence = nullptr;
-	
+
 };
 class D3D12TimeManager;
 class DescriptorHeapManager;
+class D3D12QueryHeap;
 //once this class has been completed it will be RHI split
 class D3D12DeviceContext : public DeviceContext
 {
@@ -121,13 +122,19 @@ public:
 	void CPUWaitForAll();
 	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);
 	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
-	void ResetWork()
-	{
-		CopyEngineHasWork = false;
-	}
+	void ResetWork();
 	RHICommandList* GetInterGPUCopyList();
 	DescriptorHeapManager* GetHeapManager();
+	D3D12QueryHeap* GetTimeStampHeap();
+	D3D12QueryHeap* GetCopyTimeStampHeap();
+
+	virtual void OnFrameStart() override;
+
 private:
+	//Query heaps
+	D3D12QueryHeap* TimeStampHeap = nullptr;
+	D3D12QueryHeap* CopyTimeStampHeap = nullptr;
+
 	GPUFenceSync GraphicsSync;
 	GPUFenceSync CopySync;
 	GPUFenceSync InterGPUSync;
