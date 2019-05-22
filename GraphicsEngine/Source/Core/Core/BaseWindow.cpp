@@ -546,7 +546,6 @@ void BaseWindow::RenderText()
 		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
 		UI->RenderTextToScreen(1, stream.str());
-
 	}
 	stream.str("");
 	const bool ExtendedPerformanceStats = ShowStats.GetBoolValue();

@@ -239,7 +239,12 @@ void RHICommandList::SetFrameBufferTexture(FrameBuffer * buffer, std::string slo
 void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, std::string slot)
 {
 	ensure(CurrentPSO);
-	SetRHIBufferReadOnly(buffer, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
+	int index = CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot);
+	if (index == -1)
+	{
+		return;
+	}
+	SetRHIBufferReadOnly(buffer, index);
 }
 
 void RHICommandList::SetUAV(RHIUAV * uav, std::string slot)

@@ -17,7 +17,7 @@ cbuffer LightBuffer : register(b1)
 	int2 TileCount;
 	Light lights[MAX_LIGHTS];
 };
-#if 1
+#if 0
 RWStructuredBuffer<uint> LightList : register(u0);
 #else
 ByteAddressBuffer LightList : register(t0);
@@ -94,20 +94,16 @@ float4 main(PSInput input) : SV_TARGET
 	uint other = 2;
 	//LightList.GetDimensions( count,   other);
 
-	//return float4(count, 0, 0, 1.0f);
+	return float4(count, 0, 0, 1.0f);
 	startOffset += 1;
 	//int index = LightList[startOffset/* + i*/];
 
 	
 	//[allow_uav_condition]
-	[unroll(MAX_LIGHTS)]
-	for (int i = 0; i < LightCount; i++)
+	[unroll(1)]
+	for (int i = 0; i < count; i++)
 	{
-		int index = LightList[startOffset + i];
-		/*if (index == -1)
-		{
-			break;
-		}*/
+		int index = i;// LightList[startOffset + i];
 		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
 #ifdef WITH_SHADOW
 		[branch] if (lights[i].HasShadow && lights[i].PreSampled.x)

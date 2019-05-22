@@ -55,7 +55,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
 	float3 prefilteredColor = GetReflectionColor(R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
-
+	[unroll(MAX_LIGHTS)]
 	for (int i = 0; i < LightCount; i++)
 	{
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);

@@ -187,7 +187,7 @@ RenderSettings::RenderSettings()
 {
 	ShadowMapSize = 1024;
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = true;
+	IsDeferred = false;
 	EnableVR = true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = false;
@@ -232,6 +232,7 @@ RenderConstants::RenderConstants()
 	MAX_LIGHTS = 16;
 	DEFAULT_COPYLIST_POOL_SIZE = 4;
 	MAX_LIGHTS = glm::min(MAX_POSSIBLE_LIGHTS, MAX_LIGHTS);
+	LIGHTCULLING_TILE_SIZE = 16;
 }
 
 std::string RenderSettings::ToString(BBTestMode::Type t)

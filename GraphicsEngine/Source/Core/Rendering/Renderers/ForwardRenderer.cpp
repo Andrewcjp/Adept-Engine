@@ -10,6 +10,7 @@
 #include "Rendering/VR/VRCamera.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
+#include "../Core/LightCulling/LightCullingEngine.h"
 
 
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
@@ -56,6 +57,7 @@ ForwardRenderer::~ForwardRenderer()
 
 void ForwardRenderer::OnRender()
 {
+	RunLightCulling();
 	ShadowPass();
 	CubeMapPass();
 	RenderOnDevice(RHI::GetDeviceContext(0));
@@ -126,7 +128,8 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	UpdateMVForMainPass();
 
 	List->ResetList();
-	List->StartTimer(eye == EEye::Right ? EGPUTIMERS::DeferredLighting : EGPUTIMERS::MainPass);
+	List->StartTimer(EGPUTIMERS::MainPass);
+
 	if (RHI::IsRenderingVR())
 	{
 		Culling->UpdateMainPassFrustumCulling(RHI::GetHMD()->GetVRCamera()->GetEyeCam(eye), MainScene);
@@ -136,7 +139,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 		Culling->UpdateMainPassFrustumCulling(MainCamera, MainScene);
 	}	
 	MainPass(List, O->GetMain(eye), eye);
-	List->EndTimer(eye == EEye::Right ? EGPUTIMERS::DeferredLighting : EGPUTIMERS::MainPass);
+	List->EndTimer(EGPUTIMERS::MainPass);
 	O->SkyboxShader->Render(SceneRender, List, O->GetMain(eye), nullptr);
 	List->Execute();
 }
@@ -151,7 +154,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), targetbuffer);
 	Cmdlist->SetPipelineStateDesc(desc);
-
+	
 #if !BASIC_RENDER_ONLY
 	if (mShadowRenderer != nullptr)
 	{
@@ -163,7 +166,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	{
 		Cmdlist->ClearFrameBuffer(targetbuffer);
 	}
-	if (RHI::GetMGPUSettings()->SplitShadowWork || RHI::GetMGPUSettings()->SFRSplitShadows)
+	//if (RHI::GetMGPUSettings()->SplitShadowWork || RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		glm::ivec2 Res = glm::ivec2(GetScaledWidth(), GetScaledHeight());
 		Cmdlist->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);
@@ -171,14 +174,14 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
 
-		Cmdlist->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
-		//	Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
+	//	Cmdlist->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
+			Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 
 	}
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
-
-
+	//Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::LightBuffer);
+	LightCulling->BindLightBuffer(Cmdlist);
 	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
 	//render the transparent objects AFTER the main scene
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
@@ -186,6 +189,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 #if !BASIC_RENDER_ONLY
 	mShadowRenderer->Unbind(Cmdlist);
 #endif
+	LightCulling->Unbind(Cmdlist);
 	//if (Cmdlist->GetDeviceIndex() == 0 && DevicesInUse > 1)
 	//{
 	//	//#TODO check

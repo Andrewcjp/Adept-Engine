@@ -10,6 +10,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "../Renderers/RenderEngine.h"
 #include "PP_SSAO.h"
+#include "PP_Debug.h"
 
 PostProcessing* PostProcessing::Instance = nullptr;
 PostProcessing::PostProcessing()
@@ -68,13 +69,18 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Blur->SetUpData();
 	Blur->InitEffect(Target);
 
-	Bloom = new PP_Bloom();
+	Bloom = new PP_Bloom(); 
 	Bloom->SetUpData();
 	Bloom->InitEffect(Target);
-	
+
 	SSAO = new PP_SSAO();
 	SSAO->SetUpData();
 	SSAO->InitEffect(Target);
+	Debug = new PP_Debug();
+	Debug->SetUpData();
+	Debug->InitEffect(Target);
+	AddEffect(Debug);
+
 	//AddEffect(SSAO);
 
 	//AddEffect(Bloom);

@@ -12,3 +12,7 @@ PrimitiveData GetPrimitiveData(uint PrimitiveId)
 #else
 #define GetPrimitiveData(x) Primitive
 #endif
+inline uint flatten2D(uint2 coord, uint2 dim)
+{
+	return coord.x + coord.y * dim.x;
+}

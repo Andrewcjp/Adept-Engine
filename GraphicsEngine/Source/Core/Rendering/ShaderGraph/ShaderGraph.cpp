@@ -48,15 +48,6 @@ void ShaderGraph::CreateDefault()
 	GraphMasterNode->GetProp("Metallic")->ExposeToShader(this);
 }
 
-std::string ShaderGraph::GetTemplateName(MaterialShaderComplieData& data)
-{
-	if (data.RenderPassUsage == EMaterialPassType::Deferred)
-	{
-		return "MaterialTemplate_DEF_W_fs.hlsl";
-	}
-	return "MaterialTemplate_FWD_fs.hlsl";
-}
-
 ParmeterBindSet ShaderGraph::GetParameters()
 {
 	ParmeterBindSet BindSet;

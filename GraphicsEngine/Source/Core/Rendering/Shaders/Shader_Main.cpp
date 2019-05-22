@@ -9,6 +9,7 @@ Shader_Main::Shader_Main(bool LoadForward) :Shader(RHI::GetDefaultDevice())
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("LIGHTCULLING_TILE_SIZE", std::to_string(RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE)));
 }
 
 Shader_Main::~Shader_Main()
@@ -43,7 +44,7 @@ void Shader_Main::GetMainShaderSig(std::vector<ShaderParameter>& out)
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::PreSampledShadows, 13));
 	out.push_back(ShaderParameter(ShaderParamType::RootConstant, MainShaderRSBinds::ResolutionCBV, 5));
 	out[out.size() - 1].NumDescriptors = 2;
-	//out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::Limit, 13));
+	out.push_back(ShaderParameter(ShaderParamType::UAV, MainShaderRSBinds::LightBuffer, 0, 0, RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_PIXEL));
 }
 
 std::vector<Shader::VertexElementDESC> Shader_Main::GetMainVertexFormat()
