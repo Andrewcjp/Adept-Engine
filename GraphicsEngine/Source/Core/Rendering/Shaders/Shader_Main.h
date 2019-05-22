@@ -16,6 +16,7 @@ namespace MainShaderRSBinds
 		EnvBRDF,
 		PreSampledShadows,
 		ResolutionCBV,
+		LightBuffer,
 		Limit
 	};
 }

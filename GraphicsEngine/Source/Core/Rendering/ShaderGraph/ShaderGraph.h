@@ -38,7 +38,6 @@ public:
 	std::vector<std::string> DefinedVars;
 	FString GraphName = "";
 	std::vector<class ShaderGraphNode*> Nodes;
-	std::string GetTemplateName(MaterialShaderComplieData& data);
 	class MasterNode* GraphMasterNode = nullptr;
 	bool IsComplied = false;
 	std::string CompliedCode;

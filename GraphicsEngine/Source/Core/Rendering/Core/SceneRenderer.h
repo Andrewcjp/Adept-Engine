@@ -35,7 +35,8 @@ struct MVBuffer
 struct LightBufferW
 {
 	int LightCount;
-	int  pad[3];
+	int Tiles[2];
+	int  pad;
 	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];	
 };
 

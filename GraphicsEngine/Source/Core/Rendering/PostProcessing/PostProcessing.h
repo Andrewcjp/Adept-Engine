@@ -21,6 +21,7 @@ public:
 	class PP_Blur* Blur = nullptr;
 	class PP_Bloom* Bloom = nullptr;
 	class PP_SSAO* SSAO = nullptr;
+	class PP_Debug* Debug = nullptr;
 private:
 	RHICommandList* CommandList = nullptr;
 };

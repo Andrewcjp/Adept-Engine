@@ -177,8 +177,10 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		ensureMsgf(false, "Unknown Shader Type!");
 		break;
 	}
-
-	StripD3DShader(GetCurrentBlob(ShaderType));
+	if (!ShaderComplier::Get()->ShouldBuildDebugShaders())
+	{
+		StripD3DShader(GetCurrentBlob(ShaderType));
+	}
 	if (pErrorBlob)
 	{
 		std::string Log = "Shader Compile Output: ";

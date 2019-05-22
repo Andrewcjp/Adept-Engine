@@ -15,7 +15,13 @@ D3D12QueryHeap::D3D12QueryHeap(D3D12DeviceContext * device, int MaxSize, D3D12_Q
 }
 
 D3D12QueryHeap::~D3D12QueryHeap()
-{}
+{
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	{
+		SafeRelease(Buffers[i].QueryHeap);
+		SafeRelease(Buffers[i].ResultBuffer);
+	}
+}
 
 void D3D12QueryHeap::BeginQuery(D3D12CommandList * list, D3D12Query * Q)
 {

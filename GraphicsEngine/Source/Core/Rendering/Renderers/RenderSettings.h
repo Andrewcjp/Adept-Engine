@@ -122,5 +122,6 @@ struct RenderConstants
 	int MAX_DYNAMIC_DIRECTIONAL_SHADOWS;
 	int MAX_LIGHTS;
 	int DEFAULT_COPYLIST_POOL_SIZE;
+	int LIGHTCULLING_TILE_SIZE;
 	RenderConstants();
 };

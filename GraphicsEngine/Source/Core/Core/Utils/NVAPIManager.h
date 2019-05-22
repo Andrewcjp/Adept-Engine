@@ -8,6 +8,7 @@
 #endif
 
 #if NVAPI_PRESENT 
+#include "d3d12.h"
 #include "nvapi.h"
 #endif
 class NVAPIManager

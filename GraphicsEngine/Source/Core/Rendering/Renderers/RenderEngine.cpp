@@ -22,6 +22,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "../Core/DebugLineDrawer.h"
 #include "Core/Utils/StringUtil.h"
+#include "../Core/LightCulling/LightCullingEngine.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -31,6 +32,7 @@ RenderEngine::RenderEngine(int width, int height)
 	Scaler = new DynamicResolutionScaler();
 	Culling = new CullingManager();
 	ScreenWriteList = RHI::CreateCommandList(ECommandListType::Graphics);
+	LightCulling = new LightCullingEngine();
 }
 
 RenderEngine::~RenderEngine()
@@ -127,6 +129,7 @@ void RenderEngine::Init()
 	Post->Init(DDOs[0].MainFrameBuffer);
 	SceneRender->Init();
 	SceneRender->SB = DDOs[0].SkyboxShader;
+	LightCulling->Init();
 
 	//debug 
 	SceneRender->probes.push_back(new RelfectionProbe());
@@ -214,6 +217,7 @@ void RenderEngine::Resize(int width, int height)
 	}
 	int ApoxPValue = glm::iround((float)GetScaledWidth() / (16.0f / 9.0f));
 	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << " approx: " << ApoxPValue << "P " << Log::OutS;
+	LightCulling->Init();
 	PostSizeUpdate();
 }
 
@@ -486,4 +490,9 @@ void RenderEngine::PostSizeUpdate()
 		Data += "\nGbuffer Is " + StringUtils::ToStringFloat(DDOs[0].Gbuffer->GetSizeOnGPU() / 1e6) + " MB";
 	}
 	Log::LogMessage(Data);
+}
+
+void RenderEngine::RunLightCulling()
+{
+	LightCulling->LaunchCullingForScene(EEye::Left);
 }

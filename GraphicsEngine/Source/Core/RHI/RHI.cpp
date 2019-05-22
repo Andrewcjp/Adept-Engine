@@ -290,7 +290,7 @@ static ConsoleVariable IsWithNsight("Nsight", 0, ECVarType::LaunchOnly);
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 {
 	//#DX12 Nsight crashes here for some reason
-	if (IsWithNsight.GetBoolValue())
+	//if (IsWithNsight.GetBoolValue())
 	{
 		return;
 	}

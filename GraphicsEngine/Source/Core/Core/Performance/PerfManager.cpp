@@ -208,6 +208,7 @@ void PerfManager::InStartTimer(int targetTimer)
 	{
 		TimersStartStamps.at(targetTimer) = get_nanos();
 		AVGTimers.at(targetTimer).Active = true;
+		AVGTimers.at(targetTimer).LastFrameUsed = RHI::GetFrameCount();
 		AVGTimers.at(targetTimer).CallCount += 1;
 	}
 	else
@@ -457,7 +458,13 @@ void PerfManager::ClearStats()
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		it->second.Time = it->second.AVG->GetCurrentAverage();
-		it->second.Active = false;
+		if (Capture)
+		{
+			if (it->second.LastFrameUsed < RHI::GetFrameCount() - 5)
+			{
+				it->second.Active = false;
+			}
+		}
 		if (DidJustReset)
 		{
 			it->second.AVG->clear();
@@ -511,6 +518,7 @@ void PerfManager::AddToCountTimer(std::string name, int amout)
 	{
 		D->CallCount += amout;
 		D->Active = true;
+		D->LastFrameUsed = RHI::GetFrameCount();
 	}
 }
 
@@ -606,6 +614,7 @@ void PerfManager::UpdateStat(int id, float newtime, float GPUOffsetToMain, bool 
 		if (data != nullptr)
 		{
 			data->Active = true;
+			data->LastFrameUsed = RHI::GetFrameCount();
 			data->GPUStartOffset = GPUOffsetToMain;
 			data->DirectUpdate = Direct;
 		}

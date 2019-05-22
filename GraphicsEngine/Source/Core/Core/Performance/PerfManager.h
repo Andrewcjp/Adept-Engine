@@ -25,6 +25,7 @@ struct TimerData
 	float GPUStartOffset = 0.0f;//Offset in MS from start of frame (GPU main timestamp)
 	ECommandListType::Type TimerType = ECommandListType::Graphics;
 	bool HiddenFromDisplay = false;
+	int LastFrameUsed = 0;
 };
 class PerfManager
 {

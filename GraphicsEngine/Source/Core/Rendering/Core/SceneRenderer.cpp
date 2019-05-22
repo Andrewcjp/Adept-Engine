@@ -11,6 +11,8 @@
 #include "FrameBufferProcessor.h"
 #include "../VR/VRCamera.h"
 #include "../Shaders/Shader_Skybox.h"
+#include "Core/BaseWindow.h"
+#include "../Renderers/RenderEngine.h"
 SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;
@@ -163,6 +165,9 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			LightsBuffer.Light[i] = newitem;
 		}
 		LightsBuffer.LightCount = lights.size();
+		const int TileSize = RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE;
+		LightsBuffer.Tiles[0] = BaseWindow::GetCurrentRenderer()->GetScaledWidth() / TileSize;
+		LightsBuffer.Tiles[1] = BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize;		
 		CLightBuffer[devindex]->UpdateConstantBuffer(&LightsBuffer, 0);
 	}
 }

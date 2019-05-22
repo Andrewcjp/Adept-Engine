@@ -17,6 +17,7 @@ class Shader_EnvMap;
 class DynamicResolutionScaler;
 class CullingManager;
 class Shader_Deferred;
+class LightCullingEngine;
 struct DeviceDependentObjects
 {
 	~DeviceDependentObjects();
@@ -76,6 +77,8 @@ public:
 	void PresentToScreen();
 	void UpdateMVForMainPass();
 	ShadowRenderer* mShadowRenderer = nullptr;
+	void RunLightCulling();
+	LightCullingEngine* LightCulling = nullptr;
 protected:
 	void ShadowPass();
 	void CubeMapPass();
@@ -99,5 +102,6 @@ protected:
 	//used to write the final image to the back buffer
 	RHICommandList* ScreenWriteList = nullptr;
 	RHICommandList* CubemapCaptureList = nullptr;
+	
 };
 
