@@ -1,6 +1,7 @@
 #pragma once
 #include "RHI\Shader.h"
-
+#include "D3D12RHI.h"
+#include <d3d12shader.h>
 struct ID3D10Blob;
 typedef ID3D10Blob ID3DBlob;
 class ShaderReflection

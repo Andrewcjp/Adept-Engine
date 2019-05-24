@@ -5,6 +5,7 @@ class DescriptorHeap;
 class GPUResource;
 class D3D12DeviceContext;
 class Descriptor;
+class DescriptorGroup;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
@@ -22,9 +23,9 @@ public:
 	void							UnBind(ID3D12GraphicsCommandList * list);
 	virtual void					ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
 	void							CreateSRVHeap(int Num);
-	void							CreateSRVInHeap(int HeapOffset, Descriptor* desc);
-	void							CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceContext * target);
-	void CreateDepthSRV(int HeapOffset, Descriptor * desc);
+	void							CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc);
+	void							CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, DeviceContext * target);
+	void							CreateDepthSRV(int HeapOffset, DescriptorGroup * desc);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	static D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex, RHIFrameBufferDesc & desc);
 	bool							CheckDevice(int index);
@@ -56,7 +57,7 @@ private:
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(RHICommandList * list) override;
 	//DescriptorHeap* SrvHeap = nullptr;
-	Descriptor* SRVDesc = nullptr;
+	DescriptorGroup* SRVDesc = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;
 	DescriptorHeap* DSVHeap = nullptr;
 	DescriptorHeap* NullHeap = nullptr;
@@ -88,6 +89,10 @@ private:
 	class GPUResource* TargetCopy = nullptr;
 	RHIPipeRenderTargetDesc RenderTargetDesc = {};
 
+
+	//For Dynamic resize use a Placed resource
+	ID3D12Heap* DynamicHeap = nullptr;
+	int OffsetInPlacedHeap = 0;
 };
 
 CreateChecker(D3D12FrameBuffer);

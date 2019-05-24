@@ -86,6 +86,7 @@ public:
 	int DynamicResolutionTargetFrameRate = 60;
 	void SetRenderScale(float newscale);
 	float GetCurrentRenderScale();
+	float MaxRenderScale = 3.0f;
 private:
 	float RenderScale = 1;
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;

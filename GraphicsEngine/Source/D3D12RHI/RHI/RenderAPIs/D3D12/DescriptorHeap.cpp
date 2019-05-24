@@ -63,7 +63,8 @@ void DescriptorHeap::AddDescriptor(Descriptor * desc)
 {
 	//validate type.
 	desc->indexInHeap = GetNextFreeIndex();
-	desc->Owner = this;
+	desc->SetOwner(this);
+	desc->Recreate();
 	ContainedDescriptors.push_back(desc);
 }
 

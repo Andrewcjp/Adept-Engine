@@ -27,7 +27,7 @@ public:
 
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
-	static void CreateRootSig(D3D12PipeLineStateObject * output, std::vector<ShaderParameter> Params, DeviceContext * context,bool iscompute);
+	static 	void CreateRootSig(D3D12PipeLineStateObject * output, std::vector<ShaderParameter> Params, DeviceContext * context, bool compute, std::vector<RHISamplerDesc> samplers);
 
 	void Init();
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);
@@ -48,7 +48,9 @@ private:
 	const std::string GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type);
 	ID3DBlob ** GetCurrentBlob(EShaderType::Type type);
 	const std::string GetShaderInstanceHash();
+
 	static const std::string GetUniqueName(std::vector<ShaderParameter>& Params);
+	static D3D12_STATIC_SAMPLER_DESC * ConvertSamplers(std::vector<RHISamplerDesc>& samplers);
 #if !BUILD_SHIPPING
 	struct ShaderStats
 	{

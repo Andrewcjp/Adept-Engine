@@ -50,6 +50,6 @@ void PP_SSAO::PostInitEffect(FrameBuffer* Target)
 	RHIFrameBufferDesc desc;
 	desc = RHIFrameBufferDesc::CreateColour(Target->GetWidth(), Target->GetHeight());
 	desc.AllowUnordedAccess = true;
-	desc.StartingState = GPU_RESOURCE_STATES::D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	SSAOOutput = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), desc);
 }

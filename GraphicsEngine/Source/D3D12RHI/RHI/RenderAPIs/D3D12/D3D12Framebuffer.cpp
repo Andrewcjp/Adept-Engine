@@ -6,6 +6,7 @@
 #include "GPUResource.h"
 #include "Descriptor.h"
 #include "DescriptorHeapManager.h"
+#include "DescriptorGroup.h"
 #define CUBE_SIDES 6
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
@@ -25,12 +26,12 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 	}
 }
 
-void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc)
+void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc)
 {
 	CreateSRVInHeap(HeapOffset, desc, CurrentDevice);
 }
 
-void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceContext* target)
+void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, DeviceContext* target)
 {
 	if (BufferDesc.RenderTargetCount > 2)
 	{
@@ -59,7 +60,7 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, Descriptor* desc, DeviceC
 		}
 	}
 }
-void D3D12FrameBuffer::CreateDepthSRV(int HeapOffset, Descriptor* desc)
+void D3D12FrameBuffer::CreateDepthSRV(int HeapOffset, DescriptorGroup* desc)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
@@ -158,13 +159,11 @@ void D3D12FrameBuffer::HandleResize()
 		SafeRelease(SharedSRVHeap);
 #endif
 	}
-	RHI::WaitForGPU();
 	Init();
 	if (OtherDevice != nullptr)
 	{
 		SetupCopyToDevice(OtherDevice);
 	}
-	RHI::WaitForGPU();
 }
 
 bool D3D12FrameBuffer::IsReadyForCompute() const
@@ -484,7 +483,7 @@ void D3D12FrameBuffer::UpdateSRV()
 {
 	if (SRVDesc == nullptr)
 	{
-		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount + 1, 2));
+		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount, 2));
 	}
 
 	if (NullHeap == nullptr)
@@ -552,14 +551,24 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	{
 		ResourceState = (D3D12_RESOURCE_STATES)BufferDesc.StartingState;
 	}
-	ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&ResourceDesc,
-		ResourceState,
-		&ClearValue,
-		IID_PPV_ARGS(&NewResource)
-	));
+	if (BufferDesc.AllowDynamicResize)
+	{
+		D3D12_RESOURCE_ALLOCATION_INFO info = D3D12Helpers::GetResourceSizeData(m_width, m_height, Format, D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D, IsDepthStencil);
+		ResourceDesc.Alignment = info.Alignment;
+		CurrentDevice->GetDevice()->CreatePlacedResource(DynamicHeap, OffsetInPlacedHeap, &ResourceDesc, ResourceState, &ClearValue, IID_PPV_ARGS(&NewResource));
+		OffsetInPlacedHeap += D3D12Helpers::Align(info.SizeInBytes);
+	}
+	else
+	{
+		ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&ResourceDesc,
+			ResourceState,
+			&ClearValue,
+			IID_PPV_ARGS(&NewResource)
+		));
+	}
 	*Resourceptr = new GPUResource(NewResource, ResourceState, Device);
 
 	if (IsDepthStencil)
@@ -620,6 +629,17 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 
 void D3D12FrameBuffer::Init()
 {
+	if (BufferDesc.AllowDynamicResize)
+	{
+		if (BufferDesc.MaxSize.x == 0)
+		{
+			BufferDesc.MaxSize.x = glm::iround(BufferDesc.Width*RHI::GetRenderSettings()->MaxRenderScale);
+		}
+		if (BufferDesc.MaxSize.y == 0)
+		{
+			BufferDesc.MaxSize.y = glm::iround(BufferDesc.Height*RHI::GetRenderSettings()->MaxRenderScale);
+		}
+	}
 	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
 	m_scissorRect = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
 	//update RenderTargetDesc
@@ -645,7 +665,37 @@ void D3D12FrameBuffer::Init()
 		DSVHeap = new DescriptorHeap(CurrentDevice, Descriptorcount, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 		NAME_RHI_OBJ(DSVHeap);
 	}
+	if (BufferDesc.AllowDynamicResize && DynamicHeap == nullptr)
+	{
+		//#DX12: add Check for out of size resource
+		// Determine how much memory is required for our resource type
+		UINT64 Size = 0;
+		for (int i = 0; i < MRT_MAX; i++)
+		{
+			D3D12_RESOURCE_ALLOCATION_INFO info = D3D12Helpers::GetResourceSizeData(BufferDesc.MaxSize.x, BufferDesc.MaxSize.y,
+				D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i]), D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D /*D3D12Helpers::ConvertDimensionRTV(BufferDesc.Dimension)*/);
+			Size += (info.SizeInBytes);
 
+		}
+		if (BufferDesc.NeedsDepthStencil)
+		{
+			D3D12_RESOURCE_ALLOCATION_INFO info = D3D12Helpers::GetResourceSizeData(BufferDesc.MaxSize.x, BufferDesc.MaxSize.y, D3D12Helpers::ConvertFormat(BufferDesc.DepthFormat),
+				D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D /*D3D12Helpers::ConvertDimensionRTV(BufferDesc.Dimension)*/, true);
+			Size += (info.SizeInBytes);
+		}
+		D3D12_HEAP_DESC desc = {};
+		{
+			// To avoid wasting memory SizeInBytes should be 
+			// multiples of the effective alignment [Microsoft 2018a]
+			desc.SizeInBytes = Size;
+			desc.Alignment = 0;
+			desc.Properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);;
+			desc.Flags = D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
+
+			CurrentDevice->GetDevice()->CreateHeap(&desc, IID_PPV_ARGS(&DynamicHeap));
+		}
+	}
+	OffsetInPlacedHeap = 0;
 	if (BufferDesc.NeedsDepthStencil)
 	{
 		CreateResource(&DepthStencil, DSVHeap, true, D3D12Helpers::ConvertFormat(BufferDesc.DepthFormat), BufferDesc.Dimension);

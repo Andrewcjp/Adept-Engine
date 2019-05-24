@@ -16,6 +16,7 @@
 #include "Core/Utils/VectorUtils.h"
 #include "Rendering/VR/HMD.h"
 #include "Rendering/VR/HMDManager.h"
+#include "Core/Performance/PerfManager.h"
 
 RHI* RHI::instance = nullptr;
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
@@ -290,18 +291,26 @@ static ConsoleVariable IsWithNsight("Nsight", 0, ECVarType::LaunchOnly);
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 {
 	//#DX12 Nsight crashes here for some reason
-	//if (IsWithNsight.GetBoolValue())
+	if (IsWithNsight.GetBoolValue())
 	{
 		return;
 	}
+	SCOPE_CYCLE_COUNTER_GROUP("TickDeferredDeleteQueue", "RHI");
 	IsFlushingDeleteQueue = true;
+	int AllocPerFrame = 0;
+	const int MaxDeletePerFrame = 1;
 	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
 	{
+		if (AllocPerFrame > MaxDeletePerFrame && !Flush)
+		{
+			break;
+		}
 		const int CurrentFrame = RHI::GetFrameCount();
 		if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount + 2 < CurrentFrame || Flush)
 		{
 			SafeRHIRelease(DeferredDeleteQueue[i].first);
 			DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
+			AllocPerFrame++;
 		}
 	}
 	IsFlushingDeleteQueue = false;

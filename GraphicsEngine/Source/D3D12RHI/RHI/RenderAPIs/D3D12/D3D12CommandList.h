@@ -3,6 +3,8 @@
 #include "D3D12Shader.h"
 #include "Core/Utils/RefChecker.h"
 #include "RHI/BaseTexture.h"
+
+class DescriptorGroup;
 class D3D12PipeLineStateObject :public RHIPipeLineStateObject
 {
 public:
@@ -98,7 +100,7 @@ public:
 	ID3D12Resource * m_UAV = nullptr;
 	D3D12DeviceContext* Device = nullptr;
 	ID3D12Resource* UAVCounter = nullptr;
-	Descriptor* UAVDescriptor = nullptr;
+	DescriptorGroup* UAVDescriptor = nullptr;
 protected:
 	void Release() override;
 	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
@@ -147,7 +149,7 @@ private:
 	bool UploadComplete = false;
 	bool CrossDevice = false;
 	D3D12DeviceContext* Device = nullptr;
-	Descriptor* SRVDesc = nullptr;
+	DescriptorGroup* SRVDesc = nullptr;
 	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 };
 
@@ -164,7 +166,7 @@ public:
 private:
 	void Release() override;
 	void Clear() override;
-	class Descriptor* Desc = nullptr;
+	class DescriptorGroup* Desc = nullptr;
 	std::vector<D3D12FrameBuffer*> LinkedBuffers;
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
 	D3D12DeviceContext* Device = nullptr;

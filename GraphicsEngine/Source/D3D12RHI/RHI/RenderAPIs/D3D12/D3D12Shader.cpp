@@ -282,6 +282,7 @@ void D3D12Shader::CreateComputePipelineShader(D3D12PipeLineStateObject* output, 
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
 	computePsoDesc.pRootSignature = output->RootSig;
 	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(blobs->csBlob);
+	computePsoDesc.NodeMask = context->GetNodeMask();
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&output->PSO)));
 
 }
@@ -357,6 +358,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)PSODesc.RasterMode;
 	psoDesc.NumRenderTargets = PSODesc.RenderTargetDesc.NumRenderTargets;
 	psoDesc.SampleDesc.Count = PSODesc.SampleCount;
+	psoDesc.NodeMask = context->GetNodeMask();
 	for (int i = 0; i < 8; i++)
 	{
 		psoDesc.RTVFormats[i] = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.RTVFormats[i]);
@@ -409,7 +411,7 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 	return true;
 }
 
-void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<ShaderParameter> Params, DeviceContext* context, bool compute)
+void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<ShaderParameter> Params, DeviceContext* context, bool compute, std::vector<RHISamplerDesc> samplers)
 {
 	REF_CHECK(output->RootSig);
 	SCOPE_STARTUP_COUNTER("CreateRootSig");
@@ -478,7 +480,7 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 		}
 	}
 	//#RHI: Samplers
-
+#if 0
 #define NUMSamples 3
 	D3D12_STATIC_SAMPLER_DESC samplers[NUMSamples];
 
@@ -514,8 +516,11 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 	sampler.ShaderRegister = 2;
 	sampler.RegisterSpace = 0;
 	samplers[2] = sampler;
+#else
+	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
 
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, NUMSamples, &samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+#endif
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, samplers.size(), &Samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ID3DBlob* signature = nullptr;
 	ID3DBlob* pErrorBlob = nullptr;
@@ -539,9 +544,10 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 			Log::LogMessage(Log, Log::Severity::Warning);
 		}
 	}
-	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateRootSignature(context->GetNodeIndex(), signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output->RootSig)));
+	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateRootSignature(context->GetNodeMask(), signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output->RootSig)));
 
 	output->RootSig->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
+	delete[] Samplers;
 }
 const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Params)
 {
@@ -585,4 +591,29 @@ ID3DBlob * D3D12Shader::ShaderBlobs::GetBlob(EShaderType::Type t)
 		return csBlob;
 	}
 	return nullptr;
+}
+
+
+D3D12_STATIC_SAMPLER_DESC* D3D12Shader::ConvertSamplers(std::vector<RHISamplerDesc>& samplers)
+{
+	D3D12_STATIC_SAMPLER_DESC * out = new D3D12_STATIC_SAMPLER_DESC[samplers.size()];
+	for (int i = 0; i < samplers.size(); i++)
+	{
+		RHISamplerDesc* Ins = &samplers[i];
+		out[i].AddressU = (D3D12_TEXTURE_ADDRESS_MODE)Ins->UAddressMode;
+		out[i].AddressV = (D3D12_TEXTURE_ADDRESS_MODE)Ins->VAddressMode;
+		out[i].AddressW = (D3D12_TEXTURE_ADDRESS_MODE)Ins->WAddressMode;
+		out[i].Filter = (D3D12_FILTER)Ins->FilterMode;
+		out[i].MaxAnisotropy = Ins->MaxAnisotropy;
+		out[i].ShaderRegister = Ins->ShaderRegister;
+
+		out[i].MipLODBias = 0;
+		out[i].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		out[i].BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+		out[i].MinLOD = 0.0f;
+		out[i].MaxLOD = D3D12_FLOAT32_MAX;
+		out[i].RegisterSpace = 0;
+		out[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	}
+	return out;
 }

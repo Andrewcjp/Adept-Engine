@@ -14,8 +14,9 @@ class BenchMarker;
 struct TimerData
 {
 	float Time = 0.0f;
+	float MaxTime = 0.0f;
 	MovingAverage* AVG = nullptr;
-	std::string name;
+	std::string name = "";
 	int GroupId = 0;
 	bool Active = false;
 	bool DirectUpdate = false;
@@ -26,6 +27,26 @@ struct TimerData
 	ECommandListType::Type TimerType = ECommandListType::Graphics;
 	bool HiddenFromDisplay = false;
 	int LastFrameUsed = 0;
+	MovingAverage* MAXAVG = nullptr;
+	~TimerData()
+	{
+		SafeDelete(AVG);
+		SafeDelete(MAXAVG);
+	}
+	TimerData(const TimerData& t)
+	{
+		*this = t;
+		AVG = new MovingAverage(50);
+		MAXAVG = new MovingAverage(50);
+	}
+	TimerData(std::string kname,int groupid)
+	{
+		name = kname;
+		GroupId = groupid;
+		AVG = new MovingAverage(50);
+		MAXAVG = new MovingAverage(50);
+	}
+	
 };
 class PerfManager
 {
@@ -145,7 +166,7 @@ private:
 	float StatAccum = 0;
 	bool Capture = true;
 	MovingAverage CPUAVG = MovingAverage(50);
-	std::vector<TimerData> SortedTimers;
+	std::vector<const TimerData*> SortedTimers;
 	//stats UI
 	const float TextSize = 0.4f;
 	const int Height = 20;

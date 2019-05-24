@@ -306,32 +306,11 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 	glm::vec3 startPos = glm::vec3(0, 5, 0);
 	stride = 5.0f;
-	for (int y = 0; y < size; y++)
-	{
-		for (int x = 0; x < size; x++)
-		{
-			for (int z = 0; z < size; z++)
-			{
-				go = new GameObject("Water");
-				go->SetMoblity(GameObject::Dynamic);
-				mat = Material::CreateDefaultMaterialInstance();
-				mat->SetFloat("Roughness", x * (1.0f / (size - 1)));
-				mat->SetFloat("Metallic", y * (1.0f / (size - 1)));
-				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-				MeshLoader::FMeshLoadingSettings s;
-				//s.AllowInstancing = false;
-				MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj", s), mat));
-				c->SetMaterial(mat, 0);
-				go->GetTransform()->SetPos(startPos + glm::vec3(x*stride, y*stride, z*stride));
-				go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-				go->GetTransform()->SetScale(glm::vec3(1));
-				AddGameobjectToScene(go);
-			}
-		}
-	}
+	CreateGrid(size, startPos, 5.0f);
+
 
 #endif
-
+	CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
 	SpawnBox(glm::vec3(17, 1, -12));
 	SpawnBox(glm::vec3(17, 1, -9));
 	SpawnBox(glm::vec3(14, 1, -12));
@@ -355,6 +334,33 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddGameobjectToScene(go);
 #endif
 	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects()->size()));
+}
+
+void Scene::CreateGrid(int size, glm::vec3 startPos, float stride)
+{
+	for (int y = 0; y < size; y++)
+	{
+		for (int x = 0; x < size; x++)
+		{
+			for (int z = 0; z < size; z++)
+			{
+				GameObject* go = new GameObject("Water");
+				go->SetMoblity(GameObject::Dynamic);
+				Material* mat = Material::CreateDefaultMaterialInstance();
+				mat->SetFloat("Roughness", x * (1.0f / (size - 1)));
+				mat->SetFloat("Metallic", y * (1.0f / (size - 1)));
+				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+				MeshLoader::FMeshLoadingSettings s;
+				//s.AllowInstancing = false;
+				MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj", s), mat));
+				c->SetMaterial(mat, 0);
+				go->GetTransform()->SetPos(startPos + glm::vec3(x*stride, y*stride, z*stride));
+				go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+				go->GetTransform()->SetScale(glm::vec3(1));
+				AddGameobjectToScene(go);
+			}
+		}
+	}
 }
 
 void Scene::SpawnDoor(std::string name, glm::vec3 pos)

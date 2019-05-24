@@ -83,7 +83,7 @@ void D3D12TimeManager::UpdateTimers()
 			Q->TimerQueries.clear();
 			continue;
 		}
-		int id = PerfManager::Get()->AddTimer(Q->name.c_str(), "GPU");
+		int id = PerfManager::Get()->AddTimer((Q->name + std::to_string(Device->GetDeviceIndex())).c_str(), "GPU");
 		PerfManager::Get()->UpdateStat(id, Q->TotalTime, 0.0f);
 		if (Q->name == "Total GPU")
 		{

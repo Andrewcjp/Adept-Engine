@@ -85,7 +85,7 @@ void BaseWindow::FixedUpdate()
 }
 
 void BaseWindow::Render()
-{	
+{
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->ClearStats();
@@ -202,7 +202,7 @@ void BaseWindow::Render()
 #if !BASIC_RENDER_ONLY
 	DebugLineDrawer::Get2()->GenerateLines();
 	DebugLineDrawer::Get()->GenerateLines();
-	Renderer->Render();	
+	Renderer->Render();
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
 	GPUPerfGraph->Render();
@@ -229,7 +229,7 @@ void BaseWindow::Render()
 		TextRenderer::instance->Finish();
 	}
 	PerfManager::EndTimer("TEXT");
-	
+
 
 	PerfManager::EndTimer("UI");
 #endif
@@ -420,8 +420,8 @@ void BaseWindow::Resize(int width, int height, bool force /*= false*/)
 	}
 	if (Renderer != nullptr)
 	{
-		RHI::WaitForGPU();
-		RHI::ResizeSwapChain(width, height);
+		/*RHI::WaitForGPU();
+		RHI::ResizeSwapChain(width, height);*/
 		Renderer->Resize(width, height);
 	}
 }
@@ -538,7 +538,8 @@ void BaseWindow::RenderText()
 	stream << std::fixed << std::setprecision(2);
 	if (ShowText)
 	{
-		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms " << Engine::GetPhysicsDeltaTime() * 1000 << "ms ";
+		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
+		stream << "Ratio " << RHI::GetRenderSettings()->GetCurrentRenderScale()<<"X ";
 		if (RHI::GetRenderSettings()->IsDeferred)
 		{
 			stream << "DEF ";

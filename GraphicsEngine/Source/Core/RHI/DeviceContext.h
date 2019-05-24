@@ -63,8 +63,8 @@ public:
 	RHI_API void AddTransferBuffer(FrameBuffer* buffer);
 	RHI_API void RemoveTransferBuffer(FrameBuffer* buffer);
 	void ResetStat();
-	RHI_API uint GetGPUMask();
-	RHI_API void SetMaskFromIndex(int GPUIndex);
+	RHI_API uint GetNodeMask();
+	RHI_API void SetNodeMaskFromIndex(int GPUIndex);
 	RHI_API bool IsDedicated();
 	RHI_API bool IsIntergrated();
 	RHI_API EGPUType::Type GetType();

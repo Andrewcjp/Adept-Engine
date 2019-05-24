@@ -13,13 +13,13 @@ HMDManager::~HMDManager()
 
 void HMDManager::Init()
 {	
-	return;
-	HeadSet = HMD::Create();
+	//return;
+	HeadSet = HMD::Create(true);
 	if (HeadSet != nullptr)
 	{
 		HeadSet->Init();
 	}
-	HeadSet->UpdateProjection(2.5);
+	//HeadSet->UpdateProjection(2.5);
 	RHI::GetRenderSettings()->LockBackBuffer = true;
 	RHI::GetRenderSettings()->LockedWidth = HeadSet->GetDimentions().x;
 	RHI::GetRenderSettings()->LockedHeight = HeadSet->GetDimentions().y;

@@ -79,6 +79,7 @@ public:
 	ShadowRenderer* mShadowRenderer = nullptr;
 	void RunLightCulling();
 	LightCullingEngine* LightCulling = nullptr;
+	DynamicResolutionScaler* GetDS();
 protected:
 	void ShadowPass();
 	void CubeMapPass();

@@ -199,7 +199,7 @@ RenderSettings::RenderSettings()
 	UseZPrePass = true;
 	SetRes(BBTestMode::HD);
 	UseGeometryShaderForShadows = true;
-	//EnableDynamicResolutionScaling = true;
+	EnableDynamicResolutionScaling = true;
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
@@ -261,7 +261,7 @@ void RenderSettings::SetDebugRenderMode(ERenderDebugOutput::Type mode)
 
 void RenderSettings::SetRenderScale(float newscale)
 {
-	newscale = glm::clamp(newscale, 0.4f, 3.0f);
+	newscale = glm::clamp(newscale, 0.4f, MaxRenderScale);
 	if (RenderScale == newscale)
 	{
 		return;
