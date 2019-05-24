@@ -102,11 +102,7 @@ int PerfManager::AddTimer(int id, int groupid)
 	{
 		return id;
 	}
-	TimerData Data;
-	Data.AVG = new MovingAverage(AvgCount);
-	Data.name = GetTimerName(id);
-	Data.GroupId = groupid;
-	AVGTimers.emplace(id, Data);
+	AVGTimers.emplace(id, TimerData(GetTimerName(id), groupid));
 	TimerOutput.emplace(id, 0.0f);
 #endif
 	return id;
@@ -375,6 +371,15 @@ void PerfManager::Internal_NotifyEndOfFrame()
 		}
 		TimerData*  data = &AVGTimers.at(it->first);
 		data->AVG->Add(it->second);
+		if(data->MAXAVG->IsLastIndex())
+		{
+			data->MAXAVG->Add(0);
+		}
+		else
+		{
+			data->MAXAVG->Add(glm::max(it->second, data->MAXAVG->GetCurrentAverage()));
+		}
+		
 		if (!data->DirectUpdate)
 		{
 			it->second = 0.0f;
@@ -384,6 +389,7 @@ void PerfManager::Internal_NotifyEndOfFrame()
 			data->AVG->clear();
 			data->AVG->Add(it->second);
 		}
+
 		data->LastCallCount = data->CallCount;
 		data->CallCount = 0;
 	}
@@ -458,9 +464,10 @@ void PerfManager::ClearStats()
 	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		it->second.Time = it->second.AVG->GetCurrentAverage();
+		it->second.MaxTime = it->second.MAXAVG->GetCurrentAverage();
 		if (Capture)
 		{
-			if (it->second.LastFrameUsed < RHI::GetFrameCount() - 5)
+			if (it->second.LastFrameUsed < RHI::GetFrameCount() - 60)
 			{
 				it->second.Active = false;
 			}
@@ -567,7 +574,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 		{
 			continue;
 		}
-		SortedTimers.push_back(it->second);
+		SortedTimers.push_back(&it->second);
 	}
 	if (SortedTimers.size() == 0)
 	{
@@ -575,9 +582,9 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 	}
 	struct less_than_key
 	{
-		bool operator() (TimerData& struct1, TimerData& struct2)
+		bool operator() (const TimerData* struct1, const TimerData* struct2)
 		{
-			return (struct1.Time > struct2.Time);
+			return (struct1->Time > struct2->Time);
 		}
 	};
 	std::sort(SortedTimers.begin(), SortedTimers.end(), less_than_key());
@@ -589,15 +596,18 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 	}
 	for (int i = 0; i < SortedTimers.size(); i++)
 	{
-		Textcontext->RenderFromAtlas(SortedTimers[i].name, (float)x, (float)CurrentHeight, TextSize);
+		Textcontext->RenderFromAtlas(SortedTimers[i]->name, (float)x, (float)CurrentHeight, TextSize);
 		std::stringstream stream;
-		stream << std::fixed << std::setprecision(3) << SortedTimers[i].Time << "ms ";
+		stream << std::fixed << std::setprecision(3) << SortedTimers[i]->Time << "ms";
 		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth), (float)CurrentHeight, TextSize);
 		stream.str("");
-		if (!SortedTimers[i].IsGPUTimer)
+		stream << std::fixed << std::setprecision(3) << " Max:" << SortedTimers[i]->MaxTime << "ms ";
+		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth * 1.4f), (float)CurrentHeight, TextSize);
+		stream.str("");
+		if (!SortedTimers[i]->IsGPUTimer)
 		{
-			stream << SortedTimers[i].LastCallCount;
-			Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth * 1.4), (float)CurrentHeight, TextSize);
+			stream << SortedTimers[i]->LastCallCount;
+			Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth * 2.0), (float)CurrentHeight, TextSize);
 		}
 		CurrentHeight -= Height;
 	}

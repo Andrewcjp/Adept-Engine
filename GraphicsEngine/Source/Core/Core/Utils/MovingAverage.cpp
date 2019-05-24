@@ -1,4 +1,5 @@
 #include "MovingAverage.h"
+#include "Core/Platform/PlatformCore.h"
 MovingAverage::MovingAverage(unsigned short filterLength)
 {
 	FilterLength = filterLength;
@@ -36,7 +37,7 @@ void MovingAverage::clear()
 	Average = 0.0f;
 	Index = -1;
 }
-#include "Core/Platform/PlatformCore.h"
+
 void MovingAverage::Add(float x)
 {
 	Index = (Index + 1) % FilterLength;
@@ -82,4 +83,9 @@ float MovingAverage::GetRaw()
 unsigned short MovingAverage::GetFilterLength()
 {
 	return FilterLength;
+}
+
+bool MovingAverage::IsLastIndex() const
+{
+	return Index == FilterLength - 1;
 }

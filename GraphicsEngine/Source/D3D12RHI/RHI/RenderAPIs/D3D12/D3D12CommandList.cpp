@@ -9,6 +9,7 @@
 #include "Rendering/Core/RenderBaseTypes.h"
 #include "DescriptorHeapManager.h"
 #include "Descriptor.h"
+#include "DescriptorGroup.h"
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else
@@ -299,7 +300,7 @@ void D3D12PipeLineStateObject::Complie()
 	ensure((Desc.ShaderInUse->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(Desc.ShaderInUse->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
-	D3D12Shader::CreateRootSig(this, Desc.ShaderInUse->GetShaderParameters(), Device, Desc.ShaderInUse->IsComputeShader());
+	D3D12Shader::CreateRootSig(this, Desc.ShaderInUse->GetShaderParameters(), Device, Desc.ShaderInUse->IsComputeShader(), RHISamplerDesc::GetDefault());
 	if (Desc.ShaderInUse->IsComputeShader())
 	{
 		D3D12Shader::CreateComputePipelineShader(this, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Desc, Device);
@@ -366,17 +367,17 @@ void D3D12CommandList::CreateCommandList()
 	}
 	if (ListType == ECommandListType::Graphics)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Compute)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Copy)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeIndex(), D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], nullptr, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], nullptr, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	if (mDeviceContext->SupportsCommandList4())
@@ -734,7 +735,7 @@ void D3D12Buffer::SetupBufferSRV()
 		srvDesc.Buffer.NumElements = ElementCount;
 		srvDesc.Buffer.StructureByteStride = ElementSize;
 		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		SRVDesc = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+		SRVDesc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 		SRVDesc->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
 	}
 }
@@ -946,7 +947,7 @@ void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 	ensure(d3dtarget->CheckDevice(Device->GetDeviceIndex()));
 	if (UAVDescriptor == nullptr)
 	{
-		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 #if NAME_RHI_PRIMS
 	SetDebugName(d3dtarget->GetDebugName());
@@ -969,7 +970,7 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	if (UAVDescriptor == nullptr)
 	{
-		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 #if NAME_RHI_PRIMS
 	SetDebugName(D3DTarget->GetDebugName());
@@ -989,7 +990,7 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	if (UAVDescriptor == nullptr)
 	{
-		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		UAVDescriptor = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 #if NAME_RHI_PRIMS
 	SetDebugName(D3DTarget->GetDebugName());
@@ -1021,7 +1022,7 @@ D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntri
 {
 	AddCheckerRef(D3D12RHITextureArray, this);
 	Device = (D3D12DeviceContext*)device;
-	Desc = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumEntries);
+	Desc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumEntries);
 }
 
 D3D12RHITextureArray::~D3D12RHITextureArray()
@@ -1062,7 +1063,8 @@ void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*=
 		Log::LogMessage("Texture Array Slot Cannot be set null without format", Log::Error);
 		return;
 	}
-	Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Desc->GetCPUAddress(TargetIndex));
+	Desc->CreateShaderResourceView(nullptr, &NullHeapDesc, TargetIndex);
+	//Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Desc->GetCPUAddress(TargetIndex));
 }
 
 void D3D12RHITextureArray::SetFrameBufferFormat(RHIFrameBufferDesc & desc)

@@ -113,46 +113,11 @@ void D3D12DeviceContext::CheckFeatures()
 	}
 }
 
-
-void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
+void D3D12DeviceContext::InitDevice(int index)
 {
-	//EnableStablePower.SetValue(true);
-	pDXGIAdapter = (IDXGIAdapter3*)adapter;
-	pDXGIAdapter->GetDesc1(&Adaptordesc);
-	VendorID = Adaptordesc.VendorId;
-
-
-	HRESULT result = D3D12CreateDevice(
-		pDXGIAdapter,
-		D3D_FEATURE_LEVEL_11_0,
-		IID_PPV_ARGS(&m_Device)
-	);
-	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
-	ThrowIfFailed(result);
-
-	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
-	if (MaxLevel != D3D_FEATURE_LEVEL_11_0)
-	{
-		m_Device->Release();
-		ThrowIfFailed(D3D12CreateDevice(
-			pDXGIAdapter,
-			MaxLevel,
-			IID_PPV_ARGS(&m_Device)
-		));
-	}
-	DEVICE_NAME_OBJECT(m_Device);
-	CheckFeatures();
-	ReportData();
-	if (LogDeviceDebug)
-	{
-		std::stringstream ss;
-		ss << "Device Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel);
-		Log::LogMessage(ss.str());
-		Log::LogMessage("Creating device with " + std::to_string(m_Device->GetNodeCount()) + " Nodes");
-	}
 	DeviceIndex = index;
 	//#SLI Mask needs to be set correctly to handle mixed SLI 
-	SetMaskFromIndex(0);
+
 
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
@@ -162,7 +127,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	queueDesc.NodeMask = GetGPUMask();
+	queueDesc.NodeMask = GetNodeMask();
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_MainCommandQueue)));
 	DEVICE_NAME_OBJECT(m_MainCommandQueue);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
@@ -219,6 +184,54 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	CopyTimeStampHeap = new D3D12QueryHeap(this, 512, D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP);
 	InitCopyListPool();
 	PostInit();
+}
+
+void D3D12DeviceContext::CreateNodeDevice(ID3D12Device* dev, int nodemask, int index)
+{
+	m_Device = dev;
+	Log::LogMessage("Creating Node device " + std::to_string(nodemask) + "/" + std::to_string(m_Device->GetNodeCount()) + " Nodes");
+	SetNodeMaskFromIndex(nodemask);
+	InitDevice(index);
+}
+
+void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
+{
+	//EnableStablePower.SetValue(true);
+	pDXGIAdapter = (IDXGIAdapter3*)adapter;
+	pDXGIAdapter->GetDesc1(&Adaptordesc);
+	VendorID = Adaptordesc.VendorId;
+
+
+	HRESULT result = D3D12CreateDevice(
+		pDXGIAdapter,
+		D3D_FEATURE_LEVEL_11_0,
+		IID_PPV_ARGS(&m_Device)
+	);
+	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
+	ThrowIfFailed(result);
+
+	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
+	if (MaxLevel != D3D_FEATURE_LEVEL_11_0)
+	{
+		m_Device->Release();
+		ThrowIfFailed(D3D12CreateDevice(
+			pDXGIAdapter,
+			MaxLevel,
+			IID_PPV_ARGS(&m_Device)
+		));
+	}
+	DEVICE_NAME_OBJECT(m_Device);
+	CheckFeatures();
+	ReportData();
+	if (LogDeviceDebug)
+	{
+		std::stringstream ss;
+		ss << "Device Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel);
+		Log::LogMessage(ss.str());
+		Log::LogMessage("Creating device with " + std::to_string(m_Device->GetNodeCount()) + " Nodes");
+	}
+	SetNodeMaskFromIndex(0);
+	InitDevice(index);
 
 }
 
@@ -280,7 +293,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
 	DeviceContext::ResetDeviceAtEndOfFrame();
-
+	HeapManager->EndOfFrame();
 	GetCommandAllocator()->Reset();
 	GetSharedCommandAllocator()->Reset();
 	ResetCopyEngine();
@@ -491,7 +504,7 @@ DescriptorHeapManager * D3D12DeviceContext::GetHeapManager()
 	return HeapManager;
 }
 
-D3D12QueryHeap * D3D12DeviceContext::GetTimeStampHeap() 
+D3D12QueryHeap * D3D12DeviceContext::GetTimeStampHeap()
 {
 	return TimeStampHeap;
 }
@@ -509,6 +522,16 @@ void D3D12DeviceContext::OnFrameStart()
 	{
 		CopyTimeStampHeap->BeginQuerryBatch();
 	}
+}
+
+bool D3D12DeviceContext::IsPartOfNodeGroup()
+{
+	return m_Device->GetNodeCount() > 1;
+}
+
+int D3D12DeviceContext::GetNodeCount()
+{
+	return m_Device->GetNodeCount();
 }
 
 GPUSyncPoint::~GPUSyncPoint()

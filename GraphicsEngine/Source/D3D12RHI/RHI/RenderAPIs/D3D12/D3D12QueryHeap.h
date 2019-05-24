@@ -11,6 +11,7 @@ struct DX12QueryBatch
 	{
 		Startindex = 0;
 		Count = 0;
+		MemoryUtils::DeleteVector(Queries);
 		Queries.clear();
 	}
 	void Alloc(D3D12Query* Q);

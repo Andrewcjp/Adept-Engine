@@ -37,6 +37,10 @@ void ForwardRenderer::Resize(int width, int height)
 	m_width = width;
 	m_height = height;
 	DDOs[0].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+	if (RHI::IsRenderingVR())
+	{
+		DDOs[0].RightEyeFramebuffer->Resize(GetScaledWidth(), GetScaledHeight());
+	}
 	if (DDOs[1].MainFrameBuffer != nullptr)
 	{
 		DDOs[1].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
@@ -93,6 +97,8 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 		Desc.IsShared = true;
 		Desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 	}
+	
+	Desc.AllowDynamicResize = true;
 	DDOs[TargetDevice->GetDeviceIndex()].MainFrameBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
 	if (RHI::SupportVR())
 	{
@@ -137,7 +143,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	else
 	{
 		Culling->UpdateMainPassFrustumCulling(MainCamera, MainScene);
-	}	
+	}
 	MainPass(List, O->GetMain(eye), eye);
 	List->EndTimer(EGPUTIMERS::MainPass);
 	O->SkyboxShader->Render(SceneRender, List, O->GetMain(eye), nullptr);
@@ -154,7 +160,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), targetbuffer);
 	Cmdlist->SetPipelineStateDesc(desc);
-	
+
 #if !BASIC_RENDER_ONLY
 	if (mShadowRenderer != nullptr)
 	{
@@ -174,8 +180,8 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
 
-	//	Cmdlist->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
-			Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
+		//	Cmdlist->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
+		Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 
 	}
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
@@ -190,13 +196,6 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	mShadowRenderer->Unbind(Cmdlist);
 #endif
 	LightCulling->Unbind(Cmdlist);
-	//if (Cmdlist->GetDeviceIndex() == 0 && DevicesInUse > 1)
-	//{
-	//	//#TODO check
-	//	targetbuffer->MakeReadyForCopy(Cmdlist);
-	//}
-	//targetbuffer->MakeReadyForCopy(Cmdlist);
-
 }
 
 

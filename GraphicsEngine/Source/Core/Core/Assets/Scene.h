@@ -32,6 +32,7 @@ public:
 	CORE_API GameObject* SpawnBox(glm::vec3 pos);
 	void LoadExampleScene(RenderEngine * Renderer, bool IsDeferredMode);
 
+	void CreateGrid(int size, glm::vec3 startPos, float stride);
 	void SpawnDoor(std::string name, glm::vec3 pos);
 
 	std::vector<Light*>* GetLights()

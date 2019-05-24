@@ -129,7 +129,9 @@ public:
 	D3D12QueryHeap* GetCopyTimeStampHeap();
 
 	virtual void OnFrameStart() override;
-
+	bool IsPartOfNodeGroup();
+	int GetNodeCount();
+	void CreateNodeDevice(ID3D12Device * dev, int nodemask, int index);
 private:
 	//Query heaps
 	D3D12QueryHeap* TimeStampHeap = nullptr;
@@ -140,6 +142,10 @@ private:
 	GPUFenceSync InterGPUSync;
 	GPUFenceSync ComputeSync;
 	void CheckFeatures();
+	void InitDevice(int index);
+
+
+
 	bool LogDeviceDebug = true;
 
 	//Device Data

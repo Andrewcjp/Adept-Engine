@@ -545,7 +545,7 @@ void D3D12RHI::PresentFrame()
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(GetPrimaryDevice()->GetCommandAllocator(), nullptr);
-//		((D3D12TimeManager*)GetPrimaryDevice()->GetTimeManager())->EndTotalGPUTimer(m_SetupCommandList);
+		//		((D3D12TimeManager*)GetPrimaryDevice()->GetTimeManager())->EndTotalGPUTimer(m_SetupCommandList);
 		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
 
 		m_SetupCommandList->Close();
@@ -592,6 +592,7 @@ void D3D12RHI::PresentFrame()
 	{
 		HasSetup = true;
 	}
+
 #if LOG_RESOURCE_TRANSITIONS
 	Log::LogMessage("-----Frame END------");
 #endif
@@ -698,6 +699,18 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 				{
 					Log::LogMessage("Forced Single Gpu Mode");
 					return true;
+				}
+				if ((*Device)->IsPartOfNodeGroup())
+				{
+					//we have a linked group!
+					//
+					int ExtraNodes = glm::min(CurrentDeviceIndex + (*Device)->GetNodeCount() - 1, MAX_GPU_DEVICE_COUNT);
+					for (int i = 0; i < ExtraNodes; i++)
+					{
+						DeviceContexts[CurrentDeviceIndex] = new D3D12DeviceContext();
+						DeviceContexts[CurrentDeviceIndex]->CreateNodeDevice((*Device)->GetDevice(), i + 1, CurrentDeviceIndex);
+						CurrentDeviceIndex++;
+					}
 				}
 			}
 		}

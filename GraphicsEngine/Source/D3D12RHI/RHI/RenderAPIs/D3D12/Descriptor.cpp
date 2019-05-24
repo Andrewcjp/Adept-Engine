@@ -13,6 +13,7 @@ Descriptor::~Descriptor()
 void Descriptor::Init(D3D12_DESCRIPTOR_HEAP_TYPE T, DescriptorHeap* heap, int size)
 {
 	Type = T;
+	Data.resize(size);
 	Owner = heap;
 	DescriptorCount = size;
 }
@@ -39,19 +40,25 @@ int Descriptor::GetSize()
 
 void Descriptor::Recreate()
 {
-	if (TargetResource != nullptr)
+	for (int i = 0; i < DescriptorCount; i++)
 	{
-		if (DescriptorType == EDescriptorType::SRV)
+		DescData* Desc = &Data[i];
+		if (Desc->NeedsUpdate)
 		{
-			Owner->GetDevice()->GetDevice()->CreateShaderResourceView(TargetResource, &SRVDesc, GetCPUAddress(OffsetInHeap));
-		}
-		else if (DescriptorType == EDescriptorType::UAV)
-		{
-			Owner->GetDevice()->GetDevice()->CreateUnorderedAccessView(TargetResource, UAVCounterResource, &UAVDesc, GetCPUAddress(OffsetInHeap));
-		}
-		else if (DescriptorType == EDescriptorType::CBV)
-		{
-
+			if (DescriptorType == EDescriptorType::SRV)
+			{
+				Desc->NeedsUpdate = false;
+				Owner->GetDevice()->GetDevice()->CreateShaderResourceView(Desc->TargetResource, &Desc->SRVDesc, GetCPUAddress(Desc->OffsetInHeap));
+			}
+			else if (DescriptorType == EDescriptorType::UAV)
+			{
+				Desc->NeedsUpdate = false;
+				Owner->GetDevice()->GetDevice()->CreateUnorderedAccessView(Desc->TargetResource, Desc->UAVCounterResource, &Desc->UAVDesc, GetCPUAddress(Desc->OffsetInHeap));
+			}
+			else if (DescriptorType == EDescriptorType::CBV)
+			{
+				//unused for now
+			}
 		}
 	}
 }
@@ -59,24 +66,34 @@ void Descriptor::Recreate()
 void Descriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC * pDesc, int offset)
 {
 	DescriptorType = EDescriptorType::SRV;
-	SRVDesc = *pDesc;
-	TargetResource = pResource;
-	OffsetInHeap = offset;
-	Recreate();
+	DescData* Desc = &Data[offset];
+	Desc->SRVDesc = *pDesc;
+	Desc->TargetResource = pResource;
+	Desc->OffsetInHeap = offset;
+	Desc->NeedsUpdate = true;
+	//Recreate();
 }
 
 void Descriptor::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Resource * pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC * pDesc, int offset)
 {
 	DescriptorType = EDescriptorType::UAV;
-	UAVDesc = *pDesc;
-	TargetResource = pResource;
-	UAVCounterResource = pCounterResource;
-	OffsetInHeap = offset;
-	Recreate();
+	DescData* Desc = &Data[offset];
+	Desc->UAVDesc = *pDesc;
+	Desc->TargetResource = pResource;
+	Desc->UAVCounterResource = pCounterResource;
+	Desc->OffsetInHeap = offset;
+	Desc->NeedsUpdate = true;
+	//Recreate();
 }
 
 void Descriptor::Release()
 {
 	Owner->RemoveDescriptor(this);
+}
+
+void Descriptor::SetOwner(DescriptorHeap * heap)
+{
+	Owner = heap;
+	Data[0].NeedsUpdate = true;
 }
 

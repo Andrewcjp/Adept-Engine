@@ -17,6 +17,7 @@ private:
 	float TargetGPUTimeMS = 16.0f;
 	float MaxChange = 0.2f;
 	float CurrentCooldown = 0.0f;
+	float DeadZone = 0.5f;
 	TimerData* Timer = nullptr;
 };
 

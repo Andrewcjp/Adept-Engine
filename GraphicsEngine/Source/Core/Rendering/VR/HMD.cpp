@@ -12,10 +12,10 @@ HMD::HMD()
 HMD::~HMD()
 {}
 
-HMD * HMD::Create()
+HMD* HMD::Create(bool forcedebug /*= false*/)
 {
 	//if needed return different HMD class
-	if (ViveHMD::CanCreate() && false)
+	if (ViveHMD::CanCreate() && !forcedebug)
 	{
 		Log::LogMessage("Found VR HMD");
 		return new ViveHMD();
@@ -32,7 +32,6 @@ VRCamera * HMD::GetVRCamera()
 void HMD::Init()
 {
 	CameraInstance = new VRCamera();
-
 }
 
 void HMD::Update()

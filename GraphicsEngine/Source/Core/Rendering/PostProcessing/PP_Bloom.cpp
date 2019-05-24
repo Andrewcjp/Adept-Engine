@@ -56,7 +56,7 @@ void PP_Bloom::PostInitEffect(FrameBuffer * Target)
 
 	Desc.Width = Target->GetWidth();
 	Desc.Height = Target->GetHeight();
-	Desc.StartingState = GPU_RESOURCE_STATES::D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	BloomBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), Desc);
 	BlurEffect->InitEffect(BloomBuffer);
 }

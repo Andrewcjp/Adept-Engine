@@ -18,10 +18,13 @@ LightCullingEngine::~LightCullingEngine()
 
 void LightCullingEngine::Init()
 {
-	CullingList[0] = RHI::CreateCommandList(ECommandListType::Compute);
-	if (RHI::SupportVR())
+	if (CullingList[0] == nullptr)
 	{
-		CullingList[1] = RHI::CreateCommandList(ECommandListType::Compute);
+		CullingList[0] = RHI::CreateCommandList(ECommandListType::Compute);
+		if (RHI::SupportVR())
+		{
+			CullingList[1] = RHI::CreateCommandList(ECommandListType::Compute);
+		}
 	}
 	CreateLightDataBuffer();
 }

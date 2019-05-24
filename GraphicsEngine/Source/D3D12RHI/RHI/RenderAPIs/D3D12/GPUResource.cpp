@@ -143,8 +143,10 @@ void GPUResource::Release()
 	IRHIResourse::Release();
 	if (resource != nullptr)
 	{
+#if 0
 		int iirefcount = resource->AddRef();
-		iirefcount = resource->Release();
+		int niirefcount = resource->Release();
+#endif
 		resource->Release();
 		resource = nullptr;
 	}

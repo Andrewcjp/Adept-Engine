@@ -78,6 +78,7 @@ void RenderEngine::PreRender()
 	{
 		StaticUpdate();
 	}
+	Scaler->Tick();
 	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
@@ -93,7 +94,7 @@ void RenderEngine::PreRender()
 		MainCamera = MainScene->GetCurrentRenderCamera();
 	}
 	ParticleSystemManager::Get()->PreRenderUpdate(MainCamera);
-	Scaler->Tick();
+
 	//if using VR FS culling in run just before each eye
 	if (!RHI::IsRenderingVR())
 	{
@@ -207,13 +208,17 @@ void RenderEngine::PrepareData()
 void RenderEngine::Resize(int width, int height)
 {
 	Post->Resize(DDOs[0].MainFrameBuffer);
-	if (MainCamera != nullptr)
-	{
-		MainCamera->UpdateProjection((float)width / (float)height);
-	}
+
 	if (RHI::IsRenderingVR())
 	{
-		RHI::GetHMD()->UpdateProjection((float)width / (float)height);
+		RHI::GetHMD()->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
+	}
+	else
+	{
+		if (MainCamera != nullptr)
+		{
+			MainCamera->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
+		}
 	}
 	int ApoxPValue = glm::iround((float)GetScaledWidth() / (16.0f / 9.0f));
 	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << " approx: " << ApoxPValue << "P " << Log::OutS;
@@ -360,7 +365,7 @@ int RenderEngine::GetScaledWidth()
 {
 	if (RHI::GetRenderSettings()->LockBackBuffer)
 	{
-		return RHI::GetRenderSettings()->LockedWidth;
+		return RHI::GetRenderSettings()->LockedWidth*RHI::GetRenderSettings()->GetCurrentRenderScale();
 	}
 	else
 	{
@@ -372,7 +377,7 @@ int RenderEngine::GetScaledHeight()
 {
 	if (RHI::GetRenderSettings()->LockBackBuffer)
 	{
-		return RHI::GetRenderSettings()->LockedHeight;
+		return RHI::GetRenderSettings()->LockedHeight*RHI::GetRenderSettings()->GetCurrentRenderScale();
 	}
 	else
 	{
@@ -495,4 +500,9 @@ void RenderEngine::PostSizeUpdate()
 void RenderEngine::RunLightCulling()
 {
 	LightCulling->LaunchCullingForScene(EEye::Left);
+}
+
+DynamicResolutionScaler * RenderEngine::GetDS()
+{
+	return Scaler;
 }

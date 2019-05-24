@@ -5,6 +5,7 @@ class DescriptorHeap;
 class D3D12DeviceContext;
 class D3D12CommandList;
 class Descriptor;
+class DescriptorGroup;
 class D3D12Texture : public BaseTexture
 {
 public:
@@ -36,7 +37,7 @@ private:
 	bool UsingDDSLoad = false;
 	ID3D12Resource* m_texture = nullptr;
 	GPUResource* TextureResource = nullptr;
-	Descriptor* SRVDesc = nullptr;
+	DescriptorGroup* SRVDesc = nullptr;
 	int FrameCreated = -1;
 };
 

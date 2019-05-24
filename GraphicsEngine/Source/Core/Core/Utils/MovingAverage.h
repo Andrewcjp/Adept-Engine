@@ -10,6 +10,7 @@ public:
 
 	void Add(float value);
 	unsigned short GetFilterLength();
+	bool IsLastIndex() const;
 	float GetCurrentAverage();
 	void clear();
 	float* GetArray();

@@ -158,6 +158,7 @@ D3D12_SRV_DIMENSION D3D12Helpers::ConvertDimension(eTextureDimension Dim)
 {
 	return (D3D12_SRV_DIMENSION)Dim;
 }
+
 //#DX12 complete!
 D3D12_DSV_DIMENSION D3D12Helpers::ConvertDimensionDSV(eTextureDimension Dim)
 {
@@ -656,4 +657,31 @@ size_t D3D12Helpers::BitsPerPixel(_In_ DXGI_FORMAT fmt)
 	default:
 		return 0;
 	}
+}
+
+
+
+D3D12_RESOURCE_ALLOCATION_INFO D3D12Helpers::GetResourceSizeData(int width, int height, DXGI_FORMAT  format, D3D12_RESOURCE_DIMENSION dim, bool Depth, D3D12DeviceContext* c)
+{
+	if (format == DXGI_FORMAT_UNKNOWN)
+	{
+		return D3D12_RESOURCE_ALLOCATION_INFO();
+	}
+	if (c == nullptr)
+	{
+		c = (D3D12DeviceContext*)RHI::GetDefaultDevice();
+	}
+	D3D12_RESOURCE_DESC d = {};
+	d.Width = width;
+	d.Height = height;
+	d.DepthOrArraySize = 1;
+	d.MipLevels = 1;
+	d.Dimension = dim;
+	d.Format = format;
+	d.Alignment = 0;
+	d.SampleDesc.Count = 1;
+
+	d.Flags = (Depth ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+	D3D12_RESOURCE_ALLOCATION_INFO i = c->GetDevice()->GetResourceAllocationInfo(0, 1, &d);
+	return i;
 }

@@ -45,6 +45,7 @@ public:
 	static std::string ResouceStateToString(D3D12_RESOURCE_STATES state);
 	static size_t GetBytesPerPixel(DXGI_FORMAT fmt);
 	static size_t BitsPerPixel(DXGI_FORMAT fmt);
+	static D3D12_RESOURCE_ALLOCATION_INFO GetResourceSizeData(int width, int height, DXGI_FORMAT format, D3D12_RESOURCE_DIMENSION dim,bool depth = false, D3D12DeviceContext * c = nullptr);
 };
 
 //Used to Copy Back resources for read

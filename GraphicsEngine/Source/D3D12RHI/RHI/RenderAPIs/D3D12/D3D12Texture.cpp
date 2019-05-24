@@ -11,7 +11,7 @@
 #include "D3D12DeviceContext.h"
 #include "D3D12CommandList.h"
 #include "DescriptorHeapManager.h"
-#include "Descriptor.h"
+#include "DescriptorGroup.h"
 
 CreateChecker(D3D12Texture);
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
@@ -365,7 +365,7 @@ void D3D12Texture::UpdateSRV()
 	//add to heap
 	if (SRVDesc == nullptr)
 	{
-		SRVDesc = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		SRVDesc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 
 	SRVDesc->CreateShaderResourceView(m_texture, &srvDesc);

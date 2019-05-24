@@ -1,4 +1,3 @@
-#include "D3D12RHIPCH.h"
 #include "ShaderReflection.h"
 #include <d3d12shader.h>
 #include <d3dcompiler.h>

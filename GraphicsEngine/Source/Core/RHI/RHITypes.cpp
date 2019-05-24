@@ -397,5 +397,22 @@ size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
 
 size_t RHIUtils::GetPixelSize(eTEXTURE_FORMAT format)
 {
-	return BitsPerPixel(format)/8;
+	return BitsPerPixel(format) / 8;
+}
+
+RHISamplerDesc::RHISamplerDesc(ESamplerFilterMode::Type filter, ESamplerWrapMode::Type WrapMode, int Reg)
+{
+	FilterMode = filter;
+	UAddressMode = WrapMode;
+	VAddressMode = WrapMode;
+	ShaderRegister = Reg;
+}
+
+std::vector<RHISamplerDesc> RHISamplerDesc::GetDefault()
+{
+	std::vector<RHISamplerDesc> Out;
+	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_WRAP, 0));
+	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_POINT, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 1));
+	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 2));
+	return Out;
 }

@@ -6,7 +6,7 @@
 
 ViveHMD::ViveHMD()
 {
-	RenderScale = 0.6;
+	RenderScale = 1.0f;
 }
 
 ViveHMD::~ViveHMD()

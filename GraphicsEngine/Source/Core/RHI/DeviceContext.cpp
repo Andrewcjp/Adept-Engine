@@ -186,12 +186,12 @@ void DeviceContext::ResetStat()
 	}
 }
 
-uint DeviceContext::GetGPUMask()
+uint DeviceContext::GetNodeMask()
 {
 	return GPUMask;
 }
 //#SLI Create struct for GPU mask settings
-void DeviceContext::SetMaskFromIndex(int GPUIndex)
+void DeviceContext::SetNodeMaskFromIndex(int GPUIndex)
 {
 	GPUMask = (1 << GPUIndex);
 }
