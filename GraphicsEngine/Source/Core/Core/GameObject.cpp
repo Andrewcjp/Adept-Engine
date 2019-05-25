@@ -9,9 +9,10 @@
 #include "Components/ColliderComponent.h"
 
 
-GameObject::GameObject(std::string name, EMoblity stat, int oid)
+GameObject::GameObject(std::string name, EMoblity stat, int oid) :
+	Name(name)
 {
-	Name = name;
+
 	ObjectID = oid;
 	Mobilty = stat;
 	m_transform = new Transform();
@@ -130,6 +131,16 @@ Mesh * GameObject::GetMesh()
 	return nullptr;
 }
 
+MeshRendererComponent * GameObject::GetMeshRenderer() const
+{
+	return m_MeshRenderer;
+}
+
+std::string GameObject::GetName()
+{
+	return Name;
+}
+
 RigidBody * GameObject::GetRigidbody()
 {
 	if (PhysicsBodyComponent != nullptr)
@@ -199,6 +210,12 @@ GameObject::EMoblity GameObject::GetMobility()
 {
 	return Mobilty;
 }
+
+void GameObject::SetName(std::string name)
+{
+	Name = name;
+}
+
 #if WITH_EDITOR
 void GameObject::EditorUpdate()
 {
@@ -220,6 +237,7 @@ void GameObject::EditorUpdate()
 	}
 }
 #endif
+
 Component* GameObject::IN_AttachComponent(Component * Component)
 {
 	if (Component == nullptr)
@@ -270,6 +288,7 @@ void GameObject::SetParent(GameObject * Parent)
 		mParent->Children.push_back(this);
 	}
 }
+
 #if WITH_EDITOR
 std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()
 {
@@ -308,6 +327,7 @@ void GameObject::ProcessSerialArchive(Archive* A)
 		ArchiveProp(m_Components);
 	}
 }
+
 #if WITH_EDITOR
 //called when the editor updates a value
 void GameObject::PostChangeProperties()
@@ -320,6 +340,7 @@ void GameObject::PostChangeProperties()
 	}
 }
 #endif
+
 void GameObject::ChangePos_editor(glm::vec3 NewPos)
 {
 	PositionDummy = NewPos;
@@ -352,12 +373,18 @@ void GameObject::BroadCast_OnCollide(CollisonData Data)
 		m_Components[i]->OnCollide(Data);
 	}
 }
+
 void GameObject::BroadCast_OnTrigger(CollisonData Data)
 {
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		m_Components[i]->OnTrigger(Data);
 	}
+}
+
+int GameObject::GetAudioId()
+{
+	return AudioId;
 }
 
 void GameObject::MoveComponent(glm::vec3 newpos, glm::quat newrot, bool UpdatePhysics)

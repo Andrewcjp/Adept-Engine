@@ -171,13 +171,13 @@ private:
 class RHIRenderPassInfo
 {
 public:
-	RHIRenderPass* Pass;
-	FrameBuffer* TargetBuffer;
+	RHIRenderPass* Pass = nullptr;
+	FrameBuffer* TargetBuffer = nullptr;
 	RHIRenderPassInfo()
 	{}
 	RHIRenderPassInfo(FrameBuffer* buffer, ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear);
 	//TODO turn this to a desc to cache passes.
-	ERenderPassLoadOp::Type LoadOp;
+	ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear;
 protected:
 
 };

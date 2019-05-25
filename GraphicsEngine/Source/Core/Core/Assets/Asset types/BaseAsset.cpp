@@ -8,7 +8,7 @@ BaseAsset::BaseAsset()
 BaseAsset::~BaseAsset()
 {}
 
-void BaseAsset::LoadAsset(std::string SourceFile)
+void BaseAsset::LoadAsset(const std::string& SourceFile)
 {
 	PathToSource = SourceFile;
 	//#Asset Load the GUID from the Meta data!
@@ -18,7 +18,7 @@ void BaseAsset::LoadAsset(std::string SourceFile)
 	SafeDelete(A);
 }
 
-void BaseAsset::GenerateNewAsset(std::string AssetSourcePath)
+void BaseAsset::GenerateNewAsset(const std::string& AssetSourcePath)
 {
 	//#Asset GUID size_t type?
 	GUID = PlatformMisc::GenerateGUID();

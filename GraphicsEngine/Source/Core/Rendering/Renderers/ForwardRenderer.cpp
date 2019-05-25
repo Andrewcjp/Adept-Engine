@@ -97,7 +97,6 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 		Desc.IsShared = true;
 		Desc.DeviceToCopyTo = RHI::GetDeviceContext(0);
 	}
-	
 	Desc.AllowDynamicResize = true;
 	DDOs[TargetDevice->GetDeviceIndex()].MainFrameBuffer = RHI::CreateFrameBuffer(TargetDevice, Desc);
 	if (RHI::SupportVR())
@@ -179,14 +178,11 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	}
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-
-		//	Cmdlist->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
+		//Cmdlist->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
 		Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
-
 	}
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
-	//Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::LightBuffer);
 	LightCulling->BindLightBuffer(Cmdlist);
 	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
 	//render the transparent objects AFTER the main scene

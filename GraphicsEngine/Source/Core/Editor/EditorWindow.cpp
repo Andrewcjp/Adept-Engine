@@ -83,6 +83,11 @@ void EditorWindow::PostInitWindow(int w, int h)
 	AISystem::Get()->GenerateMesh();
 }
 
+EditorWindow* EditorWindow::GetInstance()
+{
+	return instance;
+}
+
 void EditorWindow::EnterPlayMode()
 {
 	if (IsPlayingScene)
@@ -322,6 +327,11 @@ void EditorWindow::Eject()
 bool EditorWindow::IsEditorEjected()
 {
 	return EditorCamera->GetEnabled();
+}
+
+bool EditorWindow::IsInPlayMode()
+{
+	return IsPlayingScene;
 }
 
 void EditorWindow::SaveScene()

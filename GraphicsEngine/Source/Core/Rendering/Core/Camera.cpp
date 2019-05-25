@@ -14,12 +14,12 @@ Camera::Camera()
 	UpdateProjection(1);
 }
 
-Camera::Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar) :Camera()
+Camera::Camera(glm::vec3 pos, float ffov, float aspect, float zNear, float zFar) :Camera()
 {
 	m_pos = pos;
 	zNear = zNear;
 	ZFar = zFar;
-	fov = fov;
+	fov = ffov;
 	UpdateProjection(aspect);
 }
 

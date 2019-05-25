@@ -20,7 +20,7 @@ cbuffer LightBuffer : register(b1)
 #if 1
 RWStructuredBuffer<uint> LightList : register(u0);
 #else
-ByteAddressBuffer LightList : register(t0);
+StructuredBuffer<uint> LightList : register(t0);
 #endif
 
 
@@ -98,8 +98,6 @@ float4 main(PSInput input) : SV_TARGET
 	startOffset += 1;
 	//int index = LightList[startOffset/* + i*/];
 
-	
-	//[allow_uav_condition]
 	[unroll(MAX_LIGHTS)]
 	for (int i = 0; i < LightCount; i++)
 	{

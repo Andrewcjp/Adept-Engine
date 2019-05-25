@@ -24,6 +24,7 @@ void UIDrawBatcher::Init()
 	desc.ShaderInUse = Shader;
 	commandlist->SetPipelineStateDesc(desc);
 }
+
 void UIDrawBatcher::ReallocBuffer(int NewSize)
 {
 	ensure(NewSize < Max_Verts);
@@ -36,7 +37,7 @@ void UIDrawBatcher::ReallocBuffer(int NewSize)
 
 UIDrawBatcher::~UIDrawBatcher()
 {
-	BatchedVerts.empty();
+	BatchedVerts.clear();
 	EnqueueSafeRHIRelease(VertexBuffer);
 	EnqueueSafeRHIRelease(commandlist);
 }

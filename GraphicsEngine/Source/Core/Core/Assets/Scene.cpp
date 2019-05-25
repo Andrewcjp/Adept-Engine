@@ -310,7 +310,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 
 #endif
-	CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
+	//CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
 	SpawnBox(glm::vec3(17, 1, -12));
 	SpawnBox(glm::vec3(17, 1, -9));
 	SpawnBox(glm::vec3(14, 1, -12));
@@ -389,7 +389,7 @@ void Scene::RemoveCamera(Camera * Cam)
 	}
 	else
 	{
-		Cameras.empty();
+		Cameras.clear();
 	}
 	if (CurrentCamera == Cam)
 	{
@@ -412,7 +412,7 @@ void Scene::RemoveLight(Light * Light)
 	}
 	else
 	{
-		Lights.empty();
+		Lights.clear();
 	}
 }
 

@@ -7,7 +7,7 @@
 Log::StreamWrapper Log::OutS;
 Log* Log::Instance = nullptr;
 
-void Log::LogOutput(std::string data, int colour, bool ForceFlush /*= false*/)
+void Log::LogOutput(const std::string& data, int colour, bool ForceFlush /*= false*/)
 {
 	if (Instance == nullptr)
 	{

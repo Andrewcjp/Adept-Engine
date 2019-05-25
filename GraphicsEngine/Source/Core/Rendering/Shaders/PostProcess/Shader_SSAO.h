@@ -9,6 +9,7 @@ struct ShaderData
 	glm::mat4 view;
 	glm::vec3 samples[64];
 };
+
 class Shader_SSAO :
 	public Shader
 {
@@ -17,8 +18,6 @@ public:
 	Shader_SSAO(DeviceContext* d);
 	void Bind(RHICommandList * list);
 	~Shader_SSAO();
-	void RenderPlane();
-	void UpdateOGLUniforms(Transform * t, Camera * c, std::vector<Light*> lights);
 	void Resize(int width, int height);
 	RHIBuffer* DataBuffer;
 	ShaderData CurrentData;
@@ -30,11 +29,7 @@ private:
 	std::vector<glm::vec3> ssaoKernel;
 	int mwidth = 0;
 	int mheight = 0;
-	// Inherited via Shader
 
-
-	// Inherited via Shader
-	void UpdateD3D11Uniforms(Transform * t, Camera * c, std::vector<Light*> lights);
 
 };
 class Shader_SSAO_Merge :

@@ -28,3 +28,13 @@ void UILabel::ResizeView(int w, int h, int x, int y)
 	X = x;
 	Y = y;
 }
+
+void UILabel::SetText(std::string text)
+{
+	MText = text;
+}
+
+std::string UILabel::GetText()
+{
+	return MText;
+}

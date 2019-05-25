@@ -36,7 +36,7 @@ void AssetManager::StartAssetManager()
 void AssetManager::ShutDownAssetManager()
 {
 	SafeDelete(instance);
-	
+
 
 }
 
@@ -230,7 +230,7 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 	Desc.IsCubeMap = settings.IsCubeMap;
 
 	if (Fileref.GetFileType() == AssetFileType::DDS)
-	{		
+	{
 #if WITH_EDITOR
 		//Temp copy to DDC
 		ensure(PlatformApplication::CopyFileToTarget(Fileref.GetFullPathToAsset(), GetDDCPath() + Fileref.GetBaseNameExtention()));
@@ -239,7 +239,7 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 	}
 
 	//#Files: Deal with TGA to DDS 
-	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ name.find(".tga") != -1 || settings.DirectLoad)
+	if (/*Fileref.GetFileType() == AssetFileType::DDS ||*/ StringUtils::Contains(name, ".tga") || settings.DirectLoad)
 	{
 		return RHI::CreateTexture(Fileref, Device, Desc);
 	}
