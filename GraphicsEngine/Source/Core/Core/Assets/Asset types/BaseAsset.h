@@ -20,8 +20,8 @@ public:
 	//Blank assets can be created but are not valid
 	BaseAsset();
 	virtual ~BaseAsset();
-	void LoadAsset(std::string SourceFile);
-	void GenerateNewAsset(std::string AssetSourcePath);
+	void LoadAsset(const std::string& SourceFile);
+	void GenerateNewAsset(const std::string& AssetSourcePath);
 	void SaveAsset();
 	virtual void ProcessAsset(Archive* A);
 	CORE_API int GetGUID() const;

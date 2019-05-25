@@ -111,7 +111,6 @@ void ViveHMD::Update()
 		vr::VRControllerState_t state;
 		if (system->GetControllerState(unDevice, &state, sizeof(state)))
 		{
-			float t = 0;
 			//m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
 		}
 	}

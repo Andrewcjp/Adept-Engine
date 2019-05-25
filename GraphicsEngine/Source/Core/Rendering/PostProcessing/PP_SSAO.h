@@ -10,6 +10,6 @@ protected:
 	virtual void PostSetUpData() override;
 	virtual void PostInitEffect(FrameBuffer* Target) override;
 private:
-	FrameBuffer* SSAOOutput;
+	FrameBuffer* SSAOOutput = nullptr;
 };
 

@@ -9,6 +9,7 @@ std::string GenericPlatformMisc::GetDateTimeString()
 	localtime_s(now, &t);
 	std::stringstream out;
 	out << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' << now->tm_mday << "-" << (now->tm_hour) << "-" << (now->tm_min) << "-" << (now->tm_sec);
+	delete now;
 	return out.str();
 }
 

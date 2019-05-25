@@ -43,6 +43,16 @@ struct Tag
 struct TagContainer
 {
 	std::vector<Tag> Tags;
-	CORE_API bool Contains(Tag t);
-	CORE_API void Add(std::string name);
+	CORE_API bool Contains(const Tag& t);
+	CORE_API void Add(const std::string& name);
+};
+
+class BitFlagsBase
+{
+public:
+	void SetFlagValue(int flag, bool value);
+	bool GetFlagValue(int flag);
+	void SetFlags(int flags);
+private:
+	int Flags = 0;
 };

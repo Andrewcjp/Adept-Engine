@@ -4,12 +4,12 @@
 #include <experimental/filesystem>
 #include "Core/Utils/FileUtils.h"
 namespace fs = std::experimental::filesystem;
-int64_t GenericApplication::GetFileTimeStamp(const std::string Path)
+int64_t GenericApplication::GetFileTimeStamp(const std::string& Path)
 {
 	return fs::_Last_write_time(StringUtils::ConvertStringToWide(Path).c_str());
 }
 
-bool GenericApplication::CheckFileSrcNewer(const std::string srcpath, const  std::string dest)
+bool GenericApplication::CheckFileSrcNewer(const std::string& srcpath, const std::string dest)
 {
 	if (!FileUtils::File_ExistsTest(srcpath) || !FileUtils::File_ExistsTest(dest))
 	{

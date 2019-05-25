@@ -5,6 +5,7 @@ class Descriptor;
 class D3D12DeviceContext;
 //points to 2 or more descriptors one in flight and one in record.
 //handles updating when in flight switches with record.
+//todo: what manages this object?
 class DescriptorGroup
 {
 public:
@@ -17,7 +18,7 @@ public:
 	int indexInHeap = 0;
 	D3D12_DESCRIPTOR_HEAP_TYPE GetType();
 	int GetSize();
-	DescriptorHeap* Owner;
+	//DescriptorHeap* Owner;
 	void Recreate();
 	void CreateShaderResourceView(ID3D12Resource  *pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC *pDesc, int offset = 0);
 	void CreateUnorderedAccessView(ID3D12Resource *pResource, ID3D12Resource *pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC *pDesc, int offset = 0);

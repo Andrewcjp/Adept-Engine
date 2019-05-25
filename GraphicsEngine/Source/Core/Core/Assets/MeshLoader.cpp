@@ -90,6 +90,7 @@ bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * Skeletal
 		Settings.AnimSettings.AssimpAnim = scene->mAnimations[i];
 		SkeletalMesh->AnimNameMap.emplace(Animname, Settings.AnimSettings);
 	}
+	//#ANIM: memory leak here fix once moved to own anim system
 	return true;
 }
 

@@ -16,10 +16,10 @@ ConsoleVariable::ConsoleVariable(std::string name, float defaultValue, ECVarType
 	IsFloat = true;
 }
 
-ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue)
+ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, bool needsValue)
 {
 	Type = cvartype;
-	NeedsValue = NeedsValue;
+	NeedsValue = needsValue;
 	if (cvartype != ECVarType::LaunchOnly)
 	{
 		ConsoleVariableManager::Get()->ConsoleVars.push_back(this);

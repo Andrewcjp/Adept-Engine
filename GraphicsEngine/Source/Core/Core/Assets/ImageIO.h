@@ -24,6 +24,6 @@ private:
 	~ImageIO();
 	static ImageIO* instance;
 	std::vector<BaseTextureRef> LoadedTextures;
-	bool IN_CheckIfLoaded(std::string name, BaseTextureRef * out);
+	bool IN_CheckIfLoaded(const std::string& name, BaseTextureRef * out);
 };
 

@@ -15,23 +15,17 @@ FString::FString()
 #endif
 }
 
-FString::FString(std::string input, bool Hash /*= false*/) :FString()
+FString::FString(std::string input, bool Hash /*= false*/) :
+	UnderlyingString(input)
 {
-	UnderlyingString = input;
 	if (Hash)
 	{
 		SetupHash();
 	}
 }
 
-FString::FString(const char * text, bool Hash /*= false*/) :FString()
-{
-	UnderlyingString = std::string(text);
-	if (Hash)
-	{
-		SetupHash();
-	}
-}
+FString::FString(const char * text, bool Hash /*= false*/) :FString(std::string(text), Hash)
+{}
 
 FString::~FString()
 {

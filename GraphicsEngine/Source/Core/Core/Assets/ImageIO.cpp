@@ -62,7 +62,7 @@ bool ImageIO::CheckIfLoaded(std::string name, BaseTextureRef * out)
 	return false;
 }
 
-bool ImageIO::IN_CheckIfLoaded(std::string name, BaseTextureRef * out)
+bool ImageIO::IN_CheckIfLoaded(const std::string& name, BaseTextureRef * out)
 {
 	for (unsigned int i = 0; i < LoadedTextures.size(); i++)
 	{

@@ -143,15 +143,12 @@ private:
 	GPUFenceSync ComputeSync;
 	void CheckFeatures();
 	void InitDevice(int index);
-
-
-
 	bool LogDeviceDebug = true;
 
 	//Device Data
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;
 	ID3D12Device* m_Device = nullptr;
-	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
+	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
 	ID3D12CommandQueue* m_MainCommandQueue = nullptr;
 
 	int CurrentFrameIndex = 0;

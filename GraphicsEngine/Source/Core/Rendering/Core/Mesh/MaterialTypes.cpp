@@ -34,6 +34,7 @@ size_t ParmeterBindSet::GetSize()
 
 void ParmeterBindSet::AllocateMemeory()
 {
+	ensure(data == nullptr);
 	data = new unsigned char[GetSize()];
 	for (int i = 0; i < GetSize(); i++)
 	{

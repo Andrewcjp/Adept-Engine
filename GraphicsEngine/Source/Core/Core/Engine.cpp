@@ -45,7 +45,9 @@ std::string Engine::GetExecutionDir()
 	return std::string(ws.begin(), ws.end());
 }
 
-Engine::Engine(EnginePersistentData* epd)
+Engine::Engine(EnginePersistentData* epd):
+	mwidth(0),
+	mheight(0)
 {
 	EPD = epd;
 

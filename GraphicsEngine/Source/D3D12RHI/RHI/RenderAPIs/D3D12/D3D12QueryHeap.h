@@ -31,7 +31,7 @@ public:
 private:
 	void CreateHeap();
 	void CreateResultsBuffer();
-	DX12QueryBatch CurrentBatch;
+	DX12QueryBatch CurrentBatch = {};
 	std::vector<DX12QueryBatch> CurrentActiveBatches;
 	D3D12DeviceContext* Device = nullptr;
 	int HeapSize = 0;

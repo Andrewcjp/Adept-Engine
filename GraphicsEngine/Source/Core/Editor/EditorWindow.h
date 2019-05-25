@@ -16,11 +16,7 @@ class EditorWindow : public BaseWindow
 {
 public:
 	void PostInitWindow(int w, int h) override;
-
-	CORE_API static EditorWindow* GetInstance()
-	{
-		return instance;
-	}
+	CORE_API static EditorWindow* GetInstance();
 	EditorWindow();
 	virtual ~EditorWindow();
 	void EnterPlayMode();
@@ -32,10 +28,7 @@ public:
 	IntRect GetViewPortRect();
 	void Eject();
 	CORE_API bool IsEditorEjected();
-	bool IsInPlayMode()
-	{
-		return IsPlayingScene;
-	};
+	bool IsInPlayMode();;
 protected:
 	bool IsSceneRunning();
 	Scene* GetCurrentScene() override;
@@ -52,11 +45,11 @@ protected:
 private:
 	bool StartSimulate = false;
 	static EditorWindow* instance;
-	EditorGizmos* gizmos;
-	EditorObjectSelector* selector;
+	EditorGizmos* gizmos = nullptr;
+	EditorObjectSelector* selector = nullptr;
 	Scene* CurrentPlayScene = nullptr;
 	bool IsPlayingScene = false;
-	class Editor_Camera* EditorCamera;
+	class Editor_Camera* EditorCamera = nullptr;
 	std::string CurrentSceneSavePath;
 	std::string EditorPlaySceneTempFile = "";
 	EditorCore* mEditorCore = nullptr;

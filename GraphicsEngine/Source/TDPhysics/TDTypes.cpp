@@ -59,7 +59,7 @@ bool TD::TDFlagsBase::GetFlagValue(int flag)
 
 void TD::TDFlagsBase::SetFlags(int flags)
 {
-	Flags = Flags;
+	Flags = flags;
 }
 
 TD::ActorCollisionPair::ActorCollisionPair(TDActor * A, TDActor * B)

@@ -119,7 +119,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 				continue;
 			}
 			lights[i]->Update();
-			LightUniformBuffer newitem;
+			LightUniformBuffer newitem = {};
 			newitem.position = lights[i]->GetPosition();
 			newitem.color = glm::vec3(lights[i]->GetColor());
 			newitem.Direction = lights[i]->GetDirection();

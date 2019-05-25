@@ -11,10 +11,10 @@
 #define SERAL_VERSION_NUMBER 1
 
 #define IN_ArchiveProp(Property) LinkProperty(Property,#Property);
-Archive::Archive(std::string FilePath, bool Write)
+Archive::Archive(std::string FilePath, bool Write):
+	FileName(FilePath),
+	IsAchiveReading(!Write)
 {
-	FileName = FilePath;
-	IsAchiveReading = !Write;
 	Init();
 }
 

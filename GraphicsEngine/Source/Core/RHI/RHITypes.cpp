@@ -116,10 +116,9 @@ bool RHIPipeLineStateDesc::Validate()
 	return true;
 }
 
-RHIPipeLineStateObject::RHIPipeLineStateObject(const RHIPipeLineStateDesc & desc)
-{
-	Desc = desc;
-}
+RHIPipeLineStateObject::RHIPipeLineStateObject(const RHIPipeLineStateDesc & desc) :
+	Desc(desc)
+{}
 
 RHIPipeLineStateObject::~RHIPipeLineStateObject()
 {}

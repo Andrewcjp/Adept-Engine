@@ -27,7 +27,7 @@ Material::Material(Asset_Shader * shader)
 	ParmbindSet = ShaderInterface->GetParamBinds();
 	ParmbindSet.AllocateMemeory();
 	MaterialDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	MaterialDataBuffer->CreateConstantBuffer(ParmbindSet.GetSize(), 1);
+	MaterialDataBuffer->CreateConstantBuffer((int)ParmbindSet.GetSize(), 1);
 }
 
 Material::~Material()

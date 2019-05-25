@@ -38,24 +38,14 @@ public:
 	CORE_API float GetMass();
 	void Render(bool ignoremat, RHICommandList* list);
 	void PrepareDataForRender();
-	EMoblity GetMobility();
+	CORE_API EMoblity GetMobility();
 	CORE_API Mesh* GetMesh();
-	MeshRendererComponent* GetMeshRenderer() const
-	{
-		return m_MeshRenderer;
-	}
-	std::string GetName()
-	{
-		return Name;
-	}
+	CORE_API MeshRendererComponent* GetMeshRenderer() const;
+	CORE_API std::string GetName();
 	CORE_API RigidBody* GetRigidbody();
-	void SetName(std::string name)
-	{
-		Name = name;
-	}
-	bool HasCached = false;
+	CORE_API void SetName(std::string name);
 
-
+	
 #if WITH_EDITOR
 	//Editor only
 	void EditorUpdate();
@@ -91,10 +81,7 @@ public:
 	CORE_API glm::quat GetRotation();
 	void BroadCast_OnCollide(CollisonData Data);
 	void BroadCast_OnTrigger(CollisonData Data);
-	int GetAudioId()
-	{
-		return AudioId;
-	}
+	int GetAudioId();
 	void OnRemoveFromScene();
 	void ValidateObjectInWorld();
 	CullingAABB* GetBounds();

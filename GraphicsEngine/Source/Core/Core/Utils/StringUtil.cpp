@@ -77,3 +77,8 @@ std::string StringUtils::BoolToString(bool value)
 {
 	return value ? "enabled" : "disabled";
 }
+
+bool StringUtils::Contains(const std::string Data, const std::string & value)
+{
+	return Data.find(value) != std::string::npos;
+}
