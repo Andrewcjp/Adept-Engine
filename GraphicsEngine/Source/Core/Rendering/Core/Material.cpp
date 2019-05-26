@@ -22,6 +22,7 @@ Material::Material(Asset_Shader * shader)
 {
 	ShaderInterface = new MaterialShader(shader);
 	MaterialCData.Shader = shader;
+	NeedsUpdate = true;
 	Init();
 	CurrentBindSet = ShaderInterface->GetBinds();
 	ParmbindSet = ShaderInterface->GetParamBinds();
@@ -38,7 +39,12 @@ Material::~Material()
 
 void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
 {
-	ShaderInterface->SetShader(MaterialCData);
+	if (NeedsUpdate)
+	{
+		ShaderInterface->SetShader(MaterialCData);
+		NeedsUpdate = false;
+	}
+
 	Shader_NodeGraph* CurrentShader = nullptr;
 	if (Pass == ERenderPass::BasePass_Cubemap || Pass == ERenderPass::TransparentPass)
 	{
@@ -95,6 +101,12 @@ void Material::Init()
 Shader* Material::GetShaderInstance(EMaterialPassType::Type pass)
 {
 	return ShaderInterface->GetShader(pass);
+}
+
+void Material::SetRenderType(EMaterialRenderType::Type t)
+{
+	NeedsUpdate = true;
+	MaterialCData.MaterialRenderType = t;
 }
 
 void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
@@ -261,6 +273,7 @@ void Material::SetReceiveShadow(bool state)
 	{
 		VectorUtils::Remove(MaterialCData.ShaderKeyWords, std::string("WITH_SHADOW"));
 	}
+	NeedsUpdate = true;
 	UpdateShaderData();
 }
 

@@ -15,6 +15,7 @@ namespace ERenderPass
 		PreZ,
 		Limit
 	};
+	std::string ToString(ERenderPass::Type t);
 }
 namespace EBatchFilter
 {

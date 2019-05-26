@@ -44,6 +44,7 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 		return;
 	}
 	Frustum.SetupFromCamera(maincam);
+	int cullcount = 0;
 	for (int i = 0; i < (*target->GetMeshObjects()).size(); i++)
 	{
 		GameObject* CurrentObj = (*target->GetMeshObjects())[i];
@@ -52,12 +53,12 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 			const bool culled = !Frustum.TestObject(CurrentObj->GetBounds());
 			if (!culled)
 			{
-				PerfManager::AddToCountTimer(MPObjects, 1);
+				cullcount++;
 			}
 			CurrentObj->SetCulledState(ECullingPass::MainPass, culled);
 		}
 	}
-
+	PerfManager::AddToCountTimer(MPObjects, cullcount);
 }
 
 void CullingManager::UpdateCullingForShadowLight(Light* light, Scene* target)

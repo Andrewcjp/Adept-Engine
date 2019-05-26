@@ -127,11 +127,7 @@ void ParticleSystemManager::Sync(ParticleSystem* system)
 }
 
 void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
-{
-	if (!RHI::GetRenderSettings()->EnableGPUParticles)
-	{
-		return;
-	}
+{	
 	if (!System->ShouldSimulate || PauseVar.GetBoolValue())
 	{
 		return;
@@ -231,10 +227,6 @@ void ParticleSystemManager::SubmitRender(FrameBuffer * BufferTarget)
 
 void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * BufferTarget)
 {
-	if (!RHI::GetRenderSettings()->EnableGPUParticles)
-	{
-		return;
-	}
 	if (!System->ShouldRender)
 	{
 		return;
@@ -282,6 +274,10 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 
 void ParticleSystemManager::Simulate()
 {
+	if (!RHI::GetRenderSettings()->EnableGPUParticles)
+	{
+		return;
+	}
 	StartSimulate();
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{
@@ -293,6 +289,10 @@ void ParticleSystemManager::Simulate()
 
 void ParticleSystemManager::Render(FrameBuffer * BufferTarget, FrameBuffer* DepthTexture)
 {
+	if (!RHI::GetRenderSettings()->EnableGPUParticles)
+	{
+		return;
+	}
 	DepthBuffer = DepthTexture;
 	StartRender();
 	for (int i = 0; i < ParticleSystems.size(); i++)

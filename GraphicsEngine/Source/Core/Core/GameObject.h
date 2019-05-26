@@ -87,6 +87,7 @@ public:
 	CullingAABB* GetBounds();
 	bool IsCulled(ECullingPass::Type Pass);
 	void SetCulledState(ECullingPass::Type pass, bool state);
+	bool IsStatic() const;
 private:
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);

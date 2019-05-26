@@ -45,6 +45,10 @@ void MaterialShader::SetShader(MaterialShaderComplieData& data)
 
 Shader_NodeGraph* MaterialShader::GetShader(EMaterialPassType::Type type)
 {
+	if (CurrentData.RenderPassUsage == type)
+	{
+		return CurrentShader;
+	}
 	//todo:
 	CurrentData.RenderPassUsage = type;
 	return GetOrComplie(CurrentData);

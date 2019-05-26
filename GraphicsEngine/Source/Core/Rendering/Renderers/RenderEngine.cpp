@@ -199,6 +199,7 @@ void RenderEngine::PrepareData()
 	{
 		return;
 	}
+	SceneRender->Controller->GatherBatches();
 	for (size_t i = 0; i < (*MainScene->GetMeshObjects()).size(); i++)
 	{
 		(*MainScene->GetMeshObjects())[i]->PrepareDataForRender();
@@ -234,9 +235,6 @@ void RenderEngine::StaticUpdate()
 		mShadowRenderer->Renderered = false;
 	}
 	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
-	PrepareData();
-
-
 	OnStaticUpdate();
 }
 

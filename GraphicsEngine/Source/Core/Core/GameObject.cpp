@@ -57,6 +57,10 @@ void GameObject::SetCulledState(ECullingPass::Type pass, bool state)
 	CullingStates[pass] = state;
 }
 
+bool GameObject::IsStatic() const
+{
+	return Mobilty == EMoblity::Static;
+}
 
 GameObject::~GameObject()
 {
@@ -192,7 +196,7 @@ void GameObject::Update(float delta)
 	}
 	if (changed)
 	{
-		m_transform->Update();
+		//m_transform->Update();
 	}
 	AudioEngine::UpdateWiseTransfrom(this);
 	ValidateObjectInWorld();

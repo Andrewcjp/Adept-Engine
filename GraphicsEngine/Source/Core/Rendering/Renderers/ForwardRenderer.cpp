@@ -151,6 +151,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 
 void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffer, int index)
 {
+	Cmdlist->GetDevice()->GetTimeManager()->StartTotalGPUTimer(Cmdlist);
 	const bool PREZ = RHI::GetRenderSettings()->IsUsingZPrePass();
 	if (PREZ)
 	{

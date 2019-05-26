@@ -63,9 +63,11 @@ public:
 	virtual bool IsComputeShader();
 	virtual void ApplyToCommandList(RHICommandList* list);
 	int GetSlotForName(std::string name);
+	int GetNameHash();
 protected:
 	ShaderProgramBase * m_Shader = nullptr;
 	class DeviceContext* Device = nullptr;
+	long Hash = 0;
 };
 
 const int ALBEDOMAP = 0;

@@ -7,7 +7,7 @@ Shader::Shader()
 Shader::Shader(DeviceContext * context)
 {
 	Device = context;
-	m_Shader = RHI::CreateShaderProgam(context);
+	m_Shader = RHI::CreateShaderProgam(context);	
 }
 
 Shader::~Shader()
@@ -55,6 +55,15 @@ int Shader::GetSlotForName(std::string name)
 	}
 	LogEnsureMsgf(false,"failed to find name in shader");
 	return -1;
+}
+
+int Shader::GetNameHash()
+{
+	if (Hash == 0)
+	{
+		Hash = std::hash<std::string>{} (GetName());
+	}
+	return Hash;
 }
 
 const std::string Shader::GetName()

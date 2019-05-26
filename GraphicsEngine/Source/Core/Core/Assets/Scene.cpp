@@ -62,6 +62,7 @@ void Scene::EditorUpdateScene()
 #endif
 void Scene::OnFrameEnd()
 {
+	ObjectsAddedLastFrame.clear();
 	StaticSceneNeedsUpdate = false;//clear last frames flag
 }
 
@@ -310,7 +311,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 
 #endif
-	//CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
+	CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
 	SpawnBox(glm::vec3(17, 1, -12));
 	SpawnBox(glm::vec3(17, 1, -9));
 	SpawnBox(glm::vec3(14, 1, -12));
@@ -321,7 +322,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 #if 1
 	go = new GameObject("Water");
 	mat = Material::CreateDefaultMaterialInstance();
-	mat->MaterialCData.MaterialRenderType = EMaterialRenderType::Transparent;
+	mat->SetRenderType(EMaterialRenderType::Transparent);
 	mat->UpdateShaderData();
 	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	MeshLoader::FMeshLoadingSettings s;
@@ -345,7 +346,7 @@ void Scene::CreateGrid(int size, glm::vec3 startPos, float stride)
 			for (int z = 0; z < size; z++)
 			{
 				GameObject* go = new GameObject("Water");
-				go->SetMoblity(GameObject::Dynamic);
+				//go->SetMoblity(GameObject::Dynamic);
 				Material* mat = Material::CreateDefaultMaterialInstance();
 				mat->SetFloat("Roughness", x * (1.0f / (size - 1)));
 				mat->SetFloat("Metallic", y * (1.0f / (size - 1)));
@@ -504,6 +505,7 @@ void Scene::AddGameobjectToScene(GameObject* gameobject)
 	{
 		gameobject->BeginPlay();
 	}
+	ObjectsAddedLastFrame.push_back(gameobject);
 }
 
 void Scene::CopyScene(Scene* newscene)

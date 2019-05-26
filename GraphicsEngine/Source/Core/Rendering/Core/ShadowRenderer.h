@@ -66,6 +66,7 @@ public:
 	static eTEXTURE_FORMAT GetDepthType();
 	static eTEXTURE_FORMAT GetDepthReadType();
 	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, class Shader_Main* mainshader = nullptr);
+	bool NeedsAnyShadowUpdate();
 	void RenderOnDevice(DeviceContext * con, const std::vector<GameObject*>& ShadowObjects);
 	void RunPointShadowPass(RHICommandList * List, const std::vector<GameObject*>& ShadowObjects);
 	void AsyncCopy(int Index);

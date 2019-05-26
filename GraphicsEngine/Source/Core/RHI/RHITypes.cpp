@@ -169,6 +169,7 @@ size_t RHIPipeLineStateDesc::GetHash()
 
 void RHIPipeLineStateDesc::CalulateHash()
 {
+	return;
 	//#RHI: hash all members
 	StringPreHash = "";
 	StringPreHash += ShaderInUse->GetName();
@@ -190,10 +191,17 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 	//#RHI:way to get the complier to gen this?
 	if (ShaderInUse != nullptr && other.ShaderInUse != nullptr)
 	{
+#if 0
 		if (ShaderInUse->GetName() != other.ShaderInUse->GetName())
 		{
 			return false;
 		}
+#else
+		if (ShaderInUse->GetNameHash() != other.ShaderInUse->GetNameHash())
+		{
+			return false;
+		}
+#endif
 	}
 	else if (ShaderInUse != other.ShaderInUse)
 	{

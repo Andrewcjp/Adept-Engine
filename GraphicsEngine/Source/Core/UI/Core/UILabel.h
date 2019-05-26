@@ -10,7 +10,7 @@ public:
 	// Inherited via UIWidget
 	virtual void Render() override;
 	virtual void ResizeView(int w, int h, int x = 0, int y = 0) override;
-	CORE_API void SetText(std::string  text);
+	CORE_API void SetText(const std::string& text);
 	CORE_API std::string GetText();
 	float TextScale = 0.5f;
 private:

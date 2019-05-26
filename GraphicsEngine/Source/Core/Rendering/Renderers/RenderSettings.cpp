@@ -199,7 +199,7 @@ RenderSettings::RenderSettings()
 	UseZPrePass = true;
 	SetRes(BBTestMode::HD);
 	UseGeometryShaderForShadows = true;
-	EnableDynamicResolutionScaling = true;
+	//EnableDynamicResolutionScaling = true;
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
