@@ -1,9 +1,7 @@
-#include "Stdafx.h"
 #include "MeshPipelineController.h"
-#include "Core\Assets\Scene.h"
-#include "DepthOnlyMeshProcessor.h"
-#include "Core\Performance\PerfManager.h"
 #include "BasePassMeshProcessor.h"
+#include "Core/Assets/Scene.h"
+#include "DepthOnlyMeshProcessor.h"
 #include "MeshBatch.h"
 #include "TransparentPassMeshProcessor.h"
 #include "ZPrePassMeshProcessor.h"
@@ -41,17 +39,24 @@ void MeshPipelineController::GatherBatches()
 	{
 		return;
 	}
-	MemoryUtils::DeleteVector(Batches);
-	Batches.clear();
-	for (int i = 0; i < (*TargetScene->GetMeshObjects()).size(); i++)
+	for (int i = 0; i < Batches.size(); i++)
 	{
-		GameObject* CurrentObj = (*TargetScene->GetMeshObjects())[i];
+		Batches[i]->Update();
+	}
+	if (TargetScene->ObjectsAddedLastFrame.size() == 0)
+	{
+		return;
+	}
+	//#MESH: handle removal of scene objects
+	for (int i = 0; i < TargetScene->ObjectsAddedLastFrame.size(); i++)
+	{
+		GameObject* CurrentObj = TargetScene->ObjectsAddedLastFrame[i];
 		if (CurrentObj->GetMesh() != nullptr)
 		{
 			Batches.push_back(CurrentObj->GetMesh()->GetMeshBatch());
 		}
-
 	}
+	TargetScene->ObjectsAddedLastFrame.clear();
 	//#mesh custom sort params
 	//sort by closest point in shape
 #if !_DEBUG
@@ -64,7 +69,7 @@ void MeshPipelineController::GatherBatches()
 
 void MeshPipelineController::RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader, EBatchFilter::Type Filter)
 {
-	SCOPE_CYCLE_COUNTER_GROUP((type == ERenderPass::DepthOnly) ? "Depth RenderPass" : "Base RenderPass", "Render");
+	SCOPE_CYCLE_COUNTER_GROUP(ERenderPass::ToString(type).c_str(), "Render");
 	Processors[type]->Reset();
 	for (int i = 0; i < Batches.size(); i++)
 	{
@@ -84,7 +89,10 @@ void MeshPipelineController::RenderPass(ERenderPass::Type type, RHICommandList* 
 		}
 		Processors[type]->AddBatch(Batches[i]);
 	}
-	Processors[type]->SubmitCommands(List, shader);
+	{
+		SCOPE_CYCLE_COUNTER_GROUP("SubmitCommands CPU", "Render");
+		Processors[type]->SubmitCommands(List, shader);
+	}
 	Processors[type]->UpdateStats();
 }
 
@@ -95,4 +103,22 @@ void MeshPipelineController::Init()
 	Processors[ERenderPass::PreZ] = new ZPrePassMeshProcessor();
 	Processors[ERenderPass::BasePass] = new BasePassMeshProcessor();
 	Processors[ERenderPass::BasePass_Cubemap] = new BasePassMeshProcessor(true);
+}
+
+std::string ERenderPass::ToString(ERenderPass::Type t)
+{
+	switch (t)
+	{
+	case ERenderPass::DepthOnly:
+		return "DepthOnly";
+	case ERenderPass::BasePass:
+		return "BasePass";;
+	case ERenderPass::BasePass_Cubemap:
+		return "BasePass_Cubemap";;
+	case ERenderPass::TransparentPass:
+		return "TransparentPass";;
+	case ERenderPass::PreZ:
+		return "PreZ";
+	}
+	return std::string();
 }

@@ -173,7 +173,7 @@ void SerialMaterial(Archive * A, Material* object)
 
 void Mesh::ProcessSerialArchive(Archive * A)
 {
-//	A->LinkPropertyArray<Material>(Materials, "Mats", SerialMaterial);
+	//	A->LinkPropertyArray<Material>(Materials, "Mats", SerialMaterial);
 }
 
 void Mesh::SetShadow(bool state)
@@ -245,6 +245,10 @@ MeshBatch * Mesh::GetMeshBatch()
 
 void Mesh::PrepareDataForRender(GameObject* parent)
 {
+	if (parent->IsStatic() && RHI::GetFrameCount() > 0)
+	{
+		return;
+	}
 	MeshTransfromBuffer SCB = {};
 	SCB.M = parent->GetTransform()->GetModel();
 	PrimitiveTransfromBuffer->UpdateConstantBuffer(&SCB, 0);

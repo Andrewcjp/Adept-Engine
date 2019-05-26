@@ -85,6 +85,7 @@ public:
 	}
 	int FindAllOfName(std::string name, std::vector<GameObject*>& Objects);
 	CORE_API GameObject * FindByName(std::string name);
+	std::vector<GameObject*> ObjectsAddedLastFrame;
 private:
 	bool IsDestruction = false;
 	float GravityStrength = 20.0f;

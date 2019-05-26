@@ -176,9 +176,13 @@ public:
 private:
 	DeviceContext* Device = nullptr;
 	//uint is the hash of the pso desc.
+#if PSO_USE_MAP
 #if PSO_USE_FULL_STRING_MAPS
 	std::map<std::string, RHIPipeLineStateObject*> PSOMap;
 #else
 	std::map<size_t, RHIPipeLineStateObject*> PSOMap;
+#endif
+#else
+	std::vector<RHIPipeLineStateObject*> PSOMap;
 #endif
 };

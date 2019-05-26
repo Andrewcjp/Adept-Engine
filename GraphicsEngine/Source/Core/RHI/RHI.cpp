@@ -618,11 +618,11 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 	ensure(itor->second->GetDesc() == desc);
 	return itor->second;
 #else
-	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
+	for (int i = 0; i < PSOMap.size(); i++)
 	{
-		if (itor->second->GetDesc() == desc)
+		if (PSOMap[i]->GetDesc() == desc)
 		{
-			return itor->second;
+			return PSOMap[i];
 		}
 	}
 	return RHI::CreatePipelineStateObject(desc, Device);
@@ -631,18 +631,22 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 
 void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
 {
+#if PSO_USE_MAP
 #if PSO_USE_FULL_STRING_MAPS
 	PSOMap.emplace(object->GetDescString(), object);
 #else
 	PSOMap.emplace(object->GetDescHash(), object);
 #endif
+#else
+	PSOMap.push_back(object);
+#endif
 }
 
 void PipelineStateObjectCache::Destory()
 {
-	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
+	for (int i = 0; i < PSOMap.size(); i++)
 	{
-		itor->second->Release();
+		PSOMap[i]->Release();
 	}
 	PSOMap.clear();
 }

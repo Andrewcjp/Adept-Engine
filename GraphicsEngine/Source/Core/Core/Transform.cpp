@@ -54,22 +54,15 @@ Transform * Transform::GetParent() const
 
 bool Transform::IsChanged()
 {
-	if (oldpos != _pos)
-		return true;
-
-	if (oldqrot != _qrot)
-		return true;
-
-	if (oldscale != _scale)
-		return true;
-
-	return false;
+	return UpdateModel;
 }
+
 void Transform::Update()
 {
 	oldpos = _pos;
 	oldqrot = _qrot;
 	oldscale = _scale;
+	UpdateModel = false;
 }
 
 void Transform::Serilise(Archive * A)
@@ -114,7 +107,7 @@ glm::mat4 Transform::GetModel(bool NoParent)
 	CacheModel = parentMatrix * (posMat * rotMat * scaleMat);
 	_rot = glm::eulerAngles(_qrot);
 
-	UpdateModel = false;
+	//UpdateModel = false;
 	return CacheModel;
 }
 

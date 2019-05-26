@@ -25,5 +25,6 @@ public:
 	bool MainPassCulled = false;
 	bool ShadowPassCulled = false;
 	GameObject* Owner = nullptr;
+	void Update();
 };
 

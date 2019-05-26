@@ -160,8 +160,24 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, c
 		}
 		Renderered = true;
 	}
+	if (!NeedsAnyShadowUpdate())
+	{
+		return;
+	}
 	RenderOnDevice(RHI::GetDeviceContext(0), ShadowObjects);
 	RenderOnDevice(RHI::GetDeviceContext(1), ShadowObjects);
+}
+
+bool ShadowRenderer::NeedsAnyShadowUpdate()
+{
+	for (int i = 0; i < LightInteractions.size(); i++)
+	{
+		if (LightInteractions[i]->NeedsUpdate())
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void ShadowRenderer::RenderOnDevice(DeviceContext* con, const std::vector<GameObject*>& ShadowObjects)
@@ -327,8 +343,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 }
 
 void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector<GameObject*>& ShadowObjects)
-{
-	Scenerenderer->Controller->GatherBatches();
+{	
 	int IndexOnGPU = 0;
 	for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
 	{

@@ -9,7 +9,6 @@
 #include "BenchMarker.h"
 #include "../Platform/Windows/WindowsApplication.h"
 #include <chrono>
-//#include <pix3.h>
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 unsigned long PerfManager::get_nanos()

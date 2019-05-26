@@ -31,7 +31,7 @@ public:
 	static constexpr const char* DefuseBindName = "DiffuseMap";
 	RHIBuffer* MaterialDataBuffer = nullptr;
 	EMaterialRenderType::Type GetRenderPassType();
-	MaterialShaderComplieData MaterialCData;
+	
 	static Shader* GetDefaultMaterialShader();
 	CORE_API static Material* CreateDefaultMaterialInstance();
 	Shader_NodeGraph* GetShader();
@@ -39,7 +39,10 @@ public:
 	bool IsComplied();
 	void SetReceiveShadow(bool state);
 	Shader * GetShaderInstance(EMaterialPassType::Type pass);
+	void SetRenderType(EMaterialRenderType::Type t);
 private:
+	bool NeedsUpdate = false;
+	MaterialShaderComplieData MaterialCData;
 	TextureBindSet * CurrentBindSet = nullptr;
 	void SetupDefaultBinding(TextureBindSet* TargetSet);
 	MaterialShader* ShaderInterface = nullptr;
