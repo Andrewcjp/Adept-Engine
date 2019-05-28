@@ -134,7 +134,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 				PreSampleIndex++;
 			}
 			newitem.ShadowID = lights[i]->GetShadowId();
-			if (lights[i]->GetType() == Light::Directional || lights[i]->GetType() == Light::Spot)
+			if (lights[i]->GetType() == ELightType::Directional || lights[i]->GetType() == ELightType::Spot)
 			{
 				glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
 				glm::vec3 position = glm::vec3(0, 20, 50);
@@ -142,7 +142,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 				LightView = glm::lookAtLH<float>(position, position + newitem.Direction, glm::vec3(0, 0, 1));//world up
 				float size = 100.0f;
 				glm::mat4 proj;
-				if (lights[i]->GetType() == Light::Spot)
+				if (lights[i]->GetType() == ELightType::Spot)
 				{
 					proj = glm::perspective<float>(glm::radians(45.0f), 1.0f, 2.0f, 50.0f);
 					LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), lights[i]->GetPosition() + newitem.Direction, glm::vec3(0, 0, 1));//world up
@@ -155,7 +155,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 				lights[i]->DirView = LightView;
 				newitem.LightVP = proj * LightView;
 			}
-			if (lights[i]->GetType() == Light::Point)
+			if (lights[i]->GetType() == ELightType::Point)
 			{
 				float znear = 1.0f;
 				float zfar = 500;

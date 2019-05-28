@@ -3,7 +3,7 @@ SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
 #include "Shadow.hlsl"
 
-#define MAX_LIGHTS 8
+#define MAX_LIGHTS 1
 cbuffer LightBuffer : register(b1)
 {
 	Light lights[MAX_LIGHTS];

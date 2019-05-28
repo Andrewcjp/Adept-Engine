@@ -16,12 +16,12 @@
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
 static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly);
-static ConsoleVariable AllowWarp("AllowWarp", 1, ECVarType::LaunchOnly);
+static ConsoleVariable AllowWarp("AllowWarp", 0, ECVarType::LaunchOnly);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
-	ForceSingleGPU.SetValue(true);
+//	ForceSingleGPU.SetValue(true);
 	//ForceNoDebug.SetValue(true);
 }
 

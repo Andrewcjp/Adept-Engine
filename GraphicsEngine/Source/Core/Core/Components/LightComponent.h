@@ -12,7 +12,7 @@ public:
 	// Inherited via Component
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
-	void SetLightType(Light::LightType type);
+	void SetLightType(ELightType::Type type);
 	void SetIntensity(float amt);
 	void SetShadow(bool Shadow);
 	void SetLightColour(glm::vec3 colour);
@@ -26,7 +26,7 @@ private:
 	Light* MLight = nullptr;
 	PROPERTY();
 	float CurrentIntensity = 0.0f;
-	Light::LightType CurrentType = Light::Point;
+	ELightType::Type CurrentType = ELightType::Point;
 	PROPERTY();
 	glm::vec3 CurrentColour = glm::vec3(1);
 	PROPERTY();

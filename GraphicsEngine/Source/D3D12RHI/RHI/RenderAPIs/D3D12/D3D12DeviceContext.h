@@ -100,6 +100,7 @@ public:
 	void CreateDeviceFromAdaptor(IDXGIAdapter1* adapter, int index);
 	void LinkAdaptors(D3D12DeviceContext * other);
 	ID3D12Device* GetDevice();
+	ID3D12Device2 * GetDevice2();
 	ID3D12CommandAllocator* GetCommandAllocator();
 	ID3D12CommandAllocator * GetComputeCommandAllocator();
 	ID3D12CommandAllocator * GetCopyCommandAllocator();
@@ -142,12 +143,15 @@ private:
 	GPUFenceSync InterGPUSync;
 	GPUFenceSync ComputeSync;
 	void CheckFeatures();
+	void LogDeviceData(std::string data);
+	void LogTierData(std::string data, int teir);
 	void InitDevice(int index);
 	bool LogDeviceDebug = true;
 
 	//Device Data
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;
 	ID3D12Device* m_Device = nullptr;
+	ID3D12Device2* m_Device2 = nullptr;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
 	ID3D12CommandQueue* m_MainCommandQueue = nullptr;
 

@@ -2,11 +2,25 @@
 #include <d3d12shader.h>
 #include <d3dcompiler.h>
 #include "Core\Utils\VectorUtils.h"
-
-void ShaderReflection::GatherRSBinds(ID3DBlob * target, std::vector<ShaderParameter> & shaderbinds, bool & iscompute)
+#define DXIL_FOURCC(ch0, ch1, ch2, ch3) (                            \
+  (uint32_t)(uint8_t)(ch0)        | (uint32_t)(uint8_t)(ch1) << 8  | \
+  (uint32_t)(uint8_t)(ch2) << 16  | (uint32_t)(uint8_t)(ch3) << 24   \
+  )
+void ShaderReflection::GatherRSBinds(IDxcBlob * target, std::vector<ShaderParameter> & shaderbinds, bool & iscompute)
 {
-	ID3D12ShaderReflection* REF;
-	D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), IID_PPV_ARGS(&REF));
+	ID3D12ShaderReflection* REF = nullptr;
+#if 0
+	ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), IID_PPV_ARGS(&REF)));
+#else
+	IDxcContainerReflection* pReflection;
+	UINT32 shaderIdx;
+	DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflection));
+	//	m_dllSupport.CreateInstance(CLSID_DxcContainerReflection, &pReflection);
+	ThrowIfFailed(pReflection->Load(target));
+	ThrowIfFailed(pReflection->FindFirstPartKind(DXIL_FOURCC('D', 'X', 'I', 'L'), &shaderIdx));
+	ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, __uuidof(ID3D12ShaderReflection), (void**)&REF));
+
+#endif
 	if (REF == nullptr)
 	{
 		return;

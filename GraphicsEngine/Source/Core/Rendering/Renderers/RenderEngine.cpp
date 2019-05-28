@@ -363,7 +363,7 @@ int RenderEngine::GetScaledWidth()
 {
 	if (RHI::GetRenderSettings()->LockBackBuffer)
 	{
-		return RHI::GetRenderSettings()->LockedWidth*RHI::GetRenderSettings()->GetCurrentRenderScale();
+		return glm::iround(RHI::GetRenderSettings()->LockedWidth*RHI::GetRenderSettings()->GetCurrentRenderScale());
 	}
 	else
 	{
@@ -375,7 +375,7 @@ int RenderEngine::GetScaledHeight()
 {
 	if (RHI::GetRenderSettings()->LockBackBuffer)
 	{
-		return RHI::GetRenderSettings()->LockedHeight*RHI::GetRenderSettings()->GetCurrentRenderScale();
+		return glm::iround(RHI::GetRenderSettings()->LockedHeight*RHI::GetRenderSettings()->GetCurrentRenderScale());
 	}
 	else
 	{
@@ -487,10 +487,10 @@ void RenderEngine::UpdateMainPassCulling(EEye::Type eye)
 void RenderEngine::PostSizeUpdate()
 {
 	std::string Data = "";
-	Data += "MainFrameBuffer Is " + StringUtils::ToStringFloat(DDOs[0].MainFrameBuffer->GetSizeOnGPU() / 1e6) + " MB";
+	Data += "MainFrameBuffer Is " + StringUtils::ToStringFloat(DDOs[0].MainFrameBuffer->GetSizeOnGPU() / 1e6f) + " MB";
 	if (DDOs[0].Gbuffer != nullptr)
 	{
-		Data += "\nGbuffer Is " + StringUtils::ToStringFloat(DDOs[0].Gbuffer->GetSizeOnGPU() / 1e6) + " MB";
+		Data += "\nGbuffer Is " + StringUtils::ToStringFloat(DDOs[0].Gbuffer->GetSizeOnGPU() / 1e6f) + " MB";
 	}
 	Log::LogMessage(Data);
 }

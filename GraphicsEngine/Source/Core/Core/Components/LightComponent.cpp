@@ -30,7 +30,7 @@ void LightComponent::BeginPlay()
 void LightComponent::Update(float)
 {}
 
-void LightComponent::SetLightType(Light::LightType type)
+void LightComponent::SetLightType(ELightType::Type type)
 {
 	MLight->SetLightType(type);
 	CurrentType = type;

@@ -1,16 +1,17 @@
-cbuffer ConstantBuffer : register(b0)
-{
-	row_major matrix ViewProj;
-	int slice : SV_RenderTargetArrayIndex;
-	
-}
-
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
 	float3 uv : TEXCOORD0;
 	uint slice : SV_RenderTargetArrayIndex;
 };
+
+
+cbuffer constantBuffer : register(b0)
+{
+	row_major matrix ViewProj;
+	int slice : SV_RenderTargetArrayIndex;	
+}
+
 
 
 VS_OUTPUT main(float4 position : POSITION )

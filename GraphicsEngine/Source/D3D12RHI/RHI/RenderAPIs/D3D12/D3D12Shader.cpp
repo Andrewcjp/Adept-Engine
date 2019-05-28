@@ -5,9 +5,11 @@
 #include "Core/Utils/FileUtils.h"
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
-#include <d3dcompiler.h>
+
 #include "D3D12CommandList.h"
 #include "ShaderReflection.h"
+
+#pragma comment(lib,"dxcompiler.lib")
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
 #if !BUILD_SHIPPING
 D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
@@ -52,7 +54,7 @@ void StripD3DShader(ID3DBlob** blob)
 #endif
 }
 
-D3D_SHADER_MACRO* D3D12Shader::ParseDefines()
+D3D_SHADER_MACRO* D3D12Shader::ParseDefinesSM5()
 {
 	D3D_SHADER_MACRO* out = new D3D_SHADER_MACRO[Defines.size() + 1];
 	for (int i = 0; i < Defines.size(); i++)//array is set up as Name, Value
@@ -65,13 +67,37 @@ D3D_SHADER_MACRO* D3D12Shader::ParseDefines()
 	out[last].Name = NULL;
 	return out;
 }
-
+LPCWSTR GetCopyStr(std::string data)
+{
+	std::wstring t = StringUtils::ConvertStringToWide(data);
+	wchar_t* Data = new wchar_t[t.size()+1];
+	t.copy(Data, t.size());
+	Data[t.size()] = L'\0';
+	return Data;
+}
+DxcDefine* D3D12Shader::ParseDefinesDXC()
+{
+	if (Defines.size() == 0)
+	{
+		return nullptr;
+	}
+	DxcDefine* out = new DxcDefine[Defines.size() + 1];
+	for (int i = 0; i < Defines.size(); i++)//array is set up as Name, Value
+	{
+		out[i].Name = GetCopyStr(Defines[i].Name);
+		out[i].Value = GetCopyStr(Defines[i].Value);
+	}
+	int last = (int)Defines.size();
+	out[last].Value = NULL;
+	out[last].Name = NULL;
+	return out;
+}
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type type)
 {
 	return AttachAndCompileShaderFromFile(shadername, type, "main");
 }
 
-ID3DBlob** D3D12Shader::GetCurrentBlob(EShaderType::Type type)
+IDxcBlob** D3D12Shader::GetCurrentBlob(EShaderType::Type type)
 {
 	switch (type)
 	{
@@ -109,7 +135,24 @@ const std::string D3D12Shader::GetShaderInstanceHash()
 	size_t Hash = std::hash<std::string>{} (DefineSum);
 	return "_" + std::to_string(Hash);
 }
-
+std::wstring GetLevel()
+{
+	return L"_6_0";
+}
+std::wstring GetComplieTarget(EShaderType::Type t)
+{
+	switch (t)
+	{
+	case EShaderType::SHADER_COMPUTE:
+		return L"cs" + GetLevel();
+	case EShaderType::SHADER_VERTEX:
+		return L"vs" + GetLevel();
+	case EShaderType::SHADER_FRAGMENT:
+		return L"ps" + GetLevel();
+	case EShaderType::SHADER_GEOMETRY:
+		return L"gs" + GetLevel();
+	}
+}
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
 	SCOPE_STARTUP_COUNTER("Shader Compile");
@@ -141,7 +184,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	}
 
 	std::string ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
-	ID3DBlob* pErrorBlob = NULL;
+	IDxcBlobEncoding* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
 	UINT compileFlags = 0;
 	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
@@ -152,11 +195,37 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	{
 		compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS /*| D3DCOMPILE_WARNINGS_ARE_ERRORS*/;
 	}
+	//IDxcCompiler 
+	std::vector<LPCWSTR> arguments;
+	arguments.push_back(L"/O3");
+	IDxcCompiler* complier = nullptr;
+	DxcCreateInstance(CLSID_DxcCompiler, __uuidof(IDxcCompiler), (void **)&complier);
+	IDxcOperationResult* R;
+#if 1
+	DxcDefine* defs = ParseDefinesDXC();
+	IDxcLibrary *pLibrary;
+	IDxcBlobEncoding *pSource;
+	DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), (void **)&pLibrary);
+	pLibrary->CreateBlobWithEncodingFromPinned(ShaderData.c_str(), ShaderData.size(), CP_UTF8, &pSource);
+	hr = complier->Compile(pSource, StringUtils::ConvertStringToWide(shadername).c_str(), StringUtils::ConvertStringToWide(Entrypoint).c_str(), GetComplieTarget(ShaderType).c_str(),
+		arguments.data(), arguments.size(), defs, Defines.size(), nullptr, &R);
+	IDxcBlob* V;
+	R->GetResult(GetCurrentBlob(ShaderType));
+	R->GetErrorBuffer(&pErrorBlob);
+	//	D3DCreateBlob(V->GetBufferSize(), &mBlolbs.vsBlob);
+		//D3DSetBlobPart()
+	R->GetStatus(&hr);
+
+
+	//, "vs_6_0",
+	//compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
+#endif
+#if 0
 	D3D_SHADER_MACRO* defines = ParseDefines();
 	switch (ShaderType)
 	{
 	case EShaderType::SHADER_VERTEX:
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "vs_5_0",
+		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "vs_6_0",
 			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
 		break;
 	case EShaderType::SHADER_FRAGMENT:
@@ -177,17 +246,22 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		ensureMsgf(false, "Unknown Shader Type!");
 		break;
 	}
+#endif
 	if (!ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
-		StripD3DShader(GetCurrentBlob(ShaderType));
+		//		StripD3DShader(GetCurrentBlob(ShaderType));
 	}
 	if (pErrorBlob)
 	{
 		std::string Log = "Shader Compile Output: ";
 		Log.append(name);
 		Log.append("\n");
-		Log.append(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
-
+		IDxcBlobEncoding *pPrintBlob16;
+		// We can use the library to get our preferred encoding.
+		pLibrary->GetBlobAsUtf8(pErrorBlob, &pPrintBlob16);
+		std::string S = std::string((char*)pErrorBlob->GetBufferPointer(), (int)pPrintBlob16->GetBufferSize());
+		Log.append(S);
+		pPrintBlob16->Release();
 		if (FAILED(hr))
 		{
 			Log::LogMessage(Log, Log::Severity::Error);
@@ -242,7 +316,7 @@ const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, 
 	return OutputName;
 }
 
-bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const std::string & InstanceHash, EShaderType::Type type)
+bool D3D12Shader::TryLoadCachedShader(std::string Name, IDxcBlob ** Blob, const std::string & InstanceHash, EShaderType::Type type)
 {
 	if (!CacheBlobs)
 	{
@@ -257,8 +331,8 @@ bool D3D12Shader::TryLoadCachedShader(std::string Name, ID3DBlob ** Blob, const 
 #else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, FullShaderName))
 	{
-		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
-		return true;
+		//ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
+		//return true;
 	}
 	return false;
 #endif
@@ -270,18 +344,21 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 	{
 		const std::string DDcShaderPath = AssetManager::GetDDCPath() + "Shaders\\";
 		FileUtils::CreateDirectoriesToFullPath(DDcShaderPath + shadername + ".");
-		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
+		//	ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
 	}
 }
 
-
+D3D12_SHADER_BYTECODE D3D12Shader::GetByteCode(IDxcBlob* b)
+{
+	return D3D12_SHADER_BYTECODE{ b->GetBufferPointer(), b->GetBufferSize() };
+}
 void D3D12Shader::CreateComputePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, const RHIPipeLineStateDesc& Depthtest,
 	DeviceContext* context)
 {
 	SCOPE_STARTUP_COUNTER("Create Compute PSO");
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
 	computePsoDesc.pRootSignature = output->RootSig;
-	computePsoDesc.CS = CD3DX12_SHADER_BYTECODE(blobs->csBlob);
+	computePsoDesc.CS = GetByteCode(blobs->csBlob);
 	computePsoDesc.NodeMask = context->GetNodeMask();
 	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&output->PSO)));
 
@@ -296,19 +373,20 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	{
 		context = RHI::GetDeviceContext(0);
 	}
+	CD3DX12_PIPELINE_STATE_STREAM1 Stream;
 	// Describe and create the graphics pipeline state object (PSO).
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = { 0 };
 	psoDesc.InputLayout.pInputElementDescs = inputDisc;
 	psoDesc.InputLayout.NumElements = DescCount;
 	psoDesc.pRootSignature = output->RootSig;
-	psoDesc.VS = CD3DX12_SHADER_BYTECODE(blobs->vsBlob);
+	psoDesc.VS = GetByteCode(blobs->vsBlob);
 	if (blobs->fsBlob != nullptr)
 	{
-		psoDesc.PS = CD3DX12_SHADER_BYTECODE(blobs->fsBlob);
+		psoDesc.PS = GetByteCode(blobs->fsBlob);
 	}
 	if (blobs->gsBlob != nullptr)
 	{
-		psoDesc.GS = CD3DX12_SHADER_BYTECODE(blobs->gsBlob);
+		psoDesc.GS = GetByteCode(blobs->gsBlob);
 	}
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	if (PSODesc.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -359,13 +437,32 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	psoDesc.NumRenderTargets = PSODesc.RenderTargetDesc.NumRenderTargets;
 	psoDesc.SampleDesc.Count = PSODesc.SampleCount;
 	psoDesc.NodeMask = context->GetNodeMask();
+
 	for (int i = 0; i < 8; i++)
 	{
 		psoDesc.RTVFormats[i] = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.RTVFormats[i]);
 	}
 	psoDesc.DSVFormat = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.DSVFormat);
 
-	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
+	if (((D3D12DeviceContext*)context)->GetDevice2() != nullptr)
+	{
+		Stream = CD3DX12_PIPELINE_STATE_STREAM1(psoDesc);
+		if (PSODesc.ViewInstancing.Active)
+		{
+			ensure(context->GetCaps().SupportsViewInstancing);
+			CD3DX12_VIEW_INSTANCING_DESC D(PSODesc.ViewInstancing.Instances, nullptr, D3D12_VIEW_INSTANCING_FLAG_NONE);
+			Stream.ViewInstancingDesc = D;
+		}
+		D3D12_PIPELINE_STATE_STREAM_DESC MyPipelineState;
+		MyPipelineState.SizeInBytes = sizeof(Stream);
+		MyPipelineState.pPipelineStateSubobjectStream = &Stream;
+		ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice2()->CreatePipelineState(&MyPipelineState, IID_PPV_ARGS(&output->PSO)));
+	}
+	else
+	{
+		ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
+	}
+
 }
 
 D3D12Shader::ShaderBlobs * D3D12Shader::GetShaderBlobs()
@@ -577,7 +674,7 @@ const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Param
 	return output;
 }
 
-ID3DBlob * D3D12Shader::ShaderBlobs::GetBlob(EShaderType::Type t)
+IDxcBlob * D3D12Shader::ShaderBlobs::GetBlob(EShaderType::Type t)
 {
 	switch (t)
 	{

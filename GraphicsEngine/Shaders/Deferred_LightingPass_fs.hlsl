@@ -23,14 +23,17 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
+	int2 t;
 	Light lights[MAX_LIGHTS];
 };
+
 cbuffer SceneConstantBuffer : register(b2)
 {
 	row_major matrix View;
 	row_major matrix Projection;
 	float3 CameraPos;
 };
+
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
@@ -56,7 +59,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float3 prefilteredColor = GetReflectionColor(R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
 	[unroll(MAX_LIGHTS)]
-	for (int i = 0; i < LightCount; i++)
+	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
 		if (lights[i].PreSampled.x)

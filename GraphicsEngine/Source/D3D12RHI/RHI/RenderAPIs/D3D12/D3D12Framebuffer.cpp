@@ -264,7 +264,7 @@ void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 	if (SharedSRVHeap == nullptr)
 	{
 		//SharedSRVHeap = new DescriptorHeap(OtherDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		SharedSRVHeap = OtherDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+		SharedSRVHeap = OtherDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 	}
 	TargetCopy = new GPUResource(FinalOut, D3D12_RESOURCE_STATE_COPY_DEST, OtherDevice);
 	NAME_RHI_OBJ(TargetCopy);

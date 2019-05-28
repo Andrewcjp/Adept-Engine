@@ -2,11 +2,11 @@
 
 #include "Inspector.h"
 #if WITH_EDITOR
-class IInspectable
+class IEdtiorInspectable
 {
 public:
-	IInspectable();
-	virtual ~IInspectable();
+	IEdtiorInspectable();
+	virtual ~IEdtiorInspectable();
 
 	//called when this item is instpected
 	virtual void OnInspected();

@@ -343,11 +343,11 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 }
 
 void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector<GameObject*>& ShadowObjects)
-{	
+{
 	int IndexOnGPU = 0;
 	for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
 	{
-		if (!LightInteractions[SNum]->lightPtr->GetType() == Light::Point)
+		if (!LightInteractions[SNum]->lightPtr->GetType() == ELightType::Point)
 		{
 			continue;
 		}
@@ -392,7 +392,7 @@ void ShadowRenderer::RenderShadowMap_GPU(ShadowLightInteraction* Interaction, RH
 	data.Lightpos = LightPtr->GetPosition();
 	TargetShader->UpdateBuffer(list, &data, IndexOnGPU);
 	EBatchFilter::Type Filter = EBatchFilter::ALL;
-	if (LightPtr->ShadowMode == Light::Baked || LightPtr->ShadowMode == Light::Stationary)
+	if (LightPtr->GetShadowMode() == EShadowCaptureType::Baked || LightPtr->GetShadowMode() == EShadowCaptureType::Stationary)
 	{
 		Filter = EBatchFilter::StaticOnly;
 	}
@@ -407,8 +407,7 @@ void ShadowRenderer::RenderShadowMap_CPU(ShadowLightInteraction * Interaction, R
 	FrameBuffer* TargetBuffer = Interaction->GetMap(list->GetDeviceIndex());
 	Shader_Depth* TargetShader = Interaction->Shader;
 	Light* LightPtr = Interaction->lightPtr;
-	RHIRenderPassInfo Info(TargetBuffer, ERenderPassLoadOp::Clear);
-	list->BeginRenderPass(Info);
+	list->BeginRenderPass(RHIRenderPassInfo(TargetBuffer, ERenderPassLoadOp::Clear));
 	UpdateGeometryShaderParams(LightPtr->GetPosition(), LightPtr->Projection, IndexOnGPU, list->GetDeviceIndex());
 	list->SetConstantBufferView(DSOs[list->GetDeviceIndex()].GeometryProjections, IndexOnGPU, Shader_Depth_RSSlots::GeometryProjections);
 	Shader_Depth::LightData data = {};
@@ -427,7 +426,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, const std::
 {
 	for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
 	{
-		if (!LightInteractions[SNum]->lightPtr->GetType() == Light::Directional)
+		if (!LightInteractions[SNum]->lightPtr->GetType() == ELightType::Directional)
 		{
 			continue;
 		}
@@ -517,7 +516,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		{
 			continue;
 		}
-		if (lights[i]->GetType() == Light::Point)
+		if (lights[i]->GetType() == ELightType::Point)
 		{
 			if (ShadowingPointLights.size() < RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS)
 			{
@@ -530,7 +529,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 				lights[i]->SetShadow(false);
 			}
 		}
-		else if (lights[i]->GetType() == Light::Directional)
+		else if (lights[i]->GetType() == ELightType::Directional)
 		{
 			if (ShadowingDirectionalLights.size() < RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS)
 			{
@@ -680,15 +679,15 @@ void ShadowLightInteraction::CreateRenderTargets(DeviceContext* context)
 {
 	const int index = context->GetDeviceIndex();
 	int size = lightPtr->Resolution;
-	if (lightPtr->ShadowMode == Light::Baked)
+	if (lightPtr->GetShadowMode() == EShadowCaptureType::Baked)
 	{
 		size = lightPtr->BakedResolution;
 	}
-	if (lightPtr->GetType() == Light::Point)
+	if (lightPtr->GetType() == ELightType::Point)
 	{
 		ShadowMap[index] = RHI::CreateFrameBuffer(ResidentDevContext, ShadowRenderer::GetCubeMapFBDesc(size));
 	}
-	if (lightPtr->ShadowMode == Light::Baked)
+	if (lightPtr->GetShadowMode() == EShadowCaptureType::Baked)
 	{
 		StaticShadowMap[index] = ShadowMap[index];
 	}
@@ -754,7 +753,7 @@ eTEXTURE_FORMAT ShadowRenderer::GetPreSampledTextureFormat(int deviceindex)
 
 FrameBuffer * ShadowLightInteraction::GetMap(int index)
 {
-	if (lightPtr->ShadowMode == Light::Baked)
+	if (lightPtr->GetShadowMode() == EShadowCaptureType::Baked)
 	{
 		return StaticShadowMap[index];
 	}
@@ -796,7 +795,7 @@ bool ShadowLightInteraction::NeedsPresample(DeviceContext * dev)
 
 bool ShadowLightInteraction::NeedsUpdate()
 {
-	if (lightPtr->ShadowMode == Light::Baked)
+	if (lightPtr->GetShadowMode() == EShadowCaptureType::Baked)
 	{
 		return !captured;
 	}

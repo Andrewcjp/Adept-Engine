@@ -49,8 +49,8 @@ void CullingAABB::DebugRender(glm::vec3 colour /*= glm::vec3(1)*/, float time /*
 glm::vec3 CullingAABB::ClosestPoint(const glm::vec3& point)const
 {
 	glm::vec3 result = point;
-	glm::vec3 min = GetMin();
-	glm::vec3 max = GetMax();
+	const glm::vec3 min = GetMin();
+	const glm::vec3 max = GetMax();
 
 	result.x = (result.x < min.x) ? min.x : result.x;
 	result.y = (result.y < min.y) ? min.y : result.y;
