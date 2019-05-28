@@ -127,7 +127,7 @@ void ParticleSystemManager::Sync(ParticleSystem* system)
 }
 
 void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
-{	
+{
 	if (!System->ShouldSimulate || PauseVar.GetBoolValue())
 	{
 		return;
@@ -221,7 +221,7 @@ void ParticleSystemManager::SubmitRender(FrameBuffer * BufferTarget)
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 #endif
 	BufferTarget->MakeReadyForComputeUse(RenderList);
-	RenderList->Execute();	
+	RenderList->Execute();
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 }
 
@@ -243,14 +243,17 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 	desc.Blending = true;
 	desc.Mode = Full;
 	RenderList->SetPipelineStateDesc(desc);
-	if (DepthBuffer != nullptr)
-	{
-		DepthBuffer->BindDepthWithColourPassthrough(RenderList, BufferTarget);
-	}
-	else
-	{
-		RenderList->SetRenderTarget(BufferTarget);
-	}
+	//if (DepthBuffer != nullptr)
+	//{
+	//	DepthBuffer->BindDepthWithColourPassthrough(RenderList, BufferTarget);
+	//}
+	//else
+	//{
+	//	RenderList->SetRenderTarget(BufferTarget);
+	//}
+	RHIRenderPassInfo info(BufferTarget, ERenderPassLoadOp::Load);
+	info.DepthSourceBuffer = DepthBuffer;
+	RenderList->BeginRenderPass(info);
 	RenderList->SetVertexBuffer(VertexBuffer);
 	RenderList->SetConstantBufferView(ParticleRenderConstants, 0, 2);
 	System->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
@@ -264,11 +267,12 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 	{
 		RenderList->SetRootConstant(0, 1, &i, 0);
 		RenderList->DrawPrimitive(6, 1, 0, 0);
-	}
+}
 #endif
 	System->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
 	System->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
 	System->SwapBuffers();
+	RenderList->EndRenderPass();
 }
 
 

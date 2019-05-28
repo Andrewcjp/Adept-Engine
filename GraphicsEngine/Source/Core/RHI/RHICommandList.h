@@ -173,6 +173,7 @@ class RHIRenderPassInfo
 public:
 	RHIRenderPass* Pass = nullptr;
 	FrameBuffer* TargetBuffer = nullptr;
+	FrameBuffer* DepthSourceBuffer = nullptr;
 	RHIRenderPassInfo()
 	{}
 	RHIRenderPassInfo(FrameBuffer* buffer, ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear);

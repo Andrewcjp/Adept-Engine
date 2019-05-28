@@ -8,6 +8,8 @@
 #include "Core/Utils/RefChecker.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
+#include <dxcapi.h>
+#include <d3dcompiler.h>
 #define FORCE_RENDER_PASS_USE 0
 #define AFTERMATH 0
 #if AFTERMATH

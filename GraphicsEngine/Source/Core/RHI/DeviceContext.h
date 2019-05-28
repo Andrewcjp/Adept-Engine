@@ -14,9 +14,31 @@ struct EGPUType
 	RHI_API static std::string ToString(EGPUType::Type type);
 };
 class GPUStateCache;
+struct ERayTracingSupportType
+{
+	enum Type
+	{
+		Hardware,
+		DriverBased,
+		Software,
+		Limit
+	};
+};
+struct EVRSSupportType
+{
+	enum Type
+	{
+		Hardware,
+		Software,
+		Limit
+	};
+};
 struct CapabilityData
 {
 	bool SupportsCopyTimeStamps = false;
+	bool SupportsViewInstancing = false;
+	ERayTracingSupportType::Type RTSupport = ERayTracingSupportType::Software;
+	EVRSSupportType::Type VRSSupport = EVRSSupportType::Software;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
 class  DeviceContext

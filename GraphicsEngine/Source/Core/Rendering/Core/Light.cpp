@@ -1,6 +1,6 @@
 #include "Light.h"
 int Light::LastId = 0;
-Light::Light(glm::vec3 positon, float intesity, LightType type, glm::vec3 LightColor, bool doesshadow)
+Light::Light(glm::vec3 positon, float intesity, ELightType::Type type, glm::vec3 LightColor, bool doesshadow)
 {
 	m_position = positon;
 	m_intesity = intesity;
@@ -23,7 +23,7 @@ glm::vec3 Light::GetColor() const
 	return m_lightColor * m_intesity;
 }
 
-Light::LightType Light::GetType() const
+ELightType::Type Light::GetType() const
 {
 	return m_type;
 }
@@ -38,7 +38,7 @@ void Light::SetIntesity(float value)
 	m_intesity = value;
 }
 
-void Light::SetLightType(LightType value)
+void Light::SetLightType(ELightType::Type value)
 {
 	m_type = value;
 }
@@ -96,4 +96,24 @@ void Light::Update()
 float Light::GetRange()
 {
 	return glm::min(FalloffRange, Distance);
+}
+
+ELightMode::Type Light::GetLightMode()
+{
+	return LightMode;
+}
+
+void Light::SetLightMode(ELightMode::Type t)
+{
+	LightMode = t;
+}
+
+inline EShadowCaptureType::Type Light::GetShadowMode() const
+{
+	return ShadowMode;
+}
+
+inline void Light::SetShadowMode(EShadowCaptureType::Type val)
+{
+	ShadowMode = val;
 }

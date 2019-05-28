@@ -12,6 +12,7 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", LoadGeomShader ? "0" : "1"));
 #if USE_GS_FOR_CUBE_SHADOWS
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", "0"));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("USE_VIEWINST", "1"));
 #else
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", "1"));
 #endif
@@ -20,7 +21,7 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	if (LoadGeomShader)
 	{
 #if USE_GS_FOR_CUBE_SHADOWS
-		m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_geo", EShaderType::SHADER_GEOMETRY);
+		//m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_geo", EShaderType::SHADER_GEOMETRY);
 #endif
 	}
 	m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_fs_12", EShaderType::SHADER_FRAGMENT);

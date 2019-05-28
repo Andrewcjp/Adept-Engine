@@ -3,7 +3,7 @@
 #include <functional>
 #include "Editor/EditorTypes.h"
 #if WITH_EDITOR
-class IInspectable;
+class IEdtiorInspectable;
 class UIBox;
 struct InspectorProperyGroup;
 class Inspector : public UIWidget
@@ -74,7 +74,7 @@ public:
 
 	Inspector(int w, int h, int x, int y);
 	~Inspector();
-	void SetSelectedObject(IInspectable* target);
+	void SetSelectedObject(IEdtiorInspectable* target);
 	void Refresh();
 	static InspectorPropery CreateProperty(std::string name, EditValueType::Type type, void* Valueptr, bool EditorEffect = false);
 	static InspectorProperyGroup CreatePropertyGroup(std::string name);
@@ -90,7 +90,7 @@ private:
 	static Inspector* Instance;
 	void CreateEditor();
 	float ItemHeight = 0.02f;
-	IInspectable* target = nullptr;
+	IEdtiorInspectable* target = nullptr;
 	class UIButton* button;
 	std::vector<UIWidget*> SubWidgets;
 	UIBox* Backgroundbox;

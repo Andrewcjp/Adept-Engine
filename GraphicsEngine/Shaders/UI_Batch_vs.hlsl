@@ -1,4 +1,4 @@
-cbuffer ConstantBuffer : register(b0)
+cbuffer constantBuffer : register(b0)
 {
 	row_major matrix projection;
 }

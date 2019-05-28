@@ -59,12 +59,12 @@ void main(int3 groupThreadID : SV_GroupThreadID,int3 dispatchThreadID : SV_Dispa
 	if (groupThreadID.x >= N - gBlurRadius)
 	{
 		// Clamp out of bound samples that occur at image borders.
-		int x = min(dispatchThreadID.x + gBlurRadius, SrcTexture.Length.x - 1);
+		int x = min(dispatchThreadID.x + gBlurRadius, SrcTexture.length.x - 1);
 		gCache[groupThreadID.x + 2 * gBlurRadius] = SrcTexture[int2(x, dispatchThreadID.y)];
 	}
 
 	// Clamp out of bound samples that occur at image borders.
-	gCache[groupThreadID.x + gBlurRadius] = SrcTexture[min(dispatchThreadID.xy, SrcTexture.Length.xy - 1)];
+	gCache[groupThreadID.x + gBlurRadius] = SrcTexture[min(dispatchThreadID.xy, SrcTexture.length.xy - 1)];
 
 	// Wait for all threads to finish.
 	GroupMemoryBarrierWithGroupSync();
@@ -113,12 +113,12 @@ void VertBlurCS(int3 groupThreadID : SV_GroupThreadID,
 	if (groupThreadID.y >= N - gBlurRadius)
 	{
 		// Clamp out of bound samples that occur at image borders.
-		int y = min(dispatchThreadID.y + gBlurRadius, SrcTexture.Length.y - 1);
+		int y = min(dispatchThreadID.y + gBlurRadius, SrcTexture.length.y - 1);
 		gCache[groupThreadID.y + 2 * gBlurRadius] = SrcTexture[int2(dispatchThreadID.x, y)];
 	}
 
 	// Clamp out of bound samples that occur at image borders.
-	gCache[groupThreadID.y + gBlurRadius] = SrcTexture[min(dispatchThreadID.xy, SrcTexture.Length.xy - 1)];
+	gCache[groupThreadID.y + gBlurRadius] = SrcTexture[min(dispatchThreadID.xy, SrcTexture.length.xy - 1)];
 
 
 	// Wait for all threads to finish.

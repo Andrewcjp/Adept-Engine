@@ -310,7 +310,11 @@ struct RHIDepthStencilDesc
 	DEPTH_STENCILOP_DESC FrontFace;
 	DEPTH_STENCILOP_DESC BackFace;*/
 };
-
+struct ViewInstancingMode
+{
+	bool Active = false;
+	int Instances = 6;
+};
 struct  RHIPipeLineStateDesc
 {
 	//Hold both root signature and shader blobs
@@ -344,6 +348,7 @@ struct  RHIPipeLineStateDesc
 	RHI_API void Build();
 	RHI_API std::string GetString();
 	class RHIRenderPass* RenderPass = nullptr;
+	ViewInstancingMode ViewInstancing;
 private:
 	size_t UniqueHash = 0;
 	std::string StringPreHash;

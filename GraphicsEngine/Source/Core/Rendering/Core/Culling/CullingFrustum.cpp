@@ -31,6 +31,7 @@ __forceinline bool CullingFrustum::RightParallelepipedInFrustum(glm::vec4 Min, g
 {
 	bool inside = true;
 	//test all 6 frustum planes
+	
 	for (int i = 0; i < 6; i++)
 	{
 		//pick closest point to plane and check if it behind the plane

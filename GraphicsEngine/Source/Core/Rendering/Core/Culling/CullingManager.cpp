@@ -38,6 +38,7 @@ void CullingManager::DebugRender(Camera * maincam, Scene * target)
 
 void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * target)
 {
+	SCOPE_CYCLE_COUNTER_GROUP("MainPassFrustumCulling", "Culling");
 	DebugRender(maincam, target);
 	if (Freeze.GetBoolValue())
 	{
@@ -63,6 +64,7 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 
 void CullingManager::UpdateCullingForShadowLight(Light* light, Scene* target)
 {
+	SCOPE_CYCLE_COUNTER_GROUP("Shadow Culling", "Culling");
 	//run distance culling
 	for (int i = 0; i < (*target->GetMeshObjects()).size(); i++)
 	{

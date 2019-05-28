@@ -104,7 +104,7 @@ void Scene::AddLight(glm::vec3 Pos, bool Shadow, float BrightNess)
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	LightComponent* lc = go->AttachComponent(new LightComponent());
 	lc->SetShadow(Shadow);
-	lc->SetLightType(Light::Point);
+	lc->SetLightType(ELightType::Point);
 	lc->SetIntensity(BrightNess);
 	AddGameobjectToScene(go);
 }
@@ -311,7 +311,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 
 #endif
+#if NDEBUG
 	CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
+#endif
 	SpawnBox(glm::vec3(17, 1, -12));
 	SpawnBox(glm::vec3(17, 1, -9));
 	SpawnBox(glm::vec3(14, 1, -12));

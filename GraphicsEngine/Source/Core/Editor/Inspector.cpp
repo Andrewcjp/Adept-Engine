@@ -1,6 +1,6 @@
 
 #include "Inspector.h"
-#include "IInspectable.h"
+#include "IEdtiorInspectable.h"
 
 #include "UI/EditorUI/UIEditField.h"
 #include "UI/Core/UIBox.h"
@@ -31,7 +31,7 @@ Inspector::~Inspector()
 	Instance = nullptr;
 }
 
-void Inspector::SetSelectedObject(IInspectable * newTarget)
+void Inspector::SetSelectedObject(IEdtiorInspectable * newTarget)
 {
 	if (target != newTarget)
 	{

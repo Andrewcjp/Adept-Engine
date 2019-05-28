@@ -91,26 +91,67 @@ void D3D12DeviceContext::CheckFeatures()
 	LogFeatureData("IsolatedMMU", ARCHDAta.IsolatedMMU);
 #endif
 
-	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData;
+	ReportData();
+	D3D12_FEATURE_DATA_D3D12_OPTIONS  FeatureData;
 	ZeroMemory(&FeatureData, sizeof(FeatureData));
-	HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS3, &FeatureData, sizeof(FeatureData));
-	if (SUCCEEDED(hr))
+	HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &FeatureData, sizeof(FeatureData));
+	if (SUCCEEDED(hr) && LogDeviceDebug)
 	{
-		Caps_Data.SupportsCopyTimeStamps = FeatureData.CopyQueueTimestampQueriesSupported;
+		LogTierData("Resource Binding", FeatureData.ResourceBindingTier);
+		LogTierData("Resource Heap", FeatureData.ResourceHeapTier);
+		LogTierData("Cross Node Sharing", FeatureData.CrossNodeSharingTier);
+	}
+	D3D12_FEATURE_DATA_D3D12_OPTIONS1  FeatureData1;
+	ZeroMemory(&FeatureData1, sizeof(FeatureData1));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS1, &FeatureData1, sizeof(FeatureData1));
+	if (SUCCEEDED(hr) && LogDeviceDebug)
+	{
+		LogDeviceData("Threads Per warp count: " + std::to_string(FeatureData1.WaveLaneCountMin));
 	}
 	D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData5;
 	ZeroMemory(&FeatureData5, sizeof(FeatureData5));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData5, sizeof(FeatureData5));
-	if (SUCCEEDED(hr))
+	if (SUCCEEDED(hr) && LogDeviceDebug)
 	{
-		LogFeatureData("DXR Tier", FeatureData5.RaytracingTier);
+		LogTierData("DXR Tier", FeatureData5.RaytracingTier);
+		//#DXR Detect driver RT
+		Caps_Data.RTSupport = ERayTracingSupportType::Hardware;
 		SupportsCmdsList4 = true;
 	}
 	else
 	{
 		Log::LogMessage("System does not support DXR");
+		Caps_Data.RTSupport = ERayTracingSupportType::Software;
 		SupportsCmdsList4 = false;
 	}
+
+	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData3;
+	ZeroMemory(&FeatureData3, sizeof(FeatureData3));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS3, &FeatureData3, sizeof(FeatureData3));
+	if (SUCCEEDED(hr) && LogDeviceDebug)
+	{
+		LogTierData("VIEW INSTANCING", FeatureData3.ViewInstancingTier);
+		Caps_Data.SupportsCopyTimeStamps = FeatureData3.CopyQueueTimestampQueriesSupported;
+		Caps_Data.SupportsViewInstancing = (FeatureData3.ViewInstancingTier > D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED);
+	}
+
+	D3D12_FEATURE_DATA_SHADER_MODEL  ShaderModelData = {};
+	ShaderModelData.HighestShaderModel = D3D_SHADER_MODEL_6_0;
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &ShaderModelData, sizeof(ShaderModelData));
+	if (SUCCEEDED(hr) && LogDeviceDebug)
+	{
+		LogDeviceData("SM " + std::to_string(ShaderModelData.HighestShaderModel));
+	}
+}
+
+void D3D12DeviceContext::LogDeviceData(std::string data)
+{
+	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " " + data);
+}
+
+void D3D12DeviceContext::LogTierData(std::string data, int teir)
+{
+	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " " + data + " tier " + std::to_string(teir));
 }
 
 void D3D12DeviceContext::InitDevice(int index)
@@ -201,7 +242,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
 	VendorID = Adaptordesc.VendorId;
 
-
+	
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
@@ -209,7 +250,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	);
 	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
 	ThrowIfFailed(result);
-
+	ThrowIfFailed(D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, NULL, 0));
 	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
 	if (MaxLevel != D3D_FEATURE_LEVEL_11_0)
 	{
@@ -221,15 +262,17 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		));
 	}
 	DEVICE_NAME_OBJECT(m_Device);
-	CheckFeatures();
-	ReportData();
+
+
 	if (LogDeviceDebug)
 	{
 		std::stringstream ss;
-		ss << "Device Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel);
+		ss << "Device " << std::to_string(GetDeviceIndex()) << " Created With Feature level " << D3D12Helpers::StringFromFeatureLevel(MaxLevel);
 		Log::LogMessage(ss.str());
 		Log::LogMessage("Creating device with " + std::to_string(m_Device->GetNodeCount()) + " Nodes");
 	}
+	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device2));
+	CheckFeatures();
 	SetNodeMaskFromIndex(0);
 	InitDevice(index);
 
@@ -244,6 +287,11 @@ void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
 ID3D12Device * D3D12DeviceContext::GetDevice()
 {
 	return m_Device;
+}
+
+ID3D12Device2* D3D12DeviceContext::GetDevice2()
+{
+	return m_Device2;
 }
 
 ID3D12CommandAllocator * D3D12DeviceContext::GetCommandAllocator()
@@ -288,7 +336,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-}
+	}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {

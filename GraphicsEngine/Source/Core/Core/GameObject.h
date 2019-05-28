@@ -2,7 +2,7 @@
 #include "Rendering/Core/Mesh.h"
 #include "Transform.h"
 #if WITH_EDITOR
-#include "Editor/IInspectable.h"
+#include "Editor/IEdtiorInspectable.h"
 #endif
 #include "Physics/Physics_fwd.h"
 #include "Physics/PhysicsTypes.h"
@@ -13,7 +13,7 @@ class MeshRendererComponent;
 class GameObject :
 	public IGarbageCollectable<GameObject>
 #if WITH_EDITOR
-	, public IInspectable
+	, public IEdtiorInspectable
 #endif
 {
 public:

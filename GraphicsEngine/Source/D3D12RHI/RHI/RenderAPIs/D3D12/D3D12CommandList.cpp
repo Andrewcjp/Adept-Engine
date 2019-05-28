@@ -74,7 +74,14 @@ void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 void D3D12CommandList::BeginRenderPass(class RHIRenderPassInfo& info)
 {
 	RHICommandList::BeginRenderPass(info);
-	SetRenderTarget(info.TargetBuffer);
+	if (info.DepthSourceBuffer != nullptr)
+	{
+		info.DepthSourceBuffer->BindDepthWithColourPassthrough(this, info.TargetBuffer);
+	}
+	else
+	{
+		SetRenderTarget(info.TargetBuffer);
+	}
 	if (info.LoadOp == ERenderPassLoadOp::Clear)
 	{
 		ClearFrameBuffer(info.TargetBuffer);
