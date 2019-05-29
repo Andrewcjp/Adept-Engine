@@ -101,11 +101,7 @@ float4 main(PSInput input) : SV_TARGET
 	[unroll(MAX_LIGHTS)]
 	for (int i = 0; i < LightCount; i++)
 	{
-		int index = LightList[startOffset + i];
-		/*if (index == -1)
-		{
-			break;
-		}*/
+		int index = i;// LightList[startOffset + i];
 		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
 #ifdef WITH_SHADOW
 		[branch] if (lights[i].HasShadow && lights[i].PreSampled.x)

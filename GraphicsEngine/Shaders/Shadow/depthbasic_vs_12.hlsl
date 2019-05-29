@@ -13,7 +13,10 @@ cbuffer SceneconstantBuffer : register(b2)
 	row_major matrix Projection;
 	float3 LightPos;
 };
-
+cbuffer VIData : register(b3)
+{
+	int Offset;
+}
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
@@ -23,21 +26,27 @@ struct VS_OUTPUT
 };
 
 
-VS_OUTPUT main(float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXCOORD0/*,int V: SV_ViewID*/)
+VS_OUTPUT main(float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXCOORD0
+#if USE_VIEWINST
+	, int V : SV_ViewID
+#endif
+)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
-	float4 final_pos = mul(float4(pos.xyz,1.0), world);
+	float4 final_pos = mul(float4(pos.xyz, 1.0), world);
 	output.WorldPos = final_pos.xyz;
+
+#if USE_VIEWINST
+	output.pos = mul(float4(final_pos.xyz, 1.0), worldm[Offset+V]);
+	output.slice = Offset + V;
+#else
 #if VS_WORLD_OUTPUT
-	final_pos = mul(final_pos, ViewP);
-	final_pos = mul(final_pos, Projection);
-#endif
-#if 0//USE_VIEWINST
-	output.pos = mul(final_pos, worldm[V]);
+	output.pos = mul(float4(final_pos.xyz, 1.0), worldm[Offset]);
 #else
 	output.pos = final_pos;
 #endif	
+	output.slice = Offset;
+#endif	
 	output.LightPos = LightPos;
-	output.slice = 1;
 	return output;
 }

@@ -18,6 +18,7 @@ ShadowRenderer* ShadowRenderer::Instance = nullptr;
 
 ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer, CullingManager* manager)
 {
+	ViewInstancesPerDraw = 3;
 	Instance = this;
 	Scenerenderer = sceneRenderer;
 	DirectionalLightShader = ShaderComplier::GetShader_Default<Shader_Depth>(false);
@@ -391,12 +392,24 @@ void ShadowRenderer::RenderShadowMap_GPU(ShadowLightInteraction* Interaction, RH
 	data.Proj = LightPtr->Projection;
 	data.Lightpos = LightPtr->GetPosition();
 	TargetShader->UpdateBuffer(list, &data, IndexOnGPU);
+	list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, 0);
 	EBatchFilter::Type Filter = EBatchFilter::ALL;
 	if (LightPtr->GetShadowMode() == EShadowCaptureType::Baked || LightPtr->GetShadowMode() == EShadowCaptureType::Stationary)
 	{
 		Filter = EBatchFilter::StaticOnly;
 	}
-	Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
+	if (RHI::GetRenderSettings()->UseViewInstancing)
+	{
+		for (int i = 0; i < CUBE_SIDES; i += ViewInstancesPerDraw)
+		{
+			list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, i);
+			Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
+		}
+	}
+	else
+	{
+		Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
+	}
 	list->EndRenderPass();
 }
 
@@ -413,10 +426,10 @@ void ShadowRenderer::RenderShadowMap_CPU(ShadowLightInteraction * Interaction, R
 	Shader_Depth::LightData data = {};
 	data.Proj = LightPtr->Projection;
 	data.Lightpos = LightPtr->GetPosition();
-	data.View = (glm::lookAtRH(data.Lightpos, data.Lightpos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
 	TargetShader->UpdateBuffer(list, &data, IndexOnGPU);
 	for (int Faces = 0; Faces < 6; Faces++)
 	{
+		list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, Faces);
 		Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader);
 	}
 	list->EndRenderPass();
@@ -634,6 +647,12 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		desc.InitOLD(true, false, false);
 		desc.RenderTargetDesc = GetCubeMapDesc();
 		desc.ShaderInUse = PointLightShader;
+		if (RHI::GetRenderSettings()->UseViewInstancing)
+		{
+			desc.ViewInstancing.Active = true;
+			//dx12 max count is 4 for some reason so two batches of 3 instances
+			desc.ViewInstancing.Instances = ViewInstancesPerDraw;
+		}
 		DSOs[i].PointLightShadowList->SetPipelineStateDesc(desc);
 		desc.ShaderInUse = DirectionalLightShader;
 		desc.FrameBufferTarget = DirectionalLightBuffer;

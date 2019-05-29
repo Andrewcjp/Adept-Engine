@@ -143,8 +143,8 @@ private:
 	GPUFenceSync InterGPUSync;
 	GPUFenceSync ComputeSync;
 	void CheckFeatures();
-	void LogDeviceData(std::string data);
-	void LogTierData(std::string data, int teir);
+	void LogDeviceData(const std::string& data);
+	void LogTierData(const std::string& data, int teir);
 	void InitDevice(int index);
 	bool LogDeviceDebug = true;
 

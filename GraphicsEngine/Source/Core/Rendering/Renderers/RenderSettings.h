@@ -74,7 +74,7 @@ public:
 	bool EnableVR = false;
 	bool EnableGPUParticles = true;
 	bool LockBackBuffer = false;
-	bool UseGeometryShaderForShadows = true;
+	bool UseGeometryShaderForShadows = false;
 	int LockedWidth = 0;
 	int LockedHeight = 0;
 	bool UseZPrePass = false;
@@ -87,6 +87,7 @@ public:
 	void SetRenderScale(float newscale);
 	float GetCurrentRenderScale();
 	float MaxRenderScale = 3.0f;
+	bool UseViewInstancing = false;
 private:
 	float RenderScale = 1;
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;

@@ -199,6 +199,7 @@ RenderSettings::RenderSettings()
 	UseZPrePass = true;
 	SetRes(BBTestMode::HD);
 	UseGeometryShaderForShadows = true;
+	UseViewInstancing = true;
 	//EnableDynamicResolutionScaling = true;
 }
 

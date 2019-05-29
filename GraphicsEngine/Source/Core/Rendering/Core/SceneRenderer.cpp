@@ -144,16 +144,16 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 				glm::mat4 proj;
 				if (lights[i]->GetType() == ELightType::Spot)
 				{
-					proj = glm::perspective<float>(glm::radians(45.0f), 1.0f, 2.0f, 50.0f);
+					//proj = glm::perspective<float>(glm::radians(45.0f), 1.0f, 2.0f, 50.0f);
 					LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), lights[i]->GetPosition() + newitem.Direction, glm::vec3(0, 0, 1));//world up
 				}
 				else
 				{
-					proj = glm::orthoLH<float>(-size, size, -size, size, -200, 100);
+					//proj = glm::orthoLH<float>(-size, size, -size, size, -200, 100);
 				}
-				lights[i]->Projection = proj;
+				//lights[i]->Projection = proj;
 				lights[i]->DirView = LightView;
-				newitem.LightVP = proj * LightView;
+//				newitem.LightVP = proj * LightView;
 			}
 			if (lights[i]->GetType() == ELightType::Point)
 			{

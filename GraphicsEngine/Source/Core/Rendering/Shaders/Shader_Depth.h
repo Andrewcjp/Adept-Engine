@@ -10,6 +10,7 @@ namespace Shader_Depth_RSSlots
 		ModelBuffer = 0,
 		GeometryProjections = 1,
 		VPBuffer = 2,
+		VI_Offset,
 	};
 }
 class Shader_Depth :public Shader

@@ -104,6 +104,11 @@ public:
 	//Indirect
 	RHI_VIRTUAL void SetUpCommandSigniture(int commandSize, bool Dispatch) = 0;
 	RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
+	template<class T>
+	void SetSingleRootConstant(int SignitureSlot, T Data)
+	{
+		SetRootConstant(SignitureSlot, 1, &Data, 0);
+	}
 	RHI_VIRTUAL void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset) = 0;
 	//Render Passes
 	RHI_VIRTUAL void BeginRenderPass(class RHIRenderPassInfo& RenderPass);
@@ -185,3 +190,4 @@ protected:
 
 
 typedef  SharedPtr<RHIBuffer> RHIBufferRef;
+

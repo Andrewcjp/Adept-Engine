@@ -48,7 +48,7 @@ private:
 	ShaderBlobs mBlolbs;
 	bool CacheBlobs = true;
 	void WriteBlobs(const std::string & shadername, EShaderType::Type type);
-	bool TryLoadCachedShader(std::string Name, IDxcBlob** Blob, const std::string & InstanceHash, EShaderType::Type type);
+	bool TryLoadCachedShader(const std::string& Name, IDxcBlob** Blob, const std::string & InstanceHash, EShaderType::Type type);
 	bool CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & InstanceHash);
 	const std::string GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type);
 	IDxcBlob ** GetCurrentBlob(EShaderType::Type type);
