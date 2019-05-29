@@ -3,6 +3,7 @@
 
 float4 CalcUnshadowedAmountPCF2x2(Light LightObj, float4 vPosWorld, Texture2D ShadowTex)
 {
+#if 0
 	// Compute pixel position in light space.
 	float4 vLightSpacePos = vPosWorld;
 	vLightSpacePos = mul(vLightSpacePos, LightObj.LightVP);
@@ -43,7 +44,10 @@ float4 CalcUnshadowedAmountPCF2x2(Light LightObj, float4 vPosWorld, Texture2D Sh
 	}
 	// What weighted fraction of the 4 samples are nearer to the light than this pixel?
 	float4 vShadowTests = (vShadowDepths >= vLightSpaceDepth) ? 1.0f : 0.0f;
-	return dot(vBilinearWeights, vShadowTests);
+	return dot(vBilinearWeights, vShadowTests);6
+#else
+	return 0.0f;
+#endif
 }
 
 float ShadowCalculationCube(const float3 fragPos, Light lpos, TextureCube ShadowTex)

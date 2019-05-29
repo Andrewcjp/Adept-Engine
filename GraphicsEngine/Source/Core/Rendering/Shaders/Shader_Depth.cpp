@@ -11,8 +11,11 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	LoadGeomShader = LoadGeo;
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", LoadGeomShader ? "0" : "1"));
 #if USE_GS_FOR_CUBE_SHADOWS
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", "0"));
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("USE_VIEWINST", "1"));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", RHI::GetRenderSettings()->UseGeometryShaderForShadows ? "0" : "1"));
+	if (RHI::GetRenderSettings()->UseViewInstancing)
+	{
+		m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("USE_VIEWINST", "1"));
+	}
 #else
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", "1"));
 #endif
@@ -21,7 +24,10 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	if (LoadGeomShader)
 	{
 #if USE_GS_FOR_CUBE_SHADOWS
-		//m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_geo", EShaderType::SHADER_GEOMETRY);
+		if (!RHI::GetRenderSettings()->UseViewInstancing && RHI::GetRenderSettings()->UseGeometryShaderForShadows)
+		{
+			m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_geo", EShaderType::SHADER_GEOMETRY);
+		}
 #endif
 	}
 	m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_fs_12", EShaderType::SHADER_FRAGMENT);
@@ -51,6 +57,7 @@ std::vector<ShaderParameter> Shader_Depth::GetShaderParameters()
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, Shader_Depth_RSSlots::ModelBuffer));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, Shader_Depth_RSSlots::GeometryProjections));
 	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, Shader_Depth_RSSlots::VPBuffer));
+	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 3, Shader_Depth_RSSlots::VI_Offset));
 	return Output;
 }
 

@@ -87,6 +87,7 @@ public:
 	void SetupOnDevice(DeviceContext* Context);
 	static PreSampleController* GetSampleController(int index);
 private:
+	int ViewInstancesPerDraw = 2;
 	bool DeviceZeroNeedsPreSample = false;
 	std::vector<Light*> ShadowingDirectionalLights;
 	std::vector<Light*> ShadowingPointLights;

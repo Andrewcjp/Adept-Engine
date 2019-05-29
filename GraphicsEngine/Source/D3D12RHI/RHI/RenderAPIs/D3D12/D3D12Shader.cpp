@@ -8,8 +8,9 @@
 
 #include "D3D12CommandList.h"
 #include "ShaderReflection.h"
+#include <atlbase.h>
 
-#pragma comment(lib,"dxcompiler.lib")
+
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
 #if !BUILD_SHIPPING
 D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
@@ -67,14 +68,16 @@ D3D_SHADER_MACRO* D3D12Shader::ParseDefinesSM5()
 	out[last].Name = NULL;
 	return out;
 }
+
 LPCWSTR GetCopyStr(std::string data)
 {
 	std::wstring t = StringUtils::ConvertStringToWide(data);
-	wchar_t* Data = new wchar_t[t.size()+1];
+	wchar_t* Data = new wchar_t[t.size() + 1];
 	t.copy(Data, t.size());
 	Data[t.size()] = L'\0';
 	return Data;
 }
+
 DxcDefine* D3D12Shader::ParseDefinesDXC()
 {
 	if (Defines.size() == 0)
@@ -92,6 +95,7 @@ DxcDefine* D3D12Shader::ParseDefinesDXC()
 	out[last].Name = NULL;
 	return out;
 }
+
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type type)
 {
 	return AttachAndCompileShaderFromFile(shadername, type, "main");
@@ -135,10 +139,12 @@ const std::string D3D12Shader::GetShaderInstanceHash()
 	size_t Hash = std::hash<std::string>{} (DefineSum);
 	return "_" + std::to_string(Hash);
 }
+
 std::wstring GetLevel()
 {
-	return L"_6_0";
+	return L"_6_1";
 }
+
 std::wstring GetComplieTarget(EShaderType::Type t)
 {
 	switch (t)
@@ -152,7 +158,9 @@ std::wstring GetComplieTarget(EShaderType::Type t)
 	case EShaderType::SHADER_GEOMETRY:
 		return L"gs" + GetLevel();
 	}
+	return L"";
 }
+
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
 	SCOPE_STARTUP_COUNTER("Shader Compile");
@@ -186,22 +194,26 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	std::string ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
 	IDxcBlobEncoding* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
-	UINT compileFlags = 0;
+
+	std::vector<LPCWSTR> arguments;
 	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
-		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
+		//compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
+		arguments.push_back(L"/Zi");
+		arguments.push_back(L"/Od");
 	}
 	else
 	{
-		compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS /*| D3DCOMPILE_WARNINGS_ARE_ERRORS*/;
+		//	compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS /*| D3DCOMPILE_WARNINGS_ARE_ERRORS*/;
+		arguments.push_back(L"/O3");
+		arguments.push_back(L"/Ges");
 	}
-	//IDxcCompiler 
-	std::vector<LPCWSTR> arguments;
-	arguments.push_back(L"/O3");
+
+
 	IDxcCompiler* complier = nullptr;
 	DxcCreateInstance(CLSID_DxcCompiler, __uuidof(IDxcCompiler), (void **)&complier);
 	IDxcOperationResult* R;
-#if 1
+
 	DxcDefine* defs = ParseDefinesDXC();
 	IDxcLibrary *pLibrary;
 	IDxcBlobEncoding *pSource;
@@ -209,44 +221,10 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	pLibrary->CreateBlobWithEncodingFromPinned(ShaderData.c_str(), ShaderData.size(), CP_UTF8, &pSource);
 	hr = complier->Compile(pSource, StringUtils::ConvertStringToWide(shadername).c_str(), StringUtils::ConvertStringToWide(Entrypoint).c_str(), GetComplieTarget(ShaderType).c_str(),
 		arguments.data(), arguments.size(), defs, Defines.size(), nullptr, &R);
-	IDxcBlob* V;
 	R->GetResult(GetCurrentBlob(ShaderType));
 	R->GetErrorBuffer(&pErrorBlob);
-	//	D3DCreateBlob(V->GetBufferSize(), &mBlolbs.vsBlob);
-		//D3DSetBlobPart()
 	R->GetStatus(&hr);
 
-
-	//, "vs_6_0",
-	//compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
-#endif
-#if 0
-	D3D_SHADER_MACRO* defines = ParseDefines();
-	switch (ShaderType)
-	{
-	case EShaderType::SHADER_VERTEX:
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "vs_6_0",
-			compileFlags, 0, &mBlolbs.vsBlob, &pErrorBlob);
-		break;
-	case EShaderType::SHADER_FRAGMENT:
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "ps_5_1",
-			compileFlags, 0, &mBlolbs.fsBlob, &pErrorBlob);
-		break;
-	case EShaderType::SHADER_GEOMETRY:
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "gs_5_0",
-			compileFlags, 0, &mBlolbs.gsBlob, &pErrorBlob);
-		break;
-	case EShaderType::SHADER_COMPUTE:
-		IsCompute = true;
-		hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, "cs_5_1",
-			compileFlags, 0, &mBlolbs.csBlob, &pErrorBlob);
-		break;
-	case EShaderType::SHADER_UNDEFINED:
-	default:
-		ensureMsgf(false, "Unknown Shader Type!");
-		break;
-	}
-#endif
 	if (!ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
 		//		StripD3DShader(GetCurrentBlob(ShaderType));
@@ -275,7 +253,10 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		}
 		else
 		{
-			Log::LogMessage(Log, Log::Severity::Warning);
+			if (S.length() > 0)
+			{
+				Log::LogMessage(Log, Log::Severity::Warning);
+			}
 		}
 	}
 
@@ -303,6 +284,36 @@ bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName,
 	return PlatformApplication::CheckFileSrcNewer(ShaderSRCPath, ShaderCSOPath);
 }
 
+void WriteBlobToHandle(_In_opt_ IDxcBlob *pBlob, _In_ HANDLE hFile, _In_opt_ LPCWSTR pFileName)
+{
+	if (pBlob == nullptr)
+	{
+		return;
+	}
+
+	DWORD written;
+	if (FALSE == WriteFile(hFile, pBlob->GetBufferPointer(),
+		pBlob->GetBufferSize(), &written, nullptr))
+	{
+		//IFT_Data(HRESULT_FROM_WIN32(GetLastError()), pFileName);
+	}
+}
+void WriteBlobToFile(_In_opt_ IDxcBlob *pBlob, _In_ LPCWSTR pFileName)
+{
+	if (pBlob == nullptr)
+	{
+		return;
+	}
+
+	CHandle file(CreateFileW(pFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr,
+		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
+	if (file == INVALID_HANDLE_VALUE)
+	{
+		//IFT_Data(HRESULT_FROM_WIN32(GetLastError()), pFileName);
+	}
+	WriteBlobToHandle(pBlob, file, pFileName);
+}
+
 const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type)
 {
 	std::string OutputName = Shadername;
@@ -315,8 +326,15 @@ const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, 
 	OutputName += ".cso";
 	return OutputName;
 }
+void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
+{
+	IDxcLibrary* library;
+	DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&library));
+	LogEnsure(library->CreateBlobFromFile(pFileName, nullptr, ppBlobEncoding) == S_OK);
+	//ReadFileIntoPartContent(),
+}
 
-bool D3D12Shader::TryLoadCachedShader(std::string Name, IDxcBlob ** Blob, const std::string & InstanceHash, EShaderType::Type type)
+bool D3D12Shader::TryLoadCachedShader(const std::string& Name, IDxcBlob** Blob, const std::string & InstanceHash, EShaderType::Type type)
 {
 	if (!CacheBlobs)
 	{
@@ -326,13 +344,13 @@ bool D3D12Shader::TryLoadCachedShader(std::string Name, IDxcBlob ** Blob, const 
 	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + FullShaderName;
 #if BUILD_PACKAGE
 	ensureFatalMsgf(FileUtils::File_ExistsTest(ShaderPath), "Missing shader: " + GetShaderNamestr(Name, InstanceHash, type));
-	ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
+	ReadFileIntoBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), (IDxcBlobEncoding**)Blob);
 	return true;
 #else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, FullShaderName))
 	{
-		//ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
-		//return true;
+		ReadFileIntoBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), (IDxcBlobEncoding**)Blob);
+		return true;
 	}
 	return false;
 #endif
@@ -344,7 +362,7 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 	{
 		const std::string DDcShaderPath = AssetManager::GetDDCPath() + "Shaders\\";
 		FileUtils::CreateDirectoriesToFullPath(DDcShaderPath + shadername + ".");
-		//	ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
+		WriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str());
 	}
 }
 
@@ -352,6 +370,7 @@ D3D12_SHADER_BYTECODE D3D12Shader::GetByteCode(IDxcBlob* b)
 {
 	return D3D12_SHADER_BYTECODE{ b->GetBufferPointer(), b->GetBufferSize() };
 }
+
 void D3D12Shader::CreateComputePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, const RHIPipeLineStateDesc& Depthtest,
 	DeviceContext* context)
 {
@@ -447,16 +466,24 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	if (((D3D12DeviceContext*)context)->GetDevice2() != nullptr)
 	{
 		Stream = CD3DX12_PIPELINE_STATE_STREAM1(psoDesc);
+		D3D12_VIEW_INSTANCE_LOCATION* Loc = nullptr;
 		if (PSODesc.ViewInstancing.Active)
 		{
 			ensure(context->GetCaps().SupportsViewInstancing);
-			CD3DX12_VIEW_INSTANCING_DESC D(PSODesc.ViewInstancing.Instances, nullptr, D3D12_VIEW_INSTANCING_FLAG_NONE);
+			Loc = new D3D12_VIEW_INSTANCE_LOCATION[4];
+			for (int i = 0; i < PSODesc.ViewInstancing.Instances; i++)
+			{
+				Loc[i].RenderTargetArrayIndex = 0;
+				Loc[i].ViewportArrayIndex = 0;
+			}
+			CD3DX12_VIEW_INSTANCING_DESC D(PSODesc.ViewInstancing.Instances, &Loc[0], D3D12_VIEW_INSTANCING_FLAG_NONE);
 			Stream.ViewInstancingDesc = D;
 		}
 		D3D12_PIPELINE_STATE_STREAM_DESC MyPipelineState;
 		MyPipelineState.SizeInBytes = sizeof(Stream);
 		MyPipelineState.pPipelineStateSubobjectStream = &Stream;
 		ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice2()->CreatePipelineState(&MyPipelineState, IID_PPV_ARGS(&output->PSO)));
+		delete[] Loc;
 	}
 	else
 	{

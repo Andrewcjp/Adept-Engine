@@ -83,6 +83,6 @@ private:
 	bool DoesShadow = true;
 	int ShadowId = -1;
 
-	EShadowCaptureType::Type ShadowMode = EShadowCaptureType::Baked;//Baked;
+	EShadowCaptureType::Type ShadowMode = EShadowCaptureType::Realtime;
 };
 

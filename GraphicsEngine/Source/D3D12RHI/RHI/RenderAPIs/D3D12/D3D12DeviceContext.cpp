@@ -134,7 +134,7 @@ void D3D12DeviceContext::CheckFeatures()
 		Caps_Data.SupportsCopyTimeStamps = FeatureData3.CopyQueueTimestampQueriesSupported;
 		Caps_Data.SupportsViewInstancing = (FeatureData3.ViewInstancingTier > D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED);
 	}
-
+	//todo loop
 	D3D12_FEATURE_DATA_SHADER_MODEL  ShaderModelData = {};
 	ShaderModelData.HighestShaderModel = D3D_SHADER_MODEL_6_0;
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &ShaderModelData, sizeof(ShaderModelData));
@@ -144,14 +144,14 @@ void D3D12DeviceContext::CheckFeatures()
 	}
 }
 
-void D3D12DeviceContext::LogDeviceData(std::string data)
+void D3D12DeviceContext::LogDeviceData(const std::string& data)
 {
 	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " " + data);
 }
 
-void D3D12DeviceContext::LogTierData(std::string data, int teir)
+void D3D12DeviceContext::LogTierData(const std::string& data, int teir)
 {
-	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " " + data + " tier " + std::to_string(teir));
+	LogDeviceData(data + " tier " + std::to_string(teir));
 }
 
 void D3D12DeviceContext::InitDevice(int index)
@@ -242,7 +242,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
 	VendorID = Adaptordesc.VendorId;
 
-	
+
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
@@ -336,7 +336,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-	}
+}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
