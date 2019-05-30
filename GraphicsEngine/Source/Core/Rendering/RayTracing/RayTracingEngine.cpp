@@ -5,6 +5,7 @@
 #include "Core/Assets/ShaderComplier.h"
 #include "RHIStateObject.h"
 #include "Shader_RTBase.h"
+#include "Core/BaseWindow.h"
 
 
 RayTracingEngine::RayTracingEngine()
@@ -13,6 +14,7 @@ RayTracingEngine::RayTracingEngine()
 	RayList = RHI::CreateCommandList();
 	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
 	StateObject->Target = ShaderComplier::GetShader<Shader_RTBase>();
+	StateObject->TempCam = BaseWindow::GetCurrentCamera();
 	StateObject->Build();
 }
 
@@ -53,6 +55,7 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 
 void RayTracingEngine::DispatchRays(FrameBuffer* Target)
 {
+	StateObject->TempCam = BaseWindow::GetCurrentCamera();
 	RayList->ResetList();
 	RayList->StartTimer(EGPUTIMERS::RT_Trace);
 	RayList->SetStateObject(StateObject);

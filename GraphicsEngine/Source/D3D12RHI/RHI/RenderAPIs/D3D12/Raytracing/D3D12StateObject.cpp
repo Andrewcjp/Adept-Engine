@@ -27,6 +27,8 @@ D3D12StateObject::~D3D12StateObject()
 
 void D3D12StateObject::Build()
 {
+	CBV = new D3D12Buffer(ERHIBufferType::Constant);
+	CBV->CreateConstantBuffer(sizeof(Data), 1);
 	//RT = new Shader_RTBase();
 	//RT->GetShaderProgram();
 	CreateRootSignatures();
@@ -86,6 +88,7 @@ void D3D12StateObject::CreateRootSignatures()
 		CD3DX12_ROOT_PARAMETER rootParameters[GlobalRootSignatureParams::Count];
 		rootParameters[GlobalRootSignatureParams::OutputViewSlot].InitAsDescriptorTable(1, &ranges[0]);
 		rootParameters[GlobalRootSignatureParams::AccelerationStructureSlot].InitAsShaderResourceView(0);
+		rootParameters[GlobalRootSignatureParams::CameraBuffer].InitAsConstantBufferView(0);
 		CD3DX12_ROOT_SIGNATURE_DESC globalRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
 		SerializeAndCreateRaytracingRootSignature(globalRootSignatureDesc, &m_raytracingGlobalRootSignature);
 	}
@@ -120,7 +123,7 @@ void D3D12StateObject::SerializeAndCreateRaytracingRootSignature(D3D12_ROOT_SIGN
 	ID3DBlob* blob;
 	ID3DBlob* error;
 	ThrowIfFailed(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error));
-	ThrowIfFailed(D3D12RHI::GetDXCon(RHI::GetDefaultDevice())->GetDevice()->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&(*rootSig))));
+	ThrowIfFailed(D3D12RHI::GetDXCon(RHI::GetDefaultDevice())->GetDevice()->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(rootSig)));
 }
 
 void D3D12StateObject::BuildShaderTables()
@@ -168,11 +171,16 @@ void D3D12StateObject::CreateRaytracingOutputBuffer()
 
 void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, D3D12FrameBuffer* target)
 {
+	if (TempCam != nullptr)
+	{
+		Data.IProj = glm::inverse(TempCam->GetProjection());
+		Data.IView = glm::inverse(TempCam->GetView());
+	}
+	CBV->UpdateConstantBuffer(&Data, 0);
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
 	DXList->GetCommandList()->SetComputeRootSignature(m_raytracingGlobalRootSignature);
-	//DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot,/* UAVd->GetGPUAddress()*/target->GetUAV()->);
-	//DXList->SetUAV(target->GetUAV(), GlobalRootSignatureParams::OutputViewSlot);
-
+	//DXList->GetCommandList()->SetComputeRootConstantBufferView(GlobalRootSignatureParams::CameraBuffer, )
+	CBV->SetConstantBufferView(0, DXList->GetCMDList4(), GlobalRootSignatureParams::CameraBuffer, true, 0);
 	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, ((D3D12RHIUAV*)target->GetUAV())->UAVDescriptor->GetGPUAddress());
 	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(High)->m_topLevelAccelerationStructure->GetGPUVirtualAddress());
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};

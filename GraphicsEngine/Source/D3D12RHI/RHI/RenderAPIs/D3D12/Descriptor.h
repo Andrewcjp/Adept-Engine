@@ -40,7 +40,10 @@ public:
 	virtual void Release() override;
 	void SetOwner(DescriptorHeap* heap);
 	//create shader view
+	bool PendingRemoval = false;
+	bool NeedsUpdate();
 private:
+	
 	DescriptorHeap* Owner = nullptr;
 	int DescriptorCount = 1;
 	//TODO: descriptor in multiple heaps

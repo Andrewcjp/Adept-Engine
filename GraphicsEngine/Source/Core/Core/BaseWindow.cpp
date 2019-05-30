@@ -78,7 +78,7 @@ void BaseWindow::InitilseWindow()
 	PerfManager::Get()->AddTimer("UI", "Render");
 	PerfManager::Get()->AddTimer("LineDrawer", "Render");
 	PerfManager::Get()->AddTimer("TEXT", "Render");
-	if (RHI::GetRenderSettings()->EnableRayTracing)
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
 		RayTracingEngine::Get()->OnFirstFrame();
 	}
@@ -205,7 +205,7 @@ void BaseWindow::Render()
 	RHI::Tick();
 	PerfManager::StartTimer("Render");
 #if !BASIC_RENDER_ONLY
-	if (RHI::GetRenderSettings()->EnableRayTracing)
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
 		RayTracingEngine::Get()->BuildStructures();
 	}

@@ -48,6 +48,11 @@ void Descriptor::Recreate()
 			if (DescriptorType == EDescriptorType::SRV)
 			{
 				Desc->NeedsUpdate = false;
+				if (Desc->TargetResource != nullptr)
+				{
+					Desc->TargetResource->AddRef();
+					Desc->TargetResource->Release();
+				}
 				Owner->GetDevice()->GetDevice()->CreateShaderResourceView(Desc->TargetResource, &Desc->SRVDesc, GetCPUAddress(Desc->OffsetInHeap));
 			}
 			else if (DescriptorType == EDescriptorType::UAV)
@@ -95,5 +100,10 @@ void Descriptor::SetOwner(DescriptorHeap * heap)
 {
 	Owner = heap;
 	Data[0].NeedsUpdate = true;
+}
+
+bool Descriptor::NeedsUpdate()
+{
+	return Data[0].NeedsUpdate;
 }
 

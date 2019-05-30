@@ -61,20 +61,34 @@ struct ERenderDebugOutput
 		Limit
 	};
 };
+struct RayTracingSettings
+{
+	bool Enabled = false;
+};
+struct ShadowMappingSettings
+{
+	bool UseGeometryShaderForShadows = false;
+	bool UseViewInstancingForShadows = false;
+	int MaxShadowMapSize = 2048;
+};
+struct DynamicResolutionSettings
+{
+	bool EnableDynamicResolutionScaling = false;
+	int DynamicResolutionTargetFrameRate = 60;
+	int DynamicResolutionTargetFrameRateVR = 95;
+};
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
-
 	RenderSettings();
 public:
 	bool IsUsingZPrePass() const;
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
-	int ShadowMapSize = 2048;
+
 	bool IsDeferred = false;
 	bool EnableVR = false;
 	bool EnableGPUParticles = true;
 	bool LockBackBuffer = false;
-	bool UseGeometryShaderForShadows = false;
 	int LockedWidth = 0;
 	int LockedHeight = 0;
 	bool UseZPrePass = false;
@@ -82,15 +96,19 @@ public:
 	RHI_API static std::string ToString(BBTestMode::Type t);
 	RHI_API ERenderDebugOutput::Type GetDebugRenderMode();
 	RHI_API void SetDebugRenderMode(ERenderDebugOutput::Type mode);
-	bool EnableDynamicResolutionScaling = false;
-	int DynamicResolutionTargetFrameRate = 60;
+
 	void SetRenderScale(float newscale);
 	float GetCurrentRenderScale();
 	float MaxRenderScale = 3.0f;
-	bool UseViewInstancing = false;
-	bool EnableRayTracing = false;
+	bool RaytracingEnabled()const;
+	RayTracingSettings& GetRTSettings();
+	ShadowMappingSettings& GetShadowSettings();
+	DynamicResolutionSettings& GetDynamicResolutionSettings();
 private:
 	float RenderScale = 1;
+	RayTracingSettings RTSettings;
+	ShadowMappingSettings ShadowSettings;
+	DynamicResolutionSettings DRSSettings;
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;
 };
 //Props Are Set in the Constructor 

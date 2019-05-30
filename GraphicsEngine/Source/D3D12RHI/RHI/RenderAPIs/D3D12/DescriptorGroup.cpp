@@ -20,6 +20,7 @@ void DescriptorGroup::Init(D3D12_DESCRIPTOR_HEAP_TYPE Type, DescriptorHeap * hea
 	context = heap->GetDevice();
 	Descriptors[0]->Init(Type, heap, size);
 	Descriptors[1]->Init(Type, heap, size);
+	CreatedThisFrame = true;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorGroup::GetGPUAddress(int index)
@@ -52,7 +53,17 @@ void DescriptorGroup::CreateShaderResourceView(ID3D12Resource * pResource, const
 {
 	Descriptors[0]->CreateShaderResourceView(pResource, pDesc, offset);
 	Descriptors[1]->CreateShaderResourceView(pResource, pDesc, offset);
-	Descriptors[context->GetCpuFrameIndex()]->Recreate();
+
+	if (CreatedThisFrame)
+	{
+		Descriptors[0]->Recreate();
+		Descriptors[1]->Recreate();
+		CreatedThisFrame = false;
+	}
+	else
+	{
+		Descriptors[context->GetCpuFrameIndex()]->Recreate();
+	}
 	RecreateQueued = true;
 }
 
@@ -60,18 +71,29 @@ void DescriptorGroup::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D
 {
 	Descriptors[0]->CreateUnorderedAccessView(pResource, pCounterResource, pDesc, offset);
 	Descriptors[1]->CreateUnorderedAccessView(pResource, pCounterResource, pDesc, offset);
-	Descriptors[context->GetCpuFrameIndex()]->Recreate();
+	if (CreatedThisFrame)
+	{
+		Descriptors[0]->Recreate();
+		Descriptors[1]->Recreate();
+		CreatedThisFrame = false;
+	}
+	else
+	{
+		Descriptors[context->GetCpuFrameIndex()]->Recreate();
+	}
 	RecreateQueued = true;
 }
 
 //called when the frame switches to ensure the B copy is updated with changes made last CPU frame.
 void DescriptorGroup::OnFrameSwitch()
 {
-	if (RecreateQueued)
+	//ensure(Descriptors[lastFrame]->NeedsUpdate() == false);
+	if (RecreateQueued || Descriptors[context->GetCpuFrameIndex()]->NeedsUpdate())
 	{
 		Descriptors[context->GetCpuFrameIndex()]->Recreate();
 		RecreateQueued = false;
 	}
+	lastFrame = RHI::GetFrameCount();
 }
 
 Descriptor * DescriptorGroup::GetDescriptor(int index)

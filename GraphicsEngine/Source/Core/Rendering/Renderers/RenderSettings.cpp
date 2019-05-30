@@ -184,8 +184,7 @@ bool RenderSettings::IsUsingZPrePass() const
 }
 
 RenderSettings::RenderSettings()
-{
-	ShadowMapSize = 1024;
+{	
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	IsDeferred = false;
 	EnableVR = true;
@@ -198,10 +197,10 @@ RenderSettings::RenderSettings()
 	RenderScale = 1.0f;
 	UseZPrePass = true;
 	SetRes(BBTestMode::HD);
-	UseGeometryShaderForShadows = true;
-	UseViewInstancing = true;
+	ShadowSettings.UseGeometryShaderForShadows = true;
+	ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
-	EnableRayTracing = true;
+	RTSettings.Enabled = true;
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
@@ -275,6 +274,26 @@ void RenderSettings::SetRenderScale(float newscale)
 float RenderSettings::GetCurrentRenderScale()
 {
 	return RenderScale;
+}
+
+bool RenderSettings::RaytracingEnabled() const
+{
+	return RTSettings.Enabled;
+}
+
+RayTracingSettings & RenderSettings::GetRTSettings()
+{
+	return RTSettings;
+}
+
+ShadowMappingSettings & RenderSettings::GetShadowSettings()
+{
+	return ShadowSettings;
+}
+
+DynamicResolutionSettings & RenderSettings::GetDynamicResolutionSettings()
+{
+	return DRSSettings;
 }
 
 std::string MGPUMode::ToString(MGPUMode::Type t)
