@@ -205,6 +205,7 @@ namespace ECommandListType
 	{
 		Graphics,
 		Compute,
+		RayTracing,
 		Copy,
 		VideoEncode,
 		VideoDecode,
@@ -245,6 +246,7 @@ namespace EGPUTIMERS
 		GPU0WaitOnGPU1,
 		CubemapCapture,
 		DebugRender,
+		RT_Trace,
 		LIMIT
 	};
 }
@@ -648,4 +650,15 @@ struct RHISamplerDesc
 	{}
 	RHISamplerDesc(ESamplerFilterMode::Type filter, ESamplerWrapMode::Type WrapMode, int Reg);
 	RHI_API static std::vector<RHISamplerDesc> GetDefault();
+};
+
+
+
+struct RHIRayDispatchDesc
+{
+	RHIRayDispatchDesc() {};
+	RHIRayDispatchDesc(FrameBuffer* RB);
+	int Width = 0;
+	int Height = 0;
+	int Depth = 1;
 };

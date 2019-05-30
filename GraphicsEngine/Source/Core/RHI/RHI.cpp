@@ -17,6 +17,7 @@
 #include "Rendering/VR/HMD.h"
 #include "Rendering/VR/HMDManager.h"
 #include "Core/Performance/PerfManager.h"
+#include "Rendering/RayTracing/RayTracingEngine.h"
 
 RHI* RHI::instance = nullptr;
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
@@ -453,6 +454,7 @@ void RHI::InitialiseContext()
 	instance->SFR_Controller = new SFRController();
 	Defaults::Start();
 	instance->DetectAndInitVR();
+	instance->RTE = new RayTracingEngine();
 }
 
 void RHI::ValidateSettings()

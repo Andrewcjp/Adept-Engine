@@ -19,6 +19,7 @@ public:
 		IDxcBlob*					fsBlob = nullptr;
 		IDxcBlob*					csBlob = nullptr;
 		IDxcBlob*					gsBlob = nullptr;
+		IDxcBlob*					RTLibBlob = nullptr;
 		IDxcBlob*					GetBlob(EShaderType::Type t);
 	};
 
@@ -31,7 +32,7 @@ public:
 
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
-	static 	void CreateRootSig(D3D12PipeLineStateObject * output, std::vector<ShaderParameter> Params, DeviceContext * context, bool compute, std::vector<RHISamplerDesc> samplers);
+	static void CreateRootSig(D3D12PipeLineStateObject * output, std::vector<ShaderParameter> Params, DeviceContext * context, bool compute, std::vector<RHISamplerDesc> samplers);
 
 	void Init();
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);

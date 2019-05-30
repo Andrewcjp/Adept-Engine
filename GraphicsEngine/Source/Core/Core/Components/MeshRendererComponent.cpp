@@ -8,6 +8,8 @@
 #include "Editor/Inspector.h"
 #include "Component.h"
 #include "../GameObject.h"
+#include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
+#include "Rendering/RayTracing/RayTracingEngine.h"
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
@@ -32,13 +34,6 @@ void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)
 	SetMaterial(materal, 0);
 }
 
-void MeshRendererComponent::Render(bool DepthOnly, RHICommandList* list)
-{
-	if (m_mesh != nullptr && IsVisible)
-	{
-		m_mesh->Render(list, !DepthOnly);
-	}
-}
 
 Material *MeshRendererComponent::GetMaterial(int index)
 {
@@ -57,6 +52,11 @@ void MeshRendererComponent::GetInspectorProps(std::vector<InspectorProperyGroup>
 	props.push_back(group);
 }
 #endif
+
+Mesh* MeshRendererComponent::GetMesh()
+{
+	return m_mesh;
+}
 
 void MeshRendererComponent::SetMaterial(Material * mat, int index)
 {
@@ -112,11 +112,23 @@ void MeshRendererComponent::PrepareDataForRender()
 void MeshRendererComponent::SceneInitComponent()
 {
 	m_mesh->UpdateBounds(GetOwner()->GetPosition(), GetOwner()->GetTransform()->GetScale());
+	if (RHI::GetRenderSettings()->EnableRayTracing)
+	{
+		BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice());
+		BLAS->CreateFromMesh(m_mesh);
+		BLAS->UpdateTransfrom(GetOwner()->GetTransform());
+		RayTracingEngine::Get()->EnqueueForBuild(BLAS);
+	}
 }
 
 void MeshRendererComponent::OnTransformUpdate()
 {
 	m_mesh->UpdateBounds(GetOwner()->GetPosition(), GetOwner()->GetTransform()->GetScale());
+}
+
+LowLevelAccelerationStructure * MeshRendererComponent::GetAccelerationStructure() const
+{
+	return BLAS;
 }
 
 void MeshRendererComponent::BeginPlay()

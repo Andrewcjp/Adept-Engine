@@ -34,7 +34,6 @@ ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer, CullingManager* ma
 	{
 		SetupOnDevice(RHI::GetDeviceContext(i));
 	}
-
 }
 
 ShadowRenderer::~ShadowRenderer()

@@ -32,7 +32,7 @@ public:
 	void ResetTransferStat();
 	static void CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ = DeviceContextQueue::Copy);
 	void BindUAV(RHICommandList* list,int slot);
-	RHIUAV* GetUAV();
+	RHI_API RHIUAV* GetUAV();
 	
 
 	RHI_API virtual void Release() override;

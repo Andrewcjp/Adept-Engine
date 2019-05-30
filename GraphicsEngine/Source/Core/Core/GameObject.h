@@ -36,7 +36,6 @@ public:
 	CORE_API void Update(float delta);
 	CORE_API void BeginPlay();
 	CORE_API float GetMass();
-	void Render(bool ignoremat, RHICommandList* list);
 	void PrepareDataForRender();
 	CORE_API EMoblity GetMobility();
 	CORE_API Mesh* GetMesh();

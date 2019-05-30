@@ -15,10 +15,17 @@
 #if AFTERMATH
 #include <GFSDK_Aftermath.h>
 #endif
+#include "RHI/RHI.h"
 #define DRED 1
 
 class D3D12DeviceContext;
 class D3D12GPUSyncEvent;
+class D3D12Buffer;
+class D3D12LowLevelAccelerationStructure;
+class D3D12HighLevelAccelerationStructure;
+class LowLevelAccelerationStructure;
+class HighLevelAccelerationStructure;
+class D3D12StateObject;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -53,6 +60,17 @@ public:
 #endif
 
 	virtual RHIQuery * CreateQuery(EGPUQueryType::Type type, DeviceContext * con) override;
+	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device) override;
+	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device) override;
+	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
+
+	static D3D12DeviceContext* GetDXCon(DeviceContext* D);
+	static D3D12Buffer* DXConv(RHIBuffer* D);
+	static D3D12CommandList* DXConv(RHICommandList* D);
+	static D3D12LowLevelAccelerationStructure* DXConv(LowLevelAccelerationStructure* D);
+	static D3D12HighLevelAccelerationStructure* DXConv(HighLevelAccelerationStructure* D);
+	static D3D12StateObject* DXConv(RHIStateObject* D);
+
 
 private:
 	void DestroyContext();
@@ -93,8 +111,8 @@ private:
 	void RHIRunFirstFrame() override;
 
 	void ResizeSwapChain(int x, int y) override;
-	
-private:
+
+
 	D3D12GPUSyncEvent* AsyncSync = nullptr;
 	bool IsFullScreen = false;
 	D3D12DeviceContext * GetPrimaryDevice();
@@ -137,7 +155,7 @@ static inline void ThrowIfFailed(HRESULT hr)
 		D3D12RHI::Get()->RunTheAfterMath();
 #endif
 		D3D12RHI::HandleDeviceFailure();
- 		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
+		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }
 

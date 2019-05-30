@@ -21,6 +21,7 @@
 #include "UI/GameUI/UIGraph.h"
 #include "RHI/RHI.h"
 #include "Rendering/VR/HMDManager.h"
+#include "Rendering/RayTracing/RayTracingEngine.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
@@ -77,6 +78,10 @@ void BaseWindow::InitilseWindow()
 	PerfManager::Get()->AddTimer("UI", "Render");
 	PerfManager::Get()->AddTimer("LineDrawer", "Render");
 	PerfManager::Get()->AddTimer("TEXT", "Render");
+	if (RHI::GetRenderSettings()->EnableRayTracing)
+	{
+		RayTracingEngine::Get()->OnFirstFrame();
+	}
 }
 
 void BaseWindow::FixedUpdate()
@@ -200,6 +205,10 @@ void BaseWindow::Render()
 	RHI::Tick();
 	PerfManager::StartTimer("Render");
 #if !BASIC_RENDER_ONLY
+	if (RHI::GetRenderSettings()->EnableRayTracing)
+	{
+		RayTracingEngine::Get()->BuildStructures();
+	}
 	DebugLineDrawer::Get2()->GenerateLines();
 	DebugLineDrawer::Get()->GenerateLines();
 	Renderer->Render();

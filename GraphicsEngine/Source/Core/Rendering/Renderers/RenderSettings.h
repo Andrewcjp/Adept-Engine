@@ -88,6 +88,7 @@ public:
 	float GetCurrentRenderScale();
 	float MaxRenderScale = 3.0f;
 	bool UseViewInstancing = false;
+	bool EnableRayTracing = false;
 private:
 	float RenderScale = 1;
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;

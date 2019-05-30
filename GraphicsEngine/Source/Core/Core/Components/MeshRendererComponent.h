@@ -2,6 +2,8 @@
 #include "Component.h"
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/Material.h"
+
+class LowLevelAccelerationStructure;
 class MeshRendererComponent :
 	public Component
 {
@@ -11,31 +13,23 @@ public:
 	CORE_API MeshRendererComponent(Mesh * Mesh, Material * materal);
 	virtual ~MeshRendererComponent();
 	void SetUpMesh(Mesh * Mesh, Material * materal);
-
-	void Render(bool DepthOnly, class RHICommandList * list);
-	/*void Render(bool DepthOnly);*/
 	Material* GetMaterial(int index);
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<InspectorProperyGroup> &props) override final;
 #endif
-	Mesh* GetMesh()
-	{
-		return m_mesh;
-	}
-	void SetMaterial(Material * mat, int index);
+	CORE_API Mesh* GetMesh();
+	CORE_API void SetMaterial(Material * mat, int index);
 	CORE_API void SetVisiblity(bool state);
 	CORE_API void LoadAnimation(std::string filename, std::string name);
 	CORE_API void LoadAnimation(std::string filename, std::string name, MeshLoader::FMeshLoadingSettings & Settings);
 	CORE_API void PlayAnim(std::string name);
 	CORE_API glm::vec3 GetPosOfBone(std::string Name);
 	void PrepareDataForRender();
-
 	CORE_API virtual void SceneInitComponent() override;
-
-
 	CORE_API virtual void OnTransformUpdate() override;
-
+	LowLevelAccelerationStructure* GetAccelerationStructure()const;
 private:
+	LowLevelAccelerationStructure* BLAS = nullptr;
 	Mesh* m_mesh = nullptr;
 	// Inherited via Component
 	virtual void BeginPlay() override;

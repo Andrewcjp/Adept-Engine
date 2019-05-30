@@ -105,22 +105,16 @@ IDxcBlob** D3D12Shader::GetCurrentBlob(EShaderType::Type type)
 {
 	switch (type)
 	{
-	case EShaderType::SHADER_VERTEX:
-		return &mBlolbs.vsBlob;
-		break;
-	case EShaderType::SHADER_FRAGMENT:
-		return &mBlolbs.fsBlob;
-		break;
-	case EShaderType::SHADER_GEOMETRY:
-		return &mBlolbs.gsBlob;
-		break;
-	case EShaderType::SHADER_COMPUTE:
-		return &mBlolbs.csBlob;
-		break;
-	case EShaderType::SHADER_UNDEFINED:
-		break;
-	default:
-		break;
+		case EShaderType::SHADER_VERTEX:
+			return &mBlolbs.vsBlob;
+		case EShaderType::SHADER_FRAGMENT:
+			return &mBlolbs.fsBlob;
+		case EShaderType::SHADER_GEOMETRY:
+			return &mBlolbs.gsBlob;
+		case EShaderType::SHADER_COMPUTE:
+			return &mBlolbs.csBlob;
+		case EShaderType::SHADER_RT_LIB:
+			return &mBlolbs.RTLibBlob;
 	}
 	return nullptr;
 }
@@ -149,14 +143,16 @@ std::wstring GetComplieTarget(EShaderType::Type t)
 {
 	switch (t)
 	{
-	case EShaderType::SHADER_COMPUTE:
-		return L"cs" + GetLevel();
-	case EShaderType::SHADER_VERTEX:
-		return L"vs" + GetLevel();
-	case EShaderType::SHADER_FRAGMENT:
-		return L"ps" + GetLevel();
-	case EShaderType::SHADER_GEOMETRY:
-		return L"gs" + GetLevel();
+		case EShaderType::SHADER_COMPUTE:
+			return L"cs" + GetLevel();
+		case EShaderType::SHADER_VERTEX:
+			return L"vs" + GetLevel();
+		case EShaderType::SHADER_FRAGMENT:
+			return L"ps" + GetLevel();
+		case EShaderType::SHADER_GEOMETRY:
+			return L"gs" + GetLevel();
+		case EShaderType::SHADER_RT_LIB:
+			return L"lib_6_3";
 	}
 	return L"";
 }
@@ -172,7 +168,10 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #if !BUILD_SHIPPING
 		stats.ShaderLoadFromCacheCount++;
 #endif
-		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams, IsCompute);
+		if (ShaderType != EShaderType::SHADER_RT_LIB)
+		{
+			ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams, IsCompute);
+		}
 		return EShaderError::SHADER_ERROR_NONE;
 	}
 
@@ -268,7 +267,10 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	{
 		return EShaderError::SHADER_ERROR_CREATE;
 	}
-	ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams, IsCompute);
+	if (ShaderType != EShaderType::SHADER_RT_LIB)
+	{
+		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams, IsCompute);
+	}
 	WriteBlobs(shadername, ShaderType);
 #if !BUILD_SHIPPING
 	stats.ShaderComplieCount++;
@@ -682,19 +684,19 @@ const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Param
 		output += "T";
 		switch (sp.Type)
 		{
-		case ShaderParamType::RootConstant:
-			output += "RC";
-		case ShaderParamType::CBV:
-			output += "CBV";
-			break;
-		case ShaderParamType::SRV:
-			output += "SRV";
-			break;
-		case ShaderParamType::UAV:
-			output += "UAV";
-			break;
-		default:
-			break;
+			case ShaderParamType::RootConstant:
+				output += "RC";
+			case ShaderParamType::CBV:
+				output += "CBV";
+				break;
+			case ShaderParamType::SRV:
+				output += "SRV";
+				break;
+			case ShaderParamType::UAV:
+				output += "UAV";
+				break;
+			default:
+				break;
 		}
 		output += ", ";
 	}
@@ -705,14 +707,16 @@ IDxcBlob * D3D12Shader::ShaderBlobs::GetBlob(EShaderType::Type t)
 {
 	switch (t)
 	{
-	case EShaderType::SHADER_VERTEX:
-		return vsBlob;
-	case EShaderType::SHADER_FRAGMENT:
-		return fsBlob;
-	case EShaderType::SHADER_GEOMETRY:
-		return gsBlob;
-	case EShaderType::SHADER_COMPUTE:
-		return csBlob;
+		case EShaderType::SHADER_VERTEX:
+			return vsBlob;
+		case EShaderType::SHADER_FRAGMENT:
+			return fsBlob;
+		case EShaderType::SHADER_GEOMETRY:
+			return gsBlob;
+		case EShaderType::SHADER_COMPUTE:
+			return csBlob;
+		case EShaderType::SHADER_RT_LIB:
+			return RTLibBlob;
 	}
 	return nullptr;
 }

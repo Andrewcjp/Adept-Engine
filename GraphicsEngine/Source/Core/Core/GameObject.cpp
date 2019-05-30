@@ -154,13 +154,7 @@ RigidBody * GameObject::GetRigidbody()
 	return nullptr;
 }
 
-void GameObject::Render(bool ignoremat, RHICommandList * list)
-{
-	if (m_MeshRenderer != nullptr)
-	{
-		m_MeshRenderer->Render(ignoremat, list);
-	}
-}
+
 void GameObject::PrepareDataForRender()
 {
 	if (m_MeshRenderer != nullptr)

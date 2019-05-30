@@ -46,6 +46,8 @@ public:
 	static size_t GetBytesPerPixel(DXGI_FORMAT fmt);
 	static size_t BitsPerPixel(DXGI_FORMAT fmt);
 	static D3D12_RESOURCE_ALLOCATION_INFO GetResourceSizeData(int width, int height, DXGI_FORMAT format, D3D12_RESOURCE_DIMENSION dim,bool depth = false, D3D12DeviceContext * c = nullptr);
+	static void AllocateUAVBuffer(ID3D12Device * pDevice, UINT64 bufferSize, ID3D12Resource ** ppResource, D3D12_RESOURCE_STATES initialResourceState, const wchar_t * resourceName);
+	static void AllocateUploadBuffer(ID3D12Device * pDevice, void * pData, UINT64 datasize, ID3D12Resource ** ppResource, const wchar_t * resourceName);
 };
 
 //Used to Copy Back resources for read

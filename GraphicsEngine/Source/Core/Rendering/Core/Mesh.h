@@ -51,14 +51,15 @@ public:
 	CullingAABB* GetBounds();
 	void UpdateBounds(glm::vec3 pos, glm::vec3 scale);
 	MeshRendererComponent* Renderer = nullptr;
-private:
-	CullingAABB MeshBounds;
-	int FrameCreated = 0;
-	std::vector<Material*> Materials;
 	/**
 	*\brief MeshEntity holds all the information to render a mesh section there might be multiple per mesh object
 	*/
 	std::vector<MeshEntity*> SubMeshes;
+private:
+	CullingAABB MeshBounds;
+	int FrameCreated = 0;
+	std::vector<Material*> Materials;
+
 	SkeletalMeshEntry* pSkeletalEntity = nullptr;
 	int MaterialCount = 0;
 	bool DoesShadow = true;
