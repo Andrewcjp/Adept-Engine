@@ -2,6 +2,7 @@
 
 class DeviceContext;
 class Shader;
+class Camera;
 class RHIStateObject
 {
 public:
@@ -9,6 +10,7 @@ public:
 	RHI_API virtual ~RHIStateObject();
 	RHI_API virtual void Build() = 0;
 	Shader* Target = nullptr;
+	Camera* TempCam = nullptr;
 protected:
 	DeviceContext* Device = nullptr;
 };

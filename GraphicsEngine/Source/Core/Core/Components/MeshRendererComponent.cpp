@@ -1,15 +1,10 @@
-
 #include "MeshRendererComponent.h"
 #include "CompoenentRegistry.h"
-#include "RHI/RHI.h"
-#include "RHI/RHICommandList.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/AssetManager.h"
-#include "Editor/Inspector.h"
-#include "Component.h"
-#include "../GameObject.h"
 #include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"
+
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
@@ -112,7 +107,7 @@ void MeshRendererComponent::PrepareDataForRender()
 void MeshRendererComponent::SceneInitComponent()
 {
 	m_mesh->UpdateBounds(GetOwner()->GetPosition(), GetOwner()->GetTransform()->GetScale());
-	if (RHI::GetRenderSettings()->EnableRayTracing)
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
 		BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice());
 		BLAS->CreateFromMesh(m_mesh);

@@ -20,11 +20,11 @@ void DynamicResolutionScaler::Init()
 	LogEnsure(Timer);
 	if (RHI::IsRenderingVR())
 	{
-		SetTargetFrameRate(95);
+		SetTargetFrameRate(RHI::GetRenderSettings()->GetDynamicResolutionSettings().DynamicResolutionTargetFrameRateVR);
 	}
 	else
 	{
-		SetTargetFrameRate(300);
+		SetTargetFrameRate(RHI::GetRenderSettings()->GetDynamicResolutionSettings().DynamicResolutionTargetFrameRate);
 	}
 	MaxResolutionScale = 1.0f;
 	CurrentCooldown = UpdateRate;
@@ -33,7 +33,7 @@ void DynamicResolutionScaler::Init()
 void DynamicResolutionScaler::Tick()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("DynamicResolutionScaler", "RHI");
-	if (!RHI::GetRenderSettings()->EnableDynamicResolutionScaling)
+	if (!RHI::GetRenderSettings()->GetDynamicResolutionSettings().EnableDynamicResolutionScaling)
 	{
 		//force update to current render scale
 		return;

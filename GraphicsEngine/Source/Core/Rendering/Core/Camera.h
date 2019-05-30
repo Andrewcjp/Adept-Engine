@@ -11,12 +11,12 @@ public:
 	float zNear = 0.0f;
 	float ZFar = 1000.0f;
 	float fov = 70.0f;
-	glm::mat4 GetViewProjection();
+	CORE_API glm::mat4 GetViewProjection();
 	void UpdateProjection(float aspect);
 	glm::mat4 GetTransformMatrix();
-	glm::mat4 GetProjection();
+	CORE_API glm::mat4 GetProjection();
 	CORE_API void SetUpAndForward(glm::vec3 fward, glm::vec3 uup);
-	glm::mat4 GetView();
+	CORE_API glm::mat4 GetView();
 	CORE_API glm::vec3 GetPosition();
 
 	void GetRayAtScreenPos(float screenX, float screenY, glm::vec3 & outrayDirection, glm::vec3 & outRayorign);

@@ -16,6 +16,6 @@ private:
 	//TODO: check if this is need on all 
 	ID3D12Resource* scratchResource = nullptr;
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC bottomLevelBuildDesc = {};
-	D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {};
+	std::vector <D3D12_RAYTRACING_GEOMETRY_DESC> geometryDescs;
 };
 

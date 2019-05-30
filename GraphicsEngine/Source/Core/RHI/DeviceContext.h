@@ -58,10 +58,10 @@ public:
 	RHI_API virtual void UpdateCopyEngine() = 0;
 	RHI_API virtual void ResetCopyEngine() = 0;
 
-	RHI_API  int GetDeviceIndex();
-	RHI_API virtual int GetCpuFrameIndex() = 0;
+	RHI_API int GetDeviceIndex() const;
+	RHI_API int GetCpuFrameIndex() const;
 	RHI_API virtual void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
-	int CurrentFrameIndex = 0;
+
 	RHI_API virtual void CPUWaitForAll() = 0;
 	RHI_API virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
 	RHI_API const CapabilityData& GetCaps();
@@ -95,6 +95,7 @@ public:
 	RHI_API virtual void OnFrameStart();
 	RHI_API virtual void OnFrameEnd_PreSubmit();
 protected:
+	int CurrentFrameIndex = 0;
 	RHI_API void PostInit();
 	bool AllowCrossFrameAsyncCompute = false;
 	RHI_API void InitCopyListPool();

@@ -37,7 +37,11 @@ float3 linearToSrgb(float3 c)
 	float3 srgb = 0.662002687 * sq1 + 0.684122060 * sq2 - 0.323583601 * sq3 - 0.0225411470 * c;
 	return srgb;
 }
-
+cbuffer CameraData: register(b0)
+{
+	float4x4 viewI;
+	float4x4 projectionI;
+}
 struct RayPayload
 {
 	float3 color;
@@ -56,8 +60,9 @@ void rayGen()
 	float aspectRatio = dims.x / dims.y;
 
 	RayDesc ray;
-	ray.Origin = float3(0, 2, -10);
-	ray.Direction = normalize(float3(d.x * aspectRatio, -d.y, 1));
+	ray.Origin = mul(viewI, float4(0, 0, 0, 1));
+	float4 target = mul(projectionI, float4(d.x, -d.y, 1, 1));
+	ray.Direction = mul(viewI, float4(target.xyz, 0));
 
 	ray.TMin = 0;
 	ray.TMax = 1000;
@@ -84,6 +89,7 @@ void chs(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attr
 	const float3 B = float3(0, 1, 0);
 	const float3 C = float3(0, 0, 1);
 	payload.color = C * barycentrics.x + A * barycentrics.y + B * barycentrics.z;
+
 	switch (instanceID)
 	{
 		case 0:

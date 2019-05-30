@@ -118,7 +118,6 @@ public:
 	void ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock = false);
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
 	class RHITimeManager* GetTimeManager()override;
-	int GetCpuFrameIndex();
 	void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
 	bool SupportsCommandList4();
 	void CPUWaitForAll();
@@ -156,8 +155,6 @@ private:
 	ID3D12Device5* m_Device5 = nullptr;
 	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
 	ID3D12CommandQueue* m_MainCommandQueue = nullptr;
-
-	int CurrentFrameIndex = 0;
 
 	//device info
 	DXGI_QUERY_VIDEO_MEMORY_INFO CurrentVideoMemoryInfo;

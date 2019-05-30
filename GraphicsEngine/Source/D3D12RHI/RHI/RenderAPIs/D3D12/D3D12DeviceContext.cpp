@@ -494,11 +494,6 @@ RHITimeManager * D3D12DeviceContext::GetTimeManager()
 	return TimeManager;
 }
 
-int D3D12DeviceContext::GetCpuFrameIndex()
-{
-	return CurrentFrameIndex;
-}
-
 void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
 	CrossAdaptorSync[GetCpuFrameIndex()].CrossGPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), ((D3D12DeviceContext*)OtherGPU)->GetCommandQueueFromEnum(WaitingQueue));

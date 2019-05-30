@@ -29,5 +29,7 @@ private:
 	Descriptor* Descriptors[RHI::CPUFrameCount];
 	D3D12DeviceContext* context = nullptr;
 	bool RecreateQueued = false;
+	bool CreatedThisFrame = false;
+	int lastFrame = 0;
 };
 

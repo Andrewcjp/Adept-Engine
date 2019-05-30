@@ -360,7 +360,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector
 		{
 			continue;
 		}
-		if (RHI::GetRenderSettings()->UseGeometryShaderForShadows)
+		if (RHI::GetRenderSettings()->GetShadowSettings().UseGeometryShaderForShadows)
 		{
 			RenderShadowMap_GPU(Interaction, list, IndexOnGPU);
 		}
@@ -397,7 +397,7 @@ void ShadowRenderer::RenderShadowMap_GPU(ShadowLightInteraction* Interaction, RH
 	{
 		Filter = EBatchFilter::StaticOnly;
 	}
-	if (RHI::GetRenderSettings()->UseViewInstancing)
+	if (RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows)
 	{
 		for (int i = 0; i < CUBE_SIDES; i += ViewInstancesPerDraw)
 		{
@@ -646,7 +646,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 		desc.InitOLD(true, false, false);
 		desc.RenderTargetDesc = GetCubeMapDesc();
 		desc.ShaderInUse = PointLightShader;
-		if (RHI::GetRenderSettings()->UseViewInstancing)
+		if (RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows)
 		{
 			desc.ViewInstancing.Active = true;
 			//dx12 max count is 4 for some reason so two batches of 3 instances

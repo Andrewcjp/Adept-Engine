@@ -12,6 +12,7 @@ namespace GlobalRootSignatureParams
 	{
 		OutputViewSlot = 0,
 		AccelerationStructureSlot,
+		CameraBuffer,
 		Count
 	};
 }
@@ -24,6 +25,11 @@ namespace LocalRootSignatureParams
 		Count
 	};
 }
+struct RTCameraData
+{
+	glm::mat4x4 IView;
+	glm::mat4x4 IProj;
+};
 class D3D12StateObject :public RHIStateObject
 {
 public:
@@ -40,7 +46,9 @@ public:
 	void Trace(const RHIRayDispatchDesc& Desc,RHICommandList * T,D3D12FrameBuffer* target);
 	void BuildShaderTables();
 	HighLevelAccelerationStructure* High;
+	RTCameraData Data;
 private:
+	
 	ID3D12StateObject* StateObject = nullptr;
 	ID3D12RootSignature* m_raytracingLocalRootSignature = nullptr;
 	ID3D12RootSignature* m_raytracingGlobalRootSignature = nullptr;
@@ -49,5 +57,6 @@ private:
 	nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper;
 	ID3D12Resource* m_sbtStorage;
 	DescriptorGroup* UAVd = nullptr;
+	D3D12Buffer* CBV = nullptr;
 };
 

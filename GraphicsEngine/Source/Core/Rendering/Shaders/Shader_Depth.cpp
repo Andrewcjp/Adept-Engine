@@ -11,8 +11,8 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	LoadGeomShader = LoadGeo;
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", LoadGeomShader ? "0" : "1"));
 #if USE_GS_FOR_CUBE_SHADOWS
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", RHI::GetRenderSettings()->UseGeometryShaderForShadows ? "0" : "1"));
-	if (RHI::GetRenderSettings()->UseViewInstancing)
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", RHI::GetRenderSettings()->GetShadowSettings().UseGeometryShaderForShadows ? "0" : "1"));
+	if (RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows)
 	{
 		m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("USE_VIEWINST", "1"));
 	}
@@ -24,7 +24,7 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	if (LoadGeomShader)
 	{
 #if USE_GS_FOR_CUBE_SHADOWS
-		if (!RHI::GetRenderSettings()->UseViewInstancing && RHI::GetRenderSettings()->UseGeometryShaderForShadows)
+		if (!RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows && RHI::GetRenderSettings()->GetShadowSettings().UseGeometryShaderForShadows)
 		{
 			m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_geo", EShaderType::SHADER_GEOMETRY);
 		}

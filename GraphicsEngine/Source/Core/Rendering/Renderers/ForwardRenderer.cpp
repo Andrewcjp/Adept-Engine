@@ -148,7 +148,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	List->EndTimer(EGPUTIMERS::MainPass);
 	O->SkyboxShader->Render(SceneRender, List, O->GetMain(eye), nullptr);
 	List->Execute();
-	if (RHI::GetRenderSettings()->EnableRayTracing)
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
 		RayTracingEngine::Get()->DispatchRays(O->GetMain(eye));
 	}

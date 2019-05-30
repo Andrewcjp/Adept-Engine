@@ -245,21 +245,26 @@ RHIGPUSyncEvent::~RHIGPUSyncEvent()
 
 }
 
-int DeviceContext::GetDeviceIndex()
+int DeviceContext::GetDeviceIndex() const
 {
 	return DeviceIndex;
+}
+
+int DeviceContext::GetCpuFrameIndex() const
+{
+	return CurrentFrameIndex;
 }
 
 std::string EGPUType::ToString(EGPUType::Type type)
 {
 	switch (type)
 	{
-	case EGPUType::Dedicated:
-		return "Dedicated";
-	case EGPUType::Intergrated:
-		return "Intergrated";
-	case EGPUType::Software:
-		return "Software";
+		case EGPUType::Dedicated:
+			return "Dedicated";
+		case EGPUType::Intergrated:
+			return "Intergrated";
+		case EGPUType::Software:
+			return "Software";
 	}
 	return "UNKNOWN";
 }
