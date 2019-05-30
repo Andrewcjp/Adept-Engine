@@ -68,8 +68,12 @@ public:
 #if AFTERMATH
 	GFSDK_Aftermath_ContextHandle AMHandle;
 #endif
+	ID3D12GraphicsCommandList4* GetCMDList4();
+	virtual void TraceRays(const RHIRayDispatchDesc& desc) override;
+	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
+	virtual void SetStateObject(RHIStateObject* Object) override;
 private:
-
+	D3D12StateObject* CurrentRTState = nullptr;
 	std::vector<DescriptorHeap*> heaps;
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;

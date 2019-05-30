@@ -2,6 +2,7 @@
 #include "RHITypes.h"
 #include "BaseTexture.h"
 class DeviceContext;
+class HighLevelAccelerationStructure;
 struct RHIBufferDesc
 {
 	int ElementCount = 0;
@@ -129,6 +130,10 @@ public:
 	bool IsComputeList() const;
 	void InsertGPUStallTimer();
 	void HandleStallTimer();
+	//RT
+	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) = 0;
+	virtual void TraceRays(const RHIRayDispatchDesc& desc) = 0;
+	virtual void SetStateObject(RHIStateObject* Object) = 0;
 protected:
 	RHIPipeLineStateObject* CurrentPSO = nullptr;
 	bool IsInRenderPass = false;

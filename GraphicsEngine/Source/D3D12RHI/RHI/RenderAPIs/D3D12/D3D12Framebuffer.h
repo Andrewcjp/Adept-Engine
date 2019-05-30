@@ -45,12 +45,7 @@ public:
 	DeviceContext* GetDevice() override;
 	GPUResource* GetResource(int index);
 	void Release() override;
-
-
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
-
-
-
 
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;

@@ -12,6 +12,9 @@
 #include "D3D12Helpers.h"
 #include "../headers/openvr.h"
 #include "D3D12Query.h"
+#include "Raytracing/D3D12LowLevelAccelerationStructure.h"
+#include "Raytracing/D3D12HighLevelAccelerationStructure.h"
+#include "Raytracing/D3D12StateObject.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
@@ -21,8 +24,8 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
-//	ForceSingleGPU.SetValue(true);
-	//ForceNoDebug.SetValue(true);
+	//	ForceSingleGPU.SetValue(true);
+		//ForceNoDebug.SetValue(true);
 }
 
 D3D12RHI::~D3D12RHI()
@@ -43,10 +46,55 @@ void D3D12RHI::RunDred()
 }
 #endif
 
-
 RHIQuery * D3D12RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 {
 	return new D3D12Query(type, con);
+}
+
+LowLevelAccelerationStructure* D3D12RHI::CreateLowLevelAccelerationStructure(DeviceContext * Device)
+{
+	return new D3D12LowLevelAccelerationStructure(Device);
+}
+
+HighLevelAccelerationStructure* D3D12RHI::CreateHighLevelAccelerationStructure(DeviceContext * Device)
+{
+	return new D3D12HighLevelAccelerationStructure(Device);
+}
+
+D3D12DeviceContext * D3D12RHI::GetDXCon(DeviceContext * D)
+{
+	return (D3D12DeviceContext*)D;
+}
+
+D3D12Buffer * D3D12RHI::DXConv(RHIBuffer * D)
+{
+	return (D3D12Buffer*)D;
+}
+
+D3D12CommandList * D3D12RHI::DXConv(RHICommandList * D)
+{
+	return (D3D12CommandList*)D;
+}
+
+D3D12LowLevelAccelerationStructure * D3D12RHI::DXConv(LowLevelAccelerationStructure * D)
+{
+	return (D3D12LowLevelAccelerationStructure*)D;
+}
+
+D3D12HighLevelAccelerationStructure * D3D12RHI::DXConv(HighLevelAccelerationStructure * D)
+{
+	return (D3D12HighLevelAccelerationStructure*)D;
+}
+
+D3D12StateObject * D3D12RHI::DXConv(RHIStateObject * D)
+{
+	return (D3D12StateObject*)D;
+}
+
+
+ RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device)
+{
+	 return new D3D12StateObject(Device);
 }
 
 void D3D12RHI::DestroyContext()

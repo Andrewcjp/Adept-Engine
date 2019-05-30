@@ -250,7 +250,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	);
 	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
 	ThrowIfFailed(result);
-	ThrowIfFailed(D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, NULL, 0));
+	//ThrowIfFailed(D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, NULL, 0));
 	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
 	if (MaxLevel != D3D_FEATURE_LEVEL_11_0)
 	{
@@ -272,6 +272,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		Log::LogMessage("Creating device with " + std::to_string(m_Device->GetNodeCount()) + " Nodes");
 	}
 	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device2));
+	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device5));
 	CheckFeatures();
 	SetNodeMaskFromIndex(0);
 	InitDevice(index);
@@ -292,6 +293,11 @@ ID3D12Device * D3D12DeviceContext::GetDevice()
 ID3D12Device2* D3D12DeviceContext::GetDevice2()
 {
 	return m_Device2;
+}
+
+ID3D12Device5 * D3D12DeviceContext::GetDevice5()
+{
+	return m_Device5;
 }
 
 ID3D12CommandAllocator * D3D12DeviceContext::GetCommandAllocator()
@@ -336,7 +342,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-}
+	}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
@@ -515,18 +521,18 @@ ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQue
 {
 	switch (value)
 	{
-	case DeviceContextQueue::Graphics:
-		return m_MainCommandQueue;
-		break;
-	case DeviceContextQueue::Compute:
-		return m_ComputeCommandQueue;
-		break;
-	case DeviceContextQueue::Copy:
-		return m_CopyCommandQueue;
-		break;
-	case DeviceContextQueue::InterCopy:
-		return m_SharedCopyCommandQueue;
-		break;
+		case DeviceContextQueue::Graphics:
+			return m_MainCommandQueue;
+			break;
+		case DeviceContextQueue::Compute:
+			return m_ComputeCommandQueue;
+			break;
+		case DeviceContextQueue::Copy:
+			return m_CopyCommandQueue;
+			break;
+		case DeviceContextQueue::InterCopy:
+			return m_SharedCopyCommandQueue;
+			break;
 	}
 	return nullptr;
 }

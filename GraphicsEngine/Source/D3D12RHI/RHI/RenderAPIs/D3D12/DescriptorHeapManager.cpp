@@ -30,7 +30,7 @@ DescriptorHeapManager::~DescriptorHeapManager()
 
 Descriptor * DescriptorHeapManager::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size)
 {
-	ensure(false);
+//	ensure(false);
 	if (MainHeap[0]->GetNextFreeIndex() + size >= MainHeap[0]->GetMaxSize())
 	{
 		Reallocate(&MainHeap[0], MainHeap[0]->GetMaxSize() + std::max(10, size));

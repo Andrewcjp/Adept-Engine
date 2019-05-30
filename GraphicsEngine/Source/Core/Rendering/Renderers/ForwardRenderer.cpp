@@ -11,6 +11,7 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
 #include "../Core/LightCulling/LightCullingEngine.h"
+#include "../RayTracing/RayTracingEngine.h"
 
 
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
@@ -147,6 +148,10 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	List->EndTimer(EGPUTIMERS::MainPass);
 	O->SkyboxShader->Render(SceneRender, List, O->GetMain(eye), nullptr);
 	List->Execute();
+	if (RHI::GetRenderSettings()->EnableRayTracing)
+	{
+		RayTracingEngine::Get()->DispatchRays(O->GetMain(eye));
+	}
 }
 
 void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffer, int index)
@@ -193,6 +198,8 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	mShadowRenderer->Unbind(Cmdlist);
 #endif
 	LightCulling->Unbind(Cmdlist);
+	targetbuffer->MakeReadyForComputeUse(Cmdlist);
+
 }
 
 

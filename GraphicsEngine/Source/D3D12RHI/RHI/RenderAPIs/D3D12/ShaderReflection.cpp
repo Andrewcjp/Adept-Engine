@@ -15,9 +15,9 @@ void ShaderReflection::GatherRSBinds(IDxcBlob * target, std::vector<ShaderParame
 	IDxcContainerReflection* pReflection;
 	UINT32 shaderIdx;
 	DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflection));
-	//	m_dllSupport.CreateInstance(CLSID_DxcContainerReflection, &pReflection);
 	ThrowIfFailed(pReflection->Load(target));
 	ThrowIfFailed(pReflection->FindFirstPartKind(DXIL_FOURCC('D', 'X', 'I', 'L'), &shaderIdx));
+	ensure(shaderIdx != 0);
 	ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, __uuidof(ID3D12ShaderReflection), (void**)&REF));
 
 #endif

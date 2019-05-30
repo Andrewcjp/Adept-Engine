@@ -10,6 +10,8 @@
 #include "DescriptorHeapManager.h"
 #include "Descriptor.h"
 #include "DescriptorGroup.h"
+#include "D3D12RHI.h"
+#include "Raytracing/D3D12StateObject.h"
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else
@@ -116,6 +118,11 @@ void D3D12CommandList::PushHeaps()
 void D3D12CommandList::ClearHeaps()
 {
 	heaps.clear();
+}
+
+ID3D12GraphicsCommandList4 * D3D12CommandList::GetCMDList4()
+{
+	return CurrentADVCommandList;
 }
 
 void D3D12CommandList::PushPrimitiveTopology()
@@ -228,15 +235,15 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 	{
 		switch (ListType)
 		{
-		case ECommandListType::Graphics:
-			Target = DeviceContextQueue::Graphics;
-			break;
-		case ECommandListType::Compute:
-			Target = DeviceContextQueue::Compute;
-			break;
-		case ECommandListType::Copy:
-			Target = DeviceContextQueue::Copy;
-			break;
+			case ECommandListType::Graphics:
+				Target = DeviceContextQueue::Graphics;
+				break;
+			case ECommandListType::Compute:
+				Target = DeviceContextQueue::Compute;
+				break;
+			case ECommandListType::Copy:
+				Target = DeviceContextQueue::Copy;
+				break;
 		}
 	}
 	ThrowIfFailed(CurrentCommandList->Close());
@@ -357,9 +364,7 @@ void D3D12CommandList::PushState()
 			}
 		}
 	}
-
 }
-
 
 void D3D12CommandList::CreateCommandList()
 {
@@ -394,7 +399,6 @@ void D3D12CommandList::CreateCommandList()
 	PushState();
 	D3D12Helpers::NameRHIObject(CurrentCommandList, this);
 #if AFTERMATH
-
 	GFSDK_Aftermath_DX12_CreateContextHandle(CurrentCommandList, &AMHandle);
 	D3D12RHI::Get()->handles.push_back(AMHandle);
 	const char* s = "asdasd";
@@ -540,6 +544,26 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	}
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
+}
+
+
+
+void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)
+{
+	ensure(CurrentRTState);
+	//#DXR: todo
+	CurrentRTState->Trace(desc, this, CurrentRenderTarget);
+}
+
+void D3D12CommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)
+{
+	ensure(CurrentRTState);
+	CurrentRTState->High = Struct;
+}
+
+void D3D12CommandList::SetStateObject(RHIStateObject* Object)
+{
+	CurrentRTState = D3D12RHI::DXConv(Object);
 }
 
 void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot)

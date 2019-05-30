@@ -18,6 +18,10 @@ class RHIClass;
 class HMD;
 class HMDManager;
 struct VRSettings;
+class LowLevelAccelerationStructure;
+class HighLevelAccelerationStructure;
+class RayTracingEngine;
+class RHIStateObject;
 //RHI defines
 #define SUPPORTVR 1
 #define PSO_USE_FULL_STRING_MAPS 1
@@ -121,6 +125,8 @@ private:
 	bool IsFullScreen = false;
 	int SwapChainWidth = 0;
 	int SwapChainHeight = 0;
+	friend RayTracingEngine;
+	RayTracingEngine* RTE = nullptr;
 #if SUPPORTVR
 	HMDManager* HeadSetManager = nullptr;
 #endif
@@ -156,6 +162,12 @@ public:
 #endif
 	RHI_VIRTUAL void SubmitToVRComposter(FrameBuffer* fb, EEye::Type eye);
 	RHI_VIRTUAL RHIQuery * CreateQuery(EGPUQueryType::Type type, DeviceContext * con) = 0;
+
+	//RT
+	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device) = 0;
+	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device) = 0;
+	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) = 0;
+
 };
 
 class RHIModule : public IModuleInterface
