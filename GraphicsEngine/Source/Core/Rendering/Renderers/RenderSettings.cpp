@@ -198,9 +198,10 @@ RenderSettings::RenderSettings()
 	UseZPrePass = true;
 	SetRes(BBTestMode::HD);
 	ShadowSettings.UseGeometryShaderForShadows = true;
-	ShadowSettings.UseViewInstancingForShadows = true;
+	//ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = true;
+	//RTSettings.Enabled = true;
+	//AllowMeshInstancing = true; 
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
@@ -234,6 +235,7 @@ RenderConstants::RenderConstants()
 	DEFAULT_COPYLIST_POOL_SIZE = 4;
 	MAX_LIGHTS = glm::min(MAX_POSSIBLE_LIGHTS, MAX_LIGHTS);
 	LIGHTCULLING_TILE_SIZE = 16;
+	MAX_MESH_INSTANCES = 20;
 }
 
 std::string RenderSettings::ToString(BBTestMode::Type t)

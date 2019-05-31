@@ -1,5 +1,6 @@
 #include "Stdafx.h"
 #include "MeshBatch.h"
+#include "../../MeshInstanceBuffer.h"
 
 
 MeshBatch::MeshBatch()
@@ -21,4 +22,8 @@ void MeshBatch::Update()
 	MainPassCulled = Owner->IsCulled(ECullingPass::MainPass);
 	ShadowPassCulled = Owner->IsCulled(ECullingPass::ShadowPass);
 	CastShadow = Owner->GetMesh()->GetDoesShadow();
+	if (InstanceBuffer != nullptr)
+	{
+	//	InstanceBuffer->UpdateBuffer();
+	}
 }

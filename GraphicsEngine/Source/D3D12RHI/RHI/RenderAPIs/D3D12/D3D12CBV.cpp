@@ -42,14 +42,15 @@ void D3D12CBV::UpdateCBV(void* buffer, int offset, int size)
 {
 	//access volition
 	ensure((offset*CB_Size) + size <= SizeInBytes);
-	memcpy(m_pCbvDataBegin + (offset * CB_Size), buffer, size);
+	memcpy(m_pCbvDataBegin + (offset * RawStuctSize), buffer, size);
 }
 
 void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 {
 	InitalBufferCount = Elementcount;
-
+	RawStuctSize = StructSize;
 	CB_Size = (StructSize + 255) & ~255;
+	RawStuctSize = CB_Size;
 	SizeInBytes = InitalBufferCount * CB_Size;
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -75,6 +76,6 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 
 void D3D12CBV::SetName(LPCWSTR name)
 {
-	//CBVDesc->SetName(name);
+	m_constantBuffer->SetName(name);
 }
 #endif

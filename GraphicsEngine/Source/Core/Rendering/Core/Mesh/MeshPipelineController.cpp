@@ -5,6 +5,7 @@
 #include "MeshBatch.h"
 #include "TransparentPassMeshProcessor.h"
 #include "ZPrePassMeshProcessor.h"
+#include "../../MeshInstanceBuffer.h"
 
 MeshPipelineController::MeshPipelineController()
 {
@@ -65,6 +66,74 @@ void MeshPipelineController::GatherBatches()
 		std::sort(Batches.begin(), Batches.end(), DistanceSort(TargetScene->GetCurrentRenderCamera()->GetPosition()));
 	}
 #endif
+	if (RHI::GetFrameCount() == 0)
+	{
+		BuildStaticInstancing();
+	}
+}
+
+void MeshPipelineController::BuildStaticInstancing()
+{
+	if (!RHI::GetRenderSettings()->AllowMeshInstancing)
+	{
+		return;
+	}
+	//#mesh Group based on material
+	//#mesh arbitrary per instance data.
+	std::map<RHIBuffer*, std::vector<MeshBatch*>> Buckets;
+	for (int i = 0; i < Batches.size(); i++)
+	{
+		if (Batches[i]->Owner->GetMobility() != GameObject::Static)
+		{
+			continue;
+		}
+
+		auto itor = Buckets.find(Batches[i]->elements[0]->VertexBuffer);
+		if (itor != Buckets.end())
+		{
+			itor->second.push_back(Batches[i]);
+		}
+		else
+		{
+			Buckets.emplace(Batches[i]->elements[0]->VertexBuffer, std::vector<MeshBatch*>{ Batches[i] });
+		}
+	}
+
+	for (auto itor = Buckets.begin(); itor != Buckets.end(); itor++)
+	{
+		if (itor->second.size() < 2)
+		{
+			continue;
+		}
+		MeshBatch* Ctl = itor->second[0];
+		if (itor->second.size() >= RHI::GetRenderConstants()->MAX_MESH_INSTANCES)
+		{
+			const int maxinstance = RHI::GetRenderConstants()->MAX_MESH_INSTANCES;
+			for (int i = 0; i < itor->second.size(); i += maxinstance)
+			{
+				CreateInstanceController(itor->second[i], itor, maxinstance, i);
+			}
+		}
+		else
+		{
+			CreateInstanceController(Ctl, itor, itor->second.size(), 0);
+		}
+	}
+}
+
+void MeshPipelineController::CreateInstanceController(MeshBatch* Ctl, std::map<RHIBuffer *, std::vector<MeshBatch *>>::iterator itor, int limit, int offset)
+{
+	Ctl->IsinstancedBatch = true;
+	Ctl->InstanceBuffer = new MeshInstanceBuffer();
+	Ctl->InstanceBuffer->AddBatch(Ctl);
+	for (int i = 1 + offset; i < glm::min((int)itor->second.size(), offset + limit); i++)
+	{
+		Ctl->InstanceBuffer->AddBatch(itor->second[i]);
+		itor->second[i]->InstanceOwner = Ctl;
+		itor->second[i]->IsinstancedBatch = true;
+	}
+	Ctl->InstanceBuffer->Build();
+	Ctl->InstanceBuffer->UpdateBuffer();
 }
 
 void MeshPipelineController::RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader, EBatchFilter::Type Filter)
@@ -109,16 +178,16 @@ std::string ERenderPass::ToString(ERenderPass::Type t)
 {
 	switch (t)
 	{
-	case ERenderPass::DepthOnly:
-		return "DepthOnly";
-	case ERenderPass::BasePass:
-		return "BasePass";;
-	case ERenderPass::BasePass_Cubemap:
-		return "BasePass_Cubemap";;
-	case ERenderPass::TransparentPass:
-		return "TransparentPass";;
-	case ERenderPass::PreZ:
-		return "PreZ";
+		case ERenderPass::DepthOnly:
+			return "DepthOnly";
+		case ERenderPass::BasePass:
+			return "BasePass";;
+		case ERenderPass::BasePass_Cubemap:
+			return "BasePass_Cubemap";;
+		case ERenderPass::TransparentPass:
+			return "TransparentPass";;
+		case ERenderPass::PreZ:
+			return "PreZ";
 	}
 	return std::string();
 }

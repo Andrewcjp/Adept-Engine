@@ -7,8 +7,11 @@ public:
 	~BasePassMeshProcessor();
 
 	virtual void AddBatch(MeshBatch* Batch) override;
-	virtual void Process(MeshBatch* Batch) override;
-	virtual void SubmitCommands(RHICommandList* List, Shader* shader) override;
+	//virtual void Process(MeshBatch* Batch) override;
+	//virtual void SubmitCommands(RHICommandList* List, Shader* shader) override;
+
+
+	virtual void OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command) override;
 
 private:
 	bool IsForCubemap = false;

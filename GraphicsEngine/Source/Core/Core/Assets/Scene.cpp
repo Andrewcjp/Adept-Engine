@@ -304,12 +304,9 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 
 #if 1
 	size = 3;
-
 	glm::vec3 startPos = glm::vec3(0, 5, 0);
 	stride = 5.0f;
 	CreateGrid(size, startPos, 5.0f);
-
-
 #endif
 #if NDEBUG
 	CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);

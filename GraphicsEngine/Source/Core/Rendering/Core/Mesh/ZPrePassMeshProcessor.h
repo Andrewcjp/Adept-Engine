@@ -12,11 +12,10 @@ public:
 	void Init();
 
 	virtual void AddBatch(MeshBatch* Batch) override;
+	virtual void OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command) override;
 
+	virtual bool CheckProcess(MeshBatchElement* Element) override;
 
-	virtual void Process(MeshBatch* Batch) override;
-
-	virtual void SubmitCommands(RHICommandList* List,  Shader* shader) override;
 private:
 
 };

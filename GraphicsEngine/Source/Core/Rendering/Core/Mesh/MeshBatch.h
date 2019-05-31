@@ -1,6 +1,7 @@
 #pragma once
 
 class Material;
+class MeshInstanceBuffer;
 struct MeshBatchElement
 {
 	RHIBuffer* VertexBuffer = nullptr;
@@ -26,5 +27,12 @@ public:
 	bool ShadowPassCulled = false;
 	GameObject* Owner = nullptr;
 	void Update();
+	//Are we instanced?
+	bool IsinstancedBatch = false;
+	//if this is null this is the instance control node.
+	//else we are subnode.
+	MeshBatch* InstanceOwner = nullptr;
+
+	MeshInstanceBuffer* InstanceBuffer = nullptr;
 };
 

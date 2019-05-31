@@ -1,7 +1,7 @@
-#include "Stdafx.h"
 #include "MaterialShader.h"
-#include "Core\Assets\Asset_Shader.h"
-#include "..\..\ShaderGraph\ShaderGraph.h"
+#include "Core/Assets/Asset_Shader.h"
+#include "Rendering/ShaderGraph/ShaderGraph.h"
+
 
 
 MaterialShader::MaterialShader(Asset_Shader* Shader)

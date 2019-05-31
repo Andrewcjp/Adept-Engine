@@ -56,7 +56,7 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 			{
 				cullcount++;
 			}
-			CurrentObj->SetCulledState(ECullingPass::MainPass, culled);
+			CurrentObj->SetCulledState(ECullingPass::MainPass, false);
 		}
 	}
 	PerfManager::AddToCountTimer(MPObjects, cullcount);

@@ -9,6 +9,8 @@ Shader_Depth::Shader_Depth(bool LoadGeo) :Shader_Depth(RHI::GetDeviceContext(0),
 Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 {
 	LoadGeomShader = LoadGeo;
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_INSTANCES", std::to_string(RHI::GetRenderConstants()->MAX_MESH_INSTANCES)));
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_INSTANCING", RHI::GetRenderSettings()->AllowMeshInstancing ? "1" : "0"));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", LoadGeomShader ? "0" : "1"));
 #if USE_GS_FOR_CUBE_SHADOWS
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", RHI::GetRenderSettings()->GetShadowSettings().UseGeometryShaderForShadows ? "0" : "1"));

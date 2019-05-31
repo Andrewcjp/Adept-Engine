@@ -465,7 +465,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	}
 	psoDesc.DSVFormat = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.DSVFormat);
 
-	if (((D3D12DeviceContext*)context)->GetDevice2() != nullptr)
+	if (((D3D12DeviceContext*)context)->GetDevice2() != nullptr && context->GetCaps().SupportsViewInstancing && PSODesc.ViewInstancing.Active)
 	{
 		Stream = CD3DX12_PIPELINE_STATE_STREAM1(psoDesc);
 		D3D12_VIEW_INSTANCE_LOCATION* Loc = nullptr;
