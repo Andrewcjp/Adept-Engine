@@ -104,6 +104,7 @@ public:
 	RayTracingSettings& GetRTSettings();
 	ShadowMappingSettings& GetShadowSettings();
 	DynamicResolutionSettings& GetDynamicResolutionSettings();
+	bool AllowMeshInstancing = false;
 private:
 	float RenderScale = 1;
 	RayTracingSettings RTSettings;
@@ -144,5 +145,6 @@ struct RenderConstants
 	int MAX_LIGHTS;
 	int DEFAULT_COPYLIST_POOL_SIZE;
 	int LIGHTCULLING_TILE_SIZE;
+	int MAX_MESH_INSTANCES;
 	RenderConstants();
 };

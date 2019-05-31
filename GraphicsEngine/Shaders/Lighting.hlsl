@@ -1,7 +1,7 @@
 struct Light
 {
-	float3 LPosition;
-	float3 color;
+	float4 LPosition;
+	float4 color;
 	float3 Direction;
 	row_major matrix LightVP;
 	int type;//type 1 == point, type 0 == directional, tpye 2 == spot
@@ -71,6 +71,8 @@ float3 GetAmbient_CONST()
 
 float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF)
 {
+	Roughness = clamp(Roughness, 0.0f, 1.0f);
+	Metal = clamp(Metal, 0.0f, 1.0f);
 	float3 F0 = float3(0.04, 0.04, 0.04);
 	F0 = lerp(F0, Diffusecolor, Metal);
 	float3 F = fresnelSchlick_Roughness(max(dot(Normal, View), 0.0), F0, Roughness);
@@ -104,6 +106,8 @@ float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPo
 
 float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic)
 {
+	roughness = clamp(roughness, 0.0f, 1.0f);
+	Metalic = clamp(Metalic, 0.0f, 1.0f);
 	float3 LightDirection = float3(0, 1, 0);
 	float distanceToLight = length(light.LPosition - FragPos);
 	if (distanceToLight > light.Range)

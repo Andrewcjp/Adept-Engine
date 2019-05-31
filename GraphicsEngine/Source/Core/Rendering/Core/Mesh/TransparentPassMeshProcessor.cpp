@@ -17,50 +17,30 @@ TransparentPassMeshProcessor::~TransparentPassMeshProcessor()
 
 void TransparentPassMeshProcessor::AddBatch(MeshBatch* Batch)
 {
+	if (IsSubInstance(Batch))
+	{
+		return;
+	}
 	Process(Batch);
 }
 
-void TransparentPassMeshProcessor::Process(MeshBatch* Batch)
+void TransparentPassMeshProcessor::OnSubmitCommands(RHICommandList * List, MeshDrawCommand * Command)
 {
-	for (int i = 0; i < Batch->elements.size(); i++)
+	if (Command->TargetMaterial != nullptr)
 	{
-		if (!Batch->elements[i]->IsVisible)
-		{
-			continue;
-		}
-		//transparent elements are rendered after opaque.
-		if (!Batch->elements[i]->bTransparent)
-		{
-			continue;
-		}
-		MeshDrawCommand* command = new MeshDrawCommand();
-		command->NumInstances = 1;
-		command->NumPrimitves = Batch->elements[i]->NumPrimitives;
-		command->Index = Batch->elements[i]->IndexBuffer;
-		command->Vertex = Batch->elements[i]->VertexBuffer;
-		command->TransformUniformBuffer = Batch->elements[i]->TransformBuffer;
-		command->TargetMaterial = Batch->elements[i]->MaterialInUse;
-		AddDrawCommand(command);
+		Command->TargetMaterial->SetMaterialActive(List, PassType);
+	}
+	else
+	{
+		Material::GetDefaultMaterial()->SetMaterialActive(List, PassType);
 	}
 }
 
-void TransparentPassMeshProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
+bool TransparentPassMeshProcessor::CheckProcess(MeshBatchElement* Element)
 {
-	for (int i = 0; i < DrawCommands.size(); i++)
+	if (!Element->bTransparent)
 	{
-		MeshDrawCommand* C = DrawCommands[i];
-		if (C->TargetMaterial != nullptr)
-		{
-			C->TargetMaterial->SetMaterialActive(List, PassType);
-		}
-		else
-		{
-			Material::GetDefaultMaterial()->SetMaterialActive(List, PassType);
-		}
-		List->SetConstantBufferView(C->TransformUniformBuffer, 0, 0);
-		List->SetVertexBuffer(C->Vertex);
-		List->SetIndexBuffer(C->Index);
-		List->DrawIndexedPrimitive(C->NumPrimitves, C->NumInstances, 0, 0, 0);
-		CountDrawCall();
+		return false;
 	}
+	return true;
 }

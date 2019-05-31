@@ -55,7 +55,8 @@ void SceneRenderer::Init()
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
 		CLightBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
+		CLightBuffer[i]->SetDebugName("Light buffer");
+		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, true);		
 	}
 	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, true);

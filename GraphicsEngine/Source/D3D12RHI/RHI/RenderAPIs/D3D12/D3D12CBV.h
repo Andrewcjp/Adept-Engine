@@ -29,5 +29,6 @@ private:
 	int CB_Size = 0;
 	class D3D12DeviceContext* Device = nullptr;
 	int SizeInBytes = 0;
+	int RawStuctSize = 0;
 };
 

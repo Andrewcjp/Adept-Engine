@@ -5,8 +5,8 @@ public:
 	CullingAABB();
 	~CullingAABB();
 	CullingAABB(glm::vec3 Pos, glm::vec3 size);
-	__forceinline glm::vec3 GetMin() const;
-	__forceinline glm::vec3 GetMax() const;
+	glm::vec3 GetMin() const;
+	glm::vec3 GetMax() const;
 	void DebugRender(glm::vec3 colour = glm::vec3(1), float time = 0.0f);
 
 	glm::vec3 ClosestPoint(const glm::vec3 & point) const;

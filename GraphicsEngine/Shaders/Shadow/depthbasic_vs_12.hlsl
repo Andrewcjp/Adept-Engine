@@ -1,8 +1,15 @@
-
-cbuffer constantBuffer : register(b0)
+#include "Core\Common.hlsl"
+#if WITH_INSTANCING
+cbuffer GOConstantBuffer : register(b0)
 {
-	row_major matrix world;
-}
+	PrimitiveData PrimD[MAX_INSTANCES];
+};
+#else
+cbuffer GOConstantBuffer : register(b0)
+{
+	PrimitiveData PrimD[1];
+};
+#endif
 cbuffer GeoTrans : register(b1)
 {
 	row_major matrix worldm[6];
@@ -30,10 +37,17 @@ VS_OUTPUT main(float4 pos : POSITION, float4 normal : NORMAL0, float3 uv : TEXCO
 #if USE_VIEWINST
 	, int V : SV_ViewID
 #endif
+#if WITH_INSTANCING
+	, uint id : SV_InstanceID
+#endif
 )
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
-	float4 final_pos = mul(float4(pos.xyz, 1.0), world);
+#if WITH_INSTANCING
+	float4 final_pos = mul(float4(pos.xyz, 1.0), PrimD[id].Model);
+#else
+	float4 final_pos = mul(float4(pos.xyz, 1.0), PrimD[0].Model);
+#endif
 	output.WorldPos = final_pos.xyz;
 
 #if USE_VIEWINST

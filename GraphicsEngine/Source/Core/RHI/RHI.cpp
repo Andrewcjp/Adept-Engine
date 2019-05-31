@@ -454,7 +454,10 @@ void RHI::InitialiseContext()
 	instance->SFR_Controller = new SFRController();
 	Defaults::Start();
 	instance->DetectAndInitVR();
-	instance->RTE = new RayTracingEngine();
+	if (RHI::GetRenderSettings()->GetRTSettings().Enabled)
+	{
+		instance->RTE = new RayTracingEngine();
+	}
 }
 
 void RHI::ValidateSettings()
