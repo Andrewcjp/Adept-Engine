@@ -63,38 +63,38 @@ HighLevelAccelerationStructure* D3D12RHI::CreateHighLevelAccelerationStructure(D
 
 D3D12DeviceContext * D3D12RHI::GetDXCon(DeviceContext * D)
 {
-	return (D3D12DeviceContext*)D;
+	return dynamic_cast<D3D12DeviceContext*>(D);
 }
 
 D3D12Buffer * D3D12RHI::DXConv(RHIBuffer * D)
 {
-	return (D3D12Buffer*)D;
+	return dynamic_cast<D3D12Buffer*>(D);
 }
 
 D3D12CommandList * D3D12RHI::DXConv(RHICommandList * D)
 {
-	return (D3D12CommandList*)D;
+	return dynamic_cast<D3D12CommandList*>(D);
 }
 
 D3D12LowLevelAccelerationStructure * D3D12RHI::DXConv(LowLevelAccelerationStructure * D)
 {
-	return (D3D12LowLevelAccelerationStructure*)D;
+	return dynamic_cast<D3D12LowLevelAccelerationStructure*>(D);
 }
 
 D3D12HighLevelAccelerationStructure * D3D12RHI::DXConv(HighLevelAccelerationStructure * D)
 {
-	return (D3D12HighLevelAccelerationStructure*)D;
+	return dynamic_cast<D3D12HighLevelAccelerationStructure*>(D);
 }
 
 D3D12StateObject * D3D12RHI::DXConv(RHIStateObject * D)
 {
-	return (D3D12StateObject*)D;
+	return dynamic_cast<D3D12StateObject*>(D);
 }
 
 
- RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device)
+RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device)
 {
-	 return new D3D12StateObject(Device);
+	return new D3D12StateObject(Device);
 }
 
 void D3D12RHI::DestroyContext()

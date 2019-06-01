@@ -107,6 +107,31 @@ RHIStateObject* VKanRHI::CreateStateObject(DeviceContext* Device)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+VKanTexture * VKanRHI::VKConv(BaseTexture * T)
+{
+	return dynamic_cast<VKanTexture*>(T);
+}
+
+VKanCommandlist * VKanRHI::VKConv(RHICommandList * T)
+{
+	return dynamic_cast<VKanCommandlist*>(T);
+}
+
+VKanBuffer * VKanRHI::VKConv(RHIBuffer * T)
+{
+	return dynamic_cast<VKanBuffer*>(T);
+}
+
+VkanDeviceContext * VKanRHI::VKConv(DeviceContext * T)
+{
+	return dynamic_cast<VkanDeviceContext*>(T);
+}
+
+VKanFramebuffer * VKanRHI::VKConv(FrameBuffer * T)
+{
+	return dynamic_cast<VKanFramebuffer*>(T);
+}
+
 #if ALLOW_RESOURCE_CAPTURE
 void VKanRHI::TriggerWriteBackResources()
 {

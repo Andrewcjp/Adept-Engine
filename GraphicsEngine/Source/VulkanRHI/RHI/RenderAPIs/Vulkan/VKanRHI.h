@@ -4,6 +4,7 @@
 
 class VkanDeviceContext;
 class VkanPipeLineStateObject;
+class VKanFramebuffer;
 #if BUILD_VULKAN
 #define FRAME_LAG 2
 #undef NOMINMAX
@@ -150,7 +151,7 @@ public:
 	class VKanBuffer* buffer = nullptr;
 	class VKanRenderPass* Pass = nullptr;
 	VKanBuffer* Vertexb = nullptr;
-	class VKanTexture* T ;
+	class VKanTexture* T;
 	class VKanShader* Shadertest = nullptr;
 	class VKanCommandlist* cmdlist = nullptr;
 	RHI_VIRTUAL void SetFullScreenState(bool state) override;
@@ -177,5 +178,10 @@ public:
 
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
 
+	static VKanTexture* VKConv(BaseTexture* T);
+	static VKanCommandlist* VKConv(RHICommandList* T);
+	static VKanBuffer* VKConv(RHIBuffer* T);
+	static VkanDeviceContext* VKConv(DeviceContext* T);
+	static VKanFramebuffer* VKConv(FrameBuffer* T);
 };
 #endif
