@@ -19,7 +19,7 @@ Nvidia, https://developer.nvidia.com/nvapi
 DirectX Texture Loader
 Microsoft Corporation, https://github.com/Microsoft/DirectXTK
 
-DirectX 12
+DirectX 12 & DXR
 Microsoft Corporation, https://docs.microsoft.com/en-us/windows/desktop/direct3d12/directx-12-programming-guide
 
 Vulkan

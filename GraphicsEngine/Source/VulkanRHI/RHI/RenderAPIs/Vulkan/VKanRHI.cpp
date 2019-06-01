@@ -87,6 +87,26 @@ RHIGPUSyncEvent* VKanRHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue,
 	return nullptr;
 }
 
+RHIQuery * VKanRHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+LowLevelAccelerationStructure* VKanRHI::CreateLowLevelAccelerationStructure(DeviceContext * Device)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+HighLevelAccelerationStructure* VKanRHI::CreateHighLevelAccelerationStructure(DeviceContext * Device)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+RHIStateObject* VKanRHI::CreateStateObject(DeviceContext* Device)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 #if ALLOW_RESOURCE_CAPTURE
 void VKanRHI::TriggerWriteBackResources()
 {
@@ -115,7 +135,7 @@ RHICommandList * VKanRHI::CreateCommandList(ECommandListType::Type Type/* = ECom
 }
 DeviceContext * VKanRHI::GetDefaultDevice()
 {
-	return TDevice;
+	return DevCon;
 }
 
 VkanDeviceContext* VKanRHI::GetVDefaultDevice()
@@ -127,18 +147,24 @@ DeviceContext * VKanRHI::GetDeviceContext(int index)
 {
 	if (index != 0)
 	{
-		
 		return nullptr;
 	}
-	return TDevice;
+	return DevCon;
 }
 
 void VKanRHI::RHISwapBuffers()
 {
+	if (RHI::GetFrameCount() == 0)
+	{
+		RHIRunFirstFrame();
+	}
 	drawFrame();
 }
+
 void VKanRHI::RHIRunFirstFrame()
-{}
+{
+	//setuplist->Execute();
+}
 
 void VKanRHI::ResizeSwapChain(int width, int height)
 {}
@@ -428,77 +454,6 @@ VkCommandPool  VKanRHI::createCommandPool()
 	}
 	return cmdpool;
 }
-void VKanRHI::createDescriptorPool()
-{
-	VkDescriptorPoolSize poolSize = {};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-
-	VkDescriptorPoolCreateInfo poolInfo = {};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
-	poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
-
-	if (vkCreateDescriptorPool(DevCon->device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create descriptor pool!");
-	}
-}
-void VKanRHI::createDescriptorSets()
-{
-	std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout);
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
-	allocInfo.pSetLayouts = layouts.data();
-
-	descriptorSets.resize(swapChainImages.size());
-	if (vkAllocateDescriptorSets(DevCon->device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-
-	for (size_t i = 0; i < swapChainImages.size(); i++)
-	{
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = buffer->vertexbuffer;
-		bufferInfo.offset = 0;
-		bufferInfo.range = buffer->GetSize();
-
-		VkWriteDescriptorSet descriptorWrite = {};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = descriptorSets[i];
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.pBufferInfo = &bufferInfo;
-
-		vkUpdateDescriptorSets(DevCon->device, 1, &descriptorWrite, 0, nullptr);
-	}
-}
-
-void VKanRHI::CreateDescriptorSet()
-{
-	VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
-	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
-
-	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboLayoutBinding;
-
-	if (vkCreateDescriptorSetLayout(DevCon->device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create descriptor set layout!");
-	}
-}
 
 void  VKanRHI::createSyncObjects()
 {
@@ -533,35 +488,14 @@ void VKanRHI::CreateNewObjects()
 	DEsc.RenderPass = Pass;
 	PSO = new VkanPipeLineStateObject(DEsc, DevCon);
 	PSO->Complie();
-
-
-}
-void VKanRHI::ReadyCmdList(VkCommandBuffer* vbuffer)
-{
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
-	if (vkBeginCommandBuffer(*vbuffer, &beginInfo) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to begin recording command buffer!");
-	}
-#if 0
-	VkRenderPassBeginInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = renderPass;
-	renderPassInfo.framebuffer = swapChainFramebuffers[currentFrame];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = swapChainExtent;
-
-	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	renderPassInfo.clearValueCount = 1;
-	renderPassInfo.pClearValues = &clearColor;
-
-	vkCmdBeginRenderPass(*vbuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	vkCmdBindPipeline(*vbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-#endif
-	vkCmdBindDescriptorSets(*vbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PSO->PipelineLayout, 0, 1, &descriptorSets[0], 0, nullptr);
+	Vertexb = new VKanBuffer(ERHIBufferType::Vertex, nullptr);
+	glm::vec2 positions[3] = {
+		glm::vec2(0.0, -0.5),
+		glm::vec2(0.5, 0.7),
+		glm::vec2(-0.5, 0.5)
+	};
+	Vertexb->CreateVertexBuffer(sizeof(glm::vec2), sizeof(positions));
+	Vertexb->UpdateVertexBuffer(&positions, sizeof(positions));
 }
 
 void  VKanRHI::drawFrame()
@@ -583,14 +517,20 @@ void  VKanRHI::drawFrame()
 	submitInfo.pWaitDstStageMask = waitStages;
 	if (cmdlist == nullptr)
 	{
-		cmdlist = new VKanCommandlist(ECommandListType::Graphics, nullptr);
+		cmdlist = setuplist;//new VKanCommandlist(ECommandListType::Graphics, DevCon);
 	}
-	cmdlist->ResetList();
+	else
+	{
+		cmdlist->ResetList();
+	}
+
 	RHIRenderPassInfo Info;
 	Info.Pass = Pass;
 	cmdlist->BeginRenderPass(Info);
 	cmdlist->SetPipelineStateObject(PSO);
+	cmdlist->SetVertexBuffer(Vertexb);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
+	cmdlist->SetTexture(T, 1);
 	cmdlist->DrawPrimitive(3, 1, 0, 0);
 	cmdlist->EndRenderPass();
 	cmdlist->Execute();
@@ -730,12 +670,11 @@ std::vector<const char*>  VKanRHI::getRequiredExtensions()
 {
 
 	std::vector<const char*> extensions;
+	extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+	extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
 	if (enableValidationLayers)
 	{
-
-		extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-		extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	}
@@ -818,28 +757,28 @@ void VKanRHI::initVulkan()
 	createInstance();
 	setupDebugCallback();
 	createSurface();
-
+	setuplist = new VKanCommandlist(ECommandListType::Compute, RHI::GetDefaultDevice());
+	setuplist->ResetList();
 	//pickPhysicalDevice();
 	//createLogicalDevice();
 	createSwapChain();
 	createImageViews();
-	CreateDescriptorSet();
+
 	CreateNewObjects();
 
 	//	createGraphicsPipeline();
 	createFramebuffers();
 	commandPool = createCommandPool();
 	buffer = new VKanBuffer(ERHIBufferType::Constant, nullptr);
-	glm::vec4 data = glm::vec4(1, 1, 1, 1);
+	glm::vec4 data = glm::vec4(1, 0.2, 0.8, 1);
 	buffer->CreateConstantBuffer(sizeof(data), 1);
 	buffer->UpdateConstantBuffer(glm::value_ptr(data), 0);
-	createDescriptorPool();
-	createDescriptorSets();
+	T = new VKanTexture();
+	T->CreateFromFile(AssetPathRef("texture\\ammoc03.jpg"));
 
 	createSyncObjects();
 
 }
-
 
 void  VKanRHI::setupDebugCallback()
 {
@@ -863,7 +802,6 @@ bool VKanRHI::InitRHI()
 	win32Hinst = PlatformWindow::GetHInstance();
 	win32HWND = PlatformWindow::GetHWND();
 	initVulkan();
-	TDevice = new VkanDeviceContext();
 	return true;
 }
 

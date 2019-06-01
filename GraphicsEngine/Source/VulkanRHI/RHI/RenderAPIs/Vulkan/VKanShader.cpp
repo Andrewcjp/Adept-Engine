@@ -219,6 +219,7 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	{
 		Log::LogMessage(Program->getInfoLog());
 		Log::LogMessage(Program->getInfoDebugLog());
+		Log::LogMessage(Shader->getInfoLog());
 		__debugbreak();
 	}
 	Program->addShader(Shader);

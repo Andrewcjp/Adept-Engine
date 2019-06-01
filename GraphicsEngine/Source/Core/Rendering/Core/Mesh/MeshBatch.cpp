@@ -1,7 +1,5 @@
-#include "Stdafx.h"
 #include "MeshBatch.h"
-#include "../../MeshInstanceBuffer.h"
-
+#include "MeshInstanceBuffer.h"
 
 MeshBatch::MeshBatch()
 {}
@@ -24,6 +22,6 @@ void MeshBatch::Update()
 	CastShadow = Owner->GetMesh()->GetDoesShadow();
 	if (InstanceBuffer != nullptr)
 	{
-	//	InstanceBuffer->UpdateBuffer();
+		InstanceBuffer->UpdateBuffer();
 	}
 }

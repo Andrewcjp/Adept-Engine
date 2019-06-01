@@ -3,6 +3,8 @@
 #include "RHI/Shader.h"
 #include "VKanRHI.h"
 #include "vulkan/vulkan_core.h"
+
+class Descriptor;
 #if BUILD_VULKAN
 class VKanCommandlist :
 	public RHICommandList
@@ -19,42 +21,32 @@ public:
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
-
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	virtual void SetScreenBackBufferAsRT() override;
 	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(RHIUAV * target) override;
-
-	// Inherited via RHICommandList
 	virtual void SetIndexBuffer(RHIBuffer * buffer) override;
-
-	// Inherited via RHICommandList
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
-
-	// Inherited via RHICommandList
 	virtual void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0) override;
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset) override;
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset) override;
-	VkCommandBuffer CommandBuffer;
-
 	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
-
-
 	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
-
-
-
-	VkCommandBuffer* GetCommandBuffer();
 
 	RHI_VIRTUAL void BeginRenderPass(RHIRenderPassInfo& RenderPass) override;
 	RHI_VIRTUAL void EndRenderPass() override;
-
-private:
-
+	RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot) override;
+	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
+	virtual void TraceRays(const RHIRayDispatchDesc& desc) override;
+	virtual void SetStateObject(RHIStateObject* Object) override;
+	std::vector<Descriptor> CurrentDescriptors;
+	VkCommandBuffer* GetCommandBuffer();
+	//private:
+	VkCommandBuffer CommandBuffer;
 	struct CPUFrame
 	{
 		VkCommandPool Pool = nullptr;
@@ -62,6 +54,7 @@ private:
 	};
 	CPUFrame Pools[RHI::CPUFrameCount] = { 0 };
 	VKanRenderPass* CurrnetRenderPass = nullptr;
+	VkanPipeLineStateObject* CurrentPso = nullptr;
 };
 
 
@@ -86,6 +79,7 @@ public:
 	virtual void BindToShader(RHICommandList * list, int slot) override;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) override;
 	RHI_VIRTUAL void Clear() override;
+	RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc) override;
 };
 
 

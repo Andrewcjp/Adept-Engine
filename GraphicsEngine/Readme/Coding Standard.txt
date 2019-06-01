@@ -1,8 +1,17 @@
-
-
 Naming:
 
 Enums: start with E
-	   Should be either name spaces or structs
+	   Should be in namespaces or structs
 	   With the enum Type as a memeber 
+	   If needed a ToString(<EType>) should included.
 	   
+Bools:
+	Should be clear that it is a conditional:
+	IsWriting, CanWrite etc.
+	otherwise:
+	bOddNameBool
+	
+Constants and Preprocessor Defines: 
+	named useing all caps and underscores for Spaces:
+	MAX_LIGHTS, MAX_MRTS, etc.
+ 

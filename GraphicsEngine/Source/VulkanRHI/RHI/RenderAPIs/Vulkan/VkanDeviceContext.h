@@ -18,7 +18,6 @@ public:
 	virtual void NotifyWorkForCopyEngine() override;
 	virtual void UpdateCopyEngine() override;
 	virtual void ResetCopyEngine() override;
-	virtual int GetCpuFrameIndex() override;
 	virtual void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) override;
 	virtual void CPUWaitForAll() override;
 	virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) override;
@@ -34,6 +33,7 @@ public:
 	VkDevice device = VK_NULL_HANDLE;
 	VkQueue graphicsQueue = VK_NULL_HANDLE;
 	VkQueue presentQueue = VK_NULL_HANDLE;
+	DescriptorPool* pool = nullptr;
 private:
 
 	class VkanTimeManager* TimeManager = nullptr;

@@ -16,9 +16,9 @@ const RHIPipeRenderTargetDesc & VKanFramebuffer::GetPiplineRenderDesc()
 	return desc;
 }
 
-void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList * List)
+void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList* List, bool Depth /*= false*/)
 {
-
+	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)

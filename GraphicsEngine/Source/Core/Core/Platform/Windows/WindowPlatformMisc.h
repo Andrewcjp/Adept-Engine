@@ -8,6 +8,7 @@ public:
 	static void SetConsoleOutputColour(int colour);
 	static size_t GenerateGUID();
 	static PlatformMemoryInfo GetMemoryInfo();
+	static void SetCurrnetThreadAffinity(int core);
 };
 
 typedef WindowPlatformMisc PlatformMisc;

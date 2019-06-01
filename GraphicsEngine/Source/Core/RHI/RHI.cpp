@@ -268,6 +268,9 @@ void RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
+#if BASIC_RENDER_ONLY
+	return;
+#endif
 	LogEnsure(!Resource->IsPendingKill());
 	ensure(Resource->GetRefCount() == 0);
 	if (Resource->IsPendingKill())

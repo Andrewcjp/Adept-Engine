@@ -5,7 +5,7 @@
 #include "MeshBatch.h"
 #include "TransparentPassMeshProcessor.h"
 #include "ZPrePassMeshProcessor.h"
-#include "../../MeshInstanceBuffer.h"
+
 
 MeshPipelineController::MeshPipelineController()
 {
