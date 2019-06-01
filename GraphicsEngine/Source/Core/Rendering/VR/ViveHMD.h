@@ -17,6 +17,7 @@ public:
 	glm::vec3 Getpos(glm::mat4 matMVP);
 
 	virtual void Update() override;
+	glm::mat4 GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye);
 	virtual void OutputToEye(FrameBuffer* buffer, EEye::Type eye) override;
 	virtual glm::ivec2 GetDimentions() override;
 

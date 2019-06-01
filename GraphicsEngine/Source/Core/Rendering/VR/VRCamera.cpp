@@ -13,8 +13,8 @@ VRCamera::VRCamera()
 	transfrom.SetPos(glm::vec3(0, 10, 0));
 
 
-	Cameras[EEye::Left]->fov = 90;
-	Cameras[EEye::Right]->fov = 90;
+	Cameras[EEye::Left]->fov = 110;
+	Cameras[EEye::Right]->fov = 110;
 }
 
 VRCamera::~VRCamera()

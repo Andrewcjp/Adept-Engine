@@ -194,6 +194,10 @@ void RenderEngine::ProcessScene()
 	}
 	ProcessSceneGPU(RHI::GetDeviceContext(0));
 	ProcessSceneGPU(RHI::GetDeviceContext(1));
+	if (RHI::IsRenderingVR())
+	{
+		RHI::GetHMD()->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
+	}
 }
 
 void RenderEngine::PrepareData()

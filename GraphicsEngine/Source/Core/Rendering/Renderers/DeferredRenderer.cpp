@@ -45,7 +45,7 @@ void DeferredRenderer::OnRender()
 		RenderOnDevice(RHI::GetDeviceContext(0), EEye::Right);
 	}
 
-	ParticleSystemManager::Get()->Render(DDOs[0].MainFrameBuffer, DDOs[0].Gbuffer);
+	ParticleSystemManager::Get()->Render(&DDOs[0], DDOs[0].Gbuffer);
 	if (DevicesInUse > 1)
 	{
 		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);

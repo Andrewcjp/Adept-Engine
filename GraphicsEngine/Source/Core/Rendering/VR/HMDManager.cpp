@@ -14,7 +14,7 @@ HMDManager::~HMDManager()
 void HMDManager::Init()
 {	
 	return;
-	HeadSet = HMD::Create(true);
+	HeadSet = HMD::Create(/*true*/);
 	if (HeadSet != nullptr)
 	{
 		HeadSet->Init();
