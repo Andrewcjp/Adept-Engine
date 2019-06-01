@@ -55,7 +55,7 @@ void VKanCommandlist::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float 
 
 void VKanCommandlist::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
-	((VkanDeviceContext*)Device)->pool->AllocateAndBind(this);
+	VKanRHI::VKConv(Device)->pool->AllocateAndBind(this);
 	ensure(IsInRenderPass);
 	vkCmdDraw(CommandBuffer, VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 }

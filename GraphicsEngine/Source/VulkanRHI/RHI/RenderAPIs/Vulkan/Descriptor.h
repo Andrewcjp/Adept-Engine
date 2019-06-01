@@ -21,7 +21,7 @@ public:
 	EDescriptorType::Type DescType = EDescriptorType::Limit;
 	int bindpoint = 0;
 	int Offset = 0;
-	VKanBuffer* Buffer;
-	VKanTexture* Texture;
+	VKanBuffer* Buffer = nullptr;
+	VKanTexture* Texture = nullptr;
 };
 

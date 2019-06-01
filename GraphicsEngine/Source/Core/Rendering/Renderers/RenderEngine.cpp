@@ -189,7 +189,7 @@ void RenderEngine::ProcessScene()
 	}
 	//#Scene TEMP FIX!
 	if (RHI::GetFrameCount() > 10)
-	{
+	{ 
 		return;
 	}
 	ProcessSceneGPU(RHI::GetDeviceContext(0));
