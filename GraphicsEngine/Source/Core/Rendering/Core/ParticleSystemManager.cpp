@@ -7,6 +7,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "GPUParticleSystem.h"
 #include "Core/Utils/MemoryUtils.h"
+#include "../Renderers/RenderEngine.h"
 static ConsoleVariable PauseVar("PS.PauseSim", 0, ECVarType::ConsoleOnly);
 
 ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
@@ -217,12 +218,16 @@ void ParticleSystemManager::SubmitCompute()
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
-void ParticleSystemManager::SubmitRender(FrameBuffer * BufferTarget)
+void ParticleSystemManager::SubmitRender(DeviceDependentObjects * BufferTarget)
 {
 #if PARTICLE_STATS
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 #endif
-	BufferTarget->MakeReadyForComputeUse(RenderList);
+	BufferTarget->MainFrameBuffer->MakeReadyForComputeUse(RenderList);
+	if (RHI::IsRenderingVR())
+	{
+		BufferTarget->RightEyeFramebuffer->MakeReadyForComputeUse(RenderList);
+	}
 	RenderList->Execute();
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 }
@@ -293,7 +298,7 @@ void ParticleSystemManager::Simulate()
 }
 
 
-void ParticleSystemManager::Render(FrameBuffer * BufferTarget, FrameBuffer* DepthTexture)
+void ParticleSystemManager::Render(DeviceDependentObjects * DDO, FrameBuffer* DepthTexture)
 {
 	if (!RHI::GetRenderSettings()->EnableGPUParticles)
 	{
@@ -303,9 +308,16 @@ void ParticleSystemManager::Render(FrameBuffer * BufferTarget, FrameBuffer* Dept
 	StartRender();
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{
-		RenderSystem(ParticleSystems[i], BufferTarget);
+		RenderSystem(ParticleSystems[i], DDO->MainFrameBuffer);
 	}
-	SubmitRender(BufferTarget);
+	if (RHI::IsRenderingVR())
+	{
+		for (int i = 0; i < ParticleSystems.size(); i++)
+		{
+			RenderSystem(ParticleSystems[i], DDO->RightEyeFramebuffer);
+		}
+	}
+	SubmitRender(DDO);
 }
 
 void ParticleSystemManager::AddSystem(ParticleSystem * system)

@@ -334,7 +334,7 @@ RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue
 
 void D3D12RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 {
-	//#dx12: check sate is pixel shader resource 
+	//#dx12: check state is pixel shader resource 
 	vr::VRTextureBounds_t bounds;
 	bounds.uMin = 0.0f;
 	bounds.uMax = 1.0f;

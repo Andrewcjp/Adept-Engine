@@ -3,6 +3,7 @@
 
 class Shader;
 struct ParticleSystem;
+struct DeviceDependentObjects;
 
 #define USE_INDIRECTCOMPUTE 1
 #define USE_INDIRECTRENDER 1
@@ -50,7 +51,7 @@ public:
 	void StartRender();
 
 	void RenderSystem(ParticleSystem* system, FrameBuffer * BufferTarget);
-	void Render(FrameBuffer * BufferTarget, FrameBuffer* DephtTexture = nullptr);
+	void Render(DeviceDependentObjects * DDO, FrameBuffer * DepthTexture = nullptr);
 	void AddSystem(ParticleSystem* system);
 	void RemoveSystem(ParticleSystem* system);
 private:
@@ -72,7 +73,7 @@ private:
 	int emitcount = 0;
 	std::vector<ParticleSystem*> ParticleSystems;
 	void SubmitCompute();
-	void SubmitRender(FrameBuffer* buffer);
+	void SubmitRender(DeviceDependentObjects* buffer);
 	FrameBuffer* DepthBuffer = nullptr;
 };
 

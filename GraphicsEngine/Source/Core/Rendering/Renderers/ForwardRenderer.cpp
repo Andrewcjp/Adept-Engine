@@ -66,7 +66,7 @@ void ForwardRenderer::OnRender()
 	ShadowPass();
 	CubeMapPass();
 	RenderOnDevice(RHI::GetDeviceContext(0));
-	ParticleSystemManager::Get()->Render(DDOs[0].MainFrameBuffer);
+	ParticleSystemManager::Get()->Render(&DDOs[0]);
 	if (DevicesInUse > 1)
 	{
 		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);

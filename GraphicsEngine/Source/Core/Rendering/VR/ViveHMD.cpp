@@ -7,6 +7,7 @@
 ViveHMD::ViveHMD()
 {
 	RenderScale = 1.0f;
+	Scale = glm::vec3(2);
 }
 
 ViveHMD::~ViveHMD()
@@ -141,6 +142,15 @@ void ViveHMD::Update()
 	}
 	HMD::Update();
 	CameraInstance->UpdateDebugTracking();
+	//CameraInstance->GetEyeCam(EEye::Left)->SetProjection(GetHMDMatrixProjectionEye(vr::Eye_Left));
+	//CameraInstance->GetEyeCam(EEye::Right)->SetProjection(GetHMDMatrixProjectionEye(vr::Eye_Right));
+}
+
+glm::mat4 ViveHMD::GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye)
+{
+	vr::HmdMatrix44_t mat;
+	//	system->GetProjectionRaw(nEye,);
+	return ConvertSteamVRMatrixToMatrix4(mat);
 }
 
 void ViveHMD::OutputToEye(FrameBuffer* buffer, EEye::Type eye)
