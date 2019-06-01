@@ -50,7 +50,7 @@ struct SwapChainSupportDetails
 #ifdef NDEBUG
 const bool enableValidationLayers = true;
 #else
-const bool enableValidationLayers = true;
+const bool enableValidationLayers = false;
 #endif
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
@@ -69,11 +69,7 @@ public:
 	void createGraphicsPipeline23();
 	void createFramebuffers();
 	VkCommandPool createCommandPool();
-	void createDescriptorPool();
-	void createDescriptorSets();
 
-	void ReadyCmdList(VkCommandBuffer * buffer);
-	void CreateDescriptorSet();
 	void createSyncObjects();
 	void CreateNewObjects();
 	void drawFrame();
@@ -86,7 +82,7 @@ public:
 	virtual bool InitRHI() override;
 	HWND	win32HWND;
 	static VKanRHI* RHIinstance;
-//private:
+	//private:
 #if VULKANRHI_EXPORT
 	DLLEXPORT static VKanRHI* Get();
 #else
@@ -116,14 +112,13 @@ public:
 	std::vector<VkFence> inFlightFences;
 	size_t currentFrame = 0;
 	VkanPipeLineStateObject* PSO;
-
-	VkDescriptorSetLayout descriptorSetLayout;
+	VKanCommandlist* setuplist = nullptr;
 
 	// Inherited via RHIClass
-	
+
 	virtual bool InitWindow(int w, int h) override;
 	virtual bool DestoryRHI() override;
-	virtual FrameBuffer * CreateFrameBuffer(DeviceContext * Device,const RHIFrameBufferDesc & Desc) override;
+	virtual FrameBuffer * CreateFrameBuffer(DeviceContext * Device, const RHIFrameBufferDesc & Desc) override;
 	virtual ShaderProgramBase * CreateShaderProgam(DeviceContext * Device = nullptr) override;
 	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;
 	virtual RHIBuffer * CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext * Device = nullptr) override;
@@ -152,11 +147,10 @@ public:
 	bool checkValidationLayerSupport();
 	static std::vector<char> readFile(const std::string & filename);
 	void initVulkan();
-	class VkanDeviceContext* TDevice = nullptr;
 	class VKanBuffer* buffer = nullptr;
 	class VKanRenderPass* Pass = nullptr;
-	VkDescriptorPool descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
+	VKanBuffer* Vertexb = nullptr;
+	class VKanTexture* T ;
 	class VKanShader* Shadertest = nullptr;
 	class VKanCommandlist* cmdlist = nullptr;
 	RHI_VIRTUAL void SetFullScreenState(bool state) override;
@@ -170,6 +164,18 @@ public:
 
 
 	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) override;
+
+
+	RHI_VIRTUAL RHIQuery * CreateQuery(EGPUQueryType::Type type, DeviceContext * con) override;
+
+
+	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device) override;
+
+
+	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device) override;
+
+
+	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
 
 };
 #endif

@@ -1,7 +1,9 @@
 struct Light
 {
-	float4 LPosition;
-	float4 color;
+	float3 LPosition;
+	float F;
+	float3 color;
+	float F2;
 	float3 Direction;
 	row_major matrix LightVP;
 	int type;//type 1 == point, type 0 == directional, tpye 2 == spot

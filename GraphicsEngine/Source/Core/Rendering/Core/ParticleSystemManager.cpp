@@ -13,6 +13,10 @@ ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
 
 ParticleSystemManager::ParticleSystemManager()
 {
+	if (!RHI::GetRenderSettings()->EnableGPUParticles)
+	{
+		return;
+	}
 	InitCommon();
 	Testsystem = new ParticleSystem();
 	Testsystem->Init();
@@ -132,8 +136,6 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	{
 		return;
 	}
-
-
 	System->DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_StartSimulation>()));
 	System->CounterBuffer->GetUAV()->Bind(CmdList, 0);
@@ -157,7 +159,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	Sync(System);
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(System->SimulateShader));
 	float DT = Engine::GetDeltaTime();
-	CmdList->SetRootConstant(5, 1, &DT, 0);
+	CmdList->SetRootConstant(System->SimulateShader->GetSlotForName("emitData"), 1, &DT, 0);
 	CmdList->SetUAV(System->GPU_ParticleData->GetUAV(), "newPosVelo");
 	CmdList->SetUAV(System->CounterBuffer->GetUAV(), "CounterBuffer");
 	System->GetPreSimList()->BindBufferReadOnly(CmdList, System->SimulateShader->GetSlotForName("AliveIndexs"));
@@ -267,7 +269,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 	{
 		RenderList->SetRootConstant(0, 1, &i, 0);
 		RenderList->DrawPrimitive(6, 1, 0, 0);
-}
+	}
 #endif
 	System->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
 	System->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);

@@ -26,7 +26,8 @@ Shader_ParticleCompute::~Shader_ParticleCompute()
 
 std::vector<ShaderParameter> Shader_ParticleCompute::GetShaderParameters()
 {
-	m_Shader->GeneratedParams[5].Type = ShaderParamType::RootConstant;
+
+	m_Shader->GeneratedParams[0].Type = ShaderParamType::RootConstant;
 	return Shader::GetShaderParameters();
 }
 

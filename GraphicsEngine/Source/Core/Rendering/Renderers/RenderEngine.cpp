@@ -113,6 +113,9 @@ void RenderEngine::Init()
 	{
 		DevicesInUse = 1;
 	}
+#if BASIC_RENDER_ONLY
+	return;
+#endif
 	mShadowRenderer = new ShadowRenderer(SceneRender, Culling);
 	if (MainScene != nullptr)
 	{

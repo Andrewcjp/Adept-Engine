@@ -10,6 +10,8 @@
 #include "Core/Platform/Windows/WindowsApplication.h"
 #include <timeapi.h>
 #include "GraphicsEngine.h"
+#include "Core/Version.h"
+#include "Core/Utils/StringUtil.h"
 
 
 WindowsWindow* WindowsWindow::app = nullptr;
@@ -91,13 +93,15 @@ void WindowsWindow::SetVisible(bool visible)
 
 void WindowsWindow::Maximize()
 {
-	ShowWindow(HWindow,SW_MAXIMIZE);
+	ShowWindow(HWindow, SW_MAXIMIZE);
 }
 
 bool WindowsWindow::CreateOSWindow(int width, int height)
 {
-	app->HWindow = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-		L"RenderWindow", L"BleedOut", WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+	app->HWindow = CreateWindowEx(
+		WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
+		L"RenderWindow", StringUtils::ConvertStringToWide(ENGINE_NAME).c_str(),
+		WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
 #if !WITH_EDITOR
 	Maximize();
@@ -251,14 +255,14 @@ void WindowsWindow::SetCursorType(GenericWindow::CursorType Type)
 {
 	switch (Type)
 	{
-	case GenericWindow::CursorType::IBeam:
-		SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::IBeam]);
-		break;
-	default:
-	case GenericWindow::CursorType::Drag:
-	case GenericWindow::CursorType::Normal:
-		SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::Normal]);
-		break;
+		case GenericWindow::CursorType::IBeam:
+			SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::IBeam]);
+			break;
+		default:
+		case GenericWindow::CursorType::Drag:
+		case GenericWindow::CursorType::Normal:
+			SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::Normal]);
+			break;
 	}
 }
 
@@ -290,108 +294,108 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 {
 	switch (msg)
 	{
-	case WM_CREATE:
+		case WM_CREATE:
 #if WITH_EDITOR
-		app->AddMenus(hwnd);
+			app->AddMenus(hwnd);
 #endif
-		break;
-	case WM_COMMAND:
-		if (app->m_engine->GetRenderWindow())
-		{
-			app->m_engine->GetRenderWindow()->ProcessMenu(LOWORD(wparam));
-		}
-		break;
-	case WM_SIZE:
-		if (app->m_engine->GetRenderWindow())
-		{
-			app->m_engine->GetRenderWindow()->Resize(LOWORD(lparam), HIWORD(lparam));
-			RHI::Get()->ResizeSwapChain(LOWORD(lparam), HIWORD(lparam));
-		}
-		else
-		{
-			app->m_engine->Resize(LOWORD(lparam), HIWORD(lparam));
-		}
-		break;
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		break;
-	case WM_NCMOUSEMOVE:
-	case WM_MOUSEMOVE:
-		if (app->m_engine->GetRenderWindow())
-		{
-			app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		}
-		break;
+			break;
+		case WM_COMMAND:
+			if (app->m_engine->GetRenderWindow())
+			{
+				app->m_engine->GetRenderWindow()->ProcessMenu(LOWORD(wparam));
+			}
+			break;
+		case WM_SIZE:
+			if (app->m_engine->GetRenderWindow())
+			{
+				app->m_engine->GetRenderWindow()->Resize(LOWORD(lparam), HIWORD(lparam));
+				RHI::Get()->ResizeSwapChain(LOWORD(lparam), HIWORD(lparam));
+			}
+			else
+			{
+				app->m_engine->Resize(LOWORD(lparam), HIWORD(lparam));
+			}
+			break;
+		case WM_CLOSE:
+			PostQuitMessage(0);
+			break;
+		case WM_NCMOUSEMOVE:
+		case WM_MOUSEMOVE:
+			if (app->m_engine->GetRenderWindow())
+			{
+				app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+			}
+			break;
 
-	case WM_LBUTTONUP:
-		app->m_engine->GetRenderWindow()->MouseLBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		Input::ReciveMouseDownMessage(0, false);
-		break;
-	case WM_LBUTTONDOWN:
-		app->m_engine->GetRenderWindow()->MouseLBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		Input::ReciveMouseDownMessage(0, true);
-		break;
-	case WM_RBUTTONUP:
-		app->m_engine->GetRenderWindow()->MouseRBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		Input::ReciveMouseDownMessage(1, false);
-		break;
-	case WM_RBUTTONDOWN:
-		app->m_engine->GetRenderWindow()->MouseRBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		Input::ReciveMouseDownMessage(1, true);
-		break;
-	case WM_KEYDOWN:
-	{
-		//From MSDN The repeat count for the current message. https://docs.microsoft.com/en-us/windows/desktop/inputdev/wm-keydown
-		// LPARAM bit 30 will be ZERO for new presses, or ONE if this is a repeat
-		bool bIsRepeat = (lparam & 0x40000000) != 0;
-		if (!bIsRepeat)
+		case WM_LBUTTONUP:
+			app->m_engine->GetRenderWindow()->MouseLBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+			Input::ReciveMouseDownMessage(0, false);
+			break;
+		case WM_LBUTTONDOWN:
+			app->m_engine->GetRenderWindow()->MouseLBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+			Input::ReciveMouseDownMessage(0, true);
+			break;
+		case WM_RBUTTONUP:
+			app->m_engine->GetRenderWindow()->MouseRBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+			Input::ReciveMouseDownMessage(1, false);
+			break;
+		case WM_RBUTTONDOWN:
+			app->m_engine->GetRenderWindow()->MouseRBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+			Input::ReciveMouseDownMessage(1, true);
+			break;
+		case WM_KEYDOWN:
 		{
-			app->m_engine->HandleInput(LOWORD(wparam));
+			//From MSDN The repeat count for the current message. https://docs.microsoft.com/en-us/windows/desktop/inputdev/wm-keydown
+			// LPARAM bit 30 will be ZERO for new presses, or ONE if this is a repeat
+			bool bIsRepeat = (lparam & 0x40000000) != 0;
+			if (!bIsRepeat)
+			{
+				app->m_engine->HandleInput(LOWORD(wparam));
+			}
+			break;
 		}
-		break;
-	}
-	case WM_KEYUP:
-	{
-		//key up doesn't repeat!
-		app->m_engine->HandleKeyUp(LOWORD(wparam));
-		break;
-	}
-	case WM_INPUT:
-	{
-		UINT dwSize = 40;
-		static BYTE lpb[40];
-
-		GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
-
-		RAWINPUT* raw = (RAWINPUT*)lpb;
-
-		if (raw->header.dwType == RIM_TYPEMOUSE)
+		case WM_KEYUP:
 		{
-			int xPosRelative = raw->data.mouse.lLastX;
-			int yPosRelative = raw->data.mouse.lLastY;
+			//key up doesn't repeat!
+			app->m_engine->HandleKeyUp(LOWORD(wparam));
+			break;
+		}
+		case WM_INPUT:
+		{
+			UINT dwSize = 40;
+			static BYTE lpb[40];
+
+			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
+
+			RAWINPUT* raw = (RAWINPUT*)lpb;
+
+			if (raw->header.dwType == RIM_TYPEMOUSE)
+			{
+				int xPosRelative = raw->data.mouse.lLastX;
+				int yPosRelative = raw->data.mouse.lLastY;
+				if (Input::Get())
+				{
+					Input::Get()->ReciveMouseAxisData(glm::vec2(xPosRelative, yPosRelative));
+				}
+			}
+			break;
+		}
+		case WM_MOUSEWHEEL:
+		{
+			const float SpinFactor = 1 / 120.0f;
+			const short WheelDelta = GET_WHEEL_DELTA_WPARAM(wparam);
+
 			if (Input::Get())
 			{
-				Input::Get()->ReciveMouseAxisData(glm::vec2(xPosRelative, yPosRelative));
+				Input::Get()->ProcessMouseWheel(static_cast<float>(WheelDelta)*SpinFactor);
 			}
 		}
 		break;
-	}
-	case WM_MOUSEWHEEL:
-	{
-		const float SpinFactor = 1 / 120.0f;
-		const short WheelDelta = GET_WHEEL_DELTA_WPARAM(wparam);
-
-		if (Input::Get())
-		{
-			Input::Get()->ProcessMouseWheel(static_cast<float>(WheelDelta)*SpinFactor);
-		}
-	}
-	break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hwnd, msg, wparam, lparam);
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			break;
+		default:
+			return DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 
 	return 0;

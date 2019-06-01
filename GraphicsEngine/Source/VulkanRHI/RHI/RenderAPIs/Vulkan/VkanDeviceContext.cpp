@@ -1,12 +1,14 @@
 #include "VkanDeviceContext.h"
 #include "VkanTimeManager.h"
 #include <set>
+#include "DescriptorPool.h"
 
 
 
 VkanDeviceContext::VkanDeviceContext()
 {
 	TimeManager = new VkanTimeManager();
+
 }
 
 
@@ -44,12 +46,6 @@ void VkanDeviceContext::UpdateCopyEngine()
 
 void VkanDeviceContext::ResetCopyEngine()
 {}
-
-
-int VkanDeviceContext::GetCpuFrameIndex()
-{
-	return 0;
-}
 
 void VkanDeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {}
@@ -162,6 +158,7 @@ void VkanDeviceContext::Init()
 {
 	pickPhysicalDevice();
 	createLogicalDevice();
+	pool = new DescriptorPool(this);
 }
 
 QueueFamilyIndices  VkanDeviceContext::findQueueFamilies(VkPhysicalDevice device)

@@ -12,10 +12,7 @@ VkanTimeManager::~VkanTimeManager()
 void VkanTimeManager::UpdateTimers()
 {}
 
-std::string VkanTimeManager::GetTimerData()
-{
-	return std::string();
-}
+
 
 void VkanTimeManager::SetTimerName(int index, std::string Name)
 {}
@@ -42,10 +39,3 @@ float VkanTimeManager::GetTotalTime()
 	return 0.0f;
 }
 
-void VkanTimeManager::ResolveCopyTimeHeaps(RHICommandList * ComandList)
-{}
-
-void VkanTimeManager::ResolveTimeHeaps(RHICommandList * CommandList)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}

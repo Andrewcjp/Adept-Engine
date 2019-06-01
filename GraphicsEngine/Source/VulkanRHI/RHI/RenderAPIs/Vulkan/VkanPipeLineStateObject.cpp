@@ -1,11 +1,12 @@
 #include "VkanPipeLineStateObject.h"
+#include "Core/Assets/AssetManager.h"
+#include "Core/Platform/PlatformCore.h"
+#include "RHI/RHITypes.h"
 #include "VkanBuffers.h"
-#include "RHI\RHITypes.h"
-#include "VKanRHI.h"
 #include "VkanDeviceContext.h"
-#include "Core\Assets\AssetManager.h"
+#include "VKanRHI.h"
 #include "VKanShader.h"
-#if BUILD_VULKAN
+
 VkanPipeLineStateObject::VkanPipeLineStateObject(const RHIPipeLineStateDesc & desc, DeviceContext * con) :RHIPipeLineStateObject(desc)
 {
 	VDevice = (VkanDeviceContext*)con;
@@ -24,50 +25,50 @@ void VkanPipeLineStateObject::Complie()
 
 void VkanPipeLineStateObject::Release()
 {}
-#include "Core/Platform/PlatformCore.h"
+
+void VkanPipeLineStateObject::createTextureSampler()
+{
+	VkSamplerCreateInfo samplerInfo = {};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	//samplerInfo.anisotropyEnable = VK_TRUE;
+	//samplerInfo.maxAnisotropy = 16;
+	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerInfo.compareEnable = VK_FALSE;
+	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+	if (vkCreateSampler(VKanRHI::RHIinstance->DevCon->device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create texture sampler!");
+	}
+}
 
 void  VkanPipeLineStateObject::createGraphicsPipeline()
 {
-	std::string root = AssetManager::GetShaderPath() + "VKan\\";
-
-	std::vector<char> vertShaderCode;
-	std::vector<char>  fragShaderCode; /*= VKanShader::readFile(root + "frag.spv");*/
-#if 1
-	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
-	//	fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
-	fragShaderCode = VKanShader::ComplieShader("VKan\\TriHLSL", true, true);
-
-
-#endif
-#if 0
-	std::vector<char> ss = VKanShader::readFile(root + "vert.spv");
-	std::vector<char> sss = VKanShader::readFile(root + "frag.spv");
-
-	for (int i = 0; i < vertShaderCode.size(); i++)
-	{
-		ensure(vertShaderCode[i] == ss[i]);
-	}
-#endif
-	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
-	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
-	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
-	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	vertShaderStageInfo.module = vertShaderModule;
-	vertShaderStageInfo.pName = "main";
-
-	VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
-	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	fragShaderStageInfo.module = fragShaderModule;
-	//	fragShaderStageInfo.pName = "main";
-	fragShaderStageInfo.pName = "main";
-	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
+	CreateTestShader();
+	createTextureSampler();
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
+	VkVertexInputBindingDescription bindingDescription = {};
+	bindingDescription.binding = 0;
+	bindingDescription.stride = sizeof(glm::vec2);
+	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+	std::vector< VkVertexInputAttributeDescription> attributeDescriptions;
+	attributeDescriptions.resize(1);
+	attributeDescriptions[0].binding = 0;
+	attributeDescriptions[0].location = 0;
+	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+	attributeDescriptions[0].offset = 0;
+	vertexInputInfo.vertexAttributeDescriptionCount = 1;
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -122,11 +123,11 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	colorBlending.blendConstants[1] = 0.0f;
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
-	//CreateDescriptorSet();
+	CreateDescriptorSetLayout();
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1;
-	pipelineLayoutInfo.pSetLayouts = &VKanRHI::RHIinstance->descriptorSetLayout;
+	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 
 	if (vkCreatePipelineLayout(VDevice->device, &pipelineLayoutInfo, nullptr, &PipelineLayout) != VK_SUCCESS)
@@ -137,7 +138,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineInfo.stageCount = 2;
-	pipelineInfo.pStages = shaderStages;
+	pipelineInfo.pStages = ShaderStages.data();
 	pipelineInfo.pVertexInputState = &vertexInputInfo;
 	pipelineInfo.pInputAssemblyState = &inputAssembly;
 	pipelineInfo.pViewportState = &viewportState;
@@ -155,8 +156,37 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 
-	vkDestroyShaderModule(VDevice->device, fragShaderModule, nullptr);
-	vkDestroyShaderModule(VDevice->device, vertShaderModule, nullptr);
+	//vkDestroyShaderModule(VDevice->device, fragShaderModule, nullptr);
+	//vkDestroyShaderModule(VDevice->device, vertShaderModule, nullptr);
+}
+
+void VkanPipeLineStateObject::CreateTestShader()
+{
+	std::string root = AssetManager::GetShaderPath() + "VKan\\";
+	std::vector<char> vertShaderCode;
+	std::vector<char>  fragShaderCode;
+	//shader temp
+	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
+	//	fragShaderCode = VKanShader::ComplieShader("VKan\\TriHLSL", true, true);
+	fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
+
+	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+
+	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
+	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	vertShaderStageInfo.module = vertShaderModule;
+	vertShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
+	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	fragShaderStageInfo.module = fragShaderModule;
+	fragShaderStageInfo.pName = "main";
+
+	ShaderStages.push_back(fragShaderStageInfo);
+	ShaderStages.push_back(vertShaderStageInfo);
 }
 
 VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<char>& code)
@@ -189,6 +219,37 @@ VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<uin
 	}
 
 	return shaderModule;
+}
+
+void VkanPipeLineStateObject::CreateDescriptorSetLayout()
+{
+	std::vector<VkDescriptorSetLayoutBinding> Binds;
+	VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
+	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+	Binds.push_back(uboLayoutBinding);
+	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.pImmutableSamplers = nullptr;
+	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	Binds.push_back(samplerLayoutBinding);
+
+
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = Binds.size();
+	layoutInfo.pBindings = Binds.data();
+
+	if (vkCreateDescriptorSetLayout(VKanRHI::RHIinstance->DevCon->device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create descriptor set layout!");
+	}
 }
 
 VKanRenderPass::VKanRenderPass()
@@ -240,4 +301,3 @@ void VKanRenderPass::Complie()
 	}
 
 }
-#endif

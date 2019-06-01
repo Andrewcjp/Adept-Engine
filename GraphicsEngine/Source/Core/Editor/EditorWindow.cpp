@@ -223,10 +223,12 @@ void EditorWindow::Update()
 	}
 	else
 	{
+#if !BASIC_RENDER_ONLY
 		if (UI->GetInspector() != nullptr)
 		{
 			UI->GetInspector()->SetSelectedObject(nullptr);
 		}
+#endif
 	}
 	if (!Input::GetMouseButtonDown(1))
 	{
@@ -376,6 +378,9 @@ void EditorWindow::LoadScene()
 
 void EditorWindow::RefreshScene()
 {
+#if BASIC_RENDER_ONLY
+	return;
+#endif
 	selector->LinkPhysxBodysToGameObjects(*CurrentScene->GetObjects());
 	UI->UpdateGameObjectList(CurrentScene->GetObjects());
 	UI->RefreshGameObjectList();

@@ -61,8 +61,9 @@ void BaseWindow::InitilseWindow()
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
 	Renderer->Init();
-
+#if !BASIC_RENDER_ONLY
 	UI = new UIManager(m_width, m_height);
+#endif
 	Input::Startup();
 	Log::LogMessage("Scene initialized");
 	LineDrawer = new DebugLineDrawer();
@@ -72,8 +73,10 @@ void BaseWindow::InitilseWindow()
 	{
 		AssetManager::DirectLoadTextureAsset(PreLoadTextures[i]);
 	}
+#if !BASIC_RENDER_ONLY
 	GPUPerfGraph = new GPUPerformanceGraph();
 	GPUPerfGraph->TwoDrawer = UI->Graph->LineBatcher;
+#endif
 	PerfManager::Get()->AddTimer("Render", "Render");
 	PerfManager::Get()->AddTimer("UI", "Render");
 	PerfManager::Get()->AddTimer("LineDrawer", "Render");

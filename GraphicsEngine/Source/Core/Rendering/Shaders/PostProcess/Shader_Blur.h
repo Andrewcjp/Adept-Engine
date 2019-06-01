@@ -9,7 +9,7 @@ public:
 	
 	Shader_Blur(DeviceContext* dev) :Shader(dev)
 	{
-		//m_Shader->AttachAndCompileShaderFromFile("PostProcess\\BlurCS", EShaderType::SHADER_COMPUTE);
+	//	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\BlurCS", EShaderType::SHADER_COMPUTE);
 	}
 	~Shader_Blur();
 	bool IsComputeShader() override;

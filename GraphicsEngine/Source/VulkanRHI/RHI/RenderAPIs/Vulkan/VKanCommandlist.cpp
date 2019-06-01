@@ -7,9 +7,11 @@
 #include "VkanPipeLineStateObject.h"
 #if BUILD_VULKAN
 #include "Core/Platform/PlatformCore.h"
+#include "DescriptorPool.h"
+#include "VKanTexture.h"
 VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * context) :RHICommandList(type, context)
 {
-
+	Device = context;
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		Pools[i].Pool = VKanRHI::RHIinstance->createCommandPool();
@@ -36,21 +38,34 @@ void VKanCommandlist::ResetList()
 	CommandBuffer = Pools[VKanRHI::RHIinstance->currentFrame].Buffer;
 	vkResetCommandPool(VKanRHI::GetVDefaultDevice()->device, Pools[VKanRHI::RHIinstance->currentFrame].Pool, 0);
 	vkResetCommandBuffer(Pools[VKanRHI::RHIinstance->currentFrame].Buffer, 0);
-	VKanRHI::RHIinstance->ReadyCmdList(&Pools[VKanRHI::RHIinstance->currentFrame].Buffer);
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
+	if (vkBeginCommandBuffer(CommandBuffer, &beginInfo) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to begin recording command buffer!");
+	}
 }
 
 void VKanCommandlist::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
-{}
+{
+
+}
 
 void VKanCommandlist::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
+	((VkanDeviceContext*)Device)->pool->AllocateAndBind(this);
 	ensure(IsInRenderPass);
 	vkCmdDraw(CommandBuffer, VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 }
 
 void VKanCommandlist::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
-{}
+{
+	((VkanDeviceContext*)Device)->pool->AllocateAndBind(this);
+	ensure(IsInRenderPass);
+	vkCmdDrawIndexed(CommandBuffer, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
+}
 
 void VKanCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 {
@@ -58,24 +73,24 @@ void VKanCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 	VkBuffer vertexBuffers[] = { vb->vertexbuffer };
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers(CommandBuffer, 0, 1, vertexBuffers, offsets);
-
 }
-
 
 void VKanCommandlist::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
 {
-
+	VKanBuffer* V = (VKanBuffer*)buffer;
+	CurrentDescriptors.push_back(V->GetDescriptor(Register, offset));
 }
 
-void VKanCommandlist::SetTexture(BaseTexture * texture, int slot)
-{}
+void VKanCommandlist::SetTexture(BaseTextureRef texture, int slot)
+{
+	VKanTexture* V = (VKanTexture*)texture.Get();
+	CurrentDescriptors.push_back(V->GetDescriptor(slot));
+}
 
 VkCommandBuffer* VKanCommandlist::GetCommandBuffer()
 {
 	return &Pools[VKanRHI::RHIinstance->currentFrame].Buffer;
 }
-
-
 
 
 void VKanCommandlist::SetScreenBackBufferAsRT()
@@ -91,7 +106,10 @@ void VKanCommandlist::UAVBarrier(RHIUAV * target)
 {}
 
 void VKanCommandlist::SetIndexBuffer(RHIBuffer * buffer)
-{}
+{
+	VKanBuffer* vb = (VKanBuffer*)buffer;
+	vkCmdBindIndexBuffer(CommandBuffer, vb->vertexbuffer, 0, VK_INDEX_TYPE_UINT16);
+}
 
 void VKanCommandlist::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {}
@@ -139,13 +157,28 @@ void VKanCommandlist::EndRenderPass()
 void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
 	VkanPipeLineStateObject* VObject = (VkanPipeLineStateObject*)Object;
-
+	CurrentPso = VObject;
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
 }
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
 {}
 
+
+void VKanCommandlist::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void VKanCommandlist::TraceRays(const RHIRayDispatchDesc& desc)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void VKanCommandlist::SetStateObject(RHIStateObject* Object)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
 
 void VKanCommandlist::SetUpCommandSigniture(int commandSize, bool Dispatch)
 {}
@@ -189,6 +222,12 @@ void VkanTextureArray::Clear()
 {
 
 }
+
+void VkanTextureArray::SetFrameBufferFormat(RHIFrameBufferDesc & desc)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 #endif
 
 

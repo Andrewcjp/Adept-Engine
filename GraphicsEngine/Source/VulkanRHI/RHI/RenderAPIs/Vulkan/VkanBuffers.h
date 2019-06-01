@@ -1,6 +1,8 @@
 #pragma once
 #include "RHI/RHICommandList.h"
 #include "vulkan/vulkan_core.h"
+
+class Descriptor;
 #if BUILD_VULKAN
 class VKanBuffer : public RHIBuffer
 {
@@ -19,6 +21,7 @@ public:
 	virtual void BindBufferReadOnly(RHICommandList * list, int RSSlot) override;
 	virtual void SetBufferState(RHICommandList * list, EBufferResourceState::Type State) override;
 	virtual void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) override;
+	Descriptor GetDescriptor(int slot,int offset);
 //private:
 	VkBuffer vertexbuffer;
 	VkDeviceMemory vertexBufferMemory;
@@ -27,5 +30,6 @@ public:
 		return TotalByteSize;
 	}
 	int StructSize = 0;
+
 };
 #endif

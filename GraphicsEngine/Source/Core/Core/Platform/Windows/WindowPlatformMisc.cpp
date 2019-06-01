@@ -38,3 +38,10 @@ PlatformMemoryInfo WindowPlatformMisc::GetMemoryInfo()
 	}
 	return Info;
 }
+
+void WindowPlatformMisc::SetCurrnetThreadAffinity(int core)
+{
+	int MAsk = 1 << core;
+	int value = SetThreadAffinityMask(GetCurrentThread(), MAsk);
+	ensure(value != 0);
+}

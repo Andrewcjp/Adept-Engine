@@ -45,7 +45,7 @@ std::string Engine::GetExecutionDir()
 	return std::string(ws.begin(), ws.end());
 }
 
-Engine::Engine(EnginePersistentData* epd):
+Engine::Engine(EnginePersistentData* epd) :
 	mwidth(0),
 	mheight(0)
 {
@@ -56,7 +56,7 @@ Engine::Engine(EnginePersistentData* epd):
 	PlatformApplication::Init();
 	StartTime = PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
-	Log::OutS << "Loading Engine v" << ENGINE_VERSION << Log::OutS;
+	Log::OutS << "Loading " << ENGINE_NAME << " version " << ENGINE_VERSION << Log::OutS;
 #if PHYSX_ENABLED
 	Log::OutS << "Running with Physx" << Log::OutS;
 #else	
@@ -64,7 +64,7 @@ Engine::Engine(EnginePersistentData* epd):
 #endif
 	ModuleManager::Get()->PreLoadModules();
 	AssetManager::StartAssetManager();
-	
+
 	PerfManager::StartPerfManager();
 	PhysEngine = new PhysicsEngine();
 	if (PhysEngine != nullptr)
@@ -81,6 +81,7 @@ Engine::Engine(EnginePersistentData* epd):
 	unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
 	TaskGraph = new Threading::TaskGraph(threadsToCreate);
 	Log::LogMessage("TaskGraph Created with " + std::to_string(threadsToCreate) + " Threads");
+	PlatformMisc::SetCurrnetThreadAffinity(0);
 }
 
 Engine::~Engine()
@@ -160,7 +161,7 @@ void Engine::CreateApplication()
 #else
 		RHI::InitRHI(RenderSystemD3D12);
 #endif
-}
+	}
 	else
 	{
 		RHI::InitRHI(ForcedRenderSystem);
