@@ -13,6 +13,6 @@ public:
 	static void transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	static void copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	static VkImageView createImageView(VkanDeviceContext * C, VkImage image, VkFormat format);
-
+	static VkFormat ConvertFormat(eTEXTURE_FORMAT format);
 };
 

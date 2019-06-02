@@ -40,12 +40,12 @@ void D3D12HighLevelAccelerationStructure::InitialBuild()
 
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO topLevelPrebuildInfo = {};
 
-	D3D12RHI::GetDXCon(Context)->GetDevice5()->GetRaytracingAccelerationStructurePrebuildInfo(&topLevelInputs, &topLevelPrebuildInfo);
+	D3D12RHI::DXConv(Context)->GetDevice5()->GetRaytracingAccelerationStructurePrebuildInfo(&topLevelInputs, &topLevelPrebuildInfo);
 
-	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::GetDXCon(Context)->GetDevice(),
+	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(),
 		topLevelPrebuildInfo.ScratchDataSizeInBytes, &scratchSpace, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource");
 
-	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::GetDXCon(Context)->GetDevice(), topLevelPrebuildInfo.ResultDataMaxSizeInBytes, &m_topLevelAccelerationStructure,
+	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(), topLevelPrebuildInfo.ResultDataMaxSizeInBytes, &m_topLevelAccelerationStructure,
 		D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, L"TopLevelAccelerationStructure");
 
 	topLevelBuildDesc.DestAccelerationStructureData = m_topLevelAccelerationStructure->GetGPUVirtualAddress();
@@ -77,5 +77,5 @@ void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
 		instanceDesc.AccelerationStructure = E->GetASResource()->GetGPUVirtualAddress();
 		Descs.push_back(instanceDesc);
 	}
-	D3D12Helpers::AllocateUploadBuffer(D3D12RHI::GetDXCon(Context)->GetDevice(), &Descs[0], sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size(), &instanceDescs, L"InstanceDescs");
+	D3D12Helpers::AllocateUploadBuffer(D3D12RHI::DXConv(Context)->GetDevice(), &Descs[0], sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size(), &instanceDescs, L"InstanceDescs");
 }

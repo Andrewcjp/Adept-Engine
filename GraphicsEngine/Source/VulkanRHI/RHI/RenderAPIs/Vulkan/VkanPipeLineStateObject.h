@@ -11,6 +11,7 @@ public:
 	virtual void Complie() override;
 	virtual void Release() override;
 	void createTextureSampler();
+	bool ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, std::vector<VkVertexInputAttributeDescription>& attributeDescriptions, std::vector<VkVertexInputBindingDescription>& vertexbindings);
 	void createGraphicsPipeline();
 
 	void CreateTestShader();

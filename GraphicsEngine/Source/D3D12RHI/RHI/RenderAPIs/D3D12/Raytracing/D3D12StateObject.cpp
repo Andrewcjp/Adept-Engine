@@ -74,7 +74,7 @@ void D3D12StateObject::CreateStateObject()
 	UINT maxRecursionDepth = 1; // ~ primary rays only. 
 	pipelineConfig->Config(maxRecursionDepth);
 
-	D3D12RHI::GetDXCon(RHI::GetDefaultDevice())->GetDevice5()->CreateStateObject(RTPipe, IID_PPV_ARGS(&StateObject));
+	D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5()->CreateStateObject(RTPipe, IID_PPV_ARGS(&StateObject));
 }
 
 void D3D12StateObject::CreateRootSignatures()
@@ -123,7 +123,7 @@ void D3D12StateObject::SerializeAndCreateRaytracingRootSignature(D3D12_ROOT_SIGN
 	ID3DBlob* blob;
 	ID3DBlob* error;
 	ThrowIfFailed(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error));
-	ThrowIfFailed(D3D12RHI::GetDXCon(RHI::GetDefaultDevice())->GetDevice()->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(rootSig)));
+	ThrowIfFailed(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice()->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(rootSig)));
 }
 
 void D3D12StateObject::BuildShaderTables()
@@ -133,11 +133,11 @@ void D3D12StateObject::BuildShaderTables()
 	auto heapPointer = reinterpret_cast<UINT64*>(srvUavHeapHandle.ptr);
 	m_sbtHelper.AddRayGenerationProgram(c_raygenShaderName, { /*heapPointer*/ });
 	m_sbtHelper.AddHitGroup(c_hitGroupName, {});
-	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::GetDXCon(RHI::GetDefaultDevice())->GetDevice5());
+	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5());
 	//	D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
 		// Create the SBT on the upload heap. This is required as the helper will use mapping to write the
 		// SBT contents. After the SBT compilation it could be copied to the default heap for performance.
-	m_sbtStorage = nv_helpers_dx12::CreateBuffer(D3D12RHI::GetDXCon(RHI::GetDefaultDevice())->GetDevice5(), sbtSize, D3D12_RESOURCE_FLAG_NONE,
+	m_sbtStorage = nv_helpers_dx12::CreateBuffer(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5(), sbtSize, D3D12_RESOURCE_FLAG_NONE,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nv_helpers_dx12::kUploadHeapProps);
 	StateObject->QueryInterface(IID_PPV_ARGS(&props));
@@ -159,11 +159,11 @@ void D3D12StateObject::CreateRaytracingOutputBuffer()
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resDesc.MipLevels = 1;
 	resDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(D3D12RHI::GetDXCon(RHI::GetDefaultDevice())->GetDevice()->CreateCommittedResource(
+	ThrowIfFailed(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &resDesc,
 		D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr, IID_PPV_ARGS(&m_outputResource)));
 
-	UAVd = D3D12RHI::GetDXCon(RHI::GetDefaultDevice())->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	UAVd = D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
 	UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	UAVd->CreateUnorderedAccessView(m_outputResource, nullptr, &UAVDesc, 0);

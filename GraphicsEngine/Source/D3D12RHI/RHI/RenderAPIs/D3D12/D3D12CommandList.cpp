@@ -20,7 +20,7 @@
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
 	AddCheckerRef(D3D12CommandList, this);
-	mDeviceContext = (D3D12DeviceContext*)inDevice;
+	mDeviceContext = D3D12RHI::DXConv(inDevice);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(ListType), IID_PPV_ARGS(&m_commandAllocator[i])));
@@ -53,10 +53,10 @@ void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentB
 	ID3D12Resource* counterB = nullptr;
 	if (CountBuffer != nullptr)
 	{
-		counterB = ((D3D12Buffer*)CountBuffer)->GetResource()->GetResource();
+		counterB = D3D12RHI::DXConv(CountBuffer)->GetResource()->GetResource();
 	}
 	//PushPrimitiveTopology();
-	CurrentCommandList->ExecuteIndirect(CommandSig, MaxCommandCount, ((D3D12Buffer*)ArgumentBuffer)->GetResource()->GetResource(), ArgOffset, counterB, CountBufferOffset);
+	CurrentCommandList->ExecuteIndirect(CommandSig, MaxCommandCount, D3D12RHI::DXConv(ArgumentBuffer)->GetResource()->GetResource(), ArgOffset, counterB, CountBufferOffset);
 }
 
 void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
@@ -162,7 +162,7 @@ void D3D12CommandList::ResetList()
 	ID3D12PipelineState* PSO = nullptr;
 	if (CurrentPSO != nullptr)
 	{
-		PSO = ((D3D12PipeLineStateObject*)CurrentPSO)->PSO;
+		PSO = D3D12RHI::DXConv(CurrentPSO)->PSO;
 	}
 	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], PSO));
 	HandleStallTimer();
@@ -193,7 +193,7 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 	else
 	{
 		ensure(!target->IsPendingKill());
-		CurrentRenderTarget = (D3D12FrameBuffer*)target;
+		CurrentRenderTarget = D3D12RHI::DXConv(target);
 		ensure(CurrentRenderTarget->CheckDevice(Device->GetDeviceIndex()));
 		CurrentRenderTarget->BindBufferAsRenderTarget(CurrentCommandList, SubResourceIndex);
 	}
@@ -270,7 +270,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 {
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
-	D3D12Buffer* dbuffer = static_cast<D3D12Buffer*>(buffer);
+	D3D12Buffer* dbuffer = D3D12RHI::DXConv(buffer);
 	dbuffer = IRHISharedDeviceObject<RHIBuffer>::GetObject<D3D12Buffer>(buffer, Device);
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
 	dbuffer->EnsureResouceInFinalState(GetCommandList());
@@ -282,7 +282,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 {
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
-	D3D12Buffer* dbuffer = static_cast<D3D12Buffer*>(buffer);
+	D3D12Buffer* dbuffer = D3D12RHI::DXConv(buffer);
 	dbuffer = IRHISharedDeviceObject<RHIBuffer>::GetObject<D3D12Buffer>(buffer, Device);
 	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
@@ -308,7 +308,7 @@ void D3D12PipeLineStateObject::Complie()
 	ensure(Desc.ShaderInUse);
 	Desc.Build();
 	int VertexDesc_ElementCount = 0;
-	D3D12Shader* target = static_cast<D3D12Shader*>(Desc.ShaderInUse->GetShaderProgram());
+	D3D12Shader* target = D3D12RHI::DXConv(Desc.ShaderInUse->GetShaderProgram());
 	ensure(target != nullptr);
 	ensure((Desc.ShaderInUse->GetShaderParameters().size() > 0));
 	ensure((Desc.ShaderInUse->GetVertexFormat().size() > 0));
@@ -350,7 +350,7 @@ void D3D12CommandList::PushState()
 	if (IsOpen() && !IsCopyList())
 	{
 		Device->UpdatePSOTracker(CurrentPSO);
-		D3D12PipeLineStateObject* DPSO = (D3D12PipeLineStateObject*)CurrentPSO;
+		D3D12PipeLineStateObject* DPSO = D3D12RHI::DXConv(CurrentPSO);
 		if (DPSO != nullptr)
 		{
 			CurrentCommandList->SetPipelineState(DPSO->PSO);
@@ -375,7 +375,7 @@ void D3D12CommandList::CreateCommandList()
 	ID3D12PipelineState* PSO = nullptr;
 	if (CurrentPSO != nullptr)
 	{
-		PSO = ((D3D12PipeLineStateObject*)CurrentPSO)->PSO;
+		PSO = D3D12RHI::DXConv(CurrentPSO)->PSO;
 	}
 	if (ListType == ECommandListType::Graphics)
 	{
@@ -415,7 +415,7 @@ void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, in
 void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 {
 	ensure(!Buffer->IsPendingKill());
-	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
+	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
 	ensure(Device == buffer->GetDevice());
 	buffer->CopyToHostMemory(CurrentCommandList);
 }
@@ -423,7 +423,7 @@ void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
 {
 	ensure(!Buffer->IsPendingKill());
-	D3D12FrameBuffer* buffer = (D3D12FrameBuffer*)Buffer;
+	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
 	ensure(Device == buffer->GetTargetDevice());
 	buffer->CopyFromHostMemory(CurrentCommandList);
 }
@@ -433,7 +433,7 @@ void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 	ensure(buffer);
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
-	((D3D12FrameBuffer*)buffer)->ClearBuffer(CurrentCommandList);
+	D3D12RHI::DXConv(buffer)->ClearBuffer(CurrentCommandList);
 }
 
 void D3D12CommandList::UAVBarrier(RHIUAV * target)
@@ -442,7 +442,7 @@ void D3D12CommandList::UAVBarrier(RHIUAV * target)
 	if (target != nullptr)
 	{
 		ensure(!target->IsPendingKill());
-		D3D12RHIUAV* dtarget = (D3D12RHIUAV*)target;
+		D3D12RHIUAV* dtarget = D3D12RHI::DXConv(target);
 		CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->m_UAV));
 		CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
 	}
@@ -533,7 +533,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 {
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
-	D3D12FrameBuffer* DBuffer = (D3D12FrameBuffer*)buffer;
+	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(buffer);
 	if (ListType == ECommandListType::Compute)
 	{
 		ensure(DBuffer->IsReadyForCompute());
@@ -570,7 +570,7 @@ void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot)
 {
 	ensure(texture != nullptr);
 	ensure(!texture->IsPendingKill());
-	Texture = (D3D12Texture*)texture.Get();
+	Texture = D3D12RHI::DXConv(texture.Get());
 	Texture = IRHISharedDeviceObject<BaseTexture>::GetObject<D3D12Texture>(texture.Get(), Device);
 	ensureMsgf(Texture->CheckDevice(Device->GetDeviceIndex()), "Attempted to Bind texture that is not on this device");
 	if (Device->GetStateCache()->TextureCheckAndUpdate(texture.Get(), slot))
@@ -586,7 +586,7 @@ void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot)
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot)
 {
 	ensure(!buffer->IsPendingKill());
-	D3D12Buffer* d3Buffer = (D3D12Buffer*)buffer;
+	D3D12Buffer* d3Buffer = D3D12RHI::DXConv(buffer);
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
 	d3Buffer->SetConstantBufferView(offset, CurrentCommandList, Slot, ListType == ECommandListType::Compute, Device->GetDeviceIndex());
 }
@@ -596,11 +596,11 @@ D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext * inDevice) :R
 	AddCheckerRef(D3D12Buffer, this);
 	if (inDevice == nullptr)
 	{
-		Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();
+		Device = D3D12RHI::DXConv(RHI::GetDefaultDevice());
 	}
 	else
 	{
-		Device = (D3D12DeviceContext*)inDevice;
+		Device = D3D12RHI::DXConv(inDevice);
 	}
 	Context = Device;
 }
@@ -734,7 +734,7 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
 void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 {
 	SetupBufferSRV();
-	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
+	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
 	if (BufferAccesstype != EBufferAccessType::GPUOnly)//gpu buffer states are explicitly managed by render code
 	{
 		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
@@ -751,7 +751,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 
 void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
 {
-	D3D12CommandList* d3dlist = (D3D12CommandList*)list;
+	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
 	m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), D3D12Helpers::ConvertBufferResourceState(State));
 }
 
@@ -956,7 +956,7 @@ void D3D12Buffer::UnMap()
 //UAV 
 D3D12RHIUAV::D3D12RHIUAV(DeviceContext * inDevice) : RHIUAV()
 {
-	Device = (D3D12DeviceContext*)inDevice;
+	Device = D3D12RHI::DXConv(inDevice);
 	AddCheckerRef(D3D12RHIUAV, this);
 }
 void D3D12RHIUAV::Release()
@@ -973,7 +973,7 @@ D3D12RHIUAV::~D3D12RHIUAV()
 
 void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 {
-	D3D12Buffer* d3dtarget = (D3D12Buffer*)target;
+	D3D12Buffer* d3dtarget = D3D12RHI::DXConv(target);
 	ensure(target->CurrentBufferType == ERHIBufferType::GPU);
 	ensure(d3dtarget->CheckDevice(Device->GetDeviceIndex()));
 	if (UAVDescriptor == nullptr)
@@ -997,7 +997,7 @@ void D3D12RHIUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 
 void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 {
-	D3D12Texture* D3DTarget = (D3D12Texture*)target;
+	D3D12Texture* D3DTarget = D3D12RHI::DXConv(target);
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	if (UAVDescriptor == nullptr)
 	{
@@ -1017,7 +1017,7 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 
 void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
 {
-	D3D12FrameBuffer* D3DTarget = (D3D12FrameBuffer*)target;
+	D3D12FrameBuffer* D3DTarget = D3D12RHI::DXConv(target);
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
 	if (UAVDescriptor == nullptr)
 	{
@@ -1036,7 +1036,7 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
 void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 {
 	ensure(Device == list->GetDevice());
-	D3D12CommandList* DXList = ((D3D12CommandList*)list);
+	D3D12CommandList* DXList = D3D12RHI::DXConv(list);
 	if (list->IsComputeList())
 	{
 		DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, UAVDescriptor->GetGPUAddress(0));
@@ -1052,7 +1052,7 @@ void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
 D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)
 {
 	AddCheckerRef(D3D12RHITextureArray, this);
-	Device = (D3D12DeviceContext*)device;
+	Device = D3D12RHI::DXConv(device);
 	Desc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumEntries);
 }
 
@@ -1063,7 +1063,7 @@ D3D12RHITextureArray::~D3D12RHITextureArray()
 void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 {
 	ensure(!Buffer->IsPendingKill());
-	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
+	D3D12FrameBuffer* dBuffer = D3D12RHI::DXConv(Buffer);
 	ensure(dBuffer->CheckDevice(Device->GetDeviceIndex()));
 	LinkedBuffers.push_back(dBuffer);
 	dBuffer->CreateSRVInHeap(slot, Desc);
@@ -1072,7 +1072,7 @@ void D3D12RHITextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
 
 void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 {
-	D3D12CommandList* DXList = ((D3D12CommandList*)list);
+	D3D12CommandList* DXList = D3D12RHI::DXConv(list);
 	ensure(DXList->GetDevice() == Device);
 	for (int i = 0; i < LinkedBuffers.size(); i++)
 	{
@@ -1086,7 +1086,7 @@ void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*=
 {
 	if (Buffer != nullptr)
 	{
-		D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)Buffer;
+		D3D12FrameBuffer* dBuffer = D3D12RHI::DXConv(Buffer);
 		NullHeapDesc = dBuffer->GetSrvDesc(0);
 	}
 	if (NullHeapDesc.Format == DXGI_FORMAT_UNKNOWN)

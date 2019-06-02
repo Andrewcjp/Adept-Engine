@@ -22,11 +22,11 @@ D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 	Context = inDevice;
 	if (inDevice == nullptr)
 	{
-		Device = (D3D12DeviceContext*)RHI::GetDefaultDevice();
+		Device = D3D12RHI::DXConv(RHI::GetDefaultDevice());
 	}
 	else
 	{
-		Device = (D3D12DeviceContext*)inDevice;
+		Device = D3D12RHI::DXConv(inDevice);
 	}
 	FrameCreated = RHI::GetFrameCount();
 	if (FrameCreated == 0)

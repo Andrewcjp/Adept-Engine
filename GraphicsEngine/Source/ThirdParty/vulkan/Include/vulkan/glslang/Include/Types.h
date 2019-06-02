@@ -1628,6 +1628,7 @@ public:
             case EbtInt64:
             case EbtUint64:
             case EbtBool:
+            case EbtReference:
                 return true;
             default:
                 return false;
@@ -2017,7 +2018,7 @@ public:
         }
 
         // Add struct/block members
-        if (isStruct()) {
+        if (isStruct() && structure) {
             appendStr("{");
             for (size_t i = 0; i < structure->size(); ++i) {
                 if (! (*structure)[i].type->hiddenMember()) {
@@ -2185,6 +2186,16 @@ public:
     bool operator!=(const TType& right) const
     {
         return ! operator==(right);
+    }
+
+    unsigned int getBufferReferenceAlignment() const
+    {
+        if (getBasicType() == glslang::EbtReference) {
+            return getReferentType()->getQualifier().hasBufferReferenceAlign() ?
+                        (1u << getReferentType()->getQualifier().layoutBufferReferenceAlign) : 16u;
+        } else {
+            return 0;
+        }
     }
 
 protected:

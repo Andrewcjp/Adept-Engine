@@ -15,7 +15,7 @@ DescriptorHeap::DescriptorHeap(DescriptorHeap * other, int newsize) :
 DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
 	ensure(Num > 0);
-	Device = (D3D12DeviceContext*)inDevice;
+	Device = D3D12RHI::DXConv(inDevice);
 	srvHeapDesc.NumDescriptors = std::max(Num, 1);
 	DescriptorCount = Num;
 	srvHeapDesc.Type = type;

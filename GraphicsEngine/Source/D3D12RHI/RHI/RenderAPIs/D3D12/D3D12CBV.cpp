@@ -7,10 +7,10 @@
 #include "Descriptor.h"
 D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 {
-	Device = (D3D12DeviceContext*)inDevice;
+	Device = D3D12RHI::DXConv(inDevice);
 	if (Device == nullptr)
 	{
-		Device = (D3D12DeviceContext*)RHI::GetDeviceContext();
+		Device = D3D12RHI::DXConv(RHI::GetDeviceContext());
 	}
 }
 

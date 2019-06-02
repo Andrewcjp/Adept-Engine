@@ -20,7 +20,7 @@ D3D12TimeManager::~D3D12TimeManager()
 
 void D3D12TimeManager::Init(DeviceContext* context)
 {
-	Device = (D3D12DeviceContext*)context;
+	Device = D3D12RHI::DXConv(context);
 #if ENABLE_GPUTIMERS
 	UpdateTimeStampFreq();
 

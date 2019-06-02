@@ -495,8 +495,8 @@ public:
     TIntermSymbol* addSymbol(const TVariable&, const TSourceLoc&);
     TIntermSymbol* addSymbol(const TType&, const TSourceLoc&);
     TIntermSymbol* addSymbol(const TIntermSymbol&);
-    TIntermTyped* addConversion(TOperator, const TType&, TIntermTyped*) const;
-    std::tuple<TIntermTyped*, TIntermTyped*> addConversion(TOperator op, TIntermTyped* node0, TIntermTyped* node1) const;
+    TIntermTyped* addConversion(TOperator, const TType&, TIntermTyped*);
+    std::tuple<TIntermTyped*, TIntermTyped*> addConversion(TOperator op, TIntermTyped* node0, TIntermTyped* node1);
     TIntermTyped* addUniShapeConversion(TOperator, const TType&, TIntermTyped*);
     TIntermTyped* addConversion(TBasicType convertTo, TIntermTyped* node) const;
     void addBiShapeConversion(TOperator, TIntermTyped*& lhsNode, TIntermTyped*& rhsNode);
@@ -696,6 +696,10 @@ public:
     static int getScalarAlignment(const TType&, int& size, int& stride, bool rowMajor);
     static int getMemberAlignment(const TType&, int& size, int& stride, TLayoutPacking layoutPacking, bool rowMajor);
     static bool improperStraddle(const TType& type, int size, int offset);
+    static void updateOffset(const TType& parentType, const TType& memberType, int& offset, int& memberSize);
+    static int getOffset(const TType& type, int index);
+    static int getBlockSize(const TType& blockType);
+    static int computeBufferReferenceTypeSize(const TType&);
     bool promote(TIntermOperator*);
 
 #ifdef NV_EXTENSIONS
