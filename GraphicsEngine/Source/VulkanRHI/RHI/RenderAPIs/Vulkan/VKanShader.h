@@ -15,8 +15,7 @@ public:
 	static std::vector<char> readFile(const std::string & filename);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	static std::vector<char> ComplieShader(std::string name, bool frag = false, bool HLSL = false);
-	void CreateTestShader();
-	void SetupPSO();
+
 	void CreateRenderPass() {};
 	VkPipelineShaderStageCreateInfo shaderStages[2];
 	VkPipelineLayout pipelineLayout;

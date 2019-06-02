@@ -26,6 +26,9 @@ class D3D12HighLevelAccelerationStructure;
 class LowLevelAccelerationStructure;
 class HighLevelAccelerationStructure;
 class D3D12StateObject;
+class FrameBuffer;
+class D3D12FrameBuffer;
+class D3D12RHIUAV;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -64,7 +67,12 @@ public:
 	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device) override;
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
 
-	static D3D12DeviceContext* GetDXCon(DeviceContext* D);
+	static D3D12DeviceContext* DXConv(DeviceContext* D);
+	static D3D12RHIUAV * DXConv(RHIUAV * D);
+	static D3D12Texture * DXConv(BaseTexture * D);
+	static D3D12PipeLineStateObject * DXConv(RHIPipeLineStateObject * D);
+	static D3D12Shader * DXConv(ShaderProgramBase * D);
+	static D3D12FrameBuffer * DXConv(FrameBuffer * D);
 	static D3D12Buffer* DXConv(RHIBuffer* D);
 	static D3D12CommandList* DXConv(RHICommandList* D);
 	static D3D12LowLevelAccelerationStructure* DXConv(LowLevelAccelerationStructure* D);

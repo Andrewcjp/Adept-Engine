@@ -4,7 +4,7 @@ CreateChecker(GPUResource);
 GPUResource::GPUResource()
 {}
 
-GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState) :GPUResource(Target, InitalState, (D3D12DeviceContext*)RHI::GetDefaultDevice())
+GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState) :GPUResource(Target, InitalState, RHI::GetDefaultDevice())
 {}
 
 GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState, DeviceContext * device)
@@ -14,7 +14,7 @@ GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalSt
 	SetName(L"GPU Resource");
 	SetDebugName("GPU Resource");
 	CurrentResourceState = InitalState;
-	Device = (D3D12DeviceContext*)device;
+	Device = D3D12RHI::DXConv(device);
 }
 
 GPUResource::~GPUResource()

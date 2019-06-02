@@ -30,10 +30,7 @@ VKanRHI::~VKanRHI()
 
 void VKanRHI::createGraphicsPipeline23()
 {
-	Shadertest = new VKanShader();
-	Shadertest->CreateTestShader();
-	Shadertest->SetupPSO();
-	Shadertest->CreateRenderPass();
+
 	createSwapRT();
 }
 
@@ -109,27 +106,27 @@ RHIStateObject* VKanRHI::CreateStateObject(DeviceContext* Device)
 
 VKanTexture * VKanRHI::VKConv(BaseTexture * T)
 {
-	return dynamic_cast<VKanTexture*>(T);
+	return static_cast<VKanTexture*>(T);
 }
 
 VKanCommandlist * VKanRHI::VKConv(RHICommandList * T)
 {
-	return dynamic_cast<VKanCommandlist*>(T);
+	return static_cast<VKanCommandlist*>(T);
 }
 
 VKanBuffer * VKanRHI::VKConv(RHIBuffer * T)
 {
-	return dynamic_cast<VKanBuffer*>(T);
+	return static_cast<VKanBuffer*>(T);
 }
 
 VkanDeviceContext * VKanRHI::VKConv(DeviceContext * T)
 {
-	return dynamic_cast<VkanDeviceContext*>(T);
+	return static_cast<VkanDeviceContext*>(T);
 }
 
 VKanFramebuffer * VKanRHI::VKConv(FrameBuffer * T)
 {
-	return dynamic_cast<VKanFramebuffer*>(T);
+	return static_cast<VKanFramebuffer*>(T);
 }
 
 #if ALLOW_RESOURCE_CAPTURE

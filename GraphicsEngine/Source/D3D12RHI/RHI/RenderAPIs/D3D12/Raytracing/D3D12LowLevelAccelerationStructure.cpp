@@ -44,12 +44,12 @@ void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 	bottomLevelInputs.NumDescs = geometryDescs.size();
 	bottomLevelInputs.pGeometryDescs = &geometryDescs[0];
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO bottomLevelPrebuildInfo = {};
-	D3D12RHI::GetDXCon(Context)->GetDevice5()->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
+	D3D12RHI::DXConv(Context)->GetDevice5()->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 
-	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::GetDXCon(Context)->GetDevice(),
+	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(),
 		bottomLevelPrebuildInfo.ScratchDataSizeInBytes, &scratchResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource");
 
-	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::GetDXCon(Context)->GetDevice(), bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes, &Structure, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, L"BottomLevelAccelerationStructure");
+	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(), bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes, &Structure, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, L"BottomLevelAccelerationStructure");
 
 	bottomLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
 	bottomLevelBuildDesc.DestAccelerationStructureData = Structure->GetGPUVirtualAddress();

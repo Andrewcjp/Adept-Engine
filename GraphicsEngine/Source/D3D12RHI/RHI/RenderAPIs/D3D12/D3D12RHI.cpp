@@ -61,34 +61,59 @@ HighLevelAccelerationStructure* D3D12RHI::CreateHighLevelAccelerationStructure(D
 	return new D3D12HighLevelAccelerationStructure(Device);
 }
 
-D3D12DeviceContext * D3D12RHI::GetDXCon(DeviceContext * D)
+D3D12DeviceContext * D3D12RHI::DXConv(DeviceContext * D)
 {
-	return dynamic_cast<D3D12DeviceContext*>(D);
+	return static_cast<D3D12DeviceContext*>(D);
+}
+
+D3D12RHIUAV * D3D12RHI::DXConv(RHIUAV * D)
+{
+	return static_cast<D3D12RHIUAV*>(D);
+}
+
+D3D12Texture * D3D12RHI::DXConv(BaseTexture* D)
+{
+	return static_cast<D3D12Texture*>(D);
+}
+
+D3D12PipeLineStateObject * D3D12RHI::DXConv(RHIPipeLineStateObject * D)
+{
+	return static_cast<D3D12PipeLineStateObject*>(D);
+}
+
+D3D12Shader * D3D12RHI::DXConv(ShaderProgramBase * D)
+{
+	return static_cast<D3D12Shader*>(D);
+}
+
+D3D12FrameBuffer * D3D12RHI::DXConv(FrameBuffer * D)
+{
+	return static_cast<D3D12FrameBuffer*>(D);
 }
 
 D3D12Buffer * D3D12RHI::DXConv(RHIBuffer * D)
 {
-	return dynamic_cast<D3D12Buffer*>(D);
+	return static_cast<D3D12Buffer*>(D);
 }
 
 D3D12CommandList * D3D12RHI::DXConv(RHICommandList * D)
 {
-	return dynamic_cast<D3D12CommandList*>(D);
+	return static_cast<D3D12CommandList*>(D);
 }
 
 D3D12LowLevelAccelerationStructure * D3D12RHI::DXConv(LowLevelAccelerationStructure * D)
 {
-	return dynamic_cast<D3D12LowLevelAccelerationStructure*>(D);
+	return static_cast<D3D12LowLevelAccelerationStructure*>(D);
 }
 
 D3D12HighLevelAccelerationStructure * D3D12RHI::DXConv(HighLevelAccelerationStructure * D)
 {
-	return dynamic_cast<D3D12HighLevelAccelerationStructure*>(D);
+	return static_cast<D3D12HighLevelAccelerationStructure*>(D);
 }
 
 D3D12StateObject * D3D12RHI::DXConv(RHIStateObject * D)
 {
-	return dynamic_cast<D3D12StateObject*>(D);
+	return static_cast<D3D12StateObject*>(D);
 }
 
 

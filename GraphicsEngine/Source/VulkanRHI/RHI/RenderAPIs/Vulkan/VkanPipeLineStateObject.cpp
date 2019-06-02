@@ -6,6 +6,7 @@
 #include "VkanDeviceContext.h"
 #include "VKanRHI.h"
 #include "VKanShader.h"
+#include "VkanHelpers.h"
 
 VkanPipeLineStateObject::VkanPipeLineStateObject(const RHIPipeLineStateDesc & desc, DeviceContext * con) :RHIPipeLineStateObject(desc)
 {
@@ -48,6 +49,26 @@ void VkanPipeLineStateObject::createTextureSampler()
 		throw std::runtime_error("failed to create texture sampler!");
 	}
 }
+bool VkanPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, std::vector< VkVertexInputAttributeDescription>& attributeDescriptions,
+	std::vector< VkVertexInputBindingDescription>& vertexbindings)
+{
+	for (int i = 0; i < desc.size(); i++)
+	{
+		Shader::VertexElementDESC* Element = &desc[i];
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = Element->InputSlot;
+		bindingDescription.stride = RHIUtils::GetPixelSize(Element->Format);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		vertexbindings.push_back(bindingDescription);
+		VkVertexInputAttributeDescription Bindingdesc = {};
+		Bindingdesc.binding = Element->InputSlot;
+		Bindingdesc.location = Element->InputSlot;
+		//covert format
+		Bindingdesc.format = VkanHelpers::ConvertFormat(Element->Format);
+		attributeDescriptions.push_back(Bindingdesc);
+	}
+	return true;
+}
 
 void  VkanPipeLineStateObject::createGraphicsPipeline()
 {
@@ -55,19 +76,18 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	createTextureSampler();
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	VkVertexInputBindingDescription bindingDescription = {};
-	bindingDescription.binding = 0;
-	bindingDescription.stride = sizeof(glm::vec2);
-	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-	vertexInputInfo.vertexBindingDescriptionCount = 1;
-	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 	std::vector< VkVertexInputAttributeDescription> attributeDescriptions;
-	attributeDescriptions.resize(1);
-	attributeDescriptions[0].binding = 0;
-	attributeDescriptions[0].location = 0;
-	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-	attributeDescriptions[0].offset = 0;
-	vertexInputInfo.vertexAttributeDescriptionCount = 1;
+	std::vector< VkVertexInputBindingDescription> vertexbindings;
+	//	Desc.ShaderInUse->GetVertexFormat();
+
+	std::vector< Shader::VertexElementDESC> RHIDesc;
+	RHIDesc.push_back(Shader::VertexElementDESC{ "POSITION", 0, FORMAT_R32G32_FLOAT, 0, 0, Shader::INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	ParseVertexFormat(RHIDesc, attributeDescriptions, vertexbindings);
+
+	vertexInputInfo.vertexBindingDescriptionCount = vertexbindings.size();
+	vertexInputInfo.pVertexBindingDescriptions = vertexbindings.data();
+
+	vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -167,8 +187,8 @@ void VkanPipeLineStateObject::CreateTestShader()
 	std::vector<char>  fragShaderCode;
 	//shader temp
 	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
-	//	fragShaderCode = VKanShader::ComplieShader("VKan\\TriHLSL", true, true);
-	fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
+		fragShaderCode = VKanShader::ComplieShader("VKan\\TriHLSL", true, true);
+	//fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
 
 	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -224,23 +244,39 @@ VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<uin
 void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 {
 	std::vector<VkDescriptorSetLayoutBinding> Binds;
-	VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
-	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
-	Binds.push_back(uboLayoutBinding);
-	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-	samplerLayoutBinding.binding = 1;
-	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.pImmutableSamplers = nullptr;
-	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	Binds.push_back(samplerLayoutBinding);
+#if 0
 
 
 
+#endif
+	std::vector<ShaderParameter> Parms;
+	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
+	Parms.push_back(ShaderParameter(ShaderParamType::SRV, 1, 0));
+	for (int i = 0; i < Parms.size(); i++)
+	{
+		ShaderParameter* Element = &Parms[i];
+		if (Element->Type == ShaderParamType::CBV)
+		{
+			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+			uboLayoutBinding.binding = Element->SignitureSlot;
+			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			uboLayoutBinding.descriptorCount = 1;
+			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
+			uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+			Binds.push_back(uboLayoutBinding);
+		}
+		else if (Element->Type == ShaderParamType::SRV)
+		{
+			VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+			samplerLayoutBinding.binding = Element->SignitureSlot;
+			samplerLayoutBinding.descriptorCount = 1;
+			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			samplerLayoutBinding.pImmutableSamplers = nullptr;
+			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			Binds.push_back(samplerLayoutBinding);
+		}
+	}
+	   	  
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = Binds.size();

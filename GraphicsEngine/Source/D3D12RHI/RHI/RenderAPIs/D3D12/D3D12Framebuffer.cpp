@@ -35,7 +35,6 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, De
 {
 	if (BufferDesc.RenderTargetCount > 2)
 	{
-		//((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), desc->GetCPUAddress(HeapOffset));
 		desc->CreateShaderResourceView(RenderTarget[HeapOffset]->GetResource(), &GetSrvDesc(HeapOffset), HeapOffset);
 	}
 	else
@@ -48,14 +47,12 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, De
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		if (BufferDesc.RenderTargetCount == 0)
 		{
-			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
-			//((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), desc->GetCPUAddress(HeapOffset));
+			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);			
 			desc->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), HeapOffset);
 		}
 		else
 		{
 			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
-			//((D3D12DeviceContext*)target)->GetDevice()->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), desc->GetCPUAddress(HeapOffset));
 			desc->CreateShaderResourceView(RenderTarget[0]->GetResource(), &GetSrvDesc(0), HeapOffset);
 		}
 	}
@@ -178,7 +175,7 @@ bool D3D12FrameBuffer::IsReadyForCompute() const
 void D3D12FrameBuffer::SetupCopyToDevice(DeviceContext * device)
 {
 	ensure(device != CurrentDevice);
-	OtherDevice = (D3D12DeviceContext*)device;
+	OtherDevice = D3D12RHI::DXConv(device);
 	ID3D12Device* Host = CurrentDevice->GetDevice();
 	ID3D12Device* Target = OtherDevice->GetDevice();
 
@@ -469,7 +466,7 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
-	CurrentDevice = (D3D12DeviceContext*)device;
+	CurrentDevice = D3D12RHI::DXConv(device);
 	Init();
 	if (BufferDesc.IsShared)
 	{

@@ -17,7 +17,7 @@ D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
 #endif
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
-	CurrentDevice = (D3D12DeviceContext*)Device;
+	CurrentDevice = D3D12RHI::DXConv(Device);
 	CacheBlobs = !NoShaderCache.GetBoolValue();
 	if (D3D12RHI::DetectGPUDebugger())
 	{
@@ -381,7 +381,7 @@ void D3D12Shader::CreateComputePipelineShader(D3D12PipeLineStateObject* output, 
 	computePsoDesc.pRootSignature = output->RootSig;
 	computePsoDesc.CS = GetByteCode(blobs->csBlob);
 	computePsoDesc.NodeMask = context->GetNodeMask();
-	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&output->PSO)));
+	ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&output->PSO)));
 
 }
 
@@ -465,7 +465,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	}
 	psoDesc.DSVFormat = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.DSVFormat);
 
-	if (((D3D12DeviceContext*)context)->GetDevice2() != nullptr && context->GetCaps().SupportsViewInstancing && PSODesc.ViewInstancing.Active)
+	if (D3D12RHI::DXConv(context)->GetDevice2() != nullptr && context->GetCaps().SupportsViewInstancing && PSODesc.ViewInstancing.Active)
 	{
 		Stream = CD3DX12_PIPELINE_STATE_STREAM1(psoDesc);
 		D3D12_VIEW_INSTANCE_LOCATION* Loc = nullptr;
@@ -484,12 +484,12 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		D3D12_PIPELINE_STATE_STREAM_DESC MyPipelineState;
 		MyPipelineState.SizeInBytes = sizeof(Stream);
 		MyPipelineState.pPipelineStateSubobjectStream = &Stream;
-		ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice2()->CreatePipelineState(&MyPipelineState, IID_PPV_ARGS(&output->PSO)));
+		ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice2()->CreatePipelineState(&MyPipelineState, IID_PPV_ARGS(&output->PSO)));
 		delete[] Loc;
 	}
 	else
 	{
-		ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
+		ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
 	}
 
 }
@@ -546,7 +546,7 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 	// This is the highest version the sample supports. If CheckFeatureSupport succeeds, the HighestVersion returned will not be greater than this.
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
 
-	if (FAILED(((D3D12DeviceContext*)context)->GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+	if (FAILED(D3D12RHI::DXConv(context)->GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
 	{
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
@@ -670,7 +670,7 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 			Log::LogMessage(Log, Log::Severity::Warning);
 		}
 	}
-	ThrowIfFailed(((D3D12DeviceContext*)context)->GetDevice()->CreateRootSignature(context->GetNodeMask(), signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output->RootSig)));
+	ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateRootSignature(context->GetNodeMask(), signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output->RootSig)));
 
 	output->RootSig->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
 	delete[] Samplers;
