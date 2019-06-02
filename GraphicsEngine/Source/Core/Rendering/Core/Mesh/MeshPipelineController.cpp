@@ -5,6 +5,7 @@
 #include "MeshBatch.h"
 #include "TransparentPassMeshProcessor.h"
 #include "ZPrePassMeshProcessor.h"
+#include "Core/Performance/PerfManager.h"
 
 
 MeshPipelineController::MeshPipelineController()
@@ -66,6 +67,7 @@ void MeshPipelineController::GatherBatches()
 		std::sort(Batches.begin(), Batches.end(), DistanceSort(TargetScene->GetCurrentRenderCamera()->GetPosition()));
 	}
 #endif
+
 	if (RHI::GetFrameCount() == 0)
 	{
 		BuildStaticInstancing();
@@ -156,7 +158,7 @@ void MeshPipelineController::RenderPass(ERenderPass::Type type, RHICommandList* 
 				continue;
 			}
 		}
-		Processors[type]->AddBatch(Batches[i]);
+		Processors[type]->AddBatch(Batches[i]);		
 	}
 	{
 		SCOPE_CYCLE_COUNTER_GROUP("SubmitCommands CPU", "Render");

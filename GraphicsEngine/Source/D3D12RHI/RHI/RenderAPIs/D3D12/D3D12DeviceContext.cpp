@@ -204,7 +204,7 @@ void D3D12DeviceContext::InitDevice(int index)
 	TimeManager = new D3D12TimeManager(this);
 	GPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
 	InterGPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
-	((D3D12CommandList*)GPUCopyList)->CreateCommandList();
+	D3D12RHI::DXConv(GPUCopyList)->CreateCommandList();
 	GPUCopyList->ResetList();
 	GraphicsSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Graphics), GetDevice());
 	CopySync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Copy), GetDevice());
@@ -412,7 +412,7 @@ void D3D12DeviceContext::ReportData()
 
 ID3D12GraphicsCommandList * D3D12DeviceContext::GetCopyList()
 {
-	return ((D3D12CommandList*)GPUCopyList)->GetCommandList();
+	return D3D12RHI::DXConv(GPUCopyList)->GetCommandList();
 }
 
 ID3D12GraphicsCommandList * D3D12DeviceContext::GetSharedCopyList()

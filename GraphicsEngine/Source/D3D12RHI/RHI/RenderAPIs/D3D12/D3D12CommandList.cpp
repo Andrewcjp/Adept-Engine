@@ -73,7 +73,7 @@ void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
 }
 
-void D3D12CommandList::BeginRenderPass(class RHIRenderPassInfo& info)
+void D3D12CommandList::BeginRenderPass(class RHIRenderPassDesc& info)
 {
 	RHICommandList::BeginRenderPass(info);
 	if (info.DepthSourceBuffer != nullptr)

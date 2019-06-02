@@ -86,6 +86,15 @@ void UNUSED_PARAM(T const&)
 #endif
 #endif // CORE_API
 
+#if defined(CORE_EXPORT) 
+#   define TEMP_API DLLEXPORT
+#else 
+#ifndef STATIC_MODULE
+#   define TEMP_API DLLIMPORT
+#else
+#   define TEMP_API
+#endif
+#endif // TEMP_API
 //Asserts
 #define PLATFORM_WINDOWS 1
 

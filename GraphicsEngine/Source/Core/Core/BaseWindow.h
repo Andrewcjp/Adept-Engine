@@ -22,7 +22,7 @@ public:
 	//getters
 	static int GetWidth();
 	static int GetHeight();
-	static RenderEngine * GetCurrentRenderer();
+	TEMP_API static RenderEngine * GetCurrentRenderer();
 
 	static bool ProcessDebugCommand(std::string command, std::string & response);
 	static class Camera* GetCurrentCamera();

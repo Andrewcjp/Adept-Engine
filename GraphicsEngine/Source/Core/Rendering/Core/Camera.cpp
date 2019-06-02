@@ -5,7 +5,7 @@
 
 Camera::Camera()
 {
-	UseLeftHanded = (RHI::GetType() == RenderSystemD3D11 || RHI::GetType() == RenderSystemD3D12);
+	UseLeftHanded = true;
 	forward = glm::vec3(0.0f, 0.0f, 1.0f);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
 	ZFar = 1000;
@@ -46,6 +46,12 @@ void Camera::UpdateProjection(float aspect)
 	else
 	{
 		projection = glm::perspectiveRH(glm::radians(fov), aspect, zNear, ZFar);
+	}
+	if (RHI::IsVulkan())
+	{
+		//projection[1][1] = -projection[1][1];
+		//projection[2][2] *= 0.5f;
+		//projection[2][3] *= 0.5f;
 	}
 }
 

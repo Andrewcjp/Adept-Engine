@@ -3,7 +3,7 @@
 #include "VkanDeviceContext.h"
 #include "vulkan/vulkan_core.h"
 
-void VkanHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+void VkanHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput)
 {
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -15,7 +15,7 @@ void VkanHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, 
 	imageInfo.arrayLayers = 1;
 	imageInfo.format = format;
 	imageInfo.tiling = tiling;
-	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	imageInfo.initialLayout = StartingLayput;// VK_IMAGE_LAYOUT_UNDEFINED;
 	imageInfo.usage = usage;
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -84,7 +84,7 @@ void VkanHelpers::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMe
 	vkBindBufferMemory(VKanRHI::GetVDefaultDevice()->device, buffer, bufferMemory, 0);
 }
 
-void VkanHelpers::createImage(VkanDeviceContext* D, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+void VkanHelpers::createImage(VkanDeviceContext* D, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput)
 {
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -213,14 +213,14 @@ void VkanHelpers::copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buff
 
 }
 
-VkImageView VkanHelpers::createImageView(VkanDeviceContext* C, VkImage image, VkFormat format)
+VkImageView VkanHelpers::createImageView(VkanDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 {
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	viewInfo.image = image;
 	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	viewInfo.format = format;
-	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	viewInfo.subresourceRange.aspectMask = aspectFlags;
 	viewInfo.subresourceRange.baseMipLevel = 0;
 	viewInfo.subresourceRange.levelCount = 1;
 	viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -253,6 +253,7 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 		case FORMAT_R32G32B32_TYPELESS:
 			break;
 		case FORMAT_R32G32B32_FLOAT:
+			return VK_FORMAT_R32G32B32_SFLOAT;
 			break;
 		case FORMAT_R32G32B32_UINT:
 			break;
@@ -483,5 +484,6 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 			break;
 
 	}
+	ensure(false);
 	return VkFormat();
 }

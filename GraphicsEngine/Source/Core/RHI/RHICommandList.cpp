@@ -36,7 +36,7 @@ void RHICommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int Instanc
 
 }
 
-void RHICommandList::BeginRenderPass(class RHIRenderPassInfo& RenderPass)
+void RHICommandList::BeginRenderPass(RHIRenderPassDesc& RenderPass)
 {
 	ensure(!IsInRenderPass);
 	IsInRenderPass = true;
@@ -192,11 +192,6 @@ void RHIRenderPass::AddSubPass(RHISubPass * Pass)
 void RHIRenderPass::Complie()
 {}
 
-RHIRenderPassInfo::RHIRenderPassInfo(FrameBuffer * buffer, ERenderPassLoadOp::Type loadOp/* = ERenderPassLoadOp::Clear*/)
-{
-	LoadOp = loadOp;
-	TargetBuffer = buffer;
-}
 
 void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, int slot)
 {

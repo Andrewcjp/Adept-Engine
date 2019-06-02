@@ -384,7 +384,7 @@ void ShadowRenderer::RenderShadowMap_GPU(ShadowLightInteraction* Interaction, RH
 	FrameBuffer* TargetBuffer = Interaction->GetMap(list->GetDeviceIndex());
 	Shader_Depth* TargetShader = Interaction->Shader;
 	Light* LightPtr = Interaction->lightPtr;
-	list->BeginRenderPass(RHIRenderPassInfo(TargetBuffer, ERenderPassLoadOp::Clear));
+	list->BeginRenderPass(RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear));
 	UpdateGeometryShaderParams(LightPtr->GetPosition(), LightPtr->Projection, IndexOnGPU, list->GetDeviceIndex());
 	list->SetConstantBufferView(DSOs[list->GetDeviceIndex()].GeometryProjections, IndexOnGPU, Shader_Depth_RSSlots::GeometryProjections);
 	Shader_Depth::LightData data = {};
@@ -419,7 +419,7 @@ void ShadowRenderer::RenderShadowMap_CPU(ShadowLightInteraction * Interaction, R
 	FrameBuffer* TargetBuffer = Interaction->GetMap(list->GetDeviceIndex());
 	Shader_Depth* TargetShader = Interaction->Shader;
 	Light* LightPtr = Interaction->lightPtr;
-	list->BeginRenderPass(RHIRenderPassInfo(TargetBuffer, ERenderPassLoadOp::Clear));
+	list->BeginRenderPass(RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear));
 	UpdateGeometryShaderParams(LightPtr->GetPosition(), LightPtr->Projection, IndexOnGPU, list->GetDeviceIndex());
 	list->SetConstantBufferView(DSOs[list->GetDeviceIndex()].GeometryProjections, IndexOnGPU, Shader_Depth_RSSlots::GeometryProjections);
 	Shader_Depth::LightData data = {};

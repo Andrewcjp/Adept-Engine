@@ -58,8 +58,8 @@ public:
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	void UpdateLightBuffer(std::vector<Light*> lights);
 	void BindLightsBuffer(RHICommandList * list, int Override = -1);
-	void BindMvBuffer(RHICommandList * list, int slot);
-	void BindMvBuffer(RHICommandList * list, int slot, int index);
+	TEMP_API void BindMvBuffer(RHICommandList * list, int slot);
+	TEMP_API void BindMvBuffer(RHICommandList * list, int slot, int index);
 	void SetScene(Scene* NewScene);
 	void SetupBindsForForwardPass(RHICommandList* list);
 	void UpdateRelflectionProbes(RHICommandList * commandlist);

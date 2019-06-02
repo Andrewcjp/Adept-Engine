@@ -52,19 +52,21 @@ void VkanPipeLineStateObject::createTextureSampler()
 bool VkanPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, std::vector< VkVertexInputAttributeDescription>& attributeDescriptions,
 	std::vector< VkVertexInputBindingDescription>& vertexbindings)
 {
+	VkVertexInputBindingDescription bindingDescription = {};
+	bindingDescription.binding = 0;
+	bindingDescription.stride = sizeof(OGLVertex);
+	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	vertexbindings.push_back(bindingDescription);
 	for (int i = 0; i < desc.size(); i++)
 	{
 		Shader::VertexElementDESC* Element = &desc[i];
-		VkVertexInputBindingDescription bindingDescription = {};
-		bindingDescription.binding = Element->InputSlot;
-		bindingDescription.stride = RHIUtils::GetPixelSize(Element->Format);
-		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-		vertexbindings.push_back(bindingDescription);
+
 		VkVertexInputAttributeDescription Bindingdesc = {};
-		Bindingdesc.binding = Element->InputSlot;
-		Bindingdesc.location = Element->InputSlot;
+		Bindingdesc.binding = 0;// Element->InputSlot;
+		Bindingdesc.location = i;// Element->InputSlot;
 		//covert format
 		Bindingdesc.format = VkanHelpers::ConvertFormat(Element->Format);
+		Bindingdesc.offset = Element->AlignedByteOffset;
 		attributeDescriptions.push_back(Bindingdesc);
 	}
 	return true;
@@ -82,6 +84,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 
 	std::vector< Shader::VertexElementDESC> RHIDesc;
 	RHIDesc.push_back(Shader::VertexElementDESC{ "POSITION", 0, FORMAT_R32G32_FLOAT, 0, 0, Shader::INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	RHIDesc = Desc.ShaderInUse->GetVertexFormat();
 	ParseVertexFormat(RHIDesc, attributeDescriptions, vertexbindings);
 
 	vertexInputInfo.vertexBindingDescriptionCount = vertexbindings.size();
@@ -123,7 +126,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
-
+	
 	VkPipelineMultisampleStateCreateInfo multisampling = {};
 	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	multisampling.sampleShadingEnable = VK_FALSE;
@@ -157,7 +160,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	pipelineInfo.stageCount = 2;
+	pipelineInfo.stageCount = ShaderStages.size();
 	pipelineInfo.pStages = ShaderStages.data();
 	pipelineInfo.pVertexInputState = &vertexInputInfo;
 	pipelineInfo.pInputAssemblyState = &inputAssembly;
@@ -186,8 +189,9 @@ void VkanPipeLineStateObject::CreateTestShader()
 	std::vector<char> vertShaderCode;
 	std::vector<char>  fragShaderCode;
 	//shader temp
-	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
-		fragShaderCode = VKanShader::ComplieShader("VKan\\TriHLSL", true, true);
+	//vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
+	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri_VS", EShaderType::SHADER_VERTEX, true);
+	fragShaderCode = VKanShader::ComplieShader("VKan\\TriHLSL", EShaderType::SHADER_FRAGMENT, true);
 	//fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
 
 	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
@@ -252,6 +256,7 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 	std::vector<ShaderParameter> Parms;
 	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
 	Parms.push_back(ShaderParameter(ShaderParamType::SRV, 1, 0));
+	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 3, 0));
 	for (int i = 0; i < Parms.size(); i++)
 	{
 		ShaderParameter* Element = &Parms[i];
@@ -270,13 +275,20 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 			VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
 			samplerLayoutBinding.binding = Element->SignitureSlot;
 			samplerLayoutBinding.descriptorCount = 1;
-			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			samplerLayoutBinding.pImmutableSamplers = nullptr;
+			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			Binds.push_back(samplerLayoutBinding);
 		}
 	}
-	   	  
+	{
+		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+		samplerLayoutBinding.binding = 2;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+		samplerLayoutBinding.pImmutableSamplers = &textureSampler;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		Binds.push_back(samplerLayoutBinding);
+	}
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = Binds.size();
@@ -305,6 +317,10 @@ void VKanRenderPass::Complie()
 	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
+
+	
+
+
 	VkAttachmentReference colorAttachmentRef = {};
 	colorAttachmentRef.attachment = 0;
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -313,6 +329,10 @@ void VKanRenderPass::Complie()
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
+	VkAttachmentReference depthAttachmentRef = {};
+	depthAttachmentRef.attachment = 1;
+	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	//subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 	VkSubpassDependency dependency = {};
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -321,6 +341,10 @@ void VKanRenderPass::Complie()
 	dependency.srcAccessMask = 0;
 	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+
+
+
 
 	VkRenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;

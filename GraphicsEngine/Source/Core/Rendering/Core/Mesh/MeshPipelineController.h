@@ -39,7 +39,7 @@ public:
 	void CreateInstanceController(MeshBatch* Ctl, std::map<RHIBuffer *, std::vector<MeshBatch *>>::iterator itor, int limit, int offset);
 
 	//#todo: which one?
-	void RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader = nullptr, EBatchFilter::Type Filter = EBatchFilter::ALL);
+	TEMP_API void RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader = nullptr, EBatchFilter::Type Filter = EBatchFilter::ALL);
 
 	void Init();
 

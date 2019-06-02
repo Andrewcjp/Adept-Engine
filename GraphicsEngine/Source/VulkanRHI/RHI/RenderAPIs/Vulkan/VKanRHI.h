@@ -49,9 +49,9 @@ struct SwapChainSupportDetails
 	std::vector<VkPresentModeKHR> presentModes;
 };
 #ifdef NDEBUG
-const bool enableValidationLayers = true;
+ bool enableValidationLayers = true;
 #else
-const bool enableValidationLayers = false;
+ bool enableValidationLayers = false;
 #endif
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
@@ -151,6 +151,7 @@ public:
 	class VKanBuffer* buffer = nullptr;
 	class VKanRenderPass* Pass = nullptr;
 	VKanBuffer* Vertexb = nullptr;
+	VKanBuffer* IndexTest = nullptr;
 	class VKanTexture* T;
 	class VKanShader* Shadertest = nullptr;
 	class VKanCommandlist* cmdlist = nullptr;
@@ -183,5 +184,7 @@ public:
 	static VKanBuffer* VKConv(RHIBuffer* T);
 	static VkanDeviceContext* VKConv(DeviceContext* T);
 	static VKanFramebuffer* VKConv(FrameBuffer* T);
+
+	Shader_Main* TestShader = nullptr;
 };
 #endif

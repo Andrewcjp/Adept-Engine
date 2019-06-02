@@ -67,6 +67,7 @@ void SceneRenderer::Init()
 }
 void SceneRenderer::UpdateReflectionParams(glm::vec3 lightPos)
 {
+	return;
 	glm::mat4x4 shadowProj = glm::perspectiveLH<float>(glm::radians(90.0f), 1.0f, zNear, ZFar);
 	glm::mat4x4 transforms[6];
 	transforms[0] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));

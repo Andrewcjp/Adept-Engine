@@ -16,6 +16,7 @@ struct EDescriptorType
 class Descriptor
 {
 public:
+	Descriptor() {};
 	Descriptor(EDescriptorType::Type type);
 	~Descriptor();
 	EDescriptorType::Type DescType = EDescriptorType::Limit;

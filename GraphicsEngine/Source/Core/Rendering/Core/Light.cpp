@@ -108,12 +108,12 @@ void Light::SetLightMode(ELightMode::Type t)
 	LightMode = t;
 }
 
-inline EShadowCaptureType::Type Light::GetShadowMode() const
+EShadowCaptureType::Type Light::GetShadowMode() const
 {
 	return ShadowMode;
 }
 
-inline void Light::SetShadowMode(EShadowCaptureType::Type val)
+void Light::SetShadowMode(EShadowCaptureType::Type val)
 {
 	ShadowMode = val;
 }

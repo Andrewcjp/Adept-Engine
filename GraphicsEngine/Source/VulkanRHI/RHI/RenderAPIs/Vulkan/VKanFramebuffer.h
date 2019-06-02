@@ -1,5 +1,6 @@
 #pragma once
 #include "Rendering/Core/FrameBuffer.h"
+#include "vulkan/vulkan_core.h"
 
 #if BUILD_VULKAN
 class VKanFramebuffer : public FrameBuffer
@@ -19,6 +20,11 @@ public:
 private:
 	RHIPipeRenderTargetDesc desc;
 	bool IsCreated = false;
-	VkFramebuffer* Buffer;
+	VkFramebuffer Buffer;
+	VkFramebuffer DepthBuffer;
+
+	VkImage depthImage;
+	VkDeviceMemory depthImageMemory;
+	VkImageView depthImageView;
 };
 #endif
