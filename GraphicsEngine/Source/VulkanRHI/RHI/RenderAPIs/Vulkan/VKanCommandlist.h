@@ -37,7 +37,7 @@ public:
 	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
 	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 
-	RHI_VIRTUAL void BeginRenderPass(RHIRenderPassInfo& RenderPass) override;
+	RHI_VIRTUAL void BeginRenderPass(RHIRenderPassDesc& RenderPass) override;
 	RHI_VIRTUAL void EndRenderPass() override;
 	RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot) override;
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;

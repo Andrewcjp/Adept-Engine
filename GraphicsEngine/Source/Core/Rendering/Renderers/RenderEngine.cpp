@@ -54,6 +54,7 @@ RenderEngine::~RenderEngine()
 void RenderEngine::Render()
 {
 	PrepareData();
+
 	if (once)
 	{
 		RHI::RHIRunFirstFrame();
@@ -69,6 +70,10 @@ void RenderEngine::Render()
 	}
 	PreRender();
 	ParticleSystemManager::Get()->Simulate();
+#if BASIC_RENDER_ONLY
+	UpdateMVForMainPass();
+	return;
+#endif
 	OnRender();
 }
 
@@ -112,7 +117,9 @@ void RenderEngine::Init()
 	else
 	{
 		DevicesInUse = 1;
-	}
+	}	
+	
+	SceneRender->Init();
 #if BASIC_RENDER_ONLY
 	return;
 #endif
@@ -131,7 +138,7 @@ void RenderEngine::Init()
 	PostInit();
 	Post = new PostProcessing();
 	Post->Init(DDOs[0].MainFrameBuffer);
-	SceneRender->Init();
+
 	SceneRender->SB = DDOs[0].SkyboxShader;
 	LightCulling->Init();
 

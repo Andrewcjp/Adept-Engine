@@ -27,8 +27,8 @@ VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * co
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 	}
-
-}
+	CurrentDescriptors.resize(10);
+} 
 
 VKanCommandlist::~VKanCommandlist()
 {}
@@ -41,11 +41,12 @@ void VKanCommandlist::ResetList()
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
+	VKanRHI::VKConv(Device)->pool->ResetAllocations();
 	if (vkBeginCommandBuffer(CommandBuffer, &beginInfo) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
+
 }
 
 void VKanCommandlist::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
@@ -75,16 +76,22 @@ void VKanCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 	vkCmdBindVertexBuffers(CommandBuffer, 0, 1, vertexBuffers, offsets);
 }
 
+void VKanCommandlist::SetIndexBuffer(RHIBuffer * buffer)
+{
+	VKanBuffer* vb = (VKanBuffer*)buffer;
+	vkCmdBindIndexBuffer(CommandBuffer, vb->vertexbuffer, 0, VK_INDEX_TYPE_UINT16);
+}
+
 void VKanCommandlist::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
 {
 	VKanBuffer* V = (VKanBuffer*)buffer;
-	CurrentDescriptors.push_back(V->GetDescriptor(Register, offset));
+	CurrentDescriptors[Register] = V->GetDescriptor(Register, offset);
 }
 
 void VKanCommandlist::SetTexture(BaseTextureRef texture, int slot)
 {
 	VKanTexture* V = (VKanTexture*)texture.Get();
-	CurrentDescriptors.push_back(V->GetDescriptor(slot));
+	CurrentDescriptors[slot] = V->GetDescriptor(slot);
 }
 
 VkCommandBuffer* VKanCommandlist::GetCommandBuffer()
@@ -105,11 +112,6 @@ void VKanCommandlist::ClearFrameBuffer(FrameBuffer * buffer)
 void VKanCommandlist::UAVBarrier(RHIUAV * target)
 {}
 
-void VKanCommandlist::SetIndexBuffer(RHIBuffer * buffer)
-{
-	VKanBuffer* vb = (VKanBuffer*)buffer;
-	vkCmdBindIndexBuffer(CommandBuffer, vb->vertexbuffer, 0, VK_INDEX_TYPE_UINT16);
-}
 
 void VKanCommandlist::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {}
@@ -119,19 +121,17 @@ void VKanCommandlist::SetRenderTarget(FrameBuffer * target, int SubResourceIndex
 
 void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQueue::LIMIT*/)
 {
-
 	if (vkEndCommandBuffer(CommandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to record command buffer!");
 	}
-	//VKanRHI::RHIinstance->ListcmdBuffers.push_back(CommandBuffer);
-
+	//#VK: TODO
 }
 
-void VKanCommandlist::BeginRenderPass(RHIRenderPassInfo& RenderPassInfo)
+void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 {
 	RHICommandList::BeginRenderPass(RenderPassInfo);
-	CurrnetRenderPass = (VKanRenderPass*)RenderPassInfo.Pass;
+	CurrnetRenderPass = VKanRHI::RHIinstance->Pass;
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = CurrnetRenderPass->RenderPass;

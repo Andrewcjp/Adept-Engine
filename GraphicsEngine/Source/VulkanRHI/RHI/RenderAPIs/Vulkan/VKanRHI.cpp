@@ -12,13 +12,24 @@
 
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "VkanPipeLineStateObject.h"
+#include "Rendering/Shaders/Shader_Main.h"
+#include "Core/BaseWindow.h"
+#include "Rendering/Renderers/RenderEngine.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Core/Mesh/MeshPipelineController.h"
+#include "RHI/RHITypes.h"
 
 #if BUILD_VULKAN
 
 VKanRHI* VKanRHI::RHIinstance = nullptr;
-
+static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly);
 VKanRHI::VKanRHI()
 {
+	enableValidationLayers = true;
+	if (ForceNoDebug.GetBoolValue())
+	{
+		enableValidationLayers = false;
+	}
 
 	//win32Hinst = win32inst;
 	RHIinstance = this;
@@ -505,19 +516,42 @@ void VKanRHI::CreateNewObjects()
 
 	Pass = new VKanRenderPass();
 	Pass->Complie();
-
+	TestShader = new Shader_Main(true);
 	RHIPipeLineStateDesc DEsc;
 	DEsc.RenderPass = Pass;
+	DEsc.ShaderInUse = TestShader;
 	PSO = new VkanPipeLineStateObject(DEsc, DevCon);
 	PSO->Complie();
 	Vertexb = new VKanBuffer(ERHIBufferType::Vertex, nullptr);
+#if 0
 	glm::vec2 positions[3] = {
 		glm::vec2(0.0, -0.5),
 		glm::vec2(0.5, 0.7),
 		glm::vec2(-0.5, 0.5)
 	};
 	Vertexb->CreateVertexBuffer(sizeof(glm::vec2), sizeof(positions));
+#else
+	OGLVertex positions[3]{
+		OGLVertex(),
+		OGLVertex(),
+		OGLVertex()
+	};
+	positions[0].m_position = glm::vec3(0.0, -0.5, 1.0f);
+	positions[1].m_position = glm::vec3(0.5, 0.7, 1.0f);
+	positions[2].m_position = glm::vec3(-0.5, 0.5, 1.0f);
+
+	positions[0].m_texcoords = glm::vec3(0.0, -0.5, 0.0f);
+	positions[1].m_texcoords = glm::vec3(0.5, 0.7, 0.0f);
+	positions[2].m_texcoords = glm::vec3(-0.5, 0.5, 0.0f);
+	Vertexb->CreateVertexBuffer(sizeof(OGLVertex), sizeof(positions));
+#endif
+
 	Vertexb->UpdateVertexBuffer(&positions, sizeof(positions));
+
+	IndexTest = new VKanBuffer(ERHIBufferType::Index, nullptr);
+	short  ind[3]{ 1,2,0 };
+	IndexTest->CreateIndexBuffer(sizeof(short), sizeof(ind));
+	IndexTest->UpdateVertexBuffer(&ind, sizeof(ind));
 }
 
 void  VKanRHI::drawFrame()
@@ -525,7 +559,7 @@ void  VKanRHI::drawFrame()
 
 	vkWaitForFences(DevCon->device, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 	vkResetFences(DevCon->device, 1, &inFlightFences[currentFrame]);
-
+	vkDeviceWaitIdle(DevCon->device);
 	uint32_t imageIndex;
 	vkAcquireNextImageKHR(DevCon->device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
@@ -546,14 +580,19 @@ void  VKanRHI::drawFrame()
 		cmdlist->ResetList();
 	}
 
-	RHIRenderPassInfo Info;
-	Info.Pass = Pass;
+	RHIRenderPassDesc Info = RHIRenderPassDesc();
 	cmdlist->BeginRenderPass(Info);
 	cmdlist->SetPipelineStateObject(PSO);
-	cmdlist->SetVertexBuffer(Vertexb);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->SetTexture(T, 1);
-	cmdlist->DrawPrimitive(3, 1, 0, 0);
+	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(cmdlist, 2);
+	BaseWindow::GetCurrentRenderer()->SceneRender->Controller->RenderPass(ERenderPass::DepthOnly, cmdlist);
+
+#if 1
+	cmdlist->SetVertexBuffer(Vertexb);
+	cmdlist->SetIndexBuffer(IndexTest);
+	cmdlist->DrawIndexedPrimitive(3, 1, 0, 0, 0);
+#endif
 	cmdlist->EndRenderPass();
 	cmdlist->Execute();
 
@@ -583,7 +622,7 @@ void  VKanRHI::drawFrame()
 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	vkDeviceWaitIdle(DevCon->device);
-
+	//Sleep(100);
 }
 
 

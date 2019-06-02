@@ -429,3 +429,17 @@ RHIRayDispatchDesc::RHIRayDispatchDesc(FrameBuffer * RB)
 	Width = RB->GetWidth();
 	Height = RB->GetHeight();
 }
+
+RHIRenderPassDesc::RHIRenderPassDesc(FrameBuffer * buffer, ERenderPassLoadOp::Type loadOp)
+{
+	LoadOp = loadOp;
+	TargetBuffer = buffer;
+}
+
+void RHIRenderPassDesc::Build()
+{
+	if (TargetBuffer != nullptr)
+	{
+		RenderDesc = TargetBuffer->GetPiplineRenderDesc();
+	}
+}

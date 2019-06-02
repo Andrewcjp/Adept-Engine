@@ -258,7 +258,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 	//{
 	//	RenderList->SetRenderTarget(BufferTarget);
 	//}
-	RHIRenderPassInfo info(BufferTarget, ERenderPassLoadOp::Load);
+	RHIRenderPassDesc info(BufferTarget, ERenderPassLoadOp::Load);
 	info.DepthSourceBuffer = DepthBuffer;
 	RenderList->BeginRenderPass(info);
 	RenderList->SetVertexBuffer(VertexBuffer);

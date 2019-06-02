@@ -112,7 +112,7 @@ public:
 	}
 	RHI_VIRTUAL void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset) = 0;
 	//Render Passes
-	RHI_VIRTUAL void BeginRenderPass(class RHIRenderPassInfo& RenderPass);
+	RHI_VIRTUAL void BeginRenderPass(struct RHIRenderPassDesc& RenderPass);
 	RHI_VIRTUAL void EndRenderPass();
 
 	DeviceContext* GetDevice();
@@ -177,22 +177,6 @@ public:
 private:
 	std::vector<RHISubPass*> SubPasses;
 };
-
-class RHIRenderPassInfo
-{
-public:
-	RHIRenderPass* Pass = nullptr;
-	FrameBuffer* TargetBuffer = nullptr;
-	FrameBuffer* DepthSourceBuffer = nullptr;
-	RHIRenderPassInfo()
-	{}
-	RHIRenderPassInfo(FrameBuffer* buffer, ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear);
-	//TODO turn this to a desc to cache passes.
-	ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear;
-protected:
-
-};
-
 
 typedef  SharedPtr<RHIBuffer> RHIBufferRef;
 

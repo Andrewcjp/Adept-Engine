@@ -662,3 +662,20 @@ struct RHIRayDispatchDesc
 	int Height = 0;
 	int Depth = 1;
 };
+
+
+//defines a render pass pointers to framebuffer optional
+struct RHIRenderPassDesc
+{
+	RHIRenderPassDesc() {}
+	RHIRenderPassDesc(FrameBuffer* buffer, ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear);
+	FrameBuffer* TargetBuffer = nullptr;
+	FrameBuffer* DepthSourceBuffer = nullptr;
+	ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear;
+	ERenderPassStoreOp::Type StoreOp = ERenderPassStoreOp::Store;
+	GPU_RESOURCE_STATES::Type InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
+	GPU_RESOURCE_STATES::Type FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
+	RHIPipeRenderTargetDesc RenderDesc;
+	void Build();
+
+};

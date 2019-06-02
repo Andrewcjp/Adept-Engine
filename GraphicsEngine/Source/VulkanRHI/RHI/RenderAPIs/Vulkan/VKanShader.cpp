@@ -5,6 +5,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "VKanRHI.h"
 #include "VkanDeviceContext.h"
+#include "RHI/ShaderPreProcessor.h"
 
 
 VKanShader::VKanShader()
@@ -21,7 +22,7 @@ EShaderError::Type VKanShader::AttachAndCompileShaderFromFile(const char * filen
 		return EShaderError::Type();
 	}
 
-	//VKanShader::ComplieShader(filename, (type == EShaderType::SHADER_FRAGMENT), true);
+	VKanShader::ComplieShader_Local(filename, type, true);
 	return EShaderError::SHADER_ERROR_NONE;
 }
 
@@ -205,15 +206,6 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	const int DefaultVersion = 450;
 
 	std::string PreprocessedGLSL;
-
-	//if (!Shader->preprocess(&DefaultTBuiltInResource, DefaultVersion, ENoProfile, false, false, Messages, &PreprocessedGLSL, inc))
-	//{
-	//	throw std::runtime_error("GLSL Preprocessing Failed");
-	//}
-
-	//const char* PreprocessedCStr = PreprocessedGLSL.c_str();
-	//Shader->setStrings(&PreprocessedCStr, 1);
-
 	if (!Shader->parse(&DefaultTBuiltInResource, DefaultVersion, ENoProfile, false, false, Messages, inc))
 	{
 		Log::LogMessage(Program->getInfoLog());
@@ -261,7 +253,7 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	}
 	return true;
 }
-std::vector<char> VKanShader::ComplieShader(std::string name, bool frag /*= false*/, bool HLSL /*= false*/)
+std::vector<char> VKanShader::ComplieShader(std::string name, EShaderType::Type T, bool HLSL /*= false*/)
 {
 	if (HLSL)
 	{
@@ -271,8 +263,50 @@ std::vector<char> VKanShader::ComplieShader(std::string name, bool frag /*= fals
 	std::string errors = "";
 	std::vector<char> spirv = std::vector<char>();
 	ComplieInfo t;
-	t.stage = frag ? EShLanguage::EShLangFragment : EShLanguage::EShLangVertex;
+	t.stage = GetStage(T);
 	t.HLSL = HLSL;
 	GenerateSpirv(data, t, errors, spirv);
 	return spirv;
+}
+std::vector<char> VKanShader::ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL /*= false*/)
+{
+	if (HLSL)
+	{
+		name.append(".hlsl");
+	}
+	std::string data = AssetManager::Get()->LoadFileWithInclude(name);
+	std::string errors = "";
+	std::vector<char> spirv = std::vector<char>();
+	ComplieInfo t;
+	t.stage = GetStage(T);
+	t.HLSL = HLSL;
+	ShaderPreProcessor::PreProcessDefines(Defines, data);
+	GenerateSpirv(data, t, errors, spirv);
+	return spirv;
+}
+
+EShLanguage VKanShader::GetStage(EShaderType::Type T)
+{
+	switch (T)
+	{
+		case EShaderType::SHADER_VERTEX:
+			return EShLanguage::EShLangVertex;
+			break;
+		case EShaderType::SHADER_FRAGMENT:
+			return EShLanguage::EShLangFragment;
+			break;
+		case EShaderType::SHADER_GEOMETRY:
+			break;
+		case EShaderType::SHADER_COMPUTE:
+			return EShLanguage::EShLangCompute;
+			break;
+		case EShaderType::SHADER_HULL:
+			break;
+		case EShaderType::SHADER_DOMAIN:
+			break;
+		case EShaderType::SHADER_RT_LIB:
+			break;
+	}
+	ensure(false);
+	return EShLangCount;
 }

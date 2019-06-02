@@ -214,7 +214,9 @@ void BaseWindow::Render()
 	}
 	DebugLineDrawer::Get2()->GenerateLines();
 	DebugLineDrawer::Get()->GenerateLines();
+#endif
 	Renderer->Render();
+#if !BASIC_RENDER_ONLY
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
 	GPUPerfGraph->Render();

@@ -43,17 +43,19 @@ void VKanBuffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType:
 
 void VKanBuffer::UpdateVertexBuffer(void * data, size_t length)
 {
+	VertexCount = length;
 	void* GPUdata;
 	vkMapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory, 0, TotalByteSize, 0, &GPUdata);
-	memcpy(GPUdata, data, length);
+	memcpy(GPUdata, data, TotalByteSize);
 	vkUnmapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory);
 }
 
 void VKanBuffer::UpdateIndexBuffer(void * data, size_t length)
 {
+	VertexCount = length;
 	void* GPUdata;
 	vkMapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory, 0, TotalByteSize, 0, &GPUdata);
-	memcpy(GPUdata, data, length);
+	memcpy(GPUdata, data, TotalByteSize);
 	vkUnmapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory);
 }
 
@@ -111,7 +113,7 @@ void VKanBuffer::UpdateConstantBuffer(void * data, int offset)
 {
 	void* GPUdata;
 	vkMapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory, 0, TotalByteSize, 0, &GPUdata);
-	memcpy(GPUdata, data, StructSize);
+	memcpy(GPUdata, data, TotalByteSize);
 	vkUnmapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory);
 }
 
