@@ -10,15 +10,15 @@ RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* conte
 	ListType = type;
 	switch (ListType)
 	{
-	case ECommandListType::Graphics:
-		ObjectSufix = "(CMDLIST-G)";
-		break;
-	case ECommandListType::Compute:
-		ObjectSufix = "(CMDLIST-C)";
-		break;
-	case ECommandListType::Copy:
-		ObjectSufix = "(CMDLIST-CPY)";
-		break;
+		case ECommandListType::Graphics:
+			ObjectSufix = "(CMDLIST-G)";
+			break;
+		case ECommandListType::Compute:
+			ObjectSufix = "(CMDLIST-C)";
+			break;
+		case ECommandListType::Copy:
+			ObjectSufix = "(CMDLIST-CPY)";
+			break;
 	}
 	Device = context;
 }
@@ -156,19 +156,19 @@ RHIBuffer::RHIBuffer(ERHIBufferType::Type type)
 	CurrentBufferType = type;
 	switch (CurrentBufferType)
 	{
-	case ERHIBufferType::Constant:
-		ObjectSufix = "(Constant Buffer)";
-		break;
-	case ERHIBufferType::Vertex:
-		ObjectSufix = "(VTX Buffer)";
-		break;
-	case ERHIBufferType::Index:
-		ObjectSufix = "(IDX Buffer)";
-		break;
-	case ERHIBufferType::GPU:
-		ObjectSufix = "(GPU Buffer)";
-	default:
-		break;
+		case ERHIBufferType::Constant:
+			ObjectSufix = "(Constant Buffer)";
+			break;
+		case ERHIBufferType::Vertex:
+			ObjectSufix = "(VTX Buffer)";
+			break;
+		case ERHIBufferType::Index:
+			ObjectSufix = "(IDX Buffer)";
+			break;
+		case ERHIBufferType::GPU:
+			ObjectSufix = "(GPU Buffer)";
+		default:
+			break;
 	}
 }
 
@@ -178,8 +178,12 @@ RHITextureArray::RHITextureArray(DeviceContext * device, int inNumEntries)
 	ObjectSufix = "(TexArray)";
 }
 
-RHIRenderPass::RHIRenderPass()
-{}
+
+
+RHIRenderPass::RHIRenderPass(RHIRenderPassDesc & desc)
+{
+	Desc = desc;
+}
 
 RHIRenderPass::~RHIRenderPass()
 {}

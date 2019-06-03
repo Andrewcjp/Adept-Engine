@@ -1,4 +1,5 @@
 #pragma once
+#include "vulkan/vulkan_core.h"
 
 class VKanTexture;
 class VKanBuffer;
@@ -24,5 +25,6 @@ public:
 	int Offset = 0;
 	VKanBuffer* Buffer = nullptr;
 	VKanTexture* Texture = nullptr;
+	VkImageView ImageView;
 };
 

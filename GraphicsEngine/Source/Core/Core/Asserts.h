@@ -30,6 +30,7 @@ Log::LogMessage(Message,Log::Severity::Error);}
 #define LogEnsureMsgf(condition,Message) if(!condition){std::string data = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition  "\n" Message ;\
 Log::LogMessage(data,Log::Severity::Error);}
 
+#define ENUMCONVERTFAIL() ensureMsgf(false,"Failed to convert Enum")
 #else
 #define check(condition);
 #define checkMsgf(condition,Message);
@@ -47,3 +48,4 @@ Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageB
 #define ensureFatalMsgf(condition,Message);
 #endif
 #include "Core\Platform\PlatformCore.h"
+

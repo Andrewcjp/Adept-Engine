@@ -15,7 +15,7 @@ void VkanHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, 
 	imageInfo.arrayLayers = 1;
 	imageInfo.format = format;
 	imageInfo.tiling = tiling;
-	imageInfo.initialLayout = StartingLayput;// VK_IMAGE_LAYOUT_UNDEFINED;
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	imageInfo.usage = usage;
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -149,6 +149,10 @@ void VkanHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage i
 	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	barrier.image = image;
 	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+	{
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+	}
 	barrier.subresourceRange.baseMipLevel = 0;
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
@@ -172,6 +176,30 @@ void VkanHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage i
 
 		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+	{
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+	{
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+	{
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	}
 	else
 	{
@@ -240,6 +268,7 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 	switch (format)
 	{
 		case FORMAT_UNKNOWN:
+			return VK_FORMAT_UNDEFINED;
 			break;
 		case FORMAT_R32G32B32A32_TYPELESS:
 			break;
@@ -421,6 +450,7 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 		case FORMAT_B5G5R5A1_UNORM:
 			break;
 		case FORMAT_B8G8R8A8_UNORM:
+			return VK_FORMAT_B8G8R8A8_UNORM;
 			break;
 		case FORMAT_B8G8R8X8_UNORM:
 			break;
@@ -484,6 +514,63 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 			break;
 
 	}
-	ensure(false);
+	ENUMCONVERTFAIL();
 	return VkFormat();
+}
+
+VkImageLayout VkanHelpers::ConvertState(GPU_RESOURCE_STATES::Type state)
+{
+	switch (state)
+	{
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON:
+			return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED:
+			return VK_IMAGE_LAYOUT_UNDEFINED;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_INDEX_BUFFER:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET:
+			return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_UNORDERED_ACCESS:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_DEPTH_WRITE:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_DEPTH_READ:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE:
+			return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_STREAM_OUT:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_INDIRECT_ARGUMENT:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_COPY_DEST:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_COPY_SOURCE:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_RESOLVE_DEST:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_RESOLVE_SOURCE:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_GENERIC_READ:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_VIDEO_DECODE_READ:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_VIDEO_DECODE_WRITE:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_VIDEO_PROCESS_READ:
+			break;
+		case GPU_RESOURCE_STATES::RESOURCE_STATE_VIDEO_PROCESS_WRITE:
+			break;
+		default:
+			break;
+
+	}
+	ENUMCONVERTFAIL();
+	return VkImageLayout();
 }

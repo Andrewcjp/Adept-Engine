@@ -18,7 +18,7 @@ public:
 	static std::vector<char> ComplieShader(std::string name, EShaderType::Type T, bool HLSL = false);
 
 	std::vector<char> ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL);
-
+	std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 	static EShLanguage GetStage(EShaderType::Type T);
 
 	void CreateRenderPass() {};

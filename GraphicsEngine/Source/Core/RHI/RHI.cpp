@@ -18,6 +18,7 @@
 #include "Rendering/VR/HMDManager.h"
 #include "Core/Performance/PerfManager.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"
+#include "RHIRenderPassCache.h"
 
 RHI* RHI::instance = nullptr;
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
@@ -450,6 +451,7 @@ RHIQuery * RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 
 void RHI::InitialiseContext()
 {
+	instance->RenderPassCache = new RHIRenderPassCache();
 	GetRHIClass()->InitRHI();
 	instance->ValidateSettings();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
@@ -461,6 +463,7 @@ void RHI::InitialiseContext()
 	{
 		instance->RTE = new RayTracingEngine();
 	}
+	
 }
 
 void RHI::ValidateSettings()

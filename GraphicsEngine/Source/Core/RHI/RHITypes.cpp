@@ -441,5 +441,12 @@ void RHIRenderPassDesc::Build()
 	if (TargetBuffer != nullptr)
 	{
 		RenderDesc = TargetBuffer->GetPiplineRenderDesc();
+		InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
+		//FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
 	}
+}
+
+bool RHIRenderPassDesc::operator==(const RHIRenderPassDesc other) const
+{
+	return LoadOp == other.LoadOp && StoreOp == other.StoreOp && RenderDesc == other.RenderDesc && InitalState == other.InitalState && FinalState == other.FinalState;
 }

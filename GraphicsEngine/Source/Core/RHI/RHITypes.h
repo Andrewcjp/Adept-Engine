@@ -46,7 +46,8 @@ namespace GPU_RESOURCE_STATES
 		RESOURCE_STATE_VIDEO_DECODE_READ = 0x10000,
 		RESOURCE_STATE_VIDEO_DECODE_WRITE = 0x20000,
 		RESOURCE_STATE_VIDEO_PROCESS_READ = 0x40000,
-		RESOURCE_STATE_VIDEO_PROCESS_WRITE = 0x80000
+		RESOURCE_STATE_VIDEO_PROCESS_WRITE = 0x80000,
+		RESOURCE_STATE_UNDEFINED = 0x90000
 	};
 }
 enum eTEXTURE_FORMAT
@@ -382,7 +383,7 @@ public:
 	static RHIFrameBufferDesc CreateDepth(int width, int height);
 	static RHIFrameBufferDesc CreateCubeDepth(int width, int height);
 	static RHIFrameBufferDesc CreateCubeColourDepth(int width, int height);
-	static RHIFrameBufferDesc CreateColourDepth(int width, int height);
+	TEMP_API static RHIFrameBufferDesc CreateColourDepth(int width, int height);
 	static RHIFrameBufferDesc CreateGBuffer(int width, int height);
 	RHIFrameBufferDesc()
 	{};
@@ -671,11 +672,16 @@ struct RHIRenderPassDesc
 	RHIRenderPassDesc(FrameBuffer* buffer, ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear);
 	FrameBuffer* TargetBuffer = nullptr;
 	FrameBuffer* DepthSourceBuffer = nullptr;
+
 	ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear;
 	ERenderPassStoreOp::Type StoreOp = ERenderPassStoreOp::Store;
+
+	ERenderPassLoadOp::Type StencilLoadOp = ERenderPassLoadOp::DontCare;
+	ERenderPassStoreOp::Type StencilStoreOp = ERenderPassStoreOp::DontCare;
+
 	GPU_RESOURCE_STATES::Type InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
 	GPU_RESOURCE_STATES::Type FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
 	RHIPipeRenderTargetDesc RenderDesc;
-	void Build();
-
+	RHI_API void Build();
+	RHI_API bool operator==(const RHIRenderPassDesc other)const;
 };

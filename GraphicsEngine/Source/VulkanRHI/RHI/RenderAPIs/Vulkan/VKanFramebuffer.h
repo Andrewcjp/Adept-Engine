@@ -1,6 +1,7 @@
 #pragma once
 #include "Rendering/Core/FrameBuffer.h"
 #include "vulkan/vulkan_core.h"
+#include "Descriptor.h"
 
 #if BUILD_VULKAN
 class VKanFramebuffer : public FrameBuffer
@@ -13,11 +14,13 @@ public:
 	virtual DeviceContext * GetDevice() override;
 	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
 	virtual void MakeReadyForCopy(RHICommandList * list) override;
-	void TryInitBuffer(class VKanRenderPass* RenderPass);
+	void TryInitBuffer(RHIRenderPassDesc& desc);
+
+	Descriptor GetDescriptor(int slot);
 
 	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
-
-private:
+	void UnBind(VKanCommandlist* List);
+//private:
 	RHIPipeRenderTargetDesc desc;
 	bool IsCreated = false;
 	VkFramebuffer Buffer;
@@ -26,5 +29,11 @@ private:
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
+
+	VkImage RTImage;
+	VkDeviceMemory RTImageMemory;
+	VkImageView RTImageView;
+
+	VkImageView SRV;
 };
 #endif

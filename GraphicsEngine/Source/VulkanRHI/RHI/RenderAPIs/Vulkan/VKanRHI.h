@@ -67,7 +67,6 @@ class VKanRHI : public RHIClass
 public:
 	VKanRHI();
 	virtual ~VKanRHI();
-	void createGraphicsPipeline23();
 	void createFramebuffers();
 	VkCommandPool createCommandPool();
 
@@ -112,11 +111,12 @@ public:
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	size_t currentFrame = 0;
+	VkanPipeLineStateObject* SawpPSO;
 	VkanPipeLineStateObject* PSO;
 	VKanCommandlist* setuplist = nullptr;
 
 	// Inherited via RHIClass
-
+	static RHIRenderPassDesc GetBackBufferDesc();
 	virtual bool InitWindow(int w, int h) override;
 	virtual bool DestoryRHI() override;
 	virtual FrameBuffer * CreateFrameBuffer(DeviceContext * Device, const RHIFrameBufferDesc & Desc) override;
@@ -180,11 +180,16 @@ public:
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
 
 	static VKanTexture* VKConv(BaseTexture* T);
+	static VKanShader * VKConv(ShaderProgramBase * T);
+	static VKanRenderPass * VKConv(RHIRenderPass * T);
 	static VKanCommandlist* VKConv(RHICommandList* T);
 	static VKanBuffer* VKConv(RHIBuffer* T);
 	static VkanDeviceContext* VKConv(DeviceContext* T);
 	static VKanFramebuffer* VKConv(FrameBuffer* T);
 
 	Shader_Main* TestShader = nullptr;
+	VKanFramebuffer* TestFrameBuffer = nullptr;
+	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
+
 };
 #endif

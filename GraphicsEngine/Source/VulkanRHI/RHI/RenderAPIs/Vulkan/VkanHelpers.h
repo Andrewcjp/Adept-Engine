@@ -15,5 +15,6 @@ public:
 	static void copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	static VkImageView createImageView(VkanDeviceContext * C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 	static VkFormat ConvertFormat(eTEXTURE_FORMAT format);
+	static VkImageLayout ConvertState(GPU_RESOURCE_STATES::Type state);
 };
 

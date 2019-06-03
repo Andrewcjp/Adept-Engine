@@ -20,7 +20,7 @@ public:
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	VkShaderModule createShaderModule(const std::vector<uint32_t>& code);
 	void CreateDescriptorSetLayout();
-//private:
+	//private:
 	VkPipeline Pipeline = VK_NULL_HANDLE;
 	VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
 	VkanDeviceContext* VDevice = nullptr;
@@ -33,7 +33,7 @@ public:
 class VKanRenderPass :public RHIRenderPass
 {
 public:
-	VKanRenderPass();
+	VKanRenderPass(RHIRenderPassDesc & desc, DeviceContext* Device);
 	virtual void Complie() override;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
 	VkanDeviceContext* VDevice = nullptr;

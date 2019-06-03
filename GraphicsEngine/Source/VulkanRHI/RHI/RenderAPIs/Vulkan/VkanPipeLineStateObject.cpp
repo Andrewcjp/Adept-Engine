@@ -7,6 +7,8 @@
 #include "VKanRHI.h"
 #include "VKanShader.h"
 #include "VkanHelpers.h"
+#include "Core/Asserts.h"
+#include "RHI/RHIRenderPassCache.h"
 
 VkanPipeLineStateObject::VkanPipeLineStateObject(const RHIPipeLineStateDesc & desc, DeviceContext * con) :RHIPipeLineStateObject(desc)
 {
@@ -20,6 +22,17 @@ VkanPipeLineStateObject::~VkanPipeLineStateObject()
 
 void VkanPipeLineStateObject::Complie()
 {
+	if (Desc.RenderPass == nullptr)
+	{
+		RHIRenderPassDesc Default;
+		Default.RenderDesc.NumRenderTargets = 1;
+		Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
+		//Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+		//Default.RenderDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+		Default.LoadOp = ERenderPassLoadOp::Clear;
+		Default.StoreOp = ERenderPassStoreOp::Store;
+		Desc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(Default);
+	}
 	//CreateRenderPass();
 	createGraphicsPipeline();
 }
@@ -74,7 +87,15 @@ bool VkanPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElemen
 
 void  VkanPipeLineStateObject::createGraphicsPipeline()
 {
+#if BASIC_RENDER_ONLY
 	CreateTestShader();
+#else
+	VKanShader* sh = VKanRHI::VKConv(Desc.ShaderInUse->GetShaderProgram());
+	ShaderStages = sh->GetShaderStages();
+
+
+
+#endif
 	createTextureSampler();
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -101,14 +122,31 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = (float)VKanRHI::RHIinstance->swapChainExtent.width;
-	viewport.height = (float)VKanRHI::RHIinstance->swapChainExtent.height;
+	if (Desc.RenderPass->Desc.TargetBuffer == nullptr)
+	{
+		viewport.width = (float)VKanRHI::RHIinstance->swapChainExtent.width;
+		viewport.height = (float)VKanRHI::RHIinstance->swapChainExtent.height;
+	}
+	else
+	{
+		viewport.width = Desc.RenderPass->Desc.TargetBuffer->GetWidth();
+		viewport.height= Desc.RenderPass->Desc.TargetBuffer->GetHeight();
+	}
+
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
 	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
-	scissor.extent = VKanRHI::RHIinstance->swapChainExtent;
+	if (Desc.RenderPass->Desc.TargetBuffer == nullptr)
+	{
+		scissor.extent = VKanRHI::RHIinstance->swapChainExtent;
+	}
+	else
+	{
+		scissor.extent.width = Desc.RenderPass->Desc.TargetBuffer->GetWidth();
+		scissor.extent.height = Desc.RenderPass->Desc.TargetBuffer->GetHeight();
+	}
 
 	VkPipelineViewportStateCreateInfo viewportState = {};
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -126,7 +164,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
-	
+
 	VkPipelineMultisampleStateCreateInfo multisampling = {};
 	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	multisampling.sampleShadingEnable = VK_FALSE;
@@ -173,6 +211,19 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	pipelineInfo.renderPass = VRP->RenderPass;
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+//	if (Desc.RenderTargetDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+	{
+		VkPipelineDepthStencilStateCreateInfo D = {};
+		D.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		D.depthTestEnable = VK_TRUE;
+		D.depthWriteEnable = VK_TRUE;
+		D.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+		D.stencilTestEnable = VK_FALSE;
+		pipelineInfo.pDepthStencilState = &D;
+		
+
+	}
+	//pipelineInfo.pDepthStencilState
 
 	if (vkCreateGraphicsPipelines(VDevice->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &Pipeline) != VK_SUCCESS)
 	{
@@ -248,11 +299,6 @@ VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<uin
 void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 {
 	std::vector<VkDescriptorSetLayoutBinding> Binds;
-#if 0
-
-
-
-#endif
 	std::vector<ShaderParameter> Parms;
 	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
 	Parms.push_back(ShaderParameter(ShaderParamType::SRV, 1, 0));
@@ -300,39 +346,85 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 	}
 }
 
-VKanRenderPass::VKanRenderPass()
+VKanRenderPass::VKanRenderPass(RHIRenderPassDesc & desc, DeviceContext * Device) :RHIRenderPass(desc)
 {
-	VDevice = VKanRHI::RHIinstance->DevCon;
+	VDevice = VKanRHI::VKConv(Device);
 }
+VkAttachmentLoadOp ConvertLoadOp(ERenderPassLoadOp::Type Op)
+{
+	switch (Op)
+	{
+		case ERenderPassLoadOp::Clear:
+			return VK_ATTACHMENT_LOAD_OP_CLEAR;
+		case ERenderPassLoadOp::DontCare:
+			return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		case ERenderPassLoadOp::Load:
+			return VK_ATTACHMENT_LOAD_OP_LOAD;
+	}
+	ENUMCONVERTFAIL();
+	return VK_ATTACHMENT_LOAD_OP_MAX_ENUM;
+}
+
+VkAttachmentStoreOp ConvertStoreOp(ERenderPassStoreOp::Type Op)
+{
+	switch (Op)
+	{
+		case ERenderPassStoreOp::Store:
+			return VK_ATTACHMENT_STORE_OP_STORE;
+		case ERenderPassStoreOp::DontCare:
+			return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	}
+	ENUMCONVERTFAIL();
+	return VK_ATTACHMENT_STORE_OP_MAX_ENUM;
+}
+
 
 void VKanRenderPass::Complie()
 {
+	Desc.Build();
+	std::vector<VkAttachmentDescription> ColorAttamentsDesc;
 	VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format = VKanRHI::RHIinstance->swapChainImageFormat;
+	colorAttachment.format = VkanHelpers::ConvertFormat(Desc.RenderDesc.RTVFormats[0]);
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-
-	
-
-
-	VkAttachmentReference colorAttachmentRef = {};
-	colorAttachmentRef.attachment = 0;
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorAttachment.loadOp = ConvertLoadOp(Desc.LoadOp);
+	colorAttachment.storeOp = ConvertStoreOp(Desc.StoreOp);
+	colorAttachment.stencilLoadOp = ConvertLoadOp(Desc.StencilLoadOp);
+	colorAttachment.stencilStoreOp = ConvertStoreOp(Desc.StencilStoreOp);
+	colorAttachment.initialLayout = VkanHelpers::ConvertState(Desc.InitalState);
+	colorAttachment.finalLayout = VkanHelpers::ConvertState(Desc.FinalState);
+	ColorAttamentsDesc.push_back(colorAttachment);
+	if (Desc.RenderDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+	{
+		colorAttachment.format = VkanHelpers::ConvertFormat(Desc.RenderDesc.DSVFormat);
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		colorAttachment.finalLayout = colorAttachment.initialLayout;
+		ColorAttamentsDesc.push_back(colorAttachment);
+	}
 
 	VkSubpassDescription subpass = {};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
+	std::vector< VkAttachmentReference> Attchments;
+	for (int i = 0; i < Desc.RenderDesc.NumRenderTargets; i++)
+	{
+		if (Desc.RenderDesc.RTVFormats[i] == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		{
+			continue;
+		}
+		VkAttachmentReference colorAttachmentRef = {};
+		colorAttachmentRef.attachment = Attchments.size();
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		Attchments.push_back(colorAttachmentRef);
+	}
+	subpass.colorAttachmentCount = Desc.RenderDesc.NumRenderTargets;
+	subpass.pColorAttachments = Attchments.data();
+
 	VkAttachmentReference depthAttachmentRef = {};
-	depthAttachmentRef.attachment = 1;
+	depthAttachmentRef.attachment = Desc.RenderDesc.NumRenderTargets;
 	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	//subpass.pDepthStencilAttachment = &depthAttachmentRef;
+	if (Desc.RenderDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+	{
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+	}
 
 	VkSubpassDependency dependency = {};
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -343,13 +435,10 @@ void VKanRenderPass::Complie()
 	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 
-
-
-
 	VkRenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.attachmentCount = ColorAttamentsDesc.size();
+	renderPassInfo.pAttachments = ColorAttamentsDesc.data();
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 	renderPassInfo.dependencyCount = 1;
