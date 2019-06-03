@@ -186,7 +186,7 @@ bool RenderSettings::IsUsingZPrePass() const
 RenderSettings::RenderSettings()
 {
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	IsDeferred = false;
+//	IsDeferred = true;
 	EnableVR = true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;

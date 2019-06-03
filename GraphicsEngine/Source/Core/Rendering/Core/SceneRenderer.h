@@ -21,10 +21,9 @@ class Shader_Skybox;
 	int HasShadow = 0;
 	int PreSampled[4];//padding sucks!
 	float Range;
-	float t3[3];
 };
 #pragma pack(pop)
-static_assert(sizeof(LightUniformBuffer) % 16 == 0, "LightUniformBuffer padding bad");
+//static_assert(sizeof(LightUniformBuffer) % 16 == 0, "LightUniformBuffer padding bad");
 struct MVBuffer
 {
 	glm::mat4 V;
@@ -61,7 +60,7 @@ public:
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot);
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot, int index);
 	void SetScene(Scene* NewScene);
-	void SetupBindsForForwardPass(RHICommandList* list);
+	void SetupBindsForForwardPass(RHICommandList* list, int eyeindex);
 	void UpdateRelflectionProbes(RHICommandList * commandlist);
 	bool AnyProbesNeedUpdate();
 	Scene* GetScene();

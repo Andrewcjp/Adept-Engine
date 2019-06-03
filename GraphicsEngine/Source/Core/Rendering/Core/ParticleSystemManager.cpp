@@ -304,7 +304,10 @@ void ParticleSystemManager::Render(DeviceDependentObjects * DDO, FrameBuffer* De
 	{
 		return;
 	}
-	DepthBuffer = DepthTexture;
+	if (RHI::GetRenderSettings()->IsDeferred)
+	{
+		DepthBuffer = DDO->Gbuffer;
+	}
 	StartRender();
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{
@@ -312,6 +315,10 @@ void ParticleSystemManager::Render(DeviceDependentObjects * DDO, FrameBuffer* De
 	}
 	if (RHI::IsRenderingVR())
 	{
+		if (RHI::GetRenderSettings()->IsDeferred)
+		{
+			DepthBuffer = DDO->RightEyeGBuffer;
+		}
 		for (int i = 0; i < ParticleSystems.size(); i++)
 		{
 			RenderSystem(ParticleSystems[i], DDO->RightEyeFramebuffer);

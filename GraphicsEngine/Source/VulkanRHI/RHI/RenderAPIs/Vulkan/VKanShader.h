@@ -21,13 +21,16 @@ public:
 	std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 	static EShLanguage GetStage(EShaderType::Type T);
 
+	VkShaderStageFlagBits ConvStage(EShaderType::Type T);
+
 	void CreateRenderPass() {};
 	VkPipelineShaderStageCreateInfo shaderStages[2];
 	VkPipelineLayout pipelineLayout;
 	VkRenderPass renderPass;
 	VkExtent2D swapChainExtent;
+	static int GetBindingOffset(ShaderParamType::Type Type);
 private:
-
+	std::vector<VkPipelineShaderStageCreateInfo> Stages;
 };
 
 #endif

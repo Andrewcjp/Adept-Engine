@@ -480,7 +480,7 @@ void D3D12FrameBuffer::UpdateSRV()
 {
 	if (SRVDesc == nullptr)
 	{
-		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount, 2));
+		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount+1, 2));
 	}
 
 	if (NullHeap == nullptr)

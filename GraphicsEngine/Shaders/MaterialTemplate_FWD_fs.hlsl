@@ -15,6 +15,7 @@ cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
 	int2 TileCount;
+	int pad;
 	Light lights[MAX_LIGHTS];
 };
 #if 1

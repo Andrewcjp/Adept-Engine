@@ -5,6 +5,7 @@ struct Light
 	float3 color;
 	float F2;
 	float3 Direction;
+	float f3;
 	row_major matrix LightVP;
 	int type;//type 1 == point, type 0 == directional, tpye 2 == spot
 	int ShadowID;
@@ -12,6 +13,7 @@ struct Light
 	int HasShadow;
 	int4 PreSampled;
 	float Range;
+	//float3 T;
 };
 static const float MAX_REFLECTION_LOD = 11.0;
 //PBR functions!

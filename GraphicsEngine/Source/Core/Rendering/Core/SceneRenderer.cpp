@@ -59,6 +59,7 @@ void SceneRenderer::Init()
 		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, true);		
 	}
 	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	CMVBuffer->SetDebugName("CMVBuffer");
 	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, true);
 	RelfectionProbeProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	RelfectionProbeProjections->CreateConstantBuffer(sizeof(MVBuffer), 6, true);
@@ -249,11 +250,11 @@ void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
 	list->SetConstantBufferView(RelfectionProbeProjections, index, Slot);
 }
 
-void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list)
+void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list,int eyeindex)
 {
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterial()->GetShaderInstance(EMaterialPassType::Forward));
 	list->SetPipelineStateDesc(Desc);
-	BindMvBuffer(list, MainShaderRSBinds::MVCBV, 0);
+	BindMvBuffer(list, MainShaderRSBinds::MVCBV, eyeindex);
 	BindLightsBuffer(list, MainShaderRSBinds::LightDataCBV);
 
 }

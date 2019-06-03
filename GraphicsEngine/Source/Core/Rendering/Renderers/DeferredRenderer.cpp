@@ -35,6 +35,7 @@ void DeferredRenderer::OnRender()
 #endif
 	ShadowPass();
 	CubeMapPass();
+	UpdateMVForMainPass();
 	if (RHI::GetMGPUSettings()->MainPassSFR)
 	{
 		RenderOnDevice(RHI::GetDeviceContext(1), EEye::Left);
@@ -73,7 +74,6 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con, EEye::Type Eye)
 	RHICommandList* WriteList = d->GbufferWriteList[Eye];
 	RHICommandList* MList = d->MainCommandList[Eye];
 	WriteList->ResetList();
-	UpdateMVForMainPass();
 	WriteList->StartTimer(EGPUTIMERS::DeferredWrite);
 	GeometryPass(WriteList, d->GetGBuffer(Eye), Eye);
 	WriteList->EndTimer(EGPUTIMERS::DeferredWrite);
@@ -84,7 +84,7 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con, EEye::Type Eye)
 #endif
 		MList->ResetList();
 		MList->StartTimer(EGPUTIMERS::DeferredLighting);
-		LightingPass(MList, d->Gbuffer, d->GetMain(Eye));
+		LightingPass(MList, d->GetGBuffer(Eye), d->GetMain(Eye), Eye);
 		MList->EndTimer(EGPUTIMERS::DeferredLighting);
 		MList->Execute();
 #if ENABLE_RENDERER_DEBUGGING
@@ -215,7 +215,7 @@ void DeferredRenderer::DebugPass()
 	DebugList->Execute();
 }
 #endif
-void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, FrameBuffer* output)
+void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, FrameBuffer* output, int eyeindex)
 {
 	DeviceDependentObjects* Object = &DDOs[List->GetDeviceIndex()];
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
@@ -232,13 +232,13 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-		//List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
-		List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
+		List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
+		//List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
 	}
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
 
 	SceneRender->BindLightsBuffer(List, DeferredLightingShaderRSBinds::LightDataCBV);
-	SceneRender->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV);
+	SceneRender->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, eyeindex);
 
 	mShadowRenderer->BindShadowMapsToTextures(List);
 
@@ -246,7 +246,7 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 
 	//transparent pass
 	GBuffer->BindDepthWithColourPassthrough(List, output);
-	SceneRender->SetupBindsForForwardPass(List);
+	SceneRender->SetupBindsForForwardPass(List,eyeindex);
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, List);
 	mShadowRenderer->Unbind(List);
 	List->SetRenderTarget(nullptr);
@@ -277,7 +277,7 @@ void DeferredRenderer::Resize(int width, int height)
 	if (MainCamera != nullptr)
 	{
 		MainCamera->UpdateProjection((float)width / (float)height);
-	}	
+	}
 }
 
 DeferredRenderer::~DeferredRenderer()

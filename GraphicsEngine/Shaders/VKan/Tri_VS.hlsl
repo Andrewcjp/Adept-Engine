@@ -10,7 +10,7 @@ cbuffer GOConstantBuffer : register(b0)
 {
 	row_major matrix Model;
 };
-cbuffer SceneConstantBuffer : register(b3)
+cbuffer SceneConstantBuffer : register(b2)
 {
 	row_major matrix View;
 	row_major matrix Projection;
@@ -20,7 +20,7 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 {
 	PSInput result = (PSInput)0;
 	float4 final_pos = position;
-	final_pos =  mul(float4(position.xyz,1.0f), Model);
+	final_pos = mul(float4(position.xyz, 1.0f), Model);
 	//result.WorldPos = final_pos;
 
 	final_pos = mul(final_pos, View);
@@ -29,6 +29,5 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 
 	result.uv = uv.xy;
 	result.Normal = normal;// mul(normal, SumTrans);
-	result.position.y = -result.position.y;
 	return result;
 }
