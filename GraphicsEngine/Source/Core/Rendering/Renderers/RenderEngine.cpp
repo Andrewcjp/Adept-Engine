@@ -1,28 +1,28 @@
 #include "RenderEngine.h"
-#include "RHI/DeviceContext.h"
-#include "Rendering/Core/ShadowRenderer.h"
 #include "Core/Assets/Scene.h"
-#include "Rendering/PostProcessing/PostProcessing.h"
-#include "Editor/Editor_Camera.h"
-#include "Rendering/Shaders/Shader_Skybox.h"
-#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
-#include "Rendering/Core/SceneRenderer.h"
-#include "Rendering/Core/ParticleSystemManager.h"
-#include "Editor/EditorWindow.h"
-#include "Editor/EditorCore.h"
-#include "../Core/DynamicResolutionScaler.h"
-#include "../Core/Culling/CullingManager.h"
-#include "RHI/RHI.h"
-#include "../VR/HMD.h"
-#include "../VR/HMDManager.h"
-#include "../Core/RenderingUtils.h"
-#include "../Shaders/PostProcess/Shader_Compost.h"
-#include "../Core/Material.h"
-#include "../Core/RelfectionProbe.h"
 #include "Core/Performance/PerfManager.h"
-#include "../Core/DebugLineDrawer.h"
 #include "Core/Utils/StringUtil.h"
-#include "../Core/LightCulling/LightCullingEngine.h"
+#include "Editor/Editor_Camera.h"
+#include "Editor/EditorCore.h"
+#include "Editor/EditorWindow.h"
+#include "Rendering/Core/Culling/CullingManager.h"
+#include "Rendering/Core/DebugLineDrawer.h"
+#include "Rendering/Core/DynamicResolutionScaler.h"
+#include "Rendering/Core/LightCulling/LightCullingEngine.h"
+#include "Rendering/Core/Material.h"
+#include "Rendering/Core/ParticleSystemManager.h"
+#include "Rendering/Core/RelfectionProbe.h"
+#include "Rendering/Core/RenderingUtils.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Core/ShadowRenderer.h"
+#include "Rendering/PostProcessing/PostProcessing.h"
+#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
+#include "Rendering/Shaders/PostProcess/Shader_Compost.h"
+#include "Rendering/Shaders/Shader_Skybox.h"
+#include "Rendering/VR/HMD.h"
+#include "Rendering/VR/HMDManager.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RHI.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -319,8 +319,8 @@ void RenderEngine::PresentToScreen()
 			D.Cull = false;
 			ScreenWriteList->SetPipelineStateDesc(D);
 
-			ScreenWriteList->SetFrameBufferTexture(DDOs[0].MainFrameBuffer, EEye::Left);
-			ScreenWriteList->SetFrameBufferTexture(DDOs[0].RightEyeFramebuffer, EEye::Right);
+			ScreenWriteList->SetFrameBufferTexture(DDOs[0].MainFrameBuffer, EEye::Right);
+			ScreenWriteList->SetFrameBufferTexture(DDOs[0].RightEyeFramebuffer, EEye::Left);
 		}
 		else
 		{
@@ -365,8 +365,6 @@ void RenderEngine::UpdateMVForMainPass()
 		SceneRender->UpdateMV(MainCamera);
 	}
 }
-
-
 
 Camera * RenderEngine::GetMainCam()
 {

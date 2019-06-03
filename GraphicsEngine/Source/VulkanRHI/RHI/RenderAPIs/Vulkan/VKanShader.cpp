@@ -21,8 +21,17 @@ EShaderError::Type VKanShader::AttachAndCompileShaderFromFile(const char * filen
 	{
 		return EShaderError::Type();
 	}
-
-	VKanShader::ComplieShader_Local(filename, type, true);
+	std::string Log = "Shader Compile Output: ";
+	Log.append(filename);
+	Log.append("\n");
+	Log::LogMessage(Log);
+	std::vector<char> data = VKanShader::ComplieShader_Local(filename, type, true);
+	VkPipelineShaderStageCreateInfo I = {};
+	I.module = createShaderModule(data);
+	I.stage = ConvStage(type);
+	I.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	I.pName = "main";
+	Stages.push_back(I);
 	return EShaderError::SHADER_ERROR_NONE;
 }
 
@@ -198,6 +207,9 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	{
 		Shader->setEnvInput(glslang::EShSourceGlsl, Stage, glslang::EShClientVulkan, ClientInputSemanticsVersion);
 	}
+	Shader->setShiftBindingForSet(glslang::EResSampler, VKanShader::GetBindingOffset(ShaderParamType::Sampler), 0);
+	Shader->setShiftBindingForSet(glslang::EResTexture, VKanShader::GetBindingOffset(ShaderParamType::SRV), 0);
+	Shader->setInvertY(true);
 	Shader->setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 	Shader->setEnvTarget(glslang::EShTargetSpv, TargetVersion);
 	Shader->setEntryPoint("main");
@@ -287,9 +299,6 @@ std::vector<char> VKanShader::ComplieShader_Local(std::string name, EShaderType:
 
 std::vector<VkPipelineShaderStageCreateInfo> VKanShader::GetShaderStages()
 {
-	std::vector<VkPipelineShaderStageCreateInfo> Stages;
-	VkPipelineShaderStageCreateInfo I;
-	
 	return Stages;
 }
 
@@ -317,4 +326,54 @@ EShLanguage VKanShader::GetStage(EShaderType::Type T)
 	}
 	ensure(false);
 	return EShLangCount;
+}
+
+VkShaderStageFlagBits VKanShader::ConvStage(EShaderType::Type T)
+{
+	switch (T)
+	{
+		case EShaderType::SHADER_VERTEX:
+			return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
+			break;
+		case EShaderType::SHADER_FRAGMENT:
+			return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
+			break;
+		case EShaderType::SHADER_GEOMETRY:
+			break;
+		case EShaderType::SHADER_COMPUTE:
+			return VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT;
+			break;
+		case EShaderType::SHADER_HULL:
+			break;
+		case EShaderType::SHADER_DOMAIN:
+			break;
+		case EShaderType::SHADER_RT_LIB:
+			break;
+	}
+	ensure(false);
+	return VkShaderStageFlagBits::VK_SHADER_STAGE_ALL;
+}
+
+int VKanShader::GetBindingOffset(ShaderParamType::Type Type)
+{
+	switch (Type)
+	{
+		case ShaderParamType::SRV:
+			return 20;
+			break;
+		case ShaderParamType::UAV:
+			return 10;
+			break;
+		case ShaderParamType::CBV:
+			return 0;
+			break;
+		case ShaderParamType::RootConstant:
+			break;
+		case ShaderParamType::Sampler:
+			return 50;
+			break;
+		case ShaderParamType::Limit:
+			break;
+	}
+	return 0;
 }

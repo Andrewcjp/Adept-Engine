@@ -1,5 +1,5 @@
 Texture2D Texture : register(t1);
-sampler DefaultSampler :register(s2);
+sampler DefaultSampler :register(s0);
 
 
 struct VS_OUTPUT

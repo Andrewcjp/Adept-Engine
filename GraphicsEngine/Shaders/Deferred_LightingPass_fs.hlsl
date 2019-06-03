@@ -24,6 +24,7 @@ cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
 	int2 t;
+	int pad;
 	Light lights[MAX_LIGHTS];
 };
 

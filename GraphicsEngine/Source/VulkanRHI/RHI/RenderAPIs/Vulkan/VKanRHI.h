@@ -190,6 +190,6 @@ public:
 	Shader_Main* TestShader = nullptr;
 	VKanFramebuffer* TestFrameBuffer = nullptr;
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
-
+	
 };
 #endif

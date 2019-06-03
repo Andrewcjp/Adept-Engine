@@ -7,6 +7,7 @@
 #include "VkanBuffers.h"
 #include "Descriptor.h"
 #include "VKanTexture.h"
+#include "VKanShader.h"
 
 
 DescriptorPool::DescriptorPool(VkanDeviceContext* Con)
@@ -50,10 +51,6 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = Set;
 		descriptorWrite.dstBinding = Desc->bindpoint;
-		if (Desc->bindpoint == 2)
-		{
-			descriptorWrite.dstBinding = 3;
-		}
 		descriptorWrite.dstArrayElement = 0;
 
 		descriptorWrite.descriptorCount = 1;
@@ -81,6 +78,7 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 			}
 
 			imageInfo->sampler = list->CurrentPso->textureSampler;
+			descriptorWrite.dstBinding += VKanShader::GetBindingOffset(ShaderParamType::SRV);
 			descriptorWrite.pImageInfo = imageInfo;
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 		}

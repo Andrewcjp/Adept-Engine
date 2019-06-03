@@ -92,9 +92,10 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 #else
 	VKanShader* sh = VKanRHI::VKConv(Desc.ShaderInUse->GetShaderProgram());
 	ShaderStages = sh->GetShaderStages();
-
-
-
+	if (ShaderStages.size() == 0)
+	{
+		CreateTestShader();
+	}
 #endif
 	createTextureSampler();
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
@@ -130,7 +131,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	else
 	{
 		viewport.width = Desc.RenderPass->Desc.TargetBuffer->GetWidth();
-		viewport.height= Desc.RenderPass->Desc.TargetBuffer->GetHeight();
+		viewport.height = Desc.RenderPass->Desc.TargetBuffer->GetHeight();
 	}
 
 	viewport.minDepth = 0.0f;
@@ -211,7 +212,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	pipelineInfo.renderPass = VRP->RenderPass;
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-//	if (Desc.RenderTargetDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+	//	if (Desc.RenderTargetDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
 	{
 		VkPipelineDepthStencilStateCreateInfo D = {};
 		D.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -220,7 +221,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 		D.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 		D.stencilTestEnable = VK_FALSE;
 		pipelineInfo.pDepthStencilState = &D;
-		
+
 
 	}
 	//pipelineInfo.pDepthStencilState
@@ -300,9 +301,15 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 {
 	std::vector<VkDescriptorSetLayoutBinding> Binds;
 	std::vector<ShaderParameter> Parms;
+
+#if !BASIC_RENDER_ONLY
+	Parms = Desc.ShaderInUse->GetShaderParameters();
+#else
 	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
 	Parms.push_back(ShaderParameter(ShaderParamType::SRV, 1, 0));
-	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 3, 0));
+	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));
+#endif
+
 	for (int i = 0; i < Parms.size(); i++)
 	{
 		ShaderParameter* Element = &Parms[i];
@@ -319,22 +326,24 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 		else if (Element->Type == ShaderParamType::SRV)
 		{
 			VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-			samplerLayoutBinding.binding = Element->SignitureSlot;
+			samplerLayoutBinding.binding = VKanShader::GetBindingOffset(ShaderParamType::SRV) + Element->SignitureSlot;
 			samplerLayoutBinding.descriptorCount = 1;
 			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			Binds.push_back(samplerLayoutBinding);
 		}
 	}
+#if 1
 	{
 		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-		samplerLayoutBinding.binding = 2;
+		samplerLayoutBinding.binding = VKanShader::GetBindingOffset(ShaderParamType::Sampler);
 		samplerLayoutBinding.descriptorCount = 1;
 		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
 		samplerLayoutBinding.pImmutableSamplers = &textureSampler;
 		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		Binds.push_back(samplerLayoutBinding);
 	}
+#endif
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = Binds.size();

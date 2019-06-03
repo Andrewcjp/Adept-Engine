@@ -19,6 +19,7 @@
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
 #include "RHI/RHITypes.h"
 #include "RHI/RHIRenderPassCache.h"
+#include "Rendering/Core/RenderingUtils.h"
 
 #if BUILD_VULKAN
 
@@ -529,6 +530,9 @@ void  VKanRHI::createSyncObjects()
 }
 void VKanRHI::CreateNewObjects()
 {
+#if !BASIC_RENDER_ONLY
+	return;
+#endif
 	RHIRenderPassCache::Get()->GetOrCreatePass(GetBackBufferDesc());
 	TestShader = new Shader_Main(true);
 	RHIPipeLineStateDesc DEsc;
@@ -613,11 +617,10 @@ void  VKanRHI::drawFrame()
 	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(cmdlist, 2);
 	BaseWindow::GetCurrentRenderer()->SceneRender->Controller->RenderPass(ERenderPass::DepthOnly, cmdlist);
 
-#if 1
 	cmdlist->SetVertexBuffer(Vertexb);
 	cmdlist->SetIndexBuffer(IndexTest);
 	cmdlist->DrawIndexedPrimitive(3, 1, 0, 0, 0);
-#endif
+
 	cmdlist->EndRenderPass();
 	Info = RHIRenderPassDesc();
 	cmdlist->BeginRenderPass(Info);
@@ -627,6 +630,7 @@ void  VKanRHI::drawFrame()
 	cmdlist->SetFrameBufferTexture(TestFrameBuffer, 1);
 	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(cmdlist, 2);
 	BaseWindow::GetCurrentRenderer()->SceneRender->Controller->RenderPass(ERenderPass::DepthOnly, cmdlist);
+	//RenderingUtils::RenderScreenQuad(cmdlist);
 	cmdlist->EndRenderPass();
 	TestFrameBuffer->UnBind(cmdlist);
 	cmdlist->Execute();

@@ -4,6 +4,6 @@ class RHICommandList;
 class RenderingUtils
 {
 public:
-	static void RenderScreenQuad(RHICommandList* list);
+	RHI_API static void RenderScreenQuad(RHICommandList* list);
 };
 

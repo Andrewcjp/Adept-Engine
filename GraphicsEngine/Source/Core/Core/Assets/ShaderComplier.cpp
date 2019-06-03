@@ -29,6 +29,9 @@ ShaderComplier * ShaderComplier::Get()
 
 void ShaderComplier::ComplieAllGlobalShaders()
 {
+#if BASIC_RENDER_ONLY
+	return;
+#endif
 	SCOPE_STARTUP_COUNTER("ComplieAllGlobalShaders");
 	for (std::map<std::string, ShaderType>::iterator it = GlobalShaderMap.begin(); it != GlobalShaderMap.end(); ++it)
 	{
@@ -82,6 +85,9 @@ void ShaderComplier::AddShaderType(std::string Name, ShaderType type)
 #define DEBUG_SLOW_COMPLIE 1
 void ShaderComplier::TickMaterialComplie()
 {
+#if BASIC_RENDER_ONLY
+	return;
+#endif
 #if DEBUG_SLOW_COMPLIE
 	if (RHI::GetFrameCount() % 100 != 0)
 	{

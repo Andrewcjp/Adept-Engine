@@ -23,7 +23,7 @@ public:
 
 private:
 	void GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, int eyeindex = 0);
-	void LightingPass(RHICommandList* List, FrameBuffer* GBuffer, FrameBuffer* output);
+	void LightingPass(RHICommandList* List, FrameBuffer* GBuffer, FrameBuffer* output, int eyeindex = 0);
 	void SSAOPass();
 #if ENABLE_RENDERER_DEBUGGING
 	void DebugPass();
