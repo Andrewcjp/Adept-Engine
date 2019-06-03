@@ -117,6 +117,11 @@ D3D12StateObject * D3D12RHI::DXConv(RHIStateObject * D)
 }
 
 
+RHIRenderPass* D3D12RHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
+{
+	return new RHIRenderPass(Desc);
+}
+
 RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device)
 {
 	return new D3D12StateObject(Device);

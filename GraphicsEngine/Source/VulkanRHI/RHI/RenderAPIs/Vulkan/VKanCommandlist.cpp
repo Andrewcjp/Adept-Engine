@@ -9,6 +9,8 @@
 #include "Core/Platform/PlatformCore.h"
 #include "DescriptorPool.h"
 #include "VKanTexture.h"
+#include "RHI\RHIRenderPassCache.h"
+#include "VKanFramebuffer.h"
 VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * context) :RHICommandList(type, context)
 {
 	Device = context;
@@ -28,7 +30,7 @@ VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * co
 		}
 	}
 	CurrentDescriptors.resize(10);
-} 
+}
 
 VKanCommandlist::~VKanCommandlist()
 {}
@@ -134,16 +136,36 @@ void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 	CurrnetRenderPass = VKanRHI::RHIinstance->Pass;
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = CurrnetRenderPass->RenderPass;
-
-	renderPassInfo.framebuffer = VKanRHI::RHIinstance->swapChainFramebuffers[VKanRHI::RHIinstance->currentFrame];
-
+	
+	if (RenderPassInfo.TargetBuffer == nullptr)
+	{
+		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::GetBackBufferDesc()))->RenderPass;
+		renderPassInfo.framebuffer = VKanRHI::RHIinstance->swapChainFramebuffers[VKanRHI::RHIinstance->currentFrame];
+	}
+	else
+	{
+		VKanFramebuffer* FB = VKanRHI::VKConv(RenderPassInfo.TargetBuffer);
+		FB->TryInitBuffer(RenderPassInfo);
+		renderPassInfo.framebuffer = FB->Buffer;
+		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo))->RenderPass;
+	}
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = VKanRHI::RHIinstance->swapChainExtent;
+	if (RenderPassInfo.TargetBuffer == nullptr)
+	{
+		renderPassInfo.renderArea.extent = VKanRHI::RHIinstance->swapChainExtent;
+	}
+	else
+	{
+		renderPassInfo.renderArea.extent.width = RenderPassInfo.TargetBuffer->GetWidth();
+		renderPassInfo.renderArea.extent.height = RenderPassInfo.TargetBuffer->GetHeight();
+	}
 
-	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	renderPassInfo.clearValueCount = 1;
-	renderPassInfo.pClearValues = &clearColor;
+
+	VkClearValue clearColor[2];
+	clearColor[0] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearColor[1].depthStencil = { 1.0f,0 };
+	renderPassInfo.clearValueCount = 2;
+	renderPassInfo.pClearValues = &clearColor[0];
 
 	vkCmdBeginRenderPass(CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
@@ -162,7 +184,10 @@ void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 }
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
-{}
+{
+	VKanFramebuffer* V = VKanRHI::VKConv(buffer);
+	CurrentDescriptors[slot] = V->GetDescriptor(slot);
+}
 
 
 void VKanCommandlist::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)

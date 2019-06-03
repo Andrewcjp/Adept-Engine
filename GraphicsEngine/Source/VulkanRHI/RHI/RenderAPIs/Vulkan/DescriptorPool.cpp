@@ -69,10 +69,17 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 		}
 		else if (Desc->DescType == EDescriptorType::SRV)
 		{
-
 			VkDescriptorImageInfo* imageInfo = new VkDescriptorImageInfo();
 			imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo->imageView = Desc->Texture->textureImageView;
+			if (Desc->Texture == nullptr)
+			{
+				imageInfo->imageView = Desc->ImageView;
+			}
+			else
+			{
+				imageInfo->imageView = Desc->Texture->textureImageView;
+			}
+
 			imageInfo->sampler = list->CurrentPso->textureSampler;
 			descriptorWrite.pImageInfo = imageInfo;
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
@@ -155,7 +162,7 @@ VkDescriptorSet DescriptorPool::createDescriptorSets(VkDescriptorSetLayout descr
 		descriptorWrite.pBufferInfo = &bufferInfo;
 
 		vkUpdateDescriptorSets(Context->device, 1, &descriptorWrite, 0, nullptr);
-}
+	}
 #endif
 	return descriptorSets[0];
 }

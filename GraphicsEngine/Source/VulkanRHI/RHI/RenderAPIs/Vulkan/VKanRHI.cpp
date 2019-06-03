@@ -18,6 +18,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
 #include "RHI/RHITypes.h"
+#include "RHI/RHIRenderPassCache.h"
 
 #if BUILD_VULKAN
 
@@ -39,20 +40,24 @@ VKanRHI::~VKanRHI()
 {}
 
 
-void VKanRHI::createGraphicsPipeline23()
-{
-
-	createSwapRT();
-}
-
-
-//private:
-
 VKanRHI * VKanRHI::Get()
 {
 	return RHIinstance;
 }
 
+
+RHIRenderPassDesc VKanRHI::GetBackBufferDesc()
+{
+	//#VK: Create this from the back buffer surface checks.
+	RHIRenderPassDesc Default;
+	Default.RenderDesc.NumRenderTargets = 1;
+	Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
+	Default.LoadOp = ERenderPassLoadOp::Clear;
+	Default.StoreOp = ERenderPassStoreOp::Store;
+	Default.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+	Default.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PRESENT;
+	return Default;
+}
 
 bool VKanRHI::InitWindow(int w, int h)
 {
@@ -72,7 +77,6 @@ BaseTexture* VKanRHI::CreateTexture(const RHITextureDesc& Desc, DeviceContext* D
 
 FrameBuffer* VKanRHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc)
 {
-	//ensureMsgf(Desc.PSO, "Vulkan Needs a PSO to create a framebuffer");
 	return new VKanFramebuffer(Device, Desc);
 }
 void VKanRHI::SetFullScreenState(bool state)
@@ -120,6 +124,16 @@ VKanTexture * VKanRHI::VKConv(BaseTexture * T)
 	return static_cast<VKanTexture*>(T);
 }
 
+VKanShader * VKanRHI::VKConv(ShaderProgramBase * T)
+{
+	return static_cast<VKanShader*>(T);
+}
+
+VKanRenderPass * VKanRHI::VKConv(RHIRenderPass * T)
+{
+	return static_cast<VKanRenderPass*>(T);
+}
+
 VKanCommandlist * VKanRHI::VKConv(RHICommandList * T)
 {
 	return static_cast<VKanCommandlist*>(T);
@@ -138,6 +152,11 @@ VkanDeviceContext * VKanRHI::VKConv(DeviceContext * T)
 VKanFramebuffer * VKanRHI::VKConv(FrameBuffer * T)
 {
 	return static_cast<VKanFramebuffer*>(T);
+}
+
+RHIRenderPass* VKanRHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
+{
+	return new VKanRenderPass(Desc, Device);
 }
 
 #if ALLOW_RESOURCE_CAPTURE
@@ -223,9 +242,6 @@ const int WIDTH = 800;
 const int HEIGHT = 600;
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
-
-
-
 
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pCallback)
@@ -458,7 +474,7 @@ void  VKanRHI::createFramebuffers()
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = Pass->RenderPass;
+		framebufferInfo.renderPass = VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::GetBackBufferDesc()))->RenderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = swapChainExtent.width;
@@ -513,15 +529,14 @@ void  VKanRHI::createSyncObjects()
 }
 void VKanRHI::CreateNewObjects()
 {
-
-	Pass = new VKanRenderPass();
-	Pass->Complie();
+	RHIRenderPassCache::Get()->GetOrCreatePass(GetBackBufferDesc());
 	TestShader = new Shader_Main(true);
 	RHIPipeLineStateDesc DEsc;
-	DEsc.RenderPass = Pass;
 	DEsc.ShaderInUse = TestShader;
-	PSO = new VkanPipeLineStateObject(DEsc, DevCon);
-	PSO->Complie();
+	SawpPSO = new VkanPipeLineStateObject(DEsc, DevCon);
+	SawpPSO->Complie();
+
+
 	Vertexb = new VKanBuffer(ERHIBufferType::Vertex, nullptr);
 #if 0
 	glm::vec2 positions[3] = {
@@ -552,6 +567,14 @@ void VKanRHI::CreateNewObjects()
 	short  ind[3]{ 1,2,0 };
 	IndexTest->CreateIndexBuffer(sizeof(short), sizeof(ind));
 	IndexTest->UpdateVertexBuffer(&ind, sizeof(ind));
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(1000, 1000);
+	TestFrameBuffer = new VKanFramebuffer(nullptr, Desc);
+	RHIRenderPassDesc D;
+	D.TargetBuffer = TestFrameBuffer;
+	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	DEsc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(D);
+	PSO = new VkanPipeLineStateObject(DEsc, DevCon);
+	PSO->Complie();
 }
 
 void  VKanRHI::drawFrame()
@@ -581,6 +604,8 @@ void  VKanRHI::drawFrame()
 	}
 
 	RHIRenderPassDesc Info = RHIRenderPassDesc();
+	Info.TargetBuffer = TestFrameBuffer;
+	Info.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	cmdlist->BeginRenderPass(Info);
 	cmdlist->SetPipelineStateObject(PSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
@@ -594,6 +619,16 @@ void  VKanRHI::drawFrame()
 	cmdlist->DrawIndexedPrimitive(3, 1, 0, 0, 0);
 #endif
 	cmdlist->EndRenderPass();
+	Info = RHIRenderPassDesc();
+	cmdlist->BeginRenderPass(Info);
+	cmdlist->SetPipelineStateObject(SawpPSO);
+	cmdlist->SetConstantBufferView(buffer, 0, 0);
+	cmdlist->SetTexture(T, 1);
+	cmdlist->SetFrameBufferTexture(TestFrameBuffer, 1);
+	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(cmdlist, 2);
+	BaseWindow::GetCurrentRenderer()->SceneRender->Controller->RenderPass(ERenderPass::DepthOnly, cmdlist);
+	cmdlist->EndRenderPass();
+	TestFrameBuffer->UnBind(cmdlist);
 	cmdlist->Execute();
 
 	submitInfo.commandBufferCount = 1;

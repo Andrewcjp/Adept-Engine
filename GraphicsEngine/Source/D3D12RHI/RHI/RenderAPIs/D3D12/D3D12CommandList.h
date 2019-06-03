@@ -60,7 +60,7 @@ public:
 
 	virtual void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
-	RHI_VIRTUAL void BeginRenderPass(class RHIRenderPassDesc& RenderPass) override;
+	RHI_VIRTUAL void BeginRenderPass(RHIRenderPassDesc& RenderPass) override;
 	RHI_VIRTUAL void EndRenderPass() override;
 	void AddHeap(DescriptorHeap* heap);
 	void PushHeaps();

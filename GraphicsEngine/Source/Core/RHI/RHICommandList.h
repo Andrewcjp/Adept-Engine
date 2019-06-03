@@ -170,10 +170,11 @@ public:
 class RHIRenderPass
 {
 public:
-	RHI_API RHIRenderPass();
+	RHI_API RHIRenderPass(RHIRenderPassDesc & Desc);
 	RHI_API virtual ~RHIRenderPass();
 	void AddSubPass(RHISubPass* Pass);
 	virtual void Complie();
+	RHIRenderPassDesc Desc;
 private:
 	std::vector<RHISubPass*> SubPasses;
 };

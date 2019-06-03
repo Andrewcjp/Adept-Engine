@@ -285,6 +285,14 @@ std::vector<char> VKanShader::ComplieShader_Local(std::string name, EShaderType:
 	return spirv;
 }
 
+std::vector<VkPipelineShaderStageCreateInfo> VKanShader::GetShaderStages()
+{
+	std::vector<VkPipelineShaderStageCreateInfo> Stages;
+	VkPipelineShaderStageCreateInfo I;
+	
+	return Stages;
+}
+
 EShLanguage VKanShader::GetStage(EShaderType::Type T)
 {
 	switch (T)

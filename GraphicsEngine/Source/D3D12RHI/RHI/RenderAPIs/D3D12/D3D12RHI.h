@@ -78,7 +78,7 @@ public:
 	static D3D12LowLevelAccelerationStructure* DXConv(LowLevelAccelerationStructure* D);
 	static D3D12HighLevelAccelerationStructure* DXConv(HighLevelAccelerationStructure* D);
 	static D3D12StateObject* DXConv(RHIStateObject* D);
-
+	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
 
 private:
 	void DestroyContext();

@@ -22,6 +22,7 @@ class LowLevelAccelerationStructure;
 class HighLevelAccelerationStructure;
 class RayTracingEngine;
 class RHIStateObject;
+class RHIRenderPassCache;
 //RHI defines
 #define SUPPORTVR 1
 #define PSO_USE_FULL_STRING_MAPS 1
@@ -29,7 +30,7 @@ class RHIStateObject;
 #define MAX_GPU_DEVICE_COUNT 3
 #define ALLOW_RESOURCE_CAPTURE 0
 #define LOG_RESOURCE_TRANSITIONS 0
-#define BASIC_RENDER_ONLY 1//BUILD_VULKAN
+#define BASIC_RENDER_ONLY 0//BUILD_VULKAN
 #define MAX_RENDERTARGETS 8
 class RHI
 {
@@ -130,6 +131,8 @@ private:
 #if SUPPORTVR
 	HMDManager* HeadSetManager = nullptr;
 #endif
+	friend RHIRenderPassCache;
+	RHIRenderPassCache* RenderPassCache = nullptr;
 };
 
 class RHI_API RHIClass
@@ -168,6 +171,8 @@ public:
 	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device) = 0;
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) = 0;
 
+
+	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc,DeviceContext* Device) = 0;
 };
 
 class RHIModule : public IModuleInterface
