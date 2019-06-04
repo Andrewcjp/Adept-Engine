@@ -12,15 +12,17 @@ Camera::Camera()
 	zNear = 0.1f;
 	fov = 90;
 	UpdateProjection(1);
+	RenderMask.SetFlagValue(ESceneLayers::Default, 1);
 }
 
-Camera::Camera(glm::vec3 pos, float ffov, float aspect, float zNear, float zFar) :Camera()
+Camera::Camera(glm::vec3 pos, float ffov, float aspect, float zzNear, float zFar) :Camera()
 {
 	m_pos = pos;
-	zNear = zNear;
+	zNear = zzNear;
 	ZFar = zFar;
 	fov = ffov;
 	UpdateProjection(aspect);
+	RenderMask.SetFlagValue(ESceneLayers::Default, 1);
 }
 
 glm::mat4 Camera::GetViewProjection()

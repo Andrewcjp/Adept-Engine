@@ -76,23 +76,35 @@ void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 void D3D12CommandList::BeginRenderPass(RHIRenderPassDesc& info)
 {
 	RHICommandList::BeginRenderPass(info);
-	if (info.DepthSourceBuffer != nullptr)
+	if (info.TargetSwapChain)
 	{
-		info.DepthSourceBuffer->BindDepthWithColourPassthrough(this, info.TargetBuffer);
+		SetScreenBackBufferAsRT();
+		if (info.LoadOp == ERenderPassLoadOp::Clear)
+		{
+			ClearScreen();
+		}
 	}
 	else
 	{
-		SetRenderTarget(info.TargetBuffer);
-	}
-	if (info.LoadOp == ERenderPassLoadOp::Clear)
-	{
-		ClearFrameBuffer(info.TargetBuffer);
-	}
+		if (info.DepthSourceBuffer != nullptr)
+		{
+			info.DepthSourceBuffer->BindDepthWithColourPassthrough(this, info.TargetBuffer);
+		}
+		else
+		{
+			SetRenderTarget(info.TargetBuffer);
+		}
+		if (info.LoadOp == ERenderPassLoadOp::Clear)
+		{
+			ClearFrameBuffer(info.TargetBuffer);
+		}
+	}	
 }
 
 void D3D12CommandList::EndRenderPass()
 {
 	RHICommandList::EndRenderPass();
+	SetRenderTarget(nullptr);
 }
 
 void D3D12CommandList::AddHeap(DescriptorHeap * heap)
@@ -175,10 +187,6 @@ void D3D12CommandList::ResetList()
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
 {
-	//if (!IsInRenderPass)
-	//{
-	//	Log::LogMessage("SetRenderTarget is depreciated use the new render pass API", Log::Warning);
-	//}
 	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
 	{

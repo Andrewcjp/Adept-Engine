@@ -31,7 +31,7 @@ class RHIRenderPassCache;
 #define ALLOW_RESOURCE_CAPTURE 0
 #define LOG_RESOURCE_TRANSITIONS 0
 #define BASIC_RENDER_ONLY 0//BUILD_VULKAN
-#define NOSHADOW 0
+#define NOSHADOW BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
 class RHI
 {
@@ -108,6 +108,7 @@ public:
 	RHI_API static void FlushDeferredDeleteQueue();
 	static void Tick();
 	static void SubmitToVRComposter(FrameBuffer* fb, EEye::Type eye);
+	RHI_API static RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);
 private:
 	static void ValidateDevice(DeviceContext*& con);
 	static void ResizeFrameBuffer(FrameBuffer * target);
@@ -174,6 +175,7 @@ public:
 
 
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc,DeviceContext* Device) = 0;
+	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);
 };
 
 class RHIModule : public IModuleInterface

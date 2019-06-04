@@ -20,7 +20,6 @@ public:
 	void UpdateLineBuffer(int offset);
 	void CreateLineVerts(WLine & line);
 	void RenderLines(FrameBuffer * Buffer, RHICommandList * list, EEye::Type eye);
-	void RenderLines();
 	CORE_API void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
 	void OnResize(int newwidth, int newheight);
 	void FlushDebugLines();

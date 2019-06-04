@@ -12,7 +12,7 @@ public:
 	void Render(class SceneRenderer * SceneRender, RHICommandList* list, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer, bool Cubemap = false, int index = 0);
 	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
-	BaseTextureRef SkyBoxTexture = nullptr;
+	BaseTextureRef SkyBoxTexture;
 #if DEBUG_CUBEMAPS
 	FrameBuffer* test = nullptr;
 #endif

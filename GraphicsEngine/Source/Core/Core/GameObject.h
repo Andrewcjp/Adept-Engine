@@ -87,6 +87,8 @@ public:
 	bool IsCulled(ECullingPass::Type Pass);
 	void SetCulledState(ECullingPass::Type pass, bool state);
 	bool IsStatic() const;
+	SceneLayerMask LayerMask;
+	bool IsOnLayer(SceneLayerMask Mask)const;
 private:
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);

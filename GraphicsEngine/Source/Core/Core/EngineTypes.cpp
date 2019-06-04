@@ -25,6 +25,7 @@ bool Tag::operator==(const Tag& t)
 
 void BitFlagsBase::SetFlagValue(int flag, bool value)
 {
+	flag = 1 << flag;
 	if (value)
 	{
 		Flags |= flag;
@@ -35,8 +36,9 @@ void BitFlagsBase::SetFlagValue(int flag, bool value)
 	}
 }
 
-bool BitFlagsBase::GetFlagValue(int flag)
+bool BitFlagsBase::GetFlagValue(int flag) const
 {
+	flag = 1 << flag;
 	return Flags & flag;
 }
 

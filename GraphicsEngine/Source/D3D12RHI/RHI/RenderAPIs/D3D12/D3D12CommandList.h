@@ -8,7 +8,7 @@ class DescriptorGroup;
 class D3D12PipeLineStateObject :public RHIPipeLineStateObject
 {
 public:
-	D3D12PipeLineStateObject(const RHIPipeLineStateDesc& desc,DeviceContext* con);
+	D3D12PipeLineStateObject(const RHIPipeLineStateDesc& desc, DeviceContext* con);
 	~D3D12PipeLineStateObject();
 	virtual void Complie() override;
 	ID3D12RootSignature* RootSig = nullptr;
@@ -41,8 +41,6 @@ public:
 	virtual void SetTexture(BaseTextureRef texture, int slot) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 
-	virtual void SetScreenBackBufferAsRT() override;
-	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
 	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
@@ -73,6 +71,8 @@ public:
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
 	virtual void SetStateObject(RHIStateObject* Object) override;
 private:
+	void SetScreenBackBufferAsRT();
+	void ClearScreen();
 	D3D12StateObject* CurrentRTState = nullptr;
 	std::vector<DescriptorHeap*> heaps;
 	void PushPrimitiveTopology();
@@ -86,7 +86,7 @@ private:
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
 	class D3D12Texture* Texture = nullptr;
-	
+
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 
 	ID3D12CommandSignature* CommandSig = nullptr;

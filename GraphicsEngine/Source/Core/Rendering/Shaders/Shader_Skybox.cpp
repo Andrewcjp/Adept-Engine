@@ -64,15 +64,18 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 		List->SetPipelineStateDesc(desc);
 	}
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::Skybox);
+
 	if (DepthSourceBuffer != nullptr)
 	{
-		DepthSourceBuffer->BindDepthWithColourPassthrough(List, Buffer);
+		RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
+		D.DepthSourceBuffer = DepthSourceBuffer;
+		List->BeginRenderPass(D);
 	}
 	else
 	{
 		if (!Cubemap)
 		{
-			List->SetRenderTarget(Buffer);
+			List->BeginRenderPass(RHIRenderPassDesc(Buffer));
 		}
 	}
 #if DEBUG_CUBEMAPS
@@ -88,18 +91,21 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 	{
 		SceneRender->SetMVForProbe(List, index, 1);
 	}
-
 	CubeModel->Render(List);
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
+	if (!Cubemap)
+	{
+		List->EndRenderPass();
+	}
 	Buffer->MakeReadyForComputeUse(List);
 	if (!Cubemap && false)
 	{
-		List->SetRenderTarget(nullptr);
+		
 		//Buffer->MakeReadyForComputeUse(List);
 		if (List->GetDeviceIndex() == 0)
 		{
 			Buffer->MakeReadyForCopy(List);
-		}		
+		}
 		if (List->GetDeviceIndex() == 1)
 		{
 			List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);

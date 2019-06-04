@@ -77,8 +77,7 @@ bool FileUtils::CreateDirectoriesToFullPath(std::string Path)
 }
 
 bool FileUtils::WriteToFile(std::string Filename, std::string data, bool append)
-{
-	std::string out;
+{	
 	char flags = std::ofstream::out;
 	if (append)
 	{
@@ -90,10 +89,8 @@ bool FileUtils::WriteToFile(std::string Filename, std::string data, bool append)
 		Log::OutS << "Failed to Write " << Filename << Log::OutS;
 		return false;
 	}
-	std::string line;
 	myfile.write(data.c_str(), data.length());
 	myfile.close();
-
 	return true;
 }
 

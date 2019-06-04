@@ -117,8 +117,8 @@ void RenderEngine::Init()
 	else
 	{
 		DevicesInUse = 1;
-	}	
-	
+	}
+
 	SceneRender->Init();
 #if BASIC_RENDER_ONLY
 	return;
@@ -138,8 +138,8 @@ void RenderEngine::Init()
 	desc.ShaderInUse = Material::GetDefaultMaterialShader();
 	desc.FrameBufferTarget = DDOs[0].MainFrameBuffer;
 	CubemapCaptureList->SetPipelineStateDesc(desc);
-	
 #endif
+	DDOs[0].DebugCommandList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
 	PostInit();
 	Post = new PostProcessing();
 	Post->Init(DDOs[0].MainFrameBuffer);
@@ -209,7 +209,7 @@ void RenderEngine::ProcessScene()
 	}
 	//#Scene TEMP FIX!
 	if (RHI::GetFrameCount() > 10)
-	{ 
+	{
 		return;
 	}
 	ProcessSceneGPU(RHI::GetDeviceContext(0));
@@ -322,8 +322,7 @@ void RenderEngine::PostProcessPass()
 void RenderEngine::PresentToScreen()
 {
 	ScreenWriteList->ResetList();
-	ScreenWriteList->SetScreenBackBufferAsRT();
-	ScreenWriteList->ClearScreen();
+	ScreenWriteList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain(true));
 	if (RHI::IsRenderingVR())
 	{
 		if (RHI::GetVrSettings()->MirrorMode == EVRMirrorMode::Both)
@@ -358,6 +357,7 @@ void RenderEngine::PresentToScreen()
 		ScreenWriteList->SetFrameBufferTexture(DDOs[0].MainFrameBuffer, 0);
 	}
 	RenderingUtils::RenderScreenQuad(ScreenWriteList);
+	ScreenWriteList->EndRenderPass();
 	ScreenWriteList->Execute();
 	if (RHI::IsRenderingVR())
 	{
@@ -528,4 +528,21 @@ void RenderEngine::RunLightCulling()
 DynamicResolutionScaler * RenderEngine::GetDS()
 {
 	return Scaler;
+}
+
+void RenderEngine::RenderDebugPass()
+{
+	DDOs[0].DebugCommandList->ResetList();
+	DDOs[0].DebugCommandList->StartTimer(EGPUTIMERS::DebugRender);
+	if (RHI::IsRenderingVR())
+	{
+		RenderDebug(DDOs[0].MainFrameBuffer, DDOs[0].DebugCommandList, EEye::Left);
+		RenderDebug(DDOs[0].RightEyeFramebuffer, DDOs[0].DebugCommandList, EEye::Right);
+	}
+	else
+	{
+		RenderDebug(DDOs[0].MainFrameBuffer, DDOs[0].DebugCommandList, EEye::Left);
+	}
+	DDOs[0].DebugCommandList->EndTimer(EGPUTIMERS::DebugRender);
+	DDOs[0].DebugCommandList->Execute();
 }

@@ -55,10 +55,11 @@ void Shader_TexturedUI::Render()
 	{
 		list->SetPipelineStateObject(NoBlendPSO);
 	}
-	list->SetScreenBackBufferAsRT();
+	list->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
 	list->SetTexture(Texture, 0);
 	list->SetVertexBuffer(VertexBuffer);
 	list->DrawPrimitive(6, 1, 0, 0);
+	list->EndRenderPass();
 	list->Execute();
 }
 

@@ -18,6 +18,8 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid) :
 	m_transform = new Transform();
 	AudioId = AudioEngine::GetNextAudioId();
 	AudioEngine::RegisterObject(this);
+	
+	LayerMask.SetFlags(0xfffff);
 }
 
 void GameObject::OnRemoveFromScene()
@@ -60,6 +62,23 @@ void GameObject::SetCulledState(ECullingPass::Type pass, bool state)
 bool GameObject::IsStatic() const
 {
 	return Mobilty == EMoblity::Static;
+}
+
+bool GameObject::IsOnLayer(SceneLayerMask Mask) const
+{
+	for (int i = 0; i < ESceneLayers::Limit; i++)
+	{
+		int flag = 1 << i;
+		if (!Mask.GetFlagValue(flag))
+		{
+			continue;
+		}
+		if (Mask.GetFlagValue(flag) == LayerMask.GetFlagValue(flag))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 GameObject::~GameObject()

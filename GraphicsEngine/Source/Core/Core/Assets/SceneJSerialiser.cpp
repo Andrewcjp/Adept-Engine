@@ -51,8 +51,6 @@ std::string SceneJSerialiser::GetFile(std::string filename)
 
 bool SceneJSerialiser::WriteToFile(std::string filename, std::string data)
 {
-	std::string out;
-
 	if (!FileUtils::File_ExistsTest(filename))
 	{
 		FileUtils::CreateDirectoriesToFullPath(filename);
@@ -60,7 +58,6 @@ bool SceneJSerialiser::WriteToFile(std::string filename, std::string data)
 	std::ofstream myfile(filename, std::ofstream::out);
 	if (myfile.is_open())
 	{
-		std::string line;
 		myfile.write(data.c_str(), data.length());
 		myfile.close();
 	}

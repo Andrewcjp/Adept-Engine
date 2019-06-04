@@ -297,12 +297,13 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 	}
 	list->SetRootConstant(Shader_ShadowSample::PreSampleCBV, 4, ShaderData, 0);
 	DSOs[DeviceIndex].ShadowCubeArray->BindToShader(list, Shader_ShadowSample::ShadowSRV);
-	list->SetRenderTarget(DSOs[DeviceIndex].PreSampledBuffer);
-	list->ClearFrameBuffer(DSOs[DeviceIndex].PreSampledBuffer);
+	//list->SetRenderTarget(DSOs[DeviceIndex].PreSampledBuffer);
+	//list->ClearFrameBuffer(DSOs[DeviceIndex].PreSampledBuffer);
+	list->BeginRenderPass(RHIRenderPassDesc(DSOs[DeviceIndex].PreSampledBuffer,ERenderPassLoadOp::Clear));
 	Scenerenderer->BindMvBuffer(list, Shader_Depth_RSSlots::VPBuffer);
 	Scenerenderer->BindLightsBuffer(list, 1);
 	Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, nullptr);
-	list->SetRenderTarget(nullptr);
+	list->EndRenderPass();
 
 	list->EndTimer(EGPUTIMERS::ShadowPreSample);
 	if (RHI::GetMGPUSettings()->SplitShadowWork && !RHI::GetMGPUSettings()->MainPassSFR && list->GetDeviceIndex() != 0 && !RHI::GetMGPUSettings()->AsyncShadows)
@@ -443,14 +444,15 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, const std::
 			continue;
 		}
 		FrameBuffer* TargetBuffer = LightInteractions[SNum]->GetMap(list->GetDeviceIndex());
-		list->SetRenderTarget(TargetBuffer);
-		list->ClearFrameBuffer(TargetBuffer);
+		//list->SetRenderTarget(TargetBuffer);
+		//list->ClearFrameBuffer(TargetBuffer);
+		list->BeginRenderPass(RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear));
 		Shader_Depth::LightData data = {};
 		data.Proj = ShadowingDirectionalLights[SNum]->Projection;
 		data.Lightpos = ShadowingDirectionalLights[SNum]->GetPosition();
 		DirectionalLightShader->UpdateBuffer(list, &data, (int)SNum);
 		Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, LightInteractions[SNum]->Shader);
-		list->SetRenderTarget(nullptr);
+		list->EndRenderPass();
 	}
 }
 

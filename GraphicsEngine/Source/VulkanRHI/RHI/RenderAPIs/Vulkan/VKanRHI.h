@@ -11,6 +11,7 @@ class VKanFramebuffer;
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vk_sdk_platform.h>
+#include "RHI/RHITypes.h"
 template<class t>
 struct optional
 {
@@ -116,7 +117,7 @@ public:
 	VKanCommandlist* setuplist = nullptr;
 
 	// Inherited via RHIClass
-	static RHIRenderPassDesc GetBackBufferDesc();
+
 	virtual bool InitWindow(int w, int h) override;
 	virtual bool DestoryRHI() override;
 	virtual FrameBuffer * CreateFrameBuffer(DeviceContext * Device, const RHIFrameBufferDesc & Desc) override;
@@ -178,7 +179,7 @@ public:
 
 
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
-
+	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false) override;
 	static VKanTexture* VKConv(BaseTexture* T);
 	static VKanShader * VKConv(ShaderProgramBase * T);
 	static VKanRenderPass * VKConv(RHIRenderPass * T);

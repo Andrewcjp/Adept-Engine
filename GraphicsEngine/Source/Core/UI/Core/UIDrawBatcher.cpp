@@ -90,9 +90,10 @@ void UIDrawBatcher::RenderBatches()
 
 	commandlist->ResetList();
 	commandlist->GetDevice()->GetTimeManager()->StartTimer(commandlist, EGPUTIMERS::UI);
-	commandlist->SetScreenBackBufferAsRT();
+	commandlist->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
 	Shader->PushTOGPU(commandlist);
 	Render(commandlist);
+	commandlist->EndRenderPass();
 	commandlist->GetDevice()->GetTimeManager()->EndTimer(commandlist, EGPUTIMERS::UI);
 	commandlist->Execute();
 }
