@@ -17,7 +17,7 @@ void CullingFrustum::SetupFromCamera(Camera * cam)
 	Frustum = DebugDrawers::CreateFromCam(cam);
 }
 
-bool CullingFrustum::TestObject(CullingAABB * AABB)
+bool CullingFrustum::TestObject(CullingAABB * RESTRICT AABB)
 {
 	return RightParallelepipedInFrustum(glm::vec4(AABB->GetMin(), 1.0f), glm::vec4(AABB->GetMax(), 1.0f));
 }
@@ -27,11 +27,11 @@ void CullingFrustum::DebugRender()
 	DebugDrawers::DrawCameraFrustum(Frustum);
 }
 
-__forceinline bool CullingFrustum::RightParallelepipedInFrustum(glm::vec4 Min, glm::vec4 Max)
+__forceinline bool CullingFrustum::RightParallelepipedInFrustum(const glm::vec4& Min, const glm::vec4& Max)
 {
 	bool inside = true;
 	//test all 6 frustum planes
-	
+
 	for (int i = 0; i < 6; i++)
 	{
 		//pick closest point to plane and check if it behind the plane

@@ -39,6 +39,7 @@ void VKanBuffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType:
 		throw std::runtime_error("failed to allocate vertex buffer memory!");
 	}
 	vkBindBufferMemory(VKanRHI::GetVDefaultDevice()->device, vertexbuffer, vertexBufferMemory, 0);
+	ensure(vertexBufferMemory);
 }
 
 void VKanBuffer::UpdateVertexBuffer(void * data, size_t length)

@@ -27,6 +27,7 @@ RHI::RHI(ERenderSystemType system)
 {
 
 	CurrentSystem = system;
+	RenderSettings.ValidateForAPI(CurrentSystem);
 	RHIModule* RHImodule = nullptr;
 	switch (CurrentSystem)
 	{
@@ -63,6 +64,7 @@ void RHI::InitRHI(ERenderSystemType e)
 	if (instance == nullptr)
 	{
 		instance = new RHI(e);
+		
 	}
 }
 

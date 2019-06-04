@@ -13,27 +13,28 @@ MaterialShader::MaterialShader(Asset_Shader* Shader)
 MaterialShader::~MaterialShader()
 {}
 
-Shader_NodeGraph* MaterialShader::GetOrComplie(MaterialShaderComplieData& data)
+Shader_NodeGraph* MaterialShader::GetOrComplie(MaterialShaderComplieData&  data)
 {
-#if 1
-	auto itro = ShaderPermutations.find(data.ToString());
+#if USEHASH
+	auto itro = ShaderPermutations.find(data.ToHash());
 	if (itro != ShaderPermutations.end())
 	{
 		return itro->second;
 	}
 #else
-	for (auto itor = ShaderPermutations.begin(); itor != ShaderPermutations.end(); itor++)
+	auto itro = ShaderPermutations.find(data.ToString());
+	if (itro != ShaderPermutations.end())
 	{
-		if (itor->first == data)
-		{
-			return itor->second;
-		}
+		return itro->second;
 	}
 #endif
-
 	Shader_NodeGraph* s = ShaderComplier::Get()->GetMaterialShader(data);
 	ensure(s);
+#if USEHASH
+	ShaderPermutations.emplace(data.ToHash(), s);
+#else
 	ShaderPermutations.emplace(data.ToString(), s);
+#endif
 	return s;
 }
 
@@ -45,10 +46,6 @@ void MaterialShader::SetShader(MaterialShaderComplieData& data)
 
 Shader_NodeGraph* MaterialShader::GetShader(EMaterialPassType::Type type)
 {
-	if (CurrentData.RenderPassUsage == type && false)
-	{
-		return CurrentShader;
-	}
 	//todo:
 	CurrentData.RenderPassUsage = type;
 	return GetOrComplie(CurrentData);
@@ -78,4 +75,9 @@ bool MaterialShaderComplieData::operator<(const MaterialShaderComplieData & o) c
 std::string MaterialShaderComplieData::ToString()
 {
 	return Shader->GetName() + std::to_string(RenderPassUsage) + std::to_string(MaterialRenderType);
+}
+
+int MaterialShaderComplieData::ToHash()
+{
+	return std::hash<std::string>{} (ToString());
 }

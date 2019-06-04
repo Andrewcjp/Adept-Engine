@@ -105,6 +105,7 @@ public:
 	ShadowMappingSettings& GetShadowSettings();
 	DynamicResolutionSettings& GetDynamicResolutionSettings();
 	bool AllowMeshInstancing = false;
+	void ValidateForAPI(ERenderSystemType system);
 private:
 	float RenderScale = 1;
 	RayTracingSettings RTSettings;

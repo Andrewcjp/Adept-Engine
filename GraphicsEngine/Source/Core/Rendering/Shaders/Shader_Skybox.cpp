@@ -1,14 +1,14 @@
 #include "Shader_Skybox.h"
+#include "Core/EngineInc.h"
+#include "Core/Platform/PlatformCore.h"
+#include "Rendering/Core/Mesh.h"
+#include "Rendering/Core/ParticleSystemManager.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
 #include "RHI/RHI_inc.h"
 #include "RHI/ShaderProgramBase.h"
-#include "Rendering/Core/Mesh.h"
 #include "Shader_Main.h"
-#include "RHI/DeviceContext.h"
-#include "Core/EngineInc.h"
-#include "Rendering/Core/SceneRenderer.h"
-#include "Core/Platform/PlatformCore.h"
-#include "../Core/ParticleSystemManager.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_Skybox);
 Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
@@ -34,7 +34,7 @@ Shader_Skybox::~Shader_Skybox()
 
 void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 {
-#if BASIC_RENDER_ONLY
+#if NOSHADOW
 	return;
 #endif
 	ensure(tex->GetType() == ETextureType::Type_CubeMap);

@@ -61,20 +61,20 @@ void Shader_Convolution::init()
 
 void Shader_Convolution::ComputeConvolution(BaseTextureRef Target)
 {
-#if BASIC_RENDER_ONLY
+#if NOSHADOW
 	return;
 #endif
 	ensure(Target->GetType() == ETextureType::Type_CubeMap);
 	CmdList->ResetList();
-	CmdList->ClearFrameBuffer(CubeBuffer);
+	CmdList->BeginRenderPass(RHIRenderPassDesc(CubeBuffer));
 	CmdList->SetTexture(Target, 0);
 	for (int i = 0; i < 6; i++)
 	{
-		CmdList->SetRenderTarget(CubeBuffer);
 		CmdList->SetConstantBufferView(ShaderData, i, 1);
 		//Test->RenderScreenQuad(CmdList);
 		Cube->Render(CmdList);
 	}
+	CmdList->EndRenderPass();
 	CmdList->Execute();
 }
 

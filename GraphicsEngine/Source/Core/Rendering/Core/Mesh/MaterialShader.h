@@ -1,5 +1,5 @@
 #pragma once
-#include "..\Material.h"
+#include "Rendering/Core/Material.h"
 #include "MaterialTypes.h"
 
 class Shader_NodeGraph;
@@ -17,10 +17,16 @@ public:
 	//
 	TextureBindSet* GetBinds();
 	ParmeterBindSet GetParamBinds();
+
 private:
 	MaterialShaderComplieData CurrentData;
 	Shader_NodeGraph* CurrentShader = nullptr;
 	//holds all shaders created for this material with different option e.g. decal on, forward or deferred etc.
+#if USEHASH
+	std::map<int, Shader_NodeGraph*> ShaderPermutations;
+#else
 	std::map<std::string, Shader_NodeGraph*> ShaderPermutations;
+#endif
+
 };
 

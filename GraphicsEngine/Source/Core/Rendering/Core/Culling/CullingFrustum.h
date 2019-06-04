@@ -9,7 +9,7 @@ public:
 	~CullingFrustum();
 	void SetupFromCamera(Camera* cam);
 	bool TestObject(CullingAABB* AABB);
-	bool RightParallelepipedInFrustum(glm::vec4 Min, glm::vec4 Max);
+	bool RightParallelepipedInFrustum(const glm::vec4& Min,const glm::vec4& Max);
 	void DebugRender();
 	void normalizePlane(glm::vec4 & frustum_plane);
 	void CalculateFrustum(glm::mat4 & view_matrix, glm::mat4 & proj_matrix);

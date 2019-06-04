@@ -37,7 +37,7 @@ Material::~Material()
 	SafeDelete(CurrentBindSet);
 }
 
-void Material::SetMaterialActive(RHICommandList* list, ERenderPass::Type Pass)
+void Material::SetMaterialActive(RHICommandList* RESTRICT list, ERenderPass::Type Pass)
 {
 	if (NeedsUpdate)
 	{
@@ -267,7 +267,9 @@ void Material::SetReceiveShadow(bool state)
 {
 	if (state)
 	{
+#if !NOSHADOW
 		MaterialCData.ShaderKeyWords.push_back("WITH_SHADOW");
+#endif
 	}
 	else
 	{

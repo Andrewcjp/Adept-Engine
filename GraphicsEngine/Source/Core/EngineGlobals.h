@@ -129,3 +129,5 @@ void UNUSED_PARAM(T const&)
 #define PROPERTY()
 #define UCLASS()
 #define CLASS_BODY() void ProcessSerialArchive(Archive* A);
+
+#define RESTRICT __restrict

@@ -23,8 +23,8 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-	int2 t;
-	int pad;
+	int4 t;
+	//int pad;
 	Light lights[MAX_LIGHTS];
 };
 

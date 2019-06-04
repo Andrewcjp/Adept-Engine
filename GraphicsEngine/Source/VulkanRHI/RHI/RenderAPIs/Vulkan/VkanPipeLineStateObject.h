@@ -27,6 +27,7 @@ public:
 	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<VkPipelineShaderStageCreateInfo> ShaderStages;
 	VkSampler textureSampler;
+	std::vector<ShaderParameter> Parms;
 };
 
 

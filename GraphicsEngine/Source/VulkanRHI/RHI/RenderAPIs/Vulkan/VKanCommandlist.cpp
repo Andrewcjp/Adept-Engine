@@ -30,6 +30,7 @@ VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * co
 		}
 	}
 	CurrentDescriptors.resize(10);
+	ResetList();
 }
 
 VKanCommandlist::~VKanCommandlist()
@@ -43,7 +44,7 @@ void VKanCommandlist::ResetList()
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	VKanRHI::VKConv(Device)->pool->ResetAllocations();
+	
 	if (vkBeginCommandBuffer(CommandBuffer, &beginInfo) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to begin recording command buffer!");
@@ -127,7 +128,18 @@ void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQ
 	{
 		throw std::runtime_error("failed to record command buffer!");
 	}
-	//#VK: TODO
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &CommandBuffer;
+
+	submitInfo.signalSemaphoreCount = 0;
+
+
+	if (vkQueueSubmit(VKanRHI::VKConv(Device)->graphicsQueue, 1, &submitInfo, nullptr) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
 }
 
 void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
@@ -136,7 +148,7 @@ void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 	CurrnetRenderPass = VKanRHI::RHIinstance->Pass;
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	
+
 	if (RenderPassInfo.TargetBuffer == nullptr)
 	{
 		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::GetBackBufferDesc()))->RenderPass;
@@ -180,6 +192,7 @@ void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
 	VkanPipeLineStateObject* VObject = (VkanPipeLineStateObject*)Object;
 	CurrentPso = VObject;
+	ensure(CommandBuffer != nullptr);
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
 }
 
@@ -217,7 +230,7 @@ void VKanCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Da
 
 void VKanCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {
-
+	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
 }
 
 void VkanUAV::Bind(RHICommandList * list, int slot)
@@ -250,7 +263,7 @@ void VkanTextureArray::Clear()
 
 void VkanTextureArray::SetFrameBufferFormat(RHIFrameBufferDesc & desc)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	//throw std::logic_error("The method or operation is not implemented.");
 }
 
 #endif

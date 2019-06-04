@@ -127,13 +127,14 @@ void TextRenderer::RenderAllText()
 	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
 	TextCommandList->SetVertexBuffer(VertexBuffer);
 	TextCommandList->SetTexture(TextAtlas->Texture, 0);
+	//TextCommandList->BeginRenderPass()
 	TextCommandList->DrawPrimitive(currentsize, 1, 0, 0);
 }
 
 void TextRenderer::Finish()
 {
 	RenderAllText();
-	TextCommandList->SetRenderTarget(nullptr);
+	//TextCommandList->SetRenderTarget(nullptr);
 	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, EGPUTIMERS::Text);
 	if (instance == this)
 	{
@@ -166,6 +167,7 @@ void TextRenderer::LoadText()
 	Desc.ShaderInUse = m_TextShader;
 	Desc.Mode = Text;
 	PSO = RHI::CreatePipelineStateObject(Desc);
+	//TextCommandList->ResetList();
 	TextCommandList->SetPipelineStateObject(PSO);
 	if (UseFrameBuffer)
 	{

@@ -300,14 +300,14 @@ VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<uin
 void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 {
 	std::vector<VkDescriptorSetLayoutBinding> Binds;
-	std::vector<ShaderParameter> Parms;
+	Parms.clear();
 
 #if !BASIC_RENDER_ONLY
 	Parms = Desc.ShaderInUse->GetShaderParameters();
 #else
 	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
-	Parms.push_back(ShaderParameter(ShaderParamType::SRV, 1, 0));
-	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));
+	Parms.push_back(ShaderParameter(ShaderParamType::SRV, 0, 1));
+	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 0, 2));
 #endif
 
 	for (int i = 0; i < Parms.size(); i++)
@@ -316,7 +316,7 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 		if (Element->Type == ShaderParamType::CBV)
 		{
 			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-			uboLayoutBinding.binding = Element->SignitureSlot;
+			uboLayoutBinding.binding = Element->RegisterSlot;
 			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			uboLayoutBinding.descriptorCount = 1;
 			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
@@ -326,22 +326,35 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 		else if (Element->Type == ShaderParamType::SRV)
 		{
 			VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-			samplerLayoutBinding.binding = VKanShader::GetBindingOffset(ShaderParamType::SRV) + Element->SignitureSlot;
+			samplerLayoutBinding.binding = VKanShader::GetBindingOffset(ShaderParamType::SRV) + Element->RegisterSlot;
 			samplerLayoutBinding.descriptorCount = 1;
 			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			Binds.push_back(samplerLayoutBinding);
 		}
+		else  if (Element->Type == ShaderParamType::RootConstant)
+		{
+			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+			uboLayoutBinding.binding = Element->RegisterSlot;
+			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			uboLayoutBinding.descriptorCount = 1;
+			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
+			uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+			Binds.push_back(uboLayoutBinding);
+		}
 	}
 #if 1
 	{
-		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-		samplerLayoutBinding.binding = VKanShader::GetBindingOffset(ShaderParamType::Sampler);
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = &textureSampler;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		Binds.push_back(samplerLayoutBinding);
+		for (int i = 0; i < 3; i++)
+		{
+			VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+			samplerLayoutBinding.binding = VKanShader::GetBindingOffset(ShaderParamType::Sampler) + i;
+			samplerLayoutBinding.descriptorCount = 1;
+			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+			samplerLayoutBinding.pImmutableSamplers = &textureSampler;
+			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			Binds.push_back(samplerLayoutBinding);
+		}
 	}
 #endif
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};

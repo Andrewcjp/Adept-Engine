@@ -579,6 +579,8 @@ void VKanRHI::CreateNewObjects()
 	DEsc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(D);
 	PSO = new VkanPipeLineStateObject(DEsc, DevCon);
 	PSO->Complie();
+
+	PresentList = new VKanCommandlist(ECommandListType::Graphics, RHI::GetDefaultDevice());
 }
 
 void  VKanRHI::drawFrame()
@@ -589,7 +591,7 @@ void  VKanRHI::drawFrame()
 	vkDeviceWaitIdle(DevCon->device);
 	uint32_t imageIndex;
 	vkAcquireNextImageKHR(DevCon->device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-
+	VKanRHI::VKConv(RHI::GetDefaultDevice())->pool->ResetAllocations();
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -598,9 +600,10 @@ void  VKanRHI::drawFrame()
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
+#if BASIC_RENDER_ONLY
 	if (cmdlist == nullptr)
 	{
-		cmdlist = setuplist;//new VKanCommandlist(ECommandListType::Graphics, DevCon);
+		cmdlist = setuplist;
 	}
 	else
 	{
@@ -634,9 +637,15 @@ void  VKanRHI::drawFrame()
 	cmdlist->EndRenderPass();
 	TestFrameBuffer->UnBind(cmdlist);
 	cmdlist->Execute();
-
+#else
+	PresentList = setuplist;
+#endif
+#if 1
+	PresentList->ResetList();
+	//PresentList->Execute();
+	vkEndCommandBuffer(*PresentList->GetCommandBuffer());
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = cmdlist->GetCommandBuffer();
+	submitInfo.pCommandBuffers = PresentList->GetCommandBuffer();
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
@@ -645,6 +654,7 @@ void  VKanRHI::drawFrame()
 	{
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
+#endif
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
