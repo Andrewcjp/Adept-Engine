@@ -24,14 +24,14 @@ void VkanPipeLineStateObject::Complie()
 {
 	if (Desc.RenderPass == nullptr)
 	{
-		RHIRenderPassDesc Default;
-		Default.RenderDesc.NumRenderTargets = 1;
-		Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
-		//Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-		//Default.RenderDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
-		Default.LoadOp = ERenderPassLoadOp::Clear;
-		Default.StoreOp = ERenderPassStoreOp::Store;
-		Desc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(Default);
+		//RHIRenderPassDesc Default;
+		//Default.RenderDesc.NumRenderTargets = 1;
+		//Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
+		////Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+		////Default.RenderDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+		//Default.LoadOp = ERenderPassLoadOp::Clear;
+		//Default.StoreOp = ERenderPassStoreOp::Store;
+		Desc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(Desc.RenderPassDesc);
 	}
 	//CreateRenderPass();
 	createGraphicsPipeline();
@@ -87,6 +87,7 @@ bool VkanPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElemen
 
 void  VkanPipeLineStateObject::createGraphicsPipeline()
 {
+	ensure(Desc.RenderPass);
 #if BASIC_RENDER_ONLY
 	CreateTestShader();
 #else
@@ -123,7 +124,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	if (Desc.RenderPass->Desc.TargetBuffer == nullptr)
+	if (Desc.RenderPass->Desc.TargetSwapChain)
 	{
 		viewport.width = (float)VKanRHI::RHIinstance->swapChainExtent.width;
 		viewport.height = (float)VKanRHI::RHIinstance->swapChainExtent.height;
@@ -139,7 +140,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 
 	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
-	if (Desc.RenderPass->Desc.TargetBuffer == nullptr)
+	if (Desc.RenderPass->Desc.TargetSwapChain)
 	{
 		scissor.extent = VKanRHI::RHIinstance->swapChainExtent;
 	}

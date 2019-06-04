@@ -22,8 +22,6 @@ public:
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
-	virtual void SetScreenBackBufferAsRT() override;
-	virtual void ClearScreen() override;
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(RHIUAV * target) override;
 	virtual void SetIndexBuffer(RHIBuffer * buffer) override;

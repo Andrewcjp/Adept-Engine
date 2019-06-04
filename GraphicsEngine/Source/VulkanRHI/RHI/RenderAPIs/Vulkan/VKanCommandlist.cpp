@@ -102,13 +102,6 @@ VkCommandBuffer* VKanCommandlist::GetCommandBuffer()
 	return &Pools[VKanRHI::RHIinstance->currentFrame].Buffer;
 }
 
-
-void VKanCommandlist::SetScreenBackBufferAsRT()
-{}
-
-void VKanCommandlist::ClearScreen()
-{}
-
 void VKanCommandlist::ClearFrameBuffer(FrameBuffer * buffer)
 {}
 
@@ -149,9 +142,9 @@ void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 
-	if (RenderPassInfo.TargetBuffer == nullptr)
+	if (RenderPassInfo.TargetSwapChain)
 	{
-		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::GetBackBufferDesc()))->RenderPass;
+		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RHI::GetRenderPassDescForSwapChain()))->RenderPass;
 		renderPassInfo.framebuffer = VKanRHI::RHIinstance->swapChainFramebuffers[VKanRHI::RHIinstance->currentFrame];
 	}
 	else
@@ -162,7 +155,7 @@ void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo))->RenderPass;
 	}
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	if (RenderPassInfo.TargetBuffer == nullptr)
+	if (RenderPassInfo.TargetSwapChain)
 	{
 		renderPassInfo.renderArea.extent = VKanRHI::RHIinstance->swapChainExtent;
 	}

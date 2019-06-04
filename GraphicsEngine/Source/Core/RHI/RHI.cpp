@@ -32,24 +32,24 @@ RHI::RHI(ERenderSystemType system)
 	switch (CurrentSystem)
 	{
 #if BUILD_D3D12
-	case ERenderSystemType::RenderSystemD3D12:
-		Log::LogMessage("Loading DirectX 12 RHI");
-		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("D3D12RHI");
-		ensure(RHImodule);
-		CurrentRHI = RHImodule->GetRHIClass();
-		break;
+		case ERenderSystemType::RenderSystemD3D12:
+			Log::LogMessage("Loading DirectX 12 RHI");
+			RHImodule = ModuleManager::Get()->GetModule<RHIModule>("D3D12RHI");
+			ensure(RHImodule);
+			CurrentRHI = RHImodule->GetRHIClass();
+			break;
 #endif
 #if BUILD_VULKAN
-	case ERenderSystemType::RenderSystemVulkan:
-		Log::LogMessage("Loading Vulkan RHI");
-		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("VulkanRHI");
-		ensure(RHImodule);
-		CurrentRHI = RHImodule->GetRHIClass();
-		break;
+		case ERenderSystemType::RenderSystemVulkan:
+			Log::LogMessage("Loading Vulkan RHI");
+			RHImodule = ModuleManager::Get()->GetModule<RHIModule>("VulkanRHI");
+			ensure(RHImodule);
+			CurrentRHI = RHImodule->GetRHIClass();
+			break;
 #endif
-	default:
-		ensureFatalMsgf(false, "Selected RHI not Avalable");
-		break;
+		default:
+			ensureFatalMsgf(false, "Selected RHI not Avalable");
+			break;
 	}
 	ensureFatalMsgf(CurrentRHI, "RHI load failed");
 }
@@ -64,7 +64,7 @@ void RHI::InitRHI(ERenderSystemType e)
 	if (instance == nullptr)
 	{
 		instance = new RHI(e);
-		
+
 	}
 }
 
@@ -269,6 +269,11 @@ void RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 	GetRHIClass()->SubmitToVRComposter(fb, eye);
 }
 
+ RHIRenderPassDesc RHI::GetRenderPassDescForSwapChain(bool ClearScreen /*= false*/)
+{
+	return GetRHIClass()->GetRenderPassDescForSwapChain(ClearScreen);
+}
+
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 #if BASIC_RENDER_ONLY
@@ -465,7 +470,7 @@ void RHI::InitialiseContext()
 	{
 		instance->RTE = new RayTracingEngine();
 	}
-	
+
 }
 
 void RHI::ValidateSettings()
@@ -667,4 +672,12 @@ void PipelineStateObjectCache::Destory()
 void RHIClass::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 {
 
+}
+
+RHIRenderPassDesc RHIClass::GetRenderPassDescForSwapChain(bool ClearScreen /*= false*/)
+{
+	RHIRenderPassDesc Desc;
+	Desc.TargetSwapChain = true;
+	Desc.LoadOp = ClearScreen ? ERenderPassLoadOp::Clear : ERenderPassLoadOp::Load;
+	return  Desc;
 }

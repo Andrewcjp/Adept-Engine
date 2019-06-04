@@ -213,11 +213,9 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	Shader->setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 	Shader->setEnvTarget(glslang::EShTargetSpv, TargetVersion);
 	Shader->setEntryPoint("main");
-	//std::string proccesed;
+
 	TIncluder inc;
 	const int DefaultVersion = 450;
-
-	std::string PreprocessedGLSL;
 	if (!Shader->parse(&DefaultTBuiltInResource, DefaultVersion, ENoProfile, false, false, Messages, inc))
 	{
 		Log::LogMessage(Program->getInfoLog());

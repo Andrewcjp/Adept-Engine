@@ -47,18 +47,19 @@ VKanRHI * VKanRHI::Get()
 }
 
 
-RHIRenderPassDesc VKanRHI::GetBackBufferDesc()
-{
-	//#VK: Create this from the back buffer surface checks.
-	RHIRenderPassDesc Default;
-	Default.RenderDesc.NumRenderTargets = 1;
-	Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
-	Default.LoadOp = ERenderPassLoadOp::Clear;
-	Default.StoreOp = ERenderPassStoreOp::Store;
-	Default.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
-	Default.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PRESENT;
-	return Default;
-}
+//RHIRenderPassDesc VKanRHI::VKanRHI::GetRenderPassDescForSwapChain()
+//{
+//	//#VK: Create this from the back buffer surface checks.
+//	RHIRenderPassDesc Default;
+//	Default.RenderDesc.NumRenderTargets = 1;
+//	Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
+//	Default.LoadOp = ERenderPassLoadOp::Clear;
+//	Default.StoreOp = ERenderPassStoreOp::Store;
+//	Default.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+//	Default.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PRESENT;
+//	Default.TargetSwapChain = true;
+//	return Default;
+//}
 
 bool VKanRHI::InitWindow(int w, int h)
 {
@@ -118,6 +119,18 @@ HighLevelAccelerationStructure* VKanRHI::CreateHighLevelAccelerationStructure(De
 RHIStateObject* VKanRHI::CreateStateObject(DeviceContext* Device)
 {
 	throw std::logic_error("The method or operation is not implemented.");
+}
+
+RHIRenderPassDesc VKanRHI::GetRenderPassDescForSwapChain(bool ClearScreen)
+{
+	RHIRenderPassDesc desc = RHIClass::GetRenderPassDescForSwapChain();
+	desc.RenderDesc.NumRenderTargets = 1;
+	desc.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
+	desc.StoreOp = ERenderPassStoreOp::Store;
+	desc.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+	desc.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PRESENT;
+	desc.TargetSwapChain = true;
+	return desc;
 }
 
 VKanTexture * VKanRHI::VKConv(BaseTexture * T)
@@ -475,7 +488,7 @@ void  VKanRHI::createFramebuffers()
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::GetBackBufferDesc()))->RenderPass;
+		framebufferInfo.renderPass = VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::VKanRHI::GetRenderPassDescForSwapChain()))->RenderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = swapChainExtent.width;
@@ -533,10 +546,11 @@ void VKanRHI::CreateNewObjects()
 #if !BASIC_RENDER_ONLY
 	return;
 #endif
-	RHIRenderPassCache::Get()->GetOrCreatePass(GetBackBufferDesc());
+	RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::GetRenderPassDescForSwapChain());
 	TestShader = new Shader_Main(true);
 	RHIPipeLineStateDesc DEsc;
 	DEsc.ShaderInUse = TestShader;
+	DEsc.RenderPassDesc = VKanRHI::GetRenderPassDescForSwapChain();
 	SawpPSO = new VkanPipeLineStateObject(DEsc, DevCon);
 	SawpPSO->Complie();
 
@@ -625,8 +639,7 @@ void  VKanRHI::drawFrame()
 	cmdlist->DrawIndexedPrimitive(3, 1, 0, 0, 0);
 
 	cmdlist->EndRenderPass();
-	Info = RHIRenderPassDesc();
-	cmdlist->BeginRenderPass(Info);
+	cmdlist->BeginRenderPass(VKanRHI::GetRenderPassDescForSwapChain());
 	cmdlist->SetPipelineStateObject(SawpPSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->SetTexture(T, 1);

@@ -42,15 +42,20 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 	DebugRender(maincam, target);
 	if (Freeze.GetBoolValue())
 	{
-		return; 
+		return;
 	}
 	Frustum.SetupFromCamera(maincam);
 	int cullcount = 0;
 	for (int i = 0; i < (*target->GetMeshObjects()).size(); i++)
 	{
-		 GameObject* CurrentObj = (*target->GetMeshObjects())[i];
+		GameObject* CurrentObj = (*target->GetMeshObjects())[i];
 		if (CurrentObj->GetMesh() != nullptr)
 		{
+			if (!CurrentObj->IsOnLayer(maincam->RenderMask))
+			{
+				CurrentObj->SetCulledState(ECullingPass::MainPass, true);
+				continue;
+			}
 			const bool culled = !Frustum.TestObject(CurrentObj->GetBounds());
 			if (!culled)
 			{

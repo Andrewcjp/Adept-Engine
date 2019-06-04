@@ -59,10 +59,11 @@ void RayTracingEngine::DispatchRays(FrameBuffer* Target)
 	RayList->ResetList();
 	RayList->StartTimer(EGPUTIMERS::RT_Trace);
 	RayList->SetStateObject(StateObject);
-	RayList->SetRenderTarget(Target);
+	RayList->BeginRenderPass(RHIRenderPassDesc(Target));
 	Target->MakeReadyForComputeUse(RayList);
 	RayList->SetHighLevelAccelerationStructure(CurrnetHL);
 	RayList->TraceRays(RHIRayDispatchDesc(Target));
+	RayList->EndRenderPass();
 	RayList->EndTimer(EGPUTIMERS::RT_Trace);
 	RayList->Execute();
 }

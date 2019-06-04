@@ -50,20 +50,6 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 	m_TextShader->Height = m_height;
 	m_TextShader->Width = m_width;
 	scale = scale * ScaleFactor;
-	if (UseFrameBuffer)
-	{
-		TextCommandList->SetRenderTarget(Renderbuffer);
-		if (NeedsClearRT)
-		{
-			TextCommandList->ClearFrameBuffer(Renderbuffer);
-			NeedsClearRT = false;
-		}
-	}
-	else
-	{
-		TextCommandList->SetScreenBackBufferAsRT();
-	}
-
 	m_TextShader->Update(TextCommandList);
 	const uint8_t *p;
 	atlas* a = TextAtlas;
@@ -127,14 +113,14 @@ void TextRenderer::RenderAllText()
 	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
 	TextCommandList->SetVertexBuffer(VertexBuffer);
 	TextCommandList->SetTexture(TextAtlas->Texture, 0);
-	//TextCommandList->BeginRenderPass()
+	TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
 	TextCommandList->DrawPrimitive(currentsize, 1, 0, 0);
+	TextCommandList->EndRenderPass();
 }
 
 void TextRenderer::Finish()
 {
 	RenderAllText();
-	//TextCommandList->SetRenderTarget(nullptr);
 	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, EGPUTIMERS::Text);
 	if (instance == this)
 	{

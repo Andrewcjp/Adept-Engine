@@ -52,19 +52,7 @@ void DeferredRenderer::OnRender()
 		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);
 	}
 	PostProcessPass();
-	DDOs[0].DebugCommandList->ResetList();
-	DDOs[0].DebugCommandList->StartTimer(EGPUTIMERS::DebugRender);
-	if (RHI::IsRenderingVR())
-	{
-		RenderDebug(DDOs[0].MainFrameBuffer, DDOs[0].DebugCommandList, EEye::Left);
-		RenderDebug(DDOs[0].RightEyeFramebuffer, DDOs[0].DebugCommandList, EEye::Right);
-	}
-	else
-	{
-		RenderDebug(DDOs[0].MainFrameBuffer, DDOs[0].DebugCommandList, EEye::Left);
-	}
-	DDOs[0].DebugCommandList->EndTimer(EGPUTIMERS::DebugRender);
-	DDOs[0].DebugCommandList->Execute();
+	RenderDebugPass();
 	PresentToScreen();
 }
 
@@ -146,7 +134,6 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	DDO->GbufferWriteList[1] = RHI::CreateCommandList(ECommandListType::Graphics, con);
 	DDO->MainCommandList[1] = RHI::CreateCommandList(ECommandListType::Graphics, con);
 
-	DDO->DebugCommandList = RHI::CreateCommandList(ECommandListType::Graphics, con);
 	DDOs[con->GetDeviceIndex()].SkyboxShader = new Shader_Skybox(con);// ShaderComplier::GetShader<Shader_Skybox>();
 	DDOs[con->GetDeviceIndex()].SkyboxShader->Init(DDO->MainFrameBuffer, DDO->Gbuffer);
 
@@ -170,10 +157,12 @@ void DeferredRenderer::GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, 
 	List->SetPipelineStateDesc(desc);
 	List->GetDevice()->GetTimeManager()->StartTotalGPUTimer(List);
 
-	List->SetRenderTarget(gbuffer);
-	List->ClearFrameBuffer(gbuffer);
+	//List->SetRenderTarget(gbuffer);
+	//List->ClearFrameBuffer(gbuffer);
+	List->BeginRenderPass(RHIRenderPassDesc(gbuffer, ERenderPassLoadOp::Clear));
 	SceneRender->RenderScene(List, false, gbuffer, false, eyeindex);
-	List->SetRenderTarget(nullptr);
+	List->EndRenderPass();
+	//List->SetRenderTarget(nullptr);
 }
 
 void DeferredRenderer::SSAOPass()
@@ -190,8 +179,9 @@ void DeferredRenderer::SSAOPass()
 void DeferredRenderer::DebugPass()
 {
 	DebugList->ResetList();
-	DebugList->SetRenderTarget(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer);
-	DebugList->ClearFrameBuffer(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer);
+	//DebugList->SetRenderTarget(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer);
+	//DebugList->ClearFrameBuffer(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer);
+	DebugList->BeginRenderPass(RHIRenderPassDesc(DDOs[DebugList->GetDeviceIndex()].MainFrameBuffer, ERenderPassLoadOp::Clear));
 	int currentDebugType = RHI::GetRenderSettings()->GetDebugRenderMode();
 	int VisAlpha = 0;
 
@@ -211,6 +201,7 @@ void DeferredRenderer::DebugPass()
 	}
 	DebugList->SetRootConstant(1, 1, &VisAlpha, 0);
 	DDOs[DebugList->GetDeviceIndex()].DeferredShader->RenderScreenQuad(DebugList);
+	DebugList->EndRenderPass();
 	DDOs[DebugList->GetDeviceIndex()].Gbuffer->MakeReadyForComputeUse(DebugList, true);
 	DebugList->Execute();
 }
@@ -224,8 +215,9 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	desc.FrameBufferTarget = Object->MainFrameBuffer;
 	List->SetPipelineStateDesc(desc);
 
-	List->SetRenderTarget(output);
-	List->ClearFrameBuffer(output);
+	//List->SetRenderTarget(output);
+	//List->ClearFrameBuffer(output);
+	List->BeginRenderPass(RHIRenderPassDesc(output, ERenderPassLoadOp::Clear));
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
@@ -246,10 +238,11 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 
 	//transparent pass
 	GBuffer->BindDepthWithColourPassthrough(List, output);
-	SceneRender->SetupBindsForForwardPass(List,eyeindex);
+	SceneRender->SetupBindsForForwardPass(List, eyeindex);
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, List);
+	List->EndRenderPass();
 	mShadowRenderer->Unbind(List);
-	List->SetRenderTarget(nullptr);
+	//	List->SetRenderTarget(nullptr);
 	if (List->GetDeviceIndex() == 0)
 	{
 		DDOs[0].MainFrameBuffer->MakeReadyForCopy(List);

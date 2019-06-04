@@ -273,6 +273,29 @@ namespace ERHIBufferType
 		GPU
 	};
 }
+
+//Render passes
+struct ERenderPassStoreOp
+{
+	enum Type
+	{
+		Store,
+		DontCare,
+		Limit
+	};
+};
+
+struct ERenderPassLoadOp
+{
+	enum Type
+	{
+		Load,
+		Clear,
+		DontCare,
+		Limit
+	};
+};
+
 //#RHI remove this?
 struct RHI_API RHIPipeRenderTargetDesc
 {
@@ -286,6 +309,30 @@ enum TMP_BlendMode
 	Text,
 	Full
 };
+
+//defines a render pass pointers to framebuffer optional
+struct RHIRenderPassDesc
+{
+	RHIRenderPassDesc() {}
+	RHIRenderPassDesc(FrameBuffer* buffer, ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Load);
+	FrameBuffer* TargetBuffer = nullptr;
+	FrameBuffer* DepthSourceBuffer = nullptr;
+
+	ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear;
+	ERenderPassStoreOp::Type StoreOp = ERenderPassStoreOp::Store;
+
+	ERenderPassLoadOp::Type StencilLoadOp = ERenderPassLoadOp::DontCare;
+	ERenderPassStoreOp::Type StencilStoreOp = ERenderPassStoreOp::DontCare;
+
+	GPU_RESOURCE_STATES::Type InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
+	GPU_RESOURCE_STATES::Type FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
+	RHIPipeRenderTargetDesc RenderDesc;
+	RHI_API void Build();
+	RHI_API bool operator==(const RHIRenderPassDesc other)const;
+
+	bool TargetSwapChain = false;
+};
+
 struct RHIRender_Target_Blend_Desc
 {
 
@@ -295,7 +342,7 @@ struct RHIBlendState
 {
 	bool AlphaToCoverageEnable = false;
 	bool IndependentBlendEnable = false;
-	RHIRender_Target_Blend_Desc RenderTargetDescs[MRT_MAX];
+	RHIRender_Target_Blend_Desc RenderTargetDescs[MRT_MAX] = {};
 };
 struct RHIRasterizerDesc
 {
@@ -313,11 +360,13 @@ struct RHIDepthStencilDesc
 	DEPTH_STENCILOP_DESC FrontFace;
 	DEPTH_STENCILOP_DESC BackFace;*/
 };
+
 struct ViewInstancingMode
 {
 	bool Active = false;
 	int Instances = 6;
 };
+
 struct  RHIPipeLineStateDesc
 {
 	//Hold both root signature and shader blobs
@@ -352,6 +401,7 @@ struct  RHIPipeLineStateDesc
 	RHI_API std::string GetString();
 	class RHIRenderPass* RenderPass = nullptr;
 	ViewInstancingMode ViewInstancing;
+	RHIRenderPassDesc RenderPassDesc;
 private:
 	size_t UniqueHash = 0;
 	std::string StringPreHash;
@@ -543,27 +593,7 @@ private:
 	std::vector<T*> SharedObjects;
 };
 
-//Render passes
-struct ERenderPassStoreOp
-{
-	enum Type
-	{
-		Store,
-		DontCare,
-		Limit
-	};
-};
 
-struct ERenderPassLoadOp
-{
-	enum Type
-	{
-		Load,
-		Clear,
-		DontCare,
-		Limit
-	};
-};
 
 namespace EBufferAccessType
 {
@@ -665,23 +695,3 @@ struct RHIRayDispatchDesc
 };
 
 
-//defines a render pass pointers to framebuffer optional
-struct RHIRenderPassDesc
-{
-	RHIRenderPassDesc() {}
-	RHIRenderPassDesc(FrameBuffer* buffer, ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear);
-	FrameBuffer* TargetBuffer = nullptr;
-	FrameBuffer* DepthSourceBuffer = nullptr;
-
-	ERenderPassLoadOp::Type LoadOp = ERenderPassLoadOp::Clear;
-	ERenderPassStoreOp::Type StoreOp = ERenderPassStoreOp::Store;
-
-	ERenderPassLoadOp::Type StencilLoadOp = ERenderPassLoadOp::DontCare;
-	ERenderPassStoreOp::Type StencilStoreOp = ERenderPassStoreOp::DontCare;
-
-	GPU_RESOURCE_STATES::Type InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
-	GPU_RESOURCE_STATES::Type FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
-	RHIPipeRenderTargetDesc RenderDesc;
-	RHI_API void Build();
-	RHI_API bool operator==(const RHIRenderPassDesc other)const;
-};

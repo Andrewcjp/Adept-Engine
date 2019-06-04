@@ -93,11 +93,6 @@ void DebugLineDrawer::RegenerateVertBuffer()
 	UpdateLineBuffer(0);
 }
 
-void DebugLineDrawer::RenderLines()
-{
-	//	RenderLines(Projection);
-}
-
 void DebugLineDrawer::ReallocBuffer(int NewSize)
 {
 	if (NewSize == maxSize)
@@ -118,8 +113,9 @@ void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, 
 	desc.DepthStencilState.DepthEnable = false;
 	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	desc.ShaderInUse = LineShader;
+	desc.FrameBufferTarget = Buffer;
 	CmdList->SetPipelineStateDesc(desc);
-	CmdList->SetRenderTarget(Buffer);
+	CmdList->BeginRenderPass(RHIRenderPassDesc(Buffer));
 	CmdList->SetVertexBuffer(VertexBuffer);
 	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(CmdList, 0, eye);
 	if (!Is2DOnly)
@@ -137,6 +133,7 @@ void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, 
 		LineShader->SetParameters(CmdList, DataBuffer);		
 	}
 	CmdList->DrawPrimitive((int)VertsOnGPU, 1, 0, 0);
+	CmdList->EndRenderPass();
 }
 
 void DebugLineDrawer::FlushDebugLines()

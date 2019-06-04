@@ -30,6 +30,7 @@ public:
 	float AspectRatio = 1.0f;
 	void SetViewTransFrom(glm::mat4 ViewTransfrom);
 	void SetProjection(glm::mat4 ViewTransfrom);
+	SceneLayerMask RenderMask;
 protected:
 
 private:

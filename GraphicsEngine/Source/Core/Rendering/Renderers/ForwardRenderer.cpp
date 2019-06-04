@@ -20,16 +20,16 @@ ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, hei
 }
 
 void ForwardRenderer::PreZPass(RHICommandList* Cmdlist, FrameBuffer* target, int eyeindex)
-{
+{	
 	Cmdlist->StartTimer(EGPUTIMERS::PreZ);
 	RHIPipeLineStateDesc desc;
 	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), DDOs[0].MainFrameBuffer);
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS;
 	desc.DepthStencilState.DepthWrite = true;
 	Cmdlist->SetPipelineStateDesc(desc);
-	Cmdlist->SetRenderTarget(target);
-	Cmdlist->ClearFrameBuffer(target);
+	Cmdlist->BeginRenderPass(RHIRenderPassDesc(target,ERenderPassLoadOp::Clear));
 	SceneRender->RenderScene(Cmdlist, true, target, false, eyeindex);
+	Cmdlist->EndRenderPass();
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
 }
 
@@ -72,8 +72,8 @@ void ForwardRenderer::OnRender()
 		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);
 	}
 	PostProcessPass();
+	RenderDebugPass();
 	PresentToScreen();
-
 }
 
 
@@ -122,6 +122,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 void ForwardRenderer::RenderOnDevice(DeviceContext * con)
 {
 	RunMainPass(&DDOs[con->GetDeviceIndex()], EEye::Left);
+	
 	if (RHI::IsRenderingVR())
 	{
 		RunMainPass(&DDOs[con->GetDeviceIndex()], EEye::Right);
@@ -147,6 +148,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	MainPass(List, O->GetMain(eye), eye);
 	List->EndTimer(EGPUTIMERS::MainPass);
 	O->SkyboxShader->Render(SceneRender, List, O->GetMain(eye), nullptr);
+
 	List->Execute();
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
@@ -172,11 +174,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 		mShadowRenderer->BindShadowMapsToTextures(Cmdlist);
 	}
 #endif
-	Cmdlist->SetRenderTarget(targetbuffer);
-	if (!PREZ)
-	{
-		Cmdlist->ClearFrameBuffer(targetbuffer);
-	}
+	Cmdlist->BeginRenderPass(RHIRenderPassDesc(targetbuffer, PREZ ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear));
 	//if (RHI::GetMGPUSettings()->SplitShadowWork || RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		glm::ivec2 Res = glm::ivec2(GetScaledWidth(), GetScaledHeight());
@@ -193,13 +191,13 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
 	//render the transparent objects AFTER the main scene
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
-	Cmdlist->SetRenderTarget(nullptr);
+	//Cmdlist->SetRenderTarget(nullptr);
 #if !BASIC_RENDER_ONLY
 	mShadowRenderer->Unbind(Cmdlist);
 #endif
 	LightCulling->Unbind(Cmdlist);
+	Cmdlist->EndRenderPass();
 	targetbuffer->MakeReadyForComputeUse(Cmdlist);
-
 }
 
 

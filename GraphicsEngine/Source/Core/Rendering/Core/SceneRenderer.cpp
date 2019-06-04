@@ -231,7 +231,7 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 	{
 		return;
 	}
-	commandlist->ClearFrameBuffer(Map->CapturedTexture);
+//	commandlist->ClearFrameBuffer(Map->CapturedTexture);
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), Map->CapturedTexture);
 	for (int i = 0; i < 6; i++)
 	{
@@ -239,11 +239,13 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 		SetMVForProbe(commandlist, i, MainShaderRSBinds::MVCBV);
 		RHIRenderPassDesc Info;
 		Info.TargetBuffer = Map->CapturedTexture;
+		Info.LoadOp = ERenderPassLoadOp::Clear;
 		commandlist->BeginRenderPass(Info);
 		//commandlist->SetRenderTarget(Map->CapturedTexture, i);
 		RenderScene(commandlist, false, Map->CapturedTexture, true);
-		SB->Render(this, commandlist, Map->CapturedTexture, nullptr, true, i);
 		commandlist->EndRenderPass();
+		SB->Render(this, commandlist, Map->CapturedTexture, nullptr, true, i);
+		
 	}
 	Map->SetCaptured();
 	//FrameBufferProcessor::CreateMipChain(Map->CapturedTexture, commandlist);

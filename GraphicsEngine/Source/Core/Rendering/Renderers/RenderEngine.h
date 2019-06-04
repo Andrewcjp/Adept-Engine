@@ -80,7 +80,9 @@ public:
 	void RunLightCulling();
 	LightCullingEngine* LightCulling = nullptr;
 	DynamicResolutionScaler* GetDS();
+	
 protected:
+	void RenderDebugPass();
 	void ShadowPass();
 	void CubeMapPass();
 	void RenderDebug(FrameBuffer * FB, RHICommandList * list, EEye::Type eye);

@@ -51,8 +51,19 @@ class BitFlagsBase
 {
 public:
 	void SetFlagValue(int flag, bool value);
-	bool GetFlagValue(int flag);
+	bool GetFlagValue(int flag) const;
 	void SetFlags(int flags);
 private:
 	int Flags = 0;
+};
+typedef BitFlagsBase SceneLayerMask;
+namespace ESceneLayers
+{
+	enum Type
+	{
+		Default,
+		UserLayer0,
+		UserLayer1,
+		Limit =16
+	};
 };
