@@ -56,7 +56,7 @@ void SceneRenderer::Init()
 	{
 		CLightBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 		CLightBuffer[i]->SetDebugName("Light buffer");
-		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, true);		
+		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
 	}
 	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CMVBuffer->SetDebugName("CMVBuffer");
@@ -156,7 +156,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 				}
 				//lights[i]->Projection = proj;
 				lights[i]->DirView = LightView;
-//				newitem.LightVP = proj * LightView;
+				//				newitem.LightVP = proj * LightView;
 			}
 			if (lights[i]->GetType() == ELightType::Point)
 			{
@@ -170,7 +170,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 		LightsBuffer.LightCount = lights.size();
 		const int TileSize = RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE;
 		LightsBuffer.Tiles[0] = BaseWindow::GetCurrentRenderer()->GetScaledWidth() / TileSize;
-		LightsBuffer.Tiles[1] = BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize;		
+		LightsBuffer.Tiles[1] = BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize;
 		CLightBuffer[devindex]->UpdateConstantBuffer(&LightsBuffer, 0);
 	}
 }
@@ -237,9 +237,13 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 	{
 		commandlist->SetPipelineStateDesc(Desc);
 		SetMVForProbe(commandlist, i, MainShaderRSBinds::MVCBV);
-		commandlist->SetRenderTarget(Map->CapturedTexture, i);
+		RHIRenderPassDesc Info;
+		Info.TargetBuffer = Map->CapturedTexture;
+		commandlist->BeginRenderPass(Info);
+		//commandlist->SetRenderTarget(Map->CapturedTexture, i);
 		RenderScene(commandlist, false, Map->CapturedTexture, true);
 		SB->Render(this, commandlist, Map->CapturedTexture, nullptr, true, i);
+		commandlist->EndRenderPass();
 	}
 	Map->SetCaptured();
 	//FrameBufferProcessor::CreateMipChain(Map->CapturedTexture, commandlist);
@@ -250,7 +254,7 @@ void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
 	list->SetConstantBufferView(RelfectionProbeProjections, index, Slot);
 }
 
-void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list,int eyeindex)
+void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex)
 {
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterial()->GetShaderInstance(EMaterialPassType::Forward));
 	list->SetPipelineStateDesc(Desc);

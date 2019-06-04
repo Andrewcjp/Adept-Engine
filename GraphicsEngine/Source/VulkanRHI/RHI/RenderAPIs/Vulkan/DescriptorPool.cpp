@@ -55,7 +55,7 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 
 		descriptorWrite.descriptorCount = 1;
 
-		if (Desc->DescType == EDescriptorType::CBV)
+		if (Desc->DescType == EDescriptorType::CBV )
 		{
 			VkDescriptorBufferInfo* bufferInfo = new VkDescriptorBufferInfo();
 			bufferInfo->buffer = Desc->Buffer->vertexbuffer;

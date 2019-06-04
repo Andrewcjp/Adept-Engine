@@ -123,18 +123,23 @@ void RenderEngine::Init()
 #if BASIC_RENDER_ONLY
 	return;
 #endif
+#if !NOSHADOW
 	mShadowRenderer = new ShadowRenderer(SceneRender, Culling);
 	if (MainScene != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 	}
+#endif
 	InitProcessingShaders(RHI::GetDeviceContext(0));
 	InitProcessingShaders(RHI::GetDeviceContext(1));
+#if !NOSHADOW
 	CubemapCaptureList = RHI::CreateCommandList(ECommandListType::Graphics);
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 	desc.ShaderInUse = Material::GetDefaultMaterialShader();
 	desc.FrameBufferTarget = DDOs[0].MainFrameBuffer;
 	CubemapCaptureList->SetPipelineStateDesc(desc);
+	
+#endif
 	PostInit();
 	Post = new PostProcessing();
 	Post->Init(DDOs[0].MainFrameBuffer);
@@ -143,13 +148,18 @@ void RenderEngine::Init()
 	LightCulling->Init();
 
 	//debug 
+#if !NOSHADOW
 	SceneRender->probes.push_back(new RelfectionProbe());
+#endif
 	//SceneRender->probes[0]->ProbeMode = EReflectionProbeMode::ERealTime;
 	PostSizeUpdate();
 }
 
 void RenderEngine::InitProcessingShaders(DeviceContext* dev)
 {
+#if NOSHADOW
+	return;
+#endif
 	if (dev == nullptr)
 	{
 		return;
@@ -170,6 +180,9 @@ void RenderEngine::InitProcessingShaders(DeviceContext* dev)
 
 void RenderEngine::ProcessSceneGPU(DeviceContext* dev)
 {
+#if NOSHADOW
+	return;
+#endif
 	if (dev == nullptr)
 	{
 		return;
@@ -267,7 +280,7 @@ void RenderEngine::SetScene(Scene * sc)
 	{
 		DDOs[1].SkyboxShader->SetSkyBox(sc->GetLightingData()->SkyBox);
 	}
-#if !BASIC_RENDER_ONLY
+#if !NOSHADOW
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
@@ -293,7 +306,7 @@ void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 
 void RenderEngine::ShadowPass()
 {
-#if !BASIC_RENDER_ONLY
+#if !NOSHADOW
 	if (mShadowRenderer != nullptr)
 	{
 		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetMeshObjects(), MainShader);

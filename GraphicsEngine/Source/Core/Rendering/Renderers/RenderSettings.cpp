@@ -186,7 +186,7 @@ bool RenderSettings::IsUsingZPrePass() const
 RenderSettings::RenderSettings()
 {
 	IsDeferred = UseDeferredMode.GetBoolValue();
-//	IsDeferred = true;
+	//	IsDeferred = true;
 	EnableVR = true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;
@@ -208,6 +208,18 @@ RenderSettings::RenderSettings()
 	EnableGPUParticles = false;
 	IsDeferred = false;
 #endif
+
+}
+
+void RenderSettings::ValidateForAPI(ERenderSystemType system)
+{
+	if (system == ERenderSystemType::RenderSystemVulkan)
+	{
+		RTSettings.Enabled = false;
+		DRSSettings.EnableDynamicResolutionScaling = false;
+		EnableGPUParticles = false;
+		IsDeferred = false;
+	}
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)

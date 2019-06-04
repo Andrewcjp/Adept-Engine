@@ -1,5 +1,5 @@
 #pragma once
-
+#define USEHASH 1
 namespace ShaderPropertyType
 {
 	enum Type
@@ -45,6 +45,7 @@ struct MaterialShaderComplieData
 	bool operator==(const MaterialShaderComplieData other)const;
 	bool operator<(const MaterialShaderComplieData &o)  const;
 	std::string ToString();
+	int ToHash();
 };
 
 

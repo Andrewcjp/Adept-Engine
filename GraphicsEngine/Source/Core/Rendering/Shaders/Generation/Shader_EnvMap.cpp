@@ -67,29 +67,28 @@ void Shader_EnvMap::Init()
 
 void Shader_EnvMap::ProcessTexture(BaseTextureRef Target)
 {
-#if BASIC_RENDER_ONLY
+#if NOSHADOW
 	return;
 #endif
 	CmdList->ResetList();
-	CmdList->ClearFrameBuffer(CubeBuffer);
 	CmdList->SetTexture(Target, 0);
+	CmdList->BeginRenderPass(RHIRenderPassDesc(CubeBuffer));
 	for (int i = 0; i < 6; i++)
 	{
-		CmdList->SetRenderTarget(CubeBuffer, 0);
 		CmdList->SetConstantBufferView(ShaderData, i, 1);
 		Cube->Render(CmdList, true);
 	}
+	CmdList->EndRenderPass();
 	CmdList->Execute();
 }
 
 void Shader_EnvMap::ComputeEnvBRDF()
 {
 	CmdList->ResetList();
-
-	CmdList->ClearFrameBuffer(EnvBRDFBuffer);
-	CmdList->SetRenderTarget(EnvBRDFBuffer, 0);
+	CmdList->BeginRenderPass(RHIRenderPassDesc(EnvBRDFBuffer));
 	CmdList->SetConstantBufferView(ShaderData, 0, 1);
 	QuadDraw->RenderScreenQuad(CmdList);
+	CmdList->EndRenderPass();
 	CmdList->Execute();
 }
 

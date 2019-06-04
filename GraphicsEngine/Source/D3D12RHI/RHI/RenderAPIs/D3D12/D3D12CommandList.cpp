@@ -175,12 +175,10 @@ void D3D12CommandList::ResetList()
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
 {
-#if FORCE_RENDER_PASS_USE
-	if (!IsInRenderPass)
-	{
-		Log::LogMessage("SetRenderTarget is depreciated use the new render pass API", Log::Warning);
-	}
-#endif
+	//if (!IsInRenderPass)
+	//{
+	//	Log::LogMessage("SetRenderTarget is depreciated use the new render pass API", Log::Warning);
+	//}
 	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
 	{

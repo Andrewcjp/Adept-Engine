@@ -78,16 +78,16 @@ private:
 	float LeftWidth = 0.15f;
 	int m_width = 0;
 	int m_height = 0;
-	UIBox* bottom;
-	UIListBox* box;
+	UIBox* bottom = nullptr;
+	UIListBox* box = nullptr;
 	float LastHeight = 0;
 	float YHeight = 25;
 	float XSpacing = 25;
 	CollisionRect ViewportRect;
-	UIPopoutbox* testbox;
+	UIPopoutbox* testbox = nullptr;
 	UIAssetManager* AssetManager;
 	bool Blocking = false;
-	Inspector* inspector;
+	Inspector* inspector = nullptr;
 	std::vector<GameObject*>* GameObjectsPtr;
 };
 

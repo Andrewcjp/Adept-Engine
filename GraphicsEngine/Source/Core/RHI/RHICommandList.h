@@ -73,6 +73,7 @@ public:
 	RHICommandList(ECommandListType::Type type, DeviceContext* context);
 	RHI_VIRTUAL ~RHICommandList();
 	RHI_VIRTUAL void ResetList() = 0;
+	[[deprecated("Use RenderPass API")]]
 	RHI_VIRTUAL void SetRenderTarget(FrameBuffer* target, int SubResourceIndex = 0) = 0;
 	RHI_VIRTUAL void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
 	RHI_VIRTUAL void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;

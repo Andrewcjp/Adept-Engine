@@ -388,8 +388,10 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 		case FORMAT_D16_UNORM:
 			break;
 		case FORMAT_R16_UNORM:
+			return VK_FORMAT_R16_UNORM;
 			break;
 		case FORMAT_R16_UINT:
+			return VK_FORMAT_R16_UINT;
 			break;
 		case FORMAT_R16_SNORM:
 			break;
@@ -400,6 +402,7 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 		case FORMAT_R8_UNORM:
 			break;
 		case FORMAT_R8_UINT:
+			return VK_FORMAT_R8_UINT;
 			break;
 		case FORMAT_R8_SNORM:
 			break;

@@ -81,7 +81,7 @@ GPUResource::eResourceState GPUResource::GetState()
 	return currentState;
 }
 
-void GPUResource::SetResourceState(ID3D12GraphicsCommandList* List, D3D12_RESOURCE_STATES newstate)
+void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
 	{
@@ -95,7 +95,7 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList* List, D3D12_RESOUR
 	}
 }
 //todo More Detailed Error checking!
-void GPUResource::StartResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
+void GPUResource::StartResourceTransition( ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
 	{

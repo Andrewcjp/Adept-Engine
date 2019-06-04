@@ -1,6 +1,8 @@
 #include "VKanTexture.h"
+#pragma optimize("O3",on)
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#pragma optimize("",off)
 #include "vulkan/vulkan_core.h"
 #include "VKanRHI.h"
 #include "VkanDeviceContext.h"

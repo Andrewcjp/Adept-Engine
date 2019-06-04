@@ -40,9 +40,10 @@ struct PSInput
 	float4 WorldPos:TANGENT0;
 	row_major float3x3 TBN:TANGENT1;
 };
-
+#ifdef WITH_SHADOW
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t0, space1);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t1, space2);
+#endif
 #define MAX_CUBEMAPS 1
 TextureCube DiffuseIrMap : register(t10);
 TextureCube SpecularBlurMap[MAX_CUBEMAPS]: register(t11,space3);
