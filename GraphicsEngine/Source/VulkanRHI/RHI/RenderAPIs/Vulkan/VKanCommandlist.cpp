@@ -165,12 +165,15 @@ void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 		CurrnetRenderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo));
 		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo))->RenderPass;
 		//ensure(VKanRHI::VKConv(CurrentPso->GetDesc().RenderPass)->RenderPass == renderPassInfo.renderPass);
-		if (VKanRHI::VKConv(CurrentPso->GetDesc().RenderPass)->RenderPass != renderPassInfo.renderPass)
+		if (CurrentPso != nullptr)
 		{
-			RHIPipeLineStateDesc NewDesc = CurrentPso->GetDesc();
-			NewDesc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo);
-			SetPipelineStateDesc(NewDesc);
-			CurrnetRenderPass = VKanRHI::VKConv(NewDesc.RenderPass);
+			if (VKanRHI::VKConv(CurrentPso->GetDesc().RenderPass)->RenderPass != renderPassInfo.renderPass)
+			{
+				RHIPipeLineStateDesc NewDesc = CurrentPso->GetDesc();
+				NewDesc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo);
+				SetPipelineStateDesc(NewDesc);
+				CurrnetRenderPass = VKanRHI::VKConv(NewDesc.RenderPass);
+			}
 		}
 	}
 	renderPassInfo.renderArea.offset = { 0, 0 };
@@ -203,7 +206,11 @@ void VKanCommandlist::EndRenderPass()
 void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
 	VkanPipeLineStateObject* VObject = (VkanPipeLineStateObject*)Object;
-
+	if (CurrentPso != nullptr && CurrentPso->Parms.size() != VObject->Parms.size())
+	{
+		CurrentDescriptors.clear();
+		CurrentDescriptors.resize(25);
+	}
 	CurrentPso = VObject;
 	ensure(CommandBuffer != nullptr);
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
@@ -211,9 +218,17 @@ void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
 {
+	if (Resourceindex == -1)
+	{
+		SetTexture(VKanRHI::RHIinstance->T, slot);
+		VKanFramebuffer* V = VKanRHI::VKConv(buffer);
+		V->WasTexture = true;
+		return;
+	}
 	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKanFramebuffer* V = VKanRHI::VKConv(buffer);
 	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot);
+	V->WasTexture = true;
 }
 
 

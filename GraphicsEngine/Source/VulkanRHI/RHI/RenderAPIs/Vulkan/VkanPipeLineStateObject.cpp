@@ -70,6 +70,11 @@ bool VkanPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElemen
 	{
 		Stride += RHIUtils::GetPixelSize(desc[i].Format);
 	}
+	//hacky hack
+	if (desc[0].Stride != 0)
+	{
+		Stride = desc[0].Stride;
+	}
 	VkVertexInputBindingDescription bindingDescription = {};
 	bindingDescription.binding = 0;
 	bindingDescription.stride = Stride;// sizeof(OGLVertex);
@@ -110,8 +115,8 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	std::vector< VkVertexInputBindingDescription> vertexbindings;
 	//	Desc.ShaderInUse->GetVertexFormat();
 
-	std::vector< Shader::VertexElementDESC> RHIDesc;
-	RHIDesc.push_back(Shader::VertexElementDESC{ "POSITION", 0, FORMAT_R32G32_FLOAT, 0, 0, Shader::INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+
+	//RHIDesc.push_back(Shader::VertexElementDESC{ "POSITION", 0, FORMAT_R32G32_FLOAT, 0, 0, Shader::INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	RHIDesc = Desc.ShaderInUse->GetVertexFormat();
 	ParseVertexFormat(RHIDesc, attributeDescriptions, vertexbindings);
 
@@ -180,13 +185,15 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	colorBlendAttachment.blendEnable = Desc.Blending;
-	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;	
-	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-
+	if (Desc.Blending)
+	{
+		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	}
 	VkPipelineColorBlendStateCreateInfo colorBlending = {};
 	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	colorBlending.logicOpEnable = VK_FALSE;
@@ -224,19 +231,15 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	pipelineInfo.renderPass = VRP->RenderPass;
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-	//	if (Desc.RenderTargetDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
-	{
-		VkPipelineDepthStencilStateCreateInfo D = {};
-		D.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-		D.depthTestEnable = VK_TRUE;
-		D.depthWriteEnable = VK_TRUE;
-		D.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-		D.stencilTestEnable = VK_FALSE;
-		pipelineInfo.pDepthStencilState = &D;
 
-
-	}
-	//pipelineInfo.pDepthStencilState
+	VkPipelineDepthStencilStateCreateInfo D = {};
+	ZeroMemory(&D, sizeof(D));
+	D.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	D.depthTestEnable = Desc.DepthStencilState.DepthEnable;
+	D.depthWriteEnable = Desc.DepthStencilState.DepthWrite;
+	D.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+	D.stencilTestEnable = VK_FALSE;
+	pipelineInfo.pDepthStencilState = &D;
 
 	if (vkCreateGraphicsPipelines(VDevice->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &Pipeline) != VK_SUCCESS)
 	{

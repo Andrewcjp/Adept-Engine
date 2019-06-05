@@ -2,9 +2,11 @@
 struct PrimitiveData
 {
 	row_major matrix Model;
+#if !VULKAN
 	float4x4 pad;
 	float4x4 pad2;
 	float4x4 pad3;
+#endif
 };
 
 #if USE_INSTANCING

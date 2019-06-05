@@ -51,6 +51,7 @@ std::vector<Shader::VertexElementDESC> Shader_Main::GetMainVertexFormat()
 {
 	std::vector<Shader::VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out[0].Stride = sizeof(OGLVertex);
 	out.push_back(VertexElementDESC{ "NORMAL", 0, FORMAT_R32G32B32_FLOAT, 0, 12, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "TEXCOORD", 0, FORMAT_R32G32_FLOAT, 0, 24,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "TANGENT", 0, FORMAT_R32G32B32_FLOAT, 0, 32,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });

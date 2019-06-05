@@ -37,11 +37,11 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 {
 	PSInput result = (PSInput)0;
 	float4 final_pos = position;
-	final_pos.w = 1.0f;
+	//final_pos.w = 1.0f;
 #if WITH_INSTANCING
-	final_pos = mul(position, PrimD[id].Model);
+	final_pos = mul(float4(position.xyz, 1.0f), PrimD[id].Model);
 #else
-	final_pos = mul(position, PrimD[0].Model);
+	final_pos = mul(float4(position.xyz, 1.0f), PrimD[0].Model);
 #endif	
 	result.WorldPos = final_pos;
 	final_pos = mul(final_pos, View);

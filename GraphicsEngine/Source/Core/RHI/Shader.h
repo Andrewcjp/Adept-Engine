@@ -51,6 +51,7 @@ public:
 		unsigned int AlignedByteOffset;
 		INPUT_CLASSIFICATION InputSlotClass;
 		unsigned int InstanceDataStepRate;
+		int Stride = 0;
 	} 	VertexElementDESC;
 	
 	Shader();

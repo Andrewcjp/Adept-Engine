@@ -35,9 +35,9 @@ GameHud* BleedOutGame::CreateGameHUD()
 std::vector<std::string> BleedOutGame::GetPreLoadAssets()
 {
 	std::vector<std::string> vector;
-	vector.push_back("Texture\\vanguard_diffuse.png");
-	vector.push_back("Texture\\Mutant_diffuse.png");
-	vector.push_back("\\texture\\ammoc03.jpg");
-	vector.push_back("Texture\\ProjectileTex.png");
+	//vector.push_back("Texture\\vanguard_diffuse.png");
+	//vector.push_back("Texture\\Mutant_diffuse.png");
+	//vector.push_back("\\texture\\ammoc03.jpg");
+	//vector.push_back("Texture\\ProjectileTex.png");
 	return vector;
 }

@@ -8,6 +8,7 @@
 #include "Descriptor.h"
 #include "VKanTexture.h"
 #include "VKanShader.h"
+#include "Core/Performance/PerfManager.h"
 
 
 DescriptorPool::DescriptorPool(VkanDeviceContext* Con)
@@ -32,6 +33,7 @@ void DescriptorPool::ResetAllocations()
 
 void DescriptorPool::AllocateAndBind(VKanCommandlist * List)
 {
+	SCOPE_CYCLE_COUNTER_GROUP("Descriptor Bind", "RHI");
 	VkDescriptorSet Set = AllocateSet(List);
 	vkCmdBindDescriptorSets(List->CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, List->CurrentPso->PipelineLayout, 0, 1, &Set, 0, nullptr);
 }
@@ -100,7 +102,7 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 void DescriptorPool::createDescriptorPool()
 {
 	std::vector<VkDescriptorPoolSize> Sizes;
-	int MaxCount = 1000;
+	int MaxCount = 10000;
 	VkDescriptorPoolSize poolSize = {};
 	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSize.descriptorCount = MaxCount;

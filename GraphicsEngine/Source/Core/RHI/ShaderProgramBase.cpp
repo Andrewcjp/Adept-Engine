@@ -1,5 +1,15 @@
 #include "ShaderProgramBase.h"
 
+ShaderProgramBase::ShaderProgramBase()
+{
+	if (!RHI::IsVulkan())
+	{
+		//the vulkan to HLSL complier defines this for us
+		ModifyCompileEnviroment(Shader_Define("VULKAN", std::to_string(RHI::IsVulkan())));
+	}
+	ModifyCompileEnviroment(Shader_Define("DX12", std::to_string(RHI::IsD3D12())));
+}
+
 ShaderProgramBase::~ShaderProgramBase()
 {
 
@@ -7,7 +17,7 @@ ShaderProgramBase::~ShaderProgramBase()
 
 EShaderError::Type ShaderProgramBase::AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type)
 {
-	return AttachAndCompileShaderFromFile(filename,type,"main");
+	return AttachAndCompileShaderFromFile(filename, type, "main");
 }
 
 void ShaderProgramBase::ModifyCompileEnviroment(Shader_Define Define)

@@ -195,14 +195,14 @@ RenderSettings::RenderSettings()
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
-	UseZPrePass = true;
+	UseZPrePass = false;
 	SetRes(BBTestMode::HD);
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
 	//RTSettings.Enabled = true;
-	//AllowMeshInstancing = true; 
-#if 0//BASIC_RENDER_ONLY
+	AllowMeshInstancing = false; 
+#if NOSHADOW
 	RTSettings.Enabled = false;
 	DRSSettings.EnableDynamicResolutionScaling = false;
 	EnableGPUParticles = false;
@@ -220,6 +220,11 @@ void RenderSettings::ValidateForAPI(ERenderSystemType system)
 		EnableGPUParticles = false;
 		IsDeferred = false;
 	}
+}
+
+RendererSettings & RenderSettings::GetSettingsForRender()
+{
+	return RSettings;
 }
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)

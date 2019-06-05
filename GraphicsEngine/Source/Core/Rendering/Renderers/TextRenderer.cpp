@@ -115,7 +115,7 @@ void TextRenderer::RenderAllText()
 		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
 		TextCommandList->SetVertexBuffer(VertexBuffer);
 		TextCommandList->SetTexture(TextAtlas->Texture, 0);
-		TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain(true));
+		TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
 		TextCommandList->DrawPrimitive(currentsize, 1, 0, 0);
 		TextCommandList->EndRenderPass();
 	}
