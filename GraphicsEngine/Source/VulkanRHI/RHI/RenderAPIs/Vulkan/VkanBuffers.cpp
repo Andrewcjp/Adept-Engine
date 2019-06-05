@@ -14,8 +14,9 @@ void VKanBuffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType:
 	VkVertexInputBindingDescription bindingDescription = {};
 	bindingDescription.binding = 0;
 	bindingDescription.stride = Stride;
+	StructSize = Stride;
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
+	Desc.Accesstype = Accesstype;
 	VkBufferCreateInfo bufferInfo = {};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	bufferInfo.size = ByteSize;
@@ -44,10 +45,17 @@ void VKanBuffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType:
 
 void VKanBuffer::UpdateVertexBuffer(void * data, size_t length)
 {
-	VertexCount = length;
+	VertexCount = length /*/ StructSize*/;
 	void* GPUdata;
 	vkMapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory, 0, TotalByteSize, 0, &GPUdata);
-	memcpy(GPUdata, data, TotalByteSize);
+	if (Desc.Accesstype == EBufferAccessType::Dynamic)
+	{
+		memcpy(GPUdata, data, length);
+	}
+	else
+	{
+		memcpy(GPUdata, data, TotalByteSize);
+	}
 	vkUnmapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory);
 }
 

@@ -29,21 +29,15 @@ bool VKanTexture::CreateFromFile(AssetPathRef FileName)
 	{
 		return true;
 	}
-	VkDeviceSize imageSize = texWidth * texHeight * 4;
-	VkanDeviceContext* D = (VkanDeviceContext*)RHI::GetDefaultDevice();
-	VkanHelpers::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-	void* data;
-	vkMapMemory(D->device, stagingBufferMemory, 0, imageSize, 0, &data);
-	memcpy(data, pixels, static_cast<size_t>(imageSize));
-	vkUnmapMemory(D->device, stagingBufferMemory);
+	Log::LogMessage("Loading texture " + FilePAth);
+	TextureDescription desc;
+	desc.Width = texWidth;
+	desc.Height = texHeight;
+	desc.BitDepth = 4;// texChannels;
+	desc.PtrToData = pixels;
+	CreateTextureFromDesc(desc);
 	stbi_image_free(pixels);
-
-	VkanHelpers::createImage(D, texWidth, texHeight, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
-	VkCommandBuffer B = VKanRHI::RHIinstance->setuplist->CommandBuffer;
-	VkanHelpers::transitionImageLayout(B, textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	VkanHelpers::copyBufferToImage(B, stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-	VkanHelpers::transitionImageLayout(B, textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-	UpdateSRV();
+	TexturePath = FileName.GetRelativePathToAsset();
 	return true;
 }
 
@@ -55,12 +49,34 @@ void VKanTexture::CreateAsNull()
 void VKanTexture::UpdateSRV()
 {
 	VkanDeviceContext* D = (VkanDeviceContext*)RHI::GetDefaultDevice();
-	textureImageView = VkanHelpers::createImageView(D, textureImage, VK_FORMAT_R8G8B8A8_UNORM);
+	textureImageView = VkanHelpers::createImageView(D, textureImage, fmt);
 }
 
 void VKanTexture::CreateTextureFromDesc(const TextureDescription& desc)
 {
+	VkDeviceSize imageSize = desc.Width * desc.Height * desc.BitDepth;
+	VkanDeviceContext* D = (VkanDeviceContext*)RHI::GetDefaultDevice();
+	VkanHelpers::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	void* data;
+	vkMapMemory(D->device, stagingBufferMemory, 0, imageSize, 0, &data);
+	memcpy(data, desc.PtrToData, static_cast<size_t>(imageSize));
+	vkUnmapMemory(D->device, stagingBufferMemory);
 
+	if (desc.BitDepth == 4)
+	{
+		fmt = VK_FORMAT_R8G8B8A8_UNORM;
+	}
+	else
+	{
+		fmt = VK_FORMAT_R8_UNORM;
+	}
+
+	VkanHelpers::createImage(D, desc.Width, desc.Height, fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+	VkCommandBuffer B = VKanRHI::RHIinstance->setuplist->CommandBuffer;
+	VkanHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	VkanHelpers::copyBufferToImage(B, stagingBuffer, textureImage, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height));
+	VkanHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	UpdateSRV();
 }
 
 Descriptor VKanTexture::GetDescriptor(int slot)

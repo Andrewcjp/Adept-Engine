@@ -24,14 +24,14 @@ void VkanPipeLineStateObject::Complie()
 {
 	if (Desc.RenderPass == nullptr)
 	{
-		//RHIRenderPassDesc Default;
-		//Default.RenderDesc.NumRenderTargets = 1;
-		//Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
-		////Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-		////Default.RenderDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
-		//Default.LoadOp = ERenderPassLoadOp::Clear;
-		//Default.StoreOp = ERenderPassStoreOp::Store;
-		Desc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(Desc.RenderPassDesc);
+		if (Desc.RenderPassDesc.TargetBuffer == nullptr)
+		{
+			Desc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(RHI::GetRenderPassDescForSwapChain());
+		}
+		else
+		{
+			Desc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(Desc.RenderPassDesc);
+		}
 	}
 	//CreateRenderPass();
 	createGraphicsPipeline();
@@ -65,9 +65,14 @@ void VkanPipeLineStateObject::createTextureSampler()
 bool VkanPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, std::vector< VkVertexInputAttributeDescription>& attributeDescriptions,
 	std::vector< VkVertexInputBindingDescription>& vertexbindings)
 {
+	int Stride = 0;
+	for (int i = 0; i < desc.size(); i++)
+	{
+		Stride += RHIUtils::GetPixelSize(desc[i].Format);
+	}
 	VkVertexInputBindingDescription bindingDescription = {};
 	bindingDescription.binding = 0;
-	bindingDescription.stride = sizeof(OGLVertex);
+	bindingDescription.stride = Stride;// sizeof(OGLVertex);
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 	vertexbindings.push_back(bindingDescription);
 	for (int i = 0; i < desc.size(); i++)
@@ -163,7 +168,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+	rasterizer.cullMode = Desc.Cull ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE;
 	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 
@@ -174,7 +179,13 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colorBlendAttachment.blendEnable = VK_FALSE;
+	colorBlendAttachment.blendEnable = Desc.Blending;
+	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;	
+	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
 	VkPipelineColorBlendStateCreateInfo colorBlending = {};
 	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -307,8 +318,8 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 	Parms = Desc.ShaderInUse->GetShaderParameters();
 #else
 	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
-	Parms.push_back(ShaderParameter(ShaderParamType::SRV, 0, 1));
-	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 0, 2));
+	Parms.push_back(ShaderParameter(ShaderParamType::SRV, 1, 10));
+	Parms.push_back(ShaderParameter(ShaderParamType::CBV, 2, 2));
 #endif
 
 	for (int i = 0; i < Parms.size(); i++)
@@ -367,6 +378,19 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 	{
 		throw std::runtime_error("failed to create descriptor set layout!");
 	}
+}
+
+ShaderParameter * VkanPipeLineStateObject::GetRootSigSlot(int id)
+{
+	for (int i = 0; i < Parms.size(); i++)
+	{
+		if (Parms[i].SignitureSlot == id)
+		{
+			return &Parms[i];
+		}
+	}
+	ensure(false);
+	return nullptr;
 }
 
 VKanRenderPass::VKanRenderPass(RHIRenderPassDesc & desc, DeviceContext * Device) :RHIRenderPass(desc)

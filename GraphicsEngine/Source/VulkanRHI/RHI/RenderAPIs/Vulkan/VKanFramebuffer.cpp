@@ -25,7 +25,7 @@ const RHIPipeRenderTargetDesc & VKanFramebuffer::GetPiplineRenderDesc()
 
 void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList* List, bool Depth /*= false*/)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	//throw std::logic_error("The method or operation is not implemented.");
 }
 
 void VKanFramebuffer::UnBind(VKanCommandlist * List)
@@ -36,10 +36,10 @@ void VKanFramebuffer::UnBind(VKanCommandlist * List)
 
 void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	//throw std::logic_error("The method or operation is not implemented.");
 }
 
-void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc)
+void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc, VKanCommandlist* list)
 {
 	if (IsCreated)
 	{
@@ -54,7 +54,7 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc)
 		VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[0]);
 		VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, RTImage, RTImageMemory, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 		RTImageView = VkanHelpers::createImageView(VKanRHI::VKConv(Device), RTImage, fmt, VK_IMAGE_ASPECT_COLOR_BIT);
-		VkCommandBuffer B = VKanRHI::RHIinstance->setuplist->CommandBuffer;
+		VkCommandBuffer B = *list->GetCommandBuffer();// VKanRHI::RHIinstance->setuplist->CommandBuffer;
 		VkanHelpers::transitionImageLayout(B, RTImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		attachments.push_back(RTImageView);
 	}
@@ -64,7 +64,7 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc)
 		VkFormat depthFormat = VkanHelpers::ConvertFormat(BufferDesc.DepthFormat);
 		VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 		depthImageView = VkanHelpers::createImageView(VKanRHI::VKConv(Device), depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-		VkCommandBuffer B = VKanRHI::RHIinstance->setuplist->CommandBuffer;
+		VkCommandBuffer B = *list->GetCommandBuffer();// VKanRHI::RHIinstance->setuplist->CommandBuffer;
 		VkanHelpers::transitionImageLayout(B, depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 		attachments.push_back(depthImageView);
 	}
@@ -89,7 +89,15 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc)
 Descriptor VKanFramebuffer::GetDescriptor(int slot)
 {
 	Descriptor D = Descriptor(EDescriptorType::SRV);
-	D.ImageView = RTImageView;
+	if (IsCreated)
+	{
+		D.ImageView = RTImageView;
+	}
+	else
+	{
+		D.ImageView = VK_NULL_HANDLE;
+		LogEnsureMsgf(false, "Cannot bind a framebuffer that has not been created (used as RT once)");
+	}
 	D.bindpoint = slot;
 	return D;
 }

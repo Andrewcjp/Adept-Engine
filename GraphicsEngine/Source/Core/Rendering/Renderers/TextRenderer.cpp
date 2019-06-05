@@ -110,12 +110,15 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 
 void TextRenderer::RenderAllText()
 {
-	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
-	TextCommandList->SetVertexBuffer(VertexBuffer);
-	TextCommandList->SetTexture(TextAtlas->Texture, 0);
-	TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
-	TextCommandList->DrawPrimitive(currentsize, 1, 0, 0);
-	TextCommandList->EndRenderPass();
+	if (coords.size() > 0)
+	{
+		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
+		TextCommandList->SetVertexBuffer(VertexBuffer);
+		TextCommandList->SetTexture(TextAtlas->Texture, 0);
+		TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain(true));
+		TextCommandList->DrawPrimitive(currentsize, 1, 0, 0);
+		TextCommandList->EndRenderPass();
+	}
 }
 
 void TextRenderer::Finish()

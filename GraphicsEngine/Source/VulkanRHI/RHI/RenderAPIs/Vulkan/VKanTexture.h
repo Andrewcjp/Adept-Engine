@@ -14,13 +14,14 @@ public:
 	virtual void CreateAsNull() override;
 	virtual void UpdateSRV() override;
 	virtual void CreateTextureFromDesc(const TextureDescription& desc) override;
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
-	VkImageView textureImageView;
+	VkBuffer stagingBuffer = VK_NULL_HANDLE;
+	VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
+	VkImage textureImage = VK_NULL_HANDLE;
+	VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
+	VkImageView textureImageView = VK_NULL_HANDLE;
 
 	Descriptor GetDescriptor(int slot);
+	VkFormat fmt;
 };
 
 #endif 
