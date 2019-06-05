@@ -120,9 +120,6 @@ void VKanCommandlist::UAVBarrier(RHIUAV * target)
 void VKanCommandlist::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {}
 
-void VKanCommandlist::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
-{}
-
 void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQueue::LIMIT*/)
 {
 	if (vkEndCommandBuffer(CommandBuffer) != VK_SUCCESS)

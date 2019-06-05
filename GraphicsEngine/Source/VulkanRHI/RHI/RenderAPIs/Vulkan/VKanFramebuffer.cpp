@@ -44,7 +44,7 @@ void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
 	//throw std::logic_error("The method or operation is not implemented.");
 }
 
-void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc, VKanCommandlist* list)
+void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKanCommandlist* list)
 {
 	if (IsCreated)
 	{
@@ -54,7 +54,7 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc, VKanCommandlist* li
 	IsCreated = true;
 	Device = RHI::GetDefaultDevice();
 	std::vector<VkImageView> attachments;
-	desc.Build();
+	RPdesc.Build();
 	if (BufferDesc.RenderTargetCount > 0)
 	{
 		VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[0]);
@@ -79,7 +79,7 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc, VKanCommandlist* li
 
 	VkFramebufferCreateInfo framebufferInfo = {};
 	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	framebufferInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(desc))->RenderPass;
+	framebufferInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RPdesc))->RenderPass;
 	framebufferInfo.attachmentCount = attachments.size();
 	framebufferInfo.pAttachments = attachments.data();
 	framebufferInfo.width = BufferDesc.Width;

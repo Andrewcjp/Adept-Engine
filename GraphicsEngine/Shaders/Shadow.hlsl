@@ -25,7 +25,7 @@ float4 CalcUnshadowedAmountPCF2x2(Light LightObj, float4 vPosWorld, Texture2D Sh
 	vSubPixelCoords.zw = 1.0f - vSubPixelCoords.xy;
 	float4 vBilinearWeights = vSubPixelCoords.zxzx * vSubPixelCoords.wwyy;
 
-	// 2x2 percentage closer filtering.
+	// 2x2 percentage closer filtering
 	float2 vTexelUnits = 1.0f / vShadowMapDims;
 	float4 vShadowDepths = float4(0, 0, 0, 0);
 	if (LightObj.ShadowID == 0)

@@ -78,6 +78,18 @@ void D3D12TimeManager::UpdateTimers()
 	ResolveAllTimers();
 	for (int i = 0; i < TimerQueries.size(); i++)
 	{
+		if (TimerQueries[i].TimerQueries.size() < 2)
+		{
+			continue;
+		}
+		if (TimerQueries[i].name == "Total GPU")
+		{
+			StartTimeStamp = TimerQueries[i].TimerQueries[0]->Result;
+			break;
+		}
+	}
+	for (int i = 0; i < TimerQueries.size(); i++)
+	{
 		TimerQ* Q = &TimerQueries[i];
 		if (Q->TimerQueries.size() < 2)
 		{
@@ -85,16 +97,26 @@ void D3D12TimeManager::UpdateTimers()
 			continue;
 		}
 		int id = PerfManager::Get()->AddTimer((Q->name + std::to_string(Device->GetDeviceIndex())).c_str(), "GPU");
-		PerfManager::Get()->UpdateStat(id, Q->TotalTime, 0.0f);
+		float Offset = 0.0f;
 		if (Q->name == "Total GPU")
 		{
+			StartTimeStamp = TimerQueries[i].TimerQueries[0]->Result;
 			AVGgpuTimeMS = PerfManager::Get()->GetTimerData(id)->AVG->GetCurrentAverage();
 		}
+		else
+		{
+			Offset = ConvertTimeStampToMS(TimerQueries[i].TimerQueries[0]->Result - StartTimeStamp);
+		}
+		PerfManager::Get()->UpdateStat(id, Q->TotalTime, Offset);
 		Q->TimerQueries.clear();
 	}
 #endif
 }
-
+float D3D12TimeManager::ConvertTimeStampToMS(long Time)
+{
+	UINT64 Delta = Time;
+	return  Delta * 1000 / m_directCommandQueueTimestampFrequencies;
+}
 void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListType::Type type)
 {
 	if (index >= TotalMaxTimerCount)

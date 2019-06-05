@@ -36,11 +36,6 @@ class RHIRenderPassCache;
 class RHI
 {
 public:
-	enum TextureType
-	{
-		Normal,
-		Text
-	};
 	RHI(ERenderSystemType system);
 	~RHI();
 

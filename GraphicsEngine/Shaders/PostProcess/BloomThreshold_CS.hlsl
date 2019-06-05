@@ -14,7 +14,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	{
 		DstTexture[DTid.xy] = Inputcolour;
 	}
-	else
+	else 
 	{
 		DstTexture[DTid.xy] = float4(0,0,0,0.0f);
 	}

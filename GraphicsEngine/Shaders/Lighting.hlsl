@@ -7,7 +7,7 @@ struct Light
 	float3 Direction;
 	float f3;
 	row_major matrix LightVP;
-	int type;//type 1 == point, type 0 == directional, tpye 2 == spot
+	int type;//type 1 == point, type 0 == directional, type 2 == spot
 	int ShadowID;
 	int DirShadowID;
 	int HasShadow;

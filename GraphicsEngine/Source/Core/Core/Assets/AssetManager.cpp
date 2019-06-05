@@ -10,6 +10,7 @@
 #include "../Asserts.h"
 #include "Asset_Shader.h"
 #include "Rendering/Core/Material.h"
+#include "RHI/ShaderPreProcessor.h"
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
@@ -194,7 +195,7 @@ std::string AssetManager::LoadFileWithInclude(std::string name)
 	std::string  output;
 	if (ShaderSourceMap.find(name) == ShaderSourceMap.end())
 	{
-		output = LoadShaderIncludeFile(name, 0);
+		output = ShaderPreProcessor::LoadShaderIncludeFile(name, 0);
 		ShaderSourceMap.emplace(name, output);
 	}
 	else
@@ -296,75 +297,7 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 	return ImageIO::GetDefaultTexture();
 }
 
-std::string AssetManager::LoadShaderIncludeFile(std::string name, int limit, std::string Relative)
-{
-	std::string file;
-	limit++;
-	if (limit > MaxIncludeTreeLength)
-	{
-		return file;
-	}
-	std::string pathname = name;
-	if (limit > 0)
-	{
-		pathname = GetShaderPath();
-		pathname.append(name);
-	}
-	if (!FileUtils::File_ExistsTest(pathname))
-	{
-		pathname = GetShaderPath();
-		pathname.append(Relative);
-		pathname.append(name);
-	}
-	std::string RelativeStartPath = "";
-	if (name.find('\\') != -1)
-	{
-		RelativeStartPath = name;
-		std::vector<std::string> data = StringUtils::Split(name, '\\');
-		StringUtils::RemoveChar(RelativeStartPath, data[data.size() - 1]);
-	}
 
-	std::ifstream myfile(pathname);
-	if (myfile.is_open())
-	{
-		std::string line;
-		while (std::getline(myfile, line))
-		{
-			if (line.find("#") != -1)
-			{
-				size_t targetnum = line.find(includeText);
-				if (targetnum != -1)
-				{
-					if (line.find("//") != -1)//Contains a commented line 
-					{
-						file.append(" \n");
-						continue;
-					}
-					line.erase(targetnum, includeLength);
-					StringUtils::RemoveChar(line, "\"");
-					StringUtils::RemoveChar(line, "\"");
-
-					file.append(LoadShaderIncludeFile(line.c_str(), limit, RelativeStartPath));
-				}
-				else
-				{
-					file.append(line);
-				}
-			}
-			else
-			{
-				file.append(line);
-			}
-			file.append(" \n");
-		}
-		myfile.close();
-	}
-	else
-	{
-		Log::OutS << "failed to load " << pathname << Log::OutS;
-	}
-	return file;
-}
 
 std::string TextureImportSettings::GetTypeString()
 {

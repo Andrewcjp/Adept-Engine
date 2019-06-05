@@ -3,7 +3,7 @@ SamplerState BilinearClamp : register(s0);
 groupshared uint LightIndexs[MAX_LIGHTS];
 groupshared uint ArrayLength;
 #include "Lighting.hlsl"
-#include "Common.hlsl"
+#include "Core/Common.hlsl"
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
@@ -20,10 +20,7 @@ void AppendEntity(uint entityIndex)
 		LightIndexs[index] = entityIndex;
 	}
 }
-inline uint flatten2D(uint2 coord, uint2 dim)
-{
-	return coord.x + coord.y * dim.x;
-}
+
 [numthreads(LIGHTCULLING_TILE_SIZE, LIGHTCULLING_TILE_SIZE, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3 groupID : SV_GroupID, uint  groupIndex : SV_GroupIndex)
 {

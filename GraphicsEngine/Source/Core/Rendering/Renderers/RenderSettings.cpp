@@ -186,7 +186,6 @@ bool RenderSettings::IsUsingZPrePass() const
 RenderSettings::RenderSettings()
 {
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	//	IsDeferred = true;
 	EnableVR = true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;
@@ -194,21 +193,16 @@ RenderSettings::RenderSettings()
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
-	RenderScale = 1.0f;
-	UseZPrePass = false;
+	RenderScale = 1.0f;	
 	SetRes(BBTestMode::HD);
+
+	UseZPrePass = true;
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
 	//RTSettings.Enabled = true;
 	AllowMeshInstancing = false; 
-#if NOSHADOW
-	RTSettings.Enabled = false;
-	DRSSettings.EnableDynamicResolutionScaling = false;
-	EnableGPUParticles = false;
-	IsDeferred = false;
-#endif
-
+	//	IsDeferred = true;
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)

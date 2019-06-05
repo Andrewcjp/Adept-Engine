@@ -9,6 +9,7 @@
 #include "D3D12CommandList.h"
 #include "ShaderReflection.h"
 #include <atlbase.h>
+#include "RHI/ShaderPreProcessor.h"
 
 
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
@@ -191,6 +192,12 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	}
 
 	std::string ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
+	if (ShaderData.length() == 0)
+	{
+		//#TODO: delete CSO
+		__debugbreak();
+		return EShaderError::SHADER_ERROR_NOFILE;
+	}
 	IDxcBlobEncoding* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
 
@@ -349,14 +356,15 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, IDxcBlob** Blob, 
 	ReadFileIntoBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), (IDxcBlobEncoding**)Blob);
 	return true;
 #else	
-	if (FileUtils::File_ExistsTest(ShaderPath) && CompareCachedShaderBlobWithSRC(Name, FullShaderName))
+	if (FileUtils::File_ExistsTest(ShaderPath) && ShaderPreProcessor::CheckCSOValid(Name, FullShaderName))
 	{
 		ReadFileIntoBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), (IDxcBlobEncoding**)Blob);
 		return true;
 	}
+	Log::LogMessage("Recompile triggered for " + Name);
 	return false;
 #endif
-}
+	}
 
 void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type type)
 {
@@ -674,7 +682,7 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 
 	output->RootSig->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
 	delete[] Samplers;
-}
+		}
 const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Params)
 {
 	std::string output = "Root sig Length = ";;

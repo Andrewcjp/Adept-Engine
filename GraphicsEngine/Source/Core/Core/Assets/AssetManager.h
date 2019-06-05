@@ -63,9 +63,7 @@ private:
 	std::map<std::string, std::string> ShaderSourceMap;
 	std::map<std::string, std::string> MeshFileMap;
 
-	//include Handler
-	const char * includeText = "#include";
-	int	 includeLength = 9;
+
 	//Cached Paths
 	void SetupPaths();
 	std::string RootDir = "";
@@ -75,9 +73,7 @@ private:
 	std::string DDCDirPath = "";
 	std::string ScriptDirPath = "";
 	std::string GeneratedDirPath = "";
-	std::string LoadShaderIncludeFile(std::string name, int limit, std::string Relative = std::string());
 	static const std::string DDCName;
-	const int MaxIncludeTreeLength = 10;
 	IniHandler* INISaver = nullptr;
 };
 

@@ -11,13 +11,6 @@
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
 {
-	/*if (SrvHeap != nullptr)
-	{
-		SrvHeap->Release();
-		delete SrvHeap;
-	}*/
-	//SrvHeap = new DescriptorHeap(CurrentDevice, Num, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-//	NAME_RHI_OBJ(SrvHeap);
 	if (NullHeap == nullptr)
 	{
 		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

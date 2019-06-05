@@ -5,9 +5,7 @@
 #include "Core/Assets/ImageIO.h"
 #include "Core/Assets/SerialHelpers.h"
 #include "Defaults.h"
-#include "Rendering/Shaders/Shader_Main.h"
 #include "../Shaders/Shader_NodeGraph.h"
-#include "Core/Utils/VectorUtils.h"
 
 void Material::UpdateShaderData()
 {

@@ -15,7 +15,7 @@ PrimitiveData GetPrimitiveData(uint PrimitiveId)
 	return InstancedData[PrimitiveId];
 }
 #else
-#define GetPrimitiveData(x) Primitive
+#define GetPrimitiveData(x) Primitive 
 #endif
 
 inline uint flatten2D(uint2 coord, uint2 dim)

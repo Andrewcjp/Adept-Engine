@@ -1,8 +1,9 @@
 #pragma once
+#include "VKanRHI.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/Shader.h"
-#include "VKanRHI.h"
-#if BUILD_VULKAN
+
+
 class VkanPipeLineStateObject :public RHIPipeLineStateObject
 {
 public:
@@ -31,14 +32,3 @@ public:
 	ShaderParameter* GetRootSigSlot(int id);
 	std::vector< Shader::VertexElementDESC> RHIDesc;
 };
-
-
-class VKanRenderPass :public RHIRenderPass
-{
-public:
-	VKanRenderPass(RHIRenderPassDesc & desc, DeviceContext* Device);
-	virtual void Complie() override;
-	VkRenderPass RenderPass = VK_NULL_HANDLE;
-	VkanDeviceContext* VDevice = nullptr;
-};
-#endif
