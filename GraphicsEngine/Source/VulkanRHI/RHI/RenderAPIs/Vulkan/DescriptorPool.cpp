@@ -55,7 +55,7 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 
 		descriptorWrite.descriptorCount = 1;
 
-		if (Desc->DescType == EDescriptorType::CBV )
+		if (Desc->DescType == EDescriptorType::CBV)
 		{
 			VkDescriptorBufferInfo* bufferInfo = new VkDescriptorBufferInfo();
 			bufferInfo->buffer = Desc->Buffer->vertexbuffer;
@@ -70,13 +70,17 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 			imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			if (Desc->Texture == nullptr)
 			{
-				imageInfo->imageView = Desc->ImageView;
+				imageInfo->imageView = Desc->ImageView;		
 			}
 			else
 			{
-				imageInfo->imageView = Desc->Texture->textureImageView;
+				imageInfo->imageView = Desc->Texture->textureImageView;				
 			}
-
+			if (imageInfo->imageView == VK_NULL_HANDLE)
+			{
+				LogEnsure(imageInfo->imageView == VK_NULL_HANDLE);
+				imageInfo->imageView = VKanRHI::RHIinstance->T->textureImageView;
+			}
 			imageInfo->sampler = list->CurrentPso->textureSampler;
 			descriptorWrite.dstBinding += VKanShader::GetBindingOffset(ShaderParamType::SRV);
 			descriptorWrite.pImageInfo = imageInfo;
@@ -160,7 +164,7 @@ VkDescriptorSet DescriptorPool::createDescriptorSets(VkDescriptorSetLayout descr
 		descriptorWrite.pBufferInfo = &bufferInfo;
 
 		vkUpdateDescriptorSets(Context->device, 1, &descriptorWrite, 0, nullptr);
-	}
+}
 #endif
 	return descriptorSets[0];
 }

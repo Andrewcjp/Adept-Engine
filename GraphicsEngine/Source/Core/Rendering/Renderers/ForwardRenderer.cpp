@@ -26,6 +26,7 @@ void ForwardRenderer::PreZPass(RHICommandList* Cmdlist, FrameBuffer* target, int
 	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), DDOs[0].MainFrameBuffer);
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS;
 	desc.DepthStencilState.DepthWrite = true;
+	desc.RenderPassDesc = RHIRenderPassDesc(target, ERenderPassLoadOp::Clear);
 	Cmdlist->SetPipelineStateDesc(desc);
 	Cmdlist->BeginRenderPass(RHIRenderPassDesc(target,ERenderPassLoadOp::Clear));
 	SceneRender->RenderScene(Cmdlist, true, target, false, eyeindex);
@@ -66,14 +67,16 @@ void ForwardRenderer::OnRender()
 	ShadowPass();
 	CubeMapPass();
 	RenderOnDevice(RHI::GetDeviceContext(0));
+#if !NOSHADOW
 	ParticleSystemManager::Get()->Render(&DDOs[0]);
+#endif
 	if (DevicesInUse > 1)
 	{
 		DDOs[1].MainFrameBuffer->ResolveSFR(DDOs[0].MainFrameBuffer);
 	}
 	PostProcessPass();
 	RenderDebugPass();
-	PresentToScreen();
+	//PresentToScreen();
 }
 
 
@@ -121,7 +124,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 
 void ForwardRenderer::RenderOnDevice(DeviceContext * con)
 {
-	RunMainPass(&DDOs[con->GetDeviceIndex()], EEye::Left);
+	//RunMainPass(&DDOs[con->GetDeviceIndex()], EEye::Left);
 	
 	if (RHI::IsRenderingVR())
 	{
@@ -147,8 +150,9 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	}
 	MainPass(List, O->GetMain(eye), eye);
 	List->EndTimer(EGPUTIMERS::MainPass);
+#if !NOSHADOW
 	O->SkyboxShader->Render(SceneRender, List, O->GetMain(eye), nullptr);
-
+#endif
 	List->Execute();
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
@@ -166,6 +170,8 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	}
 
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), targetbuffer);
+	desc.RenderPassDesc = RHIRenderPassDesc(targetbuffer, PREZ ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
+	desc.RenderPassDesc.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	Cmdlist->SetPipelineStateDesc(desc);
 
 #if !BASIC_RENDER_ONLY
@@ -174,7 +180,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 		mShadowRenderer->BindShadowMapsToTextures(Cmdlist);
 	}
 #endif
-	Cmdlist->BeginRenderPass(RHIRenderPassDesc(targetbuffer, PREZ ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear));
+	Cmdlist->BeginRenderPass(desc.RenderPassDesc);
 	//if (RHI::GetMGPUSettings()->SplitShadowWork || RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		glm::ivec2 Res = glm::ivec2(GetScaledWidth(), GetScaledHeight());
@@ -185,9 +191,12 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 		//Cmdlist->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
 		Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 	}
-	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
-	Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
-	LightCulling->BindLightBuffer(Cmdlist);
+	if (DDOs[Cmdlist->GetDeviceIndex()].ConvShader != nullptr)
+	{
+		Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+		Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
+	}
+	//LightCulling->BindLightBuffer(Cmdlist);
 	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
 	//render the transparent objects AFTER the main scene
 	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);

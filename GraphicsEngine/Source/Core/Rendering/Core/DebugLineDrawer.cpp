@@ -109,6 +109,10 @@ void DebugLineDrawer::ReallocBuffer(int NewSize)
 
 void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, EEye::Type eye)
 {
+	if (VertsOnGPU == 0)
+	{
+		return;
+	}
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthEnable = false;
 	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;

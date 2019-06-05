@@ -28,6 +28,7 @@ public:
 	std::vector<VkPipelineShaderStageCreateInfo> ShaderStages;
 	VkSampler textureSampler;
 	std::vector<ShaderParameter> Parms;
+	ShaderParameter* GetRootSigSlot(int id);
 };
 
 

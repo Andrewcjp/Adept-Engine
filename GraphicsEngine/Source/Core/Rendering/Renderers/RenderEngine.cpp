@@ -321,6 +321,7 @@ void RenderEngine::PostProcessPass()
 
 void RenderEngine::PresentToScreen()
 {
+//	return;
 	ScreenWriteList->ResetList();
 	ScreenWriteList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain(true));
 	if (RHI::IsRenderingVR())

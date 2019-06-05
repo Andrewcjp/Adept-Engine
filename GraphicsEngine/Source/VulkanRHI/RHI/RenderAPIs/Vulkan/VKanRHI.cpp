@@ -123,7 +123,7 @@ RHIStateObject* VKanRHI::CreateStateObject(DeviceContext* Device)
 
 RHIRenderPassDesc VKanRHI::GetRenderPassDescForSwapChain(bool ClearScreen)
 {
-	RHIRenderPassDesc desc = RHIClass::GetRenderPassDescForSwapChain();
+	RHIRenderPassDesc desc = RHIClass::GetRenderPassDescForSwapChain(ClearScreen);
 	desc.RenderDesc.NumRenderTargets = 1;
 	desc.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
 	desc.StoreOp = ERenderPassStoreOp::Store;
@@ -220,16 +220,19 @@ DeviceContext * VKanRHI::GetDeviceContext(int index)
 
 void VKanRHI::RHISwapBuffers()
 {
-	if (RHI::GetFrameCount() == 0)
+	/*if (RHI::GetFrameCount() == 0)
 	{
 		RHIRunFirstFrame();
-	}
+	}*/
 	drawFrame();
 }
 
 void VKanRHI::RHIRunFirstFrame()
 {
-	//setuplist->Execute();
+#if !BASIC_RENDER_ONLY
+	setuplist->Execute();
+	vkDeviceWaitIdle(DevCon->device);
+#endif
 }
 
 void VKanRHI::ResizeSwapChain(int width, int height)
@@ -584,7 +587,7 @@ void VKanRHI::CreateNewObjects()
 	IndexTest = new VKanBuffer(ERHIBufferType::Index, nullptr);
 	short  ind[3]{ 1,2,0 };
 	IndexTest->CreateIndexBuffer(sizeof(short), sizeof(ind));
-	IndexTest->UpdateVertexBuffer(&ind, sizeof(ind));
+	IndexTest->UpdateIndexBuffer(&ind, sizeof(ind));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(1000, 1000);
 	TestFrameBuffer = new VKanFramebuffer(nullptr, Desc);
 	RHIRenderPassDesc D;
@@ -627,6 +630,7 @@ void  VKanRHI::drawFrame()
 	RHIRenderPassDesc Info = RHIRenderPassDesc();
 	Info.TargetBuffer = TestFrameBuffer;
 	Info.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	Info.LoadOp = ERenderPassLoadOp::Clear;
 	cmdlist->BeginRenderPass(Info);
 	cmdlist->SetPipelineStateObject(PSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
@@ -639,7 +643,7 @@ void  VKanRHI::drawFrame()
 	cmdlist->DrawIndexedPrimitive(3, 1, 0, 0, 0);
 
 	cmdlist->EndRenderPass();
-	cmdlist->BeginRenderPass(VKanRHI::GetRenderPassDescForSwapChain());
+	cmdlist->BeginRenderPass(VKanRHI::GetRenderPassDescForSwapChain(true));
 	cmdlist->SetPipelineStateObject(SawpPSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->SetTexture(T, 1);

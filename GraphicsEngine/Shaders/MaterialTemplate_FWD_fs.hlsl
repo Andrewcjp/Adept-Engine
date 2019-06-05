@@ -14,8 +14,8 @@ cbuffer GOConstantBuffer : register(b0)
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-	int2 TileCount;
-	int pad;
+	int4 TileCount;
+
 	Light lights[MAX_LIGHTS];
 };
 #if 1
@@ -46,14 +46,14 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t1, space2);
 #endif
 #define MAX_CUBEMAPS 1
 TextureCube DiffuseIrMap : register(t10);
-TextureCube SpecularBlurMap[MAX_CUBEMAPS]: register(t11,space3);
+TextureCube SpecularBlurMap[MAX_CUBEMAPS]: register(t11/*,space3*/);
 Texture2D envBRDFTexture: register(t12);
 //PreSampled
 Texture2D PerSampledShadow: register(t13);
-cbuffer Resolution : register(b5)
-{
-	int2 Res;
-};
+//cbuffer Resolution : register(b5)
+//{
+//	int2 Res;
+//};
 #include "ReflectionEnviroment.hlsl"
 
 float FWD_GetPresampledShadow(float2 pos, int index)
@@ -64,6 +64,7 @@ float FWD_GetPresampledShadow(float2 pos, int index)
 //Declares
 float4 main(PSInput input) : SV_TARGET
 {
+	int2 Res = int2(1,1);
 	const float2 ScreenPos = input.position.xy / Res; //Compute Position  for this pixel in 0-1 space
 	float3 Normal = input.Normal.xyz;
 #if !TEST
@@ -77,7 +78,7 @@ float4 main(PSInput input) : SV_TARGET
 #if TEST
 	texturecolour = Diffuse;
 #endif
-
+	return float4(texturecolour, 1.0f);
 	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - input.WorldPos.xyz);
 

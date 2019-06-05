@@ -324,8 +324,8 @@ struct RHIRenderPassDesc
 	ERenderPassLoadOp::Type StencilLoadOp = ERenderPassLoadOp::DontCare;
 	ERenderPassStoreOp::Type StencilStoreOp = ERenderPassStoreOp::DontCare;
 
-	GPU_RESOURCE_STATES::Type InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
-	GPU_RESOURCE_STATES::Type FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
+	GPU_RESOURCE_STATES::Type InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
+	GPU_RESOURCE_STATES::Type FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
 	RHIPipeRenderTargetDesc RenderDesc;
 	RHI_API void Build();
 	RHI_API bool operator==(const RHIRenderPassDesc other)const;

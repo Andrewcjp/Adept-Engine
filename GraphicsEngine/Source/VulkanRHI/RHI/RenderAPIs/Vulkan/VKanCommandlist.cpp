@@ -29,7 +29,7 @@ VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * co
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 	}
-	CurrentDescriptors.resize(10);
+	CurrentDescriptors.resize(25);
 	ResetList();
 }
 
@@ -44,12 +44,12 @@ void VKanCommandlist::ResetList()
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	
+
 	if (vkBeginCommandBuffer(CommandBuffer, &beginInfo) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
-
+	IsOpen = true;
 }
 
 void VKanCommandlist::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
@@ -59,6 +59,7 @@ void VKanCommandlist::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float 
 
 void VKanCommandlist::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
+	ensure(IsOpen);
 	VKanRHI::VKConv(Device)->pool->AllocateAndBind(this);
 	ensure(IsInRenderPass);
 	vkCmdDraw(CommandBuffer, VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
@@ -66,6 +67,7 @@ void VKanCommandlist::DrawPrimitive(int VertexCountPerInstance, int InstanceCoun
 
 void VKanCommandlist::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
 {
+	ensure(IsOpen);
 	((VkanDeviceContext*)Device)->pool->AllocateAndBind(this);
 	ensure(IsInRenderPass);
 	vkCmdDrawIndexed(CommandBuffer, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
@@ -73,6 +75,7 @@ void VKanCommandlist::DrawIndexedPrimitive(int IndexCountPerInstance, int Instan
 
 void VKanCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 {
+	ensure(IsOpen);
 	VKanBuffer* vb = (VKanBuffer*)buffer;
 	VkBuffer vertexBuffers[] = { vb->vertexbuffer };
 	VkDeviceSize offsets[] = { 0 };
@@ -81,20 +84,25 @@ void VKanCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 
 void VKanCommandlist::SetIndexBuffer(RHIBuffer * buffer)
 {
+	ensure(IsOpen);
 	VKanBuffer* vb = (VKanBuffer*)buffer;
 	vkCmdBindIndexBuffer(CommandBuffer, vb->vertexbuffer, 0, VK_INDEX_TYPE_UINT16);
 }
 
 void VKanCommandlist::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
 {
+	ensure(IsOpen);
+	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(Register);
 	VKanBuffer* V = (VKanBuffer*)buffer;
-	CurrentDescriptors[Register] = V->GetDescriptor(Register, offset);
+	CurrentDescriptors[Register] = V->GetDescriptor(Parm->RegisterSlot, offset);
 }
 
 void VKanCommandlist::SetTexture(BaseTextureRef texture, int slot)
 {
+	ensure(IsOpen);
+	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKanTexture* V = (VKanTexture*)texture.Get();
-	CurrentDescriptors[slot] = V->GetDescriptor(slot);
+	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot);
 }
 
 VkCommandBuffer* VKanCommandlist::GetCommandBuffer()
@@ -133,10 +141,12 @@ void VKanCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQ
 	{
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
+	IsOpen = false;
 }
 
 void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 {
+	ensure(IsOpen);
 	RHICommandList::BeginRenderPass(RenderPassInfo);
 	CurrnetRenderPass = VKanRHI::RHIinstance->Pass;
 	VkRenderPassBeginInfo renderPassInfo = {};
@@ -144,15 +154,24 @@ void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 
 	if (RenderPassInfo.TargetSwapChain)
 	{
-		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RHI::GetRenderPassDescForSwapChain()))->RenderPass;
+		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo))->RenderPass;
 		renderPassInfo.framebuffer = VKanRHI::RHIinstance->swapChainFramebuffers[VKanRHI::RHIinstance->currentFrame];
 	}
 	else
 	{
 		VKanFramebuffer* FB = VKanRHI::VKConv(RenderPassInfo.TargetBuffer);
-		FB->TryInitBuffer(RenderPassInfo);
+		FB->TryInitBuffer(RenderPassInfo, this);
 		renderPassInfo.framebuffer = FB->Buffer;
+		CurrnetRenderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo));
 		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo))->RenderPass;
+		//ensure(VKanRHI::VKConv(CurrentPso->GetDesc().RenderPass)->RenderPass == renderPassInfo.renderPass);
+		if (VKanRHI::VKConv(CurrentPso->GetDesc().RenderPass)->RenderPass != renderPassInfo.renderPass)
+		{
+			RHIPipeLineStateDesc NewDesc = CurrentPso->GetDesc();
+			NewDesc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo);
+			SetPipelineStateDesc(NewDesc);
+			CurrnetRenderPass = VKanRHI::VKConv(NewDesc.RenderPass);
+		}
 	}
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	if (RenderPassInfo.TargetSwapChain)
@@ -184,6 +203,7 @@ void VKanCommandlist::EndRenderPass()
 void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
 	VkanPipeLineStateObject* VObject = (VkanPipeLineStateObject*)Object;
+
 	CurrentPso = VObject;
 	ensure(CommandBuffer != nullptr);
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
@@ -191,8 +211,9 @@ void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
 {
+	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKanFramebuffer* V = VKanRHI::VKConv(buffer);
-	CurrentDescriptors[slot] = V->GetDescriptor(slot);
+	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot);
 }
 
 
@@ -223,6 +244,11 @@ void VKanCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Da
 
 void VKanCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {
+	if (IsInRenderPass && CurrnetRenderPass != nullptr)
+	{
+		Desc.RenderPassDesc = CurrnetRenderPass->Desc;
+		Desc.RenderPass = CurrnetRenderPass;
+	}
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
 }
 

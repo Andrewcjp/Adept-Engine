@@ -53,6 +53,7 @@ public:
 	CPUFrame Pools[RHI::CPUFrameCount] = { 0 };
 	VKanRenderPass* CurrnetRenderPass = nullptr;
 	VkanPipeLineStateObject* CurrentPso = nullptr;
+	bool IsOpen = false;
 };
 
 

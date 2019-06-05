@@ -1,4 +1,4 @@
-Texture2D Texture : register(t1);
+Texture2D Texture : register(t10);
 sampler DefaultSampler :register(s0);
 
 

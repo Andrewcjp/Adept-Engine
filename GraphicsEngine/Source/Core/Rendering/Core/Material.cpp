@@ -75,7 +75,6 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, ERenderPass::Typ
 	}
 
 	desc.ShaderInUse = (Shader*)CurrentShader;
-
 	list->SetPipelineStateDesc(desc);
 	list->SetConstantBufferView(MaterialDataBuffer, 0, MainShaderRSBinds::MaterialData);
 	for (auto const& Pair : CurrentBindSet->BindMap)

@@ -202,7 +202,7 @@ RenderSettings::RenderSettings()
 	//EnableDynamicResolutionScaling = true;
 	//RTSettings.Enabled = true;
 	//AllowMeshInstancing = true; 
-#if BASIC_RENDER_ONLY
+#if 0//BASIC_RENDER_ONLY
 	RTSettings.Enabled = false;
 	DRSSettings.EnableDynamicResolutionScaling = false;
 	EnableGPUParticles = false;

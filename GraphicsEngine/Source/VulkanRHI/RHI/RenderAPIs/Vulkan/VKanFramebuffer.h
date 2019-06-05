@@ -14,7 +14,7 @@ public:
 	virtual DeviceContext * GetDevice() override;
 	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
 	virtual void MakeReadyForCopy(RHICommandList * list) override;
-	void TryInitBuffer(RHIRenderPassDesc& desc);
+	void TryInitBuffer(RHIRenderPassDesc& desc,VKanCommandlist* list);
 
 	Descriptor GetDescriptor(int slot);
 

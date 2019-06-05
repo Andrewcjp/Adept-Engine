@@ -25,6 +25,6 @@ public:
 	int Offset = 0;
 	VKanBuffer* Buffer = nullptr;
 	VKanTexture* Texture = nullptr;
-	VkImageView ImageView;
+	VkImageView ImageView = VK_NULL_HANDLE;
 };
 
