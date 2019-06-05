@@ -1,6 +1,8 @@
 #pragma once
 #include "RHI/DeviceContext.h"
 #include "VKanRHI.h"
+
+class DescriptorPool;
 class VkanDeviceContext :public DeviceContext
 {
 public:

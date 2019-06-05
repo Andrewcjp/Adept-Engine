@@ -5,12 +5,18 @@
 class VkanDeviceContext;
 class VkanPipeLineStateObject;
 class VKanFramebuffer;
+class VKanCommandlist;
+class VKanBuffer;
+class VKanRenderPass;
+class VKanShader;
+class VKanTexture;
 #if BUILD_VULKAN
 #define FRAME_LAG 2
 #undef NOMINMAX
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vk_sdk_platform.h>
+#include "vulkan/vulkan_core.h"
 #include "RHI/RHITypes.h"
 template<class t>
 struct optional

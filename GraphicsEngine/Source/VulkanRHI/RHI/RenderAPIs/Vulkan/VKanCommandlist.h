@@ -26,7 +26,7 @@ public:
 	virtual void UAVBarrier(RHIUAV * target) override;
 	virtual void SetIndexBuffer(RHIBuffer * buffer) override;
 	virtual void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
-	virtual void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0) override;
+
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;

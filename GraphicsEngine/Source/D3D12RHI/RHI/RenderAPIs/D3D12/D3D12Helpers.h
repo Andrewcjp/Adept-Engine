@@ -2,6 +2,8 @@
 #include "RHI/RHITypes.h"
 #include "Core/Utils/StringUtil.h"
 
+class D3D12DeviceContext;
+
 #if NAME_RHI_PRIMS
 inline void NAME_D3D12_SetName_Convert(ID3D12Object* pObject, std::string name)
 {

@@ -20,6 +20,7 @@ public:
 	D3D12TimeManager(DeviceContext* context);
 	~D3D12TimeManager();
 	void UpdateTimers() override;
+	float ConvertTimeStampToMS(long Time);
 	void SetTimerName(int index, std::string Name, ECommandListType::Type type = ECommandListType::Graphics) override;
 
 	void StartTotalGPUTimer(RHICommandList * ComandList) override;
@@ -71,6 +72,7 @@ private:
 		float TotalTime = 0.0f;
 		void Resolve(float freqnecy);
 	};
+	UINT64 StartTimeStamp = 0;
 	std::vector<TimerQ> TimerQueries;
 	TimerQ* GetTimer(std::string name);
 	void ResolveAllTimers();
