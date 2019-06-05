@@ -54,6 +54,7 @@ void VKanBuffer::UpdateVertexBuffer(void * data, size_t length)
 	}
 	else
 	{
+		VertexCount = length / StructSize;
 		memcpy(GPUdata, data, TotalByteSize);
 	}
 	vkUnmapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory);

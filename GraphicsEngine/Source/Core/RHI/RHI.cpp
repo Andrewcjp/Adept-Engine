@@ -276,7 +276,7 @@ void RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
-#if BASIC_RENDER_ONLY
+#if 1 //BASIC_RENDER_ONLY
 	return;
 #endif
 	LogEnsure(!Resource->IsPendingKill());
@@ -360,7 +360,7 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	{
 		return ImageIO::GetDefaultTexture();
 	}
-	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 0)
+	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 0 && RHI::IsD3D12())
 	{
 		BaseTextureRef other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
 		newtex->RegisterOtherDeviceTexture(other.Get());
@@ -679,5 +679,9 @@ RHIRenderPassDesc RHIClass::GetRenderPassDescForSwapChain(bool ClearScreen /*= f
 	RHIRenderPassDesc Desc;
 	Desc.TargetSwapChain = true;
 	Desc.LoadOp = ClearScreen ? ERenderPassLoadOp::Clear : ERenderPassLoadOp::Load;
+	if (!ClearScreen)
+	{
+		Desc.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
+	}
 	return  Desc;
 }

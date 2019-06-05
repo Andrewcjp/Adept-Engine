@@ -30,8 +30,13 @@ void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList* List, bool Depth /*
 
 void VKanFramebuffer::UnBind(VKanCommandlist * List)
 {
+	if (!WasTexture)
+	{
+		return;
+	}
 	VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[0]);
 	VkanHelpers::transitionImageLayout(*List->GetCommandBuffer(), RTImage, fmt, VkanHelpers::ConvertState(GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	WasTexture = false;
 }
 
 void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
@@ -43,6 +48,7 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& desc, VKanCommandlist* li
 {
 	if (IsCreated)
 	{
+		UnBind(list);
 		return;
 	}
 	IsCreated = true;

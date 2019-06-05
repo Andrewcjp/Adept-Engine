@@ -156,7 +156,7 @@ void Engine::CreateApplication()
 {
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
-#if 1//BASIC_RENDER_ONLY
+#if NOSHADOW
 		RHI::InitRHI(RenderSystemVulkan);
 #else
 		RHI::InitRHI(RenderSystemD3D12);

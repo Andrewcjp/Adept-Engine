@@ -77,6 +77,10 @@ struct DynamicResolutionSettings
 	int DynamicResolutionTargetFrameRate = 60;
 	int DynamicResolutionTargetFrameRateVR = 95;
 };
+struct RendererSettings
+{
+	bool EnableTransparency = false;
+};
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
@@ -106,7 +110,9 @@ public:
 	DynamicResolutionSettings& GetDynamicResolutionSettings();
 	bool AllowMeshInstancing = false;
 	void ValidateForAPI(ERenderSystemType system);
+	RendererSettings& GetSettingsForRender();
 private:
+	RendererSettings RSettings;
 	float RenderScale = 1;
 	RayTracingSettings RTSettings;
 	ShadowMappingSettings ShadowSettings;

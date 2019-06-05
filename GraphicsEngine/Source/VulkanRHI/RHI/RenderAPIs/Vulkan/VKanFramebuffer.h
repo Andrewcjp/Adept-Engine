@@ -7,25 +7,25 @@
 class VKanFramebuffer : public FrameBuffer
 {
 public:
-	VKanFramebuffer(DeviceContext * device,const RHIFrameBufferDesc & Desc);
+	VKanFramebuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc);
 
 
 	// Inherited via FrameBuffer
 	virtual DeviceContext * GetDevice() override;
 	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
 	virtual void MakeReadyForCopy(RHICommandList * list) override;
-	void TryInitBuffer(RHIRenderPassDesc& desc,VKanCommandlist* list);
+	void TryInitBuffer(RHIRenderPassDesc& desc, VKanCommandlist* list);
 
 	Descriptor GetDescriptor(int slot);
 
 	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
 	void UnBind(VKanCommandlist* List);
-//private:
+	//private:
 	RHIPipeRenderTargetDesc desc;
 	bool IsCreated = false;
 	VkFramebuffer Buffer;
 	VkFramebuffer DepthBuffer;
-
+	bool WasTexture = false;
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;

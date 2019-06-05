@@ -127,7 +127,15 @@ RHIRenderPassDesc VKanRHI::GetRenderPassDescForSwapChain(bool ClearScreen)
 	desc.RenderDesc.NumRenderTargets = 1;
 	desc.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
 	desc.StoreOp = ERenderPassStoreOp::Store;
-	desc.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+	if (ClearScreen)
+	{
+		desc.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+	}
+	else
+	{
+		desc.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PRESENT;
+	}
+
 	desc.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PRESENT;
 	desc.TargetSwapChain = true;
 	return desc;
@@ -220,10 +228,6 @@ DeviceContext * VKanRHI::GetDeviceContext(int index)
 
 void VKanRHI::RHISwapBuffers()
 {
-	/*if (RHI::GetFrameCount() == 0)
-	{
-		RHIRunFirstFrame();
-	}*/
 	drawFrame();
 }
 
@@ -629,7 +633,7 @@ void  VKanRHI::drawFrame()
 
 	RHIRenderPassDesc Info = RHIRenderPassDesc();
 	Info.TargetBuffer = TestFrameBuffer;
-	Info.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	//Info.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	Info.LoadOp = ERenderPassLoadOp::Clear;
 	cmdlist->BeginRenderPass(Info);
 	cmdlist->SetPipelineStateObject(PSO);
@@ -647,7 +651,7 @@ void  VKanRHI::drawFrame()
 	cmdlist->SetPipelineStateObject(SawpPSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->SetTexture(T, 1);
-	cmdlist->SetFrameBufferTexture(TestFrameBuffer, 1);
+	//cmdlist->SetFrameBufferTexture(TestFrameBuffer, 1);
 	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(cmdlist, 2);
 	BaseWindow::GetCurrentRenderer()->SceneRender->Controller->RenderPass(ERenderPass::DepthOnly, cmdlist);
 	//RenderingUtils::RenderScreenQuad(cmdlist);

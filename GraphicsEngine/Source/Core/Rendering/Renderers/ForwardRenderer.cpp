@@ -76,7 +76,7 @@ void ForwardRenderer::OnRender()
 	}
 	PostProcessPass();
 	RenderDebugPass();
-	//PresentToScreen();
+	PresentToScreen();
 }
 
 
@@ -124,7 +124,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 
 void ForwardRenderer::RenderOnDevice(DeviceContext * con)
 {
-	//RunMainPass(&DDOs[con->GetDeviceIndex()], EEye::Left);
+	RunMainPass(&DDOs[con->GetDeviceIndex()], EEye::Left);
 	
 	if (RHI::IsRenderingVR())
 	{
@@ -198,8 +198,11 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	}
 	//LightCulling->BindLightBuffer(Cmdlist);
 	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
-	//render the transparent objects AFTER the main scene
-	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
+	if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)
+	{
+		//render the transparent objects AFTER the main scene
+		SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
+	}
 	//Cmdlist->SetRenderTarget(nullptr);
 #if !BASIC_RENDER_ONLY
 	mShadowRenderer->Unbind(Cmdlist);

@@ -29,6 +29,7 @@ public:
 	VkSampler textureSampler;
 	std::vector<ShaderParameter> Parms;
 	ShaderParameter* GetRootSigSlot(int id);
+	std::vector< Shader::VertexElementDESC> RHIDesc;
 };
 
 

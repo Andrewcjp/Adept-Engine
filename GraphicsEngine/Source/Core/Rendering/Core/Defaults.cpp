@@ -25,7 +25,7 @@ Defaults::Defaults()
 	1.0f,  1.0f, 0.0f,0.0f,
 	};
 	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
-	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
+	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4, EBufferAccessType::Dynamic);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 	ShaderComplier::Get()->TickMaterialComplie();
 }

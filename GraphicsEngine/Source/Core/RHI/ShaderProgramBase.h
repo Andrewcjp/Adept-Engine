@@ -6,8 +6,7 @@ class ShaderProgramBase
 protected:
 	bool						IsCompute = false;
 public:
-	RHI_API ShaderProgramBase()
-	{}
+	RHI_API ShaderProgramBase();
 	RHI_API virtual								~ShaderProgramBase();
 	RHI_API virtual EShaderError::Type				AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type);
 	RHI_API virtual EShaderError::Type				AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint) = 0;

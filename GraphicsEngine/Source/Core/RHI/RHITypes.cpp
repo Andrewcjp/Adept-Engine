@@ -75,7 +75,7 @@ RHIPipeRenderTargetDesc RHIFrameBufferDesc::GetRTDesc()
 
 IRHIResourse::~IRHIResourse()
 {
-	DebugEnsure(IsReleased);
+//	DebugEnsure(IsReleased);
 }
 
 void IRHIResourse::Release()
