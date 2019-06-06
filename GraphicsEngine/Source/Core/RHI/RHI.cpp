@@ -269,14 +269,14 @@ void RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 	GetRHIClass()->SubmitToVRComposter(fb, eye);
 }
 
- RHIRenderPassDesc RHI::GetRenderPassDescForSwapChain(bool ClearScreen /*= false*/)
+RHIRenderPassDesc RHI::GetRenderPassDescForSwapChain(bool ClearScreen /*= false*/)
 {
 	return GetRHIClass()->GetRenderPassDescForSwapChain(ClearScreen);
 }
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
-#if 1 //BASIC_RENDER_ONLY
+#if NOSHADOW
 	return;
 #endif
 	LogEnsure(!Resource->IsPendingKill());
@@ -465,6 +465,7 @@ void RHI::InitialiseContext()
 	ParticleSystemManager::Get();
 	instance->SFR_Controller = new SFRController();
 	Defaults::Start();
+	Input::Startup();
 	instance->DetectAndInitVR();
 	if (RHI::GetRenderSettings()->GetRTSettings().Enabled)
 	{

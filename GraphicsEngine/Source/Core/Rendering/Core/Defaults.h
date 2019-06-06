@@ -11,6 +11,7 @@ public:
 	static BaseTextureRef GetDefaultTexture();
 	static Material* GetDefaultMaterial();
 	static RHIBuffer* GetQuadBuffer();
+
 private:
 	Material* DefaultMateral = nullptr;
 	Defaults();

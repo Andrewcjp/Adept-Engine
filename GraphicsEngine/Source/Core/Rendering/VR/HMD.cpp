@@ -3,6 +3,7 @@
 #include "VRCamera.h"
 #include "DebugHMD.h"
 #include "ViveHMD.h"
+#include "Core/Input/Interfaces/SteamVR/SteamVRInputInterface.h"
 
 
 HMD::HMD()
@@ -12,10 +13,14 @@ HMD::HMD()
 HMD::~HMD()
 {}
 
-HMD* HMD::Create(bool forcedebug /*= false*/)
+HMD* HMD::Create()
 {
+	if (RHI::GetRenderSettings()->VRHMDMode == EVRHMDMode::Disabled)
+	{
+		return nullptr;
+	}
 	//if needed return different HMD class
-	if (ViveHMD::CanCreate() && !forcedebug)
+	if (SteamVRInputInterface::CanInit())
 	{
 		Log::LogMessage("Found VR HMD");
 		return new ViveHMD();

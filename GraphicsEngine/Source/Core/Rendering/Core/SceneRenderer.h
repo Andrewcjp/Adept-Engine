@@ -21,6 +21,7 @@ class Shader_Skybox;
 	int HasShadow = 0;
 	int PreSampled[4];//padding sucks!
 	float Range;
+	float Pad[3];
 };
 #pragma pack(pop)
 //static_assert(sizeof(LightUniformBuffer) % 16 == 0, "LightUniformBuffer padding bad");
@@ -34,9 +35,9 @@ struct MVBuffer
 struct LightBufferW
 {
 	int LightCount;
-	int Tiles[2];
-	int  pad;
-	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];	
+	int Tiles[4] = { 0,0,0,0 };
+	int pad[3] = { 1,1,1 };
+	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];
 };
 
 struct MeshTransfromBuffer

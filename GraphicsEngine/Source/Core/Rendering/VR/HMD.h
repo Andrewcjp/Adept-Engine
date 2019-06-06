@@ -14,7 +14,7 @@ class HMD
 public:
 	HMD();
 	virtual ~HMD();
-	static HMD* Create(bool forcedebug = false);
+	static HMD* Create();
 	VRCamera* GetVRCamera();
 	virtual void Init();
 	virtual void Update();

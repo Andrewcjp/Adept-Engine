@@ -11,6 +11,7 @@
 #include "VKanTexture.h"
 #include "RHI\RHIRenderPassCache.h"
 #include "VKanFramebuffer.h"
+#include "VkanRenderPass.h"
 VKanCommandlist::VKanCommandlist(ECommandListType::Type type, DeviceContext * context) :RHICommandList(type, context)
 {
 	Device = context;

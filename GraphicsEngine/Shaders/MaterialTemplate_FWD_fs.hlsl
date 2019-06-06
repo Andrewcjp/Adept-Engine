@@ -14,7 +14,7 @@ cbuffer GOConstantBuffer : register(b0)
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-#if VULKAN
+#if 1//VULKAN
 	int4 TileCount;
 #else
 	int2 TileCount;
@@ -90,9 +90,9 @@ float4 main(PSInput input) : SV_TARGET
 #if TEST
 	texturecolour = Diffuse;
 #endif
-#if VULKAN
-	return float4(texturecolour, 1.0f);
-#endif
+//#if VULKAN
+//	return float4(texturecolour, 1.0f);
+//#endif
 	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - input.WorldPos.xyz);
 

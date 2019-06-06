@@ -81,6 +81,16 @@ struct RendererSettings
 {
 	bool EnableTransparency = false;
 };
+namespace EVRHMDMode
+{
+	enum Type
+	{
+		Disabled,
+		SteamVR,
+		Debug,
+		Limit
+	};
+}
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
@@ -111,6 +121,8 @@ public:
 	bool AllowMeshInstancing = false;
 	void ValidateForAPI(ERenderSystemType system);
 	RendererSettings& GetSettingsForRender();
+	EVRHMDMode::Type VRHMDMode = EVRHMDMode::Disabled;
+
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;

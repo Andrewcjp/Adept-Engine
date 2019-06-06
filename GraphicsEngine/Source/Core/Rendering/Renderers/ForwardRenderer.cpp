@@ -12,6 +12,7 @@
 #include "RHI/RHI.h"
 #include "../Core/LightCulling/LightCullingEngine.h"
 #include "../RayTracing/RayTracingEngine.h"
+#include "../Core/Defaults.h"
 
 
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
@@ -196,6 +197,10 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 		Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 		Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	}
+#if NOSHADOW
+	Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::DiffuseIr);
+	Cmdlist->SetTexture(Defaults::GetDefaultTexture(), MainShaderRSBinds::EnvBRDF);
+#endif
 	//LightCulling->BindLightBuffer(Cmdlist);
 	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
 	if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)
