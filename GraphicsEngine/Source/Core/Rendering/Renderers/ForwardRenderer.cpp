@@ -150,7 +150,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	}
 	MainPass(List, O->GetMain(eye), eye);
 	List->EndTimer(EGPUTIMERS::MainPass);
-#if !NOSHADOW
+#if 1//!NOSHADOW
 	O->SkyboxShader->Render(SceneRender, List, O->GetMain(eye), nullptr);
 #endif
 	List->Execute();
@@ -171,7 +171,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), targetbuffer);
 	desc.RenderPassDesc = RHIRenderPassDesc(targetbuffer, PREZ ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
-	desc.RenderPassDesc.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	//desc.RenderPassDesc.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	Cmdlist->SetPipelineStateDesc(desc);
 
 #if !BASIC_RENDER_ONLY

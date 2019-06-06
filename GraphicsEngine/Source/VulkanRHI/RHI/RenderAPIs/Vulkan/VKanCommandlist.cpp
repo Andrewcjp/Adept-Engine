@@ -224,6 +224,10 @@ void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int 
 	}
 	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKanFramebuffer* V = VKanRHI::VKConv(buffer);
+	if (!V->WasTexture)
+	{
+		//V->TransitionTOPixel(this);
+	}
 	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot);
 	V->WasTexture = true;
 }

@@ -38,7 +38,11 @@ void VKanFramebuffer::UnBind(VKanCommandlist * List)
 	VkanHelpers::transitionImageLayout(*List->GetCommandBuffer(), RTImage, fmt, VkanHelpers::ConvertState(GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	WasTexture = false;
 }
-
+void VKanFramebuffer::TransitionTOPixel(VKanCommandlist* list)
+{
+	VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[0]);
+	VkanHelpers::transitionImageLayout(*list->GetCommandBuffer(), RTImage, fmt, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VkanHelpers::ConvertState(GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+}
 void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
 {
 	//throw std::logic_error("The method or operation is not implemented.");

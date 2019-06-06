@@ -34,9 +34,9 @@ Shader_Skybox::~Shader_Skybox()
 
 void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 {
-#if NOSHADOW
-	return;
-#endif
+	//#if NOSHADOW
+	//	return;
+	//#endif
 	ensure(tex->GetType() == ETextureType::Type_CubeMap);
 	if (SkyBoxTexture == tex)
 	{
@@ -75,7 +75,9 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 	{
 		if (!Cubemap)
 		{
-			List->BeginRenderPass(RHIRenderPassDesc(Buffer));
+			RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
+			D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+			List->BeginRenderPass(D);
 		}
 	}
 #if DEBUG_CUBEMAPS
@@ -100,7 +102,7 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 	Buffer->MakeReadyForComputeUse(List);
 	if (!Cubemap && false)
 	{
-		
+
 		//Buffer->MakeReadyForComputeUse(List);
 		if (List->GetDeviceIndex() == 0)
 		{
@@ -131,5 +133,6 @@ std::vector<Shader::VertexElementDESC> Shader_Skybox::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out[0].Stride = sizeof(OGLVertex);
 	return out;
 }
