@@ -9,6 +9,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "VkanHelpers.h"
 #include "Descriptor.h"
+#include "gli/gli.hpp"
 
 #if BUILD_VULKAN
 
@@ -22,21 +23,38 @@ VKanTexture::~VKanTexture()
 
 bool VKanTexture::CreateFromFile(AssetPathRef FileName)
 {
-	int texWidth, texHeight, texChannels;
+	//int texWidth, texHeight, texChannels;
 	std::string FilePAth = FileName.GetFullPathToAsset();
-	stbi_uc* pixels = stbi_load(FilePAth.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-	if (pixels == nullptr)
+	//stbi_uc* pixels = stbi_load(FilePAth.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	//if (pixels == nullptr)
+	//{
+	//	return true;
+	//}
+
+	gli::texture tex = gli::load(FilePAth);
+	if (tex.empty())
 	{
-		return true;
+		return false;
 	}
+	texture = &tex;
+
 	Log::LogMessage("Loading texture " + FilePAth);
-	TextureDescription desc;
-	desc.Width = texWidth;
-	desc.Height = texHeight;
-	desc.BitDepth = 4;// texChannels;
-	desc.PtrToData = pixels;
-	CreateTextureFromDesc(desc);
-	stbi_image_free(pixels);
+
+	Description.Width = tex.extent().x;
+	Description.Height = tex.extent().y;
+	Description.MipLevels = tex.levels();
+	Description.BitDepth = 4;// texChannels;
+	Description.PtrToData = tex.data();
+	Description.Faces = tex.faces();
+	Description.ImageByteSize = tex.size();
+	if (tex.target() == gli::TARGET_CUBE)
+	{
+		///		__debugbreak();
+		Description.TextureType = ETextureType::Type_CubeMap;
+		CurrentTextureType = ETextureType::Type_CubeMap;
+	}
+	CreateTextureFromDesc(Description);
+	//stbi_image_free(pixels);
 	TexturePath = FileName.GetRelativePathToAsset();
 	return true;
 }
@@ -49,12 +67,23 @@ void VKanTexture::CreateAsNull()
 void VKanTexture::UpdateSRV()
 {
 	VkanDeviceContext* D = (VkanDeviceContext*)RHI::GetDefaultDevice();
-	textureImageView = VkanHelpers::createImageView(D, textureImage, fmt);
+	textureImageView = VkanHelpers::createImageView(D, textureImage, fmt, VK_IMAGE_ASPECT_COLOR_BIT, Description);
 }
 
 void VKanTexture::CreateTextureFromDesc(const TextureDescription& desc)
 {
+	gli::texture tex;
+	if (texture != nullptr)
+	{
+		tex = *texture;
+	}
+	
+	Description = desc;
 	VkDeviceSize imageSize = desc.Width * desc.Height * desc.BitDepth;
+	if (desc.ImageByteSize != 0)
+	{
+		imageSize = desc.ImageByteSize;
+	}
 	VkanDeviceContext* D = (VkanDeviceContext*)RHI::GetDefaultDevice();
 	VkanHelpers::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 	void* data;
@@ -64,18 +93,57 @@ void VKanTexture::CreateTextureFromDesc(const TextureDescription& desc)
 
 	if (desc.BitDepth == 4)
 	{
-		fmt = VK_FORMAT_R8G8B8A8_UNORM;
+		//fmt = VK_FORMAT_R8G8B8A8_UNORM;
+		fmt = VK_FORMAT_B8G8R8A8_UNORM;
 	}
 	else
 	{
 		fmt = VK_FORMAT_R8_UNORM;
 	}
 
-	VkanHelpers::createImage(D, desc.Width, desc.Height, fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+	VkanHelpers::createImageDesc(/*D,*/ fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		textureImage, textureImageMemory, VK_IMAGE_LAYOUT_UNDEFINED, Description);
 	VkCommandBuffer B = VKanRHI::RHIinstance->setuplist->CommandBuffer;
-	VkanHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	VkanHelpers::copyBufferToImage(B, stagingBuffer, textureImage, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height));
-	VkanHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	VkanHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,desc.MipLevels,desc.Faces);
+	if (texture == nullptr)
+	{
+		VkanHelpers::copyBufferToImage(B, stagingBuffer, textureImage, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height));
+	}
+	else
+	{
+		std::vector<VkBufferImageCopy> bufferCopyRegions;
+		uint32_t offset = 0;
+
+		for (uint32_t face = 0; face < tex.faces(); face++)
+		{
+			for (uint32_t level = 0; level < tex.levels(); level++)
+			{
+				VkBufferImageCopy bufferCopyRegion = {};
+				bufferCopyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				bufferCopyRegion.imageSubresource.mipLevel = level;
+				bufferCopyRegion.imageSubresource.baseArrayLayer = face;
+				bufferCopyRegion.imageSubresource.layerCount = 1;
+				bufferCopyRegion.imageExtent.width = tex.extent(level).x;
+				bufferCopyRegion.imageExtent.height = tex.extent(level).y;
+				bufferCopyRegion.imageExtent.depth = 1;
+				bufferCopyRegion.bufferOffset = offset;
+
+				bufferCopyRegions.push_back(bufferCopyRegion);
+
+				// Increase offset into staging buffer for next level / face
+				offset += tex.size(level);
+			}
+		}
+		vkCmdCopyBufferToImage(
+			B,
+			stagingBuffer,
+			textureImage,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			static_cast<uint32_t>(bufferCopyRegions.size()),
+			bufferCopyRegions.data()
+		);
+	}
+	VkanHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,desc.MipLevels, desc.Faces);
 	UpdateSRV();
 }
 

@@ -1,8 +1,13 @@
 #pragma once
 #include "RHI/BaseTexture.h"
+
+namespace gli { class texture; }
 #if BUILD_VULKAN
 #include "Core/Assets/AssetTypes.h"
 #include "vulkan/vulkan_core.h"
+#include "VKanRHI.h"
+
+
 class VKanTexture : public BaseTexture
 {
 public:
@@ -22,6 +27,7 @@ public:
 
 	Descriptor GetDescriptor(int slot);
 	VkFormat fmt;
+	gli::texture* texture = nullptr;
 };
 
 #endif 

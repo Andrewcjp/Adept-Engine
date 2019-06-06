@@ -20,6 +20,7 @@ public:
 
 	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
 	void UnBind(VKanCommandlist* List);
+	void TransitionTOPixel(VKanCommandlist * list);
 	//private:
 	RHIPipeRenderTargetDesc desc;
 	bool IsCreated = false;

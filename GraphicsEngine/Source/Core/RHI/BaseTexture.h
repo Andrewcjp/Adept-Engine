@@ -21,9 +21,11 @@ struct TextureDescription
 	int Height = 0;
 	int BitDepth = 0;
 	int MipLevels = 1;
+	int Faces = 1;
 	eTEXTURE_FORMAT Format = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
 	void* PtrToData = nullptr;
 	ETextureType::Type TextureType = ETextureType::Type_2D;
+	int ImageByteSize = 0;
 };
 
 class BaseTexture :  public IRHIResourse, public IRHISharedDeviceObject<BaseTexture>
