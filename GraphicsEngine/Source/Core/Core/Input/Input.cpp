@@ -5,6 +5,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "Editor/EditorWindow.h"
+#include "InputManager.h"
 Input* Input::instance = nullptr;
 
 void Input::Startup()
@@ -29,6 +30,8 @@ void Input::ReciveMouseAxisData(glm::vec2 data)
 Input::Input()
 {
 	UseHighPrecisionMouseInput = false;
+	IManager = new InputManager();
+	IManager->InitInterfaces();
 	//ProcessInput();
 }
 
@@ -74,8 +77,14 @@ void Input::ResetMouse()
 	MouseSampleCount = 0;
 }
 
+InputManager * Input::GetInputManager()
+{
+	return instance->IManager;
+}
+
 void Input::ProcessInput()
 {
+	IManager->Tick();
 	bool PreviousValue = IsActiveWindow;
 	IsActiveWindow = PlatformWindow::IsActiveWindow();
 	if (!IsActiveWindow && PreviousValue)

@@ -187,6 +187,7 @@ RenderSettings::RenderSettings()
 {
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	EnableVR = true;
+
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;
 	if (IsDeferred)
@@ -203,6 +204,7 @@ RenderSettings::RenderSettings()
 	//RTSettings.Enabled = true;
 	AllowMeshInstancing = false; 
 	//	IsDeferred = true;
+	VRHMDMode = EVRHMDMode::SteamVR;
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)

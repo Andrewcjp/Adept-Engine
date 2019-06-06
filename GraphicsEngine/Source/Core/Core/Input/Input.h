@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/EngineTypes.h"
 #include "KeyCode.h"
+
+class InputManager;
 const int MAX_MOUSE_BUTTON_COUNT = 10;
 class Input
 {
@@ -44,8 +46,9 @@ public:
 	void ResetMouse();
 	int MouseSampleCount = 0;
 	bool DidJustPause = false;
+	static InputManager* GetInputManager();
 private:
-
+	InputManager* IManager = nullptr;
 	static Input* instance;
 	Input();
 	~Input();

@@ -64,7 +64,7 @@ void BaseWindow::InitilseWindow()
 #if !BASIC_RENDER_ONLY
 	UI = new UIManager(m_width, m_height);
 #endif
-	Input::Startup();
+
 	Log::LogMessage("Scene initialized");
 	LineDrawer = new DebugLineDrawer();
 	Saver = new SceneJSerialiser();
