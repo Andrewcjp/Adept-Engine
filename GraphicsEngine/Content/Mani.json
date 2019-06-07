@@ -1,0 +1,64 @@
+{
+  "default_bindings": [
+   {
+      "controller_type": "some_controller",
+      "binding_url": "mygame_bindings_some_controller.json"
+   }
+  ], 
+  "actions": [
+    {
+      "name": "/actions/main/in/OpenInventory",
+      "requirement": "mandatory",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/driving/in/HonkHorn",
+      "requirement": "optional",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/driving/out/SpeedBump",
+      "type": "vibration"
+    },
+    {
+      "name": "/actions/driving/in/Throttle",
+      "requirement" : "suggested",
+      "type": "vector1"
+    },
+    {
+      "name": "/actions/main/in/RightHand",
+      "type": "pose"
+    },
+    {
+      "name": "/actions/main/in/RightHand_Anim",
+      "type": "skeleton",
+      "skeleton": "/skeleton/hand/right"
+    }
+  ],
+  "action_sets": [
+    {
+      "name": "/actions/main",
+      "usage": "leftright"
+    },
+    {
+      "name": "/actions/driving",
+      "usage": "single"
+    }
+  ],
+  "localization" : [
+   {
+       "language_tag": "en",
+
+        "/actions/main" : "My Game Actions",
+        "/actions/driving" : "Driving",
+
+        "/actions/main/in/OpenInventory" : "Open Inventory",
+        "/actions/main/in/RightHand" : "Right Hand",
+        "/actions/main/in/RightHand_Anim" : "Right Hand Animation",
+
+        "/actions/driving/in/HonkHorn" : "Honk Horn",
+        "/actions/driving/out/SpeedBump" : "Hit Speed Bump",
+        "/actions/driving/in/Throttle" : "Throttle"
+    }
+  ]
+}

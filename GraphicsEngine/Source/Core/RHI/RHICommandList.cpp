@@ -121,6 +121,10 @@ bool RHICommandList::IsComputeList() const
 {
 	return ListType == ECommandListType::Compute;
 }
+bool RHICommandList::IsRaytracingList() const
+{
+	return ListType == ECommandListType::RayTracing;
+}
 
 void RHICommandList::InsertGPUStallTimer()
 {

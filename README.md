@@ -1,17 +1,20 @@
-# Graphics Engine
+# Adept Engine
 
-A cross graphics API Game engine:
-
-Currently supporting: D3D12, Vulkan(WIP)
+A flexible C++ Game engine:
 
 Renderer Features:
 
-* Flexible RHI (Render Hardware Interface)
+* Flexible RHI (Render Hardware Interface) supporting:
+* 	DirectX 12 
+* 	Vulkan (WIP)
 * PBR Lighting Pipeline
 * Shadow mapping (static and dynamic)
 * GPU Particle System (WIP)
 * UI system (WIP)
 * Post Processing Stack
+* Raytracing (DXR) Support (WIP)
+* Light Culling (WIP)
+* VR Support (SteamVR)
 
 Multi-GPU Features:
 

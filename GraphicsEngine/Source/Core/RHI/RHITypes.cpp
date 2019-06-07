@@ -428,6 +428,7 @@ RHIRayDispatchDesc::RHIRayDispatchDesc(FrameBuffer * RB)
 {
 	Width = RB->GetWidth();
 	Height = RB->GetHeight();
+	Target = RB;
 }
 
 RHIRenderPassDesc::RHIRenderPassDesc(FrameBuffer * buffer, ERenderPassLoadOp::Type loadOp)

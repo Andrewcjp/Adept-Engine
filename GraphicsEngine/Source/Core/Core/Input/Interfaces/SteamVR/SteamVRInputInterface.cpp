@@ -1,6 +1,7 @@
 #include "SteamVRInputInterface.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "Rendering/VR/ViveHMD.h"
+#include "Core/Assets/AssetManager.h"
 
 SteamVRInputInterface::SteamVRInputInterface()
 {
@@ -25,6 +26,8 @@ void SteamVRInputInterface::Init()
 	system = vr::VR_Init(&error, vr::VRApplication_Scene);
 	ensure(error == vr::HmdError::VRInitError_None);
 	ensure(vr::VRCompositor());
+
+	vr::VRInput()->SetActionManifestPath((AssetManager::GetContentPath() + "Mani.json").c_str());
 }
 
 
@@ -133,6 +136,11 @@ void SteamVRInputInterface::Tick()
 	{
 		return;
 	}
+	//vr::VRInput()->UpdateActionState(,);
+	//vr::VRActionHandle_t T;
+	//vr::VRInput()->GetActionHandle("Test", &T);
+	//
+	//vr::VRInput()->GetDigitalActionData(T,)
 	//	system->PollNextEventWithPose()
 	vr::VREvent_t event;
 	while (system->PollNextEvent(&event, sizeof(event)))
@@ -156,16 +164,20 @@ void SteamVRInputInterface::Tick()
 			poses[nDevice] = ConvertSteamVRMatrixToMatrix4_T(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
 			if (system->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_HMD)
 			{
-				//CameraInstance->GetTransfrom()->SetPos(Getpos(ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking)));
-				//CameraInstance->GetTransfrom()->SetQrot(GetRotation(glm::inverse(poses[nDevice])));
 				HMD->SetPosAndRot(Getpos(ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking)), GetRotation(glm::inverse(poses[nDevice])));
 			}
 			else
 			{
 				TransArray[nDevice].SetPos(Getpos(ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking)));
 				TransArray[nDevice].SetQrot(GetRotation(glm::inverse(poses[nDevice])));
-
 				RenderTransfrom(TransArray[nDevice]);
+				if (system->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_Controller)
+				{
+					/*if (RHI::GetFrameCount() % 60 == 0)
+					{
+						vr::VRSystem()->TriggerHapticPulse(nDevice, 0, 100);
+					}*/
+				}
 			}
 		}
 	}

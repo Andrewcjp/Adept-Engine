@@ -1,6 +1,6 @@
 #include "RenderSettings.h"
 #include "Core\Engine.h"
-#include "GraphicsEngine.h"
+#include "WinLauncher.h"
 #include "Core\BaseWindow.h"
 #include "..\Core\SceneRenderer.h"
 static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
@@ -201,10 +201,10 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
-	//RTSettings.Enabled = true;
+	RTSettings.Enabled = true;
 	AllowMeshInstancing = false; 
 	//	IsDeferred = true;
-	VRHMDMode = EVRHMDMode::SteamVR;
+	VRHMDMode = EVRHMDMode::Disabled;
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)

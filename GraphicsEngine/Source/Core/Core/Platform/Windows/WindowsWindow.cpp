@@ -9,7 +9,7 @@
 #include "Core/Input/Input.h"
 #include "Core/Platform/Windows/WindowsApplication.h"
 #include <timeapi.h>
-#include "GraphicsEngine.h"
+#include "WinLauncher.h"
 #include "Core/Version.h"
 #include "Core/Utils/StringUtil.h"
 

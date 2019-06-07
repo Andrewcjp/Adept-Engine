@@ -103,8 +103,7 @@ public:
 	ID3D12Device2 * GetDevice2();
 	ID3D12Device5 *GetDevice5();
 	ID3D12CommandAllocator* GetCommandAllocator();
-	ID3D12CommandAllocator * GetComputeCommandAllocator();
-	ID3D12CommandAllocator * GetCopyCommandAllocator();
+
 	ID3D12CommandAllocator * GetSharedCommandAllocator();
 	ID3D12CommandQueue* GetCommandQueue();
 	ID3D12GraphicsCommandList* GetCopyList();

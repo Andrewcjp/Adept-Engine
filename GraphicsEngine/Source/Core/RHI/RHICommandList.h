@@ -127,6 +127,7 @@ public:
 	bool IsGraphicsList()const;
 	bool IsCopyList() const;
 	bool IsComputeList() const;
+	bool IsRaytracingList() const;
 	void InsertGPUStallTimer();
 	void HandleStallTimer();
 	//RT
