@@ -11,7 +11,7 @@
 RayTracingEngine::RayTracingEngine()
 {
 	AsyncbuildList = RHI::CreateCommandList(ECommandListType::Compute);
-	RayList = RHI::CreateCommandList();
+	RayList = RHI::CreateCommandList(ECommandListType::RayTracing);
 	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
 	StateObject->Target = ShaderComplier::GetShader<Shader_RTBase>();
 	StateObject->TempCam = BaseWindow::GetCurrentCamera();
@@ -56,16 +56,16 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 void RayTracingEngine::DispatchRays(FrameBuffer* Target)
 {
 	StateObject->TempCam = BaseWindow::GetCurrentCamera();
+	RayList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	RayList->ResetList();
 	RayList->StartTimer(EGPUTIMERS::RT_Trace);
 	RayList->SetStateObject(StateObject);
-	RayList->BeginRenderPass(RHIRenderPassDesc(Target));
 	Target->MakeReadyForComputeUse(RayList);
 	RayList->SetHighLevelAccelerationStructure(CurrnetHL);
 	RayList->TraceRays(RHIRayDispatchDesc(Target));
-	RayList->EndRenderPass();
 	RayList->EndTimer(EGPUTIMERS::RT_Trace);
 	RayList->Execute();
+	RayList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
 void RayTracingEngine::SetShaderTable()

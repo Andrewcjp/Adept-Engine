@@ -19,7 +19,7 @@
 #include "GameWindow.h"
 #include <thread>
 #include "Platform/Threading.h"
-#include "GraphicsEngine.h"
+#include "WinLauncher.h"
 #include "Rendering/Core/Defaults.h"
 long Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;

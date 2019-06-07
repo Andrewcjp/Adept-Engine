@@ -305,15 +305,6 @@ ID3D12CommandAllocator * D3D12DeviceContext::GetCommandAllocator()
 	return m_commandAllocator[CurrentFrameIndex];
 }
 
-ID3D12CommandAllocator * D3D12DeviceContext::GetComputeCommandAllocator()
-{
-	return nullptr;
-}
-
-ID3D12CommandAllocator * D3D12DeviceContext::GetCopyCommandAllocator()
-{
-	return nullptr;
-}
 ID3D12CommandAllocator * D3D12DeviceContext::GetSharedCommandAllocator()
 {
 	return m_SharedCopyCommandAllocator[CurrentFrameIndex];
@@ -342,7 +333,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-	}
+}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {

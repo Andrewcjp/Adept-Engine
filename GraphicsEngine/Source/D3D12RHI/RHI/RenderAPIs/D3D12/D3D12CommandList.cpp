@@ -98,7 +98,7 @@ void D3D12CommandList::BeginRenderPass(RHIRenderPassDesc& info)
 		{
 			ClearFrameBuffer(info.TargetBuffer);
 		}
-	}	
+	}
 }
 
 void D3D12CommandList::EndRenderPass()
@@ -187,7 +187,7 @@ void D3D12CommandList::ResetList()
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
 {
-	ensure(ListType == ECommandListType::Graphics);
+	ensure(ListType == ECommandListType::Graphics || IsRaytracingList());
 	if (target == nullptr)
 	{
 		if (CurrentRenderTarget != nullptr)
@@ -244,6 +244,7 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 			case ECommandListType::Graphics:
 				Target = DeviceContextQueue::Graphics;
 				break;
+			case ECommandListType::RayTracing:
 			case ECommandListType::Compute:
 				Target = DeviceContextQueue::Compute;
 				break;
@@ -388,7 +389,7 @@ void D3D12CommandList::CreateCommandList()
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
-	else if (ListType == ECommandListType::Compute)
+	else if (ListType == ECommandListType::Compute || IsRaytracingList())
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
@@ -497,15 +498,14 @@ void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
 
 void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
 {
-	if (IsComputeList())
-	{
-		CurrentCommandList->SetComputeRoot32BitConstants(SignitureSlot, ValueNum, Data, DataOffset);
-	}
-	else
+	if (IsGraphicsList())
 	{
 		CurrentCommandList->SetGraphicsRoot32BitConstants(SignitureSlot, ValueNum, Data, DataOffset);
 	}
-
+	else
+	{
+		CurrentCommandList->SetComputeRoot32BitConstants(SignitureSlot, ValueNum, Data, DataOffset);
+	}
 }
 
 CMDListType* D3D12CommandList::GetCommandList()
@@ -540,7 +540,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
 	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(buffer);
-	if (ListType == ECommandListType::Compute)
+	if (IsComputeList())
 	{
 		ensure(DBuffer->IsReadyForCompute());
 	}
@@ -552,13 +552,12 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
 }
 
-
-
 void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)
 {
 	ensure(CurrentRTState);
 	//#DXR: todo
-	CurrentRTState->Trace(desc, this, CurrentRenderTarget);
+	CurrentRTState->Trace(desc, this, D3D12RHI::DXConv(desc.Target));
+	UAVBarrier(desc.Target->GetUAV());
 }
 
 void D3D12CommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)

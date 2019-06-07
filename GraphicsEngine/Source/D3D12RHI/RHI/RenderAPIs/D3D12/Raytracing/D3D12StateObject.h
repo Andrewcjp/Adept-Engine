@@ -45,7 +45,7 @@ public:
 	void CreateRaytracingOutputBuffer();
 	void Trace(const RHIRayDispatchDesc& Desc,RHICommandList * T,D3D12FrameBuffer* target);
 	void BuildShaderTables();
-	HighLevelAccelerationStructure* High;
+	HighLevelAccelerationStructure* High = nullptr;
 	RTCameraData Data;
 private:
 	
