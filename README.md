@@ -2,11 +2,13 @@
 
 A flexible C++ Game engine:
 
-Renderer Features:
+Flexible RHI (Render Hardware Interface) supporting:
 
-* Flexible RHI (Render Hardware Interface) supporting:
 * 	DirectX 12 
 * 	Vulkan (WIP)
+
+Renderer Features:
+
 * PBR Lighting Pipeline
 * Shadow mapping (static and dynamic)
 * GPU Particle System (WIP)
