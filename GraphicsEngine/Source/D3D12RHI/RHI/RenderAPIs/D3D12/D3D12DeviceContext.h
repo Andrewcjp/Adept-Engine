@@ -75,9 +75,15 @@ private:
 	ID3D12Fence* secondaryFence = nullptr;
 
 };
+struct DeviceMemoryData
+{
+	UINT64 LocalSegment_TotalBytes = 0;
+	UINT64 HostSegment_TotalBytes = 0;
+};
 class D3D12TimeManager;
 class DescriptorHeapManager;
 class D3D12QueryHeap;
+class DXMemoryManager;
 //once this class has been completed it will be RHI split
 class D3D12DeviceContext : public DeviceContext
 {
@@ -132,7 +138,10 @@ public:
 	bool IsPartOfNodeGroup();
 	int GetNodeCount();
 	void CreateNodeDevice(ID3D12Device * dev, int nodemask, int index);
+	DXMemoryManager* GetMemoryManager();
+	DeviceMemoryData GetMemoryData();
 private:
+	DXMemoryManager* MemoryManager = nullptr;
 	//Query heaps
 	D3D12QueryHeap* TimeStampHeap = nullptr;
 	D3D12QueryHeap* CopyTimeStampHeap = nullptr;
@@ -156,6 +165,7 @@ private:
 	ID3D12CommandQueue* m_MainCommandQueue = nullptr;
 
 	//device info
+	DeviceMemoryData MemoryData;
 	DXGI_QUERY_VIDEO_MEMORY_INFO CurrentVideoMemoryInfo;
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;

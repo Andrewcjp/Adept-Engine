@@ -6,6 +6,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "DescriptorHeapManager.h"
 #include "D3D12QueryHeap.h"
+#include "DXMemoryManager.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -26,6 +27,7 @@ D3D12DeviceContext::D3D12DeviceContext()
 D3D12DeviceContext::~D3D12DeviceContext()
 {
 	DestoryDevice();
+	SafeDelete(MemoryManager);
 	SafeRelease(m_MainCommandQueue);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
@@ -135,12 +137,21 @@ void D3D12DeviceContext::CheckFeatures()
 		Caps_Data.SupportsViewInstancing = (FeatureData3.ViewInstancingTier > D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED);
 	}
 	//todo loop
-	D3D12_FEATURE_DATA_SHADER_MODEL  ShaderModelData = {};
-	ShaderModelData.HighestShaderModel = D3D_SHADER_MODEL_6_0;
-	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &ShaderModelData, sizeof(ShaderModelData));
-	if (SUCCEEDED(hr) && LogDeviceDebug)
+	D3D_SHADER_MODEL Sm = D3D_SHADER_MODEL_5_1;
+	for (int i = D3D_SHADER_MODEL::D3D_SHADER_MODEL_6_4; i > D3D_SHADER_MODEL_5_1; i--)
 	{
-		LogDeviceData("SM " + std::to_string(ShaderModelData.HighestShaderModel));
+		D3D12_FEATURE_DATA_SHADER_MODEL  ShaderModelData = {};
+		ShaderModelData.HighestShaderModel = (D3D_SHADER_MODEL)i;
+		hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &ShaderModelData, sizeof(ShaderModelData));
+		if (SUCCEEDED(hr))
+		{
+			Sm = ShaderModelData.HighestShaderModel;
+			break;
+		}
+	}
+	if (LogDeviceDebug)
+	{
+		LogDeviceData("Shader Model Support " + D3D12Helpers::SMToString(Sm));
 	}
 }
 
@@ -223,6 +234,8 @@ void D3D12DeviceContext::InitDevice(int index)
 	}
 	TimeStampHeap = new D3D12QueryHeap(this, 8192, D3D12_QUERY_HEAP_TYPE_TIMESTAMP);
 	CopyTimeStampHeap = new D3D12QueryHeap(this, 512, D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP);
+	SampleVideoMemoryInfo();
+	MemoryManager = new DXMemoryManager(this);
 	InitCopyListPool();
 	PostInit();
 }
@@ -233,6 +246,16 @@ void D3D12DeviceContext::CreateNodeDevice(ID3D12Device* dev, int nodemask, int i
 	Log::LogMessage("Creating Node device " + std::to_string(nodemask) + "/" + std::to_string(m_Device->GetNodeCount()) + " Nodes");
 	SetNodeMaskFromIndex(nodemask);
 	InitDevice(index);
+}
+
+DXMemoryManager * D3D12DeviceContext::GetMemoryManager()
+{
+	return MemoryManager;
+}
+
+DeviceMemoryData D3D12DeviceContext::GetMemoryData()
+{
+	return MemoryData;
 }
 
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
@@ -333,7 +356,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-}
+	}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
@@ -347,10 +370,14 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 
 void D3D12DeviceContext::SampleVideoMemoryInfo()
 {
+	pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &CurrentVideoMemoryInfo);
+	MemoryData.HostSegment_TotalBytes = CurrentVideoMemoryInfo.Budget;
+
 	pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &CurrentVideoMemoryInfo);
 
 	usedVRAM = CurrentVideoMemoryInfo.CurrentUsage / 1024 / 1024;
 	totalVRAM = CurrentVideoMemoryInfo.Budget / 1024 / 1024;
+	MemoryData.LocalSegment_TotalBytes = CurrentVideoMemoryInfo.Budget;
 }
 
 std::string D3D12DeviceContext::GetMemoryReport()

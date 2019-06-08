@@ -8,7 +8,7 @@ class GameHud;
 class  Game
 {
 public:
-	CORE_API Game(class CompoenentRegistry* Reg);
+	CORE_API Game(class ComponentRegistry* Reg);
 	CORE_API virtual ~Game();
 	CORE_API virtual void  Update();
 	CORE_API  void BeginPlay();
@@ -36,7 +36,7 @@ public:
 		//	Log::OutS << "Game Module Startup" << Log::OutS;
 		return true;
 	}
-	virtual Game* GetGamePtr(class CompoenentRegistry* Reg)
+	virtual Game* GetGamePtr(class ComponentRegistry* Reg)
 	{
 		return nullptr;
 	}

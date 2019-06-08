@@ -8,7 +8,7 @@
 #include "UI/Core/UIButton.h"
 #include "UI/Core/Layout.h"
 #include "UI/Core/UIPanel.h"
-#include "Core/Components/CompoenentRegistry.h"
+#include "Core/Components/ComponentRegistry.h"
 #include "Core/GameObject.h"
 #include "Core/Components/Component.h"
 #if WITH_EDITOR
@@ -108,9 +108,9 @@ void Inspector::AddComponent()
 {
 	//__debugbreak();
 	std::vector<std::string> ops;
-	for (int i = 0; i < CompoenentRegistry::GetInstance()->GetCount(); i++)
+	for (int i = 0; i < ComponentRegistry::GetInstance()->GetCount(); i++)
 	{
-		ops.push_back(CompoenentRegistry::GetInstance()->GetNameById(i));
+		ops.push_back(ComponentRegistry::GetInstance()->GetNameById(i));
 	}
 
 	using std::placeholders::_1;
@@ -128,7 +128,7 @@ void Inspector::AddComponentCallback(int i)
 			GameObject* t = (GameObject*)Instance->target;
 			if (t != nullptr)
 			{
-				Component* comp = CompoenentRegistry::CreateBaseComponent(CompoenentRegistry::BaseComponentTypes(i));
+				Component* comp = ComponentRegistry::CreateBaseComponent(ComponentRegistry::BaseComponentTypes(i));
 				if (comp != nullptr)
 				{
 					t->AttachComponent(comp);

@@ -21,7 +21,7 @@ public:
 		Error
 	};
 	CORE_API static void LogOutput(const std::string& data, int colour, bool ForceFlush = false);
-	static void LogBoolTerm(std::string PreText, bool value,int ForceOffset = -1);
+	static void LogBoolTerm(std::string PreText, bool value, int ForceOffset = -1);
 	struct StreamWrapper
 	{
 		std::stringstream Out;
@@ -41,7 +41,7 @@ public:
 	};
 	static StreamWrapper OutS;
 	CORE_API static void LogMessage(std::string msg, Severity s = Severity::Message);
-	CORE_API static void LogTextToScreen(std::string msg, float LifeTime = 0.0f, bool showinLog = false);
+	CORE_API static void LogTextToScreen(const std::string& msg, float LifeTime = 0.0f, bool showinLog = false);
 	static void StartLogger();
 	static void ShutDownLogger();
 	static Log* Get();

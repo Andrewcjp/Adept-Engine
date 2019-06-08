@@ -3,6 +3,7 @@
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../D3D12CommandList.h"
 #include "../GPUResource.h"
+#include "../DXMemoryManager.h"
 
 D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceContext* Device) :LowLevelAccelerationStructure(Device)
 {}
@@ -46,12 +47,13 @@ void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO bottomLevelPrebuildInfo = {};
 	D3D12RHI::DXConv(Context)->GetDevice5()->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 
-	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(),
-		bottomLevelPrebuildInfo.ScratchDataSizeInBytes, &scratchResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource");
-
+	//D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(),
+	//	bottomLevelPrebuildInfo.ScratchDataSizeInBytes, &scratchResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource");
+	//bottomLevelPrebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "ScratchResource"
+	D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocTemporary(AllocDesc(bottomLevelPrebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "ScratchResource"), &scratchResource);
 	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(), bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes, &Structure, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, L"BottomLevelAccelerationStructure");
 
-	bottomLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
+	bottomLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetResource()->GetGPUVirtualAddress();
 	bottomLevelBuildDesc.DestAccelerationStructureData = Structure->GetGPUVirtualAddress();
 
 }

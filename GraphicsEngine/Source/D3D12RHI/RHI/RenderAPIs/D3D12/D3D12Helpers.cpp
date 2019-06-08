@@ -725,3 +725,24 @@ void D3D12Helpers::AllocateUploadBuffer(ID3D12Device* pDevice, void *pData, UINT
 	memcpy(pMappedData, pData, datasize);
 	(*ppResource)->Unmap(0, nullptr);
 }
+
+
+std::string D3D12Helpers::SMToString(D3D_SHADER_MODEL SM)
+{
+	switch (SM)
+	{
+		case D3D_SHADER_MODEL_5_1:
+			return "D3D_SHADER_MODEL_5_1";
+		case D3D_SHADER_MODEL_6_0:
+			return "D3D_SHADER_MODEL_6_0";
+		case D3D_SHADER_MODEL_6_1:
+			return "D3D_SHADER_MODEL_6_1";
+		case D3D_SHADER_MODEL_6_2:
+			return "D3D_SHADER_MODEL_6_2";
+		case D3D_SHADER_MODEL_6_3:
+			return "D3D_SHADER_MODEL_6_3";
+		case D3D_SHADER_MODEL_6_4:
+			return "D3D_SHADER_MODEL_6_4";
+	}
+	return "?";
+}

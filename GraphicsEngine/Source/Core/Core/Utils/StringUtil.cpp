@@ -73,6 +73,16 @@ std::string StringUtils::ToStringFloat(float value, int Places /*= 2*/)
 	return stream.str();
 }
 
+std::string StringUtils::ByteToMB(uint64_t value)
+{
+	return StringUtils::ToStringFloat((float)(value) / 1024 / 1024) + "MB ";
+}
+
+std::string StringUtils::ByteToGB(uint64_t value)
+{
+	return StringUtils::ToStringFloat((float)(value) / 1024 / 1024 / 1024) + "GB ";
+}
+
 std::string StringUtils::BoolToString(bool value)
 {
 	return value ? "enabled" : "disabled";

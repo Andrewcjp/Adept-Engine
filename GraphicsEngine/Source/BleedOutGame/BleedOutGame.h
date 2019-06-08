@@ -6,7 +6,7 @@ class BleedOutGame :
 	public Game
 {
 public:
-	BleedOutGame(class CompoenentRegistry* Reg);
+	BleedOutGame(class ComponentRegistry* Reg);
 	~BleedOutGame();
 	virtual GameMode* CreateGameMode() override;
 	AIDirector * CreateAIDirector() override;
@@ -18,7 +18,7 @@ public:
 
 class BleedOutGameModule :public GameModule
 {
-	Game* GetGamePtr(CompoenentRegistry* Reg) override
+	Game* GetGamePtr(ComponentRegistry* Reg) override
 	{
 		return new BleedOutGame(Reg);
 	}

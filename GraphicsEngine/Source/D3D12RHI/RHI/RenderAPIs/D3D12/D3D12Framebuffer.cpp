@@ -40,7 +40,7 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, De
 		shadowSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		if (BufferDesc.RenderTargetCount == 0)
 		{
-			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);			
+			shadowSrvDesc.Format = D3D12Helpers::ConvertFormat(BufferDesc.DepthReadFormat);
 			desc->CreateShaderResourceView(DepthStencil->GetResource(), &GetSrvDesc(0), HeapOffset);
 		}
 		else
@@ -371,7 +371,7 @@ void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
 void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, FrameBuffer* PassThrough)
 {
 	D3D12FrameBuffer * DPassBuffer = (D3D12FrameBuffer*)PassThrough;
-	ID3D12GraphicsCommandList* list = ((D3D12CommandList*)List)->GetCommandList();
+	ID3D12GraphicsCommandList* list = D3D12RHI::DXConv(List)->GetCommandList();
 	((D3D12CommandList*)List)->CurrentRenderTarget = DPassBuffer;
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
@@ -473,7 +473,7 @@ void D3D12FrameBuffer::UpdateSRV()
 {
 	if (SRVDesc == nullptr)
 	{
-		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount+1, 2));
+		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount + 1, 2));
 	}
 
 	if (NullHeap == nullptr)

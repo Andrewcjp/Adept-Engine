@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "Assets/AssetManager.h"
-#include "Components/CompoenentRegistry.h"
+#include "Components/ComponentRegistry.h"
 #include "Editor/EditorWindow.h"
 #include "Game/Game.h"
 #include "Input/Input.h"
@@ -23,7 +23,7 @@
 #include "Rendering/Core/Defaults.h"
 long Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
-CORE_API CompoenentRegistry* Engine::CompRegistry = nullptr;
+CORE_API ComponentRegistry* Engine::CompRegistry = nullptr;
 PhysicsEngine* Engine::PhysEngine = nullptr;
 Engine* Engine::EngineInstance = nullptr;
 
@@ -71,7 +71,7 @@ Engine::Engine(EnginePersistentData* epd) :
 	{
 		PhysEngine->InitPhysics();
 	}
-	CompRegistry = new CompoenentRegistry();
+	CompRegistry = new ComponentRegistry();
 #if RUNTESTS
 	FString::RunFStringTests();
 #endif

@@ -43,19 +43,19 @@ public:
 	void CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC * raytracingPipeline);
 	void SerializeAndCreateRaytracingRootSignature(D3D12_ROOT_SIGNATURE_DESC & desc, ID3D12RootSignature ** rootSig);
 	void CreateRaytracingOutputBuffer();
-	void Trace(const RHIRayDispatchDesc& Desc,RHICommandList * T,D3D12FrameBuffer* target);
+	void Trace(const RHIRayDispatchDesc& Desc, RHICommandList * T, D3D12FrameBuffer* target);
 	void BuildShaderTables();
 	HighLevelAccelerationStructure* High = nullptr;
 	RTCameraData Data;
 private:
-	
+
 	ID3D12StateObject* StateObject = nullptr;
 	ID3D12RootSignature* m_raytracingLocalRootSignature = nullptr;
 	ID3D12RootSignature* m_raytracingGlobalRootSignature = nullptr;
-	ID3D12StateObjectProperties* props;
-	ID3D12Resource* m_outputResource;
+	ID3D12StateObjectProperties* props = nullptr;
+	ID3D12Resource* m_outputResource = nullptr;
 	nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper;
-	ID3D12Resource* m_sbtStorage;
+	ID3D12Resource* m_sbtStorage = nullptr;
 	DescriptorGroup* UAVd = nullptr;
 	D3D12Buffer* CBV = nullptr;
 };

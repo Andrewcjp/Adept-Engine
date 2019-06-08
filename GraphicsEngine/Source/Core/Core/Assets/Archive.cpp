@@ -7,7 +7,7 @@
 #include "rapidjson\prettywriter.h"
 #include "Core/Transform.h"
 #include "Core/Components/Component.h"
-#include "Core/Components/CompoenentRegistry.h"
+#include "Core/Components/ComponentRegistry.h"
 #define SERAL_VERSION_NUMBER 1
 
 #define IN_ArchiveProp(Property) LinkProperty(Property,#Property);
@@ -134,7 +134,7 @@ void Archive::LinkProperty(std::vector<Component*> & Value, const char * PropNam
 				//read the first part of the object for the components ID
 				if (cit->name == "TypeID")
 				{
-					newc = CompoenentRegistry::CreateBaseComponent((CompoenentRegistry::BaseComponentTypes)cit->value.GetInt());
+					newc = ComponentRegistry::CreateBaseComponent((ComponentRegistry::BaseComponentTypes)cit->value.GetInt());
 					CurrentReadHead++;
 				}
 			}

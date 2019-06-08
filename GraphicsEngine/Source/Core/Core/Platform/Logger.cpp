@@ -66,7 +66,7 @@ void Log::LogMessage(std::string msg, Severity s)
 	LogOutput(data, colour, s == Severity::Error);
 }
 
-void Log::LogTextToScreen(std::string msg, float LifeTime /*= 0.0f*/, bool showinLog /*= false*/)
+void Log::LogTextToScreen(const std::string& msg, float LifeTime /*= 0.0f*/, bool showinLog /*= false*/)
 {
 	if (Instance != nullptr)
 	{

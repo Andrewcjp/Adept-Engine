@@ -1,5 +1,5 @@
 #include "MeshRendererComponent.h"
-#include "CompoenentRegistry.h"
+#include "ComponentRegistry.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/AssetManager.h"
 #include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
@@ -8,7 +8,7 @@
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
-	TypeID = CompoenentRegistry::BaseComponentTypes::MeshComp;
+	TypeID = ComponentRegistry::BaseComponentTypes::MeshComp;
 }
 
 MeshRendererComponent::MeshRendererComponent(Mesh* Mesh, Material* materal) :MeshRendererComponent()

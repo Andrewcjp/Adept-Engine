@@ -4,7 +4,7 @@
 #include "RHI/RenderWindow.h"
 #include <Windowsx.h>
 #include "Resource.h"
-#include "Core/Components/CompoenentRegistry.h"
+#include "Core/Components/ComponentRegistry.h"
 #include "Core/EngineTypes.h"
 #include "Core/Input/Input.h"
 #include "Core/Platform/Windows/WindowsApplication.h"

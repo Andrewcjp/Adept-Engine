@@ -99,7 +99,6 @@ private:
 
 	bool FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind);
 
-	ID3D12DescriptorHeap* BaseTextureHeap;
 	bool InitRHI()override;
 	bool InitWindow(int w, int h) override;
 	bool DestoryRHI() override;
@@ -148,8 +147,8 @@ private:
 
 	typedef std::pair<IUnknown*, int64_t> UploadHeapStamped;
 	std::vector<UploadHeapStamped> DeferredDeleteQueue;
-	class GPUResource* m_RenderTargetResources[RHI::CPUFrameCount];
-	class D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
+	GPUResource* m_RenderTargetResources[RHI::CPUFrameCount] = { 0,0 };
+	D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
 };

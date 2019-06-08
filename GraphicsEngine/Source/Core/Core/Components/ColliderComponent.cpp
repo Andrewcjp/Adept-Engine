@@ -1,5 +1,5 @@
 #include "ColliderComponent.h"
-#include "CompoenentRegistry.h"
+#include "ComponentRegistry.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Engine.h"
@@ -12,7 +12,7 @@
 
 ColliderComponent::ColliderComponent()
 {
-	TypeID = CompoenentRegistry::BaseComponentTypes::ColliderComp;
+	TypeID = ComponentRegistry::BaseComponentTypes::ColliderComp;
 }
 
 ColliderComponent::~ColliderComponent()
