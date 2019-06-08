@@ -30,53 +30,28 @@ void GPUResource::SetName(LPCWSTR name)
 	resource->SetName(name);
 }
 
-void GPUResource::CreateHeap()
-{
-	Block.Heaps.push_back(nullptr);
-
-	int RemainingSize = 1 * TILE_SIZE;
-	D3D12_HEAP_DESC heapDesc = {};
-
-	heapDesc.SizeInBytes = std::min(RemainingSize, MAX_HEAP_SIZE);
-	heapDesc.Alignment = 0;
-	heapDesc.Properties.Type = D3D12_HEAP_TYPE_DEFAULT;
-	heapDesc.Properties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapDesc.Properties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-	//
-	// Tier 1 heaps have restrictions on the type of information that can be stored in
-	// a heap. To accommodate this, we will retsrict the content to only shader resources.
-	// The heap cannot store textures that are used as render targets, depth-stencil
-	// output, or buffers. But this is okay, since we do not use these heaps for those
-	// purposes.
-	//
-	heapDesc.Flags = D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES | D3D12_HEAP_FLAG_DENY_BUFFERS;
-
-	//ThrowIfFailed( D3D12RHI::GetDevice()->CreateHeap(&heapDesc, IID_PPV_ARGS(&pHeap)));
-}
-
 void GPUResource::Evict()
 {
-	ensure(currentState != eResourceState::Evicted);
+	ensure(currentState != EResourceState::Evicted);
 	ID3D12Pageable* Pageableresource = resource;
 	ThrowIfFailed(Device->GetDevice()->Evict(1, &Pageableresource));
-	currentState = eResourceState::Evicted;
+	currentState = EResourceState::Evicted;
 }
 
 void GPUResource::MakeResident()
 {
-	ensure(currentState != eResourceState::Resident);
+	ensure(currentState != EResourceState::Resident);
 	ID3D12Pageable* Pageableresource = resource;
 	ThrowIfFailed(Device->GetDevice()->MakeResident(1, &Pageableresource));
-	currentState = eResourceState::Resident;
+	currentState = EResourceState::Resident;
 }
 
 bool GPUResource::IsResident()
 {
-	return (currentState == eResourceState::Resident);
+	return (currentState == EResourceState::Resident);
 }
 
-GPUResource::eResourceState GPUResource::GetState()
+EResourceState::Type GPUResource::GetState()
 {
 	return currentState;
 }
@@ -95,7 +70,7 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOU
 	}
 }
 //todo More Detailed Error checking!
-void GPUResource::StartResourceTransition( ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
+void GPUResource::StartResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
 	{

@@ -194,7 +194,7 @@ RenderSettings::RenderSettings()
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
-	RenderScale = 1.0f;	
+	RenderScale = 1.0f;
 	SetRes(BBTestMode::HD);
 
 	UseZPrePass = true;
@@ -202,7 +202,7 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
-	AllowMeshInstancing = false; 
+	AllowMeshInstancing = false;
 	//	IsDeferred = true;
 	VRHMDMode = EVRHMDMode::Disabled;
 }

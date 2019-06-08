@@ -654,10 +654,10 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-	destTextureUAVDesc.Format = ((D3D12Texture*)target)->GetResource()->GetDesc().Format;
+	destTextureUAVDesc.Format = D3D12RHI::DXConv(target)->GetResource()->GetDesc().Format;
 	destTextureUAVDesc.Texture2D.MipSlice = 1;
 	//todo: Counter UAV?
-	UAVDescriptor->CreateUnorderedAccessView(((D3D12Texture*)target)->GetResource(), UAVCounter, &destTextureUAVDesc);
+	UAVDescriptor->CreateUnorderedAccessView(D3D12RHI::DXConv(target)->GetResource(), UAVCounter, &destTextureUAVDesc);
 }
 
 void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
@@ -675,7 +675,7 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(target->GetDescription().RTFormats[0]);
 	destTextureUAVDesc.Texture2D.MipSlice = mip;
-	UAVDescriptor->CreateUnorderedAccessView(((D3D12FrameBuffer*)target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc);
+	UAVDescriptor->CreateUnorderedAccessView(D3D12RHI::DXConv(target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc);
 }
 
 void D3D12RHIUAV::Bind(RHICommandList * list, int slot)
@@ -740,7 +740,6 @@ void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*=
 		return;
 	}
 	Desc->CreateShaderResourceView(nullptr, &NullHeapDesc, TargetIndex);
-	//Device->GetDevice()->CreateShaderResourceView(nullptr, &NullHeapDesc, Desc->GetCPUAddress(TargetIndex));
 }
 
 void D3D12RHITextureArray::SetFrameBufferFormat(RHIFrameBufferDesc & desc)

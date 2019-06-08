@@ -6,4 +6,4 @@
 #include "ParticleSystemComponent.h"
 #include "LightComponent.h"
 #include "RigidbodyComponent.h"
-#include "CompoenentRegistry.h"
+#include "ComponentRegistry.h"

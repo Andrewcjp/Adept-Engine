@@ -3,13 +3,13 @@
 #include "Core/GameObject.h"
 #include "Editor/EditorWindow.h"
 #include "Core/Assets/Scene.h"
-#include "CompoenentRegistry.h"
+#include "ComponentRegistry.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Components/LightComponent.generated.h"
 
 LightComponent::LightComponent() :Component()
 {
-	TypeID = CompoenentRegistry::BaseComponentTypes::LightComp;
+	TypeID = ComponentRegistry::BaseComponentTypes::LightComp;
 }
 
 LightComponent::~LightComponent()

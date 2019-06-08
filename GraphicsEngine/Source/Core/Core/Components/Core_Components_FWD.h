@@ -6,4 +6,4 @@ class Component;
 class ParticleSystemComponent;
 class LightComponent;
 class RigidbodyComponent;
-class CompoenentRegistry;
+class ComponentRegistry;

@@ -115,7 +115,7 @@ void D3D12TimeManager::UpdateTimers()
 float D3D12TimeManager::ConvertTimeStampToMS(long Time)
 {
 	UINT64 Delta = Time;
-	return  Delta * 1000 / m_directCommandQueueTimestampFrequencies;
+	return  (float)(Delta * 1000 / m_directCommandQueueTimestampFrequencies);
 }
 void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListType::Type type)
 {

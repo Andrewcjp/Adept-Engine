@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "ai/CORE/AIDirector.h"
 #include "UI/GameUI/GameHud.h"
-Game::Game(CompoenentRegistry* Reg)
+Game::Game(ComponentRegistry* Reg)
 {}
 
 

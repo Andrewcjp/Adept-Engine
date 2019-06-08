@@ -1,11 +1,11 @@
 #pragma once
-class CompoenentRegistry
+class ComponentRegistry
 {
 public:
-	CORE_API CompoenentRegistry();
-	CORE_API ~CompoenentRegistry();
+	CORE_API ComponentRegistry();
+	CORE_API ~ComponentRegistry();
 	CORE_API void RegisterComponent(std::string name, int id);
-	CORE_API static CompoenentRegistry* GetInstance();
+	CORE_API static ComponentRegistry* GetInstance();
 
 	enum BaseComponentTypes
 	{
@@ -29,7 +29,7 @@ private:
 	std::vector<int> AdditonalGameComponents;
 	std::map<int, std::string> ComponentNameMap;
 	Component* Internal_CreateAdditonalComponent(int id);
-	ExtraComponentRegister* ECR;
+	ExtraComponentRegister* ECR = nullptr;
 	Component * Internal_CreateBaseComponent(BaseComponentTypes id);
 };
 

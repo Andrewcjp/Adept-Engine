@@ -1,5 +1,4 @@
-
-#include "CompoenentRegistry.h"
+#include "ComponentRegistry.h"
 #include "ExtraComponentRegister.h"
 #include "Component.h"
 #include "MeshRendererComponent.h"
@@ -9,7 +8,7 @@
 #include "RigidbodyComponent.h"
 #include "ColliderComponent.h"
 #include "AI/Core/SpawnMarker.h"
-CompoenentRegistry::CompoenentRegistry()
+ComponentRegistry::ComponentRegistry()
 {
 	Engine::CompRegistry = this;
 	RegisterComponent("Camera", BaseComponentTypes::CameraComp);
@@ -18,17 +17,17 @@ CompoenentRegistry::CompoenentRegistry()
 	RegisterComponent("Particle System", BaseComponentTypes::ParticleComp);
 }
 
-CompoenentRegistry::~CompoenentRegistry()
+ComponentRegistry::~ComponentRegistry()
 {}
-void CompoenentRegistry::RegisterComponent(std::string name, int id)
+void ComponentRegistry::RegisterComponent(std::string name, int id)
 {
 	ComponentNameMap.emplace(id, name);
 }
-CompoenentRegistry * CompoenentRegistry::GetInstance()
+ComponentRegistry * ComponentRegistry::GetInstance()
 {
 	return Engine::CompRegistry;
 }
-Component* CompoenentRegistry::CreateAdditonalComponent(int id)
+Component* ComponentRegistry::CreateAdditonalComponent(int id)
 {
 	if (Engine::CompRegistry && Engine::CompRegistry->ECR)
 	{
@@ -36,7 +35,7 @@ Component* CompoenentRegistry::CreateAdditonalComponent(int id)
 	}
 	return nullptr;
 }
-Component* CompoenentRegistry::CreateBaseComponent(BaseComponentTypes id)
+Component* ComponentRegistry::CreateBaseComponent(BaseComponentTypes id)
 {
 	if (Engine::CompRegistry)
 	{
@@ -48,7 +47,7 @@ Component* CompoenentRegistry::CreateBaseComponent(BaseComponentTypes id)
 	}
 	return nullptr;
 }
-Component* CompoenentRegistry::Internal_CreateBaseComponent(BaseComponentTypes id)
+Component* ComponentRegistry::Internal_CreateBaseComponent(BaseComponentTypes id)
 {
 	switch (id)
 	{
@@ -72,12 +71,12 @@ Component* CompoenentRegistry::Internal_CreateBaseComponent(BaseComponentTypes i
 	}
 	return nullptr;
 }
-Component* CompoenentRegistry::Internal_CreateAdditonalComponent(int id)
+Component* ComponentRegistry::Internal_CreateAdditonalComponent(int id)
 {
 	return ECR->CreateExtraComponent(id);
 }
 
-void CompoenentRegistry::RegisterExtraComponents(ExtraComponentRegister * Ecr)
+void ComponentRegistry::RegisterExtraComponents(ExtraComponentRegister * Ecr)
 {
 	if (Ecr != nullptr)
 	{
@@ -86,7 +85,7 @@ void CompoenentRegistry::RegisterExtraComponents(ExtraComponentRegister * Ecr)
 	}
 }
 
-std::string CompoenentRegistry::GetNameById(int id)
+std::string ComponentRegistry::GetNameById(int id)
 {
 	if (ComponentNameMap.find(id) != ComponentNameMap.end())
 	{
@@ -95,7 +94,7 @@ std::string CompoenentRegistry::GetNameById(int id)
 	return "UnNamed";
 }
 
-int CompoenentRegistry::GetCount()
+int ComponentRegistry::GetCount()
 {
 	return BaseComponentTypes::Limit + 3;
 }

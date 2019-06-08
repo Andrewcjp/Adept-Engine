@@ -2,13 +2,13 @@
 #include "CameraComponent.h"
 #include "Editor/EditorWindow.h"
 #include "Rendering/Core/Camera.h"
-#include "CompoenentRegistry.h"
+#include "ComponentRegistry.h"
 #include "Core/GameObject.h"
 #include "Core/Assets/Scene.h"
 
 CameraComponent::CameraComponent()
 {
-	TypeID = CompoenentRegistry::BaseComponentTypes::CameraComp;
+	TypeID = ComponentRegistry::BaseComponentTypes::CameraComp;
 }
 
 void CameraComponent::InitComponent()

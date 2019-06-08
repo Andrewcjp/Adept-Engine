@@ -87,7 +87,7 @@ private:
 
 	//For Dynamic resize use a Placed resource
 	ID3D12Heap* DynamicHeap = nullptr;
-	int OffsetInPlacedHeap = 0;
+	UINT OffsetInPlacedHeap = 0;
 };
 
 CreateChecker(D3D12FrameBuffer);

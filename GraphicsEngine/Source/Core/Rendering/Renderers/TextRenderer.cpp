@@ -30,7 +30,7 @@ TextRenderer::~TextRenderer()
 	SafeDelete(TextAtlas);
 	SafeDelete(m_TextShader);
 	EnqueueSafeRHIRelease(VertexBuffer);
-	coords.empty();
+	coords.clear();
 	EnqueueSafeRHIRelease(Renderbuffer);
 	SafeRelease(PSO);
 	EnqueueSafeRHIRelease(TextCommandList);
@@ -269,12 +269,10 @@ TextRenderer::atlas::atlas(FT_Face face, int height)
 		}
 
 		//scan into texture
-		int lastoff = 0;
 		for (int suby = 0; suby < g->bitmap.rows; suby++)
 		{
 			int neo = ((ox + (oy + suby)*w));
 			memcpy((FinalData + neo), g->bitmap.buffer + (suby*g->bitmap.width), (g->bitmap.width));
-			lastoff = neo;
 		}
 
 		c[i].ax = (float)(g->advance.x >> 6);

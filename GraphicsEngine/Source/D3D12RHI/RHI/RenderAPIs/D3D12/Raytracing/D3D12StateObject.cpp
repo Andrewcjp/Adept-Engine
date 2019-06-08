@@ -130,7 +130,7 @@ void D3D12StateObject::BuildShaderTables()
 {
 	m_sbtHelper.AddMissProgram(c_missShaderName, {});
 	D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = D3D12_GPU_DESCRIPTOR_HANDLE();// = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
-	auto heapPointer = reinterpret_cast<UINT64*>(srvUavHeapHandle.ptr);
+//	auto heapPointer = reinterpret_cast<UINT64*>(srvUavHeapHandle.ptr);
 	m_sbtHelper.AddRayGenerationProgram(c_raygenShaderName, { /*heapPointer*/ });
 	m_sbtHelper.AddHitGroup(c_hitGroupName, {});
 	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5());

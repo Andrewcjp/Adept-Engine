@@ -11,10 +11,10 @@ public:
 	ID3D12Resource* GetASResource() const;
 	Transform* GetTransform()const;
 private:
-	Transform* Transfrom;
+	Transform* Transfrom = nullptr;
 	ID3D12Resource* Structure = nullptr;
 	//TODO: check if this is need on all 
-	ID3D12Resource* scratchResource = nullptr;
+	GPUResource* scratchResource = nullptr;
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC bottomLevelBuildDesc = {};
 	std::vector <D3D12_RAYTRACING_GEOMETRY_DESC> geometryDescs;
 };

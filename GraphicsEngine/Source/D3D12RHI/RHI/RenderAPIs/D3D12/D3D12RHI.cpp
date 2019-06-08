@@ -372,7 +372,7 @@ void D3D12RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 	bounds.vMax = 1.0f;
 
 	vr::D3D12TextureData_t texture = {};
-	texture.m_pResource = ((D3D12FrameBuffer*)fb)->GetResource(0)->GetResource();
+	texture.m_pResource = DXConv(fb)->GetResource(0)->GetResource();
 	texture.m_pCommandQueue = DeviceContexts[0]->GetCommandQueueFromEnum(DeviceContextQueue::Graphics);
 	vr::Texture_t leftEyeTexture = { (void *)&texture, vr::TextureType_DirectX12, vr::ColorSpace_Gamma };
 	vr::VRCompositor()->Submit((vr::Hmd_Eye)eye, &leftEyeTexture, &bounds, vr::Submit_Default);
