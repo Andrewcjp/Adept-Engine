@@ -2,13 +2,13 @@
 #include "DescriptorGroup.h"
 #include "DescriptorHeap.h"
 #include "D3D12DeviceContext.h"
-#include "Descriptor.h"
+#include "DXDescriptor.h"
 
 
 DescriptorGroup::DescriptorGroup()
 {
-	Descriptors[0] = new Descriptor();
-	Descriptors[1] = new Descriptor();
+	Descriptors[0] = new DXDescriptor();
+	Descriptors[1] = new DXDescriptor();
 }
 
 
@@ -96,7 +96,7 @@ void DescriptorGroup::OnFrameSwitch()
 	lastFrame = RHI::GetFrameCount();
 }
 
-Descriptor * DescriptorGroup::GetDescriptor(int index)
+DXDescriptor * DescriptorGroup::GetDescriptor(int index)
 {
 	return Descriptors[index];
 }

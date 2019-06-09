@@ -1,7 +1,6 @@
-#include "D3D12RHIPCH.h"
 #include "DescriptorHeapManager.h"
 #include "DescriptorHeap.h"
-#include "Descriptor.h"
+#include "DXDescriptor.h"
 #include "D3D12RHI.h"
 #include "DescriptorGroup.h"
 #include "RHI\RHICommandList.h"
@@ -29,7 +28,7 @@ DescriptorHeapManager::~DescriptorHeapManager()
 	SafeRelease(SamplerHeap);
 }
 
-Descriptor * DescriptorHeapManager::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size)
+DXDescriptor * DescriptorHeapManager::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size)
 {
 	//	ensure(false);
 	if (MainHeap[0]->GetNextFreeIndex() + size >= MainHeap[0]->GetMaxSize())
@@ -37,7 +36,7 @@ Descriptor * DescriptorHeapManager::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYP
 		Reallocate(&MainHeap[0], MainHeap[0]->GetMaxSize() + std::max(10, size));
 	}
 	//handle over allocate!
-	Descriptor* D = new Descriptor();
+	DXDescriptor* D = new DXDescriptor();
 	D->Init(type, MainHeap[0], size);
 	MainHeap[0]->AddDescriptor(D);
 	if (Device->GetDeviceIndex() == 0)

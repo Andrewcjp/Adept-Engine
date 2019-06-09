@@ -4,7 +4,7 @@
 class DescriptorHeap;
 class GPUResource;
 class D3D12DeviceContext;
-class Descriptor;
+class DXDescriptor;
 class DescriptorGroup;
 class D3D12FrameBuffer : public FrameBuffer
 {

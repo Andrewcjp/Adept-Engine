@@ -12,7 +12,9 @@ GPUMemoryPage::GPUMemoryPage(AllocDesc & desc, D3D12DeviceContext* context)
 }
 
 GPUMemoryPage::~GPUMemoryPage()
-{}
+{
+	MemoryUtils::DeleteReleaseableVector(ContainedResources);
+}
 
 EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Resource)
 {

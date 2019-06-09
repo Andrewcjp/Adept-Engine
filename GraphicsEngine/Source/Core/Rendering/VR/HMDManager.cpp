@@ -1,7 +1,4 @@
-#include "Stdafx.h"
 #include "HMDManager.h"
-#include "HMD.h"
-#include "Core\BaseWindow.h"
 
 
 HMDManager::HMDManager()

@@ -1,9 +1,7 @@
-#include "Stdafx.h"
 #include "PP_SSAO.h"
-#include "Core\BaseWindow.h"
-#include "..\Renderers\RenderEngine.h"
-#include "..\Shaders\PostProcess\Shader_SSAO.h"
-#include "..\Shaders\PostProcess\Shader_Bloom.h"
+#include "Core/BaseWindow.h"
+#include "Rendering/Renderers/RenderEngine.h"
+#include "Rendering/Shaders/PostProcess/Shader_SSAO.h"
 
 
 PP_SSAO::PP_SSAO()

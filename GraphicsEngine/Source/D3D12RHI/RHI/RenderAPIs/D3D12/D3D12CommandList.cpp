@@ -8,7 +8,7 @@
 #include "Rendering/Core/GPUStateCache.h"
 #include "Rendering/Core/RenderBaseTypes.h"
 #include "DescriptorHeapManager.h"
-#include "Descriptor.h"
+#include "DXDescriptor.h"
 #include "DescriptorGroup.h"
 #include "D3D12RHI.h"
 #include "Raytracing/D3D12StateObject.h"

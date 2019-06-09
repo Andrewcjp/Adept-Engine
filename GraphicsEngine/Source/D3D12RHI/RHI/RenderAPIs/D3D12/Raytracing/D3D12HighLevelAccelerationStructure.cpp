@@ -1,10 +1,8 @@
-#include "Stdafx.h"
 #include "D3D12HighLevelAccelerationStructure.h"
-#include "../D3D12RHI.h"
-#include "../D3D12DeviceContext.h"
 #include "D3D12LowLevelAccelerationStructure.h"
-#include "../D3D12CommandList.h"
-
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
+#include "RHI/RenderAPIs/D3D12/D3D12DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 
 D3D12HighLevelAccelerationStructure::D3D12HighLevelAccelerationStructure(DeviceContext* Device) :HighLevelAccelerationStructure(Device)
 {}

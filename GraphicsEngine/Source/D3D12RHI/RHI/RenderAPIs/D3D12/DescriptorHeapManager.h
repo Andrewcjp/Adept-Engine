@@ -1,6 +1,6 @@
 #pragma once
 
-class Descriptor;
+class DXDescriptor;
 class DescriptorHeap;
 class D3D12CommandList;
 class D3D12DeviceContext;
@@ -11,7 +11,7 @@ public:
 	DescriptorHeapManager(D3D12DeviceContext* Device);
 	void AllocateMainHeap(int size);
 	~DescriptorHeapManager();
-	Descriptor* AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size = 1);
+	DXDescriptor* AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size = 1);
 	DescriptorGroup* AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE type, int size = 1);
 
 	void CheckAndRealloc(int size);

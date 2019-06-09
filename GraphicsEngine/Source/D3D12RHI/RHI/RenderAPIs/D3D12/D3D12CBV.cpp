@@ -4,7 +4,7 @@
 #if BUILD_D3D12
 #include "D3D12DeviceContext.h"
 #include "DescriptorHeapManager.h"
-#include "Descriptor.h"
+#include "DXDescriptor.h"
 D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 {
 	Device = D3D12RHI::DXConv(inDevice);

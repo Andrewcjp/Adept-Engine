@@ -5,7 +5,7 @@
 #include "../D3D12CommandList.h"
 #include "D3D12HighLevelAccelerationStructure.h"
 #include "../DescriptorHeapManager.h"
-#include "../Descriptor.h"
+#include "../DXDescriptor.h"
 #include "Rendering/RayTracing/RHIStateObject.h"
 #include "RHI/Shader.h"
 #include "../D3D12Shader.h"

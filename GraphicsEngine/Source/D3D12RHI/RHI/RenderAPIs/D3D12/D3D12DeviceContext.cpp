@@ -7,6 +7,7 @@
 #include "DescriptorHeapManager.h"
 #include "D3D12QueryHeap.h"
 #include "DXMemoryManager.h"
+#include "Core/Utils/NVAPIManager.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -153,6 +154,7 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		LogDeviceData("Shader Model Support " + D3D12Helpers::SMToString(Sm));
 	}
+	NVAPIManager::CheckSupport(m_Device);
 }
 
 void D3D12DeviceContext::LogDeviceData(const std::string& data)
@@ -260,7 +262,7 @@ DeviceMemoryData D3D12DeviceContext::GetMemoryData()
 
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
-	//EnableStablePower.SetValue(true);
+	EnableStablePower.SetValue(true);
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
 	VendorID = Adaptordesc.VendorId;

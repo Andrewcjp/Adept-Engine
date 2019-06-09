@@ -1,13 +1,8 @@
-#include "Stdafx.h"
 #include "ShaderGraphComplier.h"
-#include "ShaderGraph.h"
-#include "Core\Utils\FileUtils.h"
-#include "Core\Assets\AssetManager.h"
-#include "..\Core\Mesh\MaterialTypes.h"
-#include "Core\Assets\Asset_Shader.h"
-#include "..\Shaders\Shader_NodeGraph.h"
+#include "Core/Assets/Asset_Shader.h"
+#include "Core/Utils/FileUtils.h"
 #include "MasterNode.h"
-
+#include "Rendering/Shaders/Shader_NodeGraph.h"
 
 ShaderGraphComplier::ShaderGraphComplier()
 {}

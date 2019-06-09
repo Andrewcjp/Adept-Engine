@@ -15,6 +15,7 @@ class NVAPIManager
 { 
 public:
 	NVAPIManager();
+	RHI_API static void CheckSupport(ID3D12Device * D);
 	~NVAPIManager();
 	void RenderGPUStats(int x, int y);
 	void SampleClocks();

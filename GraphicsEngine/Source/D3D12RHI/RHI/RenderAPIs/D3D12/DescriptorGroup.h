@@ -1,7 +1,7 @@
 #pragma once
 #include "D3D12RHI.h"
 class DescriptorHeap;
-class Descriptor;
+class DXDescriptor;
 class D3D12DeviceContext;
 //points to 2 or more descriptors one in flight and one in record.
 //handles updating when in flight switches with record.
@@ -23,10 +23,10 @@ public:
 	void CreateShaderResourceView(ID3D12Resource  *pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC *pDesc, int offset = 0);
 	void CreateUnorderedAccessView(ID3D12Resource *pResource, ID3D12Resource *pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC *pDesc, int offset = 0);
 	void OnFrameSwitch();
-	Descriptor* GetDescriptor(int index);
+	DXDescriptor* GetDescriptor(int index);
 	void Release();
 private:
-	Descriptor* Descriptors[RHI::CPUFrameCount];
+	DXDescriptor* Descriptors[RHI::CPUFrameCount];
 	D3D12DeviceContext* context = nullptr;
 	bool RecreateQueued = false;
 	bool CreatedThisFrame = false;

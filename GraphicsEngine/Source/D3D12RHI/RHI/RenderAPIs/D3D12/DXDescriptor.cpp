@@ -1,16 +1,16 @@
 #include "D3D12RHIPCH.h"
-#include "Descriptor.h"
+#include "DXDescriptor.h"
 #include "DescriptorHeap.h"
 
 
-Descriptor::Descriptor()
+DXDescriptor::DXDescriptor()
 {}
 
 
-Descriptor::~Descriptor()
+DXDescriptor::~DXDescriptor()
 {}
 
-void Descriptor::Init(D3D12_DESCRIPTOR_HEAP_TYPE T, DescriptorHeap* heap, int size)
+void DXDescriptor::Init(D3D12_DESCRIPTOR_HEAP_TYPE T, DescriptorHeap* heap, int size)
 {
 	Type = T;
 	Data.resize(size);
@@ -18,27 +18,27 @@ void Descriptor::Init(D3D12_DESCRIPTOR_HEAP_TYPE T, DescriptorHeap* heap, int si
 	DescriptorCount = size;
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Descriptor::GetGPUAddress(int index)
+D3D12_GPU_DESCRIPTOR_HANDLE DXDescriptor::GetGPUAddress(int index)
 {
 	return Owner->GetGpuAddress(indexInHeap + index);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE Descriptor::GetCPUAddress(int index)
+D3D12_CPU_DESCRIPTOR_HANDLE DXDescriptor::GetCPUAddress(int index)
 {
 	return Owner->GetCPUAddress(indexInHeap + index);
 }
 
-D3D12_DESCRIPTOR_HEAP_TYPE Descriptor::GetType()
+D3D12_DESCRIPTOR_HEAP_TYPE DXDescriptor::GetType()
 {
 	return Type;
 }
 
-int Descriptor::GetSize()
+int DXDescriptor::GetSize()
 {
 	return DescriptorCount;
 }
 
-void Descriptor::Recreate()
+void DXDescriptor::Recreate()
 {
 	for (int i = 0; i < DescriptorCount; i++)
 	{
@@ -68,7 +68,7 @@ void Descriptor::Recreate()
 	}
 }
 
-void Descriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC * pDesc, int offset)
+void DXDescriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC * pDesc, int offset)
 {
 	DescriptorType = EDescriptorType::SRV;
 	DescData* Desc = &Data[offset];
@@ -79,7 +79,7 @@ void Descriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D1
 	//Recreate();
 }
 
-void Descriptor::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Resource * pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC * pDesc, int offset)
+void DXDescriptor::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Resource * pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC * pDesc, int offset)
 {
 	DescriptorType = EDescriptorType::UAV;
 	DescData* Desc = &Data[offset];
@@ -91,18 +91,18 @@ void Descriptor::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Res
 	//Recreate();
 }
 
-void Descriptor::Release()
+void DXDescriptor::Release()
 {
 	Owner->RemoveDescriptor(this);
 }
 
-void Descriptor::SetOwner(DescriptorHeap * heap)
+void DXDescriptor::SetOwner(DescriptorHeap * heap)
 {
 	Owner = heap;
 	Data[0].NeedsUpdate = true;
 }
 
-bool Descriptor::NeedsUpdate()
+bool DXDescriptor::NeedsUpdate()
 {
 	return Data[0].NeedsUpdate;
 }

@@ -1,10 +1,6 @@
-#include "Stdafx.h"
 #include "ShaderPreProcessor.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Utils/FileUtils.h"
-#include <iosfwd>
-#include <string>
-#include <iostream>
 #include <fstream>
 ShaderPreProcessor::ShaderPreProcessor()
 {}

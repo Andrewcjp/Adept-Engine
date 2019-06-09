@@ -2,7 +2,7 @@
 #include "RHI\RHITypes.h"
 class DeviceContext;
 class D3D12CommandList;
-class Descriptor;
+class DXDescriptor;
 class DescriptorHeap : public IRHIResourse
 {
 public:
@@ -25,15 +25,15 @@ public:
 	ID3D12DescriptorHeap* GetHeap();;
 	std::string GetDebugName();
 	void BindHeap_Old(ID3D12GraphicsCommandList* list);
-	void AddDescriptor(Descriptor* desc);
+	void AddDescriptor(DXDescriptor* desc);
 	int GetNumberOfDescriptors();
 	int GetMaxSize();
 	int GetNextFreeIndex();
 	void MoveAllToHeap(DescriptorHeap* heap, int offset = 0);
 	D3D12DeviceContext* GetDevice();
-	void RemoveDescriptor(Descriptor* desc);
+	void RemoveDescriptor(DXDescriptor* desc);
 private:
-	std::vector<Descriptor*> ContainedDescriptors;
+	std::vector<DXDescriptor*> ContainedDescriptors;
 	ID3D12DescriptorHeap * mHeap = nullptr;
 	class D3D12DeviceContext* Device = nullptr;
 	int DescriptorOffsetSize = 0;

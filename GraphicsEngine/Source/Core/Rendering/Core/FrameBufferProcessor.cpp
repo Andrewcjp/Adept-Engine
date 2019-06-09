@@ -1,10 +1,8 @@
-#include "Stdafx.h"
 #include "FrameBufferProcessor.h"
-#include "RHI\RHICommandList.h"
+#include "Core/Assets/ShaderComplier.h"
 #include "FrameBuffer.h"
-#include "Core\Assets\ShaderComplier.h"
-#include "..\Shaders\Shader_Mipmap.h"
-
+#include "Rendering/Shaders/Shader_Mipmap.h"
+#include "RHI/RHICommandList.h"
 
 FrameBufferProcessor::FrameBufferProcessor()
 {}

@@ -4,7 +4,7 @@ class DeviceContext;
 class DescriptorHeap;
 class D3D12DeviceContext;
 class D3D12CommandList;
-class Descriptor;
+class DXDescriptor;
 class DescriptorGroup;
 class D3D12Texture : public BaseTexture
 {

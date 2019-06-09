@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "HMD.h"
 #include "VRCamera.h"
 #include "DebugHMD.h"

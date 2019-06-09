@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "InputManager.h"
 #include "InputInterface.h"
 #include "Interfaces/SteamVR/SteamVRInputInterface.h"

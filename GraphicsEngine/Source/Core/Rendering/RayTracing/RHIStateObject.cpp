@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "RHIStateObject.h"
 
 
