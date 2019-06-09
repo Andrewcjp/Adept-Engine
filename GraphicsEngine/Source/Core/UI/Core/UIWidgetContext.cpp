@@ -1,7 +1,6 @@
 #include "UIWidgetContext.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Rendering/Renderers/TextRenderer.h"
-#include "Stdafx.h"
 #include "UIDrawBatcher.h"
 #include "UIWidget.h"
 #include "Core/Platform/PlatformCore.h"

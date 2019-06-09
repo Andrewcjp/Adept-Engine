@@ -20,11 +20,11 @@ struct DescData
 	bool NeedsUpdate = false;
 };
 class DescriptorHeap;
-class Descriptor : public IRHIResourse
+class DXDescriptor : public IRHIResourse
 {
 public:
-	Descriptor();
-	~Descriptor();
+	DXDescriptor();
+	~DXDescriptor();
 	void Init(D3D12_DESCRIPTOR_HEAP_TYPE Type, DescriptorHeap* heap, int size);
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUAddress(int index = 0);

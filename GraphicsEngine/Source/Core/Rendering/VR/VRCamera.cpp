@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "VRCamera.h"
 #include "RHI\RHI.h"
 #include "Core\Transform.h"

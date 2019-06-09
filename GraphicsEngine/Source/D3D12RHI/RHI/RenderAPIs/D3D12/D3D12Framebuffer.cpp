@@ -4,7 +4,7 @@
 #include "D3D12DeviceContext.h"
 #include "DescriptorHeap.h"
 #include "GPUResource.h"
-#include "Descriptor.h"
+#include "DXDescriptor.h"
 #include "DescriptorHeapManager.h"
 #include "DescriptorGroup.h"
 #define CUBE_SIDES 6

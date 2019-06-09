@@ -10,7 +10,7 @@ DepthOnlyMeshProcessor::DepthOnlyMeshProcessor()
 {
 	Init();
 	PassType = ERenderPass::DepthOnly;
-	DisableInstancing = true;
+	//DisableInstancing = true;
 }
 
 DepthOnlyMeshProcessor::~DepthOnlyMeshProcessor()

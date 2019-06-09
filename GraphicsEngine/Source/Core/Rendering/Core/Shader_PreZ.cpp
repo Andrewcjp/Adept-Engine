@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "Shader_PreZ.h"
 #include "Rendering\Shaders\Shader_Main.h"
 

@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "ShaderBindingTable.h"
 
 

@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "CullingFrustum.h"
 #include "CullingAABB.h"
 #include "..\DebugLineDrawer.h"

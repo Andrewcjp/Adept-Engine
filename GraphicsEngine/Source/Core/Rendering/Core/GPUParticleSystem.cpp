@@ -1,12 +1,11 @@
-#include "Stdafx.h"
 #include "GPUParticleSystem.h"
-#include "Core\Assets\AssetManager.h"
-#include "RHI\RHICommandList.h"
-#include "Core\IRefCount.h"
+#include "Core/Assets/AssetManager.h"
+#include "Core/Assets/ShaderComplier.h"
+#include "Core/IRefCount.h"
 #include "ParticleSystemManager.h"
-#include "Core\Assets\ShaderComplier.h"
-#include "..\Shaders\Particle\Shader_ParticleCompute.h"
-#include "..\Shaders\Particle\Shader_ParticleDraw.h"
+#include "Rendering/Shaders/Particle/Shader_ParticleCompute.h"
+#include "Rendering/Shaders/Particle/Shader_ParticleDraw.h"
+#include "RHI/RHICommandList.h"
 
 void ParticleSystem::SwapBuffers()
 {

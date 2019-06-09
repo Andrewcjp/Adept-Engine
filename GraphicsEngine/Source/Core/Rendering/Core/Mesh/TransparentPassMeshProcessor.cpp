@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "TransparentPassMeshProcessor.h"
 #include "RHI\RHICommandList.h"
 #include "MeshDrawCommand.h"

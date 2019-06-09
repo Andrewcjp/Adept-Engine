@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "Defaults.h"
 #include "Core\Assets\AssetManager.h"
 #include "Core\Platform\PlatformCore.h"

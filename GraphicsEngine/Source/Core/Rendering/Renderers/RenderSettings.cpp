@@ -196,15 +196,15 @@ RenderSettings::RenderSettings()
 	}
 	RenderScale = 1.0f;
 	SetRes(BBTestMode::HD);
-
+	MaxRenderScale = 2.0f;
 	UseZPrePass = true;
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = true;
-	AllowMeshInstancing = false;
+	//RTSettings.Enabled = true;
+	AllowMeshInstancing = true;
 	//	IsDeferred = true;
-	VRHMDMode = EVRHMDMode::Disabled;
+	VRHMDMode = EVRHMDMode::SteamVR;
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)

@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "MaterialTypes.h"
 
 void ParmeterBindSet::AddParameter(std::string name, ShaderPropertyType::Type tpye)

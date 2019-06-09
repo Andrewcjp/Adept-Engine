@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "ViveHMD.h"
 #include "OpenVR/headers/openvr.h"
 #include "VRCamera.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-class Descriptor;
+class DXDescriptor;
 #define Enable_CBV_BUFFERING 1
 class D3D12CBV
 {

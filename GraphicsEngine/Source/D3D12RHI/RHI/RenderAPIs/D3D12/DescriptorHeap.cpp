@@ -3,7 +3,7 @@
 #include "D3D12DeviceContext.h"
 #include "D3D12RHI.h"
 #include "D3D12CommandList.h"
-#include "Descriptor.h"
+#include "DXDescriptor.h"
 CreateChecker(DescriptorHeap);
 DescriptorHeap::DescriptorHeap(DescriptorHeap * other, int newsize) :
 	DescriptorHeap(other->Device, newsize, other->srvHeapDesc.Type, other->srvHeapDesc.Flags)
@@ -59,7 +59,7 @@ void DescriptorHeap::BindHeap_Old(ID3D12GraphicsCommandList * list)
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 }
 
-void DescriptorHeap::AddDescriptor(Descriptor * desc)
+void DescriptorHeap::AddDescriptor(DXDescriptor * desc)
 {
 	//validate type.
 	desc->indexInHeap = GetNextFreeIndex();
@@ -114,7 +114,7 @@ D3D12DeviceContext * DescriptorHeap::GetDevice()
 	return Device;
 }
 
-void DescriptorHeap::RemoveDescriptor(Descriptor * desc)
+void DescriptorHeap::RemoveDescriptor(DXDescriptor * desc)
 {
 	//VectorUtils::Remove(ContainedDescriptors, desc);
 	desc->PendingRemoval = true;

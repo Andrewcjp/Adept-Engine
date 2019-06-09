@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "Shader_FastBlur.h"
 
 IMPLEMENT_GLOBAL_SHADER(Shader_FastBlur);

@@ -3,7 +3,7 @@
 #include "../ThirdParty/nv_helpers_dx12/ShaderBindingTableGenerator.h"
 #include "Rendering/RayTracing/RHIStateObject.h"
 
-class Descriptor;
+class DXDescriptor;
 class Shader;
 class D3D12FrameBuffer;
 namespace GlobalRootSignatureParams

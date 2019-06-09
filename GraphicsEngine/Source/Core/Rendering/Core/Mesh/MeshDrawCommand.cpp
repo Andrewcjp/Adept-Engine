@@ -1,4 +1,3 @@
-#include "Stdafx.h"
 #include "MeshDrawCommand.h"
 
 MeshDrawCommand::MeshDrawCommand()
