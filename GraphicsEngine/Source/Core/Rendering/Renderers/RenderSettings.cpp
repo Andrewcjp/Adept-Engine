@@ -201,10 +201,10 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
-	//RTSettings.Enabled = true;
-	AllowMeshInstancing = true;
-	//	IsDeferred = true;
-	VRHMDMode = EVRHMDMode::SteamVR;
+	RTSettings.Enabled = true;
+	AllowMeshInstancing = false;
+	//IsDeferred = true;
+	VRHMDMode = EVRHMDMode::Disabled;
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)
@@ -214,7 +214,7 @@ void RenderSettings::ValidateForAPI(ERenderSystemType system)
 		RTSettings.Enabled = false;
 		DRSSettings.EnableDynamicResolutionScaling = false;
 		EnableGPUParticles = false;
-		IsDeferred = false;
+		//IsDeferred = false;
 	}
 }
 

@@ -11,7 +11,7 @@ public:
 	RHI_API virtual void RemoveEntity(LowLevelAccelerationStructure* Struct);
 
 	//Updates this AS depending on mode could rebuild the entire structure.
-	RHI_API virtual void Update();
+	RHI_API virtual void Update(RHICommandList* List);
 	//Launches the build on the GPU
 	RHI_API virtual void Build(RHICommandList* list);
 	//called to build this structure the first time needed if using update mode.

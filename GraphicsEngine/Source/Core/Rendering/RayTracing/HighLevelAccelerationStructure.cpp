@@ -20,8 +20,10 @@ void HighLevelAccelerationStructure::RemoveEntity(LowLevelAccelerationStructure 
 	VectorUtils::Remove(ContainedEntites, Struct);
 }
 
-void HighLevelAccelerationStructure::Update()
-{}
+void HighLevelAccelerationStructure::Update(RHICommandList* List)
+{
+
+}
 
 void HighLevelAccelerationStructure::Build(RHICommandList * list)
 {

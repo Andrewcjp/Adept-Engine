@@ -1,4 +1,7 @@
 #pragma once
+
+class ShaderBindingTable;
+class RayTracingCommandList;
 //This handles render interaction with RT features
 //It abstracts between the Software and API support modes and handles build AS's etc.
 //it will handle different types of Acceleration structure for multiple types of devices e.g. RTX GPU + Software RT GPU. 
@@ -14,19 +17,21 @@ public:
 	void BuildForFrame(RHICommandList * List);
 	//used in rendering to launch rays
 	void DispatchRays(FrameBuffer* Target);
+	void SetShaderTable(ShaderBindingTable * SBT);
 	//set Shader binding table
 	void SetShaderTable();
 
 	void OnFirstFrame();
 
 	void BuildStructures();
+	RayTracingCommandList* CreateRTList(DeviceContext* Device);
 private:
 	std::vector<LowLevelAccelerationStructure*> LASToBuild;
 	std::vector<HighLevelAccelerationStructure*> HASToBuild;
 	HighLevelAccelerationStructure* CurrnetHL = nullptr;
 	RHICommandList* AsyncbuildList = nullptr;
-	RHICommandList* RayList = nullptr;
 	RHIStateObject* StateObject = nullptr;
 	bool Build = false;
+	RayTracingCommandList* RTList = nullptr;
 };
 

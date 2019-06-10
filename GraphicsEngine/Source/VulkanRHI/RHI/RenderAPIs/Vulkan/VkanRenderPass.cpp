@@ -39,18 +39,33 @@ void VKanRenderPass::Complie()
 {
 	Desc.Build();
 	std::vector<VkAttachmentDescription> ColorAttamentsDesc;
-	VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format = VkanHelpers::ConvertFormat(Desc.RenderDesc.RTVFormats[0]);
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachment.loadOp = ConvertLoadOp(Desc.LoadOp);
-	colorAttachment.storeOp = ConvertStoreOp(Desc.StoreOp);
-	colorAttachment.stencilLoadOp = ConvertLoadOp(Desc.StencilLoadOp);
-	colorAttachment.stencilStoreOp = ConvertStoreOp(Desc.StencilStoreOp);
-	colorAttachment.initialLayout = VkanHelpers::ConvertState(Desc.InitalState);
-	colorAttachment.finalLayout = VkanHelpers::ConvertState(Desc.FinalState);
-	ColorAttamentsDesc.push_back(colorAttachment);
+	for (int i = 0; i < Desc.RenderDesc.NumRenderTargets; i++)
+	{
+		if (Desc.RenderDesc.RTVFormats[i] == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		{
+			continue;
+		}
+		VkAttachmentDescription colorAttachment = {};
+		colorAttachment.format = VkanHelpers::ConvertFormat(Desc.RenderDesc.RTVFormats[i]);
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = ConvertLoadOp(Desc.LoadOp);
+		colorAttachment.storeOp = ConvertStoreOp(Desc.StoreOp);
+		colorAttachment.stencilLoadOp = ConvertLoadOp(Desc.StencilLoadOp);
+		colorAttachment.stencilStoreOp = ConvertStoreOp(Desc.StencilStoreOp);
+		colorAttachment.initialLayout = VkanHelpers::ConvertState(Desc.InitalState);
+		colorAttachment.finalLayout = VkanHelpers::ConvertState(Desc.FinalState);
+		ColorAttamentsDesc.push_back(colorAttachment);
+	}
 	if (Desc.RenderDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
 	{
+		VkAttachmentDescription colorAttachment = {};
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = ConvertLoadOp(Desc.LoadOp);
+		colorAttachment.storeOp = ConvertStoreOp(Desc.StoreOp);
+		colorAttachment.stencilLoadOp = ConvertLoadOp(Desc.StencilLoadOp);
+		colorAttachment.stencilStoreOp = ConvertStoreOp(Desc.StencilStoreOp);
+		colorAttachment.initialLayout = VkanHelpers::ConvertState(Desc.InitalState);
+		colorAttachment.finalLayout = VkanHelpers::ConvertState(Desc.FinalState);
 		colorAttachment.format = VkanHelpers::ConvertFormat(Desc.RenderDesc.DSVFormat);
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		colorAttachment.finalLayout = colorAttachment.initialLayout;

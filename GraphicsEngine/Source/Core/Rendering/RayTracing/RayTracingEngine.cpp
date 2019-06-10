@@ -6,18 +6,18 @@
 #include "RHIStateObject.h"
 #include "Shader_RTBase.h"
 #include "Core/BaseWindow.h"
+#include "RayTracingCommandList.h"
 
 
 RayTracingEngine::RayTracingEngine()
 {
 	AsyncbuildList = RHI::CreateCommandList(ECommandListType::Compute);
-	RayList = RHI::CreateCommandList(ECommandListType::RayTracing);
+	RTList = CreateRTList(RHI::GetDefaultDevice());
 	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
 	StateObject->Target = ShaderComplier::GetShader<Shader_RTBase>();
 	StateObject->TempCam = BaseWindow::GetCurrentCamera();
 	StateObject->Build();
 }
-
 
 RayTracingEngine::~RayTracingEngine()
 {}
@@ -40,9 +40,10 @@ void RayTracingEngine::EnqueueForBuild(HighLevelAccelerationStructure * Struct)
 
 void RayTracingEngine::BuildForFrame(RHICommandList* List)
 {
-	if (Build)
+	if (LASToBuild.size() == 0)
 	{
 		//CurrnetHL->Build(List);
+		CurrnetHL->Update(List);
 		return;
 	}
 	for (int i = 0; i < LASToBuild.size(); i++)
@@ -51,25 +52,30 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 	}
 	CurrnetHL->Build(List);
 	Build = true;
+	LASToBuild.clear();
 }
 
 void RayTracingEngine::DispatchRays(FrameBuffer* Target)
 {
 	StateObject->TempCam = BaseWindow::GetCurrentCamera();
-	RayList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
-	RayList->ResetList();
-	RayList->StartTimer(EGPUTIMERS::RT_Trace);
-	RayList->SetStateObject(StateObject);
-	Target->MakeReadyForComputeUse(RayList);
-	RayList->SetHighLevelAccelerationStructure(CurrnetHL);
-	RayList->TraceRays(RHIRayDispatchDesc(Target));
-	RayList->EndTimer(EGPUTIMERS::RT_Trace);
-	RayList->Execute();
-	RayList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+
+	RTList->ResetList();
+	RTList->GetRHIList()->StartTimer(EGPUTIMERS::RT_Trace);
+	RTList->SetStateObject(StateObject);
+	Target->MakeReadyForComputeUse(RTList->GetRHIList());
+	RTList->SetHighLevelAccelerationStructure(CurrnetHL);
+	RTList->TraceRays(RHIRayDispatchDesc(Target));
+	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
+	RTList->Execute();
+
+	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
-void RayTracingEngine::SetShaderTable()
-{}
+void RayTracingEngine::SetShaderTable(ShaderBindingTable* SBT)
+{
+
+}
 
 void RayTracingEngine::OnFirstFrame()
 {
@@ -91,4 +97,9 @@ void RayTracingEngine::BuildStructures()
 	AsyncbuildList->Execute();
 	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 	//RHI::WaitForGPU();
+}
+
+RayTracingCommandList * RayTracingEngine::CreateRTList(DeviceContext * Device)
+{
+	return new RayTracingCommandList(Device, ERayTracingSupportType::DriverBased);
 }

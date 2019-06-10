@@ -178,7 +178,7 @@ uint32_t VkanHelpers::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags 
 	throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void VkanHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout,int levels,int layers)
+void VkanHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, int levels, int layers)
 {
 
 	VkImageMemoryBarrier barrier = {};
@@ -402,6 +402,7 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 		case FORMAT_R8G8B8A8_UINT:
 			break;
 		case FORMAT_R8G8B8A8_SNORM:
+			return VK_FORMAT_R8G8B8A8_SNORM;
 			break;
 		case FORMAT_R8G8B8A8_SINT:
 			break;
