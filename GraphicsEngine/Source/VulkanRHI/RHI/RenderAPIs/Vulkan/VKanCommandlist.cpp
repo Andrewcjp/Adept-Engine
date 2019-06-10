@@ -149,7 +149,7 @@ void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 	CurrnetRenderPass = VKanRHI::RHIinstance->Pass;
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-
+	ensureMsgf(RenderPassInfo.DepthSourceBuffer == nullptr, "Vulkan does not support depth source buffer binding - Use shared depth stencil framebuffers");
 	if (RenderPassInfo.TargetSwapChain)
 	{
 		renderPassInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RenderPassInfo))->RenderPass;
@@ -185,11 +185,14 @@ void VKanCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
 		renderPassInfo.renderArea.extent.height = RenderPassInfo.TargetBuffer->GetHeight();
 	}
 
-
-	VkClearValue clearColor[2];
-	clearColor[0] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	clearColor[1].depthStencil = { 1.0f,0 };
-	renderPassInfo.clearValueCount = 2;
+	const int Count = 4;
+	VkClearValue clearColor[Count];
+	for (int i = 0; i < Count; i++)
+	{
+		clearColor[i] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		clearColor[i].depthStencil = { 1.0f,0 };
+	}
+	renderPassInfo.clearValueCount = Count;
 	renderPassInfo.pClearValues = &clearColor[0];
 
 	vkCmdBeginRenderPass(CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -199,6 +202,10 @@ void VKanCommandlist::EndRenderPass()
 {
 	RHICommandList::EndRenderPass();
 	vkCmdEndRenderPass(CommandBuffer);
+	if (CurrnetRenderPass != nullptr && CurrnetRenderPass->Desc.TargetBuffer != nullptr)
+	{
+		VKanRHI::VKConv(CurrnetRenderPass->Desc.TargetBuffer)->UpdateStateTrackingFromRP(CurrnetRenderPass->Desc);
+	}
 }
 
 void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
@@ -216,23 +223,12 @@ void VKanCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 
 void VKanCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
 {
-	if (Resourceindex == -1)
-	{
-		SetTexture(VKanRHI::RHIinstance->T, slot);
-		VKanFramebuffer* V = VKanRHI::VKConv(buffer);
-		V->WasTexture = true;
-		return;
-	}
+	ensure(Resourceindex >= 0);
 	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKanFramebuffer* V = VKanRHI::VKConv(buffer);
-	if (!V->WasTexture)
-	{
-		//V->TransitionTOPixel(this);
-	}
-	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot);
+	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot, Resourceindex);
 	V->WasTexture = true;
 }
-
 
 void VKanCommandlist::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)
 {

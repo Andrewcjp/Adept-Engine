@@ -2,6 +2,10 @@
 #include "Rendering/Core/FrameBuffer.h"
 #include "vulkan/vulkan_core.h"
 #include "Descriptor.h"
+#include "Rendering/Core/GPUStateCache.h"
+
+class VknGPUResource;
+class VKanCommandlist;
 
 #if BUILD_VULKAN
 class VKanFramebuffer : public FrameBuffer
@@ -16,7 +20,10 @@ public:
 	virtual void MakeReadyForCopy(RHICommandList * list) override;
 	void TryInitBuffer(RHIRenderPassDesc& desc, VKanCommandlist* list);
 
-	Descriptor GetDescriptor(int slot);
+	void CreateRT(VKanCommandlist* list, int index);
+
+	void UpdateStateTrackingFromRP(RHIRenderPassDesc & Desc);
+	Descriptor GetDescriptor(int slot, int resourceindex);
 
 	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
 	void UnBind(VKanCommandlist* List);
@@ -27,14 +34,14 @@ public:
 	VkFramebuffer Buffer;
 	VkFramebuffer DepthBuffer;
 	bool WasTexture = false;
-	VkImage depthImage;
-	VkDeviceMemory depthImageMemory;
-	VkImageView depthImageView;
 
-	VkImage RTImage;
-	VkDeviceMemory RTImageMemory;
-	VkImageView RTImageView;
+	VkImageView depthImageView;
+	VkImageView RTImageView[MAX_MRTS];
 
 	VkImageView SRV;
+
+	VknGPUResource* DepthResource = nullptr;
+	VknGPUResource* RTImages[MAX_MRTS] = {nullptr};
+
 };
 #endif

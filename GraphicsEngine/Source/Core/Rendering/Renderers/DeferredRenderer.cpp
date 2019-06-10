@@ -12,6 +12,7 @@
 #include "RenderEngine.h"
 #include "../Core/RelfectionProbe.h"
 #include "../VR/VRCamera.h"
+#include "../Core/Defaults.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -159,7 +160,9 @@ void DeferredRenderer::GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, 
 
 	//List->SetRenderTarget(gbuffer);
 	//List->ClearFrameBuffer(gbuffer);
-	List->BeginRenderPass(RHIRenderPassDesc(gbuffer, ERenderPassLoadOp::Clear));
+	RHIRenderPassDesc D = RHIRenderPassDesc(gbuffer, ERenderPassLoadOp::Clear);
+	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	List->BeginRenderPass(D);
 	SceneRender->RenderScene(List, false, gbuffer, false, eyeindex);
 	List->EndRenderPass();
 	//List->SetRenderTarget(nullptr);
@@ -215,33 +218,44 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	desc.FrameBufferTarget = Object->MainFrameBuffer;
 	List->SetPipelineStateDesc(desc);
 
-	//List->SetRenderTarget(output);
-	//List->ClearFrameBuffer(output);
-	List->BeginRenderPass(RHIRenderPassDesc(output, ERenderPassLoadOp::Clear));
+	RHIRenderPassDesc D = RHIRenderPassDesc(output, ERenderPassLoadOp::Clear);
+	//D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	List->BeginRenderPass(D);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
-	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
+
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
 		List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
 		//List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
 	}
+#if NOSHADOW
+	List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::DiffuseIr);
+	List->SetTexture(Defaults::GetDefaultTexture(), DeferredLightingShaderRSBinds::EnvBRDF);
+#else
+	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
-
+#endif
 	SceneRender->BindLightsBuffer(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRender->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, eyeindex);
-
+#if !NOSHADOW
 	mShadowRenderer->BindShadowMapsToTextures(List);
-
+#endif
 	DDOs[List->GetDeviceIndex()].DeferredShader->RenderScreenQuad(List);
 
 	//transparent pass
-	GBuffer->BindDepthWithColourPassthrough(List, output);
-	SceneRender->SetupBindsForForwardPass(List, eyeindex);
-	SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, List);
+	if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)
+	{
+		GBuffer->BindDepthWithColourPassthrough(List, output);
+		SceneRender->SetupBindsForForwardPass(List, eyeindex);
+		SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, List);
+	}
 	List->EndRenderPass();
+
+#if !NOSHADOW
 	mShadowRenderer->Unbind(List);
+#endif
 	//	List->SetRenderTarget(nullptr);
 	if (List->GetDeviceIndex() == 0)
 	{

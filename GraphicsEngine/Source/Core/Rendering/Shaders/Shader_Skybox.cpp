@@ -68,6 +68,7 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 	if (DepthSourceBuffer != nullptr)
 	{
 		RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
+		D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 		D.DepthSourceBuffer = DepthSourceBuffer;
 		List->BeginRenderPass(D);
 	}

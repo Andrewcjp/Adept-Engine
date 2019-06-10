@@ -11,9 +11,18 @@ D3D12HighLevelAccelerationStructure::D3D12HighLevelAccelerationStructure(DeviceC
 D3D12HighLevelAccelerationStructure::~D3D12HighLevelAccelerationStructure()
 {}
 
-void D3D12HighLevelAccelerationStructure::Update()
+void D3D12HighLevelAccelerationStructure::Update(RHICommandList* List)
 {
+	return;
+	BuildInstanceBuffer();
 
+	topLevelBuildDesc.Inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+	topLevelBuildDesc.Inputs.pGeometryDescs = nullptr;
+	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
+	topLevelBuildDesc.Inputs.NumDescs = ContainedEntites.size();
+	topLevelBuildDesc.SourceAccelerationStructureData = m_topLevelAccelerationStructure->GetGPUVirtualAddress();
+	D3D12CommandList* DXList = D3D12RHI::DXConv(List);
+	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&topLevelBuildDesc, 0, nullptr);
 }
 
 void D3D12HighLevelAccelerationStructure::Build(RHICommandList* list)
@@ -27,7 +36,8 @@ void D3D12HighLevelAccelerationStructure::Build(RHICommandList* list)
 
 void D3D12HighLevelAccelerationStructure::InitialBuild()
 {
-	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE |
+		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS::D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &topLevelInputs = topLevelBuildDesc.Inputs;
 	topLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
@@ -59,7 +69,7 @@ void D3D12HighLevelAccelerationStructure::SetTransfrom(D3D12_RAYTRACING_INSTANCE
 		{
 			Desc.Transform[x][y] = Model[x][y];
 		}
-	} 
+	}
 }
 
 void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
@@ -75,5 +85,15 @@ void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
 		instanceDesc.AccelerationStructure = E->GetASResource()->GetGPUVirtualAddress();
 		Descs.push_back(instanceDesc);
 	}
-	D3D12Helpers::AllocateUploadBuffer(D3D12RHI::DXConv(Context)->GetDevice(), &Descs[0], sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size(), &instanceDescs, L"InstanceDescs");
+	if (instanceDescs == nullptr)
+	{
+		D3D12Helpers::AllocateUploadBuffer(D3D12RHI::DXConv(Context)->GetDevice(), &Descs[0], sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size(), &instanceDescs, L"InstanceDescs");
+	}
+	else
+	{
+		/*void *pMappedData;
+		instanceDescs->Map(0, nullptr, &pMappedData);
+		memcpy(pMappedData, &Descs[0], sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size());
+		instanceDescs->Unmap(0, nullptr);*/
+	}
 }

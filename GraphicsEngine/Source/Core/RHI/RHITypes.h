@@ -472,10 +472,10 @@ public:
 	bool IncludedInSFR = false;
 	float LinkToBackBufferScaleFactor = 1.0f;
 	int SFR_FullWidth = 0;
-	RHIPipeLineStateObject* PSO = nullptr;
 	RHIPipeRenderTargetDesc GetRTDesc();
 	bool AllowDynamicResize = false;
 	glm::ivec2 MaxSize = glm::ivec2(0, 0);
+	FrameBuffer* SharedDepthStencilSource = nullptr;
 };
 
 class RHI_API IRHIResourse : public IRefCount
@@ -483,7 +483,7 @@ class RHI_API IRHIResourse : public IRefCount
 public:
 	virtual ~IRHIResourse();
 	virtual void Release();
-	bool IsPendingKill()
+	bool IsPendingKill() const
 	{
 		return PendingKill;
 	}

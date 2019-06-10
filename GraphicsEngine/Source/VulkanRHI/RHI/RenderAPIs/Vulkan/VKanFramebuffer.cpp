@@ -6,12 +6,21 @@
 #include "VkanPipeLineStateObject.h"
 #include "VKanRHI.h"
 #include "VKanCommandlist.h"
+#include "VknGPUResource.h"
 
 VKanFramebuffer::VKanFramebuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 	desc.NumRenderTargets = BufferDesc.RenderTargetCount;
-	desc.RTVFormats[0] = BufferDesc.RTFormats[0];
+	for (int i = 0; i < 8; i++)
+	{
+		desc.RTVFormats[i] = BufferDesc.RTFormats[i];
+	}
 	desc.DSVFormat = BufferDesc.DepthFormat;
+	if (!BufferDesc.NeedsDepthStencil)
+	{
+		desc.DSVFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
+	}
+
 }
 DeviceContext * VKanFramebuffer::GetDevice()
 {
@@ -34,15 +43,21 @@ void VKanFramebuffer::UnBind(VKanCommandlist * List)
 	{
 		return;
 	}
-	VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[0]);
-	VkanHelpers::transitionImageLayout(*List->GetCommandBuffer(), RTImage, fmt, VkanHelpers::ConvertState(GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		RTImages[i]->SetState(List, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	}
 	WasTexture = false;
 }
+
 void VKanFramebuffer::TransitionTOPixel(VKanCommandlist* list)
 {
-	VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[0]);
-	VkanHelpers::transitionImageLayout(*list->GetCommandBuffer(), RTImage, fmt, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VkanHelpers::ConvertState(GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		RTImages[i]->SetState(list, VkanHelpers::ConvertState(GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	}
 }
+
 void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
 {
 	//throw std::logic_error("The method or operation is not implemented.");
@@ -61,25 +76,28 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKanCommandlist* 
 	RPdesc.Build();
 	if (BufferDesc.RenderTargetCount > 0)
 	{
-		VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[0]);
-		VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, RTImage, RTImageMemory, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-		RTImageView = VkanHelpers::createImageView(VKanRHI::VKConv(Device), RTImage, fmt, VK_IMAGE_ASPECT_COLOR_BIT);
-		VkCommandBuffer B = *list->GetCommandBuffer();// VKanRHI::RHIinstance->setuplist->CommandBuffer;
-		VkanHelpers::transitionImageLayout(B, RTImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-		attachments.push_back(RTImageView);
+		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+		{
+			CreateRT(list, i);
+			attachments.push_back(RTImageView[i]);
+		}
 	}
 
 	if (BufferDesc.NeedsDepthStencil)
 	{
+		VkDeviceMemory Mem;
+		VkImage DepthImage;
 		VkFormat depthFormat = VkanHelpers::ConvertFormat(BufferDesc.DepthFormat);
-		VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-		depthImageView = VkanHelpers::createImageView(VKanRHI::VKConv(Device), depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-		VkCommandBuffer B = *list->GetCommandBuffer();// VKanRHI::RHIinstance->setuplist->CommandBuffer;
-		VkanHelpers::transitionImageLayout(B, depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			DepthImage, Mem, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		depthImageView = VkanHelpers::createImageView(VKanRHI::VKConv(Device), DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+		DepthResource = new VknGPUResource();
+		DepthResource->Init(DepthImage, Mem, VK_IMAGE_LAYOUT_UNDEFINED, depthFormat);
+		DepthResource->SetState(list, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 		attachments.push_back(depthImageView);
 	}
 
-
+	//multiple attachments
 
 	VkFramebufferCreateInfo framebufferInfo = {};
 	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -96,12 +114,36 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKanCommandlist* 
 	}
 }
 
-Descriptor VKanFramebuffer::GetDescriptor(int slot)
+void VKanFramebuffer::CreateRT(VKanCommandlist* list, int index)
+{
+	VkImage RTImage;
+	VkDeviceMemory RTImageMemory;
+	VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[index]);
+	VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		RTImage, RTImageMemory, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+	RTImages[index] = new VknGPUResource();
+	RTImages[index]->Init(RTImage, RTImageMemory, VK_IMAGE_LAYOUT_UNDEFINED, fmt);
+	RTImages[index]->SetState(list, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+	RTImageView[index] = VkanHelpers::createImageView(VKanRHI::VKConv(Device), RTImages[index]->GetImage(), RTImages[index]->GetFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
+
+}
+
+void VKanFramebuffer::UpdateStateTrackingFromRP(RHIRenderPassDesc & Desc)
+{
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		RTImages[i]->UpdateState(VkanHelpers::ConvertState(Desc.FinalState));
+	}
+}
+
+Descriptor VKanFramebuffer::GetDescriptor(int slot, int resourceindex)
 {
 	Descriptor D = Descriptor(EDescriptorType::SRV);
 	if (IsCreated)
 	{
-		D.ImageView = RTImageView;
+		D.ImageView = RTImageView[resourceindex];
 	}
 	else
 	{

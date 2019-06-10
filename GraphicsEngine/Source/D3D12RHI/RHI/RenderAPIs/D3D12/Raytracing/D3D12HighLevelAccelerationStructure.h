@@ -6,7 +6,7 @@ public:
 	D3D12HighLevelAccelerationStructure(DeviceContext* Device);
 	virtual ~D3D12HighLevelAccelerationStructure();
 
-	virtual void Update() override;
+	virtual RHI_API virtual void Update(RHICommandList* List) override;
 	virtual void Build(RHICommandList* list) override;
 	virtual void InitialBuild() override;
 

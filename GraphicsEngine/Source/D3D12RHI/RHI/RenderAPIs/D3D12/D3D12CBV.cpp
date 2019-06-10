@@ -23,7 +23,6 @@ D3D12CBV::~D3D12CBV()
 		m_constantBuffer->Unmap(0, &readRange);
 		m_constantBuffer->Release();
 	}
-
 }
 
 void D3D12CBV::SetGpuView(ID3D12GraphicsCommandList * list, int offset, int slot, bool IsCompute)

@@ -11,10 +11,10 @@ Texture2D envBRDFTexture: register(t12);
 
 Texture2D PerSampledShadow: register(t13);
 
-
+#if !VULKAN
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t4, space1);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
-
+#endif
 
 #include "Lighting.hlsl"
 #include "Shadow.hlsl"
@@ -63,6 +63,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
+#if !VULKAN
 		if (lights[i].PreSampled.x)
 		{
 #if SHOW_SHADOW
@@ -86,6 +87,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 				LightColour *= 1.0 - ShadowCalculationCube(pos.xyz, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
 			}
 		}
+#endif
 		output += LightColour;
 	}
 	return float4(output,1.0f);
