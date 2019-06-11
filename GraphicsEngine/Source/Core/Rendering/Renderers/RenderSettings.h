@@ -64,6 +64,8 @@ struct ERenderDebugOutput
 struct RayTracingSettings
 {
 	bool Enabled = false;
+	bool UseForMainPass = false;
+	bool UseForReflections = false;
 };
 struct ShadowMappingSettings
 {

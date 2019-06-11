@@ -8,6 +8,10 @@
 
 class D3D12PipeLineStateObject;
 struct DxcDefine;
+struct RootSignitureCreateInfo
+{
+	bool IsLocalSig = false;
+};
 class D3D12Shader : public ShaderProgramBase
 {
 public:
@@ -32,7 +36,7 @@ public:
 
 	ShaderBlobs* GetShaderBlobs();
 	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
-	static void CreateRootSig(D3D12PipeLineStateObject * output, std::vector<ShaderParameter> Params, DeviceContext * context, bool compute, std::vector<RHISamplerDesc> samplers);
+	static void CreateRootSig(ID3D12RootSignature ** output, std::vector<ShaderParameter> Params, DeviceContext * context, bool compute, std::vector<RHISamplerDesc> samplers, RootSignitureCreateInfo Info = RootSignitureCreateInfo());
 
 	void Init();
 	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);

@@ -23,6 +23,7 @@
 #include "Rendering/VR/HMDManager.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
+#include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -212,6 +213,10 @@ void RenderEngine::ProcessScene()
 	{
 		RHI::GetHMD()->UpdateProjection((float)GetScaledWidth() / (float)GetScaledHeight());
 	}
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		ShaderComplier::GetShader<Shader_Skybox_Miss>()->SetSkybox(MainScene->GetLightingData()->SkyBox);
+	}
 }
 
 void RenderEngine::PrepareData()
@@ -279,7 +284,7 @@ void RenderEngine::SetScene(Scene * sc)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
-		
+
 	}
 #endif
 	ProcessScene();

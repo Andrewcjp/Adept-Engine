@@ -62,6 +62,7 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 			VkDescriptorBufferInfo* bufferInfo = new VkDescriptorBufferInfo();
 			bufferInfo->buffer = Desc->Buffer->vertexbuffer;
 			bufferInfo->offset = Desc->Offset;
+			
 			bufferInfo->range = VK_WHOLE_SIZE;//Desc->Buffer->GetSize();
 			descriptorWrite.pBufferInfo = bufferInfo;
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;

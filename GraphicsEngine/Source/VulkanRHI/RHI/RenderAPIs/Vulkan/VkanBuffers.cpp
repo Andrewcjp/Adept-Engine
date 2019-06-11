@@ -4,7 +4,7 @@
 #include "VkanDeviceContext.h"
 #include "Descriptor.h"
 #include "VkanHelpers.h"
-
+#undef max
 #if BUILD_VULKAN
 
 
@@ -114,17 +114,19 @@ void VKanBuffer::CreateIndexBuffer(int Stride, int ByteSize)
 
 void VKanBuffer::CreateConstantBuffer(int iStructSize, int Elementcount, bool ReplicateToAllDevices/* = false*/)
 {
-	TotalByteSize = iStructSize * Elementcount;
-	StructSize = iStructSize;
-	VkanHelpers::createBuffer(iStructSize*Elementcount, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexbuffer, vertexBufferMemory);
+	StructSize = VkanHelpers::Align(iStructSize);
+	TotalByteSize = StructSize * Elementcount;
+
+	VkanHelpers::createBuffer(StructSize*Elementcount, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexbuffer, vertexBufferMemory);
 	ensure(vertexBufferMemory);
 }
 
 void VKanBuffer::UpdateConstantBuffer(void * data, int offset)
 {
+	//#VK: Bounds check
 	void* GPUdata;
-	vkMapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory, 0, TotalByteSize, 0, &GPUdata);
-	memcpy(GPUdata, data, TotalByteSize);
+	vkMapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory, StructSize*offset, StructSize, 0, &GPUdata);
+	memcpy(GPUdata, data, StructSize);
 	vkUnmapMemory(VKanRHI::GetVDefaultDevice()->device, vertexBufferMemory);
 }
 
@@ -132,7 +134,7 @@ void VKanBuffer::UpdateBufferData(void * data, size_t length, EBufferResourceSta
 {
 
 }
-#undef max
+
 Descriptor VKanBuffer::GetDescriptor(int slot, int offset)
 {
 	Descriptor D = Descriptor(EDescriptorType::CBV);

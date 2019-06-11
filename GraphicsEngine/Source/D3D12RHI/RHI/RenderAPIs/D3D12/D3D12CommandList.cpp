@@ -321,7 +321,7 @@ void D3D12PipeLineStateObject::Complie()
 	ensure((Desc.ShaderInUse->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(Desc.ShaderInUse->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
-	D3D12Shader::CreateRootSig(this, Desc.ShaderInUse->GetShaderParameters(), Device, Desc.ShaderInUse->IsComputeShader(), RHISamplerDesc::GetDefault());
+	D3D12Shader::CreateRootSig(&this->RootSig, Desc.ShaderInUse->GetShaderParameters(), Device, Desc.ShaderInUse->IsComputeShader(), RHISamplerDesc::GetDefault());
 	if (Desc.ShaderInUse->IsComputeShader())
 	{
 		D3D12Shader::CreateComputePipelineShader(this, desc, VertexDesc_ElementCount, target->GetShaderBlobs(), Desc, Device);

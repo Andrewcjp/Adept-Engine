@@ -7,14 +7,16 @@
 #include "Shader_RTBase.h"
 #include "Core/BaseWindow.h"
 #include "RayTracingCommandList.h"
+#include "ShaderBindingTable.h"
 
 
 RayTracingEngine::RayTracingEngine()
 {
 	AsyncbuildList = RHI::CreateCommandList(ECommandListType::Compute);
 	RTList = CreateRTList(RHI::GetDefaultDevice());
+	DefaultTable = new ShaderBindingTable();
 	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
-	StateObject->Target = ShaderComplier::GetShader<Shader_RTBase>();
+	StateObject->ShaderTable = DefaultTable;
 	StateObject->TempCam = BaseWindow::GetCurrentCamera();
 	StateObject->Build();
 }
@@ -55,8 +57,12 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 	LASToBuild.clear();
 }
 
-void RayTracingEngine::DispatchRays(FrameBuffer* Target)
+void RayTracingEngine::DispatchRaysForMainScenePass(FrameBuffer* Target)
 {
+	if (RHI::GetFrameCount() == 1)
+	{
+		StateObject->RebuildShaderTable();
+	}
 	StateObject->TempCam = BaseWindow::GetCurrentCamera();
 	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 
@@ -102,4 +108,9 @@ void RayTracingEngine::BuildStructures()
 RayTracingCommandList * RayTracingEngine::CreateRTList(DeviceContext * Device)
 {
 	return new RayTracingCommandList(Device, ERayTracingSupportType::DriverBased);
+}
+
+void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer)
+{
+
 }

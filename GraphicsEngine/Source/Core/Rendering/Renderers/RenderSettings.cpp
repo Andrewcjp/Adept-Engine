@@ -187,7 +187,7 @@ RenderSettings::RenderSettings()
 {
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	EnableVR = true;
-
+	RTSettings.UseForMainPass = true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;
 	if (IsDeferred)
@@ -201,7 +201,7 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
-	//RTSettings.Enabled = true;
+	RTSettings.Enabled = true;
 	AllowMeshInstancing = false;
 	//IsDeferred = true;
 	VRHMDMode = EVRHMDMode::Disabled;

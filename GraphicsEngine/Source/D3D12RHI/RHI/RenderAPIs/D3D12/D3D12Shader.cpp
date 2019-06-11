@@ -364,7 +364,7 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, IDxcBlob** Blob, 
 	Log::LogMessage("Recompile triggered for " + Name);
 	return false;
 #endif
-	}
+}
 
 void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type type)
 {
@@ -545,9 +545,10 @@ bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc,
 	return true;
 }
 
-void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<ShaderParameter> Params, DeviceContext* context, bool compute, std::vector<RHISamplerDesc> samplers)
+void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<ShaderParameter> Params, DeviceContext * context, bool compute, std::vector<RHISamplerDesc> samplers,
+	RootSignitureCreateInfo Info /*= RootSignitureCreateInfo()*/)
 {
-	REF_CHECK(output->RootSig);
+	//	REF_CHECK(output->RootSig);
 	SCOPE_STARTUP_COUNTER("CreateRootSig");
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
 
@@ -599,6 +600,10 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstantBufferView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
 		}
+		else if (Params[i].Type == ShaderParamType::RootSRV)
+		{
+			rootParameters[Params[i].SignitureSlot].InitAsShaderResourceView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
+		}
 		else if (Params[i].Type == ShaderParamType::UAV)
 		{
 #if !UAVRANGES
@@ -607,54 +612,21 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-	}
+}
 	//#RHI: Samplers
-#if 0
-#define NUMSamples 3
-	D3D12_STATIC_SAMPLER_DESC samplers[NUMSamples];
 
-	D3D12_STATIC_SAMPLER_DESC sampler = {};
-	//	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	sampler.MipLODBias = 0;
-	sampler.MaxAnisotropy = 0;
-	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-	sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-	sampler.MinLOD = 0.0f;
-	sampler.MaxLOD = D3D12_FLOAT32_MAX;
-	sampler.ShaderRegister = 0;
-	sampler.RegisterSpace = 0;
-	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	samplers[0] = sampler;
-
-	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	sampler.ShaderRegister = 1;
-	sampler.RegisterSpace = 0;
-	samplers[1] = sampler;
-
-	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	sampler.ShaderRegister = 2;
-	sampler.RegisterSpace = 0;
-	samplers[2] = sampler;
-#else
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
-
-#endif
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, samplers.size(), &Samplers[0], D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	D3D12_ROOT_SIGNATURE_FLAGS RsFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	if (Info.IsLocalSig)
+	{
+		RsFlags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+	}
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, samplers.size(), &Samplers[0], RsFlags);
 
 	ID3DBlob* signature = nullptr;
 	ID3DBlob* pErrorBlob = nullptr;
@@ -678,11 +650,12 @@ void D3D12Shader::CreateRootSig(D3D12PipeLineStateObject* output, std::vector<Sh
 			Log::LogMessage(Log, Log::Severity::Warning);
 		}
 	}
-	ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateRootSignature(context->GetNodeMask(), signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&output->RootSig)));
+	ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateRootSignature(context->GetNodeMask(), signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(output)));
 
-	output->RootSig->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
+	(*output)->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
 	delete[] Samplers;
-		}
+	}
+
 const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Params)
 {
 	std::string output = "Root sig Length = ";;
