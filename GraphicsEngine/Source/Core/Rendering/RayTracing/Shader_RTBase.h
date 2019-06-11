@@ -1,10 +1,29 @@
 #pragma once
 #include "RHI/Shader.h"
+//A base class that handles the different types of ray shaders
+namespace ERTShaderType
+{
+	enum Type
+	{
+		Hit,
+		Miss,
+		Intersection,
+		AnyHit,
+		RayGen,
+		Limit
+	};
+}
 class Shader_RTBase :public Shader
 {
 public:
-	DECLARE_GLOBAL_SHADER(Shader_RTBase);
-	Shader_RTBase(DeviceContext* C);
+	Shader_RTBase(DeviceContext * C, std::string Name, ERTShaderType::Type Stage);
 	~Shader_RTBase();
+	ERTShaderType::Type GetStage();
+	void AddExport(std::string Symbol);
+	RHI_API std::vector<std::string>& GetExports();
+	std::vector<BaseTextureRef> Textures;
+protected:
+	ERTShaderType::Type ShaderStage = ERTShaderType::Limit;
+	std::vector<std::string> ExportedSymbols;
 };
 

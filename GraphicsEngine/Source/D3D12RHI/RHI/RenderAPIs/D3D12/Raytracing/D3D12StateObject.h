@@ -6,6 +6,7 @@
 class DXDescriptor;
 class Shader;
 class D3D12FrameBuffer;
+class Shader_RTBase;
 namespace GlobalRootSignatureParams
 {
 	enum Value
@@ -37,20 +38,31 @@ public:
 	~D3D12StateObject();
 	virtual void Build() override;
 
+	void AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe);
+
 	void CreateStateObject();
 
+	void AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe);
+
+	void AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shader_RTBase* Shader);
+
 	void CreateRootSignatures();
-	void CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC * raytracingPipeline);
-	void SerializeAndCreateRaytracingRootSignature(D3D12_ROOT_SIGNATURE_DESC & desc, ID3D12RootSignature ** rootSig);
-	void CreateRaytracingOutputBuffer();
+	void CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & raytracingPipeline, Shader_RTBase* shader);
 	void Trace(const RHIRayDispatchDesc& Desc, RHICommandList * T, D3D12FrameBuffer* target);
 	void BuildShaderTables();
+
+	void WriteBinds(Shader_RTBase* shader, std::vector<void *> &Data);
+
+	void CreateRaytracingOutputBuffer();
 	HighLevelAccelerationStructure* High = nullptr;
 	RTCameraData Data;
+
+	virtual void RebuildShaderTable() override;
+
 private:
 
 	ID3D12StateObject* StateObject = nullptr;
-	ID3D12RootSignature* m_raytracingLocalRootSignature = nullptr;
+	//ID3D12RootSignature* m_raytracingLocalRootSignature = nullptr;
 	ID3D12RootSignature* m_raytracingGlobalRootSignature = nullptr;
 	ID3D12StateObjectProperties* props = nullptr;
 	ID3D12Resource* m_outputResource = nullptr;

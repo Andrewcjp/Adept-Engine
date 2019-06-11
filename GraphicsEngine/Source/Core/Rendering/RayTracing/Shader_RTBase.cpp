@@ -1,13 +1,29 @@
 #include "Shader_RTBase.h"
-IMPLEMENT_GLOBAL_SHADER(Shader_RTBase);
 
-Shader_RTBase::Shader_RTBase(DeviceContext* C) :Shader(C)
+
+Shader_RTBase::Shader_RTBase(DeviceContext* C, std::string Name, ERTShaderType::Type Stage) :Shader(C)
 {
-	m_Shader->AttachAndCompileShaderFromFile("Raytracing\\DefaultShaders", EShaderType::SHADER_RT_LIB);
+	m_Shader->AttachAndCompileShaderFromFile(Name.c_str(), EShaderType::SHADER_RT_LIB);
+	ShaderStage = Stage;
 }
 
 
 Shader_RTBase::~Shader_RTBase()
 {
 
+}
+
+ERTShaderType::Type Shader_RTBase::GetStage()
+{
+	return ShaderStage;
+}
+
+void Shader_RTBase::AddExport(std::string Symbol)
+{
+	ExportedSymbols.push_back(Symbol);
+}
+
+std::vector<std::string>& Shader_RTBase::GetExports()
+{
+	return ExportedSymbols;
 }

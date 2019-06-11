@@ -21,7 +21,7 @@ ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, hei
 }
 
 void ForwardRenderer::PreZPass(RHICommandList* Cmdlist, FrameBuffer* target, int eyeindex)
-{	
+{
 	Cmdlist->StartTimer(EGPUTIMERS::PreZ);
 	RHIPipeLineStateDesc desc;
 	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), DDOs[0].MainFrameBuffer);
@@ -29,7 +29,7 @@ void ForwardRenderer::PreZPass(RHICommandList* Cmdlist, FrameBuffer* target, int
 	desc.DepthStencilState.DepthWrite = true;
 	desc.RenderPassDesc = RHIRenderPassDesc(target, ERenderPassLoadOp::Clear);
 	Cmdlist->SetPipelineStateDesc(desc);
-	Cmdlist->BeginRenderPass(RHIRenderPassDesc(target,ERenderPassLoadOp::Clear));
+	Cmdlist->BeginRenderPass(RHIRenderPassDesc(target, ERenderPassLoadOp::Clear));
 	SceneRender->RenderScene(Cmdlist, true, target, false, eyeindex);
 	Cmdlist->EndRenderPass();
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
@@ -126,7 +126,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 void ForwardRenderer::RenderOnDevice(DeviceContext * con)
 {
 	RunMainPass(&DDOs[con->GetDeviceIndex()], EEye::Left);
-	
+
 	if (RHI::IsRenderingVR())
 	{
 		RunMainPass(&DDOs[con->GetDeviceIndex()], EEye::Right);
@@ -155,7 +155,14 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	List->Execute();
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
-		RayTracingEngine::Get()->DispatchRays(O->GetMain(eye));
+		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
+		{
+			RayTracingEngine::Get()->TraceRaysForReflections(O->GetMain(eye), nullptr);
+		}
+		if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
+		{
+			RayTracingEngine::Get()->DispatchRaysForMainScenePass(O->GetMain(eye));
+		}
 	}
 }
 

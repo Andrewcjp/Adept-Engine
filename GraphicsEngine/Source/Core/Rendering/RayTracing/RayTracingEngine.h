@@ -16,15 +16,13 @@ public:
 	//call as early as possible to start on async compute
 	void BuildForFrame(RHICommandList * List);
 	//used in rendering to launch rays
-	void DispatchRays(FrameBuffer* Target);
+	void DispatchRaysForMainScenePass(FrameBuffer* Target);
 	void SetShaderTable(ShaderBindingTable * SBT);
-	//set Shader binding table
-	void SetShaderTable();
-
 	void OnFirstFrame();
 
 	void BuildStructures();
 	RayTracingCommandList* CreateRTList(DeviceContext* Device);
+	void TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer);
 private:
 	std::vector<LowLevelAccelerationStructure*> LASToBuild;
 	std::vector<HighLevelAccelerationStructure*> HASToBuild;
@@ -33,5 +31,6 @@ private:
 	RHIStateObject* StateObject = nullptr;
 	bool Build = false;
 	RayTracingCommandList* RTList = nullptr;
+	ShaderBindingTable* DefaultTable = nullptr;
 };
 

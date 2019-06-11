@@ -23,6 +23,7 @@ public:
 	UINT16 Miplevels = 6;
 	int	MipLevelsReadyNow = 1;
 	bool CheckDevice(int index);
+	DescriptorGroup* GetDescriptor();
 protected:
 	void Release() override;
 private:

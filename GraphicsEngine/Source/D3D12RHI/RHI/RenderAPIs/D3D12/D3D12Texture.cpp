@@ -385,6 +385,11 @@ bool D3D12Texture::CheckDevice(int index)
 	return false;
 }
 
+DescriptorGroup * D3D12Texture::GetDescriptor()
+{
+	return SRVDesc;
+}
+
 void D3D12Texture::CreateAsNull()
 {
 	//ensure(srvHeap == nullptr);
