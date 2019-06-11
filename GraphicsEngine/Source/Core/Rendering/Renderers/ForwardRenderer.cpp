@@ -151,9 +151,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	}
 	MainPass(List, O->GetMain(eye), eye);
 	List->EndTimer(EGPUTIMERS::MainPass);
-#if 1//!NOSHADOW
 	O->SkyboxShader->Render(SceneRender, List, O->GetMain(eye), nullptr);
-#endif
 	List->Execute();
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
@@ -197,10 +195,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 		Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 		Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	}
-#if NOSHADOW
-	Cmdlist->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::DiffuseIr);
-	Cmdlist->SetTexture(Defaults::GetDefaultTexture(), MainShaderRSBinds::EnvBRDF);
-#endif
+
 	//LightCulling->BindLightBuffer(Cmdlist);
 	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
 	if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)

@@ -24,7 +24,7 @@ void VknGPUResource::SetState(VKanCommandlist* List, VkImageLayout Layout)
 	{
 		return;
 	}
-	VkanHelpers::transitionImageLayout(*List->GetCommandBuffer(), Image, Format, CurrentState, Layout);
+	VkanHelpers::transitionImageLayout(*List->GetCommandBuffer(), Image, Format, CurrentState, Layout, 1, Layers);
 	CurrentState = Layout;
 }
 

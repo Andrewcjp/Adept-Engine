@@ -28,7 +28,7 @@ public:
 
 	// Inherited via RHICommandList
 	virtual void ResetList() override;
-	virtual void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0) override;
+	void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0);
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;

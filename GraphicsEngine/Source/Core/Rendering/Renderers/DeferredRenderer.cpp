@@ -219,7 +219,9 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	List->SetPipelineStateDesc(desc);
 
 	RHIRenderPassDesc D = RHIRenderPassDesc(output, ERenderPassLoadOp::Clear);
-	//D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+#if NOSHADOW
+	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+#endif
 	List->BeginRenderPass(D);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
@@ -230,13 +232,9 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 		List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
 		//List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
 	}
-#if NOSHADOW
-	List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::DiffuseIr);
-	List->SetTexture(Defaults::GetDefaultTexture(), DeferredLightingShaderRSBinds::EnvBRDF);
-#else
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
-#endif
+
 	SceneRender->BindLightsBuffer(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRender->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, eyeindex);
 #if !NOSHADOW
@@ -261,8 +259,9 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	{
 		DDOs[0].MainFrameBuffer->MakeReadyForCopy(List);
 	}
-
+#if !NOSHADOW
 	RenderSkybox(List, output, GBuffer);
+#endif
 	GBuffer->MakeReadyForComputeUse(List, true);
 }
 

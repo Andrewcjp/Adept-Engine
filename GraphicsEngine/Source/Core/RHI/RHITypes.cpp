@@ -226,6 +226,7 @@ void RHIPipeLineStateDesc::Build()
 		RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
 		RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
 	}
+	RenderPassDesc.Build();
 	CalulateHash();
 }
 
@@ -449,5 +450,5 @@ void RHIRenderPassDesc::Build()
 
 bool RHIRenderPassDesc::operator==(const RHIRenderPassDesc other) const
 {
-	return LoadOp == other.LoadOp && StoreOp == other.StoreOp && RenderDesc == other.RenderDesc && InitalState == other.InitalState && FinalState == other.FinalState;
+	return LoadOp == other.LoadOp && StoreOp == other.StoreOp && RenderDesc == other.RenderDesc && InitalState == other.InitalState && FinalState == other.FinalState && other.TargetBuffer == TargetBuffer;
 }

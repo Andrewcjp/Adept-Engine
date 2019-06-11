@@ -13,6 +13,7 @@ public:
 	void UpdateState(VkImageLayout State);
 	VkImage GetImage();
 	VkFormat GetFormat();
+	int Layers = 1;
 private:
 	VkFormat Format;
 	VkImageLayout CurrentState;

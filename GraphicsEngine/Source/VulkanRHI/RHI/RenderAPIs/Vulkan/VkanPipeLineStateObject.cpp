@@ -33,7 +33,6 @@ void VkanPipeLineStateObject::Complie()
 			Desc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(Desc.RenderPassDesc);
 		}
 	}
-	//CreateRenderPass();
 	createGraphicsPipeline();
 }
 
