@@ -89,11 +89,13 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKanCommandlist* 
 		VkImage DepthImage;
 		VkFormat depthFormat = VkanHelpers::ConvertFormat(BufferDesc.DepthFormat);
 		VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			DepthImage, Mem, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-		depthImageView = VkanHelpers::createImageView(VKanRHI::VKConv(Device), DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+			DepthImage, Mem, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, BufferDesc.TextureDepth);
+		depthImageView = VkanHelpers::createImageView(VKanRHI::VKConv(Device), DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT,BufferDesc.TextureDepth);
 		DepthResource = new VknGPUResource();
 		DepthResource->Init(DepthImage, Mem, VK_IMAGE_LAYOUT_UNDEFINED, depthFormat);
+		DepthResource->Layers = BufferDesc.TextureDepth;
 		DepthResource->SetState(list, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		
 		attachments.push_back(depthImageView);
 	}
 
@@ -106,7 +108,7 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKanCommandlist* 
 	framebufferInfo.pAttachments = attachments.data();
 	framebufferInfo.width = BufferDesc.Width;
 	framebufferInfo.height = BufferDesc.Height;
-	framebufferInfo.layers = 1;
+	framebufferInfo.layers =  BufferDesc.TextureDepth;
 
 	if (vkCreateFramebuffer(VKanRHI::VKConv(Device)->device, &framebufferInfo, nullptr, &Buffer) != VK_SUCCESS)
 	{
@@ -120,13 +122,14 @@ void VKanFramebuffer::CreateRT(VKanCommandlist* list, int index)
 	VkDeviceMemory RTImageMemory;
 	VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[index]);
 	VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		RTImage, RTImageMemory, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		RTImage, RTImageMemory, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, BufferDesc.TextureDepth);
 
 	RTImages[index] = new VknGPUResource();
+	RTImages[index]->Layers = BufferDesc.TextureDepth;
 	RTImages[index]->Init(RTImage, RTImageMemory, VK_IMAGE_LAYOUT_UNDEFINED, fmt);
 	RTImages[index]->SetState(list, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-	RTImageView[index] = VkanHelpers::createImageView(VKanRHI::VKConv(Device), RTImages[index]->GetImage(), RTImages[index]->GetFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
+	RTImageView[index] = VkanHelpers::createImageView(VKanRHI::VKConv(Device), RTImages[index]->GetImage(), RTImages[index]->GetFormat(), VK_IMAGE_ASPECT_COLOR_BIT, BufferDesc.TextureDepth);
 
 }
 

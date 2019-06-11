@@ -259,8 +259,11 @@ void VKanCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {
 	if (IsInRenderPass && CurrnetRenderPass != nullptr)
 	{
-		Desc.RenderPassDesc = CurrnetRenderPass->Desc;
-		Desc.RenderPass = CurrnetRenderPass;
+		//if (Desc.FrameBufferTarget == CurrnetRenderPass->Desc.TargetBuffer)
+		{
+			Desc.RenderPassDesc = CurrnetRenderPass->Desc;
+			Desc.RenderPass = CurrnetRenderPass;
+		}
 	}
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
 }

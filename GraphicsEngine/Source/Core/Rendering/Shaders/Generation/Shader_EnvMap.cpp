@@ -67,9 +67,6 @@ void Shader_EnvMap::Init()
 
 void Shader_EnvMap::ProcessTexture(BaseTextureRef Target)
 {
-#if NOSHADOW
-	return;
-#endif
 	CmdList->ResetList();
 	CmdList->SetTexture(Target, 0);
 	CmdList->BeginRenderPass(RHIRenderPassDesc(CubeBuffer));
@@ -85,7 +82,9 @@ void Shader_EnvMap::ProcessTexture(BaseTextureRef Target)
 void Shader_EnvMap::ComputeEnvBRDF()
 {
 	CmdList->ResetList();
-	CmdList->BeginRenderPass(RHIRenderPassDesc(EnvBRDFBuffer));
+	RHIRenderPassDesc D = RHIRenderPassDesc(EnvBRDFBuffer);
+	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	CmdList->BeginRenderPass(D);
 	CmdList->SetConstantBufferView(ShaderData, 0, 1);
 	QuadDraw->RenderScreenQuad(CmdList);
 	CmdList->EndRenderPass();
@@ -104,5 +103,6 @@ std::vector<Shader::VertexElementDESC> Shader_EnvMap::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out[0].Stride = sizeof(glm::vec4);
 	return out;
 }

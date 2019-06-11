@@ -66,7 +66,8 @@ const std::vector<const char*> validationLayers = {
 };
 
 const std::vector<const char*> deviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+	VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,
 };
 
 class VKanRHI : public RHIClass

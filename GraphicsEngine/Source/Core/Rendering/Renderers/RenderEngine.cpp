@@ -157,9 +157,6 @@ void RenderEngine::Init()
 
 void RenderEngine::InitProcessingShaders(DeviceContext* dev)
 {
-#if NOSHADOW
-	return;
-#endif
 	if (dev == nullptr)
 	{
 		return;
@@ -180,9 +177,6 @@ void RenderEngine::InitProcessingShaders(DeviceContext* dev)
 
 void RenderEngine::ProcessSceneGPU(DeviceContext* dev)
 {
-#if NOSHADOW
-	return;
-#endif
 	if (dev == nullptr)
 	{
 		return;
@@ -285,9 +279,10 @@ void RenderEngine::SetScene(Scene * sc)
 	{
 		mShadowRenderer->InitShadows(*MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
-		ProcessScene();
+		
 	}
 #endif
+	ProcessScene();
 	if (sc == nullptr)
 	{
 		MainCamera = nullptr;

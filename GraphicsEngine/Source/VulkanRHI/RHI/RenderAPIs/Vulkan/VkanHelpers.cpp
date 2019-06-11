@@ -3,23 +3,27 @@
 #include "VkanDeviceContext.h"
 #include "vulkan/vulkan_core.h"
 
-void VkanHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput)
+void VkanHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput, int depth)
 {
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+
 	imageInfo.extent.width = width;
 	imageInfo.extent.height = height;
 	imageInfo.extent.depth = 1;
 	imageInfo.mipLevels = 1;
-	imageInfo.arrayLayers = 1;
+	imageInfo.arrayLayers = depth;
 	imageInfo.format = format;
 	imageInfo.tiling = tiling;
 	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	imageInfo.usage = usage;
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
+	if (depth > 1)
+	{
+		imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+	}
 	if (vkCreateImage(VKanRHI::RHIinstance->DevCon->device, &imageInfo, nullptr, &image) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create image!");
@@ -289,18 +293,26 @@ void VkanHelpers::copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buff
 
 }
 
-VkImageView VkanHelpers::createImageView(VkanDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+VkImageView VkanHelpers::createImageView(VkanDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,int Layer)
 {
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	viewInfo.image = image;
-	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	if (Layer > 1)
+	{
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+	}
+	else
+	{
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	}
+	
 	viewInfo.format = format;
 	viewInfo.subresourceRange.aspectMask = aspectFlags;
 	viewInfo.subresourceRange.baseMipLevel = 0;
 	viewInfo.subresourceRange.levelCount = 1;
 	viewInfo.subresourceRange.baseArrayLayer = 0;
-	viewInfo.subresourceRange.layerCount = 1;
+	viewInfo.subresourceRange.layerCount = Layer;
 
 	VkImageView imageView;
 	if (vkCreateImageView(C->device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
@@ -645,4 +657,9 @@ VkImageLayout VkanHelpers::ConvertState(GPU_RESOURCE_STATES::Type state)
 	}
 	ENUMCONVERTFAIL();
 	return VkImageLayout();
+}
+
+UINT VkanHelpers::Align(UINT size, UINT alignment)
+{
+	return (size + alignment - 1) & ~(alignment - 1);
 }

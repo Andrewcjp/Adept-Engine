@@ -61,12 +61,11 @@ void Shader_Convolution::init()
 
 void Shader_Convolution::ComputeConvolution(BaseTextureRef Target)
 {
-#if NOSHADOW
-	return;
-#endif
 	ensure(Target->GetType() == ETextureType::Type_CubeMap);
 	CmdList->ResetList();
-	CmdList->BeginRenderPass(RHIRenderPassDesc(CubeBuffer));
+	RHIRenderPassDesc D = RHIRenderPassDesc(CubeBuffer, ERenderPassLoadOp::Clear);
+	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	CmdList->BeginRenderPass(D);
 	CmdList->SetTexture(Target, 0);
 	for (int i = 0; i < 6; i++)
 	{
@@ -90,6 +89,7 @@ std::vector<Shader::VertexElementDESC> Shader_Convolution::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out[0].Stride = sizeof(OGLVertex);
 	return out;
 }
 

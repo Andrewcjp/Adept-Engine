@@ -34,9 +34,6 @@ Shader_Skybox::~Shader_Skybox()
 
 void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 {
-	//#if NOSHADOW
-	//	return;
-	//#endif
 	ensure(tex->GetType() == ETextureType::Type_CubeMap);
 	if (SkyBoxTexture == tex)
 	{

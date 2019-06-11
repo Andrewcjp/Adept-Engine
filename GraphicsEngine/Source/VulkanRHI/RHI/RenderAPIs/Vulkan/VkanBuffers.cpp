@@ -4,6 +4,7 @@
 #include "VkanDeviceContext.h"
 #include "Descriptor.h"
 #include "VkanHelpers.h"
+
 #if BUILD_VULKAN
 
 
@@ -131,13 +132,13 @@ void VKanBuffer::UpdateBufferData(void * data, size_t length, EBufferResourceSta
 {
 
 }
-
+#undef max
 Descriptor VKanBuffer::GetDescriptor(int slot, int offset)
 {
 	Descriptor D = Descriptor(EDescriptorType::CBV);
 	D.Buffer = this;
 	D.bindpoint = slot;
-	D.Offset = offset;
+	D.Offset = VkanHelpers::Align(StructSize* offset);
 	return D;
 }
 

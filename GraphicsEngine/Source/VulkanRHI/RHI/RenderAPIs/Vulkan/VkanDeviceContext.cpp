@@ -2,6 +2,8 @@
 #include "VkanTimeManager.h"
 #include <set>
 #include "DescriptorPool.h"
+#include "VKanRHI.h"
+#include "VKanCommandlist.h"
 
 
 
@@ -30,7 +32,9 @@ void VkanDeviceContext::DestoryDevice()
 {}
 
 void VkanDeviceContext::WaitForGpu()
-{}
+{
+	vkDeviceWaitIdle(device);
+}
 
 void VkanDeviceContext::WaitForCopy()
 {}
@@ -42,7 +46,11 @@ void VkanDeviceContext::NotifyWorkForCopyEngine()
 {}
 
 void VkanDeviceContext::UpdateCopyEngine()
-{}
+{
+	VKanRHI::RHIinstance->setuplist->Execute();
+	vkDeviceWaitIdle(device);
+	VKanRHI::RHIinstance->setuplist->ResetList();
+}
 
 void VkanDeviceContext::ResetCopyEngine()
 {}
@@ -123,7 +131,7 @@ void  VkanDeviceContext::createLogicalDevice()
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
-
+	deviceFeatures.geometryShader = true;
 	VkDeviceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
