@@ -30,6 +30,7 @@ struct RTCameraData
 {
 	glm::mat4x4 IView;
 	glm::mat4x4 IProj;
+	glm::vec3 CamPos;
 };
 class D3D12StateObject :public RHIStateObject
 {
