@@ -238,6 +238,7 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 	{
 		Data.IProj = glm::inverse(TempCam->GetProjection());
 		Data.IView = glm::inverse(TempCam->GetView());
+		Data.CamPos = TempCam->GetPosition();
 	}
 	CBV->UpdateConstantBuffer(&Data, 0);
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
