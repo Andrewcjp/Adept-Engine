@@ -1,21 +1,14 @@
 #include "D3D12StateObject.h"
 #include "D3D12HighLevelAccelerationStructure.h"
-#include "Rendering/RayTracing/RHIStateObject.h"
 #include "Rendering/RayTracing/Shader_RTBase.h"
 #include "Rendering/RayTracing/ShaderBindingTable.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Buffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "RHI/RenderAPIs/D3D12/D3D12DeviceContext.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "RHI/RenderAPIs/D3D12/D3D12Shader.h"
 #include "RHI/RenderAPIs/D3D12/DescriptorGroup.h"
 #include "RHI/RenderAPIs/D3D12/DescriptorHeapManager.h"
-#include "RHI/RenderAPIs/D3D12/DXDescriptor.h"
 #include "RHI/RenderAPIs/D3D12/ThirdParty/DXRHelper.h"
-#include "RHI/Shader.h"
-
-const wchar_t* c_hitGroupName = L"MyHitGroup";
 
 D3D12StateObject::D3D12StateObject(DeviceContext* D) :RHIStateObject(D)
 {}
@@ -36,6 +29,7 @@ void D3D12StateObject::Build()
 	CreateRaytracingOutputBuffer();
 	Log::LogMessage("DXR State Object built");
 }
+
 void D3D12StateObject::AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe)
 {
 	for (int i = 0; i < ShaderTable->HitGroups.size(); i++)
@@ -55,6 +49,7 @@ void D3D12StateObject::AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe)
 		CreateLocalRootSigShaders(Pipe, ShaderTable->MissShaders[i]);
 	}
 }
+
 void D3D12StateObject::CreateStateObject()
 {
 	//CD3D12_STATE_OBJECT_DESC raytracingPipeline{ D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE };
@@ -122,7 +117,7 @@ void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & ray
 		return;
 	}
 	// Ray gen and miss shaders in this sample are not using a local root signature and thus one is not associated with them.
-	ID3D12RootSignature* m_raytracingLocalRootSignature;
+	ID3D12RootSignature* m_raytracingLocalRootSignature = nullptr;
 	RootSignitureCreateInfo Info;
 	Info.IsLocalSig = true;
 	D3D12Shader::CreateRootSig(&m_raytracingLocalRootSignature, shader->GetShaderParameters(), Device, true, std::vector<RHISamplerDesc>(), Info);
@@ -142,37 +137,39 @@ void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & ray
 
 void D3D12StateObject::BuildShaderTables()
 {
+	//DXR: Push default values to table.
 	m_sbtHelper.Reset();
 	for (int i = 0; i < ShaderTable->HitGroups.size(); i++)
 	{
 		std::wstring Name = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->Name);
-		std::vector<void*> Data;
-		WriteBinds(ShaderTable->HitGroups[i]->HitShader, Data);
-		m_sbtHelper.AddHitGroup(Name, Data);
+		std::vector<void*> GPUPtrs;
+		WriteBinds(ShaderTable->HitGroups[i]->HitShader, GPUPtrs);
+		m_sbtHelper.AddHitGroup(Name, GPUPtrs);
 	}
 
 	for (int i = 0; i < ShaderTable->RayGenShaders.size(); i++)
 	{
 		std::wstring Name = StringUtils::ConvertStringToWide(ShaderTable->RayGenShaders[i]->GetExports()[0]);
-		std::vector<void*> Data;
-		WriteBinds(ShaderTable->RayGenShaders[i], Data);
-		m_sbtHelper.AddRayGenerationProgram(Name, Data);
+		std::vector<void*> GPUPtrs;
+		WriteBinds(ShaderTable->RayGenShaders[i], GPUPtrs);
+		m_sbtHelper.AddRayGenerationProgram(Name, GPUPtrs);
 	}
 	for (int i = 0; i < ShaderTable->MissShaders.size(); i++)
 	{
 		std::wstring Name = StringUtils::ConvertStringToWide(ShaderTable->MissShaders[i]->GetExports()[0]);
 
-		std::vector<void*> Data;
-		WriteBinds(ShaderTable->MissShaders[i], Data);
-		m_sbtHelper.AddMissProgram(Name, Data);
+		std::vector<void*> GPUPtrs;
+		WriteBinds(ShaderTable->MissShaders[i], GPUPtrs);
+		m_sbtHelper.AddMissProgram(Name, GPUPtrs);
 	}
 
 	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5());
 	//	D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
 		// Create the SBT on the upload heap. This is required as the helper will use mapping to write the
 		// SBT contents. After the SBT compilation it could be copied to the default heap for performance.
-	if (m_sbtStorage == nullptr)
+	if (m_sbtStorage == nullptr || CurrentSBTSize < sbtSize)
 	{
+		CurrentSBTSize = sbtSize;
 		m_sbtStorage = nv_helpers_dx12::CreateBuffer(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5(), sbtSize, D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nv_helpers_dx12::kUploadHeapProps);
@@ -183,12 +180,20 @@ void D3D12StateObject::BuildShaderTables()
 
 void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Data)
 {
+	for (int i = 0; i < shader->Buffers.size(); i++)
+	{
+		D3D12Buffer* DTex = D3D12RHI::DXConv(shader->Buffers[i]);
+		DTex->SetupBufferSRV();
+		auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
+		Data.push_back(heapPointer);
+	}
 	for (int t = 0; t < shader->Textures.size(); t++)
 	{
 		D3D12Texture* DTex = D3D12RHI::DXConv(shader->Textures[t].Get());
 		auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
 		Data.push_back(heapPointer);
 	}
+
 }
 
 void D3D12StateObject::CreateRaytracingOutputBuffer()
@@ -218,7 +223,13 @@ void D3D12StateObject::CreateRaytracingOutputBuffer()
 
 void D3D12StateObject::RebuildShaderTable()
 {
+	//CreateStateObject();
 	BuildShaderTables();
+}
+
+void D3D12StateObject::BindToList(D3D12CommandList * List)
+{
+	List->GetCommandList()->SetComputeRootSignature(m_raytracingGlobalRootSignature);
 }
 
 void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, D3D12FrameBuffer* target)
@@ -231,7 +242,8 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 	CBV->UpdateConstantBuffer(&Data, 0);
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
 
-	DXList->GetCommandList()->SetComputeRootSignature(m_raytracingGlobalRootSignature);
+
+	//DXR: Todo: move to above RHI
 	CBV->SetConstantBufferView(0, DXList->GetCMDList4(), GlobalRootSignatureParams::CameraBuffer, true, 0);
 	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, ((D3D12RHIUAV*)target->GetUAV())->UAVDescriptor->GetGPUAddress());
 	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(High)->m_topLevelAccelerationStructure->GetGPUVirtualAddress());
@@ -240,14 +252,14 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 	dispatchDesc.RayGenerationShaderRecord.StartAddress = m_sbtStorage->GetGPUVirtualAddress();
 	dispatchDesc.RayGenerationShaderRecord.SizeInBytes = m_sbtHelper.GetRayGenSectionSize();
 
-	dispatchDesc.MissShaderTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + 64;
+	dispatchDesc.MissShaderTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + m_sbtHelper.GetRayGenSectionSize();
 	dispatchDesc.MissShaderTable.SizeInBytes = m_sbtHelper.GetMissSectionSize();
 	dispatchDesc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();
 
-	dispatchDesc.HitGroupTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + 64 + 64;
+	dispatchDesc.HitGroupTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + m_sbtHelper.GetRayGenSectionSize() + m_sbtHelper.GetMissSectionSize();
 	dispatchDesc.HitGroupTable.SizeInBytes = m_sbtHelper.GetHitGroupSectionSize();
 	dispatchDesc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
-	
+
 
 	dispatchDesc.Width = Desc.Width;
 	dispatchDesc.Height = Desc.Height;

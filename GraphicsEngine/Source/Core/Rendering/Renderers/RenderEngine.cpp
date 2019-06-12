@@ -24,6 +24,7 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
 #include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
+#include "../RayTracing/RayTracingEngine.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -216,6 +217,7 @@ void RenderEngine::ProcessScene()
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
 		ShaderComplier::GetShader<Shader_Skybox_Miss>()->SetSkybox(MainScene->GetLightingData()->SkyBox);
+		RayTracingEngine::Get()->UpdateFromScene(MainScene);
 	}
 }
 

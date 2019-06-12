@@ -22,6 +22,7 @@ public:
 	void AddExport(std::string Symbol);
 	RHI_API std::vector<std::string>& GetExports();
 	std::vector<BaseTextureRef> Textures;
+	std::vector<RHIBuffer*> Buffers;
 protected:
 	ERTShaderType::Type ShaderStage = ERTShaderType::Limit;
 	std::vector<std::string> ExportedSymbols;

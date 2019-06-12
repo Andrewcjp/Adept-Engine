@@ -187,7 +187,8 @@ RenderSettings::RenderSettings()
 {
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	EnableVR = true;
-	RTSettings.UseForMainPass = true;
+	//RTSettings.UseForMainPass = true;
+	RTSettings.UseForReflections= true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;
 	if (IsDeferred)
@@ -203,7 +204,7 @@ RenderSettings::RenderSettings()
 	//EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
 	AllowMeshInstancing = false;
-	//IsDeferred = true;
+	IsDeferred = true;
 	VRHMDMode = EVRHMDMode::Disabled;
 }
 

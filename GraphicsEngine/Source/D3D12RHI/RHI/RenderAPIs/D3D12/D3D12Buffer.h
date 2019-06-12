@@ -21,11 +21,12 @@ public:
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
 	GPUResource* GetResource();
-
+	DescriptorGroup* GetDescriptor();
+	void SetupBufferSRV();
 protected:
 	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);
 	void Release() override;
-	void SetupBufferSRV();
+	
 	void CreateUAV();
 	friend class D3D12RHIUAV;
 private:

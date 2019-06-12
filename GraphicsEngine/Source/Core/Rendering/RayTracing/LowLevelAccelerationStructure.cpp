@@ -24,3 +24,8 @@ void LowLevelAccelerationStructure::UpdateTransfrom(Transform * T)
 {
 	
 }
+
+void LowLevelAccelerationStructure::CreateFromEntity(MeshEntity * entity)
+{
+	
+}

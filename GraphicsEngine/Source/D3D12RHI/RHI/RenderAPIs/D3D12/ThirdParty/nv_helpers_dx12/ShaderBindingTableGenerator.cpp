@@ -117,10 +117,10 @@ namespace nv_helpers_dx12
 		uint32_t offset = 0;
 
 		offset = CopyShaderData(raytracingPipeline, pData, m_rayGen, m_rayGenEntrySize);
-		pData += offset + 32;
+		pData += offset /*+ 32*/;
 
 		offset = CopyShaderData(raytracingPipeline, pData, m_miss, m_missEntrySize);
-		pData += offset + 32;
+		pData += offset /*+ 32*/;
 
 		offset = CopyShaderData(raytracingPipeline, pData, m_hitGroup, m_hitGroupEntrySize);
 
@@ -243,7 +243,7 @@ namespace nv_helpers_dx12
 		uint32_t entrySize = m_progIdSize + 8 * static_cast<uint32_t>(maxArgs);
 
 		// The entries of the shader binding table must be 16-bytes-aligned
-		entrySize = ROUND_UP(entrySize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+		entrySize = ROUND_UP(entrySize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
 		return entrySize;
 	}

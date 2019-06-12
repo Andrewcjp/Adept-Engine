@@ -122,6 +122,11 @@ GPUResource * D3D12Buffer::GetResource()
 	return m_DataBuffer;
 }
 
+DescriptorGroup * D3D12Buffer::GetDescriptor()
+{
+	return SRVDesc;
+}
+
 void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype)
 {
 	BufferAccesstype = Accesstype;
@@ -137,6 +142,8 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType
 	m_vertexBufferView.StrideInBytes = Stride;
 	m_vertexBufferView.SizeInBytes = TotalByteSize;
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
+	ElementCount = TotalByteSize / Stride;
+	ElementSize = Stride;
 }
 
 void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
@@ -178,12 +185,26 @@ void D3D12Buffer::SetupBufferSRV()
 	if (SRVDesc == nullptr)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		if (BufferAccesstype == EBufferAccessType::GPUOnly)
+		{
+			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		}
+		else
+		{
+			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+			//srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
+		}
+
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Buffer.NumElements = ElementCount;
 		srvDesc.Buffer.StructureByteStride = ElementSize;
-		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		if (CurrentBufferType == ERHIBufferType::Index)
+		{
+			srvDesc.Format = DXGI_FORMAT_R16_UINT;
+			srvDesc.Buffer.StructureByteStride = 0;
+		}
 		SRVDesc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 		SRVDesc->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
 	}
@@ -357,6 +378,8 @@ void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 
 	m_IndexBufferView.SizeInBytes = TotalByteSize;
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
+	ElementCount = TotalByteSize / Stride;
+	ElementSize = Stride;
 }
 
 void D3D12Buffer::MapBuffer(void ** Data)

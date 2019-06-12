@@ -538,7 +538,7 @@ void D3D12CommandList::ClearScreen()
 void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex)
 {
 	ensure(!buffer->IsPendingKill());
-	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
+	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute || ListType == ECommandListType::RayTracing);
 	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(buffer);
 	if (IsComputeList())
 	{
@@ -549,7 +549,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 		return;
 	}
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
-	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute));
+	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute || IsRaytracingList()));
 }
 
 void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)
@@ -569,6 +569,7 @@ void D3D12CommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationSt
 void D3D12CommandList::SetStateObject(RHIStateObject* Object)
 {
 	CurrentRTState = D3D12RHI::DXConv(Object);
+	CurrentRTState->BindToList(this);
 }
 
 void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot)

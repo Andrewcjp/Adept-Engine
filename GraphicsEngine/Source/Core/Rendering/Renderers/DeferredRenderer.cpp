@@ -13,6 +13,7 @@
 #include "../Core/RelfectionProbe.h"
 #include "../VR/VRCamera.h"
 #include "../Core/Defaults.h"
+#include "../RayTracing/RayTracingEngine.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -83,7 +84,17 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con, EEye::Type Eye)
 		DebugPass();
 	}
 #endif
-
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
+		{
+			RayTracingEngine::Get()->TraceRaysForReflections(d->GetMain(Eye), d->GetGBuffer(Eye));
+		}
+		if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
+		{
+			RayTracingEngine::Get()->DispatchRaysForMainScenePass(d->GetMain(Eye));
+		}
+	}
 
 }
 
@@ -123,6 +134,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	}
 	DDO->DeferredShader = new Shader_Deferred(con);
 	FBDesc = RHIFrameBufferDesc::CreateGBuffer(GetScaledWidth(), GetScaledHeight());
+	FBDesc.clearcolour = glm::vec4(0, 0, 0, 0);
 	FBDesc.IncludedInSFR = true;
 	DDO->Gbuffer = RHI::CreateFrameBuffer(con, FBDesc);
 	DDO->Gbuffer->SetDebugName("GBuffer");
