@@ -58,7 +58,7 @@ public:
 	RTCameraData Data;
 
 	virtual void RebuildShaderTable() override;
-
+	void BindToList(D3D12CommandList* List);
 private:
 
 	ID3D12StateObject* StateObject = nullptr;
@@ -70,5 +70,6 @@ private:
 	ID3D12Resource* m_sbtStorage = nullptr;
 	DescriptorGroup* UAVd = nullptr;
 	D3D12Buffer* CBV = nullptr;
+	uint32_t CurrentSBTSize = 0;
 };
 

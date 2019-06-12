@@ -10,13 +10,13 @@ Editor_Camera::Editor_Camera(Camera* cam)
 	if (cam == nullptr)
 	{
 		float aspect = (float)EditorWindow::GetWidth() / (float)EditorWindow::GetHeight();
-		MainCam = new Camera(glm::vec3(0, 10, 0), 75.0f, aspect, 0.1f, 1000.0f);
+		MainCam = new Camera(glm::vec3(0, 10, -5), 75.0f, aspect, 0.1f, 1000.0f);
 	}
 	else
 	{
 		MainCam = cam;
 	}
-	MainCamTransfrom.SetPos(glm::vec3(0, 10, 0));
+	MainCamTransfrom.SetPos(glm::vec3(0, 10, -5));
 	IsActive = true;
 	sensitvity = 1.0f / 1000.0f;
 	Controller = new EditorCameraController();

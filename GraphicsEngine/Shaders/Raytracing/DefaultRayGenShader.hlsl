@@ -11,6 +11,7 @@ float3 linearToSrgb(float3 c)
 	float3 srgb = 0.662002687 * sq1 + 0.684122060 * sq2 - 0.323583601 * sq3 - 0.0225411470 * c;
 	return srgb;
 }
+
 cbuffer CameraData: register(b0)
 {
 	float4x4 viewI;
@@ -39,6 +40,12 @@ void rayGen()
 
 	RayPayload payload;
 	TraceRay(gRtScene, 0 /*rayFlags*/, 0xFF, 0 /* ray index*/, 0, 0, ray, payload);
-	float3 col = linearToSrgb(payload.color);
-	gOutput[launchIndex.xy] = float4(col, 1);
+#if 0
+	int Size = 50;
+	if (launchIndex.x % Size >= Size / 2 || launchIndex.y % Size >= Size / 2)
+	{
+		return;
+	}
+#endif
+	gOutput[launchIndex.xy] = float4(payload.color, 1);
 }

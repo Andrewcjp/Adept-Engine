@@ -11,6 +11,7 @@ public:
 	RHI_API virtual void CreateFromMesh(Mesh* m);
 	RHI_API virtual void Build(RHICommandList* List);
 	RHI_API virtual void UpdateTransfrom(Transform* T);
+	RHI_API virtual void CreateFromEntity(MeshEntity* entity);
 protected:
 	DeviceContext* Context = nullptr;
 };

@@ -6,10 +6,18 @@ public:
 	D3D12LowLevelAccelerationStructure(DeviceContext* Device);
 	virtual ~D3D12LowLevelAccelerationStructure();
 	virtual void CreateFromMesh(Mesh* m) override;
+
+	void CreateStructure();
+
+	void AddEntity(MeshEntity* Entity);
+
 	virtual void Build(RHICommandList* List) override;
 	virtual void UpdateTransfrom(Transform* T) override;
 	ID3D12Resource* GetASResource() const;
 	Transform* GetTransform()const;
+
+	virtual void CreateFromEntity(MeshEntity* entity) override;
+
 private:
 	Transform* Transfrom = nullptr;
 	ID3D12Resource* Structure = nullptr;

@@ -23,6 +23,7 @@ public:
 	void BuildStructures();
 	RayTracingCommandList* CreateRTList(DeviceContext* Device);
 	void TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer);
+	void UpdateFromScene(Scene* S);
 private:
 	std::vector<LowLevelAccelerationStructure*> LASToBuild;
 	std::vector<HighLevelAccelerationStructure*> HASToBuild;

@@ -109,10 +109,14 @@ void MeshRendererComponent::SceneInitComponent()
 	m_mesh->UpdateBounds(GetOwner()->GetPosition(), GetOwner()->GetTransform()->GetScale());
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
-		BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice());
-		BLAS->CreateFromMesh(m_mesh);
-		BLAS->UpdateTransfrom(GetOwner()->GetTransform());
-		RayTracingEngine::Get()->EnqueueForBuild(BLAS);
+		for (int i = 0; i < m_mesh->SubMeshes.size(); i++)
+		{
+			LowLevelAccelerationStructure* BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice());
+			BLAS->CreateFromEntity(m_mesh->SubMeshes[i]);
+			BLAS->UpdateTransfrom(GetOwner()->GetTransform());
+			RayTracingEngine::Get()->EnqueueForBuild(BLAS);
+			MeshAcclerations.push_back(BLAS);
+		}
 	}
 }
 
@@ -123,7 +127,7 @@ void MeshRendererComponent::OnTransformUpdate()
 
 LowLevelAccelerationStructure * MeshRendererComponent::GetAccelerationStructure() const
 {
-	return BLAS;
+	return nullptr;
 }
 
 void MeshRendererComponent::BeginPlay()

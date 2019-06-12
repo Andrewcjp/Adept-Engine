@@ -4,6 +4,7 @@
 #include "../D3D12CommandList.h"
 #include "../GPUResource.h"
 #include "../DXMemoryManager.h"
+#include "Rendering/Core/Mesh.h"
 
 D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceContext* Device) :LowLevelAccelerationStructure(Device)
 {}
@@ -12,27 +13,24 @@ D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceCon
 D3D12LowLevelAccelerationStructure::~D3D12LowLevelAccelerationStructure()
 {}
 
+void D3D12LowLevelAccelerationStructure::CreateFromEntity(MeshEntity* entity)
+{
+	AddEntity(entity);
+	CreateStructure();
+}
+
 void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 {
 	//todo: handle Merge sub meshes
-
-
 	for (int i = 0; i < m->SubMeshes.size(); i++)
 	{
 		MeshEntity* Entity = m->SubMeshes[i];
-		D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {};
-		geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-		geometryDesc.Triangles.IndexBuffer = D3D12RHI::DXConv(Entity->IndexBuffers[0].Get())->GetResource()->GetResource()->GetGPUVirtualAddress();
-		geometryDesc.Triangles.IndexCount = D3D12RHI::DXConv(Entity->IndexBuffers[0].Get())->GetVertexCount();
-		geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_R16_UINT;
-		geometryDesc.Triangles.Transform3x4 = 0;
-		geometryDesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-		geometryDesc.Triangles.VertexBuffer.StartAddress = D3D12RHI::DXConv(Entity->VertexBuffers[0].Get())->GetResource()->GetResource()->GetGPUVirtualAddress();
-		geometryDesc.Triangles.VertexCount = D3D12RHI::DXConv(Entity->VertexBuffers[0].Get())->GetVertexCount();
-		geometryDesc.Triangles.VertexBuffer.StrideInBytes = sizeof(OGLVertex);
-		geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
-		geometryDescs.push_back(geometryDesc);
+		AddEntity(Entity);
 	}
+	CreateStructure();
+}
+void D3D12LowLevelAccelerationStructure::CreateStructure()
+{
 
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
 
@@ -55,13 +53,33 @@ void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 
 	bottomLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetResource()->GetGPUVirtualAddress();
 	bottomLevelBuildDesc.DestAccelerationStructureData = Structure->GetGPUVirtualAddress();
+}
 
+
+void D3D12LowLevelAccelerationStructure::AddEntity(MeshEntity* Entity)
+{
+	D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {};
+	geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+	geometryDesc.Triangles.IndexBuffer = D3D12RHI::DXConv(Entity->IndexBuffers[0].Get())->GetResource()->GetResource()->GetGPUVirtualAddress();
+	geometryDesc.Triangles.IndexCount = D3D12RHI::DXConv(Entity->IndexBuffers[0].Get())->GetVertexCount();
+	geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_R16_UINT;
+	geometryDesc.Triangles.Transform3x4 = 0;
+	geometryDesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+	geometryDesc.Triangles.VertexBuffer.StartAddress = D3D12RHI::DXConv(Entity->VertexBuffers[0].Get())->GetResource()->GetResource()->GetGPUVirtualAddress();
+	geometryDesc.Triangles.VertexCount = D3D12RHI::DXConv(Entity->VertexBuffers[0].Get())->GetVertexCount();
+	ensure(geometryDesc.Triangles.VertexCount > 0);
+	geometryDesc.Triangles.VertexBuffer.StrideInBytes = sizeof(OGLVertex);
+	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+	geometryDescs.push_back(geometryDesc);
 }
 
 void D3D12LowLevelAccelerationStructure::Build(RHICommandList* List)
 {
 	D3D12CommandList* DXList = D3D12RHI::DXConv(List);
 	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&bottomLevelBuildDesc, 0, nullptr);
+
+	DXList->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(Structure));
+
 	//#DXR: DXList->UAVBarrier()?
 }
 
@@ -80,3 +98,5 @@ Transform * D3D12LowLevelAccelerationStructure::GetTransform() const
 {
 	return Transfrom;
 }
+
+

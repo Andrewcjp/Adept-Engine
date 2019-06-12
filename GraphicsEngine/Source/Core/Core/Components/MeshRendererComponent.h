@@ -29,7 +29,7 @@ public:
 	CORE_API virtual void OnTransformUpdate() override;
 	LowLevelAccelerationStructure* GetAccelerationStructure()const;
 private:
-	LowLevelAccelerationStructure* BLAS = nullptr;
+	std::vector<LowLevelAccelerationStructure*> MeshAcclerations = { nullptr };
 	Mesh* m_mesh = nullptr;
 	// Inherited via Component
 	virtual void BeginPlay() override;

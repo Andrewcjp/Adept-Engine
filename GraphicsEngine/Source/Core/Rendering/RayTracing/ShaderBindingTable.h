@@ -25,7 +25,11 @@ public:
 
 	void InitDefault();
 
+	void InitReflections();
+
 	~ShaderBindingTable();
+	void RebuildHittableFromScene(Scene * Sc);
+	void AddObject(GameObject * Object);
 	std::vector<Shader_RTBase*> MissShaders;
 	std::vector<Shader_RTBase*> RayGenShaders;
 	std::vector<ShaderHitGroup*> HitGroups;
