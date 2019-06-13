@@ -21,12 +21,9 @@ void D3D12StateObject::Build()
 {
 	CBV = new D3D12Buffer(ERHIBufferType::Constant);
 	CBV->CreateConstantBuffer(sizeof(Data), 1);
-	//RT = new Shader_RTBase();
-	//RT->GetShaderProgram();
 	CreateRootSignatures();
 	CreateStateObject();
 	BuildShaderTables();
-	CreateRaytracingOutputBuffer();
 	Log::LogMessage("DXR State Object built");
 }
 
@@ -194,31 +191,6 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Da
 		Data.push_back(heapPointer);
 	}
 
-}
-
-void D3D12StateObject::CreateRaytracingOutputBuffer()
-{
-	D3D12_RESOURCE_DESC resDesc = {};
-	resDesc.DepthOrArraySize = 1;
-	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	// The backbuffer is actually DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, but sRGB formats cannot be used
-	// with UAVs. For accuracy we should convert to sRGB ourselves in the shader
-	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	resDesc.Alignment = 0;
-	resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-	resDesc.Width = 12;
-	resDesc.Height = 12;
-	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	resDesc.MipLevels = 1;
-	resDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &resDesc,
-		D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr, IID_PPV_ARGS(&m_outputResource)));
-	return;
-	UAVd = D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
-	UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-	UAVd->CreateUnorderedAccessView(m_outputResource, nullptr, &UAVDesc, 0);
 }
 
 void D3D12StateObject::RebuildShaderTable()

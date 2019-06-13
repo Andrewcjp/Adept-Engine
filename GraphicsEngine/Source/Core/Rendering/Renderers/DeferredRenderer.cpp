@@ -2,23 +2,23 @@
 #include "Core/Assets/Scene.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "Editor/Editor_Camera.h"
-#include "Rendering/Core/SceneRenderer.h"
-#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
-#include "Rendering/Shaders/Shader_Skybox.h"
-#include "RHI/DeviceContext.h"
-#include "../Shaders/PostProcess/Shader_DebugOutput.h"
-#include "../Core/ParticleSystemManager.h"
-#include "../VR/HMD.h"
 #include "RenderEngine.h"
-#include "../Core/RelfectionProbe.h"
-#include "../VR/VRCamera.h"
-#include "../Core/Defaults.h"
-#include "../RayTracing/RayTracingEngine.h"
+#include "Rendering/Core/Defaults.h"
+#include "Rendering/Core/ParticleSystemManager.h"
+#include "Rendering/Core/RelfectionProbe.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/RayTracing/RayTracingEngine.h"
+#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
+#include "Rendering/Shaders/PostProcess/Shader_DebugOutput.h"
+#include "Rendering/Shaders/Shader_Skybox.h"
+#include "Rendering/VR/HMD.h"
+#include "Rendering/VR/VRCamera.h"
+#include "RHI/DeviceContext.h"
 
 void DeferredRenderer::OnRender()
 {
 	PrepareData();
-	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
+	SceneRender->UpdateLightBuffer(MainScene->GetLights());
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
@@ -35,6 +35,7 @@ void DeferredRenderer::OnRender()
 		}
 	}
 #endif
+	RunLightCulling();
 	ShadowPass();
 	CubeMapPass();
 	UpdateMVForMainPass();

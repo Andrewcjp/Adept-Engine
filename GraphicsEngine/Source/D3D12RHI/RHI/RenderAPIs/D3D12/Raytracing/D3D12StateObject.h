@@ -54,7 +54,6 @@ public:
 
 	void WriteBinds(Shader_RTBase* shader, std::vector<void *> &Data);
 
-	void CreateRaytracingOutputBuffer();
 	HighLevelAccelerationStructure* High = nullptr;
 	RTCameraData Data;
 

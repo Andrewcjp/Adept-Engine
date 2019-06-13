@@ -64,7 +64,7 @@ ForwardRenderer::~ForwardRenderer()
 
 void ForwardRenderer::OnRender()
 {
-	//RunLightCulling();
+	RunLightCulling();
 	ShadowPass();
 	CubeMapPass();
 	RenderOnDevice(RHI::GetDeviceContext(0));

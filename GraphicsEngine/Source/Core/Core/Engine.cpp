@@ -56,7 +56,7 @@ Engine::Engine(EnginePersistentData* epd) :
 	PlatformApplication::Init();
 	StartTime = PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
-	Log::OutS << "Loading " << ENGINE_NAME << " version " << ENGINE_VERSION << Log::OutS;
+	Log::OutS << "Loading " << ENGINE_NAME << " version " << Version::GetFullVersionString() << Log::OutS;
 #if PHYSX_ENABLED
 	Log::OutS << "Running with Physx" << Log::OutS;
 #else	

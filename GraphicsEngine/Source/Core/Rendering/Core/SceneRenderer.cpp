@@ -117,11 +117,11 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 		int PreSampleIndex = 0;
 		for (int i = 0; i < lights.size(); i++)
 		{
+			lights[i]->Update();
 			if (i >= MAX_POSSIBLE_LIGHTS || i >= RHI::GetRenderConstants()->MAX_LIGHTS)
 			{
 				continue;
-			}
-			lights[i]->Update();
+			}			
 			LightUniformBuffer newitem = {};
 			newitem.position = lights[i]->GetPosition();
 			newitem.color = glm::vec3(lights[i]->GetColor());

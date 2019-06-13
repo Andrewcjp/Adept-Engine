@@ -71,6 +71,7 @@ public:
 	//semi realtime lights can use a lower resolution RT for dynamic object and compost into a bigger one
 	int BakedResolution = 2048;
 	int DirectionalShadowid = -1;
+	const float MinLightIntensity = 0.01f;
 private:
 	//the distance after the light is too dim
 	float FalloffRange = 0.0f;

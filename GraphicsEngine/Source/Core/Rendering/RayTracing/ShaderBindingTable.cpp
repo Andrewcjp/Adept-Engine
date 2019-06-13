@@ -61,9 +61,9 @@ ShaderBindingTable::~ShaderBindingTable()
 void ShaderBindingTable::RebuildHittableFromScene(Scene* Sc)
 {
 	HitGroups.clear();
-	for (int i = 0; i < Sc->GetMeshObjects()->size(); i++)
+	for (int i = 0; i < Sc->GetMeshObjects().size(); i++)
 	{
-		AddObject((*Sc->GetMeshObjects())[i]);
+		AddObject(Sc->GetMeshObjects()[i]);
 	}
 }
 void ShaderBindingTable::AddObject(GameObject* Object)

@@ -98,9 +98,10 @@ void WindowsWindow::Maximize()
 
 bool WindowsWindow::CreateOSWindow(int width, int height)
 {
+	std::string Title = std::string(ENGINE_NAME) + " " + Version::GetFullVersionString();
 	app->HWindow = CreateWindowEx(
 		WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-		L"RenderWindow", StringUtils::ConvertStringToWide(ENGINE_NAME).c_str(),
+		L"RenderWindow", StringUtils::ConvertStringToWide(Title).c_str(),
 		WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
 #if !WITH_EDITOR
