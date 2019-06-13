@@ -333,7 +333,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
 #endif
-	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects()->size()));
+	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects().size()));
 }
 
 void Scene::CreateGrid(int size, glm::vec3 startPos, float stride)
@@ -381,6 +381,21 @@ void Scene::SpawnDoor(std::string name, glm::vec3 pos)
 	AddGameobjectToScene(go);
 }
 
+std::vector<Light*>& Scene::GetLights()
+{
+	return Lights;
+}
+
+Camera * Scene::GetCurrentRenderCamera()
+{
+	return CurrentCamera;
+}
+
+void Scene::AddCamera(Camera * cam)
+{
+	Cameras.emplace_back(cam); CurrentCamera = cam;
+}
+
 void Scene::RemoveCamera(Camera * Cam)
 {
 	if (Cameras.size() > 1)
@@ -402,6 +417,11 @@ void Scene::RemoveCamera(Camera * Cam)
 			CurrentCamera = nullptr;
 		}
 	}
+}
+
+void Scene::AddLight(Light * Light)
+{
+	Lights.emplace_back(Light);
 }
 
 void Scene::RemoveLight(Light * Light)
@@ -427,6 +447,16 @@ void Scene::EndScene()
 	CurrentGameMode->EndPlay();
 	AISystem::Get()->SceneEnd();
 	IsRunning = false;
+}
+
+Scene::LightingEnviromentData * Scene::GetLightingData()
+{
+	return &LightingData;
+}
+
+bool Scene::IsEditorScene()
+{
+	return bEditorScene;
 }
 
 void Scene::TickDeferredRemove()
@@ -466,6 +496,21 @@ GameObject * Scene::CreateDebugSphere(Scene* s)
 		s->AddGameobjectToScene(go);
 	}
 	return go;
+}
+
+float Scene::GetGravityStrength() const
+{
+	return GravityStrength;
+}
+
+GameMode * Scene::GetGameMode()
+{
+	return CurrentGameMode;
+}
+
+bool Scene::IsSceneDestorying() const
+{
+	return IsDestruction;
 }
 
 int Scene::FindAllOfName(std::string name, std::vector<GameObject*>& Objects)
@@ -515,4 +560,14 @@ void Scene::CopyScene(Scene* newscene)
 		newscene->AddGameobjectToScene(go);
 	}
 
+}
+
+std::vector<GameObject*>& Scene::GetObjects()
+{
+	return SceneObjects;
+}
+
+std::vector<GameObject*>& Scene::GetMeshObjects()
+{
+	return RenderSceneObjects;
 }

@@ -24,9 +24,9 @@ void CullingManager::DebugRender(Camera * maincam, Scene * target)
 	{
 		return;
 	}
-	for (int i = 0; i < (*target->GetMeshObjects()).size(); i++)
+	for (int i = 0; i < target->GetMeshObjects().size(); i++)
 	{
-		GameObject* CurrentObj = (*target->GetMeshObjects())[i];
+		GameObject* CurrentObj = target->GetMeshObjects()[i];
 		if (CurrentObj->GetMesh() != nullptr)
 		{
 			bool culled = CurrentObj->IsCulled(ECullingPass::MainPass);
@@ -46,9 +46,9 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 	}
 	Frustum.SetupFromCamera(maincam);
 	int cullcount = 0;
-	for (int i = 0; i < (*target->GetMeshObjects()).size(); i++)
+	for (int i = 0; i < target->GetMeshObjects().size(); i++)
 	{
-		GameObject* CurrentObj = (*target->GetMeshObjects())[i];
+		GameObject* CurrentObj = target->GetMeshObjects()[i];
 		if (CurrentObj->GetMesh() != nullptr)
 		{
 			if (!CurrentObj->IsOnLayer(maincam->RenderMask))
@@ -71,9 +71,9 @@ void CullingManager::UpdateCullingForShadowLight(Light* light, Scene* target)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("Shadow Culling", "Culling");
 	//run distance culling
-	for (int i = 0; i < (*target->GetMeshObjects()).size(); i++)
+	for (int i = 0; i < target->GetMeshObjects().size(); i++)
 	{
-		GameObject* CurrentObj = (*target->GetMeshObjects())[i];
+		GameObject* CurrentObj = target->GetMeshObjects()[i];
 		if (CurrentObj->GetMesh() != nullptr)
 		{
 			const float distance = glm::distance2(CurrentObj->GetPosition(), light->GetPosition());

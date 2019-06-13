@@ -249,7 +249,7 @@ void UIManager::MouseClickUp(int x, int y)
 	}
 }
 
-void UIManager::InitGameobjectList(std::vector<GameObject*>*gos)
+void UIManager::InitGameobjectList(std::vector<GameObject*>& gos)
 {
 #if EDITORUI
 	GameObjectsPtr = gos;
@@ -259,9 +259,9 @@ void UIManager::InitGameobjectList(std::vector<GameObject*>*gos)
 #endif
 }
 
-void UIManager::UpdateGameObjectList(std::vector<GameObject*>*gos)
+void UIManager::UpdateGameObjectList(std::vector<GameObject*>& gos)
 {
-	GameObjectsPtr = gos;
+	GameObjectsPtr = &gos;
 }
 
 void UIManager::SelectedCallback(int i)

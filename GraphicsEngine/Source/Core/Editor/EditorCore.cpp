@@ -12,7 +12,7 @@ EditorCore::~EditorCore()
 
 void EditorCore::SetSelectedObjectIndex(int index)
 {
-	SelectedObject = (*BaseWindow::GetScene()->GetObjects())[index];
+	SelectedObject = BaseWindow::GetScene()->GetObjects()[index];
 }
 
 GameObject * EditorCore::GetSelectedObject()

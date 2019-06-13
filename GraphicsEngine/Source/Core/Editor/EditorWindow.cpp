@@ -52,7 +52,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	ShowHud = true;
 	ShowText = true;
 	//SetFrameRateLimit(30);
-	Log::OutS << "Loading Editor v" << EDITOR_VERSION << Log::OutS;
+	Log::OutS << "Loading Editor" << Log::OutS;
 	CurrentScene = new Scene(true);
 	EditorCamera = new Editor_Camera();
 	Renderer->SetEditorCamera(EditorCamera);
@@ -381,7 +381,7 @@ void EditorWindow::RefreshScene()
 #if BASIC_RENDER_ONLY
 	return;
 #endif
-	selector->LinkPhysxBodysToGameObjects(*CurrentScene->GetObjects());
+	selector->LinkPhysxBodysToGameObjects(CurrentScene->GetObjects());
 	UI->UpdateGameObjectList(CurrentScene->GetObjects());
 	UI->RefreshGameObjectList();
 }
@@ -390,26 +390,26 @@ void EditorWindow::ProcessMenu(unsigned short command)
 {
 	switch (command)
 	{
-	case 4://add gameobject
-		CurrentScene->AddGameobjectToScene(new GameObject("New GameObject"));
-		UI->UpdateGameObjectList(CurrentScene->GetObjects());
-		UI->RefreshGameObjectList();
-		break;
-	case 5://Save Scene
-		SaveScene();
-		break;
-	case 6://Load Scene
-		LoadScene();
-		break;
-	case 10://debug load example
-		CurrentScene->LoadExampleScene(Renderer, false);
-		Renderer->SetScene(CurrentScene);
-		RefreshScene();
-		CurrentSceneSavePath.clear();
-		break;
-	case 11:
-		Engine::RunCook();
-		break;
+		case 4://add gameobject
+			CurrentScene->AddGameobjectToScene(new GameObject("New GameObject"));
+			UI->UpdateGameObjectList(CurrentScene->GetObjects());
+			UI->RefreshGameObjectList();
+			break;
+		case 5://Save Scene
+			SaveScene();
+			break;
+		case 6://Load Scene
+			LoadScene();
+			break;
+		case 10://debug load example
+			CurrentScene->LoadExampleScene(Renderer, false);
+			Renderer->SetScene(CurrentScene);
+			RefreshScene();
+			CurrentSceneSavePath.clear();
+			break;
+		case 11:
+			Engine::RunCook();
+			break;
 	}
 }
 

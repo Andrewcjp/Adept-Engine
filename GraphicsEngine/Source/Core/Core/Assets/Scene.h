@@ -18,14 +18,8 @@ public:
 	void FixedUpdateScene(float deltatime);
 	CORE_API void AddGameobjectToScene(GameObject* gameobject);
 	void CopyScene(Scene * newscene);
-	std::vector<GameObject*>* GetObjects()
-	{
-		return &SceneObjects;
-	}
-	std::vector<GameObject*>* GetMeshObjects()
-	{
-		return &RenderSceneObjects;
-	}
+	std::vector<GameObject*>& GetObjects();
+	std::vector<GameObject*>& GetMeshObjects();
 	void StartScene();
 	void LoadDefault();
 	void AddLight(glm::vec3 Pos, bool Shadow, float BrightNess);
@@ -35,23 +29,11 @@ public:
 	void CreateGrid(int size, glm::vec3 startPos, float stride);
 	void SpawnDoor(std::string name, glm::vec3 pos);
 
-	std::vector<Light*>* GetLights()
-	{
-		return &Lights;
-	}
-	Camera* GetCurrentRenderCamera()
-	{
-		return CurrentCamera;
-	}
-	void AddCamera(Camera* cam)
-	{
-		Cameras.emplace_back(cam); CurrentCamera = cam;
-	}//#Scene Camera priority
+	std::vector<Light*>& GetLights();
+	Camera* GetCurrentRenderCamera();
+	void AddCamera(Camera* cam);//#Scene Camera priority
 	void RemoveCamera(Camera* Cam);
-	void AddLight(Light* Light)
-	{
-		Lights.emplace_back(Light);
-	}
+	void AddLight(Light* Light);
 	void RemoveLight(Light* Light);
 	void RemoveGameObject(GameObject * object);
 	bool StaticSceneNeedsUpdate = false;
@@ -61,28 +43,13 @@ public:
 		BaseTextureRef SkyBox = nullptr;
 		BaseTextureRef DiffuseMap = nullptr;
 	};
-	LightingEnviromentData* GetLightingData()
-	{
-		return &LightingData;
-	}
-	bool IsEditorScene()
-	{
-		return bEditorScene;
-	}
+	LightingEnviromentData* GetLightingData();
+	bool IsEditorScene();
 	void TickDeferredRemove();
 	CORE_API static GameObject* CreateDebugSphere(Scene* s);
-	float GetGravityStrength() const
-	{
-		return GravityStrength;
-	}
-	GameMode* GetGameMode()
-	{
-		return CurrentGameMode;
-	}
-	bool IsSceneDestorying()const
-	{
-		return IsDestruction;
-	}
+	CORE_API float GetGravityStrength() const;
+	CORE_API GameMode* GetGameMode();
+	CORE_API bool IsSceneDestorying()const;
 	int FindAllOfName(std::string name, std::vector<GameObject*>& Objects);
 	CORE_API GameObject * FindByName(std::string name);
 	std::vector<GameObject*> ObjectsAddedLastFrame;

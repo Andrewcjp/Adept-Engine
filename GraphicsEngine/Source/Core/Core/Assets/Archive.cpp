@@ -227,7 +227,7 @@ void Archive::LinkProperty(Scene* Value, const char * PropName)
 	}
 	else
 	{
-		std::vector<GameObject*> objects = *Value->GetObjects();
+		std::vector<GameObject*> objects = Value->GetObjects();
 		rapidjson::Value jsonGOs(rapidjson::kArrayType);
 		for (int i = 0; i < objects.size(); i++)
 		{

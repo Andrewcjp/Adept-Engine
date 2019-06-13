@@ -87,9 +87,8 @@ void Light::SetShadowResdent(int DeviceIndex, int CopyTarget)
 
 void Light::Update()
 {
-	//1.0 / (distanceToLight * distanceToLight);
-	float minValue = 0.001f;
-	FalloffRange = (minValue / m_intesity);
+	//this needs to be in sync with shaders or the light culling broadphase will cause issues.
+	FalloffRange = (MinLightIntensity / m_intesity);
 	FalloffRange = glm::sqrt(1.0f / FalloffRange);
 }
 

@@ -6,7 +6,9 @@
 #include "Rendering/Shaders/Culling/Shader_LightCull.h"
 #include "Rendering/Shaders/Shader_Main.h"
 #include "RHI/DeviceContext.h"
-
+#include "Core/Assets/Scene.h"
+#include "Core/Utils/DebugDrawers.h"
+static ConsoleVariable ShowLightBounds("c.ShowLightBounds", 0);
 LightCullingEngine::LightCullingEngine()
 {}
 
@@ -70,6 +72,31 @@ void LightCullingEngine::Unbind(RHICommandList* list)
 {
 	//LightBuffer->SetBufferState(list, EBufferResourceState::UnorderedAccess);
 }
+
+
+void LightCullingEngine::RunLightBroadphase()
+{
+	//Run a sphere to sphere test
+
+	//then check against the fustrum
+	if (ShowLightBounds.GetBoolValue())
+	{
+		std::vector<Light*> lights = BaseWindow::GetScene()->GetLights();
+
+		for (int i = 0; i < lights.size(); i++)
+		{
+			Light* L = lights[i];
+			DebugDrawers::DrawDebugSphere(L->GetPosition(), 0.5f, L->GetColor());
+			if (L->GetType() == ELightType::Point)
+			{
+				DebugDrawers::DrawDebugSphere(L->GetPosition(), L->GetRange(), L->GetColor());
+			}			
+			//#LCULLING: Support other light types
+		}
+	}
+}
+
+
 void LightCullingEngine::CreateLightDataBuffer()
 {
 	if (LightBuffer != nullptr)

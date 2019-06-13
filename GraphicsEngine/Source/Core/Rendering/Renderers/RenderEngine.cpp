@@ -66,7 +66,7 @@ void RenderEngine::Render()
 	{
 		return;
 	}
-	if ((*MainScene->GetMeshObjects()).size() == 0)
+	if (MainScene->GetMeshObjects().size() == 0)
 	{
 		//return;
 	}
@@ -86,7 +86,7 @@ void RenderEngine::PreRender()
 		StaticUpdate();
 	}
 	Scaler->Tick();
-	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
+	SceneRender->UpdateLightBuffer(MainScene->GetLights());
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
@@ -129,7 +129,7 @@ void RenderEngine::Init()
 	mShadowRenderer = new ShadowRenderer(SceneRender, Culling);
 	if (MainScene != nullptr)
 	{
-		mShadowRenderer->InitShadows(*MainScene->GetLights());
+		mShadowRenderer->InitShadows(MainScene->GetLights());
 	}
 #endif
 	InitProcessingShaders(RHI::GetDeviceContext(0));
@@ -228,9 +228,9 @@ void RenderEngine::PrepareData()
 		return;
 	}
 	SceneRender->Controller->GatherBatches();
-	for (size_t i = 0; i < (*MainScene->GetMeshObjects()).size(); i++)
+	for (size_t i = 0; i < MainScene->GetMeshObjects().size(); i++)
 	{
-		(*MainScene->GetMeshObjects())[i]->PrepareDataForRender();
+		MainScene->GetMeshObjects()[i]->PrepareDataForRender();
 	}
 }
 
@@ -259,10 +259,10 @@ void RenderEngine::StaticUpdate()
 {
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->InitShadows(*MainScene->GetLights());
+		mShadowRenderer->InitShadows(MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
 	}
-	SceneRender->UpdateLightBuffer(*MainScene->GetLights());
+	SceneRender->UpdateLightBuffer(MainScene->GetLights());
 	OnStaticUpdate();
 }
 
@@ -284,7 +284,7 @@ void RenderEngine::SetScene(Scene * sc)
 #if !NOSHADOW
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->InitShadows(*MainScene->GetLights());
+		mShadowRenderer->InitShadows(MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
 
 	}
@@ -311,7 +311,7 @@ void RenderEngine::ShadowPass()
 #if !NOSHADOW
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->RenderShadowMaps(MainCamera, *MainScene->GetLights(), *MainScene->GetMeshObjects(), MainShader);
+		mShadowRenderer->RenderShadowMaps(MainCamera, MainScene->GetLights(), MainScene->GetMeshObjects(), MainShader);
 	}
 #endif
 }
@@ -525,7 +525,8 @@ void RenderEngine::PostSizeUpdate()
 
 void RenderEngine::RunLightCulling()
 {
-	LightCulling->LaunchCullingForScene(EEye::Left);
+	LightCulling->RunLightBroadphase();
+//	LightCulling->LaunchCullingForScene(EEye::Left);
 }
 
 DynamicResolutionScaler * RenderEngine::GetDS()
