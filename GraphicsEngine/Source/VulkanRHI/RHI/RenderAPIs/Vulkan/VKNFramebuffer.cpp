@@ -7,6 +7,7 @@
 #include "VKNRHI.h"
 #include "VKNCommandlist.h"
 #include "VknGPUResource.h"
+#include "VKNRenderPass.h"
 
 VKNFramebuffer::VKNFramebuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {

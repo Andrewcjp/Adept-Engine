@@ -2,6 +2,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "MeshBatch.h"
 #include "MeshDrawCommand.h"
+#include "MeshInstanceBuffer.h"
 
 static ConsoleVariable UseDynamicInstancing("r.UseDynamicInstancing", 0, ECVarType::ConsoleOnly);
 

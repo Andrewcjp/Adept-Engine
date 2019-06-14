@@ -13,6 +13,7 @@ namespace ERSBindType
 		FrameBuffer,
 		BufferSRV,
 		CBV,
+		UAV,
 		Limit
 	};
 };
@@ -70,6 +71,9 @@ public:
 	RHIRootSigniture();
 	~RHIRootSigniture();
 	void SetRootSig(std::vector<ShaderParameter>& parms);
+	bool ValidateData(ShaderParameter * Parm, RSBind & bind);
+	bool ComparePTypes(ShaderParamType::Type T, ERSBindType::Type bindt);
+	bool ValidateType(ShaderParameter * Parm, ERSBindType::Type type);
 	void SetTexture(int slot, BaseTextureRef Tex);
 	void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, int resoruceindex = 0);
 	void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0);

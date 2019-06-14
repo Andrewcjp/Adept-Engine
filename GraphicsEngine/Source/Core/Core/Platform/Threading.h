@@ -1,6 +1,5 @@
 #pragma once
-#define NOMINMAX
-#include <Windows.h>
+#include "../MinWindows.h"
 #include <thread>
 
 namespace Threading

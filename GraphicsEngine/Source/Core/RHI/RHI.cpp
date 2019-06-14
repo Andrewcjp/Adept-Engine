@@ -19,6 +19,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"
 #include "RHIRenderPassCache.h"
+#include "Core/Input/Input.h"
 
 RHI* RHI::instance = nullptr;
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);

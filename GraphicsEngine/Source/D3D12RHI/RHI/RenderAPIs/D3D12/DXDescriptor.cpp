@@ -1,6 +1,7 @@
-#include "D3D12RHIPCH.h"
 #include "DXDescriptor.h"
 #include "DescriptorHeap.h"
+#include "D3D12DeviceContext.h"
+
 
 
 DXDescriptor::DXDescriptor()

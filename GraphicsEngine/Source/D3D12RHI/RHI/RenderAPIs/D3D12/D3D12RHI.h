@@ -29,6 +29,10 @@ class D3D12StateObject;
 class FrameBuffer;
 class D3D12FrameBuffer;
 class D3D12RHIUAV;
+class D3D12PipeLineStateObject;
+class D3D12Shader;
+class D3D12CommandList;
+class D3D12Texture;
 class D3D12RHI : public RHIClass
 {
 public:

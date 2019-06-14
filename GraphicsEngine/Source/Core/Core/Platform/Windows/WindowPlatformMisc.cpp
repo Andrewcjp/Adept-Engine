@@ -1,7 +1,7 @@
 #include "WindowPlatformMisc.h"
 #include "WindowPlatformMisc.h"
-#include "Core/MinWindows.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/MinWindows.h"
 #include <combaseapi.h>
 #include <Psapi.h>
 
@@ -30,7 +30,7 @@ PlatformMemoryInfo WindowPlatformMisc::GetMemoryInfo()
 	PROCESS_MEMORY_COUNTERS Data = {};
 	if (GetProcessMemoryInfo(GetCurrentProcess(), &Data, sizeof(PROCESS_MEMORY_COUNTERS)))
 	{
-		Info.WorkingSetSize = Data.WorkingSetSize;
+		Info.WorkingSetSize = (uint64)Data.WorkingSetSize;
 	}
 	else
 	{

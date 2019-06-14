@@ -1,16 +1,11 @@
-
 #include "AssetManager.h"
-#include <fstream>
-#include <filesystem>
+#include "Asset types/BaseAsset.h"
 #include "Core/Utils/FileUtils.h"
-#include "Core/Platform/PlatformCore.h"
 #include "ImageIO.h"
 #include "IniHandler.h"
-#include "Asset types/BaseAsset.h"
-#include "../Asserts.h"
-#include "Asset_Shader.h"
-#include "Rendering/Core/Material.h"
 #include "RHI/ShaderPreProcessor.h"
+#include <filesystem>
+
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
@@ -37,8 +32,6 @@ void AssetManager::StartAssetManager()
 void AssetManager::ShutDownAssetManager()
 {
 	SafeDelete(instance);
-
-
 }
 
 const std::string AssetManager::GetContentPath()
@@ -297,24 +290,22 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 	return ImageIO::GetDefaultTexture();
 }
 
-
-
 std::string TextureImportSettings::GetTypeString()
 {
 	switch (Compression)
 	{
-	case ECompressionSetting::None:
-		return " FP32 ";
-		break;
-	case ECompressionSetting::FP16:
-		return " FP16 ";
-	case ECompressionSetting::BRGA:
-		return " BGRA ";
-	case ECompressionSetting::BC1:
-		return " BC1_UNORM ";
-		break;
-	case ECompressionSetting::Limit:
-		break;
+		case ECompressionSetting::None:
+			return " FP32 ";
+			break;
+		case ECompressionSetting::FP16:
+			return " FP16 ";
+		case ECompressionSetting::BRGA:
+			return " BGRA ";
+		case ECompressionSetting::BC1:
+			return " BC1_UNORM ";
+			break;
+		case ECompressionSetting::Limit:
+			break;
 	}
 	return "  ";
 }

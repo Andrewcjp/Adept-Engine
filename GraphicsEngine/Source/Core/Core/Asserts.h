@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Engine.h"
+#include "Core\Platform\PlatformCore.h"
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)
@@ -47,5 +48,5 @@ Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageB
 #else
 #define ensureFatalMsgf(condition,Message);
 #endif
-#include "Core\Platform\PlatformCore.h"
+
 

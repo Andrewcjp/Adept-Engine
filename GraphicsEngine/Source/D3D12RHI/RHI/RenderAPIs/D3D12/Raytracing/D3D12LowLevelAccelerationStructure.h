@@ -1,5 +1,7 @@
 #pragma once
 #include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
+
+class GPUResource;
 class D3D12LowLevelAccelerationStructure :public LowLevelAccelerationStructure
 {
 public:

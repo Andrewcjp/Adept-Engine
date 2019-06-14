@@ -116,7 +116,8 @@ void DeferredRenderer::PostInit()
 void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 {
 	DeviceDependentObjects* DDO = &DDOs[con->GetDeviceIndex()];
-	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(GetScaledWidth(), GetScaledHeight());
+	const float ratio = 1.0f;// 0.3;
+	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(GetScaledWidth()*ratio, GetScaledHeight()*ratio);
 	FBDesc.IncludedInSFR = true;
 	FBDesc.AllowUnordedAccess = true;
 	if (con->GetDeviceIndex() > 0)

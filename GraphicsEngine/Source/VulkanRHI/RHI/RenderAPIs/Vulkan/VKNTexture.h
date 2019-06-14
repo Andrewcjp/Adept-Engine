@@ -6,6 +6,7 @@ namespace gli { class texture; }
 #include "Core/Assets/AssetTypes.h"
 #include "vulkan/vulkan_core.h"
 #include "VKNRHI.h"
+#include "Descriptor.h"
 
 
 class VKNTexture : public BaseTexture

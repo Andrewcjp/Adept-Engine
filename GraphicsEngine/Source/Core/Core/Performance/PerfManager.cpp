@@ -1,25 +1,18 @@
-
 #include "PerfManager.h"
+#include "BenchMarker.h"
+#include "Core/Utils/NVAPIManager.h"
+#include "Rendering/Renderers/TextRenderer.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RHI.h"
+#include <chrono>
 #include <iomanip>
 #include <time.h>
-#include "RHI/RHI.h"
-#include "RHI/DeviceContext.h"
-#include "Rendering/Renderers/TextRenderer.h"
-#include "Core/Utils/NVAPIManager.h"
-#include "BenchMarker.h"
-#include "../Platform/Windows/WindowsApplication.h"
-#include <chrono>
+
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
 unsigned long PerfManager::get_nanos()
 {
-#if 0
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
-	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec;
-#else
 	return (unsigned long)std::chrono::high_resolution_clock::now().time_since_epoch().count();
-#endif
 }
 long PerfManager::GetSeconds()
 {
@@ -370,7 +363,7 @@ void PerfManager::Internal_NotifyEndOfFrame()
 		}
 		TimerData*  data = &AVGTimers.at(it->first);
 		data->AVG->Add(it->second);
-		if(data->MAXAVG->IsLastIndex())
+		if (data->MAXAVG->IsLastIndex())
 		{
 			data->MAXAVG->Add(0);
 		}
@@ -378,7 +371,7 @@ void PerfManager::Internal_NotifyEndOfFrame()
 		{
 			data->MAXAVG->Add(glm::max(it->second, data->MAXAVG->GetCurrentAverage()));
 		}
-		
+
 		if (!data->DirectUpdate)
 		{
 			it->second = 0.0f;

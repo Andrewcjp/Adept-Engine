@@ -15,6 +15,7 @@
 #include "Raytracing/D3D12LowLevelAccelerationStructure.h"
 #include "Raytracing/D3D12HighLevelAccelerationStructure.h"
 #include "Raytracing/D3D12StateObject.h"
+#include "D3D12Buffer.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
@@ -25,7 +26,7 @@ D3D12RHI::D3D12RHI()
 {
 	Instance = this;
 	//ForceGPUIndex.SetValue(1);
-	//	ForceSingleGPU.SetValue(true);
+	ForceSingleGPU.SetValue(true);
 		//ForceNoDebug.SetValue(true);
 }
 
