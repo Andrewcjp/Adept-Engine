@@ -1,10 +1,10 @@
-#include "VkanRenderPass.h"
-#include "VkanHelpers.h"
-#include "VkanDeviceContext.h"
+#include "VKNRenderPass.h"
+#include "VKNHelpers.h"
+#include "VKNDeviceContext.h"
 
-VKanRenderPass::VKanRenderPass(RHIRenderPassDesc & desc, DeviceContext * Device) :RHIRenderPass(desc)
+VKNRenderPass::VKNRenderPass(RHIRenderPassDesc & desc, DeviceContext * Device) :RHIRenderPass(desc)
 {
-	VDevice = VKanRHI::VKConv(Device);
+	VDevice = VKNRHI::VKConv(Device);
 }
 VkAttachmentLoadOp ConvertLoadOp(ERenderPassLoadOp::Type Op)
 {
@@ -35,7 +35,7 @@ VkAttachmentStoreOp ConvertStoreOp(ERenderPassStoreOp::Type Op)
 }
 
 
-void VKanRenderPass::Complie()
+void VKNRenderPass::Complie()
 {
 	Desc.Build();
 	std::vector<VkAttachmentDescription> ColorAttamentsDesc;
@@ -46,14 +46,14 @@ void VKanRenderPass::Complie()
 			continue;
 		}
 		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.format = VkanHelpers::ConvertFormat(Desc.RenderDesc.RTVFormats[i]);
+		colorAttachment.format = VKNHelpers::ConvertFormat(Desc.RenderDesc.RTVFormats[i]);
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = ConvertLoadOp(Desc.LoadOp);
 		colorAttachment.storeOp = ConvertStoreOp(Desc.StoreOp);
 		colorAttachment.stencilLoadOp = ConvertLoadOp(Desc.StencilLoadOp);
 		colorAttachment.stencilStoreOp = ConvertStoreOp(Desc.StencilStoreOp);
-		colorAttachment.initialLayout = VkanHelpers::ConvertState(Desc.InitalState);
-		colorAttachment.finalLayout = VkanHelpers::ConvertState(Desc.FinalState);
+		colorAttachment.initialLayout = VKNHelpers::ConvertState(Desc.InitalState);
+		colorAttachment.finalLayout = VKNHelpers::ConvertState(Desc.FinalState);
 		ColorAttamentsDesc.push_back(colorAttachment);
 	}
 	if (Desc.RenderDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
@@ -64,9 +64,9 @@ void VKanRenderPass::Complie()
 		colorAttachment.storeOp = ConvertStoreOp(Desc.StoreOp);
 		colorAttachment.stencilLoadOp = ConvertLoadOp(Desc.StencilLoadOp);
 		colorAttachment.stencilStoreOp = ConvertStoreOp(Desc.StencilStoreOp);
-		colorAttachment.initialLayout = VkanHelpers::ConvertState(Desc.InitalState);
-		colorAttachment.finalLayout = VkanHelpers::ConvertState(Desc.FinalState);
-		colorAttachment.format = VkanHelpers::ConvertFormat(Desc.RenderDesc.DSVFormat);
+		colorAttachment.initialLayout = VKNHelpers::ConvertState(Desc.InitalState);
+		colorAttachment.finalLayout = VKNHelpers::ConvertState(Desc.FinalState);
+		colorAttachment.format = VKNHelpers::ConvertFormat(Desc.RenderDesc.DSVFormat);
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		colorAttachment.finalLayout = colorAttachment.initialLayout;
 		ColorAttamentsDesc.push_back(colorAttachment);

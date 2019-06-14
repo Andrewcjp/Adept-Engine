@@ -1,14 +1,14 @@
 #pragma once
-#include "VKanRHI.h"
+#include "VKNRHI.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/Shader.h"
 
 
-class VkanPipeLineStateObject :public RHIPipeLineStateObject
+class VKNPipeLineStateObject :public RHIPipeLineStateObject
 {
 public:
-	VkanPipeLineStateObject(const RHIPipeLineStateDesc& desc, DeviceContext* con);
-	~VkanPipeLineStateObject();
+	VKNPipeLineStateObject(const RHIPipeLineStateDesc& desc, DeviceContext* con);
+	~VKNPipeLineStateObject();
 	virtual void Complie() override;
 	virtual void Release() override;
 	void createTextureSampler();
@@ -24,7 +24,7 @@ public:
 	//private:
 	VkPipeline Pipeline = VK_NULL_HANDLE;
 	VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
-	VkanDeviceContext* VDevice = nullptr;
+	VKNDeviceContext* VDevice = nullptr;
 	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<VkPipelineShaderStageCreateInfo> ShaderStages;
 	VkSampler textureSampler;

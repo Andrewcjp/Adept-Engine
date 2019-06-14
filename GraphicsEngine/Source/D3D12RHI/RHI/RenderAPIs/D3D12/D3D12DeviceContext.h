@@ -140,7 +140,9 @@ public:
 	void CreateNodeDevice(ID3D12Device * dev, int nodemask, int index);
 	DXMemoryManager* GetMemoryManager();
 	DeviceMemoryData GetMemoryData();
+	D3D_SHADER_MODEL GetShaderModel()const;
 private:
+	D3D_SHADER_MODEL Sm = D3D_SHADER_MODEL_5_1;
 	DXMemoryManager* MemoryManager = nullptr;
 	//Query heaps
 	D3D12QueryHeap* TimeStampHeap = nullptr;

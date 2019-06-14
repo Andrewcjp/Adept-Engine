@@ -5,14 +5,14 @@ namespace gli { class texture; }
 #if BUILD_VULKAN
 #include "Core/Assets/AssetTypes.h"
 #include "vulkan/vulkan_core.h"
-#include "VKanRHI.h"
+#include "VKNRHI.h"
 
 
-class VKanTexture : public BaseTexture
+class VKNTexture : public BaseTexture
 {
 public:
-	VKanTexture();
-	~VKanTexture();
+	VKNTexture();
+	~VKNTexture();
 
 	// Inherited via BaseTexture
 	virtual bool CreateFromFile(AssetPathRef FileName) override;

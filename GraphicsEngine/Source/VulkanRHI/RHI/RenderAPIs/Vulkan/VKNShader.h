@@ -1,15 +1,15 @@
 #pragma once
 #if BUILD_VULKAN
 #include "RHI/ShaderProgramBase.h"
-#include "VKanRHI.h"
+#include "VKNRHI.h"
 #include "Vulkan/glslang/Public/ShaderLang.h"
 
 
-class VKanShader : public ShaderProgramBase
+class VKNShader : public ShaderProgramBase
 {
 public:
-	VKanShader();
-	~VKanShader();
+	VKNShader();
+	~VKNShader();
 
 	// Inherited via ShaderProgramBase
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint) override;

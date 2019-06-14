@@ -1,44 +1,44 @@
 #include "VulkanRHIPCH.h"
-#include "DescriptorPool.h"
-#include "VKanRHI.h"
-#include "VkanDeviceContext.h"
-#include "VKanCommandlist.h"
-#include "VkanPipeLineStateObject.h"
-#include "VkanBuffers.h"
+#include "VKNDescriptorPool.h"
+#include "VKNRHI.h"
+#include "VKNDeviceContext.h"
+#include "VKNCommandlist.h"
+#include "VKNPipeLineStateObject.h"
+#include "VKNBuffers.h"
 #include "Descriptor.h"
-#include "VKanTexture.h"
-#include "VKanShader.h"
+#include "VKNTexture.h"
+#include "VKNShader.h"
 #include "Core/Performance/PerfManager.h"
 
 
-DescriptorPool::DescriptorPool(VkanDeviceContext* Con)
+VKNDescriptorPool::VKNDescriptorPool(VKNDeviceContext* Con)
 {
 	Context = Con;
 	Init();
 }
 
 
-DescriptorPool::~DescriptorPool()
+VKNDescriptorPool::~VKNDescriptorPool()
 {}
 
-void DescriptorPool::Init()
+void VKNDescriptorPool::Init()
 {
 	createDescriptorPool();
 }
 
-void DescriptorPool::ResetAllocations()
+void VKNDescriptorPool::ResetAllocations()
 {
 	vkResetDescriptorPool(Context->device, descriptorPool, 0);
 }
 
-void DescriptorPool::AllocateAndBind(VKanCommandlist * List)
+void VKNDescriptorPool::AllocateAndBind(VKNCommandlist * List)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("Descriptor Bind", "RHI");
 	VkDescriptorSet Set = AllocateSet(List);
 	vkCmdBindDescriptorSets(List->CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, List->CurrentPso->PipelineLayout, 0, 1, &Set, 0, nullptr);
 }
 #define STATIC_SAMPLER 1
-VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
+VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
 {
 	VkDescriptorSet Set = createDescriptorSets(list->CurrentPso->descriptorSetLayout, 1);
 	std::vector<VkWriteDescriptorSet> WriteData;
@@ -53,10 +53,8 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = Set;
 		descriptorWrite.dstBinding = Desc->bindpoint;
-		descriptorWrite.dstArrayElement = 0;
-
+		descriptorWrite.dstArrayElement = 0;		
 		descriptorWrite.descriptorCount = 1;
-
 		if (Desc->DescType == EDescriptorType::CBV)
 		{
 			VkDescriptorBufferInfo* bufferInfo = new VkDescriptorBufferInfo();
@@ -82,10 +80,10 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 			if (imageInfo->imageView == VK_NULL_HANDLE)
 			{
 				LogEnsure(imageInfo->imageView == VK_NULL_HANDLE);
-				imageInfo->imageView = VKanRHI::RHIinstance->T->textureImageView;
+				imageInfo->imageView = VKNRHI::RHIinstance->T->textureImageView;
 			}
 			imageInfo->sampler = list->CurrentPso->textureSampler;
-			descriptorWrite.dstBinding += VKanShader::GetBindingOffset(ShaderParamType::SRV);
+			descriptorWrite.dstBinding += VKNShader::GetBindingOffset(ShaderParamType::SRV);
 			descriptorWrite.pImageInfo = imageInfo;
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 		}
@@ -100,7 +98,7 @@ VkDescriptorSet DescriptorPool::AllocateSet(VKanCommandlist * list)
 	return Set;
 }
 
-void DescriptorPool::createDescriptorPool()
+void VKNDescriptorPool::createDescriptorPool()
 {
 	std::vector<VkDescriptorPoolSize> Sizes;
 	int MaxCount = 10000;
@@ -128,7 +126,7 @@ void DescriptorPool::createDescriptorPool()
 	}
 }
 
-VkDescriptorSet DescriptorPool::createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, int count)
+VkDescriptorSet VKNDescriptorPool::createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, int count)
 {
 
 	///vkResetDescriptorPool(Context->device, descriptorPool, 0);

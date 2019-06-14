@@ -1,8 +1,8 @@
 #pragma once
 #include "vulkan/vulkan_core.h"
 
-class VKanTexture;
-class VKanBuffer;
+class VKNTexture;
+class VKNBuffer;
 struct EDescriptorType
 {
 	enum Type
@@ -23,8 +23,8 @@ public:
 	EDescriptorType::Type DescType = EDescriptorType::Limit;
 	int bindpoint = 0;
 	int Offset = 0;
-	VKanBuffer* Buffer = nullptr;
-	VKanTexture* Texture = nullptr;
+	VKNBuffer* Buffer = nullptr;
+	VKNTexture* Texture = nullptr;
 	VkImageView ImageView = VK_NULL_HANDLE;
 };
 

@@ -1,17 +1,17 @@
 #pragma once
 #include "RHI/RHICommandList.h"
 #include "RHI/Shader.h"
-#include "VKanRHI.h"
+#include "VKNRHI.h"
 #include "vulkan/vulkan_core.h"
 
 class Descriptor;
 #if BUILD_VULKAN
-class VKanCommandlist :
+class VKNCommandlist :
 	public RHICommandList
 {
 public:
-	VKanCommandlist(ECommandListType::Type type, DeviceContext* context);
-	~VKanCommandlist();
+	VKNCommandlist(ECommandListType::Type type, DeviceContext* context);
+	~VKNCommandlist();
 
 	// Inherited via RHICommandList
 	virtual void ResetList() override;
@@ -51,8 +51,8 @@ public:
 		VkCommandBuffer Buffer = nullptr;
 	};
 	CPUFrame Pools[RHI::CPUFrameCount] = { 0 };
-	VKanRenderPass* CurrnetRenderPass = nullptr;
-	VkanPipeLineStateObject* CurrentPso = nullptr;
+	VKNRenderPass* CurrnetRenderPass = nullptr;
+	VKNPipeLineStateObject* CurrentPso = nullptr;
 	bool IsOpen = false;
 };
 

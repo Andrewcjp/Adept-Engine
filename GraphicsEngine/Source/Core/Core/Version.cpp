@@ -34,10 +34,14 @@ std::string Version::GetVersionString()
 
 std::string Version::GetFullVersionString()
 {
-	return std::to_string(Major) + "." + std::to_string(Minor) + "." + std::to_string(Revision) + " (Build: " + GetBuildVersion()+")";
+	return std::to_string(Major) + "." + std::to_string(Minor) + "." + std::to_string(Revision) + " (Build: " + GetBuildVersion()+")"; 
 }
 
 std::string Version::GetBuildVersion()
 {
 	return std::to_string(GITCOMMIT);
+}
+int Version::GetBuildNumber()
+{
+	return GITCOMMIT;
 }

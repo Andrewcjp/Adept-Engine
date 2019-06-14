@@ -1,27 +1,27 @@
-#include "VKanTexture.h"
+#include "VKNTexture.h"
 #pragma optimize("O3",on)
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #pragma optimize("",off)
 #include "vulkan/vulkan_core.h"
-#include "VKanRHI.h"
-#include "VkanDeviceContext.h"
+#include "VKNRHI.h"
+#include "VKNDeviceContext.h"
 #include "Core/Assets/AssetManager.h"
-#include "VkanHelpers.h"
+#include "VKNHelpers.h"
 #include "Descriptor.h"
 #include "gli/gli.hpp"
 
 #if BUILD_VULKAN
 
-VKanTexture::VKanTexture()
+VKNTexture::VKNTexture()
 {
 
 }
 
-VKanTexture::~VKanTexture()
+VKNTexture::~VKNTexture()
 {}
 
-bool VKanTexture::CreateFromFile(AssetPathRef FileName)
+bool VKNTexture::CreateFromFile(AssetPathRef FileName)
 {
 	//int texWidth, texHeight, texChannels;
 	std::string FilePAth = FileName.GetFullPathToAsset();
@@ -59,18 +59,18 @@ bool VKanTexture::CreateFromFile(AssetPathRef FileName)
 	return true;
 }
 
-void VKanTexture::CreateAsNull()
+void VKNTexture::CreateAsNull()
 {
 
 }
 
-void VKanTexture::UpdateSRV()
+void VKNTexture::UpdateSRV()
 {
-	VkanDeviceContext* D = (VkanDeviceContext*)RHI::GetDefaultDevice();
-	textureImageView = VkanHelpers::createImageView(D, textureImage, fmt, VK_IMAGE_ASPECT_COLOR_BIT, Description);
+	VKNDeviceContext* D = (VKNDeviceContext*)RHI::GetDefaultDevice();
+	textureImageView = VKNHelpers::createImageView(D, textureImage, fmt, VK_IMAGE_ASPECT_COLOR_BIT, Description);
 }
 
-void VKanTexture::CreateTextureFromDesc(const TextureDescription& desc)
+void VKNTexture::CreateTextureFromDesc(const TextureDescription& desc)
 {
 	gli::texture tex;
 	if (texture != nullptr)
@@ -84,8 +84,8 @@ void VKanTexture::CreateTextureFromDesc(const TextureDescription& desc)
 	{
 		imageSize = desc.ImageByteSize;
 	}
-	VkanDeviceContext* D = (VkanDeviceContext*)RHI::GetDefaultDevice();
-	VkanHelpers::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VKNDeviceContext* D = (VKNDeviceContext*)RHI::GetDefaultDevice();
+	VKNHelpers::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 	void* data;
 	vkMapMemory(D->device, stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, desc.PtrToData, static_cast<size_t>(imageSize));
@@ -101,13 +101,13 @@ void VKanTexture::CreateTextureFromDesc(const TextureDescription& desc)
 		fmt = VK_FORMAT_R8_UNORM;
 	}
 
-	VkanHelpers::createImageDesc(/*D,*/ fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+	VKNHelpers::createImageDesc(/*D,*/ fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		textureImage, textureImageMemory, VK_IMAGE_LAYOUT_UNDEFINED, Description);
-	VkCommandBuffer B = VKanRHI::RHIinstance->setuplist->CommandBuffer;
-	VkanHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,desc.MipLevels,desc.Faces);
+	VkCommandBuffer B = VKNRHI::RHIinstance->setuplist->CommandBuffer;
+	VKNHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,desc.MipLevels,desc.Faces);
 	if (texture == nullptr)
 	{
-		VkanHelpers::copyBufferToImage(B, stagingBuffer, textureImage, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height));
+		VKNHelpers::copyBufferToImage(B, stagingBuffer, textureImage, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height));
 	}
 	else
 	{
@@ -143,11 +143,11 @@ void VKanTexture::CreateTextureFromDesc(const TextureDescription& desc)
 			bufferCopyRegions.data()
 		);
 	}
-	VkanHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,desc.MipLevels, desc.Faces);
+	VKNHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,desc.MipLevels, desc.Faces);
 	UpdateSRV();
 }
 
-Descriptor VKanTexture::GetDescriptor(int slot)
+Descriptor VKNTexture::GetDescriptor(int slot)
 {
 	Descriptor D = Descriptor(EDescriptorType::SRV);
 	D.Texture = this;

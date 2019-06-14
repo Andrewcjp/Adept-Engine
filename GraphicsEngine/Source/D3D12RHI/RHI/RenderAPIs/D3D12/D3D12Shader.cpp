@@ -135,25 +135,52 @@ const std::string D3D12Shader::GetShaderInstanceHash()
 	return "_" + std::to_string(Hash);
 }
 
-std::wstring GetLevel()
+
+std::wstring ConvertToLevelString(D3D_SHADER_MODEL SM)
 {
-	return L"_6_1";
+	switch (SM)
+	{
+		case D3D_SHADER_MODEL_5_1:
+			return L"_5_1";
+		case D3D_SHADER_MODEL_6_0:
+			return L"_6_0";
+		case D3D_SHADER_MODEL_6_1:
+			return L"_6_1";
+		case D3D_SHADER_MODEL_6_2:
+			return L"_6_2";
+		case D3D_SHADER_MODEL_6_3:
+			return L"_6_3";
+		case D3D_SHADER_MODEL_6_4:
+			return L"_6_4";
+	}
+	return L"BAD!";
+}
+std::wstring D3D12Shader::GetShaderModelString(D3D_SHADER_MODEL Clamp)
+{
+	D3D12DeviceContext* Con = D3D12RHI::DXConv(RHI::GetDefaultDevice());
+	D3D_SHADER_MODEL SM = Con->GetShaderModel();
+	if (SM > Clamp)
+	{
+		SM = Clamp;
+	}
+	return ConvertToLevelString(SM);
 }
 
-std::wstring GetComplieTarget(EShaderType::Type t)
+std::wstring D3D12Shader::GetComplieTarget(EShaderType::Type t)
 {
 	switch (t)
 	{
 		case EShaderType::SHADER_COMPUTE:
-			return L"cs" + GetLevel();
+			return L"cs" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
 		case EShaderType::SHADER_VERTEX:
-			return L"vs" + GetLevel();
+			return L"vs" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
 		case EShaderType::SHADER_FRAGMENT:
-			return L"ps" + GetLevel();
+			//Currently there is no PS_6_4 target
+			return L"ps" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
 		case EShaderType::SHADER_GEOMETRY:
-			return L"gs" + GetLevel();
+			return L"gs" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
 		case EShaderType::SHADER_RT_LIB:
-			return L"lib_6_3";
+			return L"lib" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
 	}
 	return L"";
 }
@@ -225,6 +252,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	IDxcBlobEncoding *pSource;
 	DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), (void **)&pLibrary);
 	pLibrary->CreateBlobWithEncodingFromPinned(ShaderData.c_str(), ShaderData.size(), CP_UTF8, &pSource);
+	std::wstring t = GetComplieTarget(ShaderType);
 	hr = complier->Compile(pSource, StringUtils::ConvertStringToWide(shadername).c_str(), StringUtils::ConvertStringToWide(Entrypoint).c_str(), GetComplieTarget(ShaderType).c_str(),
 		arguments.data(), arguments.size(), defs, Defines.size(), nullptr, &R);
 	R->GetResult(GetCurrentBlob(ShaderType));
@@ -603,7 +631,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		else if (Params[i].Type == ShaderParamType::RootSRV)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsShaderResourceView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::UAV)
 		{
 #if !UAVRANGES
@@ -612,7 +640,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
-	}
+		}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
@@ -654,7 +682,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 
 	(*output)->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
 	delete[] Samplers;
-	}
+}
 
 const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Params)
 {

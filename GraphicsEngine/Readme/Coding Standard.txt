@@ -15,3 +15,12 @@ Constants and Preprocessor Defines:
 	named useing all caps and underscores for Spaces:
 	MAX_LIGHTS, MAX_MRTS, etc.
  
+RHI:
+	Each API has a prefix:
+	DirectX 12: DX or D3D12
+	Vulkan: VKN
+	Example:
+	DXDescriptor
+	VKNDescriptor
+	
+	Genneric RHI object should be prefixed RHI

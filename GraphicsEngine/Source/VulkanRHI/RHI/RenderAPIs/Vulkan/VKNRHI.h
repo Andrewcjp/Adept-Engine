@@ -2,14 +2,14 @@
 #include "EngineGlobals.h"
 #include "RHI/RHI.h"
 
-class VkanDeviceContext;
-class VkanPipeLineStateObject;
-class VKanFramebuffer;
-class VKanCommandlist;
-class VKanBuffer;
-class VKanRenderPass;
-class VKanShader;
-class VKanTexture;
+class VKNDeviceContext;
+class VKNPipeLineStateObject;
+class VKNFramebuffer;
+class VKNCommandlist;
+class VKNBuffer;
+class VKNRenderPass;
+class VKNShader;
+class VKNTexture;
 #if BUILD_VULKAN
 #define FRAME_LAG 2
 #undef NOMINMAX
@@ -70,11 +70,11 @@ const std::vector<const char*> deviceExtensions = {
 	VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,
 };
 
-class VKanRHI : public RHIClass
+class VKNRHI : public RHIClass
 {
 public:
-	VKanRHI();
-	virtual ~VKanRHI();
+	VKNRHI();
+	virtual ~VKNRHI();
 	void createFramebuffers();
 	VkCommandPool createCommandPool();
 
@@ -86,19 +86,19 @@ public:
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
 	void createSwapRT() {};
 
-	static VkanDeviceContext* GetVDefaultDevice();
+	static VKNDeviceContext* GetVDefaultDevice();
 	virtual bool InitRHI() override;
 	HWND	win32HWND;
-	static VKanRHI* RHIinstance;
+	static VKNRHI* RHIinstance;
 	//private:
 #if VULKANRHI_EXPORT
-	DLLEXPORT static VKanRHI* Get();
+	DLLEXPORT static VKNRHI* Get();
 #else
-	DLLIMPORT static VKanRHI* Get();
+	DLLIMPORT static VKNRHI* Get();
 #endif
 	HINSTANCE win32Hinst;
 
-	VkanDeviceContext* DevCon = nullptr;
+	VKNDeviceContext* DevCon = nullptr;
 
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT callback;
@@ -119,9 +119,9 @@ public:
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	size_t currentFrame = 0;
-	VkanPipeLineStateObject* SawpPSO;
-	VkanPipeLineStateObject* PSO;
-	VKanCommandlist* setuplist = nullptr;
+	VKNPipeLineStateObject* SawpPSO;
+	VKNPipeLineStateObject* PSO;
+	VKNCommandlist* setuplist = nullptr;
 
 	// Inherited via RHIClass
 
@@ -156,13 +156,13 @@ public:
 	bool checkValidationLayerSupport();
 	static std::vector<char> readFile(const std::string & filename);
 	void initVulkan();
-	class VKanBuffer* buffer = nullptr;
-	class VKanRenderPass* Pass = nullptr;
-	VKanBuffer* Vertexb = nullptr;
-	VKanBuffer* IndexTest = nullptr;
-	class VKanTexture* T;
-	class VKanShader* Shadertest = nullptr;
-	class VKanCommandlist* cmdlist = nullptr;
+	class VKNBuffer* buffer = nullptr;
+	class VKNRenderPass* Pass = nullptr;
+	VKNBuffer* Vertexb = nullptr;
+	VKNBuffer* IndexTest = nullptr;
+	class VKNTexture* T;
+	class VKNShader* Shadertest = nullptr;
+	class VKNCommandlist* cmdlist = nullptr;
 	RHI_VIRTUAL void SetFullScreenState(bool state) override;
 	RHI_VIRTUAL std::string ReportMemory() override;
 	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) override;
@@ -187,17 +187,17 @@ public:
 
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
 	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false) override;
-	static VKanTexture* VKConv(BaseTexture* T);
-	static VKanShader * VKConv(ShaderProgramBase * T);
-	static VKanRenderPass * VKConv(RHIRenderPass * T);
-	static VKanCommandlist* VKConv(RHICommandList* T);
-	static VKanBuffer* VKConv(RHIBuffer* T);
-	static VkanDeviceContext* VKConv(DeviceContext* T);
-	static VKanFramebuffer* VKConv(FrameBuffer* T);
+	static VKNTexture* VKConv(BaseTexture* T);
+	static VKNShader * VKConv(ShaderProgramBase * T);
+	static VKNRenderPass * VKConv(RHIRenderPass * T);
+	static VKNCommandlist* VKConv(RHICommandList* T);
+	static VKNBuffer* VKConv(RHIBuffer* T);
+	static VKNDeviceContext* VKConv(DeviceContext* T);
+	static VKNFramebuffer* VKConv(FrameBuffer* T);
 
 	Shader_Main* TestShader = nullptr;
-	VKanFramebuffer* TestFrameBuffer = nullptr;
+	VKNFramebuffer* TestFrameBuffer = nullptr;
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
-	VKanCommandlist* PresentList = nullptr;
+	VKNCommandlist* PresentList = nullptr;
 };
 #endif

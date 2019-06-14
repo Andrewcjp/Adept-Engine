@@ -1,13 +1,13 @@
 #pragma once
 #include "RHI/DeviceContext.h"
-#include "VKanRHI.h"
+#include "VKNRHI.h"
 
-class DescriptorPool;
-class VkanDeviceContext :public DeviceContext
+class VKNDescriptorPool;
+class VKNDeviceContext :public DeviceContext
 {
 public:
-	VkanDeviceContext();
-	~VkanDeviceContext();
+	VKNDeviceContext();
+	~VKNDeviceContext();
 
 	// Inherited via DeviceContext
 	virtual void ResetDeviceAtEndOfFrame() override;
@@ -35,9 +35,9 @@ public:
 	VkDevice device = VK_NULL_HANDLE;
 	VkQueue graphicsQueue = VK_NULL_HANDLE;
 	VkQueue presentQueue = VK_NULL_HANDLE;
-	DescriptorPool* pool = nullptr;
+	VKNDescriptorPool* pool = nullptr;
 private:
 
-	class VkanTimeManager* TimeManager = nullptr;
+	class VKNTimeManager* TimeManager = nullptr;
 };
 
