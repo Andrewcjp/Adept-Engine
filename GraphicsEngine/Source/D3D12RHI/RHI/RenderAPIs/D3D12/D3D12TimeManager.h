@@ -13,6 +13,7 @@
 class DeviceContext;
 class D3D12DeviceContext;
 class D3D12Query;
+class D3D12CommandList;
 class D3D12TimeManager : public RHITimeManager
 {
 public:

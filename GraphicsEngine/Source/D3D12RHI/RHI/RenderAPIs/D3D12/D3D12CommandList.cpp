@@ -12,6 +12,7 @@
 #include "DescriptorGroup.h"
 #include "D3D12RHI.h"
 #include "Raytracing/D3D12StateObject.h"
+#include "D3D12Buffer.h"
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else

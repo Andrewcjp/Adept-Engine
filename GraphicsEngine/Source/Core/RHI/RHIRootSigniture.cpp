@@ -1,7 +1,4 @@
-#include "Stdafx.h"
 #include "RHIRootSigniture.h"
-#include "Core/Asserts.h"
-
 
 RHIRootSigniture::RHIRootSigniture()
 {}
@@ -14,6 +11,37 @@ void RHIRootSigniture::SetRootSig(std::vector<ShaderParameter>& parms)
 	Parms = parms;
 }
 
+bool RHIRootSigniture::ValidateData(ShaderParameter* Parm, RSBind & bind)
+{
+	return true;
+}
+
+bool RHIRootSigniture::ComparePTypes(ShaderParamType::Type T, ERSBindType::Type bindt)
+{
+	switch (bindt)
+	{
+		case ERSBindType::FrameBuffer:
+		case ERSBindType::Texture:
+		case ERSBindType::BufferSRV:
+			return T == ShaderParamType::RootSRV || T == ShaderParamType::SRV;
+		case ERSBindType::CBV:
+			return T == ShaderParamType::CBV || T == ShaderParamType::RootConstant;
+		case ERSBindType::UAV:
+			return T == ShaderParamType::UAV;
+	}
+	return false;
+}
+
+
+bool RHIRootSigniture::ValidateType(ShaderParameter* Parm, ERSBindType::Type type)
+{
+	if (!ComparePTypes(Parm->Type, type))
+	{
+		return false;
+	}
+
+	return true;
+}
 void RHIRootSigniture::SetTexture(int slot, BaseTextureRef Tex)
 {
 	RSBind Bind = {};

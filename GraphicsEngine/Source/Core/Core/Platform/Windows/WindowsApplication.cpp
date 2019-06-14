@@ -1,15 +1,14 @@
-
 #include "WindowsApplication.h"
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/StringUtil.h"
-#include "Core/MinWindows.h"
 #include "Core/Platform/Logger.h"
+#include "Core/MinWindows.h"
 #include <VersionHelpers.h>
-//#ifndef WITH_UNITY
+
 #include <comdef.h>
 #include <shellapi.h>
 #include <commdlg.h>
-//#endif
+
 double WindowsApplication::SecondsPerCycle = 0.0f;
 
 WindowsApplication::WindowsApplication()

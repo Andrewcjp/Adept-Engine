@@ -1,4 +1,6 @@
 #pragma once
+#include "RHI/ShaderBase.h"
+#include "RHI/RHITypes.h"
 
 class Shader_RTBase;
 struct ShaderHitGroup

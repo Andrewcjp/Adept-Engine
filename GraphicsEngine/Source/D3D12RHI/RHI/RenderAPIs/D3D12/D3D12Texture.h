@@ -6,6 +6,7 @@ class D3D12DeviceContext;
 class D3D12CommandList;
 class DXDescriptor;
 class DescriptorGroup;
+class GPUResource;
 class D3D12Texture : public BaseTexture
 {
 public:

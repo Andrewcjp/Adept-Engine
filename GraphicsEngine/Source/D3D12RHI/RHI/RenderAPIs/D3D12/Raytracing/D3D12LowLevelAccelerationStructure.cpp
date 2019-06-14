@@ -1,10 +1,12 @@
 #include "D3D12LowLevelAccelerationStructure.h"
+#include "Rendering/Core/Mesh.h"
+#include "RHI/RenderAPIs/D3D12/D3D12Buffer.h"
+#include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "RHI/RenderAPIs/D3D12/D3D12DeviceContext.h"
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
-#include "../D3D12CommandList.h"
-#include "../GPUResource.h"
-#include "../DXMemoryManager.h"
-#include "Rendering/Core/Mesh.h"
+#include "RHI/RenderAPIs/D3D12/DXMemoryManager.h"
+#include "RHI/RenderAPIs/D3D12/GPUResource.h"
+#include "RHI/RHICommandList.h"
 
 D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceContext* Device) :LowLevelAccelerationStructure(Device)
 {}

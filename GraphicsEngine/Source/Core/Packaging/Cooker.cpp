@@ -3,8 +3,6 @@
 #include <experimental/filesystem>
 #include "Core/Utils/FileUtils.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Platform/PlatformCore.h"
-#include "Core/Platform/ConsoleVariable.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
 
 static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);

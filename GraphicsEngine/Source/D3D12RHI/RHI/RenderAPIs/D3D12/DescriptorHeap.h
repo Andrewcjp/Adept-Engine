@@ -3,6 +3,7 @@
 class DeviceContext;
 class D3D12CommandList;
 class DXDescriptor;
+class D3D12DeviceContext;
 class DescriptorHeap : public IRHIResourse
 {
 public:
@@ -40,5 +41,5 @@ private:
 	EGPUMemoryPriority Priority = EGPUMemoryPriority::Critical;
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 	int DescriptorCount = 0;
-};
+}; 
 

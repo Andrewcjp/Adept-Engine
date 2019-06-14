@@ -15,12 +15,15 @@
 #include "Version.h"
 #include "Audio/AudioEngine.h"
 #include "AI/Core/AISystem.h"
-#include "Platform/Windows/WindowsWindow.h"
 #include "GameWindow.h"
 #include <thread>
 #include "Platform/Threading.h"
 #include "WinLauncher.h"
 #include "Rendering/Core/Defaults.h"
+#include "Platform/Windows/WindowsWindow.h"
+#include "Testing/EngineTests.h"
+
+
 long Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API ComponentRegistry* Engine::CompRegistry = nullptr;
@@ -54,6 +57,7 @@ Engine::Engine(EnginePersistentData* epd) :
 	EngineInstance = this;
 	Log::StartLogger();
 	PlatformApplication::Init();
+	RunTests();
 	StartTime = PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
 	Log::OutS << "Loading " << ENGINE_NAME << " version " << Version::GetFullVersionString() << Log::OutS;
@@ -380,3 +384,8 @@ void Engine::TestTDPhysics()
 
 }
 
+
+void Engine::RunTests()
+{
+	TESTING::RunTests();
+}

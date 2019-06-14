@@ -6,6 +6,7 @@
 #include "TransparentPassMeshProcessor.h"
 #include "ZPrePassMeshProcessor.h"
 #include "Core/Performance/PerfManager.h"
+#include "MeshInstanceBuffer.h"
 
 
 MeshPipelineController::MeshPipelineController()

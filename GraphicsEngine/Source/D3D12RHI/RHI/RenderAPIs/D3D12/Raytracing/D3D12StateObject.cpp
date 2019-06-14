@@ -175,20 +175,20 @@ void D3D12StateObject::BuildShaderTables()
 	m_sbtHelper.Generate(m_sbtStorage, props);
 }
 
-void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Data)
+void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Pointers)
 {
 	for (int i = 0; i < shader->Buffers.size(); i++)
 	{
 		D3D12Buffer* DTex = D3D12RHI::DXConv(shader->Buffers[i]);
 		DTex->SetupBufferSRV();
 		auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
-		Data.push_back(heapPointer);
+		Pointers.push_back(heapPointer);
 	}
 	for (int t = 0; t < shader->Textures.size(); t++)
 	{
 		D3D12Texture* DTex = D3D12RHI::DXConv(shader->Textures[t].Get());
 		auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
-		Data.push_back(heapPointer);
+		Pointers.push_back(heapPointer);
 	}
 
 }

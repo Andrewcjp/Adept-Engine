@@ -20,6 +20,7 @@
 #include "RHI/RHITypes.h"
 #include "RHI/RHIRenderPassCache.h"
 #include "Rendering/Core/RenderingUtils.h"
+#include "VKNRenderPass.h"
 
 
 
@@ -46,31 +47,16 @@ VKNRHI * VKNRHI::Get()
 	return RHIinstance;
 }
 
-
-//RHIRenderPassDesc VKanRHI::VKanRHI::GetRenderPassDescForSwapChain()
-//{
-//	//#VK: Create this from the back buffer surface checks.
-//	RHIRenderPassDesc Default;
-//	Default.RenderDesc.NumRenderTargets = 1;
-//	Default.RenderDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
-//	Default.LoadOp = ERenderPassLoadOp::Clear;
-//	Default.StoreOp = ERenderPassStoreOp::Store;
-//	Default.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
-//	Default.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PRESENT;
-//	Default.TargetSwapChain = true;
-//	return Default;
-//}
-
 bool VKNRHI::InitWindow(int w, int h)
 {
 	return false;
 }
+
 bool VKNRHI::DestoryRHI()
 {
 	cleanup();
 	return false;
 }
-
 
 BaseTexture* VKNRHI::CreateTexture(const RHITextureDesc& Desc, DeviceContext* Device /*= nullptr*/)
 {

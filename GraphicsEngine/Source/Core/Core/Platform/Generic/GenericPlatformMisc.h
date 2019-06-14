@@ -2,7 +2,7 @@
 #include <string>
 struct PlatformMemoryInfo
 {
-	uint WorkingSetSize = 0;
+	uint64 WorkingSetSize = 0;
 	float GetWorkingSetInMB();
 };
 class CORE_API GenericPlatformMisc
