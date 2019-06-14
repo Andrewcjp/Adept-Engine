@@ -1,21 +1,21 @@
-#include "VKanShader.h"
+#include "VKNShader.h"
 #include <ios>
 #include <iostream>
 #include <fstream>
 #include "Core/Assets/AssetManager.h"
-#include "VKanRHI.h"
-#include "VkanDeviceContext.h"
+#include "VKNRHI.h"
+#include "VKNDeviceContext.h"
 #include "RHI/ShaderPreProcessor.h"
 
 
-VKanShader::VKanShader()
+VKNShader::VKNShader()
 {}
 
 
-VKanShader::~VKanShader()
+VKNShader::~VKNShader()
 {}
 
-EShaderError::Type VKanShader::AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint)
+EShaderError::Type VKNShader::AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint)
 {
 	if (type != EShaderType::SHADER_VERTEX && type != EShaderType::SHADER_FRAGMENT)
 	{
@@ -25,7 +25,7 @@ EShaderError::Type VKanShader::AttachAndCompileShaderFromFile(const char * filen
 	Log.append(filename);
 	Log.append("\n");
 	Log::LogMessage(Log);
-	std::vector<char> data = VKanShader::ComplieShader_Local(filename, type, true);
+	std::vector<char> data = VKNShader::ComplieShader_Local(filename, type, true);
 	VkPipelineShaderStageCreateInfo I = {};
 	I.module = createShaderModule(data);
 	I.stage = ConvStage(type);
@@ -35,7 +35,7 @@ EShaderError::Type VKanShader::AttachAndCompileShaderFromFile(const char * filen
 	return EShaderError::SHADER_ERROR_NONE;
 }
 
-std::vector<char> VKanShader::readFile(const std::string& filename)
+std::vector<char> VKNShader::readFile(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 	if (!file.is_open())
@@ -50,14 +50,14 @@ std::vector<char> VKanShader::readFile(const std::string& filename)
 
 	return buffer;
 }
-VkShaderModule VKanShader::createShaderModule(const std::vector<char>& code)
+VkShaderModule VKNShader::createShaderModule(const std::vector<char>& code)
 {
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createInfo.codeSize = code.size();
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 	VkShaderModule shaderModule;
-	if (vkCreateShaderModule(VKanRHI::GetVDefaultDevice()->device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+	if (vkCreateShaderModule(VKNRHI::GetVDefaultDevice()->device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create shader module!");
 	}
@@ -207,8 +207,8 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	{
 		Shader->setEnvInput(glslang::EShSourceGlsl, Stage, glslang::EShClientVulkan, ClientInputSemanticsVersion);
 	}
-	Shader->setShiftBindingForSet(glslang::EResSampler, VKanShader::GetBindingOffset(ShaderParamType::Sampler), 0);
-	Shader->setShiftBindingForSet(glslang::EResTexture, VKanShader::GetBindingOffset(ShaderParamType::SRV), 0);
+	Shader->setShiftBindingForSet(glslang::EResSampler, VKNShader::GetBindingOffset(ShaderParamType::Sampler), 0);
+	Shader->setShiftBindingForSet(glslang::EResTexture, VKNShader::GetBindingOffset(ShaderParamType::SRV), 0);
 	Shader->setInvertY(true);
 	Shader->setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 	Shader->setEnvTarget(glslang::EShTargetSpv, TargetVersion);
@@ -263,7 +263,7 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	}
 	return true;
 }
-std::vector<char> VKanShader::ComplieShader(std::string name, EShaderType::Type T, bool HLSL /*= false*/)
+std::vector<char> VKNShader::ComplieShader(std::string name, EShaderType::Type T, bool HLSL /*= false*/)
 {
 	if (HLSL)
 	{
@@ -278,7 +278,7 @@ std::vector<char> VKanShader::ComplieShader(std::string name, EShaderType::Type 
 	GenerateSpirv(data, t, errors, spirv);
 	return spirv;
 }
-std::vector<char> VKanShader::ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL /*= false*/)
+std::vector<char> VKNShader::ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL /*= false*/)
 {
 	if (HLSL)
 	{
@@ -295,12 +295,12 @@ std::vector<char> VKanShader::ComplieShader_Local(std::string name, EShaderType:
 	return spirv;
 }
 
-std::vector<VkPipelineShaderStageCreateInfo> VKanShader::GetShaderStages()
+std::vector<VkPipelineShaderStageCreateInfo> VKNShader::GetShaderStages()
 {
 	return Stages;
 }
 
-EShLanguage VKanShader::GetStage(EShaderType::Type T)
+EShLanguage VKNShader::GetStage(EShaderType::Type T)
 {
 	switch (T)
 	{
@@ -326,7 +326,7 @@ EShLanguage VKanShader::GetStage(EShaderType::Type T)
 	return EShLangCount;
 }
 
-VkShaderStageFlagBits VKanShader::ConvStage(EShaderType::Type T)
+VkShaderStageFlagBits VKNShader::ConvStage(EShaderType::Type T)
 {
 	switch (T)
 	{
@@ -352,7 +352,7 @@ VkShaderStageFlagBits VKanShader::ConvStage(EShaderType::Type T)
 	return VkShaderStageFlagBits::VK_SHADER_STAGE_ALL;
 }
 
-int VKanShader::GetBindingOffset(ShaderParamType::Type Type)
+int VKNShader::GetBindingOffset(ShaderParamType::Type Type)
 {
 	switch (Type)
 	{

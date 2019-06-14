@@ -1,14 +1,14 @@
-#include "VKanFramebuffer.h"
+#include "VKNFramebuffer.h"
 #include "Rendering/Core/FrameBuffer.h"
 #include "RHI/RHIRenderPassCache.h"
-#include "VkanDeviceContext.h"
-#include "VkanHelpers.h"
-#include "VkanPipeLineStateObject.h"
-#include "VKanRHI.h"
-#include "VKanCommandlist.h"
+#include "VKNDeviceContext.h"
+#include "VKNHelpers.h"
+#include "VKNPipeLineStateObject.h"
+#include "VKNRHI.h"
+#include "VKNCommandlist.h"
 #include "VknGPUResource.h"
 
-VKanFramebuffer::VKanFramebuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
+VKNFramebuffer::VKNFramebuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 	desc.NumRenderTargets = BufferDesc.RenderTargetCount;
 	for (int i = 0; i < 8; i++)
@@ -22,22 +22,22 @@ VKanFramebuffer::VKanFramebuffer(DeviceContext * device, const RHIFrameBufferDes
 	}
 
 }
-DeviceContext * VKanFramebuffer::GetDevice()
+DeviceContext * VKNFramebuffer::GetDevice()
 {
 	return nullptr;
 }
 
-const RHIPipeRenderTargetDesc & VKanFramebuffer::GetPiplineRenderDesc()
+const RHIPipeRenderTargetDesc & VKNFramebuffer::GetPiplineRenderDesc()
 {
 	return desc;
 }
 
-void VKanFramebuffer::MakeReadyForComputeUse(RHICommandList* List, bool Depth /*= false*/)
+void VKNFramebuffer::MakeReadyForComputeUse(RHICommandList* List, bool Depth /*= false*/)
 {
 	//throw std::logic_error("The method or operation is not implemented.");
 }
 
-void VKanFramebuffer::UnBind(VKanCommandlist * List)
+void VKNFramebuffer::UnBind(VKNCommandlist * List)
 {
 	if (!WasTexture)
 	{
@@ -50,20 +50,20 @@ void VKanFramebuffer::UnBind(VKanCommandlist * List)
 	WasTexture = false;
 }
 
-void VKanFramebuffer::TransitionTOPixel(VKanCommandlist* list)
+void VKNFramebuffer::TransitionTOPixel(VKNCommandlist* list)
 {
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		RTImages[i]->SetState(list, VkanHelpers::ConvertState(GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		RTImages[i]->SetState(list, VKNHelpers::ConvertState(GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	}
 }
 
-void VKanFramebuffer::MakeReadyForCopy(RHICommandList * list)
+void VKNFramebuffer::MakeReadyForCopy(RHICommandList * list)
 {
 	//throw std::logic_error("The method or operation is not implemented.");
 }
 
-void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKanCommandlist* list)
+void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* list)
 {
 	if (IsCreated)
 	{
@@ -87,10 +87,10 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKanCommandlist* 
 	{
 		VkDeviceMemory Mem;
 		VkImage DepthImage;
-		VkFormat depthFormat = VkanHelpers::ConvertFormat(BufferDesc.DepthFormat);
-		VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		VkFormat depthFormat = VKNHelpers::ConvertFormat(BufferDesc.DepthFormat);
+		VKNHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			DepthImage, Mem, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, BufferDesc.TextureDepth);
-		depthImageView = VkanHelpers::createImageView(VKanRHI::VKConv(Device), DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT,BufferDesc.TextureDepth);
+		depthImageView = VKNHelpers::createImageView(VKNRHI::VKConv(Device), DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT,BufferDesc.TextureDepth);
 		DepthResource = new VknGPUResource();
 		DepthResource->Init(DepthImage, Mem, VK_IMAGE_LAYOUT_UNDEFINED, depthFormat);
 		DepthResource->Layers = BufferDesc.TextureDepth;
@@ -103,25 +103,25 @@ void VKanFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKanCommandlist* 
 
 	VkFramebufferCreateInfo framebufferInfo = {};
 	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	framebufferInfo.renderPass = VKanRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RPdesc))->RenderPass;
+	framebufferInfo.renderPass = VKNRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RPdesc))->RenderPass;
 	framebufferInfo.attachmentCount = attachments.size();
 	framebufferInfo.pAttachments = attachments.data();
 	framebufferInfo.width = BufferDesc.Width;
 	framebufferInfo.height = BufferDesc.Height;
 	framebufferInfo.layers =  BufferDesc.TextureDepth;
 
-	if (vkCreateFramebuffer(VKanRHI::VKConv(Device)->device, &framebufferInfo, nullptr, &Buffer) != VK_SUCCESS)
+	if (vkCreateFramebuffer(VKNRHI::VKConv(Device)->device, &framebufferInfo, nullptr, &Buffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create framebuffer!");
 	}
 }
 
-void VKanFramebuffer::CreateRT(VKanCommandlist* list, int index)
+void VKNFramebuffer::CreateRT(VKNCommandlist* list, int index)
 {
 	VkImage RTImage;
 	VkDeviceMemory RTImageMemory;
-	VkFormat fmt = VkanHelpers::ConvertFormat(BufferDesc.RTFormats[index]);
-	VkanHelpers::createImage(BufferDesc.Width, BufferDesc.Height, fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+	VkFormat fmt = VKNHelpers::ConvertFormat(BufferDesc.RTFormats[index]);
+	VKNHelpers::createImage(BufferDesc.Width, BufferDesc.Height, fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		RTImage, RTImageMemory, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, BufferDesc.TextureDepth);
 
 	RTImages[index] = new VknGPUResource();
@@ -129,19 +129,19 @@ void VKanFramebuffer::CreateRT(VKanCommandlist* list, int index)
 	RTImages[index]->Init(RTImage, RTImageMemory, VK_IMAGE_LAYOUT_UNDEFINED, fmt);
 	RTImages[index]->SetState(list, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-	RTImageView[index] = VkanHelpers::createImageView(VKanRHI::VKConv(Device), RTImages[index]->GetImage(), RTImages[index]->GetFormat(), VK_IMAGE_ASPECT_COLOR_BIT, BufferDesc.TextureDepth);
+	RTImageView[index] = VKNHelpers::createImageView(VKNRHI::VKConv(Device), RTImages[index]->GetImage(), RTImages[index]->GetFormat(), VK_IMAGE_ASPECT_COLOR_BIT, BufferDesc.TextureDepth);
 
 }
 
-void VKanFramebuffer::UpdateStateTrackingFromRP(RHIRenderPassDesc & Desc)
+void VKNFramebuffer::UpdateStateTrackingFromRP(RHIRenderPassDesc & Desc)
 {
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		RTImages[i]->UpdateState(VkanHelpers::ConvertState(Desc.FinalState));
+		RTImages[i]->UpdateState(VKNHelpers::ConvertState(Desc.FinalState));
 	}
 }
 
-Descriptor VKanFramebuffer::GetDescriptor(int slot, int resourceindex)
+Descriptor VKNFramebuffer::GetDescriptor(int slot, int resourceindex)
 {
 	Descriptor D = Descriptor(EDescriptorType::SRV);
 	if (IsCreated)

@@ -1,4 +1,4 @@
-
+#include <sdkddkver.h>
 #include "D3D12DeviceContext.h"
 #include "D3D12TimeManager.h"
 #include "D3D12CommandList.h"
@@ -137,8 +137,7 @@ void D3D12DeviceContext::CheckFeatures()
 		Caps_Data.SupportsCopyTimeStamps = FeatureData3.CopyQueueTimestampQueriesSupported;
 		Caps_Data.SupportsViewInstancing = (FeatureData3.ViewInstancingTier > D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED);
 	}
-	//todo loop
-	D3D_SHADER_MODEL Sm = D3D_SHADER_MODEL_5_1;
+
 	for (int i = D3D_SHADER_MODEL::D3D_SHADER_MODEL_6_4; i > D3D_SHADER_MODEL_5_1; i--)
 	{
 		D3D12_FEATURE_DATA_SHADER_MODEL  ShaderModelData = {};
@@ -150,10 +149,22 @@ void D3D12DeviceContext::CheckFeatures()
 			break;
 		}
 	}
+
 	if (LogDeviceDebug)
 	{
 		LogDeviceData("Shader Model Support " + D3D12Helpers::SMToString(Sm));
 	}
+
+#ifdef NTDDI_WIN10_19H1
+	D3D12_FEATURE_DATA_D3D12_OPTIONS6 FeatureData6;
+	ZeroMemory(&FeatureData6, sizeof(FeatureData6));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS6, &FeatureData6, sizeof(FeatureData3));
+	if (SUCCEEDED(hr) && LogDeviceDebug)
+	{
+		LogTierData("VRS Support", FeatureData6.VariableShadingRateTier);
+		Caps_Data.VRSSupport = EVRSSupportType::Software;
+	}
+#endif
 	NVAPIManager::CheckSupport(m_Device);
 }
 
@@ -260,6 +271,11 @@ DeviceMemoryData D3D12DeviceContext::GetMemoryData()
 	return MemoryData;
 }
 
+D3D_SHADER_MODEL D3D12DeviceContext::GetShaderModel() const
+{
+	return Sm;
+}
+
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
 	EnableStablePower.SetValue(true);
@@ -358,7 +374,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-	}
+}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {

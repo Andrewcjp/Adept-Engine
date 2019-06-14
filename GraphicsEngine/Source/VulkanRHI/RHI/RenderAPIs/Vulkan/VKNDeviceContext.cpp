@@ -1,93 +1,93 @@
-#include "VkanDeviceContext.h"
-#include "VkanTimeManager.h"
+#include "VKNDeviceContext.h"
+#include "VKNTimeManager.h"
 #include <set>
-#include "DescriptorPool.h"
-#include "VKanRHI.h"
-#include "VKanCommandlist.h"
+#include "VKNDescriptorPool.h"
+#include "VKNRHI.h"
+#include "VKNCommandlist.h"
 
 
 
-VkanDeviceContext::VkanDeviceContext()
+VKNDeviceContext::VKNDeviceContext()
 {
-	TimeManager = new VkanTimeManager();
+	TimeManager = new VKNTimeManager();
 
 }
 
 
-VkanDeviceContext::~VkanDeviceContext()
+VKNDeviceContext::~VKNDeviceContext()
 {}
 
-void VkanDeviceContext::ResetDeviceAtEndOfFrame()
+void VKNDeviceContext::ResetDeviceAtEndOfFrame()
 {}
 
-void VkanDeviceContext::SampleVideoMemoryInfo()
+void VKNDeviceContext::SampleVideoMemoryInfo()
 {}
 
-std::string VkanDeviceContext::GetMemoryReport()
+std::string VKNDeviceContext::GetMemoryReport()
 {
 	return std::string();
 }
 
-void VkanDeviceContext::DestoryDevice()
+void VKNDeviceContext::DestoryDevice()
 {}
 
-void VkanDeviceContext::WaitForGpu()
+void VKNDeviceContext::WaitForGpu()
 {
 	vkDeviceWaitIdle(device);
 }
 
-void VkanDeviceContext::WaitForCopy()
+void VKNDeviceContext::WaitForCopy()
 {}
 
-void VkanDeviceContext::ResetSharingCopyList()
+void VKNDeviceContext::ResetSharingCopyList()
 {}
 
-void VkanDeviceContext::NotifyWorkForCopyEngine()
+void VKNDeviceContext::NotifyWorkForCopyEngine()
 {}
 
-void VkanDeviceContext::UpdateCopyEngine()
+void VKNDeviceContext::UpdateCopyEngine()
 {
-	VKanRHI::RHIinstance->setuplist->Execute();
+	VKNRHI::RHIinstance->setuplist->Execute();
 	vkDeviceWaitIdle(device);
-	VKanRHI::RHIinstance->setuplist->ResetList();
+	VKNRHI::RHIinstance->setuplist->ResetList();
 }
 
-void VkanDeviceContext::ResetCopyEngine()
+void VKNDeviceContext::ResetCopyEngine()
 {}
 
-void VkanDeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+void VKNDeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {}
 
-void VkanDeviceContext::CPUWaitForAll()
+void VKNDeviceContext::CPUWaitForAll()
 {}
 
-void VkanDeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+void VKNDeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {}
 
-RHITimeManager * VkanDeviceContext::GetTimeManager()
+RHITimeManager * VKNDeviceContext::GetTimeManager()
 {
 	return TimeManager;
 }
 
-bool  VkanDeviceContext::isDeviceSuitable(VkPhysicalDevice pdevice)
+bool  VKNDeviceContext::isDeviceSuitable(VkPhysicalDevice pdevice)
 {
 	QueueFamilyIndices indices = findQueueFamilies(pdevice);
 
-	bool extensionsSupported = VKanRHI::checkDeviceExtensionSupport(pdevice);
+	bool extensionsSupported = VKNRHI::checkDeviceExtensionSupport(pdevice);
 
 	bool swapChainAdequate = false;
 	if (extensionsSupported)
 	{
-		SwapChainSupportDetails swapChainSupport = VKanRHI::querySwapChainSupport(pdevice);
+		SwapChainSupportDetails swapChainSupport = VKNRHI::querySwapChainSupport(pdevice);
 		swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 	}
 
 	return indices.isComplete() && extensionsSupported && swapChainAdequate;
 }
-void  VkanDeviceContext::pickPhysicalDevice()
+void  VKNDeviceContext::pickPhysicalDevice()
 {
 	uint32_t deviceCount = 0;
-	vkEnumeratePhysicalDevices(*VKanRHI::GetInstance(), &deviceCount, nullptr);
+	vkEnumeratePhysicalDevices(*VKNRHI::GetInstance(), &deviceCount, nullptr);
 
 	if (deviceCount == 0)
 	{
@@ -95,7 +95,7 @@ void  VkanDeviceContext::pickPhysicalDevice()
 	}
 
 	std::vector<VkPhysicalDevice> devices(deviceCount);
-	vkEnumeratePhysicalDevices(*VKanRHI::GetInstance(), &deviceCount, devices.data());
+	vkEnumeratePhysicalDevices(*VKNRHI::GetInstance(), &deviceCount, devices.data());
 
 	for (const auto& idevice : devices)
 	{
@@ -112,7 +112,7 @@ void  VkanDeviceContext::pickPhysicalDevice()
 	}
 }
 
-void  VkanDeviceContext::createLogicalDevice()
+void  VKNDeviceContext::createLogicalDevice()
 {
 	QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -162,14 +162,14 @@ void  VkanDeviceContext::createLogicalDevice()
 	vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
 
-void VkanDeviceContext::Init()
+void VKNDeviceContext::Init()
 {
 	pickPhysicalDevice();
 	createLogicalDevice();
-	pool = new DescriptorPool(this);
+	pool = new VKNDescriptorPool(this);
 }
 
-QueueFamilyIndices  VkanDeviceContext::findQueueFamilies(VkPhysicalDevice device)
+QueueFamilyIndices  VKNDeviceContext::findQueueFamilies(VkPhysicalDevice device)
 {
 	QueueFamilyIndices indices;
 
@@ -188,7 +188,7 @@ QueueFamilyIndices  VkanDeviceContext::findQueueFamilies(VkPhysicalDevice device
 		}
 
 		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, VKanRHI::RHIinstance->surface, &presentSupport);
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, VKNRHI::RHIinstance->surface, &presentSupport);
 
 		if (queueFamily.queueCount > 0 && presentSupport)
 		{

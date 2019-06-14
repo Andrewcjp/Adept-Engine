@@ -59,6 +59,10 @@ private:
 	IDxcBlob ** GetCurrentBlob(EShaderType::Type type);
 	const std::string GetShaderInstanceHash();
 
+	static std::wstring GetShaderModelString(D3D_SHADER_MODEL Clamp = D3D_SHADER_MODEL_6_4);
+
+	static std::wstring GetComplieTarget(EShaderType::Type t);
+
 	static const std::string GetUniqueName(std::vector<ShaderParameter>& Params);
 	static D3D12_STATIC_SAMPLER_DESC * ConvertSamplers(std::vector<RHISamplerDesc>& samplers);
 #if !BUILD_SHIPPING

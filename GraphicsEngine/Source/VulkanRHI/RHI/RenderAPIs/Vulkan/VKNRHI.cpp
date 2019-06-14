@@ -1,17 +1,17 @@
-#include "VKanRHI.h"
+#include "VKNRHI.h"
 #include "Core/Module/ModuleManager.h"
-#include "VKanCommandlist.h"
-#include "VKanShader.h"
-#include "VKanTexture.h"
-#include "VKanFramebuffer.h"
+#include "VKNCommandlist.h"
+#include "VKNShader.h"
+#include "VKNTexture.h"
+#include "VKNFramebuffer.h"
 #include "Core/Platform/PlatformCore.h"
-#include "VkanBuffers.h"
-#include "VkanDeviceContext.h"
+#include "VKNBuffers.h"
+#include "VKNDeviceContext.h"
 #include <fstream>
 #include <set>
 
 #include "Core/Platform/Windows/WindowsWindow.h"
-#include "VkanPipeLineStateObject.h"
+#include "VKNPipeLineStateObject.h"
 #include "Rendering/Shaders/Shader_Main.h"
 #include "Core/BaseWindow.h"
 #include "Rendering/Renderers/RenderEngine.h"
@@ -21,11 +21,11 @@
 #include "RHI/RHIRenderPassCache.h"
 #include "Rendering/Core/RenderingUtils.h"
 
-#if BUILD_VULKAN
 
-VKanRHI* VKanRHI::RHIinstance = nullptr;
+
+VKNRHI* VKNRHI::RHIinstance = nullptr;
 static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly);
-VKanRHI::VKanRHI()
+VKNRHI::VKNRHI()
 {
 	enableValidationLayers = true;
 	if (ForceNoDebug.GetBoolValue())
@@ -37,11 +37,11 @@ VKanRHI::VKanRHI()
 	RHIinstance = this;
 }
 
-VKanRHI::~VKanRHI()
+VKNRHI::~VKNRHI()
 {}
 
 
-VKanRHI * VKanRHI::Get()
+VKNRHI * VKNRHI::Get()
 {
 	return RHIinstance;
 }
@@ -61,67 +61,67 @@ VKanRHI * VKanRHI::Get()
 //	return Default;
 //}
 
-bool VKanRHI::InitWindow(int w, int h)
+bool VKNRHI::InitWindow(int w, int h)
 {
 	return false;
 }
-bool VKanRHI::DestoryRHI()
+bool VKNRHI::DestoryRHI()
 {
 	cleanup();
 	return false;
 }
 
 
-BaseTexture* VKanRHI::CreateTexture(const RHITextureDesc& Desc, DeviceContext* Device /*= nullptr*/)
+BaseTexture* VKNRHI::CreateTexture(const RHITextureDesc& Desc, DeviceContext* Device /*= nullptr*/)
 {
-	return new VKanTexture();
+	return new VKNTexture();
 }
 
-FrameBuffer* VKanRHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc)
+FrameBuffer* VKNRHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc)
 {
-	return new VKanFramebuffer(Device, Desc);
+	return new VKNFramebuffer(Device, Desc);
 }
-void VKanRHI::SetFullScreenState(bool state)
+void VKNRHI::SetFullScreenState(bool state)
 {
 
 }
 
-std::string VKanRHI::ReportMemory()
+std::string VKNRHI::ReportMemory()
 {
 	return "";
 }
 
-RHIPipeLineStateObject* VKanRHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
+RHIPipeLineStateObject* VKNRHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
 {
-	return new VkanPipeLineStateObject(Desc, Device);
+	return new VKNPipeLineStateObject(Desc, Device);
 }
 
-RHIGPUSyncEvent* VKanRHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
+RHIGPUSyncEvent* VKNRHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
 {
 	return nullptr;
 }
 
-RHIQuery * VKanRHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
+RHIQuery * VKNRHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-LowLevelAccelerationStructure* VKanRHI::CreateLowLevelAccelerationStructure(DeviceContext * Device)
+LowLevelAccelerationStructure* VKNRHI::CreateLowLevelAccelerationStructure(DeviceContext * Device)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-HighLevelAccelerationStructure* VKanRHI::CreateHighLevelAccelerationStructure(DeviceContext * Device)
+HighLevelAccelerationStructure* VKNRHI::CreateHighLevelAccelerationStructure(DeviceContext * Device)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-RHIStateObject* VKanRHI::CreateStateObject(DeviceContext* Device)
+RHIStateObject* VKNRHI::CreateStateObject(DeviceContext* Device)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-RHIRenderPassDesc VKanRHI::GetRenderPassDescForSwapChain(bool ClearScreen)
+RHIRenderPassDesc VKNRHI::GetRenderPassDescForSwapChain(bool ClearScreen)
 {
 	RHIRenderPassDesc desc = RHIClass::GetRenderPassDescForSwapChain(ClearScreen);
 	desc.RenderDesc.NumRenderTargets = 1;
@@ -141,83 +141,83 @@ RHIRenderPassDesc VKanRHI::GetRenderPassDescForSwapChain(bool ClearScreen)
 	return desc;
 }
 
-VKanTexture * VKanRHI::VKConv(BaseTexture * T)
+VKNTexture * VKNRHI::VKConv(BaseTexture * T)
 {
-	return static_cast<VKanTexture*>(T);
+	return static_cast<VKNTexture*>(T);
 }
 
-VKanShader * VKanRHI::VKConv(ShaderProgramBase * T)
+VKNShader * VKNRHI::VKConv(ShaderProgramBase * T)
 {
-	return static_cast<VKanShader*>(T);
+	return static_cast<VKNShader*>(T);
 }
 
-VKanRenderPass * VKanRHI::VKConv(RHIRenderPass * T)
+VKNRenderPass * VKNRHI::VKConv(RHIRenderPass * T)
 {
-	return static_cast<VKanRenderPass*>(T);
+	return static_cast<VKNRenderPass*>(T);
 }
 
-VKanCommandlist * VKanRHI::VKConv(RHICommandList * T)
+VKNCommandlist * VKNRHI::VKConv(RHICommandList * T)
 {
-	return static_cast<VKanCommandlist*>(T);
+	return static_cast<VKNCommandlist*>(T);
 }
 
-VKanBuffer * VKanRHI::VKConv(RHIBuffer * T)
+VKNBuffer * VKNRHI::VKConv(RHIBuffer * T)
 {
-	return static_cast<VKanBuffer*>(T);
+	return static_cast<VKNBuffer*>(T);
 }
 
-VkanDeviceContext * VKanRHI::VKConv(DeviceContext * T)
+VKNDeviceContext * VKNRHI::VKConv(DeviceContext * T)
 {
-	return static_cast<VkanDeviceContext*>(T);
+	return static_cast<VKNDeviceContext*>(T);
 }
 
-VKanFramebuffer * VKanRHI::VKConv(FrameBuffer * T)
+VKNFramebuffer * VKNRHI::VKConv(FrameBuffer * T)
 {
-	return static_cast<VKanFramebuffer*>(T);
+	return static_cast<VKNFramebuffer*>(T);
 }
 
-RHIRenderPass* VKanRHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
+RHIRenderPass* VKNRHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
 {
-	return new VKanRenderPass(Desc, Device);
+	return new VKNRenderPass(Desc, Device);
 }
 
 #if ALLOW_RESOURCE_CAPTURE
-void VKanRHI::TriggerWriteBackResources()
+void VKNRHI::TriggerWriteBackResources()
 {
 
 }
 #endif
-ShaderProgramBase * VKanRHI::CreateShaderProgam(DeviceContext * Device/* = nullptr*/)
+ShaderProgramBase * VKNRHI::CreateShaderProgam(DeviceContext * Device/* = nullptr*/)
 {
-	return new VKanShader();
+	return new VKNShader();
 }
-RHITextureArray * VKanRHI::CreateTextureArray(DeviceContext * Device, int Length)
+RHITextureArray * VKNRHI::CreateTextureArray(DeviceContext * Device, int Length)
 {
 	return new VkanTextureArray(Device, Length);
 }
-RHIBuffer * VKanRHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext * Device)
+RHIBuffer * VKNRHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext * Device)
 {
-	return new VKanBuffer(type, Device);
+	return new VKNBuffer(type, Device);
 }
-RHIUAV * VKanRHI::CreateUAV(DeviceContext * Device)
+RHIUAV * VKNRHI::CreateUAV(DeviceContext * Device)
 {
 	return new VkanUAV();
 }
-RHICommandList * VKanRHI::CreateCommandList(ECommandListType::Type Type/* = ECommandListType::Graphics*/, DeviceContext * Device/* = nullptr*/)
+RHICommandList * VKNRHI::CreateCommandList(ECommandListType::Type Type/* = ECommandListType::Graphics*/, DeviceContext * Device/* = nullptr*/)
 {
-	return new VKanCommandlist(Type, Device);
+	return new VKNCommandlist(Type, Device);
 }
-DeviceContext * VKanRHI::GetDefaultDevice()
+DeviceContext * VKNRHI::GetDefaultDevice()
 {
 	return DevCon;
 }
 
-VkanDeviceContext* VKanRHI::GetVDefaultDevice()
+VKNDeviceContext* VKNRHI::GetVDefaultDevice()
 {
 	return RHIinstance->DevCon;
 }
 
-DeviceContext * VKanRHI::GetDeviceContext(int index)
+DeviceContext * VKNRHI::GetDeviceContext(int index)
 {
 	if (index != 0)
 	{
@@ -226,12 +226,12 @@ DeviceContext * VKanRHI::GetDeviceContext(int index)
 	return DevCon;
 }
 
-void VKanRHI::RHISwapBuffers()
+void VKNRHI::RHISwapBuffers()
 {
 	drawFrame();
 }
 
-void VKanRHI::RHIRunFirstFrame()
+void VKNRHI::RHIRunFirstFrame()
 {
 #if !BASIC_RENDER_ONLY
 	setuplist->Execute();
@@ -239,11 +239,11 @@ void VKanRHI::RHIRunFirstFrame()
 #endif
 }
 
-void VKanRHI::ResizeSwapChain(int width, int height)
+void VKNRHI::ResizeSwapChain(int width, int height)
 {}
-void VKanRHI::WaitForGPU()
+void VKNRHI::WaitForGPU()
 {}
-void VKanRHI::TriggerBackBufferScreenShot()
+void VKNRHI::TriggerBackBufferScreenShot()
 {}
 
 
@@ -252,7 +252,7 @@ class VulkanRHIModule : public RHIModule
 {
 	virtual RHIClass* GetRHIClass()
 	{
-		return new VKanRHI();
+		return new VKNRHI();
 	}
 };
 
@@ -288,7 +288,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 }
 
 
-void VKanRHI::cleanup()
+void VKNRHI::cleanup()
 {
 	vkDeviceWaitIdle(DevCon->device);
 	if (enableValidationLayers)
@@ -322,7 +322,7 @@ void VKanRHI::cleanup()
 	vkDestroyInstance(instance, nullptr);
 }
 
-void  VKanRHI::createInstance()
+void  VKNRHI::createInstance()
 {
 
 	if (enableValidationLayers && !checkValidationLayerSupport())
@@ -372,16 +372,16 @@ void  VKanRHI::createInstance()
 		throw std::runtime_error("failed to create window surface!");
 	}
 
-	DevCon = new VkanDeviceContext();
+	DevCon = new VKNDeviceContext();
 	DevCon->Init();
 }
-VkInstance* VKanRHI::GetInstance()
+VkInstance* VKNRHI::GetInstance()
 {
 	return &RHIinstance->instance;
 }
 
 
-void  VKanRHI::createSurface()
+void  VKNRHI::createSurface()
 {
 	/*if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
 	{
@@ -393,7 +393,7 @@ void  VKanRHI::createSurface()
 
 
 
-void  VKanRHI::createSwapChain()
+void  VKNRHI::createSwapChain()
 {
 	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(DevCon->physicalDevice);
 
@@ -418,7 +418,7 @@ void  VKanRHI::createSwapChain()
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	QueueFamilyIndices indices = VkanDeviceContext::findQueueFamilies(DevCon->physicalDevice);
+	QueueFamilyIndices indices = VKNDeviceContext::findQueueFamilies(DevCon->physicalDevice);
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (/*indices.graphicsFamily != indices.presentFamily*/false)
@@ -452,7 +452,7 @@ void  VKanRHI::createSwapChain()
 	swapChainExtent = extent;
 }
 
-void  VKanRHI::createImageViews()
+void  VKNRHI::createImageViews()
 {
 	swapChainImageViews.resize(swapChainImages.size());
 
@@ -483,7 +483,7 @@ void  VKanRHI::createImageViews()
 #include "Core/Assets/AssetManager.h"
 
 
-void  VKanRHI::createFramebuffers()
+void  VKNRHI::createFramebuffers()
 {
 	swapChainFramebuffers.resize(swapChainImageViews.size());
 
@@ -495,7 +495,7 @@ void  VKanRHI::createFramebuffers()
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::VKanRHI::GetRenderPassDescForSwapChain()))->RenderPass;
+		framebufferInfo.renderPass = VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(VKNRHI::VKNRHI::GetRenderPassDescForSwapChain()))->RenderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = swapChainExtent.width;
@@ -509,9 +509,9 @@ void  VKanRHI::createFramebuffers()
 	}
 }
 
-VkCommandPool  VKanRHI::createCommandPool()
+VkCommandPool  VKNRHI::createCommandPool()
 {
-	QueueFamilyIndices queueFamilyIndices = VkanDeviceContext::findQueueFamilies(DevCon->physicalDevice);
+	QueueFamilyIndices queueFamilyIndices = VKNDeviceContext::findQueueFamilies(DevCon->physicalDevice);
 
 	VkCommandPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -525,7 +525,7 @@ VkCommandPool  VKanRHI::createCommandPool()
 	return cmdpool;
 }
 
-void  VKanRHI::createSyncObjects()
+void  VKNRHI::createSyncObjects()
 {
 	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -548,21 +548,21 @@ void  VKanRHI::createSyncObjects()
 		}
 	}
 }
-void VKanRHI::CreateNewObjects()
+void VKNRHI::CreateNewObjects()
 {
 #if !BASIC_RENDER_ONLY
 	return;
 #endif
-	RHIRenderPassCache::Get()->GetOrCreatePass(VKanRHI::GetRenderPassDescForSwapChain());
+	RHIRenderPassCache::Get()->GetOrCreatePass(VKNRHI::GetRenderPassDescForSwapChain());
 	TestShader = new Shader_Main(true);
 	RHIPipeLineStateDesc DEsc;
 	DEsc.ShaderInUse = TestShader;
-	DEsc.RenderPassDesc = VKanRHI::GetRenderPassDescForSwapChain();
-	SawpPSO = new VkanPipeLineStateObject(DEsc, DevCon);
+	DEsc.RenderPassDesc = VKNRHI::GetRenderPassDescForSwapChain();
+	SawpPSO = new VKNPipeLineStateObject(DEsc, DevCon);
 	SawpPSO->Complie();
 
 
-	Vertexb = new VKanBuffer(ERHIBufferType::Vertex, nullptr);
+	Vertexb = new VKNBuffer(ERHIBufferType::Vertex, nullptr);
 #if 0
 	glm::vec2 positions[3] = {
 		glm::vec2(0.0, -0.5),
@@ -588,23 +588,23 @@ void VKanRHI::CreateNewObjects()
 
 	Vertexb->UpdateVertexBuffer(&positions, sizeof(positions));
 
-	IndexTest = new VKanBuffer(ERHIBufferType::Index, nullptr);
+	IndexTest = new VKNBuffer(ERHIBufferType::Index, nullptr);
 	short  ind[3]{ 1,2,0 };
 	IndexTest->CreateIndexBuffer(sizeof(short), sizeof(ind));
 	IndexTest->UpdateIndexBuffer(&ind, sizeof(ind));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(1000, 1000);
-	TestFrameBuffer = new VKanFramebuffer(nullptr, Desc);
+	TestFrameBuffer = new VKNFramebuffer(nullptr, Desc);
 	RHIRenderPassDesc D;
 	D.TargetBuffer = TestFrameBuffer;
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	DEsc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(D);
-	PSO = new VkanPipeLineStateObject(DEsc, DevCon);
+	PSO = new VKNPipeLineStateObject(DEsc, DevCon);
 	PSO->Complie();
 
-	PresentList = new VKanCommandlist(ECommandListType::Graphics, RHI::GetDefaultDevice());
+	PresentList = new VKNCommandlist(ECommandListType::Graphics, RHI::GetDefaultDevice());
 }
 
-void  VKanRHI::drawFrame()
+void  VKNRHI::drawFrame()
 {
 
 	vkWaitForFences(DevCon->device, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
@@ -612,7 +612,7 @@ void  VKanRHI::drawFrame()
 	vkDeviceWaitIdle(DevCon->device);
 	uint32_t imageIndex;
 	vkAcquireNextImageKHR(DevCon->device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-	VKanRHI::VKConv(RHI::GetDefaultDevice())->pool->ResetAllocations();
+	VKNRHI::VKConv(RHI::GetDefaultDevice())->pool->ResetAllocations();
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -647,7 +647,7 @@ void  VKanRHI::drawFrame()
 	cmdlist->DrawIndexedPrimitive(3, 1, 0, 0, 0);
 
 	cmdlist->EndRenderPass();
-	cmdlist->BeginRenderPass(VKanRHI::GetRenderPassDescForSwapChain(true));
+	cmdlist->BeginRenderPass(VKNRHI::GetRenderPassDescForSwapChain(true));
 	cmdlist->SetPipelineStateObject(SawpPSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->SetTexture(T, 1);
@@ -696,7 +696,7 @@ void  VKanRHI::drawFrame()
 }
 
 
-VkSurfaceFormatKHR VKanRHI::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+VkSurfaceFormatKHR VKNRHI::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
 	if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED)
 	{
@@ -714,7 +714,7 @@ VkSurfaceFormatKHR VKanRHI::chooseSwapSurfaceFormat(const std::vector<VkSurfaceF
 	return availableFormats[0];
 }
 
-VkPresentModeKHR VKanRHI::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes)
+VkPresentModeKHR VKNRHI::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes)
 {
 	VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
 
@@ -733,7 +733,7 @@ VkPresentModeKHR VKanRHI::chooseSwapPresentMode(const std::vector<VkPresentModeK
 	return bestMode;
 }
 
-VkExtent2D  VKanRHI::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+VkExtent2D  VKNRHI::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
 	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 	{
@@ -750,7 +750,7 @@ VkExtent2D  VKanRHI::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabiliti
 	}
 }
 
-SwapChainSupportDetails  VKanRHI::querySwapChainSupport(VkPhysicalDevice device)
+SwapChainSupportDetails  VKNRHI::querySwapChainSupport(VkPhysicalDevice device)
 {
 	SwapChainSupportDetails details;
 
@@ -778,7 +778,7 @@ SwapChainSupportDetails  VKanRHI::querySwapChainSupport(VkPhysicalDevice device)
 }
 
 
-bool  VKanRHI::checkDeviceExtensionSupport(VkPhysicalDevice device)
+bool  VKNRHI::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -797,7 +797,7 @@ bool  VKanRHI::checkDeviceExtensionSupport(VkPhysicalDevice device)
 }
 
 
-std::vector<const char*>  VKanRHI::getRequiredExtensions()
+std::vector<const char*>  VKNRHI::getRequiredExtensions()
 {
 
 	std::vector<const char*> extensions;
@@ -813,7 +813,7 @@ std::vector<const char*>  VKanRHI::getRequiredExtensions()
 	return extensions;
 }
 
-bool VKanRHI::checkValidationLayerSupport()
+bool VKNRHI::checkValidationLayerSupport()
 {
 	uint32_t layerCount;
 	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -843,7 +843,7 @@ bool VKanRHI::checkValidationLayerSupport()
 	return true;
 }
 
-std::vector<char> VKanRHI::readFile(const std::string& filename)
+std::vector<char> VKNRHI::readFile(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
@@ -883,12 +883,12 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 }
 
 
-void VKanRHI::initVulkan()
+void VKNRHI::initVulkan()
 {
 	createInstance();
 	setupDebugCallback();
 	createSurface();
-	setuplist = new VKanCommandlist(ECommandListType::Compute, RHI::GetDefaultDevice());
+	setuplist = new VKNCommandlist(ECommandListType::Compute, RHI::GetDefaultDevice());
 	setuplist->ResetList();
 	//pickPhysicalDevice();
 	//createLogicalDevice();
@@ -900,18 +900,18 @@ void VKanRHI::initVulkan()
 	//	createGraphicsPipeline();
 	createFramebuffers();
 	commandPool = createCommandPool();
-	buffer = new VKanBuffer(ERHIBufferType::Constant, nullptr);
+	buffer = new VKNBuffer(ERHIBufferType::Constant, nullptr);
 	glm::vec4 data = glm::vec4(1, 0.2, 0.8, 1);
 	buffer->CreateConstantBuffer(sizeof(data), 1);
 	buffer->UpdateConstantBuffer(glm::value_ptr(data), 0);
-	T = new VKanTexture();
+	T = new VKNTexture();
 	T->CreateFromFile(AssetPathRef("texture\\ammoc03.jpg"));
 
 	createSyncObjects();
 
 }
 
-void  VKanRHI::setupDebugCallback()
+void  VKNRHI::setupDebugCallback()
 {
 	if (!enableValidationLayers) return;
 
@@ -928,13 +928,10 @@ void  VKanRHI::setupDebugCallback()
 }
 
 
-bool VKanRHI::InitRHI()
+bool VKNRHI::InitRHI()
 {
 	win32Hinst = PlatformWindow::GetHInstance();
 	win32HWND = PlatformWindow::GetHWND();
 	initVulkan();
 	return true;
 }
-
-
-#endif

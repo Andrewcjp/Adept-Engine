@@ -5,29 +5,29 @@
 #include "Rendering/Core/GPUStateCache.h"
 
 class VknGPUResource;
-class VKanCommandlist;
+class VKNCommandlist;
 
 #if BUILD_VULKAN
-class VKanFramebuffer : public FrameBuffer
+class VKNFramebuffer : public FrameBuffer
 {
 public:
-	VKanFramebuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc);
+	VKNFramebuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc);
 
 
 	// Inherited via FrameBuffer
 	virtual DeviceContext * GetDevice() override;
 	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
 	virtual void MakeReadyForCopy(RHICommandList * list) override;
-	void TryInitBuffer(RHIRenderPassDesc& desc, VKanCommandlist* list);
+	void TryInitBuffer(RHIRenderPassDesc& desc, VKNCommandlist* list);
 
-	void CreateRT(VKanCommandlist* list, int index);
+	void CreateRT(VKNCommandlist* list, int index);
 
 	void UpdateStateTrackingFromRP(RHIRenderPassDesc & Desc);
 	Descriptor GetDescriptor(int slot, int resourceindex);
 
 	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
-	void UnBind(VKanCommandlist* List);
-	void TransitionTOPixel(VKanCommandlist * list);
+	void UnBind(VKNCommandlist* List);
+	void TransitionTOPixel(VKNCommandlist * list);
 	//private:
 	RHIPipeRenderTargetDesc desc;
 	bool IsCreated = false;

@@ -1,7 +1,7 @@
 #include "VulkanRHIPCH.h"
 #include "VknGPUResource.h"
-#include "VKanCommandlist.h"
-#include "VkanHelpers.h"
+#include "VKNCommandlist.h"
+#include "VKNHelpers.h"
 
 
 VknGPUResource::VknGPUResource()
@@ -18,13 +18,13 @@ void VknGPUResource::Init(VkImage image, VkDeviceMemory Memory, VkImageLayout St
 	Format = FMT;
 }
 
-void VknGPUResource::SetState(VKanCommandlist* List, VkImageLayout Layout)
+void VknGPUResource::SetState(VKNCommandlist* List, VkImageLayout Layout)
 {
 	if (Layout == CurrentState)
 	{
 		return;
 	}
-	VkanHelpers::transitionImageLayout(*List->GetCommandBuffer(), Image, Format, CurrentState, Layout, 1, Layers);
+	VKNHelpers::transitionImageLayout(*List->GetCommandBuffer(), Image, Format, CurrentState, Layout, 1, Layers);
 	CurrentState = Layout;
 }
 

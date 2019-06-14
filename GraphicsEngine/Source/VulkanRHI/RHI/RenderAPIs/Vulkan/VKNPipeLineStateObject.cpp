@@ -1,26 +1,27 @@
-#include "VkanPipeLineStateObject.h"
+#include "VKNPipeLineStateObject.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Platform/PlatformCore.h"
 #include "RHI/RHITypes.h"
-#include "VkanBuffers.h"
-#include "VkanDeviceContext.h"
-#include "VKanRHI.h"
-#include "VKanShader.h"
-#include "VkanHelpers.h"
+#include "VKNBuffers.h"
+#include "VKNDeviceContext.h"
+#include "VKNRHI.h"
+#include "VKNShader.h"
+#include "VKNHelpers.h"
 #include "Core/Asserts.h"
 #include "RHI/RHIRenderPassCache.h"
+#include "VKNRenderPass.h"
 
-VkanPipeLineStateObject::VkanPipeLineStateObject(const RHIPipeLineStateDesc & desc, DeviceContext * con) :RHIPipeLineStateObject(desc)
+VKNPipeLineStateObject::VKNPipeLineStateObject(const RHIPipeLineStateDesc & desc, DeviceContext * con) :RHIPipeLineStateObject(desc)
 {
-	VDevice = (VkanDeviceContext*)con;
+	VDevice = (VKNDeviceContext*)con;
 }
 
-VkanPipeLineStateObject::~VkanPipeLineStateObject()
+VKNPipeLineStateObject::~VKNPipeLineStateObject()
 {
 
 }
 
-void VkanPipeLineStateObject::Complie()
+void VKNPipeLineStateObject::Complie()
 {
 	if (Desc.RenderPass == nullptr)
 	{
@@ -36,10 +37,10 @@ void VkanPipeLineStateObject::Complie()
 	createGraphicsPipeline();
 }
 
-void VkanPipeLineStateObject::Release()
+void VKNPipeLineStateObject::Release()
 {}
 
-void VkanPipeLineStateObject::createTextureSampler()
+void VKNPipeLineStateObject::createTextureSampler()
 {
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -56,12 +57,12 @@ void VkanPipeLineStateObject::createTextureSampler()
 	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-	if (vkCreateSampler(VKanRHI::RHIinstance->DevCon->device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
+	if (vkCreateSampler(VKNRHI::RHIinstance->DevCon->device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create texture sampler!");
 	}
 }
-bool VkanPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, std::vector< VkVertexInputAttributeDescription>& attributeDescriptions,
+bool VKNPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, std::vector< VkVertexInputAttributeDescription>& attributeDescriptions,
 	std::vector< VkVertexInputBindingDescription>& vertexbindings)
 {
 	int Stride = 0;
@@ -87,20 +88,20 @@ bool VkanPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElemen
 		Bindingdesc.binding = 0;// Element->InputSlot;
 		Bindingdesc.location = i;// Element->InputSlot;
 		//covert format
-		Bindingdesc.format = VkanHelpers::ConvertFormat(Element->Format);
+		Bindingdesc.format = VKNHelpers::ConvertFormat(Element->Format);
 		Bindingdesc.offset = Element->AlignedByteOffset;
 		attributeDescriptions.push_back(Bindingdesc);
 	}
 	return true;
 }
 
-void  VkanPipeLineStateObject::createGraphicsPipeline()
+void  VKNPipeLineStateObject::createGraphicsPipeline()
 {
 	ensure(Desc.RenderPass);
 #if BASIC_RENDER_ONLY
 	CreateTestShader();
 #else
-	VKanShader* sh = VKanRHI::VKConv(Desc.ShaderInUse->GetShaderProgram());
+	VKNShader* sh = VKNRHI::VKConv(Desc.ShaderInUse->GetShaderProgram());
 	ShaderStages = sh->GetShaderStages();
 	if (ShaderStages.size() == 0)
 	{
@@ -135,8 +136,8 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	viewport.y = 0.0f;
 	if (Desc.RenderPass->Desc.TargetSwapChain)
 	{
-		viewport.width = (float)VKanRHI::RHIinstance->swapChainExtent.width;
-		viewport.height = (float)VKanRHI::RHIinstance->swapChainExtent.height;
+		viewport.width = (float)VKNRHI::RHIinstance->swapChainExtent.width;
+		viewport.height = (float)VKNRHI::RHIinstance->swapChainExtent.height;
 	}
 	else
 	{
@@ -151,7 +152,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	scissor.offset = { 0, 0 };
 	if (Desc.RenderPass->Desc.TargetSwapChain)
 	{
-		scissor.extent = VKanRHI::RHIinstance->swapChainExtent;
+		scissor.extent = VKNRHI::RHIinstance->swapChainExtent;
 	}
 	else
 	{
@@ -230,7 +231,7 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	pipelineInfo.pMultisampleState = &multisampling;
 	pipelineInfo.pColorBlendState = &colorBlending;
 	pipelineInfo.layout = PipelineLayout;
-	VKanRenderPass* VRP = (VKanRenderPass*)Desc.RenderPass;
+	VKNRenderPass* VRP = (VKNRenderPass*)Desc.RenderPass;
 	pipelineInfo.renderPass = VRP->RenderPass;
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
@@ -253,15 +254,15 @@ void  VkanPipeLineStateObject::createGraphicsPipeline()
 	//vkDestroyShaderModule(VDevice->device, vertShaderModule, nullptr);
 }
 
-void VkanPipeLineStateObject::CreateTestShader()
+void VKNPipeLineStateObject::CreateTestShader()
 {
 	std::string root = AssetManager::GetShaderPath() + "VKan\\";
 	std::vector<char> vertShaderCode;
 	std::vector<char>  fragShaderCode;
 	//shader temp
 	//vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
-	vertShaderCode = VKanShader::ComplieShader("VKan\\Tri_VS", EShaderType::SHADER_VERTEX, true);
-	fragShaderCode = VKanShader::ComplieShader("VKan\\TriHLSL", EShaderType::SHADER_FRAGMENT, true);
+	vertShaderCode = VKNShader::ComplieShader("VKan\\Tri_VS", EShaderType::SHADER_VERTEX, true);
+	fragShaderCode = VKNShader::ComplieShader("VKan\\TriHLSL", EShaderType::SHADER_FRAGMENT, true);
 	//fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
 
 	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
@@ -283,7 +284,7 @@ void VkanPipeLineStateObject::CreateTestShader()
 	ShaderStages.push_back(vertShaderStageInfo);
 }
 
-VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<char>& code)
+VkShaderModule VKNPipeLineStateObject::createShaderModule(const std::vector<char>& code)
 {
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -299,7 +300,7 @@ VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<cha
 	return shaderModule;
 }
 
-VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<uint32_t>& code)
+VkShaderModule VKNPipeLineStateObject::createShaderModule(const std::vector<uint32_t>& code)
 {
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -315,7 +316,7 @@ VkShaderModule VkanPipeLineStateObject::createShaderModule(const std::vector<uin
 	return shaderModule;
 }
 
-void VkanPipeLineStateObject::CreateDescriptorSetLayout()
+void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 {
 	std::vector<VkDescriptorSetLayoutBinding> Binds;
 	Parms.clear();
@@ -344,7 +345,7 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 		else if (Element->Type == ShaderParamType::SRV)
 		{
 			VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-			samplerLayoutBinding.binding = VKanShader::GetBindingOffset(ShaderParamType::SRV) + Element->RegisterSlot;
+			samplerLayoutBinding.binding = VKNShader::GetBindingOffset(ShaderParamType::SRV) + Element->RegisterSlot;
 			samplerLayoutBinding.descriptorCount = 1;
 			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -366,7 +367,7 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 		for (int i = 0; i < 3; i++)
 		{
 			VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-			samplerLayoutBinding.binding = VKanShader::GetBindingOffset(ShaderParamType::Sampler) + i;
+			samplerLayoutBinding.binding = VKNShader::GetBindingOffset(ShaderParamType::Sampler) + i;
 			samplerLayoutBinding.descriptorCount = 1;
 			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
 			samplerLayoutBinding.pImmutableSamplers = &textureSampler;
@@ -380,13 +381,13 @@ void VkanPipeLineStateObject::CreateDescriptorSetLayout()
 	layoutInfo.bindingCount = Binds.size();
 	layoutInfo.pBindings = Binds.data();
 
-	if (vkCreateDescriptorSetLayout(VKanRHI::RHIinstance->DevCon->device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+	if (vkCreateDescriptorSetLayout(VKNRHI::RHIinstance->DevCon->device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create descriptor set layout!");
 	}
 }
 
-ShaderParameter * VkanPipeLineStateObject::GetRootSigSlot(int id)
+ShaderParameter * VKNPipeLineStateObject::GetRootSigSlot(int id)
 {
 	for (int i = 0; i < Parms.size(); i++)
 	{

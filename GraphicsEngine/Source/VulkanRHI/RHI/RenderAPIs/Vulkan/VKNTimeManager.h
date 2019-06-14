@@ -1,10 +1,10 @@
 #pragma once
 #include "RHI/RHITimeManager.h"
-class VkanTimeManager:public RHITimeManager
+class VKNTimeManager:public RHITimeManager
 {
 public:
-	VkanTimeManager();
-	~VkanTimeManager();
+	VKNTimeManager();
+	~VKNTimeManager();
 
 	// Inherited via RHITimeManager
 	virtual void UpdateTimers() override;

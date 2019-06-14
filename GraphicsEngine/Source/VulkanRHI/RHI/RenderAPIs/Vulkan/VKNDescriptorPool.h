@@ -3,21 +3,21 @@
 //holds a heap of memory
 //Just before a draw allocates a descriptor set for the command to execute
 //uses the already bound descriptor handles.
-class VKanCommandlist;
-class VkanDeviceContext;
-class DescriptorPool
+class VKNCommandlist;
+class VKNDeviceContext;
+class VKNDescriptorPool
 {
 public:
-	DescriptorPool(VkanDeviceContext* Con);
-	~DescriptorPool();
+	VKNDescriptorPool(VKNDeviceContext* Con);
+	~VKNDescriptorPool();
 	void Init();
 	void ResetAllocations();
-	void AllocateAndBind(VKanCommandlist* List);
+	void AllocateAndBind(VKNCommandlist* List);
 private:
-	VkDescriptorSet AllocateSet(VKanCommandlist* list);
+	VkDescriptorSet AllocateSet(VKNCommandlist* list);
 	void createDescriptorPool();
 	VkDescriptorSet createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, int count);
 	VkDescriptorPool descriptorPool;
-	VkanDeviceContext* Context = nullptr;
+	VKNDeviceContext* Context = nullptr;
 };
 

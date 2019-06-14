@@ -4,11 +4,11 @@
 
 class Descriptor;
 #if BUILD_VULKAN
-class VKanBuffer : public RHIBuffer
+class VKNBuffer : public RHIBuffer
 {
 public:
-	VKanBuffer(ERHIBufferType::Type type, DeviceContext* device) :RHIBuffer(type) {}
-	virtual ~VKanBuffer() {};
+	VKNBuffer(ERHIBufferType::Type type, DeviceContext* device) :RHIBuffer(type) {}
+	virtual ~VKNBuffer() {};
 
 	// Inherited via RHIBuffer
 	virtual void CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype = EBufferAccessType::Static) override;

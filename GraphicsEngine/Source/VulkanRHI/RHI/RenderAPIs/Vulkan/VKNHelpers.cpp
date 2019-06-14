@@ -1,9 +1,9 @@
 #include "VulkanRHIPCH.h"
-#include "VkanHelpers.h"
-#include "VkanDeviceContext.h"
+#include "VKNHelpers.h"
+#include "VKNDeviceContext.h"
 #include "vulkan/vulkan_core.h"
 
-void VkanHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput, int depth)
+void VKNHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput, int depth)
 {
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -24,27 +24,27 @@ void VkanHelpers::createImage(uint32_t width, uint32_t height, VkFormat format, 
 	{
 		imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 	}
-	if (vkCreateImage(VKanRHI::RHIinstance->DevCon->device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+	if (vkCreateImage(VKNRHI::RHIinstance->DevCon->device, &imageInfo, nullptr, &image) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(VKanRHI::RHIinstance->DevCon->device, image, &memRequirements);
+	vkGetImageMemoryRequirements(VKNRHI::RHIinstance->DevCon->device, image, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-	if (vkAllocateMemory(VKanRHI::RHIinstance->DevCon->device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+	if (vkAllocateMemory(VKNRHI::RHIinstance->DevCon->device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(VKanRHI::RHIinstance->DevCon->device, image, imageMemory, 0);
+	vkBindImageMemory(VKNRHI::RHIinstance->DevCon->device, image, imageMemory, 0);
 }
-void VkanHelpers::createImageDesc(VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput, TextureDescription & desc)
+void VKNHelpers::createImageDesc(VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput, TextureDescription & desc)
 {
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -65,41 +65,41 @@ void VkanHelpers::createImageDesc(VkFormat format, VkImageTiling tiling, VkImage
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateImage(VKanRHI::RHIinstance->DevCon->device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+	if (vkCreateImage(VKNRHI::RHIinstance->DevCon->device, &imageInfo, nullptr, &image) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(VKanRHI::RHIinstance->DevCon->device, image, &memRequirements);
+	vkGetImageMemoryRequirements(VKNRHI::RHIinstance->DevCon->device, image, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-	if (vkAllocateMemory(VKanRHI::RHIinstance->DevCon->device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+	if (vkAllocateMemory(VKNRHI::RHIinstance->DevCon->device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(VKanRHI::RHIinstance->DevCon->device, image, imageMemory, 0);
+	vkBindImageMemory(VKNRHI::RHIinstance->DevCon->device, image, imageMemory, 0);
 }
-VkanHelpers::VkanHelpers()
+VKNHelpers::VKNHelpers()
 {}
 
 
-VkanHelpers::~VkanHelpers()
+VKNHelpers::~VKNHelpers()
 {}
 
-void VkanHelpers::copyBuffer(VkCommandBuffer List, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+void VKNHelpers::copyBuffer(VkCommandBuffer List, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
 	VkBufferCopy copyRegion = {};
 	copyRegion.size = size;
 	vkCmdCopyBuffer(List, srcBuffer, dstBuffer, 1, &copyRegion);
 }
 
-void VkanHelpers::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+void VKNHelpers::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 {
 	VkBufferCreateInfo bufferInfo = {};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -107,28 +107,28 @@ void VkanHelpers::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMe
 	bufferInfo.usage = usage;
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateBuffer(VKanRHI::GetVDefaultDevice()->device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+	if (vkCreateBuffer(VKNRHI::GetVDefaultDevice()->device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create buffer!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(VKanRHI::GetVDefaultDevice()->device, buffer, &memRequirements);
+	vkGetBufferMemoryRequirements(VKNRHI::GetVDefaultDevice()->device, buffer, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-	if (vkAllocateMemory(VKanRHI::GetVDefaultDevice()->device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+	if (vkAllocateMemory(VKNRHI::GetVDefaultDevice()->device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate buffer memory!");
 	}
 
-	vkBindBufferMemory(VKanRHI::GetVDefaultDevice()->device, buffer, bufferMemory, 0);
+	vkBindBufferMemory(VKNRHI::GetVDefaultDevice()->device, buffer, bufferMemory, 0);
 }
 
-void VkanHelpers::createImage(VkanDeviceContext* D, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput)
+void VKNHelpers::createImage(VKNDeviceContext* D, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkImageLayout StartingLayput)
 {
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -166,10 +166,10 @@ void VkanHelpers::createImage(VkanDeviceContext* D, uint32_t width, uint32_t hei
 	vkBindImageMemory(D->device, image, imageMemory, 0);
 }
 
-uint32_t VkanHelpers::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t VKNHelpers::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
 	VkPhysicalDeviceMemoryProperties memProperties;
-	vkGetPhysicalDeviceMemoryProperties(VKanRHI::GetVDefaultDevice()->physicalDevice, &memProperties);
+	vkGetPhysicalDeviceMemoryProperties(VKNRHI::GetVDefaultDevice()->physicalDevice, &memProperties);
 
 	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 	{
@@ -182,7 +182,7 @@ uint32_t VkanHelpers::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags 
 	throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void VkanHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, int levels, int layers)
+void VKNHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, int levels, int layers)
 {
 
 	VkImageMemoryBarrier barrier = {};
@@ -269,7 +269,7 @@ void VkanHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage i
 
 }
 
-void VkanHelpers::copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+void VKNHelpers::copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
 {
 
 
@@ -293,7 +293,7 @@ void VkanHelpers::copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buff
 
 }
 
-VkImageView VkanHelpers::createImageView(VkanDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,int Layer)
+VkImageView VKNHelpers::createImageView(VKNDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,int Layer)
 {
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -322,7 +322,7 @@ VkImageView VkanHelpers::createImageView(VkanDeviceContext* C, VkImage image, Vk
 
 	return imageView;
 }
-VkImageView VkanHelpers::createImageView(VkanDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, TextureDescription & desc)
+VkImageView VKNHelpers::createImageView(VKNDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, TextureDescription & desc)
 {
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -343,7 +343,7 @@ VkImageView VkanHelpers::createImageView(VkanDeviceContext* C, VkImage image, Vk
 
 	return imageView;
 }
-VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
+VkFormat VKNHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 {
 	switch (format)
 	{
@@ -602,7 +602,7 @@ VkFormat VkanHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 	return VkFormat();
 }
 
-VkImageLayout VkanHelpers::ConvertState(GPU_RESOURCE_STATES::Type state)
+VkImageLayout VKNHelpers::ConvertState(GPU_RESOURCE_STATES::Type state)
 {
 	switch (state)
 	{
@@ -659,7 +659,7 @@ VkImageLayout VkanHelpers::ConvertState(GPU_RESOURCE_STATES::Type state)
 	return VkImageLayout();
 }
 
-UINT VkanHelpers::Align(UINT size, UINT alignment)
+UINT VKNHelpers::Align(UINT size, UINT alignment)
 {
 	return (size + alignment - 1) & ~(alignment - 1);
 }

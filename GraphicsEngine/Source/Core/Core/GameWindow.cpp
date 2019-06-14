@@ -39,7 +39,7 @@ void GameWindow::InitMM()
 {
 	MMContext = new UIWidgetContext();
 	UI->AddWidgetContext(MMContext);
-	UILabel* VersionText = new UILabel("Version " + std::string(BUILD_STRING), 0, 0, 0, 0);
+	UILabel* VersionText = new UILabel("Version " + std::string(Version::GetFullVersionString()), 0, 0, 0, 0);
 	VersionText->SetScaled(0.01f, 0.01f, 0.0f, 0.0f);
 	MMContext->AddWidget(VersionText);
 
