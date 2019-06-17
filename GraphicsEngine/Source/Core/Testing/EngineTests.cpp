@@ -40,3 +40,22 @@ TEST_CASE("Thread test", "[Threading]")
 {
 	REQUIRE(true);
 }
+//RHI tests to create resources with different sizes etc.
+//ensures that changes don't break a currently unused code path.
+//Many of these will assert in the code or debug layer rather than here.
+TEST_CASE("Create RHI Buffer", "[RHI]")
+{
+	RHIBuffer* B = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	B->CreateVertexBuffer(10, 10);
+	REQUIRE(B != nullptr);
+	EnqueueSafeRHIRelease(B);
+}
+//
+//TEST_CASE("Create FrameBuffer with texture depth of 10 Buffer", "[RHI]")
+//{
+//	RHIFrameBufferDesc 	D = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+//	D.TextureDepth = 10;
+//	FrameBuffer* B = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), D);
+//	REQUIRE(B != nullptr);
+//	EnqueueSafeRHIRelease(B);
+//}

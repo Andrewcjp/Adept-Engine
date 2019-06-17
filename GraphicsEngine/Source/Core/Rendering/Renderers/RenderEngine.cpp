@@ -526,7 +526,7 @@ void RenderEngine::PostSizeUpdate()
 void RenderEngine::RunLightCulling()
 {
 	LightCulling->RunLightBroadphase();
-//	LightCulling->LaunchCullingForScene(EEye::Left);
+	//	LightCulling->LaunchCullingForScene(EEye::Left);
 }
 
 DynamicResolutionScaler * RenderEngine::GetDS()
@@ -549,4 +549,20 @@ void RenderEngine::RenderDebugPass()
 	}
 	DDOs[0].DebugCommandList->EndTimer(EGPUTIMERS::DebugRender);
 	DDOs[0].DebugCommandList->Execute();
+}
+
+
+void RenderEngine::RunReflections(DeviceDependentObjects* d, EEye::Type eye)
+{
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
+		{
+			RayTracingEngine::Get()->TraceRaysForReflections(d->RTBuffer, d->GetGBuffer(eye));
+		}
+		if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
+		{
+			//RayTracingEngine::Get()->DispatchRaysForMainScenePass(d->GetMain(eye));
+		}
+	}
 }

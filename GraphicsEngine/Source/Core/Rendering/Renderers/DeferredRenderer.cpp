@@ -69,6 +69,7 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con, EEye::Type Eye)
 	GeometryPass(WriteList, d->GetGBuffer(Eye), Eye);
 	WriteList->EndTimer(EGPUTIMERS::DeferredWrite);
 	WriteList->Execute();
+	RunReflections(d);
 #if ENABLE_RENDERER_DEBUGGING
 	if (RHI::GetRenderSettings()->GetDebugRenderMode() == ERenderDebugOutput::Off)
 	{
@@ -85,17 +86,6 @@ void DeferredRenderer::RenderOnDevice(DeviceContext* con, EEye::Type Eye)
 		DebugPass();
 	}
 #endif
-	if (RHI::GetRenderSettings()->RaytracingEnabled())
-	{
-		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
-		{
-			RayTracingEngine::Get()->TraceRaysForReflections(d->GetMain(Eye), d->GetGBuffer(Eye));
-		}
-		if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
-		{
-			RayTracingEngine::Get()->DispatchRaysForMainScenePass(d->GetMain(Eye));
-		}
-	}
 
 }
 
@@ -161,6 +151,14 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 		desc.FrameBufferTarget = DDO->MainFrameBuffer;
 		DebugList->SetPipelineStateDesc(desc);
 	}
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		const float Scale = RHI::GetRenderSettings()->GetRTSettings().ReflectionBufferScale;
+		FBDesc = RHIFrameBufferDesc::CreateColour(GetScaledWidth()*Scale, GetScaledHeight()*Scale);
+		FBDesc.AllowUnordedAccess = true;
+		FBDesc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		DDO->RTBuffer = RHI::CreateFrameBuffer(con, FBDesc);
+	}
 }
 
 void DeferredRenderer::GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, int eyeindex)
@@ -179,6 +177,7 @@ void DeferredRenderer::GeometryPass(RHICommandList* List, FrameBuffer* gbuffer, 
 	List->BeginRenderPass(D);
 	SceneRender->RenderScene(List, false, gbuffer, false, eyeindex);
 	List->EndRenderPass();
+	gbuffer->MakeReadyForComputeUse(List);
 	//List->SetRenderTarget(nullptr);
 }
 
@@ -243,7 +242,13 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
+		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
+		{
+			List->SetFrameBufferTexture(Object->RTBuffer, DeferredLightingShaderRSBinds::ScreenSpecular);
+		}
+
 		List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
+
 		//List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
 	}
 	List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
@@ -277,6 +282,10 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	RenderSkybox(List, output, GBuffer);
 #endif
 	GBuffer->MakeReadyForComputeUse(List, true);
+	if (Object->RTBuffer)
+	{
+		Object->RTBuffer->MakeReadyForComputeUse(List);
+	}
 }
 
 void DeferredRenderer::Resize(int width, int height)

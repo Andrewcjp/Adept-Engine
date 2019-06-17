@@ -49,14 +49,14 @@ void D3D12StateObject::AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe)
 
 void D3D12StateObject::CreateStateObject()
 {
-	//CD3D12_STATE_OBJECT_DESC raytracingPipeline{ D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE };
 	CD3DX12_STATE_OBJECT_DESC RTPipe;
 	RTPipe.SetStateObjectType(D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE);
 	AddShaders(RTPipe);
 	AddHitGroups(RTPipe);
 
 	auto shaderConfig = RTPipe.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-	UINT payloadSize = sizeof(glm::vec4);    // float4 pixelColor
+
+	UINT payloadSize = sizeof(glm::vec4)*3;    // float4 pixelColor
 	UINT attributeSize = sizeof(glm::vec2);  // float2 barycentrics
 	shaderConfig->Config(payloadSize, attributeSize);
 

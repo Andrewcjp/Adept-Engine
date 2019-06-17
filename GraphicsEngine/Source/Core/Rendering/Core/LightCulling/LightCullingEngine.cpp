@@ -96,6 +96,9 @@ void LightCullingEngine::RunLightBroadphase()
 	}
 }
 
+void LightCullingEngine::BuildLightWorldGrid()
+{}
+
 
 void LightCullingEngine::CreateLightDataBuffer()
 {

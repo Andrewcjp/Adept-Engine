@@ -15,5 +15,7 @@ void chs(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attr
 	VertexAttributes vert = GetVertexData(PrimitiveIndex(), barycentrics);
 
 	payload.color = albedo.SampleLevel(g_sampler, vert.uv, 0).xyz;
-
+	payload.Normal = vert.Normal;
+	payload.Pos = vert.position;
+	payload.Hit = true;
 }

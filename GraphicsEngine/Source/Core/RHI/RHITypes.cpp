@@ -420,7 +420,7 @@ std::vector<RHISamplerDesc> RHISamplerDesc::GetDefault()
 {
 	std::vector<RHISamplerDesc> Out;
 	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_WRAP, 0));
-	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_POINT, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 1));
+	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 1));
 	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 2));
 	return Out;
 }

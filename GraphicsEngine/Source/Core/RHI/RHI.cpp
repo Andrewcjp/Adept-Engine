@@ -20,6 +20,7 @@
 #include "Rendering/RayTracing/RayTracingEngine.h"
 #include "RHIRenderPassCache.h"
 #include "Core/Input/Input.h"
+#include "Testing/EngineTests.h"
 
 RHI* RHI::instance = nullptr;
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
@@ -462,6 +463,8 @@ void RHI::InitialiseContext()
 	instance->RenderPassCache = new RHIRenderPassCache();
 	GetRHIClass()->InitRHI();
 	instance->ValidateSettings();
+	TESTING::RunTests();
+	RHI::FlushDeferredDeleteQueue();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
 	ParticleSystemManager::Get();
 	instance->SFR_Controller = new SFRController();

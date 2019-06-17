@@ -467,11 +467,11 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list, bool cubema
 		{
 			if (DSOs[1].PreSampledBuffer != nullptr && list->GetDeviceIndex() == 0)
 			{
-				list->SetFrameBufferTexture(DSOs[1].PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
+				list->SetFrameBufferTexture(DSOs[1].PreSampledBuffer, DeferredLightingShaderRSBinds::PreSampleShadows);
 			}
 			if (DSOs[0].PreSampledBuffer != nullptr && list->GetDeviceIndex() == 1)
 			{
-				list->SetFrameBufferTexture(DSOs[0].PreSampledBuffer, DeferredLightingShaderRSBinds::Limit);
+				list->SetFrameBufferTexture(DSOs[0].PreSampledBuffer, DeferredLightingShaderRSBinds::PreSampleShadows);
 			}
 		}
 	}
