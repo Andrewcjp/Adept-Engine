@@ -41,6 +41,8 @@ struct DeviceDependentObjects
 	void Release();
 	FrameBuffer* GetGBuffer(EEye::Type e);
 	FrameBuffer* GetMain(int e);
+	FrameBuffer* RTBuffer = nullptr;
+
 };
 class RenderEngine
 {
@@ -83,6 +85,9 @@ public:
 	
 protected:
 	void RenderDebugPass();
+
+	void RunReflections(DeviceDependentObjects * d, EEye::Type eye = EEye::Left);
+
 	void ShadowPass();
 	void CubeMapPass();
 	void RenderDebug(FrameBuffer * FB, RHICommandList * list, EEye::Type eye);

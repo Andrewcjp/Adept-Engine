@@ -57,7 +57,6 @@ Engine::Engine(EnginePersistentData* epd) :
 	EngineInstance = this;
 	Log::StartLogger();
 	PlatformApplication::Init();
-	RunTests();
 	StartTime = PerfManager::get_nanos();
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
 	Log::OutS << "Loading " << ENGINE_NAME << " version " << Version::GetFullVersionString() << Log::OutS;
@@ -171,6 +170,8 @@ void Engine::CreateApplication()
 		RHI::InitRHI(ForcedRenderSystem);
 	}
 	RHI::InitialiseContext();
+	//TESTING::RunTests();
+
 	if (!IsCooking)
 	{
 		CreateApplicationWindow(GetWidth(), GetHeight());
@@ -368,7 +369,7 @@ void Engine::CreateApplicationWindow(int width, int height)
 		isWindowVaild = m_appwnd->CreateRenderWindow(width, height);
 
 		if (!isWindowVaild)
-		{
+		{ 
 			Log::OutS << "Fatal Error: Window Invalid" << Log::OutS;
 		}
 	}
@@ -385,7 +386,3 @@ void Engine::TestTDPhysics()
 }
 
 
-void Engine::RunTests()
-{
-	TESTING::RunTests();
-}

@@ -595,7 +595,7 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 	ensure(!buffer->IsPendingKill());
 	D3D12Buffer* d3Buffer = D3D12RHI::DXConv(buffer);
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
-	d3Buffer->SetConstantBufferView(offset, CurrentCommandList, Slot, ListType == ECommandListType::Compute, Device->GetDeviceIndex());
+	d3Buffer->SetConstantBufferView(offset, CurrentCommandList, Slot, ListType == ECommandListType::Compute || IsRaytracingList(), Device->GetDeviceIndex());
 }
 
 

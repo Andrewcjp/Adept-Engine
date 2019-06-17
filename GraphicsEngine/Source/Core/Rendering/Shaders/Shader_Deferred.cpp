@@ -53,7 +53,8 @@ std::vector<ShaderParameter> Shader_Deferred::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::DiffuseIr, 10));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::SpecBlurMap, 11));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::EnvBRDF, 12));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::Limit, 13));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::PreSampleShadows, 13));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::ScreenSpecular, 14));
 	return out;
 }
 std::vector<Shader::VertexElementDESC> Shader_Deferred::GetVertexFormat()

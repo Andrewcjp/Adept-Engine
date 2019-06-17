@@ -14,6 +14,8 @@ namespace DeferredLightingShaderRSBinds
 		DiffuseIr,
 		SpecBlurMap,
 		EnvBRDF,
+		PreSampleShadows,
+		ScreenSpecular,
 		Limit
 	};
 }

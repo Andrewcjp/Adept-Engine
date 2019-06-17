@@ -2,6 +2,7 @@ struct VertexAttributes
 {
 	float3 position;
 	float2 uv;
+	float3 Normal;
 };
 struct VertexData
 {
@@ -25,6 +26,8 @@ VertexAttributes GetVertexData(int primitiveIndex, float3 Bary)
 	{
 		VertexData vertex = vertices[indcis[i]];
 		Vert.uv += vertex.UV * Bary[i];
+		Vert.Normal += vertex.Normal * Bary[i];
 	}
+	Vert.position = WorldRayOrigin() + (WorldRayDirection() * RayTCurrent());
 	return Vert;
 }

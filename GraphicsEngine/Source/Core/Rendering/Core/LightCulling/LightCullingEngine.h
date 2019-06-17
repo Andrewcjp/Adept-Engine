@@ -13,6 +13,8 @@ public:
 	RHIBuffer* LightBuffer = nullptr;
 	//creates list of lights that might be used
 	void RunLightBroadphase();
+	//generates a grid of light interactions for DXR and light mapping
+	void BuildLightWorldGrid();
 private:
 	void CreateLightDataBuffer();
 	//one data buffer reused 

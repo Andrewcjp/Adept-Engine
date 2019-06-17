@@ -70,7 +70,8 @@ float3 Phong_Diffuse(float3 MaterialDiffuseColor, float3 LightDir, float3 Normal
 
 float3 GetAmbient_CONST()
 {
-	return float3(0.03, 0.03, 0.03);
+	const float Value = 0.1f;
+	return float3(Value, Value, Value);
 }
 
 float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF)

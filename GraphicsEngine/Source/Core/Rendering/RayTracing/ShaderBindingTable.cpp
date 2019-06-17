@@ -34,7 +34,7 @@ void ShaderBindingTable::InitDefault()
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::UAV, 0, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::RootSRV, 1, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));
-
+	
 }
 
 void ShaderBindingTable::InitReflections()
@@ -54,6 +54,7 @@ void ShaderBindingTable::InitReflections()
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 3, 5));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 4, 6));
+	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::CBV, 5, 1));
 }
 
 ShaderBindingTable::~ShaderBindingTable()

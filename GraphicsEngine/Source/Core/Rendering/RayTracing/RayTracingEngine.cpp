@@ -8,6 +8,8 @@
 #include "Core/BaseWindow.h"
 #include "RayTracingCommandList.h"
 #include "ShaderBindingTable.h"
+#include "../Renderers/RenderEngine.h"
+#include "../Core/SceneRenderer.h"
 
 
 RayTracingEngine::RayTracingEngine()
@@ -135,6 +137,8 @@ void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer
 	RTList->SetStateObject(StateObject);
 	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 3, 1);
 	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 4, 0);
+	BaseWindow::GetCurrentRenderer()->SceneRender->BindLightsBuffer(RTList->GetRHIList(), 5);
+
 	Target->MakeReadyForComputeUse(RTList->GetRHIList());
 	RTList->SetHighLevelAccelerationStructure(CurrnetHL);
 	RTList->TraceRays(RHIRayDispatchDesc(Target));
