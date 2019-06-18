@@ -79,7 +79,7 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Debug = new PP_Debug();
 	Debug->SetUpData();
 	Debug->InitEffect(Target);
-	//AddEffect(Debug);
+	AddEffect(Debug);
 
 	//AddEffect(SSAO);
 

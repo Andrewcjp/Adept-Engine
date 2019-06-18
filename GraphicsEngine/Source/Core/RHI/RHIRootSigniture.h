@@ -23,12 +23,12 @@ struct RSBind
 	RSBind() {}
 	~RSBind() {}
 	ERSBindType::Type BindType = ERSBindType::Limit;
-	union
-	{
-		BaseTextureRef Texture;
-		FrameBuffer* Framebuffer;
-		RHIBuffer* BufferTarget;
-	};
+	/*union
+	{*/
+	BaseTextureRef Texture;
+	FrameBuffer* Framebuffer;
+	RHIBuffer* BufferTarget;
+	/*};*/
 	RSBind(const RSBind &other)
 	{
 		BindType = other.BindType;
@@ -77,8 +77,11 @@ public:
 	void SetTexture(int slot, BaseTextureRef Tex);
 	void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, int resoruceindex = 0);
 	void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0);
+	void SetBufferReadOnly(int slot, RHIBuffer* Target);
 	void Reset();
 	ShaderParameter * GetParm(int slot);
+	RHI_API const RSBind* GetBind(int slot)const;
+	RHI_API int GetNumBinds()const;
 private:
 	std::vector<ShaderParameter> Parms;
 	std::vector<RSBind> CurrnetBinds;

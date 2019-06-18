@@ -15,19 +15,16 @@ cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
 #if 1//VULKAN
-	int4 TileCount;
+	uint2 TileCount;
 #else
-	int2 TileCount;
+	uint2 TileCount;
 	int pad;
 #endif
-	Light lights[MAX_LIGHTS];
-};
-#if 1
-RWStructuredBuffer<uint> LightList : register(u0);
-#else
-StructuredBuffer<uint> LightList : register(t0);
-#endif
 
+};
+
+StructuredBuffer<Light> lights : register(t30);
+StructuredBuffer<int> LightIndexs : register(t31);
 
 cbuffer SceneConstantBuffer : register(b2)
 {
@@ -101,37 +98,31 @@ float4 main(PSInput input) : SV_TARGET
 	//float3 prefilteredColor = SpecularBlurMap.SampleLevel(defaultSampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
 	float3 prefilteredColor = GetReflectionColor(R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF);
-	int TileLightCount = 16;
+
 	float2 pixel = input.position.xy;
-	//int2 tilecount = int2(480, 270);
 	uint2 tileIndex = uint2(floor(pixel / LIGHTCULLING_TILE_SIZE));
 	uint startOffset = flatten2D(tileIndex, TileCount.xy) * MAX_LIGHTS;
 
-	uint count = 0;// LightList.Load(0);//[startOffset];
-	uint other = 2;
-	//LightList.GetDimensions( count,   other);
-
-	//return float4(count, 0, 0, 1.0f);
+	uint count = LightIndexs[startOffset];
 	startOffset += 1;
-	//int index = LightList[startOffset/* + i*/];
 
 	[unroll(MAX_LIGHTS)]
-	for (int i = 0; i < LightCount; i++)
+	for (int i = 0; i < count; i++)
 	{
-		int index = i;// LightList[startOffset + i];
+		int index = LightIndexs[startOffset + i];
 		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
 #ifdef WITH_SHADOW
-		[branch] if (lights[i].HasShadow && lights[i].PreSampled.x)
+		[branch] if (lights[index].HasShadow && lights[index].PreSampled.x)
 		{
-			colour *= FWD_GetPresampledShadow(ScreenPos,lights[i].PreSampled.y);
+			colour *= FWD_GetPresampledShadow(ScreenPos,lights[index].PreSampled.y);
 		}
-		else if (lights[i].HasShadow && lights[i].type == 0)
+		else if (lights[index].HasShadow && lights[index].type == 0)
 		{
-			colour *= CalcUnshadowedAmountPCF2x2(lights[i], input.WorldPos, g_Shadow_texture[lights[i].ShadowID]).r;
+			colour *= CalcUnshadowedAmountPCF2x2(lights[index], input.WorldPos, g_Shadow_texture[lights[index].ShadowID]).r;
 		}
-		else if (lights[i].HasShadow && lights[i].type == 1)
+		else if (lights[index].HasShadow && lights[index].type == 1)
 		{
-			colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
+			colour *= 1.0 - ShadowCalculationCube(input.WorldPos.xyz, lights[index], g_Shadow_texture2[lights[index].ShadowID]);
 		}
 #endif
 		output += colour;

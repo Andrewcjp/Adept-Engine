@@ -25,10 +25,10 @@ cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
 	int4 t;
-	//int pad;
-	Light lights[MAX_LIGHTS];
 };
 
+StructuredBuffer<Light> LightList : register(t20);
+StructuredBuffer<int> LightIndexs : register(t21);
 cbuffer SceneConstantBuffer : register(b2)
 {
 	row_major matrix View;
@@ -55,7 +55,6 @@ float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
-
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv);
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv);
 	float3 Normal = normalize(Normalt.xyz);
@@ -70,15 +69,17 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
 	float3 prefilteredColor = GetSpecular(input.uv,R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
+	
 	[unroll(MAX_LIGHTS)]
-	for (int i = 0; i < MAX_LIGHTS; i++)
+	for (int i = 0; i < LightCount; i++)
 	{
-		float3 LightColour = CalcColorFromLight(lights[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
+		float3 LightColour = CalcColorFromLight(LightList[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
+
 #if !VULKAN
-		if (lights[i].PreSampled.x)
+		if (LightList[i].PreSampled.x)
 		{
 #if SHOW_SHADOW
-			const float vis = (1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv)[lights[i].PreSampled.y]);
+			const float vis = (1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv)[LightList[i].PreSampled.y]);
 			if (vis == 0.0f)
 			{
 				LightColour = float3(0,1,0);
@@ -88,14 +89,14 @@ float4 main(VS_OUTPUT input) : SV_Target
 				LightColour *= vis;
 			}
 #else
-			LightColour *= (1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv)[lights[i].PreSampled.y]);
+			LightColour *= (1.0 - PerSampledShadow.Sample(g_Clampsampler, input.uv)[LightList[i].PreSampled.y]);
 #endif
 		}
 		else
 		{
-			if (lights[i].HasShadow && lights[i].type == 1)
+			if (LightList[i].HasShadow && LightList[i].type == 1)
 			{
-				LightColour *= 1.0 - ShadowCalculationCube(pos.xyz, lights[i], g_Shadow_texture2[lights[i].ShadowID]);
+				LightColour *= 1.0 - ShadowCalculationCube(pos.xyz, LightList[i], g_Shadow_texture2[LightList[i].ShadowID]);
 			}
 		}
 #endif

@@ -122,6 +122,8 @@ void GPUResource::Release()
 		int iirefcount = resource->AddRef();
 		int niirefcount = resource->Release();
 #endif
+		//there is a resource contention issue here with gpu 0 and 1 
+		//where GPU will move forward and delete before GPU 1 has finished with resource.
 		resource->Release();
 		resource = nullptr;
 	}

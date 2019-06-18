@@ -14,6 +14,7 @@
 #include "Rendering/VR/HMD.h"
 #include "Rendering/VR/VRCamera.h"
 #include "RHI/DeviceContext.h"
+#include "../Core/LightCulling/LightCullingEngine.h"
 
 void DeferredRenderer::OnRender()
 {
@@ -107,7 +108,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 {
 	DeviceDependentObjects* DDO = &DDOs[con->GetDeviceIndex()];
 	const float ratio = 1.0f;// 0.3;
-	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(GetScaledWidth()*ratio, GetScaledHeight()*ratio);
+	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(glm::iround(GetScaledWidth()*ratio), glm::iround(GetScaledHeight()*ratio));
 	FBDesc.IncludedInSFR = true;
 	FBDesc.AllowUnordedAccess = true;
 	if (con->GetDeviceIndex() > 0)
@@ -154,7 +155,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
 		const float Scale = RHI::GetRenderSettings()->GetRTSettings().ReflectionBufferScale;
-		FBDesc = RHIFrameBufferDesc::CreateColour(GetScaledWidth()*Scale, GetScaledHeight()*Scale);
+		FBDesc = RHIFrameBufferDesc::CreateColour(glm::iround(GetScaledWidth()*Scale), glm::iround(GetScaledHeight()*Scale));
 		FBDesc.AllowUnordedAccess = true;
 		FBDesc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 		DDO->RTBuffer = RHI::CreateFrameBuffer(con, FBDesc);
@@ -239,10 +240,10 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
-
+	LightCulling->BindLightBuffer(List);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
+		if (RHI::GetRenderSettings()->RaytracingEnabled() && RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
 		{
 			List->SetFrameBufferTexture(Object->RTBuffer, DeferredLightingShaderRSBinds::ScreenSpecular);
 		}

@@ -1,8 +1,9 @@
 #pragma once
+#include "RHI/RHITypes.h"
 
 class LowLevelAccelerationStructure;
 class RHICommandList;
-class HighLevelAccelerationStructure
+class HighLevelAccelerationStructure :public IRHIResourse
 {
 public:
 	RHI_API HighLevelAccelerationStructure(DeviceContext* Device);

@@ -1,10 +1,11 @@
 #pragma once
+#include "RHI/RHITypes.h"
 
 class DeviceContext;
 class Shader;
 class Camera;
 class ShaderBindingTable;
-class RHIStateObject
+class RHIStateObject : public IRHIResourse
 {
 public:
 	RHI_API RHIStateObject(DeviceContext* D);

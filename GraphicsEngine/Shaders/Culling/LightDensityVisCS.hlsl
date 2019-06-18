@@ -5,7 +5,7 @@ SamplerState BilinearClamp : register(s0);
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-	int2 TileCount;
+	uint2 TileCount;
 	//	Light lights[MAX_LIGHTS];
 };
 inline uint flatten2D(uint2 coord, uint2 dim)
@@ -15,15 +15,13 @@ inline uint flatten2D(uint2 coord, uint2 dim)
 [numthreads(LIGHTCULLING_TILE_SIZE, LIGHTCULLING_TILE_SIZE, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3 groupID : SV_GroupID, uint  groupIndex : SV_GroupIndex)
 {
-	//	DstTexture[DTid.xy] = float4(0, 0, 0, 1);
-		//int2 tilecount = int2(480, 270);
-
 	int index = flatten2D(groupID.xy, TileCount)*MAX_LIGHTS;
-	int lightcount = LightList[index];
-	float4 heat = float4((float)lightcount / (float)MAX_LIGHTS, 0, 0, 1);
+	uint lightcount = LightList[index];
+	float Scale = (float)lightcount / (float)MAX_LIGHTS;
+	float3 heat = lerp(float3(1, 0, 0), float3(0, 0, 1), 1.0 - Scale);
 	if (lightcount > MAX_LIGHTS)
 	{
-		heat = float4(1, 1, 1, 1);
+		heat = float3(1, 1, 1);
 	}
-	DstTexture[DTid.xy] = SrcTex[DTid.xy] * 0.4 + heat;
+	DstTexture[DTid.xy] = SrcTex[DTid.xy] * 0.4 + float4(heat, 1.0f);
 }

@@ -21,6 +21,13 @@ void D3D12LowLevelAccelerationStructure::CreateFromEntity(MeshEntity* entity)
 	CreateStructure();
 }
 
+void D3D12LowLevelAccelerationStructure::Release()
+{
+	IRHIResourse::Release();
+	SafeRelease(Structure);
+	SafeRelease(scratchResource);
+}
+
 void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 {
 	//todo: handle Merge sub meshes

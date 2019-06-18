@@ -20,6 +20,9 @@ public:
 
 	virtual void CreateFromEntity(MeshEntity* entity) override;
 
+
+	virtual void Release() override;
+
 private:
 	Transform* Transfrom = nullptr;
 	ID3D12Resource* Structure = nullptr;

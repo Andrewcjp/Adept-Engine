@@ -40,8 +40,11 @@ namespace MemoryUtils
 	{
 		for (int i = 0; i < target.size(); i++)
 		{
-			target[i]->Release();
-			target[i] = nullptr;
+			if (target[i] != nullptr)
+			{
+				target[i]->Release();
+				target[i] = nullptr;
+			}			
 		}
 		target.clear();
 	}

@@ -121,22 +121,18 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			if (i >= MAX_POSSIBLE_LIGHTS || i >= RHI::GetRenderConstants()->MAX_LIGHTS)
 			{
 				continue;
-			}			
-			LightUniformBuffer newitem = {};
-			newitem.position = lights[i]->GetPosition();
-			newitem.color = glm::vec3(lights[i]->GetColor());
-			newitem.Direction = lights[i]->GetDirection();
-			newitem.type = lights[i]->GetType();
-			newitem.HasShadow = lights[i]->GetDoesShadow();
+			}
+			LightUniformBuffer newitem = CreateLightEntity(lights[i]);
+
 			//assume if not resident its pre-sampled
 			newitem.PreSampled[0] = !lights[i]->GPUShadowResidentMask[devindex];
 			newitem.PreSampled[1] = PreSampleIndex;
-			newitem.Range = lights[i]->GetRange();
+
 			if (newitem.PreSampled[0])
 			{
 				PreSampleIndex++;
 			}
-			newitem.ShadowID = lights[i]->GetShadowId();
+
 			if (lights[i]->GetType() == ELightType::Directional || lights[i]->GetType() == ELightType::Spot)
 			{
 				glm::mat4 LightView = glm::lookAtLH<float>(lights[i]->GetPosition(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));//world up
@@ -167,16 +163,33 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			}
 			LightsBuffer.Light[i] = newitem;
 		}
-		LightsBuffer.LightCount = lights.size();
-		const int TileSize = RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE;
-		LightsBuffer.Tiles[0] = BaseWindow::GetCurrentRenderer()->GetScaledWidth() / TileSize;
-		LightsBuffer.Tiles[1] = BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize;
+		////LightsBuffer.LightCount = 1;// lights.size();
+		//const int TileSize = RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE;
+		//LightsBuffer.Tiles[0] = GetLightGridDim();
+		//LightsBuffer.Tiles[1] = BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize;
 		CLightBuffer[devindex]->UpdateConstantBuffer(&LightsBuffer, 0);
 	}
 }
 
+LightUniformBuffer SceneRenderer::CreateLightEntity(Light *L)
+{
+	LightUniformBuffer newitem = {};
+	newitem.position = L->GetPosition();
+	newitem.color = glm::vec3(L->GetColor());
+	newitem.Direction = L->GetDirection();
+	newitem.type = L->GetType();
+	newitem.HasShadow = L->GetDoesShadow();
+	newitem.ShadowID = L->GetShadowId();
+	newitem.Range = L->GetRange();
+	return newitem;
+}
+
 void SceneRenderer::BindLightsBuffer(RHICommandList*  list, int Override)
 {
+	if (Override == -1)
+	{
+		return;
+	}
 	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, Override);
 }
 
@@ -231,7 +244,7 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 	{
 		return;
 	}
-//	commandlist->ClearFrameBuffer(Map->CapturedTexture);
+	//	commandlist->ClearFrameBuffer(Map->CapturedTexture);
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), Map->CapturedTexture);
 	for (int i = 0; i < 6; i++)
 	{
@@ -245,7 +258,7 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 		RenderScene(commandlist, false, Map->CapturedTexture, true);
 		commandlist->EndRenderPass();
 		SB->Render(this, commandlist, Map->CapturedTexture, nullptr, true, i);
-		
+
 	}
 	Map->SetCaptured();
 	//FrameBufferProcessor::CreateMipChain(Map->CapturedTexture, commandlist);

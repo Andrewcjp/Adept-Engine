@@ -5,6 +5,7 @@ Shader_RTBase::Shader_RTBase(DeviceContext* C, std::string Name, ERTShaderType::
 {
 	m_Shader->AttachAndCompileShaderFromFile(Name.c_str(), EShaderType::SHADER_RT_LIB);
 	ShaderStage = Stage;
+	
 }
 
 
@@ -26,4 +27,9 @@ void Shader_RTBase::AddExport(std::string Symbol)
 std::vector<std::string>& Shader_RTBase::GetExports()
 {
 	return ExportedSymbols;
+}
+
+void Shader_RTBase::InitRS()
+{
+	LocalRootSig.SetRootSig(this->GetShaderParameters());
 }

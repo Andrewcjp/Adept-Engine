@@ -21,7 +21,8 @@
 #include "RHIRenderPassCache.h"
 #include "Core/Input/Input.h"
 #include "Testing/EngineTests.h"
-
+static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
+static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
 static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
 
@@ -29,6 +30,7 @@ RHI::RHI(ERenderSystemType system)
 {
 
 	CurrentSystem = system;
+	RenderSettings.ValidateSettings();
 	RenderSettings.ValidateForAPI(CurrentSystem);
 	RHIModule* RHImodule = nullptr;
 	switch (CurrentSystem)
@@ -463,8 +465,17 @@ void RHI::InitialiseContext()
 	instance->RenderPassCache = new RHIRenderPassCache();
 	GetRHIClass()->InitRHI();
 	instance->ValidateSettings();
-	TESTING::RunTests();
-	RHI::FlushDeferredDeleteQueue();
+	RunTests.SetValue(true);
+	if (RunTests.GetBoolValue())
+	{
+		TESTING::RunTests();
+		RHI::FlushDeferredDeleteQueue();
+		if (RunTestsExit.GetBoolValue())
+		{
+			Engine::ImmediateExit(0);
+			return;
+		}
+	}
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
 	ParticleSystemManager::Get();
 	instance->SFR_Controller = new SFRController();

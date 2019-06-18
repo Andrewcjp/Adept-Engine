@@ -1,21 +1,18 @@
 ﻿#include "D3D12RHI.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Platform/ConsoleVariable.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
+#include "D3D12Buffer.h"
 #include "D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
 #include "D3D12Framebuffer.h"
-#include "D3D12TimeManager.h"
+#include "D3D12Query.h"
 #include "GPUResource.h"
+#include "OpenVR/headers/openvr.h"
+#include "Raytracing/D3D12HighLevelAccelerationStructure.h"
+#include "Raytracing/D3D12LowLevelAccelerationStructure.h"
+#include "Raytracing/D3D12StateObject.h"
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
-#include "D3D12Helpers.h"
-#include "../headers/openvr.h"
-#include "D3D12Query.h"
-#include "Raytracing/D3D12LowLevelAccelerationStructure.h"
-#include "Raytracing/D3D12HighLevelAccelerationStructure.h"
-#include "Raytracing/D3D12StateObject.h"
-#include "D3D12Buffer.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
@@ -615,17 +612,10 @@ D3D12RHI * D3D12RHI::Get()
 
 void D3D12RHI::PresentFrame()
 {
-	////if (RHI::GetMGPUSettings()->AsyncShadows)
-	////{
-	//AsyncSync->SignalWait();
-	//RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
-	//RHI::GetDeviceContext(0)->GPUWaitForOtherGPU(RHI::GetDeviceContext(1), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
-	//RHI::GetDeviceContext(1)->GPUWaitForOtherGPU(RHI::GetDeviceContext(0), DeviceContextQueue::Graphics, DeviceContextQueue::Graphics);
-	////}
+	//todo: remove this
 	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
 		m_SetupCommandList->Reset(GetPrimaryDevice()->GetCommandAllocator(), nullptr);
-		//		((D3D12TimeManager*)GetPrimaryDevice()->GetTimeManager())->EndTotalGPUTimer(m_SetupCommandList);
 		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
 
 		m_SetupCommandList->Close();
@@ -657,7 +647,6 @@ void D3D12RHI::PresentFrame()
 			DeviceContexts[i]->MoveNextFrame(m_swapChain->GetCurrentBackBufferIndex());
 		}
 	}
-
 	//all execution this frame has finished 
 	//so all resources should be in the correct state!	
 	ReleaseUploadHeaps();

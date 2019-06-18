@@ -21,7 +21,7 @@ class Shader_Skybox;
 	int HasShadow = 0;
 	int PreSampled[4];//padding sucks!
 	float Range;
-	float Pad[3];
+	//float Pad[3];
 };
 #pragma pack(pop)
 //static_assert(sizeof(LightUniformBuffer) % 16 == 0, "LightUniformBuffer padding bad");
@@ -35,7 +35,8 @@ struct MVBuffer
 struct LightBufferW
 {
 	int LightCount;
-	int Tiles[4] = { 0,0,0,0 };
+	uint TileX;
+	uint TileY;
 	int pad[3] = { 1,1,1 };
 	LightUniformBuffer Light[MAX_POSSIBLE_LIGHTS];
 };
@@ -57,6 +58,9 @@ public:
 	void UpdateMV(Camera * c, int index = 0);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	void UpdateLightBuffer(std::vector<Light*> lights);
+
+	static LightUniformBuffer CreateLightEntity(Light * L);
+
 	void BindLightsBuffer(RHICommandList * list, int Override = -1);
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot);
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot, int index);
@@ -70,6 +74,7 @@ public:
 	MeshPipelineController* Controller = nullptr;
 	Shader_Skybox* SB = nullptr;
 	std::vector< class RelfectionProbe*> probes;
+	LightBufferW LightsBuffer;
 private:
 
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
@@ -78,7 +83,7 @@ private:
 
 	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
 	struct MVBuffer MV_Buffer;
-	LightBufferW LightsBuffer;
+
 
 
 	class Scene* TargetScene = nullptr;

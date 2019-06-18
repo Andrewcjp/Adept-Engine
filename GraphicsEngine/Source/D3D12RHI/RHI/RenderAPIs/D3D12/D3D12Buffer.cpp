@@ -160,7 +160,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 {
 	SetupBufferSRV();
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
-	if (BufferAccesstype != EBufferAccessType::GPUOnly)//gpu buffer states are explicitly managed by render code
+	if (BufferAccesstype != EBufferAccessType::GPUOnly && BufferAccesstype != EBufferAccessType::Dynamic)//gpu buffer states are explicitly managed by render code
 	{
 		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
 	}

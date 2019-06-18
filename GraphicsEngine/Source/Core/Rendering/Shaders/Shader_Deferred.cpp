@@ -13,7 +13,7 @@ Shader_Deferred::Shader_Deferred(class DeviceContext* dev) :Shader(dev)
 		1.0f, -1.0f, 0.0f,0.0f,
 		1.0f,  1.0f, 0.0f,0.0f,
 	};
-	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex,dev);
+	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, dev);
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 
@@ -55,6 +55,7 @@ std::vector<ShaderParameter> Shader_Deferred::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::EnvBRDF, 12));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::PreSampleShadows, 13));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::ScreenSpecular, 14));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::LightDataBuffer, 20));
 	return out;
 }
 std::vector<Shader::VertexElementDESC> Shader_Deferred::GetVertexFormat()

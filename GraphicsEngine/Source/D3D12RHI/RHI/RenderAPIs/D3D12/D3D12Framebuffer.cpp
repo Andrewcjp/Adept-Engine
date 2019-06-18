@@ -455,6 +455,11 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	}
 }
 
+DescriptorGroup * D3D12FrameBuffer::GetDescriptor()
+{
+	return SRVDesc;
+}
+
 
 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)

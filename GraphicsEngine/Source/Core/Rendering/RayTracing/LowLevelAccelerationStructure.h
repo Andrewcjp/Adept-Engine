@@ -1,9 +1,10 @@
 #pragma once
+#include "RHI/RHITypes.h"
 
 class Mesh;
 class RHICommandList;
 class DeviceContext;
-class LowLevelAccelerationStructure
+class LowLevelAccelerationStructure :public IRHIResourse
 {
 public:
 	RHI_API LowLevelAccelerationStructure(DeviceContext* Device);

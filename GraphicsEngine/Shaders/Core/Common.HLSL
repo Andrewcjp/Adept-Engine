@@ -20,5 +20,5 @@ PrimitiveData GetPrimitiveData(uint PrimitiveId)
 
 inline uint flatten2D(uint2 coord, uint2 dim)
 {
-	return coord.x + coord.y * dim.x;
+	return coord.x + (coord.y * dim.x);
 }

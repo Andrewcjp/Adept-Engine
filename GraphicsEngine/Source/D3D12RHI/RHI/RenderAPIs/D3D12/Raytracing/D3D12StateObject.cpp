@@ -56,7 +56,7 @@ void D3D12StateObject::CreateStateObject()
 
 	auto shaderConfig = RTPipe.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
 
-	UINT payloadSize = sizeof(glm::vec4)*3;    // float4 pixelColor
+	UINT payloadSize = sizeof(glm::vec4) * 3;    // float4 pixelColor
 	UINT attributeSize = sizeof(glm::vec2);  // float2 barycentrics
 	shaderConfig->Config(payloadSize, attributeSize);
 
@@ -177,20 +177,29 @@ void D3D12StateObject::BuildShaderTables()
 
 void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Pointers)
 {
-	for (int i = 0; i < shader->Buffers.size(); i++)
+	for (int i = 0; i < shader->LocalRootSig.GetNumBinds(); i++)
 	{
-		D3D12Buffer* DTex = D3D12RHI::DXConv(shader->Buffers[i]);
-		DTex->SetupBufferSRV();
-		auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
-		Pointers.push_back(heapPointer);
+		const RSBind* bind = shader->LocalRootSig.GetBind(i);
+		if (bind->BindType == ERSBindType::Texture)
+		{
+			D3D12Texture* DTex = D3D12RHI::DXConv(bind->Texture.Get());
+			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
+			Pointers.push_back(heapPointer);
+		}
+		else if (bind->BindType == ERSBindType::BufferSRV)
+		{
+			D3D12Buffer* DTex = D3D12RHI::DXConv(bind->BufferTarget);
+			DTex->SetupBufferSRV();
+			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
+			Pointers.push_back(heapPointer);
+		}
+		else if (bind->BindType == ERSBindType::FrameBuffer)
+		{
+			D3D12FrameBuffer* DTex = D3D12RHI::DXConv(bind->Framebuffer);
+			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
+			Pointers.push_back(heapPointer);
+		}
 	}
-	for (int t = 0; t < shader->Textures.size(); t++)
-	{
-		D3D12Texture* DTex = D3D12RHI::DXConv(shader->Textures[t].Get());
-		auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
-		Pointers.push_back(heapPointer);
-	}
-
 }
 
 void D3D12StateObject::RebuildShaderTable()

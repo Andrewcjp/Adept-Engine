@@ -44,7 +44,7 @@ void rayGen()
 	float aspectRatio = dims.x / dims.y;
 	const float SmoothNess = Normals.SampleLevel(g_sampler, NrmPos, 0).w;
 	
-	if (SmoothNess < 0.2)
+	if (SmoothNess < 0.8)
 	{
 		gOutput[launchIndex.xy] = float4(0, 0, 0, 0);
 		return;
