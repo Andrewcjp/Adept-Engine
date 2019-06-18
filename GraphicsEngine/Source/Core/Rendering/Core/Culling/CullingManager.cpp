@@ -88,4 +88,9 @@ void CullingManager::UpdateCullingForShadowLight(Light* light, Scene* target)
 
 }
 
+CullingFrustum * CullingManager::GetFustrum()
+{
+	return &Frustum;
+}
+
 

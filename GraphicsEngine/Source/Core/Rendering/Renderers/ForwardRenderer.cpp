@@ -1,18 +1,18 @@
 #include "ForwardRenderer.h"
 #include "Rendering/Core/Culling/CullingManager.h"
+#include "Rendering/Core/Defaults.h"
+#include "Rendering/Core/LightCulling/LightCullingEngine.h"
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "Rendering/Core/RelfectionProbe.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/Shader_PreZ.h"
+#include "Rendering/RayTracing/RayTracingEngine.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/VR/HMD.h"
 #include "Rendering/VR/VRCamera.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
-#include "../Core/LightCulling/LightCullingEngine.h"
-#include "../RayTracing/RayTracingEngine.h"
-#include "../Core/Defaults.h"
 
 
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
@@ -203,7 +203,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 		Cmdlist->SetFrameBufferTexture(DDOs[Cmdlist->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	}
 
-	//LightCulling->BindLightBuffer(Cmdlist);
+	LightCulling->BindLightBuffer(Cmdlist);
 	SceneRender->RenderScene(Cmdlist, false, targetbuffer, false, index);
 	if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)
 	{

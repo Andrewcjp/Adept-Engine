@@ -46,7 +46,7 @@ public:
 	GPUResource* GetResource(int index);
 	void Release() override;
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
-
+	DescriptorGroup* GetDescriptor();
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);

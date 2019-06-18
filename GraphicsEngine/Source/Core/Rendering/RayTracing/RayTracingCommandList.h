@@ -16,6 +16,7 @@ public:
 	bool IsFallback() const;
 	bool UseAPI()const;
 	RHICommandList* GetRHIList();
+	void Release();
 private:
 	RHICommandList* List = nullptr;
 	ERayTracingSupportType::Type CurrentMode = ERayTracingSupportType::Limit;

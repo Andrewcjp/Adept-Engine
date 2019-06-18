@@ -57,9 +57,10 @@ public:
 	static Threading::TaskGraph*	GetTaskGraph();
 	static bool IsSecondLoad();
 	CORE_API static EnginePersistentData* GetEPD();
+	static void						ImmediateExit(int code = 0);
 private:
 	EnginePersistentData*			EPD = nullptr;
-	static void						Exit(int code = 0);
+
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;
 	IntPoint						IntialScreenSize;

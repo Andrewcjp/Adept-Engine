@@ -1,16 +1,15 @@
 #include "RayTracingEngine.h"
+#include "Core/Assets/ShaderComplier.h"
+#include "Core/BaseWindow.h"
 #include "HighLevelAccelerationStructure.h"
 #include "LowLevelAccelerationStructure.h"
+#include "RayTracingCommandList.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Renderers/RenderEngine.h"
 #include "RHI/DeviceContext.h"
-#include "Core/Assets/ShaderComplier.h"
 #include "RHIStateObject.h"
 #include "Shader_RTBase.h"
-#include "Core/BaseWindow.h"
-#include "RayTracingCommandList.h"
 #include "ShaderBindingTable.h"
-#include "../Renderers/RenderEngine.h"
-#include "../Core/SceneRenderer.h"
-
 
 RayTracingEngine::RayTracingEngine()
 {
@@ -32,7 +31,12 @@ RayTracingEngine::RayTracingEngine()
 }
 
 RayTracingEngine::~RayTracingEngine()
-{}
+{
+	SafeRelease(RTList);
+	SafeDelete(DefaultTable);
+	SafeRelease(StateObject);
+	SafeRelease(CurrnetHL);
+}
 
 RayTracingEngine * RayTracingEngine::Get()
 {
@@ -129,6 +133,7 @@ void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer
 	{
 		StateObject->RebuildShaderTable();
 	}
+	ensure(NormalSrcBuffer);
 	StateObject->TempCam = BaseWindow::GetCurrentCamera();
 	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 

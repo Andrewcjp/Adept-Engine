@@ -272,11 +272,11 @@ void Engine::RequestExit(int code)
 	}
 	else
 	{
-		Exit(code);
+		ImmediateExit(code);
 	}
 }
 //this handles no window cases
-void Engine::Exit(int code)
+void Engine::ImmediateExit(int code)
 {
 	Log::LogMessage("Exit code " + std::to_string(code));
 	PlatformWindow::DestroyApplication();

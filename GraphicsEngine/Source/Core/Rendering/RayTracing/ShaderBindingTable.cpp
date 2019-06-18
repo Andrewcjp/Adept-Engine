@@ -34,7 +34,7 @@ void ShaderBindingTable::InitDefault()
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::UAV, 0, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::RootSRV, 1, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));
-	
+
 }
 
 void ShaderBindingTable::InitReflections()
@@ -78,5 +78,9 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 		Shader->Buffers.push_back(Object->GetMesh()->SubMeshes[i]->IndexBuffers[0].Get());
 		Shader->Buffers.push_back(Object->GetMesh()->SubMeshes[i]->VertexBuffers[0].Get());
 		Shader->Textures.push_back(Object->GetMesh()->GetMaterial(0)->GetTexturebind("DiffuseMap"));
+
+		Shader->LocalRootSig.SetBufferReadOnly(0, Object->GetMesh()->SubMeshes[i]->IndexBuffers[0].Get());
+		Shader->LocalRootSig.SetBufferReadOnly(1, Object->GetMesh()->SubMeshes[i]->VertexBuffers[0].Get());
+		Shader->LocalRootSig.SetTexture(2, Object->GetMesh()->GetMaterial(0)->GetTexturebind("DiffuseMap"));
 	}
 }

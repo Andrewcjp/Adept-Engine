@@ -42,10 +42,7 @@ RenderEngine::~RenderEngine()
 	DestoryRenderWindow();
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
-		if (i != 0)
-		{
-			DDOs[i].Release();
-		}
+		DDOs[i].Release();
 	}
 	SafeDelete(SceneRender);
 	SafeDelete(mShadowRenderer);
@@ -86,6 +83,7 @@ void RenderEngine::PreRender()
 		StaticUpdate();
 	}
 	Scaler->Tick();
+	SceneRender->LightsBuffer.LightCount = LightCulling->GetNumLights();
 	SceneRender->UpdateLightBuffer(MainScene->GetLights());
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
@@ -147,7 +145,7 @@ void RenderEngine::Init()
 	Post->Init(DDOs[0].MainFrameBuffer);
 
 	SceneRender->SB = DDOs[0].SkyboxShader;
-	LightCulling->Init();
+	LightCulling->Init(Culling);
 
 	//debug 
 #if !NOSHADOW
@@ -251,7 +249,7 @@ void RenderEngine::Resize(int width, int height)
 	}
 	int ApoxPValue = glm::iround((float)GetScaledWidth() / (16.0f / 9.0f));
 	Log::OutS << "Resizing to " << GetScaledWidth() << "x" << GetScaledHeight() << " approx: " << ApoxPValue << "P " << Log::OutS;
-	LightCulling->Init();
+	LightCulling->Resize();
 	PostSizeUpdate();
 }
 
@@ -447,7 +445,15 @@ DeviceDependentObjects::~DeviceDependentObjects()
 
 void DeviceDependentObjects::Release()
 {
-
+	SafeRelease(Gbuffer);
+	SafeRelease(MainFrameBuffer);
+	SafeRelease(RightEyeFramebuffer);
+	SafeRelease(RightEyeGBuffer);
+	SafeRelease(RTBuffer);
+	MemoryUtils::DeleteReleaseableCArray(MainCommandList, EEye::Limit);
+	MemoryUtils::DeleteReleaseableCArray(GbufferWriteList, EEye::Limit);
+	SafeDelete(DeferredShader);
+	SafeRelease(DebugCommandList);
 }
 
 FrameBuffer * DeviceDependentObjects::GetGBuffer(EEye::Type e)
@@ -526,7 +532,11 @@ void RenderEngine::PostSizeUpdate()
 void RenderEngine::RunLightCulling()
 {
 	LightCulling->RunLightBroadphase();
-	//	LightCulling->LaunchCullingForScene(EEye::Left);
+	SceneRender->LightsBuffer.LightCount = LightCulling->GetNumLights();
+	SceneRender->LightsBuffer.TileX = LightCulling->GetLightGridDim().x;
+	SceneRender->LightsBuffer.TileY = LightCulling->GetLightGridDim().y;
+	SceneRender->UpdateLightBuffer(MainScene->GetLights());
+	LightCulling->LaunchCullingForScene(EEye::Left);
 }
 
 DynamicResolutionScaler * RenderEngine::GetDS()

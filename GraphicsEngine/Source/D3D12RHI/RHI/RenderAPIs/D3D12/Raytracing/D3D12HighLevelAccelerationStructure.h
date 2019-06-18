@@ -14,6 +14,9 @@ public:
 
 	void BuildInstanceBuffer();
 	ID3D12Resource* m_topLevelAccelerationStructure = nullptr;
+
+	virtual void Release() override;
+
 private:
 	ID3D12Resource* instanceDescs = nullptr;
 	

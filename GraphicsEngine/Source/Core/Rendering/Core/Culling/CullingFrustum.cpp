@@ -26,6 +26,23 @@ void CullingFrustum::DebugRender()
 	DebugDrawers::DrawCameraFrustum(Frustum);
 }
 
+bool CullingFrustum::SphereInFrustum(glm::vec3 &pos, float radius)
+{
+	bool res = true;
+	//test all 6 frustum planes
+	for (int i = 0; i < 6; i++)
+	{
+		//calculate distance from sphere center to plane.
+		//if distance larger then sphere radius - sphere is outside frustum
+		if (frustum_planes[i].x * pos.x + frustum_planes[i].y * pos.y + frustum_planes[i].z * pos.z + frustum_planes[i].w <= -radius)
+		{
+			res = false;
+		}
+		//return false; //with flag works faster
+	}
+	return res;
+}
+
 __forceinline bool CullingFrustum::RightParallelepipedInFrustum(const glm::vec4& Min, const glm::vec4& Max)
 {
 	bool inside = true;

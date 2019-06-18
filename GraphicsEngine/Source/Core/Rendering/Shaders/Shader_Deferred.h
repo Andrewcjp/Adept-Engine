@@ -16,6 +16,7 @@ namespace DeferredLightingShaderRSBinds
 		EnvBRDF,
 		PreSampleShadows,
 		ScreenSpecular,
+		LightDataBuffer,
 		Limit
 	};
 }

@@ -20,6 +20,7 @@ MeshRendererComponent::~MeshRendererComponent()
 {
 	//todo: safe mesh removal
 	EnqueueSafeRHIRelease(m_mesh);
+	MemoryUtils::DeleteReleaseableVector(MeshAcclerations);
 }
 
 void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)

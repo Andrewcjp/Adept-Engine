@@ -74,3 +74,8 @@ RHICommandList * RayTracingCommandList::GetRHIList()
 {
 	return List;
 }
+
+void RayTracingCommandList::Release()
+{
+	List->Release();
+}

@@ -99,3 +99,9 @@ void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
 		instanceDescs->Unmap(0, nullptr);*/
 	}
 }
+
+void D3D12HighLevelAccelerationStructure::Release()
+{
+	SafeRelease(instanceDescs);
+	SafeRelease(scratchSpace);
+}

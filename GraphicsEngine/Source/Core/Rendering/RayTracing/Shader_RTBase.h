@@ -1,5 +1,6 @@
 #pragma once
 #include "RHI/Shader.h"
+#include "RHI/RHIRootSigniture.h"
 //A base class that handles the different types of ray shaders
 namespace ERTShaderType
 {
@@ -23,6 +24,8 @@ public:
 	RHI_API std::vector<std::string>& GetExports();
 	std::vector<BaseTextureRef> Textures;
 	std::vector<RHIBuffer*> Buffers;
+	RHIRootSigniture LocalRootSig;
+	void InitRS();
 protected:
 	ERTShaderType::Type ShaderStage = ERTShaderType::Limit;
 	std::vector<std::string> ExportedSymbols;

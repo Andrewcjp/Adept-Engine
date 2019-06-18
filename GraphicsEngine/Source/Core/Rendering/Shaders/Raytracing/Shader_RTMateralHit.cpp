@@ -3,7 +3,7 @@
 Shader_RTMateralHit::Shader_RTMateralHit(DeviceContext * C) :
 	Shader_RTBase(C, "Raytracing\\MaterialBaseHitShader", ERTShaderType::Hit)
 {
-
+	InitRS();
 }
 
 Shader_RTMateralHit::~Shader_RTMateralHit()

@@ -125,7 +125,7 @@ public:
 	void ValidateForAPI(ERenderSystemType system);
 	RendererSettings& GetSettingsForRender();
 	EVRHMDMode::Type VRHMDMode = EVRHMDMode::Disabled;
-
+	void ValidateSettings();
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;

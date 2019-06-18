@@ -44,7 +44,8 @@ void Shader_Main::GetMainShaderSig(std::vector<ShaderParameter>& out)
 	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::PreSampledShadows, 13));
 	out.push_back(ShaderParameter(ShaderParamType::RootConstant, MainShaderRSBinds::ResolutionCBV, 5));
 	out[out.size() - 1].NumDescriptors = 2;
-	out.push_back(ShaderParameter(ShaderParamType::UAV, MainShaderRSBinds::LightBuffer, 0, 0, RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_PIXEL));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::LightBuffer, 31));
+	out.push_back(ShaderParameter(ShaderParamType::SRV, MainShaderRSBinds::LightDataBuffer, 30));
 }
 
 std::vector<Shader::VertexElementDESC> Shader_Main::GetMainVertexFormat()

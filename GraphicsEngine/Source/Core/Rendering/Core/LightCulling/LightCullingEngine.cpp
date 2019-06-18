@@ -1,24 +1,27 @@
 #include "LightCullingEngine.h"
+#include "Core/Assets/Scene.h"
 #include "Core/BaseWindow.h"
 #include "Core/Utils/StringUtil.h"
+#include "Rendering/Core/Culling/CullingManager.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Renderers/RenderEngine.h"
 #include "Rendering/Shaders/Culling/Shader_LightCull.h"
-#include "Rendering/Shaders/Shader_Main.h"
 #include "RHI/DeviceContext.h"
-#include "Core/Assets/Scene.h"
-#include "Core/Utils/DebugDrawers.h"
+#include "Core/Performance/PerfManager.h"
+#include "../../Shaders/Shader_Deferred.h"
 static ConsoleVariable ShowLightBounds("c.ShowLightBounds", 0);
+static ConsoleVariable FreezeLightCulling("c.LightFreeze", 0);
+const std::string LightVisible = "CPU Lights Visible";
 LightCullingEngine::LightCullingEngine()
-{}
-
-
+{
+	PerfManager::Get()->AddTimer(LightVisible.c_str(), "Culling");
+}
 LightCullingEngine::~LightCullingEngine()
 {
-	EnqueueSafeRHIRelease(LightBuffer);
+	EnqueueSafeRHIRelease(LightCullingBuffer);
 }
 
-void LightCullingEngine::Init()
+void LightCullingEngine::Init(CullingManager * m)
 {
 	if (CullingList[0] == nullptr)
 	{
@@ -29,7 +32,16 @@ void LightCullingEngine::Init()
 		}
 	}
 	CreateLightDataBuffer();
+	Manager = m;
+	LightDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	RHIBufferDesc Desc = {};
+	Desc.CreateSRV = true;
+	Desc.ElementCount = MAX_POSSIBLE_LIGHTS;
+	Desc.Stride = sizeof(LightUniformBuffer);
+	Desc.Accesstype = EBufferAccessType::Dynamic;
+	LightDataBuffer->CreateBuffer(Desc);
 }
+
 
 void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
 {
@@ -38,9 +50,9 @@ void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
 	list->ResetList();
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_LightCull>());
 	list->SetPipelineStateDesc(desc);
-	list->SetUAV(LightBuffer->GetUAV(), "DstTexture");
+	list->SetUAV(LightCullingBuffer->GetUAV(), "DstTexture");
 	BaseWindow::GetCurrentRenderer()->SceneRender->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
-
+	LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
 	list->Dispatch(GetLightGridDim().x, GetLightGridDim().y, 1);
 	list->Execute();
 	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
@@ -60,13 +72,11 @@ void LightCullingEngine::WaitForCulling(RHICommandList * list)
 
 void LightCullingEngine::BindLightBuffer(RHICommandList * list)
 {
-	//#TODO: the GPU hangs if bound as a structured buffer 
-#if 0
-	LightBuffer->SetBufferState(list, EBufferResourceState::Read);
-	LightBuffer->BindBufferReadOnly(list, MainShaderRSBinds::LightBuffer);
-#else
-	LightBuffer->GetUAV()->Bind(list, MainShaderRSBinds::LightBuffer);
-#endif
+	LightCullingBuffer->SetBufferState(list, EBufferResourceState::Read);
+	LightCullingBuffer->BindBufferReadOnly(list, MainShaderRSBinds::LightBuffer);
+	LightDataBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
+
+
 }
 void LightCullingEngine::Unbind(RHICommandList* list)
 {
@@ -76,45 +86,81 @@ void LightCullingEngine::Unbind(RHICommandList* list)
 
 void LightCullingEngine::RunLightBroadphase()
 {
+
 	//Run a sphere to sphere test
-
-	//then check against the fustrum
-	if (ShowLightBounds.GetBoolValue())
+	std::vector<Light*> lights = BaseWindow::GetScene()->GetLights();
+	if (!FreezeLightCulling.GetBoolValue())
 	{
-		std::vector<Light*> lights = BaseWindow::GetScene()->GetLights();
-
+		LightsInFustrum.clear();
 		for (int i = 0; i < lights.size(); i++)
 		{
 			Light* L = lights[i];
-			DebugDrawers::DrawDebugSphere(L->GetPosition(), 0.5f, L->GetColor());
+			if (Manager->GetFustrum()->SphereInFrustum(L->GetPosition(), L->GetRange()))
+			{
+				LightsInFustrum.push_back(L);
+			}
+		}
+		PerfManager::AddToCountTimer(LightVisible, LightsInFustrum.size());
+	}
+	//then check against the fustrum
+	if (ShowLightBounds.GetBoolValue())
+	{
+		for (int i = 0; i < lights.size(); i++)
+		{
+			Light* L = lights[i];
+			glm::vec3 Col = VectorUtils::Contains(LightsInFustrum, L) ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0);
+
+			DebugDrawers::DrawDebugSphere(L->GetPosition(), 0.5f, Col);
 			if (L->GetType() == ELightType::Point)
 			{
 				DebugDrawers::DrawDebugSphere(L->GetPosition(), L->GetRange(), L->GetColor());
-			}			
+			}
 			//#LCULLING: Support other light types
 		}
 	}
+	UpdateLightsBuffer();
 }
 
 void LightCullingEngine::BuildLightWorldGrid()
 {}
 
+void LightCullingEngine::UpdateLightsBuffer()
+{
+	LightData.clear();
+	for (Light* L : LightsInFustrum)
+	{
+		LightUniformBuffer newitem = SceneRenderer::CreateLightEntity(L);
+		LightData.push_back(newitem);
+	}
+	//LightDataBuffer->UpdateConstantBuffer(LightData.data(), 0);
+	LightDataBuffer->UpdateBufferData(LightData.data(), sizeof(LightUniformBuffer)*LightData.size(), EBufferResourceState::Read);
+}
+
+void LightCullingEngine::Resize()
+{
+	CreateLightDataBuffer();
+}
+
+int LightCullingEngine::GetNumLights() const
+{
+	return LightsInFustrum.size();
+}
 
 void LightCullingEngine::CreateLightDataBuffer()
 {
-	if (LightBuffer != nullptr)
+	if (LightCullingBuffer != nullptr)
 	{
 		//return;
-		EnqueueSafeRHIRelease(LightBuffer);
+		EnqueueSafeRHIRelease(LightCullingBuffer);
 	}
 	RHIBufferDesc desc;
 	desc.AllowUnorderedAccess = true;
 	desc.CreateUAV = true;
 	desc.CreateSRV = true;
 	desc.Stride = sizeof(uint);
-	desc.ElementCount = LightCullingEngine::GetLightGridDim().x * LightCullingEngine::GetLightGridDim().y*(RHI::GetRenderConstants()->MAX_LIGHTS);
+	desc.ElementCount = LightCullingEngine::GetLightGridDim().x * LightCullingEngine::GetLightGridDim().y * (RHI::GetRenderConstants()->MAX_LIGHTS);
 	desc.Accesstype = EBufferAccessType::GPUOnly;
-	LightBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
-	LightBuffer->CreateBuffer(desc);
+	LightCullingBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
+	LightCullingBuffer->CreateBuffer(desc);
 	Log::LogMessage("Light culling buffer is " + StringUtils::ToStringFloat((desc.Stride*desc.ElementCount) / 1e6) + "MB");
 }

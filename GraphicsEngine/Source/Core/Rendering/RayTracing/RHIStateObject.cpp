@@ -9,3 +9,4 @@ RHIStateObject::RHIStateObject(DeviceContext* D)
 
 RHIStateObject::~RHIStateObject()
 {}
+

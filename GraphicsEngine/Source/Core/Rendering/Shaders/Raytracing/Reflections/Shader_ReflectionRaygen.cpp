@@ -5,6 +5,7 @@ Shader_ReflectionRaygen::Shader_ReflectionRaygen(DeviceContext * D)
 	:Shader_RTBase(D, "Raytracing\\ReflectionRayGenShader", ERTShaderType::RayGen)
 {
 	AddExport("rayGen");
+	InitRS();
 }
 
 Shader_ReflectionRaygen::~Shader_ReflectionRaygen()

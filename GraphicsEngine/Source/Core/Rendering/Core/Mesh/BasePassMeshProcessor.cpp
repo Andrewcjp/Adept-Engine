@@ -31,6 +31,10 @@ void BasePassMeshProcessor::AddBatch(MeshBatch* Batch)
 	{
 		return;
 	}
+	if (Batch->elements[0]->bTransparent)
+	{
+		return;
+	}
 	Process(Batch);
 }
 

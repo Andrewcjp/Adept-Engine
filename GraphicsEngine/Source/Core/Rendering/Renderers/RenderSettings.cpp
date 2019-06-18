@@ -188,7 +188,7 @@ RenderSettings::RenderSettings()
 	IsDeferred = UseDeferredMode.GetBoolValue();
 	EnableVR = true;
 	//RTSettings.UseForMainPass = true;
-	RTSettings.UseForReflections= true;
+	RTSettings.UseForReflections = true;
 	CurrentDebug = ERenderDebugOutput::Off;
 	EnableGPUParticles = true;
 	if (IsDeferred)
@@ -205,8 +205,16 @@ RenderSettings::RenderSettings()
 	RTSettings.Enabled = true;
 	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;
-	IsDeferred = true;
+	//IsDeferred = true;
 	VRHMDMode = EVRHMDMode::Disabled;
+}
+
+void RenderSettings::ValidateSettings()
+{
+	if (VRHMDMode != EVRHMDMode::Disabled || !IsDeferred)
+	{
+		RTSettings.Enabled = false;
+	}
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)
@@ -224,6 +232,8 @@ RendererSettings & RenderSettings::GetSettingsForRender()
 {
 	return RSettings;
 }
+
+
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
 {
@@ -252,7 +262,7 @@ RenderConstants::RenderConstants()
 {
 	MAX_DYNAMIC_POINT_SHADOWS = 4;
 	MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
-	MAX_LIGHTS = 1;
+	MAX_LIGHTS = 16;
 	DEFAULT_COPYLIST_POOL_SIZE = 4;
 	MAX_LIGHTS = glm::min(MAX_POSSIBLE_LIGHTS, MAX_LIGHTS);
 	LIGHTCULLING_TILE_SIZE = 16;

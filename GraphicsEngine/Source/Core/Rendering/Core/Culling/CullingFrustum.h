@@ -11,6 +11,7 @@ public:
 	bool TestObject(CullingAABB* AABB);
 	bool RightParallelepipedInFrustum(const glm::vec4& Min,const glm::vec4& Max);
 	void DebugRender();
+	bool SphereInFrustum(glm::vec3 & pos, float radius);
 	void normalizePlane(glm::vec4 & frustum_plane);
 	void CalculateFrustum(glm::mat4 & view_matrix, glm::mat4 & proj_matrix);
 private:
