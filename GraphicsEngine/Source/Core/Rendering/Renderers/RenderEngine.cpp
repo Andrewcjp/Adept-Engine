@@ -409,6 +409,11 @@ int RenderEngine::GetScaledHeight()
 	}
 }
 
+glm::ivec2 RenderEngine::GetScaledRes()
+{
+	return glm::ivec2(GetScaledWidth(), GetScaledHeight());
+}
+
 void RenderEngine::HandleCameraResize()
 {
 #if WITH_EDITOR

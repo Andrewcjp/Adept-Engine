@@ -9,6 +9,38 @@ cbuffer LightBuffer : register(b1)
 	int LightCount;
 	uint2 TileCount;
 };
+cbuffer CameraData : register(b2)
+{
+	float4x4 View;
+	float4x4 Projection;
+	float3 CameraPos;
+	float4x4 INV_Projection;
+	int2 Resolution;
+	float2 INV_Resolution;
+};
+
+float4 ClipToView(float4 clip)
+{
+	// View space position.
+	float4 view = mul(clip, INV_Projection);
+	// Perspective projection.
+	view = view / view.w;
+
+	return view;
+}
+// Convert screen space coordinates to view space.
+float4 ScreenToView(float4 screen)
+{
+	// Convert to normalized texture coordinates
+	float2 texCoord = screen.xy *INV_Resolution;
+
+	// Convert to clip space
+	float4 clip = float4(float2(texCoord.x, 1.0f - texCoord.y) * 2.0f - 1.0f, screen.z, screen.w);
+
+	return ClipToView(clip);
+}
+
+
 StructuredBuffer<Light> LightList : register(t0);
 void AppendEntity(uint entityIndex)
 {
@@ -28,15 +60,21 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 		ArrayLength = 0;
 	}
 	//build fustrum
-
+	float4 	Testpos = float4(float2(DTid.x+1, DTid.y+1)/* * LIGHTCULLING_TILE_SIZE*/, 1.0f, 1.0f);
+	Testpos = ScreenToView(Testpos);
 	//check spheres aganist it.
 
-	//debug culling for now
+	//debug culling for now 
 	for (int i = groupIndex; i < MAX_LIGHTS; i += LIGHTCULLING_TILE_SIZE * LIGHTCULLING_TILE_SIZE)
 	{
 		if (length(LightList[i].color) > 0)
 		{
-			AppendEntity(i);
+			float3 PosVS =  mul(float4(LightList[i].LPosition, 1.0f), View);
+			float dis = length(Testpos.xyz - PosVS);
+			if (dis <= LightList[i].Range)
+			{
+				AppendEntity(i);
+			}
 		}
 	}
 	GroupMemoryBarrierWithGroupSync();

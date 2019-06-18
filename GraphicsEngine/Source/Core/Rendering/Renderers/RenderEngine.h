@@ -74,6 +74,7 @@ public:
 	Camera* GetMainCam();
 	int GetScaledWidth();
 	int GetScaledHeight();
+	glm::ivec2 GetScaledRes();
 	void HandleCameraResize();
 	virtual void PostProcessPass();
 	void PresentToScreen();

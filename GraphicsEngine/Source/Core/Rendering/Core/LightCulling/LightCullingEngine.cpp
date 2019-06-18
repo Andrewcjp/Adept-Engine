@@ -52,6 +52,7 @@ void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
 	list->SetPipelineStateDesc(desc);
 	list->SetUAV(LightCullingBuffer->GetUAV(), "DstTexture");
 	BaseWindow::GetCurrentRenderer()->SceneRender->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
+	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(list, desc.ShaderInUse->GetSlotForName("CameraData"));
 	LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
 	list->Dispatch(GetLightGridDim().x, GetLightGridDim().y, 1);
 	list->Execute();
@@ -64,7 +65,7 @@ glm::ivec2 LightCullingEngine::GetLightGridDim()
 	int tileWidth = glm::ceil(BaseWindow::GetCurrentRenderer()->GetScaledWidth() / TileSize);
 	int tileHeight = glm::ceil(BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize);
 	tileHeight += 1;
-	return glm::ivec2(tileWidth, tileHeight);
+	return glm::ivec2(tileWidth, tileHeight); 
 }
 
 void LightCullingEngine::WaitForCulling(RHICommandList * list)

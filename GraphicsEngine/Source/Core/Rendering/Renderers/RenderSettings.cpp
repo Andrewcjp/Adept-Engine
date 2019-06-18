@@ -190,7 +190,7 @@ RenderSettings::RenderSettings()
 	//RTSettings.UseForMainPass = true;
 	RTSettings.UseForReflections = true;
 	CurrentDebug = ERenderDebugOutput::Off;
-	EnableGPUParticles = true;
+	//EnableGPUParticles = true;
 	if (IsDeferred)
 	{
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
@@ -202,7 +202,7 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = true;
+//	RTSettings.Enabled = true;
 	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;
 	//IsDeferred = true;

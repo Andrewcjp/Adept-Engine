@@ -100,6 +100,10 @@ void SceneRenderer::UpdateMV(Camera * c, int index /*= 0*/)
 	MV_Buffer.V = c->GetView();
 	MV_Buffer.P = c->GetProjection();
 	MV_Buffer.CameraPos = c->GetPosition();
+	MV_Buffer.INV_P = glm::inverse(MV_Buffer.P);
+	MV_Buffer.Res = BaseWindow::GetCurrentRenderer()->GetScaledRes();
+	MV_Buffer.INV_res.x = 1.0f / (float)MV_Buffer.Res.x;
+	MV_Buffer.INV_res.y = 1.0f / (float)MV_Buffer.Res.y;
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, index);
 }
 
