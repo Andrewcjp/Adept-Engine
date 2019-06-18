@@ -30,6 +30,9 @@ struct MVBuffer
 	glm::mat4 V;
 	glm::mat4 P;
 	glm::vec3 CameraPos;
+	glm::mat4 INV_P;
+	glm::ivec2 Res;
+	glm::vec2 INV_res;
 };
 
 struct LightBufferW

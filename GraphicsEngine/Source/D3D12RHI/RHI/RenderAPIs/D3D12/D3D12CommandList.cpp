@@ -592,6 +592,10 @@ void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot)
 
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot)
 {
+	if (Slot == -1)
+	{
+		return;
+	}
 	ensure(!buffer->IsPendingKill());
 	D3D12Buffer* d3Buffer = D3D12RHI::DXConv(buffer);
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
