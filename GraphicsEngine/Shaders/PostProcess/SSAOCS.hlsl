@@ -13,8 +13,8 @@ cbuffer Data: register(b0)
 	float radius;
 	float bias;
 	int kernelSize;
-	row_major matrix projection;
-	row_major matrix view;
+	float4x4 projection;
+	float4x4 view;
 	float3 samples[64];
 };
 
@@ -52,7 +52,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
 		float sampleDepth = PosTex[offset.xy].z; // get depth value of kernel sample
 		sampleDepth = mul(float4(PosTex[offset.xy].xyz, 1.0f), view).z;
-		//float sampleDepth = PosTex[offset.xy].z;
 		// range check & accumulate
 		float rangeCheck = smoothstep(0.0, 1.0, radius / abs(sampleDepth-pos.z));
 		occlusion += (sampleDepth >= tsample.z + bias ? 1.0 : 0.0) * rangeCheck;

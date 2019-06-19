@@ -4,6 +4,7 @@ groupshared uint LightIndexs[MAX_LIGHTS];
 groupshared uint ArrayLength;
 #include "Lighting.hlsl"
 #include "Core/Common.hlsl"
+#include "CullingCommon.hlsl"
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
@@ -60,18 +61,54 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 		ArrayLength = 0;
 	}
 	//build fustrum
-	float4 	Testpos = float4(float2(DTid.x+1, DTid.y+1)/* * LIGHTCULLING_TILE_SIZE*/, 1.0f, 1.0f);
-	Testpos = ScreenToView(Testpos);
 	//check spheres aganist it.
 
+	const float3 eyePos = float3(0, 0, 0);
+
+	// Compute 4 points on the far clipping plane to use as the 
+	// frustum vertices.
+	uint2 ID = DTid.xy;
+	int Size = LIGHTCULLING_TILE_SIZE;//LIGHTCULLING_TILE_SIZE
+	float4 screenSpace[4];
+	// Top left point
+	screenSpace[0] = float4(ID.xy * Size, 1.0f, 1.0f);
+	// Top right point
+	screenSpace[1] = float4(float2(ID.x + 1, ID.y) * Size, 1.0f, 1.0f);
+	// Bottom left point
+	screenSpace[2] = float4(float2(ID.x, ID.y + 1) * Size, 1.0f, 1.0f);
+	// Bottom right point
+	screenSpace[3] = float4(float2(ID.x + 1, ID.y + 1) * Size, 1.0f, 1.0f);
+
+	float3 viewSpace[4];
+	// Now convert the screen space points to view space
+	for (int i = 0; i < 4; i++)
+	{
+		viewSpace[i] = ScreenToView(screenSpace[i]).xyz;
+	}
+
+	// Now build the frustum planes from the view space points
+	Frustum frustum;
+
+	// Left plane
+	frustum.planes[0] = ComputePlane(viewSpace[2], eyePos, viewSpace[0]);
+	// Right plane
+	frustum.planes[1] = ComputePlane(viewSpace[1], eyePos, viewSpace[3]);
+	// Top plane
+	frustum.planes[2] = ComputePlane(viewSpace[0], eyePos, viewSpace[1]);
+	// Bottom plane
+	frustum.planes[3] = ComputePlane(viewSpace[3], eyePos, viewSpace[2]);
+	float fMaxDepth = 1000.0f;
+	float maxDepthVS = ScreenToView(float4(0, 0, fMaxDepth, 1)).z;
+	float nearClipVS = ScreenToView(float4(0, 0, 1, 1)).z;
 	//debug culling for now 
 	for (int i = groupIndex; i < MAX_LIGHTS; i += LIGHTCULLING_TILE_SIZE * LIGHTCULLING_TILE_SIZE)
 	{
 		if (length(LightList[i].color) > 0)
 		{
-			float3 PosVS =  mul(float4(LightList[i].LPosition, 1.0f), View);
-			float dis = length(Testpos.xyz - PosVS);
-			if (dis <= LightList[i].Range)
+			float3 PosVS = mul(float4(LightList[i].LPosition, 0.0f), View);
+			Sphere Sp = { PosVS ,10 };
+			//float dis = length(Testpos.xyz - PosVS);
+			if (SphereInsideFrustum(Sp, frustum, nearClipVS, maxDepthVS))
 			{
 				AppendEntity(i);
 			}

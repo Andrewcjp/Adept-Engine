@@ -25,6 +25,7 @@
 #include "RHI/RHI.h"
 #include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
 #include "../RayTracing/RayTracingEngine.h"
+#include "../Shaders/Shader_Deferred.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -458,7 +459,7 @@ void DeviceDependentObjects::Release()
 	MemoryUtils::DeleteReleaseableCArray(MainCommandList, EEye::Limit);
 	MemoryUtils::DeleteReleaseableCArray(GbufferWriteList, EEye::Limit);
 	SafeDelete(DeferredShader);
-	SafeRelease(DebugCommandList);
+	SafeRelease(DebugCommandList);	
 }
 
 FrameBuffer * DeviceDependentObjects::GetGBuffer(EEye::Type e)

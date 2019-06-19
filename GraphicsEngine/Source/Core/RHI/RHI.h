@@ -23,6 +23,7 @@ class HighLevelAccelerationStructure;
 class RayTracingEngine;
 class RHIStateObject;
 class RHIRenderPassCache;
+class RenderGraphSystem;
 //RHI defines
 #define SUPPORTVR 1
 #define PSO_USE_FULL_STRING_MAPS 1
@@ -104,6 +105,7 @@ public:
 	static void Tick();
 	static void SubmitToVRComposter(FrameBuffer* fb, EEye::Type eye);
 	RHI_API static RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);
+	static RenderGraphSystem* GetRenderSystem();
 private:
 	static void ValidateDevice(DeviceContext*& con);
 	static void ResizeFrameBuffer(FrameBuffer * target);
@@ -130,6 +132,7 @@ private:
 #endif
 	friend RHIRenderPassCache;
 	RHIRenderPassCache* RenderPassCache = nullptr;
+	RenderGraphSystem* RenderSystem = nullptr;
 };
 
 class RHI_API RHIClass

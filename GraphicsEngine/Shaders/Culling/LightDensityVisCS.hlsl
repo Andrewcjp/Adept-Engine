@@ -23,5 +23,9 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 	{
 		heat = float3(1, 1, 1);
 	}
+	if (lightcount == 0)
+	{
+		heat = float3(0, 0, 0);
+	}
 	DstTexture[DTid.xy] = SrcTex[DTid.xy] * 0.4 + float4(heat, 1.0f);
 }
