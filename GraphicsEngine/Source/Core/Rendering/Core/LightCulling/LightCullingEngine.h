@@ -1,4 +1,5 @@
 #pragma once
+#include "../SceneRenderer.h"
 
 class CullingManager;
 class LightCullingEngine

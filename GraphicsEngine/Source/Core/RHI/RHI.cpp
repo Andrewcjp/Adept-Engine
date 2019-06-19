@@ -21,6 +21,7 @@
 #include "RHIRenderPassCache.h"
 #include "Core/Input/Input.h"
 #include "Testing/EngineTests.h"
+#include "Rendering/RenderNodes/RenderGraphSystem.h"
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
@@ -278,6 +279,11 @@ RHIRenderPassDesc RHI::GetRenderPassDescForSwapChain(bool ClearScreen /*= false*
 	return GetRHIClass()->GetRenderPassDescForSwapChain(ClearScreen);
 }
 
+RenderGraphSystem * RHI::GetRenderSystem()
+{
+	return Get()->RenderSystem;
+}
+
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 #if NOSHADOW
@@ -486,7 +492,8 @@ void RHI::InitialiseContext()
 	{
 		instance->RTE = new RayTracingEngine();
 	}
-
+	Get()->RenderSystem = new RenderGraphSystem();
+	Get()->RenderSystem->Test();
 }
 
 void RHI::ValidateSettings()

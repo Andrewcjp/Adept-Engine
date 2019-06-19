@@ -205,7 +205,7 @@ RenderSettings::RenderSettings()
 //	RTSettings.Enabled = true;
 	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;
-	//IsDeferred = true;
+	IsDeferred = true;
 	VRHMDMode = EVRHMDMode::Disabled;
 }
 
@@ -232,8 +232,6 @@ RendererSettings & RenderSettings::GetSettingsForRender()
 {
 	return RSettings;
 }
-
-
 
 void RenderSettings::SetRes(BBTestMode::Type Mode)
 {
