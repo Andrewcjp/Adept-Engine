@@ -98,12 +98,23 @@ void WindowsWindow::Maximize()
 
 bool WindowsWindow::CreateOSWindow(int width, int height)
 {
+#define NOTITLEWINDOW 0
 	std::string Title = std::string(ENGINE_NAME) + " " + Version::GetFullVersionString();
 	app->HWindow = CreateWindowEx(
-		WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
+		0,
 		L"RenderWindow", StringUtils::ConvertStringToWide(Title).c_str(),
-		WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+#if !NOTITLEWINDOW
+		WS_OVERLAPPEDWINDOW |
+#else
+		WS_OVERLAPPED |
+#endif
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
+#if NOTITLEWINDOW
+	SetWindowLong(app->HWindow, GWL_STYLE, 0);
+	glm::ivec2 Offset = glm::ivec2(100, 150);
+	SetWindowPos(app->HWindow, 0, Offset.x, Offset.y, Offset.x + width, Offset.y + height, SWP_FRAMECHANGED);
+#endif
 #if !WITH_EDITOR
 	Maximize();
 #endif
@@ -297,7 +308,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	{
 		case WM_CREATE:
 #if WITH_EDITOR
-			app->AddMenus(hwnd);
+			//app->AddMenus(hwnd);
 #endif
 			break;
 		case WM_COMMAND:

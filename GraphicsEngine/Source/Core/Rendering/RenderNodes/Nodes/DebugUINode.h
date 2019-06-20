@@ -1,14 +1,13 @@
 #pragma once
 #include "../RenderNode.h"
-class ForwardRenderNode : public RenderNode
+//handles Debug test Perf data and Lines.
+class DebugUINode : public RenderNode
 {
 public:
-	ForwardRenderNode();
-	~ForwardRenderNode();
+	DebugUINode();
+	~DebugUINode();
 
 	virtual void OnExecute() override;
-	virtual void SetupNode() override;
 	virtual std::string GetName() const override;
-
 };
 
