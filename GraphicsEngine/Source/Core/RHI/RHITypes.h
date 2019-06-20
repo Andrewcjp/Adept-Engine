@@ -426,6 +426,17 @@ protected:
 	DeviceContext* Device = nullptr;
 };
 
+namespace EFrameBufferSizeMode
+{
+	enum Type
+	{
+		Fixed,//Resize is handled explicitly 
+		LinkedToRenderScale, //the Scale of the renderer
+		LinkedToScreenSize, //Linked to the screen size
+		Limit
+	};
+};
+
 struct RHIFrameBufferDesc
 {
 public:
@@ -476,6 +487,7 @@ public:
 	bool AllowDynamicResize = false;
 	glm::ivec2 MaxSize = glm::ivec2(0, 0);
 	FrameBuffer* SharedDepthStencilSource = nullptr;
+	EFrameBufferSizeMode::Type SizeMode = EFrameBufferSizeMode::Fixed;
 };
 
 class RHI_API IRHIResourse : public IRefCount

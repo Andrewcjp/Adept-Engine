@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "DeferredLightingNode.h"
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StorageNode.h"
@@ -7,16 +7,17 @@
 DeferredLightingNode::DeferredLightingNode()
 {
 	ViewMode = EViewMode::PerView;
-	Inputs.push_back(new NodeLink(EStorageType::Framebuffer, StorageFormats::GBufferData));
-	Outputs.push_back(new NodeLink(EStorageType::Framebuffer, StorageFormats::DefaultFormat));
+	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
+	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Main buffer");
+	AddOutput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Lit scene");
 }
-
 
 DeferredLightingNode::~DeferredLightingNode()
 {}
 
 void DeferredLightingNode::SetupNode()
 {
+
 }
 
 void DeferredLightingNode::OnExecute()

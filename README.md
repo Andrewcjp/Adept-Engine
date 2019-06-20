@@ -2,33 +2,36 @@
 
 A flexible C++ Game engine:
 
+This is currently VERY work in progress
+
 Flexible RHI (Render Hardware Interface) supporting:
 
 * 	DirectX 12 
 * 	Vulkan (WIP)
 
-Renderer Features:
+Rendering Features:
 
+* Render Graph system for flexible renderer design
 * PBR Lighting Pipeline
 * Shadow mapping (static and dynamic)
 * GPU Particle System (WIP)
 * UI system (WIP)
-* Post Processing Stack
+* Post Processing Stack (WIP)
 * Raytracing (DXR) Support (WIP)
 * Light Culling (WIP)
-* VR Support (SteamVR)
+* VR Support (SteamVR) (WIP)
 
 Multi-GPU Features:
 
-* MultiGPU Shadow mapping
-* Asynchronous Shadow Mapping
+* Multi-GPU Shadow mapping
+* Asynchronous Multi-GPU Shadow Mapping
 * Split frame rendering (SFR)
-* SFR with MultiGPU Shadow mapping
+* SFR with Multi-GPU Shadow mapping
 
 Engine Features:
 
 * Custom Build Tool 
-* Custom header tool
+* Custom header tool (WIP)
 * Module System
 * Platform Abstraction Layer.
 
@@ -43,7 +46,3 @@ AI Features:
 * Navigation mesh generation 
 * Asynchronous path finding request system(WIP)
 * Behavior tree system
-
-
-
-

@@ -111,6 +111,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(glm::iround(GetScaledWidth()*ratio), glm::iround(GetScaledHeight()*ratio));
 	FBDesc.IncludedInSFR = true;
 	FBDesc.AllowUnordedAccess = true;
+	FBDesc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	if (con->GetDeviceIndex() > 0)
 	{
 		FBDesc.IsShared = true;
@@ -129,6 +130,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	FBDesc = RHIFrameBufferDesc::CreateGBuffer(GetScaledWidth(), GetScaledHeight());
 	FBDesc.clearcolour = glm::vec4(0, 0, 0, 0);
 	FBDesc.IncludedInSFR = true;
+	FBDesc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	DDO->Gbuffer = RHI::CreateFrameBuffer(con, FBDesc);
 	DDO->Gbuffer->SetDebugName("GBuffer");
 	if (RHI::SupportVR())
@@ -293,13 +295,12 @@ void DeferredRenderer::Resize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	DDOs[0].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		if (DDOs[i].Gbuffer)
 		{
-			DDOs[i].Gbuffer->Resize(GetScaledWidth(), GetScaledHeight());
-			DDOs[i].MainFrameBuffer->Resize(GetScaledWidth(), GetScaledHeight());
+			DDOs[i].Gbuffer->AutoResize();
+			DDOs[i].MainFrameBuffer->AutoResize();
 		}
 	}
 

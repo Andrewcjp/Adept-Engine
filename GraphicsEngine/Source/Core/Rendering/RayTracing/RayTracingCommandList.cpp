@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "RayTracingCommandList.h"
 
 

@@ -4,6 +4,8 @@
 #include "RHI/RHI.h"
 #include "RHI/SFRController.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/BaseWindow.h"
+#include "../Renderers/RenderEngine.h"
 
 FrameBuffer::FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc)
 {
@@ -174,6 +176,27 @@ size_t FrameBuffer::GetSizeOnGPU()
 		Size += BufferDesc.Width*BufferDesc.Height*RHIUtils::GetPixelSize(BufferDesc.DepthFormat);
 	}
 	return Size;
+}
+
+void FrameBuffer::AutoResize()
+{
+	if (BufferDesc.SizeMode == EFrameBufferSizeMode::Fixed)
+	{
+		Log::LogMessage("AutoResize Called on fixed size buffer this is invalid", Log::Error);
+		return;
+	}
+	if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale)
+	{
+		const int Height = glm::iround(BaseWindow::GetCurrentRenderer()->GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);
+		const int Width = glm::iround(BaseWindow::GetCurrentRenderer()->GetScaledWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		Resize(Width, Height);
+	}
+	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToScreenSize)
+	{
+		const int Height = glm::iround(BaseWindow::GetHeight()*BufferDesc.LinkToBackBufferScaleFactor);
+		const int Width = glm::iround(BaseWindow::GetWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		Resize(Width, Height);
+	}
 }
 
 void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)

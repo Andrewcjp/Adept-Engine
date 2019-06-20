@@ -39,7 +39,8 @@ public:
 
 
 	RHI_API virtual size_t GetSizeOnGPU() override;
-
+	//Helper that uses the SizeMode in the desc to resize FB
+	void AutoResize();
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();

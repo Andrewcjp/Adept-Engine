@@ -6,8 +6,8 @@
 GBufferWriteNode::GBufferWriteNode()
 {
 	ViewMode = EViewMode::PerView;
-	Inputs.push_back(new NodeLink(EStorageType::Framebuffer, StorageFormats::DefaultFormat));
-	Outputs.push_back(new NodeLink(EStorageType::Framebuffer, StorageFormats::GBufferData));
+	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat);
+	AddOutput(EStorageType::Framebuffer, StorageFormats::GBufferData);
 }
 
 GBufferWriteNode::~GBufferWriteNode()
