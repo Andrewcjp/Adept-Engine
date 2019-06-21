@@ -215,8 +215,8 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 75.0f);
 	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 75.0f);
 	//light testing
-#if 1
-	for (int i = 0; i < 32; i += 4)
+#if 0
+	for (int i = 0; i < 8; i += 4)
 	{
 		AddLight(glm::vec3(24, 7, -21), false, 75.0f);
 		AddLight(glm::vec3(33, 6, -3), false, 75.0f);

@@ -6,7 +6,7 @@ public:
 	GBufferWriteNode();
 	~GBufferWriteNode();
 	virtual void OnExecute() override;
-	virtual void SetupNode() override;
+	virtual void OnSetupNode() override;
 
 };
 

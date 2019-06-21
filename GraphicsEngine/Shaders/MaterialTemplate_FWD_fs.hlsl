@@ -109,7 +109,11 @@ float4 main(PSInput input) : SV_TARGET
 	[unroll(MAX_LIGHTS)]
 	for (int i = 0; i < count; i++)
 	{
+#ifdef LIGHT_CULLING
 		int index = LightIndexs[startOffset + i];
+#else
+		int index = i;
+#endif
 		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
 #ifdef WITH_SHADOW
 		[branch] if (lights[index].HasShadow && lights[index].PreSampled.x)

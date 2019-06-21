@@ -158,6 +158,9 @@ struct MultiGPUMode
 	void ValidateSettings();
 	bool UseSplitShadows() const;
 	MGPUMode::Type CurrnetTestMode = MGPUMode::Limit;
+	//ensure that all GPUs have a scene renderer CBV instance and Transfrom CBV
+	//Will affect performance of CBV writes due to duplication.
+	bool InitSceneDataOnAllGPUs = true;
 };
 //Props Are Set in the Constructor 
 struct RenderConstants

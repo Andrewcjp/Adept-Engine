@@ -198,14 +198,14 @@ RenderSettings::RenderSettings()
 	RenderScale = 1.0f;
 	SetRes(BBTestMode::HD);
 	MaxRenderScale = 2.0f;
-	UseZPrePass = true;
+	//UseZPrePass = true;
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
 //	RTSettings.Enabled = true;
 	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;
-	IsDeferred = true;
+	//IsDeferred = true;
 	VRHMDMode = EVRHMDMode::Disabled;
 }
 

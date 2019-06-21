@@ -68,7 +68,7 @@ void Shader_Convolution::ComputeConvolution(BaseTextureRef Target)
 	CmdList->BeginRenderPass(D);
 	CmdList->SetTexture(Target, 0);
 	for (int i = 0; i < 6; i++)
-	{
+	{		
 		CmdList->SetConstantBufferView(ShaderData, i, 1);
 		//Test->RenderScreenQuad(CmdList);
 		Cube->Render(CmdList);

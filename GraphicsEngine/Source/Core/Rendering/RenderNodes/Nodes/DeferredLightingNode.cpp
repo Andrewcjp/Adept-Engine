@@ -7,15 +7,13 @@
 DeferredLightingNode::DeferredLightingNode()
 {
 	ViewMode = EViewMode::PerView;
-	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
-	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Main buffer");
-	AddOutput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Lit scene");
+	OnNodeSettingChange();
 }
 
 DeferredLightingNode::~DeferredLightingNode()
 {}
 
-void DeferredLightingNode::SetupNode()
+void DeferredLightingNode::OnSetupNode()
 {
 
 }
@@ -24,4 +22,11 @@ void DeferredLightingNode::OnExecute()
 {
 	StorageNode* n = GetInput(0)->GetStoreTarget();
 	ensure(n);
+}
+
+void DeferredLightingNode::OnNodeSettingChange()
+{
+	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
+	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Main buffer");
+	AddOutput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Lit scene");
 }

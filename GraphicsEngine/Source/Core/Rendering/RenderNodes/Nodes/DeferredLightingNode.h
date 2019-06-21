@@ -5,8 +5,11 @@ class DeferredLightingNode : public RenderNode
 public:
 	DeferredLightingNode();
 	~DeferredLightingNode();
-	virtual void SetupNode() override;
+	virtual void OnSetupNode() override;
 	virtual void OnExecute() override;
+
+
+	virtual void OnNodeSettingChange() override;
 
 };
 

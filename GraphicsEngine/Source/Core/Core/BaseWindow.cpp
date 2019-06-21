@@ -22,6 +22,7 @@
 #include "RHI/RHI.h"
 #include "Rendering/VR/HMDManager.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"
+#include "Rendering/RenderNodes/RenderGraphSystem.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
@@ -215,7 +216,14 @@ void BaseWindow::Render()
 	DebugLineDrawer::Get2()->GenerateLines();
 	DebugLineDrawer::Get()->GenerateLines();
 #endif
+#if TESTGRAPH
+	RHI::RHIRunFirstFrame();
+	Renderer->PreRender();
+	RHI::GetRenderSystem()->Render();
+#else
 	Renderer->Render();
+#endif
+	
 #if !BASIC_RENDER_ONLY
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");

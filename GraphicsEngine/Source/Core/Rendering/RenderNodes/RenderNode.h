@@ -25,16 +25,18 @@ namespace ENodeQueueType
 };
 
 class NodeLink;
+class SceneDataNode;
 class RenderNode
 {
 public:
 	RenderNode();
 	virtual ~RenderNode();
-	
+	//Called to update the inputs for this node etc.
+	void UpdateSettings();
+
 	//Implemented By every node to run It should be able to be invoked N times without issue
 	virtual void OnExecute() = 0;
-	//Creates all data need to run a node on X device should NOT call functions on external objects (excluding Render systems like the MeshPipline).
-	virtual void SetupNode() {};
+
 
 	//This is called when a setting is updated
 	virtual void RefreshNode() {};
@@ -56,8 +58,16 @@ public:
 	RenderNode* GetNextNode()const;
 	virtual std::string GetName()const;
 	void ValidateNode(RenderGraph::ValidateArgs & args);
+	void SetupNode();
 
 protected:
+	//helpers:
+	FrameBuffer* GetFrameBufferFromInput(int index);
+	Scene* GetSceneDataFromInput(int index);
+	virtual void OnNodeSettingChange();
+	
+	//Creates all data need to run a node on X device should NOT call functions on external objects (excluding Render systems like the MeshPipline).
+	virtual void OnSetupNode() {};
 	virtual void OnValidateNode(RenderGraph::ValidateArgs & args);
 	void AddInput(EStorageType::Type TargetType, std::string format, std::string InputName = std::string());
 	void AddOutput(EStorageType::Type TargetType, std::string format, std::string InputName = std::string());
@@ -70,5 +80,6 @@ protected:
 	std::vector<NodeLink*> Inputs;
 	std::vector<NodeLink*> Outputs;
 	std::vector<NodeLink*> Refrences;
+	DeviceContext* Context = nullptr;
 };
 

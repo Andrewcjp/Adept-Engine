@@ -52,6 +52,7 @@ class RelfectionProbe;
 class SceneRenderer
 {
 public:
+	static SceneRenderer* Get();
 	SceneRenderer(class Scene* Target);
 	~SceneRenderer();
 	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false, int index = 0);

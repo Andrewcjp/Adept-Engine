@@ -108,7 +108,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 			float3 PosVS = mul(float4(LightList[i].LPosition, 0.0f), View);
 			Sphere Sp = { PosVS ,10 };
 			//float dis = length(Testpos.xyz - PosVS);
-			if (SphereInsideFrustum(Sp, frustum, nearClipVS, maxDepthVS))
+			//if (SphereInsideFrustum(Sp, frustum, nearClipVS, maxDepthVS))
 			{
 				AppendEntity(i);
 			}

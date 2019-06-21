@@ -370,7 +370,7 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	{
 		return ImageIO::GetDefaultTexture();
 	}
-	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 0 && RHI::IsD3D12())
+	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 0 && RHI::IsD3D12() && RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs)
 	{
 		BaseTextureRef other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
 		newtex->RegisterOtherDeviceTexture(other.Get());
@@ -522,6 +522,10 @@ void RHI::RHISwapBuffers()
 
 void RHI::RHIRunFirstFrame()
 {
+	if (RHI::GetFrameCount() != 0)
+	{
+		return;
+	}
 	GetRHIClass()->RHIRunFirstFrame();
 	ShaderComplier::Get()->TickMaterialComplie();
 	GetRHIClass()->SetFullScreenState(StartFullscreen.GetBoolValue());

@@ -1,18 +1,23 @@
-
 #include "SceneRenderer.h"
-#include "Rendering/Shaders/Shader_Main.h"
-#include "Core/GameObject.h"
 #include "Core/Assets/Scene.h"
-#include "Rendering/Shaders/Shader_NodeGraph.h"
-#include "Rendering/Core/RelfectionProbe.h"
-#include "Rendering/Core/Material.h"
-#include "Core/Performance/PerfManager.h"
-#include "Mesh/MeshPipelineController.h"
-#include "FrameBufferProcessor.h"
-#include "../VR/VRCamera.h"
-#include "../Shaders/Shader_Skybox.h"
 #include "Core/BaseWindow.h"
-#include "../Renderers/RenderEngine.h"
+#include "Core/GameObject.h"
+#include "Core/Performance/PerfManager.h"
+#include "FrameBufferProcessor.h"
+#include "Material.h"
+#include "Mesh/MeshPipelineController.h"
+#include "RelfectionProbe.h"
+#include "Rendering/Renderers/RenderEngine.h"
+#include "Rendering/Shaders/Shader_Main.h"
+#include "Rendering/Shaders/Shader_NodeGraph.h"
+#include "Rendering/Shaders/Shader_Skybox.h"
+#include "Rendering/VR/VRCamera.h"
+
+SceneRenderer * SceneRenderer::Get()
+{
+	return BaseWindow::GetCurrentRenderer()->SceneRender;
+}
+
 SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;
@@ -56,13 +61,13 @@ void SceneRenderer::Init()
 	{
 		CLightBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 		CLightBuffer[i]->SetDebugName("Light buffer");
-		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, true);
+		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs);
 	}
 	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CMVBuffer->SetDebugName("CMVBuffer");
-	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, true);
+	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs);
 	RelfectionProbeProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	RelfectionProbeProjections->CreateConstantBuffer(sizeof(MVBuffer), 6, true);
+	RelfectionProbeProjections->CreateConstantBuffer(sizeof(MVBuffer), 6, RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs);
 
 	UpdateReflectionParams(glm::vec3(0, 5, 0));
 }

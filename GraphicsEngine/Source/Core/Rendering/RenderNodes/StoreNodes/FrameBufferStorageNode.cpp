@@ -31,3 +31,8 @@ void FrameBufferStorageNode::Create()
 {
 	FBuffer = RHI::CreateFrameBuffer(DeviceObject, FramebufferDesc);
 }
+
+FrameBuffer * FrameBufferStorageNode::GetFramebuffer()
+{
+	return FBuffer;
+}

@@ -7,8 +7,14 @@ public:
 	~ForwardRenderNode();
 
 	virtual void OnExecute() override;
-	virtual void SetupNode() override;
+	virtual void OnSetupNode() override;
 	virtual std::string GetName() const override;
+	bool UseLightCulling = false;
+	bool UsePreZPass = false;
+private:
+	RHICommandList* CommandList = nullptr;
+protected:
+	virtual void OnNodeSettingChange() override;
 
 };
 

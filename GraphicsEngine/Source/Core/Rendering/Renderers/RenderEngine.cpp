@@ -53,7 +53,7 @@ RenderEngine::~RenderEngine()
 
 void RenderEngine::Render()
 {
-	PrepareData();
+	
 
 	if (once)
 	{
@@ -79,10 +79,12 @@ void RenderEngine::Render()
 
 void RenderEngine::PreRender()
 {
+
 	if (MainScene->StaticSceneNeedsUpdate)
 	{
 		StaticUpdate();
 	}
+	PrepareData();
 	Scaler->Tick();
 	SceneRender->LightsBuffer.LightCount = LightCulling->GetNumLights();
 	SceneRender->UpdateLightBuffer(MainScene->GetLights());
@@ -106,6 +108,7 @@ void RenderEngine::PreRender()
 	{
 		Culling->UpdateMainPassFrustumCulling(MainCamera, MainScene);
 	}
+	UpdateMVForMainPass();
 }
 
 //init common to both renderers
