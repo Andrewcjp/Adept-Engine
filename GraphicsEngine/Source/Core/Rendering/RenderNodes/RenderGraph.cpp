@@ -5,6 +5,8 @@
 #include "StorageNodeFormats.h"
 #include "StoreNodes/FrameBufferStorageNode.h"
 #include "Nodes/ForwardRenderNode.h"
+#include "Nodes/OutputToScreenNode.h"
+#include "StoreNodes/SceneDataNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -71,20 +73,27 @@ void RenderGraph::CreateDefTestgraph()
 
 void RenderGraph::CreateFWDGraph()
 {
-	FrameBufferStorageNode* GBufferNode = AddStoreNode(new FrameBufferStorageNode());
+	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
+
+
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateGBuffer(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
-	GBufferNode->SetFrameBufferDesc(Desc);
+	MainBuffer->SetFrameBufferDesc(Desc);
 
-	GBufferNode->StoreType = EStorageType::Framebuffer;
-	GBufferNode->DataFormat = StorageFormats::DefaultFormat;
-	RootNode = new ForwardRenderNode();
-	RootNode->GetInput(0)->SetStore(GBufferNode);
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+	ForwardRenderNode* Node = new ForwardRenderNode();
+	RootNode = Node;
+	Node->UseLightCulling = false;
+	Node->UsePreZPass = false;
+	Node->UpdateSettings();
+	RootNode->GetInput(0)->SetStore(MainBuffer);
+	Node->GetInput(1)->SetStore(SceneData);
 
-	DeferredLightingNode* LightNode = new DeferredLightingNode();
-	RootNode->LinkToNode(LightNode);
-	LightNode->GetInput(0)->SetLink(RootNode->GetOutput(0));
-
+	OutputToScreenNode* Output = new OutputToScreenNode();
+	RootNode->LinkToNode(Output);
+	Output->GetInput(0)->SetLink(RootNode->GetOutput(0));
 
 }
 

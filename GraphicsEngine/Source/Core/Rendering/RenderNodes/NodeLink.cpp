@@ -17,6 +17,7 @@ bool NodeLink::SetStore(StorageNode* target)
 {
 	if (TargetType != target->StoreType)
 	{
+		Log::LogMessage("Incorrect Type ");
 		return false;
 	}
 	if (DataFormat != target->DataFormat)

@@ -22,7 +22,7 @@ void GBufferWriteNode::OnExecute()
 	GetOutput(0)->SetStore(GetInput(0)->GetStoreTarget());
 }
 
-void GBufferWriteNode::SetupNode()
+void GBufferWriteNode::OnSetupNode()
 {
 
 }

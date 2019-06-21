@@ -6,6 +6,7 @@ namespace EStorageType
 		Buffer,//GPU buffers etc.
 		Framebuffer,
 		CPUData,//Data from a CPU system like lights for shadows
+		SceneData,
 		Limit
 	};
 }

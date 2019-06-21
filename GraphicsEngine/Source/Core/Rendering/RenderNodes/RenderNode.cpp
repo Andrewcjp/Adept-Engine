@@ -2,11 +2,24 @@
 #include "StorageNode.h"
 #include "NodeLink.h"
 #include "RenderGraph.h"
+#include "StoreNodes/FrameBufferStorageNode.h"
+#include "StoreNodes/SceneDataNode.h"
 
 RenderNode::RenderNode()
 {}
 
 RenderNode::~RenderNode()
+{}
+
+void RenderNode::UpdateSettings()
+{
+	Inputs.clear();
+	Outputs.clear();
+	Refrences.clear();
+	OnNodeSettingChange();
+}
+
+void RenderNode::OnNodeSettingChange()
 {}
 
 void RenderNode::ExecuteNode()
@@ -88,6 +101,29 @@ void RenderNode::ValidateNode(RenderGraph::ValidateArgs & args)
 	{
 		NL->Validate(args);
 	}
+}
+
+void RenderNode::SetupNode()
+{
+	if (Context == nullptr)
+	{
+		Context = RHI::GetDefaultDevice();
+	}
+	OnSetupNode();
+}
+
+FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
+{
+	ensure(GetInput(index)->GetStoreTarget());
+	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::Framebuffer);
+	return static_cast<FrameBufferStorageNode*>(GetInput(index)->GetStoreTarget())->GetFramebuffer();
+}
+
+Scene * RenderNode::GetSceneDataFromInput(int index)
+{
+	ensure(GetInput(index)->GetStoreTarget());
+	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::SceneData);
+	return static_cast<SceneDataNode*>(GetInput(index)->GetStoreTarget())->CurrnetScene;
 }
 
 void RenderNode::OnValidateNode(RenderGraph::ValidateArgs & args)

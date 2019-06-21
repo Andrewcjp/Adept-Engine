@@ -13,6 +13,7 @@ public:
 	virtual void Update() override;
 	virtual void Resize() override;
 	virtual void Create() override;
+	FrameBuffer* GetFramebuffer();
 
 protected:
 	RHIFrameBufferDesc FramebufferDesc = {};
