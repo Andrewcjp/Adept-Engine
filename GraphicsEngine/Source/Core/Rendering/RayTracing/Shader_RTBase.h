@@ -22,8 +22,6 @@ public:
 	ERTShaderType::Type GetStage();
 	void AddExport(std::string Symbol);
 	RHI_API std::vector<std::string>& GetExports();
-	std::vector<BaseTextureRef> Textures;
-	std::vector<RHIBuffer*> Buffers;
 	RHIRootSigniture LocalRootSig;
 	void InitRS();
 protected:

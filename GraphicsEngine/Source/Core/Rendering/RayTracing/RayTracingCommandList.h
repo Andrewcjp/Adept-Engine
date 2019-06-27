@@ -13,7 +13,7 @@ public:
 	void TraceRays(const RHIRayDispatchDesc& desc);
 	void SetStateObject(RHIStateObject* Object);
 	void Execute();
-	bool IsFallback() const;
+	bool UseFallback() const;
 	bool UseAPI()const;
 	RHICommandList* GetRHIList();
 	void Release();

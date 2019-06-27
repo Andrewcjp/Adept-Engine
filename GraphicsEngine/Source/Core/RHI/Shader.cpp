@@ -53,7 +53,9 @@ int Shader::GetSlotForName(std::string name)
 			return m_Shader->GeneratedParams[i].SignitureSlot;
 		}
 	}
+#if _DEBUG
 	LogEnsureMsgf(false,"failed to find name in shader");
+#endif
 	return -1;
 }
 

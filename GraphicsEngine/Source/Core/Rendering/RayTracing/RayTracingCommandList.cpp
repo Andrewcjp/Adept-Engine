@@ -60,7 +60,7 @@ void RayTracingCommandList::Execute()
 	List->Execute();
 }
 
-bool RayTracingCommandList::IsFallback() const
+bool RayTracingCommandList::UseFallback() const
 {
 	return CurrentMode == ERayTracingSupportType::Software;
 }

@@ -45,7 +45,7 @@ void LightCullingEngine::Init(CullingManager * m)
 
 void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
 {
-	//return;
+	return;
 	RHICommandList* list = CullingList[Eye];
 	list->ResetList();
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_LightCull>());

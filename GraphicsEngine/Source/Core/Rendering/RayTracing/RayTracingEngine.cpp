@@ -10,6 +10,7 @@
 #include "RHIStateObject.h"
 #include "Shader_RTBase.h"
 #include "ShaderBindingTable.h"
+#include "Core/Assets/Scene.h"
 
 RayTracingEngine::RayTracingEngine()
 {
@@ -58,9 +59,9 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 {
 	if (LASToBuild.size() == 0)
 	{
-		if (RHI::GetFrameCount() == 10)
+		//if (RHI::GetFrameCount() == 10)
 		{
-			//	CurrnetHL->Build(List);
+				//CurrnetHL->Build(List);
 		}
 		//CurrnetHL->Update(List);
 		return;
@@ -124,7 +125,7 @@ void RayTracingEngine::BuildStructures()
 
 RayTracingCommandList * RayTracingEngine::CreateRTList(DeviceContext * Device)
 {
-	return new RayTracingCommandList(Device, ERayTracingSupportType::DriverBased);
+	return new RayTracingCommandList(Device);
 }
 
 void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer)
@@ -143,7 +144,6 @@ void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer
 	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 3, 1);
 	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 4, 0);
 	BaseWindow::GetCurrentRenderer()->SceneRender->BindLightsBuffer(RTList->GetRHIList(), 5);
-
 	Target->MakeReadyForComputeUse(RTList->GetRHIList());
 	RTList->SetHighLevelAccelerationStructure(CurrnetHL);
 	RTList->TraceRays(RHIRayDispatchDesc(Target));

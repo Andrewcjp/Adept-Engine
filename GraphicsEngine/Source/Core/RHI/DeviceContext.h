@@ -23,6 +23,7 @@ struct ERayTracingSupportType
 		Software,
 		Limit
 	};
+	CORE_API static const char* ToString(ERayTracingSupportType::Type e);
 };
 struct EVRSSupportType
 {

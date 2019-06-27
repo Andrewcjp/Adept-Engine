@@ -8,6 +8,7 @@
 #include "D3D12QueryHeap.h"
 #include "DXMemoryManager.h"
 #include "Core/Utils/NVAPIManager.h"
+#include "Core/Utils/StringUtil.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -53,6 +54,17 @@ D3D12DeviceContext::~D3D12DeviceContext()
 		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
 	}*/
 
+}
+
+bool D3D12DeviceContext::DetectDriverDXR()
+{
+	std::wstring Data = Adaptordesc.Description;
+	std::wstring t = L"10";
+	if (StringUtils::Contains(Data, t))
+	{
+		return true;
+	}
+	return false;
 }
 
 void D3D12DeviceContext::LogFeatureData(std::string name, bool value)
@@ -114,11 +126,26 @@ void D3D12DeviceContext::CheckFeatures()
 	D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData5;
 	ZeroMemory(&FeatureData5, sizeof(FeatureData5));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData5, sizeof(FeatureData5));
-	if (SUCCEEDED(hr) && LogDeviceDebug)
+	if (SUCCEEDED(hr))
 	{
-		LogTierData("DXR Tier", FeatureData5.RaytracingTier);
+		if (LogDeviceDebug)
+		{
+			LogTierData("DXR Tier", FeatureData5.RaytracingTier);
+		}
 		//#DXR Detect driver RT
-		Caps_Data.RTSupport = ERayTracingSupportType::Hardware;
+		if (FeatureData5.RaytracingTier)
+		{
+			Caps_Data.RTSupport = ERayTracingSupportType::Hardware;
+			if (DetectDriverDXR())
+			{
+				Caps_Data.RTSupport = ERayTracingSupportType::DriverBased;
+			}
+		}
+		else
+		{
+			Caps_Data.RTSupport = ERayTracingSupportType::Software;
+		}
+		LogDeviceData("Ray tracing support mode is " + std::string(ERayTracingSupportType::ToString(Caps_Data.RTSupport)));
 		SupportsCmdsList4 = true;
 	}
 	else
@@ -131,9 +158,12 @@ void D3D12DeviceContext::CheckFeatures()
 	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData3;
 	ZeroMemory(&FeatureData3, sizeof(FeatureData3));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS3, &FeatureData3, sizeof(FeatureData3));
-	if (SUCCEEDED(hr) && LogDeviceDebug)
+	if (SUCCEEDED(hr))
 	{
-		LogTierData("VIEW INSTANCING", FeatureData3.ViewInstancingTier);
+		if (LogDeviceDebug)
+		{
+			LogTierData("VIEW INSTANCING", FeatureData3.ViewInstancingTier);
+		}
 		Caps_Data.SupportsCopyTimeStamps = FeatureData3.CopyQueueTimestampQueriesSupported;
 		Caps_Data.SupportsViewInstancing = (FeatureData3.ViewInstancingTier > D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED);
 	}
@@ -145,24 +175,27 @@ void D3D12DeviceContext::CheckFeatures()
 		hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &ShaderModelData, sizeof(ShaderModelData));
 		if (SUCCEEDED(hr))
 		{
-			Sm = ShaderModelData.HighestShaderModel;
+			HighestShaderModel = ShaderModelData.HighestShaderModel;
 			break;
 		}
 	}
 
 	if (LogDeviceDebug)
 	{
-		LogDeviceData("Shader Model Support " + D3D12Helpers::SMToString(Sm));
+		LogDeviceData("Shader Model Support " + D3D12Helpers::SMToString(HighestShaderModel));
 	}
 
 #ifdef NTDDI_WIN10_19H1
 	D3D12_FEATURE_DATA_D3D12_OPTIONS6 FeatureData6;
 	ZeroMemory(&FeatureData6, sizeof(FeatureData6));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS6, &FeatureData6, sizeof(FeatureData3));
-	if (SUCCEEDED(hr) && LogDeviceDebug)
+	if (SUCCEEDED(hr))
 	{
-		LogTierData("VRS Support", FeatureData6.VariableShadingRateTier);
-		Caps_Data.VRSSupport = EVRSSupportType::Software;
+		if (LogDeviceDebug)
+		{
+			LogTierData("VRS Support", FeatureData6.VariableShadingRateTier);
+		}
+		Caps_Data.VRSSupport = FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::Software;
 	}
 #endif
 	NVAPIManager::CheckSupport(m_Device);
@@ -243,6 +276,7 @@ void D3D12DeviceContext::InitDevice(int index)
 	}
 	if (EnableStablePower.GetBoolValue())
 	{
+		Log::LogMessage("SetStablePowerState is enabled GPU clocks are locked at Base frequencies", Log::Error);
 		GetDevice()->SetStablePowerState(true);
 	}
 	TimeStampHeap = new D3D12QueryHeap(this, 8192, D3D12_QUERY_HEAP_TYPE_TIMESTAMP);
@@ -273,16 +307,15 @@ DeviceMemoryData D3D12DeviceContext::GetMemoryData()
 
 D3D_SHADER_MODEL D3D12DeviceContext::GetShaderModel() const
 {
-	return Sm;
+	return HighestShaderModel;
 }
 
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
-	EnableStablePower.SetValue(true);
+	//EnableStablePower.SetValue(true);
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
 	VendorID = Adaptordesc.VendorId;
-
 
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
@@ -291,7 +324,6 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	);
 	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
 	ThrowIfFailed(result);
-	//ThrowIfFailed(D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, NULL, 0));
 	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
 	if (MaxLevel != D3D_FEATURE_LEVEL_11_0)
 	{
@@ -374,7 +406,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-}
+	}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {

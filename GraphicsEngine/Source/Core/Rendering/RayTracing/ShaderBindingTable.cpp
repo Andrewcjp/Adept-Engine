@@ -75,9 +75,6 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 		HitGroups[HitGroups.size() - 1]->HitShader = new Shader_RTMateralHit(RHI::GetDefaultDevice());
 		HitGroups[HitGroups.size() - 1]->HitShader->AddExport("chs");
 		Shader_RTBase* Shader = HitGroups[HitGroups.size() - 1]->HitShader;
-		Shader->Buffers.push_back(Object->GetMesh()->SubMeshes[i]->IndexBuffers[0].Get());
-		Shader->Buffers.push_back(Object->GetMesh()->SubMeshes[i]->VertexBuffers[0].Get());
-		Shader->Textures.push_back(Object->GetMesh()->GetMaterial(0)->GetTexturebind("DiffuseMap"));
 
 		Shader->LocalRootSig.SetBufferReadOnly(0, Object->GetMesh()->SubMeshes[i]->IndexBuffers[0].Get());
 		Shader->LocalRootSig.SetBufferReadOnly(1, Object->GetMesh()->SubMeshes[i]->VertexBuffers[0].Get());

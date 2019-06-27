@@ -17,7 +17,7 @@ class SFRController;
 class RHIClass;
 class HMD;
 class HMDManager;
-struct VRSettings;
+struct VRSettings; 
 class LowLevelAccelerationStructure;
 class HighLevelAccelerationStructure;
 class RayTracingEngine;

@@ -34,6 +34,7 @@ cbuffer LightBuffer : register(b1)
 [shader("raygeneration")]
 void rayGen()
 {
+	
 	uint3 launchIndex = DispatchRaysIndex();
 	uint3 launchDim = DispatchRaysDimensions();
 
@@ -44,7 +45,7 @@ void rayGen()
 	float aspectRatio = dims.x / dims.y;
 	const float SmoothNess = Normals.SampleLevel(g_sampler, NrmPos, 0).w;
 	
-	if (SmoothNess < 0.8)
+	if (SmoothNess < 0.2)
 	{
 		gOutput[launchIndex.xy] = float4(0, 0, 0, 0);
 		return;
@@ -71,5 +72,6 @@ void rayGen()
 	float3 OutColor = payload.color *GetAmbient_CONST();
 	//float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal, float3 CamPos, float roughness, float Metalic)
 	OutColor += CalcColorFromLight(lights[0], payload.color, payload.Pos, payload.Normal, CameraPos, 0.0f, 0.0f);
+	//OutColor = float3(payload.Hit, 0, 0);
 	gOutput[launchIndex.xy] = float4(OutColor, SmoothNess);
 }

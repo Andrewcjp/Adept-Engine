@@ -257,8 +257,15 @@ void D3D12Texture::BindToSlot(D3D12CommandList* list, int slot)
 {
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
-		TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		list->GetCommandList()->SetGraphicsRootDescriptorTable(slot, SRVDesc->GetGPUAddress());//ask the current heap to bind us
+		if (list->IsGraphicsList())
+		{
+			TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			list->GetCommandList()->SetGraphicsRootDescriptorTable(slot, SRVDesc->GetGPUAddress());//ask the current heap to bind us
+		}
+		else if (list->IsComputeList() || list->IsRaytracingList())
+		{
+			list->GetCommandList()->SetComputeRootDescriptorTable(slot, SRVDesc->GetGPUAddress());
+		}
 	}
 }
 
