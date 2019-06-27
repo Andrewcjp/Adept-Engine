@@ -90,6 +90,8 @@ class D3D12DeviceContext : public DeviceContext
 public:
 	D3D12DeviceContext();
 	virtual ~D3D12DeviceContext();
+	//Dx12 Does not differentiate  between driver based and hardware based solutions so check manually.
+	bool DetectDriverDXR();
 
 	void LogFeatureData(std::string name, bool value);
 
@@ -142,7 +144,7 @@ public:
 	DeviceMemoryData GetMemoryData();
 	D3D_SHADER_MODEL GetShaderModel()const;
 private:
-	D3D_SHADER_MODEL Sm = D3D_SHADER_MODEL_5_1;
+	D3D_SHADER_MODEL HighestShaderModel = D3D_SHADER_MODEL_5_1;
 	DXMemoryManager* MemoryManager = nullptr;
 	//Query heaps
 	D3D12QueryHeap* TimeStampHeap = nullptr;

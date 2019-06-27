@@ -13,4 +13,5 @@ namespace StringUtils
 	CORE_API std::string ByteToGB(uint64_t value);
 	CORE_API std::string BoolToString(bool value);
 	CORE_API bool Contains(const std::string Data, const std::string& value);
+	CORE_API bool Contains(const std::wstring Data, const std::wstring & value);
 }

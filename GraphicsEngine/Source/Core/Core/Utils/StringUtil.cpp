@@ -92,3 +92,7 @@ bool StringUtils::Contains(const std::string Data, const std::string & value)
 {
 	return Data.find(value) != std::string::npos;
 }
+bool StringUtils::Contains(const std::wstring Data, const std::wstring & value)
+{
+	return Data.find(value) != std::wstring::npos;
+}

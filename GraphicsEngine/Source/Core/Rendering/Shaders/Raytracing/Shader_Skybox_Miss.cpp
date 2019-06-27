@@ -3,7 +3,7 @@ IMPLEMENT_GLOBAL_SHADER(Shader_Skybox_Miss);
 Shader_Skybox_Miss::Shader_Skybox_Miss(DeviceContext * Con)
 	:Shader_RTBase(Con, "Raytracing\\SkyboxMissShader", ERTShaderType::Miss)
 {
-	
+	InitRS();
 }
 
 Shader_Skybox_Miss::~Shader_Skybox_Miss()
@@ -11,8 +11,7 @@ Shader_Skybox_Miss::~Shader_Skybox_Miss()
 
 void Shader_Skybox_Miss::SetSkybox(BaseTextureRef T)
 {
-	Textures.clear();
-	Textures.push_back(T);
+	LocalRootSig.SetTexture(0, T);
 }
 
 std::vector<ShaderParameter> Shader_Skybox_Miss::GetShaderParameters()

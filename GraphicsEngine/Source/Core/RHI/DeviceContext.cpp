@@ -268,3 +268,17 @@ std::string EGPUType::ToString(EGPUType::Type type)
 	}
 	return "UNKNOWN";
 }
+
+const char * ERayTracingSupportType::ToString(ERayTracingSupportType::Type e)
+{
+	switch (e)
+	{
+		case ERayTracingSupportType::Hardware:
+			return "Hardware";
+		case ERayTracingSupportType::DriverBased:
+			return "Driver Based";
+		case ERayTracingSupportType::Software:
+			return "Software";
+	}
+	return "NONE";
+}
