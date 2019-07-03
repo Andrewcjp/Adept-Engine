@@ -1,9 +1,11 @@
 # Adept Engine
 
 A flexible C++ Game engine focusing on multi-GPU rendering 
+
 This is currently VERY work in progress
 
 [Roadmap](https://trello.com/b/tiTV3Fbs/adept-engine-roadmap)
+
 [Dev Blog](https://andrewcjp.wordpress.com/)
 
 
