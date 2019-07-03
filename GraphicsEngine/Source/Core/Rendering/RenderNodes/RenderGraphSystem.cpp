@@ -11,6 +11,7 @@ void RenderGraphSystem::Test()
 {
 	CurrentGraph = new RenderGraph();
 	CurrentGraph->CreateFWDGraph();
+	//CurrentGraph->CreateDefTestgraph();
 	CurrentGraph->BuildGraph();	
 }
 
