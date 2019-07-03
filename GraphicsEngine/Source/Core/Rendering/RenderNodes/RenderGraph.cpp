@@ -71,6 +71,10 @@ void RenderGraph::CreateDefTestgraph()
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
 	RootNode->LinkToNode(LightNode);
 	LightNode->GetInput(0)->SetLink(RootNode->GetOutput(0));
+
+	OutputToScreenNode* Output = new OutputToScreenNode();
+	LightNode->LinkToNode(Output);
+	Output->GetInput(0)->SetLink(LightNode->GetOutput(0));
 }
 
 void RenderGraph::CreateFWDGraph()
