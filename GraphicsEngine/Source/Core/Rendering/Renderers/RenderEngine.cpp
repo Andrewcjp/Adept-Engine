@@ -26,6 +26,7 @@
 #include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
 #include "../RayTracing/RayTracingEngine.h"
 #include "../Shaders/Shader_Deferred.h"
+#include "Core/Assets/ShaderComplier.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -110,8 +111,9 @@ void RenderEngine::PreRender()
 	}
 	UpdateMVForMainPass();
 #if TESTGRAPH
-	RunLightCulling();
+	//RunLightCulling();
 #endif
+
 }
 
 //init common to both renderers
@@ -232,7 +234,7 @@ void RenderEngine::PrepareData()
 	{
 		return;
 	}
-	SceneRender->Controller->GatherBatches();
+	SceneRender->MeshController->GatherBatches();
 	for (size_t i = 0; i < MainScene->GetMeshObjects().size(); i++)
 	{
 		MainScene->GetMeshObjects()[i]->PrepareDataForRender();
@@ -281,6 +283,7 @@ void RenderEngine::SetScene(Scene * sc)
 		return;
 	}
 	SceneRender->SetScene(sc);
+	ShaderComplier::GetShader<Shader_Skybox>()->SetSkyBox(sc->GetLightingData()->SkyBox);
 	DDOs[0].SkyboxShader->SetSkyBox(sc->GetLightingData()->SkyBox);
 	if (DDOs[1].SkyboxShader != nullptr)
 	{
@@ -543,11 +546,7 @@ void RenderEngine::PostSizeUpdate()
 
 void RenderEngine::RunLightCulling()
 {
-	LightCulling->RunLightBroadphase();
-	SceneRender->LightsBuffer.LightCount = LightCulling->GetNumLights();
-	SceneRender->LightsBuffer.TileX = LightCulling->GetLightGridDim().x;
-	SceneRender->LightsBuffer.TileY = LightCulling->GetLightGridDim().y;
-	SceneRender->UpdateLightBuffer(MainScene->GetLights());
+	
 	LightCulling->LaunchCullingForScene(EEye::Left);
 }
 

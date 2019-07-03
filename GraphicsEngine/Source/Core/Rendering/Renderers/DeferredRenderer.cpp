@@ -269,7 +269,7 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	{
 		GBuffer->BindDepthWithColourPassthrough(List, output);
 		SceneRender->SetupBindsForForwardPass(List, eyeindex);
-		SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, List);
+		SceneRender->MeshController->RenderPass(ERenderPass::TransparentPass, List);
 	}
 	List->EndRenderPass();
 

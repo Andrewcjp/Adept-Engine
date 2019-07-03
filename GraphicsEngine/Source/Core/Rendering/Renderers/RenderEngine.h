@@ -83,7 +83,7 @@ public:
 	void RunLightCulling();
 	LightCullingEngine* LightCulling = nullptr;
 	DynamicResolutionScaler* GetDS();
-	
+	DeviceDependentObjects DDOs[MAX_GPU_DEVICE_COUNT];
 protected:
 	void RenderDebugPass();
 
@@ -104,7 +104,7 @@ protected:
 	
 	PostProcessing* Post = nullptr;
 	bool once = true;
-	DeviceDependentObjects DDOs[MAX_GPU_DEVICE_COUNT];
+
 	int DevicesInUse = 1;
 	DynamicResolutionScaler* Scaler = nullptr;
 	CullingManager* Culling = nullptr;

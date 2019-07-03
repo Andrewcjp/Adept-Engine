@@ -302,7 +302,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 	list->BeginRenderPass(RHIRenderPassDesc(DSOs[DeviceIndex].PreSampledBuffer,ERenderPassLoadOp::Clear));
 	Scenerenderer->BindMvBuffer(list, Shader_Depth_RSSlots::VPBuffer);
 	Scenerenderer->BindLightsBuffer(list, 1);
-	Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, nullptr);
+	Scenerenderer->MeshController->RenderPass(ERenderPass::DepthOnly, list, nullptr);
 	list->EndRenderPass();
 
 	list->EndTimer(EGPUTIMERS::ShadowPreSample);
@@ -403,12 +403,12 @@ void ShadowRenderer::RenderShadowMap_GPU(ShadowLightInteraction* Interaction, RH
 		for (int i = 0; i < CUBE_SIDES; i += ViewInstancesPerDraw)
 		{
 			list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, i);
-			Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
+			Scenerenderer->MeshController->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
 		}
 	}
 	else
 	{
-		Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
+		Scenerenderer->MeshController->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
 	}
 	list->EndRenderPass();
 }
@@ -430,7 +430,7 @@ void ShadowRenderer::RenderShadowMap_CPU(ShadowLightInteraction * Interaction, R
 	for (int Faces = 0; Faces < 6; Faces++)
 	{
 		list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, Faces);
-		Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, TargetShader);
+		Scenerenderer->MeshController->RenderPass(ERenderPass::DepthOnly, list, TargetShader);
 	}
 	list->EndRenderPass();
 }
@@ -451,7 +451,7 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, const std::
 		data.Proj = ShadowingDirectionalLights[SNum]->Projection;
 		data.Lightpos = ShadowingDirectionalLights[SNum]->GetPosition();
 		DirectionalLightShader->UpdateBuffer(list, &data, (int)SNum);
-		Scenerenderer->Controller->RenderPass(ERenderPass::DepthOnly, list, LightInteractions[SNum]->Shader);
+		Scenerenderer->MeshController->RenderPass(ERenderPass::DepthOnly, list, LightInteractions[SNum]->Shader);
 		list->EndRenderPass();
 	}
 }

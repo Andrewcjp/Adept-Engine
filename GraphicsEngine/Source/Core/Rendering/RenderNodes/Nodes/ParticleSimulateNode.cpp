@@ -1,4 +1,5 @@
 #include "ParticleSimulateNode.h"
+#include "Rendering/Core/ParticleSystemManager.h"
 
 
 ParticleSimulateNode::ParticleSimulateNode()
@@ -10,3 +11,8 @@ ParticleSimulateNode::ParticleSimulateNode()
 
 ParticleSimulateNode::~ParticleSimulateNode()
 {}
+
+void ParticleSimulateNode::OnExecute()
+{
+	ParticleSystemManager::Get()->Simulate();
+}

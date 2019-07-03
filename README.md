@@ -1,8 +1,11 @@
 # Adept Engine
 
-A flexible C++ Game engine:
-
+A flexible C++ Game engine focusing on multi-GPU rendering 
 This is currently VERY work in progress
+
+[Roadmap](https://trello.com/b/tiTV3Fbs/adept-engine-roadmap)
+[Dev Blog](https://andrewcjp.wordpress.com/)
+
 
 Flexible RHI (Render Hardware Interface) supporting:
 
@@ -20,6 +23,7 @@ Rendering Features:
 * Raytracing (DXR) Support (WIP)
 * Light Culling (WIP)
 * VR Support (SteamVR) (WIP)
+* Render node system for scalable multi-GPU rendering
 
 Multi-GPU Features:
 

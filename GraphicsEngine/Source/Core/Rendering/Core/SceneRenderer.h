@@ -5,6 +5,10 @@
 class MeshPipelineController;
 class VRCamera;
 class Shader_Skybox;
+class Shader_Convolution;
+class Shader_EnvMap;
+class LightCullingEngine;
+class CullingManager;
 #pragma pack(push, 16)
 /*__declspec(align(32))*/ struct LightUniformBuffer
 {
@@ -48,13 +52,25 @@ struct MeshTransfromBuffer
 {
 	glm::mat4 M;
 };
+
+struct GPUSceneData
+{
+	Shader_Convolution* ConvShader = nullptr;
+	Shader_EnvMap* EnviromentMap = nullptr;
+	Shader_Skybox* SkyBoxShader = nullptr;
+
+};
 class RelfectionProbe;
+//this class holds all data and managers needed to render the scene.
 class SceneRenderer
 {
 public:
 	static SceneRenderer* Get();
 	SceneRenderer(class Scene* Target);
 	~SceneRenderer();
+	//CPU culls light etc. and updates all buffers needed to render the scene on all GPUs (if requested)
+	void PrepareSceneForRender();
+
 	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false, int index = 0);
 	void Init();
 	void UpdateReflectionParams(glm::vec3 lightPos);
@@ -75,20 +91,18 @@ public:
 	Scene* GetScene();
 	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
 	void SetMVForProbe(RHICommandList * list, int index, int slot);
-	MeshPipelineController* Controller = nullptr;
+	MeshPipelineController* MeshController = nullptr;
 	Shader_Skybox* SB = nullptr;
 	std::vector< class RelfectionProbe*> probes;
 	LightBufferW LightsBuffer;
+	LightCullingEngine* GetLightCullingEngine();
+	MeshPipelineController* GetPipelineController();
 private:
 
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	RHIBuffer* CMVBuffer = nullptr;
-
-
-	//the View and projection Matix in one place as each gameobject will not have diffrent ones.
-	struct MVBuffer MV_Buffer;
-
-
+	//the View and projection Matrix in one place as each game object will not have different ones.
+	MVBuffer MV_Buffer;
 
 	class Scene* TargetScene = nullptr;
 	class Shader_NodeGraph* WorldDefaultMatShader = nullptr;
@@ -97,5 +111,7 @@ private:
 	float zNear = 0.1f;
 	float ZFar = 1000.0f;
 	RHIBuffer* RelfectionProbeProjections = nullptr;
+	LightCullingEngine* LightCulling = nullptr;
+	CullingManager* Culling = nullptr;
 };
 

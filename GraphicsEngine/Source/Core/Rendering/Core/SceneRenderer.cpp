@@ -12,6 +12,8 @@
 #include "Rendering/Shaders/Shader_NodeGraph.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "Rendering/VR/VRCamera.h"
+#include "LightCulling/LightCullingEngine.h"
+#include "Culling/CullingManager.h"
 
 SceneRenderer * SceneRenderer::Get()
 {
@@ -22,7 +24,10 @@ SceneRenderer::SceneRenderer(Scene* Target)
 {
 	TargetScene = Target;
 	WorldDefaultMatShader = (Shader_NodeGraph*)Material::GetDefaultMaterialShader();
-	Controller = new MeshPipelineController();
+	MeshController = new MeshPipelineController();
+	Culling = new CullingManager();
+	LightCulling = new LightCullingEngine();
+	LightCulling->Init(Culling);
 }
 
 
@@ -31,8 +36,17 @@ SceneRenderer::~SceneRenderer()
 	MemoryUtils::RHIUtil::DeleteRHICArray(CLightBuffer, MAX_GPU_DEVICE_COUNT);
 	MemoryUtils::DeleteVector(probes);
 	EnqueueSafeRHIRelease(CMVBuffer);
-	SafeDelete(Controller);
+	SafeDelete(MeshController);
 	EnqueueSafeRHIRelease(RelfectionProbeProjections);
+}
+
+void SceneRenderer::PrepareSceneForRender()
+{
+	LightCulling->RunLightBroadphase();
+	LightsBuffer.LightCount = LightCulling->GetNumLights();
+	LightsBuffer.TileX = LightCulling->GetLightGridDim().x;
+	LightsBuffer.TileY = LightCulling->GetLightGridDim().y;
+	UpdateLightBuffer(TargetScene->GetLights());
 }
 
 void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly, FrameBuffer* FrameBuffer, bool IsCubemap, int index /*=0*/)
@@ -47,11 +61,11 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 	}
 	if (PositionOnly)
 	{
-		Controller->RenderPass(ERenderPass::PreZ, CommandList);
+		MeshController->RenderPass(ERenderPass::PreZ, CommandList);
 	}
 	else
 	{
-		Controller->RenderPass(IsCubemap ? ERenderPass::BasePass_Cubemap : ERenderPass::BasePass, CommandList);
+		MeshController->RenderPass(IsCubemap ? ERenderPass::BasePass_Cubemap : ERenderPass::BasePass, CommandList);
 	}
 }
 
@@ -71,6 +85,7 @@ void SceneRenderer::Init()
 
 	UpdateReflectionParams(glm::vec3(0, 5, 0));
 }
+
 void SceneRenderer::UpdateReflectionParams(glm::vec3 lightPos)
 {
 	return;
@@ -215,7 +230,8 @@ void SceneRenderer::BindMvBuffer(RHICommandList * list, int slot, int index)
 void SceneRenderer::SetScene(Scene * NewScene)
 {
 	TargetScene = NewScene;
-	Controller->TargetScene = TargetScene;
+	MeshController->TargetScene = TargetScene;
+	//run update on scene data
 }
 
 void SceneRenderer::UpdateRelflectionProbes(RHICommandList* commandlist)
@@ -276,6 +292,16 @@ void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* command
 void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
 {
 	list->SetConstantBufferView(RelfectionProbeProjections, index, Slot);
+}
+
+LightCullingEngine * SceneRenderer::GetLightCullingEngine()
+{
+	return LightCulling;
+}
+
+MeshPipelineController * SceneRenderer::GetPipelineController()
+{
+	return MeshController;
 }
 
 void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex)

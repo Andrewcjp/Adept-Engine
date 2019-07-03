@@ -112,6 +112,16 @@ void RenderNode::SetupNode()
 	OnSetupNode();
 }
 
+bool RenderNode::IsNodeDeferred() const
+{
+	return IsNodeInDeferredMode;
+}
+
+void RenderNode::SetNodeDeferredMode(bool val)
+{
+	IsNodeInDeferredMode = val;
+}
+
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());

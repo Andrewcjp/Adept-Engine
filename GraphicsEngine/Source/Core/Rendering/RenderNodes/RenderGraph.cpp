@@ -7,6 +7,8 @@
 #include "Nodes/ForwardRenderNode.h"
 #include "Nodes/OutputToScreenNode.h"
 #include "StoreNodes/SceneDataNode.h"
+#include "Nodes/ParticleSimulateNode.h"
+#include "Nodes/ParticleRenderNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -89,8 +91,17 @@ void RenderGraph::CreateFWDGraph()
 	RootNode->GetInput(0)->SetStore(MainBuffer);
 	Node->GetInput(1)->SetStore(SceneData);
 
+
+	ParticleSimulateNode* simNode = new ParticleSimulateNode();
+	RootNode->LinkToNode(simNode);
+
+	ParticleRenderNode* renderNode = new ParticleRenderNode();
+	simNode->LinkToNode(renderNode);
+
+	renderNode->GetInput(0)->SetStore(MainBuffer);
+
 	OutputToScreenNode* Output = new OutputToScreenNode();
-	RootNode->LinkToNode(Output);
+	renderNode->LinkToNode(Output);
 	Output->GetInput(0)->SetLink(RootNode->GetOutput(0));
 
 }
