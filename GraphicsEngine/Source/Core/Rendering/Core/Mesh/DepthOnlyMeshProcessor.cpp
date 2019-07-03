@@ -34,7 +34,7 @@ void DepthOnlyMeshProcessor::AddBatch(MeshBatch* Batch)
 	}
 }
 
-void DepthOnlyMeshProcessor::OnSubmitCommands(RHICommandList * List, MeshDrawCommand * Command)
+void DepthOnlyMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command, const MeshPassRenderArgs& args)
 {
 
 }

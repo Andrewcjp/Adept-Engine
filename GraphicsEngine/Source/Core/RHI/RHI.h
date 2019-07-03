@@ -34,7 +34,7 @@ class RenderGraphSystem;
 #define BASIC_RENDER_ONLY 0//BUILD_VULKAN
 #define NOSHADOW 0 //BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
-#define TESTGRAPH 0
+#define TESTGRAPH 1
 class RHI
 {
 public:

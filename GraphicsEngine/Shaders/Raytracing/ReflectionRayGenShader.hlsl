@@ -72,6 +72,7 @@ void rayGen()
 	float3 OutColor = payload.color *GetAmbient_CONST();
 	//float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal, float3 CamPos, float roughness, float Metalic)
 	OutColor += CalcColorFromLight(lights[0], payload.color, payload.Pos, payload.Normal, CameraPos, 0.0f, 0.0f);
-	//OutColor = float3(payload.Hit, 0, 0);
+	//OutColor = lights[0].color;
+	OutColor = payload.color;
 	gOutput[launchIndex.xy] = float4(OutColor, SmoothNess);
 }

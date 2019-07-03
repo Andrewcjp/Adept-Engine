@@ -16,7 +16,7 @@ public:
 	void UpdateShaderData();
 	CORE_API Material(Asset_Shader* shader);
 	~Material();
-	void SetMaterialActive(class RHICommandList * list, ERenderPass::Type Pass);
+	void SetMaterialActive(class RHICommandList * list, const MeshPassRenderArgs& Pass);
 	//creates this material after all props have been setup
 	void Init();
 	void UpdateBind(std::string Name, BaseTextureRef NewTex);
@@ -40,6 +40,7 @@ public:
 	void SetReceiveShadow(bool state);
 	Shader * GetShaderInstance(EMaterialPassType::Type pass);
 	void SetRenderType(EMaterialRenderType::Type t);
+	static std::string ShadowShaderstring;
 private:
 	bool NeedsUpdate = false;
 	MaterialShaderComplieData MaterialCData;
@@ -47,5 +48,6 @@ private:
 	void SetupDefaultBinding(TextureBindSet* TargetSet);
 	MaterialShader* ShaderInterface = nullptr;
 	ParmeterBindSet ParmbindSet;
+	bool CurrnetShadowState = false;
 };
 

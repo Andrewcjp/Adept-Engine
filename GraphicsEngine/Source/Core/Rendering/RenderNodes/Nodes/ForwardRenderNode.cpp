@@ -1,12 +1,18 @@
 #include "ForwardRenderNode.h"
+#include "Core/Assets/Scene.h"
+#include "Rendering/Core/Defaults.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/Material.h"
+#include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/RenderNodes/StoreNodes/FrameBufferStorageNode.h"
-#include "../../Core/SceneRenderer.h"
-#include "../../Shaders/Shader_Main.h"
-#include "Core/Assets/Scene.h"
-#include "../../Core/Material.h"
+#include "Rendering/Shaders/Shader_Main.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RHICommandList.h"
+#include "Core/BaseWindow.h"
+#include "../../Renderers/RenderEngine.h"
+#include "../../Core/LightCulling/LightCullingEngine.h"
 
 ForwardRenderNode::ForwardRenderNode()
 {
@@ -20,6 +26,7 @@ void ForwardRenderNode::OnExecute()
 {
 	FrameBuffer* TargetBuffer = GetFrameBufferFromInput(0);
 	CommandList->ResetList();
+	CommandList->StartTimer(EGPUTIMERS::MainPass);
 	Scene* MainScene = GetSceneDataFromInput(1);
 	ensure(MainScene);
 #if 1
@@ -50,9 +57,17 @@ void ForwardRenderNode::OnExecute()
 	//	CommandList->SetFrameBufferTexture(DDOs[CommandList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
 	//	CommandList->SetFrameBufferTexture(DDOs[CommandList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	//}
-
-	//LightCulling->BindLightBuffer(CommandList);
-	SceneRenderer::Get()->RenderScene(CommandList, false, TargetBuffer, false, 0);
+#if 1
+	CommandList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::DiffuseIr);
+	CommandList->SetTexture(Defaults::GetDefaultTexture(), MainShaderRSBinds::EnvBRDF);
+#endif
+	BaseWindow::GetCurrentRenderer()->LightCulling->BindLightBuffer(CommandList);
+	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, 0);
+	//SceneRenderer::Get()->RenderScene(CommandList, false, TargetBuffer, false, 0);
+	MeshPassRenderArgs Args;
+	Args.PassType = ERenderPass::BasePass;
+	Args.UseDeferredShaders = false;
+	SceneRenderer::Get()->Controller->RenderPass(Args, CommandList);
 	//CommandList->SetRenderTarget(nullptr);
 //#if !BASIC_RENDER_ONLY
 //	mShadowRenderer->Unbind(CommandList);
@@ -60,7 +75,7 @@ void ForwardRenderNode::OnExecute()
 	//LightCulling->Unbind(CommandList);
 	CommandList->EndRenderPass();
 #endif
-
+	CommandList->EndTimer(EGPUTIMERS::MainPass);
 	TargetBuffer->MakeReadyForComputeUse(CommandList);
 	CommandList->Execute();
 	GetOutput(0)->SetStore(GetInput(0)->GetStoreTarget());

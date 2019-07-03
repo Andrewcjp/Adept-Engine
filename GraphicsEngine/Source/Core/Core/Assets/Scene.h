@@ -24,6 +24,7 @@ public:
 	void LoadDefault();
 	void AddLight(glm::vec3 Pos, bool Shadow, float BrightNess);
 	CORE_API GameObject* SpawnBox(glm::vec3 pos);
+	GameObject * AddMeshObject(glm::vec3 pos, std::string mesh, Material *mat = nullptr);
 	void LoadExampleScene(RenderEngine * Renderer, bool IsDeferredMode);
 
 	void CreateGrid(int size, glm::vec3 startPos, float stride);

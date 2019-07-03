@@ -248,7 +248,7 @@ void BaseWindow::Render()
 	}
 	if (LoadText)
 	{
-		TextRenderer::instance->Finish();
+		TextRenderer::instance->Finish(true);
 	}
 	PerfManager::EndTimer("TEXT");
 

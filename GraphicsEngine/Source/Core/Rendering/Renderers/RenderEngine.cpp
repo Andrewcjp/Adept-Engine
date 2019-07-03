@@ -109,6 +109,9 @@ void RenderEngine::PreRender()
 		Culling->UpdateMainPassFrustumCulling(MainCamera, MainScene);
 	}
 	UpdateMVForMainPass();
+#if TESTGRAPH
+	RunLightCulling();
+#endif
 }
 
 //init common to both renderers

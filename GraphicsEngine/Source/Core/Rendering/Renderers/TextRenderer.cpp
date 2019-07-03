@@ -121,11 +121,11 @@ void TextRenderer::RenderAllText()
 	}
 }
 
-void TextRenderer::Finish()
+void TextRenderer::Finish(bool final /*= false*/)
 {
 	RenderAllText();
 	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, EGPUTIMERS::Text);
-	if (instance == this)
+	if (instance == this && final)
 	{
 		TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(TextCommandList);
 	}

@@ -119,6 +119,7 @@ float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, floa
 	{
 		return float3(0, 0, 0);
 	}
+
 	float3 ViewDir = normalize(CamPos - FragPos);
 	if (light.type == 1)
 	{

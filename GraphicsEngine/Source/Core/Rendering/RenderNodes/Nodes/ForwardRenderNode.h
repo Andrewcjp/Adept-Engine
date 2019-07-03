@@ -11,6 +11,7 @@ public:
 	virtual std::string GetName() const override;
 	bool UseLightCulling = false;
 	bool UsePreZPass = false;
+	bool EnableShadows = false;
 private:
 	RHICommandList* CommandList = nullptr;
 protected:

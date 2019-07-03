@@ -28,7 +28,7 @@ public:
 
 	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1), bool Reset = false);
 	
-	void Finish();
+	void Finish(bool final = false);
 	void Reset();
 	void LoadText();
 	void UpdateSize(int width, int height, glm::ivec2 offset = glm::ivec2(0));

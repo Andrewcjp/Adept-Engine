@@ -116,12 +116,12 @@ void MeshBatchProcessor::Process(MeshBatch* Batch)
 	}
 }
 
-void MeshBatchProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
+void MeshBatchProcessor::SubmitCommands(RHICommandList* List, const MeshPassRenderArgs & args)
 {
 	for (int i = 0; i < DrawCommands.size(); i++)
 	{
 		MeshDrawCommand* C = DrawCommands[i];
-		OnSubmitCommands(List, C);
+		OnSubmitCommands(List, C, args);
 		List->SetConstantBufferView(C->TransformUniformBuffer, 0, 0);
 		List->SetVertexBuffer(C->Vertex);
 		List->SetIndexBuffer(C->Index);
@@ -130,7 +130,7 @@ void MeshBatchProcessor::SubmitCommands(RHICommandList* List, Shader* shader)
 	}
 }
 
-void MeshBatchProcessor::OnSubmitCommands(RHICommandList * List, MeshDrawCommand * Command)
+void MeshBatchProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command, const MeshPassRenderArgs& args)
 {
 
 }

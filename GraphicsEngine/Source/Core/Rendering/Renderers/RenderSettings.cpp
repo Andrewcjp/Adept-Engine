@@ -1,8 +1,8 @@
 #include "RenderSettings.h"
-#include "Core\Engine.h"
+#include "Core/BaseWindow.h"
+#include "Core/Engine.h"
+#include "Rendering/Core/SceneRenderer.h"
 #include "WinLauncher.h"
-#include "Core\BaseWindow.h"
-#include "..\Core\SceneRenderer.h"
 static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
 static ConsoleVariable UseSFR("UseSFR", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly);
@@ -202,10 +202,10 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true;
 	//EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = true;
+	//RTSettings.Enabled = true;
 	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;
-	IsDeferred = true;
+	IsDeferred = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 }
 

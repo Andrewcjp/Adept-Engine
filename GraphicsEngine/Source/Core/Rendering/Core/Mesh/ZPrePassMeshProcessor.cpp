@@ -32,7 +32,7 @@ void ZPrePassMeshProcessor::AddBatch(MeshBatch* Batch)
 	Process(Batch);
 }
 
-void ZPrePassMeshProcessor::OnSubmitCommands(RHICommandList * List, MeshDrawCommand * Command)
+void ZPrePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command, const MeshPassRenderArgs& args)
 {}
 
 bool ZPrePassMeshProcessor::CheckProcess(MeshBatchElement* Element)

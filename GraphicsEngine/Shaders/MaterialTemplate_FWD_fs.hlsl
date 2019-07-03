@@ -88,7 +88,7 @@ float4 main(PSInput input) : SV_TARGET
 	texturecolour = Diffuse;
 #endif
 //#if VULKAN
-//	return float4(texturecolour, 1.0f);
+	//return float4(texturecolour, 1.0f);
 //#endif
 	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - input.WorldPos.xyz);

@@ -9,6 +9,7 @@
 #include "Core/Components/RigidbodyComponent.h"
 #include "Core/Game/Game.h"
 #include "AI/Core/SpawnMarker.h"
+#include "Rendering/Core/Defaults.h"
 
 Scene::Scene(bool EditorScene)
 {
@@ -128,6 +129,30 @@ GameObject* Scene::SpawnBox(glm::vec3 pos)
 	AddGameobjectToScene(go);
 	return go;
 }
+
+GameObject * Scene::AddMeshObject(glm::vec3 pos, std::string mesh, Material *mat /*= nullptr*/)
+{
+	GameObject *go = new GameObject("Rock");
+	if (mat == nullptr)
+	{
+		mat = Defaults::GetDefaultMaterial();
+	}
+
+	MeshLoader::FMeshLoadingSettings set = MeshLoader::FMeshLoadingSettings();
+	//set.FlipUVs = true;
+	set.Scale = glm::vec3(.1f);
+	MeshRendererComponent* mrc = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(mesh.c_str(), set), mat));
+	mrc->GetMesh()->SetShadow(false);
+	go->GetTransform()->SetPos(pos);
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(1));
+	
+	AddGameobjectToScene(go);
+	return go;
+}
+
+
+
 //load an example scene
 void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 {
@@ -301,7 +326,7 @@ void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
 		}
 	}
 #endif
-
+	//AddMeshObject(glm::vec3(0, 50, 0), "exterior.obj");
 #if 1
 	size = 3;
 	glm::vec3 startPos = glm::vec3(0, 5, 0);

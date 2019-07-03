@@ -35,15 +35,16 @@ Material::~Material()
 	SafeDelete(CurrentBindSet);
 }
 
-void Material::SetMaterialActive(RHICommandList* RESTRICT list, ERenderPass::Type Pass)
+void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRenderArgs& Pass)
 {
+	//SetReceiveShadow(Pass.UseShadows);
 	if (NeedsUpdate)
 	{
 		ShaderInterface->SetShader(MaterialCData);
 		NeedsUpdate = false;
 	}
-
 	Shader_NodeGraph* CurrentShader = nullptr;
+#if 0
 	if (Pass == ERenderPass::BasePass_Cubemap || Pass == ERenderPass::TransparentPass)
 	{
 		CurrentShader = ShaderInterface->GetShader(EMaterialPassType::Forward);
@@ -52,6 +53,9 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, ERenderPass::Typ
 	{
 		CurrentShader = ShaderInterface->GetShader(RHI::GetRenderSettings()->IsDeferred ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
 	}
+#else
+	CurrentShader = ShaderInterface->GetShader(Pass.UseDeferredShaders ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
+#endif
 	if (!CurrentShader->IsValid())//stack overflow!
 	{
 		Defaults::GetDefaultMaterial()->SetMaterialActive(list, Pass);
@@ -61,7 +65,7 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, ERenderPass::Typ
 	desc.DepthStencilState.DepthEnable = true;
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
 	desc.Cull = true;
-	if (RHI::GetRenderSettings()->IsUsingZPrePass() && Pass != ERenderPass::BasePass_Cubemap)
+	if (RHI::GetRenderSettings()->IsUsingZPrePass() && Pass.PassType != ERenderPass::BasePass_Cubemap)
 	{
 		desc.DepthStencilState.DepthWrite = false;
 	}
@@ -262,17 +266,22 @@ bool Material::IsComplied()
 
 void Material::SetReceiveShadow(bool state)
 {
+	if (CurrnetShadowState == state)
+	{
+		return;
+	}
 	if (state)
 	{
 #if !NOSHADOW
-		MaterialCData.ShaderKeyWords.push_back("WITH_SHADOW");
+		MaterialCData.ShaderKeyWords.push_back(ShadowShaderstring);
 #endif
 	}
 	else
 	{
-		VectorUtils::Remove(MaterialCData.ShaderKeyWords, std::string("WITH_SHADOW"));
+		VectorUtils::Remove(MaterialCData.ShaderKeyWords, ShadowShaderstring);
 	}
 	NeedsUpdate = true;
+	CurrnetShadowState = state;
 	UpdateShaderData();
 }
 
@@ -282,4 +291,6 @@ void Material::SetupDefaultBinding(TextureBindSet* TargetSet)
 	TargetSet->BindMap.emplace("ALBEDOMAP", TextureBindData{ nullptr, ALBEDOMAP });
 	TargetSet->BindMap.emplace("NORMALMAP", TextureBindData{ nullptr, NORMALMAP });
 }
+
+std::string Material::ShadowShaderstring = std::string("WITH_SHADOW");
 

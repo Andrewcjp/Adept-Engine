@@ -29,6 +29,7 @@ void FrameBufferStorageNode::Resize()
 
 void FrameBufferStorageNode::Create()
 {
+	FrameBuffer::AutoUpdateSize(FramebufferDesc);
 	FBuffer = RHI::CreateFrameBuffer(DeviceObject, FramebufferDesc);
 }
 

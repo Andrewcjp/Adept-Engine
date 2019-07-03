@@ -74,7 +74,12 @@ bool MaterialShaderComplieData::operator<(const MaterialShaderComplieData & o) c
 
 std::string MaterialShaderComplieData::ToString()
 {
-	return Shader->GetName() + std::to_string(RenderPassUsage) + std::to_string(MaterialRenderType);
+	std::string KeyWords = "";
+	for (int i = 0; i < ShaderKeyWords.size(); i++)
+	{
+		KeyWords += ShaderKeyWords[i];
+	}
+	return Shader->GetName() + std::to_string(RenderPassUsage) + std::to_string(MaterialRenderType) + KeyWords;
 }
 
 int MaterialShaderComplieData::ToHash()

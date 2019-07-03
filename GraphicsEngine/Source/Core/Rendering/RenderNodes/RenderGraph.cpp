@@ -74,10 +74,8 @@ void RenderGraph::CreateDefTestgraph()
 void RenderGraph::CreateFWDGraph()
 {
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
-
-
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
-	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateGBuffer(100, 100);
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	MainBuffer->SetFrameBufferDesc(Desc);
 
