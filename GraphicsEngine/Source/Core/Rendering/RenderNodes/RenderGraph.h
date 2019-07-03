@@ -2,6 +2,7 @@
 
 class RenderNode;
 class StorageNode;
+class FrameBufferStorageNode;
 class RenderGraph
 {
 public:

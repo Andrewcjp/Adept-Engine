@@ -14,8 +14,8 @@ public:
 	//generates the mesh draw commands for this processor type
 	//virtual void Process(MeshBatch* Batch);
 	void Reset();
-	void SubmitCommands(RHICommandList* List, Shader* shader = nullptr);
-	virtual void OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command);
+	void SubmitCommands(RHICommandList* List, const MeshPassRenderArgs& args);
+	virtual void OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command, const MeshPassRenderArgs& args);
 	void UpdateStats();
 	virtual bool CheckProcess(MeshBatchElement* Element);
 	bool IsSubInstance(MeshBatch* Batch);

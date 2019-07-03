@@ -18,11 +18,11 @@ struct OGLVertex
 		m_tangent = tangent;
 	}
 };
-#define USE_16BIT_INDICIES 1
+#define USE_16BIT_INDICIES 0
 #if USE_16BIT_INDICIES
-typedef short IndType;
+typedef unsigned short IndType;
 #else
-typedef int IndType;
+typedef unsigned int IndType;
 #endif
 
 namespace ECullingPass

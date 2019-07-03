@@ -177,6 +177,26 @@ size_t FrameBuffer::GetSizeOnGPU()
 	}
 	return Size;
 }
+void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc)
+{
+	if (BufferDesc.SizeMode == EFrameBufferSizeMode::Fixed)
+	{
+		Log::LogMessage("AutoResize Called on fixed size buffer this is invalid", Log::Error);
+		return;
+	}
+	if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale)
+	{
+		BufferDesc.Height = glm::iround(BaseWindow::GetCurrentRenderer()->GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);
+		BufferDesc.Width = glm::iround(BaseWindow::GetCurrentRenderer()->GetScaledWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		//Resize(Width, Height);
+	}
+	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToScreenSize)
+	{
+		BufferDesc.Height = glm::iround(BaseWindow::GetHeight()*BufferDesc.LinkToBackBufferScaleFactor);
+		BufferDesc.Width = glm::iround(BaseWindow::GetWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		//Resize(Width, Height);
+	}
+}
 
 void FrameBuffer::AutoResize()
 {

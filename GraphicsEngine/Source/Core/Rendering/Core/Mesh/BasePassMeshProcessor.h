@@ -11,7 +11,7 @@ public:
 	//virtual void SubmitCommands(RHICommandList* List, Shader* shader) override;
 
 
-	virtual void OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command) override;
+	virtual void OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command, const MeshPassRenderArgs& args) override;
 
 private:
 	bool IsForCubemap = false;

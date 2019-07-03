@@ -280,10 +280,10 @@ MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<O
 
 	glm::vec3 Min = glm::vec3();
 	glm::vec3 Max = glm::vec3();
-	for (int i = 0; i < indices.size(); i++)
+	for (size_t index = 0; index < indices.size(); index++)
 	{
-		Min = glm::min(Min, vertices[indices[i]].m_position);
-		Max = glm::max(Max, vertices[indices[i]].m_position);
+		Min = glm::min(Min, vertices[indices[index]].m_position);
+		Max = glm::max(Max, vertices[indices[index]].m_position);
 	}
 	AABB = CullingAABB::CreateFromMinMax(Min, Max);
 	indices.clear();

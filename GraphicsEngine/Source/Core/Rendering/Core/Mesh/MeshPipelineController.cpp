@@ -141,7 +141,17 @@ void MeshPipelineController::CreateInstanceController(MeshBatch* Ctl, std::map<R
 
 void MeshPipelineController::RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader, EBatchFilter::Type Filter)
 {
-	SCOPE_CYCLE_COUNTER_GROUP(ERenderPass::ToString(type).c_str(), "Render");
+	MeshPassRenderArgs args;
+	args.PassType = type;
+	args.UseDeferredShaders = RHI::GetRenderSettings()->IsDeferred;
+	args.UseShadows = false;
+	RenderPass(args, List, shader, Filter);
+}
+
+void MeshPipelineController::RenderPass(const MeshPassRenderArgs & args, RHICommandList* List, Shader* shader /*= nullptr*/, EBatchFilter::Type Filter /*= EBatchFilter::ALL*/)
+{
+	ERenderPass::Type type = args.PassType;
+	SCOPE_CYCLE_COUNTER_GROUP(ERenderPass::ToString(args.PassType).c_str(), "Render");
 	Processors[type]->Reset();
 	for (int i = 0; i < Batches.size(); i++)
 	{
@@ -159,11 +169,11 @@ void MeshPipelineController::RenderPass(ERenderPass::Type type, RHICommandList* 
 				continue;
 			}
 		}
-		Processors[type]->AddBatch(Batches[i]);		
+		Processors[type]->AddBatch(Batches[i]);
 	}
 	{
 		SCOPE_CYCLE_COUNTER_GROUP("SubmitCommands CPU", "Render");
-		Processors[type]->SubmitCommands(List, shader);
+		Processors[type]->SubmitCommands(List, args);
 	}
 	Processors[type]->UpdateStats();
 }

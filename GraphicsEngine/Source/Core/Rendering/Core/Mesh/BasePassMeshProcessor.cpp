@@ -38,14 +38,14 @@ void BasePassMeshProcessor::AddBatch(MeshBatch* Batch)
 	Process(Batch);
 }
 
-void BasePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command)
+void BasePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command,  const MeshPassRenderArgs& args)
 {
 	if (Command->TargetMaterial != nullptr)
 	{
-		Command->TargetMaterial->SetMaterialActive(List, PassType);
+		Command->TargetMaterial->SetMaterialActive(List, args);
 	}
 	else
 	{
-		Material::GetDefaultMaterial()->SetMaterialActive(List, PassType);
+		Material::GetDefaultMaterial()->SetMaterialActive(List, args);
 	}
 }

@@ -280,6 +280,7 @@ void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
 
 void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex)
 {
+	//push a pso for bindings
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterial()->GetShaderInstance(EMaterialPassType::Forward));
 	list->SetPipelineStateDesc(Desc);
 	BindMvBuffer(list, MainShaderRSBinds::MVCBV, eyeindex);

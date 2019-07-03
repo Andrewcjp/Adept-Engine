@@ -493,7 +493,7 @@ void RHI::InitialiseContext()
 		instance->RTE = new RayTracingEngine();
 	}
 	Get()->RenderSystem = new RenderGraphSystem();
-	Get()->RenderSystem->Test();
+	
 }
 
 void RHI::ValidateSettings()
@@ -506,6 +506,8 @@ void RHI::InitialiseContextWindow(int w, int h)
 	GetRHIClass()->InitWindow(w, h);
 	instance->SwapChainWidth = w;
 	instance->SwapChainHeight = h;
+	Get()->RenderSystem->Test();
+
 }
 
 std::string RHI::ReportMemory()

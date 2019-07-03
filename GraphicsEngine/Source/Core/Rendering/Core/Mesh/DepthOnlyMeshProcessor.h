@@ -10,7 +10,7 @@ public:
 	virtual ~DepthOnlyMeshProcessor();
 	void Init();
 	virtual void AddBatch(MeshBatch* Batch) override;
-	virtual void OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command) override;
+	virtual void OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command, const MeshPassRenderArgs& args) override;
 private:
 
 };

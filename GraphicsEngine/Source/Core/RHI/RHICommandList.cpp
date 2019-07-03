@@ -73,7 +73,8 @@ void RHICommandList::StartTimer(int TimerId)
 	}
 	else
 	{
-		GetDevice()->GetTimeManager()->StartTimer(this, TimerId);
+		GetDevice()->GetTimeManager()->StartTotalGPUTimer(this);
+		GetDevice()->GetTimeManager()->StartTimer(this, TimerId);		
 	}
 }
 

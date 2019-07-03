@@ -7,6 +7,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include "../Performance/PerfManager.h"
 MeshLoader* MeshLoader::Instance = nullptr;
 
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -96,6 +97,7 @@ bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * Skeletal
 
 bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity)
 {
+	PerfManager::Get()->StartSingleActionTimer("LoadMeshFromFile");
 	Assimp::Importer* importer = new Assimp::Importer();
 	importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
 	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_LimitBoneWeights /*aiProcess_OptimizeGraph*/ | aiProcess_SplitByBoneCount;
@@ -230,6 +232,8 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		importer->FreeScene();
 		SafeDelete(importer);
 	}
+	float time = PerfManager::Get()->EndSingleActionTimer("LoadMeshFromFile");
+	Log::LogMessage("Load of asset " + filename + " took " + StringUtils::ToStringFloat(time)+"ms ");
 	return true;
 }
 

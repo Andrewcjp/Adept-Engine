@@ -17,6 +17,13 @@ namespace ERenderPass
 	};
 	std::string ToString(ERenderPass::Type t);
 }
+//this is passed in to a render scene call to provided to all command submission code.
+struct MeshPassRenderArgs
+{
+	bool UseDeferredShaders = false;
+	ERenderPass::Type PassType = ERenderPass::Limit;
+	bool UseShadows = false;
+};
 namespace EBatchFilter
 {
 	enum Type
@@ -40,7 +47,7 @@ public:
 
 	//#todo: which one?
 	TEMP_API void RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader = nullptr, EBatchFilter::Type Filter = EBatchFilter::ALL);
-
+	TEMP_API void RenderPass(const MeshPassRenderArgs & args, RHICommandList* List, Shader* shader = nullptr, EBatchFilter::Type Filter = EBatchFilter::ALL);
 	void Init();
 
 	Scene* TargetScene = nullptr;
