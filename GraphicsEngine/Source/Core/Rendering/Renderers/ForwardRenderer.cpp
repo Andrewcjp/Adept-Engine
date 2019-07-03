@@ -208,7 +208,7 @@ void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffe
 	if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)
 	{
 		//render the transparent objects AFTER the main scene
-		SceneRender->Controller->RenderPass(ERenderPass::TransparentPass, Cmdlist);
+		SceneRender->MeshController->RenderPass(ERenderPass::TransparentPass, Cmdlist);
 	}
 	//Cmdlist->SetRenderTarget(nullptr);
 #if !BASIC_RENDER_ONLY

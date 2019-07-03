@@ -60,7 +60,14 @@ public:
 	void ValidateNode(RenderGraph::ValidateArgs & args);
 	void SetupNode();
 
+	bool IsNodeDeferred() const;
+	void SetNodeDeferredMode(bool val);
 protected:
+	//is this node configured for a deferred pipeline or a forward one
+	//This is a special case as many nodes need the depth from the Gbuffer in deferred 
+	//all other conditions should be handled with Node conditionals.
+	bool IsNodeInDeferredMode = false;
+
 	//helpers:
 	FrameBuffer* GetFrameBufferFromInput(int index);
 	Scene* GetSceneDataFromInput(int index);

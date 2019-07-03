@@ -44,18 +44,14 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 		NeedsUpdate = false;
 	}
 	Shader_NodeGraph* CurrentShader = nullptr;
-#if 0
-	if (Pass == ERenderPass::BasePass_Cubemap || Pass == ERenderPass::TransparentPass)
+	if (Pass.PassType == ERenderPass::BasePass_Cubemap || Pass.PassType == ERenderPass::TransparentPass)
 	{
 		CurrentShader = ShaderInterface->GetShader(EMaterialPassType::Forward);
 	}
 	else
 	{
-		CurrentShader = ShaderInterface->GetShader(RHI::GetRenderSettings()->IsDeferred ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
+		CurrentShader = ShaderInterface->GetShader(Pass.UseDeferredShaders ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
 	}
-#else
-	CurrentShader = ShaderInterface->GetShader(Pass.UseDeferredShaders ? EMaterialPassType::Deferred : EMaterialPassType::Forward);
-#endif
 	if (!CurrentShader->IsValid())//stack overflow!
 	{
 		Defaults::GetDefaultMaterial()->SetMaterialActive(list, Pass);

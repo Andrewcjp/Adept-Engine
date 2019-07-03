@@ -13,6 +13,9 @@
 #include "Core/BaseWindow.h"
 #include "../../Renderers/RenderEngine.h"
 #include "../../Core/LightCulling/LightCullingEngine.h"
+#include "../../Shaders/Shader_Skybox.h"
+#include "../../Shaders/Generation/Shader_Convolution.h"
+#include "../../Shaders/Generation/Shader_EnvMap.h"
 
 ForwardRenderNode::ForwardRenderNode()
 {
@@ -52,22 +55,24 @@ void ForwardRenderNode::OnExecute()
 		//CommandList->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, MainShaderRSBinds::SpecBlurMap);
 		CommandList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 	}
-	//if (DDOs[CommandList->GetDeviceIndex()].ConvShader != nullptr)
-	//{
-	//	CommandList->SetFrameBufferTexture(DDOs[CommandList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
-	//	CommandList->SetFrameBufferTexture(DDOs[CommandList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
-	//}
-#if 1
+
+#if 0
 	CommandList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::DiffuseIr);
 	CommandList->SetTexture(Defaults::GetDefaultTexture(), MainShaderRSBinds::EnvBRDF);
+#else
+	if (BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].ConvShader != nullptr)
+	{
+		CommandList->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+		CommandList->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
+	}
 #endif
-	BaseWindow::GetCurrentRenderer()->LightCulling->BindLightBuffer(CommandList);
+	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(CommandList);
 	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, 0);
 	//SceneRenderer::Get()->RenderScene(CommandList, false, TargetBuffer, false, 0);
 	MeshPassRenderArgs Args;
 	Args.PassType = ERenderPass::BasePass;
 	Args.UseDeferredShaders = false;
-	SceneRenderer::Get()->Controller->RenderPass(Args, CommandList);
+	SceneRenderer::Get()->MeshController->RenderPass(Args, CommandList);
 	//CommandList->SetRenderTarget(nullptr);
 //#if !BASIC_RENDER_ONLY
 //	mShadowRenderer->Unbind(CommandList);
@@ -75,6 +80,8 @@ void ForwardRenderNode::OnExecute()
 	//LightCulling->Unbind(CommandList);
 	CommandList->EndRenderPass();
 #endif
+	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
+	SkyboxShader->Render(SceneRenderer::Get(), CommandList, TargetBuffer, nullptr);
 	CommandList->EndTimer(EGPUTIMERS::MainPass);
 	TargetBuffer->MakeReadyForComputeUse(CommandList);
 	CommandList->Execute();

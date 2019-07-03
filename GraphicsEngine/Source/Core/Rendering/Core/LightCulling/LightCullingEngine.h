@@ -2,6 +2,7 @@
 #include "../SceneRenderer.h"
 
 class CullingManager;
+//one of the few classes that splits On GPUs
 class LightCullingEngine
 {
 public:
@@ -24,6 +25,11 @@ public:
 	void Resize();
 	int GetNumLights() const;
 private:
+	struct GPUData
+	{
+		RHIBuffer* LightDataBuffer = nullptr;
+		RHIBuffer* CulledIndexLightBuffer = nullptr;
+	};
 	RHIBuffer* LightDataBuffer = nullptr;
 
 	void CreateLightDataBuffer();
