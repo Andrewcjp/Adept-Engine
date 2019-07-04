@@ -1,4 +1,4 @@
-﻿################################################################################
+################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
@@ -60,3 +60,19 @@
 /GraphicsEngine/Source/OLD
 /.vs
 /GraphicsEngine/Content/Terrain/MeduimMap.png
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/SPVRemapperd.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/OSDependentd.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/HLSLd.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/SPVRemapper.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/SPIRV.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/SPIRV-Tools.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/SPIRV-Tools-opt.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/HLSL.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/SPIRVd.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/SPIRV-Tools-optd.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/glslang.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/OGLCompiler.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/glslangd.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/SPIRV-Toolsd.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/OSDependent.lib
+GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/OGLCompilerd.lib
