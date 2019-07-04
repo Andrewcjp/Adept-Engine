@@ -8,7 +8,7 @@ This is currently VERY work in progress
 
 [Dev Blog](https://andrewcjp.wordpress.com/)
 
-[Feature List]([https://github.com/Andrewcjp/Adept-Engine/tree/master/GraphicsEngine/Readme/Feature-List.md])
+[Feature List](https://github.com/Andrewcjp/Adept-Engine/tree/master/GraphicsEngine/Readme/Feature-List.md)
 
 Platform Support:
 
