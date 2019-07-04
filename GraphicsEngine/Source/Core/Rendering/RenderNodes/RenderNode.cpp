@@ -160,3 +160,16 @@ void RenderNode::AddRefrence(EStorageType::Type TargetType, std::string format, 
 {
 	Refrences.push_back(new NodeLink(TargetType, format, InputName));
 }
+
+void RenderNode::PassNodeThough(int inputindex, std::string newformat /*= std::string()*/, int outputindex /*= -1*/)
+{
+	if (outputindex == -1)
+	{
+		outputindex = inputindex;
+	}
+	if (newformat.length() > 0)
+	{
+		GetInput(inputindex)->GetStoreTarget()->DataFormat = newformat;
+	}
+	GetOutput(outputindex)->SetStore(GetInput(inputindex)->GetStoreTarget());
+}

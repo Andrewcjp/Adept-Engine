@@ -42,6 +42,7 @@ SceneRenderer::~SceneRenderer()
 
 void SceneRenderer::PrepareSceneForRender()
 {
+	Culling->UpdateMainPassFrustumCulling(BaseWindow::GetCurrentCamera(), TargetScene);
 	LightCulling->RunLightBroadphase();
 	LightsBuffer.LightCount = LightCulling->GetNumLights();
 	LightsBuffer.TileX = LightCulling->GetLightGridDim().x;
@@ -191,6 +192,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 		//const int TileSize = RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE;
 		//LightsBuffer.Tiles[0] = GetLightGridDim();
 		//LightsBuffer.Tiles[1] = BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize;
+		LightsBuffer.LightCount = LightCulling->GetNumLights();
 		CLightBuffer[devindex]->UpdateConstantBuffer(&LightsBuffer, 0);
 	}
 }

@@ -5,6 +5,7 @@
 #include "Rendering/Shaders/PostProcess/Shader_Compost.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/DeviceContext.h"
+#include "../../Core/DebugLineDrawer.h"
 
 OutputToScreenNode::OutputToScreenNode()
 {
@@ -19,6 +20,7 @@ void OutputToScreenNode::OnExecute()
 {
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	ScreenWriteList->ResetList();
+
 	ScreenWriteList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain(true));
 
 	RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_Compost>());

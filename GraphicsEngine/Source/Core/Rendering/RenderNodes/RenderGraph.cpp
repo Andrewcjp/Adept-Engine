@@ -9,6 +9,7 @@
 #include "StoreNodes/SceneDataNode.h"
 #include "Nodes/ParticleSimulateNode.h"
 #include "Nodes/ParticleRenderNode.h"
+#include "Nodes/DebugUINode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -81,10 +82,12 @@ void RenderGraph::CreateDefTestgraph()
 	LightNode->GetInput(1)->SetStore(MainBuffer);
 	LightNode->GetInput(2)->SetStore(SceneData);
 
-
+	DebugUINode* Debug = new DebugUINode();
+	LightNode->LinkToNode(Debug);
+	Debug->GetInput(0)->SetLink(LightNode->GetOutput(0));
 	OutputToScreenNode* Output = new OutputToScreenNode();
-	LightNode->LinkToNode(Output);
-	Output->GetInput(0)->SetLink(LightNode->GetOutput(0));
+	Debug->LinkToNode(Output);
+	Output->GetInput(0)->SetLink(Debug->GetOutput(0));
 }
 
 void RenderGraph::CreateFWDGraph()
@@ -114,8 +117,12 @@ void RenderGraph::CreateFWDGraph()
 
 	renderNode->GetInput(0)->SetStore(MainBuffer);
 
+	DebugUINode* Debug = new DebugUINode();
+	renderNode->LinkToNode(Debug);
+	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
+
 	OutputToScreenNode* Output = new OutputToScreenNode();
-	renderNode->LinkToNode(Output);
+	Debug->LinkToNode(Output);
 	Output->GetInput(0)->SetLink(RootNode->GetOutput(0));
 
 }

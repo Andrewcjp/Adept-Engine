@@ -12,7 +12,7 @@ public:
 
 
 	virtual void OnNodeSettingChange() override;
-	
+
 private:
 	RHICommandList* List = nullptr;
 	Shader_Deferred* DeferredShader = nullptr;
