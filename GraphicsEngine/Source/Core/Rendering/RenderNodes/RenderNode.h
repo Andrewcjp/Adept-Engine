@@ -72,7 +72,7 @@ protected:
 	FrameBuffer* GetFrameBufferFromInput(int index);
 	Scene* GetSceneDataFromInput(int index);
 	virtual void OnNodeSettingChange();
-	
+
 	//Creates all data need to run a node on X device should NOT call functions on external objects (excluding Render systems like the MeshPipline).
 	virtual void OnSetupNode() {};
 	virtual void OnValidateNode(RenderGraph::ValidateArgs & args);
@@ -80,6 +80,7 @@ protected:
 	void AddOutput(EStorageType::Type TargetType, std::string format, std::string InputName = std::string());
 	void AddOutput(NodeLink* Input, std::string format, std::string InputName = std::string());
 	void AddRefrence(EStorageType::Type TargetType, std::string format, std::string InputName);
+	void PassNodeThough(int inputindex, std::string newformat = std::string(), int outputinput = -1);
 	RenderNode* Next = nullptr;
 	RenderNode* LastNode = nullptr;
 	ENodeQueueType::Type NodeEngineType = ENodeQueueType::Graphics;

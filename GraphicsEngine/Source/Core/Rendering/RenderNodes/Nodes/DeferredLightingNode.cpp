@@ -51,7 +51,7 @@ void DeferredLightingNode::OnExecute()
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
-	//LightCulling->BindLightBuffer(List);
+
 
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(List, true);
 
@@ -91,7 +91,7 @@ void DeferredLightingNode::OnExecute()
 	//{
 	//	GBuffer->BindDepthWithColourPassthrough(List, output);
 	//	SceneRender->SetupBindsForForwardPass(List, eyeindex);
-	//	SceneRender->MeshController->RenderPass(ERenderPass::TransparentPass, List);
+	//	SceneRender->MeshController->RenderPass(ERenderPass::TransparentPass, List); 
 	//}
 	List->EndRenderPass();
 

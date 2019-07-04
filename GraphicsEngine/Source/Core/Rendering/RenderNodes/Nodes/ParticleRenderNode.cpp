@@ -1,7 +1,7 @@
 #include "ParticleRenderNode.h"
-#include "../StorageNodeFormats.h"
-#include "../../Renderers/RenderEngine.h"
-#include "../../Core/ParticleSystemManager.h"
+#include "Rendering/Core/ParticleSystemManager.h"
+#include "Rendering/Renderers/RenderEngine.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
 
 ParticleRenderNode::ParticleRenderNode()
 {
@@ -19,7 +19,7 @@ void ParticleRenderNode::OnExecute()
 	DeviceDependentObjects D;
 	D.MainFrameBuffer = Buffer;
 	ParticleSystemManager::Get()->Render(&D);
-
+	PassNodeThough(0);
 }
 
 void ParticleRenderNode::OnNodeSettingChange()
