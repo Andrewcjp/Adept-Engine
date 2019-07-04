@@ -2,7 +2,9 @@
 #include "Rendering/Core/FrameBuffer.h"
 
 FrameBufferStorageNode::FrameBufferStorageNode()
-{}
+{
+	StoreType = EStorageType::Framebuffer;
+}
 
 FrameBufferStorageNode::~FrameBufferStorageNode()
 {}

@@ -72,9 +72,9 @@ glm::ivec2 LightCullingEngine::GetLightGridDim()
 void LightCullingEngine::WaitForCulling(RHICommandList * list)
 {}
 
-void LightCullingEngine::BindLightBuffer(RHICommandList * list)
+void LightCullingEngine::BindLightBuffer(RHICommandList* list, bool deferred /*= false*/)
 {
-	if (!RHI::GetRenderSettings()->IsDeferred)
+	if (!deferred)
 	{
 		LightCullingBuffer->SetBufferState(list, EBufferResourceState::Read);
 		LightCullingBuffer->BindBufferReadOnly(list, MainShaderRSBinds::LightBuffer);

@@ -10,8 +10,8 @@ RenderGraphSystem::~RenderGraphSystem()
 void RenderGraphSystem::Test()
 {
 	CurrentGraph = new RenderGraph();
-	CurrentGraph->CreateFWDGraph();
-	//CurrentGraph->CreateDefTestgraph();
+	//CurrentGraph->CreateFWDGraph();
+	CurrentGraph->CreateDefTestgraph();
 	CurrentGraph->BuildGraph();	
 }
 

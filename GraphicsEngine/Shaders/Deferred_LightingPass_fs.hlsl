@@ -11,7 +11,9 @@ TextureCube SpecularBlurMap[MAX_CUBEMAPS]: register(t11);
 Texture2D envBRDFTexture: register(t12);
 
 Texture2D PerSampledShadow: register(t13);
+#ifdef WITHRT
 Texture2D ScreenSpaceSpec: register(t14);
+#endif
 #if !VULKAN
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t4, space1);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
@@ -45,11 +47,13 @@ struct VS_OUTPUT
 #include "ReflectionEnviroment.hlsl"
 float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 {
+#ifdef WITHRT
 	float4 prefilteredColor = ScreenSpaceSpec.Sample(g_Clampsampler, ScreenPos);
 	if (prefilteredColor.a > 0.0)
 	{
 		return prefilteredColor.xyz;
 	}
+#endif
 	return GetReflectionColor(R, Roughness);
 }
 #define SHOW_SHADOW 0
@@ -61,20 +65,19 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float4 AlbedoSpec = AlbedoTexture.Sample(defaultSampler, input.uv);
 	float Roughness = AlbedoSpec.a;
 	float Metallic = Normalt.a;
-
+	
 	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - pos.xyz);
-
+	
 	float3 R = reflect(-ViewDir, Normal);
 	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
 	float3 prefilteredColor = GetSpecular(input.uv,R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
-	
 	[unroll(MAX_LIGHTS)]
 	for (int i = 0; i < LightCount; i++)
 	{
 		float3 LightColour = CalcColorFromLight(LightList[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
-
+#if 0
 #if !VULKAN
 		if (LightList[i].PreSampled.x)
 		{
@@ -99,6 +102,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 				LightColour *= 1.0 - ShadowCalculationCube(pos.xyz, LightList[i], g_Shadow_texture2[LightList[i].ShadowID]);
 			}
 		}
+#endif
 #endif
 		output += LightColour;
 	}

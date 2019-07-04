@@ -3,7 +3,9 @@
 
 Shader_RTBase::Shader_RTBase(DeviceContext* C, std::string Name, ERTShaderType::Type Stage) :Shader(C)
 {
+#if RHI_SUPPORTS_RT
 	m_Shader->AttachAndCompileShaderFromFile(Name.c_str(), EShaderType::SHADER_RT_LIB);
+#endif
 	ShaderStage = Stage;
 	
 }

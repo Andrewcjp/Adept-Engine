@@ -63,6 +63,13 @@ void RenderGraph::CreateDefTestgraph()
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	GBufferNode->SetFrameBufferDesc(Desc);
 
+	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	MainBuffer->SetFrameBufferDesc(Desc);
+
+
 	GBufferNode->StoreType = EStorageType::Framebuffer;
 	GBufferNode->DataFormat = StorageFormats::DefaultFormat;
 	RootNode = new GBufferWriteNode();
@@ -71,6 +78,9 @@ void RenderGraph::CreateDefTestgraph()
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
 	RootNode->LinkToNode(LightNode);
 	LightNode->GetInput(0)->SetLink(RootNode->GetOutput(0));
+	LightNode->GetInput(1)->SetStore(MainBuffer);
+	LightNode->GetInput(2)->SetStore(SceneData);
+
 
 	OutputToScreenNode* Output = new OutputToScreenNode();
 	LightNode->LinkToNode(Output);

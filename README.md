@@ -1,54 +1,43 @@
 # Adept Engine
 
-A flexible C++ Game engine focusing on multi-GPU rendering 
+A flexible C++ Game engine focusing on advanced multi-GPU rendering.
 
 This is currently VERY work in progress
 
-[Roadmap](https://trello.com/b/tiTV3Fbs/adept-engine-roadmap)
+[Road Map](https://trello.com/b/tiTV3Fbs/adept-engine-roadmap)
 
 [Dev Blog](https://andrewcjp.wordpress.com/)
 
+[Feature List]([https://github.com/Andrewcjp/Adept-Engine/tree/master/GraphicsEngine/Readme/Feature-List.md])
 
-Flexible RHI (Render Hardware Interface) supporting:
+Platform Support:
 
-* 	DirectX 12 
-* 	Vulkan (WIP)
+* Windows 10 (1803+)
+* Linux (planned)
 
-Rendering Features:
+Requirements:
 
-* Render Graph system for flexible renderer design
-* PBR Lighting Pipeline
-* Shadow mapping (static and dynamic)
-* GPU Particle System (WIP)
-* UI system (WIP)
-* Post Processing Stack (WIP)
+* Windows 10 SDK (1803+)
+* DirectX 12 capable GPU
+* Visual Studio 2017 (2019 Support Planned)
+
+Key Feature Overview:
+
+* DirectX 12
+* Vulkan (WIP)
+* Render graph system for flexible renderer design
 * Raytracing (DXR) Support (WIP)
-* Light Culling (WIP)
-* VR Support (SteamVR) (WIP)
-* Render node system for scalable multi-GPU rendering
-
-Multi-GPU Features:
-
+* VR rendering support (SteamVR)
 * Multi-GPU Shadow mapping
 * Asynchronous Multi-GPU Shadow Mapping
 * Split frame rendering (SFR)
 * SFR with Multi-GPU Shadow mapping
 
-Engine Features:
+Build Instructions:
 
-* Custom Build Tool 
-* Custom header tool (WIP)
-* Module System
-* Platform Abstraction Layer.
-
-Physics Features:
-
-* Physx Support
-* Custom TD Physics Engine
-
-AI Features:
-
-* D* Lite for path finding
-* Navigation mesh generation 
-* Asynchronous path finding request system(WIP)
-* Behavior tree system
+1. Install CMake (version 3.12+)
+2. Run EngineBuildTool.exe
+3. Run Source/GitDependencies.exe
+4. Open solution in Visual studio 2017
+5. Manually Build the HeaderTool Project
+6. Build and Run!

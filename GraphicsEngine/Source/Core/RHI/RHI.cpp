@@ -69,7 +69,6 @@ void RHI::InitRHI(ERenderSystemType e)
 	if (instance == nullptr)
 	{
 		instance = new RHI(e);
-
 	}
 }
 
