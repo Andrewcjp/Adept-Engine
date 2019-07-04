@@ -1,5 +1,7 @@
 #pragma once
 #include "../RenderNode.h"
+
+class Shader_Deferred;
 class DeferredLightingNode : public RenderNode
 {
 public:
@@ -10,6 +12,9 @@ public:
 
 
 	virtual void OnNodeSettingChange() override;
-
+	
+private:
+	RHICommandList* List = nullptr;
+	Shader_Deferred* DeferredShader = nullptr;
 };
 

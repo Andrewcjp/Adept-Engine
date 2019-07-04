@@ -76,6 +76,7 @@ void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 
 void D3D12CommandList::BeginRenderPass(RHIRenderPassDesc& info)
 {
+	ensure(IsOpen());
 	RHICommandList::BeginRenderPass(info);
 	if (info.TargetSwapChain)
 	{

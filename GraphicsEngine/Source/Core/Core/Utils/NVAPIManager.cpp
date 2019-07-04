@@ -68,7 +68,7 @@ void NVAPIManager::CheckSupport(ID3D12Device* D)
 	Par.version = NV_QUERY_SINGLE_PASS_STEREO_SUPPORT_PARAMS_VER1;
 	NvAPI_Status ret = NVAPI_OK;
 	ret = NvAPI_D3D12_QuerySinglePassStereoSupport(D, &Par);
-	ensure(ret == NVAPI_OK);
+	//ensure(ret == NVAPI_OK);
 }
 
 NVAPIManager::~NVAPIManager()

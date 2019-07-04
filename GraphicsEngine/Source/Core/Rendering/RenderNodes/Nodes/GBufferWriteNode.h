@@ -1,5 +1,7 @@
 #pragma once
 #include "../RenderNode.h"
+
+class RHICommandList;
 class GBufferWriteNode : public RenderNode
 {
 public:
@@ -7,6 +9,7 @@ public:
 	~GBufferWriteNode();
 	virtual void OnExecute() override;
 	virtual void OnSetupNode() override;
-
+private:
+	RHICommandList* CommandList = nullptr;
 };
 

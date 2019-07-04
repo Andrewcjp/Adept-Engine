@@ -141,7 +141,7 @@ std::wstring ConvertToLevelString(D3D_SHADER_MODEL SM)
 	switch (SM)
 	{
 		case D3D_SHADER_MODEL_5_1:
-			return L"_5_1";
+			return L"_6_0";//dxil does not support 5_1 profiles
 		case D3D_SHADER_MODEL_6_0:
 			return L"_6_0";
 		case D3D_SHADER_MODEL_6_1:
