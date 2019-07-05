@@ -603,6 +603,7 @@ void RHI::ResizeSwapChain(int width, int height)
 
 void RHI::DestoryContext()
 {
+	SafeDelete(Get()->RenderSystem);
 	Defaults::Shutdown();
 	if (GetRHIClass())
 	{

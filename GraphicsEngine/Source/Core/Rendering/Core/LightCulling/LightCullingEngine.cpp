@@ -66,7 +66,7 @@ glm::ivec2 LightCullingEngine::GetLightGridDim()
 	int tileWidth = glm::ceil(BaseWindow::GetCurrentRenderer()->GetScaledWidth() / TileSize);
 	int tileHeight = glm::ceil(BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize);
 	tileHeight += 1;
-	return glm::ivec2(tileWidth, tileHeight); 
+	return glm::ivec2(tileWidth, tileHeight);
 }
 
 void LightCullingEngine::WaitForCulling(RHICommandList * list)
@@ -76,11 +76,15 @@ void LightCullingEngine::BindLightBuffer(RHICommandList* list, bool deferred /*=
 {
 	if (!deferred)
 	{
+		LightDataBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
+
+	}
+	else
+	{
 		LightCullingBuffer->SetBufferState(list, EBufferResourceState::Read);
 		LightCullingBuffer->BindBufferReadOnly(list, MainShaderRSBinds::LightBuffer);
+		LightDataBuffer->BindBufferReadOnly(list, MainShaderRSBinds::LightDataBuffer);
 	}
-	LightDataBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
-
 
 }
 void LightCullingEngine::Unbind(RHICommandList* list)

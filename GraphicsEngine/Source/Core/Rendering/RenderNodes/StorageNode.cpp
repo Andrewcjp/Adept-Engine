@@ -9,6 +9,11 @@ StorageNode::StorageNode()
 StorageNode::~StorageNode()
 {}
 
+void StorageNode::SetFormat(std::string format)
+{
+
+}
+
 void StorageNode::CreateNode()
 {
 	if (DeviceObject == nullptr)
@@ -16,6 +21,12 @@ void StorageNode::CreateNode()
 		DeviceObject = RHI::GetDefaultDevice();
 	}
 	Create();
+	InitalFormat = DataFormat;
+}
+
+void StorageNode::Reset()
+{
+	DataFormat = InitalFormat;
 }
 
 void StorageNode::SetDevice(DeviceContext * D)

@@ -306,6 +306,11 @@ MeshPipelineController * SceneRenderer::GetPipelineController()
 	return MeshController;
 }
 
+CullingManager * SceneRenderer::GetCullingManager()
+{
+	return Culling;
+}
+
 void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex)
 {
 	//push a pso for bindings

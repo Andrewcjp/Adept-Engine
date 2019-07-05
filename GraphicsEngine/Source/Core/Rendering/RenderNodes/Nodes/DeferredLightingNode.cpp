@@ -12,6 +12,8 @@
 #include "../../Shaders/Generation/Shader_Convolution.h"
 #include "../../Shaders/Generation/Shader_EnvMap.h"
 #include "../../Shaders/Shader_Skybox.h"
+#include "../RenderNode.h"
+#include "../StoreNodes/ShadowAtlasStorageNode.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -34,7 +36,7 @@ void DeferredLightingNode::OnExecute()
 	FrameBuffer* MainBuffer = GetFrameBufferFromInput(1);
 	Scene* MainScene = GetSceneDataFromInput(2);
 	ensure(MainScene);
-	
+
 	List->ResetList();
 	List->StartTimer(EGPUTIMERS::DeferredLighting);
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
@@ -84,6 +86,10 @@ void DeferredLightingNode::OnExecute()
 #if !NOSHADOW
 	//mShadowRenderer->BindShadowMapsToTextures(List);
 #endif
+	if (GetInput(3)->IsValid())
+	{
+		GetShadowDataFromInput(3)->BindPointArray(List, 6);
+	}
 	DeferredShader->RenderScreenQuad(List);
 
 	//transparent pass
@@ -120,5 +126,6 @@ void DeferredLightingNode::OnNodeSettingChange()
 	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Main buffer");
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
+	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadow Maps");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
 }

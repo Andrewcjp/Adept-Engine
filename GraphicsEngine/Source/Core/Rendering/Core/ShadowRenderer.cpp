@@ -148,8 +148,7 @@ PreSampleController * ShadowRenderer::GetSampleController(int index)
 	return &Instance->SampleControllers[index];
 }
 
-
-void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, Shader_Main* mainshader)
+void ShadowRenderer::RenderShadowMaps()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("Shadow CPU", "Render");
 	if (UseCache)
@@ -164,8 +163,8 @@ void ShadowRenderer::RenderShadowMaps(Camera * c, std::vector<Light*>& lights, c
 	{
 		return;
 	}
-	RenderOnDevice(RHI::GetDeviceContext(0), ShadowObjects);
-	RenderOnDevice(RHI::GetDeviceContext(1), ShadowObjects);
+	RenderOnDevice(RHI::GetDeviceContext(0));
+	RenderOnDevice(RHI::GetDeviceContext(1));
 }
 
 bool ShadowRenderer::NeedsAnyShadowUpdate()
@@ -180,7 +179,7 @@ bool ShadowRenderer::NeedsAnyShadowUpdate()
 	return false;
 }
 
-void ShadowRenderer::RenderOnDevice(DeviceContext* con, const std::vector<GameObject*>& ShadowObjects)
+void ShadowRenderer::RenderOnDevice(DeviceContext * con)
 {
 	if (con == nullptr)
 	{
@@ -191,7 +190,7 @@ void ShadowRenderer::RenderOnDevice(DeviceContext* con, const std::vector<GameOb
 	const bool SplitShadows = RHI::GetMGPUSettings()->SplitShadowWork;
 	if (RHI::GetFrameCount() > 0 && AsyncShadows && SplitShadows && con->GetDeviceIndex() > 0)
 	{
-		PreSampleShadows(Object->ShadowPreSamplingList, ShadowObjects);
+		PreSampleShadows(Object->ShadowPreSamplingList);
 		AsyncCopy(con->GetDeviceIndex());
 	}
 
@@ -200,21 +199,21 @@ void ShadowRenderer::RenderOnDevice(DeviceContext* con, const std::vector<GameOb
 		Object->DirectionalShadowList->ResetList();
 		Object->DirectionalShadowList->GetDevice()->GetTimeManager()->StartTotalGPUTimer(Object->DirectionalShadowList);
 		Object->DirectionalShadowList->GetDevice()->GetTimeManager()->StartTimer(Object->DirectionalShadowList, EGPUTIMERS::DirShadows);
-		RenderDirectionalShadows(Object->DirectionalShadowList, ShadowObjects);
+		RenderDirectionalShadows(Object->DirectionalShadowList);
 		Object->DirectionalShadowList->GetDevice()->GetTimeManager()->EndTimer(Object->DirectionalShadowList, EGPUTIMERS::DirShadows);
 		Object->DirectionalShadowList->Execute();
 	}
 	if (ShadowingPointLights.size() > 0)
 	{
-		RunPointShadowPass(Object->PointLightShadowList, ShadowObjects);
+		RunPointShadowPass(Object->PointLightShadowList);
 		if (RHI::GetMGPUSettings()->SplitShadowWork && !AsyncShadows || RHI::GetMGPUSettings()->SFRSplitShadows)
 		{
-			PreSampleShadows(Object->ShadowPreSamplingList, ShadowObjects);
+			PreSampleShadows(Object->ShadowPreSamplingList);
 		}
 	}
 }
 
-void ShadowRenderer::RunPointShadowPass(RHICommandList * List, const std::vector<GameObject*>& ShadowObjects)
+void ShadowRenderer::RunPointShadowPass(RHICommandList * List)
 {
 	List->ResetList();
 	if (!RHI::GetMGPUSettings()->AsyncShadows || List->GetDeviceIndex() == 0)
@@ -222,7 +221,7 @@ void ShadowRenderer::RunPointShadowPass(RHICommandList * List, const std::vector
 		List->GetDevice()->GetTimeManager()->StartTotalGPUTimer(List);
 	}
 	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::PointShadows);
-	RenderPointShadows(List, ShadowObjects);
+	RenderPointShadows(List);
 	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::PointShadows);
 	if (RHI::GetMGPUSettings()->AsyncShadows && List->GetDeviceIndex() > 0)
 	{
@@ -242,7 +241,7 @@ void ShadowRenderer::AsyncCopy(int Index)
 	}
 }
 
-void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<GameObject*>& ShadowObjects)
+void ShadowRenderer::PreSampleShadows(RHICommandList* list)
 {
 	SCOPE_CYCLE_COUNTER("PreSampleShadows");
 	if (!NeedsCopyPreSample[list->GetDeviceIndex()])
@@ -343,7 +342,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list, const std::vector<Ga
 
 }
 
-void ShadowRenderer::RenderPointShadows(RHICommandList * list, const std::vector<GameObject*>& ShadowObjects)
+void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 {
 	int IndexOnGPU = 0;
 	for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
@@ -435,7 +434,7 @@ void ShadowRenderer::RenderShadowMap_CPU(ShadowLightInteraction * Interaction, R
 	list->EndRenderPass();
 }
 
-void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list, const std::vector<GameObject *> & ShadowObjects)
+void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list)
 {
 	for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
 	{
@@ -480,7 +479,8 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list, bool cubema
 		if (Object->ShadowCubeArray != nullptr)
 		{
 			//Object->ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
-			Object->ShadowCubeArray->BindToShader(list, MainShaderRSBinds::PointShadow);
+			BindPointmaps(list, MainShaderRSBinds::PointShadow);
+
 
 			//list->SetFrameBufferTexture(LightInteractions[0]->ShadowMap, MainShaderRSBinds::PointShadow);
 		}
@@ -498,6 +498,12 @@ void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list, bool cubema
 	}
 
 
+}
+
+void ShadowRenderer::BindPointmaps(RHICommandList * list, int slot)
+{
+	DeviceShadowObjects* Object = &DSOs[list->GetDeviceIndex()];
+	Object->ShadowCubeArray->BindToShader(list, slot);
 }
 
 void ShadowRenderer::ClearShadowLights()

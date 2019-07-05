@@ -15,7 +15,7 @@ public:
 	void ExecPPStack(DeviceDependentObjects* Object);
 	void Init(FrameBuffer* Target);
 	void Resize(FrameBuffer * Target);
-
+	static PostProcessing* Get();
 	//void AddCompostPass(FrameBuffer* buffer);
 	class PP_ColourCorrect* ColourCorrect = nullptr;
 	class PP_Blur* Blur = nullptr;

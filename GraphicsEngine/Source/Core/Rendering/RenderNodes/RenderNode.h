@@ -26,6 +26,7 @@ namespace ENodeQueueType
 
 class NodeLink;
 class SceneDataNode;
+class ShadowAtlasStorageNode;
 class RenderNode
 {
 public:
@@ -56,13 +57,18 @@ public:
 	EViewMode::Type GetViewMode() const;
 	ENodeQueueType::Type GetNodeQueueType() const;
 	RenderNode* GetNextNode()const;
+	bool IsComputeNode()const;
 	virtual std::string GetName()const;
 	void ValidateNode(RenderGraph::ValidateArgs & args);
 	void SetupNode();
 
 	bool IsNodeDeferred() const;
 	void SetNodeDeferredMode(bool val);
+	bool IsNodeActive() const;
+	void SetNodeActive(bool val);
 protected:
+	bool NodeActive = true;
+
 	//is this node configured for a deferred pipeline or a forward one
 	//This is a special case as many nodes need the depth from the Gbuffer in deferred 
 	//all other conditions should be handled with Node conditionals.
@@ -70,6 +76,7 @@ protected:
 
 	//helpers:
 	FrameBuffer* GetFrameBufferFromInput(int index);
+	ShadowAtlasStorageNode * GetShadowDataFromInput(int index);
 	Scene* GetSceneDataFromInput(int index);
 	virtual void OnNodeSettingChange();
 
@@ -89,5 +96,7 @@ protected:
 	std::vector<NodeLink*> Outputs;
 	std::vector<NodeLink*> Refrences;
 	DeviceContext* Context = nullptr;
+	//If true The node is responsible for invoking the next node.
+	bool NodeControlsFlow = false;
 };
 

@@ -65,15 +65,18 @@ public:
 	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index, int DeviceIndex);
 	static eTEXTURE_FORMAT GetDepthType();
 	static eTEXTURE_FORMAT GetDepthReadType();
-	void RenderShadowMaps(Camera * c, std::vector<Light*>& lights, const std::vector<GameObject*>& ShadowObjects, class Shader_Main* mainshader = nullptr);
+	void RenderShadowMaps();
 	bool NeedsAnyShadowUpdate();
-	void RenderOnDevice(DeviceContext * con, const std::vector<GameObject*>& ShadowObjects);
-	void RunPointShadowPass(RHICommandList * List, const std::vector<GameObject*>& ShadowObjects);
+	void RenderOnDevice(DeviceContext * con); 
+	void RunPointShadowPass(RHICommandList * List);
 	void AsyncCopy(int Index);
-	void PreSampleShadows(RHICommandList* list, const std::vector<GameObject*>& ShadowObjects);
-	void RenderPointShadows(RHICommandList * list, const std::vector<GameObject*>& ShadowObjects);
-	void RenderDirectionalShadows(RHICommandList * list, const std::vector<GameObject *> & ShadowObjects);
+	void PreSampleShadows(RHICommandList* list);
+	void RenderPointShadows(RHICommandList * list);
+	void RenderDirectionalShadows(RHICommandList * list);
 	void BindShadowMapsToTextures(RHICommandList* list, bool cubemap = false);
+
+	void BindPointmaps(RHICommandList * list, int slot);
+
 	void ClearShadowLights();
 	static RHIPipeRenderTargetDesc GetCubeMapDesc();
 	static RHIFrameBufferDesc GetCubeMapFBDesc(int size = 10);

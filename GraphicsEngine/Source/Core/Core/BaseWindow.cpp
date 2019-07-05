@@ -219,8 +219,9 @@ void BaseWindow::Render()
 #endif
 #if TESTGRAPH
 	RHI::RHIRunFirstFrame();
-	SceneRenderer::Get()->PrepareSceneForRender();
+	RHI::GetRenderSystem()->Update();
 	Renderer->PreRender();
+	SceneRenderer::Get()->PrepareSceneForRender();
 	RHI::GetRenderSystem()->Render();
 #else
 	Renderer->Render();

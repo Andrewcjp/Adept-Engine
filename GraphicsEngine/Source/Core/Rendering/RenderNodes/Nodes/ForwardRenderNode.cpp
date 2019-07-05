@@ -1,21 +1,22 @@
 #include "ForwardRenderNode.h"
 #include "Core/Assets/Scene.h"
+#include "Core/BaseWindow.h"
 #include "Rendering/Core/Defaults.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/LightCulling/LightCullingEngine.h"
 #include "Rendering/Core/Material.h"
 #include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Renderers/RenderEngine.h"
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/RenderNodes/StoreNodes/FrameBufferStorageNode.h"
+#include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
+#include "Rendering/Shaders/Generation/Shader_Convolution.h"
+#include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Shaders/Shader_Main.h"
+#include "Rendering/Shaders/Shader_Skybox.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHICommandList.h"
-#include "Core/BaseWindow.h"
-#include "../../Renderers/RenderEngine.h"
-#include "../../Core/LightCulling/LightCullingEngine.h"
-#include "../../Shaders/Shader_Skybox.h"
-#include "../../Shaders/Generation/Shader_Convolution.h"
-#include "../../Shaders/Generation/Shader_EnvMap.h"
 
 ForwardRenderNode::ForwardRenderNode()
 {
@@ -32,6 +33,7 @@ void ForwardRenderNode::OnExecute()
 	CommandList->StartTimer(EGPUTIMERS::MainPass);
 	Scene* MainScene = GetSceneDataFromInput(1);
 	ensure(MainScene);
+	UsePreZPass = (GetInput(0)->GetStoreTarget()->DataFormat == StorageFormats::PreZData);
 #if 1
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), TargetBuffer);
 	desc.RenderPassDesc = RHIRenderPassDesc(TargetBuffer, UsePreZPass ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
@@ -43,6 +45,12 @@ void ForwardRenderNode::OnExecute()
 	//	{
 	//		mShadowRenderer->BindShadowMapsToTextures(CommandList);
 	//	}
+
+	if (GetInput(2)->IsValid())
+	{
+		GetShadowDataFromInput(2)->BindPointArray(CommandList, MainShaderRSBinds::PointShadow);
+	}
+
 	//#endif
 	CommandList->BeginRenderPass(desc.RenderPassDesc);
 	//if (RHI::GetMGPUSettings()->SplitShadowWork || RHI::GetMGPUSettings()->SFRSplitShadows)
@@ -85,7 +93,7 @@ void ForwardRenderNode::OnExecute()
 	CommandList->EndTimer(EGPUTIMERS::MainPass);
 	TargetBuffer->MakeReadyForComputeUse(CommandList);
 	CommandList->Execute();
-	GetOutput(0)->SetStore(GetInput(0)->GetStoreTarget());
+	PassNodeThough(0, StorageFormats::LitScene);
 }
 
 void ForwardRenderNode::OnSetupNode()
@@ -102,13 +110,15 @@ void ForwardRenderNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Output buffer");
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
+	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit output");
-	if (UseLightCulling)
+	//if (UseLightCulling)
 	{
 		AddInput(EStorageType::Buffer, StorageFormats::LightCullingData, "Light culling data");
 	}
-	if (UsePreZPass)
+	//if (UsePreZPass)
 	{
-		AddInput(EStorageType::Framebuffer, StorageFormats::PreZData, "Pre-Z data");
+		//AddInput(EStorageType::Framebuffer, StorageFormats::PreZData, "Pre-Z data");
 	}
+	
 }

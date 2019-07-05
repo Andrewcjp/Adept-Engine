@@ -1,5 +1,6 @@
 #include "RenderEngine.h"
 #include "Core/Assets/Scene.h"
+#include "Core/Assets/ShaderComplier.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/StringUtil.h"
 #include "Editor/Editor_Camera.h"
@@ -16,17 +17,16 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
+#include "Rendering/RayTracing/RayTracingEngine.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Shaders/PostProcess/Shader_Compost.h"
+#include "Rendering/Shaders/Raytracing/Shader_Skybox_Miss.h"
+#include "Rendering/Shaders/Shader_Deferred.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "Rendering/VR/HMD.h"
 #include "Rendering/VR/HMDManager.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
-#include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
-#include "../RayTracing/RayTracingEngine.h"
-#include "../Shaders/Shader_Deferred.h"
-#include "Core/Assets/ShaderComplier.h"
 
 RenderEngine::RenderEngine(int width, int height)
 {
@@ -319,7 +319,7 @@ void RenderEngine::ShadowPass()
 #if !NOSHADOW
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->RenderShadowMaps(MainCamera, MainScene->GetLights(), MainScene->GetMeshObjects(), MainShader);
+		mShadowRenderer->RenderShadowMaps();
 	}
 #endif
 }
