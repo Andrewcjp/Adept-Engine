@@ -1,7 +1,6 @@
 #include "DebugUINode.h"
-#include "../StorageNodeFormats.h"
-#include "../../Core/DebugLineDrawer.h"
-
+#include "Rendering/Core/DebugLineDrawer.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
 
 DebugUINode::DebugUINode()
 {

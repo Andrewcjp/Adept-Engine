@@ -4,6 +4,7 @@
 #include "RenderGraph.h"
 #include "StoreNodes/FrameBufferStorageNode.h"
 #include "StoreNodes/SceneDataNode.h"
+#include "StoreNodes/ShadowAtlasStorageNode.h"
 
 RenderNode::RenderNode()
 {}
@@ -24,10 +25,20 @@ void RenderNode::OnNodeSettingChange()
 
 void RenderNode::ExecuteNode()
 {
-	OnExecute();
-	if (Next != nullptr)
+	if (NodeControlsFlow)
 	{
-		Next->ExecuteNode();
+		OnExecute();
+	}
+	else
+	{
+		if (IsNodeActive())
+		{
+			OnExecute();
+		}
+		if (Next != nullptr)
+		{
+			Next->ExecuteNode();
+		}
 	}
 }
 
@@ -82,6 +93,11 @@ RenderNode * RenderNode::GetNextNode() const
 	return Next;
 }
 
+bool RenderNode::IsComputeNode() const
+{
+	return NodeEngineType == ENodeQueueType::Compute;
+}
+
 std::string RenderNode::GetName() const
 {
 	return "UNNAMED";
@@ -122,11 +138,28 @@ void RenderNode::SetNodeDeferredMode(bool val)
 	IsNodeInDeferredMode = val;
 }
 
+bool RenderNode::IsNodeActive() const
+{
+	return NodeActive;
+}
+
+void RenderNode::SetNodeActive(bool val)
+{
+	NodeActive = val;
+}
+
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());
 	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::Framebuffer);
 	return static_cast<FrameBufferStorageNode*>(GetInput(index)->GetStoreTarget())->GetFramebuffer();
+}
+
+ShadowAtlasStorageNode * RenderNode::GetShadowDataFromInput(int index)
+{
+	ensure(GetInput(index)->GetStoreTarget());
+	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::ShadowData);
+	return static_cast<ShadowAtlasStorageNode*>(GetInput(index)->GetStoreTarget());
 }
 
 Scene * RenderNode::GetSceneDataFromInput(int index)

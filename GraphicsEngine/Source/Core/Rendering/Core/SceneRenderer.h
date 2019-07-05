@@ -97,6 +97,7 @@ public:
 	LightBufferW LightsBuffer;
 	LightCullingEngine* GetLightCullingEngine();
 	MeshPipelineController* GetPipelineController();
+	CullingManager* GetCullingManager();
 private:
 
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };

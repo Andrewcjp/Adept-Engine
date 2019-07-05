@@ -1,12 +1,10 @@
 #pragma once
 #include "../RenderNode.h"
-
-class ShadowRenderer;
-class ShadowUpdateNode : public RenderNode
+class PreSampleShadowNode : public RenderNode
 {
 public:
-	ShadowUpdateNode();
-	~ShadowUpdateNode();
+	PreSampleShadowNode();
+	~PreSampleShadowNode();
 
 	virtual void OnExecute() override;
 
@@ -14,7 +12,6 @@ protected:
 	virtual void OnNodeSettingChange() override;
 	virtual void OnSetupNode() override;
 private:
-	ShadowRenderer* mShadowRenderer = nullptr;
-	bool Once = true;
+	RHICommandList* Commandlist = nullptr;
 };
 

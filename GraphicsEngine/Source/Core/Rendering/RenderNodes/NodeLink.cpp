@@ -1,4 +1,5 @@
 #include "NodeLink.h"
+#include "StorageNodeFormats.h"
 
 NodeLink::NodeLink()
 {}
@@ -21,9 +22,15 @@ bool NodeLink::SetStore(StorageNode* target)
 		__debugbreak();
 		return false;
 	}
-	if (DataFormat != target->DataFormat)
+	if (RHI::GetFrameCount() == 0)
 	{
-		Log::LogMessage("Incorrect Data Format");
+		if (DataFormat != target->DataFormat)
+		{
+			if (DataFormat != StorageFormats::DefaultFormat)
+			{
+				Log::LogMessage("Incorrect Data Format");
+			}
+		}
 	}
 	StoreTarget = target;
 	return true;

@@ -98,21 +98,24 @@ float4 main(PSInput input) : SV_TARGET
 	//float3 prefilteredColor = SpecularBlurMap.SampleLevel(defaultSampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
 	float3 prefilteredColor = GetReflectionColor(R, Roughness);
 	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF);
-
+#ifdef LIGHT_CULLING
 	float2 pixel = input.position.xy;
 	uint2 tileIndex = uint2(floor(pixel / LIGHTCULLING_TILE_SIZE));
 	uint startOffset = flatten2D(tileIndex, TileCount.xy) * MAX_LIGHTS;
 
 	uint count = LightIndexs[startOffset];
 	startOffset += 1;
+#else
 
+	uint count = LightCount;
+#endif
 	[unroll(MAX_LIGHTS)]
 	for (int i = 0; i < count; i++)
 	{
 #ifdef LIGHT_CULLING
-		int index = LightIndexs[startOffset + i];
+		const int index = LightIndexs[startOffset + i];
 #else
-		int index = i;
+		const int index = i;
 #endif
 		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
 #ifdef WITH_SHADOW

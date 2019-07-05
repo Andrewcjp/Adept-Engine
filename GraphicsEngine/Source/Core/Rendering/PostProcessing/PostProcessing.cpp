@@ -95,3 +95,8 @@ void PostProcessing::Resize(FrameBuffer* Target)
 	//ColourCorrect->AddtiveBuffer = Bloom->BloomBuffer;
 }
 
+PostProcessing * PostProcessing::Get()
+{
+	return Instance;
+}
+

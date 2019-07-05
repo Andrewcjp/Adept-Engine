@@ -77,7 +77,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	for (int i = 0; i < LightCount; i++)
 	{
 		float3 LightColour = CalcColorFromLight(LightList[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
-#if 0
+#if 1
 #if !VULKAN
 		if (LightList[i].PreSampled.x)
 		{

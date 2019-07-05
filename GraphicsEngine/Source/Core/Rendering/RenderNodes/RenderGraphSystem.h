@@ -8,6 +8,7 @@ public:
 	~RenderGraphSystem();
 	void Test();
 	void Render();
+	void Update();
 private:
 	RenderGraph* CurrentGraph = nullptr;
 };
