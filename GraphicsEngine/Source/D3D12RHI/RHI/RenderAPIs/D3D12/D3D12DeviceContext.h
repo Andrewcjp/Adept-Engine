@@ -110,7 +110,7 @@ public:
 	ID3D12Device* GetDevice();
 	ID3D12Device2 * GetDevice2();
 	ID3D12Device5 *GetDevice5();
-	ID3D12CommandAllocator* GetCommandAllocator();
+	ID3D12CommandAllocator* GetCommandAllocator(ECommandListType::Type ListType = ECommandListType::Graphics);
 
 	ID3D12CommandAllocator * GetSharedCommandAllocator();
 	ID3D12CommandQueue* GetCommandQueue();
@@ -165,7 +165,9 @@ private:
 	ID3D12Device* m_Device = nullptr;
 	ID3D12Device2* m_Device2 = nullptr;
 	ID3D12Device5* m_Device5 = nullptr;
-	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
+	ID3D12CommandAllocator* m_GFXcommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
+	ID3D12CommandAllocator* m_ComputeCommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
+	ID3D12CommandAllocator* m_CopyCommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
 	ID3D12CommandQueue* m_MainCommandQueue = nullptr;
 
 	//device info
@@ -175,7 +177,7 @@ private:
 	size_t totalVRAM = 0;
 	DXGI_ADAPTER_DESC1 Adaptordesc;
 
-	ID3D12CommandAllocator* m_CopyCommandAllocator = nullptr;
+
 	ID3D12CommandQueue* m_CopyCommandQueue = nullptr;
 	ID3D12CommandQueue* m_ComputeCommandQueue = nullptr;
 	ID3D12GraphicsCommandList* m_IntraCopyList = nullptr;

@@ -15,6 +15,7 @@
 #include "StoreNodes/ShadowAtlasStorageNode.h"
 #include "Nodes/ZPrePassNode.h"
 #include "Nodes/Flow/BranchNode.h"
+#include "Nodes/VisModeNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -129,9 +130,14 @@ void RenderGraph::CreateDefTestgraph()
 	PPNode->LinkToNode(Debug);
 	Debug->GetInput(0)->SetLink(PPNode->GetOutput(0));
 
+	VisModeNode* VisNode = new VisModeNode();
+	VisNode->GetInput(0)->SetLink(Debug->GetOutput(0));
+	VisNode->GetInput(1)->SetStore(GBufferNode);
+	Debug->LinkToNode(VisNode);
+
 	OutputToScreenNode* Output = new OutputToScreenNode();
-	Debug->LinkToNode(Output);
-	Output->GetInput(0)->SetLink(Debug->GetOutput(0));
+	VisNode->LinkToNode(Output);
+	Output->GetInput(0)->SetLink(VisNode->GetOutput(0));
 }
 
 BranchNode * RenderGraph::AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate)
