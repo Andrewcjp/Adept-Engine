@@ -11,11 +11,12 @@ RenderGraphSystem::~RenderGraphSystem()
 	SafeDelete(CurrentGraph);
 }
 
-void RenderGraphSystem::Test()
+void RenderGraphSystem::InitGraph()
 {
 	CurrentGraph = new RenderGraph();
-	//CurrentGraph->CreateFWDGraph();
-	CurrentGraph->CreateDefTestgraph();
+	CurrentGraph->CreateFWDGraph();
+	//CurrentGraph->CreateVRFWDGraph();
+	//CurrentGraph->CreateDefTestgraph();
 	CurrentGraph->BuildGraph();
 }
 
@@ -27,12 +28,27 @@ void RenderGraphSystem::Render()
 void RenderGraphSystem::Update()
 {
 	if (Input::GetKeyDown('U'))
-	{
-		CurrentGraph->OptionNode->SetNodeActive(!CurrentGraph->OptionNode->IsNodeActive());
+	{		
+		CurrentGraph->ToggleCondition("PREZ");		
 	}
 	if (Input::GetKeyDown('Y'))
 	{
-		CurrentGraph->SetCondition(0, !CurrentGraph->GetCondition(0));
+		CurrentGraph->ToggleCondition("Debug");
 	}
+#if 0
+	if (Input::GetKeyDown('I'))
+	{
+		RenderGraph* Test = new RenderGraph();
+		Test->CreateVRFWDGraph();
+		SwitchGraph(Test);
+	}
+#endif
+}
 
+void RenderGraphSystem::SwitchGraph(RenderGraph* NewGraph)
+{
+	RHI::WaitForGPU();
+	SafeDelete(CurrentGraph);
+	CurrentGraph = NewGraph;
+	CurrentGraph->BuildGraph();
 }

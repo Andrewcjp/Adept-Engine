@@ -27,3 +27,8 @@ void BranchNode::OnExecute()
 		}
 	}
 }
+
+std::string BranchNode::GetName() const
+{
+	return "Branch";
+}

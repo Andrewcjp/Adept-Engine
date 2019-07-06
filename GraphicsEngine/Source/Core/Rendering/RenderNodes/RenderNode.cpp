@@ -162,6 +162,16 @@ void RenderNode::FindVRContext()
 	}
 }
 
+bool RenderNode::IsBranchNode() const
+{
+	//not great
+	return !IsVrBranchNode && NodeControlsFlow;
+}
+bool RenderNode::IsVRBranch() const
+{
+	//not great
+	return IsVrBranchNode;
+}
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());

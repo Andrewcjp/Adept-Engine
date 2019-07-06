@@ -67,10 +67,12 @@ public:
 	void SetNodeDeferredMode(bool val);
 	bool IsNodeActive() const;
 	void SetNodeActive(bool val);
-	
+	void FindVRContext();
+	bool IsBranchNode()const;
+	bool IsVRBranch() const;
 protected:
 	//search forwards until we reach the end VR node 
-	void FindVRContext();
+	
 	//
 	VRBranchNode* VRBranchContext = nullptr;
 	bool IsVrBranchNode = false;

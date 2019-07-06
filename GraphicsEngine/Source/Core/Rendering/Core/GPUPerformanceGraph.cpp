@@ -113,5 +113,5 @@ void GPUPerformanceGraph::DrawBaseLine(TimerData* Timer, int GPUindex, glm::vec3
 	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Graphics", pos.x - Offset, EndPos.y + 5.0f, TextScale, glm::vec3(1));
 	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Compute", pos.x - Offset, EndPos.y + 5.0f - 30.0f, TextScale, glm::vec3(1));
 	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Copy", pos.x - Offset, EndPos.y + 5.0f - 30.0f * 2, TextScale, glm::vec3(1));
-	TextRenderer::instance->RenderText(StringUtils::ToStringFloat(MaxValue / Scale) + "ms", EndPos.x + 10.0f, EndPos.y - 5.0f + 10.0f, TextScale, glm::vec3(1));
+	TextRenderer::instance->RenderText(StringUtils::ToString(MaxValue / Scale) + "ms", EndPos.x + 10.0f, EndPos.y - 5.0f + 10.0f, TextScale, glm::vec3(1));
 }

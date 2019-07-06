@@ -5,6 +5,7 @@
 #include "RHI/BaseTexture.h"
 
 class DescriptorGroup;
+class CommandAllocator;
 class D3D12PipeLineStateObject :public RHIPipeLineStateObject
 {
 public:
@@ -81,13 +82,13 @@ private:
 	CMDListType* CurrentCommandList = nullptr;
 	ID3D12GraphicsCommandList4* CurrentADVCommandList = nullptr;
 	bool m_IsOpen = false;
-	ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
+	//ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();
 	std::vector<ShaderParameter> Params;
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
 	class D3D12Texture* Texture = nullptr;
-
+	CommandAllocator* CommandAlloc = nullptr;
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 
 	ID3D12CommandSignature* CommandSig = nullptr;

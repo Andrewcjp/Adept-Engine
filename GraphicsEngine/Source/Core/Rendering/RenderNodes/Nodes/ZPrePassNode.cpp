@@ -35,6 +35,11 @@ void ZPrePassNode::OnExecute()
 	PassNodeThough(0,StorageFormats::PreZData);
 }
 
+std::string ZPrePassNode::GetName() const
+{
+	return "Z PrePass";
+}
+
 void ZPrePassNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat);

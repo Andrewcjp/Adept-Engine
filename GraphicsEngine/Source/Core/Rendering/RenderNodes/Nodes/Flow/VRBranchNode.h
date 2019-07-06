@@ -10,6 +10,9 @@ public:
 	virtual void OnExecute() override;
 	VRBranchNode* VrLoopBegin = nullptr;
 	EEye::Type CurrentEyeMode = EEye::Left;
+
+	virtual std::string GetName() const override;
+
 protected:
 	virtual void OnSetupNode() override;
 

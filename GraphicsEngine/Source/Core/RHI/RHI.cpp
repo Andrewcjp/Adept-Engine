@@ -505,7 +505,7 @@ void RHI::InitialiseContextWindow(int w, int h)
 	GetRHIClass()->InitWindow(w, h);
 	instance->SwapChainWidth = w;
 	instance->SwapChainHeight = h;
-	Get()->RenderSystem->Test();
+	Get()->RenderSystem->InitGraph();
 
 }
 
