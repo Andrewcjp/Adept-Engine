@@ -28,6 +28,7 @@ public:
 
 	// Inherited via RHICommandList
 	virtual void ResetList() override;
+	ID3D12CommandAllocator * GetCommandAllocator();
 	void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0);
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;

@@ -9,7 +9,7 @@ StorageNode::StorageNode()
 StorageNode::~StorageNode()
 {}
 
-void StorageNode::SetFormat(std::string format)
+void StorageNode::SetFormat(const std::string & format)
 {
 
 }

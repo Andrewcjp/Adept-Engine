@@ -14,8 +14,8 @@ RenderGraphSystem::~RenderGraphSystem()
 void RenderGraphSystem::Test()
 {
 	CurrentGraph = new RenderGraph();
-	CurrentGraph->CreateFWDGraph();
-	//CurrentGraph->CreateDefTestgraph();
+	//CurrentGraph->CreateFWDGraph();
+	CurrentGraph->CreateDefTestgraph();
 	CurrentGraph->BuildGraph();
 }
 
@@ -26,11 +26,11 @@ void RenderGraphSystem::Render()
 
 void RenderGraphSystem::Update()
 {
-	if (Input::GetKeyDown('T'))
+	if (Input::GetKeyDown('U'))
 	{
 		CurrentGraph->OptionNode->SetNodeActive(!CurrentGraph->OptionNode->IsNodeActive());
 	}
-	if (Input::GetKeyDown('Q'))
+	if (Input::GetKeyDown('Y'))
 	{
 		CurrentGraph->SetCondition(0, !CurrentGraph->GetCondition(0));
 	}

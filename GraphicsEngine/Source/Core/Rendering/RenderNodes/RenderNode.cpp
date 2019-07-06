@@ -148,6 +148,20 @@ void RenderNode::SetNodeActive(bool val)
 	NodeActive = val;
 }
 
+void RenderNode::FindVRContext()
+{
+	RenderNode* N = this;
+	while (N != nullptr)
+	{
+		if (N->IsVrBranchNode)
+		{
+			VRBranchContext = (VRBranchNode*)N;
+			break;
+		}
+		N = N->Next;
+	}
+}
+
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());

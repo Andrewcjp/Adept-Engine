@@ -27,6 +27,7 @@ namespace ENodeQueueType
 class NodeLink;
 class SceneDataNode;
 class ShadowAtlasStorageNode;
+class VRBranchNode;
 class RenderNode
 {
 public:
@@ -66,7 +67,13 @@ public:
 	void SetNodeDeferredMode(bool val);
 	bool IsNodeActive() const;
 	void SetNodeActive(bool val);
+	
 protected:
+	//search forwards until we reach the end VR node 
+	void FindVRContext();
+	//
+	VRBranchNode* VRBranchContext = nullptr;
+	bool IsVrBranchNode = false;
 	bool NodeActive = true;
 
 	//is this node configured for a deferred pipeline or a forward one

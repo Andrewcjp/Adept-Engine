@@ -58,6 +58,10 @@ struct ERenderDebugOutput
 		GBuffer_Material,
 		GBuffer_RoughNess,
 		GBuffer_Metallic,
+		Scene_Metallic,
+		Scene_RoughNess,
+		Scene_LightRange,
+		Scene_UVs,
 		Limit
 	};
 };
@@ -72,7 +76,7 @@ struct ShadowMappingSettings
 {
 	bool UseGeometryShaderForShadows = false;
 	bool UseViewInstancingForShadows = false;
-	int MaxShadowMapSize = 2048;
+	int MaxShadowMapSize = 1024;
 };
 struct DynamicResolutionSettings
 {

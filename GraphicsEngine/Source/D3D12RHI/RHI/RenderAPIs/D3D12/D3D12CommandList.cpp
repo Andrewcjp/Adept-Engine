@@ -22,9 +22,12 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 {
 	AddCheckerRef(D3D12CommandList, this);
 	mDeviceContext = D3D12RHI::DXConv(inDevice);
-	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	if (GetCommandAllocator() == nullptr)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(ListType), IID_PPV_ARGS(&m_commandAllocator[i])));
+		for (int i = 0; i < RHI::CPUFrameCount; i++)
+		{
+			ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(ListType), IID_PPV_ARGS(&m_commandAllocator[i])));
+		}
 	}
 	if (ListType == ECommandListType::Copy)
 	{
@@ -166,7 +169,10 @@ void D3D12CommandList::ResetList()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("ResetList", "RHI");
 	ensure(!m_IsOpen);
-	ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
+	if (m_commandAllocator[Device->GetCpuFrameIndex()] != nullptr)
+	{
+		ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
+	}
 	m_IsOpen = true;
 	if (CurrentCommandList == nullptr)
 	{
@@ -178,7 +184,7 @@ void D3D12CommandList::ResetList()
 	{
 		PSO = D3D12RHI::DXConv(CurrentPSO)->PSO;
 	}
-	ThrowIfFailed(CurrentCommandList->Reset(m_commandAllocator[Device->GetCpuFrameIndex()], PSO));
+	ThrowIfFailed(CurrentCommandList->Reset(GetCommandAllocator(), PSO));
 	HandleStallTimer();
 	PushState();
 	if (ListType != ECommandListType::Copy)
@@ -186,7 +192,16 @@ void D3D12CommandList::ResetList()
 		mDeviceContext->GetHeapManager()->BindHeap(this);
 	}
 }
-
+ID3D12CommandAllocator* D3D12CommandList::GetCommandAllocator()
+{
+#if 0
+	if (ListType == ECommandListType::Graphics)
+	{
+		return D3D12RHI::DXConv(Device)->GetCommandAllocator(ListType);
+	}
+#endif
+	return m_commandAllocator[Device->GetCpuFrameIndex()];
+}
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
 {
 	ensure(ListType == ECommandListType::Graphics || IsRaytracingList());
@@ -388,17 +403,17 @@ void D3D12CommandList::CreateCommandList()
 	}
 	if (ListType == ECommandListType::Graphics)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_DIRECT, GetCommandAllocator(), PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Compute || IsRaytracingList())
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COMPUTE, m_commandAllocator[Device->GetCpuFrameIndex()], PSO, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COMPUTE, GetCommandAllocator(), PSO, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	else if (ListType == ECommandListType::Copy)
 	{
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COPY, m_commandAllocator[Device->GetCpuFrameIndex()], nullptr, IID_PPV_ARGS(&CurrentCommandList)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COPY, GetCommandAllocator(), nullptr, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
 	if (mDeviceContext->SupportsCommandList4())
@@ -413,7 +428,7 @@ void D3D12CommandList::CreateCommandList()
 	const char* s = "asdasd";
 	GFSDK_Aftermath_SetEventMarker(AMHandle, nullptr, 0);
 #endif
-}
+	}
 
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {

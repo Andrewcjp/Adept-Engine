@@ -18,9 +18,9 @@ public:
 	virtual ~StorageNode();
 	EStorageType::Type StoreType = EStorageType::Limit;
 	std::string DataFormat = "";
-	void SetFormat(std::string format);
+	void SetFormat(const std::string & format);
 	void CreateNode();
-	//Resets the node to its inital state for the frame.
+	//Resets the node to its initial state for the frame.
 	void Reset();
 	//Mostly for CPU Systems to update their data 
 	virtual void Update() {};

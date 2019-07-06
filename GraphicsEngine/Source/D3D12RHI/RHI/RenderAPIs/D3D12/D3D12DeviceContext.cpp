@@ -33,10 +33,11 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	SafeRelease(m_MainCommandQueue);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
-		SafeRelease(m_commandAllocator[i]);
+		SafeRelease(m_GFXcommandAllocator[i]);
 		SafeRelease(m_SharedCopyCommandAllocator[i]);
+		SafeRelease(m_CopyCommandAllocator[i]);
+		SafeRelease(m_ComputeCommandAllocator[i]);
 	}
-	SafeRelease(m_CopyCommandAllocator);
 	SafeDelete(TimeManager);
 	SafeRHIRelease(GPUCopyList);
 	SafeRHIRelease(InterGPUCopyList);
@@ -230,14 +231,21 @@ void D3D12DeviceContext::InitDevice(int index)
 	DEVICE_NAME_OBJECT(m_MainCommandQueue);
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
-		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_commandAllocator[i])));
-		DEVICE_NAME_OBJECT(m_commandAllocator[i]);
+		ThrowIfFailed(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_GFXcommandAllocator[i])));
+		DEVICE_NAME_OBJECT(m_GFXcommandAllocator[i]);
+
+		ThrowIfFailed(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_ComputeCommandAllocator[i])));
+		DEVICE_NAME_OBJECT(m_ComputeCommandAllocator[i]);
+
+		ThrowIfFailed(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(&m_CopyCommandAllocator[i])));
+		m_CopyCommandAllocator[i]->Reset();
+		DEVICE_NAME_OBJECT(m_CopyCommandAllocator[i]);
+
 	}
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_ComputeCommandQueue)));
 
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
-	ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_CopyCommandAllocator)));
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_SharedCopyCommandQueue)));
@@ -245,7 +253,7 @@ void D3D12DeviceContext::InitDevice(int index)
 	DEVICE_NAME_OBJECT(m_SharedCopyCommandQueue);
 	DEVICE_NAME_OBJECT(m_ComputeCommandQueue);
 	DEVICE_NAME_OBJECT(m_CopyCommandQueue);
-	DEVICE_NAME_OBJECT(m_CopyCommandAllocator);
+
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator[i])));
@@ -373,9 +381,23 @@ ID3D12Device5 * D3D12DeviceContext::GetDevice5()
 	return m_Device5;
 }
 
-ID3D12CommandAllocator * D3D12DeviceContext::GetCommandAllocator()
+ID3D12CommandAllocator* D3D12DeviceContext::GetCommandAllocator(ECommandListType::Type ListType /*= ECommandListType::Graphics*/)
 {
-	return m_commandAllocator[CurrentFrameIndex];
+	switch (ListType)
+	{
+		case ECommandListType::Graphics:
+			return m_GFXcommandAllocator[CurrentFrameIndex];
+		case ECommandListType::Compute:
+		case ECommandListType::RayTracing:
+			return m_ComputeCommandAllocator[CurrentFrameIndex];
+		case ECommandListType::Copy:
+			return m_CopyCommandAllocator[CurrentFrameIndex];
+		case ECommandListType::VideoEncode:
+		case ECommandListType::VideoDecode:
+		case ECommandListType::Limit:
+			return nullptr;
+	};
+	return nullptr;
 }
 
 ID3D12CommandAllocator * D3D12DeviceContext::GetSharedCommandAllocator()
@@ -406,13 +428,15 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
 
-	}
+}
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
 	DeviceContext::ResetDeviceAtEndOfFrame();
 	HeapManager->EndOfFrame();
 	GetCommandAllocator()->Reset();
+	GetCommandAllocator(ECommandListType::Compute)->Reset();
+	GetCommandAllocator(ECommandListType::Copy)->Reset();
 	GetSharedCommandAllocator()->Reset();
 	ResetCopyEngine();
 	//compute work could run past the end of a frame?
