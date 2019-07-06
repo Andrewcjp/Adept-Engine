@@ -746,3 +746,32 @@ std::string D3D12Helpers::SMToString(D3D_SHADER_MODEL SM)
 	}
 	return "?";
 }
+
+ID3D12CommandAllocator* CommandAllocator::GetAllocator()
+{
+	return Allocators[Device->GetCpuFrameIndex()];
+}
+
+void CommandAllocator::Reset()
+{
+	if (FrameReset == RHI::GetFrameCount())
+	{
+		return;
+	}
+	ThrowIfFailed(Allocators[Device->GetCpuFrameIndex()]->Reset());
+	FrameReset = RHI::GetFrameCount();
+}
+
+CommandAllocator::CommandAllocator(ECommandListType::Type Type, D3D12DeviceContext* D)
+{
+	for (int i = 0; i < RHI::CPUFrameCount; i++)
+	{
+		ThrowIfFailed(D->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(Type), IID_PPV_ARGS(&Allocators[i])));
+	}
+	Device = D;
+}
+
+CommandAllocator::~CommandAllocator()
+{
+	MemoryUtils::DeleteReleaseableCArray(Allocators, RHI::CPUFrameCount);
+}

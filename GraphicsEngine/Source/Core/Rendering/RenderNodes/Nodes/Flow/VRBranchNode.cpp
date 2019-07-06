@@ -13,20 +13,29 @@ VRBranchNode::~VRBranchNode()
 
 void VRBranchNode::OnExecute()
 {
-	ensure(VrLoopBegin);
-	if (VrLoopBegin->CurrentEyeMode == EEye::Left)
+	//ensure(VrLoopBegin);
+	if (VrLoopBegin != nullptr && VrLoopBegin->CurrentEyeMode == EEye::Left)
 	{
 		VrLoopBegin->CurrentEyeMode = EEye::Right;
 		VrLoopBegin->ExecuteNode();
 	}
 	else
 	{
+		if (VrLoopBegin != nullptr)
+		{
+			VrLoopBegin->CurrentEyeMode = EEye::Left;
+		}
 		if (Next != nullptr)
 		{
 			Next->ExecuteNode();
 		}
 	}
 
+}
+
+std::string VRBranchNode::GetName() const
+{
+	return "VR Branch";
 }
 
 void VRBranchNode::OnSetupNode()

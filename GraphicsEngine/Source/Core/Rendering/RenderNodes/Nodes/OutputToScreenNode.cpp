@@ -33,6 +33,11 @@ void OutputToScreenNode::OnExecute()
 	ScreenWriteList->Execute();
 }
 
+std::string OutputToScreenNode::GetName() const
+{
+	return "Output To Screen";
+}
+
 void OutputToScreenNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Frame ");

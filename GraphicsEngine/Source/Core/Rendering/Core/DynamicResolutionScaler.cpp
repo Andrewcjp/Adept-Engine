@@ -57,7 +57,7 @@ void DynamicResolutionScaler::Tick()
 	float newscale = currnetscale + change;
 	//newscale = glm::clamp(newscale, 0.1f, MaxResolutionScale);
 	RHI::GetRenderSettings()->SetRenderScale(newscale);
-	Log::LogMessage("Ratio updated to " + StringUtils::ToStringFloat(RHI::GetRenderSettings()->GetCurrentRenderScale()));
+	Log::LogMessage("Ratio updated to " + StringUtils::ToString(RHI::GetRenderSettings()->GetCurrentRenderScale()));
 }
 
 void DynamicResolutionScaler::SetTargetFrameRate(int rate)

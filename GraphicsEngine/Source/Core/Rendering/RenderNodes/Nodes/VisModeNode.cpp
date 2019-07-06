@@ -1,16 +1,15 @@
 #include "VisModeNode.h"
-#include "../StorageNodeFormats.h"
-#include "../../Core/RenderingUtils.h"
-#include "../../Core/FrameBuffer.h"
-#include "../NodeLink.h"
-#include "../../Shaders/PostProcess/Shader_DebugOutput.h"
 #include "Core/Assets/ShaderComplier.h"
+#include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/RenderingUtils.h"
+#include "Rendering/RenderNodes/NodeLink.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "Rendering/Shaders/PostProcess/Shader_DebugOutput.h"
 
 VisModeNode::VisModeNode()
 {
 	OnNodeSettingChange();
 }
-
 
 VisModeNode::~VisModeNode()
 {}
@@ -79,7 +78,7 @@ void VisModeNode::RenderGBufferModes(ERenderDebugOutput::Type currentDebugType)
 	int VisAlpha = 0;
 
 	if (currentDebugType == ERenderDebugOutput::GBuffer_RoughNess)
-	{
+	{ 
 		DebugList->SetFrameBufferTexture(gBuffer, 0, 2);
 		VisAlpha = 1;
 	}

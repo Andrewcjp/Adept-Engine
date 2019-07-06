@@ -4,6 +4,16 @@ class RenderNode;
 class StorageNode;
 class FrameBufferStorageNode;
 class BranchNode;
+struct RenderGraphExposedSettings
+{
+	std::string name;
+	void SetState(bool state);
+	bool GetState()const;
+	RenderGraphExposedSettings(RenderNode* Node, bool Default = true);
+private:
+	BranchNode* Branch = nullptr;
+	RenderNode* ToggleNode = nullptr;
+};
 class RenderGraph
 {
 public:
@@ -19,7 +29,9 @@ public:
 	void BuildGraph();
 	void CreateDefTestgraph();
 
-	BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate);
+	BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName = std::string());
+
+	void LinkNode(RenderNode * A, RenderNode * B);
 
 	void CreateFWDGraph();
 	template<class T>
@@ -32,14 +44,18 @@ public:
 	//All nodes run in series
 	RenderNode* RootNode = nullptr;
 	std::vector<StorageNode*> StoreNodes;
-	RenderNode* OptionNode = nullptr;
+	
 	//#todo: this needs to tell systems like the textures etc to init textures on correct device(s)
-	std::vector<BranchNode*> BranchNodes;
+	std::map<std::string, RenderGraphExposedSettings*> ExposedParms;
+	void ToggleCondition(std::string name);
+	bool SetCondition(std::string name, bool state);
+	bool GetCondition(std::string name);
 
-	void SetCondition(int nodeIndex, bool state);
-	bool GetCondition(int nodeIndex);
+	
 	void PrintNodeData();
+	void ListNodes();
 	void ValidateGraph();
+	void CreateVRFWDGraph();
 	struct ValidateArgs
 	{
 		bool ErrorWrongFormat = false;
@@ -49,7 +65,9 @@ public:
 		std::vector<std::string> Warnings;
 		std::vector<std::string> Errors;
 	private:
-
 	};
+	bool IsVRGraph = false;
+private:
+	void ExposeItem(RenderNode* N, std::string name, bool Defaultstate = true);
 };
 

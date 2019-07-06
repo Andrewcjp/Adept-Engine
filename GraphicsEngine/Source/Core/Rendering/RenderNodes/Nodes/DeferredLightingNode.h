@@ -12,7 +12,10 @@ public:
 
 
 	virtual void OnNodeSettingChange() override;
-
+	std::string GetName() const
+	{
+		return "Deferred Lighting";
+	}
 private:
 	RHICommandList* List = nullptr;
 	Shader_Deferred* DeferredShader = nullptr;

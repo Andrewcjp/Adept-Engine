@@ -171,5 +171,5 @@ void LightCullingEngine::CreateLightDataBuffer()
 	desc.Accesstype = EBufferAccessType::GPUOnly;
 	LightCullingBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	LightCullingBuffer->CreateBuffer(desc);
-	Log::LogMessage("Light culling buffer is " + StringUtils::ToStringFloat((desc.Stride*desc.ElementCount) / 1e6) + "MB");
+	Log::LogMessage("Light culling buffer is " + StringUtils::ToString((desc.Stride*desc.ElementCount) / 1e6) + "MB");
 }

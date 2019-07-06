@@ -66,7 +66,12 @@ const char* StringUtils::CopyStringToCharArray(std::string String)
 	return tmp;
 }
 
-std::string StringUtils::ToStringFloat(float value, int Places /*= 2*/)
+std::string StringUtils::ToString(double value, int Places /*= 2*/)
+{
+	return ToString((float)value, Places);
+}
+
+std::string StringUtils::ToString(float value, int Places /*= 2*/)
 {
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(Places) << value;
@@ -75,12 +80,12 @@ std::string StringUtils::ToStringFloat(float value, int Places /*= 2*/)
 
 std::string StringUtils::ByteToMB(uint64_t value)
 {
-	return StringUtils::ToStringFloat((float)(value) / 1024 / 1024) + "MB ";
+	return StringUtils::ToString((float)(value) / 1024 / 1024) + "MB ";
 }
 
 std::string StringUtils::ByteToGB(uint64_t value)
 {
-	return StringUtils::ToStringFloat((float)(value) / 1024 / 1024 / 1024) + "GB ";
+	return StringUtils::ToString((float)(value) / 1024 / 1024 / 1024) + "GB ";
 }
 
 std::string StringUtils::BoolToString(bool value)
@@ -95,4 +100,9 @@ bool StringUtils::Contains(const std::string Data, const std::string & value)
 bool StringUtils::Contains(const std::wstring Data, const std::wstring & value)
 {
 	return Data.find(value) != std::wstring::npos;
+}
+
+std::string StringUtils::ToString(bool value)
+{
+	return value ? "true" : "false";
 }

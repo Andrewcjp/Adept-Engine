@@ -233,7 +233,7 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		SafeDelete(importer);
 	}
 	float time = PerfManager::Get()->EndSingleActionTimer("LoadMeshFromFile");
-	Log::LogMessage("Load of asset " + filename + " took " + StringUtils::ToStringFloat(time)+"ms ");
+	Log::LogMessage("Load of asset " + filename + " took " + StringUtils::ToString(time)+"ms ");
 	return true;
 }
 

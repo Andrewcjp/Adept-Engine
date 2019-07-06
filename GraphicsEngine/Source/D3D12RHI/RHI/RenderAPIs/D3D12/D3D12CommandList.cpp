@@ -22,13 +22,7 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 {
 	AddCheckerRef(D3D12CommandList, this);
 	mDeviceContext = D3D12RHI::DXConv(inDevice);
-	if (GetCommandAllocator() == nullptr)
-	{
-		for (int i = 0; i < RHI::CPUFrameCount; i++)
-		{
-			ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(ListType), IID_PPV_ARGS(&m_commandAllocator[i])));
-		}
-	}
+	CommandAlloc = new CommandAllocator(ListType, mDeviceContext);
 	if (ListType == ECommandListType::Copy)
 	{
 		//copy queues don't have pipeline states!
@@ -41,7 +35,7 @@ void D3D12CommandList::Release()
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12CommandList, this);
 	SafeRelease(CurrentCommandList);
-	MemoryUtils::DeleteReleaseableCArray(m_commandAllocator, RHI::CPUFrameCount);
+	SafeDelete(CommandAlloc);
 	SafeRelease(CommandSig);
 }
 
@@ -169,10 +163,7 @@ void D3D12CommandList::ResetList()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("ResetList", "RHI");
 	ensure(!m_IsOpen);
-	if (m_commandAllocator[Device->GetCpuFrameIndex()] != nullptr)
-	{
-		ThrowIfFailed(m_commandAllocator[Device->GetCpuFrameIndex()]->Reset());
-	}
+	CommandAlloc->Reset();
 	m_IsOpen = true;
 	if (CurrentCommandList == nullptr)
 	{
@@ -200,7 +191,7 @@ ID3D12CommandAllocator* D3D12CommandList::GetCommandAllocator()
 		return D3D12RHI::DXConv(Device)->GetCommandAllocator(ListType);
 	}
 #endif
-	return m_commandAllocator[Device->GetCpuFrameIndex()];
+	return CommandAlloc->GetAllocator();
 }
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
 {
@@ -428,7 +419,7 @@ void D3D12CommandList::CreateCommandList()
 	const char* s = "asdasd";
 	GFSDK_Aftermath_SetEventMarker(AMHandle, nullptr, 0);
 #endif
-	}
+}
 
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {

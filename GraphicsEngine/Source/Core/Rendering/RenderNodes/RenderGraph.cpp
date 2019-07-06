@@ -16,7 +16,9 @@
 #include "Nodes/ZPrePassNode.h"
 #include "Nodes/Flow/BranchNode.h"
 #include "Nodes/VisModeNode.h"
-
+#include "Nodes/Flow/VRBranchNode.h"
+#include "Core/Utils/StringUtil.h"
+#define TESTVR 1
 RenderGraph::RenderGraph()
 {}
 
@@ -84,9 +86,14 @@ void RenderGraph::BuildGraph()
 	while (Node != nullptr)
 	{
 		Node->SetupNode();
+		if (IsVRGraph)
+		{
+			Node->FindVRContext();
+		}
 		Node = Node->GetNextNode();
 	}
 	//PrintNodeData();
+	ListNodes();
 }
 
 void RenderGraph::CreateDefTestgraph()
@@ -140,15 +147,23 @@ void RenderGraph::CreateDefTestgraph()
 	Output->GetInput(0)->SetLink(VisNode->GetOutput(0));
 }
 
-BranchNode * RenderGraph::AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate)
+BranchNode * RenderGraph::AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName/* = std::string()*/)
 {
 	BranchNode* Node = new BranchNode();
 	Node->Conditonal = initalstate;
 	Start->LinkToNode(Node);
 	Node->LinkToNode(A);
 	Node->BranchB = B;
-	BranchNodes.push_back(Node);
+	if (ExposeName.length() > 0)
+	{
+		ExposeItem(Node, ExposeName);
+	}
 	return Node;
+}
+
+void RenderGraph::LinkNode(RenderNode* A, RenderNode* B)
+{
+	A->LinkToNode(B);
 }
 
 void RenderGraph::CreateFWDGraph()
@@ -166,52 +181,59 @@ void RenderGraph::CreateFWDGraph()
 	ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
 	RootNode = ShadowUpdate;
 	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
-
+	ParticleSimulateNode* simNode = new ParticleSimulateNode();
+	LinkNode(ShadowUpdate, simNode);
 	ZPrePassNode* PreZ = new ZPrePassNode();
-	//PreZ->SetNodeActive(true);
-	OptionNode = PreZ;
-	RootNode->LinkToNode(PreZ);
+	ExposeItem(PreZ, "PREZ");
+
+	LinkNode(simNode, PreZ);
 	PreZ->GetInput(0)->SetStore(MainBuffer);
 	ForwardRenderNode* FWDNode = new ForwardRenderNode();
-	PreZ->LinkToNode(FWDNode);
+	LinkNode(PreZ, FWDNode);
 	FWDNode->UseLightCulling = false;
 	FWDNode->UsePreZPass = false;
 	FWDNode->UpdateSettings();
 	FWDNode->GetInput(0)->SetStore(MainBuffer);
 	FWDNode->GetInput(1)->SetStore(SceneData);
 	FWDNode->GetInput(2)->SetStore(ShadowDataNode);
-
-
-
-	ParticleSimulateNode* simNode = new ParticleSimulateNode();
-	FWDNode->LinkToNode(simNode);
-
 	ParticleRenderNode* renderNode = new ParticleRenderNode();
-	simNode->LinkToNode(renderNode);
-
-
+	LinkNode(FWDNode, renderNode);
 
 	renderNode->GetInput(0)->SetStore(MainBuffer);
+	OutputToScreenNode* Output = new OutputToScreenNode();
 
 	DebugUINode* Debug = new DebugUINode();
-	AddBranchNode(FWDNode, simNode, Debug, true);
-	renderNode->LinkToNode(Debug);
+	AddBranchNode(renderNode, Debug, Output, true, "Debug");
 	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
-
-	OutputToScreenNode* Output = new OutputToScreenNode();
-	Debug->LinkToNode(Output);
+	LinkNode(Debug, Output);
 	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
 
 }
 
-void RenderGraph::SetCondition(int nodeIndex, bool state)
+void RenderGraph::ToggleCondition(std::string name)
 {
-	BranchNodes[nodeIndex]->Conditonal = state;
+	SetCondition(name, !GetCondition(name));
 }
 
-bool RenderGraph::GetCondition(int nodeIndex)
+bool RenderGraph::SetCondition(std::string name, bool state)
 {
-	return BranchNodes[nodeIndex]->Conditonal;
+	auto Itor = ExposedParms.find(name);
+	if (Itor == ExposedParms.end())
+	{
+		return false;
+	}
+	Itor->second->SetState(state);
+	return true;
+}
+
+bool RenderGraph::GetCondition(std::string name)
+{
+	auto Itor = ExposedParms.find(name);
+	if (Itor == ExposedParms.end())
+	{
+		return false;
+	}
+	return Itor->second->GetState();
 }
 
 void RenderGraph::PrintNodeData()
@@ -245,6 +267,55 @@ void RenderGraph::PrintNodeData()
 	{
 		Log::LogMessage(Lines[i]);
 	}
+}
+
+void RenderGraph::ListNodes()
+{
+	Log::LogMessage("---Debug Render Node List Start---");
+	RenderNode* Node = RootNode;
+	while (Node != nullptr)
+	{
+		if (Node->IsBranchNode())
+		{
+			Log::LogMessage(Node->GetName());
+			Log::LogMessage("----- if true");
+			RenderNode* APath = Node->GetNextNode();
+			RenderNode* BPath = static_cast<BranchNode*>(Node)->BranchB;
+			RenderNode* PathITor = BPath;
+			while (PathITor != APath && PathITor != nullptr)
+			{
+				Log::LogMessage(PathITor->GetName());
+				PathITor = PathITor->GetNextNode();
+			}
+			Log::LogMessage("----- if false");
+		}
+		else
+		{
+			if (Node->IsVRBranch())
+			{
+				if (static_cast<VRBranchNode*>(Node)->VrLoopBegin == nullptr)
+				{
+					Log::LogMessage("--- VR Branch loop start");
+				}
+				else
+				{
+					Log::LogMessage("--- VR Branch loop end");
+				}
+			}
+			else
+			{
+				Log::LogMessage(Node->GetName());
+			}
+		}
+		Node = Node->GetNextNode();
+	}
+	Log::LogMessage("---Exposed Settings---");
+	for (auto it = ExposedParms.begin(); it != ExposedParms.end(); it++)
+	{
+		Log::LogMessage("Parm: " + it->second->name + " default value " + StringUtils::ToString(it->second->GetState()));
+	}
+	Log::LogMessage("---Debug Render Node List End---");
+
 }
 
 void RenderGraph::ValidateGraph()
@@ -282,4 +353,110 @@ void RenderGraph::ValidateArgs::AddError(std::string Message)
 bool RenderGraph::ValidateArgs::HasError() const
 {
 	return Errors.size();
+}
+
+void RenderGraph::CreateVRFWDGraph()
+{
+	IsVRGraph = true;
+	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	MainBuffer->SetFrameBufferDesc(Desc);
+
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+
+	ShadowAtlasStorageNode* ShadowDataNode = AddStoreNode(new ShadowAtlasStorageNode());
+	ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
+	RootNode = ShadowUpdate;
+	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
+	ParticleSimulateNode* simNode = new ParticleSimulateNode();
+	LinkNode(ShadowUpdate, simNode);
+	ZPrePassNode* PreZ = new ZPrePassNode();
+	ExposeItem(PreZ, "Enable PreZ");
+
+
+	VRBranchNode* VrStart = new VRBranchNode();
+
+	LinkNode(simNode, VrStart);
+	LinkNode(VrStart, PreZ);
+
+
+	PreZ->GetInput(0)->SetStore(MainBuffer);
+	ForwardRenderNode* FWDNode = new ForwardRenderNode();
+	LinkNode(PreZ, FWDNode);
+	FWDNode->UseLightCulling = false;
+	FWDNode->UsePreZPass = false;
+	FWDNode->UpdateSettings();
+	FWDNode->GetInput(0)->SetStore(MainBuffer);
+	FWDNode->GetInput(1)->SetStore(SceneData);
+	FWDNode->GetInput(2)->SetStore(ShadowDataNode);
+
+	//LinkNode(FWDNode, simNode);
+	ParticleRenderNode* renderNode = new ParticleRenderNode();
+	LinkNode(FWDNode, renderNode);
+
+
+
+	renderNode->GetInput(0)->SetStore(MainBuffer);
+#if 0
+	DebugUINode* Debug = new DebugUINode();
+	AddBranchNode(FWDNode, simNode, Debug, true);
+	renderNode->LinkToNode(Debug);
+	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
+#endif
+	OutputToScreenNode* Output = new OutputToScreenNode();
+
+	VRBranchNode* VrEnd = new VRBranchNode();
+	VrEnd->VrLoopBegin = VrStart;
+	LinkNode(renderNode, VrEnd);
+	LinkNode(VrEnd, Output);
+	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
+}
+
+void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)
+{
+	RenderGraphExposedSettings* Set = new RenderGraphExposedSettings(N, Defaultstate);
+	Set->name = name;
+	ExposedParms.emplace(name, Set);
+}
+
+void RenderGraphExposedSettings::SetState(bool state)
+{
+	if (Branch != nullptr)
+	{
+		Branch->Conditonal = state;
+	}
+	if (ToggleNode != nullptr)
+	{
+		ToggleNode->SetNodeActive(state);
+	}
+}
+
+bool RenderGraphExposedSettings::GetState() const
+{
+	if (Branch != nullptr)
+	{
+		return Branch->Conditonal;
+	}
+	if (ToggleNode != nullptr)
+	{
+		return ToggleNode->IsNodeActive();
+	}
+	return false;
+}
+
+
+RenderGraphExposedSettings::RenderGraphExposedSettings(RenderNode * Node, bool Default)
+{
+	if (Node->IsBranchNode())
+	{
+		Branch = static_cast<BranchNode*>(Node);
+	}
+	else
+	{
+		ToggleNode = Node;
+	}
+	SetState(Default);
 }
