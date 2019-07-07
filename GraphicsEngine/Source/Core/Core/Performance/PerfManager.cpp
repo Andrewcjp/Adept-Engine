@@ -81,7 +81,18 @@ int PerfManager::AddTimer(const char * countername, const char* group)
 {
 	return AddTimer(GetTimerIDByName(countername), GetGroupId(group));
 }
+int PerfManager::AddGPUTimer(const char * countername, int group)
+{
+	int id = AddTimer(GetTimerIDByName(countername), group);
 
+	TimerData* data = GetTimerData(id);
+	if (data != nullptr)
+	{
+		data->IsGPUTimer = true;
+		//data->TimerType = T;
+	}
+	return id;
+}
 int PerfManager::AddTimer(const char * countername, int groupId)
 {
 	return AddTimer(GetTimerIDByName(countername), groupId);
@@ -618,6 +629,10 @@ void PerfManager::UpdateStat(int id, float newtime, float GPUOffsetToMain, bool 
 			data->Active = true;
 			data->LastFrameUsed = RHI::GetFrameCount();
 			data->GPUStartOffset = GPUOffsetToMain;
+			if (GPUOffsetToMain > 0.1f)
+			{
+				data->IsGPUTimer = true;
+			}
 			data->DirectUpdate = Direct;
 		}
 		TimerOutput.at(id) = glm::abs(newtime);

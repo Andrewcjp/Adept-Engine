@@ -33,6 +33,7 @@ class D3D12PipeLineStateObject;
 class D3D12Shader;
 class D3D12CommandList;
 class D3D12Texture;
+class D3D12Query;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -72,6 +73,7 @@ public:
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
 
 	static D3D12DeviceContext* DXConv(DeviceContext* D);
+	static D3D12Query * DXConv(RHIQuery * D);
 	static D3D12RHIUAV * DXConv(RHIUAV * D);
 	static D3D12Texture * DXConv(BaseTexture * D);
 	static D3D12PipeLineStateObject * DXConv(RHIPipeLineStateObject * D);
@@ -83,6 +85,9 @@ public:
 	static D3D12HighLevelAccelerationStructure* DXConv(HighLevelAccelerationStructure* D);
 	static D3D12StateObject* DXConv(RHIStateObject* D);
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
+
+
+	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner) override;
 
 private:
 	void DestroyContext();

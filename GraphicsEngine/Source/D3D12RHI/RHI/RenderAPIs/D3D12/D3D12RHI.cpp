@@ -13,6 +13,7 @@
 #include "Raytracing/D3D12StateObject.h"
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
+#include "D3D12InterGPUStagingResource.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
@@ -23,8 +24,8 @@ D3D12RHI::D3D12RHI()
 {
 	Instance = this;
 	//ForceGPUIndex.SetValue(1);
-	ForceSingleGPU.SetValue(true);
-		//ForceNoDebug.SetValue(true);
+	//ForceSingleGPU.SetValue(true);
+	//ForceNoDebug.SetValue(true);
 }
 
 D3D12RHI::~D3D12RHI()
@@ -63,6 +64,11 @@ HighLevelAccelerationStructure* D3D12RHI::CreateHighLevelAccelerationStructure(D
 D3D12DeviceContext * D3D12RHI::DXConv(DeviceContext * D)
 {
 	return static_cast<D3D12DeviceContext*>(D);
+}
+
+D3D12Query * D3D12RHI::DXConv(RHIQuery * D)
+{
+	return static_cast<D3D12Query*>(D);
 }
 
 D3D12RHIUAV * D3D12RHI::DXConv(RHIUAV * D)
@@ -119,6 +125,11 @@ D3D12StateObject * D3D12RHI::DXConv(RHIStateObject * D)
 RHIRenderPass* D3D12RHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
 {
 	return new RHIRenderPass(Desc);
+}
+
+RHIInterGPUStagingResource* D3D12RHI::CreateInterGPUStagingResource(DeviceContext* Owner)
+{
+	return new D3D12InterGPUStagingResource(Owner);
 }
 
 RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device)

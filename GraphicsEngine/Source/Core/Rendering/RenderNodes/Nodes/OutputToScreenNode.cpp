@@ -14,7 +14,9 @@ OutputToScreenNode::OutputToScreenNode()
 
 
 OutputToScreenNode::~OutputToScreenNode()
-{}
+{
+	SafeRHIRelease(ScreenWriteList);
+}
 
 void OutputToScreenNode::OnExecute()
 {

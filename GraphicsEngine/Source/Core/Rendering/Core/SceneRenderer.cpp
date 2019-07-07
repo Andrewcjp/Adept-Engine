@@ -14,6 +14,8 @@
 #include "Rendering/VR/VRCamera.h"
 #include "LightCulling/LightCullingEngine.h"
 #include "Culling/CullingManager.h"
+#include "ParticleSystemManager.h"
+#include "Editor/Editor_Camera.h"
 
 SceneRenderer * SceneRenderer::Get()
 {
@@ -42,12 +44,43 @@ SceneRenderer::~SceneRenderer()
 
 void SceneRenderer::PrepareSceneForRender()
 {
+	UpdateLightBuffer(TargetScene->GetLights());
+#if WITH_EDITOR
+	if (EditorCam != nullptr && EditorCam->GetEnabled())
+	{
+		if (CurrentCamera != EditorCam->GetCamera())
+		{
+			CurrentCamera = EditorCam->GetCamera();
+		}
+	}
+	else
+#endif
+	{
+		CurrentCamera = TargetScene->GetCurrentRenderCamera();
+	}
+	UpdateMVForMainPass();
+	PrepareData();
+	ParticleSystemManager::Get()->PreRenderUpdate(CurrentCamera);
 	Culling->UpdateMainPassFrustumCulling(BaseWindow::GetCurrentCamera(), TargetScene);
 	LightCulling->RunLightBroadphase();
 	LightsBuffer.LightCount = LightCulling->GetNumLights();
 	LightsBuffer.TileX = LightCulling->GetLightGridDim().x;
 	LightsBuffer.TileY = LightCulling->GetLightGridDim().y;
 	UpdateLightBuffer(TargetScene->GetLights());
+	
+}
+
+void SceneRenderer::PrepareData()
+{
+	if (TargetScene == nullptr)
+	{
+		return;
+	}
+	MeshController->GatherBatches();
+	for (size_t i = 0; i < TargetScene->GetMeshObjects().size(); i++)
+	{
+		TargetScene->GetMeshObjects()[i]->PrepareDataForRender();
+	}
 }
 
 void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly, FrameBuffer* FrameBuffer, bool IsCubemap, int index /*=0*/)
@@ -236,60 +269,13 @@ void SceneRenderer::SetScene(Scene * NewScene)
 	//run update on scene data
 }
 
-void SceneRenderer::UpdateRelflectionProbes(RHICommandList* commandlist)
-{
-	SCOPE_CYCLE_COUNTER_GROUP("Update Relflection Probes", "Render");
-	commandlist->StartTimer(EGPUTIMERS::CubemapCapture);
-	for (int i = 0; i < probes.size(); i++)
-	{
-		RelfectionProbe* Probe = probes[i];
-		RenderCubemap(Probe, commandlist);
-	}
-	commandlist->EndTimer(EGPUTIMERS::CubemapCapture);
-}
-
-bool SceneRenderer::AnyProbesNeedUpdate()
-{
-	for (int i = 0; i < probes.size(); i++)
-	{
-		if (probes[i]->NeedsCapture())
-		{
-			return true;
-		}
-	}
-	return false;
-}
 
 Scene * SceneRenderer::GetScene()
 {
 	return TargetScene;
 }
 
-void SceneRenderer::RenderCubemap(RelfectionProbe * Map, RHICommandList* commandlist)
-{
-	if (!Map->NeedsCapture())
-	{
-		return;
-	}
-	//	commandlist->ClearFrameBuffer(Map->CapturedTexture);
-	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), Map->CapturedTexture);
-	for (int i = 0; i < 6; i++)
-	{
-		commandlist->SetPipelineStateDesc(Desc);
-		SetMVForProbe(commandlist, i, MainShaderRSBinds::MVCBV);
-		RHIRenderPassDesc Info;
-		Info.TargetBuffer = Map->CapturedTexture;
-		Info.LoadOp = ERenderPassLoadOp::Clear;
-		commandlist->BeginRenderPass(Info);
-		//commandlist->SetRenderTarget(Map->CapturedTexture, i);
-		RenderScene(commandlist, false, Map->CapturedTexture, true);
-		commandlist->EndRenderPass();
-		SB->Render(this, commandlist, Map->CapturedTexture, nullptr, true, i);
 
-	}
-	Map->SetCaptured();
-	//FrameBufferProcessor::CreateMipChain(Map->CapturedTexture, commandlist);
-}
 
 void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
 {
@@ -311,6 +297,16 @@ CullingManager * SceneRenderer::GetCullingManager()
 	return Culling;
 }
 
+Camera * SceneRenderer::GetCurrnetCamera()
+{
+	return Get()->CurrentCamera;
+}
+
+void SceneRenderer::SetEditorCamera(Editor_Camera * Cam)
+{
+	EditorCam = Cam;
+}
+
 void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex)
 {
 	//push a pso for bindings
@@ -319,4 +315,17 @@ void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex
 	BindMvBuffer(list, MainShaderRSBinds::MVCBV, eyeindex);
 	BindLightsBuffer(list, MainShaderRSBinds::LightDataCBV);
 
+}
+
+void SceneRenderer::UpdateMVForMainPass()
+{
+	if (RHI::IsRenderingVR())
+	{
+		VRCamera* VRCam = RHI::GetHMD()->GetVRCamera();
+		UpdateMV(VRCam);
+	}
+	else
+	{
+		UpdateMV(CurrentCamera);
+	}
 }

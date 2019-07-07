@@ -16,7 +16,9 @@ GBufferWriteNode::GBufferWriteNode()
 }
 
 GBufferWriteNode::~GBufferWriteNode()
-{}
+{
+	SafeRHIRelease(CommandList);
+}
 
 void GBufferWriteNode::OnExecute()
 {

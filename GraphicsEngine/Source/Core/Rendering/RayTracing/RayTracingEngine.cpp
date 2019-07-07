@@ -29,6 +29,7 @@ RayTracingEngine::RayTracingEngine()
 	StateObject->ShaderTable = DefaultTable;
 	StateObject->TempCam = BaseWindow::GetCurrentCamera();
 	StateObject->Build();
+	AddHitTable(DefaultTable);
 }
 
 RayTracingEngine::~RayTracingEngine()
@@ -155,5 +156,13 @@ void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer
 
 void RayTracingEngine::UpdateFromScene(Scene * S)
 {
-	DefaultTable->RebuildHittableFromScene(S);
+	for (ShaderBindingTable* T : Tables)
+	{
+		T->RebuildHittableFromScene(S);
+	}
+}
+
+void RayTracingEngine::AddHitTable(ShaderBindingTable * Table)
+{
+	Tables.push_back(Table);
 }

@@ -7,6 +7,7 @@
 #include "ZPrePassMeshProcessor.h"
 #include "Core/Performance/PerfManager.h"
 #include "MeshInstanceBuffer.h"
+#include "RHI/RHITimeManager.h"
 
 
 MeshPipelineController::MeshPipelineController()
@@ -24,7 +25,7 @@ MeshPipelineController::~MeshPipelineController()
 struct DistanceSort
 {
 	glm::vec3 pos;
-	DistanceSort(glm::vec3 camerapos)
+	explicit DistanceSort(glm::vec3 camerapos)
 	{
 		pos = camerapos;
 	}
@@ -152,6 +153,7 @@ void MeshPipelineController::RenderPass(const MeshPassRenderArgs & args, RHIComm
 {
 	ERenderPass::Type type = args.PassType;
 	SCOPE_CYCLE_COUNTER_GROUP(ERenderPass::ToString(args.PassType).c_str(), "Render");
+	DECALRE_SCOPEDGPUCOUNTER(List, ERenderPass::ToString(args.PassType));
 	Processors[type]->Reset();
 	for (int i = 0; i < Batches.size(); i++)
 	{

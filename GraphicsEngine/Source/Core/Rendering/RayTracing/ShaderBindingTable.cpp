@@ -59,6 +59,7 @@ void ShaderBindingTable::InitReflections()
 
 ShaderBindingTable::~ShaderBindingTable()
 {}
+
 void ShaderBindingTable::RebuildHittableFromScene(Scene* Sc)
 {
 	HitGroups.clear();
@@ -67,11 +68,12 @@ void ShaderBindingTable::RebuildHittableFromScene(Scene* Sc)
 		AddObject(Sc->GetMeshObjects()[i]);
 	}
 }
+
 void ShaderBindingTable::AddObject(GameObject* Object)
 {
 	for (int i = 0; i < Object->GetMesh()->SubMeshes.size(); i++)
 	{
-		HitGroups.push_back(new ShaderHitGroup("HitGroup0"/* + std::to_string(HitGroups.size())*/));
+		HitGroups.push_back(new ShaderHitGroup("HitGroup0"));
 		HitGroups[HitGroups.size() - 1]->HitShader = new Shader_RTMateralHit(RHI::GetDefaultDevice());
 		HitGroups[HitGroups.size() - 1]->HitShader->AddExport("chs");
 		Shader_RTBase* Shader = HitGroups[HitGroups.size() - 1]->HitShader;

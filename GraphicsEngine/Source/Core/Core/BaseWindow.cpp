@@ -220,7 +220,7 @@ void BaseWindow::Render()
 #if TESTGRAPH
 	RHI::RHIRunFirstFrame();
 	RHI::GetRenderSystem()->Update();
-	Renderer->PreRender();
+//	Renderer->PreRender();
 	SceneRenderer::Get()->PrepareSceneForRender();
 	RHI::GetRenderSystem()->Render();
 #else

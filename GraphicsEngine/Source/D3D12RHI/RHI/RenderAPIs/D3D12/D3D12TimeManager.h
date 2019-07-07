@@ -40,7 +40,7 @@ private:
 	int StatsGroupId = -1;
 	bool TimerStarted = false;
 #if GPUTIMERS_FULL
-	const int MaxTimerCount = EGPUTIMERS::LIMIT;
+	const int MaxTimerCount = EGPUTIMERS::LIMIT+100;
 	static const int TotalMaxTimerCount = EGPUTIMERS::LIMIT + EGPUCOPYTIMERS::LIMIT;
 	const int MaxTimeStamps = MaxTimerCount * 2;
 	const bool EnableCopyTimers = true;
@@ -50,7 +50,7 @@ private:
 	const int MaxTimeStamps = 2;
 	const bool EnableCopyTimers = false;
 #endif
-	std::string TimerNames[TotalMaxTimerCount];
+	
 	int MaxIndexInUse = 0;
 	void Init(DeviceContext * context);
 

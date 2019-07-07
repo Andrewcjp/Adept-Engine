@@ -80,15 +80,16 @@ void RenderEngine::Render()
 
 void RenderEngine::PreRender()
 {
-
+	return;
 	if (MainScene->StaticSceneNeedsUpdate)
 	{
 		StaticUpdate();
 	}
+	return;
 	PrepareData();
 	Scaler->Tick();
-	SceneRender->LightsBuffer.LightCount = LightCulling->GetNumLights();
-	SceneRender->UpdateLightBuffer(MainScene->GetLights());
+	//SceneRender->LightsBuffer.LightCount = LightCulling->GetNumLights();
+	//SceneRender->UpdateLightBuffer(MainScene->GetLights());
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
@@ -107,7 +108,7 @@ void RenderEngine::PreRender()
 	//if using VR FS culling in run just before each eye
 	if (!RHI::IsRenderingVR())
 	{
-		Culling->UpdateMainPassFrustumCulling(MainCamera, MainScene);
+	//	Culling->UpdateMainPassFrustumCulling(MainCamera, MainScene);
 	}
 	UpdateMVForMainPass();
 #if TESTGRAPH
@@ -266,11 +267,11 @@ void RenderEngine::StaticUpdate()
 {
 	if (mShadowRenderer != nullptr)
 	{
-		mShadowRenderer->InitShadows(MainScene->GetLights());
+		//mShadowRenderer->InitShadows(MainScene->GetLights());
 		mShadowRenderer->Renderered = false;
 	}
 	SceneRender->UpdateLightBuffer(MainScene->GetLights());
-	OnStaticUpdate();
+	//OnStaticUpdate();
 }
 
 void RenderEngine::SetScene(Scene * sc)
@@ -311,7 +312,7 @@ void RenderEngine::SetScene(Scene * sc)
 
 void RenderEngine::SetEditorCamera(Editor_Camera * cam)
 {
-	EditorCam = cam;
+	//EditorCam = cam;
 }
 
 void RenderEngine::ShadowPass()
@@ -497,6 +498,7 @@ FrameBuffer * DeviceDependentObjects::GetMain(int e)
 
 void RenderEngine::CubeMapPass()
 {
+#if 0
 	if (!SceneRender->AnyProbesNeedUpdate())
 	{
 		return;
@@ -517,6 +519,7 @@ void RenderEngine::CubeMapPass()
 	SceneRender->UpdateRelflectionProbes(CubemapCaptureList);
 
 	CubemapCaptureList->Execute();
+#endif
 }
 
 
