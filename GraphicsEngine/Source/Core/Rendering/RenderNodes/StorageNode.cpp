@@ -1,17 +1,14 @@
-
 #include "StorageNode.h"
-
 
 StorageNode::StorageNode()
 {}
-
 
 StorageNode::~StorageNode()
 {}
 
 void StorageNode::SetFormat(const std::string & format)
 {
-
+	DataFormat = format;
 }
 
 void StorageNode::CreateNode()

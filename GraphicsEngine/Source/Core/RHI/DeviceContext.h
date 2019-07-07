@@ -34,12 +34,26 @@ struct EVRSSupportType
 		Limit
 	};
 };
+struct EMGPUConnectionMode
+{
+	enum Type
+	{
+		None,
+		HostStagedTransfer,
+		DirectTransfer,
+		AcceleratedDirectTransfer,
+		Limit
+	};
+	CORE_API static const char* ToString(EMGPUConnectionMode::Type e);
+};
 struct CapabilityData
 {
 	bool SupportsCopyTimeStamps = false;
 	bool SupportsViewInstancing = false;
 	ERayTracingSupportType::Type RTSupport = ERayTracingSupportType::Software;
 	EVRSSupportType::Type VRSSupport = EVRSSupportType::Software;
+	//If driver supports multiple SLI group this will fail to use the HW fully.
+	EMGPUConnectionMode::Type ConnectionMode = EMGPUConnectionMode::None;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
 class  DeviceContext

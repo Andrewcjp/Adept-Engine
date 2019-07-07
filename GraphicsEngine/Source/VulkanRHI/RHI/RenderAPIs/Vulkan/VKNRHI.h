@@ -199,5 +199,8 @@ public:
 	VKNFramebuffer* TestFrameBuffer = nullptr;
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
 	VKNCommandlist* PresentList = nullptr;
+
+	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner) override;
+
 };
 #endif

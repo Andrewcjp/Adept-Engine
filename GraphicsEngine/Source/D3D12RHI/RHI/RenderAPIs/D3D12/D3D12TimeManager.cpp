@@ -96,7 +96,7 @@ void D3D12TimeManager::UpdateTimers()
 			Q->TimerQueries.clear();
 			continue;
 		}
-		int id = PerfManager::Get()->AddTimer((Q->name + std::to_string(Device->GetDeviceIndex())).c_str(), "GPU");
+		int id = PerfManager::Get()->AddGPUTimer((Q->name + std::to_string(Device->GetDeviceIndex())).c_str(), StatsGroupId);
 		float Offset = 0.0f;
 		if (Q->name == "Total GPU")
 		{
@@ -112,11 +112,13 @@ void D3D12TimeManager::UpdateTimers()
 	}
 #endif
 }
+
 float D3D12TimeManager::ConvertTimeStampToMS(long Time)
 {
 	UINT64 Delta = Time;
 	return  (float)(Delta * 1000 / m_directCommandQueueTimestampFrequencies);
 }
+
 void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListType::Type type)
 {
 	if (index >= TotalMaxTimerCount)
@@ -154,7 +156,7 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 		return;
 	}
 	ensure(index > -1);
-	D3D12CommandList* List = (D3D12CommandList*)CommandList;
+	D3D12CommandList* List = D3D12RHI::DXConv(CommandList);
 	StartTimer(List, index, List->IsCopyList());
 #if PIX_ENABLED
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
@@ -178,7 +180,7 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 		return;
 	}
 	ensure(index > -1);
-	D3D12CommandList* List = (D3D12CommandList*)CommandList;
+	D3D12CommandList* List = D3D12RHI::DXConv(CommandList);
 	EndTimer(List, index, List->IsCopyList());
 #if PIX_ENABLED
 	PIXEndEvent(List->GetCommandList());
@@ -202,7 +204,7 @@ void D3D12TimeManager::StartTimer(D3D12CommandList * ComandList, int index, bool
 		timer = &TimerQueries[TimerQueries.size() - 1];
 	}
 	ensure(timer);
-	D3D12Query* Query = (D3D12Query*)RHI::CreateQuery(EGPUQueryType::Timestamp, Device);
+	D3D12Query* Query = D3D12RHI::DXConv(RHI::CreateQuery(EGPUQueryType::Timestamp, Device));
 	Device->GetTimeStampHeap()->EndQuerry(ComandList, Query);
 	timer->TimerQueries.push_back(Query);
 }
@@ -218,7 +220,7 @@ void D3D12TimeManager::EndTimer(D3D12CommandList* ComandList, int index, bool Is
 		timer = &TimerQueries[TimerQueries.size() - 1];
 	}
 	ensure(timer);
-	D3D12Query* Query = (D3D12Query*)RHI::CreateQuery(EGPUQueryType::Timestamp, Device);
+	D3D12Query* Query = D3D12RHI::DXConv(RHI::CreateQuery(EGPUQueryType::Timestamp, Device));
 	timer->TimerQueries.push_back(Query);
 	Device->GetTimeStampHeap()->EndQuerry(ComandList, Query);
 }
@@ -243,7 +245,7 @@ void D3D12TimeManager::EndTotalGPUTimer(RHICommandList* ComandList)
 		EndTimer(ComandList, 0);
 		TimerStarted = false;
 	}
-	Device->GetTimeStampHeap()->ResolveAndEndQueryBatches(((D3D12CommandList*)ComandList));
+	Device->GetTimeStampHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(ComandList));
 #endif
 }
 

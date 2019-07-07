@@ -282,3 +282,19 @@ const char * ERayTracingSupportType::ToString(ERayTracingSupportType::Type e)
 	}
 	return "NONE";
 }
+
+const char * EMGPUConnectionMode::ToString(EMGPUConnectionMode::Type e)
+{
+	switch (e)
+	{
+		case EMGPUConnectionMode::None:
+			return "Not Supported";
+		case EMGPUConnectionMode::HostStagedTransfer:
+			return "Host Staged GPU Transfer";
+		case EMGPUConnectionMode::DirectTransfer:
+			return "Direct GPU transfer (PCIE)";
+		case EMGPUConnectionMode::AcceleratedDirectTransfer:
+			return "Accelerated Direct GPU transfer";
+	}
+	return "Unknown";
+}

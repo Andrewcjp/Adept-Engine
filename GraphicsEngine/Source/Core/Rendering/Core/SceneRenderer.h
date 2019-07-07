@@ -9,6 +9,8 @@ class Shader_Convolution;
 class Shader_EnvMap;
 class LightCullingEngine;
 class CullingManager;
+class Camera;
+class Editor_Camera;
 #pragma pack(push, 16)
 /*__declspec(align(32))*/ struct LightUniformBuffer
 {
@@ -71,6 +73,8 @@ public:
 	//CPU culls light etc. and updates all buffers needed to render the scene on all GPUs (if requested)
 	void PrepareSceneForRender();
 
+	void PrepareData();
+
 	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false, int index = 0);
 	void Init();
 	void UpdateReflectionParams(glm::vec3 lightPos);
@@ -86,10 +90,10 @@ public:
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot, int index);
 	void SetScene(Scene* NewScene);
 	void SetupBindsForForwardPass(RHICommandList* list, int eyeindex);
-	void UpdateRelflectionProbes(RHICommandList * commandlist);
-	bool AnyProbesNeedUpdate();
+	void UpdateMVForMainPass();
+
 	Scene* GetScene();
-	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
+	
 	void SetMVForProbe(RHICommandList * list, int index, int slot);
 	MeshPipelineController* MeshController = nullptr;
 	Shader_Skybox* SB = nullptr;
@@ -98,6 +102,8 @@ public:
 	LightCullingEngine* GetLightCullingEngine();
 	MeshPipelineController* GetPipelineController();
 	CullingManager* GetCullingManager();
+	static Camera* GetCurrnetCamera();
+	void SetEditorCamera(Editor_Camera* Cam);
 private:
 
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
@@ -114,5 +120,7 @@ private:
 	RHIBuffer* RelfectionProbeProjections = nullptr;
 	LightCullingEngine* LightCulling = nullptr;
 	CullingManager* Culling = nullptr;
+	Camera* CurrentCamera = nullptr;
+	Editor_Camera* EditorCam = nullptr;
 };
 

@@ -8,18 +8,26 @@
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
 	ListType = type;
+#if NAME_RHI_PRIMS
+	std::string CopyListletter = "";
 	switch (ListType)
 	{
 		case ECommandListType::Graphics:
-			ObjectSufix = "(CMDLIST-G)";
+			CopyListletter = "G";
 			break;
 		case ECommandListType::Compute:
-			ObjectSufix = "(CMDLIST-C)";
+			CopyListletter = "C";
 			break;
 		case ECommandListType::Copy:
-			ObjectSufix = "(CMDLIST-CPY)";
+			CopyListletter = "CPY";
+			break;
+		case ECommandListType::RayTracing:
+			CopyListletter = "RT";
 			break;
 	}
+	std::string data = "(CMDLIST-" + CopyListletter + " DEV:" + std::to_string(context->GetDeviceIndex()) + ")";
+	ObjectSufix = StringUtils::CopyStringToCharArray(data);
+#endif
 	Device = context;
 }
 
@@ -74,7 +82,7 @@ void RHICommandList::StartTimer(int TimerId)
 	else
 	{
 		GetDevice()->GetTimeManager()->StartTotalGPUTimer(this);
-		GetDevice()->GetTimeManager()->StartTimer(this, TimerId);		
+		GetDevice()->GetTimeManager()->StartTimer(this, TimerId);
 	}
 }
 

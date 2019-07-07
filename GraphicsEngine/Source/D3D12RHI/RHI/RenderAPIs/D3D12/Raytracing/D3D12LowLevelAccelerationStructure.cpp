@@ -40,30 +40,24 @@ void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 }
 void D3D12LowLevelAccelerationStructure::CreateStructure()
 {
-
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-
 
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &bottomLevelInputs = bottomLevelBuildDesc.Inputs;
 	bottomLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 	bottomLevelInputs.Flags = buildFlags;
 
 	bottomLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
-	bottomLevelInputs.NumDescs = geometryDescs.size();
+	bottomLevelInputs.NumDescs = (UINT)geometryDescs.size();
 	bottomLevelInputs.pGeometryDescs = &geometryDescs[0];
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO bottomLevelPrebuildInfo = {};
 	D3D12RHI::DXConv(Context)->GetDevice5()->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 
-	//D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(),
-	//	bottomLevelPrebuildInfo.ScratchDataSizeInBytes, &scratchResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource");
-	//bottomLevelPrebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "ScratchResource"
 	D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocTemporary(AllocDesc(bottomLevelPrebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "ScratchResource"), &scratchResource);
 	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(), bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes, &Structure, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, L"BottomLevelAccelerationStructure");
 
 	bottomLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetResource()->GetGPUVirtualAddress();
 	bottomLevelBuildDesc.DestAccelerationStructureData = Structure->GetGPUVirtualAddress();
 }
-
 
 void D3D12LowLevelAccelerationStructure::AddEntity(MeshEntity* Entity)
 {
@@ -89,7 +83,6 @@ void D3D12LowLevelAccelerationStructure::Build(RHICommandList* List)
 
 	DXList->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(Structure));
 
-	//#DXR: DXList->UAVBarrier()?
 }
 
 void D3D12LowLevelAccelerationStructure::UpdateTransfrom(Transform* T)

@@ -6,9 +6,9 @@
 #include "Core/Utils/MovingAverage.h"
 
 class BenchMarker;
-#define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter CYCLECOUNTER(name);
-#define SCOPE_CYCLE_COUNTER_GROUP(name,group) PerfManager::ScopeCycleCounter CYCLECOUNTER(name,group);
-#define SCOPE_STARTUP_COUNTER(name) PerfManager::ScopeStartupCounter STARTUPCOUNTER(name);
+#define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter PREPROCESSOR_JOIN(CYCLECOUNTER,__LINE__)(name);
+#define SCOPE_CYCLE_COUNTER_GROUP(name,group) PerfManager::ScopeCycleCounter PREPROCESSOR_JOIN(CYCLECOUNTER,__LINE__)(name,group);
+#define SCOPE_STARTUP_COUNTER(name) PerfManager::ScopeStartupCounter PREPROCESSOR_JOIN(STARTUPCOUNTER,__LINE__)(name);
 #define DECLARE_TIMER_GROUP(name,GroupName) int name = PerfManager::Get()->GetGroupId(GroupName); 
 #define DECLARE_TIMER(name,Group)int name =  PerfManager::Get()->AddTimer(#name, Group);
 struct TimerData
@@ -39,14 +39,14 @@ struct TimerData
 		AVG = new MovingAverage(50);
 		MAXAVG = new MovingAverage(50);
 	}
-	TimerData(std::string kname,int groupid)
+	TimerData(std::string kname, int groupid)
 	{
 		name = kname;
 		GroupId = groupid;
 		AVG = new MovingAverage(50);
 		MAXAVG = new MovingAverage(50);
 	}
-	
+
 };
 class PerfManager
 {
@@ -78,6 +78,7 @@ public:
 	CORE_API void Test();
 	~PerfManager();
 	CORE_API int AddTimer(const char * countername, const char * group);
+	CORE_API int AddGPUTimer(const char * countername, int group);
 	CORE_API int AddTimer(const char * countername, int groupId);
 	CORE_API int AddTimer(int id, int groupid);
 

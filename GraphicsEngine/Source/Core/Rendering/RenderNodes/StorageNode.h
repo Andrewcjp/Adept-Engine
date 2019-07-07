@@ -8,6 +8,7 @@ namespace EStorageType
 		CPUData,//Data from a CPU system like lights for shadows
 		SceneData,
 		ShadowData,
+		InterGPUStagingResource,
 		Limit
 	};
 }

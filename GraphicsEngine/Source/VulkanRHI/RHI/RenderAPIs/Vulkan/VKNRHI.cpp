@@ -167,6 +167,12 @@ RHIRenderPass* VKNRHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext*
 	return new VKNRenderPass(Desc, Device);
 }
 
+RHIInterGPUStagingResource* VKNRHI::CreateInterGPUStagingResource(DeviceContext* Owner)
+{
+	ensureFatalMsgf(false, "Vulkan does not support UnLinked MGPU so an inter-GPU staging resource cannot be created");
+	return nullptr;
+}
+
 #if ALLOW_RESOURCE_CAPTURE
 void VKNRHI::TriggerWriteBackResources()
 {

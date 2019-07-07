@@ -7,7 +7,9 @@ FrameBufferStorageNode::FrameBufferStorageNode()
 }
 
 FrameBufferStorageNode::~FrameBufferStorageNode()
-{}
+{
+	SafeRHIRelease(FBuffer);
+}
 
 void FrameBufferStorageNode::SetFrameBufferDesc(RHIFrameBufferDesc & desc)
 {

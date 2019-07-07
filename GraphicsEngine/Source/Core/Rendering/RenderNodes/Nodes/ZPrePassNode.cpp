@@ -13,7 +13,9 @@ ZPrePassNode::ZPrePassNode()
 
 
 ZPrePassNode::~ZPrePassNode()
-{}
+{
+	SafeRHIRelease(Cmdlist);
+}
 
 void ZPrePassNode::OnExecute()
 {
@@ -32,7 +34,7 @@ void ZPrePassNode::OnExecute()
 	Cmdlist->EndRenderPass();
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
 	Cmdlist->Execute();
-	PassNodeThough(0,StorageFormats::PreZData);
+	PassNodeThough(0, StorageFormats::PreZData);
 }
 
 std::string ZPrePassNode::GetName() const

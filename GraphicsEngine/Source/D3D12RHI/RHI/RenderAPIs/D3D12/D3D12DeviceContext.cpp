@@ -78,10 +78,6 @@ void D3D12DeviceContext::CheckFeatures()
 	//#DX12: validate the device capabilities 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
-#if 0
-	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " CrossAdapterRowMajorTextureSupported " + (options.CrossAdapterRowMajorTextureSupported ? "true " : "false "));
-	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " CrossNodeSharingTier " + std::to_string(options.CrossNodeSharingTier));
-#endif
 	D3D12_FEATURE_DATA_ARCHITECTURE1 ARCHDAta = {};
 	ARCHDAta.NodeIndex = 0;
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, reinterpret_cast<void*>(&ARCHDAta), sizeof(ARCHDAta)));
@@ -199,12 +195,33 @@ void D3D12DeviceContext::CheckFeatures()
 		Caps_Data.VRSSupport = FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::Software;
 	}
 #endif
+	if (options.CrossNodeSharingTier != D3D12_CROSS_NODE_SHARING_TIER_NOT_SUPPORTED)
+	{
+		switch (options.CrossNodeSharingTier)
+		{
+			case D3D12_CROSS_NODE_SHARING_TIER_1_EMULATED:
+				Caps_Data.ConnectionMode = EMGPUConnectionMode::HostStagedTransfer;
+				break;
+			case D3D12_CROSS_NODE_SHARING_TIER_1:
+				Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
+				break;
+			case D3D12_CROSS_NODE_SHARING_TIER_3:
+			case D3D12_CROSS_NODE_SHARING_TIER_2:
+				Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
+				break;
+		}
+	}
+	else
+	{
+		Caps_Data.ConnectionMode = EMGPUConnectionMode::None;
+	}
+	LogDeviceData("InterGPU mode " + std::string(EMGPUConnectionMode::ToString(Caps_Data.ConnectionMode)));
 	NVAPIManager::CheckSupport(m_Device);
 }
 
 void D3D12DeviceContext::LogDeviceData(const std::string& data)
 {
-	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + " " + data);
+	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + ": " + data);
 }
 
 void D3D12DeviceContext::LogTierData(const std::string& data, int teir)
@@ -216,7 +233,7 @@ void D3D12DeviceContext::InitDevice(int index)
 {
 	DeviceIndex = index;
 	//#SLI Mask needs to be set correctly to handle mixed SLI 
-
+	CheckFeatures();
 
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
@@ -354,7 +371,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	}
 	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device2));
 	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device5));
-	CheckFeatures();
+	
 	SetNodeMaskFromIndex(0);
 	InitDevice(index);
 

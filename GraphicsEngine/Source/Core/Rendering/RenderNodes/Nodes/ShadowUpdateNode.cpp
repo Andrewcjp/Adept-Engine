@@ -1,11 +1,9 @@
-
 #include "ShadowUpdateNode.h"
-#include "../StorageNodeFormats.h"
-#include "../../Core/SceneRenderer.h"
-#include "../../Core/ShadowRenderer.h"
 #include "Core/Assets/Scene.h"
-#include "../StoreNodes/ShadowAtlasStorageNode.h"
-
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Core/ShadowRenderer.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
 
 ShadowUpdateNode::ShadowUpdateNode()
 {

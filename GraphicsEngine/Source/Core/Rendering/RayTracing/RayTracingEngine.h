@@ -24,7 +24,9 @@ public:
 	RayTracingCommandList* CreateRTList(DeviceContext* Device);
 	void TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer);
 	void UpdateFromScene(Scene* S);
+	void AddHitTable(ShaderBindingTable* Table);
 private:
+	std::vector<ShaderBindingTable*> Tables;
 	std::vector<LowLevelAccelerationStructure*> LASToBuild;
 	std::vector<HighLevelAccelerationStructure*> HASToBuild;
 	HighLevelAccelerationStructure* CurrnetHL = nullptr;

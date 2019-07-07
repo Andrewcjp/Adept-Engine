@@ -16,6 +16,7 @@
 #include "Rendering/Renderers/ForwardRenderer.h"
 #include "UI/UIManager.h"
 #include "Rendering/VR/HMDManager.h"
+#include "Rendering/Core/SceneRenderer.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -56,7 +57,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	CurrentScene = new Scene(true);
 	EditorCamera = new Editor_Camera();
 	Renderer->SetEditorCamera(EditorCamera);
-
+	SceneRenderer::Get()->SetEditorCamera(EditorCamera);
 	if (UI != nullptr)
 	{
 		UI->InitGameobjectList(CurrentScene->GetObjects());

@@ -22,7 +22,9 @@ DeferredLightingNode::DeferredLightingNode()
 }
 
 DeferredLightingNode::~DeferredLightingNode()
-{}
+{
+	SafeRHIRelease(List);
+}
 
 void DeferredLightingNode::OnSetupNode()
 {

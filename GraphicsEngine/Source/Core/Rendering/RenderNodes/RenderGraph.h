@@ -47,7 +47,7 @@ public:
 	
 	//#todo: this needs to tell systems like the textures etc to init textures on correct device(s)
 	std::map<std::string, RenderGraphExposedSettings*> ExposedParms;
-	void ToggleCondition(std::string name);
+	void ToggleCondition(const std::string & name);
 	bool SetCondition(std::string name, bool state);
 	bool GetCondition(std::string name);
 

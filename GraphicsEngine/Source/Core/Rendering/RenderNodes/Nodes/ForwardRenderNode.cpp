@@ -16,7 +16,9 @@ ForwardRenderNode::ForwardRenderNode()
 }
 
 ForwardRenderNode::~ForwardRenderNode()
-{}
+{
+	SafeRHIRelease(CommandList);
+}
 
 void ForwardRenderNode::OnExecute()
 {

@@ -210,7 +210,7 @@ void RenderGraph::CreateFWDGraph()
 
 }
 
-void RenderGraph::ToggleCondition(std::string name)
+void RenderGraph::ToggleCondition(const std::string & name)
 {
 	SetCondition(name, !GetCondition(name));
 }
