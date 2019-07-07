@@ -133,6 +133,8 @@ public:
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) = 0;
 	virtual void TraceRays(const RHIRayDispatchDesc& desc) = 0;
 	virtual void SetStateObject(RHIStateObject* Object) = 0;
+
+	RHI_VIRTUAL void SetDepthBounds(float Min, float Max) = 0;
 protected:
 	RHIPipeLineStateObject* CurrentPSO = nullptr;
 	bool IsInRenderPass = false;

@@ -230,6 +230,11 @@ void VKNCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int R
 	V->WasTexture = true;
 }
 
+ void VKNCommandlist::SetDepthBounds(float Min, float Max)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 void VKNCommandlist::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)
 {
 	throw std::logic_error("The method or operation is not implemented.");

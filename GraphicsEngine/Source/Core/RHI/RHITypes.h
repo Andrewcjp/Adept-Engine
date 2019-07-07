@@ -402,6 +402,7 @@ struct  RHIPipeLineStateDesc
 	class RHIRenderPass* RenderPass = nullptr;
 	ViewInstancingMode ViewInstancing;
 	RHIRenderPassDesc RenderPassDesc;
+	bool EnableDepthBoundsTest = false;
 private:
 	size_t UniqueHash = 0;
 	std::string StringPreHash;

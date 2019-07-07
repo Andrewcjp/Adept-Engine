@@ -120,6 +120,10 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		LogDeviceData("Threads Per warp count: " + std::to_string(FeatureData1.WaveLaneCountMin));
 	}
+	D3D12_FEATURE_DATA_D3D12_OPTIONS2  FeatureData2;
+	ZeroMemory(&FeatureData2, sizeof(FeatureData2));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &FeatureData2, sizeof(FeatureData2));
+
 	D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData5;
 	ZeroMemory(&FeatureData5, sizeof(FeatureData5));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData5, sizeof(FeatureData5));
@@ -215,6 +219,7 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		Caps_Data.ConnectionMode = EMGPUConnectionMode::None;
 	}
+	Caps_Data.SupportsDepthBoundsTest = FeatureData2.DepthBoundsTestSupported;
 	LogDeviceData("InterGPU mode " + std::string(EMGPUConnectionMode::ToString(Caps_Data.ConnectionMode)));
 	NVAPIManager::CheckSupport(m_Device);
 }
