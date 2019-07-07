@@ -61,6 +61,7 @@ void ForwardRenderNode::OnExecute()
 		CommandList->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	}
 #endif
+
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(CommandList);
 	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, 0);
 	MeshPassRenderArgs Args;

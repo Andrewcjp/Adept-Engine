@@ -61,7 +61,7 @@ void SceneRenderer::PrepareSceneForRender()
 	UpdateMVForMainPass();
 	PrepareData();
 	ParticleSystemManager::Get()->PreRenderUpdate(CurrentCamera);
-	Culling->UpdateMainPassFrustumCulling(BaseWindow::GetCurrentCamera(), TargetScene);
+	Culling->UpdateMainPassFrustumCulling(CurrentCamera, TargetScene);
 	LightCulling->RunLightBroadphase();
 	LightsBuffer.LightCount = LightCulling->GetNumLights();
 	LightsBuffer.TileX = LightCulling->GetLightGridDim().x;

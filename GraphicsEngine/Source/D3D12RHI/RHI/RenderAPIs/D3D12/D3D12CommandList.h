@@ -72,6 +72,9 @@ public:
 	virtual void TraceRays(const RHIRayDispatchDesc& desc) override;
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
 	virtual void SetStateObject(RHIStateObject* Object) override;
+
+	 RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
+
 private:
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();
@@ -81,6 +84,7 @@ private:
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	CMDListType* CurrentCommandList = nullptr;
 	ID3D12GraphicsCommandList4* CurrentADVCommandList = nullptr;
+	ID3D12GraphicsCommandList1* CommandList1 = nullptr;
 	bool m_IsOpen = false;
 	//ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();

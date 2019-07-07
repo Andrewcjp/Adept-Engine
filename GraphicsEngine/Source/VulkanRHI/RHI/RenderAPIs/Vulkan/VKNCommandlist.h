@@ -54,6 +54,8 @@ public:
 	VKNRenderPass* CurrnetRenderPass = nullptr;
 	VKNPipeLineStateObject* CurrentPso = nullptr;
 	bool IsOpen = false;
+	 RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
+
 };
 
 

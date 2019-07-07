@@ -411,6 +411,7 @@ void D3D12CommandList::CreateCommandList()
 	{
 		CurrentCommandList->QueryInterface(IID_PPV_ARGS(&CurrentADVCommandList));
 	}
+	CurrentCommandList->QueryInterface(IID_PPV_ARGS(&CommandList1));
 	PushState();
 	D3D12Helpers::NameRHIObject(CurrentCommandList, this);
 #if AFTERMATH
@@ -558,6 +559,15 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	}
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute || IsRaytracingList()));
+}
+
+void D3D12CommandList::SetDepthBounds(float Min, float Max)
+{
+	if (!Device->GetCaps().SupportsDepthBoundsTest)
+	{
+		return;
+	}
+	CommandList1->OMSetDepthBounds(Min, Max);
 }
 
 void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)

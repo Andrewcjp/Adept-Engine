@@ -500,28 +500,40 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		psoDesc.RTVFormats[i] = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.RTVFormats[i]);
 	}
 	psoDesc.DSVFormat = D3D12Helpers::ConvertFormat(PSODesc.RenderTargetDesc.DSVFormat);
-
-	if (D3D12RHI::DXConv(context)->GetDevice2() != nullptr && context->GetCaps().SupportsViewInstancing && PSODesc.ViewInstancing.Active)
+	
+	if (D3D12RHI::DXConv(context)->GetDevice2() != nullptr)
 	{
 		Stream = CD3DX12_PIPELINE_STATE_STREAM1(psoDesc);
 		D3D12_VIEW_INSTANCE_LOCATION* Loc = nullptr;
-		if (PSODesc.ViewInstancing.Active)
+		if (context->GetCaps().SupportsViewInstancing && PSODesc.ViewInstancing.Active)
 		{
-			ensure(context->GetCaps().SupportsViewInstancing);
-			Loc = new D3D12_VIEW_INSTANCE_LOCATION[4];
-			for (int i = 0; i < PSODesc.ViewInstancing.Instances; i++)
+			if (PSODesc.ViewInstancing.Active)
 			{
-				Loc[i].RenderTargetArrayIndex = 0;
-				Loc[i].ViewportArrayIndex = 0;
+				ensure(context->GetCaps().SupportsViewInstancing);
+				Loc = new D3D12_VIEW_INSTANCE_LOCATION[4];
+				for (int i = 0; i < PSODesc.ViewInstancing.Instances; i++)
+				{
+					Loc[i].RenderTargetArrayIndex = 0;
+					Loc[i].ViewportArrayIndex = 0;
+				}
+				CD3DX12_VIEW_INSTANCING_DESC D(PSODesc.ViewInstancing.Instances, &Loc[0], D3D12_VIEW_INSTANCING_FLAG_NONE);
+				Stream.ViewInstancingDesc = D;
 			}
-			CD3DX12_VIEW_INSTANCING_DESC D(PSODesc.ViewInstancing.Instances, &Loc[0], D3D12_VIEW_INSTANCING_FLAG_NONE);
-			Stream.ViewInstancingDesc = D;
+		}
+		if (context->GetCaps().SupportsDepthBoundsTest && PSODesc.EnableDepthBoundsTest)
+		{
+			CD3DX12_DEPTH_STENCIL_DESC1 DepthDesc(psoDesc.DepthStencilState);
+			DepthDesc.DepthBoundsTestEnable = true;
+			Stream.DepthStencilState = DepthDesc;
 		}
 		D3D12_PIPELINE_STATE_STREAM_DESC MyPipelineState;
 		MyPipelineState.SizeInBytes = sizeof(Stream);
 		MyPipelineState.pPipelineStateSubobjectStream = &Stream;
 		ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice2()->CreatePipelineState(&MyPipelineState, IID_PPV_ARGS(&output->PSO)));
-		delete[] Loc;
+		if (Loc != nullptr)
+		{
+			delete[] Loc;
+		}
 	}
 	else
 	{
@@ -631,7 +643,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		else if (Params[i].Type == ShaderParamType::RootSRV)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsShaderResourceView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
-	}
+		}
 		else if (Params[i].Type == ShaderParamType::UAV)
 		{
 #if !UAVRANGES
@@ -640,7 +652,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
@@ -682,7 +694,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 
 	(*output)->SetName(StringUtils::ConvertStringToWide(GetUniqueName(Params)).c_str());
 	delete[] Samplers;
-}
+	}
 
 const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Params)
 {

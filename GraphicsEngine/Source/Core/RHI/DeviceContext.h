@@ -54,6 +54,7 @@ struct CapabilityData
 	EVRSSupportType::Type VRSSupport = EVRSSupportType::Software;
 	//If driver supports multiple SLI group this will fail to use the HW fully.
 	EMGPUConnectionMode::Type ConnectionMode = EMGPUConnectionMode::None;
+	bool SupportsDepthBoundsTest = true;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
 class  DeviceContext
