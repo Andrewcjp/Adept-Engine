@@ -102,7 +102,7 @@ public:
 	LightCullingEngine* GetLightCullingEngine();
 	MeshPipelineController* GetPipelineController();
 	CullingManager* GetCullingManager();
-	static Camera* GetCurrnetCamera();
+	static Camera* GetCurrentCamera();
 	void SetEditorCamera(Editor_Camera* Cam);
 private:
 

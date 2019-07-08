@@ -18,6 +18,7 @@
 #include "Nodes/VisModeNode.h"
 #include "Nodes/Flow/VRBranchNode.h"
 #include "Core/Utils/StringUtil.h"
+#include "Nodes/SSAONode.h"
 #define TESTVR 1
 RenderGraph::RenderGraph()
 {}
@@ -108,8 +109,15 @@ void RenderGraph::CreateDefTestgraph()
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnordedAccess = true;
 	MainBuffer->SetFrameBufferDesc(Desc);
 
+	FrameBufferStorageNode* SSAOBuffer = AddStoreNode(new FrameBufferStorageNode());
+	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnordedAccess = true;
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	SSAOBuffer->SetFrameBufferDesc(Desc);
 
 	GBufferNode->StoreType = EStorageType::Framebuffer;
 	GBufferNode->DataFormat = StorageFormats::DefaultFormat;
@@ -129,8 +137,14 @@ void RenderGraph::CreateDefTestgraph()
 
 	LightNode->GetInput(3)->SetStore(ShadowDataNode);
 
+	SSAONode* SSAO = new SSAONode();
+	SSAO->GetInput(0)->SetLink(LightNode->GetOutput(0));
+	SSAO->GetInput(1)->SetStore(GBufferNode);
+	SSAO->GetInput(2)->SetStore(SSAOBuffer);
+	LinkNode(LightNode, SSAO);
+
 	PostProcessNode* PPNode = new PostProcessNode();
-	LightNode->LinkToNode(PPNode);
+	LinkNode(SSAO, PPNode);
 	PPNode->GetInput(0)->SetLink(LightNode->GetOutput(0));
 
 	DebugUINode* Debug = new DebugUINode();

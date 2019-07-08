@@ -6,7 +6,7 @@ SamplerState BilinearClamp : register(s0);
 void main(uint3 DTid : SV_DispatchThreadID)
 {
 	float4 Inputcolour = SrcTexture[DTid.xy];
-#if 0
+#if 1
 	DstTexture[DTid.xy] = DstTexture[DTid.xy] *(Inputcolour.x);
 #else
 	DstTexture[DTid.xy] = Inputcolour;

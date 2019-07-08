@@ -220,13 +220,13 @@ void BaseWindow::Render()
 #if TESTGRAPH
 	RHI::RHIRunFirstFrame();
 	RHI::GetRenderSystem()->Update();
-//	Renderer->PreRender();
+	//	Renderer->PreRender();
 	SceneRenderer::Get()->PrepareSceneForRender();
 	RHI::GetRenderSystem()->Render();
 #else
 	Renderer->Render();
 #endif
-	
+
 #if !BASIC_RENDER_ONLY
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
@@ -343,11 +343,7 @@ bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response
 
 Camera * BaseWindow::GetCurrentCamera()
 {
-	if (Instance != nullptr && Instance->Renderer != nullptr)
-	{
-		return Instance->Renderer->GetMainCam();
-	}
-	return nullptr;
+	return SceneRenderer::Get()->GetCurrentCamera();
 }
 
 Scene * BaseWindow::GetScene()
@@ -564,7 +560,7 @@ void BaseWindow::RenderText()
 	if (ShowText)
 	{
 		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
-		stream << "Ratio " << RHI::GetRenderSettings()->GetCurrentRenderScale()<<"X ";
+		stream << "Ratio " << RHI::GetRenderSettings()->GetCurrentRenderScale() << "X ";
 		if (RHI::GetRenderSettings()->IsDeferred)
 		{
 			stream << "DEF ";
