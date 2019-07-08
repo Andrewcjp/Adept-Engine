@@ -14,9 +14,9 @@ RenderGraphSystem::~RenderGraphSystem()
 void RenderGraphSystem::InitGraph()
 {
 	CurrentGraph = new RenderGraph();
-	CurrentGraph->CreateFWDGraph();
-	//CurrentGraph->CreateVRFWDGraph();
-	//CurrentGraph->CreateDefTestgraph();
+	//CurrentGraph->CreateFWDGraph();
+	///CurrentGraph->CreateVRFWDGraph();
+	CurrentGraph->CreateDefTestgraph();
 	CurrentGraph->BuildGraph();
 }
 

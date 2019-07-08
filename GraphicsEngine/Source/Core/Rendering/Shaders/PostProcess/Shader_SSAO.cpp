@@ -1,6 +1,7 @@
 #include "Shader_SSAO.h"
 #include "RHI/RHI.h"
 #include "Core/BaseWindow.h"
+#include "../../Core/SceneRenderer.h"
 
 float lerp(float a, float b, float f)
 {
@@ -33,14 +34,16 @@ Shader_SSAO::Shader_SSAO(DeviceContext* d) :Shader(d)
 		CurrentData.samples[i] = ssaoKernel[i];
 	}
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	DataBuffer->SetDebugName("SSAO");
 	DataBuffer->CreateConstantBuffer(sizeof(CurrentData), 1);
+	
 }
 
 void Shader_SSAO::Bind(RHICommandList* list)
 {
 	DataBuffer->UpdateConstantBuffer(&CurrentData);
-	CurrentData.projection = BaseWindow::GetCurrentCamera()->GetProjection();
-	CurrentData.view = BaseWindow::GetCurrentCamera()->GetView();
+	CurrentData.projection = SceneRenderer::Get()->GetCurrentCamera()->GetProjection();
+	CurrentData.view = SceneRenderer::Get()->GetCurrentCamera()->GetView();
 	list->SetConstantBufferView(DataBuffer, 0, "Data");
 }
 

@@ -297,7 +297,7 @@ CullingManager * SceneRenderer::GetCullingManager()
 	return Culling;
 }
 
-Camera * SceneRenderer::GetCurrnetCamera()
+Camera * SceneRenderer::GetCurrentCamera()
 {
 	return Get()->CurrentCamera;
 }

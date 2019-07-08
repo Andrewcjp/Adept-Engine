@@ -116,7 +116,8 @@ void DeferredLightingNode::OnExecute()
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
 #endif
-	/*GBuffer->MakeReadyForComputeUse(List, true);*/
+	GBuffer->MakeReadyForComputeUse(List);
+	MainBuffer->MakeReadyForComputeUse(List);
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
