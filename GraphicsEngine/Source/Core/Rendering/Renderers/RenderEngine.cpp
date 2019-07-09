@@ -32,7 +32,7 @@ RenderEngine::RenderEngine(int width, int height)
 {
 	m_width = width;
 	m_height = height;
-	SceneRender = new SceneRenderer(nullptr);
+	SceneRender = new SceneRenderer();
 	Scaler = new DynamicResolutionScaler();
 	Culling = new CullingManager();
 	ScreenWriteList = RHI::CreateCommandList(ECommandListType::Graphics);
@@ -199,7 +199,7 @@ void RenderEngine::ProcessSceneGPU(DeviceContext* dev)
 	dev->ResetCopyEngine();
 	if (Data->DiffuseMap == nullptr)
 	{
-		DDOs[dev->GetDeviceIndex()].ConvShader->ComputeConvolution(DDOs[dev->GetDeviceIndex()].ConvShader->TargetCubemap);
+//		DDOs[dev->GetDeviceIndex()].ConvShader->ComputeConvolution(DDOs[dev->GetDeviceIndex()].ConvShader->TargetCubemap, TODO);
 	}
 	DDOs[dev->GetDeviceIndex()].EnvMap->ComputeEnvBRDF();
 

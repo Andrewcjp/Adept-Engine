@@ -6,6 +6,12 @@ class GPUResource;
 class D3D12DeviceContext;
 class DXDescriptor;
 class DescriptorGroup;
+class D3D12CommandList;
+struct SRVRequest
+{
+	RHIViewDesc Desc;
+	DescriptorGroup* Descriptor = nullptr;
+};
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
@@ -19,6 +25,7 @@ public:
 	void							ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
 	void							BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex = 0, DeviceContext* target = nullptr, bool isCompute = false);
+	void							BindSRV(D3D12CommandList * List, int slot, RHIViewDesc SRV);
 	virtual void					BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex);
 	void							UnBind(ID3D12GraphicsCommandList * list);
 	virtual void					ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
@@ -32,7 +39,7 @@ public:
 	void							HandleResize() override;
 	bool							IsReadyForCompute()const;
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
-	//Cross Adaptor
+	//Cross Adapter
 	void SetupCopyToDevice(DeviceContext* device) override;
 	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
 	void CopyToHostMemory(ID3D12GraphicsCommandList * list);
@@ -47,16 +54,20 @@ public:
 	void Release() override;
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
 	DescriptorGroup* GetDescriptor();
+
+	virtual void RequestSRV(const RHIViewDesc & desc) override;
+
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(RHICommandList * list) override;
-	//DescriptorHeap* SrvHeap = nullptr;
+	
 	DescriptorGroup* SRVDesc = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;
 	DescriptorHeap* DSVHeap = nullptr;
 	DescriptorHeap* NullHeap = nullptr;
 
+	std::vector<SRVRequest> RequestedSRVS;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 

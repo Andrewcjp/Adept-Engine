@@ -460,7 +460,24 @@ DescriptorGroup * D3D12FrameBuffer::GetDescriptor()
 	return SRVDesc;
 }
 
+void D3D12FrameBuffer::RequestSRV(const RHIViewDesc & desc)
+{
+	SRVRequest Req;
+	Req.Desc = desc;
+	Req.Descriptor = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 
+	D3D12_SHADER_RESOURCE_VIEW_DESC d = GetSrvDesc(0);
+	d.TextureCube.MostDetailedMip = desc.Mip;
+	d.TextureCube.MipLevels = desc.MipLevels;
+	if (desc.Dimention != DIMENSION_UNKNOWN)
+	{
+		d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimention);
+	}
+	d.Texture2DArray.ArraySize = 1;
+	d.Texture2DArray.FirstArraySlice = desc.Slice;
+	Req.Descriptor->CreateShaderResourceView(RenderTarget[0]->GetResource(), &d, 0);
+	RequestedSRVS.push_back(Req);
+}
 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
@@ -616,11 +633,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		}
 
 		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
-	}
+		}
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-}
+	}
 
 void D3D12FrameBuffer::Init()
 {
@@ -704,6 +721,13 @@ void D3D12FrameBuffer::Init()
 		}
 	}
 	UpdateSRV();
+	if (BufferDesc.RequestedViews.size() > 0)
+	{
+		for (int i = 0; i < BufferDesc.RequestedViews.size(); i++)
+		{
+			RequestSRV(BufferDesc.RequestedViews[i]);
+		}
+	}
 }
 
 D3D12FrameBuffer::~D3D12FrameBuffer()
@@ -760,6 +784,18 @@ void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int
 	}
 }
 
+void D3D12FrameBuffer::BindSRV(D3D12CommandList * List, int slot, RHIViewDesc SRV)
+{
+	for (int i = 0; i < RequestedSRVS.size(); i++)
+	{
+		if (SRV.Mip == RequestedSRVS[i].Desc.Mip && SRV.Dimention == RequestedSRVS[i].Desc.Dimention && SRV.Slice == RequestedSRVS[i].Desc.Slice)
+		{
+			List->GetCommandList()->SetComputeRootDescriptorTable(slot, RequestedSRVS[i].Descriptor->GetGPUAddress(0));
+			return;
+		}
+	}
+}
+
 void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex)
 {
 	list->RSSetViewports(1, &m_viewport);
@@ -807,7 +843,7 @@ void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 	}
 	else
 	{
-		if (BufferDesc.AllowUnordedAccess)
+		if (BufferDesc.AllowUnorderedAccess)
 		{
 			for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 			{

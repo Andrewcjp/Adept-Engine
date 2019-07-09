@@ -15,8 +15,8 @@ Shader_Mipmap::~Shader_Mipmap()
 
 std::vector<ShaderParameter> Shader_Mipmap::GetShaderParameters()
 {
-	m_Shader->GeneratedParams[2].Type = ShaderParamType::RootConstant;
-	m_Shader->GeneratedParams[2].NumDescriptors = 2;
+	m_Shader->GeneratedParams[0].Type = ShaderParamType::RootConstant;
+	m_Shader->GeneratedParams[0].NumDescriptors = 2;
 	return Shader::GetShaderParameters();
 }
 

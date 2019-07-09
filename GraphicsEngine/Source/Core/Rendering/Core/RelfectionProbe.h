@@ -17,15 +17,18 @@ public:
 	RelfectionProbe();
 	~RelfectionProbe();
 	FrameBuffer* CapturedTexture = nullptr;
-	IntPoint GetDimentions()const
-	{
-		return Dimentions;
-	}
+	FrameBuffer* ConvolutionBuffer = nullptr;
+	IntPoint GetDimentions()const;
 	EReflectionProbeMode::Type ProbeMode = EReflectionProbeMode::Baked;
 	bool NeedsCapture() const;
 	void SetCaptured();
+	bool GetNeedsDownSample() const;
+	void SetNeedsDownSample(bool val);
 private:
 	IntPoint Dimentions = IntPoint(1024, 1024);
+	int ConvolutionRes = 128;
 	bool IsCaptured = false;
+	bool NeedsDownSample = false;
+
 };
 

@@ -54,6 +54,8 @@ void BaseWindow::InitilseWindow()
 	Log::OutS << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
 	MeshLoader::Get();
+	SceneRenderer::StartUp();
+#if 0
 	if (RHI::GetRenderSettings()->IsDeferred)
 	{
 		Renderer = new DeferredRenderer(m_width, m_height);
@@ -63,6 +65,7 @@ void BaseWindow::InitilseWindow()
 		Renderer = new ForwardRenderer(m_width, m_height);
 	}
 	Renderer->Init();
+#endif
 #if !BASIC_RENDER_ONLY
 	UI = new UIManager(m_width, m_height);
 #endif
@@ -386,11 +389,12 @@ void BaseWindow::SetFrameRateLimit(int limit)
 void BaseWindow::ReLoadCurrentScene()
 {
 	CurrentScene->EndScene();
-	Renderer->SetScene(nullptr);
+//	SceneRenderer::Get()->SetScene(nullptr);
+	SceneRenderer::Get()->SetScene(nullptr);
 	SafeDelete(CurrentScene);
 	CurrentScene = new Scene();
 	CurrentScene->LoadExampleScene(nullptr, false);
-	Renderer->SetScene(CurrentScene);
+	SceneRenderer::Get()->SetScene(CurrentScene);
 	Engine::GetGame()->BeginPlay();
 	CurrentScene->StartScene();
 	for (int i = 0; i < UI->GetContexts().size(); i++)
@@ -408,14 +412,14 @@ void BaseWindow::LoadScene(std::string RelativePath)
 {
 	std::string Startdir = Engine::GetExecutionDir();
 	Startdir.append(RelativePath);
-	Renderer->SetScene(nullptr);
+	SceneRenderer::Get()->SetScene(nullptr);
 	SafeDelete(CurrentScene);
 	CurrentScene = new Scene();
 	if (Saver)
 	{
 		Saver->LoadScene(CurrentScene, Startdir);
 	}
-	Renderer->SetScene(CurrentScene);
+	SceneRenderer::Get()->SetScene(CurrentScene);
 }
 
 void BaseWindow::PostFrameOne()
@@ -439,12 +443,12 @@ void BaseWindow::Resize(int width, int height, bool force /*= false*/)
 	{
 		UI->UpdateSize(width, height);
 	}
-	if (Renderer != nullptr)
-	{
-		/*RHI::WaitForGPU();
-		RHI::ResizeSwapChain(width, height);*/
-		Renderer->Resize(width, height);
-	}
+	//if (Renderer != nullptr)
+	//{
+	//	/*RHI::WaitForGPU();
+	//	RHI::ResizeSwapChain(width, height);*/
+	//	Renderer->Resize(width, height);
+	//}
 }
 
 void BaseWindow::DestroyRenderWindow()
@@ -454,10 +458,10 @@ void BaseWindow::DestroyRenderWindow()
 	SafeDelete(CurrentScene);
 	ImageIO::ShutDown();
 	MeshLoader::ShutDown();
-	Renderer->DestoryRenderWindow();
+	//Renderer->DestoryRenderWindow();
 	SafeDelete(LineDrawer);
 	SafeDelete(UI);
-	SafeDelete(Renderer);
+//	SafeDelete(Renderer);
 	Input::ShutDown();
 }
 
@@ -549,7 +553,7 @@ int BaseWindow::GetHeight()
 
 RenderEngine * BaseWindow::GetCurrentRenderer()
 {
-	return Instance->Renderer;
+	return nullptr;
 }
 
 void BaseWindow::RenderText()

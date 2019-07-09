@@ -19,6 +19,7 @@
 #include "Nodes/Flow/VRBranchNode.h"
 #include "Core/Utils/StringUtil.h"
 #include "Nodes/SSAONode.h"
+#include "Nodes/UpdateReflectionsNode.h"
 #define TESTVR 1
 RenderGraph::RenderGraph()
 {}
@@ -109,13 +110,13 @@ void RenderGraph::CreateDefTestgraph()
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
-	Desc.AllowUnordedAccess = true;
+	Desc.AllowUnorderedAccess = true;
 	MainBuffer->SetFrameBufferDesc(Desc);
 
 	FrameBufferStorageNode* SSAOBuffer = AddStoreNode(new FrameBufferStorageNode());
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
-	Desc.AllowUnordedAccess = true;
+	Desc.AllowUnorderedAccess = true;
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	SSAOBuffer->SetFrameBufferDesc(Desc);
 
@@ -125,12 +126,15 @@ void RenderGraph::CreateDefTestgraph()
 	RootNode->GetInput(0)->SetStore(GBufferNode);
 
 	ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
-	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
+	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);  
 	RootNode->LinkToNode(ShadowUpdate);
 
+	UpdateReflectionsNode* UpdateProbesNode = new UpdateReflectionsNode();
+	UpdateProbesNode->GetInput(0)->SetStore(ShadowDataNode);
+	LinkNode(ShadowUpdate, UpdateProbesNode);
 
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
-	ShadowUpdate->LinkToNode(LightNode);
+	LinkNode(UpdateProbesNode, LightNode);
 	LightNode->GetInput(0)->SetLink(RootNode->GetOutput(0));
 	LightNode->GetInput(1)->SetStore(MainBuffer);
 	LightNode->GetInput(2)->SetStore(SceneData);

@@ -11,6 +11,7 @@ class LightCullingEngine;
 class CullingManager;
 class Camera;
 class Editor_Camera;
+class ReflectionEnviroment;
 #pragma pack(push, 16)
 /*__declspec(align(32))*/ struct LightUniformBuffer
 {
@@ -67,8 +68,10 @@ class RelfectionProbe;
 class SceneRenderer
 {
 public:
+	static void StartUp();
+	static void Shutdown();
 	static SceneRenderer* Get();
-	SceneRenderer(class Scene* Target);
+	SceneRenderer();
 	~SceneRenderer();
 	//CPU culls light etc. and updates all buffers needed to render the scene on all GPUs (if requested)
 	void PrepareSceneForRender();
@@ -88,6 +91,7 @@ public:
 	void BindLightsBuffer(RHICommandList * list, int Override = -1);
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot);
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot, int index);
+	//this is the master scene for the rendering code.
 	void SetScene(Scene* NewScene);
 	void SetupBindsForForwardPass(RHICommandList* list, int eyeindex);
 	void UpdateMVForMainPass();
@@ -104,8 +108,12 @@ public:
 	CullingManager* GetCullingManager();
 	static Camera* GetCurrentCamera();
 	void SetEditorCamera(Editor_Camera* Cam);
-private:
 
+	ReflectionEnviroment* GetReflectionEnviroment();
+private:
+	bool SceneChanged = false;
+	ReflectionEnviroment* Enviroment = nullptr;
+	static SceneRenderer* Instance;
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	RHIBuffer* CMVBuffer = nullptr;
 	//the View and projection Matrix in one place as each game object will not have different ones.

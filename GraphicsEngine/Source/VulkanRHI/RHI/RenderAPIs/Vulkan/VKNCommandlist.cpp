@@ -230,7 +230,13 @@ void VKNCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int R
 	V->WasTexture = true;
 }
 
- void VKNCommandlist::SetDepthBounds(float Min, float Max)
+
+void VKNCommandlist::BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void VKNCommandlist::SetDepthBounds(float Min, float Max)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
@@ -276,7 +282,7 @@ void VKNCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 void VkanUAV::Bind(RHICommandList * list, int slot)
 {}
 
-void VkanUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
+void VkanUAV::CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc /*= RHIUAVDesc()*/)
 {}
 
 void VkanUAV::CreateUAVFromTexture(BaseTexture * target)

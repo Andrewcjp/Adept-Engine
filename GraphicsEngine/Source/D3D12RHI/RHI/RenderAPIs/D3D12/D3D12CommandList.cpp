@@ -91,7 +91,7 @@ void D3D12CommandList::BeginRenderPass(RHIRenderPassDesc& info)
 		}
 		else
 		{
-			SetRenderTarget(info.TargetBuffer);
+			SetRenderTarget(info.TargetBuffer, info.SubResourceIndex);
 		}
 		if (info.LoadOp == ERenderPassLoadOp::Clear)
 		{
@@ -561,6 +561,12 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute || IsRaytracingList()));
 }
 
+void D3D12CommandList::BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc)
+{
+	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(Buffer);
+	DBuffer->BindSRV(this, slot, Desc);
+}
+
 void D3D12CommandList::SetDepthBounds(float Min, float Max)
 {
 	if (!Device->GetCaps().SupportsDepthBoundsTest)
@@ -683,7 +689,7 @@ void D3D12RHIUAV::CreateUAVFromTexture(BaseTexture * target)
 	UAVDescriptor->CreateUnorderedAccessView(D3D12RHI::DXConv(target)->GetResource(), UAVCounter, &destTextureUAVDesc);
 }
 
-void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
+void D3D12RHIUAV::CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc /*= RHIUAVDesc()*/)
 {
 	D3D12FrameBuffer* D3DTarget = D3D12RHI::DXConv(target);
 	ensure(D3DTarget->CheckDevice(Device->GetDeviceIndex()));
@@ -695,9 +701,16 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(FrameBuffer * target, int mip)
 	SetDebugName(D3DTarget->GetDebugName());
 #endif
 	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
+	//DX12: TODO handle UAv dimentions 
 	destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(target->GetDescription().RTFormats[0]);
-	destTextureUAVDesc.Texture2D.MipSlice = mip;
+	destTextureUAVDesc.Texture2D.MipSlice = desc.Mip;
+	if (target->GetDescription().TextureDepth > 0)
+	{
+		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+		destTextureUAVDesc.Texture2DArray.ArraySize = 1;
+		destTextureUAVDesc.Texture2DArray.FirstArraySlice = desc.Slice;
+	}
 	UAVDescriptor->CreateUnorderedAccessView(D3D12RHI::DXConv(target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc);
 }
 

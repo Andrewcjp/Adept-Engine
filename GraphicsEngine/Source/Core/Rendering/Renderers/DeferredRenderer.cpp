@@ -110,7 +110,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	const float ratio = 1.0f;// 0.3;
 	RHIFrameBufferDesc FBDesc = RHIFrameBufferDesc::CreateColour(glm::iround(GetScaledWidth()*ratio), glm::iround(GetScaledHeight()*ratio));
 	FBDesc.IncludedInSFR = true;
-	FBDesc.AllowUnordedAccess = true;
+	FBDesc.AllowUnorderedAccess = true;
 	FBDesc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	if (con->GetDeviceIndex() > 0)
 	{
@@ -158,7 +158,7 @@ void DeferredRenderer::SetUpOnDevice(DeviceContext* con)
 	{
 		const float Scale = RHI::GetRenderSettings()->GetRTSettings().ReflectionBufferScale;
 		FBDesc = RHIFrameBufferDesc::CreateColour(glm::iround(GetScaledWidth()*Scale), glm::iround(GetScaledHeight()*Scale));
-		FBDesc.AllowUnordedAccess = true;
+		FBDesc.AllowUnorderedAccess = true;
 		FBDesc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 		DDO->RTBuffer = RHI::CreateFrameBuffer(con, FBDesc);
 	}

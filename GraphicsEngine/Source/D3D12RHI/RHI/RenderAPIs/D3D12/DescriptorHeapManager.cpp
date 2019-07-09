@@ -11,7 +11,7 @@
 DescriptorHeapManager::DescriptorHeapManager(D3D12DeviceContext* d)
 {
 	Device = d;
-	AllocateMainHeap(300);
+	AllocateMainHeap(1000);
 }
 void DescriptorHeapManager::AllocateMainHeap(int size)
 {

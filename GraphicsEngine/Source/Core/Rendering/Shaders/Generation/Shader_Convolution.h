@@ -9,7 +9,8 @@ public:
 	Shader_Convolution(class DeviceContext* dev);
 	~Shader_Convolution();
 	void init();
-	void ComputeConvolution(BaseTextureRef Target);
+	void ComputeConvolution(BaseTextureRef Target, FrameBuffer* Buffer);
+	void ComputeConvolutionProbe(RHICommandList* List, FrameBuffer* Target, FrameBuffer * Buffer);
 	std::vector<ShaderParameter> GetShaderParameters() override;
 	std::vector<VertexElementDESC> GetVertexFormat() override;
 	BaseTextureRef TargetCubemap = nullptr;
@@ -22,7 +23,7 @@ public:
 		void RenderScreenQuad(RHICommandList * list);
 	};
 private:
-
+	RHIPipeLineStateDesc ConvPSODesc;
 	RHICommandList* CmdList = nullptr;
 	RHIBuffer* ShaderData = nullptr;
 

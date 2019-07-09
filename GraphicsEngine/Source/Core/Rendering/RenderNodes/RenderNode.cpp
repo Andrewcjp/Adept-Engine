@@ -35,6 +35,16 @@ void RenderNode::ExecuteNode()
 		{
 			OnExecute();
 		}
+		else
+		{
+			for (int i = 0; i < Inputs.size(); i++)
+			{
+				if (i < GetNumOutputs())
+				{
+					PassNodeThough(i);
+				}
+			}
+		}
 		if (Next != nullptr)
 		{
 			Next->ExecuteNode();
@@ -68,7 +78,7 @@ uint RenderNode::GetNumInputs() const
 	return (uint)Inputs.size();
 }
 
-uint RenderNode::GetNumOutput() const
+uint RenderNode::GetNumOutputs() const
 {
 	return (uint)Outputs.size();
 }

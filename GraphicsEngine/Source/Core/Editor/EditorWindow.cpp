@@ -56,7 +56,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	Log::OutS << "Loading Editor" << Log::OutS;
 	CurrentScene = new Scene(true);
 	EditorCamera = new Editor_Camera();
-	Renderer->SetEditorCamera(EditorCamera);
+
 	SceneRenderer::Get()->SetEditorCamera(EditorCamera);
 	if (UI != nullptr)
 	{
@@ -67,8 +67,8 @@ void EditorWindow::PostInitWindow(int w, int h)
 	selector = new EditorObjectSelector();
 	selector->init();
 
-	CurrentScene->LoadExampleScene(Renderer, false);
-	Renderer->SetScene(CurrentScene);
+	CurrentScene->LoadExampleScene(nullptr, false);
+	SceneRenderer::Get()->SetScene(CurrentScene);
 	RefreshScene();
 
 #if TEST_SERIAL
@@ -109,7 +109,7 @@ void EditorWindow::EnterPlayMode()
 	IsPlayingScene = true;
 	ShouldTickScene = true;
 	Saver->LoadScene(CurrentPlayScene, EditorPlaySceneTempFile);
-	Renderer->SetScene(CurrentPlayScene);
+	SceneRenderer::Get()->SetScene(CurrentPlayScene);
 	CurrentPlayScene->StartScene();
 #endif
 	EditorCamera->SetEnabled(false);
@@ -131,7 +131,7 @@ void EditorWindow::ExitPlayMode()
 	AudioEngine::StopAll();
 	mEditorCore->SetSelectedObject(nullptr);
 	Log::OutS << "Exiting play mode" << Log::OutS;
-	Renderer->SetScene(CurrentScene);
+	SceneRenderer::Get()->SetScene(CurrentScene);
 	CurrentPlayScene->EndScene();
 	EditorCamera->SetEnabled(true);
 	SafeDelete(CurrentPlayScene);
@@ -259,7 +259,7 @@ void EditorWindow::Update()
 	}
 	if (Input::GetKeyDown('P'))
 	{
-		Renderer->mShadowRenderer->InvalidateAllBakedShadows();
+	///	Renderer->mShadowRenderer->InvalidateAllBakedShadows();
 	}
 	if (Input::GetVKey(VK_CONTROL))
 	{
@@ -367,11 +367,13 @@ void EditorWindow::LoadScene()
 	if (PlatformApplication::DisplayOpenFileDialog(Startdir, "Scene Files\0*.scene\0"s, Output))
 	{
 		CurrentSceneSavePath = Output;
-		Renderer->SetScene(nullptr);
+		SceneRenderer::Get()->SetScene(nullptr);
+		//Renderer->SetScene(nullptr);
 		delete CurrentScene;
 		CurrentScene = new Scene();
 		Saver->LoadScene(CurrentScene, Output);
-		Renderer->SetScene(CurrentScene);
+		//Renderer->SetScene(CurrentScene);
+		SceneRenderer::Get()->SetScene(CurrentScene);
 		RefreshScene();
 		UI->AlertBox("Scene Loaded");
 	}
@@ -403,8 +405,8 @@ void EditorWindow::ProcessMenu(unsigned short command)
 			LoadScene();
 			break;
 		case 10://debug load example
-			CurrentScene->LoadExampleScene(Renderer, false);
-			Renderer->SetScene(CurrentScene);
+			//CurrentScene->LoadExampleScene(Renderer, false);
+			SceneRenderer::Get()->SetScene(CurrentScene);
 			RefreshScene();
 			CurrentSceneSavePath.clear();
 			break;

@@ -30,7 +30,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	up = cross(target, right);
 
 	float sampleDelta = 0.25;
-	float nrSamples = 0.0;
+	int nrSamples = 0;
 	for (float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
 	{
 		for (float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
@@ -40,7 +40,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 			// tangent space to world
 			float3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * target;
 
-			irradiance += texColour.Sample(defaultSampler, sampleVec).rgb * cos(theta) * sin(theta);
+			irradiance += texColour.SampleLevel(defaultSampler, sampleVec,0).rgb * cos(theta) * sin(theta);
 			nrSamples++;
 		}
 	}

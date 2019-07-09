@@ -16,20 +16,35 @@
 #include "Culling/CullingManager.h"
 #include "ParticleSystemManager.h"
 #include "Editor/Editor_Camera.h"
+#include "ReflectionEnviroment.h"
+#include "../Shaders/Shader_Depth.h"
+
+SceneRenderer* SceneRenderer::Instance = nullptr;
+void SceneRenderer::StartUp()
+{
+	Instance = new SceneRenderer();
+}
+
+void SceneRenderer::Shutdown()
+{
+	SafeDelete(Instance);
+}
 
 SceneRenderer * SceneRenderer::Get()
 {
-	return BaseWindow::GetCurrentRenderer()->SceneRender;
+	return Instance;
 }
 
-SceneRenderer::SceneRenderer(Scene* Target)
+SceneRenderer::SceneRenderer()
 {
-	TargetScene = Target;
+	TargetScene = nullptr;
 	WorldDefaultMatShader = (Shader_NodeGraph*)Material::GetDefaultMaterialShader();
 	MeshController = new MeshPipelineController();
 	Culling = new CullingManager();
 	LightCulling = new LightCullingEngine();
 	LightCulling->Init(Culling);
+	Enviroment = new ReflectionEnviroment();
+	Init();
 }
 
 
@@ -44,6 +59,10 @@ SceneRenderer::~SceneRenderer()
 
 void SceneRenderer::PrepareSceneForRender()
 {
+	if (SceneChanged)
+	{
+		Enviroment->GenerateStaticEnvData();
+	}
 	UpdateLightBuffer(TargetScene->GetLights());
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
@@ -67,7 +86,7 @@ void SceneRenderer::PrepareSceneForRender()
 	LightsBuffer.TileX = LightCulling->GetLightGridDim().x;
 	LightsBuffer.TileY = LightCulling->GetLightGridDim().y;
 	UpdateLightBuffer(TargetScene->GetLights());
-	
+	SceneChanged = false;
 }
 
 void SceneRenderer::PrepareData()
@@ -121,8 +140,7 @@ void SceneRenderer::Init()
 }
 
 void SceneRenderer::UpdateReflectionParams(glm::vec3 lightPos)
-{
-	return;
+{	
 	glm::mat4x4 shadowProj = glm::perspectiveLH<float>(glm::radians(90.0f), 1.0f, zNear, ZFar);
 	glm::mat4x4 transforms[6];
 	transforms[0] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
@@ -131,13 +149,13 @@ void SceneRenderer::UpdateReflectionParams(glm::vec3 lightPos)
 	transforms[3] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
 	transforms[4] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
 	transforms[5] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < CUBE_SIDES; i++)
 	{
 		CubeMapViews[i].P = shadowProj;
 		CubeMapViews[i].V = transforms[i];
 		CubeMapViews[i].CameraPos = lightPos;
 	}
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < CUBE_SIDES; i++)
 	{
 		RelfectionProbeProjections->UpdateConstantBuffer(&CubeMapViews[i], i);
 	}
@@ -266,7 +284,9 @@ void SceneRenderer::SetScene(Scene * NewScene)
 {
 	TargetScene = NewScene;
 	MeshController->TargetScene = TargetScene;
+	ShaderComplier::GetShader<Shader_Skybox>()->SetSkyBox(NewScene->GetLightingData()->SkyBox);
 	//run update on scene data
+	SceneChanged = true;
 }
 
 
@@ -274,8 +294,6 @@ Scene * SceneRenderer::GetScene()
 {
 	return TargetScene;
 }
-
-
 
 void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
 {
@@ -306,6 +324,12 @@ void SceneRenderer::SetEditorCamera(Editor_Camera * Cam)
 {
 	EditorCam = Cam;
 }
+
+ReflectionEnviroment * SceneRenderer::GetReflectionEnviroment()
+{
+	return Enviroment;
+}
+
 
 void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex)
 {
