@@ -1,5 +1,6 @@
 
 #include "RHITimeManager.h"
+#include "DeviceContext.h"
 
 RHITimeManager::RHITimeManager(DeviceContext * context)
 {

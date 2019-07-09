@@ -57,7 +57,7 @@ protected:
 	{};
 
 	//Sub Modules
-	class RenderEngine * Renderer = nullptr;
+	//class RenderEngine * Renderer = nullptr;
 	class UIManager* UI = nullptr;
 	class DebugLineDrawer* LineDrawer = nullptr;
 	class Scene* CurrentScene = nullptr;

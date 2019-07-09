@@ -56,6 +56,9 @@ public:
 	bool IsOpen = false;
 	 RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
 
+
+	 virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) override;
+
 };
 
 
@@ -66,7 +69,7 @@ public:
 	{};
 	// Inherited via RHIUAV
 	virtual void Bind(RHICommandList * list, int slot) override;
-	virtual void CreateUAVFromFrameBuffer(FrameBuffer * target, int mip) override;
+	virtual RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) override;
 	virtual void CreateUAVFromTexture(BaseTexture * target) override;
 	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
 };

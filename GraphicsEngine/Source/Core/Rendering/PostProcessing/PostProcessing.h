@@ -8,8 +8,11 @@ class PostProcessing
 
 public:
 	static PostProcessing* Instance;
+	static void StartUp();
+	static void ShutDown();
 	PostProcessing();
 	~PostProcessing();
+	void Update();
 	std::vector<PostProcessEffectBase*> Effects;
 	void AddEffect(PostProcessEffectBase* effect);
 	void ExecPPStack(DeviceDependentObjects* Object);

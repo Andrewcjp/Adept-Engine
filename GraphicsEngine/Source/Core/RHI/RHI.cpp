@@ -530,6 +530,7 @@ void RHI::RHIRunFirstFrame()
 	GetRHIClass()->RHIRunFirstFrame();
 	ShaderComplier::Get()->TickMaterialComplie();
 	GetRHIClass()->SetFullScreenState(StartFullscreen.GetBoolValue());
+	WaitForGPU();
 }
 
 void RHI::SetFullScreenState(bool state)

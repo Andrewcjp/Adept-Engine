@@ -51,7 +51,7 @@ public:
 	NodeLink* GetOutput(int index);
 	NodeLink* GetRefrence(int index);
 	uint GetNumInputs() const;
-	uint GetNumOutput() const;
+	uint GetNumOutputs() const;
 	uint GetNumRefrences() const;
 	//Node Type
 	//For VR Only

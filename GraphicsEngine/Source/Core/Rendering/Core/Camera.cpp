@@ -167,6 +167,7 @@ void Camera::SetViewTransFrom(glm::mat4 ViewTransfrom)
 	Override = true;
 	ViewOverdide = ViewTransfrom;
 }
+
 void Camera::SetProjection(glm::mat4 ViewTransfrom)
 {
 	projection = ViewTransfrom;

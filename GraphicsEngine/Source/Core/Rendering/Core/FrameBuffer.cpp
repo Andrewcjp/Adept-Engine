@@ -48,14 +48,25 @@ void FrameBuffer::HandleInit()
 
 void FrameBuffer::PostInit()
 {
-	if (BufferDesc.AllowUnordedAccess)
+	if (BufferDesc.AllowUnorderedAccess)
 	{
-		if (UAV)
+		if (UAVs.size() > 0)
 		{
-			EnqueueSafeRHIRelease(UAV);
+			MemoryUtils::RHIUtil::DeleteVector(UAVs);
 		}
-		UAV = RHI::CreateUAV(Device);
-		UAV->CreateUAVFromFrameBuffer(this);
+		if (BufferDesc.RequestedViews.size() > 0)
+		{
+			for (int i = 0; i < BufferDesc.RequestedViews.size(); i++)
+			{
+				UAVs.push_back(RHI::CreateUAV(Device));
+				UAVs[i]->CreateUAVFromFrameBuffer(this, BufferDesc.RequestedViews[i]);
+			}
+		}
+		else
+		{
+			UAVs.push_back(RHI::CreateUAV(Device));
+			UAVs[UAVs.size() - 1]->CreateUAVFromFrameBuffer(this);
+		}
 	}
 }
 
@@ -145,20 +156,20 @@ void FrameBuffer::CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * Targe
 	//Multi shadow are missing a sync!
 }
 
-void FrameBuffer::BindUAV(RHICommandList * list, int slot)
+void FrameBuffer::BindUAV(RHICommandList* list, int slot, int UAVIndex /*= 0*/)
 {
-	ensure(BufferDesc.AllowUnordedAccess);
-	UAV->Bind(list, slot);
+	ensure(BufferDesc.AllowUnorderedAccess);
+	UAVs[UAVIndex]->Bind(list, slot);
 }
 
-RHIUAV * FrameBuffer::GetUAV()
+RHIUAV* FrameBuffer::GetUAV(int Index /*= 0*/)
 {
-	return UAV;
+	return UAVs[Index];
 }
 
 void FrameBuffer::Release()
 {
-	EnqueueSafeRHIRelease(UAV);
+	MemoryUtils::RHIUtil::DeleteVector(UAVs);
 }
 
 size_t FrameBuffer::GetSizeOnGPU()

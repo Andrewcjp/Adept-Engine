@@ -13,6 +13,8 @@ protected:
 
 
 	virtual void OnSetupNode() override;
-
+private:
+	RHICommandList* CubemapCaptureList = nullptr;
+	RHICommandList* ComputeList = nullptr;
 };
 

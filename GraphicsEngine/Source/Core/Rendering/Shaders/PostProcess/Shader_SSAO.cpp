@@ -33,6 +33,7 @@ Shader_SSAO::Shader_SSAO(DeviceContext* d) :Shader(d)
 	{
 		CurrentData.samples[i] = ssaoKernel[i];
 	}
+	CurrentData.kernelSize = 1;
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->SetDebugName("SSAO");
 	DataBuffer->CreateConstantBuffer(sizeof(CurrentData), 1);

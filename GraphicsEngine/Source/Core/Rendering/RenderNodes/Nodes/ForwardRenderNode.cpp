@@ -9,6 +9,8 @@
 #include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
+#include "../../Core/SceneRenderer.h"
+#include "../../Core/ReflectionEnviroment.h"
 
 ForwardRenderNode::ForwardRenderNode()
 {
@@ -55,13 +57,14 @@ void ForwardRenderNode::OnExecute()
 	CommandList->SetTexture(MainScene->GetLightingData()->SkyBox, MainShaderRSBinds::DiffuseIr);
 	CommandList->SetTexture(Defaults::GetDefaultTexture(), MainShaderRSBinds::EnvBRDF);
 #else
-	if (BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].ConvShader != nullptr)
-	{
-		CommandList->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
-		CommandList->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
-	}
+	//if (BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].ConvShader != nullptr)
+	//{
+	//	CommandList->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].ConvShader->CubeBuffer, MainShaderRSBinds::DiffuseIr);
+	//	CommandList->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[CommandList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
+	//}
 #endif
-
+	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(CommandList, false);
+	SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(CommandList);
 	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, 0);
 	MeshPassRenderArgs Args;

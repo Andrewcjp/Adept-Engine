@@ -75,6 +75,9 @@ public:
 
 	 RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
 
+
+	 virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) override;
+
 private:
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();
@@ -105,7 +108,7 @@ public:
 
 	~D3D12RHIUAV();
 	void CreateUAVFromTexture(class BaseTexture* target) override;
-	void CreateUAVFromFrameBuffer(class FrameBuffer* target, int mip) override;
+	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) override;
 	void Bind(RHICommandList* list, int slot) override;
 	ID3D12Resource * m_UAV = nullptr;
 	D3D12DeviceContext* Device = nullptr;

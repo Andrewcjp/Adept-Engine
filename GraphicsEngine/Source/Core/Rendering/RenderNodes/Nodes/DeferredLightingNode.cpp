@@ -14,6 +14,8 @@
 #include "../../Shaders/Shader_Skybox.h"
 #include "../RenderNode.h"
 #include "../StoreNodes/ShadowAtlasStorageNode.h"
+#include "../../Core/Defaults.h"
+#include "../../Core/ReflectionEnviroment.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -72,9 +74,9 @@ void DeferredLightingNode::OnExecute()
 	}
 	//List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 	//List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
-#if 0
-	CommandList->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::DiffuseIr);
-	CommandList->SetTexture(Defaults::GetDefaultTexture(), DeferredLightingShaderRSBinds::EnvBRDF);
+#if 1
+	//List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::DiffuseIr);
+	//List->SetTexture(Defaults::GetDefaultTexture(), DeferredLightingShaderRSBinds::EnvBRDF);
 #else
 	if (BaseWindow::GetCurrentRenderer()->DDOs[List->GetDeviceIndex()].ConvShader != nullptr)
 	{
@@ -82,6 +84,9 @@ void DeferredLightingNode::OnExecute()
 		List->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
 	}
 #endif
+
+	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(List, true);
+	SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
 	SceneRenderer::Get()->BindLightsBuffer(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRenderer::Get()->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, 0);
 	//SceneRender->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, eyeindex);

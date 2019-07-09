@@ -61,7 +61,7 @@ public:
 	RHI_VIRTUAL ~RHIUAV()
 	{};
 	RHI_VIRTUAL void Bind(class RHICommandList* list, int slot) = 0;
-	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, int mip = 0) = 0;
+	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) = 0;
 	RHI_VIRTUAL void CreateUAVFromTexture(class BaseTexture* target) = 0;
 	RHI_VIRTUAL void CreateUAVFromRHIBuffer(class RHIBuffer* target) = 0;
 };
@@ -135,6 +135,7 @@ public:
 	virtual void SetStateObject(RHIStateObject* Object) = 0;
 
 	RHI_VIRTUAL void SetDepthBounds(float Min, float Max) = 0;
+	virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) = 0;
 protected:
 	RHIPipeLineStateObject* CurrentPSO = nullptr;
 	bool IsInRenderPass = false;

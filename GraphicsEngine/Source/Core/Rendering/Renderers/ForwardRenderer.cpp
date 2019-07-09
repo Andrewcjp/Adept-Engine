@@ -94,7 +94,7 @@ void ForwardRenderer::SetupOnDevice(DeviceContext* TargetDevice)
 {
 	MainShader = new Shader_Main();
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(GetScaledWidth(), GetScaledHeight());
-	Desc.AllowUnordedAccess = true;
+	Desc.AllowUnorderedAccess = true;
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	Desc.IncludedInSFR = true;
 	if (TargetDevice->GetDeviceIndex() > 0)

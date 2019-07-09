@@ -327,6 +327,7 @@ struct RHIRenderPassDesc
 	GPU_RESOURCE_STATES::Type InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
 	GPU_RESOURCE_STATES::Type FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
 	RHIPipeRenderTargetDesc RenderDesc;
+	int SubResourceIndex = 0;
 	RHI_API void Build();
 	RHI_API bool operator==(const RHIRenderPassDesc other)const;
 
@@ -438,6 +439,32 @@ namespace EFrameBufferSizeMode
 	};
 };
 
+namespace EViewType
+{
+	enum Type
+	{
+		UAV,
+		SRV,
+		Limit
+	};
+}
+struct RHIViewDesc
+{
+	int Slice = 0;
+	int Mip = 0;
+	int MipLevels = 1;
+	int Resource = 0;
+	EViewType::Type ViewType = EViewType::Limit;
+	eTextureDimension Dimention = DIMENSION_UNKNOWN;
+	static RHIViewDesc CreateUAV(int Resource)
+	{
+		RHIViewDesc D;
+		D.ViewType = EViewType::UAV;
+		D.Resource = Resource;
+		return D;
+	}
+};
+
 struct RHIFrameBufferDesc
 {
 public:
@@ -468,7 +495,8 @@ public:
 	bool NeedsDepthStencil = false;
 	bool IsShared = false;
 	class DeviceContext* DeviceToCopyTo = nullptr;
-	bool AllowUnordedAccess = false;
+	bool AllowUnorderedAccess = false;
+	std::vector<RHIViewDesc> RequestedViews;
 	//If set to 0 the resource will be auto mipped
 	int MipsToGenerate = 1;
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
@@ -484,6 +512,7 @@ public:
 	bool IncludedInSFR = false;
 	float LinkToBackBufferScaleFactor = 1.0f;
 	int SFR_FullWidth = 0;
+
 	RHIPipeRenderTargetDesc GetRTDesc();
 	bool AllowDynamicResize = false;
 	glm::ivec2 MaxSize = glm::ivec2(0, 0);

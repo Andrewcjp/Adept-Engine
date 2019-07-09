@@ -31,8 +31,8 @@ public:
 	int GetTransferSize();
 	void ResetTransferStat();
 	static void CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ = DeviceContextQueue::Copy);
-	void BindUAV(RHICommandList* list,int slot);
-	RHI_API RHIUAV* GetUAV();
+	void BindUAV(RHICommandList* list,int slot, int UAVIndex = 0);
+	RHI_API RHIUAV* GetUAV(int Index = 0);
 	
 
 	RHI_API virtual void Release() override;
@@ -42,6 +42,10 @@ public:
 	static void AutoUpdateSize(RHIFrameBufferDesc & desc);
 	//Helper that uses the SizeMode in the desc to resize FB
 	void AutoResize();
+
+	//creates a SRV for this buffer and stores it in its cache.
+	virtual void RequestSRV(const RHIViewDesc & desc) {};
+
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();
@@ -59,6 +63,8 @@ protected:
 	RHIGPUSyncEvent* CopyFence = nullptr;
 	RHIGPUSyncEvent* DeviceFence = nullptr;
 	RHIGPUSyncEvent* TargetCopyFence = nullptr;
-	RHIUAV* UAV = nullptr;
+	
+	
+	std::vector<RHIUAV*> UAVs;
 };
 

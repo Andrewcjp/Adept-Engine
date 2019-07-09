@@ -10,6 +10,7 @@
 #include "UI/Core/UIButton.h"
 #include "UI/Core/UILabel.h"
 #include "Version.h"
+#include "Rendering/Core/SceneRenderer.h"
 GameWindow::GameWindow()
 {}
 
@@ -25,7 +26,7 @@ void GameWindow::PostInitWindow(int width, int height)
 	//LoadScene("\\asset\\scene\\testscene.scene");
 	CurrentScene = new Scene();
 	CurrentScene->LoadExampleScene(nullptr, false);
-	Renderer->SetScene(CurrentScene);
+	SceneRenderer::Get()->SetScene(CurrentScene);
 	AISystem::Get()->GenerateMesh();//todo: load in package!
 #if SKIP_MM
 	Play();

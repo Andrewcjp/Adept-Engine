@@ -1,18 +1,24 @@
-
 #include "PostProcessing.h"
-#include "PP_ColourCorrect.h"
-#include "PP_Blur.h"
+#include "Core/Performance/PerfManager.h"
+#include "Core/Utils/MemoryUtils.h"
 #include "PP_Bloom.h"
+#include "PP_Blur.h"
+#include "PP_ColourCorrect.h"
+#include "PP_Debug.h"
+#include "PP_SSAO.h"
+#include "Rendering/Renderers/RenderEngine.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI_inc.h"
-#include "RHI/DeviceContext.h"
-#include "Core/Utils/MemoryUtils.h"
-#include "Core/Performance/PerfManager.h"
-#include "../Renderers/RenderEngine.h"
-#include "PP_SSAO.h"
-#include "PP_Debug.h"
 
 PostProcessing* PostProcessing::Instance = nullptr;
+void PostProcessing::StartUp()
+{
+	Instance = new PostProcessing();
+}
+
+void PostProcessing::ShutDown()
+{}
+
 PostProcessing::PostProcessing()
 {
 	Instance = this;
@@ -22,6 +28,11 @@ PostProcessing::~PostProcessing()
 {
 	Instance = nullptr;
 	MemoryUtils::DeleteVector(Effects);
+}
+
+void PostProcessing::Update()
+{
+
 }
 
 void PostProcessing::AddEffect(PostProcessEffectBase * effect)
