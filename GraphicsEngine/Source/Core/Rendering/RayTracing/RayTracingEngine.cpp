@@ -27,7 +27,7 @@ RayTracingEngine::RayTracingEngine()
 	}
 	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
 	StateObject->ShaderTable = DefaultTable;
-	StateObject->TempCam = BaseWindow::GetCurrentCamera();
+	//StateObject->TempCam = SceneRenderer::Get()->GetCurrentCamera();
 	StateObject->Build();
 	AddHitTable(DefaultTable);
 }
@@ -113,6 +113,7 @@ void RayTracingEngine::OnFirstFrame()
 
 void RayTracingEngine::BuildStructures()
 {
+	//RHI::WaitForGPU();
 	if (!Build)
 	{
 		CurrnetHL->InitialBuild();
@@ -144,8 +145,8 @@ void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer
 	RTList->SetStateObject(StateObject);
 	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 3, 1);
 	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 4, 0);
-	BaseWindow::GetCurrentRenderer()->SceneRender->BindLightsBuffer(RTList->GetRHIList(), 5);
-	Target->MakeReadyForComputeUse(RTList->GetRHIList());
+	SceneRenderer::Get()->BindLightsBuffer(RTList->GetRHIList(), 5);
+	//Target->MakeReadyForComputeUse(RTList->GetRHIList());
 	RTList->SetHighLevelAccelerationStructure(CurrnetHL);
 	RTList->TraceRays(RHIRayDispatchDesc(Target));
 	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);

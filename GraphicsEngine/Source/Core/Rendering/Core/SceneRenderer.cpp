@@ -18,6 +18,8 @@
 #include "Editor/Editor_Camera.h"
 #include "ReflectionEnviroment.h"
 #include "../Shaders/Shader_Depth.h"
+#include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
+#include "../RayTracing/RayTracingEngine.h"
 
 SceneRenderer* SceneRenderer::Instance = nullptr;
 void SceneRenderer::StartUp()
@@ -263,6 +265,11 @@ void SceneRenderer::SetScene(Scene * NewScene)
 	ShaderComplier::GetShader<Shader_Skybox>()->SetSkyBox(NewScene->GetLightingData()->SkyBox);
 	//run update on scene data
 	SceneChanged = true;
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		ShaderComplier::GetShader<Shader_Skybox_Miss>()->SetSkybox(TargetScene->GetLightingData()->SkyBox);
+		RayTracingEngine::Get()->UpdateFromScene(TargetScene);
+	}
 }
 
 

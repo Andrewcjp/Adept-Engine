@@ -122,11 +122,13 @@ void ReflectionEnviroment::BindStaticSceneEnivoment(RHICommandList * List, bool 
 {
 	if (IsDeferredshader)
 	{
+		List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
 		List->SetFrameBufferTexture(SkyBoxBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
 		List->SetFrameBufferTexture(EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
 	}
 	else
 	{
+		List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, MainShaderRSBinds::SpecBlurMap);
 		List->SetFrameBufferTexture(SkyBoxBuffer, MainShaderRSBinds::DiffuseIr);
 		List->SetFrameBufferTexture(EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	}

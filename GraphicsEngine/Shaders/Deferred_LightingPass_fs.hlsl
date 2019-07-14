@@ -11,7 +11,7 @@ TextureCube SpecularBlurMap[MAX_CUBEMAPS]: register(t11);
 Texture2D envBRDFTexture: register(t12);
 
 Texture2D PerSampledShadow: register(t13);
-#ifdef WITHRT
+#if WITHRT
 Texture2D ScreenSpaceSpec: register(t14);
 #endif
 #if !VULKAN
@@ -47,7 +47,7 @@ struct VS_OUTPUT
 #include "ReflectionEnviroment.hlsl"
 float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 {
-#ifdef WITHRT
+#if WITHRT
 	float4 prefilteredColor = ScreenSpaceSpec.Sample(g_Clampsampler, ScreenPos);
 	if (prefilteredColor.a > 0.0)
 	{

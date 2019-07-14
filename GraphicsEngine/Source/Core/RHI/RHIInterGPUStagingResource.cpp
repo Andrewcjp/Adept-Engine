@@ -3,9 +3,9 @@
 
 
 RHIInterGPUStagingResource::RHIInterGPUStagingResource(DeviceContext* owner, const InterGPUDesc& desc)
+	:Desc(desc)
 {
 	OwnerDevice = owner;
-	Desc = desc;
 }
 
 RHIInterGPUStagingResource::~RHIInterGPUStagingResource()

@@ -213,9 +213,9 @@ void BaseWindow::Render()
 	RHI::Tick();
 	PerfManager::StartTimer("Render");
 #if !BASIC_RENDER_ONLY
-	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	if (RHI::GetRenderSettings()->RaytracingEnabled() && RHI::GetFrameCount() != 0)
 	{
-		RayTracingEngine::Get()->BuildStructures();
+		//RayTracingEngine::Get()->BuildStructures();
 	}
 	DebugLineDrawer::Get2()->GenerateLines();
 	DebugLineDrawer::Get()->GenerateLines();

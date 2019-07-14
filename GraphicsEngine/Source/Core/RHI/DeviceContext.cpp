@@ -277,8 +277,8 @@ const char * ERayTracingSupportType::ToString(ERayTracingSupportType::Type e)
 			return "Hardware";
 		case ERayTracingSupportType::DriverBased:
 			return "Driver Based";
-		case ERayTracingSupportType::Software:
-			return "Software";
+		case ERayTracingSupportType::None:
+			return "None";
 	}
 	return "NONE";
 }

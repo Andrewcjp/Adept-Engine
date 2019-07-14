@@ -20,6 +20,7 @@
 #include "Core/Utils/StringUtil.h"
 #include "Nodes/SSAONode.h"
 #include "Nodes/UpdateReflectionsNode.h"
+#include "Nodes/RayTraceReflectionsNode.h"
 #define TESTVR 1
 RenderGraph::RenderGraph()
 {}
@@ -97,7 +98,7 @@ void RenderGraph::BuildGraph()
 	//PrintNodeData();
 	ListNodes();
 }
-
+#define RUNRT 1
 void RenderGraph::CreateDefTestgraph()
 {
 	FrameBufferStorageNode* GBufferNode = AddStoreNode(new FrameBufferStorageNode());
@@ -126,20 +127,44 @@ void RenderGraph::CreateDefTestgraph()
 	RootNode->GetInput(0)->SetStore(GBufferNode);
 
 	ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
-	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);  
+	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
 	RootNode->LinkToNode(ShadowUpdate);
 
 	UpdateReflectionsNode* UpdateProbesNode = new UpdateReflectionsNode();
 	UpdateProbesNode->GetInput(0)->SetStore(ShadowDataNode);
 	LinkNode(ShadowUpdate, UpdateProbesNode);
+#if RUNRT
+	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode());
+	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnorderedAccess = true;
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	RTXBuffer->SetFrameBufferDesc(Desc);
 
+	RayTraceReflectionsNode* RTNode = new RayTraceReflectionsNode();
+	LinkNode(UpdateProbesNode, RTNode);
+	RTNode->GetInput(0)->SetStore(RTXBuffer);
+	RTNode->GetInput(1)->SetLink(RootNode->GetOutput(0));
+#endif
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
+
+#if RUNRT
+	LightNode->UseScreenSpaceReflection = true;
+	LightNode->OnNodeSettingChange();
+	LinkNode(RTNode, LightNode);
+#else
 	LinkNode(UpdateProbesNode, LightNode);
+#endif
 	LightNode->GetInput(0)->SetLink(RootNode->GetOutput(0));
 	LightNode->GetInput(1)->SetStore(MainBuffer);
 	LightNode->GetInput(2)->SetStore(SceneData);
 
 	LightNode->GetInput(3)->SetStore(ShadowDataNode);
+
+#if RUNRT
+	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
+#endif
+
 
 	SSAONode* SSAO = new SSAONode();
 	SSAO->GetInput(0)->SetLink(LightNode->GetOutput(0));

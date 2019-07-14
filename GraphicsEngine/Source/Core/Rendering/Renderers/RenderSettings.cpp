@@ -202,7 +202,8 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//EnableDynamicResolutionScaling = true;
-	//RTSettings.Enabled = true;
+//	RTSettings.Enabled = true;
+	RTSettings.UseForReflections = true;
 	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;
 	IsDeferred = false;
@@ -213,7 +214,7 @@ void RenderSettings::ValidateSettings()
 {
 	if (VRHMDMode != EVRHMDMode::Disabled || !IsDeferred)
 	{
-		RTSettings.Enabled = false;
+		//RTSettings.Enabled = false;
 	}
 }
 
