@@ -64,6 +64,9 @@ public:
 	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) = 0;
 	RHI_VIRTUAL void CreateUAVFromTexture(class BaseTexture* target) = 0;
 	RHI_VIRTUAL void CreateUAVFromRHIBuffer(class RHIBuffer* target) = 0;
+	const RHIViewDesc& GetViewDesc()const;
+protected:
+	RHIViewDesc ViewDesc;
 };
 
 class FrameBuffer;

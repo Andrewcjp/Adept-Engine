@@ -9,6 +9,7 @@
 #include "RHI/RHI_inc.h"
 #include "RHI/ShaderProgramBase.h"
 #include "Shader_Main.h"
+#include "../Core/ReflectionProbe.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_Skybox);
 Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
@@ -42,8 +43,9 @@ void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 	SkyBoxTexture = tex;
 }
 
-void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, FrameBuffer* Buffer, FrameBuffer* DepthSourceBuffer, bool Cubemap, int index)
+void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* list, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer, ReflectionProbe* Cubemap /*= nullptr*/, int index /*= 0*/)
 {
+
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthWrite = false;
 	desc.Cull = false;
@@ -54,20 +56,20 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 	{
 		desc.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 		desc.RenderTargetDesc.DSVFormat = DepthSourceBuffer->GetPiplineRenderDesc().DSVFormat;
-		List->SetPipelineStateDesc(desc);
+		list->SetPipelineStateDesc(desc);
 	}
 	else
 	{
-		List->SetPipelineStateDesc(desc);
+		list->SetPipelineStateDesc(desc);
 	}
-	List->GetDevice()->GetTimeManager()->StartTimer(List, EGPUTIMERS::Skybox);
+	list->GetDevice()->GetTimeManager()->StartTimer(list, EGPUTIMERS::Skybox);
 
 	if (DepthSourceBuffer != nullptr)
 	{
 		RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
 		D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 		D.DepthSourceBuffer = DepthSourceBuffer;
-		List->BeginRenderPass(D);
+		list->BeginRenderPass(D);
 	}
 	else
 	{
@@ -75,46 +77,46 @@ void Shader_Skybox::Render(SceneRenderer* SceneRender, RHICommandList* List, Fra
 		{
 			RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
 			D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-			List->BeginRenderPass(D);
+			list->BeginRenderPass(D);
 		}
 	}
 #if DEBUG_CUBEMAPS
-	List->SetFrameBufferTexture(test, 0);
+	list->SetFrameBufferTexture(test, 0);
 #else
-	List->SetTexture(SkyBoxTexture, 0);
+	list->SetTexture(SkyBoxTexture, 0);
 #endif
 	if (!Cubemap)
 	{
-		SceneRender->BindMvBuffer(List, 1);
+		SceneRender->BindMvBuffer(list, 1);
 	}
 	else
 	{
-		SceneRender->SetMVForProbe(List, index, 1);
+		Cubemap->BindViews(list, index, 1);
 	}
-	CubeModel->Render(List);
-	List->GetDevice()->GetTimeManager()->EndTimer(List, EGPUTIMERS::Skybox);
+	CubeModel->Render(list);
+	list->GetDevice()->GetTimeManager()->EndTimer(list, EGPUTIMERS::Skybox);
 	if (!Cubemap)
 	{
-		List->EndRenderPass();
+		list->EndRenderPass();
 	}
-	Buffer->MakeReadyForComputeUse(List);
+	Buffer->MakeReadyForComputeUse(list);
 	if (!Cubemap && false)
 	{
 
 		//Buffer->MakeReadyForComputeUse(List);
-		if (List->GetDeviceIndex() == 0)
+		if (list->GetDeviceIndex() == 0)
 		{
-			Buffer->MakeReadyForCopy(List);
+			Buffer->MakeReadyForCopy(list);
 		}
-		if (List->GetDeviceIndex() == 1)
+		if (list->GetDeviceIndex() == 1)
 		{
-			List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
+			list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
 		}
-		if (RHI::GetMGPUSettings()->MainPassSFR && List->GetDeviceIndex() == 0)
+		if (RHI::GetMGPUSettings()->MainPassSFR && list->GetDeviceIndex() == 0)
 		{
-			List->InsertGPUStallTimer();
+			list->InsertGPUStallTimer();
 		}
-		Buffer->MakeReadyForComputeUse(List);
+		Buffer->MakeReadyForComputeUse(list);
 		//List->Execute();
 	}
 }

@@ -75,7 +75,7 @@ RHIPipeRenderTargetDesc RHIFrameBufferDesc::GetRTDesc()
 
 IRHIResourse::~IRHIResourse()
 {
-//	DebugEnsure(IsReleased);
+	//	DebugEnsure(IsReleased);
 }
 
 void IRHIResourse::Release()
@@ -451,4 +451,20 @@ void RHIRenderPassDesc::Build()
 bool RHIRenderPassDesc::operator==(const RHIRenderPassDesc other) const
 {
 	return LoadOp == other.LoadOp && StoreOp == other.StoreOp && RenderDesc == other.RenderDesc && InitalState == other.InitalState && FinalState == other.FinalState && other.TargetBuffer == TargetBuffer;
+}
+
+bool RHIViewDesc::operator==(const RHIViewDesc other) const
+{
+	//int Slice = 0;
+	//int Mip = 0;
+	//int MipLevels = 1;
+	//int Resource = 0;
+	//EViewType::Type ViewType = EViewType::Limit;
+	//eTextureDimension Dimention = DIMENSION_UNKNOWN;
+	return ArraySlice == other.ArraySlice &&
+		Mip == other.Mip &&
+		MipLevels == other.MipLevels &&
+		Resource == other.Resource &&
+		ViewType == other.ViewType &&
+		Dimention == other.Dimention;
 }

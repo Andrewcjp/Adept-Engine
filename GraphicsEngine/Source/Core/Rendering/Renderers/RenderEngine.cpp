@@ -12,7 +12,7 @@
 #include "Rendering/Core/LightCulling/LightCullingEngine.h"
 #include "Rendering/Core/Material.h"
 #include "Rendering/Core/ParticleSystemManager.h"
-#include "Rendering/Core/RelfectionProbe.h"
+#include "Rendering/Core/ReflectionProbe.h"
 #include "Rendering/Core/RenderingUtils.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/ShadowRenderer.h"
@@ -159,7 +159,7 @@ void RenderEngine::Init()
 
 	//debug 
 #if !NOSHADOW
-	SceneRender->probes.push_back(new RelfectionProbe());
+	SceneRender->probes.push_back(new ReflectionProbe());
 #endif
 	//SceneRender->probes[0]->ProbeMode = EReflectionProbeMode::ERealTime;
 	PostSizeUpdate();

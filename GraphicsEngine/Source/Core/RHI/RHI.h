@@ -26,6 +26,7 @@ class RHIRenderPassCache;
 class RenderGraphSystem;
 class RHIInterGPUStagingResource;
 class RHIRenderPass;
+struct InterGPUDesc;
 //RHI defines
 #define SUPPORTVR 1
 #define PSO_USE_FULL_STRING_MAPS 1
@@ -180,7 +181,7 @@ public:
 	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);
 
 	//MGPU
-	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner) = 0;
+	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc) = 0;
 };
 
 class RHIModule : public IModuleInterface

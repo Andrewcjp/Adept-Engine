@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Types/FString.h"
 #include "Core/IRefCount.h"
+#include "Core/EngineTypes.h"
 
 class Shader;
 class FrameBuffer;
@@ -450,7 +451,7 @@ namespace EViewType
 }
 struct RHIViewDesc
 {
-	int Slice = 0;
+	int ArraySlice = 0;
 	int Mip = 0;
 	int MipLevels = 1;
 	int Resource = 0;
@@ -463,6 +464,7 @@ struct RHIViewDesc
 		D.Resource = Resource;
 		return D;
 	}
+	RHI_API bool operator==(const RHIViewDesc other)const;
 };
 
 struct RHIFrameBufferDesc
@@ -737,4 +739,15 @@ struct RHIRayDispatchDesc
 	FrameBuffer* Target = nullptr;
 };
 
+typedef BitFlagsBase GPUDeviceMask;
 
+namespace EDeviceIndex
+{
+	enum Type
+	{
+		Device_0,
+		Device_1,
+		Device_2,
+		Limit
+	};
+};

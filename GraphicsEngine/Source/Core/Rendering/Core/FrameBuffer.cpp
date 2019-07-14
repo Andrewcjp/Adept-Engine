@@ -73,12 +73,12 @@ void FrameBuffer::PostInit()
 FrameBuffer::~FrameBuffer()
 {}
 
-inline int FrameBuffer::GetWidth() const
+int FrameBuffer::GetWidth() const
 {
 	return m_width;
 }
 
-inline int FrameBuffer::GetHeight() const
+int FrameBuffer::GetHeight() const
 {
 	return m_height;
 }
@@ -101,6 +101,7 @@ void FrameBuffer::SFRResize()
 {
 	Resize(m_width, m_height);
 }
+
 
 void FrameBuffer::HandleResize()
 {
@@ -162,10 +163,29 @@ void FrameBuffer::BindUAV(RHICommandList* list, int slot, int UAVIndex /*= 0*/)
 	UAVs[UAVIndex]->Bind(list, slot);
 }
 
-RHIUAV* FrameBuffer::GetUAV(int Index /*= 0*/)
+RHIUAV* FrameBuffer::GetUAV()
 {
-	return UAVs[Index];
+	ensure(BufferDesc.AllowUnorderedAccess);
+	return UAVs[0];
 }
+
+RHIUAV * FrameBuffer::GetUAV(const RHIViewDesc & desc)
+{
+	for (int i = 0; i < UAVs.size(); i++)
+	{
+		if (desc == UAVs[i]->GetViewDesc())
+		{
+			return UAVs[i];
+		}
+	}
+	return nullptr;
+}
+
+void FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource * Res)
+{}
+
+void FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource * Res)
+{}
 
 void FrameBuffer::Release()
 {

@@ -2,6 +2,7 @@
 #include <Catch2/catch.hpp>
 #include "EngineTests.h"
 #include "Core/Types/FString.h"
+#include "RHI/RHIInterGPUStagingResource.h"
 void TESTING::RunTests()
 {
 	int result = Catch::Session().run();
@@ -58,4 +59,31 @@ TEST_CASE("Create RHI Buffer", "[RHI]")
 //	FrameBuffer* B = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), D);
 //	REQUIRE(B != nullptr);
 //	EnqueueSafeRHIRelease(B);
-//}
+//}InterGPUDesc D;
+
+TEST_CASE("InterGPUDesc", "[RHI]")
+{
+	InterGPUDesc D;
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		REQUIRE(D.Mask.GetFlagValue(i));
+	}
+}
+
+TEST_CASE("InterGPUDesc Mask GPU 1", "[RHI]")
+{
+	InterGPUDesc D;
+	D.Mask.SetFlagValue(1, 0);
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		if (i == 1)
+		{
+			REQUIRE(!D.Mask.GetFlagValue(i));
+		}
+		else
+		{
+			REQUIRE(D.Mask.GetFlagValue(i));
+		}
+
+	}
+}

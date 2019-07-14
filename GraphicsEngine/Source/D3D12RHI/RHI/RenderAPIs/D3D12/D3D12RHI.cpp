@@ -121,15 +121,20 @@ D3D12StateObject * D3D12RHI::DXConv(RHIStateObject * D)
 	return static_cast<D3D12StateObject*>(D);
 }
 
+D3D12InterGPUStagingResource * D3D12RHI::DXConv(RHIInterGPUStagingResource * D)
+{
+	return static_cast<D3D12InterGPUStagingResource*>(D);
+}
+
 
 RHIRenderPass* D3D12RHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
 {
 	return new RHIRenderPass(Desc);
 }
 
-RHIInterGPUStagingResource* D3D12RHI::CreateInterGPUStagingResource(DeviceContext* Owner)
+RHIInterGPUStagingResource* D3D12RHI::CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc)
 {
-	return new D3D12InterGPUStagingResource(Owner);
+	return new D3D12InterGPUStagingResource(Owner, desc);
 }
 
 RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device)

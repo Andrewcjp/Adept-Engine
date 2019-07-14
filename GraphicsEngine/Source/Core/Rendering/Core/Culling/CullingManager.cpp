@@ -71,6 +71,7 @@ void CullingManager::UpdateCullingForShadowLight(Light* light, Scene* target)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("Shadow Culling", "Culling");
 	//run distance culling
+	int Count = 0;
 	for (int i = 0; i < target->GetMeshObjects().size(); i++)
 	{
 		GameObject* CurrentObj = target->GetMeshObjects()[i];
@@ -80,12 +81,12 @@ void CullingManager::UpdateCullingForShadowLight(Light* light, Scene* target)
 			const bool culled = distance > light->GetRange()*light->GetRange();
 			if (!culled)
 			{
-				PerfManager::AddToCountTimer(SWObjects, 1);
+				Count++;
 			}
 			CurrentObj->SetCulledState(ECullingPass::ShadowPass, culled);
 		}
 	}
-
+	PerfManager::AddToCountTimer(SWObjects, Count);
 }
 
 CullingFrustum * CullingManager::GetFustrum()

@@ -121,7 +121,7 @@ void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, 
 	CmdList->SetPipelineStateDesc(desc);
 	CmdList->BeginRenderPass(RHIRenderPassDesc(Buffer));
 	CmdList->SetVertexBuffer(VertexBuffer);
-	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(CmdList, 0, eye);
+	SceneRenderer::Get()->BindMvBuffer(CmdList, 0, eye);
 	if (!Is2DOnly)
 	{
 #if WITH_EDITOR

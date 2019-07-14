@@ -4,7 +4,7 @@
 #include "Rendering/Core/LightCulling/LightCullingEngine.h"
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
 #include "Rendering/Core/ParticleSystemManager.h"
-#include "Rendering/Core/RelfectionProbe.h"
+#include "Rendering/Core/ReflectionProbe.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/Shader_PreZ.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"

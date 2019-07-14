@@ -2,9 +2,10 @@
 #include "Rendering\Core\FrameBuffer.h"
 
 
-RHIInterGPUStagingResource::RHIInterGPUStagingResource(DeviceContext* owner)
+RHIInterGPUStagingResource::RHIInterGPUStagingResource(DeviceContext* owner, const InterGPUDesc& desc)
 {
 	OwnerDevice = owner;
+	Desc = desc;
 }
 
 RHIInterGPUStagingResource::~RHIInterGPUStagingResource()
@@ -20,13 +21,12 @@ void RHIInterGPUStagingResource::SizeforFramebuffer(FrameBuffer * FB)
 	SizeforBuffer(FB->GetDescription());
 }
 
-void RHIInterGPUStagingResource::CopyFromFramebuffer(FrameBuffer * FB)
-{}
-
-void RHIInterGPUStagingResource::CopyToFramebuffer(FrameBuffer * FB)
-{}
-
 bool RHIInterGPUStagingResource::CanFitFB(FrameBuffer* FB)
 {
 	return false;
+}
+
+InterGPUDesc::InterGPUDesc()
+{
+	Mask.SetFlags(0xffffff);
 }

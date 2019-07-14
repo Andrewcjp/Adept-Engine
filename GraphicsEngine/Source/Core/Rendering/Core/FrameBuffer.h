@@ -32,7 +32,7 @@ public:
 	void ResetTransferStat();
 	static void CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ = DeviceContextQueue::Copy);
 	void BindUAV(RHICommandList* list,int slot, int UAVIndex = 0);
-	RHI_API RHIUAV* GetUAV(int Index = 0);
+	RHI_API RHIUAV* GetUAV();
 	
 
 	RHI_API virtual void Release() override;
@@ -45,7 +45,10 @@ public:
 
 	//creates a SRV for this buffer and stores it in its cache.
 	virtual void RequestSRV(const RHIViewDesc & desc) {};
+	RHIUAV* GetUAV(const RHIViewDesc & desc);
 
+	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res);
+	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res);
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();

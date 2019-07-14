@@ -1,5 +1,8 @@
 #pragma once
 #include "RHI/Shader.h"
+
+class ReflectionProbe;
+class SceneRenderer;
 #define DEBUG_CUBEMAPS 0
 class Shader_Skybox : public Shader
 {
@@ -9,7 +12,7 @@ public:
 	void Init(FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer);
 	virtual ~Shader_Skybox();
 	void SetSkyBox(BaseTextureRef tex);
-	void Render(class SceneRenderer * SceneRender, RHICommandList* list, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer, bool Cubemap = false, int index = 0);
+	void Render(SceneRenderer * SceneRender, RHICommandList* list, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer, ReflectionProbe* Cubemap = nullptr, int index = 0);
 	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 	BaseTextureRef SkyBoxTexture;

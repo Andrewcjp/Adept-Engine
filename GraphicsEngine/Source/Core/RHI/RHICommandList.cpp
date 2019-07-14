@@ -4,6 +4,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "RHITypes.h"
 #include "Shader.h"
+#include "Core/Utils/StringUtil.h"
 
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
@@ -162,6 +163,11 @@ RHIUAV * RHIBuffer::GetUAV()
 RHIUAV::RHIUAV()
 {
 	ObjectSufix = "(UAV)";
+}
+
+const RHIViewDesc& RHIUAV::GetViewDesc()const
+{
+	return ViewDesc;
 }
 
 RHIBuffer::RHIBuffer(ERHIBufferType::Type type)

@@ -22,6 +22,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 	//return float4(slice,slice,slice,1.0);
 	float3 irradiance = float3(0.0,0,0);
 	float3 target = float3(input.uv.x,input.uv.y, input.uv.z);
+	//return float4(target, 1.0f);
 	//return float4(1, 1, 1, 1);
 	//return float4(texColour.Sample(defaultSampler, target).rgb, 1.0);
 
