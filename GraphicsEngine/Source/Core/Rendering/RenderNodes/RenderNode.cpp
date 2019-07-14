@@ -182,6 +182,12 @@ bool RenderNode::IsVRBranch() const
 	//not great
 	return IsVrBranchNode;
 }
+
+bool RenderNode::IsNodeSupported(const RendererSettings & settings)
+{
+	return false;
+}
+
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());

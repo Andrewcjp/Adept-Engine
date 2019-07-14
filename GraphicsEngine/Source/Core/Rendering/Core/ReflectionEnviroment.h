@@ -1,6 +1,6 @@
 #pragma once
 
-class RelfectionProbe;
+class ReflectionProbe;
 class RHICommandList;
 class Shader_Convolution;
 class Shader_EnvMap;
@@ -13,7 +13,7 @@ public:
 	void Update();
 	void UpdateRelflectionProbes(RHICommandList * commandlist);
 	bool AnyProbesNeedUpdate();
-	void RenderCubemap(RelfectionProbe * Map, RHICommandList * commandlist);
+	void RenderCubemap(ReflectionProbe * Map, RHICommandList * commandlist);
 
 	void DownSampleAndBlurProbes(RHICommandList * ComputeList);
 
@@ -24,7 +24,7 @@ public:
 private:
 	Shader_Convolution* Conv = nullptr;
 	Shader_EnvMap* EnvMap = nullptr;
-	std::vector<RelfectionProbe*> Probes;
+	std::vector<ReflectionProbe*> Probes;
 	RHICommandList* StaticGenList = nullptr;
 	FrameBuffer* SkyBoxBuffer = nullptr;
 };

@@ -5,7 +5,7 @@
 #include "RenderEngine.h"
 #include "Rendering/Core/Defaults.h"
 #include "Rendering/Core/ParticleSystemManager.h"
-#include "Rendering/Core/RelfectionProbe.h"
+#include "Rendering/Core/ReflectionProbe.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"

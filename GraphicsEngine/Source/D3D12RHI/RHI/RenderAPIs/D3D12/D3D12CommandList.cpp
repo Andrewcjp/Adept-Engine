@@ -507,6 +507,10 @@ void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
 
 void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
 {
+	if (SignitureSlot == -1)
+	{
+		return;
+	}
 	if (IsGraphicsList())
 	{
 		CurrentCommandList->SetGraphicsRoot32BitConstants(SignitureSlot, ValueNum, Data, DataOffset);
@@ -709,9 +713,10 @@ void D3D12RHIUAV::CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDes
 	{
 		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
 		destTextureUAVDesc.Texture2DArray.ArraySize = 1;
-		destTextureUAVDesc.Texture2DArray.FirstArraySlice = desc.Slice;
+		destTextureUAVDesc.Texture2DArray.FirstArraySlice = desc.ArraySlice;
 	}
 	UAVDescriptor->CreateUnorderedAccessView(D3D12RHI::DXConv(target)->GetResource(0)->GetResource(), UAVCounter, &destTextureUAVDesc);
+	ViewDesc = desc;
 }
 
 void D3D12RHIUAV::Bind(RHICommandList * list, int slot)

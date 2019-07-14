@@ -34,6 +34,7 @@ class D3D12Shader;
 class D3D12CommandList;
 class D3D12Texture;
 class D3D12Query;
+class D3D12InterGPUStagingResource;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -84,10 +85,11 @@ public:
 	static D3D12LowLevelAccelerationStructure* DXConv(LowLevelAccelerationStructure* D);
 	static D3D12HighLevelAccelerationStructure* DXConv(HighLevelAccelerationStructure* D);
 	static D3D12StateObject* DXConv(RHIStateObject* D);
+	static D3D12InterGPUStagingResource* DXConv(RHIInterGPUStagingResource* D);
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
 
 
-	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner) override;
+	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc) override;
 
 private:
 	void DestroyContext();

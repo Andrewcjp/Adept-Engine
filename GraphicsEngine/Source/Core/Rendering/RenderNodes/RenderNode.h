@@ -70,6 +70,8 @@ public:
 	void FindVRContext();
 	bool IsBranchNode()const;
 	bool IsVRBranch() const;
+
+	virtual bool IsNodeSupported(const RendererSettings& settings);
 protected:
 	//search forwards until we reach the end VR node 
 	

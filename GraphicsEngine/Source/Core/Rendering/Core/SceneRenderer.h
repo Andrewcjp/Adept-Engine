@@ -63,7 +63,7 @@ struct GPUSceneData
 	Shader_Skybox* SkyBoxShader = nullptr;
 
 };
-class RelfectionProbe;
+class ReflectionProbe;
 //this class holds all data and managers needed to render the scene.
 class SceneRenderer
 {
@@ -80,7 +80,7 @@ public:
 
 	void RenderScene(RHICommandList* CommandList, bool PositionOnly, FrameBuffer* FrameBuffer = nullptr, bool IsCubemap = false, int index = 0);
 	void Init();
-	void UpdateReflectionParams(glm::vec3 lightPos);
+
 	void UpdateMV(VRCamera * c);
 	void UpdateMV(Camera * c, int index = 0);
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
@@ -97,12 +97,11 @@ public:
 	void UpdateMVForMainPass();
 
 	Scene* GetScene();
-	
-	void SetMVForProbe(RHICommandList * list, int index, int slot);
+
 	MeshPipelineController* MeshController = nullptr;
 	Shader_Skybox* SB = nullptr;
-	std::vector< class RelfectionProbe*> probes;
-	LightBufferW LightsBuffer;
+	std::vector< class ReflectionProbe*> probes;
+	LightBufferW LightsBuffer = LightBufferW();
 	LightCullingEngine* GetLightCullingEngine();
 	MeshPipelineController* GetPipelineController();
 	CullingManager* GetCullingManager();
@@ -121,11 +120,7 @@ private:
 
 	class Scene* TargetScene = nullptr;
 	class Shader_NodeGraph* WorldDefaultMatShader = nullptr;
-	//Cube map captures
-	MVBuffer CubeMapViews[6];
-	float zNear = 0.1f;
-	float ZFar = 1000.0f;
-	RHIBuffer* RelfectionProbeProjections = nullptr;
+
 	LightCullingEngine* LightCulling = nullptr;
 	CullingManager* Culling = nullptr;
 	Camera* CurrentCamera = nullptr;

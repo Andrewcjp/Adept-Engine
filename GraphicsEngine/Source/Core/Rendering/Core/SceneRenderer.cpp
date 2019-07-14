@@ -6,7 +6,7 @@
 #include "FrameBufferProcessor.h"
 #include "Material.h"
 #include "Mesh/MeshPipelineController.h"
-#include "RelfectionProbe.h"
+#include "ReflectionProbe.h"
 #include "Rendering/Renderers/RenderEngine.h"
 #include "Rendering/Shaders/Shader_Main.h"
 #include "Rendering/Shaders/Shader_NodeGraph.h"
@@ -54,7 +54,6 @@ SceneRenderer::~SceneRenderer()
 	MemoryUtils::DeleteVector(probes);
 	EnqueueSafeRHIRelease(CMVBuffer);
 	SafeDelete(MeshController);
-	EnqueueSafeRHIRelease(RelfectionProbeProjections);
 }
 
 void SceneRenderer::PrepareSceneForRender()
@@ -133,33 +132,10 @@ void SceneRenderer::Init()
 	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CMVBuffer->SetDebugName("CMVBuffer");
 	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs);
-	RelfectionProbeProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	RelfectionProbeProjections->CreateConstantBuffer(sizeof(MVBuffer), 6, RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs);
 
-	UpdateReflectionParams(glm::vec3(0, 5, 0));
 }
 
-void SceneRenderer::UpdateReflectionParams(glm::vec3 lightPos)
-{	
-	glm::mat4x4 shadowProj = glm::perspectiveLH<float>(glm::radians(90.0f), 1.0f, zNear, ZFar);
-	glm::mat4x4 transforms[6];
-	transforms[0] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
-	transforms[1] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
-	transforms[2] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-	transforms[3] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-	transforms[4] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
-	transforms[5] = (glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
-	for (int i = 0; i < CUBE_SIDES; i++)
-	{
-		CubeMapViews[i].P = shadowProj;
-		CubeMapViews[i].V = transforms[i];
-		CubeMapViews[i].CameraPos = lightPos;
-	}
-	for (int i = 0; i < CUBE_SIDES; i++)
-	{
-		RelfectionProbeProjections->UpdateConstantBuffer(&CubeMapViews[i], i);
-	}
-}
+
 
 void SceneRenderer::UpdateMV(VRCamera* c)
 {
@@ -293,11 +269,6 @@ void SceneRenderer::SetScene(Scene * NewScene)
 Scene * SceneRenderer::GetScene()
 {
 	return TargetScene;
-}
-
-void SceneRenderer::SetMVForProbe(RHICommandList* list, int index, int Slot)
-{
-	list->SetConstantBufferView(RelfectionProbeProjections, index, Slot);
 }
 
 LightCullingEngine * SceneRenderer::GetLightCullingEngine()

@@ -1,5 +1,5 @@
 #include "ReflectionEnviroment.h"
-#include "RelfectionProbe.h"
+#include "ReflectionProbe.h"
 #include "Core\Performance\PerfManager.h"
 #include "Material.h"
 #include "..\Shaders\Shader_Main.h"
@@ -27,7 +27,7 @@ ReflectionEnviroment::ReflectionEnviroment()
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	SkyBoxBuffer = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), Desc);
 
-	Probes.push_back(new RelfectionProbe());
+	Probes.push_back(new ReflectionProbe(glm::vec3(0, 5, 0)));
 }
 
 
@@ -45,7 +45,7 @@ void ReflectionEnviroment::UpdateRelflectionProbes(RHICommandList* commandlist)
 	BindStaticSceneEnivoment(commandlist, false);
 	for (int i = 0; i < Probes.size(); i++)
 	{
-		RelfectionProbe* Probe = Probes[i];
+		ReflectionProbe* Probe = Probes[i];
 		RenderCubemap(Probe, commandlist);
 	}
 	commandlist->EndTimer(EGPUTIMERS::CubemapCapture);
@@ -63,7 +63,7 @@ bool ReflectionEnviroment::AnyProbesNeedUpdate()
 	return false;
 }
 
-void ReflectionEnviroment::RenderCubemap(RelfectionProbe * Map, RHICommandList* commandlist)
+void ReflectionEnviroment::RenderCubemap(ReflectionProbe * Map, RHICommandList* commandlist)
 {
 	if (!Map->NeedsCapture())
 	{
@@ -76,7 +76,7 @@ void ReflectionEnviroment::RenderCubemap(RelfectionProbe * Map, RHICommandList* 
 	for (int i = 0; i < CUBE_SIDES; i++)
 	{
 		commandlist->SetPipelineStateDesc(Desc);
-		SceneRenderer::Get()->SetMVForProbe(commandlist, i, MainShaderRSBinds::MVCBV);
+		Map->BindViews(commandlist, i, MainShaderRSBinds::MVCBV);
 		RHIRenderPassDesc Info;
 		Info.TargetBuffer = Map->CapturedTexture;
 		Info.LoadOp = ERenderPassLoadOp::Load;
@@ -84,11 +84,11 @@ void ReflectionEnviroment::RenderCubemap(RelfectionProbe * Map, RHICommandList* 
 		commandlist->BeginRenderPass(Info);
 		SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(commandlist);
 		MeshPassRenderArgs Args;
-		Args.PassType = ERenderPass::BasePass;
+		Args.PassType = ERenderPass::BasePass_Cubemap;
 		Args.UseDeferredShaders = false;
 		SceneRenderer::Get()->MeshController->RenderPass(Args, commandlist);
 		commandlist->EndRenderPass();
-		//ShaderComplier::GetShader<Shader_Skybox>()->Render(SceneRenderer::Get(), commandlist, Map->CapturedTexture, nullptr, true, i);
+		//ShaderComplier::GetShader<Shader_Skybox>()->Render(SceneRenderer::Get(), commandlist, Map->CapturedTexture, nullptr, Map, i);
 	}
 	Conv->ComputeConvolutionProbe(commandlist, Map->CapturedTexture, Map->ConvolutionBuffer);
 	Map->SetCaptured();
@@ -99,7 +99,8 @@ void ReflectionEnviroment::DownSampleAndBlurProbes(RHICommandList* ComputeList)
 {
 	for (int i = 0; i < Probes.size(); i++)
 	{
-		FrameBufferProcessor::CreateMipChain(Probes[i]->CapturedTexture, ComputeList);
+		//FrameBufferProcessor::CreateMipChain(Probes[i]->CapturedTexture, ComputeList);
+		FrameBufferProcessor::GenerateBlurChain(Probes[i]->CapturedTexture, ComputeList);
 	}
 }
 

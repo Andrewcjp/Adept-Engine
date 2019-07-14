@@ -22,6 +22,7 @@
 #include "Core/Input/Input.h"
 #include "Testing/EngineTests.h"
 #include "Rendering/RenderNodes/RenderGraphSystem.h"
+#include "RHIInterGPUStagingResource.h"
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
@@ -515,7 +516,7 @@ std::string RHI::ReportMemory()
 }
 
 void RHI::RHISwapBuffers()
-{
+{	
 	GetRHIClass()->RHISwapBuffers();
 	Get()->TickDeferredDeleteQueue();
 	instance->PresentCount++;

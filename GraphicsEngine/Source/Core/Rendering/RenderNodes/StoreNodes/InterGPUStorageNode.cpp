@@ -20,7 +20,8 @@ void InterGPUStorageNode::Resize()
 int InterGPUStorageNode::ReserveSpaceForFB(FrameBuffer* FB)
 {
 	GPUStagingData D = GPUStagingData();
-	D.Resource = RHI::GetRHIClass()->CreateInterGPUStagingResource(RHI::GetDefaultDevice());
+
+	D.Resource = RHI::GetRHIClass()->CreateInterGPUStagingResource(RHI::GetDefaultDevice(), InterGPUDesc());
 	D.Resource->SizeforFramebuffer(FB);
 	Resources.push_back(D);
 	return Resources.size() - 1;

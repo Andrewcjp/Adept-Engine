@@ -474,9 +474,19 @@ void D3D12FrameBuffer::RequestSRV(const RHIViewDesc & desc)
 		d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimention);
 	}
 	d.Texture2DArray.ArraySize = 1;
-	d.Texture2DArray.FirstArraySlice = desc.Slice;
+	d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
 	Req.Descriptor->CreateShaderResourceView(RenderTarget[0]->GetResource(), &d, 0);
 	RequestedSRVS.push_back(Req);
+}
+
+void D3D12FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res)
+{
+	
+}
+
+void D3D12FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res)
+{
+
 }
 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
@@ -788,7 +798,7 @@ void D3D12FrameBuffer::BindSRV(D3D12CommandList * List, int slot, RHIViewDesc SR
 {
 	for (int i = 0; i < RequestedSRVS.size(); i++)
 	{
-		if (SRV.Mip == RequestedSRVS[i].Desc.Mip && SRV.Dimention == RequestedSRVS[i].Desc.Dimention && SRV.Slice == RequestedSRVS[i].Desc.Slice)
+		if (SRV == RequestedSRVS[i].Desc)
 		{
 			List->GetCommandList()->SetComputeRootDescriptorTable(slot, RequestedSRVS[i].Descriptor->GetGPUAddress(0));
 			return;

@@ -57,6 +57,9 @@ public:
 
 	virtual void RequestSRV(const RHIViewDesc & desc) override;
 
+
+	virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res) override;
+	virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res) override;
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
