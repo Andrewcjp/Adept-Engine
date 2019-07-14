@@ -174,14 +174,7 @@ bool MultiGPUMode::UseSplitShadows() const
 {
 	return SplitShadowWork || SFRSplitShadows;
 }
-bool RenderSettings::IsUsingZPrePass() const
-{
-	if (IsDeferred)
-	{
-		return false;
-	}
-	return UseZPrePass;
-}
+
 
 RenderSettings::RenderSettings()
 {
@@ -202,7 +195,7 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//EnableDynamicResolutionScaling = true;
-//	RTSettings.Enabled = true;
+	RTSettings.Enabled = true;
 	RTSettings.UseForReflections = true;
 	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;

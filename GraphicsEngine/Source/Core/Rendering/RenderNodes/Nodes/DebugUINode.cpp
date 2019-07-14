@@ -23,7 +23,7 @@ void DebugUINode::OnExecute()
 
 std::string DebugUINode::GetName() const
 {
-	return "DebugUI";
+	return "Debug UI";
 }
 
 void DebugUINode::OnNodeSettingChange()

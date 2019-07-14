@@ -21,6 +21,7 @@
 #include "Nodes/SSAONode.h"
 #include "Nodes/UpdateReflectionsNode.h"
 #include "Nodes/RayTraceReflectionsNode.h"
+#include "UI/UIManager.h"
 #define TESTVR 1
 RenderGraph::RenderGraph()
 {}
@@ -52,6 +53,11 @@ void RenderGraph::RunGraph()
 	Update();
 	//Run the renderer!
 	RootNode->ExecuteNode();
+}
+
+void RenderGraph::DebugOutput()
+{
+	UIManager::instance->RenderTextToScreen(3, "Graph: " + GraphName + " Info: N:" + std::to_string(ActiveNodeCount) + "/" + std::to_string(NodeCount) + " SN:" + std::to_string(StoreNodes.size()));
 }
 
 void RenderGraph::Resize()
@@ -93,6 +99,11 @@ void RenderGraph::BuildGraph()
 		{
 			Node->FindVRContext();
 		}
+		NodeCount++;
+		if (Node->IsNodeActive())
+		{
+			ActiveNodeCount++;
+		}
 		Node = Node->GetNextNode();
 	}
 	//PrintNodeData();
@@ -101,6 +112,7 @@ void RenderGraph::BuildGraph()
 #define RUNRT 1
 void RenderGraph::CreateDefTestgraph()
 {
+	GraphName = "Deferred Renderer";
 	FrameBufferStorageNode* GBufferNode = AddStoreNode(new FrameBufferStorageNode());
 	ShadowAtlasStorageNode* ShadowDataNode = AddStoreNode(new ShadowAtlasStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateGBuffer(100, 100);
@@ -145,6 +157,7 @@ void RenderGraph::CreateDefTestgraph()
 	LinkNode(UpdateProbesNode, RTNode);
 	RTNode->GetInput(0)->SetStore(RTXBuffer);
 	RTNode->GetInput(1)->SetLink(RootNode->GetOutput(0));
+	RTNode->GetInput(2)->SetStore(ShadowDataNode);
 #endif
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
 
@@ -211,6 +224,7 @@ void RenderGraph::LinkNode(RenderNode* A, RenderNode* B)
 
 void RenderGraph::CreateFWDGraph()
 {
+	GraphName = "Forward Renderer";
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
@@ -263,6 +277,7 @@ bool RenderGraph::SetCondition(std::string name, bool state)
 	auto Itor = ExposedParms.find(name);
 	if (Itor == ExposedParms.end())
 	{
+		Log::LogMessage("Failed to find prop \"" + name + "\"");
 		return false;
 	}
 	Itor->second->SetState(state);
@@ -274,6 +289,7 @@ bool RenderGraph::GetCondition(std::string name)
 	auto Itor = ExposedParms.find(name);
 	if (Itor == ExposedParms.end())
 	{
+		Log::LogMessage("Failed to find prop \"" + name + "\"");
 		return false;
 	}
 	return Itor->second->GetState();
@@ -400,6 +416,7 @@ bool RenderGraph::ValidateArgs::HasError() const
 
 void RenderGraph::CreateVRFWDGraph()
 {
+	GraphName = "Forward VR Renderer";
 	IsVRGraph = true;
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
@@ -436,7 +453,6 @@ void RenderGraph::CreateVRFWDGraph()
 	FWDNode->GetInput(1)->SetStore(SceneData);
 	FWDNode->GetInput(2)->SetStore(ShadowDataNode);
 
-	//LinkNode(FWDNode, simNode);
 	ParticleRenderNode* renderNode = new ParticleRenderNode();
 	LinkNode(FWDNode, renderNode);
 

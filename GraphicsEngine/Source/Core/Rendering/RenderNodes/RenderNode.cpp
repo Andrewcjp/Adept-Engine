@@ -38,7 +38,7 @@ void RenderNode::ExecuteNode()
 		}
 		else
 		{
-			for (int i = 0; i < Inputs.size(); i++)
+			for (uint i = 0; i < Inputs.size(); i++)
 			{
 				if (i < GetNumOutputs())
 				{

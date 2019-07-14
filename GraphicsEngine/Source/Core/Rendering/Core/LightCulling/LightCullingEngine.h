@@ -13,6 +13,7 @@ public:
 	static glm::ivec2 GetLightGridDim();
 	void WaitForCulling(RHICommandList* list);
 	void BindLightBuffer(RHICommandList* list, bool deferred = false);
+	RHIBuffer * GetLightDataBuffer();
 	void Unbind(RHICommandList * list);
 	RHIBuffer* LightCullingBuffer = nullptr;
 	//creates list of lights that might be used

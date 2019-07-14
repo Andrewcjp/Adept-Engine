@@ -760,11 +760,18 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 {
 	D3D12CommandList* DXList = D3D12RHI::DXConv(list);
 	ensure(DXList->GetDevice() == Device);
-	for (int i = 0; i < LinkedBuffers.size(); i++)
+	if (list->IsGraphicsList())
 	{
-		LinkedBuffers[i]->ReadyResourcesForRead(DXList->GetCommandList());
+		for (int i = 0; i < LinkedBuffers.size(); i++)
+		{
+			LinkedBuffers[i]->ReadyResourcesForRead(DXList->GetCommandList());
+		}
+		DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Desc->GetGPUAddress(0));
 	}
-	DXList->GetCommandList()->SetGraphicsRootDescriptorTable(slot, Desc->GetGPUAddress(0));
+	else
+	{
+		DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, Desc->GetGPUAddress(0));
+	}	
 }
 
 //Makes a descriptor Null Using the first frame buffers Description

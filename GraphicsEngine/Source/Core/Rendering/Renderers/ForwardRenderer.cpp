@@ -6,13 +6,14 @@
 #include "Rendering/Core/ParticleSystemManager.h"
 #include "Rendering/Core/ReflectionProbe.h"
 #include "Rendering/Core/SceneRenderer.h"
-#include "Rendering/Core/Shader_PreZ.h"
+
 #include "Rendering/RayTracing/RayTracingEngine.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/VR/HMD.h"
 #include "Rendering/VR/VRCamera.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
+#include "../Shaders/Shader_PreZ.h"
 
 
 ForwardRenderer::ForwardRenderer(int width, int height) :RenderEngine(width, height)
@@ -157,7 +158,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	{
 		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
 		{
-			RayTracingEngine::Get()->TraceRaysForReflections(O->GetMain(eye), nullptr);
+			//RayTracingEngine::Get()->TraceRaysForReflections(O->GetMain(eye), nullptr);
 		}
 		if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
 		{
@@ -169,7 +170,7 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 void ForwardRenderer::MainPass(RHICommandList* Cmdlist, FrameBuffer* targetbuffer, int index)
 {
 	Cmdlist->GetDevice()->GetTimeManager()->StartTotalGPUTimer(Cmdlist);
-	const bool PREZ = RHI::GetRenderSettings()->IsUsingZPrePass();
+	const bool PREZ = false;// RHI::GetRenderSettings()->IsUsingZPrePass();
 	if (PREZ)
 	{
 		PreZPass(Cmdlist, targetbuffer, index);

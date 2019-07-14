@@ -15,7 +15,7 @@ void RenderGraphSystem::InitGraph()
 {
 	CurrentGraph = new RenderGraph();
 	//CurrentGraph->CreateFWDGraph();
-	///CurrentGraph->CreateVRFWDGraph();
+	//CurrentGraph->CreateVRFWDGraph();
 	CurrentGraph->CreateDefTestgraph();
 	CurrentGraph->BuildGraph();
 }
@@ -51,4 +51,9 @@ void RenderGraphSystem::SwitchGraph(RenderGraph* NewGraph)
 	SafeDelete(CurrentGraph);
 	CurrentGraph = NewGraph;
 	CurrentGraph->BuildGraph();
+}
+
+RenderGraph * RenderGraphSystem::GetCurrentGraph()
+{
+	return CurrentGraph;
 }

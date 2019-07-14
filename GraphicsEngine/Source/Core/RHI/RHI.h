@@ -28,7 +28,7 @@ class RHIInterGPUStagingResource;
 class RHIRenderPass;
 struct InterGPUDesc;
 //RHI defines
-#define SUPPORTVR 1
+#define RHI_SUPPORTS_VR 1
 #define PSO_USE_FULL_STRING_MAPS 1
 #define PSO_USE_MAP 0
 #define MAX_GPU_DEVICE_COUNT 3
@@ -132,7 +132,7 @@ private:
 	int SwapChainHeight = 0;
 	friend RayTracingEngine;
 	RayTracingEngine* RTE = nullptr;
-#if SUPPORTVR
+#if RHI_SUPPORTS_VR
 	HMDManager* HeadSetManager = nullptr;
 #endif
 	friend RHIRenderPassCache;

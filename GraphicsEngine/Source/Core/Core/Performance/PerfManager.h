@@ -6,6 +6,7 @@
 #include "Core/Utils/MovingAverage.h"
 
 class BenchMarker;
+class NVAPIManager;
 #define SCOPE_CYCLE_COUNTER(name) PerfManager::ScopeCycleCounter PREPROCESSOR_JOIN(CYCLECOUNTER,__LINE__)(name);
 #define SCOPE_CYCLE_COUNTER_GROUP(name,group) PerfManager::ScopeCycleCounter PREPROCESSOR_JOIN(CYCLECOUNTER,__LINE__)(name,group);
 #define SCOPE_STARTUP_COUNTER(name) PerfManager::ScopeStartupCounter PREPROCESSOR_JOIN(STARTUPCOUNTER,__LINE__)(name);
@@ -130,7 +131,7 @@ private:
 	void InStartTimer(int targetTimer);
 	void InEndTimer(int targetTimer);
 
-	class NVAPIManager* NVApiManager = nullptr;
+	NVAPIManager* NVApiManager = nullptr;
 	std::string GetTimerName(int id);
 	std::map<std::string, unsigned long> SingleActionTimers;
 	std::map<std::string, float> SingleActionTimersAccum;

@@ -1,9 +1,8 @@
-#include "Stdafx.h"
 #include "ZPrePassNode.h"
 #include "../StorageNodeFormats.h"
 #include "Core/Assets/ShaderComplier.h"
-#include "../../Core/Shader_PreZ.h"
 #include "../../Core/SceneRenderer.h"
+#include "../../Shaders/Shader_PreZ.h"
 
 
 ZPrePassNode::ZPrePassNode()

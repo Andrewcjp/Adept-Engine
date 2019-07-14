@@ -27,14 +27,14 @@ struct DeviceDependentObjects
 	RHICommandList* MainCommandList[EEye::Limit] = { nullptr };
 
 	FrameBuffer* MainFrameBuffer = nullptr;
-#if SUPPORTVR
+#if RHI_SUPPORTS_VR
 	FrameBuffer* RightEyeFramebuffer = nullptr;
 #endif
 
 	FrameBuffer* Gbuffer = nullptr;
 	RHICommandList* GbufferWriteList[EEye::Limit] = { nullptr };
 	Shader_Deferred* DeferredShader = nullptr;
-#if SUPPORTVR
+#if RHI_SUPPORTS_VR
 	FrameBuffer* RightEyeGBuffer = nullptr;
 #endif
 	RHICommandList* DebugCommandList = nullptr;

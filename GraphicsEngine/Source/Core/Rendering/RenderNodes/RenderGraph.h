@@ -22,6 +22,7 @@ public:
 
 	void DestoryGraph();
 	void RunGraph();
+	void DebugOutput();
 	void Resize();
 	void ResetForFrame();
 	void Update();
@@ -68,6 +69,9 @@ public:
 	};
 	bool IsVRGraph = false;
 private:
+	std::string GraphName = "";
+	int NodeCount = 0;
+	int ActiveNodeCount = 0;
 	void ExposeItem(RenderNode* N, std::string name, bool Defaultstate = true);
 };
 

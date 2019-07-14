@@ -164,7 +164,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 	{
 		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
 	}
-	if (list->IsComputeList())
+	if (list->IsComputeList() || list->IsRaytracingList())
 	{
 		d3dlist->GetCommandList()->SetComputeRootDescriptorTable(RSSlot, SRVDesc->GetGPUAddress(0));
 	}
