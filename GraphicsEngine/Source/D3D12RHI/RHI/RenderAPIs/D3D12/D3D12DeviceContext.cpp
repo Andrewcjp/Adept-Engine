@@ -144,7 +144,7 @@ void D3D12DeviceContext::CheckFeatures()
 		}
 		else
 		{
-			Caps_Data.RTSupport = ERayTracingSupportType::Software;
+			Caps_Data.RTSupport = ERayTracingSupportType::None;
 		}
 		LogDeviceData("Ray tracing support mode is " + std::string(ERayTracingSupportType::ToString(Caps_Data.RTSupport)));
 		SupportsCmdsList4 = true;
@@ -152,7 +152,7 @@ void D3D12DeviceContext::CheckFeatures()
 	else
 	{
 		Log::LogMessage("System does not support DXR");
-		Caps_Data.RTSupport = ERayTracingSupportType::Software;
+		Caps_Data.RTSupport = ERayTracingSupportType::None;
 		SupportsCmdsList4 = false;
 	}
 

@@ -18,7 +18,7 @@ struct OGLVertex
 		m_tangent = tangent;
 	}
 };
-#define USE_16BIT_INDICIES 0
+#define USE_16BIT_INDICIES 1
 #if USE_16BIT_INDICIES
 typedef unsigned short IndType;
 #else

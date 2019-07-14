@@ -62,7 +62,7 @@ void RayTracingCommandList::Execute()
 
 bool RayTracingCommandList::UseFallback() const
 {
-	return CurrentMode == ERayTracingSupportType::Software;
+	return CurrentMode == ERayTracingSupportType::None;
 }
 
 bool RayTracingCommandList::UseAPI() const

@@ -16,6 +16,7 @@ public:
 	{
 		return "Deferred Lighting";
 	}
+	bool UseScreenSpaceReflection = false;
 private:
 	RHICommandList* List = nullptr;
 	Shader_Deferred* DeferredShader = nullptr;

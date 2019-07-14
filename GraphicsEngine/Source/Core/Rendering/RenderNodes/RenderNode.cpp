@@ -5,6 +5,7 @@
 #include "StoreNodes/FrameBufferStorageNode.h"
 #include "StoreNodes/SceneDataNode.h"
 #include "StoreNodes/ShadowAtlasStorageNode.h"
+#include "RHI/RHI.h"
 
 RenderNode::RenderNode()
 {}
@@ -135,7 +136,16 @@ void RenderNode::SetupNode()
 	{
 		Context = RHI::GetDefaultDevice();
 	}
-	OnSetupNode();
+	RenderSettings S = *RHI::GetRenderSettings();
+	if (IsNodeSupported(S))
+	{
+		OnSetupNode();
+	}
+	else
+	{
+		//this causes data to be passed though
+		SetNodeActive(false);
+	}
 }
 
 bool RenderNode::IsNodeDeferred() const
@@ -179,13 +189,12 @@ bool RenderNode::IsBranchNode() const
 }
 bool RenderNode::IsVRBranch() const
 {
-	//not great
 	return IsVrBranchNode;
 }
 
-bool RenderNode::IsNodeSupported(const RendererSettings & settings)
+bool RenderNode::IsNodeSupported(const RenderSettings& settings)
 {
-	return false;
+	return true;
 }
 
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)

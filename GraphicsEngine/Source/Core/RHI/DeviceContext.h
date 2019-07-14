@@ -20,7 +20,7 @@ struct ERayTracingSupportType
 	{
 		Hardware,
 		DriverBased,
-		Software,
+		None,
 		Limit
 	};
 	CORE_API static const char* ToString(ERayTracingSupportType::Type e);
@@ -50,7 +50,7 @@ struct CapabilityData
 {
 	bool SupportsCopyTimeStamps = false;
 	bool SupportsViewInstancing = false;
-	ERayTracingSupportType::Type RTSupport = ERayTracingSupportType::Software;
+	ERayTracingSupportType::Type RTSupport = ERayTracingSupportType::None;
 	EVRSSupportType::Type VRSSupport = EVRSSupportType::Software;
 	//If driver supports multiple SLI group this will fail to use the HW fully.
 	EMGPUConnectionMode::Type ConnectionMode = EMGPUConnectionMode::None;

@@ -11,6 +11,6 @@ namespace StorageFormats
 	const std::string PreSampleShadowData = "PreSampleShadowData";
 	//Deferred
 	const std::string GBufferData = "GBufferData";
-
+	const std::string ScreenReflectionData = "ScreenReflectionData";
 
 }

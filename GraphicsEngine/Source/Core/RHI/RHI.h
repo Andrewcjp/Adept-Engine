@@ -38,7 +38,7 @@ struct InterGPUDesc;
 #define NOSHADOW 0 //BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
 #define TESTGRAPH 1
-#define RHI_SUPPORTS_RT 0
+#define RHI_SUPPORTS_RT 1
 class RHI
 {
 public:

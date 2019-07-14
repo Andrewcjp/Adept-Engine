@@ -57,42 +57,18 @@ void DeferredLightingNode::OnExecute()
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
-
+	if (UseScreenSpaceReflection)
+	{
+		FrameBuffer* ScreenSpaceData = GetFrameBufferFromInput(4);
+		List->SetFrameBufferTexture(ScreenSpaceData, DeferredLightingShaderRSBinds::ScreenSpecular);
+	}
 
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(List, true);
-
-	if (MainScene->GetLightingData()->SkyBox != nullptr)
-	{
-		/*if (RHI::GetRenderSettings()->RaytracingEnabled() && RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
-		{
-			List->SetFrameBufferTexture(Object->RTBuffer, DeferredLightingShaderRSBinds::ScreenSpecular);
-		}*/
-
-		List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
-
-		//List->SetFrameBufferTexture(SceneRender->probes[0]->CapturedTexture, DeferredLightingShaderRSBinds::SpecBlurMap);
-	}
-	//List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
-	//List->SetFrameBufferTexture(DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
-#if 1
-	//List->SetTexture(MainScene->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::DiffuseIr);
-	//List->SetTexture(Defaults::GetDefaultTexture(), DeferredLightingShaderRSBinds::EnvBRDF);
-#else
-	if (BaseWindow::GetCurrentRenderer()->DDOs[List->GetDeviceIndex()].ConvShader != nullptr)
-	{
-		List->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[List->GetDeviceIndex()].ConvShader->CubeBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
-		List->SetFrameBufferTexture(BaseWindow::GetCurrentRenderer()->DDOs[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
-	}
-#endif
-
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(List, true);
-	SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
+	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
 	SceneRenderer::Get()->BindLightsBuffer(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRenderer::Get()->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, 0);
-	//SceneRender->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, eyeindex);
-#if !NOSHADOW
-	//mShadowRenderer->BindShadowMapsToTextures(List);
-#endif
+
 	if (GetInput(3)->IsValid())
 	{
 		GetShadowDataFromInput(3)->BindPointArray(List, 6);
@@ -108,19 +84,10 @@ void DeferredLightingNode::OnExecute()
 	//}
 	List->EndRenderPass();
 
-#if !NOSHADOW
-	//mShadowRenderer->Unbind(List);
-#endif
-	//	List->SetRenderTarget(nullptr);
-	//if (List->GetDeviceIndex() == 0)
-	//{
-	//	DDOs[0].MainFrameBuffer->MakeReadyForCopy(List);
-	//}
-#if !NOSHADOW
-	//RenderSkybox(List, output, GBuffer);
+
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
-#endif
+
 	GBuffer->MakeReadyForComputeUse(List);
 	MainBuffer->MakeReadyForComputeUse(List);
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
@@ -136,4 +103,9 @@ void DeferredLightingNode::OnNodeSettingChange()
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadow Maps");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
+	if (UseScreenSpaceReflection)
+	{
+		AddInput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "SSR Data");
+	}
+
 }

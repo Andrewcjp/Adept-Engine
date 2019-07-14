@@ -71,7 +71,7 @@ public:
 	bool IsBranchNode()const;
 	bool IsVRBranch() const;
 
-	virtual bool IsNodeSupported(const RendererSettings& settings);
+	virtual bool IsNodeSupported(const RenderSettings& settings);
 protected:
 	//search forwards until we reach the end VR node 
 	
