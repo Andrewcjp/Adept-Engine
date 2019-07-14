@@ -10,6 +10,7 @@ public:
 	void Render();
 	void Update();
 	void SwitchGraph(RenderGraph * NewGraph);
+	RenderGraph* GetCurrentGraph();
 private:
 	RenderGraph* CurrentGraph = nullptr;
 };

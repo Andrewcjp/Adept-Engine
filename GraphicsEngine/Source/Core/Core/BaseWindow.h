@@ -75,6 +75,7 @@ protected:
 	void LoadScene(std::string RelativePath);
 	bool PauseState = false;
 	bool StepOnce = false;
+	static BaseWindow* Get();
 private:
 	void PostFrameOne();
 	void RenderText();

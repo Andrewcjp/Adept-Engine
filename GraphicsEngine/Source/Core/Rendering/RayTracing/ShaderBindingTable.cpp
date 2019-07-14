@@ -55,6 +55,10 @@ void ShaderBindingTable::InitReflections()
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 3, 5));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 4, 6));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::CBV, 5, 1));
+	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 6, 20));
+	ShaderParameter s = ShaderParameter(ShaderParamType::SRV, 7, 5, 2);
+	s.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS;
+	GlobalRootSig.Params.push_back(s);
 }
 
 ShaderBindingTable::~ShaderBindingTable()

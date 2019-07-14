@@ -11,6 +11,8 @@
 #include "Shader_RTBase.h"
 #include "ShaderBindingTable.h"
 #include "Core/Assets/Scene.h"
+#include "../Core/LightCulling/LightCullingEngine.h"
+#include "../RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
 
 RayTracingEngine::RayTracingEngine()
 {
@@ -62,7 +64,7 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 	{
 		//if (RHI::GetFrameCount() == 10)
 		{
-				//CurrnetHL->Build(List);
+			//CurrnetHL->Build(List);
 		}
 		//CurrnetHL->Update(List);
 		return;
@@ -130,7 +132,7 @@ RayTracingCommandList * RayTracingEngine::CreateRTList(DeviceContext * Device)
 	return new RayTracingCommandList(Device);
 }
 
-void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer)
+void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer, ShadowAtlasStorageNode* shadow)
 {
 	if (RHI::GetFrameCount() == 0)
 	{
@@ -146,7 +148,11 @@ void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer
 	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 3, 1);
 	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 4, 0);
 	SceneRenderer::Get()->BindLightsBuffer(RTList->GetRHIList(), 5);
+	SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->BindBufferReadOnly(RTList->GetRHIList(), 6);
 	//Target->MakeReadyForComputeUse(RTList->GetRHIList());
+	shadow->BindPointArray(RTList->GetRHIList(), 7);
+
+
 	RTList->SetHighLevelAccelerationStructure(CurrnetHL);
 	RTList->TraceRays(RHIRayDispatchDesc(Target));
 	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);

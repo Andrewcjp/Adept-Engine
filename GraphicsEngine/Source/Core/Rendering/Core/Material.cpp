@@ -61,7 +61,7 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 	desc.DepthStencilState.DepthEnable = true;
 	desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
 	desc.Cull = true;
-	if (RHI::GetRenderSettings()->IsUsingZPrePass() && Pass.PassType != ERenderPass::BasePass_Cubemap)
+	if (Pass.ReadDepth)
 	{
 		desc.DepthStencilState.DepthWrite = false;
 	}

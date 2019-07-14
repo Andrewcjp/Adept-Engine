@@ -196,7 +196,7 @@ int RHI::GetDeviceCount()
 
 bool RHI::SupportVR()
 {
-#if SUPPORTVR
+#if RHI_SUPPORTS_VR
 	return instance->RenderSettings.EnableVR;
 #else
 	return false;
@@ -205,7 +205,7 @@ bool RHI::SupportVR()
 
 void RHI::DetectAndInitVR()
 {
-#if SUPPORTVR
+#if RHI_SUPPORTS_VR
 	HeadSetManager = new HMDManager();
 	HeadSetManager->Init();
 #endif
@@ -213,7 +213,7 @@ void RHI::DetectAndInitVR()
 
 HMD * RHI::GetHMD()
 {
-#if SUPPORTVR
+#if RHI_SUPPORTS_VR
 	return instance->HeadSetManager->GetHMD();
 #else
 	return nullptr;
@@ -222,7 +222,7 @@ HMD * RHI::GetHMD()
 
 HMDManager * RHI::GetHMDManager()
 {
-#if SUPPORTVR
+#if RHI_SUPPORTS_VR
 	return instance->HeadSetManager;
 #else 
 	return nullptr;

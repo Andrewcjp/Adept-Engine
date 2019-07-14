@@ -1,5 +1,4 @@
 #include "DefaultShaderCommon.hlsl"
-#define MAX_LIGHTS 1
 #include "Lighting.hlsl"
 RaytracingAccelerationStructure gRtScene : register(t0);
 RWTexture2D<float4> gOutput : register(u0);
@@ -7,6 +6,8 @@ Texture2D<float4> Normals : register(t5);
 Texture2D<float4> Pos : register(t6);
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
+#include "Shadow.hlsl"
 float3 linearToSrgb(float3 c)
 {
 	// Based on http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
@@ -26,11 +27,8 @@ cbuffer CameraData: register(b0)
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-	int4 t;
-	//int pad;
-	Light lights[MAX_LIGHTS];
 };
-
+StructuredBuffer<Light> LightList : register(t20);
 [shader("raygeneration")]
 void rayGen()
 {
@@ -71,8 +69,14 @@ void rayGen()
 	}
 	float3 OutColor = payload.color *GetAmbient_CONST();
 	//float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal, float3 CamPos, float roughness, float Metalic)
-	OutColor += CalcColorFromLight(lights[0], payload.color, payload.Pos, payload.Normal, CameraPos, 0.0f, 0.0f);
-	//OutColor = lights[0].color;
-	OutColor = payload.color;
+	for (int i = 0; i < LightCount; i++)
+	{
+		float3 LightColour = CalcColorFromLight(LightList[i], payload.color, payload.Pos, payload.Normal, CameraPos, 0.0f, 0.0f);
+		if (LightList[i].HasShadow && LightList[i].type == 1)
+		{
+			LightColour *= 1.0 - ShadowCalculationCube(payload.Pos.xyz, LightList[i], g_Shadow_texture2[LightList[i].ShadowID]);
+		}
+		OutColor += LightColour;
+	}
 	gOutput[launchIndex.xy] = float4(OutColor, SmoothNess);
 }

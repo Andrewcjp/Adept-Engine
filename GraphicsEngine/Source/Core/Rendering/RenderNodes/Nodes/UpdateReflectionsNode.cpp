@@ -21,7 +21,7 @@ UpdateReflectionsNode::~UpdateReflectionsNode()
 
 void UpdateReflectionsNode::OnExecute()
 {
-	if (!SceneRenderer::Get()->GetReflectionEnviroment()->AnyProbesNeedUpdate())
+	//if (!SceneRenderer::Get()->GetReflectionEnviroment()->AnyProbesNeedUpdate())
 	{
 		return;
 	}
@@ -47,6 +47,11 @@ void UpdateReflectionsNode::OnExecute()
 	ComputeList->Execute();
 	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 
+}
+
+std::string UpdateReflectionsNode::GetName() const
+{
+	return "Update Reflection Captures";
 }
 
 void UpdateReflectionsNode::OnNodeSettingChange()

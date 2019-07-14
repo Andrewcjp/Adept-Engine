@@ -298,7 +298,7 @@ void ShadowRenderer::PreSampleShadows(RHICommandList* list)
 	DSOs[DeviceIndex].ShadowCubeArray->BindToShader(list, Shader_ShadowSample::ShadowSRV);
 	//list->SetRenderTarget(DSOs[DeviceIndex].PreSampledBuffer);
 	//list->ClearFrameBuffer(DSOs[DeviceIndex].PreSampledBuffer);
-	list->BeginRenderPass(RHIRenderPassDesc(DSOs[DeviceIndex].PreSampledBuffer,ERenderPassLoadOp::Clear));
+	list->BeginRenderPass(RHIRenderPassDesc(DSOs[DeviceIndex].PreSampledBuffer, ERenderPassLoadOp::Clear));
 	Scenerenderer->BindMvBuffer(list, Shader_Depth_RSSlots::VPBuffer);
 	Scenerenderer->BindLightsBuffer(list, 1);
 	Scenerenderer->MeshController->RenderPass(ERenderPass::DepthOnly, list, nullptr);
@@ -368,6 +368,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 		{
 			RenderShadowMap_CPU(Interaction, list, IndexOnGPU);
 		}
+		Interaction->GetMap(0)->MakeReadyForComputeUse(list,true);
 		Interaction->captured = true;
 		IndexOnGPU++;
 	}

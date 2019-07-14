@@ -2,6 +2,7 @@
 
 class ShaderBindingTable;
 class RayTracingCommandList;
+class ShadowAtlasStorageNode;
 //This handles render interaction with RT features
 //It abstracts between the Software and API support modes and handles build AS's etc.
 //it will handle different types of Acceleration structure for multiple types of devices e.g. RTX GPU + Software RT GPU. 
@@ -22,7 +23,7 @@ public:
 
 	void BuildStructures();
 	RayTracingCommandList* CreateRTList(DeviceContext* Device);
-	void TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer);
+	void TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer, ShadowAtlasStorageNode* shadow);
 	void UpdateFromScene(Scene* S);
 	void AddHitTable(ShaderBindingTable* Table);
 private:

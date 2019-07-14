@@ -24,6 +24,7 @@
 #include "Rendering/RayTracing/RayTracingEngine.h"
 #include "Rendering/RenderNodes/RenderGraphSystem.h"
 #include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/RenderNodes/RenderGraph.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
@@ -389,7 +390,7 @@ void BaseWindow::SetFrameRateLimit(int limit)
 void BaseWindow::ReLoadCurrentScene()
 {
 	CurrentScene->EndScene();
-//	SceneRenderer::Get()->SetScene(nullptr);
+	//	SceneRenderer::Get()->SetScene(nullptr);
 	SceneRenderer::Get()->SetScene(nullptr);
 	SafeDelete(CurrentScene);
 	CurrentScene = new Scene();
@@ -420,6 +421,11 @@ void BaseWindow::LoadScene(std::string RelativePath)
 		Saver->LoadScene(CurrentScene, Startdir);
 	}
 	SceneRenderer::Get()->SetScene(CurrentScene);
+}
+
+BaseWindow * BaseWindow::Get()
+{
+	return Instance;
 }
 
 void BaseWindow::PostFrameOne()
@@ -461,7 +467,7 @@ void BaseWindow::DestroyRenderWindow()
 	//Renderer->DestoryRenderWindow();
 	SafeDelete(LineDrawer);
 	SafeDelete(UI);
-//	SafeDelete(Renderer);
+	//	SafeDelete(Renderer);
 	Input::ShutDown();
 }
 
@@ -565,10 +571,6 @@ void BaseWindow::RenderText()
 	{
 		stream << PerfManager::Instance->GetAVGFrameRate() << " " << (PerfManager::Instance->GetAVGFrameTime() * 1000) << "ms ";
 		stream << "Ratio " << RHI::GetRenderSettings()->GetCurrentRenderScale() << "X ";
-		if (RHI::GetRenderSettings()->IsDeferred)
-		{
-			stream << "DEF ";
-		}
 		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
 		UI->RenderTextToScreen(1, stream.str());
@@ -579,9 +581,9 @@ void BaseWindow::RenderText()
 	{
 		if (RHI::GetRHIClass() != nullptr)
 		{
-			PerfManager::RenderGpuData(10, (int)(m_height - m_height / 8));
+			PerfManager::RenderGpuData(10, (int)(m_height - m_height / 7));
 		}
-
+		
 		if (PerfManager::Instance != nullptr)
 		{
 			PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));
@@ -590,7 +592,10 @@ void BaseWindow::RenderText()
 
 		PlatformMemoryInfo info = PlatformMisc::GetMemoryInfo();
 		UI->RenderTextToScreen(2, RHI::ReportMemory() + " CPU ram " + StringUtils::ToString(info.GetWorkingSetInMB()) + "MB");
-		offset = 3;
+
+		RHI::GetRenderSystem()->GetCurrentGraph()->DebugOutput();
+		offset = 4;
+
 	}
 
 	Log::Get()->RenderText(UI, offset);

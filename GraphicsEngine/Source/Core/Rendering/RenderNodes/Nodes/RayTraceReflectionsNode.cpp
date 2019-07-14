@@ -19,7 +19,8 @@ void RayTraceReflectionsNode::OnExecute()
 	FrameBuffer* Gbuffer = GetFrameBufferFromInput(1);
 
 	RayTracingEngine::Get()->BuildStructures();
-	RayTracingEngine::Get()->TraceRaysForReflections(Output, Gbuffer);
+	//GetShadowDataFromInput(2)->BindPointArray()
+	RayTracingEngine::Get()->TraceRaysForReflections(Output, Gbuffer, GetShadowDataFromInput(2));
 	PassNodeThough(0, StorageFormats::ScreenReflectionData);
 }
 
@@ -36,10 +37,16 @@ bool RayTraceReflectionsNode::IsNodeSupported(const RenderSettings& settings)
 	return true;
 }
 
+std::string RayTraceReflectionsNode::GetName() const
+{
+	return "RayTraced Reflections";
+}
+
 void RayTraceReflectionsNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "OutputBuffer");
 	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
+	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadows");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "Screen Data");
 }
 

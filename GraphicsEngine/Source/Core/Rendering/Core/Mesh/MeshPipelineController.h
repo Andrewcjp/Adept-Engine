@@ -23,6 +23,7 @@ struct MeshPassRenderArgs
 	bool UseDeferredShaders = false;
 	ERenderPass::Type PassType = ERenderPass::Limit;
 	bool UseShadows = false;
+	bool ReadDepth = false;
 };
 namespace EBatchFilter
 {

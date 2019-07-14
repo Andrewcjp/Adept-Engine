@@ -79,15 +79,18 @@ void LightCullingEngine::BindLightBuffer(RHICommandList* list, bool deferred /*=
 		LightCullingBuffer->SetBufferState(list, EBufferResourceState::Read);
 		//LightCullingBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightBuffer);
 		LightDataBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
-		
-
 	}
 	else
 	{
 		LightDataBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
 	}
-
 }
+
+RHIBuffer* LightCullingEngine::GetLightDataBuffer()
+{
+	return LightDataBuffer;
+}
+
 void LightCullingEngine::Unbind(RHICommandList* list)
 {
 	//LightBuffer->SetBufferState(list, EBufferResourceState::UnorderedAccess);

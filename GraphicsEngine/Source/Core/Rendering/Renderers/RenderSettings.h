@@ -103,7 +103,7 @@ struct RenderSettings
 {
 	RenderSettings();
 public:
-	bool IsUsingZPrePass() const;
+	
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
 
 	bool IsDeferred = false;
@@ -112,7 +112,7 @@ public:
 	bool LockBackBuffer = false;
 	int LockedWidth = 0;
 	int LockedHeight = 0;
-	bool UseZPrePass = false;
+
 	RHI_API void SetRes(BBTestMode::Type t);
 	RHI_API static std::string ToString(BBTestMode::Type t);
 	RHI_API ERenderDebugOutput::Type GetDebugRenderMode();

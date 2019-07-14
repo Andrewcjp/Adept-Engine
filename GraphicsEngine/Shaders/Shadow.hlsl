@@ -60,7 +60,7 @@ float ShadowCalculationCube(const float3 fragPos, Light lpos, TextureCube Shadow
 	float closestDepth = 0;
 	int id = lpos.ShadowID;
 
-	closestDepth = ShadowTex.Sample(g_Clampsampler, fragToLight).r;
+	closestDepth = ShadowTex.SampleLevel(g_Clampsampler, fragToLight,0).r;
 	closestDepth *= far_plane;
 	float output = 0.0f;
 

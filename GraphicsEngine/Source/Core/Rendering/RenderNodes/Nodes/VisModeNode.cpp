@@ -47,6 +47,11 @@ void VisModeNode::OnExecute()
 
 }
 
+std::string VisModeNode::GetName() const
+{
+	return "View Modes";
+}
+
 void VisModeNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene);
