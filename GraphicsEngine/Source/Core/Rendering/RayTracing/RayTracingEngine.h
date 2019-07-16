@@ -16,25 +16,23 @@ public:
 	void EnqueueForBuild(HighLevelAccelerationStructure* Struct);
 	//call as early as possible to start on async compute
 	void BuildForFrame(RHICommandList * List);
-	//used in rendering to launch rays
-	void DispatchRaysForMainScenePass(FrameBuffer* Target);
-	void SetShaderTable(ShaderBindingTable * SBT);
+
 	void OnFirstFrame();
 
 	void BuildStructures();
-	RayTracingCommandList* CreateRTList(DeviceContext* Device);
-	void TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer, ShadowAtlasStorageNode* shadow);
+	static RayTracingCommandList* CreateRTList(DeviceContext* Device);
+
 	void UpdateFromScene(Scene* S);
 	void AddHitTable(ShaderBindingTable* Table);
+	HighLevelAccelerationStructure* GetHighLevelStructure();
 private:
+
 	std::vector<ShaderBindingTable*> Tables;
 	std::vector<LowLevelAccelerationStructure*> LASToBuild;
 	std::vector<HighLevelAccelerationStructure*> HASToBuild;
 	HighLevelAccelerationStructure* CurrnetHL = nullptr;
 	RHICommandList* AsyncbuildList = nullptr;
-	RHIStateObject* StateObject = nullptr;
 	bool Build = false;
-	RayTracingCommandList* RTList = nullptr;
-	ShaderBindingTable* DefaultTable = nullptr;
+
 };
 

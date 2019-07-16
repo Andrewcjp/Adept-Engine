@@ -5,6 +5,7 @@
 #include "D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
 #include "D3D12Framebuffer.h"
+#include "D3D12InterGPUStagingResource.h"
 #include "D3D12Query.h"
 #include "GPUResource.h"
 #include "OpenVR/headers/openvr.h"
@@ -13,7 +14,6 @@
 #include "Raytracing/D3D12StateObject.h"
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
-#include "D3D12InterGPUStagingResource.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
@@ -223,11 +223,7 @@ void D3D12RHI::ReportDeviceData()
 }
 
 bool D3D12RHI::DetectGPUDebugger()
-{
-	if (ForceNoDebug.GetBoolValue())
-	{
-		return true;
-	}
+{	
 	IDXGraphicsAnalysis* pGraphicsAnalysis;
 	HRESULT getAnalysis = DXGIGetDebugInterface1(0, __uuidof(pGraphicsAnalysis), reinterpret_cast<void**>(&pGraphicsAnalysis));
 	if (getAnalysis != S_OK)

@@ -19,7 +19,10 @@ void ShaderBindingTable::InitDefault()
 {
 	//default debug
 	MissShaders.push_back(ShaderComplier::GetShader<Shader_Skybox_Miss>());
-	MissShaders[0]->AddExport("Miss");
+	if (MissShaders[0]->GetExports().size() == 0)
+	{
+		MissShaders[0]->AddExport("Miss");
+	}
 
 	RayGenShaders.push_back(new Shader_RTBase(RHI::GetDefaultDevice(), "Raytracing\\DefaultRayGenShader", ERTShaderType::RayGen));
 	RayGenShaders[0]->AddExport("rayGen");
@@ -41,7 +44,10 @@ void ShaderBindingTable::InitReflections()
 {
 	//default debug
 	MissShaders.push_back(ShaderComplier::GetShader<Shader_Skybox_Miss>());
-	MissShaders[0]->AddExport("Miss");
+	if (MissShaders[0]->GetExports().size() == 0)
+	{
+		MissShaders[0]->AddExport("Miss");
+	}
 
 	RayGenShaders.push_back(ShaderComplier::GetShader<Shader_ReflectionRaygen>());
 

@@ -19,8 +19,6 @@ D3D12StateObject::~D3D12StateObject()
 
 void D3D12StateObject::Build()
 {
-	CBV = new D3D12Buffer(ERHIBufferType::Constant);
-	CBV->CreateConstantBuffer(sizeof(Data), 1);
 	CreateRootSignatures();
 	CreateStateObject();
 	BuildShaderTables();
@@ -214,19 +212,9 @@ void D3D12StateObject::BindToList(D3D12CommandList * List)
 }
 
 void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, D3D12FrameBuffer* target)
-{
-	if (TempCam != nullptr)
-	{
-		Data.IProj = glm::inverse(TempCam->GetProjection());
-		Data.IView = glm::inverse(TempCam->GetView());
-		Data.CamPos = TempCam->GetPosition();
-	}
-	CBV->UpdateConstantBuffer(&Data, 0);
+{	
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
 
-
-	//DXR: Todo: move to above RHI
-	CBV->SetConstantBufferView(0, DXList->GetCMDList4(), GlobalRootSignatureParams::CameraBuffer, true, 0);
 	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, ((D3D12RHIUAV*)target->GetUAV())->UAVDescriptor->GetGPUAddress());
 	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(High)->m_topLevelAccelerationStructure->GetGPUVirtualAddress());
 

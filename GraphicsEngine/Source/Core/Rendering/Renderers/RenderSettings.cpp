@@ -175,13 +175,10 @@ bool MultiGPUMode::UseSplitShadows() const
 	return SplitShadowWork || SFRSplitShadows;
 }
 
-
 RenderSettings::RenderSettings()
 {
 	IsDeferred = UseDeferredMode.GetBoolValue();
-	EnableVR = true;
-	//RTSettings.UseForMainPass = true;
-	RTSettings.UseForReflections = true;
+	EnableVR = true;	
 	CurrentDebug = ERenderDebugOutput::Off;
 	//EnableGPUParticles = true;
 	if (IsDeferred)
@@ -196,7 +193,6 @@ RenderSettings::RenderSettings()
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
-	RTSettings.UseForReflections = true;
 	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;
 	IsDeferred = false;

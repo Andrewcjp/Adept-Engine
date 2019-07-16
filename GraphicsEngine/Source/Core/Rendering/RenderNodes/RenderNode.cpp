@@ -197,6 +197,11 @@ bool RenderNode::IsNodeSupported(const RenderSettings& settings)
 	return true;
 }
 
+void RenderNode::SetDevice(DeviceContext * D)
+{
+	Context = D;
+}
+
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());

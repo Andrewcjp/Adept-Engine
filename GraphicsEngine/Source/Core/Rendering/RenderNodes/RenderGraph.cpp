@@ -22,6 +22,8 @@
 #include "Nodes/UpdateReflectionsNode.h"
 #include "Nodes/RayTraceReflectionsNode.h"
 #include "UI/UIManager.h"
+#include "Nodes/PathTraceSceneNode.h"
+
 #define TESTVR 1
 RenderGraph::RenderGraph()
 {}
@@ -518,4 +520,26 @@ RenderGraphExposedSettings::RenderGraphExposedSettings(RenderNode * Node, bool D
 		ToggleNode = Node;
 	}
 	SetState(Default);
+}
+
+
+void RenderGraph::CreatePathTracedGraph()
+{
+	GraphName = "Path Traced Render";
+
+	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnorderedAccess = true;
+	MainBuffer->SetFrameBufferDesc(Desc);
+
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+	RootNode = new PathTraceSceneNode();
+	RootNode->GetInput(0)->SetStore(MainBuffer);
+	
+	OutputToScreenNode* Output = new OutputToScreenNode();
+	LinkNode(RootNode, Output);
+	Output->GetInput(0)->SetLink(RootNode->GetOutput(0));
 }

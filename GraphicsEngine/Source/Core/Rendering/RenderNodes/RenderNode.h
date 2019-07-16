@@ -72,6 +72,7 @@ public:
 	bool IsVRBranch() const;
 
 	virtual bool IsNodeSupported(const RenderSettings& settings);
+	void SetDevice(DeviceContext* D);
 protected:
 	//search forwards until we reach the end VR node 
 	

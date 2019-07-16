@@ -57,6 +57,7 @@ public:
 	void ListNodes();
 	void ValidateGraph();
 	void CreateVRFWDGraph();
+	void CreatePathTracedGraph();
 	struct ValidateArgs
 	{
 		bool ErrorWrongFormat = false;
@@ -73,5 +74,6 @@ private:
 	int NodeCount = 0;
 	int ActiveNodeCount = 0;
 	void ExposeItem(RenderNode* N, std::string name, bool Defaultstate = true);
+	
 };
 
