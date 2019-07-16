@@ -17,28 +17,10 @@
 RayTracingEngine::RayTracingEngine()
 {
 	AsyncbuildList = RHI::CreateCommandList(ECommandListType::Compute);
-	RTList = CreateRTList(RHI::GetDefaultDevice());
-	DefaultTable = new ShaderBindingTable();
-	if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
-	{
-		DefaultTable->InitDefault();
-	}
-	else if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
-	{
-		DefaultTable->InitReflections();
-	}
-	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
-	StateObject->ShaderTable = DefaultTable;
-	//StateObject->TempCam = SceneRenderer::Get()->GetCurrentCamera();
-	StateObject->Build();
-	AddHitTable(DefaultTable);
 }
 
 RayTracingEngine::~RayTracingEngine()
 {
-	SafeRelease(RTList);
-	SafeDelete(DefaultTable);
-	SafeRelease(StateObject);
 	SafeRelease(CurrnetHL);
 }
 
@@ -78,32 +60,6 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 	LASToBuild.clear();
 }
 
-void RayTracingEngine::DispatchRaysForMainScenePass(FrameBuffer* Target)
-{
-	if (RHI::GetFrameCount() == 0)
-	{
-		StateObject->RebuildShaderTable();
-	}
-	StateObject->TempCam = BaseWindow::GetCurrentCamera();
-	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
-
-	RTList->ResetList();
-	RTList->GetRHIList()->StartTimer(EGPUTIMERS::RT_Trace);
-	RTList->SetStateObject(StateObject);
-	Target->MakeReadyForComputeUse(RTList->GetRHIList());
-	RTList->SetHighLevelAccelerationStructure(CurrnetHL);
-	RTList->TraceRays(RHIRayDispatchDesc(Target));
-	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
-	RTList->Execute();
-
-	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
-}
-
-void RayTracingEngine::SetShaderTable(ShaderBindingTable* SBT)
-{
-
-}
-
 void RayTracingEngine::OnFirstFrame()
 {
 	CurrnetHL = RHI::GetRHIClass()->CreateHighLevelAccelerationStructure(RHI::GetDefaultDevice());
@@ -115,7 +71,6 @@ void RayTracingEngine::OnFirstFrame()
 
 void RayTracingEngine::BuildStructures()
 {
-	//RHI::WaitForGPU();
 	if (!Build)
 	{
 		CurrnetHL->InitialBuild();
@@ -124,41 +79,11 @@ void RayTracingEngine::BuildStructures()
 	BuildForFrame(AsyncbuildList);
 	AsyncbuildList->Execute();
 	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
-	//RHI::WaitForGPU();
 }
 
 RayTracingCommandList * RayTracingEngine::CreateRTList(DeviceContext * Device)
 {
 	return new RayTracingCommandList(Device);
-}
-
-void RayTracingEngine::TraceRaysForReflections(FrameBuffer * Target, FrameBuffer* NormalSrcBuffer, ShadowAtlasStorageNode* shadow)
-{
-	if (RHI::GetFrameCount() == 0)
-	{
-		StateObject->RebuildShaderTable();
-	}
-	ensure(NormalSrcBuffer);
-	StateObject->TempCam = BaseWindow::GetCurrentCamera();
-	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
-
-	RTList->ResetList();
-	RTList->GetRHIList()->StartTimer(EGPUTIMERS::RT_Trace);
-	RTList->SetStateObject(StateObject);
-	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 3, 1);
-	RTList->GetRHIList()->SetFrameBufferTexture(NormalSrcBuffer, 4, 0);
-	SceneRenderer::Get()->BindLightsBuffer(RTList->GetRHIList(), 5);
-	SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->BindBufferReadOnly(RTList->GetRHIList(), 6);
-	//Target->MakeReadyForComputeUse(RTList->GetRHIList());
-	shadow->BindPointArray(RTList->GetRHIList(), 7);
-
-
-	RTList->SetHighLevelAccelerationStructure(CurrnetHL);
-	RTList->TraceRays(RHIRayDispatchDesc(Target));
-	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
-	RTList->Execute();
-
-	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
 void RayTracingEngine::UpdateFromScene(Scene * S)
@@ -172,4 +97,9 @@ void RayTracingEngine::UpdateFromScene(Scene * S)
 void RayTracingEngine::AddHitTable(ShaderBindingTable * Table)
 {
 	Tables.push_back(Table);
+}
+
+HighLevelAccelerationStructure * RayTracingEngine::GetHighLevelStructure()
+{
+	return CurrnetHL;
 }

@@ -26,12 +26,6 @@ namespace LocalRootSignatureParams
 		Count
 	};
 }
-struct RTCameraData
-{
-	glm::mat4x4 IView;
-	glm::mat4x4 IProj;
-	glm::vec3 CamPos;
-};
 class D3D12StateObject :public RHIStateObject
 {
 public:
@@ -55,7 +49,7 @@ public:
 	void WriteBinds(Shader_RTBase* shader, std::vector<void *> &Data);
 
 	HighLevelAccelerationStructure* High = nullptr;
-	RTCameraData Data;
+
 
 	virtual void RebuildShaderTable() override;
 	void BindToList(D3D12CommandList* List);
@@ -69,7 +63,7 @@ private:
 	nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper;
 	ID3D12Resource* m_sbtStorage = nullptr;
 	DescriptorGroup* UAVd = nullptr;
-	D3D12Buffer* CBV = nullptr;
+	
 	uint32_t CurrentSBTSize = 0;
 };
 

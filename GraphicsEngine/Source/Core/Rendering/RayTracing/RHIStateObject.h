@@ -12,7 +12,6 @@ public:
 	RHI_API virtual ~RHIStateObject();
 	RHI_API virtual void Build() = 0;
 	ShaderBindingTable* ShaderTable = nullptr;
-	Camera* TempCam = nullptr;
 	RHI_API virtual void RebuildShaderTable() = 0;
 protected:
 	DeviceContext* Device = nullptr;

@@ -156,13 +156,13 @@ void ForwardRenderer::RunMainPass(DeviceDependentObjects* O, EEye::Type eye)
 	List->Execute();
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
-		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
+	//	if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
 		{
 			//RayTracingEngine::Get()->TraceRaysForReflections(O->GetMain(eye), nullptr);
 		}
-		if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
+//		if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
 		{
-			RayTracingEngine::Get()->DispatchRaysForMainScenePass(O->GetMain(eye));
+//			RayTracingEngine::Get()->DispatchRaysForMainScenePass(O->GetMain(eye));
 		}
 	}
 }

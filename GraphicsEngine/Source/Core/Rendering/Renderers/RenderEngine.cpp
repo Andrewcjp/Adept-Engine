@@ -580,13 +580,6 @@ void RenderEngine::RunReflections(DeviceDependentObjects* d, EEye::Type eye)
 {
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
-		if (RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
-		{
-		//	RayTracingEngine::Get()->TraceRaysForReflections(d->RTBuffer, d->GetGBuffer(eye));
-		}
-		if (RHI::GetRenderSettings()->GetRTSettings().UseForMainPass)
-		{
-			//RayTracingEngine::Get()->DispatchRaysForMainScenePass(d->GetMain(eye));
-		}
+		
 	}
 }

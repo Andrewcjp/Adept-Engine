@@ -12,7 +12,6 @@ ParticleRenderNode::ParticleRenderNode()
 ParticleRenderNode::~ParticleRenderNode()
 {}
 
-
 void ParticleRenderNode::OnExecute()
 {
 	FrameBuffer* Buffer = GetFrameBufferFromInput(0);

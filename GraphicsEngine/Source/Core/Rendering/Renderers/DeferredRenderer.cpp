@@ -245,7 +245,7 @@ void DeferredRenderer::LightingPass(RHICommandList* List, FrameBuffer* GBuffer, 
 	LightCulling->BindLightBuffer(List);
 	if (MainScene->GetLightingData()->SkyBox != nullptr)
 	{
-		if (RHI::GetRenderSettings()->RaytracingEnabled() && RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
+//if (RHI::GetRenderSettings()->RaytracingEnabled() && RHI::GetRenderSettings()->GetRTSettings().UseForReflections)
 		{
 			List->SetFrameBufferTexture(Object->RTBuffer, DeferredLightingShaderRSBinds::ScreenSpecular);
 		}

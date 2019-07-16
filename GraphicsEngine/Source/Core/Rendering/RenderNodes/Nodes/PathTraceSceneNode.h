@@ -2,22 +2,24 @@
 #include "..\RenderNode.h"
 
 class RHIStateObject;
-class RayTracingCommandList;
 class ShaderBindingTable;
+class RayTracingCommandList;
 class RHIBuffer;
-class RayTraceReflectionsNode: public RenderNode
+class PathTraceSceneNode : public RenderNode
 {
 public:
-	RayTraceReflectionsNode();
-	~RayTraceReflectionsNode();
+	PathTraceSceneNode();
+	~PathTraceSceneNode();
 
 	virtual void OnExecute() override;
-	virtual bool IsNodeSupported(const RenderSettings& settings) override;
+
 
 	virtual std::string GetName() const override;
 
 protected:
 	virtual void OnNodeSettingChange() override;
+
+
 	virtual void OnSetupNode() override;
 private:
 	RHIStateObject* StateObject = nullptr;
