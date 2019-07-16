@@ -20,6 +20,7 @@
 #include "../Shaders/Shader_Depth.h"
 #include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
 #include "../RayTracing/RayTracingEngine.h"
+#include "Screen.h"
 
 SceneRenderer* SceneRenderer::Instance = nullptr;
 void SceneRenderer::StartUp()
@@ -151,7 +152,7 @@ void SceneRenderer::UpdateMV(Camera * c, int index /*= 0*/)
 	MV_Buffer.P = c->GetProjection();
 	MV_Buffer.CameraPos = c->GetPosition();
 	MV_Buffer.INV_P = glm::inverse(MV_Buffer.P);
-	MV_Buffer.Res = BaseWindow::GetCurrentRenderer()->GetScaledRes();
+	MV_Buffer.Res = Screen::GetScaledRes();
 	MV_Buffer.INV_res.x = 1.0f / (float)MV_Buffer.Res.x;
 	MV_Buffer.INV_res.y = 1.0f / (float)MV_Buffer.Res.y;
 	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, index);

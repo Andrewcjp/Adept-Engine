@@ -11,6 +11,7 @@ public:
 	virtual ~BaseWindow();
 	virtual bool CreateRenderWindow(int width, int height) override final;
 	virtual void Render() override final;
+
 	virtual void Resize(int width, int height, bool force = false) override final;
 	virtual void DestroyRenderWindow() override;
 	bool MouseLBDown(int x, int y) override;
@@ -19,10 +20,7 @@ public:
 	bool MouseRBUp(int x, int y) override;
 	bool MouseMove(int x, int y) override final;
 	CORE_API static void StaticResize();
-	//getters
-	static int GetWidth();
-	static int GetHeight();
-	TEMP_API static RenderEngine * GetCurrentRenderer();
+
 
 	static bool ProcessDebugCommand(std::string command, std::string & response);
 	static class Camera* GetCurrentCamera();
@@ -81,9 +79,6 @@ private:
 	void RenderText();
 	void InitilseWindow();
 	static BaseWindow* Instance;
-	//basics
-	int			m_width;
-	int			m_height;
 	//constants
 	bool LoadText = true;
 	bool Once = true;

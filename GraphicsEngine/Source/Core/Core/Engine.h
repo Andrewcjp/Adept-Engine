@@ -37,10 +37,6 @@ public:
 	static void						SetGame(Game* game);
 	static Game*					GetGame();
 	void							ProcessCommandLineInput(class FString Text, int length);
-	int								GetWidth();
-	int								GetHeight();
-	void							Resize(int width, int height);
-	IntPoint*						GetInitalScreen();
 	bool							GetWindowValid() const;
 	CORE_API static void			RequestExit(int code);
 
@@ -63,7 +59,6 @@ private:
 
 	ERenderSystemType				ForcedRenderSystem = ERenderSystemType::Limit;
 	int								mwidth, mheight;
-	IntPoint						IntialScreenSize;
 	bool							ShouldRunCook = false;
 	static Game*					mgame;
 	bool							isWindowVaild = false;

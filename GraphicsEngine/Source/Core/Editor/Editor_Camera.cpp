@@ -4,12 +4,13 @@
 #include "Editor/EditorWindow.h"
 #include "EditorCameraController.h"
 #include "Rendering/VR/VRCamera.h"
+#include "Rendering/Core/Screen.h"
 #if WITH_EDITOR
 Editor_Camera::Editor_Camera(Camera* cam)
 {
 	if (cam == nullptr)
 	{
-		float aspect = (float)EditorWindow::GetWidth() / (float)EditorWindow::GetHeight();
+		float aspect = (float)Screen::GetWindowWidth() / (float)Screen::GetWindowHeight();
 		MainCam = new Camera(glm::vec3(0, 10, -5), 75.0f, aspect, 0.1f, 1000.0f);
 	}
 	else

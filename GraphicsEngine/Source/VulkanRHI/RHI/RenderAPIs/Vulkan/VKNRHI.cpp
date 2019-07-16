@@ -631,8 +631,8 @@ void  VKNRHI::drawFrame()
 	cmdlist->SetPipelineStateObject(PSO);
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->SetTexture(T, 1);
-	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(cmdlist, 2);
-	BaseWindow::GetCurrentRenderer()->SceneRender->MeshController->RenderPass(ERenderPass::DepthOnly, cmdlist);
+	SceneRenderer::Get()->BindMvBuffer(cmdlist, 2);
+	SceneRenderer::Get()->MeshController->RenderPass(ERenderPass::DepthOnly, cmdlist);
 
 	cmdlist->SetVertexBuffer(Vertexb);
 	cmdlist->SetIndexBuffer(IndexTest);
@@ -644,8 +644,8 @@ void  VKNRHI::drawFrame()
 	cmdlist->SetConstantBufferView(buffer, 0, 0);
 	cmdlist->SetTexture(T, 1);
 	//cmdlist->SetFrameBufferTexture(TestFrameBuffer, 1);
-	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(cmdlist, 2);
-	BaseWindow::GetCurrentRenderer()->SceneRender->MeshController->RenderPass(ERenderPass::DepthOnly, cmdlist);
+	SceneRenderer::Get()->BindMvBuffer(cmdlist, 2);
+	SceneRenderer::Get()->MeshController->RenderPass(ERenderPass::DepthOnly, cmdlist);
 	//RenderingUtils::RenderScreenQuad(cmdlist);
 	cmdlist->EndRenderPass();
 	TestFrameBuffer->UnBind(cmdlist);

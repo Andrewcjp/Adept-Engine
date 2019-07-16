@@ -527,7 +527,7 @@ void RenderGraph::CreatePathTracedGraph()
 {
 	GraphName = "Path Traced Render";
 
-	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
+	//SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;

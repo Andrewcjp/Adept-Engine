@@ -2,6 +2,7 @@
 #include "Core/Transform.h"
 #include "Editor/EditorWindow.h"
 #include "Core/Utils/MathUtils.h"
+#include "Screen.h"
 
 Camera::Camera()
 {
@@ -102,8 +103,8 @@ glm::vec3 Camera::GetPosition()
 
 void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outrayDirection, glm::vec3&  outRayorign)
 {
-	float x = (2.0f * screenX) / BaseWindow::GetWidth() - 1.0f;
-	float y = 1.0f - (2.0f * screenY) / BaseWindow::GetHeight();
+	float x = (2.0f * screenX) / Screen::GetWindowWidth() - 1.0f;
+	float y = 1.0f - (2.0f * screenY) / Screen::GetWindowHeight();
 
 	float z = 1.0f;
 	glm::vec3 ray_nds = glm::vec3(x, y, z);
@@ -112,7 +113,7 @@ void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outra
 	ray_eye = glm::vec4(ray_eye.xy, -1.0, 0.0);
 
 	glm::vec3 ray_wor = (glm::inverse(GetView()) * ray_eye).xyz;
-	// don't forget to normalise the vector at some point
+	// don't forget to normalize the vector at some point
 	ray_wor = glm::normalize(ray_wor);
 
 	outrayDirection = ray_wor;
@@ -121,8 +122,8 @@ void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outra
 
 glm::vec3  Camera::ScreenPointToWorld(float screenX, float screenY)
 {
-	float x = (2.0f * screenX) / BaseWindow::GetWidth() - 1.0f;
-	float y = 1.0f - (2.0f * screenY) / BaseWindow::GetHeight();
+	float x = (2.0f * screenX) / Screen::GetWindowWidth() - 1.0f;
+	float y = 1.0f - (2.0f * screenY) / Screen::GetWindowHeight();
 
 	glm::mat4x4 viewProjectionInverse = glm::inverse(projection *
 		GetView());

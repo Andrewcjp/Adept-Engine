@@ -22,6 +22,7 @@
 #include "Rendering/Core/Defaults.h"
 #include "Platform/Windows/WindowsWindow.h"
 #include "Testing/EngineTests.h"
+#include "Rendering/Core/Screen.h"
 
 
 long Engine::StartTime = 0;
@@ -97,6 +98,7 @@ Engine::~Engine()
 
 void Engine::PreInit()
 {
+	Screen::Get()->Resize(mwidth, mheight);
 	TestTDPhysics();
 	LoadGame();
 	if (IsCooking)
@@ -156,7 +158,7 @@ RenderWindow * Engine::GetRenderWindow()
 }
 
 void Engine::CreateApplication()
-{
+{	
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
 #if NOSHADOW
@@ -174,7 +176,7 @@ void Engine::CreateApplication()
 
 	if (!IsCooking)
 	{
-		CreateApplicationWindow(GetWidth(), GetHeight());
+		CreateApplicationWindow(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 	}
 }
 
@@ -232,27 +234,6 @@ void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 	{
 		IsCooking = true;
 	}
-}
-
-int Engine::GetWidth()
-{
-	return mwidth;
-}
-
-int Engine::GetHeight()
-{
-	return mheight;
-}
-
-void Engine::Resize(int width, int height)
-{
-	mwidth = width;
-	mheight = height;
-}
-
-IntPoint * Engine::GetInitalScreen()
-{
-	return &IntialScreenSize;
 }
 
 bool Engine::GetWindowValid() const
