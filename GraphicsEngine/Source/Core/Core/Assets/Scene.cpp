@@ -151,10 +151,8 @@ GameObject * Scene::AddMeshObject(glm::vec3 pos, std::string mesh, Material *mat
 	return go;
 }
 
-
-
 //load an example scene
-void Scene::LoadExampleScene(RenderEngine* Renderer, bool IsDeferredMode)
+void Scene::LoadExampleScene()
 {
 	StaticSceneNeedsUpdate = true;
 	Asset_Shader* NormalMapShader = new Asset_Shader();

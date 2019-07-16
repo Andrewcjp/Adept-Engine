@@ -6,6 +6,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/BaseWindow.h"
 #include "../Renderers/RenderEngine.h"
+#include "Screen.h"
 
 FrameBuffer::FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc)
 {
@@ -217,14 +218,14 @@ void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc)
 	}
 	if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale)
 	{
-		BufferDesc.Height = glm::iround(BaseWindow::GetCurrentRenderer()->GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);
-		BufferDesc.Width = glm::iround(BaseWindow::GetCurrentRenderer()->GetScaledWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		BufferDesc.Height = glm::iround(Screen::GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);
+		BufferDesc.Width = glm::iround(Screen::GetScaledWidth()*BufferDesc.LinkToBackBufferScaleFactor);
 		//Resize(Width, Height);
 	}
 	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToScreenSize)
 	{
-		BufferDesc.Height = glm::iround(BaseWindow::GetHeight()*BufferDesc.LinkToBackBufferScaleFactor);
-		BufferDesc.Width = glm::iround(BaseWindow::GetWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		BufferDesc.Height = glm::iround(Screen::GetWindowHeight()*BufferDesc.LinkToBackBufferScaleFactor);
+		BufferDesc.Width = glm::iround(Screen::GetWindowWidth()*BufferDesc.LinkToBackBufferScaleFactor);
 		//Resize(Width, Height);
 	}
 }
@@ -238,14 +239,14 @@ void FrameBuffer::AutoResize()
 	}
 	if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale)
 	{
-		const int Height = glm::iround(BaseWindow::GetCurrentRenderer()->GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);
-		const int Width = glm::iround(BaseWindow::GetCurrentRenderer()->GetScaledWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		const int Height = glm::iround(Screen::GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);
+		const int Width = glm::iround(Screen::GetScaledWidth()*BufferDesc.LinkToBackBufferScaleFactor);
 		Resize(Width, Height);
 	}
 	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToScreenSize)
 	{
-		const int Height = glm::iround(BaseWindow::GetHeight()*BufferDesc.LinkToBackBufferScaleFactor);
-		const int Width = glm::iround(BaseWindow::GetWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		const int Height = glm::iround(Screen::GetWindowHeight()*BufferDesc.LinkToBackBufferScaleFactor);
+		const int Width = glm::iround(Screen::GetWindowWidth()*BufferDesc.LinkToBackBufferScaleFactor);
 		Resize(Width, Height);
 	}
 }

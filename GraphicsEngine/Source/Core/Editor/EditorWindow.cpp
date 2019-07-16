@@ -67,7 +67,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	selector = new EditorObjectSelector();
 	selector->init();
 
-	CurrentScene->LoadExampleScene(nullptr, false);
+	CurrentScene->LoadExampleScene();
 	SceneRenderer::Get()->SetScene(CurrentScene);
 	RefreshScene();
 

@@ -17,7 +17,7 @@ void PP_SSAO::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_SSAO>());
 	list->SetPipelineStateDesc(desc);
 
-	FrameBuffer* GBuffer = BaseWindow::GetCurrentRenderer()->GetGBuffer();
+	FrameBuffer* GBuffer = nullptr;/// BaseWindow::GetCurrentRenderer()->GetGBuffer();
 	list->SetFrameBufferTexture(GBuffer, "PosTex", 0);
 	list->SetFrameBufferTexture(GBuffer, "NormalTex", 1);
 	list->SetFrameBufferTexture(GBuffer, "DepthTexture", -1);

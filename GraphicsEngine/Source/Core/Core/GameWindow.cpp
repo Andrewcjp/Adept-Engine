@@ -25,7 +25,7 @@ void GameWindow::PostInitWindow(int width, int height)
 
 	//LoadScene("\\asset\\scene\\testscene.scene");
 	CurrentScene = new Scene();
-	CurrentScene->LoadExampleScene(nullptr, false);
+	CurrentScene->LoadExampleScene();
 	SceneRenderer::Get()->SetScene(CurrentScene);
 	AISystem::Get()->GenerateMesh();//todo: load in package!
 #if SKIP_MM

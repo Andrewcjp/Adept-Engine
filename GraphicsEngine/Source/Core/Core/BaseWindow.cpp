@@ -25,6 +25,7 @@
 #include "Rendering/RenderNodes/RenderGraphSystem.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/RenderNodes/RenderGraph.h"
+#include "Rendering/Core/Screen.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
@@ -56,17 +57,6 @@ void BaseWindow::InitilseWindow()
 	ImageIO::StartLoader();
 	MeshLoader::Get();
 	SceneRenderer::StartUp();
-#if 0
-	if (RHI::GetRenderSettings()->IsDeferred)
-	{
-		Renderer = new DeferredRenderer(m_width, m_height);
-	}
-	else
-	{
-		Renderer = new ForwardRenderer(m_width, m_height);
-	}
-	Renderer->Init();
-#endif
 #if !BASIC_RENDER_ONLY
 	UI = new UIManager(m_width, m_height);
 #endif
@@ -221,15 +211,11 @@ void BaseWindow::Render()
 	DebugLineDrawer::Get2()->GenerateLines();
 	DebugLineDrawer::Get()->GenerateLines();
 #endif
-#if TESTGRAPH
+
 	RHI::RHIRunFirstFrame();
 	RHI::GetRenderSystem()->Update();
-	//	Renderer->PreRender();
 	SceneRenderer::Get()->PrepareSceneForRender();
 	RHI::GetRenderSystem()->Render();
-#else
-	Renderer->Render();
-#endif
 
 #if !BASIC_RENDER_ONLY
 	PerfManager::EndTimer("Render");
@@ -258,8 +244,6 @@ void BaseWindow::Render()
 		TextRenderer::instance->Finish(true);
 	}
 	PerfManager::EndTimer("TEXT");
-
-
 	PerfManager::EndTimer("UI");
 #endif
 	if (PerfManager::Instance != nullptr)
@@ -319,15 +303,9 @@ bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response
 {
 	if (Instance != nullptr)
 	{
-		/*	if (command.find("fps") != -1)
-			{
-				Instance->ShowText = !Instance->ShowText;
-				return true;
-			}
-			else */
 		if (command.find("r.renderscale") != -1)
 		{
-			StringUtils::RemoveChar(command, "renderscale");
+			StringUtils::RemoveChar(command, "r.renderscale");
 			StringUtils::RemoveChar(command, " ");
 			if (command.length() > 0)
 			{
@@ -390,11 +368,10 @@ void BaseWindow::SetFrameRateLimit(int limit)
 void BaseWindow::ReLoadCurrentScene()
 {
 	CurrentScene->EndScene();
-	//	SceneRenderer::Get()->SetScene(nullptr);
 	SceneRenderer::Get()->SetScene(nullptr);
 	SafeDelete(CurrentScene);
 	CurrentScene = new Scene();
-	CurrentScene->LoadExampleScene(nullptr, false);
+	CurrentScene->LoadExampleScene();
 	SceneRenderer::Get()->SetScene(CurrentScene);
 	Engine::GetGame()->BeginPlay();
 	CurrentScene->StartScene();
@@ -436,25 +413,16 @@ void BaseWindow::PostFrameOne()
 
 void BaseWindow::Resize(int width, int height, bool force /*= false*/)
 {
-	if (!force)
+	if (!Screen::IsValidForRender())
 	{
-		if (width == m_width && height == m_height || width == 0 || height == 0)
-		{
-			return;
-		}
+		return;
 	}
-	m_width = width;
-	m_height = height;
 	if (UI != nullptr)
 	{
 		UI->UpdateSize(width, height);
 	}
-	//if (Renderer != nullptr)
-	//{
-	//	/*RHI::WaitForGPU();
-	//	RHI::ResizeSwapChain(width, height);*/
-	//	Renderer->Resize(width, height);
-	//}
+	RHI::GetRenderSystem()->GetCurrentGraph()->Resize();
+	Log::LogMessage("Renderer resized to " + std::to_string(Screen::GetScaledWidth()) + " X " + std::to_string(Screen::GetScaledHeight()) + " (~" + std::to_string(Screen::GetScaledHeight()) + "p)");
 }
 
 void BaseWindow::DestroyRenderWindow()
@@ -464,10 +432,8 @@ void BaseWindow::DestroyRenderWindow()
 	SafeDelete(CurrentScene);
 	ImageIO::ShutDown();
 	MeshLoader::ShutDown();
-	//Renderer->DestoryRenderWindow();
 	SafeDelete(LineDrawer);
 	SafeDelete(UI);
-	//	SafeDelete(Renderer);
 	Input::ShutDown();
 }
 
@@ -502,7 +468,6 @@ bool BaseWindow::MouseRBDown(int x, int y)
 	{
 		Input::Get()->MouseLBDown(x, y);
 	}
-
 	return 0;
 }
 
@@ -519,7 +484,6 @@ bool BaseWindow::MouseRBUp(int x, int y)
 	{
 		Input::Get()->MouseLBUp(x, y);
 	}
-
 	return 0;
 }
 
@@ -535,35 +499,13 @@ bool BaseWindow::MouseMove(int x, int y)
 
 void BaseWindow::StaticResize()
 {
-	Instance->Resize(Instance->m_width, Instance->m_height, true);
-}
-
-//getters
-int BaseWindow::GetWidth()
-{
-	if (Instance != nullptr)
-	{
-		return Instance->m_width;
-	}
-	return 0;
-}
-
-int BaseWindow::GetHeight()
-{
-	if (Instance != nullptr)
-	{
-		return Instance->m_height;
-	}
-	return 0;
-}
-
-RenderEngine * BaseWindow::GetCurrentRenderer()
-{
-	return nullptr;
+	Instance->Resize(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 }
 
 void BaseWindow::RenderText()
 {
+	const int m_height = Screen::GetWindowHeight();
+	const int m_width = Screen::GetWindowWidth();
 	int offset = 1;
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
@@ -583,7 +525,7 @@ void BaseWindow::RenderText()
 		{
 			PerfManager::RenderGpuData(10, (int)(m_height - m_height / 7));
 		}
-		
+
 		if (PerfManager::Instance != nullptr)
 		{
 			PerfManager::Instance->DrawAllStats(m_width / 3, (int)(m_height / 1.2));

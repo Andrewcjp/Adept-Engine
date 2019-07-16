@@ -9,6 +9,7 @@
 #include "Rendering/Shaders/Culling/Shader_LightCull.h"
 #include "Rendering/Shaders/Shader_Deferred.h"
 #include "RHI/DeviceContext.h"
+#include "../Screen.h"
 
 static ConsoleVariable ShowLightBounds("c.ShowLightBounds", 0);
 static ConsoleVariable FreezeLightCulling("c.LightFreeze", 0);
@@ -52,8 +53,8 @@ void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_LightCull>());
 	list->SetPipelineStateDesc(desc);
 	list->SetUAV(LightCullingBuffer->GetUAV(), "DstTexture");
-	BaseWindow::GetCurrentRenderer()->SceneRender->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
-	BaseWindow::GetCurrentRenderer()->SceneRender->BindMvBuffer(list, desc.ShaderInUse->GetSlotForName("CameraData"));
+	SceneRenderer::Get()->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
+	SceneRenderer::Get()->BindMvBuffer(list, desc.ShaderInUse->GetSlotForName("CameraData"));
 	LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
 	list->Dispatch(GetLightGridDim().x, GetLightGridDim().y, 1);
 	list->Execute();
@@ -63,8 +64,8 @@ void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
 glm::ivec2 LightCullingEngine::GetLightGridDim()
 {
 	const int TileSize = RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE;
-	int tileWidth = glm::ceil(BaseWindow::GetCurrentRenderer()->GetScaledWidth() / TileSize);
-	int tileHeight = glm::ceil(BaseWindow::GetCurrentRenderer()->GetScaledHeight() / TileSize);
+	int tileWidth = glm::ceil(Screen::GetScaledWidth() / TileSize);
+	int tileHeight = glm::ceil(Screen::GetScaledHeight() / TileSize);
 	tileHeight += 1;
 	return glm::ivec2(tileWidth, tileHeight);
 }

@@ -12,6 +12,7 @@
 #include "WinLauncher.h"
 #include "Core/Version.h"
 #include "Core/Utils/StringUtil.h"
+#include "Rendering/Core/Screen.h"
 
 
 WindowsWindow* WindowsWindow::app = nullptr;
@@ -69,7 +70,6 @@ WindowsWindow* WindowsWindow::CreateApplication(Engine* EnginePtr, HINSTANCE hin
 {
 	if (!app)
 	{
-		//app->m_engine->ProcessCommandLineInput((const CHAR *)args, nshow);
 		app = new WindowsWindow();
 		app->m_engine = EnginePtr;
 		app->m_hInst = hinst;
@@ -77,7 +77,7 @@ WindowsWindow* WindowsWindow::CreateApplication(Engine* EnginePtr, HINSTANCE hin
 		//Now create an OGLWindow for this application
 		if (!app->m_engine->GetIsCooking())
 		{
-			app->CreateOSWindow(app->m_engine->GetWidth(), app->m_engine->GetHeight());
+			app->CreateOSWindow(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 			app->m_engine->CreateApplication();
 			app->SetVisible(true);
 			app->SetupHPMI();
@@ -162,6 +162,7 @@ int WindowsWindow::Run()
 			{
 				if (DidJustBoot)
 				{
+					//if the app just restarted ignore the kill from the last run
 					DidJustBoot = false;
 					continue;
 				}
@@ -307,9 +308,6 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	switch (msg)
 	{
 		case WM_CREATE:
-#if WITH_EDITOR
-			//app->AddMenus(hwnd);
-#endif
 			break;
 		case WM_COMMAND:
 			if (app->m_engine->GetRenderWindow())
@@ -320,12 +318,14 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		case WM_SIZE:
 			if (app->m_engine->GetRenderWindow())
 			{
-				app->m_engine->GetRenderWindow()->Resize(LOWORD(lparam), HIWORD(lparam));
-				RHI::Get()->ResizeSwapChain(LOWORD(lparam), HIWORD(lparam));
-			}
-			else
-			{
-				app->m_engine->Resize(LOWORD(lparam), HIWORD(lparam));
+				const int Width = LOWORD(lparam);
+				const int Height = HIWORD(lparam);
+				if (Screen::NeedsWindowUpdate(Width, Height))
+				{
+					Screen::Resize(Width, Height);
+					app->m_engine->GetRenderWindow()->Resize(Width, Height);
+					RHI::Get()->ResizeSwapChain(Width, Height);
+				}
 			}
 			break;
 		case WM_CLOSE:

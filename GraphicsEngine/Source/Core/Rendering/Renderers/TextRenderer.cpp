@@ -5,6 +5,7 @@
 #include "Rendering/Shaders/Text_Shader.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHITypes.h"
+#include "../Core/Screen.h"
 
 #define MAXWIDTH 1024
 TextRenderer* TextRenderer::instance = nullptr;
@@ -21,7 +22,7 @@ TextRenderer::TextRenderer(int width, int height, bool SetInstance /*= false*/)
 		instance = this;
 	}
 	coords.reserve(100 * 6);
-	UpdateSize(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());
+	UpdateSize(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 }
 
 
@@ -160,7 +161,7 @@ void TextRenderer::LoadText()
 	TextCommandList->SetPipelineStateObject(PSO);
 	if (UseFrameBuffer)
 	{
-		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Engine::EngineInstance->GetWidth(), Engine::EngineInstance->GetHeight());
+		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 		desc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 0.0f);
 		Renderbuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(0), desc);
 		//PostProcessing::Instance->AddCompostPass(Renderbuffer);
@@ -300,5 +301,5 @@ TextRenderer::atlas::atlas(FT_Face face, int height)
 
 TextRenderer::atlas::~atlas()
 {
-//	EnqueueSafeRHIRelease(Texture);
+	//	EnqueueSafeRHIRelease(Texture);
 }
