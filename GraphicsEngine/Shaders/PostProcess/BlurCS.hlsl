@@ -17,9 +17,9 @@ cbuffer cbSettings : register(b0)
 
 	// Support up to 11 blur weights.
 	float w0;
-	float w1;
+	float w1; 
 	float w2;
-	float w3;
+	float w3; 
 	float w4;
 	float w5;
 	float w6;

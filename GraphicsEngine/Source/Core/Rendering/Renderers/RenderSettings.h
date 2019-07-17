@@ -74,7 +74,8 @@ struct ShadowMappingSettings
 {
 	bool UseGeometryShaderForShadows = false;
 	bool UseViewInstancingForShadows = false;
-	int MaxShadowMapSize = 1024;
+	int MaxShadowMapSize = 4096;
+	int DefaultShadowMapSize = 1024;
 };
 struct DynamicResolutionSettings
 {
@@ -101,7 +102,7 @@ struct RenderSettings
 {
 	RenderSettings();
 public:
-	
+
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
 
 	bool IsDeferred = false;

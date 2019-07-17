@@ -249,7 +249,7 @@ void D3D12TimeManager::EndTotalGPUTimer(RHICommandList* ComandList)
 #endif
 }
 
-void D3D12TimeManager::TimerQ::Resolve(float Freqency)
+void D3D12TimeManager::TimerQ::Resolve(UINT64 freqnecy)
 {
 	if (TimerQueries.size() < 2)
 	{
@@ -267,7 +267,7 @@ void D3D12TimeManager::TimerQ::Resolve(float Freqency)
 			{
 				Delta = TimerQueries[i]->Result - TimerQueries[i + 1]->Result;
 			}
-			float time = Delta * 1000 / Freqency;
+			float time = Delta * 1000 / (double)freqnecy;
 			TotalTime += time;
 		}
 	}

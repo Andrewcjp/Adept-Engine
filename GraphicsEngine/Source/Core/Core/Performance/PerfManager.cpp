@@ -529,6 +529,7 @@ void PerfManager::AddToCountTimer(std::string name, int amout)
 		D->CallCount += amout;
 		D->Active = true;
 		D->LastFrameUsed = RHI::GetFrameCount();
+		D->IsCountTimer = true;
 	}
 }
 
@@ -599,14 +600,29 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 	}
 	for (int i = 0; i < SortedTimers.size(); i++)
 	{
-		Textcontext->RenderFromAtlas(SortedTimers[i]->name, (float)x, (float)CurrentHeight, TextSize);
+		if (SortedTimers[i]->IsGPUTimer)
+		{
+			std::string Name = SortedTimers[i]->name;
+			if (isdigit(Name[Name.length() - 1]))
+			{
+				Name[Name.length() - 1] = '\0';
+			}
+			Textcontext->RenderFromAtlas(Name, (float)x, (float)CurrentHeight, TextSize);
+		}
+		else
+		{
+			Textcontext->RenderFromAtlas(SortedTimers[i]->name, (float)x, (float)CurrentHeight, TextSize);
+		}
 		std::stringstream stream;
-		stream << std::fixed << std::setprecision(3) << SortedTimers[i]->Time << "ms";
-		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth), (float)CurrentHeight, TextSize);
-		stream.str("");
-		stream << std::fixed << std::setprecision(3) << " Max:" << SortedTimers[i]->MaxTime << "ms ";
-		Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth * 1.4f), (float)CurrentHeight, TextSize);
-		stream.str("");
+		if (!SortedTimers[i]->IsCountTimer)
+		{
+			stream << std::fixed << std::setprecision(3) << SortedTimers[i]->Time << "ms";
+			Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth), (float)CurrentHeight, TextSize);
+			stream.str("");
+			stream << std::fixed << std::setprecision(3) << " Max:" << SortedTimers[i]->MaxTime << "ms ";
+			Textcontext->RenderFromAtlas(stream.str(), (float)(x + ColWidth * 1.4f), (float)CurrentHeight, TextSize);
+			stream.str("");
+		}
 		if (!SortedTimers[i]->IsGPUTimer)
 		{
 			stream << SortedTimers[i]->LastCallCount;

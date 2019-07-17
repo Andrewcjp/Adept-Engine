@@ -2,9 +2,6 @@
 class RenderEngine;
 class RenderWindow
 {
-protected:
-	int			m_width;
-	int			m_height;
 public:
 	RenderWindow()
 	{}

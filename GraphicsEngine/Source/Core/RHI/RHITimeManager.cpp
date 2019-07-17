@@ -1,6 +1,7 @@
 
 #include "RHITimeManager.h"
 #include "DeviceContext.h"
+#include "Core\Performance\PerfManager.h"
 
 RHITimeManager::RHITimeManager(DeviceContext * context)
 {
@@ -15,6 +16,7 @@ ScopedGPUTimer::ScopedGPUTimer(RHICommandList * List, std::string Name)
 {
 	cmdlist = List;
 	GPUTimerId = List->GetDevice()->GetTimeManager()->GetGPUTimerId(Name);
+	PerfManager::Get()->AddGPUTimer((Name + std::to_string(cmdlist->GetDevice()->GetDeviceIndex())).c_str(), PerfManager::Get()->GetGroupId("GPU_" + std::to_string(cmdlist->GetDevice()->GetDeviceIndex())));
 	cmdlist->StartTimer(GPUTimerId);
 }
 

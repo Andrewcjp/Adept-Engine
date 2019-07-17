@@ -9,8 +9,9 @@
 #include "Core/Assets/AssetManager.h"
 #include "VKNHelpers.h"
 #include "Descriptor.h"
+#pragma warning(push,0)
 #include "gli/gli.hpp"
-
+#pragma warning(pop)
 #if BUILD_VULKAN
 
 VKNTexture::VKNTexture()

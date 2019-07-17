@@ -120,7 +120,7 @@ void MeshPipelineController::BuildStaticInstancing()
 		}
 		else
 		{
-			CreateInstanceController(Ctl, itor, itor->second.size(), 0);
+			CreateInstanceController(Ctl, itor, (int)itor->second.size(), 0);
 		}
 	}
 }

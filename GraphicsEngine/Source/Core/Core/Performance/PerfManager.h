@@ -28,6 +28,7 @@ struct TimerData
 	ECommandListType::Type TimerType = ECommandListType::Graphics;
 	bool HiddenFromDisplay = false;
 	int LastFrameUsed = 0;
+	bool IsCountTimer = false;
 	MovingAverage* MAXAVG = nullptr;
 	~TimerData()
 	{

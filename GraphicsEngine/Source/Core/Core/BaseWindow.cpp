@@ -43,8 +43,6 @@ BaseWindow::~BaseWindow()
 bool BaseWindow::CreateRenderWindow(int width, int height)
 {
 	RHI::InitialiseContextWindow(width, height);
-	m_height = height;
-	m_width = width;
 	InitilseWindow();
 
 	PostInitWindow(width, height);
@@ -58,7 +56,7 @@ void BaseWindow::InitilseWindow()
 	MeshLoader::Get();
 	SceneRenderer::StartUp();
 #if !BASIC_RENDER_ONLY
-	UI = new UIManager(m_width, m_height);
+	UI = new UIManager(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 #endif
 
 	Log::LogMessage("Scene initialized");

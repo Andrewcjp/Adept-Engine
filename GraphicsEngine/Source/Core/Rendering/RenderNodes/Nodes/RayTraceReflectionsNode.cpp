@@ -25,7 +25,6 @@ void RayTraceReflectionsNode::OnExecute()
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	FrameBuffer* Gbuffer = GetFrameBufferFromInput(1);
 
-	RayTracingEngine::Get()->BuildStructures();
 	if (RHI::GetFrameCount() == 0)
 	{
 		StateObject->RebuildShaderTable();
