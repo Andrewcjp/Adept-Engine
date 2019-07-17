@@ -23,6 +23,7 @@
 #include "Nodes/RayTraceReflectionsNode.h"
 #include "UI/UIManager.h"
 #include "Nodes/PathTraceSceneNode.h"
+#include "Nodes/UpdateAccelerationStructuresNode.h"
 
 #define TESTVR 1
 RenderGraph::RenderGraph()
@@ -154,9 +155,10 @@ void RenderGraph::CreateDefTestgraph()
 	Desc.AllowUnorderedAccess = true;
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	RTXBuffer->SetFrameBufferDesc(Desc);
-
+	UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
+	LinkNode(UpdateProbesNode, UpdateAcceleration);
 	RayTraceReflectionsNode* RTNode = new RayTraceReflectionsNode();
-	LinkNode(UpdateProbesNode, RTNode);
+	LinkNode(UpdateAcceleration, RTNode);
 	RTNode->GetInput(0)->SetStore(RTXBuffer);
 	RTNode->GetInput(1)->SetLink(RootNode->GetOutput(0));
 	RTNode->GetInput(2)->SetStore(ShadowDataNode);
@@ -526,8 +528,6 @@ RenderGraphExposedSettings::RenderGraphExposedSettings(RenderNode * Node, bool D
 void RenderGraph::CreatePathTracedGraph()
 {
 	GraphName = "Path Traced Render";
-
-	//SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
@@ -536,10 +536,13 @@ void RenderGraph::CreatePathTracedGraph()
 
 	MainBuffer->StoreType = EStorageType::Framebuffer;
 	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
-	RootNode = new PathTraceSceneNode();
-	RootNode->GetInput(0)->SetStore(MainBuffer);
-	
+	RootNode = new UpdateAccelerationStructuresNode();
+
+	PathTraceSceneNode* PathTraceNode = new PathTraceSceneNode();
+	LinkNode(RootNode, PathTraceNode);
+	PathTraceNode->GetInput(0)->SetStore(MainBuffer);
+
 	OutputToScreenNode* Output = new OutputToScreenNode();
-	LinkNode(RootNode, Output);
-	Output->GetInput(0)->SetLink(RootNode->GetOutput(0));
+	LinkNode(PathTraceNode, Output);
+	Output->GetInput(0)->SetLink(PathTraceNode->GetOutput(0));
 }

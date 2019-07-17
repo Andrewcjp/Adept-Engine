@@ -64,8 +64,8 @@ void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
 glm::ivec2 LightCullingEngine::GetLightGridDim()
 {
 	const int TileSize = RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE;
-	int tileWidth = glm::ceil(Screen::GetScaledWidth() / TileSize);
-	int tileHeight = glm::ceil(Screen::GetScaledHeight() / TileSize);
+	int tileWidth = glm::iround(glm::ceil(Screen::GetScaledWidth() / TileSize));
+	int tileHeight = glm::iround(glm::ceil(Screen::GetScaledHeight() / TileSize));
 	tileHeight += 1;
 	return glm::ivec2(tileWidth, tileHeight);
 }

@@ -71,7 +71,7 @@ private:
 		std::string name = "";
 		std::vector<D3D12Query*> TimerQueries;
 		float TotalTime = 0.0f;
-		void Resolve(float freqnecy);
+		void Resolve(UINT64 freqnecy);
 	};
 	UINT64 StartTimeStamp = 0;
 	std::vector<TimerQ> TimerQueries;

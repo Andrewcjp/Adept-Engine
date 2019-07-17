@@ -18,8 +18,6 @@ PathTraceSceneNode::~PathTraceSceneNode()
 
 void PathTraceSceneNode::OnExecute()
 {
-	RayTracingEngine::Get()->BuildStructures();
-
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	if (RHI::GetFrameCount() == 0)
 	{

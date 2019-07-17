@@ -49,7 +49,7 @@ void MeshInstanceBuffer::Build()
 
 int MeshInstanceBuffer::GetInstanceCount()
 {
-	return containedBatches.size();
+	return (int)containedBatches.size();
 }
 
 RHIBuffer * MeshInstanceBuffer::GetBuffer()

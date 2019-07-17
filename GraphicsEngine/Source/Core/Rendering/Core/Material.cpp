@@ -54,6 +54,7 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 	}
 	if (!CurrentShader->IsValid())//stack overflow!
 	{
+		ensure(this != Defaults::GetDefaultMaterial());
 		Defaults::GetDefaultMaterial()->SetMaterialActive(list, Pass);
 		return;
 	}

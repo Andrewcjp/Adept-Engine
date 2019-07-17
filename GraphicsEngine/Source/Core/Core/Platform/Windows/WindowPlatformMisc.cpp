@@ -42,6 +42,6 @@ PlatformMemoryInfo WindowPlatformMisc::GetMemoryInfo()
 void WindowPlatformMisc::SetCurrnetThreadAffinity(int core)
 {
 	int MAsk = 1 << core;
-	int value = SetThreadAffinityMask(GetCurrentThread(), MAsk);
+	int value = (int)SetThreadAffinityMask(GetCurrentThread(), MAsk);
 	ensure(value != 0);
 }

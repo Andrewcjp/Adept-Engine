@@ -2,8 +2,8 @@ RWStructuredBuffer<uint> DstTexture : register(u0);
 SamplerState BilinearClamp : register(s0);
 groupshared uint LightIndexs[MAX_LIGHTS];
 groupshared uint ArrayLength;
-#include "Lighting.hlsl"
-#include "Core/Common.hlsl"
+#include "../Lighting.hlsl"
+#include "../Core/Common.hlsl"
 #include "CullingCommon.hlsl"
 cbuffer LightBuffer : register(b1)
 {
@@ -68,7 +68,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 	// Compute 4 points on the far clipping plane to use as the 
 	// frustum vertices.
 	uint2 ID = DTid.xy;
-	int Size = LIGHTCULLING_TILE_SIZE;//LIGHTCULLING_TILE_SIZE
+	int Size = LIGHTCULLING_TILE_SIZE;
 	float4 screenSpace[4];
 	// Top left point
 	screenSpace[0] = float4(ID.xy * Size, 1.0f, 1.0f);

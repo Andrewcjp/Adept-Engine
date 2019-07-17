@@ -368,7 +368,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 		{
 			RenderShadowMap_CPU(Interaction, list, IndexOnGPU);
 		}
-		Interaction->GetMap(0)->MakeReadyForComputeUse(list,true);
+		Interaction->GetMap(0)->MakeReadyForComputeUse(list, true);
 		Interaction->captured = true;
 		IndexOnGPU++;
 	}
@@ -705,6 +705,7 @@ ShadowLightInteraction::ShadowLightInteraction(Light* light)
 void ShadowLightInteraction::CreateRenderTargets(DeviceContext* context)
 {
 	const int index = context->GetDeviceIndex();
+	lightPtr->Resolution = glm::min(lightPtr->Resolution, RHI::GetRenderSettings()->GetShadowSettings().MaxShadowMapSize);
 	int size = lightPtr->Resolution;
 	if (lightPtr->GetShadowMode() == EShadowCaptureType::Baked)
 	{

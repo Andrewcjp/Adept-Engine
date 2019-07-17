@@ -7,7 +7,7 @@ Light::Light(glm::vec3 positon, float intesity, ELightType::Type type, glm::vec3
 	m_lightColor = LightColor;
 	m_type = type;
 	DoesShadow = doesshadow;
-	Resolution = RHI::GetRenderSettings()->GetShadowSettings().MaxShadowMapSize;
+	Resolution = RHI::GetRenderSettings()->GetShadowSettings().DefaultShadowMapSize;
 }
 
 Light::~Light()
