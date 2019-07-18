@@ -58,6 +58,9 @@ public:
 	void ValidateGraph();
 	void CreateVRFWDGraph();
 	void CreatePathTracedGraph();
+	//sync the console vars to the render graph at the correct time (pre render start this frame).
+	void UpdateConsoleVars();
+
 	struct ValidateArgs
 	{
 		bool ErrorWrongFormat = false;
@@ -70,10 +73,11 @@ public:
 	};
 	bool IsVRGraph = false;
 private:
+	std::vector<ConsoleVariable*> AutoVars;
 	std::string GraphName = "";
 	int NodeCount = 0;
 	int ActiveNodeCount = 0;
 	void ExposeItem(RenderNode* N, std::string name, bool Defaultstate = true);
-	
+	void GenerateConsoleVars();
 };
 

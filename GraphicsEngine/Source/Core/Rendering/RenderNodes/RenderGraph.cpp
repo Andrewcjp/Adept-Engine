@@ -111,6 +111,7 @@ void RenderGraph::BuildGraph()
 	}
 	//PrintNodeData();
 	ListNodes();
+	GenerateConsoleVars();
 }
 #define RUNRT 1
 void RenderGraph::CreateDefTestgraph()
@@ -545,4 +546,21 @@ void RenderGraph::CreatePathTracedGraph()
 	OutputToScreenNode* Output = new OutputToScreenNode();
 	LinkNode(PathTraceNode, Output);
 	Output->GetInput(0)->SetLink(PathTraceNode->GetOutput(0));
+}
+
+void RenderGraph::UpdateConsoleVars()
+{
+	for (int i = 0; i < AutoVars.size(); i++)
+	{
+		SetCondition(AutoVars[i]->GetName(), AutoVars[i]->GetBoolValue());
+	}
+}
+
+void RenderGraph::GenerateConsoleVars()
+{
+	MemoryUtils::DeleteVector(AutoVars);
+	for (auto Itor = ExposedParms.begin(); Itor != ExposedParms.end(); Itor++)
+	{
+		AutoVars.push_back(new ConsoleVariable("rg." + Itor->first, 0));
+	}
 }

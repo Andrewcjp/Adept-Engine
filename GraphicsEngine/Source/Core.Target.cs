@@ -33,6 +33,7 @@ class CoreTargetRules : TargetRules
         CoreModule.ModuleDepends.Add("TDPhysics");
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "BleedOut";
+       // CoreModule.GameModuleName = "BleedOutGame";
         // CoreModule.OutputObjectName = "NvAftermath-Enable";
         CoreModule.IsCoreModule = true;
         CoreModule.SystemLibNames.Add("winmm.lib");

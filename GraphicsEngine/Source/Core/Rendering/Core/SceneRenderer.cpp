@@ -328,6 +328,8 @@ void SceneRenderer::UpdateMVForMainPass()
 	}
 	else
 	{
+		float Aspect = (float)Screen::GetScaledWidth() / (float)Screen::GetScaledHeight();
+		CurrentCamera->UpdateProjection(Aspect);
 		UpdateMV(CurrentCamera);
 	}
 }
