@@ -14,7 +14,7 @@
 #include "VKNPipeLineStateObject.h"
 #include "Rendering/Shaders/Shader_Main.h"
 #include "Core/BaseWindow.h"
-#include "Rendering/Renderers/RenderEngine.h"
+
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
 #include "RHI/RHITypes.h"

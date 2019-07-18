@@ -1,6 +1,6 @@
 #include "PP_SSAO.h"
 #include "Core/BaseWindow.h"
-#include "Rendering/Renderers/RenderEngine.h"
+
 #include "Rendering/Shaders/PostProcess/Shader_SSAO.h"
 
 

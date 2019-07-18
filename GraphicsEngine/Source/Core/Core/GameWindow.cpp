@@ -2,7 +2,7 @@
 #include "GameWindow.h"
 #include "EngineInc.h"
 #include "Core/Assets/Scene.h"
-#include "Rendering/Renderers/RenderEngine.h"
+
 #include "Core/Game/Game.h"
 #include "AI/Core/AISystem.h"
 #include "UI/UIManager.h"

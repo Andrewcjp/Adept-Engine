@@ -32,9 +32,9 @@ void RayTraceReflectionsNode::OnExecute()
 
 	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 
-	Data.IProj = glm::inverse(BaseWindow::GetCurrentCamera()->GetProjection());
-	Data.IView = glm::inverse(BaseWindow::GetCurrentCamera()->GetView());
-	Data.CamPos = BaseWindow::GetCurrentCamera()->GetPosition();
+	Data.IProj = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetProjection());
+	Data.IView = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetView());
+	Data.CamPos = SceneRenderer::Get()->GetCurrentCamera()->GetPosition();
 	CBV->UpdateConstantBuffer(&Data, 0);
 
 	RTList->ResetList();

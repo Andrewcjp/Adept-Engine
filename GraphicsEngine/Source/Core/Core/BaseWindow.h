@@ -20,10 +20,7 @@ public:
 	bool MouseRBUp(int x, int y) override;
 	bool MouseMove(int x, int y) override final;
 	CORE_API static void StaticResize();
-
-
 	static bool ProcessDebugCommand(std::string command, std::string & response);
-	static class Camera* GetCurrentCamera();
 	bool ShowHud = true;
 	bool ShowText = false;
 	static Scene* GetScene();

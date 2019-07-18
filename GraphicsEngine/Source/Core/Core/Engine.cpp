@@ -23,6 +23,7 @@
 #include "Platform/Windows/WindowsWindow.h"
 #include "Testing/EngineTests.h"
 #include "Rendering/Core/Screen.h"
+#include "Module/GameModuleSelector.h"
 
 
 long Engine::StartTime = 0;
@@ -140,12 +141,13 @@ void Engine::Destory()
 
 void Engine::LoadGame()
 {
-	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>("BleedOutGame");
+	GameModule* Gamemodule = ModuleManager::Get()->GetModule<GameModule>(GameModuleSelector::GetGameModuleName());
 	ensure(Gamemodule);
 	if (Gamemodule == nullptr)
 	{
 		return;
 	}
+	Log::LogMessage("Loaded game module " + GameModuleSelector::GetGameModuleName());
 	Game* gm = Gamemodule->GetGamePtr(CompRegistry);
 	ensure(gm);
 	SetGame(gm);

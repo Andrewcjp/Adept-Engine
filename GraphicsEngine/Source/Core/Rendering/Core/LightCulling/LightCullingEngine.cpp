@@ -5,7 +5,7 @@
 #include "Core/Utils/StringUtil.h"
 #include "Rendering/Core/Culling/CullingManager.h"
 #include "Rendering/Core/SceneRenderer.h"
-#include "Rendering/Renderers/RenderEngine.h"
+
 #include "Rendering/Shaders/Culling/Shader_LightCull.h"
 #include "Rendering/Shaders/Shader_Deferred.h"
 #include "RHI/DeviceContext.h"

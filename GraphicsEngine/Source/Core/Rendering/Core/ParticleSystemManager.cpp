@@ -7,7 +7,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "GPUParticleSystem.h"
 #include "Core/Utils/MemoryUtils.h"
-#include "../Renderers/RenderEngine.h"
+
 static ConsoleVariable PauseVar("PS.PauseSim", 0, ECVarType::ConsoleOnly);
 
 ParticleSystemManager* ParticleSystemManager::Instance = nullptr;
@@ -218,15 +218,15 @@ void ParticleSystemManager::SubmitCompute()
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
-void ParticleSystemManager::SubmitRender(DeviceDependentObjects * BufferTarget)
+void ParticleSystemManager::SubmitRender(FrameBuffer* buffer)
 {
 #if PARTICLE_STATS
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 #endif
-	BufferTarget->MainFrameBuffer->MakeReadyForComputeUse(RenderList);
+	buffer->MakeReadyForComputeUse(RenderList);
 	if (RHI::IsRenderingVR())
 	{
-		BufferTarget->RightEyeFramebuffer->MakeReadyForComputeUse(RenderList);
+		//BufferTarget->RightEyeFramebuffer->MakeReadyForComputeUse(RenderList);
 	}
 	RenderList->Execute();
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
@@ -298,7 +298,7 @@ void ParticleSystemManager::Simulate()
 }
 
 
-void ParticleSystemManager::Render(DeviceDependentObjects * DDO, FrameBuffer* DepthTexture)
+void ParticleSystemManager::Render(FrameBuffer* TargetBuffer, FrameBuffer * DepthTexture /*= nullptr*/)
 {
 	if (!RHI::GetRenderSettings()->EnableGPUParticles)
 	{
@@ -306,25 +306,25 @@ void ParticleSystemManager::Render(DeviceDependentObjects * DDO, FrameBuffer* De
 	}
 	if (RHI::GetRenderSettings()->IsDeferred)
 	{
-		DepthBuffer = DDO->Gbuffer;
+	//	DepthBuffer = TargetBuffer;
 	}
 	StartRender();
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{
-		RenderSystem(ParticleSystems[i], DDO->MainFrameBuffer);
+		RenderSystem(ParticleSystems[i], TargetBuffer);
 	}
 	if (RHI::IsRenderingVR())
 	{
-		if (RHI::GetRenderSettings()->IsDeferred)
+		/*if (RHI::GetRenderSettings()->IsDeferred)
 		{
 			DepthBuffer = DDO->RightEyeGBuffer;
 		}
 		for (int i = 0; i < ParticleSystems.size(); i++)
 		{
 			RenderSystem(ParticleSystems[i], DDO->RightEyeFramebuffer);
-		}
+		}*/
 	}
-	SubmitRender(DDO);
+	SubmitRender(TargetBuffer);
 }
 
 void ParticleSystemManager::AddSystem(ParticleSystem * system)

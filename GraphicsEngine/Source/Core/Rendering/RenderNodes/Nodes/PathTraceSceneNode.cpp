@@ -1,10 +1,11 @@
 #include "PathTraceSceneNode.h"
-#include "..\..\RayTracing\RayTracingEngine.h"
-#include "..\StorageNodeFormats.h"
-#include "Core\BaseWindow.h"
-#include "..\..\RayTracing\RayTracingCommandList.h"
-#include "..\..\RayTracing\RHIStateObject.h"
-#include "..\..\RayTracing\ShaderBindingTable.h"
+#include "Core/BaseWindow.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/RayTracing/RayTracingCommandList.h"
+#include "Rendering/RayTracing/RayTracingEngine.h"
+#include "Rendering/RayTracing/RHIStateObject.h"
+#include "Rendering/RayTracing/ShaderBindingTable.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
 
 
 PathTraceSceneNode::PathTraceSceneNode()
@@ -25,9 +26,9 @@ void PathTraceSceneNode::OnExecute()
 		StateObject->RebuildShaderTable();
 	}
 	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
-	Data.IProj = glm::inverse(BaseWindow::GetCurrentCamera()->GetProjection());
-	Data.IView = glm::inverse(BaseWindow::GetCurrentCamera()->GetView());
-	Data.CamPos = BaseWindow::GetCurrentCamera()->GetPosition();
+	Data.IProj = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetProjection());
+	Data.IView = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetView());
+	Data.CamPos = SceneRenderer::Get()->GetCurrentCamera()->GetPosition();
 	CBV->UpdateConstantBuffer(&Data, 0);
 
 	RTList->ResetList();

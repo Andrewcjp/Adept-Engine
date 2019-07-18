@@ -1,6 +1,7 @@
 
 #include "ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
+#include "GameModuleSelector.h"
 
 ModuleManager* ModuleManager::Instance = nullptr;
 ModuleManager * ModuleManager::Get()
@@ -31,7 +32,7 @@ void ModuleManager::ShutDown()
 
 void ModuleManager::SetupPreLoadModules()
 {
-	ModulesNames.push_back("BleedOutGame");
+	ModulesNames.push_back(GameModuleSelector::GetGameModuleName());
 	ModulesNames.push_back("D3D12RHI");
 	ModulesNames.push_back("VulkanRHI");
 }

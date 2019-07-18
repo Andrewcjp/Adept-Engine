@@ -5,7 +5,7 @@
 #include "LowLevelAccelerationStructure.h"
 #include "RayTracingCommandList.h"
 #include "Rendering/Core/SceneRenderer.h"
-#include "Rendering/Renderers/RenderEngine.h"
+
 #include "RHI/DeviceContext.h"
 #include "RHIStateObject.h"
 #include "Shader_RTBase.h"

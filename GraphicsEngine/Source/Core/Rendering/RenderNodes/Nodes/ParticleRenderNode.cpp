@@ -1,6 +1,6 @@
 #include "ParticleRenderNode.h"
 #include "Rendering/Core/ParticleSystemManager.h"
-#include "Rendering/Renderers/RenderEngine.h"
+
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 
 ParticleRenderNode::ParticleRenderNode()
@@ -15,9 +15,9 @@ ParticleRenderNode::~ParticleRenderNode()
 void ParticleRenderNode::OnExecute()
 {
 	FrameBuffer* Buffer = GetFrameBufferFromInput(0);
-	DeviceDependentObjects D;
-	D.MainFrameBuffer = Buffer;
-	ParticleSystemManager::Get()->Render(&D);
+	//DeviceDependentObjects D;
+	//D.MainFrameBuffer = Buffer;
+	ParticleSystemManager::Get()->Render(Buffer);
 	PassNodeThough(0);
 }
 
