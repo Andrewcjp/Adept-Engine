@@ -5,12 +5,14 @@
 #include "Rendering/Core/Material.h"
 #include "Rendering/Core/ReflectionEnviroment.h"
 #include "Rendering/Core/SceneRenderer.h"
-#include "Rendering/Renderers/RenderEngine.h"
+
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
 #include "Rendering/Shaders/Generation/Shader_EnvMap.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
+#include "../../Shaders/Shader_Main.h"
+#include "../../Core/FrameBuffer.h"
 
 ForwardRenderNode::ForwardRenderNode()
 {

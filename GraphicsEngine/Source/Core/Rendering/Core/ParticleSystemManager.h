@@ -51,7 +51,7 @@ public:
 	void StartRender();
 
 	void RenderSystem(ParticleSystem* system, FrameBuffer * BufferTarget);
-	void Render(DeviceDependentObjects * DDO, FrameBuffer * DepthTexture = nullptr);
+	void Render(FrameBuffer* DDO, FrameBuffer * DepthTexture = nullptr);
 	void AddSystem(ParticleSystem* system);
 	void RemoveSystem(ParticleSystem* system);
 private:
@@ -73,7 +73,7 @@ private:
 	int emitcount = 0;
 	std::vector<ParticleSystem*> ParticleSystems;
 	void SubmitCompute();
-	void SubmitRender(DeviceDependentObjects* buffer);
+	void SubmitRender(FrameBuffer* buffer);
 	FrameBuffer* DepthBuffer = nullptr;
 };
 

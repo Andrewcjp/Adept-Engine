@@ -5,6 +5,7 @@
 #include "ComponentRegistry.h"
 #include "Core/GameObject.h"
 #include "Core/Assets/Scene.h"
+#include "Rendering/Core/SceneRenderer.h"
 
 CameraComponent::CameraComponent()
 {
@@ -43,7 +44,7 @@ void CameraComponent::Update(float)
 
 Camera * CameraComponent::GetMainCamera()
 {
-	return BaseWindow::GetCurrentCamera();
+	return SceneRenderer::Get()->GetCurrentCamera();
 }
 
 void CameraComponent::ProcessSerialArchive(Archive * A)

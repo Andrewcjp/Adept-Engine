@@ -6,7 +6,7 @@
 #include "PP_ColourCorrect.h"
 #include "PP_Debug.h"
 #include "PP_SSAO.h"
-#include "Rendering/Renderers/RenderEngine.h"
+
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI_inc.h"
 
@@ -40,7 +40,7 @@ void PostProcessing::AddEffect(PostProcessEffectBase * effect)
 	Effects.push_back(effect);
 }
 
-void PostProcessing::ExecPPStack(DeviceDependentObjects* Object)
+void PostProcessing::ExecPPStack(FrameBuffer* Target)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("PostProcessPass", "Render");
 	if (Effects.size() == 0)
@@ -53,13 +53,13 @@ void PostProcessing::ExecPPStack(DeviceDependentObjects* Object)
 	CommandList->StartTimer(EGPUTIMERS::PostProcess);
 	for (int i = 0; i < Effects.size(); i++)
 	{
-		Effects[i]->RunPass(CommandList, Object->MainFrameBuffer);
+		Effects[i]->RunPass(CommandList, Target);
 	}
 	if (RHI::IsRenderingVR())
 	{
 		for (int i = 0; i < Effects.size(); i++)
 		{
-			Effects[i]->RunPass(CommandList, Object->RightEyeFramebuffer);
+			//			Effects[i]->RunPass(CommandList, Object->RightEyeFramebuffer);
 		}
 	}
 	CommandList->EndTimer(EGPUTIMERS::PostProcess);
@@ -80,7 +80,7 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Blur->SetUpData();
 	Blur->InitEffect(Target);
 
-	Bloom = new PP_Bloom(); 
+	Bloom = new PP_Bloom();
 	Bloom->SetUpData();
 	Bloom->InitEffect(Target);
 

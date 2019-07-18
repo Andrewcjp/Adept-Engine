@@ -5,7 +5,7 @@
 #include "RHI/SFRController.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/BaseWindow.h"
-#include "../Renderers/RenderEngine.h"
+
 #include "Screen.h"
 
 FrameBuffer::FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc)

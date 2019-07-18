@@ -1,7 +1,6 @@
 #include "PostProcessNode.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "../../PostProcessing/PostProcessing.h"
-#include "../../Renderers/RenderEngine.h"
 
 
 PostProcessNode::PostProcessNode()
@@ -19,9 +18,7 @@ PostProcessNode::~PostProcessNode()
 
 void PostProcessNode::OnExecute()
 {
-	DeviceDependentObjects d;
-	d.MainFrameBuffer = GetFrameBufferFromInput(0);
-	PostProcessing::Get()->ExecPPStack(&d);
+	PostProcessing::Get()->ExecPPStack(GetFrameBufferFromInput(0));
 	PassNodeThough(0);
 }
 

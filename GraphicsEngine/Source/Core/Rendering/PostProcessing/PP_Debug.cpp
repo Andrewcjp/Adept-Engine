@@ -2,7 +2,7 @@
 #include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/Shaders/Culling/Shader_ShowLightDensity.h"
 #include "Core/BaseWindow.h"
-#include "../Renderers/RenderEngine.h"
+
 #include "../Core/LightCulling/LightCullingEngine.h"
 #include "../Core/SceneRenderer.h"
 

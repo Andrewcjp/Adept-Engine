@@ -13,10 +13,11 @@
 #include "EditorCore.h"
 #include "EditorGizmos.h"
 #include "EditorObjectSelector.h"
-#include "Rendering/Renderers/ForwardRenderer.h"
 #include "UI/UIManager.h"
 #include "Rendering/VR/HMDManager.h"
 #include "Rendering/Core/SceneRenderer.h"
+#include "Core/Performance/PerfManager.h"
+#include "Core/Assets/Scene.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()

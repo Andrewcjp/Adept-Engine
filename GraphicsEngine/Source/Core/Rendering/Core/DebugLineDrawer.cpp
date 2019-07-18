@@ -6,7 +6,7 @@
 #include "Rendering/Shaders/Shader_Line.h"
 #include "RHI/RHICommandList.h"
 #include "Core/BaseWindow.h"
-#include "../Renderers/RenderEngine.h"
+
 #include "SceneRenderer.h"
 #if _DEBUG
 #pragma optimize("g",on)

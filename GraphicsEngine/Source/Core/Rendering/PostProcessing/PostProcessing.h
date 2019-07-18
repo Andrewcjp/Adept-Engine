@@ -15,7 +15,7 @@ public:
 	void Update();
 	std::vector<PostProcessEffectBase*> Effects;
 	void AddEffect(PostProcessEffectBase* effect);
-	void ExecPPStack(DeviceDependentObjects* Object);
+	void ExecPPStack(FrameBuffer* Target);
 	void Init(FrameBuffer* Target);
 	void Resize(FrameBuffer * Target);
 	static PostProcessing* Get();

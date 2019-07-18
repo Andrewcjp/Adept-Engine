@@ -1,8 +1,6 @@
 #include "BaseWindow.h"
 #include "Engine.h"
 #include "Rendering/Core/DebugLineDrawer.h"
-#include "Rendering/Renderers/DeferredRenderer.h"
-#include "Rendering/Renderers/ForwardRenderer.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "UI/UIManager.h"
 #include "Core/Input/Input.h"
@@ -319,11 +317,6 @@ bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response
 		}
 	}
 	return false;
-}
-
-Camera * BaseWindow::GetCurrentCamera()
-{
-	return SceneRenderer::Get()->GetCurrentCamera();
 }
 
 Scene * BaseWindow::GetScene()
