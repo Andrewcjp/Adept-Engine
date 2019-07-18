@@ -186,7 +186,7 @@ RenderSettings::RenderSettings()
 		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
 	}
 	RenderScale = 1.0f;
-	SetRes(BBTestMode::HD);
+	//SetRes(BBTestMode::HD);
 	MaxRenderScale = 2.0f;
 	//UseZPrePass = true;
 	ShadowSettings.UseGeometryShaderForShadows = true;
@@ -283,7 +283,7 @@ void RenderSettings::SetDebugRenderMode(ERenderDebugOutput::Type mode)
 
 void RenderSettings::SetRenderScale(float newscale)
 {
-	newscale = glm::clamp(newscale, 0.4f, MaxRenderScale);
+	newscale = glm::clamp(newscale, 0.01f, MaxRenderScale);
 	if (RenderScale == newscale)
 	{
 		return;
