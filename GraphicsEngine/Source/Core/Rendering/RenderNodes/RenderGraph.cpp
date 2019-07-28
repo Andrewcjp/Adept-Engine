@@ -286,6 +286,7 @@ bool RenderGraph::SetCondition(std::string name, bool state)
 		return false;
 	}
 	Itor->second->SetState(state);
+	Itor->second->CVar->SetValue(state);
 	return true;
 }
 
@@ -385,6 +386,7 @@ void RenderGraph::ListNodes()
 void RenderGraph::ValidateGraph()
 {
 	ValidateArgs Validation = ValidateArgs();
+	Validation.TargetGraph = this;
 	Validation.ErrorWrongFormat = false;
 	RenderNode* Node = RootNode;
 	while (Node != nullptr)
@@ -482,8 +484,12 @@ void RenderGraph::CreateVRFWDGraph()
 void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)
 {
 	RenderGraphExposedSettings* Set = new RenderGraphExposedSettings(N, Defaultstate);
+	Set->CVar = new ConsoleVariable("rg." + name, 0);
+	using std::placeholders::_1;
+	Set->CVar->OnChangedBoolFunction = std::bind(&RenderGraphExposedSettings::SetState, Set, _1);
 	Set->name = name;
 	ExposedParms.emplace(name, Set);
+
 }
 
 void RenderGraphExposedSettings::SetState(bool state)
@@ -523,6 +529,7 @@ RenderGraphExposedSettings::RenderGraphExposedSettings(RenderNode * Node, bool D
 		ToggleNode = Node;
 	}
 	SetState(Default);
+
 }
 
 
@@ -552,15 +559,15 @@ void RenderGraph::UpdateConsoleVars()
 {
 	for (int i = 0; i < AutoVars.size(); i++)
 	{
-		SetCondition(AutoVars[i]->GetName(), AutoVars[i]->GetBoolValue());
+		//SetCondition(AutoVars[i]->GetName(), AutoVars[i]->GetBoolValue());
 	}
 }
 
 void RenderGraph::GenerateConsoleVars()
 {
-	MemoryUtils::DeleteVector(AutoVars);
+	/*MemoryUtils::DeleteVector(AutoVars);
 	for (auto Itor = ExposedParms.begin(); Itor != ExposedParms.end(); Itor++)
 	{
 		AutoVars.push_back(new ConsoleVariable("rg." + Itor->first, 0));
-	}
+	}*/
 }

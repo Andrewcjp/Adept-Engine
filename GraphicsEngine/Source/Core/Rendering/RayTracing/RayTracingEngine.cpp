@@ -44,15 +44,16 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 {
 	if (LASToBuild.size() == 0)
 	{
-		//if (RHI::GetFrameCount() == 10)
+		if (RHI::GetFrameCount() == 50)
 		{
 			//CurrnetHL->Build(List);
 		}
 		//CurrnetHL->Update(List);
 		return;
 	}
+	DECALRE_SCOPEDGPUCOUNTER(List, "Build Structures");
 	for (int i = 0; i < LASToBuild.size(); i++)
-	{
+	{		
 		LASToBuild[i]->Build(List);
 	}
 	CurrnetHL->Build(List);
@@ -76,6 +77,7 @@ void RayTracingEngine::BuildStructures()
 		CurrnetHL->InitialBuild();
 	}
 	AsyncbuildList->ResetList();
+
 	BuildForFrame(AsyncbuildList);
 	AsyncbuildList->Execute();
 	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);

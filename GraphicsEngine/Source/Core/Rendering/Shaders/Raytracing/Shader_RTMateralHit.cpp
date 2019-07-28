@@ -4,6 +4,7 @@ Shader_RTMateralHit::Shader_RTMateralHit(DeviceContext * C) :
 	Shader_RTBase(C, "Raytracing\\MaterialBaseHitShader", ERTShaderType::Hit)
 {
 	InitRS();
+	AddExport("chs");
 }
 
 Shader_RTMateralHit::~Shader_RTMateralHit()

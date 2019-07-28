@@ -87,14 +87,13 @@ void RayTraceReflectionsNode::OnNodeSettingChange()
 void RayTraceReflectionsNode::OnSetupNode()
 {
 	RTList = RayTracingEngine::CreateRTList(RHI::GetDefaultDevice());
-	DefaultTable = new ShaderBindingTable();
-
-	DefaultTable->InitReflections();
+	BindingTable = new ReflectionsBindingTable();
+	BindingTable->InitTable();
 
 	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
-	StateObject->ShaderTable = DefaultTable;
+	StateObject->ShaderTable = BindingTable;
 	StateObject->Build();
-	RayTracingEngine::Get()->AddHitTable(DefaultTable);
+	RayTracingEngine::Get()->AddHitTable(BindingTable);
 	CBV = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CBV->CreateConstantBuffer(sizeof(Data), 1);
 }

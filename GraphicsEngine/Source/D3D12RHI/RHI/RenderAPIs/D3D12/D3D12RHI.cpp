@@ -24,8 +24,9 @@ D3D12RHI::D3D12RHI()
 {
 	Instance = this;
 	//ForceGPUIndex.SetValue(1);
-	ForceSingleGPU.SetValue(true);
+	//ForceSingleGPU.SetValue(true);
 	//ForceNoDebug.SetValue(true);
+	//AllowWarp.SetValue(true);
 }
 
 D3D12RHI::~D3D12RHI()
@@ -223,7 +224,7 @@ void D3D12RHI::ReportDeviceData()
 }
 
 bool D3D12RHI::DetectGPUDebugger()
-{	
+{
 	IDXGraphicsAnalysis* pGraphicsAnalysis;
 	HRESULT getAnalysis = DXGIGetDebugInterface1(0, __uuidof(pGraphicsAnalysis), reinterpret_cast<void**>(&pGraphicsAnalysis));
 	if (getAnalysis != S_OK)
@@ -610,6 +611,10 @@ void D3D12RHI::ReleaseUploadHeaps(bool force)
 
 void D3D12RHI::AddObjectToDeferredDeleteQueue(IUnknown* Target)
 {
+	if (Target == nullptr)
+	{
+		return;
+	}
 	for (UploadHeapStamped r : DeferredDeleteQueue)
 	{
 		LogEnsure(r.first != Target);
@@ -672,7 +677,7 @@ void D3D12RHI::PresentFrame()
 	if (RHI::GetFrameCount() > 2)
 	{
 		HasSetup = true;
-	}
+}
 
 #if LOG_RESOURCE_TRANSITIONS
 	Log::LogMessage("-----Frame END------");
@@ -795,7 +800,7 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 				}
 			}
 		}
-	}
+}
 	return (CurrentDeviceIndex != 0);
 }
 

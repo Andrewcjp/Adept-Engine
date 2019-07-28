@@ -10,6 +10,7 @@ struct RenderGraphExposedSettings
 	void SetState(bool state);
 	bool GetState()const;
 	RenderGraphExposedSettings(RenderNode* Node, bool Default = true);
+	ConsoleVariable* CVar = nullptr;
 private:
 	BranchNode* Branch = nullptr;
 	RenderNode* ToggleNode = nullptr;
@@ -57,6 +58,7 @@ public:
 	void ListNodes();
 	void ValidateGraph();
 	void CreateVRFWDGraph();
+	void Test(bool i);
 	void CreatePathTracedGraph();
 	//sync the console vars to the render graph at the correct time (pre render start this frame).
 	void UpdateConsoleVars();
@@ -69,6 +71,7 @@ public:
 		bool HasError() const;
 		std::vector<std::string> Warnings;
 		std::vector<std::string> Errors;
+		RenderGraph* TargetGraph = nullptr;
 	private:
 	};
 	bool IsVRGraph = false;

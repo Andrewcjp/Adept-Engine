@@ -1,5 +1,6 @@
 #pragma once
 #include "../Utils/TypeUtils.h"
+#include <functional>
 
 
 //Console vars can also be set though the launch arguments
@@ -22,39 +23,15 @@ public:
 	CORE_API ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = false);
 	~ConsoleVariable()
 	{}
-	const std::string& GetName()const
-	{
-		return Name;
-	}
-	std::string GetLaunchName()const
-	{
-		return "-" + Name;
-	}
+	const std::string& GetName()const;
+	std::string GetLaunchName()const;
 
-	bool GetBoolValue() const
-	{
-		return CurrentValue.Int_Value;
-	}
-	void SetValue(int value)
-	{
-		CurrentValue.Int_Value = value;
-	}
-	void SetValueF(float value)
-	{
-		CurrentValue.F_Value = value;
-	}
-	int GetIntValue() const
-	{
-		return CurrentValue.Int_Value;
-	}
-	bool IsValueVar() const
-	{
-		return NeedsValue;
-	}
-	float GetFloatValue() const
-	{
-		return CurrentValue.F_Value;
-	}
+	CORE_API bool GetBoolValue() const;
+	CORE_API void SetValue(int value);
+	CORE_API void SetValueF(float value);
+	CORE_API int GetIntValue() const;
+	CORE_API bool IsValueVar() const;
+	CORE_API float GetFloatValue() const;
 	template<class T>
 	T GetAsEnum()
 	{
@@ -72,6 +49,8 @@ public:
 	std::string GetValueString();
 	bool IsFloat = false;
 	ECVarType::Type Type;
+	std::function<void(int state)> OnChangedFunction;
+	std::function<void(bool state)> OnChangedBoolFunction;
 private:
 	ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue);
 	std::string Name = "";

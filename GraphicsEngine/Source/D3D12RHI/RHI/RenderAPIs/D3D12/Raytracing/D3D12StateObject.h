@@ -7,25 +7,7 @@ class DXDescriptor;
 class Shader;
 class D3D12FrameBuffer;
 class Shader_RTBase;
-namespace GlobalRootSignatureParams
-{
-	enum Value
-	{
-		OutputViewSlot = 0,
-		AccelerationStructureSlot,
-		CameraBuffer,
-		Count
-	};
-}
 
-namespace LocalRootSignatureParams
-{
-	enum Value
-	{
-		CubeConstantSlot = 0,
-		Count
-	};
-}
 class D3D12StateObject :public RHIStateObject
 {
 public:
@@ -34,23 +16,15 @@ public:
 	virtual void Build() override;
 
 	void AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe);
-
 	void CreateStateObject();
-
 	void AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe);
-
 	void AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shader_RTBase* Shader);
-
 	void CreateRootSignatures();
 	void CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & raytracingPipeline, Shader_RTBase* shader);
 	void Trace(const RHIRayDispatchDesc& Desc, RHICommandList * T, D3D12FrameBuffer* target);
 	void BuildShaderTables();
-
 	void WriteBinds(Shader_RTBase* shader, std::vector<void *> &Data);
-
-	HighLevelAccelerationStructure* High = nullptr;
-
-
+	HighLevelAccelerationStructure* HighLevelStructure = nullptr;
 	virtual void RebuildShaderTable() override;
 	void BindToList(D3D12CommandList* List);
 private:

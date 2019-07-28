@@ -1,7 +1,24 @@
 #pragma once
 #include "RHI/ShaderBase.h"
 #include "RHI/RHITypes.h"
-
+namespace GlobalRootSignatureParams
+{
+	enum Value
+	{
+		OutputViewSlot = 0,
+		AccelerationStructureSlot,
+		Count
+	};
+}
+namespace DefaultLocalRootSignatureParams
+{
+	enum Value
+	{
+		IndexBuffer,
+		VertexBuffer,		
+		Count
+	};
+}
 class Shader_RTBase;
 struct ShaderHitGroup
 {
@@ -24,18 +41,16 @@ class ShaderBindingTable
 {
 public:
 	ShaderBindingTable();
-
-	void InitDefault();
-
-	void InitReflections();
-
-	~ShaderBindingTable();
+	virtual void InitTable();
+	virtual ~ShaderBindingTable();
 	void RebuildHittableFromScene(Scene * Sc);
 	void AddObject(GameObject * Object);
 	std::vector<Shader_RTBase*> MissShaders;
 	std::vector<Shader_RTBase*> RayGenShaders;
 	std::vector<ShaderHitGroup*> HitGroups;
 	GlobalRootSigniture GlobalRootSig;
-
+protected:
+	
+	virtual void OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader);
 };
 
