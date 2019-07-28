@@ -21,7 +21,6 @@ struct MeshEntity
 	void InstanceElement(MeshEntity * other, MeshLoader::FMeshLoadingSettings& Settings);
 	bool LoadSucessful = false;
 	int MaterialIndex = 0;
-	int BaseVertex = 0;
 	CullingAABB* AABB = nullptr;
 };
 class Mesh : public IRHIResourse

@@ -6,6 +6,7 @@
 #include "Rendering/RayTracing/RHIStateObject.h"
 #include "Rendering/RayTracing/ShaderBindingTable.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "../../RayTracing/Tables/PathTraceBindingTable.h"
 
 
 PathTraceSceneNode::PathTraceSceneNode()
@@ -60,9 +61,9 @@ void PathTraceSceneNode::OnNodeSettingChange()
 void PathTraceSceneNode::OnSetupNode()
 {
 	RTList = RayTracingEngine::CreateRTList(RHI::GetDefaultDevice());
-	DefaultTable = new ShaderBindingTable();
+	DefaultTable = new PathTraceBindingTable();
 
-	DefaultTable->InitDefault();
+	DefaultTable->InitTable();
 
 	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
 	StateObject->ShaderTable = DefaultTable;

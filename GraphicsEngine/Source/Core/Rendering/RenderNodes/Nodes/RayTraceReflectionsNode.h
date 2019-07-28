@@ -1,5 +1,6 @@
 #pragma once
 #include "..\RenderNode.h"
+#include "..\..\RayTracing\Tables\ReflectionsBindingTable.h"
 
 class RHIStateObject;
 class RayTracingCommandList;
@@ -22,7 +23,7 @@ protected:
 private:
 	RHIStateObject* StateObject = nullptr;
 	RayTracingCommandList* RTList = nullptr;
-	ShaderBindingTable* DefaultTable = nullptr;
+	ReflectionsBindingTable* BindingTable = nullptr;
 	struct RTCameraData
 	{
 		glm::mat4x4 IView;

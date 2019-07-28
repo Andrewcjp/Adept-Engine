@@ -16,6 +16,54 @@ ConsoleVariable::ConsoleVariable(std::string name, float defaultValue, ECVarType
 	IsFloat = true;
 }
 
+const std::string & ConsoleVariable::GetName() const
+{
+	return Name;
+}
+
+std::string ConsoleVariable::GetLaunchName() const
+{
+	return "-" + Name;
+}
+
+bool ConsoleVariable::GetBoolValue() const
+{
+	return CurrentValue.Int_Value;
+}
+
+void ConsoleVariable::SetValue(int value)
+{
+	CurrentValue.Int_Value = value;
+	if (OnChangedBoolFunction)
+	{
+		OnChangedBoolFunction(value);
+	}
+	if (OnChangedFunction)
+	{
+		OnChangedFunction(value);
+	}
+}
+
+void ConsoleVariable::SetValueF(float value)
+{
+	CurrentValue.F_Value = value;
+}
+
+int ConsoleVariable::GetIntValue() const
+{
+	return CurrentValue.Int_Value;
+}
+
+bool ConsoleVariable::IsValueVar() const
+{
+	return NeedsValue;
+}
+
+float ConsoleVariable::GetFloatValue() const
+{
+	return CurrentValue.F_Value;
+}
+
 ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, bool needsValue)
 {
 	Type = cvartype;

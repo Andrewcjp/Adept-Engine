@@ -5,6 +5,7 @@ class RHIStateObject;
 class ShaderBindingTable;
 class RayTracingCommandList;
 class RHIBuffer;
+class PathTraceBindingTable;
 class PathTraceSceneNode : public RenderNode
 {
 public:
@@ -24,7 +25,7 @@ protected:
 private:
 	RHIStateObject* StateObject = nullptr;
 	RayTracingCommandList* RTList = nullptr;
-	ShaderBindingTable* DefaultTable = nullptr;
+	PathTraceBindingTable* DefaultTable = nullptr;
 	struct RTCameraData
 	{
 		glm::mat4x4 IView;

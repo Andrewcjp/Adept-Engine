@@ -591,7 +591,7 @@ void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)
 void D3D12CommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)
 {
 	ensure(CurrentRTState);
-	CurrentRTState->High = Struct;
+	CurrentRTState->HighLevelStructure = Struct;
 }
 
 void D3D12CommandList::SetStateObject(RHIStateObject* Object)

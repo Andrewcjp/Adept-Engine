@@ -4,6 +4,7 @@ Shader_Skybox_Miss::Shader_Skybox_Miss(DeviceContext * Con)
 	:Shader_RTBase(Con, "Raytracing\\SkyboxMissShader", ERTShaderType::Miss)
 {
 	InitRS();
+	AddExport("Miss");
 }
 
 Shader_Skybox_Miss::~Shader_Skybox_Miss()

@@ -164,6 +164,7 @@ void D3D12StateObject::BuildShaderTables()
 		// SBT contents. After the SBT compilation it could be copied to the default heap for performance.
 	if (m_sbtStorage == nullptr || CurrentSBTSize < sbtSize)
 	{
+		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(m_sbtStorage);
 		CurrentSBTSize = sbtSize;
 		m_sbtStorage = nv_helpers_dx12::CreateBuffer(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5(), sbtSize, D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
@@ -202,7 +203,6 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Po
 
 void D3D12StateObject::RebuildShaderTable()
 {
-	//CreateStateObject();
 	BuildShaderTables();
 }
 
@@ -212,11 +212,11 @@ void D3D12StateObject::BindToList(D3D12CommandList * List)
 }
 
 void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, D3D12FrameBuffer* target)
-{	
+{
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
 
-	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, ((D3D12RHIUAV*)target->GetUAV())->UAVDescriptor->GetGPUAddress());
-	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(High)->m_topLevelAccelerationStructure->GetGPUVirtualAddress());
+	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, D3D12RHI::DXConv(target->GetUAV())->UAVDescriptor->GetGPUAddress());
+	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(HighLevelStructure)->m_topLevelAccelerationStructure->GetGPUVirtualAddress());
 
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
 	dispatchDesc.RayGenerationShaderRecord.StartAddress = m_sbtStorage->GetGPUVirtualAddress();
