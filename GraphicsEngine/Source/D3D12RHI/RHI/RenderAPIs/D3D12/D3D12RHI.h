@@ -162,6 +162,9 @@ private:
 	D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
+#if NTDDI_WIN10_19H1
+	ID3D12DeviceRemovedExtendedData* pDred;
+#endif
 };
 #include "D3D12Helpers.h"
 //helper functions!
@@ -172,6 +175,7 @@ static inline void ThrowIfFailed(HRESULT hr)
 #if AFTERMATH
 		D3D12RHI::Get()->RunTheAfterMath();
 #endif
+
 		D3D12RHI::HandleDeviceFailure();
 		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}

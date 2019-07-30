@@ -9,11 +9,17 @@ ConsoleVariable::ConsoleVariable(std::string name, int defaultValue, ECVarType::
 	CurrentValue.Int_Value = defaultValue;
 	DefaultValue.Int_Value = defaultValue;
 }
+
 ConsoleVariable::ConsoleVariable(std::string name, float defaultValue, ECVarType::Type cvartype, bool NeedsValue) : ConsoleVariable(name, cvartype, NeedsValue)
 {
 	CurrentValue.F_Value = defaultValue;
 	DefaultValue.F_Value = defaultValue;
 	IsFloat = true;
+}
+
+ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, std::function<void()> func) :ConsoleVariable(name, cvartype, false)
+{
+	ExecuteFunction = func;
 }
 
 const std::string & ConsoleVariable::GetName() const
@@ -62,6 +68,14 @@ bool ConsoleVariable::IsValueVar() const
 float ConsoleVariable::GetFloatValue() const
 {
 	return CurrentValue.F_Value;
+}
+
+void ConsoleVariable::Execute()
+{
+	if (ExecuteFunction)
+	{
+		ExecuteFunction();
+	}
 }
 
 ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, bool needsValue)
@@ -225,25 +239,42 @@ bool ConsoleVariableManager::TrySetCVar(std::string command, ConsoleVariable** V
 		if (CV->GetName() == SplitArgs[0])
 		{
 			*Var = CV;
-			if (SplitArgs.size() > 1)
+			if (CV->NeedsValue)
 			{
-				if (CV->IsFloat)
+				if (SplitArgs.size() > 1)
 				{
-					float value = stof(SplitArgs[1]);
-					CV->SetValueF(value);
-				}
-				else
-				{
-					int value = stoi(SplitArgs[1]);
-					CV->SetValue(value);
-				}
 
-				return true;
+					if (CV->IsFloat)
+					{
+						float value = stof(SplitArgs[1]);
+						CV->SetValueF(value);
+					}
+					else
+					{
+						int value = stoi(SplitArgs[1]);
+						CV->SetValue(value);
+					}
+					return true;
+				}
+			}
+			else
+			{
+				CV->Execute();
 			}
 			return true;
 		}
 	}
 	return false;
+}
+static ConsoleVariable Help("help", ECVarType::ConsoleOnly, std::bind(&ConsoleVariableManager::DebugLogCVars));
+void ConsoleVariableManager::DebugLogCVars()
+{
+	Log::LogMessage("Console Var");
+	for (int i = 0; i < Get()->ConsoleVars.size(); i++)
+	{
+		Log::LogMessage("	" + Get()->ConsoleVars[i]->GetName());
+	}
+	Log::LogMessage("end CVar Log");
 }
 
 void IConsoleSettings::GetVariables(std::vector<ConsoleVariable*>& VarArray)

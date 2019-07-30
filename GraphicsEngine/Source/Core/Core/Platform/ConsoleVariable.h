@@ -19,8 +19,9 @@ namespace ECVarType
 class ConsoleVariable
 {
 public:
-	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = false);
-	CORE_API ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = false);
+	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = true);
+	CORE_API ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = true);
+	CORE_API ConsoleVariable(std::string name, ECVarType::Type cvartype, std::function<void()> func);
 	~ConsoleVariable()
 	{}
 	const std::string& GetName()const;
@@ -32,6 +33,7 @@ public:
 	CORE_API int GetIntValue() const;
 	CORE_API bool IsValueVar() const;
 	CORE_API float GetFloatValue() const;
+	void Execute();
 	template<class T>
 	T GetAsEnum()
 	{
@@ -51,10 +53,12 @@ public:
 	ECVarType::Type Type;
 	std::function<void(int state)> OnChangedFunction;
 	std::function<void(bool state)> OnChangedBoolFunction;
+	std::function<void()> ExecuteFunction;
+	bool NeedsValue = false;
 private:
 	ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue);
 	std::string Name = "";
-	bool NeedsValue = false;
+
 	union ValueUnion
 	{
 		int Int_Value;
@@ -77,6 +81,7 @@ public:
 	void GetCFGVariables(std::vector<std::string>& Lines);
 	static void SetupVars(std::string LaunchArgString);
 	static bool TrySetCVar(std::string command, ConsoleVariable ** Var);
+	static void DebugLogCVars();
 };
 struct IConsoleSettingsVar
 {

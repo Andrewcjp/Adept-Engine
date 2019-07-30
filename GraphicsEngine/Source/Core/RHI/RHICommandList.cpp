@@ -5,6 +5,7 @@
 #include "RHITypes.h"
 #include "Shader.h"
 #include "Core/Utils/StringUtil.h"
+#include "Rendering/Core/VRXEngine.h"
 
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
@@ -153,6 +154,55 @@ void RHICommandList::HandleStallTimer()
 		Device->OnInsertStallTimer();
 	}
 }
+
+void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
+{
+	ensure(Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::None);
+	//#VRX: Setting for VRS mode
+	//Native VRS does not require resolve
+	if (Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
+	{
+		VRXEngine::Get()->ResolveVRRFramebuffer(this, Target);
+	}
+	else
+	{
+		if (Device->GetCaps().VRSSupport == EVRSSupportType::Software || !RHI::GetRenderSettings()->AllowNativeVRS)
+		{
+			VRXEngine::Get()->ResolveVRSFramebuffer(this, Target);
+		}
+	}
+}
+
+void RHICommandList::SetVRSShadingRate(VRS_SHADING_RATE::type Rate)
+{
+	if (Device->GetCaps().VRSSupport == EVRSSupportType::Hardware && RHI::GetRenderSettings()->AllowNativeVRS)
+	{
+		SetVRSShadingRateNative(Rate);
+	}
+	else
+	{
+		VRXEngine::Get()->SetVRSShadingRate(this, Rate);
+	}
+}
+
+void RHICommandList::SetVRRShadingRate(int RateIndex)
+{
+	VRXEngine::Get()->SetVRRShadingRate(this, RateIndex);
+}
+
+void RHICommandList::SetVRXShadingRateImage(FrameBuffer * Target)
+{
+	if (Device->GetCaps().VRSSupport == EVRSSupportType::Hardware && Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRS && RHI::GetRenderSettings()->AllowNativeVRS)
+	{
+		SetVRSShadingRateImageNative(Target);
+	}
+	else
+	{
+		VRXEngine::Get()->SetVRXShadingRateImage(this, Target);
+	}
+}
+
+
 
 RHIUAV * RHIBuffer::GetUAV()
 {

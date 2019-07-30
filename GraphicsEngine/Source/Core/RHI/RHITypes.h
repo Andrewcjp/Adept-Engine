@@ -466,7 +466,20 @@ struct RHIViewDesc
 	}
 	RHI_API bool operator==(const RHIViewDesc other)const;
 };
-
+#define MAX_VARIABLE_RATE_FACTORS 6
+struct FrameBufferVariableRateSettings
+{
+	enum VRateMode
+	{
+		None,
+		VRR,
+		VRS,
+		Limit
+	};
+	int ResolutionSlices = 2;
+	float DisplayResFactors[MAX_VARIABLE_RATE_FACTORS] = { 1.0f,0.9f,0.7f,0.6f,0.5f,0.1f };
+	FrameBufferVariableRateSettings::VRateMode BufferMode = FrameBufferVariableRateSettings::None;
+};
 struct RHIFrameBufferDesc
 {
 public:
@@ -520,6 +533,7 @@ public:
 	glm::ivec2 MaxSize = glm::ivec2(0, 0);
 	FrameBuffer* SharedDepthStencilSource = nullptr;
 	EFrameBufferSizeMode::Type SizeMode = EFrameBufferSizeMode::Fixed;
+	FrameBufferVariableRateSettings VarRateSettings;
 };
 
 class RHI_API IRHIResourse : public IRefCount
@@ -751,3 +765,17 @@ namespace EDeviceIndex
 		Limit
 	};
 };
+
+namespace VRS_SHADING_RATE
+{
+	enum type
+	{
+		SHADING_RATE_1X1,
+		SHADING_RATE_1X2,
+		SHADING_RATE_2X1,
+		SHADING_RATE_2X2,
+		SHADING_RATE_2X4,
+		SHADING_RATE_4X2,
+		SHADING_RATE_4X4
+	};
+}

@@ -139,7 +139,17 @@ public:
 
 	RHI_VIRTUAL void SetDepthBounds(float Min, float Max) = 0;
 	virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) = 0;
+
+	//Used to resolve a framebuffer that is using VRX tech (VRS or VRR)
+	void ResolveVRXFramebuffer(FrameBuffer* Target);
+
+	void SetVRSShadingRate(VRS_SHADING_RATE::type Rate);
+	void SetVRRShadingRate(int RateIndex);
+	void SetVRXShadingRateImage(FrameBuffer* Target);
 protected:
+	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate) {};
+	virtual void SetVRSShadingRateImageNative(FrameBuffer* Target) {};
+
 	RHIPipeLineStateObject* CurrentPSO = nullptr;
 	bool IsInRenderPass = false;
 	DeviceContext * Device = nullptr;

@@ -1,18 +1,17 @@
 #include "RayTracingEngine.h"
+#include "Core/Assets/Scene.h"
 #include "Core/Assets/ShaderComplier.h"
 #include "Core/BaseWindow.h"
 #include "HighLevelAccelerationStructure.h"
 #include "LowLevelAccelerationStructure.h"
 #include "RayTracingCommandList.h"
+#include "Rendering/Core/LightCulling/LightCullingEngine.h"
 #include "Rendering/Core/SceneRenderer.h"
-
+#include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
 #include "RHI/DeviceContext.h"
 #include "RHIStateObject.h"
 #include "Shader_RTBase.h"
 #include "ShaderBindingTable.h"
-#include "Core/Assets/Scene.h"
-#include "../Core/LightCulling/LightCullingEngine.h"
-#include "../RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
 
 RayTracingEngine::RayTracingEngine()
 {
@@ -46,7 +45,9 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 	{
 		if (RHI::GetFrameCount() == 50)
 		{
-			//CurrnetHL->Build(List);
+			/*RHI::WaitForGPU();
+			CurrnetHL->Build(List);
+			RHI::WaitForGPU();*/
 		}
 		//CurrnetHL->Update(List);
 		return;

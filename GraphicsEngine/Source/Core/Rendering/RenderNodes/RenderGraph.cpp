@@ -1,31 +1,30 @@
 #include "RenderGraph.h"
+#include "Core/Utils/StringUtil.h"
 #include "NodeLink.h"
+#include "Nodes/DebugUINode.h"
 #include "Nodes/DeferredLightingNode.h"
+#include "Nodes/Flow/BranchNode.h"
+#include "Nodes/Flow/VRBranchNode.h"
+#include "Nodes/ForwardRenderNode.h"
 #include "Nodes/GBufferWriteNode.h"
+#include "Nodes/OutputToScreenNode.h"
+#include "Nodes/ParticleRenderNode.h"
+#include "Nodes/ParticleSimulateNode.h"
+#include "Nodes/PathTraceSceneNode.h"
+#include "Nodes/PostProcessNode.h"
+#include "Nodes/RayTraceReflectionsNode.h"
+#include "Nodes/ShadowUpdateNode.h"
+#include "Nodes/SSAONode.h"
+#include "Nodes/UpdateAccelerationStructuresNode.h"
+#include "Nodes/UpdateReflectionsNode.h"
+#include "Nodes/VisModeNode.h"
+#include "Nodes/ZPrePassNode.h"
 #include "StorageNodeFormats.h"
 #include "StoreNodes/FrameBufferStorageNode.h"
-#include "Nodes/ForwardRenderNode.h"
-#include "Nodes/OutputToScreenNode.h"
 #include "StoreNodes/SceneDataNode.h"
-#include "Nodes/ParticleSimulateNode.h"
-#include "Nodes/ParticleRenderNode.h"
-#include "Nodes/DebugUINode.h"
-#include "Nodes/PostProcessNode.h"
-#include "Nodes/ShadowUpdateNode.h"
 #include "StoreNodes/ShadowAtlasStorageNode.h"
-#include "Nodes/ZPrePassNode.h"
-#include "Nodes/Flow/BranchNode.h"
-#include "Nodes/VisModeNode.h"
-#include "Nodes/Flow/VRBranchNode.h"
-#include "Core/Utils/StringUtil.h"
-#include "Nodes/SSAONode.h"
-#include "Nodes/UpdateReflectionsNode.h"
-#include "Nodes/RayTraceReflectionsNode.h"
 #include "UI/UIManager.h"
-#include "Nodes/PathTraceSceneNode.h"
-#include "Nodes/UpdateAccelerationStructuresNode.h"
 
-#define TESTVR 1
 RenderGraph::RenderGraph()
 {}
 
@@ -89,6 +88,7 @@ void RenderGraph::Update()
 
 void RenderGraph::BuildGraph()
 {
+	Log::LogMessage("Building graph \"" + GraphName + "\"");
 	ValidateGraph();
 	for (StorageNode* N : StoreNodes)
 	{
@@ -109,9 +109,7 @@ void RenderGraph::BuildGraph()
 		}
 		Node = Node->GetNextNode();
 	}
-	//PrintNodeData();
 	ListNodes();
-	GenerateConsoleVars();
 }
 #define RUNRT 1
 void RenderGraph::CreateDefTestgraph()
@@ -163,12 +161,15 @@ void RenderGraph::CreateDefTestgraph()
 	RTNode->GetInput(0)->SetStore(RTXBuffer);
 	RTNode->GetInput(1)->SetLink(RootNode->GetOutput(0));
 	RTNode->GetInput(2)->SetStore(ShadowDataNode);
+	ExposeItem(RTNode, "RTX");
 #endif
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
 
 #if RUNRT
 	LightNode->UseScreenSpaceReflection = true;
+
 	LightNode->OnNodeSettingChange();
+	ExposeNodeOption(LightNode, "SSR", &LightNode->UseScreenSpaceReflection, true);
 	LinkNode(RTNode, LightNode);
 #else
 	LinkNode(UpdateProbesNode, LightNode);
@@ -462,9 +463,6 @@ void RenderGraph::CreateVRFWDGraph()
 
 	ParticleRenderNode* renderNode = new ParticleRenderNode();
 	LinkNode(FWDNode, renderNode);
-
-
-
 	renderNode->GetInput(0)->SetStore(MainBuffer);
 #if 0
 	DebugUINode* Debug = new DebugUINode();
@@ -485,11 +483,23 @@ void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate 
 {
 	RenderGraphExposedSettings* Set = new RenderGraphExposedSettings(N, Defaultstate);
 	Set->CVar = new ConsoleVariable("rg." + name, 0);
-	using std::placeholders::_1;
-	Set->CVar->OnChangedBoolFunction = std::bind(&RenderGraphExposedSettings::SetState, Set, _1);
+	Set->CVar->OnChangedBoolFunction = std::bind(&RenderGraphExposedSettings::SetState, Set, std::placeholders::_1);
 	Set->name = name;
+	Set->CVar->SetValue(Defaultstate);
+	Set->SetState(Defaultstate);
 	ExposedParms.emplace(name, Set);
+}
 
+void RenderGraph::ExposeNodeOption(RenderNode * N, std::string name, bool * data, bool Defaultstate)
+{
+	RenderGraphExposedSettings* Set = new RenderGraphExposedSettings(N, Defaultstate);
+	Set->CVar = new ConsoleVariable("rg." + name, 0);
+	Set->CVar->OnChangedBoolFunction = std::bind(&RenderGraphExposedSettings::SetState, Set, std::placeholders::_1);
+	Set->name = name;
+	Set->CVar->SetValue(Defaultstate);
+	Set->SetState(Defaultstate);
+	Set->TargetProp = data;
+	ExposedParms.emplace(name, Set);
 }
 
 void RenderGraphExposedSettings::SetState(bool state)
@@ -498,9 +508,16 @@ void RenderGraphExposedSettings::SetState(bool state)
 	{
 		Branch->Conditonal = state;
 	}
-	if (ToggleNode != nullptr)
+	if (TargetProp != nullptr)
 	{
-		ToggleNode->SetNodeActive(state);
+		*TargetProp = state;
+	}
+	else
+	{
+		if (ToggleNode != nullptr)
+		{
+			ToggleNode->SetNodeActive(state);
+		}
 	}
 }
 
@@ -528,8 +545,6 @@ RenderGraphExposedSettings::RenderGraphExposedSettings(RenderNode * Node, bool D
 	{
 		ToggleNode = Node;
 	}
-	SetState(Default);
-
 }
 
 
@@ -555,19 +570,3 @@ void RenderGraph::CreatePathTracedGraph()
 	Output->GetInput(0)->SetLink(PathTraceNode->GetOutput(0));
 }
 
-void RenderGraph::UpdateConsoleVars()
-{
-	for (int i = 0; i < AutoVars.size(); i++)
-	{
-		//SetCondition(AutoVars[i]->GetName(), AutoVars[i]->GetBoolValue());
-	}
-}
-
-void RenderGraph::GenerateConsoleVars()
-{
-	/*MemoryUtils::DeleteVector(AutoVars);
-	for (auto Itor = ExposedParms.begin(); Itor != ExposedParms.end(); Itor++)
-	{
-		AutoVars.push_back(new ConsoleVariable("rg." + Itor->first, 0));
-	}*/
-}
