@@ -129,6 +129,7 @@ public:
 	RendererSettings& GetSettingsForRender();
 	EVRHMDMode::Type VRHMDMode = EVRHMDMode::Disabled;
 	void ValidateSettings();
+	bool AllowNativeVRS = true;
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;

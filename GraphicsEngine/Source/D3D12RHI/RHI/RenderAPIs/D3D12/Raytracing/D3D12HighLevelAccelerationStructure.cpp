@@ -29,7 +29,7 @@ void D3D12HighLevelAccelerationStructure::Build(RHICommandList* list)
 {
 	ensure(instanceDescs);
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-
+	buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &topLevelInputs = topLevelBuildDesc.Inputs;
 	topLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 	topLevelInputs.Flags = buildFlags;
@@ -41,6 +41,10 @@ void D3D12HighLevelAccelerationStructure::Build(RHICommandList* list)
 	topLevelBuildDesc.ScratchAccelerationStructureData = scratchSpace->GetGPUVirtualAddress();
 	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
 	topLevelBuildDesc.Inputs.NumDescs = ContainedEntites.size();
+	if (RHI::GetFrameCount() == 50)
+	{
+		topLevelBuildDesc.Inputs.NumDescs = 10;
+	}
 	D3D12CommandList* DXList = D3D12RHI::DXConv(list);
 	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&topLevelBuildDesc, 0, nullptr);
 
@@ -92,8 +96,8 @@ void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
 		D3D12LowLevelAccelerationStructure* E = D3D12RHI::DXConv(ContainedEntites[i]);
 		D3D12_RAYTRACING_INSTANCE_DESC instanceDesc = {};
 		SetTransfrom(instanceDesc, E->GetTransform());
-		instanceDesc.InstanceMask = 1;
-		instanceDesc.InstanceID = i;
+		instanceDesc.InstanceMask = 0xfffffff;
+		//instanceDesc.InstanceID = i;
 		instanceDesc.InstanceContributionToHitGroupIndex = i;
 		instanceDesc.AccelerationStructure = E->GetASResource()->GetGPUVirtualAddress();
 		Descs.push_back(instanceDesc);

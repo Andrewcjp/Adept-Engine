@@ -16,9 +16,10 @@
 #include <DXProgrammableCapture.h>  
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
-static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly);
-static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly);
-static ConsoleVariable AllowWarp("AllowWarp", 0, ECVarType::LaunchOnly);
+static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly, false);
+static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly, false);
+static ConsoleVariable AllowWarp("AllowWarp", 0, ECVarType::LaunchOnly, false);
+static ConsoleVariable EnableDred("EnableDred", 0, ECVarType::LaunchOnly, false);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
@@ -27,6 +28,7 @@ D3D12RHI::D3D12RHI()
 	//ForceSingleGPU.SetValue(true);
 	//ForceNoDebug.SetValue(true);
 	//AllowWarp.SetValue(true);
+	EnableDred.SetValue(true);
 }
 
 D3D12RHI::~D3D12RHI()
@@ -35,14 +37,14 @@ D3D12RHI::~D3D12RHI()
 void D3D12RHI::RunDred()
 {
 	//dred is in windows 19h1
-#if 0
-	ID3D12DeviceRemovedExtendedData* pDred;
-	(pDevice->QueryInterface(IID_PPV_ARGS(&pDred)));
+#if  NTDDI_WIN10_19H1
 
+	HRESULT R = DeviceContexts[0]->GetDevice()->QueryInterface(IID_PPV_ARGS(&pDred));
 	D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT DredAutoBreadcrumbsOutput;
 	D3D12_DRED_PAGE_FAULT_OUTPUT DredPageFaultOutput;
-	VERIFY_SUCCEEDED(pDred->GetAutoBreadcrumbsOutput(&DredAutoBreadcrumbsOutput));
-	VERIFY_SUCCEEDED(pDred->GetPageFaultAllocationOutput(&DredPageFaultOutput));
+	R = (pDred->GetAutoBreadcrumbsOutput(&DredAutoBreadcrumbsOutput));
+	R = (pDred->GetPageFaultAllocationOutput(&DredPageFaultOutput));
+	__debugbreak();
 #endif
 }
 #endif
@@ -297,6 +299,16 @@ void D3D12RHI::LoadPipeLine()
 		}
 	}
 #endif
+	if (EnableDred.GetBoolValue())
+	{
+#if NTDDI_WIN10_19H1
+		ID3D12DeviceRemovedExtendedDataSettings* pDredSettings;
+		ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings)));
+		pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+		pDredSettings->SetWatsonDumpEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+		pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+#endif
+	}
 
 	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 	ReportObjects();
@@ -347,14 +359,19 @@ void D3D12RHI::LoadPipeLine()
 #endif
 	DisplayDeviceDebug();
 	Log::LogMessage(ReportMemory());
+
 }
 
 void D3D12RHI::HandleDeviceFailure()
+
 {
 	ensure(Instance);
 	HRESULT HR;
 	HR = Instance->GetPrimaryDevice()->GetDevice()->GetDeviceRemovedReason();
 	ensureMsgf(HR == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(HR));
+#if DRED
+	D3D12RHI::Get()->RunDred();
+#endif
 }
 
 RHIPipeLineStateObject* D3D12RHI::CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device)
@@ -677,7 +694,7 @@ void D3D12RHI::PresentFrame()
 	if (RHI::GetFrameCount() > 2)
 	{
 		HasSetup = true;
-}
+	}
 
 #if LOG_RESOURCE_TRANSITIONS
 	Log::LogMessage("-----Frame END------");
@@ -800,7 +817,7 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 				}
 			}
 		}
-}
+	}
 	return (CurrentDeviceIndex != 0);
 }
 

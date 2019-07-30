@@ -14,9 +14,9 @@ RenderGraphSystem::~RenderGraphSystem()
 void RenderGraphSystem::InitGraph()
 {
 	CurrentGraph = new RenderGraph();
-	CurrentGraph->CreateFWDGraph();
+	//CurrentGraph->CreateFWDGraph();
 	//CurrentGraph->CreateVRFWDGraph();
-	//CurrentGraph->CreateDefTestgraph();
+	CurrentGraph->CreateDefTestgraph();
 	//CurrentGraph->CreatePathTracedGraph();
 	CurrentGraph->BuildGraph();
 }
@@ -28,7 +28,6 @@ void RenderGraphSystem::Render()
 
 void RenderGraphSystem::Update()
 {
-	//CurrentGraph->UpdateConsoleVars();
 	if (Input::GetKeyDown('U'))
 	{		
 		CurrentGraph->ToggleCondition("PREZ");		

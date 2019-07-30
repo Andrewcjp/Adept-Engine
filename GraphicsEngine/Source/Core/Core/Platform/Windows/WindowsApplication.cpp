@@ -219,6 +219,11 @@ bool WindowsApplication::TryCreateDirectory(const std::string & name)
 	return false;
 }
 
+bool WindowsApplication::IsDebuggerPresent()
+{
+	return ::IsDebuggerPresent();
+}
+
 void WindowsApplication::ValidateWindows()
 {
 	if (!IsWindows8OrGreater())

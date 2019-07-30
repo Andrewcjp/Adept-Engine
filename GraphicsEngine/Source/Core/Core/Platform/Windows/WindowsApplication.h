@@ -21,6 +21,7 @@ public:
 	static bool DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string Extenstion, std::string & outData);
 	static bool CopyFileToTarget(std::string Target, std::string Dest);
 	CORE_API static bool TryCreateDirectory(const std::string & name);
+	CORE_API static bool IsDebuggerPresent();
 private:
 	static double SecondsPerCycle;
 	static void ValidateWindows();
