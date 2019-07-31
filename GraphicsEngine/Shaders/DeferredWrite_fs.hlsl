@@ -1,6 +1,5 @@
-Texture2D texColour : register( t0 );
-SamplerState defaultSampler : register ( s0 );
-
+Texture2D texColour : register(t0);
+SamplerState defaultSampler : register (s0);
 struct PSInput
 {
 	float4 position : SV_POSITION;
@@ -19,11 +18,11 @@ struct FS_OUTPUT
 	float4 GTangent: SV_Target3;
 };
 
-FS_OUTPUT main(PSInput input ) 
+FS_OUTPUT main(PSInput input)
 {
 	FS_OUTPUT output = (FS_OUTPUT)0;
 	output.Gpos = input.WorldPos;
 	output.GNormal = float4(input.Normal.xyz, input.LightData.g);
 	output.GAlbedoSpec = float4(texColour.Sample(defaultSampler, input.uv).xyz, input.LightData.r);
-    return output;
+	return output;
 }

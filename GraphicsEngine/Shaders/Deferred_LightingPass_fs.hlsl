@@ -21,7 +21,7 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
 
 #include "Lighting.hlsl"
 #include "Shadow.hlsl"
-
+#include "VRX\VRRCommon.hlsl"
 
 cbuffer LightBuffer : register(b1)
 {
@@ -42,6 +42,7 @@ struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
+	VRR_SHADER_PAYLOAD;
 };
 
 #include "ReflectionEnviroment.hlsl"

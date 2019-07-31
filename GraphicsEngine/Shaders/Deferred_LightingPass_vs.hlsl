@@ -1,18 +1,30 @@
-
-
+#include "VRX\VRRCommon.hlsl"
+VRR_BINDDATA
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
+	VRR_SHADER_PAYLOAD
 };
 
-
-
-VS_OUTPUT main(float4 position : POSITION /*float4 normal : NORMAL0,*/ /*float4 uv : TEXCOORD*/)
+VS_OUTPUT main(float4 position : POSITION)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 	output.pos = position;
 	const float2 fliped = float2 (position.x, -position.y);
 	output.uv = (fliped + float2(1, 1)) / 2.0f;
+#if SUPPORT_VRR	
+	if (position.y > 0.1f)
+	{
+		output.VRRIndex = 0;
+		output.VRRtIndex = 0;
+	}
+	else
+	{
+		output.VRRIndex = 1;
+		output.VRRtIndex = 1;
+	}
+	//VRR_PROCESS(output);
+#endif
 	return output;
 }

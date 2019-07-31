@@ -22,6 +22,7 @@ void PostProcessing::ShutDown()
 PostProcessing::PostProcessing()
 {
 	Instance = this;
+	CommandList = RHI::CreateCommandList(ECommandListType::Compute);
 }
 
 PostProcessing::~PostProcessing()
@@ -45,12 +46,15 @@ void PostProcessing::ExecPPStack(FrameBuffer* Target)
 	SCOPE_CYCLE_COUNTER_GROUP("PostProcessPass", "Render");
 	if (Effects.size() == 0)
 	{
-		return;
+		//return;
 	}
 	//wait for graphics to be done with the target buffer
 	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	CommandList->ResetList();
 	CommandList->StartTimer(EGPUTIMERS::PostProcess);
+
+	CommandList->ResolveVRXFramebuffer(Target);
+
 	for (int i = 0; i < Effects.size(); i++)
 	{
 		Effects[i]->RunPass(CommandList, Target);
@@ -70,7 +74,7 @@ void PostProcessing::ExecPPStack(FrameBuffer* Target)
 
 void PostProcessing::Init(FrameBuffer* Target)
 {
-	CommandList = RHI::CreateCommandList(ECommandListType::Compute);
+	
 
 	ColourCorrect = new PP_ColourCorrect();
 	ColourCorrect->SetUpData();

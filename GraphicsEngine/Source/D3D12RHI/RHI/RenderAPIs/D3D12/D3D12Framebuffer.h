@@ -72,8 +72,9 @@ private:
 
 	std::vector<SRVRequest> RequestedSRVS;
 	CD3DX12_VIEWPORT m_viewport;
+	CD3DX12_VIEWPORT m_viewports[8];
 	CD3DX12_RECT m_scissorRect;
-
+	CD3DX12_RECT m_scissorRects[8];
 	DXGI_FORMAT RTVformat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT Depthformat = DXGI_FORMAT_D32_FLOAT;
 	DXGI_FORMAT DepthReadformat = DXGI_FORMAT_R32_FLOAT;

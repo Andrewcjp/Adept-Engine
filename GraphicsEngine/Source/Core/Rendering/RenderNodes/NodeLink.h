@@ -24,7 +24,7 @@ public:
 	EViewMode::Type ViewMode = EViewMode::DontCare;
 	std::string GetLinkName() const;
 	void SetLinkName(const std::string& val);
-	void Validate(RenderGraph::ValidateArgs& args);
+	void Validate(RenderGraph::ValidateArgs& args, RenderNode* parent);
 private:
 	StorageNode* StoreTarget = nullptr;
 	std::string LinkName = "";

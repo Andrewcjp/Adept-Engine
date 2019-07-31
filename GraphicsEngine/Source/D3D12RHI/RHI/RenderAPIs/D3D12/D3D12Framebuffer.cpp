@@ -481,7 +481,7 @@ void D3D12FrameBuffer::RequestSRV(const RHIViewDesc & desc)
 
 void D3D12FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res)
 {
-	
+
 }
 
 void D3D12FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res)
@@ -550,6 +550,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	CD3DX12_RESOURCE_DESC ResourceDesc = CD3DX12_RESOURCE_DESC();
 	ResourceDesc.Width = m_width;
 	ResourceDesc.Height = m_height;
+	if (BufferDesc.VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
+	{
+		ResourceDesc.Width = m_width * BufferDesc.VarRateSettings.DisplayResFactors[OffsetInHeap];
+		ResourceDesc.Height = m_height * BufferDesc.VarRateSettings.DisplayResFactors[OffsetInHeap];
+	}
 	ResourceDesc.Dimension = D3D12Helpers::ConvertToResourceDimension(ViewDimension);
 	ResourceDesc.Format = Format;
 	ResourceDesc.Flags = (IsDepthStencil ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
@@ -643,11 +648,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		}
 
 		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
-		}
+	}
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-	}
+}
 
 void D3D12FrameBuffer::Init()
 {
@@ -809,7 +814,22 @@ void D3D12FrameBuffer::BindSRV(D3D12CommandList * List, int slot, RHIViewDesc SR
 void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex)
 {
 	list->RSSetViewports(1, &m_viewport);
-	list->RSSetScissorRects(1, &m_scissorRect);
+	if (BufferDesc.VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
+	{
+		m_viewports[0] = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
+		m_viewports[1] = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z*0.5, BufferDesc.ViewPort.w*0.5);
+		list->RSSetViewports(2, m_viewports);
+
+		m_scissorRects[0] = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
+		m_scissorRects[1] = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
+		list->RSSetScissorRects(2, m_scissorRects);
+	}
+	else
+	{
+		list->RSSetViewports(1, &m_viewport);
+		list->RSSetScissorRects(1, &m_scissorRect);
+	}
+
 
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{

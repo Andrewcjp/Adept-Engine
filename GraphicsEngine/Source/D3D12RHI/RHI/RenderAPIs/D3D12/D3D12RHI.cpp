@@ -299,7 +299,7 @@ void D3D12RHI::LoadPipeLine()
 		}
 	}
 #endif
-	if (EnableDred.GetBoolValue())
+	if (EnableDred.GetBoolValue() && !ForceNoDebug.GetBoolValue())
 	{
 #if NTDDI_WIN10_19H1
 		ID3D12DeviceRemovedExtendedDataSettings* pDredSettings;

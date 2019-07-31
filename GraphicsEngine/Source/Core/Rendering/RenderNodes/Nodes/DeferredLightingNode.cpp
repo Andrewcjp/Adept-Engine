@@ -64,8 +64,11 @@ void DeferredLightingNode::OnExecute()
 	{
 		GetShadowDataFromInput(3)->BindPointArray(List, 6);
 	}
+#if TEST_VRR
+	List->SetVRRShadingRate(2);
+#endif
 	DeferredShader->RenderScreenQuad(List);
-
+	
 	//transparent pass
 	//if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)
 	//{
@@ -75,10 +78,10 @@ void DeferredLightingNode::OnExecute()
 	//}
 	List->EndRenderPass();
 
-
+#if !TEST_VRR
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
-
+#endif
 	GBuffer->MakeReadyForComputeUse(List);
 	MainBuffer->MakeReadyForComputeUse(List);
 	List->EndTimer(EGPUTIMERS::DeferredLighting);

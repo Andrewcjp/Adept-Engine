@@ -118,15 +118,15 @@ void RenderNode::ValidateNode(RenderGraph::ValidateArgs & args)
 {
 	for (NodeLink* NL : Inputs)
 	{
-		NL->Validate(args);
+		NL->Validate(args, this);
 	}
 	for (NodeLink* NL : Outputs)
 	{
-		NL->Validate(args);
+		NL->Validate(args, this);
 	}
 	for (NodeLink* NL : Refrences)
 	{
-		NL->Validate(args);
+		NL->Validate(args, this);
 	}
 }
 

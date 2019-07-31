@@ -162,7 +162,7 @@ void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 	//Native VRS does not require resolve
 	if (Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
 	{
-		VRXEngine::Get()->ResolveVRRFramebuffer(this, Target);
+		VRXEngine::ResolveVRRFramebuffer(this, Target);
 	}
 	else
 	{
@@ -200,6 +200,11 @@ void RHICommandList::SetVRXShadingRateImage(FrameBuffer * Target)
 	{
 		VRXEngine::Get()->SetVRXShadingRateImage(this, Target);
 	}
+}
+
+RHIPipeLineStateObject * RHICommandList::GetCurrnetPSO()
+{
+	return CurrentPSO;
 }
 
 
