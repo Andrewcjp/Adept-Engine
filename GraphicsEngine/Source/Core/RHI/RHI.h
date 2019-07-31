@@ -39,6 +39,8 @@ struct InterGPUDesc;
 #define MAX_RENDERTARGETS 8
 #define TESTGRAPH 1
 #define RHI_SUPPORTS_RT 1
+#define TEST_VRR 0
+#define TEST_VRS 1
 class RHI
 {
 public:

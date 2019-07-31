@@ -111,7 +111,8 @@ void RenderGraph::BuildGraph()
 	}
 	ListNodes();
 }
-#define RUNRT 1
+#define RUNRT 0
+
 void RenderGraph::CreateDefTestgraph()
 {
 	GraphName = "Deferred Renderer";
@@ -123,9 +124,13 @@ void RenderGraph::CreateDefTestgraph()
 
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
-	Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.AllowUnorderedAccess = true;
+#if TEST_VRR
+	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
+	//Desc.VarRateSettings.
+#endif
 	MainBuffer->SetFrameBufferDesc(Desc);
 
 	FrameBufferStorageNode* SSAOBuffer = AddStoreNode(new FrameBufferStorageNode());

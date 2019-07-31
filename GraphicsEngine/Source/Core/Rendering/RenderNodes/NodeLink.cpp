@@ -22,16 +22,18 @@ bool NodeLink::SetStore(StorageNode* target)
 		__debugbreak();
 		return false;
 	}
+#if 0
 	if (RHI::GetFrameCount() == 0)
 	{
 		if (DataFormat != target->DataFormat)
 		{
 			if (DataFormat != StorageFormats::DefaultFormat)
 			{
-				Log::LogMessage("Incorrect Data Format");
+				Log::LogMessage("Incorrect Data Format Expected: '" + DataFormat + "' got : '" + target->DataFormat + "'", Log::Warning);
 			}
 		}
 	}
+#endif
 	StoreTarget = target;
 	return true;
 }
@@ -51,10 +53,12 @@ bool NodeLink::SetLink(NodeLink* link)
 	{
 		return false;
 	}
+#if 0
 	if (DataFormat != link->DataFormat)
 	{
-		Log::LogMessage("Incorrect Data Format");
+		Log::LogMessage("Incorrect Data Format Expected: '" + DataFormat + "' got : '" + link->DataFormat + "'", Log::Warning);
 	}
+#endif
 	StoreLink = link;
 	return true;
 }
@@ -78,17 +82,18 @@ void NodeLink::SetLinkName(const std::string& val)
 	LinkName = val;
 }
 
-void NodeLink::Validate(RenderGraph::ValidateArgs& args)
+void NodeLink::Validate(RenderGraph::ValidateArgs& args, RenderNode* parent)
 {
 	if (StoreLink != nullptr && DataFormat != StoreLink->DataFormat)
 	{
+		std::string output = "Node '" + parent->GetName() + "' with NodeLink: " + GetLinkName() + " Incorrect Data Format Expected: '" + DataFormat + "' got: '" + StoreLink->DataFormat + "'";
 		if (args.ErrorWrongFormat)
 		{
-			args.AddError("NodeLink: " + GetLinkName() + " Incorrect Data Format");
+			args.AddError(output);
 		}
 		else
 		{
-			args.AddWarning("NodeLink: " + GetLinkName() + " Incorrect Data Format");
+			args.AddWarning(output);
 		}
 	}
 }

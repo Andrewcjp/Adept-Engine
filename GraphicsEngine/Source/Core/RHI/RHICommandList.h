@@ -146,6 +146,7 @@ public:
 	void SetVRSShadingRate(VRS_SHADING_RATE::type Rate);
 	void SetVRRShadingRate(int RateIndex);
 	void SetVRXShadingRateImage(FrameBuffer* Target);
+	RHIPipeLineStateObject* GetCurrnetPSO();
 protected:
 	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate) {};
 	virtual void SetVRSShadingRateImageNative(FrameBuffer* Target) {};

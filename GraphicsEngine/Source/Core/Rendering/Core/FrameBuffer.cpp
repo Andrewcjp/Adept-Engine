@@ -44,7 +44,14 @@ void FrameBuffer::HandleInit()
 		Device->AddTransferBuffer(this);
 		BufferDesc.DeviceToCopyTo->AddTransferBuffer(this);
 	}
-
+	if (BufferDesc.VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
+	{
+		BufferDesc.TextureDepth = BufferDesc.VarRateSettings.ResolutionSlices;
+		//BufferDesc.RenderTargetCount = 2;
+		BufferDesc.Dimension = DIMENSION_TEXTURE2DARRAY;
+		BufferDesc.NeedsDepthStencil = false;
+		BufferDesc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 	0.0f);
+	}
 }
 
 void FrameBuffer::PostInit()
