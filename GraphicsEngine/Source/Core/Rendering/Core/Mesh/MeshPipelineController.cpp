@@ -144,7 +144,7 @@ void MeshPipelineController::RenderPass(ERenderPass::Type type, RHICommandList* 
 {
 	MeshPassRenderArgs args;
 	args.PassType = type;
-	args.UseDeferredShaders = RHI::GetRenderSettings()->IsDeferred;
+	args.UseDeferredShaders = false;
 	args.UseShadows = false;
 	RenderPass(args, List, shader, Filter);
 }

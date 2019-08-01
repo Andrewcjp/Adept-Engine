@@ -73,7 +73,7 @@ public:
 	void PreSampleShadows(RHICommandList* list);
 	void RenderPointShadows(RHICommandList * list);
 	void RenderDirectionalShadows(RHICommandList * list);
-	void BindShadowMapsToTextures(RHICommandList* list, bool cubemap = false);
+
 
 	void BindPointmaps(RHICommandList * list, int slot);
 

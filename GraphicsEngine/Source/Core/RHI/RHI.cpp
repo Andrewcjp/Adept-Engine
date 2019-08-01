@@ -197,7 +197,7 @@ int RHI::GetDeviceCount()
 bool RHI::SupportVR()
 {
 #if RHI_SUPPORTS_VR
-	return instance->RenderSettings.EnableVR;
+	return instance->RenderSettings.VRHMDMode != EVRHMDMode::Disabled;
 #else
 	return false;
 #endif

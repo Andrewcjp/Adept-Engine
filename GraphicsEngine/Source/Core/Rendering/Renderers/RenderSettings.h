@@ -1,5 +1,6 @@
 #pragma once
 #include "Core\Platform\ConsoleVariable.h"
+#include "..\RenderNodes\RenderGraphSystem.h"
 
 class Archive;
 namespace AAMode
@@ -68,7 +69,6 @@ struct ERenderDebugOutput
 struct RayTracingSettings
 {
 	bool Enabled = false;
-	float ReflectionBufferScale = 1.0f;
 };
 struct ShadowMappingSettings
 {
@@ -104,9 +104,7 @@ struct RenderSettings
 public:
 
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
-
-	bool IsDeferred = false;
-	bool EnableVR = false;
+	EBuiltinRenderGraphs::Type SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 	bool EnableGPUParticles = true;
 	bool LockBackBuffer = false;
 	int LockedWidth = 0;

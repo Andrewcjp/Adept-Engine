@@ -2,6 +2,7 @@
 #include "RenderGraph.h"
 #include "Core/Input/Input.h"
 #include "RenderNode.h"
+#include "../Renderers/RenderSettings.h"
 
 RenderGraphSystem::RenderGraphSystem()
 {}
@@ -14,11 +15,38 @@ RenderGraphSystem::~RenderGraphSystem()
 void RenderGraphSystem::InitGraph()
 {
 	CurrentGraph = new RenderGraph();
-	//CurrentGraph->CreateFWDGraph();
-	//CurrentGraph->CreateVRFWDGraph();
-	CurrentGraph->CreateDefTestgraph();
-	//CurrentGraph->CreatePathTracedGraph();
+	InitDefaultGraph();
+	if (!CurrentGraph->IsGraphValid())
+	{
+		CurrentGraph->DestoryGraph();
+		std::string Data = "Selected graph '" + CurrentGraph->GetGraphName() + "' is invalid. Engine will use the fallback graph";
+		Log::LogMessage(Data, Log::Error);
+		PlatformApplication::DisplayMessageBox("Error", Data);
+		CurrentGraph->CreateFallbackGraph();
+	}
 	CurrentGraph->BuildGraph();
+}
+
+void RenderGraphSystem::InitDefaultGraph()
+{
+	switch (RHI::GetRenderSettings()->SelectedGraph)
+	{
+		case EBuiltinRenderGraphs::Fallback:
+			CurrentGraph->CreateFallbackGraph();
+			break;
+		case EBuiltinRenderGraphs::ForwardRenderer:
+			CurrentGraph->CreateFWDGraph();
+			break;
+		case EBuiltinRenderGraphs::DeferredRenderer:
+			CurrentGraph->CreateDefTestgraph();
+			break;
+		case EBuiltinRenderGraphs::VRForwardRenderer:
+			CurrentGraph->CreateVRFWDGraph();
+			break;
+		case EBuiltinRenderGraphs::Pathtracing:
+			CurrentGraph->CreatePathTracedGraph();
+			break;
+	}
 }
 
 void RenderGraphSystem::Render()
@@ -29,8 +57,8 @@ void RenderGraphSystem::Render()
 void RenderGraphSystem::Update()
 {
 	if (Input::GetKeyDown('U'))
-	{		
-		CurrentGraph->ToggleCondition("PREZ");		
+	{
+		CurrentGraph->ToggleCondition("PREZ");
 	}
 	if (Input::GetKeyDown('Y'))
 	{

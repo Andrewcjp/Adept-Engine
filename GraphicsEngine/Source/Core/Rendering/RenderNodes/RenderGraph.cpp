@@ -90,6 +90,7 @@ void RenderGraph::BuildGraph()
 {
 	Log::LogMessage("Building graph \"" + GraphName + "\"");
 	ValidateGraph();
+	ensureMsgf(RootNode, "No root node is set");
 	for (StorageNode* N : StoreNodes)
 	{
 		N->CreateNode();
@@ -484,6 +485,19 @@ void RenderGraph::CreateVRFWDGraph()
 	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
 }
 
+bool RenderGraph::IsGraphValid()
+{
+	if (RootNode == nullptr)
+	{
+		return false;
+	}
+	if (IsVRGraph && RHI::GetRenderSettings()->VRHMDMode == EVRHMDMode::Disabled)
+	{
+		return false;
+	}
+	return true;
+}
+
 void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)
 {
 	RenderGraphExposedSettings* Set = new RenderGraphExposedSettings(N, Defaultstate);
@@ -575,3 +589,19 @@ void RenderGraph::CreatePathTracedGraph()
 	Output->GetInput(0)->SetLink(PathTraceNode->GetOutput(0));
 }
 
+void RenderGraph::CreateFallbackGraph()
+{
+	GraphName = "Fallback Renderer";
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	MainBuffer->SetFrameBufferDesc(Desc);
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+	OutputToScreenNode* Output = new OutputToScreenNode();
+	DebugUINode* Debug = new DebugUINode();
+	RootNode = Debug;
+	Debug->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(Debug, Output);
+	Output->GetInput(0)->SetLink(Debug->GetOutput(0));
+}
