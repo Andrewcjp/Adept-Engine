@@ -444,8 +444,6 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list)
 			continue;
 		}
 		FrameBuffer* TargetBuffer = LightInteractions[SNum]->GetMap(list->GetDeviceIndex());
-		//list->SetRenderTarget(TargetBuffer);
-		//list->ClearFrameBuffer(TargetBuffer);
 		list->BeginRenderPass(RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear));
 		Shader_Depth::LightData data = {};
 		data.Proj = ShadowingDirectionalLights[SNum]->Projection;
@@ -454,51 +452,6 @@ void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list)
 		Scenerenderer->MeshController->RenderPass(ERenderPass::DepthOnly, list, LightInteractions[SNum]->Shader);
 		list->EndRenderPass();
 	}
-}
-
-void ShadowRenderer::BindShadowMapsToTextures(RHICommandList * list, bool cubemap)
-{
-	DeviceShadowObjects* Object = &DSOs[list->GetDeviceIndex()];
-	if (RHI::GetRenderSettings()->IsDeferred && !cubemap)
-	{
-		//Object->ShadowDirectionalArray->BindToShader(list, 5);
-		Object->ShadowCubeArray->BindToShader(list, 6);
-		if (RHI::GetMGPUSettings()->UseSplitShadows())
-		{
-			if (DSOs[1].PreSampledBuffer != nullptr && list->GetDeviceIndex() == 0)
-			{
-				list->SetFrameBufferTexture(DSOs[1].PreSampledBuffer, DeferredLightingShaderRSBinds::PreSampleShadows);
-			}
-			if (DSOs[0].PreSampledBuffer != nullptr && list->GetDeviceIndex() == 1)
-			{
-				list->SetFrameBufferTexture(DSOs[0].PreSampledBuffer, DeferredLightingShaderRSBinds::PreSampleShadows);
-			}
-		}
-	}
-	else
-	{
-		if (Object->ShadowCubeArray != nullptr)
-		{
-			//Object->ShadowDirectionalArray->BindToShader(list, MainShaderRSBinds::DirShadow);
-			BindPointmaps(list, MainShaderRSBinds::PointShadow);
-
-
-			//list->SetFrameBufferTexture(LightInteractions[0]->ShadowMap, MainShaderRSBinds::PointShadow);
-		}
-		if (RHI::GetMGPUSettings()->UseSplitShadows())
-		{
-			if (DSOs[1].PreSampledBuffer != nullptr && list->GetDeviceIndex() == 0)
-			{
-				list->SetFrameBufferTexture(DSOs[1].PreSampledBuffer, MainShaderRSBinds::PreSampledShadows);
-			}
-			if (DSOs[0].PreSampledBuffer != nullptr && list->GetDeviceIndex() == 1)
-			{
-				list->SetFrameBufferTexture(DSOs[0].PreSampledBuffer, MainShaderRSBinds::PreSampledShadows);
-			}
-		}
-	}
-
-
 }
 
 void ShadowRenderer::BindPointmaps(RHICommandList * list, int slot)

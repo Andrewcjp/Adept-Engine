@@ -60,6 +60,7 @@ public:
 	void ValidateGraph();
 	void CreateVRFWDGraph();
 	void CreatePathTracedGraph();
+	void CreateFallbackGraph();
 
 
 	struct ValidateArgs
@@ -74,9 +75,13 @@ public:
 	private:
 	};
 	bool IsVRGraph = false;
+	bool IsGraphValid();
+	std::string GetGraphName() const { return GraphName; }
+	void SetGraphName(std::string val) { GraphName = val; }
 private:
 	std::vector<ConsoleVariable*> AutoVars;
 	std::string GraphName = "";
+
 	int NodeCount = 0;
 	int ActiveNodeCount = 0;
 	void ExposeItem(RenderNode* N, std::string name, bool Defaultstate = true);

@@ -3,7 +3,6 @@
 #include "Core/Engine.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "WinLauncher.h"
-static ConsoleVariable UseDeferredMode("deferred", false, ECVarType::LaunchOnly);
 static ConsoleVariable UseSFR("UseSFR", false, ECVarType::LaunchOnly);
 static ConsoleVariable SplitShadows("SplitShadows", false, ECVarType::LaunchOnly);
 static ConsoleVariable AsyncShadow("AsyncShadow", false, ECVarType::LaunchOnly);
@@ -177,33 +176,29 @@ bool MultiGPUMode::UseSplitShadows() const
 
 RenderSettings::RenderSettings()
 {
-	IsDeferred = UseDeferredMode.GetBoolValue();
-	EnableVR = true;	
-	CurrentDebug = ERenderDebugOutput::Off;
-	//EnableGPUParticles = true;
-	if (IsDeferred)
-	{
-		Log::OutS << "Starting in Deferred Rendering mode" << Log::OutS;
-	}
-	RenderScale = 1.0f;
+
 	//SetRes(BBTestMode::HD);
+
+	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;
-	//UseZPrePass = true;
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
-	RTSettings.ReflectionBufferScale = 1.0f;
 	//AllowMeshInstancing = true;
-	IsDeferred = false;
+
 	VRHMDMode = EVRHMDMode::Disabled;
+
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
+
+	CurrentDebug = ERenderDebugOutput::Off;
 }
 
 void RenderSettings::ValidateSettings()
 {
-	if (VRHMDMode != EVRHMDMode::Disabled || !IsDeferred)
+	if (VRHMDMode != EVRHMDMode::Disabled)
 	{
-		//RTSettings.Enabled = false;
+		RTSettings.Enabled = false;
 	}
 }
 
@@ -214,7 +209,7 @@ void RenderSettings::ValidateForAPI(ERenderSystemType system)
 		RTSettings.Enabled = false;
 		DRSSettings.EnableDynamicResolutionScaling = false;
 		EnableGPUParticles = false;
-		//IsDeferred = false;
+		VRHMDMode = EVRHMDMode::Disabled;
 	}
 }
 

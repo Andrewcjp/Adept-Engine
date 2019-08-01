@@ -304,10 +304,10 @@ void ParticleSystemManager::Render(FrameBuffer* TargetBuffer, FrameBuffer * Dept
 	{
 		return;
 	}
-	if (RHI::GetRenderSettings()->IsDeferred)
-	{
-	//	DepthBuffer = TargetBuffer;
-	}
+	//if (RHI::GetRenderSettings()->IsDeferred)
+	//{
+	////	DepthBuffer = TargetBuffer;
+	//}
 	StartRender();
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{
