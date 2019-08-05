@@ -624,7 +624,7 @@ void ShadowRenderer::InitShadows(std::vector<Light*> lights)
 
 void ShadowRenderer::Unbind(RHICommandList * list)
 {
-#if !SINGLE_GPU_PRESAMPLE
+#if 0 //!SINGLE_GPU_PRESAMPLE
 	if (RHI::GetMGPUSettings()->UseSplitShadows())
 	{
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
