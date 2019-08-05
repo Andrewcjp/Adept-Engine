@@ -13,6 +13,8 @@
 #include "Core/Version.h"
 #include "Core/Utils/StringUtil.h"
 #include "Rendering/Core/Screen.h"
+#include <commctrl.h>
+
 
 
 WindowsWindow* WindowsWindow::app = nullptr;
@@ -77,6 +79,7 @@ WindowsWindow* WindowsWindow::CreateApplication(Engine* EnginePtr, HINSTANCE hin
 		//Now create an OGLWindow for this application
 		if (!app->m_engine->GetIsCooking())
 		{
+			app->CreateSplashWindow();
 			app->CreateOSWindow(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 			app->m_engine->CreateApplication();
 			app->SetVisible(true);
@@ -118,6 +121,7 @@ bool WindowsWindow::CreateOSWindow(int width, int height)
 #if !WITH_EDITOR
 	Maximize();
 #endif
+	//SetVisible(true);
 	return true;
 }
 
@@ -184,7 +188,15 @@ int WindowsWindow::Run()
 	//clear queue
 	return (int)msg.wParam;
 }
-
+void WindowsWindow::EmptyMessageQueue()
+{
+	MSG msg = MSG();
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+}
 void WindowsWindow::Kill(int code)
 {
 	app->m_terminate = TRUE;
@@ -215,6 +227,62 @@ void WindowsWindow::AddMenus(HWND hwnd)
 	AppendMenuW(hdebugMenu, MF_STRING, 11, L"&Run Cook ");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hdebugMenu, L"&DEBUG");
 	SetMenu(hwnd, hMenubar);
+}
+
+void WindowsWindow::CreateSplashWindow()
+{
+	IsRunningsplash = true;
+	int width = 400;
+	int height = 100;
+	std::string Title = std::string(ENGINE_NAME) + " " + Version::GetFullVersionString();
+	app->SplashWindow = CreateWindowEx(
+		0,
+		L"RenderWindow", StringUtils::ConvertStringToWide(Title).c_str(),
+		WS_OVERLAPPED /*|
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/,
+		0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
+
+	Label = CreateWindowEx(0, L"STATIC", (LPTSTR)NULL,
+		WS_CHILD | WS_VISIBLE | SS_CENTER,
+		0, 0, width, height,
+		app->SplashWindow, (HMENU)0, m_hInst, NULL);
+	SetWindowText(Label, L"Loading: 0%");
+
+	MONITORINFO info;
+	info.cbSize = sizeof(MONITORINFO);
+	HMONITOR g = MonitorFromWindow(SplashWindow, MONITOR_DEFAULTTONEAREST);
+	GetMonitorInfo(g, &info);
+	glm::ivec2 offset = glm::ivec2();
+	offset.x = (info.rcWork.right / 2) - width / 2;
+	offset.y = (info.rcWork.bottom / 2) - height / 2;
+	SetWindowPos(app->SplashWindow, 0, offset.x, offset.y, width, height, SWP_FRAMECHANGED);
+	ShowWindow(SplashWindow, SW_SHOW);
+}
+
+void WindowsWindow::TickSplashWindow(int amt /*= 1*/, std::string Section /*= std::string()*/)
+{
+	//process messages
+	MSG msg = MSG();
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	app->CurrentProgress += amt;
+	if (amt == -1)
+	{
+		app->CurrentProgress = 100;
+	}
+	//update window
+	SetWindowText(app->Label, (std::wstring(L"Loading: ") + std::to_wstring(app->CurrentProgress) + L"% \n" + StringUtils::ConvertStringToWide(Section)).c_str());
+}
+
+void WindowsWindow::DestorySplashWindow()
+{
+	app->IsRunningsplash = false;
+	ShowWindow(app->SplashWindow, SW_HIDE);
+	DestroyWindow(app->SplashWindow);
+	app->EmptyMessageQueue();
 }
 
 void WindowsWindow::GetDesktopResolution(int & horizontal, int & vertical)

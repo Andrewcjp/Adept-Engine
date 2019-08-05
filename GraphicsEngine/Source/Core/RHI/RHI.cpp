@@ -23,6 +23,7 @@
 #include "Testing/EngineTests.h"
 #include "Rendering/RenderNodes/RenderGraphSystem.h"
 #include "RHIInterGPUStagingResource.h"
+#include "Core/Platform/Windows/WindowsWindow.h"
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
@@ -470,6 +471,7 @@ void RHI::InitialiseContext()
 {
 	instance->RenderPassCache = new RHIRenderPassCache();
 	GetRHIClass()->InitRHI();
+	PlatformWindow::TickSplashWindow(5, "Loading Shaders");
 	instance->ValidateSettings();
 	RunTests.SetValue(true);
 	if (RunTests.GetBoolValue())
@@ -483,6 +485,7 @@ void RHI::InitialiseContext()
 		}
 	}
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
+	PlatformWindow::TickSplashWindow(10, "Loading Render Graph");
 	ParticleSystemManager::Get();
 	instance->SFR_Controller = new SFRController();
 	Defaults::Start();
@@ -493,7 +496,6 @@ void RHI::InitialiseContext()
 		instance->RTE = new RayTracingEngine();
 	}
 	Get()->RenderSystem = new RenderGraphSystem();
-	
 }
 
 void RHI::ValidateSettings()
@@ -516,7 +518,7 @@ std::string RHI::ReportMemory()
 }
 
 void RHI::RHISwapBuffers()
-{	
+{
 	GetRHIClass()->RHISwapBuffers();
 	Get()->TickDeferredDeleteQueue();
 	instance->PresentCount++;

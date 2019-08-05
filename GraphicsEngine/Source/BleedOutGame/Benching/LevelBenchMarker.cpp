@@ -23,29 +23,29 @@ LevelBenchMarker::LevelBenchMarker()
 LevelBenchMarker::~LevelBenchMarker()
 {}
 
-void LevelBenchMarker::AddAllRes(MGPUMode::Type mode)
-{
-	BenchSettings s = {};
-	s.TestResolution = BBTestMode::HD;
-	s.TestType = mode;
-	Settings.push_back(s);
-	s = BenchSettings();
-	s.TestResolution = BBTestMode::QHD;
-	s.TestType = mode;
-	Settings.push_back(s);
-	s = BenchSettings();
-	s.TestResolution = BBTestMode::UHD;
-	s.TestType = mode;
-	Settings.push_back(s);
-}
+//void LevelBenchMarker::AddAllRes(MGPUMode::Type mode)
+//{
+//	BenchSettings s = {};
+//	s.TestResolution = BBTestMode::HD;
+//	s.TestType = mode;
+//	Settings.push_back(s);
+//	s = BenchSettings();
+//	s.TestResolution = BBTestMode::QHD;
+//	s.TestType = mode;
+//	Settings.push_back(s);
+//	s = BenchSettings();
+//	s.TestResolution = BBTestMode::UHD;
+//	s.TestType = mode;
+//	Settings.push_back(s);
+//}
 
-void LevelBenchMarker::AddSetting(BBTestMode::Type res, MGPUMode::Type type)
-{
-	BenchSettings s = BenchSettings();
-	s.TestResolution = res;
-	s.TestType = type;
-	Settings.push_back(s);
-}
+//void LevelBenchMarker::AddSetting(BBTestMode::Type res, MGPUMode::Type type)
+//{
+//	BenchSettings s = BenchSettings();
+//	s.TestResolution = res;
+//	s.TestType = type;
+//	Settings.push_back(s);
+//}
 
 void LevelBenchMarker::Setup()
 {
@@ -53,10 +53,10 @@ void LevelBenchMarker::Setup()
 	//AddSetting(BBTestMode::UHD, MGPUMode::None);
 	//AddAllRes(MGPUMode::SFR);
 #else
-	for (int i = 0; i < MGPUMode::Limit; i++)
-	{
-		AddAllRes((MGPUMode::Type)(i));
-	}
+	//for (int i = 0; i < MGPUMode::Limit; i++)
+	//{
+	//	AddAllRes((MGPUMode::Type)(i));
+	//}
 #endif
 	CloseOnFinish = true;
 }
@@ -88,14 +88,14 @@ void LevelBenchMarker::Init()
 
 void LevelBenchMarker::TransitionToSetting(BenchSettings* setting, int index)
 {
-	if (setting->TestType != RHI::GetMGPUSettings()->CurrnetTestMode)
+	/*if (setting->TestType != RHI::GetMGPUSettings()->CurrnetTestMode)
 	{
 		Engine::GetEPD()->Restart = true;
 		Engine::GetEPD()->MultiGPUMode = setting->TestType;
 		Engine::GetEPD()->BenchIndex = index;
 		Log::LogMessage("Rebooting to change MultiGPU Settings (Mode " + MGPUMode::ToString(setting->TestType) + ") ");
 		Engine::RequestExit(Engine::RestartCode);
-	}
+	}*/
 	RHI::GetRenderSettings()->SetRes(setting->TestResolution);
 	BaseWindow::StaticResize();
 	Restart();
@@ -106,9 +106,9 @@ void LevelBenchMarker::End()
 {
 	PerfManager::EndBenchMark();
 	float time = PerfManager::Get()->EndAndLogTimer(TimerName);
-	float BnechRuntime = (time * (int)MGPUMode::Limit * 3) / 1000;
-	BnechRuntime += PreHeatTime * (int)MGPUMode::Limit * 3;
-	Log::LogMessage("took " + std::to_string(time / 1000) + "s Expected Time " + std::to_string(BnechRuntime / 60) + "mins ");
+	//float BnechRuntime = (time * (int)MGPUMode::Limit * 3) / 1000;
+	//BnechRuntime += PreHeatTime * (int)MGPUMode::Limit * 3;
+	//Log::LogMessage("took " + std::to_string(time / 1000) + "s Expected Time " + std::to_string(BnechRuntime / 60) + "mins ");
 
 	CurrentSettingsIndex++;
 	PreHeatTimer = PreHeatTime;
@@ -139,7 +139,7 @@ void LevelBenchMarker::Update()
 	}
 	if (Once)
 	{
-		PerfManager::StartBenchMark(RenderSettings::ToString(CurrnetSetting->TestResolution) + "_" + MGPUMode::ToString(CurrnetSetting->TestType));
+		/*PerfManager::StartBenchMark(RenderSettings::ToString(CurrnetSetting->TestResolution) + "_" + MGPUMode::ToString(CurrnetSetting->TestType));*/
 		PerfManager::Get()->StartSingleActionTimer(TimerName);
 		Once = false;
 	}

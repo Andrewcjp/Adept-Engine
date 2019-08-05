@@ -24,31 +24,7 @@ namespace BBTestMode
 		Limit
 	};
 }
-struct MGPUMode
-{
-	enum Type
-	{
-		None,
-		SFR,
-		SFR_RATIOOPTIMIZED,
-		SFR_SHADOWS_0,
-		SFR_SHADOWS_1,
-		SFR_SHADOWS_2,
-		SFR_SHADOWS_3,
-		SFR_SHADOWS_4,
-		SFR_SHADOWS_RATIOOPTIMIZED,
-		MULTI_SHADOWS_1,
-		MULTI_SHADOWS_2,
-		MULTI_SHADOWS_3,
-		MULTI_SHADOWS_4,
-		ASYNC_SHADOWS_1,
-		ASYNC_SHADOWS_2,
-		ASYNC_SHADOWS_3,
-		ASYNC_SHADOWS_4,
-		Limit
-	};
-	RHI_API static std::string ToString(MGPUMode::Type t);
-};
+
 struct ERenderDebugOutput
 {
 	enum Type
@@ -140,7 +116,6 @@ private:
 struct MultiGPUMode
 {
 	MultiGPUMode();
-	void SyncSettings();
 	bool MainPassSFR = false;
 	//Splits the Work per Shadow light across the cards
 	bool SplitShadowWork = false;
@@ -158,8 +133,6 @@ struct MultiGPUMode
 	bool ShowSplit = false;
 	float SFRRatio = 0.5;
 	void ValidateSettings();
-	bool UseSplitShadows() const;
-	MGPUMode::Type CurrnetTestMode = MGPUMode::Limit;
 	//ensure that all GPUs have a scene renderer CBV instance and Transfrom CBV
 	//Will affect performance of CBV writes due to duplication.
 	bool InitSceneDataOnAllGPUs = true;

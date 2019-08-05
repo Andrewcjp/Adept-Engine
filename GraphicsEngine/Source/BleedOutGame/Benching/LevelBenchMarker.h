@@ -2,7 +2,7 @@
 struct BenchSettings
 {
 	BBTestMode::Type TestResolution = BBTestMode::HD;
-	MGPUMode::Type TestType = MGPUMode::None;
+	//MGPUMode::Type TestType = MGPUMode::None;
 };
 class GameObject;
 class LevelBenchMarker
@@ -16,8 +16,8 @@ public:
 	};
 	LevelBenchMarker();
 	~LevelBenchMarker();
-	void AddAllRes(MGPUMode::Type mode);
-	void AddSetting(BBTestMode::Type res, MGPUMode::Type type);
+	//void AddAllRes(MGPUMode::Type mode);
+	//void AddSetting(BBTestMode::Type res, MGPUMode::Type type);
 	void Setup();
 	void Init();
 	void TransitionToSetting(BenchSettings * setting, int index);

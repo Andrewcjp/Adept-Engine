@@ -24,6 +24,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/RenderNodes/RenderGraph.h"
 #include "Rendering/Core/Screen.h"
+#include "Platform/Windows/WindowsWindow.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 BaseWindow* BaseWindow::Instance = nullptr;
@@ -86,6 +87,7 @@ void BaseWindow::FixedUpdate()
 
 void BaseWindow::Render()
 {
+	PlatformWindow::DestorySplashWindow();
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->ClearStats();

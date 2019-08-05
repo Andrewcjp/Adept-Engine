@@ -161,6 +161,7 @@ RenderWindow * Engine::GetRenderWindow()
 
 void Engine::CreateApplication()
 {	
+	PlatformWindow::TickSplashWindow(10,"Loading RHI");
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
 #if NOSHADOW
@@ -173,13 +174,16 @@ void Engine::CreateApplication()
 	{
 		RHI::InitRHI(ForcedRenderSystem);
 	}
+	PlatformWindow::TickSplashWindow(10,"Loading Renderer");
 	RHI::InitialiseContext();
+	PlatformWindow::TickSplashWindow(10,"Loading Scene");
 	//TESTING::RunTests();
 
 	if (!IsCooking)
 	{
 		CreateApplicationWindow(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 	}
+	PlatformWindow::TickSplashWindow(-1);
 }
 
 void Engine::RunCook()
