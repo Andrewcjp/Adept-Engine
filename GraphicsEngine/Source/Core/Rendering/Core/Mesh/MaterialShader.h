@@ -1,6 +1,7 @@
 #pragma once
 #include "Rendering/Core/Material.h"
 #include "MaterialTypes.h"
+#include <unordered_map>
 
 class Shader_NodeGraph;
 class Asset_Shader;
@@ -23,7 +24,7 @@ private:
 	Shader_NodeGraph* CurrentShader = nullptr;
 	//holds all shaders created for this material with different option e.g. decal on, forward or deferred etc.
 #if USEHASH
-	std::map<int, Shader_NodeGraph*> ShaderPermutations;
+	std::unordered_map<int, Shader_NodeGraph*> ShaderPermutations;
 #else
 	std::map<std::string, Shader_NodeGraph*> ShaderPermutations;
 #endif

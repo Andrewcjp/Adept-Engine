@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "Core/Utils/MovingAverage.h"
+#include <unordered_map>
 
 class BenchMarker;
 class NVAPIManager;
@@ -134,17 +135,17 @@ private:
 
 	NVAPIManager* NVApiManager = nullptr;
 	std::string GetTimerName(int id);
-	std::map<std::string, unsigned long> SingleActionTimers;
-	std::map<std::string, float> SingleActionTimersAccum;
+	std::unordered_map<std::string, unsigned long> SingleActionTimers;
+	std::unordered_map<std::string, float> SingleActionTimersAccum;
 	void UpdateStatsTimer();
 
-	std::map<int, long> TimersStartStamps;
-	std::map<int, long> TimersEndStamps;
+	std::unordered_map<int, long> TimersStartStamps;
+	std::unordered_map<int, long> TimersEndStamps;
 
-	std::map<std::string, int> TimerIDs;
-	std::map<std::string, int> GroupIDS;
-	std::map<int, float> TimerOutput;
-	std::map<int, TimerData> AVGTimers;
+	std::unordered_map<std::string, int> TimerIDs;
+	std::unordered_map<std::string, int> GroupIDS;
+	std::unordered_map<int, float> TimerOutput;
+	std::unordered_map<int, TimerData> AVGTimers;
 	int NextId = 0;
 	int NextGroupId = 0;
 	const float TimeMS = 1e6f;

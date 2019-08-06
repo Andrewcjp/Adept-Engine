@@ -188,6 +188,7 @@ int WindowsWindow::Run()
 	//clear queue
 	return (int)msg.wParam;
 }
+
 void WindowsWindow::EmptyMessageQueue()
 {
 	MSG msg = MSG();
@@ -197,6 +198,7 @@ void WindowsWindow::EmptyMessageQueue()
 		DispatchMessage(&msg);
 	}
 }
+
 void WindowsWindow::Kill(int code)
 {
 	app->m_terminate = TRUE;
@@ -206,42 +208,15 @@ void WindowsWindow::Kill(int code)
 	}
 }
 
-void WindowsWindow::AddMenus(HWND hwnd)
-{
-	HMENU hMenu;
-	HMENU hGOMenu = CreateMenu();
-	HMENU hdebugMenu = CreateMenu();
-	//	HMENU hRenderMenu = CreateMenu();
-	HMENU hMenubar = CreateMenu();
-	hMenu = CreateMenu();
-	//file menu
-	AppendMenuW(hMenu, MF_STRING, 5, L"&Save Scene");
-	AppendMenuW(hMenu, MF_STRING, 6, L"&Load Scene");
-	AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
-	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
-
-	//Gameobject menu
-	AppendMenuW(hGOMenu, MF_STRING, 4, L"&Add GameObject ");
-	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hGOMenu, L"&GameObjects");
-	AppendMenuW(hdebugMenu, MF_STRING, 10, L"&Load DebugScene ");
-	AppendMenuW(hdebugMenu, MF_STRING, 11, L"&Run Cook ");
-	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hdebugMenu, L"&DEBUG");
-	SetMenu(hwnd, hMenubar);
-}
-
 void WindowsWindow::CreateSplashWindow()
 {
-	IsRunningsplash = true;
 	int width = 400;
 	int height = 100;
 	std::string Title = std::string(ENGINE_NAME) + " " + Version::GetFullVersionString();
 	app->SplashWindow = CreateWindowEx(
 		0,
 		L"RenderWindow", StringUtils::ConvertStringToWide(Title).c_str(),
-		WS_OVERLAPPED /*|
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/,
-		0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
-
+		WS_OVERLAPPED, 0, 0, width, height, NULL, NULL, app->m_hInst, NULL);
 	Label = CreateWindowEx(0, L"STATIC", (LPTSTR)NULL,
 		WS_CHILD | WS_VISIBLE | SS_CENTER,
 		0, 0, width, height,
@@ -262,12 +237,7 @@ void WindowsWindow::CreateSplashWindow()
 void WindowsWindow::TickSplashWindow(int amt /*= 1*/, std::string Section /*= std::string()*/)
 {
 	//process messages
-	MSG msg = MSG();
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+	EmptyMessageQueue();
 	app->CurrentProgress += amt;
 	if (amt == -1)
 	{
@@ -279,7 +249,6 @@ void WindowsWindow::TickSplashWindow(int amt /*= 1*/, std::string Section /*= st
 
 void WindowsWindow::DestorySplashWindow()
 {
-	app->IsRunningsplash = false;
 	ShowWindow(app->SplashWindow, SW_HIDE);
 	DestroyWindow(app->SplashWindow);
 	app->EmptyMessageQueue();
@@ -376,12 +345,6 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	switch (msg)
 	{
 		case WM_CREATE:
-			break;
-		case WM_COMMAND:
-			if (app->m_engine->GetRenderWindow())
-			{
-				app->m_engine->GetRenderWindow()->ProcessMenu(LOWORD(wparam));
-			}
 			break;
 		case WM_SIZE:
 			if (app->m_engine->GetRenderWindow())

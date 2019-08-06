@@ -471,7 +471,7 @@ void RHI::InitialiseContext()
 {
 	instance->RenderPassCache = new RHIRenderPassCache();
 	GetRHIClass()->InitRHI();
-	PlatformWindow::TickSplashWindow(5, "Loading Shaders");
+	PlatformWindow::TickSplashWindow(5, "Loading RHI");
 	instance->ValidateSettings();
 	RunTests.SetValue(true);
 	if (RunTests.GetBoolValue())
@@ -509,7 +509,6 @@ void RHI::InitialiseContextWindow(int w, int h)
 	instance->SwapChainWidth = w;
 	instance->SwapChainHeight = h;
 	Get()->RenderSystem->InitGraph();
-
 }
 
 std::string RHI::ReportMemory()
@@ -656,11 +655,7 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 {
 	desc.Build();
 #if PSO_USE_MAP
-#if PSO_USE_FULL_STRING_MAPS
-	auto itor = PSOMap.find(desc.GetString());
-#else
 	auto itor = PSOMap.find(desc.GetHash());
-#endif
 
 	if (itor == PSOMap.end())
 	{
@@ -683,11 +678,7 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
 {
 #if PSO_USE_MAP
-#if PSO_USE_FULL_STRING_MAPS
-	PSOMap.emplace(object->GetDescString(), object);
-#else
 	PSOMap.emplace(object->GetDescHash(), object);
-#endif
 #else
 	PSOMap.push_back(object);
 #endif
@@ -695,17 +686,15 @@ void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
 
 void PipelineStateObjectCache::Destory()
 {
-	for (int i = 0; i < PSOMap.size(); i++)
+	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
 	{
-		PSOMap[i]->Release();
+		SafeRelease(itor->second);
 	}
 	PSOMap.clear();
 }
 
 void RHIClass::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
-{
-
-}
+{}
 
 RHIRenderPassDesc RHIClass::GetRenderPassDescForSwapChain(bool ClearScreen /*= false*/)
 {

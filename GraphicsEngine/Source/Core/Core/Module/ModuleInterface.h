@@ -1,5 +1,7 @@
 #pragma once
 
+class BaseWindow;
+
 class IModuleInterface
 {
 
@@ -14,5 +16,13 @@ public:
 	{}
 };
 
-
-
+class IEditorModule : public IModuleInterface
+{
+public:
+	virtual ~IEditorModule()
+	{}
+	virtual BaseWindow* GetEditorWindow()
+	{
+		return nullptr;
+	}
+};

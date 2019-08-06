@@ -67,12 +67,9 @@ void DebugConsole::ExecCommand(std::string command)
 	StringUtils::RemoveChar(command, ">");
 	ConsoleVariable* Var = nullptr;
 	std::string Response = "Command Unknown: " + command;
-	if (!BaseWindow::ProcessDebugCommand(command, Response))
+	if (ConsoleVariableManager::TrySetCVar(command, &Var))
 	{
-		if (ConsoleVariableManager::TrySetCVar(command, &Var))
-		{
-			Response = Var->GetName() + " " + Var->GetValueString();
-		}
+		Response = Var->GetName() + " " + Var->GetValueString();
 	}
 	ResponseLabel->SetText(Response);
 	UIManager::instance->Graph->SetEnabled(showgraph.GetBoolValue());

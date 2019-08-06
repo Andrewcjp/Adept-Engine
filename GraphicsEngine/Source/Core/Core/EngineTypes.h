@@ -4,7 +4,8 @@ typedef glm::vec3 Colour;
 namespace Colours
 {
 	static Colour RED = Colour(1, 0, 0);
-}
+};
+
 struct IntPoint
 {
 	int x = 0;
@@ -17,6 +18,7 @@ struct IntPoint
 		y = Y;
 	}
 };
+
 struct IntRect
 {
 	IntPoint Min;
@@ -29,6 +31,33 @@ struct IntRect
 		Max = max;
 	}
 };
+
+struct FloatPoint
+{
+	float x = 0;
+	float y = 0;
+	FloatPoint()
+	{}
+	FloatPoint(float X, float Y)
+	{
+		x = X;
+		y = Y;
+	}
+};
+
+struct FloatRect
+{
+	FloatPoint Min;
+	FloatPoint Max;
+	FloatRect()
+	{}
+	FloatRect(FloatPoint min, FloatPoint max)
+	{
+		Min = min;
+		Max = max;
+	}
+};
+
 struct Tag
 {
 	CORE_API Tag()
@@ -40,6 +69,7 @@ struct Tag
 	std::string name;
 	bool operator==(const Tag& t);
 };
+
 struct TagContainer
 {
 	std::vector<Tag> Tags;
@@ -56,6 +86,7 @@ public:
 private:
 	int Flags = 0;
 };
+
 typedef BitFlagsBase SceneLayerMask;
 namespace ESceneLayers
 {
@@ -64,7 +95,7 @@ namespace ESceneLayers
 		Default,
 		UserLayer0,
 		UserLayer1,
-		Limit =16
+		Limit = 16
 	};
 };
 

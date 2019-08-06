@@ -29,8 +29,7 @@ class RHIRenderPass;
 struct InterGPUDesc;
 //RHI defines
 #define RHI_SUPPORTS_VR 1
-#define PSO_USE_FULL_STRING_MAPS 1
-#define PSO_USE_MAP 0
+#define PSO_USE_MAP 1
 #define MAX_GPU_DEVICE_COUNT 3
 #define ALLOW_RESOURCE_CAPTURE 0
 #define LOG_RESOURCE_TRANSITIONS 0
@@ -205,11 +204,7 @@ private:
 	DeviceContext* Device = nullptr;
 	//uint is the hash of the pso desc.
 #if PSO_USE_MAP
-#if PSO_USE_FULL_STRING_MAPS
-	std::map<std::string, RHIPipeLineStateObject*> PSOMap;
-#else
 	std::map<size_t, RHIPipeLineStateObject*> PSOMap;
-#endif
 #else
 	std::vector<RHIPipeLineStateObject*> PSOMap;
 #endif

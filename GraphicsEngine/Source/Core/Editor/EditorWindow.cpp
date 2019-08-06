@@ -390,33 +390,6 @@ void EditorWindow::RefreshScene()
 	UI->RefreshGameObjectList();
 }
 
-void EditorWindow::ProcessMenu(unsigned short command)
-{
-	switch (command)
-	{
-		case 4://add gameobject
-			CurrentScene->AddGameobjectToScene(new GameObject("New GameObject"));
-			UI->UpdateGameObjectList(CurrentScene->GetObjects());
-			UI->RefreshGameObjectList();
-			break;
-		case 5://Save Scene
-			SaveScene();
-			break;
-		case 6://Load Scene
-			LoadScene();
-			break;
-		case 10://debug load example
-			//CurrentScene->LoadExampleScene(Renderer, false);
-			SceneRenderer::Get()->SetScene(CurrentScene);
-			RefreshScene();
-			CurrentSceneSavePath.clear();
-			break;
-		case 11:
-			Engine::RunCook();
-			break;
-	}
-}
-
 void EditorWindow::WindowUI()
 {
 

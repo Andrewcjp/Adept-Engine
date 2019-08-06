@@ -38,7 +38,6 @@ protected:
 
 	void LoadScene();
 	void RefreshScene();
-	void ProcessMenu(unsigned short command) override;
 	void WindowUI() override;
 	void Update() override;
 	void SaveScene();

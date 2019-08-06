@@ -27,8 +27,7 @@ public:
 private:
 	PlayerSettings CurrentSettings;
 	UIWidgetContext* MMContext = nullptr;
-	// Inherited via BaseWindow
-	virtual void ProcessMenu(unsigned short command) override;
+
 	UIButton* EasyButton = nullptr;
 	UIButton* MeduimButton = nullptr;
 	UIButton* HardButton = nullptr;

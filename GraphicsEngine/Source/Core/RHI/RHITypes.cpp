@@ -169,10 +169,10 @@ size_t RHIPipeLineStateDesc::GetHash()
 
 void RHIPipeLineStateDesc::CalulateHash()
 {
-	return;
+	//return;
 	//#RHI: hash all members
 	StringPreHash = "";
-	StringPreHash += ShaderInUse->GetName();
+	StringPreHash += std::to_string(ShaderInUse->GetNameHash());
 	StringPreHash += std::to_string(Blending);
 	StringPreHash += std::to_string(Cull);
 	StringPreHash += std::to_string(Mode);
@@ -183,6 +183,7 @@ void RHIPipeLineStateDesc::CalulateHash()
 	{
 		StringPreHash += std::to_string((int)RenderTargetDesc.RTVFormats[i]);
 	}
+	StringPreHash += RenderPassDesc.GetHashString();
 	UniqueHash = std::hash<std::string>{} (StringPreHash);
 }
 
@@ -451,6 +452,17 @@ void RHIRenderPassDesc::Build()
 bool RHIRenderPassDesc::operator==(const RHIRenderPassDesc other) const
 {
 	return LoadOp == other.LoadOp && StoreOp == other.StoreOp && RenderDesc == other.RenderDesc && InitalState == other.InitalState && FinalState == other.FinalState && other.TargetBuffer == TargetBuffer;
+}
+
+std::string RHIRenderPassDesc::GetHashString()
+{
+	std::string out;
+	out += std::to_string(LoadOp);
+	out += std::to_string(StoreOp);
+	out += std::to_string(InitalState);
+	out += std::to_string(FinalState);
+	//out += std::to_string(TargetBuffer->);
+	return out;
 }
 
 bool RHIViewDesc::operator==(const RHIViewDesc other) const

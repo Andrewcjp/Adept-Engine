@@ -27,11 +27,14 @@
 #include "Platform/Windows/WindowsWindow.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable RenderScale("r.renderscale", ECVarType::ConsoleAndLaunch, nullptr, nullptr, std::bind(BaseWindow::SetRenderScale, std::placeholders::_1));
+static ConsoleVariable Exitvar("exit", ECVarType::ConsoleAndLaunch, std::bind(Engine::RequestExit, 0));
 BaseWindow* BaseWindow::Instance = nullptr;
 BaseWindow::BaseWindow()
 {
 	ensure(Instance == nullptr);
 	Instance = this;
+	RenderScale.SetValueF(RHI::GetRenderSettings()->GetCurrentRenderScale());
 }
 
 BaseWindow::~BaseWindow()
@@ -297,30 +300,6 @@ void BaseWindow::Render()
 	}
 }
 
-bool BaseWindow::ProcessDebugCommand(std::string command, std::string & response)
-{
-	if (Instance != nullptr)
-	{
-		if (command.find("r.renderscale") != -1)
-		{
-			StringUtils::RemoveChar(command, "r.renderscale");
-			StringUtils::RemoveChar(command, " ");
-			if (command.length() > 0)
-			{
-				RHI::GetRenderSettings()->SetRenderScale(glm::clamp(stof(command), 0.1f, 5.0f));
-			}
-			response = "render scale " + std::to_string(RHI::GetRenderSettings()->GetCurrentRenderScale());
-			return true;
-		}
-		else if (command.find("exit") != -1)
-		{
-			Engine::RequestExit(0);
-			return true;
-		}
-	}
-	return false;
-}
-
 Scene * BaseWindow::GetScene()
 {
 	return Instance->GetCurrentScene();
@@ -356,6 +335,11 @@ void BaseWindow::EnqueueRestart()
 void BaseWindow::SetFrameRateLimit(int limit)
 {
 	FPSCap.SetValue(limit);
+}
+
+void BaseWindow::SetRenderScale(float V)
+{
+	RHI::GetRenderSettings()->SetRenderScale(glm::clamp(V, 0.1f, 5.0f));
 }
 
 void BaseWindow::ReLoadCurrentScene()
