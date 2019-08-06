@@ -141,7 +141,3 @@ void GameWindow::Play()
 	Engine::GetGame()->BeginPlay();
 	CurrentScene->StartScene();
 }
-
-void GameWindow::ProcessMenu(unsigned short command)
-{}
-

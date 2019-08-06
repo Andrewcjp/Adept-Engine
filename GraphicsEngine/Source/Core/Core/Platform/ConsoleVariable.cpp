@@ -17,9 +17,19 @@ ConsoleVariable::ConsoleVariable(std::string name, float defaultValue, ECVarType
 	IsFloat = true;
 }
 
-ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, std::function<void()> func) :ConsoleVariable(name, cvartype, false)
+ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, std::function<void()> func, std::function<void(bool state)> intfunc, std::function<void(float state)> floatfunc) :ConsoleVariable(name, cvartype, false)
 {
 	ExecuteFunction = func;
+	OnChangedFunction = intfunc;
+	OnChangedFloatFunction = floatfunc;
+	if (OnChangedFloatFunction != nullptr)
+	{
+		IsFloat = true;
+	}
+	if (ExecuteFunction == nullptr)
+	{
+		NeedsValue = true;
+	}
 }
 
 const std::string & ConsoleVariable::GetName() const
@@ -48,11 +58,16 @@ void ConsoleVariable::SetValue(int value)
 	{
 		OnChangedFunction(value);
 	}
+	
 }
 
 void ConsoleVariable::SetValueF(float value)
 {
 	CurrentValue.F_Value = value;
+	if (OnChangedFloatFunction)
+	{
+		OnChangedFloatFunction(value);
+	}
 }
 
 int ConsoleVariable::GetIntValue() const

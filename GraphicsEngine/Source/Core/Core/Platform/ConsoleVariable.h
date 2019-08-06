@@ -21,7 +21,7 @@ class ConsoleVariable
 public:
 	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = true);
 	CORE_API ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = true);
-	CORE_API ConsoleVariable(std::string name, ECVarType::Type cvartype, std::function<void()> func);
+	CORE_API ConsoleVariable(std::string name, ECVarType::Type cvartype, std::function<void()> func = nullptr, std::function<void(bool state)> intfunc = nullptr, std::function<void(float state)> floatfunc = nullptr);
 	~ConsoleVariable()
 	{}
 	const std::string& GetName()const;
@@ -53,8 +53,10 @@ public:
 	ECVarType::Type Type;
 	std::function<void(int state)> OnChangedFunction;
 	std::function<void(bool state)> OnChangedBoolFunction;
+	std::function<void(float state)> OnChangedFloatFunction;
 	std::function<void()> ExecuteFunction;
 	bool NeedsValue = false;
+
 private:
 	ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue);
 	std::string Name = "";

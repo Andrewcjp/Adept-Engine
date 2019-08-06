@@ -36,7 +36,7 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = true;
+	RTSettings.Enabled = false;
 	//AllowMeshInstancing = true;
 
 	VRHMDMode = EVRHMDMode::Disabled;

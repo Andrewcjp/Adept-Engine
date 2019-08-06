@@ -333,6 +333,8 @@ struct RHIRenderPassDesc
 	RHI_API bool operator==(const RHIRenderPassDesc other)const;
 
 	bool TargetSwapChain = false;
+
+	std::string GetHashString();
 };
 
 struct RHIRender_Target_Blend_Desc

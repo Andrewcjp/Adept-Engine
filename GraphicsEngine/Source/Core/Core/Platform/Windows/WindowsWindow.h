@@ -18,25 +18,25 @@ public:
 	static void					SetCursorType(GenericWindow::CursorType Type);
 	static WindowsWindow*		CreateApplication(Engine * EnginePtr, HINSTANCE hInst, LPSTR args, int nshow);
 	void						SetVisible(bool visible);
-	void Maximize();
+	void						Maximize();
 	bool						CreateOSWindow(int width, int height);
 	CORE_API static HWND		GetHWND();
 	static void					DestroyApplication();
 	static WindowsWindow*		GetApplication();
 	int							Run();
 	
-	static void Kill(int code);
+	static void					Kill(int code);
 	static bool					IsActiveWindow();
-	void SetupHPMI();
+	void						SetupHPMI();
 	CORE_API static HINSTANCE   GetHInstance();
 
 	static	LRESULT CALLBACK	WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 	static void					DestorySplashWindow();
 
-	static void TickSplashWindow(int amt = 1, std::string Section = std::string());
+	static void					TickSplashWindow(int amt = 1, std::string Section = std::string());
 private:
-	void EmptyMessageQueue();
+	static void					EmptyMessageQueue();
 	static WindowsWindow*		app;
 	class Engine*				m_engine;
 	BOOL						m_terminate;
@@ -45,14 +45,13 @@ private:
 	HWND						HWindow;
 	HINSTANCE					m_hInst;
 	HKL							Layout;
-	void						AddMenus(HWND hwnd);
+
 	HCURSOR						Cursor;
 	HCURSOR						Cursors[GenericWindow::CursorType::Limit];
 	void						CreateSplashWindow();
-	bool IsRunningsplash = false;
-	HWND					SplashWindow;
-	HWND					ProgressBar;
-	HWND					Label;
-	int CurrentProgress = 0;
+	HWND						SplashWindow;
+	HWND						ProgressBar;
+	HWND						Label;
+	int							CurrentProgress = 0;
 };
 

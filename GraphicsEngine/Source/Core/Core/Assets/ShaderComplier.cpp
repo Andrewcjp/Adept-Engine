@@ -8,6 +8,7 @@
 #include "Rendering/ShaderGraph/ShaderGraph.h"
 #include "Rendering/ShaderGraph/ShaderGraphComplier.h"
 #include "Rendering/Shaders/Shader_NodeGraph.h"
+#include "../Platform/Windows/WindowsWindow.h"
 ShaderComplier * ShaderComplier::Instance = nullptr;
 static ConsoleVariable GenDebugShaders("DebugShaders", 0, ECVarType::LaunchOnly);
 ShaderComplier::ShaderComplier()
@@ -33,9 +34,12 @@ void ShaderComplier::ComplieAllGlobalShaders()
 	return;
 #endif
 	SCOPE_STARTUP_COUNTER("ComplieAllGlobalShaders");
+	int CurrnetCount = 0;
 	for (std::map<std::string, ShaderType>::iterator it = GlobalShaderMap.begin(); it != GlobalShaderMap.end(); ++it)
 	{
 		ComplieShader(it->second, RHI::GetDefaultDevice());
+		CurrnetCount++;
+		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrnetCount) + "/" + std::to_string(GlobalShaderMap.size()));
 	}
 }
 

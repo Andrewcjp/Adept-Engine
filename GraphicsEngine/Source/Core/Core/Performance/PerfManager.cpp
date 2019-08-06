@@ -185,7 +185,7 @@ int PerfManager::GetGroupId(std::string name)
 std::string PerfManager::GetTimerName(int id)
 {
 #if STATS
-	for (std::map<std::string, int >::iterator it = TimerIDs.begin(); it != TimerIDs.end(); ++it)
+	for (std::unordered_map<std::string, int >::iterator it = TimerIDs.begin(); it != TimerIDs.end(); ++it)
 	{
 		if (it->second == id)
 		{
@@ -269,7 +269,7 @@ std::string PerfManager::GetAllTimers()
 	if (ShowAllStats)
 	{
 		stream << std::fixed << std::setprecision(3) << "Stats: ";
-		for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+		for (auto it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 		{
 			stream << GetTimerName(it->first) << ": " << it->second.AVG->GetCurrentAverage() << "ms ";
 		}
@@ -366,7 +366,7 @@ void PerfManager::Internal_NotifyEndOfFrame()
 	{
 		return;
 	}
-	for (std::map<int, float>::iterator it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
+	for (auto it = TimerOutput.begin(); it != TimerOutput.end(); ++it)
 	{
 		if (AVGTimers.find(it->first) == AVGTimers.end())
 		{
@@ -411,7 +411,7 @@ void PerfManager::DrawAllStats(int x, int y, bool IncludeGPUStats)
 {
 #if STATS
 	DrawStatsGroup(x, y, "", IncludeGPUStats);
-	for (std::map<std::string, int>::iterator it = GroupIDS.begin(); it != GroupIDS.end(); ++it)
+	for (auto it = GroupIDS.begin(); it != GroupIDS.end(); ++it)
 	{
 		DrawStatsGroup(x, y, it->first, IncludeGPUStats);
 	}
@@ -464,7 +464,7 @@ void PerfManager::SampleSlowStats()
 
 void PerfManager::ClearStats()
 {
-	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	for (auto it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		it->second.Time = it->second.AVG->GetCurrentAverage();
 		it->second.MaxTime = it->second.MAXAVG->GetCurrentAverage();
@@ -495,7 +495,7 @@ std::vector<TimerData*> PerfManager::GetAllGPUTimers(std::string group)
 {
 	std::vector<TimerData*> Output;
 	const int GroupFilterId = GetGroupId(group);
-	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	for (auto it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		if (it->second.GroupId != GroupFilterId || !it->second.IsGPUTimer)
 		{
@@ -545,7 +545,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 	TextRenderer* Textcontext = TextRenderer::instance;
 	SortedTimers.clear();
 	const int GroupFilterId = GetGroupId(GroupFilter);
-	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	for (auto it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		if (GroupFilterId != -1)
 		{
@@ -709,7 +709,7 @@ float PerfManager::EndSingleActionTimer(std::string Name)
 
 void PerfManager::FlushSingleActionTimers()
 {
-	for (std::map<std::string, float>::iterator it = SingleActionTimersAccum.begin(); it != SingleActionTimersAccum.end(); ++it)
+	for (auto it = SingleActionTimersAccum.begin(); it != SingleActionTimersAccum.end(); ++it)
 	{
 		it->second = 0.0f;
 	}
@@ -717,7 +717,7 @@ void PerfManager::FlushSingleActionTimers()
 
 void PerfManager::LogSingleActionTimers()
 {
-	for (std::map<std::string, float>::iterator it = SingleActionTimersAccum.begin(); it != SingleActionTimersAccum.end(); ++it)
+	for (auto it = SingleActionTimersAccum.begin(); it != SingleActionTimersAccum.end(); ++it)
 	{
 		Log::OutS << "Timer " << it->first << " Took " << it->second << "ms" << Log::OutS;
 	}
@@ -743,7 +743,7 @@ void PerfManager::WriteLogStreams(bool UseRaw)
 	{
 		return;
 	}
-	for (std::map<int, TimerData>::iterator it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
+	for (auto it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
 		if (!it->second.Active)
 		{
