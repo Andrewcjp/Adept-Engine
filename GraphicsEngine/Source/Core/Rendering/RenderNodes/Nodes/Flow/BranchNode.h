@@ -10,7 +10,7 @@ public:
 	bool Conditonal = true;
 	//#RenderNodes FunctionPTR
 
-	virtual std::string GetName() const override;
+	NameNode("Branch");
 
 };
 

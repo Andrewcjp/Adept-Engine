@@ -332,7 +332,7 @@ void Scene::LoadExampleScene()
 	CreateGrid(size, startPos, 5.0f);
 #endif
 #if NDEBUG
-	CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
+	//CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
 #endif
 	SpawnBox(glm::vec3(17, 1, -12));
 	SpawnBox(glm::vec3(17, 1, -9));

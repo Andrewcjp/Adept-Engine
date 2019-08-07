@@ -24,6 +24,8 @@
 #include "StoreNodes/SceneDataNode.h"
 #include "StoreNodes/ShadowAtlasStorageNode.h"
 #include "UI/UIManager.h"
+#include "StoreNodes/InterGPUStorageNode.h"
+#include "Nodes/InterGPUCopyNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -112,7 +114,41 @@ void RenderGraph::BuildGraph()
 	}
 	ListNodes();
 }
-#define RUNRT 0
+
+void RenderGraph::CreateDefGraphWithRT()
+{
+	RequiresRT = true;
+	CreateDefTestgraph();
+	GraphName += "(RT)";
+	//find nodes
+	DeferredLightingNode* LightNode = (DeferredLightingNode*)FindFirstOf(DeferredLightingNode::GetNodeName());
+	ShadowAtlasStorageNode* ShadowDataNode = (ShadowAtlasStorageNode*)GetNodesOfType(EStorageType::ShadowData)[0];
+	RenderNode* UpdateProbesNode = FindFirstOf(UpdateReflectionsNode::GetNodeName());
+
+	//then insert
+	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnorderedAccess = true;
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	RTXBuffer->SetFrameBufferDesc(Desc);
+	UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
+
+	LinkNode(UpdateProbesNode, UpdateAcceleration);
+	RayTraceReflectionsNode* RTNode = new RayTraceReflectionsNode();
+	LinkNode(UpdateAcceleration, RTNode);
+	RTNode->GetInput(0)->SetStore(RTXBuffer);
+	RTNode->GetInput(1)->SetLink(RootNode->GetOutput(0));
+	RTNode->GetInput(2)->SetStore(ShadowDataNode);
+	ExposeItem(RTNode, "RTX");
+
+	LightNode->UseScreenSpaceReflection = true;
+
+	LightNode->OnNodeSettingChange();
+	ExposeNodeOption(LightNode, "SSR", &LightNode->UseScreenSpaceReflection, true);
+	LinkNode(RTNode, LightNode);
+	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
+}
 
 void RenderGraph::CreateDefTestgraph()
 {
@@ -153,42 +189,17 @@ void RenderGraph::CreateDefTestgraph()
 	UpdateReflectionsNode* UpdateProbesNode = new UpdateReflectionsNode();
 	UpdateProbesNode->GetInput(0)->SetStore(ShadowDataNode);
 	LinkNode(ShadowUpdate, UpdateProbesNode);
-#if RUNRT
-	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode());
-	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
-	Desc.AllowUnorderedAccess = true;
-	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-	RTXBuffer->SetFrameBufferDesc(Desc);
-	UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
-	LinkNode(UpdateProbesNode, UpdateAcceleration);
-	RayTraceReflectionsNode* RTNode = new RayTraceReflectionsNode();
-	LinkNode(UpdateAcceleration, RTNode);
-	RTNode->GetInput(0)->SetStore(RTXBuffer);
-	RTNode->GetInput(1)->SetLink(RootNode->GetOutput(0));
-	RTNode->GetInput(2)->SetStore(ShadowDataNode);
-	ExposeItem(RTNode, "RTX");
-#endif
+
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
 
-#if RUNRT
-	LightNode->UseScreenSpaceReflection = true;
 
-	LightNode->OnNodeSettingChange();
-	ExposeNodeOption(LightNode, "SSR", &LightNode->UseScreenSpaceReflection, true);
-	LinkNode(RTNode, LightNode);
-#else
 	LinkNode(UpdateProbesNode, LightNode);
-#endif
+
 	LightNode->GetInput(0)->SetLink(RootNode->GetOutput(0));
 	LightNode->GetInput(1)->SetStore(MainBuffer);
 	LightNode->GetInput(2)->SetStore(SceneData);
 
 	LightNode->GetInput(3)->SetStore(ShadowDataNode);
-
-#if RUNRT
-	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
-#endif
 
 
 	SSAONode* SSAO = new SSAONode();
@@ -308,39 +319,6 @@ bool RenderGraph::GetCondition(std::string name)
 	return Itor->second->GetState();
 }
 
-void RenderGraph::PrintNodeData()
-{
-	std::vector<std::string> Lines;
-	std::string TileLine = "";
-	RenderNode* Node = RootNode;
-	const int NodeDistance = 10;
-	std::string SpaceS = std::string(NodeDistance, ' ');
-	std::string DashS = std::string(NodeDistance, '-');
-	while (Node != nullptr)
-	{
-		TileLine += DashS + Node->GetName();
-		for (uint i = 0; i < Node->GetNumInputs(); i++)
-		{
-			std::string Data = "I:" + Node->GetInput(i)->GetLinkName();
-			if (Lines.size() <= i)
-			{
-				Lines.push_back(SpaceS + Data);
-			}
-			else
-			{
-				Lines[i] += SpaceS + Data;
-			}
-		}
-		Node = Node->GetNextNode();
-	}
-	Log::LogMessage("---Debug Render Node Layout---");
-	Log::LogMessage(TileLine);
-	for (int i = 0; i < Lines.size(); i++)
-	{
-		Log::LogMessage(Lines[i]);
-	}
-}
-
 void RenderGraph::ListNodes()
 {
 	Log::LogMessage("---Debug Render Node List Start---");
@@ -450,7 +428,6 @@ void RenderGraph::CreateVRFWDGraph()
 	ZPrePassNode* PreZ = new ZPrePassNode();
 	ExposeItem(PreZ, "Enable PreZ");
 
-
 	VRBranchNode* VrStart = new VRBranchNode();
 
 	LinkNode(simNode, VrStart);
@@ -495,7 +472,67 @@ bool RenderGraph::IsGraphValid()
 	{
 		return false;
 	}
+	if (RequiresMGPU && (!RHI::SupportsExplictMultiAdaptor() || RHI::GetDeviceCount() < 2))
+	{
+		return false;
+	}
+	if (RequiresRT && !RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		return false;
+	}
 	return true;
+}
+
+RenderNode * RenderGraph::FindFirstOf(std::string name)
+{
+	RenderNode* itor = RootNode;
+	while (itor->GetNextNode() != nullptr)
+	{
+		if (itor->GetName() == name)
+		{
+			return itor;
+		}
+		itor = itor->GetNextNode();
+	}
+	return nullptr;
+}
+
+std::vector<RenderNode*> RenderGraph::FindAllOf(std::string name)
+{
+	std::vector<RenderNode*> out;
+	RenderNode* itor = RootNode;
+	while (itor->GetNextNode() != nullptr)
+	{
+		if (itor->GetName() == name)
+		{
+			out.push_back(itor);
+		}
+		itor = itor->GetNextNode();
+	}
+	return out;
+}
+
+RenderNode * RenderGraph::GetNodeAtIndex(int i)
+{
+	RenderNode* itor = RootNode;
+	int index = 0;
+	while (itor->GetNextNode() != nullptr)
+	{
+		if (index >= i)
+		{
+			return itor;
+		}
+		itor = itor->GetNextNode();
+		index++;
+	}
+	return nullptr;
+}
+
+void RenderGraph::RunTests()
+{
+	RenderNode* Lnode = FindFirstOf(DeferredLightingNode::GetNodeName());
+	std::vector<RenderNode*> Lnodes = FindAllOf(DeferredLightingNode::GetNodeName());
+	Lnode = GetNodeAtIndex(3);
 }
 
 void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)
@@ -600,8 +637,67 @@ void RenderGraph::CreateFallbackGraph()
 	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
 	OutputToScreenNode* Output = new OutputToScreenNode();
 	DebugUINode* Debug = new DebugUINode();
+	Debug->ClearBuffer = true;
 	RootNode = Debug;
 	Debug->GetInput(0)->SetStore(MainBuffer);
 	LinkNode(Debug, Output);
 	Output->GetInput(0)->SetLink(Debug->GetOutput(0));
+}
+void RenderGraph::CreateMGPU_TESTGRAPH()
+{
+	RequiresMGPU = true;
+	GraphName = "Mgpu tester";
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	MainBuffer->SetFrameBufferDesc(Desc);
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+	OutputToScreenNode* Output = new OutputToScreenNode();
+	DebugUINode* Debug = new DebugUINode();
+	Debug->SetDevice(RHI::GetDeviceContext(0));
+	RootNode = Debug;
+	Debug->GetInput(0)->SetStore(MainBuffer);
+	Debug->ClearBuffer = true;
+	Output->GetInput(0)->SetLink(Debug->GetOutput(0));
+
+	FrameBufferStorageNode* OtherGPUCopy = AddStoreNode(new FrameBufferStorageNode());
+	OtherGPUCopy->SetDevice(RHI::GetDeviceContext(1));
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_COPY_DEST;
+	OtherGPUCopy->SetFrameBufferDesc(Desc);
+
+	FrameBufferStorageNode* MainGPU = AddStoreNode(new FrameBufferStorageNode());
+	MainGPU->SetDevice(RHI::GetDeviceContext(0));
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_COPY_DEST;
+	MainGPU->SetFrameBufferDesc(Desc);
+
+	InterGPUStorageNode* HostStore = AddStoreNode(new InterGPUStorageNode());
+	HostStore->StoreTargets.push_back(OtherGPUCopy);
+
+	InterGPUCopyNode* CopyTo = new InterGPUCopyNode(RHI::GetDeviceContext(1));
+	CopyTo->CopyTo = true;
+	CopyTo->GetInput(0)->SetStore(OtherGPUCopy);
+	CopyTo->GetInput(1)->SetStore(HostStore);
+	InterGPUCopyNode* CopyFrom = new InterGPUCopyNode(RHI::GetDeviceContext(0));
+	CopyFrom->CopyTo = false;
+
+	CopyFrom->GetInput(0)->SetStore(MainGPU);
+	CopyFrom->GetInput(1)->SetStore(HostStore);
+
+	LinkNode(RootNode, CopyTo);
+	LinkNode(CopyTo, CopyFrom);
+	LinkNode(CopyFrom, Output);
+}
+
+std::vector<StorageNode*> RenderGraph::GetNodesOfType(EStorageType::Type type)
+{
+	std::vector<StorageNode*> Out;
+	for (int i = 0; i < StoreNodes.size(); i++)
+	{
+		if (StoreNodes[i]->StoreType == type)
+		{
+			Out.push_back(StoreNodes[i]);
+		}
+	}
+	return Out;
 }

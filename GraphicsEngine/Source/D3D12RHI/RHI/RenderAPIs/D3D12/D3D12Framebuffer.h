@@ -40,15 +40,12 @@ public:
 	bool							IsReadyForCompute()const;
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
 	//Cross Adapter
-	void SetupCopyToDevice(DeviceContext* device) override;
+
 	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
-	void CopyToHostMemory(ID3D12GraphicsCommandList * list);
-	void CopyFromHostMemory(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy_In(ID3D12GraphicsCommandList * list);
 
 	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
 	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
-	DeviceContext* GetTargetDevice();
 	DeviceContext* GetDevice() override;
 	GPUResource* GetResource(int index);
 	void Release() override;
@@ -58,13 +55,13 @@ public:
 	virtual void RequestSRV(const RHIViewDesc & desc) override;
 
 
-	virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res) override;
-	virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res) override;
+	virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
+	virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
 private:
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(RHICommandList * list) override;
-	
+
 	DescriptorGroup* SRVDesc = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;
 	DescriptorHeap* DSVHeap = nullptr;
@@ -87,18 +84,10 @@ private:
 	class GPUResource* RenderTarget[8] = {};
 
 	//device Sharing
-	class D3D12DeviceContext* OtherDevice = nullptr;
-	ID3D12Heap* CrossHeap = nullptr;
-	ID3D12Heap* TWO_CrossHeap = nullptr;
-	HANDLE heapHandle = nullptr;
-	ID3D12Resource* PrimaryRes = nullptr;
-	ID3D12Resource* Stagedres = nullptr;
-	ID3D12Resource* FinalOut = nullptr;
-	CD3DX12_RESOURCE_DESC renderTargetDesc;
-	DescriptorGroup* SharedSRVHeap = nullptr;
-	class GPUResource* TargetCopy = nullptr;
-	RHIPipeRenderTargetDesc RenderTargetDesc = {};
 
+	CD3DX12_RESOURCE_DESC renderTargetDesc;
+
+	RHIPipeRenderTargetDesc RenderTargetDesc;
 
 	//For Dynamic resize use a Placed resource
 	ID3D12Heap* DynamicHeap = nullptr;

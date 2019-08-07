@@ -432,16 +432,16 @@ void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 {
 	ensure(!Buffer->IsPendingKill());
 	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
-	ensure(Device == buffer->GetDevice());
-	buffer->CopyToHostMemory(CurrentCommandList);
+	//ensure(Device == buffer->GetDevice());
+	//buffer->CopyToHostMemory(CurrentCommandList);
 }
 
 void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
 {
 	ensure(!Buffer->IsPendingKill());
 	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
-	ensure(Device == buffer->GetTargetDevice());
-	buffer->CopyFromHostMemory(CurrentCommandList);
+	//ensure(Device == buffer->GetTargetDevice());
+	//buffer->CopyFromHostMemory(CurrentCommandList);
 }
 
 void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)

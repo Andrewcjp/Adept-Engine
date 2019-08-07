@@ -45,6 +45,7 @@ private:
 		ID3D12Resource* ResultBuffer = nullptr;
 	};
 	QueryBuffers Buffers[RHI::CPUFrameCount] = { 0 };
+
 };
 //Create batches of queries
 //resolve them and dispose

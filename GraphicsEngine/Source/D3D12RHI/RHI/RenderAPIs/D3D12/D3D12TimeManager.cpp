@@ -46,10 +46,10 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::CubemapCapture, "Cubemap Capture");
 	SetTimerName(EGPUTIMERS::DebugRender, "Debug Render");
 	SetTimerName(EGPUTIMERS::RT_Trace, "RayTrace");
-	SetTimerName(CopyOffset + EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy", ECommandListType::Copy);
-	SetTimerName(CopyOffset + EGPUCOPYTIMERS::SFRMerge, "SFR Merge", ECommandListType::Copy);
-	SetTimerName(CopyOffset + EGPUCOPYTIMERS::ShadowCopy, "Shadow Copy", ECommandListType::Copy);
-	SetTimerName(CopyOffset + EGPUCOPYTIMERS::ShadowCopy2, "2Shadow Copy2", ECommandListType::Copy);
+	SetTimerName(EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy", ECommandListType::Copy);
+	SetTimerName(EGPUCOPYTIMERS::SFRMerge, "SFR Merge", ECommandListType::Copy);
+	SetTimerName(EGPUCOPYTIMERS::ShadowCopy, "Shadow Copy", ECommandListType::Copy);
+	SetTimerName(EGPUCOPYTIMERS::ShadowCopy2, "2Shadow Copy2", ECommandListType::Copy);
 #endif
 	UpdateTimeStampFreq();
 #if AFTERMATH
@@ -205,7 +205,14 @@ void D3D12TimeManager::StartTimer(D3D12CommandList * ComandList, int index, bool
 	}
 	ensure(timer);
 	D3D12Query* Query = D3D12RHI::DXConv(RHI::CreateQuery(EGPUQueryType::Timestamp, Device));
-	Device->GetTimeStampHeap()->EndQuerry(ComandList, Query);
+	if (IsCopy)
+	{
+		Device->GetCopyTimeStampHeap()->EndQuerry(ComandList, Query);
+	}
+	else
+	{
+		Device->GetTimeStampHeap()->EndQuerry(ComandList, Query);
+	}
 	timer->TimerQueries.push_back(Query);
 }
 
@@ -222,7 +229,14 @@ void D3D12TimeManager::EndTimer(D3D12CommandList* ComandList, int index, bool Is
 	ensure(timer);
 	D3D12Query* Query = D3D12RHI::DXConv(RHI::CreateQuery(EGPUQueryType::Timestamp, Device));
 	timer->TimerQueries.push_back(Query);
-	Device->GetTimeStampHeap()->EndQuerry(ComandList, Query);
+	if (IsCopy)
+	{
+		Device->GetCopyTimeStampHeap()->EndQuerry(ComandList, Query);
+	}
+	else
+	{
+		Device->GetTimeStampHeap()->EndQuerry(ComandList, Query);
+	}
 }
 
 void D3D12TimeManager::StartTotalGPUTimer(RHICommandList* ComandList)
@@ -246,6 +260,7 @@ void D3D12TimeManager::EndTotalGPUTimer(RHICommandList* ComandList)
 		TimerStarted = false;
 	}
 	Device->GetTimeStampHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(ComandList));
+	//Device->GetCopyTimeStampHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(ComandList));
 #endif
 }
 

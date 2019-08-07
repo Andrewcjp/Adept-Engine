@@ -52,11 +52,6 @@ void SSAONode::OnExecute()
 	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
-std::string SSAONode::GetName() const
-{
-	return "SSAO";
-}
-
 void SSAONode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene, "Scene");

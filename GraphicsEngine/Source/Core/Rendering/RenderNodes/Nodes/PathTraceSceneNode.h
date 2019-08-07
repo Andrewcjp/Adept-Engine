@@ -15,8 +15,8 @@ public:
 	virtual void OnExecute() override;
 
 
-	virtual std::string GetName() const override;
 
+	NameNode("Path Trace");
 protected:
 	virtual void OnNodeSettingChange() override;
 

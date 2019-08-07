@@ -1,6 +1,6 @@
 #pragma once
 #include "../RenderNode.h"
-class ZPrePassNode: public RenderNode
+class ZPrePassNode : public RenderNode
 {
 public:
 	ZPrePassNode();
@@ -9,7 +9,7 @@ public:
 	virtual void OnExecute() override;
 
 
-	virtual std::string GetName() const override;
+	NameNode("Z PrePass");
 
 protected:
 	virtual void OnNodeSettingChange() override;

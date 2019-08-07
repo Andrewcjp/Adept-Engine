@@ -7,10 +7,7 @@ public:
 	~ParticleRenderNode();
 
 	virtual void OnExecute() override;
-
-
-	virtual std::string GetName() const override;
-
+	NameNode("Particle Render");
 protected:
 	virtual void OnNodeSettingChange() override;
 

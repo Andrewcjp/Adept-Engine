@@ -50,7 +50,7 @@ void FrameBuffer::HandleInit()
 		//BufferDesc.RenderTargetCount = 2;
 		BufferDesc.Dimension = DIMENSION_TEXTURE2DARRAY;
 		BufferDesc.NeedsDepthStencil = false;
-		BufferDesc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 	0.0f);
+		BufferDesc.clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 0.0f);
 	}
 }
 
@@ -189,10 +189,10 @@ RHIUAV * FrameBuffer::GetUAV(const RHIViewDesc & desc)
 	return nullptr;
 }
 
-void FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource * Res)
+void FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
 {}
 
-void FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource * Res)
+void FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list)
 {}
 
 void FrameBuffer::Release()

@@ -76,6 +76,7 @@ void RHICommandList::StartTimer(int TimerId)
 {
 	if (ListType == ECommandListType::Copy)
 	{
+		GetDevice()->GetTimeManager()->StartTotalGPUTimer(this);
 		if (GetDevice()->GetCaps().SupportsCopyTimeStamps)
 		{
 			GetDevice()->GetTimeManager()->StartTimer(this, TimerId);

@@ -49,11 +49,6 @@ void UpdateReflectionsNode::OnExecute()
 
 }
 
-std::string UpdateReflectionsNode::GetName() const
-{
-	return "Update Reflection Captures";
-}
-
 void UpdateReflectionsNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData);

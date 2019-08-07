@@ -12,10 +12,11 @@ public:
 
 
 	virtual void OnNodeSettingChange() override;
-	std::string GetName() const
+	/*std::string GetName() const
 	{
 		return "Deferred Lighting";
-	}
+	}*/
+	NameNode("Deferred Lighting");
 	bool UseScreenSpaceReflection = false;
 private:
 	RHICommandList* List = nullptr;

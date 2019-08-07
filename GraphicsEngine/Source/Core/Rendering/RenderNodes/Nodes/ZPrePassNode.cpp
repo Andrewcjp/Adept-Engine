@@ -1,9 +1,8 @@
 #include "ZPrePassNode.h"
-#include "../StorageNodeFormats.h"
 #include "Core/Assets/ShaderComplier.h"
-#include "../../Core/SceneRenderer.h"
-#include "../../Shaders/Shader_PreZ.h"
-
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "Rendering/Shaders/Shader_PreZ.h"
 
 ZPrePassNode::ZPrePassNode()
 {
@@ -34,11 +33,6 @@ void ZPrePassNode::OnExecute()
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
 	Cmdlist->Execute();
 	PassNodeThough(0, StorageFormats::PreZData);
-}
-
-std::string ZPrePassNode::GetName() const
-{
-	return "Z PrePass";
 }
 
 void ZPrePassNode::OnNodeSettingChange()

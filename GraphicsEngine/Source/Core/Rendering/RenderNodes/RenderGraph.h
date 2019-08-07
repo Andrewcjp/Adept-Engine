@@ -1,4 +1,5 @@
 #pragma once
+#include "StorageNode.h"
 
 class RenderNode;
 class StorageNode;
@@ -30,6 +31,7 @@ public:
 	void Update();
 	//calls the setup node on each node in execution order.
 	void BuildGraph();
+	void CreateDefGraphWithRT();
 	void CreateDefTestgraph();
 
 	BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName = std::string());
@@ -55,12 +57,16 @@ public:
 	bool GetCondition(std::string name);
 
 	
-	void PrintNodeData();
+
 	void ListNodes();
 	void ValidateGraph();
 	void CreateVRFWDGraph();
 	void CreatePathTracedGraph();
 	void CreateFallbackGraph();
+
+	void CreateMGPU_TESTGRAPH();
+
+	std::vector<StorageNode*> GetNodesOfType(EStorageType::Type type);
 
 
 	struct ValidateArgs
@@ -78,6 +84,13 @@ public:
 	bool IsGraphValid();
 	std::string GetGraphName() const { return GraphName; }
 	void SetGraphName(std::string val) { GraphName = val; }
+
+	RenderNode* FindFirstOf(std::string name);
+	std::vector<RenderNode*> FindAllOf(std::string name);
+	RenderNode* GetNodeAtIndex(int i);
+	void RunTests();
+	bool RequiresMGPU = false;
+	bool RequiresRT = false;
 private:
 	std::vector<ConsoleVariable*> AutoVars;
 	std::string GraphName = "";

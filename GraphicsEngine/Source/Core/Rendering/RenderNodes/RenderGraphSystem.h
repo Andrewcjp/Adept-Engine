@@ -5,9 +5,11 @@ namespace EBuiltinRenderGraphs
 	{
 		Fallback,//in the event of error this graph is used
 		DeferredRenderer,
+		DeferredRenderer_RT,
 		ForwardRenderer,
 		VRForwardRenderer,
 		Pathtracing,
+		TEST_MGPU,
 		Custom,
 		Limit
 	};

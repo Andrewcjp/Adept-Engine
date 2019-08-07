@@ -11,7 +11,7 @@ public:
 	virtual void OnExecute() override;
 
 
-	virtual std::string GetName() const override;
+	NameNode("Shadow Update");
 	
 protected:
 	virtual void OnNodeSettingChange() override;

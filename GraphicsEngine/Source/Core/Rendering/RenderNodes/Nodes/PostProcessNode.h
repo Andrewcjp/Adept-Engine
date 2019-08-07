@@ -9,7 +9,7 @@ public:
 	virtual void OnExecute() override;
 
 
-	virtual std::string GetName() const override;
+	NameNode("Post Process")
 
 protected:
 	virtual void OnNodeSettingChange() override;

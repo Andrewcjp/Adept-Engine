@@ -25,10 +25,12 @@ void RenderGraphSystem::InitGraph()
 		CurrentGraph->CreateFallbackGraph();
 	}
 	CurrentGraph->BuildGraph();
+	CurrentGraph->RunTests();
 }
 
 void RenderGraphSystem::InitDefaultGraph()
 {
+
 	switch (RHI::GetRenderSettings()->SelectedGraph)
 	{
 		case EBuiltinRenderGraphs::Fallback:
@@ -40,11 +42,17 @@ void RenderGraphSystem::InitDefaultGraph()
 		case EBuiltinRenderGraphs::DeferredRenderer:
 			CurrentGraph->CreateDefTestgraph();
 			break;
+		case EBuiltinRenderGraphs::DeferredRenderer_RT:
+			CurrentGraph->CreateDefGraphWithRT();
+			break;
 		case EBuiltinRenderGraphs::VRForwardRenderer:
 			CurrentGraph->CreateVRFWDGraph();
 			break;
 		case EBuiltinRenderGraphs::Pathtracing:
 			CurrentGraph->CreatePathTracedGraph();
+			break;
+		case EBuiltinRenderGraphs::TEST_MGPU:
+			CurrentGraph->CreateMGPU_TESTGRAPH();
 			break;
 	}
 }

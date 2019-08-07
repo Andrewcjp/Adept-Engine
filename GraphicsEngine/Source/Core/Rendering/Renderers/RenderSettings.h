@@ -52,6 +52,8 @@ struct ShadowMappingSettings
 	bool UseViewInstancingForShadows = false;
 	int MaxShadowMapSize = 4096;
 	int DefaultShadowMapSize = 1024;
+	int MAX_PRESAMPLED_SHADOWS = 4;
+	float PreSampleBufferScale = 1.0f;
 };
 struct DynamicResolutionSettings
 {
@@ -62,6 +64,13 @@ struct DynamicResolutionSettings
 struct RendererSettings
 {
 	bool EnableTransparency = false;
+};
+struct SFRSettings
+{
+	//adds gaps in Render targets to show transitions
+	bool DEBUG_ShowSplits = false;
+	//each pixel will have a colour tint which indicates to the GPU that rendered it.
+	bool DEBUG_ColourPixelsPerGPU = false;
 };
 namespace EVRHMDMode
 {
@@ -111,6 +120,7 @@ private:
 	ShadowMappingSettings ShadowSettings;
 	DynamicResolutionSettings DRSSettings;
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;
+	SFRSettings CurrnetSFRSettings;
 };
 //Props Are Set in the Constructor 
 struct MultiGPUMode

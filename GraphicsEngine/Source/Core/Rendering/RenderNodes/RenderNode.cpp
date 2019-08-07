@@ -202,6 +202,30 @@ void RenderNode::SetDevice(DeviceContext * D)
 	Context = D;
 }
 
+NodeLink * RenderNode::GetInputLinkByName(std::string name)
+{
+	for (int i = 0; i < Inputs.size(); i++)
+	{
+		if (Inputs[i]->GetLinkName() == name)
+		{
+			return Inputs[i];
+		}
+	}
+	return nullptr;
+}
+
+NodeLink * RenderNode::GetOutputLinkByName(std::string name)
+{
+	for (int i = 0; i < Outputs.size(); i++)
+	{
+		if (Outputs[i]->GetLinkName() == name)
+		{
+			return Outputs[i];
+		}
+	}
+	return nullptr;
+}
+
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());
@@ -222,6 +246,7 @@ Scene * RenderNode::GetSceneDataFromInput(int index)
 	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::SceneData);
 	return static_cast<SceneDataNode*>(GetInput(index)->GetStoreTarget())->CurrnetScene;
 }
+
 
 void RenderNode::OnValidateNode(RenderGraph::ValidateArgs & args)
 {

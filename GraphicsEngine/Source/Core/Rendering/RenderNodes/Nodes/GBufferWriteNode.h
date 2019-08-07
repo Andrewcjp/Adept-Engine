@@ -10,7 +10,7 @@ public:
 	virtual void OnExecute() override;
 	virtual void OnSetupNode() override;
 
-	virtual std::string GetName() const override;
+	NameNode("GBuffer Write");
 
 private:
 	RHICommandList* CommandList = nullptr;
