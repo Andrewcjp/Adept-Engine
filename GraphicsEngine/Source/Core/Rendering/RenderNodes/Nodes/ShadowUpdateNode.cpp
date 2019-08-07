@@ -28,11 +28,6 @@ void ShadowUpdateNode::OnExecute()
 	mShadowRenderer->RenderShadowMaps();
 }
 
-std::string ShadowUpdateNode::GetName() const
-{
-	return "Shadow Update";
-}
-
 void ShadowUpdateNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData);

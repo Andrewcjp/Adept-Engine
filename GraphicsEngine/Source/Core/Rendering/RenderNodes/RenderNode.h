@@ -73,9 +73,12 @@ public:
 
 	virtual bool IsNodeSupported(const RenderSettings& settings);
 	void SetDevice(DeviceContext* D);
+	NodeLink* GetInputLinkByName(std::string name);
+	NodeLink* GetOutputLinkByName(std::string name);
 protected:
+
 	//search forwards until we reach the end VR node 
-	
+
 	//
 	VRBranchNode* VRBranchContext = nullptr;
 	bool IsVrBranchNode = false;
@@ -112,3 +115,4 @@ protected:
 	bool NodeControlsFlow = false;
 };
 
+#define NameNode(name) std::string GetName()const {return name;} static std::string GetNodeName(){return name;}

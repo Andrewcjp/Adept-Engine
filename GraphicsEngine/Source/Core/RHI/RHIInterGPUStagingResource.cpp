@@ -28,5 +28,6 @@ bool RHIInterGPUStagingResource::CanFitFB(FrameBuffer* FB)
 
 InterGPUDesc::InterGPUDesc()
 {
+	//by default avalable on all devices.
 	Mask.SetFlags(0xffffff);
 }

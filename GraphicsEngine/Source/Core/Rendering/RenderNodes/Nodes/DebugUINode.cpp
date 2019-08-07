@@ -15,6 +15,10 @@ void DebugUINode::OnExecute()
 	FrameBuffer* FB = GetFrameBufferFromInput(0);
 	//debug lines are always draw to screen
 	CommandList->ResetList();
+	if (ClearBuffer)
+	{
+		CommandList->ClearFrameBuffer(FB);
+	}
 	DebugLineDrawer::Get()->RenderLines(FB, CommandList, EEye::Left);
 	DebugLineDrawer::Get2()->RenderLines(FB, CommandList, EEye::Left);
 	CommandList->Execute();

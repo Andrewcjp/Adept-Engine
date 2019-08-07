@@ -43,8 +43,12 @@ void D3D12QueryHeap::BeginQuerryBatch()
 
 void D3D12QueryHeap::ResolveAndEndQueryBatches(D3D12CommandList * list)
 {
+	if (HeapType == D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP)
+	{
+		ensure(list->IsCopyList());
+	}
 	ensure(CurrentBatch.Open);
-	list->GetCommandList()->ResolveQueryData(GetHeap(), D3D12_QUERY_TYPE_TIMESTAMP, 0, CurrentBatch.Count, GetBuffer(), 0);
+	list->GetCommandList()->ResolveQueryData(GetHeap(), GetType(), 0, CurrentBatch.Count, GetBuffer(), 0);
 	CurrentBatch.Open = false;
 }
 

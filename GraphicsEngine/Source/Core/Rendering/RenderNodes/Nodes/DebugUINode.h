@@ -9,6 +9,7 @@ public:
 
 	virtual void OnExecute() override;
 	virtual std::string GetName() const override;
+	bool ClearBuffer = false;
 private:
 	RHICommandList* CommandList = nullptr;
 protected:

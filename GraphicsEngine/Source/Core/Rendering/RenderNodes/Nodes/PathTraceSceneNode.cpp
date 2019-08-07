@@ -47,10 +47,6 @@ void PathTraceSceneNode::OnExecute()
 	PassNodeThough(0, StorageFormats::LitScene);
 }
 
-std::string PathTraceSceneNode::GetName() const
-{
-	return "Path Trace";
-}
 
 void PathTraceSceneNode::OnNodeSettingChange()
 {

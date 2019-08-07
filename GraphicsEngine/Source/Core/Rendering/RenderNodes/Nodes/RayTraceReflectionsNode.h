@@ -6,7 +6,7 @@ class RHIStateObject;
 class RayTracingCommandList;
 class ShaderBindingTable;
 class RHIBuffer;
-class RayTraceReflectionsNode: public RenderNode
+class RayTraceReflectionsNode : public RenderNode
 {
 public:
 	RayTraceReflectionsNode();
@@ -15,7 +15,7 @@ public:
 	virtual void OnExecute() override;
 	virtual bool IsNodeSupported(const RenderSettings& settings) override;
 
-	virtual std::string GetName() const override;
+	NameNode("RayTraced Reflections");
 
 protected:
 	virtual void OnNodeSettingChange() override;

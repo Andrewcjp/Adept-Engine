@@ -33,11 +33,6 @@ void VRBranchNode::OnExecute()
 
 }
 
-std::string VRBranchNode::GetName() const
-{
-	return "VR Branch";
-}
-
 void VRBranchNode::OnSetupNode()
 {
 

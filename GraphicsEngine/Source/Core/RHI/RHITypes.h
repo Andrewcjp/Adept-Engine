@@ -256,7 +256,7 @@ namespace EGPUCOPYTIMERS
 {
 	enum Type
 	{
-		Total,
+		Total = EGPUTIMERS::LIMIT,
 		MGPUCopy,
 		ShadowCopy,
 		ShadowCopy2,

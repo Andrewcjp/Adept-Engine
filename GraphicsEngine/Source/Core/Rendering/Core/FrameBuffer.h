@@ -16,8 +16,6 @@ public:
 	void Resize(int width, int height);
 	RHI_API void SFRResize();
 
-	virtual void SetupCopyToDevice(DeviceContext* device)
-	{};
 	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice, EGPUCOPYTIMERS::Type Stat = EGPUCOPYTIMERS::MGPUCopy, DeviceContextQueue::Type CopyQ = DeviceContextQueue::Copy);
 	RHI_API virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List);
 	static void CopyHelper_Async_OneFrame(FrameBuffer * Target, DeviceContext * TargetDevice);
@@ -47,8 +45,8 @@ public:
 	virtual void RequestSRV(const RHIViewDesc & desc) {};
 	RHIUAV* GetUAV(const RHIViewDesc & desc);
 
-	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res);
-	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res);
+	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List);
+	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list);
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();

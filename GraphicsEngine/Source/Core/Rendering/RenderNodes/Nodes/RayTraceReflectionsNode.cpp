@@ -71,11 +71,6 @@ bool RayTraceReflectionsNode::IsNodeSupported(const RenderSettings& settings)
 	return true;
 }
 
-std::string RayTraceReflectionsNode::GetName() const
-{
-	return "RayTraced Reflections";
-}
-
 void RayTraceReflectionsNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "OutputBuffer");

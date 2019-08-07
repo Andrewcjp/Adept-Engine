@@ -80,9 +80,9 @@ struct TagContainer
 class BitFlagsBase
 {
 public:
-	void SetFlagValue(int flag, bool value);
-	bool GetFlagValue(int flag) const;
-	void SetFlags(int flags);
+	CORE_API void SetFlagValue(int flag, bool value);
+	CORE_API bool GetFlagValue(int flag) const;
+	CORE_API void SetFlags(int flags);
 private:
 	int Flags = 0;
 };

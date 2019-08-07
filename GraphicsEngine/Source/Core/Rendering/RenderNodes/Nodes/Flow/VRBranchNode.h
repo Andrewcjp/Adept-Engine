@@ -1,6 +1,6 @@
 #pragma once
-#include "../../RenderNode.h"
-#include "../../../VR/HMD.h"
+#include "Rendering/RenderNodes/RenderNode.h"
+#include "Rendering/VR/HMD.h"
 class VRBranchNode : public RenderNode
 {
 public:
@@ -11,7 +11,7 @@ public:
 	VRBranchNode* VrLoopBegin = nullptr;
 	EEye::Type CurrentEyeMode = EEye::Left;
 
-	virtual std::string GetName() const override;
+	NameNode("VR Branch");
 
 protected:
 	virtual void OnSetupNode() override;

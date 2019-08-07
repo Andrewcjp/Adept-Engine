@@ -9,7 +9,7 @@ public:
 	virtual void OnExecute() override;
 
 
-	virtual std::string GetName() const override;
+	NameNode("Update Reflection Captures");
 
 protected:
 	virtual void OnNodeSettingChange() override;

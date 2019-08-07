@@ -60,8 +60,3 @@ void GBufferWriteNode::OnSetupNode()
 {
 	CommandList = RHI::CreateCommandList(ECommandListType::Graphics, Context);
 }
-
-std::string GBufferWriteNode::GetName() const
-{
-	return "GBuffer Write";
-}

@@ -21,11 +21,6 @@ void ParticleRenderNode::OnExecute()
 	PassNodeThough(0);
 }
 
-std::string ParticleRenderNode::GetName() const
-{
-	return "Particle Render";
-}
-
 void ParticleRenderNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene);

@@ -57,6 +57,7 @@ public:
 	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc);
 	RHI_API static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 	RHI_API static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
+	RHI_API static bool SupportsUnlinkedAdaptors();
 	RHI_API static RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr);
 	RHI_API static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	RHI_API static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);

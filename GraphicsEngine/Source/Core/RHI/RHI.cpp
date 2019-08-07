@@ -129,12 +129,18 @@ bool RHI::SupportsThreading()
 
 bool RHI::SupportsExplictMultiAdaptor()
 {
+	return (GetType() == RenderSystemD3D12) || (GetType() == RenderSystemVulkan);
+}
+
+bool RHI::SupportsUnlinkedAdaptors()
+{
+	//vulkan only supports GPUs linked in drivers.
 	return (GetType() == RenderSystemD3D12);
 }
 
 RHIBuffer * RHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device)
 {
-	return	GetRHIClass()->CreateRHIBuffer(type, Device);
+	return GetRHIClass()->CreateRHIBuffer(type, Device);
 }
 
 RHIUAV * RHI::CreateUAV(DeviceContext * Device)
@@ -359,7 +365,7 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	if (ImageIO::GetDefaultTexture() && !Desc.IsCubeMap)
 	{
 		return ImageIO::GetDefaultTexture();
-	}
+}
 #endif
 	BaseTextureRef newtex = nullptr;
 	if (ImageIO::CheckIfLoaded(path.GetRelativePathToAsset(), &newtex))
