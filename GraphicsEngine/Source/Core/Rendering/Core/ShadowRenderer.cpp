@@ -21,7 +21,7 @@
 
 ShadowRenderer* ShadowRenderer::Instance = nullptr;
 
-ShadowRenderer::ShadowRenderer(SceneRenderer * sceneRenderer, CullingManager* manager)
+ShadowRenderer::ShadowRenderer()
 {
 	Instance = this;
 }
@@ -228,6 +228,7 @@ void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList * list,
 		SceneRenderer::Get()->MeshController->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
 	}
 	list->EndRenderPass();
+	TargetBuffer->MakeReadyForComputeUse(list, true);
 }
 
 void ShadowRenderer::RenderShadowMap_CPU(Light* LightPtr, RHICommandList * list, int IndexOnGPU)
@@ -367,4 +368,17 @@ void ShadowRenderer::AssignAtlasData(ShadowAtlas* Node)
 		lights[i]->GPUResidenceMask[DeviceIndex].AtlasHandle = Node->AllocateHandle(lights[i], RHI::GetDeviceContext(DeviceIndex));
 	}
 
+}
+
+ShadowRenderer * ShadowRenderer::Get()
+{
+	return Instance;
+}
+
+void ShadowRenderer::UpdateShadowAsignments()
+{
+	for (int i = 0; i < AtlasSets.size(); i++)
+	{
+		AssignAtlasData(AtlasSets[i]);
+	}
 }

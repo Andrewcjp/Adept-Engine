@@ -19,7 +19,7 @@ void ShadowUpdateNode::OnExecute()
 	ShadowAtlasStorageNode* Node = GetShadowDataFromInput(0);
 
 	//mShadowRenderer->RenderShadowMaps();
-	ShadowRenderer::AssignAtlasData(Node->GetAtlas());
+	//ShadowRenderer::AssignAtlasData(Node->GetAtlas());
 
 	ShadowList->ResetList();
 	ShadowRenderer::RenderPointShadows(ShadowList);

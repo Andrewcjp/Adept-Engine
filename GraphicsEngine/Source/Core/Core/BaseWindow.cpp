@@ -53,10 +53,12 @@ bool BaseWindow::CreateRenderWindow(int width, int height)
 
 void BaseWindow::InitilseWindow()
 {
+
 	Log::OutS << "Scene Load started" << Log::OutS;
 	ImageIO::StartLoader();
 	MeshLoader::Get();
 	SceneRenderer::StartUp();
+	RHI::GetRenderSystem()->InitGraph();
 #if !BASIC_RENDER_ONLY
 	UI = new UIManager(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 #endif
@@ -153,7 +155,7 @@ void BaseWindow::Render()
 #if ALLOW_RESOURCE_CAPTURE
 		RHI::GetRHIClass()->TriggerWriteBackResources();
 #endif
-	}
+}
 	if (Input::GetKeyDown(VK_F1))
 	{
 		ShowText = !ShowText;

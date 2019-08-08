@@ -20,7 +20,7 @@ class ShadowRenderer
 {
 	static ShadowRenderer* Instance;
 public:
-	ShadowRenderer(class SceneRenderer* SceneRender, CullingManager* culling);
+	ShadowRenderer();
 	~ShadowRenderer();
 
 	static eTEXTURE_FORMAT GetDepthType();
@@ -35,13 +35,16 @@ public:
 	static eTEXTURE_FORMAT GetPreSampledTextureFormat(int Shadownumber);
 	static void InvalidateAllBakedShadows();
 
-	//called to allocate all lights to an atlas, also handles multi-gpu assignment
-	static void AssignAtlasData(ShadowAtlas* Node);
-
+	
+	static ShadowRenderer* Get();
+	void UpdateShadowAsignments();
+	std::vector<ShadowAtlas*> AtlasSets;
 private:
 	static void RenderShadowMap_GPU(Light* Lightptr, RHICommandList * list, int IndexOnGPU);
 	static void RenderShadowMap_CPU(Light* LightPtr, RHICommandList * list, int IndexOnGPU);
 	static void SetPointRS(RHICommandList * list);
-
+	//called to allocate all lights to an atlas, also handles multi-gpu assignment
+	void AssignAtlasData(ShadowAtlas* Node);
+	
 };
 

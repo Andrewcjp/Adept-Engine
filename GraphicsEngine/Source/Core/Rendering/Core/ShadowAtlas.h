@@ -17,6 +17,7 @@ public:
 	void AllocateRenderTarget(ShadowAtlasHandle * handle, DeviceContext* dev);
 	void BindPointmaps(RHICommandList * list, int slot);
 private:
+	void Destory();
 	void Init();
 	std::map<Light*, ShadowAtlasHandle*> AllocatedHandles;
 	std::vector<ShadowAtlasHandle*> DeallocatedHandles;

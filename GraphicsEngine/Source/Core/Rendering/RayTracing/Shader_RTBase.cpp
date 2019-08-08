@@ -38,3 +38,8 @@ void Shader_RTBase::InitRS()
 {
 	LocalRootSig.SetRootSig(this->GetShaderParameters());
 }
+
+bool Shader_RTBase::IsShaderSupported(const ShaderComplieSettings& args)
+{
+	return args.RTSupported;
+}

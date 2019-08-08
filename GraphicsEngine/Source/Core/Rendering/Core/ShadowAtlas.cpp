@@ -1,21 +1,40 @@
 #include "ShadowAtlas.h"
 #include "Light.h"
 #include "ShadowRenderer.h"
+#include "Core\Utils\VectorUtils.h"
 
 ShadowAtlas::ShadowAtlas(DeviceContext* device)
 {
 	Context = device;
 	Init();
+	ShadowRenderer::Get()->AtlasSets.push_back(this);
+}
+
+void ShadowAtlas::Destory()
+{
+	for (auto itor = AllocatedHandles.begin(); itor != AllocatedHandles.end(); itor++)
+	{
+		EnqueueSafeRHIRelease(itor->second->DynamicMapPtr);
+	}
+	AllocatedHandles.clear();
+	ShadowAtlas* T = this;
+	VectorUtils::Remove(ShadowRenderer::Get()->AtlasSets, T);
 }
 
 void ShadowAtlas::Init()
 {
 	ShadowCubeArray = RHI::CreateTextureArray(Context, MaxPointLight);
 	ShadowCubeArray->SetFrameBufferFormat(ShadowRenderer::GetCubeMapFBDesc(1));
+	for (int i = 0; i < MaxPointLight; i++)
+	{
+		ShadowCubeArray->SetIndexNull(i);
+	}
 }
 
 ShadowAtlas::~ShadowAtlas()
-{}
+{
+	Destory();
+}
 
 ShadowAtlasHandle* ShadowAtlas::AllocateHandle(Light* l, DeviceContext* device)
 {
@@ -35,6 +54,16 @@ bool ShadowAtlas::ReleaseHandle(ShadowAtlasHandle* handle)
 	if (itor != AllocatedHandles.end())
 	{
 		DeallocatedHandles.push_back(itor->second);
+		for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+		{
+			if (handle->lightPtr->GPUResidenceMask[i].AtlasHandle == handle)
+			{
+				handle->lightPtr->GPUResidenceMask[i].AtlasHandle = nullptr;
+				break;
+			}
+		}
+		handle->lightPtr = nullptr;
+		EnqueueSafeRHIRelease(handle->DynamicMapPtr);
 		AllocatedHandles.erase(itor);
 		return true;
 	}

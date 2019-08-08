@@ -1,7 +1,7 @@
 #include "ShadowAtlasStorageNode.h"
+#include "Rendering/Core/ShadowAtlas.h"
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
-#include "../../Core/ShadowAtlas.h"
 
 ShadowAtlasStorageNode::ShadowAtlasStorageNode()
 {
@@ -11,7 +11,9 @@ ShadowAtlasStorageNode::ShadowAtlasStorageNode()
 
 
 ShadowAtlasStorageNode::~ShadowAtlasStorageNode()
-{}
+{
+	SafeDelete(Atlas);
+}
 
 void ShadowAtlasStorageNode::Update()
 {

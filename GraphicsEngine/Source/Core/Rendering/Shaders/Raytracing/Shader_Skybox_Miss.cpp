@@ -1,5 +1,6 @@
 #include "Shader_Skybox_Miss.h"
-IMPLEMENT_GLOBAL_SHADER(Shader_Skybox_Miss);
+//IMPLEMENT_GLOBAL_SHADER(Shader_Skybox_Miss);
+IMPLEMENT_GLOBAL_SHADER_RT(Shader_Skybox_Miss);
 Shader_Skybox_Miss::Shader_Skybox_Miss(DeviceContext * Con)
 	:Shader_RTBase(Con, "Raytracing\\SkyboxMissShader", ERTShaderType::Miss)
 {

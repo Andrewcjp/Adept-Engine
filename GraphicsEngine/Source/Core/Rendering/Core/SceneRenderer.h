@@ -12,25 +12,7 @@ class CullingManager;
 class Camera;
 class Editor_Camera;
 class ReflectionEnviroment;
-//#pragma pack(push, 16)
-///*__declspec(align(32))*/ struct LightUniformBuffer
-//{
-//	glm::vec3 position;
-//	float t;
-//	glm::vec3 color;
-//	float t2;
-//	glm::vec3 Direction;
-//	float t4;
-//	glm::mat4x4 LightVP;
-//	int type;//type 1 == point, type 0 == directional, type 2 == spot
-//	int ShadowID;
-//	int DirShadowID;
-//	int HasShadow = 0;
-//	int PreSampled[4];//padding sucks!
-//	float Range;
-//	//float Pad[3];
-//};
-//#pragma pack(pop)
+
 #include "LightInterop.h"
 typedef LightEntry LightUniformBuffer;
 //static_assert(sizeof(LightUniformBuffer) % 16 == 0, "LightUniformBuffer padding bad");
