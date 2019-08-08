@@ -25,7 +25,7 @@ void FrameBuffer::HandleInit()
 	BufferDesc.ViewPort = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
 	BufferDesc.ScissorRect = glm::vec4(0, 0, BufferDesc.Width, BufferDesc.Height);
 	BufferDesc.SFR_FullWidth = BufferDesc.Width;
-	if (RHI::GetMGPUSettings()->MainPassSFR && BufferDesc.IncludedInSFR)
+	if (/*RHI::GetMGPUSettings()->MainPassSFR && */BufferDesc.IncludedInSFR)
 	{
 		SFR_Node = RHI::GetSplitController()->GetNode(Device->GetDeviceIndex());
 		SFR_Node->AddBuffer(this);
@@ -277,7 +277,7 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice,
 	CopyList->EndTimer(Stat);
 	CopyList->ResolveTimers();
 	CopyList->Execute(CopyQ);
-	if (!RHI::GetMGPUSettings()->AsyncShadows)
+//	if (!RHI::GetMGPUSettings()->AsyncShadows)
 	{
 		HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 	}
@@ -293,14 +293,14 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice,
 	CopyList->EndTimer(Stat);
 	CopyList->ResolveTimers();
 	CopyList->Execute(CopyQ);
-	if (RHI::GetMGPUSettings()->SFRSplitShadows)
+//	if (RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		//if (Stat != EGPUCOPYTIMERS::ShadowCopy)
 		{
 			TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 		}
 	}
-	else
+//	else
 	{
 		TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 	}
@@ -391,7 +391,7 @@ void FrameBuffer::ResetTransferStat()
 
 bool FrameBuffer::NeedsSFRResolve() const
 {
-	return BufferDesc.IncludedInSFR && RHI::GetMGPUSettings()->MainPassSFR;
+	return BufferDesc.IncludedInSFR /*&& RHI::GetMGPUSettings()->MainPassSFR*/;
 }
 
 void FrameBuffer::CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetDevice)

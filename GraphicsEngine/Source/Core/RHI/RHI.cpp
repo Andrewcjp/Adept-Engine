@@ -246,11 +246,6 @@ bool RHI::UseAdditionalGPUs()
 	return true;
 }
 
-const MultiGPUMode * RHI::GetMGPUSettings()
-{
-	return &instance->CurrentMGPUMode;
-}
-
 VRSettings * RHI::GetVrSettings()
 {
 	return &instance->HeadSetManager->VrSettings;
@@ -377,7 +372,7 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	{
 		return ImageIO::GetDefaultTexture();
 	}
-	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 0 && RHI::IsD3D12() && RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs)
+	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 0 && RHI::IsD3D12() && RHI::GetRenderSettings()->InitSceneDataOnAllGPUs)
 	{
 		BaseTextureRef other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
 		newtex->RegisterOtherDeviceTexture(other.Get());
@@ -506,7 +501,7 @@ void RHI::InitialiseContext()
 
 void RHI::ValidateSettings()
 {
-	CurrentMGPUMode.ValidateSettings();
+	
 }
 
 void RHI::InitialiseContextWindow(int w, int h)

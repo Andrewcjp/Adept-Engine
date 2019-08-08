@@ -18,6 +18,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Assets/Scene.h"
+#include "Rendering/Core/ShadowRenderer.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -260,7 +261,7 @@ void EditorWindow::Update()
 	}
 	if (Input::GetKeyDown('P'))
 	{
-	///	Renderer->mShadowRenderer->InvalidateAllBakedShadows();
+		ShadowRenderer::InvalidateAllBakedShadows();
 	}
 	if (Input::GetVKey(VK_CONTROL))
 	{

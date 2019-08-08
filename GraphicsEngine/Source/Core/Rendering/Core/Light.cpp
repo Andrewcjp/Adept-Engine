@@ -1,4 +1,5 @@
 #include "Light.h"
+#include "RHI\DeviceContext.h"
 int Light::LastId = 0;
 Light::Light(glm::vec3 positon, float intesity, ELightType::Type type, glm::vec3 LightColor, bool doesshadow)
 {
@@ -8,6 +9,7 @@ Light::Light(glm::vec3 positon, float intesity, ELightType::Type type, glm::vec3
 	m_type = type;
 	DoesShadow = doesshadow;
 	Resolution = RHI::GetRenderSettings()->GetShadowSettings().DefaultShadowMapSize;
+	ShadowMode = ELightMobility::Realtime;
 }
 
 Light::~Light()
@@ -78,12 +80,6 @@ float Light::GetIntesity()
 	return m_intesity;
 }
 
-void Light::SetShadowResdent(int DeviceIndex, int CopyTarget)
-{
-	GPUShadowResidentMask[DeviceIndex] = true;
-	GPUShadowResidentMask[CopyTarget] = false;
-	GPUShadowCopyDeviceTarget[DeviceIndex] = CopyTarget;
-}
 
 void Light::Update()
 {
@@ -97,22 +93,80 @@ float Light::GetRange()
 	return glm::min(FalloffRange, Distance);
 }
 
-ELightMode::Type Light::GetLightMode()
-{
-	return LightMode;
-}
-
-void Light::SetLightMode(ELightMode::Type t)
-{
-	LightMode = t;
-}
-
-EShadowCaptureType::Type Light::GetShadowMode() const
+ELightMobility::Type Light::GetLightMobility() const
 {
 	return ShadowMode;
 }
 
-void Light::SetShadowMode(EShadowCaptureType::Type val)
+void Light::SetShadowMode(ELightMobility::Type val)
 {
 	ShadowMode = val;
+}
+
+void Light::SetShadowResidentToSingleGPU(int DeviceIndex, int CopyTarget)
+{
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		GPUResidenceMask[i].IsPresentOnGPU = false;
+	}
+	GPUResidenceMask[DeviceIndex].IsPresentOnGPU = true;
+	//Target all GPUs - the present one is auto excluded.
+	GPUResidenceMask[DeviceIndex].GPUTargetFlags.SetFlags(0xfffffff);
+}
+
+LightGPUAffinty* Light::FindLightResident()
+{
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		if (GPUResidenceMask[i].IsPresentOnGPU)
+		{
+			return &GPUResidenceMask[i];
+		}
+	}
+	return nullptr;
+}
+
+
+bool Light::ShouldCopyToDevice(int index)
+{
+	return FindLightResident()->GPUTargetFlags.GetFlagValue(index);
+}
+
+bool Light::NeedsShadowUpdate()
+{
+	if (!DoesShadow)
+	{
+		return false;
+	}
+	if (GetLightMobility() == ELightMobility::Realtime)
+	{
+		return true;
+	}
+	return ShadowNeedsUpdate;
+}
+
+void Light::InvalidateCachedShadow()
+{
+	ShadowNeedsUpdate = true;
+}
+
+void Light::NotifyShadowUpdate()
+{
+	ShadowNeedsUpdate = false;
+}
+
+bool Light::IsResident(DeviceContext * dev)
+{
+	return GPUResidenceMask[dev->GetDeviceIndex()].IsPresentOnGPU;
+}
+
+bool Light::HasValidHandle(int deviceindex)
+{
+	if (GPUResidenceMask[deviceindex].AtlasHandle == nullptr)
+	{
+		return false;
+	}
+	//#Shadow: more validity checks
+
+	return true;
 }

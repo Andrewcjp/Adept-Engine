@@ -30,11 +30,13 @@ public:
 	void UpdateBuffer(RHICommandList * list, LightData * data, int index);
 	~Shader_Depth();
 	std::vector<ShaderParameter> GetShaderParameters() override;
-	void SetParameters(RHICommandList * List, RHIBuffer * Model, RHIBuffer * GeometryProjections, RHIBuffer * VPBuffer);
+	void UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index);
+	void SetProjections(RHICommandList* list, int index);
 	bool LoadGeomShader = true;
 private:
 	RHIBuffer * ConstantBuffer = nullptr;
 	float znear = 1;
 	float zfar = 50;
+	RHIBuffer* GeometryProjections = nullptr;
 };
 

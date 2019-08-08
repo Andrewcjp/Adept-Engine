@@ -292,7 +292,7 @@ void Engine::HandleKeyUp(unsigned int key)
 	{
 		UIManager::GetCurrentContext()->ProcessKeyUp(key);
 	}
-	else
+	else if(Input::Get() != nullptr)
 	{
 		Input::Get()->ProcessKeyUp((unsigned int)key);
 	}

@@ -12,25 +12,19 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_INSTANCES", std::to_string(RHI::GetRenderConstants()->MAX_MESH_INSTANCES)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_INSTANCING", RHI::GetRenderSettings()->AllowMeshInstancing ? "1" : "0"));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("DIRECTIONAL", LoadGeomShader ? "0" : "1"));
-#if USE_GS_FOR_CUBE_SHADOWS
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", RHI::GetRenderSettings()->GetShadowSettings().UseGeometryShaderForShadows ? "0" : "1"));
 	if (RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows)
 	{
 		m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("USE_VIEWINST", "1"));
 	}
-#else
-	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VS_WORLD_OUTPUT", "1"));
-#endif
 
 	m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_vs_12", EShaderType::SHADER_VERTEX);
 	if (LoadGeomShader)
 	{
-#if USE_GS_FOR_CUBE_SHADOWS
 		if (!RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows && RHI::GetRenderSettings()->GetShadowSettings().UseGeometryShaderForShadows)
 		{
 			m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_geo", EShaderType::SHADER_GEOMETRY);
 		}
-#endif
 	}
 	m_Shader->AttachAndCompileShaderFromFile("Shadow\\depthbasic_fs_12", EShaderType::SHADER_FRAGMENT);
 	const int ShadowFarPlane = 500;
@@ -39,6 +33,8 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 	{
 		ConstantBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
 		ConstantBuffer->CreateConstantBuffer(sizeof(LightData), RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, true);
+		GeometryProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
+		GeometryProjections->CreateConstantBuffer(sizeof(glm::mat4) * CUBE_SIDES, RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, false);
 	}
 }
 
@@ -63,10 +59,25 @@ std::vector<ShaderParameter> Shader_Depth::GetShaderParameters()
 	return Output;
 }
 
-void Shader_Depth::SetParameters(RHICommandList* List, RHIBuffer* Model, RHIBuffer*GeometryProjections, RHIBuffer* VPBuffer)
+void Shader_Depth::UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index)
 {
-	List->SetConstantBufferView(Model, 0, Shader_Depth_RSSlots::ModelBuffer);
-	List->SetConstantBufferView(GeometryProjections, 0, Shader_Depth_RSSlots::GeometryProjections);
-	List->SetConstantBufferView(VPBuffer, 0, Shader_Depth_RSSlots::VPBuffer);
+	glm::mat4 transforms[6];
+	transforms[0] = (shadowProj *
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
+	transforms[1] = (shadowProj *
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
+	transforms[2] = (shadowProj *
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+	transforms[3] = (shadowProj *
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+	transforms[4] = (shadowProj *
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
+	transforms[5] = (shadowProj *
+		glm::lookAtRH(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
+	GeometryProjections->UpdateConstantBuffer(transforms, index);
 }
 
+void Shader_Depth::SetProjections(RHICommandList * list, int index)
+{
+	list->SetConstantBufferView(GeometryProjections, index, Shader_Depth_RSSlots::GeometryProjections);
+}

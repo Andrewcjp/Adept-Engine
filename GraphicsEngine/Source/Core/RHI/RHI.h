@@ -103,7 +103,7 @@ public:
 
 	static void RemoveLinkedFrameBuffer(FrameBuffer* target);
 	RHI_API static RenderSettings* GetRenderSettings();
-	RHI_API static const MultiGPUMode* GetMGPUSettings();
+
 	static VRSettings* GetVrSettings();
 	RHI_API static void AddToDeferredDeleteQueue(IRHIResourse* Resource);
 	static RHI* Get();
@@ -120,7 +120,7 @@ private:
 	void TickDeferredDeleteQueue(bool Flush = false);
 	static RHI* instance;
 	ERenderSystemType CurrentSystem;
-	MultiGPUMode CurrentMGPUMode = MultiGPUMode();
+
 	RHIClass* CurrentRHI = nullptr;
 	RenderConstants M_RenderConsants;
 	RenderSettings RenderSettings = {};

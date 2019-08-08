@@ -129,11 +129,11 @@ void SceneRenderer::Init()
 	{
 		CLightBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 		CLightBuffer[i]->SetDebugName("Light buffer");
-		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs);
+		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, RHI::GetRenderSettings()->InitSceneDataOnAllGPUs);
 	}
 	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CMVBuffer->SetDebugName("CMVBuffer");
-	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs);
+	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, RHI::GetRenderSettings()->InitSceneDataOnAllGPUs);
 
 }
 
@@ -179,7 +179,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			LightUniformBuffer newitem = CreateLightEntity(lights[i]);
 
 			//assume if not resident its pre-sampled
-			newitem.PreSampled[0] = !lights[i]->GPUShadowResidentMask[devindex];
+//			newitem.PreSampled[0] = !lights[i]->GPUShadowResidentMask[devindex];
 			newitem.PreSampled[1] = PreSampleIndex;
 
 			if (newitem.PreSampled[0])
@@ -229,7 +229,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 LightUniformBuffer SceneRenderer::CreateLightEntity(Light *L)
 {
 	LightUniformBuffer newitem = {};
-	newitem.position = L->GetPosition();
+	newitem.LPosition = L->GetPosition();
 	newitem.color = glm::vec3(L->GetColor());
 	newitem.Direction = L->GetDirection();
 	newitem.type = L->GetType();

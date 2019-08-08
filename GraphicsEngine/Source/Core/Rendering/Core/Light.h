@@ -1,5 +1,7 @@
 #pragma once
 #include "Core/Transform.h"
+
+struct ShadowAtlasHandle;
 namespace ELightType
 {
 	enum Type
@@ -7,27 +9,25 @@ namespace ELightType
 		Directional, Point, Spot, Area, Limit
 	};
 }
-namespace EShadowCaptureType
+namespace ELightMobility
 {
 	enum Type
 	{
 		Realtime,//always render everything (uses static caching) 
-		Realtime_OneSide,
 		Stationary,//does not use lightmapper but captures static objects updates when moved
 		Baked,//Light is computed in light mapping
 		Limit
 	};
-}
-namespace ELightMode
+};
+
+struct LightGPUAffinty
 {
-	enum Type
-	{
-		Realtime,//always render everything (uses static caching) 
-		Mixed,
-		Baked,//Light is computed in light mapping
-		Limit
-	};
-}
+	bool IsPresentOnGPU = true;
+	BitFlagsBase GPUTargetFlags;
+	//can be different handles on different GPUs
+	ShadowAtlasHandle* AtlasHandle = nullptr;
+};
+
 class Light
 {
 public:
@@ -50,28 +50,32 @@ public:
 	int GetShadowId() const;
 	glm::vec3 GetDirection()const;
 	float GetIntesity();
-	//Multi GPU Data
-	//Should the shadow be sampled on this card or copied
-	bool GPUShadowResidentMask[MAX_GPU_DEVICE_COUNT] = { true };
-	//If a shadow is resident on this device which one should we copy it too?
-	int GPUShadowCopyDeviceTarget[MAX_GPU_DEVICE_COUNT] = { -1 ,-1 };
-	void SetShadowResdent(int DeviceIndex, int CopyTarget);
 
 	void Update();
 	float GetRange();
-	ELightMode::Type GetLightMode();
-	void SetLightMode(ELightMode::Type t);
-	EShadowCaptureType::Type GetShadowMode() const;
-	void SetShadowMode(EShadowCaptureType::Type val);
+
+	ELightMobility::Type GetLightMobility() const;
+	void SetShadowMode(ELightMobility::Type val);
 	float Distance = 512;
 	glm::mat4 DirView;
 	glm::mat4 Projection;
 	glm::vec3 m_lightColor = glm::vec3(1, 1, 1);
 	int Resolution = 512;
-	//semi realtime lights can use a lower resolution RT for dynamic object and compost into a bigger one
+	//semi realtime lights can use a lower resolution render target for dynamic object and compost into a bigger one
 	int BakedResolution = 2048;
 	int DirectionalShadowid = -1;
 	const float MinLightIntensity = 0.01f;
+
+	//Multi GPU Data
+	void SetShadowResidentToSingleGPU(int DeviceIndex, int CopyTarget);
+	LightGPUAffinty * FindLightResident();
+	bool ShouldCopyToDevice(int index);
+	LightGPUAffinty GPUResidenceMask[MAX_GPU_DEVICE_COUNT] = {};
+	bool NeedsShadowUpdate();
+	void InvalidateCachedShadow();
+	void NotifyShadowUpdate();
+	bool IsResident(DeviceContext* dev);
+	bool HasValidHandle(int deviceindex);
 private:
 	//the distance after the light is too dim
 	float FalloffRange = 0.0f;
@@ -80,10 +84,9 @@ private:
 
 	glm::vec3 m_direction = glm::vec3(0, 1, 0);
 	ELightType::Type m_type = ELightType::Limit;
-	ELightMode::Type LightMode = ELightMode::Realtime;
 	bool DoesShadow = true;
 	int ShadowId = -1;
-
-	EShadowCaptureType::Type ShadowMode = EShadowCaptureType::Realtime;
+	bool ShadowNeedsUpdate = true;
+	ELightMobility::Type ShadowMode = ELightMobility::Realtime;
 };
 

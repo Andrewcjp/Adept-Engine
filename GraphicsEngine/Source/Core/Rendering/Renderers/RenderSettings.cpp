@@ -4,27 +4,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "WinLauncher.h"
 
-MultiGPUMode::MultiGPUMode()
-{
-	MAX_PRESAMPLED_SHADOWS = 4;
-	SecondCardShadowScaleFactor = 1.0f;
-	PreSampleBufferScale = 1.0f;
-}
 
-
-
-void MultiGPUMode::ValidateSettings()
-{
-	if (!RHI::UseAdditionalGPUs() || RHI::GetDeviceCount() == 1 || !RHI::IsD3D12())
-	{
-		MainPassSFR = false;
-		SplitShadowWork = false;
-		ComputePerFrameShadowDataOnExCard = false;
-		PSComputeWorkSplit = false;
-		AsyncShadows = false;
-	}
-	Log::LogMessage("Using " + std::to_string(RHI::GetDeviceCount()) + " GPUS");
-}
 
 RenderSettings::RenderSettings()
 {
