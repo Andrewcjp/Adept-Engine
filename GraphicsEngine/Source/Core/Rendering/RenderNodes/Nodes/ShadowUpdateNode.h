@@ -19,5 +19,6 @@ protected:
 private:
 	ShadowRenderer* mShadowRenderer = nullptr;
 	bool Once = true;
+	RHICommandList* ShadowList = nullptr;
 };
 

@@ -10,10 +10,6 @@ GPUPerformanceGraph::GPUPerformanceGraph()
 {
 	StartPos = glm::vec3(250, 150, 0);
 	Scale = 50;
-	if (RHI::GetMGPUSettings()->MainPassSFR)
-	{
-		Scale = 30;
-	}
 }
 
 GPUPerformanceGraph::~GPUPerformanceGraph()

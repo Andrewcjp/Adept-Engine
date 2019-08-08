@@ -1,6 +1,7 @@
 #include "ShadowAtlasStorageNode.h"
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "../../Core/ShadowAtlas.h"
 
 ShadowAtlasStorageNode::ShadowAtlasStorageNode()
 {
@@ -29,10 +30,15 @@ void ShadowAtlasStorageNode::BindDirectionArray(RHICommandList * List, int Slot)
 
 void ShadowAtlasStorageNode::BindPointArray(RHICommandList * List, int Slot)
 {
-	Shadower->BindPointmaps(List, Slot);
+	Atlas->BindPointmaps(List, Slot);
+}
+
+ShadowAtlas * ShadowAtlasStorageNode::GetAtlas()const
+{
+	return Atlas;
 }
 
 void ShadowAtlasStorageNode::Create()
 {
-
+	Atlas = new ShadowAtlas(DeviceObject);
 }

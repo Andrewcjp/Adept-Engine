@@ -1,20 +1,4 @@
-struct Light
-{
-	float3 LPosition;
-	float F;
-	float3 color;
-	float F2;
-	float3 Direction;
-	float f3;
-	row_major matrix LightVP;
-	int type;//type 1 == point, type 0 == directional, type 2 == spot
-	int ShadowID;
-	int DirShadowID;
-	int HasShadow;
-	int4 PreSampled;
-	float Range;
-	//float3 T;
-};
+#include "../Source/Core/Rendering/Core/LightInterop.h"
 static const float MAX_REFLECTION_LOD = 11.0;
 //PBR functions!
 static const float PI = 3.14159265359;

@@ -68,7 +68,7 @@ void SFRController::DualUpdatePC(float splittest)
 	Nodes[1]->SFR_Offset = splittest;
 	CurrnetPC = splittest;
 	LastPc = CurrnetPC;
-	if (RHI::GetMGPUSettings()->MainPassSFR || RHI::GetMGPUSettings()->SFRSplitShadows)
+//	if (RHI::GetMGPUSettings()->MainPassSFR || RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		Log::LogMessage("SFR updated to " + std::to_string(CurrnetPC));
 	}
@@ -95,6 +95,6 @@ void SFRController::Init()
 		Node->SFRDriveTimer = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Main Pass" + std::to_string(i)));
 		Nodes.push_back(Node);
 	}
-	const float splittest = RHI::GetMGPUSettings()->SFRRatio;
+	const float splittest = 0.5f;
 	DualUpdatePC(splittest);
 }

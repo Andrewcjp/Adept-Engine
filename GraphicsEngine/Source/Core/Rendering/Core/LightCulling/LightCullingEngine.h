@@ -25,6 +25,7 @@ public:
 	void UpdateLightsBuffer();
 	void Resize();
 	int GetNumLights() const;
+	std::vector<Light*> GetCurrentlyRelevantLights();
 private:
 	struct GPUData
 	{

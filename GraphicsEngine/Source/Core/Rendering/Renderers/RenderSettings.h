@@ -54,6 +54,7 @@ struct ShadowMappingSettings
 	int DefaultShadowMapSize = 1024;
 	int MAX_PRESAMPLED_SHADOWS = 4;
 	float PreSampleBufferScale = 1.0f;
+	int ViewInstancesPerDraw = 3;
 };
 struct DynamicResolutionSettings
 {
@@ -113,6 +114,7 @@ public:
 	EVRHMDMode::Type VRHMDMode = EVRHMDMode::Disabled;
 	void ValidateSettings();
 	bool AllowNativeVRS = true;
+	bool InitSceneDataOnAllGPUs = true;
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;
@@ -122,31 +124,7 @@ private:
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;
 	SFRSettings CurrnetSFRSettings;
 };
-//Props Are Set in the Constructor 
-struct MultiGPUMode
-{
-	MultiGPUMode();
-	bool MainPassSFR = false;
-	//Splits the Work per Shadow light across the cards
-	bool SplitShadowWork = false;
-	//Instead of copying the entire map only copies a sampled version for the current frame.
-	bool ComputePerFrameShadowDataOnExCard = false;
-	//split Particle system compute work across both cards.
-	bool PSComputeWorkSplit = false;
-	bool AsyncShadows = false;
-	int MAX_PRESAMPLED_SHADOWS = 1;
-	int MAX_PRESAMPLED_SHADOWS_GPU0 = 4;
-	int ShadowLightsOnDev1 = 1;
-	bool SFRSplitShadows = false;
-	float SecondCardShadowScaleFactor = 1.0f;
-	float PreSampleBufferScale = 1.0f;
-	bool ShowSplit = false;
-	float SFRRatio = 0.5;
-	void ValidateSettings();
-	//ensure that all GPUs have a scene renderer CBV instance and Transfrom CBV
-	//Will affect performance of CBV writes due to duplication.
-	bool InitSceneDataOnAllGPUs = true;
-};
+
 //Props Are Set in the Constructor 
 struct RenderConstants
 {

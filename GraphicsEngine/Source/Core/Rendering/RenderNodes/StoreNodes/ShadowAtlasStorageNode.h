@@ -3,6 +3,7 @@
 
 class RHICommandList;
 class ShadowRenderer;
+class ShadowAtlas;
 //special node for shadow data as it is multiple framebuffer or atlas etc.
 class ShadowAtlasStorageNode : public StorageNode
 {
@@ -16,8 +17,9 @@ public:
 	void BindDirectionArray(RHICommandList* List, int Slot);
 	void BindPointArray(RHICommandList* List, int Slot);
 	ShadowRenderer* Shadower = nullptr;
+	ShadowAtlas* GetAtlas()const;
 protected:
 	virtual void Create() override;
-	
+	ShadowAtlas* Atlas = nullptr;
 };
 

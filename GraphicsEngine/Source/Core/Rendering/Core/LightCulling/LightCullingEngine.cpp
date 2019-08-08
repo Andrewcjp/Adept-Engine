@@ -159,6 +159,11 @@ int LightCullingEngine::GetNumLights() const
 	return LightsInFustrum.size();
 }
 
+std::vector<Light*> LightCullingEngine::GetCurrentlyRelevantLights()
+{
+	return LightsInFustrum;
+}
+
 void LightCullingEngine::CreateLightDataBuffer()
 {
 	if (LightCullingBuffer != nullptr)

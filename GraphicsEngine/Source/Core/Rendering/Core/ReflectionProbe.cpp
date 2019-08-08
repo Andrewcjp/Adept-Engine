@@ -40,7 +40,7 @@ ReflectionProbe::ReflectionProbe(glm::vec3 Pos/* = glm::vec3(0, 0, 0)*/)
 	ConvolutionBuffer = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), Desc);
 
 	RelfectionProbeProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	RelfectionProbeProjections->CreateConstantBuffer(sizeof(MVBuffer), CUBE_SIDES, RHI::GetMGPUSettings()->InitSceneDataOnAllGPUs);
+	RelfectionProbeProjections->CreateConstantBuffer(sizeof(MVBuffer), CUBE_SIDES, RHI::GetRenderSettings()->InitSceneDataOnAllGPUs);
 	Position = Pos;
 	UpdateReflectionParams(Pos);
 }
