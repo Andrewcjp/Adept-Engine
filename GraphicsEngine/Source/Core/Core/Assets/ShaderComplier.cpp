@@ -63,6 +63,15 @@ bool ShaderComplier::ShouldBuildDebugShaders()
 
 void ShaderComplier::ComplieShader(ShaderType & type, DeviceContext* Context)
 {
+	if (type.ShouldComplieFunc != nullptr)
+	{
+		ShaderComplieSettings S;
+		S.RTSupported = RHI::GetRenderSettings()->RaytracingEnabled();
+		if (!type.ShouldComplieFunc(S))
+		{
+			return;
+		}
+	}
 	if (type.CompliedShader == nullptr)
 	{
 		type.ShaderInitalizer.Context = Context;
@@ -156,9 +165,10 @@ Shader_NodeGraph* ShaderComplier::EnqeueueMaterialShadercomplie(MaterialShaderCo
 }
 
 
-ShaderType::ShaderType(std::string name, InitliserFunc constructor, ShaderInit & init)
+ShaderType::ShaderType(std::string name, InitliserFunc constructor, ShaderInit & init, ShouldComplieSig func)
 {
 	Constructor = constructor;
 	ShaderInitalizer = init;
-	ShaderComplier::Get()->AddShaderType(name, *this);
+	ShouldComplieFunc = func;
+	ShaderComplier::Get()->AddShaderType(name, *this);	
 }

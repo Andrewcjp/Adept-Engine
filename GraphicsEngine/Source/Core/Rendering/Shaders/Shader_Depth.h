@@ -17,8 +17,8 @@ class Shader_Depth :public Shader
 {
 public:
 	DECLARE_GLOBAL_SHADER_ARGS(Shader_Depth, bool);
-	DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_ON, Shader_Depth, bool, true);
-	DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_OFF, Shader_Depth, bool, false);
+	DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_ON, Shader_Depth, bool, true, nullptr);
+	DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Depth_OFF, Shader_Depth, bool, false, nullptr);
 	struct LightData
 	{
 		glm::mat4 View;

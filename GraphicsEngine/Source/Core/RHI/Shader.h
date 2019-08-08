@@ -24,14 +24,15 @@ static Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
 }\
 
 #define IMPLEMENT_GLOBAL_SHADER(Type)\
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0)
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,nullptr)
 
 
-#define DECLARE_GLOBAL_SHADER_PERMIUTATION(Name,Type,Datatype,DataValue)\
+#define DECLARE_GLOBAL_SHADER_PERMIUTATION(Name,Type,Datatype,DataValue,ShouldComplieFunc)\
 Datatype  _Type_##Name = DataValue; \
-/*static*/ ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue), &##Type::ConstructCompiledInstance_##Type, ShaderInit(&_Type_##Name, sizeof(Datatype))); \
+/*static*/ ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue), &##Type::ConstructCompiledInstance_##Type, ShaderInit(&_Type_##Name, sizeof(Datatype)),ShouldComplieFunc); \
 
 #define NAME_SHADER(Type) const std::string GetName() override{return #Type;}
+
 class Shader
 {
 public:
@@ -65,6 +66,7 @@ public:
 	virtual void ApplyToCommandList(RHICommandList* list);
 	int GetSlotForName(std::string name);
 	int GetNameHash();
+
 protected:
 	ShaderProgramBase * m_Shader = nullptr;
 	class DeviceContext* Device = nullptr;

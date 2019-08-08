@@ -20,11 +20,13 @@
 #include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
 #include "../RayTracing/RayTracingEngine.h"
 #include "Screen.h"
+#include "ShadowRenderer.h"
 
 SceneRenderer* SceneRenderer::Instance = nullptr;
 void SceneRenderer::StartUp()
 {
 	Instance = new SceneRenderer();
+	new ShadowRenderer();
 }
 
 void SceneRenderer::Shutdown()
@@ -63,8 +65,7 @@ void SceneRenderer::PrepareSceneForRender()
 	if (SceneChanged)
 	{
 		Enviroment->GenerateStaticEnvData();
-	}
-	UpdateLightBuffer(TargetScene->GetLights());
+	}	
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
@@ -78,15 +79,20 @@ void SceneRenderer::PrepareSceneForRender()
 	{
 		CurrentCamera = TargetScene->GetCurrentRenderCamera();
 	}
+
 	UpdateMVForMainPass();
-	PrepareData();
-	ParticleSystemManager::Get()->PreRenderUpdate(CurrentCamera);
 	Culling->UpdateMainPassFrustumCulling(CurrentCamera, TargetScene);
+
+	PrepareData();
 	LightCulling->RunLightBroadphase();
 	LightsBuffer.LightCount = LightCulling->GetNumLights();
 	LightsBuffer.TileX = LightCulling->GetLightGridDim().x;
 	LightsBuffer.TileY = LightCulling->GetLightGridDim().y;
-	UpdateLightBuffer(TargetScene->GetLights());
+	ShadowRenderer::Get()->UpdateShadowAsignments();
+
+	UpdateLightBuffer(TargetScene->GetLights());	
+	//#todo:move this to node
+	ParticleSystemManager::Get()->PreRenderUpdate(CurrentCamera);
 	SceneChanged = false;
 }
 
@@ -136,8 +142,6 @@ void SceneRenderer::Init()
 	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, RHI::GetRenderSettings()->InitSceneDataOnAllGPUs);
 
 }
-
-
 
 void SceneRenderer::UpdateMV(VRCamera* c)
 {

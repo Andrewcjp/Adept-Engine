@@ -280,6 +280,7 @@ void D3D12TimeManager::TimerQ::Resolve(UINT64 freqnecy)
 			//resolve "backwards" timers  (also prevents UINT64 max showing in Performance timers)
 			if (TimerQueries[i]->Result > TimerQueries[i + 1]->Result)
 			{
+				continue;
 				Delta = TimerQueries[i]->Result - TimerQueries[i + 1]->Result;
 			}
 			float time = Delta * 1000 / (double)freqnecy;

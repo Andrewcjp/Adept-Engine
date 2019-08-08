@@ -16,14 +16,19 @@ struct ShaderInit
 	class DeviceContext* Context = nullptr;
 	void* Data = nullptr;
 };
-
+struct ShaderComplieSettings
+{
+	bool RTSupported = false;
+};
 struct ShaderType
 {
 	typedef std::function<class Shader*(const ShaderInit &)> InitliserFunc;
-	ShaderType(std::string name, InitliserFunc constructor, ShaderInit & init);
+	typedef std::function<bool(const ShaderComplieSettings& args)> ShouldComplieSig;
+	ShaderType(std::string name, InitliserFunc constructor, ShaderInit & init, ShouldComplieSig ShouldComplieFunc);
 	InitliserFunc Constructor;
 	ShaderInit ShaderInitalizer;
 	Shader* CompliedShader = nullptr;
+	ShouldComplieSig ShouldComplieFunc;
 };
 struct MaterialShaderPair
 {

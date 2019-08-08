@@ -1,10 +1,10 @@
 #include "Shader_ShadowSample.h"
 #include "Rendering/Shaders/Shader_Main.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_ShadowSample);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_1, Shader_ShadowSample, int, 1);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_2, Shader_ShadowSample, int, 2);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_3, Shader_ShadowSample, int, 3);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_4, Shader_ShadowSample, int, 4);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_1, Shader_ShadowSample, int, 1, nullptr);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_2, Shader_ShadowSample, int, 2, nullptr);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_3, Shader_ShadowSample, int, 3, nullptr);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_ShadowSample_4, Shader_ShadowSample, int, 4, nullptr);
 Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context,int SampleCount) :Shader(Context)
 {
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_SHADOW_SAMPLES", std::to_string(SampleCount)));
