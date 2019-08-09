@@ -121,8 +121,8 @@ void RenderGraph::CreateDefGraphWithRT()
 	CreateDefTestgraph();
 	GraphName += "(RT)";
 	//find nodes
-	DeferredLightingNode* LightNode = (DeferredLightingNode*)FindFirstOf(DeferredLightingNode::GetNodeName());
-	ShadowAtlasStorageNode* ShadowDataNode = (ShadowAtlasStorageNode*)GetNodesOfType(EStorageType::ShadowData)[0];
+	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(FindFirstOf(DeferredLightingNode::GetNodeName()));
+	ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
 	RenderNode* UpdateProbesNode = FindFirstOf(UpdateReflectionsNode::GetNodeName());
 
 	//then insert
@@ -483,7 +483,7 @@ bool RenderGraph::IsGraphValid()
 	return true;
 }
 
-RenderNode * RenderGraph::FindFirstOf(std::string name)
+RenderNode* RenderGraph::FindFirstOf(const std::string& name)
 {
 	RenderNode* itor = RootNode;
 	while (itor->GetNextNode() != nullptr)
@@ -497,7 +497,7 @@ RenderNode * RenderGraph::FindFirstOf(std::string name)
 	return nullptr;
 }
 
-std::vector<RenderNode*> RenderGraph::FindAllOf(std::string name)
+std::vector<RenderNode*> RenderGraph::FindAllOf(const std::string& name)
 {
 	std::vector<RenderNode*> out;
 	RenderNode* itor = RootNode;
@@ -530,9 +530,18 @@ RenderNode * RenderGraph::GetNodeAtIndex(int i)
 
 void RenderGraph::RunTests()
 {
+#if RUNTESTS
+	if (!RHI::GetRenderSettings()->SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer)
+	{
+		return;
+	}
 	RenderNode* Lnode = FindFirstOf(DeferredLightingNode::GetNodeName());
+	ensure(Lnode);
 	std::vector<RenderNode*> Lnodes = FindAllOf(DeferredLightingNode::GetNodeName());
+	ensure(Lnodes.size() > 0);
 	Lnode = GetNodeAtIndex(3);
+	ensure(Lnode);
+#endif
 }
 
 void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)

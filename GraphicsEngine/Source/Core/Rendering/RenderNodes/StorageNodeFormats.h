@@ -7,6 +7,7 @@ namespace StorageFormats
 	const std::string PreZData = "PreZ";
 	const std::string ShadowData = "ShadowData";
 	const std::string LightCullingData = "LightCullingData";
+	const std::string DontCare = "DontCare";
 
 	const std::string PreSampleShadowData = "PreSampleShadowData";
 	//Deferred

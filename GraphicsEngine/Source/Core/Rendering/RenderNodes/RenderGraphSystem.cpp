@@ -16,6 +16,15 @@ void RenderGraphSystem::InitGraph()
 {
 	CurrentGraph = new RenderGraph();
 	InitDefaultGraph();
+	PatchGraph();
+	CheckGraph();
+
+	CurrentGraph->BuildGraph();
+	CurrentGraph->RunTests();
+}
+
+void RenderGraphSystem::CheckGraph()
+{
 	if (!CurrentGraph->IsGraphValid())
 	{
 		CurrentGraph->DestoryGraph();
@@ -24,13 +33,10 @@ void RenderGraphSystem::InitGraph()
 		PlatformApplication::DisplayMessageBox("Error", Data);
 		CurrentGraph->CreateFallbackGraph();
 	}
-	CurrentGraph->BuildGraph();
-	CurrentGraph->RunTests();
 }
 
 void RenderGraphSystem::InitDefaultGraph()
 {
-
 	switch (RHI::GetRenderSettings()->SelectedGraph)
 	{
 		case EBuiltinRenderGraphs::Fallback:
@@ -53,6 +59,27 @@ void RenderGraphSystem::InitDefaultGraph()
 			break;
 		case EBuiltinRenderGraphs::TEST_MGPU:
 			CurrentGraph->CreateMGPU_TESTGRAPH();
+			break;
+	}
+}
+
+void RenderGraphSystem::PatchGraph()
+{
+	switch (RHI::GetRenderSettings()->SelectedPatch)
+	{
+		case EBuiltInRenderGraphPatch::NONE:
+			return;
+		case EBuiltInRenderGraphPatch::MainFramebufferSFR:
+			break;
+		case EBuiltInRenderGraphPatch::PostProccessOnSecondGPU:
+			break;
+		case EBuiltInRenderGraphPatch::MGPU_ShadowMapping:
+			break;
+		case EBuiltInRenderGraphPatch::Async_MGPU_ShadowMapping:
+			break;
+		case EBuiltInRenderGraphPatch::VR_GPUPerEye:
+			break;
+		case EBuiltInRenderGraphPatch::VR_GPUSFRPerEye:
 			break;
 	}
 }
@@ -94,3 +121,4 @@ RenderGraph * RenderGraphSystem::GetCurrentGraph()
 {
 	return CurrentGraph;
 }
+

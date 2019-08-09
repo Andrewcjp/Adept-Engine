@@ -36,7 +36,6 @@ struct InterGPUDesc;
 #define BASIC_RENDER_ONLY 0//BUILD_VULKAN
 #define NOSHADOW 0 //BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
-#define TESTGRAPH 1
 #define RHI_SUPPORTS_RT 1
 #define TEST_VRR 0
 #define TEST_VRS 1

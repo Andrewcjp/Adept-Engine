@@ -125,7 +125,7 @@ bool ShaderPreProcessor::CompareCachedShaderBlobWithSRC(const std::string & Shad
 	return PlatformApplication::CheckFileSrcNewer(ShaderSRCPath, ShaderCSOPath);
 }
 
-bool ShaderPreProcessor::CheckCSOValid(std::string Name, std::string ShaderNameHash)
+RHI_API  bool ShaderPreProcessor::CheckCSOValid(std::string Name, const std::string & ShaderNameHash)
 {
 	if (!CompareCachedShaderBlobWithSRC(Name, ShaderNameHash))
 	{

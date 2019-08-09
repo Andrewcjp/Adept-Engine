@@ -29,6 +29,11 @@ public:
 	virtual void Resize() {};
 
 	void SetDevice(DeviceContext* D);
+	template<class T>
+	static T* NodeCast(StorageNode* node)
+	{
+		return dynamic_cast<T*>(node);
+	}
 protected:
 	//called when the graph is built to create this resource (if needed)
 

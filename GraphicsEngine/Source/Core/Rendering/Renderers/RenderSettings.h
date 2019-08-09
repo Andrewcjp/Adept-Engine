@@ -91,6 +91,7 @@ public:
 
 	AAMode::Type CurrentAAMode = AAMode::FXAA;
 	EBuiltinRenderGraphs::Type SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
+	EBuiltInRenderGraphPatch::Type SelectedPatch = EBuiltInRenderGraphPatch::NONE;
 	bool EnableGPUParticles = true;
 	bool LockBackBuffer = false;
 	int LockedWidth = 0;

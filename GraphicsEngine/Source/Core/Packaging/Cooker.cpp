@@ -9,9 +9,7 @@ static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);
 Cooker::Cooker()
 {
 	bool BuildDebug = CookDebug.GetBoolValue();
-#if _DEBUG
-	BuildDebug = false;
-#endif
+
 	ShouldComplie = true;
 	BuildConfig = "ShippingReleasePackage";
 	if (BuildDebug)

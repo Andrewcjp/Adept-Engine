@@ -109,7 +109,7 @@ void DebugLineDrawer::ReallocBuffer(int NewSize)
 
 void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, EEye::Type eye)
 {
-	if (VertsOnGPU == 0)
+	if (VertsOnGPU == 0 && !RHI::IsVulkan())
 	{
 		return;
 	}
@@ -119,7 +119,15 @@ void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, 
 	desc.ShaderInUse = LineShader;
 	desc.FrameBufferTarget = Buffer;
 	CmdList->SetPipelineStateDesc(desc);
-	CmdList->BeginRenderPass(RHIRenderPassDesc(Buffer));
+	RHIRenderPassDesc RPdesc(Buffer);
+	if (RHI::IsVulkan())
+	{
+		if (Is2DOnly)
+		{
+			RPdesc.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		}
+	}
+	CmdList->BeginRenderPass(RPdesc);
 	CmdList->SetVertexBuffer(VertexBuffer);
 	SceneRenderer::Get()->BindMvBuffer(CmdList, 0, eye);
 	if (!Is2DOnly)

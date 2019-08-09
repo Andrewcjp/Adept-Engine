@@ -38,6 +38,8 @@ void RenderSettings::ValidateForAPI(ERenderSystemType system)
 {
 	if (system == ERenderSystemType::RenderSystemVulkan)
 	{
+		SetRes(BBTestMode::HD);
+		SelectedGraph = EBuiltinRenderGraphs::Fallback;
 		RTSettings.Enabled = false;
 		DRSSettings.EnableDynamicResolutionScaling = false;
 		EnableGPUParticles = false;

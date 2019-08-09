@@ -14,11 +14,10 @@ cbuffer GOConstantBuffer : register(b0)
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-#if 1//VULKAN
-	uint2 TileCount;
+#if VULKAN
+	uint4 TileCount;
 #else
 	uint2 TileCount;
-	int pad;
 #endif
 
 };
