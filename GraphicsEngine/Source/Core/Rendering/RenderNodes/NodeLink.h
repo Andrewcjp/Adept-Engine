@@ -9,7 +9,7 @@ class NodeLink
 {
 public:
 	NodeLink();
-	NodeLink(EStorageType::Type TargetType, std::string format, std::string InputName = std::string());
+	NodeLink(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
 	~NodeLink();
 	bool SetStore(StorageNode* Target);
 	bool IsValid();
@@ -25,6 +25,9 @@ public:
 	std::string GetLinkName() const;
 	void SetLinkName(const std::string& val);
 	void Validate(RenderGraph::ValidateArgs& args, RenderNode* parent);
+
+	void PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, std::string badformat);
+
 private:
 	StorageNode* StoreTarget = nullptr;
 	std::string LinkName = "";

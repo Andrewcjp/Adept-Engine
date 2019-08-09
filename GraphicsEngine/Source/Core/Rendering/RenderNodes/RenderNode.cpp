@@ -175,7 +175,7 @@ void RenderNode::FindVRContext()
 	{
 		if (N->IsVrBranchNode)
 		{
-			VRBranchContext = (VRBranchNode*)N;
+			VRBranchContext = NodeCast<VRBranchNode>(N);
 			break;
 		}
 		N = N->Next;
@@ -202,7 +202,7 @@ void RenderNode::SetDevice(DeviceContext * D)
 	Context = D;
 }
 
-NodeLink * RenderNode::GetInputLinkByName(std::string name)
+NodeLink* RenderNode::GetInputLinkByName(const std::string& name)
 {
 	for (int i = 0; i < Inputs.size(); i++)
 	{
@@ -214,7 +214,7 @@ NodeLink * RenderNode::GetInputLinkByName(std::string name)
 	return nullptr;
 }
 
-NodeLink * RenderNode::GetOutputLinkByName(std::string name)
+NodeLink* RenderNode::GetOutputLinkByName(const std::string& name)
 {
 	for (int i = 0; i < Outputs.size(); i++)
 	{

@@ -357,10 +357,10 @@ int VKNShader::GetBindingOffset(ShaderParamType::Type Type)
 	switch (Type)
 	{
 		case ShaderParamType::SRV:
-			return 20;
+			return 200;
 			break;
 		case ShaderParamType::UAV:
-			return 10;
+			return 100;
 			break;
 		case ShaderParamType::CBV:
 			return 0;
@@ -368,7 +368,7 @@ int VKNShader::GetBindingOffset(ShaderParamType::Type Type)
 		case ShaderParamType::RootConstant:
 			break;
 		case ShaderParamType::Sampler:
-			return 50;
+			return 500;
 			break;
 		case ShaderParamType::Limit:
 			break;

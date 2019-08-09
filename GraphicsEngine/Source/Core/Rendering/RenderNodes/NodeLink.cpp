@@ -4,10 +4,10 @@
 NodeLink::NodeLink()
 {}
 
-NodeLink::NodeLink(EStorageType::Type Type, std::string format, std::string InputName)
+NodeLink::NodeLink(EStorageType::Type Type, const std::string& format, const std::string& InputName)
+	:DataFormat(format)
 {
 	TargetType = Type;
-	DataFormat = format;
 	SetLinkName(InputName);
 }
 
@@ -53,12 +53,6 @@ bool NodeLink::SetLink(NodeLink* link)
 	{
 		return false;
 	}
-#if 0
-	if (DataFormat != link->DataFormat)
-	{
-		Log::LogMessage("Incorrect Data Format Expected: '" + DataFormat + "' got : '" + link->DataFormat + "'", Log::Warning);
-	}
-#endif
 	StoreLink = link;
 	return true;
 }
@@ -84,16 +78,32 @@ void NodeLink::SetLinkName(const std::string& val)
 
 void NodeLink::Validate(RenderGraph::ValidateArgs& args, RenderNode* parent)
 {
-	if (StoreLink != nullptr && DataFormat != StoreLink->DataFormat)
+	if (DataFormat == StorageFormats::DontCare)
 	{
-		std::string output = "Node '" + parent->GetName() + "' with NodeLink: " + GetLinkName() + " Incorrect Data Format Expected: '" + DataFormat + "' got: '" + StoreLink->DataFormat + "'";
-		if (args.ErrorWrongFormat)
+		return;
+	}
+	if (StoreLink != nullptr && DataFormat != StoreLink->DataFormat && StoreLink->DataFormat != StorageFormats::DontCare)
+	{
+		PushWrongFormat(parent, args, StoreLink->DataFormat);
+	}
+	if (StoreTarget != nullptr)
+	{
+		if (StoreTarget->DataFormat != DataFormat && StoreTarget->DataFormat != StorageFormats::DontCare)
 		{
-			args.AddError(output);
+			PushWrongFormat(parent, args, StoreTarget->DataFormat);
 		}
-		else
-		{
-			args.AddWarning(output);
-		}
+	}
+}
+
+void NodeLink::PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, std::string badformat)
+{
+	std::string output = "Node '" + parent->GetName() + "' with NodeLink: " + GetLinkName() + " Incorrect Data Format Expected: '" + DataFormat + "' got: '" + badformat + "'";
+	if (args.ErrorWrongFormat)
+	{
+		args.AddError(output);
+	}
+	else
+	{
+		args.AddWarning(output);
 	}
 }

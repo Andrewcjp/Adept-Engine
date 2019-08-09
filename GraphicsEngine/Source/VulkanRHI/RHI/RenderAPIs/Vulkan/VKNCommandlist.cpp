@@ -226,6 +226,7 @@ void VKNCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int R
 	ensure(Resourceindex >= 0);
 	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKNFramebuffer* V = VKNRHI::VKConv(buffer);
+	//V->TransitionTOPixel(this);
 	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot, Resourceindex);
 	V->WasTexture = true;
 }

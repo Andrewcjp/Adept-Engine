@@ -85,8 +85,8 @@ public:
 	std::string GetGraphName() const { return GraphName; }
 	void SetGraphName(std::string val) { GraphName = val; }
 
-	RenderNode* FindFirstOf(std::string name);
-	std::vector<RenderNode*> FindAllOf(std::string name);
+	RenderNode* FindFirstOf(const std::string& name);
+	std::vector<RenderNode*> FindAllOf(const std::string& name);
 	RenderNode* GetNodeAtIndex(int i);
 	void RunTests();
 	bool RequiresMGPU = false;

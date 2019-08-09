@@ -2,6 +2,7 @@
 #include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StoreNodes/InterGPUStorageNode.h"
+#include "../StorageNodeFormats.h"
 
 
 InterGPUCopyNode::InterGPUCopyNode(DeviceContext* con)
@@ -39,8 +40,8 @@ bool InterGPUCopyNode::IsNodeSupported(const RenderSettings& settings)
 
 void InterGPUCopyNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, "DONTCARE", "Buffer to copy");
-	AddInput(EStorageType::InterGPUStagingResource, "DONTCARE", "Staging resource");
+	AddInput(EStorageType::Framebuffer, StorageFormats::DontCare, "Buffer to copy");
+	AddInput(EStorageType::InterGPUStagingResource, StorageFormats::DontCare, "Staging resource");
 }
 
 void InterGPUCopyNode::OnSetupNode()

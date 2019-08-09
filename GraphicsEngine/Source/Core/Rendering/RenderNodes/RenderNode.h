@@ -73,8 +73,13 @@ public:
 
 	virtual bool IsNodeSupported(const RenderSettings& settings);
 	void SetDevice(DeviceContext* D);
-	NodeLink* GetInputLinkByName(std::string name);
-	NodeLink* GetOutputLinkByName(std::string name);
+	NodeLink* GetInputLinkByName(const std::string& name);
+	NodeLink* GetOutputLinkByName(const std::string& name);
+	template<class T>
+	static T* NodeCast(RenderNode* node)
+	{
+		return dynamic_cast<T*>(node);
+	}
 protected:
 
 	//search forwards until we reach the end VR node 

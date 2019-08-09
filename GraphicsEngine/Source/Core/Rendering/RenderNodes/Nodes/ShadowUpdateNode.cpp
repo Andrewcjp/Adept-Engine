@@ -16,11 +16,8 @@ ShadowUpdateNode::~ShadowUpdateNode()
 
 void ShadowUpdateNode::OnExecute()
 {
-	ShadowAtlasStorageNode* Node = GetShadowDataFromInput(0);
-
-	//mShadowRenderer->RenderShadowMaps();
-	//ShadowRenderer::AssignAtlasData(Node->GetAtlas());
-
+	//ShadowAtlasStorageNode* Node = GetShadowDataFromInput(0);
+	//#Shadows: does this node need atlas
 	ShadowList->ResetList();
 	ShadowRenderer::RenderPointShadows(ShadowList);
 	ShadowList->Execute();
@@ -33,10 +30,5 @@ void ShadowUpdateNode::OnNodeSettingChange()
 
 void ShadowUpdateNode::OnSetupNode()
 {
-	//mShadowRenderer = new ShadowRenderer(SceneRenderer::Get(), SceneRenderer::Get()->GetCullingManager());
-	////if (MainScene != nullptr)
-	//{
-	//	mShadowRenderer->InitShadows(SceneRenderer::Get()->GetScene()->GetLights());
-	//}
 	ShadowList = RHI::CreateCommandList(ECommandListType::Graphics, Context);
 }

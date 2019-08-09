@@ -14,7 +14,6 @@ struct Light
 	float F2;
 	float3 Direction;
 	float f3;
-	float4x4 LightVP;
 	int type;//type 1 == point, type 0 == directional, type 2 == spot
 	int ShadowID;
 	int DirShadowID;

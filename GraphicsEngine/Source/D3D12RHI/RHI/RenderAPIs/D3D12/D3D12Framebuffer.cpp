@@ -184,7 +184,7 @@ void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
 {
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
 	if (Depth)
 	{
@@ -361,7 +361,7 @@ void D3D12FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res, 
 		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, BufferDesc.SFR_FullWidth, m_height);
 		list->GetCommandList()->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x, 0, 0, &src, &box);
 	}
-	int Pixelsize = (BufferDesc.SFR_FullWidth - (int)BufferDesc.ScissorRect.x)*m_height;
+	//int Pixelsize = (BufferDesc.SFR_FullWidth - (int)BufferDesc.ScissorRect.x)*m_height;
 	//CrossGPUBytes = Pixelsize * (int)D3D12Helpers::GetBytesPerPixel(secondaryAdapterTexture.Format);
 
 	PerfManager::EndTimer("MakeReadyOnTarget");

@@ -50,9 +50,9 @@ void VisModeNode::OnExecute()
 
 void VisModeNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene);
-	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData);
-	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat);
+	AddInput(EStorageType::Framebuffer, StorageFormats::DontCare, "OutputBuffer");
+	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer data");
+	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene data");
 
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
 }
@@ -79,7 +79,7 @@ void VisModeNode::RenderGBufferModes(ERenderDebugOutput::Type currentDebugType)
 	int VisAlpha = 0;
 
 	if (currentDebugType == ERenderDebugOutput::GBuffer_RoughNess)
-	{ 
+	{
 		DebugList->SetFrameBufferTexture(gBuffer, 0, 2);
 		VisAlpha = 1;
 	}

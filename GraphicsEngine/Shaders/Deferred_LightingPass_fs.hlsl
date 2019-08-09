@@ -42,7 +42,7 @@ struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
-	VRR_SHADER_PAYLOAD;
+	VRR_SHADER_PAYLOAD
 };
 
 #include "ReflectionEnviroment.hlsl"

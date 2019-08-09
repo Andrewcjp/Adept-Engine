@@ -1,7 +1,10 @@
 #include "StorageNode.h"
+#include "StorageNodeFormats.h"
 
 StorageNode::StorageNode()
-{}
+{
+	DataFormat = StorageFormats::DefaultFormat;
+}
 
 StorageNode::~StorageNode()
 {}
