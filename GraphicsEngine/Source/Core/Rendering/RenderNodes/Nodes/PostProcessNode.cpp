@@ -1,7 +1,6 @@
 #include "PostProcessNode.h"
+#include "Rendering/PostProcessing/PostProcessing.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
-#include "../../PostProcessing/PostProcessing.h"
-
 
 PostProcessNode::PostProcessNode()
 {
@@ -9,7 +8,7 @@ PostProcessNode::PostProcessNode()
 	NodeEngineType = ENodeQueueType::Compute;
 	ViewMode = EViewMode::PerView;
 #if !TEST_VRR
-	SetNodeActive(false);
+	//SetNodeActive(false);
 #endif
 	PostProcessing::StartUp();
 }

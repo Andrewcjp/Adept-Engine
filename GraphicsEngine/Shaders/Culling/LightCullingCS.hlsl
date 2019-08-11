@@ -14,9 +14,9 @@ cbuffer CameraData : register(b2)
 {
 	float4x4 View;
 	float4x4 Projection;
-	float3 CameraPos;
-	float4x4 INV_Projection;
+	float3 CameraPos;	
 	int2 Resolution;
+	float4x4 INV_Projection;
 	float2 INV_Resolution;
 };
 

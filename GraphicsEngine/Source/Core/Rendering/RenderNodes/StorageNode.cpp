@@ -2,9 +2,8 @@
 #include "StorageNodeFormats.h"
 
 StorageNode::StorageNode()
-{
-	DataFormat = StorageFormats::DefaultFormat;
-}
+	:DataFormat(StorageFormats::DefaultFormat)
+{}
 
 StorageNode::~StorageNode()
 {}

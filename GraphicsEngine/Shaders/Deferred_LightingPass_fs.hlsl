@@ -22,7 +22,7 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
 #include "Lighting.hlsl"
 #include "Shadow.hlsl"
 #include "VRX\VRRCommon.hlsl"
-
+#include "VRX\VRSCommon.hlsl"
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
@@ -36,6 +36,7 @@ cbuffer SceneConstantBuffer : register(b2)
 	row_major matrix View;
 	row_major matrix Projection;
 	float3 CameraPos;
+	int2 Resolution;
 };
 
 struct VS_OUTPUT
@@ -60,16 +61,23 @@ float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
+#if SUPPORT_VRS
+	if (!ShouldShadePixel(input.uv,Resolution))
+	{
+		return float4(1, 1, 1, 0);
+	}	
+#endif
+
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv);
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv);
 	float3 Normal = normalize(Normalt.xyz);
 	float4 AlbedoSpec = AlbedoTexture.Sample(defaultSampler, input.uv);
 	float Roughness = AlbedoSpec.a;
 	float Metallic = Normalt.a;
-	
+
 	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - pos.xyz);
-	
+
 	float3 R = reflect(-ViewDir, Normal);
 	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
 	float3 prefilteredColor = GetSpecular(input.uv,R, Roughness);

@@ -232,6 +232,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 
 LightUniformBuffer SceneRenderer::CreateLightEntity(Light *L)
 {
+	L->Update();
 	LightUniformBuffer newitem = {};
 	newitem.LPosition = L->GetPosition();
 	newitem.color = glm::vec3(L->GetColor());

@@ -83,6 +83,22 @@ namespace EVRHMDMode
 		Limit
 	};
 }
+namespace EVRSMode
+{
+	enum Type
+	{
+		HardwareAndSoftware,
+		HardwareOnly,
+		ForceSoftwareOnly,
+		Limit
+	};
+}
+struct VRXSettings
+{
+	bool EnableVRR = false;
+	bool EnableVRS = false;
+	EVRSMode::Type VRSMode = EVRSMode::HardwareAndSoftware;
+};
 //Props Are Set in the Constructor 
 struct RenderSettings
 {
@@ -116,6 +132,7 @@ public:
 	void ValidateSettings();
 	bool AllowNativeVRS = true;
 	bool InitSceneDataOnAllGPUs = true;
+	static const VRXSettings& GetVRXSettings();
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;
@@ -124,6 +141,9 @@ private:
 	DynamicResolutionSettings DRSSettings;
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;
 	SFRSettings CurrnetSFRSettings;
+	VRXSettings VRXSet;
+
+
 };
 
 //Props Are Set in the Constructor 

@@ -9,7 +9,7 @@
 RenderSettings::RenderSettings()
 {
 
-	//SetRes(BBTestMode::HD);
+	//SetRes(BBTestMode::UHD);
 
 	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;
@@ -24,6 +24,7 @@ RenderSettings::RenderSettings()
 	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
+	VRXSet.EnableVRS = true;
 }
 
 void RenderSettings::ValidateSettings()
@@ -32,6 +33,11 @@ void RenderSettings::ValidateSettings()
 	{
 		RTSettings.Enabled = false;
 	}
+}
+
+const VRXSettings& RenderSettings::GetVRXSettings()
+{
+	return RHI::GetRenderSettings()->VRXSet;
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)

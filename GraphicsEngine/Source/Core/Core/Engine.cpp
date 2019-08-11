@@ -281,7 +281,7 @@ void Engine::HandleInput(unsigned int key)
 	{
 		UIManager::GetCurrentContext()->ProcessKeyDown(key);
 	}
-	else
+	else if (Input::Get() != nullptr)
 	{
 		Input::Get()->ProcessKeyDown((unsigned int)key);
 	}
