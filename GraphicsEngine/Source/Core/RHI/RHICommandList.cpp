@@ -158,7 +158,7 @@ void RHICommandList::HandleStallTimer()
 
 void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 {
-	ensure(Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::None);
+	//ensure(Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::None);
 	//#VRX: Setting for VRS mode
 	//Native VRS does not require resolve
 	if (Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)

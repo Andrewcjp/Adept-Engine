@@ -147,6 +147,10 @@ void LightCullingEngine::UpdateLightsBuffer()
 		LightData.push_back(newitem);
 	}
 	LightDataBuffer->UpdateBufferData(LightData.data(), sizeof(LightUniformBuffer)*LightData.size(), EBufferResourceState::Read);
+	if (RHI::GetFrameCount() == 0)
+	{
+		RHI::WaitForGPU();
+	}
 }
 
 void LightCullingEngine::Resize()

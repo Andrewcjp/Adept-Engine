@@ -8,5 +8,6 @@ public:
 	Shader_VRRResolve(DeviceContext* device);
 	~Shader_VRRResolve();
 	DECLARE_GLOBAL_SHADER(Shader_VRRResolve);
+	
 };
 

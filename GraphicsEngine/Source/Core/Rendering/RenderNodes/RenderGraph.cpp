@@ -164,9 +164,11 @@ void RenderGraph::CreateDefTestgraph()
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.AllowUnorderedAccess = true;
-#if TEST_VRR
-	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
+#if TEST_VRS
+	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRS;
 	//Desc.VarRateSettings.
+
+//	FrameBufferStorageNode* VRS = AddStoreNode(new FrameBufferStorageNode());
 #endif
 	MainBuffer->SetFrameBufferDesc(Desc);
 

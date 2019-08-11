@@ -21,8 +21,9 @@ struct MVBuffer
 	glm::mat4 V;
 	glm::mat4 P;
 	glm::vec3 CameraPos;
-	glm::mat4 INV_P;
+	float pad;
 	glm::ivec2 Res;
+	glm::mat4 INV_P;
 	glm::vec2 INV_res;
 };
 

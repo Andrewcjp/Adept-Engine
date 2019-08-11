@@ -26,7 +26,7 @@ public:
 	void SetLinkName(const std::string& val);
 	void Validate(RenderGraph::ValidateArgs& args, RenderNode* parent);
 
-	void PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, std::string badformat);
+	void PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, const std::string& badformat);
 
 private:
 	StorageNode* StoreTarget = nullptr;

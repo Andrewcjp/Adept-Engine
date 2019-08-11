@@ -33,6 +33,14 @@ namespace EBuiltInRenderGraphPatch
 	};
 }
 class RenderGraph;
+//defines a created graph instance.
+struct RenderGraphInstance
+{	
+	EBuiltInRenderGraphPatch::Type Patch = EBuiltInRenderGraphPatch::NONE;
+	EBuiltinRenderGraphs::Type GraphBaseType = EBuiltinRenderGraphs::DeferredRenderer;
+	RenderGraph* Instance = nullptr;
+};
+
 class RenderGraphSystem
 {
 public:

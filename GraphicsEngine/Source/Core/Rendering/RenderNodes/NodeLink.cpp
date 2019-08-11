@@ -95,7 +95,7 @@ void NodeLink::Validate(RenderGraph::ValidateArgs& args, RenderNode* parent)
 	}
 }
 
-void NodeLink::PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, std::string badformat)
+void NodeLink::PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, const std::string& badformat)
 {
 	std::string output = "Node '" + parent->GetName() + "' with NodeLink: " + GetLinkName() + " Incorrect Data Format Expected: '" + DataFormat + "' got: '" + badformat + "'";
 	if (args.ErrorWrongFormat)
