@@ -13,8 +13,9 @@ private:
 	RHIBuffer* DataBuffer = nullptr;
 	struct VRSData
 	{
-		int Resolution[4];
+		int Resolution[2];
 		bool Debug;
+		//bool ShowGrid;
 	};
 	VRSData DataInst;
 };

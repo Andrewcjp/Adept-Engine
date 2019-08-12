@@ -39,11 +39,11 @@ void FrameBuffer::HandleInit()
 		}
 		BufferDesc.ScissorRect = glm::ivec4(start, 0, start + SFrBufferWidth, SFrBufferHeight);
 	}
-	if (BufferDesc.DeviceToCopyTo != nullptr)
+	/*if (BufferDesc.DeviceToCopyTo != nullptr)
 	{
 		Device->AddTransferBuffer(this);
 		BufferDesc.DeviceToCopyTo->AddTransferBuffer(this);
-	}
+	}*/
 	if (BufferDesc.VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
 	{
 		BufferDesc.TextureDepth = BufferDesc.VarRateSettings.ResolutionSlices;
@@ -330,7 +330,7 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	{
 		return;
 	}
-	ensure(Target->GetDescription().IsShared);
+//	ensure(Target->GetDescription().IsShared);
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	HostDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();

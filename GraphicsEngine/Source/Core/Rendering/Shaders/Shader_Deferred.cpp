@@ -4,7 +4,9 @@
 #include "RHI/RHI.h"
 #include "../Core/VRXEngine.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_Deferred);
-Shader_Deferred::Shader_Deferred(class DeviceContext* dev) :Shader(dev)
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_0, Shader_Deferred, int, 0, nullptr);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_1, Shader_Deferred, int, 1, nullptr);
+Shader_Deferred::Shader_Deferred(DeviceContext* dev, int VRSMODE) :Shader(dev)
 {
 	float g_quad_vertex_buffer_data[] = {
 		-1.0f, -1.0f, 0.0f,0.0f,
@@ -24,7 +26,10 @@ Shader_Deferred::Shader_Deferred(class DeviceContext* dev) :Shader(dev)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
 	//
 	//VRXEngine::SetupVRRShader(this);
-	VRXEngine::SetupVRSShader(this);
+	if (VRSMODE == 1)
+	{
+		VRXEngine::SetupVRSShader(this);
+	}
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITHRT", std::to_string(RHI::GetRenderSettings()->GetRTSettings().Enabled)));
 	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_fs", EShaderType::SHADER_FRAGMENT);

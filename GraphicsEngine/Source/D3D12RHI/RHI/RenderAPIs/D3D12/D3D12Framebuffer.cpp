@@ -161,23 +161,12 @@ void D3D12FrameBuffer::MakeReadyForRead(ID3D12GraphicsCommandList * list)
 
 void D3D12FrameBuffer::MakeReadyForCopy(RHICommandList * list)
 {
-	if (BufferDesc.IsShared)
-	{
-		ensure(Device != list->GetDevice());//Make ready for copy only applies to the target GPU
-	}
 	MakeReadyForCopy_In(((D3D12CommandList*)list)->GetCommandList());
 }
 
 void D3D12FrameBuffer::MakeReadyForCopy_In(ID3D12GraphicsCommandList * list)
 {
-	if (BufferDesc.IsShared)
-	{
-		//TargetCopy->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);//D3D12_RESOURCE_STATE_COPY_DEST
-	}
-	else
-	{
-		RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
-	}
+	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
 }
 
 void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
@@ -524,11 +513,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		}
 
 		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
-		}
+	}
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-	}
+}
 
 void D3D12FrameBuffer::Init()
 {
@@ -537,12 +526,12 @@ void D3D12FrameBuffer::Init()
 		if (BufferDesc.MaxSize.x == 0)
 		{
 			BufferDesc.MaxSize.x = glm::iround(BufferDesc.Width*RHI::GetRenderSettings()->MaxRenderScale);
-		}
+	}
 		if (BufferDesc.MaxSize.y == 0)
 		{
 			BufferDesc.MaxSize.y = glm::iround(BufferDesc.Height*RHI::GetRenderSettings()->MaxRenderScale);
 		}
-	}
+}
 	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
 	m_scissorRect = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
 	//update RenderTargetDesc
@@ -639,24 +628,7 @@ void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, i
 
 void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex, DeviceContext* target, bool isCompute)
 {
-
-	if (BufferDesc.IsShared)
-	{
-		MakeReadyForRead(list);
-		/*if (target != nullptr && OtherDevice != nullptr)
-		{
-			if (target == OtherDevice)
-			{
-				TargetCopy->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-				list->SetGraphicsRootDescriptorTable(slot, SharedSRVHeap->GetGPUAddress(Resourceindex));
-			}
-		}*/
-		return;
-	}
-	//UpdateSRV();
-	//	ensure(Resourceindex < BufferDesc.RenderTargetCount);
 	lastboundslot = slot;
-	//SrvHeap->BindHeap_Old(list);
 	if (isCompute)
 	{
 		if (Resourceindex == -1)
@@ -743,20 +715,13 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list
 
 void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 {
-	if (BufferDesc.IsShared)
+	if (BufferDesc.AllowUnorderedAccess)
 	{
-		TransitionTOCopy(list);
-	}
-	else
-	{
-		if (BufferDesc.AllowUnorderedAccess)
+		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 		{
-			for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+			if (RenderTarget[i] != nullptr)
 			{
-				if (RenderTarget[i] != nullptr)
-				{
-					RenderTarget[i]->SetResourceState(list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-				}
+				RenderTarget[i]->SetResourceState(list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 			}
 		}
 	}

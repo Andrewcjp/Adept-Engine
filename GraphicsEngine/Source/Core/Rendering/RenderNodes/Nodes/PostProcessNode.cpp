@@ -7,9 +7,7 @@ PostProcessNode::PostProcessNode()
 	OnNodeSettingChange();
 	NodeEngineType = ENodeQueueType::Compute;
 	ViewMode = EViewMode::PerView;
-#if !TEST_VRR
 	//SetNodeActive(false);
-#endif
 	PostProcessing::StartUp();
 }
 

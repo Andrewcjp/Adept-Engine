@@ -8,19 +8,10 @@ int2 GetShadingRate(int ID)
 	}
 	else if (ID == 3)
 	{
-		//return int2(4, 4);
+		return int2(4, 4);
 		return int2(1, 2);
 	}
 	return int2(1, 1);
-}
-bool IsMainPixel(int2 PixelPos)
-{
-	const int TileSize = VRS_TILE_SIZE;
-	if ((PixelPos.x % TileSize == 0) && (PixelPos.y % TileSize == 0))
-	{
-		return true;
-	}
-	return false;
 }
 int2 GetTileID(int2 PixelPos)
 {
@@ -56,11 +47,11 @@ bool IsWithinRect(float2 ScreenUV, int2 res, float size)
 int GetShadingRateIDForPixel(float2 ScreenUV, int2 Res)
 {
 	float Size = 0.2;
-	if (IsWithinRect(ScreenUV, Res, 0.4))
+	if (IsWithinRect(ScreenUV, Res, 0.45))
 	{
 		return 1;
 	}
-	if (IsWithinRect(ScreenUV, Res, 0.2))
+	if (IsWithinRect(ScreenUV, Res, 0.35))
 	{
 		return 2;
 	}
