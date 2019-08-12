@@ -481,6 +481,7 @@ struct FrameBufferVariableRateSettings
 	int ResolutionSlices = 2;
 	float DisplayResFactors[MAX_VARIABLE_RATE_FACTORS] = { 1.0f,0.9f,0.7f,0.6f,0.5f,0.1f };
 	FrameBufferVariableRateSettings::VRateMode BufferMode = FrameBufferVariableRateSettings::None;
+	bool UsesVRS()const;
 };
 struct RHIFrameBufferDesc
 {
@@ -510,8 +511,6 @@ public:
 	int TextureDepth = 1;
 	int RenderTargetCount = 1;
 	bool NeedsDepthStencil = false;
-	bool IsShared = false;
-	class DeviceContext* DeviceToCopyTo = nullptr;
 	bool AllowUnorderedAccess = false;
 	std::vector<RHIViewDesc> RequestedViews;
 	//If set to 0 the resource will be auto mipped

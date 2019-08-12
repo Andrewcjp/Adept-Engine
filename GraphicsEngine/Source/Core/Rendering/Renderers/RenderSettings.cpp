@@ -5,7 +5,6 @@
 #include "WinLauncher.h"
 
 
-
 RenderSettings::RenderSettings()
 {
 
@@ -24,7 +23,7 @@ RenderSettings::RenderSettings()
 	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
-	VRXSet.EnableVRS = true;
+	//VRXSet.EnableVRS = true;
 }
 
 void RenderSettings::ValidateSettings()

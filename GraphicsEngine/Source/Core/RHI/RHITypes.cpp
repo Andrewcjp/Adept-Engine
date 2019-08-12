@@ -480,3 +480,8 @@ bool RHIViewDesc::operator==(const RHIViewDesc other) const
 		ViewType == other.ViewType &&
 		Dimention == other.Dimention;
 }
+
+bool FrameBufferVariableRateSettings::UsesVRS() const
+{
+	return BufferMode == VRS && RHI::GetRenderSettings()->GetVRXSettings().EnableVRS;
+}

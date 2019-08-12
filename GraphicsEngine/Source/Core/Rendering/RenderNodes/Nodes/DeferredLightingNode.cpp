@@ -7,6 +7,7 @@
 #include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
 #include "Rendering/Shaders/Shader_Deferred.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
+#include "Core/Assets/ShaderComplier.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -22,7 +23,7 @@ DeferredLightingNode::~DeferredLightingNode()
 void DeferredLightingNode::OnSetupNode()
 {
 	List = RHI::CreateCommandList(ECommandListType::Graphics, Context);
-	DeferredShader = new Shader_Deferred(Context);
+	//DeferredShader = new Shader_Deferred(Context);
 }
 
 void DeferredLightingNode::OnExecute()
@@ -31,7 +32,7 @@ void DeferredLightingNode::OnExecute()
 	FrameBuffer* MainBuffer = GetFrameBufferFromInput(1);
 	Scene* MainScene = GetSceneDataFromInput(2);
 	ensure(MainScene);
-
+	DeferredShader = ShaderComplier::GetShader<Shader_Deferred, int>(Context, MainBuffer->GetDescription().VarRateSettings.UsesVRS());
 	List->ResetList();
 	List->StartTimer(EGPUTIMERS::DeferredLighting);
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
@@ -68,7 +69,7 @@ void DeferredLightingNode::OnExecute()
 	List->SetVRRShadingRate(2);
 #endif
 	DeferredShader->RenderScreenQuad(List);
-	
+
 	//transparent pass
 	//if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)
 	//{

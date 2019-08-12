@@ -14,7 +14,7 @@ float4 GetColourForRate(int r)
 	{
 		return float4(1, 0, 0, 0);
 	}
-	else if (r == 2)
+	else if (r == 2)  
 	{
 		return float4(0, 1, 0, 0);
 	}

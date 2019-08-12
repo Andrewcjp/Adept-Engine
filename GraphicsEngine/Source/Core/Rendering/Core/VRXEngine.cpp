@@ -32,6 +32,14 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target)
 
 void VRXEngine::ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target)
 {
+	if (!RenderSettings::GetVRXSettings().EnableVRS)
+	{
+		return;
+	}
+	if (Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::VRS)
+	{
+		return;
+	}
 	//#VRX: todo
 	ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRSResolve>());
@@ -39,9 +47,8 @@ void VRXEngine::ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target)
 	list->SetUAV(Target->GetUAV(), "DstTexture");
 	ShaderComplier::GetShader<Shader_VRSResolve>()->BindBuffer(list);
 	//list->SetFrameBufferTexture(Target, "SRCLevel1");
-	list->Dispatch(Target->GetWidth() / 4, Target->GetHeight() / 4, 1);
+	list->Dispatch(glm::ceil(Target->GetWidth() / 4), glm::round(Target->GetHeight() / 4), 1);
 	list->UAVBarrier(Target->GetUAV());
-
 }
 
 void VRXEngine::SetVRSShadingRate(RHICommandList * List, VRS_SHADING_RATE::type Rate)
@@ -59,7 +66,7 @@ void VRXEngine::SetVRRShadingRate(RHICommandList * List, int FactorIndex)
 void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, FrameBuffer * Target)
 {
 	//#VRX: todo
-	
+
 }
 
 void VRXEngine::SetupVRRShader(Shader * S)

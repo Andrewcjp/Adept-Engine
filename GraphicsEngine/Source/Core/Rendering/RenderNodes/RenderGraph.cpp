@@ -166,9 +166,6 @@ void RenderGraph::CreateDefTestgraph()
 	Desc.AllowUnorderedAccess = true;
 #if TEST_VRS
 	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRS;
-	//Desc.VarRateSettings.
-
-//	FrameBufferStorageNode* VRS = AddStoreNode(new FrameBufferStorageNode());
 #endif
 	MainBuffer->SetFrameBufferDesc(Desc);
 
