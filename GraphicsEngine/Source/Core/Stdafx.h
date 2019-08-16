@@ -19,6 +19,7 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/matrix_major_storage.hpp>
 #include <glm/gtc/integer.hpp>
+#include <glm\gtx\compatibility.hpp>
 #include <ios>
 #include <iostream>
 #include <map>

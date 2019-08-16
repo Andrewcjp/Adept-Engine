@@ -32,6 +32,12 @@ Datatype  _Type_##Name = DataValue; \
 /*static*/ ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue), &##Type::ConstructCompiledInstance_##Type, ShaderInit(&_Type_##Name, sizeof(Datatype)),ShouldComplieFunc); \
 
 #define NAME_SHADER(Type) const std::string GetName() override{return #Type;}
+//Helper Defines:
+#define IMPLEMENT_GLOBAL_SHADER_RT(Type)\
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSupported)
+
+#define IMPLEMENT_GLOBAL_SHADER_SM6(Type)\
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSupported_SM6)
 
 class Shader
 {
@@ -66,7 +72,7 @@ public:
 	virtual void ApplyToCommandList(RHICommandList* list);
 	int GetSlotForName(std::string name);
 	int GetNameHash();
-
+	static bool IsShaderSupported_SM6(const ShaderComplieSettings& args);
 protected:
 	ShaderProgramBase * m_Shader = nullptr;
 	class DeviceContext* Device = nullptr;

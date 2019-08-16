@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "Rendering\Core\Mesh\MaterialTypes.h"
+#include "RHI\DeviceContext.h"
 
 class Shader_NodeGraph;
 class ShaderGraphComplier;
@@ -19,6 +20,7 @@ struct ShaderInit
 struct ShaderComplieSettings
 {
 	bool RTSupported = false;
+	EShaderSupportModel::Type ShaderModel = EShaderSupportModel::SM5;
 };
 struct ShaderType
 {

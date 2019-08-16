@@ -40,13 +40,11 @@ void VRXEngine::ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target)
 	{
 		return;
 	}
-	//#VRX: todo
 	ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRSResolve>());
 	list->SetPipelineStateDesc(Desc);
 	list->SetUAV(Target->GetUAV(), "DstTexture");
 	ShaderComplier::GetShader<Shader_VRSResolve>()->BindBuffer(list);
-	//list->SetFrameBufferTexture(Target, "SRCLevel1");
 	list->Dispatch(glm::ceil(Target->GetWidth() / 4), glm::round(Target->GetHeight() / 4), 1);
 	list->UAVBarrier(Target->GetUAV());
 }

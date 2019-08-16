@@ -8,8 +8,7 @@ namespace MemoryUtils
 	{
 		for (int i = 0; i < target.size(); i++)
 		{
-			delete target[i];
-			target[i] = nullptr;
+			SafeDelete(target[i]);
 		}
 		target.clear();
 	}
@@ -44,7 +43,7 @@ namespace MemoryUtils
 			{
 				target[i]->Release();
 				target[i] = nullptr;
-			}			
+			}
 		}
 		target.clear();
 	}

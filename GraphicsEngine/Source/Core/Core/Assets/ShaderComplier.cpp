@@ -67,6 +67,7 @@ void ShaderComplier::ComplieShader(ShaderType & type, DeviceContext* Context)
 	{
 		ShaderComplieSettings S;
 		S.RTSupported = RHI::GetRenderSettings()->RaytracingEnabled();
+		S.ShaderModel = Context->GetCaps().HighestModel;
 		if (!type.ShouldComplieFunc(S))
 		{
 			return;

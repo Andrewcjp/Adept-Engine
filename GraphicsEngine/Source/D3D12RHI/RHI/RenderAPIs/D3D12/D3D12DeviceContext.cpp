@@ -59,6 +59,7 @@ D3D12DeviceContext::~D3D12DeviceContext()
 
 bool D3D12DeviceContext::DetectDriverDXR()
 {
+	//Not great but there isn't an API check.
 	std::wstring Data = Adaptordesc.Description;
 	std::wstring t = L"10";
 	if (StringUtils::Contains(Data, t))
@@ -176,14 +177,29 @@ void D3D12DeviceContext::CheckFeatures()
 		hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &ShaderModelData, sizeof(ShaderModelData));
 		if (SUCCEEDED(hr))
 		{
-			HighestShaderModel = ShaderModelData.HighestShaderModel;
+			HighestShaderModel = ShaderModelData.HighestShaderModel;			
 			break;
 		}
 	}
-
+	
+	switch (HighestShaderModel)
+	{
+		case D3D_SHADER_MODEL_5_1:
+			Caps_Data.HighestModel = EShaderSupportModel::SM5;
+			break;
+		case D3D_SHADER_MODEL_6_0:
+		case D3D_SHADER_MODEL_6_1:
+		case D3D_SHADER_MODEL_6_2:
+		case D3D_SHADER_MODEL_6_3:
+		case D3D_SHADER_MODEL_6_4:
+		case D3D_SHADER_MODEL_6_5:
+			Caps_Data.HighestModel = EShaderSupportModel::SM6;
+			break;
+	}
 	if (LogDeviceDebug)
 	{
-		LogDeviceData("Shader Model Support " + D3D12Helpers::SMToString(HighestShaderModel));
+		LogDeviceData("Shader Model Support (DX12) " + D3D12Helpers::SMToString(HighestShaderModel));
+		LogDeviceData("Shader Model Support " + std::string(EShaderSupportModel::ToString(Caps_Data.HighestModel)));
 	}
 
 #ifdef NTDDI_WIN10_19H1
@@ -376,7 +392,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	}
 	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device2));
 	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device5));
-	
+
 	SetNodeMaskFromIndex(0);
 	InitDevice(index);
 
@@ -462,6 +478,10 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 	GetSharedCommandAllocator()->Reset();
 	ResetCopyEngine();
 	//compute work could run past the end of a frame?
+	if (RHI::GetFrameCount() == 1)
+	{
+		GetMemoryManager()->LogMemoryReport();
+	}
 }
 
 void D3D12DeviceContext::SampleVideoMemoryInfo()
