@@ -1,5 +1,6 @@
 #include "GPUResource.h"
 #include "D3D12DeviceContext.h"
+#include "GPUMemoryPage.h"
 CreateChecker(GPUResource);
 GPUResource::GPUResource()
 {}
@@ -103,6 +104,12 @@ bool GPUResource::IsTransitioning()
 {
 	return (CurrentResourceState != TargetState);
 }
+
+void GPUResource::SetGPUPage(GPUMemoryPage * page)
+{
+	Page = page;
+}
+
 D3D12_RESOURCE_STATES GPUResource::GetCurrentState()
 {
 	return CurrentResourceState;
@@ -126,6 +133,10 @@ void GPUResource::Release()
 		//where GPU will move forward and delete before GPU 1 has finished with resource.
 		resource->Release();
 		resource = nullptr;
+	}
+	if (Page != nullptr)
+	{
+		Page->Deallocate(this);
 	}
 	//SafeRelease(resource);
 	RemoveCheckerRef(GPUResource, this);

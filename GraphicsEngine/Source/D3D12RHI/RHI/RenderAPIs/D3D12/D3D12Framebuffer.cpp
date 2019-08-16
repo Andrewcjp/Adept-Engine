@@ -8,6 +8,7 @@
 #include "DescriptorHeapManager.h"
 #include "DescriptorGroup.h"
 #include "D3D12InterGPUStagingResource.h"
+#include "DXMemoryManager.h"
 #define CUBE_SIDES 6
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
@@ -452,6 +453,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	}
 	else
 	{
+#if 0
 		ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
@@ -460,8 +462,20 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 			&ClearValue,
 			IID_PPV_ARGS(&NewResource)
 		));
+		*Resourceptr = new GPUResource(NewResource, ResourceState, Device);
+#else
+		/*D3D12_RESOURCE_ALLOCATION_INFO info = CurrentDevice->GetDevice()->GetResourceAllocationInfo(0, 1, &ResourceDesc);*/
+		/*D3D12Helpers::GetResourceSizeData(m_width, m_height, Format, ResourceDesc.Dimension, IsDepthStencil);*/
+		AllocDesc Desc = AllocDesc(0, ResourceState, ResourceDesc.Flags, "FB");
+		Desc.ClearValue = ClearValue;
+		//Desc.TextureAllocData = info;
+		
+		Desc.ResourceDesc = ResourceDesc;
+		CurrentDevice->GetMemoryManager()->AllocFrameBuffer(Desc, Resourceptr);
+		NewResource = (*Resourceptr)->GetResource();
+#endif
 	}
-	*Resourceptr = new GPUResource(NewResource, ResourceState, Device);
+
 
 	if (IsDepthStencil)
 	{
@@ -513,11 +527,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		}
 
 		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
-	}
+		}
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-}
+	}
 
 void D3D12FrameBuffer::Init()
 {
@@ -526,12 +540,12 @@ void D3D12FrameBuffer::Init()
 		if (BufferDesc.MaxSize.x == 0)
 		{
 			BufferDesc.MaxSize.x = glm::iround(BufferDesc.Width*RHI::GetRenderSettings()->MaxRenderScale);
-	}
+		}
 		if (BufferDesc.MaxSize.y == 0)
 		{
 			BufferDesc.MaxSize.y = glm::iround(BufferDesc.Height*RHI::GetRenderSettings()->MaxRenderScale);
 		}
-}
+	}
 	m_viewport = CD3DX12_VIEWPORT(BufferDesc.ViewPort.x, BufferDesc.ViewPort.y, BufferDesc.ViewPort.z, BufferDesc.ViewPort.w);
 	m_scissorRect = CD3DX12_RECT((LONG)BufferDesc.ScissorRect.x, (LONG)BufferDesc.ScissorRect.y, (LONG)BufferDesc.ScissorRect.z, (LONG)BufferDesc.ScissorRect.w);
 	//update RenderTargetDesc

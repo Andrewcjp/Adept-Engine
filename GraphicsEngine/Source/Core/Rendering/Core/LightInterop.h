@@ -1,6 +1,5 @@
 #if __cplusplus
 #define row_major
-#include "glm\gtx\compatibility.hpp"
 namespace glm
 {
 struct _LightEntry

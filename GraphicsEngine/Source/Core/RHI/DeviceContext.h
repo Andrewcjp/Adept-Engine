@@ -46,6 +46,16 @@ struct EMGPUConnectionMode
 	};
 	CORE_API static const char* ToString(EMGPUConnectionMode::Type e);
 };
+struct EShaderSupportModel
+{
+	enum Type
+	{
+		SM5,
+		SM6,
+		Limit
+	};
+	CORE_API static const char* ToString(EShaderSupportModel::Type e);
+};
 struct CapabilityData
 {
 	bool SupportsCopyTimeStamps = false;
@@ -55,6 +65,7 @@ struct CapabilityData
 	//If driver supports multiple SLI group this will fail to use the HW fully.
 	EMGPUConnectionMode::Type ConnectionMode = EMGPUConnectionMode::None;
 	bool SupportsDepthBoundsTest = true;
+	EShaderSupportModel::Type HighestModel = EShaderSupportModel::SM5;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
 class  DeviceContext

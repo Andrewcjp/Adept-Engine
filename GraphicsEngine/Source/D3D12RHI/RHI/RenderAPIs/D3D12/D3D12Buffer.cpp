@@ -8,6 +8,7 @@
 #include "D3D12CBV.h"
 #include "D3D12CommandList.h"
 #include "DescriptorHeapManager.h"
+#include "DXMemoryManager.h"
 
 D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext * inDevice) :RHIBuffer(type)
 {
@@ -238,11 +239,11 @@ void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES E
 
 											// we are now creating a command with the command list to copy the data from
 											// the upload heap to the default heap
-		UpdateSubresources(Device->GetCopyList(), m_DataBuffer->GetResource(), m_UploadBuffer, 0, 0, 1, &Data);
+		UpdateSubresources(Device->GetCopyList(), m_DataBuffer->GetResource(), m_UploadBuffer->GetResource(), 0, 0, 1, &Data);
 
 		UploadComplete = true;
 		Device->NotifyWorkForCopyEngine();
-		D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(m_UploadBuffer);
+		RHI::AddToDeferredDeleteQueue(m_UploadBuffer);
 	}
 }
 
@@ -269,24 +270,34 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 {
 	TotalByteSize = ByteSize;//max size
 	ID3D12Resource* TempRes = nullptr;
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), // a default heap
-		D3D12_HEAP_FLAG_NONE, // no flags
-		&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE), // resource description for a buffer
-		D3D12_RESOURCE_STATE_COPY_DEST, // start in the copy destination state
-		nullptr, // optimized clear value must be null for this type of resource
-		IID_PPV_ARGS(&TempRes)));
-	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_COPY_DEST, Device);
+	//ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
+	//	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), // a default heap
+	//	D3D12_HEAP_FLAG_NONE, // no flags
+	//	&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE), // resource description for a buffer
+	//	D3D12_RESOURCE_STATE_COPY_DEST, // start in the copy destination state
+	//	nullptr, // optimized clear value must be null for this type of resource
+	//	IID_PPV_ARGS(&TempRes)));
+	//m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_COPY_DEST, Device);
+
+	AllocDesc D;
+	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
+	D.InitalState = D3D12_RESOURCE_STATE_COPY_DEST;
+	Device->GetMemoryManager()->AllocMeshData(D, &m_DataBuffer);
+
 	// we can give resource heaps a name so when we debug with the graphics debugger we know what resource we are looking at
 
 	// create upload heap to upload index buffer
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
-		D3D12_HEAP_FLAG_NONE, // no flags
-		&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize), // resource description for a buffer
-		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
-		nullptr,
-		IID_PPV_ARGS(&m_UploadBuffer)));
+	//ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
+	//	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
+	//	D3D12_HEAP_FLAG_NONE, // no flags
+	//	&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize), // resource description for a buffer
+	//	D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
+	//	nullptr,
+	//	IID_PPV_ARGS(&m_UploadBuffer)));
+	D = AllocDesc();
+	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
+	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	Device->GetMemoryManager()->AllocForUpload(D, &m_UploadBuffer);
 	D3D12Helpers::NameRHIObject(m_UploadBuffer, this, "(UPLOAD)");
 }
 

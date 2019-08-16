@@ -19,6 +19,7 @@ D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = D3D12RHI::DXConv(Device);
+//	NoShaderCache.SetValue(true);
 	CacheBlobs = !NoShaderCache.GetBoolValue();
 	if (D3D12RHI::DetectGPUDebugger())
 	{

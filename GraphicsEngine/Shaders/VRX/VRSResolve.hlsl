@@ -28,7 +28,7 @@ float4 GetColourForRate(int r)
 void main(uint3 DTid : SV_DispatchThreadID)
 {
 	float2 ScreenUV = (float2)DTid.xy / (float2)Resolution;
-	int ShadingRate = GetShadingRateIDForPixel(ScreenUV, Resolution);
+	int ShadingRate = GetShadingRateIDForPixel(ScreenUV, Resolution); 
 	if (!IsPixelSource(DTid.xy, GetShadingRate(ShadingRate)))
 	{
 		//find the corse pixel for this pixel

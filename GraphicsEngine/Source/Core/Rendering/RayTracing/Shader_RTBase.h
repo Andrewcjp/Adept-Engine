@@ -14,8 +14,7 @@ namespace ERTShaderType
 		Limit
 	};
 }
-#define IMPLEMENT_GLOBAL_SHADER_RT(Type)\
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSupported)
+
 class Shader_RTBase :public Shader
 {
 public:

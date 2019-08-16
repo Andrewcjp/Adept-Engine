@@ -7,7 +7,7 @@ Shader::Shader()
 Shader::Shader(DeviceContext * context)
 {
 	Device = context;
-	m_Shader = RHI::CreateShaderProgam(context);	
+	m_Shader = RHI::CreateShaderProgam(context);
 }
 
 Shader::~Shader()
@@ -54,7 +54,7 @@ int Shader::GetSlotForName(std::string name)
 		}
 	}
 #if _DEBUG
-	LogEnsureMsgf(false,"failed to find name in shader");
+	LogEnsureMsgf(false, "failed to find name in shader");
 #endif
 	return -1;
 }
@@ -66,6 +66,11 @@ int Shader::GetNameHash()
 		Hash = std::hash<std::string>{} (GetName());
 	}
 	return Hash;
+}
+
+bool Shader::IsShaderSupported_SM6(const ShaderComplieSettings & args)
+{
+	return args.ShaderModel == EShaderSupportModel::SM6;
 }
 
 const std::string Shader::GetName()

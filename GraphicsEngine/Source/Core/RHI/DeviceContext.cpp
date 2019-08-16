@@ -298,3 +298,15 @@ const char * EMGPUConnectionMode::ToString(EMGPUConnectionMode::Type e)
 	}
 	return "Unknown";
 }
+
+const char * EShaderSupportModel::ToString(EShaderSupportModel::Type e)
+{
+	switch (e)
+	{
+		case EShaderSupportModel::SM5:
+			return "SM5";
+		case EShaderSupportModel::SM6:
+			return "SM6";
+	}
+	return "Unknown";
+}

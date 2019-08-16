@@ -5,6 +5,7 @@ static ConsoleVariable DebugRate("VRS.ShowRate", 0, ECVarType::ConsoleAndLaunch)
 static ConsoleVariable ShowGrid("VRS.ShowGrid", 1, ECVarType::ConsoleAndLaunch);
 IMPLEMENT_GLOBAL_SHADER(Shader_VRSResolve);
 Shader_VRSResolve::Shader_VRSResolve(DeviceContext * device) :Shader(device)
+	, DataInst()
 {
 	m_Shader->AttachAndCompileShaderFromFile("VRX\\VRSResolve", EShaderType::SHADER_COMPUTE);
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
@@ -14,6 +15,7 @@ Shader_VRSResolve::Shader_VRSResolve(DeviceContext * device) :Shader(device)
 
 Shader_VRSResolve::~Shader_VRSResolve()
 {}
+
 void Shader_VRSResolve::BindBuffer(RHICommandList * list)
 {
 	DataInst.Resolution[0] = Screen::GetScaledRes().x;

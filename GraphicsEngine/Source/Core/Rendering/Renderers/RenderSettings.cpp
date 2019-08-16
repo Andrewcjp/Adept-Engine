@@ -1,8 +1,6 @@
 #include "RenderSettings.h"
 #include "Core/BaseWindow.h"
-#include "Core/Engine.h"
 #include "Rendering/Core/SceneRenderer.h"
-#include "WinLauncher.h"
 
 
 RenderSettings::RenderSettings()
@@ -15,7 +13,7 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = false;
+	RTSettings.Enabled = true;
 	//AllowMeshInstancing = true;
 
 	VRHMDMode = EVRHMDMode::Disabled;

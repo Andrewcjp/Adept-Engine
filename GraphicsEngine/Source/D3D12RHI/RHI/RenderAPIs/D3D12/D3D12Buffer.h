@@ -37,7 +37,7 @@ private:
 
 	D3D12CBV* CBV[MAX_GPU_DEVICE_COUNT][RHI::CPUFrameCount] = { nullptr };
 	EBufferAccessType::Type BufferAccesstype;
-	ID3D12Resource * m_UploadBuffer = nullptr;
+	GPUResource * m_UploadBuffer = nullptr;
 	GPUResource* m_DataBuffer = nullptr;
 	int ElementCount = 0;
 	int ElementSize = 0;

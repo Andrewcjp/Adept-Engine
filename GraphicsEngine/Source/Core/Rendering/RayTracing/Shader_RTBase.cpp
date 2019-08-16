@@ -41,5 +41,5 @@ void Shader_RTBase::InitRS()
 
 bool Shader_RTBase::IsShaderSupported(const ShaderComplieSettings& args)
 {
-	return args.RTSupported;
+	return args.RTSupported && args.ShaderModel == EShaderSupportModel::SM6;
 }
