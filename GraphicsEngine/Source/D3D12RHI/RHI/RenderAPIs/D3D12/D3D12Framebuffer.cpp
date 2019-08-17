@@ -453,27 +453,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	}
 	else
 	{
-#if 0
-		ThrowIfFailed(CurrentDevice->GetDevice()->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&ResourceDesc,
-			ResourceState,
-			&ClearValue,
-			IID_PPV_ARGS(&NewResource)
-		));
-		*Resourceptr = new GPUResource(NewResource, ResourceState, Device);
-#else
-		/*D3D12_RESOURCE_ALLOCATION_INFO info = CurrentDevice->GetDevice()->GetResourceAllocationInfo(0, 1, &ResourceDesc);*/
-		/*D3D12Helpers::GetResourceSizeData(m_width, m_height, Format, ResourceDesc.Dimension, IsDepthStencil);*/
 		AllocDesc Desc = AllocDesc(0, ResourceState, ResourceDesc.Flags, "FB");
 		Desc.ClearValue = ClearValue;
-		//Desc.TextureAllocData = info;
-		
 		Desc.ResourceDesc = ResourceDesc;
 		CurrentDevice->GetMemoryManager()->AllocFrameBuffer(Desc, Resourceptr);
 		NewResource = (*Resourceptr)->GetResource();
-#endif
 	}
 
 

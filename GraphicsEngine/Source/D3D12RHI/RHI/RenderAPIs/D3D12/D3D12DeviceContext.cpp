@@ -9,6 +9,7 @@
 #include "DXMemoryManager.h"
 #include "Core/Utils/NVAPIManager.h"
 #include "Core/Utils/StringUtil.h"
+#include "DXGPUTextureStreamer.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -330,6 +331,8 @@ void D3D12DeviceContext::InitDevice(int index)
 	SampleVideoMemoryInfo();
 	MemoryManager = new DXMemoryManager(this);
 	InitCopyListPool();
+	Streamer = new DXGPUTextureStreamer();
+	Streamer->Init(this);
 	PostInit();
 }
 

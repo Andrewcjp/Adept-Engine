@@ -14,6 +14,7 @@ struct EGPUType
 	RHI_API static std::string ToString(EGPUType::Type type);
 };
 class GPUStateCache;
+class GPUTextureStreamer;
 struct ERayTracingSupportType
 {
 	enum Type
@@ -121,6 +122,8 @@ public:
 	//events
 	RHI_API virtual void OnFrameStart();
 	RHI_API virtual void OnFrameEnd_PreSubmit();
+
+	GPUTextureStreamer* GetStreamer();
 protected:
 	int CurrentFrameIndex = 0;
 	RHI_API void PostInit();
@@ -146,6 +149,7 @@ protected:
 	std::vector<FrameBuffer*> BuffersWithTransfers;
 	uint GPUMask = 0;
 	EGPUType::Type GPUType = EGPUType::Limit;
+	GPUTextureStreamer* Streamer = nullptr;
 };
 
 class RHIGPUSyncEvent

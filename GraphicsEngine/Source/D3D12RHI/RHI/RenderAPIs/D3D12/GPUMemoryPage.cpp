@@ -40,7 +40,7 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 	if (LogPageAllocations.GetBoolValue())
 	{
 		//Log::LogMessage("Allocating " + std::to_string(desc.Size / 1e6) + "MB Called '" + desc.Name + "' in Segment " + EGPUMemorysegment::ToString(desc.Segment));
-		Log::LogMessage("Page '" + PageDesc.Name + "' Used " + StringUtils::ByteToMB(OffsetInPlacedHeap) + "/" + StringUtils::ByteToMB(PageDesc.Size) + " MB");
+		Log::LogMessage("Page '" + PageDesc.Name + "' Used " + StringUtils::ByteToMB(OffsetInPlacedHeap) + " / " + StringUtils::ByteToMB(PageDesc.Size));
 	}
 	return EAllocateResult::OK;
 }
@@ -57,16 +57,18 @@ bool GPUMemoryPage::CheckSpaceForResource(AllocDesc & desc)
 	{
 		return false;
 	}
-
 	return true;
 }
 
 void GPUMemoryPage::CreateResource(AllocDesc & desc, ID3D12Resource** Resource)
 {
 	D3D12_CLEAR_VALUE* value = nullptr;
-	if (desc.ResourceDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER)
+	//if (desc.ResourceDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER && PageDesc.PageAllocationType == EPageTypes::RTAndDS_Only)
 	{
-		value = &desc.ClearValue;
+		if (desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+		{
+			value = &desc.ClearValue;
+		}
 	}
 	ThrowIfFailed(Device->GetDevice()->CreatePlacedResource(PageHeap, OffsetInPlacedHeap, &desc.ResourceDesc, desc.InitalState, value, IID_PPV_ARGS(Resource)));
 	OffsetInPlacedHeap += D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes);
@@ -105,6 +107,8 @@ D3D12_HEAP_FLAGS GPUMemoryPage::GetFlagsForType(EPageTypes::Type T)
 		case EPageTypes::BuffersOnly:
 		case EPageTypes::BufferUploadOnly:
 			return D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
+		case EPageTypes::TexturesOnly:
+			return D3D12_HEAP_FLAG_NONE | D3D12_HEAP_FLAG_DENY_BUFFERS | D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES;
 	}
 	return D3D12_HEAP_FLAG_NONE;
 }
@@ -128,7 +132,12 @@ UINT GPUMemoryPage::GetSize() const
 	return PageDesc.Size;
 }
 
+UINT64 GPUMemoryPage::GetSizeInUse() const
+{
+	return OffsetInPlacedHeap;
+}
+
 void GPUMemoryPage::LogReport()
 {
-	Log::LogMessage("Page '" + PageDesc.Name + "' Has " + std::to_string(ContainedResources.size()) + " resources using " + StringUtils::ByteToMB(OffsetInPlacedHeap) + "/ " + StringUtils::ByteToMB(PageDesc.Size));
+	Log::LogMessage("Page '" + PageDesc.Name + "' Has " + std::to_string(ContainedResources.size()) + " resources using " + StringUtils::ByteToMB(OffsetInPlacedHeap) + " / " + StringUtils::ByteToMB(PageDesc.Size));
 }

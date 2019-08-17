@@ -12,6 +12,7 @@
 #include "D3D12CommandList.h"
 #include "DescriptorHeapManager.h"
 #include "DescriptorGroup.h"
+#include "DXMemoryManager.h"
 
 CreateChecker(D3D12Texture);
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
@@ -192,9 +193,6 @@ bool D3D12Texture::CLoad(AssetPathRef name)
 bool D3D12Texture::LoadDDS(std::string filename)
 {
 	UsingDDSLoad = true;
-	//ensure(srvHeap == nullptr);
-	//srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	//srvHeap->SetName(L"Texture SRV");
 	std::unique_ptr<uint8_t[]> ddsData;
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
 	bool IsCubeMap = false;
@@ -272,7 +270,7 @@ void D3D12Texture::BindToSlot(D3D12CommandList* list, int slot)
 void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 {
 	Description = desc;
-	ID3D12Resource* textureUploadHeap;
+	GPUResource* textureUploadHeap;
 	// Describe and create a Texture2D.
 	D3D12_RESOURCE_DESC textureDesc = {};
 
@@ -292,35 +290,29 @@ void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 		textureDesc.Format = D3D12Helpers::ConvertFormat(desc.Format);
 	}
 	textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	//format = textureDesc.Format;
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&textureDesc,
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,
-		IID_PPV_ARGS(&m_texture)));
 
+	AllocDesc D;
+	D.ResourceDesc = textureDesc;
+	D.InitalState = D3D12_RESOURCE_STATE_COPY_DEST;
+	Device->GetMemoryManager()->AllocTexture(D, &TextureResource);
+	m_texture = TextureResource->GetResource();
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, MipLevelsReadyNow);
 
-	// Create the GPU upload buffer.
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&textureUploadHeap)));
+	D = AllocDesc();
+	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	Device->GetMemoryManager()->AllocForUpload(D, &textureUploadHeap);
+	D3D12Helpers::NameRHIObject(textureUploadHeap, this, "(UPLOAD)");
+
 
 	D3D12_SUBRESOURCE_DATA textureData = {};
 	textureData.pData = desc.PtrToData;
 	textureData.RowPitch = desc.Width * desc.BitDepth;
 	textureData.SlicePitch = textureData.RowPitch * desc.Height;
 	Texturedatarray[0] = textureData;
-	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
+	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap->GetResource(), 0, 0, MipLevelsReadyNow, &Texturedatarray[0]);
 
-	TextureResource = new GPUResource(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, Device);
-	D3D12RHI::Instance->AddObjectToDeferredDeleteQueue(textureUploadHeap);
+	RHI::AddToDeferredDeleteQueue(textureUploadHeap);
 	Device->NotifyWorkForCopyEngine();
 	m_texture->SetName(L"Texture");
 	textureUploadHeap->SetName(L"Upload");

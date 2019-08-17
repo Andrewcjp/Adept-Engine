@@ -11,12 +11,15 @@ public:
 	void AddFrameBufferPage(int size);
 	void AddUploadPage(int size);
 	void AddMeshDataPage(int size);
+	void AddTexturePage(int size);
 	~DXMemoryManager();
 	EAllocateResult::Type AllocTemporary(AllocDesc & desc, GPUResource** ppResource);
 	EAllocateResult::Type AllocFrameBuffer(AllocDesc & desc, GPUResource ** ppResource);
 	EAllocateResult::Type AllocForUpload(AllocDesc & desc, GPUResource ** ppResource);
 	EAllocateResult::Type AllocMeshData(AllocDesc & desc, GPUResource ** ppResource);
+	EAllocateResult::Type AllocTexture(AllocDesc & desc, GPUResource ** ppResource);
 	EAllocateResult::Type AllocPage(AllocDesc & desc, GPUMemoryPage** Page);
+	void UpdateTotalAlloc();
 	void LogMemoryReport();
 private:
 	D3D12DeviceContext* Device = nullptr;
@@ -30,5 +33,8 @@ private:
 
 	std::vector<GPUMemoryPage*> UploadPages;
 	std::vector<GPUMemoryPage*> MeshDataPages;
+
+	UINT64 TotalPageAllocated = 0;
+	UINT64 TotalPageUsed = 0;
 };
 
