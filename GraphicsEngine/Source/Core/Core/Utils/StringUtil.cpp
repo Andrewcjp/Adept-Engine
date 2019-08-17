@@ -80,12 +80,12 @@ std::string StringUtils::ToString(float value, int Places /*= 2*/)
 
 std::string StringUtils::ByteToMB(uint64_t value)
 {
-	return StringUtils::ToString((float)(value) / 1024 / 1024) + "MB ";
+	return StringUtils::ToString((float)(value) / 1024 / 1024) + "MB";
 }
 
 std::string StringUtils::ByteToGB(uint64_t value)
 {
-	return StringUtils::ToString((float)(value) / 1024 / 1024 / 1024) + "GB ";
+	return StringUtils::ToString((float)(value) / 1024 / 1024 / 1024) + "GB";
 }
 
 std::string StringUtils::BoolToString(bool value)

@@ -18,13 +18,15 @@ namespace EPageTypes
 		RTAndDS_Only,
 		BuffersOnly,
 		BufferUploadOnly,
+		TexturesOnly,
 		Limit
 	};
 }
 struct AllocDesc
 {
 	AllocDesc() {};
-	AllocDesc(UINT size, D3D12_RESOURCE_STATES State = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE,const std::string& name = std::string(), EGPUMemorysegment::Type seg = EGPUMemorysegment::Local);
+	AllocDesc(UINT size, D3D12_RESOURCE_STATES State = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE,
+		const std::string& name = std::string(), EGPUMemorysegment::Type seg = EGPUMemorysegment::Local);
 	UINT Size = 0;
 	UINT Alignment = 0;
 	D3D12_RESOURCE_STATES InitalState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;

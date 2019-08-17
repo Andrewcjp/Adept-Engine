@@ -10,7 +10,7 @@ DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 	Log::LogMessage("Booting On Device With " + StringUtils::ByteToGB(Stats.LocalSegment_TotalBytes) + "Local " +
 		StringUtils::ByteToGB(Stats.HostSegment_TotalBytes) + "Host");
 
-	AllocDesc A = AllocDesc(1024 * 1024 * 10, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	AllocDesc A = AllocDesc(1024 * 1024 * 10);
 	A.PageAllocationType = EPageTypes::BuffersOnly;
 	A.Name = "Scratch Space Page";
 	AllocPage(A, &StructScratchSpace);
@@ -18,6 +18,7 @@ DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 	AddFrameBufferPage(1000 * 1e6);
 	AddUploadPage(100 * 1e6);
 	AddMeshDataPage(100 * 1e6);
+	AddTexturePage(100 * 1e6);
 }
 
 void DXMemoryManager::AddFrameBufferPage(int size)
@@ -48,6 +49,16 @@ void DXMemoryManager::AddMeshDataPage(int size)
 	GPUMemoryPage* Page = nullptr;
 	AllocPage(A, &Page);
 	MeshDataPages.push_back(Page);
+}
+
+void DXMemoryManager::AddTexturePage(int size)
+{
+	AllocDesc A = AllocDesc(size);
+	A.PageAllocationType = EPageTypes::TexturesOnly;
+	A.Name = "Texture page";
+	GPUMemoryPage* Page = nullptr;
+	AllocPage(A, &Page);
+	TexturePages.push_back(Page);
 }
 
 DXMemoryManager::~DXMemoryManager()
@@ -84,6 +95,13 @@ EAllocateResult::Type DXMemoryManager::AllocMeshData(AllocDesc & desc, GPUResour
 	return Error;
 }
 
+EAllocateResult::Type DXMemoryManager::AllocTexture(AllocDesc & desc, GPUResource ** ppResource)
+{
+	EAllocateResult::Type Error = TexturePages[0]->Allocate(desc, ppResource);
+	ensure(Error == EAllocateResult::OK);
+	return Error;
+}
+
 EAllocateResult::Type DXMemoryManager::AllocPage(AllocDesc & desc, GPUMemoryPage ** Page)
 {
 	*Page = new GPUMemoryPage(desc, Device);
@@ -96,13 +114,30 @@ EAllocateResult::Type DXMemoryManager::AllocPage(AllocDesc & desc, GPUMemoryPage
 	return EAllocateResult::OK;
 }
 
+void DXMemoryManager::UpdateTotalAlloc()
+{
+	TotalPageAllocated = 0;
+	TotalPageUsed = 0;
+	for (GPUMemoryPage* P : Pages)
+	{
+		TotalPageAllocated += P->GetSize();
+		TotalPageUsed += P->GetSizeInUse();
+	}
+}
+
 void DXMemoryManager::LogMemoryReport()
 {
+	UpdateTotalAlloc();
 	Log::LogMessage("***GPU" + std::to_string(Device->GetDeviceIndex()) + " Memory Report***");
 	for (GPUMemoryPage* P : Pages)
 	{
 		P->LogReport();
 	}
+	Log::LogMessage("Total " + StringUtils::ByteToMB(TotalPageUsed) + " of " + StringUtils::ByteToMB(TotalPageAllocated) + " allocated (" +
+		StringUtils::ToString(((float)TotalPageUsed / TotalPageAllocated) * 100) + "%)");
+
+	Log::LogMessage("Device Total " + StringUtils::ByteToMB(TotalPageAllocated) + " of " + StringUtils::ByteToMB(Device->GetMemoryData().LocalSegment_TotalBytes) +
+		" (" + StringUtils::ToString(((float)TotalPageAllocated / Device->GetMemoryData().LocalSegment_TotalBytes) * 100) + "%)");
 	Log::LogMessage("***End GPU" + std::to_string(Device->GetDeviceIndex()) + " Memory Report***");
 }
 

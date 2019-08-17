@@ -222,6 +222,11 @@ void DeviceContext::OnFrameStart()
 void DeviceContext::OnFrameEnd_PreSubmit()
 {}
 
+GPUTextureStreamer * DeviceContext::GetStreamer()
+{
+	return Streamer;
+}
+
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");
