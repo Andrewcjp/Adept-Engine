@@ -133,3 +133,5 @@ void UNUSED_PARAM(T const&)
 #define RESTRICT __restrict
 #define PREPROCESSOR_JOIN(x, y) PREPROCESSOR_JOIN_INNER(x, y)
 #define PREPROCESSOR_JOIN_INNER(x, y) x##y
+
+#define ADNOP void __nop();

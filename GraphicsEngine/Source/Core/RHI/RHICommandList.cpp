@@ -208,6 +208,11 @@ RHIPipeLineStateObject * RHICommandList::GetCurrnetPSO()
 	return CurrentPSO;
 }
 
+ECommandListType::Type RHICommandList::GetListType() const
+{
+	return ListType;
+}
+
 
 
 RHIUAV * RHIBuffer::GetUAV()

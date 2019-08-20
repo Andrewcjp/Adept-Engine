@@ -5,7 +5,7 @@ const int Major = 0;
 // New features added, large Updates
 const int Minor = 1;
 // minor fixes, update, performance tweaks etc
-const int Revision = 40;
+const int Revision = 155;
 
 long Version::GetVersionNumber()
 {
@@ -41,6 +41,7 @@ std::string Version::GetBuildVersion()
 {
 	return std::to_string(GITCOMMIT);
 }
+
 int Version::GetBuildNumber()
 {
 	return GITCOMMIT;

@@ -147,6 +147,7 @@ public:
 	void SetVRRShadingRate(int RateIndex);
 	void SetVRXShadingRateImage(FrameBuffer* Target);
 	RHIPipeLineStateObject* GetCurrnetPSO();
+	ECommandListType::Type GetListType() const;
 protected:
 	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate) {};
 	virtual void SetVRSShadingRateImageNative(FrameBuffer* Target) {};

@@ -45,7 +45,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	SetTimerName(EGPUTIMERS::GPU0WaitOnGPU1, "GPU0 Wait On GPU1");
 	SetTimerName(EGPUTIMERS::CubemapCapture, "Cubemap Capture");
 	SetTimerName(EGPUTIMERS::DebugRender, "Debug Render");
-	SetTimerName(EGPUTIMERS::RT_Trace, "RayTrace");
+	SetTimerName(EGPUTIMERS::RT_Trace, "RayTrace", ECommandListType::RayTracing);
 	SetTimerName(EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy", ECommandListType::Copy);
 	SetTimerName(EGPUCOPYTIMERS::SFRMerge, "SFR Merge", ECommandListType::Copy);
 	SetTimerName(EGPUCOPYTIMERS::ShadowCopy, "Shadow Copy", ECommandListType::Copy);
@@ -107,9 +107,19 @@ void D3D12TimeManager::UpdateTimers()
 		{
 			Offset = ConvertTimeStampToMS(TimerQueries[i].TimerQueries[0]->Result - StartTimeStamp);
 		}
+		GPUTimer* GT = RHITimeManager::GetTimer(Q->name, Device);
+		if (GT != nullptr)
+		{
+			GT->Clear();
+			for (D3D12Query* Q : TimerQueries[i].TimerQueries)
+			{
+				GT->AddResults(Q->Result);
+			}			
+		}
 		PerfManager::Get()->UpdateStat(id, Q->TotalTime, Offset);
 		Q->TimerQueries.clear();
 	}
+	PushToPerfManager();
 #endif
 }
 
@@ -157,6 +167,7 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	}
 	ensure(index > -1);
 	D3D12CommandList* List = D3D12RHI::DXConv(CommandList);
+	GetOrCreateTimer(GetTimerName(index), CommandList->GetDevice(), CommandList->GetListType());
 	StartTimer(List, index, List->IsCopyList());
 #if PIX_ENABLED
 	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())

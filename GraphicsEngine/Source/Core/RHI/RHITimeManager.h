@@ -2,6 +2,28 @@
 
 #include "RHI_inc_fwd.h"
 #include "RHITypes.h"
+#include <unordered_map>
+
+class MovingAverage;
+//GPU timers are handled as a special case
+struct GPUTimer
+{
+	std::vector<uint64_t> Stamps;
+	
+	std::string name;
+	DeviceContext* Context = nullptr;
+	ECommandListType::Type Type = ECommandListType::Limit;
+	RHI_API void Clear();
+	RHI_API void AddResults(uint64_t start);
+	std::vector<MovingAverage*> NormalisedStamps;
+	void Normalise(uint64_t StartStamp,uint64_t endstamp);
+};
+struct GPUTimerPair
+{
+	float Stamps[2];
+	GPUTimer* Owner = nullptr;
+	int Offset = 0;
+};
 class  RHITimeManager
 {
 public:
@@ -15,12 +37,19 @@ public:
 	RHI_API virtual void EndTotalGPUTimer(RHICommandList * ComandList) = 0;
 	RHI_API virtual float GetTotalTime() = 0;
 	RHI_API int GetGPUTimerId(std::string name);
+	RHI_API GPUTimer* GetTimer(std::string name, DeviceContext* D);
+	RHI_API GPUTimer* GetOrCreateTimer(std::string name, DeviceContext* D, ECommandListType::Type type);
+	RHI_API std::string GetTimerName(int id);
+	std::vector<GPUTimerPair*> GetGPUTimers();
 protected:
+	RHI_API void PushToPerfManager();
+	void AddTimer(GPUTimer* Data, std::string name, DeviceContext* D);
 	DeviceContext * Context = nullptr;
 	const int CopyOffset = EGPUTIMERS::LIMIT;
 	std::map<std::string, int> GPUTimerMap;
-	int AssignedIdCount = EGPUTIMERS::LIMIT + EGPUCOPYTIMERS::LIMIT-1;
+	int AssignedIdCount = EGPUTIMERS::LIMIT + EGPUCOPYTIMERS::LIMIT - 1;
 	std::vector<std::string> TimerNames;
+	std::map<std::pair<std::string, DeviceContext*>, GPUTimer*> Timers;
 };
 
 struct ScopedGPUTimer
