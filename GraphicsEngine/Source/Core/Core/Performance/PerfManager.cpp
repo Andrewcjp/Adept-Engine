@@ -503,6 +503,16 @@ std::vector<TimerData*> PerfManager::GetAllGPUTimers(std::string group)
 		}
 		Output.push_back(&it->second);
 	}
+	if (Output[0]->name != "Total GPU")
+	{
+		for (int i = 0; i < Output.size(); i++)
+		{
+			if (Output[i]->name == "Total GPU")
+			{
+				std::swap(Output[i], Output[0]);
+			}
+		}
+	}
 	return Output;
 }
 
