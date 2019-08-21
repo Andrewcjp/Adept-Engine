@@ -8,11 +8,11 @@
 #include "RHI/RHITimeManager.h"
 #include "RHI/DeviceContext.h"
 #include <algorithm>
-static ConsoleVariable IsActive("GPG", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable IsActive("GPG.enabled", 0, ECVarType::ConsoleAndLaunch);
 
 GPUPerformanceGraph::GPUPerformanceGraph()
 {
-	StartPos = glm::vec3(250, 150, 0);
+	StartPos = glm::vec3(250, 500, 0);
 	Scale = 100;
 }
 
@@ -25,17 +25,26 @@ void GPUPerformanceGraph::Render()
 	{
 		return;
 	}
+	LastBarOffset = 0;
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
-		RenderGPU(i);
+		RenderGPU(i, ECommandListType::Graphics);
+		RenderGPU(i, ECommandListType::Compute);
+#if SEPERATE_RAYTRACING_TIMERS
+		RenderGPU(i, ECommandListType::RayTracing);
+#endif
+		RenderGPU(i, ECommandListType::Copy);
 	}
 }
 
-void GPUPerformanceGraph::RenderGPU(int index)
+void GPUPerformanceGraph::RenderGPU(int index, ECommandListType::Type Listtype)
 {
-	std::vector<GPUTimerPair*> data = RHI::GetDeviceContext(index)->GetTimeManager()->GetGPUTimers();
+	std::vector<GPUTimerPair*> data = RHI::GetDeviceContext(index)->GetTimeManager()->GetGPUTimers(Listtype);
 	if (data.size() == 0)
 	{
+		MainBarHeight = 0.0f;
+		const glm::vec3 LocalPos = StartPos + glm::vec3(0, -index * BarSpacing * 3, 0);
+		DrawBaseLine(PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Total GPU" + std::to_string(index))), index, LocalPos, Listtype);
 		return;
 	}
 	std::vector<std::pair<float, GPUTimerPair*>> Timeline;
@@ -83,9 +92,9 @@ void GPUPerformanceGraph::RenderGPU(int index)
 		MaxStackSize = std::max(MaxStackSize, (int)Stack.size());
 		Timeline[i].second->Offset = Off;
 	}
-	const glm::vec3 LocalPos = StartPos + glm::vec3(0, index * 30 * 3, 0);
-	MainBarHeight = MaxStackSize * 20.0f;
-	DrawBaseLine(PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Total GPU" + std::to_string(index))), index, LocalPos);
+	const glm::vec3 LocalPos = StartPos + glm::vec3(0, -index * BarSpacing * 3, 0);
+	MainBarHeight = MaxStackSize * StackBarOffset;
+	DrawBaseLine(PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Total GPU" + std::to_string(index))), index, LocalPos, Listtype);
 	for (int i = 0; i < data.size(); i++)
 	{
 		DrawLine(data[i], LocalPos);
@@ -107,8 +116,8 @@ void GPUPerformanceGraph::DrawLine(GPUTimerPair * data, glm::vec3 LocalOffset)
 	float CurrnetValue = data->Stamps[0] * maxV;
 	float Endvalue = data->Stamps[1] * maxV;
 	float Length = Endvalue - CurrnetValue;
-	SetOffset(data->Owner, LocalOffset);
-	LocalOffset.y -= data->Offset * 20.0f;
+	LocalOffset.y -= BarOffsets[data->Owner->Type];
+	LocalOffset.y -= data->Offset * StackBarOffset;
 	const glm::vec3 Colour = glm::vec3(1);
 	const glm::vec3 EndPos = LocalOffset + glm::vec3(Endvalue, 0, 0);
 	TwoDrawer->AddLine(LocalOffset + glm::vec3(CurrnetValue, 0, 0), EndPos, Colour);
@@ -121,7 +130,7 @@ void GPUPerformanceGraph::DrawLine(GPUTimerPair * data, glm::vec3 LocalOffset)
 	{
 		TextRenderer::instance->RenderText(data->Owner->name, LocalOffset.x + CurrnetValue + 4.0f, EndPos.y + 5.0f, TextScale, Colour);
 	}
-	else if (Length > TextCharSize * 2.0f)
+	else if (Length > TextCharSize * (EnableFlags ? 5.0f : 2.0f))
 	{
 		int count = (int)std::ceil((TextLength - Length) / TextCharSize);
 		std::string Final = data->Owner->name;
@@ -129,34 +138,55 @@ void GPUPerformanceGraph::DrawLine(GPUTimerPair * data, glm::vec3 LocalOffset)
 		const float newtextLength = Final.length() * TextCharSize;
 		TextRenderer::instance->RenderText(Final, LocalOffset.x + CurrnetValue + 4.0f, EndPos.y + 5.0f, TextScale, Colour);
 	}
-}
-
-void GPUPerformanceGraph::SetOffset(GPUTimer * data, glm::vec3 &LocalOffset)
-{
-	if (data->Type == ECommandListType::Copy)
+	else if (data->Offset == 0 && EnableFlags)
 	{
-		LocalOffset.y -= MainBarHeight + 30.0f * 2;
-	}
-	else if (data->Type == ECommandListType::Compute || data->Type == ECommandListType::RayTracing)
-	{
-		LocalOffset.y -= MainBarHeight + 30.0f;
+		TextRenderer::instance->RenderText(data->Owner->name, LocalOffset.x + CurrnetValue + 4.0f, EndPos.y + 5.0f + FlagTextOffset, TextScale, Colour);
+		TwoDrawer->AddLine(LocalOffset + glm::vec3(CurrnetValue, 0, 0), LocalOffset + glm::vec3(CurrnetValue, 5.0f + FlagTextOffset, 0), Colour);
 	}
 }
 
-void GPUPerformanceGraph::DrawBaseLine(TimerData* Timer, int GPUindex, glm::vec3 pos)
+
+
+void GPUPerformanceGraph::DrawBaseLine(TimerData * Timer, int GPUindex, glm::vec3 pos, ECommandListType::Type ListType)
 {
 	float MaxValue = Timer->AVG->GetCurrentAverage()*Scale;
 	maxV = MaxValue;
-	const glm::vec3 Offsetpos = pos + glm::vec3(Timer->GPUStartOffset * Scale, 0.0f, 0.0f);
+	glm::vec3 Offsetpos = pos + glm::vec3(Timer->GPUStartOffset * Scale, 0.0f, 0.0f);
 	const glm::vec3 Colour = glm::vec3(0);
-	const glm::vec3 EndPos = Offsetpos + glm::vec3(MaxValue, 0, 0);
-	TwoDrawer->AddLine(Offsetpos, EndPos, Colour);
-	TwoDrawer->AddLine(Offsetpos + glm::vec3(0, EndLineHeight, 0), EndPos + glm::vec3(0, EndLineHeight, 0), Colour);
-	TwoDrawer->AddLine(Offsetpos + glm::vec3(0, 0, 0), Offsetpos + glm::vec3(0, EndLineHeight, 0), Colour);
-	TwoDrawer->AddLine(EndPos + glm::vec3(0, 0, 0), EndPos + glm::vec3(0, EndLineHeight, 0), Colour);
+	glm::vec3 EndPos = Offsetpos + glm::vec3(MaxValue, 0, 0);
 	const float Offset = 70.0f* 2.5;
-	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Graphics", pos.x - Offset, EndPos.y + 5.0f, TextScale, glm::vec3(1));
-	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Compute", pos.x - Offset, EndPos.y + 5.0f - MainBarHeight - 30.0f, TextScale, glm::vec3(1));
-	TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Copy", pos.x - Offset, EndPos.y + 5.0f - MainBarHeight - 30.0f * 2, TextScale, glm::vec3(1));
-	TextRenderer::instance->RenderText(StringUtils::ToString(MaxValue / Scale) + "ms", EndPos.x + 10.0f, EndPos.y - 5.0f + 10.0f, TextScale, glm::vec3(1));
+
+	if (ListType == ECommandListType::Graphics)
+	{
+		Offsetpos.y -= LastBarOffset;
+		EndPos.y -= LastBarOffset;
+		TwoDrawer->AddLine(Offsetpos, EndPos, Colour);
+		TwoDrawer->AddLine(Offsetpos + glm::vec3(0, EndLineHeight, 0), EndPos + glm::vec3(0, EndLineHeight, 0), Colour);
+		TwoDrawer->AddLine(Offsetpos + glm::vec3(0, 0, 0), Offsetpos + glm::vec3(0, EndLineHeight, 0), Colour);
+		TwoDrawer->AddLine(EndPos + glm::vec3(0, 0, 0), EndPos + glm::vec3(0, EndLineHeight, 0), Colour);
+		BarOffsets[ECommandListType::Graphics] = 0.0f;
+		TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Graphics", pos.x - Offset, EndPos.y + 5.0f, TextScale, glm::vec3(1));
+		TextRenderer::instance->RenderText(StringUtils::ToString(MaxValue / Scale) + "ms", EndPos.x + 10.0f, EndPos.y - 5.0f + 10.0f, TextScale, glm::vec3(1));
+	}
+	else if (ListType == ECommandListType::Compute)
+	{
+		LastBarOffset += MainBarHeight + BarSpacing;
+		BarOffsets[ECommandListType::Compute] = LastBarOffset;
+		TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Compute", pos.x - Offset, EndPos.y + 5.0f - LastBarOffset, TextScale, glm::vec3(1));
+	}
+#if SEPERATE_RAYTRACING_TIMERS
+	else if (ListType == ECommandListType::RayTracing)
+	{
+		LastBarOffset += MainBarHeight + BarSpacing;
+		BarOffsets[ECommandListType::RayTracing] = LastBarOffset;
+		TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " RayTracing", pos.x - Offset, EndPos.y + 5.0f - LastBarOffset, TextScale, glm::vec3(1));
+	}
+#endif
+	else if (ListType == ECommandListType::Copy)
+	{
+		LastBarOffset += MainBarHeight + BarSpacing;
+		BarOffsets[ECommandListType::Copy] = LastBarOffset;
+		TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Copy", pos.x - Offset, EndPos.y + 5.0f - LastBarOffset, TextScale, glm::vec3(1));
+	}
+
 }
