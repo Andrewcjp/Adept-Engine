@@ -2,7 +2,8 @@
 #include "RHITimeManager.h"
 #include "DeviceContext.h"
 #include "Core\Performance\PerfManager.h"
-
+static ConsoleVariable CaptureFullTimers("GPUPerf.PerDrawTimers", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable Paused("GPUPerf.Pause", 0, ECVarType::ConsoleAndLaunch);
 RHITimeManager::RHITimeManager(DeviceContext * context)
 {
 	Context = context;
@@ -12,8 +13,14 @@ RHITimeManager::RHITimeManager(DeviceContext * context)
 RHITimeManager::~RHITimeManager()
 {}
 
-ScopedGPUTimer::ScopedGPUTimer(RHICommandList * List, std::string Name)
+ScopedGPUTimer::ScopedGPUTimer(RHICommandList* List, std::string Name, bool PerDraw /*= false*/)
 {
+#if PERDRAWTIMER
+	if (!CaptureFullTimers.GetBoolValue() && PerDraw)
+	{
+		return;
+	}
+#endif
 	cmdlist = List;
 	GPUTimerId = List->GetDevice()->GetTimeManager()->GetGPUTimerId(Name);
 	PerfManager::Get()->AddGPUTimer((Name + std::to_string(cmdlist->GetDevice()->GetDeviceIndex())).c_str(), PerfManager::Get()->GetGroupId("GPU_" + std::to_string(cmdlist->GetDevice()->GetDeviceIndex())));
@@ -24,7 +31,10 @@ ScopedGPUTimer::ScopedGPUTimer(RHICommandList * List, std::string Name)
 
 ScopedGPUTimer::~ScopedGPUTimer()
 {
-	cmdlist->EndTimer(GPUTimerId);
+	if (cmdlist != nullptr)
+	{
+		cmdlist->EndTimer(GPUTimerId);
+	}
 }
 
 int RHITimeManager::GetGPUTimerId(std::string name)
@@ -73,28 +83,40 @@ std::string RHITimeManager::GetTimerName(int id)
 	return "";
 }
 
-std::vector<GPUTimerPair*> RHITimeManager::GetGPUTimers()
+std::vector<GPUTimerPair*> RHITimeManager::GetGPUTimers(ECommandListType::Type type)
 {
 	std::vector<GPUTimerPair*> out;
 	for (auto itor = Timers.begin(); itor != Timers.end(); itor++)
 	{
 		if (itor->first.first != TimerNames[0])
 		{
-			for (int i = 0; i < itor->second->NormalisedStamps.size(); i += 2)
+			if (itor->second->Type == type)
 			{
-				GPUTimerPair* Pair = new GPUTimerPair();
-				Pair->Stamps[0] = itor->second->NormalisedStamps[i]->GetCurrentAverage();
-				Pair->Stamps[1] = itor->second->NormalisedStamps[i + 1]->GetCurrentAverage();
-				Pair->Owner = itor->second;
-				out.push_back(Pair);
+				for (int i = 0; i < itor->second->NormalisedStamps.size(); i += 2)
+				{
+					GPUTimerPair* Pair = new GPUTimerPair();
+					Pair->Stamps[0] = itor->second->NormalisedStamps[i]->GetCurrentAverage();
+					Pair->Stamps[1] = itor->second->NormalisedStamps[i + 1]->GetCurrentAverage();
+					Pair->Owner = itor->second;
+					out.push_back(Pair);
+				}
 			}
 		}
 	}
 	return out;
 }
 
+bool RHITimeManager::IsRunning()
+{
+	return !Paused.GetBoolValue();
+}
+
 void RHITimeManager::PushToPerfManager()
 {
+	if (!IsRunning())
+	{
+		return;
+	}
 	GPUTimer* MainTimer = GetTimer(TimerNames[0], Context);
 	for (auto itor = Timers.begin(); itor != Timers.end(); itor++)
 	{

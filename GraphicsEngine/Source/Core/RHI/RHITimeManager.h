@@ -3,7 +3,8 @@
 #include "RHI_inc_fwd.h"
 #include "RHITypes.h"
 #include <unordered_map>
-
+#define SEPERATE_RAYTRACING_TIMERS 0
+#define PERDRAWTIMING 0
 class MovingAverage;
 //GPU timers are handled as a special case
 struct GPUTimer
@@ -40,7 +41,8 @@ public:
 	RHI_API GPUTimer* GetTimer(std::string name, DeviceContext* D);
 	RHI_API GPUTimer* GetOrCreateTimer(std::string name, DeviceContext* D, ECommandListType::Type type);
 	RHI_API std::string GetTimerName(int id);
-	std::vector<GPUTimerPair*> GetGPUTimers();
+	std::vector<GPUTimerPair*> GetGPUTimers(ECommandListType::Type type);
+	RHI_API bool IsRunning();
 protected:
 	RHI_API void PushToPerfManager();
 	void AddTimer(GPUTimer* Data, std::string name, DeviceContext* D);
@@ -55,7 +57,7 @@ protected:
 struct ScopedGPUTimer
 {
 public:
-	ScopedGPUTimer(RHICommandList* List, std::string Name);
+	ScopedGPUTimer(RHICommandList* List, std::string Name, bool PerDraw = false);
 	~ScopedGPUTimer();
 private:
 	int GPUTimerId = 0;
@@ -63,3 +65,8 @@ private:
 };
 
 #define DECALRE_SCOPEDGPUCOUNTER(list,name) ScopedGPUTimer PREPROCESSOR_JOIN(COUNTER,__LINE__)(list,name);
+#if PERDRAWTIMING
+#define PERDRAWTIMER(list,name) ScopedGPUTimer PREPROCESSOR_JOIN(COUNTER,__LINE__)(list,name,true);
+#else
+#define PERDRAWTIMER(list,name) 
+#endif

@@ -15,5 +15,6 @@ public:
 	int NumInstances = 0;
 	Material* TargetMaterial = nullptr;
 	void SubmitDraw(RHICommandList* Cmd);
+	GameObject* Object = nullptr;
 };
 

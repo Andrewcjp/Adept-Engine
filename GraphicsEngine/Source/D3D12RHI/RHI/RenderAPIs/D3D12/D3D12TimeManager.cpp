@@ -76,6 +76,10 @@ void D3D12TimeManager::UpdateTimers()
 	UpdateTimeStampFreq();
 	Device->GetTimeStampHeap()->ReadData();
 	ResolveAllTimers();
+	if (!IsRunning())
+	{
+		return;
+	}
 	for (int i = 0; i < TimerQueries.size(); i++)
 	{
 		if (TimerQueries[i].TimerQueries.size() < 2)
