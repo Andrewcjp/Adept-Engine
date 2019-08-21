@@ -2,6 +2,7 @@
 #include "GPUResource.h"
 #include "D3D12DeviceContext.h"
 #include "GPUMemoryPage.h"
+#include "Core\Maths\Math.h"
 static ConsoleVariable LogAllocations("VMEM.LogPages", 1, ECVarType::ConsoleAndLaunch);
 DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 {
@@ -15,10 +16,10 @@ DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 	A.Name = "Scratch Space Page";
 	AllocPage(A, &StructScratchSpace);
 
-	AddFrameBufferPage(1000 * 1e6);
-	AddUploadPage(100 * 1e6);
-	AddMeshDataPage(100 * 1e6);
-	AddTexturePage(100 * 1e6);
+	AddFrameBufferPage(Math::MBToBytes<int>(1000));
+	AddUploadPage(Math::MBToBytes<int>(100));
+	AddMeshDataPage(Math::MBToBytes<int>(100));
+	AddTexturePage(Math::MBToBytes<int>(100));
 }
 
 void DXMemoryManager::AddFrameBufferPage(int size)

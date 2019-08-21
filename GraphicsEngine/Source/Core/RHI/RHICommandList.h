@@ -3,6 +3,7 @@
 #include "BaseTexture.h"
 class DeviceContext;
 class HighLevelAccelerationStructure;
+class RHIStateObject;
 struct RHIBufferDesc
 {
 	int ElementCount = 0;

@@ -176,14 +176,22 @@ void RenderGraph::CreateDefTestgraph()
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	SSAOBuffer->SetFrameBufferDesc(Desc);
 
+
+	ZPrePassNode* PreZ = new ZPrePassNode();
+	RootNode = PreZ;
+	ExposeItem(PreZ, "PREZ");
+	PreZ->GetInput(0)->SetStore(GBufferNode);
+
+
 	GBufferNode->StoreType = EStorageType::Framebuffer;
 	GBufferNode->DataFormat = StorageFormats::DefaultFormat;
-	RootNode = new GBufferWriteNode();
-	RootNode->GetInput(0)->SetStore(GBufferNode);
+	GBufferWriteNode* WriteNode = new GBufferWriteNode();
+	LinkNode(PreZ, WriteNode);
+	WriteNode->GetInput(0)->SetLink(PreZ->GetOutput(0));
 
 	ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
 	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
-	RootNode->LinkToNode(ShadowUpdate);
+	WriteNode->LinkToNode(ShadowUpdate);
 
 	UpdateReflectionsNode* UpdateProbesNode = new UpdateReflectionsNode();
 	UpdateProbesNode->GetInput(0)->SetStore(ShadowDataNode);

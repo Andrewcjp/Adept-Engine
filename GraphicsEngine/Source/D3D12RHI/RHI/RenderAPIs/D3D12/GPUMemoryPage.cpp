@@ -4,7 +4,7 @@
 #include "D3D12Helpers.h"
 #include "GPUResource.h"
 #include "D3D12DeviceContext.h"
-static ConsoleVariable LogPageAllocations("VMEM.LogAlloc", 1, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable LogPageAllocations("VMEM.LogAlloc", 0, ECVarType::ConsoleAndLaunch);
 GPUMemoryPage::GPUMemoryPage(AllocDesc & desc, D3D12DeviceContext* context)
 {
 	PageDesc = desc;

@@ -483,7 +483,7 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 	//compute work could run past the end of a frame?
 	if (RHI::GetFrameCount() == 1)
 	{
-		GetMemoryManager()->LogMemoryReport();
+	//	GetMemoryManager()->LogMemoryReport();
 	}
 }
 

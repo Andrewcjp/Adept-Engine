@@ -5,7 +5,7 @@ const int Major = 0;
 // New features added, large Updates
 const int Minor = 1;
 // minor fixes, update, performance tweaks etc
-const int Revision = 155;
+const int Revision = 160;
 
 long Version::GetVersionNumber()
 {

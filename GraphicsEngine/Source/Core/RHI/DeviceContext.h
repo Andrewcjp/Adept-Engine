@@ -19,9 +19,9 @@ struct ERayTracingSupportType
 {
 	enum Type
 	{
-		Hardware,
-		DriverBased,
 		None,
+		DriverBased,
+		Hardware,				
 		Limit
 	};
 	CORE_API static const char* ToString(ERayTracingSupportType::Type e);

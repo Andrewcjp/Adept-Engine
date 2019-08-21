@@ -1,6 +1,8 @@
 #include "RenderSettings.h"
 #include "Core/BaseWindow.h"
 #include "Rendering/Core/SceneRenderer.h"
+#include "RHI/DeviceContext.h"
+#include "Core/Maths/Math.h"
 
 
 RenderSettings::RenderSettings()
@@ -35,6 +37,17 @@ void RenderSettings::ValidateSettings()
 const VRXSettings& RenderSettings::GetVRXSettings()
 {
 	return RHI::GetRenderSettings()->VRXSet;
+}
+
+void RenderSettings::MaxSupportedCaps(CapabilityData& MaxData)
+{
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		const CapabilityData& Data = RHI::GetDeviceContext(i)->GetCaps();
+		MaxData.RTSupport = Math::Max(MaxData.RTSupport, Data.RTSupport);
+		MaxData.VRSSupport = Math::Max(MaxData.VRSSupport, Data.VRSSupport);
+		MaxData.SupportsViewInstancing = Math::Max(MaxData.SupportsViewInstancing, Data.SupportsViewInstancing);
+	}
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)

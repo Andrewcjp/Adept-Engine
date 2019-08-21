@@ -3,9 +3,14 @@
 #include "Core/Input/Input.h"
 #include "RenderNode.h"
 #include "../Renderers/RenderSettings.h"
+#include "RHI/DeviceContext.h"
 
 RenderGraphSystem::RenderGraphSystem()
-{}
+{
+	//UseRGISSystem = true;
+	CurrentSet = new RenderGraphInstanceSet();
+	CurrentSet->Init();
+}
 
 RenderGraphSystem::~RenderGraphSystem()
 {
@@ -14,56 +19,71 @@ RenderGraphSystem::~RenderGraphSystem()
 
 void RenderGraphSystem::InitGraph()
 {
-	CurrentGraph = new RenderGraph();
-	InitDefaultGraph();
-	PatchGraph();
-	CheckGraph();
-
-	CurrentGraph->BuildGraph();
-	CurrentGraph->RunTests();
+	if (UseRGISSystem)
+	{
+		CurrentInstance = BuildInstance(CurrentSet->GetInstanceForSettings(RHI::GetRenderSettings()));
+		CurrentGraph = CurrentInstance->Instance;
+	}
+	else
+	{
+		//during dev this is easier to use.
+		CurrentGraph = CreateGraph(RHI::GetRenderSettings()->SelectedGraph, EBuiltInRenderGraphPatch::NONE);
+	}
 }
 
-void RenderGraphSystem::CheckGraph()
+RenderGraph* RenderGraphSystem::CreateGraph(EBuiltinRenderGraphs::Type GraphBaseType, EBuiltInRenderGraphPatch::Type Patch)
 {
-	if (!CurrentGraph->IsGraphValid())
+	RenderGraph* Graph = new RenderGraph();
+	InitDefaultGraph(Graph, GraphBaseType);
+	PatchGraph(Graph, Patch);
+	CheckGraph(Graph);
+
+	Graph->BuildGraph();
+	Graph->RunTests();
+	return Graph;
+}
+
+void RenderGraphSystem::CheckGraph(RenderGraph* Graph)
+{
+	if (!Graph->IsGraphValid())
 	{
-		CurrentGraph->DestoryGraph();
-		std::string Data = "Selected graph '" + CurrentGraph->GetGraphName() + "' is invalid. Engine will use the fallback graph";
+		Graph->DestoryGraph();
+		std::string Data = "Selected graph '" + Graph->GetGraphName() + "' is invalid. Engine will use the fallback graph";
 		Log::LogMessage(Data, Log::Error);
 		PlatformApplication::DisplayMessageBox("Error", Data);
-		CurrentGraph->CreateFallbackGraph();
+		Graph->CreateFallbackGraph();
 	}
 }
 
-void RenderGraphSystem::InitDefaultGraph()
+void RenderGraphSystem::InitDefaultGraph(RenderGraph* Graph, EBuiltinRenderGraphs::Type SelectedGraph)
 {
-	switch (RHI::GetRenderSettings()->SelectedGraph)
+	switch (SelectedGraph)
 	{
 		case EBuiltinRenderGraphs::Fallback:
-			CurrentGraph->CreateFallbackGraph();
+			Graph->CreateFallbackGraph();
 			break;
 		case EBuiltinRenderGraphs::ForwardRenderer:
-			CurrentGraph->CreateFWDGraph();
+			Graph->CreateFWDGraph();
 			break;
 		case EBuiltinRenderGraphs::DeferredRenderer:
-			CurrentGraph->CreateDefTestgraph();
+			Graph->CreateDefTestgraph();
 			break;
 		case EBuiltinRenderGraphs::DeferredRenderer_RT:
-			CurrentGraph->CreateDefGraphWithRT();
+			Graph->CreateDefGraphWithRT();
 			break;
 		case EBuiltinRenderGraphs::VRForwardRenderer:
-			CurrentGraph->CreateVRFWDGraph();
+			Graph->CreateVRFWDGraph();
 			break;
 		case EBuiltinRenderGraphs::Pathtracing:
-			CurrentGraph->CreatePathTracedGraph();
+			Graph->CreatePathTracedGraph();
 			break;
 		case EBuiltinRenderGraphs::TEST_MGPU:
-			CurrentGraph->CreateMGPU_TESTGRAPH();
+			Graph->CreateMGPU_TESTGRAPH();
 			break;
 	}
 }
 
-void RenderGraphSystem::PatchGraph()
+void RenderGraphSystem::PatchGraph(RenderGraph* Graph, EBuiltInRenderGraphPatch::Type patch)
 {
 	switch (RHI::GetRenderSettings()->SelectedPatch)
 	{
@@ -117,8 +137,31 @@ void RenderGraphSystem::SwitchGraph(RenderGraph* NewGraph)
 	CurrentGraph->BuildGraph();
 }
 
+RenderGraphInstance* RenderGraphSystem::BuildInstance(RenderGraphInstance* Inst)
+{
+	Inst->Instance = CreateGraph(Inst->GraphBaseType, Inst->Patch);
+	return Inst;
+}
+
 RenderGraph * RenderGraphSystem::GetCurrentGraph()
 {
 	return CurrentGraph;
+}
+
+RenderGraphInstance * RenderGraphInstanceSet::GetInstanceForSettings(RenderSettings * set)
+{
+	CapabilityData MaxCaps = CapabilityData();
+	RHI::GetRenderSettings()->MaxSupportedCaps(MaxCaps);
+	if (set->GetRTSettings().Enabled && MaxCaps.RTSupport >= ERayTracingSupportType::DriverBased)
+	{
+		return RTGraph;
+	}
+	return HDGraph;
+}
+
+void RenderGraphInstanceSet::Init()
+{
+	RTGraph = new RenderGraphInstance(EBuiltinRenderGraphs::DeferredRenderer_RT);
+	HDGraph = new RenderGraphInstance(EBuiltinRenderGraphs::DeferredRenderer);
 }
 
