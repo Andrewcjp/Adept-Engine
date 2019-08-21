@@ -26,27 +26,22 @@ void GBufferWriteNode::OnExecute()
 	CommandList->StartTimer(EGPUTIMERS::DeferredWrite);
 	ensure(GetInput(0)->GetStoreTarget());
 	FrameBuffer* GBuffer = GetFrameBufferFromInput(0);
-	
+	bool	UsePreZPass = (GetInput(0)->GetStoreTarget()->DataFormat == StorageFormats::PreZData);
 	RHIPipeLineStateDesc desc;
-	desc.DepthStencilState.DepthWrite = true;
+	desc.DepthStencilState.DepthWrite = !UsePreZPass;
 	desc.ShaderInUse = Material::GetDefaultMaterialShader();
 	desc.FrameBufferTarget = GBuffer;
 	CommandList->SetPipelineStateDesc(desc);
 
 	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, 0);
-	//CommandList->SetRenderTarget(gbuffer);
-	//CommandList->ClearFrameBuffer(gbuffer);
-	RHIRenderPassDesc D = RHIRenderPassDesc(GBuffer, ERenderPassLoadOp::Clear);
+	RHIRenderPassDesc D = RHIRenderPassDesc(GBuffer, UsePreZPass ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	CommandList->BeginRenderPass(D);
 	MeshPassRenderArgs Args;
 	Args.PassType = ERenderPass::BasePass;
 	Args.UseDeferredShaders = true;
+	Args.ReadDepth = UsePreZPass;
 	SceneRenderer::Get()->MeshController->RenderPass(Args, CommandList);
-	//SceneRender->RenderScene(CommandList, false, gbuffer, false, eyeindex);
-
-
-
 	CommandList->EndRenderPass();
 	GBuffer->MakeReadyForComputeUse(CommandList);
 	CommandList->EndTimer(EGPUTIMERS::DeferredWrite);

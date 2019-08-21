@@ -13,7 +13,8 @@ static ConsoleVariable IsActive("GPG.enabled", 0, ECVarType::ConsoleAndLaunch);
 GPUPerformanceGraph::GPUPerformanceGraph()
 {
 	StartPos = glm::vec3(250, 500, 0);
-	Scale = 100;
+	Scale = 50;
+	SimpleModeOnly = false;
 }
 
 GPUPerformanceGraph::~GPUPerformanceGraph()
@@ -113,6 +114,10 @@ void GPUPerformanceGraph::SetEnabled(bool state)
 
 void GPUPerformanceGraph::DrawLine(GPUTimerPair * data, glm::vec3 LocalOffset)
 {
+	if (SimpleModeOnly && data->Offset != 0)
+	{
+		return;
+	}
 	float CurrnetValue = data->Stamps[0] * maxV;
 	float Endvalue = data->Stamps[1] * maxV;
 	float Length = Endvalue - CurrnetValue;

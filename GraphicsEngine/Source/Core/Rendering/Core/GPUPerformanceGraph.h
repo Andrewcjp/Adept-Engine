@@ -35,5 +35,6 @@ private:
 	const float StackBarOffset = 20.0f;
 	const float FlagTextOffset = 20.0f;
 	bool EnableFlags = false;
+	bool SimpleModeOnly = false;
 };
 

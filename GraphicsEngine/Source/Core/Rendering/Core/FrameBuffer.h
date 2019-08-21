@@ -3,6 +3,9 @@
 
 class DeviceContext;
 class RHIGPUSyncEvent;
+class RHICommandList;
+class RHIUAV;
+class RHIInterGPUStagingResource;
 class FrameBuffer : public IRHIResourse
 {
 public:

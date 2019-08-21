@@ -2,7 +2,9 @@
 #include "Core\Platform\ConsoleVariable.h"
 #include "..\RenderNodes\RenderGraphSystem.h"
 
+
 class Archive;
+struct CapabilityData;
 namespace AAMode
 {
 	enum Type
@@ -133,6 +135,7 @@ public:
 	bool AllowNativeVRS = true;
 	bool InitSceneDataOnAllGPUs = true;
 	static const VRXSettings& GetVRXSettings();
+	void MaxSupportedCaps(CapabilityData& MaxData);
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;
