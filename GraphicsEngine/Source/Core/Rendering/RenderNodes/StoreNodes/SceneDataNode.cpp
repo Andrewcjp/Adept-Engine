@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "SceneDataNode.h"
 #include "Core/BaseWindow.h"
 

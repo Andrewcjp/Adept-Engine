@@ -106,6 +106,7 @@ void RenderGraphSystem::PatchGraph(RenderGraph* Graph, EBuiltInRenderGraphPatch:
 
 void RenderGraphSystem::Render()
 {
+	//RHI::RunGPUTests();
 	CurrentGraph->RunGraph();
 }
 
