@@ -24,6 +24,7 @@
 #include "Rendering/RenderNodes/RenderGraphSystem.h"
 #include "RHIInterGPUStagingResource.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
+#include "Rendering/Performance/GPUPerformanceTestManager.h"
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
@@ -286,6 +287,16 @@ RenderGraphSystem * RHI::GetRenderSystem()
 	return Get()->RenderSystem;
 }
 
+GPUPerformanceTestManager * RHI::GetTestManager()
+{
+	return Get()->TestManager;
+}
+
+void RHI::RunGPUTests()
+{
+	Get()->TestManager->ExecuteAllTests();
+}
+
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 #if NOSHADOW
@@ -360,7 +371,7 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	if (ImageIO::GetDefaultTexture() && !Desc.IsCubeMap)
 	{
 		return ImageIO::GetDefaultTexture();
-}
+	}
 #endif
 	BaseTextureRef newtex = nullptr;
 	if (ImageIO::CheckIfLoaded(path.GetRelativePathToAsset(), &newtex))
@@ -497,11 +508,13 @@ void RHI::InitialiseContext()
 		instance->RTE = new RayTracingEngine();
 	}
 	Get()->RenderSystem = new RenderGraphSystem();
+	Get()->TestManager = new GPUPerformanceTestManager();
+	Get()->TestManager->Init();
 }
 
 void RHI::ValidateSettings()
 {
-	
+
 }
 
 void RHI::InitialiseContextWindow(int w, int h)
@@ -509,7 +522,7 @@ void RHI::InitialiseContextWindow(int w, int h)
 	GetRHIClass()->InitWindow(w, h);
 	instance->SwapChainWidth = w;
 	instance->SwapChainHeight = h;
-	
+
 }
 
 std::string RHI::ReportMemory()

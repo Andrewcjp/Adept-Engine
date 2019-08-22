@@ -120,7 +120,10 @@ void RHITimeManager::PushToPerfManager()
 	GPUTimer* MainTimer = GetTimer(TimerNames[0], Context);
 	for (auto itor = Timers.begin(); itor != Timers.end(); itor++)
 	{
-		itor->second->Normalise(MainTimer->Stamps[0], MainTimer->Stamps[1]);
+		if (MainTimer->Stamps.size() > 1)
+		{
+			itor->second->Normalise(MainTimer->Stamps[0], MainTimer->Stamps[1]);
+		}
 	}
 	ADNOP;
 }

@@ -27,6 +27,7 @@ class RenderGraphSystem;
 class RHIInterGPUStagingResource;
 class RHIRenderPass;
 struct InterGPUDesc;
+class GPUPerformanceTestManager;
 //RHI defines
 #define RHI_SUPPORTS_VR 1
 #define PSO_USE_MAP 1
@@ -112,6 +113,8 @@ public:
 	static void SubmitToVRComposter(FrameBuffer* fb, EEye::Type eye);
 	RHI_API static RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);
 	static RenderGraphSystem* GetRenderSystem();
+	static GPUPerformanceTestManager* GetTestManager();
+	static void RunGPUTests();
 private:
 	static void ValidateDevice(DeviceContext*& con);
 	static void ResizeFrameBuffer(FrameBuffer * target);
@@ -139,6 +142,8 @@ private:
 	friend RHIRenderPassCache;
 	RHIRenderPassCache* RenderPassCache = nullptr;
 	RenderGraphSystem* RenderSystem = nullptr;
+	GPUPerformanceTestManager* TestManager = nullptr;
+
 };
 
 class RHI_API RHIClass

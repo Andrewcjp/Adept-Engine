@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "InterGPUStorageNode.h"
 #include "RHI\RHIInterGPUStagingResource.h"
 #include "..\..\Core\FrameBuffer.h"

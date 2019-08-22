@@ -233,13 +233,19 @@ MeshBatch * Mesh::GetMeshBatch()
 		e->TransformBuffer = PrimitiveTransfromBuffer;
 		e->MaterialInUse = GetMaterial(SubMeshes[i]->MaterialIndex);
 		e->IsVisible = IsVisible;
-		e->bTransparent = e->MaterialInUse->GetRenderPassType() == EMaterialRenderType::Transparent;
+		if (e->MaterialInUse != nullptr)
+		{
+			e->bTransparent = e->MaterialInUse->GetRenderPassType() == EMaterialRenderType::Transparent;
+		}
 		B->AddMeshElement(e);
 	}
-	B->MainPassCulled = Renderer->GetOwner()->IsCulled(ECullingPass::MainPass);
-	B->ShadowPassCulled = Renderer->GetOwner()->IsCulled(ECullingPass::ShadowPass);
-	B->CastShadow = GetDoesShadow();
-	B->Owner = Renderer->GetOwner();
+	if (Renderer != nullptr)
+	{
+		B->MainPassCulled = Renderer->GetOwner()->IsCulled(ECullingPass::MainPass);
+		B->ShadowPassCulled = Renderer->GetOwner()->IsCulled(ECullingPass::ShadowPass);
+		B->CastShadow = GetDoesShadow();
+		B->Owner = Renderer->GetOwner();
+	}
 	return B;
 }
 

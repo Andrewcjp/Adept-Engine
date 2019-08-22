@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+
 #include "PreSampleShadowNode.h"
 #include "../StorageNodeFormats.h"
 
