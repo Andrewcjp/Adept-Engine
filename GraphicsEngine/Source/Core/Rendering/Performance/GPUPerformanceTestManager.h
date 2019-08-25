@@ -28,7 +28,7 @@ public:
 	~GPUPerformanceTestManager();
 	void Init();
 	void ExecuteAllTests();
-
+	void GatherResults();
 	void DestoryTests();
 private:
 	struct GPUTestSet
@@ -36,6 +36,7 @@ private:
 		GPUPerformanceTest* Tests[EGPUPerformanceMetrics::Limit] = {0};
 		DeviceContext* Device = nullptr;
 		void ExecuteAllTests();
+		void GatherResults();
 		void Init();
 		void Destroy();
 	};

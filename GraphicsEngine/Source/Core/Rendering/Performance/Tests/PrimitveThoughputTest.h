@@ -11,7 +11,7 @@ public:
 	~PrimitveThoughputTest();
 
 	virtual void RunTest() override;
-
+	virtual void GatherResults() override;
 
 protected:
 	virtual void OnInit() override;

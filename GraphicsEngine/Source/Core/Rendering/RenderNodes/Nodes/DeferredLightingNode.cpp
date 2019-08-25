@@ -32,7 +32,7 @@ void DeferredLightingNode::OnExecute()
 	FrameBuffer* MainBuffer = GetFrameBufferFromInput(1);
 	Scene* MainScene = GetSceneDataFromInput(2);
 	ensure(MainScene);
-	DeferredShader = ShaderComplier::GetShader<Shader_Deferred, int>(Context, MainBuffer->GetDescription().VarRateSettings.UsesVRS());
+	DeferredShader = ShaderComplier::GetShader<Shader_Deferred, int>(Context, MainBuffer->GetDescription().VarRateSettings.BufferMode);
 	List->ResetList();
 	List->StartTimer(EGPUTIMERS::DeferredLighting);
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();

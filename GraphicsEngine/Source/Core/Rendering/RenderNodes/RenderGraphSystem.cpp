@@ -4,6 +4,8 @@
 #include "RenderNode.h"
 #include "../Renderers/RenderSettings.h"
 #include "RHI/DeviceContext.h"
+#include "RHI/RHI.h"
+#include "../Performance/GPUPerformanceTestManager.h"
 
 RenderGraphSystem::RenderGraphSystem()
 {
@@ -106,7 +108,19 @@ void RenderGraphSystem::PatchGraph(RenderGraph* Graph, EBuiltInRenderGraphPatch:
 
 void RenderGraphSystem::Render()
 {
-	//RHI::RunGPUTests();
+	const int frmae = 10;
+	if (RHI::GetFrameCount() == frmae)
+	{
+		RHI::RunGPUTests();
+	}
+	else if (RHI::GetFrameCount() == frmae + 3)
+	{
+		RHI::Get()->GetTestManager()->GatherResults();
+	}
+	else if (RHI::GetFrameCount() == frmae + 10)
+	{
+		RHI::Get()->GetTestManager()->DestoryTests();
+	}
 	CurrentGraph->RunGraph();
 }
 

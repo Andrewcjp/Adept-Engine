@@ -27,9 +27,20 @@ void GPUPerformanceTestManager::ExecuteAllTests()
 	}
 }
 
+void GPUPerformanceTestManager::GatherResults()
+{
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		TestSet[i].GatherResults();
+	}
+}
+
 void GPUPerformanceTestManager::DestoryTests()
 {
-
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		TestSet[i].Destroy();
+	}
 }
 
 void GPUPerformanceTestManager::GPUTestSet::ExecuteAllTests()
@@ -43,6 +54,16 @@ void GPUPerformanceTestManager::GPUTestSet::ExecuteAllTests()
 	}
 }
 
+void GPUPerformanceTestManager::GPUTestSet::GatherResults()
+{
+	for (int i = 0; i < EGPUPerformanceMetrics::Limit; i++)
+	{
+		if (Tests[i] != nullptr && Tests[i]->IsTestValid())
+		{
+			Tests[i]->GatherResults();
+		}
+	}
+}
 void GPUPerformanceTestManager::GPUTestSet::Init()
 {
 	if (Device == nullptr)

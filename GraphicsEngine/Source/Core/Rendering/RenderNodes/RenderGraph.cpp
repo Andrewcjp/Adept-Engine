@@ -165,7 +165,7 @@ void RenderGraph::CreateDefTestgraph()
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.AllowUnorderedAccess = true;
 #if TEST_VRS
-	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRS;
+	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
 #endif
 	MainBuffer->SetFrameBufferDesc(Desc);
 
