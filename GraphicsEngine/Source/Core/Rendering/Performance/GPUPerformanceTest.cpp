@@ -29,6 +29,14 @@ void GPUPerformanceTest::Destroy()
 	OnDestory();
 }
 
+TestResultsData GPUPerformanceTest::GetResults()
+{
+	return ResultData;
+}
+
+void GPUPerformanceTest::GatherResults()
+{}
+
 void GPUPerformanceTest::OnInit()
 {}
 

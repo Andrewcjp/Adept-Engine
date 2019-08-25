@@ -61,7 +61,7 @@ float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
-#if SUPPORT_VRS
+#if SUPPORT_VRR
 	if (!ShouldShadePixel(input.uv,Resolution))
 	{
 		return float4(1, 1, 1, 0);

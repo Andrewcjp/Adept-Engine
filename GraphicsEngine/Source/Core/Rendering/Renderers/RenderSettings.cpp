@@ -23,7 +23,8 @@ RenderSettings::RenderSettings()
 	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
-	//VRXSet.EnableVRS = true;
+	VRXSet.EnableVRS = true;
+	VRXSet.EnableVRR = true;
 }
 
 void RenderSettings::ValidateSettings()

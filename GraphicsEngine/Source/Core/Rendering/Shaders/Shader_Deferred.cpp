@@ -5,7 +5,9 @@
 #include "../Core/VRXEngine.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_Deferred);
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_0, Shader_Deferred, int, 0, nullptr);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_1, Shader_Deferred, int, 1, nullptr);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_1, Shader_Deferred, int, FrameBufferVariableRateSettings::VRR, nullptr);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_2, Shader_Deferred, int, FrameBufferVariableRateSettings::VRS, nullptr);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_3, Shader_Deferred, int, FrameBufferVariableRateSettings::VRS_Decoupled, nullptr);
 Shader_Deferred::Shader_Deferred(DeviceContext* dev, int VRSMODE) :Shader(dev)
 {
 	float g_quad_vertex_buffer_data[] = {
@@ -24,11 +26,14 @@ Shader_Deferred::Shader_Deferred(DeviceContext* dev, int VRSMODE) :Shader(dev)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
-	//
-	//VRXEngine::SetupVRRShader(this);
-	if (VRSMODE == 1)
+
+	if (VRSMODE == FrameBufferVariableRateSettings::VRS && RHI::GetRenderSettings()->GetVRXSettings().EnableVRS)
 	{
 		VRXEngine::SetupVRSShader(this);
+	}
+	else if (VRSMODE == FrameBufferVariableRateSettings::VRR && RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	{
+		VRXEngine::SetupVRRShader(this);
 	}
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITHRT", std::to_string(RHI::GetRenderSettings()->GetRTSettings().Enabled)));
 	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_vs", EShaderType::SHADER_VERTEX);
@@ -65,8 +70,8 @@ std::vector<ShaderParameter> Shader_Deferred::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::PreSampleShadows, 13));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::ScreenSpecular, 14));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::LightDataBuffer, 20));
-	//VRXEngine::AddVRRToRS(out, DeferredLightingShaderRSBinds::Limit);
-	VRXEngine::AddVRSToRS(out, DeferredLightingShaderRSBinds::Limit);
+	VRXEngine::AddVRRToRS(out, DeferredLightingShaderRSBinds::Limit);
+	//VRXEngine::AddVRSToRS(out, DeferredLightingShaderRSBinds::Limit);
 	return out;
 }
 std::vector<Shader::VertexElementDESC> Shader_Deferred::GetVertexFormat()

@@ -19,13 +19,20 @@ VRXEngine * VRXEngine::Get()
 
 void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target)
 {
-	//return;
+	if (!RenderSettings::GetVRXSettings().EnableVRR)
+	{
+		return;
+	}
+	if (Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::VRR)
+	{
+		return;
+	}
 	//#VRX: todo
 	ensure(list->IsComputeList());
-	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
+	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRSResolve>());
 	list->SetPipelineStateDesc(Desc);
 	list->SetUAV(Target->GetUAV(), "DstTexture");
-	list->SetFrameBufferTexture(Target, "SRCLevel1");
+	ShaderComplier::GetShader<Shader_VRSResolve>()->BindBuffer(list);
 	list->Dispatch(Target->GetWidth() / 4, Target->GetHeight() / 4, 1);
 	list->UAVBarrier(Target->GetUAV());
 }
@@ -71,9 +78,7 @@ void VRXEngine::SetupVRRShader(Shader * S)
 {
 	if (RenderSettings::GetVRXSettings().EnableVRR)
 	{
-#if TEST_VRR
 		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("SUPPORT_VRR", "1"));
-#endif
 	}
 }
 

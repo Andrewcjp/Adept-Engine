@@ -1,4 +1,5 @@
 #pragma once
+#include "GPUPerformanceTestManager.h"
 //A single test
 //Must be run off screen
 //Cannot change the current renderer state.
@@ -14,9 +15,13 @@ public:
 	virtual void RunTest();
 	void Init(DeviceContext* Context);
 	void Destroy();
+	TestResultsData GetResults();
+	//populate the ResultsData struct 
+	virtual void GatherResults();
 protected:
 	virtual void OnInit();
 	virtual void OnDestory();
 	DeviceContext* Device = nullptr;
+	TestResultsData ResultData;
 };
 

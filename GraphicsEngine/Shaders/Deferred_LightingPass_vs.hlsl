@@ -13,7 +13,7 @@ VS_OUTPUT main(float4 position : POSITION)
 	output.pos = position;
 	const float2 fliped = float2 (position.x, -position.y);
 	output.uv = (fliped + float2(1, 1)) / 2.0f;
-#if SUPPORT_VRR	
+#if 0	
 	if (position.y > 0.1f)
 	{
 		output.VRRIndex = 0;

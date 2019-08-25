@@ -1,5 +1,5 @@
 
-#if SUPPORT_VRR
+#if 0
 #define VRR_SHADER_PAYLOAD uint VRRIndex : SV_RenderTargetArrayIndex; uint VRRtIndex : SV_ViewportArrayIndex;
 #define VRR_SHADER_MRTS 
 #define VRR_BINDDATA  Texture2D<uint> VRRSSTexture : register( t65 ); cbuffer VRRData : register(b65){int VRRPerDrawRate;}

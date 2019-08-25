@@ -8,7 +8,8 @@
 #include "Rendering/Shaders/Shader_PreZ.h"
 #include "RHI/RHITimeManager.h"
 #include "../../Shaders/Shader_Main.h"
-
+#include "Core/Performance/PerfManager.h"
+const std::string PrimitveThoughputTest_Name = "PrimitveThoughputTest";
 
 PrimitveThoughputTest::PrimitveThoughputTest()
 {}
@@ -25,8 +26,8 @@ void PrimitveThoughputTest::RunTest()
 	{
 		List->GetDevice()->GetTimeManager()->StartTotalGPUTimer(List);
 	}
-	{		
-		DECALRE_SCOPEDGPUCOUNTER(List, "PrimitveThoughputTest");
+	{
+		DECALRE_SCOPEDGPUCOUNTER(List, PrimitveThoughputTest_Name);
 		RHIPipeLineStateDesc desc;
 		desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), TestBuffer);
 		desc.DepthCompareFunction = COMPARISON_FUNC_LESS;
@@ -52,10 +53,21 @@ void PrimitveThoughputTest::RunTest()
 	List->Execute();
 }
 
+void PrimitveThoughputTest::GatherResults()
+{
+	TimerData* D = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName(PrimitveThoughputTest_Name + "0"));
+	if (D != nullptr)
+	{
+		ResultData.TimeTaken = D->AVG->GetArray()[10];
+
+ 		ResultData.PassedTest = true;
+	}
+}
+
 void PrimitveThoughputTest::OnInit()
 {
 	MeshData = RHI::CreateMesh("\\models\\Sphere.obj");
-	BuildBatches(4, glm::vec3(0, 0, 0), 2.0f);
+	BuildBatches(6, glm::vec3(0, 0, 0), 2.0f);
 	List = RHI::CreateCommandList(ECommandListType::Graphics, Device);
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(1024, 1024);
 	TestBuffer = RHI::CreateFrameBuffer(Device, Desc);
@@ -63,7 +75,7 @@ void PrimitveThoughputTest::OnInit()
 
 void PrimitveThoughputTest::OnDestory()
 {
-
+	MemoryUtils::RHIUtil::DeleteVector(TransfromBuffers);
 }
 
 void PrimitveThoughputTest::BuildBatches(int size, glm::vec3 startPos, float stride)
@@ -78,6 +90,7 @@ void PrimitveThoughputTest::BuildBatches(int size, glm::vec3 startPos, float str
 			}
 		}
 	}
+	ResultData.ItemsProcessed = size * size * size;
 }
 
 RHIBuffer* PrimitveThoughputTest::CreateTransfrom(glm::vec3 pos)

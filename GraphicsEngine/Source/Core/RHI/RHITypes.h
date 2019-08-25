@@ -474,8 +474,9 @@ struct FrameBufferVariableRateSettings
 	enum VRateMode
 	{
 		None,
-		VRR,
-		VRS,
+		VRR,//Raster at coarse rate
+		VRS,//Shade at coarse rate
+		VRS_Decoupled,//Shade at coarse rate, 2nd pass at full rate.
 		Limit
 	};
 	int ResolutionSlices = 2;
