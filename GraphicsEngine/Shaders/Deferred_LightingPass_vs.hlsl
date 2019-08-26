@@ -1,10 +1,8 @@
 #include "VRX\VRRCommon.hlsl"
-VRR_BINDDATA
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
-	VRR_SHADER_PAYLOAD
 };
 
 VS_OUTPUT main(float4 position : POSITION)

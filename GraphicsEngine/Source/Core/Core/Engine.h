@@ -32,7 +32,9 @@ public:
 	void							CreateApplication();
 	static void						RunCook();
 	void							CreateApplicationWindow(int width, int height);
+#if TDSIM_ENABLED
 	void							TestTDPhysics();
+#endif
 	static long						StartTime;
 	static void						SetGame(Game* game);
 	static Game*					GetGame();

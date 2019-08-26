@@ -100,7 +100,9 @@ Engine::~Engine()
 void Engine::PreInit()
 {
 	Screen::Get()->Resize(mwidth, mheight);
+#if TDSIM_ENABLED
 	TestTDPhysics();
+#endif
 	LoadGame();
 	if (IsCooking)
 	{
@@ -363,7 +365,8 @@ void Engine::CreateApplicationWindow(int width, int height)
 }
 
 
-//Temp test for physics collisions 
+//Temp test for physics collisions
+#if TDSIM_ENABLED
 #include <TDPhysicsAPI.h>
 #include "Test/TDTest.h"
 void Engine::TestTDPhysics()
@@ -371,5 +374,6 @@ void Engine::TestTDPhysics()
 	TD::TDTest::TypeTest();
 
 }
+#endif
 
 

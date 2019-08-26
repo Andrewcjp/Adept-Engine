@@ -1,4 +1,4 @@
-#if SUPPORT_VRR
+#if SUPPORT_VRS
 #define VRS_TILE_SIZE 16
 int2 GetShadingRate(int ID)
 {

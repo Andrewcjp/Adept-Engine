@@ -15,6 +15,7 @@ class CoreTargetRules : TargetRules
         if (BuildPhysx)
         {
             GlobalDefines.Add("USE_PHYSX");
+            ModuleExcludeList.Add("TDPhysics");
         }
     }
     public override ModuleDef GetCoreModule()
@@ -30,7 +31,7 @@ class CoreTargetRules : TargetRules
         CoreModule.IncludeDirectories.Add("/source/ThirdParty/freetype2");
         CoreModule.IncludeDirectories.Add("/source/TDPhysics");
         CoreModule.UseCorePCH = false;
-        CoreModule.ModuleDepends.Add("TDPhysics");
+        
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "BleedOut";
        // CoreModule.GameModuleName = "BleedOutGame";
@@ -50,6 +51,10 @@ class CoreTargetRules : TargetRules
         if (BuildPhysx)
         {
             CoreModule.ThirdPartyModules.Add("PhysxBuild");
+        }
+        else
+        {
+            CoreModule.ModuleDepends.Add("TDPhysics");
         }
         if (BuildVulkan)
         {

@@ -161,13 +161,14 @@ void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 	//ensure(Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::None);
 	//#VRX: Setting for VRS mode
 	//Native VRS does not require resolve
+	SetVRSShadingRate(VRS_SHADING_RATE::SHADING_RATE_4X2);
 	if (Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
 	{
 		VRXEngine::ResolveVRRFramebuffer(this, Target);
 	}
 	else
 	{
-		if (Device->GetCaps().VRSSupport == EVRSSupportType::Software || !RHI::GetRenderSettings()->AllowNativeVRS)
+		if (Device->GetCaps().VRSSupport == EVRSSupportType::None || !RHI::GetRenderSettings()->AllowNativeVRS)
 		{
 			VRXEngine::Get()->ResolveVRSFramebuffer(this, Target);
 		}
@@ -213,7 +214,15 @@ ECommandListType::Type RHICommandList::GetListType() const
 	return ListType;
 }
 
+void RHICommandList::SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate)
+{
+	NOAPIIMP(SetVRSShadingRateNative);
+}
 
+void RHICommandList::SetVRSShadingRateImageNative(FrameBuffer * Target)
+{
+	NOAPIIMP(SetVRSShadingRateImageNative);
+}
 
 RHIUAV * RHIBuffer::GetUAV()
 {

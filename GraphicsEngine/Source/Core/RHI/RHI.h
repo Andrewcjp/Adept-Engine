@@ -11,7 +11,7 @@
 #include "Rendering/VR/HMD.h"
 #include "RHIQuery.h"
 
-
+#define NOAPIIMP(func) ensureMsgf(false, #func" Needs API implmentation");
 class RHIGPUSyncEvent;
 class SFRController;
 class RHIClass;
