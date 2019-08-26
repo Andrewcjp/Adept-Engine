@@ -115,10 +115,10 @@ void D3D12TimeManager::UpdateTimers()
 		if (GT != nullptr)
 		{
 			GT->Clear();
-			for (D3D12Query* Q : TimerQueries[i].TimerQueries)
+			for (D3D12Query* QU : TimerQueries[i].TimerQueries)
 			{
-				GT->AddResults(Q->Result);
-			}			
+				GT->AddResults(QU->Result);
+			}
 		}
 		PerfManager::Get()->UpdateStat(id, Q->TotalTime, Offset);
 		Q->TimerQueries.clear();

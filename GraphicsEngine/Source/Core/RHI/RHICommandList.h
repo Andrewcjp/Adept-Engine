@@ -150,8 +150,8 @@ public:
 	RHIPipeLineStateObject* GetCurrnetPSO();
 	ECommandListType::Type GetListType() const;
 protected:
-	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate) {};
-	virtual void SetVRSShadingRateImageNative(FrameBuffer* Target) {};
+	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate);
+	virtual void SetVRSShadingRateImageNative(FrameBuffer* Target);
 
 	RHIPipeLineStateObject* CurrentPSO = nullptr;
 	bool IsInRenderPass = false;

@@ -178,11 +178,11 @@ void D3D12DeviceContext::CheckFeatures()
 		hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &ShaderModelData, sizeof(ShaderModelData));
 		if (SUCCEEDED(hr))
 		{
-			HighestShaderModel = ShaderModelData.HighestShaderModel;			
+			HighestShaderModel = ShaderModelData.HighestShaderModel;
 			break;
 		}
 	}
-	
+
 	switch (HighestShaderModel)
 	{
 		case D3D_SHADER_MODEL_5_1:
@@ -213,7 +213,15 @@ void D3D12DeviceContext::CheckFeatures()
 		{
 			LogTierData("VRS Support", FeatureData6.VariableShadingRateTier);
 		}
-		Caps_Data.VRSSupport = FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::Software;
+		Caps_Data.VRSSupport = FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::None;
+		if (FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_2)
+		{
+			Caps_Data.VRSSupport = EVRSSupportType::Hardware_Tier2;
+		}
+	}
+	else
+	{
+		Caps_Data.VRSSupport = EVRSSupportType::None;
 	}
 #endif
 	if (options.CrossNodeSharingTier != D3D12_CROSS_NODE_SHARING_TIER_NOT_SUPPORTED)
@@ -231,6 +239,7 @@ void D3D12DeviceContext::CheckFeatures()
 				Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
 				break;
 		}
+		//#DXMGPU: Detect what the other GPU is.
 	}
 	else
 	{
@@ -483,7 +492,7 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 	//compute work could run past the end of a frame?
 	if (RHI::GetFrameCount() == 1)
 	{
-	//	GetMemoryManager()->LogMemoryReport();
+		//	GetMemoryManager()->LogMemoryReport();
 	}
 }
 

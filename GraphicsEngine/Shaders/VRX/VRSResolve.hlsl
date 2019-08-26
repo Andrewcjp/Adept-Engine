@@ -1,4 +1,4 @@
-#define SUPPORT_VRR 1
+#define SUPPORT_VRS 1
 #include "VRX/VRSCommon.hlsl"
 RWTexture2D<float4> DstTexture : register(u0);
 SamplerState BilinearClamp : register(s0);

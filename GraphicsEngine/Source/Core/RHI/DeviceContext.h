@@ -31,7 +31,8 @@ struct EVRSSupportType
 	enum Type
 	{
 		Hardware,
-		Software,
+		Hardware_Tier2,
+		None,
 		Limit
 	};
 };
@@ -62,7 +63,7 @@ struct CapabilityData
 	bool SupportsCopyTimeStamps = false;
 	bool SupportsViewInstancing = false;
 	ERayTracingSupportType::Type RTSupport = ERayTracingSupportType::None;
-	EVRSSupportType::Type VRSSupport = EVRSSupportType::Software;
+	EVRSSupportType::Type VRSSupport = EVRSSupportType::None;
 	//If driver supports multiple SLI group this will fail to use the HW fully.
 	EMGPUConnectionMode::Type ConnectionMode = EMGPUConnectionMode::None;
 	bool SupportsDepthBoundsTest = true;
