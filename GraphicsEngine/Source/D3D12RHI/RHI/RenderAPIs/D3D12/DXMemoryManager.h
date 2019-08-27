@@ -14,6 +14,7 @@ public:
 	void AddTexturePage(int size);
 	~DXMemoryManager();
 	EAllocateResult::Type AllocTemporary(AllocDesc & desc, GPUResource** ppResource);
+	EAllocateResult::Type AllocAccelerationStructure(AllocDesc & desc, GPUResource** ppResource);
 	EAllocateResult::Type AllocFrameBuffer(AllocDesc & desc, GPUResource ** ppResource);
 	EAllocateResult::Type AllocForUpload(AllocDesc & desc, GPUResource ** ppResource);
 	EAllocateResult::Type AllocMeshData(AllocDesc & desc, GPUResource ** ppResource);

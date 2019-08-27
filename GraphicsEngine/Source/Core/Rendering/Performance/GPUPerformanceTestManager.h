@@ -6,7 +6,7 @@ namespace EGPUPerformanceMetrics
 	enum Type
 	{
 		PrimitveThoughput,
-		Depththoughput,
+		GeometryProcessingSpeed,
 		ComputeShadeSpeed,
 		PixelShadeSpeed,
 		AsyncComputeSpeed,
@@ -29,6 +29,8 @@ public:
 	void Init();
 	void ExecuteAllTests();
 	void GatherResults();
+	void AnalysizeResults();
+	void LogResults();
 	void DestoryTests();
 private:
 	struct GPUTestSet
@@ -37,6 +39,7 @@ private:
 		DeviceContext* Device = nullptr;
 		void ExecuteAllTests();
 		void GatherResults();
+		void LogResults(GPUTestSet* ZeroSet);
 		void Init();
 		void Destroy();
 	};

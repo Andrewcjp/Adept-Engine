@@ -15,6 +15,7 @@ public:
 	void clear();
 	float* GetArray();
 	float GetRaw();
+	float GetHighestValue();
 private:
 	const static unsigned short default_filter_length = 5;
 	// Length of the filter

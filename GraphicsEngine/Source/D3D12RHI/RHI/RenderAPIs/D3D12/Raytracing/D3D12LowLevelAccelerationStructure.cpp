@@ -7,8 +7,10 @@
 #include "RHI/RenderAPIs/D3D12/DXMemoryManager.h"
 #include "RHI/RenderAPIs/D3D12/GPUResource.h"
 #include "RHI/RHICommandList.h"
+#include "Rendering/RayTracing/HighLevelAccelerationStructure.h"
+#include "D3D12HighLevelAccelerationStructure.h"
 
-D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceContext* Device) :LowLevelAccelerationStructure(Device)
+D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & Desc) :LowLevelAccelerationStructure(Device,Desc)
 {}
 
 
@@ -41,8 +43,7 @@ void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 
 void D3D12LowLevelAccelerationStructure::CreateStructure()
 {
-	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-	buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12HighLevelAccelerationStructure::GetBuildFlags(Desc.BuildFlags);
 
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &bottomLevelInputs = bottomLevelBuildDesc.Inputs;
 	bottomLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;

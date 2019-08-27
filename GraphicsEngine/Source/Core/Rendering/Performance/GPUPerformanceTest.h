@@ -18,10 +18,12 @@ public:
 	TestResultsData GetResults();
 	//populate the ResultsData struct 
 	virtual void GatherResults();
+	virtual void LogResults(GPUPerformanceTest* ZeroTest);
+	TestResultsData ResultData;
 protected:
 	virtual void OnInit();
 	virtual void OnDestory();
 	DeviceContext* Device = nullptr;
-	TestResultsData ResultData;
+	
 };
 

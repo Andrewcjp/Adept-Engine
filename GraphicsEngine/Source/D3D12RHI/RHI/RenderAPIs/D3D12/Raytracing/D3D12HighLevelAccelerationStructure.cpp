@@ -3,8 +3,10 @@
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "RHI/RenderAPIs/D3D12/D3D12DeviceContext.h"
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
+#include "../DXMemoryManager.h"
+#include "../GPUResource.h"
 
-D3D12HighLevelAccelerationStructure::D3D12HighLevelAccelerationStructure(DeviceContext* Device) :HighLevelAccelerationStructure(Device)
+D3D12HighLevelAccelerationStructure::D3D12HighLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & desc) :HighLevelAccelerationStructure(Device, desc)
 {}
 
 
@@ -13,67 +15,79 @@ D3D12HighLevelAccelerationStructure::~D3D12HighLevelAccelerationStructure()
 
 void D3D12HighLevelAccelerationStructure::Update(RHICommandList* List)
 {
-	return;
+	ensure(Desc.BuildFlags & AS_BUILD_FLAGS::AllowUpdate);
 	BuildInstanceBuffer();
 
-	topLevelBuildDesc.Inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+	topLevelBuildDesc.Inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE | D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 	topLevelBuildDesc.Inputs.pGeometryDescs = nullptr;
 	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
 	topLevelBuildDesc.Inputs.NumDescs = ContainedEntites.size();
-	topLevelBuildDesc.SourceAccelerationStructureData = m_topLevelAccelerationStructure->GetGPUVirtualAddress();
+	topLevelBuildDesc.SourceAccelerationStructureData = m_topLevelAccelerationStructure->GetResource()->GetGPUVirtualAddress();
+	AllocateSpace(topLevelBuildDesc.Inputs.Flags, topLevelBuildDesc.Inputs.NumDescs);
 	D3D12CommandList* DXList = D3D12RHI::DXConv(List);
 	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&topLevelBuildDesc, 0, nullptr);
+
+	DXList->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(m_topLevelAccelerationStructure->GetResource()));
 }
 
 void D3D12HighLevelAccelerationStructure::Build(RHICommandList* list)
 {
+	//InitialBuild();
+	BuildInstanceBuffer();
 	ensure(instanceDescs);
-	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-	buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = GetBuildFlags(Desc.BuildFlags);
+
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &topLevelInputs = topLevelBuildDesc.Inputs;
 	topLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 	topLevelInputs.Flags = buildFlags;
-	topLevelInputs.NumDescs = 1;
 	topLevelInputs.pGeometryDescs = nullptr;
 	topLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
 
-	topLevelBuildDesc.DestAccelerationStructureData = m_topLevelAccelerationStructure->GetGPUVirtualAddress();
-	topLevelBuildDesc.ScratchAccelerationStructureData = scratchSpace->GetGPUVirtualAddress();
-	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
 	topLevelBuildDesc.Inputs.NumDescs = ContainedEntites.size();
-	if (RHI::GetFrameCount() == 50)
-	{
-		topLevelBuildDesc.Inputs.NumDescs = 10;
-	}
+	AllocateSpace(buildFlags, topLevelBuildDesc.Inputs.NumDescs);
+	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
+
 	D3D12CommandList* DXList = D3D12RHI::DXConv(list);
 	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&topLevelBuildDesc, 0, nullptr);
 
-	DXList->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(m_topLevelAccelerationStructure));
+	DXList->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(m_topLevelAccelerationStructure->GetResource()));
 }
 
-void D3D12HighLevelAccelerationStructure::InitialBuild()
+void D3D12HighLevelAccelerationStructure::AllocateSpace(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS BuildFlags, uint DescCount)
 {
-	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = BuildFlags;
 
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &topLevelInputs = topLevelBuildDesc.Inputs;
 	topLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 	topLevelInputs.Flags = buildFlags;
-	topLevelInputs.NumDescs = 1;
-	topLevelInputs.pGeometryDescs = nullptr;
+	topLevelInputs.NumDescs = DescCount;
 	topLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
 
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO topLevelPrebuildInfo = {};
 
 	D3D12RHI::DXConv(Context)->GetDevice5()->GetRaytracingAccelerationStructurePrebuildInfo(&topLevelInputs, &topLevelPrebuildInfo);
 
-	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(),
-		topLevelPrebuildInfo.ScratchDataSizeInBytes, &scratchSpace, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource");
+	if (scratchSpace == nullptr || scratchSpace->GetResource()->GetDesc().Width <= topLevelPrebuildInfo.ScratchDataSizeInBytes)
+	{
+		EnqueueSafeRHIRelease(scratchSpace);
+		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocTemporary(
+			AllocDesc(topLevelPrebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, "ScratchResource"), &scratchSpace);
+	}
 
-	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(), topLevelPrebuildInfo.ResultDataMaxSizeInBytes, &m_topLevelAccelerationStructure,
-		D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, L"TopLevelAccelerationStructure");
+	if (m_topLevelAccelerationStructure == nullptr || m_topLevelAccelerationStructure->GetResource()->GetDesc().Width <= topLevelPrebuildInfo.ResultDataMaxSizeInBytes)
+	{
+		EnqueueSafeRHIRelease(m_topLevelAccelerationStructure);
+		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocAccelerationStructure(
+			AllocDesc(topLevelPrebuildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, "TopLevelAccelerationStructure"), &m_topLevelAccelerationStructure);
+	}
 
-	topLevelBuildDesc.DestAccelerationStructureData = m_topLevelAccelerationStructure->GetGPUVirtualAddress();
-	topLevelBuildDesc.ScratchAccelerationStructureData = scratchSpace->GetGPUVirtualAddress();
+	topLevelBuildDesc.ScratchAccelerationStructureData = scratchSpace->GetResource()->GetGPUVirtualAddress();
+	topLevelBuildDesc.DestAccelerationStructureData = m_topLevelAccelerationStructure->GetResource()->GetGPUVirtualAddress();
+}
+
+void D3D12HighLevelAccelerationStructure::InitialBuild()
+{
+	AllocateSpace(GetBuildFlags(Desc.BuildFlags), 50);
 	BuildInstanceBuffer();
 }
 void D3D12HighLevelAccelerationStructure::SetTransfrom(D3D12_RAYTRACING_INSTANCE_DESC& Desc, Transform* T)
@@ -119,4 +133,23 @@ void D3D12HighLevelAccelerationStructure::Release()
 {
 	SafeRelease(instanceDescs);
 	SafeRelease(scratchSpace);
+}
+
+D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS D3D12HighLevelAccelerationStructure::GetBuildFlags(int BuildFlags)
+{
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS Flags;
+	ensureMsgf(BuildFlags & AS_BUILD_FLAGS::Fast_Build || BuildFlags & AS_BUILD_FLAGS::Fast_Trace, "Both Fast trace and fast build flags set, this is not allowed");
+	if (BuildFlags & AS_BUILD_FLAGS::Fast_Build)
+	{
+		Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
+	}
+	if (BuildFlags & AS_BUILD_FLAGS::Fast_Trace)
+	{
+		Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	}
+	if (BuildFlags & AS_BUILD_FLAGS::AllowUpdate)
+	{
+		Flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+	}
+	return Flags;
 }

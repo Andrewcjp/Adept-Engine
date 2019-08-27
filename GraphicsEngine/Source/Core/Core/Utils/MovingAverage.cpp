@@ -1,5 +1,6 @@
 #include "MovingAverage.h"
 #include "Core/Platform/PlatformCore.h"
+#include "../Maths/Math.h"
 MovingAverage::MovingAverage(unsigned short filterLength)
 {
 	FilterLength = filterLength;
@@ -78,6 +79,16 @@ float MovingAverage::GetRaw()
 		return 0.0f;
 	}
 	return Array[Index];
+}
+
+float MovingAverage::GetHighestValue()
+{
+	float Max = -1.0f;
+	for (int i = 0; i < FilterLength; i++)
+	{
+		Max = Math::Max(Max, Array[i]);
+	}
+	return Max;
 }
 
 unsigned short MovingAverage::GetFilterLength()

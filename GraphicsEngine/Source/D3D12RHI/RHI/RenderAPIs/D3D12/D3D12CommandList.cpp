@@ -261,7 +261,10 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 				break;
 		}
 	}
-	ThrowIfFailed(CurrentCommandList->Close());
+	if (IsOpen())
+	{
+		ThrowIfFailed(CurrentCommandList->Close());
+	}
 	if (Target == DeviceContextQueue::Graphics)
 	{
 		mDeviceContext->ExecuteCommandList(CurrentCommandList);

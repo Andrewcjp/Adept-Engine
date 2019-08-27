@@ -92,12 +92,12 @@ RHIQuery * VKNRHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-LowLevelAccelerationStructure* VKNRHI::CreateLowLevelAccelerationStructure(DeviceContext * Device)
+ LowLevelAccelerationStructure* VKNRHI::CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-HighLevelAccelerationStructure* VKNRHI::CreateHighLevelAccelerationStructure(DeviceContext * Device)
+ HighLevelAccelerationStructure* VKNRHI::CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

@@ -33,6 +33,7 @@ private:
 	HighLevelAccelerationStructure* CurrnetHL = nullptr;
 	RHICommandList* AsyncbuildList = nullptr;
 	bool Build = false;
+	bool UseTlasUpdate = false;
 
 };
 

@@ -37,6 +37,9 @@ TestResultsData GPUPerformanceTest::GetResults()
 void GPUPerformanceTest::GatherResults()
 {}
 
+void GPUPerformanceTest::LogResults(GPUPerformanceTest* ZeroTest)
+{}
+
 void GPUPerformanceTest::OnInit()
 {}
 

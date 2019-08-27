@@ -20,11 +20,12 @@ RenderSettings::RenderSettings()
 
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_RT;
 
 	CurrentDebug = ERenderDebugOutput::Off;
-	VRXSet.EnableVRS = true;
-	VRXSet.EnableVRR = true;
+	VRXSet.EnableVRS = false;
+	VRXSet.EnableVRR = false;
+	//ShouldRunGPUTests = true;
 }
 
 void RenderSettings::ValidateSettings()

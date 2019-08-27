@@ -16,6 +16,7 @@
 RayTracingEngine::RayTracingEngine()
 {
 	AsyncbuildList = RHI::CreateCommandList(ECommandListType::Compute);
+	//UseTlasUpdate = true;
 }
 
 RayTracingEngine::~RayTracingEngine()
@@ -41,20 +42,21 @@ void RayTracingEngine::EnqueueForBuild(HighLevelAccelerationStructure * Struct)
 
 void RayTracingEngine::BuildForFrame(RHICommandList* List)
 {
+	DECALRE_SCOPEDGPUCOUNTER(List, "Build Structures");
 	if (LASToBuild.size() == 0)
 	{
-		if (RHI::GetFrameCount() == 50)
+		if (UseTlasUpdate)
 		{
-			/*RHI::WaitForGPU();
-			CurrnetHL->Build(List);
-			RHI::WaitForGPU();*/
+			CurrnetHL->Update(List);
 		}
-		//CurrnetHL->Update(List);
+		else
+		{
+			CurrnetHL->Build(List);
+		}
 		return;
 	}
-	DECALRE_SCOPEDGPUCOUNTER(List, "Build Structures");
 	for (int i = 0; i < LASToBuild.size(); i++)
-	{		
+	{
 		LASToBuild[i]->Build(List);
 	}
 	CurrnetHL->Build(List);
@@ -64,7 +66,13 @@ void RayTracingEngine::BuildForFrame(RHICommandList* List)
 
 void RayTracingEngine::OnFirstFrame()
 {
-	CurrnetHL = RHI::GetRHIClass()->CreateHighLevelAccelerationStructure(RHI::GetDefaultDevice());
+	AccelerationStructureDesc D;
+	D.BuildFlags = AS_BUILD_FLAGS::Fast_Build;
+	if (UseTlasUpdate)
+	{
+		D.BuildFlags |= AS_BUILD_FLAGS::AllowUpdate;
+	}
+	CurrnetHL = RHI::GetRHIClass()->CreateHighLevelAccelerationStructure(RHI::GetDefaultDevice(), D);
 	for (int i = 0; i < LASToBuild.size(); i++)
 	{
 		CurrnetHL->AddEntity(LASToBuild[i]);
