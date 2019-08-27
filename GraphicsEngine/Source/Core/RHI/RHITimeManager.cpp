@@ -23,8 +23,8 @@ ScopedGPUTimer::ScopedGPUTimer(RHICommandList* List, std::string Name, bool PerD
 #endif
 	cmdlist = List;
 	GPUTimerId = List->GetDevice()->GetTimeManager()->GetGPUTimerId(Name);
-	PerfManager::Get()->AddGPUTimer((Name + std::to_string(cmdlist->GetDevice()->GetDeviceIndex())).c_str(), PerfManager::Get()->GetGroupId("GPU_" + std::to_string(cmdlist->GetDevice()->GetDeviceIndex())));
-	TimerData* D = PerfManager::Get()->GetTimerData(GPUTimerId);
+	int perfid = PerfManager::Get()->AddGPUTimer((Name + std::to_string(cmdlist->GetDevice()->GetDeviceIndex())).c_str(), PerfManager::Get()->GetGroupId("GPU_" + std::to_string(cmdlist->GetDevice()->GetDeviceIndex())));
+	TimerData* D = PerfManager::Get()->GetTimerData(perfid);
 	D->TimerType = List->GetListType();
 	cmdlist->StartTimer(GPUTimerId);
 }

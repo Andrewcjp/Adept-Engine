@@ -6,7 +6,7 @@ class RHICommandList;
 class HighLevelAccelerationStructure :public IRHIResourse
 {
 public:
-	RHI_API HighLevelAccelerationStructure(DeviceContext* Device);
+	RHI_API HighLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & desc);
 	RHI_API virtual ~HighLevelAccelerationStructure();
 	RHI_API virtual void AddEntity(LowLevelAccelerationStructure* Struct);
 	RHI_API virtual void RemoveEntity(LowLevelAccelerationStructure* Struct);
@@ -20,5 +20,6 @@ public:
 protected:
 	std::vector<LowLevelAccelerationStructure*> ContainedEntites;
 	DeviceContext* Context = nullptr;
+	AccelerationStructureDesc Desc;
 };
 

@@ -20,6 +20,7 @@ void ShadowUpdateNode::OnExecute()
 	//#Shadows: does this node need atlas
 	ShadowList->ResetList();
 	ShadowRenderer::RenderPointShadows(ShadowList);
+	ShadowRenderer::RenderDirectionalShadows(ShadowList);
 	ShadowList->Execute();
 }
 

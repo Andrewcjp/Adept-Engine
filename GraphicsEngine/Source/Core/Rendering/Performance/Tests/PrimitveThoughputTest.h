@@ -13,6 +13,9 @@ public:
 	virtual void RunTest() override;
 	virtual void GatherResults() override;
 
+
+	virtual void LogResults(GPUPerformanceTest* ZeroTest) override;
+
 protected:
 	virtual void OnInit() override;
 	virtual void OnDestory() override;

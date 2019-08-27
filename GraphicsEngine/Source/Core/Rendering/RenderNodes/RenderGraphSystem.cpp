@@ -107,20 +107,28 @@ void RenderGraphSystem::PatchGraph(RenderGraph* Graph, EBuiltInRenderGraphPatch:
 }
 
 void RenderGraphSystem::Render()
-{
-	const int frmae = 10;
-	if (RHI::GetFrameCount() == frmae)
+{	
+	const int frmae = 1; 
+	if (RHI::GetFrameCount() < frmae + 3)
 	{
 		RHI::RunGPUTests();
+	}
+	else
+	{
+		//RHI::RunGPUTests();
+	}
+	if (RHI::GetFrameCount() == frmae)
+	{
+		//RHI::RunGPUTests();
 	}
 	else if (RHI::GetFrameCount() == frmae + 3)
 	{
 		RHI::Get()->GetTestManager()->GatherResults();
 	}
-	else if (RHI::GetFrameCount() == frmae + 10)
-	{
-		RHI::Get()->GetTestManager()->DestoryTests();
-	}
+	//else if (RHI::GetFrameCount() == frmae + 10)
+	//{
+	//	RHI::Get()->GetTestManager()->DestoryTests();
+	//}
 	CurrentGraph->RunGraph();
 }
 

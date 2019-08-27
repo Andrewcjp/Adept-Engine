@@ -113,14 +113,14 @@ void MeshRendererComponent::SceneInitComponent()
 #if 1
 		for (int i = 0; i < m_mesh->SubMeshes.size(); i++)
 		{
-			LowLevelAccelerationStructure* BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice());
+			LowLevelAccelerationStructure* BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice(), AccelerationStructureDesc());
 			BLAS->CreateFromEntity(m_mesh->SubMeshes[i]);
 			BLAS->UpdateTransfrom(GetOwner()->GetTransform());
 			RayTracingEngine::Get()->EnqueueForBuild(BLAS);
 			MeshAcclerations.push_back(BLAS);
 		}
 #else
-		LowLevelAccelerationStructure* BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice());
+		LowLevelAccelerationStructure* BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice(), AccelerationStructureDesc());
 		BLAS->CreateFromMesh(m_mesh);
 		BLAS->UpdateTransfrom(GetOwner()->GetTransform());
 		RayTracingEngine::Get()->EnqueueForBuild(BLAS);

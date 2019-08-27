@@ -54,14 +54,14 @@ RHIQuery * D3D12RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 	return new D3D12Query(type, con);
 }
 
-LowLevelAccelerationStructure* D3D12RHI::CreateLowLevelAccelerationStructure(DeviceContext * Device)
+LowLevelAccelerationStructure* D3D12RHI::CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
 {
-	return new D3D12LowLevelAccelerationStructure(Device);
+	return new D3D12LowLevelAccelerationStructure(Device, Desc);
 }
 
-HighLevelAccelerationStructure* D3D12RHI::CreateHighLevelAccelerationStructure(DeviceContext * Device)
+HighLevelAccelerationStructure* D3D12RHI::CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
 {
-	return new D3D12HighLevelAccelerationStructure(Device);
+	return new D3D12HighLevelAccelerationStructure(Device, Desc);
 }
 
 D3D12DeviceContext * D3D12RHI::DXConv(DeviceContext * D)

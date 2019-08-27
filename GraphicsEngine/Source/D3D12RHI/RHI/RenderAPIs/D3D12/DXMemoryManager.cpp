@@ -75,6 +75,14 @@ EAllocateResult::Type DXMemoryManager::AllocTemporary(AllocDesc & desc, GPUResou
 	return Error;
 }
 
+EAllocateResult::Type DXMemoryManager::AllocAccelerationStructure(AllocDesc & desc, GPUResource ** ppResource)
+{
+	desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, desc.Flags);
+	EAllocateResult::Type Error = MeshDataPages[0]->Allocate(desc, ppResource);
+	ensure(Error == EAllocateResult::OK);
+	return Error;
+}
+
 EAllocateResult::Type DXMemoryManager::AllocFrameBuffer(AllocDesc & desc, GPUResource ** ppResource)
 {
 	EAllocateResult::Type Error = FrameResourcePages[0]->Allocate(desc, ppResource);

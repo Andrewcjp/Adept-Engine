@@ -27,7 +27,7 @@ public:
 	static eTEXTURE_FORMAT GetDepthReadType();
 	void PreSampleShadows(RHICommandList* list);
 	static void RenderPointShadows(RHICommandList * list);
-	void RenderDirectionalShadows(RHICommandList * list);
+	static void RenderDirectionalShadows(RHICommandList * list);
 
 	static RHIPipeRenderTargetDesc GetCubeMapDesc();
 	static RHIFrameBufferDesc GetCubeMapFBDesc(int size = 10);

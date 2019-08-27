@@ -69,8 +69,8 @@ public:
 #endif
 
 	virtual RHIQuery * CreateQuery(EGPUQueryType::Type type, DeviceContext * con) override;
-	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device) override;
-	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device) override;
+	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) override;
+	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) override;
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
 
 	static D3D12DeviceContext* DXConv(DeviceContext* D);

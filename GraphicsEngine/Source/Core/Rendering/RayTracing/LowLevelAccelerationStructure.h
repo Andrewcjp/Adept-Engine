@@ -7,7 +7,7 @@ class DeviceContext;
 class LowLevelAccelerationStructure :public IRHIResourse
 {
 public:
-	RHI_API LowLevelAccelerationStructure(DeviceContext* Device);
+	RHI_API LowLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & Desc);
 	RHI_API virtual ~LowLevelAccelerationStructure();
 	RHI_API virtual void CreateFromMesh(Mesh* m);
 	RHI_API virtual void Build(RHICommandList* List);
@@ -15,5 +15,6 @@ public:
 	RHI_API virtual void CreateFromEntity(MeshEntity* entity);
 protected:
 	DeviceContext* Context = nullptr;
+	AccelerationStructureDesc Desc;
 };
 

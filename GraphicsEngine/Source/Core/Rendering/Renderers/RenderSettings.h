@@ -136,6 +136,7 @@ public:
 	bool InitSceneDataOnAllGPUs = true;
 	static const VRXSettings& GetVRXSettings();
 	void MaxSupportedCaps(CapabilityData& MaxData);
+	bool ShouldRunGPUTests = false;
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;

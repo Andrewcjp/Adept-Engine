@@ -5,7 +5,7 @@ class GPUResource;
 class D3D12LowLevelAccelerationStructure :public LowLevelAccelerationStructure
 {
 public:
-	D3D12LowLevelAccelerationStructure(DeviceContext* Device);
+	D3D12LowLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & Desc);
 	virtual ~D3D12LowLevelAccelerationStructure();
 	virtual void CreateFromMesh(Mesh* m) override;
 

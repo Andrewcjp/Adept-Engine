@@ -485,3 +485,8 @@ bool FrameBufferVariableRateSettings::UsesVRS() const
 {
 	return BufferMode == VRS && RHI::GetRenderSettings()->GetVRXSettings().EnableVRS;
 }
+
+AccelerationStructureDesc::AccelerationStructureDesc()
+{
+	BuildFlags = AS_BUILD_FLAGS::Fast_Trace;
+}

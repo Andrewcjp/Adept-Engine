@@ -1,9 +1,10 @@
 #include "HighLevelAccelerationStructure.h"
 
 
-HighLevelAccelerationStructure::HighLevelAccelerationStructure(DeviceContext* Device)
+HighLevelAccelerationStructure::HighLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & desc)
 {
 	Context = Device;
+	Desc = desc;
 }
 
 

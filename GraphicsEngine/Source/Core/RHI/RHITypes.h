@@ -781,3 +781,20 @@ namespace VRS_SHADING_RATE
 		SHADING_RATE_4X4
 	};
 }
+namespace AS_BUILD_FLAGS
+{
+	enum Flags
+	{
+		Fast_Trace = 1 << 1,
+		Fast_Build = 1 << 2,
+		AllowUpdate = 1 << 3,
+		Limit
+	};
+}
+
+struct AccelerationStructureDesc
+{
+	AccelerationStructureDesc();
+	int MaxSize = 0;
+	int BuildFlags = AS_BUILD_FLAGS::Fast_Trace;
+};

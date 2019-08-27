@@ -9,6 +9,7 @@
 #include "RHI/RHITimeManager.h"
 #include "../../Shaders/Shader_Main.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Utils/StringUtil.h"
 const std::string PrimitveThoughputTest_Name = "PrimitveThoughputTest";
 
 PrimitveThoughputTest::PrimitveThoughputTest()
@@ -21,7 +22,6 @@ PrimitveThoughputTest::~PrimitveThoughputTest()
 void PrimitveThoughputTest::RunTest()
 {
 	List->ResetList();
-	//List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
 	if (List->GetDeviceIndex() != 0)
 	{
 		List->GetDevice()->GetTimeManager()->StartTotalGPUTimer(List);
@@ -30,15 +30,16 @@ void PrimitveThoughputTest::RunTest()
 		DECALRE_SCOPEDGPUCOUNTER(List, PrimitveThoughputTest_Name);
 		RHIPipeLineStateDesc desc;
 		desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), TestBuffer);
-		desc.DepthCompareFunction = COMPARISON_FUNC_LESS;
+		desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
 		desc.DepthStencilState.DepthWrite = true;
+		desc.DepthStencilState.DepthEnable = true;
 		desc.RenderPassDesc = RHIRenderPassDesc(TestBuffer, ERenderPassLoadOp::Clear);
 		List->SetPipelineStateDesc(desc);
 		List->BeginRenderPass(RHIRenderPassDesc(TestBuffer, ERenderPassLoadOp::Clear));
+		SceneRenderer::Get()->BindMvBuffer(List, MainShaderRSBinds::MVCBV);
 		for (int i = 0; i < Batches.size(); i++)
 		{
-			MeshDrawCommand* C = Batches[i];
-			SceneRenderer::Get()->BindMvBuffer(List, MainShaderRSBinds::MVCBV);
+			MeshDrawCommand* C = Batches[i];			
 			List->SetConstantBufferView(C->TransformUniformBuffer, 0, 0);
 			List->SetVertexBuffer(C->Vertex);
 			List->SetIndexBuffer(C->Index);
@@ -55,19 +56,30 @@ void PrimitveThoughputTest::RunTest()
 
 void PrimitveThoughputTest::GatherResults()
 {
-	TimerData* D = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName(PrimitveThoughputTest_Name + "0"));
+	TimerData* D = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName(PrimitveThoughputTest_Name + std::to_string(Device->GetDeviceIndex())));
 	if (D != nullptr)
 	{
-		ResultData.TimeTaken = D->AVG->GetArray()[10];
+		ResultData.TimeTaken = D->AVG->GetHighestValue();
 
- 		ResultData.PassedTest = true;
+		ResultData.PassedTest = true;
 	}
+}
+
+void PrimitveThoughputTest::LogResults(GPUPerformanceTest* ZeroTest)
+{
+	float PCofZero = ZeroTest->ResultData.TimeTaken / ResultData.TimeTaken;
+	Log::LogMessage("PrimitveThoughputTest Took " + StringUtils::ToString(ResultData.TimeTaken) + " " + StringUtils::ToString(PCofZero * 100) + "% of GPU 0");
 }
 
 void PrimitveThoughputTest::OnInit()
 {
 	MeshData = RHI::CreateMesh("\\models\\Sphere.obj");
-	BuildBatches(6, glm::vec3(0, 0, 0), 2.0f);
+#if NDEBUG
+	const int Itor = 10;
+#else
+	const int Itor = 6;
+#endif
+	BuildBatches(Itor, glm::vec3(0, 5, 0), 2.0f);
 	List = RHI::CreateCommandList(ECommandListType::Graphics, Device);
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(1024, 1024);
 	TestBuffer = RHI::CreateFrameBuffer(Device, Desc);
