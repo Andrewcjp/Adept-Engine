@@ -125,7 +125,6 @@ void RHITimeManager::PushToPerfManager()
 			itor->second->Normalise(MainTimer->Stamps[0], MainTimer->Stamps[1]);
 		}
 	}
-	ADNOP;
 }
 
 void RHITimeManager::AddTimer(GPUTimer * Data, std::string name, DeviceContext * D)

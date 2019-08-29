@@ -134,4 +134,4 @@ void UNUSED_PARAM(T const&)
 #define PREPROCESSOR_JOIN(x, y) PREPROCESSOR_JOIN_INNER(x, y)
 #define PREPROCESSOR_JOIN_INNER(x, y) x##y
 
-#define ADNOP void __nop();
+extern void ADNOP();

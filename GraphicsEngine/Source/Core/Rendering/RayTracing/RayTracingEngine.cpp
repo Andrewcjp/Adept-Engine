@@ -77,6 +77,7 @@ void RayTracingEngine::OnFirstFrame()
 	{
 		CurrnetHL->AddEntity(LASToBuild[i]);
 	}
+	
 }
 
 void RayTracingEngine::BuildStructures()

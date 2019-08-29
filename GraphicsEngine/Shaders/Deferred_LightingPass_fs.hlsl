@@ -63,6 +63,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 #if SUPPORT_VRR
 	if (!ShouldShadePixel(input.uv,Resolution))
 	{
+		discard;
 		return float4(1, 1, 1, 0);
 	}	
 #endif

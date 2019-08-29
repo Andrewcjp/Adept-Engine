@@ -538,22 +538,22 @@ public:
 	FrameBufferVariableRateSettings VarRateSettings;
 };
 
-class RHI_API IRHIResourse : public IRefCount
+class  IRHIResourse : public IRefCount
 {
 public:
-	virtual ~IRHIResourse();
-	virtual void Release();
-	bool IsPendingKill() const
+	RHI_API virtual ~IRHIResourse();
+	RHI_API virtual void Release();
+	RHI_API bool IsPendingKill() const
 	{
 		return PendingKill;
 	}
 	bool IsReleased = false;
-	void SetDebugName(std::string Name);
+	RHI_API void SetDebugName(std::string Name);
 	const char* ObjectSufix = "";
 #if NAME_RHI_PRIMS	
-	const char* GetDebugName();
+	RHI_API const char* GetDebugName();
 #endif
-	virtual size_t GetSizeOnGPU();
+	RHI_API virtual size_t GetSizeOnGPU();
 private:
 #if NAME_RHI_PRIMS
 	const char* FinalName = "";

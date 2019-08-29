@@ -153,7 +153,7 @@ protected:
 	GPUTextureStreamer* Streamer = nullptr;
 };
 
-class RHIGPUSyncEvent
+class RHIGPUSyncEvent : public IRHIResourse
 {
 public:
 	RHI_API RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device);

@@ -154,6 +154,10 @@ void GPUPerformanceGraph::DrawLine(GPUTimerPair * data, glm::vec3 LocalOffset)
 
 void GPUPerformanceGraph::DrawBaseLine(TimerData * Timer, int GPUindex, glm::vec3 pos, ECommandListType::Type ListType)
 {
+	if (Timer == nullptr)
+	{
+		return;
+	}
 	float MaxValue = Timer->AVG->GetCurrentAverage()*Scale;
 	maxV = MaxValue;
 	glm::vec3 Offsetpos = pos + glm::vec3(Timer->GPUStartOffset * Scale, 0.0f, 0.0f);
