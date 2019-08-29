@@ -53,12 +53,12 @@ BOOL WindowsWindow::MyRegisterClass(HINSTANCE hinst)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hinst;
-	wcex.hIcon = LoadIcon(hinst, MAKEINTRESOURCE(IDI_OGLWIN32));
+	wcex.hIcon = LoadIcon(hinst, MAKEINTRESOURCE(IDI_ICON1));
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = NULL;
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = L"RenderWindow";
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 
 	if (!RegisterClassEx(&wcex))
 	{
@@ -443,3 +443,4 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 
 	return 0;
 }
+

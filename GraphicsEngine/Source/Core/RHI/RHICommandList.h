@@ -55,103 +55,103 @@ protected:
 	class RHIUAV* UAV = nullptr;
 };
 
-class RHI_API RHIUAV : public IRHIResourse
+class RHIUAV : public IRHIResourse
 {
 public:
-	RHIUAV();
-	RHI_VIRTUAL ~RHIUAV()
+	RHI_API RHIUAV();
+	RHI_API RHI_VIRTUAL ~RHIUAV()
 	{};
-	RHI_VIRTUAL void Bind(class RHICommandList* list, int slot) = 0;
-	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) = 0;
-	RHI_VIRTUAL void CreateUAVFromTexture(class BaseTexture* target) = 0;
-	RHI_VIRTUAL void CreateUAVFromRHIBuffer(class RHIBuffer* target) = 0;
+	RHI_API RHI_VIRTUAL void Bind(class RHICommandList* list, int slot) = 0;
+	RHI_API RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) = 0;
+	RHI_API RHI_VIRTUAL void CreateUAVFromTexture(class BaseTexture* target) = 0;
+	RHI_API RHI_VIRTUAL void CreateUAVFromRHIBuffer(class RHIBuffer* target) = 0;
 	const RHIViewDesc& GetViewDesc()const;
 protected:
 	RHIViewDesc ViewDesc;
 };
 
 class FrameBuffer;
-class RHI_API RHICommandList : public IRHIResourse
+class RHICommandList : public IRHIResourse
 {
 public:
-	RHICommandList(ECommandListType::Type type, DeviceContext* context);
-	RHI_VIRTUAL ~RHICommandList();
-	RHI_VIRTUAL void ResetList() = 0;
+	RHI_API RHICommandList(ECommandListType::Type type, DeviceContext* context);
+	RHI_API RHI_VIRTUAL ~RHICommandList();
+	RHI_API RHI_VIRTUAL void ResetList() = 0;
 
-	RHI_VIRTUAL void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
-	RHI_VIRTUAL void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
+	RHI_API RHI_VIRTUAL void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
+	RHI_API RHI_VIRTUAL void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
 	//drawing
-	RHI_VIRTUAL void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
-	RHI_VIRTUAL void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;
+	RHI_API RHI_VIRTUAL void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
+	RHI_API RHI_VIRTUAL void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;
 	///Not Const Desc as they hash on demand
-	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) = 0;
-	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
+	RHI_API RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) = 0;
+	RHI_API RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
 	//setters
-	RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
-	RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;
-	RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
-	RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot) = 0;
-	RHI_VIRTUAL void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;
-	void SetRHIBufferReadOnly(RHIBuffer* buffer, int slot);
-	void SetUAV(RHIUAV* uav, int slot);
+	RHI_API RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
+	RHI_API RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;
+	RHI_API RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
+	RHI_API RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot) = 0;
+	RHI_API RHI_VIRTUAL void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;
+	RHI_API void SetRHIBufferReadOnly(RHIBuffer* buffer, int slot);
+	RHI_API void SetUAV(RHIUAV* uav, int slot);
 	//string setters
-	void SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot);
-	void SetTexture(BaseTextureRef texture, std::string slot);
-	void SetFrameBufferTexture(class FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
-	void SetRHIBufferReadOnly(RHIBuffer* buffer, std::string slot);
-	void SetUAV(RHIUAV* uav, std::string slot);
+	RHI_API void SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot);
+	RHI_API void SetTexture(BaseTextureRef texture, std::string slot);
+	RHI_API void SetFrameBufferTexture(class FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
+	RHI_API void SetRHIBufferReadOnly(RHIBuffer* buffer, std::string slot);
+	RHI_API void SetUAV(RHIUAV* uav, std::string slot);
 
-	RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
-	RHI_VIRTUAL void UAVBarrier(RHIUAV* target) = 0;
-	RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
+	RHI_API RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
+	RHI_API RHI_VIRTUAL void UAVBarrier(RHIUAV* target) = 0;
+	RHI_API RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	//Indirect
-	RHI_VIRTUAL void SetUpCommandSigniture(int commandSize, bool Dispatch) = 0;
-	RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
+	RHI_API RHI_VIRTUAL void SetUpCommandSigniture(int commandSize, bool Dispatch) = 0;
+	RHI_API RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
 	template<class T>
 	void SetSingleRootConstant(int SignitureSlot, T Data)
 	{
 		SetRootConstant(SignitureSlot, 1, &Data, 0);
 	}
-	RHI_VIRTUAL void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset) = 0;
+	RHI_API RHI_VIRTUAL void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset) = 0;
 	//Render Passes
-	RHI_VIRTUAL void BeginRenderPass(struct RHIRenderPassDesc& RenderPass);
-	RHI_VIRTUAL void EndRenderPass();
+	RHI_API RHI_VIRTUAL void BeginRenderPass(struct RHIRenderPassDesc& RenderPass);
+	RHI_API RHI_VIRTUAL void EndRenderPass();
 
-	DeviceContext* GetDevice();
-	int GetDeviceIndex() const;
-	void StartTimer(int TimerId);
-	void EndTimer(int TimerId);
-	void ResolveTimers();
+	RHI_API DeviceContext* GetDevice();
+	RHI_API int GetDeviceIndex() const;
+	RHI_API void StartTimer(int TimerId);
+	RHI_API void EndTimer(int TimerId);
+	RHI_API void ResolveTimers();
 	//MultiGPU
-	RHI_VIRTUAL void CopyResourceToSharedMemory(FrameBuffer* Buffer)
+	RHI_API RHI_VIRTUAL void CopyResourceToSharedMemory(FrameBuffer* Buffer)
 	{};
-	RHI_VIRTUAL void CopyResourceFromSharedMemory(FrameBuffer* Buffer)
+	RHI_API RHI_VIRTUAL void CopyResourceFromSharedMemory(FrameBuffer* Buffer)
 	{};
-	bool IsGraphicsList()const;
-	bool IsCopyList() const;
-	bool IsComputeList() const;
-	bool IsRaytracingList() const;
-	void InsertGPUStallTimer();
-	void HandleStallTimer();
+	RHI_API bool IsGraphicsList()const;
+	RHI_API bool IsCopyList() const;
+	RHI_API bool IsComputeList() const;
+	RHI_API bool IsRaytracingList() const;
+	RHI_API void InsertGPUStallTimer();
+	RHI_API void HandleStallTimer();
 	//RT
-	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) = 0;
-	virtual void TraceRays(const RHIRayDispatchDesc& desc) = 0;
-	virtual void SetStateObject(RHIStateObject* Object) = 0;
+	RHI_API virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) = 0;
+	RHI_API virtual void TraceRays(const RHIRayDispatchDesc& desc) = 0;
+	RHI_API virtual void SetStateObject(RHIStateObject* Object) = 0;
 
-	RHI_VIRTUAL void SetDepthBounds(float Min, float Max) = 0;
-	virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) = 0;
+	RHI_API RHI_VIRTUAL void SetDepthBounds(float Min, float Max) = 0;
+	RHI_API virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) = 0;
 
 	//Used to resolve a framebuffer that is using VRX tech (VRS or VRR)
-	void ResolveVRXFramebuffer(FrameBuffer* Target);
+	RHI_API void ResolveVRXFramebuffer(FrameBuffer* Target);
 
-	void SetVRSShadingRate(VRS_SHADING_RATE::type Rate);
-	void SetVRRShadingRate(int RateIndex);
-	void SetVRXShadingRateImage(FrameBuffer* Target);
-	RHIPipeLineStateObject* GetCurrnetPSO();
-	ECommandListType::Type GetListType() const;
+	RHI_API void SetVRSShadingRate(VRS_SHADING_RATE::type Rate);
+	RHI_API void SetVRRShadingRate(int RateIndex);
+	RHI_API void SetVRXShadingRateImage(FrameBuffer* Target);
+	RHI_API RHIPipeLineStateObject* GetCurrnetPSO();
+	RHI_API ECommandListType::Type GetListType() const;
 protected:
-	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate);
-	virtual void SetVRSShadingRateImageNative(FrameBuffer* Target);
+	RHI_API virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate);
+	RHI_API virtual void SetVRSShadingRateImageNative(FrameBuffer* Target);
 
 	RHIPipeLineStateObject* CurrentPSO = nullptr;
 	bool IsInRenderPass = false;
@@ -161,17 +161,17 @@ protected:
 };
 
 //Used to Bind Buffers or textures to a single Descriptor heap/set for shader arrays
-class RHI_API RHITextureArray : public IRHIResourse
+class RHITextureArray : public IRHIResourse
 {
 public:
-	RHITextureArray(DeviceContext* device, int inNumEntries);;
-	RHI_VIRTUAL ~RHITextureArray()
+	RHI_API RHITextureArray(DeviceContext* device, int inNumEntries);;
+	RHI_API RHI_VIRTUAL ~RHITextureArray()
 	{};
-	RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot) = 0;
-	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot) = 0;
-	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) = 0;
-	RHI_VIRTUAL void Clear() = 0;
-	RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc) = 0;
+	RHI_API RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot) = 0;
+	RHI_API RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot) = 0;
+	RHI_API RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) = 0;
+	RHI_API RHI_VIRTUAL void Clear() = 0;
+	RHI_API RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc) = 0;
 protected:
 	int NumEntries = 1;
 };

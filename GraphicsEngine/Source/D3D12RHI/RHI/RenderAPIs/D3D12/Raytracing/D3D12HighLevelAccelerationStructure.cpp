@@ -70,15 +70,17 @@ void D3D12HighLevelAccelerationStructure::AllocateSpace(D3D12_RAYTRACING_ACCELER
 	if (scratchSpace == nullptr || scratchSpace->GetResource()->GetDesc().Width <= topLevelPrebuildInfo.ScratchDataSizeInBytes)
 	{
 		EnqueueSafeRHIRelease(scratchSpace);
-		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocTemporary(
-			AllocDesc(topLevelPrebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, "ScratchResource"), &scratchSpace);
+		AllocDesc desc = AllocDesc(topLevelPrebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, "ScratchResource");
+		desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, desc.Flags);
+		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocTemporaryGPU(desc, &scratchSpace);
 	}
 
 	if (m_topLevelAccelerationStructure == nullptr || m_topLevelAccelerationStructure->GetResource()->GetDesc().Width <= topLevelPrebuildInfo.ResultDataMaxSizeInBytes)
 	{
 		EnqueueSafeRHIRelease(m_topLevelAccelerationStructure);
-		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocAccelerationStructure(
-			AllocDesc(topLevelPrebuildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, "TopLevelAccelerationStructure"), &m_topLevelAccelerationStructure);
+		AllocDesc desc = AllocDesc(topLevelPrebuildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, "TopLevelAccelerationStructure");
+		desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, desc.Flags);
+		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocGeneral(desc, &m_topLevelAccelerationStructure);
 	}
 
 	topLevelBuildDesc.ScratchAccelerationStructureData = scratchSpace->GetResource()->GetGPUVirtualAddress();

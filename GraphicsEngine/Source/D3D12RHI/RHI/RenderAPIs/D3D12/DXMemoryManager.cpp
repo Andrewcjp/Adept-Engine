@@ -11,15 +11,11 @@ DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 	Log::LogMessage("Booting On Device With " + StringUtils::ByteToGB(Stats.LocalSegment_TotalBytes) + "Local " +
 		StringUtils::ByteToGB(Stats.HostSegment_TotalBytes) + "Host");
 
-	AllocDesc A = AllocDesc(1024 * 1024 * 10);
-	A.PageAllocationType = EPageTypes::BuffersOnly;
-	A.Name = "Scratch Space Page";
-	AllocPage(A, &StructScratchSpace);
-
 	AddFrameBufferPage(Math::MBToBytes<int>(1000));
-	AddUploadPage(Math::MBToBytes<int>(100));
-	AddMeshDataPage(Math::MBToBytes<int>(100));
+	AddTransientPage(Math::MBToBytes<int>(100));
+	AddDataPage(Math::MBToBytes<int>(100));
 	AddTexturePage(Math::MBToBytes<int>(100));
+	AddTransientGPUOnlyPage(Math::MBToBytes<int>(100));
 }
 
 void DXMemoryManager::AddFrameBufferPage(int size)
@@ -32,24 +28,24 @@ void DXMemoryManager::AddFrameBufferPage(int size)
 	FrameResourcePages.push_back(Page);
 }
 
-void DXMemoryManager::AddUploadPage(int size)
+void DXMemoryManager::AddTransientPage(int size)
 {
 	AllocDesc A = AllocDesc(size);
 	A.PageAllocationType = EPageTypes::BufferUploadOnly;
 	A.Name = "Upload page";
 	GPUMemoryPage* Page = nullptr;
 	AllocPage(A, &Page);
-	UploadPages.push_back(Page);
+	TempUploadPages.push_back(Page);
 }
 
-void DXMemoryManager::AddMeshDataPage(int size)
+void DXMemoryManager::AddTransientGPUOnlyPage(int size)
 {
 	AllocDesc A = AllocDesc(size);
 	A.PageAllocationType = EPageTypes::BuffersOnly;
-	A.Name = "Mesh Data page";
+	A.Name = "GPU Temp data page";
 	GPUMemoryPage* Page = nullptr;
 	AllocPage(A, &Page);
-	MeshDataPages.push_back(Page);
+	TempGPUPages.push_back(Page);
 }
 
 void DXMemoryManager::AddTexturePage(int size)
@@ -62,6 +58,16 @@ void DXMemoryManager::AddTexturePage(int size)
 	TexturePages.push_back(Page);
 }
 
+void DXMemoryManager::AddDataPage(int size)
+{
+	AllocDesc A = AllocDesc(size);
+	A.PageAllocationType = EPageTypes::BuffersOnly;
+	A.Name = "General data page";
+	GPUMemoryPage* Page = nullptr;
+	AllocPage(A, &Page);
+	DataPages.push_back(Page);
+}
+
 DXMemoryManager::~DXMemoryManager()
 {
 	MemoryUtils::DeleteVector(Pages);
@@ -69,16 +75,21 @@ DXMemoryManager::~DXMemoryManager()
 
 EAllocateResult::Type DXMemoryManager::AllocTemporary(AllocDesc & desc, GPUResource ** ppResource)
 {
-	desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, desc.Flags);
-	EAllocateResult::Type Error = StructScratchSpace->Allocate(desc, ppResource);
+	EAllocateResult::Type Error = TempUploadPages[0]->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }
 
-EAllocateResult::Type DXMemoryManager::AllocAccelerationStructure(AllocDesc & desc, GPUResource ** ppResource)
+EAllocateResult::Type DXMemoryManager::AllocTemporaryGPU(AllocDesc & desc, GPUResource ** ppResource)
 {
-	desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, desc.Flags);
-	EAllocateResult::Type Error = MeshDataPages[0]->Allocate(desc, ppResource);
+	EAllocateResult::Type Error = TempGPUPages[0]->Allocate(desc, ppResource);
+	ensure(Error == EAllocateResult::OK);
+	return Error;
+}
+
+EAllocateResult::Type DXMemoryManager::AllocGeneral(AllocDesc & desc, GPUResource ** ppResource)
+{
+	EAllocateResult::Type Error = DataPages[0]->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }
@@ -86,20 +97,6 @@ EAllocateResult::Type DXMemoryManager::AllocAccelerationStructure(AllocDesc & de
 EAllocateResult::Type DXMemoryManager::AllocFrameBuffer(AllocDesc & desc, GPUResource ** ppResource)
 {
 	EAllocateResult::Type Error = FrameResourcePages[0]->Allocate(desc, ppResource);
-	ensure(Error == EAllocateResult::OK);
-	return Error;
-}
-
-EAllocateResult::Type DXMemoryManager::AllocForUpload(AllocDesc & desc, GPUResource ** ppResource)
-{
-	EAllocateResult::Type Error = UploadPages[0]->Allocate(desc, ppResource);
-	ensure(Error == EAllocateResult::OK);
-	return Error;
-}
-
-EAllocateResult::Type DXMemoryManager::AllocMeshData(AllocDesc & desc, GPUResource ** ppResource)
-{
-	EAllocateResult::Type Error = MeshDataPages[0]->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }

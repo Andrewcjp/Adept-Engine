@@ -19,5 +19,6 @@ class D3D12RHIModule : ModuleDef
         SystemLibNames.Add("d3dcompiler.lib");
         SystemLibNames.Add("dxcompiler.lib");
         ThirdPartyModules.Add("Dx12Build");
+        NuGetPackages.Add("WinPixEventRuntime");
     }
 }

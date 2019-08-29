@@ -52,6 +52,9 @@ public:
 			for (int i = 0; i < Refs.size(); i++)
 			{
 				Log::LogMessage("Object Leaked " + std::string(Refs[i]->GetDebugName()), Log::Error);
+#if DEBUG_HOLDSTACKS
+				Refs[i]->PrintAllStacks();
+#endif
 			}
 		}
 		return (int)Refs.size();

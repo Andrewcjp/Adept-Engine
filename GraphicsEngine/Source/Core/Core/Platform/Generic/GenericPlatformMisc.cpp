@@ -17,3 +17,28 @@ float PlatformMemoryInfo::GetWorkingSetInMB()
 {
 	return (float)WorkingSetSize / 1024.0f / 1024.0f;
 }
+
+void StackTrace::PrintStack(Log::Severity Sev /*= Log::Severity::Warning*/)
+{
+	Log::LogMessage("---Stack trace---", Sev);
+	for (int i = 0; i < 255; i++)
+	{
+		if (Stack[i] == nullptr)
+		{
+			return;
+		}
+		Log::LogMessage(PlatformMisc::DebugPrintLineFromAddress(Stack[i]), Sev);
+	}
+}
+
+bool StackTrace::operator==(const StackTrace & other) const
+{
+	for (int i = 0; i < 255; i++)
+	{
+		if (Stack[i] != other.Stack[i])
+		{
+			return false;
+		}
+	}
+	return true;
+}

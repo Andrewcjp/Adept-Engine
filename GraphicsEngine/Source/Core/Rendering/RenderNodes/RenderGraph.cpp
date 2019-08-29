@@ -537,7 +537,7 @@ RenderNode * RenderGraph::GetNodeAtIndex(int i)
 
 void RenderGraph::RunTests()
 {
-#if RUNTESTS
+#if 0 //RUNTESTS
 	if (!RHI::GetRenderSettings()->SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer)
 	{
 		return;

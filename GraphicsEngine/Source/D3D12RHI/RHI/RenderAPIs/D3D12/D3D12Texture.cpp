@@ -301,7 +301,7 @@ void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 	D = AllocDesc();
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
 	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
-	Device->GetMemoryManager()->AllocForUpload(D, &textureUploadHeap);
+	Device->GetMemoryManager()->AllocTemporary(D, &textureUploadHeap);
 	D3D12Helpers::NameRHIObject(textureUploadHeap, this, "(UPLOAD)");
 
 

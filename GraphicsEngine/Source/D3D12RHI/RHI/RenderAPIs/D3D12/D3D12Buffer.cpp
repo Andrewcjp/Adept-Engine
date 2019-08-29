@@ -273,12 +273,12 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 	AllocDesc D;
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 	D.InitalState = D3D12_RESOURCE_STATE_COPY_DEST;
-	Device->GetMemoryManager()->AllocMeshData(D, &m_DataBuffer);
+	Device->GetMemoryManager()->AllocGeneral(D, &m_DataBuffer);
 
 	D = AllocDesc();
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
 	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
-	Device->GetMemoryManager()->AllocForUpload(D, &m_UploadBuffer);
+	Device->GetMemoryManager()->AllocTemporary(D, &m_UploadBuffer);
 	D3D12Helpers::NameRHIObject(m_UploadBuffer, this, "(UPLOAD)");
 }
 

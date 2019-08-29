@@ -20,7 +20,7 @@ RenderSettings::RenderSettings()
 
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_RT;
+	SelectedGraph = EBuiltinRenderGraphs::Pathtracing;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;
