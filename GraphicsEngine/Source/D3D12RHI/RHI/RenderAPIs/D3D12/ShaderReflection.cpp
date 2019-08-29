@@ -6,10 +6,10 @@
   (uint32_t)(uint8_t)(ch0)        | (uint32_t)(uint8_t)(ch1) << 8  | \
   (uint32_t)(uint8_t)(ch2) << 16  | (uint32_t)(uint8_t)(ch3) << 24   \
   )
-void ShaderReflection::GatherRSBinds(IDxcBlob * target, std::vector<ShaderParameter> & shaderbinds, bool & iscompute)
+void ShaderReflection::GatherRSBinds(ShaderBlob* target, std::vector<ShaderParameter> & shaderbinds, bool & iscompute)
 {
 	ID3D12ShaderReflection* REF = nullptr;
-#if 0
+#if !USE_DIXL
 	ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), IID_PPV_ARGS(&REF)));
 #else
 	IDxcContainerReflection* pReflection;

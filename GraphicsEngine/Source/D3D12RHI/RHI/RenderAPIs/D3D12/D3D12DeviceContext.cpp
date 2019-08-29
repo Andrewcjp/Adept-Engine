@@ -182,7 +182,7 @@ void D3D12DeviceContext::CheckFeatures()
 			break;
 		}
 	}
-
+#if USE_DIXL
 	switch (HighestShaderModel)
 	{
 		case D3D_SHADER_MODEL_5_1:
@@ -197,6 +197,10 @@ void D3D12DeviceContext::CheckFeatures()
 			Caps_Data.HighestModel = EShaderSupportModel::SM6;
 			break;
 	}
+#else
+	Log::LogMessage("Compiling Without DXIL complier, shader model is limited to SM5");
+	Caps_Data.HighestModel = EShaderSupportModel::SM5;
+#endif
 	if (LogDeviceDebug)
 	{
 		LogDeviceData("Shader Model Support (DX12) " + D3D12Helpers::SMToString(HighestShaderModel));

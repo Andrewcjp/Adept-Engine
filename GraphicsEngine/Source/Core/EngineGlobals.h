@@ -122,7 +122,7 @@ void UNUSED_PARAM(T const&)
 #if BUILD_SHIPPING
 #define DETECT_MEMORY_LEAKS 0
 #else
-#define DETECT_MEMORY_LEAKS 1
+#define DETECT_MEMORY_LEAKS 0
 #endif
 
 

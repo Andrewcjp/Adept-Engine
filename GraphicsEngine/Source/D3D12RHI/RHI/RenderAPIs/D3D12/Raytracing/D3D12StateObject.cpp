@@ -89,7 +89,7 @@ void D3D12StateObject::AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe)
 void D3D12StateObject::AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shader_RTBase* Shader)
 {
 	auto lib = RTPipe.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
-	IDxcBlob* B = ((D3D12Shader*)Shader->GetShaderProgram())->GetShaderBlobs()->RTLibBlob;
+	ShaderBlob* B = ((D3D12Shader*)Shader->GetShaderProgram())->GetShaderBlobs()->RTLibBlob;
 	D3D12_SHADER_BYTECODE libdxil = CD3DX12_SHADER_BYTECODE(B->GetBufferPointer(), B->GetBufferSize());
 	lib->SetDXILLibrary(&libdxil);
 	for (int i = 0; i < Shader->GetExports().size(); i++)

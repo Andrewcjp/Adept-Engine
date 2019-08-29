@@ -12,6 +12,11 @@ struct RootSignitureCreateInfo
 {
 	bool IsLocalSig = false;
 };
+#if USE_DIXL
+typedef IDxcBlob ShaderBlob;
+#else
+typedef ID3DBlob ShaderBlob;
+#endif
 class D3D12Shader : public ShaderProgramBase
 {
 public:
@@ -19,17 +24,17 @@ public:
 	virtual ~D3D12Shader();
 	struct ShaderBlobs
 	{
-		IDxcBlob*					vsBlob = nullptr;
-		IDxcBlob*					fsBlob = nullptr;
-		IDxcBlob*					csBlob = nullptr;
-		IDxcBlob*					gsBlob = nullptr;
-		IDxcBlob*					RTLibBlob = nullptr;
-		IDxcBlob*					GetBlob(EShaderType::Type t);
+		ShaderBlob*					vsBlob = nullptr;
+		ShaderBlob*					fsBlob = nullptr;
+		ShaderBlob*					csBlob = nullptr;
+		ShaderBlob*					gsBlob = nullptr;
+		ShaderBlob*					RTLibBlob = nullptr;
+		ShaderBlob*					GetBlob(EShaderType::Type t);
 	};
 
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint = "") override;
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type) override;
-	static D3D12_SHADER_BYTECODE GetByteCode(IDxcBlob * b);
+	static D3D12_SHADER_BYTECODE GetByteCode(ShaderBlob * b);
 	static void CreateComputePipelineShader(D3D12PipeLineStateObject * output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, const RHIPipeLineStateDesc & Depthtest, DeviceContext * context);
 
 	static	void CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, const RHIPipeLineStateDesc & Depthtest, DeviceContext * context);
@@ -45,18 +50,24 @@ public:
 	static void PrintShaderStats();
 #endif
 private:
-	D3D_SHADER_MACRO * ParseDefinesSM5();
-	DxcDefine * ParseDefinesDXC();
+#if USE_DIXL
+	DxcDefine * ParseDefines();
+#else
+	D3D_SHADER_MACRO * ParseDefines();
+#endif
+	
+	
+
 	class D3D12DeviceContext* CurrentDevice = nullptr;
 
 	ID3D12DescriptorHeap* m_samplerHeap = nullptr;
 	ShaderBlobs mBlolbs;
 	bool CacheBlobs = true;
 	void WriteBlobs(const std::string & shadername, EShaderType::Type type);
-	bool TryLoadCachedShader(const std::string& Name, IDxcBlob** Blob, const std::string & InstanceHash, EShaderType::Type type);
+	bool TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob, const std::string & InstanceHash, EShaderType::Type type);
 	bool CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & InstanceHash);
 	const std::string GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type);
-	IDxcBlob ** GetCurrentBlob(EShaderType::Type type);
+	ShaderBlob ** GetCurrentBlob(EShaderType::Type type);
 	const std::string GetShaderInstanceHash();
 
 	static std::wstring GetShaderModelString(D3D_SHADER_MODEL Clamp = D3D_SHADER_MODEL_6_4);

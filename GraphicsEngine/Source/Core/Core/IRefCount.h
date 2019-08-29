@@ -13,7 +13,7 @@ public:
 	void AddRef()
 	{
 #if DEBUG_HOLDSTACKS
-		Traces.push_back(PlatformMisc::CaptureStack());
+		Traces.push_back(PlatformMisc::CaptureStack(1));
 #endif
 		refcount++;
 	};
@@ -21,7 +21,10 @@ public:
 	{
 		RemoveRef();
 #if DEBUG_HOLDSTACKS
-		VectorUtils::Remove(Traces, PlatformMisc::CaptureStack());
+		if (Traces.size() > 0)
+		{
+			Traces.erase(Traces.end() - 1);
+		}
 #endif		
 	}
 	int GetRefCount()

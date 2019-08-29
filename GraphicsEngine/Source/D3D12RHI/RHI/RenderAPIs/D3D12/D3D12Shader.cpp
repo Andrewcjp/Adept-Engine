@@ -19,7 +19,7 @@ D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
 	CurrentDevice = D3D12RHI::DXConv(Device);
-//	NoShaderCache.SetValue(true);
+	//	NoShaderCache.SetValue(true);
 	CacheBlobs = !NoShaderCache.GetBoolValue();
 	if (D3D12RHI::DetectGPUDebugger())
 	{
@@ -56,20 +56,7 @@ void StripD3DShader(ID3DBlob** blob)
 	D3DStripShader(*blob, (*blob)->GetBufferSize(), stripflags, blob);
 #endif
 }
-
-D3D_SHADER_MACRO* D3D12Shader::ParseDefinesSM5()
-{
-	D3D_SHADER_MACRO* out = new D3D_SHADER_MACRO[Defines.size() + 1];
-	for (int i = 0; i < Defines.size(); i++)//array is set up as Name, Value
-	{
-		out[i].Name = Defines[i].Name.c_str();
-		out[i].Definition = Defines[i].Value.c_str();
-	}
-	int last = (int)Defines.size();
-	out[last].Definition = NULL;
-	out[last].Name = NULL;
-	return out;
-}
+#if USE_DIXL
 
 LPCWSTR GetCopyStr(std::string data)
 {
@@ -80,7 +67,8 @@ LPCWSTR GetCopyStr(std::string data)
 	return Data;
 }
 
-DxcDefine* D3D12Shader::ParseDefinesDXC()
+
+DxcDefine* D3D12Shader::ParseDefines()
 {
 	if (Defines.size() == 0)
 	{
@@ -97,13 +85,30 @@ DxcDefine* D3D12Shader::ParseDefinesDXC()
 	out[last].Name = NULL;
 	return out;
 }
+#else
+D3D_SHADER_MACRO* D3D12Shader::ParseDefines()
+{
+	D3D_SHADER_MACRO* out = new D3D_SHADER_MACRO[Defines.size() + 1];
+	for (int i = 0; i < Defines.size(); i++)//array is set up as Name, Value
+	{
+		out[i].Name = Defines[i].Name.c_str();
+		out[i].Definition = Defines[i].Value.c_str();
+	}
+	int last = (int)Defines.size();
+	out[last].Definition = NULL;
+	out[last].Name = NULL;
+	return out;
+}
+
+#endif
+
 
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type type)
 {
 	return AttachAndCompileShaderFromFile(shadername, type, "main");
 }
 
-IDxcBlob** D3D12Shader::GetCurrentBlob(EShaderType::Type type)
+ShaderBlob** D3D12Shader::GetCurrentBlob(EShaderType::Type type)
 {
 	switch (type)
 	{
@@ -142,7 +147,11 @@ std::wstring ConvertToLevelString(D3D_SHADER_MODEL SM)
 	switch (SM)
 	{
 		case D3D_SHADER_MODEL_5_1:
+#if USE_DIXL
 			return L"_6_0";//dxil does not support 5_1 profiles
+#else
+			return L"_5_1";//dxil does not support 5_1 profiles
+#endif
 		case D3D_SHADER_MODEL_6_0:
 			return L"_6_0";
 		case D3D_SHADER_MODEL_6_1:
@@ -160,6 +169,9 @@ std::wstring D3D12Shader::GetShaderModelString(D3D_SHADER_MODEL Clamp)
 {
 	D3D12DeviceContext* Con = D3D12RHI::DXConv(RHI::GetDefaultDevice());
 	D3D_SHADER_MODEL SM = Con->GetShaderModel();
+#if !USE_DIXL
+	SM = D3D_SHADER_MODEL_5_1;
+#endif
 	if (SM > Clamp)
 	{
 		SM = Clamp;
@@ -226,9 +238,9 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		__debugbreak();
 		return EShaderError::SHADER_ERROR_NOFILE;
 	}
-	IDxcBlobEncoding* pErrorBlob = NULL;
 	HRESULT hr = S_OK;
-
+#if USE_DIXL
+	IDxcBlobEncoding* pErrorBlob = NULL;
 	std::vector<LPCWSTR> arguments;
 	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
@@ -242,13 +254,11 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		arguments.push_back(L"/O3");
 		arguments.push_back(L"/Ges");
 	}
-
-
 	IDxcCompiler* complier = nullptr;
 	DxcCreateInstance(CLSID_DxcCompiler, __uuidof(IDxcCompiler), (void **)&complier);
 	IDxcOperationResult* R;
 
-	DxcDefine* defs = ParseDefinesDXC();
+	DxcDefine* defs = ParseDefines();
 	IDxcLibrary *pLibrary;
 	IDxcBlobEncoding *pSource;
 	DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), (void **)&pLibrary);
@@ -259,7 +269,20 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	R->GetResult(GetCurrentBlob(ShaderType));
 	R->GetErrorBuffer(&pErrorBlob);
 	R->GetStatus(&hr);
-
+#else
+	ID3DBlob* pErrorBlob = NULL;
+	UINT  compileFlags = 0;
+	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
+	{
+		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
+	}
+	else
+	{
+		compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS /*| D3DCOMPILE_WARNINGS_ARE_ERRORS*/;
+	}
+	D3D_SHADER_MACRO* defines = ParseDefines();
+	hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, StringUtils::ConvertWideToString(GetComplieTarget(ShaderType)).c_str(), compileFlags, 0, GetCurrentBlob(ShaderType), &pErrorBlob);
+#endif
 	if (!ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
 		//		StripD3DShader(GetCurrentBlob(ShaderType));
@@ -269,12 +292,17 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		std::string Log = "Shader Compile Output: ";
 		Log.append(name);
 		Log.append("\n");
+#if USE_DIXL
 		IDxcBlobEncoding *pPrintBlob16;
 		// We can use the library to get our preferred encoding.
 		pLibrary->GetBlobAsUtf8(pErrorBlob, &pPrintBlob16);
 		std::string S = std::string((char*)pErrorBlob->GetBufferPointer(), (int)pPrintBlob16->GetBufferSize());
 		Log.append(S);
 		pPrintBlob16->Release();
+#else
+		std::string S = reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer());
+		Log.append(S);
+#endif
 		if (FAILED(hr))
 		{
 			Log::LogMessage(Log, Log::Severity::Error);
@@ -361,6 +389,11 @@ const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, 
 	{
 		OutputName += "_D";
 	}
+#if USE_DIXL
+	OutputName += "_DIXL";
+#else
+	OutputName += "_D3D";
+#endif
 	OutputName += ".cso";
 	return OutputName;
 }
@@ -372,7 +405,7 @@ void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
 	//ReadFileIntoPartContent(),
 }
 
-bool D3D12Shader::TryLoadCachedShader(const std::string& Name, IDxcBlob** Blob, const std::string & InstanceHash, EShaderType::Type type)
+bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob, const std::string & InstanceHash, EShaderType::Type type)
 {
 	if (!CacheBlobs)
 	{
@@ -387,9 +420,13 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, IDxcBlob** Blob, 
 #else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && ShaderPreProcessor::CheckCSOValid(Name, FullShaderName))
 	{
+#if USE_DIXL
 		ReadFileIntoBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), (IDxcBlobEncoding**)Blob);
+#else
+		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
+#endif
 		return true;
-	}
+}
 	Log::LogMessage("Recompile triggered for " + Name);
 	return false;
 #endif
@@ -401,11 +438,15 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 	{
 		const std::string DDcShaderPath = AssetManager::GetDDCPath() + "Shaders\\";
 		FileUtils::CreateDirectoriesToFullPath(DDcShaderPath + shadername + ".");
+#if USE_DIXL
 		WriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str());
+#else
+		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
+#endif
 	}
 }
 
-D3D12_SHADER_BYTECODE D3D12Shader::GetByteCode(IDxcBlob* b)
+D3D12_SHADER_BYTECODE D3D12Shader::GetByteCode(ShaderBlob* b)
 {
 	return D3D12_SHADER_BYTECODE{ b->GetBufferPointer(), b->GetBufferSize() };
 }
@@ -653,12 +694,12 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, /*D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC*/ D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-	}
+}
 	//#RHI: Samplers
 
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
@@ -725,7 +766,7 @@ const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Param
 	return output;
 }
 
-IDxcBlob * D3D12Shader::ShaderBlobs::GetBlob(EShaderType::Type t)
+ShaderBlob * D3D12Shader::ShaderBlobs::GetBlob(EShaderType::Type t)
 {
 	switch (t)
 	{
