@@ -140,12 +140,12 @@ void RenderGraph::CreateDefGraphWithRT()
 	RTNode->GetInput(0)->SetStore(RTXBuffer);
 	RTNode->GetInput(1)->SetLink(RootNode->GetOutput(0));
 	RTNode->GetInput(2)->SetStore(ShadowDataNode);
-	ExposeItem(RTNode, "RTX");
+	ExposeItem(RTNode, StandardSettings::UseRaytrace);
 
 	LightNode->UseScreenSpaceReflection = true;
 
 	LightNode->OnNodeSettingChange();
-	ExposeNodeOption(LightNode, "SSR", &LightNode->UseScreenSpaceReflection, true);
+	ExposeNodeOption(LightNode, StandardSettings::UseSSR, &LightNode->UseScreenSpaceReflection, true);
 	LinkNode(RTNode, LightNode);
 	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
 }
@@ -179,7 +179,7 @@ void RenderGraph::CreateDefTestgraph()
 
 	ZPrePassNode* PreZ = new ZPrePassNode();
 	RootNode = PreZ;
-	ExposeItem(PreZ, "PREZ");
+	ExposeItem(PreZ, StandardSettings::UsePreZ);
 	PreZ->GetInput(0)->SetStore(GBufferNode);
 
 
@@ -271,7 +271,7 @@ void RenderGraph::CreateFWDGraph()
 	ParticleSimulateNode* simNode = new ParticleSimulateNode();
 	LinkNode(ShadowUpdate, simNode);
 	ZPrePassNode* PreZ = new ZPrePassNode();
-	ExposeItem(PreZ, "PREZ");
+	ExposeItem(PreZ, StandardSettings::UsePreZ);
 
 	LinkNode(simNode, PreZ);
 	PreZ->GetInput(0)->SetStore(MainBuffer);
@@ -433,7 +433,7 @@ void RenderGraph::CreateVRFWDGraph()
 	ParticleSimulateNode* simNode = new ParticleSimulateNode();
 	LinkNode(ShadowUpdate, simNode);
 	ZPrePassNode* PreZ = new ZPrePassNode();
-	ExposeItem(PreZ, "Enable PreZ");
+	ExposeItem(PreZ, StandardSettings::UsePreZ);
 
 	VRBranchNode* VrStart = new VRBranchNode();
 

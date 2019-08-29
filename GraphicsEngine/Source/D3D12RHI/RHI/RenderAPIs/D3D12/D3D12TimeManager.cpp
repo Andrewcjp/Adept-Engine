@@ -158,6 +158,10 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListTyp
 #if PIX_ENABLED
 const char* D3D12TimeManager::GetTimerNameForPIX(int index)
 {
+	if (index >= PixTimerNames->size())
+	{
+		return "";
+	}
 	return PixTimerNames[index].c_str();
 }
 #endif

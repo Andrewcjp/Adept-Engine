@@ -12,22 +12,9 @@ Shader_ParticleCompute::Shader_ParticleCompute(DeviceContext* dev) :Shader(dev)
 Shader_ParticleCompute::~Shader_ParticleCompute()
 {}
 
-//std::vector<ShaderParameter> Shader_ParticleCompute::GetShaderParameters()
-//{
-//	std::vector<ShaderParameter> Output;
-//	Output.push_back(ShaderParameter(ShaderParamType::UAV, 0, 0));
-//	Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 1));
-//	Output.push_back(ShaderParameter(ShaderParamType::SRV, 2, 0));
-//	Output.push_back(ShaderParameter(ShaderParamType::UAV, 3, 2));
-//	Output.push_back(ShaderParameter(ShaderParamType::UAV, 4, 3));
-//	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 5, 0));
-//	return Output;
-//}
-
 std::vector<ShaderParameter> Shader_ParticleCompute::GetShaderParameters()
 {
-
-	m_Shader->GeneratedParams[0].Type = ShaderParamType::RootConstant;
+	ChangeParamType("emitData", ShaderParamType::RootConstant);
 	return Shader::GetShaderParameters();
 }
 
