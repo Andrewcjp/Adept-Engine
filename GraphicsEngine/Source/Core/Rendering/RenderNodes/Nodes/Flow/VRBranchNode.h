@@ -12,7 +12,7 @@ public:
 	EEye::Type CurrentEyeMode = EEye::Left;
 
 	NameNode("VR Branch");
-
+	EEye::Type GetCurrentEye();
 protected:
 	virtual void OnSetupNode() override;
 

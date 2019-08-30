@@ -39,6 +39,7 @@ class CoreTargetRules : TargetRules
         CoreModule.IsCoreModule = true;
         CoreModule.SystemLibNames.Add("winmm.lib");
         CoreModule.SystemLibNames.Add("shlwapi.lib");
+        CoreModule.SystemLibNames.Add("dbghelp.lib");
         string[] ThirdPartyModules = new string[] {
             "freetypeBuild",
             "assimpBuild",

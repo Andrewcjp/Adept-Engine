@@ -13,6 +13,7 @@
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "../../Shaders/Shader_Main.h"
 #include "../../Core/FrameBuffer.h"
+#include "Flow/VRBranchNode.h"
 
 ForwardRenderNode::ForwardRenderNode()
 {
@@ -50,7 +51,7 @@ void ForwardRenderNode::OnExecute()
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
 
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(CommandList);
-	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, 0);
+	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, GetEye());
 	MeshPassRenderArgs Args;
 	Args.PassType = ERenderPass::BasePass;
 	Args.UseDeferredShaders = false;

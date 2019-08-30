@@ -41,6 +41,7 @@ void Camera::UpdateProjection(float aspect)
 	{
 		return;
 	}
+	fov = 110;
 	AspectRatio = aspect;
 	if (UseLeftHanded)
 	{

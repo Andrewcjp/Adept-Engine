@@ -70,9 +70,9 @@ public:
 	virtual std::vector<VertexElementDESC> GetVertexFormat();
 	virtual bool IsComputeShader();
 	virtual void ApplyToCommandList(RHICommandList* list);
-	ShaderParameter * FindParam(std::string name);
-	bool ChangeParamType(std::string name, ShaderParamType::Type type);
-	int GetSlotForName(std::string name);
+	ShaderParameter * FindParam(const std::string & name);
+	bool ChangeParamType(const std::string & name, ShaderParamType::Type type);
+	int GetSlotForName(const std::string & name);
 	int GetNameHash();
 	static bool IsShaderSupported_SM6(const ShaderComplieSettings& args);
 protected:

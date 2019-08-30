@@ -1,5 +1,6 @@
 #include "SubmitToHMDNode.h"
 #include "..\StorageNodeFormats.h"
+#include "Flow\VRBranchNode.h"
 
 SubmitToHMDNode::SubmitToHMDNode()
 {
@@ -11,8 +12,10 @@ SubmitToHMDNode::~SubmitToHMDNode()
 
 void SubmitToHMDNode::OnExecute()
 {
-	//
-	RHI::SubmitToVRComposter(GetFrameBufferFromInput(0), EEye::Left);
+	if (RHI::GetRenderSettings()->VRHMDMode == EVRHMDMode::SteamVR)
+	{
+		RHI::SubmitToVRComposter(GetFrameBufferFromInput(0), VRBranchContext->GetCurrentEye());
+	}
 }
 
 bool SubmitToHMDNode::IsNodeSupported(const RenderSettings& settings)

@@ -19,14 +19,20 @@ namespace EBuiltInRenderGraphPatch
 	enum Type
 	{
 		NONE,
+		//MGPU
 		MainFramebufferSFR,
 		PostProccessOnSecondGPU,
-		//shadows
+		//MGPU shadows
 		MGPU_ShadowMapping,
 		Async_MGPU_ShadowMapping,
 		//VR
-		VR_GPUPerEye,
-		VR_GPUSFRPerEye,
+		VR_GPUPerEye,//single GPU per eye (balanced only)
+		VR_GPUSFRPerEye,//SFR is used across both eyes as if one big RT(Unbalanced)
+		//RT
+		RT_Reflections,
+		RT_Shadows,
+		RT_Transparency,
+		RT_Realtime_GI,
 
 		Custom,
 		Limit,

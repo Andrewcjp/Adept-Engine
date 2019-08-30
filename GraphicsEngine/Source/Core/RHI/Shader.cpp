@@ -44,7 +44,7 @@ bool Shader::IsComputeShader()
 void Shader::ApplyToCommandList(RHICommandList * list)
 {}
 
-ShaderParameter* Shader::FindParam(std::string name)
+ShaderParameter * Shader::FindParam(const std::string & name)
 {
 	for (int i = 0; i < m_Shader->GeneratedParams.size(); i++)
 	{
@@ -56,7 +56,7 @@ ShaderParameter* Shader::FindParam(std::string name)
 	return nullptr;
 }
 
-bool Shader::ChangeParamType(std::string name, ShaderParamType::Type type)
+bool Shader::ChangeParamType(const std::string & name, ShaderParamType::Type type)
 {
 	ShaderParameter* P = FindParam(name);
 	if (P != nullptr)
@@ -67,7 +67,7 @@ bool Shader::ChangeParamType(std::string name, ShaderParamType::Type type)
 	return false;
 }
 
-int Shader::GetSlotForName(std::string name)
+int Shader::GetSlotForName(const std::string & name)
 {
 	for (int i = 0; i < m_Shader->GeneratedParams.size(); i++)
 	{

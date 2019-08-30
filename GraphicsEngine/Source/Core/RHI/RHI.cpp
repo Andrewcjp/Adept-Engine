@@ -700,10 +700,14 @@ void PipelineStateObjectCache::AddToCache(RHIPipeLineStateObject * object)
 
 void PipelineStateObjectCache::Destory()
 {
+#if PSO_USE_MAP
 	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
 	{
 		SafeRelease(itor->second);
 	}
+#else
+	MemoryUtils::DeleteReleaseableVector(PSOMap);
+#endif
 	PSOMap.clear();
 }
 

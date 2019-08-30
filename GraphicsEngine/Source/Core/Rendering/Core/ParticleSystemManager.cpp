@@ -223,7 +223,8 @@ void ParticleSystemManager::SubmitRender(FrameBuffer* buffer)
 #if PARTICLE_STATS
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 #endif
-	buffer->MakeReadyForComputeUse(RenderList);
+	//buffer->MakeReadyForComputeUse(RenderList);
+	buffer->MakeReadyForPixel(RenderList);
 	if (RHI::IsRenderingVR())
 	{
 		//BufferTarget->RightEyeFramebuffer->MakeReadyForComputeUse(RenderList);

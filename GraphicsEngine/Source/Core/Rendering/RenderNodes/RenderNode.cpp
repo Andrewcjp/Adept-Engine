@@ -6,6 +6,7 @@
 #include "StoreNodes/SceneDataNode.h"
 #include "StoreNodes/ShadowAtlasStorageNode.h"
 #include "RHI/RHI.h"
+#include "Nodes/Flow/VRBranchNode.h"
 
 RenderNode::RenderNode()
 {}
@@ -226,11 +227,25 @@ NodeLink* RenderNode::GetOutputLinkByName(const std::string& name)
 	return nullptr;
 }
 
+EEye::Type RenderNode::GetEye()
+{
+	if (VRBranchContext != nullptr)
+	{
+		return VRBranchContext->GetCurrentEye();
+	}
+	return EEye::Left;
+}
+
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());
 	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::Framebuffer);
-	return static_cast<FrameBufferStorageNode*>(GetInput(index)->GetStoreTarget())->GetFramebuffer();
+	FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(GetInput(index)->GetStoreTarget());
+	if (VRBranchContext != nullptr)
+	{
+		return Node->GetFramebuffer(VRBranchContext->GetCurrentEye());
+	}
+	return Node->GetFramebuffer();
 }
 
 ShadowAtlasStorageNode * RenderNode::GetShadowDataFromInput(int index)
