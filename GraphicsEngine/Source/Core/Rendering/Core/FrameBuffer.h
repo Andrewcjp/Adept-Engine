@@ -27,6 +27,7 @@ public:
 	RHI_API virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough);
 	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) = 0;
 	virtual void MakeReadyForCopy(RHICommandList * list) = 0;
+	RHI_API virtual void MakeReadyForPixel(RHICommandList* List, bool Depth = false) {};
 	///Needs to called before buffer is read for final present
 	void ResolveSFR(FrameBuffer* SumBuffer);
 	int GetTransferSize();

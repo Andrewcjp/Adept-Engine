@@ -32,7 +32,7 @@ void ViveHMD::Update()
 {
 	//CameraInstance->GetTransfrom()->SetPos(Getpos(ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking)));
 	//CameraInstance->GetTransfrom()->SetQrot(GetRotation(glm::inverse(poses[nDevice])));
-
+	UpdateProjection((float)GetDimentions().x / (float)GetDimentions().y);
 	HMD::Update();
 	CameraInstance->UpdateDebugTracking();
 }

@@ -44,6 +44,8 @@ public:
 	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy_In(ID3D12GraphicsCommandList * list);
 
+	virtual void MakeReadyForPixel(RHICommandList * List, bool Depth) override;
+
 	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
 	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
 	DeviceContext* GetDevice() override;

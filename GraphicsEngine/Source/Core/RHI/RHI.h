@@ -30,7 +30,7 @@ struct InterGPUDesc;
 class GPUPerformanceTestManager;
 //RHI defines
 #define RHI_SUPPORTS_VR 1
-#define PSO_USE_MAP 1
+#define PSO_USE_MAP 0
 #define MAX_GPU_DEVICE_COUNT 3
 #define ALLOW_RESOURCE_CAPTURE 0
 #define LOG_RESOURCE_TRANSITIONS 0

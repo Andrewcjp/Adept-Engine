@@ -3,6 +3,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/Shaders/Shader_PreZ.h"
+#include "Flow/VRBranchNode.h"
 
 ZPrePassNode::ZPrePassNode()
 {
@@ -28,7 +29,7 @@ void ZPrePassNode::OnExecute()
 	Cmdlist->SetPipelineStateDesc(desc);
 	Cmdlist->BeginRenderPass(RHIRenderPassDesc(Target, ERenderPassLoadOp::Clear));
 
-	SceneRenderer::Get()->RenderScene(Cmdlist, true, Target, false, 0);
+	SceneRenderer::Get()->RenderScene(Cmdlist, true, Target, false, GetEye());
 	Cmdlist->EndRenderPass();
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
 	Cmdlist->Execute();

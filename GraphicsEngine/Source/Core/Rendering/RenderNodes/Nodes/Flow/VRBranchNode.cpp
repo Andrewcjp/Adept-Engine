@@ -33,6 +33,15 @@ void VRBranchNode::OnExecute()
 
 }
 
+EEye::Type VRBranchNode::GetCurrentEye()
+{
+	if (VrLoopBegin != nullptr)
+	{
+		return VrLoopBegin->CurrentEyeMode;
+	}
+	return CurrentEyeMode;
+}
+
 void VRBranchNode::OnSetupNode()
 {
 

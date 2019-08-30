@@ -80,6 +80,7 @@ public:
 	{
 		return dynamic_cast<T*>(node);
 	}
+	EEye::Type GetEye();
 protected:
 
 	//search forwards until we reach the end VR node 

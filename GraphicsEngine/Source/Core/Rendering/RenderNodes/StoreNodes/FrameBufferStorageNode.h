@@ -13,10 +13,11 @@ public:
 	virtual void Update() override;
 	virtual void Resize() override;
 	virtual void Create() override;
-	FrameBuffer* GetFramebuffer();
-
+	FrameBuffer* GetFramebuffer(EEye::Type eye = EEye::Left);
+	bool IsVRFramebuffer= false;
 protected:
 	RHIFrameBufferDesc FramebufferDesc = {};
 	FrameBuffer* FBuffer = nullptr;
+	FrameBuffer* FRightEyeBuffer = nullptr;
 };
 

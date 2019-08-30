@@ -169,7 +169,17 @@ void D3D12FrameBuffer::MakeReadyForCopy_In(ID3D12GraphicsCommandList * list)
 {
 	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
 }
-
+void D3D12FrameBuffer::MakeReadyForPixel(RHICommandList * List, bool Depth)
+{
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	}
+	if (Depth)
+	{
+		DepthStencil->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	}
+}
 void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
 {
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)

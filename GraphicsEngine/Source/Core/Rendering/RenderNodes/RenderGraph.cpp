@@ -26,6 +26,7 @@
 #include "UI/UIManager.h"
 #include "StoreNodes/InterGPUStorageNode.h"
 #include "Nodes/InterGPUCopyNode.h"
+#include "Nodes/SubmitToHMDNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -422,7 +423,7 @@ void RenderGraph::CreateVRFWDGraph()
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	MainBuffer->SetFrameBufferDesc(Desc);
-
+	MainBuffer->IsVRFramebuffer = true;
 	MainBuffer->StoreType = EStorageType::Framebuffer;
 	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
 
@@ -461,10 +462,13 @@ void RenderGraph::CreateVRFWDGraph()
 	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
 #endif
 	OutputToScreenNode* Output = new OutputToScreenNode();
+	SubmitToHMDNode* SubNode = new SubmitToHMDNode();
+	SubNode->GetInput(0)->SetLink(FWDNode->GetOutput(0));
+	LinkNode(renderNode, SubNode);
 
 	VRBranchNode* VrEnd = new VRBranchNode();
 	VrEnd->VrLoopBegin = VrStart;
-	LinkNode(renderNode, VrEnd);
+	LinkNode(SubNode, VrEnd);
 	LinkNode(VrEnd, Output);
 	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
 }

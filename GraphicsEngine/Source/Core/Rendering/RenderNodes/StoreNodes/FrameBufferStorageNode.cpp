@@ -35,9 +35,17 @@ void FrameBufferStorageNode::Create()
 {
 	FrameBuffer::AutoUpdateSize(FramebufferDesc);
 	FBuffer = RHI::CreateFrameBuffer(DeviceObject, FramebufferDesc);
+	if (IsVRFramebuffer)
+	{
+		FRightEyeBuffer = RHI::CreateFrameBuffer(DeviceObject, FramebufferDesc);
+	}
 }
 
-FrameBuffer * FrameBufferStorageNode::GetFramebuffer()
+FrameBuffer* FrameBufferStorageNode::GetFramebuffer(EEye::Type eye /*= EEye::Left*/)
 {
+	if (eye == EEye::Right)
+	{
+		return FRightEyeBuffer;
+	}
 	return FBuffer;
 }

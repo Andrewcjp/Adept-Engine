@@ -32,6 +32,7 @@ public:
 	void EndResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
 	bool IsTransitioning();
 	void SetGPUPage(GPUMemoryPage* page);
+	void UpdateUnTrackedState(D3D12_RESOURCE_STATES newstate);
 private:
 	EResourceState::Type currentState = EResourceState::Resident;
 	ID3D12Resource* resource = nullptr;

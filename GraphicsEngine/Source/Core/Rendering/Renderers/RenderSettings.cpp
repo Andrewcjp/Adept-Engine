@@ -17,9 +17,9 @@ RenderSettings::RenderSettings()
 	RTSettings.Enabled = false;
 	//AllowMeshInstancing = true;
 
-	VRHMDMode = EVRHMDMode::Disabled;
+	VRHMDMode = EVRHMDMode::SteamVR;
 
-	SelectedGraph = EBuiltinRenderGraphs::ForwardRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::VRForwardRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;

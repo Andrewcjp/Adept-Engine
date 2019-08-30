@@ -110,6 +110,12 @@ void GPUResource::SetGPUPage(GPUMemoryPage * page)
 	Page = page;
 }
 
+void GPUResource::UpdateUnTrackedState(D3D12_RESOURCE_STATES newstate)
+{
+	CurrentResourceState = newstate;
+	TargetState = newstate;
+}
+
 D3D12_RESOURCE_STATES GPUResource::GetCurrentState()
 {
 	return CurrentResourceState;
