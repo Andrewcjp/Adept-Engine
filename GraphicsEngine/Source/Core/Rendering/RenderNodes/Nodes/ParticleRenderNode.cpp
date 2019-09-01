@@ -2,6 +2,7 @@
 #include "Rendering/Core/ParticleSystemManager.h"
 
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "../NodeLink.h"
 
 ParticleRenderNode::ParticleRenderNode()
 {
@@ -15,14 +16,18 @@ ParticleRenderNode::~ParticleRenderNode()
 void ParticleRenderNode::OnExecute()
 {
 	FrameBuffer* Buffer = GetFrameBufferFromInput(0);
-	//DeviceDependentObjects D;
-	//D.MainFrameBuffer = Buffer;
-	ParticleSystemManager::Get()->Render(Buffer);
+	FrameBuffer* DepthSource = nullptr;
+	if (GetInput(1)->IsValid())
+	{
+		DepthSource = GetFrameBufferFromInput(1);
+	}
+	ParticleSystemManager::Get()->Render(Buffer, DepthSource, GetEye());
 	PassNodeThough(0);
 }
 
 void ParticleRenderNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene);
+	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene, "Screen Data");
+	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "Depth Data");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
 }

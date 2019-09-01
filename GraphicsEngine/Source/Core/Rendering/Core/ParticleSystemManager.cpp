@@ -51,7 +51,7 @@ void ParticleSystemManager::InitCommon()
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 	ParticleRenderConstants = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	ParticleRenderConstants->CreateConstantBuffer(sizeof(RenderData), 1);
+	ParticleRenderConstants->CreateConstantBuffer(sizeof(RenderData), 2);
 
 	CmdList = RHI::CreateCommandList(ECommandListType::Compute);
 
@@ -77,12 +77,15 @@ void ParticleSystemManager::InitCommon()
 
 void ParticleSystemManager::PreRenderUpdate(Camera* c)
 {
-	RenderData.CameraUp_worldspace = glm::vec4(c->GetUp(), 1.0f);
-	RenderData.CameraRight_worldspace = glm::vec4(c->GetRight(), 1.0f);
-	RenderData.VPMat = c->GetViewProjection();
-	if (ParticleRenderConstants)
+	for (int i = 0; i < EEye::Limit; i++)
 	{
-		ParticleRenderConstants->UpdateConstantBuffer(&RenderData, 0);
+		RenderData[i].CameraUp_worldspace = glm::vec4(c->GetUp(), 1.0f);
+		RenderData[i].CameraRight_worldspace = glm::vec4(c->GetRight(), 1.0f);
+		RenderData[i].VPMat = c->GetViewProjection();
+		if (ParticleRenderConstants)
+		{
+			ParticleRenderConstants->UpdateConstantBuffer(&RenderData, i);
+		}
 	}
 	float time = Engine::GetDeltaTime();
 	for (int i = 0; i < ParticleSystems.size(); i++)
@@ -214,7 +217,6 @@ void ParticleSystemManager::SubmitCompute()
 	CmdList->EndTimer(EGPUTIMERS::ParticleSimulation);
 #endif
 	CmdList->Execute();
-
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
@@ -225,22 +227,18 @@ void ParticleSystemManager::SubmitRender(FrameBuffer* buffer)
 #endif
 	//buffer->MakeReadyForComputeUse(RenderList);
 	buffer->MakeReadyForPixel(RenderList);
-	if (RHI::IsRenderingVR())
-	{
-		//BufferTarget->RightEyeFramebuffer->MakeReadyForComputeUse(RenderList);
-	}
 	RenderList->Execute();
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 }
 
-void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * BufferTarget)
+void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * BufferTarget, EEye::Type Eye /*= Eeye::Left*/)
 {
-	if (!System->ShouldRender)
+	if (!system->ShouldRender)
 	{
 		return;
 	}
 	RHIPipeLineStateDesc desc;
-	desc.ShaderInUse = System->RenderShader;
+	desc.ShaderInUse = system->RenderShader;
 	desc.FrameBufferTarget = BufferTarget;
 	if (DepthBuffer != nullptr)
 	{
@@ -251,35 +249,27 @@ void ParticleSystemManager::RenderSystem(ParticleSystem * System, FrameBuffer * 
 	desc.Blending = true;
 	desc.Mode = Full;
 	RenderList->SetPipelineStateDesc(desc);
-	//if (DepthBuffer != nullptr)
-	//{
-	//	DepthBuffer->BindDepthWithColourPassthrough(RenderList, BufferTarget);
-	//}
-	//else
-	//{
-	//	RenderList->SetRenderTarget(BufferTarget);
-	//}
 	RHIRenderPassDesc info(BufferTarget, ERenderPassLoadOp::Load);
 	info.DepthSourceBuffer = DepthBuffer;
 	RenderList->BeginRenderPass(info);
 	RenderList->SetVertexBuffer(VertexBuffer);
-	RenderList->SetConstantBufferView(ParticleRenderConstants, 0, 2);
-	System->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
-	System->GPU_ParticleData->BindBufferReadOnly(RenderList, 1);
-	System->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::IndirectArgs);
-	RenderList->SetTexture(System->ParticleTexture.Get(), 3);
+	RenderList->SetConstantBufferView(ParticleRenderConstants, Eye, 2);
+	system->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
+	system->GPU_ParticleData->BindBufferReadOnly(RenderList, 1);
+	system->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::IndirectArgs);
+	RenderList->SetTexture(system->ParticleTexture.Get(), 3);
 #if USE_INDIRECTRENDER
-	RenderList->ExecuteIndiect(System->MaxParticleCount, System->RenderCommandBuffer, 0, System->CounterBuffer, 0);
+	RenderList->ExecuteIndiect(system->MaxParticleCount, system->RenderCommandBuffer, 0, system->CounterBuffer, 0);
 #else
-	for (int i = 0; i < System->MaxParticleCount; i++)
+	for (int i = 0; i < system->MaxParticleCount; i++)
 	{
 		RenderList->SetRootConstant(0, 1, &i, 0);
 		RenderList->DrawPrimitive(6, 1, 0, 0);
 	}
 #endif
-	System->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
-	System->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
-	System->SwapBuffers();
+	system->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
+	system->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::UnorderedAccess);
+	system->SwapBuffers();
 	RenderList->EndRenderPass();
 }
 
@@ -299,31 +289,19 @@ void ParticleSystemManager::Simulate()
 }
 
 
-void ParticleSystemManager::Render(FrameBuffer* TargetBuffer, FrameBuffer * DepthTexture /*= nullptr*/)
+void ParticleSystemManager::Render(FrameBuffer* TargetBuffer, FrameBuffer * DepthTexture /*= nullptr*/, EEye::Type Eye/* = EEye::Left*/)
 {
 	if (!RHI::GetRenderSettings()->EnableGPUParticles)
 	{
 		return;
 	}
-	//if (RHI::GetRenderSettings()->IsDeferred)
-	//{
-	////	DepthBuffer = TargetBuffer;
-	//}
+
+	DepthBuffer = DepthTexture;
+
 	StartRender();
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{
-		RenderSystem(ParticleSystems[i], TargetBuffer);
-	}
-	if (RHI::IsRenderingVR())
-	{
-		/*if (RHI::GetRenderSettings()->IsDeferred)
-		{
-			DepthBuffer = DDO->RightEyeGBuffer;
-		}
-		for (int i = 0; i < ParticleSystems.size(); i++)
-		{
-			RenderSystem(ParticleSystems[i], DDO->RightEyeFramebuffer);
-		}*/
+		RenderSystem(ParticleSystems[i], TargetBuffer, Eye);
 	}
 	SubmitRender(TargetBuffer);
 }

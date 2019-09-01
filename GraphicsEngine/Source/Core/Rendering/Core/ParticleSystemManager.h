@@ -50,8 +50,8 @@ public:
 
 	void StartRender();
 
-	void RenderSystem(ParticleSystem* system, FrameBuffer * BufferTarget);
-	void Render(FrameBuffer* DDO, FrameBuffer * DepthTexture = nullptr);
+	void RenderSystem(ParticleSystem* system, FrameBuffer * BufferTarget, EEye::Type Eye = EEye::Left);
+	void Render(FrameBuffer* DDO, FrameBuffer * DepthTexture = nullptr, EEye::Type Eye = EEye::Left);
 	void AddSystem(ParticleSystem* system);
 	void RemoveSystem(ParticleSystem* system);
 private:
@@ -69,7 +69,7 @@ private:
 		glm::vec4 CameraRight_worldspace;
 		glm::vec4 CameraUp_worldspace;
 	};
-	ParticleConstData RenderData = ParticleConstData();
+	ParticleConstData RenderData[EEye::Limit];
 	int emitcount = 0;
 	std::vector<ParticleSystem*> ParticleSystems;
 	void SubmitCompute();

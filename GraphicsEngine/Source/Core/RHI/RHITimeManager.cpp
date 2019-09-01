@@ -118,6 +118,10 @@ void RHITimeManager::PushToPerfManager()
 		return;
 	}
 	GPUTimer* MainTimer = GetTimer(TimerNames[0], Context);
+	if (MainTimer == nullptr)
+	{
+		return;
+	}
 	for (auto itor = Timers.begin(); itor != Timers.end(); itor++)
 	{
 		if (MainTimer->Stamps.size() > 1)

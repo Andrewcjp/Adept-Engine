@@ -19,8 +19,8 @@ void DebugUINode::OnExecute()
 	{
 		CommandList->ClearFrameBuffer(FB);
 	}
-	DebugLineDrawer::Get()->RenderLines(FB, CommandList, EEye::Left);
-	DebugLineDrawer::Get2()->RenderLines(FB, CommandList, EEye::Left);
+	DebugLineDrawer::Get()->RenderLines(FB, CommandList, GetEye());
+	DebugLineDrawer::Get2()->RenderLines(FB, CommandList, GetEye());
 	CommandList->Execute();
 	PassNodeThough(0);
 }
