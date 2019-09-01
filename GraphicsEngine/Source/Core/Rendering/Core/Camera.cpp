@@ -41,7 +41,6 @@ void Camera::UpdateProjection(float aspect)
 	{
 		return;
 	}
-	fov = 110;
 	AspectRatio = aspect;
 	if (UseLeftHanded)
 	{
@@ -50,12 +49,6 @@ void Camera::UpdateProjection(float aspect)
 	else
 	{
 		projection = glm::perspectiveRH(glm::radians(fov), aspect, zNear, ZFar);
-	}
-	if (RHI::IsVulkan())
-	{
-		//projection[1][1] = -projection[1][1];
-		//projection[2][2] *= 0.5f;
-		//projection[2][3] *= 0.5f;
 	}
 }
 

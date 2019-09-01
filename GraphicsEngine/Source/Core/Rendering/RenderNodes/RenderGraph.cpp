@@ -199,22 +199,26 @@ void RenderGraph::CreateDefTestgraph()
 	LinkNode(ShadowUpdate, UpdateProbesNode);
 
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
+	ParticleSimulateNode* ParticleSimNode = new ParticleSimulateNode();
 
-
-	LinkNode(UpdateProbesNode, LightNode);
+	LinkNode(UpdateProbesNode, ParticleSimNode);
+	LinkNode(ParticleSimNode, LightNode);
 
 	LightNode->GetInput(0)->SetLink(RootNode->GetOutput(0));
 	LightNode->GetInput(1)->SetStore(MainBuffer);
 	LightNode->GetInput(2)->SetStore(SceneData);
-
 	LightNode->GetInput(3)->SetStore(ShadowDataNode);
 
+	ParticleRenderNode* PRenderNode = new ParticleRenderNode();
+	LinkNode(LightNode, PRenderNode);
+	PRenderNode->GetInput(0)->SetLink(LightNode->GetOutput(0));
+	PRenderNode->GetInput(1)->SetStore(GBufferNode);
 
 	SSAONode* SSAO = new SSAONode();
 	SSAO->GetInput(0)->SetLink(LightNode->GetOutput(0));
 	SSAO->GetInput(1)->SetStore(GBufferNode);
 	SSAO->GetInput(2)->SetStore(SSAOBuffer);
-	LinkNode(LightNode, SSAO);
+	LinkNode(PRenderNode, SSAO);
 
 	PostProcessNode* PPNode = new PostProcessNode();
 	LinkNode(SSAO, PPNode);
@@ -455,16 +459,14 @@ void RenderGraph::CreateVRFWDGraph()
 	ParticleRenderNode* renderNode = new ParticleRenderNode();
 	LinkNode(FWDNode, renderNode);
 	renderNode->GetInput(0)->SetStore(MainBuffer);
-#if 0
 	DebugUINode* Debug = new DebugUINode();
-	AddBranchNode(FWDNode, simNode, Debug, true);
-	renderNode->LinkToNode(Debug);
+	LinkNode(renderNode, Debug);
 	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
-#endif
+
 	OutputToScreenNode* Output = new OutputToScreenNode();
 	SubmitToHMDNode* SubNode = new SubmitToHMDNode();
 	SubNode->GetInput(0)->SetLink(FWDNode->GetOutput(0));
-	LinkNode(renderNode, SubNode);
+	LinkNode(Debug, SubNode);
 
 	VRBranchNode* VrEnd = new VRBranchNode();
 	VrEnd->VrLoopBegin = VrStart;

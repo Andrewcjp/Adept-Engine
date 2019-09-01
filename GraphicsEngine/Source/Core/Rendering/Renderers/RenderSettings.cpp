@@ -14,12 +14,12 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = false;
+	RTSettings.Enabled = true;
 	//AllowMeshInstancing = true;
 
-	VRHMDMode = EVRHMDMode::SteamVR;
+	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::VRForwardRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_RT;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;
