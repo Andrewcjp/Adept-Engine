@@ -6,6 +6,7 @@ struct ShadowAtlasHandle
 	FrameBuffer* DynamicMapPtr = nullptr;
 	ShadowAtlas* AtlasNode = nullptr;
 	Light* lightPtr = nullptr;
+	int HandleId = 0;
 };
 class ShadowAtlas
 {

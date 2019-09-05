@@ -153,8 +153,6 @@ void D3D12FrameBuffer::TransitionTOCopy(ID3D12GraphicsCommandList* list)
 	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
 }
 
-
-
 void D3D12FrameBuffer::MakeReadyForRead(ID3D12GraphicsCommandList * list)
 {
 	//TargetCopy->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -182,14 +180,15 @@ void D3D12FrameBuffer::MakeReadyForPixel(RHICommandList * List, bool Depth)
 }
 void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
 {
-	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	FrameBuffer::MakeReadyForComputeUse(List, Depth);
+	/*for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
 		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
 	if (Depth)
 	{
 		DepthStencil->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
+	}*/
 }
 
 void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, FrameBuffer* PassThrough)
@@ -367,6 +366,43 @@ void D3D12FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res, 
 	PerfManager::EndTimer("MakeReadyOnTarget");
 	DidTransferLastFrame = true;
 	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
+}
+
+void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool Depth)
+{
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), state);
+	}
+	if (Depth)
+	{
+		if (state == D3D12_RESOURCE_STATE_RENDER_TARGET)
+		{
+			state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		}
+		DepthStencil->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), state);
+	}
+}
+
+void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/)
+{
+	switch (State)
+	{
+		case EResourceState::RenderTarget:
+			SetState(List, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
+			break;
+		case EResourceState::PixelShader:
+			SetState(List, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, true);
+			break;
+		case EResourceState::ComputeUse:
+			SetState(List, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, ChangeDepth);
+			break;
+		case EResourceState::UAV:
+			SetState(List, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, ChangeDepth);
+			break;
+		case EResourceState::Limit:
+			break;
+	}
 }
 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)

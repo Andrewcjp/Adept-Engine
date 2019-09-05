@@ -64,7 +64,6 @@ StructuredBuffer<Light> LightList : register(t20);
 [shader("raygeneration")]
 void rayGen()
 {
-
 	uint3 launchIndex = DispatchRaysIndex();
 	uint3 launchDim = DispatchRaysDimensions();
 

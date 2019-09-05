@@ -8,6 +8,10 @@
 ShadowUpdateNode::ShadowUpdateNode()
 {
 	OnNodeSettingChange();
+	if (RHI::IsVulkan())
+	{
+		SetNodeActive(false);
+	}
 }
 
 

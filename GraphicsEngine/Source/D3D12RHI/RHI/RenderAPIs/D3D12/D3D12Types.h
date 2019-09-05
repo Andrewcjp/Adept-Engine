@@ -38,7 +38,7 @@ struct AllocDesc
 	D3D12_CLEAR_VALUE ClearValue = {};
 	D3D12_RESOURCE_DESC ResourceDesc;
 };
-namespace EResourceState
+namespace EResourcePageState
 {
 	enum Type
 	{

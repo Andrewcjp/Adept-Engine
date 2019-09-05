@@ -35,7 +35,8 @@ public:
 	static eTEXTURE_FORMAT GetPreSampledTextureFormat(int Shadownumber);
 	static void InvalidateAllBakedShadows();
 
-	
+
+	static void UpdateShadowID(Light * L, int D);
 	static ShadowRenderer* Get();
 	void UpdateShadowAsignments();
 	std::vector<ShadowAtlas*> AtlasSets;
@@ -45,6 +46,7 @@ private:
 	static void SetPointRS(RHICommandList * list);
 	//called to allocate all lights to an atlas, also handles multi-gpu assignment
 	void AssignAtlasData(ShadowAtlas* Node);
+
 	
 };
 

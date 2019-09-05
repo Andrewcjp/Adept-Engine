@@ -45,8 +45,10 @@ void ForwardRenderNode::OnExecute()
 	}
 	CommandList->BeginRenderPass(desc.RenderPassDesc);
 	glm::ivec2 Res = glm::ivec2(TargetBuffer->GetWidth(), TargetBuffer->GetHeight());
-	CommandList->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);
-
+	if (!RHI::IsVulkan())
+	{
+		CommandList->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);
+	}
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(CommandList, false);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
 

@@ -143,7 +143,7 @@ void LightCullingEngine::UpdateLightsBuffer()
 	LightData.clear();
 	for (Light* L : LightsInFustrum)
 	{
-		LightUniformBuffer newitem = SceneRenderer::CreateLightEntity(L);
+		LightUniformBuffer newitem = SceneRenderer::CreateLightEntity(L, 0);
 		LightData.push_back(newitem);
 	}
 	LightDataBuffer->UpdateBufferData(LightData.data(), sizeof(LightUniformBuffer)*LightData.size(), EBufferResourceState::Read);

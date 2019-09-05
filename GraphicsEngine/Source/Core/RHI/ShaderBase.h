@@ -30,7 +30,14 @@ namespace ShaderParamType
 {
 	enum Type
 	{
-		SRV, RootSRV,UAV, CBV, RootConstant, Sampler,Limit
+		SRV,
+		Buffer,
+		RootSRV,
+		UAV,
+		CBV,
+		RootConstant,
+		Sampler,
+		Limit
 	};
 }
 enum RHI_SHADER_VISIBILITY

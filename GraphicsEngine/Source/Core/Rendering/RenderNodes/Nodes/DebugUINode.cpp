@@ -5,6 +5,10 @@
 DebugUINode::DebugUINode()
 {
 	OnNodeSettingChange();
+	if (RHI::IsVulkan() && RHI::GetRenderSettings()->SelectedGraph != EBuiltinRenderGraphs::Fallback)
+	{
+		SetNodeActive(false);
+	}
 }
 
 DebugUINode::~DebugUINode()

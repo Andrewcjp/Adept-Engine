@@ -33,26 +33,26 @@ void GPUResource::SetName(LPCWSTR name)
 
 void GPUResource::Evict()
 {
-	ensure(currentState != EResourceState::Evicted);
+	ensure(currentState != EResourcePageState::Evicted);
 	ID3D12Pageable* Pageableresource = resource;
 	ThrowIfFailed(Device->GetDevice()->Evict(1, &Pageableresource));
-	currentState = EResourceState::Evicted;
+	currentState = EResourcePageState::Evicted;
 }
 
 void GPUResource::MakeResident()
 {
-	ensure(currentState != EResourceState::Resident);
+	ensure(currentState != EResourcePageState::Resident);
 	ID3D12Pageable* Pageableresource = resource;
 	ThrowIfFailed(Device->GetDevice()->MakeResident(1, &Pageableresource));
-	currentState = EResourceState::Resident;
+	currentState = EResourcePageState::Resident;
 }
 
 bool GPUResource::IsResident()
 {
-	return (currentState == EResourceState::Resident);
+	return (currentState == EResourcePageState::Resident);
 }
 
-EResourceState::Type GPUResource::GetState()
+EResourcePageState::Type GPUResource::GetState()
 {
 	return currentState;
 }

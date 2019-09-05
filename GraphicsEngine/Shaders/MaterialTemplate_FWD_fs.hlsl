@@ -40,7 +40,10 @@ struct PSInput
 	float4 WorldPos:TANGENT0;
 	row_major float3x3 TBN:TANGENT1;
 };
-#ifdef WITH_SHADOW
+#if VULKAN 
+Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t0);
+TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t1);
+#else
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t0, space1);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t1, space2);
 #endif
@@ -117,7 +120,7 @@ float4 main(PSInput input) : SV_TARGET
 		const int index = i;
 #endif
 		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
-#ifdef WITH_SHADOW
+#if 0 //def WITH_SHADOW
 		[branch] if (lights[index].HasShadow && lights[index].PreSampled.x)
 		{
 			colour *= FWD_GetPresampledShadow(ScreenPos,lights[index].PreSampled.y);

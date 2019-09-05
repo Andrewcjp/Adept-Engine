@@ -182,6 +182,9 @@ void FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHIComm
 void FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list)
 {}
 
+void FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/)
+{}
+
 void FrameBuffer::Release()
 {
 	MemoryUtils::RHIUtil::DeleteVector(UAVs);
@@ -302,6 +305,19 @@ void FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* L
 
 void FrameBuffer::BindDepthWithColourPassthrough(RHICommandList * list, FrameBuffer * PassThrough)
 {}
+
+void FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
+{
+	SetResourceState(List, EResourceState::ComputeUse, Depth);
+}
+
+void FrameBuffer::MakeReadyForCopy(RHICommandList * list)
+{}
+
+void FrameBuffer::MakeReadyForPixel(RHICommandList * List, bool Depth)
+{
+	
+}
 
 void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 {
