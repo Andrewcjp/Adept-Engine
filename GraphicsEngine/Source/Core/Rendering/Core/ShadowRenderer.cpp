@@ -366,8 +366,18 @@ void ShadowRenderer::AssignAtlasData(ShadowAtlas* Node)
 		}
 		lights[i]->SetShadowId(i);
 		lights[i]->GPUResidenceMask[DeviceIndex].AtlasHandle = Node->AllocateHandle(lights[i], RHI::GetDeviceContext(DeviceIndex));
+		lights[i]->GPUResidenceMask[DeviceIndex].AtlasHandle->HandleId = i;
 	}
 
+}
+
+//handles are in arrays of maps and need to be contiguous.
+void ShadowRenderer::UpdateShadowID(Light * L, int D)
+{
+	if (L->GPUResidenceMask[D].AtlasHandle != nullptr)
+	{
+		L->SetShadowId(L->GPUResidenceMask[D].AtlasHandle->HandleId);
+	}
 }
 
 ShadowRenderer * ShadowRenderer::Get()

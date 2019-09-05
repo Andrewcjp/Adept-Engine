@@ -332,6 +332,7 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 	for (int i = 0; i < Parms.size(); i++)
 	{
 		ShaderParameter* Element = &Parms[i];
+		Element->RegisterSpace = 0;
 		if (Element->Type == ShaderParamType::CBV)
 		{
 			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
@@ -351,7 +352,17 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			Binds.push_back(samplerLayoutBinding);
 		}
-		else  if (Element->Type == ShaderParamType::RootConstant)
+		else if (Element->Type == ShaderParamType::Buffer)
+		{
+			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+			uboLayoutBinding.binding = Element->RegisterSlot;
+			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			uboLayoutBinding.descriptorCount = 1;
+			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
+			uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+			Binds.push_back(uboLayoutBinding);
+		}
+		else if (Element->Type == ShaderParamType::RootConstant)
 		{
 			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
 			uboLayoutBinding.binding = Element->RegisterSlot;

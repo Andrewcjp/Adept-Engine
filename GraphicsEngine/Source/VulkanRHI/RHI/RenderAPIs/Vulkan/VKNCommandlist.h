@@ -3,6 +3,7 @@
 #include "RHI/Shader.h"
 #include "VKNRHI.h"
 #include "vulkan/vulkan_core.h"
+#include "RHI/RHIRootSigniture.h"
 
 class Descriptor;
 #if BUILD_VULKAN
@@ -58,7 +59,7 @@ public:
 
 
 	 virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) override;
-
+	 RHIRootSigniture Rootsig;
 };
 
 

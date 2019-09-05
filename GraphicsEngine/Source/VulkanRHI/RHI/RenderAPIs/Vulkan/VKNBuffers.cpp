@@ -114,7 +114,7 @@ void VKNBuffer::CreateConstantBuffer(int iStructSize, int Elementcount, bool Rep
 	StructSize = VKNHelpers::Align(iStructSize);
 	TotalByteSize = StructSize * Elementcount;
 
-	VKNHelpers::createBuffer(StructSize*Elementcount, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexbuffer, vertexBufferMemory);
+	VKNHelpers::createBuffer(StructSize*Elementcount, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexbuffer, vertexBufferMemory);
 	ensure(vertexBufferMemory);
 }
 

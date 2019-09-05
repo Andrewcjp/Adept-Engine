@@ -22,12 +22,14 @@ struct RSBind
 {
 	RSBind() {}
 	~RSBind() {}
+	ShaderParameter* BindParm = nullptr;
 	ERSBindType::Type BindType = ERSBindType::Limit;
+	int Offset = 0;
 	/*union
 	{*/
 	BaseTextureRef Texture;
-	FrameBuffer* Framebuffer;
-	RHIBuffer* BufferTarget;
+	FrameBuffer* Framebuffer = nullptr;
+	RHIBuffer* BufferTarget = nullptr;
 	/*};*/
 	RSBind(const RSBind &other)
 	{
@@ -64,25 +66,29 @@ struct RSBind
 		}
 		return *this;
 	}
+	static ERSBindType::Type ConvertBind(ShaderParamType::Type T);
 };
+
 class RHIRootSigniture
 {
 public:
-	RHIRootSigniture();
-	~RHIRootSigniture();
-	void SetRootSig(std::vector<ShaderParameter>& parms);
+	RHI_API RHIRootSigniture();
+	RHI_API ~RHIRootSigniture();
+	RHI_API void SetRootSig(std::vector<ShaderParameter>& parms);
 	bool ValidateData(ShaderParameter * Parm, RSBind & bind);
 	bool ComparePTypes(ShaderParamType::Type T, ERSBindType::Type bindt);
 	bool ValidateType(ShaderParameter * Parm, ERSBindType::Type type);
-	void SetTexture(int slot, BaseTextureRef Tex);
-	void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, int resoruceindex = 0);
-	void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0);
-	void SetBufferReadOnly(int slot, RHIBuffer* Target);
-	void Reset();
+	RHI_API void SetTexture(int slot, BaseTextureRef Tex);
+	RHI_API void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, int resoruceindex = 0);
+	RHI_API void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0);
+	RHI_API void SetBufferReadOnly(int slot, RHIBuffer* Target);
+	RHI_API void Reset();
 	ShaderParameter * GetParm(int slot);
 	RHI_API const RSBind* GetBind(int slot)const;
 	RHI_API int GetNumBinds()const;
+
 private:
+	void DefaultParams();
 	std::vector<ShaderParameter> Parms;
 	std::vector<RSBind> CurrnetBinds;
 };

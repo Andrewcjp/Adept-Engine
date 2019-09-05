@@ -65,7 +65,7 @@ void SceneRenderer::PrepareSceneForRender()
 	if (SceneChanged)
 	{
 		Enviroment->GenerateStaticEnvData();
-	}	
+	}
 #if WITH_EDITOR
 	if (EditorCam != nullptr && EditorCam->GetEnabled())
 	{
@@ -90,7 +90,7 @@ void SceneRenderer::PrepareSceneForRender()
 	LightsBuffer.TileY = LightCulling->GetLightGridDim().y;
 	ShadowRenderer::Get()->UpdateShadowAsignments();
 
-	UpdateLightBuffer(TargetScene->GetLights());	
+	UpdateLightBuffer(TargetScene->GetLights());
 	//#todo:move this to node
 	ParticleSystemManager::Get()->PreRenderUpdate(CurrentCamera);
 	SceneChanged = false;
@@ -180,7 +180,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			{
 				continue;
 			}
-			LightUniformBuffer newitem = CreateLightEntity(lights[i]);
+			LightUniformBuffer newitem = CreateLightEntity(lights[i],devindex);
 
 			//assume if not resident its pre-sampled
 //			newitem.PreSampled[0] = !lights[i]->GPUShadowResidentMask[devindex];
@@ -219,7 +219,9 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 				glm::mat4 proj = glm::perspectiveLH<float>(glm::radians(90.0f), 1.0f, znear, zfar);
 				lights[i]->Projection = proj;
 			}
+
 			LightsBuffer.Light[i] = newitem;
+
 		}
 		////LightsBuffer.LightCount = 1;// lights.size();
 		//const int TileSize = RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE;
@@ -228,9 +230,10 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 		LightsBuffer.LightCount = LightCulling->GetNumLights();
 		CLightBuffer[devindex]->UpdateConstantBuffer(&LightsBuffer, 0);
 	}
+
 }
 
-LightUniformBuffer SceneRenderer::CreateLightEntity(Light *L)
+LightUniformBuffer SceneRenderer::CreateLightEntity(Light * L, int devindex)
 {
 	L->Update();
 	LightUniformBuffer newitem = {};
@@ -239,6 +242,7 @@ LightUniformBuffer SceneRenderer::CreateLightEntity(Light *L)
 	newitem.Direction = L->GetDirection();
 	newitem.type = L->GetType();
 	newitem.HasShadow = L->GetDoesShadow();
+	ShadowRenderer::UpdateShadowID(L, devindex);
 	newitem.ShadowID = L->GetShadowId();
 	newitem.Range = L->GetRange();
 	return newitem;

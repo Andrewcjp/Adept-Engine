@@ -9,6 +9,8 @@
 #include "VKNTexture.h"
 #include "VKNShader.h"
 #include "Core/Performance/PerfManager.h"
+#include "RHI/RHIRootSigniture.h"
+#include "VKNFramebuffer.h"
 
 
 VKNDescriptorPool::VKNDescriptorPool(VKNDeviceContext* Con)
@@ -42,45 +44,61 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
 {
 	VkDescriptorSet Set = createDescriptorSets(list->CurrentPso->descriptorSetLayout, 1);
 	std::vector<VkWriteDescriptorSet> WriteData;
-	for (int i = 0; i < list->CurrentDescriptors.size(); i++)
+	for (int i = 0; i < list->Rootsig.GetNumBinds(); i++)
 	{
-		Descriptor* Desc = &list->CurrentDescriptors[i];
-		if (Desc->DescType == EDescriptorType::Limit)
+		const RSBind* Desc = list->Rootsig.GetBind(i);
+		if (Desc->BindType == ERSBindType::Limit)
 		{
+			//__debugbreak();
 			continue;
 		}
 		VkWriteDescriptorSet descriptorWrite = {};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = Set;
-		descriptorWrite.dstBinding = Desc->bindpoint;
-		descriptorWrite.dstArrayElement = 0;		
-		descriptorWrite.descriptorCount = 1;
-		if (Desc->DescType == EDescriptorType::CBV)
+		descriptorWrite.dstBinding = Desc->BindParm->RegisterSlot;//todo check this
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorCount = Desc->BindParm->NumDescriptors;
+		if (Desc->BindType == ERSBindType::CBV)
 		{
 			VkDescriptorBufferInfo* bufferInfo = new VkDescriptorBufferInfo();
-			bufferInfo->buffer = Desc->Buffer->vertexbuffer;
-			bufferInfo->offset = Desc->Offset;
-			
-			bufferInfo->range = VK_WHOLE_SIZE;//Desc->Buffer->GetSize();
-			descriptorWrite.pBufferInfo = bufferInfo;
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		}
-		else if (Desc->DescType == EDescriptorType::SRV)
-		{
-			VkDescriptorImageInfo* imageInfo = new VkDescriptorImageInfo();
-			imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			if (Desc->Texture == nullptr)
+			if (Desc->BufferTarget != nullptr)
 			{
-				imageInfo->imageView = Desc->ImageView;		
+				bufferInfo->buffer = VKNRHI::VKConv(Desc->BufferTarget)->vertexbuffer;
 			}
 			else
 			{
-				imageInfo->imageView = Desc->Texture->textureImageView;				
+				bufferInfo->buffer = VKNRHI::VKConv(VKNRHI::RHIinstance->buffer)->vertexbuffer;
 			}
-			if (imageInfo->imageView == VK_NULL_HANDLE)
+			bufferInfo->offset = Desc->Offset;
+
+			bufferInfo->range = VK_WHOLE_SIZE;//Desc->Buffer->GetSize();
+			descriptorWrite.pBufferInfo = bufferInfo;
+			if (Desc->BindParm->Type == ShaderParamType::CBV)
 			{
-				LogEnsure(imageInfo->imageView == VK_NULL_HANDLE);
+				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			}
+			else
+			{
+				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			}
+		}
+		else if (Desc->BindParm->Type == ShaderParamType::SRV)
+		{
+			VkDescriptorImageInfo* imageInfo = new VkDescriptorImageInfo();
+			imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			if (Desc->Framebuffer != nullptr)
+			{
+				imageInfo->imageView = VKNRHI::VKConv(Desc->Framebuffer)->RTImageView[Desc->Offset];
+			}
+			else if (Desc->Texture != nullptr)
+			{
+				imageInfo->imageView = VKNRHI::VKConv(Desc->Texture.Get())->textureImageView;
+			}
+			else/* if (imageInfo->imageView == VK_NULL_HANDLE)*/
+			{
+				//LogEnsure(imageInfo->imageView == VK_NULL_HANDLE);
 				imageInfo->imageView = VKNRHI::RHIinstance->T->textureImageView;
+				continue;
 			}
 			imageInfo->sampler = list->CurrentPso->textureSampler;
 			descriptorWrite.dstBinding += VKNShader::GetBindingOffset(ShaderParamType::SRV);
@@ -112,7 +130,8 @@ void VKNDescriptorPool::createDescriptorPool()
 	Sizes.push_back(poolSize);
 	poolSize.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 	Sizes.push_back(poolSize);
-
+	poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	Sizes.push_back(poolSize);
 
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;

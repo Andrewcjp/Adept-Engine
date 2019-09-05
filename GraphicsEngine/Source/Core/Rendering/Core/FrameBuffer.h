@@ -25,9 +25,9 @@ public:
 	static void CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetDevice);
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc() = 0;
 	RHI_API virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough);
-	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) = 0;
-	virtual void MakeReadyForCopy(RHICommandList * list) = 0;
-	RHI_API virtual void MakeReadyForPixel(RHICommandList* List, bool Depth = false) {};
+	RHI_API virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false);
+	RHI_API virtual void MakeReadyForCopy(RHICommandList * list);
+	RHI_API virtual void MakeReadyForPixel(RHICommandList* List, bool Depth = false);
 	///Needs to called before buffer is read for final present
 	void ResolveSFR(FrameBuffer* SumBuffer);
 	int GetTransferSize();
@@ -51,6 +51,8 @@ public:
 
 	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List);
 	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list);
+	//For render target -> read the ChangeDepth flag is ignored 
+	RHI_API virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false);
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();

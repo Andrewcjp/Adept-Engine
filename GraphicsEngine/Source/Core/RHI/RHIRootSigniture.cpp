@@ -9,7 +9,13 @@ RHIRootSigniture::~RHIRootSigniture()
 void RHIRootSigniture::SetRootSig(std::vector<ShaderParameter>& parms)
 {
 	Parms = parms;
-	CurrnetBinds.resize(parms.size());
+	if (parms.size() != CurrnetBinds.size())
+	{
+		CurrnetBinds.clear();
+		CurrnetBinds.resize(parms.size());
+		DefaultParams();
+	}//todo65
+	
 }
 
 bool RHIRootSigniture::ValidateData(ShaderParameter* Parm, RSBind & bind)
@@ -68,6 +74,7 @@ void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int
 	RSBind Bind = {};
 	Bind.BindType = ERSBindType::FrameBuffer;
 	Bind.Framebuffer = Buffer;
+	Bind.Offset = resoruceindex;
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
 	{
@@ -87,6 +94,7 @@ void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int o
 	RSBind Bind = {};
 	Bind.BindType = ERSBindType::CBV;
 	Bind.BufferTarget = Target;
+	Bind.Offset = offset;
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
 	{
@@ -143,4 +151,32 @@ const RSBind * RHIRootSigniture::GetBind(int slot) const
 int RHIRootSigniture::GetNumBinds() const
 {
 	return Parms.size();
+}
+
+void RHIRootSigniture::DefaultParams()
+{
+	for (int i = 0; i < Parms.size(); i++)
+	{
+		CurrnetBinds[i].BindParm = &Parms[i];
+		CurrnetBinds[i].BindType = RSBind::ConvertBind(Parms[i].Type);
+	}
+}
+
+ERSBindType::Type RSBind::ConvertBind(ShaderParamType::Type T)
+{
+	switch (T)
+	{
+
+		case ShaderParamType::RootConstant:
+			break;
+		case ShaderParamType::SRV:
+			return ERSBindType::Texture;
+			break;
+		case ShaderParamType::Buffer:
+		case ShaderParamType::CBV:
+			return ERSBindType::CBV;
+			break;
+		case ShaderParamType::UAV:
+			break;
+	}
 }

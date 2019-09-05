@@ -23,7 +23,7 @@ public:
 	void Evict();
 	void MakeResident();
 	bool IsResident();
-	EResourceState::Type GetState();
+	EResourcePageState::Type GetState();
 	void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
 	D3D12_RESOURCE_STATES GetCurrentState();
 	ID3D12Resource* GetResource();
@@ -34,7 +34,7 @@ public:
 	void SetGPUPage(GPUMemoryPage* page);
 	void UpdateUnTrackedState(D3D12_RESOURCE_STATES newstate);
 private:
-	EResourceState::Type currentState = EResourceState::Resident;
+	EResourcePageState::Type currentState = EResourcePageState::Resident;
 	ID3D12Resource* resource = nullptr;
 	D3D12_RESOURCE_STATES CurrentResourceState = {};
 	D3D12_RESOURCE_STATES TargetState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;

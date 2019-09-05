@@ -59,7 +59,13 @@ public:
 
 	virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
 	virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
+
+	
+
+	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false) override;
+
 private:
+	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth);
 	D3D12DeviceContext * CurrentDevice = nullptr;
 	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
 	void MakeReadyForCopy(RHICommandList * list) override;

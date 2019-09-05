@@ -71,7 +71,7 @@ public:
 	void UpdateMV(glm::mat4 View, glm::mat4 Projection);
 	void UpdateLightBuffer(std::vector<Light*> lights);
 
-	static LightUniformBuffer CreateLightEntity(Light * L);
+	static LightUniformBuffer CreateLightEntity(Light * L, int devindex);
 
 	void BindLightsBuffer(RHICommandList * list, int Override = -1);
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot);

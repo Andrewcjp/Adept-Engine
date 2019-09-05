@@ -1,5 +1,4 @@
-TextureCube texColour : register(t0);
-SamplerState defaultSampler : register (s0);
+
 
 cbuffer Data : register(b0)
 {

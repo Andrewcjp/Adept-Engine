@@ -798,3 +798,15 @@ struct AccelerationStructureDesc
 	int MaxSize = 0;
 	int BuildFlags = AS_BUILD_FLAGS::Fast_Trace;
 };
+
+namespace EResourceState
+{
+	enum Type
+	{
+		RenderTarget,
+		PixelShader,
+		ComputeUse,
+		UAV,
+		Limit
+	};
+}

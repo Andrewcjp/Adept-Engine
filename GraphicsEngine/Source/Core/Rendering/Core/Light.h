@@ -26,6 +26,7 @@ struct LightGPUAffinty
 	BitFlagsBase GPUTargetFlags;
 	//can be different handles on different GPUs
 	ShadowAtlasHandle* AtlasHandle = nullptr;
+
 };
 
 class Light

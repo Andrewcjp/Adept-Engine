@@ -96,6 +96,7 @@ void VKNCommandlist::SetConstantBufferView(RHIBuffer * buffer, int offset, int R
 	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(Register);
 	VKNBuffer* V = (VKNBuffer*)buffer;
 	CurrentDescriptors[Register] = V->GetDescriptor(Parm->RegisterSlot, offset);
+	Rootsig.SetConstantBufferView(Register, buffer, offset);
 }
 
 void VKNCommandlist::SetTexture(BaseTextureRef texture, int slot)
@@ -104,6 +105,7 @@ void VKNCommandlist::SetTexture(BaseTextureRef texture, int slot)
 	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKNTexture* V = (VKNTexture*)texture.Get();
 	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot);
+	Rootsig.SetTexture(slot, texture);
 }
 
 VkCommandBuffer* VKNCommandlist::GetCommandBuffer()
@@ -216,6 +218,7 @@ void VKNCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 		CurrentDescriptors.clear();
 		CurrentDescriptors.resize(25);
 	}
+	Rootsig.SetRootSig(VObject->Parms);
 	CurrentPso = VObject;
 	ensure(CommandBuffer != nullptr);
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
@@ -229,6 +232,7 @@ void VKNCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int R
 	//V->TransitionTOPixel(this);
 	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot, Resourceindex);
 	V->WasTexture = true;
+	Rootsig.SetFrameBufferTexture(slot, buffer, Resourceindex);
 }
 
 
@@ -264,8 +268,9 @@ void VKNCommandlist::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuf
 {}
 
 void VKNCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
-{}
-
+{
+	ensure(false);
+}
 
 void VKNCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {

@@ -85,7 +85,7 @@ void Shader_EnvMap::ComputeEnvBRDF()
 	RHIRenderPassDesc D = RHIRenderPassDesc(EnvBRDFBuffer);
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	CmdList->BeginRenderPass(D);
-	CmdList->SetConstantBufferView(ShaderData, 0, 1);
+	CmdList->SetConstantBufferView(ShaderData, 0, 0);
 	QuadDraw->RenderScreenQuad(CmdList);
 	CmdList->EndRenderPass();
 	CmdList->Execute();
@@ -93,9 +93,8 @@ void Shader_EnvMap::ComputeEnvBRDF()
 
 std::vector<ShaderParameter> Shader_EnvMap::GetShaderParameters()
 {
-	std::vector<ShaderParameter> Output;
-	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, 0));
+	std::vector<ShaderParameter> Output;;
+	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
 	return Output;
 }
 
