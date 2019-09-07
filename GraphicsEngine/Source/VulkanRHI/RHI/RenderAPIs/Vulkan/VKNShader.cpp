@@ -17,7 +17,7 @@ VKNShader::~VKNShader()
 
 EShaderError::Type VKNShader::AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint)
 {
-	if (type != EShaderType::SHADER_VERTEX && type != EShaderType::SHADER_FRAGMENT)
+	if (type != EShaderType::SHADER_VERTEX && type != EShaderType::SHADER_FRAGMENT && type != EShaderType::SHADER_GEOMETRY)
 	{
 		return EShaderError::Type();
 	}
@@ -311,6 +311,7 @@ EShLanguage VKNShader::GetStage(EShaderType::Type T)
 			return EShLanguage::EShLangFragment;
 			break;
 		case EShaderType::SHADER_GEOMETRY:
+			return EShLanguage::EShLangGeometry;
 			break;
 		case EShaderType::SHADER_COMPUTE:
 			return EShLanguage::EShLangCompute;
@@ -337,6 +338,7 @@ VkShaderStageFlagBits VKNShader::ConvStage(EShaderType::Type T)
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
 			break;
 		case EShaderType::SHADER_GEOMETRY:
+			return VkShaderStageFlagBits::VK_SHADER_STAGE_GEOMETRY_BIT;
 			break;
 		case EShaderType::SHADER_COMPUTE:
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT;

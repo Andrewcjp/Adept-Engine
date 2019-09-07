@@ -213,7 +213,8 @@ void  VKNPipeLineStateObject::createGraphicsPipeline()
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1;
 	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-	pipelineLayoutInfo.pushConstantRangeCount = 0;
+	pipelineLayoutInfo.pushConstantRangeCount = PushRanges.size();
+	pipelineLayoutInfo.pPushConstantRanges = PushRanges.data();
 
 	if (vkCreatePipelineLayout(VDevice->device, &pipelineLayoutInfo, nullptr, &PipelineLayout) != VK_SUCCESS)
 	{
@@ -320,7 +321,7 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 {
 	std::vector<VkDescriptorSetLayoutBinding> Binds;
 	Parms.clear();
-
+	PushRanges.clear();
 #if !BASIC_RENDER_ONLY
 	Parms = Desc.ShaderInUse->GetShaderParameters();
 #else
@@ -364,13 +365,12 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 		}
 		else if (Element->Type == ShaderParamType::RootConstant)
 		{
-			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-			uboLayoutBinding.binding = Element->RegisterSlot;
-			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			uboLayoutBinding.descriptorCount = 1;
-			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
-			uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
-			Binds.push_back(uboLayoutBinding);
+			//todo: pull for shader file
+			VkPushConstantRange Range = { };
+			Range.offset = 0;
+			Range.size = sizeof(float)*4;
+			Range.stageFlags = VK_SHADER_STAGE_ALL;
+			PushRanges.push_back(Range);
 		}
 	}
 #if 1

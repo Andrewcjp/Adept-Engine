@@ -120,7 +120,7 @@ float4 main(PSInput input) : SV_TARGET
 		const int index = i;
 #endif
 		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
-#if 0 //def WITH_SHADOW
+#ifdef WITH_SHADOW
 		[branch] if (lights[index].HasShadow && lights[index].PreSampled.x)
 		{
 			colour *= FWD_GetPresampledShadow(ScreenPos,lights[index].PreSampled.y);

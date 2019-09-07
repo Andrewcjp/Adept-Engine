@@ -20,7 +20,7 @@ cbuffer SceneconstantBuffer : register(b2)
 	row_major matrix Projection;
 	float3 LightPos;
 };
-cbuffer VIData : register(b3)
+[[vk::push_constant]] cbuffer VIData : register(b3)
 {
 	int Offset;
 }

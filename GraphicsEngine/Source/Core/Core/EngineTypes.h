@@ -98,5 +98,39 @@ namespace ESceneLayers
 		Limit = 16
 	};
 };
-
+template<class T>
+class CachedAllocator
+{
+public:
+	~CachedAllocator()
+	{
+		Empty();
+	}
+	//new data
+	T* Allocate()
+	{
+		if (AllocIndex < AllocBuffer.size())
+		{
+			AllocIndex++;
+			return AllocBuffer[AllocIndex - 1];
+		}
+		T* NewData = new T();
+		AllocBuffer.push_back(NewData);
+		AllocIndex++;
+		return NewData;
+	}
+	//resets the alloc for new use
+	void Reset()
+	{
+		AllocIndex = 0;
+	}
+	void Empty()
+	{
+		MemoryUtils::DeleteVector(AllocBuffer);
+		AllocIndex = 0;
+	}
+private:
+	std::vector<T*> AllocBuffer;
+	int AllocIndex = 0;
+};
 

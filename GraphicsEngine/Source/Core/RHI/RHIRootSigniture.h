@@ -31,6 +31,7 @@ struct RSBind
 	FrameBuffer* Framebuffer = nullptr;
 	RHIBuffer* BufferTarget = nullptr;
 	/*};*/
+#if 0
 	RSBind(const RSBind &other)
 	{
 		BindType = other.BindType;
@@ -64,8 +65,11 @@ struct RSBind
 				BufferTarget = other.BufferTarget;
 				break;
 		}
+
 		return *this;
 	}
+#endif
+	bool HasChanged = true;
 	static ERSBindType::Type ConvertBind(ShaderParamType::Type T);
 };
 
@@ -86,7 +90,8 @@ public:
 	ShaderParameter * GetParm(int slot);
 	RHI_API const RSBind* GetBind(int slot)const;
 	RHI_API int GetNumBinds()const;
-
+	RHI_API void SetUpdated();
+	RHI_API void Invalidate();
 private:
 	void DefaultParams();
 	std::vector<ShaderParameter> Parms;

@@ -46,7 +46,10 @@ public:
 			}
 			m_Object = other.m_Object;
 			ObjectRaw = other.ObjectRaw;
-			m_Object->AddRef();
+			if (m_Object != nullptr)
+			{
+				m_Object->AddRef();
+			}
 		}
 		return *this;
 	}

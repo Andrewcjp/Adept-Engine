@@ -30,7 +30,6 @@ VKNCommandlist::VKNCommandlist(ECommandListType::Type type, DeviceContext * cont
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 	}
-	CurrentDescriptors.resize(25);
 	ResetList();
 }
 
@@ -51,6 +50,7 @@ void VKNCommandlist::ResetList()
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 	IsOpen = true;
+	Rootsig.Invalidate();
 }
 
 void VKNCommandlist::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ)
@@ -93,18 +93,12 @@ void VKNCommandlist::SetIndexBuffer(RHIBuffer * buffer)
 void VKNCommandlist::SetConstantBufferView(RHIBuffer * buffer, int offset, int Register)
 {
 	ensure(IsOpen);
-	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(Register);
-	VKNBuffer* V = (VKNBuffer*)buffer;
-	CurrentDescriptors[Register] = V->GetDescriptor(Parm->RegisterSlot, offset);
 	Rootsig.SetConstantBufferView(Register, buffer, offset);
 }
 
 void VKNCommandlist::SetTexture(BaseTextureRef texture, int slot)
 {
 	ensure(IsOpen);
-	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
-	VKNTexture* V = (VKNTexture*)texture.Get();
-	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot);
 	Rootsig.SetTexture(slot, texture);
 }
 
@@ -213,15 +207,15 @@ void VKNCommandlist::EndRenderPass()
 void VKNCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
 	VKNPipeLineStateObject* VObject = (VKNPipeLineStateObject*)Object;
-	if (CurrentPso != nullptr && CurrentPso->Parms.size() != VObject->Parms.size())
-	{
-		CurrentDescriptors.clear();
-		CurrentDescriptors.resize(25);
-	}
 	Rootsig.SetRootSig(VObject->Parms);
 	CurrentPso = VObject;
 	ensure(CommandBuffer != nullptr);
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
+}
+
+void VKNCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
+{
+	vkCmdPushConstants(CommandBuffer, CurrentPso->PipelineLayout, VK_SHADER_STAGE_ALL, DataOffset, sizeof(float)*ValueNum, Data);
 }
 
 void VKNCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
@@ -229,8 +223,6 @@ void VKNCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int R
 	ensure(Resourceindex >= 0);
 	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKNFramebuffer* V = VKNRHI::VKConv(buffer);
-	//V->TransitionTOPixel(this);
-	CurrentDescriptors[slot] = V->GetDescriptor(Parm->RegisterSlot, Resourceindex);
 	V->WasTexture = true;
 	Rootsig.SetFrameBufferTexture(slot, buffer, Resourceindex);
 }
@@ -267,10 +259,7 @@ void VKNCommandlist::SetUpCommandSigniture(int commandSize, bool Dispatch)
 void VKNCommandlist::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)
 {}
 
-void VKNCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
-{
-	ensure(false);
-}
+
 
 void VKNCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {
@@ -297,11 +286,23 @@ void VkanUAV::CreateUAVFromTexture(BaseTexture * target)
 void VkanUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 {}
 
+
+
 void VkanTextureArray::AddFrameBufferBind(FrameBuffer * Buffer, int slot)
-{}
+{
+	if (slot == 0)
+	{
+		Tmp = Buffer;
+	}
+}
 
 void VkanTextureArray::BindToShader(RHICommandList * list, int slot)
-{}
+{
+	if (Tmp != nullptr)
+	{
+		list->SetFrameBufferTexture(Tmp, slot);
+	}
+}
 
 void VkanTextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*= nullptr*/)
 {

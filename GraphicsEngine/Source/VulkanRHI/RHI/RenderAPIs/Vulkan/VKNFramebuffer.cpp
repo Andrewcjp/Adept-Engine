@@ -89,7 +89,7 @@ void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* li
 		VkDeviceMemory Mem;
 		VkImage DepthImage;
 		VkFormat depthFormat = VKNHelpers::ConvertFormat(BufferDesc.DepthFormat);
-		VKNHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		VKNHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			DepthImage, Mem, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, BufferDesc.TextureDepth);
 		depthImageView = VKNHelpers::createImageView(VKNRHI::VKConv(Device), DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT,BufferDesc.TextureDepth);
 		DepthResource = new VknGPUResource();

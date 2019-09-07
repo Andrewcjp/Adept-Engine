@@ -8,8 +8,8 @@ class Defaults
 public:
 	static void Start();
 	static void Shutdown();
-	static BaseTextureRef GetDefaultTexture();
-	static Material* GetDefaultMaterial();
+	RHI_API static BaseTextureRef GetDefaultTexture();
+	RHI_API static Material* GetDefaultMaterial();
 	static RHIBuffer* GetQuadBuffer();
 
 private:

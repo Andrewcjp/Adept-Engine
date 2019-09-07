@@ -95,6 +95,10 @@ void RenderSettings::SetRes(BBTestMode::Type Mode)
 RenderConstants::RenderConstants()
 {
 	MAX_DYNAMIC_POINT_SHADOWS = 4;
+//	if (RHI::IsVulkan())
+	{
+		MAX_DYNAMIC_POINT_SHADOWS = 1;
+	}
 	MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
 	MAX_LIGHTS = 16;
 	DEFAULT_COPYLIST_POOL_SIZE = 4;
