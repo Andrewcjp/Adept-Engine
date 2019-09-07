@@ -11,6 +11,8 @@
 #include "Core/Performance/PerfManager.h"
 #include "RHI/RHIRootSigniture.h"
 #include "VKNFramebuffer.h"
+#include "VKNHelpers.h"
+#include "Rendering/Core/Defaults.h"
 
 
 VKNDescriptorPool::VKNDescriptorPool(VKNDeviceContext* Con)
@@ -31,6 +33,9 @@ void VKNDescriptorPool::Init()
 void VKNDescriptorPool::ResetAllocations()
 {
 	vkResetDescriptorPool(Context->device, descriptorPool, 0);
+	BufferInfoAlloc.Reset();
+	ImageInfoAlloc.Reset();
+	LastUsedSet = NULL;
 }
 
 void VKNDescriptorPool::AllocateAndBind(VKNCommandlist * List)
@@ -42,14 +47,21 @@ void VKNDescriptorPool::AllocateAndBind(VKNCommandlist * List)
 #define STATIC_SAMPLER 1
 VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
 {
+	BufferInfoAlloc.Reset();
+	ImageInfoAlloc.Reset();
 	VkDescriptorSet Set = createDescriptorSets(list->CurrentPso->descriptorSetLayout, 1);
-	std::vector<VkWriteDescriptorSet> WriteData;
+	WriteData.clear();
+	CopyData.clear();
 	for (int i = 0; i < list->Rootsig.GetNumBinds(); i++)
 	{
 		const RSBind* Desc = list->Rootsig.GetBind(i);
 		if (Desc->BindType == ERSBindType::Limit)
 		{
 			//__debugbreak();
+			continue;
+		}
+		if (!Desc->HasChanged && LastUsedSet != NULL)
+		{
 			continue;
 		}
 		VkWriteDescriptorSet descriptorWrite = {};
@@ -60,18 +72,26 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
 		descriptorWrite.descriptorCount = Desc->BindParm->NumDescriptors;
 		if (Desc->BindType == ERSBindType::CBV)
 		{
-			VkDescriptorBufferInfo* bufferInfo = new VkDescriptorBufferInfo();
+			VkDescriptorBufferInfo* bufferInfo = BufferInfoAlloc.Allocate();/*new VkDescriptorBufferInfo()*/
 			if (Desc->BufferTarget != nullptr)
 			{
 				bufferInfo->buffer = VKNRHI::VKConv(Desc->BufferTarget)->vertexbuffer;
+				bufferInfo->offset = VKNHelpers::Align(VKNRHI::VKConv(Desc->BufferTarget)->StructSize* Desc->Offset);
+				bufferInfo->range = VKNHelpers::Align(Desc->BufferTarget->GetSize(Desc->Offset));
+				if (bufferInfo->range == 0)
+				{
+					LogEnsureMsgf(bufferInfo->range == 0);
+					bufferInfo->offset = 0;
+					bufferInfo->range = Desc->BufferTarget->GetSize();
+				
+				}
 			}
 			else
 			{
 				bufferInfo->buffer = VKNRHI::VKConv(VKNRHI::RHIinstance->buffer)->vertexbuffer;
+				bufferInfo->range = 256;
+				bufferInfo->offset = 0;
 			}
-			bufferInfo->offset = Desc->Offset;
-
-			bufferInfo->range = VK_WHOLE_SIZE;//Desc->Buffer->GetSize();
 			descriptorWrite.pBufferInfo = bufferInfo;
 			if (Desc->BindParm->Type == ShaderParamType::CBV)
 			{
@@ -84,22 +104,28 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
 		}
 		else if (Desc->BindParm->Type == ShaderParamType::SRV)
 		{
-			VkDescriptorImageInfo* imageInfo = new VkDescriptorImageInfo();
+			VkDescriptorImageInfo* imageInfo = ImageInfoAlloc.Allocate();
 			imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			if (Desc->Framebuffer != nullptr)
-			{
-				imageInfo->imageView = VKNRHI::VKConv(Desc->Framebuffer)->RTImageView[Desc->Offset];
+			{				
+				if (Desc->Framebuffer->GetDescription().RenderTargetCount == 0)
+				{
+					imageInfo->imageView = VKNRHI::VKConv(Desc->Framebuffer)->depthImageView;
+				}
+				else
+				{
+					imageInfo->imageView = VKNRHI::VKConv(Desc->Framebuffer)->RTImageView[Desc->Offset];
+				}
 			}
 			else if (Desc->Texture != nullptr)
 			{
 				imageInfo->imageView = VKNRHI::VKConv(Desc->Texture.Get())->textureImageView;
 			}
-			else/* if (imageInfo->imageView == VK_NULL_HANDLE)*/
+			else
 			{
-				//LogEnsure(imageInfo->imageView == VK_NULL_HANDLE);
-				imageInfo->imageView = VKNRHI::RHIinstance->T->textureImageView;
-				continue;
+				imageInfo->imageView = VKNRHI::VKConv(Defaults::GetDefaultTexture().Get())->textureImageView;
 			}
+			ensure(imageInfo->imageView != 0);
 			imageInfo->sampler = list->CurrentPso->textureSampler;
 			descriptorWrite.dstBinding += VKNShader::GetBindingOffset(ShaderParamType::SRV);
 			descriptorWrite.pImageInfo = imageInfo;
@@ -107,12 +133,36 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
 		}
 		WriteData.push_back(descriptorWrite);
 	}
-	vkUpdateDescriptorSets(Context->device, WriteData.size(), WriteData.data(), 0, nullptr);
-	for (int i = 0; i < WriteData.size(); i++)
+	for (int i = 0; i < list->Rootsig.GetNumBinds(); i++)
 	{
-		SafeDelete(WriteData[i].pImageInfo);
-		SafeDelete(WriteData[i].pBufferInfo);
+		const RSBind* Desc = list->Rootsig.GetBind(i);
+		if (Desc->BindType == ERSBindType::Limit)
+		{
+			//__debugbreak();
+			continue;
+		}
+		if (LastUsedSet == NULL)
+		{
+			continue;
+		}
+		if (Desc->HasChanged)
+		{
+			continue;
+		}
+		VkCopyDescriptorSet descriptorCopy = {};
+		descriptorCopy.sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
+		descriptorCopy.dstSet = Set;
+		descriptorCopy.dstBinding = Desc->BindParm->RegisterSlot + VKNShader::GetBindingOffset(Desc->BindParm->Type);//todo check this
+		descriptorCopy.dstArrayElement = 0;
+		descriptorCopy.descriptorCount = 1;// Desc->BindParm->NumDescriptors;
+		descriptorCopy.srcBinding = Desc->BindParm->RegisterSlot + VKNShader::GetBindingOffset(Desc->BindParm->Type);
+		descriptorCopy.srcSet = LastUsedSet;
+		descriptorCopy.dstSet = Set;
+		CopyData.push_back(descriptorCopy);
 	}
+	vkUpdateDescriptorSets(Context->device, WriteData.size(), WriteData.data(), CopyData.size(), CopyData.data());
+	list->Rootsig.SetUpdated();
+	LastUsedSet = Set;
 	return Set;
 }
 
@@ -147,8 +197,6 @@ void VKNDescriptorPool::createDescriptorPool()
 
 VkDescriptorSet VKNDescriptorPool::createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, int count)
 {
-
-	///vkResetDescriptorPool(Context->device, descriptorPool, 0);
 	std::vector<VkDescriptorSetLayout> layouts(count, descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -162,29 +210,5 @@ VkDescriptorSet VKNDescriptorPool::createDescriptorSets(VkDescriptorSetLayout de
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 
-
-
-
-#if 0
-
-	for (size_t i = 0; i < 2; i++)
-	{
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = VKanRHI::RHIinstance->buffer->vertexbuffer;
-		bufferInfo.offset = 0;
-		bufferInfo.range = VKanRHI::RHIinstance->buffer->GetSize();
-
-		VkWriteDescriptorSet descriptorWrite = {};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = descriptorSets[i];
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.pBufferInfo = &bufferInfo;
-
-		vkUpdateDescriptorSets(Context->device, 1, &descriptorWrite, 0, nullptr);
-}
-#endif
 	return descriptorSets[0];
 }

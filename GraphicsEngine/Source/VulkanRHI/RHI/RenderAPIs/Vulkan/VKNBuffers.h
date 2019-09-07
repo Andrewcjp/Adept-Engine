@@ -25,11 +25,6 @@ public:
 //private:
 	VkBuffer vertexbuffer;
 	VkDeviceMemory vertexBufferMemory;
-	int GetSize()
-	{
-		return TotalByteSize;
-	}
-	int StructSize = 0;
 
 };
 #endif

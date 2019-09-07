@@ -52,8 +52,9 @@ void ForwardRenderNode::OnExecute()
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(CommandList, false);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
 
-	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(CommandList);
+	
 	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, GetEye());
+	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(CommandList);
 	MeshPassRenderArgs Args;
 	Args.PassType = ERenderPass::BasePass;
 	Args.UseDeferredShaders = false;

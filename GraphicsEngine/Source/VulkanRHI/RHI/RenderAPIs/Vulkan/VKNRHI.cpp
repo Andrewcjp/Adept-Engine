@@ -21,6 +21,7 @@
 #include "RHI/RHIRenderPassCache.h"
 #include "Rendering/Core/RenderingUtils.h"
 #include "VKNRenderPass.h"
+#include "Rendering/Core/Defaults.h"
 
 
 
@@ -28,11 +29,15 @@ VKNRHI* VKNRHI::RHIinstance = nullptr;
 static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly);
 VKNRHI::VKNRHI()
 {
+#if _DEBUG
 	enableValidationLayers = true;
 	if (ForceNoDebug.GetBoolValue())
 	{
 		enableValidationLayers = false;
 	}
+#else
+	enableValidationLayers = false;
+#endif
 
 	//win32Hinst = win32inst;
 	RHIinstance = this;
@@ -92,12 +97,12 @@ RHIQuery * VKNRHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
- LowLevelAccelerationStructure* VKNRHI::CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
+LowLevelAccelerationStructure* VKNRHI::CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
- HighLevelAccelerationStructure* VKNRHI::CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
+HighLevelAccelerationStructure* VKNRHI::CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
@@ -167,7 +172,7 @@ RHIRenderPass* VKNRHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext*
 	return new VKNRenderPass(Desc, Device);
 }
 
- RHIInterGPUStagingResource* VKNRHI::CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc)
+RHIInterGPUStagingResource* VKNRHI::CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc)
 {
 	ensureFatalMsgf(false, "Vulkan does not support UnLinked MGPU so an inter-GPU staging resource cannot be created");
 	return nullptr;
@@ -869,7 +874,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 	Log::LogMessage("validation: " + std::string(pCallbackData->pMessage));
 	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 	{
-		__debugbreak();
+		float t = 0;
+	//	__debugbreak();
 	}
 	return false;
 }
@@ -896,9 +902,6 @@ void VKNRHI::initVulkan()
 	glm::vec4 data = glm::vec4(1, 0.2, 0.8, 1);
 	buffer->CreateConstantBuffer(sizeof(data), 1);
 	buffer->UpdateConstantBuffer(glm::value_ptr(data), 0);
-	T = new VKNTexture();
-	T->CreateFromFile(AssetPathRef("texture\\ammoc03.jpg"));
-
 	createSyncObjects();
 
 }

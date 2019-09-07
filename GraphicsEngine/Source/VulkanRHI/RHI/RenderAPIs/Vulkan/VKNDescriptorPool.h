@@ -19,5 +19,11 @@ private:
 	VkDescriptorSet createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, int count);
 	VkDescriptorPool descriptorPool;
 	VKNDeviceContext* Context = nullptr;
+	VkDescriptorSet LastUsedSet;
+	CachedAllocator<VkDescriptorBufferInfo> BufferInfoAlloc;
+	CachedAllocator< VkDescriptorImageInfo> ImageInfoAlloc;
+
+	std::vector<VkWriteDescriptorSet> WriteData;
+	std::vector<VkCopyDescriptorSet> CopyData;
 };
 

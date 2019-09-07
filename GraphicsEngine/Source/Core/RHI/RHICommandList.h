@@ -46,12 +46,23 @@ public:
 	{
 		return Context;
 	}
+	int GetSize(int offset = 0)
+	{
+		if (offset > 0)
+		{
+			return TotalByteSize - (StructSize * offset);
+		}
+		return TotalByteSize;
+	}
+	int StructSize = 0;
 protected:
+	
 	DeviceContext* Context = nullptr;
 	RHIBufferDesc Desc = {};
 	size_t VertexCount = 0;
 	int CounterOffset = 0;
 	int TotalByteSize = 0;
+	int structsize = 0;
 	class RHIUAV* UAV = nullptr;
 };
 

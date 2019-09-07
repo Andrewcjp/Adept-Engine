@@ -42,7 +42,6 @@ public:
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
 	virtual void TraceRays(const RHIRayDispatchDesc& desc) override;
 	virtual void SetStateObject(RHIStateObject* Object) override;
-	std::vector<Descriptor> CurrentDescriptors;
 	VkCommandBuffer* GetCommandBuffer();
 	//private:
 	VkCommandBuffer CommandBuffer;
@@ -85,6 +84,8 @@ public:
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) override;
 	RHI_VIRTUAL void Clear() override;
 	RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc) override;
+private:
+	FrameBuffer* Tmp;
 };
 
 

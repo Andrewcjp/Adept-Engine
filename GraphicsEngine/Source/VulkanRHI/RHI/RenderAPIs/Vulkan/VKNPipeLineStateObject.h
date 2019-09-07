@@ -31,4 +31,5 @@ public:
 	std::vector<ShaderParameter> Parms;
 	ShaderParameter* GetRootSigSlot(int id);
 	std::vector< Shader::VertexElementDESC> RHIDesc;
+	std::vector<VkPushConstantRange> PushRanges;
 };

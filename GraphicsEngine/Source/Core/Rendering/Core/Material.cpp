@@ -92,7 +92,8 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 void Material::Init()
 {
 	//debug
-	SetReceiveShadow(false);
+
+	SetReceiveShadow(true);
 	ShaderInterface->GetOrComplie(MaterialCData);
 }
 

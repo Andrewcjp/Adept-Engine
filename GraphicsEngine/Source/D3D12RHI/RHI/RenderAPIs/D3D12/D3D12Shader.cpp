@@ -650,7 +650,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 	for (int i = 0; i < Params.size(); i++)
 	{
 		rootParameters[i] = CD3DX12_ROOT_PARAMETER1();
-		if (Params[i].Type == ShaderParamType::SRV)
+		if (Params[i].Type == ShaderParamType::SRV || Params[i].Type == ShaderParamType::Buffer)
 		{
 			RangeNumber++;
 		}
@@ -673,7 +673,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 	}
 	for (int i = 0; i < Params.size(); i++)
 	{
-		if (Params[i].Type == ShaderParamType::SRV)
+		if (Params[i].Type == ShaderParamType::SRV || Params[i].Type == ShaderParamType::Buffer)
 		{
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], compute ? BaseSRVVis : (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);

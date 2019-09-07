@@ -68,7 +68,9 @@ void VKNBuffer::UpdateIndexBuffer(void * data, size_t length)
 }
 
 void VKNBuffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
-{}
+{
+	list->SetConstantBufferView(this, 0, RSSlot);
+}
 
 void VKNBuffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
 {}
@@ -129,7 +131,10 @@ void VKNBuffer::UpdateConstantBuffer(void * data, int offset)
 
 void VKNBuffer::UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state)
 {
-
+	void* GPUdata;
+	vkMapMemory(VKNRHI::GetVDefaultDevice()->device, vertexBufferMemory, 0, TotalByteSize, 0, &GPUdata);
+	memcpy(GPUdata, data, length);
+	vkUnmapMemory(VKNRHI::GetVDefaultDevice()->device, vertexBufferMemory);
 }
 
 Descriptor VKNBuffer::GetDescriptor(int slot, int offset)
@@ -143,5 +148,9 @@ Descriptor VKNBuffer::GetDescriptor(int slot, int offset)
 
 void VKNBuffer::CreateBuffer(RHIBufferDesc desc)
 {
+	StructSize = VKNHelpers::Align(desc.Stride);
+	TotalByteSize = StructSize * desc.ElementCount;
 
+	VKNHelpers::createBuffer(StructSize*desc.ElementCount, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexbuffer, vertexBufferMemory);
+	ensure(vertexBufferMemory);
 }

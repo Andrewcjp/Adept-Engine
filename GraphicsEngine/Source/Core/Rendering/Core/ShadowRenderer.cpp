@@ -174,6 +174,10 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 			Log::LogMessage("Light has invalid handle", Log::Error);
 			continue;
 		}
+		if (IndexOnGPU >= RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS)
+		{
+			continue;
+		}
 		if (RHI::GetRenderSettings()->GetShadowSettings().UseGeometryShaderForShadows)
 		{
 			RenderShadowMap_GPU(lights[i], list, IndexOnGPU);
