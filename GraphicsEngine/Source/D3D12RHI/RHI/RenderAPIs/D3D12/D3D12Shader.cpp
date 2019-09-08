@@ -158,10 +158,12 @@ std::wstring ConvertToLevelString(D3D_SHADER_MODEL SM)
 			return L"_6_1";
 		case D3D_SHADER_MODEL_6_2:
 			return L"_6_2";
+#if WIN10_1809
 		case D3D_SHADER_MODEL_6_3:
 			return L"_6_3";
 		case D3D_SHADER_MODEL_6_4:
 			return L"_6_4";
+#endif
 	}
 	return L"BAD!";
 }
@@ -180,20 +182,27 @@ std::wstring D3D12Shader::GetShaderModelString(D3D_SHADER_MODEL Clamp)
 }
 
 std::wstring D3D12Shader::GetComplieTarget(EShaderType::Type t)
-{
+{	
+#if WIN10_1809
+	const D3D_SHADER_MODEL ClampSm = D3D_SHADER_MODEL_6_3;
+#else
+	const D3D_SHADER_MODEL ClampSm = D3D_SHADER_MODEL_5_1;
+#endif
 	switch (t)
 	{
 		case EShaderType::SHADER_COMPUTE:
-			return L"cs" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
+			return L"cs" + GetShaderModelString(ClampSm);
 		case EShaderType::SHADER_VERTEX:
-			return L"vs" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
+			return L"vs" + GetShaderModelString(ClampSm);
 		case EShaderType::SHADER_FRAGMENT:
 			//Currently there is no PS_6_4 target
-			return L"ps" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
+			return L"ps" + GetShaderModelString(ClampSm);
 		case EShaderType::SHADER_GEOMETRY:
-			return L"gs" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
+			return L"gs" + GetShaderModelString(ClampSm);
+#if WIN10_1809
 		case EShaderType::SHADER_RT_LIB:
-			return L"lib" + GetShaderModelString(D3D_SHADER_MODEL_6_3);
+			return L"lib" + GetShaderModelString(ClampSm);
+#endif
 	}
 	return L"";
 }
@@ -349,7 +358,7 @@ bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName,
 	//if the source is newer than the CSO recompile
 	return PlatformApplication::CheckFileSrcNewer(ShaderSRCPath, ShaderCSOPath);
 }
-
+#if WIN10_1809
 void WriteBlobToHandle(_In_opt_ IDxcBlob *pBlob, _In_ HANDLE hFile, _In_opt_ LPCWSTR pFileName)
 {
 	if (pBlob == nullptr)
@@ -379,7 +388,7 @@ void WriteBlobToFile(_In_opt_ IDxcBlob *pBlob, _In_ LPCWSTR pFileName)
 	}
 	WriteBlobToHandle(pBlob, file, pFileName);
 }
-
+#endif
 const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type)
 {
 	std::string OutputName = Shadername;
@@ -397,6 +406,7 @@ const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, 
 	OutputName += ".cso";
 	return OutputName;
 }
+#if WIN10_1809
 void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
 {
 	IDxcLibrary* library;
@@ -404,7 +414,7 @@ void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
 	LogEnsure(library->CreateBlobFromFile(pFileName, nullptr, ppBlobEncoding) == S_OK);
 	//ReadFileIntoPartContent(),
 }
-
+#endif
 bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob, const std::string & InstanceHash, EShaderType::Type type)
 {
 	if (!CacheBlobs)
@@ -704,10 +714,12 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
 	D3D12_ROOT_SIGNATURE_FLAGS RsFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+#if WIN10_1809
 	if (Info.IsLocalSig)
 	{
 		RsFlags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
 	}
+#endif
 	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, samplers.size(), &Samplers[0], RsFlags);
 
 	ID3DBlob* signature = nullptr;

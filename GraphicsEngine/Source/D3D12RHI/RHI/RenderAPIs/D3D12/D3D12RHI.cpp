@@ -54,15 +54,6 @@ RHIQuery * D3D12RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 	return new D3D12Query(type, con);
 }
 
-LowLevelAccelerationStructure* D3D12RHI::CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
-{
-	return new D3D12LowLevelAccelerationStructure(Device, Desc);
-}
-
-HighLevelAccelerationStructure* D3D12RHI::CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
-{
-	return new D3D12HighLevelAccelerationStructure(Device, Desc);
-}
 
 D3D12DeviceContext * D3D12RHI::DXConv(DeviceContext * D)
 {
@@ -108,7 +99,7 @@ D3D12CommandList * D3D12RHI::DXConv(RHICommandList * D)
 {
 	return static_cast<D3D12CommandList*>(D);
 }
-
+#if WIN10_1809
 D3D12LowLevelAccelerationStructure * D3D12RHI::DXConv(LowLevelAccelerationStructure * D)
 {
 	return static_cast<D3D12LowLevelAccelerationStructure*>(D);
@@ -123,7 +114,7 @@ D3D12StateObject * D3D12RHI::DXConv(RHIStateObject * D)
 {
 	return static_cast<D3D12StateObject*>(D);
 }
-
+#endif
 D3D12InterGPUStagingResource * D3D12RHI::DXConv(RHIInterGPUStagingResource * D)
 {
 	return static_cast<D3D12InterGPUStagingResource*>(D);
@@ -139,12 +130,34 @@ RHIInterGPUStagingResource* D3D12RHI::CreateInterGPUStagingResource(DeviceContex
 {
 	return new D3D12InterGPUStagingResource(Owner, desc);
 }
-
+#if RHI_SUPPORTS_RT
 RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device)
 {
+#if WIN10_1809
 	return new D3D12StateObject(Device);
+#else
+	return RHIClass::CreateStateObject(Device);
+#endif
 }
 
+LowLevelAccelerationStructure* D3D12RHI::CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
+{
+#if WIN10_1809
+	return new D3D12LowLevelAccelerationStructure(Device, Desc);
+#else
+	return RHIClass::CreateLowLevelAccelerationStructure(Device, Desc);
+#endif
+}
+
+HighLevelAccelerationStructure* D3D12RHI::CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
+{
+#if WIN10_1809
+	return new D3D12HighLevelAccelerationStructure(Device, Desc);
+#else
+	return RHIClass::CreateHighLevelAccelerationStructure(Device, Desc);
+#endif
+}
+#endif
 void D3D12RHI::DestroyContext()
 {
 	// Ensure that the GPU is no longer referencing resources that are about to be

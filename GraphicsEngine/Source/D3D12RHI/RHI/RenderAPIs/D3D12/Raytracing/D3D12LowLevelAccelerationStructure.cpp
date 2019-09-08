@@ -1,4 +1,5 @@
 #include "D3D12LowLevelAccelerationStructure.h"
+#if WIN10_1809
 #include "Rendering/Core/Mesh.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Buffer.h"
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
@@ -108,3 +109,4 @@ Transform * D3D12LowLevelAccelerationStructure::GetTransform() const
 }
 
 
+#endif

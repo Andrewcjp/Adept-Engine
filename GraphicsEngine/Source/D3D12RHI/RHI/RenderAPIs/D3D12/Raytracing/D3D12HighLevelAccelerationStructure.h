@@ -1,5 +1,6 @@
 #pragma once
 #include "Rendering/RayTracing/HighLevelAccelerationStructure.h"
+#if WIN10_1809
 class D3D12HighLevelAccelerationStructure :public HighLevelAccelerationStructure
 {
 public:
@@ -25,3 +26,4 @@ private:
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC topLevelBuildDesc = {};
 };
 
+#endif

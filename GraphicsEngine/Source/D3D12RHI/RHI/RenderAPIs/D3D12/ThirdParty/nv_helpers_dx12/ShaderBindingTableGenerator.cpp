@@ -35,7 +35,7 @@ dispatch rays description.
 */
 
 #include "ShaderBindingTableGenerator.h"
-
+#if WIN10_1809
 // Helper to compute aligned buffer sizes
 #ifndef ROUND_UP
 #define ROUND_UP(v, powerOf2Alignment) (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
@@ -256,3 +256,4 @@ namespace nv_helpers_dx12
 		: m_entryPoint(std::move(entryPoint)), m_inputData(std::move(inputData))
 	{}
 } // namespace nv_helpers_dx12
+#endif

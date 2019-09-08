@@ -109,7 +109,9 @@ public:
 	void LinkAdaptors(D3D12DeviceContext * other);
 	ID3D12Device* GetDevice();
 	ID3D12Device2 * GetDevice2();
+#if WIN10_1809
 	ID3D12Device5 *GetDevice5();
+#endif
 	ID3D12CommandAllocator* GetCommandAllocator(ECommandListType::Type ListType = ECommandListType::Graphics);
 
 	ID3D12CommandAllocator * GetSharedCommandAllocator();
@@ -164,7 +166,9 @@ private:
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;
 	ID3D12Device* m_Device = nullptr;
 	ID3D12Device2* m_Device2 = nullptr;
+#if WIN10_1809
 	ID3D12Device5* m_Device5 = nullptr;
+#endif
 	ID3D12CommandAllocator* m_GFXcommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
 	ID3D12CommandAllocator* m_ComputeCommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
 	ID3D12CommandAllocator* m_CopyCommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };

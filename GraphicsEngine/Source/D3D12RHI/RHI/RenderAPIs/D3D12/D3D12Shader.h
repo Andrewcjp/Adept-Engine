@@ -4,8 +4,9 @@
 #include "RHI/Shader.h"
 #include "D3D12Helpers.h"
 #include "Core/Utils/RefChecker.h"
+#ifdef NTDDI_WIN10_RS5
 #include <dxcapi.h>
-
+#endif
 class D3D12PipeLineStateObject;
 struct DxcDefine;
 struct RootSignitureCreateInfo
@@ -69,9 +70,11 @@ private:
 	const std::string GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type);
 	ShaderBlob ** GetCurrentBlob(EShaderType::Type type);
 	const std::string GetShaderInstanceHash();
-
+#if WIN10_1809
 	static std::wstring GetShaderModelString(D3D_SHADER_MODEL Clamp = D3D_SHADER_MODEL_6_4);
-
+#else
+	static std::wstring GetShaderModelString(D3D_SHADER_MODEL Clamp = D3D_SHADER_MODEL_6_1);
+#endif
 	static std::wstring GetComplieTarget(EShaderType::Type t);
 
 	static const std::string GetUniqueName(std::vector<ShaderParameter>& Params);

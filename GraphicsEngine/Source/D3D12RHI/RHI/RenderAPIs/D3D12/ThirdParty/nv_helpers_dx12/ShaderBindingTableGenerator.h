@@ -106,7 +106,7 @@ desc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
 */
 
 #pragma once
-
+#if WIN10_1809
 #include "d3d12.h"
 //#include "d3d12_1.h"
 
@@ -198,3 +198,4 @@ private:
   UINT m_progIdSize;
 };
 } // namespace nv_helpers_dx12
+#endif

@@ -7,7 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-
+#if WIN10_1809
 namespace nv_helpers_dx12
 {
 
@@ -305,3 +305,4 @@ void GenerateMengerSponge(int32_t level, float probability, std::vector<Vertex>&
 }
 
 } // namespace nv_helpers_dx12
+#endif

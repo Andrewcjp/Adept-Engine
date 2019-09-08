@@ -2,7 +2,7 @@ using EngineBuildTool;
 
 class EditorModule : ModuleDef
 {
-    public EditorModule()
+    public EditorModule(TargetRules Rules) : base(Rules)
     {
         SolutionFolderPath = "Engine/Editor";
         ModuleName = "Editor";

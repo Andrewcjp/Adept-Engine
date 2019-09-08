@@ -8,7 +8,9 @@
 #include "Core/Utils/RefChecker.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
+#ifdef NTDDI_WIN10_RS5
 #include <dxcapi.h>
+#endif
 #include <d3dcompiler.h>
 #define FORCE_RENDER_PASS_USE 0
 #define AFTERMATH 0
@@ -69,10 +71,11 @@ public:
 #endif
 
 	virtual RHIQuery * CreateQuery(EGPUQueryType::Type type, DeviceContext * con) override;
+#if RHI_SUPPORTS_RT
 	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) override;
 	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) override;
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
-
+#endif
 	static D3D12DeviceContext* DXConv(DeviceContext* D);
 	static D3D12Query * DXConv(RHIQuery * D);
 	static D3D12RHIUAV * DXConv(RHIUAV * D);
@@ -82,9 +85,11 @@ public:
 	static D3D12FrameBuffer * DXConv(FrameBuffer * D);
 	static D3D12Buffer* DXConv(RHIBuffer* D);
 	static D3D12CommandList* DXConv(RHICommandList* D);
+#if WIN10_1809
 	static D3D12LowLevelAccelerationStructure* DXConv(LowLevelAccelerationStructure* D);
 	static D3D12HighLevelAccelerationStructure* DXConv(HighLevelAccelerationStructure* D);
 	static D3D12StateObject* DXConv(RHIStateObject* D);
+#endif
 	static D3D12InterGPUStagingResource* DXConv(RHIInterGPUStagingResource* D);
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
 

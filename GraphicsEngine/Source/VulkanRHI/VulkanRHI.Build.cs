@@ -2,7 +2,7 @@ using EngineBuildTool;
 
 class VulkanRHIModule : ModuleDef
 {
-    public VulkanRHIModule()
+    public VulkanRHIModule(TargetRules Rules) : base(Rules)
     {
         SolutionFolderPath = "Engine/Modules/RHI";
         ModuleName = "VulkanRHI";

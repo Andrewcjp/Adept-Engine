@@ -11,6 +11,7 @@ public:
 	static void SetCurrnetThreadAffinity(int core);
 	static std::string DebugPrintLineFromAddress(void * pAddress);
 	CORE_API static StackTrace CaptureStack(int StackOffset = 0);
+
 };
 
 typedef WindowPlatformMisc PlatformMisc;

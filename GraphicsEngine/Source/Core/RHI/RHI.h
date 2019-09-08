@@ -37,7 +37,11 @@ class GPUPerformanceTestManager;
 #define BASIC_RENDER_ONLY 0//BUILD_VULKAN
 #define NOSHADOW 0 //BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
+#ifdef PLATFORM_RT
 #define RHI_SUPPORTS_RT 1
+#else
+#define RHI_SUPPORTS_RT 0
+#endif
 #define TEST_VRR 0
 #define TEST_VRS 1
 class RHI
@@ -178,10 +182,10 @@ public:
 	RHI_VIRTUAL RHIQuery * CreateQuery(EGPUQueryType::Type type, DeviceContext * con) = 0;
 
 	//RT
-	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) = 0;
-	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) = 0;
-	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) = 0;
 
+	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc);
+	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc);
+	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device);
 
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc,DeviceContext* Device) = 0;
 	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);

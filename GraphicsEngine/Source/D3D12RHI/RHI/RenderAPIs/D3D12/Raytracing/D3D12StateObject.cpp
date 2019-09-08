@@ -9,7 +9,7 @@
 #include "RHI/RenderAPIs/D3D12/DescriptorGroup.h"
 #include "RHI/RenderAPIs/D3D12/DescriptorHeapManager.h"
 #include "RHI/RenderAPIs/D3D12/ThirdParty/DXRHelper.h"
-
+#if WIN10_1809
 D3D12StateObject::D3D12StateObject(DeviceContext* D) :RHIStateObject(D)
 {}
 
@@ -182,8 +182,11 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Po
 		if (bind->BindType == ERSBindType::Texture)
 		{
 			D3D12Texture* DTex = D3D12RHI::DXConv(bind->Texture.Get());
-			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
-			Pointers.push_back(heapPointer);
+			if (DTex != nullptr)
+			{
+				auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
+				Pointers.push_back(heapPointer);
+			}
 		}
 		else if (bind->BindType == ERSBindType::BufferSRV)
 		{
@@ -238,3 +241,4 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 	DXList->GetCMDList4()->SetPipelineState1(StateObject);
 	DXList->GetCMDList4()->DispatchRays(&dispatchDesc);
 }
+#endif

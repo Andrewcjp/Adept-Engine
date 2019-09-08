@@ -307,8 +307,15 @@ std::string D3D12Helpers::ResouceStateToString(D3D12_RESOURCE_STATES state)
 			break;
 		case D3D12_RESOURCE_STATE_RESOLVE_SOURCE:
 			break;
+#if WIN10_1809
 		case D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE:
 			break;
+		case D3D12_RESOURCE_STATE_VIDEO_ENCODE_READ:
+			break;
+		case D3D12_RESOURCE_STATE_VIDEO_ENCODE_WRITE:
+			return "D3D12_RESOURCE_STATE_VIDEO_ENCODE_WRITE";
+			break;
+#endif
 		case D3D12_RESOURCE_STATE_GENERIC_READ:
 			break;
 		case D3D12_RESOURCE_STATE_VIDEO_DECODE_READ:
@@ -319,11 +326,7 @@ std::string D3D12Helpers::ResouceStateToString(D3D12_RESOURCE_STATES state)
 			break;
 		case D3D12_RESOURCE_STATE_VIDEO_PROCESS_WRITE:
 			break;
-		case D3D12_RESOURCE_STATE_VIDEO_ENCODE_READ:
-			break;
-		case D3D12_RESOURCE_STATE_VIDEO_ENCODE_WRITE:
-			return "D3D12_RESOURCE_STATE_VIDEO_ENCODE_WRITE";
-			break;
+
 		default:
 			break;
 	}
@@ -739,10 +742,12 @@ std::string D3D12Helpers::SMToString(D3D_SHADER_MODEL SM)
 			return "D3D_SHADER_MODEL_6_1";
 		case D3D_SHADER_MODEL_6_2:
 			return "D3D_SHADER_MODEL_6_2";
+#if WIN10_1809
 		case D3D_SHADER_MODEL_6_3:
 			return "D3D_SHADER_MODEL_6_3";
 		case D3D_SHADER_MODEL_6_4:
 			return "D3D_SHADER_MODEL_6_4";
+#endif
 	}
 	return "?";
 }

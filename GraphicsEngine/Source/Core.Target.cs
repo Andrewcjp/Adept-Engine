@@ -17,10 +17,12 @@ class CoreTargetRules : TargetRules
             GlobalDefines.Add("USE_PHYSX");
             ModuleExcludeList.Add("TDPhysics");
         }
+        WindowTenVersionTarget = "1903";
+       // WindowTenVersionTarget = "1803";
     }
     public override ModuleDef GetCoreModule()
     {
-        ModuleDef CoreModule = new ModuleDef();
+        ModuleDef CoreModule = new ModuleDef(this);
         CoreModule.ModuleName = "Core";
         CoreModule.ModuleOutputType = ModuleDef.ModuleType.EXE;
         CoreModule.SolutionFolderPath = "Engine/Core";
@@ -34,8 +36,7 @@ class CoreTargetRules : TargetRules
         
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "BleedOut";
-       // CoreModule.GameModuleName = "BleedOutGame";
-        // CoreModule.OutputObjectName = "NvAftermath-Enable";
+
         CoreModule.IsCoreModule = true;
         CoreModule.SystemLibNames.Add("winmm.lib");
         CoreModule.SystemLibNames.Add("shlwapi.lib");

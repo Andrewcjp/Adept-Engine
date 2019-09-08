@@ -33,6 +33,10 @@ void RenderSettings::ValidateSettings()
 	{
 		RTSettings.Enabled = false;
 	}
+#if !RHI_SUPPORTS_RT
+	//until software version is ready.
+	RTSettings.Enabled = false;
+#endif
 }
 
 const VRXSettings& RenderSettings::GetVRXSettings()
