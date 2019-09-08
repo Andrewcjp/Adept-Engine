@@ -855,12 +855,14 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 	{
 		return false;
 	}
-	//std::cout << "validation layer: " << pCallbackData->pMessage << std::endl;
-	Log::LogMessage("validation: " + std::string(pCallbackData->pMessage));
+	std::string msg = std::string(pCallbackData->pMessage);
+	Log::LogMessage("validation: " + msg);
 	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 	{
-		float t = 0;
-	//	__debugbreak();
+		if (msg.find("Type mismatch") == -1)
+		{
+			__debugbreak();
+		}
 	}
 	return false;
 }

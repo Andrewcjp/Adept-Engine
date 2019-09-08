@@ -15,7 +15,6 @@ public:
 	bool ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, std::vector<VkVertexInputAttributeDescription>& attributeDescriptions, std::vector<VkVertexInputBindingDescription>& vertexbindings);
 	void createGraphicsPipeline();
 
-	void CreateTestShader();
 
 	//Needs to contain Render pass and pipeline
 	VkShaderModule createShaderModule(const std::vector<char>& code);

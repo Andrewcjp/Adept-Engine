@@ -204,8 +204,13 @@ void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList * list,
 
 	FrameBuffer* TargetBuffer = LightPtr->GPUResidenceMask[list->GetDeviceIndex()].AtlasHandle->DynamicMapPtr;
 	Shader_Depth* TargetShader = ShaderComplier::GetShader<Shader_Depth>(list->GetDevice(), true);
-
-	list->BeginRenderPass(RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear));
+	RHIRenderPassDesc D = RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear);
+	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	if (RHI::GetFrameCount() != 0)
+	{
+		D.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+	}
+	list->BeginRenderPass(D);
 	TargetShader->UpdateGeometryShaderParams(LightPtr->GetPosition(), LightPtr->Projection, IndexOnGPU);
 	TargetShader->SetProjections(list, IndexOnGPU);
 

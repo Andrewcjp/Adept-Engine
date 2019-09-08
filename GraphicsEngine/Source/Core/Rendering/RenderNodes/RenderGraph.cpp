@@ -264,6 +264,8 @@ void RenderGraph::CreateFWDGraph()
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
+	Desc.AllowUnorderedAccess = true;
 	MainBuffer->SetFrameBufferDesc(Desc);
 
 	MainBuffer->StoreType = EStorageType::Framebuffer;
@@ -292,10 +294,14 @@ void RenderGraph::CreateFWDGraph()
 	LinkNode(FWDNode, renderNode);
 
 	renderNode->GetInput(0)->SetStore(MainBuffer);
+	PostProcessNode* PP = new PostProcessNode();
+	PP->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(renderNode, PP);
+
 	OutputToScreenNode* Output = new OutputToScreenNode();
 
 	DebugUINode* Debug = new DebugUINode();
-	AddBranchNode(renderNode, Debug, Output, true, "Debug");
+	AddBranchNode(PP, Debug, Output, true, "Debug");
 	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
 	LinkNode(Debug, Output);
 	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
@@ -426,6 +432,8 @@ void RenderGraph::CreateVRFWDGraph()
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnorderedAccess = true;
+	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
 	MainBuffer->SetFrameBufferDesc(Desc);
 	MainBuffer->IsVRFramebuffer = true;
 	MainBuffer->StoreType = EStorageType::Framebuffer;
@@ -459,8 +467,13 @@ void RenderGraph::CreateVRFWDGraph()
 	ParticleRenderNode* renderNode = new ParticleRenderNode();
 	LinkNode(FWDNode, renderNode);
 	renderNode->GetInput(0)->SetStore(MainBuffer);
+
+	PostProcessNode* PP = new PostProcessNode();
+	PP->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(renderNode, PP);
+
 	DebugUINode* Debug = new DebugUINode();
-	LinkNode(renderNode, Debug);
+	LinkNode(PP, Debug);
 	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
 
 	OutputToScreenNode* Output = new OutputToScreenNode();

@@ -19,5 +19,6 @@ public:
 	static VkFormat ConvertFormat(eTEXTURE_FORMAT format);
 	static VkImageLayout ConvertState(GPU_RESOURCE_STATES::Type state);
 	static UINT Align(UINT size, UINT alignment = 256);
+	static VkImageLayout MakeSafeForDepth(VkImageLayout Layout);
 };
 

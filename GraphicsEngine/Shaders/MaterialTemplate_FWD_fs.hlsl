@@ -3,7 +3,7 @@
 SamplerState defaultSampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
 #include "Shadow.hlsl"
-
+#include "VRX\VRRCommon.hlsl"
 //tODO:sub struct for mat data?
 cbuffer GOConstantBuffer : register(b0)
 {
@@ -73,10 +73,18 @@ float FWD_GetPresampledShadow(float2 pos, int index)
 //Declares
 float4 main(PSInput input) : SV_TARGET
 {
+
 #if VULKAN
 	int2 Res = int2(1,1);
 #endif
 	const float2 ScreenPos = input.position.xy / Res; //Compute Position  for this pixel in 0-1 space
+#if SUPPORT_VRR
+	if (!ShouldShadePixel(ScreenPos, Res))
+	{
+		discard;
+		return float4(1, 1, 1, 0);
+	}
+#endif
 	float3 Normal = input.Normal.xyz;
 #if !TEST
 	float3 texturecolour = float3(0, 0, 0);
