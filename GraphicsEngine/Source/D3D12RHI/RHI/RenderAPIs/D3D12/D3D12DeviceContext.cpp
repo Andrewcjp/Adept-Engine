@@ -125,7 +125,7 @@ void D3D12DeviceContext::CheckFeatures()
 	D3D12_FEATURE_DATA_D3D12_OPTIONS2  FeatureData2;
 	ZeroMemory(&FeatureData2, sizeof(FeatureData2));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &FeatureData2, sizeof(FeatureData2));
-
+#if WIN10_1809
 	D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData5;
 	ZeroMemory(&FeatureData5, sizeof(FeatureData5));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData5, sizeof(FeatureData5));
@@ -152,6 +152,7 @@ void D3D12DeviceContext::CheckFeatures()
 		SupportsCmdsList4 = true;
 	}
 	else
+#endif
 	{
 		Log::LogMessage("System does not support DXR");
 		Caps_Data.RTSupport = ERayTracingSupportType::None;
@@ -171,7 +172,12 @@ void D3D12DeviceContext::CheckFeatures()
 		Caps_Data.SupportsViewInstancing = (FeatureData3.ViewInstancingTier > D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED);
 	}
 
-	for (int i = D3D_SHADER_MODEL::D3D_SHADER_MODEL_6_4; i > D3D_SHADER_MODEL_5_1; i--)
+#if WIN10_1809
+	const D3D_SHADER_MODEL MaxSM = D3D_SHADER_MODEL_6_4;
+#else
+	const D3D_SHADER_MODEL MaxSM = D3D_SHADER_MODEL_6_2;
+#endif
+	for (int i = MaxSM; i > D3D_SHADER_MODEL_5_1; i--)
 	{
 		D3D12_FEATURE_DATA_SHADER_MODEL  ShaderModelData = {};
 		ShaderModelData.HighestShaderModel = (D3D_SHADER_MODEL)i;
@@ -193,7 +199,9 @@ void D3D12DeviceContext::CheckFeatures()
 		case D3D_SHADER_MODEL_6_2:
 		case D3D_SHADER_MODEL_6_3:
 		case D3D_SHADER_MODEL_6_4:
+#if NTDDI_WIN10_19H1
 		case D3D_SHADER_MODEL_6_5:
+#endif
 			Caps_Data.HighestModel = EShaderSupportModel::SM6;
 			break;
 	}
@@ -407,8 +415,9 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		Log::LogMessage("Creating device with " + std::to_string(m_Device->GetNodeCount()) + " Nodes");
 	}
 	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device2));
+#if WIN10_1809
 	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device5));
-
+#endif
 	SetNodeMaskFromIndex(0);
 	InitDevice(index);
 
@@ -429,12 +438,13 @@ ID3D12Device2* D3D12DeviceContext::GetDevice2()
 {
 	return m_Device2;
 }
+#if WIN10_1809
 
 ID3D12Device5 * D3D12DeviceContext::GetDevice5()
 {
 	return m_Device5;
 }
-
+#endif
 ID3D12CommandAllocator* D3D12DeviceContext::GetCommandAllocator(ECommandListType::Type ListType /*= ECommandListType::Graphics*/)
 {
 	switch (ListType)

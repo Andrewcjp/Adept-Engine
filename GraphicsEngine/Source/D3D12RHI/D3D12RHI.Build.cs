@@ -2,7 +2,7 @@ using EngineBuildTool;
 
 class D3D12RHIModule : ModuleDef
 {
-    public D3D12RHIModule()
+    public D3D12RHIModule(TargetRules Rules):base(Rules)
     {
         ModuleName = "D3D12RHI";
         SourceFileSearchDir = "D3D12RHI";
@@ -17,7 +17,10 @@ class D3D12RHIModule : ModuleDef
         SystemLibNames.Add("dxguid.lib");
         SystemLibNames.Add("dxgi.lib");
         SystemLibNames.Add("d3dcompiler.lib");
-        SystemLibNames.Add("dxcompiler.lib");
+        if (Rules.Win_SupportsRT())
+        {
+            SystemLibNames.Add("dxcompiler.lib");
+        }
         ThirdPartyModules.Add("Dx12Build");
         NuGetPackages.Add("WinPixEventRuntime");
     }

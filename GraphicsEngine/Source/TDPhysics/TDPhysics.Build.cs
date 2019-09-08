@@ -2,7 +2,7 @@ using EngineBuildTool;
 
 class TDPhysicsModule : ModuleDef
 {
-    public TDPhysicsModule()
+    public TDPhysicsModule(TargetRules Rules) : base(Rules)
     {
         SolutionFolderPath = "Engine/Physics";
         ModuleName = "TDPhysics";

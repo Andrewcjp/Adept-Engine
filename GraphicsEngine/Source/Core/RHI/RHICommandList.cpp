@@ -156,6 +156,21 @@ void RHICommandList::HandleStallTimer()
 	}
 }
 
+ void RHICommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure * Struct)
+{
+	
+}
+
+ void RHICommandList::TraceRays(const RHIRayDispatchDesc& desc)
+{
+
+}
+
+ void RHICommandList::SetStateObject(RHIStateObject* Object)
+ {
+
+ }
+
 void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 {
 	//ensure(Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::None);

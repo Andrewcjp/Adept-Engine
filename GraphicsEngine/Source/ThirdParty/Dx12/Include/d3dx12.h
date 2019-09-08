@@ -2657,6 +2657,7 @@ inline bool operator==( const D3D12_CLEAR_VALUE &a, const D3D12_CLEAR_VALUE &b)
                (a.Color[3] == b.Color[3]);
     }
 }
+#ifdef NTDDI_WIN10_RS5
 inline bool operator==( const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS &a, const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS &b)
 {
     return a.ClearValue == b.ClearValue;
@@ -3430,7 +3431,7 @@ private:
 };
 
 #endif // #ifndef D3DX12_NO_STATE_OBJECT_HELPERS
-
+#endif
 #endif // defined( __cplusplus )
 
 #endif //__D3DX12_H__

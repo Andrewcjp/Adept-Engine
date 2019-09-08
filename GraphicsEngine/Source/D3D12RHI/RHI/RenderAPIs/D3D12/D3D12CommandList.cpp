@@ -130,12 +130,12 @@ void D3D12CommandList::ClearHeaps()
 {
 	heaps.clear();
 }
-
+#if WIN10_1809
 ID3D12GraphicsCommandList4 * D3D12CommandList::GetCMDList4()
 {
 	return CurrentADVCommandList;
 }
-
+#endif
 void D3D12CommandList::PushPrimitiveTopology()
 {
 	CHECKRPASS();
@@ -410,10 +410,12 @@ void D3D12CommandList::CreateCommandList()
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COPY, GetCommandAllocator(), nullptr, IID_PPV_ARGS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
+#if WIN10_1809
 	if (mDeviceContext->SupportsCommandList4())
 	{
 		CurrentCommandList->QueryInterface(IID_PPV_ARGS(&CurrentADVCommandList));
 	}
+#endif
 	CurrentCommandList->QueryInterface(IID_PPV_ARGS(&CommandList1));
 	PushState();
 	D3D12Helpers::NameRHIObject(CurrentCommandList, this);
@@ -582,7 +584,7 @@ void D3D12CommandList::SetDepthBounds(float Min, float Max)
 	}
 	CommandList1->OMSetDepthBounds(Min, Max);
 }
-
+#if WIN10_1809
 void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)
 {
 	ensure(CurrentRTState);
@@ -602,7 +604,7 @@ void D3D12CommandList::SetStateObject(RHIStateObject* Object)
 	CurrentRTState = D3D12RHI::DXConv(Object);
 	CurrentRTState->BindToList(this);
 }
-
+#endif
 void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot)
 {
 	ensure(texture != nullptr);

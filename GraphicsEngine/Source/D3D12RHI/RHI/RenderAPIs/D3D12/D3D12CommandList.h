@@ -68,11 +68,14 @@ public:
 #if AFTERMATH
 	GFSDK_Aftermath_ContextHandle AMHandle;
 #endif
+#if WIN10_1809
 	ID3D12GraphicsCommandList4* GetCMDList4();
+#endif
+#if WIN10_1809
 	virtual void TraceRays(const RHIRayDispatchDesc& desc) override;
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
 	virtual void SetStateObject(RHIStateObject* Object) override;
-
+#endif
 	 RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
 
 
@@ -86,7 +89,9 @@ private:
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
 	CMDListType* CurrentCommandList = nullptr;
+#if WIN10_1809
 	ID3D12GraphicsCommandList4* CurrentADVCommandList = nullptr;
+#endif
 	ID3D12GraphicsCommandList1* CommandList1 = nullptr;
 	bool m_IsOpen = false;
 	//ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];

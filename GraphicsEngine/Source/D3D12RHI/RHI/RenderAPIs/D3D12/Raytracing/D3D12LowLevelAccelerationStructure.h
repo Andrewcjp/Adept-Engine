@@ -1,6 +1,6 @@
 #pragma once
 #include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
-
+#if WIN10_1809
 class GPUResource;
 class D3D12LowLevelAccelerationStructure :public LowLevelAccelerationStructure
 {
@@ -31,4 +31,4 @@ private:
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC bottomLevelBuildDesc = {};
 	std::vector <D3D12_RAYTRACING_GEOMETRY_DESC> geometryDescs;
 };
-
+#endif

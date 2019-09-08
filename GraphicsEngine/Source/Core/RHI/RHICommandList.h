@@ -56,7 +56,7 @@ public:
 	}
 	int StructSize = 0;
 protected:
-	
+
 	DeviceContext* Context = nullptr;
 	RHIBufferDesc Desc = {};
 	size_t VertexCount = 0;
@@ -145,9 +145,9 @@ public:
 	RHI_API void InsertGPUStallTimer();
 	RHI_API void HandleStallTimer();
 	//RT
-	RHI_API virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) = 0;
-	RHI_API virtual void TraceRays(const RHIRayDispatchDesc& desc) = 0;
-	RHI_API virtual void SetStateObject(RHIStateObject* Object) = 0;
+	RHI_API virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct);
+	RHI_API virtual void TraceRays(const RHIRayDispatchDesc& desc);
+	RHI_API virtual void SetStateObject(RHIStateObject* Object);
 
 	RHI_API RHI_VIRTUAL void SetDepthBounds(float Min, float Max) = 0;
 	RHI_API virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) = 0;

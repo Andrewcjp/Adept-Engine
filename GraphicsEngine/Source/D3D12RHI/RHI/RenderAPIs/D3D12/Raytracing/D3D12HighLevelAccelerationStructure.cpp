@@ -5,7 +5,7 @@
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../DXMemoryManager.h"
 #include "../GPUResource.h"
-
+#if WIN10_1809
 D3D12HighLevelAccelerationStructure::D3D12HighLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & desc) :HighLevelAccelerationStructure(Device, desc)
 {}
 
@@ -155,3 +155,4 @@ D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS D3D12HighLevelAccelerationSt
 	}
 	return Flags;
 }
+#endif

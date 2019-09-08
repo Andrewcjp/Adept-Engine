@@ -2,7 +2,7 @@ using EngineBuildTool;
 
 class TestGameModule : ModuleDef
 {
-    public TestGameModule()
+    public TestGameModule(TargetRules Rules) : base(Rules)
     {
         ModuleName = "TestGame";
         SourceFileSearchDir = "TestGame";

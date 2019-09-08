@@ -2,7 +2,7 @@
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../ThirdParty/nv_helpers_dx12/ShaderBindingTableGenerator.h"
 #include "Rendering/RayTracing/RHIStateObject.h"
-
+#if WIN10_1809
 class DXDescriptor;
 class Shader;
 class D3D12FrameBuffer;
@@ -40,4 +40,4 @@ private:
 	
 	uint32_t CurrentSBTSize = 0;
 };
-
+#endif

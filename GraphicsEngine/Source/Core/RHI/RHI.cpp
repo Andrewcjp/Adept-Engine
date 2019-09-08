@@ -714,6 +714,21 @@ void PipelineStateObjectCache::Destory()
 void RHIClass::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 {}
 
+LowLevelAccelerationStructure * RHIClass::CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
+{
+	return nullptr;
+}
+
+HighLevelAccelerationStructure* RHIClass::CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc)
+{
+	return nullptr;
+}
+
+RHIStateObject* RHIClass::CreateStateObject(DeviceContext* Device)
+{
+	return nullptr;
+}
+
 RHIRenderPassDesc RHIClass::GetRenderPassDescForSwapChain(bool ClearScreen /*= false*/)
 {
 	RHIRenderPassDesc Desc;

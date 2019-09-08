@@ -2,7 +2,7 @@ using EngineBuildTool;
 
 class BleedOutGameModule : ModuleDef
 {
-    public BleedOutGameModule()
+    public BleedOutGameModule(TargetRules Rules) : base(Rules)
     {
         ModuleName = "BleedOutGame";
         SourceFileSearchDir = "BleedOutGame";
