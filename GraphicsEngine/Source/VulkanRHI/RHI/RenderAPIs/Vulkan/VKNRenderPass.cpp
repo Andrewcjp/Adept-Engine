@@ -58,18 +58,24 @@ void VKNRenderPass::Complie()
 	}
 	if (Desc.RenderDesc.DSVFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
 	{
-		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachment.loadOp = ConvertLoadOp(Desc.LoadOp);
-		colorAttachment.storeOp = ConvertStoreOp(Desc.StoreOp);
-		colorAttachment.stencilLoadOp = ConvertLoadOp(Desc.StencilLoadOp);
-		colorAttachment.stencilStoreOp = ConvertStoreOp(Desc.StencilStoreOp);
-		colorAttachment.initialLayout = VKNHelpers::ConvertState(Desc.InitalState);
-		colorAttachment.finalLayout = VKNHelpers::ConvertState(Desc.FinalState);
-		colorAttachment.format = VKNHelpers::ConvertFormat(Desc.RenderDesc.DSVFormat);
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		colorAttachment.finalLayout = colorAttachment.initialLayout;
-		ColorAttamentsDesc.push_back(colorAttachment);
+		VkAttachmentDescription depthAttachment = {};
+		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.loadOp = ConvertLoadOp(Desc.LoadOp);
+		depthAttachment.storeOp = ConvertStoreOp(Desc.StoreOp);
+		depthAttachment.stencilLoadOp = ConvertLoadOp(Desc.StencilLoadOp);
+		depthAttachment.stencilStoreOp = ConvertStoreOp(Desc.StencilStoreOp);
+		depthAttachment.format = VKNHelpers::ConvertFormat(Desc.RenderDesc.DSVFormat);
+		if (Desc.RenderDesc.NumRenderTargets == 0)
+		{
+			depthAttachment.initialLayout = VKNHelpers::MakeSafeForDepth(VKNHelpers::ConvertState(Desc.InitalState));
+			depthAttachment.finalLayout = VKNHelpers::MakeSafeForDepth(VKNHelpers::ConvertState(Desc.FinalState));
+		}
+		else
+		{
+			depthAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		}
+		ColorAttamentsDesc.push_back(depthAttachment);
 	}
 
 	VkSubpassDescription subpass = {};

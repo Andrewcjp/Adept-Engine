@@ -98,16 +98,9 @@ bool VKNPipeLineStateObject::ParseVertexFormat(std::vector<Shader::VertexElement
 void  VKNPipeLineStateObject::createGraphicsPipeline()
 {
 	ensure(Desc.RenderPass);
-#if BASIC_RENDER_ONLY
-	CreateTestShader();
-#else
 	VKNShader* sh = VKNRHI::VKConv(Desc.ShaderInUse->GetShaderProgram());
 	ShaderStages = sh->GetShaderStages();
-	if (ShaderStages.size() == 0)
-	{
-		CreateTestShader();
-	}
-#endif
+
 	createTextureSampler();
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -253,36 +246,6 @@ void  VKNPipeLineStateObject::createGraphicsPipeline()
 
 	//vkDestroyShaderModule(VDevice->device, fragShaderModule, nullptr);
 	//vkDestroyShaderModule(VDevice->device, vertShaderModule, nullptr);
-}
-
-void VKNPipeLineStateObject::CreateTestShader()
-{
-	std::string root = AssetManager::GetShaderPath() + "VKan\\";
-	std::vector<char> vertShaderCode;
-	std::vector<char>  fragShaderCode;
-	//shader temp
-	//vertShaderCode = VKanShader::ComplieShader("VKan\\Tri.vert");
-	vertShaderCode = VKNShader::ComplieShader("VKan\\Tri_VS", EShaderType::SHADER_VERTEX, true);
-	fragShaderCode = VKNShader::ComplieShader("VKan\\TriHLSL", EShaderType::SHADER_FRAGMENT, true);
-	//fragShaderCode = VKanShader::ComplieShader("VKan\\Tri.frag", true);
-
-	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
-	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
-
-	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
-	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	vertShaderStageInfo.module = vertShaderModule;
-	vertShaderStageInfo.pName = "main";
-
-	VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
-	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	fragShaderStageInfo.module = fragShaderModule;
-	fragShaderStageInfo.pName = "main";
-
-	ShaderStages.push_back(fragShaderStageInfo);
-	ShaderStages.push_back(vertShaderStageInfo);
 }
 
 VkShaderModule VKNPipeLineStateObject::createShaderModule(const std::vector<char>& code)

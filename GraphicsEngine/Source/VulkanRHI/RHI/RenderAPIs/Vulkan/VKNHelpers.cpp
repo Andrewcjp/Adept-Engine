@@ -663,3 +663,12 @@ UINT VKNHelpers::Align(UINT size, UINT alignment)
 {
 	return (size + alignment - 1) & ~(alignment - 1);
 }
+
+VkImageLayout VKNHelpers::MakeSafeForDepth(VkImageLayout Layout)
+{
+	if (Layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+	{
+		return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	}
+	return Layout;
+}

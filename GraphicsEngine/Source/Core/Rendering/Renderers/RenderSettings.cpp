@@ -19,7 +19,7 @@ RenderSettings::RenderSettings()
 
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::ForwardRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;

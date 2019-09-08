@@ -126,15 +126,16 @@ void D3D12DeviceContext::CheckFeatures()
 	ZeroMemory(&FeatureData2, sizeof(FeatureData2));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &FeatureData2, sizeof(FeatureData2));
 #if WIN10_1809
-	D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData5;
+	D3D12_FEATURE_DATA_D3D12_OPTIONS5 FeatureData5;
 	ZeroMemory(&FeatureData5, sizeof(FeatureData5));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData5, sizeof(FeatureData5));
 	if (SUCCEEDED(hr))
 	{
 		if (LogDeviceDebug)
 		{
-			LogTierData("DXR Tier", FeatureData5.RaytracingTier);
-		}
+			LogTierData("DXR", FeatureData5.RaytracingTier);
+			LogTierData("Render Pass Driver", FeatureData5.RenderPassesTier);
+		}		
 		//#DXR Detect driver RT
 		if (FeatureData5.RaytracingTier)
 		{
@@ -260,6 +261,7 @@ void D3D12DeviceContext::CheckFeatures()
 	Caps_Data.SupportsDepthBoundsTest = FeatureData2.DepthBoundsTestSupported;
 	LogDeviceData("InterGPU mode " + std::string(EMGPUConnectionMode::ToString(Caps_Data.ConnectionMode)));
 	NVAPIManager::CheckSupport(m_Device);
+
 }
 
 void D3D12DeviceContext::LogDeviceData(const std::string& data)

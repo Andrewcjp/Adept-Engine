@@ -2,6 +2,7 @@
 #include "Shader_NodeGraph.h"
 #include "Rendering/ShaderGraph/ShaderGraph.h"
 #include "../Core/Material.h"
+#include "../Core/VRXEngine.h"
 
 //#Materals: refactor!
 Shader_NodeGraph::Shader_NodeGraph(std::string Shadername, TextureBindSet* binds) :Shader_Main(true)
@@ -14,6 +15,8 @@ void Shader_NodeGraph::Init()
 {
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_INSTANCES", std::to_string(RHI::GetRenderConstants()->MAX_MESH_INSTANCES)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_INSTANCING", RHI::GetRenderSettings()->AllowMeshInstancing ? "1" : "0"));
+
+	VRXEngine::SetupVRRShader(this);
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TEST", "1"));
 
@@ -39,6 +42,7 @@ std::vector<ShaderParameter> Shader_NodeGraph::GetShaderParameters()
 	{
 		Params.push_back(ShaderParameter(ShaderParamType::SRV, it->second.RootSigSlot, it->second.RegisterSlot));
 	}
+	VRXEngine::AddVRSToRS(Params, Params.size() - 1);
 	return Params;
 }
 
