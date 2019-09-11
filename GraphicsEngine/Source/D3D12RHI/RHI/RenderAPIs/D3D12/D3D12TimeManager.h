@@ -7,7 +7,7 @@
 #if __has_include(<pix3.h>)
 #define PIX_ENABLED 1
 #else
-#define PIX_ENABLED 1
+#define PIX_ENABLED 0
 #endif
 
 class DeviceContext;

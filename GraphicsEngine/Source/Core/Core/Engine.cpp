@@ -24,6 +24,8 @@
 #include "Testing/EngineTests.h"
 #include "Rendering/Core/Screen.h"
 #include "Module/GameModuleSelector.h"
+#include "CSharpInterOp/ICSharpContainerModule.h"
+#include "CSharpInterOp/CSharpContainer.h"
 
 
 long Engine::StartTime = 0;
@@ -80,17 +82,18 @@ Engine::Engine(EnginePersistentData* epd) :
 #if RUNTESTS
 	FString::RunFStringTests();
 #endif
-	
 	AudioEngine::Startup();
 	int cpucount = std::thread::hardware_concurrency();
 	unsigned int threadsToCreate = std::max((int)1, cpucount - 2);
 	TaskGraph = new Threading::TaskGraph(threadsToCreate);
 	Log::LogMessage("TaskGraph Created with " + std::to_string(threadsToCreate) + " Threads");
 	PlatformMisc::SetCurrnetThreadAffinity(0);
+	CSharpContainer::StartUp();
 }
 
 Engine::~Engine()
 {
+	CSharpContainer::ShutDown();
 	AssetManager::ShutDownAssetManager();
 	Log::ShutDownLogger();
 	TaskGraph->Shutdown();
@@ -277,6 +280,7 @@ void Engine::ImmediateExit(int code)
 	exit(code);
 }
 
+
 void Engine::HandleInput(unsigned int key)
 {
 	if (UIManager::GetCurrentContext() != nullptr)
@@ -375,5 +379,3 @@ void Engine::TestTDPhysics()
 
 }
 #endif
-
-

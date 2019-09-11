@@ -34,6 +34,7 @@ public:
 	void							CreateApplicationWindow(int width, int height);
 #if TDSIM_ENABLED
 	void							TestTDPhysics();
+	
 #endif
 	static long						StartTime;
 	static void						SetGame(Game* game);
@@ -68,6 +69,5 @@ private:
 	bool							IsCooking = false;
 	EngineSettings					Settings;
 	Threading::TaskGraph*			TaskGraph = nullptr;
-
 };
 
