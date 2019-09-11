@@ -35,6 +35,8 @@ void ModuleManager::SetupPreLoadModules()
 	ModulesNames.push_back(GameModuleSelector::GetGameModuleName());
 	ModulesNames.push_back("D3D12RHI");
 	ModulesNames.push_back("VulkanRHI");
+	ModulesNames.push_back("CSharpContainer");
+	ModulesNames.push_back("CSharpBridge");
 }
 
 void ModuleManager::PreLoadModules()

@@ -25,6 +25,7 @@
 #include "Rendering/RenderNodes/RenderGraph.h"
 #include "Rendering/Core/Screen.h"
 #include "Platform/Windows/WindowsWindow.h"
+#include "CSharpInterOp/CSharpContainer.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable RenderScale("r.renderscale", ECVarType::ConsoleAndLaunch, nullptr, nullptr, std::bind(BaseWindow::SetRenderScale, std::placeholders::_1));
@@ -189,7 +190,7 @@ void BaseWindow::Render()
 		SetPauseState(true);
 	}
 #endif
-
+	CSharpContainer::Update(Engine::GetDeltaTime());
 	Update();
 #if !WITH_EDITOR
 	if (ShouldTickScene)

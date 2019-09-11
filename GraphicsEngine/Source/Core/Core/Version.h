@@ -7,8 +7,8 @@ namespace Version
 	int GetMajorRevision();
 	int GetMinorRevision();
 	int GetPatchRevision();
-	std::string GetVersionString();
-	std::string GetFullVersionString();
-	std::string GetBuildVersion();
-	int GetBuildNumber();
+	CORE_API std::string GetVersionString();
+	CORE_API std::string GetFullVersionString();
+	CORE_API std::string GetBuildVersion();
+	CORE_API int GetBuildNumber();
 }
