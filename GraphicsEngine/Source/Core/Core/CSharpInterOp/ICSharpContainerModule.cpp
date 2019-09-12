@@ -12,17 +12,22 @@ ICSharpContainerModule::~ICSharpContainerModule()
 void ICSharpContainerModule::RunTest()
 {}
 
-CORE_API void ICSharpContainerModule::StartUp()
+void ICSharpContainerModule::StartUp()
 {
-	return CORE_API void();
+
 }
 
-CORE_API void ICSharpContainerModule::Tick()
+void ICSharpContainerModule::Tick()
 {
-	return CORE_API void();
+
 }
 
-CORE_API void ICSharpContainerModule::ShutDown()
+void ICSharpContainerModule::ShutDown()
 {
-	return CORE_API void();
+
+}
+
+ int ICSharpContainerModule::CreateObject(CSObjectCreationArgs* Args)
+{
+	 return 0;
 }

@@ -16,6 +16,9 @@ void CSharpContainer::StartUp()
 	Instance = new CSharpContainer();
 	Get()->CSContainer = ModuleManager::Get()->GetModule<ICSharpContainerModule>("CSharpContainer");
 	Get()->CSContainer->StartUp();
+	CSObjectCreationArgs Args;
+	Args.ClassId = 23454;
+	Get()->CSContainer->CreateObject(&Args);
 }
 
 void CSharpContainer::ShutDown()

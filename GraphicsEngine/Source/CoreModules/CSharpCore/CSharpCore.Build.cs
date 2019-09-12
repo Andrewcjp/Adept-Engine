@@ -6,7 +6,7 @@ class CSharpCoreModule : ModuleDef
     {
         SolutionFolderPath = "Engine/CSharp";
         ModuleName = "CSharpCore";
-        SourceFileSearchDir = "CSharpCore";
+        SourceFileSearchDir = "CoreModules/CSharpCore";
         PCH = "";
         ModuleOutputType = ModuleDef.ModuleType.DLL;
         UseCorePCH = false;
