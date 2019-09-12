@@ -11,6 +11,9 @@ public:
 	virtual void StartUp() override;
 	virtual void Tick() override;
 	virtual void ShutDown() override;
+
+	virtual int CreateObject(CSObjectCreationArgs* Args) override;
+
 private:
 	
 };

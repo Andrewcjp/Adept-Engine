@@ -6,7 +6,7 @@ class CSharpBridgeModule : ModuleDef
     {
         SolutionFolderPath = "Engine/CSharp";
         ModuleName = "CSharpBridge";
-        SourceFileSearchDir = "CSharpBridge";//CoreModules/
+        SourceFileSearchDir = "CoreModules/CSharpBridge";
         PCH = "CSharpBridgePCH";
         ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
         UseCorePCH = false;

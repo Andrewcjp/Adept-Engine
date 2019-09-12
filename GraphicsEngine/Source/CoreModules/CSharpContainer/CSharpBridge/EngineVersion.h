@@ -1,4 +1,6 @@
 #pragma once
+#include "Core\CSharpInterOp\ICSharpContainerModule.h"
+using namespace System;
 
 
 namespace ManagedDll
@@ -17,5 +19,6 @@ namespace ManagedDll
 	{
 		CSharpCore::Container::ShutDown();
 	}
+	public:int CallCreateObject(CSObjectCreationArgs* Args);
 	};
 }

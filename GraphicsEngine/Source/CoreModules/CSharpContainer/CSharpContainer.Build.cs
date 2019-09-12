@@ -6,13 +6,14 @@ class CSharpContainerModule : ModuleDef
     {
         SolutionFolderPath = "Engine/CSharp";
         ModuleName = "CSharpContainer";
-        SourceFileSearchDir = "CSharpContainer";//CoreModules/
+        SourceFileSearchDir = "CoreModules/CSharpContainer";//CoreModules/
         PCH = "CSharpContainerPCH";
         ModuleOutputType = ModuleDef.ModuleType.ModuleDLL;
         UseCorePCH = false;
         UseUnity = true;
         NetReferences.Add("CSharpCore");
         ModuleDepends.Add("CSharpCore");
+        IncludeDirectories.Add("//Source//CoreModules//CSharpBridge//");
         LaunguageType = ProjectType.ManagedCPP;
     }
 }

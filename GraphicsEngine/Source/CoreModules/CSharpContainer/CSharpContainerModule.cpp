@@ -29,6 +29,12 @@ void CSharpContainerModule::ShutDown()
 	container.CallShutdown();
 }
 
+int CSharpContainerModule::CreateObject(CSObjectCreationArgs* Args)
+{
+	ManagedDll::Container container;
+	return container.CallCreateObject(Args);
+}
+
 #ifdef CSHARPCONTAINER_EXPORT
 IMPLEMENT_MODULE_DYNAMIC(CSharpContainerModule);
 #endif
