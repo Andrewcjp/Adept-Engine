@@ -436,7 +436,7 @@ void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, in
 void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 {
 	ensure(!Buffer->IsPendingKill());
-	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
+//	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
 	//ensure(Device == buffer->GetDevice());
 	//buffer->CopyToHostMemory(CurrentCommandList);
 }
@@ -444,7 +444,7 @@ void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
 {
 	ensure(!Buffer->IsPendingKill());
-	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
+	//D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
 	//ensure(Device == buffer->GetTargetDevice());
 	//buffer->CopyFromHostMemory(CurrentCommandList);
 }
@@ -488,7 +488,7 @@ void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
 		commandSignatureDesc.ByteStride = commandSize;
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : ((D3D12PipeLineStateObject*)CurrentPSO)->RootSig, IID_PPV_ARGS(&CommandSig)));
+		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : D3D12RHI::DXConv(CurrentPSO)->RootSig, IID_PPV_ARGS(&CommandSig)));
 		NAME_D3D12_OBJECT(CommandSig);
 	}
 	else

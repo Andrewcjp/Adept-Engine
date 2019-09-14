@@ -148,49 +148,6 @@ bool D3D12FrameBuffer::IsReadyForCompute() const
 	return false;
 }
 
-void D3D12FrameBuffer::TransitionTOCopy(ID3D12GraphicsCommandList* list)
-{
-	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
-}
-
-void D3D12FrameBuffer::MakeReadyForRead(ID3D12GraphicsCommandList * list)
-{
-	//TargetCopy->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-}
-
-void D3D12FrameBuffer::MakeReadyForCopy(RHICommandList * list)
-{
-	MakeReadyForCopy_In(((D3D12CommandList*)list)->GetCommandList());
-}
-
-void D3D12FrameBuffer::MakeReadyForCopy_In(ID3D12GraphicsCommandList * list)
-{
-	RenderTarget[0]->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
-}
-void D3D12FrameBuffer::MakeReadyForPixel(RHICommandList * List, bool Depth)
-{
-	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
-	{
-		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
-	if (Depth)
-	{
-		DepthStencil->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
-}
-void D3D12FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
-{
-	FrameBuffer::MakeReadyForComputeUse(List, Depth);
-	/*for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
-	{
-		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
-	if (Depth)
-	{
-		DepthStencil->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}*/
-}
-
 void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, FrameBuffer* PassThrough)
 {
 	D3D12FrameBuffer * DPassBuffer = (D3D12FrameBuffer*)PassThrough;
@@ -372,15 +329,15 @@ void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES stat
 {
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		GetResource(i)->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), state);
+		GetResource(i)->SetResourceState(D3D12RHI::DXConv(List)->GetCommandList(), state);
 	}
-	if (Depth)
+	if (Depth && DepthStencil != nullptr)
 	{
 		if (state == D3D12_RESOURCE_STATE_RENDER_TARGET)
 		{
 			state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		}
-		DepthStencil->SetResourceState(((D3D12CommandList*)List)->GetCommandList(), state);
+		DepthStencil->SetResourceState(D3D12RHI::DXConv(List)->GetCommandList(), state);
 	}
 }
 
@@ -399,6 +356,9 @@ void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Ty
 			break;
 		case EResourceState::UAV:
 			SetState(List, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, ChangeDepth);
+			break;
+		case EResourceState::Copy:
+			SetState(List, D3D12_RESOURCE_STATE_COMMON, ChangeDepth);
 			break;
 		case EResourceState::Limit:
 			break;
@@ -552,11 +512,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 		}
 
 		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
-		}
+	}
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);
 #endif
-	}
+}
 
 void D3D12FrameBuffer::Init()
 {

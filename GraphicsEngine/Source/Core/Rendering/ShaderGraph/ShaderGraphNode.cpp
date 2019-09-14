@@ -26,7 +26,7 @@ std::string SGN_CodeSnippet::GetComplieCode(ShaderGraph* context)
 	return CodeSnip + "\n";
 }
 
-PropertyLink::PropertyLink(std::string name, ShaderPropertyType::Type t, std::string ddefault)
+PropertyLink::PropertyLink(const std::string& name, ShaderPropertyType::Type t, const std::string& ddefault)
 	:DefaultValue(ddefault)
 {
 	Name = name;

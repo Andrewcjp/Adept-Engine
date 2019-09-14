@@ -114,6 +114,8 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 
 	if (!scene)
 	{
+		importer->FreeScene();
+		SafeDelete(importer);
 		Log::OutS << "Mesh load failed!: " << filename << Log::OutS;
 		return false;
 	}

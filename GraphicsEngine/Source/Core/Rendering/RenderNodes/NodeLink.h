@@ -9,13 +9,13 @@ class NodeLink
 {
 public:
 	NodeLink();
-	NodeLink(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
+	NodeLink(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string(), RenderNode* Owner = nullptr);
 	~NodeLink();
 	bool SetStore(StorageNode* Target);
 	bool IsValid();
 	bool SetLink(NodeLink* link);
 	EStorageType::Type TargetType = EStorageType::Limit;
-	RenderNode* Target = nullptr;
+	RenderNode* OwnerNode = nullptr;
 	StorageNode* GetStoreTarget() const;
 	//this is a GUIDE not a hard rule
 	std::string DataFormat = "";

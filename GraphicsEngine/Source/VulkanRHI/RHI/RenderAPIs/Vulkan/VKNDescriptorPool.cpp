@@ -19,6 +19,10 @@ VKNDescriptorPool::VKNDescriptorPool(VKNDeviceContext* Con)
 {
 	Context = Con;
 	Init();
+#if USERV
+	CopyData.Allocate(20);
+	WriteData.Allocate(20);
+#endif
 }
 
 
@@ -38,18 +42,18 @@ void VKNDescriptorPool::ResetAllocations()
 	LastUsedSet = NULL;
 }
 
-void VKNDescriptorPool::AllocateAndBind(VKNCommandlist * List)
+void VKNDescriptorPool::AllocateAndBind(VKNCommandlist * RESTRICT List)
 {
-	SCOPE_CYCLE_COUNTER_GROUP("Descriptor Bind", "RHI");
+	//SCOPE_CYCLE_COUNTER_GROUP("Descriptor Bind", "RHI");
 	VkDescriptorSet Set = AllocateSet(List);
 	vkCmdBindDescriptorSets(List->CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, List->CurrentPso->PipelineLayout, 0, 1, &Set, 0, nullptr);
 }
 #define STATIC_SAMPLER 1
-VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
+VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 {
 	BufferInfoAlloc.Reset();
 	ImageInfoAlloc.Reset();
-	VkDescriptorSet Set = createDescriptorSets(list->CurrentPso->descriptorSetLayout, 1);
+	VkDescriptorSet Set = createDescriptorSets(&list->CurrentPso->descriptorSetLayout, 1);
 	WriteData.clear();
 	CopyData.clear();
 	for (int i = 0; i < list->Rootsig.GetNumBinds(); i++)
@@ -83,7 +87,7 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
 					LogEnsureMsgf(bufferInfo->range == 0);
 					bufferInfo->offset = 0;
 					bufferInfo->range = Desc->BufferTarget->GetSize();
-				
+
 				}
 			}
 			else
@@ -107,7 +111,7 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * list)
 			VkDescriptorImageInfo* imageInfo = ImageInfoAlloc.Allocate();
 			imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			if (Desc->Framebuffer != nullptr)
-			{				
+			{
 				if (Desc->Framebuffer->GetDescription().RenderTargetCount == 0)
 				{
 					imageInfo->imageView = VKNRHI::VKConv(Desc->Framebuffer)->depthImageView;
@@ -195,20 +199,17 @@ void VKNDescriptorPool::createDescriptorPool()
 	}
 }
 
-VkDescriptorSet VKNDescriptorPool::createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, int count)
+VkDescriptorSet VKNDescriptorPool::createDescriptorSets(const VkDescriptorSetLayout* RESTRICT descriptorSetLayout, int count)
 {
-	std::vector<VkDescriptorSetLayout> layouts(count, descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = descriptorPool;
 	allocInfo.descriptorSetCount = count;
-	allocInfo.pSetLayouts = layouts.data();
-	std::vector<VkDescriptorSet> descriptorSets;
-	descriptorSets.resize(count);
-	if (vkAllocateDescriptorSets(Context->device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+	allocInfo.pSetLayouts = descriptorSetLayout;
+	VkDescriptorSet Set;
+	if (vkAllocateDescriptorSets(Context->device, &allocInfo, &Set) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
-
-	return descriptorSets[0];
+	return Set;
 }

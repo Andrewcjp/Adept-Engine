@@ -57,7 +57,7 @@ bool BaseAsset::IsValid() const
 	return GUID != 0;
 }
 
-std::string BaseAsset::GetMetaFileName(std::string path)
+std::string BaseAsset::GetMetaFileName(const std::string& path)
 {
 	return path +".Meta";
 }

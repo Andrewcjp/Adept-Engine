@@ -172,7 +172,6 @@ void NavigationManager::RenderPath(NavigationPath * outputPath, glm::vec3 Colour
 		{
 			if (i < outputPath->Positions.size() - 1 && DebugLineDrawer::Get() != nullptr)
 			{
-				const float height = -10.0f;
 				DebugLineDrawer::Get()->AddLine(glm::vec3(outputPath->Positions[i].x, outputPath->Positions[i].y, outputPath->Positions[i].z),
 					glm::vec3(outputPath->Positions[i + 1].x, outputPath->Positions[i + 1].y, outputPath->Positions[i + 1].z), Colour, 1.0f);
 			}

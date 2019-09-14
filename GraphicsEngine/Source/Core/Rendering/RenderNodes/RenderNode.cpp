@@ -268,24 +268,24 @@ void RenderNode::OnValidateNode(RenderGraph::ValidateArgs & args)
 
 }
 
-void RenderNode::AddInput(EStorageType::Type TargetType, std::string format, std::string InputName)
+void RenderNode::AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName)
 {
-	Inputs.push_back(new NodeLink(TargetType, format, InputName));
+	Inputs.push_back(new NodeLink(TargetType, format, InputName, this));
 }
 
-void RenderNode::AddOutput(EStorageType::Type TargetType, std::string format, std::string InputName)
+void RenderNode::AddOutput(EStorageType::Type TargetType,const std::string& format, const std::string& InputName)
 {
-	Outputs.push_back(new NodeLink(TargetType, format, InputName));
+	Outputs.push_back(new NodeLink(TargetType, format, InputName, this));
 }
 
-void RenderNode::AddOutput(NodeLink * Input, std::string format, std::string InputName)
+void RenderNode::AddOutput(NodeLink * Input, const std::string& format, const std::string& InputName)
 {
 	AddOutput(Input->TargetType, format, InputName);
 }
 
-void RenderNode::AddRefrence(EStorageType::Type TargetType, std::string format, std::string InputName)
+void RenderNode::AddRefrence(EStorageType::Type TargetType, const std::string& format, const std::string&InputName)
 {
-	Refrences.push_back(new NodeLink(TargetType, format, InputName));
+	Refrences.push_back(new NodeLink(TargetType, format, InputName, this));
 }
 
 void RenderNode::PassNodeThough(int inputindex, std::string newformat /*= std::string()*/, int outputindex /*= -1*/)

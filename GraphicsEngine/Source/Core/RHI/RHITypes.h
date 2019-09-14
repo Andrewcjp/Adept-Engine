@@ -807,6 +807,7 @@ namespace EResourceState
 		PixelShader,
 		ComputeUse,
 		UAV,
+		Copy,
 		Limit
 	};
 }

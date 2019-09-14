@@ -152,6 +152,11 @@ VKNFramebuffer * VKNRHI::VKConv(FrameBuffer * T)
 	return static_cast<VKNFramebuffer*>(T);
 }
 
+VKNPipeLineStateObject * VKNRHI::VKConv(RHIPipeLineStateObject * T)
+{
+	return static_cast<VKNPipeLineStateObject*>(T);
+}
+
 RHIRenderPass* VKNRHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
 {
 	return new VKNRenderPass(Desc, Device);
@@ -532,57 +537,7 @@ void  VKNRHI::createSyncObjects()
 }
 void VKNRHI::CreateNewObjects()
 {
-#if !BASIC_RENDER_ONLY
-	return;
-#endif
 	RHIRenderPassCache::Get()->GetOrCreatePass(VKNRHI::GetRenderPassDescForSwapChain());
-	TestShader = new Shader_Main(true);
-	RHIPipeLineStateDesc DEsc;
-	DEsc.ShaderInUse = TestShader;
-	DEsc.RenderPassDesc = VKNRHI::GetRenderPassDescForSwapChain();
-	SawpPSO = new VKNPipeLineStateObject(DEsc, DevCon);
-	SawpPSO->Complie();
-
-
-	Vertexb = new VKNBuffer(ERHIBufferType::Vertex, nullptr);
-#if 0
-	glm::vec2 positions[3] = {
-		glm::vec2(0.0, -0.5),
-		glm::vec2(0.5, 0.7),
-		glm::vec2(-0.5, 0.5)
-	};
-	Vertexb->CreateVertexBuffer(sizeof(glm::vec2), sizeof(positions));
-#else
-	OGLVertex positions[3]{
-		OGLVertex(),
-		OGLVertex(),
-		OGLVertex()
-	};
-	positions[0].m_position = glm::vec3(0.0, -0.5, 1.0f);
-	positions[1].m_position = glm::vec3(0.5, 0.7, 1.0f);
-	positions[2].m_position = glm::vec3(-0.5, 0.5, 1.0f);
-
-	positions[0].m_texcoords = glm::vec3(0.0, -0.5, 0.0f);
-	positions[1].m_texcoords = glm::vec3(0.5, 0.7, 0.0f);
-	positions[2].m_texcoords = glm::vec3(-0.5, 0.5, 0.0f);
-	Vertexb->CreateVertexBuffer(sizeof(OGLVertex), sizeof(positions));
-#endif
-
-	Vertexb->UpdateVertexBuffer(&positions, sizeof(positions));
-
-	IndexTest = new VKNBuffer(ERHIBufferType::Index, nullptr);
-	short  ind[3]{ 1,2,0 };
-	IndexTest->CreateIndexBuffer(sizeof(short), sizeof(ind));
-	IndexTest->UpdateIndexBuffer(&ind, sizeof(ind));
-	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(1000, 1000);
-	TestFrameBuffer = new VKNFramebuffer(nullptr, Desc);
-	RHIRenderPassDesc D;
-	D.TargetBuffer = TestFrameBuffer;
-	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	DEsc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(D);
-	PSO = new VKNPipeLineStateObject(DEsc, DevCon);
-	PSO->Complie();
-
 	PresentList = new VKNCommandlist(ECommandListType::Graphics, RHI::GetDefaultDevice());
 }
 
@@ -603,46 +558,7 @@ void  VKNRHI::drawFrame()
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
-#if BASIC_RENDER_ONLY
-	if (cmdlist == nullptr)
-	{
-		cmdlist = setuplist;
-	}
-	else
-	{
-		cmdlist->ResetList();
-	}
-
-	RHIRenderPassDesc Info = RHIRenderPassDesc();
-	Info.TargetBuffer = TestFrameBuffer;
-	//Info.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	Info.LoadOp = ERenderPassLoadOp::Clear;
-	cmdlist->BeginRenderPass(Info);
-	cmdlist->SetPipelineStateObject(PSO);
-	cmdlist->SetConstantBufferView(buffer, 0, 0);
-	cmdlist->SetTexture(T, 1);
-	SceneRenderer::Get()->BindMvBuffer(cmdlist, 2);
-	SceneRenderer::Get()->MeshController->RenderPass(ERenderPass::DepthOnly, cmdlist);
-
-	cmdlist->SetVertexBuffer(Vertexb);
-	cmdlist->SetIndexBuffer(IndexTest);
-	cmdlist->DrawIndexedPrimitive(3, 1, 0, 0, 0);
-
-	cmdlist->EndRenderPass();
-	cmdlist->BeginRenderPass(VKNRHI::GetRenderPassDescForSwapChain(true));
-	cmdlist->SetPipelineStateObject(SawpPSO);
-	cmdlist->SetConstantBufferView(buffer, 0, 0);
-	cmdlist->SetTexture(T, 1);
-	//cmdlist->SetFrameBufferTexture(TestFrameBuffer, 1);
-	SceneRenderer::Get()->BindMvBuffer(cmdlist, 2);
-	SceneRenderer::Get()->MeshController->RenderPass(ERenderPass::DepthOnly, cmdlist);
-	//RenderingUtils::RenderScreenQuad(cmdlist);
-	cmdlist->EndRenderPass();
-	TestFrameBuffer->UnBind(cmdlist);
-	cmdlist->Execute();
-#else
 	PresentList = setuplist;
-#endif
 #if 1
 	PresentList->ResetList();
 	//PresentList->Execute();

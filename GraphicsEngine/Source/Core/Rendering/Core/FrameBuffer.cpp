@@ -267,7 +267,7 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice,
 	CopyList->EndTimer(Stat);
 	CopyList->ResolveTimers();
 	CopyList->Execute(CopyQ);
-//	if (!RHI::GetMGPUSettings()->AsyncShadows)
+	//	if (!RHI::GetMGPUSettings()->AsyncShadows)
 	{
 		HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 	}
@@ -283,14 +283,14 @@ void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice,
 	CopyList->EndTimer(Stat);
 	CopyList->ResolveTimers();
 	CopyList->Execute(CopyQ);
-//	if (RHI::GetMGPUSettings()->SFRSplitShadows)
+	//	if (RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		//if (Stat != EGPUCOPYTIMERS::ShadowCopy)
 		{
 			TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 		}
 	}
-//	else
+	//	else
 	{
 		TargetDevice->InsertGPUWait(DeviceContextQueue::Graphics, CopyQ);
 	}
@@ -311,12 +311,14 @@ void FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
 	SetResourceState(List, EResourceState::ComputeUse, Depth);
 }
 
-void FrameBuffer::MakeReadyForCopy(RHICommandList * list)
-{}
+void FrameBuffer::MakeReadyForCopy(RHICommandList * list, bool changeDepth /*= false*/)
+{
+	SetResourceState(list, EResourceState::Copy, changeDepth);
+}
 
 void FrameBuffer::MakeReadyForPixel(RHICommandList * List, bool Depth)
 {
-	
+	SetResourceState(List, EResourceState::PixelShader, Depth);
 }
 
 void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
@@ -333,7 +335,7 @@ void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 	{
 		return;
 	}
-//	ensure(Target->GetDescription().IsShared);
+	//	ensure(Target->GetDescription().IsShared);
 	HostDevice->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
 	HostDevice->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	RHICommandList* CopyList = HostDevice->GetInterGPUCopyList();

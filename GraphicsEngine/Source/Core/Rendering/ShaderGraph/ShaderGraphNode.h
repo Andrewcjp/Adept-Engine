@@ -8,10 +8,10 @@ static std::string ShaderPropertyTypeToString(ShaderPropertyType::Type type)
 {
 	switch (type)
 	{
-	case ShaderPropertyType::Float:
-		return "float";
-	case ShaderPropertyType::Float3:
-		return "float3";
+		case ShaderPropertyType::Float:
+			return "float";
+		case ShaderPropertyType::Float3:
+			return "float3";
 	}
 	return "";
 }
@@ -20,7 +20,7 @@ class PropertyLink
 public:
 	PropertyLink()
 	{}
-	PropertyLink(std::string name, ShaderPropertyType::Type t, std::string DefaultValue = "");
+	PropertyLink(const std::string& name, ShaderPropertyType::Type t, const std::string& DefaultValue = "");
 	std::string Name = "";
 	ShaderPropertyType::Type Type = ShaderPropertyType::Float;
 	std::string GetNameCode(ShaderGraph* context);

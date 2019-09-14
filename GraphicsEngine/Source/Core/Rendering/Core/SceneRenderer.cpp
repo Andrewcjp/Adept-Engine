@@ -49,6 +49,7 @@ SceneRenderer::SceneRenderer()
 	LightCulling->Init(Culling);
 	Enviroment = new ReflectionEnviroment();
 	Init();
+	LightsBuffer = LightBufferW();
 }
 
 

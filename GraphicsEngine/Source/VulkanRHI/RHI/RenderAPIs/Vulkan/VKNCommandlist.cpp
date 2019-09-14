@@ -69,7 +69,7 @@ void VKNCommandlist::DrawPrimitive(int VertexCountPerInstance, int InstanceCount
 void VKNCommandlist::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
 {
 	ensure(IsOpen);
-	((VKNDeviceContext*)Device)->pool->AllocateAndBind(this);
+	VKNRHI::VKConv(Device)->pool->AllocateAndBind(this);
 	ensure(IsInRenderPass);
 	vkCmdDrawIndexed(CommandBuffer, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
 }
@@ -77,7 +77,7 @@ void VKNCommandlist::DrawIndexedPrimitive(int IndexCountPerInstance, int Instanc
 void VKNCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 {
 	ensure(IsOpen);
-	VKNBuffer* vb = (VKNBuffer*)buffer;
+	VKNBuffer* vb = VKNRHI::VKConv(buffer);
 	VkBuffer vertexBuffers[] = { vb->vertexbuffer };
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers(CommandBuffer, 0, 1, vertexBuffers, offsets);
@@ -86,7 +86,7 @@ void VKNCommandlist::SetVertexBuffer(RHIBuffer * buffer)
 void VKNCommandlist::SetIndexBuffer(RHIBuffer * buffer)
 {
 	ensure(IsOpen);
-	VKNBuffer* vb = (VKNBuffer*)buffer;
+	VKNBuffer* vb = VKNRHI::VKConv(buffer);
 	vkCmdBindIndexBuffer(CommandBuffer, vb->vertexbuffer, 0, VK_INDEX_TYPE_UINT16);
 }
 
@@ -206,7 +206,7 @@ void VKNCommandlist::EndRenderPass()
 
 void VKNCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 {
-	VKNPipeLineStateObject* VObject = (VKNPipeLineStateObject*)Object;
+	VKNPipeLineStateObject* VObject = VKNRHI::VKConv(Object);
 	Rootsig.SetRootSig(VObject->Parms);
 	CurrentPso = VObject;
 	ensure(CommandBuffer != nullptr);
@@ -221,7 +221,6 @@ void VKNCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Dat
 void VKNCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex/* = 0*/)
 {
 	ensure(Resourceindex >= 0);
-	ShaderParameter* Parm = CurrentPso->GetRootSigSlot(slot);
 	VKNFramebuffer* V = VKNRHI::VKConv(buffer);
 	V->WasTexture = true;
 	Rootsig.SetFrameBufferTexture(slot, buffer, Resourceindex);

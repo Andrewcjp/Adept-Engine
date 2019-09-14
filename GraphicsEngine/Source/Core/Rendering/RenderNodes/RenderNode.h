@@ -104,10 +104,10 @@ protected:
 	//Creates all data need to run a node on X device should NOT call functions on external objects (excluding Render systems like the MeshPipline).
 	virtual void OnSetupNode() {};
 	virtual void OnValidateNode(RenderGraph::ValidateArgs & args);
-	void AddInput(EStorageType::Type TargetType, std::string format, std::string InputName = std::string());
-	void AddOutput(EStorageType::Type TargetType, std::string format, std::string InputName = std::string());
-	void AddOutput(NodeLink* Input, std::string format, std::string InputName = std::string());
-	void AddRefrence(EStorageType::Type TargetType, std::string format, std::string InputName);
+	void AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
+	void AddOutput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
+	void AddOutput(NodeLink* Input, const std::string& format, const std::string& InputName = std::string());
+	void AddRefrence(EStorageType::Type TargetType, const std::string& format, const std::string& InputName);
 	void PassNodeThough(int inputindex, std::string newformat = std::string(), int outputinput = -1);
 	RenderNode* Next = nullptr;
 	RenderNode* LastNode = nullptr;

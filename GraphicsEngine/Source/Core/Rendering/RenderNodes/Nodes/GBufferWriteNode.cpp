@@ -33,7 +33,7 @@ void GBufferWriteNode::OnExecute()
 	desc.FrameBufferTarget = GBuffer;
 	CommandList->SetPipelineStateDesc(desc);
 
-	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, 0);
+	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, GetEye());
 	RHIRenderPassDesc D = RHIRenderPassDesc(GBuffer, UsePreZPass ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	CommandList->BeginRenderPass(D);

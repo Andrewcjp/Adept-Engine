@@ -119,8 +119,7 @@ public:
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	size_t currentFrame = 0;
-	VKNPipeLineStateObject* SawpPSO;
-	VKNPipeLineStateObject* PSO;
+
 	VKNCommandlist* setuplist = nullptr;
 
 	// Inherited via RHIClass
@@ -158,11 +157,7 @@ public:
 	void initVulkan();
 	class VKNBuffer* buffer = nullptr;
 	class VKNRenderPass* Pass = nullptr;
-	VKNBuffer* Vertexb = nullptr;
-	VKNBuffer* IndexTest = nullptr;
-	class VKNTexture* T;
-	class VKNShader* Shadertest = nullptr;
-	class VKNCommandlist* cmdlist = nullptr;
+
 	RHI_VIRTUAL void SetFullScreenState(bool state) override;
 	RHI_VIRTUAL std::string ReportMemory() override;
 	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) override;
@@ -187,7 +182,7 @@ public:
 	static VKNBuffer* VKConv(RHIBuffer* T);
 	static VKNDeviceContext* VKConv(DeviceContext* T);
 	static VKNFramebuffer* VKConv(FrameBuffer* T);
-
+	static VKNPipeLineStateObject* VKConv(RHIPipeLineStateObject* T);
 	Shader_Main* TestShader = nullptr;
 	VKNFramebuffer* TestFrameBuffer = nullptr;
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;

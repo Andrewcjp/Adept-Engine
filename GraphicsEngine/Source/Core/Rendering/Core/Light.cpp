@@ -86,6 +86,7 @@ void Light::Update()
 	//this needs to be in sync with shaders or the light culling broadphase will cause issues.
 	FalloffRange = (MinLightIntensity / m_intesity);
 	FalloffRange = glm::sqrt(1.0f / FalloffRange);
+	FalloffRange = Distance;
 }
 
 float Light::GetRange()

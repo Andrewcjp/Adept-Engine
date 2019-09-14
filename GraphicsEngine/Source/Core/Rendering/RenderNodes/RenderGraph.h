@@ -1,5 +1,6 @@
 #pragma once
 #include "StorageNode.h"
+#include "RenderGraphDrawer.h"
 
 class RenderNode;
 class StorageNode;
@@ -88,6 +89,7 @@ public:
 	RenderNode* FindFirstOf(const std::string& name);
 	std::vector<RenderNode*> FindAllOf(const std::string& name);
 	RenderNode* GetNodeAtIndex(int i);
+	int GetIndexOfNode(RenderNode * Node);
 	void RunTests();
 	bool RequiresMGPU = false;
 	bool RequiresRT = false;
@@ -100,7 +102,7 @@ private:
 	void ExposeItem(RenderNode* N, std::string name, bool Defaultstate = true);
 
 	void ExposeNodeOption(RenderNode * N, std::string name, bool * data, bool Defaultstate);
-
+	RenderGraphDrawer Drawer;
 };
 
 namespace StandardSettings

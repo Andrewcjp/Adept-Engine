@@ -38,13 +38,6 @@ void PP_ColourCorrect::ExecPass(RHICommandList * list, FrameBuffer * InputTextur
 	RenderScreenQuad(list);
 	InputTexture->MakeReadyForComputeUse(list);
 	AddtiveBuffer->MakeReadyForComputeUse(list);
-#if 0
-	D3D12FrameBuffer* dBuffer = (D3D12FrameBuffer*)InputTexture;
-	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-
-	dBuffer = (D3D12FrameBuffer*)AddtiveBuffer;
-	dBuffer->GetResource(0)->SetResourceState(((D3D12CommandList*)list)->GetCommandList(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-#endif
 }
 
 void PP_ColourCorrect::PostSetUpData()

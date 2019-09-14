@@ -15,7 +15,7 @@ public:
 	static void DeRegisterObject(GameObject * obj);
 	static void StopAll();
 	static int GetNextAudioId();
-	void LoadBank(std::string Name);
+	void LoadBank(const std::string& Name);
 	static void UpdateWiseTransfrom(GameObject* go);
 private:
 	AudioEngine();

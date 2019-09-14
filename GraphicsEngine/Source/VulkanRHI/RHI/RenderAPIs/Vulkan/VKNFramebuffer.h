@@ -17,7 +17,7 @@ public:
 	// Inherited via FrameBuffer
 	virtual DeviceContext * GetDevice() override;
 	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
-	virtual void MakeReadyForCopy(RHICommandList * list) override;
+
 	void TryInitBuffer(RHIRenderPassDesc& desc, VKNCommandlist* list);
 
 	void CreateRT(VKNCommandlist* list, int index);
@@ -25,7 +25,7 @@ public:
 	void UpdateStateTrackingFromRP(RHIRenderPassDesc & Desc);
 	Descriptor GetDescriptor(int slot, int resourceindex);
 
-	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
+
 	void UnBind(VKNCommandlist* List);
 	void TransitionTOPixel(VKNCommandlist * list);
 	//private:

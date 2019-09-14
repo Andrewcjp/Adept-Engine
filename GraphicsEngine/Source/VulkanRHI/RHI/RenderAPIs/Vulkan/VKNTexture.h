@@ -25,8 +25,6 @@ public:
 	VkImage textureImage = VK_NULL_HANDLE;
 	VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
 	VkImageView textureImageView = VK_NULL_HANDLE;
-
-	Descriptor GetDescriptor(int slot);
 	VkFormat fmt;
 	gli::texture* texture = nullptr;
 };
