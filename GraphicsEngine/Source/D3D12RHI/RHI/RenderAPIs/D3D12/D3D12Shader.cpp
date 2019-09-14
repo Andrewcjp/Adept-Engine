@@ -272,7 +272,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	IDxcBlobEncoding *pSource;
 	DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), (void **)&pLibrary);
 	pLibrary->CreateBlobWithEncodingFromPinned(ShaderData.c_str(), ShaderData.size(), CP_UTF8, &pSource);
-	std::wstring t = GetComplieTarget(ShaderType);
+
 	hr = complier->Compile(pSource, StringUtils::ConvertStringToWide(shadername).c_str(), StringUtils::ConvertStringToWide(Entrypoint).c_str(), GetComplieTarget(ShaderType).c_str(),
 		arguments.data(), arguments.size(), defs, Defines.size(), nullptr, &R);
 	R->GetResult(GetCurrentBlob(ShaderType));

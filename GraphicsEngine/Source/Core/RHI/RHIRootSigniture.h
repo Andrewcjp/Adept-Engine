@@ -1,7 +1,11 @@
 #pragma once
 #include "ShaderBase.h"
 #include "BaseTexture.h"
-
+#if BUILD_SHIPPING
+#define USE_VALIDATION 0
+#else
+#define USE_VALIDATION 1
+#endif
 class RHIBuffer;
 class FrameBuffer;
 //this handles DXR local root signature bindings.
@@ -79,7 +83,9 @@ public:
 	RHI_API RHIRootSigniture();
 	RHI_API ~RHIRootSigniture();
 	RHI_API void SetRootSig(std::vector<ShaderParameter>& parms);
+#if USE_VALIDATION
 	bool ValidateData(ShaderParameter * Parm, RSBind & bind);
+#endif
 	bool ComparePTypes(ShaderParamType::Type T, ERSBindType::Type bindt);
 	bool ValidateType(ShaderParameter * Parm, ERSBindType::Type type);
 	RHI_API void SetTexture(int slot, BaseTextureRef Tex);

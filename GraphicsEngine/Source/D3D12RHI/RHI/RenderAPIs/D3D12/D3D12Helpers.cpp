@@ -673,7 +673,7 @@ D3D12_RESOURCE_ALLOCATION_INFO D3D12Helpers::GetResourceSizeData(int width, int 
 	}
 	if (c == nullptr)
 	{
-		c = (D3D12DeviceContext*)RHI::GetDefaultDevice();
+		c = D3D12RHI::DXConv(RHI::GetDefaultDevice());
 	}
 	D3D12_RESOURCE_DESC d = {};
 	d.Width = width;

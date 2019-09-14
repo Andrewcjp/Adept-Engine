@@ -87,6 +87,8 @@ void RenderGraph::Update()
 	{
 		N->Update();
 	}
+	Drawer.Update();
+	Drawer.Draw(this);
 }
 
 void RenderGraph::BuildGraph()
@@ -163,6 +165,9 @@ void RenderGraph::CreateDefTestgraph()
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+#if 1
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+#endif
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.AllowUnorderedAccess = true;
 #if TEST_VRS
@@ -216,7 +221,7 @@ void RenderGraph::CreateDefTestgraph()
 
 	SSAONode* SSAO = new SSAONode();
 	SSAO->GetInput(0)->SetLink(LightNode->GetOutput(0));
-	SSAO->GetInput(1)->SetStore(GBufferNode);
+	SSAO->GetInput(1)->SetLink(WriteNode->GetOutput(0));
 	SSAO->GetInput(2)->SetStore(SSAOBuffer);
 	LinkNode(PRenderNode, SSAO);
 
@@ -552,6 +557,22 @@ RenderNode * RenderGraph::GetNodeAtIndex(int i)
 		index++;
 	}
 	return nullptr;
+}
+
+int RenderGraph::GetIndexOfNode(RenderNode* Node)
+{
+	RenderNode* itor = RootNode;
+	int index = 0;
+	while (itor->GetNextNode() != nullptr)
+	{
+		if (itor == Node)
+		{
+			return index;
+		}
+		itor = itor->GetNextNode();
+		index++;
+	}
+	return -1;
 }
 
 void RenderGraph::RunTests()

@@ -39,14 +39,8 @@ public:
 	void							HandleResize() override;
 	bool							IsReadyForCompute()const;
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
-	//Cross Adapter
 
-	void TransitionTOCopy(ID3D12GraphicsCommandList * list);
-	void MakeReadyForCopy_In(ID3D12GraphicsCommandList * list);
 
-	virtual void MakeReadyForPixel(RHICommandList * List, bool Depth) override;
-
-	virtual void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false) override;
 	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
 	DeviceContext* GetDevice() override;
 	GPUResource* GetResource(int index);
@@ -67,8 +61,7 @@ public:
 private:
 	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth);
 	D3D12DeviceContext * CurrentDevice = nullptr;
-	void MakeReadyForRead(ID3D12GraphicsCommandList * list);
-	void MakeReadyForCopy(RHICommandList * list) override;
+
 
 	DescriptorGroup* SRVDesc = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;

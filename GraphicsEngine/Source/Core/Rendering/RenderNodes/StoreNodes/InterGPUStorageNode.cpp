@@ -19,7 +19,7 @@ void InterGPUStorageNode::Update()
 void InterGPUStorageNode::Resize()
 {}
 
-int InterGPUStorageNode::ReserveSpaceForFB(FrameBuffer* FB)
+uint InterGPUStorageNode::ReserveSpaceForFB(FrameBuffer* FB)
 {
 	GPUStagingData D = GPUStagingData();
 	InterGPUDesc desc;

@@ -98,7 +98,7 @@ void Scene::LoadDefault()
 	AddGameobjectToScene(go);
 }
 
-void Scene::AddLight(glm::vec3 Pos, bool Shadow, float BrightNess)
+void Scene::AddLight(glm::vec3 Pos, bool Shadow, float BrightNess, float range)
 {
 	GameObject *go = new GameObject("Point Light");
 	go->GetTransform()->SetPos(Pos);
@@ -107,6 +107,7 @@ void Scene::AddLight(glm::vec3 Pos, bool Shadow, float BrightNess)
 	lc->SetShadow(Shadow);
 	lc->SetLightType(ELightType::Point);
 	lc->SetIntensity(BrightNess);
+	lc->Internal_GetLightPtr()->Distance = range;
 	AddGameobjectToScene(go);
 }
 
@@ -146,7 +147,7 @@ GameObject * Scene::AddMeshObject(glm::vec3 pos, std::string mesh, Material *mat
 	go->GetTransform()->SetPos(pos);
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
 	go->GetTransform()->SetScale(glm::vec3(1));
-	
+
 	AddGameobjectToScene(go);
 	return go;
 }
@@ -232,11 +233,11 @@ void Scene::LoadExampleScene()
 
 #endif
 	//sun
-	AddLight(glm::vec3(-8, 27, -12), true, 2500.0f);
-	bool ExtraShadows = true;
-	AddLight(glm::vec3(0, 10, -20), ExtraShadows, 200.0f);
-	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 75.0f);
-	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 75.0f);
+	AddLight(glm::vec3(-8, 27, -12), true, 5, 100);
+	bool ExtraShadows = false;
+	AddLight(glm::vec3(0, 2, -20), ExtraShadows, 10, 30);
+	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 10);
+	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 10);
 	//light testing
 #if 0
 	for (int i = 0; i < 8; i += 4)

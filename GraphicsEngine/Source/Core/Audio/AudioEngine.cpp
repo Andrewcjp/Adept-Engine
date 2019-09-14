@@ -202,7 +202,7 @@ int AudioEngine::GetNextAudioId()
 	return Instance->NextAudioId;
 }
 
-void AudioEngine::LoadBank(std::string Name)
+void AudioEngine::LoadBank(const std::string& Name)
 {
 	const std::string BankLocation = AssetManager::GetContentPath() + "AlwaysCook\\Banks\\" + Name;
 	AkBankID bankID; // Not used. These banks can be unloaded with their file name.

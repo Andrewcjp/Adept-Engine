@@ -33,11 +33,6 @@ const RHIPipeRenderTargetDesc & VKNFramebuffer::GetPiplineRenderDesc()
 	return desc;
 }
 
-void VKNFramebuffer::MakeReadyForComputeUse(RHICommandList* List, bool Depth /*= false*/)
-{
-	//throw std::logic_error("The method or operation is not implemented.");
-}
-
 void VKNFramebuffer::UnBind(VKNCommandlist * List)
 {
 	if (!WasTexture)
@@ -59,10 +54,6 @@ void VKNFramebuffer::TransitionTOPixel(VKNCommandlist* list)
 	}
 }
 
-void VKNFramebuffer::MakeReadyForCopy(RHICommandList * list)
-{
-	//throw std::logic_error("The method or operation is not implemented.");
-}
 
 void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* list)
 {

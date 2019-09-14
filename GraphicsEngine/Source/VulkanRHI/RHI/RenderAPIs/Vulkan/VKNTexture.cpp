@@ -78,14 +78,14 @@ void VKNTexture::CreateTextureFromDesc(const TextureDescription& desc)
 	{
 		tex = *texture;
 	}
-	
+
 	Description = desc;
 	VkDeviceSize imageSize = desc.Width * desc.Height * desc.BitDepth;
 	if (desc.ImageByteSize != 0)
 	{
 		imageSize = desc.ImageByteSize;
 	}
-	VKNDeviceContext* D = (VKNDeviceContext*)RHI::GetDefaultDevice();
+	VKNDeviceContext* D = VKNRHI::VKConv(RHI::GetDefaultDevice());
 	VKNHelpers::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 	void* data;
 	vkMapMemory(D->device, stagingBufferMemory, 0, imageSize, 0, &data);
@@ -105,7 +105,7 @@ void VKNTexture::CreateTextureFromDesc(const TextureDescription& desc)
 	VKNHelpers::createImageDesc(/*D,*/ fmt, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		textureImage, textureImageMemory, VK_IMAGE_LAYOUT_UNDEFINED, Description);
 	VkCommandBuffer B = VKNRHI::RHIinstance->setuplist->CommandBuffer;
-	VKNHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,desc.MipLevels,desc.Faces);
+	VKNHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, desc.MipLevels, desc.Faces);
 	if (texture == nullptr)
 	{
 		VKNHelpers::copyBufferToImage(B, stagingBuffer, textureImage, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height));
@@ -144,16 +144,8 @@ void VKNTexture::CreateTextureFromDesc(const TextureDescription& desc)
 			bufferCopyRegions.data()
 		);
 	}
-	VKNHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,desc.MipLevels, desc.Faces);
+	VKNHelpers::transitionImageLayout(B, textureImage, fmt, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, desc.MipLevels, desc.Faces);
 	UpdateSRV();
-}
-
-Descriptor VKNTexture::GetDescriptor(int slot)
-{
-	Descriptor D = Descriptor(EDescriptorType::SRV);
-	D.Texture = this;
-	D.bindpoint = slot;
-	return D;
 }
 
 #endif

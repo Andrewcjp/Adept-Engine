@@ -261,6 +261,7 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 		OutSpirv.push_back(BytePointer[2]);
 		OutSpirv.push_back(BytePointer[3]);
 	}
+	SafeDelete(Program);
 	return true;
 }
 std::vector<char> VKNShader::ComplieShader(std::string name, EShaderType::Type T, bool HLSL /*= false*/)

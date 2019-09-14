@@ -22,7 +22,7 @@ public:
 	std::vector<FrameBufferStorageNode*> StoreTargets;
 protected:
 	virtual void Create() override;
-	int ReserveSpaceForFB(FrameBuffer* FB);
+	uint ReserveSpaceForFB(FrameBuffer* FB);
 	std::vector<GPUStagingData> Resources;
 
 };

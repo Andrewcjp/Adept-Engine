@@ -4,11 +4,16 @@
 NodeLink::NodeLink()
 {}
 
-NodeLink::NodeLink(EStorageType::Type Type, const std::string& format, const std::string& InputName)
+NodeLink::NodeLink(EStorageType::Type Type, const std::string& format, const std::string& InputName, RenderNode* Owner)
 	:DataFormat(format)
 {
 	TargetType = Type;
 	SetLinkName(InputName);
+	if (InputName.length() == 0)
+	{
+		LinkName = format;
+	}
+	OwnerNode = Owner;
 }
 
 NodeLink::~NodeLink()

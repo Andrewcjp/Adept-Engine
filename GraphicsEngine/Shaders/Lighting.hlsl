@@ -58,7 +58,7 @@ float3 GetAmbient_CONST()
 	return float3(Value, Value, Value);
 }
 
-float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughness,float Metal,float3 IRData,float3 SpecularRefl,float2 envBRDF)
+float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor, float Roughness, float Metal, float3 IRData, float3 SpecularRefl, float2 envBRDF)
 {
 	Roughness = clamp(Roughness, 0.0f, 1.0f);
 	Metal = clamp(Metal, 0.0f, 1.0f);
@@ -69,11 +69,11 @@ float3 GetAmbient(float3 Normal, float3 View, float3 Diffusecolor,float Roughnes
 	kD *= 1.0 - Metal;
 	float3 diffuse = IRData * Diffusecolor;
 	float3 Specular = SpecularRefl * (F * envBRDF.x + envBRDF.y);
-	float3 ambient = (kD * diffuse+ Specular);
+	float3 ambient = (kD * diffuse + Specular);
 	return ambient;
 }
 
-float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPos,float3 normal)
+float3 CalcColorFromLight_FALLBACK(Light light, float3 Diffusecolor, float3 FragPos, float3 normal)
 {
 	float3 LightDirection = float3(0, 1, 0);
 	float distanceToLight = length(light.LPosition - FragPos);
@@ -92,17 +92,20 @@ float3 CalcColorFromLight_FALLBACK(Light light,float3 Diffusecolor,float3 FragPo
 	float3 Diffusecolour = Phong_Diffuse(Diffusecolor, LightDirection, normal) * light.color;
 	return Diffusecolour * attenuation;
 }
+float RadialAttenuation(float3 WorldLightVector, half FalloffExponent)
+{
+	float NormalizeDistanceSquared = dot(WorldLightVector, WorldLightVector);
 
-float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal,float3 CamPos,float roughness,float Metalic)
+	// UE3 (fast, but now we not use the default of 2 which looks quite bad):
+	return pow(1.0f - saturate(NormalizeDistanceSquared), FalloffExponent);
+}
+float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal, float3 CamPos, float roughness, float Metalic)
 {
 	roughness = clamp(roughness, 0.0f, 1.0f);
 	Metalic = clamp(Metalic, 0.0f, 1.0f);
 	float3 LightDirection = float3(0, 1, 0);
 	float distanceToLight = length(light.LPosition - FragPos);
-	if (distanceToLight > light.Range)
-	{
-		return float3(0, 0, 0);
-	}
+
 
 	float3 ViewDir = normalize(CamPos - FragPos);
 	if (light.type == 1)
@@ -117,7 +120,9 @@ float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, floa
 
 	float3 Half = normalize(ViewDir + LightDirection);
 
-	float attenuation = 1.0 / (distanceToLight * distanceToLight);
+	///	float attenuation = 1.0 / (distanceToLight * distanceToLight);
+	float attenuation = RadialAttenuation(distanceToLight * 1.0 / light.Range, 1);
+	//return float3(attenuation, attenuation, attenuation);
 	float3 radiance = light.color * attenuation;
 	roughness = max(roughness, 0.001);
 
@@ -128,12 +133,12 @@ float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, floa
 	float NDF = DistributionGGX(normal, Half, roughness);
 	float G = GeometrySmith(normal, ViewDir, LightDirection, roughness);
 	float3 F = fresnelSchlick(max(dot(Half, ViewDir), 0.0), F0);
-	
-	
+
+
 	float3 kS = F;
-	float3 kD = float3(1.0,1.0,1.0) - kS;
+	float3 kD = float3(1.0, 1.0, 1.0) - kS;
 	kD *= 1.0 - Metalic;
-	
+
 	float3 numerator = NDF * G * F;
 	float denominator = 4.0 * max(dot(normal, ViewDir), 0.0) * max(dot(normal, LightDirection), 0.0);
 	float3 specular = numerator / max(denominator, 0.01);

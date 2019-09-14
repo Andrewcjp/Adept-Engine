@@ -14,8 +14,8 @@ float4 main(VS_OUTPUT input) : SV_Target
 	output += AdditiveBlendTarget.Sample(defaultSampler, input.uv).rgb;
 	const float gamma = 1.0f / 2.2f;
 	const float exposure = 2.5f;
-//	output = float3(1.0, 1.0, 1.0) - exp(-output * exposure);
-	output = pow(abs(output), float3(gamma, gamma, gamma));
+	output = float3(1.0, 1.0, 1.0) - exp(-output * exposure);
+	//output = pow(abs(output), float3(gamma, gamma, gamma));
 	
 	return float4(output,1.0);	
 }

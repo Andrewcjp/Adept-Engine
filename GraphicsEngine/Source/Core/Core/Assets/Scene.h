@@ -22,7 +22,7 @@ public:
 	std::vector<GameObject*>& GetMeshObjects();
 	void StartScene();
 	void LoadDefault();
-	void AddLight(glm::vec3 Pos, bool Shadow, float BrightNess);
+	void AddLight(glm::vec3 Pos, bool Shadow, float BrightNess, float range = 10);
 	CORE_API GameObject* SpawnBox(glm::vec3 pos);
 	GameObject * AddMeshObject(glm::vec3 pos, std::string mesh, Material *mat = nullptr);
 	void LoadExampleScene();

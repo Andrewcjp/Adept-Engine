@@ -50,14 +50,14 @@ void Log::LogMessage(std::string msg, Severity s)
 	int colour = 7;
 	switch (s)
 	{
-	case Severity::Warning:
-		data.append("Warning: ");
-		colour = 6;
-		break;
-	case Severity::Error:
-		data.append("Error: ");
-		colour = 4;
-		break;
+		case Severity::Warning:
+			data.append("Warning: ");
+			colour = 6;
+			break;
+		case Severity::Error:
+			data.append("Error: ");
+			colour = 4;
+			break;
 	}
 	data.append(msg);
 	if (s == Severity::Progress)
@@ -118,9 +118,9 @@ void Log::RenderText(UIManager* Manager, int offset)
 	}
 }
 
-Log::Log()
+Log::Log() :
+	LogFilePath(AssetManager::DirectGetGeneratedDir() + "\\Log.txt")
 {
-	LogFilePath = AssetManager::DirectGetGeneratedDir() + "\\Log.txt";
 	std::string data = "Log Started ";
 	data.append(PlatformMisc::GetDateTimeString());
 	data.append("\n");
