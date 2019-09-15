@@ -8,6 +8,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "MeshInstanceBuffer.h"
 #include "RHI/RHITimeManager.h"
+#include "../Material.h"
 
 
 MeshPipelineController::MeshPipelineController()
@@ -91,7 +92,10 @@ void MeshPipelineController::BuildStaticInstancing()
 		{
 			continue;
 		}
-
+		if (Batches[i]->elements[0]->MaterialInUse == nullptr ||!Batches[i]->elements[0]->MaterialInUse->IsValidForInstancing())
+		{
+			continue;
+		}
 		auto itor = Buckets.find(Batches[i]->elements[0]->VertexBuffer);
 		if (itor != Buckets.end())
 		{
@@ -129,6 +133,7 @@ void MeshPipelineController::CreateInstanceController(MeshBatch* Ctl, std::map<R
 {
 	Ctl->IsinstancedBatch = true;
 	Ctl->InstanceBuffer = new MeshInstanceBuffer();
+	Ctl->InstanceBuffer->TargetMaterial = Ctl->elements[0]->MaterialInUse;
 	Ctl->InstanceBuffer->AddBatch(Ctl);
 	for (int i = 1 + offset; i < glm::min((int)itor->second.size(), offset + limit); i++)
 	{

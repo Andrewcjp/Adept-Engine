@@ -18,7 +18,8 @@ public:
 	//
 	TextureBindSet* GetBinds();
 	ParmeterBindSet GetParamBinds();
-
+	int GetParamterSize();
+	
 private:
 	MaterialShaderComplieData CurrentData;
 	Shader_NodeGraph* CurrentShader = nullptr;

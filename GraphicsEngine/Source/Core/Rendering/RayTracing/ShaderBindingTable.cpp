@@ -1,6 +1,8 @@
 #include "ShaderBindingTable.h"
 #include "Core/Assets/Scene.h"
 #include "Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
+#include "../Core/Mesh.h"
+#include "../Core/Material.h"
 
 ShaderBindingTable::ShaderBindingTable()
 {}
@@ -28,6 +30,12 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 		Shader->LocalRootSig.SetBufferReadOnly(DefaultLocalRootSignatureParams::IndexBuffer, Object->GetMesh()->SubMeshes[i]->IndexBuffers[0].Get());
 		Shader->LocalRootSig.SetBufferReadOnly(DefaultLocalRootSignatureParams::VertexBuffer, Object->GetMesh()->SubMeshes[i]->VertexBuffers[0].Get());
 		OnMeshProcessed(Object->GetMesh(), Object->GetMesh()->SubMeshes[i], Shader);
+		if (Object->GetMesh()->GetMaterial(0)->GetRenderPassType() == EMaterialRenderType::Transparent)
+		{
+			HitGroups[HitGroups.size() - 1]->AnyHitShader = new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
+//			Shader_RTBase* anyhit = HitGroups[HitGroups.size() - 1]->AnyHitShader;
+
+		}
 	}
 }
 

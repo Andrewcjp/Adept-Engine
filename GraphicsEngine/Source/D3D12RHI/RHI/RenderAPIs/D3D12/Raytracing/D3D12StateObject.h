@@ -39,5 +39,9 @@ private:
 	DescriptorGroup* UAVd = nullptr;
 	
 	uint32_t CurrentSBTSize = 0;
+	RHIBuffer* RayDataBuffer = nullptr;
+	const int MaxRayDispatchPerFrame = 5;
+	int LastFrame = 0;
+	int CurrnetIndex = 0;
 };
 #endif

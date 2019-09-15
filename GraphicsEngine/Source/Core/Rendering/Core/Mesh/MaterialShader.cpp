@@ -61,6 +61,11 @@ ParmeterBindSet MaterialShader::GetParamBinds()
 	return CurrentData.Shader->GetGraph()->GetParameters();
 }
 
+int MaterialShader::GetParamterSize()
+{
+	return GetParamBinds().GetSize();
+}
+
 bool MaterialShaderComplieData::operator==(const MaterialShaderComplieData other) const
 {
 	//#Materals shader keyword

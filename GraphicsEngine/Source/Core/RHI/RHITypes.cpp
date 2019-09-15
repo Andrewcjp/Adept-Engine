@@ -9,7 +9,7 @@ RHIFrameBufferDesc RHIFrameBufferDesc::CreateColour(int width, int height)
 	RHIFrameBufferDesc newDesc = {};
 	newDesc.Width = width;
 	newDesc.Height = height;
-	newDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+	newDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16G16B16A16_FLOAT;
 	return newDesc;
 }
 

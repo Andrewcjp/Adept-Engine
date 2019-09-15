@@ -112,7 +112,7 @@ void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
 		D3D12LowLevelAccelerationStructure* E = D3D12RHI::DXConv(ContainedEntites[i]);
 		D3D12_RAYTRACING_INSTANCE_DESC instanceDesc = {};
 		SetTransfrom(instanceDesc, E->GetTransform());
-		instanceDesc.InstanceMask = 0xfffffff;
+		instanceDesc.InstanceMask = E->LayerMask;
 		//instanceDesc.InstanceID = i;
 		instanceDesc.InstanceContributionToHitGroupIndex = i;
 		instanceDesc.AccelerationStructure = E->GetASResource()->GetGPUVirtualAddress();

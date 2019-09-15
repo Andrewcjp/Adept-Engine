@@ -31,7 +31,6 @@ public:
 	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
 	void RenderScreenQuad(RHICommandList * list);
-
 private:
 	RHIBuffer * VertexBuffer = nullptr;
 };

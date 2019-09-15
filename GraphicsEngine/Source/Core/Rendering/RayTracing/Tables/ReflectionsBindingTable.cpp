@@ -1,11 +1,10 @@
 #include "ReflectionsBindingTable.h"
-#include "..\Shader_RTBase.h"
-#include "..\..\Core\Mesh.h"
-#include "..\..\Core\Material.h"
-#include "..\..\Shaders\Raytracing\Shader_Skybox_Miss.h"
-#include "..\..\Shaders\Raytracing\Reflections\Shader_ReflectionRaygen.h"
-#include "..\..\Shaders\Raytracing\Shader_RTMateralHit.h"
-
+#include "Rendering/Core/Material.h"
+#include "Rendering/Core/Mesh.h"
+#include "Rendering/RayTracing/Shader_RTBase.h"
+#include "Rendering/Shaders/Raytracing/Reflections/Shader_ReflectionRaygen.h"
+#include "Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
+#include "Rendering/Shaders/Raytracing/Shader_Skybox_Miss.h"
 
 ReflectionsBindingTable::ReflectionsBindingTable()
 {}
@@ -27,6 +26,9 @@ void ReflectionsBindingTable::InitTable()
 
 	HitGroups.push_back(new ShaderHitGroup("HitGroup0"));
 	HitGroups[0]->HitShader = new Shader_RTMateralHit(RHI::GetDefaultDevice());
+	//HitGroups[0]->AnyHitShader = new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
+	//HitGroups[0]->AnyHitShader->AddExport("anyhit_main");
+	//HitGroups[0]->AnyHitShader->InitRS();
 
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::UAV, GlobalRootSignatureParams::OutputViewSlot, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::RootSRV, GlobalRootSignatureParams::AccelerationStructureSlot, 0));
@@ -37,6 +39,9 @@ void ReflectionsBindingTable::InitTable()
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 6, 20));
 	ShaderParameter s = ShaderParameter(ShaderParamType::SRV, 7, 5, 2);
 	s.NumDescriptors = RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS;
+	GlobalRootSig.Params.push_back(s);
+	s = ShaderParameter(ShaderParamType::RootConstant, 8, 2);
+	s.NumDescriptors = 2;
 	GlobalRootSig.Params.push_back(s);
 }
 

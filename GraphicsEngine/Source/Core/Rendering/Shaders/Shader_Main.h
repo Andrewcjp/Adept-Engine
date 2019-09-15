@@ -32,5 +32,6 @@ public:
 	static std::vector<Shader::VertexElementDESC> GetMainVertexFormat();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 	std::vector<ShaderParameter> GetShaderParameters() override;
+	
 };
 

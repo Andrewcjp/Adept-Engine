@@ -47,7 +47,7 @@ public:
 	void FreeAllGlobalShaders();
 	RHI_API bool ShouldBuildDebugShaders();
 	void ComplieShader(ShaderType & type, DeviceContext* Context);
-	ShaderType * GetShaderFromGlobalMap(std::string name);
+	RHI_API ShaderType * GetShaderFromGlobalMap(std::string name);
 	void AddShaderType(std::string Name, ShaderType  type);
 	void TickMaterialComplie();
 	template<class T>

@@ -13,6 +13,7 @@ public:
 	RHI_API virtual void Build(RHICommandList* List);
 	RHI_API virtual void UpdateTransfrom(Transform* T);
 	RHI_API virtual void CreateFromEntity(MeshEntity* entity);
+	uint LayerMask = 0xFF;
 protected:
 	DeviceContext* Context = nullptr;
 	AccelerationStructureDesc Desc;

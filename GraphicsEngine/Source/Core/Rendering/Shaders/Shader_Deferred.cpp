@@ -38,7 +38,6 @@ Shader_Deferred::Shader_Deferred(DeviceContext* dev, int VRSMODE) :Shader(dev)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITHRT", std::to_string(RHI::GetRenderSettings()->GetRTSettings().Enabled)));
 	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Deferred_LightingPass_fs", EShaderType::SHADER_FRAGMENT);
-
 }
 
 Shader_Deferred::~Shader_Deferred()

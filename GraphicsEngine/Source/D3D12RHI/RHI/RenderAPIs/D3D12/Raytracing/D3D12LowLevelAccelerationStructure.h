@@ -24,6 +24,7 @@ public:
 	virtual void Release() override;
 
 private:
+	
 	Transform* Transfrom = nullptr;
 	ID3D12Resource* Structure = nullptr;
 	//TODO: check if this is need on all 

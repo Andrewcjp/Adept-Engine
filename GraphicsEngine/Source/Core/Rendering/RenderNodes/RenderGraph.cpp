@@ -132,6 +132,7 @@ void RenderGraph::CreateDefGraphWithRT()
 	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	//Desc.LinkToBackBufferScaleFactor = 2.0f;
 	Desc.AllowUnorderedAccess = true;
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	RTXBuffer->SetFrameBufferDesc(Desc);
@@ -166,7 +167,7 @@ void RenderGraph::CreateDefTestgraph()
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 #if 1
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16G16B16A16_FLOAT;
 #endif
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.AllowUnorderedAccess = true;

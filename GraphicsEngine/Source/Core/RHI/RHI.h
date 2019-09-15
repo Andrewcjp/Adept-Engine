@@ -17,7 +17,7 @@ class SFRController;
 class RHIClass;
 class HMD;
 class HMDManager;
-struct VRSettings; 
+struct VRSettings;
 class LowLevelAccelerationStructure;
 class HighLevelAccelerationStructure;
 class RayTracingEngine;
@@ -186,7 +186,7 @@ public:
 	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc);
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device);
 
-	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc,DeviceContext* Device) = 0;
+	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) = 0;
 	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);
 
 	//MGPU

@@ -2,6 +2,7 @@
 struct InstanceArgs
 {
 	glm::mat4x4 M;
+	glm::vec4 data;
 };
 class MeshInstanceBuffer
 {
@@ -14,9 +15,14 @@ public:
 	void Build();
 	int GetInstanceCount();
 	RHIBuffer* GetBuffer();
+	RHIBuffer* GetMaterialBuffer();
+	Material* TargetMaterial = nullptr;
+	bool IsCompletelyCulled()const;
 private:
 	std::vector<MeshBatch*> containedBatches;
 	RHIBuffer* Buffer = nullptr;
+	RHIBuffer* MateralDataBuffer = nullptr;
 	int Stride = 0;
+	bool IsCulled = false;
 };
 

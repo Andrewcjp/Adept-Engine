@@ -2,8 +2,9 @@
 struct PrimitiveData
 {
 	row_major matrix Model;
+	
 #if !VULKAN
-	float4x4 pad;
+	float4x4 Data;
 	float4x4 pad2;
 	float4x4 pad3;
 #endif
@@ -16,6 +17,13 @@ PrimitiveData GetPrimitiveData(uint PrimitiveId)
 }
 #else
 #define GetPrimitiveData(x) Primitive 
+#endif
+#if WITH_INSTANCING
+#define GetMatData(x) Parms[input.id].x
+#define INSTANCINGPSDATA uint id : SV_InstanceID;
+#else
+#define GetMatData(x) Parms[0].x
+#define INSTANCINGPSDATA
 #endif
 
 inline uint flatten2D(uint2 coord, uint2 dim)

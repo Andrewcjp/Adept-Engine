@@ -83,6 +83,8 @@ public:
 	CORE_API void SetFlagValue(int flag, bool value);
 	CORE_API bool GetFlagValue(int flag) const;
 	CORE_API void SetFlags(int flags);
+	CORE_API static int ConvertToFlags(int enumi);
+	CORE_API int GetFlags() { return Flags; }
 private:
 	int Flags = 0;
 };
@@ -92,7 +94,7 @@ namespace ESceneLayers
 {
 	enum Type
 	{
-		Default,
+		Default = 1,
 		UserLayer0,
 		UserLayer1,
 		Limit = 16

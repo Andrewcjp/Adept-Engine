@@ -10,7 +10,9 @@
 #include "RHI/RHICommandList.h"
 #include "Rendering/RayTracing/HighLevelAccelerationStructure.h"
 #include "D3D12HighLevelAccelerationStructure.h"
-
+#include "Core/Components/Component.h"
+#include "Core/GameObject.h"
+#include "Core/Components/MeshRendererComponent.h"
 D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & Desc) :LowLevelAccelerationStructure(Device, Desc)
 {}
 
@@ -38,7 +40,7 @@ void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 	{
 		MeshEntity* Entity = m->SubMeshes[i];
 		AddEntity(Entity);
-	}
+	}	
 	CreateStructure();
 }
 
@@ -52,8 +54,6 @@ void D3D12LowLevelAccelerationStructure::CreateStructure()
 	bottomLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 	bottomLevelInputs.NumDescs = (UINT)geometryDescs.size();
 	bottomLevelInputs.pGeometryDescs = &geometryDescs[0];
-
-
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO bottomLevelPrebuildInfo = {};
 	D3D12RHI::DXConv(Context)->GetDevice5()->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 	AllocDesc desc = AllocDesc(bottomLevelPrebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, "ScratchResource");
@@ -79,7 +79,7 @@ void D3D12LowLevelAccelerationStructure::AddEntity(MeshEntity* Entity)
 	geometryDesc.Triangles.VertexCount = D3D12RHI::DXConv(Entity->VertexBuffers[0].Get())->GetVertexCount();
 	ensure(geometryDesc.Triangles.VertexCount > 0);
 	geometryDesc.Triangles.VertexBuffer.StrideInBytes = sizeof(OGLVertex);
-	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+	//geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 	geometryDescs.push_back(geometryDesc);
 }
 

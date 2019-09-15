@@ -108,6 +108,21 @@ void Material::SetRenderType(EMaterialRenderType::Type t)
 	MaterialCData.MaterialRenderType = t;
 }
 
+int Material::GetInstanceDataSize()
+{
+	return ShaderInterface->GetParamterSize();
+}
+
+bool Material::IsValidForInstancing()
+{
+	return true;
+}
+
+void * Material::GetDataPtr()
+{
+	return ParmbindSet.GetDataPtr();
+}
+
 void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
 {
 	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())

@@ -37,6 +37,7 @@ namespace ShaderParamType
 		CBV,
 		RootConstant,
 		Sampler,
+		AccelerationStructure,
 		Limit
 	};
 }
