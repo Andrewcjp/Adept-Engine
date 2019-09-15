@@ -10,6 +10,7 @@ public:
 	RHIBuffer* Vertex;
 	RHIBuffer* Index;
 	RHIBuffer* TransformUniformBuffer;
+	RHIBuffer* MaterialInstanceBuffer = nullptr;
 	int FirstIndex = 0;
 	int NumPrimitves = 0;
 	int NumInstances = 0;

@@ -10,6 +10,7 @@
 #include "../../Core/LightCulling/LightCullingEngine.h"
 #include "../StoreNodes/ShadowAtlasStorageNode.h"
 #include "Core/BaseWindow.h"
+#include "Core/EngineTypes.h"
 
 RayTraceReflectionsNode::RayTraceReflectionsNode()
 {
@@ -48,9 +49,10 @@ void RayTraceReflectionsNode::OnExecute()
 
 	GetShadowDataFromInput(2)->BindPointArray(RTList->GetRHIList(), 7);
 
-
 	RTList->SetHighLevelAccelerationStructure(RayTracingEngine::Get()->GetHighLevelStructure());
-	RTList->TraceRays(RHIRayDispatchDesc(Target));
+	RHIRayDispatchDesc raydesc = RHIRayDispatchDesc(Target);
+	raydesc.RayArguments.RayFlags = RAY_FLAGS::RAY_FLAG_FORCE_OPAQUE;
+	RTList->TraceRays(raydesc);
 	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
 	RTList->Execute();
 

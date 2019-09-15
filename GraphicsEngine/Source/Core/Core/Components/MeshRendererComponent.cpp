@@ -115,6 +115,7 @@ void MeshRendererComponent::SceneInitComponent()
 		{
 			LowLevelAccelerationStructure* BLAS = RHI::GetRHIClass()->CreateLowLevelAccelerationStructure(RHI::GetDefaultDevice(), AccelerationStructureDesc());
 			BLAS->CreateFromEntity(m_mesh->SubMeshes[i]);
+			BLAS->LayerMask = GetOwner()->LayerMask.GetFlags();
 			BLAS->UpdateTransfrom(GetOwner()->GetTransform());
 			RayTracingEngine::Get()->EnqueueForBuild(BLAS);
 			MeshAcclerations.push_back(BLAS);

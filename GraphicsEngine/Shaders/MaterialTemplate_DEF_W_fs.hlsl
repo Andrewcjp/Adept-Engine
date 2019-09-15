@@ -5,7 +5,7 @@ cbuffer GOConstantBuffer : register(b0)
 	row_major matrix Model;
 	int HasNormalMap;
 };
-
+#include "Core/Common.hlsl"
 //BufferPoint
 
 struct PSInput
@@ -15,6 +15,7 @@ struct PSInput
 	float2 uv : TEXCOORD;
 	float4 WorldPos:TANGENT0;
 	row_major float3x3 TBN:TANGENT1;
+	INSTANCINGPSDATA
 };
 
 struct FS_OUTPUT
@@ -29,8 +30,8 @@ FS_OUTPUT main(PSInput input)
 {
 	FS_OUTPUT output = (FS_OUTPUT)0;
 	output.Gpos = input.WorldPos;
-	float MetallicVar = Metallic;
-	float RoughnessVar = Roughness;
+	float MetallicVar =GetMatData(Metallic);
+	float RoughnessVar = GetMatData(Roughness);
 	float3 texturecolour = float3(0, 0, 0);
 	float3 Normal = input.Normal.xyz;
 	//Insert Marker

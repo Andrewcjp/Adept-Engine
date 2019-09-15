@@ -109,13 +109,21 @@ void ShaderGraph::Complie()
 
 void ShaderGraph::BuildConstantBuffer()
 {
-	std::string data = "cbuffer MateralConstantBuffer : register(b3)\n{\n";
-
+	std::string data = "struct MaterialParms{\n";
+	int TargetSize = 256;
+	int DataSize = 0;
 	for (int i = 0; i < BufferProps.size(); i++)
 	{
 		data += BufferProps[i]->GetForBuffer() + "\n";
+		DataSize += 4;//todo: other props
 	}
-	data += "};";
+	//each variable is padded by the hlsl complier to be 16 bytes long
+	data += "float Pad[" + std::to_string((TargetSize - DataSize) / (4*4)) + "];\n";
+	data += "};\n";
+
+	data += "cbuffer MateralConstantBuffer : register(b3)\n{\n";
+	data += "#if WITH_INSTANCING\n MaterialParms Parms[MAX_INSTANCES];\n#else \nMaterialParms Parms[1]; \n#endif \n";
+	data += "};\n";
 	ConstantBufferCode = data;
 }
 

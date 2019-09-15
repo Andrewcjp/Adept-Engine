@@ -6,6 +6,9 @@ struct PSInput
 	float2 uv : TEXCOORD;
 	float4 WorldPos:TANGENT0;
 	row_major float3x3 TBN:TANGENT1;
+#if WITH_INSTANCING
+	uint id : SV_InstanceID;
+#endif
 };
 
 Texture2D g_texture : register(t0);
@@ -40,6 +43,7 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 	//final_pos.w = 1.0f;
 #if WITH_INSTANCING
 	final_pos = mul(float4(position.xyz, 1.0f), PrimD[id].Model);
+	result.id = id;
 #else
 	final_pos = mul(float4(position.xyz, 1.0f), PrimD[0].Model);
 #endif	
@@ -49,6 +53,7 @@ PSInput main(float4 position : POSITION, float4 normal : NORMAL0, float4 uv : TE
 	result.position = final_pos;
 	result.uv = uv.xy;
 	result.Normal = normal;
+	
 	//if (HasNormalMap)
 	//{
 	//	const float3 BiTangent = (mul(float4(cross(normal.xyz, Tangent.xyz).xyz, 0.0), Model)).xyz;

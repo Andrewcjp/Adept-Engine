@@ -9,9 +9,14 @@
 #include "RHI/RenderAPIs/D3D12/DescriptorGroup.h"
 #include "RHI/RenderAPIs/D3D12/DescriptorHeapManager.h"
 #include "RHI/RenderAPIs/D3D12/ThirdParty/DXRHelper.h"
+#include "Rendering/Shaders/Raytracing/Reflections/Shader_ReflectionRaygen.h"
 #if WIN10_1809
 D3D12StateObject::D3D12StateObject(DeviceContext* D) :RHIStateObject(D)
-{}
+{
+	RayDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant, D);
+	RayDataBuffer->CreateConstantBuffer(sizeof(RayArgs), MaxRayDispatchPerFrame);
+
+}
 
 
 D3D12StateObject::~D3D12StateObject()
@@ -30,8 +35,10 @@ void D3D12StateObject::AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe)
 	for (int i = 0; i < ShaderTable->HitGroups.size(); i++)
 	{
 		AddShaderLibrary(Pipe, ShaderTable->HitGroups[i]->HitShader);
+		AddShaderLibrary(Pipe, ShaderTable->HitGroups[i]->AnyHitShader);
 		//DXR:: check this is okay 
 		CreateLocalRootSigShaders(Pipe, ShaderTable->HitGroups[i]->HitShader);
+		CreateLocalRootSigShaders(Pipe, ShaderTable->HitGroups[i]->AnyHitShader);
 	}
 	for (int i = 0; i < ShaderTable->RayGenShaders.size(); i++)
 	{
@@ -79,6 +86,11 @@ void D3D12StateObject::AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe)
 		auto hitGroup = RTPipe.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
 		std::wstring HitName = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->HitShader->GetExports()[0]);
 		hitGroup->SetClosestHitShaderImport(HitName.c_str());
+		if (ShaderTable->HitGroups[i]->AnyHitShader != nullptr)
+		{
+			std::wstring anyHitName = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->AnyHitShader->GetExports()[0]);
+			hitGroup->SetAnyHitShaderImport(anyHitName.c_str());
+		}
 		std::wstring Groupname = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->Name);
 		hitGroup->SetHitGroupExport(Groupname.c_str());
 		//DXR: todo GEO type
@@ -88,6 +100,10 @@ void D3D12StateObject::AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe)
 
 void D3D12StateObject::AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shader_RTBase* Shader)
 {
+	if (Shader == nullptr)
+	{
+		return;
+	}
 	auto lib = RTPipe.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
 	ShaderBlob* B = ((D3D12Shader*)Shader->GetShaderProgram())->GetShaderBlobs()->RTLibBlob;
 	D3D12_SHADER_BYTECODE libdxil = CD3DX12_SHADER_BYTECODE(B->GetBufferPointer(), B->GetBufferSize());
@@ -107,9 +123,13 @@ void D3D12StateObject::CreateRootSignatures()
 
 void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & raytracingPipeline, Shader_RTBase* shader)
 {
-	if (shader->GetShaderParameters().size() == 0)
+	if (shader == nullptr || shader->GetShaderParameters().size() == 0)
 	{
 		return;
+	}
+	if (shader->GetStage() == ERTShaderType::RayGen)
+	{
+	//	return;
 	}
 	// Ray gen and miss shaders in this sample are not using a local root signature and thus one is not associated with them.
 	ID3D12RootSignature* m_raytracingLocalRootSignature = nullptr;
@@ -157,7 +177,6 @@ void D3D12StateObject::BuildShaderTables()
 		WriteBinds(ShaderTable->MissShaders[i], GPUPtrs);
 		m_sbtHelper.AddMissProgram(Name, GPUPtrs);
 	}
-
 	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5());
 	//	D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
 		// Create the SBT on the upload heap. This is required as the helper will use mapping to write the
@@ -218,6 +237,8 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 {
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
 
+	DXList->SetRootConstant(8, 2, ((void*)&Desc.RayArguments), 0);
+
 	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, D3D12RHI::DXConv(target->GetUAV())->UAVDescriptor->GetGPUAddress());
 	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(HighLevelStructure)->m_topLevelAccelerationStructure->GetResource()->GetGPUVirtualAddress());
 
@@ -232,7 +253,6 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 	dispatchDesc.HitGroupTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + m_sbtHelper.GetRayGenSectionSize() + m_sbtHelper.GetMissSectionSize();
 	dispatchDesc.HitGroupTable.SizeInBytes = m_sbtHelper.GetHitGroupSectionSize();
 	dispatchDesc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
-
 
 	dispatchDesc.Width = Desc.Width;
 	dispatchDesc.Height = Desc.Height;

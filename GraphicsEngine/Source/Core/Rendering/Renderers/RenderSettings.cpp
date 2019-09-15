@@ -3,7 +3,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "RHI/DeviceContext.h"
 #include "Core/Maths/Math.h"
-
+ConsoleVariable GraphSet("rg", -1, ECVarType::LaunchOnly);
 
 RenderSettings::RenderSettings()
 {
@@ -13,9 +13,8 @@ RenderSettings::RenderSettings()
 	MaxRenderScale = 2.0f;
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
-	//EnableDynamicResolutionScaling = true;
+	DRSSettings.EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
-	//AllowMeshInstancing = true;
 
 	VRHMDMode = EVRHMDMode::Disabled;
 
@@ -24,7 +23,12 @@ RenderSettings::RenderSettings()
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;
 	VRXSet.EnableVRR = false;
-	//ShouldRunGPUTests = true;
+	AllowMeshInstancing = true;
+		//ShouldRunGPUTests = true;
+	if (GraphSet.GetIntValue() >= 0 && GraphSet.GetIntValue() < EBuiltinRenderGraphs::Limit)
+	{
+		SelectedGraph = (EBuiltinRenderGraphs::Type)GraphSet.GetIntValue();
+	}
 }
 
 void RenderSettings::ValidateSettings()
@@ -65,6 +69,7 @@ void RenderSettings::ValidateForAPI(ERenderSystemType system)
 		DRSSettings.EnableDynamicResolutionScaling = false;
 		EnableGPUParticles = false;
 		VRHMDMode = EVRHMDMode::Disabled;
+		AllowMeshInstancing = false;
 	}
 }
 

@@ -28,6 +28,11 @@ cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
 };
+cbuffer RayData: register(b2)
+{
+	uint RayFlags;
+	uint RayMask;
+};
 float3 sampleGGXVNDF(float3 Ve, float alpha_x, float alpha_y, float U1, float U2)
 {
 	// Section 3.2: transforming the view direction to the hemisphere configuration
@@ -98,7 +103,7 @@ void rayGen()
 	ray.TMax = 1000;
 
 	RayPayload payload;
-	TraceRay(gRtScene, 0 /*rayFlags*/, 0xFF, 0 /* ray index*/, 0, 0, ray, payload);
+	TraceRay(gRtScene, RayFlags /*rayFlags*/, RayMask, 0 /* ray index*/, 0, 0, ray, payload);
 	if (!payload.Hit)
 	{
 		gOutput[launchIndex.xy] = float4(payload.color, SmoothNess);

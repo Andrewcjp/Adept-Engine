@@ -318,6 +318,8 @@ void Scene::LoadExampleScene()
 					cc = go->AttachComponent(new ColliderComponent());
 					cc->SetCollisonShape(EShapeType::eSPHERE);
 				}
+				//go->LayerMask.SetFlags(0);
+				//go->LayerMask.SetFlagValue(ESceneLayers::UserLayer0, 1);
 				go->AttachComponent(new RigidbodyComponent());
 				go->GetTransform()->SetPos(startpos + glm::vec3(x *stride, 15 + z * stride, y*stride));
 				AddGameobjectToScene(go);

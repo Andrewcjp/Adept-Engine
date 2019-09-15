@@ -5,10 +5,18 @@ SamplerState g_Clampsampler : register(s1);
 #include "Shadow.hlsl"
 #include "VRX\VRRCommon.hlsl"
 //tODO:sub struct for mat data?
+
+#if WITH_INSTANCING
 cbuffer GOConstantBuffer : register(b0)
 {
-	row_major matrix Model;
+	PrimitiveData PrimD[MAX_INSTANCES];
 };
+#else
+cbuffer GOConstantBuffer : register(b0)
+{
+	PrimitiveData PrimD[1];
+};
+#endif
 //BufferPoint
 
 cbuffer LightBuffer : register(b1)
@@ -39,6 +47,7 @@ struct PSInput
 	float2 uv : TEXCOORD0;
 	float4 WorldPos:TANGENT0;
 	row_major float3x3 TBN:TANGENT1;
+	INSTANCINGPSDATA
 };
 #if VULKAN 
 Texture2D g_Shadow_texture[MAX_DIR_SHADOWS]: register(t0);
@@ -100,14 +109,15 @@ float4 main(PSInput input) : SV_TARGET
 //#if VULKAN
 	//return float4(texturecolour, 1.0f);
 //#endif
+	float iRoughness = GetMatData(Roughness);
+	float iMetallic = GetMatData(Metallic);
 	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - input.WorldPos.xyz);
 
 	float3 R = reflect(-ViewDir, Normal);
-	float2 envBRDF = envBRDFTexture.Sample(defaultSampler,float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
-	//float3 prefilteredColor = SpecularBlurMap.SampleLevel(defaultSampler, R, Roughness * (MAX_REFLECTION_LOD)).rgb;
-	float3 prefilteredColor = GetReflectionColor(R, Roughness);
-	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, Roughness, Metallic, irData, prefilteredColor, envBRDF);
+	float2 envBRDF = envBRDFTexture.Sample(defaultSampler,float2(max(dot(Normal, ViewDir), 0.0), iRoughness)).rg;
+	float3 prefilteredColor = GetReflectionColor(R, iRoughness);
+	float3 output = GetAmbient(normalize(Normal), ViewDir, texturecolour, iRoughness, iMetallic, irData, prefilteredColor, envBRDF);
 #ifdef LIGHT_CULLING
 	float2 pixel = input.position.xy;
 	uint2 tileIndex = uint2(floor(pixel / LIGHTCULLING_TILE_SIZE));
@@ -127,7 +137,7 @@ float4 main(PSInput input) : SV_TARGET
 #else
 		const int index = i;
 #endif
-		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, Roughness, Metallic);
+		float3 colour = CalcColorFromLight(lights[index], texturecolour, input.WorldPos.xyz,normalize(Normal), CameraPos, iRoughness, iMetallic);
 #ifdef WITH_SHADOW
 		[branch] if (lights[index].HasShadow && lights[index].PreSampled.x)
 		{

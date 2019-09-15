@@ -3,6 +3,7 @@
 #include "MeshDrawCommand.h"
 #include "Rendering/Core/Material.h"
 #include "RHI/RHICommandList.h"
+#include "../../Shaders/Shader_Main.h"
 
 
 BasePassMeshProcessor::BasePassMeshProcessor(bool Cubemap)
@@ -47,5 +48,10 @@ void BasePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawComma
 	else
 	{
 		Material::GetDefaultMaterial()->SetMaterialActive(List, args);
+	}
+	if (Command->NumInstances > 1)
+	{
+		//todo: move this 
+		List->SetConstantBufferView(Command->MaterialInstanceBuffer, 0, MainShaderRSBinds::MaterialData);
 	}
 }

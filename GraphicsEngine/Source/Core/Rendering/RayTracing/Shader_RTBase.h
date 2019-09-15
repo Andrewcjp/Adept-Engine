@@ -20,7 +20,7 @@ class Shader_RTBase :public Shader
 public:
 	Shader_RTBase(DeviceContext * C, std::string Name, ERTShaderType::Type Stage);
 	~Shader_RTBase();
-	ERTShaderType::Type GetStage();
+	RHI_API ERTShaderType::Type GetStage();
 	void AddExport(std::string Symbol);
 	RHI_API std::vector<std::string>& GetExports();
 	RHIRootSigniture LocalRootSig;

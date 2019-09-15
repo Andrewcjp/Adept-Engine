@@ -92,6 +92,10 @@ void MeshBatchProcessor::Process(MeshBatch* Batch)
 		{
 			continue;
 		}
+		if (Batch->InstanceBuffer != nullptr && Batch->InstanceBuffer->IsCompletelyCulled())
+		{
+			continue;
+		}
 		MeshDrawCommand* command = new MeshDrawCommand();
 		command->Object = Batch->Owner;
 		if (Batch->InstanceBuffer != nullptr && !DisableInstancing)
@@ -108,10 +112,11 @@ void MeshBatchProcessor::Process(MeshBatch* Batch)
 		if (Batch->InstanceBuffer != nullptr && !DisableInstancing)
 		{
 			command->TransformUniformBuffer = Batch->InstanceBuffer->GetBuffer();
+			command->MaterialInstanceBuffer = Batch->InstanceBuffer->GetMaterialBuffer();
 		}
 		else
 		{
-			command->TransformUniformBuffer = Batch->elements[i]->TransformBuffer;
+			command->TransformUniformBuffer = Batch->elements[i]->TransformBuffer;			
 		}
 		command->TargetMaterial = Batch->elements[i]->MaterialInUse;
 		AddDrawCommand(command);

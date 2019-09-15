@@ -182,7 +182,7 @@ std::wstring D3D12Shader::GetShaderModelString(D3D_SHADER_MODEL Clamp)
 }
 
 std::wstring D3D12Shader::GetComplieTarget(EShaderType::Type t)
-{	
+{
 #if WIN10_1809
 	const D3D_SHADER_MODEL ClampSm = D3D_SHADER_MODEL_6_3;
 #else
@@ -218,10 +218,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #if !BUILD_SHIPPING
 		stats.ShaderLoadFromCacheCount++;
 #endif
-		if (ShaderType != EShaderType::SHADER_RT_LIB)
-		{
-			ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams, IsCompute);
-		}
+		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute);
 		return EShaderError::SHADER_ERROR_NONE;
 	}
 
@@ -295,7 +292,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	if (!ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
 		//		StripD3DShader(GetCurrentBlob(ShaderType));
-	}
+}
 	if (pErrorBlob)
 	{
 		std::string Log = "Shader Compile Output: ";
@@ -322,7 +319,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #endif
 			Engine::RequestExit(-1);
 			return EShaderError::SHADER_ERROR_COMPILE;
-		}
+	}
 		else
 		{
 			if (S.length() > 0)
@@ -338,12 +335,9 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	}
 	if (FAILED(hr))
 	{
-		return EShaderError::SHADER_ERROR_CREATE;
+		return EShaderError::SHADER_ERROR_CREATE;		
 	}
-	if (ShaderType != EShaderType::SHADER_RT_LIB)
-	{
-		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), GeneratedParams, IsCompute);
-	}
+	ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute);
 	WriteBlobs(shadername, ShaderType);
 #if !BUILD_SHIPPING
 	stats.ShaderComplieCount++;
@@ -436,7 +430,7 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 #endif
 		return true;
-}
+	}
 	Log::LogMessage("Recompile triggered for " + Name);
 	return false;
 #endif
@@ -704,12 +698,12 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, /*D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC*/ D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
-	}
+		}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-}
+	}
 	//#RHI: Samplers
 
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);

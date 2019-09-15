@@ -115,3 +115,5 @@ HighLevelAccelerationStructure * RayTracingEngine::GetHighLevelStructure()
 {
 	return CurrnetHL;
 }
+
+

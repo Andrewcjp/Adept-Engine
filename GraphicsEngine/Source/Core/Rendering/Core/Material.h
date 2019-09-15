@@ -41,6 +41,9 @@ public:
 	Shader * GetShaderInstance(EMaterialPassType::Type pass);
 	void SetRenderType(EMaterialRenderType::Type t);
 	static std::string ShadowShaderstring;
+	int GetInstanceDataSize();
+	bool IsValidForInstancing();
+	void* GetDataPtr();
 private:
 	bool NeedsUpdate = false;
 	MaterialShaderComplieData MaterialCData;

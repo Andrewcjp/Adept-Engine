@@ -39,6 +39,7 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSup
 #define IMPLEMENT_GLOBAL_SHADER_SM6(Type)\
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSupported_SM6)
 
+#define DEFINE_CACHESHADERPARAM(var) static int var;
 class Shader
 {
 public:
@@ -72,7 +73,7 @@ public:
 	virtual void ApplyToCommandList(RHICommandList* list);
 	ShaderParameter * FindParam(const std::string & name);
 	bool ChangeParamType(const std::string & name, ShaderParamType::Type type);
-	int GetSlotForName(const std::string & name);
+	RHI_API int GetSlotForName(const std::string & name);
 	int GetNameHash();
 	static bool IsShaderSupported_SM6(const ShaderComplieSettings& args);
 protected:

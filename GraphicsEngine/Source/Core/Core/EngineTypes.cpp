@@ -46,3 +46,8 @@ void BitFlagsBase::SetFlags(int flags)
 {
 	Flags = flags;
 }
+
+int BitFlagsBase::ConvertToFlags(int enumi)
+{
+	return 1 << enumi;
+}

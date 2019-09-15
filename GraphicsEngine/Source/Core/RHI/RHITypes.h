@@ -744,7 +744,11 @@ struct RHISamplerDesc
 };
 
 
-
+struct RayArgs
+{
+	uint RayFlags = 0;
+	uint RayMask = 0xFF;
+};
 struct RHIRayDispatchDesc
 {
 	RHIRayDispatchDesc() {};
@@ -753,6 +757,7 @@ struct RHIRayDispatchDesc
 	int Height = 0;
 	int Depth = 1;
 	FrameBuffer* Target = nullptr;
+	RayArgs RayArguments;
 };
 
 typedef BitFlagsBase GPUDeviceMask;
@@ -811,3 +816,16 @@ namespace EResourceState
 		Limit
 	};
 }
+
+enum RAY_FLAGS
+{
+	RAY_FLAG_NONE = 0,
+	RAY_FLAG_FORCE_OPAQUE = 0x1,
+	RAY_FLAG_FORCE_NON_OPAQUE = 0x2,
+	RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH = 0x4,
+	RAY_FLAG_SKIP_CLOSEST_HIT_SHADER = 0x8,
+	RAY_FLAG_CULL_BACK_FACING_TRIANGLES = 0x10,
+	RAY_FLAG_CULL_FRONT_FACING_TRIANGLES = 0x20,
+	RAY_FLAG_CULL_OPAQUE = 0x40,
+	RAY_FLAG_CULL_NON_OPAQUE = 0x80
+};
