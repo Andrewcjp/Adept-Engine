@@ -298,6 +298,11 @@ void D3D12RHI::LoadPipeLine()
 #if !_DEBUG
 	Log::LogMessage("Validation layer running", Log::Warning);
 #endif
+	if (DetectGPUDebugger())
+	{
+		ForceNoDebug.SetValue(true);
+		
+	}
 	if (!ForceNoDebug.GetBoolValue() && !DetectGPUDebugger())
 	{	//EnableShaderBasedValidation();
 
@@ -316,10 +321,12 @@ void D3D12RHI::LoadPipeLine()
 	{
 #if NTDDI_WIN10_19H1
 		ID3D12DeviceRemovedExtendedDataSettings* pDredSettings;
-		ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings)));
-		pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-		pDredSettings->SetWatsonDumpEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-		pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings))))
+		{
+			pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+				pDredSettings->SetWatsonDumpEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+				pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+		}
 #endif
 	}
 

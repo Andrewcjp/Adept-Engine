@@ -55,7 +55,7 @@ bool ShaderComplier::ShouldBuildDebugShaders()
 {
 #if _DEBUG && WITH_EDITOR
 	//return !Engine::GetIsCooking();
-	return false;
+	return true;
 #else
 	return GenDebugShaders.GetBoolValue();
 #endif	

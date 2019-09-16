@@ -2,7 +2,7 @@
 #include "Core/EngineInc.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Rendering/PostProcessing/PostProcessing.h"
-#include "Rendering/Shaders/Text_Shader.h"
+#include "Rendering/Shaders/UI/Text_Shader.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHITypes.h"
 #include "../Core/Screen.h"

@@ -9,7 +9,7 @@
 SSAONode::SSAONode()
 {
 	OnNodeSettingChange();
-	SetNodeActive(false);
+	//SetNodeActive(false);
 }
 
 
@@ -33,7 +33,7 @@ void SSAONode::OnExecute()
 
 		list->SetFrameBufferTexture(GBuffer, "PosTex", 0);
 		list->SetFrameBufferTexture(GBuffer, "NormalTex", 1);
-		list->SetFrameBufferTexture(GBuffer, "DepthTexture", -1);
+		//list->SetFrameBufferTexture(GBuffer, "DepthTexture", -1);
 		SSaoshader->Bind(list);
 		list->SetUAV(TempSSAOData->GetUAV(), "DstTexture");
 		list->Dispatch(TargetBuffer->GetWidth(), TargetBuffer->GetHeight(), 1);

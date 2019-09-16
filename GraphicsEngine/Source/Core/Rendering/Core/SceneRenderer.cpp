@@ -16,7 +16,7 @@
 #include "ParticleSystemManager.h"
 #include "Editor/Editor_Camera.h"
 #include "ReflectionEnviroment.h"
-#include "../Shaders/Shader_Depth.h"
+#include "../Shaders/Shadow/Shader_Depth.h"
 #include "../Shaders/Raytracing/Shader_Skybox_Miss.h"
 #include "../RayTracing/RayTracingEngine.h"
 #include "Screen.h"

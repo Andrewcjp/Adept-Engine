@@ -10,7 +10,7 @@
 #include "..\Shaders\Generation\Shader_EnvMap.h"
 #include "..\Shaders\Shader_Deferred.h"
 #include "LightCulling\LightCullingEngine.h"
-#include "..\Shaders\Shader_Depth.h"
+#include "..\Shaders\Shadow/Shader_Depth.h"
 #include "FrameBufferProcessor.h"
 
 

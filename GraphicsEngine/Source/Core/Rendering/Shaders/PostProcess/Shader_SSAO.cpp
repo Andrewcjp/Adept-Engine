@@ -33,18 +33,21 @@ Shader_SSAO::Shader_SSAO(DeviceContext* d) :Shader(d)
 	{
 		CurrentData.samples[i] = ssaoKernel[i];
 	}
-	CurrentData.kernelSize = 1;
+	CurrentData.kernelSize = 16;
+	CurrentData.radius = 0.5f;
+	CurrentData.bias = 0.01f;
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->SetDebugName("SSAO");
-	DataBuffer->CreateConstantBuffer(sizeof(CurrentData), 1);
+	DataBuffer->CreateConstantBuffer(sizeof(ShaderData), 1);
 	
 }
 
 void Shader_SSAO::Bind(RHICommandList* list)
 {
-	DataBuffer->UpdateConstantBuffer(&CurrentData);
+	
 	CurrentData.projection = SceneRenderer::Get()->GetCurrentCamera()->GetProjection();
 	CurrentData.view = SceneRenderer::Get()->GetCurrentCamera()->GetView();
+	DataBuffer->UpdateConstantBuffer(&CurrentData);
 	list->SetConstantBufferView(DataBuffer, 0, "Data");
 }
 

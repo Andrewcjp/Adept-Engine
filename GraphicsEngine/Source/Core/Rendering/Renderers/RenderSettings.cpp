@@ -14,8 +14,8 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	DRSSettings.EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = true;
-
+	RTSettings.Enabled = false;
+	EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 
 	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
@@ -24,7 +24,7 @@ RenderSettings::RenderSettings()
 	VRXSet.EnableVRS = false;
 	VRXSet.EnableVRR = false;
 	AllowMeshInstancing = true;
-		//ShouldRunGPUTests = true;
+	//ShouldRunGPUTests = true;
 	if (GraphSet.GetIntValue() >= 0 && GraphSet.GetIntValue() < EBuiltinRenderGraphs::Limit)
 	{
 		SelectedGraph = (EBuiltinRenderGraphs::Type)GraphSet.GetIntValue();
