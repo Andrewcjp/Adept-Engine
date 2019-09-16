@@ -1,7 +1,7 @@
 
 #include "ReflectionProbe.h"
 #include "RHI/RHI_inc.h"
-#include "../Shaders/Shader_Depth.h"
+#include "../Shaders/Shadow/Shader_Depth.h"
 
 ReflectionProbe::ReflectionProbe(glm::vec3 Pos/* = glm::vec3(0, 0, 0)*/)
 {

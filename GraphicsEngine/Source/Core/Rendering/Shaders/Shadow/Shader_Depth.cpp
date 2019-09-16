@@ -1,7 +1,7 @@
 #include "Shader_Depth.h"
 #include "RHI/RHI.h"
-#include "Shader_Main.h"
-#include "../Core/ShadowRenderer.h"
+#include "../Shader_Main.h"
+#include "Rendering/Core/ShadowRenderer.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_Depth);
 Shader_Depth::Shader_Depth(bool LoadGeo) :Shader_Depth(RHI::GetDeviceContext(0), LoadGeo)
 {}

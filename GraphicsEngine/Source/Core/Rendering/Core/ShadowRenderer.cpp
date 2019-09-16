@@ -3,7 +3,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
 #include "Rendering/Shaders/Shader_Deferred.h"
-#include "Rendering/Shaders/Shader_Depth.h"
+#include "Rendering/Shaders/Shadow/Shader_Depth.h"
 #include "Rendering/Shaders/Shader_Main.h"
 #include "RHI/DeviceContext.h"
 #include "SceneRenderer.h"

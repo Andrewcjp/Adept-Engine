@@ -1,6 +1,7 @@
 
 #include "Shader_UIBatch.h"
-#include "Shader_Main.h"
+#include "..\Shader_Main.h"
+
 IMPLEMENT_GLOBAL_SHADER(Shader_UIBatch);
 Shader_UIBatch::Shader_UIBatch(class DeviceContext* dev) :Shader(dev)
 {

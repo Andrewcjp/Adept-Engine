@@ -5,7 +5,7 @@
 #include "UIWidget.h"
 #include "Core/Platform/PlatformCore.h"
 #include "UI/UIManager.h"
-#include "Rendering/Shaders/Shader_TexturedUI.h"
+#include "Rendering/Shaders/UI/Shader_TexturedUI.h"
 #include "Core/Assets/AssetManager.h"
 #include "RHI/BaseTexture.h"
 UIWidgetContext::UIWidgetContext()

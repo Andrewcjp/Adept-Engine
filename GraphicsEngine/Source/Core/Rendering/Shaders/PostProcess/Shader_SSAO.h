@@ -2,11 +2,12 @@
 #include "RHI/Shader.h"
 struct ShaderData
 {
+	glm::mat4x4 projection;
+	glm::mat4x4 view;
 	float radius = 0.5f;
-	float bias = 0.025f;
+	float bias = 0.05f;
 	int kernelSize = 64;
-	glm::mat4 projection;
-	glm::mat4 view;
+	float pad = 0;
 	glm::vec3 samples[64];
 };
 
