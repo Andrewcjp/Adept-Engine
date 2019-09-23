@@ -14,6 +14,7 @@ class CSTestGameModule : ModuleDef
         NeedsCore = false;
         ModuleDepends.Add("CSharpCore");
         NetReferences.Add("CSharpCore");
+        NetReferences.Add("CSharpBridge");
         LaunguageType = ProjectType.CSharp;
     }
 }

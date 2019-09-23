@@ -6,6 +6,7 @@
 
 class DescriptorGroup;
 class CommandAllocator;
+class D3D12CommandSigniture;
 class D3D12PipeLineStateObject :public RHIPipeLineStateObject
 {
 public:
@@ -45,8 +46,7 @@ public:
 
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void UAVBarrier(class RHIUAV* target) override;
-	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
-
+	virtual void SetCommandSigniture(RHICommandSignitureDescription desc)override;
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset);
 	CMDListType* GetCommandList();
 	void CreateCommandList();
@@ -76,10 +76,10 @@ public:
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
 	virtual void SetStateObject(RHIStateObject* Object) override;
 #endif
-	 RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
+	RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
 
 
-	 virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) override;
+	virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) override;
 
 private:
 	void SetScreenBackBufferAsRT();
@@ -102,8 +102,8 @@ private:
 	class D3D12Texture* Texture = nullptr;
 	CommandAllocator* CommandAlloc = nullptr;
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
+	D3D12CommandSigniture* CommandSig = nullptr;
 
-	ID3D12CommandSignature* CommandSig = nullptr;
 };
 
 class D3D12RHIUAV : public RHIUAV
@@ -147,3 +147,17 @@ private:
 CreateChecker(D3D12CommandList);
 CreateChecker(D3D12RHITextureArray);
 CreateChecker(D3D12RHIUAV);
+
+
+class D3D12CommandSigniture :public RHICommandSigniture
+{
+public:
+	D3D12CommandSigniture(DeviceContext* context, RHICommandSignitureDescription desc = RHICommandSignitureDescription());
+	ID3D12CommandSignature* GetSigniture();
+	virtual void Build() override;
+
+	virtual void Release() override;
+
+private:
+	ID3D12CommandSignature* CommandSig = nullptr;
+};

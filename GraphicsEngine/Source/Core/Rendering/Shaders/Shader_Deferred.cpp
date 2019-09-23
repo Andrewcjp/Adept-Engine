@@ -68,7 +68,7 @@ std::vector<ShaderParameter> Shader_Deferred::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::EnvBRDF, 12));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::PreSampleShadows, 13));
 	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::ScreenSpecular, 14));
-	out.push_back(ShaderParameter(ShaderParamType::SRV, DeferredLightingShaderRSBinds::LightDataBuffer, 20));
+	out.push_back(ShaderParameter(ShaderParamType::Buffer, DeferredLightingShaderRSBinds::LightDataBuffer, 20));
 	VRXEngine::AddVRRToRS(out, DeferredLightingShaderRSBinds::Limit);
 	//VRXEngine::AddVRSToRS(out, DeferredLightingShaderRSBinds::Limit);
 	return out;

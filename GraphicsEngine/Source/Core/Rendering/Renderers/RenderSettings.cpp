@@ -15,7 +15,7 @@ RenderSettings::RenderSettings()
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	DRSSettings.EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = false;
-	EnableGPUParticles = false;
+	//EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 
 	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;

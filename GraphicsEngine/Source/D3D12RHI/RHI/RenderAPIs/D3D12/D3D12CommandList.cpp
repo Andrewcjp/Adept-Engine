@@ -36,7 +36,7 @@ void D3D12CommandList::Release()
 	RemoveCheckerRef(D3D12CommandList, this);
 	SafeRelease(CurrentCommandList);
 	SafeDelete(CommandAlloc);
-	SafeRelease(CommandSig);
+	//	SafeRelease(CommandSig);
 }
 
 bool D3D12CommandList::IsOpen()
@@ -44,18 +44,7 @@ bool D3D12CommandList::IsOpen()
 	return m_IsOpen;
 }
 
-void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)
-{
-	ensure(CommandSig != nullptr);
-	ensure(ArgumentBuffer);
-	ID3D12Resource* counterB = nullptr;
-	if (CountBuffer != nullptr)
-	{
-		counterB = D3D12RHI::DXConv(CountBuffer)->GetResource()->GetResource();
-	}
-	//PushPrimitiveTopology();
-	CurrentCommandList->ExecuteIndirect(CommandSig, MaxCommandCount, D3D12RHI::DXConv(ArgumentBuffer)->GetResource()->GetResource(), ArgOffset, counterB, CountBufferOffset);
-}
+
 
 void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 {
@@ -436,9 +425,9 @@ void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, in
 void D3D12CommandList::CopyResourceToSharedMemory(FrameBuffer * Buffer)
 {
 	ensure(!Buffer->IsPendingKill());
-//	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
-	//ensure(Device == buffer->GetDevice());
-	//buffer->CopyToHostMemory(CurrentCommandList);
+	//	D3D12FrameBuffer* buffer = D3D12RHI::DXConv(Buffer);
+		//ensure(Device == buffer->GetDevice());
+		//buffer->CopyToHostMemory(CurrentCommandList);
 }
 
 void D3D12CommandList::CopyResourceFromSharedMemory(FrameBuffer * Buffer)
@@ -473,41 +462,26 @@ void D3D12CommandList::UAVBarrier(RHIUAV * target)
 	}
 }
 
-void D3D12CommandList::SetUpCommandSigniture(int commandSize, bool Dispatch)
+void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)
 {
-	//#RHI: RHI indirect commands
-	//#Note: Care full there was an address out of scope issue here/
-	D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
-	ZeroMemory(&commandSignatureDesc, sizeof(commandSignatureDesc));
-	if (Dispatch)
+	ensure(CommandSig != nullptr);
+	ensure(ArgumentBuffer);
+	ID3D12Resource* counterB = nullptr;
+	if (CountBuffer != nullptr)
 	{
-		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[1] = {};
-		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
-		ensure(commandSize % 4 == 0);
-
-		commandSignatureDesc.pArgumentDescs = argumentDescs;
-		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
-		commandSignatureDesc.ByteStride = commandSize;
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : D3D12RHI::DXConv(CurrentPSO)->RootSig, IID_PPV_ARGS(&CommandSig)));
-		NAME_D3D12_OBJECT(CommandSig);
+		counterB = D3D12RHI::DXConv(CountBuffer)->GetResource()->GetResource();
 	}
-	else
-	{
-		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2] = {};
-		ZeroMemory(&argumentDescs, sizeof(argumentDescs));
-		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
-		argumentDescs[0].Constant.RootParameterIndex = 0;
-		argumentDescs[0].Constant.Num32BitValuesToSet = 1;
-		argumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
-		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+	//PushPrimitiveTopology();
+	CurrentCommandList->ExecuteIndirect(CommandSig->GetSigniture(), MaxCommandCount, D3D12RHI::DXConv(ArgumentBuffer)->GetResource()->GetResource(), ArgOffset, counterB, CountBufferOffset);
+}
 
-		ensure(commandSize % 4 == 0);
-		commandSignatureDesc.pArgumentDescs = argumentDescs;
-		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
-		commandSignatureDesc.ByteStride = commandSize;
-		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandSignature(&commandSignatureDesc, Dispatch ? nullptr : ((D3D12PipeLineStateObject*)CurrentPSO)->RootSig, IID_PPV_ARGS(&CommandSig)));
-		NAME_D3D12_OBJECT(CommandSig);
-	}
+void D3D12CommandList::SetCommandSigniture(RHICommandSignitureDescription desc)
+{
+	EnqueueSafeRHIRelease(CommandSig);
+	desc.IsCompute = IsComputeList();
+	desc.PSO = CurrentPSO;
+	CommandSig = new D3D12CommandSigniture(GetDevice(), desc);
+	CommandSig->Build();
 }
 
 void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
@@ -776,7 +750,7 @@ void D3D12RHITextureArray::BindToShader(RHICommandList * list, int slot)
 	else
 	{
 		DXList->GetCommandList()->SetComputeRootDescriptorTable(slot, Desc->GetGPUAddress(0));
-	}	
+	}
 }
 
 //Makes a descriptor Null Using the first frame buffers Description
@@ -820,4 +794,35 @@ void D3D12RHITextureArray::Clear()
 	LinkedBuffers.clear();
 }
 
+D3D12CommandSigniture::D3D12CommandSigniture(DeviceContext * context, RHICommandSignitureDescription desc) :RHICommandSigniture(context, desc)
+{
 
+}
+
+ID3D12CommandSignature * D3D12CommandSigniture::GetSigniture()
+{
+	return CommandSig;
+}
+
+void D3D12CommandSigniture::Build()
+{
+	D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+	ZeroMemory(&commandSignatureDesc, sizeof(commandSignatureDesc));
+
+	D3D12_INDIRECT_ARGUMENT_DESC* argumentDescs = new D3D12_INDIRECT_ARGUMENT_DESC[RHIdesc.ArgumentDescs.size()];
+	for (int i = 0; i < RHIdesc.ArgumentDescs.size(); i++)
+	{
+		argumentDescs[i] = D3D12Helpers::ConvertArg(RHIdesc.ArgumentDescs[i]);
+	}
+	commandSignatureDesc.pArgumentDescs = argumentDescs;
+	commandSignatureDesc.NumArgumentDescs = RHIdesc.ArgumentDescs.size();
+	commandSignatureDesc.ByteStride = RHIdesc.CommandBufferStide;
+	ensure(commandSignatureDesc.ByteStride % 4 == 0);
+	ThrowIfFailed(D3D12RHI::DXConv(Context)->GetDevice()->CreateCommandSignature(&commandSignatureDesc, RHIdesc.IsCompute ? nullptr : D3D12RHI::DXConv(RHIdesc.PSO)->RootSig, IID_PPV_ARGS(&CommandSig)));
+	NAME_D3D12_OBJECT(CommandSig);
+}
+
+void D3D12CommandSigniture::Release()
+{
+	SafeRelease(CommandSig);
+}

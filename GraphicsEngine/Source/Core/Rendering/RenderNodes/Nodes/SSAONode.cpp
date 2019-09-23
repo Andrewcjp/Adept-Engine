@@ -9,7 +9,7 @@
 SSAONode::SSAONode()
 {
 	OnNodeSettingChange();
-	//SetNodeActive(false);
+	SetNodeActive(false);
 }
 
 

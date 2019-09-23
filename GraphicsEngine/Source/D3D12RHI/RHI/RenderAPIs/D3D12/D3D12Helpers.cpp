@@ -780,3 +780,48 @@ CommandAllocator::~CommandAllocator()
 {
 	MemoryUtils::DeleteReleaseableCArray(Allocators, RHI::CPUFrameCount);
 }
+
+
+D3D12_INDIRECT_ARGUMENT_DESC D3D12Helpers::ConvertArg(INDIRECT_ARGUMENT_DESC desc)
+{
+	D3D12_INDIRECT_ARGUMENT_DESC dxarg;
+	switch (desc.Type)
+	{
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DRAW:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+			break;
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+			break;
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DISPATCH:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+			break;
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW;
+			dxarg.VertexBuffer.Slot = desc.VertexBuffer.Slot;
+			break;
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW;
+			dxarg.VertexBuffer.Slot = desc.VertexBuffer.Slot;
+			break;
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_CONSTANT:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
+			dxarg.Constant.DestOffsetIn32BitValues = desc.Constant.DestOffsetIn32BitValues;
+			dxarg.Constant.Num32BitValuesToSet = desc.Constant.Num32BitValuesToSet;
+			dxarg.Constant.RootParameterIndex = desc.Constant.RootParameterIndex;
+			break;
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW;
+			dxarg.ConstantBufferView.RootParameterIndex = desc.ConstantBufferView.RootParameterIndex;
+			break;
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+			dxarg.ShaderResourceView.RootParameterIndex = desc.ShaderResourceView.RootParameterIndex;
+			break;
+		case INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW:
+			dxarg.Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
+			dxarg.UnorderedAccessView.RootParameterIndex = desc.UnorderedAccessView.RootParameterIndex;
+			break;
+	}
+	return dxarg;
+}

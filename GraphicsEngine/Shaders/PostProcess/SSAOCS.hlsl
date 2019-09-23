@@ -28,9 +28,8 @@ float3 Convertzero(float3 pos)
 	return mul(float4(pos, 0.0f), view).xyz;//view space
 }
 
-float3 ConvertToNDC(float3 pos)
-{
-	float4 ViewSpace = mul(float4(pos, 1.0f), view);
+float3 ConvertViewToNDC(float3 ViewSpace)
+{	
 	float4 ClipSpace = mul(ViewSpace, projection);
 	float3 ndcSpacePos = ClipSpace.xyz / ClipSpace.w;
 	ndcSpacePos.xyz = ndcSpacePos.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
@@ -38,6 +37,11 @@ float3 ConvertToNDC(float3 pos)
 	return ndcSpacePos;
 }
 
+float3 ConvertWorldToNDC(float3 pos)
+{
+	float4 ViewSpace = mul(float4(pos, 1.0f), view);
+	return ConvertViewToNDC(ViewSpace);
+}
 [numthreads(1, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
@@ -48,7 +52,12 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float3 pos = PosTex[DTid.xy].xyz;//world space
 	float3 Normal = normalize(NormalTex[DTid.xy].xyz);
 	float3 RandomDir = normalize(samples[DTid.x% 32]);
-	//Normal = Convertzero(Normal);
+#define VS 1
+#if VS
+	pos = ConvertPos(pos);
+	Normal = Convertzero(Normal);
+	RandomDir = Convertzero(RandomDir);
+#endif
 	float3 tangent = normalize(RandomDir - Normal * dot(RandomDir, Normal));
 	float3 bitangent = cross(Normal, tangent);
 	float3x3 TBN = float3x3(tangent, bitangent, Normal);
@@ -61,8 +70,11 @@ void main(uint3 DTid : SV_DispatchThreadID)
 		//tsample = float3(0, 1, 0);
 		tsample = pos + tsample * radius;
 		// project sample position (to sample texture) (to get position on screen/texture)
-
-		float3 ndcSpacePos = ConvertToNDC(tsample);
+#if VS
+		float3 ndcSpacePos = ConvertViewToNDC(tsample);
+#else
+		float3 ndcSpacePos = ConvertWorldToNDC(tsample);
+#endif
 		float sampleDepth = PosTex.SampleLevel(DefaultSampler, ndcSpacePos.xy, 0).z;
 
 		// range check & accumulate
@@ -74,14 +86,28 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	DstTexture[DTid.xy] = float4(occlusion, occlusion, occlusion, 1.0f);
 
 #else
-	int2 offset = int2(10, 10);
 	float3 pos = PosTex[DTid.xy].xyz;//world space
-
+	pos = ConvertPos(pos);
 	float3 Normal = normalize(NormalTex[DTid.xy].xyz);
-	
-	float3 ndcSpacePos = ConvertToNDC(pos);
+	float3 RandomDir = normalize(samples[DTid.x % 32]);
+	//Normal = Convertzero(Normal);
+	float3 tangent = normalize(RandomDir - Normal * dot(RandomDir, Normal));
+	float3 bitangent = cross(Normal, tangent);
+	float3x3 TBN = float3x3(tangent, bitangent, Normal);
+	float3 tsample = mul(samples[0], TBN); // from tangent to view-space
 
-	float3 PosScreen  = PosTex.SampleLevel(DefaultSampler,ndcSpacePos.xy,0).xyz;//world space
-	DstTexture[DTid.xy] = float4(PosScreen, 1.0f);
+	tsample = pos + tsample * radius;
+
+	float3 ndcSpacePos = ConvertViewToNDC(tsample);
+
+	float posW = PosTex.SampleLevel(DefaultSampler, ndcSpacePos.xy, 0);
+	float sampleDepth = ConvertPos(posW).z;
+
+	//float3 Normal = normalize(NormalTex[DTid.xy].xyz);
+	//
+	//float3 ndcSpacePos = ConvertToNDC(pos);
+
+	//float3 PosScreen  = PosTex.SampleLevel(DefaultSampler,ndcSpacePos.xy,0).xyz;//world space
+	DstTexture[DTid.xy] = float4(sampleDepth, sampleDepth, sampleDepth, 1.0f);
 #endif
 }

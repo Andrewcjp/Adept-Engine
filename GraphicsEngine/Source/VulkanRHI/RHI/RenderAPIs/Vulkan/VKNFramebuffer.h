@@ -43,5 +43,8 @@ public:
 	VknGPUResource* DepthResource = nullptr;
 	VknGPUResource* RTImages[MAX_MRTS] = {nullptr};
 
+
+	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false) override;
+
 };
 #endif

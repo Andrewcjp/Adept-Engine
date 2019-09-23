@@ -26,8 +26,10 @@ void OutputToScreenNode::OnExecute()
 	FrameBufferStorageNode* FBNode = ((FrameBufferStorageNode*)GetInput(0)->GetStoreTarget());
 	const bool IsVRFb = FBNode->IsVRFramebuffer;
 	ScreenWriteList->ResetList();
-
-	ScreenWriteList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain(true));
+	Target->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
+	RHIRenderPassDesc RP = RHI::GetRenderPassDescForSwapChain(true);
+	RP.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+	ScreenWriteList->BeginRenderPass(RP);
 	if (IsVRFb)
 	{
 		if (VROutputMode.GetIntValue() == 0)

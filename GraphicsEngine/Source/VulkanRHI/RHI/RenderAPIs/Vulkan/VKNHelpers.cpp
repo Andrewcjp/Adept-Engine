@@ -250,8 +250,8 @@ void VKNHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage im
 		barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		barrier.dstAccessMask = 0;
 
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		sourceStage = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+		destinationStage = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
 	}
 	else
 	{
@@ -371,6 +371,7 @@ VkFormat VKNHelpers::ConvertFormat(eTEXTURE_FORMAT format)
 		case FORMAT_R16G16B16A16_TYPELESS:
 			break;
 		case FORMAT_R16G16B16A16_FLOAT:
+			return VK_FORMAT_R16G16B16A16_SFLOAT;
 			break;
 		case FORMAT_R16G16B16A16_UNORM:
 			break;

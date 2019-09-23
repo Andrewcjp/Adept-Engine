@@ -54,6 +54,46 @@ void VKNFramebuffer::TransitionTOPixel(VKNCommandlist* list)
 	}
 }
 
+VkImageLayout ConvertResourceState(EResourceState::Type state)
+{
+	switch (state)
+	{
+		case EResourceState::RenderTarget:
+			return VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		case EResourceState::PixelShader:
+			return VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		case EResourceState::ComputeUse:
+			
+			break;
+		case EResourceState::UAV:
+			break;
+		case EResourceState::Copy:
+			break;
+	}
+
+	return VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
+}
+void VKNFramebuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/)
+{
+	if (State != EResourceState::PixelShader && State != EResourceState::RenderTarget)
+	{
+		return;
+	}
+	VKNCommandlist* VList = VKNRHI::VKConv(List);
+	for (int i = 0; i < desc.NumRenderTargets; i++)
+	{
+		RTImages[i]->SetState(VList, ConvertResourceState(State));
+	}
+	if (ChangeDepth)
+	{
+		VkImageLayout layout = ConvertResourceState(State);
+		if (layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+		{
+			layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		}
+		DepthResource->SetState(VList, layout);
+	}
+}
 
 void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* list)
 {
@@ -82,12 +122,12 @@ void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* li
 		VkFormat depthFormat = VKNHelpers::ConvertFormat(BufferDesc.DepthFormat);
 		VKNHelpers::createImage(BufferDesc.Width, BufferDesc.Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			DepthImage, Mem, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, BufferDesc.TextureDepth);
-		depthImageView = VKNHelpers::createImageView(VKNRHI::VKConv(Device), DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT,BufferDesc.TextureDepth);
+		depthImageView = VKNHelpers::createImageView(VKNRHI::VKConv(Device), DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, BufferDesc.TextureDepth);
 		DepthResource = new VknGPUResource();
 		DepthResource->Init(DepthImage, Mem, VK_IMAGE_LAYOUT_UNDEFINED, depthFormat);
 		DepthResource->Layers = BufferDesc.TextureDepth;
 		DepthResource->SetState(list, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-		
+
 		attachments.push_back(depthImageView);
 	}
 
@@ -100,7 +140,7 @@ void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* li
 	framebufferInfo.pAttachments = attachments.data();
 	framebufferInfo.width = BufferDesc.Width;
 	framebufferInfo.height = BufferDesc.Height;
-	framebufferInfo.layers =  BufferDesc.TextureDepth;
+	framebufferInfo.layers = BufferDesc.TextureDepth;
 
 	if (vkCreateFramebuffer(VKNRHI::VKConv(Device)->device, &framebufferInfo, nullptr, &Buffer) != VK_SUCCESS)
 	{

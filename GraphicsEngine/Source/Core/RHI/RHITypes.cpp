@@ -444,8 +444,8 @@ void RHIRenderPassDesc::Build()
 	if (TargetBuffer != nullptr)
 	{
 		RenderDesc = TargetBuffer->GetPiplineRenderDesc();
-//		InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
-		//FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
+		//		InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
+				//FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
 	}
 }
 
@@ -490,3 +490,10 @@ AccelerationStructureDesc::AccelerationStructureDesc()
 {
 	BuildFlags = AS_BUILD_FLAGS::Fast_Trace;
 }
+
+RHICommandSigniture::RHICommandSigniture(DeviceContext * context, RHICommandSignitureDescription desc)
+{
+	RHIdesc = desc;
+	Context = context;
+}
+

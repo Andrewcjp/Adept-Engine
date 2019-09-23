@@ -116,8 +116,9 @@ public:
 	RHI_API RHI_VIRTUAL void UAVBarrier(RHIUAV* target) = 0;
 	RHI_API RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	//Indirect
-	RHI_API RHI_VIRTUAL void SetUpCommandSigniture(int commandSize, bool Dispatch) = 0;
 	RHI_API RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
+	RHI_API RHI_VIRTUAL void SetCommandSigniture(RHICommandSignitureDescription desc);
+	RHI_API RHI_VIRTUAL void SetCommandSigniture(RHICommandSigniture* sig){};
 	template<class T>
 	void SetSingleRootConstant(int SignitureSlot, T Data)
 	{
