@@ -829,3 +829,68 @@ enum RAY_FLAGS
 	RAY_FLAG_CULL_OPAQUE = 0x40,
 	RAY_FLAG_CULL_NON_OPAQUE = 0x80
 };
+
+namespace INDIRECT_ARGUMENT_TYPE
+{
+	enum Type
+	{
+		INDIRECT_ARGUMENT_TYPE_DRAW = 0,
+		INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED,
+		INDIRECT_ARGUMENT_TYPE_DISPATCH,
+		INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW,
+		INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW,
+		INDIRECT_ARGUMENT_TYPE_CONSTANT,
+		INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW,
+		INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW,
+		INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW,
+		LIMIT
+	};
+};
+
+struct INDIRECT_ARGUMENT_DESC
+{
+	INDIRECT_ARGUMENT_TYPE::Type Type;
+	union
+	{
+		struct
+		{
+			uint Slot;
+		} 	VertexBuffer;
+		struct
+		{
+			uint RootParameterIndex;
+			uint DestOffsetIn32BitValues;
+			uint Num32BitValuesToSet;
+		} 	Constant;
+		struct
+		{
+			uint RootParameterIndex;
+		} 	ConstantBufferView;
+		struct
+		{
+			uint RootParameterIndex;
+		} 	ShaderResourceView;
+		struct
+		{
+			uint RootParameterIndex;
+		} 	UnorderedAccessView;
+	};
+};
+struct RHICommandSignitureDescription
+{
+	RHIPipeLineStateObject* PSO;
+	std::vector<INDIRECT_ARGUMENT_DESC> ArgumentDescs;
+	uint CommandBufferStide = 0;
+	bool IsCompute = false;
+};
+
+class RHICommandSigniture : public IRHIResourse
+{
+public:
+	RHI_API RHICommandSigniture(DeviceContext* context, RHICommandSignitureDescription desc = RHICommandSignitureDescription());
+	RHI_API virtual ~RHICommandSigniture() {}
+	RHI_API virtual void Build() {};
+protected:
+	DeviceContext* Context = nullptr;
+	RHICommandSignitureDescription RHIdesc;
+};

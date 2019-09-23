@@ -252,9 +252,6 @@ void VKNCommandlist::SetStateObject(RHIStateObject* Object)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-void VKNCommandlist::SetUpCommandSigniture(int commandSize, bool Dispatch)
-{}
-
 void VKNCommandlist::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)
 {}
 

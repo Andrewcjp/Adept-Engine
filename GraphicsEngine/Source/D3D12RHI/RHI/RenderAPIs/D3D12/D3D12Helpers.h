@@ -51,6 +51,7 @@ public:
 	static void AllocateUAVBuffer(ID3D12Device * pDevice, UINT64 bufferSize, ID3D12Resource ** ppResource, D3D12_RESOURCE_STATES initialResourceState, const wchar_t * resourceName);
 	static void AllocateUploadBuffer(ID3D12Device * pDevice, void * pData, UINT64 datasize, ID3D12Resource ** ppResource, const wchar_t * resourceName);
 	static std::string SMToString(D3D_SHADER_MODEL SM);
+	static D3D12_INDIRECT_ARGUMENT_DESC ConvertArg(INDIRECT_ARGUMENT_DESC desc);
 };
 
 //Used to Copy Back resources for read

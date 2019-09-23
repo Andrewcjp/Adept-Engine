@@ -30,7 +30,6 @@ public:
 
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
-	virtual void SetUpCommandSigniture(int commandSize, bool Dispatch) override;
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset) override;
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset) override;
 	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;

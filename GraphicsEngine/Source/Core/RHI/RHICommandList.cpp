@@ -356,3 +356,8 @@ void RHICommandList::SetUAV(RHIUAV * uav, std::string slot)
 	ensure(uav);
 	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
 }
+
+void RHICommandList::SetCommandSigniture(RHICommandSignitureDescription desc)
+{
+	
+}

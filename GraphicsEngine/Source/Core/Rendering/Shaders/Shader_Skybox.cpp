@@ -45,7 +45,7 @@ void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 
 void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* list, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer, ReflectionProbe* Cubemap /*= nullptr*/, int index /*= 0*/)
 {
-
+	return;
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthWrite = false;
 	desc.Cull = false;

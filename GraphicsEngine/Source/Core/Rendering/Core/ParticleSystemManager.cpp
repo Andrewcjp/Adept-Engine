@@ -56,7 +56,11 @@ void ParticleSystemManager::InitCommon()
 	CmdList = RHI::CreateCommandList(ECommandListType::Compute);
 
 #if USE_INDIRECTCOMPUTE
-	CmdList->SetUpCommandSigniture(sizeof(DispatchArgs), true);
+	RHICommandSignitureDescription sigdesc;
+	sigdesc.ArgumentDescs.resize(1);
+	sigdesc.ArgumentDescs[0].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DISPATCH;
+	sigdesc.CommandBufferStide = sizeof(DispatchArgs);
+	CmdList->SetCommandSigniture(sigdesc);
 #endif
 
 	RenderList = RHI::CreateCommandList();
@@ -70,7 +74,15 @@ void ParticleSystemManager::InitCommon()
 	pdesc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
 	RenderList->SetPipelineStateDesc(pdesc);
 #if 1//USE_INDIRECTCOMPUTE
-	RenderList->SetUpCommandSigniture(sizeof(IndirectArgs), false);
+	sigdesc = RHICommandSignitureDescription();
+	sigdesc.ArgumentDescs.resize(2);
+	sigdesc.ArgumentDescs[0].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_CONSTANT;
+	sigdesc.ArgumentDescs[0].Constant.RootParameterIndex = 0;
+	sigdesc.ArgumentDescs[0].Constant.Num32BitValuesToSet = 1;
+	sigdesc.ArgumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
+	sigdesc.ArgumentDescs[1].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DRAW;
+	sigdesc.CommandBufferStide = sizeof(IndirectArgs);
+	RenderList->SetCommandSigniture(sigdesc);
 #endif
 }
 

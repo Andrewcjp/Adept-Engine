@@ -13,5 +13,6 @@ class VulkanRHIModule : ModuleDef
         UseUnity = true;
         PreProcessorDefines.Add("WITH_VK");
         ThirdPartyModules.Add("VulkanBuild");
+        UnsupportedPlatforms.Add("Win64_DX12");
     }
 }

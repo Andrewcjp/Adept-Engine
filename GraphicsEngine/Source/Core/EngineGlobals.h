@@ -103,14 +103,17 @@ void UNUSED_PARAM(T const&)
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}
 
 //RHI Optimization
-#if defined(ALLOW_SINGLE_RHI)
-#if BUILD_VULKAN && !BUILD_D3D12
-#define USE_SINGLE_RHI 1
-#elif !BUILD_VULKAN && BUILD_D3D12
-#define USE_SINGLE_RHI 0
-#else
-#define USE_SINGLE_RHI 0
+#if 0 //defined(ALLOW_SINGLE_RHI)
+#undef BUILD_D3D12 
+#undef BUILD_VULKAN
+#if SINGLERHI_DX12
+#define BUILD_D3D12 1
+#define BUILD_VULKAN 0
+#elif SINGLERHI_VK
+#define BUILD_D3D12 0
+#define BUILD_VULKAN 1
 #endif
+#define USE_SINGLE_RHI 0
 #else
 #define USE_SINGLE_RHI 0
 #endif
