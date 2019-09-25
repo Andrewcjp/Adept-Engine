@@ -357,7 +357,7 @@ void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Ty
 		case EResourceState::UAV:
 			SetState(List, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, ChangeDepth);
 			break;
-		case EResourceState::Copy:
+		case EResourceState::CopySrc:
 			SetState(List, D3D12_RESOURCE_STATE_COMMON, ChangeDepth);
 			break;
 		case EResourceState::Limit:

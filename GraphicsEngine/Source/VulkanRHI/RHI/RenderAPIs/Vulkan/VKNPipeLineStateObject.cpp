@@ -300,7 +300,7 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 		if (Element->Type == ShaderParamType::CBV)
 		{
 			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-			uboLayoutBinding.binding = Element->RegisterSlot;
+			uboLayoutBinding.binding = VKNShader::GetBindingOffset(Element->Type) + Element->RegisterSlot;
 			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			uboLayoutBinding.descriptorCount = 1;
 			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
@@ -311,15 +311,15 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 		{
 			VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
 			samplerLayoutBinding.binding = VKNShader::GetBindingOffset(ShaderParamType::SRV) + Element->RegisterSlot;
-			samplerLayoutBinding.descriptorCount = 1;
+			samplerLayoutBinding.descriptorCount = Element->NumDescriptors;
 			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			Binds.push_back(samplerLayoutBinding);
 		}
-		else if (Element->Type == ShaderParamType::Buffer)
+		else if (Element->Type == ShaderParamType::Buffer || Element->Type == ShaderParamType::UAV)
 		{
 			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-			uboLayoutBinding.binding = Element->RegisterSlot;
+			uboLayoutBinding.binding = VKNShader::GetBindingOffset(Element->Type) + Element->RegisterSlot;
 			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			uboLayoutBinding.descriptorCount = 1;
 			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
@@ -331,7 +331,7 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 			//todo: pull for shader file
 			VkPushConstantRange Range = { };
 			Range.offset = 0;
-			Range.size = sizeof(float)*4;
+			Range.size = sizeof(float) * 4;
 			Range.stageFlags = VK_SHADER_STAGE_ALL;
 			PushRanges.push_back(Range);
 		}

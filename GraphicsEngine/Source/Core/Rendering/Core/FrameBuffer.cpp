@@ -313,7 +313,7 @@ void FrameBuffer::MakeReadyForComputeUse(RHICommandList * List, bool Depth)
 
 void FrameBuffer::MakeReadyForCopy(RHICommandList * list, bool changeDepth /*= false*/)
 {
-	SetResourceState(list, EResourceState::Copy, changeDepth);
+	SetResourceState(list, EResourceState::CopySrc, changeDepth);
 }
 
 void FrameBuffer::MakeReadyForPixel(RHICommandList * List, bool Depth)

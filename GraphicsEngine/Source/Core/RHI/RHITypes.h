@@ -812,7 +812,8 @@ namespace EResourceState
 		PixelShader,
 		ComputeUse,
 		UAV,
-		Copy,
+		CopySrc,
+		CopyDst,
 		Limit
 	};
 }

@@ -3,7 +3,11 @@
 #include "RHI/ShaderProgramBase.h"
 #include "VKNRHI.h"
 #include "Vulkan/glslang/Public/ShaderLang.h"
-
+struct ComplieInfo
+{
+	EShLanguage stage;
+	bool HLSL = false;
+};
 
 class VKNShader : public ShaderProgramBase
 {
@@ -15,9 +19,10 @@ public:
 	virtual EShaderError::Type AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint) override;
 	static std::vector<char> readFile(const std::string & filename);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
-	static std::vector<char> ComplieShader(std::string name, EShaderType::Type T, bool HLSL = false);
+	 bool GenerateSpirv(const std::string Source, ComplieInfo & CompilerInfo, std::string & OutErrors, std::vector<char>& OutSpirv, std::string name);
+	 std::vector<char> ComplieShader(std::string name, EShaderType::Type T, bool HLSL = false);
 
-	std::vector<char> ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL);
+	std::vector<char> ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL, std::string ShaderDebugName);
 	std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 	static EShLanguage GetStage(EShaderType::Type T);
 

@@ -8,7 +8,7 @@ groupshared uint ArrayLength;
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-	uint2 TileCount;
+	uint4 TileCount;
 };
 cbuffer CameraData : register(b2)
 {
@@ -46,7 +46,7 @@ StructuredBuffer<Light> LightList : register(t0);
 void AppendEntity(uint entityIndex)
 {
 	uint index;
-	InterlockedAdd(ArrayLength, 1, index);
+	InterlockedAdd(ArrayLength, (uint)1, index);
 	if (index < MAX_LIGHTS)
 	{
 		LightIndexs[index] = entityIndex;

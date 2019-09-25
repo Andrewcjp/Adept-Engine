@@ -63,12 +63,12 @@ VkImageLayout ConvertResourceState(EResourceState::Type state)
 		case EResourceState::PixelShader:
 			return VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		case EResourceState::ComputeUse:
-			
-			break;
 		case EResourceState::UAV:
-			break;
-		case EResourceState::Copy:
-			break;
+			return VkImageLayout::VK_IMAGE_LAYOUT_GENERAL;//i see		
+		case EResourceState::CopySrc:
+			return VkImageLayout::VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		case EResourceState::CopyDst:
+			return VkImageLayout::VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 	}
 
 	return VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
@@ -162,7 +162,16 @@ void VKNFramebuffer::CreateRT(VKNCommandlist* list, int index)
 	RTImages[index]->SetState(list, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 	RTImageView[index] = VKNHelpers::createImageView(VKNRHI::VKConv(Device), RTImages[index]->GetImage(), RTImages[index]->GetFormat(), VK_IMAGE_ASPECT_COLOR_BIT, BufferDesc.TextureDepth);
-
+	std::string name = std::string("VK") + GetDebugName();
+	VkDebugUtilsObjectNameInfoEXT info = {};
+	info.objectHandle = (uint64_t)RTImage;
+	info.pObjectName = name.c_str();
+	info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+	PFN_vkSetDebugUtilsObjectNameEXT CreateDebugReportCallback = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(VKNRHI::RHIinstance->instance, "vkSetDebugUtilsObjectNameEXT");
+	if (CreateDebugReportCallback)
+	{
+		CreateDebugReportCallback(VKNRHI::RHIinstance->GetVDefaultDevice()->device, &info);
+	}
 }
 
 void VKNFramebuffer::UpdateStateTrackingFromRP(RHIRenderPassDesc & Desc)

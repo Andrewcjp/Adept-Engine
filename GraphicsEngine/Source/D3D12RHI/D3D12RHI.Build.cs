@@ -25,5 +25,6 @@ class D3D12RHIModule : ModuleDef
         NuGetPackages.Add("WinPixEventRuntime");
         UnsupportedPlatforms.Add("Win64_VK");
         UnsupportedPlatforms.Add("Linux");
+        UnsupportedPlatforms.Add("Android");
     }
 }

@@ -188,7 +188,7 @@ RHIBuffer * VKNRHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext * D
 }
 RHIUAV * VKNRHI::CreateUAV(DeviceContext * Device)
 {
-	return new VkanUAV();
+	return new VknUAV();
 }
 RHICommandList * VKNRHI::CreateCommandList(ECommandListType::Type Type/* = ECommandListType::Graphics*/, DeviceContext * Device/* = nullptr*/)
 {
@@ -706,6 +706,7 @@ std::vector<const char*>  VKNRHI::getRequiredExtensions()
 	{
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+	//	extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
 	}
 
 	return extensions;

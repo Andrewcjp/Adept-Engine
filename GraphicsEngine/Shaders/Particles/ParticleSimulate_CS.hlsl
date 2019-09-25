@@ -25,13 +25,13 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
 			newPosVelo[index].pos += float4(newPosVelo[index].vel.xyz, 0.0) * timeStep;
 			newPosVelo[index].Lifetime -= timeStep;
 			uint NewAliveIndex = 0;
-			CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_ALIVECOUNT_AFTERSIMULATION, 1, NewAliveIndex);
+			CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_ALIVECOUNT_AFTERSIMULATION, (uint)1, NewAliveIndex);
 			PostSim_AliveIndex[NewAliveIndex] = index;
 		}
 		else 
 		{
 			uint DeadParticle;
-			CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_DEADCOUNT, 1, DeadParticle);
+			CounterBuffer.InterlockedAdd(PARTICLECOUNTER_OFFSET_DEADCOUNT, (uint)1, DeadParticle);
 			DeadIndexs[DeadParticle] = index;
 		}
 	}

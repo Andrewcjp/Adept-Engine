@@ -17,7 +17,7 @@ VKNShader::~VKNShader()
 
 EShaderError::Type VKNShader::AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint)
 {
-	if (type != EShaderType::SHADER_VERTEX && type != EShaderType::SHADER_FRAGMENT && type != EShaderType::SHADER_GEOMETRY)
+	if (type != EShaderType::SHADER_VERTEX && type != EShaderType::SHADER_FRAGMENT && type != EShaderType::SHADER_GEOMETRY && type != EShaderType::SHADER_COMPUTE)
 	{
 		return EShaderError::Type();
 	}
@@ -25,7 +25,8 @@ EShaderError::Type VKNShader::AttachAndCompileShaderFromFile(const char * filena
 	Log.append(filename);
 	Log.append("\n");
 	Log::LogMessage(Log);
-	std::vector<char> data = VKNShader::ComplieShader_Local(filename, type, true);
+	std::vector<char> data = VKNShader::ComplieShader_Local(filename, type, true, filename);
+
 	VkPipelineShaderStageCreateInfo I = {};
 	I.module = createShaderModule(data);
 	I.stage = ConvStage(type);
@@ -66,11 +67,7 @@ VkShaderModule VKNShader::createShaderModule(const std::vector<char>& code)
 #include "Core/Platform/PlatformCore.h"
 #undef check
 #include "Vulkan/SPIRV/GlslangToSpv.h"
-struct ComplieInfo
-{
-	EShLanguage stage;
-	bool HLSL = false;
-};
+
 const TBuiltInResource DefaultTBuiltInResource = {
 	/* .MaxLights = */ 32,
 	/* .MaxClipPlanes = */ 6,
@@ -182,7 +179,7 @@ public:
 	virtual void releaseInclude(glslang::TShader::Includer::IncludeResult*) override
 	{}
 };
-bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::string& OutErrors, std::vector<char>& OutSpirv)
+bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerInfo, std::string & OutErrors, std::vector<char>& OutSpirv, std::string name)
 {
 	glslang::InitializeProcess();
 	glslang::TProgram* Program = new glslang::TProgram();
@@ -209,6 +206,8 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	}
 	Shader->setShiftBindingForSet(glslang::EResSampler, VKNShader::GetBindingOffset(ShaderParamType::Sampler), 0);
 	Shader->setShiftBindingForSet(glslang::EResTexture, VKNShader::GetBindingOffset(ShaderParamType::SRV), 0);
+	Shader->setShiftBindingForSet(glslang::EResUav, VKNShader::GetBindingOffset(ShaderParamType::UAV), 0);
+	Shader->setShiftBindingForSet(glslang::EResUbo, VKNShader::GetBindingOffset(ShaderParamType::CBV), 0);
 	Shader->setInvertY(true);
 	Shader->setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 	Shader->setEnvTarget(glslang::EShTargetSpv, TargetVersion);
@@ -241,15 +240,18 @@ bool GenerateSpirv(const std::string Source, ComplieInfo& CompilerInfo, std::str
 	glslang::SpvOptions spvOptions;
 	spvOptions.disableOptimizer = true;
 	spvOptions.validate = true;
+	spvOptions.generateDebugInfo = true;
 	std::vector<uint32_t> WordSpirv;
 	glslang::GlslangToSpv(*Program->getIntermediate((EShLanguage)Stage), WordSpirv, &logger, &spvOptions);
-#if 0
+	ShaderReflection::ReflectShader(Program, GeneratedParams, IsCompute);
+#if 1
 	std::string root = AssetManager::GetShaderPath() + "\\VKan\\";
 	if (CompilerInfo.HLSL)
 	{
 		root += "HLSL_";
 	}
-	root += std::string((Stage == EShLanguage::EShLangVertex) ? "vert.spv" : "frag.spv");
+	StringUtils::RemoveChar(name, "\\");
+	root += std::string(name);
 	glslang::OutputSpvBin(WordSpirv, root.c_str());
 #endif
 	//convert word code to byte code - why is it the output
@@ -276,10 +278,10 @@ std::vector<char> VKNShader::ComplieShader(std::string name, EShaderType::Type T
 	ComplieInfo t;
 	t.stage = GetStage(T);
 	t.HLSL = HLSL;
-	GenerateSpirv(data, t, errors, spirv);
+	GenerateSpirv(data, t, errors, spirv, "");
 	return spirv;
 }
-std::vector<char> VKNShader::ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL /*= false*/)
+std::vector<char> VKNShader::ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL, std::string ShaderDebugName)
 {
 	if (HLSL)
 	{
@@ -292,7 +294,7 @@ std::vector<char> VKNShader::ComplieShader_Local(std::string name, EShaderType::
 	t.stage = GetStage(T);
 	t.HLSL = HLSL;
 	ShaderPreProcessor::PreProcessDefines(Defines, data);
-	GenerateSpirv(data, t, errors, spirv);
+	GenerateSpirv(data, t, errors, spirv, ShaderDebugName);
 	return spirv;
 }
 
@@ -363,10 +365,10 @@ int VKNShader::GetBindingOffset(ShaderParamType::Type Type)
 			return 200;
 			break;
 		case ShaderParamType::UAV:
-			return 100;
+			return 0; //doesn't work
 			break;
 		case ShaderParamType::CBV:
-			return 0;
+			return 100;
 			break;
 		case ShaderParamType::RootConstant:
 			break;

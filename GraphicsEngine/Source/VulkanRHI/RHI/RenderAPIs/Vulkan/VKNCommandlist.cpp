@@ -111,11 +111,17 @@ void VKNCommandlist::ClearFrameBuffer(FrameBuffer * buffer)
 {}
 
 void VKNCommandlist::UAVBarrier(RHIUAV * target)
-{}
+{
+	
+}
 
 
 void VKNCommandlist::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
-{}
+{
+	ensure(IsOpen);
+	VKNRHI::VKConv(Device)->pool->AllocateAndBind(this);
+	vkCmdDispatch(CommandBuffer, ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ);
+}
 
 void VKNCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQueue::LIMIT*/)
 {
@@ -270,17 +276,25 @@ void VKNCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
 }
 
-void VkanUAV::Bind(RHICommandList * list, int slot)
-{}
+void VknUAV::Bind(RHICommandList * list, int slot)
+{
 
-void VkanUAV::CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc /*= RHIUAVDesc()*/)
-{}
+}
 
-void VkanUAV::CreateUAVFromTexture(BaseTexture * target)
-{}
+void VknUAV::CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc /*= RHIUAVDesc()*/)
+{
 
-void VkanUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
-{}
+}
+
+void VknUAV::CreateUAVFromTexture(BaseTexture * target)
+{
+
+}
+
+void VknUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
+{
+
+}
 
 
 

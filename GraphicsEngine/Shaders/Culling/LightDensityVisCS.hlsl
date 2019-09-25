@@ -5,7 +5,7 @@ SamplerState BilinearClamp : register(s0);
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-	uint2 TileCount;
+	uint4 TileCount;
 	//	Light lights[MAX_LIGHTS];
 };
 inline uint flatten2D(uint2 coord, uint2 dim)

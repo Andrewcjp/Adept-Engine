@@ -29,7 +29,7 @@ Shader_StartSimulation::~Shader_StartSimulation()
 std::vector<ShaderParameter> Shader_StartSimulation::GetShaderParameters()
 {
 	std::vector<ShaderParameter> Output;
-	Output.push_back(ShaderParameter(ShaderParamType::UAV, 0, 0));
+	Output.push_back(ShaderParameter(ShaderParamType::UAV, 0, 0)); 
 	Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 1));
 	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 2, 0));
 	return Output;

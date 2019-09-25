@@ -6,7 +6,7 @@ ParticleSimulateNode::ParticleSimulateNode()
 {
 	NodeEngineType = ENodeQueueType::Compute;
 	ViewMode = EViewMode::DontCare;
-	SetNodeActive(false);
+	//SetNodeActive(false);
 }
 
 
