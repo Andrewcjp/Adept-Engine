@@ -253,9 +253,21 @@ void VKNHelpers::transitionImageLayout(VkCommandBuffer commandBuffer, VkImage im
 		sourceStage = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
 		destinationStage = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
 	}
+	else if (newLayout == VK_IMAGE_LAYOUT_GENERAL)
+	{
+		if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+		{
+			barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		}
+		barrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT| VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+		destinationStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+	}
 	else
 	{
-		throw std::invalid_argument("unsupported layout transition!");
+
+		ensure(false);
 	}
 
 	vkCmdPipelineBarrier(
@@ -293,7 +305,7 @@ void VKNHelpers::copyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer buffe
 
 }
 
-VkImageView VKNHelpers::createImageView(VKNDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,int Layer)
+VkImageView VKNHelpers::createImageView(VKNDeviceContext* C, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, int Layer)
 {
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -306,7 +318,7 @@ VkImageView VKNHelpers::createImageView(VKNDeviceContext* C, VkImage image, VkFo
 	{
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	}
-	
+
 	viewInfo.format = format;
 	viewInfo.subresourceRange.aspectMask = aspectFlags;
 	viewInfo.subresourceRange.baseMipLevel = 0;

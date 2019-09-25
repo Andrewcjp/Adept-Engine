@@ -61,10 +61,10 @@ public:
 };
 
 
-class VkanUAV :public RHIUAV
+class VknUAV :public RHIUAV
 {
 public:
-	VkanUAV()
+	VknUAV()
 	{};
 	// Inherited via RHIUAV
 	virtual void Bind(RHICommandList * list, int slot) override;

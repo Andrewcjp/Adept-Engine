@@ -18,7 +18,7 @@ RenderSettings::RenderSettings()
 	//EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::ForwardRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;
@@ -67,7 +67,7 @@ void RenderSettings::ValidateForAPI(ERenderSystemType system)
 		//SelectedGraph = EBuiltinRenderGraphs::Fallback;
 		RTSettings.Enabled = false;
 		DRSSettings.EnableDynamicResolutionScaling = false;
-		EnableGPUParticles = false;
+		//EnableGPUParticles = false;
 		VRHMDMode = EVRHMDMode::Disabled;
 		AllowMeshInstancing = false;
 	}

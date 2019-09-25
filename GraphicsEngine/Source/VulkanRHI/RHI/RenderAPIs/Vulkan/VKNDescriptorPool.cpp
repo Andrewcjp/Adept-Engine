@@ -96,6 +96,7 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 				bufferInfo->range = 256;
 				bufferInfo->offset = 0;
 			}
+			descriptorWrite.dstBinding += VKNShader::GetBindingOffset(ShaderParamType::CBV);
 			descriptorWrite.pBufferInfo = bufferInfo;
 			if (Desc->BindParm->Type == ShaderParamType::CBV)
 			{
@@ -134,6 +135,30 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 			descriptorWrite.dstBinding += VKNShader::GetBindingOffset(ShaderParamType::SRV);
 			descriptorWrite.pImageInfo = imageInfo;
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+		}
+		else if (Desc->BindParm->Type == ShaderParamType::UAV)
+		{
+			VkDescriptorBufferInfo* bufferInfo = BufferInfoAlloc.Allocate();
+			if (Desc->BufferTarget != nullptr)
+			{
+				bufferInfo->buffer = VKNRHI::VKConv(Desc->BufferTarget)->vertexbuffer;
+				bufferInfo->offset = VKNHelpers::Align(VKNRHI::VKConv(Desc->BufferTarget)->StructSize* Desc->Offset);
+				bufferInfo->range = VKNHelpers::Align(Desc->BufferTarget->GetSize(Desc->Offset));
+				if (bufferInfo->range == 0)
+				{
+					LogEnsureMsgf(bufferInfo->range == 0);
+					bufferInfo->offset = 0;
+					bufferInfo->range = Desc->BufferTarget->GetSize();
+				}
+			}
+			else
+			{
+				bufferInfo->buffer = VKNRHI::VKConv(VKNRHI::RHIinstance->buffer)->vertexbuffer;
+				bufferInfo->range = 256;
+				bufferInfo->offset = 0;
+			}
+			descriptorWrite.pBufferInfo = bufferInfo;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;			
 		}
 		WriteData.push_back(descriptorWrite);
 	}

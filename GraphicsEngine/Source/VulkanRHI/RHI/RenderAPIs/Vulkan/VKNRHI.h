@@ -58,7 +58,7 @@ struct SwapChainSupportDetails
 #ifdef NDEBUG
  bool enableValidationLayers = true;
 #else
- bool enableValidationLayers = false;
+ bool enableValidationLayers = true;
 #endif
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"

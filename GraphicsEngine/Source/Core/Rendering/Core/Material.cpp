@@ -93,7 +93,7 @@ void Material::Init()
 {
 	//debug
 
-	SetReceiveShadow(true);
+	SetReceiveShadow(!RHI::IsVulkan());
 	ShaderInterface->GetOrComplie(MaterialCData);
 }
 
