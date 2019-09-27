@@ -34,6 +34,7 @@ struct RSBind
 	BaseTextureRef Texture;
 	FrameBuffer* Framebuffer = nullptr;
 	RHIBuffer* BufferTarget = nullptr;
+	RHIUAV* UAVTarget = nullptr;
 	/*};*/
 #if 0
 	RSBind(const RSBind &other)
@@ -92,12 +93,14 @@ public:
 	RHI_API void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, int resoruceindex = 0);
 	RHI_API void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0);
 	RHI_API void SetBufferReadOnly(int slot, RHIBuffer* Target);
+	RHI_API void SetUAV(int slot, RHIUAV* Target);
 	RHI_API void Reset();
 	ShaderParameter * GetParm(int slot);
 	RHI_API const RSBind* GetBind(int slot)const;
 	RHI_API int GetNumBinds()const;
 	RHI_API void SetUpdated();
 	RHI_API void Invalidate();
+	RHI_API void ValidateAllBound();
 private:
 	void DefaultParams();
 	std::vector<ShaderParameter> Parms;

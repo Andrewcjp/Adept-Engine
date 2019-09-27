@@ -157,6 +157,29 @@ void RHIRootSigniture::SetBufferReadOnly(int slot, RHIBuffer * Target)
 	CurrnetBinds[RSSlot->SignitureSlot] = Bind;
 }
 
+void RHIRootSigniture::SetUAV(int slot, RHIUAV * Target)
+{
+	RSBind Bind = {};
+	Bind.BindType = ERSBindType::UAV;
+	Bind.UAVTarget = Target;
+	ShaderParameter* RSSlot = GetParm(slot);
+#if USE_VALIDATION
+	if (RSSlot == nullptr)
+	{
+		LogEnsureMsgf(false, "Failed to find slot");
+		return;
+	}
+	if (!ValidateType(RSSlot, Bind.BindType))
+	{
+		LogEnsureMsgf(false, "Invalid Bind");
+		return;
+	}
+#endif
+	Bind.BindParm = RSSlot;
+	Bind.HasChanged = true;
+	CurrnetBinds[RSSlot->SignitureSlot] = Bind;
+}
+
 void RHIRootSigniture::Reset()
 {
 	CurrnetBinds.clear();
@@ -198,6 +221,11 @@ void RHIRootSigniture::Invalidate()
 	}
 }
 
+void RHIRootSigniture::ValidateAllBound()
+{
+
+}
+
 void RHIRootSigniture::DefaultParams()
 {
 	for (int i = 0; i < Parms.size(); i++)
@@ -211,18 +239,15 @@ ERSBindType::Type RSBind::ConvertBind(ShaderParamType::Type T)
 {
 	switch (T)
 	{
-
 		case ShaderParamType::RootConstant:
 			break;
 		case ShaderParamType::SRV:
 			return ERSBindType::Texture;
-			break;
 		case ShaderParamType::Buffer:
 		case ShaderParamType::CBV:
 			return ERSBindType::CBV;
-			break;
 		case ShaderParamType::UAV:
-			break;
+			return ERSBindType::UAV;
 	}
 	return ERSBindType::Limit;
 }

@@ -169,7 +169,7 @@ void Engine::CreateApplication()
 	PlatformWindow::TickSplashWindow(10,"Loading RHI");
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
-#if 0
+#if 1
 		RHI::InitRHI(RenderSystemVulkan);
 #else
 		RHI::InitRHI(RenderSystemD3D12);

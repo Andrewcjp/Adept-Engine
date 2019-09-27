@@ -243,7 +243,7 @@ bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerIn
 	spvOptions.generateDebugInfo = true;
 	std::vector<uint32_t> WordSpirv;
 	glslang::GlslangToSpv(*Program->getIntermediate((EShLanguage)Stage), WordSpirv, &logger, &spvOptions);
-	ShaderReflection::ReflectShader(Program, GeneratedParams, IsCompute);
+	//ShaderReflection::ReflectShader(Program, GeneratedParams, IsCompute);
 #if 1
 	std::string root = AssetManager::GetShaderPath() + "\\VKan\\";
 	if (CompilerInfo.HLSL)
@@ -263,6 +263,7 @@ bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerIn
 		OutSpirv.push_back(BytePointer[2]);
 		OutSpirv.push_back(BytePointer[3]);
 	}
+	ShaderReflection::ReflectShader_SPVCross(WordSpirv, GeneratedParams, IsCompute);
 	SafeDelete(Program);
 	return true;
 }
@@ -367,6 +368,7 @@ int VKNShader::GetBindingOffset(ShaderParamType::Type Type)
 		case ShaderParamType::UAV:
 			return 0; //doesn't work
 			break;
+		case ShaderParamType::Buffer:
 		case ShaderParamType::CBV:
 			return 100;
 			break;

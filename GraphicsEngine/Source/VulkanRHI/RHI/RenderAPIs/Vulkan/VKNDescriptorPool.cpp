@@ -46,7 +46,8 @@ void VKNDescriptorPool::AllocateAndBind(VKNCommandlist * RESTRICT List)
 {
 	//SCOPE_CYCLE_COUNTER_GROUP("Descriptor Bind", "RHI");
 	VkDescriptorSet Set = AllocateSet(List);
-	vkCmdBindDescriptorSets(List->CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, List->CurrentPso->PipelineLayout, 0, 1, &Set, 0, nullptr);
+	vkCmdBindDescriptorSets(List->CommandBuffer, List->GetBindPoint(), List->CurrentPso->PipelineLayout, 0, 1, &Set, 0, nullptr);
+	
 }
 #define STATIC_SAMPLER 1
 VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
@@ -56,6 +57,7 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 	VkDescriptorSet Set = createDescriptorSets(&list->CurrentPso->descriptorSetLayout, 1);
 	WriteData.clear();
 	CopyData.clear();
+	list->Rootsig.ValidateAllBound();
 	for (int i = 0; i < list->Rootsig.GetNumBinds(); i++)
 	{
 		const RSBind* Desc = list->Rootsig.GetBind(i);
@@ -139,26 +141,26 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 		else if (Desc->BindParm->Type == ShaderParamType::UAV)
 		{
 			VkDescriptorBufferInfo* bufferInfo = BufferInfoAlloc.Allocate();
-			if (Desc->BufferTarget != nullptr)
+			if (Desc->UAVTarget != nullptr)
 			{
-				bufferInfo->buffer = VKNRHI::VKConv(Desc->BufferTarget)->vertexbuffer;
-				bufferInfo->offset = VKNHelpers::Align(VKNRHI::VKConv(Desc->BufferTarget)->StructSize* Desc->Offset);
-				bufferInfo->range = VKNHelpers::Align(Desc->BufferTarget->GetSize(Desc->Offset));
-				if (bufferInfo->range == 0)
+				bufferInfo->buffer = *VKNRHI::VKConv(Desc->UAVTarget)->TargetBuffer;
+				bufferInfo->offset = 0;// VKNHelpers::Align(VKNRHI::VKConv(Desc->BufferTarget)->StructSize* Desc->Offset);
+				bufferInfo->range = VKNRHI::VKConv(Desc->UAVTarget)->TargetSize;//VKNHelpers::Align(Desc->BufferTarget->GetSize(Desc->Offset));
+				/*if (bufferInfo->range == 0)
 				{
 					LogEnsureMsgf(bufferInfo->range == 0);
 					bufferInfo->offset = 0;
 					bufferInfo->range = Desc->BufferTarget->GetSize();
-				}
+				}*/
 			}
-			else
+			else 
 			{
 				bufferInfo->buffer = VKNRHI::VKConv(VKNRHI::RHIinstance->buffer)->vertexbuffer;
 				bufferInfo->range = 256;
 				bufferInfo->offset = 0;
 			}
 			descriptorWrite.pBufferInfo = bufferInfo;
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;			
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 		}
 		WriteData.push_back(descriptorWrite);
 	}

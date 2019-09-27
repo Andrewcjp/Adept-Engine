@@ -38,7 +38,7 @@ void D3D12Buffer::Release()
 	}
 	SafeRelease(m_DataBuffer);
 	SafeRelease(SRVDesc);
-	SafeRelease(UAV);
+	
 }
 
 D3D12Buffer::~D3D12Buffer()
@@ -211,11 +211,7 @@ void D3D12Buffer::SetupBufferSRV()
 	}
 }
 
-void D3D12Buffer::CreateUAV()
-{
-	UAV = RHI::CreateUAV();
-	UAV->CreateUAVFromRHIBuffer(this);
-}
+
 
 void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)
 {

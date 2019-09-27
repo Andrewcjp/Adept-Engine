@@ -55,8 +55,12 @@ public:
 		return TotalByteSize;
 	}
 	int StructSize = 0;
-protected:
+	
 
+	RHI_API virtual void Release() override;
+
+protected:
+	RHI_API void CreateUAV();
 	DeviceContext* Context = nullptr;
 	RHIBufferDesc Desc = {};
 	size_t VertexCount = 0;
