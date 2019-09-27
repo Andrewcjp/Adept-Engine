@@ -245,6 +245,17 @@ RHIUAV * RHIBuffer::GetUAV()
 	return UAV;
 }
 
+void RHIBuffer::Release()
+{
+	SafeRelease(UAV);
+}
+
+void RHIBuffer::CreateUAV()
+{
+	UAV = RHI::CreateUAV();
+	UAV->CreateUAVFromRHIBuffer(this);
+}
+
 RHIUAV::RHIUAV()
 {
 	ObjectSufix = "(UAV)";
@@ -352,7 +363,7 @@ void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, std::string slot)
 
 void RHICommandList::SetUAV(RHIUAV * uav, std::string slot)
 {
-	ensure(CurrentPSO);
+//	ensure(CurrentPSO);
 	ensure(uav);
 	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
 }

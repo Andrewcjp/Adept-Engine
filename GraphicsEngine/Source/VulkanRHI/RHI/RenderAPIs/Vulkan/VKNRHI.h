@@ -10,6 +10,7 @@ class VKNBuffer;
 class VKNRenderPass;
 class VKNShader;
 class VKNTexture;
+class VknUAV;
 #if BUILD_VULKAN
 #define FRAME_LAG 2
 #undef NOMINMAX
@@ -176,6 +177,7 @@ public:
 
 	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false) override;
 	static VKNTexture* VKConv(BaseTexture* T);
+	static VknUAV * VKConv(RHIUAV * T);
 	static VKNShader * VKConv(ShaderProgramBase * T);
 	static VKNRenderPass * VKConv(RHIRenderPass * T);
 	static VKNCommandlist* VKConv(RHICommandList* T);

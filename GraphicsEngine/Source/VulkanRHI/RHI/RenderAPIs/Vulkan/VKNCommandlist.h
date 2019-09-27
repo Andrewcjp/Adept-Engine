@@ -58,6 +58,7 @@ public:
 
 	 virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) override;
 	 RHIRootSigniture Rootsig;
+	 VkPipelineBindPoint GetBindPoint();
 };
 
 
@@ -71,6 +72,9 @@ public:
 	virtual void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) override;
 	virtual void CreateUAVFromTexture(BaseTexture * target) override;
 	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
+
+	VkBuffer* TargetBuffer = nullptr;
+	int TargetSize = 0;
 };
 class VkanTextureArray :public RHITextureArray
 {

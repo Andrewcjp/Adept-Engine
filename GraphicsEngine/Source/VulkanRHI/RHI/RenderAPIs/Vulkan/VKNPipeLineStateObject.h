@@ -11,6 +11,7 @@ public:
 	~VKNPipeLineStateObject();
 	virtual void Complie() override;
 	virtual void Release() override;
+	void CreatecomputePipelineState();
 	void createTextureSampler();
 	bool ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, std::vector<VkVertexInputAttributeDescription>& attributeDescriptions, std::vector<VkVertexInputBindingDescription>& vertexbindings);
 	void createGraphicsPipeline();
@@ -19,7 +20,7 @@ public:
 	//Needs to contain Render pass and pipeline
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	VkShaderModule createShaderModule(const std::vector<uint32_t>& code);
-	void CreateDescriptorSetLayout();
+	void CreateDescriptorSetLayout(bool IsCompute = false);
 	//private:
 	VkPipeline Pipeline = VK_NULL_HANDLE;
 	VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
@@ -31,4 +32,5 @@ public:
 	ShaderParameter* GetRootSigSlot(int id);
 	std::vector< Shader::VertexElementDESC> RHIDesc;
 	std::vector<VkPushConstantRange> PushRanges;
+
 };

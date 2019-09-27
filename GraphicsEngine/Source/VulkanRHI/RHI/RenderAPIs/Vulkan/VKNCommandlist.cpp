@@ -112,7 +112,7 @@ void VKNCommandlist::ClearFrameBuffer(FrameBuffer * buffer)
 
 void VKNCommandlist::UAVBarrier(RHIUAV * target)
 {
-	
+
 }
 
 
@@ -215,8 +215,9 @@ void VKNCommandlist::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 	VKNPipeLineStateObject* VObject = VKNRHI::VKConv(Object);
 	Rootsig.SetRootSig(VObject->Parms);
 	CurrentPso = VObject;
+	CurrentPSO = CurrentPso;
 	ensure(CommandBuffer != nullptr);
-	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
+	vkCmdBindPipeline(CommandBuffer, IsComputeList() ? VK_PIPELINE_BIND_POINT_COMPUTE : VK_PIPELINE_BIND_POINT_GRAPHICS, VObject->Pipeline);
 }
 
 void VKNCommandlist::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
@@ -236,6 +237,15 @@ void VKNCommandlist::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int R
 void VKNCommandlist::BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc)
 {
 	throw std::logic_error("The method or operation is not implemented.");
+}
+
+VkPipelineBindPoint VKNCommandlist::GetBindPoint()
+{
+	if (IsComputeList())
+	{
+		return VK_PIPELINE_BIND_POINT_COMPUTE;
+	}
+	return VK_PIPELINE_BIND_POINT_GRAPHICS;
 }
 
 void VKNCommandlist::SetDepthBounds(float Min, float Max)
@@ -278,7 +288,8 @@ void VKNCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
 
 void VknUAV::Bind(RHICommandList * list, int slot)
 {
-
+	VKNCommandlist* VKList = VKNRHI::VKConv(list);
+	VKList->Rootsig.SetUAV(slot, this);
 }
 
 void VknUAV::CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc /*= RHIUAVDesc()*/)
@@ -293,7 +304,9 @@ void VknUAV::CreateUAVFromTexture(BaseTexture * target)
 
 void VknUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
 {
-
+	VKNBuffer* VBuffer = VKNRHI::VKConv(target);
+	TargetSize = VBuffer->GetSize();
+	TargetBuffer =  &VBuffer->vertexbuffer;
 }
 
 

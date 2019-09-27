@@ -34,11 +34,48 @@ void VKNPipeLineStateObject::Complie()
 			Desc.RenderPass = RHIRenderPassCache::Get()->GetOrCreatePass(Desc.RenderPassDesc);
 		}
 	}
-	createGraphicsPipeline();
+	
+	if (Desc.ShaderInUse->IsComputeShader())
+	{
+		CreateDescriptorSetLayout(true);
+		CreatecomputePipelineState();
+	}
+	else
+	{
+		CreateDescriptorSetLayout();
+		createGraphicsPipeline();
+	}
 }
 
 void VKNPipeLineStateObject::Release()
 {}
+
+void VKNPipeLineStateObject::CreatecomputePipelineState()
+{
+
+	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutInfo.setLayoutCount = 1;
+	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+	pipelineLayoutInfo.pushConstantRangeCount = PushRanges.size();
+	pipelineLayoutInfo.pPushConstantRanges = PushRanges.data();
+
+	if (vkCreatePipelineLayout(VDevice->device, &pipelineLayoutInfo, nullptr, &PipelineLayout) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create pipeline layout!");
+	}
+
+	VKNShader* sh = VKNRHI::VKConv(Desc.ShaderInUse->GetShaderProgram());
+	VkComputePipelineCreateInfo pipelineInfo = {};
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+	pipelineInfo.stage = sh->GetShaderStages()[0];
+	pipelineInfo.layout = PipelineLayout;
+
+	if (vkCreateComputePipelines(VDevice->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &Pipeline) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create graphics pipeline!");
+	}
+}
 
 void VKNPipeLineStateObject::createTextureSampler()
 {
@@ -101,7 +138,7 @@ void  VKNPipeLineStateObject::createGraphicsPipeline()
 	VKNShader* sh = VKNRHI::VKConv(Desc.ShaderInUse->GetShaderProgram());
 	ShaderStages = sh->GetShaderStages();
 
-	createTextureSampler();
+	
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	std::vector< VkVertexInputAttributeDescription> attributeDescriptions;
@@ -201,7 +238,7 @@ void  VKNPipeLineStateObject::createGraphicsPipeline()
 	colorBlending.blendConstants[1] = 0.0f;
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
-	CreateDescriptorSetLayout();
+
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1;
@@ -280,8 +317,9 @@ VkShaderModule VKNPipeLineStateObject::createShaderModule(const std::vector<uint
 	return shaderModule;
 }
 
-void VKNPipeLineStateObject::CreateDescriptorSetLayout()
+void VKNPipeLineStateObject::CreateDescriptorSetLayout(bool IsCompute )
 {
+	createTextureSampler();
 	std::vector<VkDescriptorSetLayoutBinding> Binds;
 	Parms.clear();
 	PushRanges.clear();
@@ -336,7 +374,7 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 			PushRanges.push_back(Range);
 		}
 	}
-#if 1
+	if (!IsCompute)
 	{
 		for (int i = 0; i < 3; i++)
 		{
@@ -349,7 +387,6 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout()
 			Binds.push_back(samplerLayoutBinding);
 		}
 	}
-#endif
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = Binds.size();

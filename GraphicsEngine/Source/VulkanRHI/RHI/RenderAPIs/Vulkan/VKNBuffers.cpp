@@ -148,9 +148,15 @@ Descriptor VKNBuffer::GetDescriptor(int slot, int offset)
 
 void VKNBuffer::CreateBuffer(RHIBufferDesc desc)
 {
+	Desc = desc;
 	StructSize = VKNHelpers::Align(desc.Stride);
 	TotalByteSize = StructSize * desc.ElementCount;
 
 	VKNHelpers::createBuffer(StructSize*desc.ElementCount, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexbuffer, vertexBufferMemory);
 	ensure(vertexBufferMemory);
+
+	if (desc.CreateUAV)
+	{
+		CreateUAV();
+	}
 }

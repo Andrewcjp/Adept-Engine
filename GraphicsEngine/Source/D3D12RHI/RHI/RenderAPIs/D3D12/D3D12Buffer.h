@@ -26,8 +26,7 @@ public:
 protected:
 	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);
 	void Release() override;
-	
-	void CreateUAV();
+
 	friend class D3D12RHIUAV;
 private:
 	void MapBuffer(void** Data);
