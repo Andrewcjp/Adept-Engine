@@ -47,7 +47,7 @@ void VKNDescriptorPool::AllocateAndBind(VKNCommandlist * RESTRICT List)
 	//SCOPE_CYCLE_COUNTER_GROUP("Descriptor Bind", "RHI");
 	VkDescriptorSet Set = AllocateSet(List);
 	vkCmdBindDescriptorSets(List->CommandBuffer, List->GetBindPoint(), List->CurrentPso->PipelineLayout, 0, 1, &Set, 0, nullptr);
-	
+
 }
 #define STATIC_SAMPLER 1
 VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
@@ -64,6 +64,10 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 		if (Desc->BindType == ERSBindType::Limit)
 		{
 			//__debugbreak();
+			continue;
+		}
+		if (Desc->BindParm->Type == ERSBindType::RootConstant || Desc->BindType == ERSBindType::RootConstant)
+		{
 			continue;
 		}
 		if (!Desc->HasChanged && LastUsedSet != NULL)
@@ -98,7 +102,7 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 				bufferInfo->range = 256;
 				bufferInfo->offset = 0;
 			}
-			descriptorWrite.dstBinding += VKNShader::GetBindingOffset(ShaderParamType::CBV);
+			descriptorWrite.dstBinding += VKNShader::GetBindingOffset(Desc->BindParm->Type);
 			descriptorWrite.pBufferInfo = bufferInfo;
 			if (Desc->BindParm->Type == ShaderParamType::CBV)
 			{
@@ -153,7 +157,7 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 					bufferInfo->range = Desc->BufferTarget->GetSize();
 				}*/
 			}
-			else 
+			else
 			{
 				bufferInfo->buffer = VKNRHI::VKConv(VKNRHI::RHIinstance->buffer)->vertexbuffer;
 				bufferInfo->range = 256;
@@ -167,7 +171,7 @@ VkDescriptorSet VKNDescriptorPool::AllocateSet(VKNCommandlist * RESTRICT list)
 	for (int i = 0; i < list->Rootsig.GetNumBinds(); i++)
 	{
 		const RSBind* Desc = list->Rootsig.GetBind(i);
-		if (Desc->BindType == ERSBindType::Limit)
+		if (Desc->BindType == ERSBindType::Limit || Desc->BindParm->Type == ERSBindType::RootConstant)
 		{
 			//__debugbreak();
 			continue;
@@ -218,7 +222,7 @@ void VKNDescriptorPool::createDescriptorPool()
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = Sizes.size();
 	poolInfo.pPoolSizes = Sizes.data();
-	poolInfo.maxSets = 500;
+	poolInfo.maxSets = 20000;
 
 	if (vkCreateDescriptorPool(Context->device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
 	{

@@ -383,7 +383,7 @@ void VKNPipeLineStateObject::CreateDescriptorSetLayout(bool IsCompute )
 			samplerLayoutBinding.descriptorCount = 1;
 			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
 			samplerLayoutBinding.pImmutableSamplers = &textureSampler;
-			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
 			Binds.push_back(samplerLayoutBinding);
 		}
 	}

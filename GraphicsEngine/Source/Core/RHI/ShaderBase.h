@@ -76,9 +76,9 @@ struct ShaderParameter
 	int NumDescriptors = 1;
 	int RegisterSpace = 0;
 	std::string Name;
-	bool operator==(const ShaderParameter & A)
+	bool operator==(const ShaderParameter & A)const
 	{
-		return A.Type == Type && A.RegisterSlot == RegisterSlot;
+		return A.Type == Type && A.RegisterSlot == RegisterSlot && A.RegisterSpace == RegisterSpace && A.NumDescriptors == NumDescriptors && A.Name == Name;
 	}
 };
 

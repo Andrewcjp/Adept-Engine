@@ -803,8 +803,6 @@ void VKNRHI::initVulkan()
 	createImageViews();
 
 	CreateNewObjects();
-
-	//	createGraphicsPipeline();
 	createFramebuffers();
 	commandPool = createCommandPool();
 	buffer = new VKNBuffer(ERHIBufferType::Constant, nullptr);

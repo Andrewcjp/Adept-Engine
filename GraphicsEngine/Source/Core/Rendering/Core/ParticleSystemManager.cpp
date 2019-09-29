@@ -73,7 +73,7 @@ void ParticleSystemManager::InitCommon()
 	pdesc.Blending = false;
 	pdesc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
 	RenderList->SetPipelineStateDesc(pdesc);
-#if 1//USE_INDIRECTCOMPUTE
+#if USE_INDIRECTCOMPUTE
 	sigdesc = RHICommandSignitureDescription();
 	sigdesc.ArgumentDescs.resize(2);
 	sigdesc.ArgumentDescs[0].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_CONSTANT;
@@ -170,7 +170,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 #if USE_INDIRECTCOMPUTE
 	CmdList->ExecuteIndiect(1, System->DispatchCommandBuffer, 0, nullptr, 0);
 #else
-	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
+	CmdList->Dispatch(System->MaxParticleCount, 1, 1);
 #endif
 	Sync(System);
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(System->SimulateShader));
@@ -184,18 +184,23 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 #if USE_INDIRECTCOMPUTE
 	CmdList->ExecuteIndiect(1, System->DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else
-	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
+	CmdList->Dispatch(System->MaxParticleCount, 1, 1);
 #endif
 	Sync(System);
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_EndSimulation>()));
-
+#if 0
+	System->GetPostSimList()->BindBufferReadOnly(CmdList, 2);
+	System->RenderCommandBuffer->GetUAV()->Bind(CmdList, 0);
+	System->CounterBuffer->GetUAV()->Bind(CmdList, 1);
+#else
 	System->GetPostSimList()->BindBufferReadOnly(CmdList, 0);
 	System->RenderCommandBuffer->GetUAV()->Bind(CmdList, 1);
 	System->CounterBuffer->GetUAV()->Bind(CmdList, 2);
+#endif
 #if USE_INDIRECTCOMPUTE
 	CmdList->ExecuteIndiect(1, System->DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else
-	CmdList->Dispatch(MAX_PARTICLES, 1, 1);
+	CmdList->Dispatch(System->MaxParticleCount, 1, 1);
 #endif
 	Sync(System);
 	if (System->SortShader != nullptr)

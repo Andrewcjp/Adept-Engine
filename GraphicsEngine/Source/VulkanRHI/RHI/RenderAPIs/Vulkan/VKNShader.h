@@ -36,6 +36,7 @@ public:
 	static int GetBindingOffset(ShaderParamType::Type Type);
 private:
 	std::vector<VkPipelineShaderStageCreateInfo> Stages;
+	std::string entyPoint;
 };
 
 #endif

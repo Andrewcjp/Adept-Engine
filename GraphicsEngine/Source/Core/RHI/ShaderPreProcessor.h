@@ -4,17 +4,27 @@
 //also handles API Overrides etc.
 class ShaderPreProcessor
 {
+private:
+	struct IncludeStack
+	{
+		int Limit = 0;
+		std::string Relative;
+		std::vector<std::string> IncludeList;
+		bool HasSeenInclude(std::string include);
+	};
 public:
-	ShaderPreProcessor();
-	~ShaderPreProcessor();
 	static void ProcessForDef(std::string & data, ShaderProgramBase::Shader_Define * Def);
 	RHI_API static bool PreProcessDefines(std::vector<ShaderProgramBase::Shader_Define> & defines, std::string & shaderData);
-	RHI_API static std::string LoadShaderIncludeFile(std::string name, int limit, std::string Relative = std::string(), std::vector<std::string> * IncludeList = nullptr);
+	static bool CheckIncludeExists(const std::string& file);
+	RHI_API static std::string LoadShaderIncludeFile(std::string name, IncludeStack* Stack = nullptr);
 	
 	RHI_API static bool CheckCSOValid(std::string Name, const  std::string & ShaderNameHash);
 private:
 	static bool CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName);
 	//include Handler
 	static const int	 includeLength = 9;
+	static std::string ForceIncludeData;
+	static std::string GetForceInclude();
+
 };
 

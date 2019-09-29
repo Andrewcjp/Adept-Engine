@@ -31,8 +31,3 @@ inline uint flatten2D(uint2 coord, uint2 dim)
 	return coord.x + (coord.y * dim.x);
 }
 
-#if VULKAN
-#define PUSHCONST [[vk::push_constant]] 
-#else
-#define PUSHCONST
-#endif

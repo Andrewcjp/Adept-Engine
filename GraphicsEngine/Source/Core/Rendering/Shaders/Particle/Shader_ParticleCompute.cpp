@@ -46,10 +46,6 @@ Shader_EndSimulation::~Shader_EndSimulation()
 
 std::vector<ShaderParameter> Shader_EndSimulation::GetShaderParameters()
 {
-	/*std::vector<ShaderParameter> Output;
-	Output.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
-	Output.push_back(ShaderParameter(ShaderParamType::UAV, 1, 1));
-	Output.push_back(ShaderParameter(ShaderParamType::UAV, 2, 2));*/
 	return Shader::GetShaderParameters();
 }
 

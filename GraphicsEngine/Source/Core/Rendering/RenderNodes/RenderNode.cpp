@@ -62,11 +62,19 @@ void RenderNode::LinkToNode(RenderNode * NextNode)
 
 NodeLink * RenderNode::GetInput(int index)
 {
+	if (index >= Inputs.size())
+	{
+		return nullptr;
+	}
 	return Inputs[index];
 }
 
 NodeLink * RenderNode::GetOutput(int index)
 {
+	if (index >= Outputs.size())
+	{
+		return nullptr;
+	}
 	return Outputs[index];
 }
 
@@ -273,7 +281,7 @@ void RenderNode::AddInput(EStorageType::Type TargetType, const std::string& form
 	Inputs.push_back(new NodeLink(TargetType, format, InputName, this));
 }
 
-void RenderNode::AddOutput(EStorageType::Type TargetType,const std::string& format, const std::string& InputName)
+void RenderNode::AddOutput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName)
 {
 	Outputs.push_back(new NodeLink(TargetType, format, InputName, this));
 }

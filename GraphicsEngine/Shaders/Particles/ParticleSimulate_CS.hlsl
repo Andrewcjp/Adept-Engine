@@ -1,8 +1,7 @@
 #include "Particle_Common.hlsl"
-#include "Core/Common.hlsl"
 RWStructuredBuffer<PosVelo> newPosVelo	: register(u0);	// UAV
 RWByteAddressBuffer CounterBuffer: register(u1);
-StructuredBuffer<uint> AliveIndexs :register(t0);
+StructuredBuffer<uint> AliveIndexs :register(t10);
 RWStructuredBuffer<uint> DeadIndexs :register(u2);
 RWStructuredBuffer<uint> PostSim_AliveIndex :register(u3);
 PUSHCONST cbuffer emitData: register(b0)

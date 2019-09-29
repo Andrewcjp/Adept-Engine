@@ -18,6 +18,7 @@ namespace ERSBindType
 		BufferSRV,
 		CBV,
 		UAV,
+		RootConstant,
 		Limit
 	};
 };
@@ -74,6 +75,7 @@ struct RSBind
 		return *this;
 	}
 #endif
+	bool IsBound()const;
 	bool HasChanged = true;
 	static ERSBindType::Type ConvertBind(ShaderParamType::Type T);
 };
