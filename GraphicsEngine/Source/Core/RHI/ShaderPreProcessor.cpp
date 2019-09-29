@@ -2,12 +2,8 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Utils/FileUtils.h"
 #include <fstream>
-ShaderPreProcessor::ShaderPreProcessor()
-{}
+std::string ShaderPreProcessor::ForceIncludeData = "";
 
-
-ShaderPreProcessor::~ShaderPreProcessor()
-{}
 void replaceAll(std::string& str, const std::string& from, const std::string& to)
 {
 	if (from.empty())
@@ -19,10 +15,12 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
 		start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
 	}
 }
+
 void ShaderPreProcessor::ProcessForDef(std::string & data, ShaderProgramBase::Shader_Define* Def)
 {
 	data.insert(0, "#define " + Def->Name + " " + Def->Value + "\n ");
 }
+
 bool ShaderPreProcessor::PreProcessDefines(std::vector<ShaderProgramBase::Shader_Define>& defines, std::string & shaderData)
 {
 	for (int i = 0; i < defines.size(); i++)
@@ -33,18 +31,28 @@ bool ShaderPreProcessor::PreProcessDefines(std::vector<ShaderProgramBase::Shader
 	return true;
 }
 
-std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, int limit, std::string Relative, std::vector<std::string> * IncludeList/* = nullptr*/)
+bool ShaderPreProcessor::CheckIncludeExists(const std::string& file)
+{
+	return FileUtils::File_ExistsTest(AssetManager::GetShaderPath() + file);
+}
+
+std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, IncludeStack* Stack)
 {
 	const char * includeText = "#include";
 	const int MaxIncludeTreeLength = 10;
+	if (Stack == nullptr)
+	{
+		Stack = new IncludeStack();
+	}
 	std::string file;
-	limit++;
-	if (limit > MaxIncludeTreeLength)
+	Stack->Limit++;
+	if (Stack->Limit > MaxIncludeTreeLength)
 	{
 		return file;
 	}
+
 	std::string pathname = name;
-	if (limit > 0)
+	if (Stack->Limit > 0)
 	{
 		pathname = AssetManager::GetShaderPath();
 		pathname.append(name);
@@ -52,7 +60,7 @@ std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, int limi
 	if (!FileUtils::File_ExistsTest(pathname))
 	{
 		pathname = AssetManager::GetShaderPath();
-		pathname.append(Relative);
+		pathname.append(Stack->Relative);
 		pathname.append(name);
 	}
 	std::string RelativeStartPath = "";
@@ -69,6 +77,10 @@ std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, int limi
 		std::string line;
 		while (std::getline(myfile, line))
 		{
+			if (Stack->Limit == 1 && file.length() == 0)
+			{
+				file.append(GetForceInclude());
+			}
 			if (line.find("#") != -1)
 			{
 				size_t targetnum = line.find(includeText);
@@ -82,12 +94,25 @@ std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, int limi
 					line.erase(targetnum, includeLength);
 					StringUtils::RemoveChar(line, "\"");
 					StringUtils::RemoveChar(line, "\"");
-					if (IncludeList != nullptr)
+					std::string data = "";
+					const std::string RelativeFilePath = RelativeStartPath + line;
+					if (CheckIncludeExists(RelativeFilePath))
 					{
-						IncludeList->push_back(line);
-						IncludeList->push_back(RelativeStartPath + line);
+						if (!Stack->HasSeenInclude(RelativeFilePath))
+						{
+							Stack->IncludeList.push_back(RelativeFilePath);
+							data = LoadShaderIncludeFile(RelativeFilePath.c_str(), Stack);
+						}
 					}
-					file.append(LoadShaderIncludeFile(line.c_str(), limit, RelativeStartPath));
+					if (data.length() == 0 && CheckIncludeExists(line))
+					{
+						if (!Stack->HasSeenInclude(line))
+						{
+							Stack->IncludeList.push_back(line);
+							data = LoadShaderIncludeFile(line.c_str(), Stack);
+						}
+					}
+					file.append(data);
 				}
 				else
 				{
@@ -104,7 +129,7 @@ std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, int limi
 	}
 	else
 	{
-		if (limit > 1)
+		if (Stack->Limit > 1)
 		{
 			Log::LogMessage("Failed to find include " + pathname, Log::Error);
 		}
@@ -125,7 +150,19 @@ bool ShaderPreProcessor::CompareCachedShaderBlobWithSRC(const std::string & Shad
 	return PlatformApplication::CheckFileSrcNewer(ShaderSRCPath, ShaderCSOPath);
 }
 
-RHI_API  bool ShaderPreProcessor::CheckCSOValid(std::string Name, const std::string & ShaderNameHash)
+std::string ShaderPreProcessor::GetForceInclude()
+{
+	if (ForceIncludeData.length() == 0)
+	{
+		std::ifstream myfile(AssetManager::GetShaderPath() + "Core\\Core.hlsl");
+		std::string str((std::istreambuf_iterator<char>(myfile)), std::istreambuf_iterator<char>());
+		ForceIncludeData = str + "\n";
+		myfile.close();
+	}
+	return ForceIncludeData;
+}
+
+bool ShaderPreProcessor::CheckCSOValid(std::string Name, const std::string & ShaderNameHash)
 {
 	if (!CompareCachedShaderBlobWithSRC(Name, ShaderNameHash))
 	{
@@ -134,12 +171,13 @@ RHI_API  bool ShaderPreProcessor::CheckCSOValid(std::string Name, const std::str
 	std::string name = Name;
 	name.append(".hlsl");
 
-	std::vector<std::string> Includes;
-	LoadShaderIncludeFile(name, 0, "", &Includes);
+
+	IncludeStack Stack;
+	LoadShaderIncludeFile(name, &Stack);
 	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + ShaderNameHash;
-	for (int i = 0; i < Includes.size(); i++)
+	for (int i = 0; i < Stack.IncludeList.size(); i++)
 	{
-		std::string FullPath = AssetManager::GetShaderPath() + Includes[i];
+		std::string FullPath = AssetManager::GetShaderPath() + Stack.IncludeList[i];
 		if (!FileUtils::File_ExistsTest(FullPath))
 		{
 			continue;
@@ -150,4 +188,10 @@ RHI_API  bool ShaderPreProcessor::CheckCSOValid(std::string Name, const std::str
 		}
 	}
 	return true;
+}
+
+bool ShaderPreProcessor::IncludeStack::HasSeenInclude(std::string include)
+{
+	//#todo Chcek for same file with diffrent path
+	return VectorUtils::Contains(IncludeList, include);
 }

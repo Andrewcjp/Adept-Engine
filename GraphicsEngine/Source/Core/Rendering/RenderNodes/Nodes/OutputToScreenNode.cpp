@@ -69,7 +69,7 @@ void OutputToScreenNode::OnExecute()
 
 void OutputToScreenNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::DontCare, "Frame ");
+	AddInput(EStorageType::Framebuffer, StorageFormats::DontCare, "Frame");
 }
 
 void OutputToScreenNode::OnSetupNode()

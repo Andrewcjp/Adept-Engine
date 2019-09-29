@@ -22,7 +22,7 @@ ShaderProgramBase * Shader::GetShaderProgram()
 
 std::vector<ShaderParameter> Shader::GetShaderParameters()
 {
-	m_Shader->NumberRS();
+	m_Shader->ResolveRS();
 	return m_Shader->GeneratedParams;
 }
 

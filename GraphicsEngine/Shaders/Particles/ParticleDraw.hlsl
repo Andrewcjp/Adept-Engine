@@ -5,7 +5,7 @@ cbuffer ParticleData : register(b1)
     float4 CameraRight_worldspace;
     float4 CameraUp_worldspace;
 };
-cbuffer Index : register(b0)
+PUSHCONST cbuffer Index : register(b0)
 {
     int index;
 };
@@ -42,10 +42,10 @@ float4 FSMain(VSData input) : SV_Target
     {
         discard;
     }
-    if (newPosVelo[index].Lifetime <= 0.0f)
-    {
-       discard;
-    }
+    //if (newPosVelo[index].Lifetime <= 0.0f)
+    //{
+    //   discard;
+    //}
     Colour.a += 0.3f;
     return Colour;
 }

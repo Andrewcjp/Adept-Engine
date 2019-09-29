@@ -88,6 +88,10 @@ void RenderGraph::Update()
 		N->Update();
 	}
 	Drawer.Update();
+	if (RHI::GetFrameCount() == 0)
+	{
+		Drawer.WriteGraphViz(this);
+	}
 	Drawer.Draw(this);
 }
 
@@ -564,7 +568,7 @@ int RenderGraph::GetIndexOfNode(RenderNode* Node)
 {
 	RenderNode* itor = RootNode;
 	int index = 0;
-	while (itor->GetNextNode() != nullptr)
+	while (itor != nullptr)
 	{
 		if (itor == Node)
 		{

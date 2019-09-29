@@ -1,4 +1,5 @@
 #include "ShaderProgramBase.h"
+#include <set>
 
 ShaderProgramBase::ShaderProgramBase()
 {
@@ -36,4 +37,10 @@ void ShaderProgramBase::NumberRS()
 bool ShaderProgramBase::IsComputeShader()
 {
 	return IsCompute;
+}
+
+void ShaderProgramBase::ResolveRS()
+{
+	//RemoveDupes();
+	NumberRS();
 }

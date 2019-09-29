@@ -16,6 +16,10 @@ public:
 
 	glm::vec3 GetPosOfNodeindex(int index);
 
+	std::string CreateLinksforNode(RenderNode * B);
+
+	void WriteGraphViz(RenderGraph* G);
+
 private:
 	DebugLineDrawer* drawer = nullptr;
 	float NodeSpaceing = 40;
@@ -24,5 +28,6 @@ private:
 	const glm::vec3 Colour = glm::vec3(1, 1, 1);
 	glm::vec3 StartPos = glm::vec3(0, 400, 0);
 	RenderGraph* CurrentGraph = nullptr;
+	int LinkId = 0;
 };
 

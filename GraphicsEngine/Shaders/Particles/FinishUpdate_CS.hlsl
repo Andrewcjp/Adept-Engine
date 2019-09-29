@@ -1,5 +1,5 @@
 #include "Particle_Common.hlsl"
-StructuredBuffer<uint> AliveIndexs : register(t0); // UAV
+StructuredBuffer<uint> AliveIndexs : register(t10); // UAV
 RWByteAddressBuffer IndirectCommandBuffer : register(u1);
 RWByteAddressBuffer Counter : register(u2);
 [numthreads(1, 1, 1)]

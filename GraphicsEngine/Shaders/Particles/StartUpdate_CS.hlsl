@@ -1,4 +1,3 @@
-#include "Core/Common.hlsl"
 #include "Particle_Common.hlsl"
 RWByteAddressBuffer	 Counter: register(u0);	// UAV
 RWByteAddressBuffer  IndirectCommandBuffer: register(u1);

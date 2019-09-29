@@ -23,10 +23,12 @@ public:
 	};
 	void										ModifyCompileEnviroment(Shader_Define Define);
 	std::vector<ShaderParameter> GeneratedParams;
-	void NumberRS();
+	
 	bool IsComputeShader();
+	
+	void ResolveRS();
 protected:
-
+	void NumberRS();
 	std::vector<Shader_Define> Defines;
 };
 

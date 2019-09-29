@@ -25,13 +25,14 @@ EShaderError::Type VKNShader::AttachAndCompileShaderFromFile(const char * filena
 	Log.append(filename);
 	Log.append("\n");
 	Log::LogMessage(Log);
+	entyPoint = Entrypoint;
 	std::vector<char> data = VKNShader::ComplieShader_Local(filename, type, true, filename);
 
 	VkPipelineShaderStageCreateInfo I = {};
 	I.module = createShaderModule(data);
 	I.stage = ConvStage(type);
 	I.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	I.pName = "main";
+	I.pName = StringUtils::CopyStringToCharArray(entyPoint);
 	Stages.push_back(I);
 	return EShaderError::SHADER_ERROR_NONE;
 }
@@ -211,7 +212,7 @@ bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerIn
 	Shader->setInvertY(true);
 	Shader->setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 	Shader->setEnvTarget(glslang::EShTargetSpv, TargetVersion);
-	Shader->setEntryPoint("main");
+	Shader->setEntryPoint(entyPoint.c_str());
 
 	TIncluder inc;
 	const int DefaultVersion = 450;
@@ -235,7 +236,7 @@ bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerIn
 		Log::LogMessage(Program->getInfoDebugLog());
 		__debugbreak();
 	}
-	//Program->buildReflection();
+	
 	spv::SpvBuildLogger logger;
 	glslang::SpvOptions spvOptions;
 	spvOptions.disableOptimizer = true;
@@ -243,7 +244,7 @@ bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerIn
 	spvOptions.generateDebugInfo = true;
 	std::vector<uint32_t> WordSpirv;
 	glslang::GlslangToSpv(*Program->getIntermediate((EShLanguage)Stage), WordSpirv, &logger, &spvOptions);
-	//ShaderReflection::ReflectShader(Program, GeneratedParams, IsCompute);
+
 #if 1
 	std::string root = AssetManager::GetShaderPath() + "\\VKan\\";
 	if (CompilerInfo.HLSL)
@@ -369,10 +370,12 @@ int VKNShader::GetBindingOffset(ShaderParamType::Type Type)
 			return 0; //doesn't work
 			break;
 		case ShaderParamType::Buffer:
+			return 0;//doen't work properly
 		case ShaderParamType::CBV:
 			return 100;
 			break;
 		case ShaderParamType::RootConstant:
+			return 0;
 			break;
 		case ShaderParamType::Sampler:
 			return 500;
@@ -380,5 +383,6 @@ int VKNShader::GetBindingOffset(ShaderParamType::Type Type)
 		case ShaderParamType::Limit:
 			break;
 	}
+	ensure(false);
 	return 0;
 }

@@ -45,7 +45,10 @@ void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 
 void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* list, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer, ReflectionProbe* Cubemap /*= nullptr*/, int index /*= 0*/)
 {
-	return;
+	if (RHI::IsVulkan())
+	{
+		return;
+	}
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthWrite = false;
 	desc.Cull = false;
@@ -119,7 +122,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 		Buffer->MakeReadyForComputeUse(list);
 		//List->Execute();
 	}
-}
+	}
 
 std::vector<ShaderParameter> Shader_Skybox::GetShaderParameters()
 {

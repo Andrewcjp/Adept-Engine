@@ -16,7 +16,7 @@ void RHIRootSigniture::SetRootSig(std::vector<ShaderParameter>& parms)
 		DefaultParams();
 		Invalidate();
 	}//todo
-	
+
 }
 #if USE_VALIDATION
 bool RHIRootSigniture::ValidateData(ShaderParameter* Parm, RSBind & bind)
@@ -100,7 +100,7 @@ void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int
 		return;
 	}
 	Bind->Framebuffer = Buffer;
-	Bind->Offset = resoruceindex;	
+	Bind->Offset = resoruceindex;
 	Bind->BindParm = RSSlot;
 	Bind->HasChanged = true;
 }
@@ -129,7 +129,7 @@ void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int o
 	}
 	Bind->BufferTarget = Target;
 	Bind->Offset = offset;
-	
+
 	Bind->BindParm = RSSlot;
 	Bind->HasChanged = true;
 }
@@ -223,7 +223,11 @@ void RHIRootSigniture::Invalidate()
 
 void RHIRootSigniture::ValidateAllBound()
 {
-
+	for (int i = 0; i < CurrnetBinds.size(); i++)
+	{
+		RSBind* Bind = &CurrnetBinds[i];
+	//	ensure(Bind->IsBound());
+	}
 }
 
 void RHIRootSigniture::DefaultParams()
@@ -235,11 +239,36 @@ void RHIRootSigniture::DefaultParams()
 	}
 }
 
+bool RSBind::IsBound() const
+{
+	switch (BindType)
+	{
+		case ERSBindType::Texture:
+			return Texture != nullptr;
+			break;
+		case ERSBindType::FrameBuffer:
+			return Framebuffer != nullptr;
+			break;
+		case ERSBindType::BufferSRV:
+		case ERSBindType::CBV:
+			return BufferTarget != nullptr;
+			break;
+		case ERSBindType::UAV:
+			return UAVTarget != nullptr;
+		case ERSBindType::RootConstant:
+			return true;//not bound here 
+		case ERSBindType::Limit:
+			break;;
+	}
+	return false;
+}
+
 ERSBindType::Type RSBind::ConvertBind(ShaderParamType::Type T)
 {
 	switch (T)
 	{
 		case ShaderParamType::RootConstant:
+			return ERSBindType::RootConstant;
 			break;
 		case ShaderParamType::SRV:
 			return ERSBindType::Texture;

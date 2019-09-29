@@ -292,7 +292,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	if (!ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
 		//		StripD3DShader(GetCurrentBlob(ShaderType));
-}
+	}
 	if (pErrorBlob)
 	{
 		std::string Log = "Shader Compile Output: ";
@@ -319,7 +319,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #endif
 			Engine::RequestExit(-1);
 			return EShaderError::SHADER_ERROR_COMPILE;
-	}
+		}
 		else
 		{
 			if (S.length() > 0)
@@ -335,7 +335,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	}
 	if (FAILED(hr))
 	{
-		return EShaderError::SHADER_ERROR_CREATE;		
+		return EShaderError::SHADER_ERROR_CREATE;
 	}
 	ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute);
 	WriteBlobs(shadername, ShaderType);

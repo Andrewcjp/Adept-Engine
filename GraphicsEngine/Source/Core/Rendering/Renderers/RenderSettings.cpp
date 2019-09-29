@@ -14,11 +14,11 @@ RenderSettings::RenderSettings()
 	ShadowSettings.UseGeometryShaderForShadows = true;
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	DRSSettings.EnableDynamicResolutionScaling = true;
-	RTSettings.Enabled = false;
-	//EnableGPUParticles = false;
+	RTSettings.Enabled = true;
+	//
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::ForwardRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;
@@ -67,7 +67,7 @@ void RenderSettings::ValidateForAPI(ERenderSystemType system)
 		//SelectedGraph = EBuiltinRenderGraphs::Fallback;
 		RTSettings.Enabled = false;
 		DRSSettings.EnableDynamicResolutionScaling = false;
-		//EnableGPUParticles = false;
+		EnableGPUParticles = false;
 		VRHMDMode = EVRHMDMode::Disabled;
 		AllowMeshInstancing = false;
 	}

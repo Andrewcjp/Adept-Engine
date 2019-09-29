@@ -37,7 +37,7 @@ class GPUPerformanceTestManager;
 #define NOSHADOW 0 //BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
 #ifdef PLATFORM_RT
-#define RHI_SUPPORTS_RT 0
+#define RHI_SUPPORTS_RT 1
 #else
 #define RHI_SUPPORTS_RT 0
 #endif
