@@ -39,8 +39,14 @@ bool ShaderProgramBase::IsComputeShader()
 	return IsCompute;
 }
 
+bool ShaderProgramBase::IsRSResolved() const
+{
+	return HasResolved;
+}
+
 void ShaderProgramBase::ResolveRS()
 {
 	//RemoveDupes();
 	NumberRS();
+	HasResolved = true;
 }

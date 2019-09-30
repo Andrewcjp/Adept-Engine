@@ -40,6 +40,9 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSup
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSupported_SM6)
 
 #define DEFINE_CACHESHADERPARAM(var) static int var;
+#define IMP_CACHESHADERPARAM(clas,var) int clas::var = -1;
+#define CACHEPARM(var,name) var = GetSlotForName(#name);
+#define CACHED_SHADER_PARM(var,name)
 class Shader
 {
 public:
@@ -76,7 +79,9 @@ public:
 	RHI_API int GetSlotForName(const std::string & name);
 	int GetNameHash();
 	static bool IsShaderSupported_SM6(const ShaderComplieSettings& args);
+	
 protected:
+	virtual void CacheParms();
 	ShaderProgramBase * m_Shader = nullptr;
 	class DeviceContext* Device = nullptr;
 	long Hash = 0;

@@ -21,9 +21,12 @@ std::vector<Shader::VertexElementDESC> Shader_ParticleDraw::GetVertexFormat()
 std::vector<ShaderParameter> Shader_ParticleDraw::GetShaderParameters()
 {
 	std::vector<ShaderParameter> Output;
-	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 0, 0));
-	Output.push_back(ShaderParameter(ShaderParamType::SRV, 1, 0, 0, RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, 1));
-	Output.push_back(ShaderParameter(ShaderParamType::SRV, 3, 1));
-	return Output;
+	ChangeParamType("Index", ShaderParamType::RootConstant);
+	return Shader::GetShaderParameters();
+}
+
+IMP_CACHESHADERPARAM(Shader_ParticleDraw, Texture);
+void Shader_ParticleDraw::CacheParms()
+{
+	CACHEPARM(Texture, Tex);
 }

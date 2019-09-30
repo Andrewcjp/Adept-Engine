@@ -35,7 +35,7 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 	else
 	{
 		ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, __uuidof(ID3D12ShaderReflection), (void**)&REF));
-		RelfectShader(REF, iscompute, shaderbinds);
+		RelfectShader(REF, iscompute, shaderbinds, Type);
 	}
 #endif
 }
@@ -57,7 +57,7 @@ void ShaderReflection::RelfectShaderFromLib(ID3D12FunctionReflection* REF, std::
 	}
 }
 
-void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscompute, std::vector<ShaderParameter> & shaderbinds)
+void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscompute, std::vector<ShaderParameter> & shaderbinds, EShaderType::Type Type)
 {
 	if (REF == nullptr)
 	{
@@ -76,7 +76,11 @@ void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscomput
 		REF->GetResourceBindingDesc(i, &TMPdesc);
 		//todo: restrict visibility and then detect duplicates and adjust visibility
 		ShaderParameter p = ConvertParm(TMPdesc);
-		if (p.Type != ShaderParamType::Limit)
+		if (Type == EShaderType::SHADER_FRAGMENT && p.Type == ShaderParamType::SRV)
+		{
+			p.Visiblity = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_PIXEL;
+		}
+		if (p.Type != ShaderParamType::Limit && p.Type != ShaderParamType::Sampler)//#todo: handle dynamic samplers
 		{
 			VectorUtils::AddUnique(shaderbinds, p);
 		}
