@@ -25,9 +25,10 @@ public:
 	std::vector<ShaderParameter> GeneratedParams;
 	
 	bool IsComputeShader();
-	
+	bool IsRSResolved()const;
 	void ResolveRS();
 protected:
+	bool HasResolved = false;
 	void NumberRS();
 	std::vector<Shader_Define> Defines;
 };

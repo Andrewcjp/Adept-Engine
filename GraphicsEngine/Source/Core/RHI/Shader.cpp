@@ -23,6 +23,7 @@ ShaderProgramBase * Shader::GetShaderProgram()
 std::vector<ShaderParameter> Shader::GetShaderParameters()
 {
 	m_Shader->ResolveRS();
+	CacheParms();
 	return m_Shader->GeneratedParams;
 }
 
@@ -70,6 +71,8 @@ bool Shader::ChangeParamType(const std::string & name, ShaderParamType::Type typ
 
 int Shader::GetSlotForName(const std::string & name)
 {
+	//Mixing is unsupported
+	ensure(m_Shader->IsRSResolved(), "Get slot by name is not valid as the Root signiture has not been resolved ");
 	for (int i = 0; i < m_Shader->GeneratedParams.size(); i++)
 	{
 		if (m_Shader->GeneratedParams[i].Name == name)
@@ -96,6 +99,10 @@ bool Shader::IsShaderSupported_SM6(const ShaderComplieSettings & args)
 {
 	return args.ShaderModel == EShaderSupportModel::SM6;
 }
+
+void Shader::CacheParms()
+{}
+
 
 const std::string Shader::GetName()
 {

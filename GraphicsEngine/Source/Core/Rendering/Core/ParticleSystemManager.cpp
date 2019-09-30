@@ -270,17 +270,18 @@ void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * B
 	info.DepthSourceBuffer = DepthBuffer;
 	RenderList->BeginRenderPass(info);
 	RenderList->SetVertexBuffer(VertexBuffer);
-	RenderList->SetConstantBufferView(ParticleRenderConstants, Eye, 2);
+	RenderList->SetConstantBufferView(ParticleRenderConstants, Eye, "ParticleData");
 	system->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
-	system->GPU_ParticleData->BindBufferReadOnly(RenderList, 1);
+	system->GPU_ParticleData->BindBufferReadOnly(RenderList, system->RenderShader->GetSlotForName("newPosVelo"));
 	system->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::IndirectArgs);
-	RenderList->SetTexture(system->ParticleTexture.Get(), 3);
+	RenderList->SetTexture(system->ParticleTexture.Get(), Shader_ParticleDraw::Texture);
 #if USE_INDIRECTRENDER
 	RenderList->ExecuteIndiect(system->MaxParticleCount, system->RenderCommandBuffer, 0, system->CounterBuffer, 0);
 #else
+	const int RootConstSlot = system->RenderShader->GetSlotForName("Index");
 	for (int i = 0; i < system->MaxParticleCount; i++)
 	{
-		RenderList->SetRootConstant(0, 1, &i, 0);
+		RenderList->SetRootConstant(RootConstSlot, 1, &i, 0);
 		RenderList->DrawPrimitive(6, 1, 0, 0);
 	}
 #endif
