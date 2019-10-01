@@ -19,3 +19,4 @@ private:
 	std::string BuildConfig = "";
 };
 
+ 

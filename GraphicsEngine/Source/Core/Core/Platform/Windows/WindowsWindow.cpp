@@ -210,6 +210,10 @@ void WindowsWindow::Kill(int code)
 
 void WindowsWindow::CreateSplashWindow()
 {
+	if (app == nullptr)
+	{
+		return;
+	}
 	int width = 400;
 	int height = 100;
 	std::string Title = std::string(ENGINE_NAME) + " " + Version::GetFullVersionString();
@@ -236,6 +240,10 @@ void WindowsWindow::CreateSplashWindow()
 
 void WindowsWindow::TickSplashWindow(int amt /*= 1*/, std::string Section /*= std::string()*/)
 {
+	if (app == nullptr)
+	{
+		return;
+	}
 	//process messages
 	EmptyMessageQueue();
 	app->CurrentProgress += amt;
@@ -249,6 +257,10 @@ void WindowsWindow::TickSplashWindow(int amt /*= 1*/, std::string Section /*= st
 
 void WindowsWindow::DestorySplashWindow()
 {
+	if (app == nullptr)
+	{
+		return;
+	}
 	ShowWindow(app->SplashWindow, SW_HIDE);
 	DestroyWindow(app->SplashWindow);
 	app->EmptyMessageQueue();

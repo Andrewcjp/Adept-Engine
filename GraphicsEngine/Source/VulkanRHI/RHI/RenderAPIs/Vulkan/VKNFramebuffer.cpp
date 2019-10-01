@@ -162,6 +162,7 @@ void VKNFramebuffer::CreateRT(VKNCommandlist* list, int index)
 	RTImages[index]->SetState(list, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 	RTImageView[index] = VKNHelpers::createImageView(VKNRHI::VKConv(Device), RTImages[index]->GetImage(), RTImages[index]->GetFormat(), VK_IMAGE_ASPECT_COLOR_BIT, BufferDesc.TextureDepth);
+#if NAME_RHI_PRIMS
 	std::string name = std::string("VK") + GetDebugName();
 	VkDebugUtilsObjectNameInfoEXT info = {};
 	info.objectHandle = (uint64_t)RTImage;
@@ -172,6 +173,7 @@ void VKNFramebuffer::CreateRT(VKNCommandlist* list, int index)
 	{
 		CreateDebugReportCallback(VKNRHI::RHIinstance->GetVDefaultDevice()->device, &info);
 	}
+#endif
 }
 
 void VKNFramebuffer::UpdateStateTrackingFromRP(RHIRenderPassDesc & Desc)
