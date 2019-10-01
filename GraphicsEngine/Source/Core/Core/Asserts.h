@@ -41,6 +41,7 @@ Log::LogMessage(data,Log::Severity::Error);}
 #define NoImpl();
 #define LogEnsure(condition);
 #define LogEnsureMsgf(c,m);
+#define ENUMCONVERTFAIL()
 #endif
 
 #if DOCHECK

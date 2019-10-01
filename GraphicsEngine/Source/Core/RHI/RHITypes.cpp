@@ -83,6 +83,10 @@ void IRHIResourse::Release()
 	DebugEnsure(!IsReleased);
 	IsReleased = true;
 }
+size_t IRHIResourse::GetSizeOnGPU()
+{
+	return 0;
+}
 #if NAME_RHI_PRIMS
 void IRHIResourse::SetDebugName(std::string Name)
 {
@@ -94,10 +98,6 @@ const char * IRHIResourse::GetDebugName()
 	std::string Finaln = std::string(DebugName) + ObjectSufix;
 	FinalName = StringUtils::CopyStringToCharArray(Finaln);
 	return FinalName;
-}
-size_t IRHIResourse::GetSizeOnGPU()
-{
-	return 0;
 }
 #else
 void IRHIResourse::SetDebugName(std::string Name)
