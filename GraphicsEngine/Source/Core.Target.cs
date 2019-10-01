@@ -35,7 +35,7 @@ class CoreTargetRules : TargetRules
         CoreModule.UseCorePCH = false;
         
         CoreModule.UseUnity = true;
-        CoreModule.OutputObjectName = "BleedOut";
+        CoreModule.OutputObjectName = "Core";
 
         CoreModule.IsCoreModule = true;
         CoreModule.SystemLibNames.Add("winmm.lib");

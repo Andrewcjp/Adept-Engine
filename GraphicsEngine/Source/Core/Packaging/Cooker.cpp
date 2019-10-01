@@ -6,11 +6,13 @@
 #include "Core/Platform/Windows/WindowsWindow.h"
 
 static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);
+static ConsoleVariable CookPack("pack", 0, ECVarType::LaunchOnly);
 Cooker::Cooker()
 {
 	bool BuildDebug = CookDebug.GetBoolValue();
 
-	ShouldComplie = true;
+	ShouldComplie = false;
+	ShouldPack = CookPack.GetBoolValue();
 	BuildConfig = "ShippingReleasePackage";
 	if (BuildDebug)
 	{
