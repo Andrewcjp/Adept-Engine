@@ -21,7 +21,7 @@ struct ERayTracingSupportType
 	{
 		None,
 		DriverBased,
-		Hardware,				
+		Hardware,
 		Limit
 	};
 	CORE_API static const char* ToString(ERayTracingSupportType::Type e);
@@ -125,6 +125,9 @@ public:
 	RHI_API virtual void OnFrameEnd_PreSubmit();
 
 	GPUTextureStreamer* GetStreamer();
+	void IncrementDeviceFrame();
+	int GetDeviceFrame()const;
+	void TickDeferredDeleteQueue();
 protected:
 	int CurrentFrameIndex = 0;
 	RHI_API void PostInit();
@@ -151,6 +154,9 @@ protected:
 	uint GPUMask = 0;
 	EGPUType::Type GPUType = EGPUType::Limit;
 	GPUTextureStreamer* Streamer = nullptr;
+	//Devices might not move to the next frame in sync 
+	int DeviceFrameNumber = 0;
+	std::vector<IRHIResourse*> DeferredDeleteQueue;
 };
 
 class RHIGPUSyncEvent : public IRHIResourse

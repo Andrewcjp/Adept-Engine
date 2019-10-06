@@ -52,6 +52,7 @@ void RayTraceReflectionsNode::OnExecute()
 	RTList->SetHighLevelAccelerationStructure(RayTracingEngine::Get()->GetHighLevelStructure());
 	RHIRayDispatchDesc raydesc = RHIRayDispatchDesc(Target);
 	raydesc.RayArguments.RayFlags = RAY_FLAGS::RAY_FLAG_FORCE_OPAQUE;
+	raydesc.PushRayArgs = true;
 	RTList->TraceRays(raydesc);
 	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
 	RTList->Execute();
@@ -86,8 +87,10 @@ void RayTraceReflectionsNode::OnSetupNode()
 	RTList = RayTracingEngine::CreateRTList(RHI::GetDefaultDevice());
 	BindingTable = new ReflectionsBindingTable();
 	BindingTable->InitTable();
-
-	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
+	RHIStateObjectDesc Desc = {};
+	Desc.AttibuteSize = sizeof(glm::vec2);// float2 barycentrics
+	Desc.PayloadSize = sizeof(glm::vec4) * 3;    // float4 pixelColor
+	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice(), Desc);
 	StateObject->ShaderTable = BindingTable;
 	StateObject->Build();
 	RayTracingEngine::Get()->AddHitTable(BindingTable);

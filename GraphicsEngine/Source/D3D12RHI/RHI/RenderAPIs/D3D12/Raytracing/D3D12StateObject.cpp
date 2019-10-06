@@ -11,7 +11,7 @@
 #include "RHI/RenderAPIs/D3D12/ThirdParty/DXRHelper.h"
 #include "Rendering/Shaders/Raytracing/Reflections/Shader_ReflectionRaygen.h"
 #if WIN10_1809
-D3D12StateObject::D3D12StateObject(DeviceContext* D) :RHIStateObject(D)
+D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :RHIStateObject(D, desc)
 {
 	RayDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant, D);
 	RayDataBuffer->CreateConstantBuffer(sizeof(RayArgs), MaxRayDispatchPerFrame);
@@ -24,11 +24,14 @@ D3D12StateObject::~D3D12StateObject()
 
 void D3D12StateObject::Build()
 {
+	ShaderTable->Validate();
 	CreateRootSignatures();
 	CreateStateObject();
 	BuildShaderTables();
 	Log::LogMessage("DXR State Object built");
 }
+
+
 
 void D3D12StateObject::AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe)
 {
@@ -60,21 +63,15 @@ void D3D12StateObject::CreateStateObject()
 	AddHitGroups(RTPipe);
 
 	auto shaderConfig = RTPipe.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-
-	UINT payloadSize = sizeof(glm::vec4) * 3;    // float4 pixelColor
-	UINT attributeSize = sizeof(glm::vec2);  // float2 barycentrics
-	shaderConfig->Config(payloadSize, attributeSize);
-
-
+	shaderConfig->Config(Desc.PayloadSize, Desc.AttibuteSize);
 
 	auto globalRootSignature = RTPipe.CreateSubobject<CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
 	globalRootSignature->SetRootSignature(m_raytracingGlobalRootSignature);
 
 	auto pipelineConfig = RTPipe.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-	// PERFOMANCE TIP: Set max recursion depth as low as needed 
-	// as drivers may apply optimization strategies for low recursion depths.
-	UINT maxRecursionDepth = 1; // ~ primary rays only. 
-	pipelineConfig->Config(maxRecursionDepth);
+
+
+	pipelineConfig->Config(Desc.MaxRecursionDepth);
 
 	D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5()->CreateStateObject(RTPipe, IID_PPV_ARGS(&StateObject));
 }
@@ -113,7 +110,6 @@ void D3D12StateObject::AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shade
 		std::wstring Conv = StringUtils::ConvertStringToWide(Shader->GetExports()[i]);
 		lib->DefineExport(Conv.c_str());
 	}
-
 }
 
 void D3D12StateObject::CreateRootSignatures()
@@ -129,7 +125,7 @@ void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & ray
 	}
 	if (shader->GetStage() == ERTShaderType::RayGen)
 	{
-	//	return;
+		return;
 	}
 	// Ray gen and miss shaders in this sample are not using a local root signature and thus one is not associated with them.
 	ID3D12RootSignature* m_raytracingLocalRootSignature = nullptr;
@@ -236,9 +232,10 @@ void D3D12StateObject::BindToList(D3D12CommandList * List)
 void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, D3D12FrameBuffer* target)
 {
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
-
-	DXList->SetRootConstant(8, 2, ((void*)&Desc.RayArguments), 0);
-
+	if (Desc.PushRayArgs)
+	{
+		DXList->SetRootConstant(8, 2, ((void*)&Desc.RayArguments), 0);
+	}
 	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, D3D12RHI::DXConv(target->GetUAV())->UAVDescriptor->GetGPUAddress());
 	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(HighLevelStructure)->m_topLevelAccelerationStructure->GetResource()->GetGPUVirtualAddress());
 

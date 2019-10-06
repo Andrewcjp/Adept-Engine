@@ -227,6 +227,17 @@ GPUTextureStreamer * DeviceContext::GetStreamer()
 	return Streamer;
 }
 
+void DeviceContext::IncrementDeviceFrame()
+{}
+
+int DeviceContext::GetDeviceFrame() const
+{
+	return 0;
+}
+
+void DeviceContext::TickDeferredDeleteQueue()
+{}
+
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");

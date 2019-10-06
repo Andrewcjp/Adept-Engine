@@ -3,6 +3,7 @@
 
 class DebugLineDrawer;
 struct GPUTimer;
+struct GPUTimerPair;
 
 
 ///Class which draws lines to represent the GPU Pipeline(s)

@@ -77,7 +77,7 @@ void ParticleSystemManager::InitCommon()
 	sigdesc = RHICommandSignitureDescription();
 	sigdesc.ArgumentDescs.resize(2);
 	sigdesc.ArgumentDescs[0].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_CONSTANT;
-	sigdesc.ArgumentDescs[0].Constant.RootParameterIndex = 0;
+	sigdesc.ArgumentDescs[0].Constant.RootParameterIndex = pdesc.ShaderInUse->GetSlotForName("Index");
 	sigdesc.ArgumentDescs[0].Constant.Num32BitValuesToSet = 1;
 	sigdesc.ArgumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
 	sigdesc.ArgumentDescs[1].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DRAW;
@@ -91,7 +91,7 @@ void ParticleSystemManager::PreRenderUpdate(Camera* c)
 {
 	for (int i = 0; i < EEye::Limit; i++)
 	{
-		RenderData[i].CameraUp_worldspace = glm::vec4(c->GetUp(), 1.0f);
+		RenderData[i].CameraUp_worldspace = glm::vec4(0, 1, 0, 1.0f);//glm::vec4(c->GetUp(), 1.0f);
 		RenderData[i].CameraRight_worldspace = glm::vec4(c->GetRight(), 1.0f);
 		RenderData[i].VPMat = c->GetViewProjection();
 		if (ParticleRenderConstants)

@@ -33,7 +33,7 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 		if (Object->GetMesh()->GetMaterial(0)->GetRenderPassType() == EMaterialRenderType::Transparent)
 		{
 			HitGroups[HitGroups.size() - 1]->AnyHitShader = new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
-//			Shader_RTBase* anyhit = HitGroups[HitGroups.size() - 1]->AnyHitShader;
+			//			Shader_RTBase* anyhit = HitGroups[HitGroups.size() - 1]->AnyHitShader;
 
 		}
 	}
@@ -41,6 +41,38 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 
 void ShaderBindingTable::InitTable()
 {}
+
+void ShaderBindingTable::Validate()
+{
+	std::map<std::string, int> CountMap;
+	ValidateShaderExports(CountMap, MissShaders);
+	ValidateShaderExports(CountMap, RayGenShaders);
+	for (ShaderHitGroup* Group : HitGroups)
+	{
+		AddToMap(Group->HitShader, CountMap);
+	}
+
+	for (auto it = CountMap.begin(); it != CountMap.end(); ++it)
+	{
+		ensureMsgf(it->second < 2, "Duplicated export found");
+	}
+}
+
+void ShaderBindingTable::ValidateShaderExports(std::map<std::string, int>& CountMap, std::vector<Shader_RTBase*>& shaders)
+{
+	for (int i = 0; i < shaders.size(); i++)
+	{
+		AddToMap(shaders[i], CountMap);
+	}
+}
+
+void ShaderBindingTable::AddToMap(Shader_RTBase * shader, std::map<std::string, int>& CountMap)
+{
+	for (auto it = shader->GetExports().begin(); it != shader->GetExports().end(); ++it)
+	{
+		CountMap[*it]++;
+	}
+}
 
 void ShaderBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader)
 {}
