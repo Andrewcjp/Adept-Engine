@@ -24,11 +24,7 @@ void PathTraceBindingTable::InitTable()
 
 	HitGroups.push_back(new ShaderHitGroup("HitGroup0"));
 	HitGroups[0]->HitShader = new Shader_RTMateralHit(RHI::GetDefaultDevice());
-	//HitGroups[0]->HitShader->AddExport("chs");
 
-	//rootParameters[GlobalRootSignatureParams::OutputViewSlot].InitAsDescriptorTable(1, &ranges[0]);
-	//rootParameters[GlobalRootSignatureParams::AccelerationStructureSlot].InitAsShaderResourceView(0);
-	//rootParameters[GlobalRootSignatureParams::CameraBuffer].InitAsConstantBufferView(0);
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::UAV, GlobalRootSignatureParams::OutputViewSlot, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::RootSRV, GlobalRootSignatureParams::AccelerationStructureSlot, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));

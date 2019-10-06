@@ -6,6 +6,7 @@
 class Shader;
 class FrameBuffer;
 class DeviceContext;
+class IRHIResourse;
 #define MRT_MAX 8
 #define NAME_RHI_PRIMS !BUILD_SHIPPING
 enum eTextureDimension
@@ -758,6 +759,7 @@ struct RHIRayDispatchDesc
 	int Depth = 1;
 	FrameBuffer* Target = nullptr;
 	RayArgs RayArguments;
+	bool PushRayArgs = false;
 };
 
 typedef BitFlagsBase GPUDeviceMask;
@@ -894,4 +896,37 @@ public:
 protected:
 	DeviceContext* Context = nullptr;
 	RHICommandSignitureDescription RHIdesc;
+};
+
+
+//a vector that 
+template<class T>
+struct FrameCountingVector
+{
+	typedef std::pair<T*, int64_t> TStamped;
+
+	void Enqeueue(T* item)
+	{
+		Data.push_back(TStamped(item, RHI::GetFrameCount()));
+	}
+	void Tick(std::function<bool(T*)> func, bool Flush = false)
+	{
+		if (func == nullptr || Data.size() == 0)
+		{
+			return;
+		}
+		for (int i = (int)Data.size() - 1; i >= 0; i--)
+		{
+			const int CurrentFrame = RHI::GetFrameCount();
+			if (Data[i].second + RHI::CPUFrameCount + 2 < CurrentFrame || Flush)
+			{
+				if (func(Data[i].first))
+				{
+					Data.erase(Data.begin() + i);
+				}
+			}
+		}
+	}
+private:
+	std::vector<TStamped> Data;
 };

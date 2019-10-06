@@ -74,7 +74,7 @@ public:
 #if RHI_SUPPORTS_RT
 	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) override;
 	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) override;
-	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device) override;
+	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc) override;
 #endif
 	static D3D12DeviceContext* DXConv(DeviceContext* D);
 	static D3D12Query * DXConv(RHIQuery * D);

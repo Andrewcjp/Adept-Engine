@@ -10,6 +10,7 @@
 #include "BaseTexture.h"
 #include "Rendering/VR/HMD.h"
 #include "RHIQuery.h"
+#include "Rendering/RayTracing/RHIStateObject.h"
 
 #define NOAPIIMP(func) ensureMsgf(false, #func" Needs API implmentation");
 class RHIGPUSyncEvent;
@@ -146,7 +147,7 @@ private:
 	RHIRenderPassCache* RenderPassCache = nullptr;
 	RenderGraphSystem* RenderSystem = nullptr;
 	GPUPerformanceTestManager* TestManager = nullptr;
-
+	FrameCountingVector<IRHIResourse> GlobalDeleteQueue;
 };
 
 class RHI_API RHIClass
@@ -184,7 +185,7 @@ public:
 
 	RHI_VIRTUAL LowLevelAccelerationStructure* CreateLowLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc);
 	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc);
-	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device);
+	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc);
 
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) = 0;
 	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);

@@ -318,20 +318,23 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 	}
 	else
 	{
-		Get()->DeferredDeleteQueue.push_back(RHIResourseStamped(Resource, RHI::GetFrameCount()));
+		//Get()->DeferredDeleteQueue.push_back(RHIResourseStamped(Resource, RHI::GetFrameCount()));
+		Get()->GlobalDeleteQueue.Enqeueue(Resource);
 		Resource->PendingKill = true;
 	}
 }
 static ConsoleVariable IsWithNsight("Nsight", 0, ECVarType::LaunchOnly);
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 {
+
 	//#DX12 Nsight crashes here for some reason
-	//if (IsWithNsight.GetBoolValue())
+	if (IsWithNsight.GetBoolValue())
 	{
 		return;
 	}
 	SCOPE_CYCLE_COUNTER_GROUP("TickDeferredDeleteQueue", "RHI");
 	IsFlushingDeleteQueue = true;
+#if 0
 	int AllocPerFrame = 0;
 	const int MaxDeletePerFrame = 1;
 	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
@@ -348,6 +351,9 @@ void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 			AllocPerFrame++;
 		}
 	}
+#else
+	GlobalDeleteQueue.Tick([](IRHIResourse* R) { SafeRHIRelease(R); return true; }, Flush);
+#endif
 	IsFlushingDeleteQueue = false;
 }
 
@@ -724,7 +730,7 @@ HighLevelAccelerationStructure* RHIClass::CreateHighLevelAccelerationStructure(D
 	return nullptr;
 }
 
-RHIStateObject* RHIClass::CreateStateObject(DeviceContext* Device)
+ RHIStateObject* RHIClass::CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc)
 {
 	return nullptr;
 }

@@ -49,6 +49,12 @@ public:
 	std::vector<Shader_RTBase*> RayGenShaders;
 	std::vector<ShaderHitGroup*> HitGroups;
 	GlobalRootSigniture GlobalRootSig;
+	RHI_API void Validate();
+
+	void ValidateShaderExports(std::map<std::string, int>& CountMap, std::vector<Shader_RTBase*>& shaders);
+
+	void AddToMap(Shader_RTBase * shader, std::map<std::string, int>& CountMap);
+	
 protected:
 	
 	virtual void OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader);

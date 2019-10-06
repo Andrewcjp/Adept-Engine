@@ -26,6 +26,8 @@
 #include "Rendering/Core/Screen.h"
 #include "Platform/Windows/WindowsWindow.h"
 #include "CSharpInterOp/CSharpContainer.h"
+#include "Assets/ShaderComplier.h"
+#include "Assets/Scene.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable RenderScale("r.renderscale", ECVarType::ConsoleAndLaunch, nullptr, nullptr, std::bind(BaseWindow::SetRenderScale, std::placeholders::_1));

@@ -131,12 +131,12 @@ RHIInterGPUStagingResource* D3D12RHI::CreateInterGPUStagingResource(DeviceContex
 	return new D3D12InterGPUStagingResource(Owner, desc);
 }
 #if RHI_SUPPORTS_RT
-RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device)
+RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc)
 {
 #if WIN10_1809
-	return new D3D12StateObject(Device);
+	return new D3D12StateObject(Device, Desc);
 #else
-	return RHIClass::CreateStateObject(Device);
+	return RHIClass::CreateStateObject(Device, Desc);
 #endif
 }
 
@@ -301,7 +301,7 @@ void D3D12RHI::LoadPipeLine()
 	if (DetectGPUDebugger())
 	{
 		ForceNoDebug.SetValue(true);
-		
+
 	}
 	if (!ForceNoDebug.GetBoolValue() && !DetectGPUDebugger())
 	{	//EnableShaderBasedValidation();
@@ -324,8 +324,8 @@ void D3D12RHI::LoadPipeLine()
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings))))
 		{
 			pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-				pDredSettings->SetWatsonDumpEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-				pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+			pDredSettings->SetWatsonDumpEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+			pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
 		}
 #endif
 	}

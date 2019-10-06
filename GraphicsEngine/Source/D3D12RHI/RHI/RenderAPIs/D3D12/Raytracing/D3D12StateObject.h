@@ -11,7 +11,7 @@ class Shader_RTBase;
 class D3D12StateObject :public RHIStateObject
 {
 public:
-	D3D12StateObject(DeviceContext* D);
+	D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc);
 	~D3D12StateObject();
 	virtual void Build() override;
 

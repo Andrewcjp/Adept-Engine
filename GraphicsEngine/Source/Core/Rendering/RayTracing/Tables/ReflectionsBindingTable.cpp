@@ -17,10 +17,6 @@ void ReflectionsBindingTable::InitTable()
 {
 	//default debug
 	MissShaders.push_back(ShaderComplier::GetShader<Shader_Skybox_Miss>());
-	if (MissShaders[0]->GetExports().size() == 0)
-	{
-		MissShaders[0]->AddExport("Miss");
-	}
 
 	RayGenShaders.push_back(ShaderComplier::GetShader<Shader_ReflectionRaygen>());
 

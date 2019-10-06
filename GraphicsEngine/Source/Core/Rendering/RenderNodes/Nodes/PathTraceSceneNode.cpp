@@ -60,8 +60,10 @@ void PathTraceSceneNode::OnSetupNode()
 	DefaultTable = new PathTraceBindingTable();
 
 	DefaultTable->InitTable();
-
-	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice());
+	RHIStateObjectDesc Desc = {};
+	Desc.AttibuteSize = sizeof(glm::vec2);// float2 barycentrics
+	Desc.PayloadSize =  sizeof(glm::vec4) * 3;    // float4 pixelColor
+	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice(),Desc);
 	StateObject->ShaderTable = DefaultTable;
 	StateObject->Build();
 	RayTracingEngine::Get()->AddHitTable(DefaultTable);

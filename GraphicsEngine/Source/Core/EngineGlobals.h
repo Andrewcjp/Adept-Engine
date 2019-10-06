@@ -95,7 +95,7 @@ void UNUSED_PARAM(T const&)
 #   define TEMP_API
 #endif
 #endif // TEMP_API
-//Asserts
+
 #define PLATFORM_WINDOWS 1
 #define PLATFORM_LINUX 0
 //Utility Marcos
