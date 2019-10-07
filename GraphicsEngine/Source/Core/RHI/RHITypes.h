@@ -762,8 +762,6 @@ struct RHIRayDispatchDesc
 	bool PushRayArgs = false;
 };
 
-typedef BitFlagsBase GPUDeviceMask;
-
 namespace EDeviceIndex
 {
 	enum Type

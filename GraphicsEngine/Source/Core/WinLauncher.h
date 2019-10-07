@@ -1,7 +1,16 @@
 #pragma once
 
 #include "resource.h"
-
+namespace BBTestMode
+{
+	enum Type
+	{
+		HD,
+		QHD,
+		UHD,
+		Limit
+	};
+}
 struct EnginePersistentData
 {
 	BBTestMode::Type ScreenMode = BBTestMode::Limit;

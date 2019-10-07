@@ -1,4 +1,5 @@
 #pragma once
+#ifdef PLATFORM_WINDOWS
 #include "Core/Types/FString.h"
 #include "Core/Platform/Generic/GenericPlatformMisc.h"
 class WindowPlatformMisc :public GenericPlatformMisc
@@ -15,3 +16,4 @@ public:
 };
 
 typedef WindowPlatformMisc PlatformMisc;
+#endif

@@ -19,3 +19,36 @@ bool GenericApplication::CheckFileSrcNewer(const std::string& srcpath, const std
 	int64_t CSOtime = GetFileTimeStamp(dest);
 	return  !(time > CSOtime);
 }
+
+ bool GenericApplication::TryCreateDirectory(const std::string & name)
+{
+	return false;
+}
+
+ bool GenericApplication::IsDebuggerPresent()
+{
+	return false;
+}
+
+ void GenericApplication::DisplayMessageBox(std::string title, std::string message)
+ {
+	
+ }
+
+ bool GenericApplication::DisplayOpenFileDialog(std::string StartDir, std::string Filter, std::string & outData)
+ {
+	 return false;
+ }
+
+ bool GenericApplication::DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string Extenstion, std::string & outData)
+ {
+	 return false;
+ }
+
+ bool GenericApplication::CopyFileToTarget(std::string Target, std::string Dest)
+ {
+	 return false;
+ }
+
+ void GenericApplication::Init()
+ {}

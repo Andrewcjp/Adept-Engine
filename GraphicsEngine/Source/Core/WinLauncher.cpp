@@ -57,13 +57,16 @@ int RunLoop(LPSTR lpCmdLine, int nCmdShow, HINSTANCE hInstance, EnginePersistent
 	return exitcode;
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance,
+//int APIENTRY WinMain(HINSTANCE hInstance,
+//	HINSTANCE,
+//	LPSTR    lpCmdLine,
+//	int       nCmdShow)
+//{
+int DLLEXPORT WinMain_Engine(HINSTANCE hInstance,
 	HINSTANCE,
 	LPSTR    lpCmdLine,
 	int       nCmdShow)
 {
-
-
 #if USE_SEP_CONSOLE
 	//Allocate a console window
 	//so that messages can be redirected to stdout

@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Types/FString.h"
+#include "Utils/MemoryUtils.h"
 typedef glm::vec3 Colour;
 namespace Colours
 {
@@ -90,6 +91,9 @@ private:
 };
 
 typedef BitFlagsBase SceneLayerMask;
+
+typedef BitFlagsBase GPUDeviceMask;
+
 namespace ESceneLayers
 {
 	enum Type

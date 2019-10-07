@@ -13,6 +13,35 @@ std::string GenericPlatformMisc::GetDateTimeString()
 	return out.str();
 }
 
+void GenericPlatformMisc::LogPlatformOutput(FString data)
+{}
+
+void GenericPlatformMisc::SetConsoleOutputColour(int colour)
+{}
+
+size_t GenericPlatformMisc::GenerateGUID()
+{
+	return size_t();
+}
+
+PlatformMemoryInfo GenericPlatformMisc::GetMemoryInfo()
+{
+	return PlatformMemoryInfo();
+}
+
+void GenericPlatformMisc::SetCurrnetThreadAffinity(int core)
+{}
+
+std::string GenericPlatformMisc::DebugPrintLineFromAddress(void * pAddress)
+{
+	return std::string();
+}
+
+ StackTrace GenericPlatformMisc::CaptureStack(int StackOffset)
+{
+	return StackTrace();
+}
+
 float PlatformMemoryInfo::GetWorkingSetInMB()
 {
 	return (float)WorkingSetSize / 1024.0f / 1024.0f;
