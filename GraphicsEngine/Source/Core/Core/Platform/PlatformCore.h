@@ -7,11 +7,11 @@
 #include "Windows/WindowPlatformMisc.h"
 class WindowsWindow;
 typedef WindowsWindow PlatformWindow;
-#elif defined(PLATFROM_LINUX)
+#elif defined(PLATFORM_LINUX)
 #include "Linux/LinuxApplication.h"
 #include "Linux/LinuxPlatformMisc.h"
 #include "Linux/LinuxWindow.h"
-#elif defined(PLATFROM_ANDROID)
+#elif defined(PLATFORM_ANDROID)
 #include "Android/AndroidApplication.h"
 #include "Android/AndroidPlatformMisc.h"
 #include "Android/AndroidWindow.h"

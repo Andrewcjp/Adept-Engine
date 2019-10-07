@@ -96,8 +96,6 @@ void UNUSED_PARAM(T const&)
 #endif
 #endif // TEMP_API
 
-#define PLATFORM_WINDOWS 1
-#define PLATFORM_LINUX 0
 //Utility Marcos
 #define SafeDelete(Target)if(Target != nullptr){delete Target; Target= nullptr;}
 #define SafeRelease(Target) if(Target != nullptr){Target->Release(); Target= nullptr;}

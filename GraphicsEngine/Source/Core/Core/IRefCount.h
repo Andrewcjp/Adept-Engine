@@ -1,7 +1,6 @@
 #pragma once
 #include "Asserts.h"
-#include "Platform\Generic\GenericPlatformMisc.h"
-#include "Platform\Windows\WindowPlatformMisc.h"
+#include "Core\Platform\PlatformCore.h"
 #include "Utils\VectorUtils.h"
 #define DEBUG_HOLDSTACKS 1
 //macro That Removes ref and deletes the object if the count == 0; Also Nulls the pointer for safety

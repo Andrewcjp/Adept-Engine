@@ -1,6 +1,7 @@
 #pragma once
 #include "Core\Platform\ConsoleVariable.h"
 #include "..\RenderNodes\RenderGraphSystem.h"
+#include "WinLauncher.h"
 
 
 class Archive;
@@ -16,16 +17,7 @@ namespace AAMode
 		TAA,
 	};
 }
-namespace BBTestMode
-{
-	enum Type
-	{
-		HD,
-		QHD,
-		UHD,
-		Limit
-	};
-}
+
 
 struct ERenderDebugOutput
 {

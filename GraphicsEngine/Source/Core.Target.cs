@@ -24,7 +24,7 @@ class CoreTargetRules : TargetRules
     {
         ModuleDef CoreModule = new ModuleDef(this);
         CoreModule.ModuleName = "Core";
-        CoreModule.ModuleOutputType = ModuleDef.ModuleType.EXE;
+        CoreModule.ModuleOutputType = ModuleDef.ModuleType.DLL;
         CoreModule.SolutionFolderPath = "Engine/Core";
         CoreModule.SourceFileSearchDir = "Core";
         CoreModule.PCH = "Stdafx";
