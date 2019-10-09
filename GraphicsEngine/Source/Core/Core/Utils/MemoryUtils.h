@@ -1,6 +1,6 @@
 #pragma once
 #include "RHI\RHITypes.h"
-
+#include "RHI\RHI.h"
 namespace MemoryUtils
 {
 	template<typename T>

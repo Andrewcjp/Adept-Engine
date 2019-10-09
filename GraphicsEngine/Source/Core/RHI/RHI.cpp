@@ -25,6 +25,7 @@
 #include "RHIInterGPUStagingResource.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "Rendering/Performance/GPUPerformanceTestManager.h"
+#include "Rendering/Core/FrameBuffer.h"
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;

@@ -6,6 +6,7 @@
 #include "RHI/RHI_inc.h"
 #include "Editor/EditorWindow.h"
 #include "Core/EngineTypes.h"
+#include "../Core/FrameBuffer.h"
 PP_ColourCorrect::PP_ColourCorrect()
 {}
 

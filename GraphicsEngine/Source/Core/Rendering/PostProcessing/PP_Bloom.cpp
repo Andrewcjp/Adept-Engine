@@ -5,6 +5,7 @@
 #include "PP_Blur.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Assets/ShaderComplier.h"
+#include "../Core/FrameBuffer.h"
 PP_Bloom::PP_Bloom()
 {}
 

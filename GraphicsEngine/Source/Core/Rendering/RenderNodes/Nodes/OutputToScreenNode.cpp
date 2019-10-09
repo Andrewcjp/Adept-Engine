@@ -8,6 +8,7 @@
 #include "RHI/RHICommandList.h"
 #include "../NodeLink.h"
 #include "../StoreNodes/FrameBufferStorageNode.h"
+#include "../../Core/FrameBuffer.h"
 static ConsoleVariable VROutputMode("vr.screenmode", 0, ECVarType::ConsoleAndLaunch);
 OutputToScreenNode::OutputToScreenNode()
 {

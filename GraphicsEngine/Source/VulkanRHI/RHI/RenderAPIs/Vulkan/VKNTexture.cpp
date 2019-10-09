@@ -9,7 +9,9 @@
 #include "VKNHelpers.h"
 #include "Descriptor.h"
 #pragma warning(push,0)
+#undef max
 #include "gli/gli.hpp"
+#include "VKNCommandlist.h"
 #pragma warning(pop)
 #if BUILD_VULKAN
 

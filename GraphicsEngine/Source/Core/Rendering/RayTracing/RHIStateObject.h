@@ -1,6 +1,6 @@
 #pragma once
 #include "RHI/RHITypes.h"
-
+#include "RHI/RHITemplates.h"
 class DeviceContext;
 class Shader;
 class Camera;

@@ -4,7 +4,7 @@
 #include "RHI\RHIInterGPUStagingResource.h"
 #include "RHI\RHI.h"
 #include "GPUResource.h"
-
+#include "D3D12DeviceContext.h"
 
 D3D12InterGPUStagingResource::D3D12InterGPUStagingResource(DeviceContext* owner, const InterGPUDesc& desc) :RHIInterGPUStagingResource(owner, desc)
 {

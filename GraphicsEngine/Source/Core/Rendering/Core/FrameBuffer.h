@@ -1,11 +1,10 @@
-#pragma once
-#include "RHI/RHITypes.h"
-
+#pragma  once
 class DeviceContext;
 class RHIGPUSyncEvent;
 class RHICommandList;
 class RHIUAV;
 class RHIInterGPUStagingResource;
+struct RHIFrameBufferDesc;
 class FrameBuffer : public IRHIResourse
 {
 public:

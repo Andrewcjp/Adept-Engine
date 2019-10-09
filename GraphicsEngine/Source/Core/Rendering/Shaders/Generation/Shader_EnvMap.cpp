@@ -2,6 +2,7 @@
 #include "Shader_EnvMap.h"
 #include "Rendering/Core/Mesh.h"
 #include "RHI/RHI_inc.h"
+
 IMPLEMENT_GLOBAL_SHADER(Shader_EnvMap);
 Shader_EnvMap::Shader_EnvMap(class DeviceContext* dev) :Shader(dev)
 {

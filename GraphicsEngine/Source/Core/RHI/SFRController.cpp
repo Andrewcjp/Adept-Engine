@@ -3,7 +3,6 @@
 #include "RHI.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/MathUtils.h"
-#include "RHITypes.h"
 #include "Rendering/Core/FrameBuffer.h"
 
 

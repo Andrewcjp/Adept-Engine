@@ -1,6 +1,7 @@
 #pragma once
 #include "RHITypes.h"
-#include "BaseTexture.h"
+#include "RHITemplates.h"
+
 class DeviceContext;
 class HighLevelAccelerationStructure;
 class RHIStateObject;

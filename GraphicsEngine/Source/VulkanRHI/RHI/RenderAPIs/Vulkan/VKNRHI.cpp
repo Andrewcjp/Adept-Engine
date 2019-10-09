@@ -22,6 +22,7 @@
 #include "Rendering/Core/RenderingUtils.h"
 #include "VKNRenderPass.h"
 #include "Rendering/Core/Defaults.h"
+#include "VKNDescriptorPool.h"
 
 
 

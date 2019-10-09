@@ -6,6 +6,7 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/RHITimeManager.h"
+#include "../../Core/FrameBuffer.h"
 
 
 GBufferWriteNode::GBufferWriteNode()

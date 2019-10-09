@@ -2,6 +2,7 @@
 #include "PP_Blur.h"
 #include "Rendering/Shaders/PostProcess/Shader_Blur.h"
 #include "RHI/RHI_inc.h"
+#include "../Core/FrameBuffer.h"
 const int ThreadCount = 32;
 PP_Blur::PP_Blur()
 {}

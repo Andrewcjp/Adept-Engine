@@ -62,10 +62,13 @@ template <class T>
 void UNUSED_PARAM(T const&)
 {}
 
-
+#ifdef PLATFORM_WINDOWS
 #define DLLEXPORT __declspec(dllexport)
 #define DLLIMPORT __declspec(dllimport)
-
+#else
+#define DLLEXPORT
+#define DLLIMPORT
+#endif
 #if defined(CORE_EXPORT) 
 #   define RHI_API DLLEXPORT
 #else 
