@@ -1,5 +1,7 @@
 #pragma once
 #include "RHI\RHIInterGPUStagingResource.h"
+
+class GPUResource;
 class D3D12InterGPUStagingResource : public RHIInterGPUStagingResource
 {
 public:

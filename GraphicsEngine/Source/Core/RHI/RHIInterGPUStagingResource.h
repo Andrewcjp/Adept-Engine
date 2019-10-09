@@ -1,5 +1,5 @@
 #pragma once
-#include "RHITypes.h"
+
 //Sits in Host memory the staging area for inter-gpu transfers 
 //this is for one framebuffer in one frame but can be resized
 struct InterGPUDesc

@@ -7,6 +7,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "GPUParticleSystem.h"
 #include "Core/Utils/MemoryUtils.h"
+#include "FrameBuffer.h"
 
 static ConsoleVariable PauseVar("PS.PauseSim", 0, ECVarType::ConsoleOnly);
 

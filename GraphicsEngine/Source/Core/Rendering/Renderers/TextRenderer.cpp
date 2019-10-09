@@ -6,7 +6,7 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHITypes.h"
 #include "../Core/Screen.h"
-
+#include "Rendering/Core/FrameBuffer.h"
 #define MAXWIDTH 1024
 TextRenderer* TextRenderer::instance = nullptr;
 TextRenderer::TextRenderer(int width, int height, bool SetInstance /*= false*/)

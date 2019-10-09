@@ -1,4 +1,6 @@
 #include "VKNShader.h"
+
+
 #include <ios>
 #include <iostream>
 #include <fstream>
@@ -6,6 +8,10 @@
 #include "VKNRHI.h"
 #include "VKNDeviceContext.h"
 #include "RHI/ShaderPreProcessor.h"
+#include "Core/Platform/PlatformCore.h"
+#include "ShaderReflection.h"
+
+
 
 
 VKNShader::VKNShader()
@@ -65,9 +71,7 @@ VkShaderModule VKNShader::createShaderModule(const std::vector<char>& code)
 	}
 	return shaderModule;
 }
-#include "Core/Platform/PlatformCore.h"
-#undef check
-#include "Vulkan/SPIRV/GlslangToSpv.h"
+
 
 const TBuiltInResource DefaultTBuiltInResource = {
 	/* .MaxLights = */ 32,

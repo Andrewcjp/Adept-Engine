@@ -18,3 +18,4 @@
 #else
 #define USE_DIXL 0
 #endif
+class GPUResource;

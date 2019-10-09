@@ -2,7 +2,9 @@
 #if BUILD_VULKAN
 #include "RHI/ShaderProgramBase.h"
 #include "VKNRHI.h"
-#include "Vulkan/glslang/Public/ShaderLang.h"
+#undef max
+#undef check
+#include "Vulkan/SPIRV/GlslangToSpv.h"
 struct ComplieInfo
 {
 	EShLanguage stage;

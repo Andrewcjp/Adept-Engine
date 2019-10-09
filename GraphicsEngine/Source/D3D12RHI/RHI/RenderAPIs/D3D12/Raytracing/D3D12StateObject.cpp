@@ -10,6 +10,7 @@
 #include "RHI/RenderAPIs/D3D12/DescriptorHeapManager.h"
 #include "RHI/RenderAPIs/D3D12/ThirdParty/DXRHelper.h"
 #include "Rendering/Shaders/Raytracing/Reflections/Shader_ReflectionRaygen.h"
+#include "../GPUResource.h"
 #if WIN10_1809
 D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :RHIStateObject(D, desc)
 {

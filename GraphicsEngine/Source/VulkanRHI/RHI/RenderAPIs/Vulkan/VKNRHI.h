@@ -11,6 +11,7 @@ class VKNRenderPass;
 class VKNShader;
 class VKNTexture;
 class VknUAV;
+class Shader_Main;
 #if BUILD_VULKAN
 #define FRAME_LAG 2
 #undef NOMINMAX
@@ -56,11 +57,7 @@ struct SwapChainSupportDetails
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
 };
-#ifdef NDEBUG
- bool enableValidationLayers = true;
-#else
- bool enableValidationLayers = true;
-#endif
+
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
 
@@ -74,6 +71,11 @@ const std::vector<const char*> deviceExtensions = {
 class VKNRHI : public RHIClass
 {
 public:
+#ifdef NDEBUG
+	bool enableValidationLayers = true;
+#else
+	bool enableValidationLayers = true;
+#endif
 	VKNRHI();
 	virtual ~VKNRHI();
 	void createFramebuffers();

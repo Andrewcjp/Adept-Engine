@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RHI_inc_fwd.h"
-#include "RHITypes.h"
+
 #include <unordered_map>
 #define SEPERATE_RAYTRACING_TIMERS 0
 #define PERDRAWTIMING 0

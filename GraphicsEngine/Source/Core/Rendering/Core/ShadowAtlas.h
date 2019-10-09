@@ -1,6 +1,7 @@
 #pragma once
 //contains Render targets for shadow maps to use.
 class ShadowAtlas;
+class Light;
 struct ShadowAtlasHandle
 {
 	FrameBuffer* DynamicMapPtr = nullptr;

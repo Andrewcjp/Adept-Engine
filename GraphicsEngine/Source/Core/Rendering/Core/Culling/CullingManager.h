@@ -2,6 +2,7 @@
 #include "CullingFrustum.h"
 
 class Scene;
+class Light;
 class CullingManager
 {
 public:

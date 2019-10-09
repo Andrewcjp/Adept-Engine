@@ -1,16 +1,14 @@
 #pragma once
-#include "Core/Assets/AssetTypes.h"
-#include "Core/Assets/MeshLoader.h"
-#include "Core/EngineInc_fwd.h"
-#include "Core/Module/ModuleInterface.h"
-#include "Core/Utils/MemoryUtils.h"
-#include "Rendering/Renderers/RenderSettings.h"
-#include "RHI_inc_fwd.h"
+#include "Rendering\Renderers\RenderSettings.h"
+#include "Rendering\VR\HMD.h"
 #include "RHITypes.h"
-#include "BaseTexture.h"
-#include "Rendering/VR/HMD.h"
 #include "RHIQuery.h"
-#include "Rendering/RayTracing/RHIStateObject.h"
+#include "Core\Assets\AssetTypes.h"
+#include "BaseTexture.h"
+#include "Core\Assets\MeshLoader.h"
+#include "Rendering\RayTracing\RHIStateObject.h"
+#include "Core\Module\ModuleInterface.h"
+
 
 #define NOAPIIMP(func) ensureMsgf(false, #func" Needs API implmentation");
 class RHIGPUSyncEvent;
@@ -29,6 +27,19 @@ class RHIInterGPUStagingResource;
 class RHIRenderPass;
 struct InterGPUDesc;
 class GPUPerformanceTestManager;
+class FrameBuffer;
+struct RenderConstants;
+class IRHIResourse;
+struct RHIRenderPassDesc;
+class DeviceContext;
+class RHIQuery;
+class Mesh;
+class ShaderProgramBase;
+class RHITextureArray;
+class RHIBuffer;
+class RHIUAV;
+class RHICommandList;
+
 //RHI defines
 #define RHI_SUPPORTS_VR 1
 #define PSO_USE_MAP 0

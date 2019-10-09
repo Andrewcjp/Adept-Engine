@@ -1,9 +1,8 @@
 #pragma once
 #include "Core/IRefCount.h"
-#include "RHI/RHITypes.h"
 #include "Core/EngineInc_fwd.h"
 #include "Core/ObjectBase/SharedPtr.h"
-
+#include "RHI/RHITemplates.h"
 struct ETextureType
 {
 	enum Type

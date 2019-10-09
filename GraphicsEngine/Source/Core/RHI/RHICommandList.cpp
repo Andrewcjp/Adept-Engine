@@ -2,10 +2,10 @@
 #include "RHICommandList.h"
 #include "DeviceContext.h"
 #include "Core/Platform/PlatformCore.h"
-#include "RHITypes.h"
 #include "Shader.h"
 #include "Core/Utils/StringUtil.h"
 #include "Rendering/Core/VRXEngine.h"
+#include "Rendering/Core/FrameBuffer.h"
 
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {

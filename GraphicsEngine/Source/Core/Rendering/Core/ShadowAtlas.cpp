@@ -2,6 +2,7 @@
 #include "Light.h"
 #include "ShadowRenderer.h"
 #include "Core\Utils\VectorUtils.h"
+#include "FrameBuffer.h"
 
 ShadowAtlas::ShadowAtlas(DeviceContext* device)
 {

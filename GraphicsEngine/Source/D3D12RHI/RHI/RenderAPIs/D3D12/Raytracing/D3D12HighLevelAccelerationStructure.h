@@ -1,5 +1,7 @@
 #pragma once
 #include "Rendering/RayTracing/HighLevelAccelerationStructure.h"
+
+
 #if WIN10_1809
 class D3D12HighLevelAccelerationStructure :public HighLevelAccelerationStructure
 {

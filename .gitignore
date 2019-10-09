@@ -78,3 +78,4 @@ GraphicsEngine/Source/ThirdParty/vulkan/Lib/Release/OSDependent.lib
 GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/OGLCompilerd.lib
 GraphicsEngine/Shaders/VKan/
 GraphicsEngine/Source/ThirdParty/vulkan/Lib/
+GraphicsEngine/Source/premake.lua

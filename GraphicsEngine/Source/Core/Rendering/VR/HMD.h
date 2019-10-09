@@ -9,6 +9,7 @@ namespace EEye
 	};
 }
 class VRCamera;
+class FrameBuffer;
 class HMD
 {
 public:

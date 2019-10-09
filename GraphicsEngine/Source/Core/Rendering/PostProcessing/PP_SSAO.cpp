@@ -2,6 +2,7 @@
 #include "Core/BaseWindow.h"
 
 #include "Rendering/Shaders/PostProcess/Shader_SSAO.h"
+#include "../Core/FrameBuffer.h"
 
 
 PP_SSAO::PP_SSAO()
