@@ -4,16 +4,20 @@
 #include "ImageIO.h"
 #include "IniHandler.h"
 #include "RHI/ShaderPreProcessor.h"
+#ifdef PLATFORM_WINDOWS
 #include <filesystem>
+#endif
 
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
 	std::string path = GetShaderPath();
+#ifdef PLATFORM_WINDOWS
 	for (auto & p : std::experimental::filesystem::directory_iterator(path))
 	{
 		LoadFileWithInclude(p.path().filename().string());
 	}
+#endif
 }
 
 //and wrap the code to recreate when requested

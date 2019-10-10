@@ -5,15 +5,11 @@
 class GenericApplication
 {
 public:
-	int ExecuteHostScript(std::string Filename, std::string Args, bool ShowOutput = false)
-	{ /*ensureMsgf(false, "Generic Application Called")*/
-	};
-	static void InitTiming()
-	{};
-	static double Seconds()
-	{};
-	static void Sleep(float Milliseconds)
-	{};
+	static int ExecuteHostScript(std::string Filename, std::string Args, bool ShowOutput = false);;
+	static int ExecuteHostScript(std::string Filename, std::string Args, std::string WorkingDir, bool ShowOutput = false);;
+	static void InitTiming();;
+	static double Seconds();;
+	static void Sleep(float Milliseconds);;
 	CORE_API static int64_t GetFileTimeStamp(const std::string& Path);
 	CORE_API static bool CheckFileSrcNewer(const std::string& srcpath, const std::string dest);
 	CORE_API static bool TryCreateDirectory(const std::string & name);
@@ -23,5 +19,10 @@ public:
 	static bool DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string Extenstion, std::string & outData);
 	static bool CopyFileToTarget(std::string Target, std::string Dest);
 	static void Init();
+	static std::string GetExecutablePath() { return ""; };
+
+	static void * GetDllExport(void * DllHandle, const char * ProcName);
+	static void FreeDllHandle(void * DllHandle);
+	static void * GetDllHandle(FString Name);
 };
 

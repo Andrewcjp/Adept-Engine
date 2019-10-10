@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef PLATFORM_WINDOWS
 #include "Core/MinWindows.h"
 #include "Core/EngineTypes_fwd.h"
 #include "Core/Platform/Generic/GenericWindow.h"
@@ -55,3 +55,4 @@ private:
 	int							CurrentProgress = 0;
 };
 
+#endif

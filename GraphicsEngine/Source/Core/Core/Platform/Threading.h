@@ -1,5 +1,7 @@
 #pragma once
+#ifdef PLATFORM_WINDOWS
 #include "../MinWindows.h"
+#endif
 #include <thread>
 
 namespace Threading
@@ -21,8 +23,10 @@ namespace Threading
 	public:
 		Thread(int index)
 		{
+#ifdef PLATFORM_WINDOWS
 			DWORD id;
 			Handle = CreateThread(NULL, 0, &Thread::ThreadMain, this, 0, &id);
+#endif
 			ThreadIndex = index;
 		}
 
@@ -62,7 +66,9 @@ namespace Threading
 
 		volatile bool QuitRequested = false;
 		std::function <void(int)> FunctionToRun;
+#ifdef PLATFORM_WINDOWS
 		static DWORD WINAPI ThreadMain(void *threadAsVoidPtr);
+#endif
 	};
 
 	class TaskGraph

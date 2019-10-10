@@ -1,5 +1,6 @@
 
 #include "WindowsWindow.h"
+#ifdef PLATFORM_WINDOWS
 #include "Core/Engine.h"
 #include "RHI/RenderWindow.h"
 #include <Windowsx.h>
@@ -456,3 +457,4 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	return 0;
 }
 
+#endif

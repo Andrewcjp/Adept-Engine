@@ -7,6 +7,7 @@
 #include "ThirdParty/delaunator.hpp"
 #include "Core/Performance/PerfManager.h"
 
+
 NavMeshGenerator::NavMeshGenerator()
 {}
 
@@ -307,7 +308,7 @@ void NavPlane::RemoveDupeNavPoints()
 			{
 				if (NavPoints[x]->Point == NavPoints[y]->Point)
 				{
-					if (VectorUtils::Contains<DLTENode*>(RemoveList, NavPoints[x], [](DLTENode*a, DLTENode* b)
+					if (VectorUtils::Contains(RemoveList, NavPoints[x], [](DLTENode*a, DLTENode* b)
 					{
 						return a->Point == b->Point;
 					}))

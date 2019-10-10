@@ -1,6 +1,6 @@
 #pragma once
 #include "../IRefCount.h"
-
+#include "RHI/RHI.h"
 template <typename T>
 class SharedPtr
 {

@@ -9,7 +9,7 @@
 #include "Performance/PerfManager.h"
 #include "Platform/ConsoleVariable.h"
 #include "Platform/PlatformCore.h"
-#include "Shlwapi.h"
+
 #include "UI/Core/UIWidget.h"
 #include "UI/UIManager.h"
 #include "Version.h"
@@ -20,14 +20,16 @@
 #include "Platform/Threading.h"
 #include "WinLauncher.h"
 #include "Rendering/Core/Defaults.h"
-#include "Platform/Windows/WindowsWindow.h"
+
 #include "Testing/EngineTests.h"
 #include "Rendering/Core/Screen.h"
 #include "Module/GameModuleSelector.h"
 #include "CSharpInterOp/ICSharpContainerModule.h"
 #include "CSharpInterOp/CSharpContainer.h"
-
-
+#ifdef PLATFORM_WINDOWS
+#include "Platform/Windows/WindowsWindow.h"
+#include "Shlwapi.h"
+#endif
 long Engine::StartTime = 0;
 Game* Engine::mgame = nullptr;
 CORE_API ComponentRegistry* Engine::CompRegistry = nullptr;
@@ -42,14 +44,7 @@ PhysicsEngine * Engine::GetPhysEngineInstance()
 
 std::string Engine::GetExecutionDir()
 {
-	wchar_t buffer[MAX_PATH];
-	GetModuleFileName(NULL, buffer, MAX_PATH);
-	PathRemoveFileSpec(buffer);
-#if !BUILD_PACKAGE 
-	PathCombine(buffer, buffer, L"..");
-#endif
-	std::wstring ws(buffer);
-	return std::string(ws.begin(), ws.end());
+	return PlatformApplication::GetExecutablePath();
 }
 
 Engine::Engine(EnginePersistentData* epd) :

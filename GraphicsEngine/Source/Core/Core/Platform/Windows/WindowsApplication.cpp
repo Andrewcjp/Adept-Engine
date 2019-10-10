@@ -1,4 +1,5 @@
 #include "WindowsApplication.h"
+#ifdef PLATFORM_WINDOWS
 #include "Core/Utils/FileUtils.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Platform/Logger.h"
@@ -8,6 +9,7 @@
 #include <comdef.h>
 #include <shellapi.h>
 #include <commdlg.h>
+#include <Shlwapi.h>
 
 double WindowsApplication::SecondsPerCycle = 0.0f;
 
@@ -224,6 +226,19 @@ bool WindowsApplication::IsDebuggerPresent()
 	return ::IsDebuggerPresent();
 }
 
+std::string WindowsApplication::GetExecutablePath()
+{
+	wchar_t buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	PathRemoveFileSpec(buffer);
+#if !BUILD_PACKAGE 
+	PathCombine(buffer, buffer, L"..");
+#endif
+	std::wstring ws(buffer);
+	return std::string(ws.begin(), ws.end());
+
+}
+
 void WindowsApplication::ValidateWindows()
 {
 	if (!IsWindows8OrGreater())
@@ -232,3 +247,4 @@ void WindowsApplication::ValidateWindows()
 		exit(-1);
 	}
 }
+#endif

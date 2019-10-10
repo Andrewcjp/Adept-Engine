@@ -4,7 +4,7 @@
 namespace VectorUtils
 {
 	template<class T>
-	bool Contains(std::vector<T>& Vector, T & value)
+	bool Contains(std::vector<T>& Vector,const T & value)
 	{
 		for (int i = 0; i < Vector.size(); i++)
 		{
@@ -29,14 +29,6 @@ namespace VectorUtils
 		}
 		return false;
 	}
-
-	template<class T, typename F>
-	bool Contains(std::vector<T>& Vector, T & value, F comparefunc)
-	{
-		std::function<bool(T, T)> t = comparefunc;
-		return Contains_F(Vector, value, t);
-	}
-
 	template<class T>
 	bool Contains_F(std::vector<T>& Vector, T & value, std::function<bool(T, T)> comparefunc)
 	{
@@ -49,6 +41,14 @@ namespace VectorUtils
 		}
 		return false;
 	}
+	template<class T, typename F>
+	bool Contains(std::vector<T>& Vector, T & value, F comparefunc)
+	{
+		std::function<bool(T, T)> t = comparefunc;
+		return Contains_F<T>(Vector, value, t);
+	}
+
+
 
 	template<class T>
 	bool Remove(std::vector<T>& Vector, T & value)

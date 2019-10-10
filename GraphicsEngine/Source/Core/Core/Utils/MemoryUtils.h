@@ -1,6 +1,7 @@
 #pragma once
 #include "RHI\RHITypes.h"
 #include "RHI\RHI.h"
+#include <map>
 namespace MemoryUtils
 {
 	template<typename T>
@@ -47,14 +48,14 @@ namespace MemoryUtils
 		}
 		target.clear();
 	}
-	template<typename S, typename T>
+	template<class S, class T>
 	static void DeleteReleaseableMap(std::map<S, T>& target)
 	{
-		std::map<S, T>::iterator it;
+		/*std::map<S, T>::iterator it;
 		for (it = target.begin(); it != target.end(); it++)
 		{
 			it->second.Release();
-		}
+		}*/
 	}
 	namespace RHIUtil
 	{

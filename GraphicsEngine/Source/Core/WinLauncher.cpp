@@ -1,4 +1,5 @@
 #include "WinLauncher.h"
+#ifdef PLATFORM_WINDOWS
 #include "Core/Engine.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
@@ -95,3 +96,4 @@ int DLLEXPORT WinMain_Engine(HINSTANCE hInstance,
 #endif
 	return exitcode;
 }
+#endif

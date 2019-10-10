@@ -1,6 +1,7 @@
 #pragma once
 #include "rapidjson\document.h"
 #include <functional>
+#include "SerialHelpers.h"
 class Archive
 {
 public:

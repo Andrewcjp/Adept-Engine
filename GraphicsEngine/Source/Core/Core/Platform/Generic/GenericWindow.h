@@ -1,4 +1,7 @@
 #pragma once
+
+struct IntPoint;
+
 class GenericWindow
 {
 public:
@@ -19,5 +22,11 @@ public:
 
 	static void					Kill(int code);
 	static bool					IsActiveWindow();
+	void						GetDesktopResolution(int& horizontal, int& vertical);
+	IntPoint					GetMousePos();
+	void						SetMousePos(IntPoint& point);
+	char						GetVirtualKeyAsChar(unsigned int key);
+	short						GetCharAsVirtualKey(char c);
+	bool						IsKeyDown(short key);
 };
 

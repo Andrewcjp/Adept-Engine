@@ -849,35 +849,3 @@ protected:
 	RHICommandSignitureDescription RHIdesc;
 };
 
-
-//a vector that 
-template<class T>
-struct FrameCountingVector
-{
-	typedef std::pair<T*, int64_t> TStamped;
-
-	void Enqeueue(T* item)
-	{
-		Data.push_back(TStamped(item, RHI::GetFrameCount()));
-	}
-	void Tick(std::function<bool(T*)> func, bool Flush = false)
-	{
-		if (func == nullptr || Data.size() == 0)
-		{
-			return;
-		}
-		for (int i = (int)Data.size() - 1; i >= 0; i--)
-		{
-			const int CurrentFrame = RHI::GetFrameCount();
-			if (Data[i].second + RHI::CPUFrameCount + 2 < CurrentFrame || Flush)
-			{
-				if (func(Data[i].first))
-				{
-					Data.erase(Data.begin() + i);
-				}
-			}
-		}
-	}
-private:
-	std::vector<TStamped> Data;
-};

@@ -2,16 +2,21 @@
 #include <iostream>
 #include "RenderBaseTypes.h"
 #include "Mesh.h"
-#include "RHI/RHICommandList.h"
 #include "RHI/RHI.h"
 #include "Core/Assets/MeshLoader.h"
 #include "Core/IRefCount.h"
 #include "Culling/CullingAABB.h"
+#include "Core/ObjectBase/SharedPtr.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RHITemplates.h"
+
+#include "RHI/RHICommandList.h"
 class Material;
 struct SkeletalMeshEntry;
 class MeshBatch;
 class CullingAABB;
 class MeshRendererComponent;
+class RHIBuffer;
 struct MeshEntity
 {
 	SharedPtr<RHIBuffer> VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };

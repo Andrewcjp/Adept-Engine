@@ -1,4 +1,8 @@
 #pragma once
+#ifndef RHI_SUPPORTS_VR 
+#error "RHITemplates Should be included after RHI.h"
+#endif
+
 
 //Interface for multiple objects linking to the same "object" (texture or buffer) on different devices
 template <class T>
@@ -46,4 +50,36 @@ public:
 	}
 private:
 	std::vector<T*> SharedObjects;
+};
+
+//a vector that 
+template<class T>
+struct FrameCountingVector
+{
+	typedef std::pair<T*, int64_t> TStamped;
+
+	void Enqeueue(T* item)
+	{
+		Data.push_back(TStamped(item, RHI::GetFrameCount()));
+	}
+	void Tick(std::function<bool(T*)> func, bool Flush = false)
+	{
+		if (func == nullptr || Data.size() == 0)
+		{
+			return;
+		}
+		for (int i = (int)Data.size() - 1; i >= 0; i--)
+		{
+			const int CurrentFrame = RHI::GetFrameCount();
+			if (Data[i].second + RHI::CPUFrameCount + 2 < CurrentFrame || Flush)
+			{
+				if (func(Data[i].first))
+				{
+					Data.erase(Data.begin() + i);
+				}
+			}
+		}
+	}
+private:
+	std::vector<TStamped> Data;
 };

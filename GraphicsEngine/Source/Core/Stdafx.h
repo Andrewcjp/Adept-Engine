@@ -1,5 +1,5 @@
 #ifdef PCHGUARD
-#error PCHGUARD Failure
+//#error PCHGUARD Failure
 #endif
 #define PCHGUARD
 #pragma once
