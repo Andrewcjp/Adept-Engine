@@ -339,7 +339,7 @@ namespace delaunator
 		std::sort(ids.begin(), ids.end(), compare{ coords, m_center_x, m_center_y });
 
 		// initialize a hash table for storing edges of the advancing convex hull
-		m_hash_size = static_cast<std::size_t>(std::llround(std::ceil(std::sqrt(n))));
+		m_hash_size = static_cast<std::size_t>(llround(std::ceil(std::sqrt(n))));
 		m_hash.resize(m_hash_size);
 		std::fill(m_hash.begin(), m_hash.end(), INVALID_INDEX);
 
@@ -601,7 +601,7 @@ namespace delaunator
 		const double dx = x - m_center_x;
 		const double dy = y - m_center_y;
 		return fast_mod(
-			static_cast<std::size_t>(std::llround(std::floor(pseudo_angle(dx, dy) * static_cast<double>(m_hash_size)))),
+			static_cast<std::size_t>(llround(std::floor(pseudo_angle(dx, dy) * static_cast<double>(m_hash_size)))),
 			m_hash_size);
 	}
 

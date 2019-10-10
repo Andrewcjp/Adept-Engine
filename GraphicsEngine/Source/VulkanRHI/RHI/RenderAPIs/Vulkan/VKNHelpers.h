@@ -1,5 +1,7 @@
 #pragma once
 #include "VKNRHI.h"
+
+struct TextureDescription;
 class VKNHelpers
 {
 public:

@@ -129,7 +129,8 @@ void Archive::LinkProperty(std::vector<Component*> & Value, const char * PropNam
 		{
 			Component* newc = nullptr;
 			rapidjson::Value*  cv = &t[i];
-			for (auto& cit = cv->MemberBegin(); cit != cv->MemberEnd(); cit++)
+			
+			for (auto cit = cv->MemberBegin(); cit != cv->MemberEnd(); cit++)
 			{
 				//read the first part of the object for the components ID
 				if (cit->name == "TypeID")

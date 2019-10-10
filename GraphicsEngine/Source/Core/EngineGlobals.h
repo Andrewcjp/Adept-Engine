@@ -139,3 +139,9 @@ void UNUSED_PARAM(T const&)
 #define PREPROCESSOR_JOIN_INNER(x, y) x##y
 
 extern void ADNOP();
+
+#ifdef PLATFORM_ANDROID
+#define BUILD_WISE 0
+#else
+#define BUILD_WISE 1
+#endif

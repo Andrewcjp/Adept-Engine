@@ -70,10 +70,11 @@ void MeshRendererComponent::SetVisiblity(bool state)
 
 void MeshRendererComponent::LoadAnimation(std::string filename, std::string name)
 {
-	LoadAnimation(filename, name, MeshLoader::FMeshLoadingSettings());
+	MeshLoader::FMeshLoadingSettings t = MeshLoader::FMeshLoadingSettings();
+	LoadAnimation(filename, name, t);
 }
 
-void MeshRendererComponent::LoadAnimation(std::string filename, std::string name, MeshLoader::FMeshLoadingSettings& Settings)
+void MeshRendererComponent::LoadAnimation(std::string filename, std::string name,MeshLoader::FMeshLoadingSettings& Settings)
 {
 	if (m_mesh == nullptr || m_mesh->GetSkeletalMesh() == nullptr)
 	{

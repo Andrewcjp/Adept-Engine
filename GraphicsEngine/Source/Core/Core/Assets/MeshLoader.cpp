@@ -35,7 +35,8 @@ bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const 
 			if (scene->mMeshes[nodes[i]->mMeshes[j]] == mesh)
 			{
 				aiNode* curerntnode = nodes[i];
-				if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, std::string(curerntnode->mName.C_Str())))
+				std::string LV = std::string(curerntnode->mName.C_Str());
+				if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, LV))
 				{
 					return false;
 				}
@@ -142,7 +143,8 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 	for (unsigned int modeli = 0; modeli < scene->mNumMeshes; modeli++)
 	{
 		const aiMesh* model = scene->mMeshes[modeli];
-		if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, std::string(model->mName.C_Str())))
+		std::string LV = std::string(model->mName.C_Str());
+		if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, LV))
 		{
 			continue;
 		}
@@ -183,9 +185,9 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		{
 			for (int i = 0; i < vertices.size(); i++)
 			{
-				glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz, 1.0f);
+				glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz(), 1.0f);
 				Pos = Pos * glm::scale(Settings.Scale);
-				vertices[i].m_position = Pos.xyz;
+				vertices[i].m_position = Pos.xyz();
 			}
 		}
 		for (unsigned int i = 0; i < model->mNumFaces; i++)
@@ -296,9 +298,9 @@ bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSetti
 		{
 			for (int i = 0; i < vertices.size(); i++)
 			{
-				glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz, 1.0f);
+				glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz(), 1.0f);
 				Pos = Pos * glm::scale(Settings.Scale);
-				vertices[i].m_position = Pos.xyz;
+				vertices[i].m_position = Pos.xyz();
 			}
 		}
 		for (unsigned int i = 0; i < model->mNumFaces; i++)
@@ -395,7 +397,7 @@ void SkeletalMeshEntry::PlayAnimation(std::string name)
 	}
 }
 
-glm::mat3x3 ToGLM(aiMatrix3x3& mat)
+glm::mat3x3 ToGLM(const aiMatrix3x3& mat)
 {
 	return glm::rowMajor3(glm::mat3(mat.a1, mat.a2, mat.a3, mat.b1, mat.b2, mat.b3, mat.c1, mat.c2, mat.c3));
 }

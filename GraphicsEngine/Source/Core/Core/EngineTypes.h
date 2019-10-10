@@ -132,7 +132,7 @@ public:
 	}
 	void Empty()
 	{
-		MemoryUtils::DeleteVector(AllocBuffer);
+		MemoryUtils::DeleteVector<T>(AllocBuffer);
 		AllocIndex = 0;
 	}
 private:

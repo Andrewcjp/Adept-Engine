@@ -14,3 +14,7 @@ class RHIUAV;
 class Mesh;
 class ShaderProgramBase;
 class BaseTexture;
+template <class T> class IRHISharedDeviceObject;
+template<class T> struct FrameCountingVector;
+template<class T> class SharedPtr;
+typedef SharedPtr<BaseTexture> BaseTextureRef;

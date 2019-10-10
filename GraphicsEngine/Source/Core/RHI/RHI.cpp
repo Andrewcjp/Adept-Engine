@@ -33,10 +33,10 @@ static ConsoleVariable StartFullscreen("fullscreen", 0, ECVarType::LaunchOnly);
 
 RHI::RHI(ERenderSystemType system)
 {
-
+	GlobalDeleteQueue = new FrameCountingVector<IRHIResourse>();
 	CurrentSystem = system;
-	RenderSettings.ValidateSettings();
-	RenderSettings.ValidateForAPI(CurrentSystem);
+	Rendersettings.ValidateSettings();
+	Rendersettings.ValidateForAPI(CurrentSystem);
 	RHIModule* RHImodule = nullptr;
 	switch (CurrentSystem)
 	{
@@ -109,7 +109,7 @@ RenderSettings* RHI::GetRenderSettings()
 {
 	if (instance != nullptr)
 	{
-		return &instance->RenderSettings;
+		return &instance->Rendersettings;
 	}
 	return nullptr;
 }
@@ -206,7 +206,7 @@ int RHI::GetDeviceCount()
 bool RHI::SupportVR()
 {
 #if RHI_SUPPORTS_VR
-	return instance->RenderSettings.VRHMDMode != EVRHMDMode::Disabled;
+	return instance->Rendersettings.VRHMDMode != EVRHMDMode::Disabled;
 #else
 	return false;
 #endif
@@ -320,7 +320,7 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 	else
 	{
 		//Get()->DeferredDeleteQueue.push_back(RHIResourseStamped(Resource, RHI::GetFrameCount()));
-		Get()->GlobalDeleteQueue.Enqeueue(Resource);
+		Get()->GlobalDeleteQueue->Enqeueue(Resource);
 		Resource->PendingKill = true;
 	}
 }
@@ -353,7 +353,7 @@ void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 		}
 	}
 #else
-	GlobalDeleteQueue.Tick([](IRHIResourse* R) { SafeRHIRelease(R); return true; }, Flush);
+	GlobalDeleteQueue->Tick([](IRHIResourse* R) { SafeRHIRelease(R); return true; }, Flush);
 #endif
 	IsFlushingDeleteQueue = false;
 }

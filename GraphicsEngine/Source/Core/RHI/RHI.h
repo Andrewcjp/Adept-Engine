@@ -4,10 +4,10 @@
 #include "RHITypes.h"
 #include "RHIQuery.h"
 #include "Core\Assets\AssetTypes.h"
-#include "BaseTexture.h"
 #include "Core\Assets\MeshLoader.h"
 #include "Rendering\RayTracing\RHIStateObject.h"
 #include "Core\Module\ModuleInterface.h"
+#include "RHI_inc_fwd.h"
 
 
 #define NOAPIIMP(func) ensureMsgf(false, #func" Needs API implmentation");
@@ -140,7 +140,7 @@ private:
 
 	RHIClass* CurrentRHI = nullptr;
 	RenderConstants M_RenderConsants;
-	RenderSettings RenderSettings = {};
+	RenderSettings Rendersettings = {};
 	std::vector<FrameBuffer*> FrameBuffersLinkedToSwapChain;
 	int PresentCount = 0;
 	typedef std::pair<IRHIResourse*, int64_t> RHIResourseStamped;
@@ -158,7 +158,7 @@ private:
 	RHIRenderPassCache* RenderPassCache = nullptr;
 	RenderGraphSystem* RenderSystem = nullptr;
 	GPUPerformanceTestManager* TestManager = nullptr;
-	FrameCountingVector<IRHIResourse> GlobalDeleteQueue;
+	FrameCountingVector<IRHIResourse>* GlobalDeleteQueue= nullptr;
 };
 
 class RHI_API RHIClass

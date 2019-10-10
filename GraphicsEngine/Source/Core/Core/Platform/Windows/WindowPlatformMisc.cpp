@@ -1,5 +1,5 @@
 #include "WindowPlatformMisc.h"
-#include "WindowPlatformMisc.h"
+#ifdef PLATFORM_WINDOWS
 #include "Core/Platform/PlatformCore.h"
 #include "Core/MinWindows.h"
 #include <combaseapi.h>
@@ -101,3 +101,4 @@ StackTrace WindowPlatformMisc::CaptureStack(int StackOffset /*= 0*/)
 	RtlCaptureStackBackTrace(StackOffset + 1, 255, Trace.Stack, 0);
 	return Trace;
 }
+#endif

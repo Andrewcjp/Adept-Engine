@@ -1,6 +1,5 @@
 #pragma once
-
-#include "RHI/RHI_inc.h"
+#include "RHI/RHI.h"
 struct EGPUType
 {
 	enum Type
@@ -15,6 +14,11 @@ struct EGPUType
 };
 class GPUStateCache;
 class GPUTextureStreamer;
+class RHICommandList;
+class FrameBuffer;
+class RHIPipeLineStateObject;
+class PipelineStateObjectCache;
+class IRHIResourse;
 struct ERayTracingSupportType
 {
 	enum Type

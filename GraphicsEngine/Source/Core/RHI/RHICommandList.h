@@ -1,6 +1,6 @@
 #pragma once
 #include "RHITypes.h"
-#include "RHITemplates.h"
+
 
 class DeviceContext;
 class HighLevelAccelerationStructure;

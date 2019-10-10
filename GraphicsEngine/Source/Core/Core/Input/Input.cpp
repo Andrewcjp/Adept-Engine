@@ -101,12 +101,12 @@ void Input::ProcessInput()
 
 bool Input::MouseLBDown(int, int)
 {
-	return TRUE;
+	return true;
 }
 
 bool Input::MouseLBUp(int, int)
 {
-	return TRUE;
+	return true;
 }
 
 bool Input::MouseMove(int x, int y, double)

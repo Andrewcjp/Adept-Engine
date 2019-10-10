@@ -1,13 +1,17 @@
 #pragma once
 #include "Core/Engine.h"
 #include "Core\Platform\PlatformCore.h"
-
+#ifdef PLATFORM_WINDOWS
+#define DEBUGBREAK  __debugbreak();
+#else
+#define DEBUGBREAK
+#endif
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)
 #if !BUILD_SHIPPING
-#define DebugEnsure(condition) if(!condition){ __debugbreak();}
-#define AssertDebugBreak() if(PlatformApplication::IsDebuggerPresent()){__debugbreak();} 
+#define DebugEnsure(condition) if(!condition){DEBUGBREAK}
+#define AssertDebugBreak() if(PlatformApplication::IsDebuggerPresent()){DEBUGBREAK} 
 #else
 #define DebugEnsure(condition);
 #define AssertDebugBreak();

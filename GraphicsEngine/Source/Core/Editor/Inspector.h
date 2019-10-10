@@ -14,28 +14,25 @@ public:
 	struct PType
 	{
 		EditValueType::Type type;
-		union
-		{
+
 			float fvalue;
 			int ivalue;
-		};
-		union
-		{
+		
 			std::function<float()> fTarget;
 			std::function<int()> iTarget;
-		};
+		
 		~PType()
 		{};
 		PType()
 		{};
-		PType(PType&)
-		{};
-		PType operator=(PType t)
-		{
-			t.fTarget = fTarget;
-			t.iTarget = iTarget;
-			return t;
-		}
+		//PType(PType&)
+		//{};
+		//PType operator=(PType t)
+		//{
+		//	t.fTarget = fTarget;
+		//	t.iTarget = iTarget;
+		//	return t;
+		//}
 
 	};
 	struct PropertyField

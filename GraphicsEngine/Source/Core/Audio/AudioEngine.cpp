@@ -1,5 +1,6 @@
 
 #include "AudioEngine.h"
+#if BUILD_WISE
 #include <AK/SoundEngine/Common/AkSoundEngine.h>
 #include <AK/IBytes.h>
 #include <AK/SoundEngine/Common/AkMemoryMgr.h>
@@ -17,6 +18,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/MathUtils.h"
+#endif
 //wwise Libs
 
 AudioEngine* AudioEngine::Instance = nullptr;
@@ -45,14 +47,18 @@ AudioEngine::AudioEngine()
 {}
 AudioEngine::~AudioEngine()
 {}
+#if BUILD_WISE
+const AkGameObjectID GAME_OBJECT_ID_DEFAULT = 0;
 static void CallBack(AK::Monitor::ErrorCode in_eErrorCode, const AkOSChar *in_pszError, AK::Monitor::ErrorLevel in_eErrorLevel, AkPlayingID in_playingID, AkGameObjectID in_gameObjID)
 {
 	std::wstring str(in_pszError);
 	Log::LogMessage("AK: " + std::to_string(in_eErrorCode) + " " + StringUtils::ConvertWideToString(str));
 }
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
+#endif
 bool AudioEngine::Init()
 {
+#if BUILD_WISE
 	AkMemSettings memSettings;
 	memSettings.uMaxNumPools = 20;
 
@@ -120,11 +126,12 @@ bool AudioEngine::Init()
 	AK::Monitor::SetLocalOutput(AK::Monitor::ErrorLevel_All, &CallBack);
 	Log::LogMessage("WWise Initalised");
 	LoadBanks();
-
+#endif
 	return true;
 }
 void AudioEngine::Terminate()
 {
+#if BUILD_WISE
 	AK::SoundEngine::ClearBanks();
 #ifndef AK_OPTIMIZED
 	//
@@ -140,17 +147,21 @@ void AudioEngine::Terminate()
 		AK::IAkStreamMgr::Get()->Destroy();
 	}
 	AK::MemoryMgr::Term();
+#endif
 
 }
 void AudioEngine::ProcessAudio()
 {
+#if BUILD_WISE
 	// Process bank requests, events, positions, RTPC, etc.
 	AK::SoundEngine::RenderAudio();
+#endif
 }
-const AkGameObjectID GAME_OBJECT_ID_DEFAULT = 0;
+
 
 void AudioEngine::PostEvent(FString name, GameObject * Obj)
 {
+#if BUILD_WISE
 	int outputid = 0;
 	if (Obj == nullptr)
 	{
@@ -164,6 +175,7 @@ void AudioEngine::PostEvent(FString name, GameObject * Obj)
 	{
 		Log::LogMessage("Failed to post event \"" + name.ToSString() + "\"", Log::Severity::Error);
 	}
+#endif
 }
 
 
@@ -171,9 +183,13 @@ void AudioEngine::LoadBanks()
 {
 	LoadBank("Init.bnk");
 	LoadBank("Core.bnk");
+#if BUILD_WISE
 	AK::SoundEngine::RegisterGameObj(GAME_OBJECT_ID_DEFAULT, "DEFAULT");
 	AK::SoundEngine::SetDefaultListeners(&GAME_OBJECT_ID_DEFAULT, 1);
+#endif
 }
+#if BUILD_WISE
+
 void AudioEngine::MakeDefaultListener(GameObject* g)
 {
 	CurrnetMainListener = g;
@@ -232,3 +248,4 @@ void AudioEngine::UpdateWiseTransfrom(GameObject * go)
 	AKRESULT ar = AK::SoundEngine::SetPosition(go->GetAudioId(), trans);
 	check(ar == AKRESULT::AK_Success);
 }
+#endif

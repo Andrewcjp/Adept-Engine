@@ -7,29 +7,38 @@ namespace Threading
 {
 	Event::Event()
 	{
+#ifdef PLATFORM_WINDOWS
 		Handle = CreateEvent(NULL, FALSE, FALSE, NULL);
+#endif
 	}
 
 	Event::~Event()
 	{
+#ifdef PLATFORM_WINDOWS
 		if (Handle != INVALID_HANDLE_VALUE)
 		{
 			CloseHandle(Handle);
 		}
+#endif
 	}
 
 	void Event::Signal()
 	{
+#ifdef PLATFORM_WINDOWS
 		SetEvent(Handle);
+#endif
 	}
 
 	bool Event::WaitForSignal(int milliseconds)
 	{
+#ifdef PLATFORM_WINDOWS
 		if (milliseconds < 0)
 		{
 			milliseconds = INFINITE;
 		}
 		return WaitForSingleObjectEx(Handle, milliseconds, TRUE) == WAIT_OBJECT_0;
+#endif
+		return false;
 	}
 
 	Thread::~Thread()
@@ -39,10 +48,11 @@ namespace Threading
 			RequestToExit();
 			WaitForThreadToFinish(-1);
 		}
-
+#ifdef PLATFORM_WINDOWS
 		CloseHandle(Handle);
+#endif
 	}
-
+#ifdef PLATFORM_WINDOWS
 	DWORD WINAPI Thread::ThreadMain(void *threadAsVoidPtr)
 	{
 		Thread *thread = (Thread *)threadAsVoidPtr;
@@ -64,7 +74,7 @@ namespace Threading
 
 		return 0;
 	}
-
+#endif
 	TaskGraph::TaskGraph(int Count)
 	{
 		ThreadCount = Count;

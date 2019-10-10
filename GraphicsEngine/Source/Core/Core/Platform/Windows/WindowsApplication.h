@@ -1,4 +1,5 @@
 #pragma once
+#ifdef PLATFORM_WINDOWS
 #include "Core/Platform/Generic/GenericApplication.h"
 #include "Core/Types/FString.h"
 
@@ -22,6 +23,7 @@ public:
 	static bool CopyFileToTarget(std::string Target, std::string Dest);
 	CORE_API static bool TryCreateDirectory(const std::string & name);
 	CORE_API static bool IsDebuggerPresent();
+	static std::string GetExecutablePath();
 private:
 	static double SecondsPerCycle;
 	static void ValidateWindows();
@@ -29,3 +31,4 @@ private:
 };
 
 typedef WindowsApplication PlatformApplication;
+#endif
