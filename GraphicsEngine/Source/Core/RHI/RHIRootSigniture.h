@@ -85,7 +85,7 @@ class RHIRootSigniture
 public:
 	RHI_API RHIRootSigniture();
 	RHI_API ~RHIRootSigniture();
-	RHI_API void SetRootSig(std::vector<ShaderParameter>& parms);
+	RHI_API void SetRootSig(const std::vector<ShaderParameter>& parms);
 #if USE_VALIDATION
 	bool ValidateData(ShaderParameter * Parm, RSBind & bind);
 #endif

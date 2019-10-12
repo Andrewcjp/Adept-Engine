@@ -166,7 +166,7 @@ Shader_NodeGraph* ShaderComplier::EnqeueueMaterialShadercomplie(MaterialShaderCo
 }
 
 
-ShaderType::ShaderType(std::string name, InitliserFunc constructor, ShaderInit & init, ShouldComplieSig func)
+ShaderType::ShaderType(std::string name, InitliserFunc constructor, const ShaderInit & init, ShouldComplieSig func)
 {
 	Constructor = constructor;
 	ShaderInitalizer = init;

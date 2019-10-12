@@ -100,7 +100,7 @@ public:
 	RHI_API RHI_VIRTUAL void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
 	RHI_API RHI_VIRTUAL void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;
 	///Not Const Desc as they hash on demand
-	RHI_API RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) = 0;
+	RHI_API RHI_VIRTUAL void SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc) = 0;
 	RHI_API RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
 	//setters
 	RHI_API RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
@@ -131,7 +131,7 @@ public:
 	}
 	RHI_API RHI_VIRTUAL void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset) = 0;
 	//Render Passes
-	RHI_API RHI_VIRTUAL void BeginRenderPass(struct RHIRenderPassDesc& RenderPass);
+	RHI_API RHI_VIRTUAL void BeginRenderPass(const struct RHIRenderPassDesc& RenderPass);
 	RHI_API RHI_VIRTUAL void EndRenderPass();
 
 	RHI_API DeviceContext* GetDevice();
@@ -188,7 +188,7 @@ public:
 	RHI_API RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot) = 0;
 	RHI_API RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) = 0;
 	RHI_API RHI_VIRTUAL void Clear() = 0;
-	RHI_API RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc) = 0;
+	RHI_API RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc) = 0;
 protected:
 	int NumEntries = 1;
 };
@@ -205,7 +205,7 @@ public:
 class RHIRenderPass
 {
 public:
-	RHI_API RHIRenderPass(RHIRenderPassDesc & Desc);
+	RHI_API RHIRenderPass(const RHIRenderPassDesc & Desc);
 	RHI_API virtual ~RHIRenderPass();
 	void AddSubPass(RHISubPass* Pass);
 	virtual void Complie();

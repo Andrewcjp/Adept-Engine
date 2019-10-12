@@ -102,11 +102,11 @@ void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outra
 
 	float z = 1.0f;
 	glm::vec3 ray_nds = glm::vec3(x, y, z);
-	glm::vec4 ray_clip = glm::vec4(ray_nds.xy, -1.0, 1.0);
+	glm::vec4 ray_clip = glm::vec4(ray_nds.xy(), -1.0, 1.0);
 	glm::vec4 ray_eye = glm::inverse(projection) * ray_clip;
-	ray_eye = glm::vec4(ray_eye.xy, -1.0, 0.0);
+	ray_eye = glm::vec4(ray_eye.xy(), -1.0, 0.0);
 
-	glm::vec3 ray_wor = (glm::inverse(GetView()) * ray_eye).xyz;
+	glm::vec3 ray_wor = (glm::inverse(GetView()) * ray_eye).xyz();
 	// don't forget to normalize the vector at some point
 	ray_wor = glm::normalize(ray_wor);
 
@@ -123,7 +123,7 @@ glm::vec3  Camera::ScreenPointToWorld(float screenX, float screenY)
 		GetView());
 
 	glm::vec3 point3D = glm::vec3(x, y, 0.0f);
-	return viewProjectionInverse * glm::vec4(point3D.xyz, 0.0f);
+	return viewProjectionInverse * glm::vec4(point3D.xyz(), 0.0f);
 }
 
 glm::vec3 Camera::TransformDirection(glm::vec3 pDirection, glm::mat4 pMatrix)

@@ -188,9 +188,11 @@ void Engine::CreateApplication()
 
 void Engine::RunCook()
 {
+#if SUPPORTS_COOK
 	Cooker* cook = new Cooker();
 	cook->CopyToOutput();
 	SafeDelete(cook);
+#endif
 }
 
 void Engine::SetGame(Game * game)

@@ -34,7 +34,7 @@ public:
 	void							CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, DeviceContext * target);
 	void							CreateDepthSRV(int HeapOffset, DescriptorGroup * desc);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
-	static D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex, RHIFrameBufferDesc & desc);
+	static D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex, const RHIFrameBufferDesc & desc);
 	bool							CheckDevice(int index);
 	void							HandleResize() override;
 	bool							IsReadyForCompute()const;

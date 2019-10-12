@@ -12,6 +12,7 @@
 #include "RHIStateObject.h"
 #include "Shader_RTBase.h"
 #include "ShaderBindingTable.h"
+#include "RHI/RHITimeManager.h"
 
 RayTracingEngine::RayTracingEngine()
 {

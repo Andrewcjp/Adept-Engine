@@ -26,7 +26,7 @@ void CullingFrustum::DebugRender()
 	DebugDrawers::DrawCameraFrustum(Frustum);
 }
 
-bool CullingFrustum::SphereInFrustum(glm::vec3 &pos, float radius)
+bool CullingFrustum::SphereInFrustum(const glm::vec3 &pos, float radius)
 {
 	bool res = true;
 	//test all 6 frustum planes
@@ -43,7 +43,7 @@ bool CullingFrustum::SphereInFrustum(glm::vec3 &pos, float radius)
 	return res;
 }
 
-__forceinline bool CullingFrustum::RightParallelepipedInFrustum(const glm::vec4& Min, const glm::vec4& Max)
+/*__forceinline*/ bool CullingFrustum::RightParallelepipedInFrustum(const glm::vec4& Min, const glm::vec4& Max)
 {
 	bool inside = true;
 	//test all 6 frustum planes
@@ -88,10 +88,10 @@ void CullingFrustum::normalizePlane(glm::vec4 &frustum_plane)
 	frustum_plane[D] /= magnitude;
 }
 
-void CullingFrustum::CalculateFrustum(glm::mat4 &view_matrix, glm::mat4 &proj_matrix)
+void CullingFrustum::CalculateFrustum(const glm::mat4 &view_matrix, const  glm::mat4 &proj_matrix)
 {
-	float   *proj = &proj_matrix[0][0];
-	float   *modl = &view_matrix[0][0];
+	const float   *proj = &proj_matrix[0][0];
+	const float   *modl = &view_matrix[0][0];
 	float   clip[16]; //clipping planes
 
 	clip[0] = modl[0] * proj[0] + modl[1] * proj[4] + modl[2] * proj[8] + modl[3] * proj[12];

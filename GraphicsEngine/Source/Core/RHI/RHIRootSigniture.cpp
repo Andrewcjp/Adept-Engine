@@ -6,7 +6,7 @@ RHIRootSigniture::RHIRootSigniture()
 RHIRootSigniture::~RHIRootSigniture()
 {}
 
-void RHIRootSigniture::SetRootSig(std::vector<ShaderParameter>& parms)
+void RHIRootSigniture::SetRootSig(const std::vector<ShaderParameter>& parms)
 {
 	Parms = parms;
 	if (parms.size() != CurrnetBinds.size())

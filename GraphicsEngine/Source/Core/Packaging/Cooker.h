@@ -1,4 +1,5 @@
 #pragma once
+#if SUPPORTS_COOK
 class Cooker
 {
 public:
@@ -18,5 +19,5 @@ private:
 	bool ShouldStage = true;
 	std::string BuildConfig = "";
 };
-
+#endif
  

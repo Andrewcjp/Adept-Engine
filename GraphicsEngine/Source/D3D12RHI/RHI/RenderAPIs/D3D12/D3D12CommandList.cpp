@@ -46,21 +46,22 @@ bool D3D12CommandList::IsOpen()
 
 
 
-void D3D12CommandList::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
+void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 {
 	if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
 	{
 		return;
 	}
+	RHIPipeLineStateDesc TDesc = Desc;
 	if (CurrentRenderTarget != nullptr)
 	{
 		//todo: this might cause issues need to check this behavior
-		Desc.FrameBufferTarget = CurrentRenderTarget;
+		TDesc.FrameBufferTarget = CurrentRenderTarget;
 	}
-	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
+	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(TDesc));
 }
 
-void D3D12CommandList::BeginRenderPass(RHIRenderPassDesc& info)
+void D3D12CommandList::BeginRenderPass(const RHIRenderPassDesc& info)
 {
 	ensure(IsOpen());
 	RHICommandList::BeginRenderPass(info);
@@ -769,7 +770,7 @@ void D3D12RHITextureArray::SetIndexNull(int TargetIndex, FrameBuffer* Buffer /*=
 	Desc->CreateShaderResourceView(nullptr, &NullHeapDesc, TargetIndex);
 }
 
-void D3D12RHITextureArray::SetFrameBufferFormat(RHIFrameBufferDesc & desc)
+void D3D12RHITextureArray::SetFrameBufferFormat(const RHIFrameBufferDesc & desc)
 {
 	NullHeapDesc = D3D12FrameBuffer::GetSrvDesc(0, desc);
 }

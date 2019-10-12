@@ -8,17 +8,18 @@ RHIRenderPassCache::RHIRenderPassCache()
 RHIRenderPassCache::~RHIRenderPassCache()
 {}
 
-RHIRenderPass * RHIRenderPassCache::GetOrCreatePass(RHIRenderPassDesc & desc)
+RHIRenderPass * RHIRenderPassCache::GetOrCreatePass(const RHIRenderPassDesc & desc)
 {
-	desc.Build();
+	RHIRenderPassDesc bdesc = desc;
+	bdesc.Build();
 	for (int i = 0; i < Passes.size(); i++)
 	{
-		if (Passes[i]->Desc == desc)
+		if (Passes[i]->Desc == bdesc)
 		{
 			return Passes[i];
 		}
 	}
-	RHIRenderPass* RP = RHI::GetRHIClass()->CreateRenderPass(desc, RHI::GetDefaultDevice());
+	RHIRenderPass* RP = RHI::GetRHIClass()->CreateRenderPass(bdesc, RHI::GetDefaultDevice());
 	RP->Complie();
 	Passes.push_back(RP);
 	if (RHI::GetFrameCount() > 0)

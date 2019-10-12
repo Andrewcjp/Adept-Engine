@@ -121,7 +121,7 @@ D3D12InterGPUStagingResource * D3D12RHI::DXConv(RHIInterGPUStagingResource * D)
 }
 
 
-RHIRenderPass* D3D12RHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
+RHIRenderPass* D3D12RHI::CreateRenderPass(const RHIRenderPassDesc & Desc, DeviceContext* Device)
 {
 	return new RHIRenderPass(Desc);
 }

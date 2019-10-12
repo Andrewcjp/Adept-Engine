@@ -91,7 +91,7 @@ public:
 	static D3D12StateObject* DXConv(RHIStateObject* D);
 #endif
 	static D3D12InterGPUStagingResource* DXConv(RHIInterGPUStagingResource* D);
-	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
+	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(const RHIRenderPassDesc & Desc, DeviceContext* Device) override;
 
 
 	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc) override;

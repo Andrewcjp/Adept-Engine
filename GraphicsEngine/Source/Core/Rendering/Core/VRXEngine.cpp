@@ -52,7 +52,7 @@ void VRXEngine::ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target)
 	list->SetPipelineStateDesc(Desc);
 	list->SetUAV(Target->GetUAV(), "DstTexture");
 	ShaderComplier::GetShader<Shader_VRSResolve>()->BindBuffer(list);
-	list->Dispatch(glm::ceil(Target->GetWidth() / 4), glm::round(Target->GetHeight() / 4), 1);
+	list->Dispatch(glm::ceil(Target->GetWidth() / 4), Target->GetHeight() / 4, 1);
 	list->UAVBarrier(Target->GetUAV());
 }
 

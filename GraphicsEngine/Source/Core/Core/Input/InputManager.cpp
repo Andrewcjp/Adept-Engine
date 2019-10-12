@@ -12,11 +12,13 @@ InputManager::~InputManager()
 
 void InputManager::InitInterfaces()
 {
+#if BUILD_STEAMVR
 	if (SteamVRInputInterface::CanInit())
 	{
 		VrInterface = new SteamVRInputInterface();
 		Interfaces.push_back(VrInterface);
 	}
+#endif
 }
 
 void InputManager::Tick()

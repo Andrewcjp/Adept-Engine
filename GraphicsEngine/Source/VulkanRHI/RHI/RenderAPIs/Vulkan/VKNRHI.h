@@ -189,7 +189,7 @@ public:
 	static VKNPipeLineStateObject* VKConv(RHIPipeLineStateObject* T);
 	Shader_Main* TestShader = nullptr;
 	VKNFramebuffer* TestFrameBuffer = nullptr;
-	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) override;
+	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(const RHIRenderPassDesc & Desc, DeviceContext* Device) override;
 	VKNCommandlist* PresentList = nullptr;
 
 	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc) override;

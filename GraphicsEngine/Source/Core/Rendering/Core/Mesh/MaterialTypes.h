@@ -61,7 +61,11 @@ struct TextureBindSet
 	std::map<std::string, TextureBindData> BindMap;
 	void AddBind(std::string name, int index, int Register)
 	{
-		BindMap.emplace(name, TextureBindData{ nullptr, index ,Register });
+		TextureBindData B;
+		
+		B.RootSigSlot = index;
+		B.RegisterSlot = Register;
+		BindMap.emplace(name, B);
 	}
 };
 

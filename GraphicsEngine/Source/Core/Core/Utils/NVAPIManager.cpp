@@ -1,7 +1,8 @@
 #include "NVAPIManager.h"
+#ifdef PLATFORM_WINDOWS
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Core/Performance/PerfManager.h"
-#include "nvapi.h"
+
 
 #define NVAPI_GPU_UTILIZATION_DOMAIN_GPU 0
 #define NVAPI_GPU_UTILIZATION_DOMAIN_FB  1
@@ -181,3 +182,4 @@ void NVAPIManager::SampleClocks()
 	SampleData = "NVAPI Not Present";
 #endif
 }
+#endif

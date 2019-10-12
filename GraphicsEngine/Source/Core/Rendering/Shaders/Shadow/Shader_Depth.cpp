@@ -61,6 +61,7 @@ std::vector<ShaderParameter> Shader_Depth::GetShaderParameters()
 
 void Shader_Depth::UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index)
 {
+	CreateFunc(Shader_Depth);
 	glm::mat4 transforms[6];
 	transforms[0] = (shadowProj *
 		glm::lookAtRH(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));

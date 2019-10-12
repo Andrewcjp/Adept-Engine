@@ -26,7 +26,7 @@ struct ShaderType
 {
 	typedef std::function<class Shader*(const ShaderInit &)> InitliserFunc;
 	typedef std::function<bool(const ShaderComplieSettings& args)> ShouldComplieSig;
-	ShaderType(std::string name, InitliserFunc constructor, ShaderInit & init, ShouldComplieSig ShouldComplieFunc);
+	ShaderType(std::string name, InitliserFunc constructor,const ShaderInit & init, ShouldComplieSig ShouldComplieFunc);
 	InitliserFunc Constructor;
 	ShaderInit ShaderInitalizer;
 	Shader* CompliedShader = nullptr;

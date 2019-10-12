@@ -1,6 +1,11 @@
 #pragma once
+#ifdef PLATFORM_WINDOWS
 #define DLLEXPORT __declspec(dllexport)
 #define DLLIMPORT __declspec(dllimport)
+#else
+#define DLLEXPORT
+#define DLLIMPORT 
+#endif
 #if defined(TDPHYSICS_EXPORT) 
 #   define TD_API DLLEXPORT
 #else 

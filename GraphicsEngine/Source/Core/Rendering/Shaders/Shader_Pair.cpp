@@ -1,7 +1,7 @@
 #include "Shader_Pair.h"
 #include "Core\Maths\Math.h"
 
-Shader_Pair::Shader_Pair(DeviceContext* context, std::vector<std::string>& names, std::vector<EShaderType::Type>& stageList) :Shader(context)
+Shader_Pair::Shader_Pair(DeviceContext* context,const std::vector<std::string>& names, const std::vector<EShaderType::Type>& stageList) :Shader(context)
 {
 	Names = names;
 	StageList = stageList;

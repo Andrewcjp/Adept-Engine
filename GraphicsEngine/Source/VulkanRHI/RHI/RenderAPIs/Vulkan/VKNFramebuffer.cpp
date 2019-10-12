@@ -95,7 +95,7 @@ void VKNFramebuffer::SetResourceState(RHICommandList* List, EResourceState::Type
 	}
 }
 
-void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* list)
+void VKNFramebuffer::TryInitBuffer(const RHIRenderPassDesc& RPdesc, VKNCommandlist* list)
 {
 	if (IsCreated)
 	{
@@ -105,7 +105,8 @@ void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* li
 	IsCreated = true;
 	Device = RHI::GetDefaultDevice();
 	std::vector<VkImageView> attachments;
-	RPdesc.Build();
+	RHIRenderPassDesc De = RPdesc; 
+	De.Build();
 	if (BufferDesc.RenderTargetCount > 0)
 	{
 		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
@@ -135,7 +136,7 @@ void VKNFramebuffer::TryInitBuffer(RHIRenderPassDesc& RPdesc, VKNCommandlist* li
 
 	VkFramebufferCreateInfo framebufferInfo = {};
 	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	framebufferInfo.renderPass = VKNRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(RPdesc))->RenderPass;
+	framebufferInfo.renderPass = VKNRHI::VKConv(RHIRenderPassCache::Get()->GetOrCreatePass(De))->RenderPass;
 	framebufferInfo.attachmentCount = attachments.size();
 	framebufferInfo.pAttachments = attachments.data();
 	framebufferInfo.width = BufferDesc.Width;

@@ -6,6 +6,7 @@
 #include "Core/Utils/StringUtil.h"
 #include "Rendering/Core/VRXEngine.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "RHITimeManager.h"
 
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
@@ -46,7 +47,7 @@ void RHICommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int Instanc
 
 }
 
-void RHICommandList::BeginRenderPass(RHIRenderPassDesc& RenderPass)
+void RHICommandList::BeginRenderPass(const RHIRenderPassDesc& RenderPass)
 {
 	ensure(!IsInRenderPass);
 	IsInRenderPass = true;
@@ -295,7 +296,7 @@ RHITextureArray::RHITextureArray(DeviceContext * device, int inNumEntries)
 
 
 
-RHIRenderPass::RHIRenderPass(RHIRenderPassDesc & desc)
+RHIRenderPass::RHIRenderPass(const RHIRenderPassDesc & desc)
 {
 	Desc = desc;
 }

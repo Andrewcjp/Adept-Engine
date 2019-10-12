@@ -18,12 +18,14 @@ HMD* HMD::Create()
 	{
 		return nullptr;
 	}
+#if BUILD_STEAMVR
 	//if needed return different HMD class
 	if (SteamVRInputInterface::CanInit())
 	{
 		Log::LogMessage("Found VR HMD");
 		return new ViveHMD();
 	}
+#endif
 	Log::LogMessage("VR HMD Debug device used");
 	return new DebugHMD();
 }

@@ -58,9 +58,9 @@ public:
 	bool IsOpen();
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
 
-	virtual void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
+	virtual void SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc) override;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
-	RHI_VIRTUAL void BeginRenderPass(RHIRenderPassDesc& RenderPass) override;
+	RHI_VIRTUAL void BeginRenderPass(const RHIRenderPassDesc& RenderPass) override;
 	RHI_VIRTUAL void EndRenderPass() override;
 	void AddHeap(DescriptorHeap* heap);
 	void PushHeaps();
@@ -135,7 +135,7 @@ public:
 	RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot)override;
 	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot)override;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr);
-	RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc);
+	RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc);
 private:
 	void Release() override;
 	void Clear() override;

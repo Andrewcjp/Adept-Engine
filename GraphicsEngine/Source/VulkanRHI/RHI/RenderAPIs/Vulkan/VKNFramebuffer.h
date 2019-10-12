@@ -18,7 +18,7 @@ public:
 	virtual DeviceContext * GetDevice() override;
 	virtual const RHIPipeRenderTargetDesc & GetPiplineRenderDesc() override;
 
-	void TryInitBuffer(RHIRenderPassDesc& desc, VKNCommandlist* list);
+	void TryInitBuffer(const RHIRenderPassDesc& desc, VKNCommandlist* list);
 
 	void CreateRT(VKNCommandlist* list, int index);
 
