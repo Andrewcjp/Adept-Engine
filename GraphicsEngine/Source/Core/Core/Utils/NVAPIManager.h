@@ -1,4 +1,5 @@
 #pragma once
+#ifdef PLATFORM_WINDOWS
 //This might not be supported by every complier version
 //detect if present as NVAPI is not distributable?
 #if __has_include("nvapi.h")
@@ -11,6 +12,7 @@
 #include "d3d12.h"
 #include "nvapi.h"
 #endif
+struct ID3D12Device;
 class NVAPIManager
 { 
 public:
@@ -38,4 +40,4 @@ private:
 #endif
 	int StatIds[MAX_GPU_DEVICE_COUNT][Stats::Limit] = { 0 };
 };
-
+#endif

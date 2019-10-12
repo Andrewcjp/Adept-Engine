@@ -21,7 +21,7 @@ namespace MathUtils
 		glm::vec3::bool_type t = glm::isnan(value);
 		if (t.x == true || t.y == true || t.z == true)
 		{
-			__debugbreak();
+			DEBUGBREAK;
 		}
 	}
 
@@ -30,7 +30,7 @@ namespace MathUtils
 		glm::vec4::bool_type t = glm::isnan(value);
 		if (t.x == true || t.y == true || t.z == true || t.w == true)
 		{
-			__debugbreak();
+			DEBUGBREAK;
 		}
 	}
 

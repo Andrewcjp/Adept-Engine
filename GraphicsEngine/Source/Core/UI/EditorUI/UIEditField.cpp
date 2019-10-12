@@ -254,7 +254,7 @@ void UIEditField::SendValue()
 #endif
 	}
 }
-
+#ifdef PLATFORM_WINDOWS
 void UIEditField::ProcessKeyDown(WPARAM key)
 {
 	if (!Enabled)
@@ -334,6 +334,7 @@ void UIEditField::ProcessKeyDown(WPARAM key)
 	//todo: Cursour Movement
 	Textlabel->SetText(DisplayText);
 }
+#endif
 bool UIEditField::CheckValidInput(char c)
 {
 	if (FilterType == EditValueType::String)

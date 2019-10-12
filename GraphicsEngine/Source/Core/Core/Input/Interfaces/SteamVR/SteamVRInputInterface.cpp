@@ -1,4 +1,5 @@
 #include "SteamVRInputInterface.h"
+#if BUILD_STEAMVR
 #include "Core/Utils/DebugDrawers.h"
 #include "Rendering/VR/ViveHMD.h"
 #include "Core/Assets/AssetManager.h"
@@ -182,3 +183,4 @@ void SteamVRInputInterface::Tick()
 		}
 	}
 }
+#endif

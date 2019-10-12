@@ -6,10 +6,11 @@
 #include "Core/Assets/MeshLoader.h"
 #include "Core/IRefCount.h"
 #include "Culling/CullingAABB.h"
-#include "Core/ObjectBase/SharedPtr.h"
+
 #include "RHI/DeviceContext.h"
 #include "RHI/RHITemplates.h"
-
+#include "RHI/BaseTexture.h"
+#include "Core/ObjectBase/SharedPtr.h"
 #include "RHI/RHICommandList.h"
 class Material;
 struct SkeletalMeshEntry;

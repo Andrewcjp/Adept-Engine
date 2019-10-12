@@ -163,7 +163,7 @@ VKNPipeLineStateObject * VKNRHI::VKConv(RHIPipeLineStateObject * T)
 	return static_cast<VKNPipeLineStateObject*>(T);
 }
 
-RHIRenderPass* VKNRHI::CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device)
+RHIRenderPass* VKNRHI::CreateRenderPass(const RHIRenderPassDesc & Desc, DeviceContext* Device)
 {
 	return new VKNRenderPass(Desc, Device);
 }

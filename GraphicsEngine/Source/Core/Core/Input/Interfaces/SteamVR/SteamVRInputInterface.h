@@ -1,4 +1,5 @@
 #pragma once
+#if BUILD_STEAMVR
 #include "../../InputInterface.h"
 #include "..\headers\openvr.h"
 
@@ -36,4 +37,4 @@ private:
 	glm::vec3 Offset = glm::vec3(0, 5, 0);
 	glm::vec3 Scale = glm::vec3(10);
 };
-
+#endif

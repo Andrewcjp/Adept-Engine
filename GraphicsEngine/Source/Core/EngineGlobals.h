@@ -142,6 +142,10 @@ extern void ADNOP();
 
 #ifdef PLATFORM_ANDROID
 #define BUILD_WISE 0
+#define BUILD_STEAMVR 0
+#define SUPPORTS_COOK 0
 #else
 #define BUILD_WISE 1
+#define BUILD_STEAMVR 1
+#define SUPPORTS_COOK 1
 #endif

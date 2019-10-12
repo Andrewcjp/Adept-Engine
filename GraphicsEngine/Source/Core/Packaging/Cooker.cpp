@@ -1,5 +1,6 @@
 
 #include "Cooker.h"
+#if SUPPORTS_COOK
 #include <experimental/filesystem>
 #include "Core/Utils/FileUtils.h"
 #include "Core/Assets/AssetManager.h"
@@ -189,3 +190,4 @@ void Cooker::CreatePackage()
 
 }
 
+#endif

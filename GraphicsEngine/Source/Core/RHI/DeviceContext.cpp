@@ -5,6 +5,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/GPUStateCache.h"
 
 DeviceContext::DeviceContext()
 {

@@ -159,7 +159,7 @@ ConstraintInstance * PhysxEngine::CreateConstraint(RigidBody * A, RigidBody * B,
 	if (PD6Joint == nullptr)
 	{
 
-		return false;
+		return nullptr;
 	}
 
 

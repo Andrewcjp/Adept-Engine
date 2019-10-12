@@ -311,7 +311,7 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 	}
 	if (VectorUtils::Contains(Get()->DeferredDeleteQueue, RHIResourseStamped(Resource, RHI::GetFrameCount())))
 	{
-		__debugbreak();
+		DEBUGBREAK;
 	}
 	if (Get()->IsFlushingDeleteQueue)
 	{
@@ -419,7 +419,8 @@ BaseTexture * RHI::CreateNullTexture(DeviceContext * Device)
 
 Mesh * RHI::CreateMesh(const char * path)
 {
-	return CreateMesh(path, MeshLoader::FMeshLoadingSettings());
+	MeshLoader::FMeshLoadingSettings set = MeshLoader::FMeshLoadingSettings();
+	return CreateMesh(path, set);
 }
 
 Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings)
@@ -643,7 +644,7 @@ void RHI::DestoryContext()
 #if DETECT_MEMORY_LEAKS
 	RefCheckerContainer::LogAllRefCounters();
 #endif
-}
+	}
 
 void RHI::BeginFrame()
 {
@@ -731,7 +732,7 @@ HighLevelAccelerationStructure* RHIClass::CreateHighLevelAccelerationStructure(D
 	return nullptr;
 }
 
- RHIStateObject* RHIClass::CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc)
+RHIStateObject* RHIClass::CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc)
 {
 	return nullptr;
 }

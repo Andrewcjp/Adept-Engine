@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iomanip>
 #include <time.h>
+#include "RHI/RHITimeManager.h"
 
 PerfManager* PerfManager::Instance;
 bool PerfManager::PerfActive = true;
@@ -16,9 +17,14 @@ unsigned long PerfManager::get_nanos()
 }
 long PerfManager::GetSeconds()
 {
+#ifdef PLATFORM_WINDOWS
+
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
 	return (long)ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;
+#else
+	return 0;
+#endif
 }
 PerfManager * PerfManager::Get()
 {
@@ -57,7 +63,9 @@ PerfManager::PerfManager()
 {
 	Instance = this;
 	ShowAllStats = true;
+#ifdef PLATFORM_WINDOWS
 	NVApiManager = new NVAPIManager();
+#endif
 	Bencher = new BenchMarker();
 	//Test();
 }
@@ -155,7 +163,9 @@ void PerfManager::RenderGpuData(int x, int y)
 {
 	if (Instance != nullptr)
 	{
+#ifdef PLATFORM_WINDOWS
 		Instance->NVApiManager->RenderGPUStats(x, y);
+#endif
 	}
 }
 int PerfManager::GetTimerIDByName(std::string name)
@@ -459,7 +469,9 @@ void PerfManager::UpdateStats()
 
 void PerfManager::SampleSlowStats()
 {
+#ifdef PLATFORM_WINDOWS
 	NVApiManager->SampleClocks();
+#endif
 }
 
 void PerfManager::ClearStats()

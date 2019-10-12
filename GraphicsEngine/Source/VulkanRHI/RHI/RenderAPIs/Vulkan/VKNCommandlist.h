@@ -32,10 +32,10 @@ public:
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset) override;
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset) override;
-	RHI_VIRTUAL void SetPipelineStateDesc(RHIPipeLineStateDesc& Desc) override;
+	RHI_VIRTUAL void SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc) override;
 	RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 
-	RHI_VIRTUAL void BeginRenderPass(RHIRenderPassDesc& RenderPass) override;
+	RHI_VIRTUAL void BeginRenderPass(const RHIRenderPassDesc& RenderPass) override;
 	RHI_VIRTUAL void EndRenderPass() override;
 	RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot) override;
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
@@ -86,9 +86,9 @@ public:
 	virtual void BindToShader(RHICommandList * list, int slot) override;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) override;
 	RHI_VIRTUAL void Clear() override;
-	RHI_VIRTUAL void SetFrameBufferFormat(RHIFrameBufferDesc & desc) override;
+	RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc) override;
 private:
-	FrameBuffer* Tmp;
+	FrameBuffer* Tmp = nullptr;
 };
 
 

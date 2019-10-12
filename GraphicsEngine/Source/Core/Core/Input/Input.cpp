@@ -139,7 +139,7 @@ bool Input::MouseMove(int x, int y, double)
 	{
 		PlatformWindow::GetApplication()->SetMousePos(CentrePoint);
 	}
-	return TRUE;
+	return true;
 }
 
 bool Input::ProcessKeyDown(unsigned int key)
@@ -241,6 +241,7 @@ bool Input::GetMouseButtonDown(int button)
 
 void Input::SetCursorVisible(bool state)
 {
+#ifdef PLATFORM_WINDOWS
 	int CurrentCount = ShowCursor(state);
 	if (CurrentCount > 1)
 	{
@@ -250,6 +251,7 @@ void Input::SetCursorVisible(bool state)
 	{
 		CurrentCount = ShowCursor(true);
 	}
+#endif
 }
 
 IntPoint Input::GetMousePos()

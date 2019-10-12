@@ -69,7 +69,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetInd
 	return GetSrvDesc(RenderTargetIndex, BufferDesc);
 }
 
-D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetIndex, RHIFrameBufferDesc& desc)
+D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetIndex,const RHIFrameBufferDesc& desc)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	if (desc.RenderTargetCount > 2)

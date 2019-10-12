@@ -61,7 +61,7 @@ void DeferredLightingNode::OnExecute()
 	SceneRenderer::Get()->BindLightsBuffer(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRenderer::Get()->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
 
-	if (GetInput(3)->IsValid())
+	if (GetInput(3)->IsValid() && RHI::IsD3D12())
 	{
 		GetShadowDataFromInput(3)->BindPointArray(List, 6);
 	}

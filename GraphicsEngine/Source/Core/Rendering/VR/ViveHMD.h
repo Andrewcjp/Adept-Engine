@@ -1,6 +1,8 @@
 #pragma once
 #include "HMD.h"
+#if BUILD_STEAMVR
 #include "..\headers\openvr.h"
+
 #include "../Core/Core/Transform.h"
 
 class SteamVRInputInterface;
@@ -30,3 +32,4 @@ private:
 
 };
 
+#endif

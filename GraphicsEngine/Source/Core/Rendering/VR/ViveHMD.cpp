@@ -5,7 +5,7 @@
 #include "Core/Input/InputManager.h"
 #include "Core/Input/Input.h"
 #include "Core/Input/Interfaces/SteamVR/SteamVRInputInterface.h"
-
+#if BUILD_STEAMVR
 ViveHMD::ViveHMD()
 {
 	RenderScale = 1.0f;
@@ -57,3 +57,4 @@ bool ViveHMD::IsActive()
 {
 	return true;
 }
+#endif

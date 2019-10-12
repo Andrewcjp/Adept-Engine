@@ -1,9 +1,12 @@
 
 #include "GenericApplication.h"
 #include "Core/Utils/StringUtil.h"
+#ifdef PLATFORM_WINDOWS
 #include <experimental/filesystem>
-#include "Core/Utils/FileUtils.h"
 namespace fs = std::experimental::filesystem;
+#endif
+#include "Core/Utils/FileUtils.h"
+
 int GenericApplication::ExecuteHostScript(std::string Filename, std::string Args, bool ShowOutput)
 {
 	return 0;
@@ -27,7 +30,10 @@ void GenericApplication::Sleep(float Milliseconds)
 
 int64_t GenericApplication::GetFileTimeStamp(const std::string& Path)
 {
+#ifdef PLATFORM_WINDOWS
 	return fs::_Last_write_time(StringUtils::ConvertStringToWide(Path).c_str());
+#endif
+	return 0;
 }
 
 bool GenericApplication::CheckFileSrcNewer(const std::string& srcpath, const std::string dest)

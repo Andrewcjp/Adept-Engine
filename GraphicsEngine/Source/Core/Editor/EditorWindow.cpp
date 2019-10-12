@@ -345,6 +345,7 @@ void EditorWindow::SaveScene()
 	{
 		std::string Startdir = Engine::GetExecutionDir();
 		Startdir.append("\\asset\\scene\\");
+#ifdef PLATFORM_WINDOWS
 		using namespace std::string_literals;
 		std::string Output;
 		if (PlatformApplication::DisplaySaveFileDialog(Startdir, "Scene Files\0*.scene\0"s, ".scene", Output))
@@ -352,6 +353,7 @@ void EditorWindow::SaveScene()
 			CurrentSceneSavePath = Output;
 			Saver->SaveScene(CurrentScene, CurrentSceneSavePath);
 		}
+#endif
 	}
 	else
 	{
@@ -365,8 +367,10 @@ void EditorWindow::LoadScene()
 	std::string Output;
 	std::string Startdir = Engine::GetExecutionDir();
 	Startdir.append("\\asset\\scene\\");
+#ifdef PLATFORM_WINDOWS
 	using namespace std::string_literals;
 	if (PlatformApplication::DisplayOpenFileDialog(Startdir, "Scene Files\0*.scene\0"s, Output))
+#endif
 	{
 		CurrentSceneSavePath = Output;
 		SceneRenderer::Get()->SetScene(nullptr);

@@ -144,7 +144,7 @@ void VKNCommandlist::Execute(DeviceContextQueue::Type Target /*= DeviceContextQu
 	IsOpen = false;
 }
 
-void VKNCommandlist::BeginRenderPass(RHIRenderPassDesc& RenderPassInfo)
+void VKNCommandlist::BeginRenderPass(const RHIRenderPassDesc& RenderPassInfo)
 {
 	ensure(IsOpen);
 	RHICommandList::BeginRenderPass(RenderPassInfo);
@@ -273,17 +273,18 @@ void VKNCommandlist::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuf
 
 
 
-void VKNCommandlist::SetPipelineStateDesc(RHIPipeLineStateDesc& Desc)
+void VKNCommandlist::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 {
+	RHIPipeLineStateDesc TargetDesc = Desc;
 	if (IsInRenderPass && CurrnetRenderPass != nullptr)
 	{
 		//if (Desc.FrameBufferTarget == CurrnetRenderPass->Desc.TargetBuffer)
 		{
-			Desc.RenderPassDesc = CurrnetRenderPass->Desc;
-			Desc.RenderPass = CurrnetRenderPass;
+			TargetDesc.RenderPassDesc = CurrnetRenderPass->Desc;
+			TargetDesc.RenderPass = CurrnetRenderPass;
 		}
 	}
-	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(Desc));
+	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(TargetDesc));
 }
 
 void VknUAV::Bind(RHICommandList * list, int slot)
@@ -337,7 +338,7 @@ void VkanTextureArray::Clear()
 
 }
 
-void VkanTextureArray::SetFrameBufferFormat(RHIFrameBufferDesc & desc)
+void VkanTextureArray::SetFrameBufferFormat(const RHIFrameBufferDesc & desc)
 {
 	//throw std::logic_error("The method or operation is not implemented.");
 }

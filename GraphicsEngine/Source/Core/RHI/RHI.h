@@ -198,7 +198,7 @@ public:
 	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc);
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc);
 
-	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(RHIRenderPassDesc & Desc, DeviceContext* Device) = 0;
+	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(const RHIRenderPassDesc & Desc, DeviceContext* Device) = 0;
 	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false);
 
 	//MGPU

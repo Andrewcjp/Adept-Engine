@@ -62,7 +62,9 @@ std::vector<std::string> StringUtils::Split(std::string Target, char c)
 const char* StringUtils::CopyStringToCharArray(std::string String)
 {
 	char* tmp = new char[String.length() + 1];
+#ifdef PLATFORM_WINDOWS
 	strcpy_s(tmp, String.length() + 1, String.c_str());
+#endif
 	return tmp;
 }
 

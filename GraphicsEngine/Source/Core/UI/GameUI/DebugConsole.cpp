@@ -1,7 +1,7 @@
 #include "DebugConsole.h"
 #include "Core/EngineInc.h"
 #include "Core/Input/Input.h"
-#include "Core/MinWindows.h"
+
 #include "Core/Platform/ConsoleVariable.h"
 #include "Editor/EditorWindow.h"
 #include "UI/Core/UILabel.h"
@@ -94,8 +94,12 @@ void DebugConsole::ClearInput()
 	Textlabel->SetText(nextext);
 }
 
+#ifdef PLATFORM_WINDOWS
+#include "Core/MinWindows.h"
+#endif
 void DebugConsole::ProcessKeyDown(UINT_PTR key)
 {
+#ifdef PLATFORM_WINDOWS
 	if (key == VK_DELETE)
 	{
 		nextext = ">";
@@ -143,14 +147,16 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 	//todo: Cursor Movement
 	Textlabel->SetText(nextext);
 	UpdateSugestions();
+#endif
 }
-
 void DebugConsole::UpdateData()
 {
+#ifdef PLATFORM_WINDOWS
 	if (Input::GetKeyDown(VK_OEM_8))
 	{
 		Open();
 	}
+#endif
 }
 void DebugConsole::UpdateSugestions()
 {

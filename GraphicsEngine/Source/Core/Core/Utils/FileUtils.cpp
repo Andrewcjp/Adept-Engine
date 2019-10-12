@@ -5,11 +5,13 @@
 
 bool FileUtils::File_ExistsTest(const std::string & name, bool Silent)
 {
+#ifdef PLATFORM_WINDOWS
 	struct stat buffer;
 	if ((stat(name.c_str(), &buffer) == 0))
 	{
 		return true;
 	}
+#endif
 	if (!Silent)
 	{
 		Log::OutS << "File Does not exist " << name.c_str() << Log::OutS;

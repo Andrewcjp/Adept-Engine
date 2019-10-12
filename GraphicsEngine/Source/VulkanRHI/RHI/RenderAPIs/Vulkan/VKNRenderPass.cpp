@@ -2,7 +2,7 @@
 #include "VKNHelpers.h"
 #include "VKNDeviceContext.h"
 
-VKNRenderPass::VKNRenderPass(RHIRenderPassDesc & desc, DeviceContext * Device) :RHIRenderPass(desc)
+VKNRenderPass::VKNRenderPass(const RHIRenderPassDesc & desc, DeviceContext * Device) :RHIRenderPass(desc)
 {
 	VDevice = VKNRHI::VKConv(Device);
 }
