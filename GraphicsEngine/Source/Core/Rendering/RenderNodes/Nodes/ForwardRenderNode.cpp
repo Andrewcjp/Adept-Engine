@@ -14,6 +14,7 @@
 #include "../../Shaders/Shader_Main.h"
 #include "../../Core/FrameBuffer.h"
 #include "Flow/VRBranchNode.h"
+#include "Core/Performance/PerfManager.h"
 
 ForwardRenderNode::ForwardRenderNode()
 {
@@ -27,6 +28,7 @@ ForwardRenderNode::~ForwardRenderNode()
 
 void ForwardRenderNode::OnExecute()
 {
+	SCOPE_CYCLE_COUNTER_GROUP("ForwardRender", "Render");
 	FrameBuffer* TargetBuffer = GetFrameBufferFromInput(0);
 	CommandList->ResetList();
 	CommandList->StartTimer(EGPUTIMERS::MainPass);

@@ -6,7 +6,7 @@ struct ParticleSystem;
 struct DeviceDependentObjects;
 
 #define USE_INDIRECTCOMPUTE 1
-#define USE_INDIRECTRENDER 0
+#define USE_INDIRECTRENDER 1
 #define PARTICLE_STATS 1
 class ParticleSystemManager
 {

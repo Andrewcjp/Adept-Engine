@@ -49,6 +49,7 @@ public:
 	}
 
 	std::string GetValueString();
+	std::string GetRawValueString();
 	bool IsFloat = false;
 	ECVarType::Type Type;
 	std::function<void(int state)> OnChangedFunction;
@@ -56,7 +57,8 @@ public:
 	std::function<void(float state)> OnChangedFloatFunction;
 	std::function<void()> ExecuteFunction;
 	bool NeedsValue = false;
-
+	bool HasValue()const;
+	void SetRawValue(std::string value);
 private:
 	ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue);
 	std::string Name = "";
@@ -68,6 +70,7 @@ private:
 	};
 	ValueUnion CurrentValue;
 	ValueUnion DefaultValue;
+	std::string RawValueString = "";
 };
 
 class ConsoleVariableManager

@@ -36,7 +36,9 @@ CORE_API ComponentRegistry* Engine::CompRegistry = nullptr;
 PhysicsEngine* Engine::PhysEngine = nullptr;
 Engine* Engine::EngineInstance = nullptr;
 
-
+static ConsoleVariable RunCookVar("cook", 0, ECVarType::LaunchOnly);
+static ConsoleVariable UseDX12("dx12", 0, ECVarType::LaunchOnly);
+static ConsoleVariable UseVK("vk", 0, ECVarType::LaunchOnly);
 PhysicsEngine * Engine::GetPhysEngineInstance()
 {
 	return PhysEngine;
@@ -160,8 +162,8 @@ RenderWindow * Engine::GetRenderWindow()
 }
 
 void Engine::CreateApplication()
-{	
-	PlatformWindow::TickSplashWindow(10,"Loading RHI");
+{
+	PlatformWindow::TickSplashWindow(10, "Loading RHI");
 	if (ForcedRenderSystem == ERenderSystemType::Limit)
 	{
 #if 0
@@ -174,9 +176,9 @@ void Engine::CreateApplication()
 	{
 		RHI::InitRHI(ForcedRenderSystem);
 	}
-	PlatformWindow::TickSplashWindow(10,"Loading Renderer");
+	PlatformWindow::TickSplashWindow(10, "Loading Renderer");
 	RHI::InitialiseContext();
-	PlatformWindow::TickSplashWindow(10,"Loading Scene");
+	PlatformWindow::TickSplashWindow(10, "Loading Scene");
 	//TESTING::RunTests();
 
 	if (!IsCooking)
@@ -190,7 +192,11 @@ void Engine::RunCook()
 {
 #if SUPPORTS_COOK
 	Cooker* cook = new Cooker();
-	cook->CopyToOutput();
+	if (RunCookVar.HasValue())
+	{
+		cook->TargetPlatform = EPlatforms::Parse(RunCookVar.GetRawValueString());
+	}
+	cook->Execute();
 	SafeDelete(cook);
 #endif
 }
@@ -207,9 +213,7 @@ Game * Engine::GetGame()
 	return mgame;
 }
 
-static ConsoleVariable RunCookVar("cook", 0, ECVarType::LaunchOnly);
-static ConsoleVariable UseDX12("dx12", 0, ECVarType::LaunchOnly);
-static ConsoleVariable UseVK("vk", 0, ECVarType::LaunchOnly);
+
 
 void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 {
@@ -220,6 +224,7 @@ void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 		ConsoleVariableManager::SetupVars(args.ToSString());
 		if (RunCookVar.GetBoolValue())
 		{
+
 			Log::OutS << "Starting Cook" << Log::OutS;
 			ShouldRunCook = true;
 		}
@@ -295,7 +300,7 @@ void Engine::HandleKeyUp(unsigned int key)
 	{
 		UIManager::GetCurrentContext()->ProcessKeyUp(key);
 	}
-	else if(Input::Get() != nullptr)
+	else if (Input::Get() != nullptr)
 	{
 		Input::Get()->ProcessKeyUp((unsigned int)key);
 	}
@@ -359,7 +364,7 @@ void Engine::CreateApplicationWindow(int width, int height)
 		isWindowVaild = m_appwnd->CreateRenderWindow(width, height);
 
 		if (!isWindowVaild)
-		{ 
+		{
 			Log::OutS << "Fatal Error: Window Invalid" << Log::OutS;
 		}
 	}

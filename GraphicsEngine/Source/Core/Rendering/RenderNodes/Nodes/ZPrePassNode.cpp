@@ -4,6 +4,7 @@
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/Shaders/Shader_PreZ.h"
 #include "Flow/VRBranchNode.h"
+#include "Core/Performance/PerfManager.h"
 
 ZPrePassNode::ZPrePassNode()
 {
@@ -18,6 +19,7 @@ ZPrePassNode::~ZPrePassNode()
 
 void ZPrePassNode::OnExecute()
 {
+	SCOPE_CYCLE_COUNTER_GROUP("ZPrePass", "Render");
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	Cmdlist->ResetList();
 	Cmdlist->StartTimer(EGPUTIMERS::PreZ);

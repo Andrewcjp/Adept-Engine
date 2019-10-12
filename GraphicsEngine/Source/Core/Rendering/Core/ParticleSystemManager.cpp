@@ -8,6 +8,7 @@
 #include "GPUParticleSystem.h"
 #include "Core/Utils/MemoryUtils.h"
 #include "FrameBuffer.h"
+#include "Core/Performance/PerfManager.h"
 
 static ConsoleVariable PauseVar("PS.PauseSim", 0, ECVarType::ConsoleOnly);
 
@@ -153,6 +154,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	{
 		return;
 	}
+	SCOPE_CYCLE_COUNTER_GROUP("SimulateSystem", "Particle");
 	System->DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_StartSimulation>()));
 	System->CounterBuffer->GetUAV()->Bind(CmdList, 0);
@@ -255,6 +257,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * B
 	{
 		return;
 	}
+	SCOPE_CYCLE_COUNTER_GROUP("RenderSystem", "Particle");
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = system->RenderShader;
 	desc.FrameBufferTarget = BufferTarget;

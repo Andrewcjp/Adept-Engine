@@ -1,5 +1,6 @@
 #pragma once
 #if SUPPORTS_COOK
+
 class Cooker
 {
 public:
@@ -7,17 +8,19 @@ public:
 	~Cooker();
 	std::string GetTargetPath(bool AppendSlash = false);
 
-	void CopyToOutput();
+	void Execute();
 	void CookAllShaders();
 	void CopyFolderToOutput(std::string Target, std::string PathFromBuild);
 	bool CopyAssetToOutput(std::string RelTarget);
 	void CreatePackage();
+	EPlatforms::Type TargetPlatform = EPlatforms::Windows;
 private:
 	std::string OutputPath = "\\Build";
 	bool ShouldPack = true;
-	bool ShouldComplie = true;
+	bool ShouldComplie = false;
 	bool ShouldStage = true;
 	std::string BuildConfig = "";
+	
 };
 #endif
  
