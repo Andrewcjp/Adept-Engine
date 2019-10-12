@@ -37,8 +37,9 @@ std::string Cooker::GetTargetPath(bool AppendSlash)
 	return TargetPath;
 }
 namespace fs = std::experimental::filesystem;
-void Cooker::CopyToOutput()
+void Cooker::Execute()
 {
+	Log::LogMessage("Cooking for Platform: " + EPlatforms::ToString(TargetPlatform));
 	if (ShouldComplie)
 	{
 		Log::OutS << "**********Complie Started**********" << Log::OutS;

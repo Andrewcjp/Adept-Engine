@@ -7,6 +7,7 @@
 #include "RHI/RHICommandList.h"
 #include "RHI/RHITimeManager.h"
 #include "../../Core/FrameBuffer.h"
+#include "Core/Performance/PerfManager.h"
 
 
 GBufferWriteNode::GBufferWriteNode()
@@ -23,6 +24,7 @@ GBufferWriteNode::~GBufferWriteNode()
 
 void GBufferWriteNode::OnExecute()
 {
+	SCOPE_CYCLE_COUNTER_GROUP("GBufferWrite", "Render");
 	CommandList->ResetList();
 	CommandList->StartTimer(EGPUTIMERS::DeferredWrite);
 	ensure(GetInput(0)->GetStoreTarget());

@@ -383,7 +383,6 @@ void D3D12RHI::LoadPipeLine()
 }
 
 void D3D12RHI::HandleDeviceFailure()
-
 {
 	ensure(Instance);
 	HRESULT HR;

@@ -1,5 +1,6 @@
 
 #include "EngineTypes.h"
+#include "Utils\StringUtil.h"
 
 bool TagContainer::Contains(const Tag& t)
 {
@@ -50,4 +51,37 @@ void BitFlagsBase::SetFlags(int flags)
 int BitFlagsBase::ConvertToFlags(int enumi)
 {
 	return 1 << enumi;
+}
+
+std::string EPlatforms::ToString(EPlatforms::Type type)
+{
+	switch (type)
+	{
+		case EPlatforms::Windows:
+			return "Windows";
+		case EPlatforms::Linux:
+			return "Linux";
+		case EPlatforms::Android:
+			return "Android";
+	}
+	return "Unknown";
+}
+
+EPlatforms::Type EPlatforms::Parse(std::string name)
+{
+	std::string Lower = name;
+	StringUtils::ToLower(Lower);
+	if (Lower == "win64")
+	{
+		return EPlatforms::Windows;
+	}
+	else if (Lower == "android")
+	{
+		return EPlatforms::Android;
+	}
+	else if (Lower == "linux")
+	{
+		return EPlatforms::Linux;
+	}
+	return EPlatforms::Limit;
 }

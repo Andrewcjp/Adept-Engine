@@ -93,6 +93,16 @@ void ConsoleVariable::Execute()
 	}
 }
 
+bool ConsoleVariable::HasValue() const
+{
+	return RawValueString.length() > 0;
+}
+
+void ConsoleVariable::SetRawValue(std::string value)
+{
+	RawValueString = value;
+}
+
 ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, bool needsValue)
 {
 	Type = cvartype;
@@ -119,6 +129,11 @@ std::string ConsoleVariable::GetValueString()
 	return	std::to_string(GetIntValue());
 }
 
+std::string ConsoleVariable::GetRawValueString()
+{
+	return RawValueString;
+}
+
 bool GetValueClean(std::string value, int& outvalue)
 {
 	if (value.find('-') != -1)
@@ -126,7 +141,14 @@ bool GetValueClean(std::string value, int& outvalue)
 		outvalue = -1;
 		return false;
 	}
-	outvalue = stoi(value);
+	try
+	{
+		outvalue = stoi(value);
+	}
+	catch (const std::exception& e)
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -173,6 +195,7 @@ void ConsoleVariableManager::ProcessVarString(std::string value, bool LaunchOnly
 					{
 						Log::LogMessage("Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
 					}
+					CV->SetRawValue(SplitArgs[i + 1]);
 					CV->SetValue(parsedvalue);
 				}
 				else
@@ -218,8 +241,9 @@ void ConsoleVariableManager::SetupVars(std::string LaunchArgString)
 						}
 						else
 						{
-							Log::LogMessage("Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
+							Log::LogMessage("Int Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
 						}
+						CV->SetRawValue(SplitArgs[i + 1]);
 						CV->SetValue(parsedvalue);
 					}
 					else
@@ -227,6 +251,7 @@ void ConsoleVariableManager::SetupVars(std::string LaunchArgString)
 						Log::LogMessage("Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
 						CV->SetValue(-1);
 					}
+					
 				}
 				else
 				{
