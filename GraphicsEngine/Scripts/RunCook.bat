@@ -1,4 +1,4 @@
 @echo off
-call "..\Binaries\Release\Core.exe" -Cook %1
+call "..\Binaries\Release\Game.exe" -Cook %1
 echo Cook complete
 pause
