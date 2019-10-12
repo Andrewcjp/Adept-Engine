@@ -10,6 +10,7 @@
 #include "Core/Asserts.h"
 #include "RHI/RHIRenderPassCache.h"
 #include "VKNRenderPass.h"
+#include "Rendering/Core/FrameBuffer.h"
 
 VKNPipeLineStateObject::VKNPipeLineStateObject(const RHIPipeLineStateDesc & desc, DeviceContext * con) :RHIPipeLineStateObject(desc)
 {
