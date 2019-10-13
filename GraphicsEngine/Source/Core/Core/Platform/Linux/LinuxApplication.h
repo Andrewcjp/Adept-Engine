@@ -4,6 +4,7 @@
 class LinuxApplication :public  GenericApplication
 {
 
+	static EPlatforms::Type GetPlatform();
 };
 
 typedef LinuxApplication PlatformApplication;

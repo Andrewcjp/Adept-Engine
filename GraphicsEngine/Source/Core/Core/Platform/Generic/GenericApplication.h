@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "Core/Asserts.h"
+#include "Core/EngineTypes.h"
 
 class GenericApplication
 {
@@ -24,5 +25,6 @@ public:
 	static void * GetDllExport(void * DllHandle, const char * ProcName);
 	static void FreeDllHandle(void * DllHandle);
 	static void * GetDllHandle(FString Name);
+	static EPlatforms::Type GetPlatform();
 };
 

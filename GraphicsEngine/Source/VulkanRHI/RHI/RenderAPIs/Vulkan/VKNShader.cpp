@@ -10,6 +10,7 @@
 #include "RHI/ShaderPreProcessor.h"
 #include "Core/Platform/PlatformCore.h"
 #include "ShaderReflection.h"
+#include "Core/Utils/FileUtils.h"
 
 
 
@@ -27,10 +28,7 @@ EShaderError::Type VKNShader::AttachAndCompileShaderFromFile(const char * filena
 	{
 		return EShaderError::Type();
 	}
-	std::string Log = "Shader Compile Output: ";
-	Log.append(filename);
-	Log.append("\n");
-	Log::LogMessage(Log);
+
 	entyPoint = Entrypoint;
 	std::vector<char> data = VKNShader::ComplieShader_Local(filename, type, true, filename);
 
@@ -222,25 +220,26 @@ bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerIn
 	const int DefaultVersion = 450;
 	if (!Shader->parse(&DefaultTBuiltInResource, DefaultVersion, ENoProfile, false, false, Messages, inc))
 	{
-		Log::LogMessage(Program->getInfoLog());
-		Log::LogMessage(Program->getInfoDebugLog());
-		Log::LogMessage(Shader->getInfoLog());
-		__debugbreak();
+		OutErrors += Program->getInfoLog();
+		OutErrors += Program->getInfoDebugLog();
+		OutErrors += Shader->getInfoLog();
+		return false;
 	}
 	Program->addShader(Shader);
 	if (!Program->link(Messages))
 	{
-		Log::LogMessage(Program->getInfoLog());
-		Log::LogMessage(Program->getInfoDebugLog());
-		__debugbreak();
+		OutErrors += Program->getInfoLog();
+		OutErrors += Program->getInfoDebugLog();
+		return false;
 	}
 	Program->mapIO();
 	if (!Program->getIntermediate(Stage))
 	{
-		Log::LogMessage(Program->getInfoDebugLog());
-		__debugbreak();
+		OutErrors += Program->getInfoLog();
+		OutErrors += Program->getInfoDebugLog();
+		return false;
 	}
-	
+
 	spv::SpvBuildLogger logger;
 	glslang::SpvOptions spvOptions;
 	spvOptions.disableOptimizer = true;
@@ -249,16 +248,8 @@ bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerIn
 	std::vector<uint32_t> WordSpirv;
 	glslang::GlslangToSpv(*Program->getIntermediate((EShLanguage)Stage), WordSpirv, &logger, &spvOptions);
 
-#if 1
-	std::string root = AssetManager::GetShaderPath() + "\\VKan\\";
-	if (CompilerInfo.HLSL)
-	{
-		root += "HLSL_";
-	}
-	StringUtils::RemoveChar(name, "\\");
-	root += std::string(name);
-	glslang::OutputSpvBin(WordSpirv, root.c_str());
-#endif
+	WriteBlobs(name, WordSpirv);
+
 	//convert word code to byte code - why is it the output
 	for (int i = 0; i < WordSpirv.size(); i++)
 	{
@@ -272,6 +263,15 @@ bool VKNShader::GenerateSpirv(const std::string Source, ComplieInfo & CompilerIn
 	SafeDelete(Program);
 	return true;
 }
+
+void VKNShader::WriteBlobs(std::string shadername, std::vector<uint32_t>& WordSpirv)
+{
+	std::string root = AssetManager::GetShaderCacheDir();
+	root += std::string(shadername)+".spv";
+	FileUtils::CreateDirectoriesToFullPath(root);
+	glslang::OutputSpvBin(WordSpirv, root.c_str());
+}
+
 std::vector<char> VKNShader::ComplieShader(std::string name, EShaderType::Type T, bool HLSL /*= false*/)
 {
 	if (HLSL)
@@ -287,6 +287,8 @@ std::vector<char> VKNShader::ComplieShader(std::string name, EShaderType::Type T
 	GenerateSpirv(data, t, errors, spirv, "");
 	return spirv;
 }
+
+
 std::vector<char> VKNShader::ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL, std::string ShaderDebugName)
 {
 	if (HLSL)
@@ -301,6 +303,13 @@ std::vector<char> VKNShader::ComplieShader_Local(std::string name, EShaderType::
 	t.HLSL = HLSL;
 	ShaderPreProcessor::PreProcessDefines(Defines, data);
 	GenerateSpirv(data, t, errors, spirv, ShaderDebugName);
+	if (errors.length() > 0)
+	{
+		std::string Log = "Shader Compile Output: ";
+		Log.append(name);
+		Log.append("\n");
+		Log::LogMessage(Log);
+	}
 	return spirv;
 }
 

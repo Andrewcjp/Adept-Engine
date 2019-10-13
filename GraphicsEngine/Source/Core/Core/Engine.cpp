@@ -67,6 +67,33 @@ Engine::Engine(EnginePersistentData* epd) :
 	Log::OutS << "Running with TDSim" << Log::OutS;
 #endif
 	ModuleManager::Get()->PreLoadModules();
+
+}
+
+Engine::~Engine()
+{
+#ifndef NOCSHARP
+	CSharpContainer::ShutDown();
+#endif
+	AssetManager::ShutDownAssetManager();
+	Log::ShutDownLogger();
+	TaskGraph->Shutdown();
+	SafeDelete(TaskGraph);
+}
+
+void Engine::PreInit()
+{
+#if SUPPORTS_COOK
+	if (IsCooking)
+	{
+		Get()->CookContext = new Cooker();
+		if (RunCookVar.HasValue())
+		{
+			Get()->CookContext->SetPlatform(EPlatforms::Parse(RunCookVar.GetRawValueString()));
+		}
+		ForcedRenderSystem = GetCookContext()->GetTargetRHI();
+	}
+#endif
 	AssetManager::StartAssetManager();
 
 	PerfManager::StartPerfManager();
@@ -85,20 +112,9 @@ Engine::Engine(EnginePersistentData* epd) :
 	TaskGraph = new Threading::TaskGraph(threadsToCreate);
 	Log::LogMessage("TaskGraph Created with " + std::to_string(threadsToCreate) + " Threads");
 	PlatformMisc::SetCurrnetThreadAffinity(0);
+#ifndef NOCSHARP
 	CSharpContainer::StartUp();
-}
-
-Engine::~Engine()
-{
-	CSharpContainer::ShutDown();
-	AssetManager::ShutDownAssetManager();
-	Log::ShutDownLogger();
-	TaskGraph->Shutdown();
-	SafeDelete(TaskGraph);
-}
-
-void Engine::PreInit()
-{
+#endif
 	Screen::Get()->Resize(mwidth, mheight);
 #if TDSIM_ENABLED
 	TestTDPhysics();
@@ -190,14 +206,9 @@ void Engine::CreateApplication()
 
 void Engine::RunCook()
 {
-#if SUPPORTS_COOK
-	Cooker* cook = new Cooker();
-	if (RunCookVar.HasValue())
-	{
-		cook->TargetPlatform = EPlatforms::Parse(RunCookVar.GetRawValueString());
-	}
-	cook->Execute();
-	SafeDelete(cook);
+#if SUPPORTS_COOK	
+	Get()->CookContext->Execute();
+	SafeDelete(Get()->CookContext);
 #endif
 }
 
@@ -280,6 +291,11 @@ void Engine::ImmediateExit(int code)
 		SafeDelete(EngineInstance);
 	}
 	exit(code);
+}
+
+Cooker * Engine::GetCookContext()
+{
+	return Get()->CookContext;
 }
 
 

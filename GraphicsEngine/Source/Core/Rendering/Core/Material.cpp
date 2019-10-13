@@ -123,6 +123,11 @@ void * Material::GetDataPtr()
 	return ParmbindSet.GetDataPtr();
 }
 
+Asset_Shader * Material::GetShaderAsset()
+{
+	return MaterialCData.Shader;
+}
+
 void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
 {
 	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())

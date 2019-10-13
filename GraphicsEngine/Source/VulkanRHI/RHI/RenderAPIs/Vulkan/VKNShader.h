@@ -22,6 +22,7 @@ public:
 	static std::vector<char> readFile(const std::string & filename);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	 bool GenerateSpirv(const std::string Source, ComplieInfo & CompilerInfo, std::string & OutErrors, std::vector<char>& OutSpirv, std::string name);
+	 void WriteBlobs(std::string shadername, std::vector<uint32_t>& WordSpirv);
 	 std::vector<char> ComplieShader(std::string name, EShaderType::Type T, bool HLSL = false);
 
 	std::vector<char> ComplieShader_Local(std::string name, EShaderType::Type T, bool HLSL, std::string ShaderDebugName);

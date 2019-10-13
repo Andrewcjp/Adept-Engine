@@ -20,7 +20,7 @@ Cooker::Cooker()
 		BuildConfig = "ShippingDebugPackage";
 		Log::LogMessage("Cooking ShippingDebugPackage");
 	}
-	OutputPath += "\\" + BuildConfig;
+	SetPlatform(PlatformApplication::GetPlatform());
 }
 
 Cooker::~Cooker()
@@ -39,6 +39,9 @@ std::string Cooker::GetTargetPath(bool AppendSlash)
 namespace fs = std::experimental::filesystem;
 void Cooker::Execute()
 {
+#include "Rendering/Core/Mesh/MaterialTypes.h"
+#include "Rendering/Core/Material.h"
+#include "Core/Assets/ShaderComplier.h"
 	Log::LogMessage("Cooking for Platform: " + EPlatforms::ToString(TargetPlatform));
 	if (ShouldComplie)
 	{
@@ -119,7 +122,8 @@ void Cooker::Execute()
 
 void Cooker::CookAllShaders()
 {
-	//ShaderComplier::Get()->ComplieAllGlobalShaders();
+	ShaderComplier::Get()->ComplieAllGlobalShaders();
+	BuildAllMaterials();
 }
 
 void Cooker::CopyFolderToOutput(std::string Target, std::string PathFromBuild)
@@ -171,6 +175,7 @@ bool Cooker::CopyAssetToOutput(std::string RelTarget)
 	}
 	return true;
 }
+
 void Cooker::CreatePackage()
 {
 	bool foundWindRar = false;
@@ -189,6 +194,54 @@ void Cooker::CreatePackage()
 		PlatformApplication::ExecuteHostScript(WinRarInstallDir, Args, GetTargetPath() + "\\", true);
 	}
 
+}
+
+void Cooker::BuildAllMaterials()
+{
+	MaterialShaderComplieData ComplieData;
+	ComplieData.Shader = Material::CreateDefaultMaterialInstance()->GetShaderAsset();
+	ComplieData.RenderPassUsage = EMaterialPassType::Deferred;
+	ComplieData.ShaderKeyWords.clear();
+	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ComplieData.ShaderKeyWords.push_back(Material::ShadowShaderstring);
+	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ComplieData.ShaderKeyWords.clear();
+	ComplieData.RenderPassUsage = EMaterialPassType::Forward;
+	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ComplieData.ShaderKeyWords.push_back(Material::ShadowShaderstring);
+	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ShaderComplier::Get()->TickMaterialComplie();
+}
+
+void Cooker::BuildAll()
+{
+
+}
+
+void Cooker::SetPlatform(EPlatforms::Type Platform)
+{
+	TargetPlatform = Platform;
+	OutputPath = "\\Build\\" + EPlatforms::ToString(TargetPlatform) + "\\" + BuildConfig;
+}
+
+EPlatforms::Type Cooker::GetTargetPlatform() const
+{
+	return TargetPlatform;
+}
+
+ERenderSystemType Cooker::GetTargetRHI() const
+{
+	switch (TargetPlatform)
+	{
+		case EPlatforms::Windows_DX12:
+		case EPlatforms::Windows:
+			return ERenderSystemType::RenderSystemD3D12;
+		case EPlatforms::Windows_VK:
+		case EPlatforms::Linux:
+		case EPlatforms::Android:
+			return ERenderSystemType::RenderSystemVulkan;
+	}
+	return ERenderSystemType::RenderSystemD3D12;
 }
 
 #endif

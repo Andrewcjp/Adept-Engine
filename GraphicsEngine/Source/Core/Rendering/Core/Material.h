@@ -44,6 +44,7 @@ public:
 	int GetInstanceDataSize();
 	bool IsValidForInstancing();
 	void* GetDataPtr();
+	Asset_Shader* GetShaderAsset();
 private:
 	bool NeedsUpdate = false;
 	MaterialShaderComplieData MaterialCData;

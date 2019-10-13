@@ -55,6 +55,22 @@ VKNRHI * VKNRHI::Get()
 
 bool VKNRHI::InitWindow(int w, int h)
 {
+	win32Hinst = PlatformWindow::GetHInstance();
+	win32HWND = PlatformWindow::GetHWND();
+
+	//pickPhysicalDevice();
+	//createLogicalDevice();
+	createSwapChain();
+	createImageViews();
+
+	CreateNewObjects();
+	createFramebuffers();
+	commandPool = createCommandPool();
+	buffer = new VKNBuffer(ERHIBufferType::Constant, nullptr);
+	glm::vec4 data = glm::vec4(1, 0.2, 0.8, 1);
+	buffer->CreateConstantBuffer(sizeof(data), 1);
+	buffer->UpdateConstantBuffer(glm::value_ptr(data), 0);
+	createSyncObjects();
 	return false;
 }
 
@@ -288,11 +304,14 @@ void VKNRHI::cleanup()
 	{
 		DestroyDebugUtilsMessengerEXT(instance, callback, nullptr);
 	}
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	if (renderFinishedSemaphores.size() > 0)
 	{
-		vkDestroySemaphore(DevCon->device, renderFinishedSemaphores[i], nullptr);
-		vkDestroySemaphore(DevCon->device, imageAvailableSemaphores[i], nullptr);
-		vkDestroyFence(DevCon->device, inFlightFences[i], nullptr);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			vkDestroySemaphore(DevCon->device, renderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(DevCon->device, imageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(DevCon->device, inFlightFences[i], nullptr);
+		}
 	}
 	vkDestroyCommandPool(DevCon->device, commandPool, nullptr);
 
@@ -712,7 +731,7 @@ std::vector<const char*>  VKNRHI::getRequiredExtensions()
 	{
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-	//	extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+		//	extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
 	}
 
 	return extensions;
@@ -798,19 +817,6 @@ void VKNRHI::initVulkan()
 	createSurface();
 	setuplist = new VKNCommandlist(ECommandListType::Compute, RHI::GetDefaultDevice());
 	setuplist->ResetList();
-	//pickPhysicalDevice();
-	//createLogicalDevice();
-	createSwapChain();
-	createImageViews();
-
-	CreateNewObjects();
-	createFramebuffers();
-	commandPool = createCommandPool();
-	buffer = new VKNBuffer(ERHIBufferType::Constant, nullptr);
-	glm::vec4 data = glm::vec4(1, 0.2, 0.8, 1);
-	buffer->CreateConstantBuffer(sizeof(data), 1);
-	buffer->UpdateConstantBuffer(glm::value_ptr(data), 0);
-	createSyncObjects();
 
 }
 
@@ -833,8 +839,7 @@ void  VKNRHI::setupDebugCallback()
 
 bool VKNRHI::InitRHI()
 {
-	win32Hinst = PlatformWindow::GetHInstance();
-	win32HWND = PlatformWindow::GetHWND();
+
 	initVulkan();
 	return true;
 }

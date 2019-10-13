@@ -16,5 +16,6 @@ class CSTestGameModule : ModuleDef
         NetReferences.Add("CSharpCore");
         NetReferences.Add("CSharpBridge");
         LaunguageType = ProjectType.CSharp;
+        UnsupportedPlatforms.Add("Android");
     }
 }

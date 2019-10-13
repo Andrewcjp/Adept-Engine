@@ -192,7 +192,9 @@ void BaseWindow::Render()
 		SetPauseState(true);
 	}
 #endif
+#ifndef NOCSHARP
 	CSharpContainer::Update(Engine::GetDeltaTime());
+#endif
 	Update();
 #if !WITH_EDITOR
 	if (ShouldTickScene)

@@ -239,6 +239,11 @@ std::string WindowsApplication::GetExecutablePath()
 
 }
 
+EPlatforms::Type WindowsApplication::GetPlatform()
+{
+	return EPlatforms::Windows;
+}
+
 void WindowsApplication::ValidateWindows()
 {
 	if (!IsWindows8OrGreater())

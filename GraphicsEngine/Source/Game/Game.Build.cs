@@ -11,6 +11,7 @@ class GameModule : ModuleDef
         PCH = "";
         UseCorePCH = false;
         IsGameModule = false;
+        IsOutputEXE = true;
         UseUnity = false;
     }
 }

@@ -139,16 +139,3 @@ private:
 	std::vector<T*> AllocBuffer;
 	int AllocIndex = 0;
 };
-
-namespace EPlatforms
-{
-	enum Type
-	{
-		Windows,
-		Linux,
-		Android,
-		Limit
-	};
-	std::string ToString(EPlatforms::Type type);
-	EPlatforms::Type Parse(std::string name);
-};
