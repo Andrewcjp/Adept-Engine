@@ -15,5 +15,6 @@ class CSharpCoreModule : ModuleDef
         ModuleDepends.Add("CSharpBridge");
         NetReferences.Add("CSharpBridge");
         LaunguageType = ProjectType.CSharp;
+        UnsupportedPlatforms.Add("Android");
     }
 }

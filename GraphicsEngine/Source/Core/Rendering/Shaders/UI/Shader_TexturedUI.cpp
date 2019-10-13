@@ -8,17 +8,18 @@ Shader_TexturedUI::Shader_TexturedUI(DeviceContext* dev) :Shader(dev)
 {
 	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\PostProcessBase_VS", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("PostProcess\\Compost_fs", EShaderType::SHADER_FRAGMENT);
-#if !BASIC_RENDER_ONLY
-	Init();
-	list = RHI::CreateCommandList(ECommandListType::Graphics, dev);
-	RHIPipeLineStateDesc desc;
-	desc.ShaderInUse = this;
-	desc.InitOLD(false, false, true);
-	desc.Mode = Full;
-	BlendPSO = RHI::CreatePipelineStateObject(desc);
-	desc.Blending = false;
-	NoBlendPSO = RHI::CreatePipelineStateObject(desc);
-#endif
+	if (!Engine::GetIsCooking())
+	{
+		Init();
+		list = RHI::CreateCommandList(ECommandListType::Graphics, dev);
+		RHIPipeLineStateDesc desc;
+		desc.ShaderInUse = this;
+		desc.InitOLD(false, false, true);
+		desc.Mode = Full;
+		BlendPSO = RHI::CreatePipelineStateObject(desc);
+		desc.Blending = false;
+		NoBlendPSO = RHI::CreatePipelineStateObject(desc);
+	}
 }
 
 void Shader_TexturedUI::Init()

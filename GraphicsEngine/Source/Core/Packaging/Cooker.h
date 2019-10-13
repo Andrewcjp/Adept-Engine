@@ -13,14 +13,19 @@ public:
 	void CopyFolderToOutput(std::string Target, std::string PathFromBuild);
 	bool CopyAssetToOutput(std::string RelTarget);
 	void CreatePackage();
-	EPlatforms::Type TargetPlatform = EPlatforms::Windows;
+	void BuildAllMaterials();
+	void BuildAll();
+	void SetPlatform(EPlatforms::Type Platform);
+	EPlatforms::Type GetTargetPlatform()const;
+	ERenderSystemType GetTargetRHI()const;
 private:
-	std::string OutputPath = "\\Build";
+	std::string OutputPath = "";
 	bool ShouldPack = true;
 	bool ShouldComplie = false;
 	bool ShouldStage = true;
 	std::string BuildConfig = "";
-	
+	EPlatforms::Type TargetPlatform = EPlatforms::Windows;
 };
+
 #endif
  

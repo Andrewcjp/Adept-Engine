@@ -6,6 +6,12 @@
 class BaseTexture;
 class IniHandler;
 class BaseAsset;
+struct PlatformBuildSettings
+{
+	int MaxWidth = 1024;
+	int MaxHeight = 1024;
+	bool ClampTextures = true;
+};
 namespace ECompressionSetting
 {
 	enum Type
@@ -54,11 +60,16 @@ public:
 	CORE_API static const std::string GetGeneratedDir();
 	CORE_API static const std::string DirectGetGeneratedDir();
 	CORE_API static const std::string GetSettingsDir();
+	CORE_API static const std::string GetShaderCacheDir();
 	BaseAsset * CreateOrGetAsset(std::string path);
 	void TestAsset();
+	static const PlatformBuildSettings& GetSettings();
+	CORE_API static std::string GetPlatformDirName();
 private:
 	AssetManager();
 	void Init();
+
+	void InitAssetSettings(EPlatforms::Type Platform);
 
 	std::map<std::string, std::string> ShaderSourceMap;
 	std::map<std::string, std::string> MeshFileMap;
@@ -75,5 +86,6 @@ private:
 	std::string GeneratedDirPath = "";
 	static const std::string DDCName;
 	IniHandler* INISaver = nullptr;
+	PlatformBuildSettings PlatformSettings;
 };
 

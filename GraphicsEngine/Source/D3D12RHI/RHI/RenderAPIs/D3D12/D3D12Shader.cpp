@@ -416,7 +416,7 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob
 		return false;
 	}
 	const std::string FullShaderName = GetShaderNamestr(Name, InstanceHash, type);
-	std::string ShaderPath = AssetManager::GetDDCPath() + "Shaders\\" + FullShaderName;
+	std::string ShaderPath = AssetManager::GetShaderCacheDir() + FullShaderName;
 #if BUILD_PACKAGE
 	ensureFatalMsgf(FileUtils::File_ExistsTest(ShaderPath), "Missing shader: " + GetShaderNamestr(Name, InstanceHash, type));
 	ReadFileIntoBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), (IDxcBlobEncoding**)Blob);
@@ -440,10 +440,9 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 {
 	if (CacheBlobs)
 	{
-		const std::string DDcShaderPath = AssetManager::GetDDCPath() + "Shaders\\";
-		FileUtils::CreateDirectoriesToFullPath(DDcShaderPath + shadername + ".");
+		FileUtils::CreateDirectoriesToFullPath(AssetManager::GetShaderCacheDir() + shadername + ".");
 #if USE_DIXL
-		WriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str());
+		WriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(AssetManager::GetShaderCacheDir() + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str());
 #else
 		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
 #endif

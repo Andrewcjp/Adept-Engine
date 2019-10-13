@@ -24,6 +24,7 @@ public:
 	CORE_API static bool TryCreateDirectory(const std::string & name);
 	CORE_API static bool IsDebuggerPresent();
 	static std::string GetExecutablePath();
+	static EPlatforms::Type GetPlatform();
 private:
 	static double SecondsPerCycle;
 	static void ValidateWindows();

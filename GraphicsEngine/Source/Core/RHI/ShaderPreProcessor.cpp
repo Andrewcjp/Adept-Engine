@@ -145,7 +145,7 @@ std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, IncludeS
 bool ShaderPreProcessor::CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName)
 {
 	std::string ShaderSRCPath = AssetManager::GetShaderPath() + ShaderName + ".hlsl";
-	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + FullShaderName;
+	std::string ShaderCSOPath = AssetManager::GetShaderCacheDir() + FullShaderName;
 	//if the source is newer than the CSO recompile
 	return PlatformApplication::CheckFileSrcNewer(ShaderSRCPath, ShaderCSOPath);
 }
@@ -174,7 +174,7 @@ bool ShaderPreProcessor::CheckCSOValid(std::string Name, const std::string & Sha
 
 	IncludeStack Stack;
 	LoadShaderIncludeFile(name, &Stack);
-	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + ShaderNameHash;
+	std::string ShaderCSOPath = AssetManager::GetShaderCacheDir() + ShaderNameHash;
 	for (int i = 0; i < Stack.IncludeList.size(); i++)
 	{
 		std::string FullPath = AssetManager::GetShaderPath() + Stack.IncludeList[i];

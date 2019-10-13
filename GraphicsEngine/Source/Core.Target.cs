@@ -5,13 +5,21 @@ class CoreTargetRules : TargetRules
 {
     bool BuildPhysx = true;
     bool BuildVulkan = true;
+    bool BuildCSharp = false;
     public CoreTargetRules()
     {
         if (!BuildVulkan)
         {
             ModuleExcludeList.Add("VulkanRHI");
         }
-
+        if (!BuildCSharp)
+        {
+            ModuleExcludeList.Add("CSharpContainer");
+            ModuleExcludeList.Add("CSharpCore");
+            ModuleExcludeList.Add("CSharpBridge");
+            ModuleExcludeList.Add("CSTestGame");
+            GlobalDefines.Add("NOCSHARP");
+        }
         if (BuildPhysx)
         {
             GlobalDefines.Add("USE_PHYSX");

@@ -92,3 +92,8 @@ void * GenericApplication::GetDllHandle(FString Name)
 {
 	return nullptr;
 }
+
+EPlatforms::Type GenericApplication::GetPlatform()
+{
+	return EPlatforms::Type();
+}

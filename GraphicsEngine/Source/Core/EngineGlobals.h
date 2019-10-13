@@ -149,3 +149,19 @@ extern void ADNOP();
 #define BUILD_STEAMVR 1
 #define SUPPORTS_COOK 1
 #endif
+
+
+namespace EPlatforms
+{
+	enum Type
+	{
+		Windows,
+		Windows_VK,
+		Windows_DX12,
+		Linux,
+		Android,
+		Limit
+	};
+	std::string ToString(EPlatforms::Type type);
+	EPlatforms::Type Parse(std::string name);
+};

@@ -15,5 +15,6 @@ class CSharpContainerModule : ModuleDef
         ModuleDepends.Add("CSharpCore");
         IncludeDirectories.Add("//Source//CoreModules//CSharpBridge//");
         LaunguageType = ProjectType.ManagedCPP;
+        UnsupportedPlatforms.Add("Android");
     }
 }

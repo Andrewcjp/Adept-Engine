@@ -7,6 +7,7 @@
 #ifdef PLATFORM_WINDOWS
 #include <filesystem>
 #endif
+#include "Packaging/Cooker.h"
 
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
@@ -104,6 +105,8 @@ const std::string AssetManager::GetSettingsDir()
 	return instance->SettingsDir;
 }
 
+
+
 BaseAsset* AssetManager::CreateOrGetAsset(std::string path)
 {
 	BaseAsset* Asset = nullptr;
@@ -127,6 +130,25 @@ void AssetManager::TestAsset()
 	std::string TestTarget = GetContentPath() + "model test.mtl";
 	BaseAsset* CreationTest = CreateOrGetAsset(TestTarget);
 	ensure(CreationTest);
+}
+
+const PlatformBuildSettings & AssetManager::GetSettings()
+{
+	return Get()->PlatformSettings;
+}
+
+std::string AssetManager::GetPlatformDirName()
+{
+	if (Engine::GetIsCooking())
+	{
+		return EPlatforms::ToString(Engine::GetCookContext()->GetTargetPlatform());
+	}
+	return  EPlatforms::ToString(PlatformApplication::GetPlatform());
+}
+
+const std::string AssetManager::GetShaderCacheDir()
+{
+	return AssetManager::GetDDCPath() + "Shaders\\" + GetPlatformDirName() + "\\";
 }
 
 void AssetManager::SetupPaths()
@@ -164,8 +186,8 @@ AssetManager::AssetManager()
 {
 	SetupPaths();
 	PlatformApplication::TryCreateDirectory(GetDDCPath());
-
 }
+
 void AssetManager::Init()
 {
 	INISaver = new IniHandler();
@@ -173,6 +195,31 @@ void AssetManager::Init()
 	INISaver->SaveAllConfigProps();
 
 	TestAsset();
+	if (Engine::GetIsCooking())
+	{
+		InitAssetSettings(Engine::GetCookContext()->GetTargetPlatform());
+	}
+	else
+	{
+		InitAssetSettings(PlatformApplication::GetPlatform());
+	}
+}
+
+void AssetManager::InitAssetSettings(EPlatforms::Type Platform)
+{
+	switch (Platform)
+	{
+		case EPlatforms::Windows:
+		case EPlatforms::Linux:
+			PlatformSettings.ClampTextures = false;
+			PlatformSettings.MaxHeight = 8192;
+			PlatformSettings.MaxWidth = 8192;
+			break;
+		case EPlatforms::Android:
+			PlatformSettings.MaxHeight = 128;
+			PlatformSettings.MaxWidth = 128;
+			break;
+	}
 }
 
 AssetManager * AssetManager::Get()
@@ -274,6 +321,11 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 		else
 		{
 			Args.append("-pow2");
+		}
+		if (GetSettings().ClampTextures)
+		{
+			Args.append(" -w " + std::to_string(GetSettings().MaxWidth));
+			Args.append(" -h " + std::to_string(GetSettings().MaxHeight));
 		}
 		Args.append(" -y ");
 		Args.append(" -f " + settings.GetTypeString());

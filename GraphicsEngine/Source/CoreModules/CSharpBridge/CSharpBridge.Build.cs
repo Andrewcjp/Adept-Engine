@@ -13,5 +13,6 @@ class CSharpBridgeModule : ModuleDef
         UseUnity = true;
 
         LaunguageType = ProjectType.ManagedCPP;
+        UnsupportedPlatforms.Add("Android");
     }
 }

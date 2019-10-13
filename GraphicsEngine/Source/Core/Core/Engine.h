@@ -8,6 +8,7 @@ class RenderWindow;
 class EditorWindow;
 class Game;
 struct EnginePersistentData;
+class Cooker;
 namespace Threading
 {
 	class TaskGraph;
@@ -57,6 +58,7 @@ public:
 	static bool IsSecondLoad();
 	CORE_API static EnginePersistentData* GetEPD();
 	static void						ImmediateExit(int code = 0);
+	static Cooker*					GetCookContext();
 private:
 	EnginePersistentData*			EPD = nullptr;
 
@@ -69,5 +71,6 @@ private:
 	bool							IsCooking = false;
 	EngineSettings					Settings;
 	Threading::TaskGraph*			TaskGraph = nullptr;
+	Cooker*							CookContext = nullptr;
 };
 
