@@ -5,7 +5,9 @@
 #include "Core/Utils/FileUtils.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
-
+#include "Rendering/Core/Mesh/MaterialTypes.h"
+#include "Rendering/Core/Material.h"
+#include "Core/Assets/ShaderComplier.h"
 static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);
 static ConsoleVariable CookPack("pack", 0, ECVarType::LaunchOnly);
 Cooker::Cooker()
@@ -39,9 +41,6 @@ std::string Cooker::GetTargetPath(bool AppendSlash)
 namespace fs = std::experimental::filesystem;
 void Cooker::Execute()
 {
-#include "Rendering/Core/Mesh/MaterialTypes.h"
-#include "Rendering/Core/Material.h"
-#include "Core/Assets/ShaderComplier.h"
 	Log::LogMessage("Cooking for Platform: " + EPlatforms::ToString(TargetPlatform));
 	if (ShouldComplie)
 	{
