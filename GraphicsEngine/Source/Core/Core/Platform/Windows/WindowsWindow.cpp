@@ -97,7 +97,7 @@ void WindowsWindow::SetVisible(bool visible)
 
 void WindowsWindow::Maximize()
 {
-	ShowWindow(HWindow, SW_MAXIMIZE);
+	ShowWindow(app->HWindow, SW_MAXIMIZE);
 }
 
 bool WindowsWindow::CreateOSWindow(int width, int height)
@@ -118,9 +118,6 @@ bool WindowsWindow::CreateOSWindow(int width, int height)
 	SetWindowLong(app->HWindow, GWL_STYLE, 0);
 	glm::ivec2 Offset = glm::ivec2(100, 150);
 	SetWindowPos(app->HWindow, 0, Offset.x, Offset.y, Offset.x + width, Offset.y + height, SWP_FRAMECHANGED);
-#endif
-#if !WITH_EDITOR
-	Maximize();
 #endif
 	//SetVisible(true);
 	return true;

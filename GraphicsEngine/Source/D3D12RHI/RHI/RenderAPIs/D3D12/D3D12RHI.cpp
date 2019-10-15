@@ -44,7 +44,7 @@ void D3D12RHI::RunDred()
 	D3D12_DRED_PAGE_FAULT_OUTPUT DredPageFaultOutput;
 	R = (pDred->GetAutoBreadcrumbsOutput(&DredAutoBreadcrumbsOutput));
 	R = (pDred->GetPageFaultAllocationOutput(&DredPageFaultOutput));
-	__debugbreak();
+	ensureFatalMsgf(R == S_OK, "");
 #endif
 }
 #endif

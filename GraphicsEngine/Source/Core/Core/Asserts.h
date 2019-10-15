@@ -50,7 +50,7 @@ Log::LogMessage(data,Log::Severity::Error);}
 
 #if DOCHECK
 #define ensureFatalMsgf(condition,Message) if(!(condition)){ AssertDebugBreak();std::string data = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition  "\n" Message ; \
-Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error",data); Engine::RequestExit(-1);}
+Log::LogMessage(data,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error",data); Engine::AssertExit(-1);}
 #else
 #define ensureFatalMsgf(condition,Message);
 #endif

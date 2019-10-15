@@ -11,6 +11,7 @@
 #include "UI/Core/UILabel.h"
 #include "Version.h"
 #include "Rendering/Core/SceneRenderer.h"
+#include "Platform/PlatformCore.h"
 GameWindow::GameWindow()
 {}
 
@@ -22,7 +23,7 @@ void GameWindow::PostInitWindow(int width, int height)
 {
 	SetFrameRateLimit(0);
 	Log::OutS << "Game Loaded" << Log::OutS;
-
+	PlatformWindow::Maximize();
 	//LoadScene("\\asset\\scene\\testscene.scene");
 	CurrentScene = new Scene();
 	CurrentScene->LoadExampleScene();

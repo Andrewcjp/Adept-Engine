@@ -24,7 +24,7 @@ UIWidgetContext::~UIWidgetContext()
 {
 	SafeDelete(Quad);
 	SafeDelete(TextRender);
-	SafeDelete(LineBatcher);
+//	SafeDelete(LineBatcher);
 	SafeDelete(DrawBatcher);
 	MemoryUtils::DeleteVector(widgets);
 }

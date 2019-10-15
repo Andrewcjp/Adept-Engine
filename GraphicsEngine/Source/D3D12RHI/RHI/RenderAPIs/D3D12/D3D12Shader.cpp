@@ -221,7 +221,9 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute);
 		return EShaderError::SHADER_ERROR_NONE;
 	}
-
+#if BUILD_SHIPPING
+	ensureFatalMsgf(false, "Failed to load shader blob");
+#endif
 	std::string path = AssetManager::GetShaderPath();
 	std::string name = shadername;
 	name.append(".hlsl");
@@ -405,8 +407,8 @@ void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
 {
 	IDxcLibrary* library;
 	DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&library));
-	LogEnsure(library->CreateBlobFromFile(pFileName, nullptr, ppBlobEncoding) == S_OK);
-	//ReadFileIntoPartContent(),
+	HRESULT r = library->CreateBlobFromFile(pFileName, nullptr, ppBlobEncoding);
+	LogEnsure(r == S_OK);
 }
 #endif
 bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob, const std::string & InstanceHash, EShaderType::Type type)
@@ -420,6 +422,10 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob
 #if BUILD_PACKAGE
 	ensureFatalMsgf(FileUtils::File_ExistsTest(ShaderPath), "Missing shader: " + GetShaderNamestr(Name, InstanceHash, type));
 	ReadFileIntoBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), (IDxcBlobEncoding**)Blob);
+	if (*Blob == nullptr)
+	{
+		return false;
+	}
 	return true;
 #else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && ShaderPreProcessor::CheckCSOValid(Name, FullShaderName))

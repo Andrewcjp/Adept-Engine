@@ -108,7 +108,7 @@ int PerfManager::AddTimer(const char * countername, int groupId)
 
 int PerfManager::AddTimer(int id, int groupid)
 {
-#if	STATS
+#if	1 //STATS
 	if (AVGTimers.find(id) != AVGTimers.end())
 	{
 		return id;
