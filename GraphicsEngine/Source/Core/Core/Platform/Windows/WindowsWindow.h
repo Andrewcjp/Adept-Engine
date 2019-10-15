@@ -18,7 +18,7 @@ public:
 	static void					SetCursorType(GenericWindow::CursorType Type);
 	static WindowsWindow*		CreateApplication(Engine * EnginePtr, HINSTANCE hInst, LPSTR args, int nshow);
 	void						SetVisible(bool visible);
-	void						Maximize();
+	static void					Maximize();
 	bool						CreateOSWindow(int width, int height);
 	CORE_API static HWND		GetHWND();
 	static void					DestroyApplication();

@@ -293,6 +293,11 @@ void Engine::ImmediateExit(int code)
 	exit(code);
 }
 
+void Engine::AssertExit(int code)
+{
+	exit(code);
+}
+
 Cooker * Engine::GetCookContext()
 {
 	return Get()->CookContext;

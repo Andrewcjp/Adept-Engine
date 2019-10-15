@@ -63,8 +63,11 @@ private:
 	int GPUTimerId = 0;
 	RHICommandList* cmdlist = nullptr;
 };
-
+#if !BUILD_SHIPPING
 #define DECALRE_SCOPEDGPUCOUNTER(list,name) ScopedGPUTimer PREPROCESSOR_JOIN(COUNTER,__LINE__)(list,name);
+#else
+#define DECALRE_SCOPEDGPUCOUNTER(list,name)
+#endif
 #if PERDRAWTIMING
 #define PERDRAWTIMER(list,name) ScopedGPUTimer PREPROCESSOR_JOIN(COUNTER,__LINE__)(list,name,true);
 #else

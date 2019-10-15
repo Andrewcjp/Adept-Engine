@@ -416,7 +416,7 @@ void BaseWindow::DestroyRenderWindow()
 	SafeDelete(CurrentScene);
 	ImageIO::ShutDown();
 	MeshLoader::ShutDown();
-	SafeDelete(LineDrawer);
+//	SafeDelete(LineDrawer);
 	SafeDelete(UI);
 	Input::ShutDown();
 }
