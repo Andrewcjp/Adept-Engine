@@ -23,11 +23,18 @@ namespace ENodeQueueType
 		Limit
 	};
 };
-
 class NodeLink;
 class SceneDataNode;
 class ShadowAtlasStorageNode;
 class VRBranchNode;
+class RenderNode;
+struct ResourceTransition
+{
+	NodeLink* Target = nullptr;
+	EResourceState::Type TargetState = EResourceState::Undefined;
+	void Execute(RHICommandList* list, RenderNode* eye);
+};
+
 class RenderNode
 {
 public:
@@ -81,6 +88,8 @@ public:
 		return dynamic_cast<T*>(node);
 	}
 	EEye::Type GetEye();
+	void AddBeginTransition(const ResourceTransition & transition);
+	void AddEndTransition(const ResourceTransition & transition);
 protected:
 
 	//search forwards until we reach the end VR node 
@@ -104,6 +113,8 @@ protected:
 	//Creates all data need to run a node on X device should NOT call functions on external objects (excluding Render systems like the MeshPipline).
 	virtual void OnSetupNode() {};
 	virtual void OnValidateNode(RenderGraph::ValidateArgs & args);
+	void AddResourceInput(EStorageType::Type Type, EResourceState::Type State, const std::string & format, const std::string & InputName = std::string());
+	void AddResourceOutput(EStorageType::Type TargetType, EResourceState::Type State, const std::string & format, const std::string & InputName = std::string());
 	void AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
 	void AddOutput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
 	void AddOutput(NodeLink* Input, const std::string& format, const std::string& InputName = std::string());
@@ -119,6 +130,11 @@ protected:
 	DeviceContext* Context = nullptr;
 	//If true The node is responsible for invoking the next node.
 	bool NodeControlsFlow = false;
+	void SetBeginStates(RHICommandList* list);
+	void SetEndStates(RHICommandList* list);
+
+	std::vector<ResourceTransition> BeginTransitions;
+	std::vector<ResourceTransition> EndTransitions;
 };
 
 #define NameNode(name) std::string GetName()const {return name;} static std::string GetNodeName(){return name;}

@@ -363,6 +363,7 @@ void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Ty
 		case EResourceState::Limit:
 			break;
 	}
+	CurrentState = State;
 }
 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)

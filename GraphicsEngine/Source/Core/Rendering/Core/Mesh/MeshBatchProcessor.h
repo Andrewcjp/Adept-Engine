@@ -28,6 +28,7 @@ protected:
 	void Process(MeshBatch * Batch);
 	ERenderPass::Type PassType = ERenderPass::Limit;
 	bool DisableInstancing = false;
+	bool DisableCulling = false;
 private:
 	int DrawCallsThisFrame = 0;
 

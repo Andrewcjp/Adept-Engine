@@ -92,9 +92,12 @@ void MeshBatchProcessor::Process(MeshBatch* Batch)
 		{
 			continue;
 		}
-		if (Batch->InstanceBuffer != nullptr && Batch->InstanceBuffer->IsCompletelyCulled())
+		if (!DisableCulling)
 		{
-			continue;
+			if (Batch->InstanceBuffer != nullptr && Batch->InstanceBuffer->IsCompletelyCulled())
+			{
+				continue;
+			}
 		}
 		MeshDrawCommand* command = new MeshDrawCommand();
 		command->Object = Batch->Owner;

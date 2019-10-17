@@ -208,6 +208,7 @@ void WindowsWindow::Kill(int code)
 
 void WindowsWindow::CreateSplashWindow()
 {
+#if WITH_EDITOR
 	if (app == nullptr)
 	{
 		return;
@@ -234,10 +235,12 @@ void WindowsWindow::CreateSplashWindow()
 	offset.y = (info.rcWork.bottom / 2) - height / 2;
 	SetWindowPos(app->SplashWindow, 0, offset.x, offset.y, width, height, SWP_FRAMECHANGED);
 	ShowWindow(SplashWindow, SW_SHOW);
+#endif	
 }
 
 void WindowsWindow::TickSplashWindow(int amt /*= 1*/, std::string Section /*= std::string()*/)
 {
+#if WITH_EDITOR
 	if (app == nullptr)
 	{
 		return;
@@ -251,10 +254,12 @@ void WindowsWindow::TickSplashWindow(int amt /*= 1*/, std::string Section /*= st
 	}
 	//update window
 	SetWindowText(app->Label, (std::wstring(L"Loading: ") + std::to_wstring(app->CurrentProgress) + L"% \n" + StringUtils::ConvertStringToWide(Section)).c_str());
+#endif
 }
 
 void WindowsWindow::DestorySplashWindow()
 {
+#if WITH_EDITOR
 	if (app == nullptr)
 	{
 		return;
@@ -262,6 +267,7 @@ void WindowsWindow::DestorySplashWindow()
 	ShowWindow(app->SplashWindow, SW_HIDE);
 	DestroyWindow(app->SplashWindow);
 	app->EmptyMessageQueue();
+#endif
 }
 
 void WindowsWindow::GetDesktopResolution(int & horizontal, int & vertical)

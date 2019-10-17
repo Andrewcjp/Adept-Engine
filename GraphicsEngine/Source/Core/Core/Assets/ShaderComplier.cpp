@@ -35,19 +35,29 @@ void ShaderComplier::ComplieAllGlobalShaders()
 #endif
 	SCOPE_STARTUP_COUNTER("ComplieAllGlobalShaders");
 	int CurrnetCount = 0;
-	for (std::map<std::string, ShaderType>::iterator it = GlobalShaderMap.begin(); it != GlobalShaderMap.end(); ++it)
+	for (std::map<std::string, ShaderType>::iterator it = GlobalShaderMapDefinitions.begin(); it != GlobalShaderMapDefinitions.end(); ++it)
 	{
-		ComplieShader(it->second, RHI::GetDefaultDevice());
+		for (int i = 0; i < RHI::GetDeviceCount(); i++)
+		{
+			ShaderType NewShader = it->second;
+			ComplieShader(NewShader, RHI::GetDeviceContext(i));
+			GetShaderMap(RHI::GetDeviceContext(i))->emplace(it->first, NewShader);
+		}
 		CurrnetCount++;
-		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrnetCount) + "/" + std::to_string(GlobalShaderMap.size()));
+		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrnetCount) + "/" + std::to_string(GetShaderMap()->size()));
 	}
+
 }
 
 void ShaderComplier::FreeAllGlobalShaders()
 {
-	for (std::map<std::string, ShaderType>::iterator it = GlobalShaderMap.begin(); it != GlobalShaderMap.end(); ++it)
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
-		SafeDelete(it->second.CompliedShader);
+		ShaderMap* Map = GetShaderMap(RHI::GetDeviceContext(i));
+		for (std::map<std::string, ShaderType>::iterator it = Map->begin(); it != Map->end(); ++it)
+		{
+			SafeDelete(it->second.CompliedShader);
+		}
 	}
 }
 
@@ -79,14 +89,14 @@ void ShaderComplier::ComplieShader(ShaderType & type, DeviceContext* Context)
 		type.CompliedShader = type.Constructor(type.ShaderInitalizer);
 	}
 }
-//#Shader_Complier compile materials too
-//#Shader_Complier device index
-ShaderType* ShaderComplier::GetShaderFromGlobalMap(std::string name)
+
+ShaderType* ShaderComplier::GetShaderFromGlobalMap(std::string name, DeviceContext* context/* = nullptr*/)
 {
 	StringUtils::RemoveChar(name, "class ");
-	if (GlobalShaderMap.find(name) != GlobalShaderMap.end())
+	ShaderMap* Map = GetShaderMap(context);
+	if (Map->find(name) != Map->end())
 	{
-		return &GlobalShaderMap.at(name);
+		return &Map->at(name);
 	}
 	DebugEnsure(false);
 	return nullptr;
@@ -94,8 +104,9 @@ ShaderType* ShaderComplier::GetShaderFromGlobalMap(std::string name)
 
 void ShaderComplier::AddShaderType(std::string Name, ShaderType type)
 {
-	GlobalShaderMap.emplace(Name, type);
+	GlobalShaderMapDefinitions.emplace(Name, type);
 }
+
 #define DEBUG_SLOW_COMPLIE 1
 void ShaderComplier::TickMaterialComplie()
 {
@@ -165,11 +176,20 @@ Shader_NodeGraph* ShaderComplier::EnqeueueMaterialShadercomplie(MaterialShaderCo
 	return Pair.Placeholder;
 }
 
+ShaderComplier::ShaderMap * ShaderComplier::GetShaderMap(DeviceContext * device)
+{
+	if (device == nullptr)
+	{
+		return &GlobalShaderMap[0];
+	}
+	return &GlobalShaderMap[device->GetDeviceIndex()];
+}
+
 
 ShaderType::ShaderType(std::string name, InitliserFunc constructor, const ShaderInit & init, ShouldComplieSig func)
 {
 	Constructor = constructor;
 	ShaderInitalizer = init;
 	ShouldComplieFunc = func;
-	ShaderComplier::Get()->AddShaderType(name, *this);	
+	ShaderComplier::Get()->AddShaderType(name, *this);
 }

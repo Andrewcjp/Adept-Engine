@@ -47,14 +47,14 @@ bool IsWithinRect(float2 ScreenUV, int2 res, float size)
 int GetShadingRateIDForPixel(float2 ScreenUV, int2 Res)
 {
 	float Size = 0.2;
-	if (IsWithinRect(ScreenUV, Res, 0.45))
-	{
-		return 1;
-	}
-	if (IsWithinRect(ScreenUV, Res, 0.35))
-	{
-		return 2;
-	}
+	//if (IsWithinRect(ScreenUV, Res, 0.45))
+	//{
+	//	return 1;
+	//}
+	//if (IsWithinRect(ScreenUV, Res, 0.35))
+	//{
+	//	return 2;
+	//}
 	return 3;
 }
 bool ShouldShadePixel(float2 ScreenUV, int2 res)

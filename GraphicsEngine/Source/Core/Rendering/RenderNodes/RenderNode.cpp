@@ -7,6 +7,7 @@
 #include "StoreNodes/ShadowAtlasStorageNode.h"
 #include "RHI/RHI.h"
 #include "Nodes/Flow/VRBranchNode.h"
+#include "../Core/FrameBuffer.h"
 
 RenderNode::RenderNode()
 {}
@@ -275,6 +276,19 @@ void RenderNode::OnValidateNode(RenderGraph::ValidateArgs & args)
 {
 
 }
+void RenderNode::AddResourceInput(EStorageType::Type TargetType, EResourceState::Type State, const std::string& format, const std::string& InputName)
+{
+	NodeLink* link = new NodeLink(TargetType, format, InputName, this);
+	link->ResourceState = State;
+	Inputs.push_back(link);
+}
+
+void RenderNode::AddResourceOutput(EStorageType::Type TargetType, EResourceState::Type State, const std::string& format, const std::string& InputName)
+{
+	NodeLink* link = new NodeLink(TargetType, format, InputName, this);
+	link->ResourceState = State;
+	Outputs.push_back(link);
+}
 
 void RenderNode::AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName)
 {
@@ -307,4 +321,50 @@ void RenderNode::PassNodeThough(int inputindex, std::string newformat /*= std::s
 		GetInput(inputindex)->GetStoreTarget()->DataFormat = newformat;
 	}
 	GetOutput(outputindex)->SetStore(GetInput(inputindex)->GetStoreTarget());
+}
+
+void RenderNode::SetBeginStates(RHICommandList * list)
+{
+	for (int i = 0; i < BeginTransitions.size(); i++)
+	{
+		BeginTransitions[i].Execute(list, this);
+	}
+}
+
+void RenderNode::SetEndStates(RHICommandList * list)
+{
+	for (int i = 0; i < EndTransitions.size(); i++)
+	{
+		EndTransitions[i].Execute(list, this);
+	}
+}
+
+void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
+{
+	if (TargetState == EResourceState::Undefined || Target == nullptr)
+	{
+		return;
+	}
+	if (Target->TargetType == EStorageType::Framebuffer)
+	{
+		FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(Target->GetStoreTarget());
+		if (Node == nullptr)
+		{
+			return;
+		}
+		//Node->GetFramebuffer(rnode->GetEye())->SetResourceState(list, TargetState);
+		FrameBuffer* buffer = Node->GetFramebuffer(rnode->GetEye());
+		Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
+	}
+
+}
+
+void RenderNode::AddBeginTransition(const ResourceTransition& transition)
+{
+	BeginTransitions.push_back(transition);
+}
+
+void RenderNode::AddEndTransition(const ResourceTransition& transition)
+{
+	EndTransitions.push_back(transition);
 }

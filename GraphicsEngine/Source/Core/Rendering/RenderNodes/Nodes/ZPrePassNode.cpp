@@ -22,6 +22,7 @@ void ZPrePassNode::OnExecute()
 	SCOPE_CYCLE_COUNTER_GROUP("ZPrePass", "Render");
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	Cmdlist->ResetList();
+	SetBeginStates(Cmdlist);
 	Cmdlist->StartTimer(EGPUTIMERS::PreZ);
 	RHIPipeLineStateDesc desc;
 	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), Target);
@@ -34,6 +35,7 @@ void ZPrePassNode::OnExecute()
 	SceneRenderer::Get()->RenderScene(Cmdlist, true, Target, false, GetEye());
 	Cmdlist->EndRenderPass();
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
+	SetEndStates(Cmdlist);
 	Cmdlist->Execute();
 	PassNodeThough(0, StorageFormats::PreZData);
 }

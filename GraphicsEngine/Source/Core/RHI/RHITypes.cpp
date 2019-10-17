@@ -497,3 +497,26 @@ RHICommandSigniture::RHICommandSigniture(DeviceContext * context, RHICommandSign
 	Context = context;
 }
 
+std::string EResourceState::ToString(EResourceState::Type state)
+{
+	switch (state)
+	{
+		case EResourceState::RenderTarget:
+			return "RenderTarget";
+		case EResourceState::PixelShader:
+			return "PixelShader";;
+		case EResourceState::ComputeUse:
+			return "ComputeUse";
+		case EResourceState::UAV:
+			return "UAV";
+		case EResourceState::CopySrc:
+			return "CopySrc";
+		case EResourceState::CopyDst:
+			return "CopyDst";
+		case EResourceState::Undefined:
+		case EResourceState::Limit:
+			break;
+	}
+
+	return  "Undefined";
+}

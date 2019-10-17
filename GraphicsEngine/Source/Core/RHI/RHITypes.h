@@ -757,7 +757,7 @@ struct AccelerationStructureDesc
 	int BuildFlags = AS_BUILD_FLAGS::Fast_Trace;
 };
 
-namespace EResourceState
+struct  EResourceState
 {
 	enum Type
 	{
@@ -767,9 +767,11 @@ namespace EResourceState
 		UAV,
 		CopySrc,
 		CopyDst,
+		Undefined,
 		Limit
 	};
-}
+	static std::string ToString(EResourceState::Type state);
+};
 
 enum RAY_FLAGS
 {

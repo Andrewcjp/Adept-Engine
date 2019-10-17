@@ -321,6 +321,11 @@ void FrameBuffer::MakeReadyForPixel(RHICommandList * List, bool Depth)
 	SetResourceState(List, EResourceState::PixelShader, Depth);
 }
 
+EResourceState::Type FrameBuffer::GetCurrentState() const
+{
+	return CurrentState;
+}
+
 void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 {
 	if (!NeedsSFRResolve())

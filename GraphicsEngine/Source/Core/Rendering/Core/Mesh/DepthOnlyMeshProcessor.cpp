@@ -10,7 +10,7 @@ DepthOnlyMeshProcessor::DepthOnlyMeshProcessor()
 {
 	Init();
 	PassType = ERenderPass::DepthOnly;
-	//DisableInstancing = true;
+	DisableCulling = true;
 }
 
 DepthOnlyMeshProcessor::~DepthOnlyMeshProcessor()
@@ -28,7 +28,7 @@ void DepthOnlyMeshProcessor::AddBatch(MeshBatch* Batch)
 	{
 		return;
 	}
-	if (Batch->CastShadow && !Batch->ShadowPassCulled /*|| Batch->InstanceBuffer != nullptr*/)
+	if (Batch->CastShadow && !Batch->ShadowPassCulled || Batch->InstanceBuffer != nullptr)
 	{
 		Process(Batch);
 	}

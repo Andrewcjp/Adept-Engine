@@ -103,7 +103,6 @@ private:
 	CommandAllocator* CommandAlloc = nullptr;
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 	D3D12CommandSigniture* CommandSig = nullptr;
-
 };
 
 class D3D12RHIUAV : public RHIUAV
