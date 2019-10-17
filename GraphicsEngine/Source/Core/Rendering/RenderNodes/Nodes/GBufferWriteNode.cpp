@@ -13,8 +13,8 @@
 GBufferWriteNode::GBufferWriteNode()
 {
 	ViewMode = EViewMode::PerView;
-	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat);
-	AddOutput(EStorageType::Framebuffer, StorageFormats::GBufferData);
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat);
+	AddResourceOutput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::GBufferData);
 }
 
 GBufferWriteNode::~GBufferWriteNode()
@@ -26,6 +26,7 @@ void GBufferWriteNode::OnExecute()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("GBufferWrite", "Render");
 	CommandList->ResetList();
+	SetBeginStates(CommandList);
 	CommandList->StartTimer(EGPUTIMERS::DeferredWrite);
 	ensure(GetInput(0)->GetStoreTarget());
 	FrameBuffer* GBuffer = GetFrameBufferFromInput(0);
@@ -47,6 +48,7 @@ void GBufferWriteNode::OnExecute()
 	SceneRenderer::Get()->MeshController->RenderPass(Args, CommandList);
 	CommandList->EndRenderPass();
 	GBuffer->MakeReadyForComputeUse(CommandList);
+	SetEndStates(CommandList);
 	CommandList->EndTimer(EGPUTIMERS::DeferredWrite);
 	CommandList->Execute();
 	GetInput(0)->GetStoreTarget()->DataFormat = StorageFormats::GBufferData;

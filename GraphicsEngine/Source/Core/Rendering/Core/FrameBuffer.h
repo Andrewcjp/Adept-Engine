@@ -55,7 +55,7 @@ public:
 	void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false);
 	void MakeReadyForCopy(RHICommandList * list, bool changeDepth = false);
 	void MakeReadyForPixel(RHICommandList* List, bool Depth = false);
-
+	EResourceState::Type GetCurrentState()const;
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();
@@ -73,7 +73,7 @@ protected:
 	RHIGPUSyncEvent* CopyFence = nullptr;
 	RHIGPUSyncEvent* DeviceFence = nullptr;
 	RHIGPUSyncEvent* TargetCopyFence = nullptr;
-	
+	EResourceState::Type CurrentState = EResourceState::Undefined;
 	
 	std::vector<RHIUAV*> UAVs;
 };

@@ -24,6 +24,7 @@ void PostProcessNode::OnExecute()
 
 void PostProcessNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene);
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::LitScene);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Post Image");
+
 }

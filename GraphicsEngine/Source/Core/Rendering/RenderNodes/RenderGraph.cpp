@@ -27,6 +27,7 @@
 #include "StoreNodes/InterGPUStorageNode.h"
 #include "Nodes/InterGPUCopyNode.h"
 #include "Nodes/SubmitToHMDNode.h"
+#include "RenderGraphProcessor.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -100,6 +101,7 @@ void RenderGraph::BuildGraph()
 	Log::LogMessage("Building graph \"" + GraphName + "\"");
 	ValidateGraph();
 	ensureMsgf(RootNode, "No root node is set");
+	RenderGraphProcessor::Process(this);
 	for (StorageNode* N : StoreNodes)
 	{
 		N->CreateNode();

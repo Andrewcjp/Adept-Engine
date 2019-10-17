@@ -47,12 +47,13 @@ public:
 	void FreeAllGlobalShaders();
 	RHI_API bool ShouldBuildDebugShaders();
 	void ComplieShader(ShaderType & type, DeviceContext* Context);
-	RHI_API ShaderType * GetShaderFromGlobalMap(std::string name);
+	RHI_API ShaderType * GetShaderFromGlobalMap(std::string name,DeviceContext* context = nullptr);
 	void AddShaderType(std::string Name, ShaderType  type);
 	void TickMaterialComplie();
 	template<class T>
 	static T* GetShader()
 	{
+		//default is listed as "0"
 		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"));
 		if (CachedShader != nullptr)
 		{
@@ -68,7 +69,7 @@ public:
 	template<class T>
 	static T* GetShader(class DeviceContext* dev)
 	{
-		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"));
+		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"),dev);
 		if (CachedShader != nullptr)
 		{
 			if (CachedShader->CompliedShader == nullptr)
@@ -82,7 +83,7 @@ public:
 	template<class T, class U>
 	static T* GetShader(class DeviceContext* dev, U Data)
 	{
-		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::to_string(Data));
+		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::to_string(Data),dev);
 		if (CachedShader != nullptr)
 		{
 			if (CachedShader->CompliedShader == nullptr)
@@ -106,7 +107,10 @@ public:
 private:
 	ShaderGraphComplier* MaterialCompiler = nullptr;
 	static ShaderComplier * Instance;
-	std::map<std::string, ShaderType> GlobalShaderMap;
+	typedef std::map<std::string, ShaderType> ShaderMap;
+	ShaderMap GlobalShaderMapDefinitions;
+	ShaderMap GlobalShaderMap[MAX_GPU_DEVICE_COUNT];
+	ShaderMap* GetShaderMap(DeviceContext* device = nullptr);
 	std::map<std::string, Shader_NodeGraph*> MaterialShaderMap;
 	std::queue<MaterialShaderPair> MaterialShaderComplieQueue;
 	bool ComplieShadersOnTheFly = false;

@@ -8,6 +8,15 @@ public:
 	Shader_VRRResolve(DeviceContext* device);
 	~Shader_VRRResolve();
 	DECLARE_GLOBAL_SHADER(Shader_VRRResolve);
-	
+	void BindBuffer(RHICommandList* list);
+private:
+	RHIBuffer* DataBuffer = nullptr;
+	struct VRSData
+	{
+		int Resolution[2];
+		bool Debug;
+		//bool ShowGrid;
+	};
+	VRSData DataInst;
 };
 

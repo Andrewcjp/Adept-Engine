@@ -86,6 +86,7 @@ void DeferredLightingNode::OnExecute()
 	GBuffer->MakeReadyForComputeUse(List);
 	MainBuffer->MakeReadyForComputeUse(List);
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
+	SetEndStates(List);
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
 	GetOutput(0)->SetStore(GetInput(1)->GetStoreTarget());

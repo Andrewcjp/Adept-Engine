@@ -27,7 +27,7 @@ public:
 	void Validate(RenderGraph::ValidateArgs& args, RenderNode* parent);
 
 	void PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, const std::string& badformat);
-
+	EResourceState::Type ResourceState = EResourceState::Undefined;
 private:
 	StorageNode* StoreTarget = nullptr;
 	std::string LinkName = "";

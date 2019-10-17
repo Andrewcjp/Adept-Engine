@@ -22,7 +22,7 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
 #include "Lighting.hlsl"
 #include "Shadow.hlsl"
 #include "VRX\VRRCommon.hlsl"
-#include "VRX\VRSCommon.hlsl"
+//#include "VRX\VRSCommon.hlsl"
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
@@ -63,7 +63,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 #if SUPPORT_VRR
 	if (!ShouldShadePixel(input.uv,Resolution))
 	{
-		discard;
+		//discard;
 		return float4(1, 1, 1, 0);
 	}	
 #endif
