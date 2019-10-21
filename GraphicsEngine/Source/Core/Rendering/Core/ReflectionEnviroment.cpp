@@ -21,13 +21,13 @@ ReflectionEnviroment::ReflectionEnviroment()
 	EnvMap = ShaderComplier::GetShader<Shader_EnvMap>();
 	Conv->init();
 	EnvMap->Init();
-
+	
 	const int Size = 1024;
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateCubeColourDepth(Size, Size);
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	SkyBoxBuffer = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), Desc);
 
-	Probes.push_back(new ReflectionProbe(glm::vec3(0, 5, 0)));
+	//Probes.push_back(new ReflectionProbe(glm::vec3(0, 5, 0)));
 }
 
 
@@ -40,6 +40,7 @@ void ReflectionEnviroment::Update()
 
 void ReflectionEnviroment::UpdateRelflectionProbes(RHICommandList* commandlist)
 {
+	return;
 	SCOPE_CYCLE_COUNTER_GROUP("Update Relflection Probes", "Render");
 	commandlist->StartTimer(EGPUTIMERS::CubemapCapture);
 	BindStaticSceneEnivoment(commandlist, false);
@@ -65,6 +66,7 @@ bool ReflectionEnviroment::AnyProbesNeedUpdate()
 
 void ReflectionEnviroment::RenderCubemap(ReflectionProbe * Map, RHICommandList* commandlist)
 {
+	return;
 	if (!Map->NeedsCapture())
 	{
 		return;

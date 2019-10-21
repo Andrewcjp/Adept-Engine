@@ -67,7 +67,7 @@ void ForwardRenderNode::OnExecute()
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), CommandList, TargetBuffer, nullptr);
 	CommandList->EndTimer(EGPUTIMERS::MainPass);
-	TargetBuffer->MakeReadyForComputeUse(CommandList);
+	
 	CommandList->Execute();
 	PassNodeThough(0, StorageFormats::LitScene);
 }

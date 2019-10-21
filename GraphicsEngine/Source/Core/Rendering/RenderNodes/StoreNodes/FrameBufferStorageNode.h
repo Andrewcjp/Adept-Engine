@@ -15,6 +15,7 @@ public:
 	virtual void Create() override;
 	FrameBuffer* GetFramebuffer(EEye::Type eye = EEye::Left);
 	bool IsVRFramebuffer= false;
+	EResourceState::Type InitalResourceState = EResourceState::Undefined;
 protected:
 	RHIFrameBufferDesc FramebufferDesc = {};
 	FrameBuffer* FBuffer = nullptr;

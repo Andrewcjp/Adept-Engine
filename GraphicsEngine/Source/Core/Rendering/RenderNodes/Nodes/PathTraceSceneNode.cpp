@@ -36,7 +36,7 @@ void PathTraceSceneNode::OnExecute()
 
 	RTList->GetRHIList()->StartTimer(EGPUTIMERS::RT_Trace);
 	RTList->SetStateObject(StateObject);
-	//Target->MakeReadyForComputeUse(RTList->GetRHIList());
+
 	RTList->SetHighLevelAccelerationStructure(RayTracingEngine::Get()->GetHighLevelStructure());
 	RTList->GetRHIList()->SetConstantBufferView(CBV, 0, 2);
 	RTList->TraceRays(RHIRayDispatchDesc(Target));

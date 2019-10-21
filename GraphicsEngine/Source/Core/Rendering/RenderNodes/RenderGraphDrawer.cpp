@@ -30,6 +30,10 @@ void RenderGraphDrawer::Draw(RenderGraph* G)
 	int index = 0;
 	while (itor->GetNextNode() != nullptr)
 	{
+		if (!itor->IsNodeActive())
+		{
+			itor = itor->GetNextNode();
+		}
 		DrawNode(itor, tPos, index);
 		DrawLinks(itor, index, tPos);
 		index++;
@@ -201,6 +205,10 @@ void RenderGraphDrawer::WriteGraphViz(RenderGraph* G)
 	LinkId = 0;
 	while (itor != nullptr)
 	{
+		//if (!itor->IsNodeActive())
+		//{
+		//	itor = itor->GetNextNode();
+		//}
 		Data += "\"node" + std::to_string(index) + "\" [	\n		label = \"<f0>" + GetLabelForNode(itor) + "\"	\n shape = \"record\"];\n ";
 		//:f2
 		Data += CreateLinksforNode(itor);

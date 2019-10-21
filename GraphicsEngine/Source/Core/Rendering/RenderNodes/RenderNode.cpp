@@ -341,20 +341,24 @@ void RenderNode::SetEndStates(RHICommandList * list)
 
 void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
 {
-	if (TargetState == EResourceState::Undefined || Target == nullptr)
+	if (TargetState == EResourceState::Undefined || (Target == nullptr && StoreNode == nullptr))
 	{
 		return;
 	}
 	if (Target->TargetType == EStorageType::Framebuffer)
 	{
-		FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(Target->GetStoreTarget());
-		if (Node == nullptr)
+		if (StoreNode == nullptr)
 		{
+			StoreNode = Target->GetStoreTarget();
+		}
+		FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(StoreNode);
+		if (Node == nullptr)
+		{		
 			return;
 		}
-		//Node->GetFramebuffer(rnode->GetEye())->SetResourceState(list, TargetState);
 		FrameBuffer* buffer = Node->GetFramebuffer(rnode->GetEye());
 		Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
+		buffer->SetResourceState(list, TargetState);
 	}
 
 }

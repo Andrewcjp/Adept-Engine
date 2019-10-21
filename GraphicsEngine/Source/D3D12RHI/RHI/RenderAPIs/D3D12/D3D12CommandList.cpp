@@ -533,7 +533,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute || ListType == ECommandListType::RayTracing);
 	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(buffer);
-	if (IsComputeList())
+	if (IsComputeList() || IsRaytracingList())
 	{
 		ensure(DBuffer->IsReadyForCompute());
 	}

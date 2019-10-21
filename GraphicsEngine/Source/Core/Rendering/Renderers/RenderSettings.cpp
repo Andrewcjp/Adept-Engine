@@ -18,7 +18,7 @@ RenderSettings::RenderSettings()
 	//EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_RT;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;

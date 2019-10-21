@@ -36,7 +36,7 @@ std::string DebugUINode::GetName() const
 
 void DebugUINode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene, "Data");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::LitScene, "Data");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Final frame");
 }
 

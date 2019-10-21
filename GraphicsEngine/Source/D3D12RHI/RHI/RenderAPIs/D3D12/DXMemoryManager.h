@@ -8,6 +8,7 @@ class DXMemoryManager
 {
 public:
 	DXMemoryManager(D3D12DeviceContext* D);
+	void Compact();
 	void AddFrameBufferPage(int size);
 	void AddTransientPage(int size);
 	void AddTransientGPUOnlyPage(int size);
@@ -23,6 +24,7 @@ public:
 	EAllocateResult::Type AllocPage(AllocDesc & desc, GPUMemoryPage** Page);
 	void UpdateTotalAlloc();
 	void LogMemoryReport();
+	GPUMemoryPage* FindFreePage(AllocDesc & desc, std::vector<GPUMemoryPage*>& pages);
 private:
 	D3D12DeviceContext* Device = nullptr;
 	//all pages on this device
