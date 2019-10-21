@@ -54,12 +54,13 @@ public:
 	void Render(FrameBuffer* DDO, FrameBuffer * DepthTexture = nullptr, EEye::Type Eye = EEye::Left);
 	void AddSystem(ParticleSystem* system);
 	void RemoveSystem(ParticleSystem* system);
+	RHICommandList* RenderList = nullptr;
 private:
 	ParticleSystem* Testsystem = nullptr;
 	static ParticleSystemManager* Instance;
 	RHICommandList* CmdList = nullptr;
 	//rendering
-	RHICommandList* RenderList = nullptr;
+
 	RHIBuffer* VertexBuffer = nullptr;
 	//This is common across all particle systems
 	RHIBuffer* ParticleRenderConstants = nullptr;
@@ -75,5 +76,6 @@ private:
 	void SubmitCompute();
 	void SubmitRender(FrameBuffer* buffer);
 	FrameBuffer* DepthBuffer = nullptr;
+	RHICommandSignitureDescription RenderSig;
 };
 

@@ -16,6 +16,7 @@ GPUMemoryPage::~GPUMemoryPage()
 {
 	IsReleaseing = true;
 	MemoryUtils::DeleteReleaseableVector(ContainedResources);
+	SafeRelease(PageHeap);
 }
 
 EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Resource)
@@ -53,7 +54,7 @@ void GPUMemoryPage::CalculateSpaceNeeded(AllocDesc & desc)
 
 bool GPUMemoryPage::CheckSpaceForResource(AllocDesc & desc)
 {
-	if (OffsetInPlacedHeap + desc.TextureAllocData.SizeInBytes >= PageDesc.Size)
+	if (OffsetInPlacedHeap + desc.TextureAllocData.SizeInBytes > PageDesc.Size)
 	{
 		return false;
 	}
@@ -125,6 +126,10 @@ void GPUMemoryPage::Deallocate(GPUResource * R)
 		return;//during the delete we destroy any present GPU resources, we don't need them telling us there gone again.
 	}
 	VectorUtils::Remove(ContainedResources, R);
+	if (ContainedResources.size() == 0)
+	{
+		OffsetInPlacedHeap = 0;
+	}
 }
 
 UINT GPUMemoryPage::GetSize() const

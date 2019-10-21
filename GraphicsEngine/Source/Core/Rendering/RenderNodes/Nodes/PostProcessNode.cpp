@@ -9,6 +9,7 @@ PostProcessNode::PostProcessNode()
 	ViewMode = EViewMode::PerView;
 	//SetNodeActive(false);
 	PostProcessing::StartUp();
+
 }
 
 
@@ -18,7 +19,12 @@ PostProcessNode::~PostProcessNode()
 
 void PostProcessNode::OnExecute()
 {
-	PostProcessing::Get()->ExecPPStack(GetFrameBufferFromInput(0));
+	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	CommandList->ResetList();
+	PostProcessing::Get()->ExecPPStack(GetFrameBufferFromInput(0), CommandList);
+	SetEndStates(CommandList);
+	CommandList->Execute();
+	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 	PassNodeThough(0);
 }
 
@@ -26,5 +32,11 @@ void PostProcessNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::LitScene);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Post Image");
+
+}
+
+void PostProcessNode::OnSetupNode()
+{
+	CommandList = RHI::CreateCommandList(ECommandListType::Compute, Context);
 
 }

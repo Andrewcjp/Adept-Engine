@@ -54,8 +54,8 @@ void SSAONode::OnExecute()
 
 void SSAONode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene, "Scene");
-	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::LitScene, "Scene");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::GBufferData, "GBuffer");
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "SSAO intermediate buffer");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
 }

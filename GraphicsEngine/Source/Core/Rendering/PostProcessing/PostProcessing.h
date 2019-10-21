@@ -15,7 +15,7 @@ public:
 	void Update();
 	std::vector<PostProcessEffectBase*> Effects;
 	void AddEffect(PostProcessEffectBase* effect);
-	void ExecPPStack(FrameBuffer* Target);
+	void ExecPPStack(FrameBuffer* Target, RHICommandList* CommandList);
 	void Init(FrameBuffer* Target);
 	void Resize(FrameBuffer * Target);
 	static PostProcessing* Get();
@@ -26,5 +26,5 @@ public:
 	class PP_SSAO* SSAO = nullptr;
 	class PP_Debug* Debug = nullptr;
 private:
-	RHICommandList* CommandList = nullptr;
+
 };

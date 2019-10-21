@@ -131,6 +131,7 @@ void RenderGraph::CreateDefGraphWithRT()
 	GraphName += "(RT)";
 	//find nodes
 	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(FindFirstOf(DeferredLightingNode::GetNodeName()));
+	GBufferWriteNode* gbuffer = RenderNode::NodeCast<GBufferWriteNode>(FindFirstOf(GBufferWriteNode::GetNodeName()));
 	ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
 	RenderNode* UpdateProbesNode = FindFirstOf(UpdateReflectionsNode::GetNodeName());
 
@@ -148,7 +149,7 @@ void RenderGraph::CreateDefGraphWithRT()
 	RayTraceReflectionsNode* RTNode = new RayTraceReflectionsNode();
 	LinkNode(UpdateAcceleration, RTNode);
 	RTNode->GetInput(0)->SetStore(RTXBuffer);
-	RTNode->GetInput(1)->SetLink(RootNode->GetOutput(0));
+	RTNode->GetInput(1)->SetLink(gbuffer->GetOutput(0));
 	RTNode->GetInput(2)->SetStore(ShadowDataNode);
 	ExposeItem(RTNode, StandardSettings::UseRaytrace);
 
@@ -216,7 +217,7 @@ void RenderGraph::CreateDefTestgraph()
 	LinkNode(UpdateProbesNode, ParticleSimNode);
 	LinkNode(ParticleSimNode, LightNode);
 
-	LightNode->GetInput(0)->SetLink(RootNode->GetOutput(0));
+	LightNode->GetInput(0)->SetLink(WriteNode->GetOutput(0));
 	LightNode->GetInput(1)->SetStore(MainBuffer);
 	LightNode->GetInput(2)->SetStore(SceneData);
 	LightNode->GetInput(3)->SetStore(ShadowDataNode);
@@ -234,7 +235,7 @@ void RenderGraph::CreateDefTestgraph()
 
 	PostProcessNode* PPNode = new PostProcessNode();
 	LinkNode(SSAO, PPNode);
-	PPNode->GetInput(0)->SetLink(LightNode->GetOutput(0));
+	PPNode->GetInput(0)->SetLink(PRenderNode->GetOutput(0));
 
 	DebugUINode* Debug = new DebugUINode();
 	PPNode->LinkToNode(Debug);

@@ -83,8 +83,6 @@ void DeferredLightingNode::OnExecute()
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
 #endif
-	GBuffer->MakeReadyForComputeUse(List);
-	MainBuffer->MakeReadyForComputeUse(List);
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
 	SetEndStates(List);
 	List->Execute();

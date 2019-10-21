@@ -1,6 +1,7 @@
 #include "GPUResource.h"
 #include "D3D12DeviceContext.h"
 #include "GPUMemoryPage.h"
+#include "Core\Performance\PerfManager.h"
 CreateChecker(GPUResource);
 GPUResource::GPUResource()
 {}
@@ -16,6 +17,7 @@ GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalSt
 	SetDebugName("GPU Resource");
 	CurrentResourceState = InitalState;
 	Device = D3D12RHI::DXConv(device);
+	PerfManager::Get()->AddTimer("ResourceTransitons", "RHI");
 }
 
 GPUResource::~GPUResource()
@@ -68,6 +70,11 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOU
 		List->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
 		CurrentResourceState = newstate;
 		TargetState = newstate;
+		PerfManager::Get()->AddToCountTimer("ResourceTransitons", 1);
+	}
+	else
+	{
+//		Log::LogMessage(GetDebugName() + std::string(" is already in state ") + D3D12Helpers::ResouceStateToString(newstate), Log::Warning);
 	}
 }
 //todo More Detailed Error checking!

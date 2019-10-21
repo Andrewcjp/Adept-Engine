@@ -11,11 +11,28 @@ DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 	Log::LogMessage("Booting On Device With " + StringUtils::ByteToGB(Stats.LocalSegment_TotalBytes) + "Local " +
 		StringUtils::ByteToGB(Stats.HostSegment_TotalBytes) + "Host");
 
-	AddFrameBufferPage(Math::MBToBytes<int>(1000));
-	AddTransientPage(Math::MBToBytes<int>(100));
-	AddDataPage(Math::MBToBytes<int>(100));
-	AddTexturePage(Math::MBToBytes<int>(100));
-	AddTransientGPUOnlyPage(Math::MBToBytes<int>(100));
+	AddFrameBufferPage(Math::MBToBytes<int>(10));
+	AddTransientPage(Math::MBToBytes<int>(10));
+	AddDataPage(Math::MBToBytes<int>(10));
+	AddTexturePage(Math::MBToBytes<int>(10));
+	AddTransientGPUOnlyPage(Math::MBToBytes<int>(10));
+}
+
+void DXMemoryManager::Compact()
+{
+	for (int i = Pages.size() - 1; i >= 0; i--)
+	{
+		if (Pages[i]->GetSizeInUse() == 0)
+		{
+			VectorUtils::Remove(FrameResourcePages, Pages[i]);
+			VectorUtils::Remove(TempUploadPages, Pages[i]);
+			VectorUtils::Remove(TempGPUPages, Pages[i]);
+			VectorUtils::Remove(DataPages, Pages[i]);
+			VectorUtils::Remove(TexturePages, Pages[i]);
+			SafeDelete(Pages[i]);
+			Pages.erase(Pages.begin() + i);
+		}
+	}
 }
 
 void DXMemoryManager::AddFrameBufferPage(int size)
@@ -75,35 +92,40 @@ DXMemoryManager::~DXMemoryManager()
 
 EAllocateResult::Type DXMemoryManager::AllocTemporary(AllocDesc & desc, GPUResource ** ppResource)
 {
-	EAllocateResult::Type Error = TempUploadPages[0]->Allocate(desc, ppResource);
+	desc.PageAllocationType = EPageTypes::BufferUploadOnly;
+	EAllocateResult::Type Error = FindFreePage(desc, TempUploadPages)->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }
 
 EAllocateResult::Type DXMemoryManager::AllocTemporaryGPU(AllocDesc & desc, GPUResource ** ppResource)
 {
-	EAllocateResult::Type Error = TempGPUPages[0]->Allocate(desc, ppResource);
+	desc.PageAllocationType = EPageTypes::BuffersOnly;
+	EAllocateResult::Type Error = FindFreePage(desc, TempGPUPages)->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }
 
 EAllocateResult::Type DXMemoryManager::AllocGeneral(AllocDesc & desc, GPUResource ** ppResource)
 {
-	EAllocateResult::Type Error = DataPages[0]->Allocate(desc, ppResource);
+	desc.PageAllocationType = EPageTypes::BuffersOnly;
+	EAllocateResult::Type Error = FindFreePage(desc, DataPages)->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }
 
 EAllocateResult::Type DXMemoryManager::AllocFrameBuffer(AllocDesc & desc, GPUResource ** ppResource)
 {
-	EAllocateResult::Type Error = FrameResourcePages[0]->Allocate(desc, ppResource);
+	desc.PageAllocationType = EPageTypes::RTAndDS_Only;
+	EAllocateResult::Type Error = FindFreePage(desc, FrameResourcePages)->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }
 
 EAllocateResult::Type DXMemoryManager::AllocTexture(AllocDesc & desc, GPUResource ** ppResource)
 {
-	EAllocateResult::Type Error = TexturePages[0]->Allocate(desc, ppResource);
+	desc.PageAllocationType = EPageTypes::TexturesOnly;
+	EAllocateResult::Type Error = FindFreePage(desc, TexturePages)->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }
@@ -145,5 +167,22 @@ void DXMemoryManager::LogMemoryReport()
 	Log::LogMessage("Device Total " + StringUtils::ByteToMB(TotalPageAllocated) + " of " + StringUtils::ByteToMB(Device->GetMemoryData().LocalSegment_TotalBytes) +
 		" (" + StringUtils::ToString(((float)TotalPageAllocated / Device->GetMemoryData().LocalSegment_TotalBytes) * 100) + "%)");
 	Log::LogMessage("***End GPU" + std::to_string(Device->GetDeviceIndex()) + " Memory Report***");
+}
+
+GPUMemoryPage * DXMemoryManager::FindFreePage(AllocDesc & desc, std::vector<GPUMemoryPage*>& pages)
+{
+	for (int i = 0; i < pages.size(); i++)
+	{
+		pages[i]->CalculateSpaceNeeded(desc);
+		if (pages[i]->CheckSpaceForResource(desc))
+		{
+			return pages[i];
+		}
+	}
+	GPUMemoryPage* newpage = nullptr;
+	desc.Size = desc.TextureAllocData.SizeInBytes;
+	AllocPage(desc, &newpage);
+	pages.push_back(newpage);
+	return newpage;
 }
 

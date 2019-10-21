@@ -5,6 +5,7 @@
 #include "Rendering/Shaders/Shader_PreZ.h"
 #include "Flow/VRBranchNode.h"
 #include "Core/Performance/PerfManager.h"
+#include "../NodeLink.h"
 
 ZPrePassNode::ZPrePassNode()
 {
@@ -19,6 +20,7 @@ ZPrePassNode::~ZPrePassNode()
 
 void ZPrePassNode::OnExecute()
 {
+	//PassNodeThough(0, StorageFormats::PreZData);
 	SCOPE_CYCLE_COUNTER_GROUP("ZPrePass", "Render");
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	Cmdlist->ResetList();
@@ -37,13 +39,14 @@ void ZPrePassNode::OnExecute()
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
 	SetEndStates(Cmdlist);
 	Cmdlist->Execute();
-	PassNodeThough(0, StorageFormats::PreZData);
+	
 }
 
 void ZPrePassNode::OnNodeSettingChange()
 {
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::PreZData);
+	GetOutput(0)->SetLink(GetInput(0));
 }
 
 void ZPrePassNode::OnSetupNode()

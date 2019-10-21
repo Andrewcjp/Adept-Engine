@@ -510,6 +510,10 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 	{
 		//	GetMemoryManager()->LogMemoryReport();
 	}
+	if (RHI::GetFrameCount() == 10)
+	{
+		GetMemoryManager()->Compact();
+	}
 }
 
 void D3D12DeviceContext::SampleVideoMemoryInfo()

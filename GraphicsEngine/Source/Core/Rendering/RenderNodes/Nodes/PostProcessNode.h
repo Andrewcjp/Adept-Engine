@@ -13,6 +13,9 @@ public:
 
 protected:
 	virtual void OnNodeSettingChange() override;
+	RHICommandList* CommandList = nullptr;
+
+	virtual void OnSetupNode() override;
 
 };
 

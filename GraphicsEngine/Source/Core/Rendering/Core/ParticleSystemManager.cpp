@@ -75,16 +75,16 @@ void ParticleSystemManager::InitCommon()
 	pdesc.Blending = false;
 	pdesc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
 	RenderList->SetPipelineStateDesc(pdesc);
-#if USE_INDIRECTCOMPUTE
-	sigdesc = RHICommandSignitureDescription();
-	sigdesc.ArgumentDescs.resize(2);
-	sigdesc.ArgumentDescs[0].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_CONSTANT;
-	sigdesc.ArgumentDescs[0].Constant.RootParameterIndex = pdesc.ShaderInUse->GetSlotForName("Index");
-	sigdesc.ArgumentDescs[0].Constant.Num32BitValuesToSet = 1;
-	sigdesc.ArgumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
-	sigdesc.ArgumentDescs[1].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DRAW;
-	sigdesc.CommandBufferStide = sizeof(IndirectArgs);
-	RenderList->SetCommandSigniture(sigdesc);
+#if USE_INDIRECTRENDER
+	RenderSig = RHICommandSignitureDescription();
+	RenderSig.ArgumentDescs.resize(2);
+	RenderSig.ArgumentDescs[0].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_CONSTANT;
+	RenderSig.ArgumentDescs[0].Constant.RootParameterIndex = pdesc.ShaderInUse->GetSlotForName("Index");
+	RenderSig.ArgumentDescs[0].Constant.Num32BitValuesToSet = 1;
+	RenderSig.ArgumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
+	RenderSig.ArgumentDescs[1].Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DRAW;
+	RenderSig.CommandBufferStide = sizeof(IndirectArgs);
+	RenderList->SetCommandSigniture(RenderSig);
 #endif
 }
 
@@ -226,9 +226,7 @@ void ParticleSystemManager::StartSimulate()
 void ParticleSystemManager::StartRender()
 {
 	RenderList->ResetList();
-#if PARTICLE_STATS
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
-#endif
 }
 
 void ParticleSystemManager::SubmitCompute()
@@ -273,6 +271,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * B
 	RHIRenderPassDesc info(BufferTarget, ERenderPassLoadOp::Load);
 	info.DepthSourceBuffer = DepthBuffer;
 	RenderList->BeginRenderPass(info);
+	RenderList->SetCommandSigniture(RenderSig);
 	RenderList->SetVertexBuffer(VertexBuffer);
 	RenderList->SetConstantBufferView(ParticleRenderConstants, Eye, "ParticleData");
 	system->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
@@ -320,12 +319,12 @@ void ParticleSystemManager::Render(FrameBuffer* TargetBuffer, FrameBuffer * Dept
 
 	DepthBuffer = DepthTexture;
 
-	StartRender();
+
 	for (int i = 0; i < ParticleSystems.size(); i++)
 	{
 		RenderSystem(ParticleSystems[i], TargetBuffer, Eye);
 	}
-	SubmitRender(TargetBuffer);
+	
 }
 
 void ParticleSystemManager::AddSystem(ParticleSystem * system)

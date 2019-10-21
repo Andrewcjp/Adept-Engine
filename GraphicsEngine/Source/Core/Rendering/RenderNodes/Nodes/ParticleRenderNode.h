@@ -10,6 +10,9 @@ public:
 	NameNode("Particle Render");
 protected:
 	virtual void OnNodeSettingChange() override;
+	RHICommandList* RenderList = nullptr;
+
+	virtual void OnSetupNode() override;
 
 };
 

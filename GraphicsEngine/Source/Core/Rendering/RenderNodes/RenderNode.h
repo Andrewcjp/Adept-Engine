@@ -31,6 +31,7 @@ class RenderNode;
 struct ResourceTransition
 {
 	NodeLink* Target = nullptr;
+	StorageNode* StoreNode = nullptr;
 	EResourceState::Type TargetState = EResourceState::Undefined;
 	void Execute(RHICommandList* list, RenderNode* eye);
 };
@@ -124,6 +125,7 @@ protected:
 	RenderNode* LastNode = nullptr;
 	ENodeQueueType::Type NodeEngineType = ENodeQueueType::Graphics;
 	EViewMode::Type ViewMode = EViewMode::DontCare;
+	bool AllowAsyncCompute = false;
 	std::vector<NodeLink*> Inputs;
 	std::vector<NodeLink*> Outputs;
 	std::vector<NodeLink*> Refrences;

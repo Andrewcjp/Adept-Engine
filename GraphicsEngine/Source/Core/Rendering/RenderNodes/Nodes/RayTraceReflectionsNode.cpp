@@ -76,8 +76,8 @@ bool RayTraceReflectionsNode::IsNodeSupported(const RenderSettings& settings)
 
 void RayTraceReflectionsNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "OutputBuffer");
-	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::DefaultFormat, "OutputBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::GBufferData, "GBuffer");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadows");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "Screen Data");
 }

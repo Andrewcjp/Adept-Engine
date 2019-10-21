@@ -102,7 +102,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 	{
 		list->EndRenderPass();
 	}
-	Buffer->MakeReadyForComputeUse(list);
+	//Buffer->MakeReadyForComputeUse(list);
 	if (!Cubemap && false)
 	{
 
@@ -119,7 +119,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 		//{
 		//	list->InsertGPUStallTimer();
 		//}
-		Buffer->MakeReadyForComputeUse(list);
+		//Buffer->MakeReadyForComputeUse(list);
 		//List->Execute();
 	}
 	}

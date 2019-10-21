@@ -127,7 +127,7 @@ public:
 	std::vector<TimerData*> GetAllGPUTimers(std::string group);
 	CORE_API static void StartBenchMark(std::string name = std::string());
 	CORE_API static void EndBenchMark();
-	static void AddToCountTimer(std::string name, int amout);
+	CORE_API static void AddToCountTimer(std::string name, int amout);
 private:
 	void Internal_NotifyEndOfFrame();
 	void InStartTimer(int targetTimer);

@@ -1,13 +1,13 @@
 #include "GBufferWriteNode.h"
 #include "Rendering/Core/Material.h"
+#include "Core/Performance/PerfManager.h"
+#include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/RHITimeManager.h"
-#include "../../Core/FrameBuffer.h"
-#include "Core/Performance/PerfManager.h"
 
 
 GBufferWriteNode::GBufferWriteNode()
@@ -24,6 +24,9 @@ GBufferWriteNode::~GBufferWriteNode()
 
 void GBufferWriteNode::OnExecute()
 {
+	GetInput(0)->GetStoreTarget()->DataFormat = StorageFormats::GBufferData;
+	//pass the input to the output now changed
+	GetOutput(0)->SetStore(GetInput(0)->GetStoreTarget());
 	SCOPE_CYCLE_COUNTER_GROUP("GBufferWrite", "Render");
 	CommandList->ResetList();
 	SetBeginStates(CommandList);
@@ -47,13 +50,11 @@ void GBufferWriteNode::OnExecute()
 	Args.ReadDepth = UsePreZPass;
 	SceneRenderer::Get()->MeshController->RenderPass(Args, CommandList);
 	CommandList->EndRenderPass();
-	GBuffer->MakeReadyForComputeUse(CommandList);
+
 	SetEndStates(CommandList);
 	CommandList->EndTimer(EGPUTIMERS::DeferredWrite);
 	CommandList->Execute();
-	GetInput(0)->GetStoreTarget()->DataFormat = StorageFormats::GBufferData;
-	//pass the input to the output now changed
-	GetOutput(0)->SetStore(GetInput(0)->GetStoreTarget());
+
 }
 
 void GBufferWriteNode::OnSetupNode()
