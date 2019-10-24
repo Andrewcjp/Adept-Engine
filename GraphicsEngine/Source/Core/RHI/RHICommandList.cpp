@@ -157,20 +157,20 @@ void RHICommandList::HandleStallTimer()
 	}
 }
 
- void RHICommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure * Struct)
-{
-	
-}
-
- void RHICommandList::TraceRays(const RHIRayDispatchDesc& desc)
+void RHICommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure * Struct)
 {
 
 }
 
- void RHICommandList::SetStateObject(RHIStateObject* Object)
- {
+void RHICommandList::TraceRays(const RHIRayDispatchDesc& desc)
+{
 
- }
+}
+
+void RHICommandList::SetStateObject(RHIStateObject* Object)
+{
+
+}
 
 void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 {
@@ -240,32 +240,10 @@ void RHICommandList::SetVRSShadingRateImageNative(FrameBuffer * Target)
 	NOAPIIMP(SetVRSShadingRateImageNative);
 }
 
-RHIUAV * RHIBuffer::GetUAV()
-{
-	ensureMsgf(Desc.CreateUAV, "CreateUAV should be set on this buffer to use a UAV from it");
-	return UAV;
-}
-
 void RHIBuffer::Release()
-{
-	SafeRelease(UAV);
-}
+{}
 
-void RHIBuffer::CreateUAV()
-{
-	UAV = RHI::CreateUAV();
-	UAV->CreateUAVFromRHIBuffer(this);
-}
 
-RHIUAV::RHIUAV()
-{
-	ObjectSufix = "(UAV)";
-}
-
-const RHIViewDesc& RHIUAV::GetViewDesc()const
-{
-	return ViewDesc;
-}
 
 RHIBuffer::RHIBuffer(ERHIBufferType::Type type)
 {
@@ -315,12 +293,7 @@ void RHIRenderPass::Complie()
 
 void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, int slot)
 {
-	buffer->BindBufferReadOnly(this, slot);
-}
-
-void RHICommandList::SetUAV(RHIUAV * uav, int slot)
-{
-	uav->Bind(this, slot);
+	SetBuffer(buffer, slot, RHIViewDesc::DefaultSRV());
 }
 
 void RHICommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot)
@@ -362,14 +335,41 @@ void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, std::string slot)
 	SetRHIBufferReadOnly(buffer, index);
 }
 
-void RHICommandList::SetUAV(RHIUAV * uav, std::string slot)
+void RHICommandList::SetUAV(RHIBuffer * uav, std::string slot)
 {
-//	ensure(CurrentPSO);
-	ensure(uav);
-	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
+	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), RHIViewDesc::DefaultUAV());
+}
+
+void RHICommandList::SetUAV(RHIBuffer * uav, int slot)
+{
+	SetUAV(uav, slot, RHIViewDesc::DefaultUAV());
+}
+
+void RHICommandList::SetUAV(FrameBuffer * uav, std::string slot, int ResourceIndex, int Face, int MipSlice)
+{
+	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), ResourceIndex, Face, MipSlice);
+}
+
+void RHICommandList::SetBuffer(RHIBuffer * Buffer, int slot, int ElementOffset)
+{
+	RHIViewDesc view = RHIViewDesc::DefaultSRV();
+	view.Offset = ElementOffset;
+	SetBuffer(Buffer, slot, view);
+}
+
+void RHICommandList::SetBuffer(RHIBuffer * Buffer, std::string slot, int ElementOffset)
+{
+	SetBuffer(Buffer, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), ElementOffset);
+}
+
+void RHICommandList::SetUAV(FrameBuffer * uav, int slot, int ResourceIndex, int Face, int MipSlice)
+{
+	RHIViewDesc view;
+	view.ArraySlice = Face;
+	view.Mip = MipSlice;
+	view.Resource = ResourceIndex;
+	SetUAV(uav, slot, view);
 }
 
 void RHICommandList::SetCommandSigniture(RHICommandSignitureDescription desc)
-{
-	
-}
+{}

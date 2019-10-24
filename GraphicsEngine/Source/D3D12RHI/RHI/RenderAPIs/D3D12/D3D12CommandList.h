@@ -3,6 +3,7 @@
 #include "D3D12Shader.h"
 #include "Core/Utils/RefChecker.h"
 #include "RHI/BaseTexture.h"
+#include "RHI/RHIRootSigniture.h"
 
 class DescriptorGroup;
 class CommandAllocator;
@@ -41,11 +42,11 @@ public:
 	virtual void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 	void PushState();
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
+	void PrepareforDraw();
 	virtual void SetTexture(BaseTextureRef texture, int slot) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
-	virtual void UAVBarrier(class RHIUAV* target) override;
 	virtual void SetCommandSigniture(RHICommandSignitureDescription desc)override;
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset);
 	CMDListType* GetCommandList();
@@ -80,6 +81,21 @@ public:
 
 
 	virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) override;
+	RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, RHIViewDesc Desc, int Slot) override;
+	RHI_VIRTUAL void SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc) override;
+
+
+	RHI_VIRTUAL void SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view) override;
+
+
+	RHI_VIRTUAL void SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view) override;
+	RHI_VIRTUAL void SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view = RHIViewDesc()) override;
+
+
+	RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) override;
+
+
+	 RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) override;
 
 private:
 	void SetScreenBackBufferAsRT();
@@ -96,34 +112,15 @@ private:
 	bool m_IsOpen = false;
 	//ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();
-	std::vector<ShaderParameter> Params;
+
 	int VertexDesc_ElementCount = 0;
 	class D3D12Buffer* CurrentConstantBuffer = nullptr;
 	class D3D12Texture* Texture = nullptr;
 	CommandAllocator* CommandAlloc = nullptr;
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 	D3D12CommandSigniture* CommandSig = nullptr;
+	RHIRootSigniture RootSigniture;
 };
-
-class D3D12RHIUAV : public RHIUAV
-{
-public:
-	D3D12RHIUAV(DeviceContext* inDevice);
-
-	~D3D12RHIUAV();
-	void CreateUAVFromTexture(class BaseTexture* target) override;
-	RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) override;
-	void Bind(RHICommandList* list, int slot) override;
-	ID3D12Resource * m_UAV = nullptr;
-	D3D12DeviceContext* Device = nullptr;
-	ID3D12Resource* UAVCounter = nullptr;
-	DescriptorGroup* UAVDescriptor = nullptr;
-protected:
-	void Release() override;
-	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
-};
-
-
 
 class D3D12RHITextureArray : public RHITextureArray
 {
@@ -135,10 +132,10 @@ public:
 	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot)override;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr);
 	RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc);
+	DXDescriptor* GetDescriptor(const RHIViewDesc & desc);
 private:
 	void Release() override;
 	void Clear() override;
-	class DescriptorGroup* Desc = nullptr;
 	std::vector<D3D12FrameBuffer*> LinkedBuffers;
 	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
 	D3D12DeviceContext* Device = nullptr;

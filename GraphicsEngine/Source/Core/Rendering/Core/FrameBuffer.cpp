@@ -44,25 +44,7 @@ void FrameBuffer::HandleInit()
 void FrameBuffer::PostInit()
 {
 	if (BufferDesc.AllowUnorderedAccess)
-	{
-		if (UAVs.size() > 0)
-		{
-			MemoryUtils::RHIUtil::DeleteVector(UAVs);
-		}
-		if (BufferDesc.RequestedViews.size() > 0)
-		{
-			for (int i = 0; i < BufferDesc.RequestedViews.size(); i++)
-			{
-				UAVs.push_back(RHI::CreateUAV(Device));
-				UAVs[i]->CreateUAVFromFrameBuffer(this, BufferDesc.RequestedViews[i]);
-			}
-		}
-		else
-		{
-			UAVs.push_back(RHI::CreateUAV(Device));
-			UAVs[UAVs.size() - 1]->CreateUAVFromFrameBuffer(this);
-		}
-	}
+	{}
 }
 
 FrameBuffer::~FrameBuffer()
@@ -152,29 +134,6 @@ void FrameBuffer::CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * Targe
 	//Multi shadow are missing a sync!
 }
 
-void FrameBuffer::BindUAV(RHICommandList* list, int slot, int UAVIndex /*= 0*/)
-{
-	ensure(BufferDesc.AllowUnorderedAccess);
-	UAVs[UAVIndex]->Bind(list, slot);
-}
-
-RHIUAV* FrameBuffer::GetUAV()
-{
-	ensure(BufferDesc.AllowUnorderedAccess);
-	return UAVs[0];
-}
-
-RHIUAV * FrameBuffer::GetUAV(const RHIViewDesc & desc)
-{
-	for (int i = 0; i < UAVs.size(); i++)
-	{
-		if (desc == UAVs[i]->GetViewDesc())
-		{
-			return UAVs[i];
-		}
-	}
-	return nullptr;
-}
 
 void FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
 {}
@@ -187,7 +146,7 @@ void FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type St
 
 void FrameBuffer::Release()
 {
-	MemoryUtils::RHIUtil::DeleteVector(UAVs);
+	
 }
 
 size_t FrameBuffer::GetSizeOnGPU()
@@ -206,6 +165,8 @@ size_t FrameBuffer::GetSizeOnGPU()
 	}
 	return Size;
 }
+
+
 void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc)
 {
 	if (BufferDesc.SizeMode == EFrameBufferSizeMode::Fixed)

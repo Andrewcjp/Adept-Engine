@@ -16,6 +16,9 @@ public:
 	};
 	DescriptorHeap(DescriptorHeap* other, int newsize);
 	DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+
+	void CreateHeap();
+
 	~DescriptorHeap();
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuAddress(int index);
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUAddress(int index);
@@ -33,6 +36,7 @@ public:
 	void MoveAllToHeap(DescriptorHeap* heap, int offset = 0);
 	D3D12DeviceContext* GetDevice();
 	void RemoveDescriptor(DXDescriptor* desc);
+	void ClearHeap();
 private:
 	std::vector<DXDescriptor*> ContainedDescriptors;
 	ID3D12DescriptorHeap * mHeap = nullptr;

@@ -19,7 +19,7 @@
 #endif
 #include "RHI/RHI.h"
 #define DRED 1
-
+#define DESC_CREATE 1
 class D3D12DeviceContext;
 class D3D12GPUSyncEvent;
 class D3D12Buffer;
@@ -37,6 +37,7 @@ class D3D12CommandList;
 class D3D12Texture;
 class D3D12Query;
 class D3D12InterGPUStagingResource;
+class D3D12RHITextureArray;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -78,7 +79,6 @@ public:
 #endif
 	static D3D12DeviceContext* DXConv(DeviceContext* D);
 	static D3D12Query * DXConv(RHIQuery * D);
-	static D3D12RHIUAV * DXConv(RHIUAV * D);
 	static D3D12Texture * DXConv(BaseTexture * D);
 	static D3D12PipeLineStateObject * DXConv(RHIPipeLineStateObject * D);
 	static D3D12Shader * DXConv(ShaderProgramBase * D);
@@ -91,6 +91,7 @@ public:
 	static D3D12StateObject* DXConv(RHIStateObject* D);
 #endif
 	static D3D12InterGPUStagingResource* DXConv(RHIInterGPUStagingResource* D);
+	static D3D12RHITextureArray* DXConv(RHITextureArray* D);
 	RHI_VIRTUAL RHIRenderPass* CreateRenderPass(const RHIRenderPassDesc & Desc, DeviceContext* Device) override;
 
 
@@ -125,7 +126,6 @@ private:
 	ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) override;
 	RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;
 	RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr) override;
-	RHIUAV* CreateUAV(DeviceContext* Device = nullptr) override;
 	RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr)override;
 	virtual void TriggerBackBufferScreenShot() override;
 

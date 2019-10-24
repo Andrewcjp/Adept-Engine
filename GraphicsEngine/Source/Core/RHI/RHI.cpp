@@ -136,22 +136,13 @@ bool RHI::SupportsExplictMultiAdaptor()
 
 bool RHI::SupportsUnlinkedAdaptors()
 {
-	//vulkan only supports GPUs linked in drivers.
+	//vulkan only supports GPUs linked in drivers :(
 	return (GetType() == RenderSystemD3D12);
 }
 
 RHIBuffer * RHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device)
 {
 	return GetRHIClass()->CreateRHIBuffer(type, Device);
-}
-
-RHIUAV * RHI::CreateUAV(DeviceContext * Device)
-{
-	if (Device == nullptr)
-	{
-		Device = RHI::GetDefaultDevice();
-	}
-	return GetRHIClass()->CreateUAV(Device);
 }
 
 RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceContext * Device)

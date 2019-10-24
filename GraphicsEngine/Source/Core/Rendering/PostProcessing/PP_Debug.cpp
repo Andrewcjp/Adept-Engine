@@ -20,12 +20,12 @@ void PP_Debug::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ShowLightDensity>());
 
 	list->SetPipelineStateDesc(desc);
-	list->SetUAV(InputTexture->GetUAV(), "SrcTex");
-	list->SetUAV(InputTexture->GetUAV(), "DstTexture");
+	list->SetUAV(InputTexture, "SrcTex");
+	list->SetUAV(InputTexture, "DstTexture");
 	list->SetRHIBufferReadOnly(SceneRenderer::Get()->GetLightCullingEngine()->LightCullingBuffer, "LightList");
 	SceneRenderer::Get()->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
 	list->Dispatch(LightCullingEngine::GetLightGridDim().x, LightCullingEngine::GetLightGridDim().y, 1);
-	list->UAVBarrier(InputTexture->GetUAV());
+	list->UAVBarrier(InputTexture);
 }
 
 void PP_Debug::PostSetUpData()

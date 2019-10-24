@@ -65,11 +65,6 @@ D3D12Query * D3D12RHI::DXConv(RHIQuery * D)
 	return static_cast<D3D12Query*>(D);
 }
 
-D3D12RHIUAV * D3D12RHI::DXConv(RHIUAV * D)
-{
-	return static_cast<D3D12RHIUAV*>(D);
-}
-
 D3D12Texture * D3D12RHI::DXConv(BaseTexture* D)
 {
 	return static_cast<D3D12Texture*>(D);
@@ -118,6 +113,11 @@ D3D12StateObject * D3D12RHI::DXConv(RHIStateObject * D)
 D3D12InterGPUStagingResource * D3D12RHI::DXConv(RHIInterGPUStagingResource * D)
 {
 	return static_cast<D3D12InterGPUStagingResource*>(D);
+}
+
+D3D12RHITextureArray * D3D12RHI::DXConv(RHITextureArray * D)
+{
+	return static_cast<D3D12RHITextureArray*>(D);
 }
 
 
@@ -843,11 +843,6 @@ bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
 RHIBuffer * D3D12RHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device)
 {
 	return new D3D12Buffer(type, Device);
-}
-
-RHIUAV * D3D12RHI::CreateUAV(DeviceContext * Device)
-{
-	return new D3D12RHIUAV(Device);
 }
 
 RHICommandList * D3D12RHI::CreateCommandList(ECommandListType::Type Type, DeviceContext * Device)

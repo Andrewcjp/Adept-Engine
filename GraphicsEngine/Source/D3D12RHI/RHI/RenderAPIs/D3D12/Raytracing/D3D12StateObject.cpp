@@ -11,6 +11,7 @@
 #include "RHI/RenderAPIs/D3D12/ThirdParty/DXRHelper.h"
 #include "Rendering/Shaders/Raytracing/Reflections/Shader_ReflectionRaygen.h"
 #include "../GPUResource.h"
+#include "../DXDescriptor.h"
 #if WIN10_1809
 D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :RHIStateObject(D, desc)
 {
@@ -237,7 +238,7 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 	{
 		DXList->SetRootConstant(8, 2, ((void*)&Desc.RayArguments), 0);
 	}
-	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, D3D12RHI::DXConv(target->GetUAV())->UAVDescriptor->GetGPUAddress());
+	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, D3D12RHI::DXConv(target)->GetDescriptor(RHIViewDesc())->GetGPUAddress());
 	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(HighLevelStructure)->m_topLevelAccelerationStructure->GetResource()->GetGPUVirtualAddress());
 
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};

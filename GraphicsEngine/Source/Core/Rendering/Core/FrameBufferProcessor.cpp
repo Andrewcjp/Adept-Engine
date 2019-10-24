@@ -14,6 +14,7 @@ FrameBufferProcessor::~FrameBufferProcessor()
 
 void FrameBufferProcessor::GenerateBlurChain(FrameBuffer * buffer, RHICommandList * list)
 {
+	return;
 	const bool IsCompute = list->IsComputeList();
 	if (!IsCompute)
 	{
@@ -23,6 +24,7 @@ void FrameBufferProcessor::GenerateBlurChain(FrameBuffer * buffer, RHICommandLis
 	Shader* s = ShaderComplier::GetShader<Shader_BlurCubemap>();
 	RHIPipeLineStateDesc d = RHIPipeLineStateDesc::CreateDefault(s);
 	list->SetPipelineStateDesc(d);
+#if 0
 	//list->SetFrameBufferTexture(buffer, "");
 	RHIUAV* UAV = nullptr;
 	const RHIFrameBufferDesc& Desc = buffer->GetDescription();
@@ -33,7 +35,7 @@ void FrameBufferProcessor::GenerateBlurChain(FrameBuffer * buffer, RHICommandLis
 		{
 			RHIViewDesc VDesc;
 			VDesc.Mip = i + 1;
-			VDesc.Dimention = DIMENSION_TEXTURE2DARRAY;
+			VDesc.Dimension = DIMENSION_TEXTURE2DARRAY;
 			VDesc.ArraySlice = x;
 			VDesc.ViewType = EViewType::UAV;
 			UAV = buffer->GetUAV(VDesc);
@@ -48,10 +50,12 @@ void FrameBufferProcessor::GenerateBlurChain(FrameBuffer * buffer, RHICommandLis
 			list->UAVBarrier(UAV);
 		}
 	}
+#endif
 }
 
 void FrameBufferProcessor::CreateMipChain(FrameBuffer * buffer, RHICommandList * list)
 {
+	return;
 	const bool IsCompute = list->IsComputeList();
 	if (!IsCompute)
 	{
@@ -62,7 +66,7 @@ void FrameBufferProcessor::CreateMipChain(FrameBuffer * buffer, RHICommandList *
 	RHIPipeLineStateDesc d = RHIPipeLineStateDesc::CreateDefault(s);
 	list->SetPipelineStateDesc(d);
 	//list->SetFrameBufferTexture(buffer, "");
-	RHIUAV* UAV = nullptr;
+
 	const RHIFrameBufferDesc& Desc = buffer->GetDescription();
 
 	for (int x = 0; x < Desc.TextureDepth; x++)
@@ -71,22 +75,24 @@ void FrameBufferProcessor::CreateMipChain(FrameBuffer * buffer, RHICommandList *
 		{
 			RHIViewDesc VDesc;
 			VDesc.Mip = i + 1;
-			VDesc.Dimention = DIMENSION_TEXTURE2DARRAY;
+			VDesc.Dimension = DIMENSION_TEXTURE2DARRAY;
 			VDesc.ArraySlice = x;
 			VDesc.ViewType = EViewType::UAV;
-			UAV = buffer->GetUAV(VDesc);
+		
 			int DstWidth = glm::max(Desc.Width >> (i + 1), 1);
 			int DstHeight = glm::max(Desc.Height >> (i + 1), 1);
 
 			VDesc.Mip = i;
 			list->BindSRV(buffer, 1, VDesc);
-			UAV->Bind(list, s->GetSlotForName("DstTexture"));
+			//#todo view test
+			/*	UAV->Bind(list, s->GetSlotForName("DstTexture"));
+				list->SetUAV(InputTexture, 1);*/
 			float INVWidth = 1.0f / DstWidth;
 			list->SetRootConstant(s->GetSlotForName("CB"), 1, &INVWidth, 0);
 			float INVHeight = 1.0f / DstHeight;
 			list->SetRootConstant(s->GetSlotForName("CB"), 1, &INVHeight, 1);
 			list->Dispatch(glm::max(DstWidth / 8, 1), glm::max(DstHeight / 8, 1), 1);
-			list->UAVBarrier(UAV);
+		//	list->UAVBarrier(UAV);
 		}
 	}
 }

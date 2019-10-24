@@ -56,12 +56,11 @@ public:
 		return TotalByteSize;
 	}
 	int StructSize = 0;
-	
+
 
 	RHI_API virtual void Release() override;
 
 protected:
-	RHI_API void CreateUAV();
 	DeviceContext* Context = nullptr;
 	RHIBufferDesc Desc = {};
 	size_t VertexCount = 0;
@@ -69,21 +68,6 @@ protected:
 	int TotalByteSize = 0;
 	int structsize = 0;
 	class RHIUAV* UAV = nullptr;
-};
-
-class RHIUAV : public IRHIResourse
-{
-public:
-	RHI_API RHIUAV();
-	RHI_API RHI_VIRTUAL ~RHIUAV()
-	{};
-	RHI_API RHI_VIRTUAL void Bind(class RHICommandList* list, int slot) = 0;
-	RHI_API RHI_VIRTUAL void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) = 0;
-	RHI_API RHI_VIRTUAL void CreateUAVFromTexture(class BaseTexture* target) = 0;
-	RHI_API RHI_VIRTUAL void CreateUAVFromRHIBuffer(class RHIBuffer* target) = 0;
-	const RHIViewDesc& GetViewDesc()const;
-protected:
-	RHIViewDesc ViewDesc;
 };
 
 class FrameBuffer;
@@ -105,25 +89,40 @@ public:
 	//setters
 	RHI_API RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;
+	RHI_API RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, RHIViewDesc Desc, int Slot) = 0;
 	RHI_API RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
 	RHI_API RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot) = 0;
 	RHI_API RHI_VIRTUAL void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;
-	RHI_API void SetRHIBufferReadOnly(RHIBuffer* buffer, int slot);
-	RHI_API void SetUAV(RHIUAV* uav, int slot);
+	RHI_API RHI_VIRTUAL void SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc) = 0;
+	RHI_API RHI_VIRTUAL void SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
+	RHI_API RHI_VIRTUAL void SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
+	RHI_API RHI_VIRTUAL void SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view) = 0;
+
+	//view Creators
+	RHI_API void SetUAV(RHIBuffer* uav, int slot);
+	RHI_API void SetUAV(FrameBuffer* uav, int slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 1);
+	RHI_API void SetUAV(RHIBuffer* uav, std::string slot);
+	RHI_API void SetUAV(FrameBuffer* uav, std::string slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 1);
+
+	RHI_API void SetBuffer(RHIBuffer* Buffer, int slot,int ElementOffset = 0);
+	RHI_API void SetBuffer(RHIBuffer* Buffer, std::string  slot, int ElementOffset = 0);
+	//remove?
+	RHI_API				void SetRHIBufferReadOnly(RHIBuffer* buffer, int slot);
+
 	//string setters
 	RHI_API void SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot);
 	RHI_API void SetTexture(BaseTextureRef texture, std::string slot);
 	RHI_API void SetFrameBufferTexture(class FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
 	RHI_API void SetRHIBufferReadOnly(RHIBuffer* buffer, std::string slot);
-	RHI_API void SetUAV(RHIUAV* uav, std::string slot);
 
 	RHI_API RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
-	RHI_API RHI_VIRTUAL void UAVBarrier(RHIUAV* target) = 0;
+	RHI_API RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) = 0;
+	RHI_API RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) = 0;
 	RHI_API RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	//Indirect
 	RHI_API RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
 	RHI_API RHI_VIRTUAL void SetCommandSigniture(RHICommandSignitureDescription desc);
-	RHI_API RHI_VIRTUAL void SetCommandSigniture(RHICommandSigniture* sig){};
+	RHI_API RHI_VIRTUAL void SetCommandSigniture(RHICommandSigniture* sig) {};
 	template<class T>
 	void SetSingleRootConstant(int SignitureSlot, T Data)
 	{

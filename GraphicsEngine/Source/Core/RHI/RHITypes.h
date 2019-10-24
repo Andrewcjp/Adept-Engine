@@ -460,13 +460,26 @@ struct RHIViewDesc
 	int Mip = 0;
 	int MipLevels = 1;
 	int Resource = 0;
+	int Offset = 0;
 	EViewType::Type ViewType = EViewType::Limit;
-	eTextureDimension Dimention = DIMENSION_UNKNOWN;
+	eTextureDimension Dimension = DIMENSION_UNKNOWN;
 	static RHIViewDesc CreateUAV(int Resource)
 	{
 		RHIViewDesc D;
 		D.ViewType = EViewType::UAV;
 		D.Resource = Resource;
+		return D;
+	}
+	static RHIViewDesc DefaultUAV()
+	{
+		RHIViewDesc D;
+		D.ViewType = EViewType::UAV;
+		return D;
+	}
+	static RHIViewDesc DefaultSRV()
+	{
+		RHIViewDesc D;
+		D.ViewType = EViewType::SRV;
 		return D;
 	}
 	RHI_API bool operator==(const RHIViewDesc other)const;
@@ -838,6 +851,7 @@ struct RHICommandSignitureDescription
 	std::vector<INDIRECT_ARGUMENT_DESC> ArgumentDescs;
 	uint CommandBufferStide = 0;
 	bool IsCompute = false;
+
 };
 
 class RHICommandSigniture : public IRHIResourse
@@ -846,8 +860,8 @@ public:
 	RHI_API RHICommandSigniture(DeviceContext* context, RHICommandSignitureDescription desc = RHICommandSignitureDescription());
 	RHI_API virtual ~RHICommandSigniture() {}
 	RHI_API virtual void Build() {};
+	const RHICommandSignitureDescription& GetDesc()const;
 protected:
 	DeviceContext* Context = nullptr;
 	RHICommandSignitureDescription RHIdesc;
 };
-

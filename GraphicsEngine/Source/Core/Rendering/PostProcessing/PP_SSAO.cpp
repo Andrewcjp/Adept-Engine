@@ -23,18 +23,18 @@ void PP_SSAO::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	list->SetFrameBufferTexture(GBuffer, "NormalTex", 1);
 	list->SetFrameBufferTexture(GBuffer, "DepthTexture", -1);
 	s->Bind(list);
-	list->SetUAV(SSAOOutput->GetUAV(), "DstTexture");
+	list->SetUAV(SSAOOutput, "DstTexture");
 	list->Dispatch(InputTexture->GetWidth(), InputTexture->GetHeight(), 1);
-	list->UAVBarrier(SSAOOutput->GetUAV());
+	list->UAVBarrier(SSAOOutput);
 
 
 	desc.ShaderInUse = ShaderComplier::GetShader<Shader_SSAO_Merge>();
 	list->SetPipelineStateDesc(desc);
-	InputTexture->BindUAV(list, 1);
+	list->SetUAV(InputTexture, 1);
 	list->SetFrameBufferTexture(SSAOOutput, 0);
 
 	list->Dispatch(InputTexture->GetWidth(), InputTexture->GetHeight(), 1);
-	list->UAVBarrier(InputTexture->GetUAV());
+	list->UAVBarrier(InputTexture);
 
 }
 

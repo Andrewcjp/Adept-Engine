@@ -19,6 +19,7 @@ namespace ERSBindType
 		CBV,
 		UAV,
 		RootConstant,
+		TextureArray,
 		Limit
 	};
 };
@@ -35,7 +36,9 @@ struct RSBind
 	BaseTextureRef Texture;
 	FrameBuffer* Framebuffer = nullptr;
 	RHIBuffer* BufferTarget = nullptr;
-	RHIUAV* UAVTarget = nullptr;
+	RHITextureArray* TextureArray = nullptr;
+
+	RHIViewDesc View = RHIViewDesc();
 	/*};*/
 #if 0
 	RSBind(const RSBind &other)
@@ -75,7 +78,7 @@ struct RSBind
 		return *this;
 	}
 #endif
-	bool IsBound()const;
+	RHI_API bool IsBound()const;
 	bool HasChanged = true;
 	static ERSBindType::Type ConvertBind(ShaderParamType::Type T);
 };
@@ -91,11 +94,16 @@ public:
 #endif
 	bool ComparePTypes(ShaderParamType::Type T, ERSBindType::Type bindt);
 	bool ValidateType(ShaderParameter * Parm, ERSBindType::Type type);
-	RHI_API void SetTexture(int slot, BaseTextureRef Tex);
-	RHI_API void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, int resoruceindex = 0);
-	RHI_API void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0);
-	RHI_API void SetBufferReadOnly(int slot, RHIBuffer* Target);
-	RHI_API void SetUAV(int slot, RHIUAV* Target);
+	RHI_API void SetTexture(int slot, BaseTextureRef Tex, RHIViewDesc View = RHIViewDesc());
+	RHI_API void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, int resoruceindex = 0, RHIViewDesc View = RHIViewDesc());
+	RHI_API void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0, RHIViewDesc View = RHIViewDesc());
+	RHI_API void SetBufferReadOnly(int slot, RHIBuffer* Target, const RHIViewDesc & desc = RHIViewDesc());
+	RHI_API void SetUAV(int slot, FrameBuffer * target, const RHIViewDesc & view);
+	RHI_API void SetUAV(int slot, RHIBuffer* Target, const RHIViewDesc& view);
+
+	void In_CreateUAV(RSBind &Bind, const RHIViewDesc& view, int slot);
+
+	RHI_API void SetTextureArray(int slot, RHITextureArray* array, const RHIViewDesc& view);
 	RHI_API void Reset();
 	ShaderParameter * GetParm(int slot);
 	RHI_API const RSBind* GetBind(int slot)const;

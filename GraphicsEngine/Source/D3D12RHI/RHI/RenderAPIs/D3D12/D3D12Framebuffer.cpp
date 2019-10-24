@@ -21,12 +21,12 @@ void D3D12FrameBuffer::CreateSRVHeap(int Num)
 	}
 }
 
-void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc)
+void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DXDescriptor* desc)
 {
 	CreateSRVInHeap(HeapOffset, desc, CurrentDevice);
 }
 
-void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, DeviceContext* target)
+void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DXDescriptor* desc, DeviceContext* target)
 {
 	if (BufferDesc.RenderTargetCount > 2)
 	{
@@ -52,7 +52,7 @@ void D3D12FrameBuffer::CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, De
 		}
 	}
 }
-void D3D12FrameBuffer::CreateDepthSRV(int HeapOffset, DescriptorGroup* desc)
+void D3D12FrameBuffer::CreateDepthSRV(int HeapOffset, DXDescriptor* desc)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	shadowSrvDesc.ViewDimension = D3D12Helpers::ConvertDimension(BufferDesc.Dimension);
@@ -228,24 +228,24 @@ DescriptorGroup * D3D12FrameBuffer::GetDescriptor()
 	return SRVDesc;
 }
 
-void D3D12FrameBuffer::RequestSRV(const RHIViewDesc & desc)
-{
-	SRVRequest Req;
-	Req.Desc = desc;
-	Req.Descriptor = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC d = GetSrvDesc(0);
-	d.TextureCube.MostDetailedMip = desc.Mip;
-	d.TextureCube.MipLevels = desc.MipLevels;
-	if (desc.Dimention != DIMENSION_UNKNOWN)
-	{
-		d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimention);
-	}
-	d.Texture2DArray.ArraySize = 1;
-	d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
-	Req.Descriptor->CreateShaderResourceView(RenderTarget[0]->GetResource(), &d, 0);
-	RequestedSRVS.push_back(Req);
-}
+//void D3D12FrameBuffer::RequestSRV(const RHIViewDesc & desc)
+//{
+//	SRVRequest Req;
+//	Req.Desc = desc;
+//	Req.Descriptor = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+//
+//	D3D12_SHADER_RESOURCE_VIEW_DESC d = GetSrvDesc(0);
+//	d.TextureCube.MostDetailedMip = desc.Mip;
+//	d.TextureCube.MipLevels = desc.MipLevels;
+//	if (desc.Dimension != DIMENSION_UNKNOWN)
+//	{
+//		d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimension);
+//	}
+//	d.Texture2DArray.ArraySize = 1;
+//	d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
+//	Req.Descriptor->CreateShaderResourceView(RenderTarget[0]->GetResource(), &d, 0);
+//	RequestedSRVS.push_back(Req);
+//}
 
 void D3D12FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
 {
@@ -366,6 +366,41 @@ void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Ty
 	CurrentState = State;
 }
 
+DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc)
+{
+	DXDescriptor* Descriptor = CurrentDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+	if (desc.ViewType == EViewType::SRV)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC d = GetSrvDesc(desc.Resource);
+		d.TextureCube.MostDetailedMip = desc.Mip;
+		d.TextureCube.MipLevels = desc.MipLevels;
+		if (desc.Dimension != DIMENSION_UNKNOWN)
+		{
+			d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimension);
+		}
+		d.Texture2DArray.ArraySize = 1;
+		d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
+		Descriptor->CreateShaderResourceView(RenderTarget[desc.Resource]->GetResource(), &d, 0);
+	}
+	else
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
+		//DX12: TODO handle UAv dimentions 
+		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(GetDescription().RTFormats[0]);
+		destTextureUAVDesc.Texture2D.MipSlice = desc.Mip;
+		if (GetDescription().TextureDepth > 0)
+		{
+			destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+			destTextureUAVDesc.Texture2DArray.ArraySize = 1;
+			destTextureUAVDesc.Texture2DArray.FirstArraySlice = desc.ArraySlice;
+		}
+		Descriptor->CreateUnorderedAccessView(GetResource(0)->GetResource(), nullptr, &destTextureUAVDesc);
+	}
+	Descriptor->Recreate();
+	return Descriptor;
+}
+
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
 {
 	CurrentDevice = D3D12RHI::DXConv(device);
@@ -376,7 +411,7 @@ D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferD
 
 void D3D12FrameBuffer::UpdateSRV()
 {
-	if (SRVDesc == nullptr)
+	/*if (SRVDesc == nullptr)
 	{
 		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount + 1, 2));
 	}
@@ -400,7 +435,7 @@ void D3D12FrameBuffer::UpdateSRV()
 	if (BufferDesc.NeedsDepthStencil)
 	{
 		CreateDepthSRV(BufferDesc.RenderTargetCount, SRVDesc);
-	}
+	}*/
 }
 
 void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap* Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap)
@@ -601,13 +636,6 @@ void D3D12FrameBuffer::Init()
 		}
 	}
 	UpdateSRV();
-	if (BufferDesc.RequestedViews.size() > 0)
-	{
-		for (int i = 0; i < BufferDesc.RequestedViews.size(); i++)
-		{
-			RequestSRV(BufferDesc.RequestedViews[i]);
-		}
-	}
 }
 
 D3D12FrameBuffer::~D3D12FrameBuffer()

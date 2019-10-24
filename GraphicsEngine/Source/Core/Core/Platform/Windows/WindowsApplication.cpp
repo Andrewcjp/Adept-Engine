@@ -24,6 +24,7 @@ void WindowsApplication::Init()
 {
 	ValidateWindows();
 	InitTiming();
+	::SetErrorMode(SEM_FAILCRITICALERRORS);
 }
 
 void* WindowsApplication::GetDllExport(void* DllHandle, const char* ProcName)

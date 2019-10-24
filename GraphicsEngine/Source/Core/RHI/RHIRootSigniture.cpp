@@ -31,11 +31,13 @@ bool RHIRootSigniture::ComparePTypes(ShaderParamType::Type T, ERSBindType::Type 
 		case ERSBindType::FrameBuffer:
 		case ERSBindType::Texture:
 		case ERSBindType::BufferSRV:
-			return T == ShaderParamType::RootSRV || T == ShaderParamType::SRV;
+			return T == ShaderParamType::RootSRV || T == ShaderParamType::SRV || T == ShaderParamType::Buffer;
 		case ERSBindType::CBV:
 			return T == ShaderParamType::CBV || T == ShaderParamType::RootConstant || T == ShaderParamType::Buffer;
 		case ERSBindType::UAV:
 			return T == ShaderParamType::UAV;
+		case ERSBindType::TextureArray:
+			return T == ShaderParamType::SRV;
 	}
 	return false;
 }
@@ -52,7 +54,7 @@ bool RHIRootSigniture::ValidateType(ShaderParameter* Parm, ERSBindType::Type typ
 }
 #endif
 
-void RHIRootSigniture::SetTexture(int slot, BaseTextureRef Tex)
+void RHIRootSigniture::SetTexture(int slot, BaseTextureRef Tex, RHIViewDesc View)
 {
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
@@ -76,9 +78,10 @@ void RHIRootSigniture::SetTexture(int slot, BaseTextureRef Tex)
 	Bind->Texture = Tex;
 	Bind->BindParm = RSSlot;
 	Bind->HasChanged = true;
+	Bind->View = View;
 }
 
-void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int resoruceindex)
+void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int resoruceindex, RHIViewDesc View)
 {
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
@@ -103,9 +106,10 @@ void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int
 	Bind->Offset = resoruceindex;
 	Bind->BindParm = RSSlot;
 	Bind->HasChanged = true;
+	Bind->View = View;
 }
 
-void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int offset)
+void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int offset, RHIViewDesc View)
 {
 
 	ShaderParameter* RSSlot = GetParm(slot);
@@ -116,6 +120,7 @@ void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int o
 	}
 	RSBind* Bind = &CurrnetBinds[RSSlot->SignitureSlot];
 	Bind->BindType = ERSBindType::CBV;
+	Bind->View = View;
 #if USE_VALIDATION
 	if (!ValidateType(RSSlot, Bind->BindType))
 	{
@@ -134,7 +139,7 @@ void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int o
 	Bind->HasChanged = true;
 }
 
-void RHIRootSigniture::SetBufferReadOnly(int slot, RHIBuffer * Target)
+void RHIRootSigniture::SetBufferReadOnly(int slot, RHIBuffer * Target, const RHIViewDesc & desc)
 {
 	RSBind Bind = {};
 	Bind.BindType = ERSBindType::BufferSRV;
@@ -154,14 +159,52 @@ void RHIRootSigniture::SetBufferReadOnly(int slot, RHIBuffer * Target)
 #endif
 	Bind.BindParm = RSSlot;
 	Bind.HasChanged = true;
+	Bind.View = desc;
 	CurrnetBinds[RSSlot->SignitureSlot] = Bind;
 }
-
-void RHIRootSigniture::SetUAV(int slot, RHIUAV * Target)
+void RHIRootSigniture::SetUAV(int slot, FrameBuffer* target, const RHIViewDesc& view)
 {
 	RSBind Bind = {};
 	Bind.BindType = ERSBindType::UAV;
-	Bind.UAVTarget = Target;
+	Bind.Framebuffer = target;
+	return In_CreateUAV(Bind, view, slot);
+}
+
+void RHIRootSigniture::SetUAV(int slot, RHIBuffer * Target, const RHIViewDesc& view)
+{
+	RSBind Bind = {};
+	Bind.BindType = ERSBindType::UAV;
+	Bind.BufferTarget = Target;
+	return In_CreateUAV(Bind, view, slot);
+}
+
+void RHIRootSigniture::In_CreateUAV(RSBind &Bind, const RHIViewDesc& view, int slot)
+{
+	Bind.View = view;
+	ShaderParameter* RSSlot = GetParm(slot);
+#if USE_VALIDATION
+	if (RSSlot == nullptr)
+	{
+		LogEnsureMsgf(false, "Failed to find slot");
+		return;
+	}
+	if (!ValidateType(RSSlot, Bind.BindType))
+	{
+		LogEnsureMsgf(false, "Invalid Bind");
+		return;
+	}
+#endif
+	Bind.BindParm = RSSlot;
+	Bind.HasChanged = true;
+	CurrnetBinds[RSSlot->SignitureSlot] = Bind;
+}
+
+void RHIRootSigniture::SetTextureArray(int slot, RHITextureArray* array, const RHIViewDesc& view)
+{
+	RSBind Bind = {};
+	Bind.BindType = ERSBindType::TextureArray;
+	Bind.TextureArray = array;
+	Bind.View = view;
 	ShaderParameter* RSSlot = GetParm(slot);
 #if USE_VALIDATION
 	if (RSSlot == nullptr)
@@ -226,7 +269,7 @@ void RHIRootSigniture::ValidateAllBound()
 	for (int i = 0; i < CurrnetBinds.size(); i++)
 	{
 		RSBind* Bind = &CurrnetBinds[i];
-	//	ensure(Bind->IsBound());
+		//	ensure(Bind->IsBound());
 	}
 }
 
@@ -245,18 +288,17 @@ bool RSBind::IsBound() const
 	{
 		case ERSBindType::Texture:
 			return Texture != nullptr;
-			break;
 		case ERSBindType::FrameBuffer:
 			return Framebuffer != nullptr;
-			break;
+		case ERSBindType::UAV:
+			return BufferTarget != nullptr || Framebuffer != nullptr;
 		case ERSBindType::BufferSRV:
 		case ERSBindType::CBV:
 			return BufferTarget != nullptr;
-			break;
-		case ERSBindType::UAV:
-			return UAVTarget != nullptr;
 		case ERSBindType::RootConstant:
 			return true;//not bound here 
+		case ERSBindType::TextureArray:
+			return TextureArray != nullptr;
 		case ERSBindType::Limit:
 			break;;
 	}

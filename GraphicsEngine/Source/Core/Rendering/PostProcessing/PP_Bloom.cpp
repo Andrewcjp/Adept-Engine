@@ -24,20 +24,20 @@ void PP_Bloom::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	desc.InitOLD(false, false, true);
 	desc.ShaderInUse = BloomShader;
 	list->SetPipelineStateDesc(desc);
-	BloomBuffer->BindUAV(list, 1);
+	list->SetUAV(BloomBuffer, 1);
 	list->SetFrameBufferTexture(InputTexture, 0);
 
 	list->Dispatch(InputTexture->GetWidth() / ThreadCount, InputTexture->GetHeight() / ThreadCount, 1);
-	list->UAVBarrier(InputTexture->GetUAV());
+	list->UAVBarrier(InputTexture);
 	BlurEffect->ExecPass(list, BloomBuffer);
 
 	desc.ShaderInUse = ShaderComplier::GetShader<Shader_Bloom_Compost>();
 	list->SetPipelineStateDesc(desc);
-	InputTexture->BindUAV(list, 1);
+	list->SetUAV(InputTexture, 1);
 	list->SetFrameBufferTexture(BloomBuffer, 0);
 
 	list->Dispatch(InputTexture->GetWidth() / ThreadCount, InputTexture->GetHeight() / ThreadCount, 1);
-	list->UAVBarrier(InputTexture->GetUAV());
+	list->UAVBarrier(InputTexture);
 }
 
 void PP_Bloom::PostSetUpData()

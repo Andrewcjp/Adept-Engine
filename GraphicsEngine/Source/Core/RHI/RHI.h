@@ -37,7 +37,7 @@ class Mesh;
 class ShaderProgramBase;
 class RHITextureArray;
 class RHIBuffer;
-class RHIUAV;
+
 class RHICommandList;
 
 //RHI defines
@@ -74,7 +74,6 @@ public:
 	RHI_API static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
 	RHI_API static bool SupportsUnlinkedAdaptors();
 	RHI_API static RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr);
-	RHI_API static RHIUAV* CreateUAV(DeviceContext* Device = nullptr);
 	RHI_API static RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr);
 	RHI_API static DeviceContext * GetDeviceContext(int index = 0);
 	RHI_API static DeviceContext* GetDefaultDevice();
@@ -173,7 +172,6 @@ public:
 	RHI_VIRTUAL ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr) = 0;
 	RHI_VIRTUAL RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) = 0;
 	RHI_VIRTUAL RHIBuffer* CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device = nullptr) = 0;
-	RHI_VIRTUAL RHIUAV* CreateUAV(DeviceContext* Device = nullptr) = 0;
 	RHI_VIRTUAL RHICommandList* CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext* Device = nullptr) = 0;
 	RHI_VIRTUAL DeviceContext* GetDefaultDevice() = 0;
 	RHI_VIRTUAL DeviceContext* GetDeviceContext(int index = 0) = 0;

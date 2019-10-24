@@ -30,9 +30,9 @@ public:
 	void							UnBind(ID3D12GraphicsCommandList * list);
 	virtual void					ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
 	void							CreateSRVHeap(int Num);
-	void							CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc);
-	void							CreateSRVInHeap(int HeapOffset, DescriptorGroup* desc, DeviceContext * target);
-	void							CreateDepthSRV(int HeapOffset, DescriptorGroup * desc);
+	void							CreateSRVInHeap(int HeapOffset, DXDescriptor* desc);
+	void							CreateSRVInHeap(int HeapOffset, DXDescriptor* desc, DeviceContext * target);
+	void							CreateDepthSRV(int HeapOffset, DXDescriptor * desc);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	static D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex, const RHIFrameBufferDesc & desc);
 	bool							CheckDevice(int index);
@@ -48,8 +48,6 @@ public:
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
 	DescriptorGroup* GetDescriptor();
 
-	virtual void RequestSRV(const RHIViewDesc & desc) override;
-
 
 	virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
 	virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
@@ -57,7 +55,7 @@ public:
 	
 
 	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false) override;
-
+	DXDescriptor* GetDescriptor(const RHIViewDesc& desc);
 private:
 	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth);
 	D3D12DeviceContext * CurrentDevice = nullptr;
