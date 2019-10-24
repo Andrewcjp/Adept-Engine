@@ -5,8 +5,7 @@
 #ifdef PLATFORM_WINDOWS
 #include "Windows/WindowsApplication.h"
 #include "Windows/WindowPlatformMisc.h"
-class WindowsWindow;
-typedef WindowsWindow PlatformWindow;
+#include "Windows/WindowsWindow.h"
 #elif defined(PLATFORM_LINUX)
 #include "Linux/LinuxApplication.h"
 #include "Linux/LinuxPlatformMisc.h"

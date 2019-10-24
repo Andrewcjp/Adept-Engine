@@ -92,14 +92,15 @@ void D3D12HighLevelAccelerationStructure::InitialBuild()
 	AllocateSpace(GetBuildFlags(Desc.BuildFlags), 50);
 	BuildInstanceBuffer();
 }
-void D3D12HighLevelAccelerationStructure::SetTransfrom(D3D12_RAYTRACING_INSTANCE_DESC& Desc, Transform* T)
+
+void D3D12HighLevelAccelerationStructure::SetTransfrom(D3D12_RAYTRACING_INSTANCE_DESC& iDesc, Transform* T)
 {
 	glm::mat4 Model = transpose(T->GetModel());
 	for (int x = 0; x < 3; x++)
 	{
 		for (int y = 0; y < 4; y++)
 		{
-			Desc.Transform[x][y] = Model[x][y];
+			iDesc.Transform[x][y] = Model[x][y];
 		}
 	}
 }

@@ -1,9 +1,11 @@
 #pragma once
+
 #ifdef PLATFORM_WINDOWS
 #include "Core/MinWindows.h"
 #include "Core/EngineTypes_fwd.h"
 #include "Core/Platform/Generic/GenericWindow.h"
 
+class Engine;
 class WindowsWindow : public GenericWindow
 {
 public:
@@ -54,5 +56,5 @@ private:
 	HWND						Label;
 	int							CurrentProgress = 0;
 };
-
+typedef WindowsWindow PlatformWindow;
 #endif
