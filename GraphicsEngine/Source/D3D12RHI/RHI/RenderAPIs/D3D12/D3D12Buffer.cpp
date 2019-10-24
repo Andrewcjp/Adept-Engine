@@ -9,6 +9,7 @@
 #include "D3D12CommandList.h"
 #include "DescriptorHeapManager.h"
 #include "DXMemoryManager.h"
+#include "DXDescriptor.h"
 
 D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext * inDevice) :RHIBuffer(type)
 {
@@ -38,7 +39,7 @@ void D3D12Buffer::Release()
 	}
 	SafeRelease(m_DataBuffer);
 	SafeRelease(SRVDesc);
-	
+
 }
 
 D3D12Buffer::~D3D12Buffer()
@@ -128,6 +129,50 @@ DescriptorGroup * D3D12Buffer::GetDescriptor()
 	return SRVDesc;
 }
 
+DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc)
+{
+	DXDescriptor* Descriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+	if (desc.ViewType == EViewType::SRV)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		if (BufferAccesstype == EBufferAccessType::GPUOnly)
+		{
+			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		}
+		else
+		{
+			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+			//srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
+		}
+
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Buffer.NumElements = ElementCount;
+		srvDesc.Buffer.StructureByteStride = ElementSize;
+		if (CurrentBufferType == ERHIBufferType::Index)
+		{
+			srvDesc.Format = DXGI_FORMAT_R16_UINT;
+			srvDesc.Buffer.StructureByteStride = 0;
+		}
+		Descriptor->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
+	}
+	else
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
+		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+		destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
+		destTextureUAVDesc.Buffer.FirstElement = 0;
+		destTextureUAVDesc.Buffer.NumElements = ElementCount;
+		destTextureUAVDesc.Buffer.StructureByteStride = ElementSize;
+		destTextureUAVDesc.Buffer.CounterOffsetInBytes = CounterOffset;
+		destTextureUAVDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+		Descriptor->CreateUnorderedAccessView(m_DataBuffer->GetResource(), m_DataBuffer->GetResource(), &destTextureUAVDesc);
+	}
+	Descriptor->Recreate();
+	return Descriptor;
+}
+
 void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype)
 {
 	BufferAccesstype = Accesstype;
@@ -165,14 +210,9 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 	{
 		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
 	}
-	if (list->IsComputeList() || list->IsRaytracingList())
-	{
-		d3dlist->GetCommandList()->SetComputeRootDescriptorTable(RSSlot, SRVDesc->GetGPUAddress(0));
-	}
-	else
-	{
-		d3dlist->GetCommandList()->SetGraphicsRootDescriptorTable(RSSlot, SRVDesc->GetGPUAddress(0));
-	}
+	RHIViewDesc d = RHIViewDesc::DefaultSRV();
+	d.Dimension = DIMENSION_BUFFER;
+	list->SetBuffer(this, RSSlot, d);
 }
 
 void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
@@ -337,7 +377,7 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 	}
 	if (desc.CreateUAV)
 	{
-		CreateUAV();
+		
 	}
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }

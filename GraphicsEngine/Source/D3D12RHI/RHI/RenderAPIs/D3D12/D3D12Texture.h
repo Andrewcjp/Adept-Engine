@@ -25,6 +25,7 @@ public:
 	int	MipLevelsReadyNow = 1;
 	bool CheckDevice(int index);
 	DescriptorGroup* GetDescriptor();
+	DXDescriptor* GetDescriptor(RHIViewDesc Desc);
 protected:
 	void Release() override;
 private:

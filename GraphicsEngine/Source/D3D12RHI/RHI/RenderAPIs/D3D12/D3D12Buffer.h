@@ -22,6 +22,7 @@ public:
 	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
 	GPUResource* GetResource();
 	DescriptorGroup* GetDescriptor();
+	DXDescriptor* GetDescriptor(const RHIViewDesc& desc);
 	void SetupBufferSRV();
 protected:
 	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);

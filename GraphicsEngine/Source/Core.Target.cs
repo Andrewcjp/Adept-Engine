@@ -4,7 +4,7 @@ using EngineBuildTool;
 class CoreTargetRules : TargetRules
 {
     bool BuildPhysx = true;
-    bool BuildVulkan = true;
+    bool BuildVulkan = false;
     bool BuildCSharp = false;
     public CoreTargetRules()
     {

@@ -11,7 +11,7 @@
 DescriptorHeapManager::DescriptorHeapManager(D3D12DeviceContext* d)
 {
 	Device = d;
-	AllocateMainHeap(1000);
+	AllocateMainHeap(2000);
 }
 void DescriptorHeapManager::AllocateMainHeap(int size)
 {
@@ -30,18 +30,19 @@ DescriptorHeapManager::~DescriptorHeapManager()
 
 DXDescriptor * DescriptorHeapManager::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size)
 {
+	const int HeapIndex = Device->GetCpuFrameIndex();
 	//	ensure(false);
-	if (MainHeap[0]->GetNextFreeIndex() + size >= MainHeap[0]->GetMaxSize())
+	if (MainHeap[HeapIndex]->GetNextFreeIndex() + size >= MainHeap[HeapIndex]->GetMaxSize())
 	{
-		Reallocate(&MainHeap[0], MainHeap[0]->GetMaxSize() + std::max(10, size));
+		Reallocate(&MainHeap[HeapIndex], MainHeap[HeapIndex]->GetMaxSize() + std::max(10, size));
 	}
 	//handle over allocate!
 	DXDescriptor* D = new DXDescriptor();
-	D->Init(type, MainHeap[0], size);
-	MainHeap[0]->AddDescriptor(D);
+	D->Init(type, MainHeap[HeapIndex], size);
+	MainHeap[HeapIndex]->AddDescriptor(D);
 	if (Device->GetDeviceIndex() == 0)
 	{
-		Log::LogMessage("Allocating Descriptor " + std::to_string(MainHeap[0]->GetNextFreeIndex()) + "/" + std::to_string(MainHeap[0]->GetMaxSize()));
+		//Log::LogMessage("Allocating Descriptor " + std::to_string(MainHeap[HeapIndex]->GetNextFreeIndex()) + "/" + std::to_string(MainHeap[HeapIndex]->GetMaxSize()));
 	}
 	return D;
 }
@@ -51,8 +52,8 @@ DescriptorGroup * DescriptorHeapManager::AllocateDescriptorGroup(D3D12_DESCRIPTO
 	CheckAndRealloc(size);
 	DescriptorGroup* D = new DescriptorGroup();
 	D->Init(type, MainHeap[0], size);
-	MainHeap[0]->AddDescriptor(D->GetDescriptor(0));
-	MainHeap[1]->AddDescriptor(D->GetDescriptor(1));
+	//MainHeap[0]->AddDescriptor(D->GetDescriptor(0));
+	//MainHeap[1]->AddDescriptor(D->GetDescriptor(1));
 	Groups.push_back(D);
 	return D;
 }
@@ -73,11 +74,11 @@ void DescriptorHeapManager::CheckAndRealloc(int size)
 
 DescriptorHeap * DescriptorHeapManager::GetMainHeap()
 {
-	return MainHeap[0];
+	return MainHeap[Device->GetCpuFrameIndex()];
 }
 
 void DescriptorHeapManager::BindHeap(D3D12CommandList * list)
-{
+{	
 	MainHeap[list->GetDevice()->GetCpuFrameIndex()]->BindHeap(list);
 }
 
@@ -92,8 +93,8 @@ void DescriptorHeapManager::Reallocate(DescriptorHeap** TargetHeap, int newsize)
 
 void DescriptorHeapManager::EndOfFrame()
 {
-	for (int i = 0; i < Groups.size(); i++)
+	/*for (int i = 0; i < Groups.size(); i++)
 	{
 		Groups[i]->OnFrameSwitch();
-	}
+	}*/
 }

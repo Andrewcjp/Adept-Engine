@@ -25,7 +25,7 @@ ReflectionProbe::ReflectionProbe(glm::vec3 Pos/* = glm::vec3(0, 0, 0)*/)
 		{
 			RHIViewDesc Desc;
 			Desc.Mip = i;
-			Desc.Dimention = DIMENSION_TEXTURE2DARRAY;
+			Desc.Dimension = DIMENSION_TEXTURE2DARRAY;
 			Desc.ArraySlice = d;
 			Desc.ViewType = EViewType::UAV;
 			CubeDesc.RequestedViews.push_back(Desc);

@@ -10,6 +10,7 @@
 #include "Core/Utils/NVAPIManager.h"
 #include "Core/Utils/StringUtil.h"
 #include "DXGPUTextureStreamer.h"
+#include "DescriptorHeap.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -135,7 +136,7 @@ void D3D12DeviceContext::CheckFeatures()
 		{
 			LogTierData("DXR", FeatureData5.RaytracingTier);
 			LogTierData("Render Pass Driver", FeatureData5.RenderPassesTier);
-		}		
+		}
 		//#DXR Detect driver RT
 		if (FeatureData5.RaytracingTier)
 		{
@@ -493,7 +494,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	InterGPUSync.MoveNextFrame(SyncIndex);
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
-
+	GetHeapManager()->GetMainHeap()->ClearHeap();
 }
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()

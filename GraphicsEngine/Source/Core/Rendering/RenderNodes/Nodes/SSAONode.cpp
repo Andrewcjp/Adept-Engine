@@ -35,18 +35,18 @@ void SSAONode::OnExecute()
 		list->SetFrameBufferTexture(GBuffer, "NormalTex", 1);
 		//list->SetFrameBufferTexture(GBuffer, "DepthTexture", -1);
 		SSaoshader->Bind(list);
-		list->SetUAV(TempSSAOData->GetUAV(), "DstTexture");
+		list->SetUAV(TempSSAOData, "DstTexture");
 		list->Dispatch(TargetBuffer->GetWidth(), TargetBuffer->GetHeight(), 1);
-		list->UAVBarrier(TempSSAOData->GetUAV());
+		list->UAVBarrier(TempSSAOData);
 
 
 		desc.ShaderInUse = ShaderComplier::GetShader<Shader_SSAO_Merge>();
 		list->SetPipelineStateDesc(desc);
-		TargetBuffer->BindUAV(list, 1);
+		list->SetUAV(TargetBuffer, 1);
 		list->SetFrameBufferTexture(TempSSAOData, 0);
 
 		list->Dispatch(TargetBuffer->GetWidth(), TargetBuffer->GetHeight(), 1);
-		list->UAVBarrier(TargetBuffer->GetUAV());
+		list->UAVBarrier(TargetBuffer);
 	}
 	list->Execute();
 	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);

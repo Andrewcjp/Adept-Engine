@@ -52,7 +52,7 @@ void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
 	list->ResetList();
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_LightCull>());
 	list->SetPipelineStateDesc(desc);
-	list->SetUAV(LightCullingBuffer->GetUAV(), "DstTexture");
+	//list->SetUAV(LightCullingBuffer, "DstTexture");
 	SceneRenderer::Get()->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
 	SceneRenderer::Get()->BindMvBuffer(list, desc.ShaderInUse->GetSlotForName("CameraData"));
 	LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));

@@ -478,7 +478,7 @@ bool RHIViewDesc::operator==(const RHIViewDesc other) const
 		MipLevels == other.MipLevels &&
 		Resource == other.Resource &&
 		ViewType == other.ViewType &&
-		Dimention == other.Dimention;
+		Dimension == other.Dimension;
 }
 
 bool FrameBufferVariableRateSettings::UsesVRS() const
@@ -495,6 +495,11 @@ RHICommandSigniture::RHICommandSigniture(DeviceContext * context, RHICommandSign
 {
 	RHIdesc = desc;
 	Context = context;
+}
+
+const RHICommandSignitureDescription & RHICommandSigniture::GetDesc() const
+{
+	return RHIdesc;
 }
 
 std::string EResourceState::ToString(EResourceState::Type state)

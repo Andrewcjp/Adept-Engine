@@ -18,21 +18,21 @@ void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	desc.InitOLD(false, false, true);
 	desc.ShaderInUse = BlurShader;
 	list->SetPipelineStateDesc(desc);
-	InputTexture->BindUAV(list, 1);
+	list->SetUAV(InputTexture, 1);
 	//UAV->Bind(list, 1);
 	list->SetFrameBufferTexture(InputTexture, 0);
 
 	list->SetConstantBufferView(VertBlurShader->Blurweights, 0, 2);
 	list->Dispatch(InputTexture->GetWidth() / ThreadCount, InputTexture->GetHeight(), 1);
-	list->UAVBarrier(InputTexture->GetUAV());
+	list->UAVBarrier(InputTexture);
 	Cache = InputTexture;
 	desc.ShaderInUse = VertBlurShader;
 	list->SetPipelineStateDesc(desc);
-	InputTexture->BindUAV(list, 1);
+	list->SetUAV(InputTexture, 1);
 	list->SetFrameBufferTexture(Cache, 0);
 	list->SetConstantBufferView(VertBlurShader->Blurweights, 0, 2);
 	list->Dispatch(Cache->GetWidth(), Cache->GetHeight() / ThreadCount, 1);
-	list->UAVBarrier(InputTexture->GetUAV());
+	list->UAVBarrier(InputTexture);
 }
 
 void PP_Blur::PostSetUpData()

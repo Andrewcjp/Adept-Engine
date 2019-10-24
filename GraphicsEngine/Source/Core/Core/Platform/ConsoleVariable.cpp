@@ -187,6 +187,7 @@ void ConsoleVariableManager::ProcessVarString(std::string value, bool LaunchOnly
 				if (i + 1 < SplitArgs.size())
 				{
 					int parsedvalue = -1;
+					CV->SetRawValue(SplitArgs[i + 1]);
 					if (GetValueClean(SplitArgs[i + 1], parsedvalue))
 					{
 						i++;
@@ -195,7 +196,6 @@ void ConsoleVariableManager::ProcessVarString(std::string value, bool LaunchOnly
 					{
 						Log::LogMessage("Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
 					}
-					CV->SetRawValue(SplitArgs[i + 1]);
 					CV->SetValue(parsedvalue);
 				}
 				else

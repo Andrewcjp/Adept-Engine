@@ -31,10 +31,10 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target)
 	ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
 	list->SetPipelineStateDesc(Desc);
-	list->SetUAV(Target->GetUAV(), "DstTexture");
+	list->SetUAV(Target, "DstTexture");
 	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
 	list->Dispatch(Target->GetWidth() / 4, Target->GetHeight() / 4, 1);
-	list->UAVBarrier(Target->GetUAV());
+	list->UAVBarrier(Target);
 }
 
 void VRXEngine::ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target)
@@ -50,10 +50,10 @@ void VRXEngine::ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target)
 	ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRSResolve>());
 	list->SetPipelineStateDesc(Desc);
-	list->SetUAV(Target->GetUAV(), "DstTexture");
+	list->SetUAV(Target, "DstTexture");
 	ShaderComplier::GetShader<Shader_VRSResolve>()->BindBuffer(list);
 	list->Dispatch(glm::ceil(Target->GetWidth() / 4), Target->GetHeight() / 4, 1);
-	list->UAVBarrier(Target->GetUAV());
+	list->UAVBarrier(Target);
 }
 
 void VRXEngine::SetVRSShadingRate(RHICommandList * List, VRS_SHADING_RATE::type Rate)

@@ -357,7 +357,7 @@ void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
 			return;
 		}
 		FrameBuffer* buffer = Node->GetFramebuffer(rnode->GetEye());
-		Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
+		//Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
 		buffer->SetResourceState(list, TargetState);
 	}
 

@@ -13,6 +13,7 @@
 #include "DescriptorHeapManager.h"
 #include "DescriptorGroup.h"
 #include "DXMemoryManager.h"
+#include "DXDescriptor.h"
 
 CreateChecker(D3D12Texture);
 #define USE_CPUFALLBACK_TOGENMIPS_ATRUNTIME 0
@@ -387,6 +388,44 @@ bool D3D12Texture::CheckDevice(int index)
 DescriptorGroup * D3D12Texture::GetDescriptor()
 {
 	return SRVDesc;
+}
+
+DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc)
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	if (UsingDDSLoad)
+	{
+		srvDesc.Format = format;
+	}
+	else
+	{
+		srvDesc.Format = D3D12Helpers::ConvertFormat(Description.Format);
+	}
+	if (MaxMip != -1)
+	{
+		MipLevelsReadyNow = 1;
+	}
+	if (CurrentTextureType == ETextureType::Type_CubeMap)
+	{
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MipLevels = MipLevelsReadyNow;
+		srvDesc.TextureCube.MostDetailedMip = 0;
+	}
+	else
+	{
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+	}
+	DXDescriptor* output = new DXDescriptor();
+	output = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	
+
+	output->CreateShaderResourceView(m_texture, &srvDesc);
+	output->Recreate();
+	return output;
 }
 
 void D3D12Texture::CreateAsNull()
