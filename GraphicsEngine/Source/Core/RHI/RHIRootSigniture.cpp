@@ -1,5 +1,9 @@
 #include "RHIRootSigniture.h"
-
+#if 0
+#define VD_ASSERT(a,b) LogEnsureMsgf(a,b)
+#else
+#define VD_ASSERT(a,b) ensureMsgf(a,b)
+#endif
 RHIRootSigniture::RHIRootSigniture()
 {}
 
@@ -59,7 +63,7 @@ void RHIRootSigniture::SetTexture(int slot, BaseTextureRef Tex, RHIViewDesc View
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
 	{
-		LogEnsureMsgf(false, "Failed to find slot");
+		VD_ASSERT(false, "Failed to find slot");
 		return;
 	}
 	RSBind* Bind = &CurrnetBinds[RSSlot->SignitureSlot];
@@ -67,7 +71,7 @@ void RHIRootSigniture::SetTexture(int slot, BaseTextureRef Tex, RHIViewDesc View
 #if USE_VALIDATION
 	if (!ValidateType(RSSlot, Bind->BindType))
 	{
-		LogEnsureMsgf(false, "Invalid Bind");
+		VD_ASSERT(false, "Invalid Bind");
 		return;
 	}
 #endif
@@ -86,7 +90,7 @@ void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
 	{
-		LogEnsureMsgf(false, "Failed to find slot");
+		VD_ASSERT(false, "Failed to find slot");
 		return;
 	}
 	RSBind* Bind = &CurrnetBinds[RSSlot->SignitureSlot];
@@ -94,7 +98,7 @@ void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int
 #if USE_VALIDATION
 	if (!ValidateType(RSSlot, Bind->BindType))
 	{
-		LogEnsureMsgf(false, "Invalid Bind");
+		VD_ASSERT(false, "Invalid Bind");
 		return;
 	}
 #endif
@@ -115,7 +119,7 @@ void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int o
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
 	{
-		LogEnsureMsgf(false, "Failed to find slot");
+		VD_ASSERT(false, "Failed to find slot");
 		return;
 	}
 	RSBind* Bind = &CurrnetBinds[RSSlot->SignitureSlot];
@@ -124,7 +128,7 @@ void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int o
 #if USE_VALIDATION
 	if (!ValidateType(RSSlot, Bind->BindType))
 	{
-		LogEnsureMsgf(false, "Invalid Bind");
+		VD_ASSERT(false, "Invalid Bind");
 		return;
 	}
 #endif
@@ -148,18 +152,19 @@ void RHIRootSigniture::SetBufferReadOnly(int slot, RHIBuffer * Target, const RHI
 #if USE_VALIDATION
 	if (RSSlot == nullptr)
 	{
-		LogEnsureMsgf(false, "Failed to find slot");
+		VD_ASSERT(false, "Failed to find slot");
 		return;
 	}
 	if (!ValidateType(RSSlot, Bind.BindType))
 	{
-		LogEnsureMsgf(false, "Invalid Bind");
+		VD_ASSERT(false, "Invalid Bind");
 		return;
 	}
 #endif
 	Bind.BindParm = RSSlot;
 	Bind.HasChanged = true;
 	Bind.View = desc;
+	Bind.View.ViewType = EViewType::SRV;
 	CurrnetBinds[RSSlot->SignitureSlot] = Bind;
 }
 void RHIRootSigniture::SetUAV(int slot, FrameBuffer* target, const RHIViewDesc& view)
@@ -185,12 +190,12 @@ void RHIRootSigniture::In_CreateUAV(RSBind &Bind, const RHIViewDesc& view, int s
 #if USE_VALIDATION
 	if (RSSlot == nullptr)
 	{
-		LogEnsureMsgf(false, "Failed to find slot");
+		VD_ASSERT(false, "Failed to find slot");
 		return;
 	}
 	if (!ValidateType(RSSlot, Bind.BindType))
 	{
-		LogEnsureMsgf(false, "Invalid Bind");
+		VD_ASSERT(false, "Invalid Bind");
 		return;
 	}
 #endif
@@ -209,12 +214,12 @@ void RHIRootSigniture::SetTextureArray(int slot, RHITextureArray* array, const R
 #if USE_VALIDATION
 	if (RSSlot == nullptr)
 	{
-		LogEnsureMsgf(false, "Failed to find slot");
+		VD_ASSERT(false, "Failed to find slot");
 		return;
 	}
 	if (!ValidateType(RSSlot, Bind.BindType))
 	{
-		LogEnsureMsgf(false, "Invalid Bind");
+		VD_ASSERT(false, "Invalid Bind");
 		return;
 	}
 #endif

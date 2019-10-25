@@ -131,6 +131,7 @@ DescriptorGroup * D3D12Buffer::GetDescriptor()
 
 DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc)
 {
+	ensure(desc.ViewType != EViewType::Limit);
 	DXDescriptor* Descriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 	if (desc.ViewType == EViewType::SRV)
 	{
@@ -157,7 +158,7 @@ DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc)
 		}
 		Descriptor->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
 	}
-	else
+	else 
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
@@ -223,32 +224,32 @@ void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Ty
 
 void D3D12Buffer::SetupBufferSRV()
 {
-	if (SRVDesc == nullptr)
-	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		if (BufferAccesstype == EBufferAccessType::GPUOnly)
-		{
-			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-		}
-		else
-		{
-			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-			//srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
-		}
+	//if (SRVDesc == nullptr)
+	//{
+	//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	//	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	//	if (BufferAccesstype == EBufferAccessType::GPUOnly)
+	//	{
+	//		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	//	}
+	//	else
+	//	{
+	//		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	//		//srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
+	//	}
 
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Buffer.NumElements = ElementCount;
-		srvDesc.Buffer.StructureByteStride = ElementSize;
-		if (CurrentBufferType == ERHIBufferType::Index)
-		{
-			srvDesc.Format = DXGI_FORMAT_R16_UINT;
-			srvDesc.Buffer.StructureByteStride = 0;
-		}
-		SRVDesc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
-		SRVDesc->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
-	}
+	//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	//	srvDesc.Buffer.NumElements = ElementCount;
+	//	srvDesc.Buffer.StructureByteStride = ElementSize;
+	//	if (CurrentBufferType == ERHIBufferType::Index)
+	//	{
+	//		srvDesc.Format = DXGI_FORMAT_R16_UINT;
+	//		srvDesc.Buffer.StructureByteStride = 0;
+	//	}
+	//	SRVDesc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+	//	SRVDesc->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
+	//}
 }
 
 

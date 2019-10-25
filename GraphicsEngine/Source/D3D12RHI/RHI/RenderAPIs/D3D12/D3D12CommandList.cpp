@@ -562,6 +562,11 @@ void D3D12CommandList::UAVBarrier(RHIBuffer* target)
 	CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->GetResource()->GetResource()));
 }
 
+RHIRootSigniture * D3D12CommandList::GetRootSig()
+{
+	return &RootSigniture;
+}
+
 void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)
 {
 	PrepareforDraw();

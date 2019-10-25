@@ -26,10 +26,9 @@ void RayTraceReflectionsNode::OnExecute()
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	FrameBuffer* Gbuffer = GetFrameBufferFromInput(1);
 
-	if (RHI::GetFrameCount() == 0)
-	{
-		StateObject->RebuildShaderTable();
-	}
+	
+	StateObject->RebuildShaderTable();
+	
 
 	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 
