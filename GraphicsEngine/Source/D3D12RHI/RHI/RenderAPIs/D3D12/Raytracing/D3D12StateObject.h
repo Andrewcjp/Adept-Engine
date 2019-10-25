@@ -36,6 +36,7 @@ private:
 	ID3D12Resource* m_outputResource = nullptr;
 	nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper;
 	ID3D12Resource* m_sbtStorage = nullptr;
+	GPUResource* SBTData = nullptr;
 	DescriptorGroup* UAVd = nullptr;
 	
 	uint32_t CurrentSBTSize = 0;

@@ -23,7 +23,6 @@ void PathTraceSceneNode::OnExecute()
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	if (RHI::GetFrameCount() == 0)
 	{
-		RHI::WaitForGPU();
 		StateObject->RebuildShaderTable();
 	}
 	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);

@@ -12,6 +12,7 @@
 #include "Rendering/Shaders/Raytracing/Reflections/Shader_ReflectionRaygen.h"
 #include "../GPUResource.h"
 #include "../DXDescriptor.h"
+#include "../DXMemoryManager.h"
 #if WIN10_1809
 D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :RHIStateObject(D, desc)
 {
@@ -181,11 +182,14 @@ void D3D12StateObject::BuildShaderTables()
 		// SBT contents. After the SBT compilation it could be copied to the default heap for performance.
 	if (m_sbtStorage == nullptr || CurrentSBTSize < sbtSize)
 	{
-		D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(m_sbtStorage);
+		EnqueueSafeRHIRelease(SBTData);
 		CurrentSBTSize = sbtSize;
-		m_sbtStorage = nv_helpers_dx12::CreateBuffer(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5(), sbtSize, D3D12_RESOURCE_FLAG_NONE,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nv_helpers_dx12::kUploadHeapProps);
+		AllocDesc desc;
+		desc.Size = sbtSize;
+		desc.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+		desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, D3D12_RESOURCE_FLAG_NONE);
+		D3D12RHI::DXConv(Device)->GetMemoryManager()->AllocTemporary(desc, &SBTData);
+		m_sbtStorage = SBTData->GetResource();
 	}
 	StateObject->QueryInterface(IID_PPV_ARGS(&props));
 	m_sbtHelper.Generate(m_sbtStorage, props);
@@ -193,6 +197,7 @@ void D3D12StateObject::BuildShaderTables()
 
 void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Pointers)
 {
+
 	for (int i = 0; i < shader->LocalRootSig.GetNumBinds(); i++)
 	{
 		const RSBind* bind = shader->LocalRootSig.GetBind(i);
@@ -201,7 +206,7 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Po
 			D3D12Texture* DTex = D3D12RHI::DXConv(bind->Texture.Get());
 			if (DTex != nullptr)
 			{
-				auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
+				auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor(bind->View)->GetGPUAddress().ptr);
 				Pointers.push_back(heapPointer);
 			}
 		}
@@ -209,13 +214,15 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Po
 		{
 			D3D12Buffer* DTex = D3D12RHI::DXConv(bind->BufferTarget);
 			DTex->SetupBufferSRV();
-			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
-			Pointers.push_back(heapPointer);
+			DXDescriptor* d = DTex->GetDescriptor(bind->View);
+			UINT64 Ptr = d->GetGPUAddress().ptr;
+			auto heapPointer = reinterpret_cast<UINT64*>(Ptr);
+			Pointers.push_back((void*)Ptr);
 		}
 		else if (bind->BindType == ERSBindType::FrameBuffer)
 		{
 			D3D12FrameBuffer* DTex = D3D12RHI::DXConv(bind->Framebuffer);
-			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor()->GetGPUAddress().ptr);
+			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor(bind->View)->GetGPUAddress().ptr);
 			Pointers.push_back(heapPointer);
 		}
 	}
@@ -229,16 +236,18 @@ void D3D12StateObject::RebuildShaderTable()
 void D3D12StateObject::BindToList(D3D12CommandList * List)
 {
 	List->GetCommandList()->SetComputeRootSignature(m_raytracingGlobalRootSignature);
+	List->GetRootSig()->SetRootSig(ShaderTable->GlobalRootSig.Params);
 }
 
 void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, D3D12FrameBuffer* target)
 {
+	//return;
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
 	if (Desc.PushRayArgs)
 	{
 		DXList->SetRootConstant(8, 2, ((void*)&Desc.RayArguments), 0);
 	}
-	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, D3D12RHI::DXConv(target)->GetDescriptor(RHIViewDesc())->GetGPUAddress());
+	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, D3D12RHI::DXConv(target)->GetDescriptor(RHIViewDesc::DefaultUAV())->GetGPUAddress());
 	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(HighLevelStructure)->m_topLevelAccelerationStructure->GetResource()->GetGPUVirtualAddress());
 
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};

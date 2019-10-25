@@ -96,7 +96,7 @@ public:
 
 
 	 RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) override;
-
+	 RHIRootSigniture* GetRootSig();
 private:
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();
