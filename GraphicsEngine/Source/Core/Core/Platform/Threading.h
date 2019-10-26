@@ -26,6 +26,8 @@ namespace Threading
 #ifdef PLATFORM_WINDOWS
 			DWORD id;
 			Handle = CreateThread(NULL, 0, &Thread::ThreadMain, this, 0, &id);
+			std::wstring Name = L"TaskGraph Worker " + std::to_wstring(index);
+			SetThreadDescription(Handle, Name.c_str());
 #endif
 			ThreadIndex = index;
 		}

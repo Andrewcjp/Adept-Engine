@@ -16,9 +16,9 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid) :
 	ObjectID = oid;
 	Mobilty = stat;
 	m_transform = new Transform();
-	AudioId = AudioEngine::GetNextAudioId();
-	AudioEngine::RegisterObject(this);
-	
+	//AudioId = AudioEngine::GetNextAudioId();
+	//AudioEngine::RegisterObject(this);
+
 	LayerMask.SetFlags(0xfffff);
 }
 
@@ -79,6 +79,16 @@ bool GameObject::IsOnLayer(SceneLayerMask Mask) const
 		}
 	}
 	return false;
+}
+
+uint GameObject::GetLastMovedFrame()
+{
+	if (IsStatic())
+	{
+		//todo: push transfrom once
+		return 0;
+	}
+	return GetLastMovedFrame();
 }
 
 GameObject::~GameObject()

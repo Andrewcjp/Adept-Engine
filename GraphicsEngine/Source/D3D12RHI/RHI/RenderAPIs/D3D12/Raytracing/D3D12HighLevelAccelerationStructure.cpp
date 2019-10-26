@@ -89,7 +89,7 @@ void D3D12HighLevelAccelerationStructure::AllocateSpace(D3D12_RAYTRACING_ACCELER
 
 void D3D12HighLevelAccelerationStructure::InitialBuild()
 {
-	AllocateSpace(GetBuildFlags(Desc.BuildFlags), 50);
+	AllocateSpace(GetBuildFlags(Desc.BuildFlags), 150);
 	BuildInstanceBuffer();
 }
 

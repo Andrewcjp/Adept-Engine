@@ -43,6 +43,11 @@ void MeshInstanceBuffer::UpdateBuffer()
 			LogEnsureMsgf(false, "Array overflow in instancing buffer");
 			break;
 		}
+		if (containedBatches[i]->Owner->GetLastMovedFrame() < RHI::GetFrameCount())
+		{
+			continue;
+		}
+
 		InstanceArgs B = {};
 		B.M = containedBatches[i]->Owner->GetTransform()->GetModel();
 		Buffer->UpdateConstantBuffer(&B, i);
@@ -51,7 +56,7 @@ void MeshInstanceBuffer::UpdateBuffer()
 		void* ptr = containedBatches[i]->elements[0]->MaterialInUse->GetDataPtr();
 		//glm::vec4 data = glm::vec4(0.2, 1.0f, 1, 1);
 		//ptr = &data;
-		MateralDataBuffer->UpdateConstantBuffer(ptr, i);		
+		MateralDataBuffer->UpdateConstantBuffer(ptr, i);
 	}
 }
 

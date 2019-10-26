@@ -89,6 +89,8 @@ public:
 	bool IsStatic() const;
 	SceneLayerMask LayerMask;
 	bool IsOnLayer(SceneLayerMask Mask)const;
+
+	uint GetLastMovedFrame();
 private:
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);

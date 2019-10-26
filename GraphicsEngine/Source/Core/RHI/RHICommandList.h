@@ -100,9 +100,9 @@ public:
 
 	//view Creators
 	RHI_API void SetUAV(RHIBuffer* uav, int slot);
-	RHI_API void SetUAV(FrameBuffer* uav, int slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 1);
+	RHI_API void SetUAV(FrameBuffer* uav, int slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 0);
 	RHI_API void SetUAV(RHIBuffer* uav, std::string slot);
-	RHI_API void SetUAV(FrameBuffer* uav, std::string slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 1);
+	RHI_API void SetUAV(FrameBuffer* uav, std::string slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 0);
 
 	RHI_API void SetBuffer(RHIBuffer* Buffer, int slot,int ElementOffset = 0);
 	RHI_API void SetBuffer(RHIBuffer* Buffer, std::string  slot, int ElementOffset = 0);

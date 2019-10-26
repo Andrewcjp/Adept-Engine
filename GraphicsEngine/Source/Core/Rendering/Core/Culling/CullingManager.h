@@ -10,7 +10,10 @@ public:
 	~CullingManager();
 	void DebugRender(Camera * maincam, Scene* target);
 	void UpdateMainPassFrustumCulling(Camera * maincam, Scene * target);
-	void UpdateCullingForShadowLight(Light * light,Scene* target);
+
+	void ProcessObject(GameObject* CurrentObj, Camera * maincam, int& cullcount);
+
+	void UpdateCullingForShadowLight(Light * light, Scene* target);
 	CullingFrustum* GetFustrum();
 private:
 	CullingFrustum Frustum;
