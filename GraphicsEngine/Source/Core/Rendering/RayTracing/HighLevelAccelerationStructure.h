@@ -17,6 +17,7 @@ public:
 	RHI_API virtual void Build(RHICommandList* list);
 	//called to build this structure the first time needed if using update mode.
 	RHI_API virtual void InitialBuild();
+	RHI_API int GetValidEntites()const;
 protected:
 	std::vector<LowLevelAccelerationStructure*> ContainedEntites;
 	DeviceContext* Context = nullptr;

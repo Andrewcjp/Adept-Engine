@@ -28,7 +28,7 @@ void RayTraceReflectionsNode::OnExecute()
 
 	
 	StateObject->RebuildShaderTable();
-	
+
 
 	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 

@@ -3,7 +3,8 @@
 #include "Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
 #include "../Core/Mesh.h"
 #include "../Core/Material.h"
-
+#include "Core/Utils/StringUtil.h"
+//#pragma  optimize("",off)
 ShaderBindingTable::ShaderBindingTable()
 {}
 
@@ -15,6 +16,11 @@ void ShaderBindingTable::RebuildHittableFromScene(Scene* Sc)
 	HitGroups.clear();
 	for (int i = 0; i < Sc->GetMeshObjects().size(); i++)
 	{
+		if (i > 649)
+		{
+			break;
+			float t = 0;
+		}
 		AddObject(Sc->GetMeshObjects()[i]);
 	}
 }
@@ -76,3 +82,9 @@ void ShaderBindingTable::AddToMap(Shader_RTBase * shader, std::map<std::string, 
 
 void ShaderBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader)
 {}
+
+ShaderHitGroup::ShaderHitGroup(std::string name)
+{
+	Name = name;
+	WName = StringUtils::ConvertStringToWide(name);
+}

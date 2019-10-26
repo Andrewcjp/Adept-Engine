@@ -32,6 +32,10 @@ RayTracingEngine * RayTracingEngine::Get()
 
 void RayTracingEngine::EnqueueForBuild(LowLevelAccelerationStructure * Struct)
 {
+	if (LASToBuild.size() > 60)
+	{
+		return;
+	}
 	LASToBuild.push_back(Struct);
 	CurrnetHL->AddEntity(Struct);
 }
@@ -40,29 +44,40 @@ void RayTracingEngine::EnqueueForBuild(HighLevelAccelerationStructure * Struct)
 {
 	HASToBuild.push_back(Struct);
 }
-
+//#pragma  optimize("",off)
 void RayTracingEngine::BuildForFrame(RHICommandList* List)
 {
 	DECALRE_SCOPEDGPUCOUNTER(List, "Build Structures");
-	if (LASToBuild.size() == 0)
-	{
-		if (UseTlasUpdate)
-		{
-			CurrnetHL->Update(List);
-		}
-		else
-		{
-			CurrnetHL->Build(List);
-		}
-		return;
-	}
+	const int BuildLimit = 150;
+	int BuiltThisFrame = 0;
 	for (int i = 0; i < LASToBuild.size(); i++)
 	{
-		LASToBuild[i]->Build(List);
+		if (BuiltThisFrame >= BuildLimit)
+		{
+			break;
+		}
+		if (LASToBuild[i]->IsDirty())
+		{
+			LASToBuild[i]->Build(List);
+			BuiltThisFrame++;
+		}
+#if 0
+		if (RHI::GetFrameCount() % 100 == 0 && RHI::GetFrameCount() > 10)
+		{
+			LASToBuild[i]->MarkDirty();
+			LASToBuild[i]->HasEverBuilt = false;
+		}
+#endif
+	}	
+	if (UseTlasUpdate && Build)
+	{
+		CurrnetHL->Update(List);
 	}
-	CurrnetHL->Build(List);
+	else
+	{
+		CurrnetHL->Build(List);
+	}
 	Build = true;
-	LASToBuild.clear();
 }
 
 void RayTracingEngine::OnFirstFrame()

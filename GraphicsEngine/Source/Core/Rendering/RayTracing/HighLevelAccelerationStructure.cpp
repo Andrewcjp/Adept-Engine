@@ -1,4 +1,5 @@
 #include "HighLevelAccelerationStructure.h"
+#include "LowLevelAccelerationStructure.h"
 
 
 HighLevelAccelerationStructure::HighLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & desc)
@@ -34,4 +35,17 @@ void HighLevelAccelerationStructure::Build(RHICommandList * list)
 void HighLevelAccelerationStructure::InitialBuild()
 {
 
+}
+
+int HighLevelAccelerationStructure::GetValidEntites() const
+{
+	int valid= 0;
+	for (auto i : ContainedEntites)
+	{
+		if (i->IsValid())
+		{
+			valid++;
+		}
+	}
+	return valid;
 }

@@ -13,6 +13,7 @@
 #include "../GPUResource.h"
 #include "../DXDescriptor.h"
 #include "../DXMemoryManager.h"
+//#pragma  optimize("",off)
 #if WIN10_1809
 D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :RHIStateObject(D, desc)
 {
@@ -91,8 +92,7 @@ void D3D12StateObject::AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe)
 			std::wstring anyHitName = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->AnyHitShader->GetExports()[0]);
 			hitGroup->SetAnyHitShaderImport(anyHitName.c_str());
 		}
-		std::wstring Groupname = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->Name);
-		hitGroup->SetHitGroupExport(Groupname.c_str());
+		hitGroup->SetHitGroupExport(ShaderTable->HitGroups[i]->WName.c_str());
 		//DXR: todo GEO type
 		hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
 	}
@@ -155,28 +155,24 @@ void D3D12StateObject::BuildShaderTables()
 	m_sbtHelper.Reset();
 	for (int i = 0; i < ShaderTable->HitGroups.size(); i++)
 	{
-		std::wstring Name = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->Name);
 		std::vector<void*> GPUPtrs;
 		WriteBinds(ShaderTable->HitGroups[i]->HitShader, GPUPtrs);
-		m_sbtHelper.AddHitGroup(Name, GPUPtrs);
+		m_sbtHelper.AddHitGroup(ShaderTable->HitGroups[i]->WName, GPUPtrs);
 	}
 
 	for (int i = 0; i < ShaderTable->RayGenShaders.size(); i++)
 	{
-		std::wstring Name = StringUtils::ConvertStringToWide(ShaderTable->RayGenShaders[i]->GetExports()[0]);
 		std::vector<void*> GPUPtrs;
 		WriteBinds(ShaderTable->RayGenShaders[i], GPUPtrs);
-		m_sbtHelper.AddRayGenerationProgram(Name, GPUPtrs);
+		m_sbtHelper.AddRayGenerationProgram(ShaderTable->RayGenShaders[i]->GetFirstExportWide(), GPUPtrs);
 	}
 	for (int i = 0; i < ShaderTable->MissShaders.size(); i++)
 	{
-		std::wstring Name = StringUtils::ConvertStringToWide(ShaderTable->MissShaders[i]->GetExports()[0]);
-
 		std::vector<void*> GPUPtrs;
 		WriteBinds(ShaderTable->MissShaders[i], GPUPtrs);
-		m_sbtHelper.AddMissProgram(Name, GPUPtrs);
+		m_sbtHelper.AddMissProgram(ShaderTable->MissShaders[i]->GetFirstExportWide(), GPUPtrs);
 	}
-	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5());
+	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5())*4;
 	//	D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
 		// Create the SBT on the upload heap. This is required as the helper will use mapping to write the
 		// SBT contents. After the SBT compilation it could be copied to the default heap for performance.
@@ -197,7 +193,6 @@ void D3D12StateObject::BuildShaderTables()
 
 void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Pointers)
 {
-
 	for (int i = 0; i < shader->LocalRootSig.GetNumBinds(); i++)
 	{
 		const RSBind* bind = shader->LocalRootSig.GetBind(i);
@@ -253,7 +248,7 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
 	dispatchDesc.RayGenerationShaderRecord.StartAddress = m_sbtStorage->GetGPUVirtualAddress();
 	dispatchDesc.RayGenerationShaderRecord.SizeInBytes = m_sbtHelper.GetRayGenSectionSize();
-
+	
 	dispatchDesc.MissShaderTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + m_sbtHelper.GetRayGenSectionSize();
 	dispatchDesc.MissShaderTable.SizeInBytes = m_sbtHelper.GetMissSectionSize();
 	dispatchDesc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();

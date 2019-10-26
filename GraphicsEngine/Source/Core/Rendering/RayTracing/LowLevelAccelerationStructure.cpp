@@ -5,6 +5,7 @@ LowLevelAccelerationStructure::LowLevelAccelerationStructure(DeviceContext* Devi
 {
 	Context = Device;
 	Desc = desc;
+	MarkDirty();
 }
 
 
@@ -18,7 +19,8 @@ void LowLevelAccelerationStructure::CreateFromMesh(Mesh * m)
 
 void LowLevelAccelerationStructure::Build(RHICommandList * List)
 {
-
+	HasEverBuilt = true;
+	NeedsBuild = false;
 }
 
 void LowLevelAccelerationStructure::UpdateTransfrom(Transform * T)
@@ -29,4 +31,19 @@ void LowLevelAccelerationStructure::UpdateTransfrom(Transform * T)
 void LowLevelAccelerationStructure::CreateFromEntity(MeshEntity * entity)
 {
 	
+}
+
+bool LowLevelAccelerationStructure::IsDirty() const
+{
+	return NeedsBuild;
+}
+
+void LowLevelAccelerationStructure::MarkDirty()
+{
+	NeedsBuild = true;
+}
+
+bool LowLevelAccelerationStructure::IsValid() const
+{
+	return HasEverBuilt;
 }

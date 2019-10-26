@@ -14,7 +14,12 @@ public:
 	RHI_API virtual void UpdateTransfrom(Transform* T);
 	RHI_API virtual void CreateFromEntity(MeshEntity* entity);
 	uint LayerMask = 0xFF;
+	RHI_API bool IsDirty()const ;
+	RHI_API void MarkDirty();
+	RHI_API bool IsValid()const;
+	bool HasEverBuilt = false;
 protected:
+	bool NeedsBuild = false;
 	DeviceContext* Context = nullptr;
 	AccelerationStructureDesc Desc;
 };

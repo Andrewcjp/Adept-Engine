@@ -1,5 +1,6 @@
 
 #include "AudioEngine.h"
+#include "AKHooks.h"
 #if BUILD_WISE
 #include <AK/SoundEngine/Common/AkSoundEngine.h>
 #include <AK/IBytes.h>
@@ -12,7 +13,7 @@
 #include <AK/Comm/AkCommunication.h>
 #endif // AK_OPTIMIZED
 #include "ThirdParty/Audio/Win32/AkFilePackageLowLevelIOBlocking.h"// Sample low-level I/O implementation
-#include "AKHooks.h"
+
 #include "Core/Platform/Logger.h"
 #include "Core/GameObject.h"
 #include "Core/Assets/AssetManager.h"
@@ -179,16 +180,16 @@ void AudioEngine::PostEvent(FString name, GameObject * Obj)
 }
 
 
+#if BUILD_WISE
 void AudioEngine::LoadBanks()
 {
 	LoadBank("Init.bnk");
 	LoadBank("Core.bnk");
-#if BUILD_WISE
 	AK::SoundEngine::RegisterGameObj(GAME_OBJECT_ID_DEFAULT, "DEFAULT");
 	AK::SoundEngine::SetDefaultListeners(&GAME_OBJECT_ID_DEFAULT, 1);
-#endif
+
 }
-#if BUILD_WISE
+
 
 void AudioEngine::MakeDefaultListener(GameObject* g)
 {
@@ -196,20 +197,26 @@ void AudioEngine::MakeDefaultListener(GameObject* g)
 	AkGameObjectID id = (AkGameObjectID)g->GetAudioId();
 	AK::SoundEngine::SetDefaultListeners(&id, 1);
 }
-
+#endif
 void AudioEngine::RegisterObject(GameObject* obj)
 {
+#if BUILD_WISE
 	AK::SoundEngine::RegisterGameObj(obj->GetAudioId(), obj->GetName().c_str());
+#endif
 }
 
 void AudioEngine::DeRegisterObject(GameObject* obj)
 {
+#if BUILD_WISE
 	AK::SoundEngine::UnregisterGameObj(obj->GetAudioId());
+#endif
 }
 
 void AudioEngine::StopAll()
 {
+#if BUILD_WISE
 	AK::SoundEngine::StopAll();
+#endif
 }
 
 int AudioEngine::GetNextAudioId()
@@ -217,7 +224,7 @@ int AudioEngine::GetNextAudioId()
 	Instance->NextAudioId++;
 	return Instance->NextAudioId;
 }
-
+#if BUILD_WISE
 void AudioEngine::LoadBank(const std::string& Name)
 {
 	const std::string BankLocation = AssetManager::GetContentPath() + "AlwaysCook\\Banks\\" + Name;
@@ -234,9 +241,11 @@ AkVector ConvertToAK(glm::vec3& value)
 	newvec.Z = value.z;
 	return newvec;
 }
+#endif
 
 void AudioEngine::UpdateWiseTransfrom(GameObject * go)
 {
+#if BUILD_WISE
 	return;
 	AkTransform trans;
 	trans.SetPosition(ConvertToAK(go->GetPosition()));
@@ -247,5 +256,5 @@ void AudioEngine::UpdateWiseTransfrom(GameObject * go)
 	//#Audio rotations
 	AKRESULT ar = AK::SoundEngine::SetPosition(go->GetAudioId(), trans);
 	check(ar == AKRESULT::AK_Success);
-}
 #endif
+}

@@ -23,6 +23,7 @@ public:
 	RHI_API ERTShaderType::Type GetStage();
 	void AddExport(std::string Symbol);
 	RHI_API std::vector<std::string>& GetExports();
+	RHI_API std::wstring GetFirstExportWide();
 	RHIRootSigniture LocalRootSig;
 	void InitRS();
 
@@ -31,5 +32,6 @@ public:
 protected:
 	ERTShaderType::Type ShaderStage = ERTShaderType::Limit;
 	std::vector<std::string> ExportedSymbols;
+	std::wstring ExportZeroWide;
 };
 
