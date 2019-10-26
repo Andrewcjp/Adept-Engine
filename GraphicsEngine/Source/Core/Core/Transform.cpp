@@ -3,12 +3,14 @@
 #include "Utils/MathUtils.h"
 #include "GameObject.h"
 #include "glm/gtx/euler_angles.hpp"
+#include "Maths/Math.h"
 
 Transform::Transform(const glm::vec3 & pos, const glm::vec3 & rot, const glm::vec3 & scale) :
 	_pos(pos),
 	_qrot(glm::quat(rot)),
 	_scale(scale)
 {
+	UpdateModel = true;
 	GetModel();
 	parentMatrix = glm::mat4(1);//Identity
 }
@@ -79,35 +81,34 @@ glm::mat4 Transform::GetModel(bool NoParent)
 		return CacheModel;
 	}
 
-#if USE_TRANSFORM_CACHING
-	if (!UpdateModel && parent == nullptr)
+	if (UpdateModel)
 	{
-		return CacheModel;
+		glm::mat4 posMat = glm::translate(_pos);
+		glm::mat4 scaleMat = glm::scale(_scale);
+		glm::mat4 rotMat = glm::toMat4(_qrot);
+		LocalModelMatrix = (posMat * rotMat * scaleMat);			
 	}
-	if (parent != nullptr && !parent->IsChanged() && !UpdateModel)
+	if (parent.IsValid() && !NoParent)
 	{
-		return CacheModel;
-	}
-#endif
-	glm::mat4 posMat = glm::translate(_pos);
-	glm::mat4 scaleMat = glm::scale(_scale);
-	glm::mat4 rotMat = glm::toMat4(_qrot);
-	if (parent.IsValid()
-#if USE_TRANSFORM_CACHING		
-		&& parent->IsChanged()
-#endif
-		&& !NoParent)
-	{
-		parentMatrix = parent->GetTransform()->GetModel();
+		if (parent->GetTransform()->LastChangedFrame >= LastChangedFrame)
+		{
+			parentMatrix = parent->GetTransform()->GetModel();
+		}		
+		LastChangedFrame = Math::Max(parent->GetLastMovedFrame(), LastChangedFrame);
+		CacheModel = parentMatrix * LocalModelMatrix;
 	}
 	else
 	{
 		parentMatrix = glm::mat4(1);
+		CacheModel = LocalModelMatrix;
 	}
-	CacheModel = parentMatrix * (posMat * rotMat * scaleMat);
-	_rot = glm::eulerAngles(_qrot);
-
-	//UpdateModel = false;
+	
+	if (UpdateModel)
+	{
+		_rot = glm::eulerAngles(_qrot);
+		LastChangedFrame = RHI::GetFrameCount();
+	}
+	UpdateModel = false;
 	return CacheModel;
 }
 
@@ -131,8 +132,8 @@ void Transform::SetPos(const glm::vec3 & pos)
 	UpdateModel = true;
 	oldpos = _pos;
 	_pos = pos;
-	GetModel();
 	CheckNAN(_pos);
+	UpdateModel = true;
 }
 
 void Transform::SetEulerRot(const glm::vec3 & rot)
@@ -174,7 +175,6 @@ void Transform::RotateAboutAxis(glm::vec3 & axis, float amt)
 	UpdateModel = true;
 	oldqrot = this->_qrot;
 	this->_qrot *= glm::angleAxis(glm::radians(amt), axis);
-	GetModel();
 	CheckNAN(_qrot);
 }
 
@@ -224,13 +224,15 @@ void Transform::SetLocalPosition(glm::vec3 localpos)
 	}
 }
 
-glm::vec3 Transform::GetPos() const
+glm::vec3 Transform::GetPos()
 {
+	GetModel();
 	return glm::vec3(CacheModel[3][0], CacheModel[3][1], CacheModel[3][2]);
 }
 
-glm::vec3 Transform::GetScale() const
+glm::vec3 Transform::GetScale()
 {
+	GetModel();
 	return glm::vec3(CacheModel[0][0], CacheModel[1][1], CacheModel[2][2]);
 }
 
@@ -262,6 +264,11 @@ void Transform::Set(glm::mat4 materix)
 	Slave = true;
 	CacheModel = materix;
 	UpdateModel = false;
+}
+
+uint Transform::GetLastMovedFrame() const
+{
+	return LastChangedFrame;
 }
 
 glm::vec3 Transform::GetEulerRot()

@@ -165,3 +165,8 @@ namespace EPlatforms
 	std::string ToString(EPlatforms::Type type);
 	EPlatforms::Type Parse(std::string name);
 };
+#ifdef PLATFORM_WINDOWS
+#define FORCE_INLINE __forceinline
+#else
+#define FORCE_INLINE  
+#endif

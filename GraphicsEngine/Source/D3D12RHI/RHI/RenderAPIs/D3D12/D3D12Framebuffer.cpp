@@ -389,7 +389,7 @@ DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc)
 		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(GetDescription().RTFormats[0]);
 		destTextureUAVDesc.Texture2D.MipSlice = desc.Mip;
-		if (GetDescription().TextureDepth > 0)
+		if (GetDescription().TextureDepth > 1)
 		{
 			destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
 			destTextureUAVDesc.Texture2DArray.ArraySize = 1;

@@ -2,7 +2,8 @@
 #include "Core\Assets\Scene.h"
 #include "Core\Utils\DebugDrawers.h"
 #include "Core\Performance\PerfManager.h"
-
+#include "Core\Platform\Threading.h"
+#define USE_TASKGRAPH 0
 static ConsoleVariable Freeze("c.Freeze", 0);
 static ConsoleVariable ShowAABB("c.ShowBounds", 0);
 const std::string MPObjects = "Main Pass Objects";
@@ -46,25 +47,48 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 	}
 	Frustum.SetupFromCamera(maincam);
 	int cullcount = 0;
+#if USE_TASKGRAPH
+	const int ThreadCount = 6;
+	int BatchSize = target->GetMeshObjects().size() /ThreadCount;
+	std::function <void(int)> ProcessCullingTask = [&](int threadIndex)
+	{
+		const int StartingIndex = threadIndex * BatchSize;
+		int ThisBatchcount = glm::min(StartingIndex + BatchSize, (int)target->GetMeshObjects().size());
+		for (int i = StartingIndex; i < ThisBatchcount; i++)
+		{
+			GameObject* CurrentObj = target->GetMeshObjects()[i];
+			ProcessObject(CurrentObj, maincam, cullcount);
+		}
+	};
+	Engine::GetTaskGraph()->RunTaskOnGraph(ProcessCullingTask, ThreadCount);
+
+#else
 	for (int i = 0; i < target->GetMeshObjects().size(); i++)
 	{
-		GameObject* CurrentObj = target->GetMeshObjects()[i];
-		if (CurrentObj->GetMesh() != nullptr)
-		{
-			if (!CurrentObj->IsOnLayer(maincam->RenderMask))
-			{
-				CurrentObj->SetCulledState(ECullingPass::MainPass, true);
-				continue;
-			}
-			const bool culled = !Frustum.TestObject(CurrentObj->GetBounds());
-			if (!culled)
-			{
-				cullcount++;
-			}
-			CurrentObj->SetCulledState(ECullingPass::MainPass, culled);
-		}
+		GameObject* CurrentObj = target->GetMeshObjects()[i];		
+		ProcessObject(CurrentObj, maincam, cullcount);
 	}
+#endif
 	PerfManager::AddToCountTimer(MPObjects, cullcount);
+}
+
+void CullingManager::ProcessObject(GameObject* CurrentObj, Camera * maincam, int& cullcount)
+{
+	if (CurrentObj->GetMesh() != nullptr)
+	{
+		if (!CurrentObj->IsOnLayer(maincam->RenderMask))
+		{
+			CurrentObj->SetCulledState(ECullingPass::MainPass, true);
+			return;
+		}
+		const bool culled = !Frustum.TestObject(CurrentObj->GetBounds());
+		if (!culled)
+		{
+			cullcount++;
+		}
+		CurrentObj->SetCulledState(ECullingPass::MainPass, culled);
+	}	
+	return;
 }
 
 void CullingManager::UpdateCullingForShadowLight(Light* light, Scene* target)

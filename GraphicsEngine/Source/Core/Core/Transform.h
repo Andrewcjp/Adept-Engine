@@ -25,9 +25,9 @@ public:
 	CORE_API void SetLocalPosition(glm::vec3 localpos);
 	///------------------------------------------------------
 	//getters
-	CORE_API glm::vec3 GetPos() const;
+	CORE_API glm::vec3 GetPos();
 	CORE_API glm::vec3 GetEulerRot();
-	CORE_API glm::vec3 GetScale() const;
+	CORE_API glm::vec3 GetScale();
 	CORE_API glm::vec3 GetForward();
 	CORE_API glm::vec3 GetUp();
 	CORE_API glm::vec3 GetRight();
@@ -42,7 +42,9 @@ public:
 	void Translate(glm::vec3 direction, float amt);
 	void Set(glm::mat4 materix);
 	bool Slave = false;
+	uint GetLastMovedFrame()const;
 private:
+	uint LastChangedFrame = 0;
 	//cached matrixs;
 	glm::mat4 CacheModel;
 	bool UpdateModel = true;
@@ -51,6 +53,7 @@ private:
 	glm::vec3 _rot;
 	glm::vec3 _scale;
 	glm::quat _qrot;
+	glm::mat4 LocalModelMatrix;
 	glm::mat4 parentMatrix;
 	WeakObjectPtr<GameObject> parent;
 

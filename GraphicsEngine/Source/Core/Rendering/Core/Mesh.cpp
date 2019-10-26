@@ -251,7 +251,7 @@ MeshBatch * Mesh::GetMeshBatch()
 
 void Mesh::PrepareDataForRender(GameObject* parent)
 {
-	if (parent->IsStatic() && RHI::GetFrameCount() > 0)
+	if (parent->GetLastMovedFrame() < RHI::GetFrameCount())
 	{
 		return;
 	}

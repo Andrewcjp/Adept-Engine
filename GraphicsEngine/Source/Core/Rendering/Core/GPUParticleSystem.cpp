@@ -26,7 +26,6 @@ void ParticleSystem::Tick(float DT)
 		CurrentTimer = EmissionRate;
 		RealEmissionCount = Count;
 	}
-	RealEmissionCount = 1;
 }
 
 void ParticleSystem::SetDefaultShaders()

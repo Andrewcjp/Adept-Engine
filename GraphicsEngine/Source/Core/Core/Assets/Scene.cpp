@@ -10,7 +10,7 @@
 #include "Core/Game/Game.h"
 #include "AI/Core/SpawnMarker.h"
 #include "Rendering/Core/Defaults.h"
-
+#define TEST_HEAVY NDEBUG
 Scene::Scene(bool EditorScene)
 {
 	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
@@ -239,8 +239,8 @@ void Scene::LoadExampleScene()
 	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 10);
 	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 10);
 	//light testing
-#if 0
-	for (int i = 0; i < 8; i += 4)
+#if TEST_HEAVY
+	for (int i = 0; i < 32; i += 4)
 	{
 		AddLight(glm::vec3(24, 7, -21), false, 75.0f);
 		AddLight(glm::vec3(33, 6, -3), false, 75.0f);
@@ -284,12 +284,6 @@ void Scene::LoadExampleScene()
 	go->AttachComponent(new SpawnMarker());
 	AddGameobjectToScene(go);
 #if 1
-	//go = CreateDebugSphere(nullptr);
-	//cc = go->AttachComponent(new ColliderComponent());
-	//go->GetTransform()->SetPos(glm::vec3(0, 15, 10));
-	//cc->SetCollisonShape(EShapeType::eSPHERE);
-	//go->AttachComponent(new RigidbodyComponent());
-	//AddGameobjectToScene(go);
 	glm::vec3 startpos = glm::vec3(5, -5, 0);
 	float stride = 5.0f;
 	int size = 1;
@@ -334,8 +328,8 @@ void Scene::LoadExampleScene()
 	stride = 5.0f;
 	CreateGrid(size, startPos, 5.0f);
 #endif
-#if NDEBUG
-	//CreateGrid(10, glm::vec3(0, 10, -20), 0.5f);
+#if TEST_HEAVY
+	CreateGrid(10, glm::vec3(0, 10, 20), 10);
 #endif
 	SpawnBox(glm::vec3(17, 1, -12));
 	SpawnBox(glm::vec3(17, 1, -9));

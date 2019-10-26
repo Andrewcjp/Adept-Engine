@@ -43,7 +43,7 @@ bool CullingFrustum::SphereInFrustum(const glm::vec3 &pos, float radius)
 	return res;
 }
 
-/*__forceinline*/ bool CullingFrustum::RightParallelepipedInFrustum(const glm::vec4& Min, const glm::vec4& Max)
+FORCE_INLINE bool CullingFrustum::RightParallelepipedInFrustum(const glm::vec4& Min, const glm::vec4& Max)
 {
 	bool inside = true;
 	//test all 6 frustum planes

@@ -215,6 +215,7 @@ void D3D12CommandList::PrepareforDraw()
 	for (int i = 0; i < RootSigniture.GetNumBinds(); i++)
 	{
 		const RSBind* bind = RootSigniture.GetBind(i);
+		
 		if (bind->BindType == ERSBindType::Texture && bind->IsBound())
 		{
 			DXDescriptor* desc = D3D12RHI::DXConv(bind->Texture.Get())->GetDescriptor(bind->View);
@@ -243,6 +244,7 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::BufferSRV)
 		{
+			ensure(bind->View.ViewType != EViewType::Limit);
 			DXDescriptor* desc = nullptr;
 			//check(bind->IsBound());
 			if (bind->IsBound())
@@ -261,6 +263,7 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::TextureArray)
 		{
+//			ensure(bind->View.ViewType != EViewType::Limit);
 			DXDescriptor* desc = nullptr;
 			//check(bind->IsBound());
 			if (bind->IsBound())
@@ -279,10 +282,12 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::UAV)
 		{
-			DXDescriptor* desc = nullptr;
+			
+			DXDescriptor* desc = nullptr;		
 			//check(bind->IsBound());
 			if (bind->IsBound())
 			{
+				ensure(bind->View.ViewType != EViewType::Limit);
 				if (bind->BufferTarget)
 				{
 					desc = D3D12RHI::DXConv(bind->BufferTarget)->GetDescriptor(bind->View);
