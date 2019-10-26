@@ -329,7 +329,7 @@ void Scene::LoadExampleScene()
 	CreateGrid(size, startPos, 5.0f);
 #endif
 #if TEST_HEAVY
-	CreateGrid(10, glm::vec3(0, 10, 20), 10);
+	CreateGrid(5, glm::vec3(0, 10, 20), 10);
 #endif
 	SpawnBox(glm::vec3(17, 1, -12));
 	SpawnBox(glm::vec3(17, 1, -9));
@@ -353,7 +353,29 @@ void Scene::LoadExampleScene()
 	go->GetTransform()->SetScale(glm::vec3(1));
 	AddGameobjectToScene(go);
 #endif
+#if TEST_HEAVY
+	PadUntil(651);
+#endif
 	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects().size()));
+}
+
+void Scene::PadUntil(int target)
+{
+	for (int y = GetMeshObjects().size(); y < target; y++)
+	{
+		GameObject* go = new GameObject("Water");
+		//go->SetMoblity(GameObject::Dynamic);
+		Material* mat = Material::CreateDefaultMaterialInstance();
+		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
+		MeshLoader::FMeshLoadingSettings s;
+		//s.AllowInstancing = false;
+		MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj", s), mat));
+		c->SetMaterial(mat, 0);
+		go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
+		go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+		go->GetTransform()->SetScale(glm::vec3(1));
+		AddGameobjectToScene(go);
+	}
 }
 
 void Scene::CreateGrid(int size, glm::vec3 startPos, float stride)

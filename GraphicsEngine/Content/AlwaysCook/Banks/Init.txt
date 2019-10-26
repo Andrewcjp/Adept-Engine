@@ -11,5 +11,4 @@ Effect plug-ins	ID	Name	Type				Notes
 Audio Devices	ID	Name	Type				Notes
 	2317455096	No_Output	No Output			
 	3859886410	System	System			
-	4230635974	Default_Motion_Device	Wwise Motion			
 

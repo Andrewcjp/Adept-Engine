@@ -89,7 +89,7 @@ void D3D12LowLevelAccelerationStructure::Build(RHICommandList* List)
 	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&bottomLevelBuildDesc, 0, nullptr);
 
 	DXList->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(Structure));
-
+	LowLevelAccelerationStructure::Build(List);
 }
 
 void D3D12LowLevelAccelerationStructure::UpdateTransfrom(Transform* T)

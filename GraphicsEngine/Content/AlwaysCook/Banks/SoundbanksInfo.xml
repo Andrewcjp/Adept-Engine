@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="11" SoundbankVersion="132">
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="11" SoundbankVersion="134">
 	<RootPaths>
 		<ProjectRoot>C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\</ProjectRoot>
 		<SourceFilesRoot>C:\Users\AANdr\Dropbox\Engine\WWISE\GameBH\.cache\Windows\</SourceFilesRoot>

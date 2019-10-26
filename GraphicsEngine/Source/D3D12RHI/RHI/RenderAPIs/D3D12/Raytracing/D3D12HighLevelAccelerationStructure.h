@@ -23,7 +23,7 @@ public:
 	static D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS GetBuildFlags(int BuildFlags);
 private:
 	ID3D12Resource* instanceDescs = nullptr;
-	
+	int LAstCount = 0;
 	GPUResource* scratchSpace = nullptr;
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC topLevelBuildDesc = {};
 };

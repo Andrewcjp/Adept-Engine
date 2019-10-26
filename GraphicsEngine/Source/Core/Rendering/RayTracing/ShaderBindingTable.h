@@ -22,11 +22,9 @@ namespace DefaultLocalRootSignatureParams
 class Shader_RTBase;
 struct ShaderHitGroup
 {
-	ShaderHitGroup(std::string name)
-	{
-		Name = name;
-	}
+	ShaderHitGroup(std::string name);
 	std::string Name = "";
+	std::wstring WName;
 	Shader_RTBase* HitShader = nullptr;
 	Shader_RTBase* AnyHitShader = nullptr;
 	Shader_RTBase* IntersectionShader = nullptr;

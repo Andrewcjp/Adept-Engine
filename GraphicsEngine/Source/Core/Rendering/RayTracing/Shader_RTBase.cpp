@@ -1,4 +1,5 @@
 #include "Shader_RTBase.h"
+#include "Core\Utils\StringUtil.h"
 
 
 Shader_RTBase::Shader_RTBase(DeviceContext* C, std::string Name, ERTShaderType::Type Stage) :Shader(C)
@@ -27,11 +28,20 @@ ERTShaderType::Type Shader_RTBase::GetStage()
 void Shader_RTBase::AddExport(std::string Symbol)
 {
 	ExportedSymbols.push_back(Symbol);
+	if (ExportedSymbols.size() == 1)
+	{
+		ExportZeroWide = StringUtils::ConvertStringToWide(Symbol);
+	}
 }
 
 std::vector<std::string>& Shader_RTBase::GetExports()
 {
 	return ExportedSymbols;
+}
+
+std::wstring Shader_RTBase::GetFirstExportWide()
+{
+	return ExportZeroWide;
 }
 
 void Shader_RTBase::InitRS()

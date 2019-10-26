@@ -27,6 +27,8 @@ public:
 	GameObject * AddMeshObject(glm::vec3 pos, std::string mesh, Material *mat = nullptr);
 	void LoadExampleScene();
 
+	void PadUntil(int target);
+
 	void CreateGrid(int size, glm::vec3 startPos, float stride);
 	void SpawnDoor(std::string name, glm::vec3 pos);
 
