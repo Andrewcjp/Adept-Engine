@@ -10,7 +10,7 @@
 #include "Core/Game/Game.h"
 #include "AI/Core/SpawnMarker.h"
 #include "Rendering/Core/Defaults.h"
-#define TEST_HEAVY NDEBUG
+#define TEST_HEAVY 0//NDEBUG
 Scene::Scene(bool EditorScene)
 {
 	//LightingData.SkyBox = AssetManager::DirectLoadTextureAsset("\\texture\\cube_1024_preblurred_angle3_ArstaBridge.dds", true);
@@ -329,7 +329,7 @@ void Scene::LoadExampleScene()
 	CreateGrid(size, startPos, 5.0f);
 #endif
 #if TEST_HEAVY
-	CreateGrid(5, glm::vec3(0, 10, 20), 10);
+	CreateGrid(10, glm::vec3(0, 10, 20), 10);
 #endif
 	SpawnBox(glm::vec3(17, 1, -12));
 	SpawnBox(glm::vec3(17, 1, -9));

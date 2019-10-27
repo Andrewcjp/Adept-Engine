@@ -40,7 +40,7 @@ void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 	{
 		MeshEntity* Entity = m->SubMeshes[i];
 		AddEntity(Entity);
-	}	
+	}
 	CreateStructure();
 }
 
@@ -60,10 +60,12 @@ void D3D12LowLevelAccelerationStructure::CreateStructure()
 	desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, desc.Flags);
 	D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocTemporaryGPU(desc, &scratchResource);
 
-	D3D12Helpers::AllocateUAVBuffer(D3D12RHI::DXConv(Context)->GetDevice(), bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes, &Structure, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, L"BottomLevelAccelerationStructure");
-
+	AllocDesc D = {};
+	D.InitalState = D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE;
+	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocTemporaryGPU(D, &Structure);
 	bottomLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetResource()->GetGPUVirtualAddress();
-	bottomLevelBuildDesc.DestAccelerationStructureData = Structure->GetGPUVirtualAddress();
+	bottomLevelBuildDesc.DestAccelerationStructureData = Structure->GetResource()->GetGPUVirtualAddress();
 }
 
 void D3D12LowLevelAccelerationStructure::AddEntity(MeshEntity* Entity)
@@ -88,7 +90,7 @@ void D3D12LowLevelAccelerationStructure::Build(RHICommandList* List)
 	D3D12CommandList* DXList = D3D12RHI::DXConv(List);
 	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&bottomLevelBuildDesc, 0, nullptr);
 
-	DXList->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(Structure));
+	DXList->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(Structure->GetResource()));
 	LowLevelAccelerationStructure::Build(List);
 }
 
@@ -100,7 +102,7 @@ void D3D12LowLevelAccelerationStructure::UpdateTransfrom(Transform* T)
 
 ID3D12Resource * D3D12LowLevelAccelerationStructure::GetASResource() const
 {
-	return Structure;
+	return Structure->GetResource();
 }
 
 Transform * D3D12LowLevelAccelerationStructure::GetTransform() const

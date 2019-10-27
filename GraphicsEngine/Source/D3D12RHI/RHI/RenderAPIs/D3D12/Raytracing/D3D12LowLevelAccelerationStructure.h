@@ -26,7 +26,7 @@ public:
 private:
 	
 	Transform* Transfrom = nullptr;
-	ID3D12Resource* Structure = nullptr;
+	GPUResource* Structure = nullptr;
 	//TODO: check if this is need on all 
 	GPUResource* scratchResource = nullptr;
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC bottomLevelBuildDesc = {};

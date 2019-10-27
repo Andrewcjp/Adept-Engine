@@ -5,7 +5,6 @@ class DescriptorHeap;
 class D3D12DeviceContext;
 class D3D12CommandList;
 class DXDescriptor;
-class DescriptorGroup;
 class GPUResource;
 class D3D12Texture : public BaseTexture
 {
@@ -17,15 +16,13 @@ public:
 	void BindToSlot(D3D12CommandList * list, int slot);
 	virtual void CreateTextureFromDesc(const TextureDescription& desc) override;
 	virtual void CreateAsNull() override;
-	void UpdateSRV() override;
 	ID3D12Resource* GetResource();
 	int Width = 0;
 	int Height = 0;
 	UINT16 Miplevels = 6;
 	int	MipLevelsReadyNow = 1;
 	bool CheckDevice(int index);
-	DescriptorGroup* GetDescriptor();
-	DXDescriptor* GetDescriptor(RHIViewDesc Desc);
+	DXDescriptor* GetDescriptor(RHIViewDesc Desc, DescriptorHeap* heap = nullptr);
 protected:
 	void Release() override;
 private:
@@ -40,7 +37,6 @@ private:
 	bool UsingDDSLoad = false;
 	ID3D12Resource* m_texture = nullptr;
 	GPUResource* TextureResource = nullptr;
-	DescriptorGroup* SRVDesc = nullptr;
 	int FrameCreated = -1;
 };
 

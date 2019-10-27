@@ -188,6 +188,7 @@ public:
 	RHI_API RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) = 0;
 	RHI_API RHI_VIRTUAL void Clear() = 0;
 	RHI_API RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc) = 0;
+
 protected:
 	int NumEntries = 1;
 };

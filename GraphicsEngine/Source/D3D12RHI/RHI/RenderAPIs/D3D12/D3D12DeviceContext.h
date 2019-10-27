@@ -84,6 +84,7 @@ class D3D12TimeManager;
 class DescriptorHeapManager;
 class D3D12QueryHeap;
 class DXMemoryManager;
+class DescriptorCache;
 //once this class has been completed it will be RHI split
 class D3D12DeviceContext : public DeviceContext
 {
@@ -135,6 +136,7 @@ public:
 	void ResetWork();
 	RHICommandList* GetInterGPUCopyList();
 	DescriptorHeapManager* GetHeapManager();
+	DescriptorCache * GetDescriptorCache();
 	D3D12QueryHeap* GetTimeStampHeap();
 	D3D12QueryHeap* GetCopyTimeStampHeap();
 
@@ -198,6 +200,7 @@ private:
 	bool SupportsCmdsList4 = false;
 	GPUSyncPoint GPUWaitPoints[RHI::CPUFrameCount][DeviceContextQueue::LIMIT];
 	DescriptorHeapManager* HeapManager = nullptr;
+	DescriptorCache* DescriptorCacheManager = nullptr;
 };
 
 class D3D12GPUSyncEvent : public RHIGPUSyncEvent

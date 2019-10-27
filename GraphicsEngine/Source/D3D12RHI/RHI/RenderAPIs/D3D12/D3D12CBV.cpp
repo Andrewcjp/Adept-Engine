@@ -5,6 +5,8 @@
 #include "D3D12DeviceContext.h"
 #include "DescriptorHeapManager.h"
 #include "DXDescriptor.h"
+#include "GPUResource.h"
+#include "DXMemoryManager.h"
 D3D12CBV::D3D12CBV(DeviceContext* inDevice)
 {
 	Device = D3D12RHI::DXConv(inDevice);
@@ -20,7 +22,7 @@ D3D12CBV::~D3D12CBV()
 	if (m_constantBuffer)
 	{
 		CD3DX12_RANGE readRange(0, 0);
-		m_constantBuffer->Unmap(0, &readRange);
+		m_constantBuffer->GetResource()->Unmap(0, &readRange);
 		m_constantBuffer->Release();
 	}
 }
@@ -29,11 +31,11 @@ void D3D12CBV::SetGpuView(ID3D12GraphicsCommandList * list, int offset, int slot
 {
 	if (IsCompute)
 	{
-		list->SetComputeRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));
+		list->SetComputeRootConstantBufferView(slot, m_constantBuffer->GetResource()->GetGPUVirtualAddress() + (offset * CB_Size));
 	}
 	else
 	{
-		list->SetGraphicsRootConstantBufferView(slot, m_constantBuffer->GetGPUVirtualAddress() + (offset * CB_Size));
+		list->SetGraphicsRootConstantBufferView(slot, m_constantBuffer->GetResource()->GetGPUVirtualAddress() + (offset * CB_Size));
 	}
 }
 
@@ -51,18 +53,17 @@ void D3D12CBV::InitCBV(int StructSize, int Elementcount)
 	CB_Size = (StructSize + 255) & ~255;
 	RawStuctSize = CB_Size;
 	SizeInBytes = InitalBufferCount * CB_Size;
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(SizeInBytes),//1024 * 64
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&m_constantBuffer)));
+
+	AllocDesc desc = {};
+	desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(SizeInBytes);
+	desc.PageAllocationType = EPageTypes::BufferUploadOnly;
+	desc.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	Device->GetMemoryManager()->AllocUploadTemporary(desc, &m_constantBuffer);
 
 	// Map and initialize the constant buffer. We don't unmap this until the
 	// app closes. Keeping things mapped for the lifetime of the resource is okay.
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
-	ThrowIfFailed(m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
+	ThrowIfFailed(m_constantBuffer->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
 #if 0//validate CBV
 	int DataSize = 1;
 	for (int i = 0; i < SizeInBytes; i++)

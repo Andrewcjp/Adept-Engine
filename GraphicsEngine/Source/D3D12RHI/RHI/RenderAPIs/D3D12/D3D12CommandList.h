@@ -120,6 +120,7 @@ private:
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 	D3D12CommandSigniture* CommandSig = nullptr;
 	RHIRootSigniture RootSigniture;
+;
 };
 
 class D3D12RHITextureArray : public RHITextureArray
@@ -132,7 +133,8 @@ public:
 	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot)override;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr);
 	RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc);
-	DXDescriptor* GetDescriptor(const RHIViewDesc & desc);
+	DXDescriptor* GetDescriptor(const RHIViewDesc & desc,DescriptorHeap* heap = nullptr);
+	uint64 GetHash();
 private:
 	void Release() override;
 	void Clear() override;

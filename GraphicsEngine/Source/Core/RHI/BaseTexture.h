@@ -38,7 +38,6 @@ public:
 	std::string TexturePath;
 	CORE_API ETextureType::Type GetType();
 	int MaxMip = -1;
-	virtual void UpdateSRV() = 0;
 	RHI_API DeviceContext* GetContext() const;
 protected:
 	ETextureType::Type CurrentTextureType = ETextureType::Type_2D;

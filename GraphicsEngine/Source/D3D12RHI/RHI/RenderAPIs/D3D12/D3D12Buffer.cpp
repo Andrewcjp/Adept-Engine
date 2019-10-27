@@ -4,12 +4,14 @@
 #include "D3D12DeviceContext.h"
 #include "RHI/RHICommandList.h"
 #include "GPUResource.h"
-#include "DescriptorGroup.h"
+
 #include "D3D12CBV.h"
 #include "D3D12CommandList.h"
 #include "DescriptorHeapManager.h"
 #include "DXMemoryManager.h"
 #include "DXDescriptor.h"
+#include "D3D12Helpers.h"
+#include "DescriptorHeap.h"
 
 D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext * inDevice) :RHIBuffer(type)
 {
@@ -38,8 +40,6 @@ void D3D12Buffer::Release()
 		}
 	}
 	SafeRelease(m_DataBuffer);
-	SafeRelease(SRVDesc);
-
 }
 
 D3D12Buffer::~D3D12Buffer()
@@ -124,15 +124,15 @@ GPUResource * D3D12Buffer::GetResource()
 	return m_DataBuffer;
 }
 
-DescriptorGroup * D3D12Buffer::GetDescriptor()
-{
-	return SRVDesc;
-}
 
-DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc)
+DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc, DescriptorHeap* heap)
 {
+	if (heap == nullptr)
+	{
+		heap = Device->GetHeapManager()->GetMainHeap();
+	}
 	ensure(desc.ViewType != EViewType::Limit);
-	DXDescriptor* Descriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+	DXDescriptor* Descriptor = heap->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 	if (desc.ViewType == EViewType::SRV)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -205,7 +205,6 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
 
 void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 {
-	SetupBufferSRV();
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
 	if (BufferAccesstype != EBufferAccessType::GPUOnly && BufferAccesstype != EBufferAccessType::Dynamic)//gpu buffer states are explicitly managed by render code
 	{
@@ -221,38 +220,6 @@ void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Ty
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
 	m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), D3D12Helpers::ConvertBufferResourceState(State));
 }
-
-void D3D12Buffer::SetupBufferSRV()
-{
-	//if (SRVDesc == nullptr)
-	//{
-	//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	//	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-	//	if (BufferAccesstype == EBufferAccessType::GPUOnly)
-	//	{
-	//		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	//	}
-	//	else
-	//	{
-	//		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	//		//srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
-	//	}
-
-	//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	//	srvDesc.Buffer.NumElements = ElementCount;
-	//	srvDesc.Buffer.StructureByteStride = ElementSize;
-	//	if (CurrentBufferType == ERHIBufferType::Index)
-	//	{
-	//		srvDesc.Format = DXGI_FORMAT_R16_UINT;
-	//		srvDesc.Buffer.StructureByteStride = 0;
-	//	}
-	//	SRVDesc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
-	//	SRVDesc->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
-	//}
-}
-
-
 
 void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)
 {
@@ -315,7 +282,7 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 	D = AllocDesc();
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
 	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
-	Device->GetMemoryManager()->AllocTemporary(D, &m_UploadBuffer);
+	Device->GetMemoryManager()->AllocUploadTemporary(D, &m_UploadBuffer);
 	D3D12Helpers::NameRHIObject(m_UploadBuffer, this, "(UPLOAD)");
 }
 
@@ -325,14 +292,10 @@ void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 	// Create the vertex buffer.
 	TotalByteSize = ByteSize;
 	ID3D12Resource* TempRes = nullptr;
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&TempRes)));
-	m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_GENERIC_READ, Device);
+	AllocDesc Allocdesc = AllocDesc(TotalByteSize, D3D12_RESOURCE_STATE_GENERIC_READ, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
+	Allocdesc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
+	Device->GetMemoryManager()->AllocUploadTemporary(Allocdesc, &m_DataBuffer);
+
 	PostUploadState = D3D12_RESOURCE_STATE_GENERIC_READ;
 }
 static inline UINT AlignForUavCounter(UINT bufferSize)
@@ -355,14 +318,18 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 	if (BufferAccesstype == EBufferAccessType::GPUOnly)
 	{
 		ID3D12Resource* TempRes = nullptr;
-		ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE),
-			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-			nullptr,
-			IID_PPV_ARGS(&TempRes)));
-		m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, Device);
+		//ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
+		//	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		//	D3D12_HEAP_FLAG_NONE,
+		//	&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE),
+		//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+		//	nullptr,
+		//	IID_PPV_ARGS(&TempRes)));
+		//m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, Device);
+		AllocDesc Allocdesc = {};
+		Allocdesc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
+		Allocdesc.InitalState = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		Device->GetMemoryManager()->AllocTemporaryGPU(Allocdesc, &m_DataBuffer);
 	}
 	else if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
@@ -371,14 +338,6 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 	else if (BufferAccesstype == EBufferAccessType::Static)
 	{
 		CreateStaticBuffer(TotalByteSize);
-	}
-	if (desc.CreateSRV)
-	{
-		SetupBufferSRV();
-	}
-	if (desc.CreateUAV)
-	{
-		
 	}
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }

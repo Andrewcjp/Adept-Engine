@@ -29,7 +29,7 @@ public:
 	ID3D12DescriptorHeap* GetHeap();;
 	std::string GetDebugName();
 	void BindHeap_Old(ID3D12GraphicsCommandList* list);
-	void AddDescriptor(DXDescriptor* desc);
+	void AddDescriptor(DXDescriptor* desc, bool Create = true);
 	int GetNumberOfDescriptors();
 	int GetMaxSize();
 	int GetNextFreeIndex();
@@ -37,6 +37,8 @@ public:
 	D3D12DeviceContext* GetDevice();
 	void RemoveDescriptor(DXDescriptor* desc);
 	void ClearHeap();
+	DXDescriptor* CopyToHeap(DXDescriptor* desc);
+	DXDescriptor* AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size = 1);
 private:
 	std::vector<DXDescriptor*> ContainedDescriptors;
 	ID3D12DescriptorHeap * mHeap = nullptr;
@@ -45,5 +47,5 @@ private:
 	EGPUMemoryPriority Priority = EGPUMemoryPriority::Critical;
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 	int DescriptorCount = 0;
-}; 
+};
 

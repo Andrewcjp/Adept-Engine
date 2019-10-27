@@ -83,7 +83,7 @@ void FrameBufferProcessor::CreateMipChain(FrameBuffer * buffer, RHICommandList *
 			int DstHeight = glm::max(Desc.Height >> (i + 1), 1);
 
 			VDesc.Mip = i;
-			list->BindSRV(buffer, 1, VDesc);
+			//list->BindSRV(buffer, 1, VDesc);
 			//#todo view test
 			/*	UAV->Bind(list, s->GetSlotForName("DstTexture"));
 				list->SetUAV(InputTexture, 1);*/

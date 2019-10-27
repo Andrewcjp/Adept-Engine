@@ -16,7 +16,6 @@ UIWidgetContext::UIWidgetContext()
 	PauseTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\PauseScreen.png");
 	LoadingTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\Loading screen.png", set);
 	LoadingTex->MaxMip = 1;
-	LoadingTex->UpdateSRV();
 	Quad->Texture = PauseTex;
 }
 

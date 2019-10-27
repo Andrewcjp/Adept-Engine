@@ -5,13 +5,7 @@ class DescriptorHeap;
 class GPUResource;
 class D3D12DeviceContext;
 class DXDescriptor;
-class DescriptorGroup;
 class D3D12CommandList;
-struct SRVRequest
-{
-	RHIViewDesc Desc;
-	DescriptorGroup* Descriptor = nullptr;
-};
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
@@ -25,7 +19,6 @@ public:
 	void							ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
 	void							BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex = 0, DeviceContext* target = nullptr, bool isCompute = false);
-	void							BindSRV(D3D12CommandList * List, int slot, RHIViewDesc SRV);
 	virtual void					BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex);
 	void							UnBind(ID3D12GraphicsCommandList * list);
 	virtual void					ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
@@ -46,8 +39,6 @@ public:
 	GPUResource* GetResource(int index);
 	void Release() override;
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
-	DescriptorGroup* GetDescriptor();
-
 
 	virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
 	virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
@@ -55,18 +46,14 @@ public:
 	
 
 	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false) override;
-	DXDescriptor* GetDescriptor(const RHIViewDesc& desc);
+	DXDescriptor * GetDescriptor(const RHIViewDesc & desc, DescriptorHeap * heap = nullptr);
 private:
 	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth);
 	D3D12DeviceContext * CurrentDevice = nullptr;
 
-
-	DescriptorGroup* SRVDesc = nullptr;
 	DescriptorHeap* RTVHeap = nullptr;
 	DescriptorHeap* DSVHeap = nullptr;
 	DescriptorHeap* NullHeap = nullptr;
-
-	std::vector<SRVRequest> RequestedSRVS;
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_VIEWPORT m_viewports[8];
 	CD3DX12_RECT m_scissorRect;
