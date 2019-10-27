@@ -32,10 +32,6 @@ RayTracingEngine * RayTracingEngine::Get()
 
 void RayTracingEngine::EnqueueForBuild(LowLevelAccelerationStructure * Struct)
 {
-	if (LASToBuild.size() > 60)
-	{
-		return;
-	}
 	LASToBuild.push_back(Struct);
 	CurrnetHL->AddEntity(Struct);
 }

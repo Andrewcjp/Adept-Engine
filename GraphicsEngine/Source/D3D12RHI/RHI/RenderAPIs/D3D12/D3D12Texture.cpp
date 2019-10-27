@@ -11,7 +11,6 @@
 #include "D3D12DeviceContext.h"
 #include "D3D12CommandList.h"
 #include "DescriptorHeapManager.h"
-#include "DescriptorGroup.h"
 #include "DXMemoryManager.h"
 #include "DXDescriptor.h"
 
@@ -215,23 +214,19 @@ bool D3D12Texture::LoadDDS(std::string filename)
 	}
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture, 0, (UINT)subresources.size());
-	ID3D12Resource* textureUploadHeap = nullptr;
+	GPUResource* textureUploadHeap = nullptr;
 	format = m_texture->GetDesc().Format;
-	// Create the GPU upload buffer.
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&textureUploadHeap)));
-	NAME_D3D12_OBJECT(textureUploadHeap);
-	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap, 0, 0, (UINT)subresources.size(), subresources.data());
+
+	AllocDesc D = {};
+	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	Device->GetMemoryManager()->AllocUploadTemporary(D, &textureUploadHeap);
+
+	UpdateSubresources(Device->GetCopyList(), m_texture, textureUploadHeap->GetResource(), 0, 0, (UINT)subresources.size(), subresources.data());
 	TextureResource = new GPUResource(m_texture, D3D12_RESOURCE_STATE_COPY_DEST, Device);
 	m_texture->SetName(L"Loaded Texture");
 	Device->NotifyWorkForCopyEngine();
-	D3D12RHI::Get()->AddObjectToDeferredDeleteQueue(textureUploadHeap);
-	UpdateSRV();
+	EnqueueSafeRHIRelease(textureUploadHeap);
 	return true;
 }
 
@@ -256,15 +251,7 @@ void D3D12Texture::BindToSlot(D3D12CommandList* list, int slot)
 {
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
-		if (list->IsGraphicsList())
-		{
-			TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			list->GetCommandList()->SetGraphicsRootDescriptorTable(slot, SRVDesc->GetGPUAddress());//ask the current heap to bind us
-		}
-		else if (list->IsComputeList() || list->IsRaytracingList())
-		{
-			list->GetCommandList()->SetComputeRootDescriptorTable(slot, SRVDesc->GetGPUAddress());
-		}
+		TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
 }
 
@@ -302,7 +289,7 @@ void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 	D = AllocDesc();
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
 	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
-	Device->GetMemoryManager()->AllocTemporary(D, &textureUploadHeap);
+	Device->GetMemoryManager()->AllocUploadTemporary(D, &textureUploadHeap);
 	D3D12Helpers::NameRHIObject(textureUploadHeap, this, "(UPLOAD)");
 
 
@@ -317,58 +304,6 @@ void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 	Device->NotifyWorkForCopyEngine();
 	m_texture->SetName(L"Texture");
 	textureUploadHeap->SetName(L"Upload");
-	// Describe and create a SRV for the texture.
-	UpdateSRV();
-}
-
-void D3D12Texture::UpdateSRV()
-{
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	if (UsingDDSLoad)
-	{
-		srvDesc.Format = format;
-	}
-	else
-	{
-		srvDesc.Format = D3D12Helpers::ConvertFormat(Description.Format);
-	}
-	if (MaxMip != -1)
-	{
-		MipLevelsReadyNow = 1;
-	}
-	if (CurrentTextureType == ETextureType::Type_CubeMap)
-	{
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MipLevels = MipLevelsReadyNow;
-		srvDesc.TextureCube.MostDetailedMip = 0;
-	}
-	else
-	{
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-	}
-
-#if 0
-	//test for streaming data like mips of disc!
-	const int testmip = 8;
-	if (MipLevelsReadyNow > testmip)
-	{
-
-		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow - testmip;
-		srvDesc.Texture2D.MostDetailedMip = testmip;
-	}
-#endif
-	//create descriptor
-	//add to heap
-	if (SRVDesc == nullptr)
-	{
-		SRVDesc = Device->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	}
-
-	SRVDesc->CreateShaderResourceView(m_texture, &srvDesc);
 }
 
 ID3D12Resource * D3D12Texture::GetResource()
@@ -385,12 +320,9 @@ bool D3D12Texture::CheckDevice(int index)
 	return false;
 }
 
-DescriptorGroup * D3D12Texture::GetDescriptor()
-{
-	return SRVDesc;
-}
 
-DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc)
+
+DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc,DescriptorHeap* heap)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
@@ -420,8 +352,12 @@ DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc)
 		srvDesc.Texture2D.MostDetailedMip = 0;
 	}
 	DXDescriptor* output = new DXDescriptor();
-	output = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	
+	if (heap == nullptr)
+	{
+		heap = Device->GetHeapManager()->GetMainHeap();
+	}
+	output = heap->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
 
 	output->CreateShaderResourceView(m_texture, &srvDesc);
 	output->Recreate();
@@ -430,8 +366,5 @@ DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc)
 
 void D3D12Texture::CreateAsNull()
 {
-	//ensure(srvHeap == nullptr);
-	//srvHeap = new DescriptorHeap(Device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
-	//srvHeap->SetName(L"Texture SRV");
-	UpdateSRV();
+
 }

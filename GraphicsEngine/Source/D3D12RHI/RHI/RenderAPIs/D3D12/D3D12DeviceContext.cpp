@@ -11,6 +11,7 @@
 #include "Core/Utils/StringUtil.h"
 #include "DXGPUTextureStreamer.h"
 #include "DescriptorHeap.h"
+#include "DescriptorCache.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -285,6 +286,7 @@ void D3D12DeviceContext::InitDevice(int index)
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
 	HeapManager = new DescriptorHeapManager(this);
+	DescriptorCacheManager = new DescriptorCache(this);
 	// Describe and create the command queue.
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -494,7 +496,8 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	InterGPUSync.MoveNextFrame(SyncIndex);
 	ComputeSync.MoveNextFrame(SyncIndex);
 	CurrentFrameIndex = SyncIndex;
-	GetHeapManager()->GetMainHeap()->ClearHeap();
+	GetHeapManager()->ClearMainHeap();
+	DescriptorCacheManager->OnHeapClear();
 }
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
@@ -527,13 +530,19 @@ void D3D12DeviceContext::SampleVideoMemoryInfo()
 	usedVRAM = CurrentVideoMemoryInfo.CurrentUsage / 1024 / 1024;
 	totalVRAM = CurrentVideoMemoryInfo.Budget / 1024 / 1024;
 	MemoryData.LocalSegment_TotalBytes = CurrentVideoMemoryInfo.Budget;
+	if (GetMemoryManager())
+	{
+		GetMemoryManager()->UpdateTotalAlloc();
+	}
 }
 
 std::string D3D12DeviceContext::GetMemoryReport()
 {
 	std::string output = "VMEM: ";
-	output.append(std::to_string(usedVRAM));
-	output.append("MB / ");
+	output += std::to_string(GetMemoryManager()->GetTotalAllocated()/1024/1024) + "MB ";
+	output.append("(Global " + std::to_string(usedVRAM));
+	output += "MB)";
+	output.append(" / ");
 	output.append(std::to_string(totalVRAM));
 	output.append("MB");
 	return output;
@@ -718,6 +727,11 @@ RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()
 DescriptorHeapManager * D3D12DeviceContext::GetHeapManager()
 {
 	return HeapManager;
+}
+
+DescriptorCache * D3D12DeviceContext::GetDescriptorCache()
+{
+	return DescriptorCacheManager;
 }
 
 D3D12QueryHeap * D3D12DeviceContext::GetTimeStampHeap()

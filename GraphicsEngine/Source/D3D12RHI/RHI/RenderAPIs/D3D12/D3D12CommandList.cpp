@@ -9,10 +9,10 @@
 #include "Rendering/Core/RenderBaseTypes.h"
 #include "DescriptorHeapManager.h"
 #include "DXDescriptor.h"
-#include "DescriptorGroup.h"
 #include "D3D12RHI.h"
 #include "Raytracing/D3D12StateObject.h"
 #include "D3D12Buffer.h"
+#include "DescriptorCache.h"
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else
@@ -143,6 +143,8 @@ void D3D12CommandList::PushPrimitiveTopology()
 	}
 }
 
+
+
 D3D12CommandList::~D3D12CommandList()
 {
 #if AFTERMATH
@@ -208,17 +210,18 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 
 void D3D12CommandList::PrepareforDraw()
 {
+	SCOPE_CYCLE_COUNTER_GROUP("PrepareforDraw", "RHI");
 	PushHeaps();
 	//ClearHeaps();
 	PushPrimitiveTopology();
-#if DESC_CREATE
+
 	for (int i = 0; i < RootSigniture.GetNumBinds(); i++)
 	{
 		const RSBind* bind = RootSigniture.GetBind(i);
 		
 		if (bind->BindType == ERSBindType::Texture && bind->IsBound())
 		{
-			DXDescriptor* desc = D3D12RHI::DXConv(bind->Texture.Get())->GetDescriptor(bind->View);
+			DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 			if (IsGraphicsList())
 			{
 				//TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -231,7 +234,7 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::FrameBuffer && bind->IsBound())
 		{
-			DXDescriptor* desc = D3D12RHI::DXConv(bind->Framebuffer)->GetDescriptor(bind->View);
+			DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 			if (IsGraphicsList())
 			{
 				//TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -249,7 +252,7 @@ void D3D12CommandList::PrepareforDraw()
 			//check(bind->IsBound());
 			if (bind->IsBound())
 			{
-				desc = D3D12RHI::DXConv(bind->BufferTarget)->GetDescriptor(bind->View);
+				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 			}
 			if (IsGraphicsList())
 			{
@@ -268,7 +271,7 @@ void D3D12CommandList::PrepareforDraw()
 			//check(bind->IsBound());
 			if (bind->IsBound())
 			{
-				desc = D3D12RHI::DXConv(bind->TextureArray)->GetDescriptor(bind->View);
+				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 			}
 			if (IsGraphicsList())
 			{
@@ -288,14 +291,7 @@ void D3D12CommandList::PrepareforDraw()
 			if (bind->IsBound())
 			{
 				ensure(bind->View.ViewType != EViewType::Limit);
-				if (bind->BufferTarget)
-				{
-					desc = D3D12RHI::DXConv(bind->BufferTarget)->GetDescriptor(bind->View);
-				}
-				else
-				{
-					desc = D3D12RHI::DXConv(bind->Framebuffer)->GetDescriptor(bind->View);
-				}
+				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 				if (IsGraphicsList())
 				{
 					GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
@@ -307,7 +303,8 @@ void D3D12CommandList::PrepareforDraw()
 			}
 		}
 	}
-#endif
+	//if a resize occurred we need to set the heap to the cmd list again
+	mDeviceContext->GetHeapManager()->RebindHeap(this);
 }
 
 
@@ -668,8 +665,8 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 
 void D3D12CommandList::BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc)
 {
-	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(Buffer);
-	DBuffer->BindSRV(this, slot, Desc);
+	//D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(Buffer);
+	//DBuffer->BindSRV(this, slot, Desc);
 }
 
 void D3D12CommandList::SetDepthBounds(float Min, float Max)
@@ -822,9 +819,13 @@ void D3D12RHITextureArray::SetFrameBufferFormat(const RHIFrameBufferDesc & desc)
 	NullHeapDesc = D3D12FrameBuffer::GetSrvDesc(0, desc);
 }
 
-DXDescriptor * D3D12RHITextureArray::GetDescriptor(const RHIViewDesc & desc)
+DXDescriptor * D3D12RHITextureArray::GetDescriptor(const RHIViewDesc & desc, DescriptorHeap* heap)
 {
-	DXDescriptor* Descriptor = Device->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumEntries);
+	if (heap == nullptr)
+	{
+		heap = Device->GetHeapManager()->GetMainHeap();
+	}
+	DXDescriptor* Descriptor = heap->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumEntries);
 	for (int i = 0; i < NumEntries; i++)
 	{
 		if (i < LinkedBuffers.size() && LinkedBuffers[i] != nullptr)
@@ -840,6 +841,16 @@ DXDescriptor * D3D12RHITextureArray::GetDescriptor(const RHIViewDesc & desc)
 	}
 	Descriptor->Recreate();
 	return Descriptor;
+}
+
+uint64 D3D12RHITextureArray::GetHash()
+{
+	uint64 hash = 0;
+	for (int i = 0; i < LinkedBuffers.size(); i++)
+	{
+		HashUtils::hash_combine(hash, LinkedBuffers[i]);
+	}
+	return hash;
 }
 
 void D3D12RHITextureArray::Release()

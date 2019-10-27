@@ -180,7 +180,7 @@ static inline void ThrowIfFailed(HRESULT hr)
 #if AFTERMATH
 		D3D12RHI::Get()->RunTheAfterMath();
 #endif
-		D3D12RHI::HandleDeviceFailure();
+		//D3D12RHI::HandleDeviceFailure();
 		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }

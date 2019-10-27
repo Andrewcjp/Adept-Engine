@@ -16,11 +16,6 @@ void ShaderBindingTable::RebuildHittableFromScene(Scene* Sc)
 	HitGroups.clear();
 	for (int i = 0; i < Sc->GetMeshObjects().size(); i++)
 	{
-		if (i > 649)
-		{
-			break;
-			float t = 0;
-		}
 		AddObject(Sc->GetMeshObjects()[i]);
 	}
 }

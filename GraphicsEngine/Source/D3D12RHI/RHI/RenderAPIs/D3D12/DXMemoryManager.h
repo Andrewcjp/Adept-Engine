@@ -16,7 +16,7 @@ public:
 	void AddDataPage(int size);
 	~DXMemoryManager();
 
-	EAllocateResult::Type AllocTemporary(AllocDesc & desc, GPUResource** ppResource);
+	EAllocateResult::Type AllocUploadTemporary(AllocDesc & desc, GPUResource** ppResource);
 	EAllocateResult::Type AllocTemporaryGPU(AllocDesc & desc, GPUResource** ppResource);
 	EAllocateResult::Type AllocGeneral(AllocDesc & desc, GPUResource** ppResource);
 	EAllocateResult::Type AllocFrameBuffer(AllocDesc & desc, GPUResource ** ppResource);
@@ -25,6 +25,7 @@ public:
 	void UpdateTotalAlloc();
 	void LogMemoryReport();
 	GPUMemoryPage* FindFreePage(AllocDesc & desc, std::vector<GPUMemoryPage*>& pages);
+	UINT64 GetTotalAllocated()const ;
 private:
 	D3D12DeviceContext* Device = nullptr;
 	//all pages on this device

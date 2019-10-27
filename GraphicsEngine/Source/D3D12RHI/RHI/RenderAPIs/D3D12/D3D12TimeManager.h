@@ -21,7 +21,7 @@ public:
 	D3D12TimeManager(DeviceContext* context);
 	~D3D12TimeManager();
 	void UpdateTimers() override;
-	float ConvertTimeStampToMS(long Time);
+	float ConvertTimeStampToMS(UINT64 Time);
 	void SetTimerName(int index, std::string Name, ECommandListType::Type type = ECommandListType::Graphics) override;
 
 	void StartTotalGPUTimer(RHICommandList * ComandList) override;

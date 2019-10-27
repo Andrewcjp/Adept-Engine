@@ -20,7 +20,7 @@ void D3D12HighLevelAccelerationStructure::Update(RHICommandList* List)
 
 	topLevelBuildDesc.Inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE | D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 	topLevelBuildDesc.Inputs.pGeometryDescs = nullptr;
-	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
+	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetResource()->GetGPUVirtualAddress();
 	topLevelBuildDesc.Inputs.NumDescs = GetValidEntites();
 	topLevelBuildDesc.SourceAccelerationStructureData = m_topLevelAccelerationStructure->GetResource()->GetGPUVirtualAddress();
 	AllocateSpace(topLevelBuildDesc.Inputs.Flags, topLevelBuildDesc.Inputs.NumDescs);
@@ -45,7 +45,7 @@ void D3D12HighLevelAccelerationStructure::Build(RHICommandList* list)
 
 	topLevelBuildDesc.Inputs.NumDescs = GetValidEntites();
 	AllocateSpace(buildFlags, GetValidEntites());
-	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
+	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetResource()->GetGPUVirtualAddress();
 
 	D3D12CommandList* DXList = D3D12RHI::DXConv(list);
 	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&topLevelBuildDesc, 0, nullptr);
@@ -127,18 +127,25 @@ void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
 		instanceDesc.AccelerationStructure = E->GetASResource()->GetGPUVirtualAddress();
 		Descs.push_back(instanceDesc);
 	}
-	if (Descs.size() > 0 && LAstCount != Descs.size())
+	if (Descs.size() == 0)
 	{
-		D3D12Helpers::AllocateUploadBuffer(D3D12RHI::DXConv(Context)->GetDevice(), &Descs[0], sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size(), &instanceDescs, L"InstanceDescs");
+		return;
+	}
+	if (LAstCount != Descs.size())
+	{
+		AllocDesc D = {};
+		D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+		D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size());
+		D.Name = "InstanceDescs";
+		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocUploadTemporary(D, &instanceDescs);
 		LAstCount = Descs.size();
 	}
-	else
-	{
-		/*void *pMappedData;
-		instanceDescs->Map(0, nullptr, &pMappedData);
-		memcpy(pMappedData, &Descs[0], sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size());
-		instanceDescs->Unmap(0, nullptr);*/
-	}
+
+	void *pMappedData;
+	CD3DX12_RANGE readRange(0, 0);
+	instanceDescs->GetResource()->Map(0, &readRange, &pMappedData);
+	memcpy(pMappedData, &Descs[0], sizeof(D3D12_RAYTRACING_INSTANCE_DESC)*Descs.size());
+	instanceDescs->GetResource()->Unmap(0, nullptr);	
 }
 
 void D3D12HighLevelAccelerationStructure::Release()

@@ -23,7 +23,7 @@ public:
 	void InitCBV(int StructSize, int Elementcount = 1);
 	void SetName(LPCWSTR name);
 private:
-	ID3D12Resource * m_constantBuffer;
+	GPUResource * m_constantBuffer;
 	UINT8* m_pCbvDataBegin;
 	int InitalBufferCount = 10;
 	int CB_Size = 0;

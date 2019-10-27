@@ -42,9 +42,9 @@ public:
 	//create shader view
 	bool PendingRemoval = false;
 	bool NeedsUpdate();
+	DescriptorHeap* Owner = nullptr;
 private:
 	
-	DescriptorHeap* Owner = nullptr;
 	int DescriptorCount = 1;
 	//TODO: descriptor in multiple heaps
 	EDescriptorType::Type DescriptorType = EDescriptorType::Limit;

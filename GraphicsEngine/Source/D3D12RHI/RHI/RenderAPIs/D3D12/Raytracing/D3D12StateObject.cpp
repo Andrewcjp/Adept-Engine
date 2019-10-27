@@ -6,14 +6,12 @@
 #include "RHI/RenderAPIs/D3D12/D3D12CommandList.h"
 #include "RHI/RenderAPIs/D3D12/D3D12DeviceContext.h"
 #include "RHI/RenderAPIs/D3D12/D3D12Framebuffer.h"
-#include "RHI/RenderAPIs/D3D12/DescriptorGroup.h"
 #include "RHI/RenderAPIs/D3D12/DescriptorHeapManager.h"
 #include "RHI/RenderAPIs/D3D12/ThirdParty/DXRHelper.h"
 #include "Rendering/Shaders/Raytracing/Reflections/Shader_ReflectionRaygen.h"
 #include "../GPUResource.h"
 #include "../DXDescriptor.h"
 #include "../DXMemoryManager.h"
-//#pragma  optimize("",off)
 #if WIN10_1809
 D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :RHIStateObject(D, desc)
 {
@@ -184,7 +182,7 @@ void D3D12StateObject::BuildShaderTables()
 		desc.Size = sbtSize;
 		desc.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
 		desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, D3D12_RESOURCE_FLAG_NONE);
-		D3D12RHI::DXConv(Device)->GetMemoryManager()->AllocTemporary(desc, &SBTData);
+		D3D12RHI::DXConv(Device)->GetMemoryManager()->AllocUploadTemporary(desc, &SBTData);
 		m_sbtStorage = SBTData->GetResource();
 	}
 	StateObject->QueryInterface(IID_PPV_ARGS(&props));
@@ -208,7 +206,6 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Po
 		else if (bind->BindType == ERSBindType::BufferSRV)
 		{
 			D3D12Buffer* DTex = D3D12RHI::DXConv(bind->BufferTarget);
-			DTex->SetupBufferSRV();
 			DXDescriptor* d = DTex->GetDescriptor(bind->View);
 			UINT64 Ptr = d->GetGPUAddress().ptr;
 			auto heapPointer = reinterpret_cast<UINT64*>(Ptr);

@@ -6,7 +6,6 @@
 #include "GPUResource.h"
 #include "DXDescriptor.h"
 #include "DescriptorHeapManager.h"
-#include "DescriptorGroup.h"
 #include "D3D12InterGPUStagingResource.h"
 #include "DXMemoryManager.h"
 #define CUBE_SIDES 6
@@ -223,11 +222,6 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	//}
 }
 
-DescriptorGroup * D3D12FrameBuffer::GetDescriptor()
-{
-	return SRVDesc;
-}
-
 //void D3D12FrameBuffer::RequestSRV(const RHIViewDesc & desc)
 //{
 //	SRVRequest Req;
@@ -366,9 +360,13 @@ void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Ty
 	CurrentState = State;
 }
 
-DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc)
+DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc, DescriptorHeap* heap)
 {
-	DXDescriptor* Descriptor = CurrentDevice->GetHeapManager()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+	if (heap == nullptr)
+	{
+		heap = CurrentDevice->GetHeapManager()->GetMainHeap();
+	}
+	DXDescriptor* Descriptor = heap->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 	if (desc.ViewType == EViewType::SRV)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC d = GetSrvDesc(desc.Resource);
@@ -656,35 +654,8 @@ void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, i
 
 void D3D12FrameBuffer::BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex, DeviceContext* target, bool isCompute)
 {
+	//ReadyResourcesForRead(list, Resourceindex);
 	lastboundslot = slot;
-	if (isCompute)
-	{
-		if (Resourceindex == -1)
-		{
-			list->SetComputeRootDescriptorTable(slot, SRVDesc->GetGPUAddress(BufferDesc.RenderTargetCount));
-		}
-		else
-		{
-			list->SetComputeRootDescriptorTable(slot, SRVDesc->GetGPUAddress(Resourceindex));
-		}
-	}
-	else
-	{
-		ReadyResourcesForRead(list, Resourceindex);
-		list->SetGraphicsRootDescriptorTable(slot, SRVDesc->GetGPUAddress(Resourceindex));
-	}
-}
-
-void D3D12FrameBuffer::BindSRV(D3D12CommandList * List, int slot, RHIViewDesc SRV)
-{
-	for (int i = 0; i < RequestedSRVS.size(); i++)
-	{
-		if (SRV == RequestedSRVS[i].Desc)
-		{
-			List->GetCommandList()->SetComputeRootDescriptorTable(slot, RequestedSRVS[i].Descriptor->GetGPUAddress(0));
-			return;
-		}
-	}
 }
 
 void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex)

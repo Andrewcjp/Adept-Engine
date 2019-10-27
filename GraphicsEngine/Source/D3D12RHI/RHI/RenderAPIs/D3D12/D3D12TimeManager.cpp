@@ -127,7 +127,7 @@ void D3D12TimeManager::UpdateTimers()
 #endif
 }
 
-float D3D12TimeManager::ConvertTimeStampToMS(long Time)
+float D3D12TimeManager::ConvertTimeStampToMS(UINT64 Time)
 {
 	UINT64 Delta = Time;
 	return  (float)(Delta * 1000 / m_directCommandQueueTimestampFrequencies);
@@ -300,8 +300,8 @@ void D3D12TimeManager::TimerQ::Resolve(UINT64 freqnecy)
 			{
 				continue;//drop invalid data
 			}
-			float time = Delta * 1000 / (double)freqnecy;
-			TotalTime += time;
+			double time = Delta * 1000 / (double)freqnecy;
+			TotalTime += (float)time;
 		}
 	}
 }

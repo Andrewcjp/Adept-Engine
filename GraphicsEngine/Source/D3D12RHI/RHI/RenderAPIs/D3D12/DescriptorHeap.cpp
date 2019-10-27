@@ -59,18 +59,21 @@ void DescriptorHeap::SetName(LPCWSTR name)
 }
 
 void DescriptorHeap::BindHeap_Old(ID3D12GraphicsCommandList * list)
-{	
+{
 	//return;
 	ID3D12DescriptorHeap* ppHeaps[] = { mHeap };
 	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 }
 
-void DescriptorHeap::AddDescriptor(DXDescriptor * desc)
+void DescriptorHeap::AddDescriptor(DXDescriptor* desc, bool Create /*= true*/)
 {
 	//validate type.
 	desc->indexInHeap = GetNextFreeIndex();
 	desc->SetOwner(this);
-	desc->Recreate();
+	if (Create)
+	{
+		desc->Recreate();
+	}
 	ContainedDescriptors.push_back(desc);
 }
 
@@ -133,8 +136,29 @@ void DescriptorHeap::ClearHeap()
 	ContainedDescriptors.clear();
 }
 
+DXDescriptor* DescriptorHeap::CopyToHeap(DXDescriptor * desc)
+{
+	DXDescriptor* Copy = AllocateDescriptor(desc->GetType(), desc->GetSize());
+	Device->GetDevice()->CopyDescriptorsSimple(desc->GetSize(), Copy->GetCPUAddress(), desc->GetCPUAddress(), srvHeapDesc.Type);
+	return Copy;
+}
+
+DXDescriptor* DescriptorHeap::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size)
+{
+	if (GetNextFreeIndex() + size >= GetMaxSize())
+	{
+		ensure(false);
+	}
+	DXDescriptor* D = new DXDescriptor();
+	D->Init(type, this, size);
+	AddDescriptor(D, false);
+	return D;
+}
+
 void DescriptorHeap::BindHeap(D3D12CommandList * list)
 {
+	//#todo: sampler heaps
+	list->ClearHeaps();
 	list->AddHeap(this);
 	list->PushHeaps();
 
