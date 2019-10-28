@@ -42,7 +42,7 @@ void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 				//#todo check node state valid for node
 				if (Lastnode->GetNodeQueueType() != ENodeQueueType::Graphics)
 				{
-					continue;
+					//continue;
 				}
 				NodeLink* TargetLink = output->StoreLink;
 				if (TargetLink == nullptr)
@@ -56,6 +56,10 @@ void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 				}
 				else
 				{
+					if (Node->IsComputeNode() || TargetLink->OwnerNode->IsComputeNode())
+					{
+						continue;
+					}
 					ResourceTransition T;
 					T.TargetState = output->ResourceState;
 					T.Target = output;

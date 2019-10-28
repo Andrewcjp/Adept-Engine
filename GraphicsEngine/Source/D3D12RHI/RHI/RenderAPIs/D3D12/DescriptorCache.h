@@ -9,6 +9,8 @@ class DescriptorCache
 public:
 	DescriptorCache(D3D12DeviceContext* con);
 	void OnHeapClear();
+	void Invalidate();
+	void RemoveInvalidCaches();
 	~DescriptorCache();
 
 	uint64 GetHash(const RSBind * bind);
@@ -23,8 +25,13 @@ public:
 
 	DXDescriptor* GetOrCreate(const RSBind* bind);
 private:
+	struct DescriptorRef
+	{
+		int LastUsedFrame = 0;
+		DXDescriptor* desc = nullptr;
+	};
 	DescriptorHeap* CacheHeap = nullptr;
-	std::map<uint64, DXDescriptor*> TextureMap[ERSBindType::Limit];
+	std::map<uint64, DescriptorRef> DescriptorMap[ERSBindType::Limit];
 	D3D12DeviceContext* Device = nullptr;
 	const char* TimerName = "Cpy Desc";
 	const char* ReuseTimer = "Reuse Desc";

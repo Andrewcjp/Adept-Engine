@@ -1,4 +1,4 @@
- #include "D3D12Framebuffer.h"
+#include "D3D12Framebuffer.h"
 #include "Core/Performance/PerfManager.h"
 #include "D3D12CommandList.h"
 #include "D3D12DeviceContext.h"
@@ -68,7 +68,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetInd
 	return GetSrvDesc(RenderTargetIndex, BufferDesc);
 }
 
-D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetIndex,const RHIFrameBufferDesc& desc)
+D3D12_SHADER_RESOURCE_VIEW_DESC D3D12FrameBuffer::GetSrvDesc(int RenderTargetIndex, const RHIFrameBufferDesc& desc)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC shadowSrvDesc = {};
 	if (desc.RenderTargetCount > 2)
@@ -142,7 +142,7 @@ bool D3D12FrameBuffer::IsReadyForCompute() const
 {
 	if (RenderTarget[0] != nullptr)
 	{
-		return RenderTarget[0]->GetCurrentState() == D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		return RenderTarget[0]->GetCurrentState() & D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	}
 	return false;
 }
@@ -346,7 +346,7 @@ void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Ty
 			SetState(List, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, true);
 			break;
 		case EResourceState::ComputeUse:
-			SetState(List, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, ChangeDepth);
+			SetState(List, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, ChangeDepth);
 			break;
 		case EResourceState::UAV:
 			SetState(List, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, ChangeDepth);
@@ -545,7 +545,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 
 		}
 
-		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT)");
+		D3D12Helpers::NameRHIObject(NewResource, this, "(FB RT) fmt " + std::to_string(Format) + " MRT" + std::to_string(OffsetInHeap));
 	}
 #if ALLOW_RESOURCE_CAPTURE
 	new D3D12ReadBackCopyHelper(CurrentDevice, *Resourceptr);

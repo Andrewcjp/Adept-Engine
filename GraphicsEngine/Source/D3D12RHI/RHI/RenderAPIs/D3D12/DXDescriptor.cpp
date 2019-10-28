@@ -108,3 +108,8 @@ bool DXDescriptor::NeedsUpdate()
 	return Data[0].NeedsUpdate;
 }
 
+bool DXDescriptor::IsTargetValid() const
+{
+	return Data[0].TargetResource;
+}
+

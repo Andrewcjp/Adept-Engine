@@ -43,6 +43,7 @@ public:
 	bool PendingRemoval = false;
 	bool NeedsUpdate();
 	DescriptorHeap* Owner = nullptr;
+	bool IsTargetValid() const;
 private:
 	
 	int DescriptorCount = 1;

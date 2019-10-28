@@ -11,7 +11,7 @@
 DescriptorHeapManager::DescriptorHeapManager(D3D12DeviceContext* d)
 {
 	Device = d;
-	AllocateMainHeap(512);//resize broken
+	AllocateMainHeap(20*1024);//resize broken
 	PerfManager::Get()->AddTimer(TimerName, "RHI");
 }
 void DescriptorHeapManager::AllocateMainHeap(int size)

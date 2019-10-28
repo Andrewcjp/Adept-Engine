@@ -11,6 +11,7 @@
 #include "../StoreNodes/ShadowAtlasStorageNode.h"
 #include "Core/BaseWindow.h"
 #include "Core/EngineTypes.h"
+#include "../../Core/FrameBuffer.h"
 
 RayTraceReflectionsNode::RayTraceReflectionsNode()
 {

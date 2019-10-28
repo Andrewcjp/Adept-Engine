@@ -45,20 +45,17 @@ void LightCullingEngine::Init(CullingManager * m)
 }
 
 
-void LightCullingEngine::LaunchCullingForScene(EEye::Type Eye)
+void LightCullingEngine::LaunchCullingForScene(RHICommandList* list, EEye::Type Eye)
 {
-	return;
-	RHICommandList* list = CullingList[Eye];
-	list->ResetList();
+
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_LightCull>());
 	list->SetPipelineStateDesc(desc);
-	//list->SetUAV(LightCullingBuffer, "DstTexture");
+	list->SetUAV(LightCullingBuffer, "DstTexture");
 	SceneRenderer::Get()->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
 	SceneRenderer::Get()->BindMvBuffer(list, desc.ShaderInUse->GetSlotForName("CameraData"));
-	LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
+	//LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
+	list->SetBuffer(LightDataBuffer, "LightList");
 	list->Dispatch(GetLightGridDim().x, GetLightGridDim().y, 1);
-	list->Execute();
-	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
 glm::ivec2 LightCullingEngine::GetLightGridDim()

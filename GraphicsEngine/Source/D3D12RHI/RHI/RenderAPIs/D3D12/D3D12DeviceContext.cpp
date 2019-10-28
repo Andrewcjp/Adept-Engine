@@ -498,6 +498,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	CurrentFrameIndex = SyncIndex;
 	GetHeapManager()->ClearMainHeap();
 	DescriptorCacheManager->OnHeapClear();
+	//DescriptorCacheManager->Invalidate();
 }
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()

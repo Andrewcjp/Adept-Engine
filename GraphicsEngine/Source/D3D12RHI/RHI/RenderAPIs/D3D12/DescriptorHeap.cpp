@@ -125,7 +125,7 @@ D3D12DeviceContext * DescriptorHeap::GetDevice()
 
 void DescriptorHeap::RemoveDescriptor(DXDescriptor * desc)
 {
-	//VectorUtils::Remove(ContainedDescriptors, desc);
+	VectorUtils::Remove(ContainedDescriptors, desc);
 	desc->PendingRemoval = true;
 	//#Descriptors: handle defragmentation of descriptor heaps.
 }

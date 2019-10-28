@@ -260,6 +260,7 @@ void ShadowRenderer::RenderShadowMap_CPU(Light* LightPtr, RHICommandList * list,
 		SceneRenderer::Get()->MeshController->RenderPass(ERenderPass::DepthOnly, list, TargetShader);
 	}
 	list->EndRenderPass();
+	TargetBuffer->MakeReadyForComputeUse(list, true);
 }
 
 void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list)

@@ -89,6 +89,7 @@ void Shader_EnvMap::ComputeEnvBRDF()
 	CmdList->SetConstantBufferView(ShaderData, 0, 0);
 	QuadDraw->RenderScreenQuad(CmdList);
 	CmdList->EndRenderPass();
+	EnvBRDFBuffer->SetResourceState(CmdList, EResourceState::PixelShader);
 	CmdList->Execute();
 }
 

@@ -9,7 +9,7 @@ public:
 	LightCullingEngine();
 	~LightCullingEngine();
 	void Init(CullingManager* m);
-	void LaunchCullingForScene(EEye::Type Eye);
+	void LaunchCullingForScene(RHICommandList* list, EEye::Type Eye);
 	static glm::ivec2 GetLightGridDim();
 	void WaitForCulling(RHICommandList* list);
 	void BindLightBuffer(RHICommandList* list, bool deferred = false);
