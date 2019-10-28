@@ -6,6 +6,7 @@
 #include "D3D12DeviceContext.h"
 #include "DescriptorHeap.h"
 #include "Core\Performance\PerfManager.h"
+#include "Rendering\Core\FrameBuffer.h"
 #define ENABLE_CACHE 1
 
 DescriptorCache::DescriptorCache(D3D12DeviceContext* con)
@@ -19,6 +20,39 @@ DescriptorCache::DescriptorCache(D3D12DeviceContext* con)
 void DescriptorCache::OnHeapClear()
 {
 	DescriptorsInHeap.clear();
+	//RemoveInvalidCaches();
+}
+
+void DescriptorCache::Invalidate()
+{
+	for (int i = 0; i < ERSBindType::Limit; i++)
+	{
+		DescriptorMap[i].clear();
+	}
+	CacheHeap->ClearHeap();
+}
+
+void DescriptorCache::RemoveInvalidCaches()
+{
+	//this is removing items wrong
+	//possible - Heap is overwriting
+	//todo optimise;
+	return;
+	for (int i = 0; i < ERSBindType::Limit; i++)
+	{
+		for (auto itor = DescriptorMap[i].begin(); itor != DescriptorMap[i].end();)
+		{
+			if (itor->second.LastUsedFrame + 50 < RHI::GetFrameCount())
+			{
+				CacheHeap->RemoveDescriptor(itor->second.desc);
+				DescriptorMap[i].erase(itor++);    // or "it = m.erase(it)" since C++11
+			}
+			else
+			{
+				++itor;
+			}
+		}
+	}
 }
 
 DescriptorCache::~DescriptorCache()
@@ -34,6 +68,11 @@ uint64 DescriptorCache::GetHash(const RSBind* bind)
 		HashUtils::hash_combine(hash, path);
 	}
 	HashUtils::hash_combine(hash, bind->Framebuffer);
+	if (bind->BindType == ERSBindType::FrameBuffer)
+	{
+		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetDescription().Width);
+		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetDescription().Height);
+	}
 	HashUtils::hash_combine(hash, bind->BufferTarget);
 	HashUtils::hash_combine(hash, bind->TextureArray);
 	if (bind->BindType == ERSBindType::TextureArray)
@@ -52,10 +91,11 @@ uint64 DescriptorCache::GetHash(const RSBind* bind)
 
 bool DescriptorCache::FindInCache(uint64 hash, DXDescriptor** desc, ERSBindType::Type type)
 {
-	auto itor = TextureMap[type].find(hash);
-	if (itor != TextureMap[type].end())
+	auto itor = DescriptorMap[type].find(hash);
+	if (itor != DescriptorMap[type].end())
 	{
-		*desc = itor->second;
+		*desc = itor->second.desc;
+		itor->second.LastUsedFrame = RHI::GetFrameCount();
 		return true;
 	}
 	return false;
@@ -79,6 +119,7 @@ bool DescriptorCache::ShouldCache(const RSBind* bind)
 {
 	return true;
 }
+
 DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 {
 	if (bind->BindType == ERSBindType::Texture)
@@ -127,7 +168,10 @@ DXDescriptor * DescriptorCache::GetOrCreate(const RSBind * bind)
 		return CopyToCurrentHeap(Desc);
 	}
 	Desc = Create(bind, CacheHeap);
-	TextureMap[bind->BindType].emplace(hash, Desc);
+	DescriptorRef ref;
+	ref.LastUsedFrame = RHI::GetFrameCount();
+	ref.desc = Desc;
+	DescriptorMap[bind->BindType].emplace(hash, ref);
 	Desc = CopyToCurrentHeap(Desc, false);
 	return Desc;
 }

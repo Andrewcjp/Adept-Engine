@@ -73,6 +73,7 @@ void Shader_Convolution::ComputeConvolution(BaseTextureRef Target, FrameBuffer* 
 		Cube->Render(CmdList);
 	}
 	CmdList->EndRenderPass();
+	Buffer->SetResourceState(CmdList, EResourceState::PixelShader);
 	CmdList->Execute();
 }
 

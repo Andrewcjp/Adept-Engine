@@ -14,6 +14,7 @@
 #include "Raytracing/D3D12StateObject.h"
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
+#include "DescriptorCache.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly, false);
@@ -25,7 +26,7 @@ D3D12RHI::D3D12RHI()
 {
 	Instance = this;
 	//ForceGPUIndex.SetValue(1);
-	//ForceSingleGPU.SetValue(true);
+	ForceSingleGPU.SetValue(true);
 	//ForceNoDebug.SetValue(true);
 	//AllowWarp.SetValue(true);
 	EnableDred.SetValue(true);
@@ -471,6 +472,13 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 		CreateDepthStencil(x, y);
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 		ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
+	}
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		if (DeviceContexts[i] != nullptr)
+		{
+			DeviceContexts[i]->GetDescriptorCache()->Invalidate();
+		}
 	}
 }
 #if AFTERMATH

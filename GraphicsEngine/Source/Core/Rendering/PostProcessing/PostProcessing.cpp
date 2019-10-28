@@ -14,6 +14,7 @@ PostProcessing* PostProcessing::Instance = nullptr;
 void PostProcessing::StartUp()
 {
 	Instance = new PostProcessing();
+	Instance->Init(nullptr);
 }
 
 void PostProcessing::ShutDown()
@@ -76,7 +77,7 @@ void PostProcessing::Init(FrameBuffer* Target)
 {
 	
 
-	ColourCorrect = new PP_ColourCorrect();
+	/*ColourCorrect = new PP_ColourCorrect();
 	ColourCorrect->SetUpData();
 	ColourCorrect->InitEffect(Target);
 
@@ -90,11 +91,11 @@ void PostProcessing::Init(FrameBuffer* Target)
 
 	SSAO = new PP_SSAO();
 	SSAO->SetUpData();
-	SSAO->InitEffect(Target);
+	SSAO->InitEffect(Target);*/
 	Debug = new PP_Debug();
 	Debug->SetUpData();
 	Debug->InitEffect(Target);
-	AddEffect(Debug);
+	//AddEffect(Debug);
 
 	//AddEffect(SSAO);
 

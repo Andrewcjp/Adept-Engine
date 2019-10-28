@@ -52,6 +52,7 @@ void DeferredLightingNode::OnExecute()
 	if (UseScreenSpaceReflection)
 	{
 		FrameBuffer* ScreenSpaceData = GetFrameBufferFromInput(4);
+		ScreenSpaceData->SetResourceState(List, EResourceState::PixelShader);
 		List->SetFrameBufferTexture(ScreenSpaceData, DeferredLightingShaderRSBinds::ScreenSpecular);
 	}
 
@@ -85,14 +86,15 @@ void DeferredLightingNode::OnExecute()
 #endif
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
 	SetEndStates(List);
+	//	GBuffer->SetResourceState(List, EResourceState::ComputeUse);
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
 	GetOutput(0)->SetStore(GetInput(1)->GetStoreTarget());
-}
+	}
 
 void DeferredLightingNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::GBufferData, "GBuffer");
 	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Main buffer");
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadow Maps");

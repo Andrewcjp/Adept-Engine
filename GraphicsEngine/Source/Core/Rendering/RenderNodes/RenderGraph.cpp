@@ -28,6 +28,7 @@
 #include "Nodes/InterGPUCopyNode.h"
 #include "Nodes/SubmitToHMDNode.h"
 #include "RenderGraphProcessor.h"
+#include "Nodes/LightCullingNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -214,7 +215,13 @@ void RenderGraph::CreateDefTestgraph()
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
 	ParticleSimulateNode* ParticleSimNode = new ParticleSimulateNode();
 
+#if 0
+	LightCullingNode* LightCull = new LightCullingNode();
+	LinkNode(UpdateProbesNode,LightCull);
+	LinkNode(LightCull, ParticleSimNode);
+#else
 	LinkNode(UpdateProbesNode, ParticleSimNode);
+#endif	
 	LinkNode(ParticleSimNode, LightNode);
 
 	LightNode->GetInput(0)->SetLink(WriteNode->GetOutput(0));
