@@ -8,6 +8,7 @@
 #include "DescriptorHeapManager.h"
 #include "D3D12InterGPUStagingResource.h"
 #include "DXMemoryManager.h"
+#include "GPUMemoryPage.h"
 #define CUBE_SIDES 6
 
 void D3D12FrameBuffer::CreateSRVHeap(int Num)
@@ -382,6 +383,7 @@ DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc, Descrip
 	}
 	else
 	{
+		ensureMsgf(BufferDesc.AllowUnorderedAccess, "Attempt to create a UAV on a framebuffer without AllowUnorderedAccess set");
 		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 		//DX12: TODO handle UAv dimentions 
 		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
@@ -397,6 +399,14 @@ DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc, Descrip
 	}
 	Descriptor->Recreate();
 	return Descriptor;
+}
+
+uint64 D3D12FrameBuffer::GetInstanceHash() const
+{
+	uint64 hash = 0;
+	HashUtils::hash_combine(hash, RenderTarget[0]);
+	HashUtils::hash_combine(hash, DepthStencil);
+	return hash;
 }
 
 D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc) :FrameBuffer(device, Desc)
@@ -461,7 +471,10 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	ResourceDesc.Flags = (IsDepthStencil ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 	if (!IsDepthStencil)
 	{
-		ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		if (BufferDesc.AllowUnorderedAccess)
+		{
+			ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		}
 		ResourceDesc.MipLevels = BufferDesc.MipCount;
 	}
 	else
@@ -481,10 +494,11 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	}
 	if (BufferDesc.AllowDynamicResize)
 	{
-		D3D12_RESOURCE_ALLOCATION_INFO info = D3D12Helpers::GetResourceSizeData(m_width, m_height, Format, D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D, IsDepthStencil);
-		ResourceDesc.Alignment = info.Alignment;
-		CurrentDevice->GetDevice()->CreatePlacedResource(DynamicHeap, OffsetInPlacedHeap, &ResourceDesc, ResourceState, &ClearValue, IID_PPV_ARGS(&NewResource));
-		OffsetInPlacedHeap += D3D12Helpers::Align(info.SizeInBytes);
+		AllocDesc Desc = AllocDesc(0, ResourceState, ResourceDesc.Flags, "FB");
+		Desc.ClearValue = ClearValue;
+		Desc.ResourceDesc = ResourceDesc;
+		ReservedPage->Allocate(Desc, Resourceptr);
+		NewResource = (*Resourceptr)->GetResource();
 	}
 	else
 	{
@@ -590,7 +604,7 @@ void D3D12FrameBuffer::Init()
 		DSVHeap = new DescriptorHeap(CurrentDevice, Descriptorcount, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 		NAME_RHI_OBJ(DSVHeap);
 	}
-	if (BufferDesc.AllowDynamicResize && DynamicHeap == nullptr)
+	if (BufferDesc.AllowDynamicResize && ReservedPage == nullptr)
 	{
 		//#DX12: add Check for out of size resource
 		// Determine how much memory is required for our resource type
@@ -608,19 +622,9 @@ void D3D12FrameBuffer::Init()
 				D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D /*D3D12Helpers::ConvertDimensionRTV(BufferDesc.Dimension)*/, true);
 			Size += (info.SizeInBytes);
 		}
-		D3D12_HEAP_DESC desc = {};
-		{
-			// To avoid wasting memory SizeInBytes should be 
-			// multiples of the effective alignment [Microsoft 2018a]
-			desc.SizeInBytes = Size;
-			desc.Alignment = 0;
-			desc.Properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);;
-			desc.Flags = D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
-
-			CurrentDevice->GetDevice()->CreateHeap(&desc, IID_PPV_ARGS(&DynamicHeap));
-		}
+		ReservedPage = D3D12RHI::DXConv(Device)->GetMemoryManager()->AddFrameBufferPage(Size, true);
 	}
-	OffsetInPlacedHeap = 0;
+
 	if (BufferDesc.NeedsDepthStencil)
 	{
 		CreateResource(&DepthStencil, DSVHeap, true, D3D12Helpers::ConvertFormat(BufferDesc.DepthFormat), BufferDesc.Dimension);

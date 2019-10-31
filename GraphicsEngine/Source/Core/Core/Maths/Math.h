@@ -26,5 +26,10 @@ public:
 		return AMT * PowValue;
 	}
 
+	template<class T>
+	static T UDelta(const T& a, const T& b)
+	{
+		return (a > b) ? (a - b) : (b - a);
+	}
 };
 

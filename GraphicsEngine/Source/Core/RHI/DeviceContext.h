@@ -82,7 +82,7 @@ public:
 
 	RHI_API virtual void ResetDeviceAtEndOfFrame() = 0;
 	RHI_API virtual void SampleVideoMemoryInfo() = 0;
-	RHI_API virtual std::string GetMemoryReport() = 0;
+	RHI_API virtual RHIClass::GPUMemoryData GetMemoryReport() = 0;
 	RHI_API virtual void DestoryDevice() = 0;
 	RHI_API virtual void WaitForGpu() = 0;
 	RHI_API virtual void WaitForCopy() = 0;

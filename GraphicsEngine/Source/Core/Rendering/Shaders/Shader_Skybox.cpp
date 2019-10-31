@@ -54,7 +54,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 	desc.Cull = false;
 	desc.DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
 	desc.ShaderInUse = this;
-	desc.FrameBufferTarget = Buffer;
+	desc.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 	if (DepthSourceBuffer != nullptr)
 	{
 		desc.RenderTargetDesc = Buffer->GetPiplineRenderDesc();

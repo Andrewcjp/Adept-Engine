@@ -300,14 +300,16 @@ struct ERenderPassLoadOp
 	};
 };
 
-//#RHI remove this?
+
 struct RHI_API RHIPipeRenderTargetDesc
 {
 	eTEXTURE_FORMAT RTVFormats[8] = { eTEXTURE_FORMAT::FORMAT_UNKNOWN };
 	eTEXTURE_FORMAT DSVFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
 	int NumRenderTargets = 0;
 	bool operator==(const RHIPipeRenderTargetDesc other) const;
+	static RHIPipeRenderTargetDesc GetDefault();
 };
+
 enum TMP_BlendMode
 {
 	Text,
@@ -378,7 +380,6 @@ struct  RHIPipeLineStateDesc
 {
 	//Hold both root signature and shader blobs
 	Shader* ShaderInUse = nullptr;
-	FrameBuffer* FrameBufferTarget = nullptr;
 	void InitOLD(bool Depth, bool shouldcull, bool Blend);
 	bool Cull = true;
 	bool Blending = false;
@@ -397,13 +398,7 @@ struct  RHIPipeLineStateDesc
 	RHI_API size_t GetHash();
 	RHI_API void CalulateHash();
 	RHI_API bool operator==(const RHIPipeLineStateDesc other)const;
-	static RHIPipeLineStateDesc CreateDefault(Shader* shader, FrameBuffer* FB = nullptr)
-	{
-		RHIPipeLineStateDesc desc;
-		desc.ShaderInUse = shader;
-		desc.FrameBufferTarget = FB;
-		return desc;
-	}
+	static RHIPipeLineStateDesc CreateDefault(Shader* shader, FrameBuffer* FB = nullptr);
 	RHI_API void Build();
 	RHI_API std::string GetString();
 	class RHIRenderPass* RenderPass = nullptr;

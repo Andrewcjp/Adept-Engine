@@ -26,7 +26,7 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 		ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, IID_PPV_ARGS(&Libreflect)));
 		Libreflect->GetDesc(&LDesc);
 
-		for (int i = 0; i < LDesc.FunctionCount; i++)
+		for (uint i = 0; i < LDesc.FunctionCount; i++)
 		{
 			ID3D12FunctionReflection* PL = Libreflect->GetFunctionByIndex(i);
 			RelfectShaderFromLib(PL, shaderbinds);

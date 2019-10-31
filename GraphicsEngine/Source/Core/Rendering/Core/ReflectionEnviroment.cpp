@@ -74,7 +74,7 @@ void ReflectionEnviroment::RenderCubemap(ReflectionProbe * Map, RHICommandList* 
 	commandlist->ClearFrameBuffer(Map->CapturedTexture);
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader(), Map->CapturedTexture);
 	commandlist->SetPipelineStateDesc(Desc);
-	SceneRenderer::Get()->SetupBindsForForwardPass(commandlist, 0);
+	SceneRenderer::Get()->SetupBindsForForwardPass(commandlist, 0, Map->CapturedTexture);
 	for (int i = 0; i < CUBE_SIDES; i++)
 	{
 		commandlist->SetPipelineStateDesc(Desc);

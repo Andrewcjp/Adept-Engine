@@ -82,7 +82,7 @@ public:
 	static void InitialiseContext();
 	void ValidateSettings();
 	static void InitialiseContextWindow(int w, int h);
-	static std::string ReportMemory();
+	static std::string ReportMemory(bool all = false);
 	static void RHISwapBuffers();
 	static void RHIRunFirstFrame();
 	static void SetFullScreenState(bool state);
@@ -163,6 +163,17 @@ private:
 class RHI_API RHIClass
 {
 public:
+	struct GPUMemoryData
+	{
+		uint64_t TotalAllocated = 0;
+		uint64_t UntrackedDelta = 0;
+		uint64_t MaxBudget = 0;
+		uint64_t MaxPhysical = 0;
+	};
+	struct GPUMemoryReport
+	{
+		std::vector<GPUMemoryData> GpuData;
+	};
 	RHI_VIRTUAL bool InitRHI() = 0;
 	RHI_VIRTUAL bool InitWindow(int w, int h) = 0;
 	RHI_VIRTUAL bool DestoryRHI() = 0;
@@ -181,7 +192,7 @@ public:
 	RHI_VIRTUAL void ResizeSwapChain(int width, int height) = 0;
 	RHI_VIRTUAL void WaitForGPU() = 0;
 	RHI_VIRTUAL void TriggerBackBufferScreenShot() = 0;
-	RHI_VIRTUAL std::string ReportMemory() = 0;
+	RHI_VIRTUAL GPUMemoryReport ReportMemory() = 0;
 	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) = 0;
 	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) = 0;
 #if ALLOW_RESOURCE_CAPTURE

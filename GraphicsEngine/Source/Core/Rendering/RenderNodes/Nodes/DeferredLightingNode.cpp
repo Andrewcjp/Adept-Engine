@@ -38,7 +38,7 @@ void DeferredLightingNode::OnExecute()
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = DeferredShader;
-	desc.FrameBufferTarget = MainBuffer;
+	desc.RenderTargetDesc = MainBuffer->GetPiplineRenderDesc();
 	List->SetPipelineStateDesc(desc);
 
 	RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, ERenderPassLoadOp::Clear);

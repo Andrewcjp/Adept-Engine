@@ -1,6 +1,6 @@
 #include "D3D12Types.h"
 
-AllocDesc::AllocDesc(UINT size, D3D12_RESOURCE_STATES State, D3D12_RESOURCE_FLAGS flags, const std::string& name, EGPUMemorysegment::Type seg)
+AllocDesc::AllocDesc(UINT64 size, D3D12_RESOURCE_STATES State, D3D12_RESOURCE_FLAGS flags, const std::string& name, EGPUMemorysegment::Type seg)
 {
 	Size = size;
 	InitalState = State;

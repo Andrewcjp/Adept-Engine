@@ -79,6 +79,7 @@ struct DeviceMemoryData
 {
 	UINT64 LocalSegment_TotalBytes = 0;
 	UINT64 HostSegment_TotalBytes = 0;
+	UINT64 Local_Usage = 0;
 };
 class D3D12TimeManager;
 class DescriptorHeapManager;
@@ -100,7 +101,7 @@ public:
 	//RHI
 	void ResetDeviceAtEndOfFrame();
 	void SampleVideoMemoryInfo();
-	std::string GetMemoryReport();
+	RHIClass::GPUMemoryData  GetMemoryReport();
 	void DestoryDevice();
 	void WaitForGpu();
 	void WaitForCopy();

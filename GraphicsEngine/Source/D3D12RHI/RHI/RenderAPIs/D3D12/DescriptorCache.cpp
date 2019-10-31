@@ -72,6 +72,7 @@ uint64 DescriptorCache::GetHash(const RSBind* bind)
 	{
 		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetDescription().Width);
 		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetDescription().Height);
+		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetInstanceHash());
 	}
 	HashUtils::hash_combine(hash, bind->BufferTarget);
 	HashUtils::hash_combine(hash, bind->TextureArray);

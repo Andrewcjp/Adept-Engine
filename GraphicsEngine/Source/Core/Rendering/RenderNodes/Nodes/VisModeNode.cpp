@@ -73,7 +73,7 @@ void VisModeNode::RenderGBufferModes(ERenderDebugOutput::Type currentDebugType)
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = ShaderComplier::GetShader<Shader_DebugOutput>();
-	desc.FrameBufferTarget = FB;
+	desc.RenderTargetDesc = FB->GetPiplineRenderDesc();
 	DebugList->SetPipelineStateDesc(desc);
 	DebugList->BeginRenderPass(RHIRenderPassDesc(FB, ERenderPassLoadOp::Clear));
 	int VisAlpha = 0;

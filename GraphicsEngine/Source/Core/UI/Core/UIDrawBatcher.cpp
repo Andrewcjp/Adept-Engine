@@ -22,6 +22,7 @@ void UIDrawBatcher::Init()
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = Shader;
+	desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 	commandlist->SetPipelineStateDesc(desc);
 }
 

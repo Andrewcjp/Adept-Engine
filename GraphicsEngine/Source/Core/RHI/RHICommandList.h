@@ -42,7 +42,6 @@ public:
 	{
 		return CounterOffset;
 	}
-	class RHIUAV* GetUAV();
 	DeviceContext* GetContext()
 	{
 		return Context;

@@ -32,7 +32,7 @@ void Shader_Convolution::init()
 
 	ConvPSODesc.InitOLD(false, false, false);
 	ConvPSODesc.ShaderInUse = this;
-	ConvPSODesc.FrameBufferTarget = CubeBuffer;
+	ConvPSODesc.RenderTargetDesc = CubeBuffer->GetPiplineRenderDesc();
 	CmdList->SetPipelineStateDesc(ConvPSODesc);
 	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);

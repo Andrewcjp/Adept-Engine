@@ -24,9 +24,10 @@ float4 GetColourForRate(int r)
 	}
 	return float4(0, 0, 0, 0);
 }
-[numthreads(4, 4, 1)]
+[numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
+	const float2 Invres = Resolution * -1;
 	float2 ScreenUV = (float2)DTid.xy / (float2)Resolution;
 	int ShadingRate = GetShadingRateIDForPixel(ScreenUV, Resolution);
 	if (!IsPixelSource(DTid.xy, GetShadingRate(ShadingRate)))

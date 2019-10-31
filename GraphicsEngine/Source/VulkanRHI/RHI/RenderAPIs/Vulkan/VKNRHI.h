@@ -133,7 +133,6 @@ public:
 	virtual ShaderProgramBase * CreateShaderProgam(DeviceContext * Device = nullptr) override;
 	virtual RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length) override;
 	virtual RHIBuffer * CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext * Device = nullptr) override;
-	virtual RHIUAV * CreateUAV(DeviceContext * Device = nullptr) override;
 	virtual RHICommandList * CreateCommandList(ECommandListType::Type Type = ECommandListType::Graphics, DeviceContext * Device = nullptr) override;
 	virtual DeviceContext * GetDefaultDevice() override;
 	virtual DeviceContext * GetDeviceContext(int index = 0) override;
@@ -179,7 +178,6 @@ public:
 
 	RHI_VIRTUAL RHIRenderPassDesc GetRenderPassDescForSwapChain(bool ClearScreen = false) override;
 	static VKNTexture* VKConv(BaseTexture* T);
-	static VknUAV * VKConv(RHIUAV * T);
 	static VKNShader * VKConv(ShaderProgramBase * T);
 	static VKNRenderPass * VKConv(RHIRenderPass * T);
 	static VKNCommandlist* VKConv(RHICommandList* T);

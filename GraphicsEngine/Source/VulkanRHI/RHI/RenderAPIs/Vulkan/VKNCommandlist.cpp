@@ -110,11 +110,6 @@ VkCommandBuffer* VKNCommandlist::GetCommandBuffer()
 void VKNCommandlist::ClearFrameBuffer(FrameBuffer * buffer)
 {}
 
-void VKNCommandlist::UAVBarrier(RHIUAV * target)
-{
-
-}
-
 
 void VKNCommandlist::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {
@@ -287,28 +282,20 @@ void VKNCommandlist::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(TargetDesc));
 }
 
-void VknUAV::Bind(RHICommandList * list, int slot)
-{
-	VKNCommandlist* VKList = VKNRHI::VKConv(list);
-	VKList->Rootsig.SetUAV(slot, this);
-}
+//void VknUAV::Bind(RHICommandList * list, int slot)
+//{
+//	VKNCommandlist* VKList = VKNRHI::VKConv(list);
+//	VKList->Rootsig.SetUAV(slot, this);
+//}
 
-void VknUAV::CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc /*= RHIUAVDesc()*/)
-{
 
-}
 
-void VknUAV::CreateUAVFromTexture(BaseTexture * target)
-{
-
-}
-
-void VknUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
-{
-	VKNBuffer* VBuffer = VKNRHI::VKConv(target);
-	TargetSize = VBuffer->GetSize();
-	TargetBuffer =  &VBuffer->vertexbuffer;
-}
+//void VknUAV::CreateUAVFromRHIBuffer(RHIBuffer * target)
+//{
+//	VKNBuffer* VBuffer = VKNRHI::VKConv(target);
+//	TargetSize = VBuffer->GetSize();
+//	TargetBuffer =  &VBuffer->vertexbuffer;
+//}
 
 
 

@@ -287,6 +287,11 @@ EResourceState::Type FrameBuffer::GetCurrentState() const
 	return CurrentState;
 }
 
+uint64 FrameBuffer::GetInstanceHash() const
+{
+	return uint64();
+}
+
 void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 {
 	if (!NeedsSFRResolve())

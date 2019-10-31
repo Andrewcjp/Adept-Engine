@@ -21,15 +21,35 @@ public:
 	UINT GetSize()const;
 	UINT64 GetSizeInUse()const;
 	void LogReport();
+	bool GetIsReserved() const { return IsReserved; }
+	void SetReserved(bool val) { IsReserved = val; }
+	//!danger! This will deallocate all of this page.
+	void ResetPage();
+	void EvictPage();
+	void MakeResident();
 private:
-	void CreateResource(AllocDesc & desc, ID3D12Resource ** Resource);
+	struct AllocationChunk
+	{
+		GPUResource* Resource = nullptr;
+		uint64 offset = 0;
+		uint64 size = 0;
+		bool CanFitAllocation(const AllocDesc & desc)const;
+	};
+	AllocationChunk* FindFreeChunk(AllocDesc & desc);
+	AllocationChunk* AllocateFromFreeChunk(AllocDesc& desc);
+	AllocationChunk* GetChunk(AllocDesc & desc);
+	void CreateResource(AllocationChunk* chunk, AllocDesc & desc, ID3D12Resource ** Resource);
 	void InitHeap();
 	D3D12_HEAP_FLAGS GetFlagsForType(EPageTypes::Type T);
 	ID3D12Heap* PageHeap = nullptr;
 	AllocDesc PageDesc;
 	std::vector<GPUResource*> ContainedResources;
 	D3D12DeviceContext* Device = nullptr;
-	UINT64 OffsetInPlacedHeap =0;
+	UINT64 OffsetInPlacedHeap = 0;
 	bool IsReleaseing = false;
+	std::vector<AllocationChunk*> AllocatedChunks;
+	std::vector<AllocationChunk*> FreeChunks;
+	bool IsReserved = false;
+	bool IsResident = true;
 };
 

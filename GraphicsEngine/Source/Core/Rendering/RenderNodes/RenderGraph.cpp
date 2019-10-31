@@ -182,6 +182,7 @@ void RenderGraph::CreateDefTestgraph()
 #if TEST_VRS
 	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
 #endif
+	Desc.AllowDynamicResize = true;
 	MainBuffer->SetFrameBufferDesc(Desc);
 
 	FrameBufferStorageNode* SSAOBuffer = AddStoreNode(new FrameBufferStorageNode());
