@@ -157,6 +157,7 @@ void TextRenderer::LoadText()
 	Desc.BlendState.AlphaToCoverageEnable = true;
 	Desc.ShaderInUse = m_TextShader;
 	Desc.Mode = Text;
+	Desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 	PSO = RHI::CreatePipelineStateObject(Desc);
 	//TextCommandList->ResetList();
 	TextCommandList->SetPipelineStateObject(PSO);

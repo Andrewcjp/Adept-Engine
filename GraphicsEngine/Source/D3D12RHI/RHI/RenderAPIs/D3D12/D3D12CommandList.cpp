@@ -45,8 +45,6 @@ bool D3D12CommandList::IsOpen()
 	return m_IsOpen;
 }
 
-
-
 void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 {
 	if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
@@ -57,7 +55,7 @@ void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 	if (CurrentRenderTarget != nullptr)
 	{
 		//todo: this might cause issues need to check this behavior
-		TDesc.FrameBufferTarget = CurrentRenderTarget;
+		TDesc.RenderTargetDesc = CurrentRenderTarget->GetPiplineRenderDesc();
 	}
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(TDesc));
 }
@@ -893,7 +891,7 @@ void D3D12CommandSigniture::Build()
 		argumentDescs[i] = D3D12Helpers::ConvertArg(RHIdesc.ArgumentDescs[i]);
 	}
 	commandSignatureDesc.pArgumentDescs = argumentDescs;
-	commandSignatureDesc.NumArgumentDescs = RHIdesc.ArgumentDescs.size();
+	commandSignatureDesc.NumArgumentDescs = (UINT)RHIdesc.ArgumentDescs.size();
 	commandSignatureDesc.ByteStride = RHIdesc.CommandBufferStide;
 	ensure(commandSignatureDesc.ByteStride % 4 == 0);
 	ThrowIfFailed(D3D12RHI::DXConv(Context)->GetDevice()->CreateCommandSignature(&commandSignatureDesc, RHIdesc.IsCompute ? nullptr : D3D12RHI::DXConv(RHIdesc.PSO)->RootSig, IID_PPV_ARGS(&CommandSig)));

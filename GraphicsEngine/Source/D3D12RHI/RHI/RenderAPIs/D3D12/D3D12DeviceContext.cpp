@@ -12,6 +12,7 @@
 #include "DXGPUTextureStreamer.h"
 #include "DescriptorHeap.h"
 #include "DescriptorCache.h"
+#include "Core/Maths/Math.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -511,9 +512,9 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 	GetSharedCommandAllocator()->Reset();
 	ResetCopyEngine();
 	//compute work could run past the end of a frame?
-	if (RHI::GetFrameCount() == 1)
+	if (RHI::GetFrameCount() == 1 || RHI::GetFrameCount() == 100)
 	{
-		//	GetMemoryManager()->LogMemoryReport();
+			GetMemoryManager()->LogMemoryReport();
 	}
 	if (RHI::GetFrameCount() == 10)
 	{
@@ -531,22 +532,21 @@ void D3D12DeviceContext::SampleVideoMemoryInfo()
 	usedVRAM = CurrentVideoMemoryInfo.CurrentUsage / 1024 / 1024;
 	totalVRAM = CurrentVideoMemoryInfo.Budget / 1024 / 1024;
 	MemoryData.LocalSegment_TotalBytes = CurrentVideoMemoryInfo.Budget;
+	MemoryData.Local_Usage = CurrentVideoMemoryInfo.CurrentUsage;
 	if (GetMemoryManager())
 	{
 		GetMemoryManager()->UpdateTotalAlloc();
 	}
 }
 
-std::string D3D12DeviceContext::GetMemoryReport()
+RHIClass::GPUMemoryData D3D12DeviceContext::GetMemoryReport()
 {
-	std::string output = "VMEM: ";
-	output += std::to_string(GetMemoryManager()->GetTotalAllocated()/1024/1024) + "MB ";
-	output.append("(Global " + std::to_string(usedVRAM));
-	output += "MB)";
-	output.append(" / ");
-	output.append(std::to_string(totalVRAM));
-	output.append("MB");
-	return output;
+	RHIClass::GPUMemoryData data = {};
+	data.MaxPhysical = Adaptordesc.DedicatedVideoMemory;
+	data.TotalAllocated = GetMemoryManager()->GetTotalAllocated();
+	data.UntrackedDelta = Math::UDelta(MemoryData.Local_Usage, data.TotalAllocated);
+	data.MaxBudget = MemoryData.LocalSegment_TotalBytes; 
+	return data;
 }
 
 void D3D12DeviceContext::DestoryDevice()

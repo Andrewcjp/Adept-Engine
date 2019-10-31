@@ -291,7 +291,13 @@ void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
 	Device->GetMemoryManager()->AllocUploadTemporary(D, &textureUploadHeap);
 	D3D12Helpers::NameRHIObject(textureUploadHeap, this, "(UPLOAD)");
+	for (int face = 0; face < desc.Faces; face++)
+	{
+		for (int mip = 0; mip < desc.MipLevels; mip++)
+		{
 
+		}
+	}
 
 	D3D12_SUBRESOURCE_DATA textureData = {};
 	textureData.pData = desc.PtrToData;
@@ -322,7 +328,7 @@ bool D3D12Texture::CheckDevice(int index)
 
 
 
-DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc,DescriptorHeap* heap)
+DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc, DescriptorHeap* heap)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));

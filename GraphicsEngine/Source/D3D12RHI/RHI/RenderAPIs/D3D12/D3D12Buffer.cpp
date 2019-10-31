@@ -45,8 +45,9 @@ void D3D12Buffer::Release()
 D3D12Buffer::~D3D12Buffer()
 {}
 
-void D3D12Buffer::CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices)
+void D3D12Buffer::CreateConstantBuffer(int iStructSize, int Elementcount, bool ReplicateToAllDevices)
 {
+	StructSize = iStructSize;
 	ensure(StructSize > 0);
 	ensure(Elementcount > 0);
 	TotalByteSize = StructSize;
@@ -291,18 +292,18 @@ void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 	//This Buffer Will Have Data Changed Every frame so no need to transition to only gpu.
 	// Create the vertex buffer.
 	TotalByteSize = ByteSize;
-	ID3D12Resource* TempRes = nullptr;
 	AllocDesc Allocdesc = AllocDesc(TotalByteSize, D3D12_RESOURCE_STATE_GENERIC_READ, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 	Allocdesc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 	Device->GetMemoryManager()->AllocUploadTemporary(Allocdesc, &m_DataBuffer);
-
 	PostUploadState = D3D12_RESOURCE_STATE_GENERIC_READ;
 }
+
 static inline UINT AlignForUavCounter(UINT bufferSize)
 {
 	const UINT alignment = D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT;
 	return (bufferSize + (alignment - 1)) & ~(alignment - 1);
 }
+
 void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 {
 	ElementSize = desc.Stride;
@@ -317,15 +318,6 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 	TotalByteSize = desc.ElementCount * desc.Stride + desc.CounterSize;
 	if (BufferAccesstype == EBufferAccessType::GPUOnly)
 	{
-		ID3D12Resource* TempRes = nullptr;
-		//ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		//	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		//	D3D12_HEAP_FLAG_NONE,
-		//	&CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE),
-		//	D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-		//	nullptr,
-		//	IID_PPV_ARGS(&TempRes)));
-		//m_DataBuffer = new GPUResource(TempRes, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, Device);
 		AllocDesc Allocdesc = {};
 		Allocdesc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 		Allocdesc.InitalState = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;

@@ -61,21 +61,6 @@ public:
 	 VkPipelineBindPoint GetBindPoint();
 };
 
-
-class VknUAV :public RHIUAV
-{
-public:
-	VknUAV()
-	{};
-	// Inherited via RHIUAV
-	virtual void Bind(RHICommandList * list, int slot) override;
-	virtual void CreateUAVFromFrameBuffer(class FrameBuffer* target, RHIViewDesc desc = RHIViewDesc()) override;
-	virtual void CreateUAVFromTexture(BaseTexture * target) override;
-	virtual void CreateUAVFromRHIBuffer(RHIBuffer * target) override;
-
-	VkBuffer* TargetBuffer = nullptr;
-	int TargetSize = 0;
-};
 class VkanTextureArray :public RHITextureArray
 {
 public:

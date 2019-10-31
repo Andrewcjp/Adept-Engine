@@ -139,11 +139,6 @@ VKNTexture * VKNRHI::VKConv(BaseTexture * T)
 	return static_cast<VKNTexture*>(T);
 }
 
-VknUAV * VKNRHI::VKConv(RHIUAV * T)
-{
-	return static_cast<VknUAV*>(T);
-}
-
 VKNShader * VKNRHI::VKConv(ShaderProgramBase * T)
 {
 	return static_cast<VKNShader*>(T);

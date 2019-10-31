@@ -524,9 +524,19 @@ void RHI::InitialiseContextWindow(int w, int h)
 
 }
 
-std::string RHI::ReportMemory()
+std::string RHI::ReportMemory(bool all /*= false*/)
 {
-	return GetRHIClass()->ReportMemory();
+	std::string MemoryReport = "";
+	RHIClass::GPUMemoryReport report = GetRHIClass()->ReportMemory();
+	for (int i = 0; i < report.GpuData.size(); i++)
+	{
+		MemoryReport += "GPU" + std::to_string(i) + ": " + StringUtils::ByteToMB(report.GpuData[i].TotalAllocated) + " / " + StringUtils::ByteToMB(report.GpuData[i].MaxBudget);
+		if (all)
+		{
+			MemoryReport += "(Tracking Delta " + StringUtils::ByteToMB(report.GpuData[i].UntrackedDelta) + ")";
+		}
+	}
+	return MemoryReport;
 }
 
 void RHI::RHISwapBuffers()
@@ -635,7 +645,7 @@ void RHI::DestoryContext()
 #if DETECT_MEMORY_LEAKS
 	RefCheckerContainer::LogAllRefCounters();
 #endif
-	}
+}
 
 void RHI::BeginFrame()
 {

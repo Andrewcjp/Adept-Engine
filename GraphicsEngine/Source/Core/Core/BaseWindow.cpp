@@ -517,7 +517,7 @@ void BaseWindow::RenderText()
 		}
 
 		PlatformMemoryInfo info = PlatformMisc::GetMemoryInfo();
-		UI->RenderTextToScreen(2, RHI::ReportMemory() + " CPU ram " + StringUtils::ToString(info.GetWorkingSetInMB()) + "MB");
+		UI->RenderTextToScreen(2, RHI::ReportMemory(true) + " CPU ram " + StringUtils::ToString(info.GetWorkingSetInMB()) + "MB");
 
 		RHI::GetRenderSystem()->GetCurrentGraph()->DebugOutput();
 		offset = 4;

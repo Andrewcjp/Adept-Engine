@@ -3,6 +3,7 @@
 #include "FrameBuffer.h"
 #include "..\Shaders\VRX\Shader_VRRResolve.h"
 #include "..\Shaders\VRX\Shader_VRSResolve.h"
+#include "RHI\RHITimeManager.h"
 
 
 VRXEngine::VRXEngine()
@@ -27,13 +28,14 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target)
 	{
 		return;
 	}
-	//#VRX: todo
+	DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve");
 	ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
 	list->SetPipelineStateDesc(Desc);
 	list->SetUAV(Target, "DstTexture");
 	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
-	list->Dispatch(Target->GetWidth() / 4, Target->GetHeight() / 4, 1);
+	const int TileSize = 16;
+	list->Dispatch(Target->GetWidth() / TileSize, Target->GetHeight() / TileSize, 1);
 	list->UAVBarrier(Target);
 }
 
@@ -47,6 +49,7 @@ void VRXEngine::ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target)
 	{
 		return;
 	}
+	DECALRE_SCOPEDGPUCOUNTER(list, "VRS Resolve");
 	ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRSResolve>());
 	list->SetPipelineStateDesc(Desc);

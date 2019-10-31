@@ -319,10 +319,11 @@ ReflectionEnviroment * SceneRenderer::GetReflectionEnviroment()
 }
 
 
-void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex)
+void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex, FrameBuffer* TargetBuffer)
 {
 	//push a pso for bindings
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterial()->GetShaderInstance(EMaterialPassType::Forward));
+	Desc.RenderTargetDesc = TargetBuffer->GetPiplineRenderDesc();
 	list->SetPipelineStateDesc(Desc);
 	BindMvBuffer(list, MainShaderRSBinds::MVCBV, eyeindex);
 	BindLightsBuffer(list, MainShaderRSBinds::LightDataCBV);

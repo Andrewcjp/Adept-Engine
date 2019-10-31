@@ -78,7 +78,7 @@ public:
 	TEMP_API void BindMvBuffer(RHICommandList * list, int slot, int index);
 	//this is the master scene for the rendering code.
 	void SetScene(Scene* NewScene);
-	void SetupBindsForForwardPass(RHICommandList* list, int eyeindex);
+	void SetupBindsForForwardPass(RHICommandList* list, int eyeindex, FrameBuffer* TargetBuffer);
 	void UpdateMVForMainPass();
 
 	Scene* GetScene();

@@ -52,10 +52,9 @@ public:
 	static D3D_FEATURE_LEVEL GetMaxSupportedFeatureLevel(ID3D12Device * pDevice);
 	void ReportDeviceData();
 	static bool DetectGPUDebugger();
-	//temp To be RHI'D	
-	std::string ReportMemory() override;
-	static void HandleDeviceFailure();
 
+	static void HandleDeviceFailure();
+	RHIClass::GPUMemoryReport  ReportMemory() override;
 	virtual RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) override;
 #if	ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() override;

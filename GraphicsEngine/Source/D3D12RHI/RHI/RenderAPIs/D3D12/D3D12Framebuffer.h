@@ -6,6 +6,7 @@ class GPUResource;
 class D3D12DeviceContext;
 class DXDescriptor;
 class D3D12CommandList;
+class GPUMemoryPage;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
@@ -47,6 +48,9 @@ public:
 
 	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false) override;
 	DXDescriptor * GetDescriptor(const RHIViewDesc & desc, DescriptorHeap * heap = nullptr);
+
+	virtual uint64 GetInstanceHash() const override;
+
 private:
 	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth);
 	D3D12DeviceContext * CurrentDevice = nullptr;
@@ -75,9 +79,8 @@ private:
 
 	RHIPipeRenderTargetDesc RenderTargetDesc;
 
-	//For Dynamic resize use a Placed resource
-	ID3D12Heap* DynamicHeap = nullptr;
-	UINT OffsetInPlacedHeap = 0;
+	//page just for this resource
+	GPUMemoryPage* ReservedPage = nullptr;
 };
 
 CreateChecker(D3D12FrameBuffer);

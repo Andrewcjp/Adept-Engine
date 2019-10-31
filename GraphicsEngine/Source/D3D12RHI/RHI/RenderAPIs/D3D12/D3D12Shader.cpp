@@ -273,7 +273,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	pLibrary->CreateBlobWithEncodingFromPinned(ShaderData.c_str(), ShaderData.size(), CP_UTF8, &pSource);
 
 	hr = complier->Compile(pSource, StringUtils::ConvertStringToWide(shadername).c_str(), StringUtils::ConvertStringToWide(Entrypoint).c_str(), GetComplieTarget(ShaderType).c_str(),
-		arguments.data(), arguments.size(), defs, Defines.size(), nullptr, &R);
+		arguments.data(), (UINT)arguments.size(), defs, (UINT)Defines.size(), nullptr, &R);
 	R->GetResult(GetCurrentBlob(ShaderType));
 	R->GetErrorBuffer(&pErrorBlob);
 	R->GetStatus(&hr);
@@ -719,7 +719,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		RsFlags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
 	}
 #endif
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, samplers.size(), &Samplers[0], RsFlags);
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc((UINT)Params.size(), rootParameters, (UINT)samplers.size(), &Samplers[0], RsFlags);
 
 	ID3DBlob* signature = nullptr;
 	ID3DBlob* pErrorBlob = nullptr;

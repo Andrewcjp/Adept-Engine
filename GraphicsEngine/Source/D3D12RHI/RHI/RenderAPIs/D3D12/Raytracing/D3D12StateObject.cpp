@@ -208,7 +208,6 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Po
 			D3D12Buffer* DTex = D3D12RHI::DXConv(bind->BufferTarget);
 			DXDescriptor* d = DTex->GetDescriptor(bind->View);
 			UINT64 Ptr = d->GetGPUAddress().ptr;
-			auto heapPointer = reinterpret_cast<UINT64*>(Ptr);
 			Pointers.push_back((void*)Ptr);
 		}
 		else if (bind->BindType == ERSBindType::FrameBuffer)
@@ -231,13 +230,12 @@ void D3D12StateObject::BindToList(D3D12CommandList * List)
 	List->GetRootSig()->SetRootSig(ShaderTable->GlobalRootSig.Params);
 }
 
-void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, D3D12FrameBuffer* target)
+void D3D12StateObject::Trace(const RHIRayDispatchDesc& DispatchDesc, RHICommandList* T, D3D12FrameBuffer* target)
 {
-	//return;
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
-	if (Desc.PushRayArgs)
+	if (DispatchDesc.PushRayArgs)
 	{
-		DXList->SetRootConstant(8, 2, ((void*)&Desc.RayArguments), 0);
+		DXList->SetRootConstant(8, 2, ((void*)&DispatchDesc.RayArguments), 0);
 	}
 	DXList->GetCommandList()->SetComputeRootDescriptorTable(GlobalRootSignatureParams::OutputViewSlot, D3D12RHI::DXConv(target)->GetDescriptor(RHIViewDesc::DefaultUAV())->GetGPUAddress());
 	DXList->GetCommandList()->SetComputeRootShaderResourceView(GlobalRootSignatureParams::AccelerationStructureSlot, D3D12RHI::DXConv(HighLevelStructure)->m_topLevelAccelerationStructure->GetResource()->GetGPUVirtualAddress());
@@ -254,9 +252,9 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& Desc, RHICommandList* T, 
 	dispatchDesc.HitGroupTable.SizeInBytes = m_sbtHelper.GetHitGroupSectionSize();
 	dispatchDesc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
 
-	dispatchDesc.Width = Desc.Width;
-	dispatchDesc.Height = Desc.Height;
-	dispatchDesc.Depth = Desc.Depth;
+	dispatchDesc.Width = DispatchDesc.Width;
+	dispatchDesc.Height = DispatchDesc.Height;
+	dispatchDesc.Depth = DispatchDesc.Depth;
 
 	DXList->GetCMDList4()->SetPipelineState1(StateObject);
 	DXList->GetCMDList4()->DispatchRays(&dispatchDesc);

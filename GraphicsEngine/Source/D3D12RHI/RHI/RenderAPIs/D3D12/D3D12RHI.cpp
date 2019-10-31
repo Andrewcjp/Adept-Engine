@@ -260,7 +260,7 @@ void D3D12RHI::DisplayDeviceDebug()
 	//Log::OutS << "Primary Adaptor Has " << GetMemory() << Log::OutS;1
 }
 
-std::string D3D12RHI::ReportMemory()
+RHIClass::GPUMemoryReport D3D12RHI::ReportMemory()
 {
 	if (RHI::GetFrameCount() % 60 == 0 || !HasSetup)
 	{
@@ -272,15 +272,15 @@ std::string D3D12RHI::ReportMemory()
 			}
 		}
 	}
-	std::string output = "";
+	GPUMemoryReport Report = {};
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		if (DeviceContexts[i] != nullptr)
 		{
-			output.append("GPU" + std::to_string(i) + ": " + DeviceContexts[i]->GetMemoryReport() + " ");
+			Report.GpuData.push_back(DeviceContexts[i]->GetMemoryReport());
 		}
 	}
-	return output;
+	return Report;
 }
 
 void D3D12RHI::LoadPipeLine()
@@ -379,7 +379,7 @@ void D3D12RHI::LoadPipeLine()
 	}
 #endif
 	DisplayDeviceDebug();
-	Log::LogMessage(ReportMemory());
+	//Log::LogMessage(ReportMemory());
 
 }
 
@@ -472,13 +472,6 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 		CreateDepthStencil(x, y);
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 		ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
-	}
-	for (int i = 0; i < RHI::GetDeviceCount(); i++)
-	{
-		if (DeviceContexts[i] != nullptr)
-		{
-			DeviceContexts[i]->GetDescriptorCache()->Invalidate();
-		}
 	}
 }
 #if AFTERMATH

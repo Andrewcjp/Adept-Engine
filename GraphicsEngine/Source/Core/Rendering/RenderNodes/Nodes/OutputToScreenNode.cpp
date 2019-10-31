@@ -37,6 +37,7 @@ void OutputToScreenNode::OnExecute()
 		{
 			RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VROutput>());
 			D.Cull = false;
+			D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 			ScreenWriteList->SetPipelineStateDesc(D);
 			ScreenWriteList->SetFrameBufferTexture(FBNode->GetFramebuffer(EEye::Left), 0);
 			ScreenWriteList->SetFrameBufferTexture(FBNode->GetFramebuffer(EEye::Right), 1);
@@ -45,6 +46,7 @@ void OutputToScreenNode::OnExecute()
 		{
 			RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_Compost>());
 			D.Cull = false;
+			D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 			ScreenWriteList->SetPipelineStateDesc(D);
 			if (VROutputMode.GetIntValue() == 1)
 			{
@@ -60,6 +62,7 @@ void OutputToScreenNode::OnExecute()
 	{
 		RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_Compost>());
 		D.Cull = false;
+		D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 		ScreenWriteList->SetPipelineStateDesc(D);
 		ScreenWriteList->SetFrameBufferTexture(Target, 0);
 	}

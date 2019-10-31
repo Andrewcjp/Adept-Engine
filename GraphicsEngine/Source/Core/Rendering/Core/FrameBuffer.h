@@ -48,6 +48,7 @@ public:
 	void MakeReadyForCopy(RHICommandList * list, bool changeDepth = false);
 	void MakeReadyForPixel(RHICommandList* List, bool Depth = false);
 	EResourceState::Type GetCurrentState()const;
+	virtual uint64 GetInstanceHash()const;
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();

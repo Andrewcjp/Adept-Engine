@@ -214,18 +214,27 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 		&& RenderTargetDesc == other.RenderTargetDesc && Blending == other.Blending && other.DepthStencilState.DepthWrite == DepthStencilState.DepthWrite && RenderPassDesc == other.RenderPassDesc;
 }
 
+RHIPipeLineStateDesc RHIPipeLineStateDesc::CreateDefault(Shader* shader, FrameBuffer* FB /*= nullptr*/)
+{
+	RHIPipeLineStateDesc desc;
+	desc.ShaderInUse = shader;
+	if (FB != nullptr)
+	{
+		desc.RenderTargetDesc = FB->GetPiplineRenderDesc();
+	}
+	return desc;
+}
+
 void RHIPipeLineStateDesc::Build()
 {
-	if (FrameBufferTarget != nullptr)
+	/*if (FrameBufferTarget != nullptr)
 	{
 		RenderTargetDesc = FrameBufferTarget->GetPiplineRenderDesc();
-	}
+	}*/
 	if (RenderTargetDesc.NumRenderTargets == 0 && RenderTargetDesc.DSVFormat == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
 	{
 		//push the default
-		RenderTargetDesc.NumRenderTargets = 1;
-		RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-		RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+		ensure(false);
 	}
 	RenderPassDesc.Build();
 	CalulateHash();
@@ -256,6 +265,15 @@ bool RHIPipeRenderTargetDesc::operator==(const RHIPipeRenderTargetDesc other) co
 		}
 	}
 	return other.NumRenderTargets == NumRenderTargets && other.DSVFormat == DSVFormat;
+}
+
+RHIPipeRenderTargetDesc RHIPipeRenderTargetDesc::GetDefault()
+{
+	RHIPipeRenderTargetDesc RenderTargetDesc = {};
+	RenderTargetDesc.NumRenderTargets = 1;
+	RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+	RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	return RenderTargetDesc;
 }
 
 size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
@@ -467,12 +485,6 @@ std::string RHIRenderPassDesc::GetHashString()
 
 bool RHIViewDesc::operator==(const RHIViewDesc other) const
 {
-	//int Slice = 0;
-	//int Mip = 0;
-	//int MipLevels = 1;
-	//int Resource = 0;
-	//EViewType::Type ViewType = EViewType::Limit;
-	//eTextureDimension Dimention = DIMENSION_UNKNOWN;
 	return ArraySlice == other.ArraySlice &&
 		Mip == other.Mip &&
 		MipLevels == other.MipLevels &&

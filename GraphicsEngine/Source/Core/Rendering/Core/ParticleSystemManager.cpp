@@ -252,7 +252,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * B
 	SCOPE_CYCLE_COUNTER_GROUP("RenderSystem", "Particle");
 	RHIPipeLineStateDesc desc;
 	desc.ShaderInUse = system->RenderShader;
-	desc.FrameBufferTarget = BufferTarget;
+	desc.RenderTargetDesc = BufferTarget->GetPiplineRenderDesc();
 	if (DepthBuffer != nullptr)
 	{
 		desc.RenderTargetDesc = BufferTarget->GetPiplineRenderDesc();

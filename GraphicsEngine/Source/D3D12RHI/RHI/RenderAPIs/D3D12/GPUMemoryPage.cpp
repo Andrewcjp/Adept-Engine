@@ -26,9 +26,11 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 	{
 		return EAllocateResult::NoSpace;
 	}
+
+
 	//DXMM: Todo Placed resource 
 	ID3D12Resource* DxResource = nullptr;
-	CreateResource(desc, &DxResource);
+	CreateResource(GetChunk(desc), desc, &DxResource);
 	if (desc.Name.length() > 0)
 	{
 		std::wstring Conv = StringUtils::ConvertStringToWide(desc.Name);
@@ -54,14 +56,63 @@ void GPUMemoryPage::CalculateSpaceNeeded(AllocDesc & desc)
 
 bool GPUMemoryPage::CheckSpaceForResource(AllocDesc & desc)
 {
-	if (OffsetInPlacedHeap + desc.TextureAllocData.SizeInBytes > PageDesc.Size)
+	if (FindFreeChunk(desc) == nullptr)
 	{
 		return false;
 	}
 	return true;
 }
 
-void GPUMemoryPage::CreateResource(AllocDesc & desc, ID3D12Resource** Resource)
+GPUMemoryPage::AllocationChunk * GPUMemoryPage::FindFreeChunk(AllocDesc & desc)
+{
+	for (int i = 0; i < FreeChunks.size(); i++)
+	{
+		if (FreeChunks[i]->CanFitAllocation(desc))
+		{
+			return FreeChunks[i];
+		}
+	}
+	return nullptr;
+}
+
+GPUMemoryPage::AllocationChunk * GPUMemoryPage::AllocateFromFreeChunk(AllocDesc & desc)
+{
+	AllocationChunk* Source = FindFreeChunk(desc);
+	if (Source == nullptr)
+	{
+		return nullptr;
+	}
+	AllocationChunk* NewChunk = new AllocationChunk();
+	const uint64 ResourceSize = D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes);
+
+	NewChunk->offset = Source->offset;
+	Source->offset += ResourceSize;
+
+	NewChunk->size = ResourceSize;
+	AllocatedChunks.push_back(NewChunk);
+	if (Source->size == ResourceSize)
+	{
+		SafeDelete(Source);
+		VectorUtils::Remove(FreeChunks, Source);
+	}
+	else
+	{
+		Source->size -= ResourceSize;
+	}
+	return NewChunk;
+}
+
+GPUMemoryPage::AllocationChunk * GPUMemoryPage::GetChunk(AllocDesc & desc)
+{
+	return AllocateFromFreeChunk(desc);
+}
+
+bool GPUMemoryPage::AllocationChunk::CanFitAllocation(const AllocDesc & desc) const
+{
+	return size > D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes);
+}
+
+void GPUMemoryPage::CreateResource(AllocationChunk* chunk, AllocDesc & desc, ID3D12Resource** Resource)
 {
 	D3D12_CLEAR_VALUE* value = nullptr;
 	//if (desc.ResourceDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER && PageDesc.PageAllocationType == EPageTypes::RTAndDS_Only)
@@ -71,8 +122,7 @@ void GPUMemoryPage::CreateResource(AllocDesc & desc, ID3D12Resource** Resource)
 			value = &desc.ClearValue;
 		}
 	}
-	ThrowIfFailed(Device->GetDevice()->CreatePlacedResource(PageHeap, OffsetInPlacedHeap, &desc.ResourceDesc, desc.InitalState, value, IID_PPV_ARGS(Resource)));
-	OffsetInPlacedHeap += D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes);
+	ThrowIfFailed(Device->GetDevice()->CreatePlacedResource(PageHeap, chunk->offset, &desc.ResourceDesc, desc.InitalState, value, IID_PPV_ARGS(Resource)));
 }
 
 void GPUMemoryPage::InitHeap()
@@ -95,6 +145,9 @@ void GPUMemoryPage::InitHeap()
 
 		ThrowIfFailed(Device->GetDevice()->CreateHeap(&desc, IID_PPV_ARGS(&PageHeap)));
 	}
+	AllocationChunk* chunk = new AllocationChunk();
+	chunk->size = PageDesc.Size;
+	FreeChunks.push_back(chunk);
 }
 
 D3D12_HEAP_FLAGS GPUMemoryPage::GetFlagsForType(EPageTypes::Type T)
@@ -117,6 +170,8 @@ D3D12_HEAP_FLAGS GPUMemoryPage::GetFlagsForType(EPageTypes::Type T)
 void GPUMemoryPage::Compact()
 {
 	//#DXMM: Defragment the page 
+
+
 }
 
 void GPUMemoryPage::Deallocate(GPUResource * R)
@@ -139,10 +194,47 @@ UINT GPUMemoryPage::GetSize() const
 
 UINT64 GPUMemoryPage::GetSizeInUse() const
 {
-	return OffsetInPlacedHeap;
+	UINT64 Bytes = 0;
+	for (int i = 0; i < AllocatedChunks.size(); i++)
+	{
+		Bytes += AllocatedChunks[i]->size;
+	}
+	return Bytes;
 }
 
 void GPUMemoryPage::LogReport()
 {
-	Log::LogMessage("Page '" + PageDesc.Name + "' Has " + std::to_string(ContainedResources.size()) + " resources using " + StringUtils::ByteToMB(OffsetInPlacedHeap) + " / " + StringUtils::ByteToMB(PageDesc.Size));
+	Log::LogMessage("Page '" + PageDesc.Name + "' Has " + std::to_string(ContainedResources.size()) + " resources using " + StringUtils::ByteToMB(GetSizeInUse()) + " / " 
+		+ StringUtils::ByteToMB(PageDesc.Size) + " Free Chunks " + std::to_string(FreeChunks.size()));
 }
+
+void GPUMemoryPage::ResetPage()
+{
+	for (GPUResource* r : ContainedResources)
+	{
+		r->Release();
+	}
+	ContainedResources.clear();
+	AllocatedChunks.clear();
+	FreeChunks.clear();
+	AllocationChunk* chunk = new AllocationChunk();
+	chunk->size = PageDesc.Size;
+	FreeChunks.push_back(chunk);
+}
+
+void GPUMemoryPage::EvictPage()
+{
+	IsResident = false;
+	ID3D12Pageable* list = { PageHeap };
+	Device->GetDevice()->Evict(1, &list);
+}
+
+void GPUMemoryPage::MakeResident()
+{
+	IsResident = true;
+	ID3D12Pageable* list = { PageHeap };
+	Device->GetDevice()->MakeResident(1, &list);
+}
+
+
+

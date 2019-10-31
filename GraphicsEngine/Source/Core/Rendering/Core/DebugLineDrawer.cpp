@@ -8,6 +8,7 @@
 #include "Core/BaseWindow.h"
 
 #include "SceneRenderer.h"
+#include "FrameBuffer.h"
 #if _DEBUG
 #pragma optimize("g",on)
 #pragma runtime_checks( "sc", off )  
@@ -117,7 +118,7 @@ void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, 
 	desc.DepthStencilState.DepthEnable = false;
 	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	desc.ShaderInUse = LineShader;
-	desc.FrameBufferTarget = Buffer;
+	desc.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 	CmdList->SetPipelineStateDesc(desc);
 	RHIRenderPassDesc RPdesc(Buffer);
 	if (RHI::IsVulkan())

@@ -38,7 +38,7 @@ void Shader_EnvMap::Init()
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = this;
-	desc.FrameBufferTarget = EnvBRDFBuffer;
+	desc.RenderTargetDesc = EnvBRDFBuffer->GetPiplineRenderDesc();
 	CmdList->SetPipelineStateDesc(desc);
 	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);

@@ -35,14 +35,23 @@ void DXMemoryManager::Compact()
 	}
 }
 
-void DXMemoryManager::AddFrameBufferPage(int size)
+GPUMemoryPage* DXMemoryManager::AddFrameBufferPage(int size, bool reserve)
 {
 	AllocDesc A = AllocDesc(size);
 	A.PageAllocationType = EPageTypes::RTAndDS_Only;
 	A.Name = "Framebuffer page";
+	if (reserve)
+	{
+		A.Name += " (Reserved)";
+	}
 	GPUMemoryPage* Page = nullptr;
 	AllocPage(A, &Page);
+	if (reserve)
+	{
+		Page->SetReserved(true);
+	}
 	FrameResourcePages.push_back(Page);
+	return Page;
 }
 
 void DXMemoryManager::AddTransientPage(int size)
@@ -181,7 +190,8 @@ GPUMemoryPage * DXMemoryManager::FindFreePage(AllocDesc & desc, std::vector<GPUM
 		}
 	}
 	GPUMemoryPage* newpage = nullptr;
-	desc.Size = desc.TextureAllocData.SizeInBytes;
+	const UINT64 PageMinSize = 256 * 1024 * 1024u;
+	desc.Size = Math::Max(desc.TextureAllocData.SizeInBytes, PageMinSize);
 	AllocPage(desc, &newpage);
 	pages.push_back(newpage);
 	return newpage;
@@ -189,6 +199,6 @@ GPUMemoryPage * DXMemoryManager::FindFreePage(AllocDesc & desc, std::vector<GPUM
 
 UINT64 DXMemoryManager::GetTotalAllocated() const
 {
-	return TotalPageAllocated;
+	return TotalPageUsed;
 }
 
