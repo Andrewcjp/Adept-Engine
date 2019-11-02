@@ -59,6 +59,7 @@ public:
 	bool NeedsValue = false;
 	bool HasValue()const;
 	void SetRawValue(std::string value);
+	std::vector<ConsoleVariable*> LinkedVars;
 private:
 	ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue);
 	std::string Name = "";

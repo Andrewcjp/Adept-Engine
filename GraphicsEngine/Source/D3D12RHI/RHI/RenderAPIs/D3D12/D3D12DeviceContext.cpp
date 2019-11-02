@@ -262,6 +262,7 @@ void D3D12DeviceContext::CheckFeatures()
 		Caps_Data.ConnectionMode = EMGPUConnectionMode::None;
 	}
 	Caps_Data.SupportsDepthBoundsTest = FeatureData2.DepthBoundsTestSupported;
+	Caps_Data.SupportExecuteIndirect = true;//all D3D12 GPUs support draw indirect etc.
 	LogDeviceData("InterGPU mode " + std::string(EMGPUConnectionMode::ToString(Caps_Data.ConnectionMode)));
 	NVAPIManager::CheckSupport(m_Device);
 

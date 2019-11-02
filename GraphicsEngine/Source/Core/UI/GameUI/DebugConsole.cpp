@@ -61,6 +61,7 @@ void DebugConsole::ResizeView(int w, int h, int x, int y)
 static ConsoleVariable showgraph("ui.showgraph", 0, ECVarType::ConsoleAndLaunch);
 void DebugConsole::ExecCommand(std::string command)
 {
+	Log::LogMessage("Exec: " + command);
 	SuggestBox->SetText("");
 	nextext = "";
 	LastCommand = command;

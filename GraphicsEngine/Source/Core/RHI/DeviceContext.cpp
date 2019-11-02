@@ -239,6 +239,11 @@ int DeviceContext::GetDeviceFrame() const
 void DeviceContext::TickDeferredDeleteQueue()
 {}
 
+bool DeviceContext::SupportsIndirectExecute() const
+{
+	return Caps_Data.SupportExecuteIndirect;
+}
+
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");
