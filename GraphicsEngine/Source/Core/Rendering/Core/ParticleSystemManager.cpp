@@ -72,7 +72,6 @@ void ParticleSystemManager::InitCommon()
 	pdesc.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	pdesc.RenderTargetDesc.NumRenderTargets = 1;
 	pdesc.RenderTargetDesc.DSVFormat = FORMAT_D32_FLOAT;
-	pdesc.Blending = false;
 	pdesc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
 	RenderList->SetPipelineStateDesc(pdesc);
 #if USE_INDIRECTRENDER
@@ -259,8 +258,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * B
 		desc.RenderTargetDesc.DSVFormat = DepthBuffer->GetPiplineRenderDesc().DSVFormat;
 	}
 	desc.Cull = false;
-	desc.Blending = true;
-	desc.Mode = Full;
+	desc.BlendState = RHIBlendState::CreateBlendDefault();
 	RenderList->SetPipelineStateDesc(desc);
 	RHIRenderPassDesc info(BufferTarget, ERenderPassLoadOp::Load);
 	info.DepthSourceBuffer = DepthBuffer;

@@ -14,5 +14,7 @@ public:
 protected:
 	virtual void OnNodeSettingChange() override;
 
+	bool IsNodeSupported(const RenderSettings & settings);
+
 };
 

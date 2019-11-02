@@ -90,7 +90,7 @@ public:
 	RHI_API RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, RHIViewDesc Desc, int Slot) = 0;
 	RHI_API RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
-	RHI_API RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot) = 0;
+	RHI_API RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot, const RHIViewDesc & desc) = 0;
 	RHI_API RHI_VIRTUAL void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;
 	RHI_API RHI_VIRTUAL void SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc) = 0;
 	RHI_API RHI_VIRTUAL void SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
@@ -105,12 +105,14 @@ public:
 
 	RHI_API void SetBuffer(RHIBuffer* Buffer, int slot,int ElementOffset = 0);
 	RHI_API void SetBuffer(RHIBuffer* Buffer, std::string  slot, int ElementOffset = 0);
+
+	RHI_API void SetTexture(BaseTextureRef texture, int slot, int mip = 0);
 	//remove?
-	RHI_API				void SetRHIBufferReadOnly(RHIBuffer* buffer, int slot);
+	RHI_API	void SetRHIBufferReadOnly(RHIBuffer* buffer, int slot);
 
 	//string setters
 	RHI_API void SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot);
-	RHI_API void SetTexture(BaseTextureRef texture, std::string slot);
+	RHI_API void SetTexture(BaseTextureRef texture, std::string slot,int mip = 0);
 	RHI_API void SetFrameBufferTexture(class FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
 	RHI_API void SetRHIBufferReadOnly(RHIBuffer* buffer, std::string slot);
 

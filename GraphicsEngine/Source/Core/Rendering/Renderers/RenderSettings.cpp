@@ -18,7 +18,7 @@ RenderSettings::RenderSettings()
 //	EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::Pathtracing;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;
@@ -158,6 +158,12 @@ float RenderSettings::GetCurrentRenderScale()
 
 bool RenderSettings::RaytracingEnabled() const
 {
+	CapabilityData MaxCaps = CapabilityData();
+	RHI::GetRenderSettings()->MaxSupportedCaps(MaxCaps);
+	if (MaxCaps.RTSupport == ERayTracingSupportType::None)
+	{
+		return false;
+	}
 	return RTSettings.Enabled;
 }
 

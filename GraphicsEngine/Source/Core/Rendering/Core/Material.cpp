@@ -68,9 +68,8 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 	}
 	if (GetRenderPassType() == EMaterialRenderType::Transparent)
 	{
-		desc.Blending = true;
 		desc.Cull = false;
-		desc.Mode = Full;
+		desc.BlendState = RHIBlendState::CreateBlendDefault();
 	}
 
 	desc.ShaderInUse = (Shader*)CurrentShader;

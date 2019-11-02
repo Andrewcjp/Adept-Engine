@@ -134,7 +134,7 @@ void RenderGraph::CreateDefGraphWithRT()
 	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(FindFirstOf(DeferredLightingNode::GetNodeName()));
 	GBufferWriteNode* gbuffer = RenderNode::NodeCast<GBufferWriteNode>(FindFirstOf(GBufferWriteNode::GetNodeName()));
 	ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
-	RenderNode* UpdateProbesNode = FindFirstOf(UpdateReflectionsNode::GetNodeName());
+	RenderNode* UpdateProbesNode = FindFirstOf(ParticleSimulateNode::GetNodeName());
 
 	//then insert
 	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode());

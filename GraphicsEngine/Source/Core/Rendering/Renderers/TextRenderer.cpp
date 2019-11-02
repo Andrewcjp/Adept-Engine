@@ -151,12 +151,11 @@ void TextRenderer::LoadText()
 
 	TextCommandList = RHI::CreateCommandList(ECommandListType::Graphics, RHI::GetDeviceContext(0));
 	RHIPipeLineStateDesc Desc;
-	Desc.Blending = true;
 	Desc.Cull = false;
 	Desc.DepthStencilState.DepthEnable = false;
+	Desc.BlendState = RHIBlendState::CreateText();
 	Desc.BlendState.AlphaToCoverageEnable = true;
 	Desc.ShaderInUse = m_TextShader;
-	Desc.Mode = Text;
 	Desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 	PSO = RHI::CreatePipelineStateObject(Desc);
 	//TextCommandList->ResetList();

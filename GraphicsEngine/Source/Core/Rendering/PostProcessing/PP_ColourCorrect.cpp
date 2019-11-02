@@ -59,7 +59,6 @@ void PP_ColourCorrect::PostInitEffect(FrameBuffer* Target)
 	state.ShaderInUse = CurrentShader;
 	state.Cull = false;
 	state.DepthStencilState.DepthEnable = false;
-	state.Blending = true;
 	state.RenderTargetDesc.NumRenderTargets = 1;
 	state.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
 	state.RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;

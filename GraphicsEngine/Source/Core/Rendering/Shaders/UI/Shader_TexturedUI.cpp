@@ -15,10 +15,9 @@ Shader_TexturedUI::Shader_TexturedUI(DeviceContext* dev) :Shader(dev)
 		RHIPipeLineStateDesc desc;
 		desc.ShaderInUse = this;
 		desc.InitOLD(false, false, true);
-		desc.Mode = Full;
+		desc.BlendState = RHIBlendState::CreateBlendDefault();
 		desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
-		BlendPSO = RHI::CreatePipelineStateObject(desc);
-		desc.Blending = false;
+		BlendPSO = RHI::CreatePipelineStateObject(desc);	
 		NoBlendPSO = RHI::CreatePipelineStateObject(desc);
 	}
 }
