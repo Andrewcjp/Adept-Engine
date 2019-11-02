@@ -20,6 +20,9 @@ public:
 protected:
 	virtual void OnNodeSettingChange() override;
 	virtual void OnSetupNode() override;
+
+	virtual void OnValidateNode(RenderGraph::ValidateArgs & args) override;
+
 private:
 	RHIStateObject* StateObject = nullptr;
 	RayTracingCommandList* RTList = nullptr;

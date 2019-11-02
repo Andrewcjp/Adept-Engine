@@ -108,7 +108,7 @@ void RHIPipeLineStateDesc::InitOLD(bool Depth, bool shouldcull, bool Blend)
 {
 	DepthStencilState.DepthEnable = Depth;
 	Cull = shouldcull;
-	Blending = Blend;
+	
 }
 
 bool RHIPipeLineStateDesc::Validate()
@@ -172,10 +172,8 @@ void RHIPipeLineStateDesc::CalulateHash()
 	//return;
 	//#RHI: hash all members
 	StringPreHash = "";
-	StringPreHash += std::to_string(ShaderInUse->GetNameHash());
-	StringPreHash += std::to_string(Blending);
+	StringPreHash += std::to_string(ShaderInUse->GetNameHash());	
 	StringPreHash += std::to_string(Cull);
-	StringPreHash += std::to_string(Mode);
 	StringPreHash += std::to_string(DepthStencilState.DepthEnable);
 	StringPreHash += std::to_string(DepthStencilState.DepthWrite);
 	StringPreHash += std::to_string(DepthCompareFunction);
@@ -211,7 +209,7 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 	//#RHI: compare all props
 	return Cull == other.Cull && DepthStencilState.DepthEnable == other.DepthStencilState.DepthEnable
 		&& other.DepthCompareFunction == DepthCompareFunction
-		&& RenderTargetDesc == other.RenderTargetDesc && Blending == other.Blending && other.DepthStencilState.DepthWrite == DepthStencilState.DepthWrite && RenderPassDesc == other.RenderPassDesc;
+		&& RenderTargetDesc == other.RenderTargetDesc && other.DepthStencilState.DepthWrite == DepthStencilState.DepthWrite && RenderPassDesc == other.RenderPassDesc;
 }
 
 RHIPipeLineStateDesc RHIPipeLineStateDesc::CreateDefault(Shader* shader, FrameBuffer* FB /*= nullptr*/)
@@ -527,4 +525,27 @@ std::string EResourceState::ToString(EResourceState::Type state)
 	}
 
 	return  "Undefined";
+}
+
+RHIBlendState RHIBlendState::CreateText()
+{
+	RHIBlendState BlendState = {};
+	BlendState.RenderTargetDescs[0].BlendEnable = true;
+	BlendState.RenderTargetDescs[0].BlendOpAlpha = RHIBlendOp::BLEND_OP_ADD;
+
+	BlendState.RenderTargetDescs[0].SrcBlend = RHIBlendMode::BLEND_SRC_ALPHA;
+	BlendState.RenderTargetDescs[0].DestBlend = RHIBlendMode::BLEND_INV_SRC_ALPHA;
+	return BlendState;
+}
+
+RHIBlendState RHIBlendState::CreateBlendDefault()
+{
+	RHIBlendState BlendState = {};
+	BlendState.RenderTargetDescs[0].BlendEnable = true;
+	BlendState.RenderTargetDescs[0].BlendOp = RHIBlendOp::BLEND_OP_ADD;
+	BlendState.RenderTargetDescs[0].SrcBlend = RHIBlendMode::BLEND_SRC_ALPHA;
+	BlendState.RenderTargetDescs[0].DestBlend = RHIBlendMode::BLEND_INV_SRC_ALPHA;
+	BlendState.RenderTargetDescs[0].SrcBlendAlpha = RHIBlendMode::BLEND_ONE;
+	BlendState.RenderTargetDescs[0].DestBlendAlpha = RHIBlendMode::BLEND_INV_SRC_ALPHA;
+	return BlendState;
 }

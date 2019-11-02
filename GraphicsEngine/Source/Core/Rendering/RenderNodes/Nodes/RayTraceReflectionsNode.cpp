@@ -97,3 +97,11 @@ void RayTraceReflectionsNode::OnSetupNode()
 	CBV = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CBV->CreateConstantBuffer(sizeof(Data), 1);
 }
+
+void RayTraceReflectionsNode::OnValidateNode(RenderGraph::ValidateArgs & args)
+{
+	if (Context->GetCaps().RTSupport == ERayTracingSupportType::None)
+	{
+		args.AddError("RayTraceReflectionsNode on GPU with no raytracing");
+	}
+}

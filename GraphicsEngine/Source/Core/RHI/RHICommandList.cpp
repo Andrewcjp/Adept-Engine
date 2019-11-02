@@ -307,10 +307,10 @@ void RHICommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, std::
 	SetConstantBufferView(buffer, offset, index);
 }
 
-void RHICommandList::SetTexture(BaseTextureRef texture, std::string slot)
+void RHICommandList::SetTexture(BaseTextureRef texture, std::string slot, int mip)
 {
 	ensure(CurrentPSO);
-	SetTexture(texture, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot));
+	SetTexture(texture, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), mip);
 }
 
 void RHICommandList::SetFrameBufferTexture(FrameBuffer * buffer, std::string slot, int Resourceindex)
@@ -360,6 +360,13 @@ void RHICommandList::SetBuffer(RHIBuffer * Buffer, int slot, int ElementOffset)
 void RHICommandList::SetBuffer(RHIBuffer * Buffer, std::string slot, int ElementOffset)
 {
 	SetBuffer(Buffer, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), ElementOffset);
+}
+
+void RHICommandList::SetTexture(BaseTextureRef texture, int slot, int mip)
+{
+	RHIViewDesc v = RHIViewDesc::DefaultSRV();
+	v.Mip = mip;
+	SetTexture(texture, slot, v);
 }
 
 void RHICommandList::SetUAV(FrameBuffer * uav, int slot, int ResourceIndex, int Face, int MipSlice)

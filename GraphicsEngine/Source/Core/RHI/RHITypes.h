@@ -341,10 +341,67 @@ struct RHIRenderPassDesc
 
 	std::string GetHashString();
 };
+namespace RHIBlendMode
+{
+	enum Type
+	{
+		BLEND_ZERO = 1,
+		BLEND_ONE = 2,
+		BLEND_SRC_COLOR = 3,
+		BLEND_INV_SRC_COLOR = 4,
+		BLEND_SRC_ALPHA = 5,
+		BLEND_INV_SRC_ALPHA = 6,
+		BLEND_DEST_ALPHA = 7,
+		BLEND_INV_DEST_ALPHA = 8,
+		BLEND_DEST_COLOR = 9,
+		BLEND_INV_DEST_COLOR = 10,
+		BLEND_SRC_ALPHA_SAT = 11,
+		BLEND_BLEND_FACTOR = 14,
+		BLEND_INV_BLEND_FACTOR = 15,
+		BLEND_SRC1_COLOR = 16,
+		BLEND_INV_SRC1_COLOR = 17,
+		BLEND_SRC1_ALPHA = 18,
+		BLEND_INV_SRC1_ALPHA = 19
+	};
+};
+
+namespace RHIBlendOp
+{
+	enum Type
+	{
+		BLEND_OP_ADD = 1,
+		BLEND_OP_SUBTRACT = 2,
+		BLEND_OP_REV_SUBTRACT = 3,
+		BLEND_OP_MIN = 4,
+		BLEND_OP_MAX = 5
+	};
+};
+
+
+namespace COLOR_MASK
+{
+	enum Type
+	{
+		COLOR_WRITE_ENABLE_RED = 1,
+		COLOR_WRITE_ENABLE_GREEN = 2,
+		COLOR_WRITE_ENABLE_BLUE = 4,
+		COLOR_WRITE_ENABLE_ALPHA = 8,
+		COLOR_WRITE_ENABLE_ALL = (((COLOR_WRITE_ENABLE_RED | COLOR_WRITE_ENABLE_GREEN) | COLOR_WRITE_ENABLE_BLUE) | COLOR_WRITE_ENABLE_ALPHA)
+	};
+};
 
 struct RHIRender_Target_Blend_Desc
 {
-
+	bool BlendEnable = false;
+	bool LogicOpEnable = false;
+	RHIBlendMode::Type SrcBlend = RHIBlendMode::BLEND_ONE;
+	RHIBlendMode::Type DestBlend = RHIBlendMode::BLEND_ZERO;
+	RHIBlendOp::Type BlendOp = RHIBlendOp::BLEND_OP_ADD;
+	RHIBlendMode::Type SrcBlendAlpha = RHIBlendMode::BLEND_ONE;
+	RHIBlendMode::Type DestBlendAlpha = RHIBlendMode::BLEND_ZERO;
+	RHIBlendOp::Type BlendOpAlpha = RHIBlendOp::BLEND_OP_ADD;
+	//LOGIC_OP LogicOp;
+	uint8_t RenderTargetWriteMask = COLOR_MASK::COLOR_WRITE_ENABLE_ALL;
 };
 
 struct RHIBlendState
@@ -352,6 +409,8 @@ struct RHIBlendState
 	bool AlphaToCoverageEnable = false;
 	bool IndependentBlendEnable = false;
 	RHIRender_Target_Blend_Desc RenderTargetDescs[MRT_MAX] = {};
+	static RHIBlendState CreateText();
+	static RHIBlendState CreateBlendDefault();
 };
 struct RHIRasterizerDesc
 {
@@ -382,8 +441,6 @@ struct  RHIPipeLineStateDesc
 	Shader* ShaderInUse = nullptr;
 	void InitOLD(bool Depth, bool shouldcull, bool Blend);
 	bool Cull = true;
-	bool Blending = false;
-	TMP_BlendMode Mode = Text;
 	RHIBlendState BlendState;
 	RHIRasterizerDesc RasterizerState;
 	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -453,7 +510,7 @@ struct RHIViewDesc
 {
 	int ArraySlice = 0;
 	int Mip = 0;
-	int MipLevels = 1;
+	int MipLevels = -1;
 	int Resource = 0;
 	int Offset = 0;
 	EViewType::Type ViewType = EViewType::Limit;

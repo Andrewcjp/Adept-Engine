@@ -510,25 +510,25 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psoDesc.BlendState.AlphaToCoverageEnable = PSODesc.BlendState.AlphaToCoverageEnable;
 	psoDesc.BlendState.IndependentBlendEnable = PSODesc.BlendState.IndependentBlendEnable;
-	if (PSODesc.Blending)
+	if (PSODesc.BlendState.RenderTargetDescs[0].BlendEnable)
 	{
-		psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
-
-		psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-
-		if (PSODesc.Mode == Full)
+		for (int i = 0; i < MRT_MAX; i++)
 		{
-			psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-			psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
-			psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND::D3D12_BLEND_INV_SRC_ALPHA;
-			psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-			psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
-
-		}
-		else if (PSODesc.Mode == Text)
-		{
-			psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND::D3D12_BLEND_SRC_ALPHA;
-			psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND::D3D12_BLEND_INV_SRC_ALPHA;
+			const RHIRender_Target_Blend_Desc* SRCD = &PSODesc.BlendState.RenderTargetDescs[i];
+			D3D12_RENDER_TARGET_BLEND_DESC* Dst = &psoDesc.BlendState.RenderTarget[i];
+			if (!SRCD->BlendEnable)
+			{
+				Dst->BlendEnable = false;
+				continue;
+			}
+			Dst->BlendEnable = true;
+			Dst->BlendOp = (D3D12_BLEND_OP)SRCD->BlendOp;
+			Dst->SrcBlend = (D3D12_BLEND)SRCD->SrcBlend;
+			Dst->DestBlend = (D3D12_BLEND)SRCD->DestBlend;
+			Dst->BlendOpAlpha = (D3D12_BLEND_OP)SRCD->BlendOpAlpha;
+			Dst->SrcBlendAlpha = (D3D12_BLEND)SRCD->SrcBlendAlpha;
+			Dst->DestBlendAlpha = (D3D12_BLEND)SRCD->DestBlendAlpha;
+			Dst->RenderTargetWriteMask = SRCD->RenderTargetWriteMask;
 		}
 	}
 	else
@@ -591,7 +591,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
 	}
 
-}
+	}
 
 D3D12Shader::ShaderBlobs * D3D12Shader::GetShaderBlobs()
 {

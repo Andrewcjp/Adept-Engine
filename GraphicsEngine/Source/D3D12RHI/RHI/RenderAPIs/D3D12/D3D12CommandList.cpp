@@ -697,7 +697,7 @@ void D3D12CommandList::SetStateObject(RHIStateObject* Object)
 	CurrentRTState->BindToList(this);
 }
 #endif
-void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot)
+void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot, const RHIViewDesc & desc)
 {
 	ensure(texture != nullptr);
 	ensure(!texture->IsPendingKill());
@@ -708,7 +708,7 @@ void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot)
 	{
 		return;
 	}
-	RootSigniture.SetTexture(slot, texture);
+	RootSigniture.SetTexture(slot, texture,desc);
 #if !DESC_CREATE
 	if (CurrentCommandList != nullptr)
 	{

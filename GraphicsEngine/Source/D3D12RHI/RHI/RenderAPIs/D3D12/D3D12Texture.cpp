@@ -13,6 +13,7 @@
 #include "DescriptorHeapManager.h"
 #include "DXMemoryManager.h"
 #include "DXDescriptor.h"
+#include "Core/Maths/Math.h"
 CreateChecker(D3D12Texture);
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 {
@@ -146,14 +147,14 @@ DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc, DescriptorHeap* hea
 	if (CurrentTextureType == ETextureType::Type_CubeMap)
 	{
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MipLevels = MipLevelsReadyNow;
-		srvDesc.TextureCube.MostDetailedMip = 0;
+		srvDesc.TextureCube.MipLevels =Math::Min(Desc.MipLevels, Description.MipLevels - 1);
+		srvDesc.TextureCube.MostDetailedMip = Math::Min(Desc.Mip, Description.MipLevels - 1);
 	}
 	else
 	{
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = MipLevelsReadyNow;
-		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = Math::Min(Desc.MipLevels, Description.MipLevels-1);
+		srvDesc.Texture2D.MostDetailedMip = Math::Min(Desc.Mip, Description.MipLevels - 1);
 	}
 	DXDescriptor* output = new DXDescriptor();
 	if (heap == nullptr)

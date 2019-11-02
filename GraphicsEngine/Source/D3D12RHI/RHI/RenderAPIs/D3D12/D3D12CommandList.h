@@ -43,7 +43,7 @@ public:
 	void PushState();
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	void PrepareforDraw();
-	virtual void SetTexture(BaseTextureRef texture, int slot) override;
+	virtual void SetTexture(BaseTextureRef texture, int slot, const RHIViewDesc & desc) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
 
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
@@ -95,8 +95,8 @@ public:
 	RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) override;
 
 
-	 RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) override;
-	 RHIRootSigniture* GetRootSig();
+	RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) override;
+	RHIRootSigniture* GetRootSig();
 private:
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();
@@ -120,7 +120,7 @@ private:
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 	D3D12CommandSigniture* CommandSig = nullptr;
 	RHIRootSigniture RootSigniture;
-;
+	;
 };
 
 class D3D12RHITextureArray : public RHITextureArray
@@ -133,7 +133,7 @@ public:
 	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot)override;
 	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr);
 	RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc);
-	DXDescriptor* GetDescriptor(const RHIViewDesc & desc,DescriptorHeap* heap = nullptr);
+	DXDescriptor* GetDescriptor(const RHIViewDesc & desc, DescriptorHeap* heap = nullptr);
 	uint64 GetHash();
 private:
 	void Release() override;
