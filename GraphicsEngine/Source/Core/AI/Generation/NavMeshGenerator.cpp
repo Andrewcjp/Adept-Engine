@@ -308,7 +308,7 @@ void NavPlane::RemoveDupeNavPoints()
 			{
 				if (NavPoints[x]->Point == NavPoints[y]->Point)
 				{
-					if (VectorUtils::Contains(RemoveList, NavPoints[x], [](DLTENode*a, DLTENode* b)
+					if (VectorUtils::Contains_Func(RemoveList, NavPoints[x], [](DLTENode*a, DLTENode* b)
 					{
 						return a->Point == b->Point;
 					}))

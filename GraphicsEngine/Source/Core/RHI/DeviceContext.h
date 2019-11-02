@@ -72,6 +72,7 @@ struct CapabilityData
 	EMGPUConnectionMode::Type ConnectionMode = EMGPUConnectionMode::None;
 	bool SupportsDepthBoundsTest = true;
 	EShaderSupportModel::Type HighestModel = EShaderSupportModel::SM5;
+	bool SupportExecuteIndirect = false;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
 class  DeviceContext
@@ -132,6 +133,7 @@ public:
 	void IncrementDeviceFrame();
 	int GetDeviceFrame()const;
 	void TickDeferredDeleteQueue();
+	bool SupportsIndirectExecute()const;
 protected:
 	int CurrentFrameIndex = 0;
 	RHI_API void PostInit();

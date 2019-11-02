@@ -2,6 +2,7 @@
 #include "ConsoleVariable.h"
 #include "Core/Utils/StringUtil.h"
 #include "Logger.h"
+#include "../Utils/VectorUtils.h"
 ConsoleVariableManager* ConsoleVariableManager::Instance = nullptr;
 
 ConsoleVariable::ConsoleVariable(std::string name, int defaultValue, ECVarType::Type cvartype, bool NeedsValue) :ConsoleVariable(name, cvartype, NeedsValue)
@@ -49,6 +50,10 @@ bool ConsoleVariable::GetBoolValue() const
 
 void ConsoleVariable::SetValue(int value)
 {
+	for (ConsoleVariable* V : LinkedVars)
+	{
+		V->SetValue(value);
+	}
 	CurrentValue.Int_Value = value;
 	if (OnChangedBoolFunction)
 	{
@@ -57,12 +62,15 @@ void ConsoleVariable::SetValue(int value)
 	if (OnChangedFunction)
 	{
 		OnChangedFunction(value);
-	}
-	
+	}	
 }
 
 void ConsoleVariable::SetValueF(float value)
 {
+	for (ConsoleVariable* V : LinkedVars)
+	{
+		V->SetValueF(value);
+	}
 	CurrentValue.F_Value = value;
 	if (OnChangedFloatFunction)
 	{
@@ -109,11 +117,27 @@ ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, boo
 	NeedsValue = needsValue;
 	if (cvartype != ECVarType::LaunchOnly)
 	{
-		ConsoleVariableManager::Get()->ConsoleVars.push_back(this);
+		int Index = 0;
+		if (VectorUtils::Contains(ConsoleVariableManager::Get()->ConsoleVars, this, Index))
+		{
+			ConsoleVariableManager::Get()->ConsoleVars[Index]->LinkedVars.push_back(this);
+		}
+		else
+		{
+			ConsoleVariableManager::Get()->ConsoleVars.push_back(this);
+		}
 	}
-	if (cvartype != ECVarType::ConsoleOnly)
+	else if (cvartype != ECVarType::ConsoleOnly)
 	{
-		ConsoleVariableManager::Get()->LaunchArgs.push_back(this);
+		int Index = 0;
+		if (VectorUtils::Contains(ConsoleVariableManager::Get()->LaunchArgs, this, Index))
+		{
+			ConsoleVariableManager::Get()->LaunchArgs[Index]->LinkedVars.push_back(this);
+		}
+		else
+		{
+			ConsoleVariableManager::Get()->LaunchArgs.push_back(this);
+		}
 	}
 	ConsoleVariableManager::Get()->AllVars.push_back(this);
 	Name = name;
@@ -145,7 +169,7 @@ bool GetValueClean(std::string value, int& outvalue)
 	{
 		outvalue = stoi(value);
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
 		return false;
 	}
@@ -283,7 +307,6 @@ bool ConsoleVariableManager::TrySetCVar(std::string command, ConsoleVariable** V
 			{
 				if (SplitArgs.size() > 1)
 				{
-
 					if (CV->IsFloat)
 					{
 						float value = stof(SplitArgs[1]);
@@ -309,12 +332,11 @@ bool ConsoleVariableManager::TrySetCVar(std::string command, ConsoleVariable** V
 static ConsoleVariable Help("help", ECVarType::ConsoleOnly, std::bind(&ConsoleVariableManager::DebugLogCVars));
 void ConsoleVariableManager::DebugLogCVars()
 {
-	Log::LogMessage("Console Var");
+	Log::LogMessage("Console Vars");
 	for (int i = 0; i < Get()->ConsoleVars.size(); i++)
 	{
-		Log::LogMessage("	" + Get()->ConsoleVars[i]->GetName());
+		Log::LogMessage(Get()->ConsoleVars[i]->GetName());
 	}
-	Log::LogMessage("end CVar Log");
 }
 
 void IConsoleSettings::GetVariables(std::vector<ConsoleVariable*>& VarArray)

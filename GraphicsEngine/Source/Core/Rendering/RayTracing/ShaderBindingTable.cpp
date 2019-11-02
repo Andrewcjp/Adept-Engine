@@ -4,7 +4,7 @@
 #include "../Core/Mesh.h"
 #include "../Core/Material.h"
 #include "Core/Utils/StringUtil.h"
-//#pragma  optimize("",off)
+
 ShaderBindingTable::ShaderBindingTable()
 {}
 
@@ -34,8 +34,7 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 		if (Object->GetMesh()->GetMaterial(0)->GetRenderPassType() == EMaterialRenderType::Transparent)
 		{
 			HitGroups[HitGroups.size() - 1]->AnyHitShader = new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
-			//			Shader_RTBase* anyhit = HitGroups[HitGroups.size() - 1]->AnyHitShader;
-
+			//Shader_RTBase* anyhit = HitGroups[HitGroups.size() - 1]->AnyHitShader;
 		}
 	}
 }

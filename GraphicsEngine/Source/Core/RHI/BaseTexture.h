@@ -24,13 +24,16 @@ struct TextureDescription
 	void* PtrToData = nullptr;
 	ETextureType::Type TextureType = ETextureType::Type_2D;
 	int ImageByteSize = 0;
+	std::vector<glm::ivec2> MipLevelExtents;
+	RHI_API uint64_t Size(int mip);
+	RHI_API glm::ivec2 MipExtents(int mip);
 };
 
 class BaseTexture :  public IRHIResourse, public IRHISharedDeviceObject<BaseTexture>
 {
 public:
 	CORE_API virtual ~BaseTexture();
-	virtual bool CreateFromFile(AssetPathRef FileName) = 0;
+	bool CreateFromFile(AssetPathRef FileName);
 	CORE_API void CreateTextureFromData(void* data, int type, int width, int height, int bits);
 	virtual void CreateTextureFromDesc(const TextureDescription& desc) = 0;
 	virtual void CreateAsNull() = 0;
