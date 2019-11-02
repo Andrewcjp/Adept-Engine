@@ -26,6 +26,7 @@ public:
 	void LogMemoryReport();
 	GPUMemoryPage* FindFreePage(AllocDesc & desc, std::vector<GPUMemoryPage*>& pages);
 	UINT64 GetTotalAllocated()const ;
+	UINT64 GetTotalReserved()const;
 private:
 	D3D12DeviceContext* Device = nullptr;
 	//all pages on this device

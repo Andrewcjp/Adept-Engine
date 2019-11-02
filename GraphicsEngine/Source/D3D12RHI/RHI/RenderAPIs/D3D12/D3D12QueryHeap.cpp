@@ -137,6 +137,14 @@ D3D12_QUERY_TYPE D3D12QueryHeap::GetType()
 	return D3D12_QUERY_TYPE();
 }
 
+void DX12QueryBatch::Reset()
+{
+	Startindex = 0;
+	Count = 0;
+	MemoryUtils::DeleteVector(Queries);
+	Queries.clear();
+}
+
 void DX12QueryBatch::Alloc(D3D12Query* Q)
 {
 	Queries.push_back(Q);

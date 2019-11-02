@@ -318,7 +318,6 @@ void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 static ConsoleVariable IsWithNsight("Nsight", 0, ECVarType::LaunchOnly);
 void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 {
-
 	//#DX12 Nsight crashes here for some reason
 	if (IsWithNsight.GetBoolValue())
 	{
@@ -381,7 +380,7 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	{
 		return ImageIO::GetDefaultTexture();
 	}
-	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 0 && RHI::IsD3D12() && RHI::GetRenderSettings()->InitSceneDataOnAllGPUs)
+	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 1 && RHI::IsD3D12() && RHI::GetRenderSettings()->InitSceneDataOnAllGPUs)
 	{
 		BaseTextureRef other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
 		newtex->RegisterOtherDeviceTexture(other.Get());

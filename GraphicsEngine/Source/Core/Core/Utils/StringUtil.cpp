@@ -80,10 +80,7 @@ std::string StringUtils::ToString(float value, int Places /*= 2*/)
 	return stream.str();
 }
 
-std::string StringUtils::ByteToMB(uint64_t value)
-{
-	return StringUtils::ToString((float)(value) / 1024 / 1024) + "MB";
-}
+
 
 std::string StringUtils::ByteToGB(uint64_t value)
 {

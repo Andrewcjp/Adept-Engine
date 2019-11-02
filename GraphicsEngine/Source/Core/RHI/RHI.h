@@ -166,7 +166,7 @@ public:
 	struct GPUMemoryData
 	{
 		uint64_t TotalAllocated = 0;
-		uint64_t UntrackedDelta = 0;
+		int64_t UntrackedDelta = 0;
 		uint64_t MaxBudget = 0;
 		uint64_t MaxPhysical = 0;
 	};

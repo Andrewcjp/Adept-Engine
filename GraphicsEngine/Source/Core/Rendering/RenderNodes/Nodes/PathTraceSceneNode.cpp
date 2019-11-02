@@ -21,10 +21,8 @@ PathTraceSceneNode::~PathTraceSceneNode()
 void PathTraceSceneNode::OnExecute()
 {
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
-	if (RHI::GetFrameCount() == 0)
-	{
-		StateObject->RebuildShaderTable();
-	}
+	StateObject->RebuildShaderTable();
+	
 	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	Data.IProj = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetProjection());
 	Data.IView = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetView());

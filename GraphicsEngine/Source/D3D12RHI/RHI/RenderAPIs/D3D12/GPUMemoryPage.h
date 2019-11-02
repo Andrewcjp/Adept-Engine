@@ -18,7 +18,7 @@ public:
 	void Compact();
 	//removes a resource from this page and frees its memory
 	void Deallocate(GPUResource* R);
-	UINT GetSize()const;
+	UINT64 GetSize()const;
 	UINT64 GetSizeInUse()const;
 	void LogReport();
 	bool GetIsReserved() const { return IsReserved; }
@@ -27,6 +27,7 @@ public:
 	void ResetPage();
 	void EvictPage();
 	void MakeResident();
+	const AllocDesc & GetDesc()const;
 private:
 	struct AllocationChunk
 	{

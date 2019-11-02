@@ -519,7 +519,7 @@ bool RenderGraph::IsGraphValid()
 	{
 		return false;
 	}
-	if (RequiresMGPU && (!RHI::SupportsExplictMultiAdaptor() || RHI::GetDeviceCount() < 2))
+	if (RequiresMGPU && RHI::GetDeviceCount() == 1)
 	{
 		return false;
 	}
