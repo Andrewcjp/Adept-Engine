@@ -236,6 +236,10 @@ void ConsoleVariableManager::GetCFGVariables(std::vector<std::string> &Lines)
 {
 	for (ConsoleVariable* CV : Instance->AllVars)
 	{
+		if (CV->Type == ECVarType::LaunchOnly)
+		{
+			continue;
+		}
 		if (!CV->IsDefaultValue())
 		{
 			Lines.push_back(CV->GetName() + " " + std::to_string(CV->GetIntValue()));

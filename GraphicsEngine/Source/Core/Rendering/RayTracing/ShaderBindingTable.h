@@ -15,11 +15,12 @@ namespace DefaultLocalRootSignatureParams
 	enum Value
 	{
 		IndexBuffer,
-		VertexBuffer,		
+		VertexBuffer,
 		Count
 	};
 }
 class Shader_RTBase;
+class Shader_RTMateralHit;
 struct ShaderHitGroup
 {
 	ShaderHitGroup(std::string name);
@@ -43,6 +44,9 @@ public:
 	virtual ~ShaderBindingTable();
 	void RebuildHittableFromScene(Scene * Sc);
 	void AddObject(GameObject * Object);
+
+	virtual	Shader_RTMateralHit* GetMaterialShader();
+
 	std::vector<Shader_RTBase*> MissShaders;
 	std::vector<Shader_RTBase*> RayGenShaders;
 	std::vector<ShaderHitGroup*> HitGroups;
@@ -52,9 +56,9 @@ public:
 	void ValidateShaderExports(std::map<std::string, int>& CountMap, std::vector<Shader_RTBase*>& shaders);
 
 	void AddToMap(Shader_RTBase * shader, std::map<std::string, int>& CountMap);
-	
+
 protected:
-	
+
 	virtual void OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader);
 };
 

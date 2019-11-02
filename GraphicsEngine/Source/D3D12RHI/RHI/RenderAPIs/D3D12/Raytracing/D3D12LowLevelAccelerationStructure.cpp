@@ -81,7 +81,7 @@ void D3D12LowLevelAccelerationStructure::AddEntity(MeshEntity* Entity)
 	geometryDesc.Triangles.VertexCount = (UINT)D3D12RHI::DXConv(Entity->VertexBuffers[0].Get())->GetVertexCount();
 	ensure(geometryDesc.Triangles.VertexCount > 0);
 	geometryDesc.Triangles.VertexBuffer.StrideInBytes = sizeof(OGLVertex);
-	//geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 	geometryDescs.push_back(geometryDesc);
 }
 

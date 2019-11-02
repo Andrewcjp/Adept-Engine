@@ -7,6 +7,9 @@
 #include "DescriptorHeap.h"
 #include "Core\Performance\PerfManager.h"
 #include "Rendering\Core\FrameBuffer.h"
+#include "D3D12Framebuffer.h"
+#include "D3D12Buffer.h"
+#include "Core\Utils\TypeUtils.h"
 #define ENABLE_CACHE 1
 
 DescriptorCache::DescriptorCache(D3D12DeviceContext* con)
@@ -118,7 +121,7 @@ DXDescriptor* DescriptorCache::CopyToCurrentHeap(DXDescriptor * d, bool CouldbeR
 
 bool DescriptorCache::ShouldCache(const RSBind* bind)
 {
-	return true;
+	return false;
 }
 
 DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)

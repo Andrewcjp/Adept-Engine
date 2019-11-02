@@ -1,4 +1,5 @@
 #pragma once
+#include "RHI\RHIRootSigniture.h"
 
 class DXDescriptor;
 class DescriptorHeap;

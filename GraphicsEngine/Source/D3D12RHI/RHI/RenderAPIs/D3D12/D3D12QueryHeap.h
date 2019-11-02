@@ -7,13 +7,7 @@ struct DX12QueryBatch
 	int Startindex;
 	int Count;
 	std::vector<D3D12Query*> Queries;
-	void Reset()
-	{
-		Startindex = 0;
-		Count = 0;
-		MemoryUtils::DeleteVector(Queries);
-		Queries.clear();
-	}
+	void Reset();
 	void Alloc(D3D12Query* Q);
 	bool Open = false;
 };

@@ -187,7 +187,7 @@ void GPUMemoryPage::Deallocate(GPUResource * R)
 	}
 }
 
-UINT GPUMemoryPage::GetSize() const
+UINT64 GPUMemoryPage::GetSize() const
 {
 	return PageDesc.Size;
 }
@@ -234,6 +234,11 @@ void GPUMemoryPage::MakeResident()
 	IsResident = true;
 	ID3D12Pageable* list = { PageHeap };
 	Device->GetDevice()->MakeResident(1, &list);
+}
+
+const AllocDesc & GPUMemoryPage::GetDesc() const
+{
+	return PageDesc;
 }
 
 

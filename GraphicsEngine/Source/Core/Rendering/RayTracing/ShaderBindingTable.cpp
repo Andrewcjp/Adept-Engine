@@ -25,7 +25,7 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 	for (int i = 0; i < Object->GetMesh()->SubMeshes.size(); i++)
 	{
 		HitGroups.push_back(new ShaderHitGroup("HitGroup0"));
-		HitGroups[HitGroups.size() - 1]->HitShader = new Shader_RTMateralHit(RHI::GetDefaultDevice());
+		HitGroups[HitGroups.size() - 1]->HitShader = GetMaterialShader();
 		Shader_RTBase* Shader = HitGroups[HitGroups.size() - 1]->HitShader;
 
 		Shader->LocalRootSig.SetBufferReadOnly(DefaultLocalRootSignatureParams::IndexBuffer, Object->GetMesh()->SubMeshes[i]->IndexBuffers[0].Get());
@@ -37,6 +37,11 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 			//Shader_RTBase* anyhit = HitGroups[HitGroups.size() - 1]->AnyHitShader;
 		}
 	}
+}
+
+Shader_RTMateralHit* ShaderBindingTable::GetMaterialShader()
+{
+	return new Shader_RTMateralHit(RHI::GetDefaultDevice());
 }
 
 void ShaderBindingTable::InitTable()

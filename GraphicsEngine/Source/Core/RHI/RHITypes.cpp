@@ -227,15 +227,6 @@ RHIPipeLineStateDesc RHIPipeLineStateDesc::CreateDefault(Shader* shader, FrameBu
 
 void RHIPipeLineStateDesc::Build()
 {
-	/*if (FrameBufferTarget != nullptr)
-	{
-		RenderTargetDesc = FrameBufferTarget->GetPiplineRenderDesc();
-	}*/
-	if (RenderTargetDesc.NumRenderTargets == 0 && RenderTargetDesc.DSVFormat == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
-	{
-		//push the default
-		ensure(false);
-	}
 	RenderPassDesc.Build();
 	CalulateHash();
 }

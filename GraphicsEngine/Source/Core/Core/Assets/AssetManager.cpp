@@ -263,12 +263,6 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 //#Files: Check time stamps!
 BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImportSettings settings, DeviceContext* Device)
 {
-#if !BASIC_RENDER_ONLY
-	/*if (RHI::IsVulkan())
-	{
-		settings.DirectLoad = true;
-	}*/
-#endif
 	AssetPathRef Fileref = AssetPathRef(name);
 #if WITH_EDITOR
 	if (!FileUtils::File_ExistsTest(Fileref.GetFullPathToAsset()))

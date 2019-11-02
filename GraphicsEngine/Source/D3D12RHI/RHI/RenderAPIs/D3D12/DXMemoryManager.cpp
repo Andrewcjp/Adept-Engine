@@ -202,3 +202,8 @@ UINT64 DXMemoryManager::GetTotalAllocated() const
 	return TotalPageUsed;
 }
 
+UINT64 DXMemoryManager::GetTotalReserved() const
+{
+	return TotalPageAllocated;
+}
+

@@ -515,7 +515,7 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 	//compute work could run past the end of a frame?
 	if (RHI::GetFrameCount() == 1 || RHI::GetFrameCount() == 100)
 	{
-			GetMemoryManager()->LogMemoryReport();
+		GetMemoryManager()->LogMemoryReport();
 	}
 	if (RHI::GetFrameCount() == 10)
 	{
@@ -525,10 +525,10 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 
 void D3D12DeviceContext::SampleVideoMemoryInfo()
 {
-	pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &CurrentVideoMemoryInfo);
+	pDXGIAdapter->QueryVideoMemoryInfo(GetNodeIndex(), DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &CurrentVideoMemoryInfo);
 	MemoryData.HostSegment_TotalBytes = CurrentVideoMemoryInfo.Budget;
 
-	pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &CurrentVideoMemoryInfo);
+	pDXGIAdapter->QueryVideoMemoryInfo(GetNodeIndex(), DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &CurrentVideoMemoryInfo);
 
 	usedVRAM = CurrentVideoMemoryInfo.CurrentUsage / 1024 / 1024;
 	totalVRAM = CurrentVideoMemoryInfo.Budget / 1024 / 1024;
@@ -545,8 +545,8 @@ RHIClass::GPUMemoryData D3D12DeviceContext::GetMemoryReport()
 	RHIClass::GPUMemoryData data = {};
 	data.MaxPhysical = Adaptordesc.DedicatedVideoMemory;
 	data.TotalAllocated = GetMemoryManager()->GetTotalAllocated();
-	data.UntrackedDelta = Math::UDelta(MemoryData.Local_Usage, data.TotalAllocated);
-	data.MaxBudget = MemoryData.LocalSegment_TotalBytes; 
+	data.UntrackedDelta = (int64_t)MemoryData.Local_Usage - (int64_t)GetMemoryManager()->GetTotalReserved();
+	data.MaxBudget = MemoryData.LocalSegment_TotalBytes;
 	return data;
 }
 

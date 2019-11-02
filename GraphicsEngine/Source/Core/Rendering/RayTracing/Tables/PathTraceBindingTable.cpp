@@ -31,6 +31,11 @@ void PathTraceBindingTable::InitTable()
 
 }
 
+Shader_RTMateralHit* PathTraceBindingTable::GetMaterialShader()
+{
+	return new Shader_RTMateralHit(RHI::GetDefaultDevice());
+}
+
 void PathTraceBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader)
 {
 	Shader->LocalRootSig.SetTexture(2, Mesh->GetMaterial(0)->GetTexturebind("DiffuseMap"));
