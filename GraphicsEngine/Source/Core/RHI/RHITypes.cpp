@@ -3,6 +3,7 @@
 #include "Core/Utils/StringUtil.h"
 #include "Shader.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "Core/Utils/TypeUtils.h"
 
 RHIFrameBufferDesc RHIFrameBufferDesc::CreateColour(int width, int height)
 {
@@ -169,10 +170,9 @@ size_t RHIPipeLineStateDesc::GetHash()
 
 void RHIPipeLineStateDesc::CalulateHash()
 {
-	//return;
-	//#RHI: hash all members
-	StringPreHash = "";
-	StringPreHash += std::to_string(ShaderInUse->GetNameHash());	
+	UniqueHash = 0;
+	HashUtils::hash_combine(UniqueHash, ShaderInUse->GetNameHash());
+
 	StringPreHash += std::to_string(Cull);
 	StringPreHash += std::to_string(DepthStencilState.DepthEnable);
 	StringPreHash += std::to_string(DepthStencilState.DepthWrite);
@@ -182,7 +182,7 @@ void RHIPipeLineStateDesc::CalulateHash()
 		StringPreHash += std::to_string((int)RenderTargetDesc.RTVFormats[i]);
 	}
 	StringPreHash += RenderPassDesc.GetHashString();
-	UniqueHash = std::hash<std::string>{} (StringPreHash);
+	
 }
 
 bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
@@ -477,7 +477,7 @@ bool RHIViewDesc::operator==(const RHIViewDesc other) const
 	return ArraySlice == other.ArraySlice &&
 		Mip == other.Mip &&
 		MipLevels == other.MipLevels &&
-		Resource == other.Resource &&
+		ResourceIndex == other.ResourceIndex &&
 		ViewType == other.ViewType &&
 		Dimension == other.Dimension;
 }

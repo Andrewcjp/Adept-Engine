@@ -19,7 +19,6 @@
 #endif
 #include "RHI/RHI.h"
 #define DRED 1
-#define DESC_CREATE 1
 class D3D12DeviceContext;
 class D3D12GPUSyncEvent;
 class D3D12Buffer;
@@ -156,7 +155,7 @@ private:
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	ID3D12DescriptorHeap* m_dsvHeap = nullptr;
 	UINT m_rtvDescriptorSize;
-	ID3D12Resource * m_depthStencil = nullptr; 
+	GPUResource* m_depthStencil = nullptr; 
 	int m_frameIndex = 0;
 	ID3D12Debug* debugController;
 

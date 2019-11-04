@@ -103,7 +103,7 @@ void D3D12StateObject::AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shade
 		return;
 	}
 	auto lib = RTPipe.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
-	ShaderBlob* B = ((D3D12Shader*)Shader->GetShaderProgram())->GetShaderBlobs()->RTLibBlob;
+	ShaderBlob* B = D3D12RHI::DXConv(Shader->GetShaderProgram())->GetShaderBlobs()->RTLibBlob;
 	D3D12_SHADER_BYTECODE libdxil = CD3DX12_SHADER_BYTECODE(B->GetBufferPointer(), B->GetBufferSize());
 	lib->SetDXILLibrary(&libdxil);
 	for (int i = 0; i < Shader->GetExports().size(); i++)
@@ -170,7 +170,7 @@ void D3D12StateObject::BuildShaderTables()
 		WriteBinds(ShaderTable->MissShaders[i], GPUPtrs);
 		m_sbtHelper.AddMissProgram(ShaderTable->MissShaders[i]->GetFirstExportWide(), GPUPtrs);
 	}
-	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5())*4;
+	uint32_t sbtSize = m_sbtHelper.ComputeSBTSize(D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5()) * 4;
 	//	D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
 		// Create the SBT on the upload heap. This is required as the helper will use mapping to write the
 		// SBT contents. After the SBT compilation it could be copied to the default heap for performance.
@@ -243,7 +243,7 @@ void D3D12StateObject::Trace(const RHIRayDispatchDesc& DispatchDesc, RHICommandL
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
 	dispatchDesc.RayGenerationShaderRecord.StartAddress = m_sbtStorage->GetGPUVirtualAddress();
 	dispatchDesc.RayGenerationShaderRecord.SizeInBytes = m_sbtHelper.GetRayGenSectionSize();
-	
+
 	dispatchDesc.MissShaderTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + m_sbtHelper.GetRayGenSectionSize();
 	dispatchDesc.MissShaderTable.SizeInBytes = m_sbtHelper.GetMissSectionSize();
 	dispatchDesc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();

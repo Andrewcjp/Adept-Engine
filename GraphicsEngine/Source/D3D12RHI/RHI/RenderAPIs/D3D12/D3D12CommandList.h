@@ -34,7 +34,7 @@ public:
 	ID3D12CommandAllocator * GetCommandAllocator();
 	void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0);
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
-	virtual void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) override;
+	RHI_VIRTUAL void DrawIndexedPrimitive(uint IndexCountPerInstance, uint InstanceCount, uint StartIndexLocation, uint BaseVertexLocation, uint StartInstanceLocation) override;
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
 	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
@@ -44,7 +44,7 @@ public:
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
 	void PrepareforDraw();
 	virtual void SetTexture(BaseTextureRef texture, int slot, const RHIViewDesc & desc) override;
-	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex = 0) override;
+	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, const RHIViewDesc & desc) override;
 
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void SetCommandSigniture(RHICommandSignitureDescription desc)override;
@@ -78,23 +78,12 @@ public:
 	virtual void SetStateObject(RHIStateObject* Object) override;
 #endif
 	RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
-
-
-	virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) override;
 	RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, RHIViewDesc Desc, int Slot) override;
 	RHI_VIRTUAL void SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc) override;
-
-
 	RHI_VIRTUAL void SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view) override;
-
-
 	RHI_VIRTUAL void SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view) override;
 	RHI_VIRTUAL void SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view = RHIViewDesc()) override;
-
-
 	RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) override;
-
-
 	RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) override;
 	RHIRootSigniture* GetRootSig();
 private:

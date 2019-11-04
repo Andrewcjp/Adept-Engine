@@ -12,10 +12,10 @@ RenderSettings::RenderSettings()
 	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;
 	ShadowSettings.UseGeometryShaderForShadows = true;
-	//ShadowSettings.UseViewInstancingForShadows = true; 
-	DRSSettings.EnableDynamicResolutionScaling = true;
+	ShadowSettings.UseViewInstancingForShadows = true; 
+	//DRSSettings.EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
-//	EnableGPUParticles = false;
+	//EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 
 	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
@@ -104,16 +104,12 @@ void RenderSettings::SetRes(BBTestMode::Type Mode)
 RenderConstants::RenderConstants()
 {
 	MAX_DYNAMIC_POINT_SHADOWS = 4;
-	//	if (RHI::IsVulkan())
-	{
-		MAX_DYNAMIC_POINT_SHADOWS = 1;
-	}
 	MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
 	MAX_LIGHTS = 16;
 	DEFAULT_COPYLIST_POOL_SIZE = 4;
 	MAX_LIGHTS = glm::min(MAX_POSSIBLE_LIGHTS, MAX_LIGHTS);
 	LIGHTCULLING_TILE_SIZE = 16;
-	MAX_MESH_INSTANCES = 50;
+	MAX_MESH_INSTANCES = 20;
 }
 
 std::string RenderSettings::ToString(BBTestMode::Type t)

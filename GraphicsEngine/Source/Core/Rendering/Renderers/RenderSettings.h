@@ -118,7 +118,7 @@ public:
 	bool RaytracingEnabled()const;
 	RayTracingSettings& GetRTSettings();
 	ShadowMappingSettings& GetShadowSettings();
-	DynamicResolutionSettings& GetDynamicResolutionSettings();
+	RHI_API DynamicResolutionSettings& GetDynamicResolutionSettings();
 	bool AllowMeshInstancing = false;
 	void ValidateForAPI(ERenderSystemType system);
 	RendererSettings& GetSettingsForRender();

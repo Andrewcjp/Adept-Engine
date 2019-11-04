@@ -74,7 +74,6 @@ GPUMemoryPage::AllocationChunk * GPUMemoryPage::FindFreeChunk(AllocDesc & desc)
 	}
 	return nullptr;
 }
-
 GPUMemoryPage::AllocationChunk * GPUMemoryPage::AllocateFromFreeChunk(AllocDesc & desc)
 {
 	AllocationChunk* Source = FindFreeChunk(desc);
@@ -83,7 +82,7 @@ GPUMemoryPage::AllocationChunk * GPUMemoryPage::AllocateFromFreeChunk(AllocDesc 
 		return nullptr;
 	}
 	AllocationChunk* NewChunk = new AllocationChunk();
-	const uint64 ResourceSize = D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes);
+	const uint64_t ResourceSize = D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes);
 
 	NewChunk->offset = Source->offset;
 	Source->offset += ResourceSize;
@@ -117,7 +116,7 @@ void GPUMemoryPage::CreateResource(AllocationChunk* chunk, AllocDesc & desc, ID3
 	D3D12_CLEAR_VALUE* value = nullptr;
 	//if (desc.ResourceDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER && PageDesc.PageAllocationType == EPageTypes::RTAndDS_Only)
 	{
-		if (desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+		if (desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
 		{
 			value = &desc.ClearValue;
 		}

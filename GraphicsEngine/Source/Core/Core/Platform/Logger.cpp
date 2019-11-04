@@ -14,11 +14,7 @@ void Log::LogOutput(const std::string& data, int colour, bool ForceFlush /*= fal
 		return;
 	}
 	Instance->LogData.push_back(data);
-#ifdef _DEBUG
 	const int LogFlushCount = 150;
-#else
-	const int LogFlushCount = 50;
-#endif
 	if (ForceFlush || Instance->LogData.size() % LogFlushCount)
 	{
 		Instance->FlushToLogFile();

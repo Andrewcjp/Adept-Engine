@@ -49,7 +49,7 @@ bool ShaderGraphComplier::ComplieGraph(MaterialShaderComplieData& data, std::str
 	{
 		Graph->Complie();
 	}
-	std::string MainShader = AssetManager::instance->LoadFileWithInclude(Graph->GraphMasterNode->GetTemplateName(data));
+	std::string MainShader = AssetManager::instance->LoadFileWithInclude(Graph->GraphMasterNode->GetTemplateName(data))->Source;
 	ensure(!MainShader.empty());
 	std::vector<std::string> split = StringUtils::Split(MainShader, '\n');
 	const std::string TargetMarker = "//Insert Marker";

@@ -29,7 +29,6 @@ class D3D12Helpers
 public:
 	static void NameRHIObject(class DescriptorHeap * Object, IRHIResourse * resource, std::string OtherData = std::string());
 	static void NameRHIObject(class GPUResource* Object, IRHIResourse* resource, std::string OtherData = std::string());
-	static void NameRHIObject(class D3D12CBV * Object, IRHIResourse * resource, std::string OtherData = std::string());
 	static void NameRHIObject(ID3D12Object* Object, IRHIResourse* resource, std::string OtherData = std::string());
 	static std::string StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel);
 	static std::string DXErrorCodeToString(HRESULT result);

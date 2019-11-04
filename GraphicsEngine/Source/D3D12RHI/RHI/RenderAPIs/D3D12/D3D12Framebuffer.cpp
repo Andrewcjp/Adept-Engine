@@ -103,10 +103,6 @@ bool D3D12FrameBuffer::CheckDevice(int index)
 {
 	if (Device != nullptr)
 	{
-		/*if (OtherDevice != nullptr)
-		{
-			return (OtherDevice->GetDeviceIndex() == index) || (Device->GetDeviceIndex() == index);
-		}*/
 		return (Device->GetDeviceIndex() == index);
 	}
 	return false;
@@ -131,10 +127,12 @@ void D3D12FrameBuffer::HandleResize()
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
 		EnqueueSafeRHIRelease(RenderTarget[i]);
+		RenderTarget[i] = nullptr;
 	}
 	if (DepthStencil)
 	{
 		EnqueueSafeRHIRelease(DepthStencil);
+		DepthStencil = nullptr;
 	}
 	Init();
 }
@@ -150,9 +148,9 @@ bool D3D12FrameBuffer::IsReadyForCompute() const
 
 void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, FrameBuffer* PassThrough)
 {
-	D3D12FrameBuffer * DPassBuffer = (D3D12FrameBuffer*)PassThrough;
+	D3D12FrameBuffer * DPassBuffer = D3D12RHI::DXConv(PassThrough);
 	ID3D12GraphicsCommandList* list = D3D12RHI::DXConv(List)->GetCommandList();
-	((D3D12CommandList*)List)->CurrentRenderTarget = DPassBuffer;
+	D3D12RHI::DXConv(List)->CurrentRenderTarget = DPassBuffer;
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
 	if (DPassBuffer->RenderTarget[0])
@@ -223,24 +221,7 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	//}
 }
 
-//void D3D12FrameBuffer::RequestSRV(const RHIViewDesc & desc)
-//{
-//	SRVRequest Req;
-//	Req.Desc = desc;
-//	Req.Descriptor = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
-//
-//	D3D12_SHADER_RESOURCE_VIEW_DESC d = GetSrvDesc(0);
-//	d.TextureCube.MostDetailedMip = desc.Mip;
-//	d.TextureCube.MipLevels = desc.MipLevels;
-//	if (desc.Dimension != DIMENSION_UNKNOWN)
-//	{
-//		d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimension);
-//	}
-//	d.Texture2DArray.ArraySize = 1;
-//	d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
-//	Req.Descriptor->CreateShaderResourceView(RenderTarget[0]->GetResource(), &d, 0);
-//	RequestedSRVS.push_back(Req);
-//}
+
 
 void D3D12FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
 {
@@ -367,10 +348,11 @@ DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc, Descrip
 	{
 		heap = CurrentDevice->GetHeapManager()->GetMainHeap();
 	}
+	ensure(desc.ViewType != EViewType::Limit);
 	DXDescriptor* Descriptor = heap->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 	if (desc.ViewType == EViewType::SRV)
 	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC d = GetSrvDesc(desc.Resource);
+		D3D12_SHADER_RESOURCE_VIEW_DESC d = GetSrvDesc(desc.ResourceIndex);
 		d.TextureCube.MostDetailedMip = desc.Mip;
 		d.TextureCube.MipLevels = desc.MipLevels;
 		if (desc.Dimension != DIMENSION_UNKNOWN)
@@ -379,7 +361,7 @@ DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc, Descrip
 		}
 		d.Texture2DArray.ArraySize = 1;
 		d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
-		Descriptor->CreateShaderResourceView(RenderTarget[desc.Resource]->GetResource(), &d, 0);
+		Descriptor->CreateShaderResourceView(RenderTarget[desc.ResourceIndex]->GetResource(), &d, 0);
 	}
 	else
 	{
@@ -415,35 +397,6 @@ D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferD
 	Init();
 	AddCheckerRef(D3D12FrameBuffer, this);
 	PostInit();
-}
-
-void D3D12FrameBuffer::UpdateSRV()
-{
-	/*if (SRVDesc == nullptr)
-	{
-		SRVDesc = CurrentDevice->GetHeapManager()->AllocateDescriptorGroup(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, std::max(BufferDesc.RenderTargetCount + 1, 2));
-	}
-
-	if (NullHeap == nullptr)
-	{
-		NullHeap = new DescriptorHeap(CurrentDevice, 1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		NAME_RHI_OBJ(NullHeap);
-	}
-	if (BufferDesc.RenderTargetCount == 0)
-	{
-		CreateSRVInHeap(0, SRVDesc);
-	}
-	else
-	{
-		for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
-		{
-			CreateSRVInHeap(i, SRVDesc);
-		}
-	}
-	if (BufferDesc.NeedsDepthStencil)
-	{
-		CreateDepthSRV(BufferDesc.RenderTargetCount, SRVDesc);
-	}*/
 }
 
 void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap* Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap)
@@ -492,7 +445,7 @@ void D3D12FrameBuffer::CreateResource(GPUResource** Resourceptr, DescriptorHeap*
 	{
 		ResourceState = (D3D12_RESOURCE_STATES)BufferDesc.StartingState;
 	}
-	if (BufferDesc.AllowDynamicResize)
+	if (BufferDesc.AllowDynamicResize && RHI::GetRenderSettings()->GetDynamicResolutionSettings().EnableDynamicResolutionScaling)
 	{
 		AllocDesc Desc = AllocDesc(0, ResourceState, ResourceDesc.Flags, "FB");
 		Desc.ClearValue = ClearValue;
@@ -604,7 +557,7 @@ void D3D12FrameBuffer::Init()
 		DSVHeap = new DescriptorHeap(CurrentDevice, Descriptorcount, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 		NAME_RHI_OBJ(DSVHeap);
 	}
-	if (BufferDesc.AllowDynamicResize && ReservedPage == nullptr)
+	if (BufferDesc.AllowDynamicResize && ReservedPage == nullptr && RHI::GetRenderSettings()->GetDynamicResolutionSettings().EnableDynamicResolutionScaling)
 	{
 		//#DX12: add Check for out of size resource
 		// Determine how much memory is required for our resource type
@@ -637,7 +590,6 @@ void D3D12FrameBuffer::Init()
 			CreateResource(&RenderTarget[i], RTVHeap, false, D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[i / BufferDesc.MipCount]), BufferDesc.Dimension, i);
 		}
 	}
-	UpdateSRV();
 }
 
 D3D12FrameBuffer::~D3D12FrameBuffer()

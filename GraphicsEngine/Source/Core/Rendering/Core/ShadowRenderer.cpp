@@ -151,6 +151,7 @@ eTEXTURE_FORMAT ShadowRenderer::GetDepthReadType()
 
 void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 {
+	
 	list->StartTimer(EGPUTIMERS::PointShadows);
 	int IndexOnGPU = 0;
 	std::vector<Light*> lights = SceneRenderer::Get()->GetLightCullingEngine()->GetCurrentlyRelevantLights();

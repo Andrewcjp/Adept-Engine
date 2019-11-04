@@ -166,6 +166,7 @@ int WindowsWindow::Run()
 				{
 					//if the app just restarted ignore the kill from the last run
 					DidJustBoot = false;
+					ensure(false);
 					continue;
 				}
 				Kill(0);

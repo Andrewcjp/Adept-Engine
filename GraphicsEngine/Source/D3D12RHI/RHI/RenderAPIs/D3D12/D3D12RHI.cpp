@@ -15,6 +15,7 @@
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
 #include "DescriptorCache.h"
+#include "DXMemoryManager.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly, false);
@@ -501,18 +502,14 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
 	depthOptimizedClearValue.DepthStencil.Stencil = 0;
 
-	ThrowIfFailed(GetDisplayDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
-		D3D12_RESOURCE_STATE_DEPTH_WRITE,
-		&depthOptimizedClearValue,
-		IID_PPV_ARGS(&m_depthStencil)
-	));
+	AllocDesc Desc = {};
+	Desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+	Desc.InitalState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+	Desc.ClearValue = depthOptimizedClearValue;
+	Desc.Name = "SwapChain depth stencil";
+	GetPrimaryDevice()->GetMemoryManager()->AllocFrameBuffer(Desc, &m_depthStencil);
 
-	NAME_D3D12_OBJECT(m_depthStencil);
-
-	GetDisplayDevice()->CreateDepthStencilView(m_depthStencil, &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	GetDisplayDevice()->CreateDepthStencilView(m_depthStencil->GetResource(), &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 void D3D12RHI::InitSwapChain()
@@ -570,11 +567,6 @@ void D3D12RHI::InitSwapChain()
 	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0], true);
 	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, GetPrimaryDevice()->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
-
-	//if (RHI::GetDeviceCount() > 1)
-	//{
-	//	AsyncSync = (D3D12GPUSyncEvent*)RHI::CreateSyncEvent(DeviceContextQueue::InterCopy, DeviceContextQueue::InterCopy, RHI::GetDeviceContext(0), RHI::GetDeviceContext(1));
-	//}
 }
 
 void D3D12RHI::SetFullScreenState(bool state)
@@ -956,7 +948,7 @@ RHITextureArray * D3D12RHI::CreateTextureArray(DeviceContext* Device, int Length
 	{
 		Device = RHI::GetDefaultDevice();
 	}
-	return new D3D12RHITextureArray(Device, Length);;
+	return new D3D12RHITextureArray(Device, Length);
 }
 
 

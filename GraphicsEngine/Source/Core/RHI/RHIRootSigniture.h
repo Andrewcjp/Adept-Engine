@@ -88,6 +88,7 @@ class RHIRootSigniture
 public:
 	RHI_API RHIRootSigniture();
 	RHI_API ~RHIRootSigniture();
+	bool IsCompatable(const std::vector<ShaderParameter>& parms);
 	RHI_API void SetRootSig(const std::vector<ShaderParameter>& parms);
 #if USE_VALIDATION
 	bool ValidateData(ShaderParameter * Parm, RSBind & bind);
@@ -95,7 +96,7 @@ public:
 	bool ComparePTypes(ShaderParamType::Type T, ERSBindType::Type bindt);
 	bool ValidateType(ShaderParameter * Parm, ERSBindType::Type type);
 	RHI_API void SetTexture(int slot, BaseTextureRef Tex, RHIViewDesc View = RHIViewDesc());
-	RHI_API void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, int resoruceindex = 0, RHIViewDesc View = RHIViewDesc());
+	RHI_API void SetFrameBufferTexture(int slot, FrameBuffer* Buffer, RHIViewDesc View = RHIViewDesc());
 	RHI_API void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0, RHIViewDesc View = RHIViewDesc());
 	RHI_API void SetBufferReadOnly(int slot, RHIBuffer* Target, const RHIViewDesc & desc = RHIViewDesc());
 	RHI_API void SetUAV(int slot, FrameBuffer * target, const RHIViewDesc & view);

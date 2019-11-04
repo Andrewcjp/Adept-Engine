@@ -36,12 +36,16 @@ std::vector<Shader::VertexElementDESC> Shader_NodeGraph::GetVertexFormat()
 
 std::vector<ShaderParameter> Shader_NodeGraph::GetShaderParameters()
 {
+#if 1
 	std::vector<ShaderParameter> Params = Shader_Main::GetShaderParameters();
 	std::map<std::string, TextureBindData>::const_iterator it;
 	for (it = Binds->BindMap.begin(); it != Binds->BindMap.end(); it++)
 	{
 		Params.push_back(ShaderParameter(ShaderParamType::SRV, it->second.RootSigSlot, it->second.RegisterSlot));
 	}
+#else
+	std::vector<ShaderParameter> Params = Shader::GetShaderParameters();
+#endif
 	VRXEngine::AddVRSToRS(Params, Params.size() - 1);
 	return Params;
 }

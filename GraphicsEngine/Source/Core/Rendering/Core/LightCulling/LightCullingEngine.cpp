@@ -100,8 +100,8 @@ void LightCullingEngine::RunLightBroadphase()
 
 	//Run a sphere to sphere test
 	std::vector<Light*> lights = BaseWindow::GetScene()->GetLights();
-	if (!FreezeLightCulling.GetBoolValue())
-	{
+	if (!FreezeLightCulling.GetBoolValue())	
+	{    
 		LightsInFustrum.clear();
 		for (int i = 0; i < lights.size(); i++)
 		{
@@ -128,7 +128,7 @@ void LightCullingEngine::RunLightBroadphase()
 			}
 			//#LCULLING: Support other light types
 		}
-	}
+	}	
 	UpdateLightsBuffer();
 }
 
@@ -140,14 +140,10 @@ void LightCullingEngine::UpdateLightsBuffer()
 	LightData.clear();
 	for (Light* L : LightsInFustrum)
 	{
-		LightUniformBuffer newitem = SceneRenderer::CreateLightEntity(L, 0);
+		LightUniformBuffer newitem = SceneRenderer::CreateLightEntity(L, 0);	
 		LightData.push_back(newitem);
 	}
 	LightDataBuffer->UpdateBufferData(LightData.data(), sizeof(LightUniformBuffer)*LightData.size(), EBufferResourceState::Read);
-	if (RHI::GetFrameCount() == 0)
-	{
-		RHI::WaitForGPU();
-	}
 }
 
 void LightCullingEngine::Resize()

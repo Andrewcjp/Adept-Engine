@@ -38,6 +38,11 @@ struct TextureImportSettings
 	bool InitOnAllDevices = true;
 	bool IsCubeMap = false;
 };
+struct ShaderSourceFile
+{
+	std::string Source;
+	std::vector<std::string> RootConstants;
+};
 class AssetManager
 {
 public:
@@ -49,7 +54,7 @@ public:
 	static void StartAssetManager();
 	static void ShutDownAssetManager();
 	void LoadFromShaderDir();
-	CORE_API std::string LoadFileWithInclude(std::string name);
+	CORE_API ShaderSourceFile* LoadFileWithInclude(std::string name);
 	static void RegisterMeshAssetLoad(std::string name);
 	CORE_API static BaseTextureRef DirectLoadTextureAsset(std::string name, TextureImportSettings settigns = TextureImportSettings(), class DeviceContext * Device = nullptr);
 	CORE_API static const std::string GetShaderPath();
@@ -71,7 +76,7 @@ private:
 
 	void InitAssetSettings(EPlatforms::Type Platform);
 
-	std::map<std::string, std::string> ShaderSourceMap;
+	std::map<std::string, ShaderSourceFile*> ShaderSourceMap;
 	std::map<std::string, std::string> MeshFileMap;
 
 

@@ -1,6 +1,5 @@
 #include "D3D12CommandList.h"
 #include "Core/Performance/PerfManager.h"
-#include "D3D12CBV.h"
 #include "D3D12DeviceContext.h"
 #include "D3D12Framebuffer.h"
 #include "DescriptorHeap.h"
@@ -216,7 +215,8 @@ void D3D12CommandList::PrepareforDraw()
 	for (int i = 0; i < RootSigniture.GetNumBinds(); i++)
 	{
 		const RSBind* bind = RootSigniture.GetBind(i);
-		
+		DebugEnsure(bind->BindParm);
+		//DebugEnsure(bind->IsBound());
 		if (bind->BindType == ERSBindType::Texture && bind->IsBound())
 		{
 			DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
@@ -264,7 +264,7 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::TextureArray)
 		{
-//			ensure(bind->View.ViewType != EViewType::Limit);
+			//			ensure(bind->View.ViewType != EViewType::Limit);
 			DXDescriptor* desc = nullptr;
 			//check(bind->IsBound());
 			if (bind->IsBound())
@@ -283,8 +283,8 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::UAV)
 		{
-			
-			DXDescriptor* desc = nullptr;		
+
+			DXDescriptor* desc = nullptr;
 			//check(bind->IsBound());
 			if (bind->IsBound())
 			{
@@ -315,7 +315,7 @@ void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCou
 	CurrentCommandList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 }
 
-void D3D12CommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
+void D3D12CommandList::DrawIndexedPrimitive(uint IndexCountPerInstance, uint InstanceCount, uint StartIndexLocation, uint BaseVertexLocation, uint StartInstanceLocation)
 {
 	PrepareforDraw();
 	CHECKRPASS();
@@ -637,7 +637,7 @@ void D3D12CommandList::ClearScreen()
 	D3D12RHI::Instance->ClearRenderTarget(CurrentCommandList);
 }
 
-void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex)
+void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, const RHIViewDesc & desc)
 {
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute || ListType == ECommandListType::RayTracing);
@@ -651,20 +651,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int
 		return;
 	}
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
-#if DESC_CREATE
-	RHIViewDesc d;
-	d.Resource = Resourceindex;
-	d.ViewType = EViewType::SRV;
-	RootSigniture.SetFrameBufferTexture(slot, buffer, Resourceindex, d);
-#else
-	DBuffer->BindBufferToTexture(CurrentCommandList, slot, Resourceindex, Device, (ListType == ECommandListType::Compute || IsRaytracingList()));
-#endif
-}
-
-void D3D12CommandList::BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc)
-{
-	//D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(Buffer);
-	//DBuffer->BindSRV(this, slot, Desc);
+	RootSigniture.SetFrameBufferTexture(slot, buffer, desc);
 }
 
 void D3D12CommandList::SetDepthBounds(float Min, float Max)
@@ -708,13 +695,7 @@ void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot, const RHIVie
 	{
 		return;
 	}
-	RootSigniture.SetTexture(slot, texture,desc);
-#if !DESC_CREATE
-	if (CurrentCommandList != nullptr)
-	{
-		Texture->BindToSlot(this, slot);
-	}
-#endif
+	RootSigniture.SetTexture(slot, texture, desc);
 }
 
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot)
