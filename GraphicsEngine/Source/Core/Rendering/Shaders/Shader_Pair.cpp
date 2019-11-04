@@ -28,8 +28,8 @@ const std::string Shader_Pair::GetName()
 
 void Shader_Pair::Init()
 {
-	int MaxIndex = Math::Min(Names.size(), StageList.size());
-	for (int i = 0; i < MaxIndex; i++)
+	uint64 MaxIndex = Math::Min(Names.size(), StageList.size());
+	for (uint64 i = 0; i < MaxIndex; i++)
 	{
 		m_Shader->AttachAndCompileShaderFromFile(Names[i].c_str(), StageList[i]);
 		shadername += Names[i];

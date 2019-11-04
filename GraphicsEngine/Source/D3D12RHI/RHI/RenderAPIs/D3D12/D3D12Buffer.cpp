@@ -5,7 +5,6 @@
 #include "RHI/RHICommandList.h"
 #include "GPUResource.h"
 
-#include "D3D12CBV.h"
 #include "D3D12CommandList.h"
 #include "DescriptorHeapManager.h"
 #include "DXMemoryManager.h"
@@ -32,91 +31,50 @@ void D3D12Buffer::Release()
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12Buffer, this);
 	Device = nullptr;
-	if (CurrentBufferType == ERHIBufferType::Constant)
-	{
-		for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
-		{
-			MemoryUtils::DeleteCArray(CBV[i], RHI::CPUFrameCount);
-		}
-	}
 	SafeRelease(m_DataBuffer);
 }
 
 D3D12Buffer::~D3D12Buffer()
 {}
 
-void D3D12Buffer::CreateConstantBuffer(int iStructSize, int Elementcount, bool ReplicateToAllDevices)
+void D3D12Buffer::CreateConstantBuffer(int iStructSize, int iElementcount, bool ReplicateToAllDevices)
 {
-	StructSize = iStructSize;
-	ensure(StructSize > 0);
-	ensure(Elementcount > 0);
-	TotalByteSize = StructSize;
-	CrossDevice = ReplicateToAllDevices;
-	if (ReplicateToAllDevices)
-	{
-		for (int i = 0; i < RHI::GetDeviceCount(); i++)
-		{
-			for (int j = 0; j < RHI::CPUFrameCount; j++)
-			{
-				CBV[i][j] = new D3D12CBV(RHI::GetDeviceContext(i));
-				CBV[i][j]->InitCBV(StructSize, Elementcount);
-				D3D12Helpers::NameRHIObject(CBV[i][j], this);
-			}
-		}
-	}
-	else
-	{
-		for (int j = 0; j < RHI::CPUFrameCount; j++)
-		{
-			CBV[0][j] = new D3D12CBV(Device);
-			CBV[0][j]->InitCBV(StructSize, Elementcount);
-			D3D12Helpers::NameRHIObject(CBV[0][j], this);
-		}
-	}
+	ensure(iStructSize > 0);
+	ensure(iElementcount > 0);
+	InitCBV(iStructSize, iElementcount);
 }
 
 void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 {
-	const int index = Device->GetCpuFrameIndex();
-	if (CrossDevice)
-	{
-		for (int i = 0; i < RHI::GetDeviceCount(); i++)
-		{
-			if (RHI::GetFrameCount() == 0)
-			{
-				CBV[i][0]->UpdateCBV(data, offset, TotalByteSize);
-				CBV[i][1]->UpdateCBV(data, offset, TotalByteSize);
-			}
-			else
-			{
-				CBV[i][index]->UpdateCBV(data, offset, TotalByteSize);
-			}
-		}
-	}
-	else
-	{
-		if (RHI::GetFrameCount() == 0)
-		{
-			CBV[0][0]->UpdateCBV(data, offset, TotalByteSize);
-			CBV[0][1]->UpdateCBV(data, offset, TotalByteSize);
-		}
-		else
-		{
-			CBV[0][index]->UpdateCBV(data, offset, TotalByteSize);
-		}
-	}
+	ensure((offset*StructSize) + StructSize <= TotalByteSize);
+	memcpy(m_pCbvDataBegin + (offset * StructSize), data, StructSize);
+}
+
+void D3D12Buffer::InitCBV(int iStructSize, int Elementcount)
+{
+	StructSize = (iStructSize + 255) & ~255;
+	TotalByteSize = StructSize * Elementcount;
+	AllocDesc desc = {};
+	desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
+	desc.PageAllocationType = EPageTypes::BufferUploadOnly;
+	desc.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	Device->GetMemoryManager()->AllocUploadTemporary(desc, &m_DataBuffer);
+
+	// Map and initialize the constant buffer. We don't unmap this until the
+	// app closes. Keeping things mapped for the lifetime of the resource is okay.
+	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
+	ThrowIfFailed(m_DataBuffer->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
 }
 
 void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Slot, bool  IsCompute, int Deviceindex)
 {
-	const int index = Device->GetCpuFrameIndex();
-	if (CrossDevice)
+	if (IsCompute)
 	{
-		CBV[Deviceindex][index]->SetGpuView(list, offset, Slot, IsCompute);
+		list->SetComputeRootConstantBufferView(Slot, m_DataBuffer->GetResource()->GetGPUVirtualAddress() + (offset * StructSize));
 	}
 	else
 	{
-		CBV[0][index]->SetGpuView(list, offset, Slot, IsCompute);
+		list->SetGraphicsRootConstantBufferView(Slot, m_DataBuffer->GetResource()->GetGPUVirtualAddress() + (offset * StructSize));
 	}
 }
 
@@ -138,20 +96,12 @@ DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc, DescriptorHe
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		if (BufferAccesstype == EBufferAccessType::GPUOnly)
-		{
-			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-		}
-		else
-		{
-			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-			//srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
-		}
-
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Buffer.NumElements = ElementCount;
 		srvDesc.Buffer.StructureByteStride = ElementSize;
+		srvDesc.Buffer.FirstElement = desc.FirstElement;
 		if (CurrentBufferType == ERHIBufferType::Index)
 		{
 			srvDesc.Format = DXGI_FORMAT_R16_UINT;
@@ -159,12 +109,12 @@ DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc, DescriptorHe
 		}
 		Descriptor->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
 	}
-	else 
+	else
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 		destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
-		destTextureUAVDesc.Buffer.FirstElement = 0;
+		destTextureUAVDesc.Buffer.FirstElement = desc.FirstElement;
 		destTextureUAVDesc.Buffer.NumElements = ElementCount;
 		destTextureUAVDesc.Buffer.StructureByteStride = ElementSize;
 		destTextureUAVDesc.Buffer.CounterOffsetInBytes = CounterOffset;
@@ -254,11 +204,6 @@ void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES E
 
 bool D3D12Buffer::CheckDevice(int index)
 {
-	if (CurrentBufferType == ERHIBufferType::Constant && CrossDevice)
-	{
-		//ready on all devices!
-		return true;
-	}
 	if (Device != nullptr)
 	{
 		return (Device->GetDeviceIndex() == index);

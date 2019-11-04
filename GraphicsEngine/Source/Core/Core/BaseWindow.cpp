@@ -158,7 +158,7 @@ void BaseWindow::Render()
 #if ALLOW_RESOURCE_CAPTURE
 		RHI::GetRHIClass()->TriggerWriteBackResources();
 #endif
-}
+	}
 	if (Input::GetKeyDown(VK_F1))
 	{
 		ShowText = !ShowText;
@@ -416,7 +416,7 @@ void BaseWindow::DestroyRenderWindow()
 	SafeDelete(CurrentScene);
 	ImageIO::ShutDown();
 	MeshLoader::ShutDown();
-//	SafeDelete(LineDrawer);
+	//	SafeDelete(LineDrawer);
 	SafeDelete(UI);
 	Input::ShutDown();
 }
@@ -521,8 +521,16 @@ void BaseWindow::RenderText()
 
 		RHI::GetRenderSystem()->GetCurrentGraph()->DebugOutput();
 		offset = 4;
-
 	}
-
+	if (!RHI::AllowCPUAhead())
+	{
+		offset++;
+		UI->RenderTextToScreen(offset, "AllowCPUAhead Disabled", Colours::RED);
+	}
+	if (RHI::BlockCommandlistExec())
+	{
+		offset++;
+		UI->RenderTextToScreen(offset, "BlockCommandlistExec Enabled", Colours::RED);
+	}
 	Log::Get()->RenderText(UI, offset);
 }

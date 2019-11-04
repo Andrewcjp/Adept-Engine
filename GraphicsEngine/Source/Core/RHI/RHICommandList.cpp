@@ -42,7 +42,7 @@ void RHICommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount
 
 }
 
-void RHICommandList::DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation)
+void RHICommandList::DrawIndexedPrimitive(uint IndexCountPerInstance, uint InstanceCount, uint StartIndexLocation, uint BaseVertexLocation, uint StartInstanceLocation)
 {
 
 }
@@ -369,12 +369,19 @@ void RHICommandList::SetTexture(BaseTextureRef texture, int slot, int mip)
 	SetTexture(texture, slot, v);
 }
 
+void RHICommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int Resourceindex)
+{
+	RHIViewDesc v = RHIViewDesc::DefaultSRV();
+	v.ResourceIndex = Resourceindex;
+	SetFrameBufferTexture(buffer, slot, v);
+}
+
 void RHICommandList::SetUAV(FrameBuffer * uav, int slot, int ResourceIndex, int Face, int MipSlice)
 {
 	RHIViewDesc view;
 	view.ArraySlice = Face;
 	view.Mip = MipSlice;
-	view.Resource = ResourceIndex;
+	view.ResourceIndex = ResourceIndex;
 	SetUAV(uav, slot, view);
 }
 

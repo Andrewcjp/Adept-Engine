@@ -11,9 +11,9 @@ public:
 	RHIBuffer* Index;
 	RHIBuffer* TransformUniformBuffer;
 	RHIBuffer* MaterialInstanceBuffer = nullptr;
-	int FirstIndex = 0;
-	int NumPrimitves = 0;
-	int NumInstances = 0;
+	uint64 FirstIndex = 0;
+	uint64 NumPrimitves = 0;
+	uint64 NumInstances = 0;
 	Material* TargetMaterial = nullptr;
 	void SubmitDraw(RHICommandList* Cmd);
 	GameObject* Object = nullptr;

@@ -16,6 +16,7 @@ public:
 	DescriptorHeap* GetMainHeap();
 	void BindHeap(D3D12CommandList* list);
 	void RebindHeap(D3D12CommandList * list);
+	static void CheckAndRealloc(DescriptorHeap ** Target, int num);
 	static void Reallocate(DescriptorHeap** TargetHeat, int newsize);
 	void EndOfFrame();
 private:

@@ -234,12 +234,13 @@ AssetManager * AssetManager::Get()
 AssetManager::~AssetManager()
 {}
 
-std::string AssetManager::LoadFileWithInclude(std::string name)
+ShaderSourceFile* AssetManager::LoadFileWithInclude(std::string name)
 {
-	std::string  output;
+	ShaderSourceFile*  output;
 	if (ShaderSourceMap.find(name) == ShaderSourceMap.end())
 	{
-		output = ShaderPreProcessor::LoadShaderIncludeFile(name, 0);
+		output = new ShaderSourceFile();
+		output->Source = ShaderPreProcessor::LoadShaderIncludeFile(name, 0);
 		ShaderSourceMap.emplace(name, output);
 	}
 	else

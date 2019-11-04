@@ -36,6 +36,7 @@ private:
 	D3D12DeviceContext* Device = nullptr;
 	const char* TimerName = "Cpy Desc";
 	const char* ReuseTimer = "Reuse Desc";
+	const char* MissTimer = "Desc cache miss";
 	std::map<DXDescriptor*, DXDescriptor*> DescriptorsInHeap;
 };
 

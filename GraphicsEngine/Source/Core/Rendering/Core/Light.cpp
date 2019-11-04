@@ -9,7 +9,7 @@ Light::Light(glm::vec3 positon, float intesity, ELightType::Type type, glm::vec3
 	m_type = type;
 	DoesShadow = doesshadow;
 	Resolution = RHI::GetRenderSettings()->GetShadowSettings().DefaultShadowMapSize;
-	ShadowMode = ELightMobility::Baked;
+	//ShadowMode = ELightMobility::Baked;
 }
 
 Light::~Light()

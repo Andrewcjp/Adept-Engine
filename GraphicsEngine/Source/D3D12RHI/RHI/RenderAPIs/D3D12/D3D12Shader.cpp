@@ -239,8 +239,8 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		IsCompute = true;
 	}
 
-	std::string ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
-	if (ShaderData.length() == 0)
+	ShaderSourceFile* ShaderData = AssetManager::Get()->LoadFileWithInclude(name);
+	if (ShaderData->Source.length() == 0)
 	{
 		//#TODO: delete CSO		
 		__debugbreak();
@@ -270,7 +270,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	IDxcLibrary *pLibrary;
 	IDxcBlobEncoding *pSource;
 	DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), (void **)&pLibrary);
-	pLibrary->CreateBlobWithEncodingFromPinned(ShaderData.c_str(), ShaderData.size(), CP_UTF8, &pSource);
+	pLibrary->CreateBlobWithEncodingFromPinned(ShaderData->Source.c_str(), ShaderData->Source.size(), CP_UTF8, &pSource);
 
 	hr = complier->Compile(pSource, StringUtils::ConvertStringToWide(shadername).c_str(), StringUtils::ConvertStringToWide(Entrypoint).c_str(), GetComplieTarget(ShaderType).c_str(),
 		arguments.data(), (UINT)arguments.size(), defs, (UINT)Defines.size(), nullptr, &R);
@@ -319,7 +319,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #ifndef NDEBUG
 			__debugbreak();
 #endif
-			Engine::RequestExit(-1);
+			Engine::AssertExit(-1);
 			return EShaderError::SHADER_ERROR_COMPILE;
 		}
 		else

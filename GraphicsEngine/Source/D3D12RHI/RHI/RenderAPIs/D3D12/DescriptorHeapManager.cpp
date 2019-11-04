@@ -81,7 +81,14 @@ void DescriptorHeapManager::RebindHeap(D3D12CommandList* list)
 		DidJustResize = false;
 	}
 }
-
+void DescriptorHeapManager::CheckAndRealloc(DescriptorHeap** Target, int num)
+{
+	DescriptorHeap* Current = *Target;
+	if (Current->GetNextFreeIndex() + num >= Current->GetMaxSize())
+	{
+		Reallocate(Target, Current->GetMaxSize() + 50);
+	}
+}
 
 void DescriptorHeapManager::Reallocate(DescriptorHeap** TargetHeap, int newsize)
 {

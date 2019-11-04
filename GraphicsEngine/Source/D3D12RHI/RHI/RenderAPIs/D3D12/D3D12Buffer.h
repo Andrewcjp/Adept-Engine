@@ -19,6 +19,7 @@ public:
 	void EnsureResouceInFinalState(ID3D12GraphicsCommandList* list);
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+	void InitCBV(int StructSize, int Elementcount);
 	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
 	GPUResource* GetResource();
 	DXDescriptor* GetDescriptor(const RHIViewDesc& desc, DescriptorHeap* heap = nullptr);
@@ -32,16 +33,14 @@ private:
 	void UnMap();
 	void CreateStaticBuffer(int ByteSize);
 	void CreateDynamicBuffer(int ByteSize);
-
-	D3D12CBV* CBV[MAX_GPU_DEVICE_COUNT][RHI::CPUFrameCount] = { nullptr };
 	EBufferAccessType::Type BufferAccesstype;
 	GPUResource * m_UploadBuffer = nullptr;
 	GPUResource* m_DataBuffer = nullptr;
 	int ElementCount = 0;
 	int ElementSize = 0;
 	bool UploadComplete = false;
-	bool CrossDevice = false;
 	D3D12DeviceContext* Device = nullptr;
 	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
+	UINT8* m_pCbvDataBegin;
 };
 CreateChecker(D3D12Buffer);

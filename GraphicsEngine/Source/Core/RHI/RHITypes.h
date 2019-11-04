@@ -463,7 +463,7 @@ struct  RHIPipeLineStateDesc
 	RHIRenderPassDesc RenderPassDesc;
 	bool EnableDepthBoundsTest = false;
 private:
-	size_t UniqueHash = 0;
+	uint64 UniqueHash = 0;
 	std::string StringPreHash;
 };
 
@@ -511,15 +511,16 @@ struct RHIViewDesc
 	int ArraySlice = 0;
 	int Mip = 0;
 	int MipLevels = -1;
-	int Resource = 0;
+	int ResourceIndex = 0;
 	int Offset = 0;
+	uint FirstElement = 0;
 	EViewType::Type ViewType = EViewType::Limit;
 	eTextureDimension Dimension = DIMENSION_UNKNOWN;
 	static RHIViewDesc CreateUAV(int Resource)
 	{
 		RHIViewDesc D;
 		D.ViewType = EViewType::UAV;
-		D.Resource = Resource;
+		D.ResourceIndex = Resource;
 		return D;
 	}
 	static RHIViewDesc DefaultUAV()

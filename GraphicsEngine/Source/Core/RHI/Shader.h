@@ -78,7 +78,7 @@ public:
 	ShaderParameter * FindParam(const std::string & name);
 	bool ChangeParamType(const std::string & name, ShaderParamType::Type type);
 	RHI_API int GetSlotForName(const std::string & name);
-	int GetNameHash();
+	uint64 GetNameHash();
 	static bool IsShaderSupported_SM6(const ShaderComplieSettings& args);
 	
 protected:

@@ -5,7 +5,6 @@
 #include "D3D12DeviceContext.h"
 #include "Core/Utils/FileUtils.h"
 #include "DescriptorHeap.h"
-#include "D3D12CBV.h"
 #include "Core/Assets/AssetManager.h"
 
 void D3D12Helpers::NameRHIObject(DescriptorHeap * Object, IRHIResourse * resource, std::string OtherData)
@@ -15,12 +14,6 @@ void D3D12Helpers::NameRHIObject(DescriptorHeap * Object, IRHIResourse * resourc
 #endif
 }
 void D3D12Helpers::NameRHIObject(GPUResource * Object, IRHIResourse * resource, std::string OtherData)
-{
-#if NAME_RHI_PRIMS
-	Object->SetName(StringUtils::ConvertStringToWide(OtherData + resource->GetDebugName()).c_str());
-#endif
-}
-void D3D12Helpers::NameRHIObject(D3D12CBV * Object, IRHIResourse * resource, std::string OtherData)
 {
 #if NAME_RHI_PRIMS
 	Object->SetName(StringUtils::ConvertStringToWide(OtherData + resource->GetDebugName()).c_str());

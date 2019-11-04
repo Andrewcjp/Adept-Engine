@@ -54,18 +54,15 @@ public:
 		}
 		return TotalByteSize;
 	}
-	int StructSize = 0;
-
-
 	RHI_API virtual void Release() override;
 
+	int StructSize = 0;
 protected:
 	DeviceContext* Context = nullptr;
 	RHIBufferDesc Desc = {};
 	size_t VertexCount = 0;
 	int CounterOffset = 0;
 	int TotalByteSize = 0;
-	int structsize = 0;
 	class RHIUAV* UAV = nullptr;
 };
 
@@ -81,7 +78,7 @@ public:
 	RHI_API RHI_VIRTUAL void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
 	//drawing
 	RHI_API RHI_VIRTUAL void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
-	RHI_API RHI_VIRTUAL void DrawIndexedPrimitive(int IndexCountPerInstance, int InstanceCount, int StartIndexLocation, int BaseVertexLocation, int StartInstanceLocation) = 0;
+	RHI_API RHI_VIRTUAL void DrawIndexedPrimitive(uint IndexCountPerInstance, uint InstanceCount, uint StartIndexLocation, uint BaseVertexLocation, uint StartInstanceLocation) = 0;
 	///Not Const Desc as they hash on demand
 	RHI_API RHI_VIRTUAL void SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc) = 0;
 	RHI_API RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
@@ -91,7 +88,7 @@ public:
 	RHI_API RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, RHIViewDesc Desc, int Slot) = 0;
 	RHI_API RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot) = 0;
 	RHI_API RHI_VIRTUAL void SetTexture(BaseTextureRef texture, int slot, const RHIViewDesc & desc) = 0;
-	RHI_API RHI_VIRTUAL void SetFrameBufferTexture(class FrameBuffer* buffer, int slot, int Resourceindex = 0) = 0;
+	RHI_API RHI_VIRTUAL void SetFrameBufferTexture(FrameBuffer* buffer, int slot, const RHIViewDesc & desc) = 0;
 	RHI_API RHI_VIRTUAL void SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc) = 0;
 	RHI_API RHI_VIRTUAL void SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
 	RHI_API RHI_VIRTUAL void SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
@@ -107,13 +104,14 @@ public:
 	RHI_API void SetBuffer(RHIBuffer* Buffer, std::string  slot, int ElementOffset = 0);
 
 	RHI_API void SetTexture(BaseTextureRef texture, int slot, int mip = 0);
+	RHI_API void SetFrameBufferTexture(FrameBuffer* buffer, int slot, int Resourceindex = 0);
 	//remove?
 	RHI_API	void SetRHIBufferReadOnly(RHIBuffer* buffer, int slot);
 
 	//string setters
 	RHI_API void SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot);
 	RHI_API void SetTexture(BaseTextureRef texture, std::string slot,int mip = 0);
-	RHI_API void SetFrameBufferTexture(class FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
+	RHI_API void SetFrameBufferTexture(FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
 	RHI_API void SetRHIBufferReadOnly(RHIBuffer* buffer, std::string slot);
 
 	RHI_API RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
@@ -156,7 +154,6 @@ public:
 	RHI_API virtual void SetStateObject(RHIStateObject* Object);
 
 	RHI_API RHI_VIRTUAL void SetDepthBounds(float Min, float Max) = 0;
-	RHI_API virtual void BindSRV(FrameBuffer* Buffer, int slot, RHIViewDesc Desc) = 0;
 
 	//Used to resolve a framebuffer that is using VRX tech (VRS or VRR)
 	RHI_API void ResolveVRXFramebuffer(FrameBuffer* Target);

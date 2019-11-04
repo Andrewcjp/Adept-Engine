@@ -354,7 +354,7 @@ void Scene::LoadExampleScene()
 	AddGameobjectToScene(go);
 #endif
 #if TEST_HEAVY
-	PadUntil(651);
+	//PadUntil(651);
 #endif
 	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects().size()));
 }

@@ -104,7 +104,7 @@ void VRXEngine::SetupVRSShader(Shader * S)
 	}
 }
 
-void VRXEngine::AddVRSToRS(std::vector<ShaderParameter>& S, int lastindex)
+void VRXEngine::AddVRSToRS(std::vector<ShaderParameter>& S, uint64 lastindex /*= 0*/)
 {
 	if (!RenderSettings::GetVRXSettings().EnableVRS)
 	{

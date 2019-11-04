@@ -9,19 +9,35 @@ RHIRootSigniture::RHIRootSigniture()
 
 RHIRootSigniture::~RHIRootSigniture()
 {}
+bool RHIRootSigniture::IsCompatable(const std::vector<ShaderParameter>& parms)
+{
+	if (parms.size() != CurrnetBinds.size())
+	{
+		return false;
+	}
+	for (int i = 0; i < parms.size(); i++)
+	{
+		if (CurrnetBinds[i].BindType == ERSBindType::Limit)
+		{
+			return false;
+		}
+		if (CurrnetBinds[i].BindParm->Type != parms[i].Type)
+		{
+			return false;
+		}
+	}
+	return true;
+}
 
 void RHIRootSigniture::SetRootSig(const std::vector<ShaderParameter>& parms)
 {
 	Parms = parms;
-	if (parms.size() != CurrnetBinds.size())
+	if (!IsCompatable(parms))
 	{
-		CurrnetBinds.clear();
-		CurrnetBinds.resize(parms.size());
-		DefaultParams();
-		Invalidate();
-	}//todo
-
+		Reset();
+	}
 }
+
 #if USE_VALIDATION
 bool RHIRootSigniture::ValidateData(ShaderParameter* Parm, RSBind & bind)
 {
@@ -85,7 +101,7 @@ void RHIRootSigniture::SetTexture(int slot, BaseTextureRef Tex, RHIViewDesc View
 	Bind->View = View;
 }
 
-void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int resoruceindex, RHIViewDesc View)
+void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer* Buffer, RHIViewDesc View /*= RHIViewDesc()*/)
 {
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
@@ -102,12 +118,12 @@ void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer * Buffer, int
 		return;
 	}
 #endif
-	if (Bind->Framebuffer == Buffer && Bind->Offset == resoruceindex)
+	if (Bind->Framebuffer == Buffer && Bind->Offset == View.ResourceIndex)
 	{
 		return;
 	}
 	Bind->Framebuffer = Buffer;
-	Bind->Offset = resoruceindex;
+	Bind->Offset = View.ResourceIndex;
 	Bind->BindParm = RSSlot;
 	Bind->HasChanged = true;
 	Bind->View = View;
@@ -232,6 +248,8 @@ void RHIRootSigniture::Reset()
 {
 	CurrnetBinds.clear();
 	CurrnetBinds.resize(Parms.size());
+	DefaultParams();
+	Invalidate();
 }
 
 ShaderParameter* RHIRootSigniture::GetParm(int slot)
@@ -297,9 +315,9 @@ bool RSBind::IsBound() const
 			return Framebuffer != nullptr;
 		case ERSBindType::UAV:
 			return BufferTarget != nullptr || Framebuffer != nullptr;
-		case ERSBindType::BufferSRV:
-		case ERSBindType::CBV:
+		case ERSBindType::BufferSRV:		
 			return BufferTarget != nullptr;
+		case ERSBindType::CBV://direct in the root sig
 		case ERSBindType::RootConstant:
 			return true;//not bound here 
 		case ERSBindType::TextureArray:
@@ -316,7 +334,6 @@ ERSBindType::Type RSBind::ConvertBind(ShaderParamType::Type T)
 	{
 		case ShaderParamType::RootConstant:
 			return ERSBindType::RootConstant;
-			break;
 		case ShaderParamType::SRV:
 			return ERSBindType::Texture;
 		case ShaderParamType::Buffer:

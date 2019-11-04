@@ -18,12 +18,13 @@ DescriptorCache::DescriptorCache(D3D12DeviceContext* con)
 	CacheHeap = new DescriptorHeap(con, 2048, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 	PerfManager::Get()->AddTimer(TimerName, "RHI");
 	PerfManager::Get()->AddTimer(ReuseTimer, "RHI");
+	PerfManager::Get()->AddTimer(MissTimer, "RHI");
 }
 
 void DescriptorCache::OnHeapClear()
 {
 	DescriptorsInHeap.clear();
-	//RemoveInvalidCaches();
+	RemoveInvalidCaches();
 }
 
 void DescriptorCache::Invalidate()
@@ -86,7 +87,7 @@ uint64 DescriptorCache::GetHash(const RSBind* bind)
 	HashUtils::hash_combine(hash, bind->View.Mip);
 	HashUtils::hash_combine(hash, bind->View.ArraySlice);
 	HashUtils::hash_combine(hash, bind->View.MipLevels);
-	HashUtils::hash_combine(hash, bind->View.Resource);
+	HashUtils::hash_combine(hash, bind->View.ResourceIndex);
 	HashUtils::hash_combine(hash, bind->View.Dimension);
 	HashUtils::hash_combine(hash, bind->View.Offset);
 	HashUtils::hash_combine(hash, bind->Offset);
@@ -126,6 +127,11 @@ bool DescriptorCache::ShouldCache(const RSBind* bind)
 
 DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 {
+	if (bind->BindType != ERSBindType::TextureArray)
+	{
+		ensure(bind->View.ViewType != EViewType::Limit);
+	}
+	PerfManager::Get()->AddToCountTimer(MissTimer, 1);
 	if (bind->BindType == ERSBindType::Texture)
 	{
 		return D3D12RHI::DXConv(bind->Texture.Get())->GetDescriptor(bind->View, heap);
@@ -155,7 +161,9 @@ DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 	}
 	return nullptr;
 }
-DXDescriptor * DescriptorCache::GetOrCreate(const RSBind * bind)
+
+
+DXDescriptor* DescriptorCache::GetOrCreate(const RSBind* bind)
 {
 	DXDescriptor* Desc = nullptr;
 	if (bind->BindType == ERSBindType::RootConstant)

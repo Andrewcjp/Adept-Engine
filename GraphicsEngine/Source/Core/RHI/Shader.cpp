@@ -86,7 +86,7 @@ int Shader::GetSlotForName(const std::string & name)
 	return -1;
 }
 
-int Shader::GetNameHash()
+uint64 Shader::GetNameHash()
 {
 	if (Hash == 0)
 	{

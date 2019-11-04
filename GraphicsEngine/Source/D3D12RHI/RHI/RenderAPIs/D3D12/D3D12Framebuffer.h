@@ -13,7 +13,6 @@ public:
 	D3D12FrameBuffer(class DeviceContext* device, const RHIFrameBufferDesc& Desc);
 	virtual ~D3D12FrameBuffer();
 
-	void UpdateSRV();
 	void Init();
 
 	void							CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap = 0);
