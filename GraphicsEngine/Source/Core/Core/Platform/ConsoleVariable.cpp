@@ -262,6 +262,8 @@ void ConsoleVariableManager::SetupVars(std::string LaunchArgString)
 				{
 					if (i + 1 < SplitArgs.size())
 					{
+						std::string parsetarget = "";
+						CV->SetRawValue(SplitArgs[i + 1]);
 						int parsedvalue = -1;
 						if (GetValueClean(SplitArgs[i + 1], parsedvalue))
 						{
@@ -270,16 +272,14 @@ void ConsoleVariableManager::SetupVars(std::string LaunchArgString)
 						else
 						{
 							Log::LogMessage("Int Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
-						}
-						CV->SetRawValue(SplitArgs[i + 1]);
+						}					
 						CV->SetValue(parsedvalue);
 					}
 					else
 					{
 						Log::LogMessage("Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
 						CV->SetValue(-1);
-					}
-					
+					}					
 				}
 				else
 				{

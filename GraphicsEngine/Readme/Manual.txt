@@ -15,13 +15,22 @@ Launch Args:
 CMD Name      		, Type  , Description
 -dx12 				, CMD   , Launch using DirectX 12
 -vk   				, CMD   , Launch using Vulkan 
--rg	  				, int   , run the selected render graph
 -fullscreen			, CMD   , launch in fullscreen
 -nsight				, CMD   , Improves debugging for NVidia NSIGHT
 -forcedeviceindex   , int   , force the game to use the GPU at the index provided.
 -forcesinglegpu     , CMD   , only allow the game to detect a single GPU
 -allowwarp			, CMD   , allow the game to use/detect software GPUs
 -stablepower		, CMD   , enable SetStablePowerState for benchmarking 
+-rg	  				, int   , run the selected render graph 
+Valid values:
+0, 		Fallback,//in the event of error this graph is used
+1,		DeferredRenderer
+2,		DeferredRenderer_RT - Uses raytraced reflections 
+3,		ForwardRenderer (WIP)
+4, 		VRForwardRenderer (WIP)- requires a SteamVR HMD
+5, 		Pathtracing (WIP)
+6, 		TEST_MGPU (WIP)
+
 
 Debug Keys:
 F1 - Display FPS 
