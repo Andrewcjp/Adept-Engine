@@ -106,6 +106,7 @@ void LightCullingEngine::RunLightBroadphase()
 		for (int i = 0; i < lights.size(); i++)
 		{
 			Light* L = lights[i];
+			L->Update();
 			if (Manager->GetFustrum()->SphereInFrustum(L->GetPosition(), L->GetRange()))
 			{
 				LightsInFustrum.push_back(L);

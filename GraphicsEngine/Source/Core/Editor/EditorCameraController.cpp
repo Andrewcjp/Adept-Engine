@@ -26,7 +26,6 @@ void EditorCameraController::Update()
 		{
 			movespeed = BaseTranslateSpeed;
 		}
-#if 1
 		if (Input::GetKey('w'))
 		{
 			Target->Translate(Target->GetForward(), movespeed*dt);
@@ -51,7 +50,6 @@ void EditorCameraController::Update()
 		{
 			Target->Translate(Target->GetUp(), -movespeed * dt);
 		}
-#endif
 		glm::vec2 axis = Input::GetMouseInputAsAxis();
 
 		Rotx += Input::GetMouseInputAsAxis().y* LookSens;

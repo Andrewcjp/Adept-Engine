@@ -1,4 +1,3 @@
-
 #include "Cooker.h"
 #if SUPPORTS_COOK
 #include <experimental/filesystem>
@@ -8,6 +7,8 @@
 #include "Rendering/Core/Mesh/MaterialTypes.h"
 #include "Rendering/Core/Material.h"
 #include "Core/Assets/ShaderComplier.h"
+#include "../Core/Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
+#include "../Core/Core/Game/Game.h"
 static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);
 static ConsoleVariable CookPack("pack", 0, ECVarType::LaunchOnly);
 Cooker::Cooker()
@@ -41,6 +42,9 @@ std::string Cooker::GetTargetPath(bool AppendSlash)
 namespace fs = std::experimental::filesystem;
 void Cooker::Execute()
 {
+#include "Core/Engine.h"
+#include "Core/Game/Game.h"
+#include "Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
 	Log::LogMessage("Cooking for Platform: " + EPlatforms::ToString(TargetPlatform));
 	if (ShouldComplie)
 	{
@@ -123,6 +127,11 @@ void Cooker::CookAllShaders()
 {
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
 	BuildAllMaterials();
+	std::vector<std::string> PreLoadTextures = Engine::GetGame()->GetPreLoadAssets();
+	for (int i = 0; i < PreLoadTextures.size(); i++)
+	{
+		AssetManager::DirectLoadTextureAsset(PreLoadTextures[i]);
+	}
 }
 
 void Cooker::CopyFolderToOutput(std::string Target, std::string PathFromBuild)
@@ -204,12 +213,21 @@ void Cooker::BuildAllMaterials()
 	ShaderComplier::Get()->GetMaterialShader(ComplieData);
 	ComplieData.ShaderKeyWords.push_back(Material::ShadowShaderstring);
 	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+
 	ComplieData.ShaderKeyWords.clear();
 	ComplieData.RenderPassUsage = EMaterialPassType::Forward;
 	ShaderComplier::Get()->GetMaterialShader(ComplieData);
 	ComplieData.ShaderKeyWords.push_back(Material::ShadowShaderstring);
 	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ComplieData.ShaderKeyWords.clear();
+	ComplieData.MaterialRenderType = EMaterialRenderType::Transparent;
+	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ComplieData.ShaderKeyWords.push_back(Material::ShadowShaderstring);
+	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+
 	ShaderComplier::Get()->TickMaterialComplie();
+	new Shader_RTMateralHit(RHI::GetDefaultDevice());
+	new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
 }
 
 void Cooker::BuildAll()

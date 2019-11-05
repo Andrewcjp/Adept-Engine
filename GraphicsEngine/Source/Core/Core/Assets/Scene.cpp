@@ -10,6 +10,7 @@
 #include "Core/Game/Game.h"
 #include "AI/Core/SpawnMarker.h"
 #include "Rendering/Core/Defaults.h"
+#include "../Components/Utillity/FreeLookComponent.h"
 #define TEST_HEAVY 0//NDEBUG
 Scene::Scene(bool EditorScene)
 {
@@ -217,7 +218,7 @@ void Scene::LoadExampleScene()
 	go->GetTransform()->GetScale();
 	go->AttachComponent(new CameraComponent());
 #if !WITH_EDITOR
-	//go->AttachComponent(new FreeLookComponent());
+	go->AttachComponent(new FreeLookComponent());
 #endif
 	AddGameobjectToScene(go);
 

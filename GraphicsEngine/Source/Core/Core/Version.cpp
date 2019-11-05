@@ -3,16 +3,16 @@
 // Major release version
 const int Major = 0;
 // New features added, large Updates
-const int Minor = 1;
+const int Minor = 2;
 // minor fixes, update, performance tweaks etc
-const int Revision = 322;
+const int Revision = 0;
 
 long Version::GetVersionNumber()
 {
 	return Major * 10000000 + Minor * 10000 + Revision;
 }
 
-int Version::GetMajorRevision()
+int Version::GetMajorRevision() 
 {
 	return Major;
 }
