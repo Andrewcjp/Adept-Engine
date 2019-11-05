@@ -15,9 +15,9 @@ Cooker::Cooker()
 {
 	bool BuildDebug = CookDebug.GetBoolValue();
 
-	ShouldComplie = false;
+	ShouldComplie = false; 
 	ShouldPack = CookPack.GetBoolValue();
-	BuildConfig = "ShippingReleasePackage";
+	BuildConfig = "ReleasePackage";
 	if (BuildDebug)
 	{
 		BuildConfig = "ShippingDebugPackage";

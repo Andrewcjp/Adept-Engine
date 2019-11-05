@@ -67,7 +67,6 @@ Engine::Engine(EnginePersistentData* epd) :
 	Log::OutS << "Running with TDSim" << Log::OutS;
 #endif
 	ModuleManager::Get()->PreLoadModules();
-
 }
 
 Engine::~Engine()
