@@ -1,0 +1,47 @@
+Debug commands:
+Open the console with '`'
+CMD Name      		, Type  , Description
+R.renderscale 	    , float , Size of internal RTs As a factor of screen size.
+C.showLightBounds	, bool  , show bounds of lights in the scene
+C.lightfreeze		, bool  , stop updating light culling
+C.showbounds		, bool  , show culling bounds of all objects
+C.freeze			, bool  , stop updating object culling
+ps.pausesim			, bool  , pause particle systems simulations
+vmem.logalloc		, cmd   , logs the current GPU memory allocations
+rg.prez				, bool  , enable use of PRE-z in render graph that support it.
+ui.showgraph		, bool  , show the frametime graph
+
+Launch Args:
+CMD Name      		, Type  , Description
+-dx12 				, CMD   , Launch using DirectX 12
+-vk   				, CMD   , Launch using Vulkan 
+-rg	  				, int   , run the selected render graph
+-fullscreen			, CMD   , launch in fullscreen
+-nsight				, CMD   , Improves debugging for NVidia NSIGHT
+-forcedeviceindex   , int   , force the game to use the GPU at the index provided.
+-forcesinglegpu     , CMD   , only allow the game to detect a single GPU
+-allowwarp			, CMD   , allow the game to use/detect software GPUs
+-stablepower		, CMD   , enable SetStablePowerState for benchmarking 
+
+Debug Keys:
+F1 - Display FPS 
+F2 - Detailed Stats
+F3 - GPU timeline
+F11 - Toggle fullscreen.
+
+FreeCam Controls:
+Left Mouse - Use FreeCam (hold)
+WASD - Move Forward, Left,Back and right
+Q - Accend
+E - Decend
+Shift - Speed Boost
+
+Other Readmes are located in Source/Readme
+
+Minimum Specs:
+GPU: GTX 660 or Better (Needs to support DX12)  
+GPU RAM: 2GB or Greater
+CPU: any MultiCore x86_64 
+OS: Win 10
+
+
