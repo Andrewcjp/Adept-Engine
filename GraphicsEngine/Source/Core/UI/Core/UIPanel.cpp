@@ -8,7 +8,9 @@ UIPanel::UIPanel(int w, int  h, int  x, int y) :UIBox(w, h, x, y)
 	TextHeight = 15;
 	AligmentStruct.SizeMax = 0.05f;
 	title->TextScale = 0.3f;
-
+	AddChild(title);
+	BatchMode = EWidgetBatchMode::On;
+	IgnoreboundsCheck = true;
 }
 
 
@@ -19,6 +21,8 @@ void UIPanel::AddSubWidget(UIWidget * w)
 {
 	AligmentStruct.SizeMax += w->AligmentStruct.SizeMax;
 	SubWidgets.push_back(w);
+	w->IgnoreboundsCheck = true;
+	AddChild(w);
 }
 
 void UIPanel::ResizeView(int w, int h, int x, int y)

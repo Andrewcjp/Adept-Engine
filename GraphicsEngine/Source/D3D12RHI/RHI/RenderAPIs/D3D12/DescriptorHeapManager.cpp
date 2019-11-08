@@ -102,9 +102,4 @@ void DescriptorHeapManager::Reallocate(DescriptorHeap** TargetHeap, int newsize)
 }
 
 void DescriptorHeapManager::EndOfFrame()
-{
-	/*for (int i = 0; i < Groups.size(); i++)
-	{
-		Groups[i]->OnFrameSwitch();
-	}*/
-}
+{}

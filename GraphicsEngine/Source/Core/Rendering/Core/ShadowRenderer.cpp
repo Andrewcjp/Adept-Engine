@@ -219,7 +219,10 @@ void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList * list,
 	data.Proj = LightPtr->Projection;
 	data.Lightpos = LightPtr->GetPosition();
 	TargetShader->UpdateBuffer(list, &data, IndexOnGPU);
-	list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, 0);
+	if (RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows)
+	{
+		list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, 0);
+	}
 	EBatchFilter::Type Filter = EBatchFilter::ALL;
 	if (LightPtr->GetLightMobility() == ELightMobility::Baked || LightPtr->GetLightMobility() == ELightMobility::Stationary)
 	{
@@ -229,7 +232,10 @@ void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList * list,
 	{
 		for (int i = 0; i < CUBE_SIDES; i += RHI::GetRenderSettings()->GetShadowSettings().ViewInstancesPerDraw)
 		{
-			list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, i);
+			if (RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows)
+			{
+				list->SetSingleRootConstant(Shader_Depth_RSSlots::VI_Offset, i);
+			}
 			SceneRenderer::Get()->MeshController->RenderPass(ERenderPass::DepthOnly, list, TargetShader, Filter);
 		}
 	}

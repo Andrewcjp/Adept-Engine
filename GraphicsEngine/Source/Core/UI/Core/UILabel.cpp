@@ -2,6 +2,7 @@
 #include "UI/UIManager.h"
 #include "Rendering/Renderers/TextRenderer.h"
 #include "UIWidgetContext.h"
+#include "UIDrawBatcher.h"
 UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
 	MText = text;
@@ -15,10 +16,10 @@ UILabel::~UILabel()
 //todo: Fit in box
 void UILabel::Render()
 {
-	if (OwningContext)
-	{
-		OwningContext->RenderTextToScreen(MText, OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale)), TextScale, Colour);
-	}
+	//if (OwningContext)
+	//{
+	//	OwningContext->RenderTextToScreen(MText, OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale)), TextScale, Colour);
+	//}
 }
 
 void UILabel::ResizeView(int w, int h, int x, int y)
@@ -37,4 +38,12 @@ void UILabel::SetText(const std::string& text)
 std::string UILabel::GetText()
 {
 	return MText;
+}
+
+void UILabel::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
+{
+	//OwningContext->RenderTextToScreen(MText,  TextScale, Colour);
+	UIRenderBatch* batch = new UIRenderBatch();
+	batch->AddText(MText, glm::vec2(OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale))));
+	OwningContext->GetBatcher()->AddBatch(batch);
 }

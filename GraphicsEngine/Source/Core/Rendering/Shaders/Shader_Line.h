@@ -9,7 +9,6 @@ public:
 	Shader_Line(DeviceContext* device, bool is2D);
 	virtual ~Shader_Line();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
-	std::vector<ShaderParameter> GetShaderParameters() override;
 
 	virtual const std::string GetName() override;
 	void SetParameters(RHICommandList* List, RHIBuffer * UBO);

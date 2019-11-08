@@ -11,7 +11,7 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 	ID3D12ShaderReflection* REF = nullptr;
 #if !USE_DIXL
 	ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), IID_PPV_ARGS(&REF)));
-	RelfectShader(REF, iscompute, shaderbinds);
+	RelfectShader(REF, iscompute, shaderbinds, Type);
 #else
 	IDxcContainerReflection* pReflection;
 	UINT32 shaderIdx;

@@ -6,7 +6,6 @@
 
 EditorUI::EditorUI()
 {
-
 	Init();
 }
 

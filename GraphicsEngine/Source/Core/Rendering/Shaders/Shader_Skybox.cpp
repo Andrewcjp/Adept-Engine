@@ -90,7 +90,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 #endif
 	if (!Cubemap)
 	{
-		SceneRender->BindMvBuffer(list, 1);
+		SceneRender->BindMvBufferB(list, 1,0);
 	}
 	else
 	{
@@ -122,7 +122,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 		//Buffer->MakeReadyForComputeUse(list);
 		//List->Execute();
 	}
-	}
+}
 
 std::vector<ShaderParameter> Shader_Skybox::GetShaderParameters()
 {

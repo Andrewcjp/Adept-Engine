@@ -13,6 +13,7 @@
 #include "GameUI/UIGraph.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Rendering/Renderers/TextRenderer.h"
+#include "Core/UIImage.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -92,6 +93,10 @@ void UIManager::InitEditorUI()
 	AssetManager = new UIAssetManager();
 	AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
 	AddWidget(AssetManager);
+
+	UIImage* Image = new UIImage(0, 0, 0, 0);
+	Image->SetScaled(1.0, 1.0);
+	AddWidget(Image);
 	UpdateBatches();
 
 }
@@ -252,7 +257,7 @@ void UIManager::MouseClickUp(int x, int y)
 void UIManager::InitGameobjectList(std::vector<GameObject*>& gos)
 {
 #if EDITORUI
-	GameObjectsPtr = gos;
+	GameObjectsPtr = &gos;
 	box = new UIListBox(GetScaledWidth(0.15f), GetScaledHeight(.8f), 0, GetScaledHeight(0.2f));
 	AddWidget(box);
 	RefreshGameObjectList();

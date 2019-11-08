@@ -6,6 +6,7 @@
 #include "Core/Assets/SerialHelpers.h"
 #include "Defaults.h"
 #include "../Shaders/Shader_NodeGraph.h"
+#include "../RenderNodes/Nodes/ForwardRenderNode.h"
 
 void Material::UpdateShaderData()
 {
@@ -74,17 +75,22 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 
 	desc.ShaderInUse = (Shader*)CurrentShader;
 	list->SetPipelineStateDesc(desc);
-	list->SetConstantBufferView(MaterialDataBuffer, 0, MainShaderRSBinds::MaterialData);
+	list->SetConstantBufferView(MaterialDataBuffer, 0, "MateralConstantBuffer");
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
 		if (Pair.second.TextureObj == nullptr)
 		{
-			list->SetTexture(ImageIO::GetDefaultTexture(), Pair.second.RootSigSlot);
+			list->SetTexture(ImageIO::GetDefaultTexture(), Pair.first);
 		}
 		else
 		{
-			list->SetTexture(Pair.second.TextureObj.Get(), Pair.second.RootSigSlot);
+			list->SetTexture(Pair.second.TextureObj.Get(), Pair.first);
 		}
+	}
+	if (!Pass.UseDeferredShaders)
+	{
+		//bind lighting data
+		ForwardRenderNode::BindLightingData(list, (ForwardRenderNode*)Pass.PassData);
 	}
 }
 

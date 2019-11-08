@@ -36,7 +36,7 @@ std::vector<Shader::VertexElementDESC> Shader_NodeGraph::GetVertexFormat()
 
 std::vector<ShaderParameter> Shader_NodeGraph::GetShaderParameters()
 {
-#if 1
+#if 0
 	std::vector<ShaderParameter> Params = Shader_Main::GetShaderParameters();
 	std::map<std::string, TextureBindData>::const_iterator it;
 	for (it = Binds->BindMap.begin(); it != Binds->BindMap.end(); it++)

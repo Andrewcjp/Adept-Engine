@@ -14,6 +14,9 @@ public:
 	void MouseClickUp(int x, int y) override;
 	virtual void Render() override;
 	glm::vec3 BackgoundColour = glm::vec3(0);
+
+	virtual void OnGatherBatches(UIRenderBatch* Groupbatchptr = nullptr) override;
+
 protected:
 	void Init();
 

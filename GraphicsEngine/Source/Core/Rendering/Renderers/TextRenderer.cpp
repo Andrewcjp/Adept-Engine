@@ -43,16 +43,21 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale, g
 	instance->RenderFromAtlas(text, x, y, scale, color);
 }
 
-void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color, bool reset/* = true*/)
+void TextRenderer::RenderDirect(RHICommandList* list, std::string text, glm::vec2 pos, float scale, glm::vec3 colour)
 {
-	if (reset)
-	{
-		Reset();
-	}
-	m_TextShader->Height = m_height;
-	m_TextShader->Width = m_width;
-	scale = scale * ScaleFactor;
-	m_TextShader->Update(TextCommandList);
+	int count = CreateGlyphs(text, pos, scale, colour);
+	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
+	list->SetPipelineStateObject(PSO);
+	list->SetVertexBuffer(VertexBuffer);
+	list->SetTexture(TextAtlas->Texture, 0);
+	list->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
+	list->DrawPrimitive(count, 1, Offset, 0);
+	list->EndRenderPass();
+	Offset += count;
+}
+
+int TextRenderer::CreateGlyphs(std::string text, glm::vec2 pos, float scale, glm::vec3 color)
+{
 	const uint8_t *p;
 	atlas* a = TextAtlas;
 	size_t TargetDatalength = 6 * text.length();
@@ -62,7 +67,9 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 		ensure(MAX_BUFFER_SIZE > (coords.size() / 6));
 	}
 	int c = currentsize;
-
+	int x = (int)pos.x;
+	int y = (int)pos.y;
+	int GLyphs = 0;
 	/* Loop through all characters */
 	for (p = (const uint8_t *)text.c_str(); *p; p++)
 	{
@@ -107,19 +114,41 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 			x2 + w, -y2 - h, a->c[*p].tx + a->c[*p].bw / a->w, a->c[*p].ty + a->c[*p].bh / a->h,color
 		};
 		currentsize += 6;
+		GLyphs++;
 	}
+	return GLyphs*6;
+}
+
+void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color, bool reset/* = true*/)
+{
+	TextBatch Batch;
+	Batch.Text = text;
+	Batch.pos = glm::vec2(x, y);
+	Batch.scale = scale;
+	Batch.color = color;
+	Batches.push_back(Batch);
 }
 
 void TextRenderer::RenderAllText()
 {
-	if (coords.size() > 0)
+	if (Batches.size() > 0)
 	{
+		m_TextShader->Height = m_height;
+		m_TextShader->Width = m_width;
+		m_TextShader->Update(TextCommandList);
+		int Length = 0;
+		for (int i = 0; i < Batches.size(); i++)
+		{
+			Length += CreateGlyphs(Batches[i].Text, Batches[i].pos, Batches[i].scale, Batches[i].color);
+		}
 		VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
+		TextCommandList->SetPipelineStateObject(PSO);
 		TextCommandList->SetVertexBuffer(VertexBuffer);
 		TextCommandList->SetTexture(TextAtlas->Texture, 0);
 		TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
-		TextCommandList->DrawPrimitive(currentsize, 1, 0, 0);
+		TextCommandList->DrawPrimitive(Length, 1, Offset, 0);
 		TextCommandList->EndRenderPass();
+		Offset += Length-6;
 	}
 }
 
@@ -142,6 +171,8 @@ void TextRenderer::Reset()
 	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, EGPUTIMERS::Text);
 	TextCommandList->SetPipelineStateObject(PSO);
 	currentsize = 0;
+	Offset = 0;
+	Batches.clear();
 }
 
 void TextRenderer::LoadText()
@@ -209,6 +240,7 @@ void TextRenderer::UpdateSize(int width, int height, glm::ivec2 offset)
 void TextRenderer::NotifyFrameEnd()
 {
 	NeedsClearRT = true;
+	Batches.clear();
 }
 
 TextRenderer::atlas::atlas(FT_Face face, int height)

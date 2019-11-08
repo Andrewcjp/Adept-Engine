@@ -12,7 +12,7 @@ RenderSettings::RenderSettings()
 	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;
 	ShadowSettings.UseGeometryShaderForShadows = true;
-	ShadowSettings.UseViewInstancingForShadows = true; 
+	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//DRSSettings.EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
 	//EnableGPUParticles = false;

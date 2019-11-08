@@ -64,8 +64,86 @@ uint rand_xorshift()
 	rng_state ^= (rng_state << 5);
 	return rng_state;
 }
+float nextRand(inout uint s)
+{
+	s = (1664525u * s + 1013904223u);
+	return float(s & 0x00FFFFFF) / float(0x01000000);
+}
+float3 getPerpendicularVector(float3 u)
+{
+	float3 a = abs(u);
+	uint xm = ((a.x - a.y) < 0 && (a.x - a.z) < 0) ? 1 : 0;
+	uint ym = (a.y - a.z) < 0 ? (1 ^ xm) : 0;
+	uint zm = 1 ^ (xm | ym);
+	return cross(u, float3(xm, ym, zm));
+}
 
+
+float3 getGGXMicrofacet(inout uint randSeed, float roughness, float3 hitNorm)
+{
+	// Get our uniform random numbers
+	float2 randVal = float2(nextRand(randSeed), nextRand(randSeed));
+
+	// Get an orthonormal basis from the normal
+	float3 B = getPerpendicularVector(hitNorm);
+	float3 T = cross(B, hitNorm);
+	const float M_PI = 3.14159;
+	// GGX NDF sampling
+	float a2 = roughness * roughness;
+	float cosThetaH = sqrt(max(0.0f, (1.0 - randVal.x) / ((a2 - 1.0) * randVal.x + 1)));
+	float sinThetaH = sqrt(max(0.0f, 1.0f - cosThetaH * cosThetaH));
+	float phiH = randVal.y * M_PI * 2.0f;
+
+	// Get our GGX NDF sample (i.e., the half vector)
+	return T * (sinThetaH * cos(phiH)) + B * (sinThetaH * sin(phiH)) + hitNorm * cosThetaH;
+}
+
+uint initRand(uint val0, uint val1, uint backoff = 16)
+{
+	uint v0 = val0, v1 = val1, s0 = 0;
+
+	[unroll]
+	for (uint n = 0; n < backoff; n++)
+	{
+		s0 += 0x9e3779b9;
+		v0 += ((v1 << 4) + 0xa341316c) ^ (v1 + s0) ^ ((v1 >> 5) + 0xc8013ea4);
+		v1 += ((v0 << 4) + 0xad90777d) ^ (v0 + s0) ^ ((v0 >> 5) + 0x7e95761e);
+	}
+	return v0;
+}
 StructuredBuffer<Light> LightList : register(t20);
+float3 LaunchSample(float3 origin, uint seed, float SmoothNess, float3 normal, float3 V)
+{
+	RayDesc ray;
+	ray.Origin = origin;
+
+	float3 H = getGGXMicrofacet(seed, 1.0 - SmoothNess, normal);
+	ray.Direction = normalize(2.f * dot(V, H) * H - V);
+
+	ray.TMin = 1;
+	ray.TMax = 1000;
+
+	RayPayload payload;
+	TraceRay(gRtScene, RayFlags /*rayFlags*/, RayMask, 0 /* ray index*/, 0, 0, ray, payload);
+	if (!payload.Hit)
+	{
+		return float3(payload.color);
+	}
+	float3 OutColor = payload.color *GetAmbient_CONST();
+	//float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal, float3 CamPos, float roughness, float Metalic)
+	for (int i = 0; i < LightCount; i++)
+	{
+		float3 LightColour = CalcColorFromLight(LightList[i], payload.color, payload.Pos, payload.Normal, CameraPos, 0.0f, 0.0f);
+		if (LightList[i].HasShadow && LightList[i].type == 1)
+		{
+			LightColour *= 1.0 - ShadowCalculationCube(payload.Pos.xyz, LightList[i], g_Shadow_texture2[LightList[i].ShadowID]);
+		}
+		OutColor += LightColour;
+	}
+	return OutColor;
+}
+
+
 [shader("raygeneration")]
 void rayGen()
 {
@@ -85,40 +163,21 @@ void rayGen()
 		return;
 	}
 	const float Metalic = Pos.SampleLevel(g_sampler, NrmPos, 0).w;
-	RayDesc ray;
-	ray.Origin = Pos.SampleLevel(g_sampler, NrmPos, 0).xyz;
-	float3 ViewDir = normalize(ray.Origin - CameraPos);
+	float3 pos = Pos.SampleLevel(g_sampler, NrmPos, 0).xyz;
+	float3 ViewDir = normalize(pos - CameraPos);
 	float3 normal = Normals.SampleLevel(g_sampler, NrmPos, 0).xyz;
-	float3 R = reflect(ViewDir, normal);
-	//#DXR: Find Importance sampled GCX func?
-#if 1
-	ray.Direction = R;
-#else
-	float f0 = clamp(float(rand_xorshift()) * (1.0 / 4294967296.0), -0.0, 100.0f);
-	float f1 = clamp(float(rand_xorshift()) * (1.0 / 4294967296.0), -0.0, 100.0f);
-	float2 U = float2(1.0 - f0, 1.0 - f1);
-	ray.Direction = sampleGGXVNDF(ViewDir, SmoothNess, SmoothNess, U.x, U.y);
-#endif
-	ray.TMin = 1;
-	ray.TMax = 1000;
-
-	RayPayload payload;
-	TraceRay(gRtScene, RayFlags /*rayFlags*/, RayMask, 0 /* ray index*/, 0, 0, ray, payload);
-	if (!payload.Hit)
+	int SampleCount = 5;
+	if (SmoothNess >= 0.95f)
 	{
-		gOutput[launchIndex.xy] = float4(payload.color, SmoothNess);
-		return;
+		SampleCount = 1;
 	}
-	float3 OutColor = payload.color *GetAmbient_CONST();
-	//float3 CalcColorFromLight(Light light, float3 Diffusecolor, float3 FragPos, float3 normal, float3 CamPos, float roughness, float Metalic)
-	for (int i = 0; i < LightCount; i++)
+	float3 AccumColour = float3(0, 0, 0);
+	for (int i = 0; i < SampleCount; i++)
 	{
-		float3 LightColour = CalcColorFromLight(LightList[i], payload.color, payload.Pos, payload.Normal, CameraPos, 0.0f, 0.0f);
-		if (LightList[i].HasShadow && LightList[i].type == 1)
-		{
-			LightColour *= 1.0 - ShadowCalculationCube(payload.Pos.xyz, LightList[i], g_Shadow_texture2[LightList[i].ShadowID]);
-		}
-		OutColor += LightColour;
+		uint seed = initRand(launchIndex.x + launchIndex.y * launchDim.x, i);
+		AccumColour += LaunchSample(pos, seed, SmoothNess, normal, -ViewDir);
 	}
-	gOutput[launchIndex.xy] = float4(OutColor, SmoothNess);
+	AccumColour /= SampleCount;
+	gOutput[launchIndex.xy] = float4(AccumColour, SmoothNess);
 }
+

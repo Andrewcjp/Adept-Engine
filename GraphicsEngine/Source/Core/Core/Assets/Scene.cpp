@@ -324,10 +324,10 @@ void Scene::LoadExampleScene()
 #endif
 	//AddMeshObject(glm::vec3(0, 50, 0), "exterior.obj");
 #if 1
-	size = 3;
-	glm::vec3 startPos = glm::vec3(0, 5, 0);
-	stride = 5.0f;
-	CreateGrid(size, startPos, 5.0f);
+	size = 6;
+	glm::vec3 startPos = glm::vec3(-10, 5, 10);
+	stride = 2.5f;
+	CreateGrid(size, startPos, 2.5f,true);
 #endif
 #if TEST_HEAVY
 	CreateGrid(10, glm::vec3(0, 10, 20), 10);
@@ -379,7 +379,7 @@ void Scene::PadUntil(int target)
 	}
 }
 
-void Scene::CreateGrid(int size, glm::vec3 startPos, float stride)
+void Scene::CreateGrid(int size, glm::vec3 startPos, float stride,bool OneD)
 {
 	for (int y = 0; y < size; y++)
 	{
@@ -387,6 +387,10 @@ void Scene::CreateGrid(int size, glm::vec3 startPos, float stride)
 		{
 			for (int z = 0; z < size; z++)
 			{
+				if (OneD && z > 0)
+				{
+					continue;
+				}
 				GameObject* go = new GameObject("Water");
 				//go->SetMoblity(GameObject::Dynamic);
 				Material* mat = Material::CreateDefaultMaterialInstance();

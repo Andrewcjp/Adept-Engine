@@ -49,7 +49,7 @@ class RHICommandList;
 #define NOSHADOW 0 //BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
 #ifdef PLATFORM_RT
-#define RHI_SUPPORTS_RT 1
+#define RHI_SUPPORTS_RT 0
 #else
 #define RHI_SUPPORTS_RT 0
 #endif

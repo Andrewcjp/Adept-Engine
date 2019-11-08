@@ -39,6 +39,8 @@ void OutputToScreenNode::OnExecute()
 			D.Cull = false;
 			D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 			ScreenWriteList->SetPipelineStateDesc(D);
+			FBNode->GetFramebuffer(EEye::Left)->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
+			FBNode->GetFramebuffer(EEye::Right)->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
 			ScreenWriteList->SetFrameBufferTexture(FBNode->GetFramebuffer(EEye::Left), 0);
 			ScreenWriteList->SetFrameBufferTexture(FBNode->GetFramebuffer(EEye::Right), 1);
 		}
@@ -73,7 +75,7 @@ void OutputToScreenNode::OnExecute()
 
 void OutputToScreenNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::DontCare, "Frame");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::DontCare, "Frame");
 }
 
 void OutputToScreenNode::OnSetupNode()

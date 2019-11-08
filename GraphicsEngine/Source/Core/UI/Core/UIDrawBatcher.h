@@ -8,22 +8,44 @@ struct UIVertex
 	glm::vec3 FrontColour;
 	glm::vec3 BackColour;
 };
+namespace ERenderBatchType
+{
+	enum Type
+	{
+		Verts,
+		TexturedVerts,
+		Text,
+		Limit
+	};
+}
+//contains all the needed data to render a batch of widgets
+struct UIRenderBatch
+{
+	std::vector<UIVertex> Verts;
+	void AddVertex(glm::vec2 pos, bool Back, glm::vec3 frontcol, glm::vec3 backcol);
+	ERenderBatchType::Type BatchType = ERenderBatchType::Verts;
+	std::string text = "";
+	glm::vec2 pos = glm::vec2();
+	void AddText(std::string text, glm::vec2 pos);
+};
 class UIDrawBatcher
 {
 public:
 
 	UIDrawBatcher();
 	void Init();
+	void SetState(RHICommandList * list);
 	void ReallocBuffer(int NewSize);
 	~UIDrawBatcher();
 	void SendToGPU();
 	void RenderBatches();
 	void Render(RHICommandList * list);
-	void AddVertex(glm::vec2 pos, bool Back, glm::vec3 frontcol = glm::vec3(1, 1, 1), glm::vec3 backcol = glm::vec3(0));
 	void ClearVertArray();
 	void CleanUp();
 	glm::ivec2 Offset = glm::ivec2(0);
 	RHICommandList* commandlist = nullptr;
+	void AddBatch(UIRenderBatch* Batch);
+	void BuildBatches();
 private:
 	class Shader_UIBatch* Shader;
 	int UIMin = 300;
@@ -32,5 +54,6 @@ private:
 
 	const int Max_Verts = 10000;
 	int Current_Max_Verts = UIMin;
+	std::vector<UIRenderBatch*> Batches;
 };
 

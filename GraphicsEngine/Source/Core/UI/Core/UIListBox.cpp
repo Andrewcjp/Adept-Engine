@@ -9,6 +9,9 @@ UIListBox::UIListBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 	Background = new UIBox(w, h, x, y);
 	Background->Colour = glm::vec3(0.7f);
 	TitleLabel = new UILabel("List Box", w, 20, x, y + mheight - 20);
+	AddChild(Background);
+	AddChild(TitleLabel);
+	BatchMode = EWidgetBatchMode::On;
 }
 
 
@@ -99,9 +102,11 @@ void UIListBox::AddItem(std::string name)
 	button->BackgoundColour = Background->Colour;
 	items.push_back(button);
 	CurrentCount++;
+	AddChild(button);
 }
 
 void UIListBox::SetTitle(std::string name)
 {
 	TitleLabel->SetText(name);
 }
+

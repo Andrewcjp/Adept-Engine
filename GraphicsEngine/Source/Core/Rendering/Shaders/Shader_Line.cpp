@@ -26,13 +26,6 @@ std::vector<Shader::VertexElementDESC> Shader_Line::GetVertexFormat()
 	return out;
 }
 
-std::vector<ShaderParameter> Shader_Line::GetShaderParameters()
-{
-	std::vector<ShaderParameter> Output;
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, 0));
-	return Output;
-}
-
 const std::string Shader_Line::GetName()
 {
 	if (IsTwo)

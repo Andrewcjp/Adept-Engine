@@ -8,6 +8,7 @@
 #include "Rendering/Shaders/UI/Shader_TexturedUI.h"
 #include "Core/Assets/AssetManager.h"
 #include "RHI/BaseTexture.h"
+#include "Core/Performance/PerfManager.h"
 UIWidgetContext::UIWidgetContext()
 {
 	Quad = new Shader_TexturedUI(RHI::GetDefaultDevice());
@@ -108,8 +109,15 @@ void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset
 	for (int i = (int)widgets.size() - 1; i >= 0; i--)
 	{
 		widgets[i]->UpdateScaled();
+		
 	}
-
+	{
+		SCOPE_CYCLE_COUNTER_GROUP("Gather batches", "UI");
+		for (int i = (int)widgets.size() - 1; i >= 0; i--)
+		{
+			widgets[i]->GatherBatches();
+		}
+	}
 	TextRender->UpdateSize(UIManager::instance->GetWidth(), UIManager::instance->GetHeight(), Offset);
 	DrawBatcher->SendToGPU();
 }

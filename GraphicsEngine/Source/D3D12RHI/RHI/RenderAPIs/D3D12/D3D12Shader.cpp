@@ -289,7 +289,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_ALL_RESOURCES_BOUND | D3DCOMPILE_ENABLE_STRICTNESS /*| D3DCOMPILE_WARNINGS_ARE_ERRORS*/;
 	}
 	D3D_SHADER_MACRO* defines = ParseDefines();
-	hr = D3DCompile(ShaderData.c_str(), ShaderData.size(), shadername, defines, nullptr, Entrypoint, StringUtils::ConvertWideToString(GetComplieTarget(ShaderType)).c_str(), compileFlags, 0, GetCurrentBlob(ShaderType), &pErrorBlob);
+	hr = D3DCompile(ShaderData->Source.c_str(), ShaderData->Source.size(), shadername, defines, nullptr, Entrypoint, StringUtils::ConvertWideToString(GetComplieTarget(ShaderType)).c_str(), compileFlags, 0, GetCurrentBlob(ShaderType), &pErrorBlob);
 #endif
 	if (!ShaderComplier::Get()->ShouldBuildDebugShaders())
 	{
@@ -450,7 +450,7 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 #if USE_DIXL
 		WriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(AssetManager::GetShaderCacheDir() + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str());
 #else
-		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(DDcShaderPath + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
+		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(AssetManager::GetShaderCacheDir() + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
 #endif
 	}
 }

@@ -7,6 +7,7 @@ public:
 	~ForwardRenderNode();
 
 	virtual void OnExecute() override;
+	static void BindLightingData(RHICommandList * list, ForwardRenderNode* node);
 	virtual void OnSetupNode() override;
 	virtual std::string GetName() const override;
 	bool UseLightCulling = false;

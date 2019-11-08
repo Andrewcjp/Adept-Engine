@@ -133,7 +133,7 @@ void MeshBatchProcessor::SubmitCommands(RHICommandList* List, const MeshPassRend
 		MeshDrawCommand* C = DrawCommands[i];
 		PERDRAWTIMER(List, C->Object->GetName());
 		OnSubmitCommands(List, C, args);
-		List->SetConstantBufferView(C->TransformUniformBuffer, 0, 0);
+		List->SetConstantBufferView(C->TransformUniformBuffer, 0, "GOConstantBuffer");
 		List->SetVertexBuffer(C->Vertex);
 		List->SetIndexBuffer(C->Index);
 		List->DrawIndexedPrimitive(C->NumPrimitves, C->NumInstances, 0, 0, 0);

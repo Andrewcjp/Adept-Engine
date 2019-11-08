@@ -12,7 +12,8 @@ UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 	Colour = colour;
 	Namelabel = new UILabel("name ", w / 2, h, x, y);
 	Textlabel = new UILabel(" data", w / 2, h, x + w / 2, y);
-
+	AddChild(Namelabel);
+	AddChild(Textlabel);
 	Rect = CollisionRect(w, h, x, y);
 	Enabled = true;
 }
@@ -39,6 +40,7 @@ UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(
 
 		TextBox->BackgoundColour = glm::vec3(0.25f);
 		TextBox->Colour = glm::vec3(0.7f);
+		AddChild(TextBox);
 	}
 	else if (FilterType == EditValueType::Bool)
 	{
@@ -46,6 +48,7 @@ UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(
 		Toggle->BackgoundColour = glm::vec3(0.25f);
 		Toggle->Colour = glm::vec3(0.7f);
 		Toggle->BindTarget(std::bind(&UIEditField::SendValue, this));
+		AddChild(Toggle);
 	}
 	SupportsScroll = (FilterType == EditValueType::Float);//todo: int
 	if (Valueptr != nullptr)
@@ -53,6 +56,8 @@ UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(
 		GetValueText(nextext);
 		Textlabel->SetText(nextext);
 	}
+	AddChild(Namelabel);
+	AddChild(Textlabel);
 }
 #endif
 UIEditField::~UIEditField()

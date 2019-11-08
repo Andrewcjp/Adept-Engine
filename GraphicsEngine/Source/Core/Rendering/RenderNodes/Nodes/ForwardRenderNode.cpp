@@ -49,7 +49,7 @@ void ForwardRenderNode::OnExecute()
 	glm::ivec2 Res = glm::ivec2(TargetBuffer->GetWidth(), TargetBuffer->GetHeight());
 	if (!RHI::IsVulkan())
 	{
-		CommandList->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);
+		//CommandList->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);
 	}
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(CommandList, false);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
@@ -61,6 +61,7 @@ void ForwardRenderNode::OnExecute()
 	Args.PassType = ERenderPass::BasePass;
 	Args.UseDeferredShaders = false;
 	Args.ReadDepth = UsePreZPass;
+	Args.PassData = this;
 	SceneRenderer::Get()->MeshController->RenderPass(Args, CommandList);
 
 	CommandList->EndRenderPass();
@@ -70,6 +71,19 @@ void ForwardRenderNode::OnExecute()
 	
 	CommandList->Execute();
 	PassNodeThough(0, StorageFormats::LitScene);
+}
+
+void ForwardRenderNode::BindLightingData(RHICommandList* list,ForwardRenderNode* node)
+{
+	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(list, false);
+	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
+
+	SceneRenderer::Get()->BindLightsBufferA(list, MainShaderRSBinds::LightDataCBV);
+	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(list);
+	if (node->GetInput(2)->IsValid())
+	{
+		node->GetShadowDataFromInput(2)->BindPointArray(list, "g_Shadow_texture2");
+	}
 }
 
 void ForwardRenderNode::OnSetupNode()

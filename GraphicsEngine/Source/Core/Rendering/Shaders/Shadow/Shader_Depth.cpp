@@ -41,7 +41,7 @@ Shader_Depth::Shader_Depth(DeviceContext* device, bool LoadGeo) : Shader(device)
 void Shader_Depth::UpdateBuffer(RHICommandList * list, LightData* data, int index)
 {
 	ConstantBuffer->UpdateConstantBuffer(data, index);
-	list->SetConstantBufferView(ConstantBuffer, index, Shader_Depth_RSSlots::VPBuffer);
+	list->SetConstantBufferView(ConstantBuffer, index, "SceneconstantBuffer");
 }
 
 Shader_Depth::~Shader_Depth()
@@ -51,12 +51,17 @@ Shader_Depth::~Shader_Depth()
 
 std::vector<ShaderParameter> Shader_Depth::GetShaderParameters()
 {
-	std::vector<ShaderParameter> Output;
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, Shader_Depth_RSSlots::ModelBuffer));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, Shader_Depth_RSSlots::GeometryProjections));
-	Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, Shader_Depth_RSSlots::VPBuffer));
-	Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 3, Shader_Depth_RSSlots::VI_Offset));
-	return Output;
+	//std::vector<ShaderParameter> Output;
+	//Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, Shader_Depth_RSSlots::ModelBuffer));
+	//Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, Shader_Depth_RSSlots::GeometryProjections));
+	//Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, Shader_Depth_RSSlots::VPBuffer));
+
+
+
+	//Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 3, Shader_Depth_RSSlots::VI_Offset));
+
+	ChangeParamType("VIData", ShaderParamType::RootConstant);
+	return Shader::GetShaderParameters();
 }
 
 void Shader_Depth::UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shadowProj, int index)
@@ -80,5 +85,5 @@ void Shader_Depth::UpdateGeometryShaderParams(glm::vec3 lightPos, glm::mat4 shad
 
 void Shader_Depth::SetProjections(RHICommandList * list, int index)
 {
-	list->SetConstantBufferView(GeometryProjections, index, Shader_Depth_RSSlots::GeometryProjections);
+	list->SetConstantBufferView(GeometryProjections, index, "GeoTrans");
 }

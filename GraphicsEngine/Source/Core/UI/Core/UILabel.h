@@ -13,6 +13,9 @@ public:
 	CORE_API void SetText(const std::string& text);
 	CORE_API std::string GetText();
 	float TextScale = 0.5f;
+
+	virtual void OnGatherBatches(UIRenderBatch* Groupbatchptr = nullptr) override;
+
 private:
 	std::string  MText = "";
 };

@@ -24,6 +24,7 @@ struct MeshPassRenderArgs
 	ERenderPass::Type PassType = ERenderPass::Limit;
 	bool UseShadows = false;
 	bool ReadDepth = false;
+	void* PassData = nullptr;
 };
 namespace EBatchFilter
 {

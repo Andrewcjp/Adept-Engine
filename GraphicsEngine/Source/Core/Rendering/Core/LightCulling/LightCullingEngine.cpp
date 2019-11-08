@@ -80,7 +80,8 @@ void LightCullingEngine::BindLightBuffer(RHICommandList* list, bool deferred /*=
 	}
 	else
 	{
-		LightDataBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
+		//LightDataBuffer->BindBufferReadOnly(list, "");
+		list->SetBuffer(LightDataBuffer, "lights");
 	}
 }
 

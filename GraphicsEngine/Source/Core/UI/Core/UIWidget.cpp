@@ -1,6 +1,7 @@
 #include "UIWidget.h"
 #include "UI/UIManager.h"
 #include "UI/Core/UIWidgetContext.h"
+#include "UIDrawBatcher.h"
 glm::vec3 DefaultColour = glm::vec3(1);
 UIWidget::UIWidget(int w, int h, int x, int y)
 {
@@ -31,6 +32,7 @@ void UIWidget::SetScaled(float Width, float height, float xoff, float yoff)
 	XoffsetScale = xoff;
 	YoffsetScale = yoff;
 }
+
 void UIWidget::UpdateScaled()
 {
 	if (UseScaled)
@@ -39,6 +41,7 @@ void UIWidget::UpdateScaled()
 			UIManager::GetScaledWidth(XoffsetScale), UIManager::GetScaledHeight(YoffsetScale));
 	}
 }
+
 void UIWidget::SetOwner(UIWidgetContext * wc)
 {
 	OwningContext = wc;
@@ -80,5 +83,104 @@ void UIWidget::InvalidateRenderstate()
 	{
 		OwningContext->MarkRenderStateDirty();
 	}
+}
+
+void UIWidget::GatherBatches(UIRenderBatch* BatchPtr)
+{
+	if (!IsWithinParentBounds())
+	{
+		return;
+	}
+	if (BatchMode == EWidgetBatchMode::On)
+	{
+		BatchPtr = new UIRenderBatch();
+		BatchPtr->BatchType = ERenderBatchType::Verts;
+		OwningContext->GetBatcher()->AddBatch(BatchPtr);
+	}
+	OnGatherBatches(BatchPtr);
+	for (int i = 0; i < Children.size(); i++)
+	{
+		Children[i]->GatherBatches(BatchPtr);
+	}
+}
+
+struct rect
+{
+	int x;
+	int y;
+	int width;
+	int height;
+};
+
+bool valueInRange(int value, int min, int max)
+{
+	return (value >= min) && (value <= max);
+}
+
+bool rectOverlap(rect A, rect B)
+{
+	bool xOverlap = valueInRange(A.x, B.x, B.x + B.width) ||
+		valueInRange(B.x, A.x, A.x + A.width);
+
+	bool yOverlap = valueInRange(A.y, B.y, B.y + B.height) ||
+		valueInRange(B.y, A.y, A.y + A.height);
+
+	return xOverlap && yOverlap;
+}
+
+
+bool UIWidget::IsWithinParentBounds()
+{
+	if (Parent == nullptr)
+	{
+		return true;
+	}
+	if (Parent->IgnoreboundsCheck)
+	{
+		return true;
+	}
+	rect Widget;
+	Widget.x = X;
+	Widget.y = Y;
+	Widget.width = mwidth;
+	Widget.height = mheight;
+
+	rect parentrect;
+	parentrect.x = Parent->X;
+	parentrect.y = Parent->Y;
+	parentrect.width = Parent->mwidth;
+	parentrect.height = Parent->mheight;
+	return rectOverlap(Widget, parentrect);
+}
+
+void UIWidget::AddChild(UIWidget * W)
+{
+	W->Parent = this;
+	Children.push_back(W);
+}
+
+void UIWidget::RemoveChild(UIWidget* w)
+{
+	w->Parent = nullptr;
+	VectorUtils::Remove(Children, w);
+}
+
+void UIWidget::InvalidateTransform()
+{
+	TransfromDirty = true;
+}
+
+EWidgetBatchMode::Type UIWidget::GetBatchMode()
+{
+	if (Parent != nullptr && BatchMode == EWidgetBatchMode::Auto)
+	{		
+		return Parent->BatchMode;
+	}
+	return BatchMode;
+}
+
+void UIWidget::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
+{
+
 }
 

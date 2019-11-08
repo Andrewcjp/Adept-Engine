@@ -60,7 +60,7 @@ void DeferredLightingNode::OnExecute()
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(List, true);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
 	SceneRenderer::Get()->BindLightsBuffer(List, DeferredLightingShaderRSBinds::LightDataCBV);
-	SceneRenderer::Get()->BindMvBuffer(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
+	SceneRenderer::Get()->BindMvBufferB(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
 
 	if (GetInput(3)->IsValid() && RHI::IsD3D12())
 	{

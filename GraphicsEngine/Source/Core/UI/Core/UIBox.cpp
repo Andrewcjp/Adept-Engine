@@ -15,32 +15,13 @@ void UIBox::Init()
 
 void UIBox::ResizeView(int w, int h, int x, int y)
 {
+	UIWidget::ResizeView(w, h, x, y);
 	if (!IsActive)
 	{
 		return;
 	}
 	RightRect = CollisionRect(WidthOfCollisonRects * 2, h, x + (w - WidthOfCollisonRects), y);
-	float xpos = (float)x;
-	float ypos = (float)y;
-
-	if (OwningContext != nullptr)
-	{
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos, ypos), true, Colour, BackgoundColour);
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
-
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w, ypos + h), true, Colour, BackgoundColour);
-
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
-
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
-		OwningContext->GetBatcher()->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
-	}
+	InvalidateTransform();
 }
 
 UIBox::~UIBox()
@@ -85,3 +66,42 @@ void UIBox::MouseClickUp(int, int)
 
 void UIBox::Render()
 {}
+
+void UIBox::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
+{
+	float xpos = (float)X;
+	float ypos = (float)Y;
+	const float h = mheight;
+	const float w = mwidth;
+	if (OwningContext != nullptr)
+	{
+		UIRenderBatch* RenderBatch = nullptr;
+		if (Groupbatchptr != nullptr)
+		{
+			RenderBatch = Groupbatchptr;
+		}
+		else
+		{
+			RenderBatch = new UIRenderBatch();
+		}
+		RenderBatch->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
+		RenderBatch->AddVertex(glm::vec2(xpos, ypos), true, Colour, BackgoundColour);
+		RenderBatch->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
+
+		RenderBatch->AddVertex(glm::vec2(xpos, ypos + h), true, Colour, BackgoundColour);
+		RenderBatch->AddVertex(glm::vec2(xpos + w, ypos), true, Colour, BackgoundColour);
+		RenderBatch->AddVertex(glm::vec2(xpos + w, ypos + h), true, Colour, BackgoundColour);
+
+		RenderBatch->AddVertex(glm::vec2(xpos + EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
+		RenderBatch->AddVertex(glm::vec2(xpos + EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
+		RenderBatch->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
+
+		RenderBatch->AddVertex(glm::vec2(xpos + EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
+		RenderBatch->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + EdgeGap), false, Colour, BackgoundColour);
+		RenderBatch->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
+		if (Groupbatchptr == nullptr)
+		{
+			OwningContext->GetBatcher()->AddBatch(RenderBatch);
+		}
+	}
+}

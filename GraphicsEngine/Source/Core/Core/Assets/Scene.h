@@ -29,7 +29,7 @@ public:
 
 	void PadUntil(int target);
 
-	void CreateGrid(int size, glm::vec3 startPos, float stride);
+	void CreateGrid(int size, glm::vec3 startPos, float stride, bool OneD = false);
 	void SpawnDoor(std::string name, glm::vec3 pos);
 
 	std::vector<Light*>& GetLights();

@@ -259,12 +259,22 @@ void SceneRenderer::BindLightsBuffer(RHICommandList*  list, int Override)
 	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, Override);
 }
 
+void SceneRenderer::BindLightsBufferA(RHICommandList*  list, int Override)
+{
+	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, "LightBuffer");
+}
+
 void SceneRenderer::BindMvBuffer(RHICommandList * list, int slot)
 {
 	BindMvBuffer(list, slot, 0);
 }
 
 void SceneRenderer::BindMvBuffer(RHICommandList * list, int slot, int index)
+{
+	list->SetConstantBufferView(CMVBuffer, index, "SceneConstantBuffer");
+}
+
+void SceneRenderer::BindMvBufferB(RHICommandList * list, int slot, int index)
 {
 	list->SetConstantBufferView(CMVBuffer, index, slot);
 }

@@ -16,6 +16,13 @@ struct Character
 	glm::ivec2 Bearing;  // Offset 
 	int Advance;    // offset to next glyph
 };
+struct TextBatch
+{
+	std::string Text = "";
+	glm::vec2 pos;
+	float scale = 1.0f;
+	glm::vec3 color = glm::vec3(1, 1, 1);
+};
 struct atlas;
 class TextRenderer
 {
@@ -25,6 +32,10 @@ public:
 	~TextRenderer();
 
 	CORE_API static void RenderText(std::string text, float x, float y, float scale, glm::vec3 color);
+
+	void RenderDirect(RHICommandList * list, std::string text, glm::vec2 pos, float scale, glm::vec3 colour);
+
+	int CreateGlyphs(std::string text, glm::vec2 pos, float scale, glm::vec3 color);
 
 	void RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1, 1, 1), bool Reset = false);
 	
@@ -85,5 +96,7 @@ private:
 		~atlas();
 	};
 	atlas* TextAtlas;
+	int Offset = 0;
+	std::vector<TextBatch> Batches;
 };
 

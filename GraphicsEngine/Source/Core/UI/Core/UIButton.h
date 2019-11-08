@@ -25,6 +25,7 @@ public:
 	glm::vec3 SelectedColour = glm::vec3(0, 0, 0.5f);
 	void SetSelected(bool state);
 	virtual void OnOwnerSet(UIWidgetContext* wc) override;
+
 private:
 	bool IsActiveSelect = false;
 	bool WasSelected = false;

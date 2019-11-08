@@ -16,6 +16,7 @@ public:
 
 	void BindDirectionArray(RHICommandList* List, int Slot);
 	void BindPointArray(RHICommandList* List, int Slot);
+	void BindPointArray(RHICommandList * List, const std::string & Slot);
 	ShadowRenderer* Shadower = nullptr;
 	ShadowAtlas* GetAtlas()const;
 protected:

@@ -16,10 +16,10 @@ Shader_PreZ::~Shader_PreZ()
 std::vector<ShaderParameter> Shader_PreZ::GetShaderParameters()
 {
 	std::vector<ShaderParameter> out;
-	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::GODataCBV, 0));
-	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::LightDataCBV, 1));
-	out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::MVCBV, 2));
-	return out;
+	//out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::GODataCBV, 0));
+	//out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::LightDataCBV, 1));
+	//out.push_back(ShaderParameter(ShaderParamType::CBV, MainShaderRSBinds::MVCBV, 2));
+	return Shader::GetShaderParameters();
 }
 
 std::vector<Shader::VertexElementDESC> Shader_PreZ::GetVertexFormat()

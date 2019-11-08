@@ -263,29 +263,24 @@ void D3D12CommandList::PrepareforDraw()
 
 		}
 		else if (bind->BindType == ERSBindType::TextureArray)
-		{
-			//			ensure(bind->View.ViewType != EViewType::Limit);
+		{			
 			DXDescriptor* desc = nullptr;
-			//check(bind->IsBound());
 			if (bind->IsBound())
 			{
 				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
+				if (IsGraphicsList())
+				{
+					GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
+				}
+				else
+				{
+					GetCommandList()->SetComputeRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
+				}
 			}
-			if (IsGraphicsList())
-			{
-				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
-			}
-			else
-			{
-				GetCommandList()->SetComputeRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
-			}
-
 		}
 		else if (bind->BindType == ERSBindType::UAV)
 		{
-
 			DXDescriptor* desc = nullptr;
-			//check(bind->IsBound());
 			if (bind->IsBound())
 			{
 				ensure(bind->View.ViewType != EViewType::Limit);

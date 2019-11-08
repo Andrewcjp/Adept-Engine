@@ -20,7 +20,7 @@ Inspector::Inspector(int w, int h, int x, int y)
 	//Backgroundbox->BackgoundColour = glm::vec3(0);
 	CreateEditor();
 	ensure(Instance == nullptr);
-
+	AddChild(Backgroundbox);
 	Instance = this;
 
 }
@@ -146,6 +146,7 @@ void Inspector::CreateEditor()
 	{
 		for (int i = 0; i < SubWidgets.size(); i++)
 		{
+			RemoveChild(SubWidgets[i]);
 			delete SubWidgets[i];
 		}
 		SubWidgets.clear();
@@ -180,11 +181,12 @@ void Inspector::CreateEditor()
 			}
 			Panel->SetTitle(Fields[i].name);
 			SubWidgets.push_back(Panel);
-
+			AddChild(Panel);
 		}
 		button = new UIButton(mwidth, 30, 0, 0);
 		button->SetText("Add Component");
 		button->BindTarget(std::bind(&Inspector::AddComponent, this));
+		AddChild(button);
 		SubWidgets.push_back(button);
 	}
 	ResizeView(mwidth, mheight, X, Y);
