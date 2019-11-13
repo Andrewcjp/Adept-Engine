@@ -16,7 +16,7 @@
 #include "Assets/AssetManager.h"
 #include "Platform/ConsoleVariable.h"
 #include "Rendering/Core/GPUPerformanceGraph.h"
-#include "UI/GameUI/UIGraph.h"
+#include "UI/CompoundWidgets/UIGraph.h"
 #include "RHI/RHI.h"
 #include "Rendering/VR/HMDManager.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"

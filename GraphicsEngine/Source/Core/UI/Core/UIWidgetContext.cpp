@@ -24,7 +24,7 @@ UIWidgetContext::~UIWidgetContext()
 {
 	SafeDelete(Quad);
 	SafeDelete(TextRender);
-//	SafeDelete(LineBatcher);
+	//	SafeDelete(LineBatcher);
 	SafeDelete(DrawBatcher);
 	MemoryUtils::DeleteVector(widgets);
 }
@@ -89,6 +89,7 @@ int UIWidgetContext::GetScaledHeight(float PC)
 
 void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset)
 {
+	RootSpaceWidgetScale = glm::clamp(1080.0f / (float)height, 0.3f, 1.0f);
 	LineBatcher->OnResize(width, height);
 	DrawBatcher->ClearVertArray();
 	SetOffset(glm::ivec2(Xoffset, yoffset));
@@ -109,7 +110,7 @@ void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset
 	for (int i = (int)widgets.size() - 1; i >= 0; i--)
 	{
 		widgets[i]->UpdateScaled();
-		
+
 	}
 	{
 		SCOPE_CYCLE_COUNTER_GROUP("Gather batches", "UI");
@@ -134,8 +135,8 @@ void UIWidgetContext::CleanUpWidgets()
 		{
 			if (widgets[x] == WidgetsToRemove[i])//todo: performance of this?
 			{
+				SafeDelete(widgets[x]);
 				widgets.erase(widgets.begin() + x);
-				SafeDelete(widgets[i]);
 				break;
 			}
 		}
@@ -164,7 +165,7 @@ void UIWidgetContext::Initalise(int width, int height)
 	else
 	{
 		LineBatcher = DebugLineDrawer::Get2();
-	}	
+	}
 }
 
 void UIWidgetContext::RenderWidgets()
@@ -287,4 +288,9 @@ void UIWidgetContext::HideScreen()
 {
 	ShowQuadPostUI = false;
 	ShowQuadpreUI = false;
+}
+
+glm::vec2 UIWidgetContext::ConvertToNormalSpace(glm::vec2 pos)
+{
+	return glm::vec2(pos.x / RootSpaceViewport.Max.x, pos.y / RootSpaceViewport.Max.y);
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "UIBox.h"
+#include "../BasicWidgets/UIBox.h"
 
 class UIPanel :
 	public UIBox

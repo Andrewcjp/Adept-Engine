@@ -2,12 +2,12 @@
 #include "Inspector.h"
 #include "IEdtiorInspectable.h"
 
-#include "UI/EditorUI/UIEditField.h"
-#include "UI/Core/UIBox.h"
+#include "UI/CompoundWidgets/UIEditField.h"
+#include "UI/BasicWidgets/UIBox.h"
 #include "UI/UIManager.h"
-#include "UI/Core/UIButton.h"
+#include "UI/CompoundWidgets/UIButton.h"
 #include "UI/Core/Layout.h"
-#include "UI/Core/UIPanel.h"
+#include "UI/CompoundWidgets/UIPanel.h"
 #include "Core/Components/ComponentRegistry.h"
 #include "Core/GameObject.h"
 #include "Core/Components/Component.h"
@@ -184,6 +184,7 @@ void Inspector::CreateEditor()
 			AddChild(Panel);
 		}
 		button = new UIButton(mwidth, 30, 0, 0);
+		button->SetRootSpaceSize(250, 30, 0, 0);
 		button->SetText("Add Component");
 		button->BindTarget(std::bind(&Inspector::AddComponent, this));
 		AddChild(button);

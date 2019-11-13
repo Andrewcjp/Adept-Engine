@@ -4,8 +4,8 @@
 
 #include "Core/Platform/ConsoleVariable.h"
 #include "Editor/EditorWindow.h"
-#include "UI/Core/UILabel.h"
-#include "UI/EditorUI/UIEditField.h"
+#include "UI/BasicWidgets/UILabel.h"
+#include "UI/CompoundWidgets/UIEditField.h"
 #include "UI/UIManager.h"
 #include "UIGraph.h"
 #include <cctype>
@@ -13,14 +13,23 @@
 DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 {
 	EditField = new UIBox(w, h, x, y);
-	Textlabel = new UILabel(">", w, 30, x, y);
-	SuggestBox = new UILabel("sugest", w, 30, x, y);
-	ResponseLabel = new UILabel("", w, 30, x, y);
+	Textlabel = new UILabel(">", w, h / 2, x, y);
+	SuggestBox = new UILabel("", w, h / 2, x, y);
+	ResponseLabel = new UILabel("", w, h / 2, x, y);
 	Textlabel->TextScale = 0.3f;
 	EditField->SetEnabled(false);
 	LastText = ">";
 	LastCommand = ">";
 	Priority = 10;
+	AddChild(EditField);
+	AddChild(Textlabel);
+	AddChild(SuggestBox);
+	//AddChild(ResponseLabel);
+	IgnoreboundsCheck = true;
+	GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+	GetTransfrom()->SetStretchMode(EAxisStretch::Width);
+	Close();
+	BatchMode = EWidgetBatchMode::On;
 }
 
 
@@ -31,12 +40,7 @@ DebugConsole::~DebugConsole()
 
 void DebugConsole::Render()
 {
-	if (IsOpen)
-	{
-		Textlabel->Render();
-		ResponseLabel->Render();
-		SuggestBox->Render();
-	}
+
 }
 
 void DebugConsole::Open()
@@ -47,15 +51,16 @@ void DebugConsole::Open()
 	nextext = ">";
 	EditField->SetEnabled(IsOpen);
 	UIManager::UpdateBatches();
+	SetEnabled(true);
 }
 
 void DebugConsole::ResizeView(int w, int h, int x, int y)
 {
 	EditField->ResizeView(w, h, x, y);
-	const int size = 40;
-	Textlabel->ResizeView(w, size, x, y + 10);
+	const int size = h / 2;
+	Textlabel->ResizeView(w, size, x, y + h / 3);
 	ResponseLabel->ResizeView(w, size, x, y);
-	SuggestBox->ResizeView(w, size, x, y - 15);
+	SuggestBox->ResizeView(w, size, x, y);
 }
 
 static ConsoleVariable showgraph("ui.showgraph", 0, ECVarType::ConsoleAndLaunch);
@@ -72,7 +77,7 @@ void DebugConsole::ExecCommand(std::string command)
 	{
 		Response = Var->GetName() + " " + Var->GetValueString();
 	}
-	ResponseLabel->SetText(Response);
+	SuggestBox->SetText(Response);
 	UIManager::instance->Graph->SetEnabled(showgraph.GetBoolValue());
 	ClearInput();
 }
@@ -86,6 +91,7 @@ void DebugConsole::Close()
 	Textlabel->SetText(nextext);
 
 	UIManager::SetCurrentcontext(nullptr);
+	SetEnabled(false);
 }
 
 void DebugConsole::ClearInput()
@@ -108,6 +114,7 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 	else if (key == VK_RETURN)
 	{
 		ExecCommand(nextext);
+		return;
 	}
 	else if (key == VK_ESCAPE)
 	{

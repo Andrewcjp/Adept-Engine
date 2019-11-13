@@ -1,19 +1,19 @@
 #include "UIManager.h"
 #include "Core/GameObject.h"
 #include "Core/UIDrawBatcher.h"
-#include "Core/UIPopoutbox.h"
+#include "CompoundWidgets/UIPopoutbox.h"
 #include "Core/UIWidgetContext.h"
 #include "Core/Utils/VectorUtils.h"
 #include "Editor/EditorCore.h"
 #include "Editor/EditorWindow.h"
 #include "EditorUI/EditorUI.h"
 #include "EditorUI/UIAssetManager.h"
-#include "GameUI/DebugConsole.h"
-#include "GameUI/UIDropDown.h"
-#include "GameUI/UIGraph.h"
+#include "CompoundWidgets/DebugConsole.h"
+#include "CompoundWidgets/UIDropDown.h"
+#include "CompoundWidgets/UIGraph.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Rendering/Renderers/TextRenderer.h"
-#include "Core/UIImage.h"
+#include "BasicWidgets/UIImage.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -48,7 +48,7 @@ void UIManager::InitCommonUI()
 	AddWidget(graph);
 	graph->SetEnabled(false);
 	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
-	wid->SetScaled(1.0f, 0.07f, 0.0f, 0.93f);
+	wid->SetAbsoluteSize(1920, 40, 0, 40);
 	AddWidget(wid);
 }
 #if WITH_EDITOR
@@ -64,12 +64,17 @@ void UIManager::InitEditorUI()
 	BottomHeight = 0.25f;
 	UIBox* TOP = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
+	const int size = 100;
+	TOP->SetRootSpaceScaled(0, size, 0, size);
+	TOP->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+	TOP->GetTransfrom()->SetStretchMode(EAxisStretch::Width);
 	AddWidget(TOP);
 
-
-
 	inspector = new Inspector(m_width, GetScaledHeight(0.2f), 0, 0);
-	inspector->SetScaled(RightWidth, 1.0f - (TopHeight), 1 - RightWidth);
+	inspector->SetRootSpaceScaled(400, 960, 400, 0);
+	inspector->GetTransfrom()->SetStretchMode(EAxisStretch::HeightRootSpace);
+	inspector->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Right);
+	inspector->UpdateScaled();
 	AddWidget(inspector);
 
 	ViewportRect = CollisionRect(GetScaledWidth(0.70f), GetScaledHeight(0.70f), 0, 0);
@@ -91,7 +96,8 @@ void UIManager::InitEditorUI()
 
 
 	AssetManager = new UIAssetManager();
-	AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
+	AssetManager->SetRootSpaceSize(1920, 300, 0, 0);
+	//AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
 	AddWidget(AssetManager);
 
 	UIImage* Image = new UIImage(0, 0, 0, 0);
@@ -346,8 +352,8 @@ void UIManager::SetCurrentcontext(UIWidget * widget)
 
 void UIManager::RemoveWidget(UIWidget* widget)
 {
-	/*widget->IsPendingKill = true;
-	WidgetsToRemove.push_back(widget);*/
+	widget->IsPendingKill = true;
+	WidgetsToRemove.push_back(widget);
 }
 
 void UIManager::CleanUpWidgets()
@@ -376,7 +382,7 @@ void UIManager::CloseDropDown()
 {
 	if (instance != nullptr && instance->DropdownCurrent != nullptr)
 	{
-		instance->RemoveWidget(instance->DropdownCurrent);
+		instance->DropdownCurrent->GetOwningContext()->RemoveWidget(instance->DropdownCurrent);
 		instance->DropdownCurrent = nullptr;
 	}
 }

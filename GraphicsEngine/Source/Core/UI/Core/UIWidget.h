@@ -14,6 +14,8 @@ struct UIRenderBatch;
 
 typedef unsigned long long UINT_PTR;
 #define USE_BATCHED_DRAW 1
+
+#include "UITransform.h"
 class UIWidget
 {
 public:
@@ -29,11 +31,14 @@ public:
 	virtual ~UIWidget();
 	virtual void Render() = 0;
 	virtual void ResizeView(int w, int h, int x = 0, int y = 0);
+	void SetRootSpaceSize(int w, int h, int x, int y);
+	void SetRootSpaceScaled(int w, int h, int x, int y);
+	void SetAbsoluteSize(int w, int h, int x = 0, int y = 0);
 	CORE_API void SetScaled(float Width, float height, float xoff = 0.0f, float yoff = 0.0f);
-	
+
 	void SetOwner(UIWidgetContext* wc);
 	glm::vec3 Colour;
-	
+
 	virtual void MouseMove(int x, int y);
 	virtual bool MouseClick(int x, int y);
 	virtual void MouseClickUp(int x, int y);
@@ -64,26 +69,30 @@ public:
 	//tree traveral fucntions;
 	virtual void UpdateScaled();
 	virtual void UpdateData();
-	void GatherBatches(UIRenderBatch* BatchPtr= nullptr);
-	bool IsWithinParentBounds();
+	void GatherBatches(UIRenderBatch* BatchPtr = nullptr);
 	UIWidget* Parent;
+	bool IsWithinParentBounds();
 	std::vector<UIWidget*> Children;
 	void AddChild(UIWidget* W);
 	void RemoveChild(UIWidget * w);
 	void InvalidateTransform();
 	EWidgetBatchMode::Type GetBatchMode();
 	bool IgnoreboundsCheck = false;
+	EWidetSizeSpace::Type GetScaleMode() const { return Transform.GetScalingMode(); }
+	UIWidgetContext* GetOwningContext() const { return OwningContext; }
+	void SetOwningContext(UIWidgetContext* val);
+	UITransform* GetTransfrom();
 protected:
+	UITransform Transform;
 	EWidgetBatchMode::Type BatchMode = EWidgetBatchMode::Auto;
+	UIWidgetContext* OwningContext = nullptr;
 	float TextDefaultScale = 0.3f;
 	bool IsActive = true;
-	UIWidgetContext* OwningContext = nullptr;
 	bool TransfromDirty = false;
 	virtual void OnGatherBatches(UIRenderBatch* Groupbatchptr = nullptr);
 private:
-	//Is this widget Pixel Indepent?
-	bool UseScaled = false;
+	IntRect RootSpaceRect = IntRect();
+	EWidetSizeSpace::Type ScaleMode = EWidetSizeSpace::Limit;
 
-	
 };
 

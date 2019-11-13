@@ -1,10 +1,10 @@
 
 #include "UIEditField.h"
-#include "UI/Core/UILabel.h"
+#include "UI/BasicWidgets/UILabel.h"
 #include "Editor/EditorWindow.h"
 #include <cctype>
 #include "UI/UIManager.h"
-#include "UI/Core/UIButton.h"
+#include "UI/CompoundWidgets/UIButton.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
 UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)

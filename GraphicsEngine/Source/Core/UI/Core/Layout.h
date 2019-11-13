@@ -21,7 +21,7 @@ namespace UIUtils
 					height = MaxHeight;
 				}
 				Currenty -= height + Gap;
-				widgets[i]->ResizeView(w, height, x, Currenty);
+				widgets[i]->SetAbsoluteSize(w, height, x, Currenty);
 
 			}
 		}
@@ -39,7 +39,7 @@ namespace UIUtils
 			int Currentx = x;
 			for (int i = 0; i < widgets.size(); i++)
 			{
-				widgets[i]->ResizeView(width, h, Currentx, y);
+				widgets[i]->SetAbsoluteSize(width, h, Currentx, y);
 				Currentx += Xstride + Gap;
 			}
 		}
@@ -67,7 +67,7 @@ namespace UIUtils
 			int CurrectItemWidth = 0;
 			for (int i = 0; i < widgets.size(); i++)
 			{
-				widgets[i]->ResizeView(width, height, Currentx, Currenty);
+				widgets[i]->SetAbsoluteSize(width, height, Currentx, Currenty);
 				CurrectItemWidth++;
 				if (CurrectItemWidth >= 3)
 				{

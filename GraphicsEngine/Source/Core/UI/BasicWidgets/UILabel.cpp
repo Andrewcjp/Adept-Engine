@@ -1,8 +1,8 @@
 #include "UILabel.h"
 #include "UI/UIManager.h"
 #include "Rendering/Renderers/TextRenderer.h"
-#include "UIWidgetContext.h"
-#include "UIDrawBatcher.h"
+#include "../Core/UIWidgetContext.h"
+#include "../Core/UIDrawBatcher.h"
 UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
 	MText = text;
@@ -42,8 +42,11 @@ std::string UILabel::GetText()
 
 void UILabel::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 {
-	//OwningContext->RenderTextToScreen(MText,  TextScale, Colour);
+	if (MText.length() == 0)
+	{
+		return;
+	}
 	UIRenderBatch* batch = new UIRenderBatch();
-	batch->AddText(MText, glm::vec2(OwningContext->Offset.x + (float)X + 10, OwningContext->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale))));
-	OwningContext->GetBatcher()->AddBatch(batch);
+	batch->AddText(MText, glm::vec2(GetOwningContext()->Offset.x + (float)X + 10, GetOwningContext()->Offset.y + (float)Y + ((mheight / 2.0f) - (TextScale))));
+	GetOwningContext()->GetBatcher()->AddBatch(batch);
 }

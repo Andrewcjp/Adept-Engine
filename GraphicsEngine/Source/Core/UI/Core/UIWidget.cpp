@@ -11,7 +11,7 @@ UIWidget::UIWidget(int w, int h, int x, int y)
 	X = x;
 	Y = y;
 	Colour = glm::vec3(0.5f);
-	OwningContext = UIManager::GetDefaultContext();
+	SetOwningContext(UIManager::GetDefaultContext());
 }
 
 UIWidget::~UIWidget()
@@ -24,27 +24,45 @@ void UIWidget::ResizeView(int w, int h, int x, int y)
 	X = x;
 	Y = y;
 }
+
+void UIWidget::SetRootSpaceSize(int w, int h, int x, int y)
+{
+	Transform.Set(w, h, x, y, EWidetSizeSpace::RootSpace);
+	ScaleMode = EWidetSizeSpace::RootSpace;
+	UpdateScaled();
+}
+void UIWidget::SetRootSpaceScaled(int w, int h, int x, int y)
+{
+	Transform.Set(w, h, x, y, EWidetSizeSpace::RootSpaceScaled);
+	ScaleMode = EWidetSizeSpace::RootSpace;
+	UpdateScaled();
+}
+void UIWidget::SetAbsoluteSize(int w, int h, int x, int y)
+{
+	Transform.Set(w, h, x, y, EWidetSizeSpace::ABS);
+	ScaleMode = EWidetSizeSpace::ABS;
+	UpdateScaled();
+}
+
 void UIWidget::SetScaled(float Width, float height, float xoff, float yoff)
 {
-	UseScaled = true;
-	WidthScale = Width;
-	HeightScale = height;
-	XoffsetScale = xoff;
-	YoffsetScale = yoff;
+	int Rootx = OwningContext->RootSpaceViewport.Max.x *xoff;
+	int Rooty = OwningContext->RootSpaceViewport.Max.y *yoff;
+	int Rootwidth = OwningContext->RootSpaceViewport.Max.x *Width;
+	int Rootheight = OwningContext->RootSpaceViewport.Max.y *height;
+
+	Transform.Set(Rootwidth, Rootheight, Rootx, Rooty);
 }
 
 void UIWidget::UpdateScaled()
 {
-	if (UseScaled)
-	{
-		ResizeView(UIManager::GetScaledWidth(WidthScale), UIManager::GetScaledHeight(HeightScale),
-			UIManager::GetScaledWidth(XoffsetScale), UIManager::GetScaledHeight(YoffsetScale));
-	}
+	glm::vec4 Out = Transform.GetTransfromRect();
+	ResizeView(Out.x, Out.y, Out.z, Out.w);
 }
 
 void UIWidget::SetOwner(UIWidgetContext * wc)
 {
-	OwningContext = wc;
+	SetOwningContext(wc);
 	OnOwnerSet(wc);
 }
 void UIWidget::UpdateData()
@@ -79,23 +97,27 @@ bool UIWidget::operator<(UIWidget* that) const
 
 void UIWidget::InvalidateRenderstate()
 {
-	if (OwningContext)
+	if (GetOwningContext())
 	{
-		OwningContext->MarkRenderStateDirty();
+		GetOwningContext()->MarkRenderStateDirty();
 	}
 }
 
 void UIWidget::GatherBatches(UIRenderBatch* BatchPtr)
 {
-	if (!IsWithinParentBounds())
+	if (!IsActive)
 	{
 		return;
+	}
+	if (!IsWithinParentBounds())
+	{
+		//return;
 	}
 	if (BatchMode == EWidgetBatchMode::On)
 	{
 		BatchPtr = new UIRenderBatch();
 		BatchPtr->BatchType = ERenderBatchType::Verts;
-		OwningContext->GetBatcher()->AddBatch(BatchPtr);
+		GetOwningContext()->GetBatcher()->AddBatch(BatchPtr);
 	}
 	OnGatherBatches(BatchPtr);
 	for (int i = 0; i < Children.size(); i++)
@@ -173,10 +195,21 @@ void UIWidget::InvalidateTransform()
 EWidgetBatchMode::Type UIWidget::GetBatchMode()
 {
 	if (Parent != nullptr && BatchMode == EWidgetBatchMode::Auto)
-	{		
+	{
 		return Parent->BatchMode;
 	}
 	return BatchMode;
+}
+
+void UIWidget::SetOwningContext(UIWidgetContext* val)
+{
+	OwningContext = val;
+	Transform.SetContext(val);
+}
+
+UITransform* UIWidget::GetTransfrom()
+{
+	return &Transform;
 }
 
 void UIWidget::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)

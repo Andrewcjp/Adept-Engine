@@ -1,8 +1,8 @@
 #include "UIBox.h"
 #include "UI/UIManager.h"
-#include "UIDrawBatcher.h"
-#include "UIWidget.h"
-#include "UIWidgetContext.h"
+#include "../Core/UIDrawBatcher.h"
+#include "../Core/UIWidget.h"
+#include "../Core/UIWidgetContext.h"
 UIBox::UIBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
 	Init();
@@ -73,7 +73,7 @@ void UIBox::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 	float ypos = (float)Y;
 	const float h = mheight;
 	const float w = mwidth;
-	if (OwningContext != nullptr)
+	if (GetOwningContext() != nullptr)
 	{
 		UIRenderBatch* RenderBatch = nullptr;
 		if (Groupbatchptr != nullptr)
@@ -101,7 +101,7 @@ void UIBox::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 		RenderBatch->AddVertex(glm::vec2(xpos + w - EdgeGap, ypos + h - EdgeGap), false, Colour, BackgoundColour);
 		if (Groupbatchptr == nullptr)
 		{
-			OwningContext->GetBatcher()->AddBatch(RenderBatch);
+			GetOwningContext()->GetBatcher()->AddBatch(RenderBatch);
 		}
 	}
 }

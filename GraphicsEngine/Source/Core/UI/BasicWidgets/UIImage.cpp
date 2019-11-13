@@ -1,6 +1,6 @@
 #include "UIImage.h"
-#include "UIDrawBatcher.h"
-#include "UIWidgetContext.h"
+#include "../Core/UIDrawBatcher.h"
+#include "../Core/UIWidgetContext.h"
 
 
 UIImage::UIImage(int w, int h, int x, int y) :UIWidget(w, h, x, y)
@@ -19,13 +19,14 @@ void UIImage::UpdateScaled()
 {
 	
 }
+
 void UIImage::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 {
 	float xpos = (float)X;
 	float ypos = (float)Y;
 	const float h = mheight;
 	const float w = mwidth;
-	if (OwningContext != nullptr)
+	if (GetOwningContext() != nullptr)
 	{
 		UIRenderBatch* RenderBatch = nullptr;
 		if (Groupbatchptr != nullptr)
@@ -46,7 +47,7 @@ void UIImage::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 
 		if (Groupbatchptr == nullptr)
 		{
-			OwningContext->GetBatcher()->AddBatch(RenderBatch);
+			GetOwningContext()->GetBatcher()->AddBatch(RenderBatch);
 		}
 	}
 }

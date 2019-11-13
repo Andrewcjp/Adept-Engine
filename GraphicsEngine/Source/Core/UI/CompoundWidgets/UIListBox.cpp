@@ -1,8 +1,8 @@
 #include "UIListBox.h"
-#include "UIBox.h"
-#include "UILabel.h"
-#include "UIWidget.h"
-#include "Layout.h"
+#include "../BasicWidgets/UIBox.h"
+#include "../BasicWidgets/UILabel.h"
+#include "../Core/UIWidget.h"
+#include "../Core/Layout.h"
 UIListBox::UIListBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
 

@@ -1,11 +1,11 @@
 #include "UIButton.h"
-#include "UILabel.h"
+#include "../BasicWidgets/UILabel.h"
 #include "UI/UIManager.h"
 UIButton::UIButton(int w, int h, int x, int y) : UIBox(w, h, x, y)
 {
 	Init();
 	Label = new UILabel(Labelstring, 1, 0, x, y);
-	Label->SetOwner(OwningContext);
+	Label->SetOwner(GetOwningContext());
 	Colour = NormalColour;
 	Priority = 2;//buttons need to draw on top of panels
 	AddChild(Label);

@@ -1,6 +1,6 @@
 #pragma once
 #include "UI/Core/UIWidget.h"
-#include "UI/Core/UIBox.h"
+#include "UI/BasicWidgets/UIBox.h"
 #include "UI/Core/CollisionRect.h"
 #include "Editor/Inspector.h"
 class UILabel;

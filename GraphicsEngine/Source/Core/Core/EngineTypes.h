@@ -26,11 +26,15 @@ struct IntRect
 	IntPoint Max;
 	IntRect()
 	{}
+	IntRect(int width, int height) :
+		IntRect(IntPoint(0, 0), IntPoint(width, height))
+	{}
 	IntRect(IntPoint min, IntPoint max)
 	{
 		Min = min;
 		Max = max;
 	}
+	IntPoint Dim;
 };
 
 struct FloatPoint

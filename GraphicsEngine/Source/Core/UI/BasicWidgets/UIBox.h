@@ -1,6 +1,6 @@
 #pragma once
-#include "UIWidget.h"
-#include "CollisionRect.h"
+#include "../Core/UIWidget.h"
+#include "../Core/CollisionRect.h"
 class UIBox :
 	public UIWidget
 {

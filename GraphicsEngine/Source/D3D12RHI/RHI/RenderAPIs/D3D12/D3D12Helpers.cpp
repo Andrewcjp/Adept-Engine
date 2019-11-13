@@ -144,11 +144,13 @@ std::string D3D12Helpers::DXErrorCodeToString(HRESULT result)
 //for now these are the same!
 DXGI_FORMAT D3D12Helpers::ConvertFormat(eTEXTURE_FORMAT format)
 {
+	static_assert(DXGI_FORMAT::DXGI_FORMAT_YUY2 == eTEXTURE_FORMAT::FORMAT_YUY2, "");
 	return (DXGI_FORMAT)format;
 }
 
 D3D12_SRV_DIMENSION D3D12Helpers::ConvertDimension(eTextureDimension Dim)
 {
+	static_assert(D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE == eTextureDimension::DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE, "");
 	return (D3D12_SRV_DIMENSION)Dim;
 }
 
@@ -473,7 +475,7 @@ void D3D12ReadBackCopyHelper::SaveData(UINT64 pTotalBytes, int subresouse, D3D12
 	else
 	{
 		path.append(".bmp");
-	}
+}
 	//de align
 #if 0
 	SOIL_save_image(path.c_str(), DDS ? SOIL_SAVE_TYPE_DDS : SOIL_SAVE_TYPE_BMP, (int)layout->Footprint.Width, layout->Footprint.Height, ChannelCount, RawData);

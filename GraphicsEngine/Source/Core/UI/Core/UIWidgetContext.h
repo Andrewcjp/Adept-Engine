@@ -1,6 +1,7 @@
 #pragma once
 #include "UI/Core/CollisionRect.h"
 #include "RHI/BaseTexture.h"
+#include "Core/EngineTypes.h"
 
 class UIWidget;
 class DebugLineDrawer;
@@ -48,6 +49,9 @@ public:
 	CORE_API void HideScreen();
 	bool ShowQuadPostUI = false;
 	bool ShowQuadpreUI = false;
+	IntRect RootSpaceViewport = IntRect(1920, 1080);
+	glm::vec2 ConvertToNormalSpace(glm::vec2 pos);
+	float RootSpaceWidgetScale = 1.0f;
 private:
 	bool Enabled = true;
 	const float YHeight = 25;

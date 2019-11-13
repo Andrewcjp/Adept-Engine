@@ -1,7 +1,7 @@
 
 #include "UIPanel.h"
-#include "Layout.h"
-#include "UILabel.h"
+#include "../Core/Layout.h"
+#include "../BasicWidgets/UILabel.h"
 UIPanel::UIPanel(int w, int  h, int  x, int y) :UIBox(w, h, x, y)
 {
 	title = new UILabel("title", w, 30, x, y);
