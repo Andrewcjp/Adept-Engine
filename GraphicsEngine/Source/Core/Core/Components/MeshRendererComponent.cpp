@@ -108,6 +108,10 @@ void MeshRendererComponent::PrepareDataForRender()
 
 void MeshRendererComponent::SceneInitComponent()
 {
+	if (m_mesh == nullptr)
+	{
+		return;
+	}
 	m_mesh->UpdateBounds(GetOwner()->GetPosition(), GetOwner()->GetTransform()->GetScale());
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{

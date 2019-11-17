@@ -43,6 +43,23 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale, g
 	instance->RenderFromAtlas(text, x, y, scale, color);
 }
 
+void TextRenderer::RenderBatches(std::vector<TextBatch*>& batches, RHICommandList* list)
+{
+	int Length = 0;
+	for (int i = 0; i < batches.size(); i++)
+	{
+		Length += CreateGlyphs(batches[i]->Text, batches[i]->pos, batches[i]->scale, batches[i]->color);
+	}
+	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
+	TextCommandList->SetPipelineStateObject(PSO);
+	TextCommandList->SetVertexBuffer(VertexBuffer);
+	TextCommandList->SetTexture(TextAtlas->Texture, 0);
+	TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
+	TextCommandList->DrawPrimitive(Length, 1, Offset, 0);
+	TextCommandList->EndRenderPass();
+	Offset += Length;
+}
+
 void TextRenderer::RenderDirect(RHICommandList* list, std::string text, glm::vec2 pos, float scale, glm::vec3 colour)
 {
 	int count = CreateGlyphs(text, pos, scale, colour);
@@ -70,6 +87,7 @@ int TextRenderer::CreateGlyphs(std::string text, glm::vec2 pos, float scale, glm
 	int x = (int)pos.x;
 	int y = (int)pos.y;
 	int GLyphs = 0;
+	scale *= ScaleFactor;
 	/* Loop through all characters */
 	for (p = (const uint8_t *)text.c_str(); *p; p++)
 	{
@@ -116,7 +134,7 @@ int TextRenderer::CreateGlyphs(std::string text, glm::vec2 pos, float scale, glm
 		currentsize += 6;
 		GLyphs++;
 	}
-	return GLyphs*6;
+	return GLyphs * 6;
 }
 
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color, bool reset/* = true*/)
@@ -148,7 +166,7 @@ void TextRenderer::RenderAllText()
 		TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
 		TextCommandList->DrawPrimitive(Length, 1, Offset, 0);
 		TextCommandList->EndRenderPass();
-		Offset += Length-6;
+		Offset += Length - 6;
 	}
 }
 
@@ -211,7 +229,7 @@ void TextRenderer::LoadText()
 		Log::OutS << "ERROR::FREETYPE: Failed to load font" << Log::OutS;
 	}
 	float scale = 1;
-	int facesize = 48 * std::lround(scale);//48
+	int facesize = std::lround(48 * scale);//48
 	ScaleFactor = (float)1 / scale;
 	FT_Set_Pixel_Sizes(face, 0, facesize);
 

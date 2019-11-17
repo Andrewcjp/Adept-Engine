@@ -117,6 +117,7 @@ void D3D12DeviceContext::CheckFeatures()
 		LogTierData("Resource Binding", FeatureData.ResourceBindingTier);
 		LogTierData("Resource Heap", FeatureData.ResourceHeapTier);
 		LogTierData("Cross Node Sharing", FeatureData.CrossNodeSharingTier);
+		LogTierData("Min Precision Support", options.MinPrecisionSupport);
 	}
 	D3D12_FEATURE_DATA_D3D12_OPTIONS1  FeatureData1;
 	ZeroMemory(&FeatureData1, sizeof(FeatureData1));

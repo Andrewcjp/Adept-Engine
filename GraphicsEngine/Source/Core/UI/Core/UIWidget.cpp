@@ -57,7 +57,7 @@ void UIWidget::SetScaled(float Width, float height, float xoff, float yoff)
 void UIWidget::UpdateScaled()
 {
 	glm::vec4 Out = Transform.GetTransfromRect();
-	ResizeView(Out.x, Out.y, Out.z, Out.w);
+	ResizeView((int)Out.x, (int)Out.y, (int)Out.z, (int)Out.w);
 }
 
 void UIWidget::SetOwner(UIWidgetContext * wc)
@@ -111,7 +111,7 @@ void UIWidget::GatherBatches(UIRenderBatch* BatchPtr)
 	}
 	if (!IsWithinParentBounds())
 	{
-		//return;
+		return;
 	}
 	if (BatchMode == EWidgetBatchMode::On)
 	{
@@ -205,6 +205,7 @@ void UIWidget::SetOwningContext(UIWidgetContext* val)
 {
 	OwningContext = val;
 	Transform.SetContext(val);
+	Transform.Widget = this;
 }
 
 UITransform* UIWidget::GetTransfrom()

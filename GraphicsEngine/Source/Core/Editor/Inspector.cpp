@@ -114,7 +114,7 @@ void Inspector::AddComponent()
 	}
 
 	using std::placeholders::_1;
-	UIManager::instance->CreateDropDown(ops, WidthScale, 0.2f, XoffsetScale, YoffsetScale, std::bind(&Inspector::AddComponentCallback, _1));
+	UIManager::instance->CreateDropDown(ops,GetTransfrom()->GetSizeRootSpace().x, 200, GetTransfrom()->GetPositionForWidgetRootSpace().x, GetTransfrom()->GetPositionForWidgetRootSpace().y, std::bind(&Inspector::AddComponentCallback, _1));
 }
 
 void Inspector::AddComponentCallback(int i)

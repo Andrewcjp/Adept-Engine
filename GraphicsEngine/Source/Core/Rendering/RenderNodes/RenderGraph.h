@@ -32,6 +32,7 @@ public:
 	void Update();
 	//calls the setup node on each node in execution order.
 	void BuildGraph();
+	void ApplyEditorToGraph();
 	void CreateDefGraphWithRT();
 	void CreateDefTestgraph();
 

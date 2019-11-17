@@ -11,5 +11,6 @@ public:
 	bool MouseClick(int x, int y) override;
 	void SetText(std::string text);
 	void UpdateScaled() override;
+	int frameCreated = 0;
 };
 

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "RHI/RHICommandList.h"
+
+struct TextBatch;
 struct UIVertex
 {
 	glm::vec2 position;
@@ -14,7 +16,6 @@ namespace ERenderBatchType
 	{
 		Verts,
 		TexturedVerts,
-		Text,
 		Limit
 	};
 }
@@ -26,7 +27,10 @@ struct UIRenderBatch
 	ERenderBatchType::Type BatchType = ERenderBatchType::Verts;
 	std::string text = "";
 	glm::vec2 pos = glm::vec2();
-	void AddText(std::string text, glm::vec2 pos);
+	void AddText(std::string text, glm::vec2 pos,float scale = 0.3f,glm::vec3 colour = glm::vec3(1,1,1));
+	std::vector<TextBatch*> TextData;
+	BaseTextureRef TextureInUse;
+	FrameBuffer* RenderTarget = nullptr;
 };
 class UIDrawBatcher
 {
@@ -34,7 +38,7 @@ public:
 
 	UIDrawBatcher();
 	void Init();
-	void SetState(RHICommandList * list);
+	void SetState(RHICommandList * list, UIRenderBatch* batch);
 	void ReallocBuffer(int NewSize);
 	~UIDrawBatcher();
 	void SendToGPU();

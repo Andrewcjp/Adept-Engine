@@ -172,10 +172,10 @@ void BaseWindow::Render()
 		GPUPerfGraph->SetEnabled(!GPUPerfGraph->IsEnabled());
 	}
 
-	if (Input::GetKeyDown(VK_F8))
-	{
-		SetPauseState(!PauseState);
-	}
+	//if (Input::GetKeyDown(VK_F8))
+	//{
+	//	SetPauseState(!PauseState);
+	//}
 	if (StepOnce)
 	{
 		PauseState = true;

@@ -99,6 +99,9 @@ void RenderGraph::Update()
 
 void RenderGraph::BuildGraph()
 {
+#if WITH_EDITOR
+	ApplyEditorToGraph();
+#endif
 	Log::LogMessage("Building graph \"" + GraphName + "\"");
 	ValidateGraph();
 	ensureMsgf(RootNode, "No root node is set");
@@ -123,6 +126,19 @@ void RenderGraph::BuildGraph()
 		Node = Node->GetNextNode();
 	}
 	ListNodes();
+}
+
+void RenderGraph::ApplyEditorToGraph()
+{
+	GraphName += "(Editor)";
+	OutputToScreenNode* OutputNode = (OutputToScreenNode*)FindFirstOf(OutputToScreenNode::GetNodeName());
+	FrameBufferStorageNode* FinalCompostBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	FinalCompostBuffer->SetFrameBufferDesc(Desc);
+	OutputNode->GetInput(1)->SetStore(FinalCompostBuffer);
+	//the editor composts to this temp buffer, which is rendered by the UI
 }
 
 void RenderGraph::CreateDefGraphWithRT()
@@ -218,7 +234,7 @@ void RenderGraph::CreateDefTestgraph()
 
 #if 0
 	LightCullingNode* LightCull = new LightCullingNode();
-	LinkNode(UpdateProbesNode,LightCull);
+	LinkNode(UpdateProbesNode, LightCull);
 	LinkNode(LightCull, ParticleSimNode);
 #else
 	LinkNode(UpdateProbesNode, ParticleSimNode);
@@ -533,7 +549,7 @@ bool RenderGraph::IsGraphValid()
 RenderNode* RenderGraph::FindFirstOf(const std::string& name)
 {
 	RenderNode* itor = RootNode;
-	while (itor->GetNextNode() != nullptr)
+	while (itor != nullptr)
 	{
 		if (itor->GetName() == name)
 		{
@@ -605,7 +621,7 @@ void RenderGraph::RunTests()
 	Lnode = GetNodeAtIndex(3);
 	ensure(Lnode);
 #endif
-}
+	}
 
 void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)
 {

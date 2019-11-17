@@ -3,7 +3,7 @@
 #include "Core/EngineTypes.h"
 #include <functional>
 #define UISTATS 0
-#define EDITORUI 1
+#define EDITORUI WITH_EDITOR
 class TextRenderer;
 class UIWidget;
 class GameObject;
@@ -16,6 +16,8 @@ class UIPopoutbox;
 class Inspector;
 class UIAssetManager;
 class UIWidgetContext;
+class UIDropDown;
+class UIImage;
 class UIManager
 {
 public:
@@ -67,9 +69,11 @@ public:
 	{
 		return Contexts;
 	}
+	void SetEditorViewPortRenderTarget(FrameBuffer* target);
 private:
+	UIImage* ViewPortImage = nullptr;
 	std::vector<UIWidgetContext*> Contexts;
-	UIWidget * DropdownCurrent = nullptr;
+	UIDropDown * DropdownCurrent = nullptr;
 	std::vector<UIWidget*> WidgetsToRemove;//todo: use queue? and handle large deletes?
 	static UIWidget* CurrentContext;
 	float BottomHeight = 0.2f;
@@ -85,7 +89,7 @@ private:
 	float XSpacing = 25;
 	CollisionRect ViewportRect;
 	UIPopoutbox* testbox = nullptr;
-	UIAssetManager* AssetManager;
+	UIAssetManager* AssetMan;
 	bool Blocking = false;
 	Inspector* inspector = nullptr;
 	std::vector<GameObject*>* GameObjectsPtr;

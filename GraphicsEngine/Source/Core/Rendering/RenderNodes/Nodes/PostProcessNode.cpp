@@ -2,6 +2,7 @@
 #include "Rendering/PostProcessing/PostProcessing.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 
+
 PostProcessNode::PostProcessNode()
 {
 	OnNodeSettingChange();

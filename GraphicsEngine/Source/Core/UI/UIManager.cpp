@@ -14,6 +14,7 @@
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Rendering/Renderers/TextRenderer.h"
 #include "BasicWidgets/UIImage.h"
+#include "Core/Assets/AssetManager.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -77,41 +78,47 @@ void UIManager::InitEditorUI()
 	inspector->UpdateScaled();
 	AddWidget(inspector);
 
+	TOP->IgnoreboundsCheck = true;
 	ViewportRect = CollisionRect(GetScaledWidth(0.70f), GetScaledHeight(0.70f), 0, 0);
 	UIButton* button = new UIButton(200, 50, 0, 500);
-	button->SetScaled(0.05f, 0.075f, 0.5f - 0.05f, 1.0f - (TopHeight));
+	button->SetScaled(0.05f, 0.075f, 0.5f - 0.05f, 0);
 	button->BindTarget(std::bind(&EditorWindow::EnterPlayMode, EditorWindow::GetInstance()));
 	button->SetText("Play");
+	button->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Bottom);
+	TOP->AddChild(button);
 	AddWidget(button);
 	button = new UIButton(200, 50, 0, 500);
-	button->SetScaled(0.05f, 0.075f, 0.5f, 1.0f - (TopHeight));
+	button->SetScaled(0.05f, 0.075f, 0.5f, 0);
 	button->BindTarget(std::bind(&EditorWindow::ExitPlayMode, EditorWindow::GetInstance()));
 	button->SetText("Stop");
+	button->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Bottom);
+	TOP->AddChild(button);
 	AddWidget(button);
 	button = new UIButton(200, 50, 0, 500);
-	button->SetScaled(0.05f, 0.075f, 0.5f + 0.05f, 1.0f - (TopHeight));
+	button->SetScaled(0.05f, 0.075f, 0.5f + 0.05f, 0);
 	button->BindTarget(std::bind(&EditorWindow::Eject, EditorWindow::GetInstance()));
 	button->SetText("Eject");
+	button->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Bottom);
+	TOP->AddChild(button);
 	AddWidget(button);
 
 
-	AssetManager = new UIAssetManager();
-	AssetManager->SetRootSpaceSize(1920, 300, 0, 0);
-	//AssetManager->SetScaled(1.0f - RightWidth, BottomHeight);
-	AddWidget(AssetManager);
+	AssetMan = new UIAssetManager();
+	AssetMan->SetRootSpaceSize(1920, 200, 0, 0);
+	AddWidget(AssetMan);
 
-	UIImage* Image = new UIImage(0, 0, 0, 0);
-	Image->SetScaled(1.0, 1.0);
-	AddWidget(Image);
+	ViewPortImage = new UIImage(0, 0, 0, 0);
+	//Image->TargetTexture = AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg");
+	ViewPortImage->SetRootSpaceSize(1920 - GetScaledWidth(0.2f) - 400, 1080 - AssetMan->GetTransfrom()->GetSizeRootSpace().y - TOP->GetTransfrom()->GetSizeRootSpace().y, GetScaledWidth(0.2f), AssetMan->GetTransfrom()->GetSizeRootSpace().y);
+	AddWidget(ViewPortImage);
 	UpdateBatches();
-
 }
 #endif
 void UIManager::CreateDropDown(std::vector<std::string> &options, float width, float height, float x, float y, std::function<void(int)> Callback)
 {
 	UIDropDown * testbox3 = new UIDropDown(100, 300, 250, 150); //new UIDropDown(100, 300, x, y);
 	testbox3->Priority = 10;
-	testbox3->SetScaled(width, height * 2, x, y);
+	testbox3->SetRootSpaceSize(width, height * 2, x, y);
 
 	for (int i = 0; i < options.size(); i++)
 	{
@@ -380,7 +387,7 @@ void UIManager::CleanUpWidgets()
 
 void UIManager::CloseDropDown()
 {
-	if (instance != nullptr && instance->DropdownCurrent != nullptr)
+	if (instance != nullptr && instance->DropdownCurrent != nullptr && instance->DropdownCurrent->frameCreated < RHI::GetFrameCount())
 	{
 		instance->DropdownCurrent->GetOwningContext()->RemoveWidget(instance->DropdownCurrent);
 		instance->DropdownCurrent = nullptr;
@@ -413,5 +420,10 @@ void UIManager::RemoveWidgetContext(UIWidgetContext * c)
 UIWidgetContext * UIManager::GetDefaultContext()
 {
 	return instance->Contexts[0];
+}
+
+void UIManager::SetEditorViewPortRenderTarget(FrameBuffer * target)
+{
+	ViewPortImage->RenderTarget = target;
 }
 

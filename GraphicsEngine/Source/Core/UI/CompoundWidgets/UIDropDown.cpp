@@ -6,6 +6,7 @@ UIDropDown::UIDropDown(int w, int h, int x, int y) :UIListBox(w, h, x, y)
 {
 	Priority = 10;
 	ResizeView(w, h, x, y);
+	frameCreated = RHI::GetFrameCount();
 }
 
 UIDropDown::~UIDropDown()

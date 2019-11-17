@@ -1,5 +1,7 @@
 #pragma once
 #include "RHI/Shader.h"
+
+class DeviceContext;
 class Shader_UIBatch :
 	public Shader
 {
@@ -8,15 +10,18 @@ class Shader_UIBatch :
 		glm::mat4x4 Proj;
 	};
 public:
-	DECLARE_GLOBAL_SHADER(Shader_UIBatch);
-	Shader_UIBatch(class DeviceContext* dev);
+	DECLARE_GLOBAL_SHADER_ARGS(Shader_UIBatch,int);
+	Shader_UIBatch(DeviceContext* dev, int Mode);
 	virtual ~Shader_UIBatch();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
 	void PushTOGPU(RHICommandList * list);
-	std::vector<ShaderParameter> GetShaderParameters() override;
 	void UpdateUniforms(glm::mat4x4 Proj);
+
+	const std::string GetName() override;
+
 private:
 	UnifromData data;
 	RHIBuffer* UniformBuffer = nullptr;
+	int Mode = 0;
 };
 

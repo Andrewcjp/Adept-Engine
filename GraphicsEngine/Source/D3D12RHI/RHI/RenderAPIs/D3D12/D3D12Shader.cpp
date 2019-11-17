@@ -815,7 +815,7 @@ D3D12_STATIC_SAMPLER_DESC* D3D12Shader::ConvertSamplers(std::vector<RHISamplerDe
 		out[i].MinLOD = 0.0f;
 		out[i].MaxLOD = D3D12_FLOAT32_MAX;
 		out[i].RegisterSpace = 0;
-		out[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		out[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	}
 	return out;
 }

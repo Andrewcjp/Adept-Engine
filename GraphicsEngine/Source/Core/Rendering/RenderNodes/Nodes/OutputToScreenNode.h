@@ -15,6 +15,5 @@ protected:
 	RHICommandList* ScreenWriteList = nullptr;
 
 	virtual void OnSetupNode() override;
-
 };
 

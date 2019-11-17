@@ -427,7 +427,8 @@ RHISamplerDesc::RHISamplerDesc(ESamplerFilterMode::Type filter, ESamplerWrapMode
 std::vector<RHISamplerDesc> RHISamplerDesc::GetDefault()
 {
 	std::vector<RHISamplerDesc> Out;
-	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_WRAP, 0));
+	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_ANISOTROPIC, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_WRAP, 0));
+	Out[0].MaxAnisotropy = 16;
 	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 1));
 	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 2));
 	return Out;

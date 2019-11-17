@@ -1,6 +1,7 @@
 #pragma once
 
 class UIWidgetContext;
+class UIWidget;
 namespace EAnchorPoint
 {
 	enum Type
@@ -50,14 +51,17 @@ public:
 	void SetAnchourPoint(EAnchorPoint::Type val) { AnchourPoint = val; }
 	void SetPos(IntPoint val);
 	void SetSize(IntPoint val);
+	glm::vec2 GetPositionForWidgetRootSpace();
 	void SetScalingMode(EWidetSizeSpace::Type val) { ScalingMode = val; }
 
 	glm::vec2 GetPositionForWidget();
 	int GetWidthScaled(float v);
 	int GetHeightScaled(float v);
+	glm::vec2 GetSizeRootSpace();
 	glm::vec2 GetTransfromedSize();
 	glm::vec4 GetTransfromRect();
 	void SetContext(UIWidgetContext* val) { Context = val; }
+	UIWidget* Widget = nullptr;
 private:
 
 	UIWidgetContext* Context = nullptr;

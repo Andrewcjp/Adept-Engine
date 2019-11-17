@@ -83,12 +83,15 @@ bool GameObject::IsOnLayer(SceneLayerMask Mask) const
 
 uint GameObject::GetLastMovedFrame()
 {
+#if !WITH_EDITOR
 	if (IsStatic())
 	{
+
 		//todo: push transfrom once
 		return 0;
 	}
-	return GetLastMovedFrame();
+#endif
+	return GetTransform()->GetLastMovedFrame();
 }
 
 GameObject::~GameObject()
@@ -361,6 +364,7 @@ void GameObject::PostChangeProperties()
 {
 	GetScene()->StaticSceneNeedsUpdate = true;
 	GetTransform()->SetPos(PositionDummy);
+
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		m_Components[i]->PostChangeProperties();
@@ -371,6 +375,11 @@ void GameObject::PostChangeProperties()
 void GameObject::ChangePos_editor(glm::vec3 NewPos)
 {
 	PositionDummy = NewPos;
+	SetPosition(NewPos);
+	for (int i = 0; i < m_Components.size(); i++)
+	{
+		m_Components[i]->OnTransformUpdate();
+	}
 }
 
 void GameObject::SetPosition(glm::vec3 newpos)

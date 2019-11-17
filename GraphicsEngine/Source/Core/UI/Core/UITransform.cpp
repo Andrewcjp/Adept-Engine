@@ -19,8 +19,7 @@ void UITransform::SetSize(IntPoint val)
 {
 	Size = val;
 }
-
-glm::vec2 UITransform::GetPositionForWidget()
+glm::vec2 UITransform::GetPositionForWidgetRootSpace()
 {
 	glm::vec2 AnchouredPos = glm::vec2(Pos.x, Pos.y);
 	if (ScalingMode == EWidetSizeSpace::RootSpaceScaled)
@@ -30,6 +29,10 @@ glm::vec2 UITransform::GetPositionForWidget()
 		if (StretchMode == EAxisStretch::HeightRootSpace)
 		{
 			AnchouredPos = glm::vec2(Pos.x*ItemScale, Pos.y);
+		}
+		if (StretchMode == EAxisStretch::WidthRootSpace)
+		{
+			AnchouredPos = glm::vec2(Pos.x, Pos.y*ItemScale);
 		}
 	}
 	if (AnchourPoint == EAnchorPoint::Top)
@@ -41,6 +44,17 @@ glm::vec2 UITransform::GetPositionForWidget()
 	{
 		AnchouredPos.x = GetWidthScaled(1.0f) - AnchouredPos.x;
 	}
+	else if (AnchourPoint == EAnchorPoint::Bottom && Widget != nullptr && Widget->Parent != nullptr)
+	{
+		float ParentMinY = Widget->Parent->GetTransfrom()->GetPositionForWidgetRootSpace().y;
+		AnchouredPos.y = ParentMinY - AnchouredPos.y;
+	}
+	return AnchouredPos;
+}
+
+glm::vec2 UITransform::GetPositionForWidget()
+{
+	glm::vec2 AnchouredPos = GetPositionForWidgetRootSpace();
 	//scaling
 	if (ScalingMode == EWidetSizeSpace::ABS)
 	{
@@ -71,8 +85,7 @@ int UITransform::GetHeightScaled(float v)
 	}
 	return UIManager::GetScaledWidth(v);
 }
-
-glm::vec2 UITransform::GetTransfromedSize()
+glm::vec2 UITransform::GetSizeRootSpace()
 {
 	glm::vec2 RawSize = glm::vec2(Size.x, Size.y);
 	if (ScalingMode == EWidetSizeSpace::RootSpaceScaled)
@@ -82,6 +95,10 @@ glm::vec2 UITransform::GetTransfromedSize()
 		if (StretchMode == EAxisStretch::HeightRootSpace)
 		{
 			RawSize = glm::vec2(Size.x*ItemScale, Size.y);
+		}
+		if (StretchMode == EAxisStretch::WidthRootSpace)
+		{
+			RawSize = glm::vec2(Size.x, Size.y*ItemScale);
 		}
 	}
 	if (StretchMode == EAxisStretch::Width || StretchMode == EAxisStretch::ALL)
@@ -93,8 +110,11 @@ glm::vec2 UITransform::GetTransfromedSize()
 	{
 		RawSize.y = GetHeightScaled(1.0f);
 	}
-
-
+	return RawSize;
+}
+glm::vec2 UITransform::GetTransfromedSize()
+{
+	glm::vec2 RawSize = GetSizeRootSpace();
 	if (ScalingMode == EWidetSizeSpace::ABS)
 	{
 		return RawSize;

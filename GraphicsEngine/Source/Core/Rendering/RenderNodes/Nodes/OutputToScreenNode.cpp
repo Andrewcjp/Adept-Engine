@@ -9,6 +9,7 @@
 #include "../NodeLink.h"
 #include "../StoreNodes/FrameBufferStorageNode.h"
 #include "../../Core/FrameBuffer.h"
+#include "UI/UIManager.h"
 static ConsoleVariable VROutputMode("vr.screenmode", 0, ECVarType::ConsoleAndLaunch);
 OutputToScreenNode::OutputToScreenNode()
 {
@@ -28,8 +29,15 @@ void OutputToScreenNode::OnExecute()
 	const bool IsVRFb = FBNode->IsVRFramebuffer;
 	ScreenWriteList->ResetList();
 	Target->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
+#if WITH_EDITOR
+	RHIRenderPassDesc RP = RHIRenderPassDesc(GetFrameBufferFromInput(1), ERenderPassLoadOp::Clear);
+	RP.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
+	GetFrameBufferFromInput(1)->SetResourceState(ScreenWriteList, EResourceState::RenderTarget);
+#else
 	RHIRenderPassDesc RP = RHI::GetRenderPassDescForSwapChain(true);
 	RP.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+#endif
+
 	ScreenWriteList->BeginRenderPass(RP);
 	if (IsVRFb)
 	{
@@ -37,6 +45,7 @@ void OutputToScreenNode::OnExecute()
 		{
 			RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VROutput>());
 			D.Cull = false;
+			D.DepthStencilState.DepthEnable = false;
 			D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 			ScreenWriteList->SetPipelineStateDesc(D);
 			FBNode->GetFramebuffer(EEye::Left)->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
@@ -48,6 +57,7 @@ void OutputToScreenNode::OnExecute()
 		{
 			RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_Compost>());
 			D.Cull = false;
+			D.DepthStencilState.DepthEnable = false;
 			D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 			ScreenWriteList->SetPipelineStateDesc(D);
 			if (VROutputMode.GetIntValue() == 1)
@@ -64,18 +74,27 @@ void OutputToScreenNode::OnExecute()
 	{
 		RHIPipeLineStateDesc D = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_Compost>());
 		D.Cull = false;
+		D.DepthStencilState.DepthEnable = false;
 		D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 		ScreenWriteList->SetPipelineStateDesc(D);
 		ScreenWriteList->SetFrameBufferTexture(Target, 0);
 	}
 	RenderingUtils::RenderScreenQuad(ScreenWriteList);
 	ScreenWriteList->EndRenderPass();
+#if WITH_EDITOR
+	GetFrameBufferFromInput(1)->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
+	UIManager::Get()->SetEditorViewPortRenderTarget(GetFrameBufferFromInput(1));
+#endif
 	ScreenWriteList->Execute();
+
 }
 
 void OutputToScreenNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::DontCare, "Frame");
+#if WITH_EDITOR
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::DontCare, "Editor ViewPort Output");
+#endif
 }
 
 void OutputToScreenNode::OnSetupNode()

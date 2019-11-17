@@ -3,11 +3,15 @@
 #include "..\Shader_Main.h"
 
 IMPLEMENT_GLOBAL_SHADER(Shader_UIBatch);
-Shader_UIBatch::Shader_UIBatch(class DeviceContext* dev) :Shader(dev)
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_UIBatch_Normal, Shader_UIBatch, int, 0, nullptr);
+DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_UIBatch_Textured, Shader_UIBatch, int, 1, nullptr);
+
+Shader_UIBatch::Shader_UIBatch(DeviceContext* dev, int Mode) :Shader(dev)
 {
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("USE_TEXTURED", std::to_string(Mode)));
 	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("UI_Batch_fs", EShaderType::SHADER_FRAGMENT);
-
+	this->Mode = Mode;
 	UniformBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	UniformBuffer->CreateConstantBuffer(sizeof(UnifromData), 1);
 }
@@ -30,19 +34,17 @@ Shader_UIBatch::~Shader_UIBatch()
 
 void Shader_UIBatch::PushTOGPU(RHICommandList* list)
 {
-	list->SetConstantBufferView(UniformBuffer, 0, 0);
-}
-
-std::vector<ShaderParameter> Shader_UIBatch::GetShaderParameters()
-{
-	std::vector<ShaderParameter> Output;
-	Shader_Main::GetMainShaderSig(Output);
-	return Output;
+	list->SetConstantBufferView(UniformBuffer, 0, "constantBuffer");
 }
 
 void Shader_UIBatch::UpdateUniforms(glm::mat4x4 Proj)
 {
 	data.Proj = Proj;
 	UniformBuffer->UpdateConstantBuffer(&data, 0);
+}
+
+const std::string Shader_UIBatch::GetName()
+{
+	return "Shader_UIBatch" + std::to_string(Mode);
 }
 

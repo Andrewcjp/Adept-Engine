@@ -10,6 +10,7 @@ public:
 	virtual void UpdateScaled() override;
 
 	void OnGatherBatches(UIRenderBatch * Groupbatchptr);
-
+	BaseTextureRef TargetTexture;
+	FrameBuffer* RenderTarget = nullptr;
 };
 

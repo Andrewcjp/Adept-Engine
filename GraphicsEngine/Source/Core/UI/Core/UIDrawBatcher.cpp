@@ -10,7 +10,7 @@
 
 UIDrawBatcher::UIDrawBatcher()
 {
-	Shader = ShaderComplier::GetShader<Shader_UIBatch>();
+	Shader = ShaderComplier::GetShader_Default<Shader_UIBatch>(0);
 	Init();
 	Current_Max_Verts = UIMin;
 	PerfManager::Get()->AddTimer("UI Batches", "UI");
@@ -24,13 +24,32 @@ void UIDrawBatcher::Init()
 	VertexBuffer->CreateVertexBuffer(sizeof(UIVertex), vertexBufferSize, EBufferAccessType::Dynamic);
 }
 
-void UIDrawBatcher::SetState(RHICommandList* list)
+void UIDrawBatcher::SetState(RHICommandList * list, UIRenderBatch* batch)
 {
-	RHIPipeLineStateDesc desc;
-	desc.InitOLD(false, false, false);
-	desc.ShaderInUse = Shader;
-	desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
-	list->SetPipelineStateDesc(desc);
+	if (batch->BatchType == ERenderBatchType::TexturedVerts)
+	{
+		RHIPipeLineStateDesc desc;
+		desc.InitOLD(false, false, false);
+		desc.ShaderInUse = ShaderComplier::GetShader_Default<Shader_UIBatch>(1);
+		desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
+		list->SetPipelineStateDesc(desc);
+		if (batch->RenderTarget != nullptr)
+		{
+			list->SetFrameBufferTexture(batch->RenderTarget, "texColour");
+		}
+		else if (batch->TextureInUse.IsValid())
+		{
+			list->SetTexture(batch->TextureInUse, "texColour");
+		}
+	}
+	else
+	{
+		RHIPipeLineStateDesc desc;
+		desc.InitOLD(false, false, false);
+		desc.ShaderInUse = Shader;
+		desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
+		list->SetPipelineStateDesc(desc);
+	}
 	Shader->PushTOGPU(list);
 }
 
@@ -61,11 +80,14 @@ void UIRenderBatch::AddVertex(glm::vec2 vpos, bool Back, glm::vec3 frontcol, glm
 	Verts.push_back(vert);
 }
 
-void UIRenderBatch::AddText(std::string itext, glm::vec2 ipos)
+void UIRenderBatch::AddText(std::string itext, glm::vec2 ipos, float scale, glm::vec3 colour /*= glm::vec3(1, 1, 1)*/)
 {
-	BatchType = ERenderBatchType::Text;
-	text = itext;
-	pos = ipos;
+	TextBatch* batch = new TextBatch();
+	batch->Text = itext;
+	batch->pos = ipos;
+	batch->scale = scale;
+	batch->color = colour;
+	TextData.push_back(batch);
 }
 
 void UIDrawBatcher::ClearVertArray()
@@ -137,18 +159,19 @@ void UIDrawBatcher::Render(RHICommandList * list)
 	for (int i = 0; i < Batches.size(); i++)
 	{
 		UIRenderBatch* batch = Batches[i];
-		if (batch->BatchType == ERenderBatchType::Verts)
+		if (batch->Verts.size() > 0)
 		{
-			SetState(list);
+			SetState(list, batch);
 			commandlist->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
 			list->SetVertexBuffer(VertexBuffer);
 			list->DrawPrimitive((int)batch->Verts.size(), 1, offset, 0);
 			commandlist->EndRenderPass();
 			offset += batch->Verts.size();
 		}
-		else if (batch->BatchType == ERenderBatchType::Text)
+
+		if (batch->TextData.size() > 0)
 		{
-			TextRenderer::instance->RenderDirect(list, batch->text, batch->pos, 0.3, glm::vec3(1, 1, 1));
+			TextRenderer::instance->RenderBatches(batch->TextData, list);
 		}
 	}
 }

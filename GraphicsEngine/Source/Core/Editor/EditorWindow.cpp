@@ -168,7 +168,7 @@ EditorCore * EditorWindow::GetEditorCore()
 bool EditorWindow::UseSmallerViewPort()
 {
 #if EDITORUI
-	return ShowHud;
+	return false;
 #else
 	return false;
 #endif

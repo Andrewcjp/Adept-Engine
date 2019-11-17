@@ -33,6 +33,8 @@ public:
 
 	CORE_API static void RenderText(std::string text, float x, float y, float scale, glm::vec3 color);
 
+	void RenderBatches(std::vector<TextBatch*>& batches, RHICommandList * list);
+
 	void RenderDirect(RHICommandList * list, std::string text, glm::vec2 pos, float scale, glm::vec3 colour);
 
 	int CreateGlyphs(std::string text, glm::vec2 pos, float scale, glm::vec3 color);

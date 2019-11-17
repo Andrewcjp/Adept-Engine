@@ -12,6 +12,8 @@ UIPopoutbox::UIPopoutbox(int w, int h, int x, int y) :UIBox(w, h, x, y)
 	OkayButton->BindTarget(std::bind(&UIPopoutbox::CloseBox, this));
 	BodyLabel = new UILabel("test messahe", w, h - 20, x, y);
 	ResizeView(w, h, x, y);
+	AddChild(BodyLabel);
+	AddChild(OkayButton);
 }
 
 UIPopoutbox::~UIPopoutbox()
