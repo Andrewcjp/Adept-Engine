@@ -40,7 +40,6 @@ void D3D12RHI::RunDred()
 {
 	//dred is in windows 19h1
 #if  NTDDI_WIN10_19H1
-
 	HRESULT R = DeviceContexts[0]->GetDevice()->QueryInterface(IID_PPV_ARGS(&pDred));
 	D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT DredAutoBreadcrumbsOutput;
 	D3D12_DRED_PAGE_FAULT_OUTPUT DredPageFaultOutput;
@@ -121,7 +120,6 @@ D3D12RHITextureArray * D3D12RHI::DXConv(RHITextureArray * D)
 {
 	return static_cast<D3D12RHITextureArray*>(D);
 }
-
 
 RHIRenderPass* D3D12RHI::CreateRenderPass(const RHIRenderPassDesc & Desc, DeviceContext* Device)
 {

@@ -830,6 +830,7 @@ struct  EResourceState
 	{
 		RenderTarget,
 		PixelShader,
+		Non_PixelShader,
 		ComputeUse,
 		UAV,
 		CopySrc,

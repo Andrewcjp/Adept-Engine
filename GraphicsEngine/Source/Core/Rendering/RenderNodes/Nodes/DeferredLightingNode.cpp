@@ -8,6 +8,7 @@
 #include "Rendering/Shaders/Shader_Deferred.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "Core/Assets/ShaderComplier.h"
+#include "../StoreNodes/FrameBufferStorageNode.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -59,38 +60,33 @@ void DeferredLightingNode::OnExecute()
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(List, true);
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(List, true);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
-	SceneRenderer::Get()->BindLightsBuffer(List, DeferredLightingShaderRSBinds::LightDataCBV);
+	SceneRenderer::Get()->BindLightsBufferB(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRenderer::Get()->BindMvBufferB(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
 
 	if (GetInput(3)->IsValid() && RHI::IsD3D12())
 	{
 		GetShadowDataFromInput(3)->BindPointArray(List, 6);
 	}
+	NodeLink* VRXImage = GetInputLinkByName("VRX Image");
+	if (VRXImage != nullptr && VRXImage->IsValid())
+	{
+		List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer());
+	}
 #if TEST_VRR
 	List->SetVRRShadingRate(2);
 #endif
 	DeferredShader->RenderScreenQuad(List);
-
-	//transparent pass
-	//if (RHI::GetRenderSettings()->GetSettingsForRender().EnableTransparency)
-	//{
-	//	GBuffer->BindDepthWithColourPassthrough(List, output);
-	//	SceneRender->SetupBindsForForwardPass(List, eyeindex);
-	//	SceneRender->MeshController->RenderPass(ERenderPass::TransparentPass, List); 
-	//}
 	List->EndRenderPass();
-
 #if !TEST_VRR
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
 #endif
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
 	SetEndStates(List);
-	//	GBuffer->SetResourceState(List, EResourceState::ComputeUse);
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
 	GetOutput(0)->SetStore(GetInput(1)->GetStoreTarget());
-	}
+}
 
 void DeferredLightingNode::OnNodeSettingChange()
 {
@@ -103,5 +99,8 @@ void DeferredLightingNode::OnNodeSettingChange()
 	{
 		AddInput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "SSR Data");
 	}
-
+	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	{
+		AddInput(EStorageType::Framebuffer, StorageFormats::ShadingImage, "VRX Image");
+	}
 }

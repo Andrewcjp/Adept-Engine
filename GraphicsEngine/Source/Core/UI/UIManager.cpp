@@ -34,7 +34,7 @@ UIManager::UIManager(int w, int h)
 	LeftWidth = 0.2f;
 	m_width = w;
 	m_height = h;
-	new EditorUI();
+	EditUI = new EditorUI();
 	Initalise(w, h);
 
 	InitCommonUI();
@@ -63,7 +63,7 @@ void UIManager::InitEditorUI()
 	return;
 #endif
 	BottomHeight = 0.25f;
-	UIBox* TOP = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
+	TOP = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
 	const int size = 100;
 	TOP->SetRootSpaceScaled(0, size, 0, size);
@@ -107,10 +107,10 @@ void UIManager::InitEditorUI()
 	AssetMan->SetRootSpaceSize(1920, 200, 0, 0);
 	AddWidget(AssetMan);
 
-	ViewPortImage = new UIImage(0, 0, 0, 0);
-	//Image->TargetTexture = AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg");
-	ViewPortImage->SetRootSpaceSize(1920 - GetScaledWidth(0.2f) - 400, 1080 - AssetMan->GetTransfrom()->GetSizeRootSpace().y - TOP->GetTransfrom()->GetSizeRootSpace().y, GetScaledWidth(0.2f), AssetMan->GetTransfrom()->GetSizeRootSpace().y);
-	AddWidget(ViewPortImage);
+	EditUI->ViewPortImage = new UIImage(0, 0, 0, 0);
+	EditUI->ViewPortImage->SetRootSpaceSize(1920 - GetScaledWidth(0.2f) - 400, 1080 - AssetMan->GetTransfrom()->GetSizeRootSpace().y - TOP->GetTransfrom()->GetSizeRootSpace().y, GetScaledWidth(0.2f), AssetMan->GetTransfrom()->GetSizeRootSpace().y);
+	AddWidget(EditUI->ViewPortImage);
+	EditUI->SetViewPortSize();
 	UpdateBatches();
 }
 #endif
@@ -196,13 +196,18 @@ void UIManager::UpdateSize(int width, int height)
 			Contexts[i]->UpdateSize(width, height, 0, 0);
 		}
 	}
+	if (EditUI != nullptr)
+	{
+		EditUI->SetViewPortSize();
+		EditUI->ViewPortImage->SetRootSpaceSize(1920 - GetScaledWidth(0.2f) - inspector->GetTransfrom()->GetSizeRootSpace().x, 1080 - AssetMan->GetTransfrom()->GetSizeRootSpace().y - TOP->GetTransfrom()->GetSizeRootSpace().y, GetScaledWidth(0.2f), AssetMan->GetTransfrom()->GetSizeRootSpace().y);
+	}
 #else
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		Contexts[i]->UpdateSize(width, height, 0, 0);
 	}
 #endif
-}
+	}
 
 void UIManager::AddWidget(UIWidget * widget)
 {
@@ -424,6 +429,6 @@ UIWidgetContext * UIManager::GetDefaultContext()
 
 void UIManager::SetEditorViewPortRenderTarget(FrameBuffer * target)
 {
-	ViewPortImage->RenderTarget = target;
+	EditUI->ViewPortImage->RenderTarget = target;
 }
 

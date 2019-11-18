@@ -47,6 +47,11 @@ void RHICommandList::DrawIndexedPrimitive(uint IndexCountPerInstance, uint Insta
 
 }
 
+void RHICommandList::SetRootConstant(std::string SignitureSlot, int ValueNum, void * Data, int DataOffset)
+{
+	SetRootConstant(CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(SignitureSlot), ValueNum, Data, DataOffset);
+}
+
 void RHICommandList::BeginRenderPass(const RHIRenderPassDesc& RenderPass)
 {
 	ensure(!IsInRenderPass);
@@ -177,10 +182,10 @@ void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 	//ensure(Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::None);
 	//#VRX: Setting for VRS mode
 	//Native VRS does not require resolve
-	SetVRSShadingRate(VRS_SHADING_RATE::SHADING_RATE_4X2);
+	//SetVRSShadingRate(VRS_SHADING_RATE::SHADING_RATE_4X2);
 	if (Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
 	{
-		VRXEngine::ResolveVRRFramebuffer(this, Target);
+		VRXEngine::ResolveVRRFramebuffer(this, Target, ShadingRateImage);
 	}
 	else
 	{
@@ -210,6 +215,7 @@ void RHICommandList::SetVRRShadingRate(int RateIndex)
 
 void RHICommandList::SetVRXShadingRateImage(FrameBuffer * Target)
 {
+	ShadingRateImage = Target;
 	if (Device->GetCaps().VRSSupport == EVRSSupportType::Hardware && Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRS && RHI::GetRenderSettings()->AllowNativeVRS)
 	{
 		SetVRSShadingRateImageNative(Target);

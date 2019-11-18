@@ -11,7 +11,7 @@ public:
 	~VRXEngine();
 	static VRXEngine* Get();
 	//resolve the Framebuffer to a single image.
-	static void ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target);
+	static void ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target, FrameBuffer* ShadingImage);
 	//resolve the Framebuffer to a single image.
 	void ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target);
 

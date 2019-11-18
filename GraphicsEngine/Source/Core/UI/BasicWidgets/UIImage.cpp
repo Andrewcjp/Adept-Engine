@@ -11,15 +11,6 @@ UIImage::UIImage(int w, int h, int x, int y) :UIWidget(w, h, x, y)
 UIImage::~UIImage()
 {}
 
-void UIImage::Render()
-{
-
-}
-
-void UIImage::UpdateScaled()
-{
-	UIWidget::UpdateScaled();
-}
 
 void UIImage::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 {

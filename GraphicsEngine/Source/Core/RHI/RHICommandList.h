@@ -127,6 +127,7 @@ public:
 	{
 		SetRootConstant(SignitureSlot, 1, &Data, 0);
 	}
+	RHI_API RHI_VIRTUAL void SetRootConstant(std::string SignitureSlot, int ValueNum, void* Data, int DataOffset = 0);
 	RHI_API RHI_VIRTUAL void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset) = 0;
 	//Render Passes
 	RHI_API RHI_VIRTUAL void BeginRenderPass(const struct RHIRenderPassDesc& RenderPass);
@@ -172,6 +173,7 @@ protected:
 	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!
 	ECommandListType::Type ListType = ECommandListType::Graphics;
+	FrameBuffer* ShadingRateImage = nullptr;
 };
 
 //Used to Bind Buffers or textures to a single Descriptor heap/set for shader arrays

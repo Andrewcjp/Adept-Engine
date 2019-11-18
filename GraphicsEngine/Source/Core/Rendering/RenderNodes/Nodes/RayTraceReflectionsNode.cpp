@@ -43,7 +43,7 @@ void RayTraceReflectionsNode::OnExecute()
 	RTList->SetStateObject(StateObject);
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 3, 1);
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 4, 0);
-	SceneRenderer::Get()->BindLightsBuffer(RTList->GetRHIList(), 5);
+	SceneRenderer::Get()->BindLightsBufferB(RTList->GetRHIList(), 5);
 	SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->BindBufferReadOnly(RTList->GetRHIList(), 6);
 	RTList->GetRHIList()->SetConstantBufferView(CBV, 0, 2);
 

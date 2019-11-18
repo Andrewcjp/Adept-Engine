@@ -78,7 +78,7 @@ void ForwardRenderNode::BindLightingData(RHICommandList* list,ForwardRenderNode*
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(list, false);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
 
-	SceneRenderer::Get()->BindLightsBufferA(list, MainShaderRSBinds::LightDataCBV);
+	SceneRenderer::Get()->BindLightsBuffer(list);
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(list);
 	if (node->GetInput(2)->IsValid())
 	{

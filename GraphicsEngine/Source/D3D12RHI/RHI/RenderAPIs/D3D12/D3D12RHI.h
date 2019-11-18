@@ -18,7 +18,7 @@
 #include <GFSDK_Aftermath.h>
 #endif
 #include "RHI/RHI.h"
-#define DRED 1
+#define DRED 0
 class D3D12DeviceContext;
 class D3D12GPUSyncEvent;
 class D3D12Buffer;

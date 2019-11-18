@@ -23,7 +23,9 @@ void GameWindow::PostInitWindow(int width, int height)
 {
 	SetFrameRateLimit(0);
 	Log::OutS << "Game Loaded" << Log::OutS;
+#if BUILD_SHIPPING
 	PlatformWindow::Maximize();
+#endif
 	//LoadScene("\\asset\\scene\\testscene.scene");
 	CurrentScene = new Scene();
 	CurrentScene->LoadExampleScene();

@@ -55,5 +55,5 @@ void BasePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawComma
 		//todo: move this 
 		List->SetConstantBufferView(Command->MaterialInstanceBuffer, 0, "MateralConstantBuffer");
 	}
-	SceneRenderer::Get()->BindMvBuffer(List, 234, 0);
+	SceneRenderer::Get()->BindMvBuffer(List, "", 0);
 }

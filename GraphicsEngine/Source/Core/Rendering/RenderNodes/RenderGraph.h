@@ -33,6 +33,7 @@ public:
 	//calls the setup node on each node in execution order.
 	void BuildGraph();
 	void ApplyEditorToGraph();
+	void AddVRXSupport();
 	void CreateDefGraphWithRT();
 	void CreateDefTestgraph();
 

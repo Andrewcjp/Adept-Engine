@@ -23,7 +23,7 @@ void PP_Debug::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	list->SetUAV(InputTexture, "SrcTex");
 	list->SetUAV(InputTexture, "DstTexture");
 	list->SetRHIBufferReadOnly(SceneRenderer::Get()->GetLightCullingEngine()->LightCullingBuffer, "LightList");
-	SceneRenderer::Get()->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
+	SceneRenderer::Get()->BindLightsBufferB(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
 	list->Dispatch(LightCullingEngine::GetLightGridDim().x, LightCullingEngine::GetLightGridDim().y, 1);
 	list->UAVBarrier(InputTexture);
 }

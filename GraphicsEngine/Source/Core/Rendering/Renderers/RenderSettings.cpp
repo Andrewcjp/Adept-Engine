@@ -7,7 +7,7 @@ ConsoleVariable GraphSet("rg", -1, ECVarType::LaunchOnly);
 
 RenderSettings::RenderSettings()
 {
-	//SetRes(BBTestMode::UHD);
+	SetRes(BBTestMode::UHD);
 
 	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;

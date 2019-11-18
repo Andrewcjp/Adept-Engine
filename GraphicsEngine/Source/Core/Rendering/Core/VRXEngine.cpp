@@ -18,7 +18,7 @@ VRXEngine * VRXEngine::Get()
 	return nullptr;
 }
 
-void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target)
+void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,FrameBuffer* ShadingImage)
 {
 	if (!RenderSettings::GetVRXSettings().EnableVRR)
 	{
@@ -33,6 +33,10 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target)
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
 	list->SetPipelineStateDesc(Desc);
 	list->SetUAV(Target, "DstTexture");
+	if (ShadingImage != nullptr)
+	{
+		list->SetFrameBufferTexture(ShadingImage, "RateImage");
+	}
 	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
 	const int TileSize = 16;
 	list->Dispatch(Target->GetWidth() / TileSize, Target->GetHeight() / TileSize, 1);

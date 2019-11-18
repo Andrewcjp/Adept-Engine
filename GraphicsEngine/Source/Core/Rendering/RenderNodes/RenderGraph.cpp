@@ -29,6 +29,7 @@
 #include "Nodes/SubmitToHMDNode.h"
 #include "RenderGraphProcessor.h"
 #include "Nodes/LightCullingNode.h"
+#include "Nodes/VRXShadingRateNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -139,6 +140,33 @@ void RenderGraph::ApplyEditorToGraph()
 	FinalCompostBuffer->SetFrameBufferDesc(Desc);
 	OutputNode->GetInput(1)->SetStore(FinalCompostBuffer);
 	//the editor composts to this temp buffer, which is rendered by the UI
+}
+
+void RenderGraph::AddVRXSupport()
+{
+	GraphName += "(VRX)";
+	FrameBufferStorageNode* VRXShadingRateImage = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UINT;
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	Desc.AllowUnorderedAccess = true;
+	VRXShadingRateImage->SetFrameBufferDesc(Desc);
+	RenderNode* LightingNode = FindFirstOf(DeferredLightingNode::GetNodeName());
+	VRXShadingRateNode* RateNode = new VRXShadingRateNode();
+	RateNode->GetInput(0)->SetStore(VRXShadingRateImage);
+	RateNode->LinkToNode(LightingNode->GetNextNode());
+	LightingNode->LinkToNode(RateNode);
+	NodeLink* link = LightingNode->GetInputLinkByName("VRX Image");
+	if (link != nullptr)
+	{
+		link->SetLink(RateNode->GetInput(0));
+	}
+	RenderNode* pp = FindFirstOf(PostProcessNode::GetNodeName());
+	if (pp != nullptr)
+	{
+		pp->GetInput(1)->SetStore(VRXShadingRateImage);
+	}
 }
 
 void RenderGraph::CreateDefGraphWithRT()
@@ -273,6 +301,11 @@ void RenderGraph::CreateDefTestgraph()
 	OutputToScreenNode* Output = new OutputToScreenNode();
 	VisNode->LinkToNode(Output);
 	Output->GetInput(0)->SetLink(VisNode->GetOutput(0));
+
+	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	{
+		AddVRXSupport();
+	}
 }
 
 BranchNode * RenderGraph::AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName/* = std::string()*/)
@@ -621,7 +654,7 @@ void RenderGraph::RunTests()
 	Lnode = GetNodeAtIndex(3);
 	ensure(Lnode);
 #endif
-	}
+}
 
 void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)
 {

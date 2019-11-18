@@ -51,8 +51,8 @@ void LightCullingEngine::LaunchCullingForScene(RHICommandList* list, EEye::Type 
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_LightCull>());
 	list->SetPipelineStateDesc(desc);
 	list->SetUAV(LightCullingBuffer, "DstTexture");
-	SceneRenderer::Get()->BindLightsBuffer(list, desc.ShaderInUse->GetSlotForName("LightBuffer"));
-	SceneRenderer::Get()->BindMvBuffer(list, desc.ShaderInUse->GetSlotForName("CameraData"));
+	SceneRenderer::Get()->BindLightsBuffer(list, "LightBuffer");
+	SceneRenderer::Get()->BindMvBuffer(list, "CameraData");
 	//LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
 	list->SetBuffer(LightDataBuffer, "LightList");
 	list->Dispatch(GetLightGridDim().x, GetLightGridDim().y, 1);
@@ -101,8 +101,8 @@ void LightCullingEngine::RunLightBroadphase()
 
 	//Run a sphere to sphere test
 	std::vector<Light*> lights = BaseWindow::GetScene()->GetLights();
-	if (!FreezeLightCulling.GetBoolValue())	
-	{    
+	if (!FreezeLightCulling.GetBoolValue())
+	{
 		LightsInFustrum.clear();
 		for (int i = 0; i < lights.size(); i++)
 		{
@@ -130,7 +130,7 @@ void LightCullingEngine::RunLightBroadphase()
 			}
 			//#LCULLING: Support other light types
 		}
-	}	
+	}
 	UpdateLightsBuffer();
 }
 
@@ -142,7 +142,7 @@ void LightCullingEngine::UpdateLightsBuffer()
 	LightData.clear();
 	for (Light* L : LightsInFustrum)
 	{
-		LightUniformBuffer newitem = SceneRenderer::CreateLightEntity(L, 0);	
+		LightUniformBuffer newitem = SceneRenderer::CreateLightEntity(L, 0);
 		LightData.push_back(newitem);
 	}
 	LightDataBuffer->UpdateBufferData(LightData.data(), sizeof(LightUniformBuffer)*LightData.size(), EBufferResourceState::Read);

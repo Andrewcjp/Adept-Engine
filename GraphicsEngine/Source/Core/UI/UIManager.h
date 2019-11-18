@@ -18,6 +18,7 @@ class UIAssetManager;
 class UIWidgetContext;
 class UIDropDown;
 class UIImage;
+class EditorUI;
 class UIManager
 {
 public:
@@ -71,7 +72,8 @@ public:
 	}
 	void SetEditorViewPortRenderTarget(FrameBuffer* target);
 private:
-	UIImage* ViewPortImage = nullptr;
+	EditorUI* EditUI = nullptr;
+	UIBox* TOP = nullptr;
 	std::vector<UIWidgetContext*> Contexts;
 	UIDropDown * DropdownCurrent = nullptr;
 	std::vector<UIWidget*> WidgetsToRemove;//todo: use queue? and handle large deletes?

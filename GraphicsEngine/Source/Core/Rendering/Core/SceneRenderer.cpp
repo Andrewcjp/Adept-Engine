@@ -115,11 +115,11 @@ void SceneRenderer::RenderScene(RHICommandList * CommandList, bool PositionOnly,
 {
 	if (!PositionOnly)
 	{
-		BindLightsBuffer(CommandList, MainShaderRSBinds::LightDataCBV);
+		BindLightsBufferB(CommandList, MainShaderRSBinds::LightDataCBV);
 	}
 	if (!IsCubemap)
 	{
-		BindMvBuffer(CommandList, MainShaderRSBinds::MVCBV, index);
+		BindMvBuffer(CommandList, "", index);
 	}
 	if (PositionOnly)
 	{
@@ -250,7 +250,7 @@ LightUniformBuffer SceneRenderer::CreateLightEntity(Light * L, int devindex)
 	return newitem;
 }
 
-void SceneRenderer::BindLightsBuffer(RHICommandList*  list, int Override)
+void SceneRenderer::BindLightsBufferB(RHICommandList*  list, int Override)
 {
 	if (Override == -1)
 	{
@@ -259,18 +259,21 @@ void SceneRenderer::BindLightsBuffer(RHICommandList*  list, int Override)
 	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, Override);
 }
 
-void SceneRenderer::BindLightsBufferA(RHICommandList*  list, int Override)
+void SceneRenderer::BindLightsBuffer(RHICommandList*  list, std::string slot)
 {
-	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, "LightBuffer");
+	if (slot.length() == 0)
+	{
+		slot = "LightBuffer";
+	}
+	list->SetConstantBufferView(CLightBuffer[list->GetDeviceIndex()], 0, slot);
 }
 
-void SceneRenderer::BindMvBuffer(RHICommandList * list, int slot)
+void SceneRenderer::BindMvBuffer(RHICommandList * list, std::string slot, int index)
 {
-	BindMvBuffer(list, slot, 0);
-}
-
-void SceneRenderer::BindMvBuffer(RHICommandList * list, int slot, int index)
-{
+	if (slot.length() == 0)
+	{
+		slot = "SceneConstantBuffer";
+	}
 	list->SetConstantBufferView(CMVBuffer, index, "SceneConstantBuffer");
 }
 
@@ -336,8 +339,8 @@ void SceneRenderer::SetupBindsForForwardPass(RHICommandList * list, int eyeindex
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterial()->GetShaderInstance(EMaterialPassType::Forward));
 	Desc.RenderTargetDesc = TargetBuffer->GetPiplineRenderDesc();
 	list->SetPipelineStateDesc(Desc);
-	BindMvBuffer(list, MainShaderRSBinds::MVCBV, eyeindex);
-	BindLightsBuffer(list, MainShaderRSBinds::LightDataCBV);
+	BindMvBuffer(list, "", eyeindex);
+	BindLightsBuffer(list, "");
 
 }
 

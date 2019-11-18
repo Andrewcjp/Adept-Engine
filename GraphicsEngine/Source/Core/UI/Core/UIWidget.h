@@ -29,7 +29,7 @@ public:
 	static glm::vec3 DefaultColour;
 	CORE_API UIWidget(int w, int h, int x = 0, int y = 0);
 	virtual ~UIWidget();
-	virtual void Render() = 0;
+	virtual void Render(){};
 	virtual void ResizeView(int w, int h, int x = 0, int y = 0);
 	void SetRootSpaceSize(int w, int h, int x, int y);
 	void SetRootSpaceScaled(int w, int h, int x, int y);

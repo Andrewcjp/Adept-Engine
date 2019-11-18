@@ -10,10 +10,15 @@ public:
 	static Shader_Pair* CreateComputeShader(std::string Compute, DeviceContext* context = nullptr);
 
 	virtual const std::string GetName() override;
+	void AddRootConstantName(std::string name);
+
+	std::vector<ShaderParameter> GetShaderParameters() override;
+
 private:
 	void Init();
 	std::vector<std::string> Names;
 	std::vector<EShaderType::Type> StageList;
 	std::string shadername = "";
+	std::vector<std::string> RootConstantNames;
 };
 

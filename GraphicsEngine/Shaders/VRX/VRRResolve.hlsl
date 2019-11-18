@@ -1,5 +1,6 @@
 #define SUPPORT_VRR 1
 #include "VRX/VRRCommon.hlsl"
+Texture2D<uint> RateImage: register(t0);
 RWTexture2D<float4> DstTexture : register(u0);
 SamplerState BilinearClamp : register(s0);
 cbuffer Data : register(b1)
@@ -27,9 +28,8 @@ float4 GetColourForRate(int r)
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-	const float2 Invres = Resolution * -1;
-	float2 ScreenUV = (float2)DTid.xy / (float2)Resolution;
-	int ShadingRate = GetShadingRateIDForPixel(ScreenUV, Resolution);
+	int ShadingRate = RateImage[DTid.xy];
+	//DstTexture[DTid.xy] = GetColourForRate(ShadingRate);
 	if (!IsPixelSource(DTid.xy, GetShadingRate(ShadingRate)))
 	{
 		//find the corse pixel for this pixel

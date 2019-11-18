@@ -8,8 +8,14 @@
 #include "Rendering\RayTracing\RHIStateObject.h"
 #include "Core\Module\ModuleInterface.h"
 #include "RHI_inc_fwd.h"
-
-
+#define USE_FLAT_COMPUTE 1
+#if USE_FLAT_COMPUTE
+#define FLAT_COMPUTE_START(device) device->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+#define FLAT_COMPUTE_END(device) device->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+#else
+#define FLAT_COMPUTE_START(device)
+#define FLAT_COMPUTE_END(device) 
+#endif
 #define NOAPIIMP(func) ensureMsgf(false, #func" Needs API implmentation");
 class RHIGPUSyncEvent;
 class SFRController;

@@ -20,7 +20,7 @@ DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 	EditField->SetEnabled(false);
 	LastText = ">";
 	LastCommand = ">";
-	Priority = 10;
+	Priority = 1000;
 	AddChild(EditField);
 	AddChild(Textlabel);
 	AddChild(SuggestBox);

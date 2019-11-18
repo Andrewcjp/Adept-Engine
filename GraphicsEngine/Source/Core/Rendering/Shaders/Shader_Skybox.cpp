@@ -84,13 +84,13 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 		}
 	}
 #if DEBUG_CUBEMAPS
-	list->SetFrameBufferTexture(test, 0);
+	list->SetFrameBufferTexture(test, "g_texture");
 #else
-	list->SetTexture(SkyBoxTexture, 0);
+	list->SetTexture(SkyBoxTexture, "g_texture");
 #endif
 	if (!Cubemap)
 	{
-		SceneRender->BindMvBufferB(list, 1,0);
+		SceneRender->BindMvBuffer(list, "", 0);
 	}
 	else
 	{
@@ -122,14 +122,6 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 		//Buffer->MakeReadyForComputeUse(list);
 		//List->Execute();
 	}
-}
-
-std::vector<ShaderParameter> Shader_Skybox::GetShaderParameters()
-{
-	std::vector<ShaderParameter> out;
-	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
-	out.push_back(ShaderParameter(ShaderParamType::CBV, 1, 0));
-	return out;
 }
 
 std::vector<Shader::VertexElementDESC> Shader_Skybox::GetVertexFormat()

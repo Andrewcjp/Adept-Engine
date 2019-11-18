@@ -36,7 +36,7 @@ void PrimitveThoughputTest::RunTest()
 		desc.RenderPassDesc = RHIRenderPassDesc(TestBuffer, ERenderPassLoadOp::Clear);
 		List->SetPipelineStateDesc(desc);
 		List->BeginRenderPass(RHIRenderPassDesc(TestBuffer, ERenderPassLoadOp::Clear));
-		SceneRenderer::Get()->BindMvBuffer(List, MainShaderRSBinds::MVCBV);
+		SceneRenderer::Get()->BindMvBufferB(List, MainShaderRSBinds::MVCBV);
 		for (int i = 0; i < Batches.size(); i++)
 		{
 			MeshDrawCommand* C = Batches[i];			

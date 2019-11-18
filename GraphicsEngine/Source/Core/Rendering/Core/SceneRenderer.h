@@ -73,11 +73,11 @@ public:
 
 	static LightUniformBuffer CreateLightEntity(Light * L, int devindex);
 
-	void BindLightsBuffer(RHICommandList * list, int Override = -1);
-	void BindLightsBufferA(RHICommandList * list, int Override);
-	TEMP_API void BindMvBuffer(RHICommandList * list, int slot);
-	TEMP_API void BindMvBuffer(RHICommandList * list, int slot, int index);
-	void BindMvBufferB(RHICommandList * list, int slot, int index);
+	void BindLightsBufferB(RHICommandList * list, int Override = -1);
+	void BindLightsBuffer(RHICommandList * list, std::string slot = std::string());
+
+	void BindMvBuffer(RHICommandList * list, std::string slot = std::string(), int index = 0);
+	void BindMvBufferB(RHICommandList * list, int slot, int index = 0);
 	//this is the master scene for the rendering code.
 	void SetScene(Scene* NewScene);
 	void SetupBindsForForwardPass(RHICommandList* list, int eyeindex, FrameBuffer* TargetBuffer);

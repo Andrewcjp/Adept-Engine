@@ -330,6 +330,9 @@ void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Ty
 		case EResourceState::ComputeUse:
 			SetState(List, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, ChangeDepth);
 			break;
+		case EResourceState::Non_PixelShader:
+			SetState(List, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, true);
+			break;
 		case EResourceState::UAV:
 			SetState(List, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, ChangeDepth);
 			break;

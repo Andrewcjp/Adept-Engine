@@ -14,4 +14,5 @@ namespace StorageFormats
 	const std::string GBufferData = "GBufferData";
 	const std::string ScreenReflectionData = "ScreenReflectionData";
 
+	const std::string ShadingImage = "Shading Image";
 }
