@@ -49,6 +49,4 @@ void VRXShadingRateNode::OnSetupNode()
 {
 	List = RHI::CreateCommandList(ECommandListType::Compute, Context);
 	Shader = new Shader_Pair(Context, { "VRX/VRXGScreen" }, { EShaderType::SHADER_COMPUTE });
-	Shader->AddRootConstantName("Data");
-	Shader->AddRootConstantName("Data2");
 }

@@ -8,6 +8,7 @@
 #include <filesystem>
 #endif
 #include "Packaging/Cooker.h"
+#include "Archive.h"
 
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
@@ -146,6 +147,36 @@ std::string AssetManager::GetPlatformDirName()
 	return  EPlatforms::ToString(PlatformApplication::GetPlatform());
 }
 
+void AssetManager::WriteShaderMetaFile(ShaderSourceFile * file, std::string path)
+{
+	if (file->RootConstants.size() == 0)
+	{		
+		return;
+	}
+	std::string Metapath = GetShaderCacheDir() + path + ".meta";
+	Archive* File = new Archive(Metapath, true);
+	File->HandleArchiveBody("ShaderData");
+	File->LinkStringArray(file->RootConstants, "RootConstants");
+	File->EndHeaderWrite("ShaderData");
+	File->Write();
+}
+
+bool AssetManager::LoadShaderMetaFile(std::string CSOpath, ShaderSourceFile** file)
+{
+	const std::string Metapath = GetShaderCacheDir() + CSOpath + ".meta";
+	if (!FileUtils::File_ExistsTest(Metapath))
+	{
+		return false;
+	}
+	ShaderSourceFile* MetaData = new ShaderSourceFile();
+	*file = MetaData;
+	Archive* File = new Archive(Metapath);
+	File->HandleArchiveBody("ShaderData");
+	File->LinkStringArray(MetaData->RootConstants, "RootConstants");
+	SafeDelete(File);
+	return true;
+}
+
 const std::string AssetManager::GetShaderCacheDir()
 {
 	return AssetManager::GetDDCPath() + "Shaders\\" + GetPlatformDirName() + "\\";
@@ -241,6 +272,7 @@ ShaderSourceFile* AssetManager::LoadFileWithInclude(std::string name)
 	{
 		output = new ShaderSourceFile();
 		output->Source = ShaderPreProcessor::LoadShaderIncludeFile(name, 0);
+		ShaderPreProcessor::FindRootConstants(output);
 		ShaderSourceMap.emplace(name, output);
 	}
 	else
@@ -297,7 +329,7 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 	{
 		Fileref.IsDDC = true;
 		return RHI::CreateTexture(Fileref, Device, Desc);
-	}
+}
 	else
 	{
 		//File is not a DDS
@@ -339,7 +371,7 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 #endif
 	}
 	return ImageIO::GetDefaultTexture();
-}
+	}
 
 std::string TextureImportSettings::GetTypeString()
 {

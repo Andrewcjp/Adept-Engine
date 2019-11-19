@@ -190,6 +190,30 @@ bool ShaderPreProcessor::CheckCSOValid(std::string Name, const std::string & Sha
 	return true;
 }
 
+void ShaderPreProcessor::FindRootConstants(ShaderSourceFile * file)
+{
+	std::vector<std::string> lines = StringUtils::Split(file->Source, '\n');
+	const std::string Token = "PUSHCONST";
+	for (int i = 0; i < lines.size(); i++)
+	{
+		if (lines[i].find(Token) != -1)
+		{
+			if (lines[i].find("register") == -1)
+			{
+				continue;
+			}
+			std::vector<std::string> DataSplit = StringUtils::Split(lines[i], ' ');
+			LogEnsure(DataSplit.size() > 3);
+			if (DataSplit.size() > 3)
+			{
+				std::string safeString = DataSplit[2];
+				StringUtils::RemoveChar(safeString, ":");
+				file->RootConstants.push_back(safeString);
+			}
+		}
+	}
+}
+
 bool ShaderPreProcessor::IncludeStack::HasSeenInclude(std::string include)
 {
 	//#todo Chcek for same file with diffrent path

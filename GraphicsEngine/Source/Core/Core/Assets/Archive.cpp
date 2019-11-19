@@ -254,6 +254,37 @@ bool Archive::IsReading() const
 	return IsAchiveReading;
 }
 
+void Archive::LinkStringArray(std::vector<std::string> & Values, const char * PropName)
+{
+	if (IsReading())
+	{
+		rapidjson::Value::MemberIterator starthead = CurrentReadHead;
+		auto t = CurrentReadHead->value.GetArray();
+		t.begin();
+		for (unsigned int i = 0; i < t.Size(); i++)
+		{
+			rapidjson::Value* cv = &t[i];
+			Values.push_back(cv->GetString());
+		}
+		CurrentReadHead = starthead;
+		CurrentReadHead++;
+	}
+	else
+	{
+		rapidjson::Value comp(rapidjson::kArrayType);
+		rapidjson::Value* PreValueptr = valueptr;
+		for (int i = 0; i < Values.size(); i++)
+		{
+			rapidjson::Value jsv(rapidjson::kObjectType);
+			valueptr = &jsv;
+			jsv.SetString(Values[i].c_str(), *jallocator);
+			comp.PushBack(jsv, *jallocator);
+		}
+		valueptr = PreValueptr;
+		SerialHelpers::addJsonValue(*valueptr, *jallocator, PropName, comp);
+	}
+}
+
 void Archive::Init()
 {
 	if (IsAchiveReading)

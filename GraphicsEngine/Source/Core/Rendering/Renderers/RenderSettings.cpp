@@ -22,7 +22,7 @@ RenderSettings::RenderSettings()
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;
-	//VRXSet.EnableVRR = true;
+	VRXSet.EnableVRR = true;
 	AllowMeshInstancing = true;
 	//ShouldRunGPUTests = true;
 	if (GraphSet.GetIntValue() >= 0 && GraphSet.GetIntValue() < EBuiltinRenderGraphs::Limit)

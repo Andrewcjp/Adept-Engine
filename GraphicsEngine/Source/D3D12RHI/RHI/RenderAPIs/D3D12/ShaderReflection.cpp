@@ -2,11 +2,12 @@
 #include <d3d12shader.h>
 #include <d3dcompiler.h>
 #include "Core\Utils\VectorUtils.h"
+#include "Core\Assets\AssetManager.h"
 #define DXIL_FOURCC(ch0, ch1, ch2, ch3) (                            \
   (uint32_t)(uint8_t)(ch0)        | (uint32_t)(uint8_t)(ch1) << 8  | \
   (uint32_t)(uint8_t)(ch2) << 16  | (uint32_t)(uint8_t)(ch3) << 24   \
   )
-void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type, std::vector<ShaderParameter> & shaderbinds, bool & iscompute)
+void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type, std::vector<ShaderParameter> & shaderbinds, bool & iscompute, ShaderSourceFile* Sourcefile)
 {
 	ID3D12ShaderReflection* REF = nullptr;
 #if !USE_DIXL
@@ -38,6 +39,26 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 		RelfectShader(REF, iscompute, shaderbinds, Type);
 	}
 #endif
+	ApplyRootConstantPatch(shaderbinds, Sourcefile);
+}
+
+void ShaderReflection::ApplyRootConstantPatch(std::vector<ShaderParameter> & shaderbinds, ShaderSourceFile* Sourcefile)
+{
+	if (Sourcefile == nullptr)
+	{
+		return;
+	}
+	for (int i = 0; i < Sourcefile->RootConstants.size(); i++)
+	{
+		for (int x = 0; x < shaderbinds.size(); x++)
+		{
+			if (shaderbinds[x].Name == Sourcefile->RootConstants[i])
+			{
+				ensure(shaderbinds[x].Type == ShaderParamType::CBV || shaderbinds[x].Type == ShaderParamType::RootConstant || shaderbinds[x].Type == ShaderParamType::Buffer);
+				shaderbinds[x].Type = ShaderParamType::RootConstant;
+			}
+		}
+	}
 }
 
 void ShaderReflection::RelfectShaderFromLib(ID3D12FunctionReflection* REF, std::vector<ShaderParameter> & shaderbinds)
@@ -64,6 +85,7 @@ void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscomput
 		return;
 	}
 	D3D12_SHADER_DESC desc;
+	//desc.InstructionCount;
 	REF->GetDesc(&desc);
 	int ProgramTYpe = (desc.Version & 0xFFFF0000) >> 16;
 	if (ProgramTYpe == D3D12_SHADER_VERSION_TYPE::D3D12_SHVER_COMPUTE_SHADER)

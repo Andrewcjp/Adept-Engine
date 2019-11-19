@@ -54,6 +54,7 @@ public:
 	static void StartAssetManager();
 	static void ShutDownAssetManager();
 	void LoadFromShaderDir();
+	CORE_API bool LoadShaderMetaFile(std::string CSOpath, ShaderSourceFile ** file);
 	CORE_API ShaderSourceFile* LoadFileWithInclude(std::string name);
 	static void RegisterMeshAssetLoad(std::string name);
 	CORE_API static BaseTextureRef DirectLoadTextureAsset(std::string name, TextureImportSettings settigns = TextureImportSettings(), class DeviceContext * Device = nullptr);
@@ -70,6 +71,8 @@ public:
 	void TestAsset();
 	static const PlatformBuildSettings& GetSettings();
 	CORE_API static std::string GetPlatformDirName();
+	CORE_API void WriteShaderMetaFile(ShaderSourceFile* file,std::string path);
+	
 private:
 	AssetManager();
 	void Init();
@@ -83,7 +86,7 @@ private:
 	//Cached Paths
 	void SetupPaths();
 	std::string RootDir = "";
-	std::string SettingsDir= "";
+	std::string SettingsDir = "";
 	std::string ContentDirPath = "";
 	std::string ShaderDirPath = "";
 	std::string DDCDirPath = "";
@@ -92,5 +95,6 @@ private:
 	static const std::string DDCName;
 	IniHandler* INISaver = nullptr;
 	PlatformBuildSettings PlatformSettings;
+	
 };
 

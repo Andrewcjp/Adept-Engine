@@ -19,6 +19,7 @@ public:
 	RHI_API static std::string LoadShaderIncludeFile(std::string name, IncludeStack* Stack = nullptr);
 	
 	RHI_API static bool CheckCSOValid(std::string Name, const  std::string & ShaderNameHash);
+	static void FindRootConstants(ShaderSourceFile* file);
 private:
 	static bool CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName);
 	//include Handler

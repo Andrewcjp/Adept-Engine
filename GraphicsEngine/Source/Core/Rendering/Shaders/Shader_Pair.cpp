@@ -26,20 +26,6 @@ const std::string Shader_Pair::GetName()
 	return "Shader_Pair_" + shadername;
 }
 
-void Shader_Pair::AddRootConstantName(std::string name)
-{
-	RootConstantNames.push_back(name);
-}
-
-std::vector<ShaderParameter> Shader_Pair::GetShaderParameters()
-{
-	for (std::string s : RootConstantNames)
-	{
-		Shader::ChangeParamType(s, ShaderParamType::RootConstant);
-	}
-	return Shader::GetShaderParameters();
-}
-
 void Shader_Pair::Init()
 {
 	uint64 MaxIndex = Math::Min(Names.size(), StageList.size());

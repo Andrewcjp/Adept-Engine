@@ -63,6 +63,7 @@ bool Shader::ChangeParamType(const std::string & name, ShaderParamType::Type typ
 	ShaderParameter* P = FindParam(name);
 	if (P != nullptr)
 	{
+		LogEnsureMsgf(P->Type != type, "Change To same type");
 		P->Type = type;
 		return true;
 	}

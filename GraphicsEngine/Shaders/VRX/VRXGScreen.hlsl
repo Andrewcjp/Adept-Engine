@@ -1,11 +1,11 @@
 #define SUPPORT_VRR 1
 #include "VRX/VRRCommon.hlsl"
 RWTexture2D<uint> RateData : register(u0);
-cbuffer Data : register(b1)
+PUSHCONST cbuffer Data : register(b1)
 {
 	int w;
 };
-cbuffer Data2 : register(b2)
+PUSHCONST cbuffer Data2 : register(b2)
 {
 	int h;
 };

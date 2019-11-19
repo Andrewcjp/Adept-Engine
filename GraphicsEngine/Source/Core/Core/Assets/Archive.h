@@ -35,6 +35,8 @@ public:
 			Value = (T)ValueTmp;
 		}
 	}
+
+	void LinkStringArray(std::vector<std::string> & Values, const char * PropName);
 	template<class T>
 	void LinkPropertyArray(std::vector<T*> & Value, const char * PropName, std::function<void(Archive*, T*)> func)
 	{

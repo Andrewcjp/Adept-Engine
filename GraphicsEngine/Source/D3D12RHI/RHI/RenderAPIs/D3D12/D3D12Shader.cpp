@@ -218,7 +218,10 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #if !BUILD_SHIPPING
 		stats.ShaderLoadFromCacheCount++;
 #endif
-		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute);
+		const std::string FullShaderName = GetShaderNamestr(shadername, GetShaderInstanceHash(), ShaderType);
+		ShaderSourceFile* ShaderMetaData = nullptr;
+		AssetManager::Get()->LoadShaderMetaFile(FullShaderName, &ShaderMetaData);
+		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute, ShaderMetaData);
 		return EShaderError::SHADER_ERROR_NONE;
 	}
 #if BUILD_SHIPPING
@@ -339,13 +342,15 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	{
 		return EShaderError::SHADER_ERROR_CREATE;
 	}
-	ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute);
+	ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute, ShaderData);
 	WriteBlobs(shadername, ShaderType);
+	const std::string FullShaderName = GetShaderNamestr(shadername, GetShaderInstanceHash(), ShaderType);
+	AssetManager::Get()->WriteShaderMetaFile(ShaderData, FullShaderName);
 #if !BUILD_SHIPPING
 	stats.ShaderComplieCount++;
 #endif
 	return EShaderError::SHADER_ERROR_NONE;
-}
+	}
 
 bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName)
 {
@@ -401,7 +406,7 @@ const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, 
 #endif
 	OutputName += ".cso";
 	return OutputName;
-}
+	}
 #if WIN10_1809
 void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
 {
@@ -436,7 +441,7 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 #endif
 		return true;
-	}
+}
 	Log::LogMessage("Recompile triggered for " + Name);
 	return false;
 #endif
@@ -591,7 +596,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
 	}
 
-	}
+}
 
 D3D12Shader::ShaderBlobs * D3D12Shader::GetShaderBlobs()
 {
@@ -703,12 +708,12 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, /*D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC*/ D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-	}
+}
 	//#RHI: Samplers
 
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
