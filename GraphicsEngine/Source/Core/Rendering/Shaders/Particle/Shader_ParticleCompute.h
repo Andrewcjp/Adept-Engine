@@ -6,7 +6,6 @@ public:
 	DECLARE_GLOBAL_SHADER(Shader_ParticleCompute);
 	Shader_ParticleCompute(class DeviceContext* dev);
 	~Shader_ParticleCompute();
-	std::vector<ShaderParameter> GetShaderParameters();
 	bool IsComputeShader()override
 	{
 		return true;

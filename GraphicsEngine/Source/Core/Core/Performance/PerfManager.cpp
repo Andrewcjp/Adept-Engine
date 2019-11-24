@@ -18,7 +18,6 @@ unsigned long PerfManager::get_nanos()
 long PerfManager::GetSeconds()
 {
 #ifdef PLATFORM_WINDOWS
-
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
 	return (long)ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;

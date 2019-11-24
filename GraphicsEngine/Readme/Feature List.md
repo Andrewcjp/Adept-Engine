@@ -9,7 +9,7 @@ Feature Support table:
 Feature| DirectX 12 | Vulkan
 ---------|----------|--------
  Render pipeline support  | Complete       | Basic
- Render Graph system      | Complete| Untested
+ Render Graph system      | Complete | Incomplete
  Raytracing  | Basic | Planned
  Linked Multi-GPU| Planned | Planned
  Unlinked Multi-GPU | Complete | None
@@ -35,6 +35,7 @@ Multi-GPU Features:
 * Asynchronous Multi-GPU Shadow Mapping
 * Split frame rendering (SFR)
 * SFR with Multi-GPU Shadow mapping
+* Multi-GPU Raytracing (WIP)
 
 Engine Features:
 
@@ -44,6 +45,7 @@ Engine Features:
 * Platform Abstraction Layer supporting:
     * Windows
     * Linux (Planned)
+	* Android (planned)
     
 
 Physics Features:

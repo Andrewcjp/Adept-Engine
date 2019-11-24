@@ -1,5 +1,8 @@
 #pragma once
 #include "ShaderProgramBase.h"
+
+
+struct ShaderSourceFile;
 //this is used to unify preprocessing over all shader compliers to avoid issues with ones that lack features.
 //also handles API Overrides etc.
 class ShaderPreProcessor

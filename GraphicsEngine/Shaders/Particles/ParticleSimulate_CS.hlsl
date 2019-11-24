@@ -15,7 +15,7 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     uint aliveCount = CounterBuffer.Load(PARTICLECOUNTER_OFFSET_ALIVECOUNT);
 
 	if (DTid.x < aliveCount)
-	{
+	{ 
         const uint index = AliveIndexs[DTid.x];        
 		if (newPosVelo[index].Lifetime > 0.0f)
 		{

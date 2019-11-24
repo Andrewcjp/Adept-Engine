@@ -4,8 +4,6 @@ A flexible C++ Game engine focusing on advanced multi-GPU rendering.
 
 This is currently VERY work in progress
 
-[Road Map](https://trello.com/b/tiTV3Fbs/adept-engine-roadmap)
-
 [Dev Blog](https://andrewcjp.wordpress.com/)
 
 [Feature List](</GraphicsEngine/Readme/Feature List.md>)
@@ -14,10 +12,11 @@ Platform Support:
 
 * Windows 10 (1803+)
 * Linux (planned)
+* Android (planned)
 
 Requirements:
 
-* Windows 10 SDK (1803+)
+* Windows 10 SDK 1803+ (1809 for DXR support)
 * DirectX 12 capable GPU
 * Visual Studio 2017 (2019 Support Planned)
 

@@ -12,13 +12,6 @@ Shader_ParticleCompute::Shader_ParticleCompute(DeviceContext* dev) :Shader(dev)
 Shader_ParticleCompute::~Shader_ParticleCompute()
 {}
 
-std::vector<ShaderParameter> Shader_ParticleCompute::GetShaderParameters()
-{
-	ChangeParamType("emitData", ShaderParamType::RootConstant);
-
-	return Shader::GetShaderParameters();
-}
-
 Shader_StartSimulation::Shader_StartSimulation(DeviceContext* dev) :Shader(dev)
 {
 	m_Shader->AttachAndCompileShaderFromFile("Particles\\StartUpdate_CS", EShaderType::SHADER_COMPUTE);

@@ -30,7 +30,7 @@
 #include "Platform/Windows/WindowsWindow.h"
 #include "Shlwapi.h"
 #endif
-long Engine::StartTime = 0;
+
 Game* Engine::mgame = nullptr;
 CORE_API ComponentRegistry* Engine::CompRegistry = nullptr;
 PhysicsEngine* Engine::PhysEngine = nullptr;
@@ -58,7 +58,9 @@ Engine::Engine(EnginePersistentData* epd) :
 	EngineInstance = this;
 	Log::StartLogger();
 	PlatformApplication::Init();
-	StartTime = PerfManager::get_nanos();
+	PerfManager::StartPerfManager();
+	PerfManager::Get()->StartSingleActionTimer("Engine Boot");
+
 	Log::OutS << "Starting In " << GetExecutionDir() << Log::OutS;
 	Log::OutS << "Loading " << ENGINE_NAME << " version " << Version::GetFullVersionString() << Log::OutS;
 #if PHYSX_ENABLED
@@ -95,7 +97,6 @@ void Engine::PreInit()
 #endif
 	AssetManager::StartAssetManager();
 
-	PerfManager::StartPerfManager();
 	PhysEngine = new PhysicsEngine();
 	if (PhysEngine != nullptr)
 	{
@@ -151,7 +152,7 @@ void Engine::Destory()
 	AISystem::ShutDown();
 	AudioEngine::Shutdown();
 	ModuleManager::Get()->ShutDown();
-	EPD->BenchTime += fabs((float)(PerfManager::get_nanos() - Engine::StartTime) / 1e6f);
+	//EPD->BenchTime += fabs((float)(PerfManager::get_nanos() - Engine::StartTime) / 1e6f);
 	Log::LogMessage("Engine was active for " + std::to_string(EPD->BenchTime) + "ms ");
 	PerfManager::ShutdownPerfManager();
 }
@@ -186,7 +187,7 @@ void Engine::CreateApplication()
 #else
 		RHI::InitRHI(RenderSystemD3D12);
 #endif
-	}
+}
 	else
 	{
 		RHI::InitRHI(ForcedRenderSystem);

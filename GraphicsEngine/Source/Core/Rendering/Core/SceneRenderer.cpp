@@ -274,7 +274,7 @@ void SceneRenderer::BindMvBuffer(RHICommandList * list, std::string slot, int in
 	{
 		slot = "SceneConstantBuffer";
 	}
-	list->SetConstantBufferView(CMVBuffer, index, "SceneConstantBuffer");
+	list->SetConstantBufferView(CMVBuffer, index, slot);
 }
 
 void SceneRenderer::BindMvBufferB(RHICommandList * list, int slot, int index)

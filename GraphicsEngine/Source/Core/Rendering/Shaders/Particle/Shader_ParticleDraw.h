@@ -12,7 +12,5 @@ public:
 
 private:
 	std::vector<Shader::VertexElementDESC> GetVertexFormat()  override;
-	std::vector<ShaderParameter> GetShaderParameters() override;
-
 };
 

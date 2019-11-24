@@ -28,6 +28,7 @@
 #include "CSharpInterOp/CSharpContainer.h"
 #include "Assets/ShaderComplier.h"
 #include "Assets/Scene.h"
+#include "Utils/FileUtils.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable RenderScale("r.renderscale", ECVarType::ConsoleAndLaunch, nullptr, nullptr, std::bind(BaseWindow::SetRenderScale, std::placeholders::_1));
@@ -391,8 +392,12 @@ BaseWindow * BaseWindow::Get()
 
 void BaseWindow::PostFrameOne()
 {
+	float BootTime = PerfManager::Get()->EndSingleActionTimer("Engine Boot");
 	PerfManager::Instance->LogSingleActionTimers();
-	Log::OutS << "Engine Loaded in " << fabs((PerfManager::get_nanos() - Engine::StartTime) / 1e6f) << "ms " << Log::OutS;
+	Log::OutS << "Engine Loaded in " << BootTime << "ms " << Log::OutS;
+	//debug output
+	std::string stamp = PlatformMisc::GetDateTimeString() + ": boot took " + std::to_string(BootTime) + "ms \n";
+	FileUtils::WriteToFile(AssetManager::GetGeneratedDir() + "BootTimes.txt", stamp, true);
 }
 
 void BaseWindow::Resize(int width, int height, bool force /*= false*/)

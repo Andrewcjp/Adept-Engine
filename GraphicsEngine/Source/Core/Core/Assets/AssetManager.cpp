@@ -198,7 +198,7 @@ void AssetManager::SetupPaths()
 	DDCDirPath = RootDir + "\\" + DDCName + "\\";
 	PlatformApplication::TryCreateDirectory(DDCDirPath);
 
-	GeneratedDirPath = Engine::GetExecutionDir() + "\\Saved";
+	GeneratedDirPath = Engine::GetExecutionDir() + "\\Saved\\";
 	PlatformApplication::TryCreateDirectory(GeneratedDirPath);
 #if !BUILD_PACKAGE
 	ShaderDirPath = RootDir + "\\Shaders\\";

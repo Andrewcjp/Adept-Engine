@@ -34,10 +34,8 @@ public:
 	static void						RunCook();
 	void							CreateApplicationWindow(int width, int height);
 #if TDSIM_ENABLED
-	void							TestTDPhysics();
-	
-#endif
-	static long						StartTime;
+	void							TestTDPhysics();	
+#endif	
 	static void						SetGame(Game* game);
 	static Game*					GetGame();
 	void							ProcessCommandLineInput(class FString Text, int length);
