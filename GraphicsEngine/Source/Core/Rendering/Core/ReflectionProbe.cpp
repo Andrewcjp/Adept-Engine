@@ -28,7 +28,7 @@ ReflectionProbe::ReflectionProbe(glm::vec3 Pos/* = glm::vec3(0, 0, 0)*/)
 			Desc.Dimension = DIMENSION_TEXTURE2DARRAY;
 			Desc.ArraySlice = d;
 			Desc.ViewType = EViewType::UAV;
-			CubeDesc.RequestedViews.push_back(Desc);
+			//CubeDesc.RequestedViews.push_back(Desc);
 		}
 	}
 	CapturedTexture = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), CubeDesc);

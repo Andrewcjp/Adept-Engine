@@ -93,7 +93,7 @@ public:
 	RHI_API RHI_VIRTUAL void SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
 	RHI_API RHI_VIRTUAL void SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
 	RHI_API RHI_VIRTUAL void SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view) = 0;
-
+	RHI_API RHI_VIRTUAL void SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view) = 0;
 	//view Creators
 	RHI_API void SetUAV(RHIBuffer* uav, int slot);
 	RHI_API void SetUAV(FrameBuffer* uav, int slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 0);

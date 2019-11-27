@@ -8,6 +8,7 @@
 #endif
 class RHIBuffer;
 class FrameBuffer;
+class RHITexture;
 //this handles DXR local root signature bindings.
 namespace ERSBindType
 {
@@ -20,6 +21,7 @@ namespace ERSBindType
 		UAV,
 		RootConstant,
 		TextureArray,
+		Texture2,
 		Limit
 	};
 };
@@ -37,7 +39,7 @@ struct RSBind
 	FrameBuffer* Framebuffer = nullptr;
 	RHIBuffer* BufferTarget = nullptr;
 	RHITextureArray* TextureArray = nullptr;
-
+	RHITexture* Texture2 = nullptr;
 	RHIViewDesc View = RHIViewDesc();
 	/*};*/
 #if 0
@@ -101,7 +103,7 @@ public:
 	RHI_API void SetBufferReadOnly(int slot, RHIBuffer* Target, const RHIViewDesc & desc = RHIViewDesc());
 	RHI_API void SetUAV(int slot, FrameBuffer * target, const RHIViewDesc & view);
 	RHI_API void SetUAV(int slot, RHIBuffer* Target, const RHIViewDesc& view);
-
+	RHI_API void SetTexture2(int slot, RHITexture* Target, const RHIViewDesc& view);
 	void In_CreateUAV(RSBind &Bind, const RHIViewDesc& view, int slot);
 
 	RHI_API void SetTextureArray(int slot, RHITextureArray* array, const RHIViewDesc& view);

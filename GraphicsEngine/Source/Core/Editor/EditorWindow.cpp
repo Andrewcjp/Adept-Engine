@@ -56,7 +56,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	ShowText = true;
 	//SetFrameRateLimit(20);
 	Log::OutS << "Loading Editor" << Log::OutS;
-	CurrentScene = new Scene(true);
+	CurrentScene = new Scene(true); 
 	EditorCamera = new Editor_Camera();
 
 	SceneRenderer::Get()->SetEditorCamera(EditorCamera);
@@ -79,7 +79,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	delete CurrentScene;
 	CurrentScene = new Scene();
 	Saver->LoadScene(CurrentScene, TestFilePath);
-	Renderer->SetScene(CurrentScene);
+	SceneRenderer::Get()->SetScene(CurrentScene);
 	RefreshScene();
 #endif
 

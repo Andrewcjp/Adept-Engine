@@ -36,6 +36,12 @@ void LightComponent::SetLightType(ELightType::Type type)
 	CurrentType = type;
 }
 
+void LightComponent::SetDistance(float amt)
+{
+	MLight->Distance = amt;
+	Distance = amt;
+}
+
 void LightComponent::SetIntensity(float amt)
 {
 	MLight->SetIntesity(amt);
@@ -72,7 +78,10 @@ void LightComponent::SceneInitComponent()
 {
 	GetOwner()->GetScene()->AddLight(MLight);
 	DoesShadow = MLight->GetDoesShadow();
-
+	OnTransformUpdate();
+	SetShadow(DoesShadow);
+	SetIntensity(CurrentIntensity);
+	SetDistance(Distance);
 }
 #if WITH_EDITOR
 void LightComponent::PostChangeProperties()

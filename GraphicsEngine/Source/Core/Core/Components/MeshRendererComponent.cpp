@@ -129,6 +129,10 @@ void MeshRendererComponent::SceneInitComponent()
 
 void MeshRendererComponent::OnTransformUpdate()
 {
+	if (m_mesh == nullptr)
+	{
+		return;
+	}
 	m_mesh->UpdateBounds(GetOwner()->GetPosition(), GetOwner()->GetTransform()->GetScale());
 }
 
@@ -167,6 +171,11 @@ void MeshRendererComponent::ProcessSerialArchive(Archive * A)
 		if (!Assetname.empty())
 		{
 			m_mesh = RHI::CreateMesh(Assetname.c_str(), set);
+			m_mesh->Renderer = this;
+		}
+		else
+		{
+			LogEnsure_Always("Failed to load mesh for node");
 		}
 	}
 	else

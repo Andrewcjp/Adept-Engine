@@ -86,6 +86,9 @@ public:
 	RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) override;
 	RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) override;
 	RHIRootSigniture* GetRootSig();
+
+	RHI_VIRTUAL void SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view) override;
+
 private:
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();

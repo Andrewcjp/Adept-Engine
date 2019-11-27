@@ -263,7 +263,7 @@ void D3D12CommandList::PrepareforDraw()
 
 		}
 		else if (bind->BindType == ERSBindType::TextureArray)
-		{			
+		{
 			DXDescriptor* desc = nullptr;
 			if (bind->IsBound())
 			{
@@ -279,6 +279,23 @@ void D3D12CommandList::PrepareforDraw()
 			}
 		}
 		else if (bind->BindType == ERSBindType::UAV)
+		{
+			DXDescriptor* desc = nullptr;
+			if (bind->IsBound())
+			{
+				ensure(bind->View.ViewType != EViewType::Limit);
+				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
+				if (IsGraphicsList())
+				{
+					GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
+				}
+				else
+				{
+					GetCommandList()->SetComputeRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
+				}
+			}
+		}
+		else if (bind->BindType == ERSBindType::Texture2)
 		{
 			DXDescriptor* desc = nullptr;
 			if (bind->IsBound())
@@ -560,6 +577,11 @@ void D3D12CommandList::UAVBarrier(RHIBuffer* target)
 RHIRootSigniture * D3D12CommandList::GetRootSig()
 {
 	return &RootSigniture;
+}
+
+void D3D12CommandList::SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view)
+{
+	RootSigniture.SetTexture2(slot, t, view);
 }
 
 void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)

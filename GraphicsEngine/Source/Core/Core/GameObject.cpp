@@ -7,6 +7,8 @@
 #include "Components/RigidbodyComponent.h"
 #include "Platform/PlatformCore.h"
 #include "Components/ColliderComponent.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Core/Mesh/MeshPipelineController.h"
 
 
 GameObject::GameObject(std::string name, EMoblity stat, int oid) :
@@ -28,6 +30,7 @@ void GameObject::OnRemoveFromScene()
 	{
 		m_Components[i]->OnDestroy();
 	}
+	SceneRenderer::Get()->GetPipelineController()->RemoveBatches(this);
 }
 
 void GameObject::ValidateObjectInWorld()
@@ -344,7 +347,7 @@ void GameObject::ProcessSerialArchive(Archive* A)
 	ArchiveProp(GetTransform());
 	ArchiveProp(Name);
 	if (A->IsReading())
-	{
+	{		
 		std::vector<Component*> CompStaging;
 		ArchiveProp_Alias(CompStaging, m_Components);
 		for (Component* C : CompStaging)

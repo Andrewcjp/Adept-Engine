@@ -15,7 +15,12 @@ UIWidget::UIWidget(int w, int h, int x, int y)
 }
 
 UIWidget::~UIWidget()
-{}
+{
+	if (Parent)
+	{
+		Parent->RemoveChild(this);
+	}
+}
 
 void UIWidget::ResizeView(int w, int h, int x, int y)
 {

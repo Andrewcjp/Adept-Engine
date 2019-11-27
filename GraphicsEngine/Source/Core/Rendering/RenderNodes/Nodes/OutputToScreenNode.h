@@ -1,5 +1,7 @@
 #pragma once
 #include "../RenderNode.h"
+
+class RHITexture;
 class OutputToScreenNode : public RenderNode
 {
 public:
@@ -15,5 +17,7 @@ protected:
 	RHICommandList* ScreenWriteList = nullptr;
 
 	virtual void OnSetupNode() override;
+	void Test();
+	RHITexture* Testtex = nullptr;
 };
 

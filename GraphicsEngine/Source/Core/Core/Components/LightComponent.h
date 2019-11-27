@@ -13,6 +13,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Update(float delta) override;
 	void SetLightType(ELightType::Type type);
+	void SetDistance(float amt);
 	void SetIntensity(float amt);
 	void SetShadow(bool Shadow);
 	void SetLightColour(glm::vec3 colour);
@@ -31,6 +32,8 @@ private:
 	glm::vec3 CurrentColour = glm::vec3(1);
 	PROPERTY();
 	bool DoesShadow = false;
+	PROPERTY();
+	float Distance = 512;
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<InspectorProperyGroup>& props) override;
 #endif

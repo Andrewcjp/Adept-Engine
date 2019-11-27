@@ -139,6 +139,29 @@ EAllocateResult::Type DXMemoryManager::AllocTexture(AllocDesc & desc, GPUResourc
 	return Error;
 }
 
+EAllocateResult::Type DXMemoryManager::AllocResource(AllocDesc & desc, GPUResource ** ppResource)
+{
+	desc.PageAllocationType = EPageTypes::TexturesOnly;
+	if (desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+	{
+		desc.PageAllocationType = EPageTypes::RTAndDS_Only;
+	}	
+	if (desc.ResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+	{
+		if (desc.Segment == EGPUMemorysegment::Local)
+		{
+			desc.PageAllocationType = EPageTypes::BuffersOnly;
+		}
+		else
+		{
+			desc.PageAllocationType = EPageTypes::BufferUploadOnly;
+		}		
+	}
+	EAllocateResult::Type Error = FindFreePage(desc, Pages)->Allocate(desc, ppResource);
+	ensure(Error == EAllocateResult::OK);
+	return Error;
+}
+
 EAllocateResult::Type DXMemoryManager::AllocPage(AllocDesc & desc, GPUMemoryPage ** Page)
 {
 	*Page = new GPUMemoryPage(desc, Device);

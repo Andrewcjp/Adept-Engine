@@ -58,6 +58,8 @@ bool RHIRootSigniture::ComparePTypes(ShaderParamType::Type T, ERSBindType::Type 
 			return T == ShaderParamType::UAV;
 		case ERSBindType::TextureArray:
 			return T == ShaderParamType::SRV;
+		case ERSBindType::Texture2:
+			return true;
 	}
 	return false;
 }
@@ -199,6 +201,30 @@ void RHIRootSigniture::SetUAV(int slot, RHIBuffer * Target, const RHIViewDesc& v
 	return In_CreateUAV(Bind, view, slot);
 }
 
+void RHIRootSigniture::SetTexture2(int slot, RHITexture * Target, const RHIViewDesc & view)
+{
+	RSBind Bind = {};
+	Bind.BindType = ERSBindType::Texture2;
+	Bind.Texture2 = Target;
+	Bind.View = view;
+	ShaderParameter* RSSlot = GetParm(slot);
+#if USE_VALIDATION
+	if (RSSlot == nullptr)
+	{
+		VD_ASSERT(false, "Failed to find slot");
+		return;
+	}
+	if (!ValidateType(RSSlot, Bind.BindType))
+	{
+		VD_ASSERT(false, "Invalid Bind");
+		return;
+	}
+#endif
+	Bind.BindParm = RSSlot;
+	Bind.HasChanged = true;
+	CurrnetBinds[RSSlot->SignitureSlot] = Bind;
+}
+
 void RHIRootSigniture::In_CreateUAV(RSBind &Bind, const RHIViewDesc& view, int slot)
 {
 	Bind.View = view;
@@ -322,8 +348,10 @@ bool RSBind::IsBound() const
 			return true;//not bound here 
 		case ERSBindType::TextureArray:
 			return TextureArray != nullptr;
+		case ERSBindType::Texture2:
+			return Texture2 != nullptr;
 		case ERSBindType::Limit:
-			break;;
+			break;
 	}
 	return false;
 }

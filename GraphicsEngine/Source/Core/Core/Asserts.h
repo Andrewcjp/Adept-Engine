@@ -22,7 +22,7 @@ Log::LogMessage(Message,Log::Severity::Error); PlatformApplication::DisplayMessa
 
 #define ensureMsgf(condition,Message) ensureFatalMsgf(condition,Message);
 
-#define check(condition) if(!condition){AssertDebugBreak();std::string Message = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition ;\
+#define check(condition) if(!(condition)){AssertDebugBreak();std::string Message = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition ;\
 Log::LogMessage(Message,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Error",Message);}
 
 #define checkMsgf(condition,Message) if(!condition){AssertDebugBreak();std::string data = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition  "\n" Message ;\
@@ -36,6 +36,9 @@ Log::LogMessage(Message,Log::Severity::Error);}
 #define LogEnsureMsgf(condition,Message) if(!(condition)){std::string data = "Assert Failed \n" __FILE__ "@" LINE_STRING"\ncondition:" #condition  "\n" Message ;\
 Log::LogMessage(data,Log::Severity::Error);}
 
+#define LogEnsure_Always(Message) std::string data = "Assert Failed \n" __FILE__ "@" LINE_STRING "\n" Message ;\
+Log::LogMessage(data,Log::Severity::Error);
+
 #define ENUMCONVERTFAIL() ensureMsgf(false,"Failed to convert Enum")
 #else
 #define check(condition);
@@ -45,6 +48,7 @@ Log::LogMessage(data,Log::Severity::Error);}
 #define NoImpl();
 #define LogEnsure(condition);
 #define LogEnsureMsgf(c,m);
+#define LogEnsure_Always(m)
 #define ENUMCONVERTFAIL()
 #endif
 

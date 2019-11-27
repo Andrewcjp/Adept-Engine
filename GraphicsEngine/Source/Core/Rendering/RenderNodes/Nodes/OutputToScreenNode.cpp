@@ -10,6 +10,7 @@
 #include "../StoreNodes/FrameBufferStorageNode.h"
 #include "../../Core/FrameBuffer.h"
 #include "UI/UIManager.h"
+#include "RHI/RHITexture.h"
 static ConsoleVariable VROutputMode("vr.screenmode", 0, ECVarType::ConsoleAndLaunch);
 OutputToScreenNode::OutputToScreenNode()
 {
@@ -78,6 +79,7 @@ void OutputToScreenNode::OnExecute()
 		D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 		ScreenWriteList->SetPipelineStateDesc(D);
 		ScreenWriteList->SetFrameBufferTexture(Target, 0);
+		//ScreenWriteList->SetTexture2(Testtex, 0, RHIViewDesc::DefaultSRV());
 	}
 	RenderingUtils::RenderScreenQuad(ScreenWriteList);
 	ScreenWriteList->EndRenderPass();
@@ -100,4 +102,17 @@ void OutputToScreenNode::OnNodeSettingChange()
 void OutputToScreenNode::OnSetupNode()
 {
 	ScreenWriteList = RHI::CreateCommandList(ECommandListType::Graphics, Context);
+	Test();
+}
+
+void OutputToScreenNode::Test()
+{
+	Testtex = RHI::GetRHIClass()->CreateTexture2();
+	RHITextureDesc2 Desc = {};
+	Desc.Width = 1000;
+	Desc.Height = 1000;
+	Desc.Format = FORMAT_R32G32B32A32_FLOAT;
+	Desc.IsRenderTarget = true;
+	Desc.Name = "Testtex";
+	Testtex->Create(Desc);
 }

@@ -44,6 +44,13 @@ void MeshPipelineController::GatherBatches()
 	{
 		return;
 	}
+	for (int i = Batches.size() - 1; i >= 0; i--)
+	{
+		if (Batches[i]->Owner == nullptr)
+		{
+			Batches.erase(Batches.begin() + i);
+		}
+	}
 	for (int i = 0; i < Batches.size(); i++)
 	{
 		Batches[i]->Update();
@@ -58,7 +65,11 @@ void MeshPipelineController::GatherBatches()
 		GameObject* CurrentObj = TargetScene->ObjectsAddedLastFrame[i];
 		if (CurrentObj->GetMesh() != nullptr)
 		{
-			Batches.push_back(CurrentObj->GetMesh()->GetMeshBatch());
+			MeshBatch* batch = CurrentObj->GetMesh()->GetMeshBatch();
+			if (batch->Owner != nullptr)
+			{
+				Batches.push_back(batch);
+			}
 		}
 	}
 	TargetScene->ObjectsAddedLastFrame.clear();
@@ -76,6 +87,21 @@ void MeshPipelineController::GatherBatches()
 		BuildStaticInstancing();
 	}
 }
+void MeshPipelineController::RemoveBatches(GameObject* owner)
+{
+	for (int i = Batches.size()-1; i >= 0; i--)
+	{
+		if (Batches[i]->Owner == owner)
+		{
+			Batches.erase(Batches.begin() + i);
+		}
+	}
+}
+
+void MeshPipelineController::ClearBatches()
+{
+	Batches.clear();
+}
 
 void MeshPipelineController::BuildStaticInstancing()
 {
@@ -88,6 +114,11 @@ void MeshPipelineController::BuildStaticInstancing()
 	std::map<RHIBuffer*, std::vector<MeshBatch*>> Buckets;
 	for (int i = 0; i < Batches.size(); i++)
 	{
+		if (Batches[i]->Owner == nullptr)
+		{
+			LogEnsure_Always("Batch orphaned");
+			continue;
+		}
 		if (Batches[i]->Owner->GetMobility() != GameObject::Static)
 		{
 			continue;

@@ -42,6 +42,8 @@ public:
 	MeshPipelineController();
 	~MeshPipelineController();
 	void GatherBatches();
+	void RemoveBatches(GameObject * owner);
+	void ClearBatches();
 	//attempt to merge the static objects in the scene
 	void BuildStaticInstancing();
 

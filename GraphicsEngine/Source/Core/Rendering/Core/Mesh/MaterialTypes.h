@@ -85,7 +85,9 @@ struct ParmeterBindSet
 	void AllocateMemeory();
 	~ParmeterBindSet();
 	void* GetDataPtr();
+	void ProcessSerialArchive(Archive * A);
 private:
 	unsigned char* data = nullptr;
+	size_t cachedSize = 0;
 };
 

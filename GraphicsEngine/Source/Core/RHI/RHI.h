@@ -45,6 +45,7 @@ class RHITextureArray;
 class RHIBuffer;
 
 class RHICommandList;
+class RHITexture;
 
 //RHI defines
 #define RHI_SUPPORTS_VR 1
@@ -219,7 +220,7 @@ public:
 	//MGPU
 	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc) = 0;
 
-
+	RHI_VIRTUAL RHITexture* CreateTexture2() = 0;
 };
 
 class RHIModule : public IModuleInterface

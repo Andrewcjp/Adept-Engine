@@ -72,6 +72,8 @@ void Transform::Serilise(Archive * A)
 	ArchiveProp(_pos);
 	//ArchiveProp(_qrot);
 	ArchiveProp(_scale);
+	UpdateModel = true;
+	GetModel();
 }
 
 glm::mat4 Transform::GetModel(bool NoParent)

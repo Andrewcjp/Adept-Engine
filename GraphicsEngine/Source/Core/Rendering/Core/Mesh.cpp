@@ -43,13 +43,14 @@ void Mesh::InstanceFrom(Mesh * m)
 	{
 		Materials.push_back(m->Materials[i]);
 	}
+	AssetName = m->AssetName;
 }
 
 void Mesh::Release()
 {
 	IRHIResourse::Release();
 	MemoryUtils::DeleteVector(SubMeshes);
-	MemoryUtils::DeleteVector(Materials);
+	//MemoryUtils::DeleteVector(Materials);
 	SafeRHIRelease(PrimitiveTransfromBuffer);
 	SafeRelease(pSkeletalEntity);
 }
@@ -173,7 +174,7 @@ void SerialMaterial(Archive * A, Material* object)
 
 void Mesh::ProcessSerialArchive(Archive * A)
 {
-	//	A->LinkPropertyArray<Material>(Materials, "Mats", SerialMaterial);
+		A->LinkPropertyArray<Material>(Materials, "Mats", SerialMaterial);
 }
 
 void Mesh::SetShadow(bool state)

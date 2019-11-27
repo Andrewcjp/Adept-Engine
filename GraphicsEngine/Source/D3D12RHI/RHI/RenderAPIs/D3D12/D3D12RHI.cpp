@@ -16,6 +16,8 @@
 #include <DXProgrammableCapture.h>  
 #include "DescriptorCache.h"
 #include "DXMemoryManager.h"
+#include "D3D12RHITexture.h"
+#include "RHI/RHITexture.h"
 
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
 static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly, false);
@@ -55,7 +57,10 @@ RHIQuery * D3D12RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 	return new D3D12Query(type, con);
 }
 
-
+D3D12RHITexture * D3D12RHI::DXConv(RHITexture * D)
+{
+	return static_cast<D3D12RHITexture*>(D);
+}
 D3D12DeviceContext * D3D12RHI::DXConv(DeviceContext * D)
 {
 	return static_cast<D3D12DeviceContext*>(D);
@@ -130,6 +135,12 @@ RHIInterGPUStagingResource* D3D12RHI::CreateInterGPUStagingResource(DeviceContex
 {
 	return new D3D12InterGPUStagingResource(Owner, desc);
 }
+
+RHITexture* D3D12RHI::CreateTexture2()
+{
+	return new D3D12RHITexture();
+}
+
 #if RHI_SUPPORTS_RT
 RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc)
 {

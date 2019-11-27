@@ -108,7 +108,7 @@ void Scene::AddLight(glm::vec3 Pos, bool Shadow, float BrightNess, float range)
 	lc->SetShadow(Shadow);
 	lc->SetLightType(ELightType::Point);
 	lc->SetIntensity(BrightNess);
-	lc->Internal_GetLightPtr()->Distance = range;
+	lc->SetDistance(range);
 	AddGameobjectToScene(go);
 }
 

@@ -14,9 +14,10 @@ class Material
 public:
 
 	void UpdateShaderData();
+	Material() {}
 	CORE_API Material(Asset_Shader* shader);
 	~Material();
-	void SetMaterialActive(class RHICommandList * list, const MeshPassRenderArgs& Pass);
+	void SetMaterialActive(RHICommandList * RESTRICT list, const MeshPassRenderArgs& Pass);
 	//creates this material after all props have been setup
 	void Init();
 	void UpdateBind(std::string Name, BaseTextureRef NewTex);

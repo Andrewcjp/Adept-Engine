@@ -37,6 +37,8 @@ class D3D12Texture;
 class D3D12Query;
 class D3D12InterGPUStagingResource;
 class D3D12RHITextureArray;
+class RHITexture;
+class D3D12RHITexture;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -75,6 +77,7 @@ public:
 	RHI_VIRTUAL HighLevelAccelerationStructure* CreateHighLevelAccelerationStructure(DeviceContext * Device, const AccelerationStructureDesc & Desc) override;
 	RHI_VIRTUAL RHIStateObject* CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc) override;
 #endif
+	static D3D12RHITexture * DXConv(RHITexture * D);
 	static D3D12DeviceContext* DXConv(DeviceContext* D);
 	static D3D12Query * DXConv(RHIQuery * D);
 	static D3D12Texture * DXConv(BaseTexture * D);
@@ -94,6 +97,9 @@ public:
 
 
 	RHI_VIRTUAL RHIInterGPUStagingResource* CreateInterGPUStagingResource(DeviceContext* Owner, const InterGPUDesc& desc) override;
+
+
+	RHI_VIRTUAL RHITexture* CreateTexture2() override;
 
 private:
 	void DestroyContext();

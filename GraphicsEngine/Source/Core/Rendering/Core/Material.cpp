@@ -211,12 +211,13 @@ void SerialTextureBind(Archive * A, TextureBindData* object)
 void Material::ProcessSerialArchive(Archive * A)
 {
 	//#Editor Save this
-	//ArchiveProp(ShaderProperties.Metallic);
-	//ArchiveProp(ShaderProperties.Roughness);
+	/*ArchiveProp(ShaderProperties.Metallic);
+	ArchiveProp(ShaderProperties.Roughness);*/
+	
 	if (A->IsReading())
 	{
 		std::string ShaderName = "";
-		//ArchiveProp_Alias(ShaderName, Properties.ShaderInUse->GetName());
+		ArchiveProp_Alias(ShaderName, MaterialCData.Shader->GetName());
 		//TEMP
 		Asset_Shader* NewShader = nullptr;
 		if (ShaderName == "Test")
@@ -242,18 +243,18 @@ void Material::ProcessSerialArchive(Archive * A)
 	else
 	{
 		std::string tmp = "";
-		/*if (Properties.ShaderInUse != nullptr)
+		if (MaterialCData.Shader != nullptr)
 		{
-			tmp = Properties.ShaderInUse->GetName();
-		}*/
-		//ArchiveProp_Alias(tmp, Properties.ShaderInUse->GetName());
+			tmp = MaterialCData.Shader->GetName();
+		}
+		ArchiveProp_Alias(tmp, MaterialCData.Shader->GetName());
 	}
-	if (A->IsReading())
+	if (A->IsReading() && CurrentBindSet != nullptr)
 	{
 		CurrentBindSet->BindMap.clear();
 	}
-	A->LinkPropertyMap<std::string, TextureBindData>(CurrentBindSet->BindMap, "CurrentBindSet->BindMap", &SerialTextureBind);
-
+	//A->LinkPropertyMap<std::string, TextureBindData>(CurrentBindSet->BindMap, "CurrentBindSet->BindMap", &SerialTextureBind);
+	ParmbindSet.ProcessSerialArchive(A);
 }
 
 EMaterialRenderType::Type Material::GetRenderPassType()

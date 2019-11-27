@@ -583,7 +583,6 @@ public:
 	int RenderTargetCount = 1;
 	bool NeedsDepthStencil = false;
 	bool AllowUnorderedAccess = false;
-	std::vector<RHIViewDesc> RequestedViews;
 	//If set to 0 the resource will be auto mipped
 	int MipsToGenerate = 1;
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;

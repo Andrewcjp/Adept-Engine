@@ -1,4 +1,5 @@
 #include "MaterialTypes.h"
+#include "Core\Assets\Archive.h"
 
 void ParmeterBindSet::AddParameter(std::string name, ShaderPropertyType::Type tpye)
 {
@@ -6,6 +7,7 @@ void ParmeterBindSet::AddParameter(std::string name, ShaderPropertyType::Type tp
 	p.PropType = tpye;
 	p.OffsetInBuffer = GetSize();
 	BindMap.emplace(name, p);
+	cachedSize = GetSize();
 }
 
 void ParmeterBindSet::SetFloat(std::string name, float f)
@@ -28,6 +30,10 @@ size_t ParmeterBindSet::GetSize()
 	{
 		total += it->second.GetSize();
 	}
+	if (BindMap.size() == 0)
+	{
+		return cachedSize;
+	}
 	return total;
 }
 
@@ -49,6 +55,26 @@ ParmeterBindSet::~ParmeterBindSet()
 void * ParmeterBindSet::GetDataPtr()
 {
 	return data;
+}
+
+void ParmeterBindSet::ProcessSerialArchive(Archive * A)
+{
+	/*for (auto itor = BindMap.begin(); itor != BindMap.end(); itor++)
+	{
+		std::string name = itor->first;
+		ArchiveProp(name);
+		ArchiveProp_Enum(itor->second.PropType);
+		ArchiveProp_Enum(itor->second.OffsetInBuffer);
+	}*/
+	std::string Data = std::string((const char*)data, GetSize());
+	ArchiveProp(Data);
+	ArchiveProp_Enum(cachedSize);
+	if (A->IsReading())
+	{
+		data = (unsigned char*)malloc(cachedSize);
+		unsigned char* ptr = (unsigned char*)Data.c_str();
+		memcpy(data, ptr, cachedSize);
+	}
 }
 
 size_t MaterialShaderParameter::GetSize() const

@@ -21,6 +21,7 @@ public:
 	EAllocateResult::Type AllocGeneral(AllocDesc & desc, GPUResource** ppResource);
 	EAllocateResult::Type AllocFrameBuffer(AllocDesc & desc, GPUResource ** ppResource);
 	EAllocateResult::Type AllocTexture(AllocDesc & desc, GPUResource ** ppResource);
+	EAllocateResult::Type AllocResource(AllocDesc & desc, GPUResource ** ppResource);
 	EAllocateResult::Type AllocPage(AllocDesc & desc, GPUMemoryPage** Page);
 	void UpdateTotalAlloc();
 	void LogMemoryReport();

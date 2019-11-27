@@ -10,6 +10,7 @@
 #include "D3D12Framebuffer.h"
 #include "D3D12Buffer.h"
 #include "Core\Utils\TypeUtils.h"
+#include "D3D12RHITexture.h"
 #define ENABLE_CACHE 1
 
 DescriptorCache::DescriptorCache(D3D12DeviceContext* con)
@@ -158,6 +159,10 @@ DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 	else if (bind->BindType == ERSBindType::BufferSRV)
 	{
 		return D3D12RHI::DXConv(bind->BufferTarget)->GetDescriptor(bind->View, heap);
+	}
+	else if (bind->BindType == ERSBindType::Texture2)
+	{
+		return D3D12RHI::DXConv(bind->Texture2)->GetDescriptor(bind->View, heap);
 	}
 	return nullptr;
 }
