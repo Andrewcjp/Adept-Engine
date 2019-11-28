@@ -20,17 +20,17 @@ DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 
 void DXMemoryManager::Compact()
 {
-	for (int i = Pages.size() - 1; i >= 0; i--)
+	for (int i = AllPages.size() - 1; i >= 0; i--)
 	{
-		if (Pages[i]->GetSizeInUse() == 0)
+		if (AllPages[i]->GetSizeInUse() == 0)
 		{
-			VectorUtils::Remove(FrameResourcePages, Pages[i]);
-			VectorUtils::Remove(TempUploadPages, Pages[i]);
-			VectorUtils::Remove(TempGPUPages, Pages[i]);
-			VectorUtils::Remove(DataPages, Pages[i]);
-			VectorUtils::Remove(TexturePages, Pages[i]);
-			SafeDelete(Pages[i]);
-			Pages.erase(Pages.begin() + i);
+			VectorUtils::Remove(FrameResourcePages, AllPages[i]);
+			VectorUtils::Remove(TempUploadPages, AllPages[i]);
+			VectorUtils::Remove(TempGPUPages, AllPages[i]);
+			VectorUtils::Remove(DataPages, AllPages[i]);
+			VectorUtils::Remove(TexturePages, AllPages[i]);
+			SafeDelete(AllPages[i]);
+			AllPages.erase(AllPages.begin() + i);
 		}
 	}
 }
@@ -96,7 +96,7 @@ void DXMemoryManager::AddDataPage(int size)
 
 DXMemoryManager::~DXMemoryManager()
 {
-	MemoryUtils::DeleteVector(Pages);
+	MemoryUtils::DeleteVector(AllPages);
 }
 
 EAllocateResult::Type DXMemoryManager::AllocUploadTemporary(AllocDesc & desc, GPUResource ** ppResource)
@@ -157,7 +157,7 @@ EAllocateResult::Type DXMemoryManager::AllocResource(AllocDesc & desc, GPUResour
 			desc.PageAllocationType = EPageTypes::BufferUploadOnly;
 		}		
 	}
-	EAllocateResult::Type Error = FindFreePage(desc, Pages)->Allocate(desc, ppResource);
+	EAllocateResult::Type Error = FindFreePage(desc, AllPages)->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
 }
@@ -169,7 +169,7 @@ EAllocateResult::Type DXMemoryManager::AllocPage(AllocDesc & desc, GPUMemoryPage
 	{
 		//Log::LogMessage("Allocating Page of Size: " + StringUtils::ByteToMB(desc.Size) + " Of segment " + EGPUMemorysegment::ToString(desc.Segment));
 	}
-	Pages.push_back(*Page);
+	AllPages.push_back(*Page);
 	//#DXMM: checks!
 	return EAllocateResult::OK;
 }
@@ -178,7 +178,7 @@ void DXMemoryManager::UpdateTotalAlloc()
 {
 	TotalPageAllocated = 0;
 	TotalPageUsed = 0;
-	for (GPUMemoryPage* P : Pages)
+	for (GPUMemoryPage* P : AllPages)
 	{
 		TotalPageAllocated += P->GetSize();
 		TotalPageUsed += P->GetSizeInUse();
@@ -190,7 +190,7 @@ void DXMemoryManager::LogMemoryReport()
 {
 	UpdateTotalAlloc();
 	Log::LogMessage("***GPU" + std::to_string(Device->GetDeviceIndex()) + " Memory Report***");
-	for (GPUMemoryPage* P : Pages)
+	for (GPUMemoryPage* P : AllPages)
 	{
 		P->LogReport();
 	}
@@ -216,7 +216,10 @@ GPUMemoryPage * DXMemoryManager::FindFreePage(AllocDesc & desc, std::vector<GPUM
 	const UINT64 PageMinSize = 256 * 1024 * 1024u;
 	desc.Size = Math::Max(desc.TextureAllocData.SizeInBytes, PageMinSize);
 	AllocPage(desc, &newpage);
-	pages.push_back(newpage);
+	if (AllPages != pages)
+	{
+		pages.push_back(newpage);
+	}
 	return newpage;
 }
 

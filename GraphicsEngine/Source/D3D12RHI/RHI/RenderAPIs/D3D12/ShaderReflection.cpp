@@ -71,7 +71,7 @@ void ShaderReflection::RelfectShaderFromLib(ID3D12FunctionReflection* REF, std::
 		REF->GetResourceBindingDesc(i, &TMPdesc);
 		//todo: restrict visibility and then detect duplicates and adjust visibility
 		ShaderParameter p = ConvertParm(TMPdesc);
-		if (p.Type != ShaderParamType::Limit)
+		if (p.Type != ShaderParamType::Limit && p.Type != ShaderParamType::Sampler)
 		{
 			VectorUtils::AddUnique(shaderbinds, p);
 		}

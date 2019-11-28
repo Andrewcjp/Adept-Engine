@@ -20,6 +20,8 @@ struct RHITextureDesc2
 	glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f);
 	float DepthClearValue = 1.0f;
 	std::string Name = "";
+
+	EResourceState::Type InitalState = EResourceState::Common;
 };
 class RHITexture : public IRHIResourse
 {

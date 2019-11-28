@@ -26,8 +26,6 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 	{
 		return EAllocateResult::NoSpace;
 	}
-
-
 	//DXMM: Todo Placed resource 
 	ID3D12Resource* DxResource = nullptr;
 	CreateResource(GetChunk(desc), desc, &DxResource);
@@ -56,6 +54,10 @@ void GPUMemoryPage::CalculateSpaceNeeded(AllocDesc & desc)
 
 bool GPUMemoryPage::CheckSpaceForResource(AllocDesc & desc)
 {
+	if (desc.PageAllocationType != PageDesc.PageAllocationType)
+	{
+		return false;
+	}
 	if (FindFreeChunk(desc) == nullptr)
 	{
 		return false;

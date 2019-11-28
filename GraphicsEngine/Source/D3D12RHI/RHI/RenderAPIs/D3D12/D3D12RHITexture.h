@@ -15,6 +15,8 @@ public:
 	size_t GetSizeOnGPU() override;
 	DXDescriptor * GetDescriptor(const RHIViewDesc & desc, DescriptorHeap * heap);
 	void Create(const RHITextureDesc2& Desc, DeviceContext* Context) override;
+	GPUResource* GetResource()const;
+	void WriteToDescriptor(DXDescriptor* Descriptor, const RHIViewDesc& desc);
 private:
 	GPUResource* Resource = nullptr;
 	D3D12DeviceContext* DContext = nullptr;

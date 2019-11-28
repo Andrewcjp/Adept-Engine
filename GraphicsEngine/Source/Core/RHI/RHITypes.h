@@ -9,6 +9,7 @@ class Shader;
 class FrameBuffer;
 class DeviceContext;
 class IRHIResourse;
+class RHITexture;
 #define MRT_MAX 8
 #define NAME_RHI_PRIMS !BUILD_SHIPPING
 enum eTextureDimension
@@ -391,8 +392,10 @@ namespace COLOR_MASK
 	};
 };
 
+UCLASS()
 struct RHIRender_Target_Blend_Desc
 {
+	GENHASH();
 	bool BlendEnable = false;
 	bool LogicOpEnable = false;
 	RHIBlendMode::Type SrcBlend = RHIBlendMode::BLEND_ONE;
@@ -404,9 +407,10 @@ struct RHIRender_Target_Blend_Desc
 	//LOGIC_OP LogicOp;
 	uint8_t RenderTargetWriteMask = COLOR_MASK::COLOR_WRITE_ENABLE_ALL;
 };
-
+UCLASS()
 struct RHIBlendState
 {
+	GENHASH();
 	bool AlphaToCoverageEnable = false;
 	bool IndependentBlendEnable = false;
 	RHIRender_Target_Blend_Desc RenderTargetDescs[MRT_MAX] = {};
@@ -433,7 +437,7 @@ struct RHIDepthStencilDesc
 struct ViewInstancingMode
 {
 	bool Active = false;
-	int Instances = 6;
+	uint32 Instances = 6;
 };
 
 struct  RHIPipeLineStateDesc
@@ -537,6 +541,7 @@ struct RHIViewDesc
 		return D;
 	}
 	RHI_API bool operator==(const RHIViewDesc other)const;
+	uint32 OffsetInDescriptor = 0;
 };
 #define MAX_VARIABLE_RATE_FACTORS 6
 struct FrameBufferVariableRateSettings
@@ -605,6 +610,9 @@ public:
 	FrameBuffer* SharedDepthStencilSource = nullptr;
 	EFrameBufferSizeMode::Type SizeMode = EFrameBufferSizeMode::Fixed;
 	FrameBufferVariableRateSettings VarRateSettings;
+
+	RHITexture* DepthStencil = nullptr;
+	RHITexture* RenderTargets[MRT_MAX] = {};
 };
 
 class  IRHIResourse : public IRefCount
@@ -835,6 +843,7 @@ struct  EResourceState
 		CopySrc,
 		CopyDst,
 		Undefined,
+		Common,
 		Limit
 	};
 	static std::string ToString(EResourceState::Type state);

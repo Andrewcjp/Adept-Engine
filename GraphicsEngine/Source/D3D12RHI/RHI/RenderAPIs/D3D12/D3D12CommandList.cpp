@@ -828,7 +828,9 @@ DXDescriptor * D3D12RHITextureArray::GetDescriptor(const RHIViewDesc & desc, Des
 		{
 			D3D12FrameBuffer* dBuffer = D3D12RHI::DXConv(LinkedBuffers[i]);
 			ensure(dBuffer->CheckDevice(Device->GetDeviceIndex()));
-			dBuffer->CreateSRVInHeap(i, Descriptor);
+			RHIViewDesc d = RHIViewDesc::DefaultSRV();
+			d.OffsetInDescriptor = i;
+			dBuffer->PopulateDescriptor(Descriptor, i, d);
 		}
 		else
 		{

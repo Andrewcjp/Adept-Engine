@@ -5,7 +5,7 @@ struct EGPUMemorysegment
 	{
 		Local,
 		CPU_Local,//amd Only
-		Host,
+		Non_Local,
 		Limit
 	};
 	static std::string ToString(EGPUMemorysegment::Type T);

@@ -133,6 +133,7 @@ void UNUSED_PARAM(T const&)
 #define PROPERTY()
 #define UCLASS()
 #define CLASS_BODY() void ProcessSerialArchive(Archive* A);
+#define GENHASH() size_t  GetHash();
 
 #define RESTRICT __restrict
 #define PREPROCESSOR_JOIN(x, y) PREPROCESSOR_JOIN_INNER(x, y)

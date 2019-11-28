@@ -123,7 +123,7 @@ DXDescriptor* DescriptorCache::CopyToCurrentHeap(DXDescriptor * d, bool CouldbeR
 
 bool DescriptorCache::ShouldCache(const RSBind* bind)
 {
-	return false;
+	return true;
 }
 
 DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)

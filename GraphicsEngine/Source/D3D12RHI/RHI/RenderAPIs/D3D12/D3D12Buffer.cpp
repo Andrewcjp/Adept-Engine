@@ -228,7 +228,8 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 	D = AllocDesc();
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
 	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
-	Device->GetMemoryManager()->AllocUploadTemporary(D, &m_UploadBuffer);
+	D.Segment = EGPUMemorysegment::Non_Local;
+	Device->GetMemoryManager()->AllocResource(D, &m_UploadBuffer);
 	D3D12Helpers::NameRHIObject(m_UploadBuffer, this, "(UPLOAD)");
 }
 
@@ -239,7 +240,8 @@ void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 	TotalByteSize = ByteSize;
 	AllocDesc Allocdesc = AllocDesc(TotalByteSize, D3D12_RESOURCE_STATE_GENERIC_READ, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 	Allocdesc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
-	Device->GetMemoryManager()->AllocUploadTemporary(Allocdesc, &m_DataBuffer);
+	Allocdesc.Segment = EGPUMemorysegment::Non_Local;
+	Device->GetMemoryManager()->AllocResource(Allocdesc, &m_DataBuffer);
 	PostUploadState = D3D12_RESOURCE_STATE_GENERIC_READ;
 }
 

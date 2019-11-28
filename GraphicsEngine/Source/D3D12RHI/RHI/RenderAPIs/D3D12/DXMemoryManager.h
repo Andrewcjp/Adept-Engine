@@ -31,7 +31,7 @@ public:
 private:
 	D3D12DeviceContext* Device = nullptr;
 	//all pages on this device
-	std::vector<GPUMemoryPage*> Pages;
+	std::vector<GPUMemoryPage*> AllPages;
 	//pages used for frame buffers Constant buffers etc.
 	std::vector<GPUMemoryPage*> FrameResourcePages;
 	//texture pages only

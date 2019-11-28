@@ -7,6 +7,7 @@ class D3D12DeviceContext;
 class DXDescriptor;
 class D3D12CommandList;
 class GPUMemoryPage;
+class D3D12RHITexture;
 class D3D12FrameBuffer : public FrameBuffer
 {
 public:
@@ -15,7 +16,12 @@ public:
 
 	void Init();
 
+	void CreateHeaps();
+
+	void CreateFromTextures();
+
 	void							CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap = 0);
+	void CreateRTDescriptor(D3D12RHITexture * Texture, DescriptorHeap * Heapptr, int OffsetInHeap);
 	void							ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
 	void							BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex = 0, DeviceContext* target = nullptr, bool isCompute = false);
@@ -36,20 +42,21 @@ public:
 
 	virtual void BindDepthWithColourPassthrough(class RHICommandList* list, FrameBuffer* PassThrough) override;
 	DeviceContext* GetDevice() override;
-	GPUResource* GetResource(int index);
+	GPUResource* GetResource(int index) const;
 	void Release() override;
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
 
 	virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
 	virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
 
-	
+
 
 	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false) override;
 	DXDescriptor * GetDescriptor(const RHIViewDesc & desc, DescriptorHeap * heap = nullptr);
 
 	virtual uint64 GetInstanceHash() const override;
-
+	static	D3D12_RESOURCE_STATES ConvertState(EResourceState::Type State);
+	void PopulateDescriptor(DXDescriptor* desc, int index, const RHIViewDesc& view);
 private:
 	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth);
 	D3D12DeviceContext * CurrentDevice = nullptr;
@@ -69,17 +76,13 @@ private:
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	bool once = false;
 	int lastboundslot = 0;
-	class GPUResource* DepthStencil = nullptr;
-	class GPUResource* RenderTarget[8] = {};
+	D3D12RHITexture* DepthStencil = nullptr;
+	D3D12RHITexture* RenderTarget[8] = {};
 
 	//device Sharing
-
 	CD3DX12_RESOURCE_DESC renderTargetDesc;
-
 	RHIPipeRenderTargetDesc RenderTargetDesc;
 
-	//page just for this resource
-	GPUMemoryPage* ReservedPage = nullptr;
 };
 
 CreateChecker(D3D12FrameBuffer);
