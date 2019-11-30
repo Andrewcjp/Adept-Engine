@@ -11,6 +11,11 @@
 #include "GPUResource.h"
 #include "Core\Maths\Math.h"
 #include "D3D12Framebuffer.h"
+#include "Core\Performance\PerfManager.h"
+#include "RHI\RHICommandList.h"
+#include "RHI\RHIInterGPUStagingResource.h"
+#include "D3D12InterGPUStagingResource.h"
+#include "D3D12CommandList.h"
 
 
 D3D12RHITexture::D3D12RHITexture()
@@ -154,4 +159,76 @@ void D3D12RHITexture::WriteToDescriptor(DXDescriptor * Descriptor, const RHIView
 		}
 		Descriptor->CreateUnorderedAccessView(Resource->GetResource(), nullptr, &destTextureUAVDesc, desc.OffsetInDescriptor);
 	}
+}
+
+
+void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
+{
+	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
+	D3D12InterGPUStagingResource* DXres = D3D12RHI::DXConv(Res);
+	D3D12CommandList* list = D3D12RHI::DXConv(List);
+	D3D12DeviceContext* CurrentDevice = D3D12RHI::DXConv(Context);
+	PerfManager::StartTimer("CopyToDevice");
+	// Copy the intermediate render target into the shared buffer using the
+	// memory layout prescribed by the render target.
+	ID3D12Device* Host = CurrentDevice->GetDevice();
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
+	GPUResource* TargetResource = GetResource();
+
+	TargetResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_COPY_SOURCE);
+	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST);
+	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(Desc.Format);
+
+	CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, Desc.Width, Desc.Height, Desc.Depth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
+
+	CD3DX12_BOX box(0, 0, Desc.Width, Desc.Height);
+	const int count = Desc.Depth;
+	for (int i = 0; i < count; i++)
+	{
+		Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
+		CD3DX12_TEXTURE_COPY_LOCATION dest(DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->GetResource(), renderTargetLayout);
+		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);
+		list->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+	}
+	PerfManager::EndTimer("CopyToDevice");
+	//DidTransferLastFrame = true;
+	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
+}
+
+void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
+{
+	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
+	D3D12InterGPUStagingResource* DXres = D3D12RHI::DXConv(Res);
+	D3D12CommandList* list = D3D12RHI::DXConv(List);
+	PerfManager::StartTimer("MakeReadyOnTarget");
+	D3D12DeviceContext* CurrentDevice = D3D12RHI::DXConv(Context);
+	ID3D12Device* Host = CurrentDevice->GetDevice();
+	// Copy the buffer in the shared heap into a texture that the secondary
+	// adapter can sample from.	
+	// Copy the shared buffer contents into the texture using the memory
+	// layout prescribed by the texture.
+
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
+	GetResource()->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_COPY_DEST);
+	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
+	GPUResource* TargetResource = GetResource();
+	const int count = Desc.Depth;
+	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(Desc.Format);
+
+	CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, Desc.Width, Desc.Height, Desc.Depth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
+	for (int i = 0; i < count; i++)
+	{
+		int offset = i;
+		CD3DX12_TEXTURE_COPY_LOCATION dest(TargetResource->GetResource(), offset);
+		Host->GetCopyableFootprints(&renderTargetDesc, offset, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
+		CD3DX12_TEXTURE_COPY_LOCATION src(DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->GetResource(), textureLayout);
+		CD3DX12_BOX box(0, 0, Desc.Width, Desc.Height);
+		list->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+	}
+	//int Pixelsize = (BufferDesc.SFR_FullWidth - (int)BufferDesc.ScissorRect.x)*m_height;
+	//CrossGPUBytes = Pixelsize * (int)D3D12Helpers::GetBytesPerPixel(secondaryAdapterTexture.Format);
+
+	PerfManager::EndTimer("MakeReadyOnTarget");
+	//DidTransferLastFrame = true;
+	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
 }

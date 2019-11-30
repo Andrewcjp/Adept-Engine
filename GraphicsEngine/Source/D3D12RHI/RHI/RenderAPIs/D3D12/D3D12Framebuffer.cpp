@@ -67,12 +67,12 @@ void D3D12FrameBuffer::HandleResize()
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
 		EnqueueSafeRHIRelease(RenderTarget[i]);
-		RenderTarget[i] = nullptr;
+		BufferDesc.RenderTargets[i] = nullptr;	
 	}
-	if (DepthStencil)
+	if (DepthStencil != nullptr)
 	{
 		EnqueueSafeRHIRelease(DepthStencil);
-		DepthStencil = nullptr;
+		BufferDesc.DepthStencil= nullptr;
 	}
 	Init();
 }
@@ -132,7 +132,8 @@ void D3D12FrameBuffer::Release()
 	}
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		//RenderTarget[i]->Release();
+
+		RenderTarget[i]->Release();
 	}
 
 }
@@ -161,85 +162,6 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	//}
 }
 
-
-
-void D3D12FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
-{
-	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
-	D3D12InterGPUStagingResource* DXres = D3D12RHI::DXConv(Res);
-	D3D12CommandList* list = D3D12RHI::DXConv(List);
-	PerfManager::StartTimer("CopyToDevice");
-	// Copy the intermediate render target into the shared buffer using the
-	// memory layout prescribed by the render target.
-	ID3D12Device* Host = CurrentDevice->GetDevice();
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
-	GPUResource* TargetResource = RenderTarget[0]->GetResource();
-	if (BufferDesc.RenderTargetCount == 0)
-	{
-		TargetResource = DepthStencil->GetResource();
-	}
-	TargetResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_COPY_SOURCE);
-	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST);
-	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
-	if (BufferDesc.RenderTargetCount == 0)
-	{
-		readFormat = DXGI_FORMAT_R32_FLOAT;
-	}
-	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, BufferDesc.Width, m_height, BufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
-
-	CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, BufferDesc.SFR_FullWidth, m_height);
-	const int count = BufferDesc.TextureDepth;
-	for (int i = 0; i < count; i++)
-	{
-		Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
-		CD3DX12_TEXTURE_COPY_LOCATION dest(DXres->GetViewOnDevice(Device->GetDeviceIndex())->GetResource(), renderTargetLayout);
-		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);
-		list->GetCommandList()->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x, 0, 0, &src, &box);
-	}
-	PerfManager::EndTimer("CopyToDevice");
-	DidTransferLastFrame = true;
-	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
-}
-
-void D3D12FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
-{
-	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
-	D3D12InterGPUStagingResource* DXres = D3D12RHI::DXConv(Res);
-	D3D12CommandList* list = D3D12RHI::DXConv(List);
-	PerfManager::StartTimer("MakeReadyOnTarget");
-	ID3D12Device* Host = CurrentDevice->GetDevice();
-	// Copy the buffer in the shared heap into a texture that the secondary
-	// adapter can sample from.	
-	// Copy the shared buffer contents into the texture using the memory
-	// layout prescribed by the texture.
-
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
-	RenderTarget[0]->GetResource()->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_COPY_DEST);
-	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
-	GPUResource* TargetResource = RenderTarget[0]->GetResource();
-	const int count = BufferDesc.TextureDepth;
-	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(BufferDesc.RTFormats[0]);
-	if (BufferDesc.RenderTargetCount == 0)
-	{
-		readFormat = DXGI_FORMAT_R32_FLOAT;
-	}
-	renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, BufferDesc.Width, m_height, BufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
-	for (int i = 0; i < count; i++)
-	{
-		int offset = i;
-		CD3DX12_TEXTURE_COPY_LOCATION dest(TargetResource->GetResource(), offset);
-		Host->GetCopyableFootprints(&renderTargetDesc, offset, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
-		CD3DX12_TEXTURE_COPY_LOCATION src(DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->GetResource(), textureLayout);
-		CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, BufferDesc.SFR_FullWidth, m_height);
-		list->GetCommandList()->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x, 0, 0, &src, &box);
-	}
-	//int Pixelsize = (BufferDesc.SFR_FullWidth - (int)BufferDesc.ScissorRect.x)*m_height;
-	//CrossGPUBytes = Pixelsize * (int)D3D12Helpers::GetBytesPerPixel(secondaryAdapterTexture.Format);
-
-	PerfManager::EndTimer("MakeReadyOnTarget");
-	DidTransferLastFrame = true;
-	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
-}
 
 void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool Depth)
 {

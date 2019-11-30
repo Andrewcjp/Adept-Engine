@@ -2,6 +2,8 @@
 #include "D3D12DeviceContext.h"
 #include "GPUMemoryPage.h"
 #include "Core\Performance\PerfManager.h"
+#include "D3D12CommandList.h"
+
 CreateChecker(GPUResource);
 GPUResource::GPUResource()
 {}
@@ -59,6 +61,26 @@ EResourcePageState::Type GPUResource::GetState()
 	return currentState;
 }
 
+bool GPUResource::IsValidStateForList(D3D12CommandList* List)
+{
+	if (CurrentResourceState == D3D12_RESOURCE_STATE_COMMON)
+	{
+		return true;
+	}
+	if (List->IsGraphicsList())
+	{
+		return true;
+	}
+	if (List->IsComputeList() || List->IsRaytracingList())
+	{
+		return CurrentResourceState | ~D3D12_RESOURCE_STATE_DEPTH_WRITE || CurrentResourceState | ~D3D12_RESOURCE_STATE_RENDER_TARGET;
+	}
+	if (List->IsCopyList())
+	{
+
+	}
+	return false;
+}
 void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
@@ -71,10 +93,10 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOU
 		CurrentResourceState = newstate;
 		TargetState = newstate;
 		PerfManager::Get()->AddToCountTimer("ResourceTransitons", 1);
-	}
+}
 	else
 	{
-//		Log::LogMessage(GetDebugName() + std::string(" is already in state ") + D3D12Helpers::ResouceStateToString(newstate), Log::Warning);
+		//		Log::LogMessage(GetDebugName() + std::string(" is already in state ") + D3D12Helpers::ResouceStateToString(newstate), Log::Warning);
 	}
 }
 //todo More Detailed Error checking!
@@ -146,7 +168,7 @@ void GPUResource::Release()
 		//where GPU will move forward and delete before GPU 1 has finished with resource.
 		resource->Release();
 		resource = nullptr;
-	}
+}
 	if (Page != nullptr)
 	{
 		Page->Deallocate(this);

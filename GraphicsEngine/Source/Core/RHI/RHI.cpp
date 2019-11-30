@@ -325,26 +325,7 @@ void RHI::TickDeferredDeleteQueue(bool Flush /*= false*/)
 	}
 	SCOPE_CYCLE_COUNTER_GROUP("TickDeferredDeleteQueue", "RHI");
 	IsFlushingDeleteQueue = true;
-#if 0
-	int AllocPerFrame = 0;
-	const int MaxDeletePerFrame = 1;
-	for (int i = (int)DeferredDeleteQueue.size() - 1; i >= 0; i--)
-	{
-		if (AllocPerFrame > MaxDeletePerFrame && !Flush)
-		{
-			break;
-		}
-		const int CurrentFrame = RHI::GetFrameCount();
-		if (DeferredDeleteQueue[i].second + RHI::CPUFrameCount + 2 < CurrentFrame || Flush)
-		{
-			SafeRHIRelease(DeferredDeleteQueue[i].first);
-			DeferredDeleteQueue.erase(DeferredDeleteQueue.begin() + i);
-			AllocPerFrame++;
-		}
-	}
-#else
 	GlobalDeleteQueue->Tick([](IRHIResourse* R) { SafeRHIRelease(R); return true; }, Flush);
-#endif
 	IsFlushingDeleteQueue = false;
 }
 

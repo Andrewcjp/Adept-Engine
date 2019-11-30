@@ -113,9 +113,9 @@ void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 	MipLevelsReadyNow = desc.MipLevels;
 }
 
-ID3D12Resource * D3D12Texture::GetResource()
+GPUResource * D3D12Texture::GetResource()
 {
-	return m_texture;
+	return TextureResource;
 }
 
 bool D3D12Texture::CheckDevice(int index)

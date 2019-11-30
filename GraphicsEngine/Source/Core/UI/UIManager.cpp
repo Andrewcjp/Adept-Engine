@@ -55,13 +55,13 @@ void UIManager::InitCommonUI()
 #if WITH_EDITOR
 void UIManager::InitEditorUI()
 {
-#if 0
-	UIBox* t = new UIBox(0, 0, 0, 0);
-	t->SetScaled(1.0f, 1.0f);
-	AddWidget(t);
+	EditUI->ViewPortImage = new UIImage(0, 0, 0, 0);
+	ViewportArea = glm::ivec4(1920, 1080, 0, 0);
+	SetFullscreen(false);
+	AddWidget(EditUI->ViewPortImage);
+	EditUI->SetViewPortSize();
+	//return;
 
-	return;
-#endif
 	BottomHeight = 0.25f;
 	TOP = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
@@ -79,7 +79,7 @@ void UIManager::InitEditorUI()
 	AddWidget(inspector);
 
 	TOP->IgnoreboundsCheck = true;
-	ViewportRect = CollisionRect(GetScaledWidth(0.70f), GetScaledHeight(0.70f), 0, 0);
+
 	UIButton* button = new UIButton(200, 50, 0, 500);
 	button->SetScaled(0.05f, 0.075f, 0.5f - 0.05f, 0);
 	button->BindTarget(std::bind(&EditorWindow::EnterPlayMode, EditorWindow::GetInstance()));
@@ -106,13 +106,25 @@ void UIManager::InitEditorUI()
 	AssetMan = new UIAssetManager();
 	AssetMan->SetRootSpaceSize(1920, 200, 0, 0);
 	AddWidget(AssetMan);
-
-	EditUI->ViewPortImage = new UIImage(0, 0, 0, 0);
-	EditUI->ViewPortImage->SetRootSpaceSize(1920 - GetScaledWidth(0.2f) - 400, 1080 - AssetMan->GetTransfrom()->GetSizeRootSpace().y - TOP->GetTransfrom()->GetSizeRootSpace().y, GetScaledWidth(0.2f), AssetMan->GetTransfrom()->GetSizeRootSpace().y);
-	AddWidget(EditUI->ViewPortImage);
-	EditUI->SetViewPortSize();
+	ViewportArea = glm::ivec4(1920 - GetScaledWidth(0.2f) - 400, 1080 - AssetMan->GetTransfrom()->GetSizeRootSpace().y - TOP->GetTransfrom()->GetSizeRootSpace().y, GetScaledWidth(0.2f), AssetMan->GetTransfrom()->GetSizeRootSpace().y);
+	ViewportRect = CollisionRect(ViewportArea.x, ViewportArea.x, ViewportArea.z, ViewportArea.w);
 	UpdateBatches();
 }
+
+void UIManager::SetFullscreen(bool state)
+{
+	if (state)
+	{
+		EditUI->ViewPortImage->SetRootSpaceSize(1920, 1080, 0, 0);
+	}
+	else
+	{
+		EditUI->ViewPortImage->SetRootSpaceSize(ViewportArea.x, ViewportArea.y, ViewportArea.z, ViewportArea.w);
+	}
+	EditUI->SetViewPortSize();
+	FullScreen = state;
+}
+
 #endif
 void UIManager::CreateDropDown(std::vector<std::string> &options, float width, float height, float x, float y, std::function<void(int)> Callback)
 {
@@ -198,8 +210,8 @@ void UIManager::UpdateSize(int width, int height)
 	}
 	if (EditUI != nullptr)
 	{
-		EditUI->SetViewPortSize();
-		EditUI->ViewPortImage->SetRootSpaceSize(1920 - GetScaledWidth(0.2f) - inspector->GetTransfrom()->GetSizeRootSpace().x, 1080 - AssetMan->GetTransfrom()->GetSizeRootSpace().y - TOP->GetTransfrom()->GetSizeRootSpace().y, GetScaledWidth(0.2f), AssetMan->GetTransfrom()->GetSizeRootSpace().y);
+		SetFullscreen(IsFullScreen());
+
 	}
 #else
 	for (int i = 0; i < Contexts.size(); i++)
@@ -207,7 +219,7 @@ void UIManager::UpdateSize(int width, int height)
 		Contexts[i]->UpdateSize(width, height, 0, 0);
 	}
 #endif
-	}
+}
 
 void UIManager::AddWidget(UIWidget * widget)
 {

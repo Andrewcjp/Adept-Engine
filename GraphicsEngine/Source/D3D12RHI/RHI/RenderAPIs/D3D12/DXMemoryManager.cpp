@@ -4,6 +4,7 @@
 #include "GPUMemoryPage.h"
 #include "Core\Maths\Math.h"
 static ConsoleVariable LogAllocations("VMEM.LogPages", 1, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable MemReport("VMEM.Report", ECVarType::ConsoleAndLaunch, std::bind(DXMemoryManager::StaticReport));
 DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 {
 	Device = D;
@@ -17,7 +18,10 @@ DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 	AddTexturePage(Math::MBToBytes<int>(10));
 	AddTransientGPUOnlyPage(Math::MBToBytes<int>(10));
 }
-
+void DXMemoryManager::StaticReport()
+{
+	D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetMemoryManager()->LogMemoryReport();
+}
 void DXMemoryManager::Compact()
 {
 	for (int i = AllPages.size() - 1; i >= 0; i--)
@@ -145,7 +149,7 @@ EAllocateResult::Type DXMemoryManager::AllocResource(AllocDesc & desc, GPUResour
 	if (desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
 	{
 		desc.PageAllocationType = EPageTypes::RTAndDS_Only;
-	}	
+	}
 	if (desc.ResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
 	{
 		if (desc.Segment == EGPUMemorysegment::Local)
@@ -155,7 +159,7 @@ EAllocateResult::Type DXMemoryManager::AllocResource(AllocDesc & desc, GPUResour
 		else
 		{
 			desc.PageAllocationType = EPageTypes::BufferUploadOnly;
-		}		
+		}
 	}
 	EAllocateResult::Type Error = FindFreePage(desc, AllPages)->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);

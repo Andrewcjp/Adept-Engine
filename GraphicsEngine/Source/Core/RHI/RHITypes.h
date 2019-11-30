@@ -642,7 +642,7 @@ private:
 };
 //Releases the GPU side and deletes the CPU object
 #define SafeRHIRelease(Target) if(Target != nullptr){Target->Release(); delete Target; Target= nullptr;}
-#define EnqueueSafeRHIRelease(Target) if(Target != nullptr){RHI::AddToDeferredDeleteQueue(Target);}
+#define EnqueueSafeRHIRelease(Target) if(Target != nullptr){RHI::AddToDeferredDeleteQueue(Target); Target = nullptr;}
 #define EnqueueSafeArrayRelease(x,length) for(int i= 0; i < length;i++){EnqueueSafeRHIRelease(x[i]);}
 #if NAME_RHI_PRIMS
 #define NAME_RHI_OBJECT(x) x->SetDebugName(#x);

@@ -22,14 +22,16 @@ void InterGPUCopyNode::OnExecute()
 	InterGPUStorageNode* Node = (InterGPUStorageNode*)GetInput(1)->GetStoreTarget();
 	RHIInterGPUStagingResource* InterRes = Node->GetStore(0)->Resource;
 	CopyList->ResetList();
-	if (CopyTo)
+	//todo: target subresources in FBs
+
+	/*if (CopyTo)
 	{
 		FB->CopyToStagingResource(InterRes, CopyList);
 	}
 	else
 	{
 		FB->CopyFromStagingResource(InterRes, CopyList);
-	}
+	}*/
 	CopyList->Execute();
 }
 

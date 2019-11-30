@@ -712,6 +712,7 @@ void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot, const RHIVie
 	{
 		return;
 	}
+	ensure(Texture->GetResource()->IsValidStateForList(this));
 	RootSigniture.SetTexture(slot, texture, desc);
 }
 

@@ -281,7 +281,8 @@ void EditorWindow::Update()
 	}
 	if (Input::GetKeyDown(VK_F8))
 	{
-		ShowHud = !ShowHud;
+		UIManager::Get()->SetFullscreen(!UIManager::Get()->IsFullScreen());
+		StaticResize();
 	}
 	if (Input::GetKeyDown(VK_F4))
 	{

@@ -38,8 +38,8 @@ public:
 	//Helper that uses the SizeMode in the desc to resize FB
 	void AutoResize();
 
-	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List);
-	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list);
+	void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List);
+	void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list);
 
 	//state changers
 	//For render target -> read the ChangeDepth flag is ignored 

@@ -14,7 +14,7 @@ public:
 	void BindToSlot(D3D12CommandList * list, int slot);
 	virtual void CreateTextureFromDesc(const TextureDescription& desc) override;
 	virtual void CreateAsNull() override;
-	ID3D12Resource* GetResource();
+	GPUResource* GetResource();
 	int Width = 0;
 	int Height = 0;
 	UINT16 Miplevels = 6;

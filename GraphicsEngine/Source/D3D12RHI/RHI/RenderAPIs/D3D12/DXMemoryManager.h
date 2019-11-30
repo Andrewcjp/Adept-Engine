@@ -8,6 +8,7 @@ class DXMemoryManager
 {
 public:
 	DXMemoryManager(D3D12DeviceContext* D);
+	static void StaticReport();
 	void Compact();
 	GPUMemoryPage* AddFrameBufferPage(int size, bool reserve = false);
 	void AddTransientPage(int size);

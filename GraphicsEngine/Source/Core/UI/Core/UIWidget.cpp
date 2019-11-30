@@ -158,6 +158,10 @@ bool rectOverlap(rect A, rect B)
 
 bool UIWidget::IsWithinParentBounds()
 {
+	if (mwidth == 0 && mheight == 0)
+	{
+		return false;
+	}
 	if (Parent == nullptr)
 	{
 		return true;

@@ -29,6 +29,7 @@ public:
 	void InitCommonUI();
 #if WITH_EDITOR
 	void InitEditorUI();
+	void SetFullscreen(bool state);
 #endif
 	void CreateDropDown(std::vector<std::string>& options, float width, float height, float x, float y, std::function<void(int)> Callback);
 	void AlertBox(std::string MSg);
@@ -71,6 +72,7 @@ public:
 		return Contexts;
 	}
 	void SetEditorViewPortRenderTarget(FrameBuffer* target);
+	bool IsFullScreen() const { return FullScreen; }
 private:
 	EditorUI* EditUI = nullptr;
 	UIBox* TOP = nullptr;
@@ -90,10 +92,12 @@ private:
 	float YHeight = 25;
 	float XSpacing = 25;
 	CollisionRect ViewportRect;
+	glm::ivec4 ViewportArea;
 	UIPopoutbox* testbox = nullptr;
 	UIAssetManager* AssetMan;
 	bool Blocking = false;
 	Inspector* inspector = nullptr;
-	std::vector<GameObject*>* GameObjectsPtr;
+	std::vector<GameObject*>* GameObjectsPtr;	
+	bool FullScreen = false;
 };
 

@@ -45,12 +45,6 @@ public:
 	GPUResource* GetResource(int index) const;
 	void Release() override;
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
-
-	virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
-	virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
-
-
-
 	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false) override;
 	DXDescriptor * GetDescriptor(const RHIViewDesc & desc, DescriptorHeap * heap = nullptr);
 

@@ -83,7 +83,7 @@ int UITransform::GetHeightScaled(float v)
 	{
 		return Context->RootSpaceViewport.Max.y*v;
 	}
-	return UIManager::GetScaledWidth(v);
+	return UIManager::GetScaledHeight(v);
 }
 glm::vec2 UITransform::GetSizeRootSpace()
 {

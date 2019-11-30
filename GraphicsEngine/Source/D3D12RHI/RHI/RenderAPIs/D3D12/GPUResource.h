@@ -3,6 +3,7 @@
 #include "D3D12Types.h"
 
 class GPUMemoryPage;
+class D3D12CommandList;
 
 #define _KB(x) (x * 1024)
 #define _MB(x) (x * 1024 * 1024)
@@ -24,6 +25,7 @@ public:
 	void MakeResident();
 	bool IsResident();
 	EResourcePageState::Type GetState();
+	bool IsValidStateForList(D3D12CommandList * List);
 	void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate);
 	D3D12_RESOURCE_STATES GetCurrentState();
 	ID3D12Resource* GetResource();
